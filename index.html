@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alicia en el País de las Maravillas — Recurso Educativo 3º ESO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a1410;
+    --paper:#f4ead5;
+    --paper-dark:#e8dcb8;
+    --tea:#8b5a2b;
+    --rose:#a8323a;
+    --rose-deep:#7a1f25;
+    --emerald:#2d5547;
+    --gold:#b8893a;
+    --shadow:rgba(26,20,16,.18);
+    --shadow-strong:rgba(26,20,16,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{scroll-behavior:smooth}
+  body{
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-size:18px;
+    line-height:1.7;
+    color:var(--ink);
+    background:var(--paper);
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(184,137,58,.08), transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(168,50,58,.06), transparent 50%),
+      repeating-linear-gradient(0deg, transparent 0 2px, rgba(26,20,16,.012) 2px 3px);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  /* Paper grain overlay */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 13% 27%, rgba(139,90,43,.04) 0 2px, transparent 3px),
+      radial-gradient(circle at 67% 83%, rgba(139,90,43,.03) 0 2px, transparent 3px),
+      radial-gradient(circle at 42% 51%, rgba(139,90,43,.025) 0 2px, transparent 3px);
+    background-size:120px 120px, 90px 90px, 150px 150px;
+    pointer-events:none;
+    z-index:1;
+    mix-blend-mode:multiply;
+  }
+
+  /* HEADER */
+  header.hero{
+    position:relative;
+    padding:80px 24px 60px;
+    text-align:center;
+    border-bottom:2px solid var(--ink);
+    overflow:hidden;
+    background:linear-gradient(180deg, var(--paper-dark) 0%, var(--paper) 100%);
+  }
+  header.hero::before, header.hero::after{
+    content:"";
+    position:absolute;
+    width:180px;height:180px;
+    border:1px solid var(--ink);
+    border-radius:50%;
+    opacity:.12;
+  }
+  header.hero::before{top:-60px;left:-60px}
+  header.hero::after{bottom:-80px;right:-40px;width:240px;height:240px}
+
+  .ornament{
+    font-size:32px;
+    color:var(--tea);
+    letter-spacing:24px;
+    margin-bottom:8px;
+    padding-left:24px;
+  }
+  h1.title{
+    font-family:'UnifrakturMaguntia', serif;
+    font-size:clamp(42px, 7vw, 84px);
+    font-weight:400;
+    color:var(--rose-deep);
+    line-height:1;
+    margin:8px 0 16px;
+    text-shadow:2px 2px 0 var(--paper-dark), 4px 4px 8px var(--shadow);
+    letter-spacing:1px;
+  }
+  .subtitle{
+    font-style:italic;
+    font-size:22px;
+    color:var(--tea);
+    margin-bottom:8px;
+  }
+  .author{
+    font-family:'Special Elite', monospace;
+    font-size:14px;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    color:var(--ink);
+    opacity:.7;
+  }
+  .badge-eso{
+    display:inline-block;
+    margin-top:20px;
+    padding:6px 18px;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    font-family:'Special Elite', monospace;
+    font-size:13px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    transform:rotate(-2deg);
+    box-shadow:3px 3px 0 var(--ink);
+  }
+
+  /* NAV */
+  nav.menu{
+    position:sticky;top:0;
+    background:var(--ink);
+    z-index:50;
+    border-bottom:3px double var(--gold);
+    padding:14px 16px;
+  }
+  nav.menu ul{
+    list-style:none;
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+    max-width:1100px;
+    margin:0 auto;
+  }
+  nav.menu a{
+    color:var(--paper);
+    text-decoration:none;
+    font-family:'Special Elite', monospace;
+    font-size:13px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:6px 14px;
+    border:1px solid transparent;
+    transition:all .25s ease;
+  }
+  nav.menu a:hover{
+    border-color:var(--gold);
+    color:var(--gold);
+    background:rgba(184,137,58,.1);
+  }
+
+  /* MAIN LAYOUT */
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:60px 24px;
+    position:relative;
+    z-index:2;
+  }
+  section{
+    margin-bottom:80px;
+    scroll-margin-top:80px;
+  }
+  h2.section-title{
+    font-family:'UnifrakturMaguntia', serif;
+    font-size:clamp(32px, 5vw, 52px);
+    font-weight:400;
+    color:var(--rose-deep);
+    margin-bottom:8px;
+    line-height:1.1;
+  }
+  .section-rule{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:40px;
+  }
+  .section-rule::before, .section-rule::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--ink), transparent);
+  }
+  .section-rule span{
+    font-family:'Special Elite', monospace;
+    font-size:12px;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    color:var(--tea);
+  }
+
+  /* RESUMEN */
+  .resumen-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+  }
+  .chapter-card{
+    background:var(--paper);
+    border:1.5px solid var(--ink);
+    padding:28px 32px;
+    position:relative;
+    box-shadow:6px 6px 0 var(--shadow-strong);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .chapter-card:hover{
+    transform:translate(-2px,-2px);
+    box-shadow:8px 8px 0 var(--shadow-strong);
+  }
+  .chapter-card::before{
+    content:"";
+    position:absolute;
+    top:12px;left:12px;right:12px;bottom:12px;
+    border:1px dashed rgba(26,20,16,.2);
+    pointer-events:none;
+  }
+  .chap-number{
+    font-family:'UnifrakturMaguntia', serif;
+    font-size:48px;
+    color:var(--gold);
+    line-height:.8;
+    float:left;
+    margin:0 14px 0 0;
+  }
+  .chap-title{
+    font-family:'Cormorant Garamond', serif;
+    font-size:24px;
+    font-weight:600;
+    font-style:italic;
+    color:var(--rose-deep);
+    margin-bottom:12px;
+  }
+  .chapter-card p{
+    margin-bottom:10px;
+    text-align:justify;
+    hyphens:auto;
+  }
+  .keyword{
+    background:linear-gradient(180deg, transparent 60%, rgba(184,137,58,.35) 60%);
+    padding:0 2px;
+    font-weight:500;
+  }
+
+  /* RESUMEN AMPLIADO */
+  .exam-intro{
+    background:linear-gradient(135deg, var(--ink), #2c2118);
+    color:var(--paper);
+    padding:28px 32px;
+    border:2px solid var(--gold);
+    margin-bottom:36px;
+    box-shadow:6px 6px 0 var(--shadow-strong);
+    position:relative;
+  }
+  .exam-intro::before{
+    content:"";
+    position:absolute;
+    top:6px;left:6px;right:6px;bottom:6px;
+    border:1px dashed rgba(184,137,58,.35);
+    pointer-events:none;
+  }
+  .exam-intro-title{
+    font-family:'UnifrakturMaguntia', serif;
+    font-size:28px;
+    color:var(--gold);
+    margin-bottom:10px;
+  }
+  .exam-intro p{font-size:17px;line-height:1.6}
+  .exam-intro strong{color:var(--gold)}
+
+  .sub-heading{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:30px;
+    color:var(--rose-deep);
+    margin:48px 0 20px;
+    padding-bottom:8px;
+    border-bottom:2px solid var(--ink);
+    position:relative;
+  }
+  .sub-heading::after{
+    content:"";
+    position:absolute;
+    bottom:-5px;left:0;
+    width:60px;height:2px;
+    background:var(--gold);
+  }
+
+  .context-card{
+    background:var(--paper-dark);
+    border:1.5px solid var(--ink);
+    padding:24px 28px;
+    margin-bottom:20px;
+    position:relative;
+    box-shadow:4px 4px 0 var(--shadow);
+  }
+  .context-card p{margin-bottom:8px;font-size:17px}
+  .context-card p:last-child{margin-bottom:0}
+
+  .oneline{
+    padding:24px 32px;
+    background:var(--paper);
+    border-left:6px solid var(--rose);
+    border-right:6px solid var(--rose);
+    text-align:center;
+    font-size:20px;
+    color:var(--ink);
+    margin-bottom:20px;
+    box-shadow:4px 4px 0 var(--shadow);
+  }
+
+  .exam-tips{
+    background:linear-gradient(180deg, rgba(184,137,58,.12), var(--paper));
+    border:2px solid var(--gold);
+    padding:24px 28px 24px 24px;
+    box-shadow:5px 5px 0 var(--shadow-strong);
+  }
+  .exam-tips ol{
+    padding-left:28px;
+    margin:0;
+  }
+  .exam-tips li{
+    margin-bottom:10px;
+    font-size:17px;
+    line-height:1.55;
+  }
+  .exam-tips li::marker{
+    color:var(--rose-deep);
+    font-weight:700;
+  }
+  .exam-tips strong{color:var(--rose-deep)}
+
+  /* PERSONAJES */
+  .characters{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:24px;
+  }
+  .character-card{
+    background:var(--paper);
+    border:2px solid var(--ink);
+    padding:0;
+    overflow:hidden;
+    position:relative;
+    box-shadow:5px 5px 0 var(--shadow-strong);
+    transition:all .3s ease;
+    cursor:pointer;
+  }
+  .character-card:hover{
+    transform:translateY(-4px) rotate(-.5deg);
+    box-shadow:8px 8px 0 var(--shadow-strong);
+  }
+  .char-portrait{
+    height:200px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-bottom:2px solid var(--ink);
+    position:relative;
+    overflow:hidden;
+  }
+  .char-portrait svg{
+    width:100%;
+    height:100%;
+    display:block;
+    position:relative;
+    z-index:2;
+  }
+  .char-portrait::before{
+    content:"";
+    position:absolute;inset:0;
+    background-image:repeating-linear-gradient(45deg, transparent 0 8px, rgba(26,20,16,.04) 8px 9px);
+    z-index:1;
+  }
+  .char-body{padding:20px 24px}
+  .char-name{
+    font-family:'UnifrakturMaguntia', serif;
+    font-size:26px;
+    color:var(--rose-deep);
+    line-height:1;
+    margin-bottom:4px;
+  }
+  .char-role{
+    font-family:'Special Elite', monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--tea);
+    margin-bottom:12px;
+    border-bottom:1px dotted var(--ink);
+    padding-bottom:8px;
+  }
+  .char-desc{font-size:16px;line-height:1.6}
+  .char-quote{
+    margin-top:14px;
+    padding:10px 12px;
+    background:rgba(184,137,58,.12);
+    border-left:3px solid var(--gold);
+    font-style:italic;
+    font-size:15px;
+    color:var(--tea);
+  }
+  .char-toggle{
+    margin-top:14px;
+    font-family:'Special Elite', monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--rose);
+    cursor:pointer;
+    display:inline-block;
+    border-bottom:1px solid var(--rose);
+  }
+  .char-extra{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .4s ease, margin .4s ease;
+    font-size:15px;
+  }
+  .char-extra.open{
+    max-height:400px;
+    margin-top:12px;
+  }
+
+  /* Portrait color variants */
+  .p-alicia{background:linear-gradient(135deg, #b8d4e3, #6fa3c4)}
+  .p-conejo{background:linear-gradient(135deg, #f0e6d2, #d4b896)}
+  .p-sombrerero{background:linear-gradient(135deg, #c4a884, #8b6f47)}
+  .p-liebre{background:linear-gradient(135deg, #d9b88a, #a8794a)}
+  .p-lirón{background:linear-gradient(135deg, #b8a584, #756046)}
+  .p-gato{background:linear-gradient(135deg, #d4a8c9, #9c5a8e)}
+  .p-oruga{background:linear-gradient(135deg, #9cb88a, #5a7a48)}
+  .p-reina{background:linear-gradient(135deg, #c4424a, #7a1f25)}
+  .p-rey{background:linear-gradient(135deg, #d4b896, #a08254)}
+  .p-duquesa{background:linear-gradient(135deg, #b89c84, #6f5942)}
+  .p-grifo{background:linear-gradient(135deg, #d4a05a, #8b6420)}
+  .p-tortuga{background:linear-gradient(135deg, #8aa8b8, #4a6f7a)}
+  .p-dina{background:linear-gradient(135deg, #c4956a, #7a5a3a)}
+  .p-dodo{background:linear-gradient(135deg, #b8a89c, #6f5a4a)}
+
+  /* TEMAS */
+  .themes-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+    gap:20px;
+  }
+  .theme-box{
+    padding:24px;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    position:relative;
+  }
+  .theme-box::before{
+    content:"❦";
+    position:absolute;
+    top:-14px;left:20px;
+    background:var(--paper);
+    padding:0 8px;
+    color:var(--rose-deep);
+    font-size:20px;
+  }
+  .theme-title{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:22px;
+    color:var(--rose-deep);
+    margin-bottom:10px;
+  }
+
+  /* QUIZ */
+  .quiz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 24px;
+    background:var(--ink);
+    color:var(--paper);
+    border:2px solid var(--ink);
+    margin-bottom:30px;
+    box-shadow:5px 5px 0 var(--shadow-strong);
+  }
+  .quiz-stat{
+    font-family:'Special Elite', monospace;
+    font-size:13px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .quiz-stat strong{
+    color:var(--gold);
+    font-size:18px;
+    margin:0 4px;
+  }
+  .btn{
+    font-family:'Special Elite', monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:10px 18px;
+    background:var(--gold);
+    color:var(--ink);
+    border:none;
+    cursor:pointer;
+    transition:all .2s ease;
+    box-shadow:3px 3px 0 var(--paper);
+  }
+  .btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--paper)}
+  .btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--paper)}
+  .btn-rose{background:var(--rose);color:var(--paper);box-shadow:3px 3px 0 var(--paper-dark)}
+  .btn-rose:hover{box-shadow:4px 4px 0 var(--paper-dark)}
+
+  .progress-bar{
+    height:8px;
+    background:var(--paper-dark);
+    border:1px solid var(--ink);
+    margin-bottom:30px;
+    position:relative;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--gold), var(--rose));
+    width:0%;
+    transition:width .4s ease;
+  }
+
+  .question-card{
+    background:var(--paper);
+    border:1.5px solid var(--ink);
+    padding:24px 28px;
+    margin-bottom:18px;
+    position:relative;
+    box-shadow:4px 4px 0 var(--shadow);
+    transition:all .25s ease;
+  }
+  .question-card.answered{opacity:.92}
+  .question-card.correct{
+    border-color:var(--emerald);
+    background:linear-gradient(180deg, rgba(45,85,71,.06), var(--paper));
+  }
+  .question-card.incorrect{
+    border-color:var(--rose-deep);
+    background:linear-gradient(180deg, rgba(168,50,58,.06), var(--paper));
+  }
+  .q-number{
+    position:absolute;
+    top:-12px;left:20px;
+    background:var(--ink);
+    color:var(--gold);
+    padding:3px 12px;
+    font-family:'Special Elite', monospace;
+    font-size:12px;
+    letter-spacing:2px;
+  }
+  .q-text{
+    font-size:19px;
+    font-weight:500;
+    margin-bottom:16px;
+    line-height:1.5;
+  }
+  .q-options{
+    list-style:none;
+    display:grid;
+    gap:8px;
+  }
+  .q-option{
+    padding:10px 16px;
+    border:1px solid var(--ink);
+    background:var(--paper);
+    cursor:pointer;
+    transition:all .2s ease;
+    font-size:17px;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .q-option:hover:not(.locked){
+    background:var(--paper-dark);
+    transform:translateX(4px);
+  }
+  .q-option .letter{
+    font-family:'Special Elite', monospace;
+    font-size:13px;
+    background:var(--ink);
+    color:var(--paper);
+    width:24px;height:24px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .q-option.selected.correct-ans{
+    background:var(--emerald);
+    color:var(--paper);
+    border-color:var(--emerald);
+  }
+  .q-option.selected.correct-ans .letter{background:var(--paper);color:var(--emerald)}
+  .q-option.selected.wrong-ans{
+    background:var(--rose-deep);
+    color:var(--paper);
+    border-color:var(--rose-deep);
+  }
+  .q-option.selected.wrong-ans .letter{background:var(--paper);color:var(--rose-deep)}
+  .q-option.reveal-correct{
+    border:2px solid var(--emerald);
+    background:rgba(45,85,71,.12);
+  }
+  .q-option.locked{cursor:default}
+  .feedback{
+    margin-top:14px;
+    padding:10px 14px;
+    font-size:15px;
+    font-style:italic;
+    display:none;
+    border-left:3px solid var(--tea);
+    background:rgba(184,137,58,.08);
+  }
+  .feedback.show{display:block;animation:fadein .4s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+
+  .result-banner{
+    display:none;
+    padding:40px;
+    text-align:center;
+    border:3px double var(--gold);
+    background:var(--ink);
+    color:var(--paper);
+    margin-bottom:30px;
+    position:relative;
+  }
+  .result-banner.show{display:block;animation:fadein .6s ease}
+  .result-banner h3{
+    font-family:'UnifrakturMaguntia', serif;
+    font-size:38px;
+    color:var(--gold);
+    margin-bottom:12px;
+  }
+  .result-score{
+    font-family:'Special Elite', monospace;
+    font-size:42px;
+    color:var(--paper);
+    margin:16px 0;
+  }
+  .result-score strong{color:var(--rose)}
+  .result-msg{
+    font-style:italic;
+    font-size:20px;
+    max-width:600px;
+    margin:0 auto;
+  }
+
+  /* FOOTER */
+  footer{
+    text-align:center;
+    padding:50px 24px;
+    border-top:2px solid var(--ink);
+    background:var(--paper-dark);
+    font-family:'Special Elite', monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  footer .orn{
+    font-size:24px;
+    color:var(--rose-deep);
+    margin-bottom:14px;
+    letter-spacing:12px;
+  }
+
+  /* QUIZ FILTER */
+  .quiz-filter{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+    justify-content:center;
+  }
+  .filter-btn{
+    padding:6px 14px;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    font-family:'Special Elite', monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:all .2s ease;
+  }
+  .filter-btn:hover{background:var(--paper-dark)}
+  .filter-btn.active{background:var(--ink);color:var(--gold)}
+
+  /* RESPONSIVE */
+  @media (max-width:600px){
+    body{font-size:16px}
+    .ornament{letter-spacing:14px;font-size:24px}
+    main{padding:40px 16px}
+    .chapter-card,.character-card,.theme-box,.question-card,.quiz-controls{padding:20px}
+    .char-portrait{height:170px}
+    .quiz-controls{flex-direction:column;align-items:stretch}
+    .quiz-controls .btn{width:100%}
+  }
+
+  /* Floating decorative elements */
+  .float-deco{
+    position:fixed;
+    pointer-events:none;
+    z-index:0;
+    opacity:.15;
+    font-size:60px;
+    color:var(--tea);
+  }
+  .float-deco.d1{top:200px;left:20px;transform:rotate(-15deg)}
+  .float-deco.d2{top:600px;right:30px;transform:rotate(20deg)}
+  .float-deco.d3{top:1200px;left:40px;transform:rotate(8deg)}
+  @media (max-width:900px){.float-deco{display:none}}
+</style>
+</head>
+<body>
+
+<div class="float-deco d1">♣</div>
+<div class="float-deco d2">♥</div>
+<div class="float-deco d3">♦</div>
+
+<header class="hero">
+  <div class="ornament">❦ ❦ ❦</div>
+  <h1 class="title">Alicia<br>en el País<br>de las Maravillas</h1>
+  <div class="subtitle">Un viaje al otro lado del espejo</div>
+  <div class="author">Lewis Carroll &middot; 1865</div>
+  <div class="badge-eso">3º ESO &middot; Lengua y Literatura</div>
+</header>
+
+<nav class="menu">
+  <ul>
+    <li><a href="#resumen" data-scroll="resumen">Resumen</a></li>
+    <li><a href="#personajes" data-scroll="personajes">Personajes</a></li>
+    <li><a href="#temas" data-scroll="temas">Temas</a></li>
+    <li><a href="#cuestionario" data-scroll="cuestionario">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ============ RESUMEN ============ -->
+<section id="resumen">
+  <h2 class="section-title">Resumen completo</h2>
+  <div class="section-rule"><span>Todo lo que necesitas para el examen</span></div>
+
+  <div class="exam-intro">
+    <div class="exam-intro-title">📖 Para aprobar el examen sin haber leído el libro</div>
+    <p>Este resumen está pensado para que, leyéndolo con calma, sepas <strong>contar la historia, identificar personajes, citar escenas clave y comentar los temas</strong>. Incluye los detalles que más se preguntan: nombres, frases célebres, lugares, transformaciones y juegos de palabras.</p>
+    <p style="margin-top:10px"><em>Tiempo de lectura aproximado: 15–20 minutos.</em></p>
+  </div>
+
+  <h3 class="sub-heading">⚐ Contexto general</h3>
+  <div class="context-card">
+    <p><strong>Título original:</strong> <em>Alice's Adventures in Wonderland</em>.</p>
+    <p><strong>Autor:</strong> <span class="keyword">Lewis Carroll</span>, seudónimo de Charles Lutwidge Dodgson (1832–1898), matemático, lógico, fotógrafo y diácono inglés, profesor en Christ Church (Oxford).</p>
+    <p><strong>Año:</strong> publicada en <span class="keyword">1865</span> en plena <span class="keyword">época victoriana</span>.</p>
+    <p><strong>Ilustrador original:</strong> John Tenniel.</p>
+    <p><strong>Origen:</strong> el 4 de julio de 1862, Carroll, durante un paseo en barca por el río Támesis, improvisó la historia para entretener a tres niñas, las hermanas <span class="keyword">Liddell</span>. La favorita del autor, <strong>Alice Liddell</strong>, dio nombre a la protagonista y le pidió que la pusiera por escrito.</p>
+    <p><strong>Continuación:</strong> <em>A través del espejo y lo que Alicia encontró allí</em> (1871).</p>
+    <p><strong>Género:</strong> literatura infantil, fantástica y, sobre todo, <span class="keyword">literatura del nonsense</span> (sinsentido lógico).</p>
+    <p><strong>Estructura:</strong> 12 capítulos, narrador omnisciente en tercera persona, estructura <strong>circular</strong> (empieza y termina en la orilla del río) y de tipo <strong>onírico</strong> (todo es un sueño).</p>
+  </div>
+
+  <h3 class="sub-heading">⚐ La historia en una frase</h3>
+  <div class="oneline">
+    <em>Una niña llamada Alicia sigue a un Conejo Blanco con reloj de bolsillo, cae por una madriguera y vive un sueño absurdo en un mundo donde cambia de tamaño, conoce a personajes locos y se enfrenta a una Reina tirana… hasta que despierta junto al río.</em>
+  </div>
+
+  <h3 class="sub-heading">⚐ Resumen capítulo a capítulo</h3>
+
+  <p style="margin-bottom:24px;font-style:italic;color:var(--tea);text-align:center">
+    Cada capítulo incluye un <strong>resumen extendido</strong>, los <strong>datos clave</strong> que suelen entrar en los exámenes y las <strong>frases famosas</strong>.
+  </p>
+
+  <div class="resumen-grid">
+
+    <div class="chapter-card">
+      <span class="chap-number">I</span>
+      <div class="chap-title">En la madriguera del conejo</div>
+      <p>Una tarde calurosa de verano, <span class="keyword">Alicia</span>, una niña de unos siete años, está sentada en la orilla de un río junto a su hermana mayor, que lee un libro «sin dibujos ni diálogos». Aburrida y adormilada, Alicia ve pasar corriendo a un <span class="keyword">Conejo Blanco</span> con ojos rosados, chaleco y un <strong>reloj de bolsillo</strong>, que se queja en voz alta de llegar tarde. Movida por la curiosidad, Alicia lo persigue por el campo y se mete tras él en una madriguera.</p>
+      <p>La madriguera se transforma en un pozo vertical larguísimo. Alicia cae <strong>muy lentamente</strong>, lo que le da tiempo a mirar las paredes (llenas de armarios, mapas y estanterías) e incluso a coger un tarro de mermelada de naranja, que vuelve a dejar. Aterriza sin hacerse daño sobre un montón de ramitas y hojas secas.</p>
+      <p>Llega a una <strong>sala alargada con muchas puertas cerradas</strong>. Sobre una mesa de cristal encuentra una <strong>llavecita dorada</strong> que solo abre una puertecita minúscula tras una cortina; al otro lado se ve un jardín maravilloso, pero Alicia no cabe. Sobre la mesa aparece entonces una botella con la etiqueta <em>«Bébeme»</em>: bebe y <strong>empequeñece</strong> hasta 25 cm. Pero ha dejado la llave arriba. Encuentra un pastelito con la etiqueta <em>«Cómeme»</em>: lo come y <strong>crece hasta tres metros</strong>.</p>
+      <p><strong>Datos clave:</strong> reloj de bolsillo del Conejo · llave dorada · botella «Bébeme» · pastelito «Cómeme» · primera escena del «cambio de tamaño».</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">II</span>
+      <div class="chap-title">El charco de lágrimas</div>
+      <p>Convertida en gigante, Alicia se desespera al no caber por la puertecita y empieza a <strong>llorar tanto</strong> que forma un enorme charco de lágrimas a su alrededor. Pronuncia entonces una de las frases más célebres del libro: <em>«¡Cada vez más extraño y más extraño!»</em> (en inglés, <em>«Curiouser and curiouser!»</em>, una incorrección gramatical deliberada).</p>
+      <p>Vuelve a aparecer el Conejo Blanco, asustado, que pierde sus <strong>guantes blancos y un abanico</strong>. Alicia los recoge; al abanicarse, vuelve a <strong>encoger</strong> y casi se ahoga en el charco de sus propias lágrimas, que ahora es un mar.</p>
+      <p>En el agua se encuentra con un <strong>Ratón</strong> al que intenta hablar, pero comete dos torpezas: primero le habla en francés (lo único que recuerda de sus clases: <em>«Où est ma chatte?»</em>, ¿dónde está mi gata?), y luego le cuenta entusiasmada lo buena cazadora que es su gata <strong>Dina</strong>. El Ratón se ofende profundamente. Aparecen otros animales empapados que también han caído al charco: un <strong>Pato</strong>, un <strong>Dodo</strong>, un <strong>Loro</strong> (Lory) y un <strong>Aguilucho</strong> (Eaglet).</p>
+      <p><strong>Datos clave:</strong> «¡Cada vez más extraño!» · guantes y abanico del Conejo · Dina (la gata de Alicia) · animales en el charco.</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">III</span>
+      <div class="chap-title">Una carrera política y una larga historia</div>
+      <p>Para secarse, el solemne <span class="keyword">Dodo</span> propone una <strong>«carrera política»</strong> (caucus-race): los animales corren en círculo, sin reglas, sin línea de salida ni de llegada, y se paran cuando quieren. Al cabo de media hora, todos están secos. Cuando preguntan quién ha ganado, el Dodo responde tras mucho meditar: <em>«Todos hemos ganado y todos debemos tener un premio.»</em> Alicia, como única que lleva caramelos en el bolsillo, debe repartirlos a todos; a ella le toca su propio dedal.</p>
+      <p>Después, el Ratón cuenta su «larga y triste historia». Aquí Carroll hace un famoso <strong>juego de palabras intraducible</strong>: en inglés <em>tale</em> (historia) y <em>tail</em> (cola) suenan igual, así que el texto se imprime en forma de cola de ratón en la página. Alicia menciona otra vez a Dina y a un terrier que mata ratas, y todos los animales huyen espantados, dejándola sola.</p>
+      <p><strong>Datos clave:</strong> carrera política (caucus-race) · «todos hemos ganado» · juego tale/tail · sátira de la política inglesa.</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">IV</span>
+      <div class="chap-title">El Conejo manda a un pequeño Bill</div>
+      <p>El Conejo Blanco vuelve a aparecer buscando sus guantes y su abanico, y <strong>confunde a Alicia con su criada Mary Ann</strong>. Le ordena que vaya corriendo a su casa a buscarlos. Alicia obedece y entra en una pequeña y limpia casita.</p>
+      <p>Dentro, encuentra otra botella sin etiqueta. Por curiosidad bebe un sorbo y <strong>vuelve a crecer hasta llenar toda la casa</strong>: un brazo le sale por la ventana y un pie por la chimenea. El Conejo, furioso, intenta entrar pero no puede. Manda primero a su criado <strong>Pat</strong> y luego a un pequeño lagarto llamado <span class="keyword">Bill</span>, al que hace bajar por la chimenea para sacarla. Alicia le da una <strong>patada</strong> y Bill sale disparado por los aires.</p>
+      <p>Los animales arrojan piedrecitas por la ventana que, al caer al suelo, <strong>se convierten en pastelitos</strong>. Alicia come uno y <strong>encoge</strong> de nuevo. Huye al bosque, donde se encuentra con un <strong>cachorro gigante</strong> con el que juega un rato esquivándolo. Luego se sienta sobre una seta para pensar.</p>
+      <p><strong>Datos clave:</strong> «Mary Ann» · lagarto Bill (patada por la chimenea) · pastelitos del suelo · cachorro gigante.</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">V</span>
+      <div class="chap-title">Consejos de una oruga</div>
+      <p>Sobre la seta, Alicia encuentra a una <span class="keyword">Oruga azul</span> de unos 8 cm que fuma tranquilamente un <strong>narguile</strong> (pipa de agua oriental). La Oruga le hace la famosa pregunta filosófica: <em>«¿Quién eres tú?»</em> Alicia, que ya ha cambiado de tamaño varias veces, no sabe qué responder. La Oruga la trata con superioridad y le pide que recite un poema; Alicia recita <em>«You are old, Father William»</em>, parodia de un poema moralista de Robert Southey, pero le sale todo cambiado.</p>
+      <p>Antes de marcharse, transformada en mariposa, la Oruga le da un consejo crucial: <strong>«Un lado te hará crecer y el otro lado te hará encoger.»</strong> Alicia parte dos trozos de la seta, uno con cada mano. Tras varios experimentos (en uno se le alarga muchísimo el cuello y una paloma la confunde con una serpiente que viene a robarle los huevos), Alicia consigue por fin <strong>regular su tamaño a voluntad</strong>.</p>
+      <p><strong>Datos clave:</strong> Oruga azul · narguile · «¿Quién eres tú?» · seta de dos lados · Alicia aprende a controlar su tamaño.</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">VI</span>
+      <div class="chap-title">Cerdo y pimienta</div>
+      <p>Alicia llega a una casita curiosa. Un <strong>Pez-Lacayo</strong> (con cara de pez y librea) le entrega una invitación a una <strong>Rana-Lacayo</strong>: la <span class="keyword">Reina</span> invita a la <span class="keyword">Duquesa</span> a jugar al croquet. Alicia entra y encuentra una cocina caótica: la Duquesa amamanta a un bebé que llora a gritos, una <strong>cocinera</strong> echa toneladas de <strong>pimienta</strong> a la sopa y arroja cacerolas, y un <strong>Gato</strong> sonríe sentado en el suelo.</p>
+      <p>La Duquesa canta una nana violenta al bebé (<em>«Habla brusco a tu hijo pequeño / y pégale cuando estornude»</em>), se la entrega a Alicia y sale a jugar al croquet. Cuando Alicia sale con él al bosque, el bebé <strong>gruñe</strong> y se transforma poco a poco en un <strong>cerdito</strong>, que sale corriendo.</p>
+      <p>Aparece por primera vez el <span class="keyword">Gato de Cheshire</span>, con su enorme sonrisa, sentado en una rama. Mantiene con Alicia un diálogo célebre:<br>
+        — <em>«¿Podrías decirme, por favor, qué camino debo tomar para salir de aquí?»</em><br>
+        — <em>«Eso depende mucho de adónde quieras ir»</em>, dijo el Gato.<br>
+        — <em>«No me importa mucho adónde…»</em><br>
+        — <em>«Entonces no importa qué camino tomes.»</em><br>
+        Y le advierte: <strong>«Por allí vive un Sombrerero, y por allá vive una Liebre de Marzo. Visita al que quieras: los dos están locos. Aquí todos estamos locos. Yo estoy loco. Tú estás loca.»</strong></p>
+      <p><strong>Datos clave:</strong> Pez-Lacayo y Rana-Lacayo · Duquesa con bebé · pimienta · bebé → cerdo · primera aparición del Gato de Cheshire · «Aquí todos estamos locos».</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">VII</span>
+      <div class="chap-title">Una merienda de locos</div>
+      <p>Alicia llega a la casa de la Liebre de Marzo. Bajo un árbol hay una <strong>mesa grande con muchos asientos</strong>, pero solo están sentados el <span class="keyword">Sombrerero</span>, la <span class="keyword">Liebre de Marzo</span> y un <span class="keyword">Lirón</span> dormido entre los dos, al que usan de almohada. Le gritan a Alicia que no hay sitio (aunque hay sitio de sobra) y la reciben con descortesía.</p>
+      <p>El Sombrerero le hace la famosa adivinanza: <strong>«¿En qué se parece un cuervo a un escritorio?»</strong> Alicia intenta resolverla, pero el propio Sombrerero confiesa que no tiene ni idea de la respuesta. Después le explica por qué viven en una merienda eterna: el Sombrerero ofendió al <strong>Tiempo</strong> cantando mal una canción ante la Reina (la Reina gritó: <em>«¡Está asesinando el tiempo! ¡Que le corten la cabeza!»</em>), y desde entonces el Tiempo dejó de avanzar para él, quedándose <strong>siempre a las seis de la tarde</strong>, hora del té.</p>
+      <p>Por eso van rotando de asiento sin parar para usar tazas limpias. El Lirón, medio dormido, cuenta la historia de <strong>tres hermanitas</strong> (Elsie, Lacie y Tillie) que vivían <strong>en el fondo de un pozo de melaza</strong>. Cansada del sinsentido y de la grosería, Alicia se marcha indignada: <em>«¡Es la merienda más estúpida en la que he estado en mi vida!»</em></p>
+      <p><strong>Datos clave:</strong> mesa de té eterna · «¿cuervo y escritorio?» · Tiempo enfadado · siempre las seis · tres hermanitas del pozo de melaza.</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">VIII</span>
+      <div class="chap-title">El campo de croquet de la Reina</div>
+      <p>Alicia descubre por fin la entrada al jardín maravilloso. Allí ve a tres <strong>jardineros con forma de naipe</strong> (el Dos, el Cinco y el Siete de Picas) <strong>pintando frenéticamente unas rosas blancas de rojo</strong>: por error plantaron rosales blancos en lugar de rojos, y temen que la Reina los decapite.</p>
+      <p>Llega entonces el cortejo real: soldados (tréboles), cortesanos (diamantes), niños reales (corazones), invitados (la Duquesa, etc.), seguidos de la Sota de Corazones con la corona, y por fin el <span class="keyword">Rey</span> y la <span class="keyword">Reina de Corazones</span>. La Reina, enfadada porque Alicia no se postra, grita: <strong>«¡Que le corten la cabeza!»</strong>. El Rey, más bondadoso, lo arregla en susurros: nadie la decapita.</p>
+      <p>Empieza el <strong>partido de croquet</strong> más absurdo del mundo: los <strong>mazos son flamencos vivos</strong> que retuercen el cuello, las <strong>bolas son erizos</strong> enrollados que se desenrollan y se van caminando, y los <strong>arcos son soldados-naipe doblados</strong> que se levantan y cambian de sitio. La Reina condena a muerte a casi todo el mundo cada vez que algo le sale mal.</p>
+      <p>Reaparece el <strong>Gato de Cheshire</strong>, pero solo su cabeza, flotando en el aire. La Reina ordena al verdugo que lo decapite; los tres (verdugo, Rey y Reina) discuten si se puede cortar una cabeza que <strong>no tiene cuerpo</strong>. Cuando van a buscar a la Duquesa (dueña del gato), el Gato desaparece y queda solo su <strong>sonrisa</strong> en el aire.</p>
+      <p><strong>Datos clave:</strong> jardineros 2, 5 y 7 de picas pintando rosas · Reina con su «¡que le corten la cabeza!» · flamencos-mazo, erizos-bola, soldados-arco · «sonrisa sin gato».</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">IX</span>
+      <div class="chap-title">Historia de la Falsa Tortuga</div>
+      <p>La Duquesa reaparece, esta vez muy cariñosa, agarrada al brazo de Alicia. Para todo encuentra una <strong>moraleja absurda</strong>: <em>«Todo tiene su moraleja, solo hay que saber encontrarla»</em>. La Reina la espanta amenazándola con cortarle la cabeza.</p>
+      <p>La Reina lleva entonces a Alicia ante un <span class="keyword">Grifo</span> (mitad águila, mitad león) que duerme al sol. Le ordena llevarla a conocer a la <span class="keyword">Falsa Tortuga</span> (Mock Turtle), nombre tomado de la <em>«mock turtle soup»</em>, una sopa victoriana que imitaba la de tortuga usando carne de ternera.</p>
+      <p>La Falsa Tortuga, melancólica y llorosa, le cuenta a Alicia su <strong>infancia escolar marina</strong>, llena de <strong>juegos de palabras</strong>:
+        <em>Reeling y Writhing</em> (en vez de Reading y Writing, leer y escribir),
+        las cuatro reglas de la aritmética: <em>Ambición, Distracción, Fealdad y Burla</em> (Ambition, Distraction, Uglification, Derision),
+        <em>Mistery</em> (Misterio) por Historia,
+        <em>Seaography</em> (Mariografía) por Geografía,
+        <em>Laughing y Grief</em> (Reír y Lamentar) por Latín y Griego.
+        Su profesor era una vieja tortuga a la que llamaban Tortoise (galápago) <em>«porque nos enseñaba»</em> (because he taught us — taught = tortuga, juego de palabras).</p>
+      <p><strong>Datos clave:</strong> «todo tiene su moraleja» (Duquesa) · Grifo · Falsa Tortuga · educación marina paródica · juegos de palabras.</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">X</span>
+      <div class="chap-title">La cuadrilla de la langosta</div>
+      <p>La Falsa Tortuga y el Grifo enseñan a Alicia un baile marino llamado <strong>«Cuadrilla de la Langosta»</strong> (Lobster Quadrille): se baila en parejas en la orilla del mar, se lanzan langostas tan lejos como se puede y se vuelven a recoger nadando. La Tortuga canta una <strong>canción</strong>: <em>«¿Quieres caminar un poco más rápido?, dijo el pez merluza al caracol»</em>, parodia de un poema victoriano.</p>
+      <p>Alicia, a petición del Grifo, intenta recitar el poema <em>«'Tis the voice of the lobster»</em> (Es la voz de la langosta), parodia de un poema moralista de Isaac Watts; le sale todo cambiado y los animales no entienden nada. Luego la Tortuga canta otra canción famosa: <strong>«Beautiful Soup»</strong> (Hermosa sopa, hermosa sopa de la tarde), un homenaje y a la vez parodia de la sopa de tortuga.</p>
+      <p>A lo lejos se oye un grito: <strong>«¡Empieza el juicio!»</strong> El Grifo agarra a Alicia y se la lleva corriendo.</p>
+      <p><strong>Datos clave:</strong> Cuadrilla de la Langosta · «Beautiful Soup» · empieza el juicio.</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">XI</span>
+      <div class="chap-title">¿Quién robó las tartas?</div>
+      <p>En la sala del tribunal, el <span class="keyword">Rey de Corazones</span> hace de <strong>juez</strong> (con peluca encima de la corona) y la Reina de Corazones está sentada a su lado. El acusado es la <span class="keyword">Sota de Corazones</span>, custodiada por soldados. La acusación se lee como un <strong>poema</strong>: la Reina hizo unas tartas y la Sota se las robó. El jurado está formado por <strong>doce animales</strong> (lagartos, conejillos, etc.) que escriben sus nombres en pizarras para no olvidarlos. El <strong>Conejo Blanco</strong> hace de <strong>pregonero</strong> con una trompeta.</p>
+      <p>Empieza el desfile de testigos absurdos:
+        <strong>el Sombrerero</strong> aparece temblando con su taza de té y una rebanada de pan con mantequilla, y el Rey le interroga de manera ridícula;
+        <strong>la cocinera de la Duquesa</strong> declara con una caja de pimienta y se niega a contestar;
+        <strong>el Lirón</strong> está medio dormido todo el tiempo.</p>
+      <p>De pronto llaman a un nuevo testigo: <strong>¡«Alicia»!</strong> Alicia se levanta sobresaltada y, sin darse cuenta, <strong>empieza a crecer otra vez</strong>, tirando con el borde de la falda al estrado del jurado.</p>
+      <p><strong>Datos clave:</strong> juicio · tartas robadas · Sota de Corazones acusada · Rey-juez · Conejo-pregonero · 12 animales del jurado · Sombrerero, cocinera y Lirón como testigos.</p>
+    </div>
+
+    <div class="chapter-card">
+      <span class="chap-number">XII</span>
+      <div class="chap-title">La declaración de Alicia</div>
+      <p>Alicia, ya enorme, declara como testigo. El Rey lee la regla número 42 («todas las personas de más de una milla de altura deben abandonar la sala»), pero Alicia se niega. El Conejo presenta como prueba una carta anónima en verso, sin firma y sin destinatario, que el Rey intenta interpretar de manera absurda como prueba de culpabilidad.</p>
+      <p>La Reina grita: <strong>«¡La sentencia primero, el veredicto después!»</strong> Alicia, harta, responde: <em>«¡Qué tontería!»</em> La Reina, fuera de sí, ruge: <em>«¡Que le corten la cabeza!»</em> Y entonces Alicia, plenamente crecida y dueña de sí misma, exclama la famosa frase final:</p>
+      <p style="text-align:center;font-size:22px;font-style:italic;color:var(--rose-deep);margin:14px 0">«¡No sois más que una baraja de cartas!»</p>
+      <p>Toda la baraja se levanta por los aires y cae sobre ella. Alicia da un grito… y <strong>despierta</strong> en la orilla del río, con la cabeza apoyada en el regazo de su hermana, que le quita unas hojas secas que le han caído en la cara. Le cuenta el sueño a su hermana, sale corriendo a merendar y, mientras tanto, la hermana se queda pensando en lo que ha oído y <strong>también sueña</strong> con el País de las Maravillas, imaginando además que la pequeña Alicia será un día una mujer adulta que contará el mismo cuento a otros niños.</p>
+      <p><strong>Datos clave:</strong> regla 42 · «¡Sentencia primero, veredicto después!» · «¡No sois más que una baraja de cartas!» · despertar junto al río · ensoñación de la hermana (cierre circular).</p>
+    </div>
+
+  </div>
+
+  <h3 class="sub-heading">⚐ Diez cosas que sí o sí caen en el examen</h3>
+  <div class="exam-tips">
+    <ol>
+      <li><strong>Autor y año:</strong> Lewis Carroll, 1865. Su nombre real es Charles L. Dodgson, matemático de Oxford.</li>
+      <li><strong>Inspiración real:</strong> Alice Liddell, niña amiga del autor (no es invento total).</li>
+      <li><strong>«Bébeme» y «Cómeme»:</strong> son los primeros objetos que hacen cambiar de tamaño a Alicia.</li>
+      <li><strong>Frases célebres:</strong> «¡Que le corten la cabeza!» (Reina), «Aquí todos estamos locos» (Gato), «¿Quién eres tú?» (Oruga), «¡No sois más que una baraja de cartas!» (Alicia, final).</li>
+      <li><strong>La merienda eterna</strong> está siempre a las seis de la tarde porque el Tiempo se enfadó con el Sombrerero.</li>
+      <li><strong>Croquet absurdo:</strong> flamencos-mazo, erizos-bola, soldados-arco.</li>
+      <li><strong>Transformación clave:</strong> el bebé de la Duquesa se convierte en cerdo.</li>
+      <li><strong>El Gato de Cheshire</strong> aparece y desaparece; deja flotando solo su sonrisa.</li>
+      <li><strong>Final:</strong> todo era un sueño; Alicia despierta junto a su hermana.</li>
+      <li><strong>Géneros y temas:</strong> nonsense británico, identidad, paso a la madurez, crítica a la autoridad y a la educación victoriana.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ PERSONAJES ============ -->
+<section id="personajes">
+  <h2 class="section-title">Personajes</h2>
+  <div class="section-rule"><span>El reparto del sueño</span></div>
+
+  <p style="margin-bottom:30px;font-size:18px;font-style:italic;color:var(--tea);text-align:center;">
+    Pulsa sobre <em>"Saber más"</em> en cada personaje para descubrir más detalles.
+  </p>
+
+  <div class="characters" id="charactersContainer"></div>
+</section>
+
+<!-- ============ TEMAS ============ -->
+<section id="temas">
+  <h2 class="section-title">Temas y Símbolos</h2>
+  <div class="section-rule"><span>Más allá del cuento</span></div>
+
+  <div class="themes-grid">
+    <div class="theme-box">
+      <div class="theme-title">La identidad</div>
+      <p>Alicia se pregunta constantemente <em>"¿Quién soy?"</em>. Cambia de tamaño, no se reconoce, olvida las lecciones del colegio. El libro plantea cómo construimos nuestra identidad cuando el mundo a nuestro alrededor cambia.</p>
+    </div>
+    <div class="theme-box">
+      <div class="theme-title">El paso a la edad adulta</div>
+      <p>Crecer y encoger funciona como metáfora del tránsito de la niñez a la adolescencia. Alicia debe aprender a manejar un mundo que no entiende, lleno de normas absurdas dictadas por adultos.</p>
+    </div>
+    <div class="theme-box">
+      <div class="theme-title">La lógica y el sinsentido</div>
+      <p>Carroll era matemático: el libro juega con la lógica, los silogismos absurdos y los <em>nonsense</em>. Los personajes razonan correctamente desde premisas absurdas, lo que produce humor y crítica.</p>
+    </div>
+    <div class="theme-box">
+      <div class="theme-title">El sueño</div>
+      <p>Todo el viaje es un sueño. La estructura onírica permite cambios repentinos, animales que hablan, transformaciones imposibles… y termina con un despertar al mundo real.</p>
+    </div>
+    <div class="theme-box">
+      <div class="theme-title">El poder y la autoridad</div>
+      <p>La Reina de Corazones representa el poder arbitrario y tiránico. Sus juicios son injustos, sus condenas inmediatas. Carroll satiriza la justicia y la autoridad victorianas.</p>
+    </div>
+    <div class="theme-box">
+      <div class="theme-title">El lenguaje</div>
+      <p>El libro está lleno de <em>juegos de palabras</em>, parodias de poemas escolares, equívocos y dobles sentidos. El lenguaje no es un instrumento neutro: puede atrapar, confundir o liberar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CUESTIONARIO ============ -->
+<section id="cuestionario">
+  <h2 class="section-title">Cuestionario · 100 preguntas</h2>
+  <div class="section-rule"><span>Pon a prueba lo aprendido</span></div>
+
+  <div class="quiz-controls">
+    <div>
+      <div class="quiz-stat">Respondidas: <strong id="answeredCount">0</strong> / 100</div>
+      <div class="quiz-stat">Aciertos: <strong id="correctCount">0</strong></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="checkBtn">Ver resultado</button>
+      <button class="btn btn-rose" id="resetBtn">Reiniciar</button>
+    </div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="quiz-filter">
+    <button class="filter-btn active" data-filter="all">Todas</button>
+    <button class="filter-btn" data-filter="trama">Trama</button>
+    <button class="filter-btn" data-filter="personajes">Personajes</button>
+    <button class="filter-btn" data-filter="detalles">Detalles</button>
+    <button class="filter-btn" data-filter="autor">Autor / contexto</button>
+    <button class="filter-btn" data-filter="literatura">Literatura</button>
+    <button class="filter-btn" data-filter="unanswered">Sin responder</button>
+  </div>
+
+  <div class="result-banner" id="resultBanner">
+    <h3 id="resultTitle">Resultado</h3>
+    <div class="result-score"><strong id="finalScore">0</strong> / 100</div>
+    <div class="result-msg" id="resultMsg"></div>
+  </div>
+
+  <div id="quizContainer"></div>
+
+</section>
+
+</main>
+
+<footer>
+  <div class="orn">❦ ❦ ❦</div>
+  <div>Recurso educativo &middot; 3º ESO</div>
+  <div style="margin-top:8px;opacity:.6">Basado en <em>Alice's Adventures in Wonderland</em> de Lewis Carroll, 1865</div>
+</footer>
+
+<script>
+/* ============== NAVEGACIÓN INTERNA SEGURA ============== */
+/* Intercepta los clicks del menú para hacer scroll suave dentro del propio  */
+/* documento, sin modificar la URL del navegador. Esto evita que el HTML,    */
+/* si se está visualizando dentro de un iframe o lector embebido (como un    */
+/* chat), salga de su contexto al cambiar el hash de la URL.                 */
+document.addEventListener('click', function(e){
+  const link = e.target.closest('a[data-scroll]');
+  if(!link) return;
+  e.preventDefault();
+  const id = link.getAttribute('data-scroll');
+  const target = document.getElementById(id);
+  if(target){
+    target.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+});
+
+/* ============== PERSONAJES ============== */
+/* Ilustraciones SVG originales, dibujadas en código, estilo victoriano ingenuo */
+
+const SVG = {
+  alicia: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgA" cx="50%" cy="40%"><stop offset="0%" stop-color="#d4e9f5"/><stop offset="100%" stop-color="#6fa3c4"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgA)"/>
+    <!-- pelo largo rubio -->
+    <path d="M55,95 Q48,55 80,45 Q100,38 120,45 Q152,55 145,95 Q150,150 130,185 L70,185 Q50,150 55,95 Z" fill="#e8c87a" stroke="#1a1410" stroke-width="2"/>
+    <!-- vestido azul -->
+    <path d="M65,145 Q55,185 50,200 L150,200 Q145,185 135,145 Z" fill="#5a8fb5" stroke="#1a1410" stroke-width="2"/>
+    <!-- delantal blanco -->
+    <path d="M82,150 L78,200 L122,200 L118,150 Z" fill="#f4ead5" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- cuello blanco -->
+    <path d="M85,125 L82,145 L118,145 L115,125 Z" fill="#f4ead5" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- cara -->
+    <ellipse cx="100" cy="100" rx="30" ry="34" fill="#f5d4b8" stroke="#1a1410" stroke-width="2"/>
+    <!-- flequillo (sobre la cara) -->
+    <path d="M72,82 Q80,75 88,82 Q95,76 100,82 Q105,76 112,82 Q120,75 128,82 Q122,90 110,88 Q105,92 100,89 Q95,92 90,88 Q78,90 72,82 Z" fill="#e8c87a" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- lazo azul oscuro en la cabeza -->
+    <ellipse cx="100" cy="55" rx="14" ry="5" fill="#2d4258" stroke="#1a1410" stroke-width="1.5"/>
+    <path d="M86,55 L78,48 L82,58 Z" fill="#2d4258" stroke="#1a1410" stroke-width="1.5"/>
+    <path d="M114,55 L122,48 L118,58 Z" fill="#2d4258" stroke="#1a1410" stroke-width="1.5"/>
+    <ellipse cx="100" cy="55" rx="3" ry="3" fill="#1a1410"/>
+    <!-- ojos -->
+    <ellipse cx="89" cy="100" rx="3" ry="4" fill="#1a1410"/>
+    <ellipse cx="111" cy="100" rx="3" ry="4" fill="#1a1410"/>
+    <circle cx="90" cy="99" r="1" fill="#fff"/>
+    <circle cx="112" cy="99" r="1" fill="#fff"/>
+    <!-- cejas -->
+    <path d="M83,92 Q89,89 95,92" stroke="#8b5a2b" stroke-width="1.5" fill="none"/>
+    <path d="M105,92 Q111,89 117,92" stroke="#8b5a2b" stroke-width="1.5" fill="none"/>
+    <!-- nariz -->
+    <path d="M100,108 Q97,115 102,117" stroke="#1a1410" stroke-width="1.2" fill="none"/>
+    <!-- boca pequeña sonriente -->
+    <path d="M93,122 Q100,127 107,122" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+    <!-- mejillas -->
+    <circle cx="80" cy="113" r="4" fill="#e8a8a8" opacity=".6"/>
+    <circle cx="120" cy="113" r="4" fill="#e8a8a8" opacity=".6"/>
+  </svg>`,
+
+  conejo: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgC" cx="50%" cy="40%"><stop offset="0%" stop-color="#f5ecd5"/><stop offset="100%" stop-color="#c4a884"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgC)"/>
+    <!-- orejas largas -->
+    <ellipse cx="78" cy="45" rx="10" ry="32" fill="#fff" stroke="#1a1410" stroke-width="2" transform="rotate(-12 78 45)"/>
+    <ellipse cx="122" cy="45" rx="10" ry="32" fill="#fff" stroke="#1a1410" stroke-width="2" transform="rotate(12 122 45)"/>
+    <ellipse cx="78" cy="50" rx="5" ry="22" fill="#f5b8c8" transform="rotate(-12 78 50)"/>
+    <ellipse cx="122" cy="50" rx="5" ry="22" fill="#f5b8c8" transform="rotate(12 122 50)"/>
+    <!-- cuerpo (chaleco) -->
+    <path d="M70,160 Q65,195 80,200 L120,200 Q135,195 130,160 Z" fill="#a8323a" stroke="#1a1410" stroke-width="2"/>
+    <!-- camisa interior -->
+    <path d="M88,160 L88,200 L112,200 L112,160 Z" fill="#f4ead5" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- botones -->
+    <circle cx="100" cy="170" r="2" fill="#b8893a"/>
+    <circle cx="100" cy="180" r="2" fill="#b8893a"/>
+    <circle cx="100" cy="190" r="2" fill="#b8893a"/>
+    <!-- reloj de bolsillo (cadena) -->
+    <path d="M75,170 Q70,180 78,188" stroke="#b8893a" stroke-width="2" fill="none"/>
+    <circle cx="80" cy="190" r="6" fill="#b8893a" stroke="#1a1410" stroke-width="1"/>
+    <line x1="80" y1="190" x2="80" y2="186" stroke="#1a1410" stroke-width="1"/>
+    <line x1="80" y1="190" x2="83" y2="190" stroke="#1a1410" stroke-width="1"/>
+    <!-- cabeza -->
+    <ellipse cx="100" cy="110" rx="38" ry="42" fill="#fff" stroke="#1a1410" stroke-width="2"/>
+    <!-- ojos rojos -->
+    <circle cx="88" cy="105" r="5" fill="#a8323a" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="112" cy="105" r="5" fill="#a8323a" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="89" cy="104" r="1.5" fill="#fff"/>
+    <circle cx="113" cy="104" r="1.5" fill="#fff"/>
+    <!-- nariz rosa -->
+    <ellipse cx="100" cy="120" rx="4" ry="3" fill="#f5a8b8" stroke="#1a1410" stroke-width="1"/>
+    <!-- boca y dientes -->
+    <path d="M100,123 L100,130" stroke="#1a1410" stroke-width="1.2"/>
+    <path d="M95,130 L100,134 L105,130" stroke="#1a1410" stroke-width="1.2" fill="none"/>
+    <rect x="97" y="132" width="3" height="6" fill="#fff" stroke="#1a1410" stroke-width="0.8"/>
+    <rect x="100" y="132" width="3" height="6" fill="#fff" stroke="#1a1410" stroke-width="0.8"/>
+    <!-- bigotes -->
+    <line x1="75" y1="122" x2="60" y2="118" stroke="#1a1410" stroke-width="1"/>
+    <line x1="75" y1="125" x2="60" y2="125" stroke="#1a1410" stroke-width="1"/>
+    <line x1="125" y1="122" x2="140" y2="118" stroke="#1a1410" stroke-width="1"/>
+    <line x1="125" y1="125" x2="140" y2="125" stroke="#1a1410" stroke-width="1"/>
+  </svg>`,
+
+  sombrerero: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgS" cx="50%" cy="40%"><stop offset="0%" stop-color="#d4b896"/><stop offset="100%" stop-color="#8b6f47"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgS)"/>
+    <!-- sombrero copa -->
+    <rect x="60" y="20" width="80" height="60" fill="#2d5547" stroke="#1a1410" stroke-width="2"/>
+    <ellipse cx="100" cy="80" rx="55" ry="8" fill="#2d5547" stroke="#1a1410" stroke-width="2"/>
+    <!-- cinta del sombrero -->
+    <rect x="60" y="65" width="80" height="14" fill="#f4ead5" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- etiqueta 10/6 -->
+    <rect x="105" y="40" width="22" height="14" fill="#f4ead5" stroke="#1a1410" stroke-width="1.5"/>
+    <text x="116" y="51" text-anchor="middle" font-family="serif" font-size="9" font-weight="bold" fill="#1a1410">10/6</text>
+    <!-- pelo rojo loco -->
+    <path d="M62,80 Q50,90 55,100 Q45,95 50,110 L70,105 Z" fill="#c4523a" stroke="#1a1410" stroke-width="1.5"/>
+    <path d="M138,80 Q150,90 145,100 Q155,95 150,110 L130,105 Z" fill="#c4523a" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- cara -->
+    <ellipse cx="100" cy="115" rx="30" ry="35" fill="#f5d4b8" stroke="#1a1410" stroke-width="2"/>
+    <!-- ojos saltones -->
+    <circle cx="88" cy="112" r="7" fill="#fff" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="112" cy="112" r="7" fill="#fff" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="90" cy="114" r="3" fill="#1a1410"/>
+    <circle cx="114" cy="114" r="3" fill="#1a1410"/>
+    <circle cx="91" cy="113" r="1" fill="#fff"/>
+    <circle cx="115" cy="113" r="1" fill="#fff"/>
+    <!-- cejas levantadas -->
+    <path d="M80,100 Q88,96 95,102" stroke="#1a1410" stroke-width="2" fill="none"/>
+    <path d="M105,102 Q112,96 120,100" stroke="#1a1410" stroke-width="2" fill="none"/>
+    <!-- nariz -->
+    <path d="M100,122 L96,130 L104,130 Z" fill="#e8a888" stroke="#1a1410" stroke-width="1"/>
+    <!-- sonrisa loca -->
+    <path d="M85,138 Q100,150 115,138" stroke="#1a1410" stroke-width="2" fill="none"/>
+    <path d="M85,138 Q100,144 115,138" fill="#a8323a"/>
+    <!-- pajarita -->
+    <path d="M85,160 L100,170 L115,160 L115,180 L100,170 L85,180 Z" fill="#a8323a" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- camisa -->
+    <path d="M70,170 L70,200 L130,200 L130,170 L115,180 L100,170 L85,180 Z" fill="#f4ead5" stroke="#1a1410" stroke-width="2"/>
+  </svg>`,
+
+  liebre: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgL" cx="50%" cy="40%"><stop offset="0%" stop-color="#e8c896"/><stop offset="100%" stop-color="#a8794a"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgL)"/>
+    <!-- pajita/paja en las orejas -->
+    <line x1="60" y1="35" x2="55" y2="20" stroke="#d4a050" stroke-width="2"/>
+    <line x1="64" y1="32" x2="68" y2="18" stroke="#d4a050" stroke-width="2"/>
+    <!-- orejas dobladas (locura) -->
+    <path d="M70,55 Q60,20 75,15 Q88,25 80,55" fill="#b89478" stroke="#1a1410" stroke-width="2"/>
+    <path d="M130,55 Q140,20 125,15 Q112,25 120,55" fill="#b89478" stroke="#1a1410" stroke-width="2"/>
+    <path d="M72,50 Q70,30 78,25 Q82,35 78,50" fill="#f5b8c8"/>
+    <path d="M128,50 Q130,30 122,25 Q118,35 122,50" fill="#f5b8c8"/>
+    <!-- cuerpo con chaleco -->
+    <path d="M70,160 Q60,195 75,200 L125,200 Q140,195 130,160 Z" fill="#c4895a" stroke="#1a1410" stroke-width="2"/>
+    <ellipse cx="100" cy="175" rx="10" ry="6" fill="#f4ead5" stroke="#1a1410" stroke-width="1"/>
+    <!-- cabeza -->
+    <ellipse cx="100" cy="110" rx="36" ry="40" fill="#b89478" stroke="#1a1410" stroke-width="2"/>
+    <!-- frente blanca -->
+    <ellipse cx="100" cy="95" rx="20" ry="14" fill="#e8d4b8"/>
+    <!-- ojos saltones de loca, círculos concéntricos -->
+    <circle cx="86" cy="108" r="9" fill="#fff" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="114" cy="108" r="9" fill="#fff" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="86" cy="108" r="6" fill="none" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="114" cy="108" r="6" fill="none" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="86" cy="108" r="3" fill="#1a1410"/>
+    <circle cx="114" cy="108" r="3" fill="#1a1410"/>
+    <circle cx="84" cy="106" r="1" fill="#fff"/>
+    <circle cx="116" cy="106" r="1" fill="#fff"/>
+    <!-- pupilas descentradas (mirando en direcciones distintas — loca) -->
+    <circle cx="89" cy="110" r="1" fill="#fff"/>
+    <!-- nariz rosa -->
+    <ellipse cx="100" cy="125" rx="5" ry="4" fill="#f5a8b8" stroke="#1a1410" stroke-width="1"/>
+    <!-- boca abierta -->
+    <path d="M100,128 L100,135" stroke="#1a1410" stroke-width="1"/>
+    <ellipse cx="100" cy="140" rx="8" ry="4" fill="#1a1410"/>
+    <!-- dientes -->
+    <rect x="95" y="138" width="3" height="5" fill="#fff" stroke="#1a1410" stroke-width="0.5"/>
+    <rect x="102" y="138" width="3" height="5" fill="#fff" stroke="#1a1410" stroke-width="0.5"/>
+    <!-- bigotes -->
+    <line x1="80" y1="128" x2="65" y2="125" stroke="#1a1410" stroke-width="1"/>
+    <line x1="80" y1="132" x2="65" y2="135" stroke="#1a1410" stroke-width="1"/>
+    <line x1="120" y1="128" x2="135" y2="125" stroke="#1a1410" stroke-width="1"/>
+    <line x1="120" y1="132" x2="135" y2="135" stroke="#1a1410" stroke-width="1"/>
+  </svg>`,
+
+  liron: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgLi" cx="50%" cy="40%"><stop offset="0%" stop-color="#c4a584"/><stop offset="100%" stop-color="#75604a"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgLi)"/>
+    <!-- taza de té gigante (cama) -->
+    <path d="M30,140 Q35,180 80,185 L120,185 Q165,180 170,140 Z" fill="#f4ead5" stroke="#1a1410" stroke-width="2"/>
+    <ellipse cx="100" cy="140" rx="70" ry="10" fill="#f4ead5" stroke="#1a1410" stroke-width="2"/>
+    <!-- asa -->
+    <path d="M165,150 Q185,160 165,180" fill="none" stroke="#1a1410" stroke-width="2"/>
+    <!-- platillo -->
+    <ellipse cx="100" cy="190" rx="80" ry="5" fill="#e8dcb8" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- ratón dormido -->
+    <ellipse cx="100" cy="120" rx="45" ry="22" fill="#a87854" stroke="#1a1410" stroke-width="2"/>
+    <!-- oreja redonda -->
+    <circle cx="78" cy="105" r="11" fill="#a87854" stroke="#1a1410" stroke-width="2"/>
+    <circle cx="78" cy="105" r="6" fill="#f5b8c8"/>
+    <!-- cola -->
+    <path d="M140,125 Q165,115 160,100" stroke="#a87854" stroke-width="4" fill="none"/>
+    <path d="M140,125 Q165,115 160,100" stroke="#1a1410" stroke-width="1" fill="none"/>
+    <!-- ojo cerrado (dormido) -->
+    <path d="M85,118 Q92,122 99,118" stroke="#1a1410" stroke-width="2" fill="none"/>
+    <!-- pestañas -->
+    <line x1="87" y1="118" x2="86" y2="115" stroke="#1a1410" stroke-width="1"/>
+    <line x1="91" y1="120" x2="91" y2="116" stroke="#1a1410" stroke-width="1"/>
+    <line x1="95" y1="120" x2="96" y2="116" stroke="#1a1410" stroke-width="1"/>
+    <!-- nariz -->
+    <ellipse cx="62" cy="123" rx="3" ry="2.5" fill="#1a1410"/>
+    <!-- bigotes -->
+    <line x1="60" y1="125" x2="48" y2="123" stroke="#1a1410" stroke-width="0.8"/>
+    <line x1="60" y1="127" x2="48" y2="130" stroke="#1a1410" stroke-width="0.8"/>
+    <!-- Zzz -->
+    <text x="135" y="80" font-family="serif" font-size="18" font-style="italic" fill="#1a1410">z</text>
+    <text x="145" y="68" font-family="serif" font-size="22" font-style="italic" fill="#1a1410">z</text>
+    <text x="155" y="55" font-family="serif" font-size="28" font-style="italic" fill="#1a1410">Z</text>
+  </svg>`,
+
+  gato: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bgG" cx="50%" cy="40%"><stop offset="0%" stop-color="#3a2a48"/><stop offset="100%" stop-color="#1a0f24"/></radialGradient>
+      <pattern id="stripes" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
+        <rect width="14" height="14" fill="#c95a9e"/>
+        <path d="M0,7 Q7,3 14,7" stroke="#7a2f5a" stroke-width="3" fill="none"/>
+      </pattern>
+    </defs>
+    <rect width="200" height="200" fill="url(#bgG)"/>
+    <!-- estrellas -->
+    <circle cx="30" cy="40" r="1.5" fill="#f4ead5"/>
+    <circle cx="170" cy="60" r="1.5" fill="#f4ead5"/>
+    <circle cx="25" cy="120" r="1" fill="#f4ead5"/>
+    <circle cx="180" cy="140" r="1.5" fill="#f4ead5"/>
+    <circle cx="160" cy="30" r="1" fill="#f4ead5"/>
+    <!-- rama -->
+    <path d="M0,160 Q60,155 100,158 Q140,160 200,158" stroke="#3a2418" stroke-width="4" fill="none"/>
+    <!-- cuerpo a rayas -->
+    <ellipse cx="100" cy="150" rx="55" ry="20" fill="url(#stripes)" stroke="#1a1410" stroke-width="2"/>
+    <!-- cola enroscada -->
+    <path d="M150,145 Q175,130 170,110 Q165,100 175,105" stroke="#c95a9e" stroke-width="10" fill="none"/>
+    <path d="M150,145 Q175,130 170,110 Q165,100 175,105" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+    <!-- cabeza grande -->
+    <ellipse cx="100" cy="100" rx="48" ry="42" fill="url(#stripes)" stroke="#1a1410" stroke-width="2"/>
+    <!-- orejas triangulares -->
+    <path d="M62,80 L55,55 L80,72 Z" fill="#c95a9e" stroke="#1a1410" stroke-width="2"/>
+    <path d="M138,80 L145,55 L120,72 Z" fill="#c95a9e" stroke="#1a1410" stroke-width="2"/>
+    <path d="M65,75 L62,65 L75,72 Z" fill="#f5b8c8"/>
+    <path d="M135,75 L138,65 L125,72 Z" fill="#f5b8c8"/>
+    <!-- ojos amarillos rasgados -->
+    <ellipse cx="85" cy="95" rx="9" ry="11" fill="#f0d050" stroke="#1a1410" stroke-width="1.5"/>
+    <ellipse cx="115" cy="95" rx="9" ry="11" fill="#f0d050" stroke="#1a1410" stroke-width="1.5"/>
+    <ellipse cx="85" cy="95" rx="2" ry="9" fill="#1a1410"/>
+    <ellipse cx="115" cy="95" rx="2" ry="9" fill="#1a1410"/>
+    <!-- nariz triangular -->
+    <path d="M97,112 L103,112 L100,118 Z" fill="#f5b8c8" stroke="#1a1410" stroke-width="1"/>
+    <!-- sonrisa enorme -->
+    <path d="M65,125 Q100,150 135,125" stroke="#1a1410" stroke-width="2.5" fill="#f4ead5"/>
+    <path d="M65,125 Q100,150 135,125" fill="#f4ead5"/>
+    <!-- dientes -->
+    <path d="M72,128 L75,135 L79,128 L83,135 L87,128 L91,135 L95,128 L100,138 L105,128 L109,135 L113,128 L117,135 L121,128 L125,135 L128,128" stroke="#1a1410" stroke-width="1.2" fill="none"/>
+    <line x1="100" y1="125" x2="100" y2="148" stroke="#1a1410" stroke-width="1"/>
+    <!-- bigotes -->
+    <line x1="70" y1="115" x2="50" y2="110" stroke="#1a1410" stroke-width="1"/>
+    <line x1="70" y1="118" x2="50" y2="120" stroke="#1a1410" stroke-width="1"/>
+    <line x1="130" y1="115" x2="150" y2="110" stroke="#1a1410" stroke-width="1"/>
+    <line x1="130" y1="118" x2="150" y2="120" stroke="#1a1410" stroke-width="1"/>
+  </svg>`,
+
+  oruga: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgO" cx="50%" cy="40%"><stop offset="0%" stop-color="#a8c89a"/><stop offset="100%" stop-color="#5a7a48"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgO)"/>
+    <!-- seta (sombrero) -->
+    <ellipse cx="100" cy="155" rx="80" ry="22" fill="#c4424a" stroke="#1a1410" stroke-width="2"/>
+    <!-- puntos blancos -->
+    <ellipse cx="60" cy="148" rx="6" ry="3" fill="#f4ead5"/>
+    <ellipse cx="135" cy="158" rx="7" ry="4" fill="#f4ead5"/>
+    <ellipse cx="100" cy="152" rx="5" ry="3" fill="#f4ead5"/>
+    <ellipse cx="155" cy="150" rx="5" ry="3" fill="#f4ead5"/>
+    <!-- tallo -->
+    <rect x="85" y="170" width="30" height="25" fill="#f4ead5" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- humo del narguile -->
+    <path d="M150,80 Q160,70 155,60 Q160,55 165,50" stroke="#f4ead5" stroke-width="2" fill="none" opacity=".7"/>
+    <circle cx="155" cy="48" r="6" fill="#f4ead5" opacity=".5"/>
+    <circle cx="165" cy="38" r="8" fill="#f4ead5" opacity=".4"/>
+    <circle cx="155" cy="25" r="10" fill="#f4ead5" opacity=".3"/>
+    <!-- segmentos del cuerpo de la oruga -->
+    <ellipse cx="60" cy="130" rx="14" ry="13" fill="#4a7aa8" stroke="#1a1410" stroke-width="2"/>
+    <ellipse cx="80" cy="125" rx="14" ry="13" fill="#5a8ab8" stroke="#1a1410" stroke-width="2"/>
+    <ellipse cx="100" cy="120" rx="14" ry="13" fill="#6a9ac8" stroke="#1a1410" stroke-width="2"/>
+    <ellipse cx="120" cy="115" rx="15" ry="14" fill="#7aaad8" stroke="#1a1410" stroke-width="2"/>
+    <!-- cabeza -->
+    <circle cx="142" cy="105" r="22" fill="#8abae8" stroke="#1a1410" stroke-width="2"/>
+    <!-- ojos -->
+    <circle cx="135" cy="100" r="4" fill="#fff" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="149" cy="100" r="4" fill="#fff" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="135" cy="100" r="1.5" fill="#1a1410"/>
+    <circle cx="149" cy="100" r="1.5" fill="#1a1410"/>
+    <!-- antenas -->
+    <line x1="132" y1="86" x2="125" y2="75" stroke="#1a1410" stroke-width="1.5"/>
+    <line x1="152" y1="86" x2="158" y2="75" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="125" cy="75" r="2" fill="#1a1410"/>
+    <circle cx="158" cy="75" r="2" fill="#1a1410"/>
+    <!-- narguile -->
+    <rect x="138" y="115" width="8" height="4" fill="#1a1410"/>
+    <line x1="142" y1="115" x2="142" y2="100" stroke="#1a1410" stroke-width="1.5"/>
+    <ellipse cx="142" cy="98" rx="6" ry="3" fill="#b8893a" stroke="#1a1410" stroke-width="1"/>
+    <!-- patitas -->
+    <line x1="60" y1="142" x2="55" y2="150" stroke="#1a1410" stroke-width="2"/>
+    <line x1="80" y1="137" x2="78" y2="148" stroke="#1a1410" stroke-width="2"/>
+    <line x1="100" y1="132" x2="100" y2="145" stroke="#1a1410" stroke-width="2"/>
+    <line x1="120" y1="128" x2="122" y2="142" stroke="#1a1410" stroke-width="2"/>
+  </svg>`,
+
+  reina: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgR" cx="50%" cy="40%"><stop offset="0%" stop-color="#e85a64"/><stop offset="100%" stop-color="#7a1f25"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgR)"/>
+    <!-- pelo grande negro (peinado alto victoriano) -->
+    <path d="M50,75 Q35,40 60,30 Q80,15 100,25 Q120,15 140,30 Q165,40 150,75 Q160,115 145,140 L55,140 Q40,115 50,75 Z" fill="#1a1410" stroke="#1a1410" stroke-width="2"/>
+    <!-- rizos -->
+    <circle cx="60" cy="60" r="8" fill="#2c2118"/>
+    <circle cx="75" cy="45" r="9" fill="#2c2118"/>
+    <circle cx="125" cy="45" r="9" fill="#2c2118"/>
+    <circle cx="140" cy="60" r="8" fill="#2c2118"/>
+    <!-- corona -->
+    <path d="M68,45 L72,25 L82,42 L92,20 L100,40 L108,20 L118,42 L128,25 L132,45 Z" fill="#f0c850" stroke="#1a1410" stroke-width="2"/>
+    <!-- joyas en la corona -->
+    <circle cx="82" cy="38" r="3" fill="#a8323a" stroke="#1a1410" stroke-width="0.8"/>
+    <circle cx="100" cy="35" r="4" fill="#5a8ab8" stroke="#1a1410" stroke-width="0.8"/>
+    <circle cx="118" cy="38" r="3" fill="#a8323a" stroke="#1a1410" stroke-width="0.8"/>
+    <!-- base corona -->
+    <rect x="65" y="45" width="70" height="7" fill="#d4a830" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- cara redonda -->
+    <ellipse cx="100" cy="100" rx="34" ry="38" fill="#f0c8a8" stroke="#1a1410" stroke-width="2"/>
+    <!-- cejas furiosas -->
+    <path d="M78,90 L94,95" stroke="#1a1410" stroke-width="3.5"/>
+    <path d="M106,95 L122,90" stroke="#1a1410" stroke-width="3.5"/>
+    <!-- ojos enfurecidos -->
+    <ellipse cx="88" cy="103" rx="5" ry="4" fill="#fff" stroke="#1a1410" stroke-width="1.5"/>
+    <ellipse cx="112" cy="103" rx="5" ry="4" fill="#fff" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="88" cy="104" r="2" fill="#1a1410"/>
+    <circle cx="112" cy="104" r="2" fill="#1a1410"/>
+    <!-- pestañas -->
+    <line x1="83" y1="100" x2="80" y2="98" stroke="#1a1410" stroke-width="1.2"/>
+    <line x1="93" y1="100" x2="96" y2="98" stroke="#1a1410" stroke-width="1.2"/>
+    <line x1="107" y1="100" x2="104" y2="98" stroke="#1a1410" stroke-width="1.2"/>
+    <line x1="117" y1="100" x2="120" y2="98" stroke="#1a1410" stroke-width="1.2"/>
+    <!-- nariz pequeña femenina -->
+    <path d="M100,113 Q97,122 100,124 Q103,122 100,113" fill="#e8a888" stroke="#1a1410" stroke-width="1"/>
+    <!-- boca gritando (forma de O) -->
+    <ellipse cx="100" cy="132" rx="11" ry="8" fill="#1a1410" stroke="#1a1410" stroke-width="2"/>
+    <ellipse cx="100" cy="130" rx="8" ry="4" fill="#a8323a"/>
+    <!-- lengua -->
+    <ellipse cx="100" cy="135" rx="4" ry="2" fill="#e85a64"/>
+    <!-- mejillas rojas (furia) -->
+    <circle cx="75" cy="118" r="6" fill="#e8a8a8" opacity=".7"/>
+    <circle cx="125" cy="118" r="6" fill="#e8a8a8" opacity=".7"/>
+    <!-- pendientes -->
+    <circle cx="65" cy="115" r="3" fill="#a8323a" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="135" cy="115" r="3" fill="#a8323a" stroke="#1a1410" stroke-width="1"/>
+    <!-- collar de perlas -->
+    <circle cx="80" cy="148" r="2.5" fill="#f4ead5" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="90" cy="153" r="2.5" fill="#f4ead5" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="100" cy="155" r="2.5" fill="#f4ead5" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="110" cy="153" r="2.5" fill="#f4ead5" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="120" cy="148" r="2.5" fill="#f4ead5" stroke="#1a1410" stroke-width="1"/>
+    <!-- vestido -->
+    <path d="M65,165 L60,200 L140,200 L135,165 Z" fill="#7a1f25" stroke="#1a1410" stroke-width="2"/>
+    <!-- corazón en el vestido -->
+    <path d="M100,180 Q92,173 88,180 Q88,187 100,195 Q112,187 112,180 Q108,173 100,180 Z" fill="#f4ead5" stroke="#1a1410" stroke-width="1.5"/>
+  </svg>`,
+
+  rey: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgRy" cx="50%" cy="40%"><stop offset="0%" stop-color="#e8c896"/><stop offset="100%" stop-color="#a08254"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgRy)"/>
+    <!-- corona pequeña -->
+    <path d="M70,55 L75,35 L85,52 L100,30 L115,52 L125,35 L130,55 Z" fill="#f0c850" stroke="#1a1410" stroke-width="2"/>
+    <circle cx="100" cy="40" r="3" fill="#a8323a" stroke="#1a1410" stroke-width="0.8"/>
+    <rect x="70" y="55" width="60" height="7" fill="#d4a830" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- peluca de juez (rizos blancos) -->
+    <ellipse cx="100" cy="100" rx="50" ry="35" fill="#f0e8d8" stroke="#1a1410" stroke-width="2"/>
+    <circle cx="60" cy="105" r="10" fill="#f0e8d8" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="55" cy="120" r="9" fill="#f0e8d8" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="140" cy="105" r="10" fill="#f0e8d8" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="145" cy="120" r="9" fill="#f0e8d8" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="50" cy="135" r="8" fill="#f0e8d8" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="150" cy="135" r="8" fill="#f0e8d8" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- cara -->
+    <ellipse cx="100" cy="105" rx="28" ry="30" fill="#f0c8a8" stroke="#1a1410" stroke-width="2"/>
+    <!-- cejas tristonas -->
+    <path d="M82,95 Q88,97 92,99" stroke="#1a1410" stroke-width="2" fill="none"/>
+    <path d="M108,99 Q112,97 118,95" stroke="#1a1410" stroke-width="2" fill="none"/>
+    <!-- ojos pequeños -->
+    <circle cx="90" cy="105" r="2.5" fill="#1a1410"/>
+    <circle cx="110" cy="105" r="2.5" fill="#1a1410"/>
+    <!-- nariz redonda -->
+    <ellipse cx="100" cy="115" rx="4" ry="5" fill="#e8a888" stroke="#1a1410" stroke-width="1"/>
+    <!-- bigote -->
+    <path d="M85,123 Q90,120 100,123 Q110,120 115,123 Q110,128 100,126 Q90,128 85,123 Z" fill="#8b6f47" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- boca pequeña -->
+    <path d="M95,132 Q100,134 105,132" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+    <!-- barba -->
+    <path d="M85,135 Q100,160 115,135 Q110,150 100,152 Q90,150 85,135 Z" fill="#a08054" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- toga -->
+    <path d="M55,165 L50,200 L150,200 L145,165 Z" fill="#7a1f25" stroke="#1a1410" stroke-width="2"/>
+    <!-- cuello blanco -->
+    <path d="M85,160 L80,175 L120,175 L115,160 Z" fill="#f4ead5" stroke="#1a1410" stroke-width="1.5"/>
+  </svg>`,
+
+  duquesa: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgD" cx="50%" cy="40%"><stop offset="0%" stop-color="#d4b89c"/><stop offset="100%" stop-color="#75584a"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgD)"/>
+    <!-- tocado horneado/hennin amplio -->
+    <path d="M40,80 Q30,30 100,25 Q170,30 160,80 Z" fill="#2d4258" stroke="#1a1410" stroke-width="2"/>
+    <!-- pliegues del tocado -->
+    <path d="M65,55 Q70,40 80,45 M100,38 L100,55 M120,45 Q130,40 135,55" stroke="#1a1410" stroke-width="1" fill="none" opacity=".5"/>
+    <!-- borde dorado -->
+    <rect x="38" y="78" width="124" height="9" fill="#b8893a" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- joya central -->
+    <circle cx="100" cy="55" r="5" fill="#a8323a" stroke="#1a1410" stroke-width="1"/>
+    <!-- cara ancha, fea pero femenina -->
+    <ellipse cx="100" cy="125" rx="50" ry="45" fill="#e8c8a8" stroke="#1a1410" stroke-width="2"/>
+    <!-- mandíbula ancha (rasgo característico) -->
+    <path d="M55,135 Q60,165 100,170 Q140,165 145,135" fill="#e8c8a8" stroke="#1a1410" stroke-width="2"/>
+    <!-- pelo asomando -->
+    <path d="M55,90 Q50,110 58,115 M145,90 Q150,110 142,115" stroke="#5a3a28" stroke-width="6" fill="none"/>
+    <!-- pendientes (joya) -->
+    <circle cx="52" cy="130" r="3" fill="#f0c850" stroke="#1a1410" stroke-width="1"/>
+    <circle cx="148" cy="130" r="3" fill="#f0c850" stroke="#1a1410" stroke-width="1"/>
+    <!-- cejas finas arqueadas -->
+    <path d="M78,108 Q85,103 95,107" stroke="#1a1410" stroke-width="1.8" fill="none"/>
+    <path d="M105,107 Q115,103 122,108" stroke="#1a1410" stroke-width="1.8" fill="none"/>
+    <!-- ojos pequeños con pestañas -->
+    <ellipse cx="87" cy="117" rx="4" ry="3" fill="#fff" stroke="#1a1410" stroke-width="1.2"/>
+    <ellipse cx="113" cy="117" rx="4" ry="3" fill="#fff" stroke="#1a1410" stroke-width="1.2"/>
+    <circle cx="87" cy="117" r="1.8" fill="#1a1410"/>
+    <circle cx="113" cy="117" r="1.8" fill="#1a1410"/>
+    <line x1="83" y1="114" x2="81" y2="112" stroke="#1a1410" stroke-width="1"/>
+    <line x1="87" y1="113" x2="87" y2="110" stroke="#1a1410" stroke-width="1"/>
+    <line x1="113" y1="113" x2="113" y2="110" stroke="#1a1410" stroke-width="1"/>
+    <line x1="117" y1="114" x2="119" y2="112" stroke="#1a1410" stroke-width="1"/>
+    <!-- nariz pequeña -->
+    <path d="M100,125 Q97,138 100,140 Q103,138 100,125" fill="#d4a888" stroke="#1a1410" stroke-width="1"/>
+    <!-- boca pintada apretada -->
+    <path d="M85,150 Q100,148 115,150 Q110,154 100,154 Q90,154 85,150 Z" fill="#a8323a" stroke="#1a1410" stroke-width="1.2"/>
+    <!-- lunar -->
+    <circle cx="78" cy="140" r="1.5" fill="#1a1410"/>
+    <!-- papada (poca pero la hay) -->
+    <path d="M82,164 Q100,172 118,164" stroke="#1a1410" stroke-width="1.2" fill="none"/>
+    <!-- mejillas rosadas (por la pimienta) -->
+    <circle cx="72" cy="135" r="6" fill="#e8a8a8" opacity=".55"/>
+    <circle cx="128" cy="135" r="6" fill="#e8a8a8" opacity=".55"/>
+    <!-- vestido oscuro -->
+    <path d="M55,180 L45,200 L155,200 L145,180 Q130,175 100,175 Q70,175 55,180 Z" fill="#3a2d24" stroke="#1a1410" stroke-width="2"/>
+    <!-- cuello blanco -->
+    <path d="M85,175 L88,185 L112,185 L115,175 Z" fill="#f4ead5" stroke="#1a1410" stroke-width="1.2"/>
+  </svg>`,
+
+  grifo: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgGr" cx="50%" cy="40%"><stop offset="0%" stop-color="#e8b870"/><stop offset="100%" stop-color="#8b6420"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgGr)"/>
+    <!-- ala desplegada -->
+    <path d="M40,130 Q20,100 30,80 Q45,90 50,120 Q40,125 40,130 Z" fill="#c49050" stroke="#1a1410" stroke-width="2"/>
+    <path d="M30,90 L40,100 M35,80 L45,95 M40,85 L48,100" stroke="#1a1410" stroke-width="1.2" fill="none"/>
+    <!-- cuerpo de león (atrás) -->
+    <path d="M75,150 Q70,190 100,195 Q140,195 145,160 L140,140 Z" fill="#c49050" stroke="#1a1410" stroke-width="2"/>
+    <!-- cola con plumas -->
+    <path d="M145,170 Q175,160 180,140 L175,135 Q170,150 170,155 Q165,140 170,130" stroke="#1a1410" stroke-width="1.5" fill="#c49050"/>
+    <!-- pecho de águila -->
+    <path d="M75,150 Q60,130 70,110 Q85,100 100,108 Q115,100 130,110 Q140,130 125,150 Z" fill="#f4ead5" stroke="#1a1410" stroke-width="2"/>
+    <!-- plumas pectorales -->
+    <path d="M85,125 Q90,135 85,140 M95,125 Q100,135 95,140 M105,125 Q110,135 105,140 M115,125 Q120,135 115,140" stroke="#1a1410" stroke-width="1" fill="none"/>
+    <!-- cabeza de águila -->
+    <ellipse cx="115" cy="85" rx="30" ry="32" fill="#c49050" stroke="#1a1410" stroke-width="2"/>
+    <!-- penacho/cresta -->
+    <path d="M105,55 L100,40 L110,52 L115,38 L120,52 L130,42 L125,58" fill="#c49050" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- pico curvo amarillo -->
+    <path d="M138,85 Q160,90 155,100 Q145,108 130,100 Z" fill="#f0c850" stroke="#1a1410" stroke-width="2"/>
+    <path d="M138,85 Q150,90 152,98" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+    <!-- ojo redondo grande -->
+    <circle cx="118" cy="80" r="7" fill="#fff" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="120" cy="80" r="4" fill="#f0c850"/>
+    <circle cx="121" cy="80" r="2" fill="#1a1410"/>
+    <!-- ceja -->
+    <path d="M108,72 L128,72" stroke="#1a1410" stroke-width="3"/>
+    <!-- garras -->
+    <path d="M80,195 L75,200 M85,195 L82,200 M90,195 L89,200" stroke="#1a1410" stroke-width="1.5"/>
+    <path d="M125,195 L122,200 M130,195 L130,200 M135,195 L137,200" stroke="#1a1410" stroke-width="1.5"/>
+  </svg>`,
+
+  tortuga: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgT" cx="50%" cy="40%"><stop offset="0%" stop-color="#a8c4cc"/><stop offset="100%" stop-color="#4a6f7a"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgT)"/>
+    <!-- mar al fondo -->
+    <path d="M0,180 Q50,175 100,180 Q150,175 200,180 L200,200 L0,200 Z" fill="#5a8aaa" stroke="#1a1410" stroke-width="1"/>
+    <path d="M0,175 Q30,170 60,175 Q90,170 120,175 Q150,170 180,175" stroke="#f4ead5" stroke-width="1" fill="none"/>
+    <!-- caparazón -->
+    <ellipse cx="100" cy="155" rx="55" ry="30" fill="#75604a" stroke="#1a1410" stroke-width="2"/>
+    <path d="M55,155 Q60,140 100,138 Q140,140 145,155" fill="#8b7458" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- placas del caparazón -->
+    <path d="M70,150 L75,165 M85,145 L88,168 M100,143 L100,170 M115,145 L112,168 M130,150 L125,165" stroke="#1a1410" stroke-width="1" fill="none"/>
+    <!-- patas/aletas -->
+    <ellipse cx="55" cy="170" rx="10" ry="6" fill="#75604a" stroke="#1a1410" stroke-width="1.5"/>
+    <ellipse cx="145" cy="170" rx="10" ry="6" fill="#75604a" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- cabeza de ternera (cuello de tortuga) -->
+    <path d="M85,135 Q80,115 90,100 Q100,90 115,95 Q130,100 130,115 Q130,130 120,135 Z" fill="#c4956a" stroke="#1a1410" stroke-width="2"/>
+    <!-- orejas de ternera -->
+    <path d="M88,98 L78,85 Q82,80 92,90 Z" fill="#c4956a" stroke="#1a1410" stroke-width="1.5"/>
+    <path d="M127,98 L137,85 Q133,80 123,90 Z" fill="#c4956a" stroke="#1a1410" stroke-width="1.5"/>
+    <path d="M85,95 L82,87 Q86,90 89,95 Z" fill="#f5b8c8"/>
+    <path d="M130,95 L133,87 Q129,90 126,95 Z" fill="#f5b8c8"/>
+    <!-- ojos tristes (lágrima) -->
+    <circle cx="100" cy="110" r="3.5" fill="#fff" stroke="#1a1410" stroke-width="1.2"/>
+    <circle cx="118" cy="110" r="3.5" fill="#fff" stroke="#1a1410" stroke-width="1.2"/>
+    <circle cx="100" cy="111" r="1.5" fill="#1a1410"/>
+    <circle cx="118" cy="111" r="1.5" fill="#1a1410"/>
+    <!-- cejas tristes -->
+    <path d="M94,103 L102,105" stroke="#1a1410" stroke-width="1.5"/>
+    <path d="M116,105 L124,103" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- lágrima -->
+    <path d="M100,115 Q98,122 100,125 Q102,122 100,115" fill="#5a8aaa" stroke="#1a1410" stroke-width="0.8"/>
+    <!-- hocico -->
+    <ellipse cx="109" cy="125" rx="9" ry="7" fill="#a87a54" stroke="#1a1410" stroke-width="1.5"/>
+    <ellipse cx="105" cy="124" rx="1.5" ry="2" fill="#1a1410"/>
+    <ellipse cx="113" cy="124" rx="1.5" ry="2" fill="#1a1410"/>
+    <path d="M109,128 L109,132" stroke="#1a1410" stroke-width="1"/>
+  </svg>`,
+
+  dina: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgDi" cx="50%" cy="40%"><stop offset="0%" stop-color="#e8b884"/><stop offset="100%" stop-color="#7a5a3a"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgDi)"/>
+    <!-- alfombra/cojín bajo el gato -->
+    <ellipse cx="100" cy="190" rx="90" ry="8" fill="#5a3a28" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- cola enroscada -->
+    <path d="M155,165 Q180,150 175,130 Q170,120 178,118" stroke="#d4895a" stroke-width="9" fill="none"/>
+    <path d="M155,165 Q180,150 175,130 Q170,120 178,118" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+    <!-- cuerpo sentado -->
+    <ellipse cx="100" cy="160" rx="42" ry="28" fill="#d4895a" stroke="#1a1410" stroke-width="2"/>
+    <!-- patas delanteras -->
+    <rect x="78" y="170" width="10" height="20" rx="3" fill="#d4895a" stroke="#1a1410" stroke-width="1.5"/>
+    <rect x="112" y="170" width="10" height="20" rx="3" fill="#d4895a" stroke="#1a1410" stroke-width="1.5"/>
+    <!-- rayas tabby en el cuerpo -->
+    <path d="M75,150 Q80,158 75,165 M85,145 Q90,158 85,170 M115,145 Q110,158 115,170 M125,150 Q120,158 125,165" stroke="#8b5a2a" stroke-width="1.5" fill="none"/>
+    <!-- cabeza -->
+    <circle cx="100" cy="105" r="38" fill="#d4895a" stroke="#1a1410" stroke-width="2"/>
+    <!-- orejas -->
+    <path d="M68,82 L62,55 L88,75 Z" fill="#d4895a" stroke="#1a1410" stroke-width="2"/>
+    <path d="M132,82 L138,55 L112,75 Z" fill="#d4895a" stroke="#1a1410" stroke-width="2"/>
+    <path d="M70,76 L68,65 L80,72 Z" fill="#f5b8c8"/>
+    <path d="M130,76 L132,65 L120,72 Z" fill="#f5b8c8"/>
+    <!-- ojos cerrados/feliz -->
+    <path d="M82,100 Q88,95 94,100" stroke="#1a1410" stroke-width="2" fill="none"/>
+    <path d="M106,100 Q112,95 118,100" stroke="#1a1410" stroke-width="2" fill="none"/>
+    <!-- nariz triangular -->
+    <path d="M97,115 L103,115 L100,120 Z" fill="#f5a8b8" stroke="#1a1410" stroke-width="1"/>
+    <!-- boca sonriente -->
+    <path d="M100,120 L100,124" stroke="#1a1410" stroke-width="1"/>
+    <path d="M94,128 Q100,132 100,124 Q100,132 106,128" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+    <!-- bigotes -->
+    <line x1="78" y1="118" x2="55" y2="115" stroke="#1a1410" stroke-width="1"/>
+    <line x1="78" y1="122" x2="55" y2="125" stroke="#1a1410" stroke-width="1"/>
+    <line x1="122" y1="118" x2="145" y2="115" stroke="#1a1410" stroke-width="1"/>
+    <line x1="122" y1="122" x2="145" y2="125" stroke="#1a1410" stroke-width="1"/>
+    <!-- pequeño corazón flotando (cariño de Alicia) -->
+    <path d="M30,55 Q24,49 28,45 Q32,42 35,48 Q38,42 42,45 Q46,49 40,55 Q35,60 35,60 Q30,60 30,55 Z" fill="#a8323a" stroke="#1a1410" stroke-width="1"/>
+  </svg>`,
+
+  dodo: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="bgDo" cx="50%" cy="40%"><stop offset="0%" stop-color="#c4b09c"/><stop offset="100%" stop-color="#6f5a4a"/></radialGradient></defs>
+    <rect width="200" height="200" fill="url(#bgDo)"/>
+    <!-- bastón/paraguas -->
+    <line x1="155" y1="80" x2="160" y2="190" stroke="#3a2418" stroke-width="3"/>
+    <path d="M155,80 Q175,85 160,90" stroke="#3a2418" stroke-width="3" fill="none"/>
+    <!-- cuerpo rechoncho -->
+    <ellipse cx="95" cy="145" rx="40" ry="45" fill="#b8a890" stroke="#1a1410" stroke-width="2"/>
+    <!-- ala pequeña -->
+    <ellipse cx="65" cy="145" rx="12" ry="20" fill="#9c8c74" stroke="#1a1410" stroke-width="1.5"/>
+    <path d="M60,135 L62,160 M68,135 L70,160" stroke="#1a1410" stroke-width="1" fill="none"/>
+    <!-- plumas de cola -->
+    <path d="M125,160 Q150,155 145,140 M125,170 Q155,170 150,155 M125,180 Q145,185 145,170" stroke="#1a1410" stroke-width="1.5" fill="#9c8c74"/>
+    <!-- patas amarillas -->
+    <line x1="85" y1="190" x2="80" y2="200" stroke="#f0c850" stroke-width="5"/>
+    <line x1="80" y1="200" x2="75" y2="200" stroke="#f0c850" stroke-width="3"/>
+    <line x1="80" y1="200" x2="85" y2="200" stroke="#f0c850" stroke-width="3"/>
+    <line x1="105" y1="190" x2="110" y2="200" stroke="#f0c850" stroke-width="5"/>
+    <line x1="110" y1="200" x2="105" y2="200" stroke="#f0c850" stroke-width="3"/>
+    <line x1="110" y1="200" x2="115" y2="200" stroke="#f0c850" stroke-width="3"/>
+    <!-- cabeza grande -->
+    <circle cx="100" cy="80" r="35" fill="#b8a890" stroke="#1a1410" stroke-width="2"/>
+    <!-- pico curvo enorme -->
+    <path d="M125,75 Q160,75 158,90 Q150,105 130,98 Q115,90 125,75 Z" fill="#3a2418" stroke="#1a1410" stroke-width="2"/>
+    <path d="M125,82 Q145,82 150,90" stroke="#1a1410" stroke-width="1" fill="none"/>
+    <!-- ojo -->
+    <circle cx="110" cy="72" r="6" fill="#fff" stroke="#1a1410" stroke-width="1.5"/>
+    <circle cx="112" cy="72" r="2.5" fill="#1a1410"/>
+    <!-- ceja -->
+    <path d="M103,62 L120,62" stroke="#1a1410" stroke-width="2"/>
+    <!-- sombrero/lentes pequeños -->
+    <rect x="95" y="48" width="20" height="6" fill="#1a1410"/>
+    <rect x="92" y="50" width="26" height="3" fill="#1a1410"/>
+  </svg>`
+};
+
+const characters = [
+  {
+    svg: SVG.alicia,
+    name:"Alicia",
+    role:"Protagonista",
+    desc:"Niña inglesa de unos siete años, curiosa, educada y muy razonable. Lleva un vestido azul con delantal blanco. Intenta aplicar la lógica del mundo real a un mundo absurdo, lo que provoca constantes choques cómicos. A lo largo del libro madura: al principio obedece, al final desafía a la propia Reina.",
+    quote:"«¡Cada vez más extraño y más extraño!»",
+    extra:"Está inspirada en <strong>Alice Liddell</strong>, una niña real, hija del decano de Christ Church (Oxford), amiga de Carroll. Sufre cambios de tamaño constantes: símbolo del paso de la infancia a la adolescencia. Su frase final («¡No sois más que una baraja de cartas!») marca el momento en que se reafirma como individuo."
+  },
+  {
+    svg: SVG.conejo,
+    name:"El Conejo Blanco",
+    role:"El guía involuntario",
+    desc:"Conejo nervioso vestido con chaleco rojo y reloj de bolsillo, siempre preocupado por llegar tarde. Es el primero al que sigue Alicia y la lleva, sin saberlo, al País de las Maravillas. Trabaja para la Duquesa y, más tarde, hace de pregonero del Rey en el juicio.",
+    quote:"«¡Oh, mis orejas y bigotes, qué tarde se está haciendo!»",
+    extra:"Confunde a Alicia con su criada <strong>Mary Ann</strong> en el capítulo IV y la envía a su casa a buscar sus guantes y abanico. Simboliza al adulto victoriano puntual, agobiado y servil ante la autoridad: tiembla cada vez que aparece la Reina."
+  },
+  {
+    svg: SVG.sombrerero,
+    name:"El Sombrerero Loco",
+    role:"Anfitrión de la merienda",
+    desc:"Personaje excéntrico con un sombrero de copa enorme marcado con la etiqueta «10/6» (su precio en chelines y peniques). Está condenado a tomar el té eternamente porque el Tiempo se enfadó con él. Hace adivinanzas sin respuesta y suelta disparates lógicos.",
+    quote:"«¿En qué se parece un cuervo a un escritorio?»",
+    extra:"Su locura viene del dicho inglés <em>«mad as a hatter»</em> (loco como un sombrerero): en la época victoriana, los sombrereros usaban <strong>mercurio</strong> para tratar el fieltro, lo que les provocaba temblores y trastornos mentales (hatter's shakes). Carroll lo convierte en un símbolo del absurdo lógico."
+  },
+  {
+    svg: SVG.liebre,
+    name:"La Liebre de Marzo",
+    role:"Compañera del Sombrerero",
+    desc:"Liebre alocada, con paja en las orejas (como símbolo de locura). También vive atrapada en la merienda eterna. Junto al Sombrerero, ofrece a Alicia vino que no existe, contesta con preguntas absurdas y vive convencida de que el reloj puede arreglarse con mantequilla.",
+    quote:"«— Toma un poco más de té.<br>— No he tomado nada todavía, así que no puedo tomar más.»",
+    extra:"Su comportamiento errático viene del refrán <em>«mad as a March hare»</em> (loca como una liebre de marzo): en marzo es la época de celo de las liebres y se las ve dando saltos y golpeándose entre sí. Encarna, con el Sombrerero, el humor absurdo del libro."
+  },
+  {
+    svg: SVG.liron,
+    name:"El Lirón",
+    role:"Invitado dormilón",
+    desc:"Pequeño roedor que se pasa la merienda durmiendo entre el Sombrerero y la Liebre, que lo usan como almohada (e incluso intentan meterlo en la tetera). De vez en cuando murmura una historia sobre tres hermanitas, Elsie, Lacie y Tillie, que vivían en el fondo de un pozo de melaza.",
+    quote:"«Vivían comiendo melaza…»",
+    extra:"Aparece también como testigo en el juicio final, donde lo intentan callar a la fuerza. El nombre Lacie es un <strong>anagrama</strong> de Alice (las amigas reales de Alice Liddell eran Lorina, Alice y Edith → L, A, E → Elsie, Lacie y Tillie)."
+  },
+  {
+    svg: SVG.gato,
+    name:"El Gato de Cheshire",
+    role:"Filósofo sonriente",
+    desc:"Gato enigmático, de pelaje rosado a rayas, que aparece y desaparece a voluntad, dejando a veces solo su sonrisa flotando en el aire. Habla con lógica desconcertante y es el único personaje al que Alicia entiende del todo. Es el que le indica el camino hacia la merienda.",
+    quote:"«— Aquí todos estamos locos. Yo estoy loco. Tú estás loca.<br>— ¿Y cómo sabes que yo estoy loca?<br>— Si no, no estarías aquí.»",
+    extra:"Su nombre viene de la expresión inglesa <em>«to grin like a Cheshire cat»</em> (sonreír como un gato de Cheshire), originada en el condado de Cheshire. Es uno de los personajes más célebres de la literatura universal y representa la lógica del sueño: en el jardín de la Reina, cuando ordenan decapitarlo, los verdugos discuten si se puede cortar una cabeza que no tiene cuerpo."
+  },
+  {
+    svg: SVG.oruga,
+    name:"La Oruga Azul",
+    role:"Maestra enigmática",
+    desc:"Oruga azul de unos 8 cm sentada sobre una seta gigante, fumando una pipa de agua oriental (narguile). Es altiva, paciente y filosófica. Interroga a Alicia con preguntas que la hacen dudar de quién es y le toma examen de poesía.",
+    quote:"«¿Quién eres tú?»",
+    extra:"Es la maestra que le revela el truco: la seta tiene dos lados, uno la hará crecer y el otro encoger. A partir de aquí, Alicia <strong>controla por fin su tamaño</strong>. La Oruga se transformará al final en mariposa, símbolo del cambio (igual que Alicia se transforma en adolescente)."
+  },
+  {
+    svg: SVG.reina,
+    name:"La Reina de Corazones",
+    role:"Tirana del País",
+    desc:"Reina colérica, con una enorme corona y un corazón rojo bordado en el vestido. Ante cualquier contrariedad grita: «¡Que le corten la cabeza!». Es la <strong>antagonista</strong> de Alicia. Representa el poder arbitrario, caprichoso y violento.",
+    quote:"«¡Que le corten la cabeza!»",
+    extra:"En realidad casi <strong>nunca se cumplen sus sentencias</strong>: el Rey, más sensato, indulta a los condenados en secreto. Es una caricatura cómica de los gobernantes absurdos y de la justicia injusta. No confundirla con la <em>Reina Roja</em>, que aparece en <em>A través del espejo</em> (1871, la continuación) y es un personaje distinto."
+  },
+  {
+    svg: SVG.rey,
+    name:"El Rey de Corazones",
+    role:"Juez del juicio",
+    desc:"Marido de la Reina, mucho más tímido, bajito y razonable que ella. Hace de juez en el juicio final, llevando peluca blanca de juez encima de la corona. Sus razonamientos también son absurdos, pero menos crueles.",
+    quote:"«Que el jurado considere su veredicto.<br>— ¡No, no! Primero la sentencia, después el veredicto.» <em>(Lo dice la Reina; él calla.)</em>",
+    extra:"Indulta a los condenados cuando la Reina no mira. En el juicio final intenta interpretar como prueba una carta anónima y sin sentido. Su <strong>justicia es una parodia</strong> del sistema judicial victoriano."
+  },
+  {
+    svg: SVG.duquesa,
+    name:"La Duquesa",
+    role:"Aristócrata moralizante",
+    desc:"Aristócrata de aspecto desagradable, mandíbula prominente y tocado azul. Aparece dos veces: primero en su cocina, tratando mal a un bebé que llora (y que acaba transformándose en cerdo), y luego en el jardín del croquet, donde se vuelve empalagosa y suelta moralejas para todo.",
+    quote:"«Todo tiene su moraleja, solo hay que saber encontrarla.»",
+    extra:"Su cocinera es violenta y echa toneladas de pimienta a la sopa, lo que hace estornudar a todos. La Duquesa es una <strong>parodia de la nobleza pedante</strong> que pretende dar lecciones morales a todo el mundo. Tenniel se inspiró para dibujarla en el cuadro <em>La duquesa fea</em> atribuido a Quentin Massys."
+  },
+  {
+    svg: SVG.grifo,
+    name:"El Grifo",
+    role:"Amigo de la Falsa Tortuga",
+    desc:"Criatura mitológica con cuerpo de león y cabeza, alas y garras de águila. Acompaña a Alicia ante la Falsa Tortuga por orden de la Reina. Es burlón, algo perezoso y se ríe constantemente de los lloros de la Tortuga.",
+    quote:"«¡Es solo su fantasía, ella no tiene penas de verdad!»",
+    extra:"Aparece en los capítulos IX y X. Junto a la Falsa Tortuga enseña a Alicia la <strong>Cuadrilla de la Langosta</strong> (un baile marino). El grifo era símbolo tradicional de Oxford, donde enseñaba Carroll."
+  },
+  {
+    svg: SVG.tortuga,
+    name:"La Falsa Tortuga",
+    role:"Personaje melancólico",
+    desc:"Personaje extraño con caparazón de tortuga, pero cabeza y patas de <strong>ternera</strong>. Llora constantemente al recordar su antigua vida y su educación marina, que cuenta entre suspiros.",
+    quote:"«Antes era una tortuga de verdad…»",
+    extra:"Su nombre viene de la <em>«mock turtle soup»</em>, una sopa victoriana barata que <strong>imitaba</strong> la sopa de tortuga real usando carne de ternera (por eso Tenniel le dibuja cabeza de vaca). Sus asignaturas son juegos de palabras intraducibles: «Reeling and Writhing» (en lugar de Reading and Writing), «Ambición, Distracción, Fealdad y Burla» (las cuatro reglas de la aritmética)…"
+  },
+  {
+    svg: SVG.dina,
+    name:"Dina",
+    role:"Referente del mundo real",
+    desc:"Gata atigrada de Alicia en el mundo real. No aparece nunca en escena, pero Alicia la menciona varias veces con cariño, presumiendo de lo buena cazadora que es. Esto ofende a los ratones, pájaros y a la propia Falsa Tortuga.",
+    quote:"«¡Es la mejor cazadora de ratones del mundo!»",
+    extra:"Aunque no aparece físicamente, su recuerdo <strong>conecta el mundo onírico con el mundo real</strong> al que Alicia volverá al despertar. Está basada en una gata real de las hermanas Liddell. Tiene dos gatitos: Snowdrop (blanco) y Kitty (negro), que aparecen en la continuación <em>A través del espejo</em>."
+  },
+  {
+    svg: SVG.dodo,
+    name:"El Dodo",
+    role:"Organizador de la carrera",
+    desc:"Ave extinta, rechoncha, con plumaje gris y pico curvo. Solemne, habla como un orador pomposo. Organiza la «carrera política» absurda en el capítulo III, en la que todos corren en círculo y todos ganan.",
+    quote:"«Todos hemos ganado y todos debemos tener un premio.»",
+    extra:"Se considera un <strong>autorretrato del propio Carroll</strong>: como tartamudeaba, solía pronunciar su apellido «Do-do-Dodgson», y de ahí el apodo. Los otros animales del charco (Pato, Loro, Aguilucho) son sus hermanas Liddell: Duck = el reverendo Duckworth, Lory = Lorina, Eaglet = Edith, Dodo = el propio Carroll."
+  }
+];
+
+const charContainer = document.getElementById('charactersContainer');
+characters.forEach((c,i)=>{
+  const div = document.createElement('div');
+  div.className = 'character-card';
+  div.innerHTML = `
+    <div class="char-portrait">${c.svg}</div>
+    <div class="char-body">
+      <div class="char-name">${c.name}</div>
+      <div class="char-role">${c.role}</div>
+      <div class="char-desc">${c.desc}</div>
+      <div class="char-quote">${c.quote}</div>
+      <span class="char-toggle" data-i="${i}">Saber más ▾</span>
+      <div class="char-extra" id="extra-${i}">${c.extra}</div>
+    </div>`;
+  charContainer.appendChild(div);
+});
+document.querySelectorAll('.char-toggle').forEach(t=>{
+  t.addEventListener('click',e=>{
+    const i = e.target.dataset.i;
+    const extra = document.getElementById('extra-'+i);
+    extra.classList.toggle('open');
+    e.target.textContent = extra.classList.contains('open') ? 'Saber menos ▴' : 'Saber más ▾';
+  });
+});
+
+/* ============== CUESTIONARIO (100 PREGUNTAS) ============== */
+/* cat: trama | personajes | detalles | autor | literatura */
+const questions = [
+  // ===== TRAMA (1-30) =====
+  {cat:"trama", q:"¿Qué está haciendo Alicia al comienzo del libro?", o:["Está estudiando en su habitación","Está aburrida junto a su hermana en la orilla de un río","Está paseando por un bosque sola","Está jugando con su gata Dina"], a:1, f:"Alicia está aburrida porque su hermana lee un libro «sin dibujos ni diálogos»."},
+  {cat:"trama", q:"¿Qué animal sigue Alicia para entrar en el País de las Maravillas?", o:["Un gato negro","Un ratón parlante","Un conejo blanco con chaleco","Una oruga"], a:2, f:"El Conejo Blanco con chaleco y reloj la lleva hasta la madriguera."},
+  {cat:"trama", q:"¿Por dónde cae Alicia al País de las Maravillas?", o:["Por un espejo","Por una puerta secreta","Por una madriguera","Por un pozo del jardín"], a:2, f:"Cae por la madriguera del Conejo Blanco."},
+  {cat:"trama", q:"¿Qué hay en la primera sala a la que llega Alicia?", o:["Una mesa con comida","Muchas puertas cerradas y una llave dorada","Un trono con cartas","Una piscina"], a:1, f:"Encuentra una sala con puertas y una llave que abre la más pequeña."},
+  {cat:"trama", q:"¿Qué efecto tiene la botella que pone «Bébeme»?", o:["La hace dormir","La hace crecer","La hace empequeñecer","La transforma en animal"], a:2, f:"Alicia se reduce hasta poder pasar por la puerta pequeña."},
+  {cat:"trama", q:"¿Y el pastel que pone «Cómeme»?", o:["La hace crecer enormemente","La hace empequeñecer","La transporta a otro lugar","No le hace nada"], a:0, f:"Crece tanto que su cabeza toca el techo."},
+  {cat:"trama", q:"¿Qué forma el charco del segundo capítulo?", o:["La lluvia","Las lágrimas de la propia Alicia","Un río que se desborda","El sudor del Conejo"], a:1, f:"Cuando es gigantesca, llora tanto que luego, al encoger, casi se ahoga en sus lágrimas."},
+  {cat:"trama", q:"¿Qué tipo de carrera propone el Dodo?", o:["Una carrera de obstáculos","Una carrera política, sin reglas","Una carrera de relevos","Una carrera de natación"], a:1, f:"Todos corren en círculo, sin principio ni fin, y todos ganan."},
+  {cat:"trama", q:"¿Por quién confunde el Conejo a Alicia en su casa?", o:["Por su hermana","Por la Reina","Por su criada Mary Ann","Por la Duquesa"], a:2, f:"La envía a buscar sus guantes y abanico."},
+  {cat:"trama", q:"¿Qué le pasa a Alicia en casa del Conejo?", o:["Se queda dormida","Crece tanto que queda atrapada","Se vuelve invisible","Se convierte en conejo"], a:1, f:"Crece y llena toda la casa, con un brazo asomando por la ventana."},
+  {cat:"trama", q:"¿Cómo logra salir Alicia de la casa del Conejo?", o:["Rompiendo la puerta","Comiendo unos pasteles que la encogen","Llamando a la Reina","Trepando por el tejado"], a:1, f:"Los pasteles que arrojan por la ventana la hacen volver a encoger."},
+  {cat:"trama", q:"¿Sobre qué está sentada la Oruga azul?", o:["Una flor","Una roca","Una seta gigante","Una hoja de nenúfar"], a:2, f:"Una seta enorme, fumando un narguile."},
+  {cat:"trama", q:"¿Qué utilidad tiene la seta de la Oruga?", o:["Sirve de alimento","Un lado hace crecer y el otro encoger","Permite hablar con animales","Hace dormir"], a:1, f:"Un lado la hace crecer y el otro encoger; Alicia aprende a controlarse."},
+  {cat:"trama", q:"¿En qué se convierte el bebé de la Duquesa?", o:["En un gato","En un cerdo","En una flor","En un naipe"], a:1, f:"Cuando Alicia lo lleva al jardín, se transforma en cerdo."},
+  {cat:"trama", q:"¿Por qué la merienda del Sombrerero no termina nunca?", o:["Porque no tienen reloj","Porque están castigados","Porque el Tiempo se enfadó con el Sombrerero","Porque les gusta mucho el té"], a:2, f:"El Tiempo dejó de avanzar para ellos a las seis de la tarde."},
+  {cat:"trama", q:"¿Qué adivinanza famosa hace el Sombrerero?", o:["¿En qué se parece un cuervo a un escritorio?","¿Qué es lo que sube y baja?","¿Cómo se hace el té?","¿Cuántos pasos hay hasta el palacio?"], a:0, f:"Una adivinanza célebre que en el libro no tiene solución oficial."},
+  {cat:"trama", q:"¿Por qué los jardineros pintan las rosas?", o:["Porque están aburridos","Porque la Reina las quería rojas y plantaron blancas","Es una fiesta de jardinería","Para venderlas"], a:1, f:"Por error plantaron rosas blancas; pintan para evitar la decapitación."},
+  {cat:"trama", q:"¿Con qué se juega al croquet en el jardín de la Reina?", o:["Mazos de madera y bolas","Flamencos vivos y erizos","Palas y pelotas de fieltro","Cartas y dados"], a:1, f:"Los flamencos son los mazos y los erizos hacen de bolas."},
+  {cat:"trama", q:"¿Qué grita continuamente la Reina de Corazones?", o:["«¡Tomemos té!»","«¡Que le corten la cabeza!»","«¡Más rápido!»","«¡Silencio en la corte!»"], a:1, f:"Es su frase más famosa, símbolo de su tiranía."},
+  {cat:"trama", q:"¿Qué parte del Gato de Cheshire queda flotando cuando lo intentan ejecutar?", o:["Sus orejas","Su cola","Solo su cabeza","Solo su sonrisa"], a:2, f:"Como solo se ve la cabeza, no hay cuerpo del que cortarla; los verdugos se desesperan."},
+  {cat:"trama", q:"¿Quién acompaña a Alicia a ver a la Falsa Tortuga?", o:["El Conejo","El Grifo","El Sombrerero","El Rey"], a:1, f:"La Reina ordena al Grifo llevarla."},
+  {cat:"trama", q:"¿Qué baile enseñan a Alicia la Falsa Tortuga y el Grifo?", o:["El vals de las cartas","La cuadrilla de la langosta","La polca del flamenco","La giga del Sombrerero"], a:1, f:"Un baile marino donde se baila con langostas."},
+  {cat:"trama", q:"¿De qué se acusa a la Sota de Corazones en el juicio?", o:["De robar la corona","De robar las tartas","De insultar al Rey","De huir del palacio"], a:1, f:"Las tartas que había hecho la Reina."},
+  {cat:"trama", q:"¿Quién hace de juez en el juicio?", o:["El Rey de Corazones","La Reina","El Conejo","El Grifo"], a:0, f:"El Rey, con peluca de juez sobre la corona."},
+  {cat:"trama", q:"¿Quién hace de pregonero del tribunal?", o:["El Sombrerero","El Conejo Blanco","El Gato","El Dodo"], a:1, f:"El Conejo lee las acusaciones con una trompeta."},
+  {cat:"trama", q:"¿Qué le pasa a Alicia mientras es testigo?", o:["Se queda muda","Empieza a crecer otra vez","Se desmaya","Llora"], a:1, f:"Crece tanto que tira con la falda al jurado."},
+  {cat:"trama", q:"¿Cuál es la frase con la que Alicia se enfrenta a la Reina?", o:["«¡Sois muy malos reyes!»","«¡No sois más que una baraja de cartas!»","«¡Quiero volver a casa!»","«¡Yo soy la verdadera reina!»"], a:1, f:"Con esta frase el sueño se rompe."},
+  {cat:"trama", q:"¿Cómo termina realmente la aventura?", o:["Alicia se queda en el País","Alicia se transforma en cerdo","Alicia despierta junto a su hermana","Alicia es decapitada"], a:2, f:"Todo era un sueño; despierta en la orilla del río."},
+  {cat:"trama", q:"¿Qué le quita la hermana a Alicia de la cara al despertar?", o:["Lágrimas","Hojas secas","Tierra","Pétalos de rosa"], a:1, f:"Unas hojas que habían caído sobre su rostro."},
+  {cat:"trama", q:"¿Cuántos capítulos tiene la novela?", o:["10","12","14","16"], a:1, f:"Exactamente 12 capítulos."},
+
+  // ===== PERSONAJES (31-55) =====
+  {cat:"personajes", q:"¿Qué edad aproximada tiene Alicia?", o:["Cinco años","Siete años","Diez años","Trece años"], a:1, f:"En el libro se sugiere que tiene unos siete años."},
+  {cat:"personajes", q:"¿Cómo se llama la gata de Alicia?", o:["Mary Ann","Dina","Cheshire","Lily"], a:1, f:"Dina, una gran cazadora de ratones según Alicia."},
+  {cat:"personajes", q:"¿Qué lleva el Conejo Blanco en la mano al inicio?", o:["Un sombrero","Un reloj de bolsillo","Un libro","Una espada"], a:1, f:"Un reloj de bolsillo: siempre tiene prisa."},
+  {cat:"personajes", q:"¿Quién dice «Aquí todos estamos locos»?", o:["El Sombrerero","La Reina","El Gato de Cheshire","La Oruga"], a:2, f:"El Gato de Cheshire, en su conversación filosófica con Alicia."},
+  {cat:"personajes", q:"¿Qué característica define al Gato de Cheshire?", o:["Su gran tamaño","Su sonrisa permanente y su capacidad de aparecer y desaparecer","Su color rojo","Su falta de cola"], a:1, f:"Es famoso por su sonrisa, que a veces queda flotando sola."},
+  {cat:"personajes", q:"¿Quién fuma un narguile sobre una seta?", o:["El Conejo","La Oruga","El Sombrerero","La Liebre"], a:1, f:"La Oruga azul, símbolo del consejero enigmático."},
+  {cat:"personajes", q:"¿Qué expresión inglesa origina la locura del Sombrerero?", o:["«Mad as a March hare»","«Mad as a hatter»","«Mad as a queen»","«Mad as a cat»"], a:1, f:"«Loco como un sombrerero»: el mercurio del fieltro provocaba demencia."},
+  {cat:"personajes", q:"¿Por qué se considera loca a la Liebre de Marzo?", o:["Porque vive bajo tierra","Por la expresión «loca como una liebre de marzo» (época de celo)","Porque no duerme","Porque odia el té"], a:1, f:"Las liebres son muy activas y «alocadas» en marzo."},
+  {cat:"personajes", q:"¿Qué hace el Lirón durante la merienda?", o:["Cuenta chistes","Toca el piano","Duerme casi todo el tiempo","Sirve el té"], a:2, f:"Es usado como almohada por los otros dos."},
+  {cat:"personajes", q:"¿Qué es un Grifo?", o:["Un ave gigante","Una mezcla mitológica de águila y león","Un dragón","Un pez parlante"], a:1, f:"Criatura mitológica con cabeza de águila y cuerpo de león."},
+  {cat:"personajes", q:"¿Quién es la Falsa Tortuga?", o:["Una tortuga disfrazada","Una tortuga melancólica de la que se hace la sopa falsa","Una reina anterior","Una hermana del Grifo"], a:1, f:"Su nombre viene de «mock turtle soup», sopa que imita la de tortuga."},
+  {cat:"personajes", q:"¿Quién condena con un «¡Que le corten la cabeza!» constante?", o:["El Rey","La Reina de Corazones","La Duquesa","La Oruga"], a:1, f:"Es su frase característica."},
+  {cat:"personajes", q:"¿Qué hace el Rey con los condenados a escondidas?", o:["Los ejecuta él mismo","Los indulta","Los manda al destierro","Los lleva a juicio"], a:1, f:"Es más bondadoso que la Reina y los perdona en secreto."},
+  {cat:"personajes", q:"¿Qué animal entrega la Duquesa a Alicia?", o:["Un gato","Un bebé","Un cerdo desde el principio","Un cuervo"], a:1, f:"Un bebé que más tarde se convierte en cerdo."},
+  {cat:"personajes", q:"¿Quién organiza la carrera política?", o:["El Conejo","El Dodo","El Ratón","El Loro"], a:1, f:"El pomposo Dodo, posible autorretrato de Carroll."},
+  {cat:"personajes", q:"¿Cómo se llama el lagarto que cae por la chimenea?", o:["Bob","Bill","Pat","Sam"], a:1, f:"El lagarto Bill, al que Alicia patea desde dentro."},
+  {cat:"personajes", q:"¿Qué hace el cocinero de la Duquesa?", o:["Cocina muy bien","Lanza objetos y echa demasiada pimienta","Sirve té","Toca el violín"], a:1, f:"Llena la cocina de pimienta y lanza cacerolas."},
+  {cat:"personajes", q:"¿Quién es testigo en el juicio además del Sombrerero?", o:["El Conejo y el Gato","La cocinera y el Lirón","La Duquesa y el Grifo","La Oruga y el Dodo"], a:1, f:"La cocinera y el Lirón también declaran."},
+  {cat:"personajes", q:"¿Qué hace el Conejo en la corte?", o:["Es el juez","Es el acusado","Es el pregonero","Es el verdugo"], a:2, f:"Lee las acusaciones con la trompeta."},
+  {cat:"personajes", q:"¿Quién pregunta a Alicia «¿Quién eres tú?»", o:["El Conejo","La Reina","La Oruga","El Sombrerero"], a:2, f:"La Oruga, en una conversación llena de filosofía e identidad."},
+  {cat:"personajes", q:"¿Quién dice «todo tiene su moraleja»?", o:["La Falsa Tortuga","La Duquesa","La Reina","El Rey"], a:1, f:"La Duquesa busca moralejas absurdas para todo."},
+  {cat:"personajes", q:"¿Cómo se siente la Falsa Tortuga la mayor parte del tiempo?", o:["Alegre","Triste y llorosa","Furiosa","Asustada"], a:1, f:"Cuenta su historia entre sollozos."},
+  {cat:"personajes", q:"¿Qué animal es el bebé de la Duquesa al final?", o:["Un perro","Un cerdo","Un gato","Un cordero"], a:1, f:"Se convierte en cerdito en brazos de Alicia."},
+  {cat:"personajes", q:"¿Quién aparece en los muros del jardín pintando rosas?", o:["Jardineros con forma de naipe","Soldados","Conejos","Niños"], a:0, f:"Son cartas vivientes (el dos, el cinco y el siete de picas)."},
+  {cat:"personajes", q:"¿Qué representa simbólicamente la Reina?", o:["La sabiduría","El poder arbitrario y tiránico","La maternidad","La justicia"], a:1, f:"Es la figura de la autoridad caprichosa."},
+
+  // ===== DETALLES (56-75) =====
+  {cat:"detalles", q:"¿Qué hora marca el reloj del Sombrerero?", o:["Las doce en punto","Las seis de la tarde","Las tres","Las nueve"], a:1, f:"El Tiempo se detuvo a las seis: hora del té eterno."},
+  {cat:"detalles", q:"¿Qué bebida toman en la merienda?", o:["Café","Chocolate","Té","Limonada"], a:2, f:"Té, por supuesto: es una merienda inglesa."},
+  {cat:"detalles", q:"¿Qué color tiene la Oruga?", o:["Verde","Roja","Azul","Amarilla"], a:2, f:"La famosa Oruga azul."},
+  {cat:"detalles", q:"¿De qué color son las rosas que pintan los jardineros?", o:["De azul","De rojo","De amarillo","De negro"], a:1, f:"Las pintan de rojo para esconder el error."},
+  {cat:"detalles", q:"¿Qué hay escrito en la botella de la primera sala?", o:["«Bébeme»","«Pruébame»","«Tócame»","«Mírame»"], a:0, f:"La famosa etiqueta «DRINK ME»."},
+  {cat:"detalles", q:"¿Y en el pastel pequeño?", o:["«Tómame»","«Cómeme»","«Pésame»","«Hornéame»"], a:1, f:"«EAT ME»."},
+  {cat:"detalles", q:"¿De qué material son los mazos de croquet?", o:["De madera","Flamencos vivos","De plata","De hueso"], a:1, f:"Los flamencos sirven de mazos, los erizos de bolas."},
+  {cat:"detalles", q:"¿Qué utilizan como bolas?", o:["Pelotas de cuero","Erizos vivos","Manzanas","Huevos"], a:1, f:"Los erizos se enrollan y hacen de bola."},
+  {cat:"detalles", q:"¿Qué utilizan como arcos del croquet?", o:["Soldados-naipe","Ramas","Conejos","Lirones"], a:0, f:"Los soldados doblados hacen de arcos."},
+  {cat:"detalles", q:"¿En qué lugar se desarrolla la merienda?", o:["En un palacio","Al aire libre, frente a la casa de la Liebre","En una cueva","En un barco"], a:1, f:"Una mesa al aire libre frente a la casa de la Liebre de Marzo."},
+  {cat:"detalles", q:"¿Cuántas personas hay en la merienda al llegar Alicia?", o:["Dos","Tres","Cuatro","Cinco"], a:1, f:"El Sombrerero, la Liebre y el Lirón."},
+  {cat:"detalles", q:"¿Qué historia cuenta el Lirón medio dormido?", o:["La de tres hermanitas que vivían en un pozo de melaza","La del rey y la reina","La del bosque encantado","La del gato con botas"], a:0, f:"Las tres hermanas comen melaza."},
+  {cat:"detalles", q:"¿Qué tipo de pez es el «pez-lacayo» que aparece?", o:["Un atún","Un pez-rana","Un pez con librea de criado","Un salmón"], a:2, f:"Aparecen un pez-lacayo y una rana-lacayo entregando una invitación."},
+  {cat:"detalles", q:"¿Qué deporte parodia la «cuadrilla de la langosta»?", o:["Un baile marino, no un deporte","El fútbol","El cricket","El boxeo"], a:0, f:"Es un baile, no un deporte."},
+  {cat:"detalles", q:"¿Qué asignaturas estudiaba la Falsa Tortuga?", o:["Matemáticas y Física","Tortura, Reír y Lamentar, etc.","Latín y Griego","Música y Pintura"], a:1, f:"Juegos de palabras: «Reeling and Writhing» en lugar de «Reading and Writing»."},
+  {cat:"detalles", q:"¿Cuál es el primer poema que recita Alicia (mal)?", o:["«How doth the little crocodile»","«Twinkle, twinkle little star»","«Mary had a little lamb»","«Jabberwocky»"], a:0, f:"Parodia de un poema moralista de Isaac Watts."},
+  {cat:"detalles", q:"¿Qué animal está en la sopa que canta la Falsa Tortuga?", o:["De gallina","De pescado","De tortuga (falsa)","De cordero"], a:2, f:"La canción «Beautiful Soup» trata de sopa de tortuga."},
+  {cat:"detalles", q:"¿Qué pierde el Conejo en su casa?", o:["Su reloj","Sus guantes y abanico","Sus botas","Su sombrero"], a:1, f:"Por eso manda a Alicia (Mary Ann) a buscarlos."},
+  {cat:"detalles", q:"¿Qué dice la inscripción del pastel del juicio?", o:["No hay tal pastel; las tartas son las robadas","«Cómeme»","«Bébeme»","«Para el Rey»"], a:0, f:"Las tartas (no un pastel) son el objeto del robo en el juicio."},
+  {cat:"detalles", q:"¿En qué estación del año transcurre el sueño?", o:["Invierno","Primavera","Verano","Otoño"], a:2, f:"Hace mucho calor y Alicia descansa en el césped: es un día de verano."},
+
+  // ===== AUTOR / CONTEXTO (76-88) =====
+  {cat:"autor", q:"¿Quién escribió «Alicia en el País de las Maravillas»?", o:["Charles Dickens","Lewis Carroll","Mark Twain","Oscar Wilde"], a:1, f:"Lewis Carroll, seudónimo del autor."},
+  {cat:"autor", q:"¿Cuál es el nombre real de Lewis Carroll?", o:["Charles Lutwidge Dodgson","Samuel Clemens","Eric Blair","William Sydney Porter"], a:0, f:"Era profesor de matemáticas en Oxford."},
+  {cat:"autor", q:"¿En qué año se publicó por primera vez la novela?", o:["1845","1865","1885","1905"], a:1, f:"Se publicó en 1865 en Inglaterra."},
+  {cat:"autor", q:"¿En qué país y época transcurre el contexto del autor?", o:["Inglaterra victoriana","Francia del siglo XVIII","Estados Unidos del XX","Alemania romántica"], a:0, f:"Plena época victoriana, durante el reinado de Victoria I."},
+  {cat:"autor", q:"¿En qué niña real se inspira el personaje de Alicia?", o:["Alice Liddell","Alice Hargreaves","Alice Pleasance","Las tres son la misma persona"], a:3, f:"Alice Liddell, que de casada se llamaba Alice Hargreaves; Pleasance era su segundo nombre."},
+  {cat:"autor", q:"¿De qué disciplina era profesor Lewis Carroll?", o:["Literatura","Matemáticas","Música","Botánica"], a:1, f:"Era matemático y profesor en Christ Church, Oxford."},
+  {cat:"autor", q:"¿Cómo nace la historia originalmente?", o:["Como un sueño del autor","Como un relato improvisado en una excursión en barca","Como una obra de teatro","Como una carta"], a:1, f:"Carroll la contó durante un paseo en barca con las hermanas Liddell."},
+  {cat:"autor", q:"¿Quién ilustró la edición original?", o:["John Tenniel","Arthur Rackham","Beatrix Potter","Walt Disney"], a:0, f:"Las célebres ilustraciones de Tenniel acompañan la primera edición."},
+  {cat:"autor", q:"¿Existe una continuación de la novela?", o:["No","Sí, «A través del espejo»","Sí, «El regreso al País»","Sí, «Alicia en la luna»"], a:1, f:"«A través del espejo y lo que Alicia encontró allí» (1871)."},
+  {cat:"autor", q:"¿A qué género pertenece principalmente la obra?", o:["Realismo","Literatura fantástica y absurda (nonsense)","Romanticismo trágico","Novela histórica"], a:1, f:"Es el ejemplo clásico de literatura del nonsense."},
+  {cat:"autor", q:"¿En qué idioma se escribió originalmente?", o:["Francés","Alemán","Inglés","Latín"], a:2, f:"Inglés británico victoriano."},
+  {cat:"autor", q:"¿Qué nombre tiene en inglés el Sombrerero Loco?", o:["The Crazy Hatter","The Mad Hatter","The Top Hatter","The Wild Hatter"], a:1, f:"«The Mad Hatter»."},
+  {cat:"autor", q:"¿Qué adaptación cinematográfica popularizó la historia en el siglo XX?", o:["La de Disney (1951)","La de Tim Burton (2010)","Ambas son famosas adaptaciones","Ninguna"], a:2, f:"La animada de Disney y la de Tim Burton son las más conocidas."},
+
+  // ===== LITERATURA / INTERPRETACIÓN (89-100) =====
+  {cat:"literatura", q:"¿Qué tipo de narrador tiene la novela?", o:["Narrador en primera persona","Narrador omnisciente en tercera persona","Narrador testigo","Varios narradores"], a:1, f:"Un narrador externo que conoce los pensamientos de Alicia."},
+  {cat:"literatura", q:"¿Qué tema NO es central en el libro?", o:["La identidad","La lógica y el sinsentido","La guerra entre países","El paso de la infancia a la madurez"], a:2, f:"La guerra no es un tema relevante; los otros tres sí."},
+  {cat:"literatura", q:"¿Cómo se llama el género del «sinsentido» que practica Carroll?", o:["Nonsense","Sátira","Épica","Lírica"], a:0, f:"«Literatura del nonsense», muy británica."},
+  {cat:"literatura", q:"¿Qué recurso literario usa Carroll con frases como «long tale / long tail»?", o:["Metáfora","Juego de palabras (paronomasia)","Hipérbole","Comparación"], a:1, f:"Juega con palabras que suenan parecido pero significan distinto."},
+  {cat:"literatura", q:"¿Qué simboliza el cambio de tamaño de Alicia?", o:["El paso del tiempo","La transición de la infancia a la adolescencia y la identidad","La enfermedad","La pobreza"], a:1, f:"Crecer y encoger representa los cambios de la adolescencia."},
+  {cat:"literatura", q:"¿Qué figura literaria es «el Tiempo se enfadó conmigo»?", o:["Metáfora","Personificación (prosopopeya)","Hipérbole","Anáfora"], a:1, f:"Se atribuyen cualidades humanas a un concepto abstracto: el Tiempo."},
+  {cat:"literatura", q:"¿Qué crítica social hace Carroll a través de la Reina y el juicio?", o:["Critica la justicia arbitraria y absurda","Defiende la monarquía","Critica el republicanismo","No hace ninguna crítica"], a:0, f:"El juicio parodia el sistema judicial victoriano."},
+  {cat:"literatura", q:"¿Qué estructura narrativa tiene la obra?", o:["Lineal y realista","Circular: empieza y termina junto al río","En forma de cartas","En forma de diario"], a:1, f:"Comienza y termina en la orilla del río, con la hermana."},
+  {cat:"literatura", q:"¿A qué tradición literaria se considera que pertenece la novela?", o:["Literatura infantil y juvenil con valor adulto","Solo literatura para adultos","Literatura técnica","Novela de caballería"], a:0, f:"Es uno de los grandes clásicos de la literatura infantil que se lee también de adulto."},
+  {cat:"literatura", q:"¿Cuál es la enseñanza principal que aprende Alicia?", o:["A obedecer siempre","A defenderse, pensar por sí misma y reafirmar su identidad","A guardar silencio","A ser malvada"], a:1, f:"Al gritar «¡no sois más que cartas!» se afirma como individuo."},
+  {cat:"literatura", q:"¿Qué tipo de mundo se construye en el libro?", o:["Realista","Onírico, absurdo, regido por la lógica del sueño","Histórico","Distópico"], a:1, f:"Un mundo onírico donde las reglas del sueño dominan."},
+  {cat:"literatura", q:"¿Qué aporta el final de despertar?", o:["Convierte todo en realidad","Indica que era un sueño y devuelve a Alicia al mundo real","Es un final inacabado","Es una premonición"], a:1, f:"Cierra la novela: todo era un sueño, y Alicia vuelve a la vida cotidiana."}
+];
+
+/* Build quiz */
+const quizContainer = document.getElementById('quizContainer');
+const answers = new Array(questions.length).fill(null);
+
+function renderQuiz(filter='all'){
+  quizContainer.innerHTML = '';
+  questions.forEach((q,idx)=>{
+    if(filter !== 'all' && filter !== 'unanswered' && q.cat !== filter) return;
+    if(filter === 'unanswered' && answers[idx] !== null) return;
+    const card = document.createElement('div');
+    card.className = 'question-card' + (answers[idx]!==null ? ' answered '+(answers[idx]===q.a?'correct':'incorrect'):'');
+    card.dataset.idx = idx;
+    let optionsHtml = '';
+    const letters = ['A','B','C','D'];
+    q.o.forEach((opt,oi)=>{
+      const sel = answers[idx]===oi;
+      const isCorrect = oi === q.a;
+      let cls = 'q-option';
+      if(answers[idx]!==null){
+        cls += ' locked';
+        if(sel) cls += isCorrect ? ' selected correct-ans' : ' selected wrong-ans';
+        if(!sel && isCorrect && answers[idx]!==null) cls += ' reveal-correct';
+      }
+      optionsHtml += `<li class="${cls}" data-q="${idx}" data-o="${oi}"><span class="letter">${letters[oi]}</span><span>${opt}</span></li>`;
+    });
+    card.innerHTML = `
+      <span class="q-number">Pregunta ${idx+1}</span>
+      <div class="q-text">${q.q}</div>
+      <ul class="q-options">${optionsHtml}</ul>
+      <div class="feedback ${answers[idx]!==null?'show':''}">${q.f}</div>
+    `;
+    quizContainer.appendChild(card);
+  });
+
+  // Attach click handlers
+  document.querySelectorAll('.q-option:not(.locked)').forEach(opt=>{
+    opt.addEventListener('click', e=>{
+      const q = parseInt(opt.dataset.q);
+      const o = parseInt(opt.dataset.o);
+      if(answers[q] !== null) return;
+      answers[q] = o;
+      renderQuiz(currentFilter);
+      updateStats();
+    });
+  });
+}
+
+let currentFilter = 'all';
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderQuiz(currentFilter);
+  });
+});
+
+function updateStats(){
+  const answered = answers.filter(a=>a!==null).length;
+  const correct = answers.reduce((acc,a,i)=> acc + (a!==null && a===questions[i].a ? 1 : 0), 0);
+  document.getElementById('answeredCount').textContent = answered;
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('progressFill').style.width = (answered/questions.length*100) + '%';
+}
+
+document.getElementById('checkBtn').addEventListener('click', ()=>{
+  const correct = answers.reduce((acc,a,i)=> acc + (a!==null && a===questions[i].a ? 1 : 0), 0);
+  const banner = document.getElementById('resultBanner');
+  document.getElementById('finalScore').textContent = correct;
+  let msg = '';
+  if(correct < 40) msg = '¡Sigue practicando! Repasa el resumen y los personajes y vuelve a intentarlo.';
+  else if(correct < 60) msg = 'No está mal, pero hay margen para crecer (y para encoger también).';
+  else if(correct < 80) msg = '¡Muy bien! Conoces bien el País de las Maravillas.';
+  else if(correct < 95) msg = '¡Excelente! Casi mereces ser invitada/o a la merienda del Sombrerero.';
+  else msg = '¡Memorable! La propia Alicia se quitaría el sombrero ante ti.';
+  document.getElementById('resultMsg').textContent = msg;
+  banner.classList.add('show');
+  banner.scrollIntoView({behavior:'smooth', block:'center'});
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('¿Quieres reiniciar todo el cuestionario?')) return;
+  for(let i=0;i<answers.length;i++) answers[i]=null;
+  document.getElementById('resultBanner').classList.remove('show');
+  updateStats();
+  renderQuiz(currentFilter);
+  window.scrollTo({top:document.getElementById('cuestionario').offsetTop-80, behavior:'smooth'});
+});
+
+renderQuiz();
+updateStats();
+</script>
+
+</body>
+</html>
