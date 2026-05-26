@@ -4,276 +4,399 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Geometría espacial 3º ESO — Página 24 resuelta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #b91c1c;
-    --primary-dark: #7f1d1d;
-    --accent: #c0392b;
-    --bg: #fafaf9;
+    /* Paleta nueva: azul marino + crema + ámbar */
+    --primary: #1e3a8a;
+    --primary-dark: #172554;
+    --primary-light: #3b82f6;
+    --accent: #d97706;
+    --accent-light: #fbbf24;
+
+    --bg: #faf7f2;
     --card-bg: #ffffff;
-    --border: #e7e5e4;
-    --text: #1c1917;
-    --muted: #57534e;
-    --highlight: #fef3c7;
-    --formula-bg: #fffbeb;
-    --result-bg: #ecfccb;
-    --result-border: #84cc16;
+    --border: #e5d9c4;
+    --border-strong: #c8b896;
+
+    --text: #1a1a2e;
+    --text-soft: #44475a;
+    --muted: #6b7280;
+
+    --formula-bg: #fef9e7;
+    --formula-border: #d97706;
+    --formula-title: #92400e;
+
+    --result-bg: #d1fae5;
+    --result-border: #059669;
+    --result-text: #064e3b;
+
+    --tip-bg: #dbeafe;
+    --tip-border: #2563eb;
+    --tip-text: #1e40af;
+
+    --warn-bg: #fef3c7;
+    --warn-border: #d97706;
+    --warn-text: #78350f;
+
+    --step-bg: #f3f4f6;
+
+    --shadow-sm: 0 1px 3px rgba(30, 58, 138, 0.06);
+    --shadow-md: 0 4px 12px rgba(30, 58, 138, 0.08);
+    --shadow-lg: 0 8px 24px rgba(30, 58, 138, 0.12);
   }
+
   * { box-sizing: border-box; }
+
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg);
     color: var(--text);
     margin: 0;
     padding: 0;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
   }
-  header {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-    padding: 32px 24px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  header h1 { margin: 0; font-size: 28px; }
-  header p { margin: 8px 0 0 0; opacity: 0.9; }
 
-  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 48px 24px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+  header p {
+    margin: 12px 0 0 0;
+    opacity: 0.92;
+    font-size: 17px;
+    font-weight: 500;
+    position: relative;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
 
   .nav-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 8px;
-    margin-bottom: 32px;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-bottom: 40px;
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
   }
   .nav-grid a {
     display: block;
-    padding: 12px 8px;
-    background: var(--card-bg);
+    padding: 14px 8px;
+    background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     text-decoration: none;
-    color: var(--text);
+    color: var(--primary);
     text-align: center;
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: 700;
+    font-size: 16px;
     transition: all 0.2s;
   }
   .nav-grid a:hover {
     background: var(--primary);
     color: white;
-    transform: translateY(-2px);
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
   }
 
   .exercise {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow-sm);
   }
   .exercise h2 {
     color: var(--primary);
-    margin-top: 0;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--border);
+    margin: 0 0 16px 0;
+    padding-bottom: 16px;
+    border-bottom: 3px solid var(--accent);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
   }
   .exercise h3 {
     color: var(--primary-dark);
-    margin-top: 24px;
+    margin-top: 32px;
+    font-size: 20px;
+    font-weight: 700;
   }
+
   .enunciado {
-    background: #f5f5f4;
-    padding: 12px 16px;
-    border-left: 4px solid var(--accent);
-    border-radius: 4px;
-    margin-bottom: 16px;
+    background: linear-gradient(to right, #f8f4ea, #faf7f2);
+    padding: 18px 22px;
+    border-left: 5px solid var(--accent);
+    border-radius: 8px;
+    margin: 20px 0;
     font-style: italic;
+    font-size: 16px;
+    color: var(--text-soft);
+    box-shadow: var(--shadow-sm);
   }
+
   .formula {
     background: var(--formula-bg);
-    border-left: 4px solid #f59e0b;
-    padding: 12px 16px;
-    margin: 12px 0;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 15px;
+    border-left: 5px solid var(--formula-border);
+    padding: 16px 20px;
+    margin: 14px 0;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 16px;
     overflow-x: auto;
+    box-shadow: var(--shadow-sm);
+    color: var(--text);
   }
   .formula-title {
     font-weight: 700;
-    color: #92400e;
-    font-family: inherit;
-    margin-bottom: 4px;
-    font-size: 13px;
+    color: var(--formula-title);
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 8px;
+    font-size: 12px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1.2px;
   }
+
   .result {
     background: var(--result-bg);
     border: 2px solid var(--result-border);
-    padding: 16px;
-    border-radius: 8px;
-    margin: 16px 0;
-    font-weight: 600;
-    font-size: 16px;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--result-text);
+    box-shadow: var(--shadow-sm);
   }
+
   .tip {
-    background: #dbeafe;
-    border-left: 4px solid #3b82f6;
-    padding: 10px 14px;
-    margin: 12px 0;
-    border-radius: 4px;
-    font-size: 14px;
+    background: var(--tip-bg);
+    border-left: 5px solid var(--tip-border);
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--tip-text);
   }
-  .tip::before {
-    content: "💡 ";
-  }
+  .tip::before { content: "💡 "; margin-right: 4px; }
+
   .warning {
-    background: #fee2e2;
-    border-left: 4px solid #ef4444;
-    padding: 10px 14px;
-    margin: 12px 0;
-    border-radius: 4px;
-    font-size: 14px;
+    background: var(--warn-bg);
+    border-left: 5px solid var(--warn-border);
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--warn-text);
   }
-  .warning::before {
-    content: "⚠️ ";
-  }
+  .warning::before { content: "⚠️ "; margin-right: 4px; }
+
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 12px 0;
+    margin: 18px 0;
     background: white;
-    border-radius: 6px;
+    border-radius: 10px;
     overflow: hidden;
     border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    font-size: 15px;
   }
   th, td {
-    padding: 10px 12px;
+    padding: 14px 16px;
     text-align: left;
     border-bottom: 1px solid var(--border);
   }
   th {
-    background: #f5f5f4;
-    font-weight: 600;
-    color: var(--muted);
+    background: var(--primary);
+    color: white;
+    font-weight: 700;
     font-size: 13px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
   }
   tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #fafbfc; }
   tr.total td {
-    background: #fef3c7;
-    font-weight: 700;
+    background: var(--accent-light) !important;
+    font-weight: 800;
+    color: var(--warn-text);
+    font-size: 16px;
   }
+
   .diagram-container {
     background: white;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    margin: 16px 0;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
     text-align: center;
+    box-shadow: var(--shadow-sm);
   }
-  .diagram-container svg {
-    max-width: 100%;
-    height: auto;
-  }
+  .diagram-container svg { max-width: 100%; height: auto; }
+
   .step {
-    background: #f9fafb;
-    padding: 12px 16px;
-    border-left: 3px solid var(--primary);
-    margin: 8px 0;
-    border-radius: 4px;
+    background: var(--step-bg);
+    padding: 14px 20px;
+    border-left: 4px solid var(--primary-light);
+    margin: 10px 0;
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--text);
   }
   .step-num {
     display: inline-block;
     background: var(--primary);
     color: white;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     text-align: center;
-    line-height: 24px;
+    line-height: 28px;
     font-weight: 700;
-    margin-right: 8px;
-    font-size: 13px;
+    margin-right: 10px;
+    font-size: 14px;
+    box-shadow: var(--shadow-sm);
   }
+
   .summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
+    gap: 18px;
     margin-top: 24px;
   }
   .summary-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
   }
   .summary-card h3 {
-    margin-top: 0;
+    margin: 0 0 10px 0;
     color: var(--primary);
-    font-size: 18px;
+    font-size: 17px;
+    font-weight: 700;
   }
   .summary-card .num {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--primary-dark);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
   }
+  .summary-card p { margin: 0; color: var(--text-soft); }
+
   details {
     margin: 16px 0;
-    background: #f9fafb;
-    border-radius: 6px;
-    padding: 8px 12px;
+    background: var(--step-bg);
+    border-radius: 10px;
+    padding: 10px 16px;
     border: 1px solid var(--border);
   }
   summary {
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--primary);
-    padding: 4px 0;
+    padding: 6px 0;
+    font-size: 15px;
   }
-  details[open] summary { margin-bottom: 8px; }
+  details[open] summary { margin-bottom: 12px; }
+
+  ul { padding-left: 24px; }
+  ul li { margin: 6px 0; }
+
   footer {
     text-align: center;
     color: var(--muted);
-    padding: 24px;
+    padding: 32px 24px;
     font-size: 14px;
     margin-top: 32px;
+    border-top: 1px solid var(--border);
+    background: var(--card-bg);
   }
+  footer p { margin: 4px 0; }
+
   .back-top {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 24px;
+    right: 24px;
     background: var(--primary);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow-lg);
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s, transform 0.2s;
+    z-index: 100;
   }
   .back-top.show { opacity: 1; }
+  .back-top:hover { transform: translateY(-4px); background: var(--primary-dark); }
+
+  strong { color: var(--primary-dark); font-weight: 700; }
+
   @media (max-width: 768px) {
     .container { padding: 16px; }
-    .exercise { padding: 16px; }
-    header h1 { font-size: 22px; }
+    .exercise { padding: 20px; }
+    header { padding: 32px 16px; }
+    header h1 { font-size: 24px; }
+    header p { font-size: 15px; }
     table { font-size: 13px; }
-    th, td { padding: 8px; }
+    th, td { padding: 10px 8px; }
+    .exercise h2 { font-size: 22px; }
+    .formula { font-size: 14px; }
+  }
+
+  @media print {
+    header { background: var(--primary); print-color-adjust: exact; }
+    .back-top { display: none; }
+    .nav-grid { display: none; }
+    .exercise { box-shadow: none; page-break-inside: avoid; }
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>📐 Geometría espacial — Página 24 resuelta</h1>
-  <p>3º ESO — Cuerpos geométricos, husos horarios y coordenadas geográficas</p>
+  <h1>📐 Geometría espacial — Página 24</h1>
+  <p>3º ESO · Cuerpos compuestos, husos horarios y coordenadas geográficas</p>
 </header>
 
 <div class="container">
