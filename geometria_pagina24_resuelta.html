@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geometría espacial 3º ESO — Página 24 resuelta</title>
+<style>
+  :root {
+    --primary: #b91c1c;
+    --primary-dark: #7f1d1d;
+    --accent: #c0392b;
+    --bg: #fafaf9;
+    --card-bg: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #57534e;
+    --highlight: #fef3c7;
+    --formula-bg: #fffbeb;
+    --result-bg: #ecfccb;
+    --result-border: #84cc16;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  header h1 { margin: 0; font-size: 28px; }
+  header p { margin: 8px 0 0 0; opacity: 0.9; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .nav-grid a {
+    display: block;
+    padding: 12px 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .nav-grid a:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .exercise {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .exercise h2 {
+    color: var(--primary);
+    margin-top: 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .exercise h3 {
+    color: var(--primary-dark);
+    margin-top: 24px;
+  }
+  .enunciado {
+    background: #f5f5f4;
+    padding: 12px 16px;
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+  .formula {
+    background: var(--formula-bg);
+    border-left: 4px solid #f59e0b;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    overflow-x: auto;
+  }
+  .formula-title {
+    font-weight: 700;
+    color: #92400e;
+    font-family: inherit;
+    margin-bottom: 4px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .result {
+    background: var(--result-bg);
+    border: 2px solid var(--result-border);
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .tip {
+    background: #dbeafe;
+    border-left: 4px solid #3b82f6;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .tip::before {
+    content: "💡 ";
+  }
+  .warning {
+    background: #fee2e2;
+    border-left: 4px solid #ef4444;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .warning::before {
+    content: "⚠️ ";
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #f5f5f4;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.total td {
+    background: #fef3c7;
+    font-weight: 700;
+  }
+  .diagram-container {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .diagram-container svg {
+    max-width: 100%;
+    height: auto;
+  }
+  .step {
+    background: #f9fafb;
+    padding: 12px 16px;
+    border-left: 3px solid var(--primary);
+    margin: 8px 0;
+    border-radius: 4px;
+  }
+  .step-num {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    font-weight: 700;
+    margin-right: 8px;
+    font-size: 13px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .summary-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .summary-card h3 {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 18px;
+  }
+  .summary-card .num {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-dark);
+  }
+  details {
+    margin: 16px 0;
+    background: #f9fafb;
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--primary);
+    padding: 4px 0;
+  }
+  details[open] summary { margin-bottom: 8px; }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 24px;
+    font-size: 14px;
+    margin-top: 32px;
+  }
+  .back-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .back-top.show { opacity: 1; }
+  @media (max-width: 768px) {
+    .container { padding: 16px; }
+    .exercise { padding: 16px; }
+    header h1 { font-size: 22px; }
+    table { font-size: 13px; }
+    th, td { padding: 8px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>📐 Geometría espacial — Página 24 resuelta</h1>
+  <p>3º ESO — Cuerpos geométricos, husos horarios y coordenadas geográficas</p>
+</header>
+
+<div class="container">
+
+  <nav class="nav-grid">
+    <a href="#ej23">23</a>
+    <a href="#ej24">24</a>
+    <a href="#ej25">25</a>
+    <a href="#ej26">26</a>
+    <a href="#ej27">27</a>
+    <a href="#ej28">28</a>
+    <a href="#ej29">29</a>
+    <a href="#ej30">30</a>
+    <a href="#ej31">31</a>
+    <a href="#ej32">32</a>
+    <a href="#ej33">33</a>
+    <a href="#ej34">34</a>
+  </nav>
+
+  <!-- ============ EJERCICIO 23 ============ -->
+  <section class="exercise" id="ej23">
+    <h2>23) Áreas y volúmenes de cuerpos compuestos</h2>
+    <p class="enunciado">Calcula las áreas y los volúmenes de los siguientes cuerpos geométricos.</p>
+
+    <h3>📌 Fórmulas que vamos a usar</h3>
+    <div class="formula">
+      <div class="formula-title">Cilindro</div>
+      V = π · r² · h  &nbsp;·&nbsp;  A_lateral = 2π · r · h
+    </div>
+    <div class="formula">
+      <div class="formula-title">Cono</div>
+      V = ⅓ · π · r² · h  &nbsp;·&nbsp;  A_lateral = π · r · g  (g = generatriz = √(r² + h²))
+    </div>
+    <div class="formula">
+      <div class="formula-title">Esfera y semiesfera</div>
+      V_esfera = (4/3) · π · r³  &nbsp;·&nbsp;  A_esfera = 4π · r²
+      <br>V_semiesfera = ½ · V_esfera  &nbsp;·&nbsp;  A_curva_semi = ½ · A_esfera = 2π · r²
+    </div>
+    <div class="formula">
+      <div class="formula-title">Prisma</div>
+      V = A_base · altura
+    </div>
+
+    <!-- 23.a -->
+    <h3>23.a) Semiesfera + Cilindro + Cono</h3>
+    <div class="diagram-container"><svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .axis { stroke: #888; stroke-dasharray: 4 4; fill: none; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+
+  <rect width="600" height="600" fill="white"/>
+
+  <text class="ttl" x="20" y="30">23.a) Semiesfera + Cilindro + Cono</text>
+
+  <!-- Cono arriba -->
+  <ellipse cx="280" cy="180" rx="100" ry="20" fill="#fde9a8" stroke="#b58a00" stroke-width="2"/>
+  <path d="M180,180 L280,60 L380,180 Z" fill="#fde9a8" stroke="#b58a00" stroke-width="2"/>
+  <ellipse cx="280" cy="180" rx="100" ry="20" fill="none" stroke="#b58a00" stroke-width="2" stroke-dasharray="3 3"/>
+
+  <!-- Cilindro -->
+  <rect x="180" y="180" width="200" height="180" fill="#fde9a8" stroke="#b58a00" stroke-width="2"/>
+  <ellipse cx="280" cy="360" rx="100" ry="20" fill="#fde9a8" stroke="#b58a00" stroke-width="2"/>
+  <line x1="180" y1="180" x2="180" y2="360" stroke="#b58a00" stroke-width="2"/>
+  <line x1="380" y1="180" x2="380" y2="360" stroke="#b58a00" stroke-width="2"/>
+
+  <!-- Semiesfera abajo -->
+  <path d="M180,360 A100,60 0 0 0 380,360 Z" fill="#fde9a8" stroke="#b58a00" stroke-width="2"/>
+
+  <!-- Eje -->
+  <line x1="280" y1="60" x2="280" y2="420" class="axis"/>
+
+  <!-- Medidas verticales con flechas -->
+  <line x1="120" y1="60" x2="120" y2="180" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="50" y="125">cono: 5 m</text>
+
+  <line x1="120" y1="180" x2="120" y2="360" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="55" y="275">cil: 5 m</text>
+
+  <line x1="120" y1="360" x2="120" y2="420" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="20" y="395">semi: r=3</text>
+
+  <!-- Total cilindro+cono = 10 -->
+  <line x1="450" y1="60" x2="450" y2="360" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="460" y="215">total cil+cono</text>
+  <text class="dim" x="460" y="232">= 10 m</text>
+
+  <!-- Diámetro -->
+  <line x1="180" y1="450" x2="380" y2="450" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="225" y="475">diámetro = 6 m</text>
+  <text class="lbl" x="245" y="492">(radio r = 3 m)</text>
+
+  <!-- Etiquetas piezas -->
+  <text class="lbl" x="395" y="120">cono</text>
+  <text class="lbl" x="395" y="270">cilindro</text>
+  <text class="lbl" x="395" y="395">semiesfera</text>
+</svg></div>
+    <ul>
+      <li><strong>Datos:</strong> radio común r = 3 m (diámetro 6 m). Altura del cilindro = 5 m. Altura del cono = 10 − 5 = 5 m.</li>
+      <li><strong>Generatriz del cono:</strong> g = √(3² + 5²) = √34 ≈ 5,83 m</li>
+    </ul>
+
+    <table>
+      <thead><tr><th>Pieza</th><th>Volumen</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Semiesfera</td><td>(2/3)π·3³ = 18π</td><td>56,55 m³</td></tr>
+        <tr><td>Cilindro</td><td>π·3²·5 = 45π</td><td>141,37 m³</td></tr>
+        <tr><td>Cono</td><td>(1/3)π·3²·5 = 15π</td><td>47,12 m³</td></tr>
+        <tr class="total"><td>TOTAL</td><td>78π</td><td>≈ 245,04 m³</td></tr>
+      </tbody>
+    </table>
+
+    <table>
+      <thead><tr><th>Superficie</th><th>Cálculo</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Semiesfera curva</td><td>2π·3² = 18π</td><td>56,55 m²</td></tr>
+        <tr><td>Lateral cilindro</td><td>2π·3·5 = 30π</td><td>94,25 m²</td></tr>
+        <tr><td>Lateral cono</td><td>π·3·√34</td><td>54,96 m²</td></tr>
+        <tr class="total"><td>TOTAL</td><td>—</td><td>≈ 205,75 m²</td></tr>
+      </tbody>
+    </table>
+
+    <div class="result">✅ V ≈ 245,04 m³ &nbsp;·&nbsp; A ≈ 205,75 m²</div>
+
+    <!-- 23.b -->
+    <h3>23.b) Cilindro hueco (tubo)</h3>
+    <div class="diagram-container"><svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="600" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">23.b) Cilindro hueco (tubo)</text>
+
+  <!-- Cilindro exterior - tapa superior corona -->
+  <ellipse cx="280" cy="100" rx="140" ry="30" fill="#a9d6f5" stroke="#1f6fa5" stroke-width="2"/>
+  <ellipse cx="280" cy="100" rx="70" ry="15" fill="white" stroke="#1f6fa5" stroke-width="2"/>
+
+  <!-- Lateral exterior -->
+  <line x1="140" y1="100" x2="140" y2="460" stroke="#1f6fa5" stroke-width="2"/>
+  <line x1="420" y1="100" x2="420" y2="460" stroke="#1f6fa5" stroke-width="2"/>
+  
+  <!-- Lateral interior (líneas discontinuas, dentro del tubo) -->
+  <line x1="210" y1="100" x2="210" y2="460" stroke="#1f6fa5" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="350" y1="100" x2="350" y2="460" stroke="#1f6fa5" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <!-- Tapa inferior -->
+  <path d="M140,460 A140,30 0 0 0 420,460" fill="#a9d6f5" stroke="#1f6fa5" stroke-width="2"/>
+  <ellipse cx="280" cy="460" rx="140" ry="30" fill="none" stroke="#1f6fa5" stroke-width="1" stroke-dasharray="3 3"/>
+  <ellipse cx="280" cy="460" rx="70" ry="15" fill="none" stroke="#1f6fa5" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <!-- Lados visibles del cilindro como rectángulo -->
+  <rect x="140" y="100" width="280" height="360" fill="#a9d6f5" fill-opacity="0.5" stroke="none"/>
+  <ellipse cx="280" cy="100" rx="140" ry="30" fill="#a9d6f5" stroke="#1f6fa5" stroke-width="2"/>
+  <ellipse cx="280" cy="100" rx="70" ry="15" fill="white" stroke="#1f6fa5" stroke-width="2"/>
+
+  <!-- Medida diámetro exterior -->
+  <line x1="140" y1="60" x2="420" y2="60" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="220" y="55">8 m (diám. ext.)</text>
+
+  <!-- Medida diámetro hueco -->
+  <line x1="210" y1="100" x2="350" y2="100" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="240" y="118">4 m</text>
+  <text class="lbl" x="225" y="135">(diám. hueco)</text>
+
+  <!-- Altura -->
+  <line x1="490" y1="100" x2="490" y2="460" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="500" y="285">H = 15 m</text>
+
+  <!-- Etiquetas -->
+  <text class="lbl" x="60" y="280">pared del</text>
+  <text class="lbl" x="60" y="295">tubo</text>
+  <text class="lbl" x="60" y="310">(R=4, r=2)</text>
+
+  <!-- Centro hueco -->
+  <text class="lbl" x="245" y="290">HUECO</text>
+  <text class="lbl" x="247" y="307">(aire)</text>
+</svg></div>
+    <ul>
+      <li><strong>Datos:</strong> Radio exterior R = 4 m, radio interior r = 2 m, altura H = 15 m</li>
+    </ul>
+
+    <div class="formula">
+      <div class="formula-title">Volumen de cilindro hueco</div>
+      V = π · (R² − r²) · H
+    </div>
+
+    <p>V = π · (16 − 4) · 15 = 180π ≈ <strong>565,49 m³</strong></p>
+
+    <table>
+      <thead><tr><th>Superficie</th><th>Cálculo</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Lateral exterior</td><td>2π·4·15 = 120π</td><td>376,99 m²</td></tr>
+        <tr><td>Lateral interior</td><td>2π·2·15 = 60π</td><td>188,50 m²</td></tr>
+        <tr><td>2 coronas (arriba+abajo)</td><td>2π·(16−4) = 24π</td><td>75,40 m²</td></tr>
+        <tr class="total"><td>TOTAL</td><td>204π</td><td>≈ 640,88 m²</td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip">La "corona circular" es el anillo de la tapa. Hay dos: arriba y abajo.</div>
+    <div class="result">✅ V ≈ 565,49 m³ &nbsp;·&nbsp; A ≈ 640,88 m²</div>
+
+    <!-- 23.c -->
+    <h3>23.c) Casa (prisma + tejado a dos aguas)</h3>
+    <div class="diagram-container"><svg viewBox="0 0 700 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+    .hidden { stroke: #6a3a8c; stroke-width: 1.2; stroke-dasharray: 4 4; fill: none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="700" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">23.c) Casa = prisma rectangular + tejado a dos aguas</text>
+
+  <!-- Cuerpo de la casa: ortoedro en perspectiva -->
+  <!-- Cara frontal -->
+  <polygon points="120,260 120,460 380,460 380,260" fill="#e6d3f0" stroke="#6a3a8c" stroke-width="2"/>
+  <!-- Cara lateral derecha (16m de profundidad) -->
+  <polygon points="380,260 380,460 520,400 520,200" fill="#cdb6dc" stroke="#6a3a8c" stroke-width="2"/>
+  <!-- Cara superior del cuerpo (techo plano) - no visible, oculta por tejado -->
+  <line x1="120" y1="260" x2="260" y2="200" class="hidden"/>
+  <line x1="260" y1="200" x2="520" y2="200" class="hidden"/>
+
+  <!-- Tejado a dos aguas -->
+  <!-- Faldón frontal (visible) -->
+  <polygon points="120,260 250,150 380,260" fill="#f0c8c8" stroke="#a04040" stroke-width="2"/>
+  <!-- Faldón lateral derecho (visible) -->
+  <polygon points="250,150 380,260 520,200 390,90" fill="#dcaeae" stroke="#a04040" stroke-width="2"/>
+  <!-- Cumbrera -->
+  <line x1="250" y1="150" x2="390" y2="90" stroke="#a04040" stroke-width="2"/>
+
+  <!-- Medidas -->
+  <!-- Ancho 14 m (frente) -->
+  <line x1="120" y1="490" x2="380" y2="490" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="230" y="510">14 m (ancho)</text>
+
+  <!-- Profundidad 16 m -->
+  <line x1="400" y1="475" x2="535" y2="415" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="430" y="510">16 m (largo)</text>
+
+  <!-- Altura 15 m del cuerpo -->
+  <line x1="80" y1="260" x2="80" y2="460" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="20" y="365">15 m</text>
+  <text class="lbl" x="15" y="382">(cuerpo)</text>
+
+  <!-- Lado inclinado del tejado 12 m -->
+  <line x1="115" y1="240" x2="248" y2="135" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="110" y="160">12 m</text>
+  <text class="lbl" x="80" y="178">(lado tejado)</text>
+
+  <!-- Altura tejado (a calcular) -->
+  <line x1="250" y1="150" x2="250" y2="260" class="hidden"/>
+  <text class="dim" x="260" y="210">h = √95</text>
+  <text class="lbl" x="260" y="225">≈ 9,75 m</text>
+
+  <!-- Pitágoras pequeño debajo -->
+  <g transform="translate(540,260)">
+    <text class="lbl" font-weight="700" x="0" y="0">Altura del tejado:</text>
+    <text class="lbl" x="0" y="20">triángulo isósceles</text>
+    <text class="lbl" x="0" y="38">base 14, lados 12</text>
+    <text class="lbl" x="0" y="58">h = √(12² − 7²)</text>
+    <text class="lbl" x="0" y="76">h = √(144 − 49)</text>
+    <text class="lbl" x="0" y="94" font-weight="700">h = √95 ≈ 9,75 m</text>
+
+    <!-- Mini triángulo -->
+    <polygon points="0,120 80,120 40,160" fill="#fff0f0" stroke="#a04040" stroke-width="1.5" transform="translate(0,40) scale(1,-1)"/>
+    <text class="lbl" x="0" y="190">7</text>
+    <text class="lbl" x="80" y="190">7</text>
+    <text class="lbl" x="35" y="190">14</text>
+    <text class="lbl" x="-15" y="170">12</text>
+  </g>
+</svg></div>
+    <ul>
+      <li><strong>Datos:</strong> Cuerpo 14×16×15 m. Lado inclinado del tejado: 12 m.</li>
+      <li><strong>Altura del tejado</strong> (Pitágoras): h = √(12² − 7²) = √95 ≈ 9,75 m</li>
+    </ul>
+
+    <table>
+      <thead><tr><th>Pieza</th><th>Volumen</th></tr></thead>
+      <tbody>
+        <tr><td>Cuerpo (ortoedro)</td><td>14·16·15 = 3.360 m³</td></tr>
+        <tr><td>Tejado (prisma triangular)</td><td>½·14·√95·16 ≈ 1.091,64 m³</td></tr>
+        <tr class="total"><td>TOTAL</td><td>≈ 4.451,64 m³</td></tr>
+      </tbody>
+    </table>
+
+    <table>
+      <thead><tr><th>Cara</th><th>Cálculo</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Suelo</td><td>14·16</td><td>224 m²</td></tr>
+        <tr><td>2 paredes frontales</td><td>2·(14·15)</td><td>420 m²</td></tr>
+        <tr><td>2 paredes laterales</td><td>2·(16·15)</td><td>480 m²</td></tr>
+        <tr><td>2 faldones del tejado</td><td>2·(12·16)</td><td>384 m²</td></tr>
+        <tr><td>2 frontones (triángulos)</td><td>2·(½·14·√95)</td><td>136,46 m²</td></tr>
+        <tr class="total"><td>TOTAL</td><td>—</td><td>≈ 1.644,46 m²</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warning">Si no contamos el suelo (porque está apoyado en el terreno): A ≈ 1.420,46 m²</div>
+    <div class="result">✅ V ≈ 4.451,64 m³ &nbsp;·&nbsp; A ≈ 1.644,46 m²</div>
+
+    <!-- 23.d -->
+    <h3>23.d) Cilindro con "porción de tarta" recortada</h3>
+    <div class="diagram-container"><svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+    .hidden { stroke: #1d7a4d; stroke-width: 1.2; stroke-dasharray: 4 4; fill: none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="800" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">23.d) Cilindro al que le quitaron una "porción de tarta" (semicilindro)</text>
+
+  <!-- ==== VISTA 1: PERSPECTIVA ==== -->
+  <text class="lbl" font-weight="700" x="80" y="80">Perspectiva (cilindro visto desde arriba-frente):</text>
+
+  <!-- PARTE INFERIOR (0 a 4m): cilindro COMPLETO -->
+  <rect x="80" y="290" width="240" height="170" fill="#bfead6" stroke="none"/>
+  <line x1="80" y1="460" x2="80" y2="290" stroke="#1d7a4d" stroke-width="2"/>
+  <line x1="320" y1="460" x2="320" y2="290" stroke="#1d7a4d" stroke-width="2"/>
+  <!-- Base inferior -->
+  <ellipse cx="200" cy="460" rx="120" ry="22" fill="#bfead6" stroke="#1d7a4d" stroke-width="2"/>
+  
+  <!-- Tapa a los 4m: semi-elipse VISIBLE delante (la parte de tarta que quedó al aire, escalón) -->
+  <!-- La parte de atrás (donde sigue el semicilindro arriba) NO se ve porque está cubierta -->
+  <path d="M80,290 A120,22 0 0 0 320,290" fill="#7fc09f" stroke="#1d7a4d" stroke-width="2"/>
+  <line x1="80" y1="290" x2="320" y2="290" stroke="#1d7a4d" stroke-width="2"/>
+
+  <!-- PARTE SUPERIOR (4 a 8m): SEMICILINDRO trasero (la mitad de atrás del cilindro) -->
+  <!-- La cara plana del corte mira hacia delante -->
+  
+  <!-- Tapa superior: semicírculo trasero (medio elipse de arriba) -->
+  <path d="M80,120 A120,22 0 0 0 320,120" fill="#a8d9c2" stroke="#1d7a4d" stroke-width="2"/>
+  <line x1="80" y1="120" x2="320" y2="120" stroke="#1d7a4d" stroke-width="2"/>
+  
+  <!-- Cara plana vertical del corte (rectángulo frontal del semicilindro superior) -->
+  <polygon points="80,120 320,120 320,290 80,290" fill="#d4f0e2" stroke="#1d7a4d" stroke-width="2"/>
+  <text class="lbl" x="125" y="210" font-weight="700" fill="#1d7a4d">CARA PLANA</text>
+  <text class="lbl" x="115" y="228" fill="#1d7a4d">del corte vertical</text>
+  <text class="lbl" x="145" y="246" fill="#1d7a4d">5 m × 4 m</text>
+
+  <!-- Indicar con punteado la parte que FALTA (la porción de tarta quitada) -->
+  <!-- Sería un semicilindro delantero entre y=120 e y=290 -->
+  <ellipse cx="200" cy="120" rx="120" ry="22" fill="none" class="hidden"/>
+  <ellipse cx="200" cy="290" rx="120" ry="22" fill="none" class="hidden"/>
+  <line x1="80" y1="120" x2="80" y2="290" class="hidden"/>
+  <line x1="320" y1="120" x2="320" y2="290" class="hidden"/>
+
+  <text class="lbl" x="105" y="170" fill="#888" font-style="italic">(zona</text>
+  <text class="lbl" x="105" y="186" fill="#888" font-style="italic">recortada)</text>
+
+  <!-- Medidas -->
+  <line x1="40" y1="120" x2="40" y2="290" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="0" y="195" transform="rotate(-90 0 195)">4 m</text>
+
+  <line x1="40" y1="290" x2="40" y2="460" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="0" y="380" transform="rotate(-90 0 380)">4 m</text>
+
+  <line x1="365" y1="120" x2="365" y2="460" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="375" y="290">total 8 m</text>
+
+  <line x1="80" y1="495" x2="320" y2="495" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="135" y="515">diámetro 5 m</text>
+
+  <text class="lbl" x="340" y="180" font-weight="700">PARTE SUPERIOR</text>
+  <text class="lbl" x="340" y="196">(4 a 8 m):</text>
+  <text class="lbl" x="340" y="212">semicilindro</text>
+  <text class="lbl" x="340" y="228">(mitad trasera)</text>
+
+  <text class="lbl" x="340" y="395" font-weight="700">PARTE INFERIOR</text>
+  <text class="lbl" x="340" y="412">(0 a 4 m):</text>
+  <text class="lbl" x="340" y="428">cilindro completo</text>
+
+
+  <!-- ==== VISTA 2: DESDE ARRIBA ==== -->
+  <text class="lbl" font-weight="700" x="520" y="80">Vista DESDE ARRIBA:</text>
+  
+  <!-- Círculo completo del cilindro -->
+  <circle cx="650" cy="200" r="100" fill="none" stroke="#1d7a4d" stroke-width="2" stroke-dasharray="3 3"/>
+  
+  <!-- Semicírculo de atrás (lo que queda arriba) -->
+  <path d="M550,200 A100,100 0 0 1 750,200 Z" fill="#a8d9c2" stroke="#1d7a4d" stroke-width="2"/>
+  
+  <text class="lbl" x="615" y="180" font-weight="700">SE QUEDA</text>
+  <text class="lbl" x="625" y="195">(semic.)</text>
+  <text class="lbl" x="610" y="245" fill="#888" font-style="italic">SE QUITA</text>
+  <text class="lbl" x="615" y="260" fill="#888" font-style="italic">(porción)</text>
+
+  <!-- Eje del corte -->
+  <line x1="550" y1="200" x2="750" y2="200" stroke="#c0392b" stroke-width="2"/>
+  <text class="dim" x="555" y="320">corte por el diámetro</text>
+  <text class="dim" x="585" y="338">(5 m de largo)</text>
+
+
+  <!-- ==== VISTA 3: PERFIL LATERAL ==== -->
+  <text class="lbl" font-weight="700" x="520" y="380">Perfil (visto desde el lado del corte):</text>
+  
+  <!-- Vemos la cara plana del corte: rectángulo 5×4 arriba, y un rectángulo lleno 5×4 abajo -->
+  <rect x="540" y="410" width="180" height="60" fill="#bfead6" stroke="#1d7a4d" stroke-width="2"/>
+  <!-- arriba: solo la "espalda" del semicilindro, no se ve volumen, se ve un rectángulo plano -->
+  <rect x="540" y="410" width="180" height="-60" fill="#d4f0e2" stroke="#1d7a4d" stroke-width="2" transform="translate(0,60)"/>
+
+  <text class="lbl" x="555" y="395">↓ aquí está la cara plana del corte</text>
+
+  <line x1="520" y1="350" x2="520" y2="410" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="495" y="385" transform="rotate(-90 495 385)">4</text>
+
+  <line x1="520" y1="410" x2="520" y2="470" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="495" y="445" transform="rotate(-90 495 445)">4</text>
+
+  <line x1="540" y1="490" x2="720" y2="490" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="615" y="510">5</text>
+</svg></div>
+    <ul>
+      <li><strong>Datos:</strong> Cilindro completo r = 2,5 m, altura 8 m. A los 4 m se quita un semicilindro (la mitad delantera).</li>
+      <li><strong>Parte inferior</strong> (0–4 m): cilindro completo</li>
+      <li><strong>Parte superior</strong> (4–8 m): medio cilindro</li>
+    </ul>
+
+    <table>
+      <thead><tr><th>Pieza</th><th>Volumen</th></tr></thead>
+      <tbody>
+        <tr><td>Inferior (cilindro completo)</td><td>π·2,5²·4 = 25π ≈ 78,54 m³</td></tr>
+        <tr><td>Superior (medio cilindro)</td><td>½·π·2,5²·4 = 12,5π ≈ 39,27 m³</td></tr>
+        <tr class="total"><td>TOTAL</td><td>37,5π ≈ 117,81 m³</td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip">Cuando se recorta, aparecen <strong>caras nuevas</strong>: la cara plana del corte vertical (rectángulo) y un "escalón" horizontal (media corona) a 4 m.</div>
+
+    <table>
+      <thead><tr><th>Superficie</th><th>Cálculo</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Base inferior (círculo)</td><td>π·2,5²</td><td>19,63 m²</td></tr>
+        <tr><td>Lateral cilindro inf. (0–4)</td><td>2π·2,5·4</td><td>62,83 m²</td></tr>
+        <tr><td>Lateral semicilindro sup. (4–8)</td><td>π·2,5·4</td><td>31,42 m²</td></tr>
+        <tr><td><strong>Cara plana del corte</strong></td><td>5·4</td><td>20,00 m²</td></tr>
+        <tr><td><strong>Escalón</strong> (media corona)</td><td>½π·2,5²</td><td>9,82 m²</td></tr>
+        <tr><td>Tapa superior (semicírculo)</td><td>½π·2,5²</td><td>9,82 m²</td></tr>
+        <tr class="total"><td>TOTAL</td><td>—</td><td>≈ 153,52 m²</td></tr>
+      </tbody>
+    </table>
+
+    <div class="result">✅ V ≈ 117,81 m³ &nbsp;·&nbsp; A ≈ 153,52 m²</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 24 ============ -->
+  <section class="exercise" id="ej24">
+    <h2>24) Tetraedro regular</h2>
+    <p class="enunciado">Halla el área y el volumen del siguiente tetraedro regular de arista 8 cm. Pista: AO = (2/3)·h, donde h es la altura de una cara.</p>
+
+    <h3>📌 Fórmulas del tetraedro regular (arista a)</h3>
+    <div class="formula">
+      <div class="formula-title">Altura de una cara (triángulo equilátero)</div>
+      h_cara = (√3/2) · a
+    </div>
+    <div class="formula">
+      <div class="formula-title">Altura del tetraedro</div>
+      H = a · √(2/3) = a · √6/3
+    </div>
+    <div class="formula">
+      <div class="formula-title">Área total (4 caras equiláteras)</div>
+      A = a² · √3
+    </div>
+    <div class="formula">
+      <div class="formula-title">Volumen</div>
+      V = (a³ · √2) / 12
+    </div>
+
+    <div class="diagram-container"><svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+    .hidden { stroke: #a0501a; stroke-width: 1.2; stroke-dasharray: 4 4; fill: none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="800" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">24) Tetraedro regular de arista 8 cm</text>
+  <text class="lbl" x="20" y="50">4 caras = triángulos equiláteros iguales</text>
+
+  <!-- ==== VISTA 1: el tetraedro como en el libro ==== -->
+  <text class="lbl" font-weight="700" x="80" y="90">Tetraedro 3D (como en el libro):</text>
+
+  <!-- Vértices del tetraedro -->
+  <!-- D = vértice superior; A,B,C = base -->
+  <!-- Posiciones aproximadas en perspectiva -->
+  
+  <!-- Base ABC (triángulo equilátero visto en perspectiva) -->
+  <!-- A abajo-izquierda, C abajo-derecha, B detrás-arriba -->
+  
+  <!-- Caras visibles -->
+  <!-- Cara delantera ADC -->
+  <polygon points="80,420 320,420 200,150" fill="#fce0c4" stroke="#a0501a" stroke-width="2"/>
+  <!-- Cara derecha BDC -->
+  <polygon points="320,420 280,300 200,150" fill="#f4b58a" stroke="#a0501a" stroke-width="2"/>
+  <!-- Cara izquierda ADB -->
+  <polygon points="80,420 280,300 200,150" fill="#f9c8a0" stroke="#a0501a" stroke-width="2"/>
+  <!-- Base (oculta por debajo) -->
+  <line x1="80" y1="420" x2="280" y2="300" class="hidden"/>
+  <line x1="280" y1="300" x2="320" y2="420" class="hidden"/>
+
+  <!-- Etiquetas vértices -->
+  <text class="lbl" font-weight="700" x="65" y="430">A</text>
+  <text class="lbl" font-weight="700" x="290" y="295">B</text>
+  <text class="lbl" font-weight="700" x="325" y="430">C</text>
+  <text class="lbl" font-weight="700" x="195" y="140">D</text>
+
+  <!-- Centro O de la base (proyección de D sobre la base) -->
+  <!-- O está dentro del triángulo ABC, baricentro -->
+  <!-- Aproximadamente baricentro de (80,420), (280,300), (320,420) -->
+  <!-- O ≈ ((80+280+320)/3, (420+300+420)/3) = (226, 380) -->
+  <circle cx="226" cy="380" r="3" fill="#c0392b"/>
+  <text class="lbl" font-weight="700" x="232" y="395">O</text>
+
+  <!-- Altura H (de D a O) - línea discontinua -->
+  <line x1="200" y1="150" x2="226" y2="380" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text class="dim" x="180" y="270" transform="rotate(75 180 270)">H</text>
+
+  <!-- Apotema de la base (de O a punto medio de AC) -->
+  <!-- Punto medio de AC = ((80+320)/2, (420+420)/2) = (200, 420) -->
+  <line x1="226" y1="380" x2="200" y2="420" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <!-- Línea h_cara: de D al punto medio de AC -->
+  <line x1="200" y1="150" x2="200" y2="420" stroke="#c0392b" stroke-width="1.5"/>
+  <text class="dim" x="160" y="285">h</text>
+
+  <!-- Arista a=8 -->
+  <text class="dim" x="180" y="445">a = 8 cm</text>
+
+  <!-- ==== VISTA 2: cara del tetraedro vista plana (triángulo equilátero) ==== -->
+  <text class="lbl" font-weight="700" x="500" y="90">Una cara (triángulo equilátero):</text>
+
+  <polygon points="500,300 700,300 600,127" fill="#fce0c4" stroke="#a0501a" stroke-width="2"/>
+  <!-- altura -->
+  <line x1="600" y1="127" x2="600" y2="300" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <text class="lbl" font-weight="700" x="495" y="315">A</text>
+  <text class="lbl" font-weight="700" x="700" y="315">C</text>
+  <text class="lbl" font-weight="700" x="595" y="118">D</text>
+
+  <!-- Medidas -->
+  <line x1="500" y1="330" x2="700" y2="330" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="585" y="350">a = 8</text>
+
+  <line x1="615" y1="127" x2="615" y2="300" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="625" y="220">h = (√3/2)·8</text>
+  <text class="dim" x="640" y="237">= 4√3</text>
+  <text class="dim" x="635" y="254">≈ 6,93</text>
+
+  <!-- Mitad de la base -->
+  <text class="lbl" x="540" y="295">4</text>
+  <text class="lbl" x="650" y="295">4</text>
+
+
+  <!-- ==== VISTA 3: triángulo DOA para hallar H ==== -->
+  <text class="lbl" font-weight="700" x="80" y="490">Triángulo D-O-A (para hallar H del tetraedro):</text>
+  <text class="lbl" x="80" y="508">AO = (2/3)·h_cara = (2/3)·4√3 = 8√3/3</text>
+  <text class="lbl" x="80" y="525">H = √(a² − AO²) = √(64 − 64/3) = √(128/3) = (8√6)/3 ≈ 6,53</text>
+
+  <!-- Mini triángulo rectángulo -->
+  <polygon points="430,560 540,560 540,490" fill="#fff" stroke="#c0392b" stroke-width="1.5"/>
+  <line x1="535" y1="555" x2="535" y2="560" stroke="#c0392b" stroke-width="1.5"/>
+  <line x1="535" y1="555" x2="540" y2="555" stroke="#c0392b" stroke-width="1.5"/>
+  
+  <text class="lbl" x="425" y="575">A</text>
+  <text class="lbl" x="543" y="575">O</text>
+  <text class="lbl" x="543" y="488">D</text>
+  
+  <text class="lbl" x="465" y="555">AO=8√3/3</text>
+  <text class="lbl" x="545" y="528">H</text>
+  <text class="lbl" x="465" y="515">a=8</text>
+</svg></div>
+
+    <h3>Resolución paso a paso</h3>
+    <div class="step"><span class="step-num">1</span><strong>Altura de una cara:</strong> h = (√3/2)·8 = 4√3 ≈ 6,93 cm</div>
+    <div class="step"><span class="step-num">2</span><strong>Aplicar pista:</strong> AO = (2/3)·4√3 = 8√3/3 ≈ 4,62 cm</div>
+    <div class="step"><span class="step-num">3</span><strong>Altura del tetraedro</strong> (Pitágoras en triángulo DOA, hipotenusa = arista = 8):
+      <br>H = √(8² − (8√3/3)²) = √(64 − 64/3) = √(128/3) = 8√6/3 ≈ 6,53 cm</div>
+    <div class="step"><span class="step-num">4</span><strong>Área total:</strong> A = 64√3 ≈ 110,85 cm²</div>
+    <div class="step"><span class="step-num">5</span><strong>Volumen:</strong> V = (512√2)/12 = (128√2)/3 ≈ 60,34 cm³</div>
+
+    <div class="result">✅ H ≈ 6,53 cm &nbsp;·&nbsp; A ≈ 110,85 cm² &nbsp;·&nbsp; V ≈ 60,34 cm³</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 25 ============ -->
+  <section class="exercise" id="ej25">
+    <h2>25) Diagonales de un ortoedro</h2>
+    <p class="enunciado">La base de un ortoedro tiene dimensiones 240 cm × 44 cm. Su volumen es 1.235,52 dm³. Calcula las diagonales de sus caras y la diagonal principal.</p>
+
+    <h3>📌 Fórmulas del ortoedro</h3>
+    <div class="formula">
+      <div class="formula-title">Volumen</div>
+      V = a · b · c
+    </div>
+    <div class="formula">
+      <div class="formula-title">Diagonal de una cara (Pitágoras 2D)</div>
+      d = √(lado₁² + lado₂²)
+    </div>
+    <div class="formula">
+      <div class="formula-title">Diagonal principal (Pitágoras 3D)</div>
+      D = √(a² + b² + c²)
+    </div>
+
+    <div class="diagram-container"><svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 14px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+    .hidden { stroke: #1f6fa5; stroke-width: 1.2; stroke-dasharray: 4 4; fill: none; }
+    .diag-cara { stroke: #d35400; stroke-width: 2; fill: none; }
+    .diag-princ { stroke: #c0392b; stroke-width: 2.5; fill: none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="800" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">25) Ortoedro con diagonales de cara y diagonal principal</text>
+  <text class="lbl" x="20" y="50">Dimensiones: 240 cm × 44 cm × c (a calcular)  ·  V = 1.235,52 dm³</text>
+
+  <!-- Ortoedro en perspectiva -->
+  <!-- Vértices: -->
+  <!-- F1 (frontal-abajo-izq), F2 (frontal-abajo-der), F3 (frontal-arriba-der), F4 (frontal-arriba-izq) -->
+  <!-- T1 (trasero-abajo-izq), T2 (trasero-abajo-der), T3 (trasero-arriba-der), T4 (trasero-arriba-izq) -->
+  
+  <!-- Coordenadas (la "longitud" 240 va de izq a der, "alto" 117 va vertical, "profundidad" 44 va hacia atrás) -->
+  <!-- Frontal -->
+  <!-- F1=(100,450) F2=(500,450) F3=(500,200) F4=(100,200) -->
+  <!-- Trasero (offset diagonal: +80, -40) -->
+  <!-- T1=(180,410) T2=(580,410) T3=(580,160) T4=(180,160) -->
+
+  <!-- Caras visibles -->
+  <!-- Cara frontal -->
+  <polygon points="100,450 500,450 500,200 100,200" fill="#e6f0ed" stroke="#1d7a4d" stroke-width="2"/>
+  <!-- Cara superior -->
+  <polygon points="100,200 500,200 580,160 180,160" fill="#d0e6df" stroke="#1d7a4d" stroke-width="2"/>
+  <!-- Cara derecha -->
+  <polygon points="500,450 580,410 580,160 500,200" fill="#b6d8cc" stroke="#1d7a4d" stroke-width="2"/>
+
+  <!-- Aristas ocultas -->
+  <line x1="100" y1="450" x2="180" y2="410" class="hidden"/>
+  <line x1="180" y1="410" x2="580" y2="410" class="hidden"/>
+  <line x1="180" y1="410" x2="180" y2="160" class="hidden"/>
+
+  <!-- Etiquetas vértices -->
+  <text class="lbl" font-weight="700" x="85" y="465">A</text>
+  <text class="lbl" font-weight="700" x="505" y="465">B</text>
+  <text class="lbl" font-weight="700" x="585" y="425">C</text>
+  <text class="lbl" font-weight="700" x="185" y="425">D</text>
+  <text class="lbl" font-weight="700" x="85" y="195">E</text>
+  <text class="lbl" font-weight="700" x="505" y="195">F</text>
+  <text class="lbl" font-weight="700" x="585" y="155">G</text>
+  <text class="lbl" font-weight="700" x="185" y="155">H</text>
+
+  <!-- Diagonales de las caras -->
+  <!-- Diag cara frontal AF: 240 x 117 -->
+  <line x1="100" y1="450" x2="500" y2="200" class="diag-cara"/>
+  <text class="dim" x="245" y="330" transform="rotate(-32 245 330)">d₁ = 267 cm</text>
+  
+  <!-- Diag cara superior EG: 240 x 44 -->
+  <line x1="100" y1="200" x2="580" y2="160" class="diag-cara"/>
+  <text class="dim" x="305" y="175">d₂ = 244 cm</text>
+  
+  <!-- Diag cara derecha BG: 44 x 117 -->
+  <line x1="500" y1="450" x2="580" y2="160" class="diag-cara"/>
+  <text class="dim" x="535" y="310" transform="rotate(75 535 310)">d₃ = 125 cm</text>
+
+  <!-- Diagonal principal del ortoedro AG -->
+  <line x1="100" y1="450" x2="580" y2="160" class="diag-princ"/>
+  <text class="dim" x="280" y="285" transform="rotate(-30 280 285)" font-size="16">D = 270,60 cm</text>
+
+  <!-- Medidas aristas -->
+  <line x1="100" y1="490" x2="500" y2="490" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="275" y="510">240 cm</text>
+
+  <line x1="60" y1="200" x2="60" y2="450" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="20" y="340" transform="rotate(-90 20 340)">c = 117 cm</text>
+
+  <line x1="515" y1="465" x2="595" y2="425" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="540" y="478">44 cm</text>
+
+  <!-- Cuadro fórmulas -->
+  <g transform="translate(40, 530)">
+    <text class="lbl" font-weight="700">Diagonal de una cara: d = √(a²+b²)  ·  Diagonal principal: D = √(a²+b²+c²)</text>
+  </g>
+</svg></div>
+
+    <h3>Resolución</h3>
+    <div class="step"><span class="step-num">1</span><strong>Convertir unidades:</strong> V = 1.235,52 dm³ = 1.235.520 cm³</div>
+    <div class="step"><span class="step-num">2</span><strong>Tercera dimensión:</strong> c = V/(a·b) = 1.235.520 / (240·44) = 1.235.520 / 10.560 = <strong>117 cm</strong></div>
+
+    <table>
+      <thead><tr><th>Diagonal</th><th>Cálculo</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Cara 240×44</td><td>√(240² + 44²) = √59.536</td><td>244 cm</td></tr>
+        <tr><td>Cara 240×117</td><td>√(240² + 117²) = √71.289</td><td>267 cm</td></tr>
+        <tr><td>Cara 44×117</td><td>√(44² + 117²) = √15.625</td><td>125 cm</td></tr>
+        <tr class="total"><td><strong>Diagonal principal</strong></td><td>√(240² + 44² + 117²) = √73.225</td><td>≈ 270,60 cm</td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip">¡Las tres diagonales de cara salen exactas porque son ternas pitagóricas! (44-117-125, 240-44-244, 240-117-267)</div>
+
+    <div class="result">✅ c = 117 cm &nbsp;·&nbsp; Diag. caras: 244, 267, 125 cm &nbsp;·&nbsp; Diag. principal ≈ 270,60 cm</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 26 ============ -->
+  <section class="exercise" id="ej26">
+    <h2>26) Tronco de pirámide</h2>
+    <p class="enunciado">Calcula el volumen del siguiente tronco de pirámide de bases cuadradas. Base pequeña 6 m, base grande 16 m, altura 10 m.</p>
+
+    <h3>📌 Fórmula del tronco de pirámide</h3>
+    <div class="formula">
+      <div class="formula-title">Volumen del tronco</div>
+      V = (h/3) · (B + b + √(B·b))
+      <br><span style="font-size:13px">donde B = área base grande, b = área base pequeña, h = altura</span>
+    </div>
+
+    <div class="diagram-container"><svg viewBox="0 0 700 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+    .hidden { stroke: #1d7a4d; stroke-width: 1.2; stroke-dasharray: 4 4; fill: none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="700" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">26) Tronco de pirámide de bases cuadradas</text>
+  <text class="lbl" x="20" y="50">Base pequeña 6×6 m  ·  Base grande 16×16 m  ·  Altura 10 m</text>
+
+  <!-- Tronco de pirámide en perspectiva -->
+  <!-- Base inferior (rombo en perspectiva) - 16x16 -->
+  <!-- Coordenadas: -->
+  <!-- Inferior: 4 vértices del rombo -->
+  <!-- A=(150,460), B=(550,460), C=(620,400), D=(220,400) [base grande] -->
+  <!-- E=(250,180), F=(450,180), G=(475,140), H=(275,140) [base pequeña, centrada arriba] -->
+
+  <!-- Cara frontal (trapecio) -->
+  <polygon points="150,460 550,460 450,180 250,180" fill="#bfead6" stroke="#1d7a4d" stroke-width="2"/>
+  <!-- Cara derecha -->
+  <polygon points="550,460 620,400 475,140 450,180" fill="#a8d9c2" stroke="#1d7a4d" stroke-width="2"/>
+  <!-- Cara superior (base pequeña) -->
+  <polygon points="250,180 450,180 475,140 275,140" fill="#7fc09f" stroke="#1d7a4d" stroke-width="2"/>
+
+  <!-- Aristas ocultas -->
+  <line x1="150" y1="460" x2="220" y2="400" class="hidden"/>
+  <line x1="220" y1="400" x2="620" y2="400" class="hidden"/>
+  <line x1="220" y1="400" x2="275" y2="140" class="hidden"/>
+
+  <!-- Eje altura -->
+  <line x1="385" y1="160" x2="385" y2="430" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <circle cx="385" cy="160" r="3" fill="#c0392b"/>
+  <circle cx="385" cy="430" r="3" fill="#c0392b"/>
+
+  <!-- Medidas -->
+  <!-- Lado base pequeña -->
+  <line x1="275" y1="115" x2="475" y2="115" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="335" y="105">6 m</text>
+
+  <!-- Lado base grande -->
+  <line x1="150" y1="495" x2="550" y2="495" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="335" y="515">16 m</text>
+
+  <!-- Altura -->
+  <line x1="450" y1="160" x2="450" y2="430" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="460" y="300">h = 10 m</text>
+
+  <!-- Etiquetas piezas -->
+  <text class="lbl" font-weight="700" x="60" y="200">base pequeña</text>
+  <text class="lbl" x="60" y="218">(arriba): 6×6</text>
+  
+  <text class="lbl" font-weight="700" x="60" y="440">base grande</text>
+  <text class="lbl" x="60" y="458">(abajo): 16×16</text>
+
+  <!-- Fórmula -->
+  <g transform="translate(40, 545)">
+    <text class="lbl" font-weight="700">V_tronco = (h/3) · (A_grande + A_pequeña + √(A_grande · A_pequeña))</text>
+  </g>
+</svg></div>
+
+    <h3>Resolución</h3>
+    <div class="step"><span class="step-num">1</span>B = 16² = <strong>256 m²</strong></div>
+    <div class="step"><span class="step-num">2</span>b = 6² = <strong>36 m²</strong></div>
+    <div class="step"><span class="step-num">3</span>√(B·b) = √(256·36) = √9.216 = √256·√36 = 16·6 = <strong>96</strong></div>
+    <div class="step"><span class="step-num">4</span>V = (10/3) · (256 + 36 + 96) = (10/3) · 388 = 3.880/3</div>
+
+    <div class="result">✅ V ≈ 1.293,33 m³</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 27 ============ -->
+  <section class="exercise" id="ej27">
+    <h2>27) Esfera cortada por 2 planos (uno por el centro)</h2>
+    <p class="enunciado">Cortamos una esfera de 24 cm de radio por dos planos paralelos: uno que pase por el centro y otro a 16 cm de éste. Halla las superficies y los volúmenes de las tres porciones obtenidas.</p>
+
+    <h3>📌 Fórmulas de esfera y casquete</h3>
+    <div class="formula">
+      <div class="formula-title">Esfera</div>
+      V = (4/3) · π · r³  &nbsp;·&nbsp;  A = 4π · r²
+    </div>
+    <div class="formula">
+      <div class="formula-title">Casquete esférico de altura h</div>
+      V = π · h² · (3r − h) / 3  &nbsp;·&nbsp;  A_curva = 2π · r · h
+    </div>
+    <div class="formula">
+      <div class="formula-title">Zona esférica (entre 2 planos paralelos, altura h)</div>
+      A_curva = 2π · r · h
+    </div>
+    <div class="formula">
+      <div class="formula-title">Radio del círculo de corte (a distancia d del centro)</div>
+      r_corte = √(r² − d²)
+    </div>
+
+    <div class="diagram-container"><svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+    .hidden { stroke: #1f6fa5; stroke-width: 1.2; stroke-dasharray: 4 4; fill: none; }
+    .plano { stroke: #d35400; stroke-width: 2; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="800" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">27) Esfera cortada por 2 planos paralelos</text>
+  <text class="lbl" x="20" y="50">Esfera r = 24 cm. Plano 1: por el centro. Plano 2: a 16 cm del centro.</text>
+
+  <!-- Esfera centrada en (300, 300) con radio 220 px (representa r=24cm) -->
+  <!-- Vista lateral (corte transversal) -->
+  
+  <!-- Circulo de la esfera -->
+  <circle cx="300" cy="300" r="220" fill="#e8f4fc" stroke="#1f6fa5" stroke-width="2"/>
+  
+  <!-- Plano 1: ECUADOR (por el centro) -->
+  <line x1="40" y1="300" x2="560" y2="300" class="plano"/>
+  <!-- elipse aplastada para indicar plano -->
+  <ellipse cx="300" cy="300" rx="220" ry="20" fill="none" stroke="#d35400" stroke-width="1.5" stroke-dasharray="3 3"/>
+  
+  <!-- Plano 2: a 16 cm del centro (hacia arriba en el dibujo). -->
+  <!-- 16/24 del radio en la representación: 220 * 16/24 ≈ 146.67 → y = 300 - 147 = 153 -->
+  <line x1="135" y1="153" x2="465" y2="153" class="plano"/>
+  <ellipse cx="300" cy="153" rx="165" ry="15" fill="none" stroke="#d35400" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <!-- ¡OJO! El radio del círculo de intersección es √(24²-16²) = √(576-256) = √320 ≈ 17.89 cm. 
+       En la representación: 220 * 17.89/24 ≈ 164 px -->
+  
+  <!-- Eje vertical (eje de la esfera) -->
+  <line x1="300" y1="80" x2="300" y2="520" class="hidden"/>
+
+  <!-- Punto centro -->
+  <circle cx="300" cy="300" r="4" fill="#1f6fa5"/>
+  <text class="lbl" font-weight="700" x="305" y="295">O (centro)</text>
+
+  <!-- Marcar distancia 16 cm -->
+  <line x1="300" y1="300" x2="300" y2="153" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="310" y="230">16 cm</text>
+
+  <!-- Marcar el radio 24 cm -->
+  <line x1="300" y1="300" x2="300" y2="80" stroke="#c0392b" stroke-width="1.5"/>
+  <text class="dim" x="250" y="120">r = 24 cm</text>
+
+  <!-- Etiquetas de las 3 porciones -->
+  <text class="lbl" font-weight="700" x="100" y="120" fill="#c0392b">PORCIÓN 1</text>
+  <text class="lbl" x="100" y="138" fill="#c0392b">Casquete pequeño</text>
+  <text class="lbl" x="100" y="155" fill="#c0392b">(arriba del plano 2)</text>
+  <text class="lbl" x="100" y="172" fill="#c0392b">altura h₁ = 24−16 = 8</text>
+
+  <text class="lbl" font-weight="700" x="100" y="220" fill="#a04040">PORCIÓN 2</text>
+  <text class="lbl" x="100" y="238" fill="#a04040">Zona esférica</text>
+  <text class="lbl" x="100" y="255" fill="#a04040">(entre los 2 planos)</text>
+  <text class="lbl" x="100" y="272" fill="#a04040">altura h₂ = 16</text>
+
+  <text class="lbl" font-weight="700" x="100" y="400" fill="#6a3a8c">PORCIÓN 3</text>
+  <text class="lbl" x="100" y="418" fill="#6a3a8c">Semiesfera</text>
+  <text class="lbl" x="100" y="435" fill="#6a3a8c">(abajo del plano 1)</text>
+  <text class="lbl" x="100" y="452" fill="#6a3a8c">altura h₃ = 24</text>
+
+  <!-- Etiquetas de los planos -->
+  <text class="lbl" font-weight="700" x="580" y="155" fill="#d35400">plano 2</text>
+  <text class="lbl" x="580" y="172" fill="#d35400">(a 16 cm)</text>
+
+  <text class="lbl" font-weight="700" x="580" y="295" fill="#d35400">plano 1</text>
+  <text class="lbl" x="580" y="312" fill="#d35400">(por O)</text>
+
+  <!-- Fórmulas clave abajo -->
+  <g transform="translate(40, 540)">
+    <text class="lbl" font-weight="700">Casquete: V = πh²(3r−h)/3   ·   A_curva = 2πrh</text>
+    <text class="lbl" x="0" y="20">Zona: A_curva = 2πrh   ·   V_zona = V_esfera − V_casq_grande − V_casq_pequeño</text>
+  </g>
+</svg></div>
+
+    <h3>Datos previos</h3>
+    <ul>
+      <li>V_esfera = (4/3)π·24³ = 18.432π ≈ 57.905,84 cm³</li>
+      <li>A_esfera = 4π·24² = 2.304π ≈ 7.238,23 cm²</li>
+      <li>Radio del corte: r_c = √(24²−16²) = √320 = 8√5 ≈ 17,89 cm</li>
+    </ul>
+
+    <h3>Porción 1 — Casquete pequeño (h₁ = 8 cm)</h3>
+    <div class="step">V₁ = π·8²·(72−8)/3 = π·64·64/3 = 4.096π/3 ≈ <strong>4.289,32 cm³</strong></div>
+    <table>
+      <thead><tr><th>Superficie</th><th>Cálculo</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Curva</td><td>2π·24·8 = 384π</td><td>1.206,37 cm²</td></tr>
+        <tr><td>Base (círculo)</td><td>π·320</td><td>1.005,31 cm²</td></tr>
+        <tr class="total"><td>TOTAL</td><td>704π</td><td>≈ 2.211,68 cm²</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Porción 2 — Zona esférica (h₂ = 16 cm)</h3>
+    <div class="step">V₂ = V_hemisferio − V_casquete = 2.304π − 4.096π/3 = 2.816π/3 ≈ <strong>24.663,60 cm³</strong></div>
+    <table>
+      <thead><tr><th>Superficie</th><th>Cálculo</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Curva</td><td>2π·24·16 = 768π</td><td>2.412,74 cm²</td></tr>
+        <tr><td>Base ecuador (r=24)</td><td>π·576</td><td>1.809,56 cm²</td></tr>
+        <tr><td>Base corte (r=8√5)</td><td>π·320</td><td>1.005,31 cm²</td></tr>
+        <tr class="total"><td>TOTAL</td><td>1.664π</td><td>≈ 5.227,61 cm²</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Porción 3 — Semiesfera (h₃ = 24 cm)</h3>
+    <div class="step">V₃ = V_esfera/2 = 2.304π ≈ <strong>28.952,92 cm³</strong></div>
+    <table>
+      <thead><tr><th>Superficie</th><th>Cálculo</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Curva</td><td>2π·24² = 1.152π</td><td>3.619,11 cm²</td></tr>
+        <tr><td>Base ecuador</td><td>π·576</td><td>1.809,56 cm²</td></tr>
+        <tr class="total"><td>TOTAL</td><td>1.728π</td><td>≈ 5.428,67 cm²</td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip">Comprobación: V₁+V₂+V₃ = 4.289,32 + 24.663,60 + 28.952,92 = 57.905,84 cm³ = V_esfera ✓</div>
+
+    <div class="result">✅ Las 3 porciones suman exactamente el volumen total de la esfera.</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 28 ============ -->
+  <section class="exercise" id="ej28">
+    <h2>28) Esfera cortada por 2 planos al mismo lado del centro</h2>
+    <p class="enunciado">Se corta una esfera de 50 cm de diámetro por dos planos paralelos a 8 cm y 15 cm del centro, respectivamente. Halla el volumen de la porción de esfera comprendida entre ambos planos.</p>
+
+    <h3>📌 Fórmula clave</h3>
+    <div class="formula">
+      <div class="formula-title">Zona esférica entre 2 planos paralelos (h = distancia entre planos)</div>
+      V = (πh/6) · (3r₁² + 3r₂² + h²)
+      <br><span style="font-size:13px">r₁, r₂ = radios de los dos círculos de corte</span>
+    </div>
+    <div class="formula">
+      <div class="formula-title">Método alternativo (diferencia de casquetes)</div>
+      V_zona = V_casquete_grande − V_casquete_pequeño
+    </div>
+
+    <div class="diagram-container"><svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+    .hidden { stroke: #1f6fa5; stroke-width: 1.2; stroke-dasharray: 4 4; fill: none; }
+    .plano { stroke: #d35400; stroke-width: 2; }
+    .zona { fill: #ffe8d4; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="800" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">28) Esfera con 2 planos paralelos AL MISMO LADO del centro</text>
+  <text class="lbl" x="20" y="50">Diámetro 50 cm (r=25). Planos a 8 cm y a 15 cm del centro.</text>
+
+  <!-- Esfera centrada en (350, 300) con radio 220 px (representa r=25cm) -->
+  <!-- 1 cm = 220/25 = 8.8 px -->
+  <!-- Plano 1 a 8 cm → y = 300 - 8·8.8 = 300 - 70.4 = 229.6 -->
+  <!-- Plano 2 a 15 cm → y = 300 - 15·8.8 = 300 - 132 = 168 -->
+  
+  <!-- Color de fondo de la zona entre planos (entre y=168 e y=229.6) -->
+  <!-- Hay que hacer el segmento esférico relleno -->
+  <!-- Aproximación: dibujo dos arcos -->
+  
+  <!-- Circulo de la esfera -->
+  <circle cx="350" cy="300" r="220" fill="#e8f4fc" stroke="#1f6fa5" stroke-width="2"/>
+  
+  <!-- ZONA entre planos resaltada: rectángulo recortado a la esfera -->
+  <!-- Lo más simple: rellenar la franja con un color y luego pintar la esfera arriba/abajo de blanco -->
+  <!-- Vamos a usar un clip-path -->
+  
+  <defs>
+    <clipPath id="esfera-clip">
+      <circle cx="350" cy="300" r="220"/>
+    </clipPath>
+  </defs>
+  <rect x="130" y="168" width="440" height="61.6" fill="#ffe8d4" clip-path="url(#esfera-clip)"/>
+  <!-- Volver a dibujar contorno de la esfera para que se vea por encima -->
+  <circle cx="350" cy="300" r="220" fill="none" stroke="#1f6fa5" stroke-width="2"/>
+  
+  <!-- Plano 1 (a 8 cm del centro) → y = 229.6 -->
+  <line x1="120" y1="229.6" x2="580" y2="229.6" class="plano"/>
+  <ellipse cx="350" cy="229.6" rx="208" ry="18" fill="none" stroke="#d35400" stroke-width="1.5" stroke-dasharray="3 3"/>
+  
+  <!-- Plano 2 (a 15 cm del centro) → y = 168 -->
+  <line x1="170" y1="168" x2="530" y2="168" class="plano"/>
+  <ellipse cx="350" cy="168" rx="176" ry="15" fill="none" stroke="#d35400" stroke-width="1.5" stroke-dasharray="3 3"/>
+  
+  <!-- Eje vertical -->
+  <line x1="350" y1="80" x2="350" y2="520" class="hidden"/>
+
+  <!-- Punto centro -->
+  <circle cx="350" cy="300" r="4" fill="#1f6fa5"/>
+  <text class="lbl" font-weight="700" x="355" y="295">O (centro)</text>
+
+  <!-- Marcar distancia 8 cm -->
+  <line x1="350" y1="300" x2="350" y2="229.6" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="360" y="270">8 cm</text>
+
+  <!-- Marcar distancia 15 cm (total) -->
+  <line x1="280" y1="300" x2="280" y2="168" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="220" y="240">15 cm</text>
+
+  <!-- Altura zona h = 7 cm -->
+  <line x1="610" y1="168" x2="610" y2="229.6" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="620" y="205">h = 7 cm</text>
+
+  <!-- Etiqueta zona -->
+  <text class="lbl" font-weight="700" x="620" y="200" fill="#a04040" font-size="13">↑ esto es</text>
+  <text class="lbl" font-weight="700" x="620" y="190" fill="#a04040" font-size="13">la zona</text>
+  <line x1="620" y1="195" x2="500" y2="195" stroke="#a04040" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- Radio 25 -->
+  <line x1="350" y1="300" x2="570" y2="300" stroke="#c0392b" stroke-width="1.5"/>
+  <text class="dim" x="460" y="295">r = 25 cm</text>
+
+  <!-- Radios de los círculos de corte -->
+  <line x1="350" y1="229.6" x2="558" y2="229.6" stroke="#1d7a4d" stroke-width="1.5"/>
+  <text class="lbl" x="430" y="245" fill="#1d7a4d">r₁ = √561 ≈ 23,69</text>
+
+  <line x1="350" y1="168" x2="526" y2="168" stroke="#1d7a4d" stroke-width="1.5"/>
+  <text class="lbl" x="395" y="160" fill="#1d7a4d">r₂ = 20</text>
+
+  <!-- Etiquetas planos -->
+  <text class="lbl" font-weight="700" x="50" y="235" fill="#d35400">plano 1 (8 cm)</text>
+  <text class="lbl" font-weight="700" x="50" y="175" fill="#d35400">plano 2 (15 cm)</text>
+
+  <!-- Polo norte -->
+  <text class="lbl" x="355" y="78">polo</text>
+
+  <!-- Cuadro de fórmula -->
+  <g transform="translate(40, 540)">
+    <text class="lbl" font-weight="700">Zona esférica entre 2 planos:  V = (πh/6)·(3r₁² + 3r₂² + h²)</text>
+    <text class="lbl" x="0" y="20">Alternativa:  V_zona = V_casquete_grande − V_casquete_pequeño</text>
+  </g>
+</svg></div>
+
+    <h3>Datos</h3>
+    <ul>
+      <li>Diámetro = 50 cm → r = <strong>25 cm</strong></li>
+      <li>Plano 1 a 8 cm del centro, plano 2 a 15 cm. Ambos al mismo lado.</li>
+      <li>Altura de la zona: h = 15 − 8 = <strong>7 cm</strong></li>
+    </ul>
+
+    <h3>Resolución</h3>
+    <div class="step"><span class="step-num">1</span>Radio círculo a 8 cm: r₁ = √(25² − 8²) = √561 ≈ 23,69 cm</div>
+    <div class="step"><span class="step-num">2</span>Radio círculo a 15 cm: r₂ = √(25² − 15²) = √400 = <strong>20 cm</strong></div>
+    <div class="step"><span class="step-num">3</span>V = (7π/6) · (3·561 + 3·400 + 49) = (7π/6) · 2.932 = 10.262π/3</div>
+
+    <div class="result">✅ V ≈ 10.746,34 cm³</div>
+
+    <details>
+      <summary>Comprobación por diferencia de casquetes</summary>
+      <p>Casquete grande (h_G = 25−8 = 17): V = π·17²·58/3 = 16.762π/3 ≈ 17.553,13 cm³<br>
+      Casquete pequeño (h_P = 25−15 = 10): V = π·10²·65/3 = 6.500π/3 ≈ 6.806,78 cm³<br>
+      Diferencia: 16.762π/3 − 6.500π/3 = 10.262π/3 ≈ <strong>10.746,34 cm³</strong> ✓</p>
+    </details>
+  </section>
+
+
+  <!-- ============ EJERCICIO 29 ============ -->
+  <section class="exercise" id="ej29">
+    <h2>29) Coste de aislar dos tejados piramidales</h2>
+    <p class="enunciado">¿Cuánto cuesta aislar cada tejado sabiendo que la lámina asfáltica está a 9 €/m²? Ambas pirámides tienen base 5×5 m. En la A, "4 m" es la apotema lateral (altura de la cara). En la B, "4 m" es la altura de la pirámide.</p>
+
+    <h3>📌 Conceptos</h3>
+    <div class="formula">
+      <div class="formula-title">Área lateral de pirámide regular</div>
+      A_lat = 4 · (base · apotema_lateral) / 2 = 2 · base · apotema_lateral
+    </div>
+    <div class="formula">
+      <div class="formula-title">Apotema lateral en función de la altura (Pitágoras)</div>
+      a_lat = √(h_pirámide² + apotema_base²)
+      <br><span style="font-size:13px">apotema_base = mitad del lado en base cuadrada</span>
+    </div>
+
+    <div class="diagram-container"><svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+    .hidden { stroke: #b58a00; stroke-width: 1.2; stroke-dasharray: 4 4; fill: none; }
+    .apo-lat { stroke: #d35400; stroke-width: 2.5; }
+    .altura { stroke: #c0392b; stroke-width: 2.5; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="800" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">29) Dos tejados piramidales — clave: qué representa el "4 m"</text>
+
+  <!-- PIRÁMIDE A -->
+  <text class="lbl" font-weight="700" font-size="14" x="80" y="80">PIRÁMIDE A: apotema lateral = 4 m</text>
+
+  <!-- Base en perspectiva -->
+  <polygon points="80,400 280,400 320,360 120,360" fill="none" stroke="#b58a00" stroke-width="2"/>
+  <!-- Caras visibles -->
+  <polygon points="80,400 280,400 200,180" fill="#fce0c4" stroke="#b58a00" stroke-width="2"/>
+  <polygon points="280,400 320,360 200,180" fill="#f4b58a" stroke="#b58a00" stroke-width="2"/>
+  <line x1="120" y1="360" x2="200" y2="180" stroke="#b58a00" stroke-width="2"/>
+  <!-- Aristas ocultas -->
+  <line x1="120" y1="360" x2="320" y2="360" class="hidden"/>
+
+  <!-- Apotema lateral A (línea naranja del vértice al punto medio del borde frontal) -->
+  <line x1="200" y1="180" x2="180" y2="400" class="apo-lat"/>
+  <text class="dim" x="115" y="290">a_lat = 4 m</text>
+
+  <!-- Medida base -->
+  <line x1="80" y1="430" x2="280" y2="430" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="155" y="450">5 m</text>
+
+  <!-- Triángulo cara A separado (de referencia) -->
+  <g transform="translate(60, 470)">
+    <polygon points="0,80 120,80 60,5" fill="#fce0c4" stroke="#b58a00" stroke-width="2"/>
+    <line x1="60" y1="80" x2="60" y2="5" stroke="#d35400" stroke-width="2"/>
+    <text class="lbl" x="65" y="50">4</text>
+    <text class="lbl" x="50" y="95">5</text>
+    <text class="lbl" x="-20" y="110">A_cara = (5·4)/2 = 10 m²</text>
+  </g>
+
+
+  <!-- PIRÁMIDE B -->
+  <text class="lbl" font-weight="700" font-size="14" x="440" y="80">PIRÁMIDE B: altura pirámide = 4 m</text>
+
+  <polygon points="440,400 640,400 680,360 480,360" fill="none" stroke="#b58a00" stroke-width="2"/>
+  <polygon points="440,400 640,400 560,180" fill="#fce0c4" stroke="#b58a00" stroke-width="2"/>
+  <polygon points="640,400 680,360 560,180" fill="#f4b58a" stroke="#b58a00" stroke-width="2"/>
+  <line x1="480" y1="360" x2="560" y2="180" stroke="#b58a00" stroke-width="2"/>
+  <line x1="480" y1="360" x2="680" y2="360" class="hidden"/>
+
+  <!-- Altura H (vertical del vértice al centro de la base) -->
+  <!-- Centro de la base: aproximadamente (560, 380) -->
+  <line x1="560" y1="180" x2="560" y2="380" class="altura"/>
+  <circle cx="560" cy="380" r="3" fill="#c0392b"/>
+  <text class="dim" x="570" y="280">h = 4 m</text>
+
+  <!-- Apotema base: del centro al punto medio del borde frontal (560, 400) -->
+  <line x1="560" y1="380" x2="560" y2="400" stroke="#1f6fa5" stroke-width="2" stroke-dasharray="3 3"/>
+  <text class="lbl" x="565" y="395" fill="#1f6fa5" font-size="11">2,5</text>
+
+  <!-- Apotema lateral B (del vértice al punto medio del borde frontal) -->
+  <line x1="560" y1="180" x2="540" y2="400" class="apo-lat"/>
+  <text class="dim" x="455" y="290">a_lat ≈ 4,72</text>
+
+  <!-- Medida base -->
+  <line x1="440" y1="430" x2="640" y2="430" class="arrow" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="dim" x="515" y="450">5 m</text>
+
+  <!-- Triángulo cara B separado -->
+  <g transform="translate(420, 470)">
+    <polygon points="0,90 120,90 60,5" fill="#fce0c4" stroke="#b58a00" stroke-width="2"/>
+    <line x1="60" y1="90" x2="60" y2="5" stroke="#d35400" stroke-width="2"/>
+    <text class="lbl" x="65" y="55">4,72</text>
+    <text class="lbl" x="50" y="105">5</text>
+    <text class="lbl" x="-30" y="120">A_cara ≈ 11,79 m²</text>
+  </g>
+
+  <!-- Pitágoras pequeño para B -->
+  <g transform="translate(665, 460)">
+    <text class="lbl" font-weight="700">Pitágoras:</text>
+    <text class="lbl" x="0" y="18">a_lat = √(h²+ap²)</text>
+    <text class="lbl" x="0" y="35">= √(16+6,25)</text>
+    <text class="lbl" x="0" y="52">= √22,25</text>
+    <text class="lbl" x="0" y="69">≈ 4,72 m</text>
+  </g>
+</svg></div>
+
+    <h3>Pirámide A — apotema lateral = 4 m</h3>
+    <div class="step">A_cara = (5·4)/2 = <strong>10 m²</strong></div>
+    <div class="step">A_lateral = 4·10 = <strong>40 m²</strong></div>
+    <div class="step">Coste A = 40·9 = <strong>360 €</strong></div>
+
+    <h3>Pirámide B — altura pirámide = 4 m</h3>
+    <div class="step">Apotema base (mitad del lado) = 5/2 = 2,5 m</div>
+    <div class="step">Apotema lateral = √(4² + 2,5²) = √22,25 ≈ <strong>4,72 m</strong></div>
+    <div class="step">A_cara = (5·4,72)/2 ≈ 11,79 m²</div>
+    <div class="step">A_lateral = 4·11,79 ≈ <strong>47,17 m²</strong></div>
+    <div class="step">Coste B ≈ 47,17·9 ≈ <strong>424,53 €</strong></div>
+
+    <div class="result">✅ Tejado A: 360 € &nbsp;·&nbsp; Tejado B: ≈ 424,53 €</div>
+    <div class="tip">El tejado B es más caro porque, con la misma base, sus caras son más largas (apotema lateral &gt; 4 m).</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 30 ============ -->
+  <section class="exercise" id="ej30">
+    <h2>30) Husos horarios: Roma → Nueva York</h2>
+    <p class="enunciado">Roma está en el primer huso al E (+1), Nueva York en el quinto al O (−5). Si un avión sale de Roma a las 11 p.m. y el vuelo dura 8 h, ¿a qué hora local llegaría a NY?</p>
+
+    <h3>📌 Conceptos clave de husos horarios</h3>
+    <div class="formula">
+      <div class="formula-title">Diferencia horaria entre dos lugares</div>
+      Δhusos = huso_destino − huso_origen
+      <br>(Si destino tiene huso menor → restas; si mayor → sumas)
+    </div>
+    <div class="formula">
+      <div class="formula-title">Hora UTC desde una hora local</div>
+      UTC = hora_local − huso
+    </div>
+
+    <h3>Resolución</h3>
+    <div class="step"><span class="step-num">1</span><strong>Diferencia:</strong> 1 − (−5) = 6 h. Roma va 6 h por delante de NY.</div>
+    <div class="step"><span class="step-num">2</span><strong>Salida en Roma:</strong> 23:00. En NY en ese momento: 23 − 6 = <strong>17:00 (5 p.m.)</strong></div>
+    <div class="step"><span class="step-num">3</span><strong>Vuelo dura 8 h.</strong> Llegada en NY: 17:00 + 8 = <strong>1:00 a.m. del día siguiente</strong></div>
+
+    <details>
+      <summary>Comprobación por la ruta alternativa</summary>
+      <p>Hora en Roma al aterrizar: 23 + 8 = 7:00 (día siguiente)<br>
+      Restando 6 h de diferencia: 7:00 − 6 = <strong>1:00 a.m.</strong> en NY ✓</p>
+    </details>
+
+    <div class="result">✅ Llegaría a Nueva York a la 1:00 a.m. del día siguiente</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 31 ============ -->
+  <section class="exercise" id="ej31">
+    <h2>31) Hora teórica en varias ciudades desde La Habana</h2>
+    <p class="enunciado">Si en La Habana (82° O) son las 8 p.m., asigna la hora teórica (según los husos horarios) a cada ciudad.</p>
+
+    <h3>📌 Cálculo del huso teórico</h3>
+    <div class="formula">
+      <div class="formula-title">Huso teórico a partir de la longitud</div>
+      huso = redondeo(longitud / 15)
+      <br>(positivo si Este, negativo si Oeste)
+    </div>
+    <div class="formula">
+      <div class="formula-title">Hora local en función de la UTC</div>
+      hora_local = UTC + huso
+    </div>
+
+    <h3>Cálculo previo</h3>
+    <div class="step">Huso La Habana: 82/15 ≈ 5,5 → redondeado a 5 → <strong>huso −5</strong></div>
+    <div class="step">UTC en ese instante: 20 + 5 = 25 → <strong>1:00 del día siguiente</strong></div>
+
+    <table>
+      <thead><tr><th>Ciudad</th><th>Longitud</th><th>Huso</th><th>Hora local</th></tr></thead>
+      <tbody>
+        <tr><td>Maputo (Mozambique)</td><td>32° E</td><td>+2</td><td>3 a.m.</td></tr>
+        <tr><td>Natal (Brasil)</td><td>35° O</td><td>−2</td><td>11 p.m.</td></tr>
+        <tr><td>Astaná (Kazajistán)</td><td>71° E</td><td>+5</td><td>6 a.m.</td></tr>
+        <tr><td>Temuco (Chile)</td><td>72° O</td><td>−5</td><td>8 p.m.</td></tr>
+        <tr><td>Honolulú (Hawái)</td><td>157° O</td><td>−10</td><td>3 p.m. (libro: 11 a.m.)</td></tr>
+        <tr><td>Dakar (Senegal)</td><td>17° O</td><td>−1</td><td>0 a.m. (medianoche)</td></tr>
+        <tr><td>Katmandú (Nepal)</td><td>85° E</td><td>+6</td><td>7 a.m.</td></tr>
+        <tr><td>Melbourne (Australia)</td><td>145° E</td><td>+10</td><td>11 a.m.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warning">El cálculo riguroso para Honolulú (longitud 157° O) da 3 p.m., pero esta opción no está en el libro. El libro probablemente asigna 11 a.m. (asumiendo un redondeo distinto) y "2 p.m." es un distractor que sobra.</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 32 ============ -->
+  <section class="exercise" id="ej32">
+    <h2>32) Distancia entre dos ciudades de la misma longitud</h2>
+    <p class="enunciado">Dos ciudades tienen la misma longitud, 15° E. Sus latitudes son 37° 25' N y 22° 35' S. ¿Cuál es la distancia entre ellas?</p>
+
+    <h3>📌 Conceptos</h3>
+    <div class="formula">
+      <div class="formula-title">Conversión minutos → grados</div>
+      1° = 60' &nbsp;·&nbsp; X°Y' = X + Y/60 grados
+    </div>
+    <div class="formula">
+      <div class="formula-title">Arco sobre un meridiano (círculo máximo, R = 6370 km)</div>
+      d = (ángulo°/360°) · 2π · R
+    </div>
+    <div class="formula">
+      <div class="formula-title">Regla del libro</div>
+      1° de meridiano ≈ 111,1 km
+    </div>
+
+    <h3>Resolución</h3>
+    <div class="step"><span class="step-num">1</span>Misma longitud = mismo meridiano (círculo máximo)</div>
+    <div class="step"><span class="step-num">2</span>Hemisferios opuestos (N y S) → las latitudes se <strong>SUMAN</strong>:
+      <br>Δlat = 37°25' + 22°35' = (37+22)° + (25+35)' = 59° + 60' = 59° + 1° = <strong>60° exactos</strong></div>
+    <div class="step"><span class="step-num">3</span>d = (60/360)·2π·6370 = (1/6)·2π·6370 = 12.740π/6</div>
+
+    <div class="result">✅ d ≈ 6.670,65 km (o aproximadamente 60·111,1 = 6.666 km)</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 33 ============ -->
+  <section class="exercise" id="ej33">
+    <h2>33) Ruta paralelo vs ruta polar</h2>
+    <p class="enunciado">Un avión va de A a B, diametralmente opuestos en el paralelo 45°. Puede hacerlo siguiendo el paralelo (APB) o la ruta polar pasando por el polo norte (ANB). Calcula la distancia en cada trayecto.</p>
+
+    <h3>📌 Conceptos clave</h3>
+    <div class="formula">
+      <div class="formula-title">Radio de un paralelo a latitud φ</div>
+      r_paralelo = R · cos(φ)
+      <br><span style="font-size:13px">El paralelo NO es círculo máximo (excepto el ecuador)</span>
+    </div>
+    <div class="formula">
+      <div class="formula-title">Meridiano</div>
+      Siempre círculo máximo de radio R (la distancia más corta entre 2 puntos en la esfera está sobre un círculo máximo)
+    </div>
+    <div class="formula">
+      <div class="formula-title">Arco de circunferencia</div>
+      d = (ángulo°/360°) · 2π · radio
+    </div>
+
+    <div class="diagram-container"><svg viewBox="0 0 700 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="14">
+  <style>
+    .dim { fill: #c0392b; font-weight: 700; font-size: 15px; }
+    .lbl { fill: #2c3e50; font-size: 12px; }
+    .ttl { font-weight: 700; font-size: 17px; fill: #1a1a1a; }
+    .arrow { stroke: #c0392b; stroke-width: 1.5; fill: none; }
+    .ruta-par { stroke: #d35400; stroke-width: 3; fill: none; stroke-dasharray: 8 4; }
+    .ruta-pol { stroke: #1f6fa5; stroke-width: 3; fill: none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="700" height="600" fill="white"/>
+  <text class="ttl" x="20" y="30">33) Trayecto por paralelo (APB) vs ruta polar (ANB)</text>
+  <text class="lbl" x="20" y="50">A y B diametralmente opuestos en el paralelo 45°</text>
+
+  <!-- Esfera (la Tierra) -->
+  <circle cx="350" cy="320" r="220" fill="#e8f4fc" stroke="#1f6fa5" stroke-width="2"/>
+
+  <!-- Ecuador -->
+  <ellipse cx="350" cy="320" rx="220" ry="55" fill="none" stroke="#1f6fa5" stroke-width="1.5" stroke-dasharray="3 3"/>
+
+  <!-- Paralelo 45° N (más arriba, más pequeño) -->
+  <!-- A latitud 45°, el radio del paralelo es R·cos(45°) = 220·0,707 ≈ 156 px -->
+  <!-- Está a altura R·sin(45°) = 156 px sobre el centro -->
+  <ellipse cx="350" cy="164" rx="156" ry="35" fill="none" stroke="#d35400" stroke-width="2"/>
+
+  <!-- Eje N-S -->
+  <line x1="350" y1="80" x2="350" y2="560" stroke="#1f6fa5" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <!-- Polo Norte -->
+  <circle cx="350" cy="100" r="4" fill="#1f6fa5"/>
+  <text class="lbl" font-weight="700" x="358" y="95">N (polo)</text>
+
+  <!-- Polo Sur -->
+  <circle cx="350" cy="540" r="4" fill="#1f6fa5"/>
+  <text class="lbl" font-weight="700" x="358" y="555">S</text>
+
+  <!-- A y B sobre el paralelo 45°, diametralmente opuestos -->
+  <circle cx="194" cy="164" r="5" fill="#c0392b"/>
+  <text class="lbl" font-weight="700" x="170" y="158">A</text>
+
+  <circle cx="506" cy="164" r="5" fill="#c0392b"/>
+  <text class="lbl" font-weight="700" x="515" y="158">B</text>
+
+  <!-- P está en el lado opuesto del paralelo (detrás) - imaginario -->
+  <!-- Centro de la Tierra -->
+  <circle cx="350" cy="320" r="3" fill="#888"/>
+  <text class="lbl" x="358" y="335">O</text>
+
+  <!-- RUTA 1: PARALELO (APB) - por el paralelo 45° -->
+  <!-- Arco visible delantero + detrás invisible -->
+  <path d="M 194,164 A 156,35 0 0 0 506,164" class="ruta-par"/>
+  <text class="dim" x="280" y="245" fill="#d35400">ruta paralelo (APB)</text>
+
+  <!-- P (punto medio del paralelo, atrás) -->
+  <text class="lbl" font-weight="700" x="343" y="215">P</text>
+
+  <!-- RUTA 2: POLAR (ANB) - meridiano que pasa por el polo norte -->
+  <!-- A → N → B, siguiendo medio meridiano (180° - 90° = 90° arco) -->
+  <!-- En realidad va de lat 45° N → 90° N → 45° N por longitudes opuestas -->
+  <!-- Es un semicírculo de centro O que pasa por A, N, B -->
+  <!-- En el dibujo: arco de A(194,164) a N(350,100) a B(506,164) -->
+  <path d="M 194,164 Q 350,40 506,164" class="ruta-pol"/>
+  <text class="dim" x="290" y="75" fill="#1f6fa5">ruta polar (ANB)</text>
+
+  <!-- Indicar latitud 45° -->
+  <line x1="350" y1="320" x2="194" y2="164" stroke="#888" stroke-width="1" stroke-dasharray="2 2"/>
+  <text class="lbl" x="265" y="255">R=6370</text>
+  <!-- Ángulo 45° en el centro -->
+  <path d="M 350,260 A 60,60 0 0 0 305,290" fill="none" stroke="#1f6fa5" stroke-width="1.5"/>
+  <text class="lbl" x="290" y="285" fill="#1f6fa5">45°</text>
+
+  <!-- Radio del paralelo -->
+  <line x1="350" y1="164" x2="506" y2="164" stroke="#d35400" stroke-width="1.5" stroke-dasharray="2 2"/>
+  <text class="lbl" x="395" y="158" fill="#d35400">r = R·cos45°</text>
+
+  <!-- Notas -->
+  <g transform="translate(20, 540)">
+    <text class="lbl" font-weight="700">Ruta paralelo: media circunferencia del paralelo 45° (no es círculo máximo)</text>
+    <text class="lbl" x="0" y="20" font-weight="700">Ruta polar: arco de meridiano de 90° (de 45°N a 90°N) + 90° (de 90°N a 45°N) = 180°</text>
+  </g>
+</svg></div>
+
+    <h3>Ruta APB (por el paralelo)</h3>
+    <div class="step"><span class="step-num">1</span>r_paralelo = 6370·cos(45°) = 6370·(√2/2) ≈ <strong>4.504,27 km</strong></div>
+    <div class="step"><span class="step-num">2</span>A y B opuestos → media circunferencia del paralelo:
+      <br>d_APB = π·r ≈ <strong>14.150,58 km</strong></div>
+
+    <h3>Ruta ANB (polar, por meridianos)</h3>
+    <div class="step"><span class="step-num">1</span>A (45° N) → polo N (90° N) = 45° de arco<br>
+      Polo N → B (45° N, longitud opuesta) = 45° de arco<br>
+      Total: <strong>90° de arco</strong> sobre un círculo máximo</div>
+    <div class="step"><span class="step-num">2</span>d_ANB = (90/360)·2π·R = π·R/2 ≈ <strong>10.005,97 km</strong></div>
+
+    <div class="result">
+      ✅ Ruta paralelo: 14.150,58 km &nbsp;·&nbsp; Ruta polar: 10.005,97 km<br>
+      <span style="font-size:14px;font-weight:normal">La polar es ~4.145 km MÁS CORTA (29% menos)</span>
+    </div>
+
+    <div class="tip">Por eso los vuelos transatlánticos pasan cerca del polo: los círculos máximos son las geodésicas (rutas más cortas) sobre una esfera.</div>
+  </section>
+
+
+  <!-- ============ EJERCICIO 34 ============ -->
+  <section class="exercise" id="ej34">
+    <h2>34) Distancias por el paralelo 30° N</h2>
+    <p class="enunciado">Alejandría (30° E), Nueva Orleans (90° O) y Houston (95° O) están todas en el paralelo 30° N. ¿Qué distancia recorre un avión de Alejandría a Nueva Orleans por el paralelo 30° N? ¿Y de Alejandría a Houston?</p>
+
+    <h3>📌 Recordatorio</h3>
+    <div class="formula">
+      <div class="formula-title">Distancia por paralelo a latitud φ</div>
+      d = (Δlongitud°/360°) · 2π · R · cos(φ)
+    </div>
+
+    <h3>Resolución</h3>
+    <div class="step"><span class="step-num">1</span>Radio del paralelo 30°: r = 6370·cos(30°) = 6370·(√3/2) ≈ <strong>5.516,58 km</strong></div>
+    <div class="step"><span class="step-num">2</span>Diferencias de longitud (E y O → SUMA):
+      <ul>
+        <li>Alejandría ↔ Nueva Orleans: 30° + 90° = <strong>120°</strong></li>
+        <li>Alejandría ↔ Houston: 30° + 95° = <strong>125°</strong></li>
+      </ul>
+    </div>
+
+    <h3>Alejandría → Nueva Orleans</h3>
+    <div class="step">d = (120/360)·2π·5.516,58 = (1/3)·2π·5.516,58 ≈ <strong>11.553,90 km</strong></div>
+
+    <h3>Alejandría → Houston</h3>
+    <div class="step">d = (125/360)·2π·5.516,58 ≈ <strong>12.035,31 km</strong></div>
+
+    <div class="result">
+      ✅ Alejandría → Nueva Orleans ≈ 11.553,90 km<br>
+      ✅ Alejandría → Houston ≈ 12.035,31 km
+    </div>
+  </section>
+
+
+  <!-- ============ RESUMEN ============ -->
+  <section class="exercise" id="resumen">
+    <h2>📊 Resumen de toda la página</h2>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h3>23.a) Semiesfera+cilindro+cono</h3>
+        <p>V ≈ <span class="num">245,04 m³</span> · A ≈ 205,75 m²</p>
+      </div>
+      <div class="summary-card">
+        <h3>23.b) Cilindro hueco</h3>
+        <p>V ≈ <span class="num">565,49 m³</span> · A ≈ 640,88 m²</p>
+      </div>
+      <div class="summary-card">
+        <h3>23.c) Casa</h3>
+        <p>V ≈ <span class="num">4.451,64 m³</span> · A ≈ 1.644,46 m²</p>
+      </div>
+      <div class="summary-card">
+        <h3>23.d) Cilindro escalonado</h3>
+        <p>V ≈ <span class="num">117,81 m³</span> · A ≈ 153,52 m²</p>
+      </div>
+      <div class="summary-card">
+        <h3>24) Tetraedro regular</h3>
+        <p>V ≈ <span class="num">60,34 cm³</span> · A ≈ 110,85 cm²</p>
+      </div>
+      <div class="summary-card">
+        <h3>25) Ortoedro</h3>
+        <p>c = <span class="num">117 cm</span> · D ≈ 270,60 cm</p>
+      </div>
+      <div class="summary-card">
+        <h3>26) Tronco pirámide</h3>
+        <p>V ≈ <span class="num">1.293,33 m³</span></p>
+      </div>
+      <div class="summary-card">
+        <h3>27) Esfera (3 porciones)</h3>
+        <p>Suman V_esfera = <span class="num">57.905,84 cm³</span></p>
+      </div>
+      <div class="summary-card">
+        <h3>28) Zona esférica</h3>
+        <p>V ≈ <span class="num">10.746,34 cm³</span></p>
+      </div>
+      <div class="summary-card">
+        <h3>29) Tejados</h3>
+        <p>A: <span class="num">360 €</span> · B: ≈ 424,53 €</p>
+      </div>
+      <div class="summary-card">
+        <h3>30) Roma → NY</h3>
+        <p><span class="num">1:00 a.m.</span> del día siguiente</p>
+      </div>
+      <div class="summary-card">
+        <h3>32) Distancia meridiano</h3>
+        <p>≈ <span class="num">6.670,65 km</span></p>
+      </div>
+      <div class="summary-card">
+        <h3>33) Paralelo vs polar</h3>
+        <p>14.151 km vs <span class="num">10.006 km</span></p>
+      </div>
+      <div class="summary-card">
+        <h3>34) Paralelo 30°</h3>
+        <p>NO ≈ 11.554 km · HOU ≈ 12.035 km</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<button class="back-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</button>
+
+<footer>
+  <p>📖 Geometría espacial — 3º ESO · Página 24 resuelta paso a paso</p>
+  <p>Hecho con ❤️ para Zarko</p>
+</footer>
+
+<script>
+  // Mostrar botón "volver arriba" tras hacer scroll
+  const btn = document.querySelector('.back-top');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 400) btn.classList.add('show');
+    else btn.classList.remove('show');
+  });
+</script>
+
+</body>
+</html>
