@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¡Ni una hora más! - Sheila Gordon | Material de Estudio 3º ESO</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  line-height: 1.7;
+  color: #2c2416;
+  background: linear-gradient(135deg, #f5e6d3 0%, #e8d4b8 100%);
+  min-height: 100vh;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+header {
+  background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+  color: #fdf6e3;
+  padding: 40px 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  text-align: center;
+}
+header h1 { font-size: 2.5em; margin-bottom: 10px; font-style: italic; }
+header h2 { font-size: 1.3em; font-weight: normal; opacity: 0.95; }
+header .meta { margin-top: 15px; font-size: 1em; opacity: 0.85; }
+nav {
+  background: #fdf6e3;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+}
+nav button {
+  background: #8b4513;
+  color: #fdf6e3;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95em;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+nav button:hover { background: #654321; transform: translateY(-2px); }
+nav button.active { background: #c19a6b; color: #2c2416; }
+section {
+  background: #fdf6e3;
+  border-radius: 12px;
+  padding: 35px;
+  margin-bottom: 25px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  display: none;
+}
+section.active { display: block; animation: fadeIn 0.5s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+h2.section-title {
+  color: #654321;
+  font-size: 2em;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #c19a6b;
+}
+h3 {
+  color: #8b4513;
+  font-size: 1.5em;
+  margin: 25px 0 12px;
+}
+h4 { color: #8b4513; font-size: 1.2em; margin: 18px 0 8px; }
+p { margin-bottom: 14px; text-align: justify; }
+.highlight {
+  background: #f5e6d3;
+  padding: 15px 20px;
+  border-left: 4px solid #8b4513;
+  border-radius: 4px;
+  margin: 15px 0;
+  font-style: italic;
+}
+.character-card {
+  background: linear-gradient(135deg, #fdf6e3 0%, #f5e6d3 100%);
+  border: 2px solid #c19a6b;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 15px 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.character-card h4 {
+  color: #654321;
+  font-size: 1.4em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.character-card .role {
+  display: inline-block;
+  background: #8b4513;
+  color: #fdf6e3;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.85em;
+  margin-bottom: 10px;
+}
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+.theme-card {
+  background: #f5e6d3;
+  padding: 20px;
+  border-radius: 8px;
+  border-top: 4px solid #8b4513;
+}
+.theme-card h4 { margin-top: 0; }
+
+/* EXAM STYLES */
+.exam-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+  padding: 15px;
+  background: #f5e6d3;
+  border-radius: 8px;
+}
+.exam-stats {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #654321;
+}
+.exam-controls button {
+  background: #8b4513;
+  color: #fdf6e3;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1em;
+}
+.exam-controls button:hover { background: #654321; }
+.question-block {
+  background: #fdf6e3;
+  border: 2px solid #e8d4b8;
+  border-radius: 8px;
+  padding: 18px;
+  margin: 12px 0;
+  transition: border-color 0.3s;
+}
+.question-block.answered-correct { border-color: #4caf50; background: #e8f5e9; }
+.question-block.answered-wrong { border-color: #f44336; background: #ffebee; }
+.question-number {
+  display: inline-block;
+  background: #8b4513;
+  color: #fdf6e3;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  margin-right: 10px;
+  font-weight: bold;
+}
+.question-text {
+  font-size: 1.05em;
+  margin-bottom: 12px;
+  font-weight: bold;
+  color: #2c2416;
+}
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option {
+  background: white;
+  border: 2px solid #e8d4b8;
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  font-family: inherit;
+  font-size: 1em;
+  color: #2c2416;
+}
+.option:hover:not(:disabled) { background: #f5e6d3; border-color: #c19a6b; }
+.option.correct { background: #4caf50; color: white; border-color: #4caf50; }
+.option.wrong { background: #f44336; color: white; border-color: #f44336; }
+.option:disabled { cursor: not-allowed; opacity: 0.85; }
+.feedback {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  font-style: italic;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.correct { background: #c8e6c9; color: #2e7d32; }
+.feedback.wrong { background: #ffcdd2; color: #c62828; }
+.progress-bar {
+  background: #e8d4b8;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+.progress-fill {
+  background: linear-gradient(90deg, #8b4513, #c19a6b);
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s;
+}
+.final-score {
+  display: none;
+  text-align: center;
+  padding: 30px;
+  background: linear-gradient(135deg, #c19a6b 0%, #8b4513 100%);
+  color: #fdf6e3;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+.final-score.show { display: block; }
+.final-score h3 { color: #fdf6e3; font-size: 2em; }
+.context-box {
+  background: #fff8e1;
+  border-left: 5px solid #c19a6b;
+  padding: 15px 20px;
+  margin: 15px 0;
+  border-radius: 4px;
+}
+ul, ol { margin-left: 25px; margin-bottom: 14px; }
+li { margin-bottom: 6px; }
+.quote {
+  font-style: italic;
+  padding: 12px 20px;
+  background: #f5e6d3;
+  border-radius: 6px;
+  margin: 12px 0;
+  color: #654321;
+}
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #654321;
+  font-size: 0.9em;
+}
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+.filter-buttons button {
+  background: #c19a6b;
+  color: #2c2416;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9em;
+}
+.filter-buttons button.active { background: #8b4513; color: #fdf6e3; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>¡Ni una hora más!</h1>
+  <h2>Sheila Gordon · Editorial SM (Gran Angular nº 107)</h2>
+  <div class="meta">Material de Estudio · 3º ESO · Lengua y Literatura</div>
+</header>
+
+<nav>
+  <button onclick="showSection('intro')" class="nav-btn active">📖 Introducción</button>
+  <button onclick="showSection('contexto')" class="nav-btn">🌍 Contexto</button>
+  <button onclick="showSection('resumen')" class="nav-btn">📝 Resumen</button>
+  <button onclick="showSection('personajes')" class="nav-btn">👥 Personajes</button>
+  <button onclick="showSection('temas')" class="nav-btn">💡 Temas</button>
+  <button onclick="showSection('estilo')" class="nav-btn">✍️ Estilo</button>
+  <button onclick="showSection('examen')" class="nav-btn">🎯 Examen (200 preg.)</button>
+</nav>
+
+<!-- INTRODUCCIÓN -->
+<section id="intro" class="active">
+  <h2 class="section-title">📖 Introducción a la obra</h2>
+  <p><strong>¡Ni una hora más!</strong> (título original en inglés: <em>Waiting for the Rain</em>, "Esperando la lluvia") es una novela juvenil escrita por <strong>Sheila Gordon</strong>, autora nacida en Sudáfrica y nacionalizada estadounidense. Publicada por primera vez en 1987, llegó a España gracias a la editorial <strong>SM</strong>, dentro de su prestigiosa colección <strong>Gran Angular</strong> (volumen número 107), dirigida a lectores adolescentes.</p>
+
+  <div class="highlight">
+    La obra narra la historia de una amistad imposible entre dos chicos sudafricanos —uno blanco y otro negro— durante los años más duros del régimen del <strong>apartheid</strong>. Es una novela de profundo contenido social, ético y humano que invita a reflexionar sobre el racismo, la desigualdad y la dignidad humana.
+  </div>
+
+  <h3>¿Por qué leer esta novela en 3º ESO?</h3>
+  <p>La novela combina varios elementos pedagógicos esenciales para esta etapa educativa:</p>
+  <ul>
+    <li><strong>Valores cívicos y éticos:</strong> la igualdad, la justicia, el respeto y la lucha contra la discriminación.</li>
+    <li><strong>Conocimiento histórico:</strong> introduce al lector en la historia reciente de Sudáfrica y en el sistema del apartheid.</li>
+    <li><strong>Educación emocional:</strong> trata el conflicto interno entre la amistad infantil y los ideales adultos.</li>
+    <li><strong>Capacidad crítica:</strong> obliga a pensar sobre las estructuras de poder, la educación y la libertad.</li>
+  </ul>
+
+  <h3>Datos esenciales</h3>
+  <ul>
+    <li><strong>Autora:</strong> Sheila Gordon (n. 1927, Johannesburgo, Sudáfrica)</li>
+    <li><strong>Título original:</strong> <em>Waiting for the Rain</em> (1987)</li>
+    <li><strong>Título en español:</strong> ¡Ni una hora más!</li>
+    <li><strong>Editorial:</strong> SM — Colección Gran Angular nº 107</li>
+    <li><strong>Género:</strong> Novela juvenil de denuncia social</li>
+    <li><strong>Ambientación:</strong> Sudáfrica, años 80 (régimen del apartheid)</li>
+    <li><strong>Estructura:</strong> Dos partes principales</li>
+  </ul>
+</section>
+
+<!-- CONTEXTO -->
+<section id="contexto">
+  <h2 class="section-title">🌍 Contexto histórico y social</h2>
+
+  <h3>¿Qué fue el apartheid?</h3>
+  <p>El <strong>apartheid</strong> (palabra afrikáans que significa "separación") fue un sistema de segregación racial impuesto en Sudáfrica entre <strong>1948 y 1991</strong> por el gobierno del Partido Nacional, dominado por la minoría blanca de origen holandés y británico. Bajo este sistema, la población se clasificaba oficialmente en cuatro grupos:</p>
+  <ul>
+    <li><strong>Blancos</strong> (descendientes de europeos, principalmente afrikáners e ingleses)</li>
+    <li><strong>Negros</strong> o "bantúes" (mayoría poblacional, despojada de derechos)</li>
+    <li><strong>Mestizos</strong> ("coloured")</li>
+    <li><strong>Asiáticos</strong> (principalmente indios)</li>
+  </ul>
+
+  <div class="context-box">
+    <p>El régimen del apartheid imponía la <strong>separación absoluta</strong>: escuelas separadas, hospitales separados, transportes separados, barrios separados. Los negros sudafricanos no podían votar, no podían moverse libremente por su propio país (necesitaban un "pase" o <em>passbook</em>), recibían una educación inferior y eran obligados a vivir en zonas pobres llamadas <em>townships</em>.</p>
+  </div>
+
+  <h3>El levantamiento de Soweto (1976)</h3>
+  <p>Un acontecimiento clave que está detrás del trasfondo de la novela es el <strong>levantamiento estudiantil de Soweto</strong> de 1976, en el que miles de jóvenes negros se manifestaron contra la imposición del afrikáans como lengua obligatoria en las escuelas. La policía respondió disparando, y murieron cientos de estudiantes. A partir de aquí, la lucha contra el apartheid se intensificó.</p>
+
+  <h3>El "kraal" y la "granja"</h3>
+  <p>La novela transcurre en gran parte en una <strong>granja</strong> de la zona rural sudafricana, propiedad del "Oubaas" (el viejo señor, en afrikáans). En esas granjas, los trabajadores negros vivían en un <strong>kraal</strong>: un conjunto de chozas humildes donde se alojaban familias enteras al servicio del granjero blanco. El kraal simboliza la pobreza, la dignidad y, al mismo tiempo, la opresión bajo la que vivían los negros.</p>
+
+  <h3>Vocabulario clave para entender la novela</h3>
+  <ul>
+    <li><strong>Apartheid:</strong> sistema legal de segregación racial.</li>
+    <li><strong>Afrikáner:</strong> sudafricano blanco descendiente de holandeses.</li>
+    <li><strong>Afrikáans:</strong> lengua derivada del neerlandés, hablada por los afrikáners.</li>
+    <li><strong>Kaffir:</strong> término despectivo y racista usado por los blancos para referirse a los negros sudafricanos.</li>
+    <li><strong>Kraal:</strong> poblado de chozas donde vivían los trabajadores negros.</li>
+    <li><strong>Township:</strong> barrio segregado, generalmente pobre, en las afueras de las ciudades, donde vivían los negros.</li>
+    <li><strong>Oubaas:</strong> "viejo amo" en afrikáans; trato que los trabajadores negros daban al dueño blanco.</li>
+    <li><strong>Boss-boy:</strong> capataz negro encargado de los demás trabajadores.</li>
+    <li><strong>Boycott:</strong> huelga estudiantil prolongada de los jóvenes negros como forma de protesta.</li>
+  </ul>
+</section>
+
+<!-- RESUMEN -->
+<section id="resumen">
+  <h2 class="section-title">📝 Resumen completo</h2>
+
+  <h3>Estructura general</h3>
+  <p>La novela se divide en <strong>dos grandes partes</strong>. La primera transcurre principalmente en la <strong>granja rural</strong> donde nacen y crecen los protagonistas; la segunda se desarrolla en <strong>Johannesburgo</strong>, en plena efervescencia política, y muestra el desenlace dramático del conflicto.</p>
+
+  <h3>Primera parte: la granja y la infancia</h3>
+  <p>La acción comienza en una <strong>próspera granja sudafricana</strong> propiedad de <strong>Oom Koos</strong> y su esposa <strong>Tant Sannie</strong>, blancos afrikáners. En esa granja trabaja <strong>Timothy</strong>, el <em>boss-boy</em> o capataz negro, junto con su familia y otros trabajadores negros que viven en el kraal.</p>
+
+  <p>El protagonista principal, <strong>Tengo</strong>, es el hijo de Timothy. Desde muy pequeño juega con <strong>Frikkie</strong>, el sobrino blanco del granjero, que pasa todas sus vacaciones de verano en la granja. Los dos niños, de la misma edad, comparten una infancia idílica: juegan al fútbol, montan a caballo, bañan a los animales, pescan en el río y exploran juntos los campos. La amistad parece pura, sincera y libre de prejuicios, aunque ya se perciben señales de la desigualdad: Frikkie va a la escuela y se queja; Tengo no puede ir, pero <strong>anhela aprender</strong>.</p>
+
+  <div class="highlight">
+    "Tengo soñaba con los libros como otros niños sueñan con juguetes." — La sed de conocimiento es lo que marca el destino del protagonista.
+  </div>
+
+  <p>Pronto aparecen las primeras grietas en la amistad. Tengo descubre que él no puede comer en la misma mesa que Frikkie, que no puede entrar en la casa principal, y que su padre se dirige al patrón con el título de "Oubaas" mientras agacha la cabeza. Comienza a hacer preguntas que nadie quiere contestar. Su <strong>tía Emma</strong>, que vive en la ciudad, le regala libros y le anima a estudiar. Pero el momento clave llega con la visita de su <strong>primo Joseph</strong>, un adolescente más mayor, que le habla por primera vez con dureza del <strong>apartheid</strong>, le explica el significado de palabras como <em>kaffir</em> y le abre los ojos a la realidad política del país. Joseph siembra en Tengo la semilla de la conciencia crítica.</p>
+
+  <p>Mientras tanto, Frikkie odia la escuela y solo sueña con heredar la granja de su tío. Quiere que todo siga igual para siempre. Esa diferencia de aspiraciones —Tengo desea cambio y conocimiento; Frikkie, conformismo y permanencia— anticipa la fractura final.</p>
+
+  <p>Tengo trabaja en la granja, se esfuerza, se enfrenta a los prejuicios de Tant Sannie, que piensa que "la educación se desperdicia en los negros". Cuando cumple los catorce años, su tía y su familia consiguen, con enorme esfuerzo, que pueda <strong>marcharse a estudiar a Johannesburgo</strong>, viviendo con su primo Joseph en un township. El día de la despedida es uno de los momentos más emotivos de la novela: Tengo abraza a Frikkie sabiendo, sin decirlo, que algo se rompe para siempre.</p>
+
+  <h3>Segunda parte: Johannesburgo y la lucha</h3>
+  <p>En la segunda parte, encontramos a Tengo viviendo en un <strong>township</strong> a las afueras de Johannesburgo. Las condiciones son durísimas: pobreza, hacinamiento, violencia policial, registros nocturnos. Pero Tengo estudia <strong>con una intensidad sobrehumana</strong>. Pasa años recuperando el tiempo perdido y se acerca al nivel necesario para entrar en la universidad.</p>
+
+  <p>Sin embargo, justo cuando está a punto de presentar los exámenes definitivos, estalla un <strong>boicot estudiantil</strong> de un año entero. Los jóvenes negros se niegan a asistir a clases para protestar contra el sistema educativo segregado. Tengo se ve atrapado entre dos lealtades: <strong>su futuro personal</strong> (los estudios, la universidad) y la <strong>solidaridad con su pueblo</strong>. Tras debatirse interiormente, decide unirse al boicot, sacrificando sus opciones académicas inmediatas.</p>
+
+  <p>Mientras tanto, Frikkie ha sido reclutado para el <strong>servicio militar obligatorio</strong> en el ejército sudafricano. Es ahora un soldado del régimen, enviado precisamente a sofocar disturbios en los townships negros. Su mundo sigue cerrado al cambio.</p>
+
+  <p>El <strong>clímax</strong> de la novela llega cuando los dos antiguos amigos, ahora con dieciocho años, se encuentran <strong>cara a cara</strong> en uno de los enfrentamientos violentos del township. Tengo, como manifestante; Frikkie, como soldado armado. En medio del caos, Tengo logra reducir a Frikkie y se apodera de su arma. Por un instante terrible, podría matarlo: la rabia, la injusticia acumulada, la sed de venganza le empujan a apretar el gatillo. Pero en ese segundo, <strong>se reconocen</strong>. Vuelven a ser, por un instante, los dos niños que pescaban en el río y reían juntos.</p>
+
+  <div class="highlight">
+    <strong>Ninguno de los dos es capaz de matar al otro.</strong> La amistad de la infancia se impone sobre el odio del presente, aunque ambos saben que ya no podrán volver a ser amigos.
+  </div>
+
+  <p>La novela termina con un final abierto pero esperanzador: Tengo deja escapar a Frikkie y decide marcharse al exilio para continuar la lucha y, sobre todo, sus estudios. La frase "<strong>¡Ni una hora más!</strong>" simboliza la determinación de no aceptar ni un minuto más la injusticia del apartheid. El título original, <em>Waiting for the Rain</em> ("Esperando la lluvia"), hace referencia tanto a la lluvia literal —que cae sobre la sequía de la tierra— como a la metafórica: la esperanza de un cambio que, algún día, llegará.</p>
+
+  <h3>Episodios destacables</h3>
+  <ol>
+    <li><strong>El primer "Oubaas":</strong> Tengo, de pequeño, ve cómo su padre se quita el sombrero y baja la cabeza ante el patrón. Esa imagen le marca para siempre.</li>
+    <li><strong>El regalo de la tía Emma:</strong> el primer libro que recibe Tengo es como una ventana al mundo.</li>
+    <li><strong>La conversación con Joseph:</strong> el primo le explica qué significa ser negro en Sudáfrica.</li>
+    <li><strong>El partido de fútbol:</strong> Tengo y Frikkie juegan como iguales, aunque el reparto de roles ya muestra desigualdad.</li>
+    <li><strong>La despedida en la estación:</strong> Tengo se marcha a estudiar a Johannesburgo.</li>
+    <li><strong>El boicot escolar:</strong> Tengo debe elegir entre estudios y compromiso político.</li>
+    <li><strong>La redada en el township:</strong> la violencia policial irrumpe en la vida cotidiana.</li>
+    <li><strong>El reencuentro final:</strong> dos antiguos amigos, dos enemigos forzosos.</li>
+  </ol>
+</section>
+
+<!-- PERSONAJES -->
+<section id="personajes">
+  <h2 class="section-title">👥 Personajes</h2>
+  <p>La novela construye un retrato coral, pero gira en torno a dos figuras centrales que representan los dos mundos enfrentados de la Sudáfrica del apartheid.</p>
+
+  <h3>Protagonistas</h3>
+
+  <div class="character-card">
+    <h4>🌍 Tengo</h4>
+    <span class="role">Protagonista · Joven negro sudafricano</span>
+    <p>Es el verdadero <strong>héroe</strong> de la novela. Hijo de Timothy, el capataz negro de la granja, Tengo encarna la esperanza, la inteligencia, la dignidad y la <strong>sed de conocimiento</strong> de toda una generación. Al comienzo del libro tiene diez años; al final, dieciocho. Vivimos con él un proceso de maduración profundo:</p>
+    <ul>
+      <li><strong>Infancia:</strong> niño curioso, soñador, amigo leal de Frikkie. No comprende todavía las injusticias del mundo que le rodea.</li>
+      <li><strong>Adolescencia:</strong> empieza a tomar conciencia del racismo a través de su tía Emma y su primo Joseph. Anhela estudiar.</li>
+      <li><strong>Juventud:</strong> vive en el township, lucha por su educación, se enfrenta al dilema entre futuro personal y compromiso colectivo.</li>
+    </ul>
+    <p>Tengo es <strong>reflexivo, valiente, idealista y compasivo</strong>. En el clímax final, su humanidad triunfa: pese a todo el dolor, no es capaz de matar a su antiguo amigo. Representa la esperanza de una nueva Sudáfrica basada en la educación, la justicia y la igualdad.</p>
+  </div>
+
+  <div class="character-card">
+    <h4>🚜 Frikkie</h4>
+    <span class="role">Antagonista involuntario · Joven blanco afrikáner</span>
+    <p>Sobrino de Oom Koos. Es el contrapunto de Tengo: un chico blanco, <strong>privilegiado pero limitado intelectualmente</strong>, que detesta la escuela y solo aspira a heredar la granja de su tío y vivir como sus antepasados. Sus rasgos principales son:</p>
+    <ul>
+      <li><strong>Sencillo y poco reflexivo:</strong> no se cuestiona el orden establecido.</li>
+      <li><strong>Apegado a la tierra:</strong> ama la granja, los animales y la vida rural.</li>
+      <li><strong>Conservador:</strong> teme cualquier cambio social.</li>
+      <li><strong>Buen corazón en lo personal:</strong> quiere a Tengo de niño, pero acepta el racismo de su entorno sin cuestionarlo.</li>
+    </ul>
+    <p>Frikkie no es un villano consciente; es el producto de una sociedad enferma. Cuando es reclutado al ejército, se convierte en un instrumento del sistema. Pero en el momento decisivo, también él reconoce a Tengo y no puede disparar. Representa al ciudadano medio blanco, atrapado en una cultura heredada.</p>
+  </div>
+
+  <h3>Personajes secundarios</h3>
+
+  <div class="character-card">
+    <h4>👨🏿‍🌾 Timothy</h4>
+    <span class="role">Padre de Tengo · Capataz (boss-boy)</span>
+    <p>Trabajador serio, responsable y respetado. Sirve fielmente a Oom Koos durante décadas. Representa a la generación de adultos negros que aprendieron a sobrevivir bajo el apartheid <strong>aceptando la sumisión</strong> como única forma de protegerse y proteger a sus familias. Aun así, anima a Tengo a estudiar y a buscar un futuro mejor lejos de la granja.</p>
+  </div>
+
+  <div class="character-card">
+    <h4>👵🏿 Selina</h4>
+    <span class="role">Madre de Tengo</span>
+    <p>Mujer fuerte y cariñosa que sostiene emocionalmente a la familia. Vive entre la tradición y el orgullo silencioso. Sufre la marcha de su hijo, pero comprende que es el camino necesario.</p>
+  </div>
+
+  <div class="character-card">
+    <h4>📚 Tía Emma</h4>
+    <span class="role">Tía de Tengo · Educadora informal</span>
+    <p>Vive en la ciudad. Es la figura que <strong>despierta el interés intelectual</strong> de Tengo. Le regala libros, le habla del mundo y le anima a estudiar. Es una de las primeras voces que le hacen sentir que el conocimiento es un arma de liberación.</p>
+  </div>
+
+  <div class="character-card">
+    <h4>✊🏿 Joseph</h4>
+    <span class="role">Primo mayor de Tengo</span>
+    <p>Adolescente politizado. Es quien le revela a Tengo la <strong>realidad del apartheid</strong>: las palabras racistas, las leyes injustas, el sistema de pases. Más adelante, ya en Johannesburgo, vuelve a aparecer y será una influencia determinante en la decisión de Tengo de unirse al boicot estudiantil.</p>
+  </div>
+
+  <div class="character-card">
+    <h4>👨🏼‍🌾 Oom Koos</h4>
+    <span class="role">Patrón blanco · Tío de Frikkie</span>
+    <p>El dueño de la granja. Es un afrikáner típico: trabajador, religioso, paternalista. No se considera un mal hombre y trata "bien" a sus trabajadores… dentro de las reglas del apartheid. Encarna la mentalidad del colono blanco que se cree justo pero está ciego ante la injusticia estructural.</p>
+  </div>
+
+  <div class="character-card">
+    <h4>👩🏼 Tant Sannie</h4>
+    <span class="role">Esposa de Oom Koos · Tía de Frikkie</span>
+    <p>Mujer dura, prejuiciosa y abiertamente racista. Cree que "<strong>la educación se desperdicia con los negros</strong>". Es uno de los personajes más antipáticos del libro y representa el racismo más visceral y cotidiano.</p>
+  </div>
+
+  <div class="character-card">
+    <h4>📖 Emma (compañera)</h4>
+    <span class="role">Compañera de estudios de Tengo</span>
+    <p>Una joven que ayuda a Tengo en diferentes materias durante su etapa en Johannesburgo. Es símbolo de la <strong>solidaridad y el compañerismo</strong> entre estudiantes negros que se ayudan mutuamente a salir adelante en un sistema que se les opone.</p>
+  </div>
+
+  <div class="character-card">
+    <h4>👨🏿 Personajes del township</h4>
+    <span class="role">Vecinos, activistas, jóvenes</span>
+    <p>Forman un coro de voces que muestran la vida en el township: estudiantes que lideran el boicot, ancianos que recuerdan tiempos pasados, madres que viven con miedo, jóvenes que radicalizan su lucha. Representan la <strong>comunidad colectiva</strong> que da fuerza a Tengo.</p>
+  </div>
+
+  <h3>Relaciones clave</h3>
+  <div class="theme-grid">
+    <div class="theme-card">
+      <h4>Tengo ↔ Frikkie</h4>
+      <p>Amistad infantil que se rompe por las imposiciones del sistema racista. Es la columna vertebral de la novela.</p>
+    </div>
+    <div class="theme-card">
+      <h4>Tengo ↔ Timothy</h4>
+      <p>Padre e hijo en conflicto generacional: el padre acepta la realidad, el hijo quiere cambiarla.</p>
+    </div>
+    <div class="theme-card">
+      <h4>Tengo ↔ Joseph</h4>
+      <p>El primo como "mentor político". Despierta su conciencia y luego lo guía en la lucha.</p>
+    </div>
+    <div class="theme-card">
+      <h4>Frikkie ↔ Oom Koos</h4>
+      <p>Tío y sobrino unidos por la tierra y por una visión del mundo conservadora.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TEMAS -->
+<section id="temas">
+  <h2 class="section-title">💡 Temas principales</h2>
+
+  <div class="theme-grid">
+    <div class="theme-card">
+      <h4>🤝 La amistad</h4>
+      <p>La amistad sincera entre dos niños que el sistema convierte en imposible. ¿Puede sobrevivir un afecto puro a una sociedad que separa a las personas por el color de su piel? La novela responde con un sí matizado: la amistad sobrevive lo justo para impedir el asesinato, pero no para ser ya nunca lo que fue.</p>
+    </div>
+    <div class="theme-card">
+      <h4>⚖️ El racismo y la injusticia</h4>
+      <p>El apartheid no es un telón de fondo: es el verdadero antagonista de la historia. La novela denuncia las leyes injustas, la violencia institucional y la deshumanización del otro.</p>
+    </div>
+    <div class="theme-card">
+      <h4>📚 La educación como liberación</h4>
+      <p>El conocimiento es, para Tengo, el camino hacia la libertad. La escuela, los libros y el estudio son armas pacíficas contra la opresión. Por eso el régimen quiere mantener al pueblo negro en la ignorancia.</p>
+    </div>
+    <div class="theme-card">
+      <h4>🌱 El paso de la infancia a la madurez</h4>
+      <p>Es una novela de aprendizaje (Bildungsroman). Vemos a Tengo evolucionar desde el juego inocente hasta la decisión adulta de comprometerse políticamente.</p>
+    </div>
+    <div class="theme-card">
+      <h4>🕊️ La esperanza y la resistencia</h4>
+      <p>Pese a todo, la novela no es pesimista. El título original ("Esperando la lluvia") sugiere que el cambio llegará, como la lluvia después de la sequía.</p>
+    </div>
+    <div class="theme-card">
+      <h4>👪 La familia y la tradición</h4>
+      <p>Las familias —negras y blancas— transmiten valores, pero también prejuicios. El conflicto generacional es central: los hijos cuestionan lo que los padres aceptan.</p>
+    </div>
+    <div class="theme-card">
+      <h4>🗣️ La lengua y la identidad</h4>
+      <p>El afrikáans impuesto, las lenguas africanas reprimidas, el inglés como vía de promoción social: el idioma es también un campo de batalla.</p>
+    </div>
+    <div class="theme-card">
+      <h4>💔 La pérdida de la inocencia</h4>
+      <p>Los dos protagonistas pierden la inocencia infantil al descubrir que el mundo que los rodea les exige tomar bandos opuestos.</p>
+    </div>
+  </div>
+
+  <h3>El significado del título</h3>
+  <p>El título español <strong>"¡Ni una hora más!"</strong> es una <strong>traducción libre</strong> que refleja la idea de que <strong>no se puede tolerar más tiempo la injusticia</strong>: la lucha contra el apartheid no admite demora. El título original, <strong>"Waiting for the Rain"</strong> ("Esperando la lluvia"), es más poético y simbólico: la lluvia representa el cambio, la justicia, el alivio que tarda en llegar pero que es inevitable. Ambos títulos se complementan: uno apremia, el otro espera.</p>
+</section>
+
+<!-- ESTILO -->
+<section id="estilo">
+  <h2 class="section-title">✍️ Estilo y técnica narrativa</h2>
+
+  <h3>Narrador</h3>
+  <p>La novela está escrita en <strong>tercera persona omnisciente</strong>, aunque la perspectiva se centra mayoritariamente en <strong>Tengo</strong>. Esto permite al lector entrar en sus pensamientos, dudas y emociones, y sentir desde dentro el peso del racismo. Algunos capítulos cambian a la perspectiva de Frikkie, lo que aporta riqueza al contraste.</p>
+
+  <h3>Estructura</h3>
+  <p>La obra se divide en <strong>dos partes</strong>:</p>
+  <ul>
+    <li><strong>Parte I:</strong> La granja, la infancia, el descubrimiento de la realidad.</li>
+    <li><strong>Parte II:</strong> Johannesburgo, la lucha, el reencuentro final.</li>
+  </ul>
+  <p>La división marca un cambio físico (campo / ciudad) y también un cambio psicológico (niñez / madurez). Hay un <strong>salto temporal</strong> importante entre ambas partes, durante el cual Tengo crece y se transforma.</p>
+
+  <h3>Lenguaje</h3>
+  <p>El lenguaje de Sheila Gordon es <strong>sobrio, claro y directo</strong>, adecuado a un público juvenil. Mezcla:</p>
+  <ul>
+    <li><strong>Descripciones sensoriales</strong> de la naturaleza sudafricana (la sabana, los animales, el polvo, la sequía).</li>
+    <li><strong>Diálogos vivos</strong> que reflejan la diferencia de educación y posición social entre personajes.</li>
+    <li><strong>Términos afrikáans y zulúes</strong> que dan autenticidad al ambiente (kraal, oubaas, tant, etc.).</li>
+    <li><strong>Pasajes reflexivos</strong> en los que Tengo medita sobre la injusticia.</li>
+  </ul>
+
+  <h3>Recursos literarios</h3>
+  <ul>
+    <li><strong>Símbolos:</strong> la lluvia (cambio, justicia), la tierra reseca (la opresión), el río (la amistad pura), el libro (la liberación), el arma (el odio impuesto).</li>
+    <li><strong>Contraste:</strong> entre los dos protagonistas, entre campo y ciudad, entre infancia y madurez.</li>
+    <li><strong>Anticipación:</strong> pequeñas escenas iniciales que anuncian el conflicto final.</li>
+    <li><strong>Diálogo interior:</strong> sobre todo en Tengo, para mostrar su evolución moral.</li>
+  </ul>
+
+  <h3>Mensaje final</h3>
+  <div class="quote">
+    "La novela no ofrece soluciones fáciles, pero defiende dos verdades: que la <strong>educación</strong> es la mejor arma del oprimido, y que ningún ser humano debería tener que matar a quien una vez fue su amigo."
+  </div>
+</section>
+
+<!-- EXAMEN -->
+<section id="examen">
+  <h2 class="section-title">🎯 Examen interactivo (200 preguntas)</h2>
+  <p>Pon a prueba tu conocimiento del libro. Cada pregunta tiene una sola respuesta correcta. Al final verás tu puntuación total.</p>
+
+  <div class="exam-controls">
+    <div>
+      <div class="exam-stats">
+        Respondidas: <span id="answered">0</span> / <span id="total">200</span>
+        &nbsp;|&nbsp; Aciertos: <span id="correct">0</span>
+        &nbsp;|&nbsp; Fallos: <span id="wrong">0</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    </div>
+    <div>
+      <button onclick="resetExam()">🔄 Reiniciar</button>
+      <button onclick="scrollToFirst()">⬆️ Inicio</button>
+    </div>
+  </div>
+
+  <div class="filter-buttons">
+    <button class="active" onclick="filterQuestions('all', this)">Todas</button>
+    <button onclick="filterQuestions('argumento', this)">Argumento</button>
+    <button onclick="filterQuestions('personajes', this)">Personajes</button>
+    <button onclick="filterQuestions('contexto', this)">Contexto histórico</button>
+    <button onclick="filterQuestions('temas', this)">Temas y simbología</button>
+    <button onclick="filterQuestions('detalles', this)">Detalles del texto</button>
+  </div>
+
+  <div id="questions-container"></div>
+
+  <div class="final-score" id="finalScore">
+    <h3>🎓 ¡Examen completado!</h3>
+    <p style="font-size:1.3em;">Has acertado <span id="finalCorrect">0</span> de 200 preguntas</p>
+    <p style="font-size:1.5em; margin-top:10px;">Nota: <span id="finalGrade">0</span> / 10</p>
+    <p id="finalMessage" style="margin-top:15px;"></p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  Material de estudio · ¡Ni una hora más! · Sheila Gordon · 3º ESO
+</footer>
+
+<script>
+// QUESTIONS DATA - 200 preguntas
+const questions = [
+  // ARGUMENTO (1-50)
+  {q:"¿Cuál es el título original en inglés de la novela?",o:["Waiting for the Rain","Cry, the Beloved Country","The Long Walk","Born a Crime"],a:0,c:"argumento"},
+  {q:"¿En qué país está ambientada la novela?",o:["Sudáfrica","Kenia","Zimbabue","Nigeria"],a:0,c:"argumento"},
+  {q:"¿En qué editorial se publicó en España?",o:["SM","Anaya","Alfaguara","Edebé"],a:0,c:"argumento"},
+  {q:"¿En qué colección se publicó?",o:["Gran Angular","Barco de Vapor","Tus Libros","El Periscopio"],a:0,c:"argumento"},
+  {q:"¿Quién es la autora de la novela?",o:["Sheila Gordon","Doris Lessing","Nadine Gordimer","Toni Morrison"],a:0,c:"argumento"},
+  {q:"¿En qué año se publicó por primera vez la obra original?",o:["1987","1976","1995","2001"],a:0,c:"argumento"},
+  {q:"¿Cuál es la nacionalidad de origen de la autora?",o:["Sudafricana","Estadounidense","Inglesa","Australiana"],a:0,c:"argumento"},
+  {q:"¿Cuántas partes principales tiene la novela?",o:["Dos","Tres","Cuatro","Cinco"],a:0,c:"argumento"},
+  {q:"¿Dónde transcurre principalmente la primera parte?",o:["En una granja rural","En Johannesburgo","En Ciudad del Cabo","En Pretoria"],a:0,c:"argumento"},
+  {q:"¿Dónde transcurre principalmente la segunda parte?",o:["En Johannesburgo","En la granja","En Durban","En el extranjero"],a:0,c:"argumento"},
+  {q:"¿Qué edad tienen los protagonistas al comienzo de la novela?",o:["10 años","6 años","14 años","16 años"],a:0,c:"argumento"},
+  {q:"¿Qué edad tienen los protagonistas en el clímax final?",o:["18 años","16 años","21 años","20 años"],a:0,c:"argumento"},
+  {q:"¿Cómo se llama el protagonista negro?",o:["Tengo","Joseph","Frikkie","Timothy"],a:0,c:"argumento"},
+  {q:"¿Cómo se llama el protagonista blanco?",o:["Frikkie","Koos","Tengo","Daan"],a:0,c:"argumento"},
+  {q:"¿Cuál es la relación entre los dos protagonistas?",o:["Amigos de la infancia","Hermanos","Primos","Vecinos en la ciudad"],a:0,c:"argumento"},
+  {q:"¿Qué les separa al crecer?",o:["El sistema del apartheid","Una pelea personal","La distancia geográfica","La religión"],a:0,c:"argumento"},
+  {q:"¿Qué le ocurre a Tengo cuando tiene 14 años?",o:["Se marcha a estudiar a Johannesburgo","Hereda la granja","Es encarcelado","Se casa"],a:0,c:"argumento"},
+  {q:"¿Con quién vive Tengo al llegar a Johannesburgo?",o:["Con su primo Joseph","Con su tía Emma","Solo","Con un amigo blanco"],a:0,c:"argumento"},
+  {q:"¿Qué interrumpe los estudios de Tengo?",o:["Un boicot estudiantil","Una enfermedad","La muerte de su padre","Falta de dinero"],a:0,c:"argumento"},
+  {q:"¿Cuánto dura el boicot escolar?",o:["Un año","Un mes","Tres años","Una semana"],a:0,c:"argumento"},
+  {q:"¿Qué le sucede a Frikkie al hacerse mayor?",o:["Es reclutado al ejército","Estudia derecho","Emigra a Europa","Se hace pastor"],a:0,c:"argumento"},
+  {q:"¿En qué situación se reencuentran Tengo y Frikkie?",o:["En una revuelta en el township","En una boda","En la granja","En la universidad"],a:0,c:"argumento"},
+  {q:"¿Quién está armado en el reencuentro final?",o:["Frikkie","Tengo","Ambos","Ninguno"],a:0,c:"argumento"},
+  {q:"¿Quién consigue desarmar al otro?",o:["Tengo desarma a Frikkie","Frikkie desarma a Tengo","Ambos pierden el arma","Un tercero los separa"],a:0,c:"argumento"},
+  {q:"¿Qué decide hacer Tengo finalmente con Frikkie?",o:["No matarlo y dejarlo ir","Matarlo","Entregarlo a la policía","Llevarlo de vuelta a la granja"],a:0,c:"argumento"},
+  {q:"¿Qué decide hacer Tengo con su futuro al final?",o:["Marcharse para seguir estudiando","Quedarse en el township","Regresar a la granja","Unirse al ejército"],a:0,c:"argumento"},
+  {q:"¿Cómo era la infancia de los dos chicos en la granja?",o:["Idílica y compartida","Tensa y conflictiva","Distante","Llena de violencia"],a:0,c:"argumento"},
+  {q:"¿Qué actividades hacían juntos de niños?",o:["Jugar al fútbol, pescar, montar a caballo","Estudiar y leer","Ir a la iglesia","Cazar leones"],a:0,c:"argumento"},
+  {q:"¿Qué soñaba Tengo de pequeño?",o:["Estudiar y tener libros","Ser granjero","Ser soldado","Vivir en la ciudad"],a:0,c:"argumento"},
+  {q:"¿Qué quería ser Frikkie de mayor?",o:["Heredar la granja de su tío","Profesor","Médico","Político"],a:0,c:"argumento"},
+  {q:"¿Quién le abre los ojos a Tengo sobre el apartheid?",o:["Su primo Joseph","Su padre","Su tía Emma","Frikkie"],a:0,c:"argumento"},
+  {q:"¿Quién regala los primeros libros a Tengo?",o:["Su tía Emma","Frikkie","Oom Koos","El maestro"],a:0,c:"argumento"},
+  {q:"¿Quién era el capataz (boss-boy) de la granja?",o:["Timothy, el padre de Tengo","Joseph","Tengo mismo","Oom Koos"],a:0,c:"argumento"},
+  {q:"¿Cómo se llama la esposa de Oom Koos?",o:["Tant Sannie","Emma","Selina","Annetjie"],a:0,c:"argumento"},
+  {q:"¿Qué piensa Tant Sannie sobre la educación de los negros?",o:["Que es un desperdicio","Que es necesaria","Que es justa","Que es peligrosa para los blancos"],a:0,c:"argumento"},
+  {q:"¿Cuál es la primera reacción de Tengo al sistema?",o:["Sorpresa y curiosidad","Odio inmediato","Aceptación total","Indiferencia"],a:0,c:"argumento"},
+  {q:"¿Cómo evoluciona la conciencia política de Tengo?",o:["Progresivamente, por etapas","De golpe","No evoluciona","De forma violenta desde el principio"],a:0,c:"argumento"},
+  {q:"¿Qué simboliza el río en la novela?",o:["La amistad pura de la infancia","El peligro","La frontera política","La sequía"],a:0,c:"argumento"},
+  {q:"¿Qué representa la lluvia en el título original?",o:["La esperanza de cambio","El miedo","La muerte","La guerra"],a:0,c:"argumento"},
+  {q:"¿Qué tipo de novela es?",o:["Novela juvenil de denuncia social","Novela policíaca","Novela fantástica","Novela histórica clásica"],a:0,c:"argumento"},
+  {q:"¿En qué punto de vista narrativo está escrita?",o:["Tercera persona omnisciente","Primera persona (Tengo)","Primera persona (Frikkie)","Segunda persona"],a:0,c:"argumento"},
+  {q:"¿De quién es la perspectiva mayoritaria?",o:["De Tengo","De Frikkie","De Timothy","Del narrador externo neutro"],a:0,c:"argumento"},
+  {q:"¿En qué época histórica se ambienta?",o:["Años 80, durante el apartheid","Años 50, principios del apartheid","Años 2000, post-apartheid","Siglo XIX, colonización"],a:0,c:"argumento"},
+  {q:"¿Cómo se titula en España?",o:["¡Ni una hora más!","Esperando la lluvia","El amigo enemigo","Sudáfrica de fuego"],a:0,c:"argumento"},
+  {q:"¿Qué número ocupa en la colección Gran Angular?",o:["107","100","75","150"],a:0,c:"argumento"},
+  {q:"¿A qué público va dirigida principalmente?",o:["Lectores adolescentes","Niños pequeños","Lectores adultos","Especialistas en historia"],a:0,c:"argumento"},
+  {q:"¿Cuál es el desenlace emocional dominante?",o:["Amargo pero esperanzador","Trágico","Cómico","Indiferente"],a:0,c:"argumento"},
+  {q:"¿Por qué Tengo no puede matar a Frikkie?",o:["Por la amistad de la infancia","Por miedo a la policía","Porque el arma falla","Porque otros lo impiden"],a:0,c:"argumento"},
+  {q:"¿Cuál es la decisión final de Tengo respecto al exilio?",o:["Se marcha al exilio","Permanece en el township","Vuelve a la granja","Se entrega a las autoridades"],a:0,c:"argumento"},
+  {q:"¿Qué impide la reconciliación definitiva de los amigos?",o:["El sistema y las decisiones que han tomado","La distancia","La muerte de uno de ellos","Una pelea por una chica"],a:0,c:"argumento"},
+
+  // PERSONAJES (51-100)
+  {q:"¿De quién es hijo Tengo?",o:["De Timothy","De Joseph","De Oom Koos","De Emma"],a:0,c:"personajes"},
+  {q:"¿Cuál es el rol de Timothy en la granja?",o:["Boss-boy (capataz)","Jardinero","Pastor","Cocinero"],a:0,c:"personajes"},
+  {q:"¿Cómo es el carácter de Timothy?",o:["Sumiso pero digno","Rebelde y violento","Indiferente","Cruel con su familia"],a:0,c:"personajes"},
+  {q:"¿Quién es Selina?",o:["La madre de Tengo","La hermana de Tengo","La esposa de Oom Koos","La maestra"],a:0,c:"personajes"},
+  {q:"¿Qué rol cumple la tía Emma en la formación de Tengo?",o:["Le anima a estudiar y le regala libros","Le enseña agricultura","Le impide ir a la ciudad","Le obliga a trabajar"],a:0,c:"personajes"},
+  {q:"¿Qué edad aproximada tiene Joseph al inicio?",o:["Catorce años","Diez","Veinte","Ocho"],a:0,c:"personajes"},
+  {q:"¿Cuál es el rasgo principal de Joseph?",o:["Conciencia política","Pasividad","Resignación","Religiosidad"],a:0,c:"personajes"},
+  {q:"¿Quién es Oom Koos?",o:["El dueño blanco de la granja","El padre de Tengo","Un soldado","Un maestro"],a:0,c:"personajes"},
+  {q:"¿Qué relación tiene Frikkie con Oom Koos?",o:["Es su sobrino","Es su hijo","Es su nieto","Es su empleado"],a:0,c:"personajes"},
+  {q:"¿Qué actitud tiene Oom Koos hacia sus trabajadores?",o:["Paternalista","Cruel y violenta","Indiferente","De igual a igual"],a:0,c:"personajes"},
+  {q:"¿Cómo se describe a Tant Sannie?",o:["Dura y racista","Cariñosa","Liberal","Joven y rebelde"],a:0,c:"personajes"},
+  {q:"¿Qué frase resume el pensamiento de Tant Sannie sobre la educación negra?",o:["Es un desperdicio","Es un derecho","Es una obligación","Es una bendición"],a:0,c:"personajes"},
+  {q:"¿Quién representa al sistema racista visceral?",o:["Tant Sannie","Tengo","Joseph","Timothy"],a:0,c:"personajes"},
+  {q:"¿Quién representa al \"ciudadano medio\" blanco?",o:["Frikkie","Oom Koos","Tant Sannie","Joseph"],a:0,c:"personajes"},
+  {q:"¿Quién representa la sed de conocimiento como liberación?",o:["Tengo","Frikkie","Timothy","Oom Koos"],a:0,c:"personajes"},
+  {q:"¿Quién representa la generación adulta resignada?",o:["Timothy","Joseph","Tengo","Emma"],a:0,c:"personajes"},
+  {q:"¿Qué rasgos definen a Tengo como protagonista?",o:["Reflexivo, valiente, idealista","Frívolo y cobarde","Cruel y vengativo","Indiferente y pasivo"],a:0,c:"personajes"},
+  {q:"¿Qué rasgos definen a Frikkie?",o:["Sencillo, conservador, apegado a la tierra","Intelectual y rebelde","Político y activista","Frío y calculador"],a:0,c:"personajes"},
+  {q:"¿Quién es \"Emma\" como compañera de estudios?",o:["Una chica que ayuda a Tengo en la escuela","Su novia formal","Su madre","Su tía"],a:0,c:"personajes"},
+  {q:"¿Qué función simbólica tiene Joseph en la trama?",o:["Despertar de la conciencia política","Representar el pasado feliz","Encarnar al opresor","Servir de figura cómica"],a:0,c:"personajes"},
+  {q:"¿Por qué Frikkie odia la escuela?",o:["Porque solo quiere trabajar en la granja","Porque le acosan","Porque es muy lejos","Porque no puede pagarla"],a:0,c:"personajes"},
+  {q:"¿Cómo trata Frikkie a Tengo en la niñez?",o:["Como un amigo igual","Con desprecio","Con miedo","Con admiración intelectual"],a:0,c:"personajes"},
+  {q:"¿Cómo trata Frikkie a Tengo siendo soldado?",o:["Como enemigo, sin reconocerlo al principio","Con simpatía abierta","Con desprecio total","Con miedo declarado"],a:0,c:"personajes"},
+  {q:"¿Cuál es el dilema interno de Tengo en la segunda parte?",o:["Estudios personales vs. lucha colectiva","Familia vs. amistad","Ciudad vs. campo","Religión vs. ateísmo"],a:0,c:"personajes"},
+  {q:"¿Qué papel juega la familia de Tengo en su decisión de estudiar?",o:["Le apoyan con gran esfuerzo","Se oponen totalmente","Le son indiferentes","Le exigen quedarse"],a:0,c:"personajes"},
+  {q:"¿Qué siente Tengo al despedirse de Frikkie?",o:["Tristeza y presentimiento de pérdida","Alegría","Odio","Indiferencia"],a:0,c:"personajes"},
+  {q:"¿Cuál es la primera lección política que aprende Tengo de Joseph?",o:["El significado real de la palabra \"kaffir\"","A leer","A pelear","A rezar"],a:0,c:"personajes"},
+  {q:"¿Qué hace Tengo en el township para mantenerse?",o:["Estudia y trabaja con esfuerzo","Roba","Pasa el tiempo ocioso","Pide limosna"],a:0,c:"personajes"},
+  {q:"¿Cuál es el conflicto interno de Frikkie como soldado?",o:["No se cuestiona apenas su papel","Se cuestiona profundamente cada acto","Se rebela contra el ejército","Deserta inmediatamente"],a:0,c:"personajes"},
+  {q:"¿A quién admira Tengo intelectualmente al principio?",o:["A su tía Emma y luego a Joseph","A Tant Sannie","A Frikkie","A Oom Koos"],a:0,c:"personajes"},
+  {q:"¿Por qué Timothy acepta su posición en la granja?",o:["Para proteger a su familia y sobrevivir","Por convicción profunda","Por debilidad","Por amor a Oom Koos"],a:0,c:"personajes"},
+  {q:"¿Qué carácter tiene Selina?",o:["Fuerte y cariñosa","Débil y sumisa","Fría y distante","Cruel"],a:0,c:"personajes"},
+  {q:"¿Quién es el verdadero antagonista de la novela?",o:["El sistema del apartheid","Frikkie","Tant Sannie","Oom Koos"],a:0,c:"personajes"},
+  {q:"¿Cómo se enfrentan Tengo y Frikkie a su responsabilidad personal?",o:["De maneras diferentes según sus circunstancias","Igual los dos","Ninguno se la plantea","Solo Frikkie reflexiona"],a:0,c:"personajes"},
+  {q:"¿Qué tipo de personajes secundarios aparecen en el township?",o:["Vecinos, estudiantes, activistas","Solo policías","Solo familiares de Tengo","Solo niños"],a:0,c:"personajes"},
+  {q:"¿Cómo se comporta Frikkie cuando reconoce a Tengo en el clímax?",o:["No es capaz de dispararle","Le dispara sin dudar","Huye sin reconocerle","Le ataca con un cuchillo"],a:0,c:"personajes"},
+  {q:"¿Cómo se comporta Tengo cuando reconoce a Frikkie?",o:["Le perdona la vida","Le dispara igualmente","Le lleva preso","Le ata"],a:0,c:"personajes"},
+  {q:"¿Qué representa la actitud final de ambos protagonistas?",o:["El triunfo de la humanidad sobre el sistema","La victoria del odio","La indiferencia política","La traición a la causa"],a:0,c:"personajes"},
+  {q:"¿Cómo evoluciona la mirada de Tengo hacia los blancos?",o:["De confianza infantil a crítica madura","De odio total a admiración","Permanece igual","Se vuelve indiferente"],a:0,c:"personajes"},
+  {q:"¿Quién encarna la figura del \"oprimido digno\"?",o:["Timothy","Tant Sannie","Frikkie","Oom Koos"],a:0,c:"personajes"},
+  {q:"¿Quién encarna al \"opresor inconsciente\"?",o:["Oom Koos","Tengo","Joseph","Emma"],a:0,c:"personajes"},
+  {q:"¿Cuál es el rasgo más positivo de Frikkie?",o:["Su lealtad personal a la tierra","Su inteligencia","Su capacidad política","Su crueldad"],a:0,c:"personajes"},
+  {q:"¿Cuál es la mayor debilidad de Frikkie?",o:["Su incapacidad para cuestionar el sistema","Su miedo a sus padres","Su pobreza","Su enfermedad"],a:0,c:"personajes"},
+  {q:"¿Cuál es la principal virtud moral de Tengo?",o:["Su empatía y respeto por la vida humana","Su agresividad","Su ambición personal","Su frialdad"],a:0,c:"personajes"},
+  {q:"¿Qué función cumple Emma compañera en la lucha académica de Tengo?",o:["Le ayuda en distintas materias","Le boicotea","Le ignora","Es su rival"],a:0,c:"personajes"},
+  {q:"¿De qué hablan Tengo y Joseph en sus encuentros adolescentes?",o:["De política, racismo y futuro","De fútbol","De animales","De religión"],a:0,c:"personajes"},
+  {q:"¿Cómo ven los blancos de la granja a los trabajadores negros?",o:["Como inferiores pero útiles","Como iguales","Como familia","Como amenaza inminente"],a:0,c:"personajes"},
+  {q:"¿Cuál es la actitud de Tengo ante la violencia?",o:["Ambigua: la rechaza pero la entiende","Defiende la violencia","Es siempre pacifista absoluto","Es indiferente"],a:0,c:"personajes"},
+  {q:"¿Cuál es la actitud de Frikkie ante el ejército?",o:["La acepta como obligación natural","La rechaza pero obedece","Se rebela activamente","Le entusiasma matar"],a:0,c:"personajes"},
+  {q:"¿Cómo es la relación entre Oom Koos y Tant Sannie?",o:["Pareja afrikáner típica conservadora","Pareja rota","Pareja progresista","Pareja sin relación"],a:0,c:"personajes"},
+
+  // CONTEXTO (101-140)
+  {q:"¿Qué significa la palabra \"apartheid\"?",o:["Separación","Igualdad","Libertad","Justicia"],a:0,c:"contexto"},
+  {q:"¿Qué lengua origina la palabra apartheid?",o:["Afrikáans","Inglés","Zulú","Xhosa"],a:0,c:"contexto"},
+  {q:"¿Entre qué años estuvo vigente oficialmente el apartheid?",o:["1948-1991","1900-1945","1960-1985","1920-1980"],a:0,c:"contexto"},
+  {q:"¿Qué partido implantó el apartheid?",o:["El Partido Nacional","El Partido Liberal","El Congreso Nacional Africano","El Partido Comunista"],a:0,c:"contexto"},
+  {q:"¿Quién impuso el apartheid?",o:["La minoría blanca","La mayoría negra","Los británicos en exclusiva","Los portugueses"],a:0,c:"contexto"},
+  {q:"¿Qué eran los \"townships\"?",o:["Barrios segregados pobres","Granjas blancas","Universidades","Centros comerciales"],a:0,c:"contexto"},
+  {q:"¿Qué era el \"kraal\"?",o:["Un poblado de chozas de trabajadores negros","Una ciudad blanca","Una iglesia","Un mercado"],a:0,c:"contexto"},
+  {q:"¿Qué significa \"Oubaas\"?",o:["Viejo amo/patrón","Sacerdote","Joven amigo","Niño"],a:0,c:"contexto"},
+  {q:"¿A qué grupo pertenecen los afrikáners?",o:["Descendientes de holandeses","Descendientes de británicos","Pueblo originario","Inmigrantes asiáticos"],a:0,c:"contexto"},
+  {q:"¿Qué era un \"passbook\"?",o:["Un documento de control de movimiento para negros","Un libro escolar","Un pasaporte internacional","Un libro de recetas"],a:0,c:"contexto"},
+  {q:"¿Qué evento histórico de 1976 está en el trasfondo?",o:["El levantamiento de Soweto","La independencia de Sudáfrica","La caída del muro de Berlín","La Guerra de los Bóers"],a:0,c:"contexto"},
+  {q:"¿Por qué se manifestaron los estudiantes en Soweto?",o:["Por la imposición del afrikáans","Por la falta de alimentos","Por motivos religiosos","Por la abolición del fútbol"],a:0,c:"contexto"},
+  {q:"¿Qué grupos clasificaba el apartheid?",o:["Blancos, negros, mestizos, asiáticos","Solo blancos y negros","Católicos y protestantes","Ricos y pobres"],a:0,c:"contexto"},
+  {q:"¿Qué derechos perdían los negros bajo el apartheid?",o:["Voto, libre movimiento, educación digna","Solo el voto","Solo el matrimonio","Solo la religión"],a:0,c:"contexto"},
+  {q:"¿Qué término despectivo usaban los blancos para los negros?",o:["Kaffir","Boer","Sangoma","Veld"],a:0,c:"contexto"},
+  {q:"¿Quién fue el líder más conocido de la lucha anti-apartheid?",o:["Nelson Mandela","Desmond Tutu","Steve Biko","F.W. de Klerk"],a:0,c:"contexto"},
+  {q:"¿En qué año terminó oficialmente el apartheid?",o:["1991","1985","2000","1976"],a:0,c:"contexto"},
+  {q:"¿Qué decisión política buscaban los boicots estudiantiles?",o:["Mejor educación e igualdad","Aumento de salarios para profesores","Más vacaciones","Más deportes"],a:0,c:"contexto"},
+  {q:"¿Qué papel jugaba el ejército blanco en los townships?",o:["Reprimir las protestas","Repartir comida","Construir escuelas","Vigilar la frontera"],a:0,c:"contexto"},
+  {q:"¿Qué tipo de educación recibían los negros bajo el apartheid?",o:["Inferior y segregada","La misma que los blancos","Privada y excelente","No existía"],a:0,c:"contexto"},
+  {q:"¿Cómo se llamaban las leyes de control de movimiento?",o:["Leyes de pase","Leyes de educación","Leyes de comercio","Leyes del agua"],a:0,c:"contexto"},
+  {q:"¿Qué función tenía el \"boss-boy\" en una granja?",o:["Capataz negro de otros trabajadores","Hijo del patrón blanco","Jardinero del jefe","Pastor de la iglesia"],a:0,c:"contexto"},
+  {q:"¿De qué color eran las personas que podían votar bajo el apartheid?",o:["Blancos","Negros","Mestizos","Todos"],a:0,c:"contexto"},
+  {q:"¿Qué lengua se imponía en las escuelas durante el apartheid?",o:["Afrikáans","Zulú","Francés","Portugués"],a:0,c:"contexto"},
+  {q:"¿Cómo se llamaba la organización principal de resistencia negra?",o:["Congreso Nacional Africano (ANC)","UNICEF","Cruz Roja","CIA"],a:0,c:"contexto"},
+  {q:"¿Cuál era una característica del transporte público bajo el apartheid?",o:["Estaba segregado por razas","Era gratuito para todos","Era moderno e igualitario","No existía"],a:0,c:"contexto"},
+  {q:"¿Qué tipo de servicio militar tenían los chicos blancos?",o:["Obligatorio","Voluntario","Inexistente","De pago"],a:0,c:"contexto"},
+  {q:"¿Cuál era el clima predominante en la zona de la granja?",o:["Cálido, con épocas de sequía","Tropical lluvioso","Polar","Mediterráneo"],a:0,c:"contexto"},
+  {q:"¿Qué tipo de trabajo predominaba en la granja?",o:["Agrícola y ganadero","Industrial","Minero","Pesquero"],a:0,c:"contexto"},
+  {q:"¿Cómo se relacionaba la comunidad blanca con la iglesia?",o:["Muy religiosa, conservadora","Anticlerical","Indiferente","Cristiana progresista"],a:0,c:"contexto"},
+  {q:"¿Qué relación tenían los granjeros blancos con sus trabajadores?",o:["Paternalista y jerárquica","Igualitaria","Conflictiva abiertamente","De socios"],a:0,c:"contexto"},
+  {q:"¿Qué ciudad concentra la mayor industria en Sudáfrica?",o:["Johannesburgo","Pretoria","Bloemfontein","Polokwane"],a:0,c:"contexto"},
+  {q:"¿Cuál es la capital administrativa de Sudáfrica?",o:["Pretoria","Ciudad del Cabo","Johannesburgo","Durban"],a:0,c:"contexto"},
+  {q:"¿En qué continente se encuentra Sudáfrica?",o:["África","Asia","Sudamérica","Oceanía"],a:0,c:"contexto"},
+  {q:"¿Cómo se llama el famoso township cerca de Johannesburgo?",o:["Soweto","Harlem","Lagos","Kibera"],a:0,c:"contexto"},
+  {q:"¿Qué simbolizaba la lluvia en la cultura agrícola sudafricana?",o:["Vida, fertilidad, bendición","Muerte","Castigo","Aburrimiento"],a:0,c:"contexto"},
+  {q:"¿Cómo se llamaba la lengua de comunicación intermedia entre blancos y negros en las granjas?",o:["Afrikáans (o un inglés básico)","Latín","Alemán","Francés"],a:0,c:"contexto"},
+  {q:"¿Por qué los blancos temían dar educación a los negros?",o:["Porque temían perder su poder","Porque era caro","Porque no les importaba","Porque era ilegal en Europa"],a:0,c:"contexto"},
+  {q:"¿En qué consistía concretamente la \"segregación residencial\"?",o:["Cada raza vivía en zonas distintas","Solo los ricos tenían casa","No había casas","Solo los blancos pagaban impuestos"],a:0,c:"contexto"},
+  {q:"¿Cuál era una causa común de muerte en los townships?",o:["Violencia, enfermedad, pobreza","Caza de leones","Avalanchas","Bombardeos extranjeros"],a:0,c:"contexto"},
+
+  // TEMAS Y SIMBOLOGÍA (141-170)
+  {q:"¿Cuál es el tema central de la novela?",o:["La amistad imposible bajo el racismo","El amor adolescente","La aventura colonial","El humor familiar"],a:0,c:"temas"},
+  {q:"¿Qué tema secundario muy importante aparece?",o:["La educación como liberación","La cocina tradicional","El deporte profesional","El comercio internacional"],a:0,c:"temas"},
+  {q:"¿Qué tipo de novela es desde el punto de vista del aprendizaje?",o:["Novela de formación (Bildungsroman)","Novela negra","Novela picaresca","Novela rosa"],a:0,c:"temas"},
+  {q:"¿Qué simboliza la lluvia?",o:["Esperanza y cambio","Castigo","Tristeza eterna","Pobreza"],a:0,c:"temas"},
+  {q:"¿Qué simboliza la tierra seca?",o:["La opresión y la espera","La libertad","La riqueza","La paz"],a:0,c:"temas"},
+  {q:"¿Qué simboliza el libro/los libros?",o:["La liberación a través del conocimiento","El aburrimiento","La opresión","La nostalgia"],a:0,c:"temas"},
+  {q:"¿Qué simboliza el arma en la escena final?",o:["El odio impuesto por el sistema","El amor","La justicia divina","La cultura tradicional"],a:0,c:"temas"},
+  {q:"¿Qué simboliza el río en la infancia?",o:["La amistad libre y pura","El miedo","La frontera","La muerte"],a:0,c:"temas"},
+  {q:"¿Qué representa el campo (granja) frente a la ciudad?",o:["Pasado idílico aparente vs. realidad cruda","Riqueza vs. pobreza","Paz vs. guerra civil","Religión vs. ateísmo"],a:0,c:"temas"},
+  {q:"¿Qué representa la ciudad de Johannesburgo en la obra?",o:["La toma de conciencia política","La diversión","El descanso","La nostalgia"],a:0,c:"temas"},
+  {q:"¿Cuál es un mensaje moral de la novela?",o:["Ningún sistema justifica matar al amigo","La venganza es buena","La sumisión es la única salida","El odio es justo"],a:0,c:"temas"},
+  {q:"¿Qué papel juega la familia como tema?",o:["Transmite valores pero también prejuicios","No tiene importancia","Solo aparece la madre","Es siempre positiva"],a:0,c:"temas"},
+  {q:"¿Qué temática relacionada con la lengua aparece?",o:["La imposición del afrikáans","La pérdida del inglés","La falta de lenguaje","La invención de un idioma"],a:0,c:"temas"},
+  {q:"¿Qué representa la sequía como motivo recurrente?",o:["La espera de justicia que no llega","La felicidad","La modernidad","La ciencia"],a:0,c:"temas"},
+  {q:"¿Qué tipo de pérdida sufren los protagonistas?",o:["La de la inocencia","La de la salud","La de la familia entera","La de la fe religiosa"],a:0,c:"temas"},
+  {q:"¿Cómo se contrastan los dos protagonistas?",o:["Uno quiere cambio, otro permanencia","Ambos quieren lo mismo","Uno es bueno y el otro malo","No se contrastan"],a:0,c:"temas"},
+  {q:"¿Qué representa Joseph como motor de la trama?",o:["La conciencia política y la acción","La pasividad","La amistad ingenua","El humor"],a:0,c:"temas"},
+  {q:"¿Qué simboliza el viaje de Tengo a la ciudad?",o:["El paso de la infancia a la madurez","Una huida cobarde","Una excursión escolar","Un castigo"],a:0,c:"temas"},
+  {q:"¿Qué simboliza el regreso al township?",o:["El compromiso con la propia comunidad","La derrota personal","La curiosidad turística","El amor adolescente"],a:0,c:"temas"},
+  {q:"¿Qué función tiene el contraste de paisajes?",o:["Marcar la oposición entre mundos","Hacer descripciones bonitas","Llenar páginas","Confundir al lector"],a:0,c:"temas"},
+  {q:"¿Qué simboliza la escuela en la novela?",o:["Tanto opresión (segregada) como esperanza (vía de liberación)","Solo opresión","Solo diversión","Solo deporte"],a:0,c:"temas"},
+  {q:"¿Qué simboliza el ejército?",o:["El brazo armado del sistema racista","La defensa de la patria justa","La aventura","Una opción más"],a:0,c:"temas"},
+  {q:"¿Qué tipo de \"esperanza\" propone el final?",o:["Esperanza realista, condicional al esfuerzo","Esperanza ingenua","Sin esperanza","Esperanza religiosa"],a:0,c:"temas"},
+  {q:"¿Qué nos enseña el momento en que no se disparan?",o:["Que la humanidad puede vencer al sistema","Que las armas siempre fallan","Que la suerte es decisiva","Que Frikkie es cobarde"],a:0,c:"temas"},
+  {q:"¿Qué temas éticos plantea la obra?",o:["Igualdad, justicia, respeto, dignidad","Solo la guerra","Solo el dinero","Solo la religión"],a:0,c:"temas"},
+  {q:"¿Cuál es el conflicto generacional principal?",o:["Padres que aceptan vs. hijos que cuestionan","Madres vs. hijas","Abuelos vs. nietos","Tíos vs. sobrinos"],a:0,c:"temas"},
+  {q:"¿Qué simboliza el silencio de Timothy?",o:["La sumisión protectora del padre","La rabia interior","La indiferencia","La estupidez"],a:0,c:"temas"},
+  {q:"¿Qué función estructural cumple la segunda parte?",o:["Mostrar la madurez y el conflicto político","Repetir la primera","Hacer chistes","Cambiar de protagonista"],a:0,c:"temas"},
+  {q:"¿Cuál es la diferencia central entre los títulos español e inglés?",o:["El español apremia, el inglés evoca espera","Son traducciones literales","No tienen relación","El inglés es más violento"],a:0,c:"temas"},
+  {q:"¿Qué mensaje deja el final abierto?",o:["La lucha continúa fuera del libro","Todo termina mal","Todo termina perfectamente","La historia no importa"],a:0,c:"temas"},
+
+  // DETALLES DEL TEXTO (171-200)
+  {q:"¿Cuál era una de las tareas frecuentes de Tengo en la granja?",o:["Cuidar de los animales y ayudar en el campo","Lavar coches","Estudiar latín","Conducir tractores"],a:0,c:"detalles"},
+  {q:"¿Qué llevaba siempre Timothy ante el patrón?",o:["El sombrero en la mano","Un libro","Un arma","Una guitarra"],a:0,c:"detalles"},
+  {q:"¿En qué se diferencia el desayuno de los niños en la granja?",o:["Frikkie comía en la mesa principal, Tengo no","Comían exactamente igual","Tengo comía mejor","No desayunaban"],a:0,c:"detalles"},
+  {q:"¿Cómo era la vivienda de Tengo en la granja?",o:["Una choza en el kraal","Una casa con jardín","Un piso moderno","Una tienda de campaña"],a:0,c:"detalles"},
+  {q:"¿Qué hacían los chicos en el río?",o:["Pescaban y se bañaban","Hacían deberes","Construían cabañas para vender","Cazaban leones"],a:0,c:"detalles"},
+  {q:"¿Qué animales aparecen en la granja?",o:["Caballos, vacas, ovejas","Tigres y elefantes","Pingüinos","Camellos"],a:0,c:"detalles"},
+  {q:"¿Qué impresión causa la primera visita de Tengo a la ciudad?",o:["Sorpresa, agobio y deseo de estudiar","Aburrimiento","Indiferencia","Alegría sin matices"],a:0,c:"detalles"},
+  {q:"¿Cómo viaja Tengo a Johannesburgo?",o:["En tren","En coche","Caminando","En avión"],a:0,c:"detalles"},
+  {q:"¿Quién recibe a Tengo en Johannesburgo?",o:["Su primo Joseph","Frikkie","La policía","Nadie"],a:0,c:"detalles"},
+  {q:"¿Cómo describe la novela el township?",o:["Hacinado, pobre, vigilado","Moderno y limpio","Verde y tranquilo","Lujoso"],a:0,c:"detalles"},
+  {q:"¿Qué deportes o juegos comparten Tengo y Frikkie?",o:["Fútbol y juegos de campo","Tenis y golf","Ajedrez y damas","Esquí"],a:0,c:"detalles"},
+  {q:"¿Qué siente Tengo ante la idea de no volver a la granja?",o:["Tristeza pero determinación","Solo alegría","Indiferencia","Furia incontrolable"],a:0,c:"detalles"},
+  {q:"¿Cómo reacciona Tant Sannie cuando Tengo aprende a leer?",o:["Con desaprobación","Con orgullo","Le ayuda","Le compra libros"],a:0,c:"detalles"},
+  {q:"¿Qué emoción siente Frikkie al llegar cada verano a la granja?",o:["Felicidad y libertad","Tristeza","Miedo","Aburrimiento"],a:0,c:"detalles"},
+  {q:"¿Qué tipo de música o folclore se cita en el ambiente?",o:["Música tradicional africana de los trabajadores","Ópera europea","Rock americano","Música andina"],a:0,c:"detalles"},
+  {q:"¿Qué pasa con la cosecha en momentos de sequía?",o:["Se pierde y todos sufren","Crece mejor que nunca","Se exporta","Se quema voluntariamente"],a:0,c:"detalles"},
+  {q:"¿Cómo describe la novela al ejército sudafricano?",o:["Represivo y disciplinado","Voluntario y multirracial","Pacífico y diplomático","Inexistente"],a:0,c:"detalles"},
+  {q:"¿Qué materia escolar especialmente quería estudiar Tengo?",o:["Quería estudiar en general, con sed de conocimiento","Solo matemáticas","Solo deporte","Solo música"],a:0,c:"detalles"},
+  {q:"¿Cómo afecta la situación política a la vida cotidiana del township?",o:["Hay redadas, miedo y restricciones","No la afecta","La hace alegre","Solo cambia los precios"],a:0,c:"detalles"},
+  {q:"¿Qué hace Tengo cuando hay manifestaciones?",o:["Termina por participar tras debatirse","Las evita siempre","Las dirige desde el principio","Las denuncia a la policía"],a:0,c:"detalles"},
+  {q:"¿Cómo se siente Frikkie cuando le llaman al servicio militar?",o:["Lo acepta como obligación","Se rebela y huye","Le entusiasma matar","Se finge enfermo"],a:0,c:"detalles"},
+  {q:"¿Quién tiene la idea del título \"¡Ni una hora más!\" como traducción libre?",o:["La editorial española","La propia autora","Un personaje del libro","Un traductor anónimo"],a:0,c:"detalles"},
+  {q:"¿Cómo se cierra simbólicamente la novela?",o:["Con Tengo dispuesto a continuar la lucha","Con la boda de Frikkie","Con la muerte de Tengo","Con el regreso a la granja"],a:0,c:"detalles"},
+  {q:"¿Qué actitud tiene el narrador respecto a sus personajes?",o:["Comprensivo y crítico al mismo tiempo","Cruel con todos","Indiferente","Solo defiende a los blancos"],a:0,c:"detalles"},
+  {q:"¿Por qué la novela es importante en literatura juvenil?",o:["Por su denuncia social accesible y emotiva","Por su humor","Por su trama policíaca","Por su erotismo"],a:0,c:"detalles"},
+  {q:"¿Qué valor educativo aporta para 3º ESO?",o:["Educación en valores, historia y empatía","Solo gramática","Solo matemáticas","Solo deporte"],a:0,c:"detalles"},
+  {q:"¿Qué adjetivo describe mejor el tono dominante?",o:["Sobrio y emotivo","Cómico","Caótico","Frívolo"],a:0,c:"detalles"},
+  {q:"¿Cuál sería la frase resumen ideal del libro?",o:["Dos amigos separados por la injusticia que se reencuentran como enemigos","Dos chicos que viajan por el mundo","Una historia de amor adolescente","Una aventura policiaca"],a:0,c:"detalles"},
+  {q:"¿Qué siglo retrata la novela en su mayor parte?",o:["Siglo XX (años 80)","Siglo XIX","Siglo XXI","Siglo XVIII"],a:0,c:"detalles"},
+  {q:"¿Qué actitud invita a tener la novela al lector?",o:["Crítica, compasiva y comprometida","Pasiva","Cínica","Indiferente"],a:0,c:"detalles"}
+];
+
+// Render
+const container = document.getElementById('questions-container');
+let stats = { answered: 0, correct: 0, wrong: 0 };
+let answeredQuestions = new Set();
+
+function renderQuestions(filter='all') {
+  container.innerHTML = '';
+  questions.forEach((q, idx) => {
+    if (filter !== 'all' && q.c !== filter) return;
+    const block = document.createElement('div');
+    block.className = 'question-block';
+    block.id = 'q' + idx;
+    block.dataset.cat = q.c;
+    let html = `<div class="question-text"><span class="question-number">#${idx+1}</span>${q.q}</div><div class="options">`;
+    q.o.forEach((opt, i) => {
+      html += `<button class="option" onclick="answer(${idx}, ${i}, this)">${String.fromCharCode(65+i)}) ${opt}</button>`;
+    });
+    html += `</div><div class="feedback" id="fb${idx}"></div>`;
+    block.innerHTML = html;
+    container.appendChild(block);
+  });
+  updateProgress();
+}
+
+function answer(idx, choice, btn) {
+  if (answeredQuestions.has(idx)) return;
+  answeredQuestions.add(idx);
+  const q = questions[idx];
+  const correct = q.a === choice;
+  const block = document.getElementById('q' + idx);
+  const fb = document.getElementById('fb' + idx);
+  const allOptions = block.querySelectorAll('.option');
+  allOptions.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.a) b.classList.add('correct');
+    else if (i === choice && !correct) b.classList.add('wrong');
+  });
+  if (correct) {
+    block.classList.add('answered-correct');
+    fb.className = 'feedback correct show';
+    fb.textContent = '✅ ¡Correcto!';
+    stats.correct++;
+  } else {
+    block.classList.add('answered-wrong');
+    fb.className = 'feedback wrong show';
+    fb.textContent = `❌ Incorrecto. La respuesta correcta era: ${String.fromCharCode(65+q.a)}) ${q.o[q.a]}`;
+    stats.wrong++;
+  }
+  stats.answered++;
+  updateProgress();
+  if (stats.answered === 200) showFinal();
+}
+
+function updateProgress() {
+  document.getElementById('answered').textContent = stats.answered;
+  document.getElementById('correct').textContent = stats.correct;
+  document.getElementById('wrong').textContent = stats.wrong;
+  document.getElementById('total').textContent = 200;
+  document.getElementById('progress').style.width = (stats.answered/200*100) + '%';
+}
+
+function showFinal() {
+  const fs = document.getElementById('finalScore');
+  fs.classList.add('show');
+  document.getElementById('finalCorrect').textContent = stats.correct;
+  const grade = (stats.correct/200*10).toFixed(2);
+  document.getElementById('finalGrade').textContent = grade;
+  let msg;
+  if (grade >= 9) msg = '🌟 ¡Excelente! Conoces el libro a fondo.';
+  else if (grade >= 7) msg = '👍 ¡Muy bien! Buen conocimiento de la obra.';
+  else if (grade >= 5) msg = '📘 Aprobado. Repasa los puntos donde fallaste.';
+  else msg = '📖 Necesitas releer la obra con más atención.';
+  document.getElementById('finalMessage').textContent = msg;
+  fs.scrollIntoView({behavior:'smooth'});
+}
+
+function resetExam() {
+  if (!confirm('¿Reiniciar el examen?')) return;
+  stats = { answered:0, correct:0, wrong:0 };
+  answeredQuestions = new Set();
+  document.getElementById('finalScore').classList.remove('show');
+  renderQuestions(currentFilter);
+}
+
+let currentFilter = 'all';
+function filterQuestions(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-buttons button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderQuestions(cat);
+  // restore answered state
+  answeredQuestions.forEach(idx => {
+    const block = document.getElementById('q' + idx);
+    if (!block) return;
+    const q = questions[idx];
+    const allOptions = block.querySelectorAll('.option');
+    allOptions.forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.a) b.classList.add('correct');
+    });
+  });
+}
+
+function scrollToFirst() {
+  document.getElementById('examen').scrollIntoView({behavior:'smooth'});
+}
+
+// Navigation
+function showSection(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// Init
+renderQuestions();
+</script>
+</body>
+</html>
