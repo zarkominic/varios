@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phrasal Verbs · Study & Test</title>
+<style>
+  :root{
+    --bg:#0f1220; --bg2:#171a2e; --card:#1d2138; --card2:#252a47;
+    --txt:#eef1ff; --muted:#9aa3c7; --accent:#4f8cff; --accent2:#7b5cff;
+    --good:#34d399; --bad:#f87171; --warn:#fbbf24; --line:#2c3257;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(135deg,var(--bg),var(--bg2));
+    color:var(--txt);min-height:100vh;padding:0 0 60px;
+  }
+  header{
+    text-align:center;padding:34px 16px 18px;
+    background:radial-gradient(ellipse at top,rgba(79,140,255,.18),transparent 70%);
+  }
+  header h1{font-size:2.1rem;letter-spacing:.5px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  header p{color:var(--muted);margin-top:6px;font-size:.95rem}
+  .tabs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px auto;max-width:900px;padding:0 12px}
+  .tab{
+    padding:10px 20px;border:1px solid var(--line);border-radius:30px;
+    background:var(--card);color:var(--muted);cursor:pointer;font-size:.92rem;
+    transition:.2s;font-weight:600;
+  }
+  .tab:hover{border-color:var(--accent);color:var(--txt)}
+  .tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+  .panel{display:none;animation:fade .35s ease}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* search + filter */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;align-items:center}
+  .toolbar input{
+    flex:1;min-width:200px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);
+    background:var(--card);color:var(--txt);font-size:1rem;outline:none;
+  }
+  .toolbar input:focus{border-color:var(--accent)}
+  .count{color:var(--muted);font-size:.85rem;white-space:nowrap}
+
+  /* study cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:8px}
+  .pv{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;
+    transition:.2s;position:relative;overflow:hidden;
+  }
+  .pv:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 8px 24px rgba(79,140,255,.15)}
+  .pv .verb{font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:6px}
+  .pv .mean{color:var(--txt);font-size:.92rem;line-height:1.45}
+  .pv .ex{color:var(--muted);font-size:.82rem;margin-top:8px;font-style:italic;display:none}
+  .pv.show-ex .ex{display:block}
+  .spk{position:absolute;top:12px;right:12px;background:var(--card2);border:none;color:var(--muted);
+    width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:.9rem;transition:.2s}
+  .spk:hover{background:var(--accent);color:#fff}
+
+  /* flashcards */
+  .fc-stage{display:flex;flex-direction:column;align-items:center;margin-top:24px}
+  .flashcard{
+    width:min(420px,92vw);height:240px;perspective:1200px;cursor:pointer;margin-bottom:18px;
+  }
+  .fc-inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+  .flashcard.flipped .fc-inner{transform:rotateY(180deg)}
+  .fc-face{
+    position:absolute;width:100%;height:100%;backface-visibility:hidden;
+    border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;text-align:center;border:1px solid var(--line);
+  }
+  .fc-front{background:linear-gradient(135deg,var(--card),var(--card2))}
+  .fc-front .v{font-size:2rem;font-weight:800;color:var(--accent)}
+  .fc-front small{color:var(--muted);margin-top:14px}
+  .fc-back{background:linear-gradient(135deg,#2a2050,#1d2138);transform:rotateY(180deg)}
+  .fc-back .m{font-size:1.1rem;line-height:1.5}
+  .fc-back .e{color:var(--muted);font-style:italic;margin-top:12px;font-size:.9rem}
+  .fc-controls{display:flex;gap:10px;align-items:center}
+  .btn{
+    padding:11px 22px;border-radius:12px;border:none;cursor:pointer;font-weight:700;font-size:.95rem;
+    background:var(--card2);color:var(--txt);transition:.2s;border:1px solid var(--line)
+  }
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  .fc-prog{color:var(--muted);font-size:.9rem;min-width:80px;text-align:center}
+
+  /* mnemonics */
+  .mnemo-intro{color:var(--muted);margin:14px 0 20px;line-height:1.6;font-size:.95rem}
+  .family{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:14px;overflow:hidden}
+  .family-head{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+    font-weight:700;font-size:1.05rem;transition:.2s}
+  .family-head:hover{background:var(--card2)}
+  .family-head .ic{font-size:1.4rem;margin-right:10px}
+  .family-body{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 20px}
+  .family.open .family-body{max-height:1200px;padding-bottom:18px}
+  .family-body p{color:var(--muted);line-height:1.6;margin:6px 0;font-size:.92rem}
+  .family-body .chip{display:inline-block;background:var(--card2);border:1px solid var(--line);
+    border-radius:8px;padding:4px 10px;margin:3px;font-size:.85rem}
+  .family-body .chip b{color:var(--accent)}
+  .arrow{transition:.3s}
+  .family.open .arrow{transform:rotate(180deg)}
+
+  /* test */
+  .test-setup{text-align:center;margin-top:30px}
+  .test-setup h2{margin-bottom:10px}
+  .test-setup p{color:var(--muted);margin-bottom:20px}
+  .len-opts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
+  .len-opts .btn.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  .q-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;margin-top:18px}
+  .q-num{color:var(--muted);font-size:.85rem;margin-bottom:6px}
+  .q-prompt{font-size:1.5rem;font-weight:800;color:var(--accent);margin-bottom:4px}
+  .q-sub{color:var(--muted);font-size:.9rem;margin-bottom:20px}
+  .opts{display:grid;gap:10px}
+  .opt{
+    text-align:left;padding:14px 18px;border-radius:12px;border:1px solid var(--line);
+    background:var(--card2);color:var(--txt);cursor:pointer;font-size:.95rem;transition:.15s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--accent)}
+  .opt.correct{background:rgba(52,211,153,.18);border-color:var(--good);color:#d1fae5}
+  .opt.wrong{background:rgba(248,113,113,.18);border-color:var(--bad);color:#fee2e2}
+  .opt:disabled{cursor:default}
+  .progress-bar{height:8px;background:var(--card2);border-radius:10px;overflow:hidden;margin-bottom:20px}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:.3s}
+  .feedback{margin-top:16px;font-weight:700;min-height:24px}
+  .feedback.ok{color:var(--good)}
+  .feedback.no{color:var(--bad)}
+  .next-btn{margin-top:18px;width:100%}
+  .results{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:40px 24px;margin-top:18px}
+  .score-ring{font-size:3.5rem;font-weight:900;margin:14px 0;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .results p{color:var(--muted);margin-bottom:8px}
+  .review-list{text-align:left;margin-top:20px;max-height:300px;overflow-y:auto}
+  .review-item{padding:10px 14px;border-radius:10px;background:var(--card2);margin-bottom:8px;font-size:.88rem}
+  .review-item .rv{color:var(--bad);font-weight:700}
+  .review-item .ra{color:var(--good)}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:40px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Phrasal Verbs</h1>
+  <p>Study · Flashcards · Mnemonics · Test &nbsp;|&nbsp; <span id="total"></span> verbs · English definitions</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-panel="study">📚 Study</button>
+  <button class="tab" data-panel="flash">🃏 Flashcards</button>
+  <button class="tab" data-panel="mnemo">🧠 Mnemonics</button>
+  <button class="tab" data-panel="test">✅ Test</button>
+</div>
+
+<div class="wrap">
+  <!-- STUDY -->
+  <div class="panel active" id="study">
+    <div class="toolbar">
+      <input id="search" placeholder="🔍 Search a phrasal verb or meaning...">
+      <button class="btn" id="toggleEx">Show examples</button>
+      <span class="count" id="studyCount"></span>
+    </div>
+    <div class="grid" id="studyGrid"></div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div class="panel" id="flash">
+    <div class="fc-stage">
+      <p style="color:var(--muted);margin-bottom:10px">Tap the card to flip · guess the meaning first</p>
+      <div class="flashcard" id="flashcard">
+        <div class="fc-inner">
+          <div class="fc-face fc-front"><div class="v" id="fcVerb"></div><small>tap to reveal meaning</small></div>
+          <div class="fc-face fc-back"><div class="m" id="fcMean"></div><div class="e" id="fcEx"></div></div>
+        </div>
+      </div>
+      <div class="fc-controls">
+        <button class="btn" id="fcPrev">‹ Prev</button>
+        <span class="fc-prog" id="fcProg"></span>
+        <button class="btn primary" id="fcNext">Next ›</button>
+      </div>
+      <button class="btn" id="fcShuffle" style="margin-top:12px">🔀 Shuffle</button>
+    </div>
+  </div>
+
+  <!-- MNEMONICS -->
+  <div class="panel" id="mnemo">
+    <p class="mnemo-intro">Phrasal verbs are easier when you learn the <b>particle</b> (up, off, out, on...) as a feeling, not a rule. Each particle carries a hidden meaning. Tap a family to expand it.</p>
+    <div id="mnemoList"></div>
+  </div>
+
+  <!-- TEST -->
+  <div class="panel" id="test">
+    <div class="test-setup" id="testSetup">
+      <h2>Multiple-choice test</h2>
+      <p>Read the meaning, pick the right phrasal verb.</p>
+      <div class="len-opts" id="lenOpts">
+        <button class="btn active" data-len="10">10 questions</button>
+        <button class="btn" data-len="20">20 questions</button>
+        <button class="btn" data-len="40">40 questions</button>
+        <button class="btn" data-len="0">All</button>
+      </div>
+      <button class="btn primary" id="startTest" style="padding:14px 36px">Start ▶</button>
+    </div>
+
+    <div id="testRun" style="display:none">
+      <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+      <div class="q-card">
+        <div class="q-num" id="qNum"></div>
+        <div class="q-prompt" id="qPrompt"></div>
+        <div class="q-sub">Which phrasal verb matches this meaning?</div>
+        <div class="opts" id="qOpts"></div>
+        <div class="feedback" id="qFeedback"></div>
+        <button class="btn primary next-btn" id="nextQ" style="display:none">Next question →</button>
+      </div>
+    </div>
+
+    <div id="testResults" style="display:none"></div>
+  </div>
+</div>
+
+<footer>Made for studying · English-only definitions · 100% offline</footer>
+
+<script>
+/* ============ DATA: all printed phrasal verbs with English meanings ============ */
+const DATA = [
+{v:"answer back",m:"To reply rudely to someone in authority.",e:"Don't answer back to your teacher."},
+{v:"back up",m:"To support someone, or to make a copy of data.",e:"I'll back you up in the meeting."},
+{v:"bite off",m:"To take more than you can handle or chew.",e:"He bit off more than he could chew with that project."},
+{v:"bounce back",m:"To recover quickly after a setback.",e:"She bounced back after the illness."},
+{v:"break down",m:"To stop working (machine), or to lose emotional control.",e:"My car broke down on the way home."},
+{v:"break off",m:"To end something suddenly.",e:"They broke off the negotiations."},
+{v:"break up",m:"To end a relationship; to split into pieces.",e:"The crowd broke up after the show."},
+{v:"break up with",m:"To end a romantic relationship with someone.",e:"She broke up with her boyfriend."},
+{v:"bring about",m:"To cause something to happen.",e:"The new law brought about big changes."},
+{v:"bring down",m:"To make someone feel sad, or to reduce something.",e:"The bad news brought him down."},
+{v:"bring (something) up",m:"To mention or introduce a topic.",e:"He brought up the budget problem."},
+{v:"bring up (someone)",m:"To raise or care for a child.",e:"She brought up three kids alone."},
+{v:"call off",m:"To cancel something.",e:"They called off the wedding."},
+{v:"care for",m:"To look after or take care of someone.",e:"She cares for her elderly mother."},
+{v:"carry on",m:"To continue doing something.",e:"Please carry on with your work."},
+{v:"carry out",m:"To complete or perform a task.",e:"The team carried out the experiment."},
+{v:"carry over",m:"To extend or transfer to another time/place.",e:"Unused days carry over to next year."},
+{v:"catch on",m:"To become popular; to understand.",e:"The trend caught on quickly."},
+{v:"check in",m:"To register, e.g. at a hotel or airport.",e:"We checked in at 3 pm."},
+{v:"check out",m:"To leave a place (hotel); to look at / examine.",e:"Check out this new song!"},
+{v:"check up (on someone)",m:"To investigate or make sure someone is okay.",e:"The nurse checked up on the patient."},
+{v:"cheer on",m:"To encourage someone, e.g. in a competition.",e:"Fans cheered on the team."},
+{v:"cheer up",m:"To make someone happier.",e:"Cheer up, things will get better!"},
+{v:"chill out",m:"To relax.",e:"Let's chill out this weekend."},
+{v:"clear up",m:"To make something clear / tidy; (weather) to improve.",e:"The weather cleared up by noon."},
+{v:"close down",m:"To stop operating (business).",e:"The factory closed down last year."},
+{v:"close in",m:"To come nearer to someone or something.",e:"The storm is closing in."},
+{v:"come across",m:"To find something by chance; to seem a certain way.",e:"I came across an old photo."},
+{v:"come down on",m:"To punish or criticize harshly.",e:"The boss came down on him hard."},
+{v:"come down with",m:"To become ill with a sickness.",e:"I came down with the flu."},
+{v:"come into",m:"To receive something, e.g. money/inheritance.",e:"She came into a fortune."},
+{v:"come off",m:"To succeed; to become detached.",e:"The plan came off perfectly."},
+{v:"come on",m:"To make progress; an expression of encouragement.",e:"Come on, you can do it!"},
+{v:"come out",m:"To become known; to be released.",e:"The truth came out."},
+{v:"come out of",m:"To result from; to emerge from a situation.",e:"Good things came out of the crisis."},
+{v:"come out with",m:"To say something publicly or unexpectedly.",e:"He came out with a strange comment."},
+{v:"come round",m:"To change one's opinion; to regain consciousness.",e:"He came round to our idea."},
+{v:"come up",m:"To arise; to be mentioned.",e:"A problem came up at work."},
+{v:"come up with",m:"To produce a solution or idea.",e:"She came up with a great plan."},
+{v:"creep up on",m:"To approach someone quietly / unnoticed.",e:"Old age creeps up on you."},
+{v:"cut across",m:"To take a shorter route through.",e:"We cut across the field."},
+{v:"cut down",m:"To reduce something.",e:"Cut down on sugar."},
+{v:"cut off",m:"To interrupt or disconnect someone/something.",e:"We were cut off mid-call."},
+{v:"cut out",m:"To remove something completely.",e:"Cut out junk food."},
+{v:"cut up",m:"To cut something into small pieces.",e:"Cut up the vegetables."},
+{v:"deal with",m:"To handle a situation or problem.",e:"I'll deal with it tomorrow."},
+{v:"end up",m:"To finally reach a place or state.",e:"We ended up at the beach."},
+{v:"fall behind",m:"To lose progress; fail to keep pace.",e:"He fell behind in his studies."},
+{v:"fall for",m:"To become attracted to someone; to be deceived.",e:"She fell for him instantly."},
+{v:"fall out (with)",m:"To have an argument and stop being friends.",e:"They fell out over money."},
+{v:"feel like",m:"To want or desire something.",e:"I feel like pizza tonight."},
+{v:"feel up to",m:"To feel capable of / have energy for something.",e:"I don't feel up to going out."},
+{v:"fill in",m:"To complete a form with information.",e:"Fill in the application."},
+{v:"fit in",m:"To be accepted within a group.",e:"She fits in well at her new school."},
+{v:"flow into",m:"To move smoothly into another thing/place.",e:"The river flows into the sea."},
+{v:"fool around",m:"To behave playfully; to waste time.",e:"Stop fooling around and study."},
+{v:"freak out",m:"To panic or react with strong emotion.",e:"He freaked out before the exam."},
+{v:"get across",m:"To communicate an idea clearly.",e:"I couldn't get my point across."},
+{v:"get around",m:"To move from place to place; to avoid a problem.",e:"It's easy to get around the city."},
+{v:"get away",m:"To escape; to go on a trip.",e:"We got away for the weekend."},
+{v:"get away with",m:"To do something bad without being punished.",e:"He got away with cheating."},
+{v:"get back",m:"To return; to retrieve something.",e:"I'll get back to you soon."},
+{v:"get back (on)",m:"To return to doing something / resume.",e:"Get back on track."},
+{v:"get in",m:"To become involved; to enter.",e:"How did you get in the club?"},
+{v:"get into",m:"To enter; to become interested in.",e:"She got into painting."},
+{v:"get on",m:"To enter a vehicle; to make progress.",e:"Get on the bus."},
+{v:"get on with",m:"To continue doing something; to have a good relationship.",e:"Get on with your homework."},
+{v:"get out",m:"To leave a place.",e:"Get out of the house!"},
+{v:"get out of",m:"To avoid doing something.",e:"He got out of cleaning."},
+{v:"get over",m:"To recover from an illness or problem.",e:"She got over the breakup."},
+{v:"get through",m:"To pass a difficult time; to finish.",e:"We got through the hard week."},
+{v:"get together",m:"To meet other people socially.",e:"Let's get together soon."},
+{v:"give away",m:"To give something for free; to reveal a secret.",e:"He gave away his old books."},
+{v:"give up",m:"To stop trying; to quit.",e:"Never give up."},
+{v:"give up on",m:"To stop believing in / hoping for someone or something.",e:"Don't give up on me."},
+{v:"go about",m:"To start doing or tackle something.",e:"How do I go about fixing this?"},
+{v:"go along with",m:"To agree with or support a plan.",e:"I'll go along with your idea."},
+{v:"go down",m:"To decrease; to be received in a certain way.",e:"Prices went down."},
+{v:"go for",m:"To try to achieve something; to choose.",e:"Go for it!"},
+{v:"go off",m:"To explode/ring; (food) to spoil.",e:"The alarm went off."},
+{v:"go on",m:"To continue or happen.",e:"What's going on here?"},
+{v:"go on about",m:"To talk repeatedly and tediously about something.",e:"He kept going on about his car."},
+{v:"go without",m:"To live without something.",e:"They went without food for days."},
+{v:"grow apart",m:"To become emotionally distant from someone.",e:"The friends grew apart."},
+{v:"grow up",m:"To become an adult; to mature.",e:"Grow up and act responsibly."},
+{v:"hand in",m:"To submit something.",e:"Hand in your essay by Friday."},
+{v:"hand over",m:"To give something to someone (give control).",e:"Hand over the keys."},
+{v:"hang out",m:"To spend time / socialise casually.",e:"We hung out at the mall."},
+{v:"hold down",m:"To keep a job; to keep something under control.",e:"He can't hold down a job."},
+{v:"hold on",m:"To wait; to maintain grip.",e:"Hold on a second."},
+{v:"hold on to",m:"To keep / not let go of something.",e:"Hold on to your dreams."},
+{v:"hook up",m:"To connect or meet up.",e:"Let's hook up later."},
+{v:"interfere with",m:"To get involved and disrupt something.",e:"Don't interfere with my plans."},
+{v:"keep on",m:"To continue doing something.",e:"Keep on trying."},
+{v:"keep up",m:"To maintain the same level / pace.",e:"Keep up the good work."},
+{v:"key in",m:"To enter information using a keyboard.",e:"Key in your password."},
+{v:"kick in",m:"To start to have an effect.",e:"The medicine kicked in."},
+{v:"kick off",m:"To start an event.",e:"The game kicks off at 8."},
+{v:"lean on",m:"To rely on someone for support.",e:"You can lean on me."},
+{v:"leave out",m:"To omit / not include something.",e:"You left out a name."},
+{v:"lift off",m:"To rise into the air (rocket/plane).",e:"The rocket lifted off."},
+{v:"live up to",m:"To meet expectations or a standard.",e:"It lived up to the hype."},
+{v:"log off",m:"To disconnect from a computer/system.",e:"Remember to log off."},
+{v:"log on",m:"To connect to a computer/system.",e:"Log on with your ID."},
+{v:"look after",m:"To take care of someone or something.",e:"Look after your sister."},
+{v:"look into",m:"To investigate something.",e:"We'll look into the issue."},
+{v:"look out",m:"To be careful / watch for danger.",e:"Look out, a car!"},
+{v:"look over",m:"To examine or review quickly.",e:"Look over the contract."},
+{v:"look round",m:"To explore or inspect a place.",e:"We looked round the museum."},
+{v:"look through",m:"To read or examine carefully.",e:"Look through these notes."},
+{v:"look up",m:"To search for information; (situation) to improve.",e:"Look up the word."},
+{v:"look up to",m:"To admire and respect someone.",e:"I look up to my dad."},
+{v:"make do with",m:"To manage with what you have.",e:"We made do with leftovers."},
+{v:"make for",m:"To move towards; to contribute to a result.",e:"They made for the exit."},
+{v:"make of",m:"To understand or interpret something.",e:"What do you make of this?"},
+{v:"make out",m:"To understand / see with difficulty.",e:"I can't make out his writing."},
+{v:"make up",m:"To invent; to reconcile after a fight.",e:"They made up after the argument."},
+{v:"make up with",m:"To become friends again after a fight.",e:"She made up with her sister."},
+{v:"move on",m:"To progress to something new; to leave the past.",e:"It's time to move on."},
+{v:"move up",m:"To advance to a higher position.",e:"He moved up in the company."},
+{v:"pass on",m:"To transmit / give to someone else.",e:"Pass on the message."},
+{v:"pick on",m:"To treat someone unfairly / bully.",e:"Stop picking on him."},
+{v:"pick up",m:"To collect; to lift; to learn casually.",e:"Pick me up at six."},
+{v:"point out",m:"To indicate or mention something.",e:"She pointed out my mistake."},
+{v:"pull into",m:"To arrive and stop (vehicle).",e:"The train pulled into the station."},
+{v:"pull out",m:"To withdraw; to drive out.",e:"They pulled out of the deal."},
+{v:"pull through",m:"To recover from a serious illness/difficulty.",e:"He pulled through the surgery."},
+{v:"push away",m:"To reject or distance someone.",e:"Don't push your friends away."},
+{v:"put aside",m:"To save or reserve for later.",e:"Put aside some money."},
+{v:"put back",m:"To return something to its place; to delay.",e:"Put the book back."},
+{v:"put (it) on",m:"To wear; to switch on.",e:"Put on your coat."},
+{v:"put (someone) down",m:"To criticize / belittle someone.",e:"He always puts people down."},
+{v:"put (someone) off",m:"To discourage / postpone someone.",e:"The smell put me off."},
+{v:"put (someone) up",m:"To give someone a place to stay.",e:"They put us up for the night."},
+{v:"put off",m:"To postpone / delay.",e:"Don't put off the meeting."},
+{v:"put on",m:"To wear; to gain (weight); to switch on.",e:"She put on a sweater."},
+{v:"put up",m:"To build/raise; to provide lodging.",e:"They put up a tent."},
+{v:"put up with",m:"To tolerate / endure something.",e:"I can't put up with the noise."},
+{v:"put yourself out",m:"To make a special effort for someone.",e:"Don't put yourself out for me."},
+{v:"rely on",m:"To depend on / trust someone.",e:"You can rely on her."},
+{v:"ring up",m:"To call someone by phone.",e:"I'll ring you up tomorrow."},
+{v:"run into",m:"To meet by chance; to collide with.",e:"I ran into an old friend."},
+{v:"run out of",m:"To have none left of something.",e:"We ran out of milk."},
+{v:"run over",m:"To hit with a vehicle; to review quickly.",e:"The car ran over a nail."},
+{v:"send back",m:"To return something to sender.",e:"Send back the faulty item."},
+{v:"set about",m:"To begin / start a task.",e:"She set about cleaning."},
+{v:"set off",m:"To start a journey; to trigger.",e:"We set off at dawn."},
+{v:"set out",m:"To begin a journey or task with a goal.",e:"They set out to win."},
+{v:"set up",m:"To establish / arrange something.",e:"Set up the meeting."},
+{v:"shop around",m:"To compare prices in different shops.",e:"Shop around before buying."},
+{v:"show up",m:"To arrive / appear.",e:"He showed up late."},
+{v:"sign up",m:"To register / enrol.",e:"Sign up for the course."},
+{v:"sink in",m:"To be fully understood gradually.",e:"The news slowly sank in."},
+{v:"speak up",m:"To speak louder; to express an opinion.",e:"Speak up, I can't hear you."},
+{v:"speed up",m:"To go faster / accelerate.",e:"Speed up, we're late."},
+{v:"stand by",m:"To wait ready; to support someone.",e:"I'll stand by you."},
+{v:"stand out",m:"To be noticeable / distinctive.",e:"Her work stands out."},
+{v:"stand up (for)",m:"To defend someone or something.",e:"Stand up for your rights."},
+{v:"stand up (to)",m:"To resist / confront someone stronger.",e:"He stood up to the bully."},
+{v:"start up",m:"To begin / launch (business or engine).",e:"They started up a company."},
+{v:"stay away",m:"To keep a distance / avoid.",e:"Stay away from trouble."},
+{v:"stop over",m:"To stay somewhere briefly during a journey.",e:"We stopped over in Dubai."},
+{v:"switch off",m:"To turn off a device; to stop paying attention.",e:"Switch off the lights."},
+{v:"take after",m:"To resemble a family member.",e:"She takes after her mother."},
+{v:"take away",m:"To remove; to buy food to go.",e:"Take away these plates."},
+{v:"take back",m:"To retract a statement; to return an item.",e:"I take back what I said."},
+{v:"take off",m:"To leave the ground (plane); to remove; to become successful.",e:"The plane took off."},
+{v:"take on",m:"To accept a responsibility; to hire.",e:"She took on more work."},
+{v:"take out",m:"To remove; to extract; to invite out.",e:"Take out the trash."},
+{v:"take over",m:"To gain control of something.",e:"A new boss took over."},
+{v:"take up",m:"To start a hobby; to occupy time/space.",e:"He took up guitar."},
+{v:"talk (someone) into",m:"To persuade someone to do something.",e:"She talked me into going."},
+{v:"talk (someone) out of",m:"To persuade someone not to do something.",e:"He talked me out of quitting."},
+{v:"tell (someone) off",m:"To scold / reprimand someone.",e:"The teacher told him off."},
+{v:"throw up",m:"To vomit.",e:"He threw up after the ride."},
+{v:"turn against",m:"To stop supporting / become hostile to.",e:"They turned against him."},
+{v:"turn away",m:"To refuse entry; to look away.",e:"They turned us away at the door."},
+{v:"turn back",m:"To return the way you came.",e:"We had to turn back."},
+{v:"turn down",m:"To reject; to lower volume.",e:"She turned down the offer."},
+{v:"turn into",m:"To become / transform.",e:"The frog turned into a prince."},
+{v:"turn off",m:"To switch off; to disgust.",e:"Turn off the TV."},
+{v:"turn on",m:"To switch on; to excite.",e:"Turn on the lights."},
+{v:"turn out",m:"To result / end up in a certain way.",e:"It turned out fine."},
+{v:"turn up",m:"To appear/arrive; to increase volume.",e:"He turned up unexpectedly."},
+{v:"use up",m:"To consume completely.",e:"We used up all the paper."},
+{v:"warm up",m:"To prepare with light exercise; to heat slightly.",e:"Warm up before running."},
+{v:"wash over",m:"To affect someone suddenly (emotion).",e:"Relief washed over her."},
+{v:"watch out",m:"To be careful / alert.",e:"Watch out for the step!"},
+{v:"wear off",m:"To gradually disappear (effect).",e:"The pain wore off."},
+{v:"weigh up",m:"To consider / assess options carefully.",e:"Weigh up the pros and cons."},
+{v:"wipe out",m:"To destroy completely; to exhaust.",e:"The flood wiped out the town."},
+{v:"work out",m:"To exercise; to solve / calculate; to end well.",e:"It all worked out."},
+{v:"work up to",m:"To gradually prepare for something.",e:"Work up to a full marathon."}
+];
+
+document.getElementById('total').textContent = DATA.length;
+
+/* ============ TABS ============ */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.panel).classList.add('active');
+  };
+});
+
+/* ============ SPEECH ============ */
+function speak(text){
+  if(!window.speechSynthesis) return;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=.9;
+  speechSynthesis.cancel();speechSynthesis.speak(u);
+}
+
+/* ============ STUDY ============ */
+const grid=document.getElementById('studyGrid');
+function renderStudy(filter=""){
+  grid.innerHTML="";
+  const f=filter.toLowerCase();
+  const items=DATA.filter(d=>d.v.toLowerCase().includes(f)||d.m.toLowerCase().includes(f));
+  items.forEach(d=>{
+    const el=document.createElement('div');
+    el.className='pv'+(showExamples?' show-ex':'');
+    el.innerHTML=`<button class="spk" title="Pronounce">🔊</button>
+      <div class="verb">${d.v}</div>
+      <div class="mean">${d.m}</div>
+      <div class="ex">e.g. ${d.e}</div>`;
+    el.querySelector('.spk').onclick=(e)=>{e.stopPropagation();speak(d.v);};
+    grid.appendChild(el);
+  });
+  document.getElementById('studyCount').textContent=`${items.length} / ${DATA.length}`;
+}
+let showExamples=false;
+document.getElementById('toggleEx').onclick=function(){
+  showExamples=!showExamples;
+  this.textContent=showExamples?'Hide examples':'Show examples';
+  renderStudy(document.getElementById('search').value);
+};
+document.getElementById('search').oninput=e=>renderStudy(e.target.value);
+renderStudy();
+
+/* ============ FLASHCARDS ============ */
+let fcOrder=[...Array(DATA.length).keys()], fcIdx=0;
+const flashcard=document.getElementById('flashcard');
+function renderFC(){
+  flashcard.classList.remove('flipped');
+  const d=DATA[fcOrder[fcIdx]];
+  document.getElementById('fcVerb').textContent=d.v;
+  document.getElementById('fcMean').textContent=d.m;
+  document.getElementById('fcEx').textContent='e.g. '+d.e;
+  document.getElementById('fcProg').textContent=`${fcIdx+1} / ${DATA.length}`;
+}
+flashcard.onclick=()=>{flashcard.classList.toggle('flipped');if(flashcard.classList.contains('flipped'))speak(DATA[fcOrder[fcIdx]].v);};
+document.getElementById('fcNext').onclick=()=>{fcIdx=(fcIdx+1)%DATA.length;renderFC();};
+document.getElementById('fcPrev').onclick=()=>{fcIdx=(fcIdx-1+DATA.length)%DATA.length;renderFC();};
+document.getElementById('fcShuffle').onclick=()=>{fcOrder.sort(()=>Math.random()-.5);fcIdx=0;renderFC();};
+renderFC();
+
+/* ============ MNEMONICS ============ */
+const FAMILIES=[
+{ic:"⬆️",name:"UP = completion, increase, or appearance",
+ desc:"<b>up</b> often means doing something fully, to a higher level, or making it appear.",
+ ex:["give <b>up</b> = stop fully","use <b>up</b> = consume completely","speak <b>up</b> = louder","show <b>up</b> = appear","grow <b>up</b> = become adult","speed <b>up</b> = faster","make <b>up</b> = invent / reconcile","turn <b>up</b> = appear / louder"]},
+{ic:"➡️",name:"OFF = separation, departure, or stopping",
+ desc:"<b>off</b> = something leaves, separates, or switches to stop.",
+ ex:["take <b>off</b> = leave the ground","call <b>off</b> = cancel","switch <b>off</b> = stop a device","break <b>off</b> = end suddenly","set <b>off</b> = depart / trigger","tell <b>off</b> = scold","wear <b>off</b> = fade away","kick <b>off</b> = start an event"]},
+{ic:"🚪",name:"OUT = exit, removal, or becoming known",
+ desc:"<b>out</b> = leaving a space, removing, or revealing.",
+ ex:["find <b>out</b> = discover","carry <b>out</b> = complete","run <b>out of</b> = have none left","work <b>out</b> = solve / exercise","cut <b>out</b> = remove","wipe <b>out</b> = destroy","stand <b>out</b> = be noticeable","get <b>out</b> = leave"]},
+{ic:"🔛",name:"ON = continuation or connection",
+ desc:"<b>on</b> = keep going, or connect/start a device.",
+ ex:["carry <b>on</b> = continue","go <b>on</b> = continue / happen","keep <b>on</b> = persist","turn <b>on</b> = switch on","hold <b>on</b> = wait","move <b>on</b> = progress","rely <b>on</b> = depend on","get <b>on</b> = make progress"]},
+{ic:"⬇️",name:"DOWN = reduction or stopping",
+ desc:"<b>down</b> = less, lower, or shutting something.",
+ ex:["cut <b>down</b> = reduce","break <b>down</b> = stop working","turn <b>down</b> = reject / lower","close <b>down</b> = stop operating","bring <b>down</b> = lower / sadden","let <b>down</b> = disappoint","hold <b>down</b> = keep / control","calm <b>down</b> = relax"]},
+{ic:"🔁",name:"BACK = return or response",
+ desc:"<b>back</b> = returning, reversing, or replying.",
+ ex:["answer <b>back</b> = reply rudely","bounce <b>back</b> = recover","take <b>back</b> = retract","send <b>back</b> = return","get <b>back</b> = return","turn <b>back</b> = go back","put <b>back</b> = return / delay"]},
+{ic:"➕",name:"UP TO / WITH = relation & tolerance",
+ desc:"Combinations that express coping, matching, or relating.",
+ ex:["put <b>up with</b> = tolerate","live <b>up to</b> = meet expectations","keep <b>up with</b> = match the pace","make <b>up with</b> = reconcile","look <b>up to</b> = admire","get <b>on with</b> = relate well","go <b>along with</b> = agree"]},
+{ic:"👀",name:"LOOK family = attention & investigation",
+ desc:"<b>look</b> + particle changes the direction of your attention.",
+ ex:["look <b>after</b> = take care of","look <b>into</b> = investigate","look <b>out</b> = be careful","look <b>up</b> = search","look <b>through</b> = examine","look <b>over</b> = review","look <b>up to</b> = admire"]}
+];
+const mnemoList=document.getElementById('mnemoList');
+FAMILIES.forEach(f=>{
+  const el=document.createElement('div');el.className='family';
+  el.innerHTML=`<div class="family-head"><span><span class="ic">${f.ic}</span>${f.name}</span><span class="arrow">▾</span></div>
+    <div class="family-body"><p>${f.desc}</p><div>${f.ex.map(e=>`<span class="chip">${e}</span>`).join('')}</div></div>`;
+  el.querySelector('.family-head').onclick=()=>el.classList.toggle('open');
+  mnemoList.appendChild(el);
+});
+
+/* ============ TEST ============ */
+let testLen=10, quiz=[], qIdx=0, score=0, wrongs=[];
+document.querySelectorAll('#lenOpts .btn').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('#lenOpts .btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');testLen=+b.dataset.len;
+  };
+});
+function shuffle(a){return a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);}
+document.getElementById('startTest').onclick=()=>{
+  const pool=shuffle([...DATA]);
+  const n=testLen===0?DATA.length:Math.min(testLen,DATA.length);
+  quiz=pool.slice(0,n);qIdx=0;score=0;wrongs=[];
+  document.getElementById('testSetup').style.display='none';
+  document.getElementById('testResults').style.display='none';
+  document.getElementById('testRun').style.display='block';
+  renderQ();
+};
+function renderQ(){
+  const q=quiz[qIdx];
+  document.getElementById('qNum').textContent=`Question ${qIdx+1} of ${quiz.length} · Score: ${score}`;
+  document.getElementById('qPrompt').textContent=q.m;
+  document.getElementById('progFill').style.width=`${(qIdx/quiz.length)*100}%`;
+  // build options: correct + 3 distractors
+  const distract=shuffle(DATA.filter(d=>d.v!==q.v)).slice(0,3);
+  const opts=shuffle([q,...distract]);
+  const box=document.getElementById('qOpts');box.innerHTML="";
+  document.getElementById('qFeedback').textContent="";
+  document.getElementById('qFeedback').className="feedback";
+  document.getElementById('nextQ').style.display='none';
+  opts.forEach(o=>{
+    const btn=document.createElement('button');btn.className='opt';btn.textContent=o.v;
+    btn.onclick=()=>answer(btn,o.v===q.v,q,box);
+    box.appendChild(btn);
+  });
+}
+function answer(btn,correct,q,box){
+  box.querySelectorAll('.opt').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===q.v)b.classList.add('correct');
+  });
+  const fb=document.getElementById('qFeedback');
+  if(correct){score++;fb.textContent="✓ Correct!";fb.className="feedback ok";speak(q.v);}
+  else{btn.classList.add('wrong');fb.textContent=`✗ Correct answer: "${q.v}"`;fb.className="feedback no";wrongs.push(q);}
+  document.getElementById('nextQ').style.display='block';
+}
+document.getElementById('nextQ').onclick=()=>{
+  qIdx++;
+  if(qIdx<quiz.length)renderQ();else showResults();
+};
+function showResults(){
+  document.getElementById('testRun').style.display='none';
+  const pct=Math.round(score/quiz.length*100);
+  let msg = pct>=90?"Outstanding! 🏆":pct>=70?"Great job! 👏":pct>=50?"Good — keep practising. 💪":"Keep studying, you'll get there. 📚";
+  let html=`<div class="results"><p>You scored</p>
+    <div class="score-ring">${score}/${quiz.length}</div>
+    <p>${pct}% · ${msg}</p>`;
+  if(wrongs.length){
+    html+=`<div class="review-list"><p style="margin:14px 0 8px;color:var(--txt);font-weight:700">Review these:</p>`;
+    wrongs.forEach(w=>html+=`<div class="review-item"><span class="ra">${w.v}</span> — ${w.m}</div>`);
+    html+=`</div>`;
+  } else {
+    html+=`<p style="color:var(--good);margin-top:14px">Perfect! No mistakes. 🎉</p>`;
+  }
+  html+=`<button class="btn primary" style="margin-top:22px;padding:14px 36px" onclick="resetTest()">Try again ↻</button></div>`;
+  const r=document.getElementById('testResults');r.innerHTML=html;r.style.display='block';
+}
+function resetTest(){
+  document.getElementById('testResults').style.display='none';
+  document.getElementById('testSetup').style.display='block';
+}
+</script>
+</body>
+</html>
