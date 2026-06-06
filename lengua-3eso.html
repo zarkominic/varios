@@ -859,8 +859,109 @@ const MATCH = { name:"Emparejar (literatura)", desc:"Une cada elemento con su pa
   ]
 };
 
+/* ============================ GENERADOR: ANÁLISIS SINTÁCTICO COMPLETO ============================ */
+// Construye una oración con estructura conocida y genera sub-preguntas sobre cada parte.
+function subMC(q, correct, distractors, exp){
+  const opts=shuffle([correct,...distractors]);
+  return {q, opts, a:opts.indexOf(correct), exp};
+}
+const GEN_ANALISIS = {
+  name:"⭐ Análisis sintáctico completo", desc:"Analiza una oración paso a paso · ∞ ejercicios",
+  make:function(){
+    const s=rnd(SX.sujetos);
+    const estructura=Math.floor(Math.random()*4);
+    let sentence, steps=[];
+    const fnDistr=["Complemento Directo (CD)","Complemento Indirecto (CI)","Complemento Circunstancial (CC)","Atributo","Complemento de Régimen","Complemento Agente"];
+
+    if(estructura===0){
+      // Suj + V trans + CD + CC
+      const v=rnd(SX.verbosTrans),cd=rnd(SX.cds),tipoCC=rnd([["lugar",SX.ccl],["tiempo",SX.cct],["modo",SX.ccm]]),cc=rnd(tipoCC[1]);
+      sentence=`${cap(s)} ${v} ${cd} ${cc}`;
+      steps=[
+        subMC(`¿Cuál es el SUJETO de «${sentence}»?`, s, [v+" "+cd, cd, cc], `El sujeto concuerda con el verbo «${v}»: ${s} (él/ella, 3ª persona singular).`),
+        subMC(`El predicado de «${sentence}» es...`, "Predicado verbal", ["Predicado nominal"], `El verbo «${v}» no es copulativo (no es ser/estar/parecer) → predicado verbal.`),
+        subMC(`¿Qué función tiene «${cd}»?`, "Complemento Directo (CD)", ["Complemento Indirecto (CI)","Atributo","Complemento Circunstancial (CC)"], `Recibe la acción y se sustituye por lo/la/los/las → CD.`),
+        subMC(`¿Qué función tiene «${cc}»?`, "Complemento Circunstancial (CC) de "+tipoCC[0], ["Complemento Directo (CD)","Complemento Indirecto (CI)","Atributo"], `Expresa ${tipoCC[0]} y se puede suprimir → CC de ${tipoCC[0]}.`)
+      ];
+    } else if(estructura===1){
+      // Suj + V trans + CD + CI
+      const v=rnd(SX.verbosTrans),cd=rnd(SX.cds),ci=rnd(SX.cis);
+      sentence=`${cap(s)} ${v} ${cd} ${ci}`;
+      steps=[
+        subMC(`¿Cuál es el SUJETO de «${sentence}»?`, s, [cd, ci, v+" "+cd], `Concuerda con «${v}» → ${s}.`),
+        subMC(`El predicado de «${sentence}» es...`, "Predicado verbal", ["Predicado nominal"], `Verbo no copulativo → predicado verbal.`),
+        subMC(`¿Qué función tiene «${cd}»?`, "Complemento Directo (CD)", ["Complemento Indirecto (CI)","Complemento Circunstancial (CC)","Atributo"], `Se sustituye por lo/la/los/las → CD.`),
+        subMC(`¿Qué función tiene «${ci}»?`, "Complemento Indirecto (CI)", ["Complemento Directo (CD)","Complemento Agente","Atributo"], `Destinatario de la acción, se sustituye por le/les → CI.`)
+      ];
+    } else if(estructura===2){
+      // Suj + cópula + atributo
+      const cop=rnd(SX.copul),atr=rnd(SX.atributos);
+      sentence=`${cap(s)} ${cop} ${atr}`;
+      steps=[
+        subMC(`¿Cuál es el SUJETO de «${sentence}»?`, s, [atr, cop+" "+atr, cop], `Concuerda con «${cop}» → ${s}.`),
+        subMC(`El predicado de «${sentence}» es...`, "Predicado nominal", ["Predicado verbal"], `El verbo «${cop}» es copulativo (ser/estar/parecer) → predicado nominal.`),
+        subMC(`¿Qué función tiene «${atr}»?`, "Atributo", ["Complemento Directo (CD)","Complemento Predicativo","Complemento Circunstancial (CC)"], `Con verbo copulativo, «${atr}» es el Atributo (se sustituye por «lo»).`)
+      ];
+    } else {
+      // Suj + V régimen + CRV
+      const crv=rnd(SX.crvVerbos);
+      sentence=`${cap(s)} ${crv[0]} ${crv[1]}`;
+      steps=[
+        subMC(`¿Cuál es el SUJETO de «${sentence}»?`, s, [crv[1], crv[0]+" "+crv[1], crv[0]], `Concuerda con «${crv[0]}» → ${s}.`),
+        subMC(`El predicado de «${sentence}» es...`, "Predicado verbal", ["Predicado nominal"], `«${crv[0]}» no es copulativo → predicado verbal.`),
+        subMC(`¿Qué función tiene «${crv[1]}»?`, "Complemento de Régimen (Suplemento)", ["Complemento Directo (CD)","Complemento Indirecto (CI)","Complemento Circunstancial (CC)"], `El verbo «${crv[0]}» rige la preposición «${crv[2]}» de forma fija → Complemento de Régimen.`)
+      ];
+    }
+    return {type:"multi", sentence, steps};
+  }
+};
+
+/* ============================ GENERADOR: VERBO → TIEMPO Y CONJUGACIÓN ============================ */
+// Dada una forma conjugada concreta, pregunta tiempo / conjugación / persona / modo.
+const GEN_VERBO_FORMA = {
+  name:"⭐ Verbo conjugado → tiempo y conjugación", desc:"Te doy un verbo conjugado, dime sus rasgos · ∞ ejercicios",
+  make:function(){
+    const v=rnd(VB.verbos), p=Math.floor(Math.random()*6), tiempo=rnd(TIEMPOS_IND);
+    const forma=conjugar(v[0],v[1],tiempo,p);
+    const pron=VB.pronombres[p];
+    const numero = (p===3||p===4||p===5)?"plural":"singular";
+    const persona = (p%3===0)?"1ª":(p%3===1)?"2ª":"3ª";
+    const tipo=Math.floor(Math.random()*4);
+    if(tipo===0){
+      return mc(`Analiza la forma verbal «${forma}». ¿En qué TIEMPO está?`,
+        cap(tiempo),
+        shuffle(TIEMPOS_IND).filter(x=>x!==tiempo).slice(0,3).map(cap),
+        `«${forma}» (de ${v[0]}) = ${pron}, ${tiempo} de indicativo, ${v[1]}ª conjugación.`);
+    }
+    if(tipo===1){
+      return mc(`La forma verbal «${forma}» (de «${v[0]}»), ¿a qué CONJUGACIÓN pertenece?`,
+        v[1]+"ª conjugación",
+        ["1ª conjugación","2ª conjugación","3ª conjugación"].filter(x=>x!==v[1]+"ª conjugación"),
+        `El infinitivo «${v[0]}» termina en «-${v[0].slice(-2)}» → ${v[1]}ª conjugación.`);
+    }
+    if(tipo===2){
+      return mc(`¿En qué PERSONA y NÚMERO está «${forma}»?`,
+        persona+" persona del "+numero,
+        shuffle(["1ª persona del singular","2ª persona del singular","3ª persona del singular","1ª persona del plural","2ª persona del plural","3ª persona del plural"]).filter(x=>x!==persona+" persona del "+numero).slice(0,3),
+        `«${forma}» corresponde a «${pron}» → ${persona} persona del ${numero}.`);
+    }
+    // tipo 3: análisis completo (elige la descripción correcta entera)
+    const correcta=`${persona} pers. ${numero}, ${tiempo}, indicativo`;
+    const distr=[];
+    const otroT=rnd(TIEMPOS_IND.filter(x=>x!==tiempo));
+    const otraP=rnd(["1ª","2ª","3ª"].filter(x=>x!==persona));
+    const otroN= numero==="singular"?"plural":"singular";
+    distr.push(`${persona} pers. ${numero}, ${otroT}, indicativo`);
+    distr.push(`${otraP} pers. ${numero}, ${tiempo}, indicativo`);
+    distr.push(`${persona} pers. ${otroN}, ${tiempo}, indicativo`);
+    return mc(`Análisis completo de «${forma}» (de «${v[0]}»):`,
+      correcta, distr,
+      `${pron} → ${persona} persona del ${numero}, ${tiempo} de indicativo, ${v[1]}ª conjugación.`);
+  }
+};
+
 /* ============================ MOTOR / UI ============================ */
-const GENERATORS = { sintaxis:GEN_SINTAXIS, verbos:GEN_VERBOS, textos:GEN_TEXTOS };
+const GENERATORS = { analisis:GEN_ANALISIS, sintaxis:GEN_SINTAXIS, verboforma:GEN_VERBO_FORMA, verbos:GEN_VERBOS, textos:GEN_TEXTOS };
 
 const NAV=[
   {id:"inicio",label:"🏠 Inicio"},
@@ -995,9 +1096,10 @@ function startMixto(){
   mode='mix'; mixCount=0; total=20; score=0; streak=0; qIndex=0; quizTitle="Examen mixto"; renderQuestion();
 }
 function nextFromMix(){
-  // mezcla: 40% generadores, 60% bancos
+  // mezcla: generadores de tipo MC simple (no 'multi') + bancos fijos
+  const mcGens=Object.keys(GENERATORS).filter(k=>k!=='analisis');
   const r=Math.random();
-  if(r<0.5){ const gk=rnd(Object.keys(GENERATORS)); return GENERATORS[gk].make(); }
+  if(r<0.5){ const gk=rnd(mcGens); return GENERATORS[gk].make(); }
   const qk=rnd(Object.keys(QUIZZES)); return rnd(QUIZZES[qk].questions);
 }
 
@@ -1013,12 +1115,52 @@ function renderQuestion(){
   const q=currentQ;
   const titulo = mode==='gen'?GENERATORS[genKey].name:quizTitle;
   const numTxt = total===Infinity?`Pregunta ${qIndex+1}`:`Pregunta ${qIndex+1} de ${total}`;
-  let h=`<h2>${titulo}</h2><div class="q"><div class="q-num">${numTxt}</div><div class="q-text">${q.q}</div>`;
+  let h;
+  if(q.type==='multi'){
+    subDone=0; subTotal=q.steps.length; subAnswered={};
+    h=`<h2>${titulo}</h2>
+      <div class="card key"><div class="q-num">${numTxt}</div>
+      <p style="margin:6px 0 0">Analiza esta oración:</p>
+      <div class="ex" style="font-size:18px"><b>${q.sentence}</b></div></div>`;
+    q.steps.forEach((st,si)=>{
+      h+=`<div class="q" id="step${si}"><div class="q-text">${si+1}. ${st.q}</div>`;
+      st.opts.forEach((o,oi)=>{ h+=`<button class="opt" data-s="${si}" data-i="${oi}" onclick="answerSub(${si},${oi})">${o}</button>`; });
+      h+=`<div class="feedback" id="fb${si}"></div></div>`;
+    });
+    h+=`<div id="nextWrap" style="display:none">
+        <div class="card key" id="multiSummary"></div>
+        <button class="btn" onclick="nextQ()">Otra oración →</button>
+        <button class="btn ghost" onclick="show('practica')">Terminar</button></div>`;
+    sec.innerHTML=h; main.appendChild(sec); updateProgress(); window.scrollTo(0,0);
+    return;
+  }
+  h=`<h2>${titulo}</h2><div class="q"><div class="q-num">${numTxt}</div><div class="q-text">${q.q}</div>`;
   q.opts.forEach((o,i)=>{ h+=`<button class="opt" data-i="${i}" onclick="answerMC(${i})">${o}</button>`; });
   h+=`<div class="feedback" id="fb"></div>
       <div id="nextWrap" style="display:none"><button class="btn" onclick="nextQ()">Siguiente →</button>
       <button class="btn ghost" onclick="show('practica')">Terminar</button></div></div>`;
   sec.innerHTML=h; main.appendChild(sec); updateProgress(); window.scrollTo(0,0);
+}
+
+let subDone=0, subTotal=0, subAnswered={};
+function answerSub(si,oi){
+  if(subAnswered[si])return; subAnswered[si]=true;
+  const st=currentQ.steps[si];
+  document.querySelectorAll('.opt[data-s="'+si+'"]').forEach(b=>{
+    const idx=parseInt(b.dataset.i); b.classList.add('disabled');
+    if(idx===st.a)b.classList.add('correct');
+    if(idx===oi&&oi!==st.a)b.classList.add('wrong');
+  });
+  const fb=document.getElementById('fb'+si);
+  if(oi===st.a){ score++; streak++; fb.className='feedback show ok'; fb.innerHTML=`✅ ¡Correcto! <b>${st.exp}</b>`; }
+  else{ streak=0; fb.className='feedback show no'; fb.innerHTML=`❌ La correcta está en verde. <b>${st.exp}</b>`; }
+  subDone++; updateProgress();
+  if(subDone===subTotal){
+    const sum=document.getElementById('multiSummary');
+    if(sum) sum.innerHTML=`<b>✅ Análisis completo.</b> Has terminado de analizar esta oración. Pulsa «Otra oración» para practicar con una nueva.`;
+    document.getElementById('nextWrap').style.display='block';
+  }
+  if(mode!=='gen'){ /* en modo quiz/mix no usamos multi */ }
 }
 
 function answerMC(i){
