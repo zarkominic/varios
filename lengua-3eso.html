@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudio Lengua 3º ESO — Examen Final</title>
+<style>
+  :root{
+    --bg:#ffffff; --panel:#f6f8fb; --panel2:#eef2f7; --ink:#1c2530;
+    --muted:#5a6675; --accent:#1f6feb; --accent2:#b5650e; --good:#1a9d5a;
+    --bad:#d23b3b; --line:#d7dee8; --syntax:#7b3fe4;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65}
+  header{background:linear-gradient(135deg,#eef4ff,#f6f8fb);padding:20px 18px;border-bottom:2px solid var(--accent);
+    position:sticky;top:0;z-index:50}
+  header h1{margin:0;font-size:20px;color:#0d2a52}
+  header p{margin:4px 0 0;color:var(--muted);font-size:13px}
+  nav{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+  nav button{background:#fff;color:var(--ink);border:1px solid var(--line);
+    padding:7px 12px;border-radius:20px;cursor:pointer;font-size:13px;transition:.15s}
+  nav button:hover{border-color:var(--accent);color:var(--accent)}
+  nav button.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+  main{max-width:900px;margin:0 auto;padding:18px}
+  section{display:none;animation:fade .3s}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+  h2{color:#0d2a52;border-bottom:2px solid var(--line);padding-bottom:8px;margin-top:8px}
+  h3{color:var(--accent2);margin-top:28px}
+  h4{color:var(--accent);margin-top:18px;margin-bottom:4px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+  .card.syntax{border-left:4px solid var(--syntax)}
+  .card.key{border-left:4px solid var(--accent2)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;background:#fff}
+  th,td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:#0d2a52}
+  code{background:#eef2f7;padding:2px 6px;border-radius:5px;color:#9a4a06;font-size:13px}
+  .ex{background:#fff;border:1px dashed var(--line);border-radius:8px;padding:10px 14px;margin:8px 0;font-size:14px}
+  .ex b{color:var(--good)}
+  .tag{display:inline-block;background:var(--syntax);color:#fff;font-size:11px;font-weight:700;
+    padding:2px 8px;border-radius:10px;margin-right:6px}
+  ul,ol{padding-left:22px}
+  li{margin:5px 0}
+  .pill{display:inline-block;padding:1px 7px;border-radius:8px;font-size:12px;font-weight:600;margin:2px;color:#fff}
+  .pill.cd{background:#2a6fd6}.pill.ci{background:#7b3fe4}.pill.cc{background:#1a9d5a}
+  .pill.atr{background:#b5650e}.pill.crv{background:#c0392b}.pill.cag{background:#5a6675}
+  .quiz-intro{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+  .quiz-intro button{flex:1;min-width:170px;background:#fff;border:1px solid var(--line);
+    color:var(--ink);padding:14px;border-radius:10px;cursor:pointer;text-align:left}
+  .quiz-intro button:hover{border-color:var(--accent2);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .quiz-intro b{display:block;color:var(--accent2);margin-bottom:3px}
+  .quiz-intro small{color:var(--muted)}
+  .badge{display:inline-block;background:var(--good);color:#fff;font-size:11px;padding:1px 7px;border-radius:8px;margin-left:6px}
+  .q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0}
+  .q-num{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  .q-text{font-size:16px;margin:6px 0 12px;font-weight:600}
+  .q-text small{font-weight:400;color:var(--muted);display:block;margin-top:4px}
+  .opt{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);
+    color:var(--ink);padding:11px 14px;border-radius:9px;margin:7px 0;cursor:pointer;transition:.12s;font-size:14px}
+  .opt:hover{border-color:var(--accent)}
+  .opt.correct{background:#e6f7ee;border-color:var(--good);color:#0f6b3b;font-weight:600}
+  .opt.wrong{background:#fdeaea;border-color:var(--bad);color:#a32525}
+  .opt.disabled{cursor:default}
+  input.fill{background:#fff;border:1px solid var(--line);color:var(--ink);padding:10px 12px;
+    border-radius:8px;font-size:15px;width:100%;margin:6px 0}
+  .btn{background:var(--accent);color:#fff;border:none;padding:10px 18px;border-radius:9px;
+    font-weight:600;cursor:pointer;font-size:14px;margin-top:8px;margin-right:6px}
+  .btn.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+  .feedback{margin-top:12px;padding:12px 14px;border-radius:9px;font-size:14px;display:none}
+  .feedback.show{display:block}
+  .feedback.ok{background:#e6f7ee;border:1px solid var(--good)}
+  .feedback.no{background:#fdeaea;border:1px solid var(--bad)}
+  .feedback b{color:var(--accent2)}
+  .progress{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);
+    padding:12px 18px;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+  .score{color:var(--good);font-weight:700}
+  .streak{color:var(--accent2);font-weight:600}
+  .match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .match-col button{display:block;width:100%;background:#fff;border:1px solid var(--line);
+    color:var(--ink);padding:10px;border-radius:8px;margin:6px 0;cursor:pointer;font-size:14px}
+  .match-col button.sel{border-color:var(--accent2);background:#fff7ec}
+  .match-col button.done{opacity:.45;cursor:default;border-color:var(--good);background:#e6f7ee}
+  @media(max-width:600px){.match-wrap{grid-template-columns:1fr}}
+  .hint{color:var(--muted);font-size:13px;font-style:italic}
+  details{margin:8px 0;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+  summary{cursor:pointer;color:var(--accent);font-weight:600}
+  .note{background:#fff7ec;border:1px solid #f0d9b5;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📚 Lengua Castellana 3º ESO — Repaso Final</h1>
+  <p>Teoría ampliada + cientos de ejercicios autogenerados · Énfasis: sintaxis, verbos, tipos de texto y Cervantes</p>
+  <nav id="nav"></nav>
+</header>
+<main id="main"></main>
+<div class="progress" id="progressBar" style="display:none">
+  <span id="progText">Pregunta 0 / 0</span>
+  <span class="streak" id="streakText"></span>
+  <span class="score" id="scoreText">Aciertos: 0</span>
+</div>
+<script>
+/* ======================================================================
+   LENGUA 3º ESO — motor de estudio
+   THEORY = teoría ampliada · GEN = generadores de ejercicios · QUIZZES = bancos fijos
+   ====================================================================== */
+
+/* ============================ TEORÍA (ampliada) ============================ */
+const THEORY = {
+  comunicacion:{ title:"Comunicación y funciones del lenguaje (L1)", html:`
+    <div class="card">
+      <h3>1. ¿Qué es la comunicación?</h3>
+      <p>La <b>comunicación</b> es el proceso por el que se transmite información de un emisor a un receptor mediante un código compartido. Puede ser <b>verbal</b> (con palabras: oral o escrita) o <b>no verbal</b> (gestos, imágenes, señales, sonidos).</p>
+      <h4>Lenguaje, lengua y habla</h4>
+      <ul>
+        <li><b>Lenguaje:</b> capacidad humana, universal, de comunicarse mediante signos.</li>
+        <li><b>Lengua (idioma):</b> sistema concreto de signos de una comunidad (español, francés...). Es un código abstracto y social.</li>
+        <li><b>Habla:</b> uso individual y concreto que cada persona hace de la lengua en un momento dado.</li>
+      </ul>
+      <div class="note">Truco: el <b>lenguaje</b> es la capacidad, la <b>lengua</b> es el sistema (el "diccionario+gramática" mental compartido) y el <b>habla</b> es lo que tú dices de verdad.</div>
+    </div>
+    <div class="card key">
+      <h3>2. Elementos de la comunicación</h3>
+      <table>
+        <tr><th>Elemento</th><th>Qué es</th><th>Ejemplo</th></tr>
+        <tr><td><b>Emisor</b></td><td>Produce y envía el mensaje</td><td>Quien habla o escribe</td></tr>
+        <tr><td><b>Receptor</b></td><td>Recibe e interpreta el mensaje</td><td>Quien escucha o lee</td></tr>
+        <tr><td><b>Mensaje</b></td><td>La información transmitida</td><td>"Mañana hay examen"</td></tr>
+        <tr><td><b>Código</b></td><td>Sistema de signos usado (la lengua)</td><td>El español</td></tr>
+        <tr><td><b>Canal</b></td><td>Medio físico por el que viaja</td><td>Aire, papel, móvil</td></tr>
+        <tr><td><b>Contexto / situación</b></td><td>Circunstancias que rodean la comunicación</td><td>Aula, hora, relación</td></tr>
+        <tr><td><b>Referente</b></td><td>Realidad a la que alude el mensaje</td><td>El examen real</td></tr>
+      </table>
+      <div class="note">Cada elemento se asocia a una función: <b>código → metalingüística</b>, <b>referente/contexto → referencial</b>, <b>emisor → expresiva</b>, <b>receptor → apelativa</b>, <b>canal → fática</b>, <b>mensaje → poética</b>.</div>
+    </div>
+    <div class="card key">
+      <h3>3. Funciones del lenguaje (¡cae seguro!)</h3>
+      <table>
+        <tr><th>Función</th><th>Centrada en</th><th>Sirve para</th><th>Ejemplo</th></tr>
+        <tr><td><b>Referencial</b> (representativa)</td><td>Referente</td><td>Informar de hechos objetivos</td><td>"Está lloviendo en la calle."</td></tr>
+        <tr><td><b>Expresiva</b> (emotiva)</td><td>Emisor</td><td>Mostrar sentimientos del que habla</td><td>"¡Me encanta ver el amanecer!"</td></tr>
+        <tr><td><b>Apelativa</b> (conativa)</td><td>Receptor</td><td>Influir / pedir / ordenar</td><td>"Dame el mando, María."</td></tr>
+        <tr><td><b>Fática</b> (de contacto)</td><td>Canal</td><td>Abrir, mantener o cerrar el contacto</td><td>"¿Sí? ¿Me oyes?"</td></tr>
+        <tr><td><b>Poética</b> (estética)</td><td>Mensaje</td><td>Embellecer la forma del mensaje</td><td>"Verde que te quiero verde."</td></tr>
+        <tr><td><b>Metalingüística</b></td><td>Código</td><td>Hablar de la propia lengua</td><td>"'Casa' es un sustantivo."</td></tr>
+      </table>
+      <details><summary>Cómo identificar la función dominante</summary>
+      <ul>
+        <li>¿Da datos/informa? → referencial.</li>
+        <li>¿Aparecen exclamaciones, "yo", emociones? → expresiva.</li>
+        <li>¿Hay imperativo, vocativo, preguntas dirigidas a alguien? → apelativa.</li>
+        <li>¿Comprueba que el canal funciona ("oiga", "¿hola?")? → fática.</li>
+        <li>¿Usa rima, figuras, juega con el lenguaje? → poética.</li>
+        <li>¿Define o explica palabras/gramática? → metalingüística.</li>
+      </ul></details>
+    </div>
+    <div class="card">
+      <h3>4. Variedades de la lengua</h3>
+      <table>
+        <tr><th>Variedad</th><th>Depende de</th><th>Ejemplos</th></tr>
+        <tr><td><b>Diatópicas</b> (geográficas)</td><td>El lugar</td><td>Dialectos: andaluz, canario, murciano...</td></tr>
+        <tr><td><b>Diastráticas</b> (sociales)</td><td>El grupo social/cultural</td><td>Nivel culto, medio, vulgar; <b>argots/jergas</b></td></tr>
+        <tr><td><b>Diafásicas</b> (situacionales)</td><td>La situación</td><td>Registro formal / informal o coloquial</td></tr>
+      </table>
+      <h4>Los argots o jergas</h4>
+      <p>Un <b>argot (o jerga)</b> es el vocabulario especial propio de un grupo social o profesional (argot juvenil, médico, deportivo, militar, delincuencial). Pertenece a las <b>variedades sociales (diastráticas)</b>. Sirve para identificarse con el grupo y, a veces, para no ser entendido por los demás.</p>
+    </div>
+    <div class="card">
+      <h3>5. El español en el mundo y las lenguas de España</h3>
+      <ul>
+        <li>El español lo hablan más de 500 millones de personas; es lengua oficial en unos 20 países.</li>
+        <li><b>Lenguas oficiales de España:</b> castellano (en todo el Estado), catalán, gallego y euskera (vasco) en sus comunidades.</li>
+        <li><b>Bilingüismo:</b> uso habitual de dos lenguas en un territorio o por una persona.</li>
+        <li><b>Dialectos del castellano:</b> andaluz, extremeño, murciano, canario, y las variedades de América.</li>
+      </ul>
+    </div>` },
+
+  palabras:{ title:"Formación de palabras y el sustantivo (L2)", html:`
+    <div class="card key">
+      <h3>1. La estructura de la palabra: los monemas</h3>
+      <p>Las palabras se dividen en unidades mínimas con significado llamadas <b>monemas</b>:</p>
+      <ul>
+        <li><b>Lexema (raíz):</b> aporta el significado básico. Es la parte común a la familia léxica → <code>flor-</code> en flor, florero, florería.</li>
+        <li><b>Morfemas:</b> añaden información.
+          <ul>
+            <li><b>Derivativos:</b> <b>prefijos</b> (delante: <code>re-</code>, <code>des-</code>, <code>in-</code>) y <b>sufijos</b> (detrás: <code>-ero</code>, <code>-ción</code>, <code>-able</code>). Crean palabras nuevas.</li>
+            <li><b>Flexivos:</b> indican género, número, persona, tiempo... NO crean palabra nueva (<code>-a</code>, <code>-s</code>, <code>-mos</code>).</li>
+          </ul></li>
+      </ul>
+      <div class="ex">Ejemplo guía: <b>Sub·direct·or·a</b> = <code>sub-</code> (morf. derivativo prefijo) + <code>direct-</code> (lexema/raíz) + <code>-or-</code> (morf. derivativo sufijo) + <code>-a</code> (morf. flexivo de género).</div>
+    </div>
+    <div class="card key">
+      <h3>2. Tipos de palabras según su formación</h3>
+      <table>
+        <tr><th>Tipo</th><th>Formación</th><th>Cómo reconocerla</th><th>Ejemplos</th></tr>
+        <tr><td><b>Simple</b></td><td>Un solo lexema (+ flexivos)</td><td>No tiene prefijos ni sufijos derivativos</td><td>sol, soles, mar, papel</td></tr>
+        <tr><td><b>Derivada</b></td><td>Lexema + prefijo y/o sufijo</td><td>Existe una palabra base de la que deriva</td><td>panadero, embarcación, releer</td></tr>
+        <tr><td><b>Compuesta</b></td><td>Dos o más lexemas</td><td>Se ven dos palabras juntas</td><td>sacacorchos, cuentacuentos, pelirrojo</td></tr>
+        <tr><td><b>Parasintética</b></td><td>Prefijo + lexema + sufijo a la vez (no existe sin uno de los dos) <b>o</b> composición + derivación</td><td>Quita el prefijo o el sufijo: si NINGUNA de las dos palabras resultantes existe → parasintética</td><td>anochecer, entristecer, picapedrero, quinceañero</td></tr>
+      </table>
+      <details><summary>Derivada vs. parasintética (la duda típica del examen)</summary>
+      <p><b>embarcación</b>: existe <i>embarcar</i> → de ahí <i>embarcación</i>. Solo hace falta el sufijo. → <b>derivada</b>.<br>
+      <b>anochecer</b>: ¿existe *anoche (verbo)? No. ¿Existe *nochecer? No. Necesita prefijo <i>a-</i> Y sufijo <i>-ecer</i> simultáneamente. → <b>parasintética</b>.</p></details>
+    </div>
+    <div class="card">
+      <h3>3. Otros procedimientos para crear palabras</h3>
+      <ul>
+        <li><b>Siglas:</b> ONU, OMS (se leen letra a letra o como palabra).</li>
+        <li><b>Acrónimos:</b> ovni, láser (siglas que ya se leen como palabra normal).</li>
+        <li><b>Acortamientos:</b> profe (profesor), bici (bicicleta), boli.</li>
+        <li><b>Préstamos:</b> palabras de otras lenguas (fútbol, chef, software).</li>
+        <li><b>Nominalización:</b> convertir en sustantivo otra categoría (el <i>saber</i>, la <i>llegada</i>).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>4. El sustantivo</h3>
+      <p>El <b>sustantivo (nombre)</b> designa seres, objetos, ideas o sentimientos. Tiene género y número.</p>
+      <table>
+        <tr><th>Clase</th><th>Definición</th><th>Ejemplo</th></tr>
+        <tr><td>Común / Propio</td><td>General / nombre individual</td><td>ciudad / Madrid</td></tr>
+        <tr><td>Concreto / Abstracto</td><td>Se percibe por los sentidos / no</td><td>mesa / libertad</td></tr>
+        <tr><td>Individual / Colectivo</td><td>Uno / conjunto en singular</td><td>oveja / rebaño</td></tr>
+        <tr><td>Contable / Incontable</td><td>Se puede contar / no</td><td>tres libros / agua</td></tr>
+      </table>
+      <p><b>Género:</b> masculino/femenino. <b>Número:</b> singular/plural. El sustantivo es el <b>núcleo del grupo nominal (GN)</b>, que puede funcionar como sujeto.</p>
+    </div>
+    <div class="card">
+      <h3>5. La descripción (técnica y literaria)</h3>
+      <table>
+        <tr><th></th><th>Descripción técnica</th><th>Descripción literaria</th></tr>
+        <tr><td>Objetivo</td><td>Informar con precisión</td><td>Producir belleza / emoción</td></tr>
+        <tr><td>Lenguaje</td><td>Objetivo, denotativo, preciso</td><td>Subjetivo, connotativo, con figuras</td></tr>
+        <tr><td>Adjetivos</td><td>Especificativos (clasifican)</td><td>Explicativos / valorativos</td></tr>
+        <tr><td>Ejemplo</td><td>Manual, prospecto, ficha</td><td>Retrato en una novela</td></tr>
+      </table>
+      <p><b>Deícticos:</b> palabras que señalan en el espacio/tiempo según quién habla: <i>aquí, allí, este, ese, ahora, ayer, yo, tú</i>.</p>
+    </div>` },
+
+  textos:{ title:"Tipos de texto, propiedades y léxico (L3-L6)", html:`
+    <div class="card">
+      <h3>1. Las modalidades textuales</h3>
+      <table>
+        <tr><th>Texto</th><th>Función</th><th>Rasgos lingüísticos</th></tr>
+        <tr><td><b>Narrativo</b></td><td>Contar hechos en el tiempo</td><td>Verbos de acción, conectores temporales, narrador</td></tr>
+        <tr><td><b>Descriptivo</b></td><td>Decir cómo es algo o alguien</td><td>Adjetivos, verbos en presente/imperfecto</td></tr>
+        <tr><td><b>Expositivo</b></td><td>Explicar / informar objetivamente</td><td>3ª persona, presente atemporal, tecnicismos, conectores explicativos</td></tr>
+        <tr><td><b>Argumentativo</b></td><td>Convencer / defender una opinión</td><td>1ª persona, verbos de opinión, conectores lógicos</td></tr>
+        <tr><td><b>Dialogado</b></td><td>Reproducir una conversación</td><td>Turnos, rayas, vocativos, preguntas</td></tr>
+        <tr><td><b>Instructivo</b></td><td>Indicar cómo hacer algo</td><td>Imperativo o infinitivo, orden numerado</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>2. El texto narrativo y el narrador</h3>
+      <ul>
+        <li><b>Elementos:</b> narrador, personajes (principales/secundarios), acción (planteamiento-nudo-desenlace), tiempo y espacio.</li>
+        <li><b>Tipos de narrador:</b>
+          <ul>
+            <li><b>1ª persona protagonista:</b> el narrador es el personaje principal ("yo viví...").</li>
+            <li><b>1ª persona testigo:</b> personaje secundario que cuenta lo que ve.</li>
+            <li><b>3ª persona omnisciente:</b> lo sabe todo, incluso los pensamientos.</li>
+            <li><b>3ª persona objetiva (cámara):</b> solo cuenta lo observable.</li>
+          </ul></li>
+      </ul>
+    </div>
+    <div class="card key">
+      <h3>3. El texto expositivo</h3>
+      <ul>
+        <li><b>Estructura deductiva (analizante):</b> de lo general a lo particular. La idea principal va al <b>principio</b> y luego se detalla.</li>
+        <li><b>Estructura inductiva (sintetizante):</b> de lo particular a lo general. Se dan los datos y la idea principal va al <b>final</b>.</li>
+        <li><b>Tipos:</b> divulgativa (público general) y especializada (expertos).</li>
+      </ul>
+    </div>
+    <div class="card key">
+      <h3>4. El texto argumentativo</h3>
+      <ul>
+        <li><b>Estructura:</b> introducción → <b>tesis</b> (idea que se defiende) → <b>argumentos</b> (razones) → conclusión.</li>
+        <li><b>Tipos de argumentos:</b> de autoridad (cita a un experto), de ejemplo, de datos/cifras, de experiencia personal, de causa-efecto.</li>
+        <li>También puede ser deductiva (tesis al inicio) o inductiva (tesis al final).</li>
+      </ul>
+      <h4>Conectores (memorízalos por grupos)</h4>
+      <table>
+        <tr><th>Relación</th><th>Conectores</th></tr>
+        <tr><td>Adición</td><td>además, asimismo, también, igualmente</td></tr>
+        <tr><td>Causa</td><td>porque, ya que, puesto que, debido a</td></tr>
+        <tr><td>Consecuencia</td><td>por tanto, así que, en consecuencia, por eso</td></tr>
+        <tr><td>Oposición</td><td>sin embargo, no obstante, pero, aunque, en cambio</td></tr>
+        <tr><td>Orden</td><td>en primer lugar, a continuación, por último, finalmente</td></tr>
+        <tr><td>Ejemplificación</td><td>por ejemplo, así, en concreto</td></tr>
+        <tr><td>Conclusión</td><td>en resumen, en conclusión, en definitiva</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>5. Propiedades del texto</h3>
+      <ul>
+        <li><b>Adecuación:</b> el texto se ajusta a la situación, al receptor y al registro (formal/informal). Un mensaje a un amigo no se escribe como una instancia oficial.</li>
+        <li><b>Coherencia:</b> las ideas están bien organizadas, tienen sentido y no se contradicen. Hay una idea central y progresión temática.</li>
+        <li><b>Cohesión:</b> los elementos del texto están enlazados mediante:
+          <ul>
+            <li><b>Conectores</b> (sin embargo, además...).</li>
+            <li><b>Anáfora:</b> referirse a algo ya dicho con un pronombre ("Vi a Ana y <i>la</i> saludé").</li>
+            <li><b>Catáfora:</b> anticipar algo ("Te digo <i>esto</i>: no vayas").</li>
+            <li><b>Elipsis:</b> omitir lo sobrentendido.</li>
+            <li><b>Repetición y sinónimos / hiperónimos.</b></li>
+          </ul></li>
+      </ul>
+    </div>
+    <div class="card key">
+      <h3>6. Léxico y significado (L5-L6)</h3>
+      <ul>
+        <li><b>Denotación:</b> significado objetivo, de diccionario. <i>Cerdo</i> = mamífero doméstico.</li>
+        <li><b>Connotación:</b> significado subjetivo, emocional o cultural. <i>Cerdo</i> = persona sucia o despreciable.</li>
+        <li><b>Campo semántico:</b> palabras de la <b>misma categoría</b> que comparten un rasgo de significado: rosa, clavel, tulipán, margarita (flores).</li>
+        <li><b>Campo léxico (familia temática):</b> palabras de <b>distinta categoría</b> en torno a un tema: mar, navegar, marinero, salado, naufragio.</li>
+        <li><b>Familia léxica:</b> palabras con el <b>mismo lexema</b>: flor, florero, florería, florecer.</li>
+        <li><b>Hiperónimo:</b> palabra general que engloba (<i>flor</i>). <b>Hipónimos:</b> los casos concretos (<i>rosa, clavel</i>).</li>
+        <li><b>Tabú:</b> palabra que se evita por motivos sociales. <b>Eufemismo:</b> la que la suaviza (<i>fallecer</i> por <i>morir</i>; <i>persona sin hogar</i>).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>7. Relaciones entre palabras por su significado</h3>
+      <table>
+        <tr><th>Relación</th><th>Definición</th><th>Ejemplo</th></tr>
+        <tr><td>Sinonimia</td><td>Mismo significado</td><td>contento = alegre</td></tr>
+        <tr><td>Antonimia</td><td>Significado opuesto</td><td>alto ≠ bajo</td></tr>
+        <tr><td>Polisemia</td><td>Una palabra, varios significados relacionados</td><td>banco (asiento / entidad / de peces)</td></tr>
+        <tr><td>Homonimia</td><td>Palabras iguales en sonido, origen distinto</td><td>vaca / baca</td></tr>
+        <tr><td>Paronimia</td><td>Se parecen pero no son iguales</td><td>actitud / aptitud</td></tr>
+      </table>
+    </div>` },
+
+  literatura:{ title:"Literatura — autores, obras y movimientos", html:`
+    <div class="card key">
+      <span class="tag">CERVANTES = clave</span>
+      <h3>Miguel de Cervantes (1547-1616)</h3>
+      <ul>
+        <li>Nació en Alcalá de Henares. Es la cumbre del <b>Siglo de Oro</b> y de la literatura española.</li>
+        <li>Luchó en la <b>batalla de Lepanto</b> (1571), donde perdió el uso de la mano izquierda → "el manco de Lepanto". Estuvo cautivo cinco años en Argel.</li>
+        <li><b>Obra cumbre:</b> <i>El ingenioso hidalgo don Quijote de la Mancha</i> — 1ª parte <b>1605</b>, 2ª parte <b>1615</b>. Está considerada la <b>primera novela moderna</b>.</li>
+        <li><b>Argumento/sentido:</b> parodia los libros de caballerías. Don Quijote encarna el <b>idealismo</b>; Sancho Panza, el <b>realismo</b>. Se pasa del <b>héroe épico al personaje complejo (antihéroe)</b>.</li>
+        <li><b>Otras obras:</b> <i>Novelas ejemplares</i> (cuentos), <i>Entremeses</i> (teatro breve), <i>La Galatea</i> (novela pastoril), <i>Los trabajos de Persiles y Sigismunda</i> (novela bizantina, póstuma).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Edad Media (s. XII-XV): contexto</h3>
+      <p>Sociedad feudal: relaciones de vasallaje entre señores y vasallos. Convivencia de tres culturas (cristiana, musulmana, judía). La literatura es en gran parte oral y anónima, de tema religioso o heroico.</p>
+      <h4>Mester de juglaría (s. XII)</h4>
+      <ul>
+        <li>Poesía narrativa popular difundida por los <b>juglares</b>. Versos irregulares, rima asonante.</li>
+        <li><b>Cantar de Mio Cid</b>: cantar de gesta, anónimo, narrador en 3ª persona. Versos largos con cesura (dos hemistiquios) agrupados en tiradas. Tema: la <b>honra</b> perdida y recuperada de Rodrigo Díaz de Vivar.</li>
+      </ul>
+      <h4>Mester de clerecía (s. XIII-XIV)</h4>
+      <ul>
+        <li>Poesía culta de los clérigos. Estrofa: <b>cuaderna vía</b> (4 versos alejandrinos de 14 sílabas, rima consonante AAAA).</li>
+        <li><b>Gonzalo de Berceo</b> (s. XIII): primer poeta de nombre conocido en castellano. <i>Milagros de Nuestra Señora</i>.</li>
+        <li><b>Arcipreste de Hita</b> (Juan Ruiz, s. XIV): <i>Libro de buen amor</i>, obra variada y vital sobre el amor.</li>
+      </ul>
+      <h4>La prosa medieval</h4>
+      <ul>
+        <li><b>Alfonso X el Sabio</b> (s. XIII): impulsa la <b>Escuela de Traductores de Toledo</b> y consolida el castellano en prosa (historia, derecho, ciencia).</li>
+        <li><b>Don Juan Manuel</b> (s. XIV): <i>El conde Lucanor</i>, colección de cuentos (<i>exempla</i>) con moraleja. El conde pide consejo a su criado <b>Patronio</b>.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Prerrenacimiento (s. XV)</h3>
+      <ul>
+        <li><b>Lírica tradicional:</b> popular y anónima, de transmisión oral. Jarchas (las más antiguas), cantigas de amigo, villancicos.</li>
+        <li><b>El Romancero:</b> conjunto de <b>romances</b> (serie indefinida de versos octosílabos, rima asonante en los pares). Romancero viejo (anónimo, s. XV) y nuevo (autores cultos).</li>
+        <li><b>Lírica culta:</b> los Cancioneros. <b>Jorge Manrique</b>: <i>Coplas a la muerte de su padre</i>, sobre el paso del tiempo y la muerte; usa la copla manriqueña (pie quebrado).</li>
+        <li><b>La Celestina</b> (Fernando de Rojas, 1499): obra dialogada de transición Edad Media-Renacimiento. Amor trágico de Calisto y Melibea; la alcahueta Celestina.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Renacimiento (s. XVI)</h3>
+      <ul>
+        <li>Movimiento cultural que renace la cultura grecolatina; <b>humanismo</b> (el ser humano en el centro). Ideal de belleza, equilibrio y naturaleza idealizada.</li>
+        <li><b>Garcilaso de la Vega</b> (poeta-soldado): introduce el <b>soneto</b> y el <b>endecasílabo</b> italianos. Escribe églogas y sonetos de tema amoroso. Modelo de cortesano.</li>
+        <li><b>Tópicos literarios:</b> <b>carpe diem</b> ("aprovecha el día": disfruta la juventud antes de que pase), <b>collige virgo rosas</b>, <b>locus amoenus</b> (lugar idílico), <b>descriptio puellae</b> (retrato de la mujer ideal: cabellos de oro, piel de nieve...).</li>
+        <li><b>Segundo Renacimiento (religioso):</b> <b>Fray Luis de León</b> (ascética: <i>Oda a la vida retirada</i>) y la <b>mística</b>: <b>Santa Teresa de Jesús</b> y <b>San Juan de la Cruz</b> (unión del alma con Dios).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>La novela del Siglo de Oro y el Lazarillo</h3>
+      <ul>
+        <li><b>Novela idealista</b> (s. XVI): de caballerías, pastoril, bizantina, morisca. Personajes idealizados.</li>
+        <li><b>Novela picaresca:</b> realista y crítica. Protagonista: el <b>pícaro</b>, de origen humilde, que sirve a varios amos.</li>
+        <li><b>Lazarillo de Tormes</b> (1554, anónimo): inicia el género. Narrado en <b>1ª persona</b> (autobiografía ficticia: Lázaro cuenta su vida). Temas: el <b>hambre</b> y la <b>honra</b>; crítica social y religiosa.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>El Barroco (s. XVII)</h3>
+      <ul>
+        <li>Época de crisis y <b>pesimismo</b>; estética recargada y de contrastes. Temas: el desengaño, la fugacidad de la vida, la muerte, la apariencia frente a la realidad.</li>
+        <li><b>Conceptismo</b> (juego de ideas, ingenio, concisión): <b>Francisco de Quevedo</b>.</li>
+        <li><b>Culteranismo / gongorismo</b> (belleza formal, cultismos, metáforas difíciles): <b>Luis de Góngora</b>.</li>
+        <li><b>Poetas del Barroco:</b> también <b>Sor Juana Inés de la Cruz</b> (Nueva España) y Lope de Vega.</li>
+        <li><b>Teatro del Siglo de Oro:</b> <b>Lope de Vega</b> crea la <b>comedia nueva</b> (<i>Fuenteovejuna</i>); <b>Tirso de Molina</b> (<i>El burlador de Sevilla</i>, mito de don Juan); <b>Calderón de la Barca</b> (<i>La vida es sueño</i>, <i>El alcalde de Zalamea</i>).</li>
+      </ul>
+    </div>` },
+
+  metrica:{ title:"⭐ Métrica, estrofas y figuras literarias", html:`
+    <div class="card key">
+      <span class="tag">PRIORIDAD</span>
+      <h3>1. Cómo medir un verso</h3>
+      <ol>
+        <li>Cuenta las sílabas de cada palabra.</li>
+        <li><b>Sinalefa:</b> si una palabra acaba en vocal y la siguiente empieza por vocal (o h muda), se unen en una sola sílaba. "Ca-sa_a-zul" → cuenta como una.</li>
+        <li>Mira la <b>última palabra</b> del verso: si es <b>aguda</b>, suma +1 sílaba; si es <b>esdrújula</b>, resta −1; si es <b>llana</b>, no cambia.</li>
+      </ol>
+      <ul>
+        <li><b>Arte menor:</b> versos de 8 sílabas o menos (bisílabo, trisílabo... octosílabo).</li>
+        <li><b>Arte mayor:</b> 9 sílabas o más (eneasílabo... endecasílabo de 11, alejandrino de 14).</li>
+      </ul>
+    </div>
+    <div class="card key">
+      <h3>2. La rima</h3>
+      <ul>
+        <li><b>Rima consonante (total):</b> coinciden vocales <b>y</b> consonantes desde la última vocal tónica. "amor / flor".</li>
+        <li><b>Rima asonante (parcial):</b> coinciden solo las <b>vocales</b>. "sombra / rosa".</li>
+        <li><b>Verso blanco:</b> tiene medida pero no rima. <b>Verso libre:</b> ni medida fija ni rima.</li>
+        <li>Se marca con letras: minúsculas (arte menor: a, b, c) y mayúsculas (arte mayor: A, B, C).</li>
+      </ul>
+    </div>
+    <div class="card key">
+      <h3>3. Principales estrofas y poemas (¡cae en el examen!)</h3>
+      <table>
+        <tr><th>Nombre</th><th>Versos</th><th>Esquema / rima</th><th>Asociado a</th></tr>
+        <tr><td><b>Soneto</b></td><td>14 endecasílabos</td><td>2 cuartetos + 2 tercetos, consonante (ABBA ABBA CDC DCD)</td><td>Garcilaso, Quevedo, Góngora</td></tr>
+        <tr><td><b>Romance</b></td><td>Indefinidos octosílabos</td><td>Asonante en pares, impares libres</td><td>Romancero</td></tr>
+        <tr><td><b>Cuaderna vía</b></td><td>4 alejandrinos (14)</td><td>Consonante AAAA</td><td>Mester de clerecía (Berceo)</td></tr>
+        <tr><td><b>Copla manriqueña</b> (de pie quebrado)</td><td>6 versos</td><td>8a 8b 4c 8a 8b 4c</td><td>Jorge Manrique</td></tr>
+        <tr><td><b>Lira</b></td><td>5 versos</td><td>7a 11B 7a 7b 11B</td><td>Fray Luis, San Juan</td></tr>
+        <tr><td><b>Cuarteto</b></td><td>4 endecasílabos</td><td>ABBA, consonante</td><td>—</td></tr>
+        <tr><td><b>Redondilla</b></td><td>4 octosílabos</td><td>abba, consonante</td><td>—</td></tr>
+        <tr><td><b>Serventesio</b></td><td>4 endecasílabos</td><td>ABAB</td><td>—</td></tr>
+        <tr><td><b>Terceto</b></td><td>3 endecasílabos</td><td>A-A (encadenado)</td><td>—</td></tr>
+        <tr><td><b>Cuarteta</b></td><td>4 octosílabos</td><td>abab</td><td>—</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>4. Géneros literarios</h3>
+      <table>
+        <tr><th>Género</th><th>Características</th><th>Subgéneros</th></tr>
+        <tr><td><b>Lírica</b></td><td>Expresa sentimientos, suele ir en verso</td><td>oda, elegía, égloga, soneto, canción</td></tr>
+        <tr><td><b>Narrativa (épica)</b></td><td>Cuenta hechos de unos personajes</td><td>epopeya, cantar de gesta, novela, cuento</td></tr>
+        <tr><td><b>Dramática (teatro)</b></td><td>Para representar; diálogo, sin narrador</td><td>tragedia, comedia, drama</td></tr>
+      </table>
+    </div>
+    <div class="card key">
+      <h3>5. Figuras literarias o retóricas</h3>
+      <table>
+        <tr><th>Figura</th><th>Definición</th><th>Ejemplo</th></tr>
+        <tr><td>Metáfora</td><td>Identifica un término real con uno imaginario</td><td>"sus dientes son perlas"</td></tr>
+        <tr><td>Símil / comparación</td><td>Compara con "como", "cual"</td><td>"fuerte como un roble"</td></tr>
+        <tr><td>Personificación</td><td>Da cualidades humanas a lo no humano</td><td>"el viento susurra"</td></tr>
+        <tr><td>Hipérbole</td><td>Exageración</td><td>"te lo he dicho mil veces"</td></tr>
+        <tr><td>Anáfora</td><td>Repetir palabra(s) al inicio de versos</td><td>"verde que te quiero verde"</td></tr>
+        <tr><td>Hipérbaton</td><td>Alterar el orden lógico</td><td>"del salón en el ángulo oscuro"</td></tr>
+        <tr><td>Antítesis</td><td>Contraponer ideas opuestas</td><td>"lloro y río a la vez"</td></tr>
+        <tr><td>Paradoja</td><td>Contradicción aparente con sentido</td><td>"vivo sin vivir en mí"</td></tr>
+        <tr><td>Aliteración</td><td>Repetir sonidos</td><td>"el silbo de los aires"</td></tr>
+        <tr><td>Epíteto</td><td>Adjetivo que destaca cualidad obvia</td><td>"la blanca nieve"</td></tr>
+        <tr><td>Polisíndeton</td><td>Repetir conjunciones</td><td>"y oro y plata y perlas"</td></tr>
+        <tr><td>Asíndeton</td><td>Suprimir conjunciones</td><td>"llegué, vi, vencí"</td></tr>
+        <tr><td>Metonimia</td><td>Nombrar algo por una relación (causa, parte...)</td><td>"leer a Cervantes"</td></tr>
+      </table>
+    </div>` },
+
+  ortografia:{ title:"Ortografía: acentuación, grafías y puntuación", html:`
+    <div class="card key">
+      <h3>1. Reglas generales de acentuación</h3>
+      <ul>
+        <li><b>Agudas</b> (fuerza en la última sílaba): tilde si terminan en <b>vocal, -n o -s</b>. <i>camión, café, compás, sofá</i>. Sin tilde: reloj, pared.</li>
+        <li><b>Llanas / graves</b> (penúltima): tilde si <b>NO</b> terminan en vocal, -n o -s. <i>árbol, lápiz, césped</i>. Sin tilde: casa, examen.</li>
+        <li><b>Esdrújulas</b> (antepenúltima): <b>siempre</b> tilde. <i>música, sábado, esdrújula</i>.</li>
+        <li><b>Sobresdrújulas:</b> siempre tilde. <i>dígamelo, cómetelo</i>.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>2. Diptongo, triptongo e hiato</h3>
+      <ul>
+        <li>Vocales <b>abiertas/fuertes</b>: a, e, o. Vocales <b>cerradas/débiles</b>: i, u.</li>
+        <li><b>Diptongo:</b> dos vocales en una sílaba (abierta+cerrada o dos cerradas): <i>aire, cuento, ciudad</i>.</li>
+        <li><b>Triptongo:</b> tres vocales en una sílaba (cerrada+abierta+cerrada): <i>estudiáis, buey</i>.</li>
+        <li><b>Hiato:</b> dos vocales en sílabas distintas. Casos: dos abiertas (<i>le-ón, ca-os</i>) o abierta + cerrada <b>tónica</b>, que siempre lleva tilde (<i>ra-íz, dí-a, ba-úl</i>).</li>
+      </ul>
+    </div>
+    <div class="card key">
+      <h3>3. La tilde diacrítica</h3>
+      <p>Distingue palabras que se escriben igual pero tienen función distinta:</p>
+      <table>
+        <tr><th>Con tilde</th><th>Sin tilde</th></tr>
+        <tr><td><b>tú</b> (pronombre)</td><td>tu (posesivo)</td></tr>
+        <tr><td><b>él</b> (pronombre)</td><td>el (artículo)</td></tr>
+        <tr><td><b>mí</b> (pronombre)</td><td>mi (posesivo / nota mus.)</td></tr>
+        <tr><td><b>sí</b> (afirmación/pron.)</td><td>si (condición)</td></tr>
+        <tr><td><b>sé</b> (saber/ser)</td><td>se (pronombre)</td></tr>
+        <tr><td><b>dé</b> (verbo dar)</td><td>de (preposición)</td></tr>
+        <tr><td><b>té</b> (bebida)</td><td>te (pronombre)</td></tr>
+        <tr><td><b>más</b> (cantidad)</td><td>mas (= pero)</td></tr>
+        <tr><td><b>qué, cómo, cuándo...</b> (interrog./exclam.)</td><td>que, como, cuando (relativos)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>4. Grafías que suelen confundirse</h3>
+      <ul>
+        <li><b>B / V:</b> se escriben con B los verbos en -bir (escribir, recibir, salvo hervir, servir, vivir), las terminaciones -aba del imperfecto (cantaba), después de m (cambio). Con V: tras n (envío), adjetivos en - avo/-ava, -evo, -ivo (octava, nuevo, activo).</li>
+        <li><b>G / J:</b> con G ante e,i los verbos en -ger, -gir (coger, dirigir, salvo tejer, crujir); con J las palabras en -aje, -jero (garaje, mensajero) y el pretérito de traer/decir (dije, traje).</li>
+        <li><b>H:</b> se escriben con H las formas de haber, hacer, hablar; las palabras que empiezan por hie-, hue-, hia-, hui- (hierba, huevo).</li>
+        <li><b>CC:</b> cuando hay una c en una palabra de la familia con -ct- (acción → acto; dirección → directo).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>5. Signos de puntuación</h3>
+      <table>
+        <tr><th>Signo</th><th>Uso principal</th></tr>
+        <tr><td><b>Punto</b></td><td>Cierra enunciados. Punto y seguido, y aparte, y final.</td></tr>
+        <tr><td><b>Coma</b></td><td>Enumeraciones, vocativos (¡Juan, ven!), incisos, conectores. <b>Nunca</b> entre sujeto y verbo.</td></tr>
+        <tr><td><b>Punto y coma</b></td><td>Separa partes relacionadas más largas que una coma.</td></tr>
+        <tr><td><b>Dos puntos</b></td><td>Antes de enumeración, cita textual o explicación.</td></tr>
+        <tr><td><b>Puntos suspensivos</b></td><td>Dejar algo en suspenso o enumeración incompleta.</td></tr>
+        <tr><td><b>Interrogación / exclamación</b></td><td>Preguntas / emoción (en español, de apertura y cierre).</td></tr>
+        <tr><td><b>Raya</b></td><td>Diálogos e incisos.</td></tr>
+        <tr><td><b>Comillas</b></td><td>Citas, títulos, sentido especial.</td></tr>
+        <tr><td><b>Paréntesis</b></td><td>Aclaraciones secundarias.</td></tr>
+      </table>
+    </div>` }
+};
+
+/* ============================ UTILIDADES ============================ */
+function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+// construye una pregunta de opción múltiple con distractores
+function mc(q, correct, distractors, exp){
+  const opts=shuffle([correct,...distractors]);
+  return {type:"mc", q, opts, a:opts.indexOf(correct), exp};
+}
+
+/* ============================ GENERADOR: SINTAXIS ============================ */
+// Bancos de elementos con función sintáctica conocida
+const SX = {
+  // solo sujetos SINGULARES: concuerdan con los verbos conjugados en 3ª persona singular de los bancos
+  sujetos:["el niño","María","mi vecino","aquella mujer","el perro","la profesora","el equipo","mi hermana","el cartero","esa señora","el médico","el jardinero","la cocinera","tu primo"],
+  verbosTrans:["compró","leyó","escribió","rompió","pintó","trajo","vendió","cocinó","dibujó","arregló"],
+  verbosIntrans:["corre","duerme","viaja","sonríe","trabaja","llega","camina","nada","salta"],
+  cds:["un libro","las llaves","la comida","el coche","una carta","los deberes","ese cuadro","dos entradas","el problema","una canción"],
+  cis:["a su madre","a los niños","a María","a su jefe","al profesor","a sus amigos","a mi hermano","a la vecina"],
+  ccl:["en el parque","en casa","bajo el puente","sobre la mesa","en Madrid","junto al río"],
+  cct:["por la mañana","ayer","durante el verano","a las cinco","el lunes","después de comer"],
+  ccm:["con cuidado","rápidamente","de mala gana","con alegría","despacio","en silencio"],
+  atributos:["médica","muy alto","inteligente","feliz","azul","cansados","el ganador","simpática"],
+  copul:["es","está","parece"],
+  crvVerbos:[["confía","en sus amigos","en"],["se acuerda","de su infancia","de"],["piensa","en las vacaciones","en"],["habla","de política","de"],["sueña","con viajar","con"],["se arrepiente","de todo","de"],["depende","de su familia","de"]]
+};
+
+const GEN_SINTAXIS = {
+  name:"⭐ Sintaxis", desc:"Complementos y clases de oración · ∞ ejercicios",
+  make:function(){
+    const t=Math.floor(Math.random()*7);
+    // 0: identificar CD
+    if(t===0){
+      const s=rnd(SX.sujetos),v=rnd(SX.verbosTrans),cd=rnd(SX.cds);
+      const extra=Math.random()<.5?(" "+rnd(SX.ccl)):"";
+      return mc(`En «${cap(s)} ${v} ${cd}${extra}», ¿qué función tiene «${cd}»?`,
+        "Complemento Directo (CD)",
+        ["Complemento Indirecto (CI)","Complemento Circunstancial (CC)","Atributo"],
+        `Es CD: recibe directamente la acción del verbo y se puede sustituir por lo/la/los/las → «${cap(s)} ${cd.match(/^(las|los)/)?(cd.startsWith("las")?"las":"los"):(/^(la|una|esa|la )/.test(cd)?"la":"lo")} ${v}».`);
+    }
+    // 1: identificar CI
+    if(t===1){
+      const s=rnd(SX.sujetos),v=rnd(SX.verbosTrans),cd=rnd(SX.cds),ci=rnd(SX.cis);
+      return mc(`En «${cap(s)} ${v} ${cd} ${ci}», ¿qué función tiene «${ci}»?`,
+        "Complemento Indirecto (CI)",
+        ["Complemento Directo (CD)","Complemento Circunstancial (CC)","Complemento Agente"],
+        `Es CI: indica el destinatario de la acción y se sustituye por le/les → «...le ${v} ${cd}». «${cd}» sería el CD.`);
+    }
+    // 2: identificar CC y su tipo
+    if(t===2){
+      const tipo=rnd([["lugar",SX.ccl,"CCL"],["tiempo",SX.cct,"CCT"],["modo",SX.ccm,"CCM"]]);
+      const s=rnd(SX.sujetos),v=rnd(SX.verbosIntrans),cc=rnd(tipo[1]);
+      return mc(`En «${cap(s)} ${v} ${cc}», «${cc}» es un Complemento Circunstancial de...`,
+        tipo[0],
+        shuffle(["lugar","tiempo","modo","cantidad"]).filter(x=>x!==tipo[0]).slice(0,3),
+        `«${cc}» expresa ${tipo[0]} → Complemento Circunstancial de ${tipo[0]} (${tipo[2]}). Se puede suprimir y la oración sigue teniendo sentido.`);
+    }
+    // 3: predicado nominal -> atributo
+    if(t===3){
+      const s=rnd(SX.sujetos),cop=rnd(SX.copul),atr=rnd(SX.atributos);
+      return mc(`En «${cap(s)} ${cop} ${atr}», ¿qué función tiene «${atr}»?`,
+        "Atributo",
+        ["Complemento Directo (CD)","Complemento Predicativo","Complemento Circunstancial (CC)"],
+        `El verbo «${cop}» es copulativo (ser/estar/parecer): el predicado es nominal y «${atr}» es el Atributo. Se sustituye por «lo»: «${cap(s)} lo ${cop}».`);
+    }
+    // 4: tipo de oración por el predicado
+    if(t===4){
+      const opt=Math.floor(Math.random()*5);
+      let s,pred,answer,exp;
+      if(opt===0){ s=rnd(SX.sujetos);pred=`${rnd(SX.copul)} ${rnd(SX.atributos)}`;answer="Copulativa (atributiva)";exp="Verbo copulativo (ser/estar/parecer) + atributo → oración copulativa.";}
+      else if(opt===1){ s=rnd(SX.sujetos);pred=`${rnd(SX.verbosTrans)} ${rnd(SX.cds)}`;answer="Predicativa transitiva";exp="Hay un Complemento Directo, así que es predicativa transitiva.";}
+      else if(opt===2){ s=rnd(SX.sujetos);pred=`${rnd(SX.verbosIntrans)} ${rnd(SX.ccm)}`;answer="Predicativa intransitiva";exp="Verbo predicativo sin CD → intransitiva.";}
+      else if(opt===3){ const pares=[["María","se peina"],["el niño","se lava"],["mi hermana","se mira en el espejo"]];const p=rnd(pares);s=p[0];pred=p[1];answer="Reflexiva";exp="El sujeto realiza y recibe la acción sobre sí mismo → reflexiva.";}
+      else { const pares=[["Ana y Luis","se abrazan"],["los amigos","se saludan"],["ellos","se escriben cartas"]];const p=rnd(pares);s=p[0];pred=p[1];answer="Recíproca";exp="Varios sujetos se hacen la acción mutuamente (el uno al otro) → recíproca.";}
+      return mc(`«${cap(s)} ${pred}». ¿De qué tipo es esta oración?`, answer,
+        shuffle(["Copulativa (atributiva)","Predicativa transitiva","Predicativa intransitiva","Reflexiva","Recíproca","Impersonal"]).filter(x=>x!==answer).slice(0,3), exp);
+    }
+    // 5: complemento de régimen
+    if(t===5){
+      const s=rnd(SX.sujetos),crv=rnd(SX.crvVerbos);
+      return mc(`En «${cap(s)} ${crv[0]} ${crv[1]}», ¿qué función tiene «${crv[1]}»?`,
+        "Complemento de Régimen (Suplemento)",
+        ["Complemento Circunstancial (CC)","Complemento Indirecto (CI)","Atributo"],
+        `El verbo «${crv[0]}» exige la preposición «${crv[2]}» de forma fija (${crv[0]} ${crv[2]}...) → Complemento de Régimen, no se puede suprimir.`);
+    }
+    // 6: pasiva / impersonal / agente
+    const opt=Math.floor(Math.random()*3);
+    if(opt===0){
+      const pares=[["La casa","fue construida","por los obreros"],["El cuadro","fue pintado","por Goya"],["La carta","fue escrita","por María"],["El ladrón","fue detenido","por la policía"]];
+      const p=rnd(pares);
+      return mc(`En «${p[0]} ${p[1]} ${p[2]}», ¿qué función tiene «${p[2]}»?`,
+        "Complemento Agente",
+        ["Complemento Circunstancial (CC)","Complemento Directo (CD)","Sujeto"],
+        `Es una oración pasiva (ser + participio). El Complemento Agente (introducido por «por») indica quién realiza realmente la acción.`);
+    }
+    if(opt===1){
+      const fr=rnd(["Se venden pisos","Se buscan camareros","Se alquilan habitaciones","Se necesitan voluntarios"]);
+      return mc(`«${fr}» es una oración...`,
+        "Pasiva refleja",
+        ["Reflexiva","Recíproca","Copulativa"],
+        `«se» + verbo en 3ª persona concordando con un sujeto paciente (lo que se vende/busca) → pasiva refleja.`);
+    }
+    const fr=rnd(["Llueve mucho","Hay demasiada gente","Nieva en la sierra","Hace mucho frío","Es tarde"]);
+    return mc(`«${fr}» es una oración...`,
+      "Impersonal",
+      ["Pasiva","Copulativa","Reflexiva"],
+      `No tiene sujeto (verbos meteorológicos, «haber», «hacer» de tiempo, «ser» de tiempo) → oración impersonal.`);
+  }
+};
+
+/* ============================ GENERADOR: CONJUGACIÓN VERBAL ============================ */
+const VB = {
+  // verbo : [raíz para mostrar, conjugación num]
+  verbos:[["cantar",1],["saltar",1],["amar",1],["trabajar",1],["estudiar",1],["hablar",1],["bailar",1],["comprar",1],["llegar",1],["jugar",1],
+          ["comer",2],["beber",2],["correr",2],["temer",2],["leer",2],["aprender",2],["vender",2],["meter",2],
+          ["vivir",3],["partir",3],["subir",3],["escribir",3],["abrir",3],["recibir",3],["sufrir",3],["unir",3]],
+  // tiempos del indicativo: nombre, sufijos por persona para -ar (usamos plantilla y adaptamos)
+  pronombres:["yo","tú","él/ella","nosotros","vosotros","ellos/ellas"],
+};
+// conjugador simplificado pero correcto para tiempos pedidos
+function conjugar(inf, conj, tiempo, persona){
+  const raiz=inf.slice(0,-2);
+  const T={
+    "presente":{1:["o","as","a","amos","áis","an"],2:["o","es","e","emos","éis","en"],3:["o","es","e","imos","ís","en"]},
+    "pret. imperfecto":{1:["aba","abas","aba","ábamos","abais","aban"],2:["ía","ías","ía","íamos","íais","ían"],3:["ía","ías","ía","íamos","íais","ían"]},
+    "pret. perfecto simple":{1:["é","aste","ó","amos","asteis","aron"],2:["í","iste","ió","imos","isteis","ieron"],3:["í","iste","ió","imos","isteis","ieron"]},
+    "futuro simple":{1:["é","ás","á","emos","éis","án"],2:["é","ás","á","emos","éis","án"],3:["é","ás","á","emos","éis","án"]},
+    "condicional simple":{1:["ía","ías","ía","íamos","íais","ían"],2:["ía","ías","ía","íamos","íais","ían"],3:["ía","ías","ía","íamos","íais","ían"]}
+  };
+  if(tiempo==="futuro simple"||tiempo==="condicional simple"){ return inf+T[tiempo][conj][persona]; }
+  return raiz+T[tiempo][conj][persona];
+}
+const TIEMPOS_IND=["presente","pret. imperfecto","pret. perfecto simple","futuro simple","condicional simple"];
+
+const GEN_VERBOS = {
+  name:"⭐ Conjugación verbal", desc:"Tiempos, modos, conjugación · ∞ ejercicios",
+  make:function(){
+    const t=Math.floor(Math.random()*4);
+    // 0: dada una forma, ¿qué tiempo es?
+    if(t===0){
+      const v=rnd(VB.verbos), p=Math.floor(Math.random()*6), tiempo=rnd(TIEMPOS_IND);
+      const forma=conjugar(v[0],v[1],tiempo,p);
+      return mc(`¿En qué tiempo está «${forma}» (de «${v[0]}»)?`,
+        cap(tiempo)+" de indicativo",
+        shuffle(TIEMPOS_IND).filter(x=>x!==tiempo).slice(0,3).map(x=>cap(x)+" de indicativo"),
+        `«${forma}» = ${VB.pronombres[p]}, ${tiempo} de indicativo, ${v[1]}ª conjugación (-${v[0].slice(-2)}).`);
+    }
+    // 1: ¿qué conjugación?
+    if(t===1){
+      const v=rnd(VB.verbos);
+      return mc(`¿A qué conjugación pertenece el verbo «${v[0]}»?`,
+        v[1]+"ª conjugación",
+        ["1ª conjugación","2ª conjugación","3ª conjugación"].filter(x=>x!==v[1]+"ª conjugación"),
+        `Termina en «-${v[0].slice(-2)}» → ${v[1]}ª conjugación (1ª = -ar, 2ª = -er, 3ª = -ir).`);
+    }
+    // 2: modo (indicativo / subjuntivo / imperativo / no personal)
+    if(t===2){
+      const casos=[
+        ["cante / coma / viva","Subjuntivo","Presente de subjuntivo (deseo, duda)."],
+        ["hubiera cantado","Subjuntivo","Pret. pluscuamperfecto de subjuntivo (hubiera/hubiese + participio)."],
+        ["canta tú / comed","Imperativo","Expresa una orden → modo imperativo."],
+        ["cantando / comiendo","Formas no personales","Gerundio: forma no personal en -ando/-iendo."],
+        ["cantar / vivir","Formas no personales","Infinitivo: forma no personal en -ar/-er/-ir."],
+        ["cantado / vivido","Formas no personales","Participio: forma no personal en -ado/-ido."],
+        ["canté / comí","Indicativo","Pret. perfecto simple de indicativo (hechos reales y acabados)."]
+      ];
+      const c=rnd(casos);
+      return mc(`«${c[0]}» ¿a qué modo (o tipo) pertenece?`,
+        c[1],
+        shuffle(["Indicativo","Subjuntivo","Imperativo","Formas no personales"]).filter(x=>x!==c[1]).slice(0,3),
+        c[2]);
+    }
+    // 3: análisis completo (tiempo simple/compuesto)
+    const comp=[
+      ["he cantado","Pret. perfecto compuesto","haber en presente + participio"],
+      ["había comido","Pret. pluscuamperfecto","haber en imperfecto + participio"],
+      ["habré vivido","Futuro compuesto","haber en futuro + participio"],
+      ["habría salido","Condicional compuesto","haber en condicional + participio"]
+    ];
+    const c=rnd(comp);
+    return mc(`«${c[0]}» es un tiempo verbal llamado...`,
+      c[1]+" de indicativo",
+      shuffle(comp.map(x=>x[1]+" de indicativo")).filter(x=>x!==c[1]+" de indicativo").slice(0,3),
+      `${c[0]} = ${c[2]} → ${c[1]} de indicativo. Es un tiempo compuesto (verbo «haber» + participio).`);
+  }
+};
+
+/* ============================ GENERADOR: TIPOS DE TEXTO Y ESTROFA ============================ */
+const GEN_TEXTOS = {
+  name:"⭐ Tipos de texto y estrofa", desc:"Texto, estrofas, métrica, figuras · ∞ ejercicios",
+  make:function(){
+    const t=Math.floor(Math.random()*5);
+    // 0: identificar estrofa por definición
+    if(t===0){
+      const estrofas=[
+        ["14 versos endecasílabos en dos cuartetos y dos tercetos, rima consonante","Soneto"],
+        ["versos octosílabos en número indefinido, rima asonante en los pares e impares libres","Romance"],
+        ["cuatro versos alejandrinos (14 sílabas) con rima consonante AAAA","Cuaderna vía"],
+        ["estrofa de pie quebrado: 8a 8b 4c 8a 8b 4c","Copla manriqueña"],
+        ["cinco versos con esquema 7a 11B 7a 7b 11B","Lira"],
+        ["cuatro versos octosílabos con rima abba","Redondilla"],
+        ["cuatro versos endecasílabos con rima ABBA","Cuarteto"],
+        ["cuatro versos endecasílabos con rima ABAB","Serventesio"]
+      ];
+      const e=rnd(estrofas);
+      return mc(`¿Cómo se llama la estrofa o poema formado por ${e[0]}?`,
+        e[1],
+        shuffle(estrofas.map(x=>x[1])).filter(x=>x!==e[1]).slice(0,3),
+        `${e[1]}: ${e[0]}.`);
+    }
+    // 1: tipo de verso por nº de sílabas
+    if(t===1){
+      const versos=[[8,"octosílabo"],[11,"endecasílabo"],[14,"alejandrino"],[7,"heptasílabo"],[6,"hexasílabo"]];
+      const v=rnd(versos);
+      return mc(`Un verso de ${v[0]} sílabas se llama...`,
+        v[1],
+        shuffle(versos.map(x=>x[1])).filter(x=>x!==v[1]).slice(0,3),
+        `${v[0]} sílabas → ${v[1]}. (8 octosílabo, 11 endecasílabo, 14 alejandrino.) ${v[0]<9?"Arte menor":"Arte mayor"}.`);
+    }
+    // 2: tipo de texto por descripción
+    if(t===2){
+      const tipos=[
+        ["cuenta hechos que les suceden a unos personajes a lo largo del tiempo","Narrativo"],
+        ["explica cómo es algo o alguien, con muchos adjetivos","Descriptivo"],
+        ["informa de un tema de forma objetiva y ordenada","Expositivo"],
+        ["defiende una opinión con argumentos para convencer","Argumentativo"],
+        ["reproduce una conversación con turnos de palabra","Dialogado"],
+        ["indica los pasos para hacer algo, con verbos en imperativo","Instructivo"]
+      ];
+      const x=rnd(tipos);
+      return mc(`Un texto que ${x[0]} es un texto...`,
+        x[1],
+        shuffle(tipos.map(y=>y[1])).filter(y=>y!==x[1]).slice(0,3),
+        `Texto ${x[1].toLowerCase()}: ${x[0]}.`);
+    }
+    // 3: figura literaria por ejemplo
+    if(t===3){
+      const figuras=[
+        ['"sus dientes son perlas"',"Metáfora","identifica un término real con uno imaginario sin nexo"],
+        ['"fuerte como un roble"',"Símil (comparación)","compara mediante 'como', 'cual'..."],
+        ['"el viento susurra entre los árboles"',"Personificación","atribuye cualidades humanas a lo no humano"],
+        ['"te lo he dicho un millón de veces"',"Hipérbole","exageración"],
+        ['"verde que te quiero verde, verde viento"',"Anáfora","repite palabras al inicio"],
+        ['"del salón en el ángulo oscuro"',"Hipérbaton","altera el orden lógico de las palabras"],
+        ['"es tan corto el amor y tan largo el olvido"',"Antítesis","contrapone ideas opuestas"],
+        ['"y oro y plata y perlas y diamantes"',"Polisíndeton","repite conjunciones"],
+        ['"la blanca nieve, el verde prado"',"Epíteto","adjetivo que resalta una cualidad evidente"]
+      ];
+      const f=rnd(figuras);
+      return mc(`¿Qué figura literaria predomina en ${f[0]}?`,
+        f[1],
+        shuffle(figuras.map(x=>x[1])).filter(x=>x!==f[1]).slice(0,3),
+        `${f[1]}: ${f[2]}.`);
+    }
+    // 4: tipo de rima / arte
+    const sub=Math.floor(Math.random()*2);
+    if(sub===0){
+      const pares=[["amor / flor (coinciden vocales y consonantes)","Rima consonante"],["sombra / rosa (solo coinciden las vocales)","Rima asonante"],["cielo / suelo","Rima consonante"],["nube / bruma (a-u-a)","Rima asonante"]];
+      const p=rnd(pares);
+      return mc(`«${p[0]}» es un caso de...`,
+        p[1],
+        ["Rima consonante","Rima asonante","Verso blanco","Verso libre"].filter(x=>x!==p[1]).slice(0,3),
+        `${p[1]}: ${p[1].includes("conson")?"coinciden vocales y consonantes":"coinciden solo las vocales"} desde la última sílaba tónica.`);
+    }
+    const n=rnd([5,6,7,8,9,10,11,12,14]);
+    return mc(`Un verso de ${n} sílabas es de arte...`,
+      n<=8?"menor":"mayor",
+      [n<=8?"mayor":"menor"],
+      `Arte menor = 8 sílabas o menos; arte mayor = 9 o más. ${n} → arte ${n<=8?"menor":"mayor"}.`);
+  }
+};
+
+/* ============================ BANCOS FIJOS (literatura, palabras, funciones) ============================ */
+const QUIZZES = {
+  palabras:{ name:"Formación de palabras", desc:"Morfología", questions:[
+    mc("«anochecer» es una palabra...","Parasintética",["Simple","Derivada","Compuesta"],"Prefijo a- + lexema noch- + sufijo -ecer a la vez (no existe *anoche verbo ni *nochecer) → parasintética."),
+    mc("«cuentacuentos» es una palabra...","Compuesta",["Simple","Derivada","Parasintética"],"Dos lexemas (cuenta + cuentos) → compuesta."),
+    mc("«embarcación» es una palabra...","Derivada",["Simple","Compuesta","Parasintética"],"Deriva de «embarcar» (que ya existe) + sufijo -ción → derivada."),
+    mc("«soles» es una palabra...","Simple",["Derivada","Compuesta","Parasintética"],"Lexema «sol» + morfema flexivo de número «-es». Los flexivos no cambian el tipo → simple."),
+    mc("«entristecer» es una palabra...","Parasintética",["Derivada","Compuesta","Simple"],"en- + trist- + -ecer simultáneos (no existe *entriste ni *tristecer) → parasintética."),
+    mc("«pelirrojo» es una palabra...","Compuesta",["Derivada","Simple","Parasintética"],"Dos lexemas (pelo + rojo) → compuesta."),
+    mc("En «subdirectora», «sub-» es un...","Morfema derivativo prefijo",["Lexema o raíz","Morfema flexivo","Morfema derivativo sufijo"],"Va delante del lexema y aporta significado → morfema derivativo prefijo."),
+    mc("En «subdirectora», «-a» es un...","Morfema flexivo de género",["Sufijo derivativo","Lexema","Prefijo"],"Indica género femenino → morfema flexivo de género."),
+    mc("«ovni» y «láser» son...","Acrónimos",["Siglas","Préstamos","Compuestas"],"Siglas que ya se leen como una palabra normal → acrónimos."),
+    mc("«profe» (de profesor) es un...","Acortamiento",["Préstamo","Compuesto","Acrónimo"],"Se ha reducido la palabra → acortamiento.")
+  ]},
+  funciones:{ name:"Funciones del lenguaje", desc:"Comunicación y variedades", questions:[
+    mc("«Está lloviendo en la calle.» ¿Qué función predomina?","Referencial",["Expresiva","Apelativa","Poética"],"Informa de un hecho objetivo → función referencial."),
+    mc("«Dame el mando, María.» ¿Qué función predomina?","Apelativa (conativa)",["Fática","Metalingüística","Expresiva"],"Quiere influir en el receptor (orden + vocativo) → función apelativa."),
+    mc("«¡Me encanta ver el amanecer!» ¿Qué función predomina?","Expresiva (emotiva)",["Referencial","Poética","Fática"],"Expresa una emoción del emisor → función expresiva."),
+    mc("¿Con qué función del lenguaje se relaciona el CÓDIGO?","Metalingüística",["Poética","Fática","Referencial"],"El código (la lengua) se asocia a la función metalingüística (hablar de la propia lengua)."),
+    mc("¿Con qué función se relaciona el CANAL?","Fática",["Poética","Referencial","Expresiva"],"El canal (contacto) se asocia a la función fática («¿me oyes?»)."),
+    mc("¿Con qué función se relaciona el MENSAJE en sí?","Poética",["Referencial","Apelativa","Metalingüística"],"Cuando importa la forma del mensaje (rimas, figuras) → función poética."),
+    mc("«¿Sí? ¿Me oyes bien?» (al teléfono). ¿Qué función predomina?","Fática",["Poética","Referencial","Apelativa"],"Sirve para comprobar/mantener el contacto → función fática."),
+    mc("«'Mesa' es un sustantivo femenino.» ¿Qué función predomina?","Metalingüística",["Referencial","Poética","Expresiva"],"Habla de la propia lengua → función metalingüística."),
+    mc("¿Qué son los argots y a qué variedad pertenecen?","Jergas de grupos sociales/profesionales; variedad social (diastrática)",["Lenguas oficiales; variedad geográfica","Errores de habla; ninguna variedad","Acentos regionales; variedad situacional"],"Argot = vocabulario propio de un grupo social o profesional → variedad social (diastrática)."),
+    mc("Las diferencias entre el andaluz y el castellano del norte son una variedad...","Diatópica (geográfica)",["Diastrática (social)","Diafásica (situacional)","Histórica"],"Dependen del lugar → variedades diatópicas o geográficas (dialectos)."),
+    mc("Hablar de forma muy formal en una entrevista de trabajo es una cuestión de...","Variedad diafásica (registro/situación)",["Variedad diatópica","Variedad diastrática","Bilingüismo"],"El registro cambia según la situación → variedad diafásica."),
+    mc("La diferencia entre lengua y habla es que...","La lengua es el sistema social; el habla es el uso individual y concreto",["Son exactamente lo mismo","La lengua es oral y el habla escrita","El habla es el sistema y la lengua el uso"],"Lengua = sistema/código compartido; habla = realización individual de ese sistema.")
+  ]},
+  literatura:{ name:"Literatura", desc:"Autores, obras y movimientos", questions:[
+    mc("¿Quién escribió «Don Quijote de la Mancha»?","Miguel de Cervantes",["Lope de Vega","Garcilaso de la Vega","Fernando de Rojas"],"Cervantes. El Quijote (1605/1615) está considerado la primera novela moderna."),
+    mc("El «Cantar de Mio Cid» está narrado en...","3ª persona",["1ª persona protagonista","2ª persona","1ª persona testigo"],"Narrador en 3ª persona; autor anónimo; mester de juglaría."),
+    mc("¿De qué tipo de texto es el «Cantar de Mio Cid»?","Poema épico / cantar de gesta (narrativo en verso)",["Texto teatral","Texto lírico amoroso","Texto expositivo"],"Es un cantar de gesta: relato heroico en verso → narrativo (épica)."),
+    mc("El «Lazarillo de Tormes» está narrado en...","1ª persona (autobiografía)",["3ª persona omnisciente","3ª persona objetiva","2ª persona"],"Lázaro cuenta su propia vida en 1ª persona. Inaugura la novela picaresca. Autor anónimo."),
+    mc("¿Qué es el «carpe diem»?","Un tópico literario: 'aprovecha el momento', disfruta la juventud",["Un tipo de estrofa","Un autor del Renacimiento","Una figura literaria"],"Tópico latino que invita a disfrutar el presente; muy usado en el Renacimiento."),
+    mc("¿Quién introdujo el soneto y el endecasílabo en la lírica castellana?","Garcilaso de la Vega",["Jorge Manrique","Góngora","Gonzalo de Berceo"],"Garcilaso, poeta-soldado del Renacimiento, adapta las formas italianas."),
+    mc("La «cuaderna vía» es propia del...","Mester de clerecía",["Mester de juglaría","Barroco","Romancero"],"Estrofa culta del mester de clerecía (Berceo, Arcipreste de Hita)."),
+    mc("¿Cómo se llama el consejero del conde Lucanor?","Patronio",["Calisto","Sancho","Lázaro"],"Patronio, criado que aconseja al conde en la obra de don Juan Manuel (s. XIV)."),
+    mc("El conceptismo (Quevedo) y el culteranismo (Góngora) son del...","Barroco",["Renacimiento","Medievo","Romanticismo"],"Ambas corrientes pertenecen a la poesía del Barroco (s. XVII)."),
+    mc("Las «Coplas a la muerte de su padre» son de...","Jorge Manrique",["Garcilaso","Cervantes","Fray Luis de León"],"Jorge Manrique (s. XV). Tema: el paso del tiempo y la muerte."),
+    mc("¿Quién impulsó la Escuela de Traductores de Toledo?","Alfonso X el Sabio",["Don Juan Manuel","Berceo","El Arcipreste de Hita"],"Alfonso X el Sabio (s. XIII) consolidó el castellano en prosa."),
+    mc("¿Quién es el autor del «Libro de buen amor»?","El Arcipreste de Hita (Juan Ruiz)",["Gonzalo de Berceo","Alfonso X","Don Juan Manuel"],"El Arcipreste de Hita, s. XIV, mester de clerecía."),
+    mc("«La Celestina» fue escrita por...","Fernando de Rojas",["Cervantes","Lope de Vega","Jorge Manrique"],"Fernando de Rojas (1499); obra dialogada de transición a la Edad Moderna."),
+    mc("¿Quién creó la 'comedia nueva' del teatro del Siglo de Oro?","Lope de Vega",["Calderón de la Barca","Tirso de Molina","Cervantes"],"Lope de Vega revolucionó el teatro con la comedia nueva (p. ej. Fuenteovejuna)."),
+    mc("¿Qué obra es de Calderón de la Barca?","La vida es sueño",["Fuenteovejuna","El burlador de Sevilla","El Quijote"],"La vida es sueño, de Calderón. (Fuenteovejuna = Lope; El burlador = Tirso.)"),
+    mc("Gonzalo de Berceo es del siglo...","XIII",["XII","XIV","XVI"],"Berceo, mester de clerecía, siglo XIII; primer poeta de nombre conocido."),
+    mc("Santa Teresa de Jesús y San Juan de la Cruz son autores de la...","Mística (Renacimiento religioso, s. XVI)",["Edad Media","Barroco","Picaresca"],"La mística pertenece al segundo Renacimiento (s. XVI)."),
+    mc("El tema central del «Cantar de Mio Cid» es...","La honra perdida y recuperada del Cid",["El amor cortés","El paso del tiempo","La crítica social"],"La recuperación de la honra de Rodrigo Díaz de Vivar.")
+  ]}
+};
+
+/* matching */
+const MATCH = { name:"Emparejar (literatura)", desc:"Une cada elemento con su pareja",
+  sets:[
+    [["Gonzalo de Berceo","Siglo XIII"],["Libro de buen amor","Siglo XIV"],["Cantar de Mio Cid","Autor anónimo"],["Alfonso X el Sabio","Escuela de Traductores de Toledo"]],
+    [["Garcilaso de la Vega","Renacimiento"],["Quevedo","Barroco (conceptismo)"],["Góngora","Barroco (culteranismo)"],["Jorge Manrique","Prerrenacimiento (s. XV)"]],
+    [["Cervantes","Don Quijote"],["Fernando de Rojas","La Celestina"],["Lope de Vega","Fuenteovejuna"],["Calderón","La vida es sueño"]],
+    [["Soneto","14 versos"],["Cuaderna vía","Mester de clerecía"],["Romance","Rima asonante en pares"],["Lazarillo","Novela picaresca"]]
+  ]
+};
+
+/* ============================ MOTOR / UI ============================ */
+const GENERATORS = { sintaxis:GEN_SINTAXIS, verbos:GEN_VERBOS, textos:GEN_TEXTOS };
+
+const NAV=[
+  {id:"inicio",label:"🏠 Inicio"},
+  {id:"t-comunicacion",label:"Teoría: Comunicación"},
+  {id:"t-palabras",label:"Teoría: Palabras"},
+  {id:"t-textos",label:"Teoría: Textos"},
+  {id:"t-literatura",label:"Teoría: Literatura"},
+  {id:"t-metrica",label:"Teoría: Métrica ⭐"},
+  {id:"t-ortografia",label:"Teoría: Ortografía"},
+  {id:"practica",label:"✏️ Practicar"}
+];
+// nota: la teoría de sintaxis y verbos está integrada en sus generadores; añadimos accesos directos
+const THEORY_SX = {
+  title:"⭐ SINTAXIS — guía rápida",
+  html:`<div class="card syntax"><span class="tag">PRIORIDAD</span>
+    <h3>Pasos para analizar una oración simple</h3>
+    <ol><li>Busca el <b>verbo</b>.</li>
+    <li>Halla el <b>sujeto</b> (concuerda en número con el verbo; prueba a cambiar sing./plural).</li>
+    <li>¿El verbo es <b>ser/estar/parecer</b>? → predicado nominal con <b>Atributo</b> (se sustituye por «lo»). Si no, predicado verbal.</li>
+    <li>Identifica los <b>complementos</b>.</li></ol></div>
+    <div class="card syntax"><h3>Los complementos</h3>
+    <table>
+    <tr><th>Compl.</th><th>Reconocerlo</th><th>Prueba</th></tr>
+    <tr><td><span class="pill cd">CD</span></td><td>Recibe la acción</td><td>se sustituye por lo/la/los/las; "¿qué?"</td></tr>
+    <tr><td><span class="pill ci">CI</span></td><td>Destinatario</td><td>se sustituye por le/les; "¿a quién?"</td></tr>
+    <tr><td><span class="pill cc">CC</span></td><td>Circunstancia (lugar, tiempo, modo...)</td><td>se puede suprimir</td></tr>
+    <tr><td><span class="pill crv">CRV</span></td><td>Verbo + preposición fija</td><td>confiar EN, acordarse DE</td></tr>
+    <tr><td><span class="pill cag">CAg</span></td><td>En pasiva: quien actúa</td><td>"por + ..."</td></tr>
+    <tr><td><span class="pill atr">Atr</span></td><td>Solo con ser/estar/parecer</td><td>se sustituye por «lo»</td></tr>
+    <tr><td>CPred</td><td>Califica con verbo NO copulativo</td><td>"Llegó cansado" (concuerda)</td></tr>
+    </table></div>
+    <div class="card syntax"><h3>Clases de oración según el predicado</h3>
+    <ul><li><b>Copulativa:</b> ser/estar/parecer + atributo.</li>
+    <li><b>Predicativa transitiva:</b> lleva CD.</li>
+    <li><b>Predicativa intransitiva:</b> sin CD.</li>
+    <li><b>Reflexiva:</b> el sujeto se hace la acción a sí mismo.</li>
+    <li><b>Recíproca:</b> varios sujetos, mutuamente.</li>
+    <li><b>Pasiva / pasiva refleja:</b> ser+participio / «se»+verbo.</li>
+    <li><b>Impersonal:</b> sin sujeto (llueve, hay...).</li></ul>
+    <p class="hint">Practica con cientos de oraciones en la sección ✏️ Practicar → Sintaxis.</p></div>`
+};
+const THEORY_VB = {
+  title:"⭐ Conjugación verbal — guía rápida",
+  html:`<div class="card key"><span class="tag">CAE SEGURO</span>
+    <h3>Cómo analizar un verbo</h3>
+    <p>Di: <b>persona + número + tiempo + modo + conjugación</b>.</p>
+    <div class="ex"><b>cantábamos</b> → 1ª persona, plural, pret. imperfecto, indicativo, 1ª conjugación (-ar).</div>
+    <p>Conjugaciones: <b>1ª</b> = -ar · <b>2ª</b> = -er · <b>3ª</b> = -ir.</p></div>
+    <div class="card"><h3>Modos</h3>
+    <ul><li><b>Indicativo:</b> hechos reales (canto, cantaba, canté, cantaré, cantaría, he cantado...).</li>
+    <li><b>Subjuntivo:</b> deseos/dudas (cante, cantara/cantase, haya cantado...).</li>
+    <li><b>Imperativo:</b> órdenes (canta, cantad).</li>
+    <li><b>Formas no personales:</b> infinitivo (cantar), gerundio (cantando), participio (cantado).</li></ul></div>
+    <div class="card"><h3>Tiempos simples y compuestos de indicativo</h3>
+    <table><tr><th>Simple</th><th>Compuesto</th></tr>
+    <tr><td>presente (canto)</td><td>pret. perfecto compuesto (he cantado)</td></tr>
+    <tr><td>pret. imperfecto (cantaba)</td><td>pret. pluscuamperfecto (había cantado)</td></tr>
+    <tr><td>pret. perfecto simple (canté)</td><td>pret. anterior (hube cantado)</td></tr>
+    <tr><td>futuro simple (cantaré)</td><td>futuro compuesto (habré cantado)</td></tr>
+    <tr><td>condicional simple (cantaría)</td><td>condicional compuesto (habría cantado)</td></tr></table>
+    <p class="hint">Practica con verbos infinitos en ✏️ Practicar → Conjugación.</p></div>`
+};
+
+function buildNav(){
+  const nav=document.getElementById('nav'); nav.innerHTML='';
+  const items=[NAV[0],
+    {id:"t-sx",label:"Teoría: Sintaxis ⭐"},
+    {id:"t-vb",label:"Teoría: Verbos ⭐"},
+    ...NAV.slice(1)];
+  items.forEach(n=>{
+    const b=document.createElement('button');
+    b.textContent=n.label; b.dataset.id=n.id;
+    b.onclick=()=>show(n.id);
+    nav.appendChild(b);
+  });
+}
+
+function show(id){
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+  document.getElementById('progressBar').style.display='none';
+  const main=document.getElementById('main'); main.innerHTML='';
+  const sec=document.createElement('section'); sec.className='active';
+  if(id==='inicio') sec.innerHTML=homeHTML();
+  else if(id==='practica') sec.innerHTML=practiceMenuHTML();
+  else if(id==='t-sx') sec.innerHTML=`<h2>${THEORY_SX.title}</h2>`+THEORY_SX.html;
+  else if(id==='t-vb') sec.innerHTML=`<h2>${THEORY_VB.title}</h2>`+THEORY_VB.html;
+  else if(id.startsWith('t-')){ const t=THEORY[id.slice(2)]; sec.innerHTML=`<h2>${t.title}</h2>`+t.html; }
+  main.appendChild(sec); window.scrollTo(0,0);
+}
+
+function homeHTML(){
+  return `<h2>Plan de repaso para el examen final</h2>
+  <div class="card key"><p><b>Cómo usar esta web:</b> repasa la <b>teoría</b> (las ⭐ son las que más puntúan) y entra en <b>✏️ Practicar</b>. Los temas de sintaxis, verbos y tipos de texto generan ejercicios <b>ilimitados</b>: cada vez salen distintos.</p></div>
+  <div class="card"><h3>📅 Plan sugerido (menos de 1 semana)</h3>
+  <table><tr><th>Día</th><th>Foco</th></tr>
+  <tr><td>1</td><td>⭐ Sintaxis: teoría + 40 ejercicios</td></tr>
+  <tr><td>2</td><td>⭐ Sintaxis (otros 40) + ⭐ Conjugación verbal</td></tr>
+  <tr><td>3</td><td>Formación de palabras + funciones del lenguaje + comunicación</td></tr>
+  <tr><td>4</td><td>Literatura: Cid, clerecía, lírica, Garcilaso</td></tr>
+  <tr><td>5</td><td>⭐ Cervantes + Lazarillo + Barroco + carpe diem</td></tr>
+  <tr><td>6</td><td>⭐ Métrica/estrofas/figuras + tipos de texto + ortografía</td></tr>
+  <tr><td>7</td><td>Examen mixto repetido hasta sacar 90%+</td></tr></table></div>
+  <div class="card"><h3>🎯 Lo que más pesa (estilo de tu profesora)</h3>
+  <ul><li><b>Sintaxis</b> y análisis de complementos.</li>
+  <li>Dar un <b>verbo</b> y decir tiempo, modo y conjugación.</li>
+  <li><b>Tipos de texto/estrofa</b> (romance, soneto...).</li>
+  <li><b>Cervantes</b> y el Siglo de Oro.</li>
+  <li>Análisis morfológico (tipo «subdirectora») y simple/derivada/parasintética.</li>
+  <li>Funciones del lenguaje con frases, emparejar autor↔siglo↔obra, definiciones cortas.</li></ul></div>`;
+}
+
+function practiceMenuHTML(){
+  let h=`<h2>✏️ Elige qué practicar</h2><div class="quiz-intro">`;
+  for(const k in GENERATORS){ const g=GENERATORS[k];
+    h+=`<button onclick="startGen('${k}')"><b>${g.name}</b><small>${g.desc}</small><span class="badge">100+</span></button>`; }
+  for(const k in QUIZZES){ const q=QUIZZES[k];
+    h+=`<button onclick="startQuiz('${k}')"><b>${q.name}</b><small>${q.desc} · ${q.questions.length} preguntas</small></button>`; }
+  h+=`<button onclick="startMatch()"><b>${MATCH.name}</b><small>${MATCH.desc}</small></button>`;
+  h+=`<button onclick="startMixto()"><b>🔀 Examen mixto</b><small>Mezcla de todos los temas</small></button>`;
+  h+=`</div>
+  <div class="card"><p class="hint">En los temas con <span class="badge">100+</span>, pulsa «Siguiente» todas las veces que quieras: las preguntas se generan sin repetirse.</p></div>`;
+  return h;
+}
+
+/* estado */
+let mode=null, genKey=null, fixedList=null, qIndex=0, total=0, score=0, streak=0, answered=false, currentQ=null, mixCount=0;
+
+function startGen(k){ mode='gen'; genKey=k; qIndex=0; total=Infinity; score=0; streak=0; renderQuestion(); }
+function startQuiz(k){ mode='quiz'; fixedList=shuffle(QUIZZES[k].questions); qIndex=0; total=fixedList.length; score=0; streak=0; quizTitle=QUIZZES[k].name; renderQuestion(); }
+let quizTitle="";
+function startMixto(){
+  mode='mix'; mixCount=0; total=20; score=0; streak=0; qIndex=0; quizTitle="Examen mixto"; renderQuestion();
+}
+function nextFromMix(){
+  // mezcla: 40% generadores, 60% bancos
+  const r=Math.random();
+  if(r<0.5){ const gk=rnd(Object.keys(GENERATORS)); return GENERATORS[gk].make(); }
+  const qk=rnd(Object.keys(QUIZZES)); return rnd(QUIZZES[qk].questions);
+}
+
+function renderQuestion(){
+  answered=false;
+  const main=document.getElementById('main'); main.innerHTML='';
+  const sec=document.createElement('section'); sec.className='active';
+  if((mode==='quiz'||mode==='mix') && qIndex>=total){ sec.innerHTML=resultHTML(); main.appendChild(sec); document.getElementById('progressBar').style.display='none'; return; }
+  // obtener pregunta
+  if(mode==='gen') currentQ=GENERATORS[genKey].make();
+  else if(mode==='quiz') currentQ=fixedList[qIndex];
+  else currentQ=nextFromMix();
+  const q=currentQ;
+  const titulo = mode==='gen'?GENERATORS[genKey].name:quizTitle;
+  const numTxt = total===Infinity?`Pregunta ${qIndex+1}`:`Pregunta ${qIndex+1} de ${total}`;
+  let h=`<h2>${titulo}</h2><div class="q"><div class="q-num">${numTxt}</div><div class="q-text">${q.q}</div>`;
+  q.opts.forEach((o,i)=>{ h+=`<button class="opt" data-i="${i}" onclick="answerMC(${i})">${o}</button>`; });
+  h+=`<div class="feedback" id="fb"></div>
+      <div id="nextWrap" style="display:none"><button class="btn" onclick="nextQ()">Siguiente →</button>
+      <button class="btn ghost" onclick="show('practica')">Terminar</button></div></div>`;
+  sec.innerHTML=h; main.appendChild(sec); updateProgress(); window.scrollTo(0,0);
+}
+
+function answerMC(i){
+  if(answered)return; answered=true;
+  const q=currentQ;
+  document.querySelectorAll('.opt').forEach((b,idx)=>{
+    b.classList.add('disabled');
+    if(idx===q.a)b.classList.add('correct');
+    if(idx===i&&i!==q.a)b.classList.add('wrong');
+  });
+  const fb=document.getElementById('fb');
+  if(i===q.a){ score++; streak++; fb.className='feedback show ok'; fb.innerHTML=`✅ ¡Correcto! <br><b>Por qué:</b> ${q.exp}`; }
+  else{ streak=0; fb.className='feedback show no'; fb.innerHTML=`❌ No es esa. La correcta está en verde.<br><b>Por qué:</b> ${q.exp}`; }
+  document.getElementById('nextWrap').style.display='block';
+  updateProgress();
+}
+
+function nextQ(){ qIndex++; renderQuestion(); }
+
+function resultHTML(){
+  const pct=Math.round(score/total*100);
+  let msg=pct>=80?"¡Muy bien! Vas preparado/a.":pct>=50?"Vas por buen camino, repasa los fallos.":"A repasar la teoría y volver a intentarlo.";
+  return `<h2>Resultado — ${quizTitle}</h2>
+  <div class="card key"><h3 style="font-size:32px;margin:0;color:var(--good)">${score} / ${total} (${pct}%)</h3>
+  <p>${msg}</p>
+  <button class="btn" onclick="show('practica')">← Elegir otro tema</button></div>`;
+}
+
+function updateProgress(){
+  const pb=document.getElementById('progressBar'); pb.style.display='flex';
+  const numTxt = total===Infinity?`Pregunta ${qIndex+1}`:`Pregunta ${Math.min(qIndex+1,total)} / ${total}`;
+  document.getElementById('progText').textContent=numTxt;
+  document.getElementById('scoreText').textContent=`Aciertos: ${score}`;
+  document.getElementById('streakText').textContent= streak>=3?`🔥 Racha: ${streak}`:'';
+}
+
+/* matching */
+let mSel=null, mDone=0, mPairs=null;
+function startMatch(){
+  mPairs=rnd(MATCH.sets);
+  const main=document.getElementById('main'); main.innerHTML='';
+  const sec=document.createElement('section'); sec.className='active';
+  const left=mPairs.map(p=>p[0]);
+  const right=shuffle(mPairs.map(p=>p[1]));
+  let h=`<h2>${MATCH.name}</h2><p class="hint">Toca un elemento de la izquierda y luego su pareja de la derecha.</p>
+    <div class="match-wrap"><div class="match-col" id="mL">`;
+  left.forEach(t=>h+=`<button data-v="${t}" onclick="mPick('L',this)">${t}</button>`);
+  h+=`</div><div class="match-col" id="mR">`;
+  right.forEach(t=>h+=`<button data-v="${t}" onclick="mPick('R',this)">${t}</button>`);
+  h+=`</div></div><div class="feedback" id="mfb"></div>
+      <button class="btn ghost" onclick="startMatch()" style="margin-top:14px">Otro grupo</button>
+      <button class="btn ghost" onclick="show('practica')">Volver</button>`;
+  sec.innerHTML=h; main.appendChild(sec); mSel=null; mDone=0;
+  document.getElementById('progressBar').style.display='none';
+}
+function mPick(side,btn){
+  if(btn.classList.contains('done'))return;
+  if(side==='L'){ document.querySelectorAll('#mL button').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); mSel=btn; }
+  else{
+    if(!mSel)return;
+    const lv=mSel.dataset.v, rv=btn.dataset.v;
+    const correct=mPairs.some(p=>p[0]===lv&&p[1]===rv);
+    const fb=document.getElementById('mfb');
+    if(correct){ mSel.classList.add('done'); mSel.classList.remove('sel'); btn.classList.add('done'); mSel=null; mDone++;
+      fb.className='feedback show ok'; fb.innerHTML=`✅ ¡Bien! ${lv} → ${rv}`;
+      if(mDone===mPairs.length) fb.innerHTML=`🎉 ¡Completado! Has emparejado todo correctamente.`;
+    } else { fb.className='feedback show no'; fb.innerHTML=`❌ «${lv}» no va con «${rv}». Inténtalo otra vez.`; }
+  }
+}
+
+buildNav();
+show('inicio');
+
+
+
+</script>
+</body>
+</html>
