@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen Francés A2 · 3º ESO — Estudio y Práctica</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#273449;
+    --accent:#38bdf8; --accent2:#818cf8;
+    --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+    --text:#e2e8f0; --muted:#94a3b8; --line:#334155;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  header{padding:28px 18px;text-align:center;background:linear-gradient(135deg,#1e3a8a,#5b21b6)}
+  header h1{margin:0 0 6px;font-size:1.5rem}
+  header p{margin:0;color:#cbd5e1;font-size:.95rem}
+  .wrap{max-width:920px;margin:0 auto;padding:18px}
+  .progress-bar{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line)}
+  .pbar-track{height:10px;background:var(--card2);border-radius:99px;overflow:hidden}
+  .pbar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+  .pbar-label{font-size:.8rem;color:var(--muted);margin-top:4px;text-align:center}
+  nav.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+  nav.tabs button{background:var(--card);color:var(--text);border:1px solid var(--line);padding:8px 12px;border-radius:99px;cursor:pointer;font-size:.85rem;transition:.2s}
+  nav.tabs button:hover{border-color:var(--accent)}
+  nav.tabs button.active{background:var(--accent);color:#0b1120;font-weight:600;border-color:var(--accent)}
+  section.topic{display:none;animation:fade .3s}
+  section.topic.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+  .theory{background:var(--card);border-left:4px solid var(--accent2);border-radius:10px;padding:16px 18px;margin-bottom:18px}
+  .theory h2{margin:0 0 10px;font-size:1.2rem;color:var(--accent)}
+  .theory h3{margin:14px 0 6px;font-size:1rem;color:var(--accent2)}
+  .theory table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem}
+  .theory td,.theory th{border:1px solid var(--line);padding:6px 9px;text-align:left}
+  .theory th{background:var(--card2)}
+  .theory .tip{background:#0c4a6e33;border:1px solid #0ea5e955;padding:8px 12px;border-radius:8px;margin-top:10px;font-size:.88rem}
+  .ex{background:var(--card);border-radius:10px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--line)}
+  .ex .q{margin-bottom:8px;font-size:.97rem}
+  .ex .hint{font-size:.8rem;color:var(--muted);font-style:italic;margin-bottom:8px}
+  .ex input[type=text]{background:var(--bg);border:1px solid var(--line);color:var(--text);padding:7px 10px;border-radius:7px;font-size:.95rem;width:180px;margin:2px}
+  .ex input.correct{border-color:var(--ok);background:#052e1633}
+  .ex input.incorrect{border-color:var(--bad);background:#450a0a33}
+  .opts{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+  .opts button{background:var(--card2);color:var(--text);border:1px solid var(--line);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:.9rem}
+  .opts button.sel{border-color:var(--accent);background:#0c4a6e}
+  .opts button.correct{background:#052e16;border-color:var(--ok);color:#bbf7d0}
+  .opts button.incorrect{background:#450a0a;border-color:var(--bad);color:#fecaca}
+  .ex .check{margin-top:10px;background:var(--accent2);color:#0b1120;border:none;padding:7px 16px;border-radius:7px;cursor:pointer;font-weight:600}
+  .feedback{margin-top:9px;font-size:.88rem;padding:8px 10px;border-radius:7px;display:none}
+  .feedback.ok{display:block;background:#052e1655;border:1px solid var(--ok);color:#bbf7d0}
+  .feedback.bad{display:block;background:#450a0a55;border:1px solid var(--bad);color:#fecaca}
+  .ex .sol{font-weight:600;color:#fde68a}
+  footer{text-align:center;padding:30px 18px;color:var(--muted);font-size:.85rem}
+  .topic-score{font-size:.85rem;color:var(--muted);margin-bottom:14px}
+  .reset{background:transparent;border:1px solid var(--line);color:var(--muted);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:.8rem;margin-left:8px}
+  code{background:var(--card2);padding:1px 5px;border-radius:4px;font-size:.88em}
+</style>
+</head>
+<body>
+<header>
+  <h1>🇫🇷 Examen de Francés A2 · 3º ESO</h1>
+  <p>Teoría en español + práctica masiva en francés. Estudia por temas, comprueba y repite.</p>
+</header>
+
+<div class="wrap">
+  <div class="progress-bar">
+    <div class="pbar-track"><div class="pbar-fill" id="pbar"></div></div>
+    <div class="pbar-label"><span id="pcount">0</span> ejercicios correctos · <button class="reset" onclick="resetAll()">Reiniciar todo</button></div>
+  </div>
+
+  <nav class="tabs" id="tabs"></nav>
+  <div id="content"></div>
+</div>
+
+<footer>
+  Material de estudio generado para preparar el examen · Nivel A2 · Madrid<br>
+  Cada respuesta acepta variantes con/sin tilde donde corresponde.
+</footer>
+
+<script>
+/* ============================================================
+   BANCO DE DATOS — cada tema: teoría (HTML) + ejercicios
+   Tipos de ejercicio:
+     fill  : {type:'fill', q, hint?, answers:[...aceptadas]}
+     multi : {type:'multi', q, hint?, options:[...], answer:'...'}
+     fill2 : {type:'fill2', q (con {0} y {1}), answers:[[...],[...]]}
+   ============================================================ */
+const norm = s => s.toLowerCase().trim().replace(/\s+/g,' ');
+
+const TOPICS = [
+{
+ id:'prof', title:'Profesiones',
+ theory:`<h2>1 · Las profesiones (les métiers)</h2>
+   <p>Vocabulario clave que aparece en el examen, con su pista/definición:</p>
+   <table>
+     <tr><th>Profesión</th><th>Pista</th></tr>
+     <tr><td><b>vétérinaire</b></td><td>relación con la naturaleza y los animales</td></tr>
+     <tr><td><b>avocat(e)</b></td><td>hablar en público, convencer, memorizar leyes</td></tr>
+     <tr><td><b>médecin</b></td><td>ligado a la salud, escuchar y dar consejos</td></tr>
+     <tr><td><b>boulanger(ère)</b></td><td>comida, hay que levantarse muy temprano</td></tr>
+     <tr><td><b>architecte</b></td><td>artista + técnico, hace planos de edificios</td></tr>
+     <tr><td><b>professeur</b></td><td>enseña en la escuela</td></tr>
+     <tr><td><b>infirmier(ère)</b></td><td>cuida enfermos en el hospital</td></tr>
+     <tr><td><b>cuisinier(ère)</b></td><td>cocina en un restaurante</td></tr>
+     <tr><td><b>journaliste</b></td><td>escribe noticias / informa</td></tr>
+     <tr><td><b>pompier</b></td><td>apaga incendios</td></tr>
+   </table>
+   <div class="tip">💡 En femenino muchas cambian: <code>boulanger → boulangère</code>, <code>infirmier → infirmière</code>, <code>avocat → avocate</code>. Otras son iguales: <code>vétérinaire, architecte, journaliste, médecin</code>.</div>`,
+ ex:[
+  {type:'fill', q:'Profession liée à la nature et aux animaux :', hint:'animales', answers:['vétérinaire','veterinaire']},
+  {type:'fill', q:'Il faut parler en public, convaincre et mémoriser des lois :', hint:'leyes', answers:['avocat','avocate']},
+  {type:'fill', q:'Métier lié à la santé : écouter et donner des conseils :', hint:'salud', answers:['médecin','medecin']},
+  {type:'fill', q:'Profession liée à la nourriture, il faut se lever très tôt :', hint:'pan', answers:['boulanger','boulangère','boulangere']},
+  {type:'fill', q:'Artiste et technicien : réalise les plans d’un édifice :', hint:'edificios', answers:['architecte']},
+  {type:'fill', q:'Il/elle enseigne à l’école :', hint:'enseña', answers:['professeur','prof','professeure']},
+  {type:'fill', q:'Il/elle soigne les malades à l’hôpital :', hint:'hospital', answers:['infirmier','infirmière','infirmiere']},
+  {type:'fill', q:'Il/elle cuisine dans un restaurant :', hint:'cocina', answers:['cuisinier','cuisinière','cuisiniere']},
+  {type:'fill', q:'Il/elle écrit des articles et informe les gens :', hint:'noticias', answers:['journaliste']},
+  {type:'fill', q:'Il/elle éteint les incendies :', hint:'incendios', answers:['pompier','pompière','pompiere']},
+  {type:'multi', q:'Le féminin de « boulanger » est…', options:['boulangere','boulangère','boulangeresse','boulangée'], answer:'boulangère'},
+  {type:'multi', q:'Quelle profession ne change PAS au féminin ?', options:['architecte','avocat','boulanger','infirmier'], answer:'architecte'},
+  {type:'multi', q:'« Réaliser les plans d’un bâtiment » →', options:['ingénieur','architecte','maçon','peintre'], answer:'architecte'},
+  {type:'fill', q:'Il/elle répare les voitures :', hint:'coches', answers:['mécanicien','mecanicien','mécanicienne','mecanicienne']},
+  {type:'fill', q:'Il/elle coupe les cheveux :', hint:'pelo', answers:['coiffeur','coiffeuse']},
+  {type:'fill', q:'Il/elle vend des choses dans un magasin :', hint:'tienda', answers:['vendeur','vendeuse']},
+  {type:'multi', q:'« Il faut convaincre et mémoriser des lois » →', options:['médecin','avocat','professeur','vétérinaire'], answer:'avocat'},
+  {type:'fill', q:'Profession qui soigne les animaux (forme correcte) :', hint:'animales, igual M/F', answers:['vétérinaire','veterinaire']},
+  {type:'fill', q:'Le féminin de « infirmier » :', hint:'enfermera', answers:['infirmière','infirmiere']},
+  {type:'fill', q:'Le féminin de « avocat » :', hint:'abogada', answers:['avocate']},
+  {type:'multi', q:'« Se lever très tôt, faire du pain » →', options:['cuisinier','boulanger','vendeur','serveur']  , answer:'boulanger'},
+  {type:'fill', q:'Il/elle sert les clients dans un café :', hint:'camarero', answers:['serveur','serveuse']},
+  {type:'fill', q:'Métier lié à la santé (synonyme de docteur) :', hint:'médico', answers:['médecin','medecin']},
+  {type:'multi', q:'« Écouter les patients, donner des conseils sur la santé » →', options:['médecin','avocat','architecte','boulanger'], answer:'médecin'},
+  {type:'fill', q:'Il/elle pilote un avion :', hint:'avión', answers:['pilote']},
+  {type:'fill', q:'Il/elle joue dans des films :', hint:'cine', answers:['acteur','actrice']},
+ ]
+},
+{
+ id:'poss', title:'Posesivos',
+ theory:`<h2>2 · Adjetivos y pronombres posesivos</h2>
+   <h3>Adjetivos posesivos</h3>
+   <p>Van <b>delante del nombre</b> y concuerdan con la cosa poseída (no con el dueño).</p>
+   <table>
+     <tr><th>Dueño</th><th>masc. sing.</th><th>fem. sing.</th><th>plural</th></tr>
+     <tr><td>je</td><td>mon</td><td>ma</td><td>mes</td></tr>
+     <tr><td>tu</td><td>ton</td><td>ta</td><td>tes</td></tr>
+     <tr><td>il/elle</td><td>son</td><td>sa</td><td>ses</td></tr>
+     <tr><td>nous</td><td>notre</td><td>notre</td><td>nos</td></tr>
+     <tr><td>vous</td><td>votre</td><td>votre</td><td>vos</td></tr>
+     <tr><td>ils/elles</td><td>leur</td><td>leur</td><td>leurs</td></tr>
+   </table>
+   <h3>Pronombres posesivos</h3>
+   <p>Sustituyen al nombre y llevan artículo: <b>le mien, le tien, le sien…</b></p>
+   <table>
+     <tr><th></th><th>masc.</th><th>fem.</th><th>m. plural</th><th>f. plural</th></tr>
+     <tr><td>je</td><td>le mien</td><td>la mienne</td><td>les miens</td><td>les miennes</td></tr>
+     <tr><td>tu</td><td>le tien</td><td>la tienne</td><td>les tiens</td><td>les tiennes</td></tr>
+     <tr><td>il/elle</td><td>le sien</td><td>la sienne</td><td>les siens</td><td>les siennes</td></tr>
+     <tr><td>nous</td><td>le nôtre</td><td>la nôtre</td><td colspan="2">les nôtres</td></tr>
+     <tr><td>vous</td><td>le vôtre</td><td>la vôtre</td><td colspan="2">les vôtres</td></tr>
+     <tr><td>ils/elles</td><td>le leur</td><td>la leur</td><td colspan="2">les leurs</td></tr>
+   </table>
+   <div class="tip">💡 « Et toi, tu as vu <b>les tiens</b> ? » = ¿y tú has visto a los tuyos? (grands-parents = masculino plural).</div>`,
+ ex:[
+  {type:'fill', q:'Ce week-end, j’ai vu mes grands-parents. Et toi, tu as vu ______ ?', hint:'los tuyos (m. pl.)', answers:['les tiens']},
+  {type:'fill', q:'Vous avez ______ passeports pour prendre l’avion ?', hint:'vuestros', answers:['vos']},
+  {type:'fill', q:'J’ai le même téléphone depuis 6 ans. Et eux, ils ont changé ______ ?', hint:'el suyo (de ellos)', answers:['le leur']},
+  {type:'fill', q:'Mes études sont plus longues que ______.', hint:'las tuyas', answers:['les tiennes']},
+  {type:'fill', q:'Nous n’avons pas encore acheté ______ billets d’avion.', hint:'nuestros', answers:['nos']},
+  {type:'multi', q:'« ______ voiture est rouge » (de él)', options:['son','sa','ses','leur'], answer:'sa'},
+  {type:'multi', q:'« J’aime ______ amis » (mis)', options:['mon','ma','mes','mien'], answer:'mes'},
+  {type:'fill', q:'C’est ______ maison (de nosotros, adj.) :', hint:'nuestra', answers:['notre']},
+  {type:'fill', q:'Ce sont ______ enfants (de ellos, adj.) :', hint:'sus (de ellos)', answers:['leurs']},
+  {type:'fill', q:'Tu prends ______ sac (tu mochila) ?', hint:'tu, masc.', answers:['ton']},
+  {type:'fill', q:'Elle cherche ______ clés (sus llaves) :', hint:'sus, pl.', answers:['ses']},
+  {type:'multi', q:'« Ma voiture est vieille, je prends ______ » (la de él, pronombre)', options:['le sien','la sienne','les siens','sa'], answer:'la sienne'},
+  {type:'fill', q:'Mon livre est ici, où est ______ ? (el tuyo)', hint:'pronombre m.', answers:['le tien']},
+  {type:'fill', q:'Ce stylo, c’est ______ ? (el mío)', hint:'pronombre m.', answers:['le mien']},
+  {type:'fill', q:'Nos résultats sont bons, et ______ ? (los vuestros)', hint:'pronombre pl.', answers:['les vôtres']},
+  {type:'fill', q:'Ta chambre est grande, mais ______ est petite. (la mía)', hint:'pronombre f.', answers:['la mienne']},
+  {type:'multi', q:'« ______ parents sont gentils » (vuestros, adj.)', options:['vos','votre','vôtres','leurs'], answer:'vos'},
+  {type:'fill', q:'J’ai oublié ______ téléphone (mi, masc.) :', hint:'mi', answers:['mon']},
+  {type:'fill', q:'Tu as fini ______ devoirs ? (tus deberes)', hint:'tus, pl.', answers:['tes']},
+  {type:'fill', q:'Cette idée est ______. (nuestra, pronombre)', hint:'pronombre f.', answers:['la nôtre']},
+  {type:'multi', q:'« Leurs voitures » significa…', options:['su coche (de él)','sus coches (de ellos)','vuestro coche','nuestros coches'], answer:'sus coches (de ellos)'},
+  {type:'fill', q:'Mon frère et ______ sœur (mi hermana) :', hint:'mi, fem.', answers:['ma']},
+  {type:'fill', q:'Vous prenez ______ valises ? (vuestras maletas)', hint:'vuestras, pl.', answers:['vos']},
+  {type:'fill', q:'Mes notes sont meilleures que ______. (las suyas, de ella)', hint:'pronombre f. pl.', answers:['les siennes']},
+  {type:'multi', q:'« le nôtre » lleva acento circunflejo en…', options:['la o','la e','ninguna','las dos'], answer:'la o'},
+  {type:'fill', q:'C’est ton chien ou ______ ? (el mío)', hint:'pronombre m.', answers:['le mien']},
+ ]
+},
+{
+ id:'demo', title:'Demostrativos',
+ theory:`<h2>3 · Pronombres demostrativos</h2>
+   <p>Sustituyen a un nombre ya mencionado. Concuerdan en género y número. Se añade <b>-ci</b> (cercano, "este") o <b>-là</b> (lejano, "ese/aquel").</p>
+   <table>
+     <tr><th></th><th>singular</th><th>plural</th></tr>
+     <tr><td>masculino</td><td><b>celui</b></td><td><b>ceux</b></td></tr>
+     <tr><td>femenino</td><td><b>celle</b></td><td><b>celles</b></td></tr>
+   </table>
+   <p>Formas completas: <code>celui-ci / celui-là</code>, <code>celle-ci / celle-là</code>, <code>ceux-ci / ceux-là</code>, <code>celles-ci / celles-là</code>.</p>
+   <div class="tip">💡 También sin -ci/-là cuando va seguido de <code>de</code> o de un relativo: « je prends <b>celle de</b> Julie », « <b>celui que</b> tu m’avais conseillé ».</div>`,
+ ex:[
+  {type:'fill', q:'Il a pris ma voiture, je prends ______ de Julie.', hint:'la de (voiture=f)', answers:['celle']},
+  {type:'fill', q:'Ces articles sont plus intéressants que ______-ci.', hint:'estos (m. pl.)', answers:['ceux']},
+  {type:'fill', q:'Nous achetons cette BD-ci ou ______-là ?', hint:'esa (f. sing.)', answers:['celle']},
+  {type:'fill', q:'Vous aimez ces émissions-ci ou ______-là ?', hint:'esas (f. pl.)', answers:['celles']},
+  {type:'fill', q:'Tu prends ce magazine-ci ou ______-là ?', hint:'ese (m. sing.)', answers:['celui']},
+  {type:'fill', q:'J’ai acheté ______ que tu m’avais conseillé.', hint:'el que (m. sing.)', answers:['celui']},
+  {type:'multi', q:'« Ces livres-ci ou ______-là ? »', options:['celui','celle','ceux','celles'], answer:'ceux'},
+  {type:'multi', q:'« Cette robe ou ______ de ta sœur ? »', options:['celui','celle','ceux','celles'], answer:'celle'},
+  {type:'fill', q:'Mes chaussures sont vieilles, je préfère ______-là. (esas, f. pl.)', hint:'f. pl.', answers:['celles']},
+  {type:'fill', q:'Ce gâteau ou ______-ci ? (este, m. sing.)', hint:'m. sing.', answers:['celui']},
+  {type:'multi', q:'« Quelle table ? ______ près de la fenêtre. »', options:['celui','celle','ceux','celles'], answer:'celle'},
+  {type:'fill', q:'Ce sont tes stylos ou ______ de Paul ? (los de, m. pl.)', hint:'m. pl. + de', answers:['ceux']},
+  {type:'fill', q:'Cette photo est jolie mais ______-là est meilleure. (esa, f.)', hint:'f. sing.', answers:['celle']},
+  {type:'fill', q:'Je n’aime pas ce film, je préfère ______ que j’ai vu hier. (el que, m.)', hint:'m. sing. + que', answers:['celui']},
+  {type:'multi', q:'« Ces fleurs-ci ou ______-là ? »', options:['ceux','celles','celle','celui'], answer:'celles'},
+  {type:'fill', q:'Ton manteau ou ______ de ton frère ? (el de, m.)', hint:'m. sing. + de', answers:['celui']},
+  {type:'fill', q:'Ces exercices sont faciles, mais ______ d’hier étaient durs. (los de, m. pl.)', hint:'m. pl. + de', answers:['ceux']},
+  {type:'multi', q:'Forma femenina plural cercana ("estas"):', options:['celles-ci','celles-là','ceux-ci','cela-ci'], answer:'celles-ci'},
+  {type:'fill', q:'Voici deux gâteaux : tu veux ______-ci ou celui-là ? (este, m.)', hint:'m. sing.', answers:['celui']},
+  {type:'fill', q:'J’hésite entre ces deux jupes : ______-ci est moins chère. (esta, f.)', hint:'f. sing.', answers:['celle']},
+  {type:'multi', q:'« Les amis de Marie et ______ de Léa »', options:['celui','celle','ceux','celles'], answer:'ceux'},
+  {type:'fill', q:'Cette voiture ? Non, je veux ______ de mon père. (la de, f.)', hint:'f. sing. + de', answers:['celle']},
+  {type:'fill', q:'Quels bonbons ? ______ que tu aimes. (los que, m. pl.)', hint:'m. pl. + que', answers:['ceux']},
+  {type:'multi', q:'« Cette idée-ci est bonne, ______-là est mauvaise. »', options:['celui','celle','ceux','celles'], answer:'celle'},
+  {type:'fill', q:'Mon vélo est cassé, je prends ______ de mon frère. (el de, m.)', hint:'m. sing. + de', answers:['celui']},
+  {type:'fill', q:'Ces robes ou ______ que tu as essayées ? (las que, f. pl.)', hint:'f. pl. + que', answers:['celles']},
+ ]
+},
+{
+ id:'imp', title:'Imparfait',
+ theory:`<h2>4 · L’imparfait</h2>
+   <p>Tiempo del pasado para <b>descripciones, costumbres y acciones en curso</b> ("antes…", "siempre…", "cuando era pequeño…").</p>
+   <h3>Formación</h3>
+   <p>Raíz de la 1ª persona del plural del presente (<code>nous</code>) sin <code>-ons</code> + terminaciones:</p>
+   <table>
+     <tr><th>Pronombre</th><th>Terminación</th><th>Ej. parler</th></tr>
+     <tr><td>je</td><td>-ais</td><td>parlais</td></tr>
+     <tr><td>tu</td><td>-ais</td><td>parlais</td></tr>
+     <tr><td>il/elle</td><td>-ait</td><td>parlait</td></tr>
+     <tr><td>nous</td><td>-ions</td><td>parlions</td></tr>
+     <tr><td>vous</td><td>-iez</td><td>parliez</td></tr>
+     <tr><td>ils/elles</td><td>-aient</td><td>parlaient</td></tr>
+   </table>
+   <div class="tip">💡 Único irregular en la raíz: <b>être → ét-</b> (j’étais, tu étais, il était, nous étions, vous étiez, ils étaient). <code>avoir → av-</code>, <code>aller → all-</code>, <code>prendre → pren-</code>, <code>faire → fais-</code>.</div>`,
+ ex:[
+  {type:'fill', q:'Quand j’(être) ______ petite…', hint:'je, être', answers:['étais','etais']},
+  {type:'fill', q:'…j’(aller) ______ à l’école en bus.', hint:'je, aller', answers:['allais']},
+  {type:'fill', q:'Avant, il (prendre) ______ toujours un croissant.', hint:'il, prendre', answers:['prenait']},
+  {type:'fill', q:'Mes grands-parents (travailler) ______ toute la journée !', hint:'ils, travailler', answers:['travaillaient']},
+  {type:'fill', q:'Mes parents (ne pas avoir) ______ Internet ! (forma del verbo, sin ne…pas)', hint:'ils, avoir → av-', answers:['avaient','n’avaient pas','navaient pas']},
+  {type:'fill', q:'À l’école, nous (détester) ______ les maths…', hint:'nous, détester', answers:['détestions','detestions']},
+  {type:'fill', q:'…mais nous (adorer) ______ l’histoire.', hint:'nous, adorer', answers:['adorions']},
+  {type:'fill', q:'Tu (manger) ______ beaucoup de bonbons.', hint:'tu, manger', answers:['mangeais']},
+  {type:'fill', q:'Elle (avoir) ______ peur du noir.', hint:'elle, avoir', answers:['avait']},
+  {type:'fill', q:'Vous (faire) ______ du sport tous les jours ?', hint:'vous, faire → fais-', answers:['faisiez']},
+  {type:'fill', q:'Ils (être) ______ très contents.', hint:'ils, être', answers:['étaient','etaient']},
+  {type:'fill', q:'Quand nous (être) ______ jeunes, nous jouions dehors.', hint:'nous, être', answers:['étions','etions']},
+  {type:'fill', q:'Le soleil (briller) ______ ce matin-là.', hint:'il, briller', answers:['brillait']},
+  {type:'fill', q:'Tu (aller) ______ souvent à la plage ?', hint:'tu, aller', answers:['allais']},
+  {type:'fill', q:'Je (vouloir) ______ devenir vétérinaire.', hint:'je, vouloir → voul-', answers:['voulais']},
+  {type:'fill', q:'Nous (prendre) ______ le train chaque matin.', hint:'nous, prendre', answers:['prenions']},
+  {type:'fill', q:'Il (faire) ______ froid en hiver.', hint:'il, faire', answers:['faisait']},
+  {type:'fill', q:'Vous (avoir) ______ un chien ?', hint:'vous, avoir', answers:['aviez']},
+  {type:'fill', q:'Elles (parler) ______ espagnol à la maison.', hint:'elles, parler', answers:['parlaient']},
+  {type:'fill', q:'Je (finir) ______ toujours mes devoirs tard.', hint:'je, finir → finiss-', answers:['finissais']},
+  {type:'fill', q:'Tu (être) ______ très timide enfant.', hint:'tu, être', answers:['étais','etais']},
+  {type:'fill', q:'On (aller) ______ chez grand-mère le dimanche.', hint:'on=il, aller', answers:['allait']},
+  {type:'fill', q:'Nous (manger) ______ ensemble chaque soir.', hint:'nous, manger', answers:['mangions']},
+  {type:'fill', q:'Il (lire) ______ beaucoup de bandes dessinées.', hint:'il, lire → lis-', answers:['lisait']},
+  {type:'fill', q:'Vous (être) ______ amis depuis longtemps ?', hint:'vous, être', answers:['étiez','etiez']},
+  {type:'fill', q:'Les enfants (jouer) ______ dans le jardin.', hint:'ils, jouer', answers:['jouaient']},
+ ]
+},
+{
+ id:'pcimp', title:'Passé composé / Imparfait',
+ theory:`<h2>5 · Passé composé vs Imparfait</h2>
+   <table>
+     <tr><th>Imparfait</th><th>Passé composé</th></tr>
+     <tr><td>Descripción / decorado del pasado<br>(C’était l’automne, il pleuvait)</td><td>Acción puntual y acabada<br>(On a décidé, on a pris)</td></tr>
+     <tr><td>Costumbre / acción repetida<br>(les oiseaux jouaient)</td><td>Hecho que hace avanzar la historia<br>(on est rentrés)</td></tr>
+     <tr><td>Acción en curso / fondo</td><td>Acción que interrumpe</td></tr>
+   </table>
+   <div class="tip">💡 Truco: el <b>imparfait</b> pone el "telón de fondo" (tiempo, lugar, ambiente, lo habitual); el <b>passé composé</b> son las "acciones concretas" que pasaron una vez. <br>P. ej.: « Il <b>pleuvait</b> (fondo) quand on <b>a décidé</b> (acción) de sortir. »</div>
+   <p>Elige la opción correcta en cada frase.</p>`,
+ ex:[
+  {type:'multi', q:'______ l’automne.', options:['C’était','Ça a été'], answer:'C’était'},
+  {type:'multi', q:'Il ______, le vent soufflait.', options:['a plu','pleuvait'], answer:'pleuvait'},
+  {type:'multi', q:'Le vent ______ et les feuilles tombaient.', options:['soufflait','a soufflé'], answer:'soufflait'},
+  {type:'multi', q:'Les feuilles ______.', options:['tombaient','sont tombées'], answer:'tombaient'},
+  {type:'multi', q:'On ______ d’aller se promener dans le parc.', options:['a décidé','décidait'], answer:'a décidé'},
+  {type:'multi', q:'On ______ nos bottes et notre imperméable.', options:['mettait','a mis'], answer:'a mis'},
+  {type:'multi', q:'On ______ nos parapluies.', options:['a pris','prenait'], answer:'a pris'},
+  {type:'multi', q:'Le parc ______ désert.', options:['a été','était'], answer:'était'},
+  {type:'multi', q:'Les gens ______ chez eux.', options:['étaient','ont été'], answer:'étaient'},
+  {type:'multi', q:'Mais les oiseaux ______ contents.', options:['ont été','étaient'], answer:'étaient'},
+  {type:'multi', q:'Ils ______ sous la pluie.', options:['jouaient','ont joué'], answer:'jouaient'},
+  {type:'multi', q:'On ______ pendant une heure.', options:['se promenait','s’est promenés'], answer:'s’est promenés'},
+  {type:'multi', q:'Puis on ______.', options:['est rentrés','rentrait'], answer:'est rentrés'},
+  {type:'multi', q:'Hier, il ______ beau, alors je suis sorti.', options:['faisait','a fait'], answer:'faisait'},
+  {type:'multi', q:'Quand je ______ jeune, j’habitais à Paris.', options:['ai été','étais'], answer:'étais'},
+  {type:'multi', q:'Soudain, le téléphone ______.', options:['sonnait','a sonné'], answer:'a sonné'},
+  {type:'multi', q:'Tous les jours, elle ______ au parc.', options:['allait','est allée'], answer:'allait'},
+  {type:'multi', q:'Je lisais quand tu ______.', options:['arrivais','es arrivé'], answer:'es arrivé'},
+  {type:'multi', q:'Nous ______ la télé quand maman est entrée.', options:['regardions','avons regardé'], answer:'regardions'},
+  {type:'multi', q:'L’année dernière, ils ______ en Espagne.', options:['voyageaient','ont voyagé'], answer:'ont voyagé'},
+  {type:'multi', q:'Il ______ une fois à la montagne.', options:['allait','est allé'], answer:'est allé'},
+  {type:'multi', q:'Le ciel ______ gris ce jour-là.', options:['a été','était'], answer:'était'},
+  {type:'multi', q:'Elle ______ ses clés et elle est partie.', options:['prenait','a pris'], answer:'a pris'},
+  {type:'multi', q:'Quand j’étais petit, je ______ peur des chiens.', options:['avais','ai eu'], answer:'avais'},
+  {type:'multi', q:'Hier soir, nous ______ un bon film.', options:['regardions','avons regardé'], answer:'avons regardé'},
+  {type:'multi', q:'Il pleuvait fort, donc nous ______ à la maison.', options:['restions','sommes restés'], answer:'sommes restés'},
+ ]
+},
+{
+ id:'fut', title:'Futur simple',
+ theory:`<h2>6 · Le futur simple</h2>
+   <p>Para acciones futuras ("mañana", "el año que viene"). Se forma sobre el <b>infinitivo</b> + terminaciones (¡las mismas que avoir en presente!).</p>
+   <table>
+     <tr><th>Pronombre</th><th>Terminación</th><th>Ej. parler</th></tr>
+     <tr><td>je</td><td>-ai</td><td>parlerai</td></tr>
+     <tr><td>tu</td><td>-as</td><td>parleras</td></tr>
+     <tr><td>il/elle</td><td>-a</td><td>parlera</td></tr>
+     <tr><td>nous</td><td>-ons</td><td>parlerons</td></tr>
+     <tr><td>vous</td><td>-ez</td><td>parlerez</td></tr>
+     <tr><td>ils/elles</td><td>-ont</td><td>parleront</td></tr>
+   </table>
+   <h3>Raíces irregulares (memorízalas)</h3>
+   <p><code>être→ser-</code>, <code>avoir→aur-</code>, <code>aller→ir-</code>, <code>faire→fer-</code>, <code>venir→viendr-</code>, <code>voir→verr-</code>, <code>pouvoir→pourr-</code>, <code>vouloir→voudr-</code>, <code>devoir→devr-</code>, <code>envoyer→enverr-</code>.</p>
+   <div class="tip">💡 Los verbos en <code>-er</code> regulares conservan la <b>e</b> del infinitivo: essayer → j’essaierai / j’essayerai (ambas válidas).</div>`,
+ ex:[
+  {type:'fill', q:'Si Marie fait ces études, elle (s’ennuyer) ______. (futur, elle)', hint:'elle, s’ennuyer', answers:['s’ennuiera','s’ennuyera','sennuiera','sennuyera']},
+  {type:'fill', q:'J’ (envoyer) ______ un colis à Cindy demain. (futur, je)', hint:'je, envoyer → enverr-', answers:['enverrai']},
+  {type:'fill', q:'Vous (essayer) ______ vos nouveaux vêtements ? (futur, vous)', hint:'vous, essayer', answers:['essaierez','essayerez']},
+  {type:'fill', q:'Demain, je (parler) ______ avec le professeur.', hint:'je, parler', answers:['parlerai']},
+  {type:'fill', q:'L’année prochaine, nous (aller) ______ en France.', hint:'nous, aller → ir-', answers:['irons']},
+  {type:'fill', q:'Tu (être) ______ médecin un jour.', hint:'tu, être → ser-', answers:['seras']},
+  {type:'fill', q:'Il (avoir) ______ 18 ans demain.', hint:'il, avoir → aur-', answers:['aura']},
+  {type:'fill', q:'Elles (faire) ______ leurs devoirs ce soir.', hint:'elles, faire → fer-', answers:['feront']},
+  {type:'fill', q:'Vous (venir) ______ à ma fête ?', hint:'vous, venir → viendr-', answers:['viendrez']},
+  {type:'fill', q:'Je (pouvoir) ______ t’aider demain.', hint:'je, pouvoir → pourr-', answers:['pourrai']},
+  {type:'fill', q:'Nous (voir) ______ le film samedi.', hint:'nous, voir → verr-', answers:['verrons']},
+  {type:'fill', q:'Tu (vouloir) ______ du gâteau ?', hint:'tu, vouloir → voudr-', answers:['voudras']},
+  {type:'fill', q:'Ils (devoir) ______ étudier plus.', hint:'ils, devoir → devr-', answers:['devront']},
+  {type:'fill', q:'Elle (finir) ______ ses études en juin.', hint:'elle, finir', answers:['finira']},
+  {type:'fill', q:'Je (manger) ______ au restaurant demain.', hint:'je, manger', answers:['mangerai']},
+  {type:'fill', q:'Vous (prendre) ______ le bus ?', hint:'vous, prendre → prendr-', answers:['prendrez']},
+  {type:'fill', q:'Nous (être) ______ en vacances bientôt.', hint:'nous, être → ser-', answers:['serons']},
+  {type:'fill', q:'Tu (avoir) ______ de bonnes notes !', hint:'tu, avoir → aur-', answers:['auras']},
+  {type:'fill', q:'Il (aller) ______ à l’université.', hint:'il, aller → ir-', answers:['ira']},
+  {type:'fill', q:'Elles (venir) ______ nous voir dimanche.', hint:'elles, venir → viendr-', answers:['viendront']},
+  {type:'fill', q:'Je (faire) ______ un voyage cet été.', hint:'je, faire → fer-', answers:['ferai']},
+  {type:'fill', q:'Nous (pouvoir) ______ sortir ce week-end.', hint:'nous, pouvoir → pourr-', answers:['pourrons']},
+  {type:'fill', q:'Tu (voir) ______ , ce sera génial !', hint:'tu, voir → verr-', answers:['verras']},
+  {type:'fill', q:'Vous (devoir) ______ partir tôt.', hint:'vous, devoir → devr-', answers:['devrez']},
+  {type:'fill', q:'Ils (parler) ______ français couramment.', hint:'ils, parler', answers:['parleront']},
+  {type:'fill', q:'Elle (envoyer) ______ une lettre.', hint:'elle, envoyer → enverr-', answers:['enverra']},
+ ]
+},
+{
+ id:'cond', title:'Conditionnel',
+ theory:`<h2>7 · Le conditionnel présent</h2>
+   <p>Para deseos, hipótesis y cortesía ("me gustaría…", "sería…", "podríamos…"). Muy usado para planes/sueños ("on pourrait partir en…").</p>
+   <h3>Formación</h3>
+   <p><b>Misma raíz que el futur simple</b> (infinitivo o raíz irregular) + <b>terminaciones del imparfait</b>:</p>
+   <table>
+     <tr><th>Pronombre</th><th>Terminación</th><th>Ej. aller (ir-)</th></tr>
+     <tr><td>je</td><td>-ais</td><td>irais</td></tr>
+     <tr><td>tu</td><td>-ais</td><td>irais</td></tr>
+     <tr><td>il/elle</td><td>-ait</td><td>irait</td></tr>
+     <tr><td>nous</td><td>-ions</td><td>irions</td></tr>
+     <tr><td>vous</td><td>-iez</td><td>iriez</td></tr>
+     <tr><td>ils/elles</td><td>-aient</td><td>iraient</td></tr>
+   </table>
+   <div class="tip">💡 Raíz futur + terminación imparfait. <code>pouvoir→pourr+ais</code>=pourrais, <code>être→ser+ait</code>=serait, <code>faire→fer+ions</code>=ferions.</div>`,
+ ex:[
+  {type:'fill', q:'On (pouvoir) ______ partir en Tanzanie.', hint:'on, pouvoir → pourr-', answers:['pourrait']},
+  {type:'fill', q:'Ce (être) ______ fantastique !', hint:'ce, être → ser-', answers:['serait']},
+  {type:'fill', q:'On (commencer) ______ par visiter la ville.', hint:'on, commencer', answers:['commencerait']},
+  {type:'fill', q:'On (découvrir) ______ le mode de vie des citadins.', hint:'on, découvrir → découvrir-', answers:['découvrirait','decouvrirait']},
+  {type:'fill', q:'Nous (faire) ______ un safari.', hint:'nous, faire → fer-', answers:['ferions']},
+  {type:'fill', q:'Nous (voyager) ______ en jeep dans la savane.', hint:'nous, voyager', answers:['voyagerions']},
+  {type:'fill', q:'Nous (observer) ______ les animaux.', hint:'nous, observer', answers:['observerions']},
+  {type:'fill', q:'On (partir) ______ sur l’île de Zanzibar.', hint:'on, partir → partir-', answers:['partirait']},
+  {type:'fill', q:'On (se baigner) ______ dans la mer.', hint:'on, se baigner', answers:['se baignerait']},
+  {type:'fill', q:'On (visiter) ______ la maison-musée de Freddie Mercury !', hint:'on, visiter', answers:['visiterait']},
+  {type:'fill', q:'J’(aimer) ______ visiter le Japon. (je)', hint:'je, aimer', answers:['aimerais']},
+  {type:'fill', q:'Tu (vouloir) ______ un café ? (cortesía, tu)', hint:'tu, vouloir → voudr-', answers:['voudrais']},
+  {type:'fill', q:'Vous (pouvoir) ______ m’aider ?', hint:'vous, pouvoir → pourr-', answers:['pourriez']},
+  {type:'fill', q:'Nous (aller) ______ volontiers à la plage.', hint:'nous, aller → ir-', answers:['irions']},
+  {type:'fill', q:'Ils (être) ______ contents de venir.', hint:'ils, être → ser-', answers:['seraient']},
+  {type:'fill', q:'Elle (avoir) ______ besoin d’aide.', hint:'elle, avoir → aur-', answers:['aurait']},
+  {type:'fill', q:'Je (faire) ______ le tour du monde.', hint:'je, faire → fer-', answers:['ferais']},
+  {type:'fill', q:'Tu (devoir) ______ te reposer.', hint:'tu, devoir → devr-', answers:['devrais']},
+  {type:'fill', q:'Vous (venir) ______ avec nous ?', hint:'vous, venir → viendr-', answers:['viendriez']},
+  {type:'fill', q:'On (voir) ______ des éléphants.', hint:'on, voir → verr-', answers:['verrait']},
+  {type:'fill', q:'Nous (vouloir) ______ rester plus longtemps.', hint:'nous, vouloir → voudr-', answers:['voudrions']},
+  {type:'fill', q:'Je (prendre) ______ bien un dessert.', hint:'je, prendre → prendr-', answers:['prendrais']},
+  {type:'fill', q:'Elles (aimer) ______ apprendre le français.', hint:'elles, aimer', answers:['aimeraient']},
+  {type:'fill', q:'Il (pouvoir) ______ gagner le match.', hint:'il, pouvoir → pourr-', answers:['pourrait']},
+  {type:'fill', q:'Vous (être) ______ d’accord ?', hint:'vous, être → ser-', answers:['seriez']},
+  {type:'fill', q:'Nous (partir) ______ demain si possible.', hint:'nous, partir', answers:['partirions']},
+ ]
+},
+{
+ id:'rel', title:'Pronombres relativos',
+ theory:`<h2>8 · Pronombres relativos: qui, que, où, dont</h2>
+   <table>
+     <tr><th>Pronombre</th><th>Función</th><th>Ejemplo</th></tr>
+     <tr><td><b>qui</b></td><td>SUJETO del verbo siguiente</td><td>un sport <b>qui</b> fait travailler les muscles</td></tr>
+     <tr><td><b>que</b></td><td>COMPLEMENTO directo (le sigue un sujeto)</td><td>un sport <b>que</b> les médecins préconisent</td></tr>
+     <tr><td><b>où</b></td><td>lugar o tiempo</td><td>la ville <b>où</b> j’habite</td></tr>
+     <tr><td><b>dont</b></td><td>sustituye a <b>de</b> (de qui/de quoi)</td><td>un sport <b>dont</b> tout le monde parle</td></tr>
+   </table>
+   <div class="tip">💡 Truco rápido: si después viene un <b>verbo</b> → <b>qui</b>. Si después viene un <b>sujeto</b> (je, tu, les médecins…) → <b>que</b>. Si la frase original llevaría <b>de</b> → <b>dont</b>. Lugar/tiempo → <b>où</b>.</div>`,
+ ex:[
+  {type:'fill', q:'La natation est un sport ______ tout le monde peut pratiquer.', hint:'le sigue "tout le monde" (sujeto)', answers:['que','qu’','qu']},
+  {type:'fill', q:'…un sport ______ le but est de se déplacer dans l’eau.', hint:'"le but de…" → posesión', answers:['dont']},
+  {type:'fill', q:'…un sport ______ il n’y a pas de ballon.', hint:'lugar/situación', answers:['où','ou']},
+  {type:'fill', q:'…un sport ______ fait travailler tous les muscles.', hint:'le sigue un verbo → sujeto', answers:['qui']},
+  {type:'fill', q:'…un sport ______ les bienfaits sont nombreux.', hint:'"les bienfaits de…" → de', answers:['dont']},
+  {type:'fill', q:'…un sport ______ les médecins préconisent.', hint:'le sigue "les médecins" (sujeto)', answers:['que','qu’','qu']},
+  {type:'multi', q:'C’est la maison ______ j’habite.', options:['qui','que','où','dont'], answer:'où'},
+  {type:'multi', q:'Le livre ______ je lis est passionnant.', options:['qui','que','où','dont'], answer:'que'},
+  {type:'multi', q:'L’homme ______ parle est mon père.', options:['qui','que','où','dont'], answer:'qui'},
+  {type:'multi', q:'Le film ______ tu parles est génial.', options:['qui','que','où','dont'], answer:'dont'},
+  {type:'multi', q:'Voici le jour ______ je suis né.', options:['qui','que','où','dont'], answer:'où'},
+  {type:'multi', q:'C’est une fille ______ aime danser.', options:['qui','que','où','dont'], answer:'qui'},
+  {type:'multi', q:'Le gâteau ______ tu as fait est délicieux.', options:['qui','que','où','dont'], answer:'que'},
+  {type:'multi', q:'C’est le sac ______ j’ai besoin.', options:['qui','que','où','dont'], answer:'dont'},
+  {type:'fill', q:'La ville ______ je suis né est petite.', hint:'lugar', answers:['où','ou']},
+  {type:'fill', q:'L’ami ______ habite à Paris arrive demain.', hint:'verbo después', answers:['qui']},
+  {type:'fill', q:'Le chien ______ j’ai adopté est mignon.', hint:'sujeto después', answers:['que','qu’','qu']},
+  {type:'fill', q:'C’est le professeur ______ tout le monde parle.', hint:'parler DE', answers:['dont']},
+  {type:'multi', q:'La voiture ______ roule vite est rouge.', options:['qui','que','où','dont'], answer:'qui'},
+  {type:'multi', q:'Le pays ______ je rêve, c’est le Japon.', options:['qui','que','où','dont'], answer:'dont'},
+  {type:'multi', q:'Le moment ______ tu es arrivé.', options:['qui','que','où','dont'], answer:'où'},
+  {type:'multi', q:'Les amis ______ j’invite sont sympas.', options:['qui','que','où','dont'], answer:'que'},
+  {type:'fill', q:'Le stylo ______ écrit en rouge.', hint:'verbo después', answers:['qui']},
+  {type:'fill', q:'La chanson ______ tu écoutes est belle.', hint:'sujeto después', answers:['que','qu’','qu']},
+  {type:'fill', q:'C’est le résultat ______ je suis fier. (être fier DE)', hint:'de', answers:['dont']},
+  {type:'multi', q:'L’école ______ j’étudie est grande.', options:['qui','que','où','dont'], answer:'où'},
+ ]
+},
+{
+ id:'verbs', title:'Tiempos mezclados',
+ theory:`<h2>9 · Conjugación con tiempo indicado</h2>
+   <p>Repaso final: te dan el verbo y el tiempo. Identifica primero el tiempo, luego la persona.</p>
+   <ul>
+     <li><b>Passé composé</b>: avoir/être (presente) + participio. essayer→essayé, payer→payé.</li>
+     <li><b>Futur simple</b>: infinitivo/raíz + -ai,-as,-a,-ons,-ez,-ont.</li>
+     <li><b>Imparfait</b>: raíz "nous" + -ais,-ais,-ait,-ions,-iez,-aient.</li>
+     <li><b>Conditionnel</b>: raíz futur + terminaciones imparfait.</li>
+   </ul>
+   <div class="tip">💡 Participios útiles: avoir→eu, être→été, faire→fait, prendre→pris, voir→vu, mettre→mis, écrire→écrit, lire→lu.</div>`,
+ ex:[
+  {type:'fill', q:'Tu ______ de faire l’exercice seule ? (essayer · passé composé)', hint:'tu as + part.', answers:['as essayé','as essaye']},
+  {type:'fill', q:'Si Marie fait ces études, elle ______ (s’ennuyer · futur simple)', hint:'elle', answers:['s’ennuiera','s’ennuyera','sennuiera','sennuyera']},
+  {type:'fill', q:'Ils ______ l’inscription la semaine dernière. (payer · passé composé)', hint:'ils ont + part.', answers:['ont payé','ont paye']},
+  {type:'fill', q:'J’ ______ un colis à Cindy demain. (envoyer · futur)', hint:'je, enverr-', answers:['enverrai']},
+  {type:'fill', q:'Vous ______ vos nouveaux vêtements ? (essayer · futur simple)', hint:'vous', answers:['essaierez','essayerez']},
+  {type:'fill', q:'Hier, nous ______ au cinéma. (aller · passé composé)', hint:'être aux.', answers:['sommes allés','sommes alles','sommes allées']},
+  {type:'fill', q:'Quand j’étais petit, je ______ au foot. (jouer · imparfait)', hint:'je', answers:['jouais']},
+  {type:'fill', q:'Demain, il ______ beau. (faire · futur)', hint:'il, fer-', answers:['fera']},
+  {type:'fill', q:'J’ ______ aller à la plage. (aimer · conditionnel)', hint:'je, deseo', answers:['aimerais']},
+  {type:'fill', q:'Elle ______ un livre hier. (lire · passé composé)', hint:'elle a + lu', answers:['a lu']},
+  {type:'fill', q:'Avant, nous ______ à la campagne. (habiter · imparfait)', hint:'nous', answers:['habitions']},
+  {type:'fill', q:'L’an prochain, tu ______ le permis. (avoir · futur)', hint:'tu, aur-', answers:['auras']},
+  {type:'fill', q:'On ______ partir en voyage. (pouvoir · conditionnel)', hint:'on, pourr-', answers:['pourrait']},
+  {type:'fill', q:'Ils ______ la maison l’année dernière. (vendre · passé composé)', hint:'ils ont + vendu', answers:['ont vendu']},
+  {type:'fill', q:'Quand il ______ jeune, il voyageait beaucoup. (être · imparfait)', hint:'il, ét-', answers:['était','etait']},
+  {type:'fill', q:'Nous ______ en France cet été. (aller · futur)', hint:'nous, ir-', answers:['irons']},
+  {type:'fill', q:'Je ______ bien un café. (prendre · conditionnel, cortesía)', hint:'je, prendr-', answers:['prendrais']},
+  {type:'fill', q:'Vous ______ vos devoirs ? (finir · passé composé)', hint:'vous avez + fini', answers:['avez fini']},
+  {type:'fill', q:'Chaque matin, elle ______ un café. (boire · imparfait)', hint:'elle, buv-', answers:['buvait']},
+  {type:'fill', q:'Ils ______ contents de te voir. (être · futur)', hint:'ils, ser-', answers:['seront']},
+  {type:'fill', q:'Tu ______ m’aider, s’il te plaît ? (pouvoir · conditionnel)', hint:'tu, pourr-', answers:['pourrais']},
+  {type:'fill', q:'Nous ______ un film hier soir. (voir · passé composé)', hint:'nous avons + vu', answers:['avons vu']},
+  {type:'fill', q:'Avant, vous ______ beaucoup de sport. (faire · imparfait)', hint:'vous, fais-', answers:['faisiez']},
+  {type:'fill', q:'Demain, je ______ mes amis. (voir · futur)', hint:'je, verr-', answers:['verrai']},
+  {type:'fill', q:'Elle ______ heureuse de venir. (être · conditionnel)', hint:'elle, ser-', answers:['serait']},
+  {type:'fill', q:'J’ ______ une lettre la semaine dernière. (écrire · passé composé)', hint:'j’ai + écrit', answers:['ai écrit','ai ecrit']},
+ ]
+},
+{
+ id:'media', title:'Vocabulario: medios',
+ theory:`<h2>10 · Vocabulario: lectura y televisión</h2>
+   <p>Palabras del dictado/ejercicio de comprensión oral del examen:</p>
+   <table>
+     <tr><th>Francés</th><th>Español</th></tr>
+     <tr><td>un poésie / un poème</td><td>un poema</td></tr>
+     <tr><td>regarder la télé</td><td>ver la tele</td></tr>
+     <tr><td>la lecture</td><td>la lectura</td></tr>
+     <tr><td>un roman</td><td>una novela</td></tr>
+     <tr><td>une émission</td><td>un programa (TV)</td></tr>
+     <tr><td>un programme</td><td>un programa</td></tr>
+     <tr><td>lire</td><td>leer</td></tr>
+     <tr><td>une bande dessinée (BD)</td><td>un cómic</td></tr>
+     <tr><td>un magazine</td><td>una revista</td></tr>
+     <tr><td>une chaîne</td><td>un canal (TV)</td></tr>
+   </table>`,
+ ex:[
+  {type:'fill', q:'Je dois faire un ______ pour le site Internet de l’école.', hint:'poema', answers:['poésie','poesie','poème','poeme']},
+  {type:'fill', q:'Qu’est-ce que tu préfères ? Lire ou ______ la télé ?', hint:'ver', answers:['regarder']},
+  {type:'fill', q:'J’adore la ______ ! Je lis beaucoup !', hint:'la lectura', answers:['lecture']},
+  {type:'fill', q:'Je ne lis pas beaucoup de ______.', hint:'novelas / revistas', answers:['romans','magazines','livres','bandes dessinées']},
+  {type:'fill', q:'Moi, je préfère regarder la ______.', hint:'la tele', answers:['télé','tele','télévision','television']},
+  {type:'fill', q:'Quels sont les ______ que tu regardes ?', hint:'programas', answers:['programmes','émissions','emissions']},
+  {type:'multi', q:'« une émission » es…', options:['una emisión/programa de TV','una misión','una novela','un poema'], answer:'una emisión/programa de TV'},
+  {type:'fill', q:'Une histoire longue en livre s’appelle un ______.', hint:'novela', answers:['roman']},
+  {type:'fill', q:'« Astérix » est une ______ (BD).', hint:'cómic', answers:['bande dessinée','bande dessinee','bd']},
+  {type:'fill', q:'TF1, France 2… ce sont des ______.', hint:'canales', answers:['chaînes','chaines']},
+  {type:'fill', q:'Le verbe « leer » en français :', hint:'infinitivo', answers:['lire']},
+  {type:'multi', q:'« un magazine » es…', options:['una revista','un mago','una tienda','un canal'], answer:'una revista'},
+  {type:'fill', q:'J’achète un ______ chaque mois pour lire des articles.', hint:'revista', answers:['magazine']},
+  {type:'fill', q:'« ver la tele » en français :', hint:'verbo + la télé', answers:['regarder la télé','regarder la tele','regarder la télévision']},
+  {type:'multi', q:'« la lecture » es…', options:['la lectura','la lección','el lector','la letra'], answer:'la lectura'},
+  {type:'fill', q:'Un texte court avec des rimes, c’est un ______.', hint:'poema', answers:['poème','poeme','poésie','poesie']},
+ ]
+},
+];
+
+/* ============================================================
+   RENDER + LÓGICA
+   ============================================================ */
+const state = {}; // id -> Set índices correctos
+TOPICS.forEach(t=>state[t.id]=new Set());
+
+const tabsEl=document.getElementById('tabs');
+const contentEl=document.getElementById('content');
+
+TOPICS.forEach((t,i)=>{
+  const b=document.createElement('button');
+  b.textContent=t.title;
+  b.onclick=()=>showTopic(t.id,b);
+  if(i===0)b.classList.add('active');
+  tabsEl.appendChild(b);
+
+  const sec=document.createElement('section');
+  sec.className='topic'+(i===0?' show':'');
+  sec.id='sec-'+t.id;
+  let html=`<div class="theory">${t.theory}</div>`;
+  html+=`<div class="topic-score" id="score-${t.id}"></div>`;
+  t.ex.forEach((e,idx)=>{
+    html+=renderEx(t.id,e,idx);
+  });
+  sec.innerHTML=html;
+  contentEl.appendChild(sec);
+});
+
+function renderEx(tid,e,idx){
+  const eid=`${tid}-${idx}`;
+  let inner=`<div class="q"><b>${idx+1}.</b> ${e.q}</div>`;
+  if(e.hint) inner+=`<div class="hint">pista: ${e.hint}</div>`;
+  if(e.type==='fill'){
+    inner+=`<input type="text" id="in-${eid}" autocomplete="off" spellcheck="false">`;
+    inner+=`<button class="check" onclick="checkFill('${tid}',${idx})">Comprobar</button>`;
+  } else if(e.type==='multi'){
+    inner+=`<div class="opts" id="opts-${eid}">`;
+    e.options.forEach((o,oi)=>{
+      inner+=`<button onclick="selOpt('${eid}',${oi},this)">${o}</button>`;
+    });
+    inner+=`</div>`;
+    inner+=`<button class="check" onclick="checkMulti('${tid}',${idx})">Comprobar</button>`;
+  }
+  inner+=`<div class="feedback" id="fb-${eid}"></div>`;
+  return `<div class="ex" id="ex-${eid}">${inner}</div>`;
+}
+
+let selections={}; // eid -> texto opción seleccionada
+function selOpt(eid,oi,btn){
+  const cont=document.getElementById('opts-'+eid);
+  [...cont.children].forEach(c=>c.classList.remove('sel'));
+  btn.classList.add('sel');
+  selections[eid]=btn.textContent;
+}
+
+function checkFill(tid,idx){
+  const e=TOPICS.find(t=>t.id===tid).ex[idx];
+  const eid=`${tid}-${idx}`;
+  const inp=document.getElementById('in-'+eid);
+  const fb=document.getElementById('fb-'+eid);
+  const val=norm(inp.value);
+  const ok=e.answers.some(a=>norm(a)===val);
+  applyResult(tid,idx,ok,inp,fb,e.answers[0]);
+}
+
+function checkMulti(tid,idx){
+  const e=TOPICS.find(t=>t.id===tid).ex[idx];
+  const eid=`${tid}-${idx}`;
+  const fb=document.getElementById('fb-'+eid);
+  const sel=selections[eid];
+  if(sel===undefined){fb.className='feedback bad';fb.textContent='Elige una opción primero.';return;}
+  const ok=norm(sel)===norm(e.answer);
+  const cont=document.getElementById('opts-'+eid);
+  [...cont.children].forEach(c=>{
+    c.classList.remove('correct','incorrect');
+    if(norm(c.textContent)===norm(e.answer))c.classList.add('correct');
+    else if(norm(c.textContent)===norm(sel))c.classList.add('incorrect');
+  });
+  if(ok){fb.className='feedback ok';fb.textContent='✅ Correct !';}
+  else{fb.className='feedback bad';fb.innerHTML=`❌ Incorrect. Réponse : <span class="sol">${e.answer}</span>`;}
+  recordResult(tid,idx,ok);
+}
+
+function applyResult(tid,idx,ok,inp,fb,sol){
+  inp.classList.remove('correct','incorrect');
+  inp.classList.add(ok?'correct':'incorrect');
+  if(ok){fb.className='feedback ok';fb.textContent='✅ Correct !';}
+  else{fb.className='feedback bad';fb.innerHTML=`❌ Réponse : <span class="sol">${sol}</span>`;}
+  recordResult(tid,idx,ok);
+}
+
+function recordResult(tid,idx,ok){
+  if(ok)state[tid].add(idx); else state[tid].delete(idx);
+  updateScores();
+}
+
+function updateScores(){
+  let total=0,correct=0;
+  TOPICS.forEach(t=>{
+    total+=t.ex.length;
+    correct+=state[t.id].size;
+    const s=document.getElementById('score-'+t.id);
+    if(s)s.textContent=`Aciertos en este tema: ${state[t.id].size} / ${t.ex.length}`;
+  });
+  document.getElementById('pcount').textContent=correct;
+  document.getElementById('pbar').style.width=(total?correct/total*100:0)+'%';
+}
+
+function showTopic(id,btn){
+  document.querySelectorAll('section.topic').forEach(s=>s.classList.remove('show'));
+  document.getElementById('sec-'+id).classList.add('show');
+  [...tabsEl.children].forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetAll(){
+  if(!confirm('¿Reiniciar todos los ejercicios?'))return;
+  location.reload();
+}
+
+updateScores();
+</script>
+</body>
+</html>
