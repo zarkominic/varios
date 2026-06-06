@@ -86,6 +86,19 @@
   details{margin:8px 0;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px}
   summary{cursor:pointer;color:var(--accent);font-weight:600}
   .note{background:#fff7ec;border:1px solid #f0d9b5;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:14px}
+  /* corrección visual sintagmas */
+  .breakdown{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:8px 0}
+  .sintagma{display:inline-flex;flex-direction:column;align-items:center;border-radius:8px;padding:6px 10px;border:2px solid}
+  .sg-text{font-size:16px;font-weight:600}
+  .sg-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+  .leg{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:8px;margin:2px;border:1px solid}
+  .sg-suj{background:#e7f0fd;border-color:#2a6fd6;color:#15407e}
+  .sg-nv{background:#f3e9fd;border-color:#7b3fe4;color:#4a1e8a}
+  .sg-cd{background:#e6f7ee;border-color:#1a9d5a;color:#0f6b3b}
+  .sg-ci{background:#fdeef5;border-color:#c0397f;color:#8a225a}
+  .sg-cc{background:#fff3e0;border-color:#b5650e;color:#7a4406}
+  .sg-atr{background:#fff7e0;border-color:#caa106;color:#7a6206}
+  .sg-crv{background:#fdeaea;border-color:#c0392b;color:#8a2018}
 </style>
 </head>
 <body>
@@ -870,8 +883,7 @@ const GEN_ANALISIS = {
   make:function(){
     const s=rnd(SX.sujetos);
     const estructura=Math.floor(Math.random()*4);
-    let sentence, steps=[];
-    const fnDistr=["Complemento Directo (CD)","Complemento Indirecto (CI)","Complemento Circunstancial (CC)","Atributo","Complemento de Régimen","Complemento Agente"];
+    let sentence, steps=[], parts=[];
 
     if(estructura===0){
       // Suj + V trans + CD + CC
@@ -883,6 +895,7 @@ const GEN_ANALISIS = {
         subMC(`¿Qué función tiene «${cd}»?`, "Complemento Directo (CD)", ["Complemento Indirecto (CI)","Atributo","Complemento Circunstancial (CC)"], `Recibe la acción y se sustituye por lo/la/los/las → CD.`),
         subMC(`¿Qué función tiene «${cc}»?`, "Complemento Circunstancial (CC) de "+tipoCC[0], ["Complemento Directo (CD)","Complemento Indirecto (CI)","Atributo"], `Expresa ${tipoCC[0]} y se puede suprimir → CC de ${tipoCC[0]}.`)
       ];
+      parts=[[cap(s),"Sujeto","suj"],[v,"V (núcleo del predicado)","nv"],[cd,"CD","cd"],[cc,"CC "+tipoCC[0],"cc"]];
     } else if(estructura===1){
       // Suj + V trans + CD + CI
       const v=rnd(SX.verbosTrans),cd=rnd(SX.cds),ci=rnd(SX.cis);
@@ -893,6 +906,7 @@ const GEN_ANALISIS = {
         subMC(`¿Qué función tiene «${cd}»?`, "Complemento Directo (CD)", ["Complemento Indirecto (CI)","Complemento Circunstancial (CC)","Atributo"], `Se sustituye por lo/la/los/las → CD.`),
         subMC(`¿Qué función tiene «${ci}»?`, "Complemento Indirecto (CI)", ["Complemento Directo (CD)","Complemento Agente","Atributo"], `Destinatario de la acción, se sustituye por le/les → CI.`)
       ];
+      parts=[[cap(s),"Sujeto","suj"],[v,"V (núcleo del predicado)","nv"],[cd,"CD","cd"],[ci,"CI","ci"]];
     } else if(estructura===2){
       // Suj + cópula + atributo
       const cop=rnd(SX.copul),atr=rnd(SX.atributos);
@@ -902,6 +916,7 @@ const GEN_ANALISIS = {
         subMC(`El predicado de «${sentence}» es...`, "Predicado nominal", ["Predicado verbal"], `El verbo «${cop}» es copulativo (ser/estar/parecer) → predicado nominal.`),
         subMC(`¿Qué función tiene «${atr}»?`, "Atributo", ["Complemento Directo (CD)","Complemento Predicativo","Complemento Circunstancial (CC)"], `Con verbo copulativo, «${atr}» es el Atributo (se sustituye por «lo»).`)
       ];
+      parts=[[cap(s),"Sujeto","suj"],[cop,"V copulativo","nv"],[atr,"Atributo","atr"]];
     } else {
       // Suj + V régimen + CRV
       const crv=rnd(SX.crvVerbos);
@@ -911,8 +926,9 @@ const GEN_ANALISIS = {
         subMC(`El predicado de «${sentence}» es...`, "Predicado verbal", ["Predicado nominal"], `«${crv[0]}» no es copulativo → predicado verbal.`),
         subMC(`¿Qué función tiene «${crv[1]}»?`, "Complemento de Régimen (Suplemento)", ["Complemento Directo (CD)","Complemento Indirecto (CI)","Complemento Circunstancial (CC)"], `El verbo «${crv[0]}» rige la preposición «${crv[2]}» de forma fija → Complemento de Régimen.`)
       ];
+      parts=[[cap(s),"Sujeto","suj"],[crv[0],"V (núcleo del predicado)","nv"],[crv[1],"C. de Régimen","crv"]];
     }
-    return {type:"multi", sentence, steps};
+    return {type:"multi", sentence, steps, parts};
   }
 };
 
@@ -1157,10 +1173,21 @@ function answerSub(si,oi){
   subDone++; updateProgress();
   if(subDone===subTotal){
     const sum=document.getElementById('multiSummary');
-    if(sum) sum.innerHTML=`<b>✅ Análisis completo.</b> Has terminado de analizar esta oración. Pulsa «Otra oración» para practicar con una nueva.`;
+    if(sum) sum.innerHTML=breakdownHTML(currentQ);
     document.getElementById('nextWrap').style.display='block';
   }
-  if(mode!=='gen'){ /* en modo quiz/mix no usamos multi */ }
+}
+
+// corrección visual: oración descompuesta en sintagmas de colores
+function breakdownHTML(q){
+  let chips=q.parts.map(p=>`<span class="sintagma sg-${p[2]}"><span class="sg-text">${p[0]}</span><span class="sg-label">${p[1]}</span></span>`).join(' ');
+  // determinar tipo de predicado para el rótulo
+  const nominal=q.parts.some(p=>p[2]==='atr');
+  let leyenda=q.parts.map(p=>`<span class="leg sg-${p[2]}">${p[1]}</span>`).join(' ');
+  return `<b>✅ Análisis completo.</b>
+    <p style="margin:10px 0 4px">Así queda la oración descompuesta:</p>
+    <div class="breakdown">${chips}</div>
+    <p class="hint" style="margin-top:10px">Predicado <b>${nominal?'nominal':'verbal'}</b>. Leyenda: ${leyenda}</p>`;
 }
 
 function answerMC(i){
