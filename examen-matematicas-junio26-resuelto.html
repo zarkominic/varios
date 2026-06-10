@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen de Matemáticas Junio-26 · Resuelto</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#1a2233; --card2:#222d44; --ink:#e8edf7; --muted:#9fb0cc;
+    --accent:#5b9dff; --accent2:#34d399; --warn:#fbbf24; --line:#33425f;
+    --pink:#f472b6; --purple:#a78bfa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0c111c,#0f1420);color:var(--ink);
+    font-family:'Segoe UI',Roboto,system-ui,sans-serif;line-height:1.6;padding:0 0 80px}
+  header{padding:38px 20px 26px;text-align:center;border-bottom:2px solid var(--line);
+    background:radial-gradient(circle at 50% -20%,rgba(91,157,255,.18),transparent 60%)}
+  header h1{margin:0;font-size:1.9rem;letter-spacing:.5px}
+  header .sub{color:var(--muted);margin-top:8px;font-size:1rem}
+  .wrap{max-width:920px;margin:0 auto;padding:0 18px}
+  .ej{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:24px 26px;margin:28px 0;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+  .ej h2{margin:0 0 4px;font-size:1.25rem;color:var(--accent)}
+  .pts{float:right;background:var(--card2);color:var(--warn);font-size:.8rem;
+    padding:3px 10px;border-radius:20px;border:1px solid var(--line)}
+  .enun{color:var(--muted);font-style:italic;margin:6px 0 18px;
+    border-left:3px solid var(--accent);padding-left:12px}
+  .step{margin:14px 0}
+  .step b{color:var(--accent2)}
+  .formula{background:#0d1220;border:1px solid var(--line);border-radius:10px;
+    padding:12px 16px;margin:10px 0;font-family:'Cambria Math','Times New Roman',serif;
+    font-size:1.08rem;overflow-x:auto}
+  .res{background:linear-gradient(90deg,rgba(52,211,153,.14),transparent);
+    border:1px solid var(--accent2);border-radius:10px;padding:12px 16px;margin:14px 0;font-weight:600}
+  .res .lab{color:var(--accent2);font-weight:700;margin-right:6px}
+  .fig{background:#0d1220;border:1px solid var(--line);border-radius:12px;
+    padding:16px;margin:16px 0;text-align:center}
+  .fig svg{max-width:100%;height:auto}
+  .figcap{color:var(--muted);font-size:.85rem;margin-top:8px}
+  sub,sup{font-size:.72em}
+  .twocol{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .twocol>div{flex:1;min-width:260px}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.95rem}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:center}
+  th{background:var(--card2);color:var(--accent)}
+  .nota{font-size:.85rem;color:var(--muted);margin-top:6px}
+  footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:40px}
+  .badge{display:inline-block;background:var(--card2);border:1px solid var(--line);
+    border-radius:8px;padding:2px 9px;font-size:.8rem;color:var(--purple);margin:2px}
+  .axis{stroke:#56688a;stroke-width:1.3}
+  .grid{stroke:#26324a;stroke-width:1}
+  .curve{fill:none;stroke:var(--accent);stroke-width:3}
+  .curve2{fill:none;stroke:var(--pink);stroke-width:3}
+  .pt{fill:var(--warn)}
+  .lbl{fill:var(--ink);font-size:13px;font-family:system-ui}
+  .lblm{fill:var(--muted);font-size:11px;font-family:system-ui}
+  .dash{stroke:var(--warn);stroke-width:1.3;stroke-dasharray:4 4}
+  .solidf{fill:rgba(91,157,255,.12);stroke:var(--accent);stroke-width:2.2}
+  .solidf2{fill:rgba(167,139,250,.13);stroke:var(--purple);stroke-width:2.2}
+  .edge{stroke:var(--accent);stroke-width:2.2;fill:none}
+  .edgeh{stroke:#56688a;stroke-width:1.6;fill:none;stroke-dasharray:5 4}
+  .dim{stroke:var(--accent2);stroke-width:1.3}
+  .dimlbl{fill:var(--accent2);font-size:12px;font-family:system-ui}
+</style>
+</head>
+<body>
+<header>
+  <h1>Examen de Matemáticas · Junio&#8209;26</h1>
+  <div class="sub">Resolución completa paso a paso con gráficos &middot; material de estudio</div>
+</header>
+<div class="wrap">
+
+<!-- ================= EJ 1 ================= -->
+<div class="ej">
+  <span class="pts">1 p</span>
+  <h2>1) Ecuación de la recta por P(&minus;3, 2) y Q(3, 11)</h2>
+  <div class="enun">Escribe la ecuación explícita de la recta que pasa por P y Q y represéntala.</div>
+
+  <div class="step"><b>Pendiente</b> &mdash; con la fórmula m = (y<sub>2</sub>&minus;y<sub>1</sub>)/(x<sub>2</sub>&minus;x<sub>1</sub>):</div>
+  <div class="formula">m = (11 &minus; 2) / (3 &minus; (&minus;3)) = 9/6 = <b>3/2</b></div>
+
+  <div class="step"><b>Ordenada en el origen</b> &mdash; uso y = m·x + n con el punto P(&minus;3, 2):</div>
+  <div class="formula">2 = (3/2)·(&minus;3) + n &nbsp;&rarr;&nbsp; 2 = &minus;9/2 + n &nbsp;&rarr;&nbsp; n = 2 + 9/2 = 4/2 + 9/2 = <b>13/2</b></div>
+
+  <div class="res"><span class="lab">Ecuación explícita:</span> y = (3/2)x + 13/2</div>
+  <div class="nota">Comprobación con Q: (3/2)·3 + 13/2 = 9/2 + 13/2 = 22/2 = 11 ✓</div>
+
+  <div class="fig">
+    <svg viewBox="0 0 460 360" xmlns="http://www.w3.org/2000/svg">
+      <!-- grid -->
+      <g class="grid">
+        <line x1="40" y1="40" x2="40" y2="320"/><line x1="100" y1="40" x2="100" y2="320"/>
+        <line x1="160" y1="40" x2="160" y2="320"/><line x1="220" y1="40" x2="220" y2="320"/>
+        <line x1="280" y1="40" x2="280" y2="320"/><line x1="340" y1="40" x2="340" y2="320"/>
+        <line x1="400" y1="40" x2="400" y2="320"/>
+        <line x1="40" y1="60" x2="420" y2="60"/><line x1="40" y1="100" x2="420" y2="100"/>
+        <line x1="40" y1="140" x2="420" y2="140"/><line x1="40" y1="180" x2="420" y2="180"/>
+        <line x1="40" y1="220" x2="420" y2="220"/><line x1="40" y1="260" x2="420" y2="260"/>
+        <line x1="40" y1="300" x2="420" y2="300"/>
+      </g>
+      <!-- axes: x range -4..4 (x=220 is 0, 30px/unit). y range -2..13 (y=300 is 0, 20px/unit) -->
+      <line class="axis" x1="40" y1="300" x2="430" y2="300"/>
+      <line class="axis" x1="220" y1="30" x2="220" y2="330"/>
+      <text class="lblm" x="424" y="315">x</text><text class="lblm" x="226" y="40">y</text>
+      <!-- line y=1.5x+6.5 ; map: X=220+30x, Y=300-20y -->
+      <!-- at x=-4: y=0.5 -> (100,290) ; at x=4: y=12.5 -> (340,50) -->
+      <line class="curve" x1="100" y1="290" x2="340" y2="50"/>
+      <!-- P(-3,2): X=130,Y=260 -->
+      <circle class="pt" cx="130" cy="260" r="5"/><text class="lbl" x="96" y="255">P(-3,2)</text>
+      <!-- Q(3,11): X=310,Y=80 -->
+      <circle class="pt" cx="310" cy="80" r="5"/><text class="lbl" x="316" y="78">Q(3,11)</text>
+      <!-- n=6.5 cut: X=220,Y=170 -->
+      <circle cx="220" cy="170" r="4" fill="#34d399"/><text class="lblm" x="226" y="166">n=13/2</text>
+      <text class="lblm" x="150" y="135">y = (3/2)x + 13/2</text>
+    </svg>
+    <div class="figcap">Recta creciente (m&gt;0) que corta al eje Y en 6,5 y pasa por P y Q.</div>
+  </div>
+</div>
+
+<!-- ================= EJ 2 ================= -->
+<div class="ej">
+  <span class="pts">1,5 p</span>
+  <h2>2) Función f(x) = &minus;7 + 8x &minus; x²</h2>
+  <div class="enun">Estudia vértice y puntos de corte con los ejes, y traza su gráfica.</div>
+
+  <div class="step">La escribo ordenada: f(x) = &minus;x² + 8x &minus; 7 &nbsp;(a=&minus;1, b=8, c=&minus;7). Como <b>a &lt; 0</b>, es una parábola <b>abierta hacia abajo</b> (vértice = máximo).</div>
+
+  <div class="step"><b>Vértice:</b> x<sub>v</sub> = &minus;b/2a</div>
+  <div class="formula">x<sub>v</sub> = &minus;8 / (2·(&minus;1)) = 4 &nbsp;&rarr;&nbsp; y<sub>v</sub> = &minus;4²+8·4&minus;7 = &minus;16+32&minus;7 = <b>9</b></div>
+  <div class="res"><span class="lab">Vértice:</span> V(4, 9) &mdash; máximo</div>
+
+  <div class="step"><b>Corte con el eje Y</b> (x = 0): f(0) = &minus;7</div>
+  <div class="res"><span class="lab">Eje Y:</span> (0, &minus;7)</div>
+
+  <div class="step"><b>Cortes con el eje X</b> (f(x)=0): resuelvo &minus;x²+8x&minus;7=0 &rarr; x²&minus;8x+7=0</div>
+  <div class="formula">x = [8 ± &radic;(64&minus;28)] / 2 = [8 ± 6] / 2 &rarr; x = 7 &nbsp;ó&nbsp; x = 1</div>
+  <div class="res"><span class="lab">Eje X:</span> (1, 0) y (7, 0)</div>
+
+  <div class="fig">
+    <svg viewBox="0 0 460 380" xmlns="http://www.w3.org/2000/svg">
+      <g class="grid">
+        <line x1="60" y1="30" x2="60" y2="330"/><line x1="100" y1="30" x2="100" y2="330"/>
+        <line x1="140" y1="30" x2="140" y2="330"/><line x1="180" y1="30" x2="180" y2="330"/>
+        <line x1="220" y1="30" x2="220" y2="330"/><line x1="260" y1="30" x2="260" y2="330"/>
+        <line x1="300" y1="30" x2="300" y2="330"/><line x1="340" y1="30" x2="340" y2="330"/>
+        <line x1="380" y1="30" x2="380" y2="330"/>
+        <line x1="40" y1="60" x2="420" y2="60"/><line x1="40" y1="100" x2="420" y2="100"/>
+        <line x1="40" y1="140" x2="420" y2="140"/><line x1="40" y1="220" x2="420" y2="220"/>
+        <line x1="40" y1="260" x2="420" y2="260"/><line x1="40" y1="300" x2="420" y2="300"/>
+      </g>
+      <!-- axes: x 0..9 origin x=60 step40 ; y -8..10 origin Y=260 step20 (y=180 is 0? recompute) -->
+      <!-- Let origin (0,0) at (60,260). step x=40/unit, y=20/unit. -->
+      <line class="axis" x1="40" y1="260" x2="425" y2="260"/>
+      <line class="axis" x1="60" y1="25" x2="60" y2="335"/>
+      <text class="lblm" x="418" y="275">x</text><text class="lblm" x="66" y="35">y</text>
+      <!-- parabola f(x)=-x^2+8x-7 sampled x=1..7 ; origin(60,260) stepx40 stepy20 ; V(4,9)=(220,80) -->
+      <polyline class="curve2" fill="none" points="100,260 120,205 140,160 160,125 180,100 200,85 220,80 240,85 260,100 280,125 300,160 320,205 340,260"/>
+      <!-- cut points -->
+      <circle class="pt" cx="100" cy="260" r="5"/><text class="lbl" x="84" y="282">(1,0)</text>
+      <circle class="pt" cx="340" cy="260" r="5"/><text class="lbl" x="324" y="282">(7,0)</text>
+      <circle cx="220" cy="80" r="5" fill="#34d399"/><text class="lbl" x="228" y="78">V(4,9)</text>
+      <text class="lblm" x="250" y="150">f(x) = &minus;x²+8x&minus;7</text>
+      <text class="lblm" x="248" y="170">(0,&minus;7) queda fuera del recuadro</text>
+    </svg>
+    <div class="figcap">Parábola hacia abajo, vértice/máximo en (4,9); corta el eje X en x=1 y x=7.</div>
+  </div>
+</div>
+
+<!-- ================= EJ 3 ================= -->
+<div class="ej">
+  <span class="pts">1,5 p</span>
+  <h2>3) Trapecio rectángulo</h2>
+  <div class="enun">Lados paralelos 20 cm y 28 cm, altura 15 cm. Calcula perímetro y área.</div>
+
+  <div class="twocol">
+    <div>
+      <div class="step">En un <b>trapecio rectángulo</b> uno de los lados (la altura) es perpendicular a las bases. El cuarto lado es oblicuo y lo obtengo con Pitágoras sobre el triángulo que forman la altura y la diferencia de bases.</div>
+      <div class="step"><b>Lado oblicuo</b> (c):</div>
+      <div class="formula">diferencia de bases = 28 &minus; 20 = 8<br>
+        c = &radic;(8² + 15²) = &radic;(64+225) = &radic;289 = <b>17 cm</b></div>
+      <div class="step"><b>Perímetro</b> = suma de los 4 lados:</div>
+      <div class="formula">P = 28 + 20 + 15 + 17 = <b>80 cm</b></div>
+      <div class="step"><b>Área</b> = (B + b)/2 · h:</div>
+      <div class="formula">A = (28 + 20)/2 · 15 = 24 · 15 = <b>360 cm²</b></div>
+      <div class="res"><span class="lab">Resultado:</span> P = 80 cm &nbsp;·&nbsp; A = 360 cm²</div>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 320 270" xmlns="http://www.w3.org/2000/svg">
+        <!-- base larger bottom 28 (280px? scale 8px/cm) -> 224 ; top 20 -> 160 ; height 15->120 -->
+        <!-- bottom from (40,210) to (264,210) ; top from (40,90) to (200,90) -->
+        <polygon class="solidf" points="40,210 264,210 200,90 40,90"/>
+        <!-- right angle marks at left -->
+        <rect x="40" y="194" width="14" height="16" fill="none" stroke="#56688a"/>
+        <!-- dims -->
+        <line class="dim" x1="40" y1="232" x2="264" y2="232"/>
+        <text class="dimlbl" x="138" y="248">28 cm</text>
+        <line class="dim" x1="40" y1="74" x2="200" y2="74"/>
+        <text class="dimlbl" x="104" y="66">20 cm</text>
+        <line class="dim" x1="22" y1="90" x2="22" y2="210"/>
+        <text class="dimlbl" x="0" y="154">15</text>
+        <text class="dimlbl" x="228" y="150">17</text>
+        <!-- diff base helper -->
+        <line class="dash" x1="200" y1="210" x2="200" y2="90"/>
+        <text class="lblm" x="206" y="206">8</text>
+      </svg>
+      <div class="figcap">Lado izquierdo = altura (15). El oblicuo (17) cierra el triángulo 8&ndash;15&ndash;17.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= EJ 4 ================= -->
+<div class="ej">
+  <span class="pts">1 p</span>
+  <h2>4) Hexágono regular de lado 14 cm</h2>
+  <div class="enun">Dibújalo y calcula su apotema y su área.</div>
+
+  <div class="twocol">
+    <div>
+      <div class="step">Un hexágono regular se divide en 6 triángulos equiláteros de lado 14. La <b>apotema</b> es la altura de uno de esos triángulos:</div>
+      <div class="formula">ap = (L·&radic;3)/2 = (14·&radic;3)/2 = 7&radic;3 &asymp; <b>12,12 cm</b></div>
+      <div class="step"><b>Perímetro:</b> P = 6 · 14 = 84 cm</div>
+      <div class="step"><b>Área</b> = (P · ap)/2:</div>
+      <div class="formula">A = (84 · 12,12)/2 &asymp; <b>509,22 cm²</b></div>
+      <div class="res"><span class="lab">Resultado:</span> apotema &asymp; 12,12 cm &nbsp;·&nbsp; A &asymp; 509,22 cm²</div>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+        <!-- hexagon center (130,130) radius 100 (=lado) -->
+        <polygon class="solidf" points="230,130 180,216.6 80,216.6 30,130 80,43.4 180,43.4"/>
+        <!-- one triangle to a vertex + apothem -->
+        <line class="dash" x1="130" y1="130" x2="230" y2="130"/>
+        <line class="dash" x1="130" y1="130" x2="180" y2="43.4"/>
+        <!-- apothem to midpoint of top-right edge -->
+        <line class="dim" x1="130" y1="130" x2="205" y2="86.7"/>
+        <text class="dimlbl" x="150" y="100">ap</text>
+        <rect x="196" y="92" width="10" height="10" fill="none" stroke="#34d399" transform="rotate(30 201 97)"/>
+        <text class="lblm" x="186" y="35">L = 14</text>
+        <circle cx="130" cy="130" r="3" fill="#fbbf24"/>
+      </svg>
+      <div class="figcap">6 triángulos equiláteros de lado 14; la apotema es la altura de cada triángulo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= EJ 5 ================= -->
+<div class="ej">
+  <span class="pts">1 p</span>
+  <h2>5) Poliedros regulares</h2>
+  <div class="enun">¿Cuáles son los poliedros regulares y qué características cumplen?</div>
+
+  <div class="step">Existen <b>exactamente 5</b> poliedros regulares, llamados <b>sólidos platónicos</b>. Características que cumplen:</div>
+  <ul>
+    <li>Todas sus <b>caras son polígonos regulares iguales</b> entre sí.</li>
+    <li>En <b>cada vértice concurre el mismo número de caras</b> y aristas.</li>
+    <li>Todas las <b>aristas y todos los ángulos</b> son iguales; son convexos.</li>
+  </ul>
+  <table>
+    <tr><th>Poliedro</th><th>Cara</th><th>Caras</th><th>Vértices</th><th>Aristas</th></tr>
+    <tr><td>Tetraedro</td><td>Triángulo</td><td>4</td><td>4</td><td>6</td></tr>
+    <tr><td>Cubo (hexaedro)</td><td>Cuadrado</td><td>6</td><td>8</td><td>12</td></tr>
+    <tr><td>Octaedro</td><td>Triángulo</td><td>8</td><td>6</td><td>12</td></tr>
+    <tr><td>Dodecaedro</td><td>Pentágono</td><td>12</td><td>20</td><td>30</td></tr>
+    <tr><td>Icosaedro</td><td>Triángulo</td><td>20</td><td>12</td><td>30</td></tr>
+  </table>
+  <div class="nota">Todos cumplen la fórmula de Euler: <b>C + V &minus; A = 2</b>.</div>
+
+  <div class="fig">
+    <svg viewBox="0 0 460 150" xmlns="http://www.w3.org/2000/svg">
+      <!-- tetraedro -->
+      <g transform="translate(40,20)">
+        <polygon class="edge" points="30,0 60,90 0,90"/>
+        <line class="edge" x1="30" y1="0" x2="30" y2="90"/>
+        <line class="edgeh" x1="0" y1="90" x2="30" y2="60"/><line class="edgeh" x1="60" y1="90" x2="30" y2="60"/><line class="edgeh" x1="30" y1="0" x2="30" y2="60"/>
+        <text class="lblm" x="2" y="115">Tetraedro</text>
+      </g>
+      <!-- cubo -->
+      <g transform="translate(160,20)">
+        <rect class="edge" x="0" y="20" width="60" height="60"/>
+        <line class="edge" x1="0" y1="20" x2="22" y2="0"/><line class="edge" x1="60" y1="20" x2="82" y2="0"/>
+        <line class="edge" x1="60" y1="80" x2="82" y2="60"/>
+        <line class="edge" x1="22" y1="0" x2="82" y2="0"/><line class="edge" x1="82" y1="0" x2="82" y2="60"/>
+        <line class="edgeh" x1="0" y1="20" x2="22" y2="0"/>
+        <line class="edgeh" x1="22" y1="0" x2="22" y2="60"/><line class="edgeh" x1="22" y1="60" x2="0" y2="80"/><line class="edgeh" x1="22" y1="60" x2="82" y2="60"/>
+        <text class="lblm" x="18" y="115">Cubo</text>
+      </g>
+      <!-- octaedro -->
+      <g transform="translate(280,20)">
+        <polygon class="edge" points="30,0 60,45 30,90 0,45"/>
+        <line class="edge" x1="0" y1="45" x2="60" y2="45"/>
+        <line class="edge" x1="30" y1="0" x2="30" y2="90"/>
+        <text class="lblm" x="6" y="115">Octaedro</text>
+      </g>
+      <!-- icosaedro hint -->
+      <g transform="translate(380,20)">
+        <polygon class="edge" points="30,0 58,22 47,70 13,70 2,22"/>
+        <line class="edge" x1="30" y1="0" x2="30" y2="44"/><line class="edge" x1="2" y1="22" x2="30" y2="44"/>
+        <line class="edge" x1="58" y1="22" x2="30" y2="44"/><line class="edge" x1="13" y1="70" x2="30" y2="44"/><line class="edge" x1="47" y1="70" x2="30" y2="44"/>
+        <text class="lblm" x="2" y="115">Icosaedro</text>
+      </g>
+    </svg>
+    <div class="figcap">Los sólidos platónicos (falta el dodecaedro, de 12 pentágonos).</div>
+  </div>
+</div>
+
+<!-- ================= EJ 6 ================= -->
+<div class="ej">
+  <span class="pts">1,5 p</span>
+  <h2>6) Pirámide de base cuadrada</h2>
+  <div class="enun">Lado de la base 10 cm y aristas laterales 12 cm. Halla el área total y el volumen.</div>
+
+  <div class="twocol">
+    <div>
+      <div class="step"><b>Apotema de la pirámide</b> (altura de una cara triangular). Cada cara es un triángulo de base 10 y lados 12; su altura cae al punto medio de la base (a 5 cm):</div>
+      <div class="formula">ap<sub>p</sub> = &radic;(12² &minus; 5²) = &radic;(144&minus;25) = &radic;119 &asymp; <b>10,91 cm</b></div>
+
+      <div class="step"><b>Área de la base:</b> 10² = 100 cm²</div>
+      <div class="step"><b>Área lateral</b> = 4 triángulos = 4·(10·ap<sub>p</sub>/2):</div>
+      <div class="formula">A<sub>lat</sub> = 4 · (10·10,91/2) &asymp; <b>218,17 cm²</b></div>
+      <div class="step"><b>Área total</b> = base + lateral:</div>
+      <div class="formula">A<sub>T</sub> &asymp; 100 + 218,17 = <b>318,17 cm²</b></div>
+
+      <div class="step"><b>Altura de la pirámide</b> (con apotema base = 5):</div>
+      <div class="formula">h = &radic;(ap<sub>p</sub>² &minus; 5²) = &radic;(119&minus;25) = &radic;94 &asymp; 9,70 cm</div>
+      <div class="step"><b>Volumen</b> = (A<sub>base</sub>·h)/3:</div>
+      <div class="formula">V = (100 · 9,70)/3 &asymp; <b>323,18 cm³</b></div>
+      <div class="res"><span class="lab">Resultado:</span> A<sub>T</sub> &asymp; 318,17 cm² &nbsp;·&nbsp; V &asymp; 323,18 cm³</div>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 280 260" xmlns="http://www.w3.org/2000/svg">
+        <!-- base parallelogram -->
+        <polygon class="solidf" points="40,200 180,200 230,160 90,160"/>
+        <!-- apex -->
+        <line class="edge" x1="135" y1="40" x2="40" y2="200"/>
+        <line class="edge" x1="135" y1="40" x2="180" y2="200"/>
+        <line class="edge" x1="135" y1="40" x2="230" y2="160"/>
+        <line class="edgeh" x1="135" y1="40" x2="90" y2="160"/>
+        <!-- height -->
+        <line class="dash" x1="135" y1="40" x2="135" y2="180"/>
+        <text class="dimlbl" x="140" y="120">h&asymp;9,70</text>
+        <text class="dimlbl" x="56" y="118">12</text>
+        <text class="dimlbl" x="95" y="222">10</text>
+        <circle cx="135" cy="40" r="3" fill="#fbbf24"/>
+        <circle cx="135" cy="180" r="3" fill="#fbbf24"/>
+      </svg>
+      <div class="figcap">Pirámide cuadrada; aristas laterales de 12 cm, altura interior ≈9,70 cm.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= EJ 7 ================= -->
+<div class="ej">
+  <span class="pts">2,5 p</span>
+  <h2>7) Área y volumen de cuerpos</h2>
+
+  <!-- 7a -->
+  <h3 style="color:var(--accent2)">a) Prisma recto de base cuadrada</h3>
+  <div class="enun">Arista de la base 7 cm, altura del prisma 15 cm.</div>
+  <div class="twocol">
+    <div>
+      <div class="step"><b>Área de la base:</b> 7² = 49 cm²</div>
+      <div class="step"><b>Área lateral</b> = perímetro de base · altura:</div>
+      <div class="formula">A<sub>lat</sub> = (4·7) · 15 = 28 · 15 = 420 cm²</div>
+      <div class="step"><b>Área total</b> = 2 bases + lateral:</div>
+      <div class="formula">A<sub>T</sub> = 2·49 + 420 = <b>518 cm²</b></div>
+      <div class="step"><b>Volumen</b> = A<sub>base</sub> · altura:</div>
+      <div class="formula">V = 49 · 15 = <b>735 cm³</b></div>
+      <div class="res"><span class="lab">Resultado:</span> A<sub>T</sub> = 518 cm² &nbsp;·&nbsp; V = 735 cm³</div>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 220 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- prism -->
+        <rect class="solidf" x="50" y="70" width="80" height="170"/>
+        <polygon class="solidf" points="50,70 90,40 170,40 130,70"/>
+        <line class="edge" x1="130" y1="70" x2="170" y2="40"/>
+        <line class="edge" x1="130" y1="240" x2="170" y2="210"/>
+        <line class="edge" x1="170" y1="40" x2="170" y2="210"/>
+        <line class="edgeh" x1="50" y1="240" x2="90" y2="210"/>
+        <line class="edgeh" x1="90" y1="210" x2="170" y2="210"/>
+        <line class="edgeh" x1="90" y1="40" x2="90" y2="210"/>
+        <text class="dimlbl" x="78" y="262">7</text>
+        <line class="dim" x1="36" y1="70" x2="36" y2="240"/>
+        <text class="dimlbl" x="6" y="160">15</text>
+      </svg>
+      <div class="figcap">Prisma cuadrangular 7×7×15.</div>
+    </div>
+  </div>
+
+  <!-- 7b -->
+  <h3 style="color:var(--accent2);margin-top:26px">b) Cuerpo combinado: cilindro + cono</h3>
+  <div class="enun">Cilindro de radio 5 cm y altura 14 cm, coronado por un cono de radio 5 cm y altura 12 cm.</div>
+  <div class="twocol">
+    <div>
+      <div class="step"><b>Generatriz del cono</b> (g) por Pitágoras con r y altura del cono:</div>
+      <div class="formula">g = &radic;(5² + 12²) = &radic;(25+144) = &radic;169 = <b>13 cm</b></div>
+
+      <div class="step"><b>Áreas</b> (el cuerpo apoya en una base; la tapa superior del cilindro queda oculta bajo el cono, así que no se cuenta):</div>
+      <table>
+        <tr><th>Superficie</th><th>Fórmula</th><th>Valor</th></tr>
+        <tr><td>Base del cilindro</td><td>&pi;r²</td><td>78,54 cm²</td></tr>
+        <tr><td>Lateral del cilindro</td><td>2&pi;r·h</td><td>439,82 cm²</td></tr>
+        <tr><td>Lateral del cono</td><td>&pi;r·g</td><td>204,20 cm²</td></tr>
+      </table>
+      <div class="formula">A<sub>T</sub> &asymp; 78,54 + 439,82 + 204,20 = <b>722,57 cm²</b></div>
+
+      <div class="step"><b>Volúmenes</b> (se suman):</div>
+      <div class="formula">V<sub>cilindro</sub> = &pi;·5²·14 &asymp; 1099,56 cm³<br>
+        V<sub>cono</sub> = (&pi;·5²·12)/3 &asymp; 314,16 cm³</div>
+      <div class="formula">V<sub>T</sub> &asymp; 1099,56 + 314,16 = <b>1413,72 cm³</b></div>
+      <div class="res"><span class="lab">Resultado:</span> A<sub>T</sub> &asymp; 722,57 cm² &nbsp;·&nbsp; V<sub>T</sub> &asymp; 1413,72 cm³</div>
+      <div class="nota">Si tu profe pide contar también la tapa del cilindro, suma +78,54 → A<sub>T</sub>≈801,11 cm². La versión de arriba es la del cuerpo macizo (lo habitual).</div>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 240 320" xmlns="http://www.w3.org/2000/svg">
+        <!-- cylinder body -->
+        <rect class="solidf" x="70" y="140" width="100" height="130"/>
+        <!-- bottom ellipse -->
+        <ellipse class="solidf" cx="120" cy="270" rx="50" ry="16"/>
+        <!-- top ellipse of cylinder -->
+        <ellipse cx="120" cy="140" rx="50" ry="16" fill="rgba(167,139,250,.13)" stroke="var(--purple)" stroke-width="2.2"/>
+        <!-- cone -->
+        <polygon class="solidf2" points="120,40 70,140 170,140"/>
+        <!-- dims -->
+        <line class="dim" x1="196" y1="40" x2="196" y2="140"/>
+        <text class="dimlbl" x="200" y="95">12</text>
+        <line class="dim" x1="196" y1="140" x2="196" y2="270"/>
+        <text class="dimlbl" x="200" y="210">14</text>
+        <line class="dim" x1="120" y1="140" x2="170" y2="140"/>
+        <text class="dimlbl" x="135" y="132">5</text>
+        <!-- generatriz -->
+        <text class="dimlbl" x="78" y="95">g=13</text>
+        <circle cx="120" cy="140" r="3" fill="#fbbf24"/>
+      </svg>
+      <div class="figcap">Cilindro (r=5, h=14) + cono (r=5, h=12, generatriz 13).</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Material de estudio · Examen de Matemáticas Junio&#8209;26 · Todos los pasos justificados.<br>
+  &pi; ≈ 3,1416 · &radic;3 ≈ 1,732 · resultados redondeados a 2 decimales.
+</footer>
+</div>
+</body>
+</html>
