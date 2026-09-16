@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Vuelo 3D · prueba local</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.30.0/mapbox-gl.js"></script>
+<style>
+  html,body{margin:0;height:100%;background:#0b1020;font:15px/1.5 system-ui,sans-serif;color:#e8eef7}
+  #mapa{position:absolute;inset:0}
+  .panel{position:absolute;left:24px;bottom:24px;z-index:2;background:rgba(10,14,28,.92);
+         border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:18px 22px;max-width:430px;
+         backdrop-filter:blur(8px);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+  .panel h1{margin:0 0 4px;font-size:19px;font-weight:650}
+  .panel p{margin:0;color:#9fb0c9;font-size:14px}
+  .panel .precio{color:#1bc9a0;font-weight:650}
+  .pasos{position:absolute;left:24px;top:24px;z-index:2;display:flex;flex-direction:column;gap:8px}
+  .paso{background:rgba(10,14,28,.92);border:1px solid rgba(255,255,255,.12);border-radius:10px;
+        padding:9px 14px;font-size:13.5px;opacity:0;transform:translateY(6px);
+        transition:opacity .5s,transform .5s;backdrop-filter:blur(8px)}
+  .paso.on{opacity:1;transform:none}
+  .mandos{position:absolute;right:24px;bottom:24px;z-index:2;display:flex;gap:8px}
+  .mandos button{background:rgba(10,14,28,.92);color:#e8eef7;border:1px solid rgba(255,255,255,.18);
+                 border-radius:10px;padding:9px 16px;font:inherit;font-size:13.5px;cursor:pointer}
+  .mandos button:hover{background:rgba(30,40,70,.95)}
+  /* La etiqueta del inmueble y las de los comparables */
+  /* ⚠ SOBRE EL MAPA, SOLO LA MARCA; LOS PRECIOS, EN LA LEYENDA (Zarko,
+     16/09: «los precios no me gustan, deberían aparecer en leyenda a un lado
+     y los números y casita»). Con dos comparables a 24 m, las etiquetas de
+     precio se tapaban entre ellas y la del cliente —la que más importa— era
+     la que se perdía. Ahora el mapa lleva una casita para la vivienda y un
+     número para cada comparable; los precios se leen al lado, sin estorbar. */
+  .marca{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;
+         font:700 14px/1 system-ui,sans-serif;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.5);
+         opacity:0;transform:translateY(8px) scale(.9);transition:opacity .5s,transform .5s;
+         pointer-events:none;cursor:pointer}
+  .marca.on{opacity:1;transform:none;pointer-events:auto}
+  .marca--tuya{width:38px;height:38px;background:#00af93;border:2.5px solid #e6f7f3;font-size:19px}
+  /* ⚠ LOS DOS COLORES SON LOS DE TEMPLO (Zarko, 16/09: «no sé si combina con
+     los de Templo»). No hacía falta inventar nada: la marca ya tiene azul
+     #10263c y verde #00af93, y están en tokens.css. Verde la casa del cliente,
+     azul los comparables. Sobre el mapa nocturno el azul de marca se perdería,
+     así que el círculo lleva el verde claro de su web (#1bc9a0) como borde y
+     el azul de fondo: se lee de lejos y sigue siendo la paleta de la casa. */
+  .marca--comp{background:#10263c;border:2px solid #1bc9a0;color:#eef3f8}
+  .ley--sin .ley__n{background:rgba(255,255,255,.08);color:#7d8ea6;border:1px dashed rgba(255,255,255,.25)}
+  .ley--sin .ley__t b{color:#9fb0c9}
+  .leyenda .nota{margin:10px 0 0;padding-top:9px;border-top:1px solid rgba(255,255,255,.08);
+                 font-size:11.5px;color:#7d8ea6;line-height:1.45}
+  .leyenda{position:absolute;right:24px;top:24px;z-index:2;width:270px;
+           background:rgba(10,14,28,.92);border:1px solid rgba(255,255,255,.12);
+           border-radius:14px;padding:14px 16px;backdrop-filter:blur(8px);
+           box-shadow:0 12px 40px rgba(0,0,0,.5);opacity:0;transition:opacity .6s}
+  .leyenda.on{opacity:1}
+  .leyenda h2{margin:0 0 10px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+              color:#8fa3bf;font-weight:650}
+  .ley{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(255,255,255,.08)}
+  .ley:first-of-type{border-top:0}
+  /* La leyenda lleva EXACTAMENTE los mismos colores que el mapa (Zarko,
+     16/09: «deben ir en la leyenda del mismo color»): si el 1 es azul en el
+     mapa, el 1 es azul aquí. Si no, hay que traducir de memoria. */
+  .ley__n{flex:0 0 26px;height:26px;display:grid;place-items:center;border-radius:50%;
+          font:700 12.5px/1 system-ui,sans-serif;background:#10263c;
+          border:2px solid #1bc9a0;color:#eef3f8}
+  .ley--tuya .ley__n{background:#00af93;border:2px solid #e6f7f3;font-size:15px}
+  .ley__t{flex:1;min-width:0}
+  .ley__t b{display:block;font-size:14px;font-weight:650}
+  .ley__t span{display:block;font-size:12px;color:#8fa3bf;white-space:nowrap;overflow:hidden;
+               text-overflow:ellipsis}
+  .mapboxgl-popup-content{background:#0f172a;color:#e8eef7;border-radius:12px;
+                          border:1px solid rgba(255,255,255,.14);font-size:13.5px}
+  .mapboxgl-popup-tip{border-top-color:#0f172a!important;border-bottom-color:#0f172a!important}
+</style>
+</head>
+<body>
+<div id="mapa"></div>
+<div class="pasos">
+  <div class="paso" id="p1">Situando el inmueble…</div>
+  <div class="paso" id="p2">Buscando comparables en la zona…</div>
+  <div class="paso" id="p3">Ubicación confirmada</div>
+</div>
+<div class="panel">
+  <h1 id="titulo">Calle de Alfredo Marquerie 55</h1>
+  <p id="sub">28034 Madrid · <span class="precio">715.000 €</span> de publicación</p>
+  <p style="margin:10px 0 0;padding-top:9px;border-top:1px solid rgba(255,255,255,.12);
+            font-size:12px;color:#7d8ea6;line-height:1.45">
+    Prueba para el equipo de Templo. Datos de ejemplo de un reporte real.
+    Aún no está en el informe: es para decidir si merece la pena.</p>
+</div>
+<div class="leyenda" id="leyenda">
+  <h2>En esta zona</h2>
+  <div id="leyenda-filas"></div>
+</div>
+<div class="mandos">
+  <button id="otra">Volver a volar</button>
+  <button id="girar">Girar / parar</button>
+</div>
+<script>
+// ⚠ EL TOKEN NO VA EN EL CÓDIGO (16/09). GitHub detecta claves y rechaza el
+// push; además el repo es público. Se pide al abrir y se guarda en el propio
+// navegador, así que solo se escribe una vez por persona.
+const TOKEN = new URLSearchParams(location.search).get('t')
+           || localStorage.getItem('mapbox_token')
+           || prompt('Pega el token público de Mapbox (pk.…) para ver la demo');
+if (TOKEN) localStorage.setItem('mapbox_token', TOKEN);
+
+mapboxgl.accessToken = TOKEN;
+
+// Datos reales del reporte de prueba. En el informe vendrán del servidor.
+// ⚠ EL PUNTO DEL PORTAL, NO EL DE LA PARCELA (Zarko, 16/09: «pintó pero el
+// 53»). El Catastro devuelve el CENTRO DE LA PARCELA, y en una manzana grande
+// eso cae más cerca del edificio vecino: por eso se iluminaba el 53. Se probó
+// a coger el edificio más próximo y seguía fallando, porque el error está en
+// el punto, no en la elección. Mapbox geocodifica la dirección y devuelve el
+// portal: para Marquerie 55, a 24 m del punto del Catastro — justo la
+// diferencia. Las coordenadas del Catastro se conservan como respaldo.
+const TUYA = {lat: 40.4856705948679, lon: -3.70633018453754,
+              titulo: 'Alfredo Marquerie 55', precio: 715000,
+              direccion: 'Calle de Alfredo Marquerie 55, Madrid'};
+
+async function afinarPunto(){
+  if (!TUYA.direccion) return;
+  try {
+    const q = encodeURIComponent(TUYA.direccion);
+    const r = await fetch('https://api.mapbox.com/search/geocode/v6/forward?q=' + q +
+                          '&country=es&limit=1&access_token=' + TOKEN);
+    const d = await r.json();
+    const c = d.features && d.features[0] && d.features[0].geometry.coordinates;
+    if (!c) return;
+    // Solo se acepta si está CERCA: si el geocodificador se va lejos, es que
+    // no ha entendido la dirección y vale más el punto del Catastro.
+    const m = Math.hypot((c[1] - TUYA.lat) * 111320,
+                         (c[0] - TUYA.lon) * 111320 * Math.cos(TUYA.lat * Math.PI / 180));
+    if (m < 150) { TUYA.lat = c[1]; TUYA.lon = c[0]; }
+  } catch (e) {}
+}
+const COMPARABLES = [
+  {lat: 40.48546, lon: -3.70605, precio: 690000, m2: 120, eur_m2: 5750, calle: 'Alfredo Marquerie'},
+  {lat: 40.48897, lon: -3.70849, precio: 735000, m2: 138, eur_m2: 5326, calle: 'Valencia de Don Juan'},
+  // ⚠ SIN POSICIÓN FIABLE: el portal publicó la calle pero no el número. En el
+  // mapa plano estos van «a una esquina, en gris», y el pie lo explica. Aquí no
+  // hay esquina: van SOLO a la leyenda, en gris y con su aviso. Inventarles un
+  // punto cerca del inmueble sugeriría una cercanía que nadie ha comprobado.
+  {lat: null, lon: null, precio: 705000, m2: 128, eur_m2: 5508, calle: 'Ginzo de Limia'}
+];
+
+const mapa = new mapboxgl.Map({
+  container: 'mapa', style: 'mapbox://styles/mapbox/standard',
+  center: [TUYA.lon, TUYA.lat], zoom: 1.2, pitch: 0, bearing: 0,
+  antialias: true, projection: 'globe',
+  // ⚠ LOS COLORES VAN AQUÍ, EN `config`, NO CON setConfigProperty (16/09).
+  // Ese fue el fallo: se llamaba después y el edificio nunca se teñía. Y
+  // `show3dLandmarks: false` es obligatorio según la documentación —un
+  // edificio que Mapbox trae como modelo 3D no admite este coloreado—.
+  config: {basemap: {colorBuildingSelect: '#00af93',
+                     colorBuildingHighlight: '#1bc9a0',
+                     show3dLandmarks: false}}
+});
+
+mapa.on('style.load', () => {
+  try {
+    mapa.setConfigProperty('basemap', 'lightPreset', 'night');
+    mapa.setConfigProperty('basemap', 'showPointOfInterestLabels', true);
+  } catch(e) {}
+  mapa.setFog({'space-color':'#050914','star-intensity':0.5,
+               'color':'#0b1020','high-color':'#12203c'});
+  // Primero se afina el punto, y luego se pinta: si no, la casita y el halo
+  // se quedarían en las coordenadas viejas.
+  afinarPunto().then(() => { pintar(); leyenda(); volar(); });
+});
+
+const eur = n => new Intl.NumberFormat('es-ES').format(Math.round(n)) + ' €';
+
+function leyenda(){
+  const caja = document.getElementById('leyenda-filas');
+  caja.innerHTML =
+    `<div class="ley ley--tuya"><div class="ley__n">\u2302</div><div class="ley__t">
+       <b>${eur(TUYA.precio)}</b><span>Tu vivienda · precio de publicación</span></div></div>` +
+    COMPARABLES.map((c, i) => {
+      const sitio = c.lat != null && c.lon != null;
+      return `<div class="ley${sitio ? '' : ' ley--sin'}"><div class="ley__n">${i + 1}</div>
+        <div class="ley__t"><b>${eur(c.precio)}</b>
+        <span>${c.calle} · ${c.m2} m² · ${new Intl.NumberFormat('es-ES').format(c.eur_m2)} €/m²${sitio ? '' : ' · sin número'}</span>
+      </div></div>`;
+    }).join('');
+  const sinSitio = COMPARABLES.filter(c => c.lat == null || c.lon == null).length;
+  caja.insertAdjacentHTML('beforeend', sinSitio
+    ? `<p class="nota">${sinSitio === 1 ? 'Uno de los anuncios no publica' :
+        'Algunos anuncios no publican'} el número de la calle, así que no ${
+        sinSitio === 1 ? 'aparece' : 'aparecen'} en el mapa. ${
+        sinSitio === 1 ? 'Su precio cuenta igual' : 'Sus precios cuentan igual'} en la valoración.</p>`
+    : '');
+}
+
+function pintar(){
+  // El inmueble: halo verde Templo y su etiqueta con el precio.
+  mapa.addSource('tuya', {type:'geojson', data:{type:'Feature', properties:{},
+    geometry:{type:'Point', coordinates:[TUYA.lon, TUYA.lat]}}});
+  mapa.addLayer({id:'tuya-halo', type:'circle', source:'tuya',
+    paint:{'circle-radius':['interpolate',['linear'],['zoom'],14,10,18,46],
+           'circle-color':'#1bc9a0','circle-opacity':0.3,'circle-blur':0.8}});
+  const eTuya = document.createElement('div');
+  eTuya.className = 'marca marca--tuya';
+  eTuya.textContent = '\u2302';          // la casita
+  eTuya.title = 'Tu vivienda';
+  new mapboxgl.Marker({element:eTuya}).setLngLat([TUYA.lon, TUYA.lat]).addTo(mapa);
+
+  // Los comparables, con su precio a la vista y el detalle al pulsar.
+  COMPARABLES.forEach((c, i) => {
+    if (c.lat == null || c.lon == null) return;   // sin sitio: solo en la leyenda
+    const el = document.createElement('div');
+    el.className = 'marca marca--comp';
+    el.textContent = (i + 1);
+    // Los comparables cuelgan por ENCIMA de su punto, y los que caen muy cerca
+    // del inmueble suben un poco más para no taparlo.
+    const cerca = Math.hypot((c.lat-TUYA.lat)*111320, (c.lon-TUYA.lon)*84000) < 90;
+    new mapboxgl.Marker({element:el, offset:[0, cerca ? -46 : -18]})
+      .setLngLat([c.lon, c.lat])
+      .setPopup(new mapboxgl.Popup({offset:14}).setHTML(
+        `<b>${c.calle}</b><br>${eur(c.precio)} · ${c.m2} m²<br>` +
+        `<span style="color:#9fb0c9">${new Intl.NumberFormat('es-ES').format(c.eur_m2)} €/m²</span>`))
+      .addTo(mapa);
+  });
+}
+
+// ⚠ EL ENCUADRE LO DECIDEN LOS DATOS, NO UN ZOOM FIJO. Medido en los reportes
+// reales: la distancia máxima a un comparable es de unos 420 m de mediana,
+// pero un caso raro puede tenerlos lejos y con zoom fijo se saldrían del mapa.
+// `fitBounds` mete al inmueble y a TODOS los comparables, y luego se limita el
+// zoom para que nunca quede ni tan lejos que no se vea el edificio ni tan
+// cerca que no se vea el entorno.
+// ⚠ SE PINTA EL EDIFICIO DE VERDAD, NO UN PRISMA ENCIMA (Zarko, 16/09:
+// «parece un edificio fantasma encima»). El primer intento fue teñirlo con
+// `queryRenderedFeatures` —no funciona: en Standard los edificios vienen en un
+// basemap importado— y el segundo, levantar una columna propia, que es lo que
+// se veía como fantasma.
+//
+// Lo correcto está en la documentación del estilo Standard: expone un
+// FEATURESET llamado `buildings` con estados `highlight` y `select`, y dos
+// propiedades de configuración para el color. Así se ilumina EL edificio, con
+// su forma y su altura reales.
+function iluminarEdificio(){
+  if (iluminado) return;
+  // ⚠ EL MÁS CERCANO AL PUNTO, NO EL PRIMERO QUE DEVUELVA LA CONSULTA (Zarko,
+  // 16/09: «pintó pero el 53»). Las coordenadas del Catastro apuntan al CENTRO
+  // DE LA PARCELA, no al portal, así que dentro del cuadro de búsqueda caen
+  // varios edificios y el primero de la lista puede ser el vecino. Se calcula
+  // el centro de cada uno y se queda el que esté más cerca del punto.
+  const p = mapa.project([TUYA.lon, TUYA.lat]);
+  const r = 22;
+  const cerca = mapa.queryRenderedFeatures(
+    [[p.x - r, p.y - r], [p.x + r, p.y + r]],
+    {target: {featuresetId: 'buildings', importId: 'basemap'}});
+  if (!cerca || !cerca.length) return;
+
+  const centro = f => {                    // centro aproximado del polígono
+    let x = 0, y = 0, n = 0;
+    const anillos = f.geometry.type === 'MultiPolygon'
+      ? f.geometry.coordinates.flat() : f.geometry.coordinates;
+    (anillos || []).forEach(a => (a || []).forEach(c => { x += c[0]; y += c[1]; n++; }));
+    return n ? [x / n, y / n] : null;
+  };
+  let mejor = null, menor = Infinity;
+  cerca.forEach(f => {
+    const c = centro(f);
+    if (!c) return;
+    const d = Math.hypot(c[0] - TUYA.lon, c[1] - TUYA.lat);
+    if (d < menor) { menor = d; mejor = f; }
+  });
+  if (mejor) {
+    mapa.setFeatureState(mejor, {select: true});
+    iluminado = true;
+  }
+}
+
+function encuadre(){
+  const b = new mapboxgl.LngLatBounds([TUYA.lon, TUYA.lat], [TUYA.lon, TUYA.lat]);
+  COMPARABLES.forEach(c => { if (c.lat != null) b.extend([c.lon, c.lat]); });
+  const cam = mapa.cameraForBounds(b, {padding:{top:120,bottom:150,left:80,right:80},
+                                       pitch:62, bearing:-28});
+  return {center: cam.center, zoom: Math.min(Math.max(cam.zoom, 14.5), 17.2),
+          pitch: 62, bearing: -28};
+}
+
+let girando = false, ultimo = 0, iluminado = false;
+function bucle(t){
+  if(girando){ if(ultimo) mapa.setBearing(mapa.getBearing() + (t-ultimo)*0.004); ultimo = t; }
+  else ultimo = t;
+  requestAnimationFrame(bucle);
+}
+requestAnimationFrame(bucle);
+const paso = (id, ms) => setTimeout(() => document.getElementById(id).classList.add('on'), ms);
+
+function volar(){
+  ['p1','p2','p3'].forEach(i => document.getElementById(i).classList.remove('on'));
+  document.querySelectorAll('.marca').forEach(el => el.classList.remove('on'));
+  document.getElementById('leyenda').classList.remove('on');
+  girando = false;
+  mapa.jumpTo({center:[TUYA.lon, TUYA.lat], zoom:1.2, pitch:0, bearing:0});
+  setTimeout(() => mapa.flyTo({...encuadre(), duration:7000, curve:1.5, essential:true}), 400);
+  paso('p1', 1200); paso('p2', 3400); paso('p3', 6200);
+  // ⚠ CUANDO EL MAPA ESTÁ QUIETO, NO A LOS N SEGUNDOS (16/09). Se probó con
+  // un `setTimeout` y fallaba: a los 6,3 s el vuelo aún dibujaba y la consulta
+  // no encontraba el edificio. `idle` es el momento en que Mapbox ya ha pintado
+  // todo lo visible; ahí sí está. Se reintenta un par de veces por si la
+  // tesela del edificio llega con retraso.
+  // ⚠ CUANDO EL VUELO HA TERMINADO DE VERDAD (16/09). Se probó con `once('idle')`
+  // y fallaba: ese idle salta ANTES de que el vuelo empiece —la cámara aún
+  // está en el globo— y allí no hay ningún edificio que teñir. `moveend` es el
+  // final del `flyTo`; a partir de ahí se reintenta hasta que la tesela del
+  // edificio esté dibujada.
+  let intentos = 0;
+  const probar = () => {
+    try { iluminarEdificio(); } catch(e) {}
+    if (!iluminado && ++intentos < 8) setTimeout(probar, 700);
+  };
+  mapa.once('moveend', () => setTimeout(probar, 300));
+  setTimeout(() => {
+    document.querySelectorAll('.marca').forEach((el, i) =>
+      setTimeout(() => el.classList.add('on'), i * 200));
+    document.getElementById('leyenda').classList.add('on');
+  }, 6600);
+  setTimeout(() => { girando = true; }, 7800);
+}
+
+document.getElementById('otra').onclick = volar;
+document.getElementById('girar').onclick = () => { girando = !girando; };
+['mousedown','touchstart','wheel'].forEach(e => mapa.on(e, () => { girando = false; }));
+</script>
+</body>
+</html>
