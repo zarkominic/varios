@@ -37,6 +37,7 @@
            border-radius:14px;padding:14px 16px;backdrop-filter:blur(8px);
            box-shadow:0 12px 40px rgba(0,0,0,.5);opacity:0;transition:opacity .6s}
   .leyenda.on{opacity:1}
+  .tirador{display:none}
   .leyenda h2{margin:0 0 10px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
               color:#8fa3bf;font-weight:650}
   .ley{display:flex;align-items:center;gap:10px;padding:7px 0;
@@ -74,9 +75,27 @@
      deslizando, y el mapa se queda con la pantalla entera. Lo de arriba a la
      izquierda se encoge para no competir con nada. */
   @media (max-width: 760px){
+    /* ⚠ PLEGADA (Zarko, 16/09: «los datos tapan media pantalla… o como un
+       desplegable si fuera posible»). Ocupaba el 46 % de un iPhone. Ahora es
+       una pestaña al pie: se ve la dirección y el precio de la vivienda, y los
+       comparables salen al tocar. Así no se pierde nada y el mapa —que es lo
+       que hay que enseñar— se queda entero. */
     .leyenda{position:absolute;left:12px;right:12px;top:auto;bottom:12px;width:auto;
              max-height:44vh;overflow-y:auto;padding:12px 14px;border-radius:16px;
              -webkit-overflow-scrolling:touch}
+    .leyenda:not(.abierta){max-height:none;overflow:visible;padding-bottom:10px}
+    .leyenda:not(.abierta) h2,
+    .leyenda:not(.abierta) .ley,
+    .leyenda:not(.abierta) .nota{display:none}
+    .leyenda:not(.abierta) .ley--tuya{display:flex}      /* el precio, siempre */
+    .tirador{display:flex;align-items:center;justify-content:space-between;
+             gap:10px;width:100%;margin-top:8px;padding:8px 0 0;
+             border-top:1px solid rgba(255,255,255,.1);
+             background:none;border-left:0;border-right:0;border-bottom:0;
+             color:#8fa3bf;font:600 12.5px/1 system-ui,sans-serif;cursor:pointer}
+    .tirador b{color:#eef3f8;font-weight:650}
+    .tirador span{transition:transform .3s}
+    .leyenda.abierta .tirador span{transform:rotate(180deg)}
     .leyenda h2{margin-bottom:6px}
     .ley{padding:6px 0}
     .ley__t b{font-size:15px}
@@ -353,6 +372,20 @@ function volar(){
 if (window.matchMedia('(max-width: 760px)').matches) {
   const panel = document.querySelector('.panel'), hueco = document.getElementById('hueco-panel');
   if (panel && hueco) hueco.appendChild(panel);
+  // El tirador: dice cuántos comparables hay y los muestra al tocar.
+  const ley = document.getElementById('leyenda');
+  const b = document.createElement('button');
+  b.className = 'tirador';
+  const n = COMPARABLES.length;
+  b.innerHTML = `<b>Ver ${n} ${n === 1 ? 'comparable' : 'comparables'} de la zona</b><span>⌃</span>`;
+  b.onclick = () => {
+    ley.classList.toggle('abierta');
+    const puesto = ley.classList.contains('abierta');
+    b.querySelector('b').textContent = puesto
+      ? 'Ocultar comparables'
+      : `Ver ${n} ${n === 1 ? 'comparable' : 'comparables'} de la zona`;
+  };
+  ley.appendChild(b);
 }
 
 document.getElementById('otra').onclick = volar;
