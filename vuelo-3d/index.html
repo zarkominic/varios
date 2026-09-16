@@ -88,6 +88,15 @@
     .leyenda:not(.abierta) .ley,
     .leyenda:not(.abierta) .nota{display:none}
     .leyenda:not(.abierta) .ley--tuya{display:flex}      /* el precio, siempre */
+    /* ⚠ PEGADO ABAJO (Zarko, 16/09: «el quitar comparables no se ve a la
+       primera, debo empujar el texto para arriba»). Al desplegarse, el tirador
+       se iba al final de una lista con desplazamiento y había que arrastrar
+       para encontrarlo. Ahora se queda fijo en el borde de la tarjeta. */
+    .leyenda.abierta{padding-bottom:42px;position:absolute}
+    .leyenda.abierta .tirador{position:absolute;left:0;right:0;bottom:0;
+                              margin:0;padding:10px 14px;border-radius:0 0 16px 16px;
+                              background:rgba(10,14,28,.97);
+                              border-top:1px solid rgba(255,255,255,.12)}
     .tirador{display:flex;align-items:center;justify-content:space-between;
              gap:10px;width:100%;margin-top:8px;padding:8px 0 0;
              border-top:1px solid rgba(255,255,255,.1);
@@ -341,7 +350,15 @@ function volar(){
   document.getElementById('leyenda').classList.remove('on');
   girando = false;
   mapa.jumpTo({center:[TUYA.lon, TUYA.lat], zoom:1.2, pitch:0, bearing:0});
-  setTimeout(() => mapa.flyTo({...encuadre(), duration:7000, curve:1.5, essential:true}), 400);
+  // ⚠ SE ENGANCHA AL VUELO, NO AL PRIMER `moveend` (Zarko, 16/09: «aparecen
+  // desde el segundo 1»). El `jumpTo` de arriba —el que coloca la cámara en el
+  // globo— TAMBIÉN dispara un `moveend`, y el `once` se lo comía ese salto en
+  // vez del vuelo. Se registra DESPUÉS de lanzar el `flyTo`, así el siguiente
+  // `moveend` es el aterrizaje de verdad.
+  setTimeout(() => {
+    mapa.flyTo({...encuadre(), duration:7000, curve:1.5, essential:true});
+    mapa.once('moveend', () => alAterrizar.forEach(f => f()));
+  }, 400);
   paso('p1', 1200); paso('p2', 3400); paso('p3', 6200);
   // ⚠ CUANDO EL MAPA ESTÁ QUIETO, NO A LOS N SEGUNDOS (16/09). Se probó con
   // un `setTimeout` y fallaba: a los 6,3 s el vuelo aún dibujaba y la consulta
@@ -358,13 +375,14 @@ function volar(){
     try { iluminarEdificio(); } catch(e) {}
     if (!iluminado && ++intentos < 8) setTimeout(probar, 700);
   };
-  mapa.once('moveend', () => setTimeout(probar, 300));
+  const alAterrizar = [];      // lo que pasa CUANDO EL VUELO TERMINA de verdad
+  alAterrizar.push(() => setTimeout(probar, 300));
   // ⚠ CUANDO YA ESTAMOS EN LA CALLE, NO ANTES (Zarko, 16/09: «¿por qué los
   // números y la casita salen desde el inicio?»). Estaban atados a un
   // `setTimeout` de 6,6 s, pero el vuelo arranca a los 0,4 y dura 7: aparecían
   // 800 ms ANTES de aterrizar, en pleno descenso y sobre un mapa que el
   // cliente todavía no reconoce. Ahora se enganchan al final REAL del vuelo.
-  mapa.once('moveend', () => setTimeout(() => {
+  alAterrizar.push(() => setTimeout(() => {
     document.querySelectorAll('.marca').forEach((el, i) =>
       setTimeout(() => el.classList.add('on'), i * 200));
     document.getElementById('leyenda').classList.add('on');
