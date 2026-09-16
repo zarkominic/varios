@@ -25,11 +25,18 @@
   /* Las marcas del mapa: casita para la vivienda, número para cada comparable.
      Los colores son los de Templo —verde #00af93 y azul #10263c—, no una
      paleta inventada: están en tokens.css. */
+  /* ⚠ SE OCULTA EL CONTENEDOR DE MAPBOX, NO SOLO MI DIV (Zarko, 16/09: «sigue
+     desde el inicio en PC y móvil»). Medido: las marcas salían SIN la clase
+     `on` pero con opacidad 1. La razón es que Mapbox envuelve cada marcador en
+     su propio `.mapboxgl-marker` y le pone `opacity` y `transform` propios
+     —ahí va la posición sobre el mapa—, así que el contenedor se ve aunque mi
+     div de dentro esté a cero. Por eso hay que apagar el PADRE, y tocando solo
+     la opacidad: el `transform` es suyo y pisarlo descoloca la marca. */
+  .mapboxgl-marker{opacity:0;transition:opacity .55s ease}
+  .mapboxgl-marker.visible{opacity:1}
   .marca{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;
          font:700 14px/1 system-ui,sans-serif;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.5);
-         opacity:0;transform:translateY(8px) scale(.9);transition:opacity .5s,transform .5s;
-         pointer-events:none;cursor:pointer}
-  .marca.on{opacity:1;transform:none;pointer-events:auto}
+         cursor:pointer}
   .marca--tuya{width:38px;height:38px;background:#00af93;border:2.5px solid #e6f7f3;font-size:19px}
   .marca--comp{background:#10263c;border:2px solid #1bc9a0;color:#eef3f8}
   .leyenda{position:absolute;right:24px;top:24px;z-index:2;width:270px;
@@ -218,6 +225,21 @@ mapa.on('style.load', () => {
 
 const eur = n => new Intl.NumberFormat('es-ES').format(Math.round(n)) + ' €';
 
+// ⚠ LAS MARCAS SE CREAN AL ATERRIZAR, NO SE OCULTAN CON CSS (Zarko, 16/09:
+// «sigue desde el inicio en PC y móvil»). Se intentó dos veces con CSS —el div
+// de dentro y luego el contenedor `.mapboxgl-marker`— y las dos fallaron:
+// Mapbox escribe `opacity` y `transform` en el ATRIBUTO STYLE del contenedor,
+// y eso pisa cualquier hoja de estilos. Medido: sin la clase de encendido y
+// aun así con opacidad 1. Así que no se ocultan: sencillamente NO EXISTEN
+// hasta que el vuelo termina.
+const MARCAS_PENDIENTES = [];
+let marcasPuestas = false;
+function soltarMarcas(){
+  if (marcasPuestas) return;
+  marcasPuestas = true;
+  MARCAS_PENDIENTES.forEach((f, i) => setTimeout(f, i * 200));
+}
+
 function leyenda(){
   const caja = document.getElementById('leyenda-filas');
   caja.innerHTML =
@@ -246,15 +268,18 @@ function pintar(){
   mapa.addLayer({id:'tuya-halo', type:'circle', source:'tuya',
     paint:{'circle-radius':['interpolate',['linear'],['zoom'],14,10,18,46],
            'circle-color':'#1bc9a0','circle-opacity':0.3,'circle-blur':0.8}});
+  MARCAS_PENDIENTES.push(() => {
   const eTuya = document.createElement('div');
   eTuya.className = 'marca marca--tuya';
   eTuya.textContent = '\u2302';          // la casita
   eTuya.title = 'Tu vivienda';
   new mapboxgl.Marker({element:eTuya}).setLngLat([TUYA.lon, TUYA.lat]).addTo(mapa);
+  });
 
   // Los comparables, con su precio a la vista y el detalle al pulsar.
   COMPARABLES.forEach((c, i) => {
     if (c.lat == null || c.lon == null) return;   // sin sitio: solo en la leyenda
+    MARCAS_PENDIENTES.push(() => {
     const el = document.createElement('div');
     el.className = 'marca marca--comp';
     el.textContent = (i + 1);
@@ -267,6 +292,7 @@ function pintar(){
         `<b>${c.calle}</b><br>${eur(c.precio)} · ${c.m2} m²<br>` +
         `<span style="color:#9fb0c9">${new Intl.NumberFormat('es-ES').format(c.eur_m2)} €/m²</span>`))
       .addTo(mapa);
+    });
   });
 }
 
@@ -346,7 +372,8 @@ const paso = (id, ms) => setTimeout(() => document.getElementById(id).classList.
 
 function volar(){
   ['p1','p2','p3'].forEach(i => document.getElementById(i).classList.remove('on'));
-  document.querySelectorAll('.marca').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.mapboxgl-marker').forEach(el => el.remove());
+  marcasPuestas = false;
   document.getElementById('leyenda').classList.remove('on');
   girando = false;
   mapa.jumpTo({center:[TUYA.lon, TUYA.lat], zoom:1.2, pitch:0, bearing:0});
@@ -383,8 +410,7 @@ function volar(){
   // 800 ms ANTES de aterrizar, en pleno descenso y sobre un mapa que el
   // cliente todavía no reconoce. Ahora se enganchan al final REAL del vuelo.
   alAterrizar.push(() => setTimeout(() => {
-    document.querySelectorAll('.marca').forEach((el, i) =>
-      setTimeout(() => el.classList.add('on'), i * 200));
+    soltarMarcas();
     document.getElementById('leyenda').classList.add('on');
   }, 350));
   setTimeout(() => { girando = true; }, 7800);
