@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>84, Charing Cross Road en 100 preguntas</title>
+<meta name="description" content="Cuestionario interactivo de 100 preguntas sobre 84, Charing Cross Road, de Helene Hanff.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+body{margin:0}
+
+/* Layout: una columna de 46rem. Cabecera con la franja del correo aéreo; cada pregunta es una carta mecanografiada con su matasellos; debajo, el mapa de las 100. */
+:root{
+  --paper:#E6ECF2;      /* papel de correo aéreo */
+  --sheet:#F9FBFD;      /* hoja de cebolla */
+  --ink:#17223A;        /* tinta de máquina */
+  --muted:#556276;
+  --line:#C4CEDA;
+  --air-red:#B3291F;
+  --air-blue:#22479A;
+  --ok:#256437; --ok-bg:#E1EFE4;
+  --bad:#A8261D; --bad-bg:#F6E2DF;
+  --stamp:#4A5E8C;
+  --display:"Libre Caslon Display", "Libre Caslon Text", Georgia, "Times New Roman", serif;
+  --serif:"Libre Caslon Text", Georgia, "Times New Roman", serif;
+  --type:"Courier Prime", "Courier New", Courier, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1521; --sheet:#162031; --ink:#E5EBF3; --muted:#9CA9BC; --line:#2B3A52;
+    --air-red:#E0645A; --air-blue:#8DB0EE;
+    --ok:#7CCB95; --ok-bg:#183326; --bad:#F08A80; --bad-bg:#3A1C1C;
+    --stamp:#9FB3DD;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1521; --sheet:#162031; --ink:#E5EBF3; --muted:#9CA9BC; --line:#2B3A52;
+  --air-red:#E0645A; --air-blue:#8DB0EE;
+  --ok:#7CCB95; --ok-bg:#183326; --bad:#F08A80; --bad-bg:#3A1C1C;
+  --stamp:#9FB3DD;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--air-blue);outline-offset:2px}
+
+.airmail{height:10px;background:repeating-linear-gradient(135deg,var(--air-red) 0 14px,transparent 14px 22px,var(--air-blue) 22px 36px,transparent 36px 44px)}
+
+.wrap{max-width:46rem;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:22px}
+
+/* Cabecera */
+.mast{display:flex;flex-direction:column;gap:6px}
+.route{font-family:var(--type);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,7vw,3.4rem);line-height:1.02;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lede{margin:4px 0 0;max-width:38rem;color:var(--muted);font-size:1rem}
+
+/* Marcador */
+.tally{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.tally div{background:var(--sheet);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tally span{font-family:var(--type);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tally b{font-family:var(--display);font-weight:400;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:-14px}
+.bar i{display:block;height:100%;width:0;background:var(--air-blue);transition:width .3s ease}
+
+/* Filtros */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--sheet);border-radius:999px;padding:6px 12px;font-family:var(--type);font-size:.8rem;cursor:pointer;line-height:1.2}
+.chip:hover{border-color:var(--air-blue)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.chip small{opacity:.7;font-size:.75rem;margin-left:4px;font-variant-numeric:tabular-nums}
+.chip:disabled{opacity:.45;cursor:default}
+
+/* La carta */
+.letter{background:var(--sheet);border:1px solid var(--line);border-radius:4px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:16px;box-shadow:0 1px 0 var(--line),0 10px 24px -18px rgba(23,34,58,.45)}
+.lhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.lmeta{display:flex;flex-direction:column;gap:3px;min-width:0}
+.num{font-family:var(--type);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
+.sect{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:.95rem}
+.diff{font-family:var(--type);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--stamp)}
+.postmark{flex:none;width:76px;height:76px;border-radius:50%;border:2px solid var(--stamp);outline:1px solid var(--stamp);outline-offset:3px;color:var(--stamp);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-11deg);font-family:var(--type);text-transform:uppercase;line-height:1.1;text-align:center;opacity:.85;margin:4px 4px 0 0}
+.postmark b{font-size:.62rem;letter-spacing:.06em;font-weight:700}
+.postmark span{font-size:.62rem;letter-spacing:.04em;border-top:1px solid var(--stamp);border-bottom:1px solid var(--stamp);padding:1px 2px;margin:2px 0}
+h2.q{font-family:var(--type);font-weight:400;font-size:clamp(1.08rem,3.6vw,1.25rem);line-height:1.5;margin:0;outline:none;text-wrap:pretty}
+
+.opts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.opt{width:100%;text-align:left;display:grid;grid-template-columns:1.8rem minmax(0,1fr) 1.4rem;align-items:baseline;gap:8px;padding:11px 12px;border:1px solid var(--line);border-radius:4px;background:transparent;cursor:pointer;font-family:var(--serif);font-size:1rem;line-height:1.4;transition:border-color .15s,background .15s}
+.opt .k{font-family:var(--type);font-weight:700;color:var(--muted)}
+.opt .mark{font-family:var(--type);font-weight:700;text-align:right}
+.opt:hover:not(:disabled){border-color:var(--air-blue);background:color-mix(in srgb,var(--air-blue) 6%,transparent)}
+.opt:disabled{cursor:default}
+.opt.is-ok{border-color:var(--ok);background:var(--ok-bg)}
+.opt.is-ok .k,.opt.is-ok .mark{color:var(--ok)}
+.opt.is-bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt.is-bad .k,.opt.is-bad .mark{color:var(--bad)}
+.opt.is-dim{opacity:.55}
+
+.answer{border-top:1px dashed var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.verdict{font-family:var(--display);font-size:1.35rem;margin:0}
+.verdict.ok{color:var(--ok)}
+.verdict.bad{color:var(--bad)}
+.ps{margin:0;font-style:italic;max-width:62ch}
+.ps b{font-style:normal;font-family:var(--type);font-size:.85rem;letter-spacing:.06em;margin-right:6px;color:var(--muted)}
+
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.btn{border:1px solid var(--ink);background:transparent;border-radius:4px;padding:9px 14px;font-family:var(--type);font-size:.9rem;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--sheet)}
+.btn:hover:not(:disabled){border-color:var(--air-blue)}
+.btn.primary:hover:not(:disabled){background:var(--air-blue);border-color:var(--air-blue)}
+.btn:disabled{opacity:.4;cursor:default}
+.hint{font-family:var(--type);font-size:.72rem;color:var(--muted);letter-spacing:.04em}
+
+/* Resultado final */
+.result{background:var(--sheet);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.result .inner{padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+.result h2{font-family:var(--display);font-weight:400;font-size:1.9rem;margin:0;line-height:1.1;text-wrap:balance}
+.result p{margin:0;color:var(--muted)}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 7rem 3.2rem;gap:10px;align-items:center;font-size:.92rem}
+.row .t{min-width:0}
+.row .track{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.row .track i{display:block;height:100%;background:var(--ok)}
+.row .n{font-family:var(--type);text-align:right;font-variant-numeric:tabular-nums}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Mapa de preguntas */
+.map{display:flex;flex-direction:column;gap:14px}
+.map h3{font-family:var(--type);font-weight:400;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+#map{display:flex;flex-direction:column;gap:16px}
+.cells{display:grid;grid-template-columns:repeat(10,minmax(0,2.6rem));gap:5px}
+.cell{aspect-ratio:1;max-width:100%;border:1px solid var(--line);background:var(--sheet);border-radius:3px;font-family:var(--type);font-size:.72rem;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;color:var(--muted)}
+.cell:hover{border-color:var(--air-blue)}
+.cell.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.cell.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.cell.cur{box-shadow:0 0 0 2px var(--ink);color:var(--ink);font-weight:700}
+.cell.off{opacity:.3}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--type);font-size:.72rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:2px;border:1px solid var(--line);background:var(--sheet);display:inline-block}
+.legend i.ok{background:var(--ok-bg);border-color:var(--ok)}
+.legend i.bad{background:var(--bad-bg);border-color:var(--bad)}
+
+footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (max-width:520px){
+  .letter{padding:18px 16px}
+  .postmark{width:62px;height:62px}
+  .postmark b,.postmark span{font-size:.55rem}
+  .cells{gap:4px}
+  .row{grid-template-columns:minmax(0,1fr) 4.5rem 3rem}
+  .hint{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important}
+}
+</style>
+
+</head>
+<body>
+<div class="airmail" aria-hidden="true"></div>
+<main class="wrap">
+  <header class="mast">
+    <div class="route">Nueva York ⇄ Londres · 1949–1969</div>
+    <h1>84, Charing Cross Road</h1>
+    <p class="lede">Cien preguntas sobre las cartas de Helene Hanff y Frank Doel. Elige una respuesta y verás al momento la correcta, con una nota que la explica.</p>
+  </header>
+
+  <section aria-label="Marcador">
+    <div class="tally">
+      <div><span>Respondidas</span><b id="t-done">0</b></div>
+      <div><span>Aciertos</span><b id="t-ok">0</b></div>
+      <div><span>Porcentaje</span><b id="t-pct">–</b></div>
+    </div>
+  </section>
+  <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+
+  <nav class="chips" id="chips" aria-label="Filtrar por sección"></nav>
+
+  <article class="letter" id="letter" aria-live="off">
+    <div class="lhead">
+      <div class="lmeta">
+        <div class="num" id="num"></div>
+        <div class="sect" id="sect"></div>
+        <div class="diff" id="diff"></div>
+      </div>
+      <div class="postmark" id="postmark" aria-hidden="true"></div>
+    </div>
+    <h2 class="q" id="q" tabindex="-1"></h2>
+    <ul class="opts" id="opts"></ul>
+    <div class="answer" id="answer" hidden>
+      <p class="verdict" id="verdict"></p>
+      <p class="ps" id="ps"></p>
+    </div>
+    <div class="nav">
+      <button class="btn" id="prev" type="button">← Anterior</button>
+      <span class="hint">Teclas A–D para responder · → para seguir</span>
+      <button class="btn primary" id="next" type="button">Siguiente →</button>
+    </div>
+  </article>
+  <div class="sr" id="live" aria-live="polite"></div>
+
+  <section class="result" id="result" hidden>
+    <div class="airmail" aria-hidden="true"></div>
+    <div class="inner">
+      <h2 id="r-title"></h2>
+      <p id="r-sub"></p>
+      <div class="rows" id="r-rows"></div>
+      <div class="actions">
+        <button class="btn primary" id="r-wrong" type="button">Repasar las falladas</button>
+        <button class="btn" id="r-reset" type="button">Volver a empezar</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="map" aria-label="Mapa de preguntas">
+    <div class="legend">
+      <span><i></i>Sin responder</span>
+      <span><i class="ok"></i>Acierto</span>
+      <span><i class="bad"></i>Fallo</span>
+    </div>
+    <div id="map"></div>
+  </section>
+
+  <footer>
+    Basado en <em>84, Charing Cross Road</em> (Helene Hanff, 1970). Tus respuestas se guardan solo en este navegador.
+    <button class="btn" id="reset" type="button" style="margin-left:6px;padding:4px 10px;font-size:.78rem">Borrar respuestas</button>
+  </footer>
+</main>
+
+<script>
+const SECTIONS = [
+  { key: 'inicio',     title: 'Las primeras cartas',      short: 'Primeras cartas', stamp: ['New York', '1949', 'Air mail'] },
+  { key: 'personajes', title: 'La gente de Marks & Co.',  short: 'Personajes',      stamp: ['London', 'W.C.2', 'Marks & Co.'] },
+  { key: 'libros',     title: 'Los libros de Helene',     short: 'Libros',          stamp: ['London', 'Books', 'Antiquarian'] },
+  { key: 'vida',       title: 'Posguerra y vida cotidiana', short: 'Vida cotidiana', stamp: ['London', '1953', 'Par avion'] },
+  { key: 'final',      title: 'El final y la huella del libro', short: 'El final', stamp: ['New York', '1969', 'Air mail'] },
+];
+const DATA = [
+{
+"id": "inicio-01",
+"s": "inicio",
+"q": "¿Dónde vio Helene Hanff el anuncio de Marks & Co. que la animó a escribir?",
+"o": [
+"En el suplemento literario del Times",
+"En The New Yorker",
+"En la Saturday Review of Literature",
+"En un boletín de la Biblioteca Pública de Nueva York"
+],
+"a": 2,
+"e": "El anuncio ofrecía libros descatalogados. Helene escribió a la librería por primera vez en octubre de 1949.",
+"d": "facil"
+},
+{
+"id": "inicio-02",
+"s": "inicio",
+"q": "¿En qué fecha escribe Helene su primera carta a la librería?",
+"o": [
+"5 de octubre de 1949",
+"14 de febrero de 1952",
+"2 de junio de 1953",
+"1 de septiembre de 1956"
+],
+"a": 0,
+"e": "La escribe desde su habitación del 14 East 95th Street, en Nueva York. Con ella empieza una correspondencia de veinte años.",
+"d": "facil"
+},
+{
+"id": "inicio-03",
+"s": "inicio",
+"q": "¿Qué clase de negocio era Marks & Co.?",
+"o": [
+"Una biblioteca de préstamo por correo",
+"Una editorial de clásicos ingleses",
+"Una librería de viejo, de libros antiguos y descatalogados",
+"Una imprenta de catálogos y folletos"
+],
+"a": 2,
+"e": "Era una librería anticuaria del número 84 de Charing Cross Road, la calle de las librerías de Londres.",
+"d": "facil"
+},
+{
+"id": "inicio-04",
+"s": "inicio",
+"q": "¿Cómo se presenta Helene en su primera carta?",
+"o": [
+"Como profesora de literatura inglesa",
+"Como una escritora pobre con gustos de anticuario",
+"Como coleccionista de primeras ediciones",
+"Como dueña de una librería de Nueva York"
+],
+"a": 1,
+"e": "Confiesa que la expresión «libreros anticuarios» la intimida un poco y pide ejemplares limpios y baratos.",
+"d": "facil"
+},
+{
+"id": "inicio-05",
+"s": "inicio",
+"q": "¿Qué precio máximo pone Helene a cada libro en su primer pedido?",
+"o": [
+"1 dólar",
+"5 dólares",
+"10 dólares",
+"25 dólares"
+],
+"a": 1,
+"e": "Pide ejemplares limpios de segunda mano que no pasen de cinco dólares cada uno, y da la lista por pedido en firme.",
+"d": "dificil"
+},
+{
+"id": "inicio-06",
+"s": "inicio",
+"q": "¿Cómo firma la librería sus primeras respuestas?",
+"o": [
+"Con la firma de los dos dueños",
+"Con el nombre completo de Frank Doel",
+"Con las iniciales FPD, en nombre de Marks & Co.",
+"Solo con el sello de la tienda"
+],
+"a": 2,
+"e": "Durante un tiempo Helene no sabe quién se esconde detrás de esas tres iniciales.",
+"d": "facil"
+},
+{
+"id": "inicio-07",
+"s": "inicio",
+"q": "¿Con qué fórmula empieza la librería sus primeras cartas?",
+"o": [
+"«Dear Miss Helene»",
+"«Dear Helene»",
+"«Dear Friend»",
+"«Dear Madam» (Estimada señora)"
+],
+"a": 3,
+"e": "Helene bromea con ese «madam» y dice esperar que en Inglaterra no signifique lo mismo que en Estados Unidos.",
+"d": "facil"
+},
+{
+"id": "inicio-08",
+"s": "inicio",
+"q": "¿Qué dos libros le envían en el primer paquete?",
+"o": [
+"Ensayos de Hazlitt y Virginibus Puerisque, de Stevenson",
+"El diario de Pepys y los sermones de Donne",
+"Orgullo y prejuicio y Tristram Shandy",
+"Una Vulgata latina y un diccionario de latín"
+],
+"a": 0,
+"e": "La librería le dice que ha resuelto dos tercios de su lista: los ensayos de Hazlitt en la edición Nonesuch y el Stevenson.",
+"d": "media"
+},
+{
+"id": "inicio-09",
+"s": "inicio",
+"q": "¿Dónde dice Helene que guarda sus libros cuando llega el Stevenson?",
+"o": [
+"En el armario de la cocina",
+"En una vitrina de caoba",
+"En estanterías hechas con cajas de naranjas",
+"En baúles de viaje"
+],
+"a": 2,
+"e": "Bromea con que un libro tan bonito deja en evidencia sus estanterías de cajas de naranjas.",
+"d": "media"
+},
+{
+"id": "inicio-10",
+"s": "inicio",
+"q": "¿Cómo paga Helene sus primeros libros?",
+"o": [
+"Con cheques de un banco de Londres",
+"Metiendo billetes de dólar en el sobre",
+"Con giro postal, como le pide la tienda",
+"A través de una agencia de cambio"
+],
+"a": 1,
+"e": "La tienda le aconseja usar giros postales, pero ella sigue mandando billetes sueltos durante años.",
+"d": "media"
+},
+{
+"id": "inicio-11",
+"s": "inicio",
+"q": "¿Por qué pide Helene que le pongan los precios en dólares?",
+"o": [
+"No se aclara con las libras, los chelines y los peniques",
+"Su banco no acepta libras",
+"Lo exige la aduana estadounidense",
+"Quiere compararlos con los de Barnes & Noble"
+],
+"a": 0,
+"e": "Un inglés conocido suyo tiene que traducirle la primera factura. Ella dice que no domina la «aritmética bilingüe».",
+"d": "media"
+},
+{
+"id": "inicio-12",
+"s": "inicio",
+"q": "¿Qué la indigna de la Biblia latina que recibe en noviembre de 1949?",
+"o": [
+"Que es una versión protestante que altera el latín de la Vulgata",
+"Que le faltan páginas",
+"Que está en griego y no en latín",
+"Que cuesta el doble de lo acordado"
+],
+"a": 0,
+"e": "Escribe en mayúsculas contra la Iglesia de Inglaterra por haber estropeado, según ella, la prosa más bella del mundo.",
+"d": "media"
+},
+{
+"id": "inicio-13",
+"s": "inicio",
+"q": "¿De qué autor le mandan un tomo que incluye el diálogo de Esopo y Ródope?",
+"o": [
+"Charles Lamb",
+"Leigh Hunt",
+"William Hazlitt",
+"Walter Savage Landor"
+],
+"a": 3,
+"e": "Es un volumen de las obras de Landor con sus diálogos griegos y romanos. Se le abre por un diálogo romano lleno de crucifixiones.",
+"d": "dificil"
+},
+{
+"id": "inicio-14",
+"s": "inicio",
+"q": "¿Qué le parece absurdo a Helene de sus propias cartas a finales de 1949?",
+"o": [
+"Tener que firmar con su nombre completo",
+"Escribir en inglés a una tienda que vende libros en latín",
+"Mandar las cartas por barco y no por avión",
+"Seguir escribiendo «Caballeros» cuando siempre le contesta la misma persona"
+],
+"a": 3,
+"e": "Empezaba sus cartas con «Gentlemen:», y le parecía ridículo dirigirse así a quien estaba claro que era una sola persona.",
+"d": "media"
+},
+{
+"id": "inicio-15",
+"s": "inicio",
+"q": "¿Quién le cuenta a Helene lo duro que es el racionamiento en Gran Bretaña?",
+"o": [
+"Nora Doel, en su primera carta",
+"Brian, un inglés de su círculo en Nueva York",
+"Un locutor de radio",
+"Su editor de Harper's"
+],
+"a": 1,
+"e": "Brian le habla de las raciones de carne y huevos y le pasa el catálogo de una empresa que envía comida a Gran Bretaña.",
+"d": "media"
+},
+{
+"id": "inicio-16",
+"s": "inicio",
+"q": "¿Qué es lo principal del paquete que Helene manda por Navidad de 1949?",
+"o": [
+"Una caja de té",
+"Un pavo",
+"Un jamón",
+"Un queso cheddar"
+],
+"a": 2,
+"e": "Es un jamón de seis libras. Helene sugiere que un carnicero lo corte para repartirlo entre todos.",
+"d": "facil"
+},
+{
+"id": "inicio-17",
+"s": "inicio",
+"q": "Al ver los nombres de los dueños en la factura, ¿qué se pregunta Helene sobre el jamón?",
+"o": [
+"Si los dueños comerán kosher",
+"Si llegará en buen estado",
+"Si está permitido enviar carne",
+"Si bastará para tanta gente"
+],
+"a": 0,
+"e": "Por si acaso, se ofrece a mandar una lengua en su lugar.",
+"d": "dificil"
+},
+{
+"id": "inicio-18",
+"s": "inicio",
+"q": "¿Qué hacen los dos dueños de la tienda con el paquete de Navidad?",
+"o": [
+"Lo devuelven por correo",
+"Lo venden para pagar los sueldos",
+"Se lo llevan a casa",
+"Se quedan fuera del reparto para que lo disfrute el personal"
+],
+"a": 3,
+"e": "La tienda le explica que todo lo que traía eran cosas que no veían nunca o que solo se encontraban en el mercado negro.",
+"d": "media"
+},
+{
+"id": "inicio-19",
+"s": "inicio",
+"q": "En marzo de 1950 Helene empieza su carta con un seco «Frank Doel,». ¿Qué le reprocha?",
+"o": [
+"Que le ha cobrado de más",
+"Que no le manda ninguno de los libros pendientes",
+"Que no le agradeció el paquete",
+"Que le envió libros con anotaciones"
+],
+"a": 1,
+"e": "Le reclama el Leigh Hunt, la Vulgata, el Newman y una antología de poesía, y le acusa de no hacer nada.",
+"d": "facil"
+},
+{
+"id": "inicio-20",
+"s": "inicio",
+"q": "¿Con qué envuelve la tienda los libros, para escándalo de Helene?",
+"o": [
+"Con hojas de periódico",
+"Con páginas de libros viejos",
+"Con papel de embalar del ejército",
+"Con mapas antiguos"
+],
+"a": 1,
+"e": "Frank le explica que eran tomos sueltos y sin tapas de la historia de la Rebelión de Clarendon, que nadie habría comprado.",
+"d": "dificil"
+},
+{
+"id": "personajes-01",
+"s": "personajes",
+"q": "¿Qué puesto ocupa Frank Doel en Marks & Co.?",
+"o": [
+"Contable",
+"Propietario",
+"Jefe de compras",
+"Encuadernador"
+],
+"a": 2,
+"e": "Busca y compra los libros, a menudo en bibliotecas privadas de casas de campo. Los dueños eran el señor Marks y el señor Cohen.",
+"d": "media"
+},
+{
+"id": "personajes-02",
+"s": "personajes",
+"q": "¿Cómo empieza Helene a llamar a Frank en sus cartas desde 1952?",
+"o": [
+"Old Frank",
+"Frankie",
+"Mister Doel",
+"Doelie"
+],
+"a": 1,
+"e": "A partir de septiembre de 1952 sus cartas empiezan así, señal de la confianza que ya hay entre los dos.",
+"d": "facil"
+},
+{
+"id": "personajes-03",
+"s": "personajes",
+"q": "¿Qué significan las iniciales FPD?",
+"o": [
+"Francis P. Dawson",
+"For Private Delivery",
+"Frank Percy Doel",
+"Foreign Purchase Department"
+],
+"a": 2,
+"e": "Son las iniciales con que Frank firmaba al principio, en nombre de Marks & Co.",
+"d": "facil"
+},
+{
+"id": "personajes-04",
+"s": "personajes",
+"q": "¿Cómo se llama la mujer de Frank?",
+"o": [
+"Joan",
+"Cecily",
+"Megan",
+"Nora"
+],
+"a": 3,
+"e": "Nora escribe a Helene de vez en cuando para agradecerle los paquetes y darle noticias de la familia.",
+"d": "facil"
+},
+{
+"id": "personajes-05",
+"s": "personajes",
+"q": "¿De dónde es Nora Doel?",
+"o": [
+"De Escocia",
+"De Irlanda",
+"De Gales",
+"De Estados Unidos"
+],
+"a": 1,
+"e": "Cecily la describe como una chica irlandesa muy dulce.",
+"d": "facil"
+},
+{
+"id": "personajes-06",
+"s": "personajes",
+"q": "¿Quién es la primera empleada, aparte de Frank, que escribe a Helene?",
+"o": [
+"Cecily Farr",
+"Megan Wells",
+"Joan Todd",
+"Maxine"
+],
+"a": 0,
+"e": "Cecily le escribe en abril de 1950, a escondidas.",
+"d": "facil"
+},
+{
+"id": "personajes-07",
+"s": "personajes",
+"q": "¿Qué le pide Cecily en su primera nota?",
+"o": [
+"Que le mande medias de nailon",
+"Que no se lo cuente a Frank",
+"Que le busque trabajo en Nueva York",
+"Que le envíe libros americanos"
+],
+"a": 1,
+"e": "Teme que Frank lo vea impropio, porque considera a Helene su corresponsal particular.",
+"d": "media"
+},
+{
+"id": "personajes-08",
+"s": "personajes",
+"q": "¿Qué cree el viejo señor Martin sobre Helene?",
+"o": [
+"Que es una espía americana",
+"Que es una actriz famosa",
+"Que es una erudita",
+"Que es una librera de la competencia"
+],
+"a": 2,
+"e": "Helene contesta que no tiene nada de erudita: simplemente le encantan los libros.",
+"d": "media"
+},
+{
+"id": "personajes-09",
+"s": "personajes",
+"q": "¿Dónde sirve el marido de Cecily?",
+"o": [
+"En el cuerpo diplomático",
+"En la Marina Real",
+"En la policía de Londres",
+"En la RAF, las fuerzas aéreas"
+],
+"a": 3,
+"e": "Las fotos que Cecily manda a Helene están hechas en Norfolk, donde él estaba destinado.",
+"d": "media"
+},
+{
+"id": "personajes-10",
+"s": "personajes",
+"q": "¿Qué receta le manda Cecily a Helene?",
+"o": [
+"La del trifle",
+"La de los scones",
+"La del pastel de carne y riñones",
+"La del Yorkshire pudding"
+],
+"a": 3,
+"e": "Es la receta de su madre. Helene la prueba y le sale bien.",
+"d": "facil"
+},
+{
+"id": "personajes-11",
+"s": "personajes",
+"q": "¿Por qué deja Cecily la tienda y dejan de llegar sus cartas?",
+"o": [
+"Abre su propia librería",
+"Se casa con un americano",
+"Se va con su marido, destinado en Oriente Medio",
+"Se jubila"
+],
+"a": 2,
+"e": "En 1955 Frank cuenta que nadie sabe nada de ella desde que se marchó a Oriente con su marido.",
+"d": "media"
+},
+{
+"id": "personajes-12",
+"s": "personajes",
+"q": "¿A qué país quiere irse a vivir Megan Wells?",
+"o": [
+"Sudáfrica",
+"Australia",
+"Canadá",
+"Estados Unidos"
+],
+"a": 0,
+"e": "Helene le manda decir que está loca y que, si tan harta está de la civilización, se vaya a una mina de sal de Siberia.",
+"d": "media"
+},
+{
+"id": "personajes-13",
+"s": "personajes",
+"q": "En la Pascua de 1951, ¿por qué varios empleados escriben a Helene por su cuenta?",
+"o": [
+"Porque es el cumpleaños de Helene",
+"Porque Frank está enfermo",
+"Porque Frank se lo prohíbe",
+"Porque Frank está fuera, de viaje de compras"
+],
+"a": 3,
+"e": "Frank está recorriendo el país para comprar libros, así que Cecily y otros compañeros le agradecen el paquete ellos mismos.",
+"d": "dificil"
+},
+{
+"id": "personajes-14",
+"s": "personajes",
+"q": "¿Quién borda el mantel que la tienda regala a Helene?",
+"o": [
+"Una anciana vecina de los Doel",
+"Nora Doel",
+"La madre de Cecily",
+"Megan Wells"
+],
+"a": 0,
+"e": "Es la señora Boulton, que tenía más de ochenta años y vivía sola en el piso de al lado. Desde entonces Helene la incluye en sus paquetes.",
+"d": "media"
+},
+{
+"id": "personajes-15",
+"s": "personajes",
+"q": "¿Qué le ocurre a la señora Boulton en 1956?",
+"o": [
+"Abre un taller de bordado",
+"Se muda a Irlanda",
+"Ingresa en una residencia",
+"Viaja a Nueva York"
+],
+"a": 2,
+"e": "Frank se lo cuenta a Helene con tristeza en una carta de marzo de 1956.",
+"d": "dificil"
+},
+{
+"id": "personajes-16",
+"s": "personajes",
+"q": "¿Quién es Maxine?",
+"o": [
+"Una empleada de la tienda",
+"Una actriz amiga de Helene que actúa en Londres",
+"La hermana de Frank",
+"Una periodista inglesa"
+],
+"a": 1,
+"e": "En 1951 visita la tienda y le escribe a Helene cómo es por dentro.",
+"d": "facil"
+},
+{
+"id": "personajes-17",
+"s": "personajes",
+"q": "¿Qué autor le viene a la cabeza a Maxine al ver la tienda?",
+"o": [
+"Charles Dickens",
+"William Shakespeare",
+"Jane Austen",
+"Arthur Conan Doyle"
+],
+"a": 0,
+"e": "Le dice que es una tienda antigua preciosa, como sacada de una novela de Dickens.",
+"d": "facil"
+},
+{
+"id": "personajes-18",
+"s": "personajes",
+"q": "¿Qué cuentan Ginny y Ed de su visita a la tienda en 1957?",
+"o": [
+"Que la tienda estaba cerrada por obras",
+"Que los recibieron como a reyes por ser amigos de Helene",
+"Que nadie había oído hablar de Helene",
+"Que Frank estaba de vacaciones"
+],
+"a": 1,
+"e": "Frank quería llevárselos a casa el fin de semana y el señor Marks salió de la trastienda solo para estrecharles la mano.",
+"d": "dificil"
+},
+{
+"id": "personajes-19",
+"s": "personajes",
+"q": "¿Cómo se llaman las hijas de Frank?",
+"o": [
+"Kay y Maxine",
+"Cecily y Megan",
+"Nora y Joan",
+"Sheila y Mary"
+],
+"a": 3,
+"e": "Aparecen en las cartas de Frank y de Nora. En 1956 las dos están internas en el colegio.",
+"d": "media"
+},
+{
+"id": "personajes-20",
+"s": "personajes",
+"q": "¿Quién se lleva una caja entera de huevos del paquete de Navidad de 1951?",
+"o": [
+"El señor Martin, que estaba de baja",
+"Frank Doel",
+"El señor Marks",
+"Cecily Farr"
+],
+"a": 0,
+"e": "Se la dan al empleado de más edad, que estaba enfermo. Frank guarda su lengua en lata para una ocasión especial.",
+"d": "dificil"
+},
+{
+"id": "libros-01",
+"s": "libros",
+"q": "¿Qué tipo de libros prefiere Helene?",
+"o": [
+"Novelas policiacas",
+"Ensayos, diarios y cartas: casi nunca ficción",
+"Novelas románticas victorianas",
+"Libros de viajes ilustrados"
+],
+"a": 1,
+"e": "Dice que no le interesan las cosas que nunca pasaron a gente que nunca existió.",
+"d": "facil"
+},
+{
+"id": "libros-02",
+"s": "libros",
+"q": "¿A quién atribuye Helene su gusto por la literatura inglesa?",
+"o": [
+"John Ruskin",
+"Samuel Johnson",
+"Arthur Quiller-Couch, «Q»",
+"Matthew Arnold"
+],
+"a": 2,
+"e": "A los diecisiete años encontró en una biblioteca las lecciones que Q daba en Cambridge y aprendió con ellas por su cuenta.",
+"d": "media"
+},
+{
+"id": "libros-03",
+"s": "libros",
+"q": "¿Qué antología de poesía preparada por Q le ofrece Frank en 1950?",
+"o": [
+"The Oxford Book of English Verse",
+"The Golden Treasury",
+"Lyrical Ballads",
+"A Shropshire Lad"
+],
+"a": 0,
+"e": "Es un ejemplar de 1905 en papel biblia y tela azul, por dos dólares.",
+"d": "media"
+},
+{
+"id": "libros-04",
+"s": "libros",
+"q": "¿Qué le indigna del Diario de Pepys que recibe?",
+"o": [
+"Que está en taquigrafía",
+"Que es una selección y no el diario completo",
+"Que viene en francés",
+"Que tiene las páginas sin cortar"
+],
+"a": 1,
+"e": "Acusa al editor de haber metido la tijera. Frank se disculpa: creía que era la edición completa.",
+"d": "facil"
+},
+{
+"id": "libros-05",
+"s": "libros",
+"q": "¿Qué entrada del Diario de Pepys echa de menos Helene?",
+"o": [
+"La de la coronación de Carlos II",
+"La del gran incendio de Londres",
+"Aquella en que su mujer lo persigue con un atizador al rojo",
+"La de la peste de 1665"
+],
+"a": 2,
+"e": "Cita la del 12 de enero de 1668 como prueba de que le han mandado un Pepys recortado.",
+"d": "dificil"
+},
+{
+"id": "libros-06",
+"s": "libros",
+"q": "¿Qué obra del cardenal Newman recibe Helene en primera edición?",
+"o": [
+"Apologia pro vita sua",
+"Sus discursos sobre la educación universitaria",
+"El sueño de Geroncio",
+"Sus sermones de Oxford"
+],
+"a": 1,
+"e": "Es la edición de Dublín de 1852. Helene dice que nunca le importaron las primeras ediciones, pero la de ese libro sí.",
+"d": "media"
+},
+{
+"id": "libros-07",
+"s": "libros",
+"q": "¿De qué autor son las Vidas que Helene solo puede leer en la biblioteca y reclama a Frank?",
+"o": [
+"Plutarco",
+"Izaak Walton",
+"Giorgio Vasari",
+"John Aubrey"
+],
+"a": 1,
+"e": "En la biblioteca de la calle 42 no puede llevárselas a casa ni leer con café y cigarrillo. Le llegan en 1952, en una edición de 1840.",
+"d": "media"
+},
+{
+"id": "libros-08",
+"s": "libros",
+"q": "¿Qué otro libro de Walton, sobre la pesca, le consigue Frank en 1952?",
+"o": [
+"The Compleat Angler",
+"The Anatomy of Melancholy",
+"Religio Medici",
+"Urn Burial"
+],
+"a": 0,
+"e": "Helene dice que solo los grabados valen diez veces lo que cuesta.",
+"d": "media"
+},
+{
+"id": "libros-09",
+"s": "libros",
+"q": "¿Por qué llama Helene «Speed» (velocidad) a Frank en 1951?",
+"o": [
+"Porque es su apodo en la tienda",
+"Porque contesta siempre a vuelta de correo",
+"Porque conduce un coche deportivo",
+"Por ironía: le manda dos libros unos dos años después de pedirlos"
+],
+"a": 3,
+"e": "Le acaban de llegar el Leigh Hunt y la Vulgata. Luego se arrepiente de la broma y le da las gracias de verdad.",
+"d": "facil"
+},
+{
+"id": "libros-10",
+"s": "libros",
+"q": "¿Qué novela pide Helene después de que una antología se le abra por un pasaje suyo?",
+"o": [
+"Tristram Shandy",
+"Robinson Crusoe",
+"Los viajes de Gulliver",
+"Tom Jones"
+],
+"a": 0,
+"e": "La Book-Lovers' Anthology, regalo de Navidad de 1952, se le abre por el pasaje de la biblioteca del padre de Tristram.",
+"d": "media"
+},
+{
+"id": "libros-11",
+"s": "libros",
+"q": "¿Qué novela de Jane Austen la entusiasma en los años cincuenta?",
+"o": [
+"Persuasión",
+"Emma",
+"Orgullo y prejuicio",
+"Sentido y sensibilidad"
+],
+"a": 2,
+"e": "En 1953 le llega un ejemplar fino encuadernado en piel suave, que paga con tres dólares.",
+"d": "facil"
+},
+{
+"id": "libros-12",
+"s": "libros",
+"q": "¿Qué le molesta del Catulo que le manda Frank en 1955?",
+"o": [
+"Que está lleno de notas de un estudiante",
+"Que está en griego",
+"Que le faltan la mitad de los poemas",
+"Que las traducciones victorianas lo vuelven cursi y lo suavizan"
+],
+"a": 3,
+"e": "La versión en verso es de Sir Richard Burton. Helene pide un Catulo sencillo, solo en latín, y se compra un diccionario.",
+"d": "media"
+},
+{
+"id": "libros-13",
+"s": "libros",
+"q": "¿Qué obra de Platón le ofrece Frank en 1956?",
+"o": [
+"Cuatro diálogos socráticos traducidos por Jowett",
+"La República en griego",
+"El banquete ilustrado",
+"Las Leyes en edición escolar"
+],
+"a": 0,
+"e": "Es una edición de Oxford de 1903 que cuesta un dólar.",
+"d": "dificil"
+},
+{
+"id": "libros-14",
+"s": "libros",
+"q": "¿Qué libro infantil le descubre Brian en 1956?",
+"o": [
+"Peter Pan",
+"Alicia en el país de las maravillas",
+"El viento en los sauces",
+"El libro de la selva"
+],
+"a": 2,
+"e": "Helene lo pide con las ilustraciones de Shepard.",
+"d": "facil"
+},
+{
+"id": "libros-15",
+"s": "libros",
+"q": "¿Qué ensayos de Charles Lamb pide Helene en 1958?",
+"o": [
+"Confessions of an English Opium-Eater",
+"Table Talk",
+"Sartor Resartus",
+"Essays of Elia"
+],
+"a": 3,
+"e": "Frank tiene que decirle que el ejemplar que tenían se vendió durante las fiestas.",
+"d": "media"
+},
+{
+"id": "libros-16",
+"s": "libros",
+"q": "¿Qué costumbre de Helene podría costarle el carné de la biblioteca?",
+"o": [
+"Arrancar las ilustraciones",
+"Devolver los libros con meses de retraso",
+"Escribir notas en los márgenes",
+"Leer en voz alta en la sala"
+],
+"a": 2,
+"e": "Por eso prefiere tener sus propios libros, donde puede anotar lo que quiera.",
+"d": "facil"
+},
+{
+"id": "libros-17",
+"s": "libros",
+"q": "¿Qué hace Helene cada primavera con sus libros?",
+"o": [
+"Los manda encuadernar",
+"Tira los que no va a volver a leer",
+"Los presta a sus vecinos",
+"Los vende a Marks & Co."
+],
+"a": 1,
+"e": "Hace limpieza de libros igual que de ropa, y eso escandaliza a quienes la conocen.",
+"d": "facil"
+},
+{
+"id": "libros-18",
+"s": "libros",
+"q": "Pide un libro de poemas de amor para la primavera. ¿Qué condición pone?",
+"o": [
+"Que sea una primera edición",
+"Que esté en latín",
+"Que tenga ilustraciones",
+"Nada de Keats ni Shelley, y que le quepa en el bolsillo"
+],
+"a": 3,
+"e": "Quiere leerlo en Central Park y prefiere a poetas como Wyatt o Jonson.",
+"d": "facil"
+},
+{
+"id": "libros-19",
+"s": "libros",
+"q": "¿Qué le reprocha Helene a la tienda del libro que le regalan por su cumpleaños en 1951?",
+"o": [
+"Que la dedicatoria venga en una tarjeta y no escrita en el libro",
+"Que sea un libro que ya tenía",
+"Que llegue con un mes de retraso",
+"Que tenga los cantos dorados"
+],
+"a": 0,
+"e": "Le encantan las dedicatorias y las notas a mano en los libros, y le habría gustado tenerla en la guarda.",
+"d": "dificil"
+},
+{
+"id": "libros-20",
+"s": "libros",
+"q": "¿Por dónde se abre el Hazlitt de segunda mano, para alegría de Helene?",
+"o": [
+"Por un mapa de Londres",
+"Por una página con una flor seca",
+"Por la dedicatoria de su primer dueño",
+"Por un ensayo que empieza «Odio leer libros nuevos»"
+],
+"a": 3,
+"e": "Le encanta que los libros usados se abran por la página que más leyó su dueño anterior. Al ver esa frase, grita «¡camarada!».",
+"d": "dificil"
+},
+{
+"id": "vida-01",
+"s": "vida",
+"q": "¿Por qué empieza Helene a mandar paquetes de comida a la tienda?",
+"o": [
+"Porque Frank está enfermo",
+"Porque la tienda está en la ruina",
+"Para pagar los libros en especie",
+"Por el racionamiento de la posguerra en Gran Bretaña"
+],
+"a": 3,
+"e": "En 1949 muchos alimentos seguían racionados en Gran Bretaña, y Helene decide compartir lo que en Nueva York era fácil de conseguir.",
+"d": "facil"
+},
+{
+"id": "vida-02",
+"s": "vida",
+"q": "Según le cuentan a Helene, ¿cuántos huevos tocan por persona al mes en Gran Bretaña?",
+"o": [
+"1 huevo",
+"2 huevos",
+"4 huevos",
+"6 huevos"
+],
+"a": 0,
+"e": "Brian le explica que la carne se limita a unas dos onzas por familia y semana, y los huevos a uno por persona al mes.",
+"d": "media"
+},
+{
+"id": "vida-03",
+"s": "vida",
+"q": "¿Desde qué país envía la comida la empresa que usa Helene para los paquetes?",
+"o": [
+"Irlanda",
+"Canadá",
+"Dinamarca",
+"Argentina"
+],
+"a": 2,
+"e": "Es una empresa británica que manda alimentos desde Dinamarca. Helene elige lo que envía en su catálogo.",
+"d": "media"
+},
+{
+"id": "vida-04",
+"s": "vida",
+"q": "¿Qué llega en el paquete de Pascua de 1950?",
+"o": [
+"Latas y huevos frescos",
+"Un pavo entero",
+"Medias de nailon",
+"Café y azúcar"
+],
+"a": 0,
+"e": "Frank lo agradece en abril de 1950, aunque todavía no ha podido mandarle ninguno de sus libros pendientes.",
+"d": "media"
+},
+{
+"id": "vida-05",
+"s": "vida",
+"q": "Preguntados por Frank, ¿qué prefieren los empleados: huevos frescos o en polvo?",
+"o": [
+"En polvo, porque se conservan más",
+"Frescos, aunque duren menos",
+"Les da igual",
+"Ninguno: prefieren carne"
+],
+"a": 1,
+"e": "Frank consulta a los «reclusos» de la tienda y todos votan por los frescos.",
+"d": "media"
+},
+{
+"id": "vida-06",
+"s": "vida",
+"q": "¿Qué regalo de Navidad recibe Helene de la tienda en 1951?",
+"o": [
+"Una tetera de porcelana",
+"Una primera edición de Shakespeare",
+"Un mantel de lino irlandés bordado a mano",
+"Un grabado de la tienda"
+],
+"a": 2,
+"e": "Llega en enero de 1952. Los regalos de la tienda solían coincidir con la Navidad o con el cumpleaños de Helene.",
+"d": "facil"
+},
+{
+"id": "vida-07",
+"s": "vida",
+"q": "¿Qué hace llegar Helene a las empleadas de la tienda, a través de Maxine, en 1952?",
+"o": [
+"Medias de nailon",
+"Pintalabios americanos",
+"Chocolate suizo",
+"Perfume francés"
+],
+"a": 0,
+"e": "Aparecen como por arte de magia en la mesa de Frank, con una nota de Helene, y las chicas están encantadas.",
+"d": "facil"
+},
+{
+"id": "vida-08",
+"s": "vida",
+"q": "¿Qué novedad familiar le cuenta Nora a Helene en 1952?",
+"o": [
+"Que se han comprado su primer coche, viejo y de segunda mano",
+"Que se mudan a Irlanda",
+"Que Frank ha dejado la tienda",
+"Que han tenido otra hija"
+],
+"a": 0,
+"e": "Nora le escribe de vez en cuando para darle noticias de la familia y agradecerle los paquetes.",
+"d": "media"
+},
+{
+"id": "vida-09",
+"s": "vida",
+"q": "¿Para qué serie de televisión escribe guiones Helene a principios de los cincuenta?",
+"o": [
+"Dragnet",
+"Perry Mason",
+"Alfred Hitchcock presenta",
+"Ellery Queen"
+],
+"a": 3,
+"e": "Escribe asesinatos con ambiente artístico y le pregunta a Frank si prefiere ser el asesino o el cadáver en uno sobre libros antiguos.",
+"d": "facil"
+},
+{
+"id": "vida-10",
+"s": "vida",
+"q": "¿Por qué no puede ir Helene a Londres para la coronación de 1953?",
+"o": [
+"Frank le dice que no hay alojamiento",
+"No le dan el pasaporte",
+"Le da miedo volar",
+"Tiene que gastarse los ahorros en fundas para los dientes"
+],
+"a": 3,
+"e": "Bromea con que lo único coronado que verá en mucho tiempo serán sus dientes.",
+"d": "facil"
+},
+{
+"id": "vida-11",
+"s": "vida",
+"q": "¿Cómo pasan los Doel el día de la coronación?",
+"o": [
+"En Irlanda, con la familia de Nora",
+"En la calle, viendo el desfile",
+"Trabajando en la tienda",
+"Viendo la ceremonia por televisión con amigos y comiendo el jamón de Helene"
+],
+"a": 3,
+"e": "El paquete llega justo a tiempo, y brindan por la salud de Helene y por la de la Reina.",
+"d": "facil"
+},
+{
+"id": "vida-12",
+"s": "vida",
+"q": "¿Qué le pide Cecily a Helene en septiembre de 1953?",
+"o": [
+"Que le mande más medias de nailon",
+"Que le busque trabajo en Nueva York",
+"Que deje de mandar paquetes y ahorre para viajar a Inglaterra",
+"Que escriba a Frank más a menudo"
+],
+"a": 2,
+"e": "El racionamiento casi ha terminado, y hasta se encuentran medias de nailon en las buenas tiendas.",
+"d": "media"
+},
+{
+"id": "vida-13",
+"s": "vida",
+"q": "¿De qué equipo de béisbol es aficionada Helene?",
+"o": [
+"De los New York Yankees",
+"De los Brooklyn Dodgers",
+"De los New York Giants",
+"De los Boston Red Sox"
+],
+"a": 1,
+"e": "En 1955 le pide a Frank que la familia rece por los jugadores antes de la Serie Mundial.",
+"d": "facil"
+},
+{
+"id": "vida-14",
+"s": "vida",
+"q": "¿De qué equipo de fútbol es Frank, al que Helene promete animar?",
+"o": [
+"Chelsea",
+"Arsenal",
+"Tottenham Hotspur",
+"Manchester United"
+],
+"a": 2,
+"e": "Hacen un trato: él anima a los Dodgers y ella a todo lo que lleve el nombre de «Hotspur».",
+"d": "media"
+},
+{
+"id": "vida-15",
+"s": "vida",
+"q": "¿Por qué se enfada Helene al recibir por primera vez el catálogo de la tienda, en 1955?",
+"o": [
+"Porque los precios han subido",
+"Porque llevan años publicándolo sin mandárselo",
+"Porque no trae ningún libro que le interese",
+"Porque está en francés"
+],
+"a": 1,
+"e": "Remata la queja llamando «bellaco» a Frank, una palabra de comedia antigua que siempre había querido usar.",
+"d": "dificil"
+},
+{
+"id": "vida-16",
+"s": "vida",
+"q": "¿Por qué vuelve a aplazar Helene su viaje a Londres en 1956?",
+"o": [
+"La echan de su piso y gasta los ahorros en el nuevo apartamento",
+"Se rompe una pierna",
+"Le ofrecen un trabajo en Hollywood",
+"Frank se lo desaconseja"
+],
+"a": 0,
+"e": "Desalojan su viejo edificio de la calle 95 para reformarlo y se muda a East 72nd Street, a un piso que tiene que amueblar.",
+"d": "media"
+},
+{
+"id": "vida-17",
+"s": "vida",
+"q": "En 1958 Nora pasa meses en el hospital. ¿Qué destaca Frank de aquello?",
+"o": [
+"Que la operó un médico americano",
+"Que gracias a la sanidad pública no les ha costado un penique",
+"Que tuvieron que vender libros para pagarlo",
+"Que Helene pagó la factura"
+],
+"a": 1,
+"e": "Se refiere al National Health Service, el sistema público de salud británico creado en 1948.",
+"d": "dificil"
+},
+{
+"id": "vida-18",
+"s": "vida",
+"q": "¿Qué le ofrece Frank a Helene para su viaje de 1956?",
+"o": [
+"Un descuento en libros",
+"Quedarse en su casa",
+"Un trabajo en la tienda",
+"Una entrada para el Old Vic"
+],
+"a": 1,
+"e": "Con las hijas internas en el colegio, Helene podría elegir cama en casa de los Doel.",
+"d": "facil"
+},
+{
+"id": "vida-19",
+"s": "vida",
+"q": "En 1960, cuando Helene no puede pagar libros, ¿qué hace Frank con las memorias de Saint-Simon?",
+"o": [
+"Le manda una edición resumida más barata",
+"Se las guarda hasta que pueda pagarlas",
+"Se las vende a otro cliente",
+"Se las manda igualmente: su crédito siempre es bueno"
+],
+"a": 3,
+"e": "Helene no quiere el regalo y envía diez dólares a cuenta.",
+"d": "dificil"
+},
+{
+"id": "vida-20",
+"s": "vida",
+"q": "¿Cómo llama Nora a Frank en 1951, cuando pasa semanas fuera comprando libros?",
+"o": [
+"«El inquilino», porque solo va a casa a dormir y desayunar",
+"«El fantasma»",
+"«El viajante»",
+"«El señor de los libros»"
+],
+"a": 0,
+"e": "La cosa cambia cuando Frank llega a casa con la carne y el huevo en polvo del paquete de Helene.",
+"d": "dificil"
+},
+{
+"id": "final-01",
+"s": "final",
+"q": "¿Cuándo muere Frank Doel?",
+"o": [
+"En octubre de 1965",
+"En enero de 1970",
+"En junio de 1971",
+"En diciembre de 1968"
+],
+"a": 3,
+"e": "Murió el 22 de diciembre de 1968, tras una semana en el hospital.",
+"d": "facil"
+},
+{
+"id": "final-02",
+"s": "final",
+"q": "¿De qué muere Frank?",
+"o": [
+"De una gripe complicada",
+"De un infarto",
+"De una peritonitis tras reventarle el apéndice",
+"En un accidente de coche"
+],
+"a": 2,
+"e": "Lo operaron de urgencia, pero la infección se complicó.",
+"d": "media"
+},
+{
+"id": "final-03",
+"s": "final",
+"q": "¿Quién le comunica a Helene la muerte de Frank?",
+"o": [
+"Cecily Farr",
+"Nora Doel",
+"Joan Todd, la secretaria de la tienda",
+"El señor Cohen"
+],
+"a": 2,
+"e": "Su carta es del 8 de enero de 1969. Nora escribe unas semanas después.",
+"d": "media"
+},
+{
+"id": "final-04",
+"s": "final",
+"q": "¿Qué había pedido Helene en su última carta a Frank, en septiembre de 1968?",
+"o": [
+"Una Biblia latina",
+"El diario completo de Pepys",
+"Libros de Jane Austen para regalar a una amiga",
+"Las obras de John Donne"
+],
+"a": 2,
+"e": "La secretaria encuentra esa carta y le pregunta si todavía quiere que le busquen los libros.",
+"d": "dificil"
+},
+{
+"id": "final-05",
+"s": "final",
+"q": "¿Cuánto tiempo llevaba Frank trabajando en Marks & Co.?",
+"o": [
+"Unos veinte años",
+"Unos diez años",
+"Más de cuarenta años",
+"Apenas cinco años"
+],
+"a": 2,
+"e": "Lo dice la carta que anuncia su muerte: había entrado en la tienda siendo muy joven.",
+"d": "media"
+},
+{
+"id": "final-06",
+"s": "final",
+"q": "Según esa carta, ¿a quién le ha afectado mucho la muerte de Frank, por llegar poco después de la del señor Marks?",
+"o": [
+"A Megan Wells",
+"A Cecily Farr",
+"A Bill Humphries",
+"Al señor Cohen"
+],
+"a": 3,
+"e": "El señor Cohen era el otro dueño de la tienda.",
+"d": "dificil"
+},
+{
+"id": "final-07",
+"s": "final",
+"q": "¿Qué confiesa Nora en su carta tras la muerte de Frank?",
+"o": [
+"Que Frank pensaba dejar la tienda",
+"Que nunca leyó sus cartas",
+"Que a veces tuvo celos de Helene",
+"Que quiere mudarse a Nueva York"
+],
+"a": 2,
+"e": "Frank disfrutaba tanto de sus cartas, y se parecían tanto en el humor, que ella envidiaba lo bien que escribía Helene.",
+"d": "facil"
+},
+{
+"id": "final-08",
+"s": "final",
+"q": "¿Cómo describe Nora la diferencia entre ella y Frank?",
+"o": [
+"Él era amable y paciente; ella, irlandesa y siempre peleando por sus derechos",
+"Él era serio y ella muy divertida",
+"Él era de campo y ella de ciudad",
+"Él era católico y ella protestante"
+],
+"a": 0,
+"e": "Cuenta también que Frank intentaba enseñarle cosas de libros, y que lo echa mucho de menos.",
+"d": "media"
+},
+{
+"id": "final-09",
+"s": "final",
+"q": "En abril de 1969, ¿qué le pide Helene a una amiga que viaja a Londres?",
+"o": [
+"Que le compre libros en la tienda",
+"Que, si pasa por el 84 de Charing Cross Road, lo bese de su parte",
+"Que visite la tumba de Frank",
+"Que le lleve flores a Nora"
+],
+"a": 1,
+"e": "Dice que le debe mucho a esa tienda.",
+"d": "facil"
+},
+{
+"id": "final-10",
+"s": "final",
+"q": "En esa carta, ¿dónde dice Helene que está, sin duda, la Inglaterra de la literatura inglesa?",
+"o": [
+"En Stratford-upon-Avon",
+"En su casa, en los libros que la rodean",
+"En la Torre de Londres",
+"En la tienda de Charing Cross Road"
+],
+"a": 1,
+"e": "Escribe rodeada de sus libros y piensa que quizá sea mejor no haber ido nunca a Inglaterra.",
+"d": "media"
+},
+{
+"id": "final-11",
+"s": "final",
+"q": "Pese a las muertes de Frank y del señor Marks, ¿qué dice Helene de la tienda en abril de 1969?",
+"o": [
+"Que ya ha cerrado",
+"Que Marks & Co. sigue ahí",
+"Que la ha comprado un americano",
+"Que se ha trasladado a otra calle"
+],
+"a": 1,
+"e": "Frank y el señor Marks habían muerto, pero la librería seguía abierta.",
+"d": "media"
+},
+{
+"id": "final-12",
+"s": "final",
+"q": "¿En qué año se publica 84, Charing Cross Road?",
+"o": [
+"1949",
+"1968",
+"1970",
+"1987"
+],
+"a": 2,
+"e": "Lo publicó en Nueva York la editorial Grossman, después de que Helene reuniera las cartas.",
+"d": "facil"
+},
+{
+"id": "final-13",
+"s": "final",
+"q": "¿En qué año cierra Marks & Co.?",
+"o": [
+"1968",
+"1970",
+"1975",
+"1981"
+],
+"a": 1,
+"e": "Cerró en diciembre de 1970, el mismo año en que salió el libro.",
+"d": "media"
+},
+{
+"id": "final-14",
+"s": "final",
+"q": "¿Cuántos años abarca la correspondencia del libro?",
+"o": [
+"5 años",
+"10 años",
+"20 años",
+"40 años"
+],
+"a": 2,
+"e": "Va de octubre de 1949 a 1969.",
+"d": "facil"
+},
+{
+"id": "final-15",
+"s": "final",
+"q": "¿En qué año pisa Helene Londres por fin?",
+"o": [
+"1953",
+"1956",
+"1969",
+"1971"
+],
+"a": 3,
+"e": "Llega en junio de 1971, coincidiendo con la edición británica del libro. Frank ya había muerto y la tienda estaba cerrada.",
+"d": "facil"
+},
+{
+"id": "final-16",
+"s": "final",
+"q": "¿Cómo se titula el libro en que Helene cuenta ese viaje?",
+"o": [
+"The Duchess of Bloomsbury Street",
+"Q's Legacy",
+"Underfoot in Show Business",
+"Apple of My Eye"
+],
+"a": 0,
+"e": "Se publicó en 1973. Q's Legacy (1985) trata de su deuda con Quiller-Couch.",
+"d": "media"
+},
+{
+"id": "final-17",
+"s": "final",
+"q": "¿Qué recuerda hoy a Marks & Co. en el número 84?",
+"o": [
+"Nada: el edificio se derribó",
+"Una estatua de Frank Doel",
+"Un museo de la librería",
+"Una placa circular de latón en la fachada"
+],
+"a": 3,
+"e": "La placa recuerda que allí estuvo la librería, que se hizo famosa en todo el mundo gracias al libro de Helene Hanff.",
+"d": "facil"
+},
+{
+"id": "final-18",
+"s": "final",
+"q": "¿Quiénes interpretan a Helene y a Frank en la película de 1987?",
+"o": [
+"Anne Bancroft y Anthony Hopkins",
+"Meryl Streep y Michael Caine",
+"Diane Keaton y Jeremy Irons",
+"Anne Bancroft y Alan Bates"
+],
+"a": 0,
+"e": "Judi Dench hace de Nora. Anne Bancroft ganó el BAFTA a la mejor actriz por este papel.",
+"d": "facil"
+},
+{
+"id": "final-19",
+"s": "final",
+"q": "¿Qué nombre recibió después el edificio de East 72nd Street donde vivía Helene?",
+"o": [
+"Bloomsbury Court",
+"Hanff Tower",
+"Marks Building",
+"Charing Cross House"
+],
+"a": 3,
+"e": "Se lo pusieron en su honor, con una placa de bronce.",
+"d": "dificil"
+},
+{
+"id": "final-20",
+"s": "final",
+"q": "¿Qué editorial publica la traducción española del libro?",
+"o": [
+"Seix Barral",
+"Alfaguara",
+"Tusquets",
+"Anagrama"
+],
+"a": 3,
+"e": "Salió en 2002, con traducción de Javier Calzada.",
+"d": "dificil"
+}
+];
+const LETTERS = ['A', 'B', 'C', 'D'];
+const DIFF = { facil: 'Fácil', media: 'Media', dificil: 'Difícil' };
+const KEY = 'ccr84-quiz-v1';
+const secOf = Object.fromEntries(SECTIONS.map(s => [s.key, s]));
+
+let state = { answers: {}, cur: 0, filter: 'all' };
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    return s && typeof s === 'object' ? s : null;
+  } catch (e) { return null; }
+}
+
+const $ = id => document.getElementById(id);
+const isOk = i => state.answers[DATA[i].id] === DATA[i].a;
+const isAnswered = i => DATA[i].id in state.answers;
+
+function pool() {
+  if (state.filter === 'all') return DATA.map((_, i) => i);
+  if (state.filter === 'wrong') return DATA.map((_, i) => i).filter(i => isAnswered(i) && !isOk(i));
+  return DATA.map((_, i) => i).filter(i => DATA[i].s === state.filter);
+}
+
+function setFilter(f) {
+  state.filter = f;
+  const p = pool();
+  if (!p.length) { state.filter = 'all'; return setFilter('all'); }
+  if (!p.includes(state.cur)) state.cur = p.find(i => !isAnswered(i)) ?? p[0];
+  save(); render(true);
+}
+
+function go(i, focus) { state.cur = i; save(); render(focus); }
+
+function step(d) {
+  const p = pool(); const k = p.indexOf(state.cur);
+  const n = p[k + d];
+  if (n !== undefined) go(n, true);
+}
+
+function answer(choice) {
+  const q = DATA[state.cur];
+  if (isAnswered(state.cur)) return;
+  state.answers[q.id] = choice;
+  save(); render(false);
+  const ok = choice === q.a;
+  $('live').textContent = ok ? 'Correcto.' : `Incorrecto. La respuesta correcta es la ${LETTERS[q.a]}: ${q.o[q.a]}.`;
+  $('next').focus({ preventScroll: true });
+}
+
+function renderChips() {
+  const wrong = DATA.filter((_, i) => isAnswered(i) && !isOk(i)).length;
+  const items = [{ k: 'all', t: 'Todas', n: DATA.length }]
+    .concat(SECTIONS.map(s => ({ k: s.key, t: s.short, n: DATA.filter(d => d.s === s.key).length })))
+    .concat([{ k: 'wrong', t: 'Falladas', n: wrong }]);
+  $('chips').innerHTML = items.map(c =>
+    `<button type="button" class="chip" data-f="${c.k}" aria-pressed="${state.filter === c.k}" ${c.k === 'wrong' && !c.n ? 'disabled' : ''}>${c.t}<small>${c.n}</small></button>`
+  ).join('');
+}
+
+function renderTally() {
+  const done = DATA.filter((_, i) => isAnswered(i)).length;
+  const ok = DATA.filter((_, i) => isAnswered(i) && isOk(i)).length;
+  $('t-done').textContent = `${done}/${DATA.length}`;
+  $('t-ok').textContent = ok;
+  $('t-pct').textContent = done ? `${Math.round(ok / done * 100)} %` : '–';
+  $('bar').style.width = `${done / DATA.length * 100}%`;
+  return { done, ok };
+}
+
+function renderCard(focus) {
+  const i = state.cur, q = DATA[i], s = secOf[q.s];
+  const p = pool(), k = p.indexOf(i);
+  $('num').textContent = `Pregunta ${i + 1} de ${DATA.length}`;
+  $('sect').textContent = s.title;
+  $('diff').textContent = DIFF[q.d] || '';
+  $('postmark').innerHTML = `<b>${s.stamp[0]}</b><span>${s.stamp[1]}</span><b>${s.stamp[2]}</b>`;
+  $('q').textContent = q.q;
+  const chosen = state.answers[q.id];
+  const done = chosen !== undefined;
+  $('opts').innerHTML = q.o.map((t, j) => {
+    let cls = 'opt', mark = '';
+    if (done) {
+      if (j === q.a) { cls += ' is-ok'; mark = '✓'; }
+      else if (j === chosen) { cls += ' is-bad'; mark = '✗'; }
+      else cls += ' is-dim';
+    }
+    const label = done ? (j === q.a ? ' (respuesta correcta)' : j === chosen ? ' (tu respuesta)' : '') : '';
+    return `<li><button type="button" class="${cls}" data-o="${j}" ${done ? 'disabled' : ''} aria-label="${LETTERS[j]}: ${esc(t)}${label}"><span class="k">${LETTERS[j]}</span><span>${esc(t)}</span><span class="mark" aria-hidden="true">${mark}</span></button></li>`;
+  }).join('');
+  $('answer').hidden = !done;
+  if (done) {
+    const ok = chosen === q.a;
+    const v = $('verdict');
+    v.className = 'verdict ' + (ok ? 'ok' : 'bad');
+    v.textContent = ok ? 'Correcto.' : `No. Era la ${LETTERS[q.a]}: ${q.o[q.a]}.`;
+    $('ps').innerHTML = `<b>P. D.</b>${esc(q.e)}`;
+  }
+  $('prev').disabled = k <= 0;
+  const last = k >= p.length - 1;
+  $('next').disabled = last;
+  $('next').textContent = last ? 'Última de la lista' : 'Siguiente →';
+  if (focus) $('q').focus({ preventScroll: true });
+}
+
+function renderMap() {
+  const p = new Set(pool());
+  let n = 0;
+  $('map').innerHTML = SECTIONS.map(s => {
+    const cells = DATA.map((d, i) => [d, i]).filter(([d]) => d.s === s.key).map(([d, i]) => {
+      n++;
+      let cls = 'cell';
+      if (isAnswered(i)) cls += isOk(i) ? ' ok' : ' bad';
+      if (i === state.cur) cls += ' cur';
+      if (!p.has(i)) cls += ' off';
+      const st = isAnswered(i) ? (isOk(i) ? 'acierto' : 'fallo') : 'sin responder';
+      return `<button type="button" class="${cls}" data-i="${i}" aria-label="Pregunta ${i + 1}, ${st}">${i + 1}</button>`;
+    }).join('');
+    return `<div><h3>${s.title}</h3><div class="cells">${cells}</div></div>`;
+  }).join('');
+}
+
+function renderResult(t) {
+  const box = $('result');
+  if (t.done < DATA.length) { box.hidden = true; return; }
+  box.hidden = false;
+  const pct = Math.round(t.ok / DATA.length * 100);
+  const line = pct >= 90 ? 'Frank Doel te mandaría una primera edición.'
+    : pct >= 70 ? 'Te has leído las cartas con atención.'
+    : pct >= 50 ? 'Buena base; repasa las falladas.'
+    : 'Toca releer unas cuantas cartas.';
+  $('r-title').textContent = `${t.ok} de ${DATA.length} aciertos`;
+  $('r-sub').textContent = `${pct} %. ${line}`;
+  $('r-rows').innerHTML = SECTIONS.map(s => {
+    const idx = DATA.map((d, i) => [d, i]).filter(([d]) => d.s === s.key).map(([, i]) => i);
+    const ok = idx.filter(isOk).length;
+    return `<div class="row"><span class="t">${s.title}</span><span class="track"><i style="width:${idx.length ? ok / idx.length * 100 : 0}%"></i></span><span class="n">${ok}/${idx.length}</span></div>`;
+  }).join('');
+  $('r-wrong').disabled = t.ok === DATA.length;
+}
+
+function render(focus) {
+  if (!DATA[state.cur]) state.cur = 0;
+  renderChips();
+  const t = renderTally();
+  renderCard(focus);
+  renderMap();
+  renderResult(t);
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function armReset(btn, label) {
+  let armed = false, timer;
+  btn.addEventListener('click', () => {
+    if (!armed) {
+      armed = true; btn.textContent = '¿Seguro? Pulsa otra vez';
+      timer = setTimeout(() => { armed = false; btn.textContent = label; }, 4000);
+      return;
+    }
+    clearTimeout(timer); armed = false; btn.textContent = label;
+    state = { answers: {}, cur: 0, filter: 'all' };
+    save(); render(true);
+    window.scrollTo({ top: 0 });
+  });
+}
+
+function start(hot) {
+  const saved = (hot && hot.state) || loadSaved();
+  if (saved) {
+    state.answers = saved.answers && typeof saved.answers === 'object' ? saved.answers : {};
+    state.cur = Number.isInteger(saved.cur) && DATA[saved.cur] ? saved.cur : 0;
+    state.filter = typeof saved.filter === 'string' ? saved.filter : 'all';
+  }
+  const known = new Set(DATA.map(d => d.id));
+  for (const k of Object.keys(state.answers)) if (!known.has(k)) delete state.answers[k];
+  if (!pool().length) state.filter = 'all';
+
+  $('chips').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (b && !b.disabled) setFilter(b.dataset.f); });
+  $('opts').addEventListener('click', e => { const b = e.target.closest('[data-o]'); if (b) answer(Number(b.dataset.o)); });
+  $('map').addEventListener('click', e => {
+    const b = e.target.closest('[data-i]'); if (!b) return;
+    const i = Number(b.dataset.i);
+    if (!pool().includes(i)) state.filter = 'all';
+    go(i, true);
+    $('letter').scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+  $('prev').addEventListener('click', () => step(-1));
+  $('next').addEventListener('click', () => step(1));
+  $('r-wrong').addEventListener('click', () => { setFilter('wrong'); $('letter').scrollIntoView({ block: 'start' }); });
+  armReset($('r-reset'), 'Volver a empezar');
+  armReset($('reset'), 'Borrar respuestas');
+
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target.closest && e.target.closest('input, textarea, select')) return;
+    const k = e.key.toLowerCase();
+    const n = ['a', 'b', 'c', 'd'].indexOf(k) >= 0 ? ['a', 'b', 'c', 'd'].indexOf(k) : ['1', '2', '3', '4'].indexOf(k);
+    if (n >= 0) { answer(n); e.preventDefault(); return; }
+    if (e.key === 'ArrowRight') { step(1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft') { step(-1); e.preventDefault(); }
+  });
+
+  window.claude?.hot?.snapshot?.(() => ({ state }));
+  render(false);
+}
+
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+</body>
+</html>
