@@ -37,10 +37,13 @@ async function iniciar() {
   const $rotulo = document.getElementById('rotulo');
   const $sub = document.getElementById('subtitulo');
   $serie.textContent = SERIE[idioma] ?? SERIE.es;
+  $serie.hidden = true; // TikTok y Shorts ya muestran el nombre de la cuenta; arriba tapan sus pestañas
 
   const primera = linea.escenas[0];
   rig.forma = primera.forma;
-  rig.inicioForma = -1.8; // la primera forma ya está formada en el fotograma 0
+  rig.inicioForma = primera.inicio; // -1,8: la primera forma ya está formada en el fotograma 0
+  rig.marcas = primera.marcas ?? null;
+  rig.idioma = idioma;
   reloj.modo = 'fijo';
   reloj.t = 0;
   reloj.dt = 1 / linea.fps;
@@ -56,6 +59,7 @@ async function iniciar() {
     if (rig.forma !== esc.forma) {
       rig.forma = esc.forma;
       rig.inicioForma = esc.inicio;
+      rig.marcas = esc.marcas ?? null;
     }
     // Rótulo: entra con un fundido de 0,6 s al empezar la voz de la escena.
     if (rotuloActual !== k) {
@@ -119,7 +123,8 @@ async function iniciar() {
       }}
     >
       <Estrellas />
-      <Atomo />
+      {/* Un poco más lejos que en la web: deja sitio al rótulo bajo las pestañas de TikTok. */}
+      <Atomo zoom={1.14} />
       <Resplandor />
     </Canvas>,
   );

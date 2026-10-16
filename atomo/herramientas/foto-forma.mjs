@@ -1,4 +1,4 @@
-// Uso: node herramientas/foto-forma.mjs <nombre> <ts1,ts2,...>
+// Uso: node herramientas/foto-forma.mjs <nombre> <ts1,ts2,...> [--idioma es|en]
 // Compila la forma src/formas/<nombre>.js en un banco de pruebas aislado y
 // guarda una captura (540x960) por cada instante ts (segundos desde el inicio de su escena)
 // en build/fotos/<nombre>-<ts>.png. Las bandas marcadas tapan rótulo (arriba) y subtítulos (abajo).
@@ -10,7 +10,10 @@ import { execSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 
 const raiz = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const [nombre, tsArg = '0,3,6'] = process.argv.slice(2);
+const argumentos = process.argv.slice(2);
+const pos = argumentos.indexOf('--idioma');
+const idioma = pos >= 0 ? argumentos.splice(pos, 2)[1] : 'es';
+const [nombre, tsArg = '0,3,6'] = argumentos;
 if (!nombre) {
   console.error('Uso: node herramientas/foto-forma.mjs <nombre> <ts1,ts2,...>');
   process.exit(1);
@@ -18,7 +21,15 @@ if (!nombre) {
 const build = path.join(raiz, 'build');
 fs.mkdirSync(path.join(build, 'fotos'), { recursive: true });
 const entrada = path.join(build, `entrada-${nombre}.jsx`);
-fs.writeFileSync(entrada, `import { arrancarPrueba } from '../src/prueba.jsx';\nimport * as m from '../src/formas/${nombre}.js';\narrancarPrueba(${JSON.stringify(nombre)}, m);\n`);
+// Marcas (instantes de las palabras clave) de la escena que usa esta forma en el vídeo de ese idioma.
+let marcas = null;
+const lineaPath = path.join(raiz, 'build/video', idioma, 'linea.json');
+if (fs.existsSync(lineaPath)) {
+  const esc = JSON.parse(fs.readFileSync(lineaPath)).escenas.find((e) => e.forma === nombre);
+  if (esc) marcas = esc.marcas;
+}
+if (marcas) console.log(`marcas (${idioma}):`, Object.fromEntries(Object.entries(marcas).filter(([k]) => !k.endsWith('_fin'))));
+fs.writeFileSync(entrada, `import { arrancarPrueba } from '../src/prueba.jsx';\nimport { rig } from '../src/estado.js';\nimport * as m from '../src/formas/${nombre}.js';\nrig.marcas = ${JSON.stringify(marcas)};\nrig.idioma = ${JSON.stringify(idioma)};\narrancarPrueba(${JSON.stringify(nombre)}, m);\n`);
 buildSync({
   entryPoints: [entrada],
   bundle: true,
@@ -58,7 +69,7 @@ await pagina.waitForFunction(() => window.__listo === true, null, { timeout: 600
 for (const ts of tsArg.split(',').map(Number)) {
   // Varios fotogramas seguidos para que la cámara se asiente.
   for (let k = 4; k >= 0; k--) await pagina.evaluate((x) => window.__renderizar(x), ts - k / 30);
-  const salida = path.join(build, 'fotos', `${nombre}-${ts}.png`);
+  const salida = path.join(build, 'fotos', `${nombre}${idioma === 'es' ? '' : '-' + idioma}-${ts}.png`);
   await pagina.screenshot({ path: salida });
   console.log(salida);
 }

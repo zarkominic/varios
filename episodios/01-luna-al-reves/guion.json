@@ -18,70 +18,135 @@
         "rotulo": "✓ + ✗ = ?",
         "forma": "Tierra con el ecuador luminoso",
         "visual": "El átomo estalla en partículas de luz y se recompone en una Tierra con el ecuador como una línea brillante. En un plano rápido, una Luna creciente baja de España a Argentina y gira poco a poco en el plano de la pantalla, como la aguja de un reloj. No hay ningún salto al cruzar la línea. Debajo, un remolino invierte su sentido. Al final, dos cartas boca abajo (✓ y ✗) se barajan delante de la cámara.",
-        "forma_id": "tierra_ecuador"
+        "forma_id": "tierra_ecuador",
+        "marcas": {
+          "luna": "luna",
+          "agua": "agua",
+          "verdad": "verdad",
+          "mentira": "mentira"
+        }
       },
       {
         "texto": "La Luna primero: misma fase en todo el planeta. En España, la creciente parece la letra D. Cerca del ecuador, una sonrisa. Y en Argentina, la letra C.",
-        "rotulo": "ES: D · 0°: ◡ · AR: C",
+        "rotulo": "ES: D · Ecuador: ◡ · AR: C",
         "forma": "Luna que gira hasta ser letra",
         "visual": "La Tierra se encoge y el átomo pasa a ser la Luna, con sus mares dibujados. Un único reloj en UTC con el rótulo 'mismo instante' acompaña dos iconos de fase idénticos. No se usan dos relojes con la misma hora local, porque Madrid y Buenos Aires se llevan 4-5 h. Sobre España, la creciente iluminada a la derecha se estira hasta formar una D luminosa. La D baja por el globo girando de forma continua en el plano de la pantalla, sin volteos 3D ni reflejos. Sobre el ecuador queda tumbada como una sonrisa (◡) y sobre Argentina termina como una C, con los mismos mares girados 180°.",
-        "forma_id": "luna_letras"
+        "forma_id": "luna_letras",
+        "marcas": {
+          "letra": "letra",
+          "d": "d",
+          "sonrisa": "sonrisa",
+          "c": "c"
+        }
       },
       {
         "texto": "¿Por qué? Desde el norte sueles buscarla al sur; desde el sur, al norte. Como leer desde el otro lado de la mesa.",
-        "rotulo": "N → S · S → N",
+        "rotulo": "N mira al S · S mira al N",
         "forma": "Globo, Luna y mesa",
         "visual": "El átomo se vuelve un globo con dos figuras de luz, una sobre España y otra sobre Argentina. Sus verticales son las reales: casi en ángulo recto, no cabeza abajo. Una mira hacia el sur y la otra hacia el norte, a la misma Luna. La flecha de 'arriba' de cada figura se dibuja sobre el disco lunar: hacia el polo norte de la Luna para la de España y hacia el polo sur para la de Argentina. Esas dos flechas sí son opuestas. Corte a dos personas a los lados de una mesa con una hoja escrita: una la lee bien y la otra la ve del revés. Cámara subjetiva: la misma Luna, girada 180°.",
-        "forma_id": "globo_observadores"
+        "forma_id": "globo_observadores",
+        "marcas": {
+          "norte": "norte",
+          "sur": "sur#2",
+          "mesa": "mesa"
+        }
       },
       {
         "texto": "La Luna no cambia: cambias tú. En España la llaman mentirosa: si parece la C, decrece; si parece la D, crece.",
-        "rotulo": "ES: C↓ D↑ · AR: C↑ D↓",
+        "rotulo": "España: C ↓ · D ↑",
         "forma": "Luna Pinocho",
         "visual": "La Luna se queda inmóvil y los ejes del espectador giran a su alrededor. Después, sobre un fondo marcado con ES, aparece una C que mengua mientras le crece una nariz de Pinocho. Luego se transforma en una D que crece, y la nariz se alarga otra vez. La pantalla pasa a AR: las flechas se intercambian, la nariz se recoge y aparece un ✓.",
-        "forma_id": "luna_mentirosa"
+        "forma_id": "luna_mentirosa",
+        "marcas": {
+          "tu": "tu",
+          "espana": "espana",
+          "c": "c",
+          "decrece": "decrece",
+          "d": "d",
+          "crece": "crece"
+        }
       },
       {
         "texto": "¿Y el agua? El efecto Coriolis, el empujón del giro terrestre, es diminuto y necesita tiempo. Tu lavamanos se vacía en segundos.",
-        "rotulo": "Coriolis ≈ 10⁻⁷–10⁻⁶ g",
+        "rotulo": "Coriolis ≈ 1/1.000.000 g",
         "forma": "Lavamanos con una flecha diminuta",
         "visual": "Un sello ✓ cae sobre la Luna. Las partículas bajan y forman un lavamanos visto desde arriba. Junto al desagüe aparece una flecha de Coriolis tan pequeña que una lupa tiene que hacer un zoom extremo para encontrarla. Un cronómetro corre unos segundos y el lavamanos se vacía antes de que la flecha llegue a desviar nada.",
-        "forma_id": "lavabo"
+        "forma_id": "lavabo",
+        "marcas": {
+          "coriolis": "coriolis",
+          "diminuto": "diminuto",
+          "tiempo": "tiempo",
+          "lavamanos": "lavamanos",
+          "segundos": "segundos"
+        }
       },
       {
         "texto": "Gana el giro que ya traía el agua. En el inodoro, el diseño de la taza.",
-        "rotulo": "Giro previo > Coriolis",
+        "rotulo": "Gana el giro previo",
         "forma": "Lavamanos e inodoro",
         "visual": "El lavamanos se vuelve a llenar. Una mano vierte el agua de lado y el remolino sigue el giro de la mano. Corte a un inodoro visto desde arriba: los orificios del borde se iluminan como flechas inclinadas que disparan el agua en espiral.",
-        "forma_id": "remolino"
+        "forma_id": "remolino",
+        "marcas": {
+          "giro": "giro",
+          "inodoro": "inodoro",
+          "diseno": "diseno"
+        }
       },
       {
         "texto": "¿Y el truco del ecuador? Ahí Coriolis no hace girar el agua. El giro lo pone el guía.",
-        "rotulo": "0° → Coriolis ↺↻ = 0",
+        "rotulo": "Ecuador: Coriolis = 0",
         "forma": "Línea del ecuador con barreño",
         "visual": "Hay una línea pintada en el suelo, un monumento al fondo y un barreño con hojitas flotando en tres puntos a pocos metros: al norte, encima de la línea y al sur. Las hojitas giran en sentidos opuestos a cada lado. Un gran '0' de luz se posa sobre la línea. Zoom a las manos del guía, que giran el barreño con disimulo al verter. Un círculo rojo las señala.",
-        "forma_id": "ecuador_truco"
+        "forma_id": "ecuador_truco",
+        "marcas": {
+          "truco": "truco",
+          "coriolis": "coriolis",
+          "girar": "girar",
+          "guia": "guia"
+        }
       },
       {
         "texto": "Aquí viene el giro: en Estados Unidos, un tanque ancho, de unos dos metros, reposó un día entero. Al vaciarlo despacio, giró en sentido antihorario.",
-        "rotulo": "1962 · Ø≈2 m · ↻ → 24 h → ↺",
+        "rotulo": "MIT, 1962 · Ø 2 m · 24 h",
         "forma": "Tanque gigante con reloj",
         "visual": "El átomo se aplana en un tanque circular ancho y poco profundo (unos 15 cm de agua), visto siempre desde arriba. Primero se llena haciendo girar el agua en sentido horario (↻), al revés de lo esperado. Se tapa y un reloj de partículas da dos vueltas rápidas (24 h) mientras ese giro se apaga. Se quita el tapón y durante un rato no pasa nada. Después, dos astillas cruzadas sobre el desagüe empiezan a girar despacio en sentido antihorario (↺), cada vez más rápido. De fondo, un globo terráqueo gira de oeste a este: con el norte arriba, la superficie visible va de izquierda a derecha, y visto desde encima del polo norte gira en sentido antihorario, como el remolino.",
-        "forma_id": "tanque"
+        "forma_id": "tanque",
+        "marcas": {
+          "tanque": "tanque",
+          "reposo": "reposo",
+          "dia": "dia",
+          "vaciar": "vaciarlo",
+          "antihorario": "antihorario"
+        }
       },
       {
         "texto": "En Sídney, horario. Solo con un tanque así gana la Tierra. En los huracanes, Coriolis manda de verdad: antihorarios al norte, horarios al sur.",
-        "rotulo": "1965 ↻ · Huracanes N ↺ S ↻",
+        "rotulo": "Sídney, 1965 · huracanes",
         "forma": "Huracanes espejo vistos desde el espacio",
         "visual": "El tanque se desliza al hemisferio sur del globo y, visto desde arriba, gira en sentido horario. Después las partículas crecen hasta formar un huracán visto desde un satélite (imagen real sin voltear, por ejemplo un huracán atlántico de la NOAA). Gira en sentido antihorario sobre el norte: cada flecha de viento sale apuntando al centro, se desvía a su derecha y entra en espiral antihoraria. El ecuador hace de espejo: al sur aparece su reflejo, un ciclón con flechas que se desvían a su izquierda y entran en espiral horaria.",
-        "forma_id": "huracanes"
+        "forma_id": "huracanes",
+        "marcas": {
+          "sidney": "sidney",
+          "huracanes": "huracanes",
+          "antihorarios": "antihorarios",
+          "horarios": "horarios",
+          "norte": "norte",
+          "sur": "sur"
+        }
       },
       {
         "texto": "Veredicto: la Luna, verdad. El inodoro, mentira. Sígueme: en clase no te contaron ni la mitad.",
         "rotulo": "Luna ✓ · Inodoro ✗",
         "forma": "Átomo con dos órbitas",
         "visual": "Las espirales se recogen y el átomo recupera su forma original. A su alrededor giran como electrones una Luna marcada con ✓ y un remolino marcado con ✗. El átomo hace un guiño y aparece el título de la serie.",
-        "forma_id": "atomo"
+        "forma_id": "veredicto",
+        "marcas": {
+          "luna": "luna",
+          "verdad": "verdad",
+          "inodoro": "inodoro",
+          "mentira": "mentira",
+          "sigueme": "sigueme"
+        }
       }
     ]
   },
@@ -91,52 +156,119 @@
       {
         "texto": "Switch hemispheres and the Moon looks upside down. And toilet water swirls the other way. One is true. The other's a lie.",
         "rotulo": "✓ + ✗ = ?",
-        "forma_id": "tierra_ecuador"
+        "forma_id": "tierra_ecuador",
+        "marcas": {
+          "luna": "moon",
+          "agua": "water",
+          "verdad": "true",
+          "mentira": "lie"
+        }
       },
       {
         "texto": "Moon first: same phase everywhere. In New York, a waxing crescent looks like a D. Near the equator, a smile. In Argentina, a C.",
-        "rotulo": "US: D · 0°: ◡ · AR: C",
-        "forma_id": "luna_letras"
+        "rotulo": "US: D · Equator: ◡ · AR: C",
+        "forma_id": "luna_letras",
+        "marcas": {
+          "letra": "like",
+          "d": "d",
+          "sonrisa": "smile",
+          "c": "c"
+        }
       },
       {
         "texto": "Why? Up north, you face south to see it. Down south, you face north. Like reading a note from across the table.",
-        "rotulo": "N → S · S → N",
-        "forma_id": "globo_observadores"
+        "rotulo": "N faces S · S faces N",
+        "forma_id": "globo_observadores",
+        "marcas": {
+          "norte": "north",
+          "sur": "south#2",
+          "mesa": "table"
+        }
       },
       {
         "texto": "The Moon doesn't change. You do. Remember D, O, C: D waxes, O is full, C wanes. In Argentina, flip it: C, O, D.",
-        "rotulo": "US: D↑ O C↓ · AR: C↑ O D↓",
-        "forma_id": "luna_mentirosa"
+        "rotulo": "D·O·C → AR: C·O·D",
+        "forma_id": "luna_doc",
+        "marcas": {
+          "tu": "do",
+          "doc": "remember",
+          "d": "waxes",
+          "o": "full",
+          "c": "wanes",
+          "argentina": "argentina",
+          "flip": "flip",
+          "cod": "c#3"
+        }
       },
       {
         "texto": "Now the water. Coriolis, the nudge from Earth's spin, is tiny and needs time. Your sink drains in seconds.",
-        "rotulo": "Coriolis ≈ 10⁻⁷–10⁻⁶ g",
-        "forma_id": "lavabo"
+        "rotulo": "Coriolis ≈ 1/1,000,000 g",
+        "forma_id": "lavabo",
+        "marcas": {
+          "coriolis": "coriolis",
+          "diminuto": "tiny",
+          "tiempo": "time",
+          "lavamanos": "sink",
+          "segundos": "seconds"
+        }
       },
       {
         "texto": "So the spin the water already had wins. Toilets? Angled rim jets.",
-        "rotulo": "Prior spin > Coriolis",
-        "forma_id": "remolino"
+        "rotulo": "The prior spin wins",
+        "forma_id": "remolino",
+        "marcas": {
+          "giro": "spin",
+          "inodoro": "toilets",
+          "diseno": "angled"
+        }
       },
       {
         "texto": "And that famous equator demo? There, Coriolis doesn't spin the water. The guide does.",
-        "rotulo": "0° → Coriolis ↺↻ = 0",
-        "forma_id": "ecuador_truco"
+        "rotulo": "Equator: Coriolis = 0",
+        "forma_id": "ecuador_truco",
+        "marcas": {
+          "truco": "demo",
+          "coriolis": "coriolis",
+          "girar": "spin",
+          "guia": "guide"
+        }
       },
       {
         "texto": "Here's the twist: near Boston, a tank six feet wide sat still for a whole day. Drained slowly, it swirled counterclockwise.",
-        "rotulo": "1962 · Ø≈6 ft · ↻ → 24 h → ↺",
-        "forma_id": "tanque"
+        "rotulo": "MIT, 1962 · 6 ft · 24 h",
+        "forma_id": "tanque",
+        "marcas": {
+          "tanque": "tank",
+          "reposo": "still",
+          "dia": "day",
+          "vaciar": "drained",
+          "antihorario": "counterclockwise"
+        }
       },
       {
         "texto": "In Sydney, clockwise. Only a setup like that lets Earth win. In hurricanes, Coriolis rules: counterclockwise up north, clockwise down south.",
-        "rotulo": "1965 ↻ · Hurricanes N ↺ S ↻",
-        "forma_id": "huracanes"
+        "rotulo": "Sydney, 1965 · hurricanes",
+        "forma_id": "huracanes",
+        "marcas": {
+          "sidney": "sydney",
+          "huracanes": "hurricanes",
+          "antihorarios": "counterclockwise",
+          "horarios": "clockwise#2",
+          "norte": "north",
+          "sur": "south"
+        }
       },
       {
         "texto": "Verdict: the Moon, true. The toilet, a lie. Follow me: school didn't teach you the half of it.",
         "rotulo": "Moon ✓ · Toilet ✗",
-        "forma_id": "atomo"
+        "forma_id": "veredicto",
+        "marcas": {
+          "luna": "moon",
+          "verdad": "true",
+          "inodoro": "toilet",
+          "mentira": "lie",
+          "sigueme": "follow"
+        }
       }
     ]
   },

@@ -1,4 +1,5 @@
 // Piezas comunes a todas las formas: semillas por partícula, paleta y utilidades.
+import { rig } from '../estado.js';
 export const N = 7000;
 export const TAU = Math.PI * 2;
 
@@ -88,3 +89,67 @@ export const continente = (x, y, z) =>
   0.55 * Math.sin(4.3 * x + 2.2 * z) * Math.sin(3.7 * y + 1.1) +
   0.3 * Math.sin(7.1 * y + 5.3 * x);
 
+
+// Instante (ts, segundos desde que empezó la escena) en que la voz dice la palabra
+// asociada a `nombre` en el guion. Sin marcas (banco de pruebas) devuelve `porDefecto`.
+export const marca = (nombre, porDefecto) => {
+  const v = rig.marcas?.[nombre];
+  return typeof v === 'number' ? v : porDefecto;
+};
+export const idioma = () => rig.idioma ?? 'es';
+
+// Puntos que dibujan un texto o símbolo (✓, ✗, ?, D, O, C…), muestreados de forma
+// determinista. Devuelve Float32Array [x0, y0, x1, y1, …] con el texto de 1 unidad
+// de alto, centrado en el origen. En Node (sin canvas) devuelve ceros.
+const _glifos = new Map();
+export function glifo(texto, n, { fuente = 'bold 200px "DejaVu Sans", sans-serif', semilla = 3 } = {}) {
+  const clave = `${texto}|${n}|${fuente}|${semilla}`;
+  if (_glifos.has(clave)) return _glifos.get(clave);
+  const res = new Float32Array(n * 2);
+  if (typeof document === 'undefined') {
+    _glifos.set(clave, res);
+    return res;
+  }
+  const lienzo = document.createElement('canvas');
+  const ctx = lienzo.getContext('2d', { willReadFrequently: true });
+  ctx.font = fuente;
+  const ancho = Math.ceil(ctx.measureText(texto).width) + 40;
+  const alto = 280;
+  lienzo.width = ancho;
+  lienzo.height = alto;
+  ctx.font = fuente;
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(texto, ancho / 2, alto / 2);
+  const datos = ctx.getImageData(0, 0, ancho, alto).data;
+  const llenos = [];
+  let y0 = alto, y1 = 0;
+  for (let y = 0; y < alto; y++)
+    for (let x = 0; x < ancho; x++)
+      if (datos[(y * ancho + x) * 4 + 3] > 128) {
+        llenos.push(x, y);
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+  const m = llenos.length / 2;
+  if (m === 0) {
+    _glifos.set(clave, res);
+    return res;
+  }
+  const escala = 1 / Math.max(1, y1 - y0);
+  let a = semilla;
+  const azar = () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  for (let k = 0; k < n; k++) {
+    const j = Math.floor(azar() * m);
+    res[k * 2] = (llenos[j * 2] + azar() - ancho / 2) * escala;
+    res[k * 2 + 1] = -((llenos[j * 2 + 1] + azar() - (y0 + y1) / 2) * escala);
+  }
+  _glifos.set(clave, res);
+  return res;
+}

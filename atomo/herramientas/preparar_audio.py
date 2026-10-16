@@ -77,7 +77,24 @@ sf.write(f"{salida}/voz.wav", voz, sr)
 
 # Cambio de forma: un poco antes de que empiece a hablar cada escena (la primera ya formada).
 for k, esc in enumerate(linea):
-    esc["inicio"] = 0.0 if k == 0 else round(max(0.0, esc["voz_inicio"] - ADELANTO), 3)
+    # La primera forma ya está formada en el fotograma 0: empezó 1,8 s "antes" (lo que dura una transformación).
+    esc["inicio"] = -1.8 if k == 0 else round(max(0.0, esc["voz_inicio"] - ADELANTO), 3)
+
+# Marcas: instante (segundos desde el inicio de la forma) en que se dice cada palabra clave.
+# En el guion: "marcas": {"d": "d", "cod": "c#3"} = palabra normalizada y, opcional, su número de aparición.
+for k, (esc, e) in enumerate(zip(linea, escenas)):
+    propias = [w for w in palabras if w["e"] == k]
+    esc["marcas"] = {}
+    for nombre, clave in (e.get("marcas") or {}).items():
+        token, _, n = clave.partition("#")
+        candidatas = [w for w in propias if norm(w["p"]) == norm(token)]
+        n = int(n or 1)
+        if len(candidatas) < n:
+            print(f"AVISO escena {k + 1}: no encuentro la palabra '{clave}' para la marca '{nombre}'")
+            continue
+        w = candidatas[n - 1]
+        esc["marcas"][nombre] = round(w["i"] - esc["inicio"], 3)
+        esc["marcas"][nombre + "_fin"] = round(w["f"] - esc["inicio"], 3)
 
 # Energía de la voz por fotograma, normalizada (percentil 95 = 1).
 n = int(np.ceil(duracion * FPS))

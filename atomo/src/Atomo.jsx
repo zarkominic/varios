@@ -90,7 +90,7 @@ function Estrellas() {
   return <points geometry={geo} material={mat} frustumCulled={false} />;
 }
 
-export function Atomo({ formas = FORMAS, camaras = CAMARAS } = {}) {
+export function Atomo({ formas = FORMAS, camaras = CAMARAS, zoom = 1 } = {}) {
   const { size, gl, camera } = useThree();
   const mat = useMemo(materialParticulas, []);
   const geo = useMemo(() => {
@@ -109,7 +109,10 @@ export function Atomo({ formas = FORMAS, camaras = CAMARAS } = {}) {
     desdeCol: new Float32Array(N * 3),
     desdeTam: new Float32Array(N),
     energia: 0,
-    camPos: new THREE.Vector3(...(camaras[rig.forma] ?? CAMARAS.atomo).pos),
+    camPos: (() => {
+      const cam = camaras[rig.forma] ?? CAMARAS.atomo;
+      return new THREE.Vector3(...cam.pos.map((v, k) => cam.mira[k] + (v - cam.mira[k]) * zoom));
+    })(),
     camMira: new THREE.Vector3(...(camaras[rig.forma] ?? CAMARAS.atomo).mira),
   });
   const p = useMemo(() => new Float32Array(3), []);
@@ -149,9 +152,9 @@ export function Atomo({ formas = FORMAS, camaras = CAMARAS } = {}) {
         pos[j] = e.desdePos[j] + (p[0] - e.desdePos[j]) * kk + DIR[j] * w;
         pos[j + 1] = e.desdePos[j + 1] + (p[1] - e.desdePos[j + 1]) * kk + DIR[j + 1] * w;
         pos[j + 2] = e.desdePos[j + 2] + (p[2] - e.desdePos[j + 2]) * kk + DIR[j + 2] * w;
-        col[j] = e.desdeCol[j] + (c[0] - e.desdeCol[j]) * kk + w * 0.4;
-        col[j + 1] = e.desdeCol[j + 1] + (c[1] - e.desdeCol[j + 1]) * kk + w * 0.5;
-        col[j + 2] = e.desdeCol[j + 2] + (c[2] - e.desdeCol[j + 2]) * kk + w * 0.7;
+        col[j] = e.desdeCol[j] + (c[0] - e.desdeCol[j]) * kk + w * 0.2;
+        col[j + 1] = e.desdeCol[j + 1] + (c[1] - e.desdeCol[j + 1]) * kk + w * 0.25;
+        col[j + 2] = e.desdeCol[j + 2] + (c[2] - e.desdeCol[j + 2]) * kk + w * 0.35;
         tam[i] = e.desdeTam[i] + (tm - e.desdeTam[i]) * kk;
       } else {
         pos[j] = p[0];
@@ -182,9 +185,13 @@ export function Atomo({ formas = FORMAS, camaras = CAMARAS } = {}) {
 
     // Cámara cinematográfica: viaja suavemente al encuadre de cada forma y respira.
     const cam = camaras[e.actual] ?? CAMARAS.atomo;
-    e.camPos.x = amortiguar(e.camPos.x, cam.pos[0] + Math.sin(t * 0.21) * 0.25, 1.2, dt);
-    e.camPos.y = amortiguar(e.camPos.y, cam.pos[1] + Math.sin(t * 0.17) * 0.12, 1.2, dt);
-    e.camPos.z = amortiguar(e.camPos.z, cam.pos[2] - Math.sin(t * 0.13) * 0.2, 1.2, dt);
+    // zoom > 1 aleja la cámara de su punto de mira (todo se ve más pequeño).
+    const px = cam.mira[0] + (cam.pos[0] - cam.mira[0]) * zoom;
+    const py = cam.mira[1] + (cam.pos[1] - cam.mira[1]) * zoom;
+    const pz = cam.mira[2] + (cam.pos[2] - cam.mira[2]) * zoom;
+    e.camPos.x = amortiguar(e.camPos.x, px + Math.sin(t * 0.21) * 0.25, 1.2, dt);
+    e.camPos.y = amortiguar(e.camPos.y, py + Math.sin(t * 0.17) * 0.12, 1.2, dt);
+    e.camPos.z = amortiguar(e.camPos.z, pz - Math.sin(t * 0.13) * 0.2, 1.2, dt);
     e.camMira.x = amortiguar(e.camMira.x, cam.mira[0], 1.2, dt);
     e.camMira.y = amortiguar(e.camMira.y, cam.mira[1], 1.2, dt);
     e.camMira.z = amortiguar(e.camMira.z, cam.mira[2], 1.2, dt);
