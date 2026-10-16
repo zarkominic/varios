@@ -62,7 +62,10 @@ async function iniciar() {
       $rotulo.textContent = esc.rotulo;
       rotuloActual = k;
     }
-    const a = k === 0 ? 1 : suave((t - esc.voz_inicio + 0.15) / 0.6);
+    // …y sale con un fundido de 0,25 s antes de que cambie la escena, para no desaparecer de golpe.
+    const siguiente = linea.escenas[k + 1];
+    const salida = siguiente ? Math.min(1, Math.max(0, (siguiente.inicio - t) / 0.25)) : 1;
+    const a = Math.min(salida, k === 0 ? 1 : suave((t - esc.voz_inicio + 0.15) / 0.6));
     $rotulo.style.opacity = a.toFixed(3);
     $rotulo.style.transform = `translate(-50%, ${((1 - a) * -14).toFixed(1)}px)`;
     $rotulo.style.filter = a < 1 ? `blur(${((1 - a) * 6).toFixed(1)}px)` : 'none';
