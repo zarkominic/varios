@@ -7,6 +7,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { FORMAS, CAMARAS, N, DIR } from './formas.js';
 import { rig } from './estado.js';
+import { reloj } from './tiempo.js';
 
 const DURACION = 1.8;
 const suave = (x) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
@@ -76,7 +77,7 @@ function Estrellas() {
   return <points geometry={geo} material={mat} frustumCulled={false} />;
 }
 
-export function Atomo() {
+export function Atomo({ formas = FORMAS, camaras = CAMARAS } = {}) {
   const { size, gl, camera } = useThree();
   const mat = useMemo(materialParticulas, []);
   const geo = useMemo(() => {
@@ -90,42 +91,44 @@ export function Atomo() {
   const s = useRef({
     t: 0,
     actual: rig.forma,
-    inicio: -100,
+    inicio: rig.inicioForma ?? -100,
     desdePos: new Float32Array(N * 3),
     desdeCol: new Float32Array(N * 3),
     desdeTam: new Float32Array(N),
     energia: 0,
-    camPos: new THREE.Vector3(...CAMARAS.atomo.pos),
-    camMira: new THREE.Vector3(...CAMARAS.atomo.mira),
+    camPos: new THREE.Vector3(...(camaras[rig.forma] ?? CAMARAS.atomo).pos),
+    camMira: new THREE.Vector3(...(camaras[rig.forma] ?? CAMARAS.atomo).mira),
   });
   const p = useMemo(() => new Float32Array(3), []);
   const c = useMemo(() => new Float32Array(3), []);
 
   useFrame((_, delta) => {
-    const dt = Math.min(delta, 1 / 20);
+    const fijo = reloj.modo === 'fijo';
+    const dt = fijo ? reloj.dt : Math.min(delta, 1 / 20);
     const e = s.current;
-    e.t += dt;
+    e.t = fijo ? reloj.t : e.t + dt;
     const t = e.t;
     const pos = geo.attributes.position.array;
     const col = geo.attributes.aColor.array;
     const tam = geo.attributes.aTam.array;
 
     // ¿Nueva forma? Congelamos lo que se ve ahora y transformamos desde ahí.
-    if (rig.forma !== e.actual && FORMAS[rig.forma]) {
+    if (rig.forma !== e.actual && formas[rig.forma]) {
       e.desdePos.set(pos);
       e.desdeCol.set(col);
       e.desdeTam.set(tam);
       e.actual = rig.forma;
-      e.inicio = t;
+      e.inicio = rig.inicioForma ?? t;
     }
-    const prog = Math.min(1, (t - e.inicio) / DURACION);
+    const ts = t - e.inicio;
+    const prog = reloj.sinTransicion ? 1 : Math.min(1, Math.max(0, ts / DURACION));
     const k = suave(prog);
     const remolino = Math.sin(Math.PI * k) * 0.7;
-    const forma = FORMAS[e.actual];
+    const forma = formas[e.actual] ?? FORMAS.atomo;
 
     for (let i = 0; i < N; i++) {
       const j = i * 3;
-      const tm = forma(i, t, p, c);
+      const tm = forma(i, t, p, c, ts);
       if (prog < 1) {
         // Retraso por partícula: la transformación avanza como una ola.
         const kk = suave(Math.min(1, Math.max(0, (prog - (i / N) * 0.25) / 0.75)));
@@ -152,19 +155,20 @@ export function Atomo() {
     geo.attributes.aTam.needsUpdate = true;
 
     // Late al hablar.
-    const objetivo = rig.hablando ? (rig.visema ? rig.pesoVisema : 0.12) : 0;
+    const objetivo = fijo && reloj.energia != null ? reloj.energia : rig.hablando ? (rig.visema ? rig.pesoVisema : 0.12) : 0;
     e.energia = amortiguar(e.energia, objetivo, 16, dt);
     mat.uniforms.uEnergia.value = e.energia;
     mat.uniforms.uEscala.value = (size.height * gl.getPixelRatio()) / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
     if (grupo.current) {
       const latido = 1 + 0.045 * e.energia;
       grupo.current.scale.setScalar(latido);
-      grupo.current.rotation.y = e.actual === 'atomo' ? 0 : Math.sin(t * 0.35) * 0.22;
+      const balanceo = camaras[e.actual]?.balanceo ?? (e.actual === 'atomo' ? 0 : 0.22);
+      grupo.current.rotation.y = Math.sin(t * 0.35) * balanceo;
       grupo.current.position.y = Math.sin(t * 0.8) * 0.04;
     }
 
     // Cámara cinematográfica: viaja suavemente al encuadre de cada forma y respira.
-    const cam = CAMARAS[e.actual] ?? CAMARAS.atomo;
+    const cam = camaras[e.actual] ?? CAMARAS.atomo;
     e.camPos.x = amortiguar(e.camPos.x, cam.pos[0] + Math.sin(t * 0.21) * 0.25, 1.2, dt);
     e.camPos.y = amortiguar(e.camPos.y, cam.pos[1] + Math.sin(t * 0.17) * 0.12, 1.2, dt);
     e.camPos.z = amortiguar(e.camPos.z, cam.pos[2] - Math.sin(t * 0.13) * 0.2, 1.2, dt);

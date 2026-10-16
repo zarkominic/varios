@@ -1,0 +1,35 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Render</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@700&family=Unbounded:wght@500;700&display=swap">
+<style>
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #05081a; }
+  #lienzo { position: absolute; inset: 0; }
+  #serie {
+    position: absolute; top: 74px; left: 0; right: 0; margin: 0; text-align: center;
+    font: 700 28px/1 "Atkinson Hyperlegible", sans-serif; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(232, 241, 255, 0.72);
+  }
+  #rotulo {
+    position: absolute; top: 132px; left: 50%; margin: 0; max-width: 980px; padding: 20px 38px;
+    border: 2px solid rgba(140, 190, 255, 0.45); border-radius: 999px; background: rgba(10, 16, 44, 0.62);
+    color: #e8f1ff; font: 500 42px/1.2 "Unbounded", sans-serif; text-align: center; white-space: nowrap;
+    box-shadow: 0 0 60px rgba(90, 150, 255, 0.18);
+  }
+  #subtitulo {
+    position: absolute; top: 1235px; left: 50%; width: 940px; margin: 0; text-align: center;
+    transform-origin: 50% 50%;
+  }
+  #subtitulo .caja {
+    display: inline; padding: 10px 22px; border-radius: 18px; background: rgba(5, 8, 26, 0.55);
+    -webkit-box-decoration-break: clone; box-decoration-break: clone;
+    font: 700 74px/1.32 "Atkinson Hyperlegible", sans-serif; color: #ffffff;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.75), 0 0 2px rgba(0, 0, 0, 0.9);
+  }
+  #subtitulo .ahora { color: #ffd84a; }
+</style>
+<div id="lienzo"></div>
+<p id="serie"></p>
+<p id="rotulo"></p>
+<p id="subtitulo"></p>
+<script type="module" src="build/video.js"></script>
