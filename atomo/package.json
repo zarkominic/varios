@@ -1,0 +1,18 @@
+{
+  "name": "atomo-narrador",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Átomo de partículas hecho con React Three Fiber que narra y se transforma para explicar cada tema",
+  "scripts": {
+    "build": "esbuild src/main.jsx --bundle --minify --format=esm --jsx=automatic --target=es2020 --define:process.env.NODE_ENV='\"production\"' --outfile=app.js"
+  },
+  "dependencies": {
+    "@react-three/fiber": "8.17.10",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0"
+  }
+}
