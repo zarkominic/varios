@@ -45,19 +45,32 @@ function materialParticulas() {
   });
 }
 
+// Generador pseudoaleatorio con semilla: las estrellas son siempre las mismas
+// (si no, cambiarían entre los navegadores que dibujan cada trozo del vídeo).
+function aleatorio(semilla) {
+  let a = semilla;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 function Estrellas() {
   const geo = useMemo(() => {
+    const azar = aleatorio(2024);
     const n = 900;
     const pos = new Float32Array(n * 3);
     const col = new Float32Array(n * 3);
     const tam = new Float32Array(n);
     for (let i = 0; i < n; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 22;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 30;
-      pos[i * 3 + 2] = -4 - Math.random() * 14;
-      const k = 0.15 + Math.random() * 0.35;
+      pos[i * 3] = (azar() - 0.5) * 22;
+      pos[i * 3 + 1] = (azar() - 0.5) * 30;
+      pos[i * 3 + 2] = -4 - azar() * 14;
+      const k = 0.15 + azar() * 0.35;
       col.set([k * 0.8, k * 0.9, k * 1.2], i * 3);
-      tam[i] = 0.03 + Math.random() * 0.06;
+      tam[i] = 0.03 + azar() * 0.06;
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
