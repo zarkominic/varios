@@ -7,14 +7,19 @@ export const camara = { pos: [0, 0.32, 7], mira: [0, 0.42, 0], balanceo: 0 };
 
 // --- geometría de la escena ------------------------------------------------
 const TX = 0.0; // centro de la Tierra
-const TY = 0.86;
+const TY = 0.9;
 const R = 0.76; // radio de la Tierra
 const INCL = 0.4; // el polo norte se inclina hacia la cámara (vemos el ecuador como elipse)
 const RL = 0.2; // radio de la Luna
-const RW = 0.17; // radio del remolino
-const T_FIN = 6.8; // la Luna termina de bajar (dentro de la escena más corta, 7,3 s)
-const ARCO_X = 1.1; // semiejes del arco que recorren Luna y remolino alrededor de la Tierra
-const ARCO_Y = 1.18;
+const RW = 0.19; // radio del remolino
+// La escena 1 arranca ya formada en ts = 1,8 (primer fotograma = miniatura): hasta T_INI la
+// Luna espera quieta y recta en el norte; baja entre T_INI y T_FIN (cruza el ecuador en
+// ts ≈ 4,9, cuando se oye lo del inodoro) y termina dentro de los 7,3 s de la versión corta.
+const T_INI = 2.0;
+const T_FIN = 7.8;
+const DUR = T_FIN - T_INI;
+const ARCO_X = 1.07; // semiejes del arco que recorren Luna y remolino alrededor de la Tierra
+const ARCO_Y = 1.15;
 const TH0 = 0.93; // ángulo del arco al empezar (hemisferio norte) y al acabar (sur)
 const TH1 = -0.93;
 
@@ -50,11 +55,17 @@ const TU = new Float32Array(N_TIERRA * 3);
 const TCOL = new Float32Array(N_TIERRA * 3);
 const TTAM = new Float32Array(N_TIERRA);
 for (let k = 0; k < N_TIERRA; k++) {
-  const y = 1 - (2 * (k + 0.5)) / N_TIERRA;
-  const rr = Math.sqrt(1 - y * y);
+  const y0 = 1 - (2 * (k + 0.5)) / N_TIERRA;
+  const rr = Math.sqrt(1 - y0 * y0);
   const a = k * 2.399963229728653;
-  const x = rr * Math.cos(a);
-  const z = rr * Math.sin(a);
+  // pequeña irregularidad para que no se note la red
+  let x = rr * Math.cos(a) + (S1[k] - 0.5) * 0.012;
+  let y = y0 + (S2[k] - 0.5) * 0.012;
+  let z = rr * Math.sin(a) + (S4[k] - 0.5) * 0.012;
+  const L = Math.hypot(x, y, z);
+  x /= L;
+  y /= L;
+  z /= L;
   TU[k * 3] = x;
   TU[k * 3 + 1] = y;
   TU[k * 3 + 2] = z;
@@ -152,36 +163,27 @@ for (let k = 0; k < N_LUNA; k++) {
   LUT[k] = tipo;
 }
 
-// --- Remolino: trazos concéntricos (cabeza brillante y cola) -----------------
+// --- Remolino: brazos en espiral que fluyen hacia el desagüe ---------------
 const W_BORDE = 70;
-const W_NUCLEO = 30;
-const W_LARGO = 10; // partículas por trazo
-const W_TRAZOS = Math.floor((N_REMOLINO - W_BORDE - W_NUCLEO) / W_LARGO);
-const WR = new Float32Array(W_TRAZOS); // radio relativo de cada trazo
-const WA = new Float32Array(W_TRAZOS); // ángulo inicial
-const WV = new Float32Array(W_TRAZOS); // factor de velocidad (más rápido cerca del centro)
-for (let k = 0; k < W_TRAZOS; k++) {
-  const rn = 0.2 + 0.8 * ((k * 0.6180339) % 1);
-  WR[k] = rn;
-  WA[k] = TAU * azar();
-  WV[k] = (0.35 / rn) ** 0.85;
-}
+const W_BRAZOS = 6;
+const W_TORSION = 1.35;
 
 // --- Recorrido (Luna a la derecha, remolino a la izquierda) ----------------
 const posEn = (e) => TH0 + (TH1 - TH0) * e;
 const progreso = (ts) => {
-  const x = Math.min(1, Math.max(0, ts / T_FIN));
+  const x = Math.min(1, Math.max(0, (ts - T_INI) / DUR));
   // suave en los extremos, con algo de velocidad desde el principio
   return 0.12 * x + 0.88 * (x * x * (3 - 2 * x));
 };
 const velocidad = (ts) => {
-  if (ts <= 0 || ts >= T_FIN) return 0;
-  const x = ts / T_FIN;
+  if (ts <= T_INI || ts >= T_FIN) return 0;
+  const x = (ts - T_INI) / DUR;
   return (0.12 + 0.88 * 6 * x * (1 - x)) / 1.44;
 };
 // Fase acumulada del remolino: su velocidad angular cambia de signo al cruzar el ecuador.
 const W0 = 3.0;
-const sentido = (y) => Math.tanh((y - TY) / 0.07);
+// Transición ancha (≈0,7 s): el agua se calma, los brazos se deshacen y vuelven a enroscarse.
+const sentido = (y) => Math.tanh((y - TY) / 0.18);
 const PASO = 0.01;
 const FASE = new Float32Array(1600);
 {
@@ -206,6 +208,7 @@ let remX = 0;
 let remY = 0;
 let remFase = 0;
 let remDir = 1;
+let remCalma = 0;
 let pulso = 0;
 let vel = 0;
 
@@ -216,7 +219,8 @@ function preparar(ts) {
   sg = Math.sin(giro);
   const e = progreso(ts);
   eActual = e;
-  vel = velocidad(ts);
+  // la estela nace y se recoge con suavidad (sin saltos al arrancar ni al pararse)
+  vel = velocidad(ts) * suave((ts - T_INI) / 0.5) * suave((T_FIN - ts) / 0.5);
   const th = posEn(e);
   const flotar = 0.025 * Math.sin(ts * 1.3) * suave((ts - T_FIN + 0.6) / 1.2);
   lunaX = TX + ARCO_X * Math.cos(th);
@@ -235,6 +239,8 @@ function preparar(ts) {
     remFase = FASE[k0] + (FASE[k0 + 1] - FASE[k0]) * (kf - k0);
   }
   remDir = sentido(remY);
+  // En el cruce el agua se calma: los brazos se deshacen en un disco uniforme (sin asterisco).
+  remCalma = 1 - remDir * remDir;
   // destello del ecuador cuando la Luna lo cruza
   pulso = Math.exp(-(((e - 0.5) / 0.09) ** 2));
 }
@@ -255,23 +261,23 @@ export function forma(i, t, p, c, ts) {
     poner(p, TX + R * x1, TY + R * y2, R * z2);
     const frente = suave((z2 + 0.22) / 0.5);
     const luz = Math.max(0, x1 * LX + y2 * LY + z2 * LZ);
-    const k = (0.07 + 0.93 * frente) * (0.6 + 0.6 * luz);
+    const k = (0.07 + 0.93 * frente) * (0.5 + 0.78 * luz);
     poner(c, TCOL[j] * k, TCOL[j + 1] * k, TCOL[j + 2] * k);
     return TTAM[i] * (0.6 + 0.4 * frente);
   }
 
   // ---- Atmósfera: halo en el plano de la pantalla ----
   if (i < I_ECUADOR) {
-    const r = R * (1.0 + S3[i] ** 1.6 * 0.3);
+    const r = R * (1.0 + S3[i] ** 1.8 * 0.24);
     const th = TAU * S1[i];
     const ca = Math.cos(th);
     const sa = Math.sin(th);
     poner(p, TX + r * ca, TY + r * sa, (S4[i] - 0.5) * 0.25);
-    const k = 1 - (r - R) / (0.3 * R);
+    const k = 1 - (r - R) / (0.24 * R);
     const lado = 0.75 + 0.4 * (ca * 0.75 + sa * 0.66);
-    const v = (0.1 + 1.0 * k * k) * lado * (0.9 + 0.1 * Math.sin(t * 1.3 + th * 5));
+    const v = (0.1 + 1.35 * k * k * k) * lado * (0.9 + 0.1 * Math.sin(t * 1.3 + th * 5));
     poner(c, 0.35 * v, 0.68 * v, 1.0 * v);
-    return 0.045;
+    return 0.045 + 0.03 * (1 - k);
   }
 
   // ---- Ecuador: anillo dorado sobre la superficie ----
@@ -291,9 +297,9 @@ export function forma(i, t, p, c, ts) {
     // destello que recorre el ecuador cuando la Luna lo cruza (desde el borde derecho)
     const brillo = 1 + 1.2 * pulso * (0.4 + 0.6 * Math.max(0, x1));
     const chispa = 0.85 + 0.15 * Math.sin(lon * 9 - t * 2.2);
-    const v = (0.2 + 1.0 * frente) * brillo * chispa * (halo ? 0.32 : 1.3);
+    const v = (0.2 + 1.0 * frente) * brillo * chispa * (halo ? 0.42 : 1.55);
     poner(c, C.sol[0] * v, C.sol[1] * v, C.sol[2] * v);
-    return halo ? 0.075 : 0.036;
+    return halo ? 0.085 : 0.038;
   }
 
   // ---- Luna creciente ----
@@ -305,7 +311,7 @@ export function forma(i, t, p, c, ts) {
     const tipo = LUT[k];
     const b = LUB[k];
     if (tipo === 0) {
-      const v = 1.45 * b;
+      const v = 1.25 * b;
       poner(c, 1.0 * v, 0.97 * v, 0.9 * v);
       return 0.034;
     }
@@ -324,42 +330,47 @@ export function forma(i, t, p, c, ts) {
     if (k < W_BORDE) {
       // borde del lavabo
       const a = TAU * S1[i];
-      const r = RW * (1.22 + (S2[i] - 0.5) * 0.04);
+      const r = RW * (1.2 + (S2[i] - 0.5) * 0.04);
       poner(p, remX + r * Math.cos(a), remY + r * Math.sin(a), 0);
-      poner(c, 0.2, 0.36, 0.7);
+      poner(c, 0.2, 0.36, 0.72);
       return 0.028;
     }
-    if (k < W_BORDE + W_NUCLEO) {
-      // desagüe
-      const a = TAU * S1[i];
-      const r = RW * 0.1 * Math.sqrt(S2[i]);
-      poner(p, remX + r * Math.cos(a), remY + r * Math.sin(a), 0);
-      poner(c, 0.35, 0.7, 1.0);
-      return 0.03;
-    }
-    const q = k - W_BORDE - W_NUCLEO;
-    const tr = Math.floor(q / W_LARGO) % W_TRAZOS;
-    const j = q % W_LARGO;
-    const rn = WR[tr];
-    const cabeza = WA[tr] + remFase * WV[tr];
-    const a = cabeza - remDir * j * (0.05 / rn);
-    const r = RW * rn * (1 + (S2[i] - 0.5) * 0.04);
+    // Brazos en espiral: el agua entra por fuera y cae al centro. La torsión de los brazos
+    // sigue al sentido de giro; al cruzar el ecuador se disuelven y se enroscan al revés.
+    const brazo = k % W_BRAZOS;
+    const u = (S1[i] + ts * 0.32) % 1;
+    const rn = 1 - 0.86 * u;
+    const disuelto = (S3[i] - 0.5) * (TAU / W_BRAZOS) * remCalma;
+    const a =
+      (brazo * TAU) / W_BRAZOS + remFase + remDir * W_TORSION * Math.log(1 / rn) + (S2[i] - 0.5) * 0.22 + disuelto;
+    const r = RW * rn;
     poner(p, remX + r * Math.cos(a), remY + r * Math.sin(a), (S4[i] - 0.5) * 0.03);
-    const cola = (1 - j / W_LARGO) ** 1.4;
-    const v = (0.25 + 1.1 * cola) * (0.75 + 0.25 * (1 - rn));
-    poner(c, (0.25 + 0.25 * (1 - rn)) * v, 0.6 * v, 1.0 * v);
-    return 0.024 + 0.008 * cola;
+    const entrada = Math.min(1, u * 6);
+    const caida = Math.min(1, (1 - u) * 3.5);
+    const v = entrada * caida * (0.55 + 0.55 * u) * 0.9 * (1 - 0.35 * remCalma);
+    poner(c, (0.22 + 0.3 * u) * v, (0.55 + 0.25 * u) * v, 1.0 * v);
+    return 0.03 - 0.008 * u;
   }
 
-  // ---- Estela de la Luna (camino ya recorrido, se apaga al detenerse) ----
+  // ---- Estela de la Luna: polvo luminoso tras ella mientras baja; quieta, un halo tenue ----
   const k = i - I_ESTELA;
-  const d = (k / N_ESTELA) * 0.16;
+  const d = 0.035 + (k / N_ESTELA) * 0.17;
   const th = posEn(Math.max(0, eActual - d));
-  const g = (S2[i] - 0.5) * 0.22 * RL * (d / 0.16 + 0.3);
+  const ancho = (S2[i] - 0.5) * 1.5 * RL * (1 - (d - 0.035) / 0.24);
   const ca = Math.cos(th);
   const sa = Math.sin(th);
-  poner(p, TX + (ARCO_X + g) * ca, TY + (ARCO_Y + g) * sa, 0);
-  const v = vel * (1 - d / 0.16) ** 2 * (0.6 + 0.4 * S3[i]) * 0.9;
+  const w = Math.min(1, vel * 2.5);
+  // posición de reposo: alrededor de la Luna
+  const ah = TAU * S1[i] + t * 0.15;
+  const rh = RL * (1.12 + 0.55 * S3[i]);
+  const hx = lunaX + rh * Math.cos(ah);
+  const hy = lunaY + rh * Math.sin(ah);
+  const sx = TX + (ARCO_X + ancho) * ca;
+  const sy = TY + (ARCO_Y + ancho) * sa;
+  poner(p, hx + (sx - hx) * w, hy + (sy - hy) * w, (S4[i] - 0.5) * 0.1);
+  const estela = vel * (1 - (d - 0.035) / 0.17) ** 2 * (0.4 + 0.6 * S3[i] ** 3) * 0.75;
+  const halo = 0.22 * (1 - S3[i]) * (0.6 + 0.4 * Math.sin(t * 2 + S2[i] * 20));
+  const v = estela * w + halo * (1 - w);
   poner(c, 0.85 * v, 0.9 * v, 1.0 * v);
-  return 0.028;
+  return 0.022 + 0.01 * S3[i];
 }

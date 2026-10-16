@@ -200,7 +200,9 @@ export function Resplandor() {
     compositor.setPixelRatio(gl.getPixelRatio());
     compositor.setSize(size.width, size.height);
   }, [compositor, gl, size]);
-  useFrame((_, dt) => compositor.render(dt), 1);
+  useFrame((_, dt) => {
+    if (!reloj.sinDibujo) compositor.render(dt);
+  }, 1);
   return null;
 }
 

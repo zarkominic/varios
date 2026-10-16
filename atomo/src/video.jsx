@@ -92,6 +92,7 @@ async function iniciar() {
         scene.background = new THREE.Color('#05081a');
         // Calentamiento: simula de t0 a t1 en pasos gruesos sin capturar (para trocear el render).
         window.__calentar = (t0, t1, paso = 0.1) => {
+          reloj.sinDibujo = true;
           for (let t = t0; t < t1; t += paso) {
             reloj.dt = paso;
             reloj.t = t;
@@ -99,6 +100,7 @@ async function iniciar() {
             overlays(t);
             advance(performance.now());
           }
+          reloj.sinDibujo = false;
           reloj.dt = 1 / linea.fps;
         };
         window.__fotograma = (n) => {

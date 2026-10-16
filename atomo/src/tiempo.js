@@ -6,4 +6,5 @@ export const reloj = {
   dt: 1 / 30,
   energia: null, // en modo fijo: energía de la voz (0-1) del fotograma actual
   sinTransicion: false, // en pruebas: mostrar la forma ya formada
+  sinDibujo: false, // al calentar la simulación: calcular sin dibujar
 };

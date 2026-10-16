@@ -271,7 +271,7 @@ export const FORMAS = { atomo, prisma, ondas, rayleigh, tierra, atardecer, ...NU
 
 // Encuadre de cámara para cada forma: [x, y, z] de la cámara y punto al que mira.
 export const CAMARAS = {
-  atomo: { pos: [0, 0.25, 6.8], mira: [0, 0.15, 0] },
+  atomo: { pos: [0, -0.45, 7.4], mira: [0, -0.55, 0] },
   prisma: { pos: [0.25, 0.35, 7.9], mira: [0, 0.05, 0] },
   ondas: { pos: [-0.35, 0.25, 7.9], mira: [0, 0.1, 0] },
   rayleigh: { pos: [0.7, 0.5, 7.7], mira: [0, 0.0, 0] },
