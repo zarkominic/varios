@@ -1,0 +1,20 @@
+{
+  "name": "personaje-vroid",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Personaje VRoid (VRM) animado con React Three Fiber que explica temas con voz y labios sincronizados",
+  "scripts": {
+    "build": "esbuild src/main.jsx --bundle --minify --format=esm --jsx=automatic --target=es2020 --define:process.env.NODE_ENV='\"production\"' --outfile=app.js",
+    "dev": "esbuild src/main.jsx --bundle --format=esm --jsx=automatic --define:process.env.NODE_ENV='\"development\"' --outfile=app.js --servedir=. --watch"
+  },
+  "dependencies": {
+    "@pixiv/three-vrm": "3.4.4",
+    "@react-three/fiber": "8.17.10",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0"
+  }
+}
