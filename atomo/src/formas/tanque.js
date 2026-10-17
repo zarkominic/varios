@@ -174,7 +174,7 @@ let COLA = 1; // visibilidad de las colas (0 con el agua quieta)
 function preparar(ts) {
   if (ts === ultimo) return;
   ultimo = ts;
-  TR0 = marcaVoz('reposo', 3.8) - 0.55;
+  TR0 = marcaVoz('reposo', 3.55) - 0.3;
   TR1 = marcaVoz('dia', 4.65) + 0.2;
   T3 = marcaVoz('vaciar', 5.4) - 0.4;
   for (let k = 0; k < NT; k++) {

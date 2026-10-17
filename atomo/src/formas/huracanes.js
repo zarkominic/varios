@@ -170,6 +170,8 @@ let pulsoN = -1; // destello que recorre las flechas en el sentido de giro (nort
 let pulsoS = -1;
 let realceN = 1; // brillo de cada huracán: sube cuando la voz lo nombra
 let realceS = 1;
+let destelloN = 0; // las flechas solo destellan mientras se nombra su huracán
+let destelloS = 0;
 function huracan(i, ts, dir, cy) {
   const rol = ROL[i];
   let r, a, v, tam;
@@ -207,7 +209,7 @@ function huracan(i, ts, dir, cy) {
       a = lado + F_BARRIDO * 0.5 - 0.01 + (s * 0.16) / R_FLECHA;
     }
     const dq = (sa - (dir > 0 ? pulsoN : pulsoS)) / 0.14;
-    v = (1.1 + 0.9 * Math.exp(-dq * dq)) * (0.9 + 0.2 * HB[i]);
+    v = (1.1 + 0.9 * (dir > 0 ? destelloN : destelloS) * Math.exp(-dq * dq)) * (0.9 + 0.2 * HB[i]);
     tam = 0.034;
   } else {
     // brazos espirales: el aire entra girando y la nube dibuja una espiral que se arrastra
@@ -255,6 +257,8 @@ function preparar(ts) {
   const gS = ventana(as, marca('sur_fin', as + 0.9));
   realceN = 1 + 0.35 * gN - 0.3 * gS;
   realceS = 1 + 0.35 * gS - 0.3 * gN;
+  destelloN = gN;
+  destelloS = gS;
   const barrido = (q) => (q > 0 ? ((q % 1.6) / 1.1) * 1.3 - 0.15 : -1);
   pulsoN = barrido(ts - an);
   pulsoS = barrido(ts - as);
