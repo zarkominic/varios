@@ -1,6 +1,6 @@
-// Uso: node estilos/herramientas/capturar.mjs <estilo.html> <t1,t2,...> [--salida carpeta]
-// Abre un estilo en modo captura (1080x1920, sin bucle de animación), dibuja cada instante con
-// window.__frame(t), guarda una captura por instante y una tira con todas (360x640 cada una).
+// Uso: node estilos/herramientas/capturar.mjs <estilo.html> <t1,t2,...> [--salida carpeta] [--formato 16:9|9:16]
+// Abre un estilo en modo captura (1920x1080 o 1080x1920, sin bucle de animación), dibuja cada instante
+// con window.__frame(t), guarda una captura por instante y una tira con todas (a un tercio de tamaño).
 // Imprime los errores de la página, lo que tarda cada fotograma y cuánto difieren el primer
 // y el último instante (para comprobar que el bucle cierra: pide 0 y la duración del bucle).
 import http from 'node:http';
@@ -16,6 +16,7 @@ const archivo = path.resolve(args[0]);
 const tiempos = (args[1] ?? '0,2,4').split(',').map(Number);
 const nombre = path.basename(archivo, '.html');
 const salida = path.resolve(opcion('--salida', path.join(raiz, 'estilos/capturas')));
+const [ancho, alto] = opcion('--formato', '9:16') === '16:9' ? [1920, 1080] : [1080, 1920];
 fs.mkdirSync(salida, { recursive: true });
 
 const tipos = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css' };
@@ -29,7 +30,7 @@ await new Promise((r) => servidor.listen(0, r));
 
 const { chromium } = createRequire(execSync('npm root -g').toString().trim() + '/')('playwright');
 const nav = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const pag = await nav.newPage({ viewport: { width: 1080, height: 1920 } });
+const pag = await nav.newPage({ viewport: { width: ancho, height: alto } });
 const errores = [];
 pag.on('pageerror', (e) => errores.push('pageerror: ' + e.message));
 pag.on('console', (m) => m.type() === 'error' && errores.push('console: ' + m.text()));
@@ -71,8 +72,9 @@ import sys
 from PIL import Image, ImageChops, ImageStat
 fs = sys.argv[2:]
 ims = [Image.open(f).convert('RGB') for f in fs]
-h = Image.new('RGB', (360 * len(ims), 640))
-for j, im in enumerate(ims): h.paste(im.resize((360, 640)), (360 * j, 0))
+w, h0 = ims[0].width // 3, ims[0].height // 3
+h = Image.new('RGB', (w * len(ims), h0))
+for j, im in enumerate(ims): h.paste(im.resize((w, h0)), (w * j, 0))
 h.save(sys.argv[1], quality=85)
 if len(ims) > 1:
     d = ImageStat.Stat(ImageChops.difference(ims[0], ims[-1])).mean
