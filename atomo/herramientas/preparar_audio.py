@@ -103,6 +103,8 @@ energia = np.array([np.sqrt(np.mean(voz[i * ventana:(i + 1) * ventana] ** 2)) if
 ref = np.percentile(energia[energia > 0], 95) if (energia > 0).any() else 1.0
 energia = np.clip(energia / ref, 0, 1)
 
-json.dump({"fps": FPS, "duracion": round(duracion, 3), "fotogramas": n, "escenas": linea, "palabras": palabras,
+# "rotulos": false en el guion oculta el rótulo de arriba en todo el episodio.
+json.dump({"fps": FPS, "duracion": round(duracion, 3), "fotogramas": n, "rotulos": g.get("rotulos", True),
+           "escenas": linea, "palabras": palabras,
            "energia": [round(float(x), 3) for x in energia]}, open(f"{salida}/linea.json", "w"), ensure_ascii=False)
 print(idioma, f"duración {duracion:.1f}s, {n} fotogramas, {len(palabras)} palabras")

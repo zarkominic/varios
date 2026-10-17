@@ -38,6 +38,8 @@ async function iniciar() {
   const $sub = document.getElementById('subtitulo');
   $serie.textContent = SERIE[idioma] ?? SERIE.es;
   $serie.hidden = true; // TikTok y Shorts ya muestran el nombre de la cuenta; arriba tapan sus pestañas
+  const conRotulos = linea.rotulos !== false; // el guion puede quitar el rótulo de arriba
+  $rotulo.hidden = !conRotulos;
 
   const primera = linea.escenas[0];
   rig.forma = primera.forma;
@@ -61,18 +63,20 @@ async function iniciar() {
       rig.inicioForma = esc.inicio;
       rig.marcas = esc.marcas ?? null;
     }
-    // Rótulo: entra con un fundido de 0,6 s al empezar la voz de la escena.
-    if (rotuloActual !== k) {
-      $rotulo.textContent = esc.rotulo;
-      rotuloActual = k;
+    if (conRotulos) {
+      // Rótulo: entra con un fundido de 0,6 s al empezar la voz de la escena.
+      if (rotuloActual !== k) {
+        $rotulo.textContent = esc.rotulo;
+        rotuloActual = k;
+      }
+      // …y sale con un fundido de 0,25 s antes de que cambie la escena, para no desaparecer de golpe.
+      const siguiente = linea.escenas[k + 1];
+      const salida = siguiente ? Math.min(1, Math.max(0, (siguiente.inicio - t) / 0.25)) : 1;
+      const a = Math.min(salida, k === 0 ? 1 : suave((t - esc.voz_inicio + 0.15) / 0.6));
+      $rotulo.style.opacity = a.toFixed(3);
+      $rotulo.style.transform = `translate(-50%, ${((1 - a) * -14).toFixed(1)}px)`;
+      $rotulo.style.filter = a < 1 ? `blur(${((1 - a) * 6).toFixed(1)}px)` : 'none';
     }
-    // …y sale con un fundido de 0,25 s antes de que cambie la escena, para no desaparecer de golpe.
-    const siguiente = linea.escenas[k + 1];
-    const salida = siguiente ? Math.min(1, Math.max(0, (siguiente.inicio - t) / 0.25)) : 1;
-    const a = Math.min(salida, k === 0 ? 1 : suave((t - esc.voz_inicio + 0.15) / 0.6));
-    $rotulo.style.opacity = a.toFixed(3);
-    $rotulo.style.transform = `translate(-50%, ${((1 - a) * -14).toFixed(1)}px)`;
-    $rotulo.style.filter = a < 1 ? `blur(${((1 - a) * 6).toFixed(1)}px)` : 'none';
     // Subtítulo: el bloque que se está diciendo, con la palabra actual resaltada.
     let b = -1;
     for (let j = 0; j < subs.length; j++) if (subs[j].i <= t + 0.05) b = j;

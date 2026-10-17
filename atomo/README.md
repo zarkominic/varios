@@ -19,7 +19,7 @@ python3 -m http.server # y abre http://localhost:8000
 
 ## Fabricar un episodio
 
-El guion aprobado vive en `../episodios/<episodio>/guion.json`, con `forma_id` y `rotulo` por escena en cada idioma.
+El guion aprobado vive en `../episodios/<episodio>/guion.json`, con `forma_id` y `rotulo` por escena en cada idioma. Con `"rotulos": false` en el guion, el vídeo sale sin el rótulo de arriba.
 
 1. **Probar una forma nueva** sin renderizar el vídeo:
    `node herramientas/foto-forma.mjs <forma> 0,2,4` guarda capturas en `build/fotos/`, con las zonas que tapan el rótulo y los subtítulos marcadas.
