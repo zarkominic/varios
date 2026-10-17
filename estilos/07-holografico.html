@@ -1,0 +1,1117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Luna al revés · proyección</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  html, body { margin: 0; height: 100%; background: #010407; overflow: hidden; }
+  #escena { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #010407; }
+  #escena canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  #hud { mix-blend-mode: screen; }
+</style>
+</head>
+<body>
+<div id="escena"><canvas id="gl"></canvas><canvas id="hud"></canvas></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+// =====================================================================
+// Proyección de luz: el átomo narrador se reconstruye como Luna creciente
+// («D» en el hemisferio norte) y el observador gira 180° («C» en el sur).
+// Todo depende solo de t (bucle de DUR segundos) y de un PRNG con semilla.
+// =====================================================================
+const DUR = 10;
+const W = 1080, H = 1920;
+const TAU = Math.PI * 2;
+const CAPTURA = location.search.includes('captura');
+
+// Guion del bucle (segundos)
+const T = { am0: 1.6, am1: 3.0, r0: 5.0, r1: 6.2, ma0: 7.8, ma1: 9.2, setB: 7.0 };
+const ELEC_N = [3, 4, 3], ELEC_F = [0.0, 2.1, 4.4]; // vueltas por bucle y fase de cada electrón
+const R_AT = 1.15, R_LU = 0.95, Y_EM = -1.95, Y_CONO = 1.4;
+
+const lim = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const suave = (x) => { x = lim(x); return x * x * x * (x * (x * 6 - 15) + 10); };
+const ease = (x) => { x = lim(x); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const h1 = (n) => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+const modT = (x) => ((x % DUR) + DUR) % DUR;
+
+function prng(semilla) {
+  let a = semilla >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const azar = prng(17102026);
+
+// ---------------------------------------------------------------------
+// Geometría del átomo (misma construcción que el narrador de la serie)
+// ---------------------------------------------------------------------
+function orbita(k, th, r) {
+  const x0 = r * Math.cos(th), z0 = r * Math.sin(th);
+  const inc = 1.22;
+  const y1 = -z0 * Math.sin(inc), z1 = z0 * Math.cos(inc);
+  const g = (k * Math.PI) / 3 + 0.35, cg = Math.cos(g), sg = Math.sin(g);
+  return [x0 * cg - y1 * sg, x0 * sg + y1 * cg, z1];
+}
+const cabeza = (k, t) => (TAU * ELEC_N[k] * t) / DUR + ELEC_F[k];
+const giroAtomo = (t) => (TAU * t) / DUR + 0.5;
+
+const NUC = [[0, 0, 0]];
+for (let k = 0; k < 13; k++) {
+  const y = 1 - (2 * (k + 0.5)) / 13, r = Math.sqrt(1 - y * y), th = k * 2.39996;
+  NUC.push([0.23 * r * Math.cos(th), 0.23 * y, 0.23 * r * Math.sin(th)]);
+}
+
+const NP = 7200;
+const aAtom = new Float32Array(NP * 3);
+const aInfo = new Float32Array(NP * 4);
+const bola = () => {
+  let x, y, z;
+  do { x = azar() * 2 - 1; y = azar() * 2 - 1; z = azar() * 2 - 1; } while (x * x + y * y + z * z > 1);
+  return [x, y, z];
+};
+{
+  let i = 0;
+  for (let n = 0; n < NUC.length; n++) for (let j = 0; j < 62; j++, i++) {
+    const b = bola(), s = 0.1;
+    aAtom.set([NUC[n][0] + b[0] * s, NUC[n][1] + b[1] * s, NUC[n][2] + b[2] * s], i * 3);
+    aInfo.set([0, n, 0, azar()], i * 4);
+  }
+  for (let k = 0; k < 3; k++) for (let j = 0; j < 1050; j++, i++) {
+    const p = orbita(k, (TAU * (j + azar())) / 1050, R_AT + (azar() - 0.5) * 0.014);
+    aAtom.set(p, i * 3);
+    aInfo.set([1, k, 0, azar()], i * 4);
+  }
+  const resto = NP - i, por = Math.floor(resto / 3);
+  for (let k = 0; k < 3; k++) for (let j = 0; j < por; j++, i++) {
+    aAtom.set(bola(), i * 3);
+    aInfo.set([2, k, j / por, azar()], i * 4);
+  }
+  for (; i < NP; i++) {
+    aAtom.set(orbita(0, azar() * TAU, R_AT), i * 3);
+    aInfo.set([1, 0, 0, azar()], i * 4);
+  }
+}
+// Altura (y) de cada partícula del átomo en el instante t (el giro en Y no cambia y).
+function alturaAtomo(i, t) {
+  const tipo = aInfo[i * 4], k = aInfo[i * 4 + 1], d = aInfo[i * 4 + 2];
+  if (tipo < 2) return aAtom[i * 3 + 1];
+  let y = orbita(k, cabeza(k, t) - d * 1.9, R_AT)[1];
+  if (d < 0.06) y += aAtom[i * 3 + 1] * 0.07;
+  return y;
+}
+
+// ---------------------------------------------------------------------
+// La Luna: nube de Fibonacci con mares (cara visible hacia +z)
+// ---------------------------------------------------------------------
+const MARES = [
+  [0.68, 0.3, 0.12, 0.1, 1], [0.6, -0.14, 0.11, 0.19, 0.9], [0.4, -0.33, 0.09, 0.09, 0.85],
+  [0.36, 0.12, 0.17, 0.14, 0.95], [0.23, 0.43, 0.13, 0.12, 0.95], [0.04, 0.3, 0.07, 0.06, 0.7],
+  [-0.22, 0.56, 0.22, 0.17, 1], [-0.05, 0.8, 0.36, 0.05, 0.7], [-0.56, 0.12, 0.22, 0.38, 0.9],
+  [-0.25, 0.06, 0.1, 0.08, 0.75], [-0.18, -0.37, 0.16, 0.13, 0.85], [-0.58, -0.41, 0.08, 0.08, 0.85],
+  [0.08, -0.04, 0.08, 0.07, 0.6],
+];
+const CRATERES = [[-0.68, 0.4, 0.05, 1], [-0.12, -0.73, 0.06, 1], [-0.3, 0.18, 0.05, 0.7], [0.75, -0.43, 0.05, 0.4]];
+function mar(x, y, z) {
+  if (z < 0) return 0.25 * Math.max(0, Math.sin(5.1 * x + 2.3 * y) * Math.sin(4.3 * y - 3.1 * z));
+  let m = 0;
+  for (const a of MARES) {
+    const dx = (x - a[0]) / a[2], dy = (y - a[1]) / a[3];
+    const s = lim((1.3 - (dx * dx + dy * dy)) / 0.7);
+    m = Math.max(m, a[4] * s * s * (3 - 2 * s));
+  }
+  for (const c of CRATERES) {
+    const d = Math.hypot(x - c[0], y - c[1]) / c[2];
+    if (d < 1) m -= c[3] * (1 - d);
+  }
+  return Math.max(-0.8, Math.min(1, m));
+}
+const lunaPos = new Float32Array(NP * 4);
+for (let j = 0; j < NP; j++) {
+  const y = 1 - (2 * (j + 0.5)) / NP, r = Math.sqrt(1 - y * y), th = j * 2.399963229728653;
+  const x = r * Math.cos(th), z = r * Math.sin(th);
+  lunaPos.set([x, y, z, mar(x, y, z)], j * 4);
+}
+// Emparejar partículas por altura: el barrido de abajo arriba transforma una forma en otra.
+const aMoonA = new Float32Array(NP * 4), aMoonB = new Float32Array(NP * 4);
+{
+  const idx = [...Array(NP).keys()];
+  const ordM = [...idx].sort((a, b) => lunaPos[a * 4 + 1] - lunaPos[b * 4 + 1]);
+  const ya = idx.map((i) => alturaAtomo(i, 2.3) + (azar() - 0.5) * 0.04);
+  const ordA = [...idx].sort((a, b) => ya[a] - ya[b]);
+  const yb = idx.map((i) => alturaAtomo(i, 8.5) + (azar() - 0.5) * 0.04);
+  const ordB = [...idx].sort((a, b) => yb[a] - yb[b]);
+  for (let r = 0; r < NP; r++) {
+    aMoonA.set(lunaPos.subarray(ordM[r] * 4, ordM[r] * 4 + 4), ordA[r] * 4);
+    // tras el giro de 180°, la parte baja en pantalla es el norte de la Luna
+    aMoonB.set(lunaPos.subarray(ordM[NP - 1 - r] * 4, ordM[NP - 1 - r] * 4 + 4), ordB[r] * 4);
+  }
+}
+
+// ---------------------------------------------------------------------
+// three.js
+// ---------------------------------------------------------------------
+const lienzo = document.getElementById('gl');
+const hud = document.getElementById('hud');
+const ctx = hud.getContext('2d');
+const hudBuf = document.createElement('canvas');
+const ctxBuf = hudBuf.getContext('2d');
+const escenaDiv = document.getElementById('escena');
+
+const renderer = new THREE.WebGLRenderer({ canvas: lienzo, antialias: false, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+renderer.setClearColor(0x000000, 1);
+const escena = new THREE.Scene();
+const camara = new THREE.PerspectiveCamera(34, W / H, 0.1, 100);
+const CAM0 = new THREE.Vector3(0, 2.5, 11);
+const MIRA = new THREE.Vector3(0, -0.25, 0);
+const holo = new THREE.Group();
+escena.add(holo);
+
+// Marco del observador para la Luna: x a la derecha de la cámara, z hacia la cámara.
+const fwd = CAM0.clone().normalize();
+const derecha = new THREE.Vector3(1, 0, 0);
+const arriba = new THREE.Vector3().crossVectors(fwd, derecha).normalize();
+const BASE = new THREE.Matrix3().set(derecha.x, arriba.x, fwd.x, derecha.y, arriba.y, fwd.y, derecha.z, arriba.z, fwd.z);
+const LUZ = new THREE.Vector3(0.8, 0, -0.6).normalize(); // fase de 127°: 20 % iluminada
+
+const U = {
+  uT: { value: 0 }, uPx: { value: 1 }, uScanP: { value: 4 }, uResY: { value: H }, uFlick: { value: 1 },
+  uBand: { value: 0 }, uMode: { value: 0 }, uProg: { value: 0 },
+};
+const UH = {
+  uSpinM: { value: new THREE.Matrix3() }, uBR: { value: new THREE.Matrix3() },
+  uL: { value: LUZ.clone() }, uLw: { value: new THREE.Vector3() }, uRM: { value: R_LU },
+  uSpinA: { value: 0 }, uElec: { value: new THREE.Vector3() }, uSet: { value: 0 },
+};
+
+const GL_COMUN = /* glsl */ `
+#define PI 3.14159265359
+uniform float uT, uPx, uScanP, uResY, uFlick, uBand, uMode, uProg;
+const float WS = 1.6;
+const float DUR = ${DUR.toFixed(1)};
+vec3 iri(float h) {
+  h = fract(h);
+  vec3 a = vec3(0.30, 0.93, 1.00);
+  vec3 b = vec3(0.48, 0.56, 1.00);
+  vec3 c = vec3(1.00, 0.36, 0.86);
+  vec3 col = mix(a, b, smoothstep(0.0, 0.33, h));
+  col = mix(col, c, smoothstep(0.33, 0.66, h));
+  return mix(col, a, smoothstep(0.66, 1.0, h));
+}
+// 0 = átomo, 1 = Luna; key es la altura normalizada (0 abajo, 1 arriba)
+float avance(float key) {
+  if (uMode < 0.5) return 0.0;
+  if (uMode < 1.5) return clamp(uProg * (1.0 + WS) - key * WS, 0.0, 1.0);
+  if (uMode < 2.5) return 1.0;
+  return 1.0 - clamp(uProg * (1.0 + WS) - key * WS, 0.0, 1.0);
+}
+vec3 rotY(vec3 p, float a) { float c = cos(a), s = sin(a); return vec3(c * p.x + s * p.z, p.y, -s * p.x + c * p.z); }
+`;
+const GL_FRAG = /* glsl */ `
+float barrido() {
+  float y = gl_FragCoord.y;
+  float s = 0.5 + 0.5 * cos(2.0 * PI * y / uScanP);
+  float yd = (uResY - y) / uPx;
+  float banda = exp(-pow((yd - uBand) / 46.0, 2.0));
+  return (0.5 + 0.5 * s) * (1.0 + 0.85 * banda);
+}
+`;
+const matAditivo = (vs, fs, extra = {}, opciones = {}) =>
+  new THREE.ShaderMaterial({
+    uniforms: { ...U, ...UH, ...extra },
+    vertexShader: GL_COMUN + vs,
+    fragmentShader: GL_COMUN + GL_FRAG + fs,
+    transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+    ...opciones,
+  });
+
+// --- nube de partículas (átomo ⇄ Luna) ---
+{
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(NP * 3);
+  for (let i = 0; i < NP; i++) pos.set(aMoonA.subarray(i * 4, i * 4 + 3), i * 3);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('aAtom', new THREE.BufferAttribute(aAtom, 3));
+  geo.setAttribute('aInfo', new THREE.BufferAttribute(aInfo, 4));
+  geo.setAttribute('aMoonA', new THREE.BufferAttribute(aMoonA, 4));
+  geo.setAttribute('aMoonB', new THREE.BufferAttribute(aMoonB, 4));
+  const mat = matAditivo(/* glsl */ `
+    attribute vec3 aAtom; attribute vec4 aInfo, aMoonA, aMoonB;
+    uniform mat3 uSpinM, uBR; uniform vec3 uL, uElec; uniform float uRM, uSpinA, uSet;
+    varying vec3 vCol; varying float vA;
+    vec3 orbita(float k, float th, float r) {
+      float x0 = r * cos(th), z0 = r * sin(th);
+      float y1 = -z0 * sin(1.22), z1 = z0 * cos(1.22);
+      float g = k * 1.04719755 + 0.35; float cg = cos(g), sg = sin(g);
+      return vec3(x0 * cg - y1 * sg, x0 * sg + y1 * cg, z1);
+    }
+    float h13(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+    void main() {
+      float tipo = aInfo.x, k = aInfo.y, d = aInfo.z, rnd = aInfo.w;
+      vec3 pa, ca; float sa, ba;
+      if (tipo < 0.5) {
+        pa = aAtom;
+        ca = mod(k, 2.0) < 0.5 ? vec3(1.0, 0.40, 0.84) : vec3(0.34, 0.86, 1.0);
+        sa = 4.6; ba = 0.62;
+      } else if (tipo < 1.5) {
+        pa = aAtom; ca = iri(0.08 + 0.12 * k + 0.25 * rnd); sa = 2.4; ba = 0.30;
+      } else {
+        float cab = k < 0.5 ? uElec.x : (k < 1.5 ? uElec.y : uElec.z);
+        pa = orbita(k, cab - d * 1.9, ${R_AT.toFixed(2)});
+        if (d < 0.06) { pa += aAtom * 0.07; ca = vec3(0.85, 1.0, 1.0); sa = 6.5; ba = 1.5; }
+        else { float f = pow(1.0 - d, 1.7); ca = mix(vec3(1.0, 0.36, 0.86), vec3(0.42, 0.95, 1.0), f); sa = 2.2 + 3.2 * f; ba = 1.1 * f; }
+      }
+      pa = rotY(pa, uSpinA);
+      ba *= 0.72 + 0.28 * clamp(pa.z / 1.15, -1.0, 1.0);
+
+      vec4 m = uSet < 0.5 ? aMoonA : aMoonB;
+      vec3 ms = uSpinM * m.xyz;
+      vec3 pm = uBR * ms * uRM;
+      float lit = dot(ms, uL);
+      float hz = h13(m.xyz);
+      float il = smoothstep(-0.03, 0.10, lit);
+      float term = exp(-pow(lit / 0.06, 2.0)) * smoothstep(-0.2, 0.2, ms.z);
+      float mr = m.w;
+      vec3 cm = mix(vec3(0.24, 0.66, 1.0), vec3(0.90, 0.99, 1.0), il);
+      cm = mix(cm, vec3(1.0, 0.38, 0.88), term * 0.85);
+      float bm = mix(0.15, 1.0, il) * (1.0 - 0.5 * clamp(mr, 0.0, 1.0) + 0.6 * clamp(-mr, 0.0, 1.0)) + term * 0.45;
+      bm *= mix(0.35, 1.0, smoothstep(-0.3, 0.3, ms.z));
+      bm *= 1.0 + 0.7 * pow(1.0 - abs(ms.z), 4.0);
+      bm *= 0.85 + 0.3 * sin(2.0 * PI * (3.0 * uT / DUR + hz));
+      float sm = mix(2.3, 4.0, il) * (0.8 + 0.4 * hz);
+
+      float kM = clamp(pm.y / uRM * 0.5 + 0.5, 0.0, 1.0);
+      float kA = clamp(pa.y / 1.2 * 0.5 + 0.5, 0.0, 1.0);
+      float pr = uMode < 2.5 ? avance(kM) : avance(kA);
+      float e = pr * pr * (3.0 - 2.0 * pr);
+      float vuelo = sin(PI * e);
+      vec3 pos = mix(pa, pm, e);
+      pos = rotY(pos, vuelo * (1.1 * rnd - 0.3));
+      pos.xz *= 1.0 + 0.2 * vuelo;
+      pos.y += vuelo * 0.1 * (rnd - 0.5);
+      vec3 col = mix(ca, cm, e);
+      col = mix(col, vec3(1.0, 0.5, 0.95), vuelo * 0.6);
+      float bri = mix(ba, bm, e) * (1.0 + 1.3 * vuelo);
+      float siz = mix(sa, sm, e) * (1.0 + 0.3 * vuelo);
+
+      vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+      gl_Position = projectionMatrix * mv;
+      gl_PointSize = max(1.5, siz * uPx * (11.28 / -mv.z));
+      vCol = col; vA = bri * uFlick;
+    }`, /* glsl */ `
+    varying vec3 vCol; varying float vA;
+    void main() {
+      vec2 q = gl_PointCoord * 2.0 - 1.0;
+      float r2 = dot(q, q);
+      if (r2 > 1.0) discard;
+      float a = (1.0 - r2); a *= a;
+      float n = exp(-r2 * 9.0);
+      gl_FragColor = vec4((vCol * a * 0.75 + vec3(n) * 0.3) * vA * barrido(), 1.0);
+    }`);
+  const nube = new THREE.Points(geo, mat);
+  nube.frustumCulled = false;
+  nube.renderOrder = 6;
+  holo.add(nube);
+}
+
+// --- retícula (meridianos y paralelos) de la Luna ---
+{
+  const v = [];
+  const pt = (lat, lon) => [Math.cos(lat) * Math.sin(lon), Math.sin(lat), Math.cos(lat) * Math.cos(lon)];
+  for (let a = -3; a <= 3; a++) {
+    const lat = (a * 22.5 * Math.PI) / 180;
+    for (let s = 0; s < 128; s++) v.push(...pt(lat, (s / 128) * TAU), ...pt(lat, ((s + 1) / 128) * TAU));
+  }
+  for (let b = 0; b < 12; b++) {
+    const lon = (b / 12) * TAU;
+    for (let s = 0; s < 64; s++) v.push(...pt(-Math.PI / 2 + (s / 64) * Math.PI, lon), ...pt(-Math.PI / 2 + ((s + 1) / 64) * Math.PI, lon));
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
+  const mat = matAditivo(/* glsl */ `
+    uniform mat3 uSpinM, uBR; uniform vec3 uL; uniform float uRM;
+    varying vec3 vCol; varying float vA;
+    void main() {
+      vec3 ms = uSpinM * position;
+      vec3 pm = uBR * ms * (uRM * 1.015);
+      float lit = dot(ms, uL);
+      float pr = avance(clamp(pm.y / uRM * 0.5 + 0.5, 0.0, 1.0));
+      float vis = smoothstep(0.55, 1.0, pr);
+      float frente = smoothstep(-0.2, 0.3, ms.z);
+      float il = smoothstep(-0.05, 0.25, lit);
+      vA = vis * mix(0.07, 0.34, frente) * (0.6 + 1.0 * il) * uFlick;
+      vCol = iri(0.04 + 0.55 * (1.0 - abs(ms.z)) + 0.12 * position.y + uT / DUR);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(pm, 1.0);
+    }`, /* glsl */ `
+    varying vec3 vCol; varying float vA;
+    void main() { gl_FragColor = vec4(vCol * vA * barrido(), 1.0); }`);
+  const red = new THREE.LineSegments(geo, mat);
+  red.frustumCulled = false;
+  red.renderOrder = 4;
+  holo.add(red);
+}
+
+// --- órbitas del átomo como líneas finas ---
+{
+  const v = [], kk = [];
+  for (let k = 0; k < 3; k++) for (let s = 0; s < 256; s++) {
+    v.push(...orbita(k, (s / 256) * TAU, R_AT), ...orbita(k, ((s + 1) / 256) * TAU, R_AT));
+    kk.push(s / 256, (s + 1) / 256);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
+  geo.setAttribute('aU', new THREE.Float32BufferAttribute(kk, 1));
+  const mat = matAditivo(/* glsl */ `
+    attribute float aU; uniform float uSpinA;
+    varying vec3 vCol; varying float vA;
+    void main() {
+      vec3 p = rotY(position, uSpinA);
+      float pr = avance(clamp(p.y / 1.2 * 0.5 + 0.5, 0.0, 1.0));
+      float vis = 1.0 - smoothstep(0.0, 0.45, pr);
+      vA = vis * (0.16 + 0.12 * clamp(p.z / 1.15, -1.0, 1.0)) * uFlick;
+      vCol = iri(aU * 2.0 + uT / DUR);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+    }`, /* glsl */ `
+    varying vec3 vCol; varying float vA;
+    void main() { gl_FragColor = vec4(vCol * vA * barrido(), 1.0); }`);
+  const orb = new THREE.LineSegments(geo, mat);
+  orb.frustumCulled = false;
+  orb.renderOrder = 5;
+  holo.add(orb);
+}
+
+// --- borde fresnel de la Luna ---
+{
+  const mat = matAditivo(/* glsl */ `
+    uniform float uRM;
+    varying vec3 vP, vW;
+    void main() {
+      vP = position;
+      vec4 w = modelMatrix * vec4(position * uRM, 1.0);
+      vW = w.xyz;
+      gl_Position = projectionMatrix * viewMatrix * w;
+    }`, /* glsl */ `
+    uniform vec3 uLw;
+    varying vec3 vP, vW;
+    void main() {
+      vec3 n = normalize(vP);
+      vec3 v = normalize(cameraPosition - vW);
+      float nv = clamp(dot(n, v), 0.0, 1.0);
+      float fr = pow(1.0 - nv, 2.4);
+      float il = smoothstep(-0.04, 0.22, dot(n, uLw));
+      float pr = avance(clamp(vP.y * 0.5 + 0.5, 0.0, 1.0));
+      float vis = smoothstep(0.5, 0.95, pr);
+      float frente = exp(-pow((pr - 0.5) / 0.1, 2.0)) * step(0.001, pr) * step(pr, 0.999);
+      vec3 col = iri(0.02 + fr * 0.8 + n.y * 0.12 + uT / DUR);
+      float I = vis * (fr * (0.22 + 1.5 * il) + il * (1.0 - fr) * 0.06) + frente * 0.5 * (0.3 + fr);
+      gl_FragColor = vec4(col * I * barrido() * uFlick, 1.0);
+    }`);
+  const borde = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), mat);
+  borde.frustumCulled = false;
+  borde.renderOrder = 3;
+  holo.add(borde);
+}
+
+// --- plano de barrido durante las reconstrucciones ---
+const UB = { uScanA: { value: 0 } };
+const barridoMalla = new THREE.Mesh(
+  new THREE.PlaneGeometry(2, 2).rotateX(-Math.PI / 2),
+  matAditivo(/* glsl */ `
+    varying vec2 vUv;
+    void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`, /* glsl */ `
+    uniform float uScanA;
+    varying vec2 vUv;
+    void main() {
+      vec2 p = vUv * 2.0 - 1.0;
+      float r = length(p);
+      float fw = fwidth(r) * 1.5;
+      float aro = 1.0 - smoothstep(0.0, 0.012 + fw, abs(r - 0.92));
+      float halo = exp(-pow((r - 0.92) / 0.06, 2.0)) * 0.35;
+      float rejilla = (1.0 - smoothstep(0.0, 0.02 + fw, abs(fract(r * 8.0) - 0.5) * 2.0 / 8.0)) * 0.12;
+      float relleno = smoothstep(0.95, 0.2, r) * 0.10;
+      float I = (aro + halo + (rejilla + relleno) * step(r, 0.92)) * uScanA;
+      vec3 col = mix(vec3(1.0, 0.45, 0.9), vec3(0.6, 0.97, 1.0), aro);
+      gl_FragColor = vec4(col * I * uFlick, 1.0);
+    }`, UB),
+);
+barridoMalla.renderOrder = 7;
+barridoMalla.frustumCulled = false;
+holo.add(barridoMalla);
+
+// --- emisor del proyector ---
+{
+  const malla = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.6, 2.6).rotateX(-Math.PI / 2),
+    matAditivo(/* glsl */ `
+      varying vec2 vUv;
+      void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`, /* glsl */ `
+      varying vec2 vUv;
+      float anillo(float r, float r0, float w, float fw) { return 1.0 - smoothstep(w * 0.5, w * 0.5 + fw, abs(r - r0)); }
+      void main() {
+        vec2 p = vUv * 2.0 - 1.0;
+        float r = length(p);
+        float fw = fwidth(r) * 1.2;
+        float a = atan(p.y, p.x) / (2.0 * PI) + 0.5;
+        float fa = fw / max(r, 0.02) / (2.0 * PI);
+        float t = uT / DUR;
+        vec3 cian = vec3(0.35, 0.92, 1.0), mag = vec3(1.0, 0.38, 0.88);
+        vec3 c = vec3(0.0);
+        c += vec3(0.9, 1.0, 1.0) * (exp(-r * r * 900.0) * 2.4 + exp(-r * r * 140.0) * 0.8);
+        c += cian * exp(-r * r * 30.0) * 0.25;
+        c += cian * anillo(r, 0.105, 0.010, fw) * 1.1;
+        c += cian * anillo(r, 0.165, 0.004, fw) * 0.55;
+        float tr = step(0.5, fract((a + t) * 24.0));
+        c += cian * anillo(r, 0.22, 0.020, fw) * tr * 0.55;
+        c += cian * anillo(r, 0.29, 0.004, fw) * 0.45;
+        float u = (a - t * 0.5) * 72.0;
+        float du = abs(fract(u + 0.5) - 0.5);
+        float mayor = step(abs(fract(u / 6.0 + 0.5 / 6.0) - 0.5 / 6.0 * 6.0 / 6.0), 1.0 / 12.0);
+        float tic = (1.0 - smoothstep(0.1, 0.1 + fa * 72.0, du)) * step(0.315, r) * step(r, mix(0.345, 0.37, mayor));
+        c += cian * tic * 0.55;
+        float arco = step(fract((a - t / 3.0) * 3.0), 0.28);
+        c += mag * anillo(r, 0.41, 0.010, fw) * arco * 0.9;
+        c += cian * anillo(r, 0.41, 0.003, fw) * 0.25;
+        c += cian * anillo(r, 0.50, 0.003, fw) * 0.18;
+        c += cian * exp(-r * 4.5) * 0.10 * step(r, 1.0);
+        gl_FragColor = vec4(c * smoothstep(1.0, 0.85, r) * (0.75 + 0.25 * uFlick), 1.0);
+      }`),
+  );
+  malla.position.y = Y_EM;
+  malla.renderOrder = 1;
+  escena.add(malla);
+}
+
+// --- cono de luz ---
+const ALTO_CONO = Y_CONO - Y_EM;
+{
+  const mat = matAditivo(/* glsl */ `
+    varying vec3 vP, vW, vN;
+    void main() {
+      vP = position;
+      vec4 w = modelMatrix * vec4(position, 1.0);
+      vW = w.xyz; vN = normalize(mat3(modelMatrix) * normal);
+      gl_Position = projectionMatrix * viewMatrix * w;
+    }`, /* glsl */ `
+    varying vec3 vP, vW, vN;
+    void main() {
+      float h = vP.y / ${ALTO_CONO.toFixed(3)} + 0.5;
+      vec3 v = normalize(cameraPosition - vW);
+      float nv = abs(dot(normalize(vN), v));
+      float borde = pow(1.0 - nv, 3.0);
+      float a = atan(vP.z, vP.x);
+      float t = 2.0 * PI * uT / DUR;
+      float rayos = 0.5 + 0.5 * sin(a * 19.0 + 1.5 * sin(a * 7.0 + t));
+      rayos *= 0.55 + 0.45 * sin(a * 43.0 - 2.0 * t);
+      rayos = 0.3 + 0.7 * rayos * rayos;
+      float caida = pow(1.0 - h, 1.7) * smoothstep(0.0, 0.05, h);
+      float I = (0.035 + 0.55 * borde) * caida * rayos;
+      vec3 col = mix(vec3(0.28, 0.82, 1.0), vec3(0.85, 0.45, 1.0), borde * 0.5 + h * 0.25);
+      gl_FragColor = vec4(col * I * uFlick * barrido(), 1.0);
+    }`, {}, { side: THREE.DoubleSide });
+  const cono = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 0.12, ALTO_CONO, 128, 1, true), mat);
+  cono.position.y = Y_EM + ALTO_CONO / 2;
+  cono.renderOrder = 0;
+  escena.add(cono);
+}
+
+// --- polvo en suspensión dentro del haz ---
+{
+  const N = 260;
+  const s = new Float32Array(N * 4), s2 = new Float32Array(N * 2), pos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) { s.set([azar() * TAU, Math.sqrt(azar()), azar(), 1 + Math.floor(azar() * 2)], i * 4); s2.set([1 + Math.floor(azar() * 4), azar()], i * 2); }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('aS', new THREE.BufferAttribute(s, 4));
+  geo.setAttribute('aS2', new THREE.BufferAttribute(s2, 2));
+  const mat = matAditivo(/* glsl */ `
+    attribute vec4 aS; attribute vec2 aS2;
+    varying float vA;
+    void main() {
+      float h = fract(aS.z + aS.w * uT / DUR);
+      float r = mix(0.12, 1.5, h) * aS.y * 0.92;
+      float a = aS.x + h * 0.6;
+      vec3 p = vec3(r * cos(a), ${Y_EM.toFixed(2)} + h * ${ALTO_CONO.toFixed(3)}, r * sin(a));
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_Position = projectionMatrix * mv;
+      gl_PointSize = (1.5 + 2.5 * aS2.y) * uPx;
+      float tw = 0.5 + 0.5 * sin(2.0 * PI * (aS2.x * uT / DUR + aS2.y));
+      vA = smoothstep(0.0, 0.08, h) * pow(1.0 - h, 1.3) * (0.25 + 0.75 * tw) * uFlick;
+    }`, /* glsl */ `
+    varying float vA;
+    void main() {
+      vec2 q = gl_PointCoord * 2.0 - 1.0; float r2 = dot(q, q);
+      if (r2 > 1.0) discard;
+      gl_FragColor = vec4(vec3(0.6, 0.95, 1.0) * (1.0 - r2) * vA * 0.9, 1.0);
+    }`);
+  const polvo = new THREE.Points(geo, mat);
+  polvo.frustumCulled = false;
+  polvo.renderOrder = 2;
+  escena.add(polvo);
+}
+
+// ---------------------------------------------------------------------
+// Postproceso: resplandor + corte de fallo + aberración + fondo
+// ---------------------------------------------------------------------
+const rt = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, samples: 4 });
+const composer = new EffectComposer(renderer, rt);
+composer.addPass(new RenderPass(escena, camara));
+const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.85, 0.55, 0.08);
+composer.addPass(bloom);
+const final = new ShaderPass({
+  uniforms: {
+    tDiffuse: { value: null }, uT: { value: 0 }, uGlitch: { value: 0 }, uSeed: { value: 0 },
+    uEmit: { value: new THREE.Vector2(540, 1400) }, uCentro: { value: new THREE.Vector2(540, 890) },
+  },
+  vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: /* glsl */ `
+    uniform sampler2D tDiffuse; uniform float uT, uGlitch, uSeed; uniform vec2 uEmit, uCentro;
+    varying vec2 vUv;
+    float h21(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+    void main() {
+      vec2 uv = vUv;
+      vec2 px = vec2(uv.x * 1080.0, (1.0 - uv.y) * 1920.0);
+      float g = uGlitch;
+      vec2 off = vec2(0.0);
+      if (g > 0.01) {
+        float n = 14.0 + floor(h21(vec2(uSeed, 1.7)) * 26.0);
+        float b = floor((uv.y + h21(vec2(uSeed, 2.3)) * 0.3) * n);
+        float r = h21(vec2(b, uSeed));
+        if (r < 0.18 + 0.4 * g) off.x = (h21(vec2(b, uSeed + 3.1)) - 0.5) * 0.11 * g;
+        float b2 = floor(uv.y * 160.0);
+        if (h21(vec2(b2, uSeed + 9.0)) < 0.12 * g) off.x += (h21(vec2(b2, uSeed + 4.0)) - 0.5) * 0.03;
+      }
+      vec2 dir = uv - 0.5;
+      float ca = 0.0016 + 0.010 * g;
+      vec3 c;
+      c.r = texture2D(tDiffuse, uv + off + dir * ca + vec2(ca * 0.6 * g, 0.0)).r;
+      c.g = texture2D(tDiffuse, uv + off).g;
+      c.b = texture2D(tDiffuse, uv + off - dir * ca - vec2(ca * 0.6 * g, 0.0)).b;
+      c = 1.0 - exp(-c * 1.2);
+      // fondo: azul petróleo muy oscuro, rejilla de puntos y reflejo del emisor
+      vec2 q = (px - uCentro) / 1080.0;
+      vec3 bg = mix(vec3(0.010, 0.036, 0.055), vec3(0.002, 0.008, 0.014), smoothstep(0.0, 0.85, length(q)));
+      vec2 cel = mod(px, 36.0) - 18.0;
+      bg += vec3(0.25, 0.75, 0.95) * smoothstep(1.7, 0.5, length(cel)) * 0.045 * (1.0 - smoothstep(0.15, 0.75, length(q)));
+      vec2 e = (px - uEmit) / vec2(430.0, 95.0);
+      bg += vec3(0.08, 0.38, 0.52) * exp(-dot(e, e)) * 0.45;
+      vec3 col = bg + c;
+      col += (h21(px + fract(uT * 7.31) * 113.0) - 0.5) * 0.022;
+      col *= 1.0 - 0.45 * smoothstep(0.55, 1.25, length((uv - vec2(0.5, 0.52)) * vec2(1.2, 2.0)));
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+});
+composer.addPass(final);
+
+// ---------------------------------------------------------------------
+// Tiempo: estado del guion
+// ---------------------------------------------------------------------
+function estado(t) {
+  if (t < T.am0 || t >= T.ma1) return { modo: 0, prog: 0 };
+  if (t < T.am1) return { modo: 1, prog: (t - T.am0) / (T.am1 - T.am0) };
+  if (t < T.ma0) return { modo: 2, prog: 0 };
+  return { modo: 3, prog: (t - T.ma0) / (T.ma1 - T.ma0) };
+}
+const rollLuna = (t) => Math.PI * ease((t - T.r0) / (T.r1 - T.r0));
+const rollHud = (t) => rollLuna(t) + Math.PI * ease((t - T.ma0) / (T.ma1 - T.ma0));
+const giroLuna = (t) => -0.55 + 0.12 * (t - T.am0);
+const GLITCH = [[1.48, 0.22, 1.0], [4.9, 0.16, 0.8], [7.68, 0.22, 1.0], [0.62, 0.05, 0.35], [3.86, 0.06, 0.45], [6.93, 0.05, 0.4], [9.55, 0.05, 0.3]];
+function fallo(t) {
+  let g = 0;
+  for (const [a, d, s] of GLITCH) {
+    const x = (t - a) / d;
+    if (x >= 0 && x <= 1) g = Math.max(g, s * Math.sqrt(Math.sin(Math.PI * x)) * (0.55 + 0.45 * h1(Math.floor(t * 30) + a * 10)));
+  }
+  return g;
+}
+const parpadeo = (t, g) => 0.955 + 0.045 * h1(Math.floor(t * 24)) - (g > 0.05 && h1(Math.floor(t * 30) * 3.1) > 0.5 ? 0.3 * g : 0);
+
+// ---------------------------------------------------------------------
+// HUD (lienzo 2D encima, mezcla «screen»)
+// ---------------------------------------------------------------------
+const F_T = '"Chakra Petch", sans-serif';
+const F_M = '"JetBrains Mono", monospace';
+const CIAN = (a) => `rgba(120, 236, 255, ${a})`;
+const MAG = (a) => `rgba(255, 86, 214, ${a})`;
+const BLANCO = (a) => `rgba(230, 252, 255, ${a})`;
+const GLIFOS = '#%&*+=<>/\\[]{}01?!';
+let c2 = ctx; // contexto activo (pantalla o búfer para el corte de fallo)
+
+function decodificar(txt, lt, dur = 0.5, semilla = 0) {
+  if (lt >= dur) return txt;
+  if (lt < 0) return '';
+  let out = '';
+  const n = txt.length;
+  for (let i = 0; i < n; i++) {
+    const c = txt[i];
+    const aparece = (i / n) * dur * 0.45;
+    const fija = dur * (0.35 + 0.65 * ((i + 0.5) / n) * (0.7 + 0.3 * h1(i + semilla)));
+    if (lt < aparece) break;
+    if (c === ' ' || lt >= fija) out += c;
+    else out += GLIFOS[Math.floor(h1(i * 7.13 + Math.floor(lt * 40) + semilla) * GLIFOS.length)];
+  }
+  return out;
+}
+function escribir(txt, x, y, px, { peso = 500, fam = F_M, color = CIAN(0.9), align = 'left', track = 0 } = {}) {
+  c2.font = `${peso} ${px}px ${fam}`;
+  c2.fillStyle = color;
+  let w = 0;
+  const anchos = [];
+  for (const ch of txt) { const a = c2.measureText(ch).width; anchos.push(a); w += a + track; }
+  if (anchos.length) w -= track;
+  let cx = align === 'left' ? x : align === 'right' ? x - w : x - w / 2;
+  let i = 0;
+  for (const ch of txt) { c2.fillText(ch, cx, y); cx += anchos[i++] + track; }
+  return w;
+}
+function ancho(txt, px, peso, fam, track = 0) {
+  c2.font = `${peso} ${px}px ${fam}`;
+  let w = 0, n = 0;
+  for (const ch of txt) { w += c2.measureText(ch).width + track; n++; }
+  return n ? w - track : 0;
+}
+function polilinea(pts, k) {
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) total += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+  let resto = total * lim(k);
+  c2.beginPath();
+  c2.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length && resto > 0; i++) {
+    const L = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    const f = Math.min(1, resto / L);
+    c2.lineTo(pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f);
+    resto -= L;
+  }
+  c2.stroke();
+}
+// Ventana [a, b) que puede dar la vuelta al bucle: devuelve tiempo local o -1.
+function ventana(t, a, b) {
+  const lt = modT(t - a), len = modT(b - a);
+  return lt < len ? lt : -1;
+}
+function envolvente(t, a, b, fi = 0.4, fo = 0.3) {
+  const lt = ventana(t, a, b);
+  if (lt < 0) return null;
+  const len = modT(b - a);
+  return { lt, k: lim(lt / fi), o: lim((len - lt) / fo) };
+}
+const v3 = new THREE.Vector3();
+function pantalla(x, y, z) {
+  v3.set(x, y, z).project(camara);
+  return [((v3.x + 1) / 2) * W, ((1 - v3.y) / 2) * H];
+}
+
+function marcador(x, y, k, a) {
+  c2.strokeStyle = CIAN(0.9 * a);
+  c2.lineWidth = 1.6;
+  c2.beginPath(); c2.arc(x, y, 7 * suave(k * 1.6), 0, TAU); c2.stroke();
+  c2.fillStyle = BLANCO(a); c2.beginPath(); c2.arc(x, y, 2.4, 0, TAU); c2.fill();
+  const r1 = 11, r2 = 16;
+  c2.beginPath();
+  for (let i = 0; i < 4; i++) {
+    const an = (i * Math.PI) / 2 + Math.PI / 4;
+    c2.moveTo(x + Math.cos(an) * r1, y + Math.sin(an) * r1); c2.lineTo(x + Math.cos(an) * r2, y + Math.sin(an) * r2);
+  }
+  c2.stroke();
+}
+// Llamada: ancla → codo → subrayado bajo el texto
+function llamada(t, env, ancla, lado, ly, titulo, sub, semilla) {
+  if (!env) return;
+  const a = env.o * (env.k > 0 ? 1 : 0);
+  const k = ease(env.k);
+  const exterior = lado < 0 ? 90 : 990;
+  const wt = Math.max(ancho(titulo, 30, 600, F_T, 2), ancho(sub, 18, 500, F_M, 1)) + 14;
+  const interior = exterior - lado * -1 * 0 + (lado < 0 ? wt : -wt);
+  const yl = ly + 12;
+  c2.lineWidth = 1.5;
+  c2.strokeStyle = CIAN(0.75 * a);
+  marcador(ancla[0], ancla[1], env.k, a);
+  polilinea([ancla, [interior, yl], [exterior, yl]], k);
+  const lt = env.lt - 0.18;
+  const al = lado < 0 ? 'left' : 'right';
+  escribir(decodificar(titulo, lt, 0.5, semilla), exterior, ly, 30, { peso: 600, fam: F_T, color: BLANCO(0.95 * a), align: al, track: 2 });
+  escribir(decodificar(sub, lt - 0.12, 0.55, semilla + 3), exterior, ly + 40, 18, { color: CIAN(0.72 * a), align: al, track: 1 });
+}
+
+function anilloHud(cx, cy, R, t, rollH, g) {
+  c2.lineWidth = 1.2;
+  c2.strokeStyle = CIAN(0.22);
+  c2.beginPath(); c2.arc(cx, cy, R, 0, TAU); c2.stroke();
+  // marcas cada 3°, mayores cada 15°, deriva de 15° por bucle
+  const deriva = ((t / DUR) * 15 * Math.PI) / 180;
+  c2.beginPath();
+  for (let i = 0; i < 120; i++) {
+    const an = (i * 3 * Math.PI) / 180 + deriva;
+    const L = i % 5 === 0 ? 12 : 5;
+    c2.moveTo(cx + Math.cos(an) * R, cy + Math.sin(an) * R);
+    c2.lineTo(cx + Math.cos(an) * (R - L), cy + Math.sin(an) * (R - L));
+  }
+  c2.strokeStyle = CIAN(0.32);
+  c2.stroke();
+  // tres arcos que giran 120° por bucle
+  const rot = ((t / DUR) * TAU) / 3;
+  c2.lineWidth = 2.2;
+  c2.strokeStyle = CIAN(0.55);
+  for (let i = 0; i < 3; i++) {
+    const a0 = rot + (i * TAU) / 3;
+    c2.beginPath(); c2.arc(cx, cy, R + 14, a0, a0 + 0.62); c2.stroke();
+  }
+  c2.lineWidth = 1;
+  c2.strokeStyle = MAG(0.5);
+  for (let i = 0; i < 3; i++) {
+    const a0 = -rot * 1.5 + (i * TAU) / 3 + 1.0;
+    c2.beginPath(); c2.arc(cx, cy, R + 24, a0, a0 + 0.18); c2.stroke();
+  }
+  // marcador de giro del observador (arriba = 0°)
+  const am = -Math.PI / 2 + rollH;
+  const mx = cx + Math.cos(am) * (R - 20), my = cy + Math.sin(am) * (R - 20);
+  c2.save();
+  c2.translate(mx, my); c2.rotate(am + Math.PI / 2);
+  c2.fillStyle = MAG(0.95);
+  c2.beginPath(); c2.moveTo(0, 10); c2.lineTo(-8, -4); c2.lineTo(8, -4); c2.closePath(); c2.fill();
+  c2.restore();
+  const grados = Math.round(((rollH * 180) / Math.PI) % 360);
+  const ex = cx + R * 0.74, ey = cy - R * 0.74;
+  escribir('GIRO', ex + 18, ey - 26, 16, { color: CIAN(0.6), track: 2 });
+  escribir(String(grados).padStart(3, '0') + '°', ex + 18, ey + 2, 26, { peso: 500, color: BLANCO(0.9), track: 1 });
+  c2.strokeStyle = CIAN(0.4); c2.lineWidth = 1;
+  c2.beginPath(); c2.moveTo(ex + 8, ey - 40); c2.lineTo(ex + 8, ey + 8); c2.stroke();
+}
+
+function cajaLetra(t, letra, inferior, semillaL, ltL, ltI) {
+  const x1 = 990, y0 = 1250, s = 158, x0 = x1 - s;
+  escribir('SE VE COMO', x1, y0 - 14, 17, { color: CIAN(0.65), align: 'right', track: 2 });
+  c2.strokeStyle = CIAN(0.85); c2.lineWidth = 2;
+  const L = 20;
+  c2.beginPath();
+  c2.moveTo(x0, y0 + L); c2.lineTo(x0, y0); c2.lineTo(x0 + L, y0);
+  c2.moveTo(x1 - L, y0); c2.lineTo(x1, y0); c2.lineTo(x1, y0 + L);
+  c2.moveTo(x1, y0 + s - L); c2.lineTo(x1, y0 + s); c2.lineTo(x1 - L, y0 + s);
+  c2.moveTo(x0 + L, y0 + s); c2.lineTo(x0, y0 + s); c2.lineTo(x0, y0 + s - L);
+  c2.stroke();
+  c2.strokeStyle = CIAN(0.16); c2.lineWidth = 1;
+  c2.strokeRect(x0 + 8, y0 + 8, s - 16, s - 16);
+  const txt = decodificar(letra, ltL, 0.35, semillaL);
+  const cx = x0 + s / 2, by = y0 + s / 2 + 46;
+  escribir(txt, cx - 3, by, 132, { peso: 700, fam: F_T, color: MAG(0.55), align: 'center' });
+  escribir(txt, cx + 3, by, 132, { peso: 700, fam: F_T, color: CIAN(0.55), align: 'center' });
+  escribir(txt, cx, by, 132, { peso: 700, fam: F_T, color: BLANCO(0.92), align: 'center' });
+  escribir(decodificar(inferior, ltI, 0.5, semillaL + 5), x1, y0 + s + 38, 23, { peso: 600, fam: F_T, color: BLANCO(0.92), align: 'right', track: 2 });
+}
+
+function observador(t, env, rollH) {
+  if (!env) return;
+  const a = env.o * suave(env.k);
+  const cx = 168, cy = 1335, r = 50;
+  escribir('OBSERVADOR', 90, 1236, 17, { color: CIAN(0.65 * a), track: 2 });
+  c2.lineWidth = 1.6;
+  c2.strokeStyle = CIAN(0.85 * a);
+  c2.beginPath(); c2.arc(cx, cy, r, 0, TAU); c2.stroke();
+  c2.lineWidth = 1;
+  c2.strokeStyle = CIAN(0.35 * a);
+  c2.setLineDash([4, 4]);
+  c2.beginPath(); c2.moveTo(cx - r, cy); c2.lineTo(cx + r, cy); c2.stroke();
+  c2.setLineDash([]);
+  c2.beginPath(); c2.ellipse(cx, cy, r * 0.42, r, 0, 0, TAU); c2.stroke();
+  escribir('N', cx, cy - r - 10, 15, { peso: 700, color: CIAN(0.8 * a), align: 'center' });
+  escribir('S', cx, cy + r + 22, 15, { peso: 700, color: CIAN(0.8 * a), align: 'center' });
+  // Luna de referencia a la derecha
+  const lx = 300, ly = cy;
+  c2.strokeStyle = CIAN(0.7 * a); c2.lineWidth = 1.4;
+  c2.beginPath(); c2.arc(lx, ly, 10, 0, TAU); c2.stroke();
+  // observador: de +55° (norte) a −55° (sur) a medida que gira
+  const f = lim(rollH / Math.PI);
+  const lat = ((55 - 110 * ease(f)) * Math.PI) / 180;
+  const bx = cx + Math.cos(lat) * r, by = cy - Math.sin(lat) * r;
+  const hx = cx + Math.cos(lat) * (r + 24), hy = cy - Math.sin(lat) * (r + 24);
+  c2.strokeStyle = MAG(0.5 * a); c2.lineWidth = 1;
+  c2.setLineDash([3, 5]);
+  c2.beginPath(); c2.moveTo(hx, hy); c2.lineTo(lx - 12, ly); c2.stroke();
+  c2.setLineDash([]);
+  c2.strokeStyle = MAG(0.95 * a); c2.lineWidth = 2.4;
+  c2.beginPath(); c2.moveTo(bx, by); c2.lineTo(hx, hy); c2.stroke();
+  c2.fillStyle = MAG(0.95 * a);
+  c2.beginPath(); c2.arc(hx, hy, 5, 0, TAU); c2.fill();
+  const texto = f < 0.5 ? 'DE PIE' : 'AL REVÉS';
+  const lt = f < 0.5 ? env.lt - 0.3 : modT(t - (T.r0 + (T.r1 - T.r0) / 2));
+  escribir(decodificar(texto, lt, 0.4, 21), 90, 1440, 23, { peso: 600, fam: F_T, color: BLANCO(0.92 * a), track: 2 });
+}
+
+// Trazo de la letra sobre la Luna: «D» (cuerda + arco derecho) o «C» (arco izquierdo)
+function trazoLetra(cx, cy, Rd, rot, tipo, k, a) {
+  if (k <= 0 || a <= 0) return;
+  const pts = [];
+  const P = (x, y) => [cx + x * Math.cos(rot) - y * Math.sin(rot), cy + x * Math.sin(rot) + y * Math.cos(rot)];
+  if (tipo === 'D') {
+    pts.push(P(0, Rd), P(0, -Rd));
+    for (let i = 0; i <= 48; i++) { const th = -Math.PI / 2 + (i / 48) * Math.PI; pts.push(P(Math.cos(th) * Rd, Math.sin(th) * Rd)); }
+  } else {
+    for (let i = 0; i <= 48; i++) { const th = -Math.PI / 2 - (i / 48) * Math.PI; pts.push(P(Math.cos(th) * Rd, Math.sin(th) * Rd)); }
+  }
+  c2.lineCap = 'round';
+  c2.strokeStyle = MAG(0.16 * a); c2.lineWidth = 12; polilinea(pts, k);
+  c2.strokeStyle = MAG(0.9 * a); c2.lineWidth = 3; polilinea(pts, k);
+  c2.lineCap = 'butt';
+}
+
+function textoSegmentos(t, segs) {
+  // segs: [[inicio, texto, semilla]] ordenados; el último da la vuelta al bucle
+  let actual = segs[segs.length - 1], ini = actual[0];
+  for (const s of segs) if (t >= s[0]) { actual = s; ini = s[0]; }
+  const txt = typeof actual[1] === 'function' ? actual[1](t) : actual[1];
+  return decodificar(txt, modT(t - ini), 0.55, actual[2]);
+}
+
+function dibujarHud(t, st, g, flick, rollL, rollH, centro, Rs) {
+  const sx = hud.width / W;
+  c2.setTransform(sx, 0, 0, sx, 0, 0);
+  c2.clearRect(0, 0, W, H);
+  c2.globalCompositeOperation = 'lighter';
+  c2.globalAlpha = 0.9 + 0.1 * flick;
+  c2.textBaseline = 'alphabetic';
+
+  // --- cabecera ---
+  escribir('EP. 01 — LO QUE NO TE EXPLICARON EN CLASE', 90, 322, 18, { color: CIAN(0.7), track: 1 });
+  const parp = Math.floor(t * 2) % 2 === 0;
+  c2.fillStyle = MAG(parp ? 0.95 : 0.3);
+  c2.beginPath(); c2.arc(889, 316, 5, 0, TAU); c2.fill();
+  escribir('EMISIÓN', 990, 322, 18, { color: CIAN(0.7), align: 'right', track: 1 });
+  const tit = 'LA LUNA AL REVÉS';
+  const dg = 3 + 14 * g;
+  escribir(tit, 90 - dg, 406, 84, { peso: 600, fam: F_T, color: MAG(0.5), track: 3 });
+  escribir(tit, 90 + dg, 406, 84, { peso: 600, fam: F_T, color: CIAN(0.5), track: 3 });
+  escribir(tit, 90, 406, 84, { peso: 600, fam: F_T, color: BLANCO(0.95), track: 3 });
+  // regla
+  c2.strokeStyle = CIAN(0.35); c2.lineWidth = 1;
+  c2.beginPath(); c2.moveTo(90, 436); c2.lineTo(990, 436); c2.stroke();
+  c2.beginPath();
+  for (let i = 0; i <= 30; i++) { const x = 90 + i * 30; c2.moveTo(x, 436); c2.lineTo(x, i % 5 === 0 ? 446 : 441); }
+  c2.stroke();
+  const barra = 90 + ((t / DUR) * 900 * 3) % 900;
+  c2.strokeStyle = MAG(0.9); c2.lineWidth = 3;
+  c2.beginPath(); c2.moveTo(Math.max(90, barra - 60), 436); c2.lineTo(barra, 436); c2.stroke();
+  const esLuna = t >= 2.3 && t < 8.5;
+  escribir(decodificar(esLuna ? 'OBJ · LUNA' : 'OBJ · ÁTOMO', modT(t - (esLuna ? 2.3 : 8.5)), 0.5, 2), 90, 470, 17, { color: CIAN(0.65), track: 2 });
+  escribir(decodificar(esLuna ? 'Ø 3 474 km' : 'ESCALA 10⁻¹⁰ m', modT(t - (esLuna ? 2.3 : 8.5)), 0.5, 4), 990, 470, 17, { color: CIAN(0.65), align: 'right', track: 1 });
+
+  // --- línea de estado (narración) ---
+  const estadoTxt = textoSegmentos(t, [
+    [0, '¿LA LUNA SE VE IGUAL EN TODO EL MUNDO?', 1],
+    [T.am0, (x) => 'RECONSTRUYENDO OBJETO · ' + String(Math.round(lim((x - T.am0) / (T.am1 - T.am0)) * 100)).padStart(3, '0') + ' %', 2],
+    [T.am1, 'CRECIENTE VISTA DESDE EL NORTE', 3],
+    [T.r0, (x) => 'EL OBSERVADOR GIRA · ' + String(Math.round((rollLuna(x) * 180) / Math.PI)).padStart(3, '0') + '°', 4],
+    [T.r1, 'LA MISMA LUNA VISTA DESDE EL SUR', 5],
+    [T.ma0, (x) => 'RECONSTRUYENDO OBJETO · ' + String(Math.round(lim((x - T.ma0) / (T.ma1 - T.ma0)) * 100)).padStart(3, '0') + ' %', 6],
+    [T.ma1, '¿LA LUNA SE VE IGUAL EN TODO EL MUNDO?', 1],
+  ]);
+  c2.fillStyle = MAG(0.95);
+  c2.beginPath(); c2.moveTo(90, 503); c2.lineTo(102, 510); c2.lineTo(90, 517); c2.closePath(); c2.fill();
+  escribir(estadoTxt, 114, 519, 25, { peso: 500, fam: F_T, color: BLANCO(0.9), track: 2 });
+
+  // --- anillo alrededor de la proyección ---
+  anilloHud(centro[0], centro[1], 362, t, rollH, g);
+
+  // --- llamadas del átomo ---
+  const nucleo = pantalla(holo.position.x, holo.position.y, holo.position.z);
+  llamada(t, envolvente(t, 9.35, 1.5, 0.45, 0.3), nucleo, -1, 600, 'NÚCLEO', '99,9 % DE LA MASA', 11);
+  // retícula de seguimiento del electrón 2
+  const eEnv = envolvente(t, 9.45, 1.55, 0.3, 0.25);
+  if (eEnv) {
+    const p = orbita(1, cabeza(1, t), R_AT);
+    const ga = giroAtomo(t), c = Math.cos(ga), s = Math.sin(ga);
+    const e = pantalla(c * p[0] + s * p[2], p[1] + holo.position.y, -s * p[0] + c * p[2]);
+    const a = eEnv.o * suave(eEnv.k);
+    const q = 22 + 30 * (1 - suave(eEnv.k));
+    c2.strokeStyle = CIAN(0.9 * a); c2.lineWidth = 1.6;
+    c2.beginPath();
+    for (const [dx, dy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      c2.moveTo(e[0] + dx * q, e[1] + dy * (q - 8)); c2.lineTo(e[0] + dx * q, e[1] + dy * q); c2.lineTo(e[0] + dx * (q - 8), e[1] + dy * q);
+    }
+    c2.stroke();
+    escribir('e⁻', e[0] + q + 8, e[1] - q + 12, 22, { peso: 700, color: BLANCO(0.95 * a) });
+    escribir('−1,6·10⁻¹⁹ C', e[0] + q + 8, e[1] - q + 34, 15, { color: CIAN(0.7 * a) });
+  }
+
+  // --- llamadas de la Luna ---
+  const BRm = UH.uBR.value.elements;
+  const lunaPunto = (ox, oy, oz) => {
+    const m = BRm; // columna mayor
+    const x = m[0] * ox + m[3] * oy + m[6] * oz, y = m[1] * ox + m[4] * oy + m[7] * oz, z = m[2] * ox + m[5] * oy + m[8] * oz;
+    return pantalla(x * R_LU + holo.position.x, y * R_LU + holo.position.y, z * R_LU + holo.position.z);
+  };
+  llamada(t, envolvente(t, 3.0, 7.75, 0.45, 0.3), [centro[0] - Rs * 0.72, centro[1] - Rs * 0.72], -1, 600, 'LUNA', '384 400 km · Ø 3 474 km', 31);
+  const an = (20 * Math.PI) / 180;
+  llamada(t, envolvente(t, 3.25, 5.05, 0.45, 0.25), lunaPunto(Math.cos(-an), Math.sin(-an), 0), 1, 1120, 'LADO ILUMINADO', 'SOL A 127° · 20 %', 41);
+  llamada(t, envolvente(t, 6.35, 7.75, 0.45, 0.3), lunaPunto(Math.cos(an), Math.sin(an), 0), -1, 1120, 'LADO ILUMINADO', 'SOL A 127° · 20 %', 51);
+
+  // trazos «D» y «C»
+  const Rd = Rs + 24;
+  const envD = envolvente(t, 3.35, 5.45, 0.7, 0.4);
+  if (envD) trazoLetra(centro[0], centro[1], Rd, rollL, 'D', ease(envD.k), envD.o);
+  const envC = envolvente(t, 6.25, 7.85, 0.6, 0.3);
+  if (envC) trazoLetra(centro[0], centro[1], Rd, 0, 'C', ease(envC.k), envC.o);
+
+  // --- caja de la letra ---
+  let letra, ltL, inferior, ltI, sem;
+  if (t >= 3.45 && t < 6.3) { letra = 'D'; ltL = t - 3.45; inferior = 'HEMISFERIO NORTE'; ltI = t - 3.3; sem = 61; }
+  else if (t >= 6.3 && t < 8.2) { letra = 'C'; ltL = t - 6.3; inferior = 'HEMISFERIO SUR'; ltI = t - 6.3; sem = 71; }
+  else { letra = '?'; ltL = modT(t - 8.2); inferior = '¿D O C?'; ltI = modT(t - 8.2); sem = 81; }
+  cajaLetra(t, letra, inferior, sem, ltL, ltI);
+
+  // --- observador ---
+  observador(t, envolvente(t, 3.1, 7.8, 0.5, 0.35), rollL);
+
+  // --- barra inferior ---
+  const inestable = g > 0.12;
+  c2.fillStyle = inestable ? MAG(0.95) : CIAN(0.85);
+  c2.fillRect(90, 1484, 9, 9);
+  escribir(inestable ? 'HAZ INESTABLE' : 'HAZ ESTABLE', 108, 1494, 17, { color: inestable ? MAG(0.95) : CIAN(0.75), track: 2 });
+  const senal = inestable ? 61 + Math.floor(h1(Math.floor(t * 30)) * 20) : 96 + Math.floor(h1(Math.floor(t * 3)) * 4);
+  escribir('SEÑAL ' + senal + ' %', 990, 1494, 17, { color: CIAN(0.75), align: 'right', track: 2 });
+  for (let i = 0; i < 5; i++) {
+    const on = i < Math.round((senal - 55) / 9);
+    c2.fillStyle = on ? CIAN(0.8) : CIAN(0.18);
+    c2.fillRect(790 + i * 9, 1494 - 6 - i * 3, 5, 6 + i * 3);
+  }
+  c2.globalAlpha = 1;
+  c2.globalCompositeOperation = 'source-over';
+}
+
+// ---------------------------------------------------------------------
+// Fotograma
+// ---------------------------------------------------------------------
+const mSpin = new THREE.Matrix3(), mRoll = new THREE.Matrix3(), mBR = new THREE.Matrix3();
+function dibujar(tIn) {
+  const t = modT(tIn);
+  const st = estado(t);
+  const g = fallo(t);
+  const flick = parpadeo(t, g);
+
+  camara.position.set(CAM0.x + 0.3 * Math.sin((TAU * t) / DUR), CAM0.y + 0.08 * Math.sin((2 * TAU * t) / DUR + 1), CAM0.z);
+  camara.lookAt(MIRA);
+  camara.updateMatrixWorld();
+  holo.position.y = 0.035 * Math.sin((2 * TAU * t) / DUR);
+  holo.updateMatrixWorld();
+
+  const rollL = rollLuna(t), rollH = rollHud(t), sp = giroLuna(t);
+  const cs = Math.cos(sp), ss = Math.sin(sp);
+  mSpin.set(cs, 0, ss, 0, 1, 0, -ss, 0, cs);
+  const cr = Math.cos(-rollL), sr = Math.sin(-rollL);
+  mRoll.set(cr, -sr, 0, sr, cr, 0, 0, 0, 1);
+  mBR.multiplyMatrices(BASE, mRoll);
+  UH.uSpinM.value.copy(mSpin);
+  UH.uBR.value.copy(mBR);
+  UH.uLw.value.copy(LUZ).applyMatrix3(mBR);
+  UH.uSpinA.value = giroAtomo(t);
+  UH.uElec.value.set(cabeza(0, t), cabeza(1, t), cabeza(2, t));
+  UH.uSet.value = t >= T.setB ? 1 : 0;
+
+  U.uT.value = t;
+  U.uMode.value = st.modo;
+  U.uProg.value = st.prog;
+  U.uFlick.value = flick;
+  U.uBand.value = 260 + ((t % 2.5) / 2.5) * 1400;
+
+  // plano de barrido
+  if (st.modo === 1 || st.modo === 3) {
+    const kf = lim((st.prog * 2.6 - 0.5) / 1.6, -0.2, 1.2);
+    const Rk = st.modo === 1 ? R_LU : 1.2;
+    const y = (kf * 2 - 1) * Rk;
+    const rr = Math.sqrt(Math.max(0, 1 - (kf * 2 - 1) ** 2)) * (st.modo === 1 ? R_LU : R_AT) + 0.12;
+    barridoMalla.position.y = y;
+    barridoMalla.scale.setScalar(rr);
+    UB.uScanA.value = Math.pow(Math.sin(Math.PI * st.prog), 0.6) * lim((1.15 - Math.abs(kf * 2 - 1)) / 0.3);
+    barridoMalla.visible = true;
+  } else barridoMalla.visible = false;
+
+  const centro = pantalla(0, holo.position.y, 0);
+  const borde = pantalla(R_LU * derecha.x, holo.position.y, 0);
+  const Rs = Math.hypot(borde[0] - centro[0], borde[1] - centro[1]);
+  const emisor = pantalla(0, Y_EM, 0);
+  final.uniforms.uT.value = t;
+  final.uniforms.uGlitch.value = g;
+  final.uniforms.uSeed.value = Math.floor(t * 30) % 300;
+  final.uniforms.uEmit.value.set(emisor[0], emisor[1]);
+  final.uniforms.uCentro.value.set(centro[0], centro[1]);
+
+  composer.render();
+
+  // HUD (con corte de fallo si toca)
+  if (g > 0.05) {
+    c2 = ctxBuf;
+    dibujarHud(t, st, g, flick, rollL, rollH, centro, Rs);
+    c2 = ctx;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, hud.width, hud.height);
+    const sem = Math.floor(t * 30);
+    let y = 0, b = 0;
+    const hh = hud.height, ww = hud.width;
+    while (y < hh) {
+      const alto = Math.max(4, Math.floor((0.01 + 0.07 * h1(sem * 13.1 + b)) * hh));
+      const dx = h1(sem * 7.7 + b * 3.3) < 0.35 + 0.3 * g ? (h1(sem + b * 1.9) - 0.5) * 0.12 * g * ww : 0;
+      ctx.drawImage(hudBuf, 0, y, ww, Math.min(alto, hh - y), dx, y, ww, Math.min(alto, hh - y));
+      y += alto; b++;
+    }
+  } else {
+    dibujarHud(t, st, g, flick, rollL, rollH, centro, Rs);
+  }
+}
+
+// ---------------------------------------------------------------------
+// Tamaño, bucle y API de captura
+// ---------------------------------------------------------------------
+let ultimoT = 0;
+function ajustar() {
+  const s = Math.min(innerWidth / W, innerHeight / H);
+  const cw = Math.max(1, Math.round(W * s)), ch = Math.max(1, Math.round(H * s));
+  escenaDiv.style.width = cw + 'px';
+  escenaDiv.style.height = ch + 'px';
+  const pr = Math.min(window.devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(pr);
+  renderer.setSize(cw, ch, false);
+  composer.setPixelRatio(pr);
+  composer.setSize(cw, ch);
+  const bw = Math.round(cw * pr), bh = Math.round(ch * pr);
+  hud.width = hudBuf.width = bw;
+  hud.height = hudBuf.height = bh;
+  const px = bw / W;
+  U.uPx.value = px;
+  U.uScanP.value = Math.max(2, Math.round(4 * px));
+  U.uResY.value = bh;
+}
+ajustar();
+addEventListener('resize', () => { ajustar(); dibujar(ultimoT); });
+
+window.__frame = async (t) => { ultimoT = t; dibujar(t); };
+
+await Promise.all([
+  document.fonts.load('600 84px "Chakra Petch"'), document.fonts.load('500 25px "Chakra Petch"'),
+  document.fonts.load('700 132px "Chakra Petch"'), document.fonts.load('400 18px "JetBrains Mono"'),
+  document.fonts.load('500 18px "JetBrains Mono"'), document.fonts.load('700 22px "JetBrains Mono"'),
+]);
+await document.fonts.ready;
+dibujar(0);
+window.__listo = true;
+
+if (!CAPTURA) {
+  const inicio = performance.now();
+  const bucle = (ahora) => {
+    ultimoT = ((ahora - inicio) / 1000) % DUR;
+    dibujar(ultimoT);
+    requestAnimationFrame(bucle);
+  };
+  requestAnimationFrame(bucle);
+}
+</script>
+</body>
+</html>

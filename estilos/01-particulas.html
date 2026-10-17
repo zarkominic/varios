@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Luna al revés · partículas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@500;600&display=swap">
+<style>
+  html, body { margin: 0; height: 100%; background: #020309; overflow: hidden; }
+  #marco { position: absolute; overflow: hidden; background: #020309; }
+  #marco canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="marco"><canvas id="gl"></canvas><canvas id="rotulos"></canvas></div>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+// ---------------------------------------------------------------------------
+// Partículas: el átomo narrador se disuelve en un flujo de ruido rotacional
+// (curl noise) y se recompone como Luna creciente; la Luna gira 180° (D → C)
+// y vuelve a ser átomo. Todo es función pura del tiempo t (bucle de DUR s).
+// ---------------------------------------------------------------------------
+const CAPTURA = location.search.includes('captura');
+const DUR = 10;
+const TL = {
+  M1: 1.0, M2: 7.4, SPREAD: 0.8, MDUR: 1.5, // átomo → Luna, Luna → átomo
+  F0: 5.0, F1: 6.2,                          // giro de 180° (D → C)
+  S0: 3.3, S1: 3.9, SO0: 4.95, SO1: 5.45,    // trazo que convierte la creciente en «D»
+};
+const N = 18000;        // partículas del sujeto
+const TRAIL = 6;        // muestras por partícula para la estela (cabeza + 5 fantasmas)
+const TRAIL_DT = 1 / 30;
+const R_O = 1.25;       // radio de las órbitas
+const R_M = 1.08;        // radio de la Luna
+const CAM_D = 12.3, FOV = 30, Y_SUJ = 0.31;
+const TAU = Math.PI * 2;
+
+// --- azar con semilla --------------------------------------------------------
+function mulberry32(a) {
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const lim = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
+const suave = (x) => { x = lim(x); return x * x * x * (x * (x * 6 - 15) + 10); };
+const liso = (a, b, x) => { const t = lim((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+
+// --- cara de la Luna (mares y cráteres, norte arriba, vista desde el norte) ---
+const MARES = [
+  [0.68, 0.3, 0.12, 0.1, 1], [0.6, -0.14, 0.11, 0.19, 0.9], [0.4, -0.33, 0.09, 0.09, 0.85],
+  [0.36, 0.12, 0.17, 0.14, 0.95], [0.23, 0.43, 0.13, 0.12, 0.95], [0.04, 0.3, 0.07, 0.06, 0.7],
+  [-0.22, 0.56, 0.22, 0.17, 1], [-0.05, 0.8, 0.36, 0.05, 0.7], [-0.56, 0.12, 0.22, 0.38, 0.9],
+  [-0.25, 0.06, 0.1, 0.08, 0.75], [-0.18, -0.37, 0.16, 0.13, 0.85], [-0.58, -0.41, 0.08, 0.08, 0.85],
+  [0.08, -0.04, 0.08, 0.07, 0.6],
+];
+const CRATERES = [
+  [-0.68, 0.4, 0.035, 1.6], [-0.12, -0.73, 0.04, 1.1], [-0.3, 0.18, 0.035, 0.9], [-0.52, 0.13, 0.025, 0.7],
+  [0.6, 0.27, 0.025, 0.8], [0.86, -0.16, 0.03, 0.5], [0.75, -0.43, 0.035, 0.45],
+];
+function mares(x, y) {
+  let m = 0;
+  for (const a of MARES) {
+    const dx = (x - a[0]) / a[2], dy = (y - a[1]) / a[3];
+    const s = lim((1.3 - (dx * dx + dy * dy)) / 0.7);
+    m = Math.max(m, a[4] * s * s * (3 - 2 * s));
+  }
+  const r = 0.5 * Math.sin(9.1 * x + 2.3 * y) * Math.sin(7.7 * y - 1.1 * x + 0.6) + 0.3 * Math.sin(17 * x + 13 * y + 1.7);
+  return lim(m + 0.22 * r * m);
+}
+function crater(x, y) {
+  let b = 0;
+  for (const a of CRATERES) {
+    const d = Math.hypot(x - a[0], y - a[1]) / a[2];
+    if (d < 1.6) b += a[3] * (1 - d / 1.6);
+  }
+  return b;
+}
+const albedo = (x, y) => (1 - 0.48 * mares(x, y)) * (1 + 0.07 * Math.sin(11 * x - 5 * y + 0.4) * Math.sin(8 * y + 3 * x)) * (1 + 0.3 * crater(x, y));
+
+// --- datos de cada partícula -------------------------------------------------
+const K_TERM = 0.5, SF = Math.sqrt(1 - K_TERM * K_TERM); // terminador: la creciente ocupa x > K·√(1−y²)
+const NUCLEONES = [[0, 0, 0]];
+for (let k = 0; k < 13; k++) {
+  const y = 1 - (2 * (k + 0.5)) / 13, r = Math.sqrt(1 - y * y), th = k * 2.39996;
+  NUCLEONES.push([0.21 * r * Math.cos(th), 0.21 * y, 0.21 * r * Math.sin(th)]);
+}
+function construirSujeto() {
+  const az = mulberry32(1717);
+  const gauss = () => { let s = 0; for (let k = 0; k < 4; k++) s += az(); return (s - 2) * 0.866; };
+  const A = new Float32Array(N * 4), B = new Float32Array(N * 4), I = new Float32Array(N * 4), M = new Float32Array(N * 4);
+  for (let i = 0; i < N; i++) {
+    const o = i * 4;
+    // papel en el átomo: 0 núcleo, 1 órbita, 2 cometa (electrón y su estela)
+    const fa = az();
+    let rolA, rango;
+    if (fa < 0.12) {
+      rolA = 0; rango = 1;
+      const k = Math.floor(az() * NUCLEONES.length), n = NUCLEONES[k];
+      let x, y, z;
+      do { x = az() * 2 - 1; y = az() * 2 - 1; z = az() * 2 - 1; } while (x * x + y * y + z * z > 1);
+      const r = 0.088;
+      A[o] = n[0] + x * r; A[o + 1] = n[1] + y * r; A[o + 2] = n[2] + z * r; A[o + 3] = k % 2;
+    } else if (fa < 0.6) {
+      rolA = 1; rango = 0.5;
+      A[o] = Math.floor(az() * 3); A[o + 1] = az() * TAU; A[o + 2] = (az() - 0.5) * 0.03; A[o + 3] = 0;
+    } else {
+      rolA = 2; rango = 0;
+      const k = Math.floor(az() * 3), s = az();
+      if (s < 0.07) {
+        A[o] = k; A[o + 1] = -1; A[o + 2] = gauss() * 0.035; A[o + 3] = gauss() * 0.035; M[o + 3] = gauss() * 0.035;
+      } else {
+        const d = (s - 0.07) / 0.93;
+        A[o] = k; A[o + 1] = d; A[o + 2] = gauss() * 0.02 * (0.3 + d); A[o + 3] = gauss() * 0.02 * (0.3 + d);
+      }
+    }
+    // papel en la Luna: 0 parte iluminada, 1 luz cenicienta, 2 trazo de la «D», 3 polvo alrededor
+    const fb = az();
+    let rolB, x = 0, y = 0, z = 0, b = 0;
+    if (fb < 0.7) {
+      rolB = 0;
+      for (;;) {
+        x = az() * 2 - 1; y = az() * 2 - 1;
+        const rr = x * x + y * y;
+        if (rr > 1) continue;
+        z = Math.sqrt(1 - rr);
+        const L = x * SF - z * K_TERM;
+        if (az() > liso(-0.015, 0.09, L)) continue;
+        b = albedo(x, y) * (0.5 + 0.5 * liso(0, 0.3, L)) * (0.75 + 0.5 * az()) + 0.18 * liso(0.93, 1.0, Math.sqrt(rr));
+        break;
+      }
+    } else if (fb < 0.84) {
+      rolB = 1;
+      for (;;) {
+        x = az() * 2 - 1; y = az() * 2 - 1;
+        const rr = x * x + y * y;
+        if (rr > 1) continue;
+        z = Math.sqrt(1 - rr);
+        if (x * SF - z * K_TERM > -0.05) continue;
+        b = 0.11 * albedo(x, y) * (0.6 + 0.8 * az()) + 0.07 * liso(0.9, 1.0, Math.sqrt(rr));
+        break;
+      }
+    } else if (fb < 0.91) {
+      rolB = 2;
+      const u = az();
+      x = -0.03 + gauss() * 0.0055; y = 0.985 - 1.97 * u; z = 0.15 + gauss() * 0.02; b = 1;
+    } else {
+      rolB = 3;
+      const r = 1.07 + 0.55 * az() ** 2, th = az() * TAU;
+      x = r * Math.cos(th); y = r * Math.sin(th); z = gauss() * 0.3;
+      b = (0.06 + 0.16 * az() ** 3) * (1 - (r - 1.07) / 0.6);
+    }
+    B[o] = x * R_M; B[o + 1] = y * R_M; B[o + 2] = z * R_M * 0.3; B[o + 3] = b;
+    I[o] = rolA; I[o + 1] = rolB; I[o + 2] = az(); I[o + 3] = az();
+    // retrasos: al disolverse el átomo salen antes los electrones; al volver, la Luna se deshace de arriba abajo
+    M[o] = lim((rolA === 2 ? 0.0 : rolA === 1 ? 0.22 : 0.6) + 0.38 * az());
+    const ySc = -y; // en la «C» la Luna está girada 180°
+    M[o + 1] = lim(0.5 * (1 - (ySc + 1) / 2) + 0.3 * rango + 0.2 * az());
+    M[o + 2] = az();
+  }
+  return { A, B, I, M };
+}
+
+// --- capas de ambiente: estrellas, motas cercanas y bokeh de primer y último plano ---
+function construirAmbiente() {
+  const az = mulberry32(4242);
+  const lista = [];
+  const add = (x, y, z, dx, dy, dz, fase, r, g, b, br, tam, tipo, tw) => lista.push([x, y, z, dx, dy, dz, fase, r, g, b, br, tam, tipo, tw]);
+  // estrellas (nítidas, al fondo)
+  for (let i = 0; i < 1500; i++) {
+    const z = -40 - az() * 14, d = CAM_D - z;
+    const hw = d * 0.1507 * 1.1, hh = d * 0.268 * 1.05;
+    const cal = az();
+    const col = cal < 0.15 ? [1.0, 0.82, 0.62] : cal < 0.3 ? [0.7, 0.8, 1.0] : [0.86, 0.9, 1.0];
+    const br = 0.05 + 0.55 * az() ** 7;
+    add((az() * 2 - 1) * hw, (az() * 2 - 1) * hh - Y_SUJ, z, 0, 0, 0, az() * TAU, ...col, br, 2.2 + 2.6 * az() ** 3, 0, 1 + Math.floor(az() * 4));
+  }
+  // bokeh lejano
+  const tonos = [[0.22, 0.62, 0.85], [0.5, 0.38, 1.0], [0.35, 0.48, 1.0], [1.0, 0.66, 0.36]];
+  for (let i = 0; i < 22; i++) {
+    const z = -6 - az() * 16, d = CAM_D - z;
+    const hw = d * 0.1507, hh = d * 0.268;
+    const c = tonos[az() < 0.08 ? 3 : Math.floor(az() * 3)];
+    add((az() * 2 - 1) * hw, (az() * 2 - 1) * hh - Y_SUJ, z, 0.25 * az(), 0.25 * az(), 0, az() * TAU, ...c, 0.03 + 0.07 * az(), 3 + 40 * az() ** 2, 2, 1);
+  }
+  // motas alrededor del sujeto (siguen la profundidad de campo)
+  for (let i = 0; i < 260; i++) {
+    const z = -3 + az() * 7, d = CAM_D - z;
+    const hw = d * 0.1507, hh = d * 0.268;
+    const c = az() < 0.5 ? [0.55, 0.75, 1.0] : [0.75, 0.62, 1.0];
+    add((az() * 2 - 1) * hw, (az() * 2 - 1) * hh - Y_SUJ, z, 0.12 * az(), 0.18 * az(), 0.1 * az(), az() * TAU, ...c, 0.2 + 0.4 * az(), 3.5, 1, 1 + Math.floor(az() * 3));
+  }
+  // bokeh en primer plano (enormes, tenues, hacia los bordes)
+  for (let i = 0; i < 9; i++) {
+    const z = 4.5 + az() * 4, d = CAM_D - z;
+    const hw = d * 0.1507, hh = d * 0.268;
+    const lado = az() < 0.5 ? -1 : 1;
+    const c = tonos[az() < 0.15 ? 3 : Math.floor(az() * 3)];
+    add(lado * (0.45 + 0.6 * az()) * hw, (az() * 2 - 1) * hh * 1.05 - Y_SUJ, z, 0.12 * az(), 0.15 * az(), 0, az() * TAU, ...c, 0.04 + 0.06 * az(), 3, 2, 1);
+  }
+  const n = lista.length;
+  const P = new Float32Array(n * 3), D = new Float32Array(n * 4), C = new Float32Array(n * 4), X = new Float32Array(n * 4);
+  lista.forEach((e, i) => {
+    P.set(e.slice(0, 3), i * 3);
+    D.set(e.slice(3, 7), i * 4);
+    C.set(e.slice(7, 11), i * 4);
+    X.set([e[11], e[12], e[13], e[6] * 1.7], i * 4);
+  });
+  return { P, D, C, X, n };
+}
+
+// --- nebulosa horneada (ruido fBm con deformación de dominio) -----------------
+function texturaNebulosa() {
+  const w = 240, h = 426, az = mulberry32(99);
+  const G = new Float32Array(256 * 256);
+  for (let i = 0; i < G.length; i++) G[i] = az();
+  const vn = (x, y) => {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    const i0 = (yi & 255) * 256, i1 = ((yi + 1) & 255) * 256, x0 = xi & 255, x1 = (xi + 1) & 255;
+    const a = G[i0 + x0], b = G[i0 + x1], c = G[i1 + x0], d = G[i1 + x1];
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  };
+  const fbm = (x, y) => { let s = 0, a = 0.5, f = 1; for (let o = 0; o < 5; o++) { s += a * vn(x * f, y * f); f *= 2.03; a *= 0.5; } return s; };
+  const data = new Uint8Array(w * h * 4);
+  for (let j = 0; j < h; j++) {
+    for (let i = 0; i < w; i++) {
+      const u = i / w, v = j / h;
+      const px = u * 2.6, py = v * 4.6;
+      const wx = fbm(px + 1.7, py + 9.2), wy = fbm(px + 8.3, py + 2.8);
+      const n1 = fbm(px + 2.4 * wx, py + 2.4 * wy);
+      const n2 = fbm(px * 1.5 + 5.1 + 1.6 * wy, py * 1.5 - 3.3 + 1.6 * wx);
+      const banda = Math.exp(-((u * 0.95 - v * 0.6 + 0.02) ** 2) * 9);       // brazo diagonal
+      const banda2 = Math.exp(-((u * 0.7 + v * 0.5 - 0.95) ** 2) * 7);
+      const c1 = Math.max(0, n1 - 0.38) * 2.0 * (0.25 + banda);
+      const c2 = Math.max(0, n2 - 0.42) * 2.2 * (0.2 + banda2);
+      const r = c1 * 0.55 + c2 * 0.1, g = c1 * 0.22 + c2 * 0.5, b = c1 * 0.95 + c2 * 0.62;
+      const k = (j * w + i) * 4;
+      data[k] = Math.min(255, r * 255); data[k + 1] = Math.min(255, g * 255); data[k + 2] = Math.min(255, b * 255); data[k + 3] = 255;
+    }
+  }
+  const tex = new THREE.DataTexture(data, w, h, THREE.RGBAFormat);
+  tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearFilter;
+  tex.wrapS = tex.wrapT = THREE.MirroredRepeatWrapping;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+// --- shaders ----------------------------------------------------------------
+const f = (x) => x.toFixed(5);
+const COMUN = /* glsl */ `
+#define PI 3.14159265
+#define TAU 6.28318531
+#define DUR ${f(DUR)}
+#define REF_D ${f(CAM_D)}
+vec3 rotZ(vec3 p, float a) { float c = cos(a), s = sin(a); return vec3(c * p.x - s * p.y, s * p.x + c * p.y, p.z); }
+vec3 rotY(vec3 p, float a) { float c = cos(a), s = sin(a); return vec3(c * p.x + s * p.z, p.y, -s * p.x + c * p.z); }
+vec3 rotX(vec3 p, float a) { float c = cos(a), s = sin(a); return vec3(p.x, c * p.y - s * p.z, s * p.y + c * p.z); }
+`;
+
+const RUIDO = /* glsl */ `
+vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec4 permute(vec4 x) { return mod289(((x * 34.0) + 10.0) * x); }
+vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+// ruido simplex 3D con su gradiente analítico: devuelve (gradiente, valor)
+vec4 snoiseD(vec3 v) {
+  const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
+  const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+  vec3 i = floor(v + dot(v, C.yyy));
+  vec3 x0 = v - i + dot(i, C.xxx);
+  vec3 g = step(x0.yzx, x0.xyz);
+  vec3 l = 1.0 - g;
+  vec3 i1 = min(g.xyz, l.zxy);
+  vec3 i2 = max(g.xyz, l.zxy);
+  vec3 x1 = x0 - i1 + C.xxx;
+  vec3 x2 = x0 - i2 + C.yyy;
+  vec3 x3 = x0 - D.yyy;
+  i = mod289(i);
+  vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+  vec3 ns = 0.142857142857 * D.wyz - D.xzx;
+  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+  vec4 x_ = floor(j * ns.z);
+  vec4 y_ = floor(j - 7.0 * x_);
+  vec4 x = x_ * ns.x + ns.yyyy;
+  vec4 y = y_ * ns.x + ns.yyyy;
+  vec4 h = 1.0 - abs(x) - abs(y);
+  vec4 b0 = vec4(x.xy, y.xy);
+  vec4 b1 = vec4(x.zw, y.zw);
+  vec4 s0 = floor(b0) * 2.0 + 1.0;
+  vec4 s1 = floor(b1) * 2.0 + 1.0;
+  vec4 sh = -step(h, vec4(0.0));
+  vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+  vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+  vec3 p0 = vec3(a0.xy, h.x);
+  vec3 p1 = vec3(a0.zw, h.y);
+  vec3 p2 = vec3(a1.xy, h.z);
+  vec3 p3 = vec3(a1.zw, h.w);
+  vec4 nr = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+  p0 *= nr.x; p1 *= nr.y; p2 *= nr.z; p3 *= nr.w;
+  vec4 m = max(0.5 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+  vec4 m2 = m * m;
+  vec4 m4 = m2 * m2;
+  vec4 pdx = vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3));
+  vec4 tt = m2 * m * pdx;
+  vec3 gr = -8.0 * (tt.x * x0 + tt.y * x1 + tt.z * x2 + tt.w * x3);
+  gr += m4.x * p0 + m4.y * p1 + m4.z * p2 + m4.w * p3;
+  return 105.0 * vec4(gr, dot(m4, pdx));
+}
+// rotacional de un potencial vectorial de ruido: campo de velocidad sin divergencia
+vec3 curl(vec3 p) {
+  vec3 a = snoiseD(p).xyz;
+  vec3 b = snoiseD(p + vec3(31.416, -47.853, 12.679)).xyz;
+  vec3 c = snoiseD(p + vec3(-23.41, 19.73, 53.11)).xyz;
+  return vec3(c.y - b.z, a.z - c.x, b.x - a.y);
+}
+`;
+
+const VERT_SUJETO = /* glsl */ `
+${COMUN}
+${RUIDO}
+#define M1 ${f(TL.M1)}
+#define M2 ${f(TL.M2)}
+#define SPREAD ${f(TL.SPREAD)}
+#define MDUR ${f(TL.MDUR)}
+#define F0 ${f(TL.F0)}
+#define F1 ${f(TL.F1)}
+#define S0 ${f(TL.S0)}
+#define S1 ${f(TL.S1)}
+#define SO0 ${f(TL.SO0)}
+#define SO1 ${f(TL.SO1)}
+#define R_O ${f(R_O)}
+#define R_M ${f(R_M)}
+uniform float uTime;
+uniform float uPx;
+uniform float uFocus;
+uniform float uAperture;
+uniform float uTrailDt;
+uniform float uFlujo;
+uniform float uFreq;
+uniform float uRemolino;
+attribute vec4 aA;
+attribute vec4 aB;
+attribute vec4 aInfo;
+attribute vec4 aMisc;
+attribute float aTrail;
+varying vec3 vCol;
+varying float vAlpha;
+varying float vBokeh;
+varying vec2 vNdc;
+
+const vec3 C_PROTON = vec3(1.0, 0.42, 0.2);
+const vec3 C_NEUTRON = vec3(0.38, 0.55, 1.0);
+const vec3 C_CIAN = vec3(0.26, 0.68, 1.0);
+const vec3 C_ELECTRON = vec3(0.62, 0.92, 1.0);
+const vec3 C_LUNA = vec3(1.0, 0.9, 0.76);
+const vec3 C_CENIZA = vec3(0.42, 0.56, 1.0);
+const vec3 C_TRAZO = vec3(1.0, 0.74, 0.42);
+const vec3 C_POLVO = vec3(0.6, 0.7, 1.0);
+const vec3 C_VIOLETA = vec3(0.58, 0.36, 1.0);
+const vec3 C_TURQUESA = vec3(0.2, 0.82, 0.95);
+const vec3 C_ORO = vec3(1.0, 0.66, 0.3);
+
+float suave(float x) { x = clamp(x, 0.0, 1.0); return x * x * x * (x * (x * 6.0 - 15.0) + 10.0); }
+float easeIO(float x) { x = clamp(x, 0.0, 1.0); return x < 0.5 ? 4.0 * x * x * x : 1.0 - pow(-2.0 * x + 2.0, 3.0) * 0.5; }
+
+// órbita k: círculo inclinado 70° y girado k·60° en el plano de la pantalla (como el átomo de la serie)
+vec3 orbita(float k, float th, float r) {
+  float x0 = r * cos(th), z0 = r * sin(th);
+  float y1 = -z0 * sin(0.4), z1 = z0 * cos(0.4);
+  float g = k * PI / 3.0 + 0.5236;
+  return vec3(x0 * cos(g) - y1 * sin(g), x0 * sin(g) + y1 * cos(g), z1);
+}
+
+void atomo(float t, out vec3 p, out vec3 col, out float sz, out float br) {
+  float ph = TAU * t / DUR;
+  float rol = aInfo.x;
+  if (rol < 0.5) {
+    p = aA.xyz * (1.0 + 0.04 * sin(ph * 8.0 + aMisc.z * TAU));
+    col = aA.w > 0.5 ? C_PROTON : C_NEUTRON;
+    sz = 7.5;
+    br = 0.3 * (0.5 + aInfo.w);
+  } else if (rol < 1.5) {
+    p = orbita(aA.x, aA.y + ph, R_O + aA.z);
+    col = C_CIAN;
+    sz = 5.0;
+    br = 0.17 * (0.5 + aInfo.w);
+  } else {
+    float k = aA.x;
+    float cabeza = ph * 3.0 + k * 2.0944;
+    if (aA.y < 0.0) {
+      p = orbita(k, cabeza, R_O) + vec3(aA.z, aA.w, aMisc.w);
+      col = C_ELECTRON;
+      sz = 12.0;
+      br = 0.55;
+    } else {
+      float d = aA.y;
+      p = orbita(k, cabeza - d * 1.75, R_O + aA.z) + vec3(0.0, 0.0, aA.w);
+      col = mix(C_ELECTRON, C_CIAN, d);
+      sz = 9.0 * (1.0 - 0.6 * d);
+      br = 0.42 * pow(1.0 - d, 1.7);
+    }
+  }
+  p = rotY(p, 0.42 * sin(ph));
+  p = rotX(p, 0.18 * sin(2.0 * ph + 0.7));
+}
+
+void luna(float t, out vec3 p, out vec3 col, out float sz, out float br) {
+  float ph = TAU * t / DUR;
+  float rol = aInfo.y;
+  vec3 q = aB.xyz;
+  float tw = 0.8 + 0.2 * sin(ph * (1.0 + floor(aMisc.z * 5.0)) + aMisc.z * 40.0);
+  if (rol < 0.5) {
+    float brillo = pow(max(0.0, sin(ph * (2.0 + floor(aMisc.z * 4.0)) + aInfo.z * 60.0)), 24.0) * step(0.95, aMisc.z);
+    col = C_LUNA; sz = 6.2; br = aB.w * 0.3 * tw * (1.0 + 2.5 * brillo);
+  } else if (rol < 1.5) {
+    col = C_CENIZA; sz = 6.0; br = aB.w * tw;
+  } else if (rol < 2.5) {
+    float u = (0.985 - q.y / R_M) / 1.97;
+    float pr = (t - S0) / (S1 - S0);
+    float on = smoothstep(u - 0.02, u + 0.02, pr);
+    float pluma = exp(-pow((pr - u) * 10.0, 2.0));
+    float fuera = smoothstep(SO0, SO1, t);
+    br = (on * 0.42 + pluma * 1.1) * (1.0 - fuera) * tw;
+    q.x += (aInfo.z - 0.5) * 0.4 * fuera;
+    q.z += (aInfo.w - 0.5) * 0.6 * fuera;
+    col = mix(C_TRAZO, vec3(1.0, 0.96, 0.88), clamp(pluma, 0.0, 1.0));
+    sz = 5.0 * (1.0 + pluma * 0.8);
+  } else {
+    q = rotZ(q, 0.22 * sin(ph + aMisc.z * TAU));
+    col = C_POLVO; sz = 5.0; br = aB.w * tw;
+  }
+  q = rotY(q, 0.12 * sin(ph));
+  p = rotZ(q, -PI * easeIO((t - F0) / (F1 - F0)));
+}
+
+void main() {
+  float j = aTrail;
+  float tj = uTime;
+  if (j > 0.5) tj -= (j - 1.0 + aInfo.w + 0.5) * uTrailDt;
+  tj = mod(tj, DUR);
+
+  vec3 pA, cA, pB, cB;
+  float sA, bA, sB, bB;
+  atomo(tj, pA, cA, sA, bA);
+  luna(tj, pB, cB, sB, bB);
+
+  bool vuelta = tj > 5.0;
+  float q = vuelta ? clamp((tj - M2 - aMisc.y * SPREAD) / MDUR, 0.0, 1.0)
+                   : clamp((tj - M1 - aMisc.x * SPREAD) / MDUR, 0.0, 1.0);
+  float e = suave(q);
+  float bump = 16.0 * q * q * (1.0 - q) * (1.0 - q);
+  vec3 p = vuelta ? mix(pB, pA, e) : mix(pA, pB, e);
+  vec3 col = vuelta ? mix(cB, cA, e) : mix(cA, cB, e);
+  float sz = vuelta ? mix(sB, sA, e) : mix(sA, sB, e);
+  float br = vuelta ? mix(bB, bA, e) : mix(bA, bB, e);
+
+  if (bump > 0.0005) {
+    float chispa = step(0.93, aInfo.z);
+    float amp = uFlujo * (1.0 + 2.2 * chispa);
+    vec3 off = vuelta ? vec3(7.31, -3.17, 5.23) : vec3(0.0);
+    p = rotZ(p, bump * uRemolino * (vuelta ? -1.0 : 1.0));
+    p *= 1.0 + 0.1 * bump;
+    float h = bump * amp / 3.0;
+    vec3 c = vec3(0.0);
+    for (int i = 0; i < 3; i++) { c = curl(p * uFreq + off); p += c * h; }
+    float m = 0.5 + 0.5 * c.x / (length(c) + 1e-3);
+    vec3 tinte = mix(C_VIOLETA, C_TURQUESA, m);
+    tinte = mix(tinte, C_ORO, chispa);
+    col = mix(col, tinte, 0.9 * bump);
+    br = max(br, 0.14) * (1.0 + 0.4 * bump) * mix(1.0, 1.0 + 1.5 * chispa, bump);
+    sz *= 1.0 - 0.15 * bump;
+  }
+
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float dist = max(-mv.z, 0.5);
+  float px = sz * uPx * (REF_D / dist);
+  float coc = uAperture * uPx * max(abs(dist - uFocus) - 0.35, 0.0) / dist;
+  float tot = sqrt(px * px + coc * coc);
+  float a = br * (px * px) / (tot * tot);
+  float bk = smoothstep(0.4, 0.9, coc / tot);
+  a *= mix(1.0, 0.3, bk);
+  // estela: la cabeza pesa más y los fantasmas se apagan; en reposo suman lo mismo que una partícula
+  float w = j < 0.5 ? 0.32 : 0.27 * pow(1.0 - (j - 1.0) / 5.0, 1.5);
+  a *= w;
+  tot *= 1.0 - 0.07 * j;
+  if (tot < 1.6) { a *= tot * tot / 2.56; tot = 1.6; }
+  gl_PointSize = tot;
+  vAlpha = a;
+  vCol = col;
+  vBokeh = bk;
+  vNdc = gl_Position.xy / gl_Position.w;
+  if (a < 0.0003) gl_Position = vec4(0.0, 0.0, -2.0, 1.0);
+}
+`;
+
+const VERT_AMBIENTE = /* glsl */ `
+${COMUN}
+uniform float uTime;
+uniform float uPx;
+uniform float uFocus;
+uniform float uAperture;
+attribute vec4 aDeriva;
+attribute vec4 aColor;
+attribute vec4 aDatos;
+varying vec3 vCol;
+varying float vAlpha;
+varying float vBokeh;
+varying vec2 vNdc;
+void main() {
+  float ph = TAU * uTime / DUR;
+  vec3 p = position + aDeriva.xyz * vec3(sin(ph + aDeriva.w), sin(2.0 * ph + aDeriva.w * 1.7), cos(ph + aDeriva.w * 2.3));
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float dist = max(-mv.z, 0.5);
+  float tipo = aDatos.y;
+  float tw = 0.65 + 0.35 * sin(ph * aDatos.z + aDatos.w);
+  float a = aColor.w * tw;
+  float px = aDatos.x * uPx * (tipo < 0.5 ? 1.0 : REF_D / dist);
+  float tot = px, bk = 0.0;
+  if (tipo > 0.5) {
+    float coc = uAperture * uPx * max(abs(dist - uFocus) - 0.35, 0.0) / dist;
+    tot = sqrt(px * px + coc * coc);
+    bk = smoothstep(0.4, 0.9, coc / tot);
+    if (tipo < 1.5) a *= (px * px) / (tot * tot) * mix(1.0, 0.3, bk);
+  }
+  if (tot < 1.6) { a *= tot * tot / 2.56; tot = 1.6; }
+  gl_PointSize = tot;
+  vAlpha = a;
+  vCol = aColor.rgb;
+  vBokeh = bk;
+  vNdc = gl_Position.xy / gl_Position.w;
+}
+`;
+
+const FRAG_PUNTO = /* glsl */ `
+#define TAU 6.28318531
+varying vec3 vCol;
+varying float vAlpha;
+varying float vBokeh;
+varying vec2 vNdc;
+void main() {
+  vec2 pc = gl_PointCoord * 2.0 - 1.0;
+  pc.y = -pc.y;
+  float r = length(pc);
+  if (r > 1.0) discard;
+  float perfil = exp(-r * r * 6.5);
+  if (vBokeh > 0.01) {
+    // diafragma de 7 láminas, borde más brillante y «ojo de gato» hacia los bordes del encuadre
+    float seg = TAU / 7.0;
+    float an = mod(atan(pc.y, pc.x) + 0.35, seg) - 0.5 * seg;
+    float rp = r * cos(0.5 * seg) / cos(an);
+    float rr = mix(r, rp, 0.4);
+    float disco = 1.0 - smoothstep(0.84, 0.98, rr);
+    float borde = 0.62 + 0.38 * smoothstep(0.4, 0.94, rr);
+    vec2 o = vNdc * vec2(0.5625, 1.0) * 0.5;
+    float gato = 1.0 - smoothstep(0.86, 1.0, length(pc + o));
+    perfil = mix(perfil, disco * borde * gato, vBokeh);
+  }
+  gl_FragColor = vec4(vCol * vAlpha * perfil, 1.0);
+}
+`;
+
+const FONDO = {
+  vertex: /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+  fragment: /* glsl */ `
+    #define TAU 6.28318531
+    uniform sampler2D uNeb;
+    uniform float uTime;
+    varying vec2 vUv;
+    void main() {
+      vec2 d = (vUv - vec2(0.5, 0.547)) * vec2(0.5625, 1.0);
+      float r = length(d);
+      float ph = TAU * uTime / ${f(DUR)};
+      vec3 base = mix(vec3(0.0045, 0.006, 0.016), vec3(0.0012, 0.0016, 0.0045), smoothstep(0.0, 0.85, r));
+      vec3 neb = texture2D(uNeb, vUv * 0.92 + 0.04 + vec2(sin(ph), cos(ph)) * 0.006).rgb;
+      vec3 col = base + neb * 0.03 + vec3(0.006, 0.009, 0.024) * exp(-r * r * 9.0);
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+};
+
+const ACABADO = {
+  uniforms: { tDiffuse: { value: null }, uSemilla: { value: 0 }, uRes: { value: new THREE.Vector2(1080, 1920) } },
+  vertexShader: /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: /* glsl */ `
+    uniform sampler2D tDiffuse;
+    uniform float uSemilla;
+    uniform vec2 uRes;
+    varying vec2 vUv;
+    float hash(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+    void main() {
+      vec2 c = vUv - 0.5;
+      vec2 ca = c * vec2(0.5625, 1.0);
+      float r2 = dot(ca, ca);
+      vec2 off = c * 0.012 * r2;
+      vec3 col;
+      col.r = texture2D(tDiffuse, vUv + off).r;
+      col.g = texture2D(tDiffuse, vUv).g;
+      col.b = texture2D(tDiffuse, vUv - off).b;
+      float vig = smoothstep(0.95, 0.2, length(ca) * 1.25);
+      col *= mix(0.55, 1.0, vig);
+      float g = hash(vUv * uRes + uSemilla * 71.3) - 0.5;
+      col += g * 0.028;
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+};
+
+// --- escena -----------------------------------------------------------------
+const lienzo = document.getElementById('gl');
+const capaTexto = document.getElementById('rotulos');
+const ctx = capaTexto.getContext('2d');
+const marco = document.getElementById('marco');
+
+const renderer = new THREE.WebGLRenderer({ canvas: lienzo, antialias: false, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.setClearColor(0x000000, 1);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(FOV, 9 / 16, 0.1, 200);
+
+const fondo = new THREE.Mesh(
+  new THREE.PlaneGeometry(2, 2),
+  new THREE.ShaderMaterial({
+    uniforms: { uNeb: { value: texturaNebulosa() }, uTime: { value: 0 } },
+    vertexShader: FONDO.vertex, fragmentShader: FONDO.fragment, depthTest: false, depthWrite: false,
+  }),
+);
+fondo.frustumCulled = false;
+fondo.renderOrder = -10;
+scene.add(fondo);
+
+const comunes = {
+  uTime: { value: 0 }, uPx: { value: 1 }, uFocus: { value: CAM_D }, uAperture: { value: 70 },
+};
+
+const amb = construirAmbiente();
+const geoAmb = new THREE.BufferGeometry();
+geoAmb.setAttribute('position', new THREE.BufferAttribute(amb.P, 3));
+geoAmb.setAttribute('aDeriva', new THREE.BufferAttribute(amb.D, 4));
+geoAmb.setAttribute('aColor', new THREE.BufferAttribute(amb.C, 4));
+geoAmb.setAttribute('aDatos', new THREE.BufferAttribute(amb.X, 4));
+const matAmb = new THREE.ShaderMaterial({
+  uniforms: comunes, vertexShader: VERT_AMBIENTE, fragmentShader: FRAG_PUNTO,
+  transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending,
+});
+const ambiente = new THREE.Points(geoAmb, matAmb);
+ambiente.frustumCulled = false;
+scene.add(ambiente);
+
+const suj = construirSujeto();
+const geo = new THREE.InstancedBufferGeometry();
+geo.instanceCount = TRAIL;
+geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+geo.setAttribute('aA', new THREE.BufferAttribute(suj.A, 4));
+geo.setAttribute('aB', new THREE.BufferAttribute(suj.B, 4));
+geo.setAttribute('aInfo', new THREE.BufferAttribute(suj.I, 4));
+geo.setAttribute('aMisc', new THREE.BufferAttribute(suj.M, 4));
+geo.setAttribute('aTrail', new THREE.InstancedBufferAttribute(new Float32Array([...Array(TRAIL).keys()]), 1));
+const matSuj = new THREE.ShaderMaterial({
+  uniforms: {
+    ...comunes,
+    uTrailDt: { value: TRAIL_DT }, uFlujo: { value: 0.34 }, uFreq: { value: 1.25 }, uRemolino: { value: 1.5 },
+  },
+  vertexShader: VERT_SUJETO, fragmentShader: FRAG_PUNTO,
+  transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending,
+});
+const sujeto = new THREE.Points(geo, matSuj);
+sujeto.frustumCulled = false;
+scene.add(sujeto);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(1080, 1920), 0.62, 0.5, 0.16);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+const acabado = new ShaderPass(ACABADO);
+composer.addPass(acabado);
+
+// --- tamaño: escena 9:16 centrada, con bandas si la ventana no es 9:16 -------
+let escala = 1, pr = 1;
+function encajar() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const W = Math.floor(Math.min(vw, (vh * 9) / 16)), H = Math.floor((W * 16) / 9);
+  marco.style.width = W + 'px'; marco.style.height = H + 'px';
+  marco.style.left = Math.floor((vw - W) / 2) + 'px'; marco.style.top = Math.floor((vh - H) / 2) + 'px';
+  pr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(pr);
+  renderer.setSize(W, H, false);
+  composer.setPixelRatio(pr);
+  composer.setSize(W, H);
+  capaTexto.width = Math.round(W * pr); capaTexto.height = Math.round(H * pr);
+  escala = capaTexto.height / 1920;
+  comunes.uPx.value = (H * pr) / 1920;
+  acabado.uniforms.uRes.value.set(W * pr, H * pr);
+}
+
+// --- rótulos ----------------------------------------------------------------
+const F_KICK = (s) => `500 ${s}px "Inter Tight", "Helvetica Neue", Arial, sans-serif`;
+const F_TIT = (s) => `600 ${s}px "Inter Tight", "Helvetica Neue", Arial, sans-serif`;
+const F_SERIF = (s) => `italic 400 ${s}px "Instrument Serif", Georgia, serif`;
+const ventana = (t, a, b) => lim((t - a) / (b - a));
+
+function rotulo(txt, cx, y, font, size, trackEm, color, pin, pout, glow = 0) {
+  if (pin <= 0 || pout >= 1) return;
+  ctx.font = font;
+  ctx.fillStyle = color;
+  const track = trackEm * size;
+  const n = txt.length;
+  const total = ctx.measureText(txt).width + track * (n - 1);
+  const x0 = cx - total / 2;
+  ctx.shadowColor = glow ? 'rgba(150,180,255,0.45)' : 'transparent';
+  ctx.shadowBlur = glow * escala;
+  for (let i = 0; i < n; i++) {
+    const ch = txt[i];
+    if (ch === ' ') continue;
+    const st = n > 1 ? i / (n - 1) : 0;
+    const a = suave(pin * 1.7 - st * 0.7);
+    const b = suave(pout * 1.7 - st * 0.7);
+    const al = a * (1 - b);
+    if (al < 0.004) continue;
+    const x = x0 + ctx.measureText(txt.slice(0, i)).width + track * i;
+    const dy = (1 - a) * 0.3 * size - b * 0.18 * size;
+    const blur = ((1 - a) * 0.14 + b * 0.1) * size * escala;
+    ctx.filter = blur > 0.3 ? `blur(${blur.toFixed(2)}px)` : 'none';
+    ctx.globalAlpha = al;
+    ctx.fillText(ch, x, y + dy);
+  }
+  ctx.filter = 'none';
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+}
+
+function dibujarRotulos(t) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, capaTexto.width, capaTexto.height);
+  ctx.setTransform(escala, 0, 0, escala, 0, 0);
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'left';
+  // cabecera fija
+  rotulo('LO QUE NO TE EXPLICARON EN CLASE', 540, 352, F_KICK(20), 20, 0.34, 'rgba(176,194,255,0.62)', 1, 0);
+  rotulo('LA LUNA AL REVÉS', 540, 414, F_TIT(46), 46, 0.2, '#EAF0FF', 1, 0);
+  ctx.globalAlpha = 0.4; ctx.fillStyle = '#B9C8FF'; ctx.fillRect(540 - 26, 446, 52, 1.5); ctx.globalAlpha = 1;
+  // pie: gancho («la Luna es mentirosa») → D → C
+  const gIn = t >= 9 ? ventana(t, 9.3, 9.95) : t < 5 ? 1 : 0;
+  const gOut = t < 5 ? ventana(t, 0.95, 1.5) : 0;
+  rotulo('¿VERDAD O MENTIRA?', 540, 1300, F_KICK(22), 22, 0.32, 'rgba(176,194,255,0.7)', gIn, gOut);
+  rotulo('«la Luna es mentirosa»', 540, 1392, F_SERIF(84), 84, 0, '#F4EEE3', gIn, gOut, 24);
+  rotulo('LUNA CRECIENTE VISTA DESDE EL', 540, 1300, F_KICK(22), 22, 0.32, 'rgba(176,194,255,0.7)', ventana(t, 3.1, 3.75), ventana(t, 7.45, 8.0));
+  rotulo('hemisferio norte', 540, 1392, F_SERIF(92), 92, 0, '#F4EEE3', ventana(t, 3.3, 4.1), ventana(t, 4.95, 5.45), 24);
+  rotulo('hemisferio sur', 540, 1392, F_SERIF(92), 92, 0, '#F4EEE3', ventana(t, 5.8, 6.5), ventana(t, 7.5, 8.05), 24);
+}
+
+// --- fotograma --------------------------------------------------------------
+function dibujar(t) {
+  const tt = ((t % DUR) + DUR) % DUR;
+  const ph = (TAU * tt) / DUR;
+  camera.position.set(0.32 * Math.sin(ph), -Y_SUJ + 0.14 * Math.sin(2 * ph + 0.6), CAM_D + 0.3 * Math.cos(ph));
+  camera.lookAt(0.08 * Math.sin(ph), -Y_SUJ, 0);
+  camera.updateMatrixWorld();
+  comunes.uTime.value = tt;
+  comunes.uFocus.value = camera.position.length();
+  fondo.material.uniforms.uTime.value = tt;
+  acabado.uniforms.uSemilla.value = Math.floor(tt * 24) % 240;
+  composer.render();
+  dibujarRotulos(tt);
+}
+
+encajar();
+window.__frame = (t) => { dibujar(t); };
+
+async function preparar() {
+  const fuentes = [
+    [F_KICK(20), 'LO QUE NO TE EXPLICARON EN CLASE ¿VERDAD O MENTIRA?'],
+    [F_TIT(46), 'LA LUNA AL REVÉS'],
+    [F_SERIF(92), '«la Luna es mentirosa» hemisferio norte sur'],
+  ];
+  try {
+    await Promise.race([
+      Promise.all(fuentes.map(([fu, txt]) => document.fonts.load(fu, txt))),
+      new Promise((r) => setTimeout(r, 8000)),
+    ]);
+  } catch (e) { /* sin fuentes: se usan las de reserva */ }
+  dibujar(0);
+  window.__listo = true;
+  if (!CAPTURA) {
+    window.addEventListener('resize', encajar);
+    const inicio = performance.now();
+    const bucle = (ahora) => { dibujar(((ahora - inicio) / 1000) % DUR); requestAnimationFrame(bucle); };
+    requestAnimationFrame(bucle);
+  }
+}
+preparar();
+</script>
+</body>
+</html>

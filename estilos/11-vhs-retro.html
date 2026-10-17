@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Luna al revés · cinta VHS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="fuentes" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=VT323&family=Barlow+Condensed:ital,wght@1,800&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { display: block; background: #000; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+(() => {
+'use strict';
+// ───────────────────────────── constantes ─────────────────────────────
+const DUR = 10;                 // duración del bucle (s)
+const FPS = 30;                 // la cinta va a 30 fotogramas: el ruido cambia por fotograma
+const NF = DUR * FPS;
+const CAPTURA = location.search.includes('captura');
+const W = 1080, H = 1920;       // marco de diseño
+const PEQ = !CAPTURA && Math.min(window.innerHeight, window.innerWidth * 16 / 9) * Math.min(window.devicePixelRatio || 1, 2) < 1500;
+const SW = PEQ ? 540 : 720, SH = PEQ ? 960 : 1280; // resolución de la "señal grabada" (la cinta es blanda de todos modos)
+const K = SW / W;
+const T_CG = 2.9;               // corte cartela → escena 3D
+const T_TIT = 8.9;              // corte escena 3D → cartela
+const M = { x: 540, y: 820 };   // centro de la Luna
+const MR = 285;                 // radio de la Luna
+
+const F_TIT = '"Bungee", "Arial Black", sans-serif';
+const F_OSD = '"VT323", "Courier New", monospace';
+const F_SUB = '"Barlow Condensed", "Arial Narrow", sans-serif';
+
+// ───────────────────────────── utilidades ─────────────────────────────
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (x, a, b) => clamp((x - a) / (b - a));
+const eOutCubic = (x) => 1 - Math.pow(1 - x, 3);
+const eInOutCubic = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const eOutBack = (x, s = 1.70158) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+const eInBack = (x, s = 1.70158) => (s + 1) * x * x * x - s * x * x;
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hash2(x, y) {
+  let h = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+function vnoise(x, y) {
+  const xi = Math.floor(x), yi = Math.floor(y);
+  let fx = x - xi, fy = y - yi;
+  fx = fx * fx * (3 - 2 * fx); fy = fy * fy * (3 - 2 * fy);
+  const a = hash2(xi, yi), b = hash2(xi + 1, yi), c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1);
+  return lerp(lerp(a, b, fx), lerp(c, d, fx), fy);
+}
+function fbm(x, y) {
+  let s = 0, a = 0.5;
+  for (let i = 0; i < 5; i++) { s += a * vnoise(x, y); x *= 2.03; y *= 2.03; a *= 0.5; }
+  return s / 0.97;
+}
+
+// ───────────────────────────── lienzos ─────────────────────────────
+const cv = document.getElementById('c');
+const src = document.createElement('canvas'); src.width = SW; src.height = SH;
+const sx = src.getContext('2d');
+const osd = document.createElement('canvas'); osd.width = SW; osd.height = SH;
+const ox = osd.getContext('2d');
+
+function layout() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let w, h;
+  if (vw / vh > 9 / 16) { h = vh; w = h * 9 / 16; } else { w = vw; h = w * 16 / 9; }
+  const dpr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  cv.style.width = w + 'px'; cv.style.height = h + 'px';
+  cv.width = Math.max(2, Math.round(w * dpr)); cv.height = Math.max(2, Math.round(h * dpr));
+}
+layout();
+
+// ───────────────────────────── Luna CG (precalculada) ─────────────────────────────
+// Esfera con sombreado Phong de los 90: cráteres por relieve, brillo especular plástico,
+// luz de borde azul y luz cenicienta. La luz viene de la derecha y de detrás → creciente en "D".
+const MS = 600, MRS = 230;
+let moonSprite = null;
+function buildMoon() {
+  const c = document.createElement('canvas'); c.width = c.height = MS;
+  const g = c.getContext('2d');
+  const img = g.createImageData(MS, MS);
+  const D = img.data;
+  const hgt = new Float32Array(MS * MS);
+  const alb = new Float32Array(MS * MS);
+  const cx = MS / 2, cy = MS / 2;
+  // albedo: mares (manchas oscuras) + textura fina
+  for (let y = 0; y < MS; y++) {
+    for (let x = 0; x < MS; x++) {
+      const nx = (x - cx) / MRS, ny = (y - cy) / MRS;
+      if (nx * nx + ny * ny > 1.02) continue;
+      const m = fbm(nx * 1.6 + 3.1, ny * 1.6 + 7.4) + 0.07 * nx;
+      const mar = clamp((m - 0.5) / 0.08);
+      const fino = fbm(nx * 11 + 11, ny * 11 + 2);
+      const moteado = vnoise(nx * 60 + 5, ny * 60 + 9);
+      alb[y * MS + x] = 0.86 - 0.34 * mar * mar * (3 - 2 * mar) + (fino - 0.5) * 0.26 + (moteado - 0.5) * 0.08;
+    }
+  }
+  // cráteres
+  const rnd = mulberry32(19940417);
+  for (let i = 0; i < 150; i++) {
+    const small = i >= 40;
+    const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * (small ? 0.97 : 0.88);
+    const ccx = Math.cos(a) * r, ccy = Math.sin(a) * r;
+    const nz = Math.sqrt(Math.max(0.05, 1 - r * r));
+    const cr = small ? 0.006 + 0.012 * rnd() : (0.02 + 0.07 * Math.pow(rnd(), 2.2)) * (i < 4 ? 1.6 : 1);
+    const ux = r > 1e-4 ? ccx / r : 1, uy = r > 1e-4 ? ccy / r : 0;
+    const x0 = Math.floor(cx + (ccx - cr * 1.5) * MRS), x1 = Math.ceil(cx + (ccx + cr * 1.5) * MRS);
+    const y0 = Math.floor(cy + (ccy - cr * 1.5) * MRS), y1 = Math.ceil(cy + (ccy + cr * 1.5) * MRS);
+    for (let y = Math.max(0, y0); y < Math.min(MS, y1); y++) {
+      for (let x = Math.max(0, x0); x < Math.min(MS, x1); x++) {
+        const dx = (x - cx) / MRS - ccx, dy = (y - cy) / MRS - ccy;
+        const dr = (dx * ux + dy * uy) / nz, dt = -dx * uy + dy * ux;
+        const q = Math.sqrt(dr * dr + dt * dt) / cr;
+        if (q > 1.5) continue;
+        let h = 0;
+        if (q < 1) h = (q * q - 1) * 0.55;
+        h += 0.22 * Math.exp(-Math.pow((q - 1) / 0.16, 2));
+        hgt[y * MS + x] += h * cr * (small ? 0.25 : 0.42);
+        if (q < 0.9) alb[y * MS + x] -= 0.05 * (1 - q);
+        else if (q < 1.4) alb[y * MS + x] += (small ? 0.12 : 0.07) * (1 - Math.abs(q - 1.08) / 0.32);
+      }
+    }
+  }
+  const L = (() => { const v = [0.8, -0.04, -0.6]; const n = Math.hypot(...v); return v.map((k) => k / n); })();
+  const Hh = (() => { const v = [L[0], L[1], L[2] + 1]; const n = Math.hypot(...v); return v.map((k) => k / n); })();
+  const L2 = Math.hypot(L[0], L[1]);
+  for (let y = 0; y < MS; y++) {
+    for (let x = 0; x < MS; x++) {
+      const i = y * MS + x;
+      const nx = (x + 0.5 - cx) / MRS, ny = (y + 0.5 - cy) / MRS;
+      const d = Math.sqrt(nx * nx + ny * ny);
+      let r = 0, gg = 0, b = 0, a = 0;
+      if (d < 1.0 + 1.5 / MRS) {
+        const nz = Math.sqrt(Math.max(0, 1 - d * d));
+        const hx = x > 0 && x < MS - 1 ? (hgt[i + 1] - hgt[i - 1]) * 0.5 * MRS : 0;
+        const hy = y > 0 && y < MS - 1 ? (hgt[i + MS] - hgt[i - MS]) * 0.5 * MRS : 0;
+        let px = nx - hx * 0.75, py = ny - hy * 0.75, pz = nz;
+        const pn = Math.hypot(px, py, pz) || 1; px /= pn; py /= pn; pz /= pn;
+        const dif = Math.max(0, px * L[0] + py * L[1] + pz * L[2]);
+        const dif0 = Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]);
+        const mask = clamp((dif0 + 0.02) / 0.12); const msk = mask * mask * (3 - 2 * mask);
+        const lit = Math.pow(dif, 0.6) * msk * 0.98;
+        const spec = Math.pow(Math.max(0, px * Hh[0] + py * Hh[1] + pz * Hh[2]), 34) * 0.42 * msk;
+        const al = alb[i];
+        const rim = Math.pow(1 - nz, 4) * 0.5 * (1 - msk);
+        const earth = al * 0.05 * (0.4 + 0.6 * nz) * (1 - msk);
+        r = al * lit * 1.02 + spec + earth * 0.6 + rim * 0.2 + 0.018;
+        gg = al * lit * 0.98 + spec + earth * 0.75 + rim * 0.42 + 0.02;
+        b = al * lit * 0.88 + spec * 0.95 + earth * 1.25 + rim * 1.0 + 0.05;
+        a = clamp((1 - d) * MRS + 0.5);
+      }
+      // halo en el limbo iluminado
+      let ga = 0;
+      if (d > 0.97) {
+        const dir = Math.max(0, (nx * L[0] + ny * L[1]) / (d * L2));
+        ga = Math.exp(-(d - 1) * 13) * 0.55 * Math.pow(dir, 2.5) + Math.exp(-(d - 1) * 24) * 0.14;
+        ga = clamp(ga);
+      }
+      const gr = 1.0, ggc = 0.93, gb = 0.82;
+      const outA = a + ga * (1 - a);
+      if (outA > 0) {
+        r = (r * a + gr * ga * (1 - a)) / outA;
+        gg = (gg * a + ggc * ga * (1 - a)) / outA;
+        b = (b * a + gb * ga * (1 - a)) / outA;
+      }
+      D[i * 4] = clamp(r) * 255; D[i * 4 + 1] = clamp(gg) * 255; D[i * 4 + 2] = clamp(b) * 255; D[i * 4 + 3] = outA * 255;
+    }
+  }
+  g.putImageData(img, 0, 0);
+  moonSprite = c;
+}
+
+// ───────────────────────────── estrellas ─────────────────────────────
+const stars = [];
+{
+  const r = mulberry32(7741);
+  for (let i = 0; i < 300; i++) {
+    const big = r() < 0.07;
+    stars.push({
+      x: (r() * 2 - 1) * 1350, y: (r() * 2 - 1) * 1350,
+      s: big ? 2.6 + r() * 1.6 : 0.9 + r() * 1.5,
+      big, f: 0.35 + r() * 1.1, ph: r() * Math.PI * 2,
+      c: ['#ffffff', '#cfe3ff', '#fff1cc', '#ffd6f2'][Math.floor(r() * 4)],
+    });
+  }
+}
+
+// ───────────────────────────── piezas de dibujo ─────────────────────────────
+function glossy(g, x, y, r, base, dark, light) {
+  const gr = g.createRadialGradient(x - r * 0.38, y - r * 0.42, r * 0.04, x, y, r * 1.02);
+  gr.addColorStop(0, '#ffffff');
+  gr.addColorStop(0.12, light);
+  gr.addColorStop(0.55, base);
+  gr.addColorStop(1, dark);
+  g.fillStyle = gr;
+  g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+  // reflejo de "ventana" típico del render de los 90
+  g.save();
+  g.globalAlpha = 0.55;
+  g.fillStyle = '#ffffff';
+  g.beginPath(); g.ellipse(x - r * 0.33, y - r * 0.45, r * 0.26, r * 0.13, -0.6, 0, Math.PI * 2); g.fill();
+  g.restore();
+}
+
+// Átomo narrador: núcleo de esferas brillantes + 3 electrones en órbitas inclinadas
+function drawAtom(g, cx, cy, s, tt, opt = {}) {
+  const rx = 225 * s, ry = 74 * s;
+  const rots = [Math.PI / 2, Math.PI / 6, -Math.PI / 6];
+  const w = 2 * Math.PI / 1.9;
+  const els = rots.map((rot, k) => ({ rot, a: tt * w * (k === 1 ? 1.08 : 1) + k * 2.1 }));
+  const tube = (rot, a0, a1) => {
+    g.lineCap = 'butt';
+    const st = (col, lw, oy) => { g.strokeStyle = col; g.lineWidth = lw; g.beginPath(); g.ellipse(cx, cy + oy, rx, ry, rot, a0, a1); g.stroke(); };
+    st('rgba(90,230,255,0.16)', 30 * s, 0);
+    st('rgba(10,6,40,0.95)', 15 * s, 0);
+    st('#1b6fd6', 10 * s, 0);
+    st('#46dcff', 6 * s, -1 * s);
+    st('rgba(235,255,255,0.95)', 2.2 * s, -2.2 * s);
+  };
+  const elPos = (e, a) => {
+    const lx = rx * Math.cos(a), ly = ry * Math.sin(a);
+    return [cx + lx * Math.cos(e.rot) - ly * Math.sin(e.rot), cy + lx * Math.sin(e.rot) + ly * Math.cos(e.rot)];
+  };
+  const drawEl = (e) => {
+    for (let k = 7; k >= 1; k--) {
+      const [x, y] = elPos(e, e.a - k * 0.075);
+      g.globalAlpha = 0.32 * (1 - k / 8);
+      g.fillStyle = '#7ff6ff';
+      g.beginPath(); g.arc(x, y, 15 * s * (1 - k / 11), 0, Math.PI * 2); g.fill();
+    }
+    g.globalAlpha = 1;
+    const [x, y] = elPos(e, e.a);
+    const gl = g.createRadialGradient(x, y, 0, x, y, 44 * s);
+    gl.addColorStop(0, 'rgba(140,250,255,0.55)'); gl.addColorStop(1, 'rgba(140,250,255,0)');
+    g.fillStyle = gl; g.beginPath(); g.arc(x, y, 44 * s, 0, Math.PI * 2); g.fill();
+    glossy(g, x, y, 23 * s, '#20c8ff', '#063a8c', '#b9fbff');
+  };
+  // mitad trasera
+  for (const e of els) tube(e.rot, Math.PI, Math.PI * 2);
+  for (const e of els) if (Math.sin(e.a) < 0) drawEl(e);
+  // núcleo: racimo 3D que gira
+  const pts = [[0, 0, 0]];
+  const nN = 10;
+  for (let i = 0; i < nN; i++) {
+    const yv = 1 - (i + 0.5) * 2 / nN, rr = Math.sqrt(1 - yv * yv), th = i * 2.39996;
+    pts.push([Math.cos(th) * rr, yv, Math.sin(th) * rr]);
+  }
+  const ay = tt * 0.9, ax = 0.45;
+  const P = pts.map((p, i) => {
+    let [x, y, z] = p;
+    const x1 = x * Math.cos(ay) + z * Math.sin(ay), z1 = -x * Math.sin(ay) + z * Math.cos(ay);
+    const y2 = y * Math.cos(ax) - z1 * Math.sin(ax), z2 = y * Math.sin(ax) + z1 * Math.cos(ax);
+    return { x: x1, y: y2, z: z2, pro: i % 2 === 0 };
+  }).sort((a, b) => a.z - b.z);
+  const nr = 40 * s;
+  g.save();
+  const halo = g.createRadialGradient(cx, cy, 0, cx, cy, 120 * s);
+  halo.addColorStop(0, 'rgba(255,90,160,0.45)'); halo.addColorStop(1, 'rgba(255,90,160,0)');
+  g.fillStyle = halo; g.beginPath(); g.arc(cx, cy, 120 * s, 0, Math.PI * 2); g.fill();
+  for (const p of P) {
+    const r = 27 * s * (1 + p.z * 0.08);
+    if (p.pro) glossy(g, cx + p.x * nr, cy + p.y * nr, r, '#ff2f6e', '#5a0328', '#ffb0c8');
+    else glossy(g, cx + p.x * nr, cy + p.y * nr, r, '#ffc42e', '#7a3a00', '#fff2b8');
+  }
+  g.restore();
+  // mitad delantera
+  for (const e of els) tube(e.rot, 0, Math.PI);
+  for (const e of els) if (Math.sin(e.a) >= 0) drawEl(e);
+}
+
+// Texto con extrusión 3D y contorno grueso (rotulación de TV de los 90)
+function text3D(g, str, x, y, o) {
+  g.save();
+  g.translate(x, y);
+  if (o.rot) g.rotate(o.rot);
+  if (o.sx !== undefined || o.sy !== undefined) g.scale(o.sx ?? 1, o.sy ?? 1);
+  g.font = o.font; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  g.lineJoin = 'round'; g.miterLimit = 2;
+  const n = o.depth, dx = o.dx, dy = o.dy;
+  g.strokeStyle = o.ink; g.lineWidth = o.stroke;
+  for (let i = n; i >= 1; i--) g.strokeText(str, dx * i, dy * i);
+  for (let i = n; i >= 1; i--) { g.fillStyle = o.side(i / n); g.fillText(str, dx * i, dy * i); }
+  g.lineWidth = o.stroke; g.strokeStyle = o.ink; g.strokeText(str, 0, 0);
+  g.fillStyle = o.face; g.fillText(str, 0, 0);
+  if (o.shine) {
+    g.lineWidth = Math.max(1.5, o.stroke * 0.22); g.strokeStyle = o.shine;
+    g.strokeText(str, -o.stroke * 0.18, -o.stroke * 0.18);
+    g.fillStyle = o.face; g.fillText(str, 0, 0);
+  }
+  g.restore();
+}
+
+function starburst(g, x, y, n, ro, ri) {
+  g.beginPath();
+  for (let i = 0; i < n * 2; i++) {
+    const a = (i / (n * 2)) * Math.PI * 2 - Math.PI / 2, r = i % 2 ? ri : ro;
+    g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+  }
+  g.closePath();
+}
+
+// ───────────────────────────── cartela de título ─────────────────────────────
+const INK = '#140a2e';
+function drawTitle(g, u) {
+  // fondo: degradado violeta + rayos de sol giratorios
+  const bg = g.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#24106a'); bg.addColorStop(0.5, '#4a1b9c'); bg.addColorStop(1, '#7a1f8f');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  const bx = 540, by = 610;
+  g.save();
+  g.translate(bx, by); g.rotate(u * 0.12);
+  const NR = 18;
+  for (let i = 0; i < NR; i++) {
+    const a0 = (i / NR) * Math.PI * 2, a1 = ((i + 0.5) / NR) * Math.PI * 2;
+    g.fillStyle = 'rgba(255,255,255,0.065)';
+    g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, 2400, a0, a1); g.closePath(); g.fill();
+  }
+  g.restore();
+  // halo central
+  const hl = g.createRadialGradient(bx, by, 0, bx, by, 560);
+  hl.addColorStop(0, 'rgba(255,120,220,0.45)'); hl.addColorStop(0.5, 'rgba(160,80,255,0.16)'); hl.addColorStop(1, 'rgba(160,80,255,0)');
+  g.fillStyle = hl; g.fillRect(0, 0, W, H);
+  // retícula de puntos (semitono)
+  g.fillStyle = 'rgba(255,255,255,0.10)';
+  for (let y = 1560; y < 1920; y += 34) for (let x = 17 + ((y / 34) % 2) * 17; x < W; x += 34) {
+    g.beginPath(); g.arc(x, y, 4.2, 0, Math.PI * 2); g.fill();
+  }
+  // formas Memphis
+  const bob = (k) => Math.sin(u * 1.6 + k) * 10;
+  g.lineJoin = 'round'; g.lineCap = 'round';
+  // zigzag cian
+  g.save(); g.translate(120, 470 + bob(0)); g.rotate(-0.25 + u * 0.05);
+  g.strokeStyle = INK; g.lineWidth = 26;
+  const zz = () => { g.beginPath(); for (let i = 0; i < 6; i++) g.lineTo(i * 30, i % 2 ? -26 : 26); g.stroke(); };
+  g.translate(6, 7); zz(); g.translate(-6, -7); g.strokeStyle = '#19d3e6'; g.lineWidth = 14; zz();
+  g.restore();
+  // triángulo amarillo
+  g.save(); g.translate(945, 690 + bob(1)); g.rotate(0.4 + u * 0.18);
+  const tri = () => { g.beginPath(); g.moveTo(0, -46); g.lineTo(42, 30); g.lineTo(-42, 30); g.closePath(); };
+  g.translate(7, 8); tri(); g.fillStyle = INK; g.fill(); g.translate(-7, -8);
+  tri(); g.fillStyle = '#ffd23f'; g.fill(); g.strokeStyle = INK; g.lineWidth = 7; g.stroke();
+  g.restore();
+  // círculo rosa
+  g.save(); g.translate(112, 1150 + bob(2));
+  g.fillStyle = INK; g.beginPath(); g.arc(7, 8, 38, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#ff2f7d'; g.beginPath(); g.arc(0, 0, 38, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = INK; g.lineWidth = 7; g.stroke();
+  g.restore();
+  // garabato amarillo
+  g.save(); g.translate(205, 1440 + bob(3)); g.rotate(-0.2);
+  const sq = () => { g.beginPath(); for (let i = 0; i <= 40; i++) { const x = i * 3.4 - 68; g.lineTo(x, Math.sin(i * 0.47 + u * 3) * 16); } g.stroke(); };
+  g.strokeStyle = INK; g.lineWidth = 24; g.translate(6, 7); sq(); g.translate(-6, -7);
+  g.strokeStyle = '#ffd23f'; g.lineWidth = 12; sq();
+  g.restore();
+  // cruz cian
+  g.save(); g.translate(150, 760 + bob(4)); g.rotate(u * 0.5);
+  const cr = () => { g.beginPath(); g.moveTo(-24, 0); g.lineTo(24, 0); g.moveTo(0, -24); g.lineTo(0, 24); g.stroke(); };
+  g.strokeStyle = INK; g.lineWidth = 22; g.translate(5, 6); cr(); g.translate(-5, -6);
+  g.strokeStyle = '#19d3e6'; g.lineWidth = 11; cr();
+  g.restore();
+  // media luna rosa (guiño al episodio)
+  g.save(); g.translate(960, 1130 + bob(5)); g.rotate(-0.3);
+  const hm = () => { g.beginPath(); g.arc(0, 0, 34, -Math.PI / 2, Math.PI / 2); g.arc(-14, 0, 26, Math.PI / 2, -Math.PI / 2, true); g.closePath(); };
+  g.translate(6, 7); hm(); g.fillStyle = INK; g.fill(); g.translate(-6, -7);
+  hm(); g.fillStyle = '#ff7ac1'; g.fill(); g.strokeStyle = INK; g.lineWidth = 6; g.stroke();
+  g.restore();
+
+  // átomo (logo del narrador)
+  const ka = eOutBack(seg(u, 0.0, 0.6), 1.4);
+  if (ka > 0) {
+    g.save(); g.translate(540, 610); g.scale(ka, ka); g.rotate((1 - ka) * -0.6);
+    drawAtom(g, 0, 0, 1.0, u + 0.4);
+    g.restore();
+  }
+
+  // franja "Lo que no te explicaron en clase"
+  const kb = eOutCubic(seg(u, 0.62, 0.95));
+  if (kb > 0) {
+    g.save(); g.translate(lerp(-700, 0, kb), 0);
+    g.translate(540, 925); g.rotate(-0.045);
+    const bw = 820, bh = 88, sk = 26;
+    const band = (ox_, oy_) => { g.beginPath(); g.moveTo(-bw / 2 + sk + ox_, -bh / 2 + oy_); g.lineTo(bw / 2 + sk + ox_, -bh / 2 + oy_); g.lineTo(bw / 2 - sk + ox_, bh / 2 + oy_); g.lineTo(-bw / 2 - sk + ox_, bh / 2 + oy_); g.closePath(); };
+    band(12, 12); g.fillStyle = '#ff2f7d'; g.fill();
+    band(0, 0); g.fillStyle = INK; g.fill();
+    g.font = `italic 800 60px ${F_SUB}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = '#ffffff';
+    g.fillText('Lo que no te explicaron en clase', 0, 3);
+    g.restore();
+  }
+
+  // título "LA LUNA / AL REVÉS"
+  g.save();
+  g.translate(540, 1170); g.rotate(-0.06);
+  const face = (top, bot) => {
+    const gr = g.createLinearGradient(0, top, 0, bot);
+    gr.addColorStop(0, '#fffbe0'); gr.addColorStop(0.46, '#ffe34a'); gr.addColorStop(0.5, '#ffb81c'); gr.addColorStop(1, '#ff6a1a');
+    return gr;
+  };
+  const side = (k) => `rgb(${Math.round(lerp(255, 120, k))},${Math.round(lerp(47, 10, k))},${Math.round(lerp(125, 90, k))})`;
+  const k1 = seg(u, 0.22, 0.52), k2 = seg(u, 0.4, 0.7);
+  if (k1 > 0) {
+    const sc = k1 < 1 ? lerp(2.4, 1, eOutBack(k1, 2.2)) : 1;
+    g.globalAlpha = clamp(k1 * 3);
+    text3D(g, 'LA LUNA', 0, -40, { font: `150px ${F_TIT}`, depth: 12, dx: 1.3, dy: 1.6, ink: INK, stroke: 16, side, face: face(-150, -40), shine: 'rgba(255,255,255,0.9)', sx: sc, sy: sc });
+  }
+  if (k2 > 0) {
+    const sc = k2 < 1 ? lerp(2.4, 1, eOutBack(k2, 2.2)) : 1;
+    const flip = Math.PI * eInOutCubic(seg(u, 1.9, 2.45)) + Math.PI * eInOutCubic(seg(u, 3.0, 3.5));
+    g.globalAlpha = clamp(k2 * 3);
+    g.save(); g.translate(0, 110); g.rotate(flip); g.translate(0, 55);
+    text3D(g, 'AL REVÉS', 0, 0, { font: `128px ${F_TIT}`, depth: 12, dx: 1.3, dy: 1.6, ink: INK, stroke: 16, side, face: face(-118, 0), shine: 'rgba(255,255,255,0.9)', sx: sc, sy: sc });
+    g.restore();
+  }
+  g.restore();
+  g.globalAlpha = 1;
+
+  // pegatina "EPISODIO 1"
+  const ks = seg(u, 0.78, 1.05);
+  if (ks > 0) {
+    const sc = eOutBack(ks, 2.5);
+    g.save(); g.translate(850, 430); g.rotate(0.22 + Math.sin(u * 2.2) * 0.04); g.scale(sc, sc);
+    starburst(g, 8, 9, 14, 100, 82); g.fillStyle = INK; g.fill();
+    starburst(g, 0, 0, 14, 100, 82); g.fillStyle = '#19d3e6'; g.fill(); g.strokeStyle = INK; g.lineWidth = 7; g.lineJoin = 'round'; g.stroke();
+    g.fillStyle = INK; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    g.font = `italic 800 30px ${F_SUB}`; g.fillText('EPISODIO', 0, -22);
+    g.font = `78px ${F_TIT}`; g.fillText('1', 2, 52);
+    g.restore();
+  }
+}
+
+// ───────────────────────────── escena 3D: la Luna ─────────────────────────────
+function lensFlare(g, sxp, syp, a) {
+  g.save();
+  g.globalCompositeOperation = 'lighter';
+  const core = g.createRadialGradient(sxp, syp, 0, sxp, syp, 260);
+  core.addColorStop(0, `rgba(255,252,235,${0.95 * a})`); core.addColorStop(0.12, `rgba(255,220,150,${0.55 * a})`);
+  core.addColorStop(0.4, `rgba(255,140,90,${0.14 * a})`); core.addColorStop(1, 'rgba(255,120,80,0)');
+  g.fillStyle = core; g.beginPath(); g.arc(sxp, syp, 260, 0, Math.PI * 2); g.fill();
+  // anillo arcoíris
+  const ring = g.createRadialGradient(sxp, syp, 300, sxp, syp, 360);
+  ring.addColorStop(0, 'rgba(255,60,60,0)'); ring.addColorStop(0.3, `rgba(255,80,60,${0.10 * a})`);
+  ring.addColorStop(0.5, `rgba(90,255,120,${0.09 * a})`); ring.addColorStop(0.7, `rgba(80,120,255,${0.10 * a})`); ring.addColorStop(1, 'rgba(80,120,255,0)');
+  g.fillStyle = ring; g.beginPath(); g.arc(sxp, syp, 360, 0, Math.PI * 2); g.fill();
+  // rayos (sólo con el Sol en cuadro)
+  const ra = a * clamp((W + 60 - sxp) / 220) * clamp((sxp + 60) / 220) * clamp((H + 60 - syp) / 220) * clamp((syp + 60) / 220);
+  g.translate(sxp, syp);
+  for (let i = 0; i < 4 && ra > 0.01; i++) {
+    g.rotate(Math.PI / 4);
+    const len = i % 2 ? 150 : 260;
+    const rg = g.createLinearGradient(-len, 0, len, 0);
+    rg.addColorStop(0, 'rgba(255,230,190,0)'); rg.addColorStop(0.5, `rgba(255,240,210,${0.7 * ra})`); rg.addColorStop(1, 'rgba(255,230,190,0)');
+    g.fillStyle = rg; g.fillRect(-len, -2.5, len * 2, 5);
+  }
+  g.setTransform(K, 0, 0, K, 0, 0);
+  // fantasmas a lo largo del eje
+  const cx = 540, cy = 900;
+  const ghosts = [[0.42, 38, '120,255,170', 0.16, 0], [0.7, 20, '255,210,120', 0.22, 0], [1.25, 64, '120,170,255', 0.12, 6],
+    [1.45, 26, '255,120,200', 0.18, 0], [1.85, 120, '150,255,220', 0.07, 6], [2.15, 44, '255,170,90', 0.12, 6]];
+  for (const [f, r, c, al, poly] of ghosts) {
+    const x = sxp + (cx - sxp) * f, y = syp + (cy - syp) * f;
+    const gg = g.createRadialGradient(x, y, 0, x, y, r);
+    gg.addColorStop(0, `rgba(${c},${al * 0.35 * a})`); gg.addColorStop(0.85, `rgba(${c},${al * a})`); gg.addColorStop(1, `rgba(${c},0)`);
+    g.fillStyle = gg; g.beginPath();
+    if (poly) for (let i = 0; i < poly; i++) { const an = i / poly * Math.PI * 2 + 0.3; g.lineTo(x + Math.cos(an) * r, y + Math.sin(an) * r); }
+    else g.arc(x, y, r, 0, Math.PI * 2);
+    g.closePath(); g.fill();
+  }
+  g.restore();
+}
+
+function drawCG(g, v) {
+  // giro del observador: 0 → π (el cielo entero da media vuelta)
+  const FL0 = 2.55, FL1 = 3.85;
+  const kf = eInOutCubic(seg(v, FL0, FL1));
+  const enter = eOutCubic(seg(v, 0, 1.0));
+  const th = -Math.PI * kf + 0.22 * (1 - enter);
+  const sur = v >= (FL0 + FL1) / 2;
+  const ca = Math.cos(th), sa = Math.sin(th);
+  const R = (x, y) => [M.x + x * ca - y * sa, M.y + x * sa + y * ca];
+
+  // espacio
+  const bg = g.createRadialGradient(M.x, M.y, 100, M.x, M.y + 200, 1500);
+  bg.addColorStop(0, '#1c1458'); bg.addColorStop(0.45, '#0e0a36'); bg.addColorStop(1, '#04030f');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  // nebulosas suaves (giran con el cielo)
+  const neb = [[-380, 520, 520, '120,40,200', 0.32], [420, -620, 460, '20,140,190', 0.22], [300, 700, 380, '230,60,150', 0.16]];
+  for (const [x, y, r, c, al] of neb) {
+    const [px, py] = R(x, y);
+    const ng = g.createRadialGradient(px, py, 0, px, py, r);
+    ng.addColorStop(0, `rgba(${c},${al})`); ng.addColorStop(1, `rgba(${c},0)`);
+    g.fillStyle = ng; g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.fill();
+  }
+  // estrellas
+  for (const s of stars) {
+    const [px, py] = R(s.x, s.y);
+    if (px < -20 || px > W + 20 || py < -20 || py > H + 20) continue;
+    const tw = 0.7 + 0.3 * Math.sin(v * Math.PI * 2 * s.f + s.ph);
+    g.globalAlpha = tw;
+    g.fillStyle = s.c;
+    g.beginPath(); g.arc(px, py, s.s, 0, Math.PI * 2); g.fill();
+    if (s.big) {
+      const l = s.s * 7 * tw;
+      g.globalAlpha = 0.75 * tw;
+      g.fillRect(px - l, py - 1.2, l * 2, 2.4); g.fillRect(px - 1.2, py - l, 2.4, l * 2);
+    }
+  }
+  g.globalAlpha = 1;
+
+  // destello del Sol (fuera de cuadro, gira con el cielo)
+  const [sxp, syp] = R(610, -150);
+  lensFlare(g, sxp, syp, 0.8);
+
+  // Luna
+  const ms = lerp(0.86, 1, enter) * (1 + 0.025 * seg(v, 4.0, 6.0));
+  const f = (MR / MRS) * ms;
+  g.save();
+  g.translate(M.x, M.y); g.rotate(th); g.scale(f, f);
+  g.drawImage(moonSprite, -MS / 2, -MS / 2);
+  g.restore();
+
+  // flecha de giro durante la media vuelta
+  const ka = Math.min(seg(v, FL0 - 0.15, FL0 + 0.2), 1 - seg(v, FL1 - 0.25, FL1 + 0.1));
+  if (ka > 0) {
+    const rr = MR + 62;
+    const a1 = -Math.PI / 2 + th, a0 = a1 + 1.25;
+    g.save();
+    g.globalAlpha = ka;
+    g.lineCap = 'round';
+    g.strokeStyle = INK; g.lineWidth = 24;
+    g.beginPath(); g.arc(M.x, M.y, rr, a1, a0); g.stroke();
+    g.strokeStyle = '#ffd23f'; g.lineWidth = 12;
+    g.beginPath(); g.arc(M.x, M.y, rr, a1, a0); g.stroke();
+    const hx = M.x + Math.cos(a1) * rr, hy = M.y + Math.sin(a1) * rr;
+    g.translate(hx, hy); g.rotate(a1 - Math.PI / 2);
+    g.beginPath(); g.moveTo(34, 0); g.lineTo(-10, -30); g.lineTo(-10, 30); g.closePath();
+    g.fillStyle = '#ffd23f'; g.fill(); g.strokeStyle = INK; g.lineWidth = 7; g.lineJoin = 'round'; g.stroke();
+    g.restore();
+  }
+
+  // rótulo superior "VISTA DESDE EL / HEMISFERIO NORTE|SUR"
+  const inA = eOutBack(seg(v, 0.15, 0.6), 1.3);
+  const out = eInBack(seg(v, FL0 + 0.05, FL0 + 0.45), 1.6);
+  const inB = eOutBack(seg(v, FL1 - 0.45, FL1 - 0.05), 1.3);
+  const slide = sur ? (1 - inB) : (1 - inA) + out;
+  {
+    const label = sur ? 'HEMISFERIO SUR' : 'HEMISFERIO NORTE';
+    const col = sur ? ['#19d3e6', '#0b8fd0'] : ['#ff2f7d', '#ff7a2f'];
+    g.save();
+    g.translate(-slide * 1000, 0);
+    g.font = `58px ${F_TIT}`;
+    const tw = g.measureText(label).width;
+    const x0 = 96, y0 = 378, bh = 98, bw = tw + 92, sk = 22;
+    const bar = (ox_, oy_) => { g.beginPath(); g.moveTo(x0 + sk + ox_, y0 + oy_); g.lineTo(x0 + bw + sk + ox_, y0 + oy_); g.lineTo(x0 + bw - sk + ox_, y0 + bh + oy_); g.lineTo(x0 - sk + ox_, y0 + bh + oy_); g.closePath(); };
+    bar(10, 10); g.fillStyle = INK; g.fill();
+    const gr = g.createLinearGradient(x0, 0, x0 + bw, 0); gr.addColorStop(0, col[0]); gr.addColorStop(1, col[1]);
+    bar(0, 0); g.fillStyle = gr; g.fill(); g.strokeStyle = INK; g.lineWidth = 6; g.stroke();
+    g.textAlign = 'left'; g.textBaseline = 'middle';
+    g.fillStyle = INK; g.fillText(label, x0 + 46 + 4, y0 + bh / 2 + 6);
+    g.fillStyle = '#ffffff'; g.fillText(label, x0 + 46, y0 + bh / 2 + 2);
+    // pestaña
+    g.font = `italic 800 40px ${F_SUB}`;
+    const t2 = 'VISTA DESDE EL';
+    const tw2 = g.measureText(t2).width;
+    g.beginPath(); g.moveTo(x0 + 26, y0 - 52); g.lineTo(x0 + 26 + tw2 + 40, y0 - 52); g.lineTo(x0 + 18 + tw2 + 40, y0 - 2); g.lineTo(x0 + 18, y0 - 2); g.closePath();
+    g.fillStyle = '#ffd23f'; g.fill(); g.strokeStyle = INK; g.lineWidth = 6; g.stroke();
+    g.fillStyle = INK; g.fillText(t2, x0 + 42, y0 - 25);
+    g.restore();
+  }
+
+  // bicho de cadena: el átomo narrador, pequeño, arriba a la derecha
+  g.save();
+  g.globalAlpha = 0.9 * seg(v, 0.2, 0.7);
+  drawAtom(g, 905, 425, 0.3, v * 1.2 + 3);
+  g.restore();
+
+  // "PARECE UNA" + letra gigante cromada
+  const kl = eOutBack(seg(v, 0.55, 0.95), 2.0);
+  if (kl > 0) {
+    g.save();
+    g.globalAlpha = clamp(seg(v, 0.55, 0.7));
+    g.font = `italic 800 62px ${F_SUB}`; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    g.fillStyle = INK; g.fillText('PARECE UNA', 544, 1238);
+    g.fillStyle = '#ffffff'; g.fillText('PARECE UNA', 540, 1234);
+    g.restore();
+    const spin = seg(v, FL0 + 0.1, FL1 - 0.1);
+    const sxs = spin > 0 && spin < 1 ? Math.abs(Math.cos(Math.PI * eInOutCubic(spin))) : 1;
+    const ch = spin >= 0.5 ? 'C' : 'D';
+    const face = g.createLinearGradient(0, -196, 0, 0);
+    face.addColorStop(0, '#ffffff'); face.addColorStop(0.42, '#8fd8ff'); face.addColorStop(0.5, '#1a2766');
+    face.addColorStop(0.53, '#6a2c8c'); face.addColorStop(0.78, '#ff8fd2'); face.addColorStop(1, '#fff2fb');
+    const side = (k) => `rgb(${Math.round(lerp(70, 18, k))},${Math.round(lerp(40, 10, k))},${Math.round(lerp(150, 60, k))})`;
+    if (sxs > 0.04) text3D(g, ch, 540, 1470, { font: `272px ${F_TIT}`, depth: 15, dx: 1.4, dy: 1.7, ink: INK, stroke: 16, side, face, shine: 'rgba(255,255,255,0.95)', sx: kl * Math.max(0.02, sxs), sy: kl });
+    // destello en la esquina de la letra
+    const gl = 0.5 + 0.5 * Math.sin(v * 5.2);
+    if (sxs > 0.9) {
+      const gx = 462, gy = 1292, l = 40 * gl * kl;
+      g.save(); g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(255,255,255,0.95)';
+      g.beginPath(); g.moveTo(gx - l, gy); g.lineTo(gx, gy - 5); g.lineTo(gx + l, gy); g.lineTo(gx, gy + 5); g.closePath(); g.fill();
+      g.beginPath(); g.moveTo(gx, gy - l); g.lineTo(gx - 5, gy); g.lineTo(gx, gy + l); g.lineTo(gx + 5, gy); g.closePath(); g.fill();
+      g.restore();
+    }
+  }
+}
+
+// sello de fecha de la cámara (grabado en la cinta → pasa por todo el deterioro)
+function drawDateStamp(g, t) {
+  const s = 7 + Math.floor(t);
+  const hora = `19:42:${String(s).padStart(2, '0')}`;
+  g.save();
+  g.font = `62px ${F_OSD}`; g.textAlign = 'right'; g.textBaseline = 'alphabetic';
+  const lines = [[hora, 1446], ['17 OCT. 1994', 1500]];
+  for (const [txt, y] of lines) {
+    g.fillStyle = 'rgba(0,0,0,0.85)'; g.fillText(txt, 980 + 4, y + 4);
+    g.fillStyle = '#ffb43a'; g.fillText(txt, 980, y);
+  }
+  g.restore();
+}
+
+// OSD del vídeo (lo genera el magnetoscopio: limpio, encima de la imagen)
+let osdKey = '';
+function drawOSD() {
+  const key = 'play';
+  if (key === osdKey) return false;
+  osdKey = key;
+  ox.setTransform(1, 0, 0, 1, 0, 0);
+  ox.clearRect(0, 0, SW, SH);
+  ox.setTransform(K, 0, 0, K, 0, 0);
+  const txt = (str, x, y, align) => {
+    ox.font = `92px ${F_OSD}`; ox.textAlign = align; ox.textBaseline = 'alphabetic';
+    ox.fillStyle = 'rgba(0,0,0,0.9)'; ox.fillText(str, x + 5, y + 5);
+    ox.fillStyle = '#eefcf6'; ox.fillText(str, x, y);
+  };
+  txt('PLAY', 104, 300, 'left');
+  ox.font = `92px ${F_OSD}`;
+  const pw = ox.measureText('PLAY').width;
+  const tri = (x, y, col) => { ox.fillStyle = col; ox.beginPath(); ox.moveTo(x, y - 58); ox.lineTo(x + 50, y - 29); ox.lineTo(x, y); ox.closePath(); ox.fill(); };
+  tri(104 + pw + 30 + 5, 296 + 5, 'rgba(0,0,0,0.9)');
+  tri(104 + pw + 30, 296, '#eefcf6');
+  txt('SP', 976, 300, 'right');
+  return true;
+}
+
+// ───────────────────────────── WebGL: la cinta ─────────────────────────────
+const gl = cv.getContext('webgl', { preserveDrawingBuffer: true, antialias: false, alpha: false, premultipliedAlpha: false });
+const VS = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
+const FSH = `
+precision highp float;
+uniform sampler2D uSrc, uOsd;
+uniform vec2 uRes;
+uniform float uFrame, uPhase, uGlitch, uBandY, uBand2Y, uRoll, uScan;
+const vec2 FR = vec2(1080., 1920.);
+
+float h12(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * .1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+  return mix(mix(h12(i), h12(i + vec2(1., 0.)), f.x), mix(h12(i + vec2(0., 1.)), h12(i + vec2(1., 1.)), f.x), f.y); }
+
+vec3 S(vec2 p){
+  vec2 uv = p / FR;
+  float inside = step(0., uv.x) * step(uv.x, 1.);
+  return texture2D(uSrc, clamp(uv, 0., 1.)).rgb * inside;
+}
+float Y(vec2 p){ return dot(S(p), vec3(.299, .587, .114)); }
+float Yb(vec2 p){ return .25 * Y(p - vec2(1.7, 0.)) + .5 * Y(p) + .25 * Y(p + vec2(1.7, 0.)); }
+
+void main(){
+  vec2 p = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y) / uRes * FR;
+  float F = uFrame;
+  // salto vertical (pérdida de sincronía en los cortes) con su franja de borrado
+  float tot = FR.y + 64.;
+  float q = mod(p.y + uRoll, tot);
+  float vblank = step(FR.y, q);
+  float line = floor(q / 4.);
+
+  // bandas de tracking
+  float b1 = (q - uBandY) / 58.; b1 = exp(-b1 * b1);
+  float b2 = (q - uBand2Y) / 150.; b2 = exp(-b2 * b2) * uGlitch;
+  float band = clamp(b1 * .6 + b2, 0., 1.);
+  // conmutación de cabezas: últimas líneas desplazadas y sucias
+  float hs = smoothstep(FR.y - 52., FR.y - 10., q);
+
+  float dx = (h12(vec2(line, F)) - .5) * 1.3
+           + sin(q * .0093 + uPhase * 4.) * 1.4 + sin(q * .031 - uPhase * 7.) * .5
+           + band * ((vn(vec2(line * .45, F * .9)) - .5) * 64. + 12.)
+           + hs * (30. + 70. * hs * h12(vec2(line, F + 7.)))
+           + uGlitch * (vn(vec2(line * .06, F * 1.7)) - .5) * 80.;
+  vec2 sp = vec2((p.x - dx - 540.) * 1.02 + 540., q);
+
+  // luminancia: algo blanda, con realce (halo) y aberración cromática horizontal
+  float yC = Yb(sp);
+  float yR = Yb(sp + vec2(2.6, 0.));
+  float yB = Yb(sp - vec2(2.6, 0.));
+  float yW = .25 * (Y(sp - vec2(7., 0.)) + Y(sp - vec2(3.5, 0.)) + Y(sp + vec2(3.5, 0.)) + Y(sp + vec2(7., 0.)));
+  float sharp = (yC - yW) * .6;
+
+  // crominancia: ancho de banda mínimo → el color se corre hacia la derecha
+  vec2 iq = vec2(0.); float ws = 0.;
+  for (int k = 0; k < 10; k++) {
+    float fk = float(k);
+    float w = exp(-fk * .3);
+    vec3 c = S(sp - vec2(3. + fk * 3.6, 0.));
+    iq += vec2(dot(c, vec3(.596, -.274, -.322)), dot(c, vec3(.211, -.523, .312))) * w;
+    ws += w;
+  }
+  iq /= ws;
+
+  // ruido
+  float grain = (h12(p + vec2(F * 17.31, F * 5.13)) - .5) * .6 + (vn(vec2(p.x / 5., q * .5 + F * 23.)) - .5) * .8;
+  float lineN = h12(vec2(line * 1.7, F + 3.)) - .5;
+  vec2 cn = vec2(vn(vec2(sp.x / 26., line * .9 + F * 11.)), vn(vec2(sp.x / 26. + 51., line * .9 + F * 11.))) - .5;
+  float st = vn(vec2(sp.x * .05 + h12(vec2(line, 9.)) * 200., line * 3.1 + F * 19.));
+  float streak = smoothstep(.6, .85, st) * band;
+  float dl = h12(vec2(line * .713 + F * 1.37, F * .917 + 3.1));
+  float dlen = 18. + 110. * h12(vec2(line, F + 11.));
+  float drop = step(.9975, dl) * smoothstep(dlen, dlen * .4, abs(sp.x - 1080. * h12(vec2(F, line + 4.))));
+
+  float yy = yC + sharp + grain * .06 + lineN * .02;
+  yy = mix(yy, yy * .78 + .12, band * .7);
+  yy += streak * .8 + drop * .65;
+  yy += hs * ((h12(p + F) - .5) * .35 + smoothstep(.7, .95, vn(vec2(sp.x * .03, line * 2. + F * 7.))) * .3);
+  iq += cn * .1 * (1. + band * 2.);
+  iq *= 1. - clamp(streak + band * .35 + drop, 0., 1.) * .8;
+  iq *= 1. - uGlitch * .55;
+
+  float d = yy - yC;
+  vec3 col = vec3(yR + d + .956 * iq.x + .621 * iq.y,
+                  yy - .272 * iq.x - .647 * iq.y,
+                  yB + d - 1.106 * iq.x + 1.703 * iq.y);
+  // respuesta de la cinta: negros levantados, blancos comprimidos, tinte cálido
+  col = col * .92 + .045;
+  col *= vec3(1.0, .985, .955);
+  col = mix(col, vec3(0.03) + step(.5, fract(p.x / 26.)) * step(abs(q - FR.y - 26.), 2.5) * .45, vblank);
+
+  // OSD del aparato
+  vec2 ou = p / FR;
+  vec2 o1 = vec2(1.3 / FR.x, 0.);
+  vec4 o = texture2D(uOsd, ou) * .5 + texture2D(uOsd, ou + o1) * .25 + texture2D(uOsd, ou - o1) * .25;
+  col = col * (1. - o.a) + o.rgb;
+
+  // líneas de barrido y viñeta
+  float s = .5 + .5 * cos(6.2831853 * (gl_FragCoord.y + .5) / uScan);
+  col *= .8 + .28 * s;
+  vec2 vc = (p / FR - .5) * vec2(1.05, .85);
+  col *= 1. - dot(vc, vc) * .5;
+  gl_FragColor = vec4(clamp(col, 0., 1.), 1.);
+}`;
+function sh(type, s) {
+  const o = gl.createShader(type); gl.shaderSource(o, s); gl.compileShader(o);
+  if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o));
+  return o;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FSH));
+gl.linkProgram(prog);
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+const aP = gl.getAttribLocation(prog, 'p');
+gl.enableVertexAttribArray(aP);
+gl.vertexAttribPointer(aP, 2, gl.FLOAT, false, 0, 0);
+const U = {};
+for (const n of ['uSrc', 'uOsd', 'uRes', 'uFrame', 'uPhase', 'uGlitch', 'uBandY', 'uBand2Y', 'uRoll', 'uScan']) U[n] = gl.getUniformLocation(prog, n);
+function mkTex(unit) {
+  const t = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0 + unit);
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return t;
+}
+const texSrc = mkTex(0), texOsd = mkTex(1);
+gl.uniform1i(U.uSrc, 0); gl.uniform1i(U.uOsd, 1);
+
+// ───────────────────────────── fotograma ─────────────────────────────
+function cutGlitch(tq) {
+  let best = { g: 0, d: 1e9 };
+  for (const tc of [T_CG, T_TIT]) {
+    const d = tq - tc;
+    if (Math.abs(d) < 0.5) {
+      const gv = Math.exp(-Math.pow(d / 0.15, 2));
+      if (gv > best.g) best = { g: gv, d };
+    }
+  }
+  return best;
+}
+
+function frame(tIn) {
+  let t = ((tIn % DUR) + DUR) % DUR;
+  if (t > DUR - 1e-6) t = 0;
+  const F = Math.floor(t * FPS + 1e-4) % NF;
+  const tq = F / FPS;
+
+  // 1) la imagen grabada
+  sx.setTransform(K, 0, 0, K, 0, 0);
+  sx.globalAlpha = 1; sx.globalCompositeOperation = 'source-over';
+  const enTitulo = t >= T_TIT || t < T_CG;
+  if (enTitulo) drawTitle(sx, (t - T_TIT + DUR) % DUR);
+  else drawCG(sx, t - T_CG);
+  sx.setTransform(K, 0, 0, K, 0, 0);
+  drawDateStamp(sx, t);
+
+  // 2) subir texturas
+  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texSrc);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+  if (drawOSD()) {
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, texOsd);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, osd);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+  }
+
+  // 3) la cinta
+  const gch = cutGlitch(tq);
+  const bandY = 2150 - (t / DUR) * 2500;
+  const band2Y = gch.g > 0 ? 960 + gch.d * 5200 : -9999;
+  const jit = hash2(F, 77) < 0.18 ? 2 : 0;
+  const roll = (Math.abs(gch.d) < 0.09 ? 300 * (1 - Math.abs(gch.d) / 0.09) : 0) + jit;
+  gl.viewport(0, 0, cv.width, cv.height);
+  gl.uniform2f(U.uRes, cv.width, cv.height);
+  gl.uniform1f(U.uFrame, F);
+  gl.uniform1f(U.uPhase, (t / DUR) * Math.PI * 2);
+  gl.uniform1f(U.uGlitch, gch.g);
+  gl.uniform1f(U.uBandY, bandY);
+  gl.uniform1f(U.uBand2Y, band2Y);
+  gl.uniform1f(U.uRoll, roll);
+  gl.uniform1f(U.uScan, Math.max(2, Math.round(cv.height / 480)));
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+window.__frame = (t) => { frame(t); };
+
+async function init() {
+  const link = document.getElementById('fuentes');
+  if (!link.sheet) await new Promise((r) => { link.addEventListener('load', r, { once: true }); link.addEventListener('error', r, { once: true }); setTimeout(r, 8000); });
+  try {
+    await Promise.all([
+      document.fonts.load(`150px ${F_TIT}`, 'LA LUNA AL REVÉS HEMISFERIO NORTE SUR DC1'),
+      document.fonts.load(`92px ${F_OSD}`, 'PLAY SP 0123456789:.OCT'),
+      document.fonts.load(`italic 800 60px ${F_SUB}`, 'Lo que no te explicaron en clase VISTA DESDE EL PARECE UNA EPISODIO'),
+    ]);
+    await document.fonts.ready;
+  } catch (e) { /* si las fuentes fallan, se dibuja con las de reserva */ }
+  buildMoon();
+  frame(0);
+  window.__listo = true;
+  if (!CAPTURA) {
+    const start = performance.now();
+    const loop = (now) => { frame(((now - start) / 1000) % DUR); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+    window.addEventListener('resize', () => { layout(); osdKey = ''; });
+  }
+}
+init();
+})();
+</script>
+</body>
+</html>

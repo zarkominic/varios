@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Recortes de papel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..700&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #0d1327; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+// ---------------------------------------------------------------------------
+// Diorama de papel recortado, animado "a pasos" (12 fps, como stop-motion).
+// Todo se dibuja en un marco de 1080x1920 con Canvas 2D: cada pieza de papel
+// es un Path2D cortado "a mano" (bordes con leve ondulación), con textura de
+// fibras procedural, sombra suave según su altura y un filo de luz.
+// ---------------------------------------------------------------------------
+const DUR = 10, FPS = 12, NF = DUR * FPS, W = 1080, H = 1920;
+const TAU = Math.PI * 2, PI = Math.PI, D2R = PI / 180;
+const CAPTURA = /captura/.test(location.search);
+const cv = document.getElementById('c');
+const main = cv.getContext('2d');
+let g = main, S = 1, OX = 0, OY = 0, F = 0, lastF = -1, back = null, front = null, title = null;
+
+const C = {
+  bg: '#0d1327', sky: '#111a33', ring1: '#162043', ring2: '#1b284f', ring3: '#21305c',
+  frame: '#090e1e', ivory: '#f1e5c7', ivory2: '#e3d3aa', ivory3: '#d6c393', ink: '#1a2342',
+  gold: '#e2ad47', goldD: '#b7832f', goldL: '#f3cf77', coral: '#d8634a', coralD: '#a94832',
+  mustard: '#dca443', teal: '#2a6a7c', teal2: '#4d8d99', sage: '#95af7f', sageD: '#7d9a69',
+  moonDark: '#2b3967', backing: '#1e2b55', skin: '#efd0ad',
+};
+const MX = 540, MY = 835, MR = 152;          // Luna / átomo
+const EX = 540, EY = 1292, ER = 156, EB = 284; // Tierra (radio del océano y del disco de soporte)
+const TX = 866, TY = 690;                    // etiqueta colgante (agujero)
+
+// ---------- utilidades ----------
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hsh(a, b) { let h = Math.imul(a + 0x9e3779b9 | 0, 0x85ebca6b) ^ Math.imul(b + 0x7f4a7c15 | 0, 0xc2b2ae35); h = Math.imul(h ^ h >>> 15, 0x2c1b3c6d); h = Math.imul(h ^ h >>> 12, 0x297a2d39); h ^= h >>> 15; return (h >>> 0) / 4294967296; }
+const cl = (x) => x < 0 ? 0 : x > 1 ? 1 : x;
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const eio = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const eout = (x) => 1 - Math.pow(1 - x, 3);
+const ein = (x) => x * x * x;
+const eback = (x, c1 = 1.4) => { const c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const lerp = (a, b, u) => a + (b - a) * u;
+function mk(w, h) { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; }
+
+// ---------- textura de papel (mosaico continuo) ----------
+let TEXA, TEXB;
+function makeTextures() {
+  const N = 512, r = rng(1234);
+  const oct = [[4, .5], [8, .32], [16, .2], [32, .13], [128, .09]].map(([gg, a]) => {
+    const L = new Float32Array(gg * gg); for (let i = 0; i < L.length; i++) L[i] = r() * 2 - 1; return { gg, a, L };
+  });
+  const A = mk(N, N), a = A.getContext('2d'), ia = a.createImageData(N, N);
+  const B = mk(N, N), b = B.getContext('2d'), ib = b.createImageData(N, N);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    let s = 0;
+    for (const o of oct) {
+      const fx = x / N * o.gg, fy = y / N * o.gg, x0 = fx | 0, y0 = fy | 0;
+      let tx = fx - x0, ty = fy - y0; tx = tx * tx * (3 - 2 * tx); ty = ty * ty * (3 - 2 * ty);
+      const x1 = (x0 + 1) % o.gg, y1 = (y0 + 1) % o.gg, L = o.L, q = o.gg;
+      const p = L[y0 * q + x0], qq = L[y0 * q + x1], m = L[y1 * q + x0], n = L[y1 * q + x1];
+      const top = p + (qq - p) * tx, bot = m + (n - m) * tx;
+      s += o.a * (top + (bot - top) * ty);
+    }
+    const gr = r() * 2 - 1, i = (y * N + x) * 4;
+    const v = 239 + 13 * s + 6 * gr;
+    ia.data[i] = v; ia.data[i + 1] = v - 1.5; ia.data[i + 2] = v - 4; ia.data[i + 3] = 255;
+    const w = Math.max(0, 16 * s + 4 * gr);
+    ib.data[i] = w; ib.data[i + 1] = w * 0.97; ib.data[i + 2] = w * 0.9; ib.data[i + 3] = 255;
+  }
+  a.putImageData(ia, 0, 0); b.putImageData(ib, 0, 0);
+  // fibras: trazos finos curvados, claros y oscuros, repetidos para que el mosaico encaje
+  for (let k = 0; k < 900; k++) {
+    const light = r() < 0.6, cx = light ? b : a;
+    const pts = []; let px = r() * N, py = r() * N, an = r() * TAU; const len = 5 + Math.pow(r(), 1.6) * 34;
+    for (let s = 0; s <= 6; s++) { pts.push([px, py]); an += (r() - 0.5) * 0.8; px += Math.cos(an) * len / 6; py += Math.sin(an) * len / 6; }
+    cx.lineWidth = 0.35 + r() * 0.85; cx.lineCap = 'round';
+    cx.strokeStyle = light ? `rgba(255,246,228,${0.18 + r() * 0.4})` : `rgba(96,78,60,${0.06 + r() * 0.13})`;
+    for (const ox of [-N, 0, N]) for (const oy of [-N, 0, N]) {
+      cx.beginPath(); cx.moveTo(pts[0][0] + ox, pts[0][1] + oy);
+      for (let s = 1; s < pts.length; s++) cx.lineTo(pts[s][0] + ox, pts[s][1] + oy);
+      cx.stroke();
+    }
+  }
+  // motas (inclusiones) muy pequeñas
+  for (let k = 0; k < 160; k++) {
+    const x = r() * N, y = r() * N, rr = 0.4 + r() * 0.9;
+    a.fillStyle = `rgba(80,64,50,${0.1 + r() * 0.15})`; a.beginPath(); a.arc(x, y, rr, 0, TAU); a.fill();
+  }
+  TEXA = A; TEXB = B;
+}
+function pats(c) {
+  if (!c.__pa) { c.__pa = c.createPattern(TEXA, 'repeat'); c.__pb = c.createPattern(TEXB, 'repeat'); }
+  return c;
+}
+
+// ---------- pieza de papel ----------
+function noShadow() { g.shadowColor = 'rgba(0,0,0,0)'; g.shadowBlur = 0; g.shadowOffsetX = 0; g.shadowOffsetY = 0; }
+function setShadow(d, a = 0.55) {
+  g.shadowColor = `rgba(3,5,14,${a})`; g.shadowBlur = (1.5 + d * 2.1) * S;
+  g.shadowOffsetX = d * 0.62 * S; g.shadowOffsetY = d * 1.08 * S;
+}
+function tex(path, seed, ta, tb, rule) {
+  pats(g);
+  const M = new DOMMatrix([1, 0, 0, 1, (seed * 137.31) % 512, (seed * 91.77) % 512]);
+  g.save();
+  if (ta > 0) { g.__pa.setTransform(M); g.globalCompositeOperation = 'multiply'; g.globalAlpha = ta; g.fillStyle = g.__pa; g.fill(path, rule); }
+  if (tb > 0) { g.__pb.setTransform(M); g.globalCompositeOperation = 'screen'; g.globalAlpha = tb; g.fillStyle = g.__pb; g.fill(path, rule); }
+  g.restore();
+}
+// filo de luz en los bordes que miran a la lámpara (arriba-izquierda): la sombra de lo
+// que rodea a la pieza, desplazada, cae dentro de la pieza.
+function rim(path, bb, a) {
+  const m = g.getTransform(), X = 30000;
+  g.save(); g.clip(path);
+  const p = new Path2D(); p.rect(-bb, -bb, 2 * bb, 2 * bb); p.addPath(path);
+  g.translate(X, 0);
+  g.shadowColor = `rgba(255,236,205,${a})`; g.shadowBlur = 2.2 * S;
+  g.shadowOffsetX = -m.a * X + 1.3 * S; g.shadowOffsetY = -m.b * X + 2.1 * S;
+  g.fillStyle = '#000'; g.fill(p, 'evenodd');
+  g.restore();
+}
+function paper(path, col, o = {}) {
+  const d = o.d ?? 3, rule = o.rule || 'nonzero';
+  g.fillStyle = col;
+  if (d > 0) {
+    setShadow(d, o.sa ?? 0.5); g.fill(path, rule);
+    g.shadowColor = 'rgba(3,5,14,0.45)'; g.shadowBlur = 1.1 * S;
+    g.shadowOffsetX = Math.min(d, 2.5) * 0.35 * S; g.shadowOffsetY = Math.min(d, 2.5) * 0.65 * S;
+    g.fill(path, rule); noShadow();
+  } else g.fill(path, rule);
+  if (o.print) { g.save(); g.clip(path, rule); o.print(); g.restore(); }
+  tex(path, o.seed ?? 0, o.ta ?? 1, o.tb ?? 0.55, rule);
+  if (o.rim) rim(path, o.bb ?? 200, o.rim);
+}
+function jit(id, amp = 0.6, ra = 0.0035) {
+  g.translate((hsh(F, id * 3 + 1) - 0.5) * 2 * amp, (hsh(F, id * 3 + 2) - 0.5) * 2 * amp);
+  g.rotate((hsh(F, id * 3 + 3) - 0.5) * 2 * ra);
+}
+
+// ---------- geometría "cortada a mano" ----------
+function wob(seed, amp, n = 5) {
+  const r = rng(seed), hs = [];
+  for (let i = 0; i < n; i++) hs.push([2 + Math.floor(r() * 7) + i * 2, r() * TAU, amp * (0.5 + r() * 0.5) / (1 + i * 0.7)]);
+  return (th) => { let s = 0; for (const [k, p, a] of hs) s += a * Math.sin(k * th + p); return s; };
+}
+function circ(R, seed, amp = 0.006, scal = 0, sn = 0) {
+  const w = wob(seed, amp), n = Math.max(40, Math.round(R * 0.9)), p = new Path2D();
+  for (let i = 0; i < n; i++) {
+    const th = i / n * TAU; let r = R * (1 + w(th));
+    if (scal) r += scal * (Math.pow(Math.abs(Math.sin(sn * th / 2)), 0.55) - 0.75);
+    i ? p.lineTo(r * Math.cos(th), r * Math.sin(th)) : p.moveTo(r * Math.cos(th), r * Math.sin(th));
+  }
+  p.closePath(); return p;
+}
+// fase lunar: lado iluminado hacia +x (side=1) o -x (side=-1); k=1 nueva, 0 cuarto, -1 llena
+function phase(R, k, side, seed) {
+  const w = wob(seed, 0.006), n = Math.max(24, Math.round(R * 0.5)), p = new Path2D();
+  for (let i = 0; i <= n; i++) { const th = -PI / 2 + i / n * PI, r = R * (1 + w(th)); const x = side * r * Math.cos(th), y = r * Math.sin(th); i ? p.lineTo(x, y) : p.moveTo(x, y); }
+  for (let i = 0; i <= n; i++) { const th = PI / 2 - i / n * PI; p.lineTo(side * k * R * Math.cos(th) * (1 + w(th + 2) * 0.6), R * Math.sin(th)); }
+  p.closePath(); return p;
+}
+function smooth(pts) { // curva cerrada suave por los puntos medios
+  const p = new Path2D(), n = pts.length;
+  const mid = (i) => [(pts[i % n][0] + pts[(i + 1) % n][0]) / 2, (pts[i % n][1] + pts[(i + 1) % n][1]) / 2];
+  const m0 = mid(n - 1); p.moveTo(m0[0], m0[1]);
+  for (let i = 0; i < n; i++) { const m = mid(i); p.quadraticCurveTo(pts[i][0], pts[i][1], m[0], m[1]); }
+  p.closePath(); return p;
+}
+function blob(R, seed, amp = 0.18, n = 9) {
+  const r = rng(seed), pts = [];
+  for (let i = 0; i < n; i++) { const th = i / n * TAU + (r() - 0.5) * 0.3, rr = R * (1 + (r() - 0.5) * 2 * amp); pts.push([rr * Math.cos(th), rr * Math.sin(th) * 0.85]); }
+  return smooth(pts);
+}
+function star(R, ri, nPts = 5, rot = -PI / 2, seed = 1) {
+  const r = rng(seed), p = new Path2D();
+  for (let i = 0; i < nPts * 2; i++) {
+    const th = rot + i / (nPts * 2) * TAU, rr = (i % 2 ? ri : R) * (1 + (r() - 0.5) * 0.06);
+    i ? p.lineTo(rr * Math.cos(th), rr * Math.sin(th)) : p.moveTo(rr * Math.cos(th), rr * Math.sin(th));
+  }
+  p.closePath(); return p;
+}
+function rrect(x, y, w, h, r) { const p = new Path2D(); p.roundRect ? p.roundRect(x, y, w, h, r) : p.rect(x, y, w, h); return p; }
+// contorno de rectángulo redondeado con pequeña ondulación de tijera
+function wobRect(x, y, w, h, rad, seed, amp = 1.2) {
+  const pts = [], st = 6, wv = wob(seed, 1, 6);
+  const per = 2 * (w + h - 4 * rad) + TAU * rad; const n = Math.round(per / st);
+  const P = (s) => { // s en [0, per)
+    const sides = [w - 2 * rad, PI / 2 * rad, h - 2 * rad, PI / 2 * rad, w - 2 * rad, PI / 2 * rad, h - 2 * rad, PI / 2 * rad];
+    let k = 0; while (s > sides[k] && k < 7) { s -= sides[k]; k++; }
+    const cs = [[x + rad, y], [x + w - rad, y + rad], [x + w, y + rad], [x + w - rad, y + h - rad], [x + w - rad, y + h], [x + rad, y + h - rad], [x, y + h - rad], [x + rad, y + rad]];
+    switch (k) {
+      case 0: return [x + rad + s, y, 0, -1];
+      case 1: { const a = -PI / 2 + s / rad; return [x + w - rad + rad * Math.cos(a), y + rad + rad * Math.sin(a), Math.cos(a), Math.sin(a)]; }
+      case 2: return [x + w, y + rad + s, 1, 0];
+      case 3: { const a = s / rad; return [x + w - rad + rad * Math.cos(a), y + h - rad + rad * Math.sin(a), Math.cos(a), Math.sin(a)]; }
+      case 4: return [x + w - rad - s, y + h, 0, 1];
+      case 5: { const a = PI / 2 + s / rad; return [x + rad + rad * Math.cos(a), y + h - rad + rad * Math.sin(a), Math.cos(a), Math.sin(a)]; }
+      case 6: return [x, y + h - rad - s, -1, 0];
+      default: { const a = PI + s / rad; return [x + rad + rad * Math.cos(a), y + rad + rad * Math.sin(a), Math.cos(a), Math.sin(a)]; }
+    }
+  };
+  const p = new Path2D();
+  for (let i = 0; i < n; i++) { const [px, py, nx, ny] = P(i / n * per); const o = wv(i / n * TAU) * amp; i ? p.lineTo(px + nx * o, py + ny * o) : p.moveTo(px + nx * o, py + ny * o); }
+  p.closePath(); return p;
+}
+
+// ---------- Tierra: continentes en proyección ortográfica (centro 10°E, 0°) ----------
+const CONT = {
+  africa: [[-17, 21], [-16, 24], [-13, 27.5], [-9.8, 30], [-9.5, 32.5], [-6.5, 35], [-2, 35.2], [3, 36.8], [10.2, 37.2], [11, 35], [10.2, 33.8], [15, 32.3], [19.5, 30.4], [20.1, 32.4], [23, 32.6], [29, 30.9], [32.3, 31.3], [33.8, 28], [37, 22], [38.5, 18], [41, 14.5], [43.3, 12.6], [44.5, 10.5], [51.2, 11.8], [51, 10], [48.5, 5], [46, 2], [42, -1], [40, -4], [39.2, -8], [40.5, -11], [40.5, -15], [36.8, -18.5], [35, -21], [35.5, -24], [32.8, -26], [32.4, -29], [30, -31.5], [27.5, -33.5], [22, -34.2], [20, -34.8], [18.4, -34], [17.8, -32], [15.2, -27], [14.5, -22.5], [11.8, -17.5], [12.3, -13], [13.8, -10.5], [12.2, -6], [9, -1], [9.6, 2.5], [9.6, 4], [8.5, 4.5], [6, 4.3], [4.5, 6.3], [1.5, 6.2], [-2, 4.8], [-4, 5.2], [-7.5, 4.4], [-9.5, 5.4], [-11.5, 6.9], [-13.3, 8.8], [-15, 10.9], [-16.7, 12.4], [-17.4, 14.7], [-16.5, 16.5], [-16.2, 19.5]],
+  madagascar: [[49.3, -12], [50.5, -15.5], [49.4, -18], [47.5, -24.5], [45.2, -25.5], [43.6, -23], [44, -20], [44.4, -16.2], [46.5, -15.5]],
+  eurasia: [[-9.3, 38.8], [-8.9, 37], [-6, 36.2], [-2, 36.8], [0, 38.6], [0.5, 40.5], [3.2, 42], [4.5, 43.4], [7.5, 43.8], [10, 44], [12.3, 41.8], [15.6, 38], [16.5, 39], [18.4, 40.1], [17, 41], [13.5, 43.6], [12.4, 45.4], [13.7, 45.6], [16, 43.5], [19.4, 41.8], [20, 39.6], [22.4, 36.5], [23, 37.9], [24, 40.7], [26, 40.8], [26.2, 39.5], [27.4, 37], [29.6, 36.2], [32.6, 36.1], [36, 36.8], [35.8, 34.6], [34.9, 32.8], [34.2, 31.3], [34.6, 28], [37, 25.5], [39, 21.5], [42.5, 16], [43.5, 12.8], [45, 13], [49, 14.6], [52.2, 16], [55, 17.6], [57.5, 19], [59.8, 22.5], [56.5, 24.3], [56.3, 26.2], [54, 24.2], [51.6, 24.4], [50.3, 26.6], [48.5, 28.8], [48, 30], [50, 30.2], [51.5, 27.9], [54.5, 26.6], [57.2, 25.8], [61.5, 25.2], [66.5, 25.4], [68, 23.6], [70, 21], [72.8, 19], [73.4, 16], [74.5, 13], [76.2, 9.5], [77.5, 8.1], [78.2, 9], [79.8, 10.3], [80.2, 13.5], [80.3, 15.9], [82.3, 17], [84.9, 19.3], [86.9, 21.4], [89, 22], [91.5, 22.5], [92.5, 20.5], [94.4, 17.5], [97.6, 16.5], [98.5, 13.5], [99.5, 10], [100.5, 6.5], [103.4, 3], [104.2, 1.4], [110, 20], [120, 30], [125, 40], [135, 45], [140, 55], [160, 60], [180, 66], [140, 72], [110, 76], [100, 78], [80, 73], [70, 73], [60, 70], [55, 68.5], [44, 68.5], [40, 66], [41, 64.5], [37, 63.8], [33, 66.5], [41, 67.5], [33, 69.3], [28, 71], [24, 71], [18, 69.5], [14, 67.5], [12.5, 65.8], [10, 63.5], [5.2, 62.5], [5, 60], [5.6, 58.5], [7, 58], [8.5, 58.2], [10.5, 59.4], [11.2, 58.8], [12, 56.5], [12.8, 55.4], [14.5, 56.2], [16.2, 56.6], [16.5, 57.8], [16.7, 59.2], [18.5, 60], [17.3, 61.5], [17.5, 62.5], [21, 64], [21.5, 65.3], [24, 65.8], [25.5, 65], [25, 64], [22, 63], [21.4, 60.8], [22.8, 60], [26.5, 60.4], [28, 59.5], [24, 59.3], [23.5, 58.5], [24.4, 57.5], [21, 57], [21, 56], [19.8, 54.4], [18.5, 54.7], [14.2, 53.9], [12, 54.2], [10, 54.6], [10, 55.5], [10.4, 56.2], [10.6, 57.7], [9.5, 57.2], [8.2, 56.8], [8.1, 55.4], [8.6, 54], [7, 53.5], [5, 53.1], [4, 51.6], [2.5, 51.1], [1.5, 50.2], [0.2, 49.6], [-1.3, 49.7], [-1.9, 48.7], [-4.6, 48.6], [-4.4, 47.9], [-2.4, 47.2], [-1.2, 46], [-1.4, 44.4], [-1.8, 43.4], [-4, 43.5], [-8, 43.7], [-9.3, 43], [-8.9, 41.5], [-8.8, 40]],
+  gbr: [[-5.7, 50], [1.4, 51.3], [1.7, 52.7], [0.2, 53.5], [-2, 55.9], [-1.8, 57.6], [-3, 58.6], [-5, 58.6], [-6.2, 56.8], [-5, 55], [-3, 53.6], [-4.6, 53.2], [-4.3, 52.2], [-5.2, 51.7], [-3.5, 51.4]],
+  irl: [[-6, 52.2], [-6.2, 53.9], [-5.6, 54.6], [-7.5, 55.3], [-8.5, 54.5], [-10, 54], [-10.2, 51.8], [-8.5, 51.6]],
+  isl: [[-24, 65.5], [-22, 66.4], [-16, 66.5], [-13.6, 65.2], [-15, 64.3], [-19, 63.4], [-22.5, 63.8]],
+  samerica: [[-77.3, 8.6], [-75.5, 10.6], [-72, 11.8], [-68, 10.6], [-63, 10.7], [-61, 10.1], [-58.5, 7], [-55, 6], [-52, 4.8], [-50, 1.8], [-49.5, 0], [-47.5, -0.8], [-44.5, -2.4], [-41, -2.9], [-38, -4], [-35.3, -5.3], [-34.9, -8], [-35.8, -10], [-38.5, -13], [-39, -17.5], [-40, -20.5], [-41, -22], [-43.5, -23], [-46.5, -24], [-48.5, -26.5], [-48.8, -28.5], [-50.5, -31], [-52.5, -33.5], [-54, -34.8], [-56, -34.9], [-57.3, -36.2], [-57.6, -38.2], [-62, -39], [-62.3, -40.9], [-65, -41], [-64.4, -42.6], [-65.5, -45], [-67.5, -46.5], [-66, -48], [-68.3, -50.2], [-69, -51.6], [-68.4, -52.4], [-70, -53], [-72, -53.8], [-74.5, -52], [-75.5, -48], [-74, -44], [-73.6, -40], [-73.4, -37], [-71.6, -33], [-71.4, -30], [-70.4, -24], [-70.2, -18.5], [-72, -17], [-76.2, -13.8], [-78, -10], [-79.8, -7], [-81.2, -6], [-80.4, -3.5], [-80, -1.5], [-80.6, 0], [-79.5, 1.5], [-78.5, 2.5], [-77.5, 4], [-77.4, 6.7]],
+  namerica: [[-81, 25.2], [-80, 27], [-81, 30.5], [-79, 33], [-76, 35], [-76.3, 37], [-75, 38.7], [-74, 40.5], [-71, 41.3], [-70, 42], [-70.5, 43.5], [-67, 44.7], [-64, 45.5], [-61, 45.5], [-60, 46.5], [-64.5, 48.8], [-66, 50.2], [-60, 50.3], [-55.7, 51.7], [-56, 53.5], [-58, 54.5], [-60.5, 55.5], [-62, 57], [-64.5, 60.3], [-69, 59], [-70, 61], [-78, 62.5], [-82, 64], [-90, 70], [-100, 72], [-120, 70], [-100, 40], [-97.5, 26], [-97, 22], [-96, 19], [-91, 19], [-90.5, 21], [-87, 21.5], [-88, 18], [-88, 15.8], [-84, 15.5], [-83.5, 11], [-81.5, 9], [-79, 9.5], [-77.5, 8.5], [-80, 8], [-85, 10], [-90, 14], [-94, 16], [-89, 30], [-84, 30], [-82.5, 27.5]],
+  groenlandia: [[-44, 60], [-42, 62.5], [-40, 65], [-35, 66], [-22, 70], [-22, 73], [-18, 76], [-19, 79], [-28, 82.5], [-40, 83.5], [-60, 82], [-66, 80], [-73, 78], [-68, 76.5], [-60, 76], [-57, 74.5], [-55, 70.5], [-53, 68], [-50, 64], [-48, 61]],
+  sahara: [[-14, 22], [-10, 27], [-4, 31], [5, 32], [12, 31], [20, 29], [28, 28], [32, 26], [33, 21], [28, 17], [20, 16], [12, 14], [3, 15], [-6, 16], [-12, 17]],
+  arabia: [[36, 28], [38.5, 22], [43, 16.5], [48, 15.5], [53, 17.5], [56.5, 21], [52, 23.5], [48.5, 27.5], [44, 30], [39, 30.5]],
+};
+function proj(lon, lat, R) {
+  const l = (lon - 10) * D2R, p = lat * D2R;
+  let x = Math.cos(p) * Math.sin(l), y = -Math.sin(p); const z = Math.cos(p) * Math.cos(l);
+  if (z < 0) { const n = Math.hypot(x, y) || 1; x /= n; y /= n; }
+  return [x * R, y * R];
+}
+function landPath(pts, R) {
+  const dense = [];
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length];
+    for (let k = 0; k < 3; k++) { const u = k / 3; dense.push(proj(a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, R)); }
+  }
+  return smooth(dense);
+}
+function capPath(lat, R) {
+  const pts = [];
+  for (let lon = -180; lon < 180; lon += 6) pts.push(proj(lon, lat, R));
+  return smooth(pts);
+}
+
+// ---------- caché de trazados ----------
+const P = {};
+function buildPaths() {
+  P.ring1 = circ(304, 11, 0.003, 9, 32); P.ring2 = circ(254, 12, 0.004); P.ring3 = circ(208, 13, 0.004);
+  P.moonDisc = circ(MR, 21, 0.005);
+  P.cres = phase(MR, 0.2, 1, 22);
+  P.cresHi = phase(MR * 0.94, 0.33, 1, 23);
+  const crat = [[0.62, -0.42, 0.13], [0.8, 0.06, 0.085], [0.56, 0.44, 0.11], [0.43, -0.07, 0.07], [0.33, 0.7, 0.07]];
+  P.craters = crat.map(([x, y, r], i) => ({ x: x * MR, y: y * MR, base: circ(r * MR, 40 + i, 0.02), inner: circ(r * MR * 0.78, 50 + i, 0.03) }));
+  P.maria = [{ x: 0.66 * MR, y: -0.12 * MR, p: blob(0.16 * MR, 61, 0.22) }, { x: 0.45 * MR, y: 0.22 * MR, p: blob(0.12 * MR, 62, 0.25) }];
+  P.nuc = [[0, 0, 0], [20, 2, 1], [-19, -3, 0], [9, 19, 0], [-10, 17, 1], [11, -18, 1], [-9, -19, 0], [2, -6, 1], [-3, 8, 0]].map(([x, y, k], i) => ({ x, y, k, p: circ(16.5, 70 + i, 0.02) }));
+  P.ringHalf = [0, 1].map((h) => [74, 71].map(() => null));
+  P.orb = [PI / 2, PI / 6, -PI / 6].map((ang, i) => {
+    const a = 146, b = 50, wdt = 3.4, mkHalf = (front) => {
+      const p = new Path2D(), s0 = front ? 0 : PI, s1 = front ? PI : TAU, n = 60;
+      for (let k = 0; k <= n; k++) { const s = s0 + (s1 - s0) * k / n; const x = (a + wdt) * Math.cos(s), y = (b + wdt) * Math.sin(s); k ? p.lineTo(x, y) : p.moveTo(x, y); }
+      for (let k = n; k >= 0; k--) { const s = s0 + (s1 - s0) * k / n; p.lineTo((a - wdt) * Math.cos(s), (b - wdt) * Math.sin(s)); }
+      p.closePath(); return p;
+    };
+    return { ang, a, b, front: mkHalf(true), back: mkHalf(false) };
+  });
+  P.electron = circ(12.5, 80, 0.02); P.electronHi = circ(8, 81, 0.03);
+  P.pin = circ(9.5, 82, 0.01);
+  P.backing = circ(EB, 90, 0.003);
+  P.atmo = circ(ER + 11, 91, 0.004);
+  P.ocean = circ(ER, 92, 0.004);
+  P.land = ['africa', 'madagascar', 'eurasia', 'gbr', 'irl', 'isl', 'samerica', 'namerica'].map((k) => landPath(CONT[k], ER * 0.985));
+  P.desert = ['sahara', 'arabia'].map((k) => landPath(CONT[k], ER * 0.985));
+  P.ice = [landPath(CONT.groenlandia, ER * 0.985), capPath(-64, ER * 0.99), capPath(73, ER * 0.99)];
+  // observadores (pies en el origen, arriba = -y)
+  P.legs = (() => { const p = new Path2D(); p.addPath(rrect(-6.5, -25, 5.2, 25, 2.4)); p.addPath(rrect(1.3, -25, 5.2, 25, 2.4)); return p; })();
+  P.coat = (() => { const p = new Path2D(); p.moveTo(-12.5, -19); p.lineTo(12.5, -19); p.quadraticCurveTo(13, -21, 12.2, -24); p.lineTo(9.6, -47); p.quadraticCurveTo(8.6, -52, 3.5, -52.5); p.lineTo(-3.5, -52.5); p.quadraticCurveTo(-8.6, -52, -9.6, -47); p.lineTo(-12.2, -24); p.quadraticCurveTo(-13, -21, -12.5, -19); p.closePath(); return p; })();
+  P.head = circ(8.2, 95, 0.02);
+  P.hat = (() => { const p = new Path2D(); p.moveTo(-9, -1.5); p.quadraticCurveTo(-9.5, -12, 0, -12.5); p.quadraticCurveTo(9.5, -12, 9, -1.5); p.closePath(); return p; })();
+  P.arm = rrect(-2.6, -1, 5.2, 23, 2.6);
+  // etiqueta colgante
+  P.tag = (() => { const w = 172, h = 232, c = 34, p = new Path2D(); p.moveTo(-w / 2 + c, 0); p.lineTo(w / 2 - c, 0); p.lineTo(w / 2, c); p.lineTo(w / 2, h); p.lineTo(-w / 2, h); p.lineTo(-w / 2, c); p.closePath(); return p; })();
+  P.tagRing = (() => { const p = circ(15, 96, 0.01); return p; })();
+  P.tagHole = circ(7, 97, 0.01);
+  // estrellas
+  P.starBig = star(1, 0.47, 5, -PI / 2, 5);
+}
+
+// ---------- capas fijas (fondo y marco del diorama) ----------
+function hole(x, y, s, sparkle, r) {
+  g.save(); g.translate(x, y);
+  g.shadowColor = 'rgba(255,204,128,0.85)'; g.shadowBlur = (2 + s * 3) * S;
+  g.fillStyle = '#fbe7b6';
+  if (sparkle) { g.rotate(r * PI); g.fill(star(s * 3.2, s * 0.7, 4, 0, 3)); }
+  else { g.beginPath(); g.arc(0, 0, s, 0, TAU); g.fill(); }
+  g.restore();
+}
+function buildBack() {
+  back = mk(W * S, H * S); g = back.getContext('2d'); g.setTransform(S, 0, 0, S, 0, 0);
+  const full = new Path2D(); full.rect(0, 0, W, H);
+  paper(full, C.sky, { d: 0, seed: 1, ta: 1, tb: 0.5 });
+  const gr = g.createRadialGradient(MX, MY - 60, 30, MX, MY + 200, 1150);
+  gr.addColorStop(0, 'rgba(84,104,166,0.26)'); gr.addColorStop(0.4, 'rgba(46,62,112,0.13)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  const r = rng(77);
+  for (let i = 0; i < 150; i++) {
+    const x = 50 + r() * (W - 100), y = 50 + r() * (H - 100), s = 0.8 + Math.pow(r(), 3) * 2.6, sp = r() < 0.12, rr = r();
+    if (Math.hypot(x - MX, y - MY) < 318 || Math.hypot(x - EX, y - EY) < 296) continue;
+    hole(x, y, s, sp, rr);
+  }
+  g.save(); g.translate(MX, MY);
+  paper(P.ring1, C.ring1, { d: 4, rim: 0.16, bb: 330, seed: 2 });
+  paper(P.ring2, C.ring2, { d: 4, rim: 0.18, bb: 280, seed: 3 });
+  paper(P.ring3, C.ring3, { d: 4, rim: 0.2, bb: 230, seed: 4 });
+  g.restore();
+  g = main;
+}
+function buildFront() {
+  front = mk(W * S, H * S); g = front.getContext('2d'); g.setTransform(S, 0, 0, S, 0, 0);
+  const vg = g.createRadialGradient(W / 2, H * 0.47, 380, W / 2, H * 0.5, 1180);
+  vg.addColorStop(0, 'rgba(2,4,12,0)'); vg.addColorStop(1, 'rgba(2,4,12,0.5)');
+  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  const p = new Path2D(); p.rect(-60, -60, W + 120, H + 120); p.addPath(wobRect(30, 30, W - 60, H - 60, 30, 5, 1.4));
+  paper(p, C.frame, { d: 9, rule: 'evenodd', seed: 9, sa: 0.7, tb: 0.35 });
+  g = main;
+}
+// título: cada letra es un recorte (sprite con textura) que se pega con su sombra
+function buildTitle() {
+  title = [];
+  const lines = [{ txt: 'LA LUNA', y: 452, size: 116, cols: (i) => C.ivory }, { txt: 'AL REVÉS', y: 570, size: 116, cols: (i) => i >= 3 ? C.gold : C.ivory }];
+  const r = rng(301);
+  for (const L of lines) {
+    const font = `900 ${L.size}px Fraunces`;
+    main.font = font;
+    const track = 5, chars = [...L.txt];
+    const ws = chars.map((ch) => main.measureText(ch).width);
+    const total = ws.reduce((a, b) => a + b, 0) + track * (chars.length - 1);
+    let x = W / 2 - total / 2;
+    chars.forEach((ch, i) => {
+      if (ch !== ' ') {
+        const m = main.measureText(ch), pad = 8;
+        const asc = Math.ceil(m.actualBoundingBoxAscent), des = Math.ceil(m.actualBoundingBoxDescent);
+        const lw = Math.ceil(m.actualBoundingBoxRight + m.actualBoundingBoxLeft);
+        const cw = lw + pad * 2, ch2 = asc + des + pad * 2;
+        const sp = mk(cw * S, ch2 * S), c = sp.getContext('2d');
+        c.setTransform(S, 0, 0, S, 0, 0); c.font = font; c.fillStyle = L.cols(i);
+        const gx = pad + m.actualBoundingBoxLeft, gy = pad + asc;
+        c.fillText(ch, gx, gy);
+        pats(c); const M = new DOMMatrix([1, 0, 0, 1, r() * 512, r() * 512]);
+        c.__pa.setTransform(M); c.__pb.setTransform(M);
+        c.globalCompositeOperation = 'multiply'; c.fillStyle = c.__pa; c.fillRect(0, 0, cw, ch2);
+        c.globalCompositeOperation = 'screen'; c.globalAlpha = 0.5; c.fillStyle = c.__pb; c.fillRect(0, 0, cw, ch2);
+        c.globalAlpha = 1; c.globalCompositeOperation = 'destination-in'; c.fillStyle = '#000'; c.fillText(ch, gx, gy);
+        // filo claro arriba-izquierda
+        c.globalCompositeOperation = 'source-atop'; c.translate(-1.2, -1.6); c.globalAlpha = 0.0;
+        title.push({ sp, x: x - m.actualBoundingBoxLeft - pad, y: L.y - asc - pad, w: cw, h: ch2, rot: (r() - 0.5) * 0.07, dy: (r() - 0.5) * 6, cx: x + ws[i] / 2, cy: L.y - asc / 2 });
+      }
+      x += ws[i] + track;
+    });
+  }
+}
+
+// ---------- dibujo de elementos ----------
+function thread(x1, y1, x2, y2, a = 0.75) {
+  g.save(); setShadow(1.6, 0.45); g.strokeStyle = `rgba(226,216,196,${a})`; g.lineWidth = 1.4; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); g.restore();
+}
+function pin(id) {
+  g.save(); jit(id, 0.3);
+  const gr = g.createRadialGradient(-3, -3.5, 1, 0, 0, 10.5);
+  gr.addColorStop(0, '#fbe7a8'); gr.addColorStop(0.45, '#d6a94e'); gr.addColorStop(1, '#8a6224');
+  setShadow(1.6, 0.6); g.fillStyle = gr; g.fill(P.pin); noShadow();
+  g.fillStyle = 'rgba(255,250,225,0.55)'; g.beginPath(); g.ellipse(-3, -3.6, 2.6, 1.6, -0.6, 0, TAU); g.fill();
+  g.restore();
+}
+function hangingStar(x, len, R, sway, twist, kind, id) {
+  // pivote en el borde superior (fuera de cuadro), el hilo baja hasta la estrella
+  const ax = x, ay = -20, ex = ax + Math.sin(sway) * len, ey = ay + Math.cos(sway) * len;
+  thread(ax, ay, ex, ey - R * 0.92);
+  g.save(); g.translate(ex, ey); jit(id, 0.6, 0.01); g.rotate(-sway * 0.6);
+  const sx = Math.cos(twist), back = sx < 0;
+  g.scale(Math.max(Math.abs(sx), 0.06), 1); g.scale(R, R);
+  // pequeño lazo del hilo
+  if (kind === 'fold') {
+    const dark = back ? '#9c7029' : C.goldD, lite = back ? C.goldD : C.goldL;
+    g.save(); g.scale(1 / R, 1 / R); setShadow(4.5, 0.55); g.scale(R, R); g.fillStyle = C.gold; g.fill(P.starBig); noShadow(); g.restore();
+    // facetas plegadas: cada punta tiene un lado claro y otro oscuro
+    for (let i = 0; i < 10; i++) {
+      const a0 = -PI / 2 + i / 10 * TAU, a1 = -PI / 2 + (i + 1) / 10 * TAU;
+      const r0 = i % 2 ? 0.47 : 1, r1 = i % 2 ? 1 : 0.47;
+      const p = new Path2D(); p.moveTo(0, 0); p.lineTo(r0 * Math.cos(a0), r0 * Math.sin(a0)); p.lineTo(r1 * Math.cos(a1), r1 * Math.sin(a1)); p.closePath();
+      g.fillStyle = (i % 2 === 0) !== (sx < 0) ? lite : dark; g.globalAlpha = 0.92; g.fill(p);
+    }
+    g.globalAlpha = 1;
+    g.save(); g.scale(1 / R, 1 / R); tex(scalePath(P.starBig, R), id, 0.9, 0.35); g.restore();
+  } else {
+    g.save(); g.scale(1 / R, 1 / R); paper(scalePath(P.starBig, R), back ? C.ivory3 : C.ivory, { d: 3, seed: id }); g.restore();
+  }
+  g.restore();
+}
+const scaled = new Map();
+function scalePath(p, s) { const k = s; if (!scaled.has(p)) scaled.set(p, new Map()); const m = scaled.get(p); if (!m.has(k)) { const q = new Path2D(); q.addPath(p, new DOMMatrix([k, 0, 0, k, 0, 0])); m.set(k, q); } return m.get(k); }
+
+function drawGarland(t) {
+  const P0 = [-30, 96], P1 = [540, 262], P2 = [1110, 96];
+  const B = (s) => [(1 - s) * (1 - s) * P0[0] + 2 * (1 - s) * s * P1[0] + s * s * P2[0], (1 - s) * (1 - s) * P0[1] + 2 * (1 - s) * s * P1[1] + s * s * P2[1]];
+  g.save(); setShadow(1.6, 0.45); g.strokeStyle = 'rgba(226,216,196,0.75)'; g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(P0[0], P0[1]); g.quadraticCurveTo(P1[0], P1[1], P2[0], P2[1]); g.stroke(); g.restore();
+  const ph = [[0.55, 1], [0, 1], [-0.55, 1], [-1, 1], [-0.55, -1], [0, -1], [0.55, -1]];
+  ph.forEach(([k, side], i) => {
+    const s = (i + 1) / 8, [x, y] = B(s), len = 26 + (i % 2) * 14, R = 25;
+    const sw = 0.06 * Math.sin(TAU * (2 * t / DUR) + i * 1.3);
+    const ex = x + Math.sin(sw) * len, ey = y + Math.cos(sw) * len;
+    thread(x, y, ex, ey - R);
+    g.save(); g.translate(ex, ey); jit(200 + i, 0.5, 0.01); g.rotate(-sw);
+    paper(P.gDisc || (P.gDisc = circ(R, 300, 0.01)), C.moonDark, { d: 2.5, seed: 30 + i, rim: 0.2, bb: 34 });
+    if (!P['g' + i]) P['g' + i] = phase(R, k, side, 310 + i);
+    paper(P['g' + i], C.ivory, { d: 1.2, seed: 40 + i });
+    g.restore();
+  });
+  // nudos donde cuelgan
+  ph.forEach((_, i) => { const [x, y] = B((i + 1) / 8); g.fillStyle = 'rgba(232,222,200,0.9)'; g.beginPath(); g.arc(x, y, 2.4, 0, TAU); g.fill(); });
+}
+function drawTitle(t) {
+  // etiqueta pequeña de la serie (papel coral cortado con tijera de zigzag)
+  g.save(); g.translate(540, 322); jit(150, 0.4, 0.003); g.rotate(-0.012);
+  g.font = '700 21px Fraunces';
+  const txt = 'LO QUE NO TE EXPLICARON EN CLASE', sp = 3.6;
+  const ws = [...txt].map((c) => g.measureText(c).width), tw = ws.reduce((a, b) => a + b, 0) + sp * (txt.length - 1);
+  const hw = tw / 2 + 30, hh = 21;
+  if (!P.kicker || P.kickerW !== hw) {
+    const p = new Path2D(); p.moveTo(-hw, -hh);
+    p.lineTo(hw, -hh); for (let k = 0; k <= 6; k++) p.lineTo(hw + (k % 2 ? 7 : 0), -hh + k * hh * 2 / 6);
+    p.lineTo(-hw, hh); for (let k = 6; k >= 0; k--) p.lineTo(-hw - (k % 2 ? 7 : 0), -hh + k * hh * 2 / 6);
+    p.closePath(); P.kicker = p; P.kickerW = hw;
+  }
+  paper(P.kicker, C.coral, { d: 3, seed: 5, rim: 0.25, bb: hw + 20, print: () => {
+    g.fillStyle = C.ivory; g.textBaseline = 'middle'; g.textAlign = 'left'; let x = -tw / 2;
+    [...txt].forEach((c, i) => { g.fillText(c, x, 1.5); x += ws[i] + sp; });
+  } });
+  g.restore();
+  // letras recortadas
+  title.forEach((L, i) => {
+    g.save(); g.translate(L.cx, L.cy + L.dy); jit(160 + i, 0.55, 0.004); g.rotate(L.rot); g.translate(-L.cx, -L.cy);
+    setShadow(3.4, 0.6); g.drawImage(L.sp, L.x, L.y, L.w, L.h); noShadow();
+    g.restore();
+  });
+}
+
+// ---------- línea de tiempo (en segundos, bucle de 10 s) ----------
+function tl(t) {
+  const s = {};
+  s.orb = t < 1.3 ? 1 : t < 1.75 ? 1 - ein(seg(t, 1.3, 1.75)) : t < 8.25 ? 0 : t < 8.75 ? eback(seg(t, 8.25, 8.75), 1.2) : 1;
+  s.orbL = t < 1.3 ? 0 : t < 1.75 ? seg(t, 1.3, 1.75) : t < 8.75 ? 1 - seg(t, 8.25, 8.75) : 0;
+  s.nucVis = t < 1.95 || t >= 8.2;
+  if (t >= 1.55 && t < 1.95) { const u = eout(seg(t, 1.55, 1.95)); s.nucS = 1 + 0.32 * u; s.nucL = u; }
+  else if (t >= 8.2 && t < 8.5) { const u = eout(seg(t, 8.2, 8.5)); s.nucS = 1.32 - 0.32 * u; s.nucL = 1 - u; }
+  else { s.nucS = 1; s.nucL = 0; }
+  s.discVis = t >= 1.95 && t < 8.2;
+  s.discS = t < 2.35 ? 0.42 + 0.58 * eback(seg(t, 1.95, 2.35), 1.6) : t >= 7.9 ? 1 - 0.6 * ein(seg(t, 7.9, 8.2)) : 1;
+  s.discL = t < 2.35 ? 1 - seg(t, 1.95, 2.35) : t >= 7.9 ? seg(t, 7.9, 8.2) : 0;
+  s.crVis = t >= 2.15 && t < 7.9;
+  if (t < 2.55) { const u = eout(seg(t, 2.15, 2.55)); s.crL = 1.2 * (1 - u); s.crX = -70 * (1 - u); s.crY = -90 * (1 - u); s.crR = -0.3 * (1 - u); }
+  else if (t >= 7.55) { const u = ein(seg(t, 7.55, 7.9)); s.crL = 1.4 * u; s.crX = 80 * u; s.crY = -120 * u; s.crR = 0.35 * u; }
+  else { s.crL = 0; s.crX = 0; s.crY = 0; s.crR = 0; }
+  s.pinVis = t >= 3.0 && t < 7.0;
+  s.rot = PI * eio(seg(t, 4.3, 5.6));
+  s.erot = s.rot + PI * eio(seg(t, 8.35, 9.6));
+  s.tagVis = t >= 2.55 && t < 7.45;
+  if (t < 3.25) s.tagY = -780 * (1 - eback(seg(t, 2.55, 3.25), 0.9));
+  else if (t >= 6.95) s.tagY = -800 * ein(seg(t, 6.95, 7.45));
+  else s.tagY = 0;
+  s.tagSw = (t >= 3.25 ? 0.05 * Math.exp(-(t - 3.25) * 2.4) * Math.sin((t - 3.25) * 8) : 0) + 0.014 * Math.sin(TAU * t * 3 / DUR);
+  s.tagSpin = PI * eio(seg(t, 4.65, 5.35));
+  s.armN = eio(seg(t, 3.0, 3.4)) * (1 - eio(seg(t, 4.1, 4.4)));
+  s.armS = eio(seg(t, 5.65, 6.05)) * (1 - eio(seg(t, 7.2, 7.6)));
+  return s;
+}
+
+function drawAtomMoon(t, s) {
+  g.save(); g.translate(MX, MY);
+  const ph = TAU * (8 * t / DUR);
+  // átomo: mitades traseras de las órbitas, núcleo, mitades delanteras (las órbitas se entrelazan)
+  const orbitPart = (front) => {
+    if (s.orb <= 0.02) return;
+    P.orb.forEach((o, i) => {
+      g.save(); jit(10 + i + (front ? 5 : 0), 0.5, 0.004); g.rotate(o.ang); g.scale(s.orb, s.orb);
+      g.save(); g.scale(1 / s.orb, 1 / s.orb); g.restore();
+      paper(o[front ? 'front' : 'back'], C.ivory, { d: 2.2 + 6 * s.orbL, seed: 12 + i, ta: 1, tb: 0.4 });
+      // electrón en esta mitad
+      const e = ph + i * TAU / 3 + i * 0.7, sy = Math.sin(e);
+      if ((sy >= 0) === front) {
+        g.save(); g.translate(o.a * Math.cos(e), o.b * sy); g.rotate(-o.ang); g.scale(1 / Math.max(s.orb, 0.3), 1 / Math.max(s.orb, 0.3)); g.scale(Math.max(s.orb, 0.3), Math.max(s.orb, 0.3));
+        jit(20 + i, 0.5);
+        paper(P.electron, C.gold, { d: 3 + 6 * s.orbL, seed: 20 + i, rim: 0.3, bb: 22 });
+        g.translate(-2.2, -2.6); paper(P.electronHi, C.goldL, { d: 0.8, seed: 25 + i });
+        g.restore();
+      }
+      g.restore();
+    });
+  };
+  if (s.nucVis) {
+    orbitPart(false);
+    g.save(); jit(30, 0.5, 0.004); g.scale(s.nucS, s.nucS);
+    P.nuc.forEach((n, i) => {
+      g.save(); g.translate(n.x, n.y); jit(31 + i, 0.35);
+      paper(n.p, n.k ? C.ivory : C.coral, { d: 2 + 7 * s.nucL, seed: 31 + i, rim: 0.28, bb: 26 });
+      g.restore();
+    });
+    g.restore();
+    orbitPart(true);
+  }
+  if (s.discVis) {
+    g.save(); jit(40, 0.5, 0.003); g.rotate(s.rot); g.scale(s.discS, s.discS);
+    paper(P.moonDisc, C.moonDark, { d: 3.5 + 8 * s.discL, seed: 41, rim: 0.22, bb: MR + 16, tb: 0.6 });
+    g.restore();
+    if (s.crVis) {
+      g.save(); g.translate(s.crX, s.crY); jit(42, 0.5, 0.003); g.rotate(s.rot + s.crR); const sc = 1 + 0.05 * s.crL; g.scale(sc, sc);
+      paper(P.cres, C.ivory2, { d: 2.2 + 9 * s.crL, seed: 43, rim: 0.35, bb: MR + 16 });
+      paper(P.cresHi, C.ivory, { d: 1.4, seed: 44, ta: 0.9 });
+      // cráteres y mares: se colocan uno por fotograma y se retiran igual
+      g.save(); g.clip(P.cres);
+      const items = [...P.maria.map((m) => ({ m })), ...P.craters.map((c) => ({ c }))];
+      items.forEach((it, i) => {
+        const a = 2.6 + i / FPS, rm = 7.5 - i / FPS;
+        if (t < a || t >= rm) return;
+        const L = Math.max(1 - seg(t, a, a + 2 / FPS), seg(t, rm - 2 / FPS, rm));
+        g.save(); const o = it.m || it.c; g.translate(o.x - 6 * L, o.y - 8 * L); jit(50 + i, 0.4, 0.01); g.scale(1 + 0.08 * L, 1 + 0.08 * L);
+        if (it.m) paper(it.m.p, '#ddcb9f', { d: 1 + 5 * L, seed: 60 + i, ta: 1, tb: 0.3 });
+        else {
+          paper(it.c.base, '#d6c290', { d: 1.2 + 5 * L, seed: 60 + i });
+          g.translate(o.base ? 0 : 0, 0);
+          g.save(); g.translate(1.6, 2.2); paper(it.c.inner, '#ebdcb6', { d: 0.6, seed: 70 + i, tb: 0.3 }); g.restore();
+        }
+        g.restore();
+      });
+      g.restore();
+      g.restore();
+    }
+    if (s.pinVis) pin(45);
+  }
+  g.restore();
+}
+
+function drawTag(t, s) {
+  if (!s.tagVis) return;
+  const hy = TY + s.tagY;
+  const sw = s.tagSw, len = hy + 20;
+  const hx = TX + Math.sin(sw) * len * 0.15;
+  thread(TX, -20, hx, hy);
+  g.save(); g.translate(hx, hy); jit(90, 0.5, 0.004); g.rotate(sw);
+  const c = Math.cos(s.tagSpin), backSide = c < 0, sx = Math.max(Math.abs(c), 0.04);
+  g.scale(sx, 1); g.translate(0, -22);
+  const shade = 1 - sx;
+  paper(P.tag, backSide ? '#ece0c2' : C.ivory, { d: 5, seed: backSide ? 91 : 92, rim: 0.3, bb: 260, print: () => {
+    g.save(); g.translate(0, 0);
+    g.fillStyle = C.coral; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    g.font = 'italic 600 27px Fraunces'; g.fillText('parece una', 0, 78);
+    g.fillStyle = C.ink; g.font = '900 150px Fraunces'; g.fillText(backSide ? 'C' : 'D', 0, 204);
+    g.strokeStyle = 'rgba(26,35,66,0.25)'; g.lineWidth = 1.2; g.setLineDash([5, 5]);
+    g.strokeRect(-72, 44, 144, 176); g.setLineDash([]);
+    g.restore();
+    if (shade > 0.01) { g.fillStyle = `rgba(20,24,40,${shade * 0.35})`; g.fillRect(-100, -10, 200, 260); }
+  } });
+  // refuerzo del agujero
+  g.save(); g.translate(0, 22); paper(P.tagRing, C.mustard, { d: 1.2, seed: 93 });
+  g.fillStyle = '#1a213b'; g.fill(P.tagHole); g.restore();
+  g.restore();
+}
+
+function observer(coat, arm, id) {
+  g.save(); g.scale(1.12, 1.12);
+  paper(P.legs, C.ink, { d: 1.6, seed: id });
+  // brazo trasero (colgando)
+  g.save(); g.translate(-8.5, -46); g.rotate(0.28); paper(P.arm, coat === C.coral ? C.coralD : '#b9862f', { d: 1.4, seed: id + 1 }); g.restore();
+  paper(P.coat, coat, { d: 1.8, seed: id + 2, rim: 0.3, bb: 70 });
+  g.save(); g.translate(0, -61); g.rotate(-0.12 * arm); paper(P.head, C.skin, { d: 1.6, seed: id + 3 });
+  paper(P.hat, C.ink, { d: 1, seed: id + 4 }); g.restore();
+  // brazo que señala a la Luna
+  g.save(); g.translate(8.2, -46); g.rotate(lerp(-0.3, -2.72, arm)); paper(P.arm, coat, { d: 1.6, seed: id + 5, rim: 0.25, bb: 30 }); g.restore();
+  g.restore();
+}
+
+function arcText(str, r, center, size, col) {
+  g.font = `700 ${size}px Fraunces`; g.fillStyle = col; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  const sp = size * 0.24, chars = [...str], ws = chars.map((c) => g.measureText(c).width);
+  const total = ws.reduce((a, b) => a + b, 0) + sp * (chars.length - 1);
+  let acc = 0;
+  chars.forEach((c, i) => {
+    const th = center - total / 2 / r + (acc + ws[i] / 2) / r;
+    g.save(); g.translate(r * Math.cos(th), r * Math.sin(th)); g.rotate(th + PI / 2); g.fillText(c, 0, 0); g.restore();
+    acc += ws[i] + sp;
+  });
+}
+
+function drawEarth(t, s) {
+  g.save(); g.translate(EX, EY); jit(100, 0.45, 0.002); g.rotate(s.erot);
+  paper(P.backing, C.backing, { d: 5, seed: 101, rim: 0.2, bb: EB + 14, tb: 0.55, print: () => {
+    g.strokeStyle = 'rgba(236,224,196,0.55)'; g.lineWidth = 1.3;
+    for (let i = 0; i < 72; i++) {
+      const a = i / 72 * TAU, l = i % 6 === 0 ? 12 : 6;
+      g.beginPath(); g.moveTo((EB - 8) * Math.cos(a), (EB - 8) * Math.sin(a)); g.lineTo((EB - 8 - l) * Math.cos(a), (EB - 8 - l) * Math.sin(a)); g.stroke();
+    }
+    g.beginPath(); g.arc(0, 0, EB - 26, 0, TAU); g.strokeStyle = 'rgba(236,224,196,0.22)'; g.stroke();
+    arcText('HEMISFERIO NORTE', EB - 50, -PI / 2, 27, C.ivory);
+    arcText('HEMISFERIO SUR', EB - 50, PI / 2, 27, C.ivory);
+  } });
+  paper(P.atmo, C.teal2, { d: 2.5, seed: 102, rim: 0.25, bb: ER + 26 });
+  paper(P.ocean, C.teal, { d: 2, seed: 103, rim: 0.2, bb: ER + 16, tb: 0.5 });
+  g.save(); g.clip(P.ocean);
+  P.land.forEach((p, i) => { g.save(); jit(110 + i, 0.3, 0.002); paper(p, C.sage, { d: 1.6, seed: 110 + i, rim: 0.25, bb: ER + 10 }); g.restore(); });
+  P.desert.forEach((p, i) => { g.save(); jit(120 + i, 0.3, 0.002); paper(p, '#d9b46a', { d: 1, seed: 120 + i }); g.restore(); });
+  P.ice.forEach((p, i) => { g.save(); jit(125 + i, 0.3, 0.002); paper(p, '#eee6d4', { d: 1.4, seed: 125 + i }); g.restore(); });
+  // ecuador cosido con hilo
+  g.save(); g.setLineDash([9, 7]); g.lineDashOffset = 0; g.lineCap = 'round';
+  setShadow(1.2, 0.5); g.strokeStyle = 'rgba(246,236,214,0.95)'; g.lineWidth = 2.2;
+  g.beginPath(); g.moveTo(-ER, 0); g.lineTo(ER, 0); g.stroke(); noShadow(); g.restore();
+  g.fillStyle = 'rgba(10,25,32,0.55)';
+  for (let x = -ER + 4; x < ER; x += 16) { g.beginPath(); g.arc(x - 1.5, 0, 1.3, 0, TAU); g.arc(x + 10.5, 0, 1.3, 0, TAU); g.fill(); }
+  g.restore();
+  pin(105);
+  // observadores: uno de pie arriba (norte) y otro "boca abajo" abajo (sur)
+  g.save(); g.translate(0, -ER + 1); jit(130, 0.5, 0.01); observer(C.coral, s.armN, 131); g.restore();
+  g.save(); g.rotate(PI); g.translate(0, -ER + 1); jit(140, 0.5, 0.01); observer(C.mustard, s.armS, 141); g.restore();
+  g.restore();
+}
+
+const STARS = [
+  { x: 205, len: 262, R: 17, k: 'flat', a: 0.05, kk: 2, tw: 0, id: 300 },
+  { x: 902, len: 214, R: 15, k: 'flat', a: 0.06, kk: 3, tw: 1, id: 301 },
+  { x: 980, len: 528, R: 15, k: 'flat', a: 0.04, kk: 2, tw: 0.3, id: 302 },
+  { x: 104, len: 1020, R: 18, k: 'flat', a: 0.03, kk: 1, tw: 2, id: 303 },
+  { x: 960, len: 1520, R: 16, k: 'flat', a: 0.03, kk: 2, tw: 0.5, id: 304 },
+];
+const STARS_FRONT = [
+  { x: 158, len: 668, R: 40, k: 'fold', a: 0.035, kk: 1, tw: 0.4, id: 310 },
+  { x: 936, len: 1078, R: 35, k: 'fold', a: 0.03, kk: 2, tw: 1.1, id: 311 },
+  { x: 128, len: 1460, R: 29, k: 'fold', a: 0.03, kk: 1, tw: 2.2, id: 312 },
+];
+function drawStars(list, t) {
+  list.forEach((st, i) => {
+    const sway = st.a * Math.sin(TAU * st.kk * t / DUR + st.id);
+    const twist = st.id === 301 ? TAU * t / DUR + st.tw : 0.55 * Math.sin(TAU * (st.kk) * t / DUR + st.tw);
+    hangingStar(st.x, st.len, st.R, sway, twist, st.k, st.id);
+  });
+}
+
+// ---------- fotograma ----------
+function draw(Fi) {
+  F = Fi; const t = Fi / FPS, s = tl(t);
+  g = main;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+  g.fillStyle = C.bg; g.fillRect(0, 0, cv.width, cv.height);
+  g.drawImage(back, OX, OY);
+  g.setTransform(S, 0, 0, S, OX, OY);
+  g.save(); g.beginPath(); g.rect(0, 0, W, H); g.clip();
+  drawGarland(t);
+  drawStars(STARS, t);
+  drawTitle(t);
+  drawAtomMoon(t, s);
+  drawTag(t, s);
+  drawEarth(t, s);
+  drawStars(STARS_FRONT, t);
+  g.restore();
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.drawImage(front, OX, OY);
+  // parpadeo de exposición, como en la fotografía fotograma a fotograma
+  const fl = hsh(Fi, 999) - 0.5;
+  g.fillStyle = fl > 0 ? `rgba(255,238,210,${fl * 0.03})` : `rgba(0,0,8,${-fl * 0.05})`;
+  g.fillRect(OX, OY, W * S, H * S);
+}
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cw = Math.round(window.innerWidth * dpr), ch = Math.round(window.innerHeight * dpr);
+  if (cv.width === cw && cv.height === ch && back) return;
+  cv.width = cw; cv.height = ch;
+  S = Math.min(cw / W, ch / H); OX = Math.round((cw - W * S) / 2); OY = Math.round((ch - H * S) / 2);
+  main.__pa = null;
+  buildBack(); buildFront(); buildTitle();
+  lastF = -1;
+}
+
+async function init() {
+  if (document.readyState !== 'complete') await new Promise((r) => window.addEventListener('load', r, { once: true }));
+  try {
+    await Promise.all([
+      document.fonts.load('900 116px Fraunces', 'LA LUNA AL REVÉS DC'),
+      document.fonts.load('700 27px Fraunces', 'HEMISFERIO NORTE SUR'),
+      document.fonts.load('italic 600 27px Fraunces', 'parece una'),
+    ]);
+    await document.fonts.ready;
+  } catch (e) { /* si la fuente no llega se usa la de respaldo */ }
+  makeTextures(); buildPaths(); resize();
+  window.__frame = (t) => {
+    resize();
+    const Fi = ((Math.floor(t * FPS + 1e-6) % NF) + NF) % NF;
+    if (Fi === lastF) return;
+    lastF = Fi; draw(Fi);
+  };
+  window.__frame(0);
+  window.__listo = true;
+  if (!CAPTURA) {
+    const t0 = performance.now();
+    const loop = (now) => { window.__frame(((now - t0) / 1000) % DUR); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+    window.addEventListener('resize', () => { lastF = -1; });
+  }
+}
+init();
+})();
+</script>
+</body>
+</html>
