@@ -1,7 +1,11 @@
-// Escena 2: la misma Luna creciente vista desde España (D), desde el ecuador
-// (sonrisa) y desde Argentina (C). Es un giro en el plano de la pantalla:
+// Escena 2: la misma Luna creciente vista desde España / Nueva York (D), desde el
+// ecuador (sonrisa) y desde Argentina (C). Es un giro en el plano de la pantalla:
 // la cara (los mares) gira con ella; no es un espejo.
-import { N, TAU, S1, S2, S3, S4 } from './base.js';
+// Toda la coreografía va anclada a las marcas de la voz (marca()):
+//   letra → se dibuja el trazo que convierte la creciente en «D»; se mantiene hasta d_fin + 0,3 s.
+//   d_fin → gira 90° en sentido horario: sonrisa completa ≈0,15 s antes de «sonrisa».
+//   sonrisa_fin → gira otros 90°: C completa ≈0,15 s antes de «C»; se queda así hasta el final.
+import { N, TAU, S1, S2, S3, S4, marca } from './base.js';
 
 export const camara = { pos: [0, 0.45, 7], mira: [0, 0.45, 0], balanceo: 0 };
 
@@ -90,13 +94,14 @@ function sombrear(x, y) {
 }
 
 // --- tablas por partícula (en el sistema de la Luna, antes de girar) ---
-const I_TALLO = 490; // trazo que completa la D; luego, halo del limbo
+const I_TALLO = 520; // halo del limbo que se reúne en el trazo de la D
 const I_BORDE = I_TALLO + 420; // limbo
 const PX = new Float32Array(N);
 const PY = new Float32Array(N);
 const PZ = new Float32Array(N);
-const HX = new Float32Array(N); // destino de halo para las del tallo
+const HX = new Float32Array(N); // posición de halo (para las del trazo)
 const HY = new Float32Array(N);
+const BT = new Float32Array(N); // brillo propio dentro del trazo (núcleo / aura)
 const CR = new Float32Array(N);
 const CG = new Float32Array(N);
 const CB = new Float32Array(N);
@@ -105,21 +110,24 @@ const FASE = new Float32Array(N);
 
 for (let i = 0; i < N; i++) FASE[i] = TAU * S3[i];
 
-// Tallo de la D (x = 0, de cuerno a cuerno) y su destino como halo.
+// Trazo de la D (x = 0, de cuerno a cuerno). Fuera del trazo, cada partícula es
+// halo junto al limbo iluminado, a la misma altura: así se reúne en horizontal.
 for (let i = 0; i < I_TALLO; i++) {
   const s = (i + 0.5) / I_TALLO;
-  PX[i] = (S2[i] - 0.5) * 0.014;
+  const aura = S4[i] > 0.78;
+  PX[i] = (S2[i] - 0.5) * (aura ? 0.08 : 0.022);
   PY[i] = 1 - 2 * s;
-  PZ[i] = 0.05;
-  const a = (S1[i] - 0.5) * Math.PI * 0.95;
-  const r = 1.012 + 0.07 * S4[i] * S4[i];
+  PZ[i] = 0.3;
+  BT[i] = aura ? 0.32 : 1;
+  const r = 1.012 + 0.07 * S1[i] * S1[i];
+  const a = Math.asin(Math.max(-0.995, Math.min(0.995, PY[i] / r)));
   HX[i] = r * Math.cos(a);
   HY[i] = r * Math.sin(a);
-  const k = 0.55 * Math.cos(a) * (1 - (r - 1.012) / 0.07);
+  const k = 0.22 + 0.4 * Math.cos(a) * (1 - (r - 1.012) / 0.07);
   CR[i] = 0.5 * k;
   CG[i] = 0.62 * k;
   CB[i] = 0.95 * k;
-  TM[i] = 0.05;
+  TM[i] = 0.026;
 }
 // Limbo: arco iluminado nítido y arco en sombra muy tenue.
 for (let i = I_TALLO; i < I_BORDE; i++) {
@@ -166,59 +174,74 @@ for (let i = I_TALLO; i < I_BORDE; i++) {
   }
 }
 
-// --- coreografía ---
-// D hasta 3,2 s; gira 90° (sonrisa) de 3,2 a 4,8; espera; gira hasta 180° (C) de 5,8 a 7,3.
-const angulo = (ts) => -0.5 * Math.PI * (suave((ts - 3.2) / 1.6) + suave((ts - 5.8) / 1.5));
+// --- coreografía, anclada a las marcas de la voz (por defecto, las del español) ---
+// Pulso breve y suave cuando se dice cada palabra clave.
+const pulsoEn = (x) => (x < -0.1 ? 0 : x < 0.1 ? (x + 0.1) * 5 : Math.exp(-(x - 0.1) / 0.45));
 let ultimo = NaN;
 let cs = 1;
 let sn = 0;
-let dibujo = 0;
+let t0 = 0; // empieza a dibujarse el trazo
+let dur = 0.3; // lo que tarda en dibujarse, de cuerno a cuerno
 let apagar = 1;
-let viaje = 0;
-let halo = 0;
+let vuelta = 0;
+let pulso = 0;
 function preparar(ts) {
   if (ts === ultimo) return;
   ultimo = ts;
-  const th = angulo(ts);
+  const mLetra = marca('letra', 4.79);
+  const mD = marca('d', 5.07);
+  const mDfin = marca('d_fin', 5.21);
+  const mSonrisa = marca('sonrisa', 6.53);
+  const mSonrisaFin = marca('sonrisa_fin', 7.19);
+  const mC = marca('c', 8.81);
+  // Giro 1 (D → sonrisa): empieza al acabar «D»; completo 0,15 s antes de «sonrisa».
+  const g1b = mSonrisa - 0.15;
+  const g1a = Math.min(mDfin, g1b - 0.7);
+  // Giro 2 (sonrisa → C): empieza al acabar «sonrisa»; completo 0,15 s antes de «C».
+  const g2b = mC - 0.15;
+  const g2a = Math.min(Math.max(mSonrisaFin + 0.05, g2b - 1.5, g1b + 0.3), g2b - 0.6);
+  const th = -0.5 * Math.PI * (suave((ts - g1a) / (g1b - g1a)) + suave((ts - g2a) / (g2b - g2a)));
   cs = Math.cos(th);
   sn = Math.sin(th);
-  dibujo = suave((ts - 1.2) / 0.7);
-  apagar = 1 - suave((ts - 2.6) / 0.55);
-  viaje = suave((ts - 3.0) / 0.45);
-  halo = suave((ts - 3.3) / 1.4);
+  // Trazo: se dibuja durante «letra / like» y está entero al decir «D».
+  t0 = mLetra;
+  dur = Math.max(0.24, Math.min(0.45, mD - mLetra));
+  // Se mantiene mientras se dice «D» (hasta d_fin + 0,3 s); luego se apaga y vuelve a ser halo.
+  const fin = mDfin + 0.3;
+  apagar = 1 - suave((ts - fin) / 0.4);
+  vuelta = suave((ts - fin - 0.05) / 0.55);
+  pulso = 0.6 * pulsoEn(ts - mD) + pulsoEn(ts - mSonrisa) + pulsoEn(ts - mC);
 }
 
 export function forma(i, t, p, c, ts) {
   preparar(ts);
-  let x = PX[i];
-  let y = PY[i];
-  let k = 1 + 0.08 * Math.sin(t * 1.7 + FASE[i]);
-  let tam = TM[i];
   if (i < I_TALLO) {
-    // Trazo de la D: se dibuja de cuerno a cuerno, se apaga y se convierte en halo.
-    const s = (1 - y) * 0.5;
-    const vis = lim((dibujo * 1.2 - s) / 0.2) * apagar;
-    const brillo = vis * (0.85 + 0.3 * Math.sin(t * 3 + s * 9));
-    x += (HX[i] - x) * viaje;
-    y += (HY[i] - y) * viaje;
-    const h = halo * (0.85 + 0.15 * Math.sin(t * 0.9 + FASE[i]));
-    c[0] = 0.62 * brillo + CR[i] * h;
-    c[1] = 0.72 * brillo + CG[i] * h;
-    c[2] = 0.95 * brillo + CB[i] * h;
-    const X = x * cs - y * sn;
-    const Y = x * sn + y * cs;
-    p[0] = CX + R * X;
-    p[1] = CY + R * Y;
-    p[2] = PZ[i];
-    return 0.026 + 0.008 * viaje;
+    // Halo que se reúne en el trazo de la D (de arriba abajo), brilla y vuelve a ser halo.
+    const s = (1 - PY[i]) * 0.5;
+    const llega = t0 + dur * (0.2 + 0.8 * s); // instante en que esta partícula alcanza el trazo
+    const ir = suave((ts - llega + 0.2 * dur) / (0.2 * dur));
+    const f = ir * (1 - vuelta);
+    const x = HX[i] + (PX[i] - HX[i]) * f;
+    const y = HY[i] + (PY[i] - HY[i]) * f;
+    const punta = Math.exp(-Math.max(0, ts - llega) / 0.22); // la punta del trazo, más brillante
+    const vis = ir * apagar * BT[i] * (1.1 + 0.08 * Math.sin(t * 3 + s * 9) + 0.35 * punta * ir);
+    const h = (1 - ir * apagar) * (0.85 + 0.15 * Math.sin(t * 0.9 + FASE[i]));
+    c[0] = 0.72 * vis + CR[i] * h;
+    c[1] = 0.86 * vis + CG[i] * h;
+    c[2] = 1.05 * vis + CB[i] * h;
+    p[0] = CX + R * (x * cs - y * sn);
+    p[1] = CY + R * (x * sn + y * cs);
+    p[2] = PZ[i] * f;
+    return TM[i] + 0.01 * ir * apagar;
   }
-  const X = x * cs - y * sn;
-  const Y = x * sn + y * cs;
-  p[0] = CX + R * X;
-  p[1] = CY + R * Y;
+  const x = PX[i];
+  const y = PY[i];
+  const k = (1 + 0.08 * Math.sin(t * 1.7 + FASE[i])) * (1 + 0.1 * pulso);
+  p[0] = CX + R * (x * cs - y * sn);
+  p[1] = CY + R * (x * sn + y * cs);
   p[2] = R * PZ[i];
   c[0] = CR[i] * k;
   c[1] = CG[i] * k;
   c[2] = CB[i] * k;
-  return tam;
+  return TM[i];
 }
