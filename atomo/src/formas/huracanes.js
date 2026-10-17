@@ -4,8 +4,10 @@
 // de canto y queda como la línea del ecuador, y el agua se reparte en dos huracanes vistos
 // desde el espacio: arriba (norte) gira en sentido antihorario; abajo (sur), en espejo,
 // en sentido horario. Los brazos espirales se arrastran por detrás del giro, así que el
-// sentido se reconoce también en una imagen fija.
-import { N, TAU, S1, S2, S3, S4, C, poner } from './base.js';
+// sentido se reconoce también en una imagen fija. En el vídeo, la transformación sigue a la
+// palabra «huracanes» y cada huracán se ilumina (y sus flechas destellan) cuando la voz dice
+// su sentido y su hemisferio.
+import { N, TAU, S1, S2, S3, S4, C, poner, marca } from './base.js';
 
 export const camara = { pos: [0, 0.4, 7], mira: [0, 0.4, 0], balanceo: 0 };
 
@@ -21,7 +23,8 @@ const RO = 0.6; // radio exterior de los brazos
 const L_ECUADOR = 1.55; // al ponerse de canto, el borde se estira hasta salir del encuadre
 
 // --- coreografía ---------------------------------------------------------------
-const TM = 3.2; // empieza la transformación
+const TM0 = 3.2; // empieza la transformación (por defecto; con voz, 0,8 s antes de «huracanes»)
+let TM = TM0;
 const D_RETRASO = 0.55; // el huracán se forma de dentro afuera
 const D_VIAJE = 1.15; // duración del viaje de cada partícula
 const W_TANQUE = 0.42; // giro del tanque (rad/s, horario)
@@ -92,7 +95,7 @@ const PESO_BRAZO = [0.34, 0.3, 0.26, 0.1];
 {
   const listas = [[], []];
   for (let i = I_AGUA; i < N; i++) {
-    tanque(i, TM);
+    tanque(i, TM0);
     const y = EY + tq[1];
     const norte = y >= EY;
     HEMI[i] = norte ? 1 : -1;
@@ -163,7 +166,10 @@ const F_BARRIDO = 0.9; // ángulo que abarca cada arco
 const F_ARCO = 0.66; // fracción de partículas en el arco (el resto, la punta)
 const hx = new Float64Array(3);
 let fase = 0;
-let pulso = -1; // destello que recorre las flechas en el sentido de giro
+let pulsoN = -1; // destello que recorre las flechas en el sentido de giro (norte y sur)
+let pulsoS = -1;
+let realceN = 1; // brillo de cada huracán: sube cuando la voz lo nombra
+let realceS = 1;
 function huracan(i, ts, dir, cy) {
   const rol = ROL[i];
   let r, a, v, tam;
@@ -200,7 +206,7 @@ function huracan(i, ts, dir, cy) {
       r = R_FLECHA + w;
       a = lado + F_BARRIDO * 0.5 - 0.01 + (s * 0.16) / R_FLECHA;
     }
-    const dq = (sa - pulso) / 0.14;
+    const dq = (sa - (dir > 0 ? pulsoN : pulsoS)) / 0.14;
     v = (1.1 + 0.9 * Math.exp(-dq * dq)) * (0.9 + 0.2 * HB[i]);
     tam = 0.034;
   } else {
@@ -218,7 +224,7 @@ function huracan(i, ts, dir, cy) {
   }
   hx[0] = HX + r * Math.cos(a);
   hx[1] = cy + dir * r * Math.sin(a);
-  hx[2] = v;
+  hx[2] = v * (dir > 0 ? realceN : realceS);
   return tam;
 }
 
@@ -237,11 +243,21 @@ let canto = 0; // 0 tanque visto desde arriba, 1 de canto (= ecuador)
 let reparto = 0; // reparto uniforme de las partículas a lo largo del ecuador
 function preparar(ts) {
   tsCache = ts;
+  TM = marca('huracanes', 4.0) - 0.8;
   fase = W_HUR * ts;
   canto = suave((ts - TM) / 1.1);
   reparto = suave((ts - TM - 0.7) / 1.0);
-  const q = ts - (TM + D_RETRASO + D_VIAJE + 1.1);
-  pulso = q > 0 ? ((q % 1.6) / 1.1) * 1.3 - 0.15 : -1;
+  // «antihorarios en el norte, horarios en el sur»: cada huracán destaca mientras se nombra.
+  const an = marca('antihorarios', 5.8) - 0.1;
+  const as = marca('horarios', 7.4) - 0.1;
+  const ventana = (a, b) => suave((ts - a) / 0.25) * (1 - suave((ts - b) / 0.4));
+  const gN = ventana(an, marca('norte_fin', an + 1.5));
+  const gS = ventana(as, marca('sur_fin', as + 0.9));
+  realceN = 1 + 0.35 * gN - 0.3 * gS;
+  realceS = 1 + 0.35 * gS - 0.3 * gN;
+  const barrido = (q) => (q > 0 ? ((q % 1.6) / 1.1) * 1.3 - 0.15 : -1);
+  pulsoN = barrido(ts - an);
+  pulsoS = barrido(ts - as);
 }
 
 export function forma(i, t, p, c, ts) {
@@ -249,7 +265,8 @@ export function forma(i, t, p, c, ts) {
 
   // ---- borde del tanque → línea del ecuador ----
   if (i < N_BORDE) {
-    const a = TAU * S1[i] - W_TANQUE * (ts < TM + 0.4 ? ts : TM + 0.4);
+    // el tanque gira con su reloj propio (ts desplazado), así su fase al transformarse no cambia
+    const a = TAU * S1[i] - W_TANQUE * Math.min(ts - TM + TM0, TM0 + 0.4);
     const labio = S3[i] < 0.25;
     const r = RT * (labio ? 1.04 : 1) + (S2[i] - 0.5) * 0.012;
     // se pone de canto (se aplana) y se estira hasta ser una línea uniforme de lado a lado
@@ -287,7 +304,7 @@ export function forma(i, t, p, c, ts) {
     return tam;
   }
   // agua del tanque
-  const u = tanque(i, ts);
+  const u = tanque(i, ts - TM + TM0);
   const tx = tq[0];
   const ty = EY + tq[1];
   let vt;

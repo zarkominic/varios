@@ -8,7 +8,9 @@
 //               (24 h en una esfera de 12 marcas) y se apaga;
 //   ts 5,0-8,0  se abre el desagüe: el tapón se convierte en dos astillas cruzadas y
 //               aparece una espiral ANTIHORARIA lenta que se acelera; sigue hasta el final.
-import { N, TAU, S1, S2, S3, S4 } from './base.js';
+// Son los tiempos por defecto; en el vídeo el reloj y el desagüe siguen a las marcas
+// «reposo», «dia» y «vaciar» de la voz.
+import { N, TAU, S1, S2, S3, S4, marca as marcaVoz } from './base.js';
 
 export const camara = { pos: [0, 0.4, 7], mira: [0, 0.4, 0], balanceo: 0 };
 
@@ -63,7 +65,9 @@ function vel1(ts) {
   return 1 - suave((ts - TA) / DB);
 }
 // Fase 3: tiempo «de flujo» acumulado desde que se abre el desagüe (se acelera).
-const T3 = 5.0;
+// T3, TR0 y TR1 siguen a la voz (ver preparar): el reloj suena en «reposó un día» y el
+// desagüe se abre justo antes de «vaciarlo».
+let T3 = 5.0;
 const D3 = 2.8;
 const A0 = 0.14;
 function tau3(ts) {
@@ -78,8 +82,8 @@ function vel3(ts) {
   return A0 + (1 - A0) * suave((ts - T3) / D3);
 }
 // Reloj: dos vueltas en sentido horario empezando arriba.
-const TR0 = 3.25;
-const TR1 = 4.85;
+let TR0 = 3.25;
+let TR1 = 4.85;
 
 // Sumidero + vórtice: q = r² baja a ritmo K; dθ/dτ = OMP + G·K/(q + QC) (antihorario).
 const QW = (RW - 0.02) * (RW - 0.02);
@@ -170,6 +174,9 @@ let COLA = 1; // visibilidad de las colas (0 con el agua quieta)
 function preparar(ts) {
   if (ts === ultimo) return;
   ultimo = ts;
+  TR0 = marcaVoz('reposo', 3.8) - 0.55;
+  TR1 = marcaVoz('dia', 4.65) + 0.2;
+  T3 = marcaVoz('vaciar', 5.4) - 0.4;
   for (let k = 0; k < NT; k++) {
     RESTO[k] = resto(ts - k * DL);
     TAUS[k] = tau3(ts - k * DL);
@@ -179,11 +186,11 @@ function preparar(ts) {
   RECORRIDO = 2 * TAU * pr;
   CABEZA = Math.PI / 2 - RECORRIDO;
   EA = suave((ts - (TR0 - 0.2)) / 0.3) * (1 - suave((ts - TR1 + 0.05) / 0.45));
-  KM = suave((ts - 2.85) / 0.45) * (1 - suave((ts - 4.95) / 0.45));
+  KM = suave((ts - (TR0 - 0.4)) / 0.45) * (1 - suave((ts - (TR1 + 0.1)) / 0.45));
   ABRE = suave((ts - T3) / 0.6);
   CRUZ = 0.35 + 2.6 * TAUS[0];
-  RREV = RH + (RW + 0.25 - RH) * suave((ts - 5.25) / 1.4);
-  PUNTOS = 1 - suave((ts - 4.85) / 0.4);
+  RREV = RH + (RW + 0.25 - RH) * suave((ts - (T3 + 0.25)) / 1.4);
+  PUNTOS = 1 - suave((ts - (T3 - 0.15)) / 0.4);
   RMIN = RH + 0.005 + 0.045 * ABRE;
   const v = Math.max(vel1(ts), vel3(ts) * 1.5);
   COLA = clamp01(v * 4);

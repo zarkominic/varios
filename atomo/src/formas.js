@@ -2,9 +2,9 @@
 // partícula i en el instante t, su posición (p), su color (c) y devuelve su tamaño.
 // ts es el tiempo desde que empezó la escena de esa forma (para coreografías).
 import { N, TAU, S1, S2, S3, S4, DIR, C, ARCOIRIS, poner, color, mezclar, enEsfera, enBola, enHaz, continente } from './formas/base.js';
-import { NUEVAS, CAMARAS_NUEVAS } from './formas/indice.js';
+import { NUEVAS, CAMARAS_NUEVAS, CONTINUAS } from './formas/indice.js';
 
-export { N, DIR };
+export { N, DIR, CONTINUAS };
 
 // Racimo de nucleones (protones y neutrones).
 const NUCLEONES = (() => {

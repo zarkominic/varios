@@ -33,6 +33,8 @@ import {
 } from './lavabo.js';
 
 export const camara = { pos: [0, 0.4, 7], mira: [0, 0.4, 0], balanceo: 0 };
+// Sigue al lavabo sin estallar: mismas partículas en el contorno, el agua solo se reordena.
+export const continuaDe = 'lavabo';
 
 let semilla = 9917;
 function rnd() {

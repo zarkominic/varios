@@ -5,11 +5,16 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { FORMAS, CAMARAS, N, DIR } from './formas.js';
+import { FORMAS, CAMARAS, N, DIR, CONTINUAS } from './formas.js';
 import { rig } from './estado.js';
 import { reloj } from './tiempo.js';
 
-const DURACION = 1.8;
+// La transformación dura 1,3 s y la forma nueva ya se lee hacia 1 s: las palabras clave del
+// principio de cada escena no caen sobre la nube de partículas.
+const DURACION = 1.3;
+const OLA = 0.2; // retraso de la última partícula respecto a la primera (fracción de DURACION)
+// Entre una forma y su continuación (p. ej. lavabo → remolino) no hay estallido: un fundido corto.
+const DURACION_CONTINUA = 0.5;
 const suave = (x) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
 const amortiguar = (a, b, v, dt) => a + (b - a) * (1 - Math.exp(-v * dt));
 
@@ -105,6 +110,7 @@ export function Atomo({ formas = FORMAS, camaras = CAMARAS, zoom = 1 } = {}) {
     t: 0,
     actual: rig.forma,
     inicio: rig.inicioForma ?? -100,
+    continua: false,
     desdePos: new Float32Array(N * 3),
     desdeCol: new Float32Array(N * 3),
     desdeTam: new Float32Array(N),
@@ -133,13 +139,14 @@ export function Atomo({ formas = FORMAS, camaras = CAMARAS, zoom = 1 } = {}) {
       e.desdePos.set(pos);
       e.desdeCol.set(col);
       e.desdeTam.set(tam);
+      e.continua = CONTINUAS[rig.forma] === e.actual;
       e.actual = rig.forma;
       e.inicio = rig.inicioForma ?? t;
     }
     const ts = t - e.inicio;
-    const prog = reloj.sinTransicion ? 1 : Math.min(1, Math.max(0, ts / DURACION));
+    const prog = reloj.sinTransicion ? 1 : Math.min(1, Math.max(0, ts / (e.continua ? DURACION_CONTINUA : DURACION)));
     const k = suave(prog);
-    const remolino = Math.sin(Math.PI * k) * 0.7;
+    const remolino = e.continua ? 0 : Math.sin(Math.PI * k) * 0.7;
     const forma = formas[e.actual] ?? FORMAS.atomo;
 
     for (let i = 0; i < N; i++) {
@@ -147,7 +154,7 @@ export function Atomo({ formas = FORMAS, camaras = CAMARAS, zoom = 1 } = {}) {
       const tm = forma(i, t, p, c, ts);
       if (prog < 1) {
         // Retraso por partícula: la transformación avanza como una ola.
-        const kk = suave(Math.min(1, Math.max(0, (prog - (i / N) * 0.25) / 0.75)));
+        const kk = suave(Math.min(1, Math.max(0, (prog - (i / N) * OLA) / (1 - OLA))));
         const w = Math.sin(Math.PI * kk) * remolino;
         pos[j] = e.desdePos[j] + (p[0] - e.desdePos[j]) * kk + DIR[j] * w;
         pos[j + 1] = e.desdePos[j + 1] + (p[1] - e.desdePos[j + 1]) * kk + DIR[j + 1] * w;

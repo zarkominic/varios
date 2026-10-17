@@ -1,4 +1,5 @@
-// Registro de las formas nuevas. Cada módulo exporta `forma(i, t, p, c, ts)` y `camara`.
+// Registro de las formas nuevas. Cada módulo exporta `forma(i, t, p, c, ts)` y `camara`
+// (y, si sigue a otra forma sin transformación completa, `continuaDe`).
 import * as tierra_ecuador from './tierra_ecuador.js';
 import * as luna_letras from './luna_letras.js';
 import * as globo_observadores from './globo_observadores.js';
@@ -15,3 +16,5 @@ const MODULOS = { tierra_ecuador, luna_letras, globo_observadores, luna_mentiros
 
 export const NUEVAS = Object.fromEntries(Object.entries(MODULOS).map(([k, m]) => [k, m.forma]));
 export const CAMARAS_NUEVAS = Object.fromEntries(Object.entries(MODULOS).map(([k, m]) => [k, m.camara]));
+// Formas que continúan la anterior (`continuaDe`): el cambio es un fundido corto, sin estallido.
+export const CONTINUAS = Object.fromEntries(Object.entries(MODULOS).filter(([, m]) => m.continuaDe).map(([k, m]) => [k, m.continuaDe]));
