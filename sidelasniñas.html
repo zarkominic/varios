@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivial: El sí de las niñas (4º ESO)</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --correct: #10B981;
+            --incorrect: #EF4444;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background: var(--card-bg); max-width: 600px; width: 100%; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); padding: 30px; text-align: center; }
+        h1 { color: var(--primary); font-size: 24px; margin-bottom: 10px; }
+        p { color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; transition: 0.2s; width: 100%; font-weight: bold; }
+        .btn:hover { background: var(--primary-hover); }
+        .hidden { display: none !important; }
+        
+        /* Quiz Styles */
+        #quiz-header { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted); margin-bottom: 20px; font-weight: bold; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+        #question-text { font-size: 20px; font-weight: 600; margin-bottom: 25px; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+        .options-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+        .option-btn { background: var(--bg); color: var(--text-main); border: 2px solid transparent; padding: 15px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.2s; text-align: left; }
+        .option-btn:hover:not(:disabled) { background: #E5E7EB; }
+        .option-btn:disabled { cursor: not-allowed; }
+        .option-btn.correct { background: #D1FAE5; border-color: var(--correct); color: #065F46; }
+        .option-btn.incorrect { background: #FEE2E2; border-color: var(--incorrect); color: #991B1B; }
+        
+        #next-btn { background: #111827; margin-top: 10px; }
+        #next-btn:hover { background: #374151; }
+        
+        /* Results Styles */
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin: 0 auto 20px auto; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="start-screen">
+        <h1>📖 Trivial: El sí de las niñas</h1>
+        <p>Demuestra cuánto sabes sobre la obra maestra de Leandro Fernández de Moratín. Nivel adaptado para 4º de la ESO.<br><br>El test contiene <b>100 preguntas</b> que aparecerán en orden aleatorio.</p>
+        <button class="btn" onclick="startQuiz()">Comenzar el Test</button>
+    </div>
+
+    <div class="container hidden" id="quiz-screen">
+        <div id="quiz-header">
+            <span id="progress-text">Pregunta 1 / 100</span>
+            <span id="score-text">Puntuación: 0</span>
+        </div>
+        <div id="question-text">¿Pregunta?</div>
+        <div class="options-grid" id="options-container">
+            <!-- Options generated via JS -->
+        </div>
+        <button id="next-btn" class="btn hidden" onclick="nextQuestion()">Siguiente Pregunta ➔</button>
+    </div>
+
+    <div class="container hidden" id="end-screen">
+        <h1>¡Test Completado!</h1>
+        <p>Has llegado al final de las 100 preguntas sobre "El sí de las niñas".</p>
+        <div class="score-circle" id="final-score">0</div>
+        <p id="final-message"></p>
+        <button class="btn" onclick="location.reload()">Volver a jugar</button>
+    </div>
+
+    <script>
+        // Array de 100 preguntas estructurado de forma compacta
+        // Formato: ["Pregunta", "Respuesta Correcta", "Incorrecta 1", "Incorrecta 2", "Incorrecta 3"]
+        const rawQuestions = [
+            ["¿A qué movimiento literario pertenece 'El sí de las niñas'?", "Neoclasicismo", "Romanticismo", "Barroco", "Realismo"],
+            ["¿Quién es el autor de la obra?", "Leandro Fernández de Moratín", "Lope de Vega", "Pedro Calderón de la Barca", "Miguel de Cervantes"],
+            ["¿En qué siglo se inscribe principalmente esta corriente literaria?", "Siglo XVIII", "Siglo XVI", "Siglo XVII", "Siglo XIX"],
+            ["¿Cuál es el objetivo principal del teatro neoclásico?", "Educar moralmente", "Entretener al vulgo", "Expresar los sentimientos del autor", "Innovar la métrica"],
+            ["¿Qué regla clásica respeta estrictamente la obra?", "Las tres unidades", "El polimetrismo", "La mezcla de trágico y cómico", "La división en cinco actos"],
+            ["¿Cuáles son las tres unidades del teatro neoclásico?", "Acción, tiempo y lugar", "Planteamiento, nudo y desenlace", "Prosa, verso y canción", "Trama principal, subtrama y epílogo"],
+            ["¿En qué año se estrenó la obra?", "1806", "1700", "1898", "1927"],
+            ["¿Qué rey reinaba en España poco antes del estreno?", "Carlos IV", "Felipe II", "Alfonso XIII", "Los Reyes Católicos"],
+            ["¿Con qué grupo político y cultural se identificaba a Moratín?", "Afrancesados", "Carlistas", "Nacionalistas", "Tradicionalistas"],
+            ["La obra está escrita en...", "Prosa", "Verso octosílabo", "Verso endecasílabo", "Prosa y verso mezclados"],
+            ["¿Quién es el protagonista de mayor edad?", "Don Diego", "Don Carlos", "Simón", "Calamocha"],
+            ["¿Cuántos años tiene don Diego?", "59 años", "45 años", "70 años", "80 años"],
+            ["¿Cómo se llama la joven protagonista?", "Doña Paquita / Francisca", "Doña Inés", "Doña Leonor", "Doña Casilda"],
+            ["¿Cuántos años tiene doña Paquita?", "16 años", "20 años", "14 años", "25 años"],
+            ["¿Quién es el joven enamorado de Paquita?", "Don Carlos", "Don Luis", "Don Juan", "Don Pedro"],
+            ["¿Qué nombre falso utiliza Don Carlos en sus cartas?", "Don Félix", "Don Enrique", "Don Mateo", "Don Rodrigo"],
+            ["¿Qué parentesco tienen Don Diego y Don Carlos?", "Tío y sobrino", "Padre e hijo", "Primos hermanos", "Abuelo y nieto"],
+            ["¿Quién es la madre de Paquita?", "Doña Irene", "Doña Magdalena", "Doña Bernarda", "Doña Rosario"],
+            ["¿Cuál es el rasgo principal de Doña Irene?", "Es interesada y muy habladora", "Es callada y prudente", "Es generosa y humilde", "Es una mujer ilustrada"],
+            ["¿Cuántos personajes aparecen en total en la obra?", "Siete", "Cinco", "Diez", "Doce"],
+            ["¿Quién es el criado de Don Diego?", "Simón", "Calamocha", "Tristán", "Catalinón"],
+            ["¿Cómo se llama el criado de Don Carlos?", "Calamocha", "Simón", "Ciutti", "Sganarelle"],
+            ["¿Quién es la criada de Doña Paquita?", "Rita", "Inés", "Dorotea", "Marcelina"],
+            ["¿Qué relación tienen Calamocha y Rita?", "Se gustan y coquetean", "Son hermanos", "Se odian a muerte", "Están casados en secreto"],
+            ["¿Qué función literaria tienen los criados en esta obra?", "Reflejan las acciones de sus amos", "Son los verdaderos protagonistas", "No tienen ninguna función", "Mueren al final"],
+            ["¿Dónde está doña Paquita al inicio de la historia antes de viajar?", "En un convento", "En su casa en Madrid", "Viajando por Europa", "En la universidad"],
+            ["¿En qué ciudad está el convento de Paquita?", "Guadalajara", "Toledo", "Salamanca", "Segovia"],
+            ["¿Por qué Doña Irene quiere casar a su hija con Don Diego?", "Por puro interés económico", "Porque se aman profundamente", "Para huir de la justicia", "Por una promesa de sangre"],
+            ["¿Qué profesión tiene Don Carlos?", "Militar", "Abogado", "Sacerdote", "Comerciante"],
+            ["¿Qué rango militar tiene Don Carlos?", "Teniente coronel", "Capitán", "Sargento", "General"],
+            ["¿Dónde transcurre toda la acción de la obra?", "En una posada", "En el palacio real", "En un convento", "En la calle principal"],
+            ["¿En qué ciudad se encuentra la posada?", "Alcalá de Henares", "Madrid", "Zaragoza", "Guadalajara"],
+            ["¿Cuánto tiempo abarca la historia dentro de la ficción?", "De la tarde a la madrugada", "Tres días completos", "Un mes", "Varios años"],
+            ["¿A qué hora llegan los personajes a la posada en el Acto I?", "Al atardecer", "Al amanecer", "A medianoche", "Al mediodía"],
+            ["¿Qué momento del día abarca el Acto III?", "La noche y la madrugada", "La mañana siguiente", "El atardecer", "El mediodía"],
+            ["¿Por qué es importante Alcalá de Henares en la ruta?", "Es el camino entre Guadalajara y Madrid", "Es la frontera con Francia", "Es la ciudad natal del autor", "Allí está el cuartel de Don Carlos"],
+            ["¿Cuántos actos tiene la obra?", "Tres", "Cinco", "Dos", "Uno"],
+            ["¿A qué obedece la división en tres actos?", "Planteamiento, nudo y desenlace", "Niñez, juventud y vejez", "Mañana, tarde y noche", "Infierno, purgatorio y paraíso"],
+            ["¿Hay cambios de decorado en la obra?", "No, siempre es la misma sala", "Sí, cada acto es un lugar distinto", "Sí, cambia entre el interior y el exterior", "Sí, aparecen tres ciudades"],
+            ["¿Qué aporta el hecho de que sea de noche en el Acto III?", "Misterio y facilita los enredos", "Tristeza y pesimismo", "Alegría y fiesta", "No aporta nada"],
+            ["¿Cuál es el tema principal de 'El sí de las niñas'?", "Los matrimonios concertados por conveniencia", "La guerra de independencia", "La pobreza extrema", "La religión y la fe"],
+            ["¿Qué critica Moratín sobre la educación de las mujeres de su época?", "Que se les enseña a obedecer y mentir", "Que estudian demasiado", "Que leen novelas de caballería", "Que no saben coser"],
+            ["¿Qué simboliza el título 'El sí de las niñas'?", "El consentimiento forzado y falso", "La alegría de las bodas", "Una afirmación revolucionaria", "El primer amor adolescente"],
+            ["¿Qué valor ilustrado defiende don Diego al final de la obra?", "La razón y el sentido común", "La superstición", "La venganza por honor", "La tiranía del más fuerte"],
+            ["¿Qué sentimiento se opone a la razón en el Neoclasicismo?", "La pasión desmedida", "La codicia", "La piedad", "La apatía"],
+            ["¿Cómo es el amor entre Paquita y Carlos?", "Sincero y correspondido", "Imposible y trágico", "Falso e interesado", "No correspondido por Paquita"],
+            ["¿Es 'El sí de las niñas' una tragedia?", "No, es una comedia de costumbres", "Sí, muere el protagonista", "Es un drama romántico", "Es un auto sacramental"],
+            ["¿Critica la obra el concepto de autoridad paterna?", "Critica el abuso, no la autoridad en sí", "Sí, propone la rebelión total", "No, defiende la tiranía", "Solo critica a las madres"],
+            ["¿Qué papel juega la religión en la obra?", "Sirve para criticar la falsa beatería de Doña Irene", "Es el tema central de salvación", "No aparece mencionada", "Todos los personajes son ateos"],
+            ["¿Se opone don Diego al matrimonio desigual desde el primer minuto?", "No, al principio cree que ella le querrá", "Sí, siempre estuvo en contra", "Se opone, pero le obligan", "Le da igual la edad"],
+            ["¿De dónde vienen don Diego y Simón al inicio de la obra?", "De la calle, de dar un paseo", "De Madrid directamente", "Del convento de monjas", "De Zaragoza"],
+            ["¿Qué le confiesa Don Diego a Simón en la primera escena?", "Su intención de casarse con Paquita", "Que está totalmente arruinado", "Que Don Carlos ha muerto", "Que odia a Doña Irene"],
+            ["¿Por qué se sorprende Simón ante la noticia del casamiento?", "Creía que la novia era para Don Carlos", "Creía que Don Diego ya estaba casado", "Pensaba que Paquita era monja de clausura", "No le gusta la diferencia de clases"],
+            ["¿A quién ha ido a recoger doña Irene a Guadalajara?", "A su hija Paquita", "A su hermana enferma", "A Don Diego", "A un médico prestigioso"],
+            ["¿De qué se queja constantemente doña Irene?", "De sus achaques de salud", "Del calor que hace", "De los criados que son vagos", "De la falta de comida en la posada"],
+            ["¿Cuántos maridos ha enterrado doña Irene?", "Tres", "Uno", "Dos", "Cinco"],
+            ["¿Cuántos hijos tuvo doña Irene en total en su vida?", "Veintidós", "Dos", "Uno", "Siete"],
+            ["¿Cómo se comporta Paquita cuando está frente a su madre?", "Sumisa y muy callada", "Rebelde y gritona", "Irónica y burlona", "Indiferente y fría"],
+            ["¿A quién escribe Paquita pidiendo ayuda desesperada en el primer acto?", "A Don Félix (Carlos)", "A Don Diego", "A su tío militar", "Al rey de España"],
+            ["¿Quién se encarga de enviar y traer las cartas de Paquita?", "Su criada Rita", "El criado Simón", "El posadero", "Doña Irene a escondidas"],
+            ["¿Quién llega a la posada de forma inesperada en el Acto II?", "Don Carlos y su criado", "La policía de la ciudad", "El hermano perdido de Paquita", "Un cura para oficiar la boda"],
+            ["¿Desde dónde ha viajado Don Carlos a toda prisa?", "Desde Zaragoza", "Desde Madrid", "Desde Francia", "Desde Sevilla"],
+            ["¿Cómo llega el caballo de Don Carlos a la posada?", "Reventado por cabalgar sin descanso", "Sano y salvo", "No traía caballo", "Se lo robaron en el camino"],
+            ["¿Cómo reacciona Paquita al ver por fin a Don Carlos?", "Con inmensa alegría", "Con terror y pánico", "No le reconoce", "Le ignora por resentimiento"],
+            ["¿Qué le promete Don Carlos a Paquita al verla en la posada?", "Que impedirá la boda a toda costa", "Que la secuestrará esa noche", "Que retará a duelo a Don Diego", "Que se marchará para olvidarla"],
+            ["¿Con quién se encuentra de frente Don Carlos, para su sorpresa?", "Con su tío, Don Diego", "Con la abadesa del convento", "Con su superior militar", "Con su propia madre"],
+            ["¿Qué excusa inventa Don Carlos ante su tío por estar en Alcalá?", "Que iba de paso por asuntos del regimiento", "Que venía como invitado a su boda", "Que se había perdido de noche", "Que estaba buscando a un desertor"],
+            ["¿Qué le ordena terminantemente Don Diego a su sobrino?", "Que abandone la posada y vuelva a su cuartel", "Que se quede a ser el padrino de boda", "Que luche por el amor de la joven", "Que pague la cuenta de todos"],
+            ["¿Cómo reacciona Don Carlos ante la dura orden de su tío?", "Obedece por respeto filial", "Se niega rotundamente", "Desenvaina su espada", "Le confiesa la verdad llorando"],
+            ["¿Qué siente Paquita al saber que Carlos se ha ido del pueblo?", "Desesperación y abandono", "Alivio inmenso", "Indiferencia total", "Felicidad porque ahora será rica"],
+            ["¿Dónde están los personajes mayores al empezar el Acto III?", "Durmiendo en sus cuartos", "Cenando en el comedor", "Discutiendo acaloradamente", "Paseando por Alcalá de Henares"],
+            ["¿A qué acude Don Carlos en mitad de la noche a la posada?", "A dar una serenata y avisar a Paquita", "A robar el dinero de su tío", "A asustar a Doña Irene", "A beber vino con los criados"],
+            ["¿Qué hace Paquita al oír la señal (palmadas/música) de Carlos?", "Sale a la ventana a oscuras", "Llama a la guardia", "Se esconde bajo la cama", "Despierta a su madre asustada"],
+            ["¿Qué objeto lanza Don Carlos por la ventana hacia el interior?", "Una carta atada", "Un anillo de compromiso", "Una rosa roja", "La llave de un carruaje"],
+            ["¿Quién encuentra por accidente la carta lanzada por Don Carlos?", "Don Diego", "Doña Irene", "Simón", "El posadero"],
+            ["¿Por qué Don Diego está despierto a esas altas horas de la madrugada?", "No puede dormir por los ruidos y sus dudas", "Padece de sonambulismo", "Estaba vigilando la puerta", "Le gusta trasnochar leyendo"],
+            ["¿Qué descubre Don Diego al leer la carta interceptada?", "Que Paquita y su sobrino están enamorados", "Que le quieren robar el equipaje", "Que Doña Irene debe mucho dinero", "Que Paquita planea fugarse a Francia"],
+            ["¿Cómo consigue leer la carta en la más absoluta oscuridad?", "Con la luz de una vela que le trae Simón", "A la luz de la luna llena", "Esperando horas hasta el amanecer", "Con un farol de la calle"],
+            ["¿Cómo reacciona Don Diego en el primer instante al descubrir la traición?", "Con celos, rabia y decepción", "Llorando de alegría por ellos", "Se ríe a carcajadas de la ironía", "Sufre un ataque al corazón"],
+            ["¿A quién interroga a solas Don Diego a la mañana siguiente?", "A Paquita", "A Doña Irene", "Al posadero", "Al jefe militar de Zaragoza"],
+            ["¿Por qué Paquita no le dice la verdad a Don Diego al ser interrogada?", "Por miedo a su madre y por educación sumisa", "Porque ya no quiere a Don Carlos", "Para sacarle la herencia al viejo", "Porque está confundida"],
+            ["¿A quién manda llamar Don Diego tras lograr que Paquita confiese?", "A Don Carlos", "A las autoridades de la ciudad", "A la abadesa del convento", "A un médico de urgencia"],
+            ["¿Estaba Don Carlos muy lejos de la posada realmente?", "No, se había quedado esperando cerca", "Sí, ya había llegado a Zaragoza", "Estaba de camino a Madrid", "Estaba escondido en el granero"],
+            ["¿Qué actitud toma Don Diego finalmente ante la pareja de jóvenes?", "Comprensiva, racional y generosa", "Vengativa y extremadamente cruel", "Pasiva y totalmente ausente", "Enloquece de celos y ataca a Carlos"],
+            ["¿Quién se enfada muchísimo al descubrir el romance público?", "Doña Irene", "Rita", "Simón", "Calamocha"],
+            ["¿Por qué se enfada tanto Doña Irene al saber la verdad?", "Porque pierde el matrimonio rico y siente deshonra", "Porque odia a todos los militares", "Porque Don Carlos es plebeyo", "Porque quería a Simón de yerno"],
+            ["¿Cómo defiende Don Diego a los jóvenes frente a la furia de Doña Irene?", "Culpándola a ella y a la pésima educación dada", "Sobornándola con oro", "Amenazándola con la cárcel real", "Echándola a la calle sin piedad"],
+            ["¿Cuál es el desenlace y escena final de la obra?", "Don Diego bendice la unión de Carlos y Paquita", "Paquita vuelve llorando al convento", "Don Diego se casa con Paquita por la fuerza", "Carlos y Don Diego se baten a muerte"],
+            ["¿Qué le asegura Don Diego a Doña Irene para calmar su ambición?", "Que Carlos será buen marido y ambos cuidarán de ella", "Que le dará una pensión vitalicia mensual", "Que le comprará un palacio en Madrid", "Que le buscará otro anciano rico para ella"],
+            ["¿Cómo termina la obra para el personaje de Don Diego?", "Melancólico pero satisfecho de obrar guiado por la razón", "Totalmente deprimido y con intenciones suicidas", "Casándose finalmente con Doña Irene", "Viajando a las Américas para olvidar"],
+            ["¿Qué institución española prohibió la obra años más tarde?", "La Inquisición", "El Rey absolutista", "El Ejército", "La Real Academia Española"],
+            ["¿Por qué fue duramente censurada 'El sí de las niñas'?", "Por criticar la autoridad paterna y la falsa moralidad", "Por ser considerada propaganda pro-francesa", "Por incluir escenas explícitamente violentas", "Por usar un lenguaje demasiado vulgar para el teatro"],
+            ["¿Qué rasgo del estilo y lenguaje destaca en toda la obra?", "Lenguaje natural y adecuado a cada clase social", "Uso excesivo de cultismos y latinismos", "Lenguaje poético recargado y figuras retóricas", "Que está íntegramente escrita en verso"],
+            ["¿Se utilizan monólogos en esta representación teatral?", "Sí, don Diego tiene varios muy importantes", "No, Moratín los odiaba", "Solo los criados tienen permitido hacer monólogos", "Sí, pero solo al finalizar cada acto"],
+            ["¿Qué recurso cómico aporta principalmente Doña Irene?", "Su palabrería incesante, saltos de tema y exageraciones", "Que se tropieza y cae constantemente", "Hace chistes obscenos todo el tiempo", "Se disfraza de hombre a escondidas"],
+            ["¿En qué se diferencia fundamentalmente el teatro neoclásico del barroco?", "Busca la verosimilitud frente al espectáculo exagerado del barroco", "Tiene muchos más actos (cinco o seis)", "No utiliza personajes criados", "Mezcla siempre tragedia y comedia juntas"],
+            ["¿'El sí de las niñas' fue un éxito comercial en su época?", "Sí, fue el mayor éxito teatral de su siglo en España", "No, fue un rotundo fracaso de taquilla", "Solo se representó una única vez", "El público la abucheó y tiró verduras"],
+            ["¿Qué significa el concepto de 'verosimilitud' aplicado a esta obra?", "Que la historia es totalmente creíble y realista", "Que la obra está escrita íntegramente en verso", "Que tiene una moraleja oculta al final", "Que critica abiertamente a los gobernantes"],
+            ["¿A qué se refiere exactamente el 'didactismo' en el teatro de Moratín?", "A la clara intención de enseñar una lección a la sociedad", "A que la acción transcurre dentro de una escuela", "A que todos los personajes son ilustrados o profesores", "A que critica el sistema universitario de la época"],
+            ["¿Cuál es la gran lección moral o tesis final de la obra?", "Los matrimonios deben basarse en el amor y la razón, no en la autoridad", "El dinero y la posición social lo son absolutamente todo", "Las hijas deben obedecer ciegamente siempre a sus madres", "La venganza y el honor son el único camino de la nobleza"]
+        ];
+
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // Función para mezclar arrays (Fisher-Yates)
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            
+            // Preparar las preguntas
+            questions = rawQuestions.map(q => {
+                let options = [
+                    { text: q[1], isCorrect: true },
+                    { text: q[2], isCorrect: false },
+                    { text: q[3], isCorrect: false },
+                    { text: q[4], isCorrect: false }
+                ];
+                return {
+                    question: q[0],
+                    options: shuffle(options)
+                };
+            });
+            
+            questions = shuffle(questions);
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            document.getElementById('progress-text').innerText = `Pregunta ${currentQuestionIndex + 1} / 100`;
+            document.getElementById('score-text').innerText = `Puntuación: ${score}`;
+            document.getElementById('question-text').innerText = q.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.text;
+                btn.onclick = () => selectOption(btn, opt.isCorrect);
+                optionsContainer.appendChild(btn);
+            });
+            
+            document.getElementById('next-btn').classList.add('hidden');
+        }
+
+        function selectOption(selectedBtn, isCorrect) {
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            // Deshabilitar botones y mostrar colores
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                const isBtnCorrect = questions[currentQuestionIndex].options.find(o => o.text === btn.innerText).isCorrect;
+                if (isBtnCorrect) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if (isCorrect) {
+                score++;
+                document.getElementById('score-text').innerText = `Puntuación: ${score}`;
+            } else {
+                selectedBtn.classList.add('incorrect');
+            }
+
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+            
+            let msg = "";
+            if(score >= 90) msg = "¡Matrícula de honor! Eres todo un experto en la Ilustración y la obra de Moratín.";
+            else if(score >= 70) msg = "¡Muy buen trabajo! Conoces estupendamente el argumento y sus personajes.";
+            else if(score >= 50) msg = "Aprobado. Tienes las nociones básicas, pero un repaso al libro no vendría mal.";
+            else msg = "¡Vaya! Parece que Doña Irene te ha confundido con tanta palabrería. ¡Toca volver a leer el clásico!";
+            
+            document.getElementById('final-message').innerText = msg;
+        }
+    </script>
+</body>
+</html>
