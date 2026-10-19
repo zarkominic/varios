@@ -162,16 +162,17 @@ const CRUZE = (() => {
 const GAC_Y = CRUZ.y + CRUZE.gacrux.y, ACR_Y = CRUZ.y + CRUZE.acrux.y;
 
 // ---------- paisaje ----------
-function colina(seed, base, amp, fr, xc, caida) {
+function colina(seed, base, amp, fr, xc, caida, fondo = HZ + 80) {
   const r = K.rng(seed), p1 = r() * TAU, p2 = r() * TAU, p3 = r() * TAU;
   const f0 = (x) => base - amp * (0.62 * Math.sin(x * fr + p1) + 0.38 * Math.sin(x * fr * 2.3 + p2)) + 1.1 * Math.sin(x * 0.19 + p3);
-  const f = (x) => { const k = cl((x - (xc - caida)) / caida), s = k * k * (3 - 2 * k); return lerp(f0(x), HZ + 80, s); };
+  const f = (x) => { const k = cl((x - (xc - caida)) / caida), s = k * k * (3 - 2 * k); return lerp(f0(x), fondo, s); };
   const pts = [[-40, 1130]];
   for (let x = -40; x <= xc + 6; x += 6) pts.push([x, f(x)]);
   pts.push([xc + 6, 1130]);
   return { p: K.poligono(pts), f };
 }
-const COLINAS = [colina(41, 770, 16, 0.006, 1250, 280), colina(42, 806, 11, 0.009, 1170, 230), colina(47, 850, 6, 0.007, 1150, 170)];
+// la de delante (el promontorio del observador) cae hasta el borde de abajo: no deja canto vertical
+const COLINAS = [colina(41, 770, 16, 0.006, 1250, 280), colina(42, 806, 11, 0.009, 1170, 230), colina(47, 850, 6, 0.007, 1290, 300, 1150)];
 const PIES_Y = COLINAS[2].f(OBS.x) + 2;
 function abeto(h, w, seed) {
   const r = K.rng(seed), L = [];

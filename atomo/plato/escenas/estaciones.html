@@ -167,9 +167,10 @@ const pzVert = K.crearRayas(scene, P.cream, 14, 0.6);
 const NH = 10, FAR = 640;
 function crearHaz() {
   const geo = new THREE.BufferGeometry();
-  const pos = new Float32Array((NH + 1) * 2 * 3), colr = new Float32Array((NH + 1) * 2 * 4);
+  // tres filas por columna: lejos (transparente), cerca de la Tierra (opaca) y el impacto (casi transparente)
+  const pos = new Float32Array((NH + 1) * 3 * 3), colr = new Float32Array((NH + 1) * 3 * 4);
   const idx = [];
-  for (let i = 0; i < NH; i++) { const a = i * 2, b = a + 1, c = a + 2, d = a + 3; idx.push(a, b, c, b, d, c); }
+  for (let i = 0; i < NH; i++) for (let r = 0; r < 2; r++) { const a = i * 3 + r, b = a + 1, c = a + 3, d = a + 4; idx.push(a, b, c, b, d, c); }
   geo.setIndex(idx);
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   geo.setAttribute('color', new THREE.BufferAttribute(colr, 4));
@@ -198,10 +199,13 @@ function ponerHaz(h, center, cWorld, k, alpha) {
     const hit = q.clone().addScaledVector(L, tau);
     const far = q.clone();
     const front = far.clone().lerp(hit, k);
-    const A = far.add(C), B = front.add(C);
-    h.pos.set([A.x, A.y, A.z], i * 6); h.pos.set([B.x, B.y, B.z], i * 6 + 3);
+    const mid = hit.clone().addScaledVector(L, -46);
+    const midK = Math.min(1, (FAR - 46) / FAR);
+    const B = (k < midK ? front : mid).clone().add(C), Bf = front.clone().add(C);
+    const A = far.add(C);
+    h.pos.set([A.x, A.y, A.z], i * 9); h.pos.set([B.x, B.y, B.z], i * 9 + 3); h.pos.set([Bf.x, Bf.y, Bf.z], i * 9 + 6);
     const edge = (i === 0 || i === NH) ? 1.4 : 1;
-    h.colr.set([1, 0.82, 0.5, 0.0], i * 8); h.colr.set([1, 0.9, 0.62, 0.38 * alpha * edge], i * 8 + 4);
+    h.colr.set([1, 0.82, 0.5, 0.0], i * 12); h.colr.set([1, 0.9, 0.62, 0.36 * alpha * edge], i * 12 + 4); h.colr.set([1, 0.92, 0.7, (k < midK ? 0.36 : 0.05) * alpha * edge], i * 12 + 8);
     if (i === 0 || i === NH / 2 || i === NH) {
       const r = h.rays[i === 0 ? 0 : i === NH ? 2 : 1];
       r.poner(A, hit.clone().add(C), k, 1);
@@ -280,9 +284,9 @@ const mMen = M('mentira'), mVer = M('verano'), mDis = M('distancia'), mEne = M('
 const mInc = M('inclinada'), mPeo = M('peonza'), mDic = M('diciembre'), mRay = M('rayos'), mEcu = M('ecuador'), mDoce = M('doce');
 const DUR = E.duracion;
 const ZOOM = 2.45;
-const CAM0 = new THREE.Vector3();
+const CAM0 = S(985, 470, 0), Z0 = 1.1;
 const CAM1 = JAN.clone().addScaledVector(vR, (960 - 740) / ZOOM).addScaledVector(vU, -(540 - 500) / ZOOM);
-const LAT_N = 50 * Math.PI / 180, LON_H = 30 * Math.PI / 180;
+const LAT_N = 43 * Math.PI / 180, LON_H = 30 * Math.PI / 180;
 const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
 const cWarm = K.hex2v(P.warm), cCold = K.hex2v(P.cold);
 const FRIO = K.hex2v('#d9ecff'), CALOR = K.hex2v('#ffad5c');
@@ -295,7 +299,7 @@ function dibujar(t) {
 
   // cámara: plano general → primer plano de la Tierra de enero
   const kz = eio(seg(t, mInv + 1.2, mInc - 0.25));
-  const zoom = lerp(1, ZOOM, kz);
+  const zoom = lerp(Z0, ZOOM, kz);
   // interpolación en el espacio de pantalla (el punto de la Tierra se desplaza suave hacia su sitio)
   const tgt = CAM0.clone().lerp(CAM1, sstep(0, 1, Math.pow(kz, 0.6)));
   plato.encuadre(tgt, zoom);
@@ -331,7 +335,7 @@ function dibujar(t) {
   const warmN = clamp01((dlN - 9) / 6), warmS = clamp01((dlS - 9) / 6);
   const yrOn = seg(t, mEcu + 1.2, mEcu + 1.5);
   const nCol = mixV(cCold, cWarm, lerp(0, warmN, yrOn)), sCol = mixV(cCold, cWarm, lerp(1, warmS, yrOn));
-  const tintK = 1 - 0.45 * kEcu;
+  const tintK = (1 - 0.45 * kEcu) * (1 - 0.35 * kz);
   const css = (v) => `rgb(${Math.round(v.x * 255)},${Math.round(v.y * 255)},${Math.round(v.z * 255)})`;
   const tN = css(mixV(FRIO, CALOR, lerp(0, warmN, yrOn))), tS = css(mixV(FRIO, CALOR, lerp(1, warmS, yrOn)));
   tJan.tenir(tN, 0.58 * kInv * tintK, tS, 0.58 * kVer * tintK);
