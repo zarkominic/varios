@@ -38,7 +38,7 @@ Sources:
 - T and O maps, with east on top: https://en.wikipedia.org/wiki/T_and_O_map
 - McArthur's south-up map (1979): https://en.wikipedia.org/wiki/McArthur%27s_Universal_Corrective_Map_of_the_World
 
-#science #southernhemisphere #funfacts
+#science #southernhemisphere #funfacts #ASKAtom
 
 ## Español
 
@@ -77,7 +77,7 @@ Fuentes:
 - «Orientar», según la RAE: https://dle.rae.es/orientar
 - El mapa de McArthur, con el sur arriba (1979): https://en.wikipedia.org/wiki/McArthur%27s_Universal_Corrective_Map_of_the_World
 
-#ciencia #hemisferiosur #curiosidades
+#ciencia #hemisferiosur #curiosidades #ASKAtom
 
 ## Etiquetas
 
