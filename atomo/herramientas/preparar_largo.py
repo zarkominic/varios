@@ -7,8 +7,8 @@ sonar en el mismo instante en las dos pistas. Para cada escena con voz:
   1. Whisper da el tiempo de cada palabra del guion en las dos voces.
   2. Las marcas que existen en los dos idiomas (y en el mismo orden) parten la voz en tramos.
   3. Cada tramo se acelera o frena como mucho un 8 % en cada idioma para que duren lo mismo; si no
-     basta, el idioma más corto alarga sus tres pausas de frase más largas de ese tramo (más las
-     más largas), sin abrir huecos entre palabras de una misma frase.
+     basta, el idioma más corto alarga las pausas de sus signos de puntuación en ese tramo (más
+     los puntos que las comas), sin abrir huecos entre palabras de una misma frase.
   Los cortes entre tramos caen en el silencio de verdad más cercano a cada palabra clave (o, si no
   lo hay, en el valle de energía entre dos palabras), cada trozo se estira con rubberband y se une al
   siguiente con un fundido cruzado de 12 ms: así no se recorta, no se repite ni se entrecorta la voz.
@@ -126,7 +126,7 @@ def silencios(env, minimo=0.03):
         tramos.append((ini, tt[-1]))
     return tramos
 
-def punto_de_corte(env, ws, antes=0.25, despues=0.2):
+def punto_de_corte(env, ws, antes=0.3, despues=0.05):
     """Dónde cortar cerca del inicio ws de una palabra: en el silencio de verdad más cercano (Whisper
     se equivoca a veces en ±0,2 s); si no hay ninguno, en el valle de energía más hondo justo
     alrededor, que suele ser la frontera entre dos palabras."""
@@ -135,8 +135,24 @@ def punto_de_corte(env, ws, antes=0.25, despues=0.2):
         return min(cerca)[1]
     tt, rms = env
     liso = np.convolve(rms, np.ones(8) / 8, 'same')
-    i = np.where((tt >= ws - 0.12) & (tt <= ws + 0.08))[0]
+    i = np.where((tt >= ws - 0.15) & (tt <= ws + 0.04))[0]
     return float(tt[i[np.argmin(liso[i])]]) if len(i) else ws
+
+def fronteras(env, pal, t):
+    """Pausas de puntuación del guion (tras . ? ! : ; , …): (instante, peso). El instante es el valle
+    de energía más cercano a la frontera que da Whisper; el peso, lo fuerte que es el signo."""
+    tt, rms = env
+    liso = np.convolve(rms, np.ones(8) / 8, 'same')
+    out = []
+    for i in range(len(pal) - 1):
+        signo = pal[i].rstrip('»"\'')[-1:]
+        peso = {'.': 3, '?': 3, '!': 3, '…': 2, ':': 2, ';': 2, ',': 1}.get(signo)
+        if peso:
+            b = (t[i][1] + t[i + 1][0]) / 2
+            k = np.where((tt >= b - 0.2) & (tt <= b + 0.2))[0]
+            if len(k):
+                out.append((float(tt[k[np.argmin(liso[k])]]), peso))
+    return out
 
 def pausas(env, t0, t1, n=3):
     """Las n pausas de frase más largas entre t0 y t1, como (centro, duración), en orden. Solo
@@ -213,37 +229,58 @@ for e in g['escenas']:
         c = [max(0.0, habla[0] - 0.04)]                                   # justo antes de que empiece a hablar
         c += [punto_de_corte(env, ws[j]) for j in range(1, len(ws) - 1)]
         c += [min(len(audio) / sr, habla[-1] + 0.08)]                     # justo después de que acabe
+        signos = fronteras(env, datos[l]['pal'], datos[l]['t'])
+        # Tramos de este idioma: de palabra clave a palabra clave. Si un tramo necesita una pausa y no
+        # tiene ningún signo de puntuación donde ponerla, se une al siguiente (esa palabra clave queda
+        # algo desplazada en este idioma): una pausa larga en mitad de una frase suena a corte.
+        n = len(ws) - 1
+        def signos_en(a, b):
+            return [x for x in signos if ws[a] + 0.1 <= x[0] <= ws[b] - 0.1]
+        tramos, a = [], 0
+        while a < n:
+            b = a + 1
+            while True:
+                tempo = max(min((ws[b] - ws[a]) / (D[b] - D[a]), MAX_TEMPO), 1 / MAX_TEMPO)
+                falta = (D[b] - D[a]) - (ws[b] - ws[a]) / tempo
+                if b == n or falta <= 0.15 or signos_en(a, b) or pausas(env, ws[a] + 0.1, ws[b] - 0.1):
+                    break
+                b += 1
+            if b - a > 1:
+                print(f"  {e['id']} {l}: sin pausa natural hasta «{cortes[b][0]}»; «{'», «'.join(x[0] for x in cortes[a + 1:b])}» no se alinea en este idioma")
+            tramos.append((a, b, tempo))
+            a = b
         buf = np.zeros(int(round(duracion * sr)) + sr)
-        for j in range(len(ws) - 1):
-            tempo = tempos[l][j]
-            inicio = D[j] - (ws[j] - c[j]) / tempo                     # la palabra clave cae en D[j]
-            sig = D[j + 1] - (ws[j + 1] - c[j + 1]) / tempos[l][min(j + 1, len(ws) - 2)] if j + 1 < len(ws) - 1 else None
+        for k, (a, b, tempo) in enumerate(tramos):
+            inicio = D[a] - (ws[a] - c[a]) / tempo                     # la palabra clave cae en D[a]
+            sig = D[b] - (ws[b] - c[b]) / tramos[k + 1][2] if k + 1 < len(tramos) else None
             X = 0.012                                                     # fundido cruzado en las uniones
-            x0, x1 = max(0.0, c[j] - X), min(len(audio) / sr, c[j + 1] + X)
+            x0, x1 = max(0.0, c[a] - X), min(len(audio) / sr, c[b] + X)
             trozo = estirar(audio, sr, x0, x1, tempo)
-            colocar = inicio - (c[j] - x0) / tempo                         # el trozo empieza X antes del corte
-            pausa = max(0.0, sig - (inicio + (c[j + 1] - c[j]) / tempo)) if sig is not None else 0.0
-            # El silencio que falta se reparte entre las pausas más largas del tramo (o va antes de la
-            # siguiente palabra clave si no hay ninguna), para que ninguna pausa quede demasiado larga.
-            donde = (pausas(env, ws[j] + 0.1, ws[j + 1] - 0.1) or [(c[j + 1], 1.0)]) if pausa > 0.01 else []
-            huecos = [(q, pausa * d / sum(d for _, d in donde)) for q, d in donde]   # más a las pausas más largas
+            colocar = inicio - (c[a] - x0) / tempo                         # el trozo empieza X antes del corte
+            pausa = max(0.0, sig - (inicio + (c[b] - c[a]) / tempo)) if sig is not None else 0.0
+            # El silencio que falta va a los signos de puntuación del tramo (los tres más fuertes), o si
+            # no hay ninguno a sus pausas de frase, o (solo si es corto) justo antes de la siguiente clave.
+            donde = []
+            if pausa > 0.01:
+                donde = sorted(sorted(signos_en(a, b), key=lambda x: -x[1])[:3]) or pausas(env, ws[a] + 0.1, ws[b] - 0.1) or [(c[b], 1.0)]
+            huecos = [(q, pausa * d / sum(d for _, d in donde)) for q, d in donde]   # más a los signos más fuertes
             cortes_q = [int(round((q - x0) / tempo * sr)) for q, _ in huecos]
             trozos = np.split(trozo, cortes_q)
             n8 = int(sr * 0.008)                                          # fundido a cada lado del silencio añadido
-            for k in range(len(trozos) - 1):
-                if len(trozos[k]) > n8:
-                    trozos[k][-n8:] *= np.linspace(1, 0, n8)
-                if len(trozos[k + 1]) > n8:
-                    trozos[k + 1][:n8] *= np.linspace(0, 1, n8)
+            for i in range(len(trozos) - 1):
+                if len(trozos[i]) > n8:
+                    trozos[i][-n8:] *= np.linspace(1, 0, n8)
+                if len(trozos[i + 1]) > n8:
+                    trozos[i + 1][:n8] *= np.linspace(0, 1, n8)
             partes = [trozos[0]]
             for (q, h), t_ in zip(huecos, trozos[1:]):
                 partes += [np.zeros(int(round(h * sr))), t_]
             trozo = fundido(np.concatenate(partes), sr, ms=X * 1000 / tempo)
             p = max(0, int(round(colocar * sr)))
             buf[p:p + len(trozo)] += trozo[:len(buf) - p]
-            mapa[l].append((c[j], c[j + 1], inicio, tempo, huecos))
+            mapa[l].append((c[a], c[b], inicio, tempo, huecos))
             if os.environ.get('DEPURAR') == e['id']:
-                print(f"  {l} tramo {j} {cortes[j][0]:>12s}: ws {ws[j]:6.2f} corte {c[j]:6.2f}->{c[j + 1]:6.2f} destino {inicio:6.2f} tempo {tempo:.3f} pausa {pausa:.2f} en {[round(q, 2) for q, _ in huecos]} sig {sig if sig is None else round(sig, 2)}")
+                print(f"  {l} {cortes[a][0]:>12s}→{cortes[b][0]:<12s} corte {c[a]:6.2f}->{c[b]:6.2f} destino {inicio:6.2f} tempo {tempo:.3f} pausa {pausa:.2f} en {[round(q, 2) for q, _ in huecos]}")
         salida_audio[l] = [buf[:int(round(duracion * sr))]]
 
     def mover(x, l):

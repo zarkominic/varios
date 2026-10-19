@@ -14,7 +14,7 @@ Six things that supposedly flip in the Southern Hemisphere. Some are true and so
 
 0:00 Six things that flip down south
 0:16 1 · The upside-down Moon
-0:43 2 · Toilet water
+0:42 2 · Toilet water
 1:33 3 · Christmas in summer
 2:14 4 · The backwards Sun
 2:42 5 · A different sky
@@ -52,7 +52,7 @@ Seis cosas que supuestamente cambian en el hemisferio sur. Algunas son verdad y 
 
 0:00 Seis cosas que cambian en el sur
 0:16 1 · La Luna al revés
-0:43 2 · El agua del inodoro
+0:42 2 · El agua del inodoro
 1:33 3 · Navidad en verano
 2:14 4 · El Sol al revés
 2:42 5 · Otro cielo
