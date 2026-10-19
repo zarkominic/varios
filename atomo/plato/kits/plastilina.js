@@ -100,6 +100,8 @@ export function reaccionMarcador(ts, tz, si) {
 }
 export const veredictoATipo = (v) => (v === '✓' ? 1 : v === '✗' ? 2 : 0);
 export const COLOR = { TINTA: 0, MANTEQUILLA: 1, MOSTAZA: 2, CREMA: 3, TERRACOTA: 4, VERDE: 5 };
+// la luz principal del plató (la misma que en el sombreador)
+export const LUZ = [-7.0, 9.5, 10.5];
 
 // tablero (unidades locales): paso entre casillas, semiancho, semialto, semigrosor, fila de números, fila de huecos
 export const TAB = { PASO: 1.0, HW: 3.3, HH: 1.1, GR: 0.3, YD: 0.57, YW: -0.29 };
@@ -588,6 +590,36 @@ float brazo(vec3 q, int i, float k) {
   float r = uBrazo[i] * k;
   return sdCapsule(q, uElec[i].xyz * 0.25, uElec[i].xyz, r) + (r > 0.001 ? 0.0 : 1e5);
 }
+#ifdef ATOMO_MANO
+// mano de plastilina en la punta de un brazo: palma aplastada y cinco dedos de churro
+uniform vec4 uMano;       // centro (local del átomo) y tamaño (0: sin mano)
+uniform vec3 uManoEje;    // dirección del brazo (local), hacia donde apuntan los dedos
+vec3 manoLocal(vec3 q) {
+  vec3 a = uManoEje;
+  vec3 b = normalize(cross(vec3(0.0, 0.0, 1.0), a));
+  vec3 c = cross(a, b);
+  vec3 r = q - uMano.xyz;
+  return vec3(dot(r, b), dot(r, a), dot(r, c)) / max(uMano.w, 1e-3);
+}
+float mano(vec3 q) {
+  vec3 h = manoLocal(q);
+  vec3 k = vec3(0.85, 0.75, 0.36);
+  float k0 = length(h / k), k1 = length(h / (k * k));
+  float d = k0 * (k0 - 1.0) / k1;                                           // palma
+  d = smin(d, sdCapsule(h, vec3(-0.5, 0.42, 0.0), vec3(-0.72, 1.2, 0.02), 0.19), 0.14);
+  d = smin(d, sdCapsule(h, vec3(-0.17, 0.55, 0.0), vec3(-0.24, 1.45, 0.02), 0.2), 0.14);
+  d = smin(d, sdCapsule(h, vec3(0.17, 0.55, 0.0), vec3(0.22, 1.4, 0.02), 0.2), 0.14);
+  d = smin(d, sdCapsule(h, vec3(0.5, 0.42, 0.0), vec3(0.66, 1.1, 0.02), 0.18), 0.14);
+  d = smin(d, sdCapsule(h, vec3(0.62, -0.2, 0.0), vec3(1.2, 0.18, 0.04), 0.19), 0.14);   // pulgar
+  return d * uMano.w + (uMano.w > 0.002 ? 0.0 : 1e5);
+}
+float manoC(vec3 q) {
+  vec3 h = manoLocal(q);
+  vec3 k = vec3(0.8, 0.7, 0.3);
+  float k0 = length(h / k), k1 = length(h / (k * k));
+  return k0 * (k0 - 1.0) / k1 * uMano.w + (uMano.w > 0.002 ? 0.0 : 1e5);
+}
+#endif
 vec3 atomLocal(vec3 p) { return uYaw * ((p - uCen) / (uSq * uAEsc)); }
 float atomEsc() { return min(uSq.x, uSq.y) * uAEsc * 0.9; }
 float sdf_atomo(vec3 p) {
@@ -601,6 +633,9 @@ float sdf_atomo(vec3 p) {
     d = smin(d, smin(dt, de, 0.05), 0.02);
     d = smin(d, brazo(q, i, 1.0), 0.09);
   }
+#ifdef ATOMO_MANO
+  d = smin(d, mano(q), 0.07);
+#endif
   return (d - 0.009 * bultos(q * 1.6)) * atomEsc();
 }
 float sdfc_atomo(vec3 p) {
@@ -611,6 +646,9 @@ float sdfc_atomo(vec3 p) {
     d = min(d, length(q - uElec[i].xyz) - uElec[i].w + 0.012);
     d = min(d, brazo(q, i, 0.8));
   }
+#ifdef ATOMO_MANO
+  d = min(d, manoC(q));
+#endif
   return fuera(0, d * atomEsc());
 }
 // envolvente barata y conservadora (nunca más lejos que la forma real): primera fase del rayo
@@ -622,6 +660,9 @@ float sdfa_atomo(vec3 p) {
     d = min(d, length(q - uElec[i].xyz) - uElec[i].w);
     d = min(d, brazo(q, i, 1.1));
   }
+#ifdef ATOMO_MANO
+  d = min(d, length(q - uMano.xyz) - 1.75 * uMano.w + (uMano.w > 0.002 ? 0.0 : 1e5));
+#endif
   return d * atomEsc();
 }
 void mat_atomo(vec3 p, out Mat M) {
@@ -642,6 +683,10 @@ void mat_atomo(vec3 p, out Mat M) {
     w = exp(-max(brazo(q, i, 1.0), 0.0) * 55.0);
     col += w * C_SAGE; ws += w;
   }
+#ifdef ATOMO_MANO
+  float wm = exp(-max(mano(q), 0.0) * 55.0) * 1.5;
+  col += wm * C_LIGHT; ws += wm;
+#endif
   M.alb = col / max(ws, 1e-4);
   M.lp = q + uAPrint; M.bs = 1.0; M.det = 1.0; M.esc = uAEsc; M.g = vec3(0.0);
 }
@@ -1155,7 +1200,7 @@ export async function crearPlato({
   const glifos = new Set(['✓', '✗']);
   for (const t of tiposUsados) if (t.startsWith('glifo:')) glifos.add(t.slice(6));
   let decl = GLSL_FORMAS + [...glifos].map(glslGlifo).join('') + GLSL_FICHA;
-  if (atomo) decl += GLSL_ATOMO;
+  if (atomo) decl += (mano ? '#define ATOMO_MANO 1\n' : '') + GLSL_ATOMO;
   if (globo) decl += GLSL_GLOBO;
   if (tablero) decl += GLSL_TABLERO;
   if (polvo) decl += GLSL_POLVO;
@@ -1192,6 +1237,7 @@ export async function crearPlato({
     uCen: { value: new THREE.Vector3() }, uSq: { value: new THREE.Vector3(1, 1, 1) }, uAEsc: { value: 1 },
     uYaw: { value: new THREE.Matrix3() }, uNuc: { value: v4(8) },
     uRingM: { value: m3(3) }, uRing: { value: new THREE.Vector2(1.68, 0.092) }, uElec: { value: v4(3) }, uBrazo: { value: new THREE.Vector3() }, uAPrint: { value: new THREE.Vector3() },
+    uMano: { value: new THREE.Vector4() }, uManoEje: { value: new THREE.Vector3(0, 1, 0) },
     uGC: { value: new THREE.Vector4() }, uGM: { value: new THREE.Matrix3() }, uCaps: { value: caps }, uGPrint: { value: new THREE.Vector3() },
     uTC: { value: new THREE.Vector4() }, uTM: { value: new THREE.Matrix3() }, uTBox: { value: new THREE.Vector4() },
     uCelda: { value: v4(6) }, uCelda2: { value: Array.from({ length: 6 }, () => new THREE.Vector4(1, 0, 0, 0)) }, uTPrint: { value: new THREE.Vector3() }, uDigitos: { value: null },
@@ -1304,8 +1350,9 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
   //   pos, escala, yaw/pitch/roll (giro del cuerpo), sq [x,y,z] (aplastar en ejes del mundo),
   //   energia (0..1: late al hablar), ts (segundos: avanzan los electrones), electrones: [[x,y,z] |
   //   { pos: [x,y,z], mezcla: 0..1 } | { mundo: [dx,dy,dz], mezcla } | null] (posición local, o
-  //   desplazamiento en el mundo desde el centro, de un electrón que sale de su órbita; con brazo: 0..1,
-  //   un churro lo une al núcleo, como un brazo que señala o saluda), toque.
+  //   desplazamiento en el mundo desde el centro, de un electrón que sale de su órbita; brazo: 0..1,
+  //   un churro de grosor `grosor` lo une al núcleo; mano: 0..1, el electrón se convierte en una mano
+  //   de tamaño `tamMano`, si el plató se creó con { mano: true }), toque.
   function ponerAtomo({ pos = [0, 2, 0], escala = 1, yaw = -0.1, pitch = 0.05, roll = 0, sq = [1, 1, 1], energia = 0, ts = 0, electrones = [], toque = false, orbita = 1 } = {}) {
     if (!atomo) return;
     U.uCen.value.set(...pos); U.uAEsc.value = escala; U.uSq.value.set(...sq);
@@ -1319,13 +1366,23 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
     });
     const Rr = 1.68 * orbita * (1 + 0.025 * e), tube = 0.092;
     U.uRing.value.set(Rr, tube);
-    let ext = Rr + tube * 1.15 + 0.03;
+    const ms = Math.max(...sq) * escala;
+    // volumen envolvente: el cuerpo y cada electrón (que puede salir lejos, con brazo o mano)
+    let bc = new THREE.Vector3(...pos), br = (Rr + tube * 1.15 + 0.03) * ms;
+    const envolver = (c2, r2) => {
+      const dd = c2.distanceTo(bc);
+      if (dd + r2 <= br) return;
+      if (dd + br <= r2) { bc = c2.clone(); br = r2; return; }
+      const nr = (dd + br + r2) / 2;
+      bc.add(c2.clone().sub(bc).multiplyScalar((nr - br) / dd)); br = nr;
+    };
+    U.uMano.value.set(0, 0, 0, 0);
     ORB.forEach((M, i) => {
       U.uRingM.value[i].setFromMatrix4(M.clone().transpose());
       const th = 2 * Math.PI * VEL[i] * ts / 10 + FASE[i];
       let v = new THREE.Vector3(Rr * Math.cos(th), 0, Rr * Math.sin(th)).applyMatrix4(M);
       const el = electrones[i];
-      U.uBrazo.value.setComponent(i, el && !Array.isArray(el) ? 0.06 * cl(el.brazo ?? 0) : 0);
+      U.uBrazo.value.setComponent(i, el && !Array.isArray(el) ? (el.grosor ?? 0.06) * cl(el.brazo ?? 0) : 0);
       if (Array.isArray(el)) v = new THREE.Vector3(...el);
       else if (el && el.pos) v.lerp(new THREE.Vector3(...el.pos), cl(el.mezcla ?? 1));
       else if (el && el.mundo) {
@@ -1333,13 +1390,23 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
         const w = new THREE.Vector3(el.mundo[0] / (sq[0] * escala), el.mundo[1] / (sq[1] * escala), el.mundo[2] / (sq[2] * escala)).applyMatrix4(R.clone().transpose());
         v.lerp(w, cl(el.mezcla ?? 1));
       }
-      U.uElec.value[i].set(v.x, v.y, v.z, 0.19);
-      ext = Math.max(ext, v.length() + 0.21);
+      // un electrón con «mano» se convierte en una mano de plastilina
+      const km = el && !Array.isArray(el) ? cl(el.mano ?? 0) : 0;
+      let re = 0.21 + U.uBrazo.value.getComponent(i);
+      if (km > 0.001 && mano) {
+        const tam = (el.tamMano ?? 0.3) * km;
+        U.uMano.value.set(v.x, v.y, v.z, tam);
+        U.uManoEje.value.copy(v.clone().normalize());
+        re = Math.max(re, 1.8 * tam);
+      }
+      U.uElec.value[i].set(v.x, v.y, v.z, 0.19 * (1 - km) + 0.002);
+      const vw = v.clone().applyMatrix4(R).multiply(new THREE.Vector3(...sq)).multiplyScalar(escala).add(new THREE.Vector3(...pos));
+      envolver(vw, re * ms);
     });
     U.uAPrint.value.set(...huella(toque, 40));
-    const rr = ext * escala * Math.max(...sq) + 0.03;
-    B[0].set(pos[0], pos[1], pos[2], rr);
-    cajas.atomo = cubo(pos, rr);
+    const rr = br + 0.03;
+    B[0].set(bc.x, bc.y, bc.z, rr);
+    cajas.atomo = cubo([bc.x, bc.y, bc.z], rr);
   }
 
   // El globo de plastilina: océano, continentes pegados y el ecuador como tira dorada.
