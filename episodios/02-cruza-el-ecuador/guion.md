@@ -1,6 +1,6 @@
 # Episodio 2 · Cruza el ecuador: ¿qué cambia de verdad?
 
-**Estado:** borrador para aprobar · **Formato:** YouTube horizontal 16:9, un solo vídeo con dos pistas de audio (español e inglés) · **Duración objetivo:** unos 5 minutos
+**Estado:** aprobado (con Coriolis, la inclinación del eje y el polo del cielo explicados) · **Formato:** YouTube horizontal 16:9, un solo vídeo con dos pistas de audio (español e inglés) · **Duración objetivo:** unos 5 minutos
 
 **Mecánica:** seis afirmaciones sobre el hemisferio sur. Tras cada una, un marcador ✓/✗ en plastilina. Resultado final: tres verdades y tres mentiras. Cada bloque es un capítulo de YouTube y un Short.
 
@@ -33,11 +33,11 @@
 
 ## 2 · «En el sur, el agua del inodoro gira al revés» → ✗ MENTIRA (recortes de papel)
 
-**Visual:** un lavabo de papel visto desde arriba. Una flecha diminuta de Coriolis junto a una flecha enorme de gravedad. El tanque del MIT con un reloj de 24 horas. Al final, un guía en la línea del ecuador que da vueltas al agua con la mano.
+**Visual:** un tiovivo de papel: alguien lanza una pelota recta y, como el suelo gira, su trazo se curva. Después, la Tierra de papel con flechas que se desvían a la derecha en el norte y a la izquierda en el sur, y dos huracanes que giran en sentidos opuestos. Luego un lavabo de papel visto desde arriba, con una flecha diminuta de Coriolis junto a una flecha enorme de gravedad, y el tanque del MIT con un reloj de 24 horas. Al final, un guía en la línea del ecuador que da vueltas al agua con la mano.
 
-**ES:** Dos: en el sur, el agua del inodoro gira al revés. Mentira. El efecto Coriolis existe, pero en un lavabo es diminuto: millones de veces más débil que la gravedad. Solo manda en cosas enormes y lentas, como los huracanes. Para verlo en agua, en el MIT, en 1962, llenaron un tanque de dos metros, lo dejaron reposar un día entero y solo así giró solo. Tu lavabo se vacía en segundos: gana el giro que el agua ya traía. Y en la línea del ecuador, donde un guía enseña el agua girando distinto a cada lado, el truco es suyo: la hace girar él.
+**ES:** Dos: en el sur, el agua del inodoro gira al revés. Mentira. La idea viene del efecto Coriolis. Como la Tierra gira, todo lo que viaja lejos sobre ella parece desviarse: hacia la derecha en el norte y hacia la izquierda en el sur. Es como lanzar una pelota en un tiovivo: tú la tiras recta, pero el suelo gira debajo y parece que se curva. Ese efecto manda en cosas enormes y lentas, como los huracanes. Pero en un lavabo es diminuto: millones de veces más débil que la gravedad. Para verlo en agua, en el MIT, en 1962, llenaron un tanque de dos metros, lo dejaron reposar un día entero y solo así giró solo. Tu lavabo se vacía en segundos: gana el giro que el agua ya traía. Y en la línea del ecuador, donde un guía enseña el agua girando distinto a cada lado, el truco es suyo: la hace girar él.
 
-**EN:** Two: in the south, toilet water swirls the other way. False. The Coriolis effect is real, but in a sink it's tiny: millions of times weaker than gravity. It only rules huge, slow things, like hurricanes. To see it in water, MIT filled a six-foot tank in 1962, let it sit for a whole day, and only then did it spin on its own. Your sink drains in seconds: the spin the water already had wins. And on the equator line, where a guide shows water swirling differently on each side, the trick is his: he spins it himself.
+**EN:** Two: in the south, toilet water swirls the other way. False. The idea comes from the Coriolis effect. Because Earth spins, anything that travels far across it seems to veer: to the right in the north, to the left in the south. It's like throwing a ball on a merry-go-round: you throw it straight, but the floor turns under it, so it looks like it curves. That effect rules huge, slow things, like hurricanes. But in a sink it's tiny: millions of times weaker than gravity. To see it in water, MIT filled a six-foot tank in 1962, let it sit for a whole day, and only then did it spin on its own. Your sink drains in seconds: the spin the water already had wins. And on the equator line, where a guide shows water swirling differently on each side, the trick is his: he spins it himself.
 
 ---
 
@@ -45,9 +45,9 @@
 
 **Visual:** la órbita en isométrico, con la Tierra inclinada en enero y en julio y las dos distancias rotuladas. Luego un primer plano de los rayos, más directos sobre el hemisferio que se inclina hacia el Sol.
 
-**ES:** Tres: en el sur, la Navidad cae en verano porque la Tierra está más cerca del Sol. Mentira, a medias. La Navidad sí es en verano: las estaciones van al revés. Pero no por la distancia. La Tierra está más cerca del Sol a principios de enero, unos cinco millones de kilómetros más que en julio, y en el norte es pleno invierno. Lo que manda es la inclinación del eje, veintitrés grados y medio. En diciembre, el sur se inclina hacia el Sol: los rayos le llegan más directos y los días duran más.
+**ES:** Tres: en el sur, la Navidad cae en verano porque la Tierra está más cerca del Sol. Mentira, a medias. La Navidad sí es en verano: las estaciones van al revés. Pero no por la distancia. La Tierra está más cerca del Sol a principios de enero, unos cinco millones de kilómetros más que en julio, y en el norte es pleno invierno. Lo que manda es que la Tierra gira inclinada, como una peonza ladeada: veintitrés grados y medio. En diciembre, el sur se inclina hacia el Sol: los rayos le llegan más directos y los días duran más.
 
-**EN:** Three: in the south, Christmas is in summer because Earth is closer to the Sun. Half a lie. Christmas really is in summer: the seasons are flipped. But not because of distance. Earth is closest to the Sun in early January, about three million miles closer than in July, while the north is in deep winter. What matters is the tilt, twenty-three and a half degrees. In December the south leans toward the Sun: the light hits it more directly, and the days last longer.
+**EN:** Three: in the south, Christmas is in summer because Earth is closer to the Sun. Half a lie. Christmas really is in summer: the seasons are flipped. But not because of distance. Earth is closest to the Sun in early January, about three million miles closer than in July, while the north is in deep winter. What matters is that Earth spins tilted, like a leaning top: twenty-three and a half degrees. In December the south leans toward the Sun: the light hits it more directly, and the days last longer.
 
 ---
 
@@ -65,9 +65,9 @@
 
 **Visual:** un cielo de papel con estrellas colgadas de hilos. Orión gira hasta quedar cabeza abajo y entra la Cruz del Sur. En el polo sur del cielo, una estrella diminuta y apagada.
 
-**ES:** Cinco: en el sur, el cielo de noche es otro. Verdad. Desde el sur, Orión se ve cabeza abajo, y aparecen constelaciones que desde el norte nunca salen, como la Cruz del Sur. Y no hay estrella polar: en el polo sur del cielo solo hay una estrella tan débil que casi no se ve. Por eso, para encontrar el sur, los navegantes usaban la Cruz del Sur.
+**ES:** Cinco: en el sur, el cielo de noche es otro. Verdad. Desde el sur, Orión se ve cabeza abajo, y aparecen constelaciones que desde el norte nunca salen, como la Cruz del Sur. Y no hay estrella polar: en el punto del cielo alrededor del cual giran las estrellas del sur solo hay una estrella tan débil que casi no se ve. Por eso, para encontrar el sur, los navegantes usaban la Cruz del Sur.
 
-**EN:** Five: in the south, the night sky is different. True. From the south, Orion stands on its head, and you get constellations the north never sees, like the Southern Cross. And there's no pole star: the south celestial pole has only a star so faint you can barely see it. That's why sailors used the Southern Cross to find south.
+**EN:** Five: in the south, the night sky is different. True. From the south, Orion stands on its head, and you get constellations the north never sees, like the Southern Cross. And there's no pole star: the point the southern stars wheel around has only a star so faint you can barely see it. That's why sailors used the Southern Cross to find south.
 
 ---
 
