@@ -15,9 +15,9 @@
 
 **Visual:** el átomo de plastilina rueda hasta un globo de plastilina con el ecuador como una tira dorada. Al lado, un marcador con seis casillas vacías.
 
-**ES:** Cruzas el ecuador y te cuentan que todo cambia: la Luna, el agua, el cielo, hasta tu peso. Te voy a decir seis cosas que supuestamente cambian en el hemisferio sur. Algunas son verdad. Otras, mentira. Lleva la cuenta, y al final me dices cuántas acertaste.
+**ES:** Cruzas el ecuador y te cuentan que todo cambia: la Luna, el agua, el cielo, hasta tu peso. Te voy a decir seis cosas que supuestamente cambian en el hemisferio sur. Algunas son verdad. Otras, mentira. Lleva la cuenta: al final vemos cuántas acertaste.
 
-**EN:** Cross the equator and people say everything changes: the Moon, the water, the sky, even your weight. Here are six things that supposedly flip in the Southern Hemisphere. Some are true. Some are lies. Keep score, and at the end, tell me how many you got right.
+**EN:** Cross the equator and people say everything changes: the Moon, the water, the sky, even your weight. Here are six things that supposedly flip in the Southern Hemisphere. Some are true. Some are lies. Keep score: at the end, we'll see how many you got right.
 
 ---
 

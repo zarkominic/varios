@@ -16,10 +16,10 @@ Six things that supposedly flip in the Southern Hemisphere. Some are true and so
 0:16 1 · The upside-down Moon
 0:42 2 · Toilet water
 1:31 3 · Christmas in summer
-2:12 4 · The backwards Sun
-2:39 5 · A different sky
+2:11 4 · The backwards Sun
+2:38 5 · A different sky
 3:12 6 · The standing egg
-3:43 Final score and a bonus: why is north on top?
+3:42 Final score and a bonus: why is north on top?
 
 Sources:
 - The Moon: EarthSky, do we all see the same Moon phase? https://earthsky.org/moon-phases/do-we-all-see-the-same-moon-phase/
@@ -54,10 +54,10 @@ Seis cosas que supuestamente cambian en el hemisferio sur. Algunas son verdad y 
 0:16 1 · La Luna al revés
 0:42 2 · El agua del inodoro
 1:31 3 · Navidad en verano
-2:12 4 · El Sol al revés
-2:39 5 · Otro cielo
+2:11 4 · El Sol al revés
+2:38 5 · Otro cielo
 3:12 6 · El huevo de pie
-3:43 Recuento y regalo: ¿por qué el norte está arriba?
+3:42 Recuento y regalo: ¿por qué el norte está arriba?
 
 Fuentes:
 - La Luna: EarthSky, ¿vemos todos la misma fase? https://earthsky.org/moon-phases/do-we-all-see-the-same-moon-phase/
