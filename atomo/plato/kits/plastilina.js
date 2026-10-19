@@ -60,13 +60,43 @@ export function brote(ts, tFin, antes = 0.25, sobre = 0.14) {
   if (ts < tFin) return eob(u, 2.2) * (1 + sobre * ss(0.5, 1, u));
   return 1 + sobre * muelle(ts - tFin, 2.6, 7);
 }
-// reloj de los movimientos de reposo (balanceos, giros, electrones) que frena hasta pararse
-// en los últimos `t` segundos: la escena «se asienta y queda quieta» al final
+// los últimos QUIETO segundos de cada escena son una imagen fija (P.fotograma(t, duracion) se
+// detiene ahí), y `calma` frena los movimientos de reposo (balanceos, giros, electrones) durante
+// los `t` segundos anteriores: la escena «se asienta y queda quieta»
+export const QUIETO = 0.3;
 export function calma(ts, fin, t = 0.8) {
-  const a = fin - t;
+  const a = fin - QUIETO - t;
   if (ts <= a) return ts;
   const u = Math.min(ts - a, t);
   return a + u - (u * u) / (2 * t);
+}
+// reacción del átomo al sello del marcador (la usan marcador y recuento, para empalmar):
+// ✓ dos saltos de alegría y los electrones se aceleran; ✗ niega con la cabeza y se encoge
+export const T_GOLPE = 0.5;
+export function reaccionMarcador(ts, tz, si) {
+  const tr = T_GOLPE + 0.08;
+  let dy = 0, yaw = -0.45, roll = 0.04, sq = [1, 1, 1], tsE = tz;
+  if (si) {
+    const s1 = prog(ts, tr, tr + 0.42), s2 = prog(ts, tr + 0.5, tr + 0.8);
+    const h = 0.55 * Math.sin(Math.PI * s1) + 0.22 * Math.sin(Math.PI * s2);
+    const aire = (s1 > 0 && s1 < 1 ? Math.sin(Math.PI * s1) : 0) + (s2 > 0 && s2 < 1 ? 0.6 * Math.sin(Math.PI * s2) : 0);
+    const prep = Math.sin(Math.PI * prog(ts, tr - 0.17, tr + 0.02));
+    const cae = 0.22 * muelle(ts - (tr + 0.42), 2.6, 8) * (ts < tr + 0.5 ? 1 : 0) + 0.16 * muelle(ts - (tr + 0.8), 2.6, 7);
+    dy = h - 0.05 * prep;
+    const k = 0.18 * aire - 0.16 * prep - cae;   // + estira, − aplasta
+    sq = [1 - 0.5 * k, 1 + k, 1 - 0.5 * k];
+    roll += 0.22 * Math.sin(Math.PI * s1) * Math.sin(Math.PI * 2 * s1);
+    tsE = tz + 1.6 * eio(prog(ts, tr, tr + 0.9));
+  } else {
+    const v = prog(ts, tr, tr + 1.0);
+    yaw += 0.6 * Math.sin(v * Math.PI * 5) * Math.pow(1 - v, 1.3);
+    const enc = ss(tr, tr + 0.3, ts) * (1 - 0.6 * ss(tr + 0.9, tr + 1.4, ts));
+    dy = -0.12 * enc;
+    sq = [1 + 0.05 * enc, 1 - 0.1 * enc, 1 + 0.05 * enc];
+    roll += -0.12 * enc;
+    tsE = tz - 0.5 * eio(prog(ts, tr, tr + 1.2));
+  }
+  return { dy, yaw, roll, sq, tsE };
 }
 export const veredictoATipo = (v) => (v === '✓' ? 1 : v === '✗' ? 2 : 0);
 export const COLOR = { TINTA: 0, MANTEQUILLA: 1, MOSTAZA: 2, CREMA: 3, TERRACOTA: 4, VERDE: 5 };
@@ -107,7 +137,7 @@ function glslGlifo(c) {
 // cada tipo: radio envolvente (unidades locales), forma con detalle pz_<t>(q, T, m),
 // forma simplificada (siempre dentro de la detallada) pzc_<t>(q, T) y color pzcol_<t>(q, T, m).
 // T = (tipo, variante, color o puntos, —)
-const RADIO_TIPO = { luna: 0.62, remolino: 0.48, estrella: 0.62, pesa: 0.66, ficha: 0.56, bocadillo: 1.32, glifo: 0.66 };
+const RADIO_TIPO = { luna: 0.62, remolino: 0.48, estrella: 0.62, pesa: 0.66, bascula: 0.72, ficha: 0.56, bocadillo: 1.32, glifo: 0.66 };
 const GLSL_TIPOS = {
   luna: /* glsl */`
 float pz_luna(vec3 q, vec4 T, out float m) {
@@ -171,6 +201,38 @@ float pzc_pesa(vec3 q, vec4 T) {
   return min(body, max(length(vec2(length(h.xy) - 0.21, h.z)) - 0.055, -(h.y + 0.02)));
 }
 vec3 pzcol_pesa(vec3 q, vec4 T, float m) { return m > 0.5 ? C_STEEL * 1.3 : C_STEEL; }
+`,
+  bascula: /* glsl */`
+// báscula de baño: losa redondeada con la esfera hundida (cara crema, aro y aguja) y dos huellas
+float pz_bascula(vec3 q, vec4 T, out float m) {
+  float d = sdRoundBox(q - vec3(0.0, 0.0, -0.03), vec3(0.44, 0.47, 0.09), 0.13);   // cara en z = 0.06
+  vec3 dq = q - vec3(0.0, 0.19, 0.0);
+  float rd = length(dq.xy);
+  d = smax(d, -max(rd - 0.19, 0.015 - dq.z), 0.025);                             // ventana hundida
+  float aro = length(vec2(rd - 0.205, dq.z - 0.055)) - 0.03;
+  float aguja = min(sdCapsule(q, vec3(0.0, 0.19, 0.03), vec3(0.1, 0.32, 0.03), 0.022), length(q - vec3(0.0, 0.19, 0.035)) - 0.038);
+  vec2 pa = vec2(abs(q.x) - 0.16, q.y + 0.2);
+  float pies = sdRoundBox(vec3(pa, q.z - 0.065), vec3(0.085, 0.13, 0.02), 0.05);
+  float marcas = 1e5;
+  for (int i = 0; i < 5; i++) {
+    float a = 0.6 + 0.48 * float(i);
+    marcas = min(marcas, length(q - vec3(cos(a) * 0.15, 0.19 + sin(a) * 0.15, 0.02)) - 0.016);
+  }
+  m = 0.0;
+  if (rd < 0.195 && q.z < 0.05) m = 1.0;          // cara de la esfera
+  float extra = min(aro, pies);
+  if (extra < d) m = 3.0;
+  float dn = min(aguja, marcas);
+  if (dn < min(d, extra)) m = 2.0;
+  return smin(smin(d, extra, 0.02), dn, 0.01);
+}
+float pzc_bascula(vec3 q, vec4 T) { return sdRoundBox(q - vec3(0.0, 0.0, -0.04), vec3(0.42, 0.45, 0.07), 0.12); }
+vec3 pzcol_bascula(vec3 q, vec4 T, float m) {
+  if (m > 2.5) return C_LIGHT * 0.92;
+  if (m > 1.5) return C_INK;
+  if (m > 0.5) return C_LIGHT;
+  return vec3(0.46, 0.12, 0.06) * (0.92 + 0.16 * vnoise(q * 3.0));
+}
 `,
   ficha: /* glsl */`
 float pz_ficha(vec3 q, vec4 T, out float m) { return fichaD(q, T.y, m); }
@@ -263,7 +325,7 @@ const vec3 C_LAND   = vec3(0.062, 0.090, 0.028);
 const vec3 C_GOLD   = vec3(0.270, 0.118, 0.010);
 const vec3 C_WATER  = vec3(0.042, 0.120, 0.230);
 const vec3 C_STEEL  = vec3(0.038, 0.041, 0.055);
-const vec3 C_DUST   = vec3(0.380, 0.320, 0.240);
+const vec3 C_DUST   = vec3(0.170, 0.130, 0.090);
 
 const float ZW = 4.2;   // pared del fondo en z = -ZW
 const float RF = 2.6;   // radio de la curva del ciclorama
@@ -817,7 +879,23 @@ float softShadow(vec3 p, vec3 L, float maxT, float k) {
 `;
 
 const GLSL_PASO_SOMBRA = /* glsl */`
-uniform float uSombraEsc;
+uniform float uSombraEsc, uTenue;
+#ifdef TENUES
+// sombra de las piezas pequeñas: se dibuja muy clara para que no parezca un agujero
+float softShadowT(vec3 p, vec3 L, float maxT, float k) {
+  float t0, t1;
+  rangoSombra(p, L, t0, t1);
+  float t = max(t0, 0.04), res = 1.0, end = min(t1, maxT);
+  for (int i = 0; i < SOMBRA_PASOS; i++) {
+    if (t > end || res < 0.002) break;
+    float h = mapT(p + L * t);
+    res = min(res, k * h / t);
+    t += clamp(h, 0.02, 0.45);
+  }
+  res = clamp(res, 0.0, 1.0);
+  return res * res * (3.0 - 2.0 * res);
+}
+#endif
 float aoBg(vec3 p, vec3 n) {
   float o = 0.0;
   int nao = 0;
@@ -836,6 +914,9 @@ void main() {
   vec3 p = ro + rd * tb;
   vec3 L = normalize(LPOS - p);
   float sh = softShadow(p + nb * 0.01, L, length(LPOS - p), 11.0);
+#ifdef TENUES
+  sh *= mix(1.0, softShadowT(p + nb * 0.01, L, length(LPOS - p), 8.0), uTenue);
+#endif
   float ao = aoBg(p, nb);
   fragColor = vec4(sh, ao, 0.0, 1.0);
 }
@@ -1005,6 +1086,7 @@ const rotTab = ({ inclinacion = 0.6, giro = 0, roll = 0 }) => new THREE.Matrix4(
 // ---------- el plató ----------
 export async function crearPlato({
   camara = {}, atomo = true, globo = false, tablero = false, polvo = 0, piezas = [], sombras = {},
+  sombraFondo = null, sombraTenue = 0.3, mano = false,
   semilla = 20261019, pasosRayo = 90, pasosSombra = 28, sombraEsc = 3,
 } = {}) {
   const busqueda = new URLSearchParams(location.search);
@@ -1106,7 +1188,7 @@ export async function crearPlato({
     ...comunes,
     uFrame: { value: 0 }, uFlicker: { value: 1 }, uLump: { value: 0.008 }, uBoil: { value: new THREE.Vector3() },
     uB: { value: v4(NB) }, uBgD: { value: rtD.texture }, uBgA: { value: rtA.texture }, uSombra: { value: rtS.texture },
-    uSombraEsc: { value: sombraEsc },
+    uSombraEsc: { value: sombraEsc }, uTenue: { value: sombraTenue },
     uCen: { value: new THREE.Vector3() }, uSq: { value: new THREE.Vector3(1, 1, 1) }, uAEsc: { value: 1 },
     uYaw: { value: new THREE.Matrix3() }, uNuc: { value: v4(8) },
     uRingM: { value: m3(3) }, uRing: { value: new THREE.Vector2(1.68, 0.092) }, uElec: { value: v4(3) }, uBrazo: { value: new THREE.Vector3() }, uAPrint: { value: new THREE.Vector3() },
@@ -1135,7 +1217,12 @@ export async function crearPlato({
   const desU = { ...comunes, uTex: { value: null }, uDir: { value: new THREE.Vector2(1, 0) },
     uFoco: { value: camara.foco ?? cam.pos.distanceTo(cam.mira) }, uK: { value: camara.desenfoque ?? 26 } };
   const pasoDes = crearPaso(GLSL_COMUN + GLSL_DESENFOQUE, { uniforms: desU });
-  const pasoSombra = crearPaso(GLSL_COMUN + decl + mapC(todos.filter((id) => id !== 'polvo')) + GLSL_REVELAR + GLSL_PASO_SOMBRA);
+  // sombra sobre el ciclorama: las piezas de sombraFondo, enteras; las demás, muy claras (sombraTenue)
+  const fuertes = (sombraFondo ?? todos).filter((id) => todos.includes(id) && id !== 'polvo');
+  const tenues = todos.filter((id) => !fuertes.includes(id) && id !== 'polvo');
+  const mapT = tenues.length ? mapC(tenues).replace('float mapC(', 'float mapT(') : '';
+  const pasoSombra = crearPaso(GLSL_COMUN + decl + mapC(fuertes) + mapT + GLSL_REVELAR + GLSL_PASO_SOMBRA,
+    { extraDefs: tenues.length ? { TENUES: 1 } : {} });
   // suavizado de la sombra a baja resolución (3 tomas por eje)
   const suaU = { uTex: { value: null }, uDir: { value: new THREE.Vector2() }, uTam: { value: new THREE.Vector2() } };
   const pasoSuave = crearPaso(`precision highp float;\nout vec4 fragColor;\nuniform sampler2D uTex;\nuniform vec2 uDir, uTam;
@@ -1225,7 +1312,7 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
     const R = rotXYZ(pitch, yaw, roll);
     U.uYaw.value.setFromMatrix4(R.clone().transpose());
     const e = cl(energia);
-    const ns = 1 + 0.07 * e, nr = 0.29 * (1 + 0.09 * e);
+    const ns = 1 + 0.15 * e, nr = 0.29 * (1 + 0.15 * e);
     NUC.forEach((p, i) => {
       const j = 0.006;
       U.uNuc.value[i].set(p[0] * ns + (azar(nActual, 10 + i) - 0.5) * j, p[1] * ns + (azar(nActual, 20 + i) - 0.5) * j, p[2] * ns + (azar(nActual, 30 + i) - 0.5) * j, nr);
@@ -1396,7 +1483,12 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
 
   return {
     W, H, FPS, captura, renderer, U, proyectar, punto,
-    fotograma: (t) => { nActual = Math.max(0, Math.floor(t * FPS + 1e-6)); return nActual; },
+    // fotograma a 12 fps; con la duración, los últimos QUIETO segundos repiten la misma imagen
+    fotograma: (t, duracion) => {
+      if (duracion) t = Math.min(t, duracion - QUIETO);
+      nActual = Math.max(0, Math.floor(t * FPS + 1e-6));
+      return nActual;
+    },
     limpiar, atomo: ponerAtomo, globo: ponerGlobo, tablero: ponerTablero, polvo: ponerPolvo, pieza: ponerPieza, render,
     // punto (mundo) del centro del hueco i del tablero, a una distancia d sobre su superficie
     casilla(tab, i, d = 0) { return this.enTablero(tab, (i - 2.5) * TAB.PASO, TAB.YW, d); },
