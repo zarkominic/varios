@@ -52,6 +52,20 @@ for _ in range(int(dur / 1.6)):
     izq[i0:fin] += s[: fin - i0] * (1 - pan)
     der[i0:fin] += s[: fin - i0] * pan
 
+# Golpe blando de plastilina en cada marcador (vídeo largo): el sello cae a los 0,5 s de la escena.
+for esc in linea["escenas"]:
+    if not esc.get("veredicto"):
+        continue
+    i0 = int((esc["inicio"] + 0.5) * SR)
+    L = int(0.45 * SR)
+    tt = np.arange(L) / SR
+    tono = 110 if esc["veredicto"] == "✓" else 82
+    golpe = (np.sin(2 * np.pi * tono * tt * (1 - 0.3 * tt)) * np.exp(-tt * 14) * 0.9
+             + lfilter([0.08], [1, -0.9], rng.standard_normal(L)) * np.exp(-tt * 30) * 0.5)
+    fin = min(n, i0 + L)
+    izq[i0:fin] += golpe[: fin - i0]
+    der[i0:fin] += golpe[: fin - i0]
+
 # "Whoosh" en cada transformación: ruido filtrado que barre de grave a agudo.
 for k, esc in enumerate(linea["escenas"]):
     if k == 0:

@@ -191,7 +191,10 @@ def srt(palabras, ruta):
         bloques.append(actual)
     with open(ruta, 'w') as f:
         for k, b in enumerate(bloques, 1):
-            f.write(f"{k}\n{hms(b[0]['i'])} --> {hms(b[-1]['f'] + 0.25)}\n{' '.join(w['p'] for w in b)}\n\n")
+            fin = b[-1]['f'] + 0.25
+            if k < len(bloques):   # que no pise al siguiente
+                fin = min(fin, bloques[k][0]['i'] - 0.02)
+            f.write(f"{k}\n{hms(b[0]['i'])} --> {hms(fin)}\n{' '.join(w['p'] for w in b)}\n\n")
 
 for l in IDIOMAS:
     srt(palabras_out[l], f'{salida}/subtitulos-{l}.srt')
