@@ -7,7 +7,12 @@ sonar en el mismo instante en las dos pistas. Para cada escena con voz:
   1. Whisper da el tiempo de cada palabra del guion en las dos voces.
   2. Las marcas que existen en los dos idiomas (y en el mismo orden) parten la voz en tramos.
   3. Cada tramo se acelera o frena como mucho un 8 % en cada idioma para que duren lo mismo; si no
-     basta, el idioma más corto añade un silencio en su pausa más larga de ese tramo.
+     basta, el idioma más corto alarga a partes iguales sus tres pausas más largas de ese tramo.
+  Los cortes entre tramos caen en el silencio más hondo justo antes de cada palabra clave (nunca
+  dentro de una palabra), los trozos se funden 5 ms en los bordes y se suman en su sitio: así no
+  se recorta ni se entrecorta la voz.
+Si la escena trae "pausa_tras_primera" (segundos), la primera palabra («Uno:», «One:») va seguida de
+esa pausa en los dos idiomas.
 Las escenas mudas (marcadores) duran lo que diga el guion.
 
 Escribe en <salida>: linea.json (escenas con inicio, duración y marcas en segundos desde el inicio
@@ -33,7 +38,19 @@ def norm(w):
     return re.sub(r"[^a-z0-9]", "", w)
 
 def tiempos_palabras(audio, sr, texto, idioma):
-    """Tiempo (inicio, fin) de cada palabra del texto del guion, con Whisper y relleno por interpolación."""
+    """Tiempo (inicio, fin) de cada palabra del texto del guion, con Whisper y relleno por interpolación.
+    Se guarda en caché (junto a los wav) por audio y texto, porque Whisper es lo más lento."""
+    import hashlib
+    clave = hashlib.sha1(audio.tobytes() + texto.encode()).hexdigest()[:16]
+    cache = f"{wav_dir}/whisper-{idioma}-{clave}.json"
+    if os.path.exists(cache):
+        palabras, t = json.load(open(cache))
+        return palabras, [tuple(x) for x in t]
+    palabras, t = _tiempos_palabras(audio, sr, texto, idioma)
+    json.dump([palabras, t], open(cache, 'w'))
+    return palabras, t
+
+def _tiempos_palabras(audio, sr, texto, idioma):
     n16 = int(len(audio) * 16000 / sr)
     a16 = np.interp(np.linspace(0, len(audio) - 1, n16), np.arange(len(audio)), audio).astype(np.float32)
     segs, _ = modelo.transcribe(a16, language=idioma, beam_size=5, word_timestamps=True)
@@ -67,18 +84,58 @@ def buscar(palabras, t, clave):
     n = int(n or 1)
     return t[c[n - 1]] if len(c) >= n else None
 
-def atempo(audio, sr, tempo):
-    """Cambia la duración sin cambiar el tono (ffmpeg atempo)."""
-    if abs(tempo - 1) < 1e-3 or len(audio) < sr * 0.05:
-        return audio
+def atempo(audio, sr, t0, t1, tempo, margen=0.25):
+    """El trozo [t0, t1) de audio con la duración cambiada sin cambiar el tono (ffmpeg atempo).
+    Se estira con margen a los dos lados y luego se recorta: atempo estropea el principio y el
+    final de lo que recibe, y en trozos cortos (una palabra) se comería el sonido."""
+    i0, i1 = int(t0 * sr), int(t1 * sr)
+    if abs(tempo - 1) < 1e-3:
+        return audio[i0:i1].copy()
+    m0, m1 = max(0, i0 - int(margen * sr)), min(len(audio), i1 + int(margen * sr))
     with tempfile.TemporaryDirectory() as d:
-        sf.write(f'{d}/a.wav', audio, sr)
+        sf.write(f'{d}/a.wav', audio[m0:m1], sr)
         subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', f'{d}/a.wav', '-filter:a', f'atempo={tempo:.5f}', f'{d}/b.wav'], check=True)
         b, _ = sf.read(f'{d}/b.wav')
-    return b
+    ini, n = int(round((i0 - m0) / tempo)), int(round((i1 - i0) / tempo))
+    return ajustar(b[ini:ini + n], n)
 
 def ajustar(audio, n):
     return audio[:n] if len(audio) >= n else np.concatenate([audio, np.zeros(n - len(audio))])
+
+def envolvente(audio, sr):
+    """Energía (RMS) en ventanas de 10 ms cada 2,5 ms: (tiempos, rms)."""
+    h, w = int(sr * 0.0025), int(sr * 0.01)
+    n = max(1, (len(audio) - w) // h)
+    rms = np.sqrt(np.array([np.mean(audio[i * h:i * h + w] ** 2) for i in range(n)]))
+    return (np.arange(n) * h + w / 2) / sr, rms
+
+def mas_callado(env, t0, t1):
+    """Instante de menos energía entre t0 y t1."""
+    tt, rms = env
+    i = np.where((tt >= t0) & (tt <= t1))[0]
+    return float(tt[i[np.argmin(rms[i])]]) if len(i) else (t0 + t1) / 2
+
+def pausas(env, t0, t1, n=3):
+    """Centros de los n silencios más largos (de al menos 60 ms) entre t0 y t1, en orden."""
+    tt, rms = env
+    umbral = 0.06 * np.percentile(rms, 95)
+    tramos, ini = [], None
+    for t, r in zip(tt, rms):
+        if t0 <= t <= t1 and r < umbral:
+            ini = t if ini is None else ini
+        else:
+            if ini is not None and t - ini >= 0.06:
+                tramos.append((t - ini, (ini + t) / 2))
+            ini = None
+    return sorted(c for _, c in sorted(tramos, reverse=True)[:n])
+
+def fundido(a, sr, ms=5):
+    n = min(len(a) // 2, int(sr * ms / 1000))
+    if n:
+        a = a.copy()
+        a[:n] *= np.linspace(0, 1, n)
+        a[-n:] *= np.linspace(1, 0, n)
+    return a
 
 lineas, pistas = [], {l: [] for l in IDIOMAS}
 palabras_out = {l: [] for l in IDIOMAS}
@@ -118,39 +175,58 @@ for e in g['escenas']:
     ini = {l: datos[l]['t'][0][0] for l in IDIOMAS}
     fin = {l: datos[l]['t'][-1][1] for l in IDIOMAS}
     cortes = [('_inicio', ini['es'], ini['en'])] + [(n, a, b) for n, a, b in ordenadas if ini['es'] < a < fin['es'] and ini['en'] < b < fin['en']] + [('_fin', fin['es'], fin['en'])]
-    salida_audio = {l: [np.zeros(int(round(ENTRADA * sr)))] for l in IDIOMAS}
-    mapa = {l: [] for l in IDIOMAS}   # tramos (origen_ini, origen_fin, destino_ini, tempo, pausa_en, pausa)
-    t_local = ENTRADA
+    extra = {}   # segundos de pausa añadidos antes de un corte
+    if e.get('pausa_tras_primera'):
+        segunda = ('_pausa', datos['es']['t'][1][0], datos['en']['t'][1][0])
+        cortes = sorted([x for x in cortes if x[1] > segunda[1] + 0.05 or x[0] == '_inicio'] + [segunda], key=lambda x: x[1])
+        extra['_pausa'] = e['pausa_tras_primera']
+    # Destino común de cada palabra clave (D) y tempo de cada idioma en cada tramo.
+    D, tempos = [ENTRADA], {l: [] for l in IDIOMAS}
     for (n0, a0, b0), (n1, a1, b1) in zip(cortes, cortes[1:]):
         largo = {'es': a1 - a0, 'en': b1 - b0}
         lo, hi = max(largo.values()) / MAX_TEMPO, min(largo.values()) * MAX_TEMPO
         T = min(max(sum(largo.values()) / 2, lo), hi) if lo <= hi else lo
-        for l, (s0, s1) in (('es', (a0, a1)), ('en', (b0, b1))):
-            tempo = max(min(largo[l] / T, MAX_TEMPO), 1 / MAX_TEMPO)
-            hablado = largo[l] / tempo
-            pausa = max(0.0, T - hablado)
-            trozo = datos[l]['audio'][int(s0 * sr):int(s1 * sr)]
-            # El silencio que falte va en la pausa más larga entre palabras de ese tramo.
-            pal_t = [x for x in datos[l]['t'] if s0 <= x[0] < s1]
-            corte = s1
-            if pausa > 0 and len(pal_t) > 1:
-                huecos = [(pal_t[i + 1][0] - pal_t[i][1], (pal_t[i][1] + pal_t[i + 1][0]) / 2) for i in range(len(pal_t) - 1)]
-                corte = max(huecos)[1]
-            p1 = atempo(datos[l]['audio'][int(s0 * sr):int(corte * sr)], sr, tempo)
-            p2 = atempo(datos[l]['audio'][int(corte * sr):int(s1 * sr)], sr, tempo) if corte < s1 else np.zeros(0)
-            bloque = np.concatenate([p1, np.zeros(int(round(pausa * sr))), p2])
-            salida_audio[l].append(ajustar(bloque, int(round(T * sr))))
-            mapa[l].append((s0, s1, t_local, tempo, corte, pausa))
-        t_local += T
-    for l in IDIOMAS:
-        salida_audio[l].append(np.zeros(int(round(SALIDA * sr))))
+        for l in IDIOMAS:
+            tempos[l].append(max(min(largo[l] / T, MAX_TEMPO), 1 / MAX_TEMPO))
+        D.append(D[-1] + T + extra.get(n1, 0))
+    t_local = D[-1]
     duracion = t_local + SALIDA
+    salida_audio, mapa = {}, {l: [] for l in IDIOMAS}   # tramos (origen_ini, origen_fin, destino_ini, tempo, pausa_en, pausa)
+    for l, k in (('es', 1), ('en', 2)):
+        audio = datos[l]['audio']
+        env = envolvente(audio, sr)
+        ws = [c[k] for c in cortes]                       # inicio de cada palabra clave (y fin de la última)
+        # Cortes físicos en el silencio más hondo antes de cada palabra clave; el primero y el último,
+        # fuera de la voz para no perder ni el ataque de la primera palabra ni la cola de la última.
+        c = [mas_callado(env, max(0, ws[0] - 0.3), ws[0])]
+        c += [mas_callado(env, max(ws[j] - 0.3, (ws[j - 1] + ws[j]) / 2), ws[j] + 0.02) for j in range(1, len(ws) - 1)]
+        c += [mas_callado(env, ws[-1] + 0.05, min(len(audio) / sr, ws[-1] + 0.45))]
+        buf = np.zeros(int(round(duracion * sr)) + sr)
+        for j in range(len(ws) - 1):
+            tempo = tempos[l][j]
+            inicio = D[j] - (ws[j] - c[j]) / tempo                     # la palabra clave cae en D[j]
+            sig = D[j + 1] - (ws[j + 1] - c[j + 1]) / tempos[l][min(j + 1, len(ws) - 2)] if j + 1 < len(ws) - 1 else None
+            trozo = atempo(audio, sr, c[j], c[j + 1], tempo)
+            pausa = max(0.0, sig - (inicio + len(trozo) / sr)) if sig is not None else 0.0
+            # El silencio que falta se reparte entre las pausas más largas del tramo (o va antes de la
+            # siguiente palabra clave si no hay ninguna), para que ninguna pausa quede demasiado larga.
+            donde = (pausas(env, ws[j] + 0.1, ws[j + 1] - 0.1) or [c[j + 1]]) if pausa > 0.01 else []
+            huecos = [(q, pausa / len(donde)) for q in donde]
+            partes, prev = [], 0
+            for q, h in huecos:
+                m = int(round((q - c[j]) / tempo * sr))
+                partes += [fundido(trozo[prev:m], sr), np.zeros(int(round(h * sr)))]
+                prev = m
+            trozo = np.concatenate(partes + [fundido(trozo[prev:], sr)])
+            p = max(0, int(round(inicio * sr)))
+            buf[p:p + len(trozo)] += trozo[:len(buf) - p]
+            mapa[l].append((c[j], c[j + 1], inicio, tempo, huecos))
+        salida_audio[l] = [buf[:int(round(duracion * sr))]]
 
     def mover(x, l):
-        for s0, s1, d0, tempo, corte, pausa in mapa[l]:
-            if x < s1 or (s0, s1, d0, tempo, corte, pausa) == mapa[l][-1]:
-                y = d0 + (max(x, s0) - s0) / tempo
-                return y + (pausa if x >= corte else 0)
+        for k, (s0, s1, d0, tempo, huecos) in enumerate(mapa[l]):
+            if x < s1 or k == len(mapa[l]) - 1:
+                return d0 + (max(x, s0) - s0) / tempo + sum(h for q, h in huecos if x >= q)
         return ENTRADA
     # Marcas en segundos desde el inicio de la escena, con la voz ya alineada (las del español mandan).
     marcas = {}
