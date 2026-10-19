@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=block">
 <style>
-  html, body { margin: 0; height: 100%; background: #0b2b55; overflow: hidden; }
+  html, body { margin: 0; height: 100%; background: #082146; overflow: hidden; }
   canvas { position: fixed; display: block; }
 </style>
 </head>
@@ -41,7 +41,6 @@ let S = 1;            // píxeles internos por unidad del marco 1920x1080
 const INK = [236, 244, 255];     // tinta blanca
 const CY = [132, 210, 255];      // cian de construcción
 const GRID = [150, 198, 248];
-const PAPER = '#0b2b55';
 const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
 const COND = '"IBM Plex Sans Condensed", "Arial Narrow", sans-serif';
@@ -204,9 +203,9 @@ function buildPaperTextures() {
 function drawPaper() {
   const gr = g.createRadialGradient(900, 470, 80, 960, 540, 1180);
   gr.addColorStop(0, '#13427a'); gr.addColorStop(0.55, '#0f3567'); gr.addColorStop(1, '#082146');
-  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.fillStyle = gr; g.fillRect(-4, -4, W + 8, H + 8);
   g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
-  g.drawImage(mottle, 0, 0, W, H);
+  g.drawImage(mottle, -4, -4, W + 8, H + 8);
   // grano a resolución de pantalla
   g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
   g.fillStyle = g.createPattern(grain, 'repeat'); g.fillRect(0, 0, stat.width, stat.height);
