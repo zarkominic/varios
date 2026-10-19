@@ -79,6 +79,14 @@ Fuentes:
 
 #ciencia #hemisferiosur #curiosidades
 
+## Etiquetas
+
+Van en el campo **Etiquetas** (Más opciones) del vídeo; son las mismas para los dos idiomas. Ocupan 491 de los 500 caracteres que admite YouTube, contando las comillas que añade a las etiquetas de varias palabras.
+
+```
+ASK Atom, southern hemisphere, equator, crossing the equator, coriolis effect, toilet flush direction, water drain direction australia, moon upside down, why are seasons reversed, axial tilt, perihelion, sundial, southern cross, orion upside down, egg on the equator, south up map, science myths, true or false, corriolis, hemisferio sur, ecuador, efecto coriolis, luna al revés, estaciones invertidas, cruz del sur, huevo en el ecuador, mitos de ciencia, verdad o mentira
+```
+
 ## Al publicar
 
 1. Sube `videos/02-cruza-el-ecuador.mp4` con el título y la descripción en inglés. Lleva el audio en inglés y el idioma del vídeo es **inglés**.
