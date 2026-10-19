@@ -85,9 +85,9 @@
 
 **Visual:** el marcador de plastilina se completa con tres ✓ y tres ✗. Después, un mapa de papel que gira hasta poner el sur arriba, y un mapa medieval con el este arriba. Cierre con el átomo de plastilina saludando.
 
-**ES:** Recuento: tres verdades y tres mentiras. ¿Cuántas acertaste? Y una de regalo: ¿por qué el norte está arriba en los mapas? Por pura costumbre: en el espacio no hay arriba ni abajo. Muchos mapas medievales ponían el este arriba, y de ahí viene la palabra orientarse: mirar hacia oriente. En 1979, un australiano publicó un mapa con el sur arriba, y es igual de correcto. Déjame tu resultado en los comentarios.
+**ES:** Recuento: tres verdades y tres mentiras. ¿Cuántas acertaste? Y una de regalo: ¿por qué el norte está arriba en los mapas? Por pura costumbre: en el espacio no hay arriba ni abajo. Muchos mapas medievales ponían el este arriba, y de ahí viene la palabra orientarse: mirar hacia oriente. En 1979, un australiano publicó un mapa con el sur arriba, y es igual de correcto. ¿Qué otro tema quieres que te explique? Déjamelo en los comentarios.
 
-**EN:** Final score: three truths, three lies. How many did you get? And a bonus: why is north at the top of maps? Pure habit: in space there's no up or down. Many medieval maps put east at the top, and that's where "orient yourself" comes from: turning toward the Orient, the east. In 1979, an Australian published a map with south on top, and it's just as correct. Tell me your score in the comments.
+**EN:** Final score: three truths, three lies. How many did you get? And a bonus: why is north at the top of maps? Pure habit: in space there's no up or down. Many medieval maps put east at the top, and that's where "orient yourself" comes from: turning toward the Orient, the east. In 1979, an Australian published a map with south on top, and it's just as correct. What should I explain next? Tell me in the comments.
 
 ---
 

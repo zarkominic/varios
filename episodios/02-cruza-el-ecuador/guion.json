@@ -537,10 +537,14 @@
       "id": "despedida",
       "estilo": "plastilina",
       "bloque": 7,
-      "es": "Déjame tu resultado en los comentarios.",
-      "en": "Tell me your score in the comments.",
-      "visual": "El átomo de plastilina saluda; el marcador final queda al fondo.",
+      "es": "¿Qué otro tema quieres que te explique? Déjamelo en los comentarios.",
+      "en": "What should I explain next? Tell me in the comments.",
+      "visual": "El átomo de plastilina saluda; a su lado brota un bocadillo con una «?»: qué tema explico ahora.",
       "marcas": {
+        "tema": {
+          "es": "tema",
+          "en": "next"
+        },
         "comentarios": {
           "es": "comentarios",
           "en": "comments"
