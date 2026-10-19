@@ -172,7 +172,7 @@ function seccionA(t) {
       const entra = eout(um), sale = ein(us), hy = 880 - 252 - CLAVO - HH * 0.5;
       // las manos bajan desde las esquinas de arriba siguiendo la manga, por encima de los turistas
       const off = lerp(1150, 0, entra) + 1150 * sale, fino = Math.sin(t * 7.3) * 1.2;
-      const an = 0.5, dx = Math.cos(an), dy = Math.sin(an), k = 0.82;
+      const an = 1.0, dx = Math.cos(an), dy = Math.sin(an), k = 0.82;
       K.elevar(6, () => {
         for (const sx of [-1, 1]) {
           const tx = EX + sx * (HH * 0.36 - 20 + fino), ty = hy + (sx > 0 ? 4 : -4);
@@ -182,7 +182,7 @@ function seccionA(t) {
         }
       });
     }
-    K.sello(1250, 250, '✗', seg(t, T.sello[0], T.sello[1]), { R: 88, id: 910 });
+    K.sello(1350, 250, '✗', seg(t, T.sello[0], T.sello[1]), { R: 88, id: 910 });
   });
   g.restore();
 }
@@ -295,7 +295,7 @@ function bascula(lectura, polo, id, cuna = 0) {
     const a = -PI / 2 + AL; g.strokeStyle = C.goldD; g.lineWidth = 8; g.beginPath(); g.moveTo(78 * Math.cos(a), 78 * Math.sin(a)); g.lineTo(50 * Math.cos(a), 50 * Math.sin(a)); g.stroke();
     // la diferencia, en coral, entre la marca dorada y la aguja
     if (cuna > 0) {
-      g.fillStyle = 'rgba(214,98,74,0.6)'; g.beginPath(); g.moveTo(0, 0);
+      g.fillStyle = 'rgba(214,98,74,0.78)'; g.beginPath(); g.moveTo(0, 0);
       g.arc(0, 0, 74, -PI / 2 + lectura + (AL - lectura) * (1 - cuna), -PI / 2 + AL); g.closePath(); g.fill();
     }
   } });

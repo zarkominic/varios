@@ -14,9 +14,10 @@
 // norte, con una ficha N. [cabeza] el disco gira 180° sobre su chincheta: cabeza abajo; flecha N → S.
 // [cruz] baja de un hilo la Cruz del Sur. [polar] se cose el contorno vacío de una estrella polar y
 // las estrellas trazan arcos alrededor del polo (giran a derechas). [debil] en el polo, una estrella
-// diminuta y apagada, señalada con una retícula. [navegantes] se posa un velero; el eje largo de la
-// Cruz baja por el polo hasta la S del horizonte. [lactea] se retira lo anterior y la Vía Láctea, una
-// tira de gasa con puntos, cruza el cielo (la Cruz queda dentro). [centro] se enciende su bulbo.
+// diminuta y apagada, señalada con un anillo de puntos. [navegantes] se posa un velero; el eje largo
+// de la Cruz baja por el polo (ficha ×4½: la distancia real, aquí acortada) hasta la S del horizonte.
+// [lactea] se retira lo anterior y la Vía Láctea, una tira de gasa con puntos, se desenrolla por el
+// cielo (la Cruz queda dentro). [centro] se enciende su bulbo.
 // [encima] una flecha sube de la cabeza del observador al centro, que le pasa justo por encima.
 import { escena } from '/atomo/plato/escena.js';
 import * as K from '/atomo/plato/kits/papel.js';
@@ -32,7 +33,7 @@ const HZ = 808;                              // horizonte del mar
 const ORI = { x: 520, y: 398, R: 226 };      // disco de Orión (gira sobre su centro)
 const CRUZ = { x: 1300, y: 290 };            // punto medio del eje largo de la Cruz del Sur
 const POLO = { x: 1300, y: 612 };            // polo sur del cielo
-const SUR = { x: 1300, y: 846 };             // ficha S en el horizonte
+const SUR = { x: 1300, y: 780 };             // ficha S, posada sobre el horizonte (fuera de la franja de subtítulos)
 const BULBO = { x: 960, y: 212 };            // centro de la galaxia (en el cénit)
 const OBS = { x: 960, esc: 1.35 };
 const BARCO = { x: 1592, y: 852 };
@@ -361,7 +362,7 @@ const COLGANTES = [{ x: 330, len: 148, R: 15, tipo: 'plegada', id: 301 }, { x: 7
 // ---------- trazos de las estrellas alrededor del polo (tiras de papel enrolladas, «quilling») ----------
 const TRAZOS = (() => {
   const r = K.rng(4040), out = [];
-  [52, 64, 78, 92, 106, 121, 137, 153, 170].forEach((R, i) => out.push({ R, a0: r() * TAU, w: 1.3 + r() * 1.2, col: [C.ivory, C.ivory2, C.goldL, '#c7d8e4'][i % 4], id: 640 + i * 2 }));
+  [64, 76, 90, 104, 118, 133, 148, 163, 178].forEach((R, i) => out.push({ R, a0: r() * TAU, w: 1.3 + r() * 1.2, col: [C.ivory, C.ivory2, C.goldL, '#c7d8e4'][i % 4], id: 640 + i * 2 }));
   // trazos largos que se esconden tras el horizonte (no pasan por la Cruz ni por el observador)
   [[196, 0.95, C.ivory2], [218, 1.55, C.ivory], [242, 2.1, '#c7d8e4'], [270, 2.55, C.goldL]].forEach(([R, a0, col], i) => out.push({ R, a0, w: 1.6 + 0.3 * i, col, id: 670 + i * 2 }));
   return out;
@@ -385,10 +386,9 @@ function escenaEn(t) {
   // Vía Láctea y su centro
   const uLac = eout(tramo(t, 'lactea', -0.34, 0));
   if (uLac > 0) {
-    const X = lerp(-80, 2000, uLac);
-    g.save(); const clip = new Path2D(); clip.moveTo(-10, -10);
-    for (let y = -10; y <= 1090; y += 30) clip.lineTo(X + 18 * Math.sin(y * 0.03 + 1) + 9 * Math.sin(y * 0.11), y);
-    clip.lineTo(-10, 1090); clip.closePath(); g.clip(clip);
+    // se desenrolla a lo largo de su arco, desde el horizonte de la izquierda
+    g.save();
+    if (uLac < 1) { const pts = []; for (let i = 0; i <= 120; i++) pts.push(ARCO(-0.03 + (uLac * 1.06) * i / 120)); g.clip(K.tira(pts, 230)); }
     g.globalCompositeOperation = 'screen'; g.drawImage(lacteaLuz, 0, 0);
     g.globalCompositeOperation = 'source-over'; g.drawImage(lacteaSombra, 0, 0); g.restore();
   }
@@ -399,7 +399,7 @@ function escenaEn(t) {
     g.save(); g.globalCompositeOperation = 'screen';
     const gr = g.createRadialGradient(BULBO.x, BULBO.y, 10, BULBO.x, BULBO.y, 340);
     gr.addColorStop(0, `rgba(255,214,150,${0.5 * k})`); gr.addColorStop(0.3, `rgba(240,180,120,${0.18 * k})`); gr.addColorStop(1, 'rgba(240,180,120,0)');
-    g.fillStyle = gr; g.fillRect(BULBO.x - 360, BULBO.y - 300, 720, 600);
+    g.fillStyle = gr; g.fillRect(BULBO.x - 340, BULBO.y - 340, 680, 680);
     g.globalAlpha = Math.min(1, k); g.drawImage(bulboLuz, 0, 0);
     if (k > 1) { g.globalAlpha = k - 1; g.drawImage(bulboLuz, 0, 0); }
     g.globalCompositeOperation = 'source-over'; g.globalAlpha = Math.min(1, uCen); g.drawImage(bulboSombra, 0, 0);
@@ -407,18 +407,20 @@ function escenaEn(t) {
   }
 
   // trazos alrededor del polo: crecen a derechas desde [polar] y se recogen antes de [lactea]
-  const crece = eout(tramo(t, 'polar', -0.3, 3.2)) * (1 - fuera(-0.95, -0.45));
-  if (crece > 0.002) {
+  // (al recogerse, la cola alcanza a la cabeza: siguen girando a derechas hasta desaparecer)
+  const crece = eout(tramo(t, 'polar', -0.3, 3.2)), recogeT = eio(tramo(t, 'lactea', -0.95, -0.5));
+  if (crece > 0.002 && recogeT < 0.999) {
     for (const s of TRAZOS) {
-      const a1 = s.a0 + ARCO_TRAZO * crece, a0 = s.a0, n = Math.max(6, Math.round(s.R * (a1 - a0) / 8));
+      const a1 = s.a0 + ARCO_TRAZO * crece + 0.3 * recogeT, a0 = lerp(s.a0, a1, recogeT), n = Math.max(6, Math.round(s.R * (a1 - a0) / 8));
+      if (a1 - a0 < 0.06) continue;
       const pts = K.arcoPts(POLO.x, POLO.y, s.R, s.R, a0, a1, n);
       g.save(); K.temblor(s.id, 0.3, 0.002);
       K.papel(K.tira(pts, (u) => s.w * (0.25 + 0.75 * u)), s.col, { d: 1.5, seed: s.id, edge: 0.6, tb: 0.4 });
-      g.translate(...pts[pts.length - 1]); K.papel(K.circulo(s.w + 1.8, s.id + 1, 0.04), s.col, { d: 1.8, seed: s.id + 1, edge: 0.5 });
+      if (recogeT < 0.6) { g.translate(...pts[pts.length - 1]); K.papel(K.circulo(s.w + 1.8, s.id + 1, 0.04), s.col, { d: 1.8, seed: s.id + 1, edge: 0.5 }); }
       g.restore();
     }
-    const uf = eio(tramo(t, 'polar', 0.4, 1.6)) * (1 - fuera(-0.95, -0.45));
-    if (uf > 0) K.flecha(K.arcoPts(POLO.x, POLO.y, 212, 212, -0.95, 0.05, 30), { u: uf, ancho: 4.5, punta: 19, col: C.gold, d: 2.4, seed: 680 });
+    const uf = eio(tramo(t, 'polar', 0.4, 1.6));
+    if (uf > 0) K.flecha(K.arcoPts(POLO.x, POLO.y, 212, 212, -0.95, 0.05, 30), { u: uf, cola: recogeT, ancho: 4.5, punta: 19, col: C.gold, d: 2.4, seed: 680 });
   }
 
   // estrellas colgadas de hilos
@@ -428,7 +430,7 @@ function escenaEn(t) {
   const uO = tramo(t, 'orion', -0.3, 0), sal = fuera(-1.1, -0.6);
   if (uO > 0 && sal < 1) {
     const pc = K.colocar(uO), uR = tramo(t, 'cabeza', -0.32, 0), giro = PI * eback(uR, 1.1);
-    const ox = pc.dx - 760 * ein(sal), oy = pc.dy - 520 * ein(sal);
+    const ox = pc.dx - 820 * ein(sal), oy = pc.dy + 140 * ein(sal);
     g.save(); g.translate(ORI.x + ox, ORI.y + oy); g.scale(pc.s, pc.s); g.rotate(-0.5 * ein(sal));
     K.elevar(pc.d + 7 * Math.sin(PI * uR) + 12 * sal, () => {
       K.temblor(400, 0.4, 0.0015);
@@ -437,11 +439,11 @@ function escenaEn(t) {
     });
     g.restore();
     // indicador N → S (visto desde el norte → visto desde el sur)
-    const ty = ORI.y + ORI.R + 64, nx = ORI.x - 92, sx = ORI.x + 92, sale = (x) => x - 760 * ein(sal);
-    K.etiqueta(sale(nx), ty - 520 * ein(sal), 'N', { forma: 'circulo', size: 34, col: C.ivory, ink: C.ink, u: tramo(t, 'orion', -0.22, 0.04), id: 491, d: 3.5 + 10 * sal });
+    const ty = ORI.y + ORI.R + 64 + 140 * ein(sal), nx = ORI.x - 92, sx = ORI.x + 92, sale = (x) => x - 820 * ein(sal);
+    K.etiqueta(sale(nx), ty, 'N', { forma: 'circulo', size: 34, col: C.ivory, ink: C.ink, u: tramo(t, 'orion', -0.22, 0.04), id: 491, d: 3.5 + 10 * sal });
     if (uR > 0) {
-      K.flecha([[sale(nx + 36), ty - 520 * ein(sal)], [sale(sx - 38), ty - 520 * ein(sal)]], { u: eout(uR), ancho: 4.5, punta: 17, col: C.coral, d: 2.4, seed: 492 });
-      K.etiqueta(sale(sx), ty - 520 * ein(sal), 'S', { forma: 'circulo', size: 34, col: C.gold, ink: C.ink, u: tramo(t, 'cabeza', -0.2, 0.05), id: 493, d: 3.5 + 10 * sal });
+      K.flecha([[sale(nx + 36), ty], [sale(sx - 38), ty]], { u: eout(uR), ancho: 4.5, punta: 17, col: C.coral, d: 2.4, seed: 492 });
+      K.etiqueta(sale(sx), ty, 'S', { forma: 'circulo', size: 34, col: C.gold, ink: C.ink, u: tramo(t, 'cabeza', -0.2, 0.05), id: 493, d: 3.5 + 10 * sal });
     }
   }
 
@@ -455,8 +457,8 @@ function escenaEn(t) {
     K.elevar(Math.max(0, 1 - uC) * 10, () => {
       K.puntadas([[c.gacrux.x, c.gacrux.y], [c.acrux.x, c.acrux.y]], { col: 'rgba(236,224,196,0.92)', ancho: 2.1, guion: [7, 6], d: 1.2, nudos: false });
       K.puntadas([[c.mimosa.x, c.mimosa.y], [c.delta.x, c.delta.y]], { col: 'rgba(236,224,196,0.92)', ancho: 2.1, guion: [7, 6], d: 1.2, nudos: false });
-      const uN = eio(tramo(t, 'navegantes', -0.3, 0)) * (1 - fuera(-0.75, -0.35));
-      if (uN > 0) K.puntadas([[0, c.gacrux.y], [0, c.acrux.y]], { col: C.goldL, ancho: 2.8, guion: [9, 6], d: 1.4, nudos: false, u1: Math.min(1, uN * 2.2) });
+      const uN = eio(tramo(t, 'navegantes', -0.3, 0)), rec = fuera(-0.75, -0.35);
+      if (uN > 0 && rec < 1) K.puntadas([[0, c.gacrux.y], [0, c.acrux.y]], { col: C.goldL, ancho: 2.8, guion: [9, 6], d: 1.4, nudos: false, u1: Math.min(1, uN * 2.2), u0: rec });
       for (const k of ['epsilon', 'delta', 'mimosa', 'gacrux', 'acrux']) estrellaEn(c[k].x, c[k].y, c[k]);
     });
     g.restore();
@@ -467,7 +469,7 @@ function escenaEn(t) {
   // antes de [lactea]; la estrellita se queda.
   const uP = tramo(t, 'polar', -0.3, 0), descose = fuera(-0.75, -0.35);
   if (uP > 0 && descose < 1) {
-    const pts = []; for (let i = 0; i <= 10; i++) { const a = -PI / 2 + i / 10 * TAU, rr = i % 2 ? 15 : 34; pts.push([POLO.x + rr * Math.cos(a), POLO.y + rr * Math.sin(a)]); }
+    const pts = []; for (let i = 0; i <= 10; i++) { const a = -PI / 2 + i / 10 * TAU, rr = i % 2 ? 20 : 46; pts.push([POLO.x + rr * Math.cos(a), POLO.y + rr * Math.sin(a)]); }
     K.puntadas(pts, { col: 'rgba(241,229,199,0.66)', ancho: 2, guion: [6, 5], d: 1, nudos: false, u1: eout(uP), u0: descose });
   }
   const uD = tramo(t, 'debil', -0.3, 0);
@@ -477,6 +479,8 @@ function escenaEn(t) {
     if (aviso < 1) { g.strokeStyle = `rgba(243,207,119,${0.7 * (1 - aviso)})`; g.lineWidth = 2; g.beginPath(); g.arc(0, 0, lerp(5, 30, eout(aviso)), 0, TAU); g.stroke(); }
     halo(12, '230,226,214', 0.2 * uD);
     g.globalAlpha = uD; g.fillStyle = mezcla(C.ivory3, C.sky, 0.28); g.fill(forma(4, 77)); g.globalAlpha = 1;
+    // anillo de puntos que la señala hasta que llega la Vía Láctea (se quita de una vez)
+    if (aviso > 0.5 && t < tLac - 0.4) { g.strokeStyle = 'rgba(243,207,119,0.75)'; g.lineWidth = 1.6; g.lineCap = 'round'; g.setLineDash([0.5, 4.2]); g.beginPath(); g.arc(0, 0, 13, 0, TAU); g.stroke(); g.setLineDash([]); }
     g.restore();
   }
 
@@ -484,8 +488,11 @@ function escenaEn(t) {
   const uN = eio(tramo(t, 'navegantes', -0.3, 0)), recoge = fuera(-0.75, -0.35);
   if (uN > 0 && recoge < 1) {
     const u1 = cl((uN - 0.3) / 0.45), u2 = cl((uN - 0.62) / 0.38);
-    K.puntadas([[CRUZ.x, ACR_Y + 22], [CRUZ.x, POLO.y - 44]], { col: C.goldL, ancho: 2.8, guion: [9, 6], d: 1.4, nudos: false, u1, u0: recoge });
-    if (u2 > 0) K.flecha([[CRUZ.x, POLO.y + 42], [CRUZ.x, HZ - 3]], { u: u2, cola: recoge, ancho: 4.5, punta: 20, col: C.goldL, d: 2.4, seed: 695 });
+    K.puntadas([[CRUZ.x, ACR_Y + 22], [CRUZ.x, POLO.y - 56]], { col: C.goldL, ancho: 2.8, guion: [9, 6], d: 1.4, nudos: false, u1, u0: recoge });
+    if (u2 > 0) K.flecha([[CRUZ.x, POLO.y + 54], [CRUZ.x, SUR.y - 36]], { u: u2, cola: recoge, ancho: 4.5, punta: 20, col: C.goldL, d: 2.4, seed: 695 });
+    // regla de los navegantes: el polo está a unas 4½ veces el largo de la Cruz (aquí, acortado)
+    const uX = tramo(t, 'navegantes', -0.12, 0.1) * (1 - recoge);
+    if (uX > 0) K.etiqueta(CRUZ.x - 56, (ACR_Y + POLO.y) / 2 - 18, '×4½', { forma: 'rect', size: 26, col: C.goldL, ink: C.ink, u: uX, rot: -0.04, id: 697 });
   }
 
   // horizonte, velero y olas
@@ -504,7 +511,7 @@ function escenaEn(t) {
   const hx = OBS.x + 8.2 * OBS.esc, hy = PIES_Y - 46 * OBS.esc;
   let brazo = -0.2;
   brazo = lerp(brazo, K.aimAt(CRUZ.x - hx, CRUZ.y - hy), eio(tramo(t, 'cruz', -0.3, 0)) * (1 - eio(tramo(t, 'cruz', 2.3, 2.8))));
-  brazo = lerp(brazo, K.aimAt(SUR.x - hx, HZ - 12 - hy), eio(tramo(t, 'navegantes', -0.3, 0)) * (1 - eio(tramo(t, 'navegantes', 2.0, 2.5))));
+  brazo = lerp(brazo, K.aimAt(SUR.x - hx, SUR.y - hy), eio(tramo(t, 'navegantes', -0.3, 0)) * (1 - eio(tramo(t, 'navegantes', 2.0, 2.5))));
   brazo = lerp(brazo, -PI + 0.05, eio(tramo(t, 'encima', -0.3, 0)));
   g.save(); g.translate(OBS.x, PIES_Y); K.temblor(150, 0.35, 0.004);
   K.persona({ escala: OBS.esc, abrigo: C.coral, tocado: 'gorra', colTocado: C.ink, brazoD: brazo, brazoI: 0.16, id: 151 });
