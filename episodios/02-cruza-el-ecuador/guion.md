@@ -43,11 +43,11 @@
 
 ## 3 · «En el sur, la Navidad cae en verano porque la Tierra está más cerca del Sol» → ✗ MENTIRA a medias (isométrico)
 
-**Visual:** la órbita en isométrico, con la Tierra inclinada en enero y en julio y las dos distancias rotuladas. Luego un primer plano de los rayos, más directos sobre el hemisferio que se inclina hacia el Sol.
+**Visual:** la órbita en isométrico, con la Tierra inclinada en enero y en julio y las dos distancias rotuladas. Luego un primer plano de los rayos, más directos sobre el hemisferio que se inclina hacia el Sol. Al final, el ecuador con un reloj que marca 12 h todo el año.
 
-**ES:** Tres: en el sur, la Navidad cae en verano porque la Tierra está más cerca del Sol. Mentira, a medias. La Navidad sí es en verano: las estaciones van al revés. Pero no por la distancia. La Tierra está más cerca del Sol a principios de enero, unos cinco millones de kilómetros más que en julio, y en el norte es pleno invierno. Lo que manda es que la Tierra gira inclinada, como una peonza ladeada: veintitrés grados y medio. En diciembre, el sur se inclina hacia el Sol: los rayos le llegan más directos y los días duran más.
+**ES:** Tres: en el sur, la Navidad cae en verano porque la Tierra está más cerca del Sol. Mentira, a medias. La Navidad sí es en verano: las estaciones van al revés. Pero no por la distancia. La Tierra está más cerca del Sol a principios de enero, unos cinco millones de kilómetros más que en julio, y en el norte es pleno invierno. Lo que manda es que la Tierra gira inclinada, como una peonza ladeada: veintitrés grados y medio. En diciembre, el sur se inclina hacia el Sol: los rayos le llegan más directos y los días duran más. Y justo en el ecuador apenas hay estaciones: el día dura unas doce horas todo el año.
 
-**EN:** Three: in the south, Christmas is in summer because Earth is closer to the Sun. Half a lie. Christmas really is in summer: the seasons are flipped. But not because of distance. Earth is closest to the Sun in early January, about three million miles closer than in July, while the north is in deep winter. What matters is that Earth spins tilted, like a leaning top: twenty-three and a half degrees. In December the south leans toward the Sun: the light hits it more directly, and the days last longer.
+**EN:** Three: in the south, Christmas is in summer because Earth is closer to the Sun. Half a lie. Christmas really is in summer: the seasons are flipped. But not because of distance. Earth is closest to the Sun in early January, about three million miles closer than in July, while the north is in deep winter. What matters is that Earth spins tilted, like a leaning top: twenty-three and a half degrees. In December the south leans toward the Sun: the light hits it more directly, and the days last longer. And right at the equator there are barely any seasons: the day lasts about twelve hours all year.
 
 ---
 
@@ -63,11 +63,11 @@
 
 ## 5 · «En el sur, el cielo de noche es otro» → ✓ VERDAD (recortes de papel)
 
-**Visual:** un cielo de papel con estrellas colgadas de hilos. Orión gira hasta quedar cabeza abajo y entra la Cruz del Sur. En el polo sur del cielo, una estrella diminuta y apagada.
+**Visual:** un cielo de papel con estrellas colgadas de hilos. Orión gira hasta quedar cabeza abajo y entra la Cruz del Sur. En el polo sur del cielo, una estrella diminuta y apagada. Al final, la Vía Láctea cruza el cielo con su centro justo encima.
 
-**ES:** Cinco: en el sur, el cielo de noche es otro. Verdad. Desde el sur, Orión se ve cabeza abajo, y aparecen constelaciones que desde el norte nunca salen, como la Cruz del Sur. Y no hay estrella polar: en el punto del cielo alrededor del cual giran las estrellas del sur solo hay una estrella tan débil que casi no se ve. Por eso, para encontrar el sur, los navegantes usaban la Cruz del Sur.
+**ES:** Cinco: en el sur, el cielo de noche es otro. Verdad. Desde el sur, Orión se ve cabeza abajo, y aparecen constelaciones que desde el norte nunca salen, como la Cruz del Sur. Y no hay estrella polar: en el punto del cielo alrededor del cual giran las estrellas del sur solo hay una estrella tan débil que casi no se ve. Por eso, para encontrar el sur, los navegantes usaban la Cruz del Sur. Y la Vía Láctea se ve más espectacular: desde el sur, el centro de nuestra galaxia pasa casi por encima de la cabeza.
 
-**EN:** Five: in the south, the night sky is different. True. From the south, Orion stands on its head, and you get constellations the north never sees, like the Southern Cross. And there's no pole star: the point the southern stars wheel around has only a star so faint you can barely see it. That's why sailors used the Southern Cross to find south.
+**EN:** Five: in the south, the night sky is different. True. From the south, Orion stands on its head, and you get constellations the north never sees, like the Southern Cross. And there's no pole star: the point the southern stars wheel around has only a star so faint you can barely see it. That's why sailors used the Southern Cross to find south. And the Milky Way looks more spectacular: from the south, the center of our galaxy passes almost straight overhead.
 
 ---
 
@@ -98,6 +98,8 @@
 - Inclinación del eje: 23,4°.
 - Sol de mediodía al norte en el hemisferio sur y reloj de sol que gira al revés; origen del sentido de las agujas en los relojes de sol (explicación más aceptada, no demostrada).
 - Orión invertido desde el sur; sin estrella polar del sur visible a simple vista (Sigma Octantis, magnitud ~5,4); la Cruz del Sur como guía.
+- En el ecuador el día dura unas 12 horas todo el año.
+- Desde el hemisferio sur, el centro de la Vía Láctea (en Sagitario) pasa cerca del cénit.
 - Gravedad efectiva: ~9,78 m/s² en el ecuador y ~9,83 en los polos (≈0,5 %).
 - El huevo en equilibrio se puede hacer en cualquier latitud.
 - Mapas medievales T-O con el este arriba; «orientar» viene de «oriente».

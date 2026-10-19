@@ -22,9 +22,9 @@ En cada vídeo elegimos qué estilos usar. ★ marca los favoritos.
 | | VHS retro | `11-vhs-retro.html` | 9 / 8 | 1,04 | 1,3 h |
 | | Panel de aeropuerto | `13-split-flap.html` | 9 / 8 | 0,21 | 16 min |
 | | Plano técnico | `15-plano-tecnico.html` | 9 / 8 | 0,27 | 20 min |
-| | Pixel art | `17-pixel-art.html` | 9 / 8 | 0,16 | 12 min |
+| ★ | Pixel art | `17-pixel-art.html` | 9 / 8 | 0,16 | 12 min |
 | | Bauhaus | `18-bauhaus.html` | 7 / 7 | 0,23 | 17 min |
-| | Art déco | `19-art-deco.html` | 9 / 8 | 0,65 | 49 min |
+| ★ | Art déco | `19-art-deco.html` | 9 / 8 | 0,65 | 49 min |
 | | Neobrutalismo | `20-neo-brutalismo.html` | 9 / 8 | 0,28 | 21 min |
 
 \* 9.000 fotogramas (5 min a 30 fps) con dos procesos en paralelo, en el servidor sin tarjeta gráfica. Con GPU sería mucho menos.
