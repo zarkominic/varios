@@ -32,9 +32,19 @@
 //    de luz. Todas las fábricas de formas del kit la ponen. Si construyes un Path2D a mano, ponle bb.
 //  · Altura `d` de una pieza (0…14): sombra más grande y más desplazada. 1–3 piezas pegadas,
 //    4–8 tarjetas sobre el fondo, 10+ piezas levantadas a mano (al colocarlas).
-//  · Prohibido escribir palabras: K.etiqueta() solo debe recibir números y símbolos permitidos
-//    por el contrato (✓ ✗ flechas ½ ° % «24 h» «12 h» «km», años, MIT, N, S, E, D, C).
+//  · Prohibido escribir palabras: K.etiqueta() / K.escribir() solo deben recibir números y símbolos
+//    permitidos por el contrato (✓ ✗ flechas ½ ° % «24 h» «12 h» «km», años, MIT, N, S, E, D, C).
 //    Para superíndice usa «^»: '×10^6' → ×10⁶. El signo menos tipográfico es '−'.
+//    ✓ y ✗ no se escriben: K.sello() los recorta como piezas.
+//  · Coste: los lienzos son de CPU (willReadFrequently). En el servidor sin GPU cada orden de dibujo
+//    acelerada por SwiftShader cuesta ~10 veces más; así una escena cargada sale a ~0,1 s de dibujo
+//    + ~0,15 s de captura. Lo que no cambia, en K.capa / K.sprite. Evita sombras en piezas enormes
+//    que se redibujan en cada fotograma (mejor un sprite con la sombra ya hecha).
+//  · Colocar piezas: en stop-motion no hay fundidos. Una pieza entra «posándose» (K.colocar(u):
+//    llega desde la lámpara, más grande y con más sombra, y rebota un poco) o se desliza fuera de
+//    cuadro. K.elevar(d, fn) sube todas las piezas de fn (más sombra) mientras están en la mano.
+//  · Luz fija: el filo de luz se calcula en pantalla. Si giras un sprite, su filo gira con él; para
+//    discos que giran, dibuja el sprite girado y después K.filo(contorno) sin girar.
 //
 // API (resumen; cada función está documentada donde se define)
 //  Lienzo y fotograma: preparar, capa, sprite, pegar, fotograma, g, F, W, H, FPS
@@ -42,10 +52,11 @@
 //  Paleta:            C
 //  Pieza de papel:    papel, textura, filo, sombra, sinSombra, temblor, elevar, colocar
 //  Formas:            poligono, suave, circulo, circuloPts, mancha, estrella, rect, rectRecortado,
-//                     rectRecortadoPts, anillo, fase, elipse, tira, escalar, arcoPts, bezierPts
+//                     rectRecortadoPts, anillo, fase, elipse, tira, escalar, arcoPts, bezierPts, trozo
 //  Hilos y costuras:  hilo, chincheta, puntadas
-//  Accesorios:        flecha, flechaPath, sello, etiqueta, reloj, huracan, espiralPath, nube,
-//                     persona, personaArriba, atomo, estrellaColgante
+//  Accesorios:        flecha, flechaPath, sello, etiqueta, escribir, reloj, huracan, espiralPath,
+//                     nube, persona, personaArriba, atomo, estrellaColgante, remolino, lavabo,
+//                     paisajeEcuador
 //  Tierra:            tierra (globo con continentes, gira con lon0, se inclina con lat0, se achata),
 //                     proyectarGlobo, tierraPlana (mapa equirrectangular), CONTINENTES
 //  Fondos y marco:    fondoNoche, marco
@@ -763,6 +774,143 @@ export function nube(w, h, seed = 1) {
   }
   pts.push([w / 2, 0]);
   return suave(pts, p);
+}
+
+// ---------------------------------------------------------------- agua y lavabo (ep02)
+/**
+ * Remolino de agua: brazos en espiral claros dentro de una elipse rx × ry (centro en el origen),
+ * recortados a ella. giro: ángulo actual; sentido: +1 antihorario en pantalla, −1 horario;
+ * fuerza: 0..1 (ancho y número de brazos).
+ */
+export function remolino(rx, ry, giro, sentido = 1, fuerza = 1, o = {}) {
+  if (fuerza <= 0.01) return;
+  const id = o.id ?? 1200, R = Math.max(rx, ry), k = 'rem' + R + '|' + sentido + '|' + id;
+  if (!ETQ.has(k)) {
+    const brazos = [], r = rng(id);
+    for (let i = 0; i < 4; i++) brazos.push(espiralPath(R * 0.12, R * (0.92 + r() * 0.1), i / 4 * TAU + r() * 0.5, sentido * (3.4 + r() * 0.6), R * 0.07, new Path2D(), 60, true));
+    ETQ.set(k, brazos);
+  }
+  const brazos = ETQ.get(k), n = Math.max(1, Math.round(4 * Math.min(1, fuerza * 1.3)));
+  g.save(); g.scale(1, ry / R); g.rotate(giro);
+  for (let i = 0; i < n; i++) {
+    g.save(); g.scale(0.55 + 0.45 * fuerza, 0.55 + 0.45 * fuerza);
+    papel(brazos[i], o.col ?? C.aguaL, { d: 0.8, seed: id + i, tb: 0.5, edge: 0.6, sa: 0.35 });
+    g.restore();
+  }
+  g.restore();
+}
+const LAV = {};
+/**
+ * Lavabo de papel visto desde arriba, centro del seno en (x, y). Mide ~660 × 470 a escala 1.
+ * o: { esc: 1, nivel: 0..1 (agua), giro, sentido (+1 antihorario), fuerza (remolino 0..1),
+ *      id, encimera: color, extra(g): dibuja sobre el agua (mismas coordenadas) }
+ */
+export function lavabo(x, y, o = {}) {
+  const id = o.id ?? 1100;
+  if (!LAV.ok) {
+    LAV.base = sprite(700, 520, () => {
+      papel(rectRecortado(-330, -250, 660, 470, 44, id, 1), o.encimera ?? C.teal2, { d: 0, seed: id + 1, tb: 0.5, print: () => {
+        g.strokeStyle = 'rgba(255,255,255,0.10)'; g.lineWidth = 1.4;
+        for (let i = -3; i <= 3; i++) { g.beginPath(); g.moveTo(-330, i * 70); g.lineTo(330, i * 70); g.stroke(); }
+        for (let i = -4; i <= 4; i++) { g.beginPath(); g.moveTo(i * 80, -250); g.lineTo(i * 80, 220); g.stroke(); }
+      } });
+      papel(elipse(244, 178, id + 2, 0.004), C.loza, { d: 3, seed: id + 3, tb: 0.4 });
+      papel(elipse(214, 152, id + 4, 0.004), C.lozaD, { d: 0, seed: id + 5, tb: 0.35, edge: 0, print: () => {
+        // hueco del seno: sombra arriba-izquierda, luz abajo-derecha
+        const gr = g.createLinearGradient(-200, -150, 200, 150);
+        gr.addColorStop(0, 'rgba(60,50,40,0.40)'); gr.addColorStop(0.45, 'rgba(60,50,40,0.05)'); gr.addColorStop(1, 'rgba(255,250,235,0.35)');
+        g.fillStyle = gr; g.fillRect(-220, -160, 440, 320);
+      } });
+      // desagüe
+      papel(circulo(19, id + 6, 0.01), C.metal, { d: 0.8, seed: id + 7, edge: 0.7 });
+      papel(circulo(12, id + 8, 0.01), '#2a2f3a', { d: 0, seed: id + 9, edge: 0.6, print: () => {
+        g.strokeStyle = C.metal; g.lineWidth = 2.2; g.beginPath(); g.moveTo(-12, 0); g.lineTo(12, 0); g.moveTo(0, -12); g.lineTo(0, 12); g.stroke();
+      } });
+    });
+    LAV.grifo = sprite(220, 160, () => {
+      // base del grifo en (0, 0); el caño baja hacia +y, sobre el seno
+      g.save(); g.translate(-62, 0); papel(circulo(16, id + 20, 0.01), C.coral, { d: 2, seed: id + 21, edge: 0.6 }); g.restore();
+      g.save(); g.translate(62, 0); papel(circulo(16, id + 22, 0.01), C.blue, { d: 2, seed: id + 23, edge: 0.6 }); g.restore();
+      papel(circulo(28, id + 24, 0.01), C.metal, { d: 2.4, seed: id + 25, edge: 0.8 });
+      papel(rectRecortado(-11, -6, 22, 76, 10, id + 26, 0.4), C.metal, { d: 3.4, seed: id + 27, edge: 0.8 });
+      g.save(); g.translate(0, 64); papel(circulo(12, id + 28, 0.02), C.metalD, { d: 1, seed: id + 29, edge: 0.6 }); g.restore();
+    });
+    LAV.agua = elipse(200, 140, id + 30, 0.004);
+    LAV.brillo = (() => { const p = new Path2D(); p.ellipse(0, 0, 176, 118, 0, PI * 1.08, PI * 1.42); p.ellipse(0, 0, 160, 104, 0, PI * 1.42, PI * 1.08, true); p.closePath(); p.bb = [-180, -120, 0, 0]; return p; })();
+    LAV.ok = true;
+  }
+  const nivel = o.nivel ?? 1;
+  g.save(); g.translate(x, y); temblor(id, 0.45, 0.002); if (o.esc && o.esc !== 1) g.scale(o.esc, o.esc);
+  sombra(5 + (o.d ?? 0), 0.55); g.drawImage(LAV.base.c, -LAV.base.ox, -LAV.base.oy); sinSombra();
+  if (nivel > 0.02) {
+    // agua como papel vegetal: deja ver el desagüe
+    g.save(); g.scale(nivel, nivel);
+    g.globalAlpha = 0.86; papel(LAV.agua, C.agua, { d: 0.6, seed: id + 31, tb: 0.6, edge: 0.6, sa: 0.3 }); g.globalAlpha = 1;
+    g.save(); g.clip(LAV.agua);
+    remolino(190, 133, o.giro ?? 0, o.sentido ?? 1, o.fuerza ?? 0, { id: id + 40 });
+    g.restore();
+    papel(LAV.brillo, C.aguaLL, { d: 0.3, seed: id + 32, edge: 0.4, ta: 0.6 });
+    g.restore();
+  }
+  if (o.extra) o.extra(g);
+  g.drawImage(LAV.grifo.c, -LAV.grifo.ox, -208 - LAV.grifo.oy);
+  g.restore();
+}
+
+const PAIS = new Map();
+/**
+ * Paisaje del ecuador (ep02): colinas lejanas en dos capas, el monumento de la línea con su globo,
+ * el suelo de tierra y la línea del ecuador pintada en perspectiva. Devuelve un sprite con el
+ * origen en el centro del horizonte: K.pegar(K.paisajeEcuador({ horizonte: 772 }), 960, 772).
+ * o: { horizonte: y del horizonte en pantalla (772), monumento: desplazamiento x del monumento
+ *      respecto al centro (0; null = sin monumento), escMonumento: 1, linea: true }
+ */
+export function paisajeEcuador(o = {}) {
+  const hz = o.horizonte ?? 772, mx = o.monumento === undefined ? 0 : o.monumento, em = o.escMonumento ?? 1;
+  const key = [hz, mx, em, o.linea].join('|');
+  if (PAIS.has(key)) return PAIS.get(key);
+  const abajo = H + 40 - hz, alto = Math.max(560, abajo) * 2;
+  const sp = sprite(2000, alto, () => {
+    const sierra = (seed, y0, amp, fr) => {
+      const r = rng(seed), p1 = r() * TAU, p2 = r() * TAU, pts = [[-1000, 60]];
+      for (let x = -1000; x <= 1000; x += 16) pts.push([x, y0 - amp * (0.6 * Math.sin(x * fr + p1) + 0.4 * Math.sin(x * fr * 2.7 + p2))]);
+      pts.push([1000, 60]); return poligono(pts);
+    };
+    papel(sierra(801, -95, 40, 0.0042), C.ring3, { d: 4, seed: 802, sa: 0.55, tb: 0.45 });
+    papel(sierra(803, -42, 26, 0.0061), C.hillA, { d: 4.5, seed: 804, sa: 0.6, tb: 0.45 });
+    if (mx != null) {
+      g.save(); g.translate(mx, -30); g.scale(em, em);
+      papel(poligono([[-62, 0], [62, 0], [40, -300], [-40, -300]]), C.nube1, { d: 4, seed: 805, sa: 0.6, print: () => {
+        g.fillStyle = 'rgba(0,0,20,0.18)'; g.fillRect(8, -300, 60, 300);
+      } });
+      papel(rect(-52, -312, 104, 16, 4), C.ring3, { d: 3, seed: 806 });
+      g.translate(0, -362);
+      papel(circulo(50, 807, 0.004), C.nube1, { d: 4, seed: 808, print: () => {
+        g.strokeStyle = 'rgba(255,255,255,0.12)'; g.lineWidth = 2;
+        for (const k of [-0.6, 0, 0.6]) { g.beginPath(); g.ellipse(0, 0, 50 * Math.cos(k), 50, 0, 0, TAU); g.stroke(); }
+      } });
+      papel(tira(arcoPts(0, 0, 51, 13, 0.05, PI - 0.05, 24), 4.5), C.gold, { d: 1.6, seed: 809 });
+      g.restore();
+    }
+    const r = rng(700), pts = [[-1000, abajo + 20]];
+    for (let x = -1000; x <= 1000; x += 20) pts.push([x, 7 * Math.sin(x * 0.011) + 4 * Math.sin(x * 0.037 + 1)]);
+    pts.push([1000, abajo + 20]);
+    papel(poligono(pts), C.suelo, { d: 6, seed: 701, sa: 0.6, print: () => {
+      const gr = g.createLinearGradient(0, 0, 0, abajo);
+      gr.addColorStop(0, 'rgba(255,240,210,0.10)'); gr.addColorStop(0.18, 'rgba(0,0,0,0.06)'); gr.addColorStop(0.42, 'rgba(10,8,30,0.42)'); gr.addColorStop(0.7, 'rgba(10,8,30,0.66)'); gr.addColorStop(1, 'rgba(10,8,30,0.78)');
+      g.fillStyle = gr; g.fillRect(-1000, -30, 2000, abajo + 60);
+      g.fillStyle = 'rgba(90,60,30,0.25)';
+      for (let i = 0; i < 160; i++) { g.beginPath(); g.ellipse((r() - 0.5) * 1900, 20 + r() * (abajo - 20), 2 + r() * 5, 1 + r() * 2, 0, 0, TAU); g.fill(); }
+    } });
+    if (o.linea !== false) {
+      const wb = 9 + 0.0926 * abajo;
+      papel(poligono([[-9, 2], [9, 2], [wb, abajo + 20], [-wb, abajo + 20]]), C.coral, { d: 0.8, seed: 702, edge: 0.6, print: () => {
+        g.fillStyle = 'rgba(255,240,220,0.18)'; g.fillRect(-50, 0, 100, 6);
+      } });
+    }
+  }, 20);
+  PAIS.set(key, sp);
+  return sp;
 }
 
 // ---------------------------------------------------------------- personas

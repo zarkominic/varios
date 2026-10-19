@@ -558,6 +558,29 @@ export function crearPlaneta({ radio = 200, detalle = 7, semilla = 0, tierra = [
   }
   geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   geo.computeVertexNormals();
+  const baseCols = colors.slice();
+  const latY = new Float32Array(pos.count);
+  for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i); latY[i] = v.y / v.length(); }
+  let ultimo = '';
+  const _cn = new THREE.Color(), _cs = new THREE.Color();
+  // tiñe los hemisferios en el propio color de las caras (conserva el sombreado facetado)
+  function tenir(cN, kN, cS, kS) {
+    const key = [cN, kN.toFixed(3), cS, kS.toFixed(3)].join('|');
+    if (key === ultimo) return;
+    ultimo = key;
+    _cn.set(cN); _cs.set(cS);
+    const attr = geo.attributes.color;
+    for (let i = 0; i < pos.count; i++) {
+      const w = sstep(-0.035, 0.035, latY[i]);
+      const a = kN * w, b = kS * (1 - w);
+      for (let k = 0; k < 3; k++) {
+        const base = baseCols[i * 3 + k];
+        const tn = k === 0 ? _cn.r : k === 1 ? _cn.g : _cn.b, ts = k === 0 ? _cs.r : k === 1 ? _cs.g : _cs.b;
+        attr.array[i * 3 + k] = (base * (1 - a) + tn * a) * (1 - b) + ts * b;
+      }
+    }
+    attr.needsUpdate = true;
+  }
   const clip = corte ? { clippingPlanes: planos, clipIntersection: true } : {};
   const superficie = new THREE.Mesh(geo, lam('#ffffff', { vertexColors: true, ...clip }));
   g.add(superficie);
@@ -600,6 +623,7 @@ export function crearPlaneta({ radio = 200, detalle = 7, semilla = 0, tierra = [
   if (capa) {
     capaU = {
       uN: { value: new THREE.Vector4(0, 0, 0, 0) }, uS: { value: new THREE.Vector4(0, 0, 0, 0) },
+      uVista: { value: new THREE.Vector3(0, 0, 0) }, uRimN: { value: new THREE.Vector4(0, 0, 0, 0) }, uRimS: { value: new THREE.Vector4(0, 0, 0, 0) },
       uEq: { value: new THREE.Vector4(0, 0, 0, 0) }, uEqW: { value: 0.12 },
       uSol: { value: new THREE.Vector3(1, 0, 0) }, uNoche: { value: 0 }, uNocheC: { value: hex2v('#0c0f2c') },
       uHazL: { value: new THREE.Vector3(-1, 0, 0) },
@@ -610,7 +634,7 @@ export function crearPlaneta({ radio = 200, detalle = 7, semilla = 0, tierra = [
       uniforms: capaU, transparent: true, depthWrite: false,
       vertexShader: 'varying vec3 vL; void main(){ vL = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
       fragmentShader: `
-        uniform vec4 uN, uS, uEq; uniform float uEqW, uNoche, uDim; uniform vec3 uSol, uNocheC, uHazL;
+        uniform vec4 uN, uS, uEq, uRimN, uRimS; uniform float uEqW, uNoche, uDim; uniform vec3 uSol, uNocheC, uHazL, uVista;
         uniform vec4 uHaz[2]; uniform float uHazK[2];
         varying vec3 vL;
         void main(){
@@ -621,6 +645,9 @@ export function crearPlaneta({ radio = 200, detalle = 7, semilla = 0, tierra = [
           float hn = smoothstep(-0.035, 0.035, n.y);
           CAPA(uN.rgb, uN.a * hn);
           CAPA(uS.rgb, uS.a * (1.0 - hn));
+          float fres = pow(1.0 - max(dot(n, uVista), 0.0), 2.2);
+          CAPA(uRimN.rgb, uRimN.a * hn * fres);
+          CAPA(uRimS.rgb, uRimS.a * (1.0 - hn) * fres);
           CAPA(uNocheC, uDim);
           float ld = dot(n, uSol);
           CAPA(uNocheC, uNoche * (1.0 - smoothstep(-0.16, 0.10, ld)));
@@ -638,7 +665,9 @@ export function crearPlaneta({ radio = 200, detalle = 7, semilla = 0, tierra = [
             float lit = smoothstep(0.0, 0.05, cosi);
             float k = uHazK[i] * inside * lit;
             vec3 c = mix(vec3(1.0, 0.70, 0.36), vec3(1.0, 0.97, 0.80), cosi * cosi);
-            CAPA(c, k * (0.22 + 0.78 * cosi * cosi));
+            CAPA(c, k * (0.18 + 0.82 * cosi * cosi));
+            float ring = (1.0 - smoothstep(r * 0.035, r * 0.09, abs(d - r * 0.93))) * lit * uHazK[i];
+            CAPA(vec3(1.0, 0.93, 0.72), ring * 0.95);
           }
           gl_FragColor = vec4(A > 0.001 ? C / A : C, A);
         }`,
@@ -650,7 +679,7 @@ export function crearPlaneta({ radio = 200, detalle = 7, semilla = 0, tierra = [
 
   const _p = new THREE.Vector3();
   return {
-    g, radio: RE, R0: RE * LAND_R, superficie, capa: capaU, planos,
+    g, radio: RE, R0: RE * LAND_R, superficie, capa: capaU, planos, tenir,
     // los planos del corte siguen la posición del planeta (el grupo no debe girar)
     actualizarCorte() { if (!planos) return; g.getWorldPosition(_p); planos[0].constant = _p.x; planos[1].constant = _p.y; planos[2].constant = _p.z; },
   };
@@ -925,7 +954,7 @@ export function crearVeredicto(tipo = 'ok', { lado = 96 } = {}) {
 // =====================================================================
 // Reloj (placa redonda con agujas) y columna isométrica (barras)
 // =====================================================================
-export function crearReloj({ radio = 70, base = P.cream, lado = '#d6cab9', tinta = P.ink, acento = P.coral, grosor = 12, dia = 0 } = {}) {
+export function crearReloj({ radio = 70, base = P.cream, lado = '#d6cab9', tinta = P.ink, acento = P.coral, grosor = 12, dia = 0, horas = 12 } = {}) {
   const g = new THREE.Group();
   const shape = new THREE.Shape(); shape.absarc(0, 0, radio, 0, TAU, false);
   const ext = new THREE.ExtrudeGeometry(shape, { depth: grosor, bevelEnabled: true, bevelThickness: 3, bevelSize: 3, bevelSegments: 1, curveSegments: 48 });
@@ -938,8 +967,9 @@ export function crearReloj({ radio = 70, base = P.cream, lado = '#d6cab9', tinta
     x.fillStyle = acento + '40'; x.beginPath(); x.moveTo(0, 0); x.arc(0, 0, radio * 0.78, -Math.PI / 2 - Math.PI * dia, -Math.PI / 2 + Math.PI * dia); x.closePath(); x.fill();
   }
   x.strokeStyle = tinta + '30'; x.lineWidth = 2; x.beginPath(); x.arc(0, 0, radio * 0.9, 0, TAU); x.stroke();
-  for (let i = 0; i < 60; i++) {
-    const a = i / 60 * TAU, big = i % 5 === 0, top = i === 0;
+  const nt = horas === 24 ? 96 : 60, cada = horas === 24 ? 4 : 5;
+  for (let i = 0; i < nt; i++) {
+    const a = i / nt * TAU, big = i % cada === 0, top = i === 0 || (horas === 24 && i === nt / 2);
     const r0 = radio * (big ? 0.72 : 0.8), r1 = radio * 0.86;
     x.strokeStyle = top ? acento : tinta + (big ? 'cc' : '55'); x.lineWidth = top ? radio * 0.07 : big ? radio * 0.045 : radio * 0.018; x.lineCap = 'round';
     x.beginPath(); x.moveTo(Math.sin(a) * r0, -Math.cos(a) * r0); x.lineTo(Math.sin(a) * r1, -Math.cos(a) * r1); x.stroke();

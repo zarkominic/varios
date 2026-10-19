@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sol al revés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Space+Grotesk:wght@500;700&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Bloque 4 · «En el sur, el Sol cruza el cielo al revés» → ✓.
+// Dos parcelas isométricas (hemisferio norte y sur), cada una con su reloj de sol, su brújula y el
+// arco diario del Sol. Cada parcela está girada para que su observador mire al Sol de mediodía de
+// espaldas a la cámara: en el norte el Sol va de izquierda a derecha y la sombra gira como las agujas;
+// en el sur, al revés.
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/isometrico.js';
+const { THREE, P, S, vR, vU, vW, vF, Y, entra, latido, seg, eio, eo, eob, eib, sstep, clamp01, lerp } = K;
+const TAU = Math.PI * 2, D2R = Math.PI / 180;
+
+const E = await escena('sol');
+const M = (n) => E.marca(n);
+await K.cargarFuentes();
+
+const plato = K.crearPlato({ centro: [0.5, 0.42] });
+const suelo = K.crearSuelo(plato, { centro: [960, 700], radio: 1500 });
+const scene = plato.scene;
+
+// ---------------------------------------------------------------------
+// Parcelas
+// ---------------------------------------------------------------------
+const A = 215, R_ARC = 215, R_DIAL = 82, GN = 92;
+const ZOOM = 1.12;
+plato.encuadre(S(960, 520, 0), ZOOM);
+const pant = (p) => plato.aPantalla(p);
+const PLOTS = {
+  N: { sx: 545, phi: 40 * D2R, Nd: vF.clone(), Ed: vR.clone().negate(), color: P.coral, colorD: '#d9705f', tema: '#f8ddd0' },
+  S: { sx: 1375, phi: -40 * D2R, Nd: vF.clone().negate(), Ed: vR.clone(), color: P.mint, colorD: '#62bba3', tema: '#cfeee4' },
+};
+function dialTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  const x = c.getContext('2d'); const r = 256;
+  const g = x.createRadialGradient(200, 190, 20, r, r, r); g.addColorStop(0, '#fbf5ea'); g.addColorStop(1, '#e6dccb');
+  x.fillStyle = g; x.beginPath(); x.arc(r, r, r - 2, 0, TAU); x.fill();
+  x.strokeStyle = '#272a4f30'; x.lineWidth = 4; x.beginPath(); x.arc(r, r, r * 0.9, 0, TAU); x.stroke();
+  x.beginPath(); x.arc(r, r, r * 0.62, 0, TAU); x.stroke();
+  for (let i = 0; i < 24; i++) {
+    const a = i / 24 * TAU, big = i % 6 === 0;
+    x.strokeStyle = big ? '#272a4fb0' : '#272a4f55'; x.lineWidth = big ? 7 : 4; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(r + Math.cos(a) * r * (big ? 0.66 : 0.72), r + Math.sin(a) * r * (big ? 0.66 : 0.72)); x.lineTo(r + Math.cos(a) * r * 0.86, r + Math.sin(a) * r * 0.86); x.stroke();
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+const DIAL_TEX = dialTexture();
+const plots = {};
+for (const k of ['N', 'S']) {
+  const o = PLOTS[k];
+  const C = K.enPlano(o.sx, 668, suelo.y);
+  const slab = suelo.peana(C.x, C.z, A);
+  const O = new THREE.Vector3(C.x, slab.y + 10, C.z);   // centro del reloj (sobre la esfera)
+  // esfera del reloj
+  const disc = new THREE.Mesh(new THREE.CylinderGeometry(R_DIAL, R_DIAL + 2, 10, 48), [K.lam('#d6cab9'), new THREE.MeshBasicMaterial({ map: DIAL_TEX }), K.lam('#d6cab9')]);
+  disc.position.set(C.x, slab.y + 5, C.z); scene.add(disc);
+  // gnomon: estilo hacia el polo celeste (al frente en las dos parcelas), elevado |φ|
+  const pole = vF.clone().multiplyScalar(Math.cos(Math.abs(o.phi))).addScaledVector(Y, Math.sin(Math.abs(o.phi)));
+  const T = O.clone().addScaledVector(pole, GN);
+  const B = new THREE.Vector3(T.x, O.y, T.z);
+  const O2 = O.clone().addScaledVector(vF, -10);
+  const shape = new THREE.Shape();
+  const ax = vF.clone();   // eje local x del triángulo (horizontal hacia el polo)
+  const lx = (p) => p.clone().sub(O2).dot(ax), ly = (p) => p.y - O2.y;
+  shape.moveTo(0, 0); shape.lineTo(lx(B) + 6, 0); shape.lineTo(lx(B) + 6, ly(T) * 0.12); shape.lineTo(lx(T), ly(T)); shape.closePath();
+  const gGeo = new THREE.ExtrudeGeometry(shape, { depth: 9, bevelEnabled: true, bevelThickness: 1.2, bevelSize: 1.2, bevelSegments: 1 }); gGeo.translate(0, 0, -4.5);
+  const gn = new THREE.Mesh(gGeo, K.lam(P.gold));
+  const gGroup = new THREE.Group(); gGroup.position.copy(O2);
+  K.orient(gGroup, Y, new THREE.Vector3().crossVectors(ax, Y));   // x local → ax
+  gGroup.add(gn); scene.add(gGroup);
+  // sombra del gnomon (triángulo dinámico) y su punta
+  const shGeo = new THREE.BufferGeometry();
+  shGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9), 3));
+  const sh = new THREE.Mesh(shGeo, K.basic('#1c1940', { transparent: true, opacity: 0.7, depthWrite: false, side: THREE.DoubleSide }));
+  sh.frustumCulled = false; sh.renderOrder = 3; scene.add(sh);
+  const shTip = new THREE.Mesh(new THREE.CircleGeometry(4, 16), K.basic('#2a2650', { transparent: true, opacity: 0.7, depthWrite: false }));
+  shTip.rotation.x = -Math.PI / 2; scene.add(shTip);
+  // Sol pequeño, arco del día y su estela
+  const sol = K.crearSol({ radio: 19, rayos: 10, semilla: k === 'N' ? 3 : 4 });
+  scene.add(sol.g);
+  const camino = K.crearArco(scene, P.lav, { n: 70, grosor: 2.2, opacidad: 0.5, discontinuo: true });
+  const estela = K.crearArco(scene, P.gold2, { n: 70, grosor: 3.2, opacidad: 0.95 });
+  const caida = K.crearRayas(scene, P.gold2, 18, 0.55);
+  // flechas: la del mediodía (hacia el punto cardinal donde está el Sol), la del giro de la sombra y la del observador
+  const flechaMed = K.crearFlecha(scene, k === 'N' ? P.peach : P.mint, { grosor: 3.4, punta: 20, anchoPunta: 9 });
+  const giro = K.crearArco(scene, k === 'N' ? P.mint : P.coral, { n: 60, grosor: 4.2, punta: 22, anchoPunta: 11 });
+  const arcoVista = K.crearArco(scene, P.coral, { n: 50, grosor: 4.2, punta: 22, anchoPunta: 11 });
+  // observador: de espaldas a la cámara, mirando al Sol de mediodía
+  const obs = K.crearObservador({ abrigo: o.color, abrigoD: o.colorD, gorro: k === 'N' ? P.lav : P.peach, escala: 1.35 });
+  const side = k === 'N' ? -1 : 1;
+  obs.g.position.copy(O).addScaledVector(vF, 168).addScaledVector(vR, side * 118).setY(slab.y);
+  K.orient(obs.g, Y, vF.clone().negate().addScaledVector(vR, -side * 0.25));
+  obs.luz(0.35, 0);
+  scene.add(obs.g);
+  plots[k] = { o, C, O, slab, T, B, sh, shGeo, shTip, sol, camino, estela, caida, flechaMed, giro, arcoVista, obs, side };
+}
+suelo.anillo(0, plots.N.C.x, plots.N.C.z, R_DIAL + 40, 0.5);
+suelo.anillo(1, plots.S.C.x, plots.S.C.z, R_DIAL + 40, 0.5);
+suelo.anillo(2, plots.N.C.x, plots.N.C.z, A - 34, 0.35);
+suelo.anillo(3, plots.S.C.x, plots.S.C.z, A - 34, 0.35);
+// dirección del Sol (unitaria) para el ángulo horario H en el ecuador celeste (equinoccio)
+const solDir = (p, H) => new THREE.Vector3()
+  .addScaledVector(p.o.Ed, -Math.sin(H))
+  .addScaledVector(p.o.Nd, -Math.cos(H) * Math.sin(p.o.phi))
+  .addScaledVector(Y, Math.cos(H) * Math.cos(p.o.phi));
+// plano del arco: e1 = Este, e2 = vertical inclinada hacia el ecuador
+const arcoPlano = (p) => ({ e1: p.o.Ed.clone(), e2: p.o.Nd.clone().multiplyScalar(-Math.sin(p.o.phi)).addScaledVector(Y, Math.cos(p.o.phi)) });
+
+// ---------------------------------------------------------------------
+// Reloj de agujas (arriba, en el centro)
+// ---------------------------------------------------------------------
+const reloj = K.crearReloj({ radio: 70, acento: P.mint, tinta: P.ink });
+K.orientPlaca(reloj.g, 0);
+const RELOJ_P = S(960, 300, 300);
+reloj.g.position.copy(RELOJ_P); scene.add(reloj.g);
+const relojArco = K.crearArco(reloj.g, P.mint, { n: 60, grosor: 4.4, punta: 20, anchoPunta: 10 });
+const enlaceN = K.crearRayas(scene, P.mint, 40, 0.7);
+
+// ---------------------------------------------------------------------
+// HUD: narrador, veredicto, insignias de hemisferio y brújulas (N, S, E)
+// ---------------------------------------------------------------------
+const pres = K.presentador(plato, { x: 182, y: 158, veredicto: 'ok' });
+function insignia(k) {
+  const o = PLOTS[k];
+  return K.crearIcono(plato, 132, (x, s) => {
+    const h = 60, y0 = (s - h) / 2;
+    x.fillStyle = P.navy; x.beginPath(); K.roundRectPath(x, 3, y0, s - 6, h, h / 2); x.fill();
+    x.strokeStyle = o.color; x.lineWidth = 3; x.stroke();
+    const cx = 36, cy = s / 2, r = 17;
+    x.save(); x.beginPath(); x.arc(cx, cy, r, 0, TAU); x.clip();
+    x.fillStyle = '#3b3f78'; x.fillRect(cx - r, cy - r, 2 * r, 2 * r);
+    x.fillStyle = o.color; x.fillRect(cx - r, k === 'N' ? cy - r : cy, 2 * r, r);
+    x.restore();
+    x.strokeStyle = P.cream; x.lineWidth = 2.2; x.beginPath(); x.arc(cx, cy, r, 0, TAU); x.stroke();
+    x.beginPath(); x.moveTo(cx - r, cy); x.lineTo(cx + r, cy); x.stroke();
+    x.font = '700 36px "Space Grotesk", Arial, sans-serif'; x.fillStyle = P.cream; x.textAlign = 'center';
+    x.fillText(k, 90, cy + 13);
+  });
+}
+const badges = { N: insignia('N'), S: insignia('S') };
+// letras de la brújula sobre el borde de cada parcela
+const brujula = {};
+for (const k of ['N', 'S']) {
+  const p = plots[k];
+  brujula[k] = {
+    N: K.crearTag(plato, 'N', { tam: 38, borde: P.lav2 }),
+    S: K.crearTag(plato, 'S', { tam: 38, borde: P.lav2 }),
+    E: K.crearTag(plato, 'E', { tam: 44, borde: P.gold }),
+    W: K.crearIcono(plato, 20, (x, s) => { x.fillStyle = P.lav2; x.beginPath(); x.arc(s / 2, s / 2, 5, 0, TAU); x.fill(); }),
+  };
+}
+const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
+const XL = new THREE.Vector3(1, 0, 0), YL = new THREE.Vector3(0, 1, 0);
+
+// ---------------------------------------------------------------------
+// Coreografía (función pura de t)
+// ---------------------------------------------------------------------
+const mV = M('verdad'), mE = M('este'), mN = M('norte'), mD = M('derecha'), mA = M('agujas'), mR = M('relojes'), mH = M('hemisferio'), mAu = M('australia');
+const DUR = E.duracion;
+// ángulo horario: día 1 (sale en «este», mediodía en «norte», se pone después) y día 2 (para las sombras)
+const D1a = mE - 0.3, D1n = mN, D1b = D1n + (D1n - D1a);
+const D2a = mR - 1.75, D2b = DUR - 0.9;
+function horario(t) {
+  if (t < D1a) return { H: -Math.PI / 2, vis: 0 };
+  if (t < D1b + 0.5) {
+    const H = -Math.PI / 2 + (Math.PI / 2) * (t - D1a) / (D1n - D1a);
+    return { H: Math.min(H, Math.PI / 2 + 0.12), vis: seg(t, D1a, D1a + 0.35) * (1 - seg(t, D1b - 0.1, D1b + 0.35)) };
+  }
+  if (t < D2a) return { H: -Math.PI / 2, vis: 0 };
+  // día 2: de −80° a +62°, frenando al final para quedar quieto
+  const u = seg(t, D2a, D2b);
+  const uu = u < 0.8 ? u : 0.8 + 0.2 * eo((u - 0.8) / 0.2);
+  const H = -80 * D2R + 142 * D2R * (uu / 1.0);
+  return { H, vis: seg(t, D2a, D2a + 0.35) };
+}
+
+function dibujar(t) {
+  plato.titilar(t);
+  pres.actualizar(t, E.energia(t), mV);
+  const { H, vis } = horario(t);
+  const dia1 = t < D1b + 0.5;
+  const kEste = eob(entra(t, mE, 0.5, 0.25), 2);
+  const kNorte = eio(entra(t, mN, 0.55, 0.3));
+  const kDer = eio(entra(t, mD, 0.7, 0.3));
+  const kRel = eio(entra(t, mR, 0.8, 0.3));
+  const kHem = latido(t, mH, 1.1, 0.25);
+  const kAus = eio(entra(t, mAu, 0.8, 0.3));
+  for (const k of ['N', 'S']) {
+    const p = plots[k];
+    const { e1, e2 } = arcoPlano(p);
+    // Sol
+    const d = solDir(p, H);
+    const sp = p.O.clone().addScaledVector(d, R_ARC);
+    p.sol.g.position.copy(sp);
+    p.sol.g.visible = vis > 0.002;
+    p.sol.g.scale.setScalar(Math.max(0.001, vis) * (1 + 0.25 * latido(t, mE, 0.8, 0.1)));
+    p.sol.actualizar(t + (k === 'N' ? 0 : 1.3));
+    // camino del día (punteado) y estela (lo ya recorrido)
+    const kCam = seg(t, mE - 0.3, mE + 0.6);
+    // ángulo en el plano del arco: a = π/2 + H (0 = sale por el este, π = se pone por el oeste)
+    p.camino.poner(p.O, e1, e2, R_ARC, 0, Math.PI, eio(kCam), false);
+    const Hs = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, H));
+    const a0 = dia1 ? 0 : Math.PI / 2 - 80 * D2R;
+    const aNow = Math.PI / 2 + Hs;
+    p.estela.poner(p.O, e1, e2, R_ARC, a0, aNow, vis > 0.01 && aNow > a0 + 0.01 ? 1 : 0, false);
+    p.estela.mat.opacity = 0.9 * vis;
+    // línea de caída del Sol al suelo
+    const foot = new THREE.Vector3(sp.x, p.O.y, sp.z);
+    p.caida.poner(sp.clone().addScaledVector(Y, -24), foot, 0, vis > 0.05 && d.y > 0.08 ? 1 : 0, 1.4, (t * 0.6) % 1, false);
+    // sombra del gnomon
+    const sv = p.shGeo.attributes.position;
+    let tip = null;
+    if (d.y > 0.04 && vis > 0.02) {
+      tip = p.T.clone().addScaledVector(d, -(p.T.y - p.O.y) / d.y);
+      const v = tip.clone().sub(p.O); v.y = 0;
+      const Lmax = R_DIAL * 0.95;
+      if (v.length() > Lmax) v.setLength(Lmax);
+      tip = p.O.clone().add(v);
+      const base0 = p.O.clone().addScaledVector(vF, -10), base1 = p.B.clone();
+      sv.setXYZ(0, base0.x, p.O.y + 0.6, base0.z); sv.setXYZ(1, base1.x, p.O.y + 0.6, base1.z); sv.setXYZ(2, tip.x, p.O.y + 0.6, tip.z);
+      sv.needsUpdate = true;
+      p.sh.visible = true; p.sh.material.opacity = 0.72 * Math.min(1, vis * 2) * sstep(0.04, 0.2, d.y);
+      p.shTip.visible = true; p.shTip.position.set(tip.x, p.O.y + 0.8, tip.z); p.shTip.material.opacity = p.sh.material.opacity;
+    } else { p.sh.visible = false; p.shTip.visible = false; }
+    // «norte»: flecha del centro hacia el punto cardinal bajo el Sol de mediodía (atrás)
+    const kMed = kNorte * (1 - sstep(mA - 0.6, mA - 0.2, t));
+    p.flechaMed.poner(p.O.clone().addScaledVector(Y, 2).addScaledVector(vF, -R_DIAL - 6), p.O.clone().addScaledVector(Y, 2).addScaledVector(vF, -(A - 30)), kMed, 1);
+    // «relojes» (norte, como las agujas) y «australia» (sur, al revés): flechas de giro de la sombra
+    const kG = k === 'N' ? kRel : kAus;
+    const rotDir = k === 'N' ? 1 : -1;      // horario visto desde arriba: de +vR hacia +vF
+    const g0 = k === 'N' ? 0.15 : Math.PI - 0.15;
+    p.giro.poner(p.O.clone().addScaledVector(Y, 1.5), vR, vF, R_DIAL + 22, g0, g0 + rotDir * (Math.PI - 0.3), kG, true, 1);
+    // «derecha»: en el sur, quien mira al Sol lo ve ir de derecha a izquierda
+    const kV = k === 'S' ? kDer * (1 - sstep(mA - 0.6, mA - 0.2, t)) : 0;
+    p.arcoVista.poner(p.O, e1, e2, R_ARC * 0.8, Math.PI / 2 - 0.8, Math.PI / 2 + 0.8, kV, true, 1);
+    // observador
+    const on = k === 'S' ? Math.max(eo(entra(t, mD, 0.4, 0.3)) * (1 - sstep(mA - 0.6, mA - 0.2, t)), 0) : 0;
+    p.obs.luz(0.35 + 0.65 * Math.max(on, sstep(mE - 0.3, mE + 0.3, t) * 0.6), on);
+    p.obs.arms[1].rotation.x = -1.6 * on;
+    p.obs.cabeza.rotation.x = -0.35 * Math.max(on, 0.5 * vis);
+    // resalte de la parcela: «hemisferio» (norte) y «australia» (sur)
+    const glow = k === 'N' ? Math.max(kHem, 0.45 * sstep(mH - 0.25, mH + 0.3, t)) : 0.45 * sstep(mAu - 0.25, mAu + 0.2, t) + 0.6 * latido(t, mAu, 1.0, 0.2);
+    p.slab.brillo(k === 'N' ? P.mint : P.coral, glow);
+    // letras de la brújula (atrás pulsa en «norte»; E en «este»)
+    const corner = (dir, off = 30) => pant(p.O.clone().addScaledVector(dir, A + off).setY(p.slab.y));
+    const bN = corner(p.o.Nd), bS = corner(p.o.Nd.clone().negate()), bE = corner(p.o.Ed), bW = corner(p.o.Ed.clone().negate(), 22);
+    const backIsN = k === 'S';
+    const pulseBack = latido(t, mN, 1.0, 0.2);
+    brujula[k].N.poner(bN.x, bN.y, 1, 1 + (backIsN ? 0.35 * pulseBack : 0));
+    brujula[k].S.poner(bS.x, bS.y, 1, 1 + (!backIsN ? 0.35 * pulseBack : 0));
+    brujula[k].E.poner(bE.x, bE.y, 1, 1 + 0.3 * latido(t, mE, 0.9, 0.2));
+    brujula[k].W.poner(bW.x, bW.y, 0.9, 1);
+    // insignia del hemisferio
+    const bp = pant(p.O.clone().addScaledVector(Y, 400));
+    const pulse = k === 'N' ? kHem : latido(t, mAu, 1.0, 0.2);
+    badges[k].poner(bp.x, bp.y - 6, 1, 1 + 0.12 * pulse);
+  }
+  // reloj de agujas en «agujas»; gira en sentido horario y se para al final
+  const kR = eob(entra(t, mA, 0.55, 0.28), 2.0);
+  reloj.g.visible = kR > 0.002;
+  reloj.g.scale.setScalar(Math.max(0.001, kR));
+  reloj.g.position.copy(RELOJ_P).addScaledVector(vU, 4 * Math.sin(t * 1.3));
+  const T0 = mA - 0.3, T1 = DUR - 0.7;
+  const u = seg(t, T0, T1);
+  const F = u < 0.75 ? u : 0.75 + (u - 0.75) - (u - 0.75) * (u - 0.75) / 0.5;
+  const ang = 2.6 * (T1 - T0) * F;
+  reloj.agujas(ang / 12 + 0.9, ang + 0.2);
+  relojArco.poner(new THREE.Vector3(0, 0, reloj.frente + 1), YL, XL, 70 + 18, 0.35, 0.35 + TAU * 0.78, eio(entra(t, mA, 0.7, 0.2)), true, 1);
+  // «hemisferio»: enlace del reloj con la sombra del norte
+  const kL = eio(seg(t, mH - 0.3, mH + 0.35)) * (1 - sstep(mAu - 0.5, mAu - 0.1, t));
+  enlaceN.poner(RELOJ_P.clone().addScaledVector(vU, -82).addScaledVector(vR, -40), plots.N.O.clone().addScaledVector(Y, 40).addScaledVector(vR, 70), 0, kL, 2.2, (t * 0.5) % 1);
+  // sombras de contacto
+  suelo.sombra(0, plots.N.C.x, plots.N.C.z, 140, 0.25);
+  suelo.sombra(1, plots.S.C.x, plots.S.C.z, 140, 0.25);
+  plato.render();
+}
+
+E.iniciar(dibujar);
+</script>
+</body>
+</html>

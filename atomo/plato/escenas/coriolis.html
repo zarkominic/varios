@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Coriolis</title>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Escena «coriolis» (papel, stop-motion a 12 fps). Bloque 2: «el agua del inodoro gira al revés».
+// A · lavabo del sur que gira «al revés» → [mentira] sello ✗.
+// B · [coriolis] Tierra de papel · [gira] gira · [derecha] flecha que se desvía a la derecha en el
+//     norte · [izquierda] otra a la izquierda en el sur (las dos salen hacia arriba; la línea de
+//     puntadas marca el camino recto).
+// C · [tiovivo] tiovivo visto desde arriba con dos niños · [recta] uno lanza la pelota recta
+//     (puntadas) · [curva] el rastro de la pelota pintado sobre la plataforma se curva y falla.
+// D · [huracanes] la Tierra vuelve al centro con dos huracanes: el del norte gira antihorario y el
+//     del sur horario.
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/papel.js';
+const { C, seg, eio, ein, eout, lerp, PI, TAU } = K;
+
+const E = await escena('coriolis');
+await K.preparar();
+const M = (n) => E.marca(n);
+const m = {
+  mentira: M('mentira', 3.47), coriolis: M('coriolis', 5.19), gira: M('gira', 7.005), derecha: M('derecha', 10.395),
+  izquierda: M('izquierda', 11.599), tiovivo: M('tiovivo', 14.191), recta: M('recta', 15.461), curva: M('curva', 17.871),
+  huracanes: M('huracanes', 21.481),
+};
+
+// ---------------------------------------------------------------- tiempos derivados de las marcas
+const T = {
+  fueraA: [m.coriolis - 0.62, m.coriolis - 0.22],
+  entraTierra: [m.coriolis - 0.3, m.coriolis],
+  flechaGiro: [m.gira - 0.3, m.gira],
+  rectaN: [m.derecha - 1.05, m.derecha - 0.72], curvaN: [m.derecha - 0.72, m.derecha],
+  rectaS: [m.izquierda - 0.95, m.izquierda - 0.68], curvaS: [m.izquierda - 0.68, m.izquierda],
+  quitaFlechas: [m.tiovivo - 0.95, m.tiovivo - 0.72],
+  tierraIzq: [m.tiovivo - 0.78, m.tiovivo - 0.34],
+  entraTiovivo: [m.tiovivo - 0.3, m.tiovivo],
+  apunta: [m.recta - 0.3, m.recta],
+  suelta: m.recta + 0.12,
+  llega: m.curva,
+  fueraTiovivo: [m.huracanes - 2.3, m.huracanes - 1.5],
+  tierraCentro: [m.huracanes - 2.1, m.huracanes - 1.25],
+  paraTierra: [m.huracanes - 2.1, m.huracanes - 0.8],
+  entraHur: [m.huracanes - 0.3, m.huracanes],
+};
+
+// ---------------------------------------------------------------- giro de la Tierra (integrado con paso fijo)
+const VEL = 22;               // grados por segundo a toda velocidad
+const vel = (t) => VEL * eio(seg(t, m.gira - 0.32, m.gira)) * (1 - eio(seg(t, T.paraTierra[0], T.paraTierra[1])));
+const DT = 1 / 240, LON = [];
+{ let acc = 0; for (let i = 0; i <= Math.ceil(E.duracion / DT) + 2; i++) { LON.push(acc); acc += vel(i * DT) * DT; } }
+const L0 = -105;
+const lon0 = (t) => { const i = Math.min(LON.length - 2, Math.floor(t / DT)), k = t / DT - i; return L0 - lerp(LON[i], LON[i + 1], k); };
+
+// ---------------------------------------------------------------- fondo fijo
+const fondo = K.capa(() => K.fondoNoche({ anillos: { x: 960, y: 500, radios: [470, 404, 340] }, luz: [960, 480], semilla: 77 }));
+
+// ---------------------------------------------------------------- A · lavabo del sur
+const LAVX = 1010, LAVY = 500;
+const flechaLav = K.arcoPts(LAVX, LAVY, 168, 118, -2.5, 0.75, 40);           // horario
+const hiloSur = K.bezierPts([478, 548], [560, 640], [620, 560], [700, 520], 30);
+function seccionA(t) {
+  const g = K.g, u = ein(seg(t, T.fueraA[0], T.fueraA[1]));
+  if (u >= 1) return;
+  g.save(); g.translate(-1700 * u, -60 * u);
+  K.elevar(10 * u, () => {
+    K.tierra(430, 470, 122, { lon0: 62, lat0: -26, id: 160, reticula: false });
+    K.etiqueta(272, 612, 'S', { size: 40, forma: 'circulo', col: C.gold, id: 961 });
+    K.puntadas(hiloSur, { col: C.goldL, ancho: 3 });
+    K.lavabo(LAVX, LAVY, { nivel: 1, giro: 1.7 * t, sentido: -1, fuerza: 1 });
+    K.flecha(flechaLav, { col: C.coral, ancho: 7, punta: 26, d: 3, seed: 31 });
+    K.sello(1300, 300, '✗', seg(t, m.mentira - 0.3, m.mentira), { R: 92, id: 910 });
+  });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- B · la Tierra y sus flechas (coordenadas locales: R = 300)
+const RG = 300;
+const fN = K.bezierPts([-80, -30], [-80, -150], [-52, -214], [74, -238], 40);
+const fS = K.bezierPts([84, 262], [84, 150], [56, 100], [-72, 84], 40);
+const rN = [[-80, -30], [-80, -262]], rS = [[84, 262], [84, 66]];
+const giroPts = K.arcoPts(0, -350, 124, 34, PI - 0.08, 0.1, 36);
+// huracanes sobre el océano: posición en pantalla de un punto geográfico con la Tierra ya quieta
+const LAT0 = 8, LONF = lon0(E.duracion);
+const geo = (lon, lat) => {
+  const l = (lon - LONF) * K.D2R, p = lat * K.D2R, c0 = Math.cos(LAT0 * K.D2R), s0 = Math.sin(LAT0 * K.D2R);
+  return [Math.cos(p) * Math.sin(l) * RG, -(Math.sin(p) * c0 - Math.cos(p) * Math.cos(l) * s0) * RG];
+};
+const HN = geo(-52, 31), HS = geo(-14, -31);
+const arcHN = K.arcoPts(HN[0], HN[1], 112, 112, -0.25, -2.75, 36);            // antihorario
+const arcHS = K.arcoPts(HS[0], HS[1], 112, 112, 2.9, 5.4, 36);                // horario
+function globo(t) {
+  const g = K.g;
+  const uIn = seg(t, T.entraTierra[0], T.entraTierra[1]);
+  if (uIn <= 0) return;
+  const p = K.colocar(uIn);
+  const a = eio(seg(t, T.tierraIzq[0], T.tierraIzq[1])), b = eio(seg(t, T.tierraCentro[0], T.tierraCentro[1]));
+  const cx = lerp(lerp(960, 400, a), 960, b), cy = 500, s = lerp(lerp(1, 0.62, a), 1, b);
+  g.save(); g.translate(cx + p.dx, cy + p.dy); g.scale(s * p.s, s * p.s);
+  K.elevar(p.d, () => {
+    K.tierra(0, 0, RG, { lon0: lon0(t), lat0: LAT0, eje: true, id: 100 });
+    // flecha de giro alrededor del eje
+    const ug = eio(seg(t, T.flechaGiro[0], T.flechaGiro[1]));
+    if (ug > 0) K.flecha(giroPts, { u: ug, col: C.gold, ancho: 8, punta: 28, alas: 2.2, seed: 41, d: 3.4 });
+    // N y S
+    K.etiqueta(-375, -170, 'N', { size: 40, forma: 'circulo', col: C.ivory, u: seg(t, T.rectaN[0] - 0.1, T.rectaN[0] + 0.2), id: 962 });
+    K.etiqueta(-375, 200, 'S', { size: 40, forma: 'circulo', col: C.gold, u: seg(t, T.rectaS[0] - 0.1, T.rectaS[0] + 0.2), id: 963 });
+    // camino recto (puntadas) y camino real (flecha que se desvía)
+    const q = seg(t, T.quitaFlechas[0], T.quitaFlechas[1]);
+    if (q < 1) {
+      g.save(); g.translate(-30 * eout(q), -40 * eout(q));
+      K.elevar(12 * q, () => {
+        const lanz = (x, y, u) => { if (u > 0) { g.save(); g.translate(x, y); K.papel(K.circulo(10, 77), C.ink, { d: 2, seed: 77 }); g.restore(); } };
+        lanz(rN[0][0], rN[0][1], seg(t, T.rectaN[0] - 0.08, T.rectaN[0]));
+        K.puntadas(rN, { u1: eio(seg(t, T.rectaN[0], T.rectaN[1])), col: C.ivory, ancho: 4.4, guion: [15, 10], nudos: false });
+        K.flecha(fN, { u: eio(seg(t, T.curvaN[0], T.curvaN[1])), col: C.coral, ancho: 8, punta: 28, seed: 51 });
+        lanz(rS[0][0], rS[0][1], seg(t, T.rectaS[0] - 0.08, T.rectaS[0]));
+        K.puntadas(rS, { u1: eio(seg(t, T.rectaS[0], T.rectaS[1])), col: C.ivory, ancho: 4.4, guion: [15, 10], nudos: false });
+        K.flecha(fS, { u: eio(seg(t, T.curvaS[0], T.curvaS[1])), col: C.coral, ancho: 8, punta: 28, seed: 52 });
+      });
+      g.restore();
+    }
+    // D · huracanes
+    const uh = seg(t, T.entraHur[0], T.entraHur[1]);
+    if (uh > 0) {
+      const ph = K.colocar(uh), w = 1.15 * Math.max(0, t - T.entraHur[0]);
+      g.save(); g.translate(ph.dx, ph.dy);
+      K.elevar(ph.d, () => {
+        K.huracan(HN[0], HN[1], 86 * ph.s, -w, 1, { id: 981 });
+        K.huracan(HS[0], HS[1], 86 * ph.s, w + 1, -1, { id: 985 });
+        const ua = eio(seg(t, T.entraHur[0] + 0.05, T.entraHur[1]));
+        K.flecha(arcHN, { u: ua, col: C.gold, ancho: 5.5, punta: 20, seed: 61, d: 2.5 });
+        K.flecha(arcHS, { u: ua, col: C.gold, ancho: 5.5, punta: 20, seed: 62, d: 2.5 });
+      });
+      g.restore();
+    }
+  });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- C · tiovivo
+const PC = [1230, 505], RP = 320, RK = 258, OM = 0.55;
+const theta0 = PI + 0.22 + OM * (T.suelta - m.tiovivo);
+const theta = (t) => theta0 - OM * (t - m.tiovivo);                 // antihorario en pantalla
+const pos = (ang, r = RK) => [PC[0] + r * Math.cos(ang), PC[1] + r * Math.sin(ang)];
+const plataforma = K.sprite(2 * RP, 2 * RP, () => {
+  const g = K.g;
+  K.papel(K.circulo(RP, 501, 0.003), C.ivory2, { d: 0, seed: 502, edge: 0 });
+  for (let i = 0; i < 10; i++) {
+    const a0 = i / 10 * TAU, a1 = (i + 1) / 10 * TAU, p = new Path2D(), r = RP - 22;
+    p.moveTo(0, 0); p.arc(0, 0, r, a0 + 0.006, a1 - 0.006); p.closePath(); p.bb = [-r, -r, r, r];
+    K.papel(p, i % 2 ? C.teal : C.teal2, { d: 1.2, seed: 510 + i, tb: 0.5, edge: 0.6 });
+  }
+  g.save(); g.strokeStyle = 'rgba(26,35,66,0.35)'; g.lineWidth = 1.4; g.setLineDash([2, 6]);
+  g.beginPath(); g.arc(0, 0, RP - 11, 0, TAU); g.stroke(); g.restore();
+  for (let i = 0; i < 4; i++) {
+    g.save(); g.rotate(i / 4 * TAU + 0.31);
+    K.papel(K.rect(58, -5, 214, 10, 5), C.metal, { d: 2.2, seed: 530 + i, edge: 0.8 });
+    g.translate(272, 0); K.papel(K.circulo(9, 540 + i), C.metalD, { d: 2, seed: 540 + i }); g.restore();
+  }
+  K.papel(K.circulo(62, 550, 0.006), C.ink2, { d: 2.4, seed: 551 });
+  K.papel(K.circulo(40, 552, 0.006), C.ink, { d: 1.2, seed: 553 });
+  K.chincheta(0, 0, 12);
+}, 12);
+const bordePlat = K.circulo(RP, 501, 0.003);
+const flechaPlat = [K.arcoPts(PC[0], PC[1], RP + 40, RP + 40, 0.15, -1.15, 30), K.arcoPts(PC[0], PC[1], RP + 40, RP + 40, PI + 0.15, PI - 1.15, 30)];
+// pelota: recta en el suelo (mundo); su rastro se pinta sobre la plataforma que gira
+const B0 = (() => { const a = theta(T.suelta), [x, y] = pos(a, RK - 34); return [x, y]; })();
+const B1 = pos(theta(T.suelta) + PI, RK);
+const VB = [(B1[0] - B0[0]) / (T.llega - T.suelta), (B1[1] - B0[1]) / (T.llega - T.suelta)];
+const PARA = T.llega + 0.42;
+const bola = (tau) => { const k = Math.min(tau, PARA) - T.suelta; return [B0[0] + VB[0] * k, B0[1] + VB[1] * k]; };
+const rectaPts = [B0, [B0[0] + VB[0] * (PARA - T.suelta), B0[1] + VB[1] * (PARA - T.suelta)]];
+function rastro(t) {
+  // puntos del rastro (sobre la plataforma) vistos ahora: rotados con la plataforma
+  const fin = Math.min(t, T.llega + 0.12), pts = [], th = theta(t);
+  for (let tau = T.suelta; tau <= fin + 1e-6; tau += 1 / 30) {
+    const [bx, by] = bola(tau), dx = bx - PC[0], dy = by - PC[1];
+    if (Math.hypot(dx, dy) > RP - 8) break;
+    const a = th - theta(tau), c = Math.cos(a), s = Math.sin(a);
+    pts.push([PC[0] + c * dx - s * dy, PC[1] + s * dx + c * dy]);
+  }
+  return pts;
+}
+function tiovivo(t) {
+  const g = K.g;
+  const uIn = seg(t, T.entraTiovivo[0], T.entraTiovivo[1]);
+  if (uIn <= 0) return;
+  const out = ein(seg(t, T.fueraTiovivo[0], T.fueraTiovivo[1]));
+  if (out >= 1) return;
+  const p = K.colocar(uIn), th = theta(t);
+  g.save(); g.translate(p.dx + 1250 * out, p.dy - 40 * out);
+  g.translate(PC[0], PC[1]); g.scale(p.s, p.s); g.translate(-PC[0], -PC[1]);
+  K.elevar(p.d + 8 * out, () => {
+    // plataforma (sombra y filo sin girar; el dibujo gira)
+    g.save(); g.translate(PC[0], PC[1]); K.temblor(500, 0.45, 0.002);
+    K.sombra(6 + p.d, 0.6); g.fillStyle = C.ivory2; g.fill(bordePlat); K.sinSombra();
+    g.save(); g.rotate(th); g.drawImage(plataforma.c, -plataforma.ox, -plataforma.oy); g.restore();
+    K.filo(bordePlat, 'nonzero', 0.9);
+    g.restore();
+    // rastro pintado sobre la plataforma
+    if (t > T.suelta) {
+      const pts = rastro(t);
+      if (pts.length > 2) K.flecha(pts, { col: C.coral, ancho: 6.5, punta: t > T.llega - 0.1 ? 24 : 4, alas: 2.2, d: 1.2, seed: 71 });
+    }
+    // niños (de pie en el borde, mirando al centro)
+    const nino = (ang, o) => {
+      const [x, y] = pos(ang);
+      g.save(); g.translate(x, y); g.rotate(ang + PI); K.temblor(o.id, 0.5, 0.01);
+      K.personaArriba({ escala: 1.75, ...o });
+      g.restore();
+    };
+    const lanza = t < T.apunta[0] - 0.15 ? 0.35 : t < T.suelta ? lerp(0.35, 1.5, eio(seg(t, T.apunta[0] - 0.15, T.apunta[0] + 0.12))) * (1 - eio(seg(t, T.apunta[1] - 0.04, T.suelta))) : -0.05;
+    nino(th, { abrigo: C.mustard, pelo: C.hair, brazoD: lanza, brazoI: -0.55, id: 310 });
+    nino(th + PI, { abrigo: C.plum, pelo: '#5a3a2a', brazoD: 0.55, brazoI: -0.55, id: 320 });
+    // recta: puntadas del lanzamiento (fijas en el suelo)
+    const ur = eio(seg(t, T.apunta[0], T.apunta[1]));
+    if (ur > 0) K.puntadas(rectaPts, { u1: ur, col: C.ivory, ancho: 4.4, guion: [15, 10], nudos: false, d: 3 });
+    // pelota: en la mano hasta soltarla; luego recta; al final cae fuera
+    let bx, by, alto;
+    if (t < T.suelta) { const a = th; [bx, by] = pos(a, RK - 34); bx += 14 * Math.cos(a + PI / 2); by += 14 * Math.sin(a + PI / 2); alto = 3; }
+    else { [bx, by] = bola(t); const k = seg(t, T.suelta, PARA); alto = 3 + 11 * Math.sin(PI * Math.min(1, k * 1.05)); }
+    g.save(); g.translate(bx, by); K.temblor(330, 0.5);
+    K.papel(K.circulo(15, 331, 0.01), C.gold, { d: alto, seed: 332, sa: 0.55 });
+    g.translate(-4, -4); K.papel(K.circulo(5, 333, 0.03), C.goldL, { d: 0.3, seed: 334, edge: 0 });
+    g.restore();
+    // sentido de giro
+    flechaPlat.forEach((pp, i) => K.flecha(pp, { u: eio(seg(t, T.entraTiovivo[0] + 0.05, T.entraTiovivo[1])), col: C.gold, ancho: 6, punta: 22, seed: 80 + i, d: 2.6 }));
+  });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  seccionA(t);
+  tiovivo(t);
+  globo(t);
+  K.atomo(178, 170, t, E.energia(t), { escala: 0.5 });
+}
+E.iniciar((t) => K.fotograma(t, dibujar, { fondo }), { paso: 1 / 12 });
+</script>
+</body>
+</html>

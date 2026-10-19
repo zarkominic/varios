@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lavabo</title>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Escena «lavabo» (papel, stop-motion a 12 fps). Bloque 2, segunda parte.
+// A · lavabo visto desde arriba · [diminuto] flecha de Coriolis diminuta (con lupa) ·
+//     [gravedad] flecha enorme de la gravedad y la etiqueta ×10⁶.
+// B · [tanque] el tanque redondo del MIT con su placa «MIT 1962» · [dia] un reloj de 24 h alrededor
+//     da la vuelta entera · después el agua por fin gira (antihorario, como en Boston).
+// C · [segundos] el lavabo se vacía deprisa con un cronómetro · [giro] gana el giro que el agua traía.
+// D · [guia] línea del ecuador en el suelo y un guía con un barreño (gira distinto a cada lado) ·
+//     [truco] la lupa lo revela: su mano retuerce el agua · [girar] el agua gira siguiendo la mano.
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/papel.js';
+const { C, seg, eio, ein, eout, lerp, PI, TAU } = K;
+
+const E = await escena('lavabo');
+await K.preparar();
+const M = (n, d) => E.marca(n, d);
+const m = {
+  diminuto: M('diminuto', 1.33), gravedad: M('gravedad', 3.68), tanque: M('tanque', 7.958), dia: M('dia', 10.238),
+  segundos: M('segundos', 13.598), giro: M('giro', 14.616), guia: M('guia', 17.946), truco: M('truco', 20.796), girar: M('girar', 22.389),
+};
+const T = {
+  lupa: [m.diminuto - 0.3, m.diminuto],
+  grav: [m.gravedad - 0.36, m.gravedad],
+  fueraA: [m.tanque - 0.66, m.tanque - 0.26],
+  entraTanque: [m.tanque - 0.3, m.tanque],
+  aro: [m.dia - 0.3, m.dia],
+  vuelta: [m.dia, m.dia + 1.4],
+  giraTanque: [m.dia + 1.4, m.dia + 2.0],
+  fueraTanque: [m.segundos - 0.62, m.segundos - 0.26],
+  entraC: [m.segundos - 0.3, m.segundos],
+  vacia: [m.segundos, m.segundos + 3.4],
+  giroC: [m.giro - 0.3, m.giro],
+  fueraC: [m.guia - 1.1, m.guia - 0.75],
+  suelo: [m.guia - 0.8, m.guia - 0.45],
+  entraGuia: [m.guia - 0.3, m.guia],
+  anda: [m.guia + 0.95, m.guia + 1.95],
+  flechaS: [m.guia + 2.0, m.guia + 2.3],
+  lupaD: [m.truco - 0.3, m.truco],
+  aguaSigue: [m.girar - 0.32, m.girar],
+};
+
+const fondo = K.capa(() => K.fondoNoche({ luz: [900, 470], semilla: 91, estrellas: 220 }));
+
+// ---------------------------------------------------------------- A y C · lavabo
+const LX = 700, LY = 500;
+const diminuta = K.arcoPts(0, 0, 15, 15, 0.2, -4.2, 24);              // antihorario, diminuta
+function lavaboA(t) {
+  const g = K.g, u = ein(seg(t, T.fueraA[0], T.fueraA[1]));
+  if (u >= 1) return;
+  g.save(); g.translate(-1700 * u, -50 * u);
+  K.elevar(10 * u, () => {
+    K.lavabo(LX, LY, { nivel: 1, giro: 0, sentido: 1, fuerza: 0, extra: () => {
+      const ul = seg(t, T.lupa[0], T.lupa[1]);
+      if (ul > 0) {
+        g.save(); g.translate(72, -26);
+        K.flecha(diminuta, { u: eio(ul), col: C.coral, ancho: 2.1, punta: 7, alas: 2.4, d: 1, seed: 21 });
+        const p = K.colocar(ul);
+        g.translate(p.dx * 0.6, p.dy * 0.6); g.scale(p.s, p.s);
+        K.elevar(p.d, () => {
+          g.save(); g.rotate(0.78); K.papel(K.rectRecortado(44, -7, 70, 14, 7, 23, 0.4), C.ink2, { d: 3, seed: 23 }); g.restore();
+          K.papel(K.anillo(36, 46, 22), C.gold, { d: 3, rule: 'evenodd', seed: 22 });
+        });
+        g.restore();
+      }
+    } });
+    // gravedad: flecha enorme
+    const ug = eio(seg(t, T.grav[0], T.grav[1]));
+    if (ug > 0) K.flecha([[1300, 150], [1300, 830]], { u: ug, col: C.coral, ancho: 34, punta: 104, alas: 2.0, d: 5, seed: 31 });
+    K.etiqueta(1565, 470, '×10^6', { size: 66, col: C.ivory, u: seg(t, T.grav[1] - 0.22, T.grav[1]), rot: -0.04, id: 951 });
+  });
+  g.restore();
+}
+const flechaGiroC = K.arcoPts(0, 0, 238, 172, -2.2, 1.6, 40);         // horario, alrededor del agua
+const crono = (t) => (t - m.segundos) * 0.85;
+function lavaboC(t) {
+  const g = K.g;
+  const uin = seg(t, T.entraC[0], T.entraC[1]); if (uin <= 0) return;
+  const out = ein(seg(t, T.fueraC[0], T.fueraC[1])); if (out >= 1) return;
+  const p = K.colocar(uin);
+  g.save(); g.translate(p.dx - 1800 * out, p.dy - 50 * out);
+  K.elevar(p.d + 10 * out, () => {
+    const nivel = 1 - 0.78 * eio(seg(t, T.vacia[0], T.vacia[1]));
+    const fz = eio(seg(t, T.giroC[0], T.giroC[1]));
+    K.lavabo(LX + 60, LY, { esc: p.s, nivel, giro: 0.35 * t + 2.6 * Math.max(0, t - T.giroC[0]), sentido: -1, fuerza: 0.25 + 0.75 * fz, extra: () => {
+      if (fz > 0) K.flecha(flechaGiroC, { u: fz, col: C.gold, ancho: 9, punta: 30, d: 3, seed: 41 });
+    } });
+    const fr = Math.max(0, crono(t));
+    K.reloj(1400, 330, 118, fr % 1, { marcas: 60, cronometro: true, aro: C.teal2, cara: C.ivory, id: 975, aguja2: fr / 12, sector: Math.min(1, fr), colSector: 'rgba(214,98,74,0.32)' });
+  });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- B · tanque del MIT
+const TX = 900, TY = 480, TR = 300, AR = 346;
+const tanque = K.sprite(2 * TR, 2 * TR, () => {
+  const g = K.g;
+  K.papel(K.circulo(TR, 601, 0.003), C.metalD, { d: 0, seed: 602, print: () => {
+    g.fillStyle = 'rgba(30,30,40,0.35)';
+    for (let i = 0; i < 36; i++) { const a = i / 36 * TAU; g.beginPath(); g.arc((TR - 11) * Math.cos(a), (TR - 11) * Math.sin(a), 3, 0, TAU); g.fill(); }
+  } });
+  K.papel(K.circulo(TR - 22, 603, 0.003), C.metal, { d: 2, seed: 604 });
+  K.papel(K.circulo(TR - 34, 605, 0.003), C.lozaD, { d: 0, seed: 606, edge: 0, print: () => {
+    const gr = g.createLinearGradient(-TR, -TR, TR, TR);
+    gr.addColorStop(0, 'rgba(40,40,50,0.45)'); gr.addColorStop(0.5, 'rgba(40,40,50,0.05)'); gr.addColorStop(1, 'rgba(255,250,235,0.3)');
+    g.fillStyle = gr; g.fillRect(-TR, -TR, 2 * TR, 2 * TR);
+  } });
+  // desagüe central (el tanque se vacía por el centro)
+  K.papel(K.circulo(14, 607, 0.01), C.metalD, { d: 0.6, seed: 608 });
+}, 10);
+const aguaT = K.circulo(TR - 46, 610, 0.003);
+const aro = K.anillo(AR - 26, AR + 26, 620);
+const arcoDia = (u) => K.arcoPts(TX, TY, AR, AR, -PI / 2, -PI / 2 + TAU * u, Math.max(2, Math.round(90 * u)));
+function tanqueB(t) {
+  const g = K.g;
+  const uin = seg(t, T.entraTanque[0], T.entraTanque[1]); if (uin <= 0) return;
+  const out = ein(seg(t, T.fueraTanque[0], T.fueraTanque[1])); if (out >= 1) return;
+  const p = K.colocar(uin);
+  g.save(); g.translate(p.dx - 1800 * out, p.dy - 50 * out);
+  g.translate(TX, TY); g.scale(p.s, p.s); g.translate(-TX, -TY);
+  K.elevar(p.d + 10 * out, () => {
+    // reloj de 24 h alrededor del tanque
+    const ua = seg(t, T.aro[0], T.aro[1]);
+    if (ua > 0) {
+      const pa = K.colocar(ua);
+      g.save(); g.translate(TX + pa.dx, TY + pa.dy); g.scale(pa.s, pa.s); K.temblor(630, 0.45, 0.002);
+      K.elevar(pa.d, () => K.papel(aro, C.ivory2, { d: 4, rule: 'evenodd', seed: 631, sa: 0.6, print: () => {
+        g.strokeStyle = C.ink; g.lineCap = 'round';
+        for (let i = 0; i < 24; i++) {
+          const a = i / 24 * TAU - PI / 2, big = i % 6 === 0;
+          g.lineWidth = big ? 4 : 2; g.globalAlpha = big ? 0.85 : 0.55;
+          const r1 = AR + 18, r2 = AR + (big ? -2 : 6);
+          g.beginPath(); g.moveTo(r1 * Math.cos(a), r1 * Math.sin(a)); g.lineTo(r2 * Math.cos(a), r2 * Math.sin(a)); g.stroke();
+        }
+        g.globalAlpha = 1;
+      } }));
+      g.restore();
+      K.etiqueta(TX - AR - 70, TY - AR + 40, '24 h', { size: 44, col: C.gold, u: ua, rot: -0.06, id: 952 });
+      const uv = eio(seg(t, T.vuelta[0], T.vuelta[1]));
+      if (uv > 0.004) {
+        const pts = arcoDia(uv);
+        g.save(); K.papel(K.tira(pts, 9), C.gold, { d: 1.6, seed: 640, edge: 0.7 }); g.restore();
+      }
+      // aguja: un sol de papel que recorre el aro
+      const a = -PI / 2 + TAU * uv;
+      g.save(); g.translate(TX + AR * Math.cos(a), TY + AR * Math.sin(a)); K.temblor(641, 0.5, 0.01);
+      K.papel(K.estrella(30, 19, 10, 0, 642), C.goldL, { d: 3.5, seed: 643 });
+      K.papel(K.circulo(17, 644), C.gold, { d: 1.2, seed: 645 });
+      g.restore();
+    }
+    // el tanque
+    g.save(); g.translate(TX, TY); K.temblor(600, 0.45, 0.002);
+    K.sombra(6, 0.6); g.drawImage(tanque.c, -tanque.ox, -tanque.oy); K.sinSombra();
+    const fz = eio(seg(t, T.giraTanque[0], T.giraTanque[1]));
+    g.globalAlpha = 0.88;
+    K.papel(aguaT, C.agua, { d: 0.6, seed: 611, tb: 0.6, sa: 0.3, print: () => {
+      // agua quieta: ondas concéntricas muy suaves
+      g.strokeStyle = 'rgba(220,245,245,0.16)'; g.lineWidth = 2;
+      for (let r = 40; r < TR - 50; r += 38) { g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); }
+    } });
+    g.globalAlpha = 1;
+    if (fz > 0) { g.save(); g.clip(aguaT); K.remolino(TR - 56, TR - 56, -0.7 * Math.max(0, t - T.giraTanque[0]), 1, 0.15 + 0.85 * fz, { id: 1300 }); g.restore(); }
+    if (fz > 0) K.flecha(K.arcoPts(0, 0, 190, 190, 0.5, -1.9, 30), { u: fz, col: C.gold, ancho: 8, punta: 28, d: 2.4, seed: 650 });
+    g.restore();
+    // placa del MIT, cosida al tanque
+    K.puntadas([[1180, 600], [1290, 650], [1390, 640]], { col: C.goldL, u1: eio(seg(t, T.entraTanque[0] + 0.1, T.entraTanque[1])) });
+    K.etiqueta(1490, 640, 'MIT 1962', { size: 46, col: C.ivory, ink: C.ink, u: seg(t, T.entraTanque[0], T.entraTanque[1]), rot: -0.05, id: 953 });
+  });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- D · el guía en la línea del ecuador
+const SUELO_Y = 772;
+const paisaje = K.paisajeEcuador({ horizonte: SUELO_Y });
+function poste(x, y, letra, col, id, u) {
+  if (u <= 0) return;
+  const g = K.g, p = K.colocar(u);
+  g.save(); g.translate(x + p.dx, y + p.dy); K.temblor(id, 0.5, 0.008); g.scale(p.s, p.s);
+  K.elevar(p.d, () => {
+    K.papel(K.rect(-7, -160, 14, 162, 5), C.maderaD, { d: 3, seed: id });
+    g.translate(0, -186);
+    K.papel(K.circulo(48, id + 1, 0.01, 3.5, 18), col, { d: 3.6, seed: id + 2, edge: 0.9 });
+    K.escribir(letra, 0, 0, { size: 56, col: C.ink, peso: 900 });
+  });
+  g.restore();
+}
+// barreño en vista de 3/4, centrado en su borde
+const barRim = K.elipse(66, 21, 720, 0.01), barAgua = K.elipse(56, 15, 721, 0.01);
+const barCuerpo = (() => { const p = new Path2D(); p.moveTo(-64, 0); p.bezierCurveTo(-60, 40, -30, 50, 0, 50); p.bezierCurveTo(30, 50, 60, 40, 64, 0); p.closePath(); p.bb = [-64, 0, 64, 50]; return p; })();
+function barreno(giro, sentido, fz) {
+  K.papel(barCuerpo, C.metalD, { d: 2.4, seed: 723 });
+  K.papel(barRim, C.metal, { d: 1.2, seed: 724 });
+  K.g.save(); K.g.translate(0, 1);
+  K.papel(barAgua, C.agua, { d: 0.4, seed: 725, tb: 0.6, edge: 0.5 });
+  K.g.save(); K.g.clip(barAgua); K.remolino(52, 14, giro, sentido, fz, { id: 1320 + (sentido > 0 ? 0 : 5) }); K.g.restore();
+  K.g.restore();
+}
+const arcN = K.arcoPts(0, 4, 98, 34, PI - 0.25, 0.25, 30);                // antihorario visto desde arriba
+const arcS = K.arcoPts(0, 4, 98, 34, 0.25, PI - 0.25, 30);                // horario
+const XN = 690, XS = 1235, PIES = 862, ESC = 3.8;
+function seccionD(t) {
+  const g = K.g;
+  const us = seg(t, T.suelo[0], T.suelo[1]); if (us <= 0) return;
+  const ps = K.colocar(us, { amp: 0.6 });
+  g.save(); g.translate(960 + ps.dx, SUELO_Y + ps.dy);
+  K.temblor(705, 0.4, 0.001);
+  g.drawImage(paisaje.c, -paisaje.ox, -paisaje.oy);
+  g.restore();
+  poste(430, 812, 'N', C.ivory, 730, seg(t, T.suelo[0] + 0.1, T.suelo[1] + 0.1));
+  poste(1530, 812, 'S', C.gold, 740, seg(t, T.suelo[0] + 0.16, T.suelo[1] + 0.16));
+  // el guía con el barreño
+  const ug = seg(t, T.entraGuia[0], T.entraGuia[1]); if (ug <= 0) return;
+  const pg = K.colocar(ug), wa = seg(t, T.anda[0], T.anda[1]);
+  const gx = lerp(XN, XS, eio(wa)) + pg.dx, gy = PIES + pg.dy;
+  const truco = t >= T.lupaD[0];
+  const bx = gx, by = gy - 26 * ESC;
+  const brazoMano = truco ? K.aimAt(-2, 25) + 0.12 * Math.sin((t - T.lupaD[0]) * 9) : K.aimAt(-8.2 + 0, 20);
+  g.save(); g.translate(gx, gy); K.temblor(750, 0.5, 0.006); g.scale(pg.s, pg.s);
+  K.elevar(pg.d, () => {
+    K.persona({ escala: ESC, abrigo: C.blue, abrigoD: C.blueD, pantalon: C.ink, tocado: 'sombrero', colTocado: C.ivory3, brazoI: K.aimAt(8.5, 20), brazoD: brazoMano, paso: wa > 0 && wa < 1 ? wa * 2 : 0, id: 760 });
+  });
+  g.restore();
+  g.save(); g.translate(bx, by); K.temblor(770, 0.5, 0.006); g.scale(pg.s * 1.45, pg.s * 1.45);
+  K.elevar(pg.d, () => {
+    const lado = wa < 0.5 ? 1 : -1;
+    const fzN = 1 - eio(seg(t, T.anda[0], T.anda[0] + 0.2)), fzS = eio(seg(t, T.flechaS[0], T.flechaS[1]));
+    const fz = lado > 0 ? fzN * eio(seg(t, T.entraGuia[0], T.entraGuia[1])) : fzS;
+    barreno(lado > 0 ? -1.6 * t : 1.6 * t, lado, Math.max(0.2, fz));
+    if (lado > 0 && fzN > 0) K.flecha(arcN, { u: eio(ug) * fzN, col: C.gold, ancho: 5.5, punta: 20, d: 2.2, seed: 780 });
+    if (lado < 0 && fzS > 0) K.flecha(arcS, { u: fzS, col: C.gold, ancho: 5.5, punta: 20, d: 2.2, seed: 781 });
+    // mano del guía metida en el agua (el truco)
+    if (truco) { g.save(); g.translate(8, 0); K.papel(K.circulo(9, 782, 0.03), C.skin, { d: 1.4, seed: 783 }); g.restore(); }
+  });
+  g.restore();
+  lupa(t, bx, by);
+}
+// la lupa: vista desde arriba del barreño con la mano que lo retuerce
+const LUX = 1440, LUY = 292, LUR = 190;
+const circLupa = K.circulo(LUR, 790, 0.002), aroLupa = K.anillo(LUR - 2, LUR + 18, 791);
+const manoPalma = K.rectRecortado(-24, -20, 48, 40, 14, 792, 0.6);
+const dedos = [[-16, 7], [-6, 8.5], [5, 8], [15, 6.5]].map(([x, l], i) => K.rect(x - 4.4, -20 - l * 4.2, 8.8, l * 4.2 + 6, 4.4));
+const pulgar = (() => { const p = K.rect(-4.6, -30, 9.2, 34, 4.6); return p; })();
+const manga = K.rectRecortado(-30, 18, 60, 260, 10, 793, 0.8);
+const arcLupa = K.arcoPts(0, 0, 112, 112, -0.6, 1.9, 34);              // horario
+function lupa(t, bx, by) {
+  const ul = seg(t, T.lupaD[0], T.lupaD[1]); if (ul <= 0) return;
+  const g = K.g, p = K.colocar(ul);
+  // hilo de la lupa al barreño
+  K.puntadas([[bx + 60, by - 20], [bx + 120, by - 170], [LUX - 110, LUY + 160]], { col: C.goldL, ancho: 3, u1: eio(ul) });
+  g.save(); g.translate(LUX + p.dx, LUY + p.dy); g.scale(p.s, p.s); K.temblor(795, 0.45, 0.003);
+  K.elevar(p.d, () => {
+    // mango
+    g.save(); g.rotate(0.78); K.papel(K.rectRecortado(LUR + 10, -18, 150, 36, 16, 796, 0.6), C.maderaD, { d: 5, seed: 797 }); g.restore();
+    K.sombra(6, 0.6); g.fillStyle = C.metal; g.fill(circLupa); K.sinSombra();
+    g.save(); g.clip(circLupa);
+    // fondo: el barreño desde arriba
+    K.papel(circLupa, C.metalD, { d: 0, seed: 798, edge: 0 });
+    K.papel(K.circulo(LUR - 18, 799, 0.003), C.metal, { d: 2, seed: 800 });
+    const agua = K.circulo(LUR - 34, 801, 0.003);
+    K.papel(agua, C.agua, { d: 0.8, seed: 802, tb: 0.6 });
+    // la mano da vueltas (horario) desde el truco; el agua la sigue en «girar»
+    const w = 3.2, ang = 0.8 + w * Math.max(0, t - m.truco) * eio(seg(t, m.truco - 0.1, m.truco + 0.3));
+    const fz = eio(seg(t, T.aguaSigue[0], T.aguaSigue[1]));
+    if (fz > 0) { g.save(); g.clip(agua); K.remolino(LUR - 40, LUR - 40, ang * 0.9, -1, 0.2 + 0.8 * fz, { id: 1340 }); g.restore(); }
+    if (fz > 0) K.flecha(arcLupa, { u: fz, col: C.gold, ancho: 7, punta: 24, d: 2.4, seed: 803 });
+    const fx = 52 * Math.cos(ang), fy = 52 * Math.sin(ang);
+    g.save(); g.translate(fx, fy); g.rotate(-0.75 + 0.25 * Math.sin(ang)); g.translate(0, 34);
+    K.papel(manga, C.blue, { d: 4, seed: 804 });
+    K.papel(K.rect(-28, 12, 56, 14, 5), C.blueD, { d: 4.2, seed: 805 });
+    g.save(); g.translate(-25, 0); g.rotate(-0.55); K.papel(pulgar, C.skinD, { d: 3.6, seed: 806 }); g.restore();
+    K.papel(manoPalma, C.skin, { d: 3.8, seed: 807 });
+    dedos.forEach((d, i) => K.papel(d, i % 2 ? C.skin : C.skinD, { d: 3.6, seed: 808 + i, edge: 0.7 }));
+    g.restore();
+    // las yemas están bajo el agua: velo de agua y ondas alrededor
+    g.save(); g.translate(fx, fy);
+    g.globalAlpha = 0.55; K.papel(K.circulo(30, 813, 0.04), C.agua, { d: 0, seed: 814, edge: 0 }); g.globalAlpha = 1;
+    g.strokeStyle = 'rgba(214,236,232,0.75)'; g.lineCap = 'round';
+    [[36, 3], [50, 2.2], [64, 1.4]].forEach(([r, w], i) => { g.lineWidth = w; g.beginPath(); g.arc(0, 0, r, ang + 1.2 + i * 0.3, ang + 1.2 + i * 0.3 + 3.6); g.stroke(); });
+    g.restore();
+    // sombra interior del cristal
+    const gr = g.createRadialGradient(-50, -60, 40, 0, 0, LUR);
+    gr.addColorStop(0, 'rgba(255,255,255,0.10)'); gr.addColorStop(0.7, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(0,0,20,0.30)');
+    g.fillStyle = gr; g.fillRect(-LUR, -LUR, 2 * LUR, 2 * LUR);
+    g.restore();
+    K.papel(aroLupa, C.gold, { d: 4, rule: 'evenodd', seed: 812 });
+  });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  seccionD(t);
+  lavaboA(t);
+  tanqueB(t);
+  lavaboC(t);
+  K.atomo(178, 170, t, E.energia(t), { escala: 0.5 });
+}
+E.iniciar((t) => K.fotograma(t, dibujar, { fondo }), { paso: 1 / 12 });
+</script>
+</body>
+</html>
