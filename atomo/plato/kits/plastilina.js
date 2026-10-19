@@ -255,7 +255,7 @@ const vec3 C_LAND   = vec3(0.062, 0.090, 0.028);
 const vec3 C_GOLD   = vec3(0.270, 0.118, 0.010);
 const vec3 C_WATER  = vec3(0.042, 0.120, 0.230);
 const vec3 C_STEEL  = vec3(0.025, 0.028, 0.040);
-const vec3 C_DUST   = vec3(0.350, 0.320, 0.270);
+const vec3 C_DUST   = vec3(0.380, 0.320, 0.240);
 
 const float ZW = 4.2;   // pared del fondo en z = -ZW
 const float RF = 2.6;   // radio de la curva del ciclorama
@@ -403,6 +403,36 @@ void main() {
 }
 `;
 
+// ---------- números del tablero horneados (distancia 2D al trazo; una vez) ----------
+const GLSL_HORNO_DIGITOS = (glifos) => /* glsl */`
+precision highp float;
+out vec4 fragColor;
+uniform vec2 uTam;
+float sdSeg(vec2 p, vec2 a, vec2 b) { vec2 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0); return length(pa - ba * h); }
+float sdArco(vec2 p, vec2 c, float r, vec2 cs, vec2 e) {
+  p -= c;
+  p = vec2(dot(p, cs), cs.x * p.y - cs.y * p.x);
+  p.y = abs(p.y);
+  return (p.y * e.x > p.x * e.y) ? length(p - e * r) : abs(length(p) - r);
+}
+${glifos}
+void main() {
+  vec2 uv = gl_FragCoord.xy / uTam;
+  vec2 p = mix(vec2(-3.0, ${f4(TAB.YD - 0.32)}), vec2(3.0, ${f4(TAB.YD + 0.32)}), uv);
+  float fi = clamp(floor(p.x / ${f4(TAB.PASO)} + 3.0), 0.0, 5.0);
+  int i = int(fi);
+  vec2 c = (vec2(p.x - (fi - 2.5) * ${f4(TAB.PASO)}, p.y - ${f4(TAB.YD)})) / 0.4;
+  float dp, d = 1e5;
+  if (i == 0) d = g1(c, dp);
+  else if (i == 1) d = g2(c, dp);
+  else if (i == 2) d = g3(c, dp);
+  else if (i == 3) d = g4(c, dp);
+  else if (i == 4) d = g5(c, dp);
+  else d = g6(c, dp);
+  fragColor = vec4(clamp(d * 0.4 / 0.5, 0.0, 1.0), 0.0, 0.0, 1.0);
+}
+`;
+
 // ---------- biblioteca de formas ----------
 const GLSL_FORMAS = /* glsl */`
 out vec4 fragColor;
@@ -492,7 +522,6 @@ float sdf_atomo(vec3 p) {
     float de = length(q - uElec[i].xyz) - uElec[i].w;
     d = smin(d, smin(dt, de, 0.05), 0.02);
   }
-  d -= uLump * lumps(q);
   return d * atomEsc();
 }
 float sdfc_atomo(vec3 p) {
@@ -503,6 +532,16 @@ float sdfc_atomo(vec3 p) {
     d = min(d, length(q - uElec[i].xyz) - uElec[i].w + 0.012);
   }
   return d * atomEsc() + fuera(0);
+}
+// envolvente barata y conservadora (nunca más lejos que la forma real): primera fase del rayo
+float sdfa_atomo(vec3 p) {
+  vec3 q = atomLocal(p);
+  float d = length(q) - 0.72;
+  for (int i = 0; i < 3; i++) {
+    d = min(d, sdTorus(uRingM[i] * q, uRing * vec2(1.0, 1.12)));
+    d = min(d, length(q - uElec[i].xyz) - uElec[i].w);
+  }
+  return d * atomEsc();
 }
 void mat_atomo(vec3 p, out Mat M) {
   vec3 q = atomLocal(p);
@@ -547,7 +586,7 @@ float sdf_globo(vec3 p) {
   vec3 q = uGM * (p - uGC.xyz);
   float R = uGC.w;
   float d = smin(length(q) - R, globoBanda(q, R), 0.03 * R);
-  return (d - uLump * R * lumps(q / R * 1.3)) * 0.95;
+  return d * 0.95;
 }
 float sdfc_globo(vec3 p) {
   vec3 q = uGM * (p - uGC.xyz);
@@ -583,28 +622,26 @@ uniform vec4 uTBox;      // caja local envolvente: semiancho, semialto, z mínim
 uniform vec4 uCelda[6];  // tipo (0 · 1 ✓ · 2 ✗), elevación, aplastamiento, giro
 uniform vec4 uCelda2[6]; // escala, desplazamiento x, desplazamiento y, —
 uniform vec3 uTPrint;
-float digito(vec2 p, int i) {
-  float dp, d = 1e5;
-  if (i == 0) d = g1(p, dp);
-  else if (i == 1) d = g2(p, dp);
-  else if (i == 2) d = g3(p, dp);
-  else if (i == 3) d = g4(p, dp);
-  else if (i == 4) d = g5(p, dp);
-  else d = g6(p, dp);
-  return d;
+uniform sampler2D uDigitos;
+// distancia 2D al trazo de los números 1–6 (horneada en una textura; fuera de la fila, aproximada)
+const vec4 DIG_CAJA = vec4(-3.0, ${f4(TAB.YD - 0.32)}, 3.0, ${f4(TAB.YD + 0.32)});
+float digitos(vec2 p) {
+  vec2 uv = (p - DIG_CAJA.xy) / (DIG_CAJA.zw - DIG_CAJA.xy);
+  vec2 cuv = clamp(uv, 0.0, 1.0);
+  float d = texture(uDigitos, cuv).r * 0.5;
+  return d + length((uv - cuv) * (DIG_CAJA.zw - DIG_CAJA.xy));
 }
-// la ficha de la casilla (en coordenadas de la casilla); 1e5 si está vacía
-float fichaCelda(vec3 c, int i, out float mf, out vec3 tq, bool detalle) {
+// la ficha de la casilla i: coordenadas locales de la ficha y su factor de distancia
+vec3 fichaLocal(vec3 c, int i, out float k, out float off) {
   vec4 ce = uCelda[i];
   vec4 c2 = uCelda2[i];
   vec3 sq = vec3(1.0 + 0.55 * ce.z, 1.0 + 0.55 * ce.z, 1.0 - ce.z) * c2.x;
-  tq = c - vec3(c2.y, ${f4(TAB.YW)} + c2.z, -0.1 + 0.16 * sq.z + ce.y);
+  vec3 tq = c - vec3(c2.y, ${f4(TAB.YW)} + c2.z, -0.1 + 0.16 * sq.z + ce.y);
   float cs = cos(ce.w), sn = sin(ce.w);
   tq.xy = vec2(cs * tq.x + sn * tq.y, -sn * tq.x + cs * tq.y);
-  tq /= sq;
-  mf = 0.0;
-  float d = (detalle ? fichaD(tq, ce.x, mf) : fichaC(tq)) * min(sq.x, sq.z);
-  return ce.x < 0.5 ? 1e5 : d;
+  k = min(sq.x, sq.z);
+  off = ce.x < 0.5 ? 1e5 : 0.0;   // casilla vacía: muy lejos
+  return tq / sq;
 }
 // m: 0 cuerpo · 1 borde · 2 número · 3 ficha ✓ · 4 su símbolo · 5 ficha ✗ · 6 su símbolo
 float tableroD(vec3 q, out float m, out vec3 lq) {
@@ -621,12 +658,12 @@ float tableroD(vec3 q, out float m, out vec3 lq) {
   float hw = sdRoundBox(c - vec3(0.0, ${f4(TAB.YW)}, 0.0), vec3(0.375, 0.375, 0.1), 0.12);
   d = smax(d, -hw, 0.05);
   // número de la casilla en churro azul tinta
-  float g2 = digito((c.xy - vec2(0.0, ${f4(TAB.YD)})) / 0.4, i) * 0.4;
-  float dg = churro(g2, c.z - 0.006, 0.04);
+  float dg = churro(digitos(q.xy), c.z - 0.006, 0.04);
   if (dg < d) m = 2.0;
   d = smin(d, dg, 0.022);
-  float mf; vec3 tq;
-  float df = fichaCelda(c, i, mf, tq, true);
+  float mf, kf, of;
+  vec3 tq = fichaLocal(c, i, kf, of);
+  float df = fichaD(tq, uCelda[i].x, mf) * kf + of;
   if (df < d) { m = 3.0 + mf + (uCelda[i].x > 1.5 ? 2.0 : 0.0); lq = tq + vec3(fi * 3.1, 0.0, 0.0); }
   return min(d, df);
 }
@@ -640,9 +677,10 @@ float sdfc_tablero(vec3 p) {
   float d = sdRoundBox(q - vec3(0.0, 0.0, -${f4(TAB.GR)}), vec3(${f4(TAB.HW)}, ${f4(TAB.HH)}, ${f4(TAB.GR)}), 0.17);
   float fi = clamp(floor(q.x / ${f4(TAB.PASO)} + 3.0), 0.0, 5.0);
   vec3 c = q - vec3((fi - 2.5) * ${f4(TAB.PASO)}, 0.0, 0.0);
-  float mf; vec3 tq;
+  float kf, of;
+  vec3 tq = fichaLocal(c, int(fi), kf, of);
   d = max(d, -sdRoundBox(c - vec3(0.0, ${f4(TAB.YW)}, 0.0), vec3(0.385, 0.385, 0.11), 0.12));
-  return min(d, fichaCelda(c, int(fi), mf, tq, false)) * uTC.w + fuera(2);
+  return min(d, fichaC(tq) * kf + of) * uTC.w + fuera(2);
 }
 void mat_tablero(vec3 p, out Mat M) {
   vec3 q = uTM * (p - uTC.xyz);
@@ -676,12 +714,13 @@ float sdf_polvo(vec3 p) {
   float d = 1e5;
   for (int i = 0; i < NPOLVO; i++) {
     vec4 s = uPolvo[i];
-    d = smin(d, length(p - s.xyz) - s.w + (s.w > 0.001 ? 0.0 : 1e5), 0.03);
+    d = smin(d, length(p - s.xyz) - s.w + (s.w > 0.001 ? 0.0 : 1e5), 0.05);
   }
-  return d;
+  // grumos: bolitas irregulares
+  return (d - 0.035 * (vnoise(p * 16.0 + uBoil) - 0.4)) * 0.75;
 }
 float sdfc_polvo(vec3 p) { return sdf_polvo(p) + 0.004 + fuera(3); }
-void mat_polvo(vec3 p, out Mat M) { M.alb = C_DUST; M.lp = p * 3.0; M.bs = 4.0; M.det = 0.4; M.esc = 0.33; M.g = vec3(0.0); }
+void mat_polvo(vec3 p, out Mat M) { M.alb = C_DUST * (0.9 + 0.2 * vnoise(p * 9.0)); M.lp = p * 4.0; M.bs = 4.0; M.det = 0.7; M.esc = 0.25; M.g = vec3(0.0); }
 `;
 
 const GLSL_PIEZAS_COMUN = /* glsl */`
@@ -696,7 +735,7 @@ function glslPieza(sufijo, idx, tipo, b) {
   return `
 float sdf_${sufijo}(vec3 p) {
   vec3 q = uPM[${idx}] * (p - uPC[${idx}].xyz); float m;
-  return (pz_${t}(q, uPT[${idx}], m) - uLump * 0.6 * lumps(q * 1.4)) * uPC[${idx}].w;
+  return pz_${t}(q, uPT[${idx}], m) * uPC[${idx}].w;
 }
 float sdfc_${sufijo}(vec3 p) {
   vec3 q = uPM[${idx}] * (p - uPC[${idx}].xyz);
@@ -731,9 +770,12 @@ bool rangoSombra(vec3 ro, vec3 rd, out float t0, out float t1) {
     float h = bb * bb - c;
     bool ok = b.w > 0.0 && h > 0.0;
     h = sqrt(max(h, 0.0));
-    float tb = -bb + h;
+    float ta = -bb - h, tb = -bb + h;
+#ifdef TABLERO
+    if (i == 2) { float ca, cb; ok = b.w > 0.0 && caja_tablero(ro, rd, ca, cb); ta = ca; tb = cb; }
+#endif
     ok = ok && tb > 0.0;
-    t0 = ok ? min(t0, max(-bb - h, 0.0)) : t0;
+    t0 = ok ? min(t0, max(ta, 0.0)) : t0;
     t1 = ok ? max(t1, tb) : t1;
   }
   return t1 > 0.0;
@@ -757,7 +799,9 @@ const GLSL_PASO_SOMBRA = /* glsl */`
 uniform float uSombraEsc;
 float aoBg(vec3 p, vec3 n) {
   float o = 0.0;
-  for (int i = 1; i <= 4; i++) {
+  int nao = 0;
+  for (int i = 0; i < NB; i++) nao = (uB[i].w > 0.0 && length(p - uB[i].xyz) < uB[i].w + 2.2) ? 4 : nao;
+  for (int i = 1; i <= nao; i++) {
     float h = 0.35 * float(i) * float(i) * 0.5 + 0.1;
     float d = mapC(p + n * h);
     o += clamp((h - d) / h, 0.0, 1.0) * (1.0 / float(i));
@@ -826,7 +870,7 @@ vec3 shade(vec3 p, vec3 rd, float tObj, vec3 n, Mat M) {
   vec3 alb = M.alb, lp = M.lp;
   float bs = M.bs, det = M.det;
   float pixW = uPix * tObj / max(M.esc, 0.05);
-  vec4 nd = vnoised(lp * 2.6 + bs * 11.0);
+  vec4 nd = vnoised(lp * 2.6 + bs * 11.0 + uBoil * 0.06);
   vec3 g = nd.yzw * 0.13;
   vec4 nm = vnoised(lp * 7.5 + bs * 5.0);
   g += nm.yzw * 0.07;
@@ -840,7 +884,7 @@ vec3 shade(vec3 p, vec3 rd, float tObj, vec3 n, Mat M) {
   alb *= 1.0 - (0.15 * f1.w + 0.10 * f2.w) * det - 0.05 * smoothstep(0.55, 0.85, gr.x);
 
   vec3 L = normalize(LPOS - p);
-  float sh = softShadow(p + n * 0.025, L, 30.0, 9.0);
+  float sh = mix(0.1, 1.0, softShadow(p + n * 0.025, L, 30.0, 6.0));
   float ao = aoObj(p, n);
   float ndl = dot(n, L);
   float wrapD = max((ndl + 0.28) / 1.28, 0.0);
@@ -877,7 +921,16 @@ void main() {
 #endif
   if (!dentro) discard;
   float t = max(t0, 0.0), tHit = -1.0, bestR = 1e5, bestT = t;
+#ifdef SDFA_OBJ
+  // fase 1: envolvente barata hasta quedar cerca de la arcilla
   for (int i = 0; i < RAYO_PASOS; i++) {
+    float d = SDFA_OBJ(ro + rd * t);
+    if (d < 4.0 * uPix * t || t > t1) break;
+    t += d;
+  }
+  bestT = t;
+#endif
+  for (int i = 0; i < RAYO_PASOS2; i++) {
     vec3 p = ro + rd * t;
     float d = SDF_OBJ(p);
     if (d < 0.00022 * t) { tHit = t; break; }
@@ -928,7 +981,7 @@ const rotTab = ({ inclinacion = 0.6, giro = 0, roll = 0 }) => new THREE.Matrix4(
 // ---------- el plató ----------
 export async function crearPlato({
   camara = {}, atomo = true, globo = false, tablero = false, polvo = 0, piezas = [], sombras = {},
-  semilla = 20261019, pasosRayo = 90, pasosSombra = 28, sombraEsc = 2,
+  semilla = 20261019, pasosRayo = 90, pasosSombra = 28, sombraEsc = 3,
 } = {}) {
   const busqueda = new URLSearchParams(location.search);
   const captura = busqueda.has('captura');
@@ -994,7 +1047,6 @@ export async function crearPlato({
   piezas.forEach((tipo, i) => objetos.push({ id: `p${i}`, b: 4 + i, tipo }));
   const tiposUsados = [...new Set(piezas)];
   const glifos = new Set(['✓', '✗']);
-  if (tablero) for (const c of '123456') glifos.add(c);
   for (const t of tiposUsados) if (t.startsWith('glifo:')) glifos.add(t.slice(6));
   let decl = GLSL_FORMAS + [...glifos].map(glslGlifo).join('') + GLSL_FICHA;
   if (atomo) decl += GLSL_ATOMO;
@@ -1018,9 +1070,9 @@ export async function crearPlato({
   const tipoRT = renderer.extensions.has('EXT_color_buffer_float') ? THREE.HalfFloatType : THREE.UnsignedByteType;
   const rtOpts = { type: tipoRT, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false, stencilBuffer: false };
   const rtD = new THREE.WebGLRenderTarget(W, H, rtOpts), rtA = new THREE.WebGLRenderTarget(W, H, rtOpts), rtT = new THREE.WebGLRenderTarget(W, H, rtOpts);
-  const rtS = new THREE.WebGLRenderTarget(Math.ceil(W / sombraEsc), Math.ceil(H / sombraEsc), {
-    minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false, stencilBuffer: false,
-  });
+  const rtSOpts = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false, stencilBuffer: false };
+  const rtS = new THREE.WebGLRenderTarget(Math.ceil(W / sombraEsc), Math.ceil(H / sombraEsc), rtSOpts);
+  const rtS2 = new THREE.WebGLRenderTarget(Math.ceil(W / sombraEsc), Math.ceil(H / sombraEsc), rtSOpts);
 
   const v4 = (n) => Array.from({ length: n }, () => new THREE.Vector4());
   const m3 = (n) => Array.from({ length: n }, () => new THREE.Matrix3());
@@ -1034,7 +1086,7 @@ export async function crearPlato({
     uRingM: { value: m3(3) }, uRing: { value: new THREE.Vector2(1.68, 0.092) }, uElec: { value: v4(3) }, uAPrint: { value: new THREE.Vector3() },
     uGC: { value: new THREE.Vector4() }, uGM: { value: new THREE.Matrix3() }, uCaps: { value: caps }, uGPrint: { value: new THREE.Vector3() },
     uTC: { value: new THREE.Vector4() }, uTM: { value: new THREE.Matrix3() }, uTBox: { value: new THREE.Vector4() },
-    uCelda: { value: v4(6) }, uCelda2: { value: v4(6) }, uTPrint: { value: new THREE.Vector3() },
+    uCelda: { value: v4(6) }, uCelda2: { value: v4(6) }, uTPrint: { value: new THREE.Vector3() }, uDigitos: { value: null },
     uPolvo: { value: v4(Math.max(polvo, 1)) },
     uPC: { value: v4(Math.max(NP, 1)) }, uPM: { value: m3(Math.max(NP, 1)) }, uPT: { value: v4(Math.max(NP, 1)) }, uPS: { value: v4(Math.max(NP, 1)) },
   };
@@ -1057,19 +1109,36 @@ export async function crearPlato({
   const desU = { ...comunes, uTex: { value: null }, uDir: { value: new THREE.Vector2(1, 0) },
     uFoco: { value: camara.foco ?? cam.pos.distanceTo(cam.mira) }, uK: { value: camara.desenfoque ?? 26 } };
   const pasoDes = crearPaso(GLSL_COMUN + GLSL_DESENFOQUE, { uniforms: desU });
-  const pasoSombra = crearPaso(GLSL_COMUN + decl + mapC(todos) + GLSL_REVELAR + GLSL_PASO_SOMBRA);
+  const pasoSombra = crearPaso(GLSL_COMUN + decl + mapC(todos.filter((id) => id !== 'polvo')) + GLSL_REVELAR + GLSL_PASO_SOMBRA);
+  // suavizado de la sombra a baja resolución (3 tomas por eje)
+  const suaU = { uTex: { value: null }, uDir: { value: new THREE.Vector2() }, uTam: { value: new THREE.Vector2() } };
+  const pasoSuave = crearPaso(`precision highp float;\nout vec4 fragColor;\nuniform sampler2D uTex;\nuniform vec2 uDir, uTam;
+void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
+  fragColor = 0.25 * texture(uTex, uv - d) + 0.5 * texture(uTex, uv) + 0.25 * texture(uTex, uv + d); }`, { uniforms: suaU });
   const pasoFondo = crearPaso(GLSL_COMUN + decl + mapC(todos) + GLSL_REVELAR + GLSL_PASO_FONDO);
   for (const o of objetos) {
     const lanzan = [o.id, ...(sombras[o.id] ?? [])].filter((id) => todos.includes(id));
     o.uRect = { value: new THREE.Vector4(-1, -1, 1, 1) };
     o.paso = crearPaso(GLSL_COMUN + decl + mapC(lanzan) + GLSL_REVELAR + GLSL_PASO_OBJETO, {
       vert: VERT_RECT, uniforms: { ...U, uRect: o.uRect }, mezcla: true,
-      extraDefs: { SDF_OBJ: `sdf_${o.id}`, MAT_OBJ: `mat_${o.id}`, OBJ_B: o.b, ...(o.caja ? { OBJ_CAJA: 1 } : {}) },
+      extraDefs: {
+        SDF_OBJ: `sdf_${o.id}`, MAT_OBJ: `mat_${o.id}`, OBJ_B: o.b, ...(o.caja ? { OBJ_CAJA: 1 } : {}),
+        ...(o.id === 'atomo' ? { SDFA_OBJ: 'sdfa_atomo', RAYO_PASOS2: 48 } : { RAYO_PASOS2: pasosRayo }),
+      },
     });
   }
 
   const px = new Uint8Array(4);
   const sincronizar = () => gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+
+  if (tablero) {
+    const rtDig = new THREE.WebGLRenderTarget(2048, 224, { type: tipoRT, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false, stencilBuffer: false });
+    const pd = crearPaso(GLSL_HORNO_DIGITOS('123456'.split('').map(glslGlifo).join('')), { uniforms: { uTam: { value: new THREE.Vector2(2048, 224) } } });
+    renderer.setRenderTarget(rtDig);
+    renderer.render(pd.escena, camOrto);
+    renderer.setRenderTarget(null);
+    U.uDigitos.value = rtDig.texture;
+  }
 
   function hornear() {
     for (const [rt, s] of [[rtD, 0], [rtA, 1]]) {
@@ -1101,6 +1170,7 @@ export async function crearPlato({
     comunes.uPix.value = 2 * cam.tanY / bsz.y;
     rtD.setSize(bsz.x, bsz.y); rtA.setSize(bsz.x, bsz.y); rtT.setSize(bsz.x, bsz.y);
     rtS.setSize(Math.ceil(bsz.x / sombraEsc), Math.ceil(bsz.y / sombraEsc));
+    rtS2.setSize(Math.ceil(bsz.x / sombraEsc), Math.ceil(bsz.y / sombraEsc));
     hornear();
   }
   ajustar();
@@ -1119,8 +1189,9 @@ export async function crearPlato({
 
   // El átomo narrador: núcleo de bolitas, tres órbitas de churro inclinadas y tres electrones.
   //   pos, escala, yaw/pitch/roll (giro del cuerpo), sq [x,y,z] (aplastar en ejes del mundo),
-  //   energia (0..1: late al hablar), ts (segundos: avanzan los electrones), electrones: [[x,y,z]|null]
-  //   (posición local opcional de cada electrón, para sacarlo de su órbita), toque (huellas nuevas).
+  //   energia (0..1: late al hablar), ts (segundos: avanzan los electrones), electrones: [[x,y,z] |
+  //   { pos: [x,y,z], mezcla: 0..1 } | null] (posición local de un electrón para sacarlo de su órbita;
+  //   con mezcla, sale poco a poco), toque (huellas nuevas).
   function ponerAtomo({ pos = [0, 2, 0], escala = 1, yaw = -0.1, pitch = 0.05, roll = 0, sq = [1, 1, 1], energia = 0, ts = 0, electrones = [], toque = false, orbita = 1 } = {}) {
     if (!atomo) return;
     U.uCen.value.set(...pos); U.uAEsc.value = escala; U.uSq.value.set(...sq);
@@ -1139,7 +1210,9 @@ export async function crearPlato({
       U.uRingM.value[i].setFromMatrix4(M.clone().transpose());
       const th = 2 * Math.PI * VEL[i] * ts / 10 + FASE[i];
       let v = new THREE.Vector3(Rr * Math.cos(th), 0, Rr * Math.sin(th)).applyMatrix4(M);
-      if (electrones[i]) v = new THREE.Vector3(...electrones[i]);
+      const el = electrones[i];
+      if (Array.isArray(el)) v = new THREE.Vector3(...el);
+      else if (el && el.pos) v.lerp(new THREE.Vector3(...el.pos), cl(el.mezcla ?? 1));
       U.uElec.value[i].set(v.x, v.y, v.z, 0.19);
       ext = Math.max(ext, v.length() + 0.21);
     });
@@ -1245,15 +1318,28 @@ export async function crearPlato({
   }
 
   let ultimo = null;
+  // ?perfil: mide cada pasada (window.__perfil)
+  const perfil = busqueda.has('perfil');
+  let tPaso = 0;
+  const medir = (k) => { if (!perfil) return; sincronizar(); const a = performance.now(); window.__perfil[k] = Math.round(a - tPaso); tPaso = a; };
   function render(n) {
     U.uFrame.value = n;
     U.uFlicker.value = 1 + (azar(n, 3) - 0.5) * 0.03;
     U.uBoil.value.set(1.3 + (azar(n, 4) - 0.5) * 0.5, 0.7 + (azar(n, 5) - 0.5) * 0.5, 2.1 + (azar(n, 6) - 0.5) * 0.5);
+    if (perfil) { window.__perfil = {}; sincronizar(); tPaso = performance.now(); }
     renderer.setRenderTarget(rtS);
     renderer.render(pasoSombra.escena, camOrto);
+    suaU.uTam.value.set(rtS.width, rtS.height);
+    for (const [de, a, dir] of [[rtS, rtS2, [1, 0]], [rtS2, rtS, [0, 1]]]) {
+      suaU.uTex.value = de.texture; suaU.uDir.value.set(...dir);
+      renderer.setRenderTarget(a);
+      renderer.render(pasoSuave.escena, camOrto);
+    }
+    medir('sombra');
     renderer.setRenderTarget(null);
     renderer.clear(true, true, false);
     renderer.render(pasoFondo.escena, camOrto);
+    medir('fondo');
     // de lejos a cerca
     const visibles = objetos.filter((o) => B[o.b].w > 0 && cajas[o.id]);
     visibles.sort((a, c) => cam.pos.distanceTo(new THREE.Vector3(B[c.b].x, B[c.b].y, B[c.b].z)) - cam.pos.distanceTo(new THREE.Vector3(B[a.b].x, B[a.b].y, B[a.b].z)));
@@ -1262,6 +1348,7 @@ export async function crearPlato({
       if (!rc) continue;
       o.uRect.value.copy(rc);
       renderer.render(o.paso.escena, camOrto);
+      medir(o.id);
     }
     sincronizar();
     ultimo = n;

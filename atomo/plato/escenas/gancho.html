@@ -110,7 +110,7 @@ function dibujar(t) {
   // ---------- el átomo: rueda hasta su sitio, habla y señala el marcador ----------
   const llega = 1.0;
   const u = prog(ts, 0, llega);
-  const ax = mix(ATOMO[0] - 4.2, ATOMO[0], eob(u, 1.1));
+  const ax = mix(ATOMO[0] - 2.9, ATOMO[0], eob(u, 1.1));
   const rueda = -(ax - ATOMO[0]) / (1.9 * A_ESC);
   const bote = muelle(ts - llega, 2.4, 5.5);
   // reacciones: salto en [verdad], «no» con la cabeza en [mentira]

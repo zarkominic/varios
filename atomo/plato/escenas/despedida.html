@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Despedida · plastilina</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Despedida (plastilina, 3 s). El átomo se despide: se balancea de lado a lado y uno de sus
+// electrones sale de la órbita y saluda como una mano. [comentarios]: a su lado brota un
+// bocadillo de plastilina vacío, que se llena de tres puntitos (…). Después, todo quieto.
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, cl, mix, prog, ss, eio, eoc, muelle, brote } from '/atomo/plato/kits/plastilina.js';
+
+const E = await escena('despedida');
+const M = (k) => E.marca(k);
+const P = await crearPlato({
+  piezas: ['bocadillo'],
+  camara: { pos: [0, 3.8, 14], mira: [0, 2.3, 0], fov: 28, desenfoque: 30 },
+});
+
+const ATOMO = [-1.4, 2.3, 0.5], A_ESC = 0.95;
+const BOCA = [1.95, 3.85, 0.4];
+
+function dibujar(t) {
+  const n = P.fotograma(t), ts = n / 12;
+  const en = E.energia(ts);
+  P.limpiar();
+  const tc = M('comentarios');
+
+  // ---------- el átomo saluda ----------
+  const ola = ss(0.15, 0.45, ts) * (1 - ss(tc - 0.35, tc + 0.1, ts));     // intensidad del saludo
+  const fase = Math.max(0, ts - 0.15) * 2 * Math.PI * 1.7;
+  const vaiven = Math.sin(fase) * ola;
+  const salto = Math.abs(Math.sin(fase)) * ola;
+  const gira = ss(tc - 0.3, tc + 0.15, ts);                                  // se vuelve hacia el bocadillo
+  // el electrón 0 sale de su órbita y hace de mano que saluda (coordenadas locales del átomo)
+  const mano = ss(0.1, 0.4, ts) * (1 - ss(tc - 0.2, tc + 0.3, ts));
+  const ang = 0.95 + 0.38 * Math.sin(fase * 1.0 + 0.6);
+  const electrones = [{ pos: [2.05 * Math.cos(ang), 2.05 * Math.sin(ang), 0.35], mezcla: eio(mano) }];
+  const k = 0.07 * salto - 0.05 * muelle(ts - (tc + 0.15), 2.4, 6) * gira;
+  P.atomo({
+    pos: [ATOMO[0] + 0.05 * vaiven, ATOMO[1] + 0.12 * salto + 0.03 * Math.sin(ts * 2.1) + 0.04 * en, ATOMO[2]],
+    escala: A_ESC, yaw: mix(-0.15, 0.32, gira), pitch: 0.06, roll: -0.3 * vaiven - 0.06 * gira,
+    sq: [1 - 0.5 * k, 1 + k, 1 - 0.5 * k], energia: en, ts, electrones, toque: ola > 0.05 || (ts > tc - 0.3 && ts < tc + 0.3),
+  });
+
+  // ---------- el bocadillo vacío ----------
+  const kb = brote(ts, tc, 0.25, 0.14);
+  if (kb > 0) {
+    const u = prog(ts, tc - 0.25, tc);
+    const st = 0.2 * Math.sin(Math.PI * u) - 0.1 * muelle(ts - tc, 2.4, 6);
+    const puntos = 3 * eoc(prog(ts, tc + 0.02, tc + 0.4));
+    P.pieza(0, {
+      pos: [mix(BOCA[0] - 0.9, BOCA[0], eoc(u)), mix(BOCA[1] - 0.8, BOCA[1], eoc(u)) + 0.03 * Math.sin(ts * 1.4), BOCA[2]],
+      escala: 1.3 * kb, sq: [1 - 0.3 * st, 1 + st, 1], rot: [-0.08, -0.18, 0.05 * Math.sin(ts * 1.1)],
+      puntos, toque: ts < tc + 0.45,
+    });
+  }
+
+  P.render(n);
+}
+
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

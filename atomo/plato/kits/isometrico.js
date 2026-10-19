@@ -566,7 +566,7 @@ export function crearPlaneta({ radio = 200, detalle = 7, semilla = 0, tierra = [
   const _cn = new THREE.Color(), _cs = new THREE.Color();
   // tiñe los hemisferios en el propio color de las caras (conserva el sombreado facetado)
   function tenir(cN, kN, cS, kS) {
-    const key = [cN, kN.toFixed(3), cS, kS.toFixed(3)].join('|');
+    const key = [cN, kN, cS, kS].join('|');
     if (key === ultimo) return;
     ultimo = key;
     _cn.set(cN); _cs.set(cS);
@@ -775,6 +775,9 @@ export function crearSol({ radio = 80, rayos = 14, semilla = 3 } = {}) {
   // corona en el plano de la cámara
   const corona = new THREE.Group(); corona.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), vW); g.add(corona);
   const giro = new THREE.Group(); corona.add(giro);
+  // aro de luz entre el núcleo y los rayos (sin hueco oscuro)
+  const aro = new THREE.Mesh(new THREE.CircleGeometry(radio * 1.18, 40), basic('#ffd27a'));
+  aro.position.z = -radio * 0.62; corona.add(aro);
   const rmats = [basic(P.gold2, { transparent: true, opacity: 0.95, side: THREE.DoubleSide }), basic(P.sunDeep, { transparent: true, opacity: 0.9, side: THREE.DoubleSide })];
   const rays = [];
   for (let i = 0; i < rayos; i++) {
@@ -785,7 +788,7 @@ export function crearSol({ radio = 80, rayos = 14, semilla = 3 } = {}) {
     const m = new THREE.Mesh(new THREE.ShapeGeometry(s), rmats[i % 2]);
     const ang = i / rayos * TAU;
     const piv = new THREE.Group(); piv.rotation.z = ang; giro.add(piv);
-    m.position.y = radio * 1.1; m.position.z = -radio * 0.5; piv.add(m);
+    m.position.y = radio * 1.12; m.position.z = -radio * 0.5; piv.add(m);
     rays.push({ m, largo, ph: rnd() * TAU });
   }
   const h1 = brillo('#ffd889', 0.55, radio * 4.2); h1.position.copy(vW).multiplyScalar(-radio * 1.5); g.add(h1);

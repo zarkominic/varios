@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recuento · plastilina</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Recuento (plastilina, 5,2 s). El marcador completo con sus seis veredictos.
+// [verdades]: las tres fichas ✓ saltan, en ola, y debajo aparece «3 ✓».
+// [mentiras]: saltan las tres ✗ y aparece «· 3 ✗».
+// [cuantas]: el átomo levanta una gran «?» de plastilina. Después, todo quieto.
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, COLOR, cl, mix, prog, ss, eio, eoc, muelle, brote } from '/atomo/plato/kits/plastilina.js';
+
+const E = await escena('recuento');
+const M = (k) => E.marca(k);
+const RES = E.resultados ?? ['✓', '✗', '✗', '✓', '✓', '✗'];
+const P = await crearPlato({
+  piezas: ['glifo:3', 'ficha', 'glifo:·', 'glifo:3', 'ficha', 'glifo:?'],
+  tablero: true,
+  camara: { pos: [0, 5.4, 14], mira: [0, 1.8, 0.6], fov: 28, desenfoque: 30 },
+});
+
+const TAB = { pos: [-0.8, 2.45, 0.2], escala: 0.9, inclinacion: 0.72, giro: 0.04 };
+const ATOMO = [4.1, 2.1, 0.6], A_ESC = 0.5;
+const Y_TOT = 0.95, Z_TOT = 1.6, ROT_TOT = [-0.22, 0.0, 0.0];
+// los totales: «3 ✓ · 3 ✗»
+const TOTALES = [
+  { i: 0, marca: 'verdades', x: -3.3, escala: 0.95, color: COLOR.CREMA },
+  { i: 1, marca: 'verdades', x: -2.25, escala: 1.15, variante: '✓', retraso: 0.08 },
+  { i: 2, marca: 'mentiras', x: -0.8, escala: 0.9, color: COLOR.CREMA, retraso: -0.08 },
+  { i: 3, marca: 'mentiras', x: 0.65, escala: 0.95, color: COLOR.CREMA },
+  { i: 4, marca: 'mentiras', x: 1.7, escala: 1.15, variante: '✗', retraso: 0.08 },
+];
+
+function dibujar(t) {
+  const n = P.fotograma(t), ts = n / 12;
+  const en = E.energia(ts);
+  P.limpiar();
+
+  // ---------- el marcador: las fichas saltan en ola cuando se nombran ----------
+  const orden = { '✓': 0, '✗': 0 };
+  const celdas = RES.map((v) => {
+    const k = orden[v]++;                                  // 0, 1, 2 dentro de su grupo
+    const m = M(v === '✓' ? 'verdades' : 'mentiras');
+    const pico = m - 0.17 + 0.085 * k;                     // la última llega arriba con la palabra
+    const u = prog(ts, pico - 0.25, pico + 0.25);
+    const alto = 0.85 * Math.sin(Math.PI * u);
+    const aire = u > 0 && u < 1 ? Math.sin(Math.PI * u) : 0;
+    const golpe = muelle(ts - (pico + 0.25), 3, 7);
+    const prep = Math.sin(Math.PI * prog(ts, pico - 0.42, pico - 0.25));
+    return { tipo: v, alto, aplastar: -0.25 * aire + 0.35 * golpe + 0.25 * prep, giro: 0.25 * Math.sin(2 * Math.PI * u) * (k % 2 ? -1 : 1) };
+  });
+  const toca = (m) => ts > M(m) - 0.5 && ts < M(m) + 0.5;
+  P.tablero({ ...TAB, celdas, toque: toca('verdades') || toca('mentiras') });
+
+  // ---------- los totales ----------
+  for (const p of TOTALES) {
+    const tm = M(p.marca) + (p.retraso ?? 0);
+    const k = brote(ts, tm, 0.25, 0.16);
+    if (k <= 0) continue;
+    const u = prog(ts, tm - 0.25, tm);
+    const st = 0.25 * Math.sin(Math.PI * u) - 0.15 * muelle(ts - tm, 2.6, 7);
+    P.pieza(p.i, {
+      pos: [p.x, Y_TOT + 0.25 * (1 - eoc(u)) + 0.02 * Math.sin(ts * 1.6 + p.i), Z_TOT],
+      escala: p.escala * k, sq: [1 - 0.5 * st, 1 + st, 1], rot: [ROT_TOT[0], 0.05 * Math.sin(ts * 0.9 + p.i), 0.04 * Math.sin(ts * 1.1 + p.i * 2)],
+      variante: p.variante ?? 0, color: p.color ?? 0, toque: ts < tm + 0.3,
+    });
+  }
+
+  // ---------- el átomo levanta la «?» ----------
+  const tq = M('cuantas');
+  const kq = brote(ts, tq, 0.3, 0.12);
+  const prep = Math.sin(Math.PI * prog(ts, tq - 0.45, tq - 0.2));     // se agacha
+  const sube = Math.sin(Math.PI * prog(ts, tq - 0.2, tq + 0.3));       // se estira hacia arriba
+  const asen = muelle(ts - (tq + 0.3), 2.4, 6);
+  const mira = ss(tq - 0.4, tq, ts);
+  const ay = ATOMO[1] + 0.03 * Math.sin(ts * 2.0) + 0.04 * en - 0.08 * prep + 0.18 * sube;
+  const k = 0.16 * sube - 0.14 * prep - 0.08 * asen;
+  P.atomo({
+    pos: [ATOMO[0], ay, ATOMO[2]], escala: A_ESC,
+    yaw: mix(-0.45, -0.05, mira) + 0.1 * Math.sin(ts * 0.8), pitch: 0.08, roll: 0.05 * Math.sin(ts * 1.2) - 0.08 * mira,
+    sq: [1 - 0.5 * k, 1 + k, 1 - 0.5 * k], energia: en, ts, toque: ts > tq - 0.5 && ts < tq + 0.5,
+  });
+  if (kq > 0) {
+    const u = prog(ts, tq - 0.3, tq);
+    const st = 0.3 * Math.sin(Math.PI * u) - 0.12 * muelle(ts - tq, 2.4, 6);
+    P.pieza(5, {
+      pos: [ATOMO[0] + 0.05, mix(ay + 0.4, ay + 1.62, eoc(u)) + 0.03 * Math.sin(ts * 1.5), ATOMO[2] + 0.1],
+      escala: 1.35 * kq, sq: [1 - 0.4 * st, 1 + st, 1], rot: [-0.1, -0.15 + 0.06 * Math.sin(ts * 0.8), 0.12 * (1 - eoc(u)) - 0.05 + 0.04 * Math.sin(ts * 1.3)],
+      color: COLOR.MOSTAZA, toque: ts < tq + 0.3,
+    });
+  }
+
+  P.render(n);
+}
+
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

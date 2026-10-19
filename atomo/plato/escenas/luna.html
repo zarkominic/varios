@@ -313,7 +313,7 @@ function dibujar(t) {
   const ms = eob(kM, 2.0);
   luna.g.visible = ms > 0.002;
   luna.g.scale.setScalar(Math.max(ms, 0.001));
-  luna.g.position.copy(mc);
+  luna.g.position.copy(mc).addScaledVector(vU, 46 * (1 - eo(kM)));
   const fl = seg(t, mF - 0.1, mF + 0.6);
   flash.visible = fl > 0 && fl < 1;
   if (flash.visible) { flash.position.copy(mc).addScaledVector(vW, 120); flash.scale.setScalar(70 + 190 * eo(fl)); flash.material.opacity = 0.75 * Math.pow(1 - fl, 2); }

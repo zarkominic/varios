@@ -22,21 +22,21 @@ const RES = E.resultados ?? ['✓', '✗', '✗', '✓', '✓', '✗'];
 const VER = E.veredicto ?? RES[n0];
 const SI = VER === '✓';
 const P = await crearPlato({
-  piezas: ['ficha'], tablero: true, polvo: 10,
-  sombras: { tablero: ['p0', 'polvo'], p0: ['tablero'] },
+  piezas: ['ficha'], tablero: true, polvo: 9,
+  sombras: { tablero: ['p0'], p0: ['tablero'] },
   camara: { pos: [0, 6, 13], mira: [0, 1.4, 0.6], fov: 28, desenfoque: 30 },
 });
 
-const TAB = { pos: [-0.75, 1.45, 0.8], escala: 1.12, inclinacion: 0.8, giro: 0.05 };
-const ATOMO = [4.55, 2.05, 0.8], A_ESC = 0.5;
+const TAB = { pos: [-0.85, 1.45, 0.8], escala: 1.06, inclinacion: 0.8, giro: 0.05 };
+const ATOMO = [4.0, 2.0, 0.8], A_ESC = 0.5;
 const T_GOLPE = 0.5, T_SALIDA = 0.17, ALTO0 = 3.4;
 
 // polvo: bolitas que salen del borde de la ficha al golpear (sembrado)
 const POLVO = (() => {
   const r = mulberry32(4242 + n0), out = [];
-  for (let k = 0; k < 10; k++) {
-    const a = (k / 10) * Math.PI * 2 + (r() - 0.5) * 0.5;
-    out.push({ a, lejos: mix(0.32, 0.6, r()), sube: mix(0.12, 0.3, r()), r: mix(0.05, 0.085, r()), dur: mix(0.45, 0.65, r()) });
+  for (let k = 0; k < 9; k++) {
+    const a = (k / 9) * Math.PI * 2 + (r() - 0.5) * 0.6;
+    out.push({ a, lejos: mix(0.3, 0.55, r()), sube: mix(0.1, 0.28, r()), r: mix(0.085, 0.13, r()), dur: mix(0.42, 0.6, r()) });
   }
   return out;
 })();
@@ -70,9 +70,9 @@ function dibujar(t) {
       P.polvo(POLVO.map((p) => {
         const v = prog(ts, T_GOLPE, T_GOLPE + p.dur);
         if (v >= 1) return null;
-        const rho = 0.36 + p.lejos * eoc(v);
-        const w = P.enTablero(TAB, x + Math.cos(p.a) * rho * 1.05, T.YW + Math.sin(p.a) * rho, 0.06 + p.sube * Math.sin(Math.PI * Math.pow(v, 0.7)) * 0.9 + 0.04);
-        const rr = p.r * TAB.escala * Math.sin(Math.PI * Math.pow(v, 0.45)) * (1 - 0.3 * v);
+        const rho = 0.34 + p.lejos * eoc(v);
+        const w = P.enTablero(TAB, x + Math.cos(p.a) * rho * 1.05, T.YW + Math.sin(p.a) * rho, 0.08 + p.sube * Math.sin(Math.PI * Math.pow(v, 0.6)));
+        const rr = p.r * TAB.escala * Math.sin(Math.PI * Math.pow(v, 0.35)) * (1 - 0.25 * v);
         return [...w, rr];
       }));
     }
