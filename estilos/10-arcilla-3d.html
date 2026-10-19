@@ -113,7 +113,7 @@ uniform mat3 uRingM[3];
 uniform vec2 uRing;
 uniform vec4 uElec[3];
 uniform float uBall, uKb, uLump, uMarble, uBallButter;
-uniform vec3 uBoil;
+uniform vec3 uBoil, uPrint;
 // lunas
 uniform float uMoonOn;
 uniform vec4 uMA, uMB;          // xyz, giro en z
@@ -123,15 +123,15 @@ uniform float uNeck, uCrater, uButter, uRope;
 uniform vec4 uStars[24];
 
 const vec3 C_TERRA  = vec3(0.722, 0.165, 0.082);
-const vec3 C_CREAM  = vec3(0.760, 0.680, 0.520);
+const vec3 C_CREAM  = vec3(0.640, 0.560, 0.420);
 const vec3 C_SAGE   = vec3(0.090, 0.270, 0.230);
 const vec3 C_MUST   = vec3(0.860, 0.450, 0.055);
 const vec3 C_BUTTER = vec3(0.830, 0.680, 0.400);
 const vec3 C_SLATE  = vec3(0.030, 0.042, 0.090);
 const vec3 C_STAR   = vec3(0.780, 0.700, 0.520);
 
-const float ZW = 5.0;   // pared del fondo en z = -ZW
-const float RF = 3.0;   // radio de la curva del ciclorama
+const float ZW = 4.2;   // pared del fondo en z = -ZW
+const float RF = 2.6;   // radio de la curva del ciclorama
 
 float hash13(vec3 p) { p = fract(p * 0.1031); p += dot(p, p.zyx + 31.32); return fract((p.x + p.y) * p.z); }
 float hash12(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
@@ -214,16 +214,16 @@ float crescent(vec3 q) {
 }
 float ropeSDF(vec3 qa) {
   float R = uMShape.x;
-  float x = -0.665 * R, h = 0.86 * R * uRope;
-  return sdCapsule(qa, vec3(x, -h, 0.0), vec3(x, h, 0.0), 0.06 * R) * 0.95;
+  float x = -0.57 * R, h = 0.8 * R * uRope;
+  return sdCapsule(qa, vec3(x, -h, 0.0), vec3(x, h, 0.0), 0.062 * R) * 0.95;
 }
 float moonSDF(vec3 p) {
   float mA = min(uSqA.x, uSqA.y), mB = min(uSqB.x, uSqB.y);
   vec3 qa = moonLocal(p, uMA, uSqA);
   float d = crescent(qa) * mA;
   d = min(d, crescent(moonLocal(p, uMB, uSqB)) * mB);
-  if (uNeck > 0.005) d = smin(d, sdCapsule(p, uMA.xyz, uMB.xyz, uNeck), 0.45);
-  if (uRope > 0.01) d = smin(d, ropeSDF(qa) * mA, 0.05);
+  if (uNeck > 0.005) d = smin(d, sdCapsule(p, uMA.xyz, uMB.xyz, uNeck), 0.32);
+  if (uRope > 0.01) d = smin(d, ropeSDF(qa) * mA, 0.09);
   return d;
 }
 
@@ -276,11 +276,14 @@ vec3 normalObj(vec3 p) {
 float softShadow(vec3 p, vec3 L, float maxT, float k) {
   vec2 tb = boxHit(p, L);
   if (tb.y < 0.0 || tb.x > tb.y) return 1.0;
-  float t = max(tb.x, 0.03), res = 1.0, end = min(tb.y, maxT);
-  for (int i = 0; i < 56; i++) {
+  float t = max(tb.x, 0.05), res = 1.0, end = min(tb.y, maxT), ph = 1e10;
+  for (int i = 0; i < 64; i++) {
     float h = mapObj(p + L * t);
-    res = min(res, k * h / t);
-    t += clamp(h, 0.02, 0.35);
+    float y = h * h / (2.0 * ph);
+    float dd = sqrt(max(h * h - y * y, 0.0));
+    res = min(res, k * dd / max(0.001, t - y));
+    ph = h;
+    t += clamp(h, 0.015, 0.3);
     if (res < 0.001 || t > end) break;
   }
   res = clamp(res, 0.0, 1.0);
@@ -310,23 +313,21 @@ float aoBg(vec3 p, vec3 n) {
 
 // marmolado de plastilina amasada
 vec3 marble(vec3 q) {
-  vec3 w = q * 1.3 + 0.9 * vec3(vnoise(q * 1.9), vnoise(q * 1.9 + 7.3), vnoise(q * 1.9 + 3.1));
-  float f = vnoise(w * 1.6) * 2.2 + 0.35 * vnoise(q * 5.0);
+  vec3 w = q + 0.6 * vec3(vnoise(q * 1.8), vnoise(q * 1.8 + 7.3), vnoise(q * 1.8 + 3.1));
+  float a = vnoise(w * 2.2);
+  float f = w.y * 1.7 + w.x * 0.8 + 1.9 * a;
   float v = fract(f);
-  float e = 0.035;
-  vec3 c = C_TERRA;
-  c = mix(c, C_CREAM, smoothstep(0.25 - e, 0.25 + e, v));
-  c = mix(c, C_SAGE,  smoothstep(0.50 - e, 0.50 + e, v));
-  c = mix(c, C_MUST,  smoothstep(0.75 - e, 0.75 + e, v));
-  c = mix(c, C_TERRA, smoothstep(1.0 - 2.0 * e, 1.0, v));
+  vec3 c = mix(C_CREAM, C_TERRA, smoothstep(0.40, 0.62, vnoise(w * 1.4 + 2.0)));
+  c = mix(c, C_SAGE, 1.0 - smoothstep(0.04, 0.09, abs(v - 0.3)));
+  c = mix(c, C_MUST, 1.0 - smoothstep(0.025, 0.06, abs(v - 0.72)));
   return c;
 }
 
 // huellas dactilares: remolinos de surcos en parches
-vec3 fingerprint(vec3 x, float sc, float seed, float pixW) {
+vec4 fingerprint(vec3 x, float sc, float seed, float pixW) {
   vec3 y = x * sc + seed;
   vec3 c = floor(y);
-  if (hash13(c + 5.3) < 0.35) return vec3(0.0);
+  if (hash13(c + 5.3) < 0.3) return vec4(0.0);
   vec3 h = vec3(hash13(c), hash13(c + 17.1), hash13(c + 31.7));
   vec3 ctr = c + 0.32 + 0.36 * h;
   vec3 v = y - ctr;
@@ -336,7 +337,7 @@ vec3 fingerprint(vec3 x, float sc, float seed, float pixW) {
   float spacing = 0.05;               // en unidades de celda
   float fade = 1.0 - smoothstep(0.35, 0.75, pixW * sc / spacing);
   float ph = r * 6.2832 / spacing + 2.5 * vnoise(y * 5.0);
-  return m * fade * cos(ph) * (v / (r + 1e-4)) * 0.22;
+  return vec4(m * fade * cos(ph) * (v / (r + 1e-4)) * 0.22, m * fade * (0.5 - 0.5 * sin(ph)));
 }
 
 void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed) {
@@ -389,7 +390,7 @@ void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed) {
 vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
 
 // luces del plató
-const vec3 LPOS = vec3(-5.5, 8.5, 11.0);
+const vec3 LPOS = vec3(-4.6, 8.2, 12.5);
 const vec3 LCOL = vec3(1.0, 0.78, 0.56);
 const vec3 SPOT_AT = vec3(0.6, 1.4, -2.6);
 const vec3 FILL_DIR = vec3(0.78, 0.22, 0.58);
@@ -418,8 +419,8 @@ void main() {
     for (int i = 0; i < 120; i++) {
       vec3 p = ro + rd * t;
       float d = mapObj(p);
-      if (d < 0.0007 * t) { tObj = t; break; }
-      t += d * 0.9;
+      if (d < 0.00022 * t) { tObj = t; break; }
+      t += d * 0.92;
       if (t > bx.y) break;
     }
   }
@@ -433,16 +434,22 @@ void main() {
     materialAt(p, alb, lp, bs);
     float pixW = uPix * tObj;
     // detalle de superficie: abolladuras del modelado, huellas y grano
-    vec4 nd = vnoised(lp * 2.6 + bs * 11.0 + floor(uFrame * 0.5) * 0.0);
-    vec3 g = nd.yzw * 0.16;
-    g += fingerprint(lp, 1.55, bs * 3.7, pixW) * 1.4;
-    g += fingerprint(lp + 0.31, 2.1, bs * 9.1 + 4.0, pixW) * 0.7;
-    vec4 gr = vnoised(lp * 38.0 + bs);
-    g += gr.yzw * 0.02 * (1.0 - smoothstep(0.012, 0.03, pixW));
+    vec4 nd = vnoised(lp * 2.6 + bs * 11.0);
+    vec3 g = nd.yzw * 0.13;
+    vec4 nm = vnoised(lp * 7.5 + bs * 5.0 + uPrint * 0.3);
+    g += nm.yzw * 0.045;
+    vec3 lpp = lp + uPrint;
+    vec4 f1 = fingerprint(lpp, 1.55, bs * 3.7, pixW);
+    vec4 f2 = fingerprint(lpp + 0.31, 2.1, bs * 9.1 + 4.0, pixW);
+    g += f1.xyz * 1.5 + f2.xyz * 1.0;
+    vec4 gr = vnoised(lp * 40.0 + bs);
+    g += gr.yzw * 0.018 * (1.0 - smoothstep(0.012, 0.03, pixW));
     n = normalize(n - (g - n * dot(g, n)));
+    // surcos de la huella y poros: un poco más oscuros
+    alb *= 1.0 - 0.10 * f1.w - 0.07 * f2.w - 0.05 * smoothstep(0.55, 0.85, gr.x);
 
     vec3 L = normalize(LPOS - p);
-    float sh = softShadow(p + n * 0.004, L, 30.0, 9.0);
+    float sh = softShadow(p + n * 0.025, L, 30.0, 9.0);
     float ao = aoObj(p, n);
     float ndl = dot(n, L);
     float wrapD = max((ndl + 0.28) / 1.28, 0.0);
@@ -537,7 +544,7 @@ const U = {
   uRing: { value: new THREE.Vector2(1.6, 0.07) },
   uElec: { value: Array.from({ length: 3 }, () => new THREE.Vector4()) },
   uBall: { value: 0 }, uKb: { value: 0.1 }, uLump: { value: 0.007 }, uMarble: { value: 0 }, uBallButter: { value: 0 },
-  uBoil: { value: new THREE.Vector3() },
+  uBoil: { value: new THREE.Vector3() }, uPrint: { value: new THREE.Vector3() },
   uMoonOn: { value: 0 }, uMA: { value: new THREE.Vector4() }, uMB: { value: new THREE.Vector4() },
   uMShape: { value: new THREE.Vector4(1, 2.5, 0, 1) },
   uSqA: { value: new THREE.Vector2(1, 1) }, uSqB: { value: new THREE.Vector2(1, 1) },
@@ -631,6 +638,8 @@ function estado(n) {
   E.labels = ss(0, 1, prog(n, 72, 79)) * (1 - ss(0, 1, prog(n, 97, 101)));
   E.labelsIn = prog(n, 72, 79);
   E.turn = e;
+  E.centro = ss(0, 1, prog(n, 70, 77)) * (1 - ss(0, 1, prog(n, 97, 101)));
+  E.centroIn = prog(n, 70, 77);
   return E;
 }
 
@@ -639,6 +648,9 @@ function subir(E) {
   U.uFrame.value = n;
   U.uFlicker.value = 1 + (azar(n, 3) - 0.5) * 0.03;
   U.uBoil.value.set(1.3 + (azar(n, 4) - 0.5) * 0.5, 0.7 + (azar(n, 5) - 0.5) * 0.5, 2.1 + (azar(n, 6) - 0.5) * 0.5);
+  // el animador toca la arcilla: las huellas cambian de un fotograma a otro
+  const tocando = (n >= 21 && n < 82) || n >= 100;
+  U.uPrint.value.set(tocando ? (azar(n, 7) - 0.5) * 0.14 : 0, tocando ? (azar(n, 8) - 0.5) * 0.14 : 0, tocando ? (azar(n, 9) - 0.5) * 0.14 : 0);
   U.uAtomOn.value = E.atom ? 1 : 0;
   U.uMoonOn.value = E.moon ? 1 : 0;
   const box = new THREE.Box3();
@@ -708,6 +720,36 @@ function rotular(E) {
   gT.shadowColor = 'rgba(8,10,20,0.35)'; gT.shadowBlur = 18; gT.shadowOffsetY = 4;
   gT.fillText('La Luna al revés', 98, 172);
   gT.restore();
+  // en medio: es la misma Luna, vista cabeza abajo
+  if (E.centro > 0.001) {
+    const dy = (1 - eoc(E.centroIn)) * 14;
+    gT.save();
+    gT.globalAlpha = E.centro;
+    gT.textAlign = 'center';
+    gT.fillStyle = CREMA_SUAVE;
+    gT.font = '600 20px "DM Sans"';
+    gT.letterSpacing = '4.5px';
+    gT.fillText('LA MISMA LUNA', 962, 428 + dy);
+    gT.letterSpacing = '0px';
+    gT.shadowColor = 'rgba(8,10,20,0.4)'; gT.shadowBlur = 14; gT.shadowOffsetY = 3;
+    gT.fillStyle = CREMA;
+    gT.font = 'italic 500 46px "Fraunces"';
+    gT.fillText('girada 180°', 960, 484 + dy);
+    // flecha de giro: arco fino con punta
+    gT.shadowColor = 'transparent';
+    gT.strokeStyle = CREMA_SUAVE; gT.lineWidth = 2.5; gT.lineCap = 'round';
+    const k = eoc(E.centroIn);
+    gT.beginPath();
+    gT.arc(960, 535 + dy, 120, Math.PI * 0.18, Math.PI * (0.18 + 0.64 * k));
+    gT.stroke();
+    if (k > 0.98) {
+      const an = Math.PI * 0.82, ax = 960 + 120 * Math.cos(an), ay = 535 + dy + 120 * Math.sin(an);
+      gT.beginPath();
+      gT.moveTo(ax + 4, ay - 14); gT.lineTo(ax, ay); gT.lineTo(ax + 15, ay + 3);
+      gT.stroke();
+    }
+    gT.restore();
+  }
   // rótulos de cada hemisferio
   const a = E.labels;
   if (a > 0.001) {
@@ -774,8 +816,8 @@ function ajustar() {
 
 await Promise.all([
   document.fonts.load('700 78px "Fraunces"', 'La Luna al revés DC'),
-  document.fonts.load('italic 500 50px "Fraunces"', 'parece una'),
-  document.fonts.load('600 22px "DM Sans"', 'LO QUE NO TE EXPLICARON EN CLASE HEMISFERIO NORTE SUR'),
+  document.fonts.load('italic 500 50px "Fraunces"', 'parece una girada 180°'),
+  document.fonts.load('600 22px "DM Sans"', 'LO QUE NO TE EXPLICARON EN CLASE HEMISFERIO NORTE SUR LA MISMA LUNA'),
 ]);
 await document.fonts.ready;
 ajustar();
