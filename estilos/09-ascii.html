@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Luna al revés · terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; background: #020302; overflow: hidden; }
+  #crt { position: absolute; display: block; }
+</style>
+</head>
+<body>
+<canvas id="crt"></canvas>
+<script>
+(() => {
+'use strict';
+// ---------------------------------------------------------------------------
+// Terminal de fósforo: la escena (átomo narrador → Luna → creciente D / C) se
+// sombrea en 3D a una retícula de luminancia (4x6 muestras por carácter) y se
+// traduce a caracteres ASCII: rampa de densidad en zonas planas y búsqueda por
+// "vector de forma" (6 regiones por glifo) en los bordes, para que los limbos y
+// las órbitas salgan con / \ | _ ( ) en lugar de escalones. La retícula de
+// 160x54 caracteres se sube a WebGL, que dibuja los glifos desde un atlas y
+// aplica el CRT: curvatura, líneas de barrido, halo del fósforo, viñeta.
+// Guion (10 s): átomo → los electrones caen en espiral → el núcleo se hincha
+// hasta ser la Luna → se desdobla en norte / sur → el sur gira 180° (D → C) →
+// todo vuelve al átomo.
+// ---------------------------------------------------------------------------
+const W = 1920, H = 1080, CW = 12, CH = 20, COLS = 160, ROWS = 54, N = COLS * ROWS;
+const DUR = 10, PI = Math.PI, TAU = PI * 2;
+const SX = 4, SY = 6, SW = COLS * SX, SH = ROWS * SY, PX = CW / SX, PY = CH / SY;
+const CAPTURA = /captura/.test(location.search);
+const FUENTE = 'IBM Plex Mono', PESO = 500;
+const FOSFORO = [0.36, 1.0, 0.56];
+
+// ── utilidades ──────────────────────────────────────────────────────────────
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hash2(a, b) { let h = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const lin = (t, a, b) => clamp((t - a) / (b - a));
+const mix = (a, b, k) => a + (b - a) * k;
+const sm = (x) => x * x * (3 - 2 * x);
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const eio4 = (x) => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2);
+const ein = (x) => x * x * x;
+const eout = (x) => 1 - Math.pow(1 - x, 3);
+
+// ── glifos ──────────────────────────────────────────────────────────────────
+const ASCII = []; for (let c = 32; c < 127; c++) ASCII.push(String.fromCharCode(c));
+const EXTRA = [...'ÁÉÍÓÚÑáéíóúñ°·¿¡'];
+const PROC = [...'█▀▄▌▐░▒▓═║╔╗╚╝─│┌┐└┘'];
+const GLYPHS = [...ASCII, ...EXTRA, ...PROC];
+const GI = new Map(GLYPHS.map((g, i) => [g, i]));
+const gi = (ch) => (GI.has(ch) ? GI.get(ch) : GI.get('?'));
+const BOX = { // [izq, der, arriba, abajo] 1 = simple, 2 = doble
+  '═': [2, 2, 0, 0], '║': [0, 0, 2, 2], '╔': [0, 2, 0, 2], '╗': [2, 0, 0, 2], '╚': [0, 2, 2, 0], '╝': [2, 0, 2, 0],
+  '─': [1, 1, 0, 0], '│': [0, 0, 1, 1], '┌': [0, 1, 0, 1], '┐': [1, 0, 0, 1], '└': [0, 1, 1, 0], '┘': [1, 0, 1, 0],
+};
+
+let MET = null; // tamaño de letra y línea base en unidades de escena
+function medirFuente() {
+  const c = document.createElement('canvas').getContext('2d');
+  c.font = `${PESO} 100px "${FUENTE}"`;
+  const adv = c.measureText('M').width / 100;
+  const m = c.measureText('|');
+  const asc = m.actualBoundingBoxAscent / 100, desc = m.actualBoundingBoxDescent / 100;
+  const fs = Math.min(CW * 0.99 / adv, CH * 1.0 / (asc + desc));
+  MET = { fs, base: (CH - (asc + desc) * fs) / 2 + asc * fs };
+}
+
+function dibujarProc(c, ch, x, y, w, h) {
+  c.fillStyle = '#fff';
+  if (ch === '█') return c.fillRect(x, y, w, h);
+  if (ch === '▀') return c.fillRect(x, y, w, h / 2);
+  if (ch === '▄') return c.fillRect(x, y + h / 2, w, h / 2);
+  if (ch === '▌') return c.fillRect(x, y, w / 2, h);
+  if (ch === '▐') return c.fillRect(x + w / 2, y, w / 2, h);
+  const sh = '░▒▓'.indexOf(ch);
+  if (sh >= 0) {
+    const nx = 4, ny = 6, dx = w / nx, dy = h / ny;
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const on = sh === 0 ? (i % 2 === 0 && j % 2 === 0) : sh === 1 ? (i + j) % 2 === 0 : !(i % 2 === 1 && j % 2 === 1);
+      if (on) c.fillRect(x + i * dx, y + j * dy, dx, dy);
+    }
+    return;
+  }
+  const b = BOX[ch]; if (!b) return;
+  const t = Math.max(1, h * 0.075), g = Math.max(t * 1.6, Math.min(w, h) * 0.21);
+  const cx = x + w / 2, cy = y + h / 2;
+  const [L, R, U, D] = b;
+  const hl = (yy, xa, xb) => c.fillRect(Math.min(xa, xb), yy - t / 2, Math.abs(xb - xa), t);
+  const vl = (xx, ya, yb) => c.fillRect(xx - t / 2, Math.min(ya, yb), t, Math.abs(yb - ya));
+  if (!((L || R) && (U || D))) {
+    if (L || R) for (const yy of ((L || R) === 2 ? [cy - g, cy + g] : [cy])) hl(yy, x, x + w);
+    if (U || D) for (const xx of ((U || D) === 2 ? [cx - g, cx + g] : [cx])) vl(xx, y, y + h);
+    return;
+  }
+  const sx = R ? 1 : -1, sy = D ? 1 : -1, ex = sx > 0 ? x + w : x, ey = sy > 0 ? y + h : y;
+  if ((L || R) === 1) { hl(cy, cx - sx * t / 2, ex); vl(cx, cy - sy * t / 2, ey); return; }
+  hl(cy - sy * g, cx - sx * g - sx * t / 2, ex); vl(cx - sx * g, cy - sy * g - sy * t / 2, ey);
+  hl(cy + sy * g, cx + sx * g - sx * t / 2, ex); vl(cx + sx * g, cy + sy * g - sy * t / 2, ey);
+}
+
+function dibujarGlifo(c, ch, x, y, s) {
+  const w = CW * s, h = CH * s;
+  c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip();
+  if (PROC.includes(ch)) dibujarProc(c, ch, x, y, w, h);
+  else {
+    c.font = `${PESO} ${MET.fs * s}px "${FUENTE}"`;
+    c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillStyle = '#fff';
+    c.fillText(ch, x + w / 2, y + MET.base * s);
+  }
+  c.restore();
+}
+
+// Vectores de forma: cobertura de cada glifo en 2x3 regiones (a 4x de escala).
+const COV = new Float32Array(GLYPHS.length);
+const POOL = [];            // glifos candidatos para los bordes
+let SHV = null;             // vectores normalizados del POOL
+const RAMPA = ' .:-=+*#%@';
+let RAMPA_I = [], RAMPA_C = [];
+function medirGlifos() {
+  const s = 4, w = CW * s, h = CH * s, porFila = 16, filas = Math.ceil(GLYPHS.length / porFila);
+  const cv = document.createElement('canvas'); cv.width = w * porFila; cv.height = h * filas;
+  const c = cv.getContext('2d', { willReadFrequently: true });
+  GLYPHS.forEach((g, k) => dibujarGlifo(c, g, (k % porFila) * w, Math.floor(k / porFila) * h, s));
+  const px = c.getImageData(0, 0, cv.width, cv.height).data;
+  const reg = GLYPHS.map(() => new Float32Array(6));
+  GLYPHS.forEach((g, k) => {
+    const ox = (k % porFila) * w, oy = Math.floor(k / porFila) * h;
+    let tot = 0;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const a = px[((oy + y) * cv.width + ox + x) * 4 + 3] / 255;
+      tot += a;
+      reg[k][Math.floor(y / (h / 3)) * 2 + Math.floor(x / (w / 2))] += a / (w * h / 6);
+    }
+    COV[k] = tot / (w * h);
+  });
+  for (let k = 0; k < 95; k++) POOL.push(k);
+  const mx = [0, 0, 0, 0, 0, 0];
+  for (const k of POOL) for (let d = 0; d < 6; d++) mx[d] = Math.max(mx[d], reg[k][d]);
+  SHV = new Float32Array(POOL.length * 6);
+  POOL.forEach((k, p) => { for (let d = 0; d < 6; d++) SHV[p * 6 + d] = reg[k][d] / mx[d]; });
+  const r = [...RAMPA].map((ch) => gi(ch)).sort((a, b) => COV[a] - COV[b]);
+  const top = COV[r[r.length - 1]];
+  RAMPA_I = r; RAMPA_C = r.map((k) => COV[k] / top);
+}
+const CACHE = new Uint8Array(1 << 18).fill(255);
+function porForma(v) {
+  let key = 0;
+  for (let d = 0; d < 6; d++) key = key * 8 + Math.min(7, (v[d] * 8) | 0);
+  let p = CACHE[key];
+  if (p === 255) {
+    let best = 1e9; p = 0;
+    const q = []; let kk = key;
+    for (let d = 5; d >= 0; d--) { q[d] = ((kk & 7) + 0.5) / 8; kk >>= 3; }
+    for (let i = 0; i < POOL.length; i++) {
+      let e = 0;
+      for (let d = 0; d < 6; d++) { const z = SHV[i * 6 + d] - q[d]; e += z * z; }
+      if (e < best) { best = e; p = i; }
+    }
+    CACHE[key] = p;
+  }
+  return POOL[p];
+}
+function porRampa(l) {
+  let best = 0, be = 9;
+  for (let i = 0; i < RAMPA_C.length; i++) { const e = Math.abs(RAMPA_C[i] - l); if (e < be) { be = e; best = i; } }
+  return RAMPA_I[best];
+}
+
+// ── albedo lunar (cara visible, en coordenadas del disco) ──────────────────
+const AM = 256, ALB = new Float32Array(AM * AM);
+function vnoise(x, y, s) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), o = s * 1013;
+  return mix(mix(hash2(xi + o, yi), hash2(xi + 1 + o, yi), u), mix(hash2(xi + o, yi + 1), hash2(xi + 1 + o, yi + 1), u), v);
+}
+function fbm(x, y, s) { let r = 0, a = 0.5, f = 1; for (let o = 0; o < 4; o++) { r += a * vnoise(x * f, y * f, s + o); f *= 2.03; a *= 0.5; } return r; }
+function prepararLuna() {
+  // mares vistos desde el hemisferio norte (x a la derecha, y hacia arriba)
+  const mares = [
+    [-0.32, 0.50, 0.27, 0.42], [0.18, 0.45, 0.17, 0.44], [0.38, 0.12, 0.22, 0.40], [0.70, 0.30, 0.12, 0.50],
+    [0.58, -0.18, 0.15, 0.36], [0.38, -0.32, 0.10, 0.34], [-0.62, 0.12, 0.30, 0.38], [-0.45, -0.15, 0.24, 0.32],
+    [-0.18, -0.42, 0.17, 0.32], [-0.50, -0.42, 0.11, 0.36], [0.02, 0.10, 0.10, 0.26], [-0.05, 0.80, 0.22, 0.20],
+    [0.22, 0.80, 0.18, 0.18],
+  ];
+  const rnd = mulberry32(11), crat = [];
+  for (let i = 0; i < 70; i++) { const a = rnd() * TAU, r = Math.sqrt(rnd()) * 0.95; crat.push([Math.cos(a) * r, Math.sin(a) * r, 0.015 + rnd() * rnd() * 0.07]); }
+  const brillos = [[-0.12, -0.72, 0.035, 0.32], [-0.26, 0.17, 0.03, 0.2], [-0.66, 0.37, 0.022, 0.35], [-0.48, 0.14, 0.018, 0.16]];
+  for (let v = 0; v < AM; v++) for (let u = 0; u < AM; u++) {
+    const x = (u + 0.5) / AM * 2 - 1, y = 1 - (v + 0.5) / AM * 2;
+    let a = 0.82 + 0.10 * (fbm(x * 3 + 7, y * 3 + 3, 1) - 0.47) + 0.07 * (fbm(x * 12, y * 12, 5) - 0.47);
+    mares.forEach(([mx, my, mr, ms], i) => {
+      const d = Math.hypot(x - mx, y - my) / (mr * (0.85 + 0.35 * fbm(x * 5 + i * 3, y * 5, 9)));
+      a -= ms * (1 - sm(clamp((d - 0.7) / 0.45)));
+    });
+    for (const [cx, cy, cr] of crat) {
+      const d = Math.hypot(x - cx, y - cy) / cr;
+      if (d < 1.35) a += d < 0.85 ? -0.07 : 0.07 * (1 - Math.abs(d - 1.05) / 0.3);
+    }
+    for (const [cx, cy, cr, k] of brillos) { const d = Math.hypot(x - cx, y - cy) / cr; a += k * Math.exp(-d * d); }
+    const dt = Math.hypot(x + 0.12, y + 0.72), at = Math.atan2(y + 0.72, x + 0.12);
+    if (dt > 0.04) a += 0.07 * Math.pow(Math.max(0, Math.cos(at * 7 + 0.6)), 30) * Math.exp(-dt / 0.55);
+    ALB[v * AM + u] = clamp(a, 0.22, 1.1);
+  }
+}
+function albedo(x, y) {
+  const fx = clamp((x + 1) * 0.5 * AM - 0.5, 0, AM - 1.001), fy = clamp((1 - y) * 0.5 * AM - 0.5, 0, AM - 1.001);
+  const i = fx | 0, j = fy | 0, ax = fx - i, ay = fy - j, o = j * AM + i;
+  return mix(mix(ALB[o], ALB[o + 1], ax), mix(ALB[o + AM], ALB[o + AM + 1], ax), ay);
+}
+
+// ── retícula de luminancia (escena) ─────────────────────────────────────────
+const lum = new Float32Array(SW * SH), zb = new Float32Array(SW * SH);
+const ocup = new Uint8Array(N), ovG = new Int16Array(N), ovB = new Float32Array(N);
+function limpiar() { lum.fill(0); zb.fill(-1e9); ocup.fill(0); ovG.fill(-1); }
+
+function esfera(cx, cy, R, cz, psi, L, alb, tex, spec, amb, mul) {
+  if (mul <= 0.001) return;
+  const i0 = Math.max(0, Math.floor((cx - R) / PX)), i1 = Math.min(SW - 1, Math.ceil((cx + R) / PX));
+  const j0 = Math.max(0, Math.floor((cy - R) / PY)), j1 = Math.min(SH - 1, Math.ceil((cy + R) / PY));
+  const cs = Math.cos(psi), sn = Math.sin(psi), iR = 1 / R, aa = R / 1.6;
+  let hx = L[0], hy = L[1], hz = L[2] + 1; const hn = Math.hypot(hx, hy, hz) || 1; hx /= hn; hy /= hn; hz /= hn;
+  for (let j = j0; j <= j1; j++) {
+    const dy = ((j + 0.5) * PY - cy) * iR;
+    for (let i = i0; i <= i1; i++) {
+      const dx = ((i + 0.5) * PX - cx) * iR, r2 = dx * dx + dy * dy;
+      if (r2 >= 1) continue;
+      const nz = Math.sqrt(1 - r2), z = cz + nz * R, o = j * SW + i;
+      if (z <= zb[o]) continue;
+      const lx = dx * cs - dy * sn, ly = -dx * sn - dy * cs;
+      const d = lx * L[0] + ly * L[1] + nz * L[2];
+      const A = tex > 0 ? mix(alb, albedo(lx, ly), tex) : alb;
+      let v = A * (d > 0 ? Math.pow(d, 0.8) : 0) + amb * A * (0.5 + 0.5 * nz);
+      if (spec > 0) { const nh = lx * hx + ly * hy + nz * hz; if (nh > 0) v += spec * Math.pow(nh, 36); }
+      const cov = Math.min(1, (1 - Math.sqrt(r2)) * aa);
+      lum[o] = v * cov * mul; zb[o] = z;
+      if (cov > 0.5) ocup[((j / SY) | 0) * COLS + ((i / SX) | 0)] = 1;
+    }
+  }
+}
+// trazo suave (para órbitas y electrones), mezcla por máximo y con prueba de profundidad
+function trazo(x, y, z, v, rr) {
+  const fx = x / PX - 0.5, fy = y / PY - 0.5, ry = rr * PX / PY;
+  const i0 = Math.ceil(fx - rr), i1 = Math.floor(fx + rr), j0 = Math.ceil(fy - ry), j1 = Math.floor(fy + ry);
+  for (let j = j0; j <= j1; j++) {
+    if (j < 0 || j >= SH) continue;
+    for (let i = i0; i <= i1; i++) {
+      if (i < 0 || i >= SW) continue;
+      const d = Math.hypot((i - fx) / rr, (j - fy) / ry);
+      if (d >= 1) continue;
+      const o = j * SW + i;
+      if (zb[o] > z) continue;
+      const w = v * (1 - d * d);
+      if (w > lum[o]) lum[o] = w;
+    }
+  }
+}
+function oculto(x, y, z) {
+  const i = Math.floor(x / PX), j = Math.floor(y / PY);
+  if (i < 0 || j < 0 || i >= SW || j >= SH) return true;
+  return zb[j * SW + i] > z;
+}
+
+// ── átomo ───────────────────────────────────────────────────────────────────
+const NUC = [[0, 0, 0]];
+for (let i = 0; i < 8; i++) { const y = 1 - (i + 0.5) / 8 * 2, r = Math.sqrt(1 - y * y), f = i * 2.39996 + 0.4; NUC.push([Math.cos(f) * r, y, Math.sin(f) * r]); }
+const RP = 40, DN = 46, RO = 300, LUNA_R = 240, CY = 560, XN = 560, XS = 1360, XC = 960;
+const ORB = [0, PI / 3, 2 * PI / 3].map((phi, k) => {
+  const tilt = 1.22;
+  const u = [Math.cos(phi), Math.sin(phi), 0];
+  const v0 = [0, Math.cos(tilt), Math.sin(tilt)];
+  const v = [-v0[1] * Math.sin(phi), v0[1] * Math.cos(phi), v0[2]];
+  return { u, v, n: [3, 4, 5][k] * (k === 1 ? -1 : 1), ph: k * 2.1 + 0.5 };
+});
+const rotY = (p, a) => [p[0] * Math.cos(a) + p[2] * Math.sin(a), p[1], -p[0] * Math.sin(a) + p[2] * Math.cos(a)];
+const rotX = (p, a) => [p[0], p[1] * Math.cos(a) - p[2] * Math.sin(a), p[1] * Math.sin(a) + p[2] * Math.cos(a)];
+const L0 = norm([-0.5, 0.55, 0.68]), LC = norm([0.9, 0.06, -0.43]);
+function norm(v) { const l = Math.hypot(...v); return v.map((x) => x / l); }
+function luz(k) { return norm([mix(L0[0], LC[0], k), mix(L0[1], LC[1], k), mix(L0[2], LC[2], k)]); }
+
+// ── guion ───────────────────────────────────────────────────────────────────
+function orbEscala(t) { t = ((t % DUR) + DUR) % DUR; return t < 6.5 ? 1 - ein(lin(t, 1.35, 2.2)) : eout(lin(t, 8.95, 9.8)); }
+function estado(t) {
+  const ida = t < 6.5;
+  return {
+    orb: orbEscala(t),
+    morph: ida ? eio(lin(t, 1.9, 3.0)) : 1 - eio(lin(t, 8.45, 9.3)),
+    tex: ida ? sm(lin(t, 2.3, 3.1)) : 1 - sm(lin(t, 8.35, 9.0)),
+    luz: ida ? eio(lin(t, 2.2, 3.4)) : 1 - eio(lin(t, 8.3, 9.2)),
+    split: ida ? eio4(lin(t, 3.0, 4.1)) : 1 - eio4(lin(t, 7.95, 8.85)),
+    giro: t < 8.9 ? eio(lin(t, 4.9, 6.3)) * PI : 0,
+    sur: ida ? 1 : 1 - sm(lin(t, 8.3, 8.8)),
+    chrome: ida ? lin(t, 3.5, 4.4) : 1 - lin(t, 7.75, 8.15),
+    letra: ida ? lin(t, 4.0, 4.7) : 1 - lin(t, 7.75, 8.2),
+    dc: lin(t, 5.35, 5.95),
+  };
+}
+
+function escena(t, S) {
+  limpiar();
+  const xN = mix(XC, XN, S.split), xS = mix(XC, XS, S.split);
+  const L = luz(S.luz), amb = mix(0.13, 0.085, S.luz), spec = 0.85 * (1 - S.tex);
+  const e = S.morph, R = mix(RP, LUNA_R, eio(e)), D = DN * (1 - e);
+  const spin = TAU * t / DUR;
+  // cuerpo norte: núcleo que se funde en la Luna
+  const parts = e >= 0.999 ? [0] : NUC.map((_, i) => i);
+  for (const i of parts) {
+    let p = rotX(rotY(NUC[i], spin), 0.42);
+    esfera(xN + p[0] * D, CY - p[1] * D, R, p[2] * D, 0, L, i % 2 ? 0.66 : 1.0, S.tex, spec, amb, 1);
+  }
+  // cuerpo sur
+  if (S.split > 0.001) esfera(xS, CY, LUNA_R, 0, S.giro, L, 1.0, S.tex, spec, amb, S.sur);
+  // órbitas y electrones
+  if (S.orb > 0.001) {
+    const yaw = 0.32 * Math.sin(TAU * t / DUR), pitch = 0.10 * Math.sin(TAU * 2 * t / DUR + 1);
+    const fade = clamp(S.orb * 1.4);
+    for (const o of ORB) {
+      const u = rotX(rotY(o.u, yaw), pitch), v = rotX(rotY(o.v, yaw), pitch);
+      const r = RO * S.orb;
+      const n = 520;
+      for (let k = 0; k < n; k++) {
+        const a = k / n * TAU, c = Math.cos(a), s = Math.sin(a);
+        const x = u[0] * c + v[0] * s, y = u[1] * c + v[1] * s, z = u[2] * c + v[2] * s;
+        trazo(xN + x * r, CY - y * r, z * r, (z > 0 ? 0.42 : 0.24) * fade, 1.05);
+      }
+      // electrón con estela en espiral
+      for (let k = 22; k >= 0; k--) {
+        const tk = t - k * 0.016, sk = orbEscala(tk) * RO;
+        const a = o.ph + TAU * o.n * tk / DUR, c = Math.cos(a), s = Math.sin(a);
+        const x = u[0] * c + v[0] * s, y = u[1] * c + v[1] * s, z = u[2] * c + v[2] * s;
+        const px = xN + x * sk, py = CY - y * sk, pz = z * sk;
+        if (k === 0) {
+          trazo(px, py, pz, 1.7 * fade, 2.4);
+          if (!oculto(px, py, pz) && S.orb > 0.12) {
+            const cc = Math.floor(px / CW), rr = Math.floor(py / CH);
+            if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) { ovG[rr * COLS + cc] = gi('@'); ovB[rr * COLS + cc] = 1.9; }
+          }
+        } else {
+          const f = 1 - k / 23;
+          trazo(px, py, pz, 1.25 * f * f * fade, 0.9 + 0.9 * f);
+        }
+      }
+    }
+  }
+}
+
+// ── retícula de caracteres ──────────────────────────────────────────────────
+const G = new Uint8Array(N), B = new Float32Array(N), F = new Uint8Array(N), INK = new Float32Array(N);
+const reg = new Float32Array(6), vn = new Float32Array(6);
+function convertir() {
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    const k = r * COLS + c;
+    F[k] = 0;
+    if (ovG[k] >= 0) { G[k] = ovG[k]; B[k] = ovB[k]; continue; }
+    let mx = 0, mn = 9, sum = 0;
+    for (let ry = 0; ry < 3; ry++) for (let rx = 0; rx < 2; rx++) {
+      const o = (r * SY + ry * 2) * SW + c * SX + rx * 2;
+      const v = (lum[o] + lum[o + 1] + lum[o + SW] + lum[o + SW + 1]) * 0.25;
+      reg[ry * 2 + rx] = v; sum += v; if (v > mx) mx = v; if (v < mn) mn = v;
+    }
+    const mean = sum / 6;
+    if (mx < 0.03) { G[k] = 0; B[k] = 0; continue; }
+    if (mx > 0.12 && mx - mn > 0.32 * mx) {
+      const nrm = 1 / Math.max(mx, 0.5);
+      for (let d = 0; d < 6; d++) vn[d] = Math.pow(Math.min(1, reg[d] * nrm), 1.35);
+      G[k] = porForma(vn);
+      B[k] = 0.22 + 0.86 * Math.pow(Math.min(mx, 2), 0.65);
+    } else {
+      G[k] = porRampa(Math.pow(Math.min(mean, 1), 0.85));
+      B[k] = 0.2 + 0.88 * Math.pow(Math.min(mean, 2), 0.65);
+    }
+  }
+}
+function put(c, r, ch, b, fl = 0) {
+  if (c < 0 || r < 0 || c >= COLS || r >= ROWS) return;
+  const k = r * COLS + c; G[k] = typeof ch === 'number' ? ch : gi(ch); B[k] = b; F[k] = fl;
+}
+function texto(c, r, s, b, fl = 0) { let i = 0; for (const ch of s) put(c + i++, r, ch, b, fl); }
+function textoDoble(c, r, s, b) {
+  let i = 0;
+  for (const ch of s) { const x = c + 2 * i++; put(x, r, ch, b, 8); put(x + 1, r, ch, b, 10); put(x, r + 1, ch, b, 12); put(x + 1, r + 1, ch, b, 14); }
+}
+const RUIDO = [...'#%&@$*+=-:;/\\|<>?'].map(gi);
+const ruido = (a, b, t) => RUIDO[Math.floor(hash2(a * 97 + b, Math.floor(t * 24)) * RUIDO.length)];
+
+// letras ANSI "sombra"
+const FIG = {
+  A: [' █████╗ ', '██╔══██╗', '███████║', '██╔══██║', '██║  ██║', '╚═╝  ╚═╝'],
+  L: ['██╗     ', '██║     ', '██║     ', '██║     ', '███████╗', '╚══════╝'],
+  U: ['██╗   ██╗', '██║   ██║', '██║   ██║', '██║   ██║', '╚██████╔╝', ' ╚═════╝ '],
+  N: ['███╗   ██╗', '████╗  ██║', '██╔██╗ ██║', '██║╚██╗██║', '██║ ╚████║', '╚═╝  ╚═══╝'],
+  R: ['██████╗ ', '██╔══██╗', '██████╔╝', '██╔══██╗', '██║  ██║', '╚═╝  ╚═╝'],
+  E: ['███████╗', '██╔════╝', '█████╗  ', '██╔══╝  ', '███████╗', '╚══════╝'],
+  V: ['██╗   ██╗', '██║   ██║', '██║   ██║', '╚██╗ ██╔╝', ' ╚████╔╝ ', '  ╚═══╝  '],
+  S: ['███████╗', '██╔════╝', '███████╗', '╚════██║', '███████║', '╚══════╝'],
+  D: ['██████╗ ', '██╔══██╗', '██║  ██║', '██║  ██║', '██████╔╝', '╚═════╝ '],
+  C: [' ██████╗', '██╔════╝', '██║     ', '██║     ', '╚██████╗', ' ╚═════╝'],
+  ' ': ['   ', '   ', '   ', '   ', '   ', '   '],
+};
+function figlet(str) {
+  const rows = ['', '', '', '', '', ''], acc = [];
+  for (const ch of str) {
+    const g = FIG[ch === 'É' ? 'E' : ch];
+    if (ch === 'É') acc.push(rows[0].length + 3);
+    for (let r = 0; r < 6; r++) rows[r] += g[r];
+  }
+  return { rows, acc, w: rows[0].length };
+}
+const TITULO = figlet('LA LUNA AL REVÉS');
+const brilloFig = (ch) => (ch === '█' || ch === '▄' || ch === '▀' ? 1.0 : 0.36);
+
+function titular(t) {
+  const c0 = Math.round((COLS - TITULO.w) / 2), r0 = 6;
+  const bx = mix(-30, TITULO.w + 30, lin(t, 0.15, 1.75));
+  for (let r = 0; r < 6; r++) for (let i = 0; i < TITULO.w; i++) {
+    const ch = TITULO.rows[r][i]; if (ch === ' ') continue;
+    const sw = Math.exp(-Math.pow((i - bx + r * 2) / 6, 2));
+    put(c0 + i, r0 + r, ch, brilloFig(ch) * (1 + 0.55 * sw));
+  }
+  for (const a of TITULO.acc) { put(c0 + a, r0 - 1, '▄', 1); put(c0 + a + 1, r0 - 1, '█', 1); put(c0 + a + 2, r0 - 1, '▀', 1); }
+}
+// bloque ANSI que se descifra (q: 0 → filas A, 1 → filas B) celda a celda
+function bloque(A, Bf, c0, r0, q, b, semilla, t) {
+  const w = (A || Bf)[0].length;
+  for (let r = 0; r < 6; r++) for (let i = 0; i < w; i++) {
+    const th = 0.15 + (i / w) * 0.55 + hash2(semilla, r * 31 + i) * 0.2;
+    const fin = q > th + 0.1, ini = q < th - 0.1;
+    const ch = ini ? (A ? A[r][i] : ' ') : fin ? (Bf ? Bf[r][i] : ' ') : null;
+    if (ch === null) { put(c0 + i, r0 + r, '░▒▓'[Math.floor(hash2(r * 13 + i, Math.floor(t * 30) + semilla) * 3)], 0.8); continue; }
+    if (ch !== ' ') put(c0 + i, r0 + r, ch, brilloFig(ch) * b);
+  }
+}
+const ESTRELLAS = (() => {
+  const rnd = mulberry32(5), out = [];
+  while (out.length < 80) {
+    const c = 9 + Math.floor(rnd() * 142), r = 13 + Math.floor(rnd() * 31);
+    if (r >= 40 && r <= 43) continue;
+    out.push({ c, r, b: 0.18 + rnd() * 0.32, k: 1 + Math.floor(rnd() * 3), f: rnd() * TAU, big: rnd() < 0.12 });
+  }
+  return out;
+})();
+
+function interfaz(t, S) {
+  // estrellas en las celdas libres
+  for (const s of ESTRELLAS) {
+    const k = s.r * COLS + s.c;
+    if (G[k] !== 0 || ocup[k]) continue;
+    const tw = 0.55 + 0.45 * Math.sin(TAU * s.k * t / DUR + s.f);
+    put(s.c, s.r, s.big && tw > 0.7 ? '+' : '.', s.b * (0.6 + 0.6 * tw) * (s.big ? 1.5 : 1));
+  }
+  // barra de estado
+  const parpadeo = Math.floor(t * 2) % 2 === 0;
+  texto(9, 3, ' EP.01 ', 0.95, 1);
+  texto(17, 3, 'LO QUE NO TE EXPLICARON EN CLASE', 0.62);
+  const der = 'FASE: CRECIENTE';
+  texto(150 - der.length - 1, 3, der, 0.62);
+  if (parpadeo) put(150, 3, '█', 0.8);
+  titular(t);
+  // paneles norte / sur
+  const p = S.chrome;
+  if (p > 0) {
+    const paneles = [[9, 78, '40°N', XN, 'HEMISFERIO NORTE', 0], [82, 151, '34°S', XS, 'HEMISFERIO SUR', S.giro]];
+    for (const [c0, c1, lat, x, nom, g] of paneles) {
+      const n = Math.floor(p * 6);
+      const esq = (c, r, a, h, dir) => { put(c, r, a, 0.55); for (let i = 1; i <= n; i++) put(c + dir * i, r, h, 0.55); };
+      if (p > 0.02) { esq(c0, 13, '┌', '─', 1); esq(c1, 13, '┐', '─', -1); esq(c0, 44, '└', '─', 1); esq(c1, 44, '┘', '─', -1); }
+      const obs = 'OBSERVADOR ' + lat;
+      const vis = Math.floor(clamp(p * 1.4) * obs.length);
+      texto(c0 + 2, 14, obs.slice(0, vis), 0.6);
+      const giro = 'GIRO ' + String(Math.round(g * 180 / PI)).padStart(3, '0') + '°';
+      const vg = Math.floor(clamp(p * 1.4 - 0.2) * giro.length);
+      texto(c1 - 1 - giro.length + 1, 14, giro.slice(0, vg), 0.6);
+      const nv = Math.floor(clamp(p * 1.25 - 0.15) * nom.length);
+      const lc = Math.round(x / CW - nom.length);
+      textoDoble(lc, 41, nom.slice(0, nv), 1.0);
+      if (nv < nom.length && nv > 0 && parpadeo) { put(lc + nv * 2, 41, '█', 0.9); put(lc + nv * 2, 42, '█', 0.9); }
+    }
+    for (let r = 14; r < 14 + Math.floor(p * 30); r++) put(80, r, ':', 0.28);
+  }
+  // letras D / C junto a cada luna
+  if (S.letra > 0) {
+    bloque(null, FIG.D, 12, 25, S.letra, 1, 3, t);
+    const fin = S.dc < 1 ? FIG.D : FIG.C;
+    if (S.letra < 1) bloque(null, S.dc > 0.5 ? FIG.C : FIG.D, 140, 25, S.letra, 1, 7, t);
+    else bloque(FIG.D, FIG.C, 140, 25, S.dc, 1, 9, t);
+  }
+}
+
+// ── halo: tinta por celda, desenfocada en CPU ───────────────────────────────
+function nucleo(sig) { const r = Math.ceil(sig * 2.5), k = []; let s = 0; for (let i = -r; i <= r; i++) { const w = Math.exp(-i * i / (2 * sig * sig)); k.push(w); s += w; } return { r, k: k.map((w) => w / s) }; }
+const KS = [nucleo(14 / CW), nucleo(14 / CH)], KL = [nucleo(70 / CW), nucleo(70 / CH)];
+const TMP = new Float32Array(N), GS = new Float32Array(N), GL_ = new Float32Array(N);
+function desenfocar(src, dst, [kx, ky]) {
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    let s = 0; for (let i = -kx.r; i <= kx.r; i++) { const x = c + i; if (x >= 0 && x < COLS) s += src[r * COLS + x] * kx.k[i + kx.r]; }
+    TMP[r * COLS + c] = s;
+  }
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    let s = 0; for (let i = -ky.r; i <= ky.r; i++) { const y = r + i; if (y >= 0 && y < ROWS) s += TMP[y * COLS + c] * ky.k[i + ky.r]; }
+    dst[r * COLS + c] = s;
+  }
+}
+
+// ── WebGL ───────────────────────────────────────────────────────────────────
+const cv = document.getElementById('crt');
+const gl = cv.getContext('webgl', { preserveDrawingBuffer: true, antialias: false, alpha: false, premultipliedAlpha: false });
+const VS = `attribute vec2 p; varying vec2 vUv; void main(){ vUv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }`;
+const FS = `precision highp float;
+varying vec2 vUv;
+uniform sampler2D uGrid, uGlow, uAtlas;
+uniform vec2 uSlot, uPad, uCell;
+uniform float uSPR, uT, uSeed, uFlick, uGlitch, uGlitchY;
+uniform vec3 uPh;
+const vec2 SCN = vec2(1920.0, 1080.0);
+const vec2 CELL = vec2(12.0, 20.0);
+const vec2 GRID = vec2(160.0, 54.0);
+float hash(vec2 p){ p = fract(p * vec2(443.897, 441.423)); p += dot(p, p.yx + 19.19); return fract((p.x + p.y) * p.x); }
+float pantalla(vec2 q){ // SDF de rectángulo redondeado en px de escena
+  vec2 a = abs(q * SCN * 0.5) - (SCN * 0.5 - 46.0);
+  return length(max(a, 0.0)) + min(max(a.x, a.y), 0.0) - 46.0;
+}
+void main(){
+  vec2 q = vec2(vUv.x, 1.0 - vUv.y) * 2.0 - 1.0;
+  q *= 1.0 + q.yx * q.yx * vec2(0.045, 0.07);
+  q *= 1.012;
+  vec2 uv = q * 0.5 + 0.5;
+  float band = smoothstep(0.035, 0.0, abs(uv.y - uGlitchY));
+  uv.x += uGlitch * band * (0.010 + 0.012 * (hash(vec2(floor(uv.y * 180.0), uSeed)) - 0.5));
+  vec2 sc = uv * SCN;
+  vec2 cf = sc / CELL, ci = floor(cf), f = cf - ci;
+  vec4 g = texture2D(uGrid, (ci + 0.5) / GRID);
+  float idx = floor(g.r * 255.0 + 0.5), bri = g.g * 2.0, fl = floor(g.b * 255.0 + 0.5);
+  float inv = mod(fl, 2.0), dbl = floor(fl / 8.0);
+  if (dbl > 0.5) f = (f + vec2(mod(floor(fl / 2.0), 2.0), mod(floor(fl / 4.0), 2.0))) * 0.5;
+  vec2 slot = vec2(mod(idx, uSPR), floor(idx / uSPR));
+  vec4 a = texture2D(uAtlas, slot * uSlot + uPad + f * uCell);
+  float cov = a.r, soft = a.g;
+  if (inv > 0.5) { cov = 1.0 - cov; soft = 1.0 - soft; }
+  float beam = (cov * 0.9 + soft * 0.45) * bri;
+  float sl = 0.5 + 0.5 * cos(6.28318 * (sc.y - 2.0) / 4.0);
+  float scan = mix(0.42 + 0.58 * sl, 1.0, clamp(beam * 0.28, 0.0, 0.55));
+  vec4 gw = texture2D(uGlow, uv);
+  float glow = gw.r * 2.0 * 0.55 + gw.g * 2.0 * 0.5;
+  float L = beam * scan;
+  vec3 col = uPh * (L * 1.1 + glow * 0.75);
+  col += vec3(0.80, 1.0, 0.88) * smoothstep(0.75, 2.0, L) * 0.7;
+  float roll = fract(uv.y - uT * 2.0 / 10.0);
+  col *= 1.0 + 0.05 * smoothstep(0.0, 0.06, roll) * smoothstep(0.22, 0.06, roll);
+  col += uPh * 0.016;
+  col += (hash(floor(sc) + uSeed * 17.0) - 0.5) * 0.045 * uPh;
+  col *= uFlick;
+  col = 1.0 - exp(-col * 1.35);
+  float d = pantalla(q);
+  float vig = smoothstep(0.0, 260.0, -d);
+  col *= mix(0.55, 1.0, vig);
+  float m = clamp(-d / 2.0, 0.0, 1.0);
+  vec3 bisel = vec3(0.010, 0.012, 0.011) + uPh * gw.g * 0.10 * smoothstep(40.0, 0.0, d);
+  vec2 rq = vec2(vUv.x, 1.0 - vUv.y) * 2.0 - 1.0;
+  col += vec3(0.6, 0.8, 0.7) * 0.022 * exp(-dot(rq - vec2(-0.55, -0.6), rq - vec2(-0.55, -0.6)) * 3.0);
+  gl_FragColor = vec4(mix(bisel, col, m), 1.0);
+}`;
+function shader(tipo, src) { const s = gl.createShader(tipo); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+const prog = gl.createProgram();
+gl.attachShader(prog, shader(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog); if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+const ap = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap, 2, gl.FLOAT, false, 0, 0);
+const U = {}; for (const n of ['uGrid', 'uGlow', 'uAtlas', 'uSlot', 'uPad', 'uCell', 'uSPR', 'uT', 'uSeed', 'uFlick', 'uGlitch', 'uGlitchY', 'uPh']) U[n] = gl.getUniformLocation(prog, n);
+gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+function textura(unidad, filtro) {
+  const tx = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unidad); gl.bindTexture(gl.TEXTURE_2D, tx);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filtro); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filtro);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return tx;
+}
+const txGrid = textura(0, gl.NEAREST), txGlow = textura(1, gl.LINEAR), txAtlas = textura(2, gl.LINEAR);
+gl.uniform1i(U.uGrid, 0); gl.uniform1i(U.uGlow, 1); gl.uniform1i(U.uAtlas, 2);
+gl.uniform3fv(U.uPh, FOSFORO);
+const dGrid = new Uint8Array(N * 4), dGlow = new Uint8Array(N * 4);
+
+function construirAtlas(s) {
+  const w = CW * s, h = CH * s, pad = 3, sw = Math.ceil(w) + pad * 2, sh = Math.ceil(h) + pad * 2;
+  const spr = Math.max(1, Math.floor(2048 / sw)), filas = Math.ceil(GLYPHS.length / spr);
+  const aw = spr * sw, ah = filas * sh;
+  const c2 = document.createElement('canvas'); c2.width = aw; c2.height = ah;
+  const c = c2.getContext('2d', { willReadFrequently: true });
+  GLYPHS.forEach((g, k) => dibujarGlifo(c, g, (k % spr) * sw + pad, Math.floor(k / spr) * sh + pad, s));
+  const px = c.getImageData(0, 0, aw, ah).data;
+  const A = new Float32Array(aw * ah); for (let i = 0; i < A.length; i++) A[i] = px[i * 4 + 3] / 255;
+  // desenfoque en caja x2 → mancha del haz
+  const rad = Math.max(1, Math.round(s * 1.2)), T = new Float32Array(A.length);
+  let Sb = A.slice();
+  for (let pase = 0; pase < 2; pase++) {
+    for (let y = 0; y < ah; y++) for (let x = 0; x < aw; x++) { let a = 0; for (let i = -rad; i <= rad; i++) { const xx = x + i; if (xx >= 0 && xx < aw) a += Sb[y * aw + xx]; } T[y * aw + x] = a / (2 * rad + 1); }
+    for (let y = 0; y < ah; y++) for (let x = 0; x < aw; x++) { let a = 0; for (let i = -rad; i <= rad; i++) { const yy = y + i; if (yy >= 0 && yy < ah) a += T[yy * aw + x]; } Sb[y * aw + x] = a / (2 * rad + 1); }
+  }
+  const out = new Uint8Array(aw * ah * 4);
+  for (let i = 0; i < A.length; i++) { out[i * 4] = A[i] * 255; out[i * 4 + 1] = Math.min(255, Sb[i] * 255 * 1.6); out[i * 4 + 3] = 255; }
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, txAtlas);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, aw, ah, 0, gl.RGBA, gl.UNSIGNED_BYTE, out);
+  gl.uniform2f(U.uSlot, sw / aw, sh / ah); gl.uniform2f(U.uPad, pad / aw, pad / ah); gl.uniform2f(U.uCell, w / aw, h / ah);
+  gl.uniform1f(U.uSPR, spr);
+}
+
+function ajustar() {
+  const vw = innerWidth, vh = innerHeight;
+  let w, h; if (vw / vh > 16 / 9) { h = vh; w = vh * 16 / 9; } else { w = vw; h = vw * 9 / 16; }
+  cv.style.width = w + 'px'; cv.style.height = h + 'px';
+  cv.style.left = (vw - w) / 2 + 'px'; cv.style.top = (vh - h) / 2 + 'px';
+  const dpr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  gl.viewport(0, 0, cv.width, cv.height);
+  construirAtlas(cv.width / W);
+}
+
+function pulso(t, t0, d) { const x = (t - t0) / d; return x < 0 || x > 1 ? 0 : Math.sin(x * PI); }
+
+function frame(tt) {
+  const t = ((tt % DUR) + DUR) % DUR;
+  const S = estado(t);
+  escena(t, S);
+  convertir();
+  interfaz(t, S);
+  for (let k = 0; k < N; k++) INK[k] = B[k] * (F[k] & 1 ? 1 - COV[G[k]] : COV[G[k]]) * 2.2;
+  desenfocar(INK, GS, KS); desenfocar(INK, GL_, KL);
+  for (let k = 0; k < N; k++) {
+    dGrid[k * 4] = G[k]; dGrid[k * 4 + 1] = Math.min(255, B[k] * 127.5); dGrid[k * 4 + 2] = F[k]; dGrid[k * 4 + 3] = 255;
+    dGlow[k * 4] = Math.min(255, GS[k] * 127.5); dGlow[k * 4 + 1] = Math.min(255, GL_[k] * 127.5); dGlow[k * 4 + 3] = 255;
+  }
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, txGrid);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, COLS, ROWS, 0, gl.RGBA, gl.UNSIGNED_BYTE, dGrid);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, txGlow);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, COLS, ROWS, 0, gl.RGBA, gl.UNSIGNED_BYTE, dGlow);
+  const fr = Math.round(t * 30) % (DUR * 30);
+  gl.uniform1f(U.uT, t);
+  gl.uniform1f(U.uSeed, fr * 0.6180339 % 1);
+  gl.uniform1f(U.uFlick, 1 + 0.012 * Math.sin(TAU * 37 * t / DUR) + 0.008 * Math.sin(TAU * 91 * t / DUR));
+  const g1 = pulso(t, 2.12, 0.2), g2 = pulso(t, 5.55, 0.14);
+  gl.uniform1f(U.uGlitch, g1 + 0.7 * g2);
+  gl.uniform1f(U.uGlitchY, g1 > 0 ? 0.52 : 0.36);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+window.__frame = async (t) => { frame(t); };
+
+(async () => {
+  await document.fonts.load(`${PESO} 20px "${FUENTE}"`, 'LA LUNA AL REVÉS hemisferio norte sur ÁÉÍÓÚÑ°·¿¡ @#%*+=-:.');
+  await document.fonts.ready;
+  medirFuente();
+  medirGlifos();
+  prepararLuna();
+  ajustar();
+  frame(0);
+  window.__listo = true;
+  if (!CAPTURA) {
+    let pend = 0;
+    addEventListener('resize', () => { clearTimeout(pend); pend = setTimeout(ajustar, 150); });
+    const inicio = performance.now();
+    const bucle = (now) => { frame(((now - inicio) / 1000) % DUR); requestAnimationFrame(bucle); };
+    requestAnimationFrame(bucle);
+  }
+})();
+})();
+</script>
+</body>
+</html>

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link id="fuentes" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=block">
 <style>
-  html, body { margin: 0; height: 100%; background: #ddd2bc; overflow: hidden; }
+  html, body { margin: 0; height: 100%; background: #e9e1ce; overflow: hidden; }
   canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
 </style>
 </head>
@@ -39,8 +39,6 @@ const TAU = Math.PI * 2, PI = Math.PI;
 const CAPTURA = /captura/.test(location.search);
 const cv = document.getElementById('c');
 const ctx = cv.getContext('2d');
-const E = document.createElement('canvas');
-const eg = E.getContext('2d');
 let cw = 1, ch = 1, S = 1, OX = 0, OY = 0;
 let PAPER = null, PAPERPAT = null, PAT = null, lastStep = -1, TITLE_W = 640;
 
@@ -276,7 +274,7 @@ function buildPaper() {
 const MC = { x: 960, y: 480 };   // átomo / Luna antes de desdoblarse
 const MR = 210, KT = 0.44;       // radio de la Luna, semieje del terminador (fase creciente)
 const LXM = 500, RXM = 1420;     // centros de las Lunas norte / sur
-const GC = { x: 960, y: 708 }, GR = 82;   // Tierra pequeña
+const GC = { x: 960, y: 700 }, GR = 86;   // Tierra pequeña
 const ORX = 330, ORY = 104;
 const ORB = [
   { rot: 0.0, a0: 0.6, over: 0.42, d: -3, ox: 1.5, oy: -1.0, ph: 0.35, seed: 11 },
@@ -295,6 +293,7 @@ const TL = {
   era0: 8.1, era1: 8.9, ghost0: 8.85, ghost1: 9.4, brush0: 9.05, brush1: 9.35,
   alE0: 0.82, alE1: 0.96, alE2: 1.1, alG0: 1.1, alG1: 1.5, alB0: 1.3, alB1: 1.55,
   alN0: 9.38, alN1: 9.62, alA0: 9.6, alA1: 9.76, alM0: 9.52, alM1: 9.78, alB0w: 9.76, alB1w: 9.92,
+  same0: 2.85, same1: 3.3, sameA0: 3.25, sameA1: 3.6,
   merge0: 8.75, merge1: 9.3, un0: 9.2, un1: 9.9, nucIn0: 9.3, nucIn1: 9.9, elIn0: 9.45, elIn1: 9.9,
 };
 const EL_TURNS = 3;
@@ -369,7 +368,27 @@ function buildGeometry() {
     }
     return { ring, sh, r: c.r };
   });
+  // difumino: polígono de la parte oscura y pasadas anchas de grafito
+  const dark = [];
+  for (let i = 0; i <= 48; i++) { const a = PI / 2 + PI * i / 48; dark.push((MR - 1.5) * Math.cos(a), (MR - 1.5) * Math.sin(a)); }
+  for (let i = 0; i <= 48; i++) { const a = -PI / 2 + PI * i / 48; dark.push(KT * MR * Math.cos(a) + 3, MR * Math.sin(a)); }
+  const stump = [];
+  {
+    const ang = -0.98, dx = Math.cos(ang), dy = Math.sin(ang), nx = -dy, ny = dx;
+    for (let c = -MR - 10; c <= MR + 10; c += 34 + R() * 10) {
+      let hit = false;
+      for (let u = -MR; u <= MR && !hit; u += 6) if (darkInside(c * nx + u * dx, c * ny + u * dy, -6)) hit = true;
+      if (!hit) continue;
+      const L = MR + 40, e = (R() - 0.5) * 14;
+      stump.push({ P: lineP(c * nx - L * dx, c * ny - L * dy, (c + e) * nx + L * dx, (c + e) * ny + L * dy, 8, (R() - 0.5) * 30), a: 0.13 + R() * 0.07, w: 52 + R() * 22, s: 3000 + stump.length });
+    }
+    for (const [rr, sp, w] of [[MR - 16, 1.35, 34], [MR - 44, 1.2, 40], [MR - 78, 1.0, 46]]) {
+      const off = (R() - 0.5) * 0.15;
+      stump.push({ P: arcP(0, 0, rr, rr, PI - sp + off, PI + sp + off, 0, 40), a: 0.12 + R() * 0.05, w, s: 3000 + stump.length });
+    }
+  }
   MOON = {
+    dark: Float32Array.from(dark), stump,
     h1, h2, h3, cont, marks, craters, white,
     axH: lineP(-MR - 46, 0, MR + 46, 0, 8), axV: lineP(0, -MR - 46, 0, MR + 46, 8),
     termBlue: arcP(0, 0, KT * MR, MR, -PI / 2 - 0.25, 3 * PI / 2 + 0.1),
@@ -397,10 +416,11 @@ function buildGeometry() {
     sh: gsh,
   };
   // figura: pies en (0,0), arriba = -y
+  // cuerpo, piernas abiertas, un brazo señala su cielo y el otro cae relajado
   FIG = [
-    quadP(0, -35.5, 1.6, -26, 0.6, -16, 10),
-    quadP(0.6, -16, -3.5, -8, -6.5, 0, 10), quadP(0.6, -16, 4.5, -8, 7.5, 0, 10),
-    quadP(0, -31, -6, -26, -9.5, -18, 10), quadP(0, -31, 7, -38, 12.5, -48, 10),
+    quadP(0, -39, 1.2, -29, 0.4, -18, 10),
+    quadP(0.4, -18, -3.5, -9, -7.5, 0, 10), quadP(0.4, -18, 4.2, -9, 8, 0, 10),
+    quadP(0.2, -33, -8, -37.5, -16, -44.5, 10), quadP(0.2, -33, 6, -29, 10, -22.5, 10),
   ];
   // recorrido de la goma (zigzag que barre la página)
   ERP = [];
@@ -477,6 +497,23 @@ function moonInterior(g, T, b, M, sd, side) {
   // tramas, lápiz blanco y mares
   if (T >= TL.hatch0 + dt) {
     const t0 = TL.hatch0 + dt, t1 = TL.hatch1 + dt;
+    // difumino de grafito (recortado a la parte oscura) bajo la trama
+    g.save();
+    g.beginPath();
+    const DP = MOON.dark;
+    for (let i = 0; i < DP.length; i += 2) {
+      const x = DP[i], y = DP[i + 1];
+      const X = (M[0] * x + M[2] * y + M[4]) * S + OX, Y = (M[1] * x + M[3] * y + M[5]) * S + OY;
+      i ? g.lineTo(X, Y) : g.moveTo(X, Y);
+    }
+    g.closePath(); g.clip();
+    const ST = MOON.stump;
+    for (let i = 0; i < ST.length; i++) {
+      const h = ST[i], p = seqP(T, t0 - 0.05, t0 + 0.55, i, ST.length, 1.4);
+      if (p <= 0) continue;
+      stroke(g, h.P, { m: M, w: h.w, fill: G, alpha: h.a, prog: p, seed: sd + h.s, b, amp: 1.6, tin: 40, tout: 60, press: 0.5, minw: 0.25 });
+    }
+    g.restore();
     const all = [MOON.h1, MOON.h2, MOON.h3, MOON.cont];
     const spans = [[0, 0.5], [0.38, 0.82], [0.62, 0.95], [0.78, 1]];
     all.forEach((set, k) => {
@@ -511,14 +548,14 @@ function moonInterior(g, T, b, M, sd, side) {
 
 // --- figura humana (pies en x,y; rot = 0 de pie, PI cabeza abajo)
 function figure(g, T, b, x, y, rot, t0, t1, sd) {
-  const M = mat(rot, x, y, 1.22);
+  const M = mat(rot, x, y, 1.5);
   const hp = seg(T, t0, t0 + (t1 - t0) * 0.2);
   if (hp > 0) {
-    const hx = M[2] * -42.5 + M[4], hy = M[3] * -42.5 + M[5];
+    const hx = M[2] * -46 + M[4], hy = M[3] * -46 + M[5];
     const jx = (hsh(sd, b) - 0.5) * 0.8, jy = (hsh(sd + 1, b) - 0.5) * 0.8;
-    g.beginPath(); g.arc((hx + jx) * S + OX, (hy + jy) * S + OY, 7.6 * hp * S, 0, TAU); g.fillStyle = COL.ink; g.fill();
+    g.beginPath(); g.arc((hx + jx) * S + OX, (hy + jy) * S + OY, 8.6 * hp * S, 0, TAU); g.fillStyle = COL.ink; g.fill();
   }
-  FIG.forEach((P, i) => stroke(g, P, { m: M, w: i === 0 ? 4.2 : 2.6, fill: COL.ink, prog: seqP(T, t0 + (t1 - t0) * 0.2, t1, i, FIG.length, 0.4), seed: sd + i, b, amp: 0.6, tin: i === 0 ? 2 : 3, tout: i === 0 ? 8 : 5, press: 0.25, minw: 0.3 }));
+  FIG.forEach((P, i) => stroke(g, P, { m: M, w: i === 0 ? 4.8 : 3.0, fill: COL.ink, prog: seqP(T, t0 + (t1 - t0) * 0.2, t1, i, FIG.length, 0.4), seed: sd + i, b, amp: 0.6, tin: i === 0 ? 2 : 3, tout: i === 0 ? 8 : 5, press: 0.25, minw: 0.3 }));
 }
 function arrowHead(g, P, o, len = 22, spread = 0.46) {
   const n = P.length >> 1, x = P[2 * n - 2], y = P[2 * n - 1];
@@ -533,7 +570,9 @@ const D_BOWL = (dx) => bezP(792 + dx, 412, 900 + dx, 382, 922 + dx, 584, 784 + d
 const C_ARC = arcP(1094, 482, 70, 77, -0.7, -TAU + 0.8, 0.08, 70);
 const LAB_ARROW_N = quadP(290, 772, 262, 712, 336, 668);
 const LAB_ARROW_S = quadP(1630, 772, 1660, 712, 1584, 668);
-const ROT_ARC = arcP(RXM, 480, 254, 254, -2.55, -0.78, 0, 60);
+const ROT_ARC = arcP(RXM, 480, 256, 256, -2.02, -0.36, 0, 60);
+const SAME_L = quadP(826, 298, 760, 286, 696, 346, 30);
+const SAME_R = quadP(1094, 298, 1160, 286, 1224, 346, 30);
 const UNDERLINE = () => bezP(122, 186, 330, 177, 560, 186, 132 + TITLE_W, 170, 50);
 
 function drawErasable(g, T, b) {
@@ -545,7 +584,18 @@ function drawErasable(g, T, b) {
   moonInterior(g, T, b, mat(0, ms.lx, MC.y), 0, 0);
   if (ms.showR) moonInterior(g, T, b, mat(ms.phi, ms.rx, MC.y), 5000, 1);
   // línea divisoria
-  if (T >= TL.div0) stroke(g, lineP(960, 236, 963, 552, 6, 2), { w: 1.8, fill: G, alpha: 0.75, prog: seg(T, TL.div0, TL.div1), seed: 40, b, amp: 0.9, tout: 60 });
+  if (T >= TL.div0) stroke(g, lineP(960, 352, 962, 512, 6, 1.5), { w: 1.8, fill: G, alpha: 0.75, prog: seg(T, TL.div0, TL.div1), seed: 40, b, amp: 0.9, tout: 60 });
+  // "la misma Luna": las dos vistas son del mismo objeto
+  if (T >= TL.same0) {
+    write(g, 'la misma Luna', 960, 314, { size: 46, weight: 600, fill: PAT.gtext, align: 'center', prog: seg(T, TL.same0, TL.same1), seed: 45, b });
+    const pl = seg(T, TL.sameA0, TL.sameA1 - 0.1), pr = seg(T, TL.sameA0 + 0.05, TL.sameA1 - 0.05);
+    const ao = { w: 2.2, fill: G, alpha: 0.95, b, amp: 0.8, tout: 4 };
+    stroke(g, SAME_L, Object.assign({}, ao, { prog: pl, seed: 46 }));
+    stroke(g, SAME_R, Object.assign({}, ao, { prog: pr, seed: 49 }));
+    const hd = { w: 2.1, fill: G, alpha: 0.95, b, amp: 0.6, tin: 2, tout: 4 };
+    if (pl >= 1) arrowHead(g, SAME_L, Object.assign({}, hd, { seed: 47, prog1: seg(T, TL.sameA1 - 0.1, TL.sameA1 - 0.04), prog2: seg(T, TL.sameA1 - 0.06, TL.sameA1) }), 18);
+    if (pr >= 1) arrowHead(g, SAME_R, Object.assign({}, hd, { seed: 50, prog1: seg(T, TL.sameA1 - 0.05, TL.sameA1 + 0.01), prog2: seg(T, TL.sameA1 - 0.01, TL.sameA1 + 0.05) }), 18);
+  }
   // rótulos con su guía azul y su flecha
   if (T >= TL.labN0) {
     stroke(g, lineP(140, 838, 520, 836, 8), { w: 1.3, fill: PAT.blue, alpha: 0.6, prog: seg(T, TL.labN0, TL.labN0 + 0.2), seed: 41, b, amp: 0.6 });
@@ -580,8 +630,8 @@ function drawErasable(g, T, b) {
     stroke(g, GLOBE.mer, { m: GM, w: 1.3, fill: G, alpha: 0.55, prog: seg(T, t0 + 0.4, t0 + 0.55), seed: 65, b, amp: 0.7 });
     figure(g, T, b, GC.x, GC.y - GR + 1, 0, t0 + 0.45, t0 + 0.7, 80);
     figure(g, T, b, GC.x, GC.y + GR - 1, PI, t0 + 0.6, t0 + 0.85, 90);
-    write(g, 'N', 916, 670, { size: 34, weight: 600, fill: PAT.gtext, prog: seg(T, t0 + 0.7, t0 + 0.8), seed: 66, b });
-    write(g, 'S', 916, 778, { size: 34, weight: 600, fill: PAT.gtext, prog: seg(T, t0 + 0.8, t0 + 0.9), seed: 67, b });
+    write(g, 'N', GC.x - 42, GC.y - 30, { size: 36, weight: 600, fill: PAT.gtext, prog: seg(T, t0 + 0.7, t0 + 0.8), seed: 66, b });
+    write(g, 'S', GC.x - 40, GC.y + 60, { size: 36, weight: 600, fill: PAT.gtext, prog: seg(T, t0 + 0.8, t0 + 0.9), seed: 67, b });
   }
   // letras D
   const letter = (P, t0, t1, sd, w = 8) => stroke(g, P, { w, fill: PAT.red, alpha: 0.95, prog: seg(T, t0, t1), seed: sd, b, amp: 1.0, tin: 6, tout: 26, press: 0.35 });
@@ -593,12 +643,12 @@ function drawErasable(g, T, b) {
     const ap = seg(T, TL.arc0, TL.arc1);
     stroke(g, ROT_ARC, { w: 4, fill: PAT.red, alpha: 0.95, prog: ap, seed: 140, b, amp: 1.0, tout: 6, press: 0.3 });
     if (ap >= 1) arrowHead(g, ROT_ARC, { w: 3.8, fill: PAT.red, alpha: 0.95, seed: 141, b, amp: 0.7, tin: 2, tout: 5, prog1: seg(T, TL.arc1, TL.arc1 + 0.07), prog2: seg(T, TL.arc1 + 0.05, TL.arc1 + 0.12) }, 24, 0.5);
-    write(g, '180°', 1626, 282, { size: 54, weight: 700, fill: PAT.rtext, prog: seg(T, TL.arc1 + 0.05, TL.arc1 + 0.3), seed: 142, b });
+    write(g, '180°', 1652, 292, { size: 54, weight: 700, fill: PAT.rtext, prog: seg(T, TL.arc1 + 0.05, TL.arc1 + 0.3), seed: 142, b });
   }
   // círculo rojo al observador del sur
   if (T >= TL.circ0) {
-    stroke(g, arcP(GC.x + 1, GC.y + GR + 31, 34, 46, -2.2, -2.2 + TAU + 0.5, 0.15), { w: 3.2, fill: PAT.red, alpha: 0.9, prog: seg(T, TL.circ0, TL.circ1), seed: 150, b, amp: 0.9, tout: 10 });
-    write(g, '¡cabeza abajo!', 1008, 866, { size: 44, weight: 600, fill: PAT.rtext, prog: seg(T, TL.cab0, TL.cab1), seed: 151, b });
+    stroke(g, arcP(GC.x + 1, GC.y + GR + 38, 40, 54, -2.2, -2.2 + TAU + 0.5, 0.15), { w: 3.2, fill: PAT.red, alpha: 0.9, prog: seg(T, TL.circ0, TL.circ1), seed: 150, b, amp: 0.9, tout: 10 });
+    write(g, '¡cabeza abajo!', 1014, 858, { size: 44, weight: 600, fill: PAT.rtext, prog: seg(T, TL.cab0, TL.cab1), seed: 151, b });
   }
   // líneas de movimiento durante el giro
   const rp = seg(T, TL.rot0, TL.rot1);
@@ -615,6 +665,7 @@ function drawErasable(g, T, b) {
 // notas del átomo ("núcleo", "electrones")
 const AN_ARROW_N = quadP(705, 668, 800, 600, 900, 524, 36);
 const AN_ARROW_E = quadP(1395, 598, 1360, 545, 1296, 524, 30);
+const NOTE_BOX = [[530, 490, 410, 250], [1262, 490, 290, 190]];   // zonas de las notas (para desvanecer su fantasma)
 function drawAtomNotes(g, T, b) {
   const P = (a, z) => T < 5 ? 1 : seg(T, a, z);
   const G = PAT.graphite;
@@ -632,7 +683,9 @@ function drawAfterLocalErase(g, T, b) {
   if (T >= TL.c0) stroke(g, C_ARC, { w: 8.5, fill: PAT.red, alpha: 0.95, prog: seg(T, TL.c0, TL.c1), seed: 170, b, amp: 1.0, tin: 8, tout: 30, press: 0.35 });
   write(g, 'creciente', 1093, 614, { size: 38, weight: 500, fill: PAT.gtext, align: 'center', prog: seg(T, TL.crecR0, TL.crecR1), seed: 171, b });
 }
-// goma: destination-out a lo largo de un recorrido, hasta la fracción u
+// goma: vuelve a pintar el papel (con su textura) a lo largo de un recorrido, hasta la fracción u.
+// Todo se dibuja en un único canvas: lo borrable va debajo de las capas fijas, así que pintar papel
+// encima equivale a borrarlo (y con alfa < 1 deja el fantasma de grafito del borrado real).
 function rub(g, P, u, wd, alpha) {
   if (u <= 0) return;
   const n = P.length >> 1;
@@ -640,8 +693,8 @@ function rub(g, P, u, wd, alpha) {
   for (let i = 1; i < n; i++) tot += Math.hypot(P[2 * i] - P[2 * i - 2], P[2 * i + 1] - P[2 * i - 1]);
   let left = tot * u;
   g.save();
-  g.globalCompositeOperation = 'destination-out';
   g.lineCap = 'round'; g.lineJoin = 'round';
+  g.strokeStyle = PAPERPAT;
   for (const [k, a] of [[1.22, alpha * 0.45], [1, alpha]]) {
     left = tot * u;
     g.beginPath(); g.moveTo(P[0] * S + OX, P[1] * S + OY);
@@ -650,7 +703,7 @@ function rub(g, P, u, wd, alpha) {
       g.lineTo(lerp(P[2 * i - 2], P[2 * i], f) * S + OX, lerp(P[2 * i - 1], P[2 * i + 1], f) * S + OY);
       left -= sl;
     }
-    g.lineWidth = wd * k * S; g.strokeStyle = `rgba(0,0,0,${a})`; g.stroke();
+    g.lineWidth = wd * k * S; g.globalAlpha = a; g.stroke();
   }
   g.restore();
 }
@@ -754,39 +807,37 @@ function frame(t) {
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   g.fillStyle = rgba(COL.paper, 1); g.fillRect(0, 0, cw, ch);
   g.drawImage(PAPER, OX, OY);
-  drawPersistentUnder(g, T, b);
-  // capa borrable
+  // lo borrable (la explicación)
   if (T < TL.ghost1) {
-    eg.setTransform(1, 0, 0, 1, 0, 0);
-    eg.globalCompositeOperation = 'source-over';
-    eg.clearRect(0, 0, cw, ch);
-    drawErasable(eg, T, b);
-    if (T >= TL.eraD0) rub(eg, ERP_L, seg(T, TL.eraD0, TL.eraD1), 46, 0.88);
-    drawAfterLocalErase(eg, T, b);
-    if (T >= TL.era0) rub(eg, ERP, seg(T, TL.era0, TL.era1), 236, 0.9);
-    g.globalAlpha = 1 - seg(T, TL.ghost0, TL.ghost1);
-    g.drawImage(E, 0, 0);
-    g.globalAlpha = 1;
+    drawErasable(g, T, b);
+    if (T >= TL.eraD0) rub(g, ERP_L, seg(T, TL.eraD0, TL.eraD1), 46, 0.88);
+    drawAfterLocalErase(g, T, b);
+    if (T >= TL.era0) rub(g, ERP, seg(T, TL.era0, TL.era1), 236, 0.9);
+    const f = seg(T, TL.ghost0, TL.ghost1);   // el fantasma que queda se desvanece
+    if (f > 0) { g.globalAlpha = f; g.drawImage(PAPER, OX, OY); g.globalAlpha = 1; }
   }
   // notas del átomo: escritas al final del bucle, borradas antes de la transformación
   if (T < TL.alG1 || T >= TL.alN0) {
-    eg.setTransform(1, 0, 0, 1, 0, 0);
-    eg.globalCompositeOperation = 'source-over';
-    eg.clearRect(0, 0, cw, ch);
-    drawAtomNotes(eg, T, b);
-    if (T < 5) { rub(eg, ERP_A1, seg(T, TL.alE0, TL.alE1), 74, 0.88); rub(eg, ERP_A2, seg(T, TL.alE1, TL.alE2), 74, 0.88); }
-    g.globalAlpha = T < 5 ? 1 - seg(T, TL.alG0, TL.alG1) : 1;
-    g.drawImage(E, 0, 0);
-    g.globalAlpha = 1;
+    drawAtomNotes(g, T, b);
+    if (T < 5) {
+      rub(g, ERP_A1, seg(T, TL.alE0, TL.alE1), 74, 0.88); rub(g, ERP_A2, seg(T, TL.alE1, TL.alE2), 74, 0.88);
+      const f = seg(T, TL.alG0, TL.alG1);
+      if (f > 0) {
+        g.globalAlpha = f; g.fillStyle = PAPERPAT;
+        for (const [x, y, w, h] of NOTE_BOX) g.fillRect(x * S + OX, y * S + OY, w * S, h * S);
+        g.globalAlpha = 1;
+      }
+    }
   }
   drawCrumbs(g, T, b);
+  drawPersistentUnder(g, T, b);
   drawPersistentOver(g, T, b);
 }
 
 function layout() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   cw = Math.max(1, Math.round(window.innerWidth * dpr)); ch = Math.max(1, Math.round(window.innerHeight * dpr));
-  cv.width = cw; cv.height = ch; E.width = cw; E.height = ch;
+  cv.width = cw; cv.height = ch;
   S = Math.min(cw / W, ch / H); OX = Math.round((cw - W * S) / 2); OY = Math.round((ch - H * S) / 2);
   PAPER = buildPaper();
   // el grano escala con el dibujo (en pantallas pequeñas no se come las letras)

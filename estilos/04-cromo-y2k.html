@@ -74,15 +74,17 @@ function prng(semilla) {
 }
 
 // ---------- guion (s) ----------
-const T_ORB_IN = [0.9, 1.95];    // las órbitas se recogen en el núcleo
-const T_INFLA = [1.25, 2.3];     // el núcleo se infla en una esfera
-const T_MORD = [2.15, 3.0];      // la esfera mengua a creciente «D»
-const T_SEPARA = [3.05, 4.45];   // la Luna se desdobla: norte ← → sur
-const T_GIRO = [4.45, 5.65];     // la del sur gira 180°
-const T_VUELVE = [7.35, 8.5];    // vuelven al centro (la del sur completa el giro)
-const T_LLENA = [8.45, 9.05];    // la creciente se rellena
-const T_DESINFLA = [8.8, 9.6];   // la esfera vuelve a ser núcleo
-const T_ORB_OUT = [8.95, 9.95];  // salen las órbitas
+const T_ORB_IN = [0.75, 1.7];    // las órbitas se recogen en el núcleo
+const T_INFLA = [1.05, 2.05];    // el núcleo se infla en una esfera
+const T_MORD = [1.95, 2.75];     // la esfera mengua a creciente «D»
+const T_SEPARA = [2.8, 4.1];     // la Luna se desdobla: norte ← → sur
+const T_GIRO = [4.1, 5.2];       // la del sur gira 180°: «C»
+const T_FIN = 6.9;               // fin de la comparación D / C
+const T_REGIRO = [6.95, 7.85];   // el observador del sur se endereza: vuelve a «D»
+const T_VUELVE = [7.6, 8.6];     // vuelven al centro y se funden
+const T_LLENA = [8.5, 9.1];      // la creciente se rellena
+const T_DESINFLA = [8.85, 9.6];  // la esfera vuelve a ser núcleo
+const T_ORB_OUT = [9.0, 9.95];   // salen las órbitas
 
 // trayectoria de separación: se estira despacio, se suelta y se asienta
 const tray = (x) => 0.1 * ss(0, 0.32, x) + 0.9 * eio5(cl((x - 0.18) / 0.82));
@@ -100,8 +102,8 @@ function separacion(t) {
   return 1 - tray(prog(t, T_VUELVE));
 }
 function giroSur(t) {
-  if (t < T_VUELVE[0]) return Math.PI * eiob(prog(t, T_GIRO), 0.7);
-  return Math.PI + Math.PI * eio(prog(t, T_VUELVE));
+  if (t < T_REGIRO[0]) return Math.PI * eiob(prog(t, T_GIRO), 0.7);
+  return Math.PI + Math.PI * eiob(prog(t, T_REGIRO), 0.6);
 }
 
 // Estado completo de la escena en el instante t (mundo: y hacia arriba, cámara en +z).
@@ -195,9 +197,11 @@ float caja(vec2 p, vec2 b, float s){
 // suelo índigo con la rejilla cian reflejada. bl = ancho angular de un píxel
 // reflejado (curvatura × tamaño de píxel): suaviza lo fino para que no parpadee.
 vec3 cielo(float y, float el, float az, float bl){
-  vec3 c = mix(vec3(1.00, 0.86, 1.00), vec3(0.62, 0.64, 1.00), smoothstep(0.0, 0.07 + bl, y));
-  c = mix(c, vec3(0.20, 0.25, 0.88), smoothstep(0.05, 0.34, y));
-  c = mix(c, vec3(0.025, 0.035, 0.17), smoothstep(0.32, 0.95, y));
+  vec3 c = mix(vec3(1.00, 0.88, 1.00), vec3(0.70, 0.72, 1.00), smoothstep(0.0, 0.07 + bl, y));
+  c = mix(c, vec3(0.28, 0.34, 0.95), smoothstep(0.05, 0.30, y));
+  c = mix(c, vec3(0.06, 0.08, 0.30), smoothstep(0.30, 0.78, y));
+  // cenital: una gran caja de luz difusa, plateada
+  c += vec3(0.80, 0.86, 1.05) * smoothstep(0.78 - bl, 0.96, y) * 0.95;
   c += vec3(2.3, 2.3, 2.5) * caja(vec2(az + 0.78, el - 0.62), vec2(0.30, 0.16), 0.035 + bl);
   c += vec3(1.3, 1.6, 2.0) * caja(vec2(az - 0.98, el - 0.30), vec2(0.05, 0.30), 0.025 + bl) * (0.05 / (0.05 + bl));
   float azb = 3.14159 - abs(az);
@@ -254,7 +258,7 @@ void main(){ gl_Position = vec4(position.xy * 2.0, 0.0, 1.0); }
 const FRAG_CROMO = /* glsl */`
 precision highp float;
 uniform vec2 uRes;
-uniform float uTanX, uTanY, uCamZ, uPixA, uFilm;
+uniform float uTanX, uTanY, uCamZ, uPixA, uFilm, uRebote;
 uniform vec4 uBA[4];
 uniform vec4 uBB[4];
 uniform vec3 uCA, uCB, uSA, uSB;
@@ -343,6 +347,7 @@ void main(){
   // un rebote: el cromo se refleja en el cromo
   float tb = 0.03; bool rebote = false;
   for (int i = 0; i < 40; i++){
+    if (uRebote <= 0.0) break;
     float d = mapa(p + r * tb);
     if (d < 0.002){ rebote = tb > 0.35; break; }   // sin autorreflejos pegados
     tb += d;
@@ -351,7 +356,7 @@ void main(){
   if (rebote){
     vec3 q = p + r * tb;
     vec3 n2 = normal(q);
-    refl = cromo(r, n2, entorno(reflect(r, n2), min(bl * 2.0 + 0.02, 0.5)), uFilm + 0.3) * 0.88;
+    refl = mix(refl, cromo(r, n2, entorno(reflect(r, n2), min(bl * 2.0 + 0.02, 0.5)), uFilm + 0.3) * 0.88, uRebote);
   }
   vec3 col = cromo(rd, n, refl, uFilm);
   float ao = clamp(0.45 + 0.55 * mapa(p + n * 0.16) / 0.16, 0.0, 1.0);
@@ -461,28 +466,29 @@ function desenfocar(a, w, h, r, pasadas) {
 }
 function crearAtlas() {
   const piezas = [
-    { id: 'titulo', texto: 'LA LUNA AL REVÉS', fuente: '900 96px "Unbounded"', esp: 2, R: 13 },
-    { id: 'D', texto: 'D', fuente: '900 200px "Unbounded"', esp: 0, R: 27 },
-    { id: 'C', texto: 'C', fuente: '900 200px "Unbounded"', esp: 0, R: 27 },
+    { id: 'titulo', texto: 'LA LUNA AL REVÉS', fuente: '900 96px "Unbounded"', esp: 7, R: 15, trazo: 5 },
+    { id: 'D', texto: 'D', fuente: '900 200px "Unbounded"', esp: 0, R: 30, trazo: 8 },
+    { id: 'C', texto: 'C', fuente: '900 200px "Unbounded"', esp: 0, R: 30, trazo: 8 },
   ];
   const PAD = 30;
   const m = document.createElement('canvas').getContext('2d');
   for (const p of piezas) {
     m.font = p.fuente; m.letterSpacing = p.esp + 'px';
     const mt = m.measureText(p.texto);
-    p.izq = Math.ceil(mt.actualBoundingBoxLeft); p.asc = Math.ceil(mt.actualBoundingBoxAscent);
-    p.w = p.izq + Math.ceil(mt.actualBoundingBoxRight) + 2 * PAD;
-    p.h = p.asc + Math.ceil(mt.actualBoundingBoxDescent) + 2 * PAD;
+    p.izq = Math.ceil(mt.actualBoundingBoxLeft + p.trazo / 2); p.asc = Math.ceil(mt.actualBoundingBoxAscent + p.trazo / 2);
+    p.w = p.izq + Math.ceil(mt.actualBoundingBoxRight + p.trazo / 2) + 2 * PAD;
+    p.h = p.asc + Math.ceil(mt.actualBoundingBoxDescent + p.trazo / 2) + 2 * PAD;
   }
   const [T, D, C] = piezas;
   T.x = 0; T.y = 0; D.x = 0; D.y = T.h; C.x = D.w; C.y = T.h;
   const AW = Math.max(T.w, D.w + C.w), AH = T.h + Math.max(D.h, C.h);
   const cv = document.createElement('canvas'); cv.width = AW; cv.height = AH;
   const g = cv.getContext('2d');
-  g.fillStyle = '#fff'; g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+  g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.lineJoin = 'round'; g.textBaseline = 'alphabetic'; g.textAlign = 'left';
   for (const p of piezas) {
-    g.font = p.fuente; g.letterSpacing = p.esp + 'px';
+    g.font = p.fuente; g.letterSpacing = p.esp + 'px'; g.lineWidth = p.trazo;
     g.fillText(p.texto, p.x + PAD + p.izq, p.y + PAD + p.asc);
+    g.strokeText(p.texto, p.x + PAD + p.izq, p.y + PAD + p.asc);
   }
   const px = g.getImageData(0, 0, AW, AH).data;
   const N = AW * AH, cob = new Float32Array(N), dentro = new Uint8Array(N);
@@ -535,7 +541,7 @@ const plano = new THREE.PlaneGeometry(1, 1);
 const v4 = () => new THREE.Vector4();
 const UC = {
   uRes: { value: new THREE.Vector2(W, H) }, uTanX: { value: TAN_X }, uTanY: { value: TAN_Y },
-  uCamZ: { value: CAM_Z }, uPixA: { value: 2 * TAN_Y / H }, uFilm: { value: 0 },
+  uCamZ: { value: CAM_Z }, uPixA: { value: 2 * TAN_Y / H }, uFilm: { value: 0 }, uRebote: { value: 1 },
   uBA: { value: [v4(), v4(), v4(), v4()] }, uBB: { value: [v4(), v4(), v4(), v4()] },
   uCA: { value: new THREE.Vector3() }, uCB: { value: new THREE.Vector3() },
   uSA: { value: new THREE.Vector3(1, 1, 1) }, uSB: { value: new THREE.Vector3(1, 1, 1) },
@@ -588,6 +594,7 @@ function subirEstado(E, t) {
   }
   UC.uOrb.value.set(...E.orb);
   UC.uFilm.value = 0.12 * Math.sin(TAU * t / DUR);
+  UC.uRebote.value = 1 - ss(0.12, 0.45, E.sp);
 }
 
 // ---------------------------------------------------------------------
@@ -641,8 +648,17 @@ function pintarFijo() {
   g.save(); g.translate(960, HOR); g.scale(1, 0.09); g.translate(-960, -HOR);
   g.fillStyle = rg; g.fillRect(-100, HOR - 1000, W + 200, 2000);
   g.restore();
+  for (const [x, c] of [[300, '255,140,230'], [1620, '120,225,255']]) {
+    const k = g.createRadialGradient(x, HOR, 0, x, HOR, 620);
+    k.addColorStop(0, `rgba(${c},0.30)`); k.addColorStop(0.5, `rgba(${c},0.08)`); k.addColorStop(1, `rgba(${c},0)`);
+    g.save(); g.translate(x, HOR); g.scale(1, 0.22); g.translate(-x, -HOR);
+    g.globalCompositeOperation = 'lighter'; g.fillStyle = k; g.fillRect(x - 620, HOR - 620, 1240, 1240);
+    g.restore();
+  }
   const lh = g.createLinearGradient(0, 0, W, 0);
-  lh.addColorStop(0, 'rgba(255,235,255,0.35)'); lh.addColorStop(0.5, 'rgba(255,245,255,1)'); lh.addColorStop(1, 'rgba(255,235,255,0.35)');
+  // horizonte iridiscente: rosa hacia el norte, cian hacia el sur
+  lh.addColorStop(0, 'rgba(255,150,235,0.45)'); lh.addColorStop(0.28, 'rgba(255,205,250,0.85)'); lh.addColorStop(0.5, 'rgba(255,248,255,1)');
+  lh.addColorStop(0.72, 'rgba(195,240,255,0.85)'); lh.addColorStop(1, 'rgba(130,230,255,0.45)');
   g.fillStyle = lh; g.fillRect(0, HOR - 1, W, 2);
 }
 
@@ -679,17 +695,19 @@ function dibujarFondo(g, t, E) {
   const sep = ss(0.25, 0.6, E.sp);
   peana(960, 300, 1 - sep);
   peana(xa, 210, sep); peana(xb, 210, sep);
+  reflejo(g);
 
   // HUD: anillos del átomo
   const aAt = (1 - ss(0.1, 0.6, E.c)) * (1 - sep);
   if (aAt > 0.01) {
     g.save(); g.translate(960, CY); g.globalAlpha = aAt;
+    // abiertos arriba para dejar respirar el subtítulo
+    const hueco = 0.74, a0 = -Math.PI / 2 + hueco, a1 = 1.5 * Math.PI - hueco;
     g.strokeStyle = 'rgba(190,205,255,0.3)'; g.lineWidth = 1.5;
-    g.beginPath(); g.arc(0, 0, 338, 0, TAU); g.stroke();
-    g.rotate(TAU * t / DUR);
-    g.setLineDash([3, 11]); g.strokeStyle = 'rgba(170,235,255,0.45)';
-    g.beginPath(); g.arc(0, 0, 356, 0, TAU); g.stroke();
-    g.setLineDash([]);
+    g.beginPath(); g.arc(0, 0, 338, a0, a1); g.stroke();
+    g.setLineDash([3, 11]); g.lineDashOffset = -14 * 30 * t / DUR; g.strokeStyle = 'rgba(170,235,255,0.45)';
+    g.beginPath(); g.arc(0, 0, 356, a0, a1); g.stroke();
+    g.setLineDash([]); g.lineDashOffset = 0;
     g.restore();
   }
   // HUD: retículas norte/sur donde aterrizan las lunas
@@ -712,7 +730,7 @@ function dibujarFondo(g, t, E) {
       g.lineTo(Math.cos(an) * (r - 2 - l), Math.sin(an) * (r - 2 - l));
       g.strokeStyle = `rgba(190,205,255,${(k % 6 === 0 ? 0.5 : 0.22) * a})`; g.stroke();
     }
-    g.font = '500 14px "Unbounded"'; g.letterSpacing = '3px';
+    g.font = '500 16px "Unbounded"'; g.letterSpacing = '3px';
     g.fillStyle = `rgba(200,225,255,${0.9 * a})`; g.textBaseline = 'middle';
     g.textAlign = signo < 0 ? 'right' : 'left';
     g.fillText(etiqueta, signo * (r * 0.71 + 14), r * 0.71 + 8);
@@ -722,10 +740,33 @@ function dibujarFondo(g, t, E) {
   ret(960 + 420, 'LAT 34° S', 1);
 
   // etiquetas brillantes bajo cada luna
-  const aN = ss(T_SEPARA[1] - 0.45, T_SEPARA[1] + 0.05, t) * (1 - ss(7.15, 7.5, t));
-  const aS = ss(T_SEPARA[1] - 0.3, T_SEPARA[1] + 0.2, t) * (1 - ss(7.15, 7.5, t));
+  const aN = ss(T_SEPARA[1] - 0.45, T_SEPARA[1] + 0.05, t) * (1 - ss(T_FIN, T_FIN + 0.35, t));
+  const aS = ss(T_SEPARA[1] - 0.3, T_SEPARA[1] + 0.2, t) * (1 - ss(T_FIN, T_FIN + 0.35, t));
   pastilla(g, 960 - 420, 800, 'hemisferio norte', aN);
   pastilla(g, 960 + 420, 800, 'hemisferio sur', aS);
+}
+
+// Reflejo en el suelo pulido: el cromo ya trazado, volteado bajo la línea de suelo y
+// desvanecido (el reflejo «Web 2.0» de la época), sumado a la luz del suelo.
+const YF = 742, HR = 260;
+const cvRef = document.createElement('canvas'), gRef = cvRef.getContext('2d');
+function reflejo(g) {
+  const ky = cvGL.height / H;
+  const ow = cvFondo.width, oh = Math.max(1, Math.round(HR * cvFondo.height / H));
+  if (cvRef.width !== ow || cvRef.height !== oh) { cvRef.width = ow; cvRef.height = oh; }
+  gRef.setTransform(1, 0, 0, 1, 0, 0);
+  gRef.globalCompositeOperation = 'source-over';
+  gRef.clearRect(0, 0, ow, oh);
+  gRef.setTransform(1, 0, 0, -1, 0, oh);
+  gRef.drawImage(cvGL, 0, (YF - HR) * ky, cvGL.width, HR * ky, 0, 0, ow, oh);
+  gRef.setTransform(1, 0, 0, 1, 0, 0);
+  gRef.globalCompositeOperation = 'destination-in';
+  const gr = gRef.createLinearGradient(0, 0, 0, oh);
+  gr.addColorStop(0, 'rgba(0,0,0,0.5)'); gr.addColorStop(0.3, 'rgba(0,0,0,0.2)'); gr.addColorStop(0.75, 'rgba(0,0,0,0.04)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  gRef.fillStyle = gr; gRef.fillRect(0, 0, ow, oh);
+  g.save(); g.globalCompositeOperation = 'lighter';
+  g.drawImage(cvRef, 0, YF, W, HR);
+  g.restore();
 }
 
 function pastilla(g, cx, cy, texto, a) {
@@ -786,9 +827,9 @@ function dibujarFrente(g, t, E) {
   g.clearRect(0, 0, W, H);
   // subtítulo de la serie
   g.save();
-  g.font = '400 17px "Michroma"'; g.letterSpacing = '5px'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillStyle = 'rgba(214,222,255,0.86)';
-  g.fillText('LO QUE NO TE EXPLICARON EN CLASE  ·  EP. 01', 960, 214);
+  g.font = '400 19px "Michroma"'; g.letterSpacing = '5px'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = 'rgba(220,228,255,0.9)';
+  g.fillText('LO QUE NO TE EXPLICARON EN CLASE  ·  EP. 01', 960, 216);
   g.restore();
 
   g.save();
@@ -801,10 +842,10 @@ function dibujarFrente(g, t, E) {
   // destellos sobre los brillos del cromo en momentos clave
   const [xa, ya] = aPx(E.cA[0], E.cA[1]), [xb, yb] = aPx(E.cB[0], E.cB[1]);
   const rp = E.rG * PX;
-  destello(g, 960 - 82, CY - 70, 46, campana(t, 0.45, 0.4), 0.2);
-  destello(g, 960 - rp * 0.5, CY - rp * 0.58, 58, campana(t, 2.45, 0.42), 0.1);
-  destello(g, xa - rp * 0.5, ya - rp * 0.6, 50, campana(t, 4.45, 0.4), -0.15);
-  destello(g, xb + rp * 0.62, yb - rp * 0.52, 54, campana(t, 5.75, 0.42), 0.15);
+  destello(g, 960 - 82, CY - 70, 46, campana(t, 0.4, 0.4), 0.2);
+  destello(g, 960 + rp * 0.42, CY - rp * 0.6, 58, campana(t, 2.2, 0.42), 0.1);
+  destello(g, xa + rp * 0.5, ya - rp * 0.58, 50, campana(t, 4.15, 0.4), -0.15);
+  destello(g, xb - rp * 0.5, yb - rp * 0.58, 54, campana(t, 5.3, 0.42), 0.15);
   destello(g, 960 + 300, 128 - 34, 30, campana(t, 2.75, 0.3), 0);
   destello(g, 960 - 470, 128 + 26, 24, campana(t, 2.55, 0.3), 0.3);
   destello(g, 960 - 70, CY - 60, 40, campana(t, 9.7, 0.35), -0.1);
@@ -812,7 +853,7 @@ function dibujarFrente(g, t, E) {
 
   // flecha de giro sobre la luna del sur (180°, sentido antihorario)
   const pg = eiob(prog(t, T_GIRO), 0.7);
-  const aG = ss(T_GIRO[0] - 0.2, T_GIRO[0] + 0.1, t) * (1 - ss(6.2, 6.6, t));
+  const aG = ss(T_GIRO[0] - 0.2, T_GIRO[0] + 0.1, t) * (1 - ss(T_FIN - 0.5, T_FIN - 0.1, t));
   if (aG > 0.01) {
     const cx = 960 + 420, R = 262, a0 = -0.42, a1 = -Math.PI + 0.42;
     const fin = a0 + (a1 - a0) * cl(pg, 0.002, 1.1);
@@ -835,17 +876,17 @@ function dibujarFrente(g, t, E) {
     g.restore();
   }
   // «misma Luna» entre las dos
-  const aM = ss(5.55, 5.95, t) * (1 - ss(7.0, 7.35, t));
+  const aM = ss(5.15, 5.55, t) * (1 - ss(T_FIN - 0.2, T_FIN + 0.15, t));
   if (aM > 0.01) {
     g.save(); g.globalAlpha = aM; g.translate(960, CY);
-    g.font = '400 17px "Michroma"'; g.letterSpacing = '4px'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '400 21px "Michroma"'; g.letterSpacing = '4px'; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.fillStyle = 'rgba(230,236,255,0.95)';
     g.fillText('MISMA LUNA', 0, 0);
     g.strokeStyle = 'rgba(170,235,255,0.8)'; g.lineWidth = 1.5;
-    const L = 60 + 30 * eoc(cl((t - 5.55) / 0.6));
+    const L = 45 + 30 * eoc(cl((t - 5.15) / 0.6));
     for (const s of [-1, 1]) {
-      g.beginPath(); g.moveTo(s * 112, 0); g.lineTo(s * (112 + L), 0); g.stroke();
-      g.beginPath(); g.moveTo(s * (112 + L), 0); g.lineTo(s * (112 + L - 9), -6); g.moveTo(s * (112 + L), 0); g.lineTo(s * (112 + L - 9), 6); g.stroke();
+      g.beginPath(); g.moveTo(s * 138, 0); g.lineTo(s * (138 + L), 0); g.stroke();
+      g.beginPath(); g.moveTo(s * (138 + L), 0); g.lineTo(s * (138 + L - 9), -6); g.moveTo(s * (138 + L), 0); g.lineTo(s * (138 + L - 9), 6); g.stroke();
     }
     g.restore();
   }
@@ -857,7 +898,6 @@ function dibujarFrente(g, t, E) {
 function dibujar(t) {
   if (t < 0 || t > DUR) t = ((t % DUR) + DUR) % DUR;
   const E = estado(t);
-  dibujarFondo(gF, t, E);
   subirEstado(E, t);
   // rótulos cromados
   const tit = rotulos.titulo.material.uniforms;
@@ -869,18 +909,19 @@ function dibujar(t) {
     const a = prog(t, [t0, t0 + 0.45]) * (1 - ss(t1, t1 + 0.35, t));
     return a;
   };
-  const pD = pop(T_SEPARA[1] - 0.25, 7.1), pC = pop(T_GIRO[1] - 0.1, 7.1);
+  const pD = pop(T_SEPARA[1] - 0.25, T_FIN), pC = pop(T_GIRO[1] - 0.1, T_FIN);
   for (const [id, p, x, dir] of [['D', pD, 960 - 735, -1], ['C', pC, 960 + 735, 1]]) {
     const u = rotulos[id].material.uniforms;
     u.uRect.value.set(x, CY + 4, atlas.uv[id].w, atlas.uv[id].h);
-    u.uEsc.value = p > 0 ? mix(0.55, 1, eob(cl(p), 2.2)) * (1 - 0.25 * ss(7.1, 7.45, t)) : 0;
+    u.uEsc.value = p > 0 ? mix(0.55, 1, eob(cl(p), 2.2)) * (1 - 0.25 * ss(T_FIN, T_FIN + 0.35, t)) : 0;
     u.uOpac.value = ss(0, 0.5, p);
     u.uGiro.value = dir * 0.25 * (1 - eoc(cl(p)));
-    u.uBarrido.value = mix(-0.4, 1.4, prog(t, [x < 960 ? 4.5 : 5.7, x < 960 ? 5.3 : 6.5]));
+    u.uBarrido.value = mix(-0.4, 1.4, prog(t, [x < 960 ? 4.15 : 5.25, x < 960 ? 4.95 : 6.05]));
     u.uFilm.value = 0.1 * Math.sin(TAU * t / DUR + 2);
     rotulos[id].visible = p > 0.001;
   }
   renderer.render(mundo, camara);
+  dibujarFondo(gF, t, E);   // después del render: el suelo refleja el cromo
   dibujarFrente(gT, t, E);
 }
 
@@ -900,7 +941,7 @@ function ajustar() {
   }
   pintarFijo();
   // el trazador de rayos va a resolución reducida en pantallas táctiles
-  const maxAncho = CAPTURA ? W : grueso ? 1000 : 1920;
+  const maxAncho = CAPTURA ? W : grueso ? 880 : 1920;
   const prGL = Math.min(pr, maxAncho / cw);
   renderer.setPixelRatio(prGL);
   renderer.setSize(cw, ch, false);

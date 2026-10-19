@@ -6,9 +6,9 @@
 <title>La Luna al revés · tarjetas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@700&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=block">
 <style>
-  html, body { margin: 0; height: 100%; background: #f3eee3; overflow: hidden; }
+  html, body { margin: 0; height: 100%; background: #f4efe4; overflow: hidden; }
   canvas { position: fixed; display: block; }
 </style>
 </head>
@@ -18,14 +18,15 @@
 (() => {
 'use strict';
 // ---------------------------------------------------------------------------
-// Interfaz de tarjetas: tintas planas saturadas, bordes negros gruesos, sombras
-// duras desplazadas, retícula de puntos, tipografía grotesca pesada.
+// Interfaz de tarjetas: tintas planas saturadas, contornos negros gruesos, sombras
+// duras desplazadas, retícula de puntos, tipografía grotesca pesada, pegatinas.
 // Todo es Canvas 2D vectorial en un marco de 1920x1080.
-// Guion (9 s): el átomo se pliega en su núcleo → el núcleo crece y es la Luna →
-// la Luna se desdobla y aterriza en dos tarjetas (norte y sur), las dos con
-// forma de D en la vista global → la tarjeta sur (el observador está cabeza
-// abajo) gira 180° con rebote y su Luna es una C → las lunas vuelven al centro,
-// se funden y el átomo se abre otra vez.
+// Guion (9 s): un cursor pulsa «¿VERDAD O MENTIRA?» → el átomo se pliega en su
+// núcleo → el núcleo crece y es la Luna → la Luna se desdobla y aterriza en dos
+// ventanas (norte y sur), las dos con forma de D en la vista global → el cursor
+// pulsa «180°» y la ventana sur (el observador está cabeza abajo) gira con rebote:
+// su Luna es una C → pegatina «¡VERDAD!» → las lunas vuelven al centro, se funden
+// y el átomo se abre otra vez.
 // ---------------------------------------------------------------------------
 const DUR = 9, W = 1920, H = 1080, PI = Math.PI, TAU = PI * 2;
 const CAPTURA = /captura/.test(location.search);
@@ -34,9 +35,9 @@ const ctx = cv.getContext('2d');
 let S = 1;
 
 const C = {
-  bg: '#f3eee3', ink: '#111111', white: '#ffffff', cream: '#fff8e8',
-  yel: '#ffd23f', pink: '#ff6fa8', lime: '#b9f23f', blue: '#3e4cf5', sky: '#3442e8',
-  night: '#1b1f63', dot: 'rgba(17,17,17,0.16)',
+  bg: '#f4efe4', ink: '#111111', white: '#ffffff', cream: '#fff6dc',
+  yel: '#ffd23f', crater: '#f2b51d', pink: '#ff6fa8', lime: '#b9f23f',
+  sky: '#3a45ea', night: '#1c2066', dot: 'rgba(17,17,17,0.15)',
 };
 const FT = "'Archivo Black', 'Arial Black', sans-serif";
 const FG = "'Space Grotesk', 'Helvetica Neue', Arial, sans-serif";
@@ -44,17 +45,20 @@ const FM = "'Space Mono', 'Courier New', monospace";
 const LW = 6;          // grosor de contorno
 const SH = 14;         // sombra dura de las tarjetas
 
-// --- escenario -----------------------------------------------------------------
-const CY = 550;                 // eje de las tarjetas
-const HS = 255;                 // media tarjeta
-const BAR = 58;                 // barra de ventana
+// --- retícula -----------------------------------------------------------------
+// Dos columnas de tarjetas simétricas respecto al centro; cabecera alineada a sus bordes.
+const CY = 566;                 // eje de las tarjetas
+const HS = 268;                 // media tarjeta
+const BAR = 60;                 // barra de ventana
 const MID = { x: 960, y: CY };
-const NUC = 58, MOONC = 108, MOONK = 72;   // radios: núcleo, Luna central, Luna en tarjeta
+const GL = 960 - 498 - HS;      // borde izquierdo de la retícula (194)
+const GR = 960 + 498 + HS;      // borde derecho (1726)
+const NUC = 58, MOONC = 112, MOONK = 76;   // radios: núcleo, Luna central, Luna en tarjeta
 const KTERM = 0.3;              // terminador (creciente)
-const EARTH = { y: 740, r: 620 };
+const EARTH = { y: 770, r: 640 };
 const CARDS = [
-  { id: 'N', cx: 470, px: -125, mx: 95, my: -88, mrot: 0, deck: 'lime', deckRot: -0.075, lab: 'HEMISFERIO NORTE', tag: '40°N', seed: 7 },
-  { id: 'S', cx: 1450, px: 125, mx: -95, my: -88, mrot: PI, deck: 'pink', deckRot: 0.075, lab: 'HEMISFERIO SUR', tag: '34°S', seed: 31 },
+  { id: 'N', cx: 960 - 498, px: -130, mx: 100, my: -92, mrot: 0, deck: 'lime', deckRot: -0.07, lab: 'HEMISFERIO NORTE', tag: '40°N', url: 'cielo/norte', seed: 7 },
+  { id: 'S', cx: 960 + 498, px: 130, mx: -100, my: -92, mrot: PI, deck: 'pink', deckRot: 0.07, lab: 'HEMISFERIO SUR', tag: '34°S', url: 'cielo/sur', seed: 31 },
 ];
 // átomo: 3 órbitas inclinadas
 const ORB = [
@@ -63,13 +67,19 @@ const ORB = [
   { tilt: -PI / 3, col: 'yel', n: 5, ph: 4.1 },
 ];
 const ORX = 205, ORY = 64;
+// cráteres (coordenadas relativas al radio, marco de la Luna)
+const CRAT = [
+  [-0.28, -0.16, 0.27], [0.44, 0.3, 0.17], [0.56, -0.44, 0.1], [-0.04, 0.6, 0.09],
+];
 
 // --- tiempos y curvas -------------------------------------------------------------
 const cl = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const seg = (t, a, b) => cl((t - a) / (b - a));
 const lerp = (a, b, x) => a + (b - a) * x;
 const ioC = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const ioQ = (x) => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2);
 const oC = (x) => 1 - Math.pow(1 - x, 3);
+const oQ = (x) => 1 - Math.pow(1 - x, 4);
 const iC = (x) => x * x * x;
 const oB = (x, s = 1.70158) => { const c = s + 1, u = x - 1; return 1 + c * u * u * u + s * u * u; };
 const iB = (x, s = 1.70158) => (s + 1) * x * x * x - s * x * x;
@@ -80,9 +90,9 @@ const pulse = (t, a, up, down) => (t < a || t > a + up + down ? 0 : t < a + up ?
 const T = {
   press: 0.45,
   collapse: [1.0, 1.5], grow: [1.3, 1.8], shade: [1.75, 2.15],
-  out: [2.2, 2.85], dStick: 3.05, badgeIn: 3.3,
-  flipA: [3.6, 3.8], flip: [3.8, 4.45], cStick: 4.55,
-  stickOff: 6.85, badgeOut: 6.95,
+  out: [2.2, 2.85], dStick: 3.0, badgeIn: 3.1, badgeClick: 3.52,
+  flipA: [3.6, 3.8], flip: [3.8, 4.45], cStick: 4.55, verdad: 5.1,
+  verdadOff: 6.75, stickOff: 6.85, badgeOut: 6.95,
   back: [7.15, 7.8], resetA: [7.6, 7.75], reset: [7.75, 8.35],
   shrink: [7.85, 8.35], reform: [7.95, 8.55],
 };
@@ -99,12 +109,12 @@ function mulberry32(s) {
 for (const cd of CARDS) {
   const rnd = mulberry32(cd.seed), st = [];
   let guard = 0;
-  while (st.length < 9 && guard++ < 500) {
-    const x = -225 + rnd() * 450, y = -HS + BAR + 26 + rnd() * 250;
-    if (Math.hypot(x - cd.mx, y - cd.my) < MOONK + 34) continue;
-    if (Math.hypot(x - cd.px, y - 20) < 70) continue;
-    if (st.some((s) => Math.hypot(s.x - x, s.y - y) < 62)) continue;
-    st.push({ x, y, s: 7 + rnd() * 7, k: Math.floor(rnd() * 2) });
+  while (st.length < 10 && guard++ < 800) {
+    const x = -HS + 34 + rnd() * (2 * HS - 68), y = -HS + BAR + 30 + rnd() * 270;
+    if (Math.hypot(x - cd.mx, y - cd.my) < MOONK + 36) continue;
+    if (Math.hypot(x - cd.px, y - 20) < 80) continue;
+    if (st.some((s) => Math.hypot(s.x - x, s.y - y) < 66)) continue;
+    st.push({ x, y, s: 7 + rnd() * 8, k: Math.floor(rnd() * 2) });
   }
   cd.stars = st;
 }
@@ -130,37 +140,63 @@ function box(x, y, w, h, r, fill, sh, lw = LW) {
   if (sh > 0) { rrPath(x + sh, y + sh, w, h, r); ctx.fillStyle = C.ink; ctx.fill(); }
   rrPath(x, y, w, h, r); fillStroke(fill, lw);
 }
-function font(f, px, track = 0) {
-  ctx.font = `${f === FT ? 400 : 700} ${px}px ${f}`;
+function font(f, px, track = 0, weight) {
+  ctx.font = `${weight || (f === FT ? 400 : 700)} ${px}px ${f}`;
   if ('letterSpacing' in ctx) ctx.letterSpacing = track ? `${track}px` : '0px';
 }
+function noTrack() { if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; }
 function textW(s) { return ctx.measureText(s).width; }
 // destello de 4 puntas
 function sparkle(x, y, s, col) {
   ctx.beginPath();
   for (let i = 0; i < 8; i++) {
-    const a = (i * PI) / 4, rr = i % 2 ? s * 0.3 : s;
+    const a = (i * PI) / 4, rr = i % 2 ? s * 0.28 : s;
     ctx.lineTo(x + Math.sin(a) * rr, y - Math.cos(a) * rr);
   }
   ctx.closePath(); ctx.fillStyle = col; ctx.fill();
 }
+// líneas de impacto alrededor de (x, y), k en [0, 1]
+function burst(x, y, k, r0, len, a0, a1, n, lw = 7) {
+  if (k <= 0 || k >= 1) return;
+  ctx.save();
+  ctx.strokeStyle = C.ink; ctx.lineWidth = lw; ctx.lineCap = 'round';
+  const r = r0 + 0.6 * r0 * oC(k), l = len * (1 - k);
+  for (let i = 0; i < n; i++) {
+    const a = lerp(a0, a1, n === 1 ? 0.5 : i / (n - 1));
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+    ctx.lineTo(x + Math.cos(a) * (r + l), y + Math.sin(a) * (r + l));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
 
 // Luna: disco de noche + parte iluminada (terminador elíptico). k = -1 llena, 0 cuarto, k>0 creciente.
-// rot = 0: iluminada a la derecha (D).
-function moon(x, y, r, k, rot, sh) {
+// rot = 0: iluminada a la derecha (D). cr: escala de los cráteres (0 = núcleo liso).
+function moon(x, y, r, k, rot, sh, cr = 1) {
   if (r < 0.5) return;
   ctx.save();
   ctx.translate(x, y);
   if (sh > 0.2) { circ(sh, sh, r); ctx.fillStyle = C.ink; ctx.fill(); }
   ctx.rotate(rot);
   circ(0, 0, r); ctx.fillStyle = C.night; ctx.fill();
-  ctx.beginPath();
-  ctx.arc(0, 0, r, -PI / 2, PI / 2, false);
-  if (k >= 0) ctx.ellipse(0, 0, Math.max(k * r, 0.01), r, 0, PI / 2, -PI / 2, true);
-  else ctx.ellipse(0, 0, Math.max(-k * r, 0.01), r, 0, PI / 2, PI * 1.5, false);
-  ctx.closePath();
-  ctx.fillStyle = C.yel; ctx.fill();
-  if (k > -0.995) { ctx.lineWidth = LW * 0.75; ctx.strokeStyle = C.ink; ctx.lineJoin = 'round'; ctx.stroke(); }
+  const lit = () => {
+    ctx.beginPath();
+    ctx.arc(0, 0, r, -PI / 2, PI / 2, false);
+    if (k >= 0) ctx.ellipse(0, 0, Math.max(k * r, 0.01), r, 0, PI / 2, -PI / 2, true);
+    else ctx.ellipse(0, 0, Math.max(-k * r, 0.01), r, 0, PI / 2, PI * 1.5, false);
+    ctx.closePath();
+  };
+  lit(); ctx.fillStyle = C.yel; ctx.fill();
+  if (cr > 0.01) {
+    ctx.save(); ctx.clip();
+    for (const [cx, cy, cs] of CRAT) {
+      circ(cx * r, cy * r, cs * r * cr);
+      ctx.fillStyle = C.crater; ctx.fill();
+    }
+    ctx.restore();
+  }
+  if (k > -0.995) { lit(); ctx.lineWidth = LW * 0.75; ctx.strokeStyle = C.ink; ctx.lineJoin = 'round'; ctx.stroke(); }
   circ(0, 0, r); ctx.lineWidth = LW; ctx.strokeStyle = C.ink; ctx.stroke();
   ctx.restore();
 }
@@ -172,26 +208,26 @@ function person(cd, raise) {
   ctx.save();
   ctx.translate(gx, gy); ctx.rotate(phi);
   // brazo: de colgando a señalar la Luna
-  const shx = cd.px > 0 ? -12 : 12, shy = -50;
+  const shx = cd.px > 0 ? -10 : 10, shy = -52;
   const wx = cd.mx - gx, wy = cd.my - gy;   // hacia la Luna (en marco de tarjeta)
   const c = Math.cos(-phi), s = Math.sin(-phi);
   const lx = wx * c - wy * s - shx, ly = wx * s + wy * c - shy;
   const aim = Math.atan2(ly, lx);
-  const down = PI / 2 + (cd.px > 0 ? -0.18 : 0.18);
+  const down = PI / 2 + (cd.px > 0 ? -0.22 : 0.22);
   const a = lerp(down, aim, raise);
   ctx.save(); ctx.translate(shx, shy); ctx.rotate(a);
-  rrPath(-9, -9, 62, 18, 9); fillStroke(C.white, 5);
+  rrPath(-10, -10, 66, 20, 10); fillStroke(C.white, 5);
   ctx.restore();
   // cuerpo
   ctx.beginPath();
-  ctx.moveTo(-22, 0); ctx.lineTo(-22, -46);
-  ctx.arcTo(-22, -68, 0, -68, 22); ctx.arcTo(22, -68, 22, -46, 22);
-  ctx.lineTo(22, 0); ctx.closePath();
+  ctx.moveTo(-23, 30); ctx.lineTo(-23, -48);
+  ctx.arcTo(-23, -72, 0, -72, 23); ctx.arcTo(23, -72, 23, -48, 23);
+  ctx.lineTo(23, 30); ctx.closePath();
   fillStroke(C.white, 5);
   // cabeza
-  circ(0, -94, 19); fillStroke(C.white, 5);
+  circ(0, -100, 20); fillStroke(C.white, 5);
   ctx.restore();
-  return { hx: gx + Math.sin(phi) * 94, hy: gy - Math.cos(phi) * 94 };
+  return { hx: gx + Math.sin(phi) * 100, hy: gy - Math.cos(phi) * 100 };
 }
 
 // --- estado por tiempo -----------------------------------------------------------
@@ -239,57 +275,104 @@ function buildBg() {
 }
 
 // --- cabecera ------------------------------------------------------------------
+const BTN = { x: 0, y: 0, w: 0, h: 82 };
 function header(t) {
   // etiqueta de episodio + serie
   font(FM, 22, 1);
   const ep = 'EP. 01', epw = textW(ep) + 30;
-  box(100, 66, epw, 44, 8, C.ink, 0, 0);
+  box(GL, 66, epw, 44, 8, C.ink, 0, 0);
   ctx.fillStyle = C.yel; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  ctx.fillText(ep, 115, 89);
+  ctx.fillText(ep, GL + 15, 89);
   font(FG, 25, 4);
-  ctx.fillStyle = C.ink; ctx.fillText('LO QUE NO TE EXPLICARON EN CLASE', 100 + epw + 20, 89);
+  ctx.fillStyle = C.ink; ctx.fillText('LO QUE NO TE EXPLICARON EN CLASE', GL + epw + 20, 89);
 
   // título
   font(FT, 96, -1);
   ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
   ctx.fillStyle = C.ink;
-  ctx.fillText('LA LUNA', 100, 226);
-  const x0 = 100 + textW('LA LUNA') + 34;
+  ctx.fillText('LA LUNA', GL - 4, 226);
+  const x0 = GL + textW('LA LUNA') + 30;
   const word = 'AL REVÉS', ww = textW(word);
-  const wob = pulse(t, T.flip[0] + 0.05, 0.14, 0.5);
+  const wob = pulse(t, T.flip[0] + 0.05, 0.14, 0.5) - 0.6 * pulse(t, T.reset[0] + 0.05, 0.14, 0.5);
   ctx.save();
-  ctx.translate(x0 + ww / 2 + 22, 190);
-  ctx.rotate(-0.035 + 0.07 * wob);
+  ctx.translate(x0 + ww / 2 + 24, 190);
+  ctx.rotate(-0.035 + 0.075 * wob);
   box(-ww / 2 - 24, -66, ww + 48, 118, 10, C.pink, 10);
   ctx.fillStyle = C.ink; ctx.textAlign = 'center';
   ctx.fillText(word, 0, 36);
   ctx.restore();
 
-  // botón
+  // botón (lo pulsa el cursor); más tarde cambia de estado a la respuesta
   font(FG, 32, 0.5);
-  const q = '¿VERDAD O MENTIRA?', qw = textW(q) + 64, bh = 78;
-  const p = pulse(t, T.press, 0.08, 0.35);
-  const bx = 1820 - qw - 8, by = 92;
-  box(bx + 7 * p, by + 7 * p, qw, bh, 39, C.lime, 8 * (1 - p));
+  const q = '¿VERDAD O MENTIRA?';
+  BTN.w = textW(q) + 70; BTN.x = GR - BTN.w - 8; BTN.y = 190 - BTN.h / 2 - 4;
+  const p = pulse(t, T.press, 0.07, 0.35) + pulse(t, T.verdad, 0.06, 0.3) * 0.7;
+  const bx = BTN.x + 8 * p, by = BTN.y + 8 * p, bw = BTN.w, bh = BTN.h;
+  // e: 0 pregunta, 1 respuesta (entra con rebote, sale seca)
+  const e = t < T.verdadOff ? oB(seg(t, T.verdad, T.verdad + 0.36), 1.8) : 1 - ioC(seg(t, T.verdadOff, T.verdadOff + 0.3));
+  if (8 * (1 - p) > 0) { rrPath(bx + 8 * (1 - p), by + 8 * (1 - p), bw, bh, bh / 2); ctx.fillStyle = C.ink; ctx.fill(); }
+  rrPath(bx, by, bw, bh, bh / 2);
+  ctx.save(); ctx.clip();
+  ctx.fillStyle = C.lime; ctx.fillRect(bx, by, bw, bh);
+  if (e > 0) { ctx.fillStyle = C.pink; ctx.fillRect(bx, by + bh * (1 - e), bw, bh * Math.max(e, 1) + 4); }
   ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(q, bx + 7 * p + qw / 2, by + 7 * p + bh / 2 + 2);
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  const cx = bx + bw / 2, cy = by + bh / 2 + 2;
+  if (e < 1) ctx.fillText(q, cx, cy - bh * e);
+  if (e > 0) {
+    const ay = cy + bh * (1 - e);
+    font(FT, 40, 0.5);
+    const a = '¡VERDAD!', aw = textW(a), ck = 40, x0 = cx - (aw + ck + 18) / 2;
+    ctx.textAlign = 'left';
+    ctx.fillText(a, x0 + ck + 18, ay + 1);
+    ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = C.ink;
+    ctx.beginPath(); ctx.moveTo(x0 + 2, ay); ctx.lineTo(x0 + 15, ay + 13); ctx.lineTo(x0 + ck, ay - 15); ctx.stroke();
+  }
+  ctx.restore();
+  rrPath(bx, by, bw, bh, bh / 2); ctx.lineWidth = LW; ctx.strokeStyle = C.ink; ctx.stroke();
+  noTrack();
+  const k = seg(t, T.verdad + 0.08, T.verdad + 0.4);
+  burst(bx + bw + 6, by + bh / 2, k, 14, 30, -0.55, 0.55, 3);
+  burst(bx - 6, by + bh / 2, k, 14, 30, PI - 0.55, PI + 0.55, 3);
+
+  steps(t);
+}
+
+// indicador de pasos (átomo → Luna, norte/sur, giro): se rellena a golpes y se vacía al cerrar el bucle
+function steps(t) {
+  const n = 3, w = 74, h = 24, g = 12, y = 89 - h / 2, x0 = GR - n * w - (n - 1) * g;
+  const at = [[1.55, 1.85], [2.62, 2.92], [4.2, 4.5]];
+  font(FM, 20, 1, 700);
+  ctx.fillStyle = C.ink; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  let done = 0;
+  const f = at.map(([a, b], i) => {
+    const off = 1 - ioC(seg(t, 8.0 + (n - 1 - i) * 0.07, 8.22 + (n - 1 - i) * 0.07));
+    const v = oQ(seg(t, a, b)) * off;
+    if (v > 0.5) done++;
+    return v;
+  });
+  ctx.fillText(`PASO ${done}/${n}`, x0 - 22, 90);
+  noTrack();
+  f.forEach((v, i) => {
+    const x = x0 + i * (w + g);
+    rrPath(x + 4, y + 4, w, h, 7); ctx.fillStyle = C.ink; ctx.fill();
+    rrPath(x, y, w, h, 7);
+    ctx.save(); ctx.clip();
+    ctx.fillStyle = C.white; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = [C.yel, C.lime, C.pink][i]; ctx.fillRect(x, y, w * v, h);
+    ctx.restore();
+    rrPath(x, y, w, h, 7); ctx.lineWidth = 4; ctx.strokeStyle = C.ink; ctx.stroke();
+  });
 }
 
 // --- tarjetas --------------------------------------------------------------------
 function deck(cd) {
   ctx.save();
-  ctx.translate(cd.cx, CY); ctx.rotate(cd.deckRot);
-  box(-HS, -HS, 2 * HS, 2 * HS, 16, C[cd.deck], 0);
-  ctx.restore();
-  ctx.save();
-  ctx.translate(cd.cx + SH, CY + SH); ctx.rotate(cd.deckRot);
-  ctx.restore();
-}
-function deckShadow(cd) {
-  ctx.save();
   ctx.translate(cd.cx + SH, CY + SH); ctx.rotate(cd.deckRot);
   rrPath(-HS, -HS, 2 * HS, 2 * HS, 16); ctx.fillStyle = C.ink; ctx.fill();
+  ctx.restore();
+  ctx.save();
+  ctx.translate(cd.cx, CY); ctx.rotate(cd.deckRot);
+  box(-HS, -HS, 2 * HS, 2 * HS, 16, C[cd.deck], 0);
   ctx.restore();
 }
 
@@ -314,15 +397,14 @@ function card(cd, t, R, lift, press, moonIn, raise, sight) {
   });
   // Luna
   if (moonIn) moon(cd.mx, cd.my, MOONK, KTERM, cd.mrot, 0);
-  // Tierra
-  circ(0, EARTH.y, EARTH.r); fillStroke(C.lime);
-  // observador
+  // observador (detrás del horizonte) y Tierra
   const head = person(cd, raise);
+  circ(0, EARTH.y, EARTH.r); fillStroke(C.lime);
   // línea de mirada
   if (sight > 0) {
     const ax = head.hx, ay = head.hy, bx = cd.mx, by = cd.my;
     const L = Math.hypot(bx - ax, by - ay), ux = (bx - ax) / L, uy = (by - ay) / L;
-    const a0 = 34, a1 = L - MOONK - 14;
+    const a0 = 36, a1 = L - MOONK - 16;
     const e = a0 + (a1 - a0) * sight;
     ctx.save();
     ctx.setLineDash([14, 10]); ctx.lineDashOffset = -t * 48;
@@ -334,8 +416,13 @@ function card(cd, t, R, lift, press, moonIn, raise, sight) {
   ctx.fillStyle = C.white; ctx.fillRect(-HS, -HS, 2 * HS, BAR);
   ctx.fillStyle = C.ink; ctx.fillRect(-HS, -HS + BAR - LW / 2, 2 * HS, LW);
   const bcol = [C.pink, C.yel, C.lime];
-  for (let i = 0; i < 3; i++) { rrPath(-HS + 24 + i * 30, -HS + 19, 18, 18, 3); fillStroke(bcol[i], 4); }
-  rrPath(-HS + 132, -HS + 16, 2 * HS - 132 - 24, 24, 12); fillStroke(C.bg, 4);
+  for (let i = 0; i < 3; i++) { rrPath(-HS + 24 + i * 30, -HS + 20, 18, 18, 3); fillStroke(bcol[i], 4); }
+  const ux0 = -HS + 132, uw = 2 * HS - 132 - 24;
+  rrPath(ux0, -HS + 16, uw, 26, 13); fillStroke(C.bg, 4);
+  font(FM, 17, 0.5, 700);
+  ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(cd.url, ux0 + 16, -HS + 30);
+  noTrack();
   ctx.restore();
   rrPath(-HS, -HS, 2 * HS, 2 * HS, 16);
   ctx.lineWidth = LW; ctx.strokeStyle = C.ink; ctx.stroke();
@@ -347,7 +434,7 @@ function label(cd) {
   const tw = textW(cd.lab);
   font(FM, 22, 0);
   const gw = textW(cd.tag) + 30;
-  const w = gw + tw + 48, h = 58, x = cd.cx - w / 2, y = CY + HS - h / 2 + 2;
+  const w = gw + tw + 48, h = 58, x = cd.cx - w / 2, y = CY + HS - 12;
   box(x, y, w, h, 10, C.white, 8);
   ctx.save(); rrPath(x, y, w, h, 10); ctx.clip();
   ctx.fillStyle = C.ink; ctx.fillRect(x, y, gw, h);
@@ -357,44 +444,37 @@ function label(cd) {
   ctx.fillStyle = C.yel; ctx.fillText(cd.tag, x + 15, y + h / 2 + 1);
   font(FG, 28, 3);
   ctx.fillStyle = C.ink; ctx.fillText(cd.lab, x + gw + 22, y + h / 2 + 2);
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  noTrack();
 }
 
-// pegatina con letra (D / C)
-function sticker(x, y, rot, letter, t, tin, tout) {
-  if (t < tin || t > tout + 0.24) return;
-  let s = 1, sh = 10, r = rot;
+// pegatina: aterriza grande y gira hasta asentarse; sale encogiéndose
+function slap(t, tin, tout) {
+  if (t < tin || t > tout + 0.24) return null;
+  let s = 1, sh = 10, dr = 0;
   if (t < tin + 0.34) {
     const e = seg(t, tin, tin + 0.34);
-    s = lerp(1.55, 1, oB(e, 2.4)); sh = lerp(30, 10, oC(e)); r = rot + 0.22 * (1 - oC(e));
+    s = lerp(1.55, 1, oB(e, 2.4)); sh = lerp(30, 10, oC(e)); dr = 0.22 * (1 - oC(e));
   }
-  if (t > tout) { s = 1 - iB(seg(t, tout, tout + 0.24), 2.2); }
-  if (s <= 0.01) return;
+  if (t > tout) s = 1 - iB(seg(t, tout, tout + 0.24), 2.2);
+  return s <= 0.01 ? null : { s, sh, dr };
+}
+function sticker(x, y, rot, letter, t, tin, tout) {
+  const st = slap(t, tin, tout);
+  if (!st) return;
   ctx.save();
-  ctx.translate(x, y); ctx.rotate(r); ctx.scale(s, s);
-  box(-78, -78, 156, 156, 18, C.yel, sh);
-  font(FT, 132, 0);
+  ctx.translate(x, y); ctx.rotate(rot + st.dr * Math.sign(rot)); ctx.scale(st.s, st.s);
+  box(-80, -80, 160, 160, 18, C.yel, st.sh);
+  font(FT, 136, 0);
   ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   const m = ctx.measureText(letter);
-  const asc = m.actualBoundingBoxAscent || 96, desc = m.actualBoundingBoxDescent || 0;
+  const asc = m.actualBoundingBoxAscent || 98, desc = m.actualBoundingBoxDescent || 0;
   ctx.fillText(letter, 2, (asc - desc) / 2);
   ctx.restore();
-  // líneas de impacto
-  const k = seg(t, tin + 0.1, tin + 0.36);
-  if (k > 0 && k < 1) {
-    ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
-    ctx.strokeStyle = C.ink; ctx.lineWidth = 7; ctx.lineCap = 'round';
-    const dir = x < MID.x ? -1 : 1;
-    for (let i = -1; i <= 1; i++) {
-      const a = (dir < 0 ? PI : 0) + i * 0.42 - PI / 4 * dir;
-      const r0 = 108 + 40 * oC(k), r1 = r0 + 34 * (1 - k);
-      ctx.beginPath(); ctx.moveTo(Math.cos(a) * r0, Math.sin(a) * r0); ctx.lineTo(Math.cos(a) * r1, Math.sin(a) * r1); ctx.stroke();
-    }
-    ctx.restore();
-  }
+  const dir = x < MID.x ? -1 : 1;
+  const base = dir < 0 ? PI * 1.25 : -PI * 0.25;
+  burst(x, y, seg(t, tin + 0.1, tin + 0.38), 112, 36, base - 0.45, base + 0.45, 3);
 }
-
-// insignia central: 180° con anillo de texto giratorio
+// insignia central: 180° con anillo de texto giratorio (también es un botón)
 const RING = 'MISMA LUNA|CABEZA ABAJO|MISMA LUNA|CABEZA ABAJO|';
 function badge(t, R) {
   let s = 0;
@@ -403,15 +483,17 @@ function badge(t, R) {
     if (t > T.badgeOut) s = 1 - iB(seg(t, T.badgeOut, T.badgeOut + 0.26), 2.0);
   }
   if (s <= 0.01) return;
+  const p = pulse(t, T.badgeClick, 0.07, 0.32);
   ctx.save();
   ctx.translate(MID.x, CY); ctx.scale(s, s);
-  // sombra + anillo
-  circ(10, 10, 150); ctx.fillStyle = C.ink; ctx.fill();
+  // sombra fija; el disco baja hacia ella al pulsarlo
+  circ(11, 11, 150); ctx.fillStyle = C.ink; ctx.fill();
+  ctx.translate(10 * p, 10 * p);
   circ(0, 0, 150); fillStroke(C.white);
   // texto en anillo
   ctx.save();
   ctx.rotate(-TAU * t / DUR);
-  font(FM, 19, 0);
+  font(FM, 19, 0, 700);
   ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const chars = [...RING], ws = chars.map((ch) => (ch === '|' ? 30 : textW(ch)));
   const rr = 124, tot = ws.reduce((a, b) => a + b, 0), gap = (TAU * rr - tot) / chars.length;
@@ -425,29 +507,35 @@ function badge(t, R) {
   });
   ctx.restore();
   // disco interior
-  circ(0, 0, 98); fillStroke(C.yel);
-  // flecha curva que gira con la tarjeta sur
+  circ(0, 0, 100); fillStroke(C.yel);
+  // flecha circular (↻) que gira con la tarjeta sur
   ctx.save();
   ctx.rotate(R - PI);
-  ctx.strokeStyle = C.ink; ctx.lineWidth = 7; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.arc(0, 0, 72, -PI * 0.92, -PI * 0.12); ctx.stroke();
-  const ea = -PI * 0.12, ex = Math.cos(ea) * 72, ey = Math.sin(ea) * 72;
-  ctx.translate(ex, ey); ctx.rotate(ea + PI / 2);
-  ctx.beginPath(); ctx.moveTo(-14, -10); ctx.lineTo(4, 6); ctx.lineTo(16, -16); ctx.stroke();
+  const ar = 79, a0 = -PI * 0.36, a1 = PI * 1.3;
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 7; ctx.lineCap = 'butt';
+  ctx.beginPath(); ctx.arc(0, 0, ar, a0, a1); ctx.stroke();
+  ctx.save();
+  ctx.rotate(a1); ctx.translate(ar, 0);
+  ctx.beginPath(); ctx.moveTo(-15, -3); ctx.lineTo(15, -3); ctx.lineTo(0, 20); ctx.closePath();
+  ctx.fillStyle = C.ink; ctx.fill();
   ctx.restore();
-  font(FT, 50, -1);
+  ctx.restore();
+  font(FT, 46, -1);
   ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-  ctx.fillText('180°', 4, 38);
+  ctx.fillText('180°', 5, 17);
   ctx.restore();
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  noTrack();
 }
 
 // átomo (y su núcleo, que es la Luna)
 function atom(t) {
   const os = orbitScale(t);
-  let nr = NUC;
-  if (t >= T.grow[0] && t < T.out[0]) nr = lerp(NUC, MOONC, oB(seg(t, ...T.grow), 2.0));
-  if (t >= T.back[1]) nr = t < T.shrink[0] ? MOONC : lerp(MOONC, NUC, oB(seg(t, ...T.shrink), 1.6));
+  let nr = NUC, cr = 0;
+  if (t >= T.grow[0] && t < T.out[0]) { nr = lerp(NUC, MOONC, oB(seg(t, ...T.grow), 2.0)); cr = oB(seg(t, T.grow[0] + 0.2, T.grow[1] + 0.1), 2.2); }
+  if (t >= T.back[1]) {
+    nr = t < T.shrink[0] ? MOONC : lerp(MOONC, NUC, oB(seg(t, ...T.shrink), 1.6));
+    cr = 1 - ioC(seg(t, T.shrink[0], T.shrink[0] + 0.3));
+  }
   const centerMoon = t < T.out[0] || t >= T.back[1];
   let k = -1;
   if (t >= T.shade[0] && t < T.out[0]) k = lerp(-1, KTERM, ioC(seg(t, ...T.shade)));
@@ -470,26 +558,26 @@ function atom(t) {
   };
   const drawEl = (back) => {
     if (os < 0.01) return;
-    const er = 17 * Math.min(1, Math.max(os, 0));
+    const er = 18 * Math.min(1, Math.max(os, 0));
     for (const e of el) if (e.back === back) {
       circ(e.x + 5, e.y + 5, er); ctx.fillStyle = C.ink; ctx.fill();
       circ(e.x, e.y, er); fillStroke(e.col, 5);
     }
   };
   drawOrb(true); drawEl(true);
-  if (centerMoon) moon(MID.x, CY, nr, k, 0, 9);
+  if (centerMoon) moon(MID.x, CY, nr, k, 0, 9, cr);
   drawOrb(false); drawEl(false);
 }
 
 // lunas en vuelo (centro <-> tarjetas)
-function flights(t, Rs) {
+function flights(t) {
   const C0 = { x: MID.x, y: CY };
   if (t >= T.out[0] && t < T.out[1]) {
     const e = ioC(seg(t, ...T.out)), g = seg(t, ...T.out);
     const r = lerp(MOONC, MOONK, oB(g, 1.6));
     const sh = lerp(9, 0, g) + 14 * Math.sin(PI * g);
     for (const cd of CARDS) {
-      const p = bez(C0, moonScreen(cd, cd.id === 'S' ? PI : 0), 210, e);
+      const p = bez(C0, moonScreen(cd, cd.id === 'S' ? PI : 0), 220, e);
       moon(p.x, p.y, r, KTERM, 0, sh);
     }
   }
@@ -499,10 +587,57 @@ function flights(t, Rs) {
     const sh = lerp(0, 9, g) + 14 * Math.sin(PI * g);
     const k = lerp(KTERM, -1, ioC(seg(g, 0.1, 0.75)));
     for (const cd of CARDS) {
-      const p = bez(moonScreen(cd, 0), C0, 210, e);
+      const p = bez(moonScreen(cd, 0), C0, 220, e);
       moon(p.x, p.y, r, k, cd.mrot, sh);
     }
   }
+}
+
+// --- cursor ------------------------------------------------------------------------
+// Entra, pulsa y sale. Los tramos se evalúan en u ∈ [-1, 8): el final del bucle
+// continúa en su principio, así la entrada atraviesa el corte sin salto.
+function cursorState(t) {
+  const u = t >= 8 ? t - DUR : t;
+  const btn = { x: BTN.x + BTN.w * 0.66, y: BTN.y + BTN.h * 0.62 };
+  const bdg = { x: MID.x + 40, y: CY + 52 };
+  const legs = [
+    [-0.62, 0.36, { x: 2010, y: 520 }, btn, -90],
+    [0.74, 1.24, btn, { x: 2010, y: 360 }, 40],
+    [2.92, 3.44, { x: 2010, y: 760 }, bdg, 90],
+    [3.78, 4.3, bdg, { x: 840, y: 1150 }, 30],
+  ];
+  let p = null;
+  for (const [a, b, p0, p1, lift] of legs) {
+    if (u >= a && u <= b) { p = bez(p0, p1, lift, ioQ(seg(u, a, b))); break; }
+  }
+  if (!p) {
+    if (u > 0.36 && u < 0.74) p = btn;
+    else if (u > 3.44 && u < 3.78) p = bdg;
+  }
+  const click = Math.max(pulse(t, T.press - 0.02, 0.06, 0.2), pulse(t, T.badgeClick - 0.02, 0.06, 0.2));
+  return p && { ...p, click };
+}
+function cursor(t) {
+  const c = cursorState(t);
+  if (!c || c.x > 1990 || c.y > 1130) return;
+  // líneas de clic
+  burst(c.x, c.y, seg(t, T.press, T.press + 0.3), 20, 20, -PI * 0.95, -PI * 0.35, 3, 6);
+  burst(c.x, c.y, seg(t, T.badgeClick, T.badgeClick + 0.3), 20, 20, -PI * 0.95, -PI * 0.35, 3, 6);
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  const k = 1.35 * (1 - 0.12 * c.click);
+  ctx.scale(k, k);
+  const pts = [[0, 0], [0, 44], [11, 34], [19, 53], [28, 49], [20, 31], [35, 31]];
+  const path = (ox, oy) => {
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => (i ? ctx.lineTo(x + ox, y + oy) : ctx.moveTo(x + ox, y + oy)));
+    ctx.closePath();
+  };
+  const so = 6 * (1 - c.click);
+  path(so, so); ctx.fillStyle = C.ink; ctx.fill();
+  path(0, 0); ctx.fillStyle = C.white; ctx.fill();
+  ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.strokeStyle = C.ink; ctx.stroke();
+  ctx.restore();
 }
 
 // --- fotograma ---------------------------------------------------------------------
@@ -521,17 +656,18 @@ function frame(t) {
   const raise = oB(seg(t, T.out[1] + 0.05, T.out[1] + 0.4), 2) * (1 - ioC(seg(t, T.back[0] - 0.3, T.back[0])));
   const sight = ioC(seg(t, T.out[1] + 0.25, T.out[1] + 0.65)) * (1 - ioC(seg(t, T.back[0] - 0.3, T.back[0])));
 
-  for (const cd of CARDS) { deckShadow(cd); deck(cd); }
+  for (const cd of CARDS) deck(cd);
   card(CARDS[0], t, 0, 0, press, moonIn, raise, sight);
   card(CARDS[1], t, Rs, lift, press, moonIn, raise, sight);
   for (const cd of CARDS) label(cd);
 
   atom(t);
   badge(t, Rs);
-  flights(t, Rs);
+  flights(t);
 
-  sticker(CARDS[0].cx - HS + 18, CY - HS + 22, -0.16, 'D', t, T.dStick, T.stickOff);
-  sticker(CARDS[1].cx + HS - 18, CY - HS + 22, 0.16, 'C', t, T.cStick, T.stickOff + 0.07);
+  sticker(CARDS[0].cx - HS + 20, CY - HS + 34, -0.16, 'D', t, T.dStick, T.stickOff);
+  sticker(CARDS[1].cx + HS - 20, CY - HS + 34, 0.16, 'C', t, T.cStick, T.stickOff + 0.07);
+  cursor(t);
 }
 
 // --- tamaño, letterbox y bucle ------------------------------------------------------
@@ -553,9 +689,9 @@ window.__frame = (t) => { lastT = t; frame(t); };
   resize();
   try {
     await Promise.all([
-      document.fonts.load(`400 96px 'Archivo Black'`, 'LA LUNA AL REVÉS DC 180°'),
+      document.fonts.load(`400 96px 'Archivo Black'`, 'LA LUNA AL REVÉS DC 180° ¡VERDAD!'),
       document.fonts.load(`700 32px 'Space Grotesk'`, '¿VERDAD O MENTIRA? LO QUE NO TE EXPLICARON EN CLASE HEMISFERIO NORTE SUR'),
-      document.fonts.load(`700 22px 'Space Mono'`, 'EP. 01 40°N 34°S MISMA LUNA CABEZA ABAJO'),
+      document.fonts.load(`700 22px 'Space Mono'`, 'EP. 01 40°N 34°S MISMA LUNA CABEZA ABAJO cielo/norte sur PASO 0123/'),
     ]);
     await document.fonts.ready;
   } catch (e) { /* tipografía de reserva */ }

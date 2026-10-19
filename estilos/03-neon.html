@@ -24,8 +24,10 @@
 // resplandor en tres escalas y un mapa de luz de baja resolución que ilumina
 // la pared por multiplicación. Soportes GTO, capuchones de electrodo, puentes
 // pintados de negro, cables, transformador y un suelo pulido que refleja.
-// Guion (10 s): título + átomo encendidos → se enciende la Luna en D
-// (hemisferio norte) → la Luna en C (hemisferio sur, observador cabeza abajo)
+// Cada luna es el mismo aparato: un creciente en D y otro en C espalda con espalda.
+// Guion (10 s): título + átomo encendidos → norte: se enciende la D, el
+// observador de pie y su rótulo → sur: se enciende también la D (lo esperado),
+// aparece el observador cabeza abajo, la D falla y se apaga y se enciende la C
 // → la tilde parpadea → caída de tensión, apagón → el título y el átomo
 // vuelven a arrancar con su parpadeo.
 // ---------------------------------------------------------------------------
@@ -213,7 +215,7 @@ function blit(g, sp, alpha) {
 const AX = 960, AY = 566, RX = 228, RY = 80;
 const ORB = [0, Math.PI / 3, 2 * Math.PI / 3];
 const MOONS = [{ x: 420, y: 556, s: 1 }, { x: 1500, y: 556, s: -1 }];
-const MR = 150, MQ = 0.40;
+const MR = 150, MQ = 0.30;
 const TITLE_Y = 266, TITLE_W = 1230;
 const LAB_Y = 830, LAB_PX = 45;
 
@@ -429,25 +431,24 @@ function buildGroups() {
   }
 
   // ---- lunas: creciente en D (norte) y en C (sur) ----
+  // Cada luna es el mismo aparato en los dos hemisferios: un creciente en D y otro en C montados
+  // espalda con espalda (juntos dibujan el disco). En el norte se enciende la D; en el sur, la C.
   MOONS.forEach((M, k) => {
-    const s = M.s, P = (x, y) => [M.x + s * x, M.y + y];
-    const pts = [], gap = 0.07;
-    for (let u = -gap; u >= -Math.PI / 2; u -= 0.02) pts.push(P(MQ * MR * Math.cos(u), MR * Math.sin(u)));
-    for (let u = -Math.PI / 2; u <= Math.PI / 2 + 1e-6; u += 0.012) pts.push(P(MR * Math.cos(u), MR * Math.sin(u)));
-    for (let u = Math.PI / 2; u >= gap; u -= 0.02) pts.push(P(MQ * MR * Math.cos(u), MR * Math.sin(u)));
-    const paths = [polyPath(pts)];
-    const craters = [[0.70, -0.30, 0.085], [0.76, 0.21, 0.058], [0.585, 0.53, 0.048]];
-    for (const [cx, cy, cr] of craters) {
-      const c = P(cx * MR, cy * MR), p = new Path2D();
-      p.moveTo(c[0] + cr * MR, c[1]); p.arc(c[0], c[1], cr * MR, 0, TAU); paths.push(p);
+    for (const lit of [true, false]) {
+      const s = lit ? M.s : -M.s, MOFF = 9, P = (x, y) => [M.x + s * (x + MOFF), M.y + y];
+      const pts = [], gap = 0.07;
+      for (let u = -gap; u >= -Math.PI / 2; u -= 0.02) pts.push(P(MQ * MR * Math.cos(u), MR * Math.sin(u)));
+      for (let u = -Math.PI / 2; u <= Math.PI / 2 + 1e-6; u += 0.012) pts.push(P(MR * Math.cos(u), MR * Math.sin(u)));
+      for (let u = Math.PI / 2; u >= gap; u -= 0.02) pts.push(P(MQ * MR * Math.cos(u), MR * Math.sin(u)));
+      const paths = [polyPath(pts)];
+      const tang = (u) => { const a = P(MR * Math.cos(u - 0.01), MR * Math.sin(u - 0.01)), b = P(MR * Math.cos(u + 0.01), MR * Math.sin(u + 0.01)); return Math.atan2(b[1] - a[1], b[0] - a[0]); };
+      const clips = [-0.95, 0.95].map((u) => { const p = P(MR * Math.cos(u), MR * Math.sin(u)); return { x: p[0], y: p[1], ang: tang(u) }; });
+      pathGroup({
+        id: (lit ? 'm' : 'x') + (k ? 'S' : 'N'), col: PAL.amber, tw: 11, paths, box: [M.x - MR - 30, M.y - MR - 20, M.x + MR + 30, M.y + MR + 20],
+        caps: [{ x: pts[0][0], y: pts[0][1] }, { x: pts[pts.length - 1][0], y: pts[pts.length - 1][1] }],
+        clips, light: 1.05, hum: 31 + k * 6 + (lit ? 0 : 3), ph: 3 + k,
+      });
     }
-    const tang = (u) => { const a = P(MR * Math.cos(u - 0.01), MR * Math.sin(u - 0.01)), b = P(MR * Math.cos(u + 0.01), MR * Math.sin(u + 0.01)); return Math.atan2(b[1] - a[1], b[0] - a[0]); };
-    const clips = [-0.95, 0.95].map((u) => { const p = P(MR * Math.cos(u), MR * Math.sin(u)); return { x: p[0], y: p[1], ang: tang(u) }; });
-    pathGroup({
-      id: k ? 'mS' : 'mN', col: PAL.amber, tw: 11, paths, box: [M.x - MR - 20, M.y - MR - 20, M.x + MR + 20, M.y + MR + 20],
-      caps: [{ x: pts[0][0], y: pts[0][1] }, { x: pts[pts.length - 1][0], y: pts[pts.length - 1][1] }],
-      clips, light: 1.05, hum: 31 + k * 6, ph: 3 + k,
-    });
   });
 
   // ---- rótulos con espaciado + pictograma (de pie en el norte, cabeza abajo en el sur) ----
@@ -460,38 +461,43 @@ function buildGroups() {
     const chars = [...txt];
     const widths = chars.map((ch) => g.measureText(ch).width);
     const tw = widths.reduce((s, v) => s + v, 0) + track * (chars.length - 1);
-    const figW = 66, sep = 26;
+    const GRd = 25, figW = GRd * 2 + 8, sep = 30;
     const unit = figW + sep + tw;
     const ux = M.x - unit / 2;
-    const fx = ux + figW / 2, fy = LAB_Y - 0.36 * LAB_PX - 4;
+    const fx = ux + figW / 2, fy = LAB_Y - 0.36 * LAB_PX;
     let x = ux + figW + sep;
     const pieces = chars.map((ch, i) => { const p = [ch, x, LAB_Y]; x += widths[i] + track; return p; });
     textGroup({
       id: k ? 'lS' : 'lN', col: PAL.ice, tw: lglyph + 2.2, solid: lglyph + 2.2, er: [0, 0.9, 1.6], font: lfont, glyphW: lglyph, minLw: 0.01, pieces,
       box: [ux + figW + sep - 12, LAB_Y - LAB_PX - 10, ux + unit + 12, LAB_Y + 18], light: 0.7, hum: 37 + k * 2, ph: 5 + k,
     });
-    // pictograma sobre un trozo de globo: de pie en el norte, cabeza abajo en el sur
-    const sg = k ? -1 : 1, P = (px, py) => [fx + sg * px * 1.1, fy + sg * py * 1.1];
-    const p = new Path2D(), hd = P(0, -29);
-    p.moveTo(hd[0] + 8, hd[1]); p.arc(hd[0], hd[1], 8, 0, TAU);
-    polyPath([P(0, -17), P(0, 9)], false, p);
-    polyPath([P(-14, 6), P(0, -11), P(14, 6)], false, p);
-    polyPath([P(-10, 33), P(0, 9), P(10, 33)], false, p);
-    const arc = []; for (let u = -1; u <= 1.0001; u += 0.05) { const an = -Math.PI / 2 + u * 0.5; arc.push(P(78 * Math.cos(an), 40 + 78 + 78 * Math.sin(an))); }
-    polyPath(arc, false, p);
+    // pictograma: la Tierra (círculo + ecuador) con un observador de pie encima en el norte
+    // y colgando cabeza abajo por debajo en el sur.
+    const sg = k ? -1 : 1, FH = 50, gy = fy + sg * FH / 2;
+    const P = (px, py) => [fx + px, gy - sg * py]; // py hacia "arriba" del observador
+    const p = new Path2D();
+    const globe = []; for (let a = -Math.PI / 2 + 0.22; a <= -Math.PI / 2 + TAU - 0.22 + 1e-6; a += 0.04) globe.push(P(GRd * Math.cos(a), GRd * Math.sin(a)));
+    polyPath(globe, false, p);
+    polyPath([P(-GRd + 3, 0), P(GRd - 3, 0)], false, p);
+    const ft = GRd + 2, hr = 7, hc = P(0, ft + FH - hr);
+    p.moveTo(hc[0] + hr, hc[1]); p.arc(hc[0], hc[1], hr, 0, TAU);
+    polyPath([P(0, ft + FH - 2 * hr - 3), P(0, ft + 18)], false, p);
+    polyPath([P(-11, ft + 17), P(0, ft + FH - 2 * hr - 7), P(11, ft + 17)], false, p);
+    polyPath([P(-8, ft + 1), P(0, ft + 18), P(8, ft + 1)], false, p);
+    const capA = globe[0], eqEnd = globe[globe.length - 1];
     pathGroup({
-      id: k ? 'fS' : 'fN', col: PAL.ice, tw: 5.2, paths: [p], box: [fx - 56, fy - 66, fx + 56, fy + 66],
-      caps: [{ x: arc[0][0], y: arc[0][1], r: 0.7 }, { x: arc[arc.length - 1][0], y: arc[arc.length - 1][1], r: 0.7 }],
-      clips: [{ x: P(0, 40)[0], y: P(0, 40)[1], ang: 0 }], light: 0.6, hum: 43 + k, ph: 6 + k,
+      id: k ? 'fS' : 'fN', col: PAL.ice, tw: 4.6, paths: [p], box: [fx - GRd - 16, gy - GRd - FH - 20, fx + GRd + 16, gy + GRd + FH + 20],
+      caps: [{ x: capA[0], y: capA[1], r: 0.7 }, { x: eqEnd[0], y: eqEnd[1], r: 0.7 }],
+      clips: [{ x: P(-GRd * 0.95, -GRd * 0.31)[0], y: P(-GRd * 0.95, -GRd * 0.31)[1], ang: Math.PI / 2 - 0.3 * sg }], light: 0.6, hum: 43 + k, ph: 6 + k,
     });
   });
 
   // ---- análisis de máscaras: soportes, capuchones y puentes negros del texto ----
   const tm = {};
-  for (const id of ['tA', 'tB', 'tC', 'lN', 'lS']) {
+  for (const id of ['tA', 'tB', 'tC']) {
     const gr = BYID[id]; const m = maskOf(gr, gr.box); tm[id] = m;
     const bw = gr.box[2] - gr.box[0];
-    const fr = id === 'tA' ? [0.12, 0.52, 0.86] : id === 'tB' ? [0.6] : id === 'tC' ? [0.2, 0.72] : [0.22, 0.78];
+    const fr = id === 'tA' ? [0.12, 0.52, 0.86] : id === 'tB' ? [0.6] : [0.2, 0.72];
     for (const f of fr) { const c = clipAt(m, gr.box[0] + bw * f, gr.tw); if (c) gr.clips.push(c); }
     const L = endAt(m, -1), R = endAt(m, 1);
     gr.ends = [L, R];
@@ -529,22 +535,29 @@ const SCHED = {
   // id: [encendido (s), duración del parpadeo]
   tA: [7.48, 0.55], tB: [7.86, 0.32], tC: [8.02, 0.52], tD: [8.72, 0.42],
   nu: [8.42, 0.3], o0: [8.66, 0.3], o1: [8.82, 0.3], o2: [8.98, 0.3],
-  mN: [0.85, 0.6], lN: [1.38, 0.38], fN: [1.55, 0.34],
-  mS: [2.2, 0.62], lS: [2.78, 0.38], fS: [2.95, 0.34],
+  mN: [0.6, 0.55], lN: [1.12, 0.36], fN: [1.3, 0.32],
+  // sur: primero se enciende la D (lo esperado), aparece el observador cabeza abajo,
+  // la D se apaga y se enciende la C
+  xS: [1.95, 0.45], fS: [2.5, 0.3], mS: [3.36, 0.5], lS: [3.98, 0.38],
 };
+const XS_OFF = 3.16, XS_GL = [[2.96, 0.035, 0.75], [3.03, 0.05, 0.9], [3.11, 0.02, 0.6]];
 const ACC_GL = [[4.78, 0.05, 0.92], [4.87, 0.03, 0.6], [4.93, 0.1, 0.97], [5.08, 0.04, 0.85], [5.16, 0.025, 0.7]];
 function setupSchedule() {
   let seed = 1;
   for (const gr of GR) {
+    if (!SCHED[gr.id]) { gr.ev = []; gr.gl = []; continue; } // tubo que nunca se enciende
     const [ton, fd] = SCHED[gr.id];
     const f = flickSegs(seed++ * 31 + 7, fd);
     gr.ev = [{ t: CUT, on: false }, { t: ton, on: true, segs: f.segs, end: f.end }].sort((a, b) => a.t - b.t);
     gr.gl = SAG.slice();
+    if (gr.id === 'xS') { gr.ev[1] = { t: XS_OFF, on: false }; gr.gl = XS_GL.slice(); }
+    if (gr.id === 'fS') gr.gl.push(...XS_GL.map(([a, d, k]) => [a, d, k * 0.5]));
     if (gr.id === 'tD') gr.gl.push(...ACC_GL);
     if (gr.id === 'tB') gr.gl.push([5.9, 0.04, 0.5], [5.96, 0.03, 0.35]);
   }
 }
 function level(gr, t) {
+  if (!gr.ev.length) return 0;
   let e = null;
   for (const x of gr.ev) if (x.t <= t) e = x;
   let et;
@@ -763,8 +776,8 @@ function build() {
       // texto: una sola máscara maciza; la erosión da tubo, banda interior y núcleo
       const [e0, e1, e2] = gr.er;
       const M = maskLayers(sb, S, (q) => gr.trace(q, gr.solid), [[e0, 0], [e1, 0], [e2, 0.45], [e0 - 1.2, 0], [e0 + 0.4, 0], [e1 + 0.6, 0.6]]);
-      gr.sTube = fromMasks(M.meta, [[M[0], mul(c, 0.92)], [M[1], mix(c, WHITE, 0.38)]]);
-      gr.sCore = fromMasks(M.meta, [[M[2], mix(c, WHITE, 0.86)]]);
+      gr.sTube = fromMasks(M.meta, [[M[0], mul(c, 0.95)], [M[1], mul(mix(c, WHITE, 0.1), 0.8)]]);
+      gr.sCore = fromMasks(M.meta, [[M[2], mix(c, WHITE, 0.82)]]);
       gr.gRim = fromMasks(M.meta, [[M[3], [22, 20, 24]]], true);
       gr.gBody = fromMasks(M.meta, [[M[4], gr.glass]], true);
       gr.gHi = fromMasks(M.meta, [[M[5], mix(gr.glass, WHITE, 0.4), 0.7]], true);
