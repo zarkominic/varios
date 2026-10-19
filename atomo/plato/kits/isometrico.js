@@ -958,7 +958,7 @@ export function crearVeredicto(tipo = 'ok', { lado = 96 } = {}) {
 // =====================================================================
 // Reloj (placa redonda con agujas) y columna isométrica (barras)
 // =====================================================================
-export function crearReloj({ radio = 70, base = P.cream, lado = '#d6cab9', tinta = P.ink, acento = P.coral, grosor = 12, dia = 0, horas = 12 } = {}) {
+export function crearReloj({ radio = 70, base = P.cream, lado = '#d6cab9', tinta = P.ink, acento = P.coral, grosor = 12, dia = 0, horas = 12, conAgujas = true } = {}) {
   const g = new THREE.Group();
   const shape = new THREE.Shape(); shape.absarc(0, 0, radio, 0, TAU, false);
   const ext = new THREE.ExtrudeGeometry(shape, { depth: grosor, bevelEnabled: true, bevelThickness: 3, bevelSize: 3, bevelSegments: 1, curveSegments: 48 });
@@ -991,6 +991,7 @@ export function crearReloj({ radio = 70, base = P.cream, lado = '#d6cab9', tinta
   };
   const horaria = mano(radio * 0.46, radio * 0.11, tinta, 0.5);
   const minutero = mano(radio * 0.7, radio * 0.065, tinta, 1.5);
+  horaria.visible = minutero.visible = conAgujas;
   const eje = new THREE.Mesh(new THREE.CylinderGeometry(radio * 0.07, radio * 0.07, 3, 16), basic(acento));
   eje.rotation.x = Math.PI / 2; eje.position.z = frente + 3; g.add(eje);
   return {

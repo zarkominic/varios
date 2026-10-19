@@ -8,7 +8,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 D=$1
 SALIDA=$2
-[ -f "$D/musica.wav" ] || "${PYTHON:-python3}" herramientas/musica.py "$D/linea.json" "$D/musica.wav"
+# ffmpeg se para en el primer hueco de la secuencia: antes de montar, deben estar todos los fotogramas.
+FALTAN=$("${PYTHON:-python3}" -c "import json,os,sys; d=sys.argv[1]; n=json.load(open(d+'/linea.json'))['fotogramas']; print(sum(not os.path.exists(f'{d}/fotos/{i:05d}.jpg') for i in range(n)))" "$D")
+[ "$FALTAN" = 0 ] || { echo "Faltan $FALTAN fotogramas en $D/fotos: renderiza con --faltan" >&2; exit 1; }
+[ -f "$D/musica.wav" ] ||"${PYTHON:-python3}" herramientas/musica.py "$D/linea.json" "$D/musica.wav"
 mezcla() { # $1 = voz: la música baja cuando habla
   echo "[1:a]aresample=48000,pan=stereo|c0=c0|c1=c0,asplit=2[voz][llave];[2:a]volume=0.2[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=10:attack=20:release=400[fondo];[voz][fondo]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]"
 }

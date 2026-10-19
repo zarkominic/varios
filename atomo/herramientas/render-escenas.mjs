@@ -1,4 +1,4 @@
-// Uso: node herramientas/render-escenas.mjs <carpeta_linea> [--trabajadores 3] [--solo id1,id2]
+// Uso: node herramientas/render-escenas.mjs <carpeta_linea> [--trabajadores 3] [--solo id1,id2] [--faltan]
 // Renderiza un vídeo largo escena a escena: cada escena es una página de atomo/plato/escenas/
 // (los marcadores comparten marcador.html) que dibuja el instante t de la escena con
 // window.__frame(t). Antes de cargarla se le inyecta window.ESCENA con su duración, sus marcas,
@@ -6,6 +6,8 @@
 // <carpeta_linea>/fotos/ con la numeración global del vídeo (1920x1080, 30 fps).
 // Si la página declara window.__paso (p. ej. 1/12 en stop-motion), los instantes se redondean a
 // ese paso y los fotogramas repetidos se copian en vez de volver a dibujarse.
+// Cada escena empieza en el fotograma donde acaba la anterior, para que no queden huecos al
+// redondear. Con --faltan solo se dibujan los fotogramas que aún no existen.
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,6 +21,7 @@ const dirLinea = path.resolve(args[0]);
 const linea = JSON.parse(fs.readFileSync(path.join(dirLinea, 'linea.json'), 'utf8'));
 const W = Number(opcion('--trabajadores', 3));
 const solo = opcion('--solo', null)?.split(',');
+const faltan = args.includes('--faltan');
 const fotos = path.join(dirLinea, 'fotos');
 fs.mkdirSync(fotos, { recursive: true });
 
@@ -36,14 +39,19 @@ const three = path.join(raiz, 'atomo/node_modules/three');
 
 const fps = linea.fps;
 const veredictos = linea.escenas.filter((e) => e.veredicto).map((e) => e.veredicto);
+// Fotogramas [f0, f1) de cada escena, contiguos: el f1 de una es el f0 de la siguiente.
+linea.escenas.forEach((e, i, todas) => {
+  e.f0 = Math.round(e.inicio * fps);
+  e.f1 = i + 1 < todas.length ? Math.round(todas[i + 1].inicio * fps) : linea.fotogramas;
+});
 const cola = linea.escenas.filter((e) => !solo || solo.includes(e.id));
 const nombre = (n) => path.join(fotos, `${String(n).padStart(5, '0')}.jpg`);
 const t0 = Date.now();
 
 async function renderizar(esc) {
   const pagina = esc.id.startsWith('marcador') ? 'marcador' : esc.id;
-  const f0 = Math.round(esc.inicio * fps);
-  const f1 = Math.round((esc.inicio + esc.duracion) * fps);
+  const { f0, f1 } = esc;
+  if (faltan && Array.from({ length: f1 - f0 }, (_, k) => f0 + k).every((n) => fs.existsSync(nombre(n)))) return;
   const ESCENA = {
     id: esc.id, duracion: esc.duracion, fps, marcas: esc.marcas, voz: esc.voz ?? null,
     energia: linea.energia.slice(f0, f1), n: esc.n ?? null, veredicto: esc.veredicto ?? null,
@@ -64,6 +72,10 @@ async function renderizar(esc) {
   for (let n = f0; n < f1; n++) {
     let t = (n - f0) / fps;
     if (paso > 0) t = Math.floor(t / paso + 1e-6) * paso;
+    if (faltan && fs.existsSync(nombre(n))) {
+      previo = { t, archivo: nombre(n) };
+      continue;
+    }
     if (previo && previo.t === t) {
       fs.copyFileSync(previo.archivo, nombre(n));
     } else {

@@ -103,7 +103,7 @@ for (const k of ['N', 'S']) {
   // observador: de espaldas a la cámara, mirando al Sol de mediodía
   const obs = K.crearObservador({ abrigo: o.color, abrigoD: o.colorD, gorro: k === 'N' ? P.lav : P.peach, escala: 1.35 });
   const side = k === 'N' ? -1 : 1;
-  obs.g.position.copy(O).addScaledVector(vF, 168).addScaledVector(vR, side * 118).setY(slab.y);
+  obs.g.position.copy(O).addScaledVector(vF, 176).addScaledVector(vR, side * 142).setY(slab.y);
   K.orient(obs.g, Y, vF.clone().negate().addScaledVector(vR, -side * 0.25));
   obs.luz(0.35, 0);
   scene.add(obs.g);
@@ -170,8 +170,15 @@ const XL = new THREE.Vector3(1, 0, 0), YL = new THREE.Vector3(0, 1, 0);
 // ---------------------------------------------------------------------
 // Coreografía (función pura de t)
 // ---------------------------------------------------------------------
-const mV = M('verdad'), mE = M('este'), mN = M('norte'), mD = M('derecha'), mA = M('agujas'), mR = M('relojes'), mH = M('hemisferio'), mAu = M('australia');
+const mV = M('verdad'), mE = M('este'), mO = M('oeste'), mN = M('norte'), mD = M('derecha'), mA = M('agujas'), mR = M('relojes'), mH = M('hemisferio'), mAu = M('australia');
 const DUR = E.duracion;
+// final quieto: coronas de los soles y marchas se frenan antes de DUR − 0,6 s
+const Q0 = DUR - 1.4, Q1 = DUR - 0.6;
+function frenado(t) {
+  if (t <= Q0) return t;
+  const D = Q1 - Q0, u = Math.min(1, (t - Q0) / D);
+  return t - D * (u * u * u - 0.5 * u * u * u * u) - Math.max(0, t - Q1);
+}
 // ángulo horario: día 1 (sale en «este», mediodía en «norte», se pone después) y día 2 (para las sombras)
 const D1a = mE - 0.3, D1n = mN, D1b = D1n + (D1n - D1a);
 const D2a = mR - 1.75, D2b = DUR - 0.9;
@@ -209,7 +216,7 @@ function dibujar(t) {
     p.sol.g.position.copy(sp);
     p.sol.g.visible = vis > 0.002;
     p.sol.g.scale.setScalar(Math.max(0.001, vis) * (1 + 0.25 * latido(t, mE, 0.8, 0.1)));
-    p.sol.actualizar(t + (k === 'N' ? 0 : 1.3));
+    p.sol.actualizar(frenado(t) + (k === 'N' ? 0 : 1.3));
     // camino del día (punteado) y estela (lo ya recorrido)
     const kCam = seg(t, mE - 0.3, mE + 0.6);
     // ángulo en el plano del arco: a = π/2 + H (0 = sale por el este, π = se pone por el oeste)
@@ -221,7 +228,7 @@ function dibujar(t) {
     p.estela.mat.opacity = 0.9 * vis;
     // línea de caída del Sol al suelo
     const foot = new THREE.Vector3(sp.x, p.O.y, sp.z);
-    p.caida.poner(sp.clone().addScaledVector(Y, -24), foot, 0, vis > 0.05 && d.y > 0.08 ? 1 : 0, 1.4, (t * 0.6) % 1, false);
+    p.caida.poner(sp.clone().addScaledVector(Y, -24), foot, 0, clamp01(vis) * sstep(0.04, 0.14, d.y), 1.4, (frenado(t) * 0.6) % 1, false);
     // sombra del gnomon
     const sv = p.shGeo.attributes.position;
     let tip = null;
@@ -243,8 +250,8 @@ function dibujar(t) {
     // «relojes» (norte, como las agujas) y «australia» (sur, al revés): flechas de giro de la sombra
     const kG = k === 'N' ? kRel : kAus;
     const rotDir = k === 'N' ? 1 : -1;      // horario visto desde arriba: de +vR hacia +vF
-    const g0 = k === 'N' ? 0.15 : Math.PI - 0.15;
-    p.giro.poner(p.O.clone().addScaledVector(Y, 1.5), vR, vF, R_DIAL + 22, g0, g0 + rotDir * (Math.PI - 0.3), kG, true, 1);
+    const g0 = k === 'N' ? 0.3 : Math.PI - 0.3;
+    p.giro.poner(p.O.clone().addScaledVector(Y, 1.5), vR, vF, R_DIAL + 22, g0, g0 + rotDir * (Math.PI - 0.6), kG, true, 1);
     // «derecha»: en el sur, quien mira al Sol lo ve ir de derecha a izquierda
     const kV = k === 'S' ? kDer * (1 - sstep(mA - 0.6, mA - 0.2, t)) : 0;
     p.arcoVista.poner(p.O, e1, e2, R_ARC * 0.8, Math.PI / 2 - 0.8, Math.PI / 2 + 0.8, kV, true, 1);
@@ -258,13 +265,15 @@ function dibujar(t) {
     p.slab.brillo(k === 'N' ? P.mint : P.coral, glow);
     // letras de la brújula (atrás pulsa en «norte»; E en «este»)
     const corner = (dir, off = 30) => pant(p.O.clone().addScaledVector(dir, A + off).setY(p.slab.y));
-    const bN = corner(p.o.Nd), bS = corner(p.o.Nd.clone().negate()), bE = corner(p.o.Ed), bW = corner(p.o.Ed.clone().negate(), 22);
+    const bN = corner(p.o.Nd), bS = corner(p.o.Nd.clone().negate()), bW = corner(p.o.Ed.clone().negate(), 22);
+    // la E, sobre el borde delantero junto a su esquina: el Sol sale justo encima sin taparla
+    const bE = pant(p.O.clone().addScaledVector(p.o.Ed, 230).addScaledVector(vF, 70).setY(p.slab.y));
     const backIsN = k === 'S';
     const pulseBack = latido(t, mN, 1.0, 0.35);
     brujula[k].N.poner(bN.x, bN.y, 1, 1 + (backIsN ? 0.35 * pulseBack : 0));
-    brujula[k].S.poner(bS.x, bS.y, 1, 1 + (!backIsN ? 0.35 * pulseBack : 0));
+    brujula[k].S.poner(bS.x, bS.y, 1, 1);
     brujula[k].E.poner(bE.x, bE.y, 1, 1 + 0.3 * latido(t, mE, 0.9, 0.3));
-    brujula[k].W.poner(bW.x, bW.y, 0.9, 1);
+    brujula[k].W.poner(bW.x, bW.y, 0.9, 1 + 0.9 * eo(entra(t, mO, 0.45, 0.25)) + 0.6 * latido(t, mO, 0.8, 0.3));
     // insignia del hemisferio
     const bp = pant(p.O.clone().addScaledVector(Y, 400));
     const pulse = k === 'N' ? kHem : latido(t, mAu, 1.0, 0.2);
@@ -282,8 +291,8 @@ function dibujar(t) {
   reloj.agujas(ang / 12 + 0.9, ang + 0.2);
   relojArco.poner(new THREE.Vector3(0, 0, reloj.frente + 1), YL, XL, 70 + 18, 0.35, 0.35 + TAU * 0.78, eio(entra(t, mA, 0.7, 0.2)), true, 1);
   // «hemisferio»: enlace del reloj con la sombra del norte
-  const kL = eio(seg(t, mH - 0.3, mH + 0.35)) * (1 - sstep(mAu - 0.5, mAu - 0.1, t));
-  enlaceN.poner(RELOJ_P.clone().addScaledVector(vU, -82).addScaledVector(vR, -40), plots.N.O.clone().addScaledVector(Y, 40).addScaledVector(vR, 70), 0, kL, 2.2, (t * 0.5) % 1);
+  const kL = eio(seg(t, mH - 0.45, mH + 0.05)) * (1 - sstep(mAu - 0.5, mAu - 0.1, t));
+  enlaceN.poner(RELOJ_P.clone().addScaledVector(vU, -82).addScaledVector(vR, -40), plots.N.O.clone().addScaledVector(Y, 40).addScaledVector(vR, 70), 0, kL, 2.2, (frenado(t) * 0.5) % 1);
   // sombras de contacto
   suelo.sombra(0, plots.N.C.x, plots.N.C.z, 140, 0.25);
   suelo.sombra(1, plots.S.C.x, plots.S.C.z, 140, 0.25);
