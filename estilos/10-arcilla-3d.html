@@ -6,8 +6,8 @@
 <title>La Luna al revés · arcilla 3D</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,600&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,72,700,100,1;1,72,500,100,1&display=block">
 <style>
-  html, body { margin: 0; height: 100%; background: #1d2333; overflow: hidden; }
-  #escena { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #1d2333; overflow: hidden; }
+  html, body { margin: 0; height: 100%; background: #151a30; overflow: hidden; }
+  #escena { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #151a30; overflow: hidden; }
   #escena canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
 </style>
 </head>
@@ -83,7 +83,7 @@ const NUC = (() => {
   const N = 8;
   for (let i = 0; i < N; i++) {
     const y = 1 - (2 * (i + 0.5)) / N, rr = Math.sqrt(1 - y * y), ph = i * 2.39996 + 0.4;
-    const k = 0.30 + 0.035 * r();
+    const k = 0.33 + 0.03 * r();
     out.push([Math.cos(ph) * rr * k, y * k * 0.92, Math.sin(ph) * rr * k]);
   }
   return out;
@@ -94,7 +94,7 @@ const cvGL = document.getElementById('gl'), cvTx = document.getElementById('text
 const escena = document.getElementById('escena');
 const gT = cvTx.getContext('2d');
 const renderer = new THREE.WebGLRenderer({ canvas: cvGL, antialias: false, preserveDrawingBuffer: true, alpha: false });
-renderer.setClearColor(0x1d2333, 1);
+renderer.setClearColor(0x151a30, 1);
 
 const frag = /* glsl */`
 precision highp float;
@@ -194,7 +194,7 @@ const vec4 CR2 = vec4(0.43, 0.55, 0.0, 0.07);
 float crater(vec3 q, vec4 c, float R) {
   vec2 xy = c.xy;
   vec3 s = vec3(xy, sqrt(max(1.0 - dot(xy, xy), 0.0)));
-  vec3 cc = s * (1.0 + c.w * 0.72) * R;
+  vec3 cc = s * (1.0 + c.w * 0.6) * R;
   return length(q - cc) - c.w * R * uCrater;
 }
 float crescent(vec3 q) {
@@ -214,7 +214,7 @@ float crescent(vec3 q) {
 }
 float ropeSDF(vec3 qa) {
   float R = uMShape.x;
-  float x = -0.57 * R, h = 0.8 * R * uRope;
+  float x = -0.535 * R, h = 0.9 * R * uRope;
   return sdCapsule(qa, vec3(x, -h, 0.0), vec3(x, h, 0.0), 0.062 * R) * 0.95;
 }
 float moonSDF(vec3 p) {
@@ -222,7 +222,7 @@ float moonSDF(vec3 p) {
   vec3 qa = moonLocal(p, uMA, uSqA);
   float d = crescent(qa) * mA;
   d = min(d, crescent(moonLocal(p, uMB, uSqB)) * mB);
-  if (uNeck > 0.005) d = smin(d, sdCapsule(p, uMA.xyz, uMB.xyz, uNeck), 0.32);
+  if (uNeck > 0.005) d = smin(d, sdCapsule(p, uMA.xyz + vec3(0.42 * uMShape.x, 0, 0), uMB.xyz + vec3(0.2 * uMShape.x, 0, 0), uNeck), 0.24);
   if (uRope > 0.01) d = smin(d, ropeSDF(qa) * mA, 0.09);
   return d;
 }
@@ -276,14 +276,11 @@ vec3 normalObj(vec3 p) {
 float softShadow(vec3 p, vec3 L, float maxT, float k) {
   vec2 tb = boxHit(p, L);
   if (tb.y < 0.0 || tb.x > tb.y) return 1.0;
-  float t = max(tb.x, 0.05), res = 1.0, end = min(tb.y, maxT), ph = 1e10;
+  float t = max(tb.x, 0.05), res = 1.0, end = min(tb.y, maxT);
   for (int i = 0; i < 64; i++) {
     float h = mapObj(p + L * t);
-    float y = h * h / (2.0 * ph);
-    float dd = sqrt(max(h * h - y * y, 0.0));
-    res = min(res, k * dd / max(0.001, t - y));
-    ph = h;
-    t += clamp(h, 0.015, 0.3);
+    res = min(res, k * h / t);
+    t += clamp(h, 0.012, 0.3);
     if (res < 0.001 || t > end) break;
   }
   res = clamp(res, 0.0, 1.0);
@@ -334,13 +331,14 @@ vec4 fingerprint(vec3 x, float sc, float seed, float pixW) {
   v.y *= 1.0 + 0.5 * h.x;            // remolino algo ovalado
   float r = length(v);
   float m = 1.0 - smoothstep(0.1, 0.3, r);
-  float spacing = 0.05;               // en unidades de celda
+  float spacing = 0.042;              // en unidades de celda
   float fade = 1.0 - smoothstep(0.35, 0.75, pixW * sc / spacing);
   float ph = r * 6.2832 / spacing + 2.5 * vnoise(y * 5.0);
   return vec4(m * fade * cos(ph) * (v / (r + 1e-4)) * 0.22, m * fade * (0.5 - 0.5 * sin(ph)));
 }
 
-void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed) {
+void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed, out float det) {
+  det = 1.0;
   float da = 1e5, dm = 1e5;
   if (uAtomOn > 0.5) da = atomSDF(p);
   if (uMoonOn > 0.5) dm = moonSDF(p);
@@ -348,9 +346,10 @@ void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed) {
     vec3 q = atomLocal(p);
     lp = q; boilSeed = 1.0;
     vec3 mc = marble(q * 1.1);
-    vec3 col = vec3(0.0); float ws = 0.0;
+    vec3 col = vec3(0.0); float ws = 0.0, dp = 1e5;
     for (int i = 0; i < 8; i++) {
       float di = length(q - uNuc[i].xyz) - uNuc[i].w;
+      dp = min(dp, di);
       float w = exp(-max(di, 0.0) * 55.0);
       vec3 c = (mod(float(i), 2.0) < 0.5) ? C_TERRA : C_CREAM;
       col += w * c; ws += w;
@@ -360,6 +359,7 @@ void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed) {
       float w = exp(-max(dt, 0.0) * 55.0);
       col += w * C_SAGE; ws += w;
       float de = length(q - uElec[i].xyz) - uElec[i].w;
+      dp = min(dp, min(dt, de));
       w = exp(-max(de, 0.0) * 55.0);
       col += w * C_MUST * 1.4; ws += w * 1.4;
     }
@@ -367,7 +367,7 @@ void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed) {
     col = mix(col, mc, uMarble);
     if (uBall > 0.01) {
       float db = length(q) - uBall;
-      float w = exp(-max(db, 0.0) * 40.0);
+      float w = clamp(0.5 + (dp - db) / 0.08, 0.0, 1.0);
       vec3 bc = mix(mc, C_BUTTER * (0.96 + 0.08 * vnoise(q * 3.0)), uBallButter);
       col = mix(col, bc, w * smoothstep(0.0, 0.25, uBall));
     }
@@ -382,7 +382,9 @@ void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed) {
     alb = mix(mc, butter, uButter);
     if (uRope > 0.01) {
       float dr = ropeSDF(qa);
-      alb = mix(alb, C_TERRA, exp(-max(dr, 0.0) * 60.0) * step(dr, a + 0.02));
+      float wr = clamp(0.5 + (a - dr) / 0.03, 0.0, 1.0);
+      alb = mix(alb, C_SAGE * 1.15, wr);
+      det = 1.0 - 0.7 * wr;
     }
   }
 }
@@ -390,7 +392,7 @@ void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed) {
 vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
 
 // luces del plató
-const vec3 LPOS = vec3(-4.6, 8.2, 12.5);
+const vec3 LPOS = vec3(-7.0, 9.5, 10.5);
 const vec3 LCOL = vec3(1.0, 0.78, 0.56);
 const vec3 SPOT_AT = vec3(0.6, 1.4, -2.6);
 const vec3 FILL_DIR = vec3(0.78, 0.22, 0.58);
@@ -401,7 +403,100 @@ const vec3 RIM_COL = vec3(1.0, 0.72, 0.50);
 float spotCone(vec3 p) {
   vec3 sd = normalize(SPOT_AT - LPOS);
   float c = dot(normalize(p - LPOS), sd);
-  return mix(0.10, 1.0, smoothstep(0.84, 0.975, c));
+  return mix(0.12, 1.0, smoothstep(0.86, 0.985, c));
+}
+
+vec3 shadeObj(vec3 p, vec3 rd, float tObj, float key) {
+  vec3 n = normalObj(p);
+  vec3 alb, lp; float bs, det;
+  materialAt(p, alb, lp, bs, det);
+  float pixW = uPix * tObj;
+  // detalle de superficie: abolladuras del modelado, huellas y grano
+  vec4 nd = vnoised(lp * 2.6 + bs * 11.0);
+  vec3 g = nd.yzw * 0.13;
+  vec4 nm = vnoised(lp * 7.5 + bs * 5.0 + uPrint * 0.3);
+  g += nm.yzw * 0.07;
+  vec3 lpp = lp + uPrint;
+  vec4 f1 = fingerprint(lpp, 1.05, bs * 3.7, pixW);
+  vec4 f2 = fingerprint(lpp + 0.31, 1.6, bs * 9.1 + 4.0, pixW);
+  g += f1.xyz * 1.7 + f2.xyz * 1.1;
+  vec4 gr = vnoised(lp * 40.0 + bs);
+  g += gr.yzw * 0.018 * (1.0 - smoothstep(0.012, 0.03, pixW));
+  g *= det;
+  n = normalize(n - (g - n * dot(g, n)));
+  // surcos de la huella y poros: un poco más oscuros
+  alb *= 1.0 - (0.15 * f1.w + 0.10 * f2.w) * det - 0.05 * smoothstep(0.55, 0.85, gr.x);
+
+  vec3 L = normalize(LPOS - p);
+  float sh = softShadow(p + n * 0.025, L, 30.0, 9.0);
+  float ao = aoObj(p, n);
+  float ndl = dot(n, L);
+  float wrapD = max((ndl + 0.28) / 1.28, 0.0);
+  vec3 sss = pow(alb, vec3(1.55)) * 1.4 * smoothstep(-0.35, 0.15, ndl) * (1.0 - smoothstep(0.15, 0.6, ndl));
+  vec3 V = -rd, Hh = normalize(L + V);
+  float fres = pow(1.0 - max(dot(n, V), 0.0), 4.0);
+  float spec = (pow(max(dot(n, Hh), 0.0), 22.0) * 0.10 + pow(max(dot(n, Hh), 0.0), 90.0) * 0.12) * (0.8 + 0.6 * fres);
+  float spot = spotCone(p);
+  vec3 col = (alb * wrapD + sss * 0.5) * LCOL * key * sh * spot;
+  col += spec * LCOL * key * sh * spot * smoothstep(-0.1, 0.3, ndl);
+  // relleno frío y cielo/rebote
+  col += alb * vec3(0.38, 0.44, 0.62) * pow(max(dot(n, normalize(FILL_DIR)) * 0.5 + 0.5, 0.0), 1.5) * 0.5 * ao;
+  float up = n.y * 0.5 + 0.5;
+  col += alb * mix(vec3(0.07, 0.05, 0.06), vec3(0.12, 0.15, 0.26), up) * 0.6 * ao;
+  // contraluz cálido de silueta
+  float rim = pow(1.0 - max(dot(n, V), 0.0), 2.6) * max(dot(n, normalize(RIM_DIR)) + 0.35, 0.0);
+  col += RIM_COL * alb * rim * 1.2 * ao;
+  col *= mix(0.55, 1.0, ao);
+  return col;
+}
+
+vec3 shadeBg(vec3 p, vec3 n, float arc, float key) {
+  vec3 alb = C_SLATE * (0.88 + 0.24 * vnoise(p * 0.55)) * (0.94 + 0.12 * vnoise(p * 3.1));
+  // superficie de arcilla alisada: ondulaciones suaves
+  vec4 nd = vnoised(p * 1.4);
+  vec3 g = nd.yzw * 0.06;
+  vec4 gr = vnoised(p * 22.0);
+  g += gr.yzw * 0.010;
+  vec2 st = vec2(p.x, arc);
+  float starMask = 0.0; vec3 starN = n; float starShadow = 0.0;
+  if (arc < 2.6) {
+    // dirección aproximada de la sombra en el plano del ciclorama
+    vec2 shOff = vec2(0.035, 0.045);
+    for (int i = 0; i < 24; i++) {
+      vec4 s = uStars[i];
+      vec2 d = st - s.xy;
+      float r = s.z;
+      float dd = length(d);
+      if (dd < r * 1.6) {
+        float in1 = 1.0 - smoothstep(r - 0.008, r + 0.004, dd);
+        if (in1 > starMask) {
+          starMask = in1;
+          float hz = sqrt(max(1.0 - dd * dd / (r * r), 0.0));
+          // normal del botón de arcilla en el plano local (x, arco)
+          vec3 tx = vec3(1, 0, 0), ty = normalize(cross(n, tx)) * -1.0;
+          starN = normalize(n * (hz + 0.35) + tx * (d.x / r) * 0.9 + ty * (d.y / r) * 0.9);
+          alb = mix(alb, C_STAR * s.w, in1);
+        }
+      }
+      float ds = length(d - shOff * r / 0.06);
+      starShadow = max(starShadow, (1.0 - smoothstep(r * 0.7, r * 1.25, ds)) * (1.0 - starMask));
+    }
+  }
+  n = normalize(n - (g - n * dot(g, n)) * (1.0 - starMask));
+  n = normalize(mix(n, starN, starMask));
+  vec3 L = normalize(LPOS - p);
+  float dist = length(LPOS - p);
+  float fall = pow(16.0 / dist, 2.0);
+  float sh = softShadow(p + n * 0.01, L, dist, 16.0);
+  float ao = aoBg(p, n);
+  float ndl = max(dot(n, L), 0.0);
+  float spot = spotCone(p);
+  vec3 col = alb * LCOL * key * 1.35 * ndl * mix(0.16, 1.0, sh) * spot * fall;
+  col += alb * FILL_COL * 0.42 * ao;
+  col += alb * vec3(0.16, 0.20, 0.32) * 0.55 * ao;
+  col *= (1.0 - 0.45 * starShadow);
+  col *= mix(0.6, 1.0, ao);
+  return col;
 }
 
 void main() {
@@ -412,7 +507,7 @@ void main() {
   vec3 nb; float arc;
   float tb = bgHit(ro, rd, nb, arc);
 
-  float tObj = 1e5;
+  float tObj = 1e5, bestR = 1e5, bestT = 0.0;
   vec2 bx = boxHit(ro, rd);
   if (bx.x < bx.y && bx.y > 0.0) {
     float t = max(bx.x, 0.0);
@@ -420,6 +515,8 @@ void main() {
       vec3 p = ro + rd * t;
       float d = mapObj(p);
       if (d < 0.00022 * t) { tObj = t; break; }
+      float r = d / (uPix * t);
+      if (r < bestR) { bestR = r; bestT = t; }
       t += d * 0.92;
       if (t > bx.y) break;
     }
@@ -428,94 +525,14 @@ void main() {
   vec3 col;
   float key = 2.6 * uFlicker;
   if (tObj < tb) {
-    vec3 p = ro + rd * tObj;
-    vec3 n = normalObj(p);
-    vec3 alb, lp; float bs;
-    materialAt(p, alb, lp, bs);
-    float pixW = uPix * tObj;
-    // detalle de superficie: abolladuras del modelado, huellas y grano
-    vec4 nd = vnoised(lp * 2.6 + bs * 11.0);
-    vec3 g = nd.yzw * 0.13;
-    vec4 nm = vnoised(lp * 7.5 + bs * 5.0 + uPrint * 0.3);
-    g += nm.yzw * 0.045;
-    vec3 lpp = lp + uPrint;
-    vec4 f1 = fingerprint(lpp, 1.55, bs * 3.7, pixW);
-    vec4 f2 = fingerprint(lpp + 0.31, 2.1, bs * 9.1 + 4.0, pixW);
-    g += f1.xyz * 1.5 + f2.xyz * 1.0;
-    vec4 gr = vnoised(lp * 40.0 + bs);
-    g += gr.yzw * 0.018 * (1.0 - smoothstep(0.012, 0.03, pixW));
-    n = normalize(n - (g - n * dot(g, n)));
-    // surcos de la huella y poros: un poco más oscuros
-    alb *= 1.0 - 0.10 * f1.w - 0.07 * f2.w - 0.05 * smoothstep(0.55, 0.85, gr.x);
-
-    vec3 L = normalize(LPOS - p);
-    float sh = softShadow(p + n * 0.025, L, 30.0, 9.0);
-    float ao = aoObj(p, n);
-    float ndl = dot(n, L);
-    float wrapD = max((ndl + 0.28) / 1.28, 0.0);
-    vec3 sss = pow(alb, vec3(1.55)) * 1.4 * smoothstep(-0.35, 0.15, ndl) * (1.0 - smoothstep(0.15, 0.6, ndl));
-    vec3 V = -rd, Hh = normalize(L + V);
-    float fres = pow(1.0 - max(dot(n, V), 0.0), 4.0);
-    float spec = (pow(max(dot(n, Hh), 0.0), 22.0) * 0.10 + pow(max(dot(n, Hh), 0.0), 90.0) * 0.12) * (0.4 + 0.6 * fres + 0.4);
-    float spot = spotCone(p);
-    col = (alb * wrapD + sss * 0.5) * LCOL * key * sh * spot;
-    col += spec * LCOL * key * sh * spot * smoothstep(-0.1, 0.3, ndl);
-    // relleno frío y cielo/rebote
-    col += alb * FILL_COL * pow(max(dot(n, normalize(FILL_DIR)) * 0.5 + 0.5, 0.0), 1.5) * 0.45 * ao;
-    float up = n.y * 0.5 + 0.5;
-    col += alb * mix(vec3(0.07, 0.05, 0.06), vec3(0.12, 0.15, 0.26), up) * 0.6 * ao;
-    // contraluz cálido de silueta
-    float rim = pow(1.0 - max(dot(n, V), 0.0), 2.6) * max(dot(n, normalize(RIM_DIR)) + 0.35, 0.0);
-    col += RIM_COL * alb * rim * 1.2 * ao;
-    col *= mix(0.55, 1.0, ao);
+    col = shadeObj(ro + rd * tObj, rd, tObj, key);
   } else {
-    vec3 p = ro + rd * tb;
-    vec3 n = nb;
-    vec3 alb = C_SLATE * (0.88 + 0.24 * vnoise(p * 0.55)) * (0.94 + 0.12 * vnoise(p * 3.1));
-    // superficie de arcilla alisada: ondulaciones suaves
-    vec4 nd = vnoised(p * 1.4);
-    vec3 g = nd.yzw * 0.06;
-    vec4 gr = vnoised(p * 22.0);
-    g += gr.yzw * 0.010;
-    vec2 st = vec2(p.x, arc);
-    float starMask = 0.0; vec3 starN = n; float starShadow = 0.0;
-    if (arc < 2.6) {
-      // dirección aproximada de la sombra en el plano del ciclorama
-      vec2 shOff = vec2(0.035, 0.045);
-      for (int i = 0; i < 24; i++) {
-        vec4 s = uStars[i];
-        vec2 d = st - s.xy;
-        float r = s.z;
-        float dd = length(d);
-        if (dd < r * 1.6) {
-          float in1 = 1.0 - smoothstep(r - 0.008, r + 0.004, dd);
-          if (in1 > starMask) {
-            starMask = in1;
-            float hz = sqrt(max(1.0 - dd * dd / (r * r), 0.0));
-            // normal del botón de arcilla en el plano local (x, arco)
-            vec3 tx = vec3(1, 0, 0), ty = normalize(cross(n, tx)) * -1.0;
-            starN = normalize(n * (hz + 0.35) + tx * (d.x / r) * 0.9 + ty * (d.y / r) * 0.9);
-            alb = mix(alb, C_STAR * s.w, in1);
-          }
-        }
-        float ds = length(d - shOff * r / 0.06);
-        starShadow = max(starShadow, (1.0 - smoothstep(r * 0.7, r * 1.25, ds)) * (1.0 - starMask));
-      }
+    col = shadeBg(ro + rd * tb, nb, arc, key);
+    // borde suavizado: el rayo pasó rozando la arcilla
+    if (bestR < 0.75 && bestT < tb) {
+      float cov = 1.0 - smoothstep(0.0, 0.75, bestR);
+      col = mix(col, shadeObj(ro + rd * bestT, rd, bestT, key), cov);
     }
-    n = normalize(n - (g - n * dot(g, n)) * (1.0 - starMask));
-    n = normalize(mix(n, starN, starMask));
-    vec3 L = normalize(LPOS - p);
-    float dist = length(LPOS - p);
-    float fall = pow(16.0 / dist, 2.0);
-    float sh = softShadow(p + n * 0.01, L, dist, 11.0);
-    float ao = aoBg(p, n);
-    float ndl = max(dot(n, L), 0.0);
-    float spot = spotCone(p);
-    col = alb * LCOL * key * ndl * sh * spot * fall;
-    col += alb * FILL_COL * 0.30 * ao;
-    col += alb * vec3(0.16, 0.20, 0.32) * 0.45 * ao;
-    col *= (1.0 - 0.45 * starShadow);
-    col *= mix(0.62, 1.0, ao);
   }
 
   // revelado: exposición, curva fílmica, viñeta y grano del fotograma
@@ -580,7 +597,7 @@ function proyectar(x, y, z) {
 
 // ---------- órbitas: inclinación fija de cada churro ----------
 const ORB = [0, 1, 2].map((i) => {
-  const m = new THREE.Matrix4().makeRotationZ(i * Math.PI / 3 + 0.26).multiply(new THREE.Matrix4().makeRotationX(0.36));
+  const m = new THREE.Matrix4().makeRotationZ(i * Math.PI / 3 + 0.26).multiply(new THREE.Matrix4().makeRotationX(0.44));
   return m;
 });
 const VEL = [3, -3, 3], FASE = [0.3, 2.4, 4.4];
@@ -620,7 +637,7 @@ function estado(n) {
   let X = XM * s;
   const st = Math.sin(Math.PI * s);
   const sqA = [1 + 0.14 * st, 1 - 0.07 * st], sqB = [1 + 0.14 * st, 1 - 0.07 * st];
-  let neck = s > 0 && s < 0.72 ? 0.36 * Math.pow(1 - s / 0.72, 1.4) : 0;
+  let neck = s > 0 && s < 0.74 ? 0.46 * Math.pow(1 - s / 0.74, 1.15) : 0;
   const e = prog(n, 66, 80);
   let rotB = Math.PI * eiob(e);
   let liftB = 0.55 * Math.sin(Math.PI * cl(e / 0.85));
@@ -634,9 +651,9 @@ function estado(n) {
   const sg = Math.sin(Math.PI * g);
   sqA[0] *= 1 + 0.1 * sg; sqB[0] *= 1 + 0.1 * sg;
   E.moonP = { R, cut, shift, zs, crater, butter, X, rotB, liftB, sqA, sqB, neck };
-  E.rope = eob(prog(n, 82, 88), 2.0) * (1 - eio(prog(n, 97, 100)));
-  E.labels = ss(0, 1, prog(n, 72, 79)) * (1 - ss(0, 1, prog(n, 97, 101)));
-  E.labelsIn = prog(n, 72, 79);
+  E.rope = eob(prog(n, 68, 74), 2.0) * (1 - eio(prog(n, 97, 100)));
+  E.labels = ss(0, 1, prog(n, 74, 81)) * (1 - ss(0, 1, prog(n, 97, 101)));
+  E.labelsIn = prog(n, 74, 81);
   E.turn = e;
   E.centro = ss(0, 1, prog(n, 70, 77)) * (1 - ss(0, 1, prog(n, 97, 101)));
   E.centroIn = prog(n, 70, 77);
@@ -662,12 +679,12 @@ function subir(E) {
     const Ry = new THREE.Matrix4().makeRotationY(yaw).multiply(new THREE.Matrix4().makeRotationX(tilt));
     // uYaw: mundo → local del átomo
     U.uYaw.value.setFromMatrix4(Ry.clone().transpose());
-    const ns = 1 - 0.55 * m, nr = 0.265 * (1 - 0.15 * Math.max(m, 0));
+    const ns = 1 - 0.55 * m, nr = 0.29 * (1 - 0.15 * Math.max(m, 0));
     NUC.forEach((p, i) => {
       const j = 0.006;
       U.uNuc.value[i].set(p[0] * ns + (azar(n, 10 + i) - 0.5) * j, p[1] * ns + (azar(n, 20 + i) - 0.5) * j, p[2] * ns + (azar(n, 30 + i) - 0.5) * j, nr);
     });
-    U.uKn.value = 0.06 + 0.25 * Math.max(m, 0);
+    U.uKn.value = 0.04 + 0.27 * Math.max(m, 0);
     U.uKr.value = 0.02 + 0.3 * Math.max(m, 0);
     const Rr = 1.68 * (1 - 0.8 * m), tube = 0.092 * (1 + 0.7 * Math.max(m, 0));
     U.uRing.value.set(Rr, tube);
@@ -679,7 +696,7 @@ function subir(E) {
     });
     U.uBall.value = 1.0 * ss(0.1, 0.92, m);
     U.uKb.value = 0.12 + 0.3 * Math.max(m, 0);
-    U.uLump.value = 0.007 + 0.05 * Math.sin(Math.PI * cl(m));
+    U.uLump.value = 0.01 + 0.05 * Math.sin(Math.PI * cl(m));
     U.uMarble.value = E.marble;
     U.uBallButter.value = E.ballButter;
     const ext = Math.max(Rr + tube + 0.2, 0.6, U.uBall.value + 0.1) * 1.25 + 0.15;
@@ -696,7 +713,7 @@ function subir(E) {
     U.uCrater.value = P.crater;
     U.uButter.value = P.butter;
     U.uRope.value = E.rope;
-    U.uLump.value = 0.007 + 0.03 * Math.sin(Math.PI * prog(n, 40, 47)) + 0.025 * Math.sin(Math.PI * prog(n, 100, 108));
+    U.uLump.value = 0.013 + 0.03 * Math.sin(Math.PI * prog(n, 40, 47)) + 0.025 * Math.sin(Math.PI * prog(n, 100, 108));
     const ex = 1.3 * P.R * 1.2;
     box.expandByPoint(new THREE.Vector3(-P.X - ex, Y0 - ex, -ex)).expandByPoint(new THREE.Vector3(P.X + ex, Y0 + P.liftB + ex, ex));
   }
@@ -718,7 +735,7 @@ function rotular(E) {
   gT.fillStyle = CREMA;
   gT.font = '700 78px "Fraunces"';
   gT.shadowColor = 'rgba(8,10,20,0.35)'; gT.shadowBlur = 18; gT.shadowOffsetY = 4;
-  gT.fillText('La Luna al revés', 98, 172);
+  gT.fillText('La Luna al revés', 102, 172);
   gT.restore();
   // en medio: es la misma Luna, vista cabeza abajo
   if (E.centro > 0.001) {
@@ -735,19 +752,6 @@ function rotular(E) {
     gT.fillStyle = CREMA;
     gT.font = 'italic 500 46px "Fraunces"';
     gT.fillText('girada 180°', 960, 484 + dy);
-    // flecha de giro: arco fino con punta
-    gT.shadowColor = 'transparent';
-    gT.strokeStyle = CREMA_SUAVE; gT.lineWidth = 2.5; gT.lineCap = 'round';
-    const k = eoc(E.centroIn);
-    gT.beginPath();
-    gT.arc(960, 535 + dy, 120, Math.PI * 0.18, Math.PI * (0.18 + 0.64 * k));
-    gT.stroke();
-    if (k > 0.98) {
-      const an = Math.PI * 0.82, ax = 960 + 120 * Math.cos(an), ay = 535 + dy + 120 * Math.sin(an);
-      gT.beginPath();
-      gT.moveTo(ax + 4, ay - 14); gT.lineTo(ax, ay); gT.lineTo(ax + 15, ay + 3);
-      gT.stroke();
-    }
     gT.restore();
   }
   // rótulos de cada hemisferio
@@ -805,7 +809,7 @@ function ajustar() {
   cvTx.width = Math.round(cw * pr); cvTx.height = Math.round(ch * pr);
   gT.setTransform(cvTx.width / W, 0, 0, cvTx.height / H, 0, 0);
   // la arcilla trazada con rayos va a resolución reducida fuera de la captura
-  const maxAncho = CAPTURA ? W : grueso ? 900 : 1440;
+  const maxAncho = CAPTURA ? W : grueso ? 800 : 1440;
   const prGL = Math.min(pr, maxAncho / cw);
   renderer.setPixelRatio(prGL);
   renderer.setSize(cw, ch, false);
