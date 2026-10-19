@@ -1,6 +1,6 @@
 # Episodio 2 · Cruza el ecuador: ¿qué cambia de verdad?
 
-Un solo vídeo del canal **ASK Atom** (16:9, 4:12) con dos pistas de audio: inglés (idioma original) y español. El título, la descripción y los subtítulos se suben en los dos idiomas.
+Un solo vídeo del canal **ASK Atom** (16:9, 4:18) con dos pistas de audio: inglés (idioma original) y español. El título, la descripción y los subtítulos se suben en los dos idiomas.
 
 ## English
 
@@ -14,12 +14,12 @@ Six things that supposedly flip in the Southern Hemisphere. Some are true and so
 
 0:00 Six things that flip down south
 0:16 1 · The upside-down Moon
-0:42 2 · Toilet water
-1:31 3 · Christmas in summer
-2:11 4 · The backwards Sun
-2:38 5 · A different sky
-3:12 6 · The standing egg
-3:42 Final score and a bonus: why is north on top?
+0:43 2 · Toilet water
+1:33 3 · Christmas in summer
+2:14 4 · The backwards Sun
+2:42 5 · A different sky
+3:16 6 · The standing egg
+3:48 Final score and a bonus: why is north on top?
 
 Sources:
 - The Moon: EarthSky, do we all see the same Moon phase? https://earthsky.org/moon-phases/do-we-all-see-the-same-moon-phase/
@@ -52,12 +52,12 @@ Seis cosas que supuestamente cambian en el hemisferio sur. Algunas son verdad y 
 
 0:00 Seis cosas que cambian en el sur
 0:16 1 · La Luna al revés
-0:42 2 · El agua del inodoro
-1:31 3 · Navidad en verano
-2:11 4 · El Sol al revés
-2:38 5 · Otro cielo
-3:12 6 · El huevo de pie
-3:42 Recuento y regalo: ¿por qué el norte está arriba?
+0:43 2 · El agua del inodoro
+1:33 3 · Navidad en verano
+2:14 4 · El Sol al revés
+2:42 5 · Otro cielo
+3:16 6 · El huevo de pie
+3:48 Recuento y regalo: ¿por qué el norte está arriba?
 
 Fuentes:
 - La Luna: EarthSky, ¿vemos todos la misma fase? https://earthsky.org/moon-phases/do-we-all-see-the-same-moon-phase/
@@ -101,7 +101,7 @@ ASK Atom, southern hemisphere, equator, crossing the equator, coriolis effect, t
 4. Los capítulos salen solos de las marcas de tiempo de la descripción. YouTube pide que el primero empiece en 0:00 y que cada uno dure al menos 10 s; aquí se cumple.
 5. Marca el canal y el vídeo como **no dirigidos a niños**. Si no, YouTube quita los anuncios personalizados y los comentarios.
 6. La voz es sintética genérica y el vídeo es una animación, así que no hace falta la etiqueta de contenido realista generado con IA.
-7. Con 4:12 no hay anuncios a mitad del vídeo, porque YouTube los pide a partir de 8 minutos. Solo habrá anuncios antes y después del vídeo.
+7. Con 4:18 no hay anuncios a mitad del vídeo, porque YouTube los pide a partir de 8 minutos. Solo habrá anuncios antes y después del vídeo.
 
 ## Shorts derivados (más adelante)
 
