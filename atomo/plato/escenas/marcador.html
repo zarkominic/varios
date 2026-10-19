@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marcador · plastilina</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Marcador (plastilina, mudo, 3,2 s; se usa seis veces). El marcador de cerca: las casillas
+// 1..n−1 ya tienen sus veredictos (E.resultados). La ficha de la casilla n (E.veredicto) brota en
+// el aire sobre su casilla, en la línea de la luz (su sombra cae siempre en su casilla y se afila al
+// bajar), y a los 0,5 s golpea como un sello: se aplasta y suelta unos grumos de polvo. El átomo
+// reacciona (salta de alegría con ✓, niega con la cabeza con ✗) y todo se queda quieto.
+// Vista previa: ?n=1..6.
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, calma, reaccionMarcador, T_GOLPE, LUZ, TAB as T, cl, mix, prog, ss, eoc, muelle, brote, mulberry32 } from '/atomo/plato/kits/plastilina.js';
+
+const E = await escena('marcador');
+const n0 = (E.n ?? 1) - 1;                     // casilla que recibe el sello (0..5)
+const RES = E.resultados ?? ['✓', '✗', '✗', '✓', '✓', '✗'];
+const VER = E.veredicto ?? RES[n0];
+const P = await crearPlato({
+  piezas: ['ficha'], tablero: true, polvo: 9,
+  sombras: { tablero: ['p0'], p0: ['tablero'] },
+  camara: { pos: [0, 6, 13], mira: [0, 1.4, 0.6], fov: 28, desenfoque: 30 },
+});
+
+// (recuento.html empieza exactamente con este marcador y este átomo)
+const TAB = { pos: [-0.85, 1.45, 0.8], escala: 1.06, inclinacion: 0.8, giro: 0.05 };
+const ATOMO = [4.0, 2.0, 0.8], A_ESC = 0.5;
+const T_BROTE = 0.25, ALTO0 = 1.15, SUBE = 0.2;  // brota (completa en 0,25 s) a 1,15 de su casilla, sube un poco y cae
+
+// polvo: grumos que salen del borde de la ficha al golpear (sembrado). Se quedan dentro del
+// marcador y por debajo de la fila de números.
+const POLVO = (() => {
+  const r = mulberry32(4242 + n0), out = [];
+  for (let k = 0; k < 9; k++) {
+    const a = (k / 9) * Math.PI * 2 + (r() - 0.5) * 0.6;
+    out.push({ a, lejos: mix(0.18, 0.42, r()), sube: mix(0.1, 0.24, r()), r: mix(0.09, 0.14, r()), dur: mix(0.45, 0.62, r()) });
+  }
+  return out;
+})();
+
+function dibujar(t) {
+  const n = P.fotograma(t, E.duracion), ts = n / 12;
+  const tz = calma(ts, E.duracion);          // reloj del reposo: frena y se para al final
+  P.limpiar();
+
+  // ---------- el marcador, con un pequeño temblor al recibir el golpe ----------
+  const tiembla = muelle(ts - T_GOLPE, 4, 9);
+  const celdas = RES.map((v, i) => (i < n0 ? { tipo: v } : {}));
+  P.tablero({ ...TAB, celdas, sq: [1 + 0.012 * tiembla, 1, 1 - 0.035 * tiembla], toque: ts > T_GOLPE - 0.05 && ts < T_GOLPE + 0.2 });
+
+  // ---------- la ficha: brota en la línea de la luz, sube un poco, cae como un sello y se asienta ----------
+  const k = brote(ts, T_BROTE, 0.17, 0.12);
+  if (k > 0) {
+    const x = (n0 - 2.5) * T.PASO;
+    const u = prog(ts, T_BROTE, T_GOLPE);
+    // distancia (mundo) a su casilla, a lo largo del rayo de luz
+    const a = ts < T_BROTE ? ALTO0 + SUBE * eoc(prog(ts, T_BROTE - 0.17, T_BROTE))
+      : (ALTO0 + SUBE) * (1 - Math.pow(u, 2.2));
+    const ap = ts < T_GOLPE ? -0.28 * u + 0.12 * (1 - k) : 0.45 * muelle(ts - T_GOLPE, 3, 7);
+    const sqz = 1 - ap, sqxy = 1 + 0.55 * ap;
+    const rebote = 0.16 * Math.sin(Math.PI * prog(ts, T_GOLPE + 0.04, T_GOLPE + 0.32));
+    const c = P.enTablero(TAB, x, T.YW, -0.1 + 0.16 * sqz + rebote);
+    const l = LUZ.map((v, i) => v - c[i]), ll = Math.hypot(...l);
+    const giro = 0.35 * (1 - eoc(prog(ts, T_BROTE - 0.17, T_GOLPE + 0.1))) + 0.04 * muelle(ts - T_GOLPE, 2, 6);
+    P.pieza(0, {
+      pos: c.map((v, i) => v + l[i] / ll * a),
+      escala: TAB.escala * Math.min(k, 1.12), sq: [sqxy, sqxy, sqz],
+      rot: [-TAB.inclinacion, TAB.giro, giro], variante: VER,
+      toque: ts < T_GOLPE + 0.35,
+    });
+    // polvo
+    if (ts >= T_GOLPE) {
+      P.polvo(POLVO.map((p) => {
+        const v = prog(ts, T_GOLPE, T_GOLPE + p.dur);
+        if (v >= 1) return null;
+        const rho = 0.36 + p.lejos * eoc(v);
+        const dx = Math.cos(p.a) * rho * 1.15, dy = cl(Math.sin(p.a) * rho, -0.41, 0.34);
+        const w = P.enTablero(TAB, cl(x + dx, -3.0, 3.0), T.YW + dy, 0.08 + p.sube * Math.sin(Math.PI * Math.pow(v, 0.6)));
+        const rr = p.r * TAB.escala * Math.sin(Math.PI * Math.pow(v, 0.35)) * (1 - 0.25 * v);
+        return [...w, rr];
+      }));
+    }
+  }
+
+  // ---------- el átomo reacciona ----------
+  const r = reaccionMarcador(ts, tz, VER === '✓');
+  P.atomo({
+    pos: [ATOMO[0], ATOMO[1] + 0.03 * Math.sin(tz * 2.0) + r.dy, ATOMO[2]], escala: A_ESC,
+    yaw: r.yaw, pitch: 0.08, roll: r.roll, sq: r.sq,
+    energia: E.energia(ts), ts: r.tsE, toque: ts > T_GOLPE - 0.1 && ts < T_GOLPE + 1.2,
+  });
+
+  P.render(n);
+}
+
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

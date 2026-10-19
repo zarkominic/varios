@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Luna al revés · metal líquido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@500;600&display=swap">
+<style>
+  html, body { margin: 0; height: 100%; background: #05060a; overflow: hidden; }
+  #escena { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #06070b; overflow: hidden; }
+  #escena canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<div id="escena"><canvas id="gl"></canvas><canvas id="txt"></canvas></div>
+<script>
+(() => {
+'use strict';
+// Metal líquido: un átomo de mercurio cromado se funde en una gota, la gota se parte en dos
+// y cada mitad se convierte en la Luna creciente: «D» vista desde el norte y, girada 180°, «C» desde el sur.
+// Trazado de rayos por campo de distancias (SDF) en un shader; todo es función pura del tiempo t.
+const DUR = 10;                        // duración del bucle (s)
+const W = 1920, H = 1080;              // marco de diseño 16:9
+const CX = 960, CY = 514;              // centro del átomo (px de diseño, desde arriba)
+const U = 280;                         // px de diseño por unidad de mundo
+const SX = 1.5714;                     // separación final de cada luna (±440 px)
+const CAPTURA = location.search.includes('captura');
+const TAU = Math.PI * 2;
+
+// ---------- utilidades de tiempo ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lin = (t, a, b) => clamp((t - a) / (b - a));
+const mix = (a, b, x) => a + (b - a) * x;
+const smooth = (x) => x * x * (3 - 2 * x);
+const eIn3 = (x) => x * x * x;
+const eOut3 = (x) => 1 - Math.pow(1 - x, 3);
+const eInOut3 = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const eOutBack = (x, c = 1.25) => 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2);
+const eInOutBack = (x, c = 0.9) => {
+  const c2 = c * 1.525;
+  return x < 0.5
+    ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+    : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
+};
+// viscosa: arranca despacio (el cuello se estira), se suelta y se asienta con un leve rebote
+const viscosa = (x) => Math.pow(smooth(x), 1.35) + 0.08 * Math.sin(Math.PI * x) * Math.pow(x, 5);
+// campana suave centrada en c (tiempo envuelto en el bucle)
+const campana = (t, c, w) => {
+  const d = ((t - c + DUR * 1.5) % DUR) - DUR / 2;
+  const x = clamp(Math.abs(d) / w);
+  return x >= 1 ? 0 : 0.5 + 0.5 * Math.cos(Math.PI * x);
+};
+const deriv = (f, t, h = 1 / 240) => (f(t + h) - f(t - h)) / (2 * h);
+
+// ---------- guion (s) ----------
+// 0–1.2 átomo · 1.2–2.4 los electrones caen al núcleo · 2.75–4.25 la gota se estira, el hilo se rompe (3.75) y quedan dos
+// 3.95–4.85 cada gota se vuelve Luna «D» · 5.35–6.55 la del sur gira 180° → «C»
+// 7.45–8.6 las dos lunas se juntan de espaldas y se funden · 8.6–9.6 salen los electrones
+const T_FUS = [1.2, 2.4], T_EXP = [8.6, 9.6];
+const T_SPLIT = [2.75, 4.25], T_JUNTA = [7.45, 8.6];
+const T_LUNA = [3.95, 4.85], T_LLENA = [7.7, 8.4];
+const T_GIRO = [5.35, 6.55];
+
+const radioOrbital = (t) => {
+  if (t < T_FUS[0]) return 1;
+  if (t < T_FUS[1]) return 1 - eIn3(lin(t, ...T_FUS));
+  if (t < T_EXP[0]) return 0;
+  return eOutBack(lin(t, ...T_EXP), 1.15);
+};
+const giroExtra = (t) => Math.PI * eIn3(lin(t, ...T_FUS)) + Math.PI * eOut3(lin(t, ...T_EXP));
+const kElectron = (t) => {
+  if (t < T_EXP[0]) return mix(0.045, 0.32, Math.pow(lin(t, T_FUS[0] + 0.35, T_FUS[1]), 2));
+  return mix(0.34, 0.045, eOut3(lin(t, ...T_EXP)));
+};
+const crecimiento = (t) => eInOut3(lin(t, 1.7, 2.6)) * (1 - eInOut3(lin(t, 8.6, 9.3)));
+const pesoPar = (t) => smooth(lin(t, 2.55, 2.8)) * (1 - smooth(lin(t, 8.5, 8.7)));
+const separacion = (t) => SX * viscosa(lin(t, ...T_SPLIT)) * (1 - viscosa(lin(t, ...T_JUNTA)));
+const kPar = (t) => {
+  if (t < 6) return mix(0.9, 0.16, eInOut3(lin(t, 2.75, 3.45)));
+  return mix(0.2, 0.9, eInOut3(lin(t, 7.85, 8.6)));
+};
+const radioGota = (t) => {
+  // mientras el hilo tira, las gotas se quedan pequeñas; al romperse lo absorben y se hinchan
+  if (t < 6) return mix(mix(0.575, 0.635, eInOut3(lin(t, 2.8, 3.75))), 0.86, eInOut3(lin(t, 3.8, 4.5)));
+  return mix(0.86, 0.575, eInOut3(lin(t, 7.9, 8.6)));
+};
+// hilo entre las gotas: adelgaza, se rompe en T_ROTURA y cada mitad se recoge
+const T_ROTURA = 3.82;
+const hiloRadio = (t) => {
+  if (t < 2.75 || t > 4.15) return 0;
+  const r = mix(0.34, 0.06, eInOut3(lin(t, 2.85, T_ROTURA)));
+  return r * (1 - smooth(lin(t, T_ROTURA + 0.04, 4.15)));
+};
+const hiloLargo = (t) => separacion(t) * (1 - eOut3(lin(t, T_ROTURA, 4.1)));
+const luna = (t) => eInOut3(lin(t, ...T_LUNA)) * (1 - eInOut3(lin(t, ...T_LLENA)));
+// giro de la Luna del sur, en sentido horario; al volver a ser esfera se reinicia (invisible)
+const giroSur = (t) => (t < 8.45 ? -Math.PI * eInOutBack(lin(t, ...T_GIRO), 0.55) : 0);
+const ondulacion = (t) =>
+  0.0035 + 0.014 * campana(t, 2.65, 0.6) + 0.013 * campana(t, 3.95, 0.5) +
+  0.009 * campana(t, 4.8, 0.55) + 0.008 * campana(t, 6.6, 0.55) +
+  0.014 * campana(t, 8.35, 0.6) + 0.011 * campana(t, 9.35, 0.6);
+
+// ---------- geometría del átomo ----------
+const R_ORB = 0.97, INCL = 0.33, R_E = 0.096, R_NUC = 0.158, R_GOTA = 0.78;
+const orbitas = [90, 28, 152].map((g) => {
+  const b = (g * Math.PI) / 180, se = INCL, ce = Math.sqrt(1 - se * se);
+  return { u: [Math.cos(b), Math.sin(b), 0], v: [-Math.sin(b) * se, Math.cos(b) * se, ce] };
+});
+const fases = [0.3, 0.3 + TAU / 3, 0.3 + (2 * TAU) / 3];
+const nucleones = [];
+for (let i = 0; i < 7; i++) {
+  const y = 1 - (2 * (i + 0.5)) / 7, r = Math.sqrt(1 - y * y), a = i * 2.39996;
+  nucleones.push([Math.cos(a) * r, y, Math.sin(a) * r]);
+}
+
+// ---------- WebGL ----------
+const cgl = document.getElementById('gl');
+const ctxt = document.getElementById('txt');
+const gl = cgl.getContext('webgl2', { preserveDrawingBuffer: true, antialias: false, alpha: false, premultipliedAlpha: false });
+const g2 = ctxt.getContext('2d');
+
+const VS = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
+
+const FS = `#version 300 es
+precision highp float;
+out vec4 o;
+uniform float uS;                     // px de lienzo por px de diseño
+uniform vec3 uN[7]; uniform float uNr, uKn;
+uniform vec3 uE[3]; uniform float uEr, uKe, uEOn;
+uniform float uW, uSx, uRp, uKs, uSt, uBr, uBrL;
+uniform float uM, uCut;
+uniform vec2 uRho, uTw;
+uniform float uWob, uRip, uBob;
+uniform vec3 uWph;
+uniform vec3 uOA[3], uOB[3];
+uniform float uOth[3];
+uniform float uOr, uOal;
+
+const float PI = 3.14159265, TAU = 6.2831853;
+const float U = ${U}.;
+const vec2 C0 = vec2(${CX}., ${H - CY}.);
+
+vec3 lin(vec3 c){ return pow(c, vec3(2.2)); }
+float smin(float a, float b, float k){ float h = max(k - abs(a - b), 0.) / k; return min(a, b) - h * h * k * 0.25; }
+float smax(float a, float b, float k){ return -smin(-a, -b, k); }
+mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, s, -s, c); }
+
+// Luna creciente: esfera menos un cilindro de sombra; al girar, las puntas se retrasan (inercia del líquido)
+float lunaSDF(vec3 q, float rho, float tw){
+  float a = rho - tw * dot(q.xy, q.xy);
+  q.xy = rot(-a) * q.xy;
+  float dA = (length(q * vec3(1., 1., 1.15)) - 0.92) * 0.88;
+  float dB = length(q.xy - vec2(uCut, 0.)) - 0.775;
+  return smax(dA, -dB, 0.15);
+}
+
+float gota(vec3 q, float rho, float tw){
+  vec3 sc = vec3(1. + uSt, inversesqrt(1. + uSt), inversesqrt(1. + uSt));   // se estira al viajar
+  float d = (length(q / sc) - uRp) * sc.y;
+  if (uM > 0.0005) d = mix(d, lunaSDF(q, rho, tw), uM);
+  return d;
+}
+
+float map(vec3 p){
+  float d = 1e3;
+  if (uW < 0.999){
+    for (int i = 0; i < 7; i++) d = smin(d, length(p - uN[i]) - uNr, uKn);
+  }
+  if (uW > 0.001){
+    float dl = gota(p + vec3(uSx, 0., 0.), uRho.x, uTw.x);
+    float dr = gota(p - vec3(uSx, 0., 0.), uRho.y, uTw.y);
+    float dp = smin(dl, dr, uKs);
+    if (uBr > 0.0005){
+      // hilo viscoso entre las dos gotas: más fino en el centro; al romperse, cada mitad se recoge en su gota
+      float ax = abs(p.x), x0 = uSx - uBrL;
+      float cx = clamp(ax, x0, uSx);
+      float s = cx / max(uSx, 1e-3);
+      float db = length(vec3(ax - cx, p.y, p.z)) - uBr * (0.3 + 0.7 * s * s * s);
+      dp = smin(dp, db, 0.13);
+    }
+    d = uW < 0.999 ? mix(d, dp, uW) : dp;
+  }
+  if (uEOn > 0.5){
+    for (int i = 0; i < 3; i++) d = smin(d, length(p - uE[i]) - uEr, uKe);
+  }
+  d += uWob * sin(3.3 * p.x + uWph.x) * sin(2.9 * p.y + uWph.y) * sin(2.6 * p.z + uWph.z);
+  d += uRip * (sin(9.1 * p.x + 5.3 * p.z + uWph.y) * sin(8.3 * p.y - 6.1 * p.z + uWph.z) +
+               0.6 * sin(13.7 * p.y + 7.9 * p.x - uWph.x) * sin(11.3 * p.z + uWph.y));
+  return d;
+}
+
+vec3 normal(vec3 p){
+  const vec2 k = vec2(1., -1.); const float h = 0.0012;
+  return normalize(k.xyy * map(p + k.xyy * h) + k.yyx * map(p + k.yyx * h) +
+                   k.yxy * map(p + k.yxy * h) + k.xxx * map(p + k.xxx * h));
+}
+
+float oclusion(vec3 p, vec3 n){
+  float o = 0., s = 1.;
+  for (int i = 1; i <= 3; i++){ float h = 0.045 * float(i); o += (h - map(p + n * h)) * s; s *= 0.6; }
+  return clamp(1. - 2.2 * o, 0., 1.);
+}
+
+float caja(vec2 ae, vec2 c, vec2 m, float s){
+  float da = mod(ae.x - c.x + PI, TAU) - PI;
+  vec2 d = abs(vec2(da, ae.y - c.y)) - m;
+  return (1. - smoothstep(-s, s, d.x)) * (1. - smoothstep(-s, s, d.y));
+}
+
+// estudio procedural que se refleja en el metal
+vec3 entorno(vec3 r){
+  vec2 ae = vec2(atan(r.x, r.z), asin(clamp(r.y, -1., 1.)));
+  float y = r.y;
+  vec3 tinte = mix(lin(vec3(0.70, 0.80, 1.00)), lin(vec3(1.00, 0.88, 0.76)), smoothstep(-0.9, 0.9, r.x));
+  vec3 cielo = tinte * mix(0.16, 0.62, smoothstep(0.0, 0.95, y));
+  vec3 suelo = mix(lin(vec3(0.016, 0.018, 0.026)), lin(vec3(0.17, 0.15, 0.14)), smoothstep(-0.18, -0.85, y));
+  vec3 c = mix(suelo, cielo, smoothstep(-0.03, 0.035, y));
+  c += lin(vec3(0.95, 0.96, 1.0)) * exp(-pow((y - 0.012) * 26., 2.)) * 0.9;
+  c += lin(vec3(1.00, 0.86, 0.70)) * 5.0 * caja(ae, vec2(0.78, 0.60), vec2(0.34, 0.19), 0.06);
+  c += lin(vec3(0.96, 0.97, 1.00)) * 3.2 * caja(ae, vec2(0.0, 1.30), vec2(1.6, 0.07), 0.04);
+  c += lin(vec3(0.58, 0.74, 1.00)) * 3.4 * caja(ae, vec2(-1.30, 0.14), vec2(0.07, 0.52), 0.05);
+  c += lin(vec3(1.00, 0.80, 0.58)) * 3.0 * caja(ae, vec2(2.45, 0.22), vec2(0.10, 0.50), 0.06);
+  c += lin(vec3(0.62, 0.78, 1.00)) * 2.6 * caja(ae, vec2(-2.50, 0.28), vec2(0.10, 0.48), 0.06);
+  c += lin(vec3(1.00, 0.97, 0.92)) * 2.6 * caja(ae, vec2(0.36, 0.05), vec2(0.022, 0.42), 0.02);
+  c += lin(vec3(0.85, 0.92, 1.00)) * 1.8 * caja(ae, vec2(-0.42, 0.18), vec2(0.018, 0.36), 0.02);
+  c *= 1. - 0.6 * caja(ae, vec2(-0.75, 0.48), vec2(0.18, 0.30), 0.12);
+  return c;
+}
+
+vec3 fondo(vec2 f){                    // f en px de diseño (origen abajo a la izquierda)
+  vec2 uv = f / vec2(1920., 1080.);
+  vec3 c = mix(lin(vec3(0.014, 0.018, 0.028)), lin(vec3(0.040, 0.050, 0.075)), smoothstep(0.0, 1.0, uv.y));
+  // halo detrás de cada gota: sigue a las lunas cuando se separan
+  vec2 a = C0 - vec2(uSx * U, 0.), b = C0 + vec2(uSx * U, 0.);
+  float da = length(f - a) / 470., db = length(f - b) / 470.;
+  c += lin(vec3(0.105, 0.125, 0.175)) * (exp(-da * da * 2.6) + exp(-db * db * 2.6)) * mix(0.5, 1., smoothstep(0., 0.6, uSx));
+  c *= 1. - 0.42 * smoothstep(0.45, 1.15, length((uv - 0.5) * vec2(1.0, 0.85)));
+  return c;
+}
+
+vec3 sombrear(vec3 p, vec3 rd){
+  vec3 n = normal(p);
+  float ao = oclusion(p, n);
+  vec3 r = reflect(rd, n);
+  float nv = max(dot(n, -rd), 0.);
+  float fr = pow(1. - nv, 5.);
+  vec3 F0 = vec3(0.80, 0.82, 0.86);
+  vec3 F = F0 + (1. - F0) * fr;
+  vec3 c = entorno(r) * F;
+  // refracción sutil con dispersión: se ve el estudio de detrás, curvado
+  vec3 tr = vec3(entorno(refract(rd, n, 0.70)).r, entorno(refract(rd, n, 0.725)).g, entorno(refract(rd, n, 0.75)).b);
+  c = mix(c, tr * lin(vec3(0.70, 0.76, 0.86)), 0.12 * (1. - fr));
+  vec3 L1 = normalize(vec3(0.55, 0.62, 0.56)), L2 = normalize(vec3(-0.75, 0.25, 0.35));
+  c += lin(vec3(1.0, 0.93, 0.84)) * pow(max(dot(r, L1), 0.), 260.) * 5.0;
+  c += lin(vec3(0.78, 0.88, 1.0)) * pow(max(dot(r, L2), 0.), 120.) * 1.6;
+  return c * mix(0.25, 1., ao);
+}
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+
+void main(){
+  vec2 f = gl_FragCoord.xy / uS;
+  vec2 w = (f - C0) / U;
+  w.y -= uBob;
+  float pxw = 1. / (U * uS);
+  vec3 col = fondo(f);
+
+  // luz cenicienta: el resto del disco lunar, apenas insinuado
+  if (uM > 0.001){
+    for (int k = 0; k < 2; k++){
+      float rl = length(w - vec2(k == 0 ? -uSx : uSx, 0.));
+      float ring = 1. - smoothstep(0.6, 1.8, abs(rl - 0.925) * U);
+      col += lin(vec3(0.42, 0.47, 0.58)) * ring * 0.15 * uM;
+      col += lin(vec3(0.075, 0.085, 0.115)) * (1. - smoothstep(0.90, 0.93, rl)) * uM;
+    }
+  }
+
+  // trazado del líquido (cámara ortográfica), sólo dentro de la cápsula que lo contiene
+  float BR = 1.3, cov = 0., zHit = -10.;
+  float rr = length(vec2(max(abs(w.x) - uSx, 0.), w.y));
+  vec3 obj = vec3(0.);
+  if (rr < BR){
+    float z0 = sqrt(BR * BR - rr * rr);
+    vec3 ro = vec3(w, z0), rd = vec3(0., 0., -1.);
+    float t = 0., dmin = 1e3, tmin = 0.;
+    bool hit = false;
+    for (int i = 0; i < 100; i++){
+      float d = map(ro + rd * t);
+      if (d < dmin){ dmin = d; tmin = t; }
+      if (d < 0.0006){ hit = true; break; }
+      t += d * 0.82;
+      if (t > 2. * z0) break;
+    }
+    if (hit){ cov = 1.; obj = sombrear(ro + rd * t, rd); zHit = z0 - t; }
+    else if (dmin < 1.6 * pxw){
+      cov = 1. - smoothstep(0., 1.6 * pxw, dmin);
+      obj = sombrear(ro + rd * tmin, rd); zHit = z0 - tmin;
+    }
+  }
+  col = mix(col, obj, cov);
+
+  // órbitas: elipses finísimas con estela tras cada electrón
+  if (uOal > 0.004 && uOr > 0.04){
+    for (int i = 0; i < 3; i++){
+      vec3 A = uOA[i] * uOr, B = uOB[i] * uOr;
+      mat2 Mi = inverse(mat2(A.xy, B.xy));
+      vec2 q = Mi * w; float lq = length(q);
+      vec2 g = transpose(Mi) * (q / max(lq, 1e-4));
+      float dpx = abs(lq - 1.) / length(g) * U;
+      float ang = atan(q.y, q.x);
+      float zl = (A * cos(ang) + B * sin(ang)).z;
+      float vis = (cov > 0.5 && zl < zHit) ? 0. : 1.;
+      float tras = mod(uOth[i] - ang, TAU);
+      float estela = exp(-tras * 1.5);
+      float nucleo = 1. - smoothstep(0.55, 1.7, dpx);
+      float halo = exp(-dpx / 7.) * 0.22;
+      col += lin(vec3(0.74, 0.82, 0.96)) * (nucleo + halo * estela) * (0.075 + 0.95 * estela) * uOal * vis;
+    }
+  }
+
+  col *= 1.08;
+  col = clamp((col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14), 0., 1.);
+  col = pow(col, vec3(1. / 2.2));
+  col += (hash(gl_FragCoord.xy) - 0.5) / 255.;
+  o = vec4(col, 1.);
+}`;
+
+function compilar(tipo, src) {
+  const s = gl.createShader(tipo);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compilar(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, compilar(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog);
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+const aP = gl.getAttribLocation(prog, 'p');
+gl.enableVertexAttribArray(aP);
+gl.vertexAttribPointer(aP, 2, gl.FLOAT, false, 0, 0);
+const loc = {};
+for (const n of ['uS', 'uN', 'uNr', 'uKn', 'uE', 'uEr', 'uKe', 'uEOn', 'uW', 'uSx', 'uRp', 'uKs', 'uSt', 'uBr', 'uBrL', 'uM', 'uCut',
+  'uRho', 'uTw', 'uWob', 'uRip', 'uBob', 'uWph', 'uOA', 'uOB', 'uOth', 'uOr', 'uOal'])
+  loc[n] = gl.getUniformLocation(prog, n);
+gl.uniform3fv(loc.uOA, new Float32Array(orbitas.flatMap((o) => o.u.map((x) => x * R_ORB))));
+gl.uniform3fv(loc.uOB, new Float32Array(orbitas.flatMap((o) => o.v.map((x) => x * R_ORB))));
+
+// ---------- tamaño y letterbox 16:9 ----------
+const escena = document.getElementById('escena');
+let escalaTxt = 1;
+let presupuesto = 520000;              // px de trazado de rayos en modo normal (baja si el móvil no llega)
+function ajustar() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const ancho = Math.min(vw, (vh * 16) / 9), alto = (ancho * 9) / 16;
+  escena.style.width = ancho + 'px';
+  escena.style.height = alto + 'px';
+  const dpr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  ctxt.width = Math.round(ancho * dpr);
+  ctxt.height = Math.round(alto * dpr);
+  escalaTxt = ctxt.width / W;
+  let f = 1;
+  if (!CAPTURA) f = Math.min(1, Math.sqrt(presupuesto / (ancho * dpr * alto * dpr)));
+  cgl.width = Math.round(ancho * dpr * f);
+  cgl.height = Math.round(alto * dpr * f);
+  gl.viewport(0, 0, cgl.width, cgl.height);
+}
+ajustar();
+
+// ---------- rótulos ----------
+const SERIF = '"Instrument Serif", "Times New Roman", serif';
+const SANS = 'Inter, "Helvetica Neue", Arial, sans-serif';
+const ORO = '#bfa67e', MARFIL = '#ece8e0', PIZARRA = '#8f9bb0';
+function texto(str, x, y, fuente, color, esp = 0, alpha = 1, alin = 'center') {
+  g2.font = fuente;
+  g2.letterSpacing = esp + 'px';
+  g2.fillStyle = color;
+  g2.globalAlpha = alpha;
+  g2.textAlign = alin;
+  // el espaciado añade un hueco tras la última letra: se compensa al centrar
+  g2.fillText(str, alin === 'center' ? x + esp / 2 : x, y);
+  g2.globalAlpha = 1;
+  g2.letterSpacing = '0px';
+}
+function rotulos(t) {
+  g2.setTransform(1, 0, 0, 1, 0, 0);
+  g2.clearRect(0, 0, ctxt.width, ctxt.height);
+  g2.setTransform(escalaTxt, 0, 0, escalaTxt, 0, 0);
+  g2.textBaseline = 'alphabetic';
+
+  // cabecera
+  texto('LO QUE NO TE EXPLICARON EN CLASE', CX, 98, `600 22px ${SANS}`, ORO, 6.5, 0.92);
+  const a = 'La Luna ', b = 'al revés';
+  g2.font = `400 76px ${SERIF}`; const wa = g2.measureText(a).width;
+  g2.font = `italic 400 76px ${SERIF}`; const wb = g2.measureText(b).width;
+  const x0 = CX - (wa + wb) / 2;
+  g2.textAlign = 'left'; g2.fillStyle = MARFIL;
+  g2.font = `400 76px ${SERIF}`; g2.fillText(a, x0, 170);
+  g2.font = `italic 400 76px ${SERIF}`; g2.fillText(b, x0 + wa, 170);
+
+  // pies de las dos lunas
+  const xl = CX - SX * U, xr = CX + SX * U;
+  const ent = eOut3(lin(t, 4.45, 5.15)), sal = eIn3(lin(t, 7.3, 7.75));
+  const k = ent * (1 - sal);
+  if (k > 0.001) {
+    const dy = (1 - ent) * 18 - sal * 12;
+    for (const [x, txt] of [[xl, 'hemisferio norte'], [xr, 'hemisferio sur']]) {
+      texto('VISTA DESDE EL', x, 828 + dy, `600 20px ${SANS}`, PIZARRA, 5.5, 0.95 * k);
+      texto(txt, x, 880 + dy, `italic 400 54px ${SERIF}`, MARFIL, 0.3, k);
+    }
+    // filete central entre los dos hemisferios
+    const gr = g2.createLinearGradient(0, 300, 0, 760);
+    gr.addColorStop(0, 'rgba(143,155,176,0)');
+    gr.addColorStop(0.5, 'rgba(143,155,176,0.38)');
+    gr.addColorStop(1, 'rgba(143,155,176,0)');
+    g2.globalAlpha = k;
+    g2.fillStyle = gr;
+    g2.fillRect(CX - 0.75, 300, 1.5, 460);
+    g2.globalAlpha = 1;
+  }
+
+  // arco que acompaña el giro de 180° de la Luna del sur
+  const va = smooth(lin(t, 5.05, 5.45)) * (1 - smooth(lin(t, 6.95, 7.35)));
+  if (va > 0.001) {
+    const p = clamp(-giroSur(t) / Math.PI);
+    // semicírculo superior, de las 9 a las 3, en el mismo sentido (horario) que gira la Luna
+    const R = 318, a0 = -Math.PI, a1 = a0 + Math.PI * Math.max(p, 0.0001);
+    g2.save();
+    g2.translate(xr, CY);
+    g2.globalAlpha = va;
+    g2.strokeStyle = ORO;
+    g2.lineWidth = 1.6;
+    g2.lineCap = 'round';
+    g2.beginPath(); g2.arc(0, 0, R, a0, a1); g2.stroke();
+    // marcas de inicio y fin
+    g2.globalAlpha = va * 0.45;
+    g2.beginPath(); g2.arc(0, 0, R, a1, a0 + Math.PI); g2.setLineDash([2, 7]); g2.stroke(); g2.setLineDash([]);
+    g2.globalAlpha = va;
+    // punta de flecha
+    const hx = Math.cos(a1) * R, hy = Math.sin(a1) * R;
+    const tx = -Math.sin(a1), ty = Math.cos(a1);      // tangente en sentido horario
+    const nx = Math.cos(a1), ny = Math.sin(a1);
+    g2.fillStyle = ORO;
+    g2.beginPath();
+    g2.moveTo(hx + tx * 13, hy + ty * 13);
+    g2.lineTo(hx - tx * 4 + nx * 6.5, hy - ty * 4 + ny * 6.5);
+    g2.lineTo(hx - tx * 4 - nx * 6.5, hy - ty * 4 - ny * 6.5);
+    g2.closePath(); g2.fill();
+    g2.restore();
+    const grados = Math.round(180 * clamp(p));
+    texto(`${grados}°`, xr + R + 24, CY + 9, `500 26px ${SANS}`, ORO, 1.5, va, "left");
+  }
+}
+
+// ---------- fotograma ----------
+const nArr = new Float32Array(21), eArr = new Float32Array(9);
+function dibujar(t) {
+  t = ((t % DUR) + DUR) % DUR;
+  const ph = TAU * t / DUR;
+  const cre = crecimiento(t);
+  const rn = mix(R_NUC, R_GOTA, cre);
+  const sep = 0.125 * (1 - cre);
+  const ca = Math.cos(ph), sa = Math.sin(ph);
+  for (let i = 0; i < 7; i++) {
+    const [x, y, z] = nucleones[i];
+    const resp = 1 + 0.07 * Math.sin(3 * ph + i * 1.7);
+    const x2 = x * ca + z * sa, z2 = -x * sa + z * ca;
+    const y2 = y * 0.94 + z2 * 0.34, z3 = -y * 0.34 + z2 * 0.94;
+    nArr[i * 3] = x2 * sep * resp; nArr[i * 3 + 1] = y2 * sep * resp; nArr[i * 3 + 2] = z3 * sep * resp;
+  }
+  const ro = radioOrbital(t);
+  const th = [];
+  for (let i = 0; i < 3; i++) {
+    const a = fases[i] + 3 * ph + giroExtra(t);
+    th.push(a);
+    const { u, v } = orbitas[i];
+    const c = Math.cos(a) * R_ORB * ro, s = Math.sin(a) * R_ORB * ro;
+    eArr[i * 3] = u[0] * c + v[0] * s; eArr[i * 3 + 1] = u[1] * c + v[1] * s; eArr[i * 3 + 2] = u[2] * c + v[2] * s;
+  }
+  const m = luna(t);
+  const sx = separacion(t);
+  const vel = Math.abs(deriv(separacion, t));
+  gl.uniform1f(loc.uS, cgl.width / W);
+  gl.uniform3fv(loc.uN, nArr);
+  gl.uniform1f(loc.uNr, rn);
+  gl.uniform1f(loc.uKn, mix(0.11, 0.2, cre));
+  gl.uniform3fv(loc.uE, eArr);
+  gl.uniform1f(loc.uEr, R_E);
+  gl.uniform1f(loc.uKe, kElectron(t));
+  gl.uniform1f(loc.uEOn, ro > 0.0001 ? 1 : 0);
+  gl.uniform1f(loc.uW, pesoPar(t));
+  gl.uniform1f(loc.uSx, sx);
+  gl.uniform1f(loc.uRp, radioGota(t));
+  gl.uniform1f(loc.uKs, kPar(t));
+  gl.uniform1f(loc.uSt, 0.035 * vel * (1 - m));
+  gl.uniform1f(loc.uBr, hiloRadio(t));
+  gl.uniform1f(loc.uBrL, hiloLargo(t));
+  gl.uniform1f(loc.uM, smooth(clamp(m / 0.45)));
+  gl.uniform1f(loc.uCut, mix(-1.9, -0.465, smooth(lin(m, 0.08, 1))));
+  gl.uniform2f(loc.uRho, 0, giroSur(t));
+  gl.uniform2f(loc.uTw, 0, 0.055 * deriv(giroSur, t));
+  const ond = ondulacion(t);
+  gl.uniform1f(loc.uWob, ond);
+  gl.uniform1f(loc.uRip, 0.0016 + 0.25 * (ond - 0.0035));
+  gl.uniform3f(loc.uWph, 2 * ph + 0.4, -3 * ph + 1.3, 2 * ph + 2.1);
+  gl.uniform1f(loc.uBob, 0.012 * Math.sin(2 * ph));
+  gl.uniform1fv(loc.uOth, new Float32Array(th));
+  gl.uniform1f(loc.uOr, ro);
+  gl.uniform1f(loc.uOal, clamp(ro * 1.6 - 0.35));
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  rotulos(t);
+}
+const pixel = new Uint8Array(4);
+window.__frame = async (t) => {
+  dibujar(t);
+  gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);   // espera a que la GPU termine
+};
+
+// ---------- arranque ----------
+async function fuentes() {
+  const muestra = 'La Luna al revés LO QUE NO TE EXPLICARON VISTA DESDE hemisferio norte sur 180°';
+  await Promise.race([
+    Promise.all([
+      document.fonts.load(`400 76px "Instrument Serif"`, muestra),
+      document.fonts.load(`italic 400 76px "Instrument Serif"`, muestra),
+      document.fonts.load(`600 21px Inter`, muestra),
+      document.fonts.load(`500 26px Inter`, muestra),
+    ]),
+    new Promise((r) => setTimeout(r, 10000)),
+  ]);
+}
+fuentes().catch(() => {}).then(() => {
+  dibujar(0);
+  window.__listo = true;
+  if (!CAPTURA) {
+    window.addEventListener('resize', ajustar);
+    const inicio = performance.now();
+    let previo = 0, suma = 0, n = 0;
+    const bucle = (now) => {
+      dibujar(((now - inicio) / 1000) % DUR);
+      if (previo) { suma += now - previo; n++; }
+      previo = now;
+      if (n === 45) {
+        if (suma / n > 24 && presupuesto > 150000) { presupuesto *= 0.7; ajustar(); }
+        suma = 0; n = 0;
+      }
+      requestAnimationFrame(bucle);
+    };
+    requestAnimationFrame(bucle);
+  }
+});
+})();
+</script>
+</body>
+</html>

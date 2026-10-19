@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Luna al revés · tablero de paletas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Barlow+Semi+Condensed:wght@600&display=block" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; background: #09090a; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script>
+(() => {
+'use strict';
+// ---------------------------------------------------------------------------
+// Tablero de salidas de paletas (split-flap): módulos de carácter que giran por
+// su tambor en orden fijo hasta su letra, con mitad superior que cae sobre la
+// inferior, sombreado y rebote; y dos matrices de paletas de color (norte / sur)
+// que forman el átomo narrador y la Luna creciente en píxeles.
+// Guion (10 s): átomo con electrones que corren → se vuelve Luna "D" en ambos
+// hemisferios → el sur barre a "C" mientras el rótulo pasa a "AL REVÉS" →
+// "¿VERDAD?" → todo vuelve al átomo. Canvas 2D sobre un marco de 1920x1080;
+// fondo, cristal y sprites de paleta se pre-renderizan a la resolución real.
+// ---------------------------------------------------------------------------
+const W = 1920, H = 1080, DUR = 10, T0 = 0.9;   // T0: instante de reposo total (inicio del guion interno)
+const PI = Math.PI, TAU = PI * 2;
+const CAPTURA = /captura/.test(location.search);
+const FONDO = '#09090a';
+const cv = document.getElementById('lienzo');
+const ctx = cv.getContext('2d');
+let K = 1, OX = 0, OY = 0, DPR = 1;
+let bg = null, ov = null;
+
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const smooth = (x) => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+
+// ── Paleta ───────────────────────────────────────────────────────────────────
+const INK = '#ece3cf';         // blanco cálido de los caracteres
+const PRINT = '#9d937f';       // serigrafía del tablero
+const AMBER = '#e6a243';
+
+// ── Maquetación (marco 1920x1080) ───────────────────────────────────────────
+const CH = { w: 128, h: 172, r: 7 };                     // módulo de carácter grande
+const TIT = { n: 8, gap: 10, y: 136 };
+TIT.x0 = Math.round(W / 2 - (TIT.n * CH.w + (TIT.n - 1) * TIT.gap) / 2);
+const N = 21, PITCH = 22, PF = 19;                        // matriz de paletas de color
+const BS = N * PITCH - (PITCH - PF);                      // lado de la matriz (472)
+const BLK = { y: 396, xN: 290, xS: 1171 };
+const IND = { y: Math.round(BLK.y + BS / 2 - CH.h / 2), xN: 800, xS: 992 };
+const HOUS = { x: 196, y: 34, w: 1528, h: 884, r: 22 };
+const FACE = { x: HOUS.x + 16, y: HOUS.y + 16, w: HOUS.w - 32, h: HOUS.h - 32, r: 9 };
+
+// ── Tambores ─────────────────────────────────────────────────────────────────
+const DRUM = [' ', ...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ', 'É', '¿', '?'];
+const ix = (c) => { const i = DRUM.indexOf(c); if (i < 0) throw new Error('carácter fuera del tambor: ' + c); return i; };
+// Paletas de color: 0 apagada, 1 tenue (luz cenicienta), 2 media, 3 luz, 4 ámbar, 5 órbita
+const OFF = 0, DIM = 1, MID = 2, LIT = 3, AMB = 4, ORB = 5;
+const PIXCOL = [
+  ['#1d1d1f', '#171719'],
+  ['#433e37', '#3a3631'],
+  ['#b5aa94', '#a69c87'],
+  ['#efe6d2', '#e2d8c3'],
+  ['#eba748', '#da963b'],
+  ['#5f584e', '#544e45'],
+];
+
+// ── Imágenes de píxeles (19x19) ─────────────────────────────────────────────
+const C0 = (N - 1) / 2;
+function orbitPath(phi, rx, ry) {
+  const pts = [];
+  const cp = Math.cos(phi), sp = Math.sin(phi);
+  for (let k = 0; k < 2400; k++) {
+    const a = k / 2400 * TAU;
+    const x = C0 + rx * Math.cos(a) * cp - ry * Math.sin(a) * sp;
+    const y = C0 + rx * Math.cos(a) * sp + ry * Math.sin(a) * cp;
+    const c = [Math.round(x), Math.round(y)];
+    const l = pts[pts.length - 1];
+    if (!l || l[0] !== c[0] || l[1] !== c[1]) pts.push(c);
+  }
+  const f = pts[0], l = pts[pts.length - 1];
+  if (f[0] === l[0] && f[1] === l[1]) pts.pop();
+  // quitar esquinas en L (línea de un píxel limpia)
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[(i - 1 + pts.length) % pts.length], b = pts[i], c = pts[(i + 1) % pts.length];
+      if (Math.abs(a[0] - c[0]) === 1 && Math.abs(a[1] - c[1]) === 1) { pts.splice(i, 1); changed = true; break; }
+    }
+  }
+  return pts;
+}
+const ORBITS = [0, PI / 3, 2 * PI / 3].map((p) => orbitPath(p, 9.3, 2.6));
+const E_OFF = ORBITS.map((p, e) => Math.round(p.length * (e / 3 + 0.08)));
+const E_STEPS = 12;
+function atomImage(step) {
+  const img = new Uint8Array(N * N);
+  for (const p of ORBITS) for (const [i, j] of p) img[j * N + i] = ORB;
+  ORBITS.forEach((p, e) => {
+    const L = p.length, h = (E_OFF[e] + step) % L;
+    const t = p[(h - 1 + L) % L];
+    img[t[1] * N + t[0]] = MID;
+  });
+  ORBITS.forEach((p, e) => {
+    const L = p.length, h = p[(E_OFF[e] + step) % L];
+    img[h[1] * N + h[0]] = LIT;
+  });
+  for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) img[(C0 + dj) * N + C0 + di] = AMB;
+  img[C0 * N + C0] = LIT;
+  return img;
+}
+function moonImage(k) {
+  const img = new Uint8Array(N * N), R = 9.45, SS = 8;
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    let cd = 0, cl = 0;
+    for (let b = 0; b < SS; b++) for (let a = 0; a < SS; a++) {
+      const x = i - C0 + (a + 0.5) / SS - 0.5, y = j - C0 + (b + 0.5) / SS - 0.5;
+      if (x * x + y * y > R * R) continue;
+      cd++;
+      if (x > k * Math.sqrt(R * R - y * y)) cl++;
+    }
+    cd /= SS * SS; cl /= SS * SS;
+    let f = OFF;
+    if (cd > 0.42) f = cl / cd > 0.6 ? LIT : cl / cd > 0.2 ? MID : DIM;
+    img[j * N + i] = f;
+  }
+  // mares (Crisis y Fecundidad) en la parte iluminada
+  for (const [i, j] of [[16, 6], [17, 6], [16, 7], [15, 12], [16, 12], [16, 13]]) if (img[j * N + i] === LIT) img[j * N + i] = MID;
+  return img;
+}
+const rot180 = (img) => { const o = new Uint8Array(N * N); for (let c = 0; c < N * N; c++) o[N * N - 1 - c] = img[c]; return o; };
+const MOON_D = moonImage(0.4);
+const MOON_C = rot180(MOON_D);
+
+// ── Módulos y guion ─────────────────────────────────────────────────────────
+const FD_CHAR = 0.04, FD_PIX = 0.12, FD_E = 0.09;
+const mods = [];
+function mod(kind, x, y, w, h, init) { const m = { kind, x, y, w, h, init, face: init, ev: [] }; mods.push(m); return m; }
+function drumPath(a, b) { const p = [a]; while (p[p.length - 1] !== b) p.push((p[p.length - 1] + 1) % DRUM.length); return p; }
+function ev(m, t, target, fd, via) {
+  const u = (((t - T0) % DUR) + DUR) % DUR;
+  const path = m.kind === 'c' ? drumPath(m.face, target) : [m.face, ...(via || []), target];
+  if (path.length < 2 || (m.kind === 'p' && m.face === target && !via)) return;
+  m.ev.push({ u, path, fd: fd || (m.kind === 'c' ? FD_CHAR : FD_PIX) });
+  m.face = target;
+}
+
+const TXT = ['LA  LUNA', 'AL REVÉS', '¿VERDAD?'];
+const title = [];
+for (let i = 0; i < TIT.n; i++) title.push(mod('c', TIT.x0 + i * (CH.w + TIT.gap), TIT.y, CH.w, CH.h, ix(TXT[0][i])));
+const indN = mod('c', IND.xN, IND.y, CH.w, CH.h, ix('?'));
+const indS = mod('c', IND.xS, IND.y, CH.w, CH.h, ix('?'));
+const ATOM_END = atomImage(E_STEPS), ATOM_END_S = rot180(ATOM_END);
+const blkN = [], blkS = [];
+for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+  blkN.push(mod('p', BLK.xN + i * PITCH, BLK.y + j * PITCH, PF, PF, ATOM_END[j * N + i]));
+  blkS.push(mod('p', BLK.xS + i * PITCH, BLK.y + j * PITCH, PF, PF, ATOM_END_S[j * N + i]));
+}
+
+(function guion() {
+  const rnd = mulberry32(1307);
+  const jit = () => (rnd() - 0.5) * 0.05;
+  const dist = (c) => Math.hypot(c % N - C0, Math.floor(c / N) - C0);
+  const DMAX = Math.hypot(C0, C0);
+  const toImage = (blk, img, t0, delay) => { for (let c = 0; c < N * N; c++) ev(blk[c], t0 + delay(c), img[c]); };
+  // 0.9 s · el átomo se vuelve Luna (onda radial desde el núcleo), en los dos hemisferios
+  toImage(blkN, MOON_D, 0.9, (c) => 0.052 * dist(c) + jit() + 0.03);
+  toImage(blkS, MOON_D, 1.0, (c) => 0.052 * dist(c) + jit() + 0.03);
+  ev(indN, 1.45, ix('D'));
+  ev(indS, 1.55, ix('D'));
+  // 2.4 s · el sur barre de D a C: un barrido angular antihorario que primero
+  // enciende la C (lado izquierdo) y después apaga la D (lado derecho)
+  toImage(blkS, MOON_C, 2.4, (c) => {
+    const x = c % N - C0, y = Math.floor(c / N) - C0;
+    const a = (Math.atan2(-x, -y) + TAU) % TAU / TAU;
+    return 1.0 * a + 0.01 * Math.hypot(x, y) + jit() + 0.03;
+  });
+  ev(indS, 2.5, ix('C'));
+  for (let i = 0; i < TIT.n; i++) ev(title[i], 2.62 + 0.055 * i, ix(TXT[1][i]));
+  // 5.2 s · ¿VERDAD?
+  for (let i = 0; i < TIT.n; i++) ev(title[i], 5.2 + 0.055 * i, ix(TXT[2][i]));
+  // 7.7 s · vuelta al principio: rótulo, indicadores a "?" y átomo (onda hacia el núcleo)
+  for (let i = 0; i < TIT.n; i++) ev(title[i], 7.7 + 0.055 * i, ix(TXT[0][i]));
+  const A0 = atomImage(0), A0S = rot180(A0);
+  toImage(blkN, A0, 7.9, (c) => 0.05 * (DMAX - dist(c)) + jit() + 0.03);
+  toImage(blkS, A0S, 7.98, (c) => 0.05 * (DMAX - dist(c)) + jit() + 0.03);
+  ev(indN, 7.9, ix('?'));
+  ev(indS, 7.98, ix('?'));
+  // 9.0 s → 10.65 s · los electrones corren por sus órbitas, paleta a paleta
+  let prev = A0, prevS = A0S;
+  for (let k = 1; k <= E_STEPS; k++) {
+    const img = atomImage(k), imgS = rot180(img), t = 9.0 + 0.15 * (k - 1);
+    for (let c = 0; c < N * N; c++) {
+      const d = img[c] === LIT ? 0 : 0.025;
+      if (img[c] !== prev[c]) ev(blkN[c], t + d, img[c], FD_E);
+      if (imgS[c] !== prevS[c]) ev(blkS[c], t + d + 0.04, imgS[c], FD_E);
+    }
+    prev = img; prevS = imgS;
+  }
+  let mal = 0;
+  for (const m of mods) { m.ev.sort((a, b) => a.u - b.u); if (m.face !== m.init) mal++; }
+  if (mal) console.warn('el guion no cierra en', mal, 'módulos');
+})();
+
+// ── Estado de un módulo en el instante u (segundos desde T0) ────────────────
+const ST = { a: 0, b: 0, th: 0, flip: false };
+function stateAt(m, u) {
+  let e = null;
+  for (const x of m.ev) { if (x.u <= u) e = x; else break; }
+  ST.flip = false;
+  if (!e) { ST.a = ST.b = m.init; return ST; }
+  const n = e.path.length - 1, el = u - e.u, tot = n * e.fd;
+  const big = m.kind === 'c';
+  const settle = big ? 0.2 : 0.12;
+  if (el >= tot + settle) { ST.a = ST.b = e.path[n]; return ST; }
+  ST.flip = true;
+  if (el >= tot) {
+    // rebote de la paleta al llegar
+    const tau = el - tot;
+    const amp = big ? 0.3 : 0.22;
+    ST.a = e.path[n - 1]; ST.b = e.path[n];
+    ST.th = PI - amp * Math.exp(-tau / (big ? 0.05 : 0.035)) * Math.abs(Math.sin(tau * PI / (big ? 0.075 : 0.05)));
+    return ST;
+  }
+  const k = Math.min(n - 1, Math.floor(el / e.fd));
+  const p = el / e.fd - k;
+  ST.a = e.path[k]; ST.b = e.path[k + 1];
+  ST.th = PI * Math.pow(p, big ? 1.45 : 1.7);
+  return ST;
+}
+
+// ── Sprites ─────────────────────────────────────────────────────────────────
+let charSpr = [], pixSpr = [];
+let FS = 136, BASE = 134;
+function mkCanvas(w, h) {
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(w * K)); c.height = Math.max(1, Math.round(h * K));
+  const g = c.getContext('2d');
+  g.setTransform(c.width / w, 0, 0, c.height / h, 0, 0);
+  return [c, g];
+}
+function rr(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y); g.lineTo(x + w - r, y); g.arcTo(x + w, y, x + w, y + r, r);
+  g.lineTo(x + w, y + h - r); g.arcTo(x + w, y + h, x + w - r, y + h, r);
+  g.lineTo(x + r, y + h); g.arcTo(x, y + h, x, y + h - r, r);
+  g.lineTo(x, y + r); g.arcTo(x, y, x + r, y, r); g.closePath();
+}
+function measureFont() {
+  const g = document.createElement('canvas').getContext('2d');
+  FS = 138;
+  for (;;) {
+    g.font = `600 ${FS}px "Barlow Condensed"`;
+    const cap = g.measureText('H').actualBoundingBoxAscent;
+    const acc = g.measureText('É').actualBoundingBoxAscent;
+    BASE = CH.h / 2 + cap / 2;
+    if (BASE - acc >= 9 || FS < 90) break;
+    FS -= 2;
+  }
+}
+function charSprite(ch) {
+  const { w, h, r } = CH;
+  const [c, g] = mkCanvas(w, h);
+  g.save(); rr(g, 0, 0, w, h, r); g.clip();
+  let gr = g.createLinearGradient(0, 0, 0, h / 2);
+  gr.addColorStop(0, '#2b2b2d'); gr.addColorStop(1, '#212123');
+  g.fillStyle = gr; g.fillRect(0, 0, w, h / 2);
+  gr = g.createLinearGradient(0, h / 2, 0, h);
+  gr.addColorStop(0, '#1d1d1f'); gr.addColorStop(1, '#161617');
+  g.fillStyle = gr; g.fillRect(0, h / 2, w, h / 2);
+  gr = g.createLinearGradient(0, 0, w, 0);
+  gr.addColorStop(0, 'rgba(0,0,0,.30)'); gr.addColorStop(0.1, 'rgba(0,0,0,0)');
+  gr.addColorStop(0.9, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.30)');
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  if (ch !== ' ') {
+    g.font = `600 ${FS}px "Barlow Condensed"`;
+    g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    gr = g.createLinearGradient(0, h * 0.15, 0, h * 0.85);
+    gr.addColorStop(0, '#f4ecda'); gr.addColorStop(0.5, '#ebe2ce');
+    gr.addColorStop(0.5, '#e0d6c1'); gr.addColorStop(1, '#d4cab4');
+    g.fillStyle = gr;
+    g.fillText(ch, w / 2, BASE);
+  }
+  g.fillStyle = 'rgba(255,255,255,.09)'; g.fillRect(0, 0, w, 1.5);
+  g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(0, h - 2, w, 2);
+  // corte entre paletas y sombra del borde superior sobre la inferior
+  g.fillStyle = 'rgba(4,4,4,.92)'; g.fillRect(0, h / 2 - 1.3, w, 2.6);
+  gr = g.createLinearGradient(0, h / 2 + 1.3, 0, h / 2 + 12);
+  gr.addColorStop(0, 'rgba(0,0,0,.38)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, h / 2 + 1.3, w, 11);
+  g.fillStyle = 'rgba(255,255,255,.05)'; g.fillRect(0, h / 2 - 2.3, w, 1);
+  g.restore();
+  // ejes laterales
+  g.fillStyle = '#050505';
+  g.fillRect(0, h / 2 - 6, 5, 12); g.fillRect(w - 5, h / 2 - 6, 5, 12);
+  g.fillStyle = '#2c2c2e';
+  g.fillRect(1, h / 2 - 2, 3, 4); g.fillRect(w - 4, h / 2 - 2, 3, 4);
+  return c;
+}
+function pixSprite(f) {
+  const w = PF, h = PF, r = 2.6;
+  const [c, g] = mkCanvas(w, h);
+  const [ct, cb] = PIXCOL[f];
+  const bright = f >= MID;
+  g.save(); rr(g, 0, 0, w, h, r); g.clip();
+  let gr = g.createLinearGradient(0, 0, 0, h / 2);
+  gr.addColorStop(0, ct); gr.addColorStop(1, cb);
+  g.fillStyle = gr; g.fillRect(0, 0, w, h / 2);
+  gr = g.createLinearGradient(0, h / 2, 0, h);
+  gr.addColorStop(0, cb); gr.addColorStop(1, cb);
+  g.fillStyle = gr; g.fillRect(0, h / 2, w, h / 2);
+  g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(0, h / 2, w, h / 2);
+  g.fillStyle = `rgba(255,255,255,${bright ? 0.22 : 0.07})`; g.fillRect(0, 0, w, 1);
+  g.fillStyle = `rgba(0,0,0,${bright ? 0.25 : 0.4})`; g.fillRect(0, h - 1, w, 1);
+  g.fillStyle = `rgba(0,0,0,${bright ? 0.55 : 0.85})`; g.fillRect(0, h / 2 - 0.6, w, 1.2);
+  g.fillStyle = `rgba(0,0,0,${bright ? 0.12 : 0.2})`; g.fillRect(0, h / 2 + 0.6, w, 2);
+  g.restore();
+  return c;
+}
+function buildSprites() {
+  charSpr = DRUM.map(charSprite);
+  pixSpr = PIXCOL.map((_, f) => pixSprite(f));
+}
+
+// ── Fondo estático: pared, carcasa, serigrafía, alojamientos ────────────────
+function spaced(g, txt, x, y, sp, align) {
+  const chs = [...txt], ws = chs.map((ch) => g.measureText(ch).width);
+  const tot = ws.reduce((a, b) => a + b, 0) + sp * (chs.length - 1);
+  let cx = align === 'right' ? x - tot : align === 'center' ? x - tot / 2 : x;
+  g.textAlign = 'left';
+  chs.forEach((ch, i) => { g.fillText(ch, cx, y); cx += ws[i] + sp; });
+  return tot;
+}
+function noiseTile(seed, size, alpha) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const g = c.getContext('2d'), d = g.createImageData(size, size), r = mulberry32(seed);
+  for (let i = 0; i < size * size; i++) {
+    const v = r();
+    d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = v > 0.5 ? 255 : 0;
+    d.data[i * 4 + 3] = Math.round(Math.abs(v - 0.5) * 2 * alpha * 255);
+  }
+  g.putImageData(d, 0, 0);
+  return c;
+}
+function screw(g, x, y) {
+  const gr = g.createRadialGradient(x - 2, y - 2, 0.5, x, y, 7);
+  gr.addColorStop(0, '#5a5a5c'); gr.addColorStop(0.6, '#2a2a2c'); gr.addColorStop(1, '#121213');
+  g.fillStyle = gr; g.beginPath(); g.arc(x, y, 6.5, 0, TAU); g.fill();
+  g.strokeStyle = 'rgba(0,0,0,.7)'; g.lineWidth = 1.6;
+  g.beginPath(); g.moveTo(x - 4, y + 1.5); g.lineTo(x + 4, y - 1.5); g.stroke();
+}
+function buildBg() {
+  const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height;
+  const g = c.getContext('2d');
+  g.fillStyle = FONDO; g.fillRect(0, 0, c.width, c.height);
+  g.setTransform(K, 0, 0, K, OX, OY);
+  // pared
+  // (elipse que se funde con el color de las bandas antes de llegar a los bordes)
+  g.save(); g.translate(960, 480); g.scale(1, 0.58);
+  let gr = g.createRadialGradient(0, -120, 60, 0, 0, 1050);
+  gr.addColorStop(0, '#1b1a19'); gr.addColorStop(0.6, '#0f0e0e'); gr.addColorStop(0.88, FONDO); gr.addColorStop(1, FONDO);
+  g.fillStyle = gr; g.fillRect(-960, -480 / 0.58, W, H / 0.58);
+  g.restore();
+  // sombra de la carcasa
+  g.save();
+  g.shadowColor = 'rgba(0,0,0,.85)'; g.shadowBlur = 70 * K; g.shadowOffsetY = 30 * K;
+  rr(g, HOUS.x + 10, HOUS.y + 10, HOUS.w - 20, HOUS.h - 20, HOUS.r); g.fillStyle = '#000'; g.fill();
+  g.restore();
+  // carcasa metálica
+  gr = g.createLinearGradient(0, HOUS.y, 0, HOUS.y + HOUS.h);
+  gr.addColorStop(0, '#3a3a3c'); gr.addColorStop(0.03, '#262628'); gr.addColorStop(0.5, '#1c1c1e'); gr.addColorStop(1, '#121213');
+  rr(g, HOUS.x, HOUS.y, HOUS.w, HOUS.h, HOUS.r); g.fillStyle = gr; g.fill();
+  g.save(); rr(g, HOUS.x, HOUS.y, HOUS.w, HOUS.h, HOUS.r); g.clip();
+  g.globalAlpha = 0.5;
+  const brushed = noiseTile(77, 128, 0.07);
+  g.fillStyle = g.createPattern(brushed, 'repeat');
+  g.save(); g.scale(6, 0.5); g.fillRect(HOUS.x / 6, HOUS.y / 0.5, HOUS.w / 6, HOUS.h / 0.5); g.restore();
+  g.globalAlpha = 1;
+  g.restore();
+  g.strokeStyle = 'rgba(255,255,255,.13)'; g.lineWidth = 1.2;
+  rr(g, HOUS.x + 0.8, HOUS.y + 0.8, HOUS.w - 1.6, HOUS.h - 1.6, HOUS.r - 0.8); g.stroke();
+  // cara del tablero
+  gr = g.createLinearGradient(0, FACE.y, 0, FACE.y + FACE.h);
+  gr.addColorStop(0, '#151516'); gr.addColorStop(1, '#0d0d0e');
+  rr(g, FACE.x, FACE.y, FACE.w, FACE.h, FACE.r); g.fillStyle = gr; g.fill();
+  g.save(); rr(g, FACE.x, FACE.y, FACE.w, FACE.h, FACE.r); g.clip();
+  g.fillStyle = g.createPattern(noiseTile(31, 192, 0.05), 'repeat');
+  g.fillRect(FACE.x, FACE.y, FACE.w, FACE.h);
+  // sombra interior del marco
+  g.strokeStyle = 'rgba(0,0,0,.9)'; g.lineWidth = 6;
+  rr(g, FACE.x - 1, FACE.y - 1, FACE.w + 2, FACE.h + 2, FACE.r); g.stroke();
+  g.restore();
+  g.strokeStyle = 'rgba(255,255,255,.06)'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(FACE.x + 10, FACE.y + FACE.h + 0.5); g.lineTo(FACE.x + FACE.w - 10, FACE.y + FACE.h + 0.5); g.stroke();
+  screw(g, HOUS.x + 9, HOUS.y + HOUS.h / 2); screw(g, HOUS.x + HOUS.w - 9, HOUS.y + HOUS.h / 2);
+
+  // serigrafía
+  const L = BLK.xN, R = BLK.xS + BS;
+  g.fillStyle = PRINT;
+  g.font = '600 19px "Barlow Semi Condensed"';
+  spaced(g, 'LO QUE NO TE EXPLICARON EN CLASE', L, 86, 4.6, 'left');
+  spaced(g, 'EPISODIO 01', R, 86, 4.6, 'right');
+  g.fillStyle = 'rgba(157,147,127,.24)'; g.fillRect(L, 104, R - L, 1);
+  g.font = '600 24px "Barlow Semi Condensed"';
+  g.fillStyle = '#c9bfa9';
+  const yH = BLK.y - 20;
+  spaced(g, 'HEMISFERIO NORTE', L + 18, yH, 4.2, 'left');
+  spaced(g, 'HEMISFERIO SUR', R - 18, yH, 4.2, 'right');
+  g.fillStyle = AMBER;
+  g.fillRect(L, yH - 15, 8, 8); g.fillRect(R - 8, yH - 15, 8, 8);
+  // ecuador
+  g.strokeStyle = 'rgba(157,147,127,.28)'; g.lineWidth = 1; g.setLineDash([3, 6]);
+  g.beginPath(); g.moveTo(960.5, BLK.y); g.lineTo(960.5, 730); g.moveTo(960.5, 846); g.lineTo(960.5, BLK.y + BS); g.stroke();
+  g.setLineDash([]);
+  g.save(); g.translate(966, 788); g.rotate(-PI / 2);
+  g.font = '600 14px "Barlow Semi Condensed"'; g.fillStyle = 'rgba(157,147,127,.7)';
+  spaced(g, 'ECUADOR', 0, 0, 4, 'center');
+  g.restore();
+
+  // alojamientos de los módulos
+  const housing = (x, y, w, h, r, pad) => {
+    rr(g, x - pad, y - pad, w + 2 * pad, h + 2 * pad, r + pad * 0.6);
+    g.fillStyle = '#050505'; g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.045)'; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(x - pad + 4, y + h + pad + 0.5); g.lineTo(x + w + pad - 4, y + h + pad + 0.5); g.stroke();
+  };
+  for (const m of mods) if (m.kind === 'c') housing(m.x, m.y, m.w, m.h, CH.r, 4);
+  for (const x of [BLK.xN, BLK.xS]) {
+    housing(x, BLK.y, BS, BS, 6, 10);
+    g.fillStyle = '#0a0a0b'; rr(g, x - 3, BLK.y - 3, BS + 6, BS + 6, 4); g.fill();
+  }
+  return c;
+}
+
+// ── Cristal y reflejos (estático) ───────────────────────────────────────────
+function buildOverlay() {
+  const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height;
+  const g = c.getContext('2d');
+  g.setTransform(K, 0, 0, K, OX, OY);
+  g.save(); rr(g, FACE.x, FACE.y, FACE.w, FACE.h, FACE.r); g.clip();
+  let gr = g.createLinearGradient(0, FACE.y, 0, FACE.y + FACE.h * 0.45);
+  gr.addColorStop(0, 'rgba(255,246,228,.07)'); gr.addColorStop(1, 'rgba(255,246,228,0)');
+  g.fillStyle = gr; g.fillRect(FACE.x, FACE.y, FACE.w, FACE.h);
+  // banda diagonal ancha del cristal
+  g.save(); g.translate(1180, 470); g.rotate(0.42);
+  gr = g.createLinearGradient(-260, 0, 260, 0);
+  gr.addColorStop(0, 'rgba(255,250,240,0)'); gr.addColorStop(0.5, 'rgba(255,250,240,.032)'); gr.addColorStop(1, 'rgba(255,250,240,0)');
+  g.fillStyle = gr; g.fillRect(-260, -900, 520, 1800);
+  gr = g.createLinearGradient(330, 0, 400, 0);
+  gr.addColorStop(0, 'rgba(255,250,240,0)'); gr.addColorStop(0.5, 'rgba(255,250,240,.025)'); gr.addColorStop(1, 'rgba(255,250,240,0)');
+  g.fillStyle = gr; g.fillRect(330, -900, 70, 1800);
+  g.restore();
+  // viñeta
+  gr = g.createRadialGradient(960, 470, 380, 960, 470, 1080);
+  gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.42)');
+  g.fillStyle = gr; g.fillRect(FACE.x, FACE.y, FACE.w, FACE.h);
+  g.restore();
+  return c;
+}
+
+// ── Dibujo de un módulo ─────────────────────────────────────────────────────
+function drawFlap(spr, x, y, w, h, a, b, th) {
+  const sa = spr[a], sb = spr[b];
+  const hh = h / 2, sw = sa.width, sh = sa.height / 2;
+  const c = Math.cos(th), s = Math.sin(th);
+  // mitad superior: la paleta siguiente, que queda al descubierto
+  ctx.drawImage(sb, 0, 0, sw, sh, x, y, w, hh);
+  const sh1 = 0.55 * Math.max(0, c);
+  if (sh1 > 0.01) { ctx.fillStyle = `rgba(0,0,0,${sh1})`; ctx.fillRect(x, y, w, hh); }
+  // mitad inferior: la paleta actual, que va a quedar tapada
+  ctx.drawImage(sa, 0, sh, sw, sh, x, y + hh, w, hh);
+  if (c < 0) { ctx.fillStyle = `rgba(0,0,0,${0.4 * s * (-c) + 0.2 * (1 - s) * (-c)})`; ctx.fillRect(x, y + hh, w, hh); }
+  // paleta en caída
+  const dx = w * 0.035 * s;
+  if (c >= 0) {
+    const fh = hh * c;
+    if (fh > 0.3) {
+      ctx.drawImage(sa, 0, 0, sw, sh, x - dx, y + hh - fh, w + 2 * dx, fh);
+      ctx.fillStyle = `rgba(0,0,0,${0.62 * (1 - c)})`; ctx.fillRect(x - dx, y + hh - fh, w + 2 * dx, fh);
+    }
+  } else {
+    const fh = hh * -c;
+    if (fh > 0.3) {
+      ctx.drawImage(sb, 0, sh, sw, sh, x - dx, y + hh, w + 2 * dx, fh);
+      ctx.fillStyle = `rgba(255,248,235,${0.1 * (1 + c)})`; ctx.fillRect(x - dx, y + hh, w + 2 * dx, fh);
+    }
+  }
+  // canto de la paleta cuando pasa por la horizontal
+  if (Math.abs(c) < 0.2) {
+    const e = Math.max(1, h * 0.02);
+    ctx.fillStyle = `rgba(70,68,64,${1 - Math.abs(c) / 0.2})`;
+    ctx.fillRect(x - dx, y + hh - (c > 0 ? e : 0), w + 2 * dx, e);
+  }
+}
+function drawMod(m, u) {
+  const s = stateAt(m, u);
+  const spr = m.kind === 'c' ? charSpr : pixSpr;
+  if (!s.flip) ctx.drawImage(spr[s.a], m.x, m.y, m.w, m.h);
+  else drawFlap(spr, m.x, m.y, m.w, m.h, s.a, s.b, s.th);
+}
+
+// Reflejo móvil: una franja de luz cruza el cristal una vez por ciclo
+function streak(t) {
+  const t0 = 3.1, t1 = 5.9;
+  if (t <= t0 || t >= t1) return;
+  const q = (t - t0) / (t1 - t0);
+  const x = -300 + 2600 * (q < 0.5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2);
+  const a = Math.sin(q * PI);
+  ctx.save(); rr(ctx, FACE.x, FACE.y, FACE.w, FACE.h, FACE.r); ctx.clip();
+  ctx.translate(x, 470); ctx.rotate(0.42);
+  let gr = ctx.createLinearGradient(-90, 0, 90, 0);
+  gr.addColorStop(0, 'rgba(255,248,235,0)'); gr.addColorStop(0.5, `rgba(255,248,235,${0.05 * a})`); gr.addColorStop(1, 'rgba(255,248,235,0)');
+  ctx.fillStyle = gr; ctx.fillRect(-90, -900, 180, 1800);
+  gr = ctx.createLinearGradient(130, 0, 160, 0);
+  gr.addColorStop(0, 'rgba(255,248,235,0)'); gr.addColorStop(0.5, `rgba(255,248,235,${0.04 * a})`); gr.addColorStop(1, 'rgba(255,248,235,0)');
+  ctx.fillStyle = gr; ctx.fillRect(130, -900, 30, 1800);
+  ctx.restore();
+}
+
+function frame(t) {
+  const tt = ((t % DUR) + DUR) % DUR;
+  const u = (((tt - T0) % DUR) + DUR) % DUR;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(bg, 0, 0);
+  ctx.setTransform(K, 0, 0, K, OX, OY);
+  for (const m of mods) drawMod(m, u);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(ov, 0, 0);
+  ctx.setTransform(K, 0, 0, K, OX, OY);
+  streak(tt);
+}
+
+function resize() {
+  const vw = innerWidth, vh = innerHeight;
+  DPR = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.round(vw * DPR); cv.height = Math.round(vh * DPR);
+  K = Math.min(vw / W, vh / H) * DPR;
+  OX = Math.round((cv.width - W * K) / 2); OY = Math.round((cv.height - H * K) / 2);
+  buildSprites();
+  bg = buildBg();
+  ov = buildOverlay();
+}
+
+window.__frame = async (t) => { frame(t); };
+
+(async () => {
+  await Promise.all([
+    document.fonts.load('600 138px "Barlow Condensed"', 'LA LUNA AL REVÉS ¿VERDAD? ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'),
+    document.fonts.load('600 24px "Barlow Semi Condensed"', 'HEMISFERIO NORTE SUR ECUADOR LO QUE NO TE EXPLICARON EN CLASE EPISODIO 01'),
+  ]);
+  await document.fonts.ready;
+  measureFont();
+  resize();
+  frame(0);
+  window.__listo = true;
+  if (!CAPTURA) {
+    let pend = 0;
+    addEventListener('resize', () => { clearTimeout(pend); pend = setTimeout(resize, 120); });
+    const start = performance.now();
+    const loop = (now) => { frame(((now - start) / 1000) % DUR); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+})();
+})();
+</script>
+</body>
+</html>

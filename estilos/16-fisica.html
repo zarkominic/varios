@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Luna al revés · física</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  html, body { margin: 0; height: 100%; background: #04060b; overflow: hidden; }
+  #escena { position: absolute; overflow: hidden; background: #05070d; }
+  #escena canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<div id="escena"><canvas id="lienzo"></canvas></div>
+<script>
+(() => {
+'use strict';
+// el mismo código sirve de hilo de simulación (Web Worker): se relanza con su propio texto
+const FUENTE = typeof document !== 'undefined' && document.currentScript ? document.currentScript.textContent : '';
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Simulación 2D escrita a mano: ~580 bolas con colisiones reales (Verlet con
+//  proyección de posiciones), paso fijo de 1/480 s y azar con semilla.
+//  Un molde invisible (un disco «de sombra») las aprieta en una creciente;
+//  la gravedad gira 180° y caen hasta formar la creciente opuesta.
+//  La simulación se calcula una vez entera y se graba a 120 Hz; __frame(t)
+//  sólo lee la grabación. El bucle cierra porque el vaciado del ciclo anterior
+//  (t + DUR) se pinta encima del comienzo del siguiente.
+// ─────────────────────────────────────────────────────────────────────────────
+const DUR = 10;                 // duración del bucle (s)
+const OV = 1.0;                 // solape: el ciclo anterior aún se vacía
+const DESFASE = 4.4;            // t = 0 cae en plena creciente del norte (la D asentada)
+const S_END = DUR + OV;
+const W = 1920, H = 1080;       // marco de diseño
+const CX = 960, CY = 488, R = 290;   // la Luna (aro invisible que contiene las bolas)
+const BD = 130, BR = 300;       // molde: disco de sombra desplazado BD, radio BR
+const G = 2600;                 // gravedad (px/s²)
+const HZ = 480, DT = 1 / HZ;    // paso fijo
+const REC = 120, SPR = HZ / REC; // grabación: 120 muestras/s
+const NREC = Math.round(S_END * REC) + 2;
+const N = 584;                  // bolas
+const ITER = 3;                 // iteraciones del solucionador por paso
+const PI = Math.PI, TAU = PI * 2;
+const CAPTURA = location.search.includes('captura');
+
+// ── utilidades ───────────────────────────────────────────────────────────────
+const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const lin = (s, a, b) => clamp((s - a) / (b - a));
+const mix = (a, b, x) => a + (b - a) * x;
+const eIO3 = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const eIOs = (x) => 0.5 - 0.5 * Math.cos(PI * x);
+const smooth = (x) => x * x * (3 - 2 * x);
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ── guion (tiempo de simulación s, en segundos) ──────────────────────────────
+// 0.30–2.45 el átomo vierte las bolas · 2.5–3.3 la gravedad gira hacia la derecha
+// 3.1–3.8 el molde aprieta la D · 5.0–6.35 la gravedad gira 180° (D → ◡ → C)
+// 6.15–6.85 el molde aprieta la C · 8.15–8.8 la gravedad vuelve abajo y se abre
+// la compuerta: las bolas se vacían por abajo mientras el siguiente ciclo empieza.
+const T_VIERTE = [0.26, 1.80];
+const GOLDEN = PI * (3 - Math.sqrt(5));     // ángulo áureo: la ráfaga sale en espiral de girasol
+const T_GIRO1 = [2.50, 3.30];
+const T_MOLDE_D = [3.10, 3.85], T_SUELTA_D = 5.0;
+const T_GIRO2 = [5.0, 6.35];
+const T_MOLDE_C = [6.15, 6.90], T_SUELTA_C = 8.35;
+const T_GIRO3 = [8.30, 9.20];
+const T_COMPUERTA = [8.62, 9.05, 9.60];      // empieza a abrir · abierta · abierta del todo
+
+// dirección de la gravedad (rad, pantalla: 0 = derecha, π/2 = abajo, π = izquierda)
+function angGrav(s) {
+  if (s < T_GIRO1[0]) return PI / 2;
+  if (s < T_GIRO1[1]) return mix(PI / 2, 0, eIO3(lin(s, ...T_GIRO1)));
+  if (s < T_GIRO2[0]) return 0;
+  if (s < T_GIRO2[1]) return mix(0, PI, eIO3(lin(s, ...T_GIRO2)));
+  if (s < T_GIRO3[0]) return PI;
+  if (s < T_GIRO3[1]) return mix(PI, PI / 2, eIOs(lin(s, ...T_GIRO3)));
+  return PI / 2;
+}
+// intensidad de la gravedad (1 = plena): casi ingrávido mientras el átomo estalla
+function magGrav(s) {
+  if (s < 0.12) return 1;
+  if (s < 0.3) return mix(1, 0.16, smooth(lin(s, 0.12, 0.3)));
+  return mix(0.16, 1, smooth(lin(s, 0.95, 2.05)));
+}
+// molde invisible: disco de sombra que empuja las bolas hacia la creciente
+function molde(s) {
+  // [centro x, centro y, radio, asentamiento 0–1]
+  if (s >= T_MOLDE_D[0] && s < T_SUELTA_D) return [CX - BD, CY, BR * mix(0.7, 1, eIOs(lin(s, ...T_MOLDE_D))), smooth(lin(s, T_MOLDE_D[1] - 0.2, T_MOLDE_D[1] + 0.4))];
+  if (s >= T_MOLDE_C[0] && s < T_SUELTA_C) return [CX + BD, CY, BR * mix(0.7, 1, eIOs(lin(s, ...T_MOLDE_C))), smooth(lin(s, T_MOLDE_C[1] - 0.2, T_MOLDE_C[1] + 0.4))];
+  return null;
+}
+// semiancho angular de la compuerta inferior (rad)
+function compuerta(s) {
+  if (s < T_COMPUERTA[0]) return 0;
+  if (s < T_COMPUERTA[1]) return 0.40 * eIOs(lin(s, T_COMPUERTA[0], T_COMPUERTA[1]));
+  return mix(0.40, 0.66, eIOs(lin(s, T_COMPUERTA[1], T_COMPUERTA[2])));
+}
+// compuerta tal como se dibuja (también se cierra al principio del ciclo siguiente)
+function compuertaVisible(t) {
+  const a = compuerta(t);
+  const b = t + DUR <= S_END ? compuerta(t + DUR) * (1 - eIOs(lin(t, 0.45, 0.95))) : 0;
+  return Math.max(a, b);
+}
+
+// ── simulación ───────────────────────────────────────────────────────────────
+const rnd = mulberry32(20241017);
+const rad = new Float64Array(N), inv = new Float64Array(N), lum = new Float32Array(N), varC = new Uint8Array(N);
+const nace = new Float64Array(N), dirE = new Float64Array(N), velE = new Float64Array(N);
+const px = new Float64Array(N), py = new Float64Array(N), ox = new Float64Array(N), oy = new Float64Array(N);
+const est = new Uint8Array(N);   // 0 sin nacer · 1 dentro · 2 escapada · 3 fuera de cuadro
+for (let i = 0; i < N; i++) {
+  rad[i] = 5.4 * (0.8 + 0.4 * rnd());
+  inv[i] = 1 / (rad[i] * rad[i]);
+  lum[i] = 0.8 + 0.2 * Math.pow(rnd(), 0.7);
+  varC[i] = Math.floor(rnd() * 3);
+  nace[i] = mix(T_VIERTE[0], T_VIERTE[1], i / N);
+  dirE[i] = i * GOLDEN + (rnd() - 0.5) * 0.04;
+  velE[i] = 470 + 70 * rnd();
+}
+const recX = new Float32Array(NREC * N), recY = new Float32Array(NREC * N), recE = new Uint8Array(NREC * N);
+
+// rejilla espacial (sólo la zona donde hay bolas)
+const CEL = 13.5;
+const GX0 = CX - R - 40, GY0 = CY - R - 40;
+const GC = Math.ceil((2 * R + 80) / CEL), GF = Math.ceil((H + 140 - GY0) / CEL);
+const celCuenta = new Int32Array(GC * GF + 1), celInicio = new Int32Array(GC * GF + 1);
+const celBolas = new Int32Array(N), celDe = new Int32Array(N);
+
+let pasos = 0;           // pasos ya simulados
+let grabadas = 0;        // muestras grabadas
+
+function grabar(k) {
+  const o = k * N;
+  for (let i = 0; i < N; i++) { recX[o + i] = px[i]; recY[o + i] = py[i]; recE[o + i] = est[i]; }
+}
+
+function paso() {
+  const s = pasos * DT;
+  sAhora = s;
+  const ag = angGrav(s), gm = G * magGrav(s);
+  const gx = gm * Math.cos(ag) * DT * DT, gy = gm * Math.sin(ag) * DT * DT;
+  const md0 = molde(s);
+  const damp = 1 - (md0 ? 0.35 + 5.5 * md0[3] : 0.35) * DT;
+  const VMAX = 2400 * DT;
+  // nacimientos (salen del núcleo del átomo)
+  for (let i = 0; i < N; i++) {
+    if (est[i] === 0 && nace[i] <= s) {
+      const c = Math.cos(dirE[i]), sn = Math.sin(dirE[i]);
+      px[i] = CX + c * 20; py[i] = CY + sn * 20;
+      ox[i] = px[i] - c * velE[i] * DT; oy[i] = py[i] - sn * velE[i] * DT;
+      est[i] = 1;
+    }
+  }
+  // integración de Verlet
+  for (let i = 0; i < N; i++) {
+    const e = est[i];
+    if (e === 0 || e === 3) continue;
+    let vx = (px[i] - ox[i]) * damp, vy = (py[i] - oy[i]) * damp;
+    const v2 = vx * vx + vy * vy;
+    if (v2 > VMAX * VMAX) { const k = VMAX / Math.sqrt(v2); vx *= k; vy *= k; }
+    ox[i] = px[i]; oy[i] = py[i];
+    px[i] += vx + gx; py[i] += vy + gy;
+  }
+  // rejilla
+  celCuenta.fill(0);
+  for (let i = 0; i < N; i++) {
+    const e = est[i];
+    if (e === 0 || e === 3 || nace[i] > s - FANTASMA) { celDe[i] = -1; continue; }
+    const cx = Math.floor((px[i] - GX0) / CEL), cy = Math.floor((py[i] - GY0) / CEL);
+    if (cx < 0 || cy < 0 || cx >= GC || cy >= GF) { celDe[i] = -1; continue; }
+    const c = cy * GC + cx;
+    celDe[i] = c; celCuenta[c]++;
+  }
+  let acc = 0;
+  for (let c = 0; c < GC * GF; c++) { celInicio[c] = acc; acc += celCuenta[c]; celCuenta[c] = 0; }
+  celInicio[GC * GF] = acc;
+  for (let i = 0; i < N; i++) {
+    const c = celDe[i];
+    if (c < 0) continue;
+    celBolas[celInicio[c] + celCuenta[c]++] = i;
+  }
+  const md = md0;
+  const abre = compuerta(s);
+  for (let it = 0; it < ITER; it++) {
+    // bola contra bola
+    for (let cy = 0; cy < GF; cy++) {
+      for (let cx = 0; cx < GC; cx++) {
+        const c = cy * GC + cx;
+        const a0 = celInicio[c], a1 = celInicio[c + 1];
+        if (a0 === a1) continue;
+        for (let ai = a0; ai < a1; ai++) {
+          const i = celBolas[ai];
+          // misma celda
+          for (let bj = ai + 1; bj < a1; bj++) choque(i, celBolas[bj]);
+          // vecinas: derecha, abajo-izq, abajo, abajo-der
+          if (cx + 1 < GC) { const d = c + 1; for (let bj = celInicio[d]; bj < celInicio[d + 1]; bj++) choque(i, celBolas[bj]); }
+          if (cy + 1 < GF) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const nx = cx + dx;
+              if (nx < 0 || nx >= GC) continue;
+              const d = c + GC + dx;
+              for (let bj = celInicio[d]; bj < celInicio[d + 1]; bj++) choque(i, celBolas[bj]);
+            }
+          }
+        }
+      }
+    }
+    // paredes
+    for (let i = 0; i < N; i++) {
+      if (est[i] !== 1) continue;
+      const ri = rad[i];
+      // molde (empuje limitado para que apriete con suavidad)
+      if (md) {
+        const dx = px[i] - md[0], dy = py[i] - md[1];
+        const d2 = dx * dx + dy * dy, lim = md[2] + ri;
+        if (d2 < lim * lim) {
+          const d = Math.sqrt(d2) || 1e-6;
+          const nx = dx / d, ny = dy / d;
+          const emp = Math.min(lim - d, 0.6);
+          // desplazamiento cinemático (no inyecta velocidad) y choque inelástico
+          px[i] += nx * emp; py[i] += ny * emp; ox[i] += nx * emp; oy[i] += ny * emp;
+          const vn = (px[i] - ox[i]) * nx + (py[i] - oy[i]) * ny;
+          if (vn < 0) { ox[i] += vn * nx; oy[i] += vn * ny; }
+        }
+      }
+      // aro de la Luna (con compuerta abajo)
+      const dx = px[i] - CX, dy = py[i] - CY;
+      const d2 = dx * dx + dy * dy, lim = R - ri;
+      if (d2 > lim * lim) {
+        const d = Math.sqrt(d2);
+        let enHueco = false;
+        if (abre > 0) {
+          const a = Math.atan2(dy, dx);
+          enHueco = Math.abs(a - PI / 2) < abre;
+        }
+        if (enHueco) {
+          if (d > R - ri * 0.2) est[i] = 2;
+        } else {
+          const nx = dx / d, ny = dy / d;
+          const qx = CX + nx * lim, qy = CY + ny * lim;
+          if (it === 0) {
+            // respuesta de velocidad: rebote y rozamiento contra el aro
+            let vx = px[i] - ox[i], vy = py[i] - oy[i];
+            const vn = vx * nx + vy * ny;
+            if (vn > 0) {
+              const e = vn > 0.45 ? 0.42 : 0;
+              const tx = vx - vn * nx, ty = vy - vn * ny;
+              vx = tx * 0.9985 - e * vn * nx; vy = ty * 0.9985 - e * vn * ny;
+              px[i] = qx; py[i] = qy; ox[i] = qx - vx; oy[i] = qy - vy;
+              continue;
+            }
+          }
+          px[i] = qx; py[i] = qy;
+        }
+      }
+    }
+  }
+  // salen del cuadro
+  for (let i = 0; i < N; i++) {
+    if (est[i] === 2 && py[i] > H + 40) est[i] = 3;
+    if (est[i] === 1 && s > T_FUERA) est[i] = 2;
+  }
+  pasos++;
+}
+
+let sAhora = 0;
+const T_FUERA = 10.35;    // salvaguarda: lo que quede dentro cae por la compuerta
+const FANTASMA = 0.035;   // recién nacidas: no chocan hasta separarse del núcleo
+function choque(i, j) {
+  const dx = px[j] - px[i], dy = py[j] - py[i];
+  const rr = rad[i] + rad[j];
+  const d2 = dx * dx + dy * dy;
+  if (d2 >= rr * rr || d2 < 1e-12) return;
+  const d = Math.sqrt(d2);
+  const wi = inv[i], wj = inv[j];
+  const k = ((rr - d) / d) / (wi + wj);
+  px[i] -= dx * k * wi; py[i] -= dy * k * wi;
+  px[j] += dx * k * wj; py[j] += dy * k * wj;
+}
+
+// ── dentro del Worker: simula todo y envía la grabación por lotes ─────────────
+if (typeof document === 'undefined') {
+  const total = (NREC - 1) * SPR;
+  grabar(0);
+  let a = 0, k = 1;
+  const enviar = (b) => {
+    const x = recX.slice(a * N, b * N), y = recY.slice(a * N, b * N), e = recE.slice(a * N, b * N);
+    postMessage({ a, b, x, y, e }, [x.buffer, y.buffer, e.buffer]);
+    a = b;
+  };
+  while (pasos < total) {
+    paso();
+    if (pasos % SPR === 0) { grabar(pasos / SPR); k = pasos / SPR + 1; if (k - a >= 12) enviar(k); }
+  }
+  if (k > a) enviar(k);
+  postMessage({ fin: true });
+  return;
+}
+
+// en la página: la simulación corre en un Worker (no frena el dibujo en el móvil)
+function simularEnHilo() {
+  return new Promise((resolve, reject) => {
+    let w;
+    try {
+      w = new Worker(URL.createObjectURL(new Blob([FUENTE], { type: 'text/javascript' })));
+    } catch (e) { reject(e); return; }
+    w.onmessage = (ev) => {
+      const m = ev.data;
+      if (m.fin) { w.terminate(); resolve(); return; }
+      recX.set(m.x, m.a * N); recY.set(m.y, m.a * N); recE.set(m.e, m.a * N);
+      grabadas = m.b;
+    };
+    w.onerror = (e) => { e.preventDefault(); w.terminate(); reject(e); };
+  });
+}
+
+// alternativa sin Worker: el mismo cálculo a trozos en el hilo principal
+async function simular() {
+  grabar(0); grabadas = 1;
+  const total = (NREC - 1) * SPR;
+  const presupuesto = CAPTURA ? 400 : 10;     // ms de cálculo antes de ceder el hilo
+  while (pasos < total) {
+    const t0 = performance.now();
+    do {
+      paso();
+      if (pasos % SPR === 0) { grabar(pasos / SPR); grabadas = pasos / SPR + 1; }
+    } while (pasos < total && performance.now() - t0 < presupuesto);
+    await new Promise((r) => setTimeout(r, 0));
+  }
+}
+
+// ── lienzo y tamaño: escena 16:9 centrada, con bandas si la ventana no es 16:9 ──
+const marco = document.getElementById('escena');
+const lienzo = document.getElementById('lienzo');
+const ctx = lienzo.getContext('2d');
+let escala = 1;
+function encajar() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const w = Math.floor(Math.min(vw, (vh * 16) / 9)), h = Math.floor((w * 9) / 16);
+  marco.style.width = w + 'px'; marco.style.height = h + 'px';
+  marco.style.left = Math.floor((vw - w) / 2) + 'px'; marco.style.top = Math.floor((vh - h) / 2) + 'px';
+  const pr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  lienzo.width = Math.round(w * pr); lienzo.height = Math.round(h * pr);
+  escala = lienzo.width / W;
+}
+
+// ── sprites (brillo y cuenta luminosa), coloreados por velocidad ─────────────
+const NT = 8;
+const REPOSO = [[255, 230, 190], [255, 214, 158], [246, 240, 228]];   // marfil · oro pálido · perla
+const FRIO = [150, 214, 255];
+const tinte = (q, v = 0) => REPOSO[v].map((c, k) => Math.round(mix(c, FRIO[k], q)));
+function sprite(fn, s = 64) {
+  const c = document.createElement('canvas'); c.width = c.height = s;
+  fn(c.getContext('2d'), s); return c;
+}
+const HALOS = [[], [], []], CUENTAS = [[], [], []];
+for (let v = 0; v < 3; v++) for (let k = 0; k < NT; k++) {
+  const [r, g, b] = tinte(k / (NT - 1), v);
+  HALOS[v].push(sprite((x, s) => {
+    const gr = x.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+    gr.addColorStop(0, `rgba(${r},${g},${b},0.62)`);
+    gr.addColorStop(0.18, `rgba(${r},${g},${b},0.26)`);
+    gr.addColorStop(0.45, `rgba(${r},${g},${b},0.07)`);
+    gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    x.fillStyle = gr; x.fillRect(0, 0, s, s);
+  }));
+  CUENTAS[v].push(sprite((x, s) => {
+    const m = s / 2, rr = s / 2 - 1;
+    const gr = x.createRadialGradient(m - rr * 0.12, m - rr * 0.14, 0, m, m, rr);
+    gr.addColorStop(0, '#ffffff');
+    gr.addColorStop(0.32, `rgb(${Math.min(255, r + 12)},${Math.min(255, g + 16)},${Math.min(255, b + 24)})`);
+    gr.addColorStop(0.78, `rgb(${r},${Math.round(g * 0.93)},${Math.round(b * 0.86)})`);
+    gr.addColorStop(1, `rgba(${Math.round(r * 0.86)},${Math.round(g * 0.76)},${Math.round(b * 0.66)},0.75)`);
+    x.fillStyle = gr; x.beginPath(); x.arc(m, m, rr, 0, TAU); x.fill();
+  }));
+}
+
+// ── fondo (pre-renderizado) ──────────────────────────────────────────────────
+let FONDO = null;
+function hacerFondo() {
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  x.fillStyle = '#05070d'; x.fillRect(0, 0, W, H);
+  let gr = x.createRadialGradient(CX, CY, 40, CX, CY, 1100);
+  gr.addColorStop(0, 'rgba(30,42,72,0.75)');
+  gr.addColorStop(0.45, 'rgba(14,20,38,0.6)');
+  gr.addColorStop(1, 'rgba(4,6,11,0)');
+  x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  // rejilla de puntos (banco de pruebas)
+  for (let yy = 24; yy < H; yy += 48) {
+    for (let xx = 24; xx < W; xx += 48) {
+      const d = Math.hypot(xx - CX, yy - CY);
+      if (d < R + 26) continue;
+      const a = 0.11 * clamp(1 - Math.abs(d - 520) / 900, 0.25, 1);
+      x.fillStyle = `rgba(150,170,215,${a.toFixed(3)})`;
+      x.fillRect(xx - 1, yy - 1, 2, 2);
+    }
+  }
+  // disco de la Luna: luz cenicienta muy tenue
+  gr = x.createRadialGradient(CX - 60, CY - 70, 10, CX, CY, R);
+  gr.addColorStop(0, 'rgba(96,116,170,0.10)');
+  gr.addColorStop(1, 'rgba(60,76,120,0.05)');
+  x.fillStyle = gr; x.beginPath(); x.arc(CX, CY, R, 0, TAU); x.fill();
+  // marcas de transportador alrededor del aro
+  for (let k = 0; k < 72; k++) {
+    const a = (k / 72) * TAU, mayor = k % 6 === 0;
+    const r0 = R + 10, r1 = R + (mayor ? 24 : 16);
+    x.strokeStyle = mayor ? 'rgba(170,186,225,0.30)' : 'rgba(170,186,225,0.13)';
+    x.lineWidth = mayor ? 1.6 : 1.2;
+    x.beginPath(); x.moveTo(CX + Math.cos(a) * r0, CY + Math.sin(a) * r0);
+    x.lineTo(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1); x.stroke();
+  }
+  // viñeta
+  gr = x.createRadialGradient(W / 2, H / 2, 380, W / 2, H / 2, 1180);
+  gr.addColorStop(0, 'rgba(0,0,0,0)');
+  gr.addColorStop(1, 'rgba(0,0,0,0.55)');
+  x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  FONDO = c;
+}
+
+// ── tipografía ───────────────────────────────────────────────────────────────
+const F_MONO = (s, w = 500) => `${w} ${s}px "JetBrains Mono", ui-monospace, Menlo, monospace`;
+const F_SERIF = (s) => `400 ${s}px "Instrument Serif", Georgia, serif`;
+const F_SERIF_I = (s) => `italic 400 ${s}px "Instrument Serif", Georgia, serif`;
+const anchos = new Map();
+function ancho(txt, font, track) {
+  const k = font + '|' + track + '|' + txt;
+  let w = anchos.get(k);
+  if (w === undefined) {
+    ctx.font = font;
+    w = 0;
+    for (const ch of txt) w += ctx.measureText(ch).width + track;
+    w -= track;
+    anchos.set(k, w);
+  }
+  return w;
+}
+// texto con espaciado manual; al = 0 izq · 0.5 centro · 1 der
+function texto(txt, x, y, font, size, trackEm, color, alfa, al = 0) {
+  if (alfa <= 0.002) return;
+  const track = trackEm * size;
+  ctx.font = font; ctx.fillStyle = color; ctx.globalAlpha = alfa;
+  if (!track) { ctx.textAlign = al === 0 ? 'left' : al === 1 ? 'right' : 'center'; ctx.fillText(txt, x, y); ctx.textAlign = 'left'; ctx.globalAlpha = 1; return; }
+  let xx = x - ancho(txt, font, track) * al;
+  for (const ch of txt) { ctx.fillText(ch, xx, y); xx += ctx.measureText(ch).width + track; }
+  ctx.globalAlpha = 1;
+}
+
+// ── dibujo ───────────────────────────────────────────────────────────────────
+const TINTA = '#ECE6DA', TINTA2 = 'rgba(176,190,222,1)';
+
+function dibujarAro(t) {
+  const h = compuertaVisible(t);
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(190,204,240,0.34)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  if (h > 0.004) ctx.arc(CX, CY, R + 2, PI / 2 + h, PI / 2 - h + TAU);
+  else ctx.arc(CX, CY, R + 2, 0, TAU);
+  ctx.stroke();
+  if (h > 0.004) {
+    // labios de la compuerta
+    ctx.strokeStyle = 'rgba(214,226,255,0.6)'; ctx.lineWidth = 2;
+    for (const a of [PI / 2 - h, PI / 2 + h]) {
+      ctx.beginPath();
+      ctx.moveTo(CX + Math.cos(a) * (R - 6), CY + Math.sin(a) * (R - 6));
+      ctx.lineTo(CX + Math.cos(a) * (R + 16), CY + Math.sin(a) * (R + 16));
+      ctx.stroke();
+    }
+  }
+}
+
+// flecha de la gravedad que sale del átomo
+function dibujarGravedad(t) {
+  const a = angGrav(t);
+  const c = Math.cos(a), s = Math.sin(a);
+  const r0 = 92, r1 = 92 + 56 * (0.3 + 0.7 * magGrav(t));
+  ctx.strokeStyle = 'rgba(190,206,245,0.42)'; ctx.fillStyle = 'rgba(190,206,245,0.42)';
+  ctx.lineWidth = 2; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(CX + c * r0, CY + s * r0); ctx.lineTo(CX + c * (r1 - 8), CY + s * (r1 - 8)); ctx.stroke();
+  const tx = CX + c * r1, ty = CY + s * r1;
+  ctx.beginPath();
+  ctx.moveTo(tx, ty);
+  ctx.lineTo(tx - c * 14 - s * 7, ty - s * 14 + c * 7);
+  ctx.lineTo(tx - c * 14 + s * 7, ty - s * 14 - c * 7);
+  ctx.closePath(); ctx.fill();
+  // «g» al lado de la flecha
+  const lx = CX + c * (r0 + r1) / 2 - s * 22, ly = CY + s * (r0 + r1) / 2 + c * 22;
+  ctx.font = F_SERIF_I(30); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.globalAlpha = 0.55; ctx.fillStyle = '#C8D4F2'; ctx.fillText('g', lx, ly);
+  ctx.globalAlpha = 1; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+}
+
+// el átomo narrador (núcleo de bolas + 3 electrones en órbitas inclinadas)
+const NUCLEO = [[0, 0], [10.4, 0], [-10.4, 0], [5.2, 9], [-5.2, 9], [5.2, -9], [-5.2, -9]];
+function dibujarAtomo(t) {
+  // destello mientras vierte (envuelve el bucle: el vertido empieza en t≈0.3)
+  const vierte = smooth(lin(t, T_VIERTE[0] - 0.25, T_VIERTE[0] + 0.1)) * (1 - smooth(lin(t, T_VIERTE[1] - 0.2, T_VIERTE[1] + 0.3)));
+  const e = 1 + 0.08 * vierte;
+  const ORB = [PI / 6, PI / 2, (5 * PI) / 6];
+  const A = 62 * e, B = 20 * e;
+  ctx.save();
+  ctx.translate(CX, CY);
+  // halo del núcleo
+  ctx.globalCompositeOperation = 'lighter';
+  const hz = 70 + 40 * vierte;
+  ctx.globalAlpha = 0.35 + 0.45 * vierte;
+  ctx.drawImage(HALOS[1][1], -hz, -hz, hz * 2, hz * 2);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = 'rgba(196,212,250,0.42)'; ctx.lineWidth = 1.4;
+  for (const o of ORB) { ctx.beginPath(); ctx.ellipse(0, 0, A, B, o, 0, TAU); ctx.stroke(); }
+  const elec = [];
+  for (let k = 0; k < 3; k++) {
+    const w = (TAU * 4) / DUR, f = w * t + (k * TAU) / 3;
+    const ex = A * Math.cos(f), ey = B * Math.sin(f);
+    const c = Math.cos(ORB[k]), s = Math.sin(ORB[k]);
+    elec.push([ex * c - ey * s, ex * s + ey * c, Math.sin(f)]);
+  }
+  const pintaE = ([x, y, z]) => {
+    const r = 4.6 + 0.8 * z;
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.9;
+    ctx.drawImage(HALOS[2][NT - 1], x - r * 4, y - r * 4, r * 8, r * 8);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    ctx.drawImage(CUENTAS[2][NT - 1], x - r, y - r, r * 2, r * 2);
+  };
+  for (const p of elec) if (p[2] < 0) pintaE(p);
+  for (const [nx, ny] of NUCLEO) {
+    const r = 5.6 * e;
+    ctx.drawImage(CUENTAS[1][0], nx * e - r, ny * e - r, r * 2, r * 2);
+  }
+  for (const p of elec) if (p[2] >= 0) pintaE(p);
+  ctx.restore();
+}
+
+// búfer de resplandor a 1/8 de resolución (se amplía con suavizado: un «bloom» barato)
+const BF = 8;
+const BLOOM = document.createElement('canvas');
+BLOOM.width = W / BF; BLOOM.height = Math.ceil(H / BF);
+const bctx = BLOOM.getContext('2d');
+
+// posición grabada de la bola i en el instante s (interpolada)
+function posEn(i, s, out) {
+  const kf = clamp(s * REC, 0, grabadas - 1.001);
+  const k0 = Math.floor(kf), f = kf - k0;
+  const a = k0 * N + i, b = a + N;
+  if (recE[a] === 0 || recE[b] === 0) return false;
+  out[0] = recX[a] + (recX[b] - recX[a]) * f;
+  out[1] = recY[a] + (recY[b] - recY[a]) * f;
+  return true;
+}
+const _p = [0, 0];
+
+// bolas de un ciclo en el instante s · capa 0: halos y estelas (aditivo) · capa 1: cuentas
+function dibujarBolas(s, capa) {
+  if (s < 0 || s > S_END) return 0;
+  const kf = s * REC;
+  const k0 = Math.floor(kf);
+  if (k0 < 0 || k0 + 1 >= grabadas) return 0;   // aún sin simular (primera vuelta)
+  const f = clamp(kf - k0);
+  const o0 = k0 * N, o1 = o0 + N;
+  let dentro = 0;
+  for (let i = 0; i < N; i++) {
+    const e0 = recE[o0 + i], e1 = recE[o1 + i];
+    if (e0 === 0 || e0 === 3 || e1 === 0 || e1 === 3) continue;
+    const x0 = recX[o0 + i], y0 = recY[o0 + i], x1 = recX[o1 + i], y1 = recY[o1 + i];
+    const x = x0 + (x1 - x0) * f, y = y0 + (y1 - y0) * f;
+    if (y > H + 30) continue;
+    if (e0 === 1) dentro++;
+    const vx = (x1 - x0) * REC, vy = (y1 - y0) * REC;
+    const v = Math.hypot(vx, vy);
+    const q = clamp((v - 140) / 1000);
+    const ti = Math.round(q * (NT - 1));
+    const edad = s - nace[i];
+    const crece = smooth(clamp(edad / 0.08));
+    const r = rad[i] * mix(0.3, 1, crece);
+    const l = lum[i] * mix(0.5, 1, crece);
+    const HV = HALOS[varC[i]];
+    if (capa === 0) {
+      // resplandor amplio (la luz de la Luna) en el búfer de baja resolución
+      const ar = (r * 11) / BF;
+      bctx.globalAlpha = 0.085 * l;
+      bctx.drawImage(HV[ti], x / BF - ar, y / BF - ar, ar * 2, ar * 2);
+      // halo cercano
+      const hr = r * 3.6;
+      ctx.globalAlpha = 0.3 * l + 0.22 * q;
+      ctx.drawImage(HV[ti], x - hr, y - hr, hr * 2, hr * 2);
+      // estela: la bola repetida en instantes anteriores de su propia trayectoria
+      if (v > 280) {
+        const fuerza = clamp((v - 280) / 900);
+        for (let j = 1; j <= 3; j++) {
+          if (!posEn(i, s - j * 0.0095, _p)) break;
+          const rj = r * (1 - j * 0.16);
+          ctx.globalAlpha = fuerza * (0.48 - j * 0.12);
+          ctx.drawImage(HV[ti], _p[0] - rj * 1.6, _p[1] - rj * 1.6, rj * 3.2, rj * 3.2);
+        }
+      }
+    } else {
+      ctx.globalAlpha = l;
+      ctx.drawImage(CUENTAS[varC[i]][ti], x - r, y - r, r * 2, r * 2);
+    }
+  }
+  return dentro;
+}
+
+// indicador de la gravedad (arriba a la derecha)
+function dibujarHUD(t, n) {
+  const a = angGrav(t);
+  const gx = 1774, gy = 138, gr = 36;
+  ctx.strokeStyle = 'rgba(176,190,222,0.35)'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.arc(gx, gy, gr, 0, TAU); ctx.stroke();
+  for (let k = 0; k < 12; k++) {
+    const b = (k / 12) * TAU, l = k % 3 === 0 ? 7 : 4;
+    ctx.beginPath(); ctx.moveTo(gx + Math.cos(b) * (gr - l), gy + Math.sin(b) * (gr - l));
+    ctx.lineTo(gx + Math.cos(b) * gr, gy + Math.sin(b) * gr); ctx.stroke();
+  }
+  const c = Math.cos(a), s = Math.sin(a);
+  ctx.strokeStyle = '#E9D9B8'; ctx.fillStyle = '#E9D9B8'; ctx.lineWidth = 2.2;
+  const m = 0.35 + 0.65 * magGrav(t), L = 25 * m;
+  ctx.beginPath(); ctx.moveTo(gx - c * 12, gy - s * 12); ctx.lineTo(gx + c * (L - 9), gy + s * (L - 9)); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(gx + c * L, gy + s * L);
+  ctx.lineTo(gx + c * (L - 11) - s * 6, gy + s * (L - 11) + c * 6);
+  ctx.lineTo(gx + c * (L - 11) + s * 6, gy + s * (L - 11) - c * 6);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.arc(gx, gy, 2.4, 0, TAU); ctx.fill();
+  // lecturas
+  const th = Math.round(((PI / 2 - a) * 180) / PI);
+  const sg = th > 0 ? '+' : th < 0 ? '−' : '';
+  const xL = 1420, xV = 1712;
+  const filas = [
+    ['GRAVEDAD', magGrav(t).toFixed(2).replace('.', ',') + ' g'],
+    ['DIRECCIÓN', `${sg}${Math.abs(th)}°`],
+    ['PARTÍCULAS', String(n)],
+  ];
+  filas.forEach(([k, v], j) => {
+    const y = 102 + j * 38;
+    texto(k, xL, y, F_MONO(21), 21, 0.14, TINTA2, 0.58);
+    texto(v, xV, y, F_MONO(21), 21, 0.02, TINTA, 0.94, 1);
+  });
+}
+
+// rótulos: título y hemisferios
+function dibujarRotulos(t) {
+  texto('LO QUE NO TE EXPLICARON EN CLASE', 110, 108, F_MONO(22), 22, 0.18, TINTA2, 0.62);
+  texto('La Luna al revés', 107, 178, F_SERIF(66), 66, 0, TINTA, 0.96);
+  ctx.fillStyle = 'rgba(233,217,184,0.55)'; ctx.fillRect(110, 204, 44, 2);
+  // énfasis: norte (D) y sur (C)
+  const eN = smooth(lin(t, 3.35, 3.95)) * (1 - smooth(lin(t, 4.85, 5.35)));
+  const eS = smooth(lin(t, 6.45, 7.05)) * (1 - smooth(lin(t, 8.3, 8.8)));
+  bloque(570, 1, 'norte', 'CRECIENTE CON FORMA DE D', eN);
+  bloque(1350, 0, 'sur', 'CRECIENTE CON FORMA DE C', eS);
+}
+function bloque(x, al, palabra, pie, e) {
+  const base = 0.26;
+  const a = base + (1 - base) * e;
+  texto('HEMISFERIO', x, CY - 72, F_MONO(24), 24, 0.22, TINTA2, 0.35 + 0.45 * e, al);
+  texto(palabra, x, CY + 34, F_SERIF_I(124), 124, -0.005, TINTA, a, al);
+  texto(pie, x, CY + 88, F_MONO(22), 22, 0.12, '#E9D9B8', 0.12 + 0.8 * e, al);
+  // guía hasta el aro
+  const x0 = al ? x + 30 : x - 30, x1 = al ? CX - R - 30 : CX + R + 30;
+  ctx.strokeStyle = `rgba(190,204,240,${(0.10 + 0.32 * e).toFixed(3)})`;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(x0, CY); ctx.lineTo(x1, CY); ctx.stroke();
+  ctx.fillStyle = `rgba(233,217,184,${(0.2 + 0.7 * e).toFixed(3)})`;
+  ctx.beginPath(); ctx.arc(x1, CY, 3, 0, TAU); ctx.fill();
+}
+
+function dibujar(tt) {
+  const t = (((tt + DESFASE) % DUR) + DUR) % DUR;   // tiempo dentro del ciclo
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = '#05070d'; ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+  ctx.setTransform(escala, 0, 0, escala, 0, 0);
+  ctx.drawImage(FONDO, 0, 0, W, H);
+  dibujarAro(t);
+  dibujarGravedad(t);
+  dibujarAtomo(t);
+  // resplandor, halos y estelas (aditivo), luego las cuentas
+  bctx.globalCompositeOperation = 'source-over'; bctx.globalAlpha = 1;
+  bctx.clearRect(0, 0, BLOOM.width, BLOOM.height);
+  bctx.globalCompositeOperation = 'lighter';
+  ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+  dibujarBolas(t, 0); dibujarBolas(t + DUR, 0);
+  ctx.globalAlpha = 1; ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(BLOOM, 0, 0, BLOOM.width * BF, BLOOM.height * BF);
+  ctx.globalCompositeOperation = 'source-over';
+  const n = dibujarBolas(t, 1) + dibujarBolas(t + DUR, 1);
+  ctx.globalAlpha = 1;
+  dibujarHUD(t, n);
+  dibujarRotulos(t);
+}
+
+encajar();
+hacerFondo();
+let completo = null;
+window.__frame = async (t) => { await completo; dibujar(t); };
+
+async function fuentes() {
+  const lista = [
+    [F_MONO(22), 'LO QUE NO TE EXPLICARON EN CLASE GRAVEDAD DIRECCIÓN PARTÍCULAS HEMISFERIO CRECIENTE CON FORMA DE 0123456789,°+−'],
+    [F_SERIF(62), 'La Luna al revés'],
+    [F_SERIF_I(124), 'norte sur g'],
+  ];
+  try {
+    await Promise.race([
+      Promise.all(lista.map(([fu, txt]) => document.fonts.load(fu, txt))),
+      new Promise((r) => setTimeout(r, 8000)),
+    ]);
+  } catch (e) { /* sin fuentes: se usan las de reserva */ }
+  anchos.clear();
+}
+
+const cargaFuentes = fuentes();
+const t0sim = performance.now();
+const calculo = (FUENTE ? simularEnHilo() : Promise.reject(new Error('sin fuente')))
+  .catch(() => { grabadas = 0; return simular(); })
+  .then(() => { window.__msSimulacion = Math.round(performance.now() - t0sim); });
+completo = Promise.all([cargaFuentes, calculo]);
+completo.then(() => {
+  dibujar(0);
+  window.__listo = true;
+});
+if (!CAPTURA) {
+  window.addEventListener('resize', encajar);
+  cargaFuentes.then(() => {
+    // la primera vuelta empieza en el estallido del átomo (ciclo 0) y, mientras
+    // la simulación se calcula, el reloj nunca la adelanta
+    let inicio = performance.now() - (DUR - DESFASE) * 1000;
+    const bucle = (ahora) => {
+      if (!window.__listo) {
+        const hay = Math.max(0, (grabadas - 2) / REC);
+        const c = (ahora - inicio) / 1000 - (DUR - DESFASE);
+        if (c > hay) inicio += (c - hay) * 1000;
+      }
+      dibujar(((ahora - inicio) / 1000) % DUR);
+      requestAnimationFrame(bucle);
+    };
+    requestAnimationFrame(bucle);
+  });
+}
+})();
+</script>
+</body>
+</html>

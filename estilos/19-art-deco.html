@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Luna al revés · medallón</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Limelight&family=Poiret+One&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #060a13; overflow: hidden; }
+  canvas { position: fixed; display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+// ---------------------------------------------------------------------------
+// Pan de oro y marfil sobre azul noche. Todo es Canvas 2D vectorial en un marco
+// de 1920x1080; cada línea dorada se pinta con un mismo degradado metálico que
+// se recalcula en cada fotograma (bandas de reflejo que derivan + barridos de luz).
+// Guion (10 s): el átomo gira en el medallón → sus órbitas se cierran en anillos
+// y el núcleo crece hasta ser la Luna llena → la sombra la deja en creciente «D»
+// (se enciende la placa del hemisferio norte) → el medallón gira 180° y el
+// creciente es una «C» (placa del sur) → gira hasta 360°, se llena, encoge y
+// vuelve a ser el núcleo del átomo. Cada placa: luna vista desde ese hemisferio,
+// letra en perfil de oro que se dora al encenderse, y un globo con el observador
+// de pie en su polo (erguido en el norte, cabeza abajo en el sur).
+// ---------------------------------------------------------------------------
+const DUR = 10, W = 1920, H = 1080, PI = Math.PI, TAU = PI * 2;
+const CAPTURA = /captura/.test(location.search);
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const bgc = document.createElement('canvas');
+let S = 1;
+
+const FD = "'Limelight', 'Didot', serif";
+const FL = "'Poiret One', 'Futura', sans-serif";
+const CREAM = '239,228,198';
+
+// Composición
+const MC = { x: 960, y: 535 };          // centro del medallón
+const MR = 316;                          // radio exterior del medallón
+const RM = 176;                          // radio de la Luna
+const NUC = 44;                          // radio del núcleo
+const PX = [330, 1590];                  // centros de las placas (norte, sur)
+const PQ = { top: 192, archY: 374, bot: 880, hw: 182, div: 420 };
+const SMOON = { y: 312, r: 58 };         // luna pequeña de cada placa
+const GLB = { y: 790, r: 27 };           // globo del emblema (observador)
+const KT = 0.32;                         // terminador del creciente (fracción del radio)
+const ORB = [
+  { tilt: -PI / 3, ring: 198, ph: 0.05 },
+  { tilt: 0,        ring: 210, ph: 0.38 },
+  { tilt: PI / 3,   ring: 222, ph: 0.71 },
+];
+const ATOM = { rx: 238, ry: 78 };
+
+// --- utilidades -------------------------------------------------------------
+const cl = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const lerp = (a, b, x) => a + (b - a) * x;
+const ioC = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const ioQ = (x) => (x < 0.5 ? 16 * x * x * x * x * x : 1 - Math.pow(-2 * x + 2, 5) / 2);
+const oC = (x) => 1 - Math.pow(1 - x, 3);
+const sm = (x) => x * x * (3 - 2 * x);
+const inOut = (t, a, b, c, d, e = ioC) => e(seg(t, a, b)) * (1 - e(seg(t, c, d)));
+
+function mulberry32(s) {
+  return () => {
+    s |= 0; s = (s + 0x6d2b79f5) | 0;
+    let r = Math.imul(s ^ (s >>> 15), 1 | s);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// --- oro: degradado metálico por fotograma ------------------------------------
+const RAMP = [
+  [0.00, [70, 46, 14]], [0.28, [132, 94, 36]], [0.52, [190, 150, 70]],
+  [0.74, [228, 196, 120]], [0.90, [246, 230, 172]], [1.00, [255, 246, 214]],
+];
+function ramp(v) {
+  v = cl(v);
+  for (let i = 1; i < RAMP.length; i++) {
+    if (v <= RAMP[i][0]) {
+      const [a, ca] = RAMP[i - 1], [b, cb] = RAMP[i], k = (v - a) / (b - a);
+      return [ca[0] + (cb[0] - ca[0]) * k, ca[1] + (cb[1] - ca[1]) * k, ca[2] + (cb[2] - ca[2]) * k];
+    }
+  }
+  return RAMP[RAMP.length - 1][1];
+}
+// barridos de luz: [inicio, fin, intensidad]
+const SWEEPS = [[0.25, 1.75, 0.55], [2.3, 3.7, 0.95], [5.95, 7.35, 0.85]];
+function makeGold(t) {
+  const g = ctx.createLinearGradient(-180, -100, 2100, 1180);
+  const cs = [];
+  for (const [a, b, k] of SWEEPS) if (t > a && t < b) cs.push([lerp(-0.15, 1.15, ioC((t - a) / (b - a))), k]);
+  const ps = [];
+  for (let i = 0; i <= 90; i++) ps.push(i / 90);
+  for (const [c] of cs) for (let j = -10; j <= 10; j++) { const p = c + j * 0.005; if (p > 0 && p < 1) ps.push(p); }
+  ps.sort((a, b) => a - b);
+  const drift = 0.32 * Math.sin(TAU * t / DUR);
+  let last = -1;
+  for (const p of ps) {
+    if (p - last < 1e-4) continue;
+    last = p;
+    const v = 0.5 + 0.27 * Math.sin(TAU * p * 3.1 + 0.5 + drift) + 0.15 * Math.sin(TAU * p * 8.3 + 1.9 - drift * 1.7)
+      + 0.06 * Math.sin(TAU * p * 21 + 0.3);
+    let col = ramp(v);
+    for (const [c, k] of cs) {
+      const d = (p - c) / 0.026, s = k * Math.exp(-d * d);
+      col = [col[0] + (255 - col[0]) * s, col[1] + (250 - col[1]) * s, col[2] + (230 - col[2]) * s];
+    }
+    g.addColorStop(p, `rgb(${col[0] | 0},${col[1] | 0},${col[2] | 0})`);
+  }
+  return g;
+}
+
+// --- texto con espaciado ----------------------------------------------------
+const wcache = new Map();
+function tracked(str, x, y, font, track, mode = 'fill') {
+  ctx.font = font;
+  const key = font + '|' + str;
+  let ws = wcache.get(key);
+  if (!ws) { ws = [...str].map((c) => ctx.measureText(c).width); wcache.set(key, ws); }
+  const chars = [...str];
+  const total = ws.reduce((a, b) => a + b, 0) + track * (chars.length - 1);
+  let cx = x - total / 2;
+  ctx.textAlign = 'left';
+  for (let i = 0; i < chars.length; i++) {
+    if (mode === 'fill') ctx.fillText(chars[i], cx, y);
+    else ctx.strokeText(chars[i], cx, y);
+    cx += ws[i] + track;
+  }
+  return total;
+}
+function trackedWidth(str, font, track) {
+  ctx.font = font;
+  return [...str].reduce((a, c) => a + ctx.measureText(c).width, 0) + track * ([...str].length - 1);
+}
+
+// --- formas -------------------------------------------------------------------
+function circle(x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); }
+function resetT() { ctx.setTransform(S, 0, 0, S, 0, 0); }
+
+// marco escalonado: rectángulo con esquinas en zigurat
+function steppedRect(L, T, R, B, s) {
+  ctx.beginPath();
+  ctx.moveTo(L + 2 * s, T); ctx.lineTo(R - 2 * s, T);
+  ctx.lineTo(R - 2 * s, T + s); ctx.lineTo(R - s, T + s); ctx.lineTo(R - s, T + 2 * s); ctx.lineTo(R, T + 2 * s);
+  ctx.lineTo(R, B - 2 * s); ctx.lineTo(R - s, B - 2 * s); ctx.lineTo(R - s, B - s); ctx.lineTo(R - 2 * s, B - s);
+  ctx.lineTo(R - 2 * s, B); ctx.lineTo(L + 2 * s, B);
+  ctx.lineTo(L + 2 * s, B - s); ctx.lineTo(L + s, B - s); ctx.lineTo(L + s, B - 2 * s); ctx.lineTo(L, B - 2 * s);
+  ctx.lineTo(L, T + 2 * s); ctx.lineTo(L + s, T + 2 * s); ctx.lineTo(L + s, T + s); ctx.lineTo(L + 2 * s, T + s);
+  ctx.closePath();
+}
+function plaquePath(cx, d) {
+  const hw = PQ.hw - d;
+  ctx.beginPath();
+  ctx.moveTo(cx - hw, PQ.bot - d);
+  ctx.lineTo(cx - hw, PQ.archY);
+  ctx.arc(cx, PQ.archY, hw, PI, 0);
+  ctx.lineTo(cx + hw, PQ.bot - d);
+  ctx.closePath();
+}
+function diamond(x, y, rx, ry) {
+  ctx.moveTo(x, y - ry); ctx.lineTo(x + rx, y); ctx.lineTo(x, y + ry); ctx.lineTo(x - rx, y); ctx.closePath();
+}
+
+// --- Luna -----------------------------------------------------------------
+// mares (coordenadas en radios, norte arriba, visto desde el hemisferio norte)
+const MARIA = [
+  [-0.30, -0.36, 0.22, 0.18], [0.17, -0.36, 0.14, 0.13], [0.30, -0.07, 0.17, 0.14],
+  [0.66, -0.28, 0.10, 0.08], [0.55, 0.12, 0.12, 0.10], [0.37, 0.27, 0.08, 0.08],
+  [-0.60, -0.04, 0.24, 0.32], [-0.17, 0.36, 0.15, 0.11], [-0.48, 0.33, 0.09, 0.08],
+];
+const CRATERS = [[-0.12, 0.72, 0.05], [-0.28, -0.12, 0.045], [0.12, 0.55, 0.035], [0.72, 0.42, 0.04], [0.48, -0.55, 0.035], [-0.05, -0.68, 0.03]];
+
+function litPath(r, xt) {
+  ctx.beginPath();
+  ctx.moveTo(0, -r);
+  ctx.arc(0, 0, r, -PI / 2, PI / 2, false);
+  const ex = Math.abs(xt) * r;
+  if (ex < 0.05) ctx.lineTo(0, -r);
+  else if (xt > 0) ctx.ellipse(0, 0, ex, r, 0, PI / 2, -PI / 2, true);
+  else ctx.ellipse(0, 0, ex, r, 0, PI / 2, 3 * PI / 2, false);
+  ctx.closePath();
+}
+// cara iluminada de la Luna grande, grabada una vez: mares en rayado de buril con
+// bordes suaves, cráteres en relieve (sombra + brillo) y rayos finos en Tycho.
+let FACE = null;
+function buildMoonFace() {
+  const px = Math.ceil(2 * RM * Math.max(S, 1)), k = px / (2 * RM), r = RM;
+  const mk = () => { const c = document.createElement('canvas'); c.width = c.height = px; const g = c.getContext('2d'); g.setTransform(k, 0, 0, k, px / 2, px / 2); return [c, g]; };
+  const [face, f] = mk(), [mask, m] = mk(), [hat, h] = mk();
+  const lg = f.createRadialGradient(r * 0.35, -r * 0.3, r * 0.05, 0, 0, r * 1.05);
+  lg.addColorStop(0, '#fff8e6'); lg.addColorStop(0.55, '#f2e4bd'); lg.addColorStop(1, '#d4b87c');
+  f.fillStyle = lg; f.fillRect(-r, -r, 2 * r, 2 * r);
+  // máscara suave de los mares
+  for (const [x, y, rx, ry] of MARIA) {
+    m.save(); m.translate(x * r, y * r); m.rotate(0.3); m.scale(rx * r, ry * r);
+    const g = m.createRadialGradient(0, 0, 0, 0, 0, 1.25);
+    g.addColorStop(0, 'rgba(0,0,0,0.95)'); g.addColorStop(0.62, 'rgba(0,0,0,0.8)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    m.fillStyle = g; m.beginPath(); m.arc(0, 0, 1.25, 0, TAU); m.fill();
+    m.restore();
+  }
+  // tinte
+  f.save(); f.setTransform(1, 0, 0, 1, 0, 0);
+  h.save(); h.setTransform(1, 0, 0, 1, 0, 0); h.fillStyle = 'rgb(176,136,70)'; h.fillRect(0, 0, px, px);
+  h.globalCompositeOperation = 'destination-in'; h.drawImage(mask, 0, 0); h.restore();
+  f.globalAlpha = 0.3; f.drawImage(hat, 0, 0);
+  // rayado
+  h.save(); h.setTransform(1, 0, 0, 1, 0, 0); h.globalCompositeOperation = 'copy'; h.clearRect(0, 0, px, px); h.restore();
+  h.globalCompositeOperation = 'source-over';
+  h.strokeStyle = 'rgb(120,86,34)'; h.lineWidth = 1.05;
+  h.beginPath();
+  for (let q = -2 * r; q <= 2 * r; q += 4.4) { h.moveTo(q - r, -r); h.lineTo(q + r, r); }
+  h.stroke();
+  h.save(); h.setTransform(1, 0, 0, 1, 0, 0); h.globalCompositeOperation = 'destination-in'; h.drawImage(mask, 0, 0); h.restore();
+  f.globalAlpha = 0.55; f.drawImage(hat, 0, 0);
+  f.restore();
+  // grabado general: líneas horizontales finísimas
+  f.strokeStyle = 'rgba(160,124,62,0.09)'; f.lineWidth = 1;
+  f.beginPath();
+  for (let q = -r; q <= r; q += 6) { f.moveTo(-r, q); f.lineTo(r, q); }
+  f.stroke();
+  // rayos de Tycho
+  const [tx, ty] = [-0.12 * r, 0.72 * r];
+  f.strokeStyle = 'rgba(255,252,238,0.55)'; f.lineWidth = 0.9;
+  f.beginPath();
+  for (let i = 0; i < 14; i++) { const a = i * TAU / 14 + 0.2, L = r * (0.16 + 0.12 * ((i * 7) % 5) / 4); f.moveTo(tx + Math.cos(a) * r * 0.06, ty + Math.sin(a) * r * 0.06); f.lineTo(tx + Math.cos(a) * L, ty + Math.sin(a) * L); }
+  f.stroke();
+  // cráteres en relieve
+  for (const [x, y, rr] of CRATERS) {
+    const cx = x * r, cy = y * r, R = rr * r;
+    f.fillStyle = 'rgba(176,138,72,0.22)'; f.beginPath(); f.arc(cx, cy, R, 0, TAU); f.fill();
+    f.lineWidth = 1.5;
+    f.strokeStyle = 'rgba(118,84,32,0.65)'; f.beginPath(); f.arc(cx, cy, R, PI * 0.85, PI * 1.85); f.stroke();
+    f.strokeStyle = 'rgba(255,253,244,0.9)'; f.beginPath(); f.arc(cx, cy, R, PI * 1.85, PI * 2.85); f.stroke();
+  }
+  FACE = face;
+}
+
+function drawMoon(G, cx, cy, r, rot, xt, a, detail) {
+  if (a <= 0.001) return;
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.translate(cx, cy); ctx.rotate(rot);
+  // lado oscuro
+  const dg = ctx.createRadialGradient(-r * 0.3, -r * 0.2, r * 0.1, 0, 0, r);
+  dg.addColorStop(0, '#16264a'); dg.addColorStop(1, '#0a1428');
+  ctx.fillStyle = dg; circle(0, 0, r); ctx.fill();
+  // grabado de luz cenicienta: anillos concéntricos finos
+  ctx.beginPath();
+  for (let k = 1; k <= (detail ? 7 : 3); k++) { const rr = r * (1 - k / (detail ? 8 : 4)); ctx.moveTo(rr, 0); ctx.arc(0, 0, rr, 0, TAU); }
+  resetT();
+  ctx.strokeStyle = G; ctx.lineWidth = detail ? 0.9 : 0.7; ctx.globalAlpha = a * 0.16; ctx.stroke();
+  ctx.globalAlpha = a;
+  ctx.translate(cx, cy); ctx.rotate(rot);
+  // parte iluminada
+  ctx.save();
+  litPath(r, xt); ctx.clip();
+  if (detail && FACE) {
+    ctx.drawImage(FACE, -r, -r, 2 * r, 2 * r);
+  } else {
+    const lg = ctx.createRadialGradient(r * 0.35, -r * 0.3, r * 0.05, 0, 0, r * 1.05);
+    lg.addColorStop(0, '#fff8e4'); lg.addColorStop(0.55, '#f1e3bc'); lg.addColorStop(1, '#d2b77c');
+    ctx.fillStyle = lg; ctx.fillRect(-r, -r, 2 * r, 2 * r);
+    ctx.fillStyle = 'rgba(160,128,70,0.26)';
+    ctx.beginPath();
+    for (const [x, y, rx, ry] of MARIA) { ctx.moveTo(x * r + rx * r, y * r); ctx.ellipse(x * r, y * r, rx * r, ry * r, 0.3, 0, TAU); }
+    ctx.fill();
+  }
+  ctx.restore();
+  // perfiles dorados
+  litPath(r, xt);
+  resetT();
+  ctx.strokeStyle = G; ctx.lineWidth = detail ? 2.4 : 1.6; ctx.stroke();
+  ctx.translate(cx, cy);
+  circle(0, 0, r);
+  resetT();
+  ctx.lineWidth = detail ? 1.6 : 1.2; ctx.stroke();
+  ctx.restore();
+}
+
+function drawNucleus(G, x, y, r, a) {
+  if (a <= 0.001) return;
+  ctx.save();
+  ctx.globalAlpha = a;
+  const g = ctx.createRadialGradient(x - r * 0.38, y - r * 0.42, r * 0.04, x, y, r);
+  g.addColorStop(0, '#fff6d8'); g.addColorStop(0.22, '#f2d68a'); g.addColorStop(0.58, '#b98a36'); g.addColorStop(1, '#4e3410');
+  ctx.fillStyle = g; circle(x, y, r); ctx.fill();
+  ctx.strokeStyle = G; ctx.lineWidth = 1.4;
+  circle(x, y, r + 9); ctx.stroke();
+  ctx.lineWidth = 0.8; circle(x, y, r + 15); ctx.stroke();
+  // reflejo en estrella
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.fillStyle = `rgba(255,244,214,${0.5 * a})`;
+  const q = Math.min(r, 56);
+  ctx.beginPath(); diamond(x - r * 0.38, y - r * 0.42, q * 0.06, q * 0.4); diamond(x - r * 0.38, y - r * 0.42, q * 0.4, q * 0.06); ctx.fill();
+  ctx.restore();
+}
+
+// --- fondo estático: azul noche, cuñas del sol naciente y grano -------------
+let grainTile = null;
+function buildGrain() {
+  const n = 192, c = document.createElement('canvas'); c.width = c.height = n;
+  const g = c.getContext('2d'), im = g.createImageData(n, n), rnd = mulberry32(1925);
+  for (let i = 0; i < n * n; i++) {
+    const v = rnd(), light = v > 0.5;
+    im.data[i * 4] = light ? 255 : 0; im.data[i * 4 + 1] = light ? 240 : 0; im.data[i * 4 + 2] = light ? 210 : 0;
+    im.data[i * 4 + 3] = Math.floor(Math.abs(v - 0.5) * 2 * 22);
+  }
+  g.putImageData(im, 0, 0);
+  grainTile = c;
+}
+function buildStatic() {
+  bgc.width = cv.width; bgc.height = cv.height;
+  const b = bgc.getContext('2d');
+  b.setTransform(S, 0, 0, S, 0, 0);
+  const g = b.createRadialGradient(MC.x, MC.y, 0, MC.x, MC.y, 1250);
+  g.addColorStop(0, '#192b4e'); g.addColorStop(0.32, '#101d38'); g.addColorStop(0.68, '#0a1326'); g.addColorStop(1, '#050912');
+  b.fillStyle = g; b.fillRect(0, 0, W, H);
+  b.fillStyle = 'rgba(150,180,240,0.035)';
+  b.beginPath();
+  const N = 36;
+  for (let i = 0; i < N; i += 2) {
+    const a0 = -PI / 2 + (i - 0.5) * TAU / N, a1 = a0 + TAU / N;
+    b.moveTo(MC.x, MC.y); b.arc(MC.x, MC.y, 2400, a0, a1); b.closePath();
+  }
+  b.fill();
+  b.setTransform(1, 0, 0, 1, 0, 0);
+  b.fillStyle = b.createPattern(grainTile, 'repeat');
+  b.fillRect(0, 0, bgc.width, bgc.height);
+}
+
+// degradados fijos (coordenadas del marco)
+let VIG, MEDG, MEDSH, PLQG, CARTG;
+function buildGradients() {
+  VIG = ctx.createRadialGradient(MC.x, MC.y, 300, MC.x, MC.y, 1250);
+  VIG.addColorStop(0, 'rgba(6,10,19,0)'); VIG.addColorStop(0.4, 'rgba(6,10,19,0.3)'); VIG.addColorStop(1, 'rgba(4,7,14,0.92)');
+  MEDG = ctx.createRadialGradient(MC.x, MC.y - 60, 20, MC.x, MC.y, MR);
+  MEDG.addColorStop(0, '#15274a'); MEDG.addColorStop(0.7, '#0d1830'); MEDG.addColorStop(1, '#091223');
+  MEDSH = ctx.createRadialGradient(MC.x, MC.y + 8, MR - 6, MC.x, MC.y + 8, MR + 40);
+  MEDSH.addColorStop(0, 'rgba(0,0,0,0.55)'); MEDSH.addColorStop(1, 'rgba(0,0,0,0)');
+  PLQG = ctx.createLinearGradient(0, PQ.top, 0, PQ.bot);
+  PLQG.addColorStop(0, '#0f1d38'); PLQG.addColorStop(0.5, '#0b162c'); PLQG.addColorStop(1, '#091224');
+  CARTG = ctx.createLinearGradient(0, 62, 0, 186);
+  CARTG.addColorStop(0, '#0f1c36'); CARTG.addColorStop(1, '#09122a');
+}
+
+// --- estado del guion ---------------------------------------------------------
+function state(t) {
+  const e1 = ioC(seg(t, 1.6, 2.7)), e5 = ioC(seg(t, 8.85, 9.85));
+  const ring = e1 * (1 - e5);                                   // 0 átomo · 1 anillos + Luna
+  const d = ioC(seg(t, 2.75, 3.65)) * (1 - ioC(seg(t, 7.9, 8.85)));
+  const xt = -1 + (1 + KT) * d;                                 // terminador
+  const rot = PI * ioQ(seg(t, 4.95, 6.25)) + PI * ioC(seg(t, 7.9, 8.85));
+  const actN = inOut(t, 3.3, 4.0, 4.95, 5.6);
+  const actS = inOut(t, 6.05, 6.75, 7.9, 8.6);
+  const burst = seg(t, 2.55, 3.95);
+  return { ring, xt, rot, actN, actS, burst };
+}
+
+// --- capas --------------------------------------------------------------------
+function drawRays(G, t, st) {
+  const N = 72;
+  const bk = st.burst > 0 && st.burst < 1 ? Math.pow(1 - st.burst, 2) * Math.sin(Math.min(1, st.burst * 8) * PI / 2) : 0;
+  const L = -PI / 2 + TAU * t / DUR;            // dos luces simétricas que recorren el sol
+  ctx.fillStyle = G;
+  for (let i = 0; i < N; i++) {
+    const a = -PI / 2 + i * TAU / N;
+    const long = i % 2 === 1;
+    const r0 = MR + 18, r1 = long ? 1500 : 980;
+    const w0 = 0.5, w1 = long ? 7.5 : 4;
+    const l1 = Math.pow(0.5 + 0.5 * Math.cos(a - L), 14), l2 = Math.pow(0.5 + 0.5 * Math.cos(PI - a - L), 14);
+    const al = (long ? 0.17 : 0.1) * (1 + 2.4 * (l1 + l2)) + 0.45 * bk;
+    ctx.globalAlpha = Math.min(1, al);
+    const ca = Math.cos(a), sa = Math.sin(a), px = -sa, py = ca;
+    ctx.beginPath();
+    ctx.moveTo(MC.x + ca * r0 + px * w0, MC.y + sa * r0 + py * w0);
+    ctx.lineTo(MC.x + ca * r1 + px * w1, MC.y + sa * r1 + py * w1);
+    ctx.lineTo(MC.x + ca * r1 - px * w1, MC.y + sa * r1 - py * w1);
+    ctx.lineTo(MC.x + ca * r0 - px * w0, MC.y + sa * r0 - py * w0);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  // anillos concéntricos del sol (arcos punteados)
+  ctx.strokeStyle = G; ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.16;
+  circle(MC.x, MC.y, 372); ctx.stroke();
+  ctx.globalAlpha = 0.1;
+  circle(MC.x, MC.y, 452); ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+function drawBurst(t, st) {
+  const k = st.burst;
+  if (k <= 0 || k >= 1) return;
+  const r = MR + 760 * oC(k);
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const g = ctx.createRadialGradient(MC.x, MC.y, Math.max(0, r - 90), MC.x, MC.y, r + 30);
+  g.addColorStop(0, 'rgba(255,214,140,0)');
+  g.addColorStop(0.75, `rgba(255,214,140,${0.16 * (1 - k)})`);
+  g.addColorStop(1, 'rgba(255,214,140,0)');
+  ctx.fillStyle = g; circle(MC.x, MC.y, r + 30); ctx.fill();
+  ctx.restore();
+}
+
+function drawFrameBorder(G) {
+  ctx.strokeStyle = G;
+  ctx.lineWidth = 2.2; steppedRect(24, 24, W - 24, H - 24, 16); ctx.stroke();
+  ctx.lineWidth = 1; steppedRect(34, 34, W - 34, H - 34, 16); ctx.stroke();
+  // abanicos de esquina
+  const corners = [[34, 34, 0], [W - 34, 34, PI / 2], [W - 34, H - 34, PI], [34, H - 34, 3 * PI / 2]];
+  for (const [x, y, a0] of corners) {
+    ctx.save();
+    ctx.translate(x, y); ctx.rotate(a0);
+    ctx.beginPath();
+    for (const r of [58, 72, 86]) { ctx.moveTo(r + 16, 16); ctx.arc(16, 16, r, 0, PI / 2); }
+    for (let k = 0; k <= 6; k++) {
+      const a = k * PI / 12;
+      ctx.moveTo(16 + Math.cos(a) * 20, 16 + Math.sin(a) * 20); ctx.lineTo(16 + Math.cos(a) * 58, 16 + Math.sin(a) * 58);
+    }
+    ctx.restore();
+    ctx.lineWidth = 1; ctx.globalAlpha = 0.75; ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(a0);
+    ctx.beginPath(); ctx.arc(16, 16, 9, 0, TAU); ctx.restore();
+    ctx.fillStyle = G; ctx.fill();
+  }
+}
+
+let CART = { hw: 470 };
+function drawCartouche(G) {
+  const cx = 960, T = 62, B = 186, hw = CART.hw;
+  ctx.fillStyle = CARTG; steppedRect(cx - hw, T, cx + hw, B, 13); ctx.fill();
+  ctx.strokeStyle = G;
+  ctx.lineWidth = 2.2; steppedRect(cx - hw, T, cx + hw, B, 13); ctx.stroke();
+  ctx.lineWidth = 1; steppedRect(cx - hw + 9, T + 9, cx + hw - 9, B - 9, 13); ctx.stroke();
+  // alas: tres líneas que salen del cartucho
+  ctx.beginPath();
+  for (const dy of [-8, 0, 8]) {
+    const y = 124 + dy, ext = 120 - Math.abs(dy) * 4;
+    ctx.moveTo(cx - hw - 6, y); ctx.lineTo(cx - hw - 6 - ext, y);
+    ctx.moveTo(cx + hw + 6, y); ctx.lineTo(cx + hw + 6 + ext, y);
+  }
+  ctx.lineWidth = 1.3; ctx.stroke();
+  ctx.fillStyle = G;
+  ctx.beginPath(); diamond(cx - hw - 136, 124, 9, 9); diamond(cx + hw + 136, 124, 9, 9); ctx.fill();
+  // remate hacia el medallón
+  ctx.beginPath();
+  ctx.moveTo(cx, B); ctx.lineTo(cx, MC.y - MR);
+  ctx.moveTo(cx - 7, B + 6); ctx.lineTo(cx - 7, MC.y - MR - 6);
+  ctx.moveTo(cx + 7, B + 6); ctx.lineTo(cx + 7, MC.y - MR - 6);
+  ctx.lineWidth = 1.2; ctx.stroke();
+  // textos
+  ctx.fillStyle = `rgba(${CREAM},0.88)`; ctx.textBaseline = 'alphabetic';
+  tracked('LO QUE NO TE EXPLICARON EN CLASE', cx, 104, `24px ${FL}`, 8.5);
+  ctx.strokeStyle = `rgba(${CREAM},0.88)`; ctx.lineWidth = 0.6;
+  tracked('LO QUE NO TE EXPLICARON EN CLASE', cx, 104, `24px ${FL}`, 8.5, 'stroke');
+  ctx.fillStyle = '#1b1306';
+  tracked('LA LUNA AL REVÉS', cx + 3, 165, `60px ${FD}`, 7);
+  ctx.fillStyle = G;
+  tracked('LA LUNA AL REVÉS', cx, 162, `60px ${FD}`, 7);
+}
+
+function drawConnectors(G, t) {
+  ctx.strokeStyle = G; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  const xl0 = PX[0] + PQ.hw, xl1 = MC.x - MR, xr0 = MC.x + MR, xr1 = PX[1] - PQ.hw;
+  for (const dy of [-9, 0, 9]) {
+    const y = MC.y + dy;
+    ctx.moveTo(xl0, y); ctx.lineTo(xl1 - 2, y);
+    ctx.moveTo(xr0 + 2, y); ctx.lineTo(xr1, y);
+  }
+  ctx.stroke();
+  // destellos que viajan del medallón a la placa que se enciende
+  const glint = (x, a) => {
+    if (a <= 0) return;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(x, MC.y, 0, x, MC.y, 40);
+    g.addColorStop(0, `rgba(255,236,190,${0.8 * a})`); g.addColorStop(1, 'rgba(255,236,190,0)');
+    ctx.fillStyle = g; ctx.fillRect(x - 40, MC.y - 40, 80, 80);
+    ctx.restore();
+  };
+  const kL = seg(t, 3.2, 3.8), kR = seg(t, 5.95, 6.55);
+  if (kL > 0 && kL < 1) glint(lerp(xl1, xl0, ioC(kL)), Math.sin(kL * PI));
+  if (kR > 0 && kR < 1) glint(lerp(xr0, xr1, ioC(kR)), Math.sin(kR * PI));
+}
+
+// observador: estatuilla deco (cuerpo en cuña escalonada) de pie sobre un polo
+function figure(x, yFeet, dir, col) {
+  ctx.save();
+  ctx.translate(x, yFeet); ctx.scale(0.9, 0.9 * dir);
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.moveTo(-2, 0); ctx.lineTo(2, 0); ctx.lineTo(3.6, -12); ctx.lineTo(6.6, -12.6);
+  ctx.lineTo(7.4, -27); ctx.quadraticCurveTo(7.2, -30.5, 3.4, -30.8);
+  ctx.lineTo(-3.4, -30.8); ctx.quadraticCurveTo(-7.2, -30.5, -7.4, -27);
+  ctx.lineTo(-6.6, -12.6); ctx.lineTo(-3.6, -12); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.arc(0, -36.6, 4.6, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+
+// emblema: globo con su hemisferio dorado; la figura está en el polo de ese hemisferio
+function drawEmblem(G, cx, act, south) {
+  const { y, r } = GLB, a = 0.5 + 0.5 * act;
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.fillStyle = '#081124'; circle(cx, y, r); ctx.fill();
+  // hemisferio del rótulo: dorado en rayas horizontales
+  ctx.save();
+  circle(cx, y, r); ctx.clip();
+  ctx.beginPath(); ctx.rect(cx - r, south ? y : y - r, 2 * r, r); ctx.clip();
+  ctx.fillStyle = G;
+  ctx.globalAlpha = a * (0.16 + 0.22 * act); ctx.fillRect(cx - r, y - r, 2 * r, 2 * r);
+  ctx.globalAlpha = a * (0.55 + 0.45 * act);
+  ctx.beginPath();
+  for (let k = 3; k < r; k += 4.5) { const yy = south ? y + k : y - k; ctx.rect(cx - r, yy - 0.7, 2 * r, 1.4); }
+  ctx.fill();
+  ctx.restore();
+  ctx.globalAlpha = a;
+  // retícula
+  ctx.strokeStyle = G; ctx.lineWidth = 0.9;
+  ctx.beginPath();
+  for (const k of [0.38, 0.76]) { ctx.moveTo(cx, y - r); ctx.ellipse(cx, y, r * k, r, 0, -PI / 2, 3 * PI / 2); }
+  ctx.moveTo(cx, y - r); ctx.lineTo(cx, y + r);
+  ctx.stroke();
+  // ecuador prolongado y contorno doble
+  ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(cx - r - 16, y); ctx.lineTo(cx + r + 16, y); ctx.stroke();
+  ctx.fillStyle = G;
+  ctx.beginPath(); diamond(cx - r - 20, y, 4, 4); diamond(cx + r + 20, y, 4, 4); ctx.fill();
+  ctx.lineWidth = 1.8; circle(cx, y, r); ctx.stroke();
+  ctx.lineWidth = 0.8; circle(cx, y, r + 5); ctx.stroke();
+  ctx.restore();
+  figure(cx, south ? y + r + 6 : y - r - 6, south ? -1 : 1, `rgba(${CREAM},${0.55 + 0.45 * act})`);
+}
+
+function drawPlaque(G, t, cx, act, south) {
+  ctx.fillStyle = PLQG; plaquePath(cx, 0); ctx.fill();
+  // resplandor cálido cuando la placa está activa
+  if (act > 0.001) {
+    ctx.save(); plaquePath(cx, 0); ctx.clip();
+    const g = ctx.createRadialGradient(cx, 560, 20, cx, 560, 380);
+    g.addColorStop(0, `rgba(214,170,90,${0.2 * act})`); g.addColorStop(1, 'rgba(214,170,90,0)');
+    ctx.fillStyle = g; ctx.fillRect(cx - PQ.hw, PQ.top, PQ.hw * 2, PQ.bot - PQ.top);
+    ctx.restore();
+  }
+  // abanico del arco
+  ctx.save();
+  plaquePath(cx, 18); ctx.clip();
+  ctx.beginPath(); ctx.rect(0, 0, W, PQ.div); ctx.clip();
+  const N = 36;
+  ctx.fillStyle = G;
+  for (let i = 0; i < N; i++) {
+    const a = -PI / 2 + (i - 0.25) * TAU / N;
+    const u = Math.abs(Math.atan2(Math.sin(a + PI / 2), Math.cos(a + PI / 2))) / PI; // 0 arriba · 1 abajo
+    const lit = cl(act * 1.9 - (1 - u) * 0.9);
+    ctx.globalAlpha = (i % 2 ? 0.05 : 0.11) + (i % 2 ? 0.05 : 0.2) * lit;
+    ctx.beginPath(); ctx.moveTo(cx, SMOON.y);
+    ctx.arc(cx, SMOON.y, 300, a, a + TAU / N * 0.5); ctx.closePath(); ctx.fill();
+  }
+  ctx.globalAlpha = 0.35 + 0.5 * act;
+  ctx.strokeStyle = G; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i < N; i++) {
+    const a = -PI / 2 + i * TAU / N;
+    ctx.moveTo(cx + Math.cos(a) * (SMOON.r + 22), SMOON.y + Math.sin(a) * (SMOON.r + 22));
+    ctx.lineTo(cx + Math.cos(a) * 300, SMOON.y + Math.sin(a) * 300);
+  }
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.restore();
+  // anillos alrededor de la luna pequeña
+  ctx.strokeStyle = G; ctx.globalAlpha = 0.5 + 0.5 * act;
+  ctx.lineWidth = 1.2; circle(cx, SMOON.y, SMOON.r + 10); ctx.stroke();
+  ctx.lineWidth = 0.8; circle(cx, SMOON.y, SMOON.r + 18); ctx.stroke();
+  ctx.globalAlpha = 1;
+  drawMoon(G, cx, SMOON.y, SMOON.r, south ? PI : 0, KT, 0.55 + 0.45 * act, false);
+  // contornos
+  ctx.globalAlpha = 0.55 + 0.45 * act;
+  ctx.strokeStyle = G;
+  ctx.lineWidth = 2.4; plaquePath(cx, 0); ctx.stroke();
+  ctx.lineWidth = 1; plaquePath(cx, 10); ctx.stroke();
+  // impostas del arco (escalones)
+  ctx.beginPath();
+  for (const s of [-1, 1]) {
+    const x0 = cx + s * PQ.hw;
+    ctx.moveTo(x0, PQ.archY); ctx.lineTo(x0 + s * 10, PQ.archY); ctx.lineTo(x0 + s * 10, PQ.archY + 14);
+    ctx.lineTo(x0 + s * 18, PQ.archY + 14); ctx.lineTo(x0 + s * 18, PQ.archY + 28); ctx.lineTo(x0, PQ.archY + 28);
+  }
+  ctx.lineWidth = 1.4; ctx.stroke();
+  // divisoria
+  const dl = cx - PQ.hw + 10, dr = cx + PQ.hw - 10, dv = PQ.div;
+  ctx.beginPath();
+  ctx.moveTo(dl, dv); ctx.lineTo(dr, dv); ctx.moveTo(dl, dv + 7); ctx.lineTo(dr, dv + 7);
+  ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = G; ctx.beginPath(); diamond(cx, dv + 3.5, 13, 13); ctx.fill();
+  ctx.fillStyle = '#0b162c'; ctx.beginPath(); diamond(cx, dv + 3.5, 5, 5); ctx.fill();
+  // zócalo
+  ctx.beginPath();
+  ctx.moveTo(cx - PQ.hw - 10, PQ.bot + 7); ctx.lineTo(cx + PQ.hw + 10, PQ.bot + 7);
+  ctx.moveTo(cx - PQ.hw - 18, PQ.bot + 14); ctx.lineTo(cx + PQ.hw + 18, PQ.bot + 14);
+  ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.globalAlpha = 1;
+  // letra: perfil de oro cuando está apagada, pan de oro cuando se enciende
+  const L = south ? 'C' : 'D', LY = 594;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.font = `184px ${FD}`;
+  if (act > 0.001) {
+    ctx.globalAlpha = 0.85 * act; ctx.fillStyle = '#080502'; ctx.fillText(L, cx + 5, LY + 5);
+    ctx.globalAlpha = act; ctx.fillStyle = G; ctx.fillText(L, cx, LY);
+  }
+  ctx.globalAlpha = 0.85 - 0.45 * act; ctx.strokeStyle = G; ctx.lineWidth = 1.6; ctx.strokeText(L, cx, LY);
+  ctx.globalAlpha = 1;
+  // rótulos
+  ctx.fillStyle = `rgba(${CREAM},${0.5 + 0.5 * act})`;
+  tracked('HEMISFERIO', cx, 646, `32px ${FL}`, 6.5);
+  ctx.strokeStyle = `rgba(${CREAM},${0.5 + 0.5 * act})`; ctx.lineWidth = 0.8;
+  tracked('HEMISFERIO', cx, 646, `32px ${FL}`, 6.5, 'stroke');
+  const HW = south ? 'SUR' : 'NORTE';
+  if (act > 0.001) { ctx.globalAlpha = act; ctx.fillStyle = G; tracked(HW, cx, 700, `48px ${FD}`, 9); }
+  ctx.globalAlpha = 0.8 * (1 - act); ctx.strokeStyle = G; ctx.lineWidth = 1.1;
+  tracked(HW, cx, 700, `48px ${FD}`, 9, 'stroke');
+  ctx.globalAlpha = 1;
+  drawEmblem(G, cx, act, south);
+}
+
+function drawPedestal(G) {
+  // plinto escalonado (zigurat) bajo el medallón
+  const x = MC.x, s = [[132, 858], [196, 869], [262, 880]], yb = 891;
+  ctx.beginPath();
+  ctx.moveTo(x - s[0][0], s[0][1]);
+  ctx.lineTo(x + s[0][0], s[0][1]);
+  for (let i = 0; i < 3; i++) {
+    const nx = i < 2 ? s[i + 1] : null;
+    ctx.lineTo(x + s[i][0], nx ? nx[1] : yb);
+    if (nx) ctx.lineTo(x + nx[0], nx[1]);
+  }
+  ctx.lineTo(x - s[2][0], yb);
+  for (let i = 2; i >= 0; i--) {
+    ctx.lineTo(x - s[i][0], s[i][1]);
+    if (i > 0) ctx.lineTo(x - s[i - 1][0], s[i][1]);
+  }
+  ctx.closePath();
+  ctx.fillStyle = '#0a1326'; ctx.fill();
+  ctx.strokeStyle = G; ctx.lineWidth = 1.4; ctx.stroke();
+  ctx.beginPath();
+  for (const [hw, yy] of s) { ctx.moveTo(x - hw + 8, yy + 4); ctx.lineTo(x + hw - 8, yy + 4); }
+  ctx.lineWidth = 0.7; ctx.globalAlpha = 0.6; ctx.stroke();
+  ctx.lineWidth = 1; ctx.globalAlpha = 0.6;
+  ctx.beginPath(); ctx.moveTo(PX[0] + PQ.hw + 30, PQ.bot + 14); ctx.lineTo(x - 280, PQ.bot + 14);
+  ctx.moveTo(x + 280, PQ.bot + 14); ctx.lineTo(PX[1] - PQ.hw - 30, PQ.bot + 14); ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+function drawMedallion(G, t, st) {
+  const { x, y } = MC, rot = st.rot, m = st.ring;
+  ctx.fillStyle = MEDSH; circle(x, y + 8, MR + 40); ctx.fill();
+  ctx.fillStyle = MEDG; circle(x, y, MR); ctx.fill();
+  // rayos interiores tenues (solo en fase átomo)
+  if (m < 0.999) {
+    ctx.strokeStyle = G; ctx.globalAlpha = 0.12 * (1 - m); ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = 0; i < 48; i++) {
+      const a = rot + i * TAU / 48;
+      ctx.moveTo(x + Math.cos(a) * 64, y + Math.sin(a) * 64); ctx.lineTo(x + Math.cos(a) * 250, y + Math.sin(a) * 250);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  // anillos y ornamentos (giran con el medallón)
+  ctx.strokeStyle = G;
+  ctx.lineWidth = 7; circle(x, y, MR - 1); ctx.stroke();
+  ctx.strokeStyle = 'rgba(24,14,2,0.55)'; ctx.lineWidth = 0.9; circle(x, y, MR - 1); ctx.stroke();
+  ctx.strokeStyle = G;
+  ctx.lineWidth = 1; circle(x, y, MR - 10); ctx.stroke();
+  circle(x, y, MR - 30); ctx.stroke();
+  ctx.lineWidth = 1.6; circle(x, y, 254); ctx.stroke();
+  ctx.lineWidth = 1.3; ctx.beginPath();
+  for (let i = 0; i < 120; i++) {
+    const a = rot - PI / 2 + i * TAU / 120, r0 = i % 2 ? 268 : 260;
+    ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0); ctx.lineTo(x + Math.cos(a) * 279, y + Math.sin(a) * 279);
+  }
+  ctx.stroke();
+  ctx.fillStyle = G; ctx.beginPath();
+  for (let i = 0; i < 60; i++) {
+    if (i % 15 === 0) continue;
+    const a = rot - PI / 2 + i * TAU / 60, bx = x + Math.cos(a) * 296, by = y + Math.sin(a) * 296;
+    ctx.moveTo(bx + 3.4, by); ctx.arc(bx, by, 3.4, 0, TAU);
+  }
+  ctx.fill();
+  // claves en los cuatro puntos cardinales
+  for (let k = 0; k < 4; k++) {
+    const a = rot - PI / 2 + k * PI / 2;
+    ctx.save(); ctx.translate(x + Math.cos(a) * 296, y + Math.sin(a) * 296); ctx.rotate(a + PI / 2);
+    ctx.beginPath(); diamond(0, 0, 9, 15);
+    ctx.restore(); ctx.fillStyle = G; ctx.fill();
+    ctx.save(); ctx.translate(x + Math.cos(a) * 296, y + Math.sin(a) * 296);
+    ctx.beginPath(); ctx.arc(0, 0, 3, 0, TAU); ctx.restore(); ctx.fillStyle = '#0b1529'; ctx.fill();
+  }
+  // halo de la Luna
+  const R = lerp(NUC, RM, m);
+  const mA = cl((m - 0.08) / 0.55);
+  const litF = (1 - st.xt) / 2;
+  if (mA > 0) {
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    const hg = ctx.createRadialGradient(x, y, R * 0.85, x, y, R * 1.55);
+    hg.addColorStop(0, `rgba(255,222,150,${0.2 * mA * (0.35 + 0.65 * litF)})`); hg.addColorStop(1, 'rgba(255,222,150,0)');
+    ctx.fillStyle = hg; circle(x, y, R * 1.55); ctx.fill();
+    ctx.restore();
+  }
+  // órbitas → anillos
+  for (let i = 0; i < 3; i++) {
+    const o = ORB[i];
+    const rx = lerp(ATOM.rx, o.ring, m), ry = lerp(ATOM.ry, o.ring, m);
+    ctx.strokeStyle = G;
+    ctx.lineWidth = lerp(2.2, 1.4, m);
+    ctx.beginPath(); ctx.ellipse(x, y, rx, ry, o.tilt, 0, TAU); ctx.stroke();
+    if (m < 0.98) {
+      ctx.globalAlpha = 0.45 * (1 - m); ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.ellipse(x, y, rx + 9, ry + 9, o.tilt, 0, TAU); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+  // Luna y núcleo
+  drawMoon(G, x, y, R, rot, st.xt, mA, true);
+  drawNucleus(G, x, y, R, 1 - cl((m - 0.2) / 0.6));
+  // electrones con estela
+  const eA = 1 - cl(m / 0.4);
+  if (eA > 0.001) {
+    for (let i = 0; i < 3; i++) {
+      const o = ORB[i];
+      const rx = lerp(ATOM.rx, o.ring, m), ry = lerp(ATOM.ry, o.ring, m);
+      const th = TAU * (o.ph + 7 * t / DUR) * (i === 1 ? -1 : 1);
+      const ct = Math.cos(o.tilt), stt = Math.sin(o.tilt);
+      const P = (q) => [x + rx * Math.cos(q) * ct - ry * Math.sin(q) * stt, y + rx * Math.cos(q) * stt + ry * Math.sin(q) * ct];
+      const dirn = i === 1 ? 1 : -1;
+      ctx.strokeStyle = G; ctx.lineCap = 'round';
+      const NS = 16;
+      for (let k = 0; k < NS; k++) {
+        const q0 = th + dirn * (1.1 * (NS - k) / NS), q1 = th + dirn * (1.1 * (NS - k - 1) / NS);
+        const [ax, ay] = P(q0), [bx, by] = P(q1);
+        ctx.globalAlpha = eA * Math.pow((k + 1) / NS, 1.6) * 0.95;
+        ctx.lineWidth = 1.5 + 3 * (k + 1) / NS;
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+      }
+      ctx.lineCap = 'butt';
+      const [ex, ey] = P(th);
+      const depth = 0.86 + 0.14 * Math.sin(th);
+      ctx.globalAlpha = eA;
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const gg = ctx.createRadialGradient(ex, ey, 0, ex, ey, 34);
+      gg.addColorStop(0, 'rgba(255,232,180,0.55)'); gg.addColorStop(1, 'rgba(255,232,180,0)');
+      ctx.fillStyle = gg; ctx.fillRect(ex - 34, ey - 34, 68, 68);
+      ctx.restore();
+      const eg = ctx.createRadialGradient(ex - 3, ey - 3, 0.5, ex, ey, 10 * depth);
+      eg.addColorStop(0, '#fffaf0'); eg.addColorStop(0.6, '#f3dfae'); eg.addColorStop(1, '#b8893a');
+      ctx.fillStyle = eg; circle(ex, ey, 10 * depth); ctx.fill();
+      ctx.strokeStyle = G; ctx.lineWidth = 1; circle(ex, ey, 15 * depth); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+}
+
+// destellos de cuatro puntas (deterministas, cíclicos)
+const SPK = [];
+(() => {
+  const c = [[960, MC.y - MR], [MC.x + MR * 0.707, MC.y - MR * 0.707], [MC.x - MR * 0.707, MC.y + MR * 0.707],
+    [PX[0], PQ.top], [PX[1], PQ.top], [PX[0] - 58, 512], [PX[1] + 52, 512], [MC.x + MR, MC.y],
+    [MC.x - MR * 0.5, MC.y - MR * 0.866], [960 + 300, 76], [960 - 300, 172], [PX[0] + 182, 760], [PX[1] - 182, 640]];
+  const rnd = mulberry32(1929);
+  const n = 13;
+  for (let i = 0; i < n; i++) {
+    const p = c[(i * 5) % c.length];
+    SPK.push({ x: p[0], y: p[1], t0: i * DUR / n + rnd() * 0.35, s: 20 + rnd() * 16 });
+  }
+})();
+function drawSparkles(t) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const s of SPK) {
+    const dt = (((t - s.t0) % DUR) + DUR) % DUR, life = 0.95;
+    if (dt >= life) continue;
+    const k = dt / life, a = Math.pow(Math.sin(PI * k), 2), sz = s.s * (0.6 + 0.4 * Math.sin(PI * k));
+    const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, sz * 0.9);
+    g.addColorStop(0, `rgba(255,240,205,${0.45 * a})`); g.addColorStop(1, 'rgba(255,240,205,0)');
+    ctx.fillStyle = g; ctx.fillRect(s.x - sz, s.y - sz, sz * 2, sz * 2);
+    ctx.fillStyle = `rgba(255,250,232,${0.95 * a})`;
+    ctx.beginPath(); diamond(s.x, s.y, sz * 0.07, sz); diamond(s.x, s.y, sz, sz * 0.07); ctx.fill();
+    ctx.fillStyle = `rgba(255,250,232,${0.5 * a})`;
+    ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(PI / 4);
+    ctx.beginPath(); diamond(0, 0, sz * 0.05, sz * 0.45); diamond(0, 0, sz * 0.45, sz * 0.05); ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+// --- fotograma ----------------------------------------------------------------
+function frame(t) {
+  const st = state(t);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  ctx.drawImage(bgc, 0, 0);
+  resetT();
+  const G = makeGold(t);
+  ctx.save(); steppedRect(34, 34, W - 34, H - 34, 16); ctx.clip();
+  drawRays(G, t, st);
+  ctx.restore();
+  ctx.fillStyle = VIG; ctx.fillRect(0, 0, W, H);
+  ctx.save(); steppedRect(34, 34, W - 34, H - 34, 16); ctx.clip();
+  drawBurst(t, st);
+  ctx.restore();
+  drawFrameBorder(G);
+  drawConnectors(G, t);
+  drawPedestal(G);
+  drawPlaque(G, t, PX[0], st.actN, false);
+  drawPlaque(G, t, PX[1], st.actS, true);
+  drawCartouche(G);
+  drawMedallion(G, t, st);
+  drawSparkles(t);
+}
+
+// --- tamaño, letterbox y bucle ---------------------------------------------------
+let lastT = 0;
+function resize() {
+  const vw = innerWidth, vh = innerHeight, k = Math.min(vw / W, vh / H);
+  const cw = Math.round(W * k), ch = Math.round(H * k);
+  cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
+  cv.style.left = Math.round((vw - cw) / 2) + 'px'; cv.style.top = Math.round((vh - ch) / 2) + 'px';
+  const dpr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
+  S = cv.width / W;
+  buildStatic();
+  buildMoonFace();
+}
+
+window.__frame = (t) => { lastT = t; frame(t); };
+
+(async () => {
+  buildGrain();
+  buildGradients();
+  resize();
+  try {
+    await Promise.all([
+      document.fonts.load(`60px ${FD}`, 'LA LUNA AL REVÉS DC NORTE SUR'),
+      document.fonts.load(`214px ${FD}`, 'DC'),
+      document.fonts.load(`34px ${FL}`, 'LO QUE NO TE EXPLICARON EN CLASE HEMISFERIO'),
+    ]);
+    await document.fonts.ready;
+  } catch (e) { /* tipografía de reserva */ }
+  wcache.clear();
+  CART.hw = Math.max(trackedWidth('LA LUNA AL REVÉS', `60px ${FD}`, 7), trackedWidth('LO QUE NO TE EXPLICARON EN CLASE', `24px ${FL}`, 8.5)) / 2 + 64;
+  frame(0);
+  window.__listo = true;
+  addEventListener('resize', () => { resize(); frame(lastT); });
+  if (!CAPTURA) {
+    const start = performance.now();
+    const loop = (now) => { lastT = ((now - start) / 1000) % DUR; frame(lastT); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+})();
+})();
+</script>
+</body>
+</html>

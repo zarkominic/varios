@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Estaciones al revés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Space+Grotesk:wght@500;700&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Bloque 3 · «En el sur, la Navidad cae en verano porque la Tierra está más cerca del Sol» → ✗ (a medias).
+// Órbita isométrica: la Tierra en enero (más cerca) y en julio (más lejos) con sus cotas; luego un
+// primer plano de la Tierra inclinada 23½° (con una peonza), los rayos de diciembre y el ecuador a 12 h.
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/isometrico.js';
+const { THREE, P, S, vR, vU, vW, vF, Y, entra, latido, seg, eio, eo, eob, eib, sstep, clamp01, lerp } = K;
+const TAU = Math.PI * 2;
+
+const E = await escena('estaciones');
+const M = (n) => E.marca(n);
+await K.cargarFuentes();
+
+const plato = K.crearPlato({ centro: [0.5, 0.45] });
+const suelo = K.crearSuelo(plato, { centro: [960, 700], radio: 1500 });
+const scene = plato.scene;
+
+// ---------------------------------------------------------------------
+// Geometría de la órbita (excentricidad real aproximada: 147 frente a 152 millones de km)
+// ---------------------------------------------------------------------
+const SUN_C = S(960, 450, 0);
+const ALPHA = 20 * Math.PI / 180;                        // el Sol, visto desde la Tierra de enero
+const sD = new THREE.Vector3().addScaledVector(vR, Math.cos(ALPHA)).addScaledVector(vF, Math.sin(ALPHA)).normalize();
+const nD = new THREE.Vector3().addScaledVector(vR, -Math.sin(ALPHA)).addScaledVector(vF, Math.cos(ALPHA)).normalize();
+const A_ORB = 560, ECC = 147.1 / 152.1, C_ORB = A_ORB * (1 - ECC) / (1 + ECC);   // a·e
+const O_ORB = SUN_C.clone().addScaledVector(sD, C_ORB);
+const orbPt = (th) => O_ORB.clone().addScaledVector(sD, Math.cos(th) * A_ORB).addScaledVector(nD, Math.sin(th) * A_ORB);
+const JAN = orbPt(Math.PI), JUL = orbPt(0);
+const TILT = 23.44 * Math.PI / 180;
+const AXIS = new THREE.Vector3().addScaledVector(Y, Math.cos(TILT)).addScaledVector(sD, -Math.sin(TILT)).normalize(); // norte lejos del Sol en enero
+
+// ---------------------------------------------------------------------
+// Sol con su peana, órbita y su sombra en el suelo
+// ---------------------------------------------------------------------
+const sol = K.crearSol({ radio: 70 });
+sol.g.position.copy(SUN_C);
+scene.add(sol.g);
+const slabSun = suelo.peana(SUN_C.x, SUN_C.z, 112);
+suelo.anillo(0, SUN_C.x, SUN_C.z, 80, 0.55);
+const dropSun = K.crearRayas(scene, P.lav2, 30, 0.55);
+const orbita = K.crearArco(scene, P.lav, { n: 150, grosor: 2.6, opacidad: 0.7, discontinuo: true });
+const estela = K.crearArco(scene, P.gold2, { n: 90, grosor: 4, punta: 20, anchoPunta: 10, opacidad: 0.95 });
+// marcas de los extremos de la órbita (perihelio / afelio) en el plano de la órbita
+const markJan = new THREE.Mesh(new THREE.RingGeometry(96, 101, 64), K.basic(P.gold2, { transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+markJan.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), Y); scene.add(markJan);
+
+// ---------------------------------------------------------------------
+// Tierra (con capa de color) en enero y su eco en julio
+// ---------------------------------------------------------------------
+const RT = 78;
+function tierra(capa) {
+  const pl = K.crearPlaneta({ radio: RT, detalle: 6, semilla: 2, capa, umbral: 0.5 });
+  K.orient(pl.g, AXIS, vW);
+  // eje con puntas
+  const rodMat = K.lam(P.lav);
+  for (const sgn of [1, -1]) {
+    const len = 34;
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, len, 8), rodMat);
+    rod.position.set(0, sgn * (RT * 1.04 + len / 2), 0); pl.g.add(rod);
+    const tip = new THREE.Mesh(new THREE.OctahedronGeometry(4.6, 0), rodMat);
+    tip.position.set(0, sgn * (RT * 1.04 + len + 2), 0); pl.g.add(tip);
+  }
+  scene.add(pl.g);
+  return pl;
+}
+const tJan = tierra(true), tJul = tierra(false);
+tJan.g.position.copy(JAN); tJul.g.position.copy(JUL);
+const capa = tJan.capa;
+const qInv = tJan.g.quaternion.clone().invert();
+const loc = (v) => v.clone().applyQuaternion(qInv);
+capa.uSol.value.copy(loc(sD));
+capa.uHazL.value.copy(loc(sD.clone().negate()));
+// anillo del ecuador (inclinado con la Tierra)
+const eqRing = new THREE.Group(); tJan.g.add(eqRing);
+const eqT1 = new THREE.Mesh(new THREE.TorusGeometry(RT * 1.1, 1.5, 6, 128), K.basic(P.gold2, { transparent: true, opacity: 0 }));
+const eqT2 = new THREE.Mesh(new THREE.TorusGeometry(RT * 1.1, 5, 6, 128), K.basic(P.gold, { transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+eqT1.rotation.x = eqT2.rotation.x = Math.PI / 2; eqRing.add(eqT1, eqT2);
+const dropJan = K.crearRayas(scene, P.lav2, 30, 0.45), dropJul = K.crearRayas(scene, P.lav2, 30, 0.45);
+
+// cotas Sol–Tierra (flotan por encima, con líneas de referencia)
+const OFF = 128;
+const cotaJan = K.crearCota(scene, P.cream, { grosor: 2.2, tope: 12, punta: 13 });
+const cotaJul = K.crearCota(scene, P.cream, { grosor: 2.2, tope: 12, punta: 13 });
+const refSun = K.crearRayas(scene, P.cream, 16, 0.5), refJan = K.crearRayas(scene, P.cream, 16, 0.5), refJul = K.crearRayas(scene, P.cream, 16, 0.5);
+
+// ---------------------------------------------------------------------
+// Primer plano: ángulo 23½°, peonza, flecha de inclinación y haces de luz
+// ---------------------------------------------------------------------
+const vertRef = K.crearRayas(scene, P.cream, 22, 0.75);
+const arcAng = K.crearArco(scene, P.cream, { n: 30, grosor: 1.6, punta: 7, anchoPunta: 3.6 });
+const axisExt = K.crearRayas(scene, P.lav, 26, 0.85);
+const arcLean = K.crearArco(scene, P.warm, { n: 36, grosor: 2.4, punta: 10, anchoPunta: 5 });
+const vertRefS = K.crearRayas(scene, P.cream, 22, 0.75);
+const axisExtS = K.crearRayas(scene, P.warm, 26, 0.9);
+// cuñas translúcidas de los ángulos (en el plano del eje y la vertical)
+function cuna(color, r) {
+  const g = new THREE.Group();
+  const m = new THREE.Mesh(new THREE.CircleGeometry(r, 24, 0, TILT), K.basic(color, { transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+  g.add(m); scene.add(g); g.userData.m = m; return g;
+}
+const cunaN = cuna(P.cream, RT * 1.72), cunaS = cuna(P.warm, RT * 1.72);
+{
+  const e2 = sD.clone().negate();
+  cunaN.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(Y, e2, new THREE.Vector3().crossVectors(Y, e2)));
+  const yd = Y.clone().negate(), e3 = sD.clone();
+  cunaS.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(yd, e3, new THREE.Vector3().crossVectors(yd, e3)));
+}
+
+// peonza (mismo ángulo que la Tierra)
+const peonza = new THREE.Group(); scene.add(peonza);
+const PZ_BASE = new THREE.Vector3();
+const pzTilt = new THREE.Group(); peonza.add(pzTilt);
+K.orient(pzTilt, AXIS, vW);
+const pzGiro = new THREE.Group(); pzTilt.add(pzGiro);
+{
+  const segs = 12;
+  const prof = [[0, 0], [5, 3], [17, 13], [25, 22], [26, 26], [22, 31], [8, 35], [4.2, 36]];
+  const pts = prof.map(([r, y]) => new THREE.Vector2(Math.max(r, 0.01), y));
+  const geo = new THREE.LatheGeometry(pts, segs).toNonIndexed();
+  const pos = geo.attributes.position;
+  const cols = new Float32Array(pos.count * 3);
+  const cA = K.col(P.coral), cB = K.col(P.cream), cC = K.col(P.lav2);
+  for (let i = 0; i < pos.count; i += 3) {
+    let ax = 0, az = 0, ay = 0;
+    for (let k = 0; k < 3; k++) { ax += pos.getX(i + k); az += pos.getZ(i + k); ay += pos.getY(i + k); }
+    const a = Math.atan2(az, ax);
+    const sIdx = Math.floor(((a + TAU) % TAU) / TAU * segs);
+    const c = ay / 3 > 24 && ay / 3 < 29 ? cC : (sIdx % 2 ? cA : cB);
+    for (let k = 0; k < 3; k++) { cols[(i + k) * 3] = c.r; cols[(i + k) * 3 + 1] = c.g; cols[(i + k) * 3 + 2] = c.b; }
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+  geo.computeVertexNormals();
+  pzGiro.add(new THREE.Mesh(geo, K.lam('#ffffff', { vertexColors: true, side: THREE.DoubleSide })));
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(3, 3.4, 16, 8), K.lam(P.lav2)); stem.position.y = 43; pzGiro.add(stem);
+  const knob = new THREE.Mesh(new THREE.IcosahedronGeometry(4.4, 0), K.lam(P.coral)); knob.position.y = 52; pzGiro.add(knob);
+}
+const pzPlat = new THREE.Group(); peonza.add(pzPlat);
+{
+  const box = new THREE.Mesh(new THREE.BoxGeometry(84, 8, 84), [K.basic('#353b74'), K.basic('#242851'), K.basic('#2b3062'), K.basic('#1d2146'), K.basic('#242851'), K.basic('#353b74')]);
+  box.position.y = -4; pzPlat.add(box);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(28, 30, 48), K.basic(P.ring, { transparent: true, opacity: 0.6, side: THREE.DoubleSide }));
+  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.4; pzPlat.add(ring);
+  const sh = new THREE.Mesh(new THREE.CircleGeometry(24, 32), K.basic('#000000', { transparent: true, opacity: 0.32, depthWrite: false }));
+  sh.rotation.x = -Math.PI / 2; sh.position.y = 0.6; sh.scale.set(1.3, 0.8, 1); pzPlat.add(sh);
+}
+const pzAxis = K.crearRayas(scene, P.lav, 18, 0.85);
+const pzVert = K.crearRayas(scene, P.cream, 14, 0.6);
+
+// haces de luz: cinta translúcida + rayos con punta
+const NH = 10, FAR = 470;   // los haces salen del Sol
+function crearHaz() {
+  const geo = new THREE.BufferGeometry();
+  // tres filas por columna: lejos (transparente), cerca de la Tierra (opaca) y el impacto (casi transparente)
+  const pos = new Float32Array((NH + 1) * 3 * 3), colr = new Float32Array((NH + 1) * 3 * 4);
+  const idx = [];
+  for (let i = 0; i < NH; i++) for (let r = 0; r < 2; r++) { const a = i * 3 + r, b = a + 1, c = a + 3, d = a + 4; idx.push(a, b, c, b, d, c); }
+  geo.setIndex(idx);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colr, 4));
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+  m.frustumCulled = false; scene.add(m);
+  const rays = [0, 1, 2].map(() => K.crearFlecha(scene, P.gold2, { grosor: 0.9, punta: 7, anchoPunta: 3.2 }));
+  return { m, geo, pos, colr, rays };
+}
+const haces = [crearHaz(), crearHaz()];
+const RS = RT * 1.052, RH = RT * 0.17;
+function golpe(q, L) {   // primer choque con la capa (radio RS) de la recta q + L·τ (q relativo al centro)
+  const b = q.dot(L), c = q.lengthSq() - RS * RS, disc = b * b - c;
+  return disc < 0 ? -b : -b - Math.sqrt(disc);
+}
+function ponerHaz(h, center, cWorld, k, alpha) {
+  const L = sD.clone().negate();
+  const vis = k > 0.002 && alpha > 0.002;
+  h.m.visible = vis; for (const r of h.rays) r.g.visible = vis;
+  if (!vis) return;
+  const C = center;
+  const pc = cWorld.clone().multiplyScalar(RS);
+  for (let i = 0; i <= NH; i++) {
+    const u = -RH + 2 * RH * i / NH;
+    const q = pc.clone().addScaledVector(Y, u).addScaledVector(L, -FAR);
+    const tau = golpe(q, L);
+    const hit = q.clone().addScaledVector(L, tau);
+    const far = q.clone();
+    const front = far.clone().lerp(hit, k);
+    const mid = hit.clone().addScaledVector(L, -46);
+    const midK = Math.min(1, (FAR - 46) / FAR);
+    const B = (k < midK ? front : mid).clone().add(C), Bf = front.clone().add(C);
+    const A = far.add(C);
+    h.pos.set([A.x, A.y, A.z], i * 9); h.pos.set([B.x, B.y, B.z], i * 9 + 3); h.pos.set([Bf.x, Bf.y, Bf.z], i * 9 + 6);
+    const edge = (i === 0 || i === NH) ? 1.4 : 1;
+    h.colr.set([1, 0.82, 0.5, 0.0], i * 12); h.colr.set([1, 0.9, 0.62, 0.36 * alpha * edge], i * 12 + 4); h.colr.set([1, 0.92, 0.7, (k < midK ? 0.36 : 0.05) * alpha * edge], i * 12 + 8);
+    if (i === 0 || i === NH / 2 || i === NH) {
+      const r = h.rays[i === 0 ? 0 : i === NH ? 2 : 1];
+      r.poner(A, hit.clone().add(C), k, 1);
+      r.mat.opacity = alpha; r.mat.transparent = true;
+    }
+  }
+  h.geo.attributes.position.needsUpdate = true;
+  h.geo.attributes.color.needsUpdate = true;
+}
+
+// ---------------------------------------------------------------------
+// Escena fija (sin zoom): reloj de 12 h y barras de duración del día
+// ---------------------------------------------------------------------
+const fija = plato.fija;
+const reloj = K.crearReloj({ radio: 62, acento: P.gold, tinta: P.ink, horas: 24, conAgujas: false });
+K.orientPlaca(reloj.g, 0.1);
+fija.add(reloj.g);
+const sector = new THREE.Mesh(new THREE.CircleGeometry(62 * 0.78, 96, Math.PI / 2, TAU), K.basic(P.gold, { transparent: true, opacity: 0.55, depthWrite: false, side: THREE.DoubleSide }));
+sector.scale.x = -1; sector.position.z = reloj.frente + 0.2; reloj.g.add(sector);
+const RELOJ_P = [1030, 318];
+const guiaReloj = K.crearRayas(fija, P.gold2, 18, 0.8);
+// barras
+const barras = new THREE.Group(); fija.add(barras);
+const BH = 330;                   // altura de 24 h
+const B0 = S(206, 520, 0);
+const colN = K.crearColumna(P.cold, 50, 50), colQ = K.crearColumna(P.gold, 50, 50), colS = K.crearColumna(P.warm, 50, 50);
+const XB = new THREE.Vector3(1, 0, 0);
+const BPOS = [0, 1, 2].map((i) => B0.clone().addScaledVector(XB, i * 112));
+[colN, colQ, colS].forEach((c, i) => { c.g.position.copy(BPOS[i]); barras.add(c.g); });
+const plataforma = new THREE.Mesh(new THREE.BoxGeometry(112 * 2 + 110, 12, 100), [K.basic('#353b74'), K.basic('#242851'), K.basic('#2b3062'), K.basic('#1d2146'), K.basic('#242851'), K.basic('#353b74')]);
+plataforma.position.copy(BPOS[1]).addScaledVector(Y, -6.5); barras.add(plataforma);
+const pistas = [0, 1, 2].map((i) => {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(52, BH, 52), K.basic(P.lav, { transparent: true, opacity: 0.08, depthWrite: false }));
+  m.position.copy(BPOS[i]).addScaledVector(Y, BH / 2); barras.add(m); return m;
+});
+const nivel12 = new THREE.Mesh(new THREE.BoxGeometry(112 * 2 + 80, 2.4, 3), K.basic(P.gold2, { transparent: true, opacity: 0.9, depthWrite: false }));
+nivel12.position.copy(BPOS[1]).addScaledVector(Y, BH / 2).add(new THREE.Vector3(0, 0, 30)); barras.add(nivel12);
+const nivel12b = new THREE.Mesh(new THREE.BoxGeometry(112 * 2 + 80, 0.5, 60), K.basic(P.gold, { transparent: true, opacity: 0.14, depthWrite: false }));
+nivel12b.position.copy(BPOS[1]).addScaledVector(Y, BH / 2); barras.add(nivel12b);
+
+// narrador, veredicto, rótulos e iconos (HUD)
+const pres = K.presentador(plato, { x: 182, y: 158, veredicto: 'no' });
+const lbl147 = K.crearRotulo(plato, [{ t: '147' }, { t: '×10', tam: 28, peso: 500 }, { t: '6', sup: true, tam: 28 }, { t: ' km', mono: true, tam: 22 }], { tam: 32 });
+const lbl152 = K.crearRotulo(plato, [{ t: '152' }, { t: '×10', tam: 28, peso: 500 }, { t: '6', sup: true, tam: 28 }, { t: ' km', mono: true, tam: 22 }], { tam: 32 });
+const lblAng = K.crearRotulo(plato, [{ t: '23½°' }], { tam: 34, borde: P.cream });
+const lbl12 = K.crearRotulo(plato, [{ t: '12' }, { t: ' h', mono: true, tam: 24 }], { tam: 36, borde: P.gold, fondo: P.navy });
+const tags = { N: K.crearTag(plato, 'N', { tam: 40 }), S: K.crearTag(plato, 'S', { tam: 40 }) };
+const tagsB = { N: K.crearTag(plato, 'N', { tam: 42, borde: P.cold }), S: K.crearTag(plato, 'S', { tam: 42, borde: P.warm }) };
+const hexPath = (x, s, r) => { x.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + i * Math.PI / 3; x.lineTo(s / 2 + Math.cos(a) * r, s / 2 + Math.sin(a) * r); } x.closePath(); };
+const icoEq = K.crearIcono(plato, 42, (x, s) => {
+  hexPath(x, s, s / 2 - 2); x.fillStyle = P.navy; x.fill(); x.strokeStyle = P.gold; x.lineWidth = 2.4; x.stroke();
+  x.strokeStyle = P.cream; x.lineWidth = 2; x.beginPath(); x.arc(s / 2, s / 2, s * 0.2, 0, TAU); x.stroke();
+  x.strokeStyle = P.gold2; x.lineWidth = 2.6; x.beginPath(); x.moveTo(s / 2 - s * 0.3, s / 2); x.lineTo(s / 2 + s * 0.3, s / 2); x.stroke();
+});
+const icoSol = K.crearIcono(plato, 66, (x, s) => {
+  hexPath(x, s, s / 2 - 3); x.fillStyle = P.navy; x.fill(); x.strokeStyle = P.warm; x.lineWidth = 3; x.stroke();
+  const c = s / 2; x.fillStyle = P.sun; x.beginPath(); x.arc(c, c, s * 0.13, 0, TAU); x.fill();
+  x.strokeStyle = P.sun; x.lineWidth = s * 0.05; x.lineCap = 'round';
+  for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; x.beginPath(); x.moveTo(c + Math.cos(a) * s * 0.2, c + Math.sin(a) * s * 0.2); x.lineTo(c + Math.cos(a) * s * 0.28, c + Math.sin(a) * s * 0.28); x.stroke(); }
+});
+const icoNieve = K.crearIcono(plato, 66, (x, s) => {
+  hexPath(x, s, s / 2 - 3); x.fillStyle = P.navy; x.fill(); x.strokeStyle = P.cold; x.lineWidth = 3; x.stroke();
+  const c = s / 2, R = s * 0.27; x.strokeStyle = '#cfe4ff'; x.lineWidth = s * 0.04; x.lineCap = 'round';
+  for (let i = 0; i < 6; i++) {
+    const a = i / 6 * TAU + Math.PI / 2, ca = Math.cos(a), sa = Math.sin(a);
+    x.beginPath(); x.moveTo(c, c); x.lineTo(c + ca * R, c + sa * R); x.stroke();
+    const bx = c + ca * R * 0.6, by = c + sa * R * 0.6;
+    for (const d of [-1, 1]) { const b = a + d * 0.75; x.beginPath(); x.moveTo(bx, by); x.lineTo(bx + Math.cos(b) * R * 0.32, by + Math.sin(b) * R * 0.32); x.stroke(); }
+  }
+});
+
+// ---------------------------------------------------------------------
+// Coreografía (función pura de t)
+// ---------------------------------------------------------------------
+const mMen = M('mentira'), mVer = M('verano'), mDis = M('distancia'), mEne = M('enero'), mJul = M('julio'), mInv = M('invierno');
+const mInc = M('inclinada'), mPeo = M('peonza'), mGra = M('grados'), mDic = M('diciembre'), mRay = M('rayos'), mDias = M('dias'), mEcu = M('ecuador'), mDoce = M('doce');
+const DUR = E.duracion;
+// final quieto: lo que aún se mueve (corona del Sol, balanceo del reloj, marchas) se frena antes de DUR − 0,6 s
+const Q0 = DUR - 1.4, Q1 = DUR - 0.6;
+const quieto = (t) => 1 - sstep(Q0, Q1, t);
+function frenado(t) {
+  if (t <= Q0) return t;
+  const D = Q1 - Q0, u = Math.min(1, (t - Q0) / D);
+  return t - D * (u * u * u - 0.5 * u * u * u * u) - Math.max(0, t - Q1);
+}
+// primer plano: la Tierra a la izquierda y al menos medio Sol dentro del cuadro
+const ZOOM = 2.2, E_SX = 640, E_SY = 450;
+const CAM0 = S(955, 510, 0), Z0 = 1.1;
+const CAM1 = JAN.clone().addScaledVector(vR, (960 - E_SX) / ZOOM).addScaledVector(vU, -(540 - E_SY) / ZOOM);
+const LAT_N = 43 * Math.PI / 180, LON_H = 30 * Math.PI / 180;
+const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
+const cWarm = K.hex2v(P.warm), cCold = K.hex2v(P.cold);
+const FRIO = K.hex2v('#d9ecff'), CALOR = K.hex2v('#ffad5c');
+const mixV = (a, b, k) => a.clone().lerp(b, k);
+
+function dibujar(t) {
+  plato.titilar(t);
+  pres.actualizar(t, E.energia(t), mMen);
+  const tf = frenado(t), qz = quieto(t);
+  sol.actualizar(tf);
+
+  // cámara: plano general → primer plano de la Tierra de enero
+  const kz = eio(seg(t, mInv + 1.2, mInc - 0.25));
+  const zoom = lerp(Z0, ZOOM, kz);
+  // interpolación en el espacio de pantalla (el punto de la Tierra se desplaza suave hacia su sitio)
+  const tgt = CAM0.clone().lerp(CAM1, sstep(0, 1, Math.pow(kz, 0.6)));
+  plato.encuadre(tgt, zoom);
+  suelo.alpha(1 - 0.55 * kz);
+
+  // Tierra de enero: llega a su sitio y gira
+  const th = Math.PI + 0.55 * (1 - eo(seg(t, 0, mVer - 1.3)));   // llega a enero antes de «verano»
+  const ePos = orbPt(th).addScaledVector(vU, 3 * Math.sin(t * 1.1) * (1 - kz));
+  tJan.g.position.copy(ePos);
+  const T0 = DUR - 2.0, DD = 1.4;
+  const ft = t < T0 ? t : T0 + DD * (Math.min(1, (t - T0) / DD) - 0.5 * Math.pow(Math.min(1, (t - T0) / DD), 2));
+  tJan.superficie.rotation.y = 0.5 * ft;
+  tJul.superficie.rotation.y = 0.5 * ft + 1.3;
+
+  // órbita y sombra
+  orbita.poner(O_ORB, sD, nD, A_ORB, 0, TAU, 1, false, lerp(1, 0.5, kz));
+  orbita.mat.opacity = lerp(0.7, 0.4, kz);
+  suelo.sombra(0, SUN_C.x, SUN_C.z, 120, 0.4);
+  suelo.sombra(1, ePos.x, ePos.z, 70, 0.35);
+  const sB = SUN_C.clone().addScaledVector(Y, -96);
+  dropSun.poner(sB, new THREE.Vector3(sB.x, slabSun.y, sB.z), 0, 1, 1.6, (tf * 0.5) % 1, false);
+  const jB = ePos.clone().addScaledVector(Y, -(RT + 40));
+  dropJan.poner(jB, new THREE.Vector3(jB.x, suelo.y, jB.z), 0, 1 - kz, 1.4, (tf * 0.5) % 1, false);
+
+  // verano en el sur (enero/diciembre) e invierno en el norte
+  const kVer = eo(entra(t, mVer, 0.5, 0.25));
+  const kInv = eo(entra(t, mInv, 0.5, 0.25));
+  const kEcu = eo(entra(t, mEcu, 0.5, 0.25));
+  // ciclo del año de las barras (de diciembre a diciembre): arranca en «ecuador» + 0,6 s y dura 3,5 s.
+  // La Tierra no cambia: sigue en diciembre.
+  const yr = eio(seg(t, mEcu + 0.6, mEcu + 4.1));
+  const cy = Math.cos(TAU * yr);   // 1 en diciembre
+  const dlN = 12 - 3 * cy, dlS = 12 + 3 * cy;
+  const warmN = clamp01((dlN - 9) / 6), warmS = clamp01((dlS - 9) / 6);
+  const nCol = cCold, sCol = cWarm;
+  const tintK = (1 - 0.45 * kEcu) * (1 - 0.5 * kz);
+  const css = (v) => `rgb(${Math.round(v.x * 255)},${Math.round(v.y * 255)},${Math.round(v.z * 255)})`;
+  tJan.tenir(css(FRIO), 0.58 * kInv * tintK, css(CALOR), 0.58 * kVer * tintK);
+  capa.uVista.value.copy(loc(vW));
+  capa.uRimS.value.set(sCol.x, sCol.y, sCol.z, 0.85 * kVer * tintK + 0.35 * latido(t, mDic, 1.0, 0.3));
+  capa.uRimN.value.set(nCol.x, nCol.y, nCol.z, 0.85 * kInv * tintK);
+  // noche (lado opuesto al Sol) en «diciembre»
+  const kNoche = eo(entra(t, mDic, 0.55, 0.25));
+  capa.uNoche.value = 0.8 * kNoche * (1 - 0.3 * kEcu);
+  // banda del ecuador
+  const g2 = K.hex2v(P.gold2);
+  capa.uEq.value.set(g2.x, g2.y, g2.z, 0.75 * kEcu);
+  capa.uEqW.value = 0.11;
+  capa.uDim.value = 0.1 * kEcu;
+  eqT1.material.opacity = kEcu; eqT2.material.opacity = 0.3 * kEcu;
+  eqRing.visible = kEcu > 0.003;
+  eqRing.scale.setScalar(1 + 0.25 * (1 - kEcu));
+
+  // cotas: «distancia» dibuja la de enero; «enero» su rótulo; «julio» la Tierra lejana y su cota
+  const fadeW = 1 - sstep(mInv + 0.9, mInv + 1.4, t);
+  const kD = eo(entra(t, mDis, 0.6, 0.25));
+  const top = (p) => p.clone().addScaledVector(Y, OFF);
+  const sTop = top(SUN_C), jTop = top(ePos), lTop = top(JUL);
+  cotaJan.poner(sTop, jTop, kD, Y, fadeW);
+  refSun.poner(SUN_C.clone().addScaledVector(Y, 60), sTop.clone().addScaledVector(Y, 10), 0, kD, 1.4, 0, false);
+  refSun.im.material.opacity = 0.5 * fadeW;
+  refJan.poner(ePos.clone().addScaledVector(Y, RT + 48), jTop.clone().addScaledVector(Y, 10), 0, sstep(0.6, 1, kD), 1.4, 0, false);
+  refJan.im.material.opacity = 0.5 * fadeW;
+  // eco de enero → julio por la órbita
+  const kTr = eio(seg(t, mEne + 0.55, mJul - 0.2));
+  const trOut = sstep(mInv - 0.4, mInv + 0.2, t);
+  estela.poner(O_ORB, sD, nD, A_ORB + 0.5, Math.PI, Math.PI - Math.PI * kTr * 0.985, kTr * (1 - trOut) > 0.001 ? 1 : 0, true, 1);
+  estela.mat.opacity = 0.95 * (1 - trOut);
+  const kJ = eob(entra(t, mJul, 0.55, 0.3), 1.8);
+  const kJs = kJ * eo(fadeW);   // la Tierra de julio encoge y se funde con las cotas
+  tJul.g.visible = kJs > 0.002;
+  tJul.g.scale.setScalar(Math.max(0.001, kJs));
+  tJul.g.position.copy(JUL).addScaledVector(vU, 3 * Math.sin(t * 1.1 + 2));
+  const kDJ = eo(entra(t, mJul, 0.55, 0.3));
+  cotaJul.poner(sTop, lTop, kDJ, Y, fadeW);
+  refJul.poner(JUL.clone().addScaledVector(Y, RT + 48), lTop.clone().addScaledVector(Y, 10), 0, sstep(0.6, 1, kDJ), 1.4, 0, false);
+  refJul.im.material.opacity = 0.5 * fadeW;
+  const lB = JUL.clone().addScaledVector(Y, -(RT + 40));
+  dropJul.poner(lB, new THREE.Vector3(lB.x, suelo.y, lB.z), 0, clamp01((kJ - 0.3) / 0.4) * (1 - kz) * fadeW, 1.4, (tf * 0.5) % 1, false);
+  suelo.sombra(2, JUL.x, JUL.z, 70, 0.35 * kJ * fadeW);
+  // anillo de "más cerca" en enero
+  const kMk = latido(t, mEne, 1.2, 0.25);
+  markJan.visible = kMk > 0.003;
+  markJan.position.copy(ePos); markJan.material.opacity = 0.8 * kMk; markJan.scale.setScalar(0.85 + 0.3 * kMk);
+  // rótulos de distancia
+  const k147 = entra(t, mEne, 0.5, 0.25), k152 = entra(t, mJul, 0.5, 0.25);
+  const m1 = plato.aPantalla(_a.copy(sTop).lerp(jTop, 0.5));
+  lbl147.poner(m1.x, m1.y - 34, eo(k147) * fadeW, eob(k147, 2) * (1 + 0.06 * latido(t, mEne, 0.9, 0.0)));
+  const m2 = plato.aPantalla(_a.copy(sTop).lerp(lTop, 0.5));
+  lbl152.poner(m2.x, m2.y - 34, eo(k152) * fadeW, eob(k152, 2));
+
+  // iconos de estación junto a cada hemisferio (siguen a la Tierra)
+  const pS = plato.aPantalla(_a.copy(ePos).addScaledVector(AXIS, -RT * 0.62).addScaledVector(vR, -RT * 1.25));
+  const pN = plato.aPantalla(_a.copy(ePos).addScaledVector(AXIS, RT * 0.62).addScaledVector(vR, -RT * 1.25));
+  const icoOut = 1 - sstep(mInc - 0.6, mInc - 0.2, t);
+  const icoBack = 0;
+  const kIS = eob(entra(t, mVer, 0.5, 0.2), 2.2), kIN = eob(entra(t, mInv, 0.5, 0.2), 2.2);
+  icoSol.poner(pS.x - 18 * kz, pS.y, Math.min(1, kIS) * Math.max(icoOut, icoBack), kIS * (1 + 0.2 * kz));
+  icoNieve.poner(pN.x - 18 * kz, pN.y, Math.min(1, kIN) * Math.max(icoOut, icoBack), kIN * (1 + 0.2 * kz));
+
+  // etiquetas N / S en los polos de la Tierra de enero
+  const tagOn = Math.max(sstep(mInc - 0.4, mInc, t), 0);
+  const pNp = plato.aPantalla(_a.copy(ePos).addScaledVector(AXIS, RT * 1.04 + 26));
+  const pSp = plato.aPantalla(_a.copy(ePos).addScaledVector(AXIS, -(RT * 1.04 + 26)));
+  tags.N.poner(pNp.x - 42, pNp.y + 6, tagOn, 1); tags.S.poner(pSp.x + 42, pSp.y - 6, tagOn, 1);
+
+  // ángulo de 23½° en «inclinada»
+  const kI = eo(entra(t, mInc, 0.55, 0.3));
+  const angOut = 1 - sstep(mDic - 0.5, mDic - 0.1, t);
+  const top0 = ePos.clone().addScaledVector(Y, RT * 1.1), top1 = ePos.clone().addScaledVector(Y, RT * 2.15);
+  vertRef.poner(top0, top1, 0, kI, 1.1, 0, false);
+  vertRef.im.material.opacity = 0.75 * angOut; vertRef.im.visible = kI * angOut > 0.002;
+  axisExt.poner(ePos.clone().addScaledVector(AXIS, RT * 1.55), ePos.clone().addScaledVector(AXIS, RT * 2.15), 0, kI, 1.3, 0, false);
+  axisExt.im.material.opacity = 0.85 * angOut; axisExt.im.visible = kI * angOut > 0.002;
+  cunaN.position.copy(ePos); cunaN.userData.m.material.opacity = 0.16 * kI * angOut; cunaN.visible = kI * angOut > 0.003;
+  cunaN.userData.m.scale.setScalar(Math.max(0.001, kI));
+  const e2 = sD.clone().negate();   // en el plano (Y, -s): ángulo desde la vertical hacia el norte inclinado
+  arcAng.poner(ePos, Y, e2, RT * 1.72, 0, TILT, kI, true, angOut);
+  arcAng.mat.opacity = 1;
+  const midA = TILT / 2;
+  const pA = plato.aPantalla(_a.copy(ePos).addScaledVector(Y, Math.cos(midA) * RT * 2.2).addScaledVector(e2, Math.sin(midA) * RT * 2.2));
+  const kG = entra(t, mGra, 0.45, 0.25);   // «veintitrés»: el rótulo entra completo con un latido
+  lblAng.poner(pA.x - 78, pA.y - 14, eo(kG) * angOut, eob(kG, 2) * (1 + 0.15 * latido(t, mGra, 0.8, 0.05)));
+
+  // peonza en «peonza»
+  const kP = eob(entra(t, mPeo, 0.55, 0.28), 1.8) * (1 - eib(seg(t, mRay - 0.9, mRay - 0.45)));
+  peonza.visible = kP > 0.002;
+  const pzScreen = [330, 560];
+  PZ_BASE.copy(CAM1).addScaledVector(vR, (pzScreen[0] - 960) / ZOOM).addScaledVector(vU, -(pzScreen[1] - 540) / ZOOM);
+  peonza.position.copy(PZ_BASE);
+  peonza.scale.setScalar(Math.max(0.001, kP) * 1.15);
+  pzGiro.rotation.y = t * 7.5;   // mismo sentido que la Tierra (antihorario visto desde el norte)
+  pzTilt.position.set(0, 0, 0);
+  const pzTop = PZ_BASE.clone().addScaledVector(AXIS, 58 * 1.15), pzTop2 = PZ_BASE.clone().addScaledVector(AXIS, 92 * 1.15);
+  const kPc = clamp01(kP);
+  pzAxis.poner(pzTop, pzTop2, 0, kPc, 1.1, 0, false); pzAxis.im.material.opacity = 0.85 * kPc;
+  pzVert.poner(PZ_BASE.clone().addScaledVector(Y, 62 * 1.15), PZ_BASE.clone().addScaledVector(Y, 96 * 1.15), 0, kPc, 0.9, 0, false); pzVert.im.material.opacity = 0.6 * kPc;
+
+  // «diciembre»: el sur se inclina hacia el Sol
+  const kL = eo(entra(t, mDic, 0.55, 0.3)) * (1 - sstep(mEcu - 0.6, mEcu - 0.2, t));
+  arcLean.poner(ePos, Y.clone().negate(), sD, RT * 1.72, 0, TILT, kL, true, 1);
+  vertRefS.poner(ePos.clone().addScaledVector(Y, -RT * 1.1), ePos.clone().addScaledVector(Y, -RT * 2.15), 0, kL, 1.1, 0, false);
+  axisExtS.poner(ePos.clone().addScaledVector(AXIS, -RT * 1.55), ePos.clone().addScaledVector(AXIS, -RT * 2.15), 0, kL, 1.5, 0, false);
+  cunaS.position.copy(ePos); cunaS.userData.m.material.opacity = 0.28 * kL; cunaS.visible = kL > 0.003;
+
+  // «rayos»: dos haces iguales; al sur llegan de frente, al norte de refilón
+  const kR = eo(seg(t, mRay - 0.4, mRay + 0.08));
+  const rOut = 1 - sstep(mEcu - 0.55, mEcu - 0.15, t);
+  // puntos de impacto: a la latitud del Sol en diciembre (23½° S, de frente) y a 50° N (de refilón),
+  // un poco girados hacia la cámara para que se vean las dos huellas
+  const mer = sD.clone().addScaledVector(AXIS, -sD.dot(AXIS)).normalize();   // meridiano que mira al Sol
+  const este = new THREE.Vector3().crossVectors(sD, Y).normalize();          // hacia la cámara
+  const enLat = (lat, lon) => mer.clone().multiplyScalar(Math.cos(lat) * Math.cos(lon)).addScaledVector(este, Math.cos(lat) * Math.sin(lon)).addScaledVector(AXIS, Math.sin(lat)).normalize();
+  const cS = enLat(-TILT, LON_H), cN = enLat(LAT_N, LON_H);
+  ponerHaz(haces[0], ePos, cS, kR, rOut);
+  ponerHaz(haces[1], ePos, cN, eo(seg(t, mRay - 0.3, mRay + 0.18)), rOut);
+  const kF = sstep(mRay - 0.1, mRay + 0.3, t) * rOut;
+  capa.uHaz.value[0].set(...loc(cS).toArray(), RH / RS);
+  capa.uHaz.value[1].set(...loc(cN).toArray(), RH / RS);
+  capa.uHazK.value[0] = kF; capa.uHazK.value[1] = kF;
+
+  // «días»: barras de horas de luz del norte (9 h) y del sur (15 h), en diciembre;
+  // «ecuador»: entra la del ecuador (12 h); después recorren un año y vuelven a diciembre
+  const kB = eob(entra(t, mDias, 0.5, 0.25), 1.6);
+  const kBQ = eob(entra(t, mEcu, 0.5, 0.25), 1.6);
+  barras.visible = kB > 0.002;
+  colN.altura(BH * dlN / 24 * kB); colS.altura(BH * dlS / 24 * kB); colQ.altura(BH * 12 / 24 * kBQ);
+  colN.m.material.color.set(P.cold).lerp(new THREE.Color(P.warm), warmN);
+  colS.m.material.color.set(P.cold).lerp(new THREE.Color(P.warm), warmS);
+  pistas[0].material.opacity = pistas[2].material.opacity = 0.08 * clamp01(kB); pistas[1].material.opacity = 0.08 * clamp01(kBQ);
+  plataforma.scale.set(1, Math.max(0.001, kB), 1);
+  nivel12.visible = nivel12b.visible = kBQ > 0.002;
+  nivel12.material.opacity = 0.9 * clamp01(kBQ) * (0.6 + 0.4 * latido(t, mDoce, 1.0, 0.1));
+  nivel12b.material.opacity = 0.18 * clamp01(kBQ);
+  const qPulse = latido(t, mDoce, 1.0, 0.1);
+  colQ.m.scale.x = colQ.m.scale.z = 1 + 0.08 * qPulse;
+  // etiquetas de las barras
+  const tagB = (i) => K.pix(_a.copy(BPOS[i]).addScaledVector(new THREE.Vector3(0, 0, 1), 72).addScaledVector(Y, -6));
+  const b0 = tagB(0), b1 = tagB(1), b2 = tagB(2);
+  tagsB.N.poner(b0.x, b0.y, eo(clamp01(kB)), Math.min(1, kB)); icoEq.poner(b1.x, b1.y, eo(clamp01(kBQ)), Math.min(1, kBQ)); tagsB.S.poner(b2.x, b2.y, eo(clamp01(kB)), Math.min(1, kB));
+  // reloj
+  const kC = eob(entra(t, mDoce, 0.55, 0.28), 2.0);
+  reloj.g.visible = kC > 0.002;
+  reloj.g.scale.setScalar(Math.max(0.001, kC));
+  reloj.g.position.copy(S(RELOJ_P[0], RELOJ_P[1] + 3 * Math.sin(t * 1.4) * qz, 300));
+  const sw = eio(seg(t, mDoce - 0.05, mDoce + 0.9));
+  sector.geometry.setDrawRange(0, Math.floor(48 * sw) * 3);
+  sector.visible = sw > 0.005;
+  lbl12.poner(RELOJ_P[0], RELOJ_P[1] + 100, eo(entra(t, mDoce, 0.5, 0.2)), eob(entra(t, mDoce, 0.5, 0.2), 2));
+  // guía del ecuador al reloj
+  const eqEnd = plato.aPantalla(_a.copy(ePos).addScaledVector(mer, RT * 1.12));
+  guiaReloj.poner(S(eqEnd.x + 8, eqEnd.y - 4, 280), S(RELOJ_P[0] - 66, RELOJ_P[1] + 8, 280), 0, eio(seg(t, mDoce - 0.2, mDoce + 0.3)), 2, 0, false);
+
+  plato.render();
+}
+
+E.iniciar(dibujar);
+</script>
+</body>
+</html>

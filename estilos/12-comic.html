@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cómic · La Luna al revés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="fuentes" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,700;1,700&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #efe3c8; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+// ---------------------------------------------------------------------------
+// Página de cómic impresa: viñetas con tinta gruesa, tramas Ben-Day (puntos de
+// semitono en rejillas giradas por plancha), planchas de color CMYK con un leve
+// fuera de registro y papel de pulpa. Todo en Canvas 2D sobre un marco de
+// 1920x1080; las piezas estáticas (fondos, Luna, núcleo) se pre-renderizan a la
+// resolución del dispositivo y cada fotograma solo compone y anima.
+// Guion (10 s): el átomo pregunta "¿Al revés?" → se condensa en la Luna → la
+// viñeta se parte en norte / sur → ¡ZAS! la viñeta sur gira y la D pasa a C →
+// un iris abre la página de nuevo sobre el átomo.
+// ---------------------------------------------------------------------------
+const DUR = 10, W = 1920, H = 1080, TAU = Math.PI * 2, PI = Math.PI;
+const CAPTURA = /captura/.test(location.search);
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+let S = 1, OX = 0, OY = 0, builtS = 0;
+
+// Paleta de imprenta: tintas planas y tramas.
+const C = {
+  paper: '#f1e5c9', white: '#fffaee', ink: '#17151b',
+  yellow: '#f6cd2a', yellowL: '#fbe48c', orange: '#ef8f2c', red: '#de3a2e', redDk: '#9e1f2c',
+  magenta: '#d8337f', cyan: '#1ea2d6', cyanL: '#9fd8ef', blue: '#2b55a6',
+  navy: '#1c2654', navyDk: '#0f1534', moonDk: '#222d60',
+  moon: '#fdf4d2', moonDot: '#e7ae3a', crater: '#f2d590',
+};
+const FT = "'Bangers', Impact, sans-serif";
+const FL = "'Comic Neue', 'Comic Sans MS', sans-serif";
+const MIS = { x: 2.4, y: 1.6 };           // fuera de registro de las planchas de color
+
+// Escenario
+const AC = { x: 960, y: 490 };            // átomo en la splash
+const NC = { x: 500, y: 540 };            // centro del contenido de la viñeta norte
+const SC = { x: 1440, y: 540 };           // centro del contenido de la viñeta sur
+const MOONL = { x: -70, y: -215 };        // Luna en el marco local de cada viñeta
+const MR = 150, MR_SPL = 175;             // radio de la Luna (viñetas / splash)
+const GY = 300, RG = 1500;                // horizonte local y radio del planeta
+const OBS_X = 150;                        // observador (x local)
+const GUT = 26;                           // calle entre viñetas
+
+const T = {
+  balIn: 0.12, balOut: 1.6,
+  morph0: 1.85, morph1: 2.33,
+  pop: 2.33, diss0: 2.36, diss1: 2.98,
+  titleOut0: 2.0, titleOut1: 2.28,
+  split0: 2.85, split1: 3.6, ground0: 2.98, ground1: 3.66, cap0: 3.3,
+  antic0: 4.6, flip0: 5.0, flip1: 5.62,
+  zas: 5.2, zasOut: 6.85,
+  badgeN: 5.8, badgeS: 5.95,
+  moonGrow: 7.26, shrink0: 7.42, shrink1: 7.72,
+  iris0: 7.7, iris1: 8.75,
+  titleIn0: 8.45, titleIn1: 8.85,
+};
+
+// ---------- utilidades ----------
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hsh(a, b) { let h = Math.imul(a + 0x9e3779b9 | 0, 0x85ebca6b) ^ Math.imul(b + 0x7f4a7c15 | 0, 0xc2b2ae35); h = Math.imul(h ^ h >>> 15, 0x2c1b3c6d); h = Math.imul(h ^ h >>> 12, 0x297a2d39); h ^= h >>> 15; return (h >>> 0) / 4294967296; }
+const cl = (x) => x < 0 ? 0 : x > 1 ? 1 : x;
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const lerp = (a, b, u) => a + (b - a) * u;
+const eio = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const eout = (x) => 1 - Math.pow(1 - x, 3);
+const ein = (x) => x * x * x;
+const eback = (x, s = 1.70158) => { const c3 = s + 1; return 1 + c3 * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2); };
+function mk(w, h) { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; }
+
+// Trama: puntos sobre una rejilla girada (anclada al origen del sistema actual).
+// rf(x, y) devuelve el radio del punto en unidades de diseño.
+function dots(g, x0, y0, x1, y1, sp, ang, rf) {
+  const c = Math.cos(ang), s = Math.sin(ang);
+  let umin = Infinity, umax = -Infinity, vmin = Infinity, vmax = -Infinity;
+  for (const [x, y] of [[x0, y0], [x1, y0], [x0, y1], [x1, y1]]) {
+    const u = x * c + y * s, v = -x * s + y * c;
+    umin = Math.min(umin, u); umax = Math.max(umax, u); vmin = Math.min(vmin, v); vmax = Math.max(vmax, v);
+  }
+  g.beginPath();
+  for (let j = Math.floor(vmin / sp) - 1; j <= Math.ceil(vmax / sp) + 1; j++) {
+    const v = j * sp;
+    for (let i = Math.floor(umin / sp) - 1; i <= Math.ceil(umax / sp) + 1; i++) {
+      const u = i * sp, x = u * c - v * s, y = u * s + v * c;
+      if (x < x0 - sp || x > x1 + sp || y < y0 - sp || y > y1 + sp) continue;
+      const r = rf(x, y);
+      if (r < 0.25) continue;
+      g.moveTo(x + r, y); g.arc(x, y, r, 0, TAU);
+    }
+  }
+  g.fill();
+}
+
+// Trazo de pincel: cinta de anchura variable a lo largo de una polilínea.
+function ribbon(g, P, wf) {
+  const n = P.length, L = [], R = [];
+  for (let i = 0; i < n; i++) {
+    const a = P[Math.max(0, i - 1)], b = P[Math.min(n - 1, i + 1)];
+    let dx = b[0] - a[0], dy = b[1] - a[1]; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+    const w = wf(n > 1 ? i / (n - 1) : 0, P[i]);
+    L.push([P[i][0] - dy * w, P[i][1] + dx * w]); R.push([P[i][0] + dy * w, P[i][1] - dx * w]);
+  }
+  g.beginPath(); g.moveTo(L[0][0], L[0][1]);
+  for (let i = 1; i < n; i++) g.lineTo(L[i][0], L[i][1]);
+  for (let i = n - 1; i >= 0; i--) g.lineTo(R[i][0], R[i][1]);
+  g.closePath(); g.fill();
+}
+function ellPts(x, y, a, b, phi, th0, th1, n) {
+  const c = Math.cos(phi), s = Math.sin(phi), P = [];
+  for (let i = 0; i <= n; i++) { const th = th0 + (th1 - th0) * i / n, u = a * Math.cos(th), v = b * Math.sin(th); P.push([x + u * c - v * s, y + u * s + v * c, th]); }
+  return P;
+}
+function poly(g, pts) { g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]); g.closePath(); }
+
+// Sprite pre-renderizado a la resolución del dispositivo. (x0, y0) = esquina en unidades locales.
+function sprite(x0, y0, w, h, draw, q = 1) {
+  const k = Math.min(S * q, 2.4), c = mk(w * k, h * k), g = c.getContext('2d');
+  g.setTransform(k, 0, 0, k, -x0 * k, -y0 * k); draw(g);
+  return { c, x0, y0, w, h };
+}
+function blit(g, sp, x, y, sc = 1) { g.drawImage(sp.c, x + sp.x0 * sc, y + sp.y0 * sc, sp.w * sc, sp.h * sc); }
+
+// ---------- piezas dibujadas ----------
+const LIGHT = (() => { const v = [-0.52, -0.62, 0.59], n = Math.hypot(...v); return v.map((a) => a / n); })();
+
+// Esfera de cómic: color plano, trama de sombra, negro macizo y brillo duro.
+function sphere(g, x, y, r, base, sp) {
+  const disk = new Path2D(); disk.arc(x, y, r, 0, TAU);
+  g.save(); g.translate(MIS.x * 0.6, MIS.y * 0.6);
+  g.fillStyle = base; g.fill(disk);
+  g.save(); g.clip(disk); g.fillStyle = C.ink; g.globalAlpha = 0.85;
+  dots(g, x - r, y - r, x + r, y + r, sp, PI / 4, (px, py) => {
+    const dx = (px - x) / r, dy = (py - y) / r, nz = Math.sqrt(Math.max(0, 1 - dx * dx - dy * dy));
+    const l = dx * LIGHT[0] + dy * LIGHT[1] + nz * LIGHT[2];
+    return sp * 0.6 * Math.pow(cl((0.7 - l) / 0.75), 1.1);
+  });
+  g.restore(); g.restore();
+  g.save(); g.clip(disk);
+  g.beginPath(); g.rect(x - r - 4, y - r - 4, 2 * r + 8, 2 * r + 8); g.arc(x - 0.17 * r, y - 0.22 * r, r * 1.05, 0, TAU);
+  g.fillStyle = C.ink; g.fill('evenodd');
+  g.restore();
+  g.save(); g.translate(x - 0.36 * r, y - 0.4 * r); g.rotate(-0.7);
+  g.beginPath(); g.ellipse(0, 0, 0.25 * r, 0.12 * r, 0, 0, TAU); g.fillStyle = C.white; g.fill();
+  g.restore();
+  g.beginPath(); g.arc(x + 0.38 * r, y - 0.47 * r, 0.06 * r, 0, TAU); g.fillStyle = C.white; g.fill();
+  g.lineWidth = Math.max(2.4, r * 0.1); g.strokeStyle = C.ink; g.stroke(disk);
+}
+
+// Luna creciente con forma de D (iluminada a la derecha), radio R, centrada en el origen.
+const CRAT = [[0.62, -0.52, 0.1], [0.76, 0.3, 0.12], [0.5, 0.62, 0.08], [0.84, -0.12, 0.07], [0.44, -0.16, 0.06], [0.6, 0.06, 0.05]];
+function moonD(g, R) {
+  const k = 0.3;
+  const disk = new Path2D(); disk.arc(0, 0, R, 0, TAU);
+  const lit = new Path2D(); lit.arc(0, 0, R, -PI / 2, PI / 2, false);
+  for (let i = 0; i <= 64; i++) { const th = PI / 2 - PI * i / 64; lit.lineTo(k * R * Math.cos(th), R * Math.sin(th)); }
+  lit.closePath();
+  const xl = (y) => Math.sqrt(Math.max(0, R * R - y * y)), xt = (y) => k * xl(y);
+  // plancha de color (desplazada): lado oscuro discreto con luz cenicienta en trama
+  g.save(); g.translate(MIS.x, MIS.y);
+  g.fillStyle = C.moonDk; g.fill(disk);
+  g.save(); g.clip(disk); g.fillStyle = C.cyan;
+  dots(g, -R, -R, R, R, 9, PI / 12, (x, y) => 1.0 + 1.6 * cl((x / R + 0.7) / 1.5));
+  g.restore();
+  g.fillStyle = C.moon; g.fill(lit);
+  g.save(); g.clip(lit);
+  // mares: trama cian clara
+  g.fillStyle = C.cyan; g.globalAlpha = 0.5;
+  for (const [mx, my, mr] of [[0.62, -0.3, 0.24], [0.52, 0.22, 0.18], [0.8, 0.05, 0.13]]) {
+    g.save(); g.beginPath(); g.ellipse(mx * R, my * R, mr * R * 0.75, mr * R, 0.3, 0, TAU); g.clip();
+    dots(g, (mx - mr) * R, (my - mr) * R, (mx + mr) * R, (my + mr) * R, 7, PI / 12, () => 1.9);
+    g.restore();
+  }
+  g.globalAlpha = 1;
+  // sombreado: trama ocre que crece hacia el terminador y los cuernos
+  g.fillStyle = C.moonDot;
+  dots(g, 0, -R, R, R, 8, PI / 4, (x, y) => {
+    const a = xt(y), b = xl(y); const u = b - a > 1 ? (x - a) / (b - a) : 1;
+    const v = Math.abs(y) / R;
+    return 3.8 * Math.pow(cl(1 - u * 2.3), 0.9) + 2.4 * cl((v - 0.78) / 0.22);
+  });
+  // cráteres
+  for (const [cx, cy, cr] of CRAT) {
+    g.beginPath(); g.ellipse(cx * R, cy * R, cr * R * 0.72, cr * R, 0.15, 0, TAU); g.fillStyle = C.crater; g.fill();
+    g.save(); g.clip(); g.fillStyle = C.moonDot;
+    dots(g, (cx - cr) * R, (cy - cr) * R, (cx + cr) * R, (cy + cr) * R, 5, PI / 4, (x, y) => 2.3 * cl(-((x - cx * R) + (y - cy * R)) / (cr * R) * 0.9 + 0.1));
+    g.restore();
+  }
+  g.restore();
+  g.restore();
+  // tinta: medio borde de cada cráter
+  g.save(); g.clip(lit); g.strokeStyle = C.ink; g.lineCap = 'round';
+  for (const [cx, cy, cr] of CRAT) {
+    g.beginPath(); g.ellipse(cx * R, cy * R, cr * R * 0.72, cr * R, 0.15, PI * 0.95, PI * 1.8); g.lineWidth = 2.8; g.stroke();
+  }
+  // terminador: línea de tinta fina que se pierde hacia los cuernos
+  const P = []; for (let i = 0; i <= 40; i++) { const th = -PI / 2 + PI * i / 40; P.push([k * R * Math.cos(th) + 1, R * Math.sin(th)]); }
+  g.fillStyle = C.ink; ribbon(g, P, (u) => 1.6 * Math.sin(PI * u));
+  g.restore();
+  // brillo de borde
+  g.beginPath(); g.arc(0, 0, R - 11, -1.0, 1.0); g.lineWidth = 4.5; g.lineCap = 'round'; g.strokeStyle = C.white; g.stroke();
+  // contorno: pesado en el lado iluminado, fino en el oscuro
+  g.beginPath(); g.arc(0, 0, R, 0, TAU); g.lineWidth = 4; g.strokeStyle = C.ink; g.stroke();
+  const Q = []; for (let i = 0; i <= 60; i++) { const th = -PI / 2 - 0.12 + (PI + 0.24) * i / 60; Q.push([Math.cos(th) * (R + 1.5), Math.sin(th) * (R + 1.5)]); }
+  g.fillStyle = C.ink; ribbon(g, Q, (u) => 2 + 3.6 * Math.sin(PI * u));
+}
+
+// Silueta del observador: pies en el origen, señalando en la dirección 'ang'.
+function observer(g, ang, col) {
+  g.save(); g.fillStyle = col; g.strokeStyle = col; g.lineCap = 'round'; g.lineJoin = 'round';
+  const ln = (a, b, c, d, w) => { g.lineWidth = w; g.beginPath(); g.moveTo(a, b); g.lineTo(c, d); g.stroke(); };
+  ln(-7, -76, -13, -6, 15); ln(8, -76, 14, -6, 15);
+  ln(-13, -4, -26, -2, 9); ln(14, -4, 27, -2, 9);
+  g.beginPath(); g.moveTo(-19, -130); g.lineTo(19, -130); g.lineTo(17, -66); g.lineTo(-17, -66); g.closePath(); g.lineWidth = 8; g.fill(); g.stroke();
+  ln(1, -130, 2, -140, 11);
+  g.beginPath(); g.arc(3, -152, 14, 0, TAU); g.fill();
+  const sx = -17, sy = -123, ex = sx + Math.cos(ang + 0.25) * 34, ey = sy + Math.sin(ang + 0.25) * 34;
+  const hx = ex + Math.cos(ang) * 32, hy = ey + Math.sin(ang) * 32;
+  ln(sx, sy, ex, ey, 11); ln(ex, ey, hx, hy, 9.5);
+  ln(hx, hy, hx + Math.cos(ang) * 11, hy + Math.sin(ang) * 11, 4.5);
+  ln(16, -124, 23, -94, 11); ln(23, -94, 18, -70, 9.5);
+  g.restore();
+}
+const groundY = (x) => GY + RG - Math.sqrt(RG * RG - x * x);
+const OBS_K = 1.28;
+function obsAngle() { const fy = groundY(OBS_X); return Math.atan2(MOONL.y - (fy - 123 * OBS_K), MOONL.x - (OBS_X - 17 * OBS_K)); }
+
+// Abeto en silueta (pisos triangulares) para dar escala al horizonte.
+function pine(g, x, y, s, col) {
+  g.save(); g.translate(x, y); g.scale(s, s); g.fillStyle = col;
+  g.fillRect(-4.5, -34, 9, 40);
+  for (const [top, bot, w] of [[-112, -24, 46], [-148, -62, 37], [-180, -100, 27]]) {
+    g.beginPath(); g.moveTo(0, top); g.quadraticCurveTo(w * 0.35, (top + bot) / 2, w, bot); g.quadraticCurveTo(0, bot - 9, -w, bot); g.quadraticCurveTo(-w * 0.35, (top + bot) / 2, 0, top); g.fill();
+  }
+  g.restore();
+}
+
+// ---------- sprites ----------
+let PAPER, BURST, SKY, GROUND, MOON, NUC, ELEC, MASK;
+function buildPaper() {
+  const w = 960, h = 540, c = mk(w, h), g = c.getContext('2d'), id = g.createImageData(w, h), d = id.data, r = rng(5);
+  const gw = 33, gh = 19, L = new Float32Array(gw * gh); for (let i = 0; i < L.length; i++) L[i] = r();
+  const vn = (x, y) => { const fx = x / w * (gw - 1), fy = y / h * (gh - 1), x0 = fx | 0, y0 = fy | 0, tx = fx - x0, ty = fy - y0;
+    const a = L[y0 * gw + x0], b = L[y0 * gw + x0 + 1], c2 = L[(y0 + 1) * gw + x0], e = L[(y0 + 1) * gw + x0 + 1];
+    const sx = tx * tx * (3 - 2 * tx), sy = ty * ty * (3 - 2 * ty); return lerp(lerp(a, b, sx), lerp(c2, e, sx), sy); };
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4, n = r(), lo = vn(x, y);
+    const v = 255 - n * n * 16 - lo * 9;
+    d[i] = v; d[i + 1] = v - 1.5; d[i + 2] = v - 5; d[i + 3] = 255;
+  }
+  g.putImageData(id, 0, 0);
+  g.lineCap = 'round';
+  for (let i = 0; i < 900; i++) {
+    const x = r() * w, y = r() * h, a = r() * TAU, l = 2 + r() * 7;
+    g.strokeStyle = `rgba(120,95,60,${0.05 + r() * 0.09})`; g.lineWidth = 0.6 + r() * 0.6;
+    g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a + 0.5) * l * 0.6, y + Math.sin(a + 0.5) * l * 0.6, x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
+  }
+  return c;
+}
+function buildSprites() {
+  builtS = S;
+  // Fondo de la splash: rayos con trama + viñeteado de puntos rojos.
+  BURST = sprite(0, 0, W, H, (g) => {
+    g.fillStyle = C.yellow; g.fillRect(0, 0, W, H);
+    g.save(); g.beginPath();
+    const N = 30;
+    for (let k = 0; k < N; k += 2) { const a0 = k / N * TAU - 0.05, a1 = (k + 1) / N * TAU - 0.05; g.moveTo(AC.x, AC.y); g.arc(AC.x, AC.y, 2400, a0, a1); g.closePath(); }
+    g.clip(); g.fillStyle = C.orange;
+    dots(g, 0, 0, W, H, 14, PI * 5 / 12, (x, y) => 4.3 * cl((Math.hypot(x - AC.x, y - AC.y) - 120) / 260));
+    g.restore();
+    g.fillStyle = C.red;
+    dots(g, 0, 0, W, H, 19, PI / 4, (x, y) => 11 * Math.pow(cl((Math.hypot(x - AC.x, (y - AC.y) * 1.25) - 520) / 720), 1.15));
+  });
+  // Cielo nocturno en marco local (horizonte en y = GY), gira con la viñeta sur.
+  SKY = sprite(-1000, -720, 2000, 1440, (g) => {
+    g.fillStyle = C.navy; g.fillRect(-1000, -720, 2000, 1440);
+    g.fillStyle = C.navyDk; dots(g, -1000, -720, 1000, 720, 12, PI / 4, (x, y) => 6.6 * Math.pow(cl((-y - 60) / 560), 0.9));
+    g.fillStyle = C.cyan; dots(g, -1000, -720, 1000, 720, 13, PI / 12, (x, y) => 6.4 * Math.pow(cl((y + 230) / 540), 1.5));
+    g.fillStyle = C.magenta; dots(g, -1000, -720, 1000, 720, 13, PI * 5 / 12, (x, y) => 3.4 * Math.pow(cl((y - 90) / 230), 1.3));
+    const r = rng(77);
+    g.fillStyle = C.white;
+    for (let i = 0; i < 160; i++) { const x = -980 + r() * 1960, y = -700 + r() * 900, s = 0.9 + r() * r() * 2.6; g.beginPath(); g.arc(x, y, s, 0, TAU); g.fill(); }
+    g.fillStyle = C.yellowL;
+    for (let i = 0; i < 20; i++) {
+      const x = -940 + r() * 1880, y = -660 + r() * 780, s = 7 + r() * 9;
+      g.beginPath();
+      for (let j = 0; j < 8; j++) { const a = j / 8 * TAU, rr = j % 2 ? s * 0.22 : s; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+      g.closePath(); g.fill();
+    }
+  });
+  // Planeta + observador (marco local).
+  GROUND = sprite(-1000, GY - 230, 2000, 700, (g) => {
+    const gp = new Path2D(); gp.arc(0, GY + RG, RG, 0, TAU);
+    g.fillStyle = C.ink; g.fill(gp);
+    g.save(); g.clip(gp); g.fillStyle = C.cyan;
+    dots(g, -1000, GY - 10, 1000, GY + 140, 7, PI / 12, (x, y) => 2.9 * cl(1 - (RG - Math.hypot(x, y - GY - RG)) / 64));
+    g.restore();
+    g.beginPath(); g.arc(0, GY + RG, RG - 3, -PI / 2 - 0.5, -PI / 2 + 0.5); g.strokeStyle = C.cyanL; g.lineWidth = 2.6; g.stroke();
+    const ang = obsAngle();
+    for (const [col, dx, dy] of [[C.cyanL, -2.6, -2.4], [C.ink, 0, 0]]) {
+      g.save(); g.translate(OBS_X + dx, groundY(OBS_X) + 4 + dy); g.scale(OBS_K, OBS_K); observer(g, ang, col); g.restore();
+      pine(g, -300 + dx, groundY(-300) + 8 + dy, 1.0, col);
+      pine(g, -370 + dx, groundY(-370) + 8 + dy, 0.72, col);
+      pine(g, -250 + dx, groundY(-250) + 8 + dy, 0.55, col);
+    }
+  });
+  MOON = sprite(-MR_SPL - 16, -MR_SPL - 16, MR_SPL * 2 + 32, MR_SPL * 2 + 32, (g) => moonD(g, MR_SPL), 1.15);
+  // Núcleo: protones (rojo) y neutrones (azul) apilados por profundidad.
+  NUC = sprite(-110, -110, 220, 220, (g) => {
+    const B = [[-36, -22, 'n'], [36, -24, 'p'], [2, 40, 'p'], [-2, -44, 'n'], [-40, 22, 'p'], [40, 20, 'n'], [0, -2, 'p']];
+    for (const [x, y, ty] of B) sphere(g, x, y, 33, ty === 'p' ? C.red : C.blue, 6);
+  }, 1.3);
+  ELEC = sprite(-34, -34, 68, 68, (g) => sphere(g, 0, 0, 24, C.cyan, 5), 1.4);
+  MASK = mk(cv.width, cv.height);
+}
+
+// ---------- escena ----------
+const ORB = [{ phi: -PI / 6, n: 3, th0: 0.4 }, { phi: PI / 6, n: -3, th0: 2.5 }, { phi: PI / 2, n: 4, th0: 4.6 }];
+function atom(g, t, A) {
+  const sc = A.sc, os = A.orbS, a = 330 * sc * os, b = 104 * sc * os;
+  const els = ORB.map((o) => ({ o, th: o.th0 + TAU * o.n * t / DUR + A.spin * Math.sign(o.n) }));
+  const orbitHalf = (o, front) => {
+    const P = ellPts(A.x, A.y, a, b, o.phi, front ? -0.03 : PI - 0.03, front ? PI + 0.03 : TAU + 0.03, 72);
+    const wf = (u, p) => sc * Math.max(0.5, os) * (1.5 + 3.3 * Math.pow((1 + Math.sin(p[2])) / 2, 1.5));
+    g.save(); g.translate(MIS.x, MIS.y); g.fillStyle = C.cyan; ribbon(g, P, (u, p) => wf(u, p) + 1.6); g.restore();
+    g.fillStyle = C.ink; ribbon(g, P, wf);
+  };
+  const electron = (e) => {
+    const o = e.o, c = Math.cos(o.phi), s = Math.sin(o.phi), dir = Math.sign(o.n);
+    const u = a * Math.cos(e.th), v = b * Math.sin(e.th), x = A.x + u * c - v * s, y = A.y + u * s + v * c;
+    const es = sc * lerp(0.45, 1, os) * (1 + 0.12 * Math.sin(e.th));
+    // estela: tres líneas de velocidad que siguen la órbita
+    g.fillStyle = C.ink;
+    for (const k of [-0.12, 0, 0.12]) {
+      const P = ellPts(A.x, A.y, a * (1 + k * 0.55), b * (1 + k * 1.7), o.phi, e.th - dir * 0.2, e.th - dir * (1.05 - Math.abs(k) * 2.6), 26);
+      ribbon(g, P, (uu) => es * (k === 0 ? 3.6 : 2.6) * Math.pow(1 - uu, 1.2));
+    }
+    blit(g, ELEC, x, y, es);
+  };
+  if (os > 0.02) {
+    for (const o of ORB) orbitHalf(o, false);
+    for (const e of els) if (Math.sin(e.th) < 0) electron(e);
+  }
+  if (A.nucS > 0.01) blit(g, NUC, A.x, A.y, sc * A.nucS);
+  if (os > 0.02) {
+    for (const o of ORB) orbitHalf(o, true);
+    for (const e of els) if (Math.sin(e.th) >= 0) electron(e);
+  }
+}
+
+const FOC = (() => { const r = rng(31), L = [], N = 92; for (let i = 0; i < N; i++) L.push({ a: (i + r() * 0.7) / N * TAU, rin: 450 + r() * 210, w: 4 + r() * 13, k: i }); return L; })();
+function focusLines(g, x, y, t) {
+  const step = Math.floor(t * 8 + 1e-6) % (DUR * 8);
+  g.fillStyle = C.ink; g.beginPath();
+  for (const l of FOC) {
+    const a = l.a + (hsh(step, l.k) - 0.5) * 0.012, rin = l.rin + (hsh(l.k, step + 99) - 0.5) * 46, ro = 1600;
+    const ca = Math.cos(a), sa = Math.sin(a);
+    g.moveTo(x + ca * rin, y + sa * rin); g.lineTo(x + ca * ro - sa * l.w, y + sa * ro + ca * l.w); g.lineTo(x + ca * ro + sa * l.w, y + sa * ro - ca * l.w); g.closePath();
+  }
+  g.fill();
+}
+
+const FULL = [[40, 40], [W - 40, 40], [W - 40, H - 40], [40, H - 40]];
+function panelStroke(g, P) { poly(g, P); g.lineJoin = 'miter'; g.lineWidth = 7; g.strokeStyle = C.ink; g.stroke(); }
+
+function splashContent(g, t, A) {
+  g.drawImage(BURST.c, 0, 0, W, H);
+  focusLines(g, A.x, A.y, t);
+  atom(g, t, A);
+}
+function splashPage(g, t, A) {
+  g.fillStyle = C.paper; g.fillRect(-40, -40, W + 80, H + 80);
+  g.save(); poly(g, FULL); g.clip(); splashContent(g, t, A); g.restore();
+  panelStroke(g, FULL);
+  if (A.title > 0) { g.save(); poly(g, FULL); g.clip(); titleCaption(g, A.title); g.restore(); }
+  if (A.bal > 0) balloon(g, A.bal);
+}
+
+function balloon(g, s) {
+  const cx = 1452, cy = 232, rx = 252, ry = 112, tip = { x: 1178, y: 398 };
+  g.save(); g.translate(tip.x, tip.y); g.scale(s, s); g.translate(-tip.x, -tip.y);
+  const p = new Path2D(); p.ellipse(cx, cy, rx, ry, -0.04, 0, TAU);
+  const tl = new Path2D(); tl.moveTo(cx - 150, cy + 58); tl.quadraticCurveTo(cx - 200, cy + 120, tip.x, tip.y); tl.quadraticCurveTo(cx - 150, cy + 112, cx - 70, cy + 96); tl.closePath();
+  g.lineJoin = 'round'; g.strokeStyle = C.ink; g.lineWidth = 11; g.stroke(p); g.stroke(tl);
+  g.fillStyle = C.white; g.fill(p); g.fill(tl);
+  g.fillStyle = C.ink; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  g.font = `italic 700 74px ${FL}`;
+  g.fillText('¿AL REVÉS?', cx, cy + 26);
+  g.restore();
+}
+
+function titleCaption(g, p) {
+  const e = eout(p), x = 100 - 900 * (1 - e), y = 64;
+  const TT = 'LA LUNA AL REVÉS', ST = 'LO QUE NO TE EXPLICARON EN CLASE · EPISODIO 1';
+  g.save(); g.translate(x, y);
+  g.font = `98px ${FT}`; const tw = g.measureText(TT).width;
+  g.font = `700 24px ${FL}`; const sw = g.measureText(ST).width;
+  const bw = Math.max(tw + 70, sw + 44), sh = 42, bh = 150;
+  // tira superior negra
+  g.fillStyle = C.ink; g.fillRect(0, 0, bw, sh);
+  g.fillStyle = C.white; g.textBaseline = 'middle'; g.textAlign = 'left';
+  g.fillText(ST, 22, sh / 2 + 1);
+  // caja de cartela
+  g.fillStyle = C.white; g.fillRect(0, sh, bw, bh);
+  g.save(); g.beginPath(); g.rect(0, sh, bw, bh); g.clip(); g.fillStyle = C.cyan;
+  dots(g, 0, sh, bw, sh + bh, 8, PI / 12, (xx, yy) => 2.6 * cl((yy - sh - 70) / 80)); g.restore();
+  g.lineWidth = 5; g.strokeStyle = C.ink; g.strokeRect(0, 0, bw, sh + bh);
+  g.font = `98px ${FT}`; g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
+  const bx = 35, by = sh + 124;
+  for (let i = 7; i >= 1; i--) { g.fillStyle = C.ink; g.fillText(TT, bx + i, by + i); }
+  g.lineWidth = 11; g.strokeStyle = C.ink; g.strokeText(TT, bx, by);
+  g.fillStyle = C.red; g.fillText(TT, bx, by);
+  g.restore();
+}
+
+function caption(g, x, y, text) {
+  g.save(); g.font = `700 40px ${FL}`; g.textBaseline = 'middle'; g.textAlign = 'left';
+  const tw = g.measureText(text).width;
+  g.fillStyle = C.yellow; g.fillRect(x, y, tw + 44, 66);
+  g.lineWidth = 5; g.strokeStyle = C.ink; g.strokeRect(x, y, tw + 44, 66);
+  g.fillStyle = C.ink; g.fillText(text, x + 22, y + 35);
+  g.restore();
+}
+
+function badge(g, x, y, letter, s) {
+  if (s <= 0) return;
+  g.save(); g.translate(x, y); g.scale(s, s); g.rotate(-0.08);
+  g.beginPath(); g.arc(0, 0, 62, 0, TAU); g.fillStyle = C.white; g.fill();
+  g.save(); g.clip(); g.fillStyle = C.yellow; dots(g, -62, -62, 62, 62, 7, PI / 4, (xx, yy) => 2.8 * cl((xx + yy) / 90 + 0.1)); g.restore();
+  g.beginPath(); g.arc(0, 0, 62, 0, TAU); g.lineWidth = 6.5; g.strokeStyle = C.ink; g.stroke();
+  g.font = `112px ${FT}`; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  g.lineJoin = 'round'; g.lineWidth = 11;
+  for (let i = 5; i >= 1; i--) { g.fillStyle = C.ink; g.fillText(letter, 2 + i, 40 + i); }
+  g.strokeText(letter, 2, 40);
+  g.fillStyle = C.red; g.fillText(letter, 2, 40);
+  g.restore();
+}
+
+const ZASP = (() => { const r = rng(99), P = []; const N = 22; for (let i = 0; i < N; i++) { const a = i / N * TAU + (r() - 0.5) * 0.12; const out = i % 2 === 0; const k = out ? 1 + r() * 0.35 : 0.66 + r() * 0.08; P.push([Math.cos(a) * 310 * k, Math.sin(a) * 196 * k]); } return P; })();
+function zas(g, x, y, s, t) {
+  if (s <= 0) return;
+  const step = Math.floor(t * 12);
+  g.save(); g.translate(x + (hsh(step, 1) - 0.5) * 5, y + (hsh(step, 2) - 0.5) * 5); g.rotate(-0.13); g.scale(s, s);
+  // estallido
+  g.save(); g.translate(MIS.x, MIS.y); poly(g, ZASP); g.fillStyle = C.red; g.fill();
+  g.save(); g.clip(); g.fillStyle = C.yellow; dots(g, -460, -280, 460, 280, 15, PI / 4, (xx, yy) => 5.5 * cl(1 - Math.hypot(xx / 310, yy / 196) * 0.9)); g.restore();
+  g.restore();
+  poly(g, ZASP); g.lineJoin = 'miter'; g.miterLimit = 6; g.lineWidth = 8; g.strokeStyle = C.ink; g.stroke();
+  // letras con volumen
+  g.font = `250px ${FT}`; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  const txt = '¡ZAS!', by = 84;
+  g.lineJoin = 'round';
+  for (let i = 16; i >= 1; i--) { g.fillStyle = C.ink; g.fillText(txt, i * 0.9, by + i * 0.9); g.lineWidth = 16; g.strokeStyle = C.ink; g.strokeText(txt, i * 0.9, by + i * 0.9); }
+  g.lineWidth = 16; g.strokeStyle = C.ink; g.strokeText(txt, 0, by);
+  const gr = g.createLinearGradient(0, by - 180, 0, by);
+  gr.addColorStop(0, C.white); gr.addColorStop(0.42, C.yellowL); gr.addColorStop(0.43, C.yellow); gr.addColorStop(1, C.orange);
+  g.fillStyle = gr; g.fillText(txt, 0, by);
+  g.restore();
+}
+
+// Arcos de velocidad del giro de la viñeta sur (en coordenadas de la viñeta, sin girar).
+function spinLines(g, cx, cy, rho, amt) {
+  if (amt <= 0.01) return;
+  g.save(); g.fillStyle = C.white; g.globalAlpha = Math.min(1, amt * 1.4);
+  const R = [250, 330, 420, 520, 610];
+  R.forEach((r, j) => {
+    const a1 = rho + j * 1.9 + 0.4, a0 = a1 - 1.25 * amt;
+    const P = []; for (let i = 0; i <= 30; i++) { const a = a0 + (a1 - a0) * i / 30; P.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); }
+    ribbon(g, P, (u) => 4.2 * Math.sin(PI * Math.pow(u, 0.7)));
+    const Q = []; for (let i = 0; i <= 30; i++) { const a = a0 + PI + (a1 - a0) * i / 30; Q.push([cx + Math.cos(a) * (r + 30), cy + Math.sin(a) * (r + 30)]); }
+    ribbon(g, Q, (u) => 3.2 * Math.sin(PI * Math.pow(u, 0.7)));
+  });
+  g.restore();
+}
+
+// Leve acercamiento de cámara mientras las viñetas están quietas.
+const zoomAt = (t) => 1 + 0.04 * eio(seg(t, T.split1, T.shrink0));
+// Destellos que titilan (periódicos en DUR) en el marco local de cada viñeta.
+const SPARK = [[-330, -372, 2, 0.2], [160, -330, 3, 1.7], [330, -120, 2, 3.1], [-262, -40, 4, 4.4], [40, 40, 3, 2.3], [-400, 140, 2, 5.6], [372, 96, 4, 0.9]];
+function sparkles(g, t) {
+  g.fillStyle = C.yellowL;
+  for (const [x, y, n, ph] of SPARK) {
+    const s = 7 + 8 * (0.5 + 0.5 * Math.sin(TAU * n * t / DUR + ph));
+    g.beginPath();
+    for (let j = 0; j < 8; j++) { const a = j / 8 * TAU, rr = j % 2 ? s * 0.18 : s * (j % 4 === 0 ? 1.25 : 0.8); g.lineTo(x + Math.sin(a) * rr, y - Math.cos(a) * rr); }
+    g.closePath(); g.fill();
+  }
+}
+function northContent(g, cx, cy, gOff, z, t) {
+  g.save(); g.translate(cx, cy); g.scale(z, z);
+  blit(g, SKY, 0, 0); sparkles(g, t);
+  blit(g, GROUND, 0, gOff);
+  g.restore();
+}
+function southContent(g, cx, cy, rho, z, t) {
+  g.save(); g.translate(cx, cy); g.rotate(rho); g.scale(z, z);
+  blit(g, SKY, 0, 0); sparkles(g, t + 1.3); blit(g, GROUND, 0, 0);
+  g.translate(MOONL.x, MOONL.y); g.rotate(PI); blit(g, MOON, 0, 0, MR / MR_SPL);
+  g.restore();
+}
+// Líneas de movimiento blancas detrás de la Luna cuando viaja.
+function moonTrail(g, x, y, r, dx, dy, v) {
+  if (v < 60) return;
+  const d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d, nx = -uy, ny = ux;
+  const len = Math.min(300, v * 0.32), a = cl((v - 60) / 300);
+  g.save(); g.globalAlpha = a; g.fillStyle = C.white;
+  for (const k of [-0.62, -0.1, 0.45]) {
+    const off = k * r, back = Math.sqrt(r * r - off * off) * 0.92;
+    const x0 = x + nx * off - ux * back, y0 = y + ny * off - uy * back;
+    const L = len * (1 - Math.abs(k) * 0.5);
+    ribbon(g, [[x0, y0], [x0 - ux * L * 0.5, y0 - uy * L * 0.5], [x0 - ux * L, y0 - uy * L]], (u) => 4.5 * (1 - u));
+  }
+  g.restore();
+}
+
+const BURSTP = (() => { const r = rng(4), P = []; const N = 26; for (let i = 0; i < N; i++) { const a = i / N * TAU; const k = i % 2 ? 0.62 + r() * 0.1 : 1 + r() * 0.3; P.push([Math.cos(a) * k, Math.sin(a) * k]); } return P; })();
+function impact(g, x, y, r) {
+  if (r <= 1) return;
+  const P = BURSTP.map(([a, b]) => [x + a * r, y + b * r]);
+  poly(g, P); g.fillStyle = C.white; g.fill();
+  g.save(); g.clip(); g.fillStyle = C.yellow; dots(g, x - r * 1.4, y - r * 1.4, x + r * 1.4, y + r * 1.4, 13, PI / 4, (xx, yy) => 5.2 * cl((Math.hypot(xx - x, yy - y) / r - 0.55) / 0.6)); g.restore();
+  poly(g, P); g.lineJoin = 'miter'; g.lineWidth = 6; g.strokeStyle = C.ink; g.stroke();
+}
+
+function splashState(t) {
+  const A = { x: AC.x, y: AC.y, sc: 1, orbS: 1, nucS: 1, spin: 0, title: 1, bal: 0 };
+  if (t < T.balOut + 0.25) {
+    A.bal = t < T.balIn ? 0 : t < T.balOut ? eback(seg(t, T.balIn, T.balIn + 0.32), 2.2) : 1 - ein(seg(t, T.balOut, T.balOut + 0.2));
+  }
+  const m = seg(t, T.morph0, T.morph1);
+  A.orbS = 1 - eio(m); A.spin = 5 * ein(m);
+  A.nucS = t < T.pop ? lerp(1, 0.7, ein(seg(t, 2.15, T.pop))) : 0;
+  if (t >= T.titleOut0 && t < 7) A.title = 1 - seg(t, T.titleOut0, T.titleOut1);
+  if (t >= T.iris0) {
+    const u = eio(seg(t, 7.8, T.iris1));
+    const zz = zoomAt(t), mN = { x: NC.x + zz * MOONL.x, y: NC.y + zz * MOONL.y };
+    A.x = lerp(mN.x, AC.x, u); A.y = lerp(mN.y, AC.y, u); A.sc = lerp(0.5, 1, u);
+    A.orbS = eback(seg(t, 7.85, 8.6), 1.3); A.spin = -2.5 * Math.pow(1 - seg(t, 7.85, 8.6), 2); A.nucS = 1;
+    A.title = seg(t, T.titleIn0, T.titleIn1);
+  }
+  return A;
+}
+
+function frame(tIn) {
+  let t = ((tIn % DUR) + DUR) % DUR;
+  const g = ctx;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  g.fillStyle = C.paper; g.fillRect(0, 0, cv.width, cv.height);
+  // sacudida de cámara al golpe del ¡ZAS!
+  let sx = 0, sy = 0; const ts = t - T.zas;
+  if (ts > 0 && ts < 0.7) { const a = 13 * Math.exp(-ts * 7); sx = a * Math.sin(ts * 95); sy = a * 0.7 * Math.cos(ts * 71); }
+  g.setTransform(S, 0, 0, S, OX, OY);
+  g.save(); g.beginPath(); g.rect(0, 0, W, H); g.clip();
+  g.translate(sx, sy);
+  const A = splashState(t);
+
+  if (t < T.pop || t >= T.iris1) {
+    splashPage(g, t, A);
+  } else {
+    g.fillStyle = C.paper; g.fillRect(-40, -40, W + 80, H + 80);
+    const p = eio(seg(t, T.split0, T.split1));
+    const tr = lerp(W - 40, 1012, p), br = lerp(W - 40, 928, p);
+    const PL = [[40, 40], [tr, 40], [br, H - 40], [40, H - 40]];
+    const PR = [[tr + GUT, 40], [W - 40, 40], [W - 40, H - 40], [br + GUT, H - 40]];
+    const ncx = lerp(AC.x, NC.x, p), gOff = 520 * (1 - eout(seg(t, T.ground0, T.ground1)));
+    // --- viñeta izquierda (splash → norte)
+    g.save(); poly(g, PL); g.clip();
+    if (t < T.diss1) {
+      splashContent(g, t, A);
+      const R0 = lerp(0, 1440, eio(seg(t, T.diss0, T.diss1)));
+      const m = MASK.getContext('2d');
+      m.setTransform(1, 0, 0, 1, 0, 0); m.globalCompositeOperation = 'source-over'; m.clearRect(0, 0, MASK.width, MASK.height);
+      m.setTransform(S, 0, 0, S, OX, OY); m.translate(sx, sy);
+      northContent(m, ncx, NC.y, gOff, 1, t);
+      m.globalCompositeOperation = 'destination-in'; m.fillStyle = '#fff';
+      dots(m, 0, 0, W, H, 24, PI / 4, (x, y) => 18.2 * cl((R0 - Math.hypot(x - AC.x, y - AC.y)) / 280));
+      m.globalCompositeOperation = 'source-over';
+      g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(MASK, 0, 0); g.restore();
+    } else {
+      northContent(g, ncx, NC.y, gOff, zoomAt(t), t);
+    }
+    // impacto de la transformación
+    const fu = seg(t, T.pop - 0.02, T.pop + 0.32);
+    if (fu > 0 && fu < 1) impact(g, AC.x, AC.y, 330 * (fu < 0.6 ? eout(fu / 0.6) * 1.1 : 1.1 * (1 - ein((fu - 0.6) / 0.4))));
+    // Luna norte
+    const z = zoomAt(t);
+    const mpos = (tt) => { const u = eio(seg(tt, T.split0, T.split1)); return [lerp(AC.x, NC.x + z * MOONL.x, u), lerp(AC.y, NC.y + z * MOONL.y, u) - 80 * Math.sin(PI * u)]; };
+    const mv = eio(seg(t, T.split0, T.split1));
+    let [mx, my] = mpos(t);
+    let mr = lerp(MR_SPL, MR, mv) * z * eback(seg(t, T.pop, T.pop + 0.4), 2.0);
+    if (t > T.split0 && t < T.split1) { const a = mpos(t - 0.02), b = mpos(t + 0.02); moonTrail(g, mx, my, mr, b[0] - a[0], b[1] - a[1], Math.hypot(b[0] - a[0], b[1] - a[1]) / 0.04); }
+    mr *= 1 + 0.07 * Math.sin(PI * seg(t, T.moonGrow, T.shrink0)) ;
+    if (t >= T.shrink0) mr = lerp(MR * z, 44, ein(seg(t, T.shrink0, T.shrink1)));
+    if (t < T.iris0 + 0.12) blit(g, MOON, mx, my, mr / MR_SPL);
+    g.restore();
+    panelStroke(g, PL);
+    // --- viñeta derecha (sur)
+    let rho = PI;
+    if (p > 0) {
+      const an = eio(seg(t, T.antic0, T.flip0)) * (1 - seg(t, T.flip0, T.flip0 + 0.12));
+      const f = seg(t, T.flip0, T.flip1);
+      rho = PI - 0.16 * an + PI * eback(f, 1.15);
+      const scx = lerp(SC.x + 960, SC.x, p);
+      g.save(); poly(g, PR); g.clip();
+      southContent(g, scx, SC.y, rho, zoomAt(t), t);
+      spinLines(g, scx, SC.y, rho, Math.sin(PI * cl(f * 1.15)) * (f > 0 ? 1 : 0));
+      g.restore();
+      panelStroke(g, PR);
+      // cartelas
+      const cp = eback(seg(t, T.cap0, T.cap0 + 0.35), 1.6);
+      if (cp > 0) {
+        g.save(); g.translate(0, -130 * (1 - cp)); caption(g, 100, 70, 'HEMISFERIO NORTE'); caption(g, tr + GUT + 60, 70, 'HEMISFERIO SUR'); g.restore();
+      }
+    }
+    badge(g, NC.x + MOONL.x + 225, NC.y + MOONL.y - 120, 'D', eback(seg(t, T.badgeN, T.badgeN + 0.32), 2.2));
+    badge(g, SC.x + MOONL.x + 225, SC.y + MOONL.y - 120, 'C', eback(seg(t, T.badgeS, T.badgeS + 0.32), 2.2));
+    // ¡ZAS!
+    if (t >= T.zas && t < T.zasOut + 0.2) {
+      const zi = seg(t, T.zas, T.zas + 0.26), zo = seg(t, T.zasOut, T.zasOut + 0.18);
+      const zs = 0.75 * (zi < 1 ? lerp(2.4, 1, eback(zi, 1.6)) : 1) * (1 - ein(zo));
+      zas(g, 1000, 692, zs, t);
+    }
+    // iris que vuelve a abrir la página sobre el átomo
+    if (t >= T.iris0) {
+      const rI = lerp(0, 72, eout(seg(t, T.iris0, T.iris0 + 0.1))) + 1110 * eio(seg(t, T.iris0 + 0.08, T.iris1));
+      const icx = A.x, icy = A.y;
+      g.save(); g.beginPath(); g.arc(icx, icy, rI + 16, 0, TAU); g.fillStyle = C.paper; g.fill();
+      g.beginPath(); g.arc(icx, icy, rI, 0, TAU); g.clip();
+      splashPage(g, t, A);
+      g.restore();
+      g.beginPath(); g.arc(icx, icy, rI, 0, TAU); g.lineWidth = 8; g.strokeStyle = C.ink; g.stroke();
+    }
+  }
+  g.restore();
+  // grano del papel en multiplicar
+  g.setTransform(S, 0, 0, S, OX, OY);
+  g.globalCompositeOperation = 'multiply'; g.drawImage(PAPER, 0, 0, W, H);
+  g.globalCompositeOperation = 'source-over';
+}
+
+function layout() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cw = Math.round(window.innerWidth * dpr), ch = Math.round(window.innerHeight * dpr);
+  if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; }
+  S = Math.min(cw / W, ch / H); OX = (cw - W * S) / 2; OY = (ch - H * S) / 2;
+  if (MASK && (MASK.width !== cw || MASK.height !== ch)) MASK = mk(cw, ch);
+}
+
+window.__frame = (t) => { frame(t); };
+
+async function init() {
+  layout();
+  const link = document.getElementById('fuentes');
+  if (!link.sheet) await new Promise((r) => { link.addEventListener('load', r, { once: true }); link.addEventListener('error', r, { once: true }); setTimeout(r, 8000); });
+  try {
+    await Promise.all([
+      document.fonts.load(`96px ${FT}`, '¡ZAS! LA LUNA AL REVÉS DC'),
+      document.fonts.load(`700 36px ${FL}`, 'HEMISFERIO NORTE SUR LO QUE NO TE EXPLICARON EN CLASE · EPISODIO 1'),
+      document.fonts.load(`italic 700 74px ${FL}`, '¿AL REVÉS?'),
+    ]);
+    await document.fonts.ready;
+  } catch (e) { /* si fallan, se usan las de reserva */ }
+  PAPER = buildPaper();
+  buildSprites();
+  frame(0);
+  window.__listo = true;
+  if (!CAPTURA) {
+    const start = performance.now();
+    const loop = (now) => { frame(((now - start) / 1000) % DUR); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+    let rt = 0;
+    window.addEventListener('resize', () => {
+      layout();
+      clearTimeout(rt);
+      rt = setTimeout(() => { if (Math.abs(S - builtS) / builtS > 0.04) buildSprites(); }, 180);
+    });
+  }
+}
+init();
+})();
+</script>
+</body>
+</html>

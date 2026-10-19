@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Luna al revés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Space+Grotesk:wght@500;700&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Bloque 1 · «En el sur, la Luna se ve al revés» → ✓.
+// Una porción del planeta (corte de capas) con el ecuador encendido, una sola Luna creciente
+// y tres observadores (norte, ecuador, sur) con su panel: D, sonrisa y C.
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/isometrico.js';
+const { THREE, P, S, vR, vU, vW, Y, entra, latido, seg, eio, eo, eob, eib, sstep, clamp01 } = K;
+
+const E = await escena('luna');
+const M = (n) => E.marca(n);
+await K.cargarFuentes();
+
+const plato = K.crearPlato({ centro: [0.4, 0.58] });
+const suelo = K.crearSuelo(plato, { centro: [820, 760], radio: 1350 });
+const FY = suelo.y;
+const scene = plato.scene;
+
+// ---------------------------------------------------------------------
+// Planeta (eje = Y del mundo: el ecuador queda paralelo a la rejilla)
+// ---------------------------------------------------------------------
+const RE = 196;
+const EARTH_C = S(500, 470, 0);
+const LAT = { N: 50 * Math.PI / 180, Q: 0, S: -50 * Math.PI / 180 };
+const dirLat = (phi, az = 0) => new THREE.Vector3().addScaledVector(vR, Math.cos(phi) * Math.cos(az)).addScaledVector(K.vF, Math.cos(phi) * Math.sin(az)).addScaledVector(Y, Math.sin(phi)).normalize();
+const tierra = [];
+for (const k of ['N', 'Q', 'S']) tierra.push([dirLat(LAT[k]), 0.36]);
+const planeta = K.crearPlaneta({ radio: RE, detalle: 7, semilla: 0, corte: true, tierra });
+const earth = planeta.g;
+scene.add(earth);
+
+// anillo del ecuador (oro, con brillo aditivo)
+const eqR = RE * 1.085;
+const ecuador = new THREE.Group(); earth.add(ecuador);
+{
+  const t1 = new THREE.Mesh(new THREE.TorusGeometry(eqR, 3.2, 8, 160), K.basic(P.gold2));
+  t1.rotation.x = Math.PI / 2; ecuador.add(t1);
+  const t2 = new THREE.Mesh(new THREE.TorusGeometry(eqR, 11, 8, 160), K.basic(P.gold, { transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false }));
+  t2.rotation.x = Math.PI / 2; ecuador.add(t2);
+  ecuador.userData.glow = t2;
+}
+// eje N-S con puntas
+{
+  const rodMat = K.lam(P.lav);
+  for (const sgn of [1, -1]) {
+    const len = 52;
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, len, 8), rodMat);
+    rod.position.set(0, sgn * (RE + len / 2), 0); earth.add(rod);
+    const tip = new THREE.Mesh(new THREE.OctahedronGeometry(6.5, 0), rodMat);
+    tip.position.set(0, sgn * (RE + len + 2), 0); earth.add(tip);
+  }
+}
+
+// ---------------------------------------------------------------------
+// Luna: una sola, en el plano del ecuador, a la derecha
+// ---------------------------------------------------------------------
+const RM = 78;
+const MOON_C = EARTH_C.clone().addScaledVector(vR, 590);
+const luna = K.crearLuna({ radio: RM });
+scene.add(luna.g);
+// anillo de "fija" alrededor de la Luna (No cambia la Luna)
+const fijaG = new THREE.Group(); scene.add(fijaG);
+fijaG.quaternion.copy(plato.camera.quaternion);
+const fijaRing = new THREE.Mesh(new THREE.RingGeometry(RM + 22, RM + 26, 96), K.basic(P.cream, { transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+fijaG.add(fijaRing);
+const fijaTicks = [];
+for (let i = 0; i < 4; i++) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(4, 20), K.basic(P.cream, { transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+  const piv = new THREE.Group(); piv.rotation.z = i * Math.PI / 2; piv.add(m); fijaG.add(piv);
+  fijaTicks.push(m);
+}
+const flash = new THREE.Mesh(new THREE.RingGeometry(0.965, 1, 96), K.basic('#fff4dc', { transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+flash.quaternion.copy(plato.camera.quaternion);
+scene.add(flash);
+
+// peanas y anillos del suelo
+const ES = 166, MS = 104;
+const slabE = suelo.peana(EARTH_C.x, EARTH_C.z, ES);
+const slabM = suelo.peana(MOON_C.x, MOON_C.z, MS);
+suelo.anillo(0, EARTH_C.x, EARTH_C.z, ES - 34, 0.6);
+suelo.anillo(1, MOON_C.x, MOON_C.z, MS - 28, 0.55);
+suelo.anillo(2, EARTH_C.x, EARTH_C.z, ES - 70, 0.22);
+const drops = { E: K.crearRayas(scene, P.lav2, 30, 0.55), M: K.crearRayas(scene, P.lav2, 30, 0.55) };
+
+// ---------------------------------------------------------------------
+// Observadores (norte, ecuador, sur) con su pueblito
+// ---------------------------------------------------------------------
+const OBS = {
+  N: { abrigo: P.coral, abrigoD: '#d9705f', gorro: P.lav },
+  Q: { abrigo: '#f2c46d', abrigoD: '#d9a24f', gorro: P.lav2 },
+  S: { abrigo: P.mint, abrigoD: '#62bba3', gorro: P.peach },
+};
+const people = {};
+const R0 = planeta.R0;
+for (const k of ['N', 'Q', 'S']) {
+  const dir = dirLat(LAT[k]);
+  const pad = new THREE.Mesh(new THREE.CylinderGeometry(22, 25, 8, 6), K.lam(P.land2));
+  K.orient(pad, dir, vW); pad.position.copy(dir).multiplyScalar(R0 - 4); earth.add(pad);
+  const per = K.crearObservador({ ...OBS[k], escala: 1.5 });
+  const pos = dir.clone().multiplyScalar(R0 + 0.5);
+  const toMoon = MOON_C.clone().sub(EARTH_C.clone().add(pos)).normalize();
+  const tW = vW.clone().addScaledVector(dir, -vW.dot(dir)).normalize();
+  const tM = toMoon.clone().addScaledVector(dir, -toMoon.dot(dir));
+  const fwd = tM.length() > 0.05 ? tM.normalize().multiplyScalar(0.75).add(tW) : tW.clone();
+  K.orient(per.g, dir, fwd);
+  per.g.position.copy(pos);
+  earth.add(per.g);
+  per.dir = dir; per.pos = pos;
+  per.luz(0);
+  // anillo que se enciende a sus pies
+  const ring = new THREE.Mesh(new THREE.RingGeometry(30, 34, 48), K.basic(OBS[k].abrigo, { transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+  ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir);
+  ring.position.copy(dir).multiplyScalar(R0 + 2); earth.add(ring);
+  per.ring = ring;
+  people[k] = per;
+  // casas y árboles alrededor (en el lado que mira a la cámara)
+  const deco = k === 'N'
+    ? [['h', 0.34, 0.2, P.roofB, 22, 18, 16], ['t', 0.46, 0.05, 24, P.tree], ['t', -0.3, 0.16, 20, P.tree2], ['t', 0.2, 0.55, 18, P.tree]]
+    : k === 'S'
+      ? [['h', -0.34, 0.2, P.roofC, 20, 18, 15], ['t', -0.46, 0.05, 22, P.tree2], ['t', 0.3, 0.16, 19, P.tree], ['h', -0.12, 0.6, P.roofA, 18, 16, 14]]
+      : [['t', 0.3, 0.12, 20, P.tree], ['t', -0.3, 0.14, 22, P.tree2], ['h', 0.04, 0.62, P.roofB, 18, 16, 14]];
+  for (const d of deco) {
+    const dd = dirLat(LAT[k] + d[1], d[2]);
+    const obj = d[0] === 'h' ? K.crearCasa(d[3], d[4], d[5], d[6]) : K.crearArbol(d[3], d[4]);
+    K.orient(obj, dd, vW.clone().addScaledVector(vR, -0.35)); obj.position.copy(dd).multiplyScalar(R0 - 1.5); earth.add(obj);
+  }
+}
+
+// líneas de visión (ojo → Luna), flechas de "arriba" de cada cabeza y burbujas
+const sight = { N: K.crearRayas(scene, '#ffc4b3', 34), Q: K.crearRayas(scene, '#ffe2a6', 30), S: K.crearRayas(scene, '#a9eedb', 34) };
+const AR = { grosor: 5.6, punta: 28, anchoPunta: 14 };
+const cabezaArr = { N: K.crearFlecha(scene, P.coral, AR), Q: K.crearFlecha(scene, P.gold, AR), S: K.crearFlecha(scene, P.mint, AR) };
+const bubbleGeo = new THREE.IcosahedronGeometry(1, 1);
+
+// ---------------------------------------------------------------------
+// Paneles-pensamiento (sin palabras): ventana con el cielo de cada uno y una ficha D / ◡ / C
+// ---------------------------------------------------------------------
+const PANEL = {
+  N: { base: '#f8ddd0', side: '#d9a594', ink: '#3a2c43', accent: '#d9705f', letra: 'D', giro: 0 },
+  Q: { base: '#f7e6bf', side: '#d8bd85', ink: '#3d3222', accent: '#c99a3e', letra: '◡', giro: Math.PI / 2 },
+  S: { base: '#cfeee4', side: '#8fc5b5', ink: '#20393f', accent: '#2f9483', letra: 'C', giro: Math.PI },
+};
+const CW = 430, CH = 236, HR = 86, HX = -CW / 2 + 36 + HR, CT = 16;
+const CHIP = 118, CHX = CW / 2 - 40 - CHIP / 2;
+const TAU = Math.PI * 2;
+function skyTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, '#1f2350'); g.addColorStop(0.45, '#33366f'); g.addColorStop(0.72, '#6a5d9e'); g.addColorStop(0.9, '#d99aa0'); g.addColorStop(1, '#f2b99d');
+  x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+  const rnd = K.prng(99);
+  for (let i = 0; i < 30; i++) {
+    const sx = rnd() * 256, sy = rnd() * 150, r = 0.6 + rnd() * 1.3;
+    x.fillStyle = `rgba(255,250,240,${0.35 + rnd() * 0.6})`; x.beginPath(); x.arc(sx, sy, r, 0, TAU); x.fill();
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const SKY = skyTexture();
+function crescentGeo(r, k) {
+  const s = new THREE.Shape();
+  s.absarc(0, 0, r, Math.PI / 2, -Math.PI / 2, true);
+  s.absellipse(0, 0, k * r, r, -Math.PI / 2, Math.PI / 2, false);
+  return new THREE.ExtrudeGeometry(s, { depth: 3, bevelEnabled: true, bevelThickness: 1.2, bevelSize: 1.2, bevelSegments: 1, curveSegments: 12 });
+}
+function hillsGeo(rnd, y0, amp, n, R2) {
+  const ridge = [];
+  for (let i = 0; i <= n; i++) {
+    let px = -R2 + (i / n) * 2 * R2, py = y0 + (rnd() - 0.35) * amp;
+    const L = Math.hypot(px, py); if (L > R2) { px *= R2 / L; py *= R2 / L; }
+    ridge.push([px, py]);
+  }
+  const s = new THREE.Shape();
+  s.moveTo(ridge[0][0], ridge[0][1]);
+  for (let i = 1; i <= n; i++) s.lineTo(ridge[i][0], ridge[i][1]);
+  const a1 = Math.atan2(ridge[n][1], ridge[n][0]);
+  let a0 = Math.atan2(ridge[0][1], ridge[0][0]);
+  if (a0 > a1) a0 -= TAU;
+  s.absarc(0, 0, R2, a1, a0, true);
+  return new THREE.ShapeGeometry(s, 24);
+}
+function chipTexture(o, letra) {
+  const c = document.createElement('canvas'); c.width = c.height = 360;
+  const x = c.getContext('2d'); x.scale(360 / CHIP, 360 / CHIP);
+  x.fillStyle = o.ink; x.beginPath(); K.roundRectPath(x, 2, 2, CHIP - 4, CHIP - 4, 22); x.fill();
+  x.fillStyle = o.base; x.strokeStyle = o.base;
+  if (letra === '◡') {
+    x.lineWidth = 15; x.lineCap = 'round';
+    x.beginPath(); x.arc(CHIP / 2, CHIP * 0.36, CHIP * 0.3, Math.PI * 0.12, Math.PI * 0.88); x.stroke();
+  } else {
+    x.font = `700 ${CHIP * 0.74}px "Space Grotesk", Arial, sans-serif`; x.textAlign = 'center';
+    x.fillText(letra, CHIP / 2 + 1, CHIP * 0.76);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+function crearPanel(key) {
+  const o = PANEL[key];
+  const hx = HX + CW / 2, hy = CH / 2;
+  const placa = K.crearPlaca({
+    ancho: CW, alto: CH, radio: 26, grosor: CT, base: o.base, lado: o.side, hueco: { x: HX, r: HR },
+    dibujar(x, w, h) {
+      x.strokeStyle = o.ink + '24'; x.lineWidth = 1.4; x.beginPath(); K.roundRectPath(x, 11, 11, w - 22, h - 22, 17); x.stroke();
+      const sg = x.createRadialGradient(hx, hy, HR, hx, hy, HR + 16);
+      sg.addColorStop(0, o.ink + '30'); sg.addColorStop(1, o.ink + '00');
+      x.fillStyle = sg; x.beginPath(); x.arc(hx, hy, HR + 16, 0, TAU); x.fill();
+      x.strokeStyle = o.ink + '2c'; x.lineWidth = 3; x.beginPath(); x.arc(hx, hy, HR + 6, 0, TAU); x.stroke();
+      for (let i = 0; i < 48; i++) {
+        const a = i / 48 * TAU, big = i % 12 === 0;
+        const r0 = HR + 13, r1 = HR + (big ? 21 : 17);
+        x.strokeStyle = o.ink + (big ? '70' : '34'); x.lineWidth = big ? 2 : 1.2;
+        x.beginPath(); x.moveTo(hx + Math.cos(a) * r0, hy + Math.sin(a) * r0); x.lineTo(hx + Math.cos(a) * r1, hy + Math.sin(a) * r1); x.stroke();
+      }
+      // rebaje donde se apoya la ficha
+      const cx = CHX + w / 2, cy = h / 2;
+      x.fillStyle = o.ink + '14'; x.beginPath(); K.roundRectPath(x, cx - CHIP / 2 - 9, cy - CHIP / 2 - 9, CHIP + 18, CHIP + 18, 28); x.fill();
+      x.strokeStyle = o.ink + '22'; x.lineWidth = 1.5; x.stroke();
+    },
+  });
+  const g = placa.g;
+  const FRONT = placa.frente;
+  const view = new THREE.Group(); view.position.set(HX, 0, 0); g.add(view);
+  const content = new THREE.Group(); view.add(content);
+  const sky = new THREE.Mesh(new THREE.CircleGeometry(HR + 4, 48), new THREE.MeshBasicMaterial({ map: SKY }));
+  sky.position.z = -CT / 2 + 1; content.add(sky);
+  const rnd = K.prng(key === 'N' ? 5 : key === 'S' ? 6 : 8);
+  const far = new THREE.Mesh(hillsGeo(rnd, -34, 18, 7, HR + 3), K.basic('#4b4f8c')); far.position.z = -CT / 2 + 3; content.add(far);
+  const near = new THREE.Mesh(hillsGeo(rnd, -52, 16, 6, HR + 3), K.basic('#272b5a')); near.position.z = -CT / 2 + 5; content.add(near);
+  for (const [tx, ty, h] of [[-36, -44, 16], [-22, -48, 11], [42, -50, 13]]) {
+    const tr = new THREE.Mesh(new THREE.ConeGeometry(h * 0.34, h, 5), K.basic('#1d2149'));
+    tr.position.set(tx, ty + h / 2, -CT / 2 + 6); content.add(tr);
+  }
+  // la Luna tal como la ve este observador (con su cabeza arriba)
+  const mg = new THREE.Group(); content.add(mg);
+  const earthshine = new THREE.Mesh(new THREE.CircleGeometry(29, 28), K.basic('#3d4182', { transparent: true, opacity: 0.85 }));
+  earthshine.position.z = -CT / 2 + 6.5; mg.add(earthshine);
+  const halo = new THREE.Mesh(new THREE.CircleGeometry(58, 32), new THREE.MeshBasicMaterial({ map: K.GLOW, color: '#fff0c8', transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false }));
+  halo.position.z = -CT / 2 + 6.2; mg.add(halo);
+  const cres = new THREE.Mesh(crescentGeo(29, 0.28), new THREE.MeshLambertMaterial({ color: '#fff4dc', emissive: '#d8c8a8', flatShading: true }));
+  cres.position.z = -CT / 2 + 7; mg.add(cres);
+  if (key === 'N') mg.position.set(22, 20, 0);
+  else if (key === 'S') { mg.position.set(-22, 20, 0); mg.rotation.z = Math.PI; }
+  else { mg.position.set(0, 24, 0); mg.rotation.z = -Math.PI / 2; }
+  // ficha con la letra
+  const tex = { V: chipTexture(o, ''), L: chipTexture(o, o.letra) };   // vacía hasta su marca
+  const chip = new THREE.Mesh(new THREE.PlaneGeometry(CHIP, CHIP), new THREE.MeshBasicMaterial({ map: tex.V, transparent: true }));
+  chip.position.set(CHX, 0, FRONT + 0.6); g.add(chip);
+  const chipGlow = new THREE.Mesh(new THREE.PlaneGeometry(CHIP * 2.4, CHIP * 2.4), new THREE.MeshBasicMaterial({ map: K.GLOW, color: o.accent, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+  chipGlow.position.set(CHX, 0, FRONT + 0.3); g.add(chipGlow);
+  // indicador de giro alrededor de la ventana
+  const arco = K.crearArco(g, o.accent, { n: 40, grosor: 3.6, punta: 14, anchoPunta: 7 });
+  return { g, view, content, chip, chipGlow, tex, halo, cres, arco, o, FRONT };
+}
+const panels = { N: crearPanel('N'), Q: crearPanel('Q'), S: crearPanel('S') };
+const PANEL_POS = { N: [1556, 176, 0.14], Q: [1576, 456, 0.0], S: [1556, 736, -0.14] };
+const PANEL_K = 0.85;
+for (const k of ['N', 'Q', 'S']) {
+  const p = panels[k];
+  K.orientPlaca(p.g, PANEL_POS[k][2]);
+  p.base = S(PANEL_POS[k][0], PANEL_POS[k][1], 140);
+  p.g.position.copy(p.base);
+  scene.add(p.g);
+}
+const bubbles = {};
+for (const k of ['N', 'Q', 'S']) {
+  bubbles[k] = [];
+  for (let i = 0; i < 3; i++) { const m = new THREE.Mesh(bubbleGeo, K.lam(PANEL[k].base)); scene.add(m); bubbles[k].push(m); }
+}
+
+// narrador y veredicto
+const pres = K.presentador(plato, { x: 182, y: 158, veredicto: 'ok' });
+// etiquetas N / S en los polos
+const tags = { N: K.crearTag(plato, 'N'), S: K.crearTag(plato, 'S') };
+
+// ---------------------------------------------------------------------
+// Coreografía (función pura de t)
+// ---------------------------------------------------------------------
+const mV = M('verdad'), mF = M('fase'), mN = M('norte'), mS = M('sur'), mCab = M('cabeza'), mD = M('d'), mC = M('c'), mEq = M('ecuador'), mSon = M('sonrisa'), mTu = M('tu');
+const mTuF = E.marca('tu_fin', mTu + 0.2), DUR = E.duracion;
+// final quieto: las oscilaciones se apagan entre el final de «tú» y DUR − 0,3 s
+const Q0 = mTuF, Q1 = Math.max(mTuF + 0.1, DUR - 0.3);
+const quieto = (t) => 1 - sstep(Q0, Q1, t);
+// tiempo «frenado» (su derivada es quieto(t)): para marchas que deben pararse sin saltos
+function frenado(t) {
+  if (t <= Q0) return t;
+  const D = Q1 - Q0, u = Math.min(1, (t - Q0) / D);
+  return t - D * (u * u * u - 0.5 * u * u * u * u) - Math.max(0, t - Q1);
+}
+const _a = new THREE.Vector3(), _b = new THREE.Vector3();
+const ZAX = new THREE.Vector3(0, 0, 1), XL = new THREE.Vector3(1, 0, 0), YL = new THREE.Vector3(0, 1, 0);
+
+const CAM0 = S(735, 548, 0), CAM1 = S(960, 540, 0);
+function dibujar(t) {
+  plato.titilar(t);
+  const kc = eio(seg(t, mF + 0.75, mN - 0.15));   // se abre el plano entre «fase» y «norte»
+  plato.encuadre(CAM0.clone().lerp(CAM1, kc), 1.07 - 0.07 * kc);
+  pres.actualizar(t, E.energia(t), mV);
+
+  const qz = quieto(t);
+  // planeta flotando
+  const ec = EARTH_C.clone().addScaledVector(vU, 5 * Math.sin(t * 0.9) * qz);
+  earth.position.copy(ec);
+  earth.updateMatrixWorld(true);
+  planeta.actualizarCorte();
+  ecuador.userData.glow.material.opacity = 0.2 + 0.06 * Math.sin(t * 2.1) * qz;
+
+  // Luna: aparece en «fase»
+  const mc = MOON_C.clone().addScaledVector(vU, 6 * Math.sin(t * 0.9 + 1.1) * qz);
+  const kM = entra(t, mF, 0.6, 0.3);
+  const ms = eob(kM, 2.0);
+  luna.g.visible = ms > 0.002;
+  luna.g.scale.setScalar(Math.max(ms, 0.001));
+  luna.g.position.copy(mc).addScaledVector(vU, 46 * (1 - eo(kM)));
+  const fl = seg(t, mF - 0.1, mF + 0.6);
+  flash.visible = fl > 0 && fl < 1;
+  if (flash.visible) { flash.position.copy(mc).addScaledVector(vW, 120); flash.scale.setScalar(70 + 190 * eo(fl)); flash.material.opacity = 0.75 * Math.pow(1 - fl, 2); }
+  // «No cambia la Luna»: anillo de fijación
+  const kFix = eo(seg(t, mSon + 0.75, mSon + 1.25));
+  fijaG.position.copy(mc).addScaledVector(vW, 130);
+  fijaG.visible = kFix > 0.003;
+  fijaRing.material.opacity = 0.8 * kFix;
+  fijaG.scale.setScalar(1.25 - 0.25 * kFix);
+  for (const m of fijaTicks) { m.material.opacity = 0.9 * kFix; m.position.y = RM + 36 + 10 * (1 - kFix); }
+  fijaG.rotation.z = 0;
+
+  // observadores: se encienden en su marca
+  const kOn = {
+    N: eo(entra(t, mN, 0.45, 0.3)),
+    S: eo(entra(t, mS, 0.45, 0.3)),
+    Q: eo(entra(t, mEq, 0.4, 0.3)),
+  };
+  const pTu = latido(t, mTu, 0.75, 0.35);
+  for (const k of ['N', 'Q', 'S']) {
+    const p = people[k];
+    const pulse = k === 'N' ? latido(t, mD, 0.8, 0.3) * 0.5 : 0;
+    p.luz(0.18 + 0.82 * kOn[k], kOn[k] * (0.55 + 0.135 * Math.sin(t * 2 + (k === 'N' ? 0 : 2)) * qz) + pTu + pulse);
+    // señala la Luna
+    const point = kOn[k];
+    if (k === 'Q') { p.arms[1].rotation.x = -2.9 * point; p.arms[1].rotation.z = 0.12; }
+    else { p.arms[1].rotation.x = -1.95 * point - 0.05 * Math.sin(t * 2) * qz; p.arms[1].rotation.z = 0.12 + 0.25 * point; }
+    p.arms[0].rotation.x = 0.1 * Math.sin(t * 2 + 1) * qz;
+    p.cabeza.rotation.x = k === 'Q' ? -0.35 * point : -0.12 * point;
+    // destello del anillo de los pies al encenderse (y en «tú»)
+    const mOn = k === 'N' ? mN : k === 'S' ? mS : mEq;
+    const fl = seg(t, mOn - 0.25, mOn + 0.6), fl2 = seg(t, mTu - 0.25, mTu + 0.5);
+    const ff = fl > 0 && fl < 1 ? fl : fl2 > 0 && fl2 < 1 ? fl2 : -1;
+    p.ring.visible = ff >= 0;
+    if (ff >= 0) { p.ring.scale.setScalar(0.6 + 1.6 * eo(ff)); p.ring.material.opacity = 0.9 * Math.pow(1 - ff, 1.5); }
+  }
+
+  // líneas de visión
+  const march = (frenado(t) * 0.45) % 1;
+  const sightK = { N: seg(t, mN - 0.15, mN + 0.45), S: seg(t, mS - 0.15, mS + 0.45), Q: seg(t, mEq - 0.4, mEq + 0.05) };
+  for (const k of ['N', 'Q', 'S']) {
+    const p = people[k];
+    const eye = ec.clone().addScaledVector(p.dir, R0 + p.ojo);
+    const toM = mc.clone().sub(eye); const L = toM.length(); toM.normalize();
+    const end = eye.clone().addScaledVector(toM, L - RM - 18);
+    const a = eye.clone().addScaledVector(toM, k === 'Q' ? 30 : 24);
+    sight[k].poner(a, end, 0, eio(sightK[k]) * clamp01((ms - 0.3) / 0.4), 3.2, march);
+  }
+
+  // flechas de la cabeza: «cabeza» (N y S) y «tú» (las tres)
+  const kCab = eob(entra(t, mCab, 0.5, 0.25), 1.6) * (1 - eib(seg(t, mD - 0.9, mD - 0.5)));
+  const kTu = eob(entra(t, mTu, 0.45, 0.28), 1.6);
+  for (const k of ['N', 'Q', 'S']) {
+    const p = people[k];
+    const kk = Math.max(k === 'Q' ? 0 : kCab, kTu);
+    const a = ec.clone().addScaledVector(p.dir, R0 + p.alto + 12);
+    if (k === 'Q') a.addScaledVector(vU, 34).addScaledVector(p.dir, -40);   // separada de su línea de visión
+    const b = a.clone().addScaledVector(p.dir, k === 'Q' ? 70 : 112);
+    cabezaArr[k].poner(a, b, Math.min(1, kk), Math.min(1.2, 0.4 + 0.6 * kk));
+  }
+
+  // burbujas de pensamiento y paneles
+  const panelIn = {
+    N: entra(t, mN, 0.5, 0.1),
+    S: seg(t, mD + 0.45, mD + 0.95),
+    Q: seg(t, mEq - 0.42, mEq + 0.08),
+  };
+  const bubIn = { N: [mN - 0.05, mN + 0.25], S: [mD + 0.3, mD + 0.65], Q: [mEq - 0.5, mEq - 0.2] };
+  // las burbujas se funden (~0,4 s) cuando su panel ya está entero
+  const bubOut = { N: seg(t, mN + 0.5, mN + 0.9), S: seg(t, mD + 1.05, mD + 1.45), Q: seg(t, mEq + 0.15, mEq + 0.55) };
+  for (const k of ['N', 'Q', 'S']) {
+    const P0 = panels[k];
+    const ph = { N: 0, Q: 1.3, S: 2.6 }[k];
+    const s = eob(panelIn[k], 2.0);
+    P0.g.visible = s > 0.002;
+    P0.g.scale.setScalar(Math.max(0.001, s) * PANEL_K);
+    P0.g.position.copy(P0.base).addScaledVector(vU, 5 * Math.sin(1.6 * t + ph) * qz);
+    // burbujas
+    const p = people[k];
+    const head = ec.clone().addScaledVector(p.dir, R0 + p.alto + 10);
+    const tgt = P0.g.localToWorld(_a.set(-CW / 2 - 6, 0, 0));
+    const dirB = tgt.clone().sub(head).normalize();
+    for (let i = 0; i < 3; i++) {
+      const u = [34, 62, 98][i];
+      const off = k === 'Q' ? [-22, -30, -34][i] : (k === 'N' ? 1 : -1) * [6, 12, 14][i];   // las de Q, por debajo de su línea de visión
+      const pos = head.clone().addScaledVector(dirB, u).addScaledVector(vU, off);
+      const sIn = eob(seg(t, bubIn[k][0] + 0.1 * i, bubIn[k][1] + 0.1 * i), 2.2);
+      const sc = [6.5, 9.5, 13][i] * sIn * (1 - eio(bubOut[k]));
+      bubbles[k][i].visible = sc > 0.05;
+      bubbles[k][i].scale.setScalar(Math.max(sc, 0.001));
+      bubbles[k][i].position.copy(pos);
+    }
+  }
+  // giro de las ventanas: sur de D a C (termina en «c»), ecuador de D a sonrisa (termina en «sonrisa»)
+  const rS = eio(seg(t, mC - 0.62, mC));
+  const rQ = eio(seg(t, mSon - 0.62, mSon));
+  const giro = { N: 0, S: Math.PI * (1 - rS), Q: (Math.PI / 2) * (1 - rQ) };
+  const rr = { N: 0, S: rS, Q: rQ };
+  for (const k of ['N', 'Q', 'S']) {
+    const P0 = panels[k];
+    P0.view.rotation.z = giro[k];
+    // indicador de giro (desaparece al poco)
+    const out = k === 'S' ? seg(t, mC + 1.6, mC + 2.0) : k === 'Q' ? seg(t, mSon + 1.6, mSon + 2.0) : 1;
+    const span = P0.o.giro;
+    if (span > 0) P0.arco.poner(_a.set(HX, 0, P0.FRONT + 1), XL, YL, HR + 17, Math.PI / 2, Math.PI / 2 - span, rr[k], true, 1 - eib(out));
+    else P0.arco.poner(_a.set(HX, 0, P0.FRONT + 1), XL, YL, HR + 17, 0, 1, 0);
+    // ficha: vacía hasta su marca; se voltea y enseña su glifo (N en «d», S en «c», Q en «sonrisa»)
+    const flipT = (k === 'N' ? mD : k === 'S' ? mC : mSon) - 0.12;
+    const f = seg(t, flipT - 0.14, flipT + 0.14);
+    const sx = Math.abs(Math.cos(Math.PI * f));
+    const want = f >= 0.5 ? P0.tex.L : P0.tex.V;
+    if (P0.chip.material.map !== want) { P0.chip.material.map = want; P0.chip.material.needsUpdate = true; }
+    const pulse = k === 'N' ? latido(t, mD, 0.8, 0.3) : k === 'S' ? latido(t, mC, 0.8, 0.15) : latido(t, mSon, 0.8, 0.15);
+    P0.chip.scale.set(Math.max(0.001, sx) * (1 + 0.24 * pulse), 1 + 0.24 * pulse, 1);
+    P0.cres.scale.setScalar(1 + 0.18 * pulse);
+    P0.chipGlow.material.opacity = 0.55 * pulse; P0.chipGlow.visible = pulse > 0.005;
+    P0.halo.material.opacity = 0.35 + 0.4 * pulse;
+  }
+
+  // gotas al suelo, sombras de contacto y etiquetas
+  const eS = ec.clone().addScaledVector(Y, -(RE + 64));
+  drops.E.poner(eS, new THREE.Vector3(eS.x, slabE.y, eS.z), 0, 1, 1.6, (frenado(t) * 0.5) % 1, false);
+  const mB = mc.clone().addScaledVector(Y, -(RM + 30));
+  drops.M.poner(mB, new THREE.Vector3(mB.x, slabM.y, mB.z), 0, clamp01((ms - 0.2) / 0.3), 1.6, (frenado(t) * 0.5) % 1, false);
+  suelo.sombra(0, ec.x, ec.z, RE * 1.15, 0.55);
+  suelo.sombra(1, eS.x, eS.z, 40, 0.25);
+  suelo.sombra(2, mc.x, mc.z, 95 + 40 * (1 - ms), 0.42 * Math.min(1, ms + 0.3));
+  slabM.brillo(P.cream, 0.5 * latido(t, mF, 1.0, 0.1) + 0.6 * kFix * 0.5);
+  slabE.brillo(P.gold, 0.25);
+  const tn = plato.aPantalla(_b.copy(ec).addScaledVector(Y, RE + 96));
+  tags.N.poner(tn.x, tn.y, 1, 1);
+  const ts = plato.aPantalla(_b.copy(ec).addScaledVector(Y, -(RE + 96)));
+  tags.S.poner(ts.x, ts.y, 1, 1);
+
+  plato.render();
+}
+
+E.iniciar(dibujar);
+</script>
+</body>
+</html>

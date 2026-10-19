@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Luna al revés · plano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #082146; overflow: hidden; }
+  canvas { position: fixed; display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+// ---------------------------------------------------------------------------
+// Plano técnico (cianotipia): líneas blancas y cian sobre azul de Prusia, retícula
+// fina, cajetín, cotas, notas y vistas auxiliares. Canvas 2D vectorial en un marco
+// de 1920x1080. Lo fijo (papel, retícula, Tierra, observadores, planta, cajetín)
+// se dibuja una vez en una capa; lo que se traza en cada ciclo va encima.
+// Guion (10 s): el átomo narrador está donde irá la Luna → un compás traza la Luna
+// y las órbitas se cierran sobre ella → se trazan las líneas de visión del
+// observador norte (vista A) y del sur (vista B) → en A la Luna es una D; en B se
+// ve igual hasta que la vista gira 180° (su «arriba» es el contrario) y es una C →
+// el dibujo se borra y el átomo vuelve a abrirse.
+// ---------------------------------------------------------------------------
+const DUR = 10, W = 1920, H = 1080, PI = Math.PI, TAU = PI * 2, D2R = PI / 180;
+const CAPTURA = /captura/.test(location.search);
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const stat = document.createElement('canvas');
+const sctx = stat.getContext('2d');
+let g = ctx;          // contexto activo de los ayudantes de dibujo
+let S = 1;            // píxeles internos por unidad del marco 1920x1080
+
+// --- paleta ---------------------------------------------------------------------
+const INK = [236, 244, 255];     // tinta blanca
+const CY = [132, 210, 255];      // cian de construcción
+const GRID = [150, 198, 248];
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
+const COND = '"IBM Plex Sans Condensed", "Arial Narrow", sans-serif';
+
+// --- utilidades -----------------------------------------------------------------
+const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const eis = (x) => -(Math.cos(PI * x) - 1) / 2;
+const eoc = (x) => 1 - Math.pow(1 - x, 3);
+// progreso de ida y vuelta: se traza entre a y b, se «destraza» entre c y d
+const io = (t, a, b, c, d, ease = eis) => Math.min(ease(seg(t, a, b)), 1 - eis(seg(t, c, d)));
+function mulberry32(a) {
+  return () => {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// --- geometría de la lámina -----------------------------------------------------
+const FX0 = 60, FX1 = 1860, FY0 = 40, FY1 = 1040;     // recuadro interior
+const E = { x: 500, y: 470 }, RE = 175;               // Tierra (sección meridiana)
+const M = { x: 1430, y: 470 }, RM = 80;               // Luna
+const LAT_N = 40 * D2R, LAT_S = -35 * D2R;
+const surf = (lat) => ({ x: E.x + RE * Math.cos(lat), y: E.y - RE * Math.sin(lat) });
+const upv = (lat) => ({ x: Math.cos(lat), y: -Math.sin(lat) });
+const ON = surf(LAT_N), OS = surf(LAT_S), UN = upv(LAT_N), US = upv(LAT_S);
+const HEAD = 59;
+const EN = { x: ON.x + UN.x * HEAD, y: ON.y + UN.y * HEAD };   // ojo observador norte
+const ES = { x: OS.x + US.x * HEAD, y: OS.y + US.y * HEAD };   // ojo observador sur
+const VA = { x: 1010, y: 212 }, VB = { x: 1010, y: 728 }, RV = 118, RC = 64;
+const KT = 0.5;            // semieje del terminador (fracción del radio): creciente de ~25 %
+const BOX = 112, BOXX = 1238;
+
+// --- trazo progresivo y plumilla ---------------------------------------------------
+let pen = null, penXf = null;
+function setPen(x, y) {
+  if (penXf) { const q = penXf(x, y); x = q.x; y = q.y; }
+  pen = { x, y };
+}
+function stroke(c, a, w, dash) {
+  g.strokeStyle = rgba(c, a); g.lineWidth = w; g.setLineDash(dash || []);
+}
+function line(x1, y1, x2, y2) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+function lineP(x1, y1, x2, y2, p) {
+  if (p <= 0) return;
+  const x = lerp(x1, x2, p), y = lerp(y1, y2, p);
+  g.beginPath(); g.moveTo(x1, y1); g.lineTo(x, y); g.stroke();
+  if (p < 1) setPen(x, y);
+}
+function arcP(cx, cy, r, a0, a1, p) {
+  if (p <= 0) return;
+  const a = lerp(a0, a1, p);
+  g.beginPath(); g.arc(cx, cy, r, a0, a, a1 < a0); g.stroke();
+  if (p < 1) setPen(cx + r * Math.cos(a), cy + r * Math.sin(a));
+}
+function polyLen(pts) {
+  const L = [0];
+  for (let i = 1; i < pts.length; i++) L.push(L[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+  pts.L = L; return pts;
+}
+function polyP(pts, p, close) {
+  if (p <= 0) return;
+  if (!pts.L) polyLen(pts);
+  const tot = pts.L[pts.L.length - 1], lim = tot * Math.min(p, 1);
+  g.beginPath(); g.moveTo(pts[0].x, pts[0].y);
+  let ex = pts[0].x, ey = pts[0].y;
+  for (let i = 1; i < pts.length; i++) {
+    if (pts.L[i] <= lim) { g.lineTo(pts[i].x, pts[i].y); ex = pts[i].x; ey = pts[i].y; }
+    else {
+      const k = (lim - pts.L[i - 1]) / (pts.L[i] - pts.L[i - 1]);
+      ex = lerp(pts[i - 1].x, pts[i].x, k); ey = lerp(pts[i - 1].y, pts[i].y, k);
+      g.lineTo(ex, ey); break;
+    }
+  }
+  if (p >= 1 && close) g.closePath();
+  g.stroke();
+  if (p < 1) setPen(ex, ey);
+}
+function arrowHead(x, y, ang, len = 15, wid = 4.2) {
+  const c = Math.cos(ang), s = Math.sin(ang);
+  g.beginPath();
+  g.moveTo(x, y);
+  g.lineTo(x - len * c + wid * s, y - len * s - wid * c);
+  g.lineTo(x - len * c - wid * s, y - len * s + wid * c);
+  g.closePath(); g.fill();
+}
+function dot(x, y, r) { g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+function circle(x, y, r) { g.beginPath(); g.arc(x, y, r, 0, TAU); g.stroke(); }
+
+// --- texto ------------------------------------------------------------------------
+function font(o) {
+  g.font = `${o.w || 400} ${o.s || 16}px ${o.f || MONO}`;
+  if ('letterSpacing' in g) g.letterSpacing = (o.ls || 0) + 'px';
+}
+function txt(s, x, y, o = {}) {
+  font(o);
+  g.textAlign = o.al || 'left'; g.textBaseline = o.bl || 'alphabetic';
+  g.fillStyle = rgba(o.c || INK, o.a ?? 1);
+  g.fillText(s, x, y);
+}
+// Texto a máquina: p de 0 a 1 revela los caracteres; cursor de bloque mientras escribe.
+function typeT(s, x, y, p, o = {}) {
+  if (p <= 0) return;
+  font(o);
+  const full = g.measureText(s).width;
+  const x0 = o.al === 'right' ? x - full : o.al === 'center' ? x - full / 2 : x;
+  const n = Math.min(s.length, Math.ceil(p * s.length));
+  const sub = s.slice(0, n);
+  g.textAlign = 'left'; g.textBaseline = o.bl || 'alphabetic';
+  g.fillStyle = rgba(o.c || INK, o.a ?? 1);
+  g.fillText(sub, x0, y);
+  if (p < 1) {
+    const w = g.measureText(sub).width, sz = o.s || 16;
+    g.fillStyle = rgba(CY, (o.a ?? 1) * 0.9);
+    g.fillRect(x0 + w + 2, y - sz * 0.78, sz * 0.55, sz * 0.92);
+  }
+}
+
+// --- papel: manchas de cianotipia y grano (procedural, con semilla) --------------------
+let mottle = null, grain = null;
+function buildPaperTextures() {
+  const w = 240, h = 135, rnd = mulberry32(1517);
+  const lat = [];
+  const GW = 26, GH = 16;
+  for (let i = 0; i < GW * GH * 3; i++) lat.push(rnd());
+  const vn = (x, y, o) => {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    const sx = xf * xf * (3 - 2 * xf), sy = yf * yf * (3 - 2 * yf);
+    const at = (a, b) => lat[o * GW * GH + ((b % GH) * GW + (a % GW))];
+    return lerp(lerp(at(xi, yi), at(xi + 1, yi), sx), lerp(at(xi, yi + 1), at(xi + 1, yi + 1), sx), sy);
+  };
+  mottle = document.createElement('canvas'); mottle.width = w; mottle.height = h;
+  const mc = mottle.getContext('2d'), id = mc.createImageData(w, h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let n = vn(x / 24, y / 24, 0) * 0.55 + vn(x / 10, y / 10, 1) * 0.3 + vn(x / 4.5, y / 4.5, 2) * 0.15;
+    n = (n - 0.5) * 2;
+    const i = (y * w + x) * 4;
+    if (n > 0) { id.data[i] = 150; id.data[i + 1] = 196; id.data[i + 2] = 255; id.data[i + 3] = Math.min(255, n * 34); }
+    else { id.data[i] = 2; id.data[i + 1] = 10; id.data[i + 2] = 30; id.data[i + 3] = Math.min(255, -n * 52); }
+  }
+  mc.putImageData(id, 0, 0);
+  grain = document.createElement('canvas'); grain.width = grain.height = 160;
+  const gc = grain.getContext('2d'), gd = gc.createImageData(160, 160), r2 = mulberry32(77);
+  for (let i = 0; i < 160 * 160; i++) {
+    const v = r2(), o = i * 4;
+    const light = v > 0.5;
+    gd.data[o] = light ? 200 : 0; gd.data[o + 1] = light ? 225 : 8; gd.data[o + 2] = light ? 255 : 26;
+    gd.data[o + 3] = Math.abs(v - 0.5) * 2 * 22;
+  }
+  gc.putImageData(gd, 0, 0);
+}
+
+// ===================================================================================
+//  CAPA FIJA
+// ===================================================================================
+function drawPaper() {
+  const gr = g.createRadialGradient(900, 470, 80, 960, 540, 1180);
+  gr.addColorStop(0, '#13427a'); gr.addColorStop(0.55, '#0f3567'); gr.addColorStop(1, '#082146');
+  g.fillStyle = gr; g.fillRect(-4, -4, W + 8, H + 8);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.drawImage(mottle, -4, -4, W + 8, H + 8);
+  // grano a resolución de pantalla
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+  g.fillStyle = g.createPattern(grain, 'repeat'); g.fillRect(0, 0, stat.width, stat.height);
+  g.restore();
+}
+
+function drawGrid() {
+  g.save();
+  g.beginPath(); g.rect(FX0, FY0, FX1 - FX0, FY1 - FY0); g.clip();
+  for (let pass = 0; pass < 2; pass++) {
+    g.beginPath();
+    for (let x = FX0; x <= FX1; x += 20) {
+      const major = (x - FX0) % 100 === 0;
+      if (major === !!pass) { g.moveTo(x + 0.5, FY0); g.lineTo(x + 0.5, FY1); }
+    }
+    for (let y = FY0; y <= FY1; y += 20) {
+      const major = (y - FY0) % 100 === 0;
+      if (major === !!pass) { g.moveTo(FX0, y + 0.5); g.lineTo(FX1, y + 0.5); }
+    }
+    stroke(GRID, pass ? 0.14 : 0.06, 1);
+    g.stroke();
+  }
+  g.restore();
+}
+
+function drawBorder() {
+  stroke(INK, 0.45, 1); g.strokeRect(22, 14, W - 44, H - 28);
+  stroke(INK, 0.88, 3); g.strokeRect(FX0, FY0, FX1 - FX0, FY1 - FY0);
+  // zonas: 1–8 arriba/abajo, A–E a los lados
+  stroke(INK, 0.45, 1);
+  const zw = (FX1 - FX0) / 8, zh = (FY1 - FY0) / 5;
+  for (let i = 0; i < 8; i++) {
+    const x = FX0 + zw * i;
+    if (i) { line(x, 14, x, FY0); line(x, FY1, x, H - 14); }
+    txt(String(i + 1), x + zw / 2, 32, { s: 12, a: 0.55, al: 'center' });
+    txt(String(i + 1), x + zw / 2, H - 21, { s: 12, a: 0.55, al: 'center' });
+  }
+  for (let j = 0; j < 5; j++) {
+    const y = FY0 + zh * j, L = 'ABCDE'[j];
+    if (j) { line(22, y, FX0, y); line(FX1, y, W - 22, y); }
+    txt(L, 41, y + zh / 2 + 4, { s: 12, a: 0.55, al: 'center' });
+    txt(L, W - 41, y + zh / 2 + 4, { s: 12, a: 0.55, al: 'center' });
+  }
+  // marcas de centrado
+  stroke(INK, 0.9, 3);
+  line(W / 2, 14, W / 2, FY0 + 14); line(W / 2, FY1 - 14, W / 2, H - 14);
+  line(22, H / 2, FX0 + 14, H / 2); line(FX1 - 14, H / 2, W - 22, H / 2);
+}
+
+function centerMark(x, y, r, a = 0.8) {
+  stroke(INK, a, 1.2);
+  line(x - r, y, x - 3, y); line(x + 3, y, x + r, y);
+  line(x, y - r, x, y - 3); line(x, y + 3, x, y + r);
+}
+
+const DASHDOT = [30, 6, 4, 6];
+
+function drawEarth() {
+  // meridianos (semielipses) y paralelos
+  stroke(INK, 0.22, 1);
+  for (const lon of [30, 60]) {
+    g.beginPath(); g.ellipse(E.x, E.y, RE * Math.sin(lon * D2R), RE, 0, 0, TAU); g.stroke();
+  }
+  for (const lat of [20, 40, 60, 80]) {
+    const dy = RE * Math.sin(lat * D2R), hw = RE * Math.cos(lat * D2R);
+    line(E.x - hw, E.y - dy, E.x + hw, E.y - dy);
+    line(E.x - hw, E.y + dy, E.x + hw, E.y + dy);
+  }
+  // contorno, con un leve halo de tinta
+  stroke(INK, 0.08, 7); circle(E.x, E.y, RE);
+  stroke(INK, 0.95, 2.6); circle(E.x, E.y, RE);
+  // ecuador y eje (línea de trazo y punto)
+  stroke(INK, 0.6, 1.2, DASHDOT);
+  line(300, E.y, M.x + RM + 40, E.y);
+  line(E.x, E.y - RE - 52, E.x, E.y + RE + 52);
+  g.setLineDash([]);
+  centerMark(E.x, E.y, 10);
+  // polos
+  for (const [lbl, y] of [['N', E.y - RE - 70], ['S', E.y + RE + 70]]) {
+    stroke(INK, 0.9, 1.6); circle(E.x, y, 17);
+    txt(lbl, E.x, y + 6.5, { s: 19, w: 600, al: 'center' });
+  }
+  // radios a los observadores (construcción) y cotas de latitud
+  stroke(CY, 0.55, 1, [6, 5]);
+  line(E.x, E.y, ON.x, ON.y); line(E.x, E.y, OS.x, OS.y);
+  g.setLineDash([]);
+  g.fillStyle = rgba(INK, 0.85);
+  stroke(INK, 0.85, 1.1);
+  const ra = 96;
+  g.beginPath(); g.arc(E.x, E.y, ra, -LAT_N + 0.02, -0.02); g.stroke();
+  arrowHead(E.x + ra * Math.cos(-0.005), E.y + ra * Math.sin(-0.005), PI / 2, 12, 3.6);
+  arrowHead(E.x + ra * Math.cos(-LAT_N), E.y + ra * Math.sin(-LAT_N), -PI / 2 - LAT_N, 12, 3.6);
+  g.beginPath(); g.arc(E.x, E.y, ra, 0.02, -LAT_S - 0.02); g.stroke();
+  arrowHead(E.x + ra, E.y, -PI / 2, 12, 3.6);
+  arrowHead(E.x + ra * Math.cos(-LAT_S), E.y + ra * Math.sin(-LAT_S), PI / 2 - LAT_S, 12, 3.6);
+  txt('40°', E.x + 122 * Math.cos(-LAT_N / 2), E.y + 122 * Math.sin(-LAT_N / 2) + 6, { s: 17, w: 500, al: 'center' });
+  txt('35°', E.x + 122 * Math.cos(-LAT_S / 2), E.y + 122 * Math.sin(-LAT_S / 2) + 6, { s: 17, w: 500, al: 'center' });
+  // hemisferios
+  txt('HEMISFERIO NORTE', 346, E.y - 16, { s: 13, a: 0.7, ls: 0.5 });
+  txt('HEMISFERIO SUR', 346, E.y + 28, { s: 13, a: 0.7, ls: 0.5 });
+  txt('ECUADOR', 776, E.y - 9, { s: 13, a: 0.6, ls: 1 });
+  // cota del diámetro
+  const dx = 262;
+  stroke(INK, 0.55, 1);
+  line(E.x - 12, E.y - RE, dx - 12, E.y - RE);
+  line(E.x - 12, E.y + RE, dx - 12, E.y + RE);
+  stroke(INK, 0.85, 1.1);
+  line(dx, E.y - RE + 2, dx, E.y + RE - 2);
+  g.fillStyle = rgba(INK, 0.85);
+  arrowHead(dx, E.y - RE, -PI / 2); arrowHead(dx, E.y + RE, PI / 2);
+  g.save(); g.translate(dx - 10, E.y); g.rotate(-PI / 2);
+  txt('TIERRA  Ø 12 742 km', 0, 0, { s: 16, w: 500, al: 'center', ls: 0.5 });
+  g.restore();
+}
+
+// Figura de escala (observador): pictograma de trazo grueso, de pie sobre la
+// superficie y con la cabeza hacia su cénit.
+function observer(o, u) {
+  const v = { x: -u.y, y: u.x };
+  const P = (a, b) => ({ x: o.x + u.x * a + v.x * b, y: o.y + u.y * a + v.y * b });
+  const path = (w, ...q) => {
+    g.lineWidth = w; g.beginPath(); g.moveTo(q[0].x, q[0].y);
+    for (const r of q.slice(1)) g.lineTo(r.x, r.y);
+    g.stroke();
+  };
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  g.strokeStyle = rgba(INK, 0.97);
+  path(4.6, P(2, -6), P(27, -2.6)); path(4.6, P(2, 6), P(27, 2.6));        // piernas
+  path(8.5, P(29, 0), P(47, 0));                                            // tronco
+  path(3.8, P(47, -6.5), P(31, -10)); path(3.8, P(47, 6.5), P(31, 10));     // brazos
+  const h = P(HEAD, 0);
+  g.fillStyle = rgba(INK, 0.97); dot(h.x, h.y, 7);
+  g.lineCap = 'butt'; g.lineJoin = 'miter';
+  // ARRIBA (cénit local)
+  const a0 = P(HEAD + 17, 0), a1 = P(HEAD + 76, 0);
+  stroke(CY, 0.95, 1.6); line(a0.x, a0.y, a1.x, a1.y);
+  g.fillStyle = rgba(CY, 0.95); arrowHead(a1.x, a1.y, Math.atan2(u.y, u.x), 13, 4);
+  return a1;
+}
+function drawObservers() {
+  const tn = observer(ON, UN), ts = observer(OS, US);
+  txt('ARRIBA', tn.x + 2, tn.y - 10, { s: 13, w: 500, c: CY, ls: 1 });
+  txt('ARRIBA', ts.x - 4, ts.y + 22, { s: 13, w: 500, c: CY, ls: 1, al: 'right' });
+}
+
+function sunSym(x, y, r = 11) {
+  stroke(INK, 0.85, 1.4); circle(x, y, r);
+  g.fillStyle = rgba(INK, 0.9); dot(x, y, 2.8);
+}
+function drawSunField() {
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) sunSym(1662 + i * 56, 448 + j * 50);
+  txt('LUZ SOLAR', 1718, 410, { s: 15, w: 600, al: 'center', ls: 1.5 });
+  txt('SALE DEL PLANO', 1718, 540, { s: 12, a: 0.75, al: 'center', ls: 1 });
+}
+
+// Planta (vista desde el polo norte) con la línea de corte 1–1.
+function drawPlan() {
+  const x0 = 1450, y0 = 76, x1 = 1820, y1 = 334;
+  stroke(INK, 0.7, 1.2); g.strokeRect(x0, y0, x1 - x0, y1 - y0);
+  line(x0, y0 + 26, x1, y0 + 26);
+  txt('PLANTA · DESDE EL POLO N', x0 + 10, y0 + 18, { s: 12, w: 600, ls: 1 });
+  txt('S/E', x1 - 10, y0 + 18, { s: 12, a: 0.7, al: 'right' });
+  const P = { x: 1586, y: 218 }, R = 90, re = 19, rm = 9;
+  // órbita
+  stroke(INK, 0.5, 1, [16, 4, 3, 4]); circle(P.x, P.y, R); g.setLineDash([]);
+  // sentido de giro
+  g.fillStyle = rgba(INK, 0.6);
+  const ar = 150 * D2R; arrowHead(P.x + R * Math.cos(ar), P.y - R * Math.sin(ar), PI + (PI / 2 - ar) + PI, 10, 3.2);
+  // Tierra: noche rayada (lado opuesto al Sol, que llega por la derecha)
+  const hatchHalf = (cx, cy, r, sp) => {
+    g.save(); g.beginPath(); g.arc(cx, cy, r, PI / 2, PI * 1.5); g.closePath(); g.clip();
+    stroke(INK, 0.55, 1);
+    for (let k = -2 * r; k < 2 * r; k += sp) line(cx + k - r, cy - r, cx + k + r, cy + r);
+    g.restore();
+  };
+  hatchHalf(P.x, P.y, re, 4);
+  stroke(INK, 0.95, 1.8); circle(P.x, P.y, re);
+  line(P.x, P.y - re, P.x, P.y + re);
+  txt('N', P.x + 6, P.y + 4, { s: 10, w: 600, a: 0.9 });
+  // Luna a 55° del Sol (creciente)
+  const el = 55 * D2R, Mx = P.x + R * Math.cos(el), My = P.y - R * Math.sin(el);
+  hatchHalf(Mx, My, rm, 3);
+  stroke(INK, 0.95, 1.6); circle(Mx, My, rm);
+  line(Mx, My - rm, Mx, My + rm);
+  // rayos solares
+  g.fillStyle = rgba(INK, 0.8); stroke(INK, 0.8, 1.1);
+  for (let k = 0; k < 4; k++) {
+    const y = 150 + k * 46;
+    line(1806, y, 1736, y); arrowHead(1730, y, PI, 11, 3.4);
+  }
+  txt('SOL', 1806, 132, { s: 12, w: 600, al: 'right', ls: 1.5 });
+  // línea de corte 1–1 (trazo grueso en los extremos)
+  const u = { x: Math.cos(el), y: -Math.sin(el) }, n = { x: Math.sin(el), y: Math.cos(el) };
+  const A = { x: P.x - u.x * 48, y: P.y - u.y * 48 }, B = { x: P.x + u.x * 116, y: P.y + u.y * 116 };
+  stroke(INK, 0.6, 1, [12, 4, 3, 4]); line(A.x, A.y, B.x, B.y); g.setLineDash([]);
+  stroke(INK, 0.95, 3.2);
+  line(A.x, A.y, A.x + u.x * 14, A.y + u.y * 14);
+  line(B.x, B.y, B.x - u.x * 14, B.y - u.y * 14);
+  g.fillStyle = rgba(INK, 0.95); stroke(INK, 0.95, 1.4);
+  for (const Q of [A, B]) {
+    const T = { x: Q.x + n.x * 26, y: Q.y + n.y * 26 };
+    line(T.x, T.y, Q.x + n.x * 6, Q.y + n.y * 6);
+    arrowHead(Q.x + n.x * 2, Q.y + n.y * 2, Math.atan2(-n.y, -n.x), 10, 3.6);
+    txt('1', T.x + n.x * 10, T.y + n.y * 10 + 5, { s: 14, w: 600, al: 'center' });
+  }
+  txt('LUNA', Mx - 15, My + 4, { s: 11, w: 500, a: 0.85, al: 'right' });
+}
+
+function drawNotes() {
+  const x = 100, y = 768;
+  stroke(INK, 0.6, 1); line(x, y - 4, x + 440, y - 4);
+  txt('NOTAS', x, y + 18, { s: 15, w: 600, ls: 2 });
+  const L = [
+    ['1.', 'MISMA LUNA, MISMO INSTANTE.'],
+    ['2.', 'EL OBSERVADOR SUR ESTÁ GIRADO 180°'],
+    ['',   'RESPECTO AL NORTE: SU «ARRIBA» ES OTRO.'],
+    ['3.', '    LUZ SOLAR DESDE FUERA DEL PLANO.'],
+  ];
+  L.forEach(([n, s], i) => {
+    const yy = y + 46 + i * 23;
+    txt(n, x, yy, { s: 14, a: 0.85 });
+    txt(s, x + 28, yy, { s: 14, a: 0.85 });
+  });
+  sunSym(x + 38, y + 46 + 3 * 23 - 5, 7.5);
+}
+
+// Átomo (logotipo del cajetín): órbitas fijas; los electrones se mueven en la capa dinámica.
+const LOGO = { x: 1392, y: 806 };
+const ORB = [
+  { tilt: 0, k: 5, ph: 0.1 },
+  { tilt: 60 * D2R, k: -5, ph: 2.2 },
+  { tilt: -60 * D2R, k: 5, ph: 4.1 },
+];
+function drawTitleBlock() {
+  const x0 = 1340, y0 = 742, x1 = 1820, y1 = 892, xl = 1444;
+  stroke(INK, 0.95, 2.4); g.strokeRect(x0, y0, x1 - x0, y1 - y0);
+  stroke(INK, 0.75, 1.1);
+  line(xl, y0, xl, y1);
+  line(xl, y0 + 26, x1, y0 + 26);
+  line(xl, y0 + 96, x1, y0 + 96);
+  const cw = (x1 - xl) / 4;
+  for (let i = 1; i < 4; i++) line(xl + cw * i, y0 + 96, xl + cw * i, y1);
+  txt('LO QUE NO TE EXPLICARON EN CLASE', xl + 12, y0 + 18, { s: 12.5, w: 500, ls: 1.6, a: 0.85 });
+  txt('LA LUNA AL REVÉS', xl + 12, y0 + 77, { f: COND, s: 41, w: 600, ls: 1 });
+  const cells = [['EPISODIO', '01'], ['ESCALA', 'S/E'], ['DIBUJÓ', 'ÁTOMO'], ['HOJA', '1 DE 1']];
+  cells.forEach(([l, v], i) => {
+    txt(l, xl + cw * i + 9, y0 + 113, { s: 10, a: 0.65, ls: 1 });
+    txt(v, xl + cw * i + 9, y0 + 139, { s: 17, w: 600 });
+  });
+  // logotipo: átomo
+  stroke(INK, 0.85, 1.2);
+  for (const o of ORB) { g.beginPath(); g.ellipse(LOGO.x, LOGO.y, 40, 13, o.tilt, 0, TAU); g.stroke(); }
+  stroke(INK, 0.9, 1.4); circle(LOGO.x, LOGO.y, 6.5);
+  g.save(); g.beginPath(); g.arc(LOGO.x, LOGO.y, 6.5, 0, TAU); g.clip();
+  stroke(INK, 0.8, 1); for (let k = -16; k < 16; k += 3) line(LOGO.x + k - 8, LOGO.y - 8, LOGO.x + k + 8, LOGO.y + 8);
+  g.restore();
+  txt('NARRADOR', LOGO.x, y1 - 16, { s: 10, a: 0.65, al: 'center', ls: 1.2 });
+}
+
+function drawFigTitle() {
+  txt('SECCIÓN 1–1', 100, 98, { f: COND, s: 34, w: 600, ls: 2 });
+  stroke(INK, 0.9, 2); line(100, 108, 290, 108);
+  stroke(INK, 0.9, 1); line(100, 113, 290, 113);
+  txt('MERIDIANA TIERRA–LUNA · S/E', 100, 136, { s: 13, a: 0.75, ls: 1 });
+}
+
+// Estado «a lápiz» de las vistas y de las cajas: se entintan en cada ciclo.
+function drawViewConstruction() {
+  for (const V of [VA, VB]) {
+    stroke(CY, 0.3, 1); circle(V.x, V.y, RV);
+    stroke(CY, 0.16, 1); circle(V.x, V.y, RV - 13);
+    g.beginPath();
+    for (let k = 0; k < 12; k++) {
+      const a = k * TAU / 12;
+      g.moveTo(V.x + Math.cos(a) * RV, V.y + Math.sin(a) * RV);
+      g.lineTo(V.x + Math.cos(a) * (RV - 13), V.y + Math.sin(a) * (RV - 13));
+    }
+    stroke(CY, 0.3, 1); g.stroke();
+    stroke(CY, 0.14, 1, [4, 6]);
+    line(V.x - RV + 16, V.y, V.x + RV - 16, V.y); line(V.x, V.y - RV + 16, V.x, V.y + RV - 16);
+    circle(V.x, V.y, RC);
+    stroke(CY, 0.32, 1, [6, 5]);
+    g.strokeRect(BOXX - BOX / 2, V.y - BOX / 2, BOX, BOX);
+    g.setLineDash([]);
+  }
+}
+
+function buildStatic() {
+  stat.width = cv.width; stat.height = cv.height;
+  g = sctx;
+  g.setTransform(S, 0, 0, S, 0, 0);
+  drawPaper(); drawGrid(); drawBorder();
+  drawViewConstruction();
+  drawEarth(); drawObservers(); drawSunField(); drawPlan();
+  drawNotes(); drawTitleBlock(); drawFigTitle();
+  g.setLineDash([]);
+  g = ctx;
+}
+
+// ===================================================================================
+//  CAPA DINÁMICA
+// ===================================================================================
+// Cráteres de la Luna (con semilla)
+const CRATERS = (() => {
+  const r = mulberry32(2024), out = [];
+  while (out.length < 7) {
+    const a = r() * TAU, d = Math.sqrt(r()) * 0.72 * RM, rr = 5 + r() * 12;
+    if (d + rr > RM - 6) continue;
+    out.push({ x: Math.cos(a) * d, y: Math.sin(a) * d, r: rr });
+  }
+  return out;
+})();
+
+function atomMoon(t) {
+  const m = eio(seg(t, 1.0, 2.1)) - eio(seg(t, 8.8, 9.8));       // 0 átomo · 1 Luna
+  const fo = 1 - eis(seg(t, 8.6, 9.2));
+  // compás que traza la Luna
+  const pc = eis(seg(t, 0.9, 2.0)), fc = 1 - seg(t, 2.1, 2.6);
+  if (pc > 0 && fc > 0) {
+    const a0 = -PI * 0.75, a = a0 + TAU * pc;
+    stroke(CY, 0.8 * fc, 1.2); arcP(M.x, M.y, RM, a0, a0 + TAU, pc);
+    const tx = M.x + RM * Math.cos(a), ty = M.y + RM * Math.sin(a);
+    stroke(CY, 0.65 * fc, 1); line(M.x, M.y, tx, ty);
+    g.fillStyle = rgba(CY, 0.9 * fc); dot(M.x, M.y, 3);
+    stroke(CY, 0.9 * fc, 1.2); circle(tx, ty, 4.5);
+  }
+  // órbitas → contorno de la Luna
+  const rx = lerp(116, RM, m), ry = lerp(36, RM, m);
+  ORB.forEach((o, i) => {
+    const a = i === 0 ? 1 : 1 - seg(m, 0.8, 1);
+    if (a <= 0) return;
+    stroke(INK, 0.09 * a, 7); g.beginPath(); g.ellipse(M.x, M.y, rx, ry, o.tilt, 0, TAU); g.stroke();
+    stroke(INK, 0.95 * a, lerp(1.7, 2.6, m)); g.beginPath(); g.ellipse(M.x, M.y, rx, ry, o.tilt, 0, TAU); g.stroke();
+  });
+  // ejes de las órbitas (construcción)
+  const ea = (1 - seg(m, 0, 0.5)) * 0.5;
+  if (ea > 0) {
+    stroke(CY, ea, 1, [5, 5]);
+    for (const o of ORB) {
+      const c = Math.cos(o.tilt), s = Math.sin(o.tilt);
+      line(M.x - c * (rx + 14), M.y - s * (rx + 14), M.x + c * (rx + 14), M.y + s * (rx + 14));
+    }
+    g.setLineDash([]);
+  }
+  // núcleo rayado
+  const nr = 22 * (1 - eio(seg(m, 0, 0.55)));
+  if (nr > 0.5) {
+    g.save(); g.beginPath(); g.arc(M.x, M.y, nr, 0, TAU); g.clip();
+    stroke(INK, 0.85, 1.1);
+    for (let k = -60; k < 60; k += 5) line(M.x + k - 30, M.y - 30, M.x + k + 30, M.y + 30);
+    g.restore();
+    stroke(INK, 0.95, 2); circle(M.x, M.y, nr);
+  }
+  // electrones
+  const ae = 1 - seg(m, 0, 0.35);
+  if (ae > 0) ORB.forEach((o) => {
+    const th = o.ph + TAU * o.k * t / DUR;
+    const ex = rx * Math.cos(th), ey = ry * Math.sin(th);
+    const x = M.x + ex * Math.cos(o.tilt) - ey * Math.sin(o.tilt);
+    const y = M.y + ex * Math.sin(o.tilt) + ey * Math.cos(o.tilt);
+    stroke(CY, 0.7 * ae, 1.2); circle(x, y, 11);
+    g.fillStyle = rgba(INK, ae); dot(x, y, 6);
+  });
+  // la Luna: ejes, cráteres y cota del radio
+  const am = seg(m, 0.7, 1);
+  if (am > 0) {
+    stroke(INK, 0.6 * am, 1.1, [18, 4, 3, 4]);
+    line(M.x - RM - 14, M.y, M.x + RM + 14, M.y); line(M.x, M.y - RM - 14, M.x, M.y + RM + 14);
+    g.setLineDash([]);
+    stroke(INK, 0.5 * am, 1.1);
+    for (const c of CRATERS) circle(M.x + c.x, M.y + c.y, c.r);
+  }
+  const rd = io(t, 1.95, 2.45, 8.55, 8.85);
+  if (rd > 0) {
+    const a = -120 * D2R, c = Math.cos(a), s = Math.sin(a);
+    const Px = M.x + RM * c, Py = M.y + RM * s, Qx = M.x + 132 * c, Qy = M.y + 132 * s;
+    stroke(INK, 0.9, 1.1);
+    lineP(M.x, M.y, Qx, Qy, rd);
+    if (rd >= 1) {
+      line(Qx, Qy, Qx - 120, Qy);
+      g.fillStyle = rgba(INK, 0.9); arrowHead(Px, Py, a, 14, 4);
+    }
+    typeT('R 1 737 km', Qx - 116, Qy - 8, io(t, 2.25, 2.65, 8.5, 8.7, (x) => x), { s: 16, w: 500 });
+  }
+  // rótulo: NARRADOR → LUNA → NARRADOR
+  const la = 40 * D2R, r0 = lerp(26, RM, m);
+  const L0 = { x: M.x + r0 * Math.cos(la), y: M.y + r0 * Math.sin(la) }, L1 = { x: 1566, y: 598 };
+  stroke(INK, 0.8, 1.1); line(L0.x, L0.y, L1.x, L1.y); line(L1.x, L1.y, 1800, L1.y);
+  g.fillStyle = rgba(INK, 0.95); dot(L0.x, L0.y, 3.2);
+  const pNar = t < 5 ? 1 - seg(t, 0.9, 1.25) : seg(t, 9.15, 9.75);
+  const pMoon = t < 5 ? seg(t, 1.4, 2.0) : 1 - seg(t, 8.65, 8.95);
+  typeT('NARRADOR', L1.x + 8, L1.y - 11, pNar, { f: COND, s: 28, w: 600, ls: 2 });
+  typeT('ÁTOMO · 3 ELECTRONES', L1.x + 8, L1.y + 24, pNar, { s: 14, a: 0.85, ls: 0.5 });
+  typeT('LUNA', L1.x + 8, L1.y - 11, pMoon, { f: COND, s: 28, w: 600, ls: 2 });
+  typeT('Ø 3 474 km · A 384 400 km', L1.x + 8, L1.y + 24, pMoon, { s: 14, a: 0.85, ls: 0.2 });
+}
+
+function tangents(P, C, r) {
+  const dx = C.x - P.x, dy = C.y - P.y, d = Math.hypot(dx, dy);
+  const al = Math.asin(r / d), L = Math.sqrt(d * d - r * r), b = Math.atan2(dy, dx);
+  return [b - al, b + al].map((a) => ({ x: P.x + L * Math.cos(a), y: P.y + L * Math.sin(a) }));
+}
+
+// Líneas de visión, conos visuales y flechas de vista A / B
+function sight(t) {
+  const fo = 1;
+  const items = [
+    { P: EN, t0: 2.15, tag: 'A', side: -1 },
+    { P: ES, t0: 2.35, tag: 'B', side: 1 },
+  ];
+  for (const it of items) {
+    const p = io(t, it.t0, it.t0 + 0.8, 8.85, 9.35);
+    if (p <= 0) continue;
+    const dx = M.x - it.P.x, dy = M.y - it.P.y, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+    const end = { x: M.x - ux * (RM + 6), y: M.y - uy * (RM + 6) };
+    // cono visual
+    const pcn = io(t, it.t0 + 0.45, it.t0 + 1.05, 8.8, 9.3);
+    if (pcn > 0) {
+      const T = tangents(it.P, M, RM);
+      g.fillStyle = rgba(CY, 0.06 * pcn * fo);
+      g.beginPath(); g.moveTo(it.P.x, it.P.y); g.lineTo(T[0].x, T[0].y);
+      g.arc(M.x, M.y, RM, Math.atan2(T[0].y - M.y, T[0].x - M.x), Math.atan2(T[1].y - M.y, T[1].x - M.x), true);
+      g.closePath(); g.fill();
+      stroke(CY, 0.5 * fo, 1);
+      for (const Tp of T) lineP(it.P.x + ux * 14, it.P.y + uy * 14, Tp.x, Tp.y, pcn);
+    }
+    // línea de visión
+    stroke(INK, 0.9 * fo, 1.6, [14, 8]);
+    lineP(it.P.x + ux * 14, it.P.y + uy * 14, end.x, end.y, p);
+    g.setLineDash([]);
+    // flecha de vista y letra
+    const pa = io(t, it.t0 + 0.6, it.t0 + 1.0, 8.75, 9.1, eoc);
+    if (pa > 0) {
+      const a0 = { x: it.P.x + ux * 24, y: it.P.y + uy * 24 }, a1 = { x: it.P.x + ux * (24 + 74 * pa), y: it.P.y + uy * (24 + 74 * pa) };
+      stroke(INK, fo, 3.2); line(a0.x, a0.y, a1.x - ux * 8, a1.y - uy * 8);
+      g.fillStyle = rgba(INK, fo); arrowHead(a1.x, a1.y, Math.atan2(uy, ux), 17, 6);
+      const nx = -uy * it.side, ny = ux * it.side;     // perpendicular hacia fuera
+      const mx = it.P.x + ux * 60 + nx * 28, my = it.P.y + uy * 60 + ny * 28;
+      it.tagPos = { x: mx, y: my };
+      g.globalAlpha = pa * fo;
+      stroke(INK, 1, 1.6); circle(mx, my, 16);
+      txt(it.tag, mx, my + 7, { s: 20, w: 600, al: 'center' });
+      g.globalAlpha = 1;
+    }
+  }
+}
+
+// Puntos del contorno iluminado del creciente (lado +1 derecha, -1 izquierda)
+function crescentPts(side) {
+  const pts = [];
+  for (let i = 0; i <= 48; i++) {
+    const a = -PI / 2 + PI * i / 48;
+    pts.push({ x: side * RC * Math.cos(a), y: RC * Math.sin(a) });
+  }
+  for (let i = 1; i <= 48; i++) {
+    const a = PI / 2 - PI * i / 48;
+    pts.push({ x: side * KT * RC * Math.cos(a), y: RC * Math.sin(a) });
+  }
+  return polyLen(pts);
+}
+const CRES = { 1: crescentPts(1), '-1': crescentPts(-1) };
+function crescentPath(side) {
+  g.beginPath();
+  g.arc(0, 0, RC, -PI / 2, PI / 2, side < 0);
+  g.ellipse(0, 0, KT * RC, RC, 0, PI / 2, -PI / 2, side > 0);
+  g.closePath();
+}
+
+// Una vista auxiliar (A o B). rot: giro del contenido en la lámina.
+function view(t, V, o) {
+  const fo = 1;
+  const t0 = o.t0;
+  // rótulo
+  typeT(o.title, V.x - RV - 40, o.ly, io(t, t0 + 0.3, t0 + 0.75, 8.85, 9.1, (x) => x), { s: 22, w: 600, al: 'right', ls: 2, a: fo });
+  typeT(o.sub, V.x - RV - 40, o.ly + 30, io(t, t0 + 0.5, t0 + 1.1, 8.65, 8.95, (x) => x), { s: 22, w: 400, al: 'right', a: 0.9 * fo });
+  // marco de la vista
+  const pf = io(t, t0, t0 + 0.8, 8.75, 9.25);
+  if (pf > 0) {
+    g.fillStyle = `rgba(3,18,44,${0.28 * pf * fo})`;
+    g.beginPath(); g.arc(V.x, V.y, RV, 0, TAU); g.fill();
+    stroke(INK, 0.95 * fo, 2.4); arcP(V.x, V.y, RV, -PI / 2, -PI / 2 + TAU, pf);
+  }
+  // contenido (gira con la vista)
+  const rot = o.rot(t);
+  g.save(); g.translate(V.x, V.y); g.rotate(rot);
+  const cr = Math.cos(rot), sr = Math.sin(rot);
+  penXf = (x, y) => ({ x: V.x + x * cr - y * sr, y: V.y + x * sr + y * cr });
+  const pt = io(t, t0 + 0.3, t0 + 1.0, 8.7, 9.15);
+  if (pt > 0) {
+    stroke(INK, 0.75 * fo, 1);
+    arcP(0, 0, RV - 13, PI / 2, PI / 2 + TAU, pt);
+    g.beginPath();
+    for (let k = 0; k < 72; k++) {
+      if (k / 72 > pt) break;
+      const a = -PI / 2 + k * TAU / 72, L = k % 6 === 0 ? 13 : 6;
+      g.moveTo(Math.cos(a) * RV, Math.sin(a) * RV);
+      g.lineTo(Math.cos(a) * (RV - L), Math.sin(a) * (RV - L));
+    }
+    stroke(INK, 0.7 * fo, 1); g.stroke();
+    // retícula
+    stroke(CY, 0.55 * fo * pt, 1);
+    line(-RV + 16, 0, -RC - 10, 0); line(RC + 10, 0, RV - 16, 0); line(0, RC + 10, 0, RV - 16);
+  }
+  // Luna en la vista
+  const pl = io(t, t0 + 0.9, t0 + 1.5, 8.6, 8.95), pe = io(t, t0 + 1.1, t0 + 1.7, 8.55, 8.9), ph = io(t, t0 + 1.4, t0 + 2.0, 8.5, 8.8, (x) => x);
+  if (pl > 0) { stroke(INK, 0.55 * fo, 1.2, [5, 5]); arcP(0, 0, RC, -PI / 2, -PI / 2 + TAU, pl); g.setLineDash([]); }
+  if (ph > 0) {
+    g.save(); crescentPath(o.side); g.clip();
+    g.fillStyle = rgba(INK, 0.1 * fo); g.fill();
+    g.rotate(-PI / 4);
+    stroke(INK, 0.8 * fo, 1.3);
+    const N = 30, sp = 5.2;
+    g.beginPath();
+    for (let k = 0; k < N * ph; k++) {
+      const yy = (o.side > 0 ? -1 : 1) * (-RC + k * sp) * 1;
+      g.moveTo(-RC - 10, yy); g.lineTo(RC + 10, yy);
+    }
+    g.stroke();
+    g.restore();
+  }
+  if (pe > 0) { stroke(INK, 0.1 * fo, 6); polyP(CRES[o.side], pe, true); stroke(INK, fo, 2.4); polyP(CRES[o.side], pe, true); }
+  // marca ARRIBA (cénit del observador)
+  const pu = io(t, t0 + 1.2, t0 + 1.6, 8.55, 8.8, eoc);
+  if (pu > 0) {
+    g.globalAlpha = pu * fo;
+    g.fillStyle = rgba(CY, 1);
+    g.beginPath(); g.moveTo(0, -RV - 16); g.lineTo(-8, -RV - 2); g.lineTo(8, -RV - 2); g.closePath(); g.fill();
+    txt('ARRIBA', 0, -RV + 30, { s: 12, w: 600, c: CY, al: 'center', ls: 1.5 });
+    g.globalAlpha = 1;
+  }
+  penXf = null;
+  g.restore();
+  // remite a la letra de la vista
+  const tp = o.tagPos;
+  const pld = io(t, t0 - 0.1, t0 + 0.35, 8.8, 9.2);
+  if (pld > 0) {
+    const dx = V.x - tp.x, dy = V.y - tp.y, d = Math.hypot(dx, dy);
+    stroke(CY, 0.6 * fo, 1, [2, 4]);
+    lineP(tp.x + dx / d * 20, tp.y + dy / d * 20, V.x - dx / d * (RV + 6), V.y - dy / d * (RV + 6), pld);
+    g.setLineDash([]);
+  }
+  // caja con la letra que se lee
+  const pb = io(t, o.tb, o.tb + 0.5, 8.5, 8.85);
+  if (pb > 0) {
+    const bx = BOXX - BOX / 2, by = V.y - BOX / 2;
+    stroke(INK, 0.85 * fo, 1.1);
+    lineP(V.x + RV + 4, V.y, bx, V.y, Math.min(1, pb * 2));
+    g.fillStyle = rgba(INK, fo); dot(V.x + RV + 4, V.y, 3.4);
+    const box = polyLen([{ x: bx, y: by }, { x: bx + BOX, y: by }, { x: bx + BOX, y: by + BOX }, { x: bx, y: by + BOX }, { x: bx, y: by }]);
+    stroke(INK, 0.1 * fo, 7); polyP(box, pb);
+    stroke(INK, fo, 2.6); polyP(box, pb);
+    if (pb > 0.8) { stroke(INK, 0.45 * seg(pb, 0.8, 1), 1); g.strokeRect(bx + 7, by + 7, BOX - 14, BOX - 14); }
+    const pL = io(t, o.tb + 0.3, o.tb + 0.55, 8.45, 8.6, (x) => x);
+    if (pL > 0) {
+      g.globalAlpha = pL * fo;
+      txt(o.letter, BOXX, V.y + 30, { s: 88, w: 600, al: 'center' });
+      g.globalAlpha = 1;
+    }
+  }
+}
+
+function rotIndicator(t) {
+  const fo = 1, out = 1 - eis(seg(t, 8.5, 8.85));
+  const e = eio(seg(t, 5.5, 6.7)) * out;
+  if (e <= 0) return;
+  const keep = pen;
+  const r = RV + 20, a0 = PI / 2, a = a0 + PI * e;
+  stroke(CY, 0.95 * fo, 1.6); arcP(VB.x, VB.y, r, a0, a0 + PI, e);
+  g.fillStyle = rgba(CY, fo);
+  arrowHead(VB.x + r * Math.cos(a), VB.y + r * Math.sin(a), a + PI / 2, 14, 4.4);
+  stroke(CY, 0.7 * fo, 1); line(VB.x - 6, VB.y + r, VB.x + 6, VB.y + r);
+  typeT('GIRO', VB.x - r - 18, VB.y - 4, io(t, 5.7, 6.0, 8.5, 8.7, (x) => x), { s: 18, w: 600, c: CY, al: 'right', ls: 2, a: fo });
+  typeT('180°', VB.x - r - 18, VB.y + 22, io(t, 5.9, 6.3, 8.45, 8.65, (x) => x), { s: 22, w: 600, c: CY, al: 'right', a: fo });
+  pen = keep;
+}
+
+function logoElectrons(t) {
+  for (const o of ORB) {
+    const th = o.ph + TAU * o.k * t / DUR;
+    const ex = 40 * Math.cos(th), ey = 13 * Math.sin(th);
+    const x = LOGO.x + ex * Math.cos(o.tilt) - ey * Math.sin(o.tilt);
+    const y = LOGO.y + ex * Math.sin(o.tilt) + ey * Math.cos(o.tilt);
+    g.fillStyle = rgba(INK, 1); dot(x, y, 3.2);
+  }
+}
+
+// Plumilla: cruz y coordenadas en la punta del trazo que se está dibujando.
+function drawPen() {
+  if (!pen) return;
+  const { x, y } = pen;
+  stroke(CY, 0.95, 1.2);
+  line(x - 18, y, x - 5, y); line(x + 5, y, x + 18, y);
+  line(x, y - 18, x, y - 5); line(x, y + 5, x, y + 18);
+  circle(x, y, 3);
+  const s = `X ${(x / 4).toFixed(1)}  Y ${((H - y) / 4).toFixed(1)}`;
+  txt(s, x + 14, y - 12, { s: 11, w: 500, c: CY, a: 0.9 });
+}
+
+const VIEW_A = { t0: 3.0, title: 'VISTA A', sub: 'hemisferio norte', ly: VA.y - 70, side: 1, letter: 'D', tb: 4.85, rot: () => 0 };
+const VIEW_B = { t0: 3.25, title: 'VISTA B', sub: 'hemisferio sur', ly: VB.y + 64, side: -1, letter: 'C', tb: 6.65,
+  rot: (t) => PI + PI * eio(seg(t, 5.5, 6.7)) };
+
+function frame(t) {
+  t = ((t % DUR) + DUR) % DUR;
+  g = ctx;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(stat, 0, 0);
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+  pen = null; penXf = null;
+  sight(t);
+  // posición de las letras A/B (para las líneas de remisión)
+  VIEW_A.tagPos = tagPos(EN, -1); VIEW_B.tagPos = tagPos(ES, 1);
+  atomMoon(t);
+  view(t, VA, VIEW_A);
+  view(t, VB, VIEW_B);
+  rotIndicator(t);
+  logoElectrons(t);
+  g.setLineDash([]);
+  if (t > 8.4) pen = null;          // al destrazar no hay plumilla
+  drawPen();
+}
+function tagPos(P, side) {
+  const dx = M.x - P.x, dy = M.y - P.y, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+  return { x: P.x + ux * 60 - uy * side * 28, y: P.y + uy * 60 + ux * side * 28 };
+}
+
+// --- tamaño, letterbox y bucle ---------------------------------------------------------
+let lastT = 0;
+function resize() {
+  const vw = innerWidth, vh = innerHeight, k = Math.min(vw / W, vh / H);
+  const cw = Math.round(W * k), ch = Math.round(H * k);
+  cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
+  cv.style.left = Math.round((vw - cw) / 2) + 'px'; cv.style.top = Math.round((vh - ch) / 2) + 'px';
+  const dpr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
+  S = cv.width / W;
+  buildStatic();
+}
+
+window.__frame = (t) => { lastT = t; frame(t); };
+
+(async () => {
+  buildPaperTextures();
+  try {
+    const sample = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZÁÉÍÓÚÜabcdefghijklmnñopqrstuvwxyzáéíóú0123456789·°Ø–«».,:/ ';
+    await Promise.all([
+      document.fonts.load(`400 16px ${MONO}`, sample),
+      document.fonts.load(`500 16px ${MONO}`, sample),
+      document.fonts.load(`600 16px ${MONO}`, sample),
+      document.fonts.load(`500 30px ${COND}`, sample),
+      document.fonts.load(`600 30px ${COND}`, sample),
+    ]);
+    await document.fonts.ready;
+  } catch (e) { /* tipografía de reserva */ }
+  resize();
+  frame(0);
+  window.__listo = true;
+  addEventListener('resize', () => { resize(); frame(lastT); });
+  if (!CAPTURA) {
+    const start = performance.now();
+    const loop = (now) => { lastT = ((now - start) / 1000) % DUR; frame(lastT); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+})();
+})();
+</script>
+</body>
+</html>

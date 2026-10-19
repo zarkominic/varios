@@ -1,0 +1,56 @@
+# Muestrario de estilos
+
+Veinte demos animados en 16:9, todos con el tema del episodio 1 (el átomo se convierte en la Luna; en el norte se ve como una D y en el sur como una C). **Galería para verlos en movimiento: https://zarkominic.github.io/varios/estilos/** (cada miniatura de abajo abre su demo).
+
+En cada vídeo elegimos qué estilos usar. ★ marca los favoritos.
+
+## ★ Favoritos
+
+| | | | |
+|---|---|---|---|
+| [![Recortes de papel](miniaturas/06-recortes-papel.jpg)](https://zarkominic.github.io/varios/estilos/06-recortes-papel.html)<br>06 · Recortes de papel | [![Isométrico](miniaturas/08-isometrico.jpg)](https://zarkominic.github.io/varios/estilos/08-isometrico.html)<br>08 · Isométrico | [![Plastilina 3D](miniaturas/10-arcilla-3d.jpg)](https://zarkominic.github.io/varios/estilos/10-arcilla-3d.html)<br>10 · Plastilina 3D | [![Cómic](miniaturas/12-comic.jpg)](https://zarkominic.github.io/varios/estilos/12-comic.html)<br>12 · Cómic |
+| [![Dibujo a mano](miniaturas/14-dibujo-a-mano.jpg)](https://zarkominic.github.io/varios/estilos/14-dibujo-a-mano.html)<br>14 · Dibujo a mano | [![Física](miniaturas/16-fisica.jpg)](https://zarkominic.github.io/varios/estilos/16-fisica.html)<br>16 · Física | [![Pixel art](miniaturas/17-pixel-art.jpg)](https://zarkominic.github.io/varios/estilos/17-pixel-art.html)<br>17 · Pixel art | [![Art déco](miniaturas/19-art-deco.jpg)](https://zarkominic.github.io/varios/estilos/19-art-deco.html)<br>19 · Art déco |
+
+## Los demás
+
+| | | | |
+|---|---|---|---|
+| [![Partículas](miniaturas/01-particulas.jpg)](https://zarkominic.github.io/varios/estilos/01-particulas.html)<br>01 · Partículas | [![Metal líquido](miniaturas/02-liquido.jpg)](https://zarkominic.github.io/varios/estilos/02-liquido.html)<br>02 · Metal líquido | [![Neón](miniaturas/03-neon.jpg)](https://zarkominic.github.io/varios/estilos/03-neon.html)<br>03 · Neón | [![Cromo Y2K](miniaturas/04-cromo-y2k.jpg)](https://zarkominic.github.io/varios/estilos/04-cromo-y2k.html)<br>04 · Cromo Y2K |
+| [![Tipografía cinética](miniaturas/05-tipografia-cinetica.jpg)](https://zarkominic.github.io/varios/estilos/05-tipografia-cinetica.html)<br>05 · Tipografía cinética | [![Holograma](miniaturas/07-holografico.jpg)](https://zarkominic.github.io/varios/estilos/07-holografico.html)<br>07 · Holograma | [![ASCII](miniaturas/09-ascii.jpg)](https://zarkominic.github.io/varios/estilos/09-ascii.html)<br>09 · ASCII | [![VHS retro](miniaturas/11-vhs-retro.jpg)](https://zarkominic.github.io/varios/estilos/11-vhs-retro.html)<br>11 · VHS retro |
+| [![Panel de aeropuerto](miniaturas/13-split-flap.jpg)](https://zarkominic.github.io/varios/estilos/13-split-flap.html)<br>13 · Panel de aeropuerto | [![Plano técnico](miniaturas/15-plano-tecnico.jpg)](https://zarkominic.github.io/varios/estilos/15-plano-tecnico.html)<br>15 · Plano técnico | [![Bauhaus](miniaturas/18-bauhaus.jpg)](https://zarkominic.github.io/varios/estilos/18-bauhaus.html)<br>18 · Bauhaus | [![Neobrutalismo](miniaturas/20-neo-brutalismo.jpg)](https://zarkominic.github.io/varios/estilos/20-neo-brutalismo.html)<br>20 · Neobrutalismo |
+
+## Datos
+
+| | Estilo | Archivo | Nota (estilo / calidad) | Render (s/fotograma) | 5 min de vídeo* |
+|---|---|---|---|---|---|
+| ★ | Recortes de papel | `06-recortes-papel.html` | 8 / 8 | 0,80 | 1 h |
+| ★ | Isométrico | `08-isometrico.html` | 8,5 / 8 | 0,54 | 41 min |
+| ★ | Plastilina 3D | `10-arcilla-3d.html` | 8 / 7 | 9,68 | 12 h |
+| ★ | Cómic | `12-comic.html` | 9 / 7,5 | 0,52 | 39 min |
+| ★ | Dibujo a mano | `14-dibujo-a-mano.html` | 9 / 8 | 0,67 | 50 min |
+| ★ | Física | `16-fisica.html` | 9 / 8,5 | 0,29 | 22 min |
+| ★ | Pixel art | `17-pixel-art.html` | 9 / 8 | 0,16 | 12 min |
+| ★ | Art déco | `19-art-deco.html` | 9 / 8 | 0,65 | 49 min |
+| | Partículas | `01-particulas.html` | 9 / 8 | 2,02 | 2,5 h |
+| | Metal líquido | `02-liquido.html` | 8,5 / 8 | 1,65 | 2,1 h |
+| | Neón | `03-neon.html` | 9 / 8 | 0,68 | 51 min |
+| | Cromo Y2K | `04-cromo-y2k.html` | 8 / 7 | 2,66 | 3,3 h |
+| | Tipografía cinética | `05-tipografia-cinetica.html` | 9 / 8 | 0,24 | 18 min |
+| | Holograma | `07-holografico.html` | 9 / 8 | 1,52 | 1,9 h |
+| | ASCII | `09-ascii.html` | 9 / 8 | 0,21 | 16 min |
+| | VHS retro | `11-vhs-retro.html` | 9 / 8 | 1,04 | 1,3 h |
+| | Panel de aeropuerto | `13-split-flap.html` | 9 / 8 | 0,21 | 16 min |
+| | Plano técnico | `15-plano-tecnico.html` | 9 / 8 | 0,27 | 20 min |
+| | Bauhaus | `18-bauhaus.html` | 7 / 7 | 0,23 | 17 min |
+| | Neobrutalismo | `20-neo-brutalismo.html` | 9 / 8 | 0,28 | 21 min |
+
+\* 9.000 fotogramas (5 min a 30 fps) con dos procesos en paralelo, en el servidor sin tarjeta gráfica. Con GPU sería mucho menos.
+
+La plastilina es la más lenta: conviene usarla en momentos cortos (gancho, marcadores, cierre) y no en un vídeo entero.
+
+## Cómo están hechos
+
+Cada demo es un HTML autocontenido. Solo carga Google Fonts y three.js 0.170.0 y expone `window.__frame(t)`, que dibuja exactamente el instante `t` (en segundos), así que la fábrica de vídeo puede renderizarlo fotograma a fotograma. Con `?captura` en la URL no se anima solo.
+
+- `herramientas/capturar.mjs <estilo.html> <t1,t2,...> [--formato 16:9]`: captura instantes concretos y comprueba que el bucle cierra.
+- `herramientas/miniaturas.mjs`: saca las miniaturas (`miniaturas/`) y mide el render de cada estilo (`miniaturas/medidas.json`).

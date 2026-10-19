@@ -1,0 +1,375 @@
+<meta charset="utf-8">
+<title>Átomo narrador</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Unbounded:wght@500;700&display=swap">
+<style>
+  /* Sala de proyección: a la izquierda el vídeo vertical tal como saldría en Shorts o TikTok; a la derecha, la mesa de control. */
+  :root {
+    --bg: #edf0f7;
+    --superficie: #ffffff;
+    --borde: #d4daea;
+    --texto: #121a33;
+    --tenue: #55607d;
+    --acento: #3a4fd8;
+    --acento-texto: #ffffff;
+    --codigo-bg: #f3f5fb;
+    --sombra: rgba(18, 26, 70, 0.35);
+
+    --f-titulo: "Unbounded", "Segoe UI", system-ui, sans-serif;
+    --f-texto: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --f-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+    /* El vídeo tiene un aspecto fijo, igual en tema claro y oscuro. */
+    --cosmos: #05081a;
+    --luz: #e8f1ff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #080b17;
+      --superficie: #10152a;
+      --borde: #222b4a;
+      --texto: #e6ebf8;
+      --tenue: #9aa5c4;
+      --acento: #8ea0ff;
+      --acento-texto: #0a0f24;
+      --codigo-bg: #0b1022;
+      --sombra: rgba(0, 0, 0, 0.7);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #080b17;
+    --superficie: #10152a;
+    --borde: #222b4a;
+    --texto: #e6ebf8;
+    --tenue: #9aa5c4;
+    --acento: #8ea0ff;
+    --acento-texto: #0a0f24;
+    --codigo-bg: #0b1022;
+    --sombra: rgba(0, 0, 0, 0.7);
+    color-scheme: dark;
+  }
+
+  [hidden] { display: none !important; }
+  body {
+    background: var(--bg);
+    color: var(--texto);
+    font-family: var(--f-texto);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .sala {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-block: 28px 56px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .cabecera { max-width: 62ch; margin-bottom: 24px; }
+  .antetitulo {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tenue);
+  }
+  h1 {
+    margin: 0 0 12px;
+    font-family: var(--f-titulo);
+    font-weight: 700;
+    font-size: clamp(30px, 4.6vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .entradilla { margin: 0; color: var(--tenue); font-size: 17px; }
+
+  .disposicion {
+    display: grid;
+    grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  .columna-video { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+  @media (max-width: 820px) {
+    .disposicion { grid-template-columns: minmax(0, 1fr); }
+    .columna-video { position: static; }
+    .escenario { margin-inline: auto; }
+  }
+
+  /* ---------- Vídeo vertical ---------- */
+  .escenario {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 9 / 16;
+    border-radius: 24px;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--cosmos);
+    box-shadow: 0 28px 60px -28px var(--sombra);
+  }
+  .lienzo { position: absolute; inset: 0; z-index: 0; }
+  .segmentos { position: absolute; top: 10px; left: 12px; right: 12px; z-index: 5; display: flex; gap: 4px; }
+  .segmentos span { flex: 1; height: 3px; border-radius: 2px; background: rgba(232, 241, 255, 0.28); overflow: hidden; }
+  .segmentos i { display: block; width: 0; height: 100%; background: var(--luz); }
+  .serie {
+    position: absolute;
+    top: 20px;
+    left: 14px;
+    right: 14px;
+    z-index: 5;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(232, 241, 255, 0.75);
+  }
+  .rotulo {
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    z-index: 5;
+    max-width: calc(100% - 28px);
+    margin: 0;
+    padding: 8px 14px;
+    transform: translateX(-50%);
+    border: 1px solid rgba(140, 190, 255, 0.35);
+    border-radius: 999px;
+    background: rgba(10, 16, 44, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--luz);
+    font: 500 13px/1.3 var(--f-titulo);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rotulo.entra { animation: entrar 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  @keyframes entrar {
+    from { opacity: 0; transform: translate(-50%, -8px); filter: blur(4px); }
+    to { opacity: 1; transform: translate(-50%, 0); filter: blur(0); }
+  }
+  .estado {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 40%;
+    z-index: 3;
+    margin: 0;
+    text-align: center;
+    font-weight: 700;
+    color: var(--luz);
+  }
+  .play {
+    position: absolute;
+    left: 50%;
+    bottom: 12%;
+    z-index: 4;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.94);
+    color: #0b1230;
+    font: 700 17px var(--f-texto);
+    box-shadow: 0 0 40px rgba(120, 170, 255, 0.45);
+    cursor: pointer;
+  }
+  .play svg { width: 14px; height: 14px; fill: currentColor; }
+  .play:disabled { opacity: 0.7; cursor: progress; }
+  .subtitulo {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 26px;
+    z-index: 3;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+  .subtitulo .caja {
+    padding: 7px 12px;
+    border-radius: 10px;
+    background: rgba(5, 8, 26, 0.72);
+    font: 700 19px/1.3 var(--f-texto);
+    color: rgba(232, 241, 255, 0.45);
+  }
+  .subtitulo .dicho { color: #ffffff; }
+
+  /* ---------- Mesa de control ---------- */
+  .mesa { display: grid; gap: 16px; min-width: 0; }
+  .panel {
+    min-width: 0;
+    padding: 18px 20px;
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    background: var(--superficie);
+  }
+  .panel h2 {
+    margin: 0 0 6px;
+    font-family: var(--f-titulo);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .ayuda { margin: 0 0 14px; color: var(--tenue); font-size: 15px; max-width: 62ch; }
+  .ayuda:last-child { margin-bottom: 0; }
+  .botones { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .boton {
+    padding: 10px 16px;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--superficie);
+    color: var(--texto);
+    font: 700 15px var(--f-texto);
+    cursor: pointer;
+  }
+  .boton.principal { border-color: transparent; background: var(--acento); color: var(--acento-texto); }
+  .boton:disabled { opacity: 0.5; cursor: not-allowed; }
+  .opciones-voz { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; }
+  .interruptor { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+  .interruptor input { width: 18px; height: 18px; accent-color: var(--acento); }
+  select, textarea {
+    max-width: 100%;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--texto);
+    font-family: var(--f-texto);
+  }
+  select { min-width: 0; padding: 8px 10px; font-size: 15px; }
+  textarea { width: 100%; min-height: 78px; margin-bottom: 10px; padding: 10px 12px; font-size: 16px; resize: vertical; }
+  .grupo { display: block; margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tenue); }
+  .fichas { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ficha {
+    padding: 7px 13px;
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--texto);
+    font: 700 14px var(--f-texto);
+    cursor: pointer;
+  }
+  .ficha[aria-pressed="true"] { border-color: var(--acento); background: var(--acento); color: var(--acento-texto); }
+  :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+  .codigo {
+    max-height: 320px;
+    margin: 0;
+    padding: 12px 14px;
+    overflow: auto;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--codigo-bg);
+    font: 13px/1.5 var(--f-mono);
+    white-space: pre;
+  }
+  .ficha-tecnica { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 18px; margin: 0; }
+  .ficha-tecnica dt { font-weight: 700; }
+  .ficha-tecnica dd { margin: 0; color: var(--tenue); }
+  @media (max-width: 520px) {
+    .ficha-tecnica { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    .ficha-tecnica dd { margin-bottom: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rotulo.entra { animation: none; }
+  }
+</style>
+
+<main class="sala">
+  <header class="cabecera">
+    <p class="antetitulo">Ejemplo · personaje de partículas con React Three Fiber</p>
+    <h1>Átomo narrador</h1>
+    <p class="entradilla">Un átomo de luz cuenta el tema y se transforma en lo que explica: un prisma, ondas, moléculas, la Tierra o un atardecer. Pulsa reproducir.</p>
+  </header>
+
+  <div class="disposicion">
+    <section class="columna-video" aria-label="Vídeo de ejemplo">
+      <div class="escenario" id="escenario">
+        <div class="lienzo" id="lienzo"></div>
+        <div class="segmentos" id="segmentos"></div>
+        <p class="serie">Lo que no te explicaron en clase · Nº 1</p>
+        <p class="rotulo" id="rotulo" aria-live="polite"></p>
+        <p class="estado" id="estado">Preparando el átomo…</p>
+        <button class="play" id="play" type="button" disabled>
+          <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 1 L13 7 L2 13 Z"/></svg>
+          <span>Reproducir</span>
+        </button>
+        <p class="subtitulo" id="subtitulo" aria-live="polite" hidden></p>
+      </div>
+    </section>
+
+    <div class="mesa">
+      <section class="panel">
+        <h2>Reproducir la clase</h2>
+        <p class="ayuda">Siete escenas, menos de un minuto. En cada una el átomo se transforma y la cámara viaja al nuevo encuadre.</p>
+        <div class="botones">
+          <button class="boton principal" id="btn-reproducir" type="button" disabled>Reproducir clase</button>
+          <button class="boton" id="btn-detener" type="button" disabled>Detener</button>
+        </div>
+        <div class="opciones-voz">
+          <label class="interruptor"><input type="checkbox" id="usar-voz" checked> Con voz</label>
+          <select id="voz" aria-label="Voz en español"></select>
+        </div>
+        <p class="ayuda" id="aviso-voz" style="margin-top: 10px"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Transformaciones</h2>
+        <p class="ayuda">Cada forma son las mismas 7.000 partículas recolocadas. Pulsa una para ver la transformación.</p>
+        <div class="fichas">
+          <button class="ficha" type="button" data-forma="atomo" data-rotulo="Átomo">Átomo</button>
+          <button class="ficha" type="button" data-forma="prisma" data-rotulo="Luz blanca = todos los colores">Prisma</button>
+          <button class="ficha" type="button" data-forma="ondas" data-rotulo="Azul ≈ 450 nm · Rojo ≈ 700 nm">Ondas</button>
+          <button class="ficha" type="button" data-forma="rayleigh" data-rotulo="Dispersión de Rayleigh ∝ 1/λ⁴">Dispersión</button>
+          <button class="ficha" type="button" data-forma="tierra" data-rotulo="La atmósfera brilla en azul">Tierra</button>
+          <button class="ficha" type="button" data-forma="atardecer" data-rotulo="Atardecer: mucho más aire">Atardecer</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Hazlo hablar</h2>
+        <p class="ayuda">Escribe cualquier frase. El átomo late y brilla con cada sílaba.</p>
+        <label for="frase" class="grupo">Frase</label>
+        <textarea id="frase">Hola, soy un átomo. Cada semana me transformo en lo que haga falta para explicarte algo que no te contaron en clase.</textarea>
+        <button class="boton principal" id="btn-decir" type="button" disabled>Decir</button>
+      </section>
+
+      <section class="panel">
+        <h2>El guion es un archivo de datos</h2>
+        <p class="ayuda">Para cada tema escribo el texto, la forma y el rótulo de cada escena. Las formas nuevas se programan una vez y se reutilizan.</p>
+        <pre class="codigo" id="guion-json" tabindex="0">Cargando guion…</pre>
+      </section>
+
+      <section class="panel">
+        <h2>Cómo está hecho</h2>
+        <dl class="ficha-tecnica">
+          <dt>Personaje</dt>
+          <dd>7.000 partículas con resplandor (bloom): núcleo de protones y neutrones, y tres electrones con estela.</dd>
+          <dt>Transformación</dt>
+          <dd>Cada partícula viaja de una forma a otra con un remolino, como una ola que recorre el átomo.</dd>
+          <dt>Cámara</dt>
+          <dd>Se desplaza a un encuadre distinto en cada escena y respira suavemente, como una cámara en mano.</dd>
+          <dt>Voz</dt>
+          <dd>La del navegador, gratis. El átomo late con cada vocal. Para publicar: tu voz grabada.</dd>
+          <dt>Coste</dt>
+          <dd>Cero: React Three Fiber y three.js son libres, y todo el personaje es código propio.</dd>
+        </dl>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script type="module" src="app.js"></script>

@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muestrario de estilos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+  /* Sala de proyección de la serie: el azul noche y el amarillo de los subtítulos de los vídeos,
+     la tipografía de sus rótulos (Unbounded) y de sus subtítulos (Atkinson). Una sola apariencia, oscura. */
+  :root {
+    --fondo: #070b19;
+    --panel: #0f1530;
+    --linea: #252e55;
+    --texto: #eef1fb;
+    --tenue: #9ba4c6;
+    --acento: #ffd84a;
+    --tinta-acento: #1d1700;
+    --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+    --cuerpo: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --datos: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    color-scheme: dark;
+  }
+  html { background: var(--fondo); }
+  body {
+    background: var(--fondo); color: var(--texto); font: 17px/1.5 var(--cuerpo);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 28px 56px;
+  }
+  .envoltura { max-width: 1240px; margin: 0 auto; display: grid; gap: 28px; }
+  header { display: grid; gap: 14px; max-width: 760px; }
+  .antetitulo { font: 600 12px/1.2 var(--datos); letter-spacing: .14em; text-transform: uppercase; color: var(--tenue); margin: 0; }
+  h1 { font: 700 clamp(30px, 5vw, 52px)/1.05 var(--display); margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--acento); }
+  .entradilla { margin: 0; color: var(--texto); max-width: 62ch; }
+  .clave { margin: 0; color: var(--tenue); font-size: 15px; max-width: 70ch; }
+  .clave b { color: var(--texto); font-weight: 700; }
+
+  .controles { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .controles span { font: 600 12px/1 var(--datos); letter-spacing: .12em; text-transform: uppercase; color: var(--tenue); }
+  .orden { display: inline-flex; border: 1px solid var(--linea); border-radius: 999px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+  .orden button {
+    font: 600 14px/1 var(--cuerpo); color: var(--tenue); background: none; border: 0; border-radius: 999px;
+    padding: 9px 14px; cursor: pointer;
+  }
+  .orden button[aria-pressed="true"] { background: var(--acento); color: var(--tinta-acento); }
+  button:focus-visible, a:focus-visible, .ficha:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
+
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 22px; }
+  .ficha {
+    display: grid; gap: 12px; align-content: start; text-align: left; color: inherit; font: inherit;
+    background: none; border: 0; padding: 0; cursor: pointer; min-width: 0;
+  }
+  .marco { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 6px; overflow: hidden; background: var(--panel); border: 1px solid var(--linea); }
+  .marco img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+  .ficha:hover .marco img { transform: scale(1.03); }
+  .numero {
+    position: absolute; left: 10px; top: 10px; font: 600 13px/1 var(--datos); color: var(--texto);
+    background: rgba(7, 11, 25, .78); padding: 6px 8px; border-radius: 4px; letter-spacing: .06em;
+  }
+  .estrella {
+    position: absolute; right: 10px; top: 10px; font: 600 12px/1 var(--datos); letter-spacing: .06em;
+    color: var(--tinta-acento); background: var(--acento); padding: 6px 8px; border-radius: 4px;
+  }
+  .play {
+    position: absolute; right: 10px; bottom: 10px; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--acento); display: grid; place-items: center; box-shadow: 0 6px 18px rgba(0,0,0,.35);
+  }
+  .play::before { content: ""; margin-left: 3px; border-left: 13px solid var(--tinta-acento); border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
+  .pie { display: grid; gap: 8px; min-width: 0; }
+  .nombre { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .nombre strong { font: 700 18px/1.2 var(--display); }
+  .nombre small { font: 400 13px/1 var(--datos); color: var(--tenue); }
+  .notas { display: grid; grid-template-columns: auto 1fr auto; gap: 6px 10px; align-items: center; font-size: 14px; color: var(--tenue); }
+  .barra { height: 6px; border-radius: 3px; background: var(--linea); overflow: hidden; }
+  .barra i { display: block; height: 100%; background: var(--acento); border-radius: 3px; }
+  .notas b { font: 600 13px/1 var(--datos); color: var(--texto); font-variant-numeric: tabular-nums; }
+  .render { font: 400 13px/1.4 var(--datos); color: var(--tenue); font-variant-numeric: tabular-nums; }
+  .render b { color: var(--texto); font-weight: 600; }
+
+  dialog {
+    width: min(1100px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; border: 1px solid var(--linea);
+    border-radius: 10px; background: var(--panel); color: var(--texto); overflow: auto;
+  }
+  dialog::backdrop { background: rgba(3, 5, 12, .82); }
+  .visor { display: grid; gap: 16px; padding: 14px 14px 20px; }
+  .pantalla { aspect-ratio: 16 / 9; width: 100%; max-width: 100%; background: #000; border-radius: 6px; overflow: hidden; }
+  .pantalla iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .barra-visor { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+  .barra-visor h2 { margin: 0; font: 700 clamp(20px, 3vw, 28px)/1.1 var(--display); }
+  .barra-visor h2 small { font: 400 14px/1 var(--datos); color: var(--tenue); margin-left: 8px; }
+  .acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+  .boton {
+    font: 700 14px/1 var(--cuerpo); color: var(--texto); background: none; border: 1px solid var(--linea);
+    border-radius: 999px; padding: 10px 14px; cursor: pointer; text-decoration: none;
+  }
+  .boton.principal { background: var(--acento); color: var(--tinta-acento); border-color: var(--acento); }
+  .detalle { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 18px; }
+  .detalle h3 { margin: 0 0 6px; font: 600 12px/1.2 var(--datos); letter-spacing: .12em; text-transform: uppercase; color: var(--tenue); }
+  .detalle p { margin: 0; font-size: 15px; max-width: 68ch; }
+  footer { color: var(--tenue); font-size: 14px; max-width: 70ch; }
+  @media (prefers-reduced-motion: reduce) { .marco img { transition: none; } .ficha:hover .marco img { transform: none; } }
+</style>
+</head>
+<body>
+
+<div class="envoltura">
+  <header>
+    <p class="antetitulo">Lo que no te explicaron en clase · Episodio 1</p>
+    <h1>Muestrario de <em>estilos</em></h1>
+    <p class="entradilla">La misma idea, la Luna que en el sur se ve al revés, contada en 20 estilos de animación. Todos están hechos con código propio, se repiten en bucle y se pueden renderizar como vídeo con nuestra fábrica. Toca uno para verlo en movimiento.</p>
+    <p class="clave"><b>Notas:</b> las puso un revisor independiente, sobre 10: si se reconoce el estilo y si tiene calidad profesional. <b>Render:</b> lo que tarda cada fotograma en nuestro servidor sin tarjeta gráfica, y lo que llevaría un vídeo de 5 minutos (9.000 fotogramas) con dos procesos en paralelo.</p>
+  </header>
+
+  <div class="controles">
+    <span>Ordenar</span>
+    <div class="orden" role="group" aria-label="Ordenar estilos">
+      <button type="button" id="orden-favoritos" data-orden="favoritos" aria-pressed="true">Favoritos primero</button>
+      <button type="button" id="orden-numero" data-orden="numero" aria-pressed="false">Por número</button>
+      <button type="button" id="orden-render" data-orden="render" aria-pressed="false">Render más rápido</button>
+      <button type="button" id="orden-nota" data-orden="nota" aria-pressed="false">Mejor nota</button>
+    </div>
+  </div>
+
+  <main class="rejilla" id="rejilla"></main>
+
+  <footer>Los demos son horizontales (16:9), como los vídeos de YouTube. Cualquiera de estos estilos se puede aplicar a un episodio entero o a una sola escena.</footer>
+</div>
+
+<dialog id="visor" aria-labelledby="visor-titulo">
+  <div class="visor">
+    <div class="barra-visor">
+      <h2 id="visor-titulo"></h2>
+      <div class="acciones">
+        <button type="button" class="boton" id="anterior">← Anterior</button>
+        <button type="button" class="boton" id="siguiente">Siguiente →</button>
+        <a class="boton" id="abrir" target="_blank" rel="noopener">Abrir sola</a>
+        <button type="button" class="boton principal" id="cerrar">Cerrar</button>
+      </div>
+    </div>
+    <div class="pantalla"><iframe id="pantalla" title="Demo animado del estilo" allow="fullscreen"></iframe></div>
+    <div class="detalle">
+      <div><h3>Cómo está hecho</h3><p id="visor-tecnica"></p></div>
+      <div><h3>Lo que dijo el revisor</h3><p id="visor-juicio"></p></div>
+    </div>
+  </div>
+</dialog>
+
+<script id="datos" type="application/json">[{"n": "01", "slug": "01-particulas", "nombre": "Partículas", "original": "Particles", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Sistema de 24.000 partículas en GPU (THREE.Points instanciados con shader propio, más 6.000 estelas de luz como LineSegments) cuya posición es función pura de t: el átomo se disuelve siguiendo líneas de corriente de curl noise simplex (pasos acotados, remolino de dos brazos), forma dos Lunas crecientes lado a lado (norte con trazo dorado en «D»; la del sur gira 180° y se traza en «C») y vuelve a recomponerse. Profundidad de campo por partícula con bokeh de 7 láminas y «ojo de gato», desenfoque de movimiento con muestras fantasma, estelas de energía constante, bloom, aberración cromática, viñeta y grano sobre una nebulosa fBm procedimental. Rótulos en Inter Tight e Instrument Serif.", "juicio": "Pieza de partículas GPU muy convincente: el átomo se disuelve en un flujo curl-noise con estelas y bokeh, forma dos Lunas de partículas (D al norte y C al sur tras un giro de 180° bien señalizado) y se recompone. El bucle cierra (diferencia 0.00), no hay errores y se cumplen todas las reglas duras. Los defectos son de acabado: anillos de vinilo durante el giro, estelas rectas que parecen arañazos, bloom que agrisa los negros, bokeh demasiado uniforme y textos pequeños para móvil.", "s": 2.02, "favorito": false}, {"n": "02", "slug": "02-liquido", "nombre": "Metal líquido", "original": "Liquid morph", "estilo": 8.5, "calidad": 8, "aprobado": true, "tecnica": "Un shader de fragmentos WebGL2 traza rayos sobre campos de distancia (SDF) unidos con smooth-min. Así, el núcleo de 7 nucleones y los 3 electrones se funden en una gota de metal líquido. La gota se estira, un hilo viscoso la une hasta romperse y quedan dos gotas, que se vuelven lunas crecientes (una esfera menos un cilindro de sombra). La del sur gira 180° de D a C, con las puntas retrasadas por inercia. El cromo se sombrea con un estudio procedural reflejado, fresnel, brillos especulares, refracción sutil con dispersión y tonemapping ACES. Los rótulos usan Instrument Serif e Inter en un canvas 2D superpuesto.", "juicio": "Es una pieza de metal líquido con SDF y raymarching que se reconoce al instante: Fresnel, reflejos de estudio, pinch-off del hilo con retracción de las puntas e inercia viscosa en el giro de la luna del sur, con tipografía Instrument Serif + Inter y una composición norte/sur bien resuelta. Cumple todas las reglas duras (bucle diferencia 0.00, sin errores, 24 KB, letterbox correcto); los defectos pendientes son de pulido: aliasing en los reflejos finos, resolución baja en modo normal en escritorio, reflejos estáticos por la cámara ortográfica y una pausa demasiado corta en la comparación D/C.", "s": 1.65, "favorito": false}, {"n": "03", "slug": "03-neon", "nombre": "Neón", "original": "Neon glow", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Canvas 2D con capas prerenderizadas por tubo (vidrio apagado con fósforo, cuerpo saturado, núcleo casi blanco obtenido por erosión de máscaras, y halo gaussiano en tres escalas sumado en modo 'lighter'), un mapa de luz de baja resolución que tiñe por multiplicación una pared de ladrillo procedural con soportes, capuchones de electrodo, puentes pintados de negro, cables y transformador, y un reflejo desenfocado en el suelo pulido; el encendido parpadeante es un guion determinista con PRNG con semilla.", "juicio": "Rótulo de neón muy creíble: tubos de vidrio con núcleo, halo y luz que tiñe el ladrillo, tubos apagados visibles, soportes, puentes pintados, transformador, reflejo en el suelo y una secuencia de encendido con parpadeos y apagón; cumple todas las reglas duras (sin errores, el bucle cierra con diferencia 0.00, determinista, letterbox correcto, DPR limitado a 2) y cuenta bien la idea D/C con la luna del sur que primero enciende la D y luego la C. Para llegar a nivel de cliente exigente faltan unos retoques: corregir el puente que se lee como 'al\\revés' y el grosor irregular del tubo del título, alejar el átomo del logo de React, hacer que t=0 muestre las lunas encendidas, suavizar el reflejo pixelado y aclarar los pictogramas.", "s": 0.68, "favorito": false}, {"n": "04", "slug": "04-cromo-y2k", "nombre": "Cromo Y2K", "original": "Y2K chrome", "estilo": 8, "calidad": 7, "aprobado": true, "tecnica": "Un trazador de rayos SDF en un shader de three.js modela el cromo líquido (metabolas con smooth-min, órbitas toroidales, mordida cilíndrica y un rebote de reflexión) sobre un estudio Y2K procedural: cielo ultramar, cajas de luz, horizonte rosa-cian y suelo con rejilla, con película iridiscente en los bordes de Fresnel. El rótulo cromado inflado sale de un mapa de distancia euclídea del texto (Unbounded) convertido en normales. Sobre una capa 2D van la rejilla en perspectiva, el reflejo volteado en el suelo pulido (estilo Web 2.0), el HUD, las píldoras glossy y los destellos de 4 puntas.", "juicio": "Es una pieza de cromo Y2K convincente y técnicamente sólida: cromo líquido trazado por rayos con iridiscencia, rotulación cromada inflada, destellos, pastillas tipo Aqua y la idea D/C bien explicada con norte y sur lado a lado. Cumple las reglas duras y el bucle cierra (diferencia 0.00), pero la fusión y separación de las dos lunas produce una forma rota con cuernos mellados, las órbitas chocan con el subtítulo y la paleta se acerca demasiado al synthwave.", "s": 2.66, "favorito": false}, {"n": "05", "slug": "05-tipografia-cinetica", "nombre": "Tipografía cinética", "original": "Kinetic type", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Canvas 2D vectorial sobre una retícula estricta de 12 columnas, en negro, hueso y un solo acento bermellón. Usa tres familias: Inter Tight 900 para los golpes, Instrument Serif itálica para el contraste y JetBrains Mono para rótulos y para el texto que forma las órbitas. Cada glifo se coloca con el interletraje real (anchos de prefijos) y se anima con curvas expo/quart, máscaras, tracking, giros letra a letra con estela temporal y sacudida de cámara. Al final, un zoom entra en el asta de la L y la pantalla queda bermellón. La Luna es un glifo: un creciente con un asta bermellón forma la D, y al girar 180° en el sur se vuelve C. La «i» del observador pasa a «¡» (cabeza abajo).", "juicio": "Es tipografía cinética de nivel profesional y se reconoce al instante: retícula de 12 columnas visible, paleta negro/hueso/bermellón, pareja Inter Tight 900 + Instrument Serif itálica + JetBrains Mono, golpes de escala, revelado con máscara, tracking, giro de 180° de «AL REVÉS», zoom que entra en el asta de la L y la Luna convertida en D y C, todo dentro de un bucle de 10 s que cierra (diferencia 0.00), sin errores y cumpliendo todas las reglas duras. No llega al 9 en calidad por las estelas de copias escalonadas, el poco tiempo de lectura del gancho con «SE VE» tapado y sin atenuar, y un cambio de D a C hecho con un volteo vertical que no tiene lógica.", "s": 0.24, "favorito": false}, {"n": "06", "slug": "06-recortes-papel", "nombre": "Recortes de papel", "original": "Paper cutout", "estilo": 8, "calidad": 8, "aprobado": true, "tecnica": "Canvas 2D a 12 fps escalonados: cada pieza es un Path2D cortado a mano con textura de papel y fibras procedural (ruido de valor en mosaico multiplicado y fibras en screen), sombra según su altura, filo de luz y sombra fijo hacia la lámpara, y temblor de stop-motion sembrado por fotograma; el átomo se convierte en la Luna sobre una Tierra de papel con dos observadores, y el disco del hemisferio sur gira 180° tras su ventana y la Luna pasa de D a C.", "juicio": "Es una pieza de papel recortado convincente y de nivel profesional: piezas con fibras y sombras suaves, hilos, guirnaldas de fases lunares, stop-motion a 12 fps con jitter y parpadeo de exposición, tipografía Fraunces y una narrativa clara (el átomo se convierte en la Luna; el disco del sur gira 180° y la D pasa a ser una C). Cumple todas las reglas duras (bucle diferencia 0.00, sin errores, __frame determinista, DPR limitado, letterbox, español correcto), y lo que falta es dar más contraste de valores entre las capas oscuras, rehacer las nubes inferiores como papel recortado y quitar los hilos que cruzan el título.", "s": 0.8, "favorito": true}, {"n": "07", "slug": "07-holografico", "nombre": "Holograma", "original": "Holographic", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Escena three.js con mezcla aditiva y depthTest desactivado. Dos emisores en el suelo proyectan conos de luz con borde fresnel y rayos, que se inclinan solos (atan2 en el shader) para cruzarse sobre el átomo. El átomo es una nube de 8800 partículas: núcleo de 14 nucleones y 3 electrones con estela sobre órbitas inclinadas. La nube se parte en dos Lunas de Fibonacci con retícula alámbrica, borde fresnel e iridiscencia cian-magenta. El reparto es por mitades del átomo y por altura, con barrido de abajo arriba y un anillo de escaneo. La Luna de la derecha gira 180° y la «D» pasa a «C». Por encima: líneas de barrido y banda brillante por fragmento, parpadeo, cortes de fallo con aberración cromática (en el postproceso y en el HUD 2D), bloom, suelo en perspectiva y HUD en Chakra Petch y JetBrains Mono. El texto del HUD se descifra con glifos al aparecer.", "juicio": "Holograma de ciencia ficción convincente y de nivel profesional: dos emisores con conos de luz, nubes de puntos con iridiscencia cian-magenta, borde fresnel, líneas de barrido, parpadeo, cortes de glitch, HUD bien compuesto y una narrativa clara del átomo que se divide en dos Lunas y de la D que pasa a C. Cumple todas las reglas duras (sin errores, bucle cerrado con diferencia 0,00, recursos y API correctos) y lo apruebo, aunque conviene corregir la pose del átomo en el fotograma inicial, el retraso del cambio de letra, el contorno de la D que no coincide con la fase iluminada y el exceso de texto codificado.", "s": 1.52, "favorito": false}, {"n": "08", "slug": "08-isometrico", "nombre": "Isométrico", "original": "Isometric", "estilo": 8.5, "calidad": 8, "aprobado": true, "tecnica": "Diorama en three.js con cámara ortográfica isométrica real (35,26°/45°): planeta geodésico low-poly con continentes en relieve y un octante cortado que muestra las capas, peanas cuadradas alineadas con la rejilla con caras laterales en tonos planos, oclusión ambiental falsa (horneada en vértices y sombras de contacto en un shader de suelo con rejilla isométrica), paleta pastel sobre azul noche y tipografía Space Grotesk + IBM Plex Mono.", "juicio": "Diorama isométrico convincente y pulido: cámara ortográfica real, rejilla isométrica, peanas, planeta low-poly cortado con dos observadores y paneles que pasan de D a C con un giro de 180° bien explicado; bucle exacto (diferencia 0,00), sin errores y sin romper ninguna regla dura. Aprobado; las mejoras principales son que los textos pequeños y los observadores se lean en el móvil, alinear los paneles a los ejes isométricos y cambiar el destello plano de la transición átomo-Luna por algo más coherente con el estilo.", "s": 0.54, "favorito": true}, {"n": "09", "slug": "09-ascii", "nombre": "ASCII", "original": "ASCII art", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "La escena (átomo de 7 nucleones con 3 electrones en órbitas inclinadas, que se funde en una Luna con mares procedurales y se desdobla en norte/sur, donde la del sur gira 180° de D a C) se sombrea en 3D sobre una retícula de luminancia de 4x6 muestras por carácter. Esa retícula se traduce a ASCII con una rampa de densidad medida sobre IBM Plex Mono y, en los bordes, con glifos elegidos por vector de forma ( / \\ | _ ( ) d b P Y ). La rejilla de 160x54 caracteres se sube a WebGL, que dibuja los glifos desde un atlas y aplica el CRT de fósforo verde: curvatura, líneas de barrido, halo, viñeta, banda de refresco y fallos puntuales de señal. El rótulo «LA LUNA AL REVÉS» está en letras ANSI de bloque.", "juicio": "Una pieza de terminal de fósforo verde muy reconocible: luna sombreada en 3D con rampa de densidad y glifos elegidos por forma en los bordes, banner ANSI, curvatura, scanlines y halo, con un guion claro (átomo → Luna → norte/sur → giro D→C) que cierra el bucle sin diferencia (0.00), es determinista, no da errores y respeta todas las reglas duras. Los puntos débiles son la fase del átomo (órbitas con glifos ruidosos y núcleo que se lee como una mancha), el solape abarrotado de las dos lunas hacia t≈3.3 s y el texto HUD pequeño, que no se lee en el móvil.", "s": 0.21, "favorito": false}, {"n": "10", "slug": "10-arcilla-3d", "nombre": "Plastilina 3D", "original": "Clay 3D", "estilo": 8, "calidad": 7, "aprobado": true, "tecnica": "Plastilina modelada con distancias con signo en un shader de three.js. Las uniones suaves funden la arcilla: el átomo se aplasta, se amasa en una bola marmolada y un pulgar invisible la hunde hasta dejar una Luna creciente, que se estira, se parte en dos y una de ellas gira 180° (de D a C). El acabado es mate y algo céreo, con dispersión subsuperficial fingida, huellas dactilares en remolino, abolladuras, grano y cráteres prensados. El plató es un ciclorama azul pizarra con estrellitas de arcilla, luz cálida de estudio con foco, sombras suaves y oclusión ambiental. El tiempo va escalonado a 12 fps, con «hervor» de stop-motion: las huellas, los bultos, la cámara y la luz varían ligeramente en cada fotograma.", "juicio": "La pieza se lee claramente como plastilina en stop-motion a 12 fps, con luz cálida de estudio, sombras suaves, huellas, tipografía Fraunces/DM Sans y una narrativa completa (átomo → bola amasada → Luna → D/C lado a lado). Cumple todas las reglas duras y el bucle cierra (diferencia 0,00). La aprobación queda en el límite por varios fallos de pocos fotogramas: el churro verde que flota suelto, la fusión con forma de nalgas, el cuello en forma de arpón con una muesca negra y una costura de AO en el fondo, además de rótulos de hemisferio demasiado pequeños para verse en móvil.", "s": 9.68, "favorito": true}, {"n": "11", "slug": "11-vhs-retro", "nombre": "VHS retro", "original": "Retro VHS", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "La escena se pinta en Canvas 2D a una \"señal grabada\" de 1280x720 (960x540 en móvil): una cartela noventera con rayos, formas Memphis, átomo brillante y rótulo extruido en Bungee, y después dos ventanas DVE con biseles (norte y sur), una Luna CG precalculada con sombreado Phong, cráteres y destello, una Tierra con retícula y suelo cuadriculado. Esa señal pasa por un shader WebGL que simula la cinta en YIQ: crominancia de poco ancho de banda que se corre hacia la derecha, aberración cromática, realce de luminancia, jitter por línea, una banda de tracking, ruido de conmutación de cabezas abajo, dropouts, salto vertical en los cortes y líneas de barrido. Encima van el OSD limpio del magnetoscopio (\"PLAY ▶\", \"SP\") y, dentro de la señal degradada, el sello de fecha de cámara.", "juicio": "Pieza muy convincente: cartela noventera con texto Bungee extruido, formas Memphis y 'AL REVÉS' que se da la vuelta; el post-proceso VHS es auténtico (sangrado de croma, aberración, scanlines, banda de tracking, conmutación de cabezas, salto vertical en los cortes, OSD 'PLAY ▶'/SP y sello de fecha), la Luna CG con sombreado Phong es correcta (D en el norte y C en el sur por rotación de 180°), el bucle cierra (diferencia 0,00), no hay errores y se cumplen las reglas técnicas (solo Google Fonts, 54 KB, __frame determinista, __listo tras las fuentes, DPR limitado, preserveDrawingBuffer, letterbox). Los fallos son de pulido: el sello de fecha invade la banda de subtítulos, la pegatina 'EPISODIO 1' sobresale unos 25 px del área segura, la columna central Tierra-observadores es diminuta y algo tosca, y el suelo de rejilla neón tira más a synthwave que a plató educativo de los 90.", "s": 1.04, "favorito": false}, {"n": "12", "slug": "12-comic", "nombre": "Cómic", "original": "Comic book", "estilo": 9, "calidad": 7.5, "aprobado": true, "tecnica": "Página de cómic impresa hecha en Canvas 2D: tinta negra con trazos de grosor variable, tramas Ben-Day de verdad (puntos de tamaño variable sobre rejillas giradas por plancha), planchas de color CMYK algo fuera de registro y grano de papel de pulpa fundido en modo multiplicar. Los fondos, la Luna y el núcleo se dibujan una vez a la resolución del dispositivo y en cada fotograma solo se componen viñetas, iris y onomatopeyas, animadas con curvas de aceleración y rebote.", "juicio": "Se reconoce al instante como cómic impreso: tramas Ben-Day auténticas, planchas fuera de registro, papel con grano, líneas de enfoque, onomatopeya «¡ZAS!» con volumen y un giro de viñeta que explica bien la idea de la D que pasa a C, sin errores de página y con un bucle que cierra (diferencia 0,00). Lo aprobaría, pero antes hay que corregir el parpadeo de la máscara entre 2,33 y 2,44 s y redibujar la silueta del observador, que tiene aspecto de pictograma.", "s": 0.52, "favorito": true}, {"n": "13", "slug": "13-split-flap", "nombre": "Panel de aeropuerto", "original": "Split-flap", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Canvas 2D sobre un marco de 1920x1080: cada módulo de paleta es un sprite pre-renderizado (Barlow Condensed en blanco cálido sobre paleta gris carbón, con corte central y ejes laterales). Las letras recorren su tambor en orden fijo hasta la letra destino, y cada giro dibuja la mitad superior que cae, comprimida y sombreada, sobre la inferior, con un rebote al llegar. Dos matrices de 21x21 paletas de color forman el átomo (con electrones que corren paleta a paleta) y la Luna creciente, que en el sur pasa de D a C con un barrido angular. Todo va en una carcasa metálica con cristal, viñeta y un reflejo que cruza el tablero una vez por ciclo.", "juicio": "Se reconoce al instante como un tablero Solari: paletas con mitades superior e inferior, sombreado al caer, rebote, ejes laterales, tambor con orden real (incluye Ñ, É y ¿), paleta sobria de blanco cálido con ámbar, y el bucle de 10 s cierra exactamente (diferencia 0,00), sin errores y cumpliendo todas las reglas duras (27 KB, solo Google Fonts, __frame determinista, DPR limitado a 2, bandas negras centradas). Los puntos débiles son las pausas demasiado cortas de '¿VERDAD?' y 'AL REVÉS', las matrices de píxeles que de lejos parecen LED, un átomo pixelado algo tosco y unos rótulos secundarios demasiado pequeños para el móvil.", "s": 0.21, "favorito": false}, {"n": "14", "slug": "14-dibujo-a-mano", "nombre": "Dibujo a mano", "original": "Hand-drawn", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Canvas 2D en un marco 1920x1080: cada trazo es un polígono de anchura variable (presión, entrada y salida) que se dibuja de forma progresiva y \"hierve\" a 12 fps con un jitter sembrado por (trazo, paso). El grafito y los lápices de color se rellenan con un patrón de diente del papel fijo a la página. La sombra de la Luna lleva difumino más trama cruzada, con lápiz blanco en la parte iluminada. La goma vuelve a pintar el papel encima y deja un fantasma tenue.", "juicio": "Se reconoce al instante como dibujo a mano: papel con grano y fibras, trama de grafito de verdad, líneas azules de construcción, lápiz rojo y blanco y line boiling a 12 fps. El guion es claro (las órbitas del átomo se cierran en la Luna, se divide en norte y sur, la del sur gira 180° y la D se borra para escribir una C), el bucle cierra con diferencia 0.00, no hay errores en la página y se cumplen todas las reglas duras. Aprobado, aunque conviene escribir el texto glifo a glifo en vez de con un recorte rectangular, mantener más tiempo el remate D/C, hacer visible la goma y quitar el fantasma de la D, y mejorar los monigotes.", "s": 0.67, "favorito": true}, {"n": "15", "slug": "15-plano-tecnico", "nombre": "Plano técnico", "original": "Blueprint", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Canvas 2D vectorial en un marco de 1920x1080. Una capa fija se dibuja una sola vez: papel azul de Prusia con manchas de cianotipia procedurales (ruido de valor con semilla), grano, retícula de 20/100 px, recuadro con zonas, Tierra en sección meridiana, observadores, planta desde el polo N con línea de corte 1–1, notas y cajetín. Encima, cada fotograma traza de forma progresiva, con una plumilla que muestra coordenadas, el compás que dibuja la Luna, la transformación del átomo en la Luna, las líneas de visión y los conos visuales, y las vistas auxiliares A y B con el creciente rayado. La vista B gira 180° y la D pasa a ser una C; las cajas D/C, el texto escrito a máquina en IBM Plex Mono y IBM Plex Sans Condensed y, al final, todo se destraza en orden inverso.", "juicio": "Es un plano técnico de cianotipia muy convincente: papel azul de Prusia con manchas y grano, retícula fina, recuadro con zonas, cajetín, sección 1–1 con planta auxiliar, cotas, notas, plumilla que traza y una narrativa clara: el átomo se convierte en la Luna, la vista A muestra una D y la vista B gira 180° hasta mostrar una C. Cumple todas las reglas duras (sin errores, bucle con diferencia 0,00, determinista, letterbox correcto, 38 KB, solo Google Fonts) y queda aprobado. Los ajustes pendientes son el tamaño de las anotaciones para móvil, la coherencia del rayado, unos observadores menos clip-art y un borrado menos precipitado.", "s": 0.27, "favorito": false}, {"n": "16", "slug": "16-fisica", "nombre": "Física", "original": "Physics", "estilo": 9, "calidad": 8.5, "aprobado": true, "tecnica": "Simulación 2D escrita a mano y determinista: 584 bolas luminosas con choques reales (Verlet con proyección de posiciones, paso fijo de 1/480 s, 3 iteraciones, rejilla espacial y azar con semilla mulberry32). El átomo narrador, en el centro de la Luna, las suelta en una espiral de girasol con gravedad débil; luego la gravedad vuelve a su valor normal y gira hacia la derecha, y un molde invisible (un disco de sombra que crece) las aprieta en una creciente en D (hemisferio norte). Después la gravedad gira 180° (D → ◡ → C) y las bolas ruedan hasta la creciente en C (hemisferio sur). Al final se abre una compuerta abajo y se vacían. La simulación se calcula una sola vez en un Web Worker creado con el propio texto del script y se graba a 120 Hz; __frame(t) solo interpola esa grabación. El bucle cierra porque el vaciado del ciclo anterior se pinta encima del comienzo del siguiente. Todo se dibuja en Canvas 2D: sprites aditivos, un resplandor a 1/8 de resolución, estelas que siguen la trayectoria real, tinte cálido para las bolas en reposo y frío para las que van rápido, e indicadores tipo instrumento (dial de gravedad, dirección y número de partículas). Tipografía: Instrument Serif y JetBrains Mono.", "juicio": "Simulación granular determinista muy lograda: ~580 cuentas luminosas salen del núcleo del átomo en espiral, rellenan el aro, el molde invisible las aprieta en una D, la gravedad gira 180° y caen hasta formar la C, y el ciclo cierra vaciándose por una compuerta (diferencia 0,00, sin errores, todas las reglas duras cumplidas). La paleta (azul noche, marfil/oro, azul hielo según la velocidad) y la tipografía editorial (Instrument Serif + JetBrains Mono) son de nivel profesional; solo quedan detalles: la flecha «g» queda enterrada bajo las bolas, el chorro atraviesa la banda de subtítulos, los textos secundarios son pequeños para el móvil y el coste de dibujo en móvil es alto.", "s": 0.29, "favorito": true}, {"n": "17", "slug": "17-pixel-art", "nombre": "Pixel art", "original": "Pixel art", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Escena de 320×180 píxeles reales pintada a mano en un búfer de 32 bits con paletas cerradas y tramado Bayer, y escalada ×6 con vecino más próximo (a 1920×1080 es nítida y exacta). Contiene: un cielo nocturno con la Vía Láctea y estrellas que titilan; una Luna creciente procedural (D en el norte); Orión unido con líneas punteadas; montañas, bruma, pinos o araucarias y un lago con estela de luna, en capas con paralaje; un observador en la colina que señala la Luna; el átomo narrador flotando a su lado y también en un cuadro de diálogo estilo RPG; y el título en Press Start 2P. El cielo entero gira 180° alrededor de la Luna con estelas de estrellas, y así la D pasa a C y Orión queda cabeza abajo. Mientras gira, el título «AL REVÉS» da una voltereta y el bosque se funde con tramado de pinos (norte) a araucarias (sur).", "juicio": "Es pixel art de 16 bits real y pulido: búfer de 320x180 escalado ×6 sin suavizado, paletas cerradas con tramado Bayer, cielo con Vía Láctea y parpadeo, Orión que queda cabeza abajo, giro del cielo con estelas que convierte la D en C, y el título y la caja de diálogo de estilo JRPG con el átomo narrador; cumple todas las reglas duras, sin errores y con el bucle cerrando a 0.00. Lo que lo separa de un 10 son las araucarias del sur, que parecen farolas, la caja de diálogo vacía durante buena parte del bucle, las estelas que parecen lluvia lejos del centro y un observador y un átomo acompañante algo toscos.", "s": 0.16, "favorito": true}, {"n": "18", "slug": "18-bauhaus", "nombre": "Bauhaus", "original": "Bauhaus", "estilo": 7, "calidad": 7, "aprobado": true, "tecnica": "Cartel Bauhaus vectorial en Canvas 2D (marco 1920x1080, retícula con márgenes de 120 px): tintas planas roja, amarilla, azul y negra sobre papel crudo con grano procedural de semilla fija. Las fases lunares se construyen restando un círculo de cielo a otro círculo (recorte evenodd); el átomo pliega sus órbitas sobre el eje y su núcleo pasa a ser la Luna, que se duplica en dos cuadrados azules (norte y sur). En el norte una barra forma la D y en el sur el cuadro gira 180° y aparece la C. Las letras de «¿D o C?» viajan a cada hemisferio. Todo se anima con curvas mecánicas quart/expo, la tipografía es Jost y la tríada triángulo-cuadrado-círculo de la cabecera gira en los golpes clave.", "juicio": "Es una pieza limpia y competente, claramente de inspiración Bauhaus: primarios sobre papel con grano, tríada de Kandinsky (triángulo amarillo, cuadrado rojo, círculo azul), Jost, retícula de 120 px y easing mecánico. Además cuenta bien la idea (átomo → Luna → D en el norte, C en el sur) con un bucle perfecto (diferencia 0,00), sin errores de página y sin incumplir ninguna regla obligatoria. Aun así queda justa en ambas notas: la composición es demasiado simétrica e infográfica para leerse como cartel Bauhaus, el palo de la D parece un recorte pegado, el giro sur no gira el cuadro y el estado final dura solo ~1,3 s.", "s": 0.23, "favorito": false}, {"n": "19", "slug": "19-art-deco", "nombre": "Art déco", "original": "Art deco", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Canvas 2D vectorial en un marco de 1920x1080: cada línea y relleno dorado usa un único degradado metálico recalculado por fotograma (bandas de reflejo que derivan, barridos de luz y destellos de cuatro puntas). La composición es simétrica: un sol de rayos, un marco con esquinas escalonadas y abanicos, un cartucho con «LA LUNA AL REVÉS» en Limelight y una placa en arco a cada lado para el norte y el sur, con su luna, la letra D o C y un globo con el observador. En el centro hay un medallón sobre un plinto en zigurat: el átomo se convierte en una Luna grabada a buril, que pasa de D a C al girar 180°.", "juicio": "Es un art déco reconocible al instante: pan de oro sobre azul noche, rayos de sol simétricos, cartucho y marcos escalonados, abanicos en las esquinas y tipografía Limelight/Poiret One. La narrativa átomo → Luna → D → C es clara y se cumplen todas las reglas (bucle exacto con diferencia 0,00, sin errores, solo Google Fonts, 38 KB, letterbox correcto). Para subir de nivel hace falta pulir detalles: los observadores son demasiado pequeños y parecen pictogramas, los estados D y C duran poco, los mares lunares son manchas difusas y algunos brillos suaves no encajan con la línea nítida del déco.", "s": 0.65, "favorito": true}, {"n": "20", "slug": "20-neo-brutalismo", "nombre": "Neobrutalismo", "original": "Neo-brutalism", "estilo": 9, "calidad": 8, "aprobado": true, "tecnica": "Canvas 2D vectorial en un marco de 1920x1080 con la gramática del neo-brutalismo web: tintas planas saturadas (amarillo, rosa, lima y azul eléctrico sobre crema con retícula de puntos), contornos negros de 6 px, sombras duras desplazadas que crecen al levantar una tarjeta y desaparecen al pulsar un botón, ventanas de navegador apiladas, pegatinas que golpean, botones en píldora y un cursor que pulsa. La tipografía es Archivo Black, Space Grotesk y Space Mono, y la animación usa curvas de anticipación y rebote (back/cubic/quart). Guion: el cursor pulsa «¿VERDAD O MENTIRA?», el átomo se pliega y su núcleo crece hasta ser la Luna, que se desdobla y aterriza en las ventanas norte y sur (las dos en D en la vista global). Luego el cursor pulsa «180°», la ventana sur, cuyo observador está cabeza abajo, gira con rebote y su Luna es una C. El botón pasa a «✓ ¡VERDAD!» y todo vuelve al átomo.", "juicio": "Es neo-brutalismo de manual y muy pulido: tintas planas saturadas, contornos negros gruesos, sombras duras desplazadas, ventanas de navegador apiladas, pegatinas, retícula de puntos y Archivo Black/Space Grotesk/Space Mono, con un guion que explica bien la idea (las dos lunas en D en la vista global, giro de 180° con rebote y aparece la C), sin errores en la página y con el bucle cerrado (diferencia 0,00). Cumple todas las reglas duras; lo único que se nota es que la tarjeta sur, al girar, choca con el botón de cabecera y se mete en la franja de subtítulos, y que el observador se lee como «!» o «i»: retoques, no motivos de rechazo.", "s": 0.28, "favorito": false}]</script>
+<script>
+  const estilos = JSON.parse(document.getElementById('datos').textContent);
+  const rejilla = document.getElementById('rejilla');
+  const visor = document.getElementById('visor');
+  const pantalla = document.getElementById('pantalla');
+  const favoritosPrimero = () => estilos.slice().sort((a, c) => (c.favorito - a.favorito) || a.n.localeCompare(c.n));
+  let orden = favoritosPrimero();
+  let actual = 0;
+
+  const horas = (s) => {
+    const h = (s * 9000) / 2 / 3600;
+    return h < 1 ? `${Math.round(h * 60)} min` : `${h.toFixed(1).replace('.', ',')} h`;
+  };
+  const coma = (x) => String(x).replace('.', ',');
+
+  function pintar() {
+    rejilla.innerHTML = '';
+    orden.forEach((e, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ficha';
+      b.setAttribute('aria-label', `Ver ${e.nombre} en movimiento`);
+      b.innerHTML = `
+        <div class="marco"><img src="miniaturas/${e.slug}.jpg" alt="" loading="lazy" width="640" height="360"><span class="numero">${e.n}</span>${e.favorito ? '<span class="estrella">★ Favorito</span>' : ''}<span class="play" aria-hidden="true"></span></div>
+        <div class="pie">
+          <div class="nombre"><strong>${e.nombre}</strong><small>${e.original}</small></div>
+          <div class="notas">
+            <span>Estilo</span><span class="barra"><i style="width:${e.estilo * 10}%"></i></span><b>${coma(e.estilo)}</b>
+            <span>Calidad</span><span class="barra"><i style="width:${e.calidad * 10}%"></i></span><b>${coma(e.calidad)}</b>
+          </div>
+          <div class="render">Render <b>${coma(e.s)} s</b>/fotograma · 5 min de vídeo ≈ <b>${horas(e.s)}</b></div>
+        </div>`;
+      b.addEventListener('click', () => abrir(i));
+      rejilla.appendChild(b);
+    });
+  }
+
+  function abrir(i) {
+    actual = (i + orden.length) % orden.length;
+    const e = orden[actual];
+    document.getElementById('visor-titulo').innerHTML = `${e.n} · ${e.nombre}<small>${e.original}</small>`;
+    document.getElementById('visor-tecnica').textContent = e.tecnica;
+    document.getElementById('visor-juicio').textContent = e.juicio;
+    document.getElementById('abrir').href = `${e.slug}.html`;
+    pantalla.src = `${e.slug}.html`;
+    if (!visor.open) visor.showModal();
+  }
+  function cerrar() { visor.close(); }
+  visor.addEventListener('close', () => { pantalla.src = 'about:blank'; });
+  document.getElementById('cerrar').addEventListener('click', cerrar);
+  document.getElementById('anterior').addEventListener('click', () => abrir(actual - 1));
+  document.getElementById('siguiente').addEventListener('click', () => abrir(actual + 1));
+  visor.addEventListener('click', (ev) => { if (ev.target === visor) cerrar(); });
+  document.addEventListener('keydown', (ev) => {
+    if (!visor.open) return;
+    if (ev.key === 'ArrowRight') abrir(actual + 1);
+    if (ev.key === 'ArrowLeft') abrir(actual - 1);
+  });
+
+  document.querySelectorAll('.orden button').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('.orden button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    const o = b.dataset.orden;
+    orden = o === 'favoritos' ? favoritosPrimero() : estilos.slice();
+    if (o === 'render') orden.sort((a, c) => a.s - c.s);
+    if (o === 'nota') orden.sort((a, c) => (c.estilo + c.calidad) - (a.estilo + a.calidad) || a.s - c.s);
+    pintar();
+  }));
+
+  pintar();
+</script>
+
+</body>
+</html>

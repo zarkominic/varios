@@ -1,0 +1,428 @@
+<meta charset="utf-8">
+<title>Clase con Nia</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Kalam:wght@400;700&display=swap">
+<style>
+  /* Estudio de grabación: a la izquierda el vídeo vertical tal como saldría en Shorts o TikTok; a la derecha, la mesa de control. */
+  :root {
+    --bg: #eaf0f5;
+    --superficie: #ffffff;
+    --borde: #d3dde7;
+    --texto: #15202b;
+    --tenue: #536476;
+    --acento: #c2471a;
+    --acento-texto: #ffffff;
+    --codigo-bg: #f3f6f9;
+    --sombra: rgba(16, 40, 64, 0.35);
+
+    --f-titulo: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --f-texto: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --f-tiza: "Kalam", "Segoe Print", "Comic Sans MS", cursive;
+    --f-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+    /* El vídeo tiene un aspecto fijo, igual en tema claro y oscuro. */
+    --tiza: #f3f0e6;
+    --t-azul: #8fd0ff;
+    --t-rojo: #ff8f80;
+    --t-amarillo: #ffd66e;
+    --t-naranja: #ffae5e;
+    --t-verde: #9be59b;
+    --t-violeta: #c6a2ff;
+    --pizarra: #24332d;
+    --marco: #6b4a30;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e141a;
+      --superficie: #161e26;
+      --borde: #283542;
+      --texto: #e6edf3;
+      --tenue: #9aabbc;
+      --acento: #ff8a4c;
+      --acento-texto: #1a0d05;
+      --codigo-bg: #10171e;
+      --sombra: rgba(0, 0, 0, 0.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e141a;
+    --superficie: #161e26;
+    --borde: #283542;
+    --texto: #e6edf3;
+    --tenue: #9aabbc;
+    --acento: #ff8a4c;
+    --acento-texto: #1a0d05;
+    --codigo-bg: #10171e;
+    --sombra: rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+
+  [hidden] { display: none !important; }
+  body {
+    background: var(--bg);
+    color: var(--texto);
+    font-family: var(--f-texto);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .estudio {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-block: 28px 56px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .cabecera { max-width: 62ch; margin-bottom: 24px; }
+  .antetitulo {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tenue);
+  }
+  h1 {
+    margin: 0 0 10px;
+    font-family: var(--f-titulo);
+    font-weight: 800;
+    font-size: clamp(34px, 5vw, 50px);
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .entradilla { margin: 0; color: var(--tenue); font-size: 17px; }
+
+  .disposicion {
+    display: grid;
+    grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  .columna-video { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+  @media (max-width: 820px) {
+    .disposicion { grid-template-columns: minmax(0, 1fr); }
+    .columna-video { position: static; }
+    .escenario { margin-inline: auto; }
+  }
+
+  /* ---------- Vídeo vertical ---------- */
+  .escenario {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 9 / 16;
+    border-radius: 24px;
+    overflow: hidden;
+    isolation: isolate;
+    background: #86c3ee;
+    box-shadow: 0 24px 50px -26px var(--sombra);
+  }
+  .cielo { position: absolute; inset: 0; transition: opacity 1.6s ease; }
+  .cielo-dia { background: linear-gradient(180deg, #4f9fdc 0%, #86c3ee 45%, #cfe8f7 80%, #eef6f9 100%); }
+  .cielo-atardecer {
+    background: linear-gradient(180deg, #2f2c5c 0%, #74467a 30%, #dc7459 62%, #f5ad63 85%, #fbd38d 100%);
+    opacity: 0;
+  }
+  .escenario[data-cielo="atardecer"] .cielo-atardecer { opacity: 1; }
+
+  .segmentos { position: absolute; top: 10px; left: 12px; right: 12px; z-index: 5; display: flex; gap: 4px; }
+  .segmentos span { flex: 1; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.42); overflow: hidden; }
+  .segmentos i { display: block; width: 0; height: 100%; background: #ffffff; }
+  .serie {
+    position: absolute;
+    top: 19px;
+    left: 14px;
+    right: 14px;
+    z-index: 5;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  .pizarra {
+    position: absolute;
+    top: 40px;
+    left: 12px;
+    right: 12px;
+    height: 37%;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    border: 6px solid var(--marco);
+    border-radius: 8px;
+    background: radial-gradient(120% 90% at 30% 20%, #2f4239 0%, var(--pizarra) 60%, #1c2924 100%);
+    box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.35), 0 6px 14px rgba(0, 0, 0, 0.25);
+  }
+  .pizarra svg { display: block; width: 100%; height: 100%; }
+  .pizarra .trazo {
+    fill: none;
+    stroke: var(--tiza);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0.95;
+    animation: dibujar 0.8s ease-out var(--d, 0s) forwards;
+  }
+  .pizarra .trazo.grueso { stroke-width: 4; }
+  .pizarra .trazo.fino { stroke-width: 1.6; }
+  .pizarra .trazo.tenue { opacity: 0.45; }
+  .pizarra .trazo.azul { stroke: var(--t-azul); }
+  .pizarra .trazo.rojo { stroke: var(--t-rojo); }
+  .pizarra .trazo.amarillo { stroke: var(--t-amarillo); }
+  .pizarra .trazo.naranja { stroke: var(--t-naranja); }
+  .pizarra .trazo.verde { stroke: var(--t-verde); }
+  .pizarra .trazo.violeta { stroke: var(--t-violeta); }
+  .pizarra .trazo.degradado { stroke: url(#g-atardecer); }
+  .pizarra text.tiza { fill: var(--tiza); font-family: var(--f-tiza); }
+  .pizarra text.azul { fill: var(--t-azul); }
+  .pizarra text.rojo { fill: var(--t-rojo); }
+  .pizarra text.amarillo { fill: var(--t-amarillo); }
+  .pizarra .aparece { opacity: 0; animation: aparecer 0.5s ease-out var(--d, 0s) forwards; }
+  @keyframes dibujar { to { stroke-dashoffset: 0; } }
+  @keyframes aparecer { to { opacity: 1; } }
+
+  .lienzo { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .estado {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 26%;
+    z-index: 3;
+    margin: 0;
+    text-align: center;
+    font-weight: 700;
+    color: #0f2236;
+  }
+  .play {
+    position: absolute;
+    left: 50%;
+    bottom: 13%;
+    z-index: 4;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border: 0;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #15202b;
+    font: 700 17px var(--f-texto);
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.55);
+    cursor: pointer;
+  }
+  .play svg { width: 14px; height: 14px; fill: currentColor; }
+  .play:disabled { opacity: 0.7; cursor: progress; }
+  .subtitulo {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 24px;
+    z-index: 3;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+  .subtitulo .caja {
+    padding: 7px 12px;
+    border-radius: 10px;
+    background: rgba(12, 18, 26, 0.74);
+    font: 700 19px/1.3 var(--f-texto);
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .subtitulo .dicho { color: #ffffff; }
+
+  /* ---------- Mesa de control ---------- */
+  .mesa { display: grid; gap: 16px; min-width: 0; }
+  .panel {
+    min-width: 0;
+    padding: 18px 20px;
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    background: var(--superficie);
+  }
+  .panel h2 {
+    margin: 0 0 4px;
+    font-family: var(--f-titulo);
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .ayuda { margin: 0 0 14px; color: var(--tenue); font-size: 15px; max-width: 62ch; }
+  .ayuda:last-child { margin-bottom: 0; }
+  .botones { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .boton {
+    padding: 10px 16px;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--superficie);
+    color: var(--texto);
+    font: 700 15px var(--f-texto);
+    cursor: pointer;
+  }
+  .boton.principal { border-color: transparent; background: var(--acento); color: var(--acento-texto); }
+  .boton:disabled { opacity: 0.5; cursor: not-allowed; }
+  .opciones-voz { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; }
+  .interruptor { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+  .interruptor input { width: 18px; height: 18px; accent-color: var(--acento); }
+  select, textarea {
+    max-width: 100%;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--texto);
+    font-family: var(--f-texto);
+  }
+  select { min-width: 0; padding: 8px 10px; font-size: 15px; }
+  textarea { width: 100%; min-height: 78px; margin-bottom: 10px; padding: 10px 12px; font-size: 16px; resize: vertical; }
+  .grupo { margin: 14px 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tenue); }
+  .grupo:first-of-type { margin-top: 4px; }
+  .fichas { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ficha {
+    padding: 7px 13px;
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--texto);
+    font: 700 14px var(--f-texto);
+    cursor: pointer;
+  }
+  .ficha[aria-pressed="true"] { border-color: var(--texto); background: var(--texto); color: var(--bg); }
+  :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+  .codigo {
+    max-height: 320px;
+    margin: 0;
+    padding: 12px 14px;
+    overflow: auto;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--codigo-bg);
+    font: 13px/1.5 var(--f-mono);
+    white-space: pre;
+  }
+  .ficha-tecnica { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 18px; margin: 0; }
+  .ficha-tecnica dt { font-weight: 700; }
+  .ficha-tecnica dd { margin: 0; color: var(--tenue); }
+  .ficha-tecnica code { font-family: var(--f-mono); font-size: 0.92em; color: var(--texto); }
+  @media (max-width: 520px) {
+    .ficha-tecnica { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    .ficha-tecnica dd { margin-bottom: 10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pizarra .trazo { animation: none; stroke-dashoffset: 0; }
+    .pizarra .aparece { animation: none; opacity: 1; }
+    .cielo { transition: none; }
+  }
+</style>
+
+<main class="estudio">
+  <header class="cabecera">
+    <p class="antetitulo">Ejemplo · personaje VRoid con React Three Fiber</p>
+    <h1>Clase con Nia</h1>
+    <p class="entradilla">Un personaje hecho en VRoid explica un tema en formato vertical, con voz, labios sincronizados, gestos y una pizarra que se dibuja sola. Pulsa reproducir.</p>
+  </header>
+
+  <div class="disposicion">
+    <section class="columna-video" aria-label="Vídeo de ejemplo">
+      <div class="escenario" id="escenario" data-cielo="dia">
+        <div class="cielo cielo-dia"></div>
+        <div class="cielo cielo-atardecer"></div>
+        <div class="segmentos" id="segmentos"></div>
+        <p class="serie">Lo que no te explicaron en clase · Nº 1</p>
+        <div class="pizarra" id="pizarra"></div>
+        <div class="lienzo" id="lienzo"></div>
+        <p class="estado" id="estado">Cargando a Nia…</p>
+        <button class="play" id="play" type="button" disabled>
+          <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 1 L13 7 L2 13 Z"/></svg>
+          <span>Reproducir</span>
+        </button>
+        <p class="subtitulo" id="subtitulo" aria-live="polite" hidden></p>
+      </div>
+    </section>
+
+    <div class="mesa">
+      <section class="panel">
+        <h2>Reproducir la clase</h2>
+        <p class="ayuda">Siete escenas, menos de un minuto. En cada escena cambian la pizarra, el cielo, la expresión y el gesto.</p>
+        <div class="botones">
+          <button class="boton principal" id="btn-reproducir" type="button" disabled>Reproducir clase</button>
+          <button class="boton" id="btn-detener" type="button" disabled>Detener</button>
+        </div>
+        <div class="opciones-voz">
+          <label class="interruptor"><input type="checkbox" id="usar-voz" checked> Con voz</label>
+          <select id="voz" aria-label="Voz en español"></select>
+        </div>
+        <p class="ayuda" id="aviso-voz" style="margin-top: 10px"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Hazla hablar</h2>
+        <p class="ayuda">Escribe cualquier frase. Nia la dice moviendo los labios con cada vocal.</p>
+        <label for="frase" class="grupo" style="display:block">Frase</label>
+        <textarea id="frase">Hola, soy Nia. Cada semana te explico algo que no te contaron en clase. ¿Qué tema quieres que prepare?</textarea>
+        <button class="boton principal" id="btn-decir" type="button" disabled>Decir</button>
+      </section>
+
+      <section class="panel">
+        <h2>Expresión y gesto</h2>
+        <p class="ayuda">El modelo de VRoid trae las expresiones hechas. Los gestos son poses que se programan en código.</p>
+        <p class="grupo">Expresión</p>
+        <div class="fichas">
+          <button class="ficha" type="button" data-expresion="neutral">Neutral</button>
+          <button class="ficha" type="button" data-expresion="feliz">Feliz</button>
+          <button class="ficha" type="button" data-expresion="sonriente">Sonriente</button>
+          <button class="ficha" type="button" data-expresion="sorpresa">Sorpresa</button>
+          <button class="ficha" type="button" data-expresion="triste">Triste</button>
+          <button class="ficha" type="button" data-expresion="enfado">Enfado</button>
+        </div>
+        <p class="grupo">Gesto</p>
+        <div class="fichas">
+          <button class="ficha" type="button" data-gesto="reposo">Reposo</button>
+          <button class="ficha" type="button" data-gesto="explicar">Explicar</button>
+          <button class="ficha" type="button" data-gesto="senalar">Señalar</button>
+          <button class="ficha" type="button" data-gesto="saludar">Saludar</button>
+        </div>
+      </section>
+
+      <section class="panel guion">
+        <h2>El guion es un archivo de datos</h2>
+        <p class="ayuda">Claude escribe este archivo para cada tema y el personaje lo interpreta. Para hacer otro vídeo solo cambia el guion.</p>
+        <pre class="codigo" id="guion-json" tabindex="0">Cargando guion…</pre>
+      </section>
+
+      <section class="panel">
+        <h2>Cómo está hecho</h2>
+        <dl class="ficha-tecnica">
+          <dt>Personaje</dt>
+          <dd><code>three-vrm-girl</code>, creado con VRoid Studio por pixiv. Su licencia permite uso comercial y modificarlo, sin crédito obligatorio.</dd>
+          <dt>3D</dt>
+          <dd>React Three Fiber con <code>@pixiv/three-vrm</code>: expresiones, mirada a cámara, parpadeo y pelo con física.</dd>
+          <dt>Labios</dt>
+          <dd>Cada vocal (a, e, i, o, u) tiene su forma de boca. Se sincroniza con la voz palabra a palabra.</dd>
+          <dt>Voz</dt>
+          <dd>La del navegador, gratis. Para publicar: tu voz grabada o una voz libre como Piper.</dd>
+          <dt>Tu personaje</dt>
+          <dd>Lo diseñas en VRoid Studio (gratis), exportas el <code>.vrm</code> y sustituyes <code>nia.vrm</code>.</dd>
+          <dt>Siguiente paso</dt>
+          <dd>Remotion para exportar el MP4 vertical fotograma a fotograma, listo para subir.</dd>
+        </dl>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script type="module" src="app.js"></script>

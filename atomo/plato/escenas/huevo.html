@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Huevo</title>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Escena «huevo» (papel, stop-motion a 12 fps). Bloque 6: «en el ecuador un huevo se queda de pie».
+// A · huevo de pie sobre un clavo en la línea del ecuador, con turistas · [mentira] sello ✗ ·
+//     [truco] manos pacientes que lo equilibran y un reloj de arena.
+// B · [cualquier] el mismo huevo de pie en el norte, en el ecuador y en el sur de un globo pequeño (✓).
+// C · [peso] la Tierra de papel con una persona en el polo · [achatada] se ensancha por el ecuador
+//     (exagerado) · radios: en el ecuador estás más lejos del centro · [fuera] el giro empuja hacia fuera.
+// D · [bascula] dos básculas con la misma persona, en el polo y en el ecuador · [gramos] la del
+//     ecuador marca un poco menos: −½ %.
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/papel.js';
+const { C, seg, eio, ein, eout, lerp, PI, TAU } = K;
+
+const E = await escena('huevo');
+await K.preparar();
+const M = (n, d) => E.marca(n, d);
+const m = {
+  mentira: M('mentira', 4.16), truco: M('truco', 5.39), cualquier: M('cualquier', 9.631), peso: M('peso', 12.983),
+  achatada: M('achatada', 14.983), fuera: M('fuera', 20.038), bascula: M('bascula', 21.098), gramos: M('gramos', 26.038),
+  medio: M('medio', 21.876),
+};
+const VOZ1 = (E.voz ?? [0, E.duracion])[1];
+const T = {
+  sello: [m.mentira - 0.3, m.mentira],
+  manos: [m.truco - 0.45, m.truco], sueltan: [m.truco + 2.1, m.truco + 2.8],
+  arena: [m.truco, m.truco + 3.6],
+  fueraA: [m.cualquier - 0.78, m.cualquier - 0.36],
+  globo: [m.cualquier - 0.36, m.cualquier],
+  huevos: [[m.cualquier - 0.3, m.cualquier - 0.1], [m.cualquier - 0.24, m.cualquier - 0.04], [m.cualquier - 0.2, m.cualquier]],
+  quitaHuevos: [m.peso - 0.66, m.peso - 0.42],
+  crece: [m.peso - 0.46, m.peso - 0.06],
+  persona: [m.peso - 0.3, m.peso],
+  giro: [m.peso + 0.55, m.peso + 0.9],
+  achata: [m.achatada - 0.4, m.achatada],
+  radioPolo: [m.achatada + 0.95, m.achatada + 1.35],
+  personaEq: [m.achatada + 1.3, m.achatada + 1.6],
+  radioEq: [m.achatada + 1.6, m.achatada + 2.0],
+  fuera: [m.fuera - 0.36, m.fuera],
+  quitaC: [m.bascula - 0.78, m.bascula - 0.56],
+  encoge: [m.bascula - 0.62, m.bascula - 0.2],
+  cartaP: [m.bascula - 0.36, m.bascula], cartaE: [m.bascula - 0.28, m.bascula],
+  agujas: [m.bascula - 0.05, m.bascula + 0.45],
+  baja: [m.medio - 0.3, m.medio],              // «medio por ciento menos»
+  etiqueta: [m.medio - 0.26, m.medio],
+  cuna: [m.gramos - 0.3, m.gramos],            // la diferencia, marcada en la esfera
+};
+
+const fondo = K.capa(() => K.fondoNoche({ luz: [960, 440], semilla: 53, estrellas: 230 }));
+const HZ = 712;
+const paisaje = K.paisajeEcuador({ horizonte: HZ, monumento: 560, escMonumento: 0.78 });
+
+// ---------------------------------------------------------------- piezas
+const huevoP = (() => {
+  // óvalo de huevo: más estrecho arriba; base en (0, 0), alto 1
+  const pts = [];
+  for (let i = 0; i < 64; i++) {
+    const a = i / 64 * TAU, y = -0.5 - 0.5 * Math.cos(a), w = 0.36 * Math.sin(a) * (1 - 0.18 * Math.cos(a));
+    pts.push([w, y]);
+  }
+  return pts;
+})();
+const huevoPath = new Map();
+function huevo(h, id = 40) {
+  if (!huevoPath.has(h)) {
+    const p = K.suave(huevoP.map(([x, y]) => [x * h, y * h]));
+    const brillo = K.suave(huevoP.map(([x, y]) => [x * h * 0.42 - h * 0.1, y * h * 0.36 - h * 0.48]));
+    huevoPath.set(h, { p, brillo });
+  }
+  const P = huevoPath.get(h), g = K.g;
+  K.papel(P.p, C.ivory, { d: 3, seed: id, print: () => {
+    const gr = g.createLinearGradient(-h * 0.4, -h, h * 0.4, 0);
+    gr.addColorStop(0, 'rgba(255,255,250,0.0)'); gr.addColorStop(1, 'rgba(120,90,50,0.28)');
+    g.fillStyle = gr; g.fillRect(-h, -h * 1.1, 2 * h, h * 1.2);
+  } });
+  K.papel(P.brillo, '#fbf4e2', { d: 0, seed: id + 1, edge: 0, ta: 0.5, tb: 0.3 });
+}
+function clavo(h = 46, id = 50) {
+  K.papel(K.poligono([[-3.5, 0], [3.5, 0], [1.4, h], [-1.4, h]]), C.metal, { d: 1.6, seed: id });
+  K.papel(K.elipse(13, 4, id + 1, 0.02), C.metalD, { d: 1.4, seed: id + 2 });
+}
+// manos de perfil, dedos juntos hacia +x (yemas en x ≈ 50)
+const mano = (() => {
+  const palma = K.rectRecortado(-44, -24, 60, 46, 16, 61, 0.5);
+  const dedos = K.rectRecortado(4, -21, 46, 38, 15, 63, 0.4);
+  const pulgar = K.rectRecortado(-6, -7, 36, 13, 6.5, 64, 0.3);
+  const manga = K.rectRecortado(-1000, -32, 966, 64, 8, 62, 0.8);
+  const puno = K.rect(-50, -30, 18, 60, 5);
+  return { palma, dedos, pulgar, manga, puno };
+})();
+function dibujaMano(col, colD, id) {
+  const g = K.g;
+  K.papel(mano.manga, col, { d: 3, seed: id });
+  K.papel(mano.puno, colD, { d: 3.2, seed: id + 1 });
+  K.papel(mano.palma, C.skin, { d: 3.4, seed: id + 2 });
+  K.papel(mano.dedos, C.skin, { d: 3.2, seed: id + 3, print: () => {
+    g.strokeStyle = 'rgba(150,100,70,0.45)'; g.lineWidth = 1.6; g.lineCap = 'round';
+    for (const y of [-11, -1.5, 8]) { g.beginPath(); g.moveTo(12, y); g.lineTo(46, y + 0.5); g.stroke(); }
+  } });
+  g.save(); g.translate(8, -25); g.rotate(-0.16); K.papel(mano.pulgar, C.skinD, { d: 3.6, seed: id + 8 }); g.restore();
+}
+// reloj de arena (base en el origen, alto ~230)
+const RA = { tapa: K.rectRecortado(-62, -12, 124, 24, 8, 70, 0.5), poste: K.rect(-5, -100, 10, 200, 4) };
+const cristal = (() => { const p = new Path2D(); p.moveTo(-44, -96); p.lineTo(44, -96); p.quadraticCurveTo(40, -30, 6, 0); p.quadraticCurveTo(40, 30, 44, 96); p.lineTo(-44, 96); p.quadraticCurveTo(-40, 30, -6, 0); p.quadraticCurveTo(-40, -30, -44, -96); p.closePath(); p.bb = [-44, -96, 44, 96]; return p; })();
+function relojArena(u) {
+  const g = K.g;
+  g.save(); g.translate(0, -112);
+  [-52, 52].forEach((x, i) => { g.save(); g.translate(x, 0); K.papel(RA.poste, C.maderaD, { d: 2.6, seed: 71 + i }); g.restore(); });
+  g.globalAlpha = 0.8; K.papel(cristal, '#d8e4e0', { d: 1.6, seed: 73, tb: 0.6, edge: 0.8 }); g.globalAlpha = 1;
+  g.save(); g.clip(cristal);
+  // arena arriba (baja) y montón abajo (crece)
+  const top = lerp(-80, -4, u), pile = lerp(0, 70, u);
+  K.papel(K.poligono([[-48, top], [48, top], [48, 0], [-48, 0]]), C.sand, { d: 0, seed: 74, edge: 0.6 });
+  K.papel(K.poligono([[-50, 96], [50, 96], [50, 96 - pile * 0.55], [0, 96 - pile], [-50, 96 - pile * 0.55]]), C.sand, { d: 0, seed: 75, edge: 0.6 });
+  if (u > 0.01 && u < 0.99) { g.fillStyle = C.sand; g.fillRect(-1.6, 0, 3.2, 96 - pile); }
+  g.restore();
+  g.save(); g.translate(0, -100); K.papel(RA.tapa, C.madera, { d: 3, seed: 76 }); g.restore();
+  g.save(); g.translate(0, 100); K.papel(RA.tapa, C.madera, { d: 3, seed: 77 }); g.restore();
+  g.restore();
+}
+
+// ---------------------------------------------------------------- A · el huevo en la línea
+const EX = 960, POSTE = 640, CLAVO = 44, HH = 112;
+function seccionA(t) {
+  const g = K.g, u = ein(seg(t, T.fueraA[0], T.fueraA[1]));
+  if (u >= 1) return;
+  g.save(); g.translate(-1900 * u, -40 * u);
+  K.elevar(8 * u, () => {
+    g.save(); g.translate(960, HZ); K.temblor(705, 0.4, 0.001); g.drawImage(paisaje.c, -paisaje.ox, -paisaje.oy); g.restore();
+    // turistas (detrás)
+    const turista = (x, o) => {
+      g.save(); g.translate(x, 812); K.temblor(o.id, 0.5, 0.006); g.scale(2.55, 2.55); K.persona(o);
+      if (o.camara) {   // cámara delante de la cara, sujeta con las dos manos
+        g.translate(0, -57); K.papel(K.rectRecortado(-7, -4.6, 14, 9.2, 2.4, 81, 0.2), C.ink, { d: 1.2, seed: 82 + o.id });
+        K.papel(K.circulo(2.6, 83), C.metal, { d: 0.5, seed: 84 }); K.papel(K.rect(2.2, -6.4, 3.4, 2, 0.8), C.ink2, { d: 0.5, seed: 85 });
+      }
+      g.restore();
+    };
+    turista(500, { abrigo: C.teal2, tocado: 'gorra', colTocado: C.coral, brazoD: K.aimAt(30, -14), id: 210 });
+    turista(660, { abrigo: C.mustard, tocado: 'pelo', pelo: C.hair, falda: true, brazoD: 2.3, brazoI: -2.3, camara: true, id: 220 });
+    turista(1290, { abrigo: C.plum, tocado: 'sombrero', colTocado: C.ivory3, brazoD: 2.3, brazoI: -2.3, camara: true, id: 230 });
+    turista(1450, { abrigo: C.coral, tocado: 'pelo', pelo: '#6a4a3a', mirar: -1, brazoI: K.aimAt(-30, -16), id: 240 });
+    // poste con clavo y huevo
+    g.save(); g.translate(EX, 880); K.temblor(250, 0.4, 0.002);
+    K.papel(K.rectRecortado(-34, -240, 68, 250, 8, 251, 0.6), C.madera, { d: 5, seed: 252, print: () => {
+      g.strokeStyle = 'rgba(70,40,20,0.25)'; g.lineWidth = 1.5;
+      for (let i = 0; i < 5; i++) { g.beginPath(); g.moveTo(-26 + i * 13, -236); g.bezierCurveTo(-20 + i * 13, -150, -30 + i * 13, -80, -24 + i * 13, 10); g.stroke(); }
+    } });
+    K.papel(K.rectRecortado(-42, -252, 84, 20, 6, 253, 0.5), C.maderaD, { d: 4, seed: 254 });
+    g.restore();
+    g.save(); g.translate(EX, 880 - 252 - CLAVO); clavo(CLAVO, 255); g.restore();
+    // el huevo, con el temblor justo de estar en equilibrio
+    const um = seg(t, T.manos[0], T.manos[1]), us = seg(t, T.sueltan[0], T.sueltan[1]);
+    g.save(); g.translate(EX, 880 - 252 - CLAVO - 2); K.temblor(256, 0.3, 0.006); huevo(HH, 257); g.restore();
+    // reloj de arena (paciencia)
+    if (um > 0) {
+      const p = K.colocar(um);
+      g.save(); g.translate(1150 + p.dx, 868 + p.dy); g.scale(p.s, p.s); K.temblor(260, 0.45, 0.004);
+      K.elevar(p.d, () => relojArena(eio(seg(t, T.arena[0], T.arena[1]))));
+      g.restore();
+    }
+    // manos que lo equilibran con cuidado
+    if (um > 0 && us < 1) {
+      const entra = eout(um), sale = ein(us), hy = 880 - 252 - CLAVO - HH * 0.5;
+      // las manos bajan desde las esquinas de arriba siguiendo la manga, por encima de los turistas
+      const off = lerp(1150, 0, entra) + 1150 * sale, fino = Math.sin(t * 7.3) * 1.2;
+      const an = 1.0, dx = Math.cos(an), dy = Math.sin(an), k = 0.82;
+      K.elevar(6, () => {
+        for (const sx of [-1, 1]) {
+          const tx = EX + sx * (HH * 0.36 - 20 + fino), ty = hy + (sx > 0 ? 4 : -4);
+          g.save(); g.translate(tx + sx * dx * (52 * k + off), ty - dy * (52 * k + off)); g.scale(sx * -k, k); g.rotate(an); K.temblor(270 + sx * 10, 0.4, 0.01);
+          dibujaMano(C.blue, C.blueD, 271 + (sx > 0 ? 10 : 0));
+          g.restore();
+        }
+      });
+    }
+    K.sello(1350, 250, '✗', seg(t, T.sello[0], T.sello[1]), { R: 88, id: 910 });
+  });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- B, C, D · el globo / la Tierra
+const LAT0 = 0;
+// estado del globo: posición, radio, achatamiento
+function estadoGlobo(t) {
+  const c = eio(seg(t, T.crece[0], T.crece[1])), e = eio(seg(t, T.encoge[0], T.encoge[1]));
+  return {
+    x: 960, y: lerp(lerp(500, 500, c), 318, e),
+    R: lerp(lerp(236, 300, c), 150, e),
+    a: 0.06 * eio(seg(t, T.achata[0], T.achata[1])),
+  };
+}
+const giroPts = (R, rp) => K.arcoPts(0, -rp - 20, R * 0.5, R * 0.12, PI - 0.08, 0.1, 30);
+function globo(t) {
+  const g = K.g, uin = seg(t, T.globo[0], T.globo[1]);
+  if (uin <= 0) return;
+  const p = K.colocar(uin), S = estadoGlobo(t), R = S.R, ax = 1 + S.a, ay = 1 - S.a;
+  // gira desde «peso»; se frena hasta quedarse quieta al pasar a las básculas
+  const A = T.encoge[0], B = m.bascula + 0.4;
+  const tau = t < A ? t : t < B ? A + (t - A) * (1 - 0.5 * (t - A) / (B - A)) : A + (B - A) / 2;
+  const lon = t < T.giro[0] ? -20 : -20 - 16 * (tau - T.giro[0]);
+  g.save(); g.translate(S.x + p.dx, S.y + p.dy); g.scale(p.s, p.s);
+  K.elevar(p.d, () => {
+    // círculo de referencia (la esfera sin achatar)
+    const ur = seg(t, T.achata[0] - 0.1, T.achata[0] + 0.2), ux = seg(t, T.quitaC[0], T.quitaC[1]);
+    K.tierra(0, 0, R, { lon0: lon, lat0: LAT0, achatar: S.a, eje: t > T.crece[0], id: 120 });
+    if (ur > 0 && ux < 1) K.puntadas(K.arcoPts(0, 0, R, R, 0, TAU, 90), { u1: eio(ur), col: C.ivory, ancho: 3, guion: [10, 8], nudos: false, d: 2 });
+    const ug = eio(seg(t, T.giro[0], T.giro[1]));
+    if (ug > 0) K.flecha(giroPts(R, R * ay), { u: ug, col: C.gold, ancho: 7, punta: 24, seed: 141, d: 3 });
+    // B · los tres huevos (norte, ecuador, sur), de pie, cada uno con su brillo
+    const q = seg(t, T.quitaHuevos[0], T.quitaHuevos[1]);
+    if (q < 1) {
+      g.save(); g.translate(-24 * q, -34 * q);
+      K.elevar(12 * q, () => {
+        K.etiqueta(0, -R - 50, 'N', { size: 36, forma: 'circulo', col: C.ivory, u: seg(t, T.globo[0] + 0.1, T.globo[1] + 0.1), id: 965, d: 2.5 });
+        K.etiqueta(0, R + 50, 'S', { size: 36, forma: 'circulo', col: C.gold, u: seg(t, T.globo[0] + 0.15, T.globo[1] + 0.15), id: 966, d: 2.5 });
+        [[-0.3, -0.62], [0.04, 0], [0.32, 0.62]].forEach(([fx, fy], i) => {
+          const ue = seg(t, T.huevos[i][0], T.huevos[i][1]); if (ue <= 0) return;
+          const pe = K.colocar(ue), c = m.cualquier + i * 0.12;
+          const pulso = Math.sin(PI * seg(t, c - 0.05, c + 0.6));
+          g.save(); g.translate(fx * R + pe.dx * 0.5, fy * R + pe.dy * 0.5); g.scale(pe.s, pe.s);
+          // brillo: «aquí también se sostiene»
+          const gr = g.createRadialGradient(0, -62, 6, 0, -62, 92 + 30 * pulso);
+          gr.addColorStop(0, `rgba(255,226,150,${0.34 + 0.36 * pulso})`); gr.addColorStop(1, 'rgba(255,226,150,0)');
+          g.fillStyle = gr; g.fillRect(-130, -190, 260, 260);
+          K.temblor(150 + i, 0.4, 0.008);
+          K.elevar(pe.d + 3 * pulso, () => {
+            g.save(); g.translate(0, -24); clavo(24, 160 + i * 3); g.restore();
+            g.save(); g.translate(0, -26); g.scale(1 + 0.08 * pulso, 1 + 0.08 * pulso); huevo(70, 170 + i * 2); g.restore();
+          });
+          g.restore();
+        });
+      });
+      g.restore();
+    }
+    // C · persona en el polo, radios y persona en el ecuador
+    const uc = seg(t, T.persona[0], T.persona[1]);
+    if (uc > 0 && ux < 1) {
+      g.save(); g.translate(-30 * ux, -40 * ux);
+      K.elevar(12 * ux, () => {
+        const rp = R * ay, re = R * ax;
+        // radios
+        const up = eio(seg(t, T.radioPolo[0], T.radioPolo[1])), ue = eio(seg(t, T.radioEq[0], T.radioEq[1]));
+        if (up > 0) { K.papel(K.tira([[0, 0], [0, -rp * up]], 4), C.ivory, { d: 1.6, seed: 180 }); }
+        if (ue > 0) { K.papel(K.tira([[0, 0], [re * ue, 0]], 5.5), C.coral, { d: 1.8, seed: 181 }); }
+        if (up > 0 || ue > 0) K.chincheta(0, 0, 10);
+        // persona en el polo norte
+        const pc = K.colocar(uc);
+        g.save(); g.translate(pc.dx, -rp + 2 + pc.dy); g.scale(pc.s, pc.s); K.temblor(190, 0.5, 0.008);
+        K.elevar(pc.d, () => K.persona({ escala: 1.55, abrigo: C.coral, tocado: 'pelo', id: 191 }));
+        g.restore();
+        // persona en el ecuador, de pie hacia fuera
+        const ux2 = seg(t, T.personaEq[0], T.personaEq[1]);
+        if (ux2 > 0) {
+          const pe = K.colocar(ux2);
+          g.save(); g.translate(re - 2 + pe.dx, pe.dy); g.rotate(PI / 2); g.scale(pe.s, pe.s); K.temblor(195, 0.5, 0.008);
+          K.elevar(pe.d, () => K.persona({ escala: 1.55, abrigo: C.coral, tocado: 'pelo', id: 196 }));
+          g.restore();
+        }
+        // el giro empuja hacia fuera
+        const uf = eio(seg(t, T.fuera[0], T.fuera[1]));
+        if (uf > 0) K.flecha([[re + 12, -58], [re + 230, -58]], { u: uf, col: C.gold, ancho: 12, punta: 40, alas: 2.1, seed: 197, d: 4 });
+      });
+      g.restore();
+    }
+  });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- D · básculas
+const CW = 440, CH = 540;
+const carta = K.rectRecortado(-CW / 2, -CH / 2, CW, CH, 22, 400, 1.1);
+const cuerpoB = K.rectRecortado(-170, 0, 340, 196, 18, 410, 0.6);
+const tapaB = K.poligono([[-170, 4], [170, 4], [146, -26], [-146, -26]]);
+const ventana = K.circulo(82, 411, 0.006);
+const AL = 0.42;                                         // lectura de la aguja (rad desde arriba)
+function bascula(lectura, polo, id, cuna = 0) {
+  const g = K.g;
+  g.save(); g.translate(0, 52);
+  K.papel(tapaB, C.ivory, { d: 2, seed: id, print: () => { g.fillStyle = 'rgba(40,40,60,0.18)'; for (let i = -6; i <= 6; i++) g.fillRect(i * 22 - 1, -24, 2, 26); } });
+  K.papel(cuerpoB, C.ivory2, { d: 3, seed: id + 1 });
+  g.save(); g.translate(0, 100);
+  K.papel(ventana, C.ivory, { d: 0.8, seed: id + 2, print: () => {
+    g.strokeStyle = C.ink; g.lineCap = 'round';
+    for (let i = -8; i <= 8; i++) { const a = -PI / 2 + i * 0.15, l = i % 4 === 0 ? 20 : 10; g.lineWidth = i % 4 === 0 ? 3.6 : 2; g.beginPath(); g.moveTo(72 * Math.cos(a), 72 * Math.sin(a)); g.lineTo((72 - l) * Math.cos(a), (72 - l) * Math.sin(a)); g.stroke(); }
+    // marca dorada: lo que marca en el polo
+    const a = -PI / 2 + AL; g.strokeStyle = C.goldD; g.lineWidth = 8; g.beginPath(); g.moveTo(78 * Math.cos(a), 78 * Math.sin(a)); g.lineTo(50 * Math.cos(a), 50 * Math.sin(a)); g.stroke();
+    // la diferencia, en coral, entre la marca dorada y la aguja
+    if (cuna > 0) {
+      g.fillStyle = 'rgba(214,98,74,0.78)'; g.beginPath(); g.moveTo(0, 0);
+      g.arc(0, 0, 74, -PI / 2 + lectura + (AL - lectura) * (1 - cuna), -PI / 2 + AL); g.closePath(); g.fill();
+    }
+  } });
+  g.save(); g.rotate(lectura); K.temblor(id + 3, 0.2, 0.004);
+  K.papel(K.poligono([[-4.6, 13], [4.6, 13], [1.3, -68], [-1.3, -68]]), C.coral, { d: 2, seed: id + 4, edge: 0.6 });
+  g.restore();
+  K.chincheta(0, 0, 8);
+  g.restore();
+  g.restore();
+}
+function tarjeta(t, x, y, u, polo, id, lectura, cuna = 0) {
+  if (u <= 0) return;
+  const g = K.g, p = K.colocar(u);
+  g.save(); g.translate(x + p.dx, y + p.dy); g.scale(p.s, p.s); K.temblor(id, 0.45, 0.003); g.rotate(polo ? -0.012 : 0.01);
+  K.elevar(p.d, () => {
+    K.papel(carta, C.card, { d: 8, sa: 0.62, seed: id + 1, tb: 0.45, print: () => {
+      g.strokeStyle = 'rgba(26,35,66,0.28)'; g.lineWidth = 1.2; g.strokeRect(-CW / 2 + 16, -CH / 2 + 16, CW - 32, CH - 32);
+      // suelo: hielo en el polo, tierra con la línea en el ecuador
+      const fy = 34;
+      if (polo) {
+        g.fillStyle = '#dfe9ec'; g.fillRect(-CW / 2, fy, CW, CH);
+        g.fillStyle = '#c6d6dc'; for (let i = 0; i < 7; i++) { g.beginPath(); g.moveTo(-CW / 2 + i * 70, fy + 30 + (i % 2) * 14); g.lineTo(-CW / 2 + i * 70 + 50, fy + 34 + (i % 2) * 14); g.lineTo(-CW / 2 + i * 70 + 26, fy + 46 + (i % 2) * 14); g.fill(); }
+      } else {
+        g.fillStyle = C.suelo; g.fillRect(-CW / 2, fy, CW, CH);
+        g.fillStyle = C.coral; g.beginPath(); g.moveTo(-6, fy); g.lineTo(6, fy); g.lineTo(26, CH / 2); g.lineTo(-26, CH / 2); g.fill();
+      }
+      g.fillStyle = 'rgba(20,20,40,0.12)'; g.fillRect(-CW / 2, fy, CW, 6);
+    } });
+    if (polo) K.etiqueta(-CW / 2 + 60, -CH / 2 + 60, 'N', { size: 40, forma: 'circulo', col: C.ivory, id: id + 5, d: 2.5 });
+    bascula(lectura, polo, id + 10, cuna);
+    g.save(); g.translate(0, 30); K.persona({ escala: 3.1, abrigo: C.coral, tocado: 'pelo', id: id + 30 }); g.restore();
+  });
+  g.restore();
+}
+const CPX = 420, CEX = 1500, CY = 572;
+function basculas(t) {
+  const up = seg(t, T.cartaP[0], T.cartaP[1]), ue = seg(t, T.cartaE[0], T.cartaE[1]);
+  if (up <= 0 && ue <= 0) return;
+  // agujas: de reposo a la lectura con una oscilación amortiguada
+  const k = seg(t, T.agujas[0], T.agujas[1]);
+  const base = -1.25 + (AL + 1.25) * (1 - Math.exp(-6 * k) * Math.cos(10 * k));
+  const lect = (k <= 0 ? -1.25 : k >= 1 ? AL : base);
+  const baja = 0.27 * eio(seg(t, T.baja[0], T.baja[1]));
+  // hilos que unen cada tarjeta con su sitio en la Tierra
+  const S = estadoGlobo(t), rp = S.R * (1 - S.a), re = S.R * (1 + S.a);
+  const uh = eio(seg(t, T.cartaP[0] + 0.1, T.cartaP[1] + 0.1));
+  if (uh > 0) {
+    K.puntadas(K.bezierPts([S.x, S.y - rp - 4], [S.x - 120, S.y - rp - 120], [CPX + 220, CY - 330], [CPX + 120, CY - 262], 40), { u1: uh, col: C.goldL, ancho: 3 });
+    K.puntadas(K.bezierPts([S.x + re + 4, S.y], [S.x + re + 120, S.y + 10], [CEX - 220, CY - 330], [CEX - 120, CY - 262], 40), { u1: uh, col: C.goldL, ancho: 3 });
+  }
+  tarjeta(t, CPX, CY, up, true, 420, lect);
+  tarjeta(t, CEX, CY, ue, false, 460, lect - baja, eio(seg(t, T.cuna[0], T.cuna[1])));
+  K.etiqueta(CEX + 132, CY - 218, '−½ %', { size: 58, col: C.coral, ink: C.ivory, u: seg(t, T.etiqueta[0], T.etiqueta[1]), rot: -0.05, id: 954 });
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  seccionA(t);
+  globo(t);
+  basculas(t);
+  K.atomo(178, 170, Math.min(t, VOZ1), E.energia(t), { escala: 0.5 });
+}
+E.iniciar((t) => K.fotograma(t, dibujar, { fondo }), { paso: 1 / 12 });
+</script>
+</body>
+</html>

@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Luna al revés · cromo Y2K</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;900&family=Michroma&display=swap">
+<style>
+  html, body { margin: 0; height: 100%; background: #03041a; overflow: hidden; }
+  #escena { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #03041a; overflow: hidden; }
+  #escena canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<div id="escena"><canvas id="fondo"></canvas><canvas id="gl"></canvas><canvas id="frente"></canvas></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+
+// =====================================================================
+// Cromo Y2K. Un átomo de cromo líquido iridiscente recoge sus órbitas,
+// se infla en una esfera, la esfera se vuelve Luna creciente y se
+// desdobla: a la izquierda el hemisferio norte la ve como una «D»; la de
+// la derecha gira 180° (el observador del sur está cabeza abajo) y pasa
+// a ser una «C». Luego todo vuelve al átomo.
+// Capas: fondo 2D (cielo, rejilla, HUD, etiquetas) · WebGL (trazado de
+// rayos por SDF del cromo y rotulación cromada inflada) · frente 2D
+// (destellos). Todo es función pura de t.
+// =====================================================================
+const DUR = 10;
+const W = 1920, H = 1080, TAU = Math.PI * 2;
+const CAPTURA = location.search.includes('captura');
+
+// Cámara del trazador: en (0,0,10) mirando a -z, campo vertical de 30°.
+const CAM_Z = 10, TAN_Y = Math.tan(15 * Math.PI / 180), TAN_X = TAN_Y * W / H;
+const PX = H / (2 * CAM_Z * TAN_Y);            // px de diseño por unidad de mundo en z = 0 (≈201.5)
+const CY = 505;                                 // línea de los objetos (px)
+const Y0 = (H / 2 - CY) / PX;                   // la misma línea en el mundo
+const MX = 420 / PX;                            // separación de cada luna (±420 px)
+const RC = 1.12, RM = 0.95;                     // radio de la esfera central y de cada luna
+const RB = 0.205;                               // radio de cada bola del núcleo
+const R_ORB = 1.45, TUBO = 0.034, R_E = 0.115;  // órbitas y electrones
+const HOR = 650;                                // horizonte del suelo (px)
+const aPx = (x, y) => [W / 2 + x * PX, H / 2 - y * PX];
+
+// ---------- utilidades ----------
+const cl = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const prog = (t, ab) => cl((t - ab[0]) / (ab[1] - ab[0]));
+const mix = (a, b, x) => a + (b - a) * x;
+const ss = (a, b, x) => { x = cl((x - a) / (b - a)); return x * x * (3 - 2 * x); };
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const eio5 = (x) => x * x * x * (x * (x * 6 - 15) + 10);
+const eoc = (x) => 1 - Math.pow(1 - x, 3);
+const eob = (x, s = 1.70158) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+const eiob = (x, s = 0.9) => {
+  const c = s * 1.525;
+  return x < 0.5 ? (Math.pow(2 * x, 2) * ((c + 1) * 2 * x - c)) / 2
+                 : (Math.pow(2 * x - 2, 2) * ((c + 1) * (x * 2 - 2) + c) + 2) / 2;
+};
+// campana suave de semianchura w centrada en c, con el tiempo envuelto en el bucle
+const campana = (t, c, w) => {
+  const d = ((t - c + DUR * 1.5) % DUR) - DUR / 2;
+  const x = cl(Math.abs(d) / w);
+  return 0.5 + 0.5 * Math.cos(Math.PI * x);
+};
+function prng(semilla) {
+  let a = semilla >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ---------- guion (s) ----------
+const T_ORB_IN = [0.75, 1.7];    // las órbitas se recogen en el núcleo
+const T_INFLA = [1.05, 2.05];    // el núcleo se infla en una esfera
+const T_MORD = [1.95, 2.75];     // la esfera mengua a creciente «D»
+const T_SEPARA = [2.8, 4.1];     // la Luna se desdobla: norte ← → sur
+const T_GIRO = [4.1, 5.2];       // la del sur gira 180°: «C»
+const T_FIN = 6.9;               // fin de la comparación D / C
+const T_REGIRO = [6.95, 7.85];   // el observador del sur se endereza: vuelve a «D»
+const T_VUELVE = [7.6, 8.6];     // vuelven al centro y se funden
+const T_LLENA = [8.5, 9.1];      // la creciente se rellena
+const T_DESINFLA = [8.85, 9.6];  // la esfera vuelve a ser núcleo
+const T_ORB_OUT = [9.0, 9.95];   // salen las órbitas
+
+// trayectoria de separación: se estira despacio, se suelta y se asienta
+const tray = (x) => 0.1 * ss(0, 0.32, x) + 0.9 * eio5(cl((x - 0.18) / 0.82));
+
+// núcleo: 8 bolas en una espiral de Fibonacci; las 4 de la izquierda van al grupo A
+const NUC = [];
+for (let i = 0; i < 8; i++) {
+  const y = 1 - (i + 0.5) * 2 / 8, r = Math.sqrt(1 - y * y), a = i * 2.39996 + 0.4;
+  NUC.push([Math.cos(a) * r * 0.3, y * 0.3, Math.sin(a) * r * 0.3]);
+}
+NUC.sort((p, q) => p[0] - q[0]);
+
+function separacion(t) {
+  if (t < T_VUELVE[0]) return tray(prog(t, T_SEPARA));
+  return 1 - tray(prog(t, T_VUELVE));
+}
+function giroSur(t) {
+  if (t < T_REGIRO[0]) return Math.PI * eiob(prog(t, T_GIRO), 0.7);
+  return Math.PI + Math.PI * eiob(prog(t, T_REGIRO), 0.6);
+}
+
+// Estado completo de la escena en el instante t (mundo: y hacia arriba, cámara en +z).
+function estado(t) {
+  const E = {};
+  // órbitas: 0 = abiertas, 1 = recogidas
+  let c = 0;
+  if (t >= T_ORB_IN[0] && t < T_ORB_OUT[0]) c = eio(prog(t, T_ORB_IN));
+  else if (t >= T_ORB_OUT[0]) c = 1 - eob(prog(t, T_ORB_OUT), 1.4);
+  E.c = c;
+  // inflado del núcleo y mordida
+  const g = eio(prog(t, T_INFLA)) * (1 - eio(prog(t, T_DESINFLA)));
+  const b = eio(prog(t, T_MORD)) * (1 - eio(prog(t, T_LLENA)));
+  const sp = separacion(t);
+  const vel = (separacion(t + 0.004) - separacion(t - 0.004)) / 0.008;
+  E.g = g; E.b = b; E.sp = sp;
+
+  const rG = mix(RC, RM, ss(0, 1, sp));             // radio de cada gota/luna
+  const rBola = mix(RB, rG - 0.025, ss(0, 0.85, g));
+  const fo = 1 - ss(0.0, 0.8, g);                   // las bolas se juntan
+  E.kBola = mix(0.075, 0.04, ss(0.2, 0.9, g)) + 0.22 * Math.sin(Math.PI * g);
+  E.kAB = 0.08 + 0.55 * Math.pow(Math.sin(Math.PI * cl(sp / 0.62)), 1.5);
+  E.kMord = 0.09;
+
+  // respiración del racimo del núcleo y leve giro
+  const giroN = 0.45 * Math.sin(TAU * t / DUR), cg = Math.cos(giroN), sg = Math.sin(giroN);
+  const bob = 0.035 * ss(0.4, 1, sp);
+  const xA = -MX * sp, xB = MX * sp;
+  const yA = Y0 + bob * Math.sin(TAU * 2 * t / DUR), yB = Y0 + bob * Math.sin(TAU * 2 * t / DUR + 1.9);
+  // estiramiento por velocidad y bamboleo al llegar
+  let sx = 1 + 0.16 * Math.min(Math.abs(vel), 2.2);
+  const tl = t - T_SEPARA[1] + 0.15;
+  if (tl > 0 && tl < 1.2) sx *= 1 + 0.07 * Math.sin(TAU * 2.2 * tl) * Math.exp(-3.4 * tl) * (1 - ss(0.8, 1.2, tl));
+  const sy = 1 / Math.sqrt(sx);
+  E.cA = [xA, yA, 0]; E.cB = [xB, yB, 0];
+  E.sA = [sx, sy, sy]; E.sB = [sx, sy, sy];
+  E.bolasA = []; E.bolasB = [];
+  for (let i = 0; i < 8; i++) {
+    const [px, py, pz] = NUC[i];
+    const resp = 1 + 0.07 * Math.sin(TAU * 2 * t / DUR + i * 1.7);
+    const rx = (px * cg + pz * sg) * resp, rz = (-px * sg + pz * cg) * resp, ry = py * resp;
+    const grupo = i < 4 ? E.bolasA : E.bolasB, cen = i < 4 ? E.cA : E.cB;
+    grupo.push([cen[0] + rx * fo, cen[1] + ry * fo, rz * fo, rBola]);
+  }
+  E.rG = rG;
+  // mordidas (cilindros a lo largo de z): la del norte siempre por la izquierda («D»),
+  // la del sur gira con el observador
+  const off = mix(2.7, 0.42, b) * rG, rMord = 0.905 * rG;
+  const th = giroSur(t);
+  E.th = th;
+  E.mordA = [xA - off, yA, rMord, b > 0.001 ? 1 : 0];
+  E.mordB = [xB - off * Math.cos(th), yB - off * Math.sin(th), rMord, b > 0.001 ? 1 : 0];
+  const eje = (x, y) => { const l = Math.hypot(x, y, CAM_Z); return [x / l, y / l, -CAM_Z / l]; };
+  E.ejeA = eje(xA, yA); E.ejeB = eje(xB, yB);
+
+  // órbitas inclinadas: elipses a 0°, 60° y 120°
+  const rOrb = mix(R_ORB, 0.1, c), tubo = mix(TUBO, 0.055, c), rE = mix(R_E, 0.07, c);
+  E.orb = [rOrb, tubo, c < 0.995 ? 1 : 0, mix(0.03, 0.17, ss(0.25, 0.8, c))];
+  E.mats = []; E.elec = [];
+  const beta = (73 + 4 * Math.sin(TAU * t / DUR + 1)) * Math.PI / 180;
+  for (let i = 0; i < 3; i++) {
+    const al = (i * 60 + 7 * Math.sin(TAU * t / DUR)) * Math.PI / 180;
+    const X = [Math.cos(al), Math.sin(al), 0];
+    const N = [Math.sin(al) * Math.sin(beta), -Math.cos(al) * Math.sin(beta), Math.cos(beta)];
+    const Z = [X[1] * N[2] - X[2] * N[1], X[2] * N[0] - X[0] * N[2], X[0] * N[1] - X[1] * N[0]];
+    E.mats.push([X, N, Z]);
+    const ph = [0.4, 2.5, 4.6][i] + TAU * 3 * t / DUR;
+    const ca = Math.cos(ph) * rOrb, sa = Math.sin(ph) * rOrb;
+    E.elec.push([X[0] * ca + Z[0] * sa, Y0 + X[1] * ca + Z[1] * sa, X[2] * ca + Z[2] * sa, rE]);
+  }
+  // esferas envolventes para no trazar rayos en vano
+  const radGrupo = (Math.max(...NUC.map((p) => Math.hypot(...p))) * 1.1 * fo + rBola) * Math.max(sx, sy) + 0.12;
+  E.cotas = [
+    [E.cA[0], E.cA[1], 0, radGrupo],
+    [E.cB[0], E.cB[1], 0, radGrupo],
+    [0, Y0, 0, E.orb[2] ? rOrb + rE + 0.12 : -1],
+  ];
+  return E;
+}
+
+// ---------------------------------------------------------------------
+// GLSL compartido: entorno (lo que refleja el cromo) e iridiscencia
+// ---------------------------------------------------------------------
+const GLSL_COMUN = /* glsl */`
+float caja(vec2 p, vec2 b, float s){
+  vec2 d = abs(p) - b;
+  float o = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+  return 1.0 - smoothstep(-s, s, o);
+}
+// Estudio Y2K: cielo ultramar con horizonte rosado muy brillante, cajas de luz,
+// suelo índigo con la rejilla cian reflejada. bl = ancho angular de un píxel
+// reflejado (curvatura × tamaño de píxel): suaviza lo fino para que no parpadee.
+vec3 cielo(float y, float el, float az, float bl){
+  vec3 c = mix(vec3(1.00, 0.88, 1.00), vec3(0.70, 0.72, 1.00), smoothstep(0.0, 0.07 + bl, y));
+  c = mix(c, vec3(0.28, 0.34, 0.95), smoothstep(0.05, 0.30, y));
+  c = mix(c, vec3(0.06, 0.08, 0.30), smoothstep(0.30, 0.78, y));
+  // cenital: una gran caja de luz difusa, plateada
+  c += vec3(0.80, 0.86, 1.05) * smoothstep(0.78 - bl, 0.96, y) * 0.95;
+  c += vec3(2.3, 2.3, 2.5) * caja(vec2(az + 0.78, el - 0.62), vec2(0.30, 0.16), 0.035 + bl);
+  c += vec3(1.3, 1.6, 2.0) * caja(vec2(az - 0.98, el - 0.30), vec2(0.05, 0.30), 0.025 + bl) * (0.05 / (0.05 + bl));
+  float azb = 3.14159 - abs(az);
+  c += vec3(0.65, 0.55, 1.35) * caja(vec2(azb, el - 0.16), vec2(0.95, 0.09), 0.09 + bl);
+  return c;
+}
+vec3 suelo(vec3 d, float g, float bl){
+  vec3 c = mix(vec3(0.12, 0.06, 0.32), vec3(0.012, 0.014, 0.06), smoothstep(0.0, 0.07, g));
+  vec2 fp = d.xz / max(g, 0.02) * 1.15;
+  vec2 q = abs(fract(fp) - 0.5);
+  float cpp = bl * 1.15 / max(g * g, 0.0004);          // celdas por píxel
+  float ancho = 0.05 + min(cpp, 0.3) * 0.5;
+  float linea = smoothstep(0.5 - ancho, 0.5, max(q.x, q.y)) * (1.0 - smoothstep(0.12, 0.45, cpp));
+  linea += 0.16 * smoothstep(0.12, 0.45, cpp);
+  float desv = smoothstep(0.035, 0.22, g) * (1.0 - smoothstep(0.7, 1.0, g));
+  c += vec3(0.22, 0.82, 1.0) * linea * desv * 0.95;
+  c += vec3(0.60, 0.22, 0.80) * exp(-g * 13.0) * 0.75;
+  return mix(c, vec3(0.17, 0.13, 0.42), smoothstep(0.55, 1.0, g) * 0.7);
+}
+vec3 entorno(vec3 d, float bl){
+  float el = asin(clamp(d.y, -1.0, 1.0));
+  float az = atan(d.x, d.z);
+  float w = 0.004 + bl;
+  float m = smoothstep(-w, w, d.y);
+  vec3 c = vec3(0.0);
+  if (m > 0.0) c += m * cielo(max(d.y, 0.0), el, az, bl);
+  if (m < 1.0) c += (1.0 - m) * suelo(d, max(-d.y, 0.0), bl);
+  float wh = 1.0 / 75.0 + bl;
+  c += vec3(1.0, 0.93, 1.0) * exp(-abs(d.y) / wh) * 1.5 * sqrt((1.0 / 75.0) / wh);
+  return c;
+}
+vec3 pelicula(float ct, float extra){
+  return 0.5 + 0.5 * cos(6.28318 * (vec3(0.0, 0.33, 0.67) + 1.75 * (1.0 - ct) + extra));
+}
+vec3 cromo(vec3 rd, vec3 n, vec3 refl, float film){
+  float ct = clamp(dot(n, -rd), 0.0, 1.0);
+  float f = pow(1.0 - ct, 2.0);
+  vec3 pel = pelicula(ct, film);
+  vec3 col = refl * mix(vec3(1.0), pel * 1.35, 0.2 + 0.62 * f);
+  return col * vec3(0.93, 0.95, 1.0);
+}
+vec3 revelar(vec3 c){
+  vec3 k = max(c - 0.78, 0.0);
+  c = min(c, 0.78) + 0.22 * (1.0 - exp(-k / 0.22));
+  float m = max(c.r, max(c.g, c.b));
+  return mix(c, vec3(1.0), smoothstep(0.93, 1.0, m) * 0.6);
+}
+`;
+
+const VERT_PANTALLA = /* glsl */`
+void main(){ gl_Position = vec4(position.xy * 2.0, 0.0, 1.0); }
+`;
+
+const FRAG_CROMO = /* glsl */`
+precision highp float;
+uniform vec2 uRes;
+uniform float uTanX, uTanY, uCamZ, uPixA, uFilm, uRebote;
+uniform vec4 uBA[4];
+uniform vec4 uBB[4];
+uniform vec3 uCA, uCB, uSA, uSB;
+uniform float uKBola, uKAB, uKMord;
+uniform vec4 uMA, uMB;
+uniform vec3 uEA, uEB;
+uniform mat3 uRM[3];
+uniform vec4 uOrb;
+uniform vec3 uOC;
+uniform vec4 uEl[3];
+uniform vec4 uCota[3];
+${GLSL_COMUN}
+float smin(float a, float b, float k){ float h = max(k - abs(a - b), 0.0) / k; return min(a, b) - h * h * k * 0.25; }
+float smax(float a, float b, float k){ return -smin(-a, -b, k); }
+// cilindro de la mordida: eje hacia la cámara, así el corte se ve siempre de canto
+float cilindro(vec3 p, vec4 m, vec3 e){ vec3 q = p - vec3(m.xy, 0.0); q -= e * dot(q, e); return length(q) - m.z; }
+float grupo(vec3 p, vec3 c, vec3 s, vec4 b0, vec4 b1, vec4 b2, vec4 b3){
+  vec3 q = c + (p - c) / s;
+  float d = length(q - b0.xyz) - b0.w;
+  d = smin(d, length(q - b1.xyz) - b1.w, uKBola);
+  d = smin(d, length(q - b2.xyz) - b2.w, uKBola);
+  d = smin(d, length(q - b3.xyz) - b3.w, uKBola);
+  return d * min(s.x, min(s.y, s.z));
+}
+float mapa(vec3 p){
+  float da = grupo(p, uCA, uSA, uBA[0], uBA[1], uBA[2], uBA[3]);
+  if (uMA.w > 0.5) da = smax(da, -cilindro(p, uMA, uEA), uKMord);
+  float db = grupo(p, uCB, uSB, uBB[0], uBB[1], uBB[2], uBB[3]);
+  if (uMB.w > 0.5) db = smax(db, -cilindro(p, uMB, uEB), uKMord);
+  float d = smin(da, db, uKAB);
+  if (uOrb.z > 0.5){
+    for (int i = 0; i < 3; i++){
+      vec3 q = uRM[i] * (p - uOC);
+      float dr = length(vec2(length(q.xz) - uOrb.x, q.y)) - uOrb.y;
+      float de = length(p - uEl[i].xyz) - uEl[i].w;
+      d = smin(d, smin(dr, de, 0.05), uOrb.w);
+    }
+  }
+  return d;
+}
+vec3 normal(vec3 p){
+  const vec2 e = vec2(1.0, -1.0) * 0.0012;
+  return normalize(e.xyy * mapa(p + e.xyy) + e.yyx * mapa(p + e.yyx) + e.yxy * mapa(p + e.yxy) + e.xxx * mapa(p + e.xxx));
+}
+// laplaciano del campo (suma de curvaturas principales) con un tetraedro
+float curvatura(vec3 p, float f0){
+  const vec2 e = vec2(1.0, -1.0) * 0.012;
+  float s = mapa(p + e.xyy) + mapa(p + e.yyx) + mapa(p + e.yxy) + mapa(p + e.xxx);
+  return (s - 4.0 * f0) / (2.0 * 0.012 * 0.012);
+}
+void main(){
+  vec2 ndc = gl_FragCoord.xy / uRes * 2.0 - 1.0;
+  vec3 ro = vec3(0.0, 0.0, uCamZ);
+  vec3 rd = normalize(vec3(ndc.x * uTanX, ndc.y * uTanY, -1.0));
+  float t0 = 1e9, t1 = -1.0;
+  for (int i = 0; i < 3; i++){
+    if (uCota[i].w <= 0.0) continue;
+    vec3 oc = ro - uCota[i].xyz;
+    float b = dot(oc, rd);
+    float h = b * b - dot(oc, oc) + uCota[i].w * uCota[i].w;
+    if (h > 0.0){ h = sqrt(h); t0 = min(t0, -b - h); t1 = max(t1, -b + h); }
+  }
+  if (t1 < 0.0) discard;
+  float t = max(t0, 0.0);
+  float mejor = 1e9, tMejor = t;
+  bool toca = false;
+  for (int i = 0; i < 110; i++){
+    float d = mapa(ro + rd * t);
+    float r = d / t;
+    if (r < mejor){ mejor = r; tMejor = t; }
+    if (d < 0.2 * uPixA * t){ toca = true; break; }
+    t += d * 0.92;
+    if (t > t1) break;
+  }
+  float alfa = 1.0;
+  if (!toca){
+    alfa = clamp(1.0 - mejor / uPixA, 0.0, 1.0);
+    if (alfa <= 0.0) discard;
+    t = tMejor;
+  }
+  vec3 p = ro + rd * t;
+  vec3 n = normal(p);
+  vec3 r = reflect(rd, n);
+  float bl = clamp(t * uPixA * abs(curvatura(p, mapa(p))) * 1.2, 0.0, 0.5);
+  vec3 refl = entorno(r, bl);
+  // un rebote: el cromo se refleja en el cromo
+  float tb = 0.03; bool rebote = false;
+  for (int i = 0; i < 40; i++){
+    if (uRebote <= 0.0) break;
+    float d = mapa(p + r * tb);
+    if (d < 0.002){ rebote = tb > 0.35; break; }   // sin autorreflejos pegados
+    tb += d;
+    if (tb > 6.0) break;
+  }
+  if (rebote){
+    vec3 q = p + r * tb;
+    vec3 n2 = normal(q);
+    refl = mix(refl, cromo(r, n2, entorno(reflect(r, n2), min(bl * 2.0 + 0.02, 0.5)), uFilm + 0.3) * 0.88, uRebote);
+  }
+  vec3 col = cromo(rd, n, refl, uFilm);
+  float ao = clamp(0.45 + 0.55 * mapa(p + n * 0.16) / 0.16, 0.0, 1.0);
+  col *= ao;
+  col = revelar(col);
+  gl_FragColor = vec4(col * alfa, alfa);
+}
+`;
+
+const VERT_ROTULO = /* glsl */`
+uniform vec4 uRect;   // centro x, y y tamaño (px de diseño)
+uniform float uEsc, uGiro;
+varying vec2 vLocal;
+varying vec2 vMarco;
+void main(){
+  vec2 lp = position.xy;
+  vLocal = vec2(lp.x + 0.5, 0.5 - lp.y);
+  vec2 o = vec2(lp.x, -lp.y) * uRect.zw * uEsc;
+  float c = cos(uGiro), s = sin(uGiro);
+  o = vec2(c * o.x - s * o.y, s * o.x + c * o.y);
+  vec2 fp = uRect.xy + o;
+  vMarco = fp;
+  gl_Position = vec4(fp.x / 960.0 - 1.0, 1.0 - fp.y / 540.0, 0.0, 1.0);
+}
+`;
+const FRAG_ROTULO = /* glsl */`
+precision highp float;
+uniform sampler2D uAtlas;
+uniform vec4 uUV;
+uniform vec2 uTexel;
+uniform float uOpac, uBarrido, uFilm, uTanX, uTanY, uVista;
+varying vec2 vLocal;
+varying vec2 vMarco;
+${GLSL_COMUN}
+void main(){
+  vec2 uv = mix(uUV.xy, uUV.zw, vLocal);
+  vec4 a = texture2D(uAtlas, uv);
+  float sombra = texture2D(uAtlas, uv - vec2(0.0, 7.0) * uTexel).b * 0.75;
+  vec2 nxy = a.rg * 2.0 - 1.0;
+  vec3 n = normalize(vec3(nxy, sqrt(max(0.0, 1.0 - dot(nxy, nxy)))));
+  vec2 ndc = vec2(vMarco.x / 960.0 - 1.0, 1.0 - vMarco.y / 540.0 - uVista);
+  vec3 rd = normalize(vec3(ndc.x * uTanX, ndc.y * uTanY, -1.0));
+  float bl = clamp(2.0 * length(fwidth(n)) + 0.004, 0.0, 0.5);
+  vec3 col = cromo(rd, n, entorno(reflect(rd, n), bl), uFilm);
+  // barrido de brillo
+  float bx = vLocal.x - uBarrido + (vLocal.y - 0.5) * 0.25;
+  col += vec3(1.0, 0.97, 1.0) * exp(-bx * bx / 0.0012) * (0.5 + 0.9 * n.z) * 1.4;
+  col = revelar(col);
+  float cob = a.a;
+  vec3 colS = vec3(0.01, 0.01, 0.06);
+  float alfa = cob + sombra * (1.0 - cob);
+  vec3 pre = col * cob + colS * sombra * (1.0 - cob);
+  gl_FragColor = vec4(pre, alfa) * uOpac;
+}
+`;
+
+// ---------------------------------------------------------------------
+// Rotulación cromada inflada: texto → distancia euclídea → almohada → normales
+// ---------------------------------------------------------------------
+function tdist1(f, n, d, v, z) {
+  let k = 0; v[0] = 0; z[0] = -1e20; z[1] = 1e20;
+  for (let q = 1; q < n; q++) {
+    let s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+    while (s <= z[k]) { k--; s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]); }
+    k++; v[k] = q; z[k] = s; z[k + 1] = 1e20;
+  }
+  k = 0;
+  for (let q = 0; q < n; q++) { while (z[k + 1] < q) k++; d[q] = (q - v[k]) * (q - v[k]) + f[v[k]]; }
+}
+function distancia(dentro, w, h) {
+  const g = new Float64Array(w * h), m = Math.max(w, h);
+  const f = new Float64Array(m), d = new Float64Array(m), v = new Int32Array(m), z = new Float64Array(m + 1);
+  for (let i = 0; i < w * h; i++) g[i] = dentro[i] ? 1e20 : 0;
+  for (let x = 0; x < w; x++) {
+    for (let y = 0; y < h; y++) f[y] = g[y * w + x];
+    tdist1(f, h, d, v, z);
+    for (let y = 0; y < h; y++) g[y * w + x] = d[y];
+  }
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) f[x] = g[y * w + x];
+    tdist1(f, w, d, v, z);
+    for (let x = 0; x < w; x++) g[y * w + x] = Math.sqrt(d[x]);
+  }
+  return g;
+}
+function desenfocar(a, w, h, r, pasadas) {
+  const b = new Float32Array(w * h);
+  for (let p = 0; p < pasadas; p++) {
+    for (let y = 0; y < h; y++) {
+      let s = 0;
+      for (let x = -r; x <= r; x++) s += a[y * w + cl(x, 0, w - 1)];
+      for (let x = 0; x < w; x++) {
+        b[y * w + x] = s / (2 * r + 1);
+        s += a[y * w + Math.min(x + r + 1, w - 1)] - a[y * w + Math.max(x - r, 0)];
+      }
+    }
+    for (let x = 0; x < w; x++) {
+      let s = 0;
+      for (let y = -r; y <= r; y++) s += b[cl(y, 0, h - 1) * w + x];
+      for (let y = 0; y < h; y++) {
+        a[y * w + x] = s / (2 * r + 1);
+        s += b[Math.min(y + r + 1, h - 1) * w + x] - b[Math.max(y - r, 0) * w + x];
+      }
+    }
+  }
+  return a;
+}
+function crearAtlas() {
+  const piezas = [
+    { id: 'titulo', texto: 'LA LUNA AL REVÉS', fuente: '900 96px "Unbounded"', esp: 7, R: 15, trazo: 5 },
+    { id: 'D', texto: 'D', fuente: '900 200px "Unbounded"', esp: 0, R: 30, trazo: 8 },
+    { id: 'C', texto: 'C', fuente: '900 200px "Unbounded"', esp: 0, R: 30, trazo: 8 },
+  ];
+  const PAD = 30;
+  const m = document.createElement('canvas').getContext('2d');
+  for (const p of piezas) {
+    m.font = p.fuente; m.letterSpacing = p.esp + 'px';
+    const mt = m.measureText(p.texto);
+    p.izq = Math.ceil(mt.actualBoundingBoxLeft + p.trazo / 2); p.asc = Math.ceil(mt.actualBoundingBoxAscent + p.trazo / 2);
+    p.w = p.izq + Math.ceil(mt.actualBoundingBoxRight + p.trazo / 2) + 2 * PAD;
+    p.h = p.asc + Math.ceil(mt.actualBoundingBoxDescent + p.trazo / 2) + 2 * PAD;
+  }
+  const [T, D, C] = piezas;
+  T.x = 0; T.y = 0; D.x = 0; D.y = T.h; C.x = D.w; C.y = T.h;
+  const AW = Math.max(T.w, D.w + C.w), AH = T.h + Math.max(D.h, C.h);
+  const cv = document.createElement('canvas'); cv.width = AW; cv.height = AH;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.lineJoin = 'round'; g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+  for (const p of piezas) {
+    g.font = p.fuente; g.letterSpacing = p.esp + 'px'; g.lineWidth = p.trazo;
+    g.fillText(p.texto, p.x + PAD + p.izq, p.y + PAD + p.asc);
+    g.strokeText(p.texto, p.x + PAD + p.izq, p.y + PAD + p.asc);
+  }
+  const px = g.getImageData(0, 0, AW, AH).data;
+  const N = AW * AH, cob = new Float32Array(N), dentro = new Uint8Array(N);
+  for (let i = 0; i < N; i++) { cob[i] = px[i * 4 + 3] / 255; dentro[i] = cob[i] > 0.5 ? 1 : 0; }
+  const dist = distancia(dentro, AW, AH);
+  const alt = new Float32Array(N);
+  for (const p of piezas) {
+    for (let y = p.y; y < p.y + p.h; y++) for (let x = p.x; x < p.x + p.w; x++) {
+      const i = y * AW + x;
+      const u = Math.min((dist[i] - 0.5 + cob[i]) / p.R, 1);
+      alt[i] = u > 0 ? p.R * Math.sqrt(1 - (1 - u) * (1 - u)) : 0;
+    }
+  }
+  desenfocar(alt, AW, AH, 1, 2);
+  const brillo = desenfocar(Float32Array.from(cob), AW, AH, 5, 3);
+  const datos = new Uint8Array(N * 4);
+  for (let y = 0; y < AH; y++) for (let x = 0; x < AW; x++) {
+    const i = y * AW + x;
+    const hx = (alt[y * AW + Math.min(x + 1, AW - 1)] - alt[y * AW + Math.max(x - 1, 0)]) / 2;
+    const hy = (alt[Math.min(y + 1, AH - 1) * AW + x] - alt[Math.max(y - 1, 0) * AW + x]) / 2;
+    // normal en el mundo (y hacia arriba): el lienzo tiene y hacia abajo
+    let nx = -hx, ny = hy, nz = 1;
+    const l = Math.hypot(nx, ny, nz); nx /= l; ny /= l;
+    datos[i * 4] = Math.round((nx * 0.5 + 0.5) * 255);
+    datos[i * 4 + 1] = Math.round((ny * 0.5 + 0.5) * 255);
+    datos[i * 4 + 2] = Math.round(cl(brillo[i] * 1.3) * 255);
+    datos[i * 4 + 3] = Math.round(cob[i] * 255);
+  }
+  const tex = new THREE.DataTexture(datos, AW, AH, THREE.RGBAFormat, THREE.UnsignedByteType);
+  tex.minFilter = THREE.LinearMipmapLinearFilter; tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = true; tex.needsUpdate = true;
+  const uv = {};
+  for (const p of piezas) uv[p.id] = { u0: p.x / AW, v0: p.y / AH, u1: (p.x + p.w) / AW, v1: (p.y + p.h) / AH, w: p.w, h: p.h };
+  return { tex, uv, AW, AH };
+}
+
+// ---------------------------------------------------------------------
+// WebGL
+// ---------------------------------------------------------------------
+const escena = document.getElementById('escena');
+const cvGL = document.getElementById('gl');
+const cvFondo = document.getElementById('fondo'), cvFrente = document.getElementById('frente');
+const gF = cvFondo.getContext('2d'), gT = cvFrente.getContext('2d');
+const renderer = new THREE.WebGLRenderer({ canvas: cvGL, alpha: true, premultipliedAlpha: true, antialias: false, preserveDrawingBuffer: true });
+renderer.setClearColor(0x000000, 0);
+const camara = new THREE.Camera();
+const mundo = new THREE.Scene();
+const plano = new THREE.PlaneGeometry(1, 1);
+
+const v4 = () => new THREE.Vector4();
+const UC = {
+  uRes: { value: new THREE.Vector2(W, H) }, uTanX: { value: TAN_X }, uTanY: { value: TAN_Y },
+  uCamZ: { value: CAM_Z }, uPixA: { value: 2 * TAN_Y / H }, uFilm: { value: 0 }, uRebote: { value: 1 },
+  uBA: { value: [v4(), v4(), v4(), v4()] }, uBB: { value: [v4(), v4(), v4(), v4()] },
+  uCA: { value: new THREE.Vector3() }, uCB: { value: new THREE.Vector3() },
+  uSA: { value: new THREE.Vector3(1, 1, 1) }, uSB: { value: new THREE.Vector3(1, 1, 1) },
+  uKBola: { value: 0.1 }, uKAB: { value: 0.1 }, uKMord: { value: 0.09 },
+  uMA: { value: v4() }, uMB: { value: v4() }, uEA: { value: new THREE.Vector3() }, uEB: { value: new THREE.Vector3() },
+  uRM: { value: [new THREE.Matrix3(), new THREE.Matrix3(), new THREE.Matrix3()] },
+  uOrb: { value: v4() }, uOC: { value: new THREE.Vector3(0, Y0, 0) },
+  uEl: { value: [v4(), v4(), v4()] }, uCota: { value: [v4(), v4(), v4()] },
+};
+const matCromo = new THREE.ShaderMaterial({
+  uniforms: UC, vertexShader: VERT_PANTALLA, fragmentShader: FRAG_CROMO,
+  transparent: true, premultipliedAlpha: true, depthTest: false, depthWrite: false,
+});
+const malla = new THREE.Mesh(plano, matCromo);
+malla.frustumCulled = false;
+mundo.add(malla);
+
+let atlas = null;
+const rotulos = {};
+function crearRotulo(id) {
+  const q = atlas.uv[id];
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {
+      uAtlas: { value: atlas.tex }, uUV: { value: new THREE.Vector4(q.u0, q.v0, q.u1, q.v1) },
+      uTexel: { value: new THREE.Vector2(1 / atlas.AW, 1 / atlas.AH) },
+      uRect: { value: new THREE.Vector4(0, 0, q.w, q.h) }, uEsc: { value: 1 }, uGiro: { value: 0 },
+      uOpac: { value: 1 }, uBarrido: { value: -1 }, uVista: { value: 0 }, uFilm: { value: 0 }, uTanX: { value: TAN_X }, uTanY: { value: TAN_Y },
+    },
+    vertexShader: VERT_ROTULO, fragmentShader: FRAG_ROTULO,
+    transparent: true, premultipliedAlpha: true, depthTest: false, depthWrite: false,
+  });
+  const m = new THREE.Mesh(plano, mat);
+  m.frustumCulled = false; m.renderOrder = 2;
+  mundo.add(m);
+  rotulos[id] = m;
+}
+
+function subirEstado(E, t) {
+  for (let i = 0; i < 4; i++) { UC.uBA.value[i].set(...E.bolasA[i]); UC.uBB.value[i].set(...E.bolasB[i]); }
+  UC.uCA.value.set(...E.cA); UC.uCB.value.set(...E.cB);
+  UC.uSA.value.set(...E.sA); UC.uSB.value.set(...E.sB);
+  UC.uKBola.value = E.kBola; UC.uKAB.value = E.kAB; UC.uKMord.value = E.kMord;
+  UC.uMA.value.set(...E.mordA); UC.uMB.value.set(...E.mordB);
+  UC.uEA.value.set(...E.ejeA); UC.uEB.value.set(...E.ejeB);
+  for (let i = 0; i < 3; i++) {
+    const [X, N, Z] = E.mats[i];
+    UC.uRM.value[i].set(X[0], X[1], X[2], N[0], N[1], N[2], Z[0], Z[1], Z[2]);
+    UC.uEl.value[i].set(...E.elec[i]);
+    UC.uCota.value[i].set(...E.cotas[i]);
+  }
+  UC.uOrb.value.set(...E.orb);
+  UC.uFilm.value = 0.12 * Math.sin(TAU * t / DUR);
+  UC.uRebote.value = 1 - ss(0.12, 0.45, E.sp);
+}
+
+// ---------------------------------------------------------------------
+// Capas 2D
+// ---------------------------------------------------------------------
+const azar = prng(2000);
+const CHISPAS = [];
+for (let i = 0; i < 16; i++) {
+  const lado = i % 2 ? 1 : -1;
+  CHISPAS.push({
+    x: 960 + lado * (330 + azar() * 600), y: 60 + azar() * 330,
+    r: 7 + azar() * 14, k: 1 + Math.floor(azar() * 3), f: azar(), rot: (azar() - 0.5) * 0.4,
+  });
+}
+
+function rr(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+
+// Fondo fijo (cielo, trama de puntos, suelo, horizonte), cacheado al tamaño del lienzo.
+const cvFijo = document.createElement('canvas');
+function pintarFijo() {
+  cvFijo.width = cvFondo.width; cvFijo.height = cvFondo.height;
+  const g = cvFijo.getContext('2d');
+  g.setTransform(cvFijo.width / W, 0, 0, cvFijo.height / H, 0, 0);
+  const cielo = g.createLinearGradient(0, 0, 0, HOR);
+  cielo.addColorStop(0, '#03041a'); cielo.addColorStop(0.32, '#0a0e45'); cielo.addColorStop(0.64, '#1b2290');
+  cielo.addColorStop(0.86, '#4b48d2'); cielo.addColorStop(0.96, '#a48ef6'); cielo.addColorStop(1, '#ffd8ff');
+  g.fillStyle = cielo; g.fillRect(0, 0, W, HOR);
+  let rg = g.createRadialGradient(960, CY, 0, 960, CY, 760);
+  rg.addColorStop(0, 'rgba(150,140,255,0.26)'); rg.addColorStop(0.5, 'rgba(90,90,240,0.09)'); rg.addColorStop(1, 'rgba(60,60,200,0)');
+  g.fillStyle = rg; g.fillRect(0, 0, W, HOR);
+  // trama de puntos (semitono) que se desvanece hacia el horizonte
+  for (let y = 12, fila = 0; y < 470; y += 18, fila++) {
+    const k = Math.pow(1 - y / 470, 1.6);
+    g.fillStyle = `rgba(150,175,255,${0.05 + 0.13 * k})`;
+    for (let x = (fila % 2) * 9; x < W; x += 18) {
+      const lat = Math.min(1, Math.abs(x - 960) / 700);
+      const r = 0.5 + 1.5 * k * (0.35 + 0.65 * lat);
+      g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    }
+  }
+  const suelo = g.createLinearGradient(0, HOR, 0, H);
+  suelo.addColorStop(0, '#3a2b9e'); suelo.addColorStop(0.06, '#191256'); suelo.addColorStop(0.5, '#0a0930'); suelo.addColorStop(1, '#03031a');
+  g.fillStyle = suelo; g.fillRect(0, HOR, W, H - HOR);
+  // horizonte encendido
+  rg = g.createRadialGradient(960, HOR, 0, 960, HOR, 1000);
+  rg.addColorStop(0, 'rgba(255,220,255,0.55)'); rg.addColorStop(0.35, 'rgba(200,160,255,0.18)'); rg.addColorStop(1, 'rgba(160,120,255,0)');
+  g.save(); g.translate(960, HOR); g.scale(1, 0.09); g.translate(-960, -HOR);
+  g.fillStyle = rg; g.fillRect(-100, HOR - 1000, W + 200, 2000);
+  g.restore();
+  for (const [x, c] of [[300, '255,140,230'], [1620, '120,225,255']]) {
+    const k = g.createRadialGradient(x, HOR, 0, x, HOR, 620);
+    k.addColorStop(0, `rgba(${c},0.30)`); k.addColorStop(0.5, `rgba(${c},0.08)`); k.addColorStop(1, `rgba(${c},0)`);
+    g.save(); g.translate(x, HOR); g.scale(1, 0.22); g.translate(-x, -HOR);
+    g.globalCompositeOperation = 'lighter'; g.fillStyle = k; g.fillRect(x - 620, HOR - 620, 1240, 1240);
+    g.restore();
+  }
+  const lh = g.createLinearGradient(0, 0, W, 0);
+  // horizonte iridiscente: rosa hacia el norte, cian hacia el sur
+  lh.addColorStop(0, 'rgba(255,150,235,0.45)'); lh.addColorStop(0.28, 'rgba(255,205,250,0.85)'); lh.addColorStop(0.5, 'rgba(255,248,255,1)');
+  lh.addColorStop(0.72, 'rgba(195,240,255,0.85)'); lh.addColorStop(1, 'rgba(130,230,255,0.45)');
+  g.fillStyle = lh; g.fillRect(0, HOR - 1, W, 2);
+}
+
+function dibujarFondo(g, t, E) {
+  g.drawImage(cvFijo, 0, 0, W, H);
+  // rejilla en perspectiva que avanza hacia nosotros (2 celdas por bucle)
+  g.save();
+  g.beginPath();
+  for (let i = -16; i <= 16; i++) { g.moveTo(960, HOR); g.lineTo(960 + i * 240, H + 260); }
+  const fase = ((t / DUR) * 2) % 1;
+  for (let j = 0; j < 40; j++) {
+    const z = 0.55 + (j + 1 - fase) * 0.42;
+    const y = HOR + (H - HOR) * 0.62 / z;
+    if (y > H + 2 || y < HOR + 1) continue;
+    g.moveTo(0, y); g.lineTo(W, y);
+  }
+  const lg = g.createLinearGradient(0, HOR, 0, H);
+  lg.addColorStop(0, 'rgba(120,230,255,0)'); lg.addColorStop(0.12, 'rgba(120,230,255,0.22)');
+  lg.addColorStop(0.45, 'rgba(120,230,255,0.42)'); lg.addColorStop(1, 'rgba(120,230,255,0.3)');
+  g.strokeStyle = lg; g.lineWidth = 4; g.globalAlpha = 0.25; g.stroke();
+  g.lineWidth = 1.4; g.globalAlpha = 1; g.stroke();
+  g.restore();
+
+  // peanas: brillo en el suelo bajo cada objeto
+  const peana = (x, rx, a) => {
+    if (a <= 0.01) return;
+    g.save(); g.translate(x, 722); g.scale(1, 0.13);
+    const p = g.createRadialGradient(0, 0, 0, 0, 0, rx);
+    p.addColorStop(0, `rgba(170,240,255,${0.5 * a})`); p.addColorStop(0.55, `rgba(120,160,255,${0.16 * a})`); p.addColorStop(1, 'rgba(120,160,255,0)');
+    g.fillStyle = p; g.beginPath(); g.arc(0, 0, rx, 0, TAU); g.fill();
+    g.restore();
+  };
+  const [xa] = aPx(E.cA[0], 0), [xb] = aPx(E.cB[0], 0);
+  const sep = ss(0.25, 0.6, E.sp);
+  peana(960, 300, 1 - sep);
+  peana(xa, 210, sep); peana(xb, 210, sep);
+  reflejo(g);
+
+  // HUD: anillos del átomo
+  const aAt = (1 - ss(0.1, 0.6, E.c)) * (1 - sep);
+  if (aAt > 0.01) {
+    g.save(); g.translate(960, CY); g.globalAlpha = aAt;
+    // abiertos arriba para dejar respirar el subtítulo
+    const hueco = 0.74, a0 = -Math.PI / 2 + hueco, a1 = 1.5 * Math.PI - hueco;
+    g.strokeStyle = 'rgba(190,205,255,0.3)'; g.lineWidth = 1.5;
+    g.beginPath(); g.arc(0, 0, 338, a0, a1); g.stroke();
+    g.setLineDash([3, 11]); g.lineDashOffset = -14 * 30 * t / DUR; g.strokeStyle = 'rgba(170,235,255,0.45)';
+    g.beginPath(); g.arc(0, 0, 356, a0, a1); g.stroke();
+    g.setLineDash([]); g.lineDashOffset = 0;
+    g.restore();
+  }
+  // HUD: retículas norte/sur donde aterrizan las lunas
+  const fija = ss(0.75, 1, E.sp);
+  const ret = (cx, etiqueta, signo) => {
+    const a = 0.22 + 0.6 * fija;
+    const r = 236 + 26 * (1 - eoc(fija));
+    g.save(); g.translate(cx, CY);
+    g.strokeStyle = `rgba(190,205,255,${0.35 * a})`; g.lineWidth = 1.5;
+    g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke();
+    g.strokeStyle = `rgba(170,240,255,${0.8 * a})`; g.lineWidth = 2;
+    for (let k = 0; k < 4; k++) {
+      const an = k * Math.PI / 2 + Math.PI / 4 + signo * (TAU / 4) * (t / DUR);
+      g.beginPath(); g.arc(0, 0, r + 8, an - 0.16, an + 0.16); g.stroke();
+    }
+    g.lineWidth = 1.2;
+    for (let k = 0; k < 72; k++) {
+      const an = k * TAU / 72, l = k % 6 === 0 ? 10 : 4;
+      g.beginPath(); g.moveTo(Math.cos(an) * (r - 2), Math.sin(an) * (r - 2));
+      g.lineTo(Math.cos(an) * (r - 2 - l), Math.sin(an) * (r - 2 - l));
+      g.strokeStyle = `rgba(190,205,255,${(k % 6 === 0 ? 0.5 : 0.22) * a})`; g.stroke();
+    }
+    g.font = '500 16px "Unbounded"'; g.letterSpacing = '3px';
+    g.fillStyle = `rgba(200,225,255,${0.9 * a})`; g.textBaseline = 'middle';
+    g.textAlign = signo < 0 ? 'right' : 'left';
+    g.fillText(etiqueta, signo * (r * 0.71 + 14), r * 0.71 + 8);
+    g.restore();
+  };
+  ret(960 - 420, 'LAT 40° N', -1);
+  ret(960 + 420, 'LAT 34° S', 1);
+
+  // etiquetas brillantes bajo cada luna
+  const aN = ss(T_SEPARA[1] - 0.45, T_SEPARA[1] + 0.05, t) * (1 - ss(T_FIN, T_FIN + 0.35, t));
+  const aS = ss(T_SEPARA[1] - 0.3, T_SEPARA[1] + 0.2, t) * (1 - ss(T_FIN, T_FIN + 0.35, t));
+  pastilla(g, 960 - 420, 800, 'hemisferio norte', aN);
+  pastilla(g, 960 + 420, 800, 'hemisferio sur', aS);
+}
+
+// Reflejo en el suelo pulido: el cromo ya trazado, volteado bajo la línea de suelo y
+// desvanecido (el reflejo «Web 2.0» de la época), sumado a la luz del suelo.
+const YF = 742, HR = 260;
+const cvRef = document.createElement('canvas'), gRef = cvRef.getContext('2d');
+function reflejo(g) {
+  const ky = cvGL.height / H;
+  const ow = cvFondo.width, oh = Math.max(1, Math.round(HR * cvFondo.height / H));
+  if (cvRef.width !== ow || cvRef.height !== oh) { cvRef.width = ow; cvRef.height = oh; }
+  gRef.setTransform(1, 0, 0, 1, 0, 0);
+  gRef.globalCompositeOperation = 'source-over';
+  gRef.clearRect(0, 0, ow, oh);
+  gRef.setTransform(1, 0, 0, -1, 0, oh);
+  gRef.drawImage(cvGL, 0, (YF - HR) * ky, cvGL.width, HR * ky, 0, 0, ow, oh);
+  gRef.setTransform(1, 0, 0, 1, 0, 0);
+  gRef.globalCompositeOperation = 'destination-in';
+  const gr = gRef.createLinearGradient(0, 0, 0, oh);
+  gr.addColorStop(0, 'rgba(0,0,0,0.5)'); gr.addColorStop(0.3, 'rgba(0,0,0,0.2)'); gr.addColorStop(0.75, 'rgba(0,0,0,0.04)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  gRef.fillStyle = gr; gRef.fillRect(0, 0, ow, oh);
+  g.save(); g.globalCompositeOperation = 'lighter';
+  g.drawImage(cvRef, 0, YF, W, HR);
+  g.restore();
+}
+
+function pastilla(g, cx, cy, texto, a) {
+  if (a <= 0.003) return;
+  g.save();
+  g.globalAlpha = a;
+  g.translate(cx, cy + 18 * (1 - eoc(a)));
+  g.font = '500 25px "Unbounded"'; g.letterSpacing = '1px';
+  const tw = g.measureText(texto).width;
+  const w = tw + 104, h = 62, r = h / 2;
+  g.shadowColor = 'rgba(2,3,28,0.6)'; g.shadowBlur = 26; g.shadowOffsetY = 10;
+  rr(g, -w / 2, -h / 2, w, h, r);
+  const gr = g.createLinearGradient(0, -h / 2, 0, h / 2);
+  gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.46, '#d8daff'); gr.addColorStop(0.54, '#a6aaf5'); gr.addColorStop(1, '#efe3ff');
+  g.fillStyle = gr; g.fill();
+  g.shadowColor = 'transparent';
+  rr(g, -w / 2 + 7, -h / 2 + 4, w - 14, h * 0.4, h * 0.2);
+  const br = g.createLinearGradient(0, -h / 2, 0, -h / 2 + h * 0.44);
+  br.addColorStop(0, 'rgba(255,255,255,0.95)'); br.addColorStop(1, 'rgba(255,255,255,0.15)');
+  g.fillStyle = br; g.fill();
+  rr(g, -w / 2, -h / 2, w, h, r);
+  const bo = g.createLinearGradient(0, -h / 2, 0, h / 2);
+  bo.addColorStop(0, 'rgba(255,255,255,0.9)'); bo.addColorStop(1, 'rgba(70,70,200,0.9)');
+  g.strokeStyle = bo; g.lineWidth = 2; g.stroke();
+  // piloto: pequeña gota de cristal azul
+  const ox = -w / 2 + 34;
+  const pg = g.createRadialGradient(ox - 4, -5, 1, ox, 0, 14);
+  pg.addColorStop(0, '#ffffff'); pg.addColorStop(0.35, '#8ff0ff'); pg.addColorStop(0.8, '#3557e6'); pg.addColorStop(1, '#1d2a9a');
+  g.fillStyle = pg; g.beginPath(); g.arc(ox, 0, 12, 0, TAU); g.fill();
+  g.strokeStyle = 'rgba(20,30,110,0.6)'; g.lineWidth = 1; g.stroke();
+  g.fillStyle = '#141757'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(texto, 17, 2);
+  g.restore();
+}
+
+function destello(g, x, y, r, a, rot = 0) {
+  if (a <= 0.004 || r < 0.5) return;
+  g.save(); g.translate(x, y); g.rotate(rot);
+  const rg = g.createRadialGradient(0, 0, 0, 0, 0, r * 1.3);
+  rg.addColorStop(0, `rgba(235,240,255,${0.6 * a})`); rg.addColorStop(0.25, `rgba(190,200,255,${0.2 * a})`); rg.addColorStop(1, 'rgba(160,170,255,0)');
+  g.fillStyle = rg; g.beginPath(); g.arc(0, 0, r * 1.3, 0, TAU); g.fill();
+  const estrella = (R, w) => {
+    g.beginPath(); g.moveTo(0, -R);
+    for (let k = 0; k < 4; k++) {
+      const a1 = -Math.PI / 2 + k * Math.PI / 2, a2 = a1 + Math.PI / 2, am = a1 + Math.PI / 4;
+      g.quadraticCurveTo(Math.cos(am) * w, Math.sin(am) * w, Math.cos(a2) * R, Math.sin(a2) * R);
+    }
+    g.closePath(); g.fill();
+  };
+  g.fillStyle = `rgba(255,255,255,${a})`;
+  estrella(r, r * 0.1);
+  g.rotate(Math.PI / 4); g.fillStyle = `rgba(220,235,255,${0.55 * a})`;
+  estrella(r * 0.42, r * 0.06);
+  g.restore();
+}
+
+function dibujarFrente(g, t, E) {
+  g.clearRect(0, 0, W, H);
+  // subtítulo de la serie
+  g.save();
+  g.font = '400 19px "Michroma"'; g.letterSpacing = '5px'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = 'rgba(220,228,255,0.9)';
+  g.fillText('LO QUE NO TE EXPLICARON EN CLASE  ·  EP. 01', 960, 216);
+  g.restore();
+
+  g.save();
+  g.globalCompositeOperation = 'lighter';
+  for (const c of CHISPAS) {
+    const s = Math.sin(TAU * (c.k * t / DUR + c.f));
+    const a = Math.pow(Math.max(0, s), 5);
+    destello(g, c.x, c.y, c.r * (0.6 + 0.4 * a), a * 0.95, c.rot);
+  }
+  // destellos sobre los brillos del cromo en momentos clave
+  const [xa, ya] = aPx(E.cA[0], E.cA[1]), [xb, yb] = aPx(E.cB[0], E.cB[1]);
+  const rp = E.rG * PX;
+  destello(g, 960 - 82, CY - 70, 46, campana(t, 0.4, 0.4), 0.2);
+  destello(g, 960 + rp * 0.42, CY - rp * 0.6, 58, campana(t, 2.2, 0.42), 0.1);
+  destello(g, xa + rp * 0.5, ya - rp * 0.58, 50, campana(t, 4.15, 0.4), -0.15);
+  destello(g, xb - rp * 0.5, yb - rp * 0.58, 54, campana(t, 5.3, 0.42), 0.15);
+  destello(g, 960 + 300, 128 - 34, 30, campana(t, 2.75, 0.3), 0);
+  destello(g, 960 - 470, 128 + 26, 24, campana(t, 2.55, 0.3), 0.3);
+  destello(g, 960 - 70, CY - 60, 40, campana(t, 9.7, 0.35), -0.1);
+  g.restore();
+
+  // flecha de giro sobre la luna del sur (180°, sentido antihorario)
+  const pg = eiob(prog(t, T_GIRO), 0.7);
+  const aG = ss(T_GIRO[0] - 0.2, T_GIRO[0] + 0.1, t) * (1 - ss(T_FIN - 0.5, T_FIN - 0.1, t));
+  if (aG > 0.01) {
+    const cx = 960 + 420, R = 262, a0 = -0.42, a1 = -Math.PI + 0.42;
+    const fin = a0 + (a1 - a0) * cl(pg, 0.002, 1.1);
+    g.save(); g.translate(cx, CY); g.globalAlpha = aG;
+    g.lineCap = 'round';
+    g.strokeStyle = 'rgba(160,240,255,0.95)'; g.lineWidth = 3;
+    g.shadowColor = 'rgba(120,220,255,0.9)'; g.shadowBlur = 12;
+    g.beginPath(); g.arc(0, 0, R, a0, fin, true); g.stroke();
+    const ax = Math.cos(fin) * R, ay = Math.sin(fin) * R, tx = Math.sin(fin), ty = -Math.cos(fin);
+    g.fillStyle = 'rgba(200,250,255,1)';
+    g.beginPath();
+    g.moveTo(ax + tx * 18, ay + ty * 18);
+    g.lineTo(ax - tx * 4 + Math.cos(fin) * 10, ay - ty * 4 + Math.sin(fin) * 10);
+    g.lineTo(ax - tx * 4 - Math.cos(fin) * 10, ay - ty * 4 - Math.sin(fin) * 10);
+    g.closePath(); g.fill();
+    g.shadowBlur = 0;
+    g.font = '500 22px "Unbounded"'; g.letterSpacing = '1px'; g.textAlign = 'left'; g.textBaseline = 'middle';
+    g.fillStyle = 'rgba(225,245,255,0.95)';
+    g.fillText('180°', Math.cos(-1.0) * (R + 22), Math.sin(-1.0) * (R + 22) - 8);
+    g.restore();
+  }
+  // «misma Luna» entre las dos
+  const aM = ss(5.15, 5.55, t) * (1 - ss(T_FIN - 0.2, T_FIN + 0.15, t));
+  if (aM > 0.01) {
+    g.save(); g.globalAlpha = aM; g.translate(960, CY);
+    g.font = '400 21px "Michroma"'; g.letterSpacing = '4px'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = 'rgba(230,236,255,0.95)';
+    g.fillText('MISMA LUNA', 0, 0);
+    g.strokeStyle = 'rgba(170,235,255,0.8)'; g.lineWidth = 1.5;
+    const L = 45 + 30 * eoc(cl((t - 5.15) / 0.6));
+    for (const s of [-1, 1]) {
+      g.beginPath(); g.moveTo(s * 138, 0); g.lineTo(s * (138 + L), 0); g.stroke();
+      g.beginPath(); g.moveTo(s * (138 + L), 0); g.lineTo(s * (138 + L - 9), -6); g.moveTo(s * (138 + L), 0); g.lineTo(s * (138 + L - 9), 6); g.stroke();
+    }
+    g.restore();
+  }
+}
+
+// ---------------------------------------------------------------------
+// Fotograma
+// ---------------------------------------------------------------------
+function dibujar(t) {
+  if (t < 0 || t > DUR) t = ((t % DUR) + DUR) % DUR;
+  const E = estado(t);
+  subirEstado(E, t);
+  // rótulos cromados
+  const tit = rotulos.titulo.material.uniforms;
+  tit.uRect.value.set(960, 128, atlas.uv.titulo.w, atlas.uv.titulo.h);
+  tit.uVista.value = (1 - 128 / 540) * 0.92;
+  tit.uBarrido.value = mix(-0.25, 1.25, prog(t, [2.35, 3.35]));
+  tit.uFilm.value = 0.1 * Math.sin(TAU * t / DUR + 1);
+  const pop = (t0, t1) => {
+    const a = prog(t, [t0, t0 + 0.45]) * (1 - ss(t1, t1 + 0.35, t));
+    return a;
+  };
+  const pD = pop(T_SEPARA[1] - 0.25, T_FIN), pC = pop(T_GIRO[1] - 0.1, T_FIN);
+  for (const [id, p, x, dir] of [['D', pD, 960 - 735, -1], ['C', pC, 960 + 735, 1]]) {
+    const u = rotulos[id].material.uniforms;
+    u.uRect.value.set(x, CY + 4, atlas.uv[id].w, atlas.uv[id].h);
+    u.uEsc.value = p > 0 ? mix(0.55, 1, eob(cl(p), 2.2)) * (1 - 0.25 * ss(T_FIN, T_FIN + 0.35, t)) : 0;
+    u.uOpac.value = ss(0, 0.5, p);
+    u.uGiro.value = dir * 0.25 * (1 - eoc(cl(p)));
+    u.uBarrido.value = mix(-0.4, 1.4, prog(t, [x < 960 ? 4.15 : 5.25, x < 960 ? 4.95 : 6.05]));
+    u.uFilm.value = 0.1 * Math.sin(TAU * t / DUR + 2);
+    rotulos[id].visible = p > 0.001;
+  }
+  renderer.render(mundo, camara);
+  dibujarFondo(gF, t, E);   // después del render: el suelo refleja el cromo
+  dibujarFrente(gT, t, E);
+}
+
+// ---------------------------------------------------------------------
+// Tamaño, bucle y API de captura
+// ---------------------------------------------------------------------
+const grueso = matchMedia('(pointer: coarse)').matches;
+let ultimoT = 0;
+function ajustar() {
+  const s = Math.min(innerWidth / W, innerHeight / H);
+  const cw = Math.max(1, Math.round(W * s)), ch = Math.max(1, Math.round(H * s));
+  escena.style.width = cw + 'px'; escena.style.height = ch + 'px';
+  const pr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  for (const [c, g] of [[cvFondo, gF], [cvFrente, gT]]) {
+    c.width = Math.round(cw * pr); c.height = Math.round(ch * pr);
+    g.setTransform(c.width / W, 0, 0, c.height / H, 0, 0);
+  }
+  pintarFijo();
+  // el trazador de rayos va a resolución reducida en pantallas táctiles
+  const maxAncho = CAPTURA ? W : grueso ? 880 : 1920;
+  const prGL = Math.min(pr, maxAncho / cw);
+  renderer.setPixelRatio(prGL);
+  renderer.setSize(cw, ch, false);
+  const b = new THREE.Vector2(); renderer.getDrawingBufferSize(b);
+  UC.uRes.value.copy(b);
+  UC.uPixA.value = 2 * TAN_Y / b.y;
+}
+
+await Promise.all([
+  document.fonts.load('900 96px "Unbounded"', 'LA LUNA AL REVÉS DC'),
+  document.fonts.load('500 25px "Unbounded"', 'hemisferio norte sur LAT 40° 34° N S 180°'),
+  document.fonts.load('400 17px "Michroma"', 'LO QUE NO TE EXPLICARON EN CLASE · EP. 01 MISMA LUNA 180° LAT N S'),
+]);
+await document.fonts.ready;
+atlas = crearAtlas();
+crearRotulo('titulo'); crearRotulo('D'); crearRotulo('C');
+ajustar();
+addEventListener('resize', () => { ajustar(); dibujar(ultimoT); });
+
+window.__frame = async (t) => { ultimoT = t; dibujar(t); };
+dibujar(0);
+window.__listo = true;
+
+if (!CAPTURA) {
+  const inicio = performance.now();
+  const bucle = (ahora) => {
+    ultimoT = ((ahora - inicio) / 1000) % DUR;
+    dibujar(ultimoT);
+    requestAnimationFrame(bucle);
+  };
+  requestAnimationFrame(bucle);
+}
+</script>
+</body>
+</html>

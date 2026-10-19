@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cielo · papel</title>
+</head>
+<body>
+<script type="module">
+// Cielo (recortes de papel). Afirmación 5: «en el sur, el cielo de noche es otro» → ✓ VERDAD.
+// Cielo de cartulina con estrellas colgadas de hilos; abajo, colinas, el mar y un observador.
+// [verdad] cae un sello ✓, que luego se aparta a la esquina de arriba a la derecha. [orion] se posa Orión en un disco de
+// cartulina (estrellas de papel cosidas con hilo y la silueta del cazador), derecho, como desde el
+// norte, con una ficha N. [cabeza] el disco gira 180° sobre su chincheta: cabeza abajo; flecha N → S.
+// [cruz] baja de un hilo la Cruz del Sur. [polar] se cose el contorno vacío de una estrella polar y
+// las estrellas trazan arcos alrededor del polo (giran a derechas). [debil] en el polo, una estrella
+// diminuta y apagada, señalada con un anillo de puntos. [navegantes] se posa un velero; el eje largo
+// de la Cruz baja por el polo (ficha ×4½: la distancia real, aquí acortada) hasta la S del horizonte.
+// [lactea] se retira lo anterior y la Vía Láctea, una tira de gasa con puntos, se desenrolla por el
+// cielo (la Cruz queda dentro). [centro] se enciende su bulbo.
+// [encima] una flecha sube de la cabeza del observador al centro, que le pasa justo por encima.
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/papel.js';
+
+const E = await escena('cielo');
+await K.preparar();
+const { C, TAU, PI, seg, eio, eout, ein, eback, lerp, cl, mezcla } = K;
+const M = (k) => E.marca(k);
+const tramo = (t, k, a, b) => seg(t, M(k) + a, M(k) + b);
+
+// ---------- puesta en escena (coordenadas de diseño 1920x1080) ----------
+const HZ = 808;                              // horizonte del mar
+const ORI = { x: 520, y: 398, R: 226 };      // disco de Orión (gira sobre su centro)
+const CRUZ = { x: 1300, y: 290 };            // punto medio del eje largo de la Cruz del Sur
+const POLO = { x: 1300, y: 612 };            // polo sur del cielo
+const SUR = { x: 1300, y: 780 };             // ficha S, posada sobre el horizonte (fuera de la franja de subtítulos)
+const BULBO = { x: 960, y: 212 };            // centro de la galaxia (en el cénit)
+const OBS = { x: 960, esc: 1.35 };
+const BARCO = { x: 1592, y: 852 };
+const SELLO = { x: 960, y: 372, R: 90, rx: 1736, ry: 184, re: 0.56 };   // luego, insignia arriba a la derecha
+const LUZ = -2.36;                           // la lámpara: arriba a la izquierda
+
+// ---------- estrellas de papel ----------
+const FORMAS = new Map();
+const forma = (R, seed) => { const k = R + '|' + seed; if (!FORMAS.has(k)) FORMAS.set(k, K.estrella(R, R * 0.46, 5, -PI / 2, seed)); return FORMAS.get(k); };
+const TONOS = {
+  oro: [C.gold, C.goldL, C.goldD],
+  marfil: [C.ivory, '#fbf4e2', C.ivory3],
+  roja: ['#e2774f', '#f2a77f', '#a8492f'],
+  azul: ['#c7d8e4', '#eaf2f6', '#8ea7ba'],
+};
+/** halo suave detrás de una estrella brillante */
+function halo(R, col, a) {
+  const g = K.g, gr = g.createRadialGradient(0, 0, 0, 0, 0, R);
+  gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(0.4, `rgba(${col},${a * 0.35})`); gr.addColorStop(1, `rgba(${col},0)`);
+  g.fillStyle = gr; g.fillRect(-R, -R, 2 * R, 2 * R);
+}
+/** estrella plegada (cinco puntas con aristas); la luz se calcula en pantalla: no gira con la pieza */
+function plegada(R, tono, id, giro = 0, d = 3.2) {
+  const g = K.g, [base, lite, dark] = TONOS[tono], sp = forma(R, id);
+  K.sombra(d, 0.55); g.fillStyle = base; g.fill(sp); K.sinSombra();
+  for (let i = 0; i < 10; i++) {
+    const a0 = -PI / 2 + i / 10 * TAU, a1 = -PI / 2 + (i + 1) / 10 * TAU;
+    const r0 = (i % 2 ? 0.46 : 1) * R, r1 = (i % 2 ? 1 : 0.46) * R;
+    const p = new Path2D(); p.moveTo(0, 0); p.lineTo(r0 * Math.cos(a0), r0 * Math.sin(a0)); p.lineTo(r1 * Math.cos(a1), r1 * Math.sin(a1)); p.closePath();
+    const k = cl(0.5 + 0.4 * Math.cos((a0 + a1) / 2 + giro - LUZ) + (i % 2 ? -0.17 : 0.17));
+    g.fillStyle = k > 0.5 ? mezcla(base, lite, (k - 0.5) * 2) : mezcla(dark, base, k * 2);
+    g.fill(p);
+  }
+  K.textura(sp, id, 0.85, 0.35);
+}
+/** estrella de papel en (x, y): plegada si es grande, lisa si es pequeña */
+function estrellaEn(x, y, s, giro = 0) {
+  const g = K.g;
+  g.save(); g.translate(x, y); K.temblor(s.id, 0.35, 0.01);
+  if (s.halo) halo(s.R * 3.2, s.halo, 0.32);
+  g.rotate(s.rot ?? 0);
+  if (s.R >= 9) plegada(s.R, s.tono, s.id, giro + (s.rot ?? 0), s.d ?? 3.2);
+  else K.papel(forma(s.R, s.id), TONOS[s.tono][0], { d: s.d ?? 2, seed: s.id, edge: 0.6, tb: 0.4 });
+  g.restore();
+}
+
+// ---------- Orión (grados → píxeles; x: el este a la izquierda; visto desde el norte) ----------
+const ORION = (() => {
+  const S = 17, Y0 = 24, D = [
+    ['betelgeuse', -4.96, -8.4, 16, 'roja', '226,119,79'], ['bellatrix', 2.48, -7.35, 12, 'marfil'], ['meissa', 0, -10.9, 8, 'marfil'],
+    ['mintaka', 0.75, -0.7, 10.5, 'azul'], ['alnilam', -0.25, 0.2, 11.5, 'azul'], ['alnitak', -1.5, 0.94, 11, 'azul'],
+    ['saiph', -3.2, 8.67, 11, 'azul'], ['rigel', 5.07, 7.2, 16, 'azul', '200,222,240'],
+    ['espada1', 0.1, 3.4, 4.2, 'marfil'], ['espada3', 0.15, 5.4, 3.8, 'marfil'],
+  ];
+  const o = {};
+  D.forEach(([k, x, y, R, tono, h], i) => { o[k] = { x: x * S, y: (y + 1.1) * S + Y0, R, tono, halo: h, id: 410 + i * 3, rot: (K.hsh(i, 7) - 0.5) * 0.4 }; });
+  o.m42 = { x: 0, y: (4.4 + 1.1) * S + Y0 };
+  return o;
+})();
+const LINEAS_ORI = [['meissa', 'betelgeuse'], ['meissa', 'bellatrix'], ['betelgeuse', 'alnitak'], ['bellatrix', 'mintaka'],
+  ['mintaka', 'alnilam'], ['alnilam', 'alnitak'], ['alnitak', 'saiph'], ['mintaka', 'rigel']];
+const P = {};   // trazados en caché
+function piezasOrion() {
+  if (P.disco) return;
+  P.disco = K.circulo(ORI.R, 404, 0.002, 6.5, 52);
+  P.dentro = K.circulo(ORI.R - 24, 405, 0.003);
+  // silueta del cazador (cartulina un poco más clara): cabeza, torso, faldón, piernas, brazo con maza,
+  // brazo con la piel de león. Al girar 180° la cabeza queda abajo: se lee «cabeza abajo».
+  const o = ORION, bt = o.betelgeuse, bl = o.bellatrix, mt = o.mintaka, an = o.alnitak, me = o.meissa;
+  P.cazador = [
+    K.circulo(21, 406, 0.03),
+    K.poligono([[bt.x - 14, bt.y + 6], [bt.x - 6, bt.y - 12], [-11, me.y + 24], [11, me.y + 24], [bl.x + 4, bl.y - 14], [bl.x + 14, bl.y + 2], [mt.x + 13, mt.y - 2], [an.x - 12, an.y + 2]]),
+    K.poligono([[an.x - 12, an.y - 4], [mt.x + 13, mt.y - 6], [mt.x + 20, mt.y + 18], [56, 132], [24, 144], [-14, 146], [-50, 138], [an.x - 22, an.y + 22]]),
+    K.tira([[-30, 136], [-44, 162], [o.saiph.x, o.saiph.y + 2]], (s) => 11 - s * 4),
+    K.tira([[36, 134], [62, 150], [o.rigel.x - 2, o.rigel.y + 4]], (s) => 11 - s * 4),
+    K.tira([[bt.x - 6, bt.y - 4], [-112, -138], [-100, -170]], (s) => 9 - s * 2.5),
+    K.tira([[-110, -160], [-90, -182], [-68, -192]], (s) => 5 + s * 7),
+    K.tira([[bl.x + 6, bl.y - 2], [86, -96], [110, -104]], (s) => 8 - s * 2),
+    K.tira(K.arcoPts(104, -96, 66, 66, -1.25, 1.15, 26), (s) => 4 + 6 * Math.sin(PI * s)),
+  ];
+  P.cabezaEn = [me.x, me.y + 2];
+  P.m42 = K.mancha(9, 408, 0.25, 8, 1.2);
+}
+/** el disco de Orión con todo lo que lleva, en el origen, girado `giro` */
+function discoOrion(giro) {
+  const g = K.g; piezasOrion();
+  g.save(); g.rotate(giro);
+  K.papel(P.disco, C.ring2, { d: 5, seed: 404, sa: 0.62, tb: 0.42, edge: 0.75, print: () => {
+    g.strokeStyle = 'rgba(236,224,196,0.26)'; g.lineCap = 'round';
+    for (let i = 0; i < 72; i++) {
+      const a = i / 72 * TAU, l = i % 6 === 0 ? 10 : 5;
+      g.lineWidth = i % 6 === 0 ? 1.6 : 1.1;
+      g.beginPath(); g.moveTo((ORI.R - 6) * Math.cos(a), (ORI.R - 6) * Math.sin(a)); g.lineTo((ORI.R - 6 - l) * Math.cos(a), (ORI.R - 6 - l) * Math.sin(a)); g.stroke();
+    }
+  } });
+  K.papel(P.dentro, mezcla(C.ring2, C.ring3, 0.4), { d: 1.6, seed: 405, tb: 0.38, edge: 0.6, print: () => {
+    g.strokeStyle = 'rgba(236,224,196,0.10)'; g.lineWidth = 1.1; g.setLineDash([3, 7]);
+    for (const r of [70, 140]) { g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); }
+    g.setLineDash([]);
+  } });
+  const sil = mezcla(C.ring3, C.blueD, 0.4);
+  P.cazador.forEach((p, i) => {
+    g.save(); if (i === 0) g.translate(...P.cabezaEn);
+    K.papel(p, sil, { d: 0.9, seed: 407 + i, tb: 0.35, edge: 0.55, sa: 0.4 });
+    g.restore();
+  });
+  // nebulosa de la espada: papel de seda rosado
+  g.save(); g.translate(ORION.m42.x, ORION.m42.y); K.papel(P.m42, 'rgba(231,165,154,0.55)', { d: 0.8, seed: 409, ta: 0.4, tb: 0.3, edge: 0.4 }); g.restore();
+  for (const [a, b] of LINEAS_ORI) K.puntadas([[ORION[a].x, ORION[a].y], [ORION[b].x, ORION[b].y]], { col: 'rgba(236,224,196,0.92)', ancho: 2.1, guion: [7, 6], d: 1.2, nudos: false });
+  for (const k of ['espada1', 'espada3', 'meissa', 'bellatrix', 'mintaka', 'alnilam', 'alnitak', 'saiph', 'betelgeuse', 'rigel']) estrellaEn(ORION[k].x, ORION[k].y, ORION[k], giro);
+  estrellaEn(ORION.m42.x, ORION.m42.y, { R: 3.4, tono: 'marfil', id: 470 }, giro);
+  g.restore();
+  K.chincheta(0, 0, 10);
+}
+
+// ---------- Cruz del Sur (vista de cara al sur, en lo alto: eje largo vertical) ----------
+const CRUZE = (() => {
+  const S = 36, D = { gacrux: [-0.4, -2.9, 17, 'roja', '232,140,100'], acrux: [0.17, 3.1, 19, 'azul', '200,222,240'], mimosa: [-2.49, -0.3, 18, 'azul', '200,222,240'], delta: [1.67, -1.25, 13.5, 'azul'], epsilon: [0.82, 0.4, 8.5, 'oro'] };
+  const p = {}; for (const [k, [x, y]] of Object.entries(D)) p[k] = [x * S, y * S];
+  const phi = Math.atan2(p.acrux[0] - p.gacrux[0], p.acrux[1] - p.gacrux[1]), c = Math.cos(phi), s = Math.sin(phi);
+  const r = (v) => [v[0] * c - v[1] * s, v[0] * s + v[1] * c];
+  const g0 = r(p.gacrux), a0 = r(p.acrux), mx = (g0[0] + a0[0]) / 2, my = (g0[1] + a0[1]) / 2;
+  const o = {}; let i = 0;
+  for (const [k, [, , R, tono, h]] of Object.entries(D)) { const v = r(p[k]); o[k] = { x: v[0] - mx, y: v[1] - my, R, tono, halo: h, id: 520 + 3 * i, rot: (K.hsh(i, 11) - 0.5) * 0.4 }; i++; }
+  return o;
+})();
+const GAC_Y = CRUZ.y + CRUZE.gacrux.y, ACR_Y = CRUZ.y + CRUZE.acrux.y;
+
+// ---------- paisaje ----------
+function colina(seed, base, amp, fr, xc, caida, fondo = HZ + 80) {
+  const r = K.rng(seed), p1 = r() * TAU, p2 = r() * TAU, p3 = r() * TAU;
+  const f0 = (x) => base - amp * (0.62 * Math.sin(x * fr + p1) + 0.38 * Math.sin(x * fr * 2.3 + p2)) + 1.1 * Math.sin(x * 0.19 + p3);
+  const f = (x) => { const k = cl((x - (xc - caida)) / caida), s = k * k * (3 - 2 * k); return lerp(f0(x), fondo, s); };
+  const pts = [[-40, 1130]];
+  for (let x = -40; x <= xc + 6; x += 6) pts.push([x, f(x)]);
+  pts.push([xc + 6, 1130]);
+  return { p: K.poligono(pts), f };
+}
+// la de delante (el promontorio del observador) cae hasta el borde de abajo: no deja canto vertical
+const COLINAS = [colina(41, 770, 16, 0.006, 1250, 280), colina(42, 806, 11, 0.009, 1170, 230), colina(47, 850, 6, 0.007, 1290, 300, 1150)];
+const PIES_Y = COLINAS[2].f(OBS.x) + 2;
+function abeto(h, w, seed) {
+  const r = K.rng(seed), L = [];
+  L.push([-w * 0.07, 2], [-w * 0.07, -h * 0.12]);
+  for (let k = 0; k < 3; k++) {
+    const yb = -h * 0.12 - k * h * 0.25, ww = w / 2 * (1 - k * 0.24) * (1 + (r() - 0.5) * 0.1);
+    L.push([-ww * 0.42, yb], [-ww, yb], [-ww * 0.5, yb - h * 0.17]);
+  }
+  L.push([0, -h]);
+  return K.poligono([...L, ...L.slice(1).reverse().map(([x, y]) => [-x, y])]);
+}
+function franjaOlas(seed, x0, y0, hmin, hmax, wmin, wmax) {
+  const r = K.rng(seed), pts = [[x0, 1130], [x0, y0]]; let x = x0;
+  while (x < 1980) {
+    const w = wmin + r() * (wmax - wmin), h = hmin + r() * (hmax - hmin);
+    for (let k = 1; k <= 8; k++) { const u = k / 8; pts.push([x + w * u, y0 - h * Math.pow(Math.sin(PI * u), 0.8)]); }
+    x += w;
+  }
+  pts.push([x, 1130]);
+  return K.poligono(pts);
+}
+/** sombreado impreso de una franja de paisaje: canto claro arriba, más oscuro hacia abajo */
+const sombreado = (y0, a = 0.42) => () => {
+  const g = K.g, gg = g.createLinearGradient(0, y0 - 40, 0, y0 + 230);
+  gg.addColorStop(0, 'rgba(255,240,215,0.10)'); gg.addColorStop(0.22, 'rgba(255,240,215,0)'); gg.addColorStop(1, `rgba(0,0,10,${a})`);
+  g.fillStyle = gg; g.fillRect(-60, y0 - 60, 2040, 400);
+};
+const MAR = mezcla(C.tealD, C.bg, 0.3), OLA1 = mezcla(C.tealD, C.bg, 0.12), OLA2 = mezcla(C.teal, C.tealD, 0.55);
+// fondo del paisaje: mar del horizonte, primera ola y las dos colinas de atrás (con abetos)
+const costa = K.capa(() => {
+  const g = K.g, r = K.rng(61);
+  const mar = []; for (let x = 860; x <= 1980; x += 20) mar.push([x, HZ + (r() - 0.5) * 1.6]);
+  K.papel(K.poligono([...mar, [1980, 1130], [860, 1130]]), MAR, { d: 3, seed: 62, tb: 0.42, edge: 0.8, print: () => {
+    const gr = g.createLinearGradient(0, HZ, 0, HZ + 70); gr.addColorStop(0, 'rgba(150,180,215,0.20)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(860, HZ, 1120, 70);
+    const q = K.rng(63); g.strokeStyle = 'rgba(196,224,230,0.18)'; g.lineCap = 'round';
+    for (let i = 0; i < 40; i++) { const y = HZ + 5 + Math.pow(q(), 1.4) * 34, x = 1000 + q() * 940, w = 8 + q() * 30; g.lineWidth = 1 + q(); g.beginPath(); g.moveTo(x, y); g.lineTo(x + w, y); g.stroke(); }
+  } });
+  K.papel(franjaOlas(64, 980, 834, 3, 7, 70, 120), OLA1, { d: 4, seed: 65, tb: 0.42, edge: 0.8, print: sombreado(834, 0.3) });
+  const cols = [C.hillA, C.hillB];
+  COLINAS.slice(0, 2).forEach((c, i) => {
+    K.papel(c.p, cols[i], { d: 4 + i, seed: 66 + i, sa: 0.6, tb: 0.5, edge: 0.85, print: sombreado(i ? 800 : 765, 0.4) });
+    if (i === 1) [[96, 48, 30], [128, 62, 36], [158, 42, 26], [618, 54, 32], [648, 40, 25], [372, 36, 22]].forEach(([x, h, w], j) => {
+      g.save(); g.translate(x, c.f(x) + 4); K.papel(abeto(h, w, 70 + j), C.tree, { d: 1.8, seed: 80 + j, tb: 0.45 }); g.restore();
+    });
+  });
+});
+// primer término: la ola de delante (el velero va detrás) y el promontorio del observador
+const frente = K.capa(() => {
+  const g = K.g;
+  K.papel(franjaOlas(91, 860, 864, 6, 11, 60, 100), OLA2, { d: 6, seed: 92, tb: 0.48, edge: 0.9, print: () => {
+    sombreado(864, 0.45)();
+    g.strokeStyle = 'rgba(196,224,230,0.16)'; g.lineWidth = 1.4; g.setLineDash([16, 12]);
+    g.beginPath(); g.moveTo(1000, 884); g.lineTo(1960, 884); g.stroke(); g.setLineDash([]);
+  } });
+  K.papel(COLINAS[2].p, mezcla(C.hillC, C.hillB, 0.25), { d: 7, seed: 68, sa: 0.65, tb: 0.5, edge: 0.9, print: sombreado(850, 0.5) });
+});
+
+// ---------- velero de papel (proa a la izquierda; línea de flotación en y = 0) ----------
+const VEL = {};
+function piezasVelero() {
+  if (VEL.casco) return;
+  // casco de carabela: proa baja a la izquierda, castillo de popa alto a la derecha
+  const proa = K.bezierPts([-64, 8], [-96, 6], [-112, -14], [-122, -40], 12);
+  VEL.casco = K.poligono([[-122, -40], [-104, -30], [-80, -22], [48, -22], [50, -26], [56, -44], [104, -50], [102, -40], ...K.bezierPts([98, -30], [96, -10], [88, 2], [72, 8], 8), ...proa.slice(0, -1)]);
+  VEL.bauprés = K.tira([[-112, -38], [-156, -60]], (s) => 2.6 - s);
+  VEL.palos = [[-44, -152], [8, -180], [74, -122]].map(([x, y]) => K.rect(x - 2.4, y, 4.8, -y - 20, 2));
+  // velas cuadras: borde de arriba recto en la verga, panza abajo
+  const vela = (cx, yt, yb, w) => K.poligono([[cx - w, yt], [cx + w, yt], [cx + w * 0.96, yb - 4], ...K.bezierPts([cx + w * 0.96, yb - 4], [cx + w * 0.4, yb + 8], [cx - w * 0.4, yb + 8], [cx - w * 0.96, yb - 4], 10).slice(1)]);
+  VEL.velas = [{ p: vela(-44, -126, -72, 31), cx: -44, w: 31 }, { p: vela(-44, -148, -130, 21), cx: -44, w: 21 }, { p: vela(8, -146, -70, 40), cx: 8, w: 40 }, { p: vela(8, -176, -150, 28), cx: 8, w: 28 }];
+  VEL.vergas = [[-44, -129, 35], [-44, -151, 25], [8, -149, 44], [8, -179, 32]].map(([x, y, w]) => K.rect(x - w, y, 2 * w, 4, 2));
+  VEL.latina = K.poligono([[54, -58], [104, -62], ...K.bezierPts([104, -62], [96, -88], [86, -110], [76, -128], 8).slice(1)]);
+  VEL.banderas = [K.poligono([[8, -192], [-20, -187], [8, -181]]), K.poligono([[74, -134], [52, -130], [74, -125]])];
+}
+function velero(t) {
+  const g = K.g; piezasVelero();
+  [[-156, -60, -44, -150], [-44, -150, 8, -178], [8, -178, 74, -120], [74, -120, 104, -50], [-104, -30, -44, -126]].forEach(([a, b, c, d]) => K.hilo(a, b, c, d, 0.55, 1));
+  K.papel(VEL.bauprés, C.maderaD, { d: 1.4, seed: 701, edge: 0.5 });
+  VEL.palos.forEach((p, i) => K.papel(p, C.maderaD, { d: 1.6, seed: 702 + i, edge: 0.5 }));
+  VEL.banderas.forEach((p, i) => { g.save(); K.temblor(706 + i, 0.5, 0.02); K.papel(p, C.coral, { d: 1.2, seed: 706 + i, edge: 0.5 }); g.restore(); });
+  K.papel(VEL.latina, C.ivory2, { d: 2.2, seed: 716, tb: 0.5, print: () => {
+    g.strokeStyle = 'rgba(120,96,70,0.2)'; g.lineWidth = 1; for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(60 + k * 11, -58); g.lineTo(76, -126); g.stroke(); }
+  } });
+  VEL.velas.forEach((v, i) => K.papel(v.p, C.ivory, { d: 2.4, seed: 710 + i, tb: 0.5, print: () => {
+    const gr = g.createLinearGradient(v.cx - v.w, 0, v.cx + v.w, 0);
+    gr.addColorStop(0, 'rgba(120,90,60,0.16)'); gr.addColorStop(0.45, 'rgba(255,250,235,0.10)'); gr.addColorStop(1, 'rgba(120,90,60,0.22)');
+    g.fillStyle = gr; g.fillRect(v.cx - v.w - 4, -200, 2 * v.w + 8, 160);
+    g.strokeStyle = 'rgba(120,96,70,0.2)'; g.lineWidth = 1;
+    for (let k = -v.w + 10; k < v.w; k += 12) { g.beginPath(); g.moveTo(v.cx + k, -200); g.lineTo(v.cx + k * 1.04, -40); g.stroke(); }
+  } }));
+  VEL.vergas.forEach((p, i) => K.papel(p, C.maderaD, { d: 1.4, seed: 720 + i, edge: 0.5 }));
+  K.papel(VEL.casco, C.madera, { d: 3, seed: 730, tb: 0.5, print: () => {
+    g.fillStyle = C.maderaD; g.fillRect(-130, -12, 250, 6);
+    g.strokeStyle = 'rgba(60,34,16,0.32)'; g.lineWidth = 1.1;
+    for (const y of [-17, -1]) { g.beginPath(); g.moveTo(-130, y); g.lineTo(120, y); g.stroke(); }
+    g.fillStyle = C.goldL; for (let x = -46; x <= 34; x += 20) { g.beginPath(); g.arc(x, -27, 2, 0, TAU); g.fill(); }
+    g.fillStyle = 'rgba(60,34,16,0.35)'; g.fillRect(60, -44, 34, 3);
+  } });
+}
+
+// ---------- Vía Láctea: papel de seda translúcido, a contraluz, con puntos (capas fijas) ----------
+// La luz (gasa, fibras, puntos) se pega con 'screen' para que brille sobre la cartulina; las grietas de
+// polvo van en otra capa normal. El bulbo central tiene las suyas y se enciende en [centro].
+const ARCO = (s) => [40 + 1840 * s, 905 * (1 - s) * (1 - s) + 2 * s * (1 - s) * -495 + 905 * s * s];
+const anchoArco = (s) => 30 + 48 * Math.pow(Math.sin(PI * s), 1.4);
+const normalArco = (s) => { const a = ARCO(Math.max(0, s - 0.002)), b = ARCO(Math.min(1, s + 0.002)), l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1; return [-(b[1] - a[1]) / l, (b[0] - a[0]) / l]; };
+/** fibras claras de papel de seda dentro de un trazado */
+function fibras(path, n, seed, a) {
+  const g = K.g, r = K.rng(seed), [x0, y0, x1, y1] = path.bb;
+  g.save(); g.clip(path); g.lineCap = 'round';
+  for (let i = 0; i < n; i++) {
+    let x = x0 + r() * (x1 - x0), y = y0 + r() * (y1 - y0), an = r() * TAU; const len = 6 + Math.pow(r(), 1.5) * 30;
+    g.strokeStyle = `rgba(255,248,232,${a * (0.4 + r() * 0.6)})`; g.lineWidth = 0.4 + r() * 0.8;
+    g.beginPath(); g.moveTo(x, y);
+    for (let k = 0; k < 5; k++) { an += (r() - 0.5) * 0.9; x += Math.cos(an) * len / 5; y += Math.sin(an) * len / 5; g.lineTo(x, y); }
+    g.stroke();
+  }
+  g.restore();
+}
+const LAC = {};
+const lacteaLuz = K.capa(() => {
+  const g = K.g, r = K.rng(808), linea = [];
+  for (let i = 0; i <= 200; i++) linea.push(ARCO(i / 200));
+  // canto rasgado: poca ondulación grande y mucha pequeña (fibras del borde)
+  const borde = (k, f) => (s) => anchoArco(s) * k * (1 + 0.07 * Math.sin(s * 9 + f) + 0.05 * Math.sin(s * 37 + 2 * f) + 0.03 * Math.sin(s * 151 + 3 * f));
+  const capas = [[1.7, 1, 'rgba(110,124,190,0.13)'], [1.05, 2, 'rgba(158,164,214,0.16)'], [0.55, 3, 'rgba(226,212,190,0.15)']];
+  capas.forEach(([k, f, col], i) => {
+    const p = K.tira(linea, borde(k, f));
+    g.fillStyle = col; g.fill(p);
+    g.strokeStyle = 'rgba(220,226,255,0.10)'; g.lineWidth = 1.6; g.stroke(p);
+    fibras(p, [500, 700, 400][i], 820 + i, [0.05, 0.07, 0.08][i]);
+    if (i === 1) {
+      LAC.principal = p;
+      g.save(); g.clip(p); g.strokeStyle = 'rgba(255,250,235,0.035)'; g.lineWidth = 1;   // trama de la gasa
+      for (let x = -1200; x < 1920; x += 6) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 1080, 1080); g.stroke(); g.beginPath(); g.moveTo(x + 1080, 0); g.lineTo(x, 1080); g.stroke(); }
+      g.restore();
+    }
+  });
+  // estrellas de la galaxia: densas en el centro de la tira y del arco
+  for (let i = 0; i < 2200; i++) {
+    const s = r(); if (r() > 0.3 + 0.7 * Math.sin(PI * s)) continue;
+    const [x, y] = ARCO(s), [nx, ny] = normalArco(s), off = ((r() + r() + r()) / 1.5 - 1) * anchoArco(s) * 1.25;
+    const px = x + nx * off, py = y + ny * off, big = r() < 0.035, rr = big ? 1.5 + r() * 1.1 : 0.45 + Math.pow(r(), 2.2) * 1.25, a = 0.3 + r() * 0.6;
+    if (big) { const gr = g.createRadialGradient(px, py, 0, px, py, rr * 4.5); gr.addColorStop(0, `rgba(255,226,175,${a * 0.5})`); gr.addColorStop(1, 'rgba(255,226,175,0)'); g.fillStyle = gr; g.fillRect(px - rr * 5, py - rr * 5, rr * 10, rr * 10); }
+    g.fillStyle = r() < 0.18 ? `rgba(255,216,165,${a})` : r() < 0.3 ? `rgba(205,222,255,${a})` : `rgba(255,248,234,${a})`;
+    g.beginPath(); g.arc(px, py, rr, 0, TAU); g.fill();
+  }
+});
+const lacteaSombra = K.capa(() => {
+  const g = K.g;
+  // la Gran Grieta: tiras de papel oscuro, a trozos, a lo largo del centro
+  [[0.29, 0.42, 1], [0.45, 0.56, 2], [0.59, 0.71, 3]].forEach(([s0, s1, f]) => {
+    const pts = []; for (let i = 0; i <= 40; i++) { const s = lerp(s0, s1, i / 40), [x, y] = ARCO(s), [nx, ny] = normalArco(s), o = 7 * Math.sin(s * 40 + f) + 4; pts.push([x + nx * o, y + ny * o]); }
+    const p = K.tira(pts, (u) => 1 + 6.5 * Math.pow(Math.sin(PI * u), 0.8) * (0.75 + 0.25 * Math.sin(u * 17 + f)));
+    g.fillStyle = 'rgba(9,13,34,0.30)'; g.fill(p);
+  });
+});
+const BUL = [[178, 80, 'rgba(232,206,160,0.13)'], [124, 58, 'rgba(240,214,168,0.18)'], [78, 38, 'rgba(250,228,186,0.26)'], [38, 20, 'rgba(255,242,214,0.42)']];
+const bulboLuz = K.capa(() => {
+  const g = K.g, r = K.rng(909);
+  g.save(); g.translate(BULBO.x, BULBO.y);
+  BUL.forEach(([rx, ry, col], i) => { const p = K.elipse(rx, ry, 900 + i, 0.03); g.fillStyle = col; g.fill(p); fibras(p, 160, 930 + i, 0.07); });
+  for (let i = 0; i < 620; i++) {
+    const a = r() * TAU, k = Math.pow(r(), 0.75), x = Math.cos(a) * k * 175, y = Math.sin(a) * k * 76, rr = 0.45 + Math.pow(r(), 2.2) * 1.5;
+    g.fillStyle = `rgba(255,${232 + Math.floor(r() * 20)},${196 + Math.floor(r() * 44)},${0.35 + r() * 0.6})`;
+    g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill();
+  }
+  g.restore();
+});
+const bulboSombra = K.capa(() => {
+  const g = K.g; g.save(); g.translate(BULBO.x, BULBO.y);
+  const pts = []; for (let i = 0; i <= 50; i++) { const u = i / 50, x = -150 + 300 * u; pts.push([x, 6 + 4 * Math.sin(u * 8) - 0.04 * x]); }
+  g.fillStyle = 'rgba(14,14,34,0.32)'; g.fill(K.tira(pts, (s) => 1 + 8 * Math.pow(Math.sin(PI * s), 0.9)));
+  g.restore();
+});
+
+// ---------- cielo fijo ----------
+const fondo = K.capa(() => K.fondoNoche({
+  luz: [1080, 780], colorLuz: 'rgba(92,112,176,0.30)', estrellas: 230, semilla: 505, nubes: false, vineta: 0.5,
+  evitar: [{ x: POLO.x, y: POLO.y, r: 92 }, { x0: CRUZ.x - 110, y0: CRUZ.y - 130, x1: CRUZ.x + 110, y1: CRUZ.y + 130 }],
+}));
+const CENTELLEO = Array.from({ length: 12 }, (_, i) => { const r = K.rng(600 + i); return { x: 140 + r() * 1640, y: 110 + r() * 600, s: 2.5 + r() * 2.5, id: 600 + i }; })
+  .filter((c) => Math.hypot(c.x - POLO.x, c.y - POLO.y) > 120 && Math.hypot(c.x - ORI.x, c.y - ORI.y) > ORI.R + 40 && Math.abs(c.x - CRUZ.x) > 140);
+const COLGANTES = [{ x: 330, len: 148, R: 15, tipo: 'plegada', id: 301 }, { x: 735, len: 142, R: 12, tipo: 'plana', id: 302 }, { x: 1112, len: 146, R: 15, tipo: 'plegada', id: 303 }, { x: 1520, len: 160, R: 13, tipo: 'plana', id: 304 }];
+
+// ---------- trazos de las estrellas alrededor del polo (tiras de papel enrolladas, «quilling») ----------
+const TRAZOS = (() => {
+  const r = K.rng(4040), out = [];
+  [64, 76, 90, 104, 118, 133, 148, 163, 178].forEach((R, i) => out.push({ R, a0: r() * TAU, w: 1.3 + r() * 1.2, col: [C.ivory, C.ivory2, C.goldL, '#c7d8e4'][i % 4], id: 640 + i * 2 }));
+  // trazos largos que se esconden tras el horizonte (no pasan por la Cruz ni por el observador)
+  [[196, 0.95, C.ivory2], [218, 1.55, C.ivory], [242, 2.1, '#c7d8e4'], [270, 2.55, C.goldL]].forEach(([R, a0, col], i) => out.push({ R, a0, w: 1.6 + 0.3 * i, col, id: 670 + i * 2 }));
+  return out;
+})();
+const ARCO_TRAZO = 1.25;   // rad (todas las estrellas recorren el mismo ángulo)
+
+// ---------- coreografía ----------
+function escenaEn(t) {
+  const g = K.g, en = E.energia(t);
+  const tLac = M('lactea');
+  const fuera = (a, b) => eio(seg(t, tLac + a, tLac + b));   // retirada antes de la Vía Láctea
+
+  // centelleo de algunas estrellas (pinchazos con luz detrás)
+  for (const c of CENTELLEO) {
+    const k = 0.45 + 0.55 * K.hsh(K.F >> 1, c.id);
+    g.save(); g.translate(c.x, c.y); g.rotate(c.id);
+    halo(c.s * 3, '255,214,150', 0.35 * k);
+    g.fillStyle = `rgba(251,231,182,${0.5 + 0.5 * k})`; g.fill(forma(c.s * 0.9, c.id)); g.restore();
+  }
+
+  // Vía Láctea y su centro
+  const uLac = eout(tramo(t, 'lactea', -0.34, 0));
+  if (uLac > 0) {
+    // se desenrolla a lo largo de su arco, desde el horizonte de la izquierda
+    g.save();
+    if (uLac < 1) { const pts = []; for (let i = 0; i <= 120; i++) pts.push(ARCO(-0.03 + (uLac * 1.06) * i / 120)); g.clip(K.tira(pts, 230)); }
+    g.globalCompositeOperation = 'screen'; g.drawImage(lacteaLuz, 0, 0);
+    g.globalCompositeOperation = 'source-over'; g.drawImage(lacteaSombra, 0, 0); g.restore();
+  }
+  const uCen = eio(tramo(t, 'centro', -0.3, 0));
+  if (uCen > 0) {
+    const pulso = 1 + 0.4 * Math.exp(-Math.max(0, t - M('centro')) * 2.2) + 0.06 * (K.hsh(K.F, 31) - 0.5);
+    const k = uCen * pulso;
+    g.save(); g.globalCompositeOperation = 'screen';
+    const gr = g.createRadialGradient(BULBO.x, BULBO.y, 10, BULBO.x, BULBO.y, 340);
+    gr.addColorStop(0, `rgba(255,214,150,${0.5 * k})`); gr.addColorStop(0.3, `rgba(240,180,120,${0.18 * k})`); gr.addColorStop(1, 'rgba(240,180,120,0)');
+    g.fillStyle = gr; g.fillRect(BULBO.x - 340, BULBO.y - 340, 680, 680);
+    g.globalAlpha = Math.min(1, k); g.drawImage(bulboLuz, 0, 0);
+    if (k > 1) { g.globalAlpha = k - 1; g.drawImage(bulboLuz, 0, 0); }
+    g.globalCompositeOperation = 'source-over'; g.globalAlpha = Math.min(1, uCen); g.drawImage(bulboSombra, 0, 0);
+    g.restore();
+  }
+
+  // trazos alrededor del polo: crecen a derechas desde [polar] y se recogen antes de [lactea]
+  // (al recogerse, la cola alcanza a la cabeza: siguen girando a derechas hasta desaparecer)
+  const crece = eout(tramo(t, 'polar', -0.3, 3.2)), recogeT = eio(tramo(t, 'lactea', -0.95, -0.5));
+  if (crece > 0.002 && recogeT < 0.999) {
+    for (const s of TRAZOS) {
+      const a1 = s.a0 + ARCO_TRAZO * crece + 0.3 * recogeT, a0 = lerp(s.a0, a1, recogeT), n = Math.max(6, Math.round(s.R * (a1 - a0) / 8));
+      if (a1 - a0 < 0.06) continue;
+      const pts = K.arcoPts(POLO.x, POLO.y, s.R, s.R, a0, a1, n);
+      g.save(); K.temblor(s.id, 0.3, 0.002);
+      K.papel(K.tira(pts, (u) => s.w * (0.25 + 0.75 * u)), s.col, { d: 1.5, seed: s.id, edge: 0.6, tb: 0.4 });
+      if (recogeT < 0.6) { g.translate(...pts[pts.length - 1]); K.papel(K.circulo(s.w + 1.8, s.id + 1, 0.04), s.col, { d: 1.8, seed: s.id + 1, edge: 0.5 }); }
+      g.restore();
+    }
+    const uf = eio(tramo(t, 'polar', 0.4, 1.6));
+    if (uf > 0) K.flecha(K.arcoPts(POLO.x, POLO.y, 212, 212, -0.95, 0.05, 30), { u: uf, cola: recogeT, ancho: 4.5, punta: 19, col: C.gold, d: 2.4, seed: 680 });
+  }
+
+  // estrellas colgadas de hilos
+  COLGANTES.forEach((s, i) => K.estrellaColgante(s.x, s.len, s.R, 0.03 * Math.sin(TAU * 0.21 * t + i * 1.7), 0.6 * Math.sin(TAU * 0.09 * t + i * 2.1), s.tipo, s.id));
+
+  // Orión en su disco: se posa en [orion], gira 180° en [cabeza], se retira antes de [lactea]
+  const uO = tramo(t, 'orion', -0.3, 0), sal = fuera(-1.1, -0.6);
+  if (uO > 0 && sal < 1) {
+    const pc = K.colocar(uO), uR = tramo(t, 'cabeza', -0.32, 0), giro = PI * eback(uR, 1.1);
+    const ox = pc.dx - 820 * ein(sal), oy = pc.dy + 140 * ein(sal);
+    g.save(); g.translate(ORI.x + ox, ORI.y + oy); g.scale(pc.s, pc.s); g.rotate(-0.5 * ein(sal));
+    K.elevar(pc.d + 7 * Math.sin(PI * uR) + 12 * sal, () => {
+      K.temblor(400, 0.4, 0.0015);
+      discoOrion(giro);
+      if (uR > 0) K.flecha(K.arcoPts(0, 0, ORI.R + 32, ORI.R + 32, -PI * 0.93, -PI * 0.07, 40), { u: Math.min(1, giro / PI), ancho: 5, punta: 21, col: C.goldL, d: 2.6, seed: 481 });
+    });
+    g.restore();
+    // indicador N → S (visto desde el norte → visto desde el sur)
+    const ty = ORI.y + ORI.R + 64 + 140 * ein(sal), nx = ORI.x - 92, sx = ORI.x + 92, sale = (x) => x - 820 * ein(sal);
+    K.etiqueta(sale(nx), ty, 'N', { forma: 'circulo', size: 34, col: C.ivory, ink: C.ink, u: tramo(t, 'orion', -0.22, 0.04), id: 491, d: 3.5 + 10 * sal });
+    if (uR > 0) {
+      K.flecha([[sale(nx + 36), ty], [sale(sx - 38), ty]], { u: eout(uR), ancho: 4.5, punta: 17, col: C.coral, d: 2.4, seed: 492 });
+      K.etiqueta(sale(sx), ty, 'S', { forma: 'circulo', size: 34, col: C.gold, ink: C.ink, u: tramo(t, 'cabeza', -0.2, 0.05), id: 493, d: 3.5 + 10 * sal });
+    }
+  }
+
+  // Cruz del Sur: baja colgada de un hilo en [cruz]
+  const uC = tramo(t, 'cruz', -0.3, 0);
+  if (uC > 0) {
+    const caida = (1 - eback(uC, 1.3)) * 380, sw = 0.004 * Math.sin(TAU * 0.17 * t);
+    g.save(); g.translate(CRUZ.x, -20); g.rotate(sw); g.translate(0, CRUZ.y + 20 - caida);
+    const c = CRUZE, top = c.gacrux.y - c.gacrux.R * 0.9;
+    K.hilo(0, -CRUZ.y - 40 + caida, 0, top);
+    K.elevar(Math.max(0, 1 - uC) * 10, () => {
+      K.puntadas([[c.gacrux.x, c.gacrux.y], [c.acrux.x, c.acrux.y]], { col: 'rgba(236,224,196,0.92)', ancho: 2.1, guion: [7, 6], d: 1.2, nudos: false });
+      K.puntadas([[c.mimosa.x, c.mimosa.y], [c.delta.x, c.delta.y]], { col: 'rgba(236,224,196,0.92)', ancho: 2.1, guion: [7, 6], d: 1.2, nudos: false });
+      const uN = eio(tramo(t, 'navegantes', -0.3, 0)), rec = fuera(-0.75, -0.35);
+      if (uN > 0 && rec < 1) K.puntadas([[0, c.gacrux.y], [0, c.acrux.y]], { col: C.goldL, ancho: 2.8, guion: [9, 6], d: 1.4, nudos: false, u1: Math.min(1, uN * 2.2), u0: rec });
+      for (const k of ['epsilon', 'delta', 'mimosa', 'gacrux', 'acrux']) estrellaEn(c[k].x, c[k].y, c[k]);
+    });
+    g.restore();
+  }
+
+  // el polo: [polar] se cose el contorno vacío de la estrella polar que no hay; [debil] dentro aparece
+  // una estrella diminuta y apagada (con un destello de aviso que se apaga). El contorno se descose
+  // antes de [lactea]; la estrellita se queda.
+  const uP = tramo(t, 'polar', -0.3, 0), descose = fuera(-0.75, -0.35);
+  if (uP > 0 && descose < 1) {
+    const pts = []; for (let i = 0; i <= 10; i++) { const a = -PI / 2 + i / 10 * TAU, rr = i % 2 ? 20 : 46; pts.push([POLO.x + rr * Math.cos(a), POLO.y + rr * Math.sin(a)]); }
+    K.puntadas(pts, { col: 'rgba(241,229,199,0.66)', ancho: 2, guion: [6, 5], d: 1, nudos: false, u1: eout(uP), u0: descose });
+  }
+  const uD = tramo(t, 'debil', -0.3, 0);
+  if (uD > 0) {
+    g.save(); g.translate(POLO.x, POLO.y);
+    const aviso = seg(t, M('debil') - 0.3, M('debil') + 0.7);
+    if (aviso < 1) { g.strokeStyle = `rgba(243,207,119,${0.7 * (1 - aviso)})`; g.lineWidth = 2; g.beginPath(); g.arc(0, 0, lerp(5, 30, eout(aviso)), 0, TAU); g.stroke(); }
+    halo(12, '230,226,214', 0.2 * uD);
+    g.globalAlpha = uD; g.fillStyle = mezcla(C.ivory3, C.sky, 0.28); g.fill(forma(4, 77)); g.globalAlpha = 1;
+    // anillo de puntos que la señala hasta que llega la Vía Láctea (se quita de una vez)
+    if (aviso > 0.5 && t < tLac - 0.4) { g.strokeStyle = 'rgba(243,207,119,0.75)'; g.lineWidth = 1.6; g.lineCap = 'round'; g.setLineDash([0.5, 4.2]); g.beginPath(); g.arc(0, 0, 13, 0, TAU); g.stroke(); g.setLineDash([]); }
+    g.restore();
+  }
+
+  // [navegantes] el eje largo de la Cruz baja por el polo hasta la S del horizonte
+  const uN = eio(tramo(t, 'navegantes', -0.3, 0)), recoge = fuera(-0.75, -0.35);
+  if (uN > 0 && recoge < 1) {
+    const u1 = cl((uN - 0.3) / 0.45), u2 = cl((uN - 0.62) / 0.38);
+    K.puntadas([[CRUZ.x, ACR_Y + 22], [CRUZ.x, POLO.y - 56]], { col: C.goldL, ancho: 2.8, guion: [9, 6], d: 1.4, nudos: false, u1, u0: recoge });
+    if (u2 > 0) K.flecha([[CRUZ.x, POLO.y + 54], [CRUZ.x, SUR.y - 36]], { u: u2, cola: recoge, ancho: 4.5, punta: 20, col: C.goldL, d: 2.4, seed: 695 });
+    // regla de los navegantes: el polo está a unas 4½ veces el largo de la Cruz (aquí, acortado)
+    const uX = tramo(t, 'navegantes', -0.12, 0.1) * (1 - recoge);
+    if (uX > 0) K.etiqueta(CRUZ.x - 56, (ACR_Y + POLO.y) / 2 - 18, '×4½', { forma: 'rect', size: 26, col: C.goldL, ink: C.ink, u: uX, rot: -0.04, id: 697 });
+  }
+
+  // horizonte, velero y olas
+  g.drawImage(costa, 0, 0);
+  const uB = tramo(t, 'navegantes', -0.3, 0);
+  if (uB > 0) {
+    const pc = K.colocar(uB), deriva = 26 * eio(seg(t, M('navegantes'), M('navegantes') + 6));
+    g.save(); g.translate(BARCO.x - deriva + pc.dx, BARCO.y + 2 * Math.sin(TAU * 0.37 * t) + pc.dy); g.rotate(0.022 * Math.sin(TAU * 0.29 * t)); g.scale(0.92 * pc.s, 0.92 * pc.s);
+    K.elevar(pc.d, () => velero(t));
+    g.restore();
+  }
+  g.drawImage(frente, 0, 0);
+  K.etiqueta(SUR.x, SUR.y, 'S', { forma: 'circulo', size: 34, col: C.gold, ink: C.ink, u: tramo(t, 'navegantes', -0.12, 0.08), id: 696 });
+
+  // observador en el promontorio (señala la Cruz, luego el sur, al final el cénit)
+  const hx = OBS.x + 8.2 * OBS.esc, hy = PIES_Y - 46 * OBS.esc;
+  let brazo = -0.2;
+  brazo = lerp(brazo, K.aimAt(CRUZ.x - hx, CRUZ.y - hy), eio(tramo(t, 'cruz', -0.3, 0)) * (1 - eio(tramo(t, 'cruz', 2.3, 2.8))));
+  brazo = lerp(brazo, K.aimAt(SUR.x - hx, SUR.y - hy), eio(tramo(t, 'navegantes', -0.3, 0)) * (1 - eio(tramo(t, 'navegantes', 2.0, 2.5))));
+  brazo = lerp(brazo, -PI + 0.05, eio(tramo(t, 'encima', -0.3, 0)));
+  g.save(); g.translate(OBS.x, PIES_Y); K.temblor(150, 0.35, 0.004);
+  K.persona({ escala: OBS.esc, abrigo: C.coral, tocado: 'gorra', colTocado: C.ink, brazoD: brazo, brazoI: 0.16, id: 151 });
+  g.restore();
+
+  // [encima] flecha al cénit: de la cabeza del observador al centro de la galaxia
+  const uZ = eout(tramo(t, 'encima', -0.3, 0));
+  if (uZ > 0) K.flecha([[OBS.x - 2, PIES_Y - 110], [OBS.x - 2, BULBO.y + 92]], { u: uZ, ancho: 5.5, punta: 26, alas: 2.2, col: C.goldL, d: 3, seed: 160 });
+
+  // [verdad] sello ✓; antes de [cruz] se aparta a la esquina
+  const uS = tramo(t, 'verdad', -0.3, 0);
+  if (uS > 0) {
+    const k = eio(tramo(t, 'cruz', -1.0, -0.45));
+    const x = lerp(SELLO.x, SELLO.rx, k), y = lerp(SELLO.y, SELLO.ry, k) - 70 * Math.sin(PI * k), s = lerp(1, SELLO.re, k);
+    g.save(); g.translate(x, y); g.scale(s, s);
+    K.elevar(10 * Math.sin(PI * k), () => K.sello(0, 0, '✓', uS, { R: SELLO.R, rot: -0.12, id: 900 }));
+    g.restore();
+  }
+
+  // el átomo narrador
+  K.atomo(178, 170, t, en, { escala: 0.5 });
+}
+
+E.iniciar((t) => K.fotograma(t, escenaEn, { fondo }), { paso: 1 / 12 });
+</script>
+</body>
+</html>
