@@ -153,9 +153,9 @@ const pzGiro = new THREE.Group(); pzTilt.add(pzGiro);
 }
 const pzPlat = new THREE.Group(); peonza.add(pzPlat);
 {
-  const box = new THREE.Mesh(new THREE.BoxGeometry(110, 8, 110), [K.basic('#353b74'), K.basic('#242851'), K.basic('#2b3062'), K.basic('#1d2146'), K.basic('#242851'), K.basic('#353b74')]);
+  const box = new THREE.Mesh(new THREE.BoxGeometry(84, 8, 84), [K.basic('#353b74'), K.basic('#242851'), K.basic('#2b3062'), K.basic('#1d2146'), K.basic('#242851'), K.basic('#353b74')]);
   box.position.y = -4; pzPlat.add(box);
-  const ring = new THREE.Mesh(new THREE.RingGeometry(30, 32, 48), K.basic(P.ring, { transparent: true, opacity: 0.6, side: THREE.DoubleSide }));
+  const ring = new THREE.Mesh(new THREE.RingGeometry(28, 30, 48), K.basic(P.ring, { transparent: true, opacity: 0.6, side: THREE.DoubleSide }));
   ring.rotation.x = -Math.PI / 2; ring.position.y = 0.4; pzPlat.add(ring);
   const sh = new THREE.Mesh(new THREE.CircleGeometry(24, 32), K.basic('#000000', { transparent: true, opacity: 0.32, depthWrite: false }));
   sh.rotation.x = -Math.PI / 2; sh.position.y = 0.6; sh.scale.set(1.3, 0.8, 1); pzPlat.add(sh);
@@ -335,12 +335,12 @@ function dibujar(t) {
   const warmN = clamp01((dlN - 9) / 6), warmS = clamp01((dlS - 9) / 6);
   const yrOn = seg(t, mEcu + 1.2, mEcu + 1.5);
   const nCol = mixV(cCold, cWarm, lerp(0, warmN, yrOn)), sCol = mixV(cCold, cWarm, lerp(1, warmS, yrOn));
-  const tintK = (1 - 0.45 * kEcu) * (1 - 0.35 * kz);
+  const tintK = (1 - 0.45 * kEcu) * (1 - 0.5 * kz);
   const css = (v) => `rgb(${Math.round(v.x * 255)},${Math.round(v.y * 255)},${Math.round(v.z * 255)})`;
   const tN = css(mixV(FRIO, CALOR, lerp(0, warmN, yrOn))), tS = css(mixV(FRIO, CALOR, lerp(1, warmS, yrOn)));
   tJan.tenir(tN, 0.58 * kInv * tintK, tS, 0.58 * kVer * tintK);
   capa.uVista.value.copy(loc(vW));
-  capa.uRimS.value.set(sCol.x, sCol.y, sCol.z, 0.85 * kVer * tintK + 0.3 * latido(t, mDic, 1.0, 0.25));
+  capa.uRimS.value.set(sCol.x, sCol.y, sCol.z, 0.85 * kVer * tintK + 0.35 * latido(t, mDic, 1.0, 0.3));
   capa.uRimN.value.set(nCol.x, nCol.y, nCol.z, 0.85 * kInv * tintK);
   // noche (lado opuesto al Sol) en «diciembre»
   const kNoche = eo(entra(t, mDic, 0.55, 0.25));
@@ -356,7 +356,7 @@ function dibujar(t) {
 
   // cotas: «distancia» dibuja la de enero; «enero» su rótulo; «julio» la Tierra lejana y su cota
   const fadeW = 1 - sstep(mInv + 0.9, mInv + 1.4, t);
-  const kD = eio(entra(t, mDis, 0.75, 0.25));
+  const kD = eo(entra(t, mDis, 0.6, 0.25));
   const top = (p) => p.clone().addScaledVector(Y, OFF);
   const sTop = top(SUN_C), jTop = top(ePos), lTop = top(JUL);
   cotaJan.poner(sTop, jTop, kD, Y, fadeW);
@@ -371,7 +371,7 @@ function dibujar(t) {
   tJul.g.visible = kJ > 0.002 && fadeW > 0.002;
   tJul.g.scale.setScalar(Math.max(0.001, kJ));
   tJul.g.position.copy(JUL).addScaledVector(vU, 3 * Math.sin(t * 1.1 + 2));
-  const kDJ = eio(entra(t, mJul, 0.6, 0.35));
+  const kDJ = eo(entra(t, mJul, 0.55, 0.3));
   cotaJul.poner(sTop, lTop, kDJ, Y, fadeW);
   refJul.poner(JUL.clone().addScaledVector(Y, RT + 48), lTop.clone().addScaledVector(Y, 10), 0, kDJ > 0.9 && fadeW > 0.01 ? 1 : 0, 1.4, 0, false);
   const lB = JUL.clone().addScaledVector(Y, -(RT + 40));
@@ -404,7 +404,7 @@ function dibujar(t) {
   tags.N.poner(pNp.x - 42, pNp.y + 6, tagOn, 1); tags.S.poner(pSp.x + 42, pSp.y - 6, tagOn, 1);
 
   // ángulo de 23½° en «inclinada»
-  const kI = eio(entra(t, mInc, 0.6, 0.3));
+  const kI = eo(entra(t, mInc, 0.55, 0.3));
   const angOut = 1 - sstep(mDic - 0.5, mDic - 0.1, t);
   const top0 = ePos.clone().addScaledVector(Y, RT * 1.1), top1 = ePos.clone().addScaledVector(Y, RT * 2.15);
   vertRef.poner(top0, top1, 0, kI * angOut > 0.002 ? kI : 0, 1.1, 0, false);
@@ -421,7 +421,7 @@ function dibujar(t) {
   // peonza en «peonza»
   const kP = eob(entra(t, mPeo, 0.55, 0.28), 1.8) * (1 - eib(seg(t, mRay - 0.9, mRay - 0.45)));
   peonza.visible = kP > 0.002;
-  const pzScreen = [330, 600];
+  const pzScreen = [360, 610];
   PZ_BASE.copy(CAM1).addScaledVector(vR, (pzScreen[0] - 960) / ZOOM).addScaledVector(vU, -(pzScreen[1] - 540) / ZOOM);
   peonza.position.copy(PZ_BASE);
   peonza.scale.setScalar(Math.max(0.001, kP) * 1.15);
@@ -432,7 +432,7 @@ function dibujar(t) {
   pzVert.poner(PZ_BASE.clone().addScaledVector(Y, 62 * 1.15), PZ_BASE.clone().addScaledVector(Y, 96 * 1.15), 0, kP > 0.5 ? 1 : 0, 0.9, 0, false);
 
   // «diciembre»: el sur se inclina hacia el Sol
-  const kL = eio(entra(t, mDic, 0.6, 0.3)) * (1 - sstep(mEcu - 0.6, mEcu - 0.2, t));
+  const kL = eo(entra(t, mDic, 0.55, 0.3)) * (1 - sstep(mEcu - 0.6, mEcu - 0.2, t));
   const kLv = kL > 0.002 ? 1 : 0;
   arcLean.poner(ePos, Y.clone().negate(), sD, RT * 1.72, 0, TILT, kL, true, 1);
   vertRefS.poner(ePos.clone().addScaledVector(Y, -RT * 1.1), ePos.clone().addScaledVector(Y, -RT * 2.15), 0, kLv * kL, 1.1, 0, false);

@@ -9,7 +9,7 @@
 <script type="module">
 // Cielo (recortes de papel). Afirmación 5: «en el sur, el cielo de noche es otro» → ✓ VERDAD.
 // Cielo de cartulina con estrellas colgadas de hilos; abajo, colinas, el mar y un observador.
-// [verdad] cae un sello ✓, que luego se aparta a la esquina. [orion] se posa Orión en un disco de
+// [verdad] cae un sello ✓, que luego se aparta a la esquina de arriba a la derecha. [orion] se posa Orión en un disco de
 // cartulina (estrellas de papel cosidas con hilo y la silueta del cazador), derecho, como desde el
 // norte, con una ficha N. [cabeza] el disco gira 180° sobre su chincheta: cabeza abajo; flecha N → S.
 // [cruz] baja de un hilo la Cruz del Sur. [polar] se cose el contorno vacío de una estrella polar y
@@ -36,7 +36,7 @@ const SUR = { x: 1300, y: 846 };             // ficha S en el horizonte
 const BULBO = { x: 960, y: 212 };            // centro de la galaxia (en el cénit)
 const OBS = { x: 960, esc: 1.35 };
 const BARCO = { x: 1592, y: 852 };
-const SELLO = { x: 960, y: 372, R: 90, rx: 186, ry: 186, re: 0.56 };
+const SELLO = { x: 960, y: 372, R: 90, rx: 1736, ry: 184, re: 0.56 };   // luego, insignia arriba a la derecha
 const LUZ = -2.36;                           // la lámpara: arriba a la izquierda
 
 // ---------- estrellas de papel ----------
@@ -407,7 +407,7 @@ function escenaEn(t) {
   }
 
   // trazos alrededor del polo: crecen a derechas desde [polar] y se recogen antes de [lactea]
-  const crece = eio(tramo(t, 'polar', -0.3, 4.6)) * (1 - fuera(-0.95, -0.45));
+  const crece = eout(tramo(t, 'polar', -0.3, 3.2)) * (1 - fuera(-0.95, -0.45));
   if (crece > 0.002) {
     for (const s of TRAZOS) {
       const a1 = s.a0 + ARCO_TRAZO * crece, a0 = s.a0, n = Math.max(6, Math.round(s.R * (a1 - a0) / 8));
@@ -525,7 +525,7 @@ function escenaEn(t) {
   }
 
   // el átomo narrador
-  K.atomo(1722, 196, t, en, { escala: 0.55, id: 10 });
+  K.atomo(178, 170, t, en, { escala: 0.5 });
 }
 
 E.iniciar((t) => K.fotograma(t, escenaEn, { fondo }), { paso: 1 / 12 });

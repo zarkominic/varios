@@ -14,24 +14,24 @@
 // [verdad]: una ficha ✓ se estampa en el aire; [mentira]: una ficha ✗. [cuenta]: el átomo señala
 // el marcador, que se asienta; las fichas de ejemplo se retiran y la imagen queda quieta.
 import { escena } from '/atomo/plato/escena.js';
-import { crearPlato, PIEZA, cl, mix, prog, ss, eio, eoc, eob, azar, muelle, brote } from '/atomo/plato/kits/plastilina.js';
+import { crearPlato, cl, mix, prog, ss, eio, eoc, eob, azar, muelle, brote } from '/atomo/plato/kits/plastilina.js';
 
 const E = await escena('gancho');
 const M = (k) => E.marca(k);
 const P = await crearPlato({
-  piezas: 6, globo: true, tablero: true,
+  piezas: ['luna', 'remolino', 'estrella', 'pesa', 'ficha', 'ficha'], globo: true, tablero: true,
   camara: { pos: [0, 4.2, 16], mira: [0, 2.2, 0], fov: 28 },
 });
 
 // ---------- puesta en escena (mundo) ----------
-const ATOMO = [-4.05, 1.85, 0.5], A_ESC = 0.5;
+const ATOMO = [-4.35, 1.8, 0.5], A_ESC = 0.58;
 const GLOBO = [-0.45, 3.55, -0.5], G_R = 1.55;
-const TAB = { pos: [2.55, 1.3, 1.5], escala: 0.86, inclinacion: 0.78, giro: -0.12 };
+const TAB = { pos: [2.55, 1.1, 1.5], escala: 0.86, inclinacion: 0.78, giro: -0.12 };
 const ICONOS = [
-  { marca: 'luna', tipo: PIEZA.LUNA, pos: [-2.6, 4.95, 0], escala: 0.95, rot: [0.1, 0.25, -0.35] },
-  { marca: 'agua', tipo: PIEZA.REMOLINO, pos: [1.75, 4.9, 0], escala: 1.05, rot: [0.15, -0.3, 0] },
-  { marca: 'cielo', tipo: PIEZA.ESTRELLA, pos: [2.3, 3.1, 0], escala: 0.9, rot: [0.1, -0.35, 0.15] },
-  { marca: 'peso', tipo: PIEZA.PESA, pos: [-2.45, 2.3, 0], escala: 0.92, rot: [0.08, 0.35, 0] },
+  { marca: 'luna', tipo: 'luna', pos: [-2.6, 4.95, 0], escala: 0.95, rot: [0.1, 0.25, -0.35] },
+  { marca: 'agua', tipo: 'remolino', pos: [1.75, 4.9, 0], escala: 1.05, rot: [0.15, -0.3, 0] },
+  { marca: 'cielo', tipo: 'estrella', pos: [2.3, 3.1, 0], escala: 0.9, rot: [0.1, -0.35, 0.15] },
+  { marca: 'peso', tipo: 'pesa', pos: [-2.45, 2.3, 0], escala: 0.92, rot: [0.08, 0.35, 0] },
 ];
 const FICHAS = [
   { marca: 'verdad', variante: 1, pos: [3.55, 3.8, 0.5] },
@@ -54,7 +54,7 @@ function dibujar(t) {
   ICONOS.forEach((ic, i) => {
     const tm = M(ic.marca);
     const k = brote(ts, tm, 0.3, 0.16);
-    if (k <= 0) { P.pieza(i, {}); return; }
+    if (k <= 0) return;
     const u = eoc(prog(ts, tm - 0.3, tm));
     const dir = ic.pos.map((v, j) => v - [GLOBO[0], gy, GLOBO[2]][j]);
     const L = Math.hypot(...dir);
@@ -64,10 +64,10 @@ function dibujar(t) {
     // estirado en el vuelo y aplastado al llegar
     const st = Math.sin(Math.PI * prog(ts, tm - 0.3, tm)) * 0.22 - 0.12 * muelle(ts - tm, 2.6, 7);
     let rot = ic.rot.slice();
-    if (ic.tipo === PIEZA.REMOLINO) rot[2] = -ts * 1.6;
-    if (ic.tipo === PIEZA.ESTRELLA) rot[2] = ic.rot[2] + 0.12 * Math.sin(ts * 1.3);
-    if (ic.tipo === PIEZA.LUNA) rot[2] = ic.rot[2] + 0.08 * Math.sin(ts * 1.1 + 1);
-    P.pieza(i, { tipo: ic.tipo, pos, escala: ic.escala * k, sq: [1 - st * 0.5, 1 + st, 1 - st * 0.5], rot, toque: ts < tm + 0.4 });
+    if (ic.tipo === 'remolino') rot[2] = -ts * 1.6;
+    if (ic.tipo === 'estrella') rot[2] = ic.rot[2] + 0.12 * Math.sin(ts * 1.3);
+    if (ic.tipo === 'luna') rot[2] = ic.rot[2] + 0.08 * Math.sin(ts * 1.1 + 1);
+    P.pieza(i, { pos, escala: ic.escala * k, sq: [1 - st * 0.5, 1 + st, 1 - st * 0.5], rot, toque: ts < tm + 0.4 });
   });
 
   // ---------- el marcador: entra deslizándose y se asienta en [cuenta] ----------
@@ -92,7 +92,7 @@ function dibujar(t) {
   FICHAS.forEach((fi, j) => {
     const tm = M(fi.marca);
     const a = tm - 0.28;
-    if (ts < a) { P.pieza(4 + j, {}); return; }
+    if (ts < a) return;
     const sale = ss(tCuenta - 0.25, tCuenta + 0.1, ts);
     const u = prog(ts, a, tm);
     const z = mix(4.5, 0, eio(u) * u);
@@ -100,7 +100,7 @@ function dibujar(t) {
     const sqz = ts < tm ? 1 + 0.25 * u : 1 - 0.35 * golpe;
     const sqx = ts < tm ? 1 - 0.1 * u : 1 + 0.2 * golpe;
     P.pieza(4 + j, {
-      tipo: PIEZA.FICHA, variante: fi.variante,
+      variante: fi.variante,
       pos: [fi.pos[0], fi.pos[1] + 0.04 * Math.sin(ts * 1.5 + j), fi.pos[2] + z],
       escala: 1.25 * (1 - eio(sale)), sq: [sqx, sqx, sqz], rot: [0.12, -0.18 + 0.1 * j, (j ? 0.08 : -0.06) * (1 - sale)],
       toque: ts < tm + 0.3,

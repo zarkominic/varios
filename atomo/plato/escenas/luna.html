@@ -332,10 +332,10 @@ function dibujar(t) {
     S: eo(entra(t, mS, 0.45, 0.3)),
     Q: eo(seg(t, mSon - 1.3, mSon - 0.85)),
   };
-  const pTu = latido(t, mTu, 0.75, 0.25);
+  const pTu = latido(t, mTu, 0.75, 0.35);
   for (const k of ['N', 'Q', 'S']) {
     const p = people[k];
-    const pulse = k === 'N' ? latido(t, mD, 0.8, 0.2) * 0.5 : 0;
+    const pulse = k === 'N' ? latido(t, mD, 0.8, 0.3) * 0.5 : 0;
     p.luz(0.18 + 0.82 * kOn[k], kOn[k] * (0.55 + 0.45 * Math.sin(t * 2 + (k === 'N' ? 0 : 2)) * 0.3) + pTu + pulse);
     // señala la Luna
     const point = kOn[k];
@@ -376,7 +376,7 @@ function dibujar(t) {
 
   // burbujas de pensamiento y paneles
   const panelIn = {
-    N: entra(t, mN + 0.2, 0.55, 0.15),
+    N: entra(t, mN, 0.5, 0.1),
     S: seg(t, mD + 0.45, mD + 0.95),
     Q: seg(t, mSon - 0.95, mSon - 0.45),
   };
@@ -425,8 +425,9 @@ function dibujar(t) {
       const want = f >= 0.5 ? P0.tex.L : P0.tex.D;
       if (P0.chip.material.map !== want) { P0.chip.material.map = want; P0.chip.material.needsUpdate = true; }
     }
-    const pulse = k === 'N' ? latido(t, mD, 0.8, 0.2) : k === 'S' ? latido(t, mC, 0.8, 0.05) : latido(t, mSon, 0.8, 0.05);
-    P0.chip.scale.set(Math.max(0.001, sx) * (1 + 0.16 * pulse), 1 + 0.16 * pulse, 1);
+    const pulse = k === 'N' ? latido(t, mD, 0.8, 0.3) : k === 'S' ? latido(t, mC, 0.8, 0.15) : latido(t, mSon, 0.8, 0.15);
+    P0.chip.scale.set(Math.max(0.001, sx) * (1 + 0.24 * pulse), 1 + 0.24 * pulse, 1);
+    P0.cres.scale.setScalar(1 + 0.18 * pulse);
     P0.chipGlow.material.opacity = 0.55 * pulse; P0.chipGlow.visible = pulse > 0.005;
     P0.halo.material.opacity = 0.35 + 0.4 * pulse;
   }

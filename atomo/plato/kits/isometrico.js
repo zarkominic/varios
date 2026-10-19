@@ -156,6 +156,7 @@ export const brillo = (c, op = 0.4, escala = 100) => {
 // =====================================================================
 // PLATO: renderer, escenas, cámaras, luces, fondo y bandas
 // =====================================================================
+// libre: rectángulos [x0, y0, x1, y1] (píxeles) donde no se ponen estrellas
 export function crearPlato({ fondo = [P.bgC, P.bgE], centro = [0.42, 0.6], estrellas = 80, semilla = 808, libre = null } = {}) {
   let canvas = document.getElementById('c');
   if (!canvas) { canvas = document.createElement('canvas'); canvas.id = 'c'; document.body.appendChild(canvas); }
@@ -295,9 +296,9 @@ export function crearSuelo(plato, { y = -300, centro = [980, 760], radio = 1250,
   const U = {
     uLine: { value: hex2v(P.line) }, uLine2: { value: hex2v(P.line2) }, uRing: { value: hex2v(P.ring) },
     uFadeC: { value: new THREE.Vector2() }, uFadeR: { value: radio }, uAlpha: { value: 1 },
-    uBlobs: { value: Array.from({ length: 8 }, () => new THREE.Vector4()) },
-    uRings: { value: Array.from({ length: 6 }, () => new THREE.Vector4()) },
-    uSlabs: { value: Array.from({ length: 4 }, () => new THREE.Vector4()) },
+    uBlobs: { value: Array.from({ length: 8 }, () => new THREE.Vector4(0, 0, 0, 0)) },
+    uRings: { value: Array.from({ length: 6 }, () => new THREE.Vector4(0, 0, 0, 0)) },
+    uSlabs: { value: Array.from({ length: 4 }, () => new THREE.Vector4(0, 0, 0, 0)) },
   };
   function material(baseCol, top, self) {
     return new THREE.ShaderMaterial({
@@ -1089,7 +1090,6 @@ export function presentador(plato, { x = 190, y = 165, escala = 0.42, veredicto 
   const atomo = crearAtomo({ escala });
   atomo.g.position.copy(S(x, y, 400));
   plato.fija.add(atomo.g);
-  // peana-sombra: elipse suave bajo el átomo (en el plano del suelo de la escena fija)
   let ficha = null;
   if (veredicto) {
     ficha = crearVeredicto(veredicto, { lado: 92 });

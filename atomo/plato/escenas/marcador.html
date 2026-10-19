@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marcador · plastilina</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Marcador (plastilina, mudo, 3,2 s; se usa seis veces). El marcador de cerca: las casillas
+// 1..n−1 ya tienen sus veredictos (E.resultados). Hacia los 0,5 s la ficha de la casilla n
+// (E.veredicto) baja como un sello, se aplasta al golpear y levanta un poco de polvo; el átomo
+// reacciona (salta de alegría con ✓, niega con la cabeza con ✗) y todo se queda quieto.
+// Vista previa: ?n=1..6.
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, TAB as T, cl, mix, prog, ss, eio, eoc, eic, muelle, mulberry32 } from '/atomo/plato/kits/plastilina.js';
+
+const E = await escena('marcador');
+const n0 = (E.n ?? 1) - 1;                     // casilla que recibe el sello (0..5)
+const RES = E.resultados ?? ['✓', '✗', '✗', '✓', '✓', '✗'];
+const VER = E.veredicto ?? RES[n0];
+const SI = VER === '✓';
+const P = await crearPlato({
+  piezas: ['ficha'], tablero: true, polvo: 10,
+  sombras: { tablero: ['p0', 'polvo'], p0: ['tablero'] },
+  camara: { pos: [0, 6, 13], mira: [0, 1.4, 0.6], fov: 28, desenfoque: 30 },
+});
+
+const TAB = { pos: [-0.75, 1.45, 0.8], escala: 1.12, inclinacion: 0.8, giro: 0.05 };
+const ATOMO = [4.55, 2.05, 0.8], A_ESC = 0.5;
+const T_GOLPE = 0.5, T_SALIDA = 0.17, ALTO0 = 3.4;
+
+// polvo: bolitas que salen del borde de la ficha al golpear (sembrado)
+const POLVO = (() => {
+  const r = mulberry32(4242 + n0), out = [];
+  for (let k = 0; k < 10; k++) {
+    const a = (k / 10) * Math.PI * 2 + (r() - 0.5) * 0.5;
+    out.push({ a, lejos: mix(0.32, 0.6, r()), sube: mix(0.12, 0.3, r()), r: mix(0.05, 0.085, r()), dur: mix(0.45, 0.65, r()) });
+  }
+  return out;
+})();
+
+function dibujar(t) {
+  const n = P.fotograma(t), ts = n / 12;
+  P.limpiar();
+
+  // ---------- el marcador, con un pequeño temblor al recibir el golpe ----------
+  const tiembla = muelle(ts - T_GOLPE, 4, 9);
+  const celdas = RES.map((v, i) => (i < n0 ? { tipo: v } : {}));
+  P.tablero({ ...TAB, celdas, sq: [1 + 0.012 * tiembla, 1, 1 - 0.035 * tiembla], toque: ts > T_GOLPE - 0.05 && ts < T_GOLPE + 0.2 });
+
+  // ---------- la ficha: baja como un sello, se aplasta y se asienta ----------
+  if (ts >= T_SALIDA) {
+    const u = prog(ts, T_SALIDA, T_GOLPE);
+    let alto = ALTO0 * (1 - eic(u));                       // cae acelerando
+    let ap = ts < T_GOLPE ? -0.28 * u : 0.45 * muelle(ts - T_GOLPE, 3, 7);
+    alto += 0.16 * Math.sin(Math.PI * prog(ts, T_GOLPE + 0.04, T_GOLPE + 0.32));   // rebote
+    const sqz = 1 - ap, sqxy = 1 + 0.55 * ap;
+    const giro = 0.35 * (1 - eoc(prog(ts, T_SALIDA, T_GOLPE + 0.1))) + 0.04 * muelle(ts - T_GOLPE, 2, 6);
+    const x = (n0 - 2.5) * T.PASO;
+    P.pieza(0, {
+      pos: P.enTablero(TAB, x, T.YW, -0.1 + 0.16 * sqz + alto),
+      escala: TAB.escala, sq: [sqxy, sqxy, sqz],
+      rot: [-TAB.inclinacion, TAB.giro, giro], variante: VER,
+      toque: ts < T_GOLPE + 0.35,
+    });
+    // polvo
+    if (ts >= T_GOLPE) {
+      P.polvo(POLVO.map((p) => {
+        const v = prog(ts, T_GOLPE, T_GOLPE + p.dur);
+        if (v >= 1) return null;
+        const rho = 0.36 + p.lejos * eoc(v);
+        const w = P.enTablero(TAB, x + Math.cos(p.a) * rho * 1.05, T.YW + Math.sin(p.a) * rho, 0.06 + p.sube * Math.sin(Math.PI * Math.pow(v, 0.7)) * 0.9 + 0.04);
+        const rr = p.r * TAB.escala * Math.sin(Math.PI * Math.pow(v, 0.45)) * (1 - 0.3 * v);
+        return [...w, rr];
+      }));
+    }
+  }
+
+  // ---------- el átomo reacciona ----------
+  const tr = T_GOLPE + 0.08;
+  let y = ATOMO[1] + 0.03 * Math.sin(ts * 2.0), yaw = -0.45, roll = 0.04, sq = [1, 1, 1], tsE = ts;
+  if (SI) {
+    // dos saltos de alegría y los electrones se aceleran
+    const s1 = prog(ts, tr, tr + 0.42), s2 = prog(ts, tr + 0.5, tr + 0.8);
+    const h = 0.55 * Math.sin(Math.PI * s1) + 0.22 * Math.sin(Math.PI * s2);
+    const aire = (s1 > 0 && s1 < 1 ? Math.sin(Math.PI * s1) : 0) + (s2 > 0 && s2 < 1 ? 0.6 * Math.sin(Math.PI * s2) : 0);
+    const prep = Math.sin(Math.PI * prog(ts, tr - 0.17, tr + 0.02));
+    const cae = 0.22 * muelle(ts - (tr + 0.42), 2.6, 8) * (ts < tr + 0.5 ? 1 : 0) + 0.16 * muelle(ts - (tr + 0.8), 2.6, 7);
+    y += h - 0.05 * prep;
+    const k = 0.18 * aire - 0.16 * prep - cae;   // + estira, − aplasta
+    sq = [1 - 0.5 * k, 1 + k, 1 - 0.5 * k];
+    roll += 0.22 * Math.sin(Math.PI * s1) * Math.sin(Math.PI * 2 * s1);
+    tsE = ts + 1.6 * eio(prog(ts, tr, tr + 0.9));
+  } else {
+    // niega con la cabeza y se encoge un poco
+    const v = prog(ts, tr, tr + 1.0);
+    yaw += 0.6 * Math.sin(v * Math.PI * 5) * Math.pow(1 - v, 1.3);
+    const enc = ss(tr, tr + 0.3, ts) * (1 - 0.6 * ss(tr + 0.9, tr + 1.4, ts));
+    y -= 0.12 * enc;
+    sq = [1 + 0.05 * enc, 1 - 0.1 * enc, 1 + 0.05 * enc];
+    roll += -0.12 * enc;
+    tsE = ts - 0.5 * eio(prog(ts, tr, tr + 1.2));
+  }
+  P.atomo({
+    pos: [ATOMO[0], y, ATOMO[2]], escala: A_ESC, yaw, pitch: 0.08, roll, sq,
+    energia: E.energia(ts), ts: tsE, toque: ts > tr - 0.2 && ts < tr + 1.1,
+  });
+
+  P.render(n);
+}
+
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

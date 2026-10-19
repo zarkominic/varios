@@ -195,11 +195,11 @@ function dibujar(t) {
   const { H, vis } = horario(t);
   const dia1 = t < D1b + 0.5;
   const kEste = eob(entra(t, mE, 0.5, 0.25), 2);
-  const kNorte = eio(entra(t, mN, 0.55, 0.3));
-  const kDer = eio(entra(t, mD, 0.7, 0.3));
-  const kRel = eio(entra(t, mR, 0.8, 0.3));
-  const kHem = latido(t, mH, 1.1, 0.25);
-  const kAus = eio(entra(t, mAu, 0.8, 0.3));
+  const kNorte = eo(entra(t, mN, 0.5, 0.28));
+  const kDer = eo(entra(t, mD, 0.6, 0.3));
+  const kRel = eo(entra(t, mR, 0.7, 0.3));
+  const kHem = latido(t, mH, 1.0, 0.35);
+  const kAus = eo(entra(t, mAu, 0.7, 0.3));
   for (const k of ['N', 'S']) {
     const p = plots[k];
     const { e1, e2 } = arcoPlano(p);
@@ -260,10 +260,10 @@ function dibujar(t) {
     const corner = (dir, off = 30) => pant(p.O.clone().addScaledVector(dir, A + off).setY(p.slab.y));
     const bN = corner(p.o.Nd), bS = corner(p.o.Nd.clone().negate()), bE = corner(p.o.Ed), bW = corner(p.o.Ed.clone().negate(), 22);
     const backIsN = k === 'S';
-    const pulseBack = latido(t, mN, 1.0, 0.2);
+    const pulseBack = latido(t, mN, 1.0, 0.35);
     brujula[k].N.poner(bN.x, bN.y, 1, 1 + (backIsN ? 0.35 * pulseBack : 0));
     brujula[k].S.poner(bS.x, bS.y, 1, 1 + (!backIsN ? 0.35 * pulseBack : 0));
-    brujula[k].E.poner(bE.x, bE.y, 1, 1 + 0.3 * latido(t, mE, 0.9, 0.2));
+    brujula[k].E.poner(bE.x, bE.y, 1, 1 + 0.3 * latido(t, mE, 0.9, 0.3));
     brujula[k].W.poner(bW.x, bW.y, 0.9, 1);
     // insignia del hemisferio
     const bp = pant(p.O.clone().addScaledVector(Y, 400));
