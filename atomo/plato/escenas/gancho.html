@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gancho · plastilina</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Gancho (plastilina). El átomo rueda hasta un globo de plastilina con el ecuador como tira dorada.
+// [luna] [agua] [cielo] [peso]: salen del globo, por turnos, una Luna creciente, un remolino de agua,
+// una estrella y una pesa. [seis]: entra deslizándose el marcador con seis casillas vacías.
+// [verdad]: una ficha ✓ se estampa en el aire; [mentira]: una ficha ✗. [cuenta]: el átomo señala
+// el marcador, que se asienta; las fichas de ejemplo se retiran y la imagen queda quieta.
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, PIEZA, cl, mix, prog, ss, eio, eoc, eob, azar, muelle, brote } from '/atomo/plato/kits/plastilina.js';
+
+const E = await escena('gancho');
+const M = (k) => E.marca(k);
+const P = await crearPlato({
+  piezas: 6, globo: true, tablero: true,
+  camara: { pos: [0, 4.2, 16], mira: [0, 2.2, 0], fov: 28 },
+});
+
+// ---------- puesta en escena (mundo) ----------
+const ATOMO = [-4.05, 1.85, 0.5], A_ESC = 0.5;
+const GLOBO = [-0.45, 3.55, -0.5], G_R = 1.55;
+const TAB = { pos: [2.55, 1.3, 1.5], escala: 0.86, inclinacion: 0.78, giro: -0.12 };
+const ICONOS = [
+  { marca: 'luna', tipo: PIEZA.LUNA, pos: [-2.6, 4.95, 0], escala: 0.95, rot: [0.1, 0.25, -0.35] },
+  { marca: 'agua', tipo: PIEZA.REMOLINO, pos: [1.75, 4.9, 0], escala: 1.05, rot: [0.15, -0.3, 0] },
+  { marca: 'cielo', tipo: PIEZA.ESTRELLA, pos: [2.3, 3.1, 0], escala: 0.9, rot: [0.1, -0.35, 0.15] },
+  { marca: 'peso', tipo: PIEZA.PESA, pos: [-2.45, 2.3, 0], escala: 0.92, rot: [0.08, 0.35, 0] },
+];
+const FICHAS = [
+  { marca: 'verdad', variante: 1, pos: [3.55, 3.8, 0.5] },
+  { marca: 'mentira', variante: 2, pos: [5.05, 3.8, 0.5] },
+];
+
+function dibujar(t) {
+  const n = P.fotograma(t), ts = n / 12;
+  const en = E.energia(ts);
+  P.limpiar();
+  const tCuenta = M('cuenta');
+
+  // ---------- el globo: gira despacio y da un respingo cada vez que suelta un icono ----------
+  let gsq = 0;
+  for (const ic of ICONOS) gsq += 0.06 * muelle(ts - (M(ic.marca) - 0.2), 2.4, 6);
+  const gy = GLOBO[1] + 0.04 * Math.sin(ts * 1.4);
+  P.globo({ pos: [GLOBO[0], gy, GLOBO[2]], radio: G_R * (1 + gsq), inclinacion: 0.41, giro: 0.6 + ts * 0.32 });
+
+  // ---------- iconos: salen del globo y se quedan flotando alrededor ----------
+  ICONOS.forEach((ic, i) => {
+    const tm = M(ic.marca);
+    const k = brote(ts, tm, 0.3, 0.16);
+    if (k <= 0) { P.pieza(i, {}); return; }
+    const u = eoc(prog(ts, tm - 0.3, tm));
+    const dir = ic.pos.map((v, j) => v - [GLOBO[0], gy, GLOBO[2]][j]);
+    const L = Math.hypot(...dir);
+    const desde = [GLOBO[0], gy, GLOBO[2]].map((v, j) => v + dir[j] / L * G_R * 0.8);
+    const flota = 0.05 * Math.sin(ts * 1.7 + i * 1.9);
+    const pos = desde.map((v, j) => mix(v, ic.pos[j], u) + (j === 1 ? flota * u : 0));
+    // estirado en el vuelo y aplastado al llegar
+    const st = Math.sin(Math.PI * prog(ts, tm - 0.3, tm)) * 0.22 - 0.12 * muelle(ts - tm, 2.6, 7);
+    let rot = ic.rot.slice();
+    if (ic.tipo === PIEZA.REMOLINO) rot[2] = -ts * 1.6;
+    if (ic.tipo === PIEZA.ESTRELLA) rot[2] = ic.rot[2] + 0.12 * Math.sin(ts * 1.3);
+    if (ic.tipo === PIEZA.LUNA) rot[2] = ic.rot[2] + 0.08 * Math.sin(ts * 1.1 + 1);
+    P.pieza(i, { tipo: ic.tipo, pos, escala: ic.escala * k, sq: [1 - st * 0.5, 1 + st, 1 - st * 0.5], rot, toque: ts < tm + 0.4 });
+  });
+
+  // ---------- el marcador: entra deslizándose y se asienta en [cuenta] ----------
+  const tS = M('seis');
+  const e0 = tS - 0.55;
+  if (ts >= e0 - 0.1) {
+    const u = prog(ts, e0, tS);
+    const x = mix(TAB.pos[0] + 11, TAB.pos[0], eob(u, 1.2)) ;
+    const fren = ts > tS ? muelle(ts - tS, 1.8, 5) : 0;
+    const asen = muelle(ts - (tCuenta - 0.05), 2.6, 6);
+    const hop = 0.18 * Math.sin(Math.PI * prog(ts, tCuenta - 0.3, tCuenta - 0.05));
+    P.tablero({
+      ...TAB,
+      pos: [x - 0.12 * fren, TAB.pos[1] + hop, TAB.pos[2]],
+      roll: -0.06 * Math.sin(Math.PI * u) - 0.03 * fren,
+      sq: [1 + 0.05 * asen, 1 - 0.08 * asen, 1],
+      toque: ts < tS + 0.4 || (ts > tCuenta - 0.3 && ts < tCuenta + 0.3),
+    });
+  }
+
+  // ---------- fichas de ejemplo: se estampan en el aire ----------
+  FICHAS.forEach((fi, j) => {
+    const tm = M(fi.marca);
+    const a = tm - 0.28;
+    if (ts < a) { P.pieza(4 + j, {}); return; }
+    const sale = ss(tCuenta - 0.25, tCuenta + 0.1, ts);
+    const u = prog(ts, a, tm);
+    const z = mix(4.5, 0, eio(u) * u);
+    const golpe = muelle(ts - tm, 2.2, 6);
+    const sqz = ts < tm ? 1 + 0.25 * u : 1 - 0.35 * golpe;
+    const sqx = ts < tm ? 1 - 0.1 * u : 1 + 0.2 * golpe;
+    P.pieza(4 + j, {
+      tipo: PIEZA.FICHA, variante: fi.variante,
+      pos: [fi.pos[0], fi.pos[1] + 0.04 * Math.sin(ts * 1.5 + j), fi.pos[2] + z],
+      escala: 1.25 * (1 - eio(sale)), sq: [sqx, sqx, sqz], rot: [0.12, -0.18 + 0.1 * j, (j ? 0.08 : -0.06) * (1 - sale)],
+      toque: ts < tm + 0.3,
+    });
+  });
+
+  // ---------- el átomo: rueda hasta su sitio, habla y señala el marcador ----------
+  const llega = 1.0;
+  const u = prog(ts, 0, llega);
+  const ax = mix(ATOMO[0] - 4.2, ATOMO[0], eob(u, 1.1));
+  const rueda = -(ax - ATOMO[0]) / (1.9 * A_ESC);
+  const bote = muelle(ts - llega, 2.4, 5.5);
+  // reacciones: salto en [verdad], «no» con la cabeza en [mentira]
+  const salto = 0.32 * Math.sin(Math.PI * prog(ts, M('verdad') - 0.25, M('verdad') + 0.2));
+  const no = Math.sin(prog(ts, M('mentira') - 0.1, M('mentira') + 0.6) * Math.PI * 4) * (1 - prog(ts, M('mentira') - 0.1, M('mentira') + 0.6));
+  // señalar: se echa atrás, se lanza hacia el marcador y se queda inclinado
+  const prep = ss(tCuenta - 0.45, tCuenta - 0.25, ts) * (1 - ss(tCuenta - 0.25, tCuenta, ts));
+  const senal = ss(tCuenta - 0.25, tCuenta, ts) * (1 - 0.45 * ss(tCuenta + 1.4, tCuenta + 2.0, ts));
+  const estira = Math.sin(Math.PI * prog(ts, tCuenta - 0.25, tCuenta + 0.15));
+  const ay = ATOMO[1] + 0.05 * Math.sin(ts * 2.1) + Math.max(0, salto) + 0.04 * en;
+  P.atomo({
+    pos: [ax + 0.45 * senal - 0.12 * prep, ay - 0.1 * senal, ATOMO[2]],
+    escala: A_ESC,
+    yaw: -0.1 + 0.15 * Math.sin(ts * 0.7) + 0.5 * no - 0.3 * senal,
+    pitch: 0.05 + 0.06 * Math.sin(ts * 0.9 + 1),
+    roll: rueda + 0.3 * prep - 0.42 * senal + 0.05 * Math.sin(ts * 1.3),
+    sq: [1 + 0.12 * bote + 0.14 * estira, 1 - 0.16 * bote - 0.06 * estira + 0.08 * Math.max(0, salto), 1 + 0.12 * bote],
+    energia: en, ts, toque: ts < llega + 0.3 || prep > 0 || estira > 0,
+  });
+
+  P.render(n);
+}
+
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>
