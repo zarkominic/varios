@@ -82,9 +82,11 @@ Fuentes:
 ## Al publicar
 
 1. Sube `videos/02-cruza-el-ecuador.mp4` con el título y la descripción en inglés. Lleva el audio en inglés y el idioma del vídeo es **inglés**.
-2. En YouTube Studio, abre **Idiomas**:
+2. En YouTube Studio **desde el ordenador** (en el móvil no se puede), abre **Idiomas** (en algunas versiones está en **Subtítulos**):
    - Añade el **español**.
-   - Sube `videos/02-cruza-el-ecuador-es.m4a` como pista de audio.
+   - En la columna **Audio**, sube `videos/02-cruza-el-ecuador-es.mp3`. Dura lo mismo que el vídeo, que es lo que pide YouTube.
+   - Si no aparece la opción de audio, el canal aún no tiene el audio multilingüe: hace falta activar las funciones avanzadas (verificación por teléfono) y YouTube todavía lo va abriendo por canales. Mientras tanto, el vídeo funciona solo en inglés con subtítulos en español.
+   - Si YouTube ya creó un doblaje automático al español, bórralo antes de subir el tuyo.
    - Pon el título y la descripción en español de arriba.
    - YouTube elige la pista según el idioma configurado de cada espectador, no según el país desde el que lo abre; si no tiene ninguna de las dos, suena el inglés. Cada espectador puede cambiarla en ⚙️ → Pista de audio.
 3. En **Subtítulos**, sube `02-cruza-el-ecuador-es.srt` (español) y `02-cruza-el-ecuador-en.srt` (inglés). En pantalla no hay palabras, así que los subtítulos los pone YouTube en el idioma de cada espectador.

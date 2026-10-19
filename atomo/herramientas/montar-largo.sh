@@ -3,7 +3,8 @@
 # Monta un vídeo largo de dos idiomas a partir de render-escenas.mjs y preparar_largo.py.
 # PRINCIPAL (inglés por defecto) es el idioma original del vídeo; el otro va como pista aparte:
 #   <salida>.mp4          vídeo 1920x1080 con la voz del idioma principal + música que baja sola
-#   <salida>-<otro>.m4a   pista del otro idioma con la misma música, para añadirla en YouTube Studio
+#   <salida>-<otro>.mp3   pista del otro idioma con la misma música, para añadirla en YouTube Studio
+#                         (MP3 a 320 kbps: YouTube admite MP3, WAV y FLAC como pista de audio)
 #   <salida>-es.srt / -en.srt   subtítulos
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -28,7 +29,7 @@ ffmpeg -y -loglevel error -framerate 30 -i "$D/fotos/%05d.jpg" -i "$D/voz-$PRINC
   -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p -profile:v high -r 30 \
   -c:a aac -b:a 192k -ar 48000 -metadata:s:a:0 language=$(iso $PRINCIPAL) -movflags +faststart -shortest "$SALIDA.mp4"
 ffmpeg -y -loglevel error -f lavfi -i anullsrc -i "$D/voz-$OTRO.wav" -i "$D/musica.wav" \
-  -filter_complex "$(mezcla)" -map "[a]" -c:a aac -b:a 192k -ar 48000 -metadata:s:a:0 language=$(iso $OTRO) "$SALIDA-$OTRO.m4a"
+  -filter_complex "$(mezcla)" -map "[a]" -c:a libmp3lame -b:a 320k -ar 48000 -metadata language=$(iso $OTRO) "$SALIDA-$OTRO.mp3"
 cp "$D/subtitulos-es.srt" "$SALIDA-es.srt"
 cp "$D/subtitulos-en.srt" "$SALIDA-en.srt"
-echo "Hecho: $SALIDA.mp4 ($PRINCIPAL), $SALIDA-$OTRO.m4a y subtítulos"
+echo "Hecho: $SALIDA.mp4 ($PRINCIPAL), $SALIDA-$OTRO.mp3 y subtítulos"
