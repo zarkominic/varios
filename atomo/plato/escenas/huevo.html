@@ -215,7 +215,7 @@ function globo(t) {
     if (ur > 0 && ux < 1) K.puntadas(K.arcoPts(0, 0, R, R, 0, TAU, 90), { u1: eio(ur), col: C.ivory, ancho: 3, guion: [10, 8], nudos: false, d: 2 });
     const ug = eio(seg(t, T.giro[0], T.giro[1]));
     if (ug > 0) K.flecha(giroPts(R, R * ay), { u: ug, col: C.gold, ancho: 7, punta: 24, seed: 141, d: 3 });
-    // B · los tres huevos (norte, ecuador, sur), de pie hacia fuera
+    // B · los tres huevos (norte, ecuador, sur), de pie, cada uno con su brillo
     const q = seg(t, T.quitaHuevos[0], T.quitaHuevos[1]);
     if (q < 1) {
       g.save(); g.translate(-24 * q, -34 * q);
