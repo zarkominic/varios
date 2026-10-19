@@ -120,7 +120,8 @@ function dibujarGlifo(c, ch, x, y, s) {
 const COV = new Float32Array(GLYPHS.length);
 const POOL = [];            // glifos candidatos para los bordes
 let SHV = null;             // vectores normalizados del POOL
-const RAMPA = ' .:-=+*#%@';
+const RAMPA = ' .,:;+=*xo#%@';
+const FORMAS = ` .,:;'"\`^-_~=+*!|/\\()<>dbPYo#`;
 let RAMPA_I = [], RAMPA_C = [];
 function medirGlifos() {
   const s = 4, w = CW * s, h = CH * s, porFila = 16, filas = Math.ceil(GLYPHS.length / porFila);
@@ -139,7 +140,7 @@ function medirGlifos() {
     }
     COV[k] = tot / (w * h);
   });
-  for (let k = 0; k < 95; k++) POOL.push(k);
+  for (const ch of new Set(FORMAS)) POOL.push(gi(ch));
   const mx = [0, 0, 0, 0, 0, 0];
   for (const k of POOL) for (let d = 0; d < 6; d++) mx[d] = Math.max(mx[d], reg[k][d]);
   SHV = new Float32Array(POOL.length * 6);
@@ -215,11 +216,11 @@ function albedo(x, y) {
 }
 
 // ── retícula de luminancia (escena) ─────────────────────────────────────────
-const lum = new Float32Array(SW * SH), zb = new Float32Array(SW * SH);
+const lum = new Float32Array(SW * SH), zb = new Float32Array(SW * SH), cvb = new Float32Array(SW * SH);
 const ocup = new Uint8Array(N), ovG = new Int16Array(N), ovB = new Float32Array(N);
-function limpiar() { lum.fill(0); zb.fill(-1e9); ocup.fill(0); ovG.fill(-1); }
+function limpiar() { lum.fill(0); cvb.fill(0); zb.fill(-1e9); ocup.fill(0); ovG.fill(-1); }
 
-function esfera(cx, cy, R, cz, psi, L, alb, tex, spec, amb, mul) {
+function esfera(cx, cy, R, cz, psi, L, alb, tex, spec, amb, mul, rim = 0, rimW = 0.3) {
   if (mul <= 0.001) return;
   const i0 = Math.max(0, Math.floor((cx - R) / PX)), i1 = Math.min(SW - 1, Math.ceil((cx + R) / PX));
   const j0 = Math.max(0, Math.floor((cy - R) / PY)), j1 = Math.min(SH - 1, Math.ceil((cy + R) / PY));
@@ -235,16 +236,18 @@ function esfera(cx, cy, R, cz, psi, L, alb, tex, spec, amb, mul) {
       const lx = dx * cs - dy * sn, ly = -dx * sn - dy * cs;
       const d = lx * L[0] + ly * L[1] + nz * L[2];
       const A = tex > 0 ? mix(alb, albedo(lx, ly), tex) : alb;
-      let v = A * (d > 0 ? Math.pow(d, 0.8) : 0) + amb * A * (0.5 + 0.5 * nz);
+      const dl = tex < 1 && d > 0 ? Math.pow(d, 0.8) : 0, dm = tex > 0 ? sm(clamp((d + 0.02) / 0.22)) * (0.62 + 0.6 * Math.max(d, 0)) : 0;
+      let v = A * mix(dl, dm, tex) + amb * A * A * (0.4 + 0.6 * nz);
       if (spec > 0) { const nh = lx * hx + ly * hy + nz * hz; if (nh > 0) v += spec * Math.pow(nh, 36); }
-      const cov = Math.min(1, (1 - Math.sqrt(r2)) * aa);
-      lum[o] = v * cov * mul; zb[o] = z;
+      const rr = Math.sqrt(r2), cov = Math.min(1, (1 - rr) * aa);
+      if (rim > 0) v *= mix(1, sm(clamp((1 - rr) / rimW)), rim);
+      lum[o] = v * cov * mul; zb[o] = z; if (cov > cvb[o]) cvb[o] = cov;
       if (cov > 0.5) ocup[((j / SY) | 0) * COLS + ((i / SX) | 0)] = 1;
     }
   }
 }
 // trazo suave (para órbitas y electrones), mezcla por máximo y con prueba de profundidad
-function trazo(x, y, z, v, rr) {
+function trazo(x, y, z, v, rr, fuera = false) {
   const fx = x / PX - 0.5, fy = y / PY - 0.5, ry = rr * PX / PY;
   const i0 = Math.ceil(fx - rr), i1 = Math.floor(fx + rr), j0 = Math.ceil(fy - ry), j1 = Math.floor(fy + ry);
   for (let j = j0; j <= j1; j++) {
@@ -254,9 +257,10 @@ function trazo(x, y, z, v, rr) {
       const d = Math.hypot((i - fx) / rr, (j - fy) / ry);
       if (d >= 1) continue;
       const o = j * SW + i;
-      if (zb[o] > z) continue;
-      const w = v * (1 - d * d);
-      if (w > lum[o]) lum[o] = w;
+      if (zb[o] > z || (fuera && zb[o] > -1e8)) continue;
+      const w = 1 - d * d;
+      if (w * v > lum[o]) lum[o] = w * v;
+      if (w > cvb[o]) cvb[o] = w;
     }
   }
 }
@@ -267,9 +271,8 @@ function oculto(x, y, z) {
 }
 
 // ── átomo ───────────────────────────────────────────────────────────────────
-const NUC = [[0, 0, 0]];
-for (let i = 0; i < 8; i++) { const y = 1 - (i + 0.5) / 8 * 2, r = Math.sqrt(1 - y * y), f = i * 2.39996 + 0.4; NUC.push([Math.cos(f) * r, y, Math.sin(f) * r]); }
-const RP = 40, DN = 46, RO = 300, LUNA_R = 240, CY = 560, XN = 560, XS = 1360, XC = 960;
+const NUC = [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+const RP = 62, DN = 70, RO = 312, LUNA_R = 240, CY = 560, XN = 560, XS = 1360, XC = 960;
 const ORB = [0, PI / 3, 2 * PI / 3].map((phi, k) => {
   const tilt = 1.22;
   const u = [Math.cos(phi), Math.sin(phi), 0];
@@ -279,42 +282,45 @@ const ORB = [0, PI / 3, 2 * PI / 3].map((phi, k) => {
 });
 const rotY = (p, a) => [p[0] * Math.cos(a) + p[2] * Math.sin(a), p[1], -p[0] * Math.sin(a) + p[2] * Math.cos(a)];
 const rotX = (p, a) => [p[0], p[1] * Math.cos(a) - p[2] * Math.sin(a), p[1] * Math.sin(a) + p[2] * Math.cos(a)];
-const L0 = norm([-0.5, 0.55, 0.68]), LC = norm([0.9, 0.06, -0.43]);
+const L0 = norm([-0.5, 0.55, 0.68]), LC = norm([0.96, 0.04, -0.3]);
 function norm(v) { const l = Math.hypot(...v); return v.map((x) => x / l); }
 function luz(k) { return norm([mix(L0[0], LC[0], k), mix(L0[1], LC[1], k), mix(L0[2], LC[2], k)]); }
 
 // ── guion ───────────────────────────────────────────────────────────────────
 function orbEscala(t) { t = ((t % DUR) + DUR) % DUR; return t < 6.5 ? 1 - ein(lin(t, 1.35, 2.2)) : eout(lin(t, 8.95, 9.8)); }
 function estado(t) {
-  const ida = t < 6.5;
+  const ida = t < 6.6;
   return {
     orb: orbEscala(t),
-    morph: ida ? eio(lin(t, 1.9, 3.0)) : 1 - eio(lin(t, 8.45, 9.3)),
-    tex: ida ? sm(lin(t, 2.3, 3.1)) : 1 - sm(lin(t, 8.35, 9.0)),
-    luz: ida ? eio(lin(t, 2.2, 3.4)) : 1 - eio(lin(t, 8.3, 9.2)),
-    split: ida ? eio4(lin(t, 3.0, 4.1)) : 1 - eio4(lin(t, 7.95, 8.85)),
-    giro: t < 8.9 ? eio(lin(t, 4.9, 6.3)) * PI : 0,
-    sur: ida ? 1 : 1 - sm(lin(t, 8.3, 8.8)),
-    chrome: ida ? lin(t, 3.5, 4.4) : 1 - lin(t, 7.75, 8.15),
-    letra: ida ? lin(t, 4.0, 4.7) : 1 - lin(t, 7.75, 8.2),
-    dc: lin(t, 5.35, 5.95),
+    morph: ida ? eio(lin(t, 1.9, 3.0)) : 1 - eio(lin(t, 8.6, 9.4)),
+    tex: ida ? sm(lin(t, 2.3, 3.1)) : 1 - sm(lin(t, 8.5, 9.1)),
+    luz: ida ? eio(lin(t, 3.35, 4.6)) : 1 - eio(lin(t, 7.85, 8.6)),
+    split: ida ? eio4(lin(t, 2.85, 3.9)) : 1 - eio4(lin(t, 8.1, 8.95)),
+    giro: t < 8.95 ? eio(lin(t, 5.15, 6.45)) * PI : 0,
+    sur: ida ? sm(lin(t, 2.85, 3.5)) : 1 - sm(lin(t, 8.4, 8.9)),
+    chrome: ida ? lin(t, 3.3, 4.2) : 1 - lin(t, 7.7, 8.1),
+    letra: ida ? lin(t, 4.4, 5.0) : 1 - lin(t, 7.7, 8.15),
+    dc: lin(t, 5.55, 6.1),
   };
 }
 
 function escena(t, S) {
   limpiar();
   const xN = mix(XC, XN, S.split), xS = mix(XC, XS, S.split);
-  const L = luz(S.luz), amb = mix(0.13, 0.085, S.luz), spec = 0.85 * (1 - S.tex);
+  const L = luz(S.luz), amb = mix(0.06, 0.1, S.luz), spec = 0.85 * (1 - S.tex);
   const e = S.morph, R = mix(RP, LUNA_R, eio(e)), D = DN * (1 - e);
   const spin = TAU * t / DUR;
   // cuerpo norte: núcleo que se funde en la Luna
   const parts = e >= 0.999 ? [0] : NUC.map((_, i) => i);
+  // mientras las dos lunas se solapan, el limbo de la norte se marca con un filo oscuro
+  const solape = S.split > 0.001 ? clamp(1 - (xS - xN) / (2 * LUNA_R)) : 0;
   for (const i of parts) {
     let p = rotX(rotY(NUC[i], spin), 0.42);
-    esfera(xN + p[0] * D, CY - p[1] * D, R, p[2] * D, 0, L, i % 2 ? 0.66 : 1.0, S.tex, spec, amb, 1);
+    if (e >= 0.999) esfera(xN, CY, R, 0, 0, L, 1.12, S.tex, spec, amb, 1, 0.9 * sm(clamp(solape * 3)), 0.07);
+    else esfera(xN + p[0] * D, CY - p[1] * D, R, p[2] * D, 0, L, i % 2 ? 0.68 : 1.12, S.tex, spec, amb, 1, 0.85 * (1 - e));
   }
-  // cuerpo sur
-  if (S.split > 0.001) esfera(xS, CY, LUNA_R, 0, S.giro, L, 1.0, S.tex, spec, amb, S.sur);
+  // cuerpo sur: sale de detrás de la norte (más lejos, algo menor) y se desliza a su panel
+  if (S.split > 0.001) esfera(xS, CY, LUNA_R * mix(0.84, 1, sm(S.split)), -2000, S.giro, L, 1.12, S.tex, spec, amb, S.sur);
   // órbitas y electrones
   if (S.orb > 0.001) {
     const yaw = 0.32 * Math.sin(TAU * t / DUR), pitch = 0.10 * Math.sin(TAU * 2 * t / DUR + 1);
@@ -326,11 +332,11 @@ function escena(t, S) {
       for (let k = 0; k < n; k++) {
         const a = k / n * TAU, c = Math.cos(a), s = Math.sin(a);
         const x = u[0] * c + v[0] * s, y = u[1] * c + v[1] * s, z = u[2] * c + v[2] * s;
-        trazo(xN + x * r, CY - y * r, z * r, (z > 0 ? 0.42 : 0.24) * fade, 1.05);
+        trazo(xN + x * r, CY - y * r, z * r, (z > 0 ? 0.55 : 0.26) * fade, 1.25, true);
       }
       // electrón con estela en espiral
-      for (let k = 22; k >= 0; k--) {
-        const tk = t - k * 0.016, sk = orbEscala(tk) * RO;
+      for (let k = 26; k >= 0; k--) {
+        const tk = t - k * 0.017, sk = orbEscala(tk) * RO;
         const a = o.ph + TAU * o.n * tk / DUR, c = Math.cos(a), s = Math.sin(a);
         const x = u[0] * c + v[0] * s, y = u[1] * c + v[1] * s, z = u[2] * c + v[2] * s;
         const px = xN + x * sk, py = CY - y * sk, pz = z * sk;
@@ -341,8 +347,8 @@ function escena(t, S) {
             if (cc >= 0 && cc < COLS && rr >= 0 && rr < ROWS) { ovG[rr * COLS + cc] = gi('@'); ovB[rr * COLS + cc] = 1.9; }
           }
         } else {
-          const f = 1 - k / 23;
-          trazo(px, py, pz, 1.25 * f * f * fade, 0.9 + 0.9 * f);
+          const f = 1 - k / 27;
+          trazo(px, py, pz, (0.5 + 1.3 * f * f) * fade, 1.0 + 1.0 * f);
         }
       }
     }
@@ -357,19 +363,21 @@ function convertir() {
     const k = r * COLS + c;
     F[k] = 0;
     if (ovG[k] >= 0) { G[k] = ovG[k]; B[k] = ovB[k]; continue; }
-    let mx = 0, mn = 9, sum = 0;
+    let mx = 0, mn = 9, sum = 0, cmx = 0, cmn = 9;
     for (let ry = 0; ry < 3; ry++) for (let rx = 0; rx < 2; rx++) {
       const o = (r * SY + ry * 2) * SW + c * SX + rx * 2;
       const v = (lum[o] + lum[o + 1] + lum[o + SW] + lum[o + SW + 1]) * 0.25;
+      const cv = (cvb[o] + cvb[o + 1] + cvb[o + SW] + cvb[o + SW + 1]) * 0.25;
       reg[ry * 2 + rx] = v; sum += v; if (v > mx) mx = v; if (v < mn) mn = v;
+      if (cv > cmx) cmx = cv; if (cv < cmn) cmn = cv;
     }
     const mean = sum / 6;
     if (mx < 0.03) { G[k] = 0; B[k] = 0; continue; }
-    if (mx > 0.12 && mx - mn > 0.32 * mx) {
-      const nrm = 1 / Math.max(mx, 0.5);
+    if (mx > 0.05 && cmx - cmn > 0.4 && mx - mn > 0.3 * mx) {
+      const nrm = 1 / Math.max(mx, 0.2);
       for (let d = 0; d < 6; d++) vn[d] = Math.pow(Math.min(1, reg[d] * nrm), 1.35);
       G[k] = porForma(vn);
-      B[k] = 0.22 + 0.86 * Math.pow(Math.min(mx, 2), 0.65);
+      B[k] = 0.1 + 0.95 * Math.pow(Math.min(mx, 2), 0.8);
     } else {
       G[k] = porRampa(Math.pow(Math.min(mean, 1), 0.85));
       B[k] = 0.2 + 0.88 * Math.pow(Math.min(mean, 2), 0.65);
@@ -439,7 +447,7 @@ const ESTRELLAS = (() => {
   const rnd = mulberry32(5), out = [];
   while (out.length < 80) {
     const c = 9 + Math.floor(rnd() * 142), r = 13 + Math.floor(rnd() * 31);
-    if (r >= 40 && r <= 43) continue;
+    if (r < 16 || (r >= 39 && r <= 43) || (r >= 24 && r <= 31 && (c < 22 || c > 137))) continue;
     out.push({ c, r, b: 0.18 + rnd() * 0.32, k: 1 + Math.floor(rnd() * 3), f: rnd() * TAU, big: rnd() < 0.12 });
   }
   return out;
@@ -461,6 +469,14 @@ function interfaz(t, S) {
   texto(150 - der.length - 1, 3, der, 0.62);
   if (parpadeo) put(150, 3, '█', 0.8);
   titular(t);
+  // gancho bajo el átomo: se teclea al cerrar el bucle y se borra al empezar la transformación
+  const gancho = '¿LA LUNA ES MENTIROSA?';
+  const pg = t < 5 ? 1 - lin(t, 1.45, 1.95) : lin(t, 9.05, 9.75);
+  if (pg > 0) {
+    const n = Math.floor(pg * gancho.length + 1e-6), c0 = Math.round(COLS / 2 - gancho.length);
+    textoDoble(c0, 42, gancho.slice(0, n), 0.95);
+    if (parpadeo || pg < 1) { put(c0 + n * 2, 42, '█', 0.85); put(c0 + n * 2, 43, '█', 0.85); }
+  }
   // paneles norte / sur
   const p = S.chrome;
   if (p > 0) {
@@ -485,7 +501,6 @@ function interfaz(t, S) {
   // letras D / C junto a cada luna
   if (S.letra > 0) {
     bloque(null, FIG.D, 12, 25, S.letra, 1, 3, t);
-    const fin = S.dc < 1 ? FIG.D : FIG.C;
     if (S.letra < 1) bloque(null, S.dc > 0.5 ? FIG.C : FIG.D, 140, 25, S.letra, 1, 7, t);
     else bloque(FIG.D, FIG.C, 140, 25, S.dc, 1, 9, t);
   }
@@ -493,8 +508,34 @@ function interfaz(t, S) {
 
 // ── halo: tinta por celda, desenfocada en CPU ───────────────────────────────
 function nucleo(sig) { const r = Math.ceil(sig * 2.5), k = []; let s = 0; for (let i = -r; i <= r; i++) { const w = Math.exp(-i * i / (2 * sig * sig)); k.push(w); s += w; } return { r, k: k.map((w) => w / s) }; }
-const KS = [nucleo(14 / CW), nucleo(14 / CH)], KL = [nucleo(70 / CW), nucleo(70 / CH)];
-const TMP = new Float32Array(N), GS = new Float32Array(N), GL_ = new Float32Array(N);
+const KS = [nucleo(14 / CW), nucleo(14 / CH)];
+const TMP = new Float32Array(N), TMP2 = new Float32Array(N), GS = new Float32Array(N), GL_ = new Float32Array(N);
+// caja con suma corrida (dos pasadas ≈ gaussiana), O(N) sea cual sea el radio
+function cajaH(src, dst, r) {
+  const k = 1 / (2 * r + 1);
+  for (let y = 0; y < ROWS; y++) {
+    const o = y * COLS; let s = 0;
+    for (let x = 0; x <= r && x < COLS; x++) s += src[o + x];
+    for (let x = 0; x < COLS; x++) {
+      dst[o + x] = s * k;
+      if (x + r + 1 < COLS) s += src[o + x + r + 1];
+      if (x - r >= 0) s -= src[o + x - r];
+    }
+  }
+}
+function cajaV(src, dst, r) {
+  const k = 1 / (2 * r + 1);
+  for (let x = 0; x < COLS; x++) {
+    let s = 0;
+    for (let y = 0; y <= r && y < ROWS; y++) s += src[y * COLS + x];
+    for (let y = 0; y < ROWS; y++) {
+      dst[y * COLS + x] = s * k;
+      if (y + r + 1 < ROWS) s += src[(y + r + 1) * COLS + x];
+      if (y - r >= 0) s -= src[(y - r) * COLS + x];
+    }
+  }
+}
+function halo(src, dst) { cajaH(src, TMP, 6); cajaH(TMP, TMP2, 6); cajaV(TMP2, TMP, 4); cajaV(TMP, dst, 4); }
 function desenfocar(src, dst, [kx, ky]) {
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     let s = 0; for (let i = -kx.r; i <= kx.r; i++) { const x = c + i; if (x >= 0 && x < COLS) s += src[r * COLS + x] * kx.k[i + kx.r]; }
@@ -513,7 +554,7 @@ const VS = `attribute vec2 p; varying vec2 vUv; void main(){ vUv = p * 0.5 + 0.5
 const FS = `precision highp float;
 varying vec2 vUv;
 uniform sampler2D uGrid, uGlow, uAtlas;
-uniform vec2 uSlot, uPad, uCell;
+uniform vec2 uSlot, uPad, uCell, uHalf;
 uniform float uSPR, uT, uSeed, uFlick, uGlitch, uGlitchY;
 uniform vec3 uPh;
 const vec2 SCN = vec2(1920.0, 1080.0);
@@ -526,7 +567,7 @@ float pantalla(vec2 q){ // SDF de rectángulo redondeado en px de escena
 }
 void main(){
   vec2 q = vec2(vUv.x, 1.0 - vUv.y) * 2.0 - 1.0;
-  q *= 1.0 + q.yx * q.yx * vec2(0.045, 0.07);
+  q *= 1.0 + q.yx * q.yx * vec2(0.035, 0.055);
   q *= 1.012;
   vec2 uv = q * 0.5 + 0.5;
   float band = smoothstep(0.035, 0.0, abs(uv.y - uGlitchY));
@@ -537,6 +578,7 @@ void main(){
   float idx = floor(g.r * 255.0 + 0.5), bri = g.g * 2.0, fl = floor(g.b * 255.0 + 0.5);
   float inv = mod(fl, 2.0), dbl = floor(fl / 8.0);
   if (dbl > 0.5) f = (f + vec2(mod(floor(fl / 2.0), 2.0), mod(floor(fl / 4.0), 2.0))) * 0.5;
+  f = clamp(f, uHalf, 1.0 - uHalf);
   vec2 slot = vec2(mod(idx, uSPR), floor(idx / uSPR));
   vec4 a = texture2D(uAtlas, slot * uSlot + uPad + f * uCell);
   float cov = a.r, soft = a.g;
@@ -572,7 +614,7 @@ gl.useProgram(prog);
 const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
 const ap = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap, 2, gl.FLOAT, false, 0, 0);
-const U = {}; for (const n of ['uGrid', 'uGlow', 'uAtlas', 'uSlot', 'uPad', 'uCell', 'uSPR', 'uT', 'uSeed', 'uFlick', 'uGlitch', 'uGlitchY', 'uPh']) U[n] = gl.getUniformLocation(prog, n);
+const U = {}; for (const n of ['uGrid', 'uGlow', 'uAtlas', 'uSlot', 'uPad', 'uCell', 'uHalf', 'uSPR', 'uT', 'uSeed', 'uFlick', 'uGlitch', 'uGlitchY', 'uPh']) U[n] = gl.getUniformLocation(prog, n);
 gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 function textura(unidad, filtro) {
   const tx = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unidad); gl.bindTexture(gl.TEXTURE_2D, tx);
@@ -607,6 +649,7 @@ function construirAtlas(s) {
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, aw, ah, 0, gl.RGBA, gl.UNSIGNED_BYTE, out);
   gl.uniform2f(U.uSlot, sw / aw, sh / ah); gl.uniform2f(U.uPad, pad / aw, pad / ah); gl.uniform2f(U.uCell, w / aw, h / ah);
   gl.uniform1f(U.uSPR, spr);
+  gl.uniform2f(U.uHalf, 0.5 / w, 0.5 / h);
 }
 
 function ajustar() {
@@ -629,7 +672,7 @@ function frame(tt) {
   convertir();
   interfaz(t, S);
   for (let k = 0; k < N; k++) INK[k] = B[k] * (F[k] & 1 ? 1 - COV[G[k]] : COV[G[k]]) * 2.2;
-  desenfocar(INK, GS, KS); desenfocar(INK, GL_, KL);
+  desenfocar(INK, GS, KS); halo(INK, GL_);
   for (let k = 0; k < N; k++) {
     dGrid[k * 4] = G[k]; dGrid[k * 4 + 1] = Math.min(255, B[k] * 127.5); dGrid[k * 4 + 2] = F[k]; dGrid[k * 4 + 3] = 255;
     dGlow[k * 4] = Math.min(255, GS[k] * 127.5); dGlow[k * 4 + 1] = Math.min(255, GL_[k] * 127.5); dGlow[k * 4 + 3] = 255;
@@ -642,7 +685,7 @@ function frame(tt) {
   gl.uniform1f(U.uT, t);
   gl.uniform1f(U.uSeed, fr * 0.6180339 % 1);
   gl.uniform1f(U.uFlick, 1 + 0.012 * Math.sin(TAU * 37 * t / DUR) + 0.008 * Math.sin(TAU * 91 * t / DUR));
-  const g1 = pulso(t, 2.12, 0.2), g2 = pulso(t, 5.55, 0.14);
+  const g1 = pulso(t, 2.12, 0.2), g2 = pulso(t, 5.78, 0.14);
   gl.uniform1f(U.uGlitch, g1 + 0.7 * g2);
   gl.uniform1f(U.uGlitchY, g1 > 0 ? 0.52 : 0.36);
   gl.drawArrays(gl.TRIANGLES, 0, 3);

@@ -286,7 +286,9 @@ scene.add(floor);
 // peana isométrica (losa cuadrada alineada con la rejilla)
 function makeSlab(cx, cz, a, i) {
   const g = new THREE.Group();
-  const box = new THREE.Mesh(new THREE.BoxGeometry(2 * a, SH, 2 * a), new THREE.MeshLambertMaterial({ color: '#272b57' }));
+  // caras laterales con los tonos planos clásicos del isométrico (derecha más clara que izquierda)
+  const fR = basic('#353b74'), fL = basic('#242851'), fH = basic('#1d2146');
+  const box = new THREE.Mesh(new THREE.BoxGeometry(2 * a, SH, 2 * a), [fR, fL, fH, fH, fL, fR]);
   box.position.set(cx, FY + SH / 2 - 0.5, cz); g.add(box);
   const self = new THREE.Vector3(cx, cz, a);
   const top = new THREE.Mesh(new THREE.PlaneGeometry(2 * a, 2 * a), floorMaterial('#1d2146', true, self));
@@ -323,10 +325,10 @@ function setDashes(im, n, a, b, from, to, w, phase, endFade = true) {
 // PLANETA low-poly (geodésico) con un octante cortado
 // =====================================================================
 const RE = 205;
-const EARTH_C = S(545, 505, 0);
+const EARTH_C = S(545, 485, 0);
 const earth = new THREE.Group();
 scene.add(earth);
-const LAT = 50 * Math.PI / 180;
+const LAT = 46 * Math.PI / 180;
 const dirN = new THREE.Vector3().addScaledVector(vR, Math.cos(LAT)).addScaledVector(vU, Math.sin(LAT)).normalize();
 const dirS = new THREE.Vector3().addScaledVector(vR, Math.cos(LAT)).addScaledVector(vU, -Math.sin(LAT)).normalize();
 const clipPlanes = [new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0), new THREE.Plane(new THREE.Vector3(0, -1, 0), 0), new THREE.Plane(new THREE.Vector3(0, 0, -1), 0)];
@@ -489,7 +491,7 @@ function makeHouse(roof, w, d, h) {
 // dirección sobre la superficie: da = desplazamiento en latitud, dw = hacia la cámara
 const surfDir = (sgn, da, dw) => new THREE.Vector3().addScaledVector(vR, Math.cos(LAT + da)).addScaledVector(vU, sgn * Math.sin(LAT + da)).addScaledVector(vW, dw).normalize();
 
-const MOON_C = S(1575, 500, 0);
+const MOON_C = S(1575, 482, 0);
 const people = {};
 for (const [key, dir, coat, coatD, hat] of [['N', dirN, P.coral, '#d9705f', P.lav], ['S', dirS, P.mint, '#62bba3', P.peach]]) {
   const sgn = key === 'N' ? 1 : -1;
@@ -568,8 +570,8 @@ const nucleus = new THREE.Group(); atom.add(nucleus);
   const pts = 9;
   for (let i = 0; i < pts; i++) {
     const yv = 1 - (i + 0.5) * 2 / pts, r = Math.sqrt(1 - yv * yv), th = i * 2.39996;
-    const m = new THREE.Mesh(new THREE.IcosahedronGeometry(14, 1), lam(i % 2 ? P.cream : P.coral));
-    m.position.set(Math.cos(th) * r * 15, yv * 15, Math.sin(th) * r * 15);
+    const m = new THREE.Mesh(new THREE.IcosahedronGeometry(16, 1), lam(i % 2 ? P.cream : P.coral));
+    m.position.set(Math.cos(th) * r * 17, yv * 17, Math.sin(th) * r * 17);
     nucleus.add(m);
   }
   const ng = glowSprite('#ffc9b0', 0.35); ng.scale.setScalar(130); nucleus.add(ng);
@@ -595,7 +597,7 @@ const nucleus = new THREE.Group(); atom.add(nucleus);
     electrons.push({ g: e, k: [3, 4, -3][i], ph: [0.3, 2.4, 4.4][i] });
   }
 }
-const flash = new THREE.Mesh(new THREE.RingGeometry(0.94, 1, 72), basic('#fff4dc', { transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+const flash = new THREE.Mesh(new THREE.RingGeometry(0.965, 1, 96), basic('#fff4dc', { transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
 flash.quaternion.copy(camera.quaternion);
 scene.add(flash);
 
@@ -754,11 +756,13 @@ function makeCard(key) {
   return { g, view, content, lid, chip, chipTex, o, face, FRONT };
 }
 const cardN = makeCard('N'), cardS = makeCard('S');
-const CARD_POS = { N: S(1030, 204, 80), S: S(1030, 752, 80) };
+const CARD_POS = { N: S(1092, 210, 80), S: S(1092, 770, 80) };
+const CARD_K = 0.9; // escala de los paneles
 const BETA = { N: 10 * Math.PI / 180, S: -10 * Math.PI / 180 };
 for (const [k, c] of [['N', cardN], ['S', cardS]]) {
   const b = Math.PI / 4 - BETA[k];
   orient(c.g, Y, new THREE.Vector3(Math.sin(b), 0, Math.cos(b)));
+  c.g.scale.setScalar(CARD_K);
   scene.add(c.g);
 }
 // indicador de giro de 180° alrededor de la ventana del sur
@@ -794,8 +798,8 @@ function buildTitle(k) {
   const w1 = x.measureText('LO QUE NO TE EXPLICARON EN CLASE').width;
   x.fillStyle = P.lav2; x.fillRect(R - w1 - 40, 12, 26, 3);
   txt(x, 'LO QUE NO TE EXPLICARON EN CLASE', '500 15px "IBM Plex Mono"', R + 3.6, 19, '#a7a0e0', '3.6px', 'right');
-  txt(x, 'LA LUNA AL REVÉS', '700 58px "Space Grotesk"', R + 1, 84, P.cream, '1px', 'right');
-  txt(x, 'EPISODIO 01', '500 13px "IBM Plex Mono"', R + 3, 118, '#6f6aa8', '3px', 'right');
+  txt(x, 'LA LUNA AL REVÉS', '700 52px "Space Grotesk"', R + 1, 80, P.cream, '1px', 'right');
+  txt(x, 'EPISODIO 01', '500 13px "IBM Plex Mono"', R + 3, 112, '#6f6aa8', '3px', 'right');
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false;
   if (titleMesh) { titleMesh.material.map.dispose(); titleMesh.material.map = t; titleMesh.material.needsUpdate = true; return; }
   titleMesh = new THREE.Mesh(new THREE.PlaneGeometry(TW, TH), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthTest: false }));
@@ -1033,7 +1037,7 @@ function render() {
 async function init() {
   try {
     await Promise.all([
-      document.fonts.load('700 58px "Space Grotesk"', 'LA LUNA AL REVÉS NORTE SUR DC?'),
+      document.fonts.load('700 52px "Space Grotesk"', 'LA LUNA AL REVÉS NORTE SUR DC?'),
       document.fonts.load('500 15px "IBM Plex Mono"', 'LO QUE NO TE EXPLICARON EN CLASE EPISODIO 01'),
       document.fonts.load('600 16px "IBM Plex Mono"', 'HEMISFERIO VE UNA'),
     ]);

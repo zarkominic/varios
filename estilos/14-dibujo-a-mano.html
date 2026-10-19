@@ -26,11 +26,13 @@
 //   desplaza con una onda suave sembrada por (trazo, paso).
 // - El grafito y los lápices de color rellenan con un patrón de "diente" del
 //   papel fijo a la página, así el grano no se mueve con el trazo.
-// - Lo borrable se pinta en una capa aparte; la goma es un destination-out que
-//   deja un fantasma tenue, como el borrado real.
+// - Un solo canvas: lo borrable se dibuja debajo de las capas fijas y la goma
+//   vuelve a pintar el papel encima (alfa < 1: deja un fantasma tenue, como el
+//   borrado real). Sin capas fuera de pantalla, cada fotograma es independiente.
+// - Sombra de la Luna: difumino de grafito + trama cruzada; lápiz blanco en la luz.
 // Guion (10 s): el átomo orbita → sus órbitas se abren en el contorno de la Luna
-// y los electrones caen como cráteres → la Luna se desdobla en norte y sur →
-// sombreado a trama, rótulos, la Tierra con los dos observadores → la del sur
+// y los electrones caen como cráteres → la Luna se desdobla en norte y sur ("la
+// misma Luna") → sombreado, rótulos, la Tierra con los dos observadores → la del sur
 // gira 180°: la D se borra y se escribe C → la goma limpia la página y la Luna
 // vuelve a cerrarse en el átomo.
 // ---------------------------------------------------------------------------
@@ -290,7 +292,7 @@ const TL = {
   globe0: 3.6, globe1: 4.5, bar0: 4.25, bar1: 4.6, dL0: 4.4, dL1: 4.75, dR0: 4.55, dR1: 4.9,
   crec0: 4.75, crec1: 5.1, arc0: 4.95, arc1: 5.25, circ0: 5.05, circ1: 5.35, cab0: 5.25, cab1: 5.75,
   rot0: 5.35, rot1: 6.15, eraD0: 6.2, eraD1: 6.45, c0: 6.45, c1: 6.8, crecR0: 6.8, crecR1: 7.15,
-  era0: 8.1, era1: 8.9, ghost0: 8.85, ghost1: 9.4, brush0: 9.05, brush1: 9.35,
+  era0: 8.2, era1: 8.92, ghost0: 8.85, ghost1: 9.4, brush0: 9.05, brush1: 9.35,
   alE0: 0.82, alE1: 0.96, alE2: 1.1, alG0: 1.1, alG1: 1.5, alB0: 1.3, alB1: 1.55,
   alN0: 9.38, alN1: 9.62, alA0: 9.6, alA1: 9.76, alM0: 9.52, alM1: 9.78, alB0w: 9.76, alB1w: 9.92,
   same0: 2.85, same1: 3.3, sameA0: 3.25, sameA1: 3.6,
