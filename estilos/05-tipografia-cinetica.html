@@ -232,7 +232,7 @@ function drawAtom(t) {
   };
   elec.forEach((e) => e && !e.front && dot(e));
   // núcleo
-  const nr = t < 1.2 ? NUC * (1 - ioQuart(seg(t, 0.62, 0.95))) : t >= 9.35 ? NUC : 0;
+  const nr = t < 1.2 ? NUC * (1 - iCubic(seg(t, 0.7, 1.08))) : t >= 9.35 ? NUC : 0;
   if (nr > 0.1) { ctx.fillStyle = C.bone; ctx.beginPath(); ctx.arc(AC.x, AC.y, nr, 0, TAU); ctx.fill(); }
   elec.forEach((e) => e && e.front && dot(e));
 }
@@ -256,13 +256,13 @@ function l3Geom() {
   return { L, cap, cx, cy, P: { x: 2 * cx - px, y: cy } }; // P: asta de la L ya girada
 }
 function drawHook(t) {
-  if (t < 1.0 || t >= 4.62) return;
+  if (t < 1.0 || t >= 4.64) return;
   const g3 = l3Geom();
   ctx.save();
   const [dx, dy] = shakeAt(t);
   ctx.translate(dx, dy);
   // cámara que entra en el asta de la L
-  const z = seg(t, 4.25, 4.62);
+  const z = seg(t, 4.3, 4.64);
   if (z > 0) {
     const s = Math.pow(80, z * z), a = ioCubic(z);
     const ax = lerp(g3.P.x, 960, a), ay = lerp(g3.P.y, 540, a);
@@ -342,25 +342,30 @@ function drawHook(t) {
   // 03 · «AL REVÉS»: golpe, tracking que se abre, giro de 180° letra a letra
   {
     const { L, cx, cy } = g3, n = L3.length;
-    smear((tt) => {
+    const word = (tt) => {
       const p = seg(tt, 2.72, 2.96);
       if (p <= 0) return;
       const s = lerp(2.5, 1, oExpo(p));
       const trk = L3_TRK + 26 * oQuart(seg(tt, 2.98, 3.22)) * (1 - ioQuart(seg(tt, 3.25, 3.95)));
+      // durante el giro la palabra se eleva y se encoge: el remolino cabe sobre la franja de subtítulos
+      const lift = Math.sin(PI * seg(tt, 3.15, 4.1));
+      const sc = s * (1 - 0.47 * lift);
       ctx.save(); ctx.globalAlpha *= cl(p / 0.1); ctx.fillStyle = C.red;
-      ctx.translate(cx, cy); ctx.scale(s, s);
+      ctx.translate(cx, cy - 235 * lift); ctx.scale(sc, sc);
       ctx.font = F_L3; setLS(0); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
       const base = -(L.total + (n - 1) * L3_TRK) / 2;
       for (let i = 0; i < n; i++) {
         if (L3[i] === ' ') continue;
-        const a = PI * ioQuart(seg(tt, 3.22 + i * 0.03, 3.82 + i * 0.03));
+        const a = PI * ioQuart(seg(tt, 3.22 + i * 0.024, 3.84 + i * 0.024));
         const x = base + L.xs[i] + i * L3_TRK + (i - (n - 1) / 2) * (trk - L3_TRK);
         ctx.save(); ctx.rotate(a);
         ctx.fillText(L3[i], x, B[2] - cy);
         ctx.restore();
       }
       ctx.restore();
-    }, t, t > 2.72 && t < 3.0, 5, 0.01, 0.36);
+    };
+    if (t < 3.1) smear(word, t, t > 2.72, 9, 0.005, 0.3);  // golpe: desenfoque de escala
+    else smear(word, t, t > 3.25 && t < 4.08, 6, 0.007, 0.22); // giro: estela en arco
   }
   ctx.restore();
 
@@ -370,7 +375,7 @@ function drawHook(t) {
 
 // campo bermellón que se parte: la mitad izquierda sube, la derecha baja
 function drawField(t) {
-  if (t < 4.62 || t >= 5.1) return;
+  if (t < 4.64 || t >= 5.1) return;
   const e = ioExpo(seg(t, 4.66, 5.06));
   ctx.fillStyle = C.red;
   ctx.fillRect(0, -H * e, 960, H);
@@ -558,7 +563,7 @@ function drawSplit(t) {
   if (t >= 6.15) {
     const cp = ioExpo(seg(t, 6.15, 6.72));
     const flipM = ioQuart(seg(t, 6.75, 7.35));
-    const stemOutS = ioCubic(seg(t, 7.28, 7.5));
+    const stemOutS = ioCubic(seg(t, 7.0, 7.24));
     const sx = lerp(NM.x + SHIFT * cp, AC.x, trav);
     const drawCopy = (tt) => {
       const c = ioExpo(seg(tt, 6.15, 6.72));
@@ -604,7 +609,7 @@ function drawHeader(t) {
     const x = 960 - 9.5 * 12 + i * 12;
     const on = i === beat;
     ctx.globalAlpha = on ? 1 : 0.28;
-    ctx.fillStyle = on ? C.red : C.bone;
+    ctx.fillStyle = on && !(t > 4.45 && t < 4.95) ? C.red : C.bone; // sobre el campo bermellón, en hueso
     ctx.fillRect(x - 1, on ? 78 : 84, 3, on ? 18 : 10);
   }
   ctx.globalAlpha = 1;

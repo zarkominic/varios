@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Luna al revés · arcilla 3D</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,600&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,72,700,100,1;1,72,500,100,1&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #1d2333; overflow: hidden; }
+  #escena { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #1d2333; overflow: hidden; }
+  #escena canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<div id="escena"><canvas id="gl"></canvas><canvas id="texto"></canvas></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+
+// =====================================================================
+// Arcilla 3D (stop-motion). Un plató de plastilina: ciclorama azul
+// pizarra con estrellitas de arcilla aplastadas, luz cálida de estudio
+// y sombras suaves. El átomo de plastilina (núcleo de bolitas, órbitas
+// de churro y electrones mostaza) se aplasta, se amasa en una bola
+// marmolada, un pulgar invisible la hunde hasta dejar una Luna creciente
+// color mantequilla; la Luna se estira y se parte en dos: la del norte
+// se queda como «D» y la del sur da un salto y gira 180° hasta ser «C».
+// Luego vuelven a juntarse, se amasan y el átomo rebota de nuevo.
+// Todo se modela con distancias con signo (uniones suaves = arcilla que
+// se funde) y se ilumina como un plató. El tiempo va a 12 fotogramas
+// por segundo, con el «hervor» de la animación de plastilina.
+// =====================================================================
+const DUR = 10, FPS = 12, NF = DUR * FPS;
+const W = 1920, H = 1080;
+const CAPTURA = location.search.includes('captura');
+
+// ---------- utilidades ----------
+const cl = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const mix = (a, b, x) => a + (b - a) * x;
+const prog = (n, a, b) => cl((n - a) / (b - a));
+const ss = (a, b, x) => { x = cl((x - a) / (b - a)); return x * x * (3 - 2 * x); };
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const eoc = (x) => 1 - Math.pow(1 - x, 3);
+const eob = (x, s = 1.70158) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+const eiob = (x, s = 1.70158 * 1.525) => (x < 0.5
+  ? (Math.pow(2 * x, 2) * ((s + 1) * 2 * x - s)) / 2
+  : (Math.pow(2 * x - 2, 2) * ((s + 1) * (x * 2 - 2) + s) + 2) / 2);
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+// número pseudoaleatorio fijo para cada fotograma (el «hervor» del stop-motion)
+const azar = (n, k) => { const r = mulberry32(((n % NF) + 1) * 7919 + k * 104729); r(); return r(); };
+
+// ---------- plató ----------
+const Y0 = 2.6;                 // altura de los objetos
+const XM = 2.95;                // separación de cada luna
+const CAM = new THREE.Vector3(0, 3.6, 15), MIRA = new THREE.Vector3(0, 2.0, 0);
+const TAN_Y = Math.tan(14 * Math.PI / 180), ASP = W / H;
+
+// estrellitas de arcilla pegadas al ciclorama: (x, coordenada de arco, radio, brillo)
+const ESTRELLAS = (() => {
+  const r = mulberry32(20261019), out = [];
+  let guard = 0;
+  while (out.length < 24 && guard++ < 2000) {
+    const x = mix(-11.5, 11.5, r()), a = mix(-3.6, 2.2, r());
+    // fuera del título (arriba a la izquierda) y del hueco de los objetos
+    if (x < -4.5 && a < -1.4) continue;
+    if (out.some((s) => Math.hypot(s[0] - x, s[1] - a) < 1.25)) continue;
+    const big = r();
+    out.push([x, a, big > 0.85 ? mix(0.085, 0.11, r()) : mix(0.035, 0.065, r()), mix(0.55, 1, r())]);
+  }
+  return out;
+})();
+
+// núcleo: bolitas en racimo (posiciones fijas, sembradas)
+const NUC = (() => {
+  const r = mulberry32(77), out = [];
+  const N = 8;
+  for (let i = 0; i < N; i++) {
+    const y = 1 - (2 * (i + 0.5)) / N, rr = Math.sqrt(1 - y * y), ph = i * 2.39996 + 0.4;
+    const k = 0.30 + 0.035 * r();
+    out.push([Math.cos(ph) * rr * k, y * k * 0.92, Math.sin(ph) * rr * k]);
+  }
+  return out;
+})();
+
+// ---------- WebGL ----------
+const cvGL = document.getElementById('gl'), cvTx = document.getElementById('texto');
+const escena = document.getElementById('escena');
+const gT = cvTx.getContext('2d');
+const renderer = new THREE.WebGLRenderer({ canvas: cvGL, antialias: false, preserveDrawingBuffer: true, alpha: false });
+renderer.setClearColor(0x1d2333, 1);
+
+const frag = /* glsl */`
+precision highp float;
+uniform vec2 uRes;
+uniform vec3 uCamPos;
+uniform mat3 uCamRot;
+uniform float uTanY, uAsp, uPix, uFrame, uFlicker;
+uniform vec3 uBoxMin, uBoxMax;
+// átomo
+uniform float uAtomOn;
+uniform vec3 uCen, uSq;
+uniform mat3 uYaw;
+uniform vec4 uNuc[8];
+uniform float uKn, uKr;
+uniform mat3 uRingM[3];
+uniform vec2 uRing;
+uniform vec4 uElec[3];
+uniform float uBall, uKb, uLump, uMarble, uBallButter;
+uniform vec3 uBoil;
+// lunas
+uniform float uMoonOn;
+uniform vec4 uMA, uMB;          // xyz, giro en z
+uniform vec4 uMShape;           // R, corte (×R), desplazamiento (×R), escala z
+uniform vec2 uSqA, uSqB;        // escala x,y de cada luna
+uniform float uNeck, uCrater, uButter, uRope;
+uniform vec4 uStars[24];
+
+const vec3 C_TERRA  = vec3(0.722, 0.165, 0.082);
+const vec3 C_CREAM  = vec3(0.760, 0.680, 0.520);
+const vec3 C_SAGE   = vec3(0.090, 0.270, 0.230);
+const vec3 C_MUST   = vec3(0.860, 0.450, 0.055);
+const vec3 C_BUTTER = vec3(0.830, 0.680, 0.400);
+const vec3 C_SLATE  = vec3(0.030, 0.042, 0.090);
+const vec3 C_STAR   = vec3(0.780, 0.700, 0.520);
+
+const float ZW = 5.0;   // pared del fondo en z = -ZW
+const float RF = 3.0;   // radio de la curva del ciclorama
+
+float hash13(vec3 p) { p = fract(p * 0.1031); p += dot(p, p.zyx + 31.32); return fract((p.x + p.y) * p.z); }
+float hash12(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+float vnoise(vec3 x) {
+  vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(mix(hash13(i), hash13(i + vec3(1,0,0)), f.x), mix(hash13(i + vec3(0,1,0)), hash13(i + vec3(1,1,0)), f.x), f.y),
+             mix(mix(hash13(i + vec3(0,0,1)), hash13(i + vec3(1,0,1)), f.x), mix(hash13(i + vec3(0,1,1)), hash13(i + vec3(1,1,1)), f.x), f.y), f.z);
+}
+// ruido de valor con gradiente analítico
+vec4 vnoised(vec3 x) {
+  vec3 i = floor(x), f = fract(x);
+  vec3 u = f * f * (3.0 - 2.0 * f), du = 6.0 * f * (1.0 - f);
+  float a = hash13(i), b = hash13(i + vec3(1,0,0)), c = hash13(i + vec3(0,1,0)), d = hash13(i + vec3(1,1,0));
+  float e = hash13(i + vec3(0,0,1)), f1 = hash13(i + vec3(1,0,1)), g = hash13(i + vec3(0,1,1)), h = hash13(i + vec3(1,1,1));
+  float k0 = a, k1 = b - a, k2 = c - a, k3 = e - a, k4 = a - b - c + d, k5 = a - c - e + g, k6 = a - b - e + f1, k7 = -a + b + c - d + e - f1 - g + h;
+  float v = k0 + k1*u.x + k2*u.y + k3*u.z + k4*u.x*u.y + k5*u.y*u.z + k6*u.z*u.x + k7*u.x*u.y*u.z;
+  vec3 dv = du * vec3(k1 + k4*u.y + k6*u.z + k7*u.y*u.z, k2 + k5*u.z + k4*u.x + k7*u.z*u.x, k3 + k6*u.x + k5*u.y + k7*u.x*u.y);
+  return vec4(v, dv);
+}
+
+float smin(float a, float b, float k) { float h = max(k - abs(a - b), 0.0) / k; return min(a, b) - h * h * k * 0.25; }
+float smax(float a, float b, float k) { return -smin(-a, -b, k); }
+float sdTorus(vec3 p, vec2 t) { vec2 q = vec2(length(p.xz) - t.x, p.y); return length(q) - t.y; }
+float sdCapsule(vec3 p, vec3 a, vec3 b, float r) { vec3 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0); return length(pa - ba * h) - r; }
+
+float lumps(vec3 q) {
+  return sin(q.x * 3.3 + uBoil.x) * sin(q.y * 2.9 + uBoil.y) * sin(q.z * 3.1 + uBoil.z)
+       + 0.5 * sin(q.x * 6.1 - uBoil.y) * sin(q.y * 5.7 + uBoil.z) * sin(q.z * 6.3 + uBoil.x);
+}
+
+// ---------- átomo ----------
+vec3 atomLocal(vec3 p) { return uYaw * ((p - uCen) / uSq); }
+float atomSDF(vec3 p) {
+  vec3 q = atomLocal(p);
+  float d = 1e5;
+  for (int i = 0; i < 8; i++) d = smin(d, length(q - uNuc[i].xyz) - uNuc[i].w, uKn);
+  for (int i = 0; i < 3; i++) {
+    vec3 r = uRingM[i] * q;
+    float ang = atan(r.z, r.x);
+    float dt = sdTorus(r, uRing * vec2(1.0, 1.0 + 0.09 * sin(ang * 5.0 + float(i) * 2.1 + uBoil.x) + 0.05 * sin(ang * 11.0 + uBoil.y)));
+    float de = length(q - uElec[i].xyz) - uElec[i].w;
+    dt = smin(dt, de, 0.05);
+    d = smin(d, dt, uKr);
+  }
+  if (uBall > 0.01) d = smin(d, length(q) - uBall, uKb);
+  d -= uLump * lumps(q);
+  return d * min(uSq.x, uSq.y) * 0.9;
+}
+
+// ---------- lunas ----------
+vec3 moonLocal(vec3 p, vec4 M, vec2 sq) {
+  vec3 q = p - M.xyz; q.xy /= sq;
+  float c = cos(M.w), s = sin(M.w);
+  q.xy = vec2(c * q.x + s * q.y, -s * q.x + c * q.y);
+  return q;
+}
+const vec4 CR0 = vec4(0.74, 0.10, 0.0, 0.135);
+const vec4 CR1 = vec4(0.46, -0.58, 0.0, 0.085);
+const vec4 CR2 = vec4(0.43, 0.55, 0.0, 0.07);
+float crater(vec3 q, vec4 c, float R) {
+  vec2 xy = c.xy;
+  vec3 s = vec3(xy, sqrt(max(1.0 - dot(xy, xy), 0.0)));
+  vec3 cc = s * (1.0 + c.w * 0.72) * R;
+  return length(q - cc) - c.w * R * uCrater;
+}
+float crescent(vec3 q) {
+  float R = uMShape.x;
+  q.x += uMShape.z * R;
+  q.z /= uMShape.w;
+  float d = length(q) - R;
+  float dc = length(q.xy - vec2(-uMShape.y * R, 0.0)) - 0.92 * R;
+  d = smax(d, -dc, 0.2 * R);
+  if (uCrater > 0.01) {
+    d = smax(d, -crater(q, CR0, R), 0.05 * R);
+    d = smax(d, -crater(q, CR1, R), 0.04 * R);
+    d = smax(d, -crater(q, CR2, R), 0.04 * R);
+  }
+  d -= uLump * lumps(q * 0.9);
+  return d * uMShape.w;
+}
+float ropeSDF(vec3 qa) {
+  float R = uMShape.x;
+  float x = -0.665 * R, h = 0.86 * R * uRope;
+  return sdCapsule(qa, vec3(x, -h, 0.0), vec3(x, h, 0.0), 0.06 * R) * 0.95;
+}
+float moonSDF(vec3 p) {
+  float mA = min(uSqA.x, uSqA.y), mB = min(uSqB.x, uSqB.y);
+  vec3 qa = moonLocal(p, uMA, uSqA);
+  float d = crescent(qa) * mA;
+  d = min(d, crescent(moonLocal(p, uMB, uSqB)) * mB);
+  if (uNeck > 0.005) d = smin(d, sdCapsule(p, uMA.xyz, uMB.xyz, uNeck), 0.45);
+  if (uRope > 0.01) d = smin(d, ropeSDF(qa) * mA, 0.05);
+  return d;
+}
+
+float mapObj(vec3 p) {
+  float d = 1e5;
+  if (uAtomOn > 0.5) d = atomSDF(p);
+  if (uMoonOn > 0.5) d = min(d, moonSDF(p));
+  return d;
+}
+
+// ---------- ciclorama ----------
+float bgSDF(vec3 p) {
+  float u = p.z + ZW, v = p.y;
+  if (u < RF && v < RF) return RF - length(vec2(RF - u, RF - v));
+  return min(u, v);
+}
+float bgHit(vec3 ro, vec3 rd, out vec3 n, out float arc) {
+  float zc = -ZW + RF;
+  if (rd.y < 0.0) {
+    float t = -ro.y / rd.y; vec3 p = ro + rd * t;
+    if (p.z >= zc) { n = vec3(0, 1, 0); arc = RF * 1.5707963 + (p.z - zc); return t; }
+  }
+  if (rd.z < 0.0) {
+    float t = (-ZW - ro.z) / rd.z; vec3 p = ro + rd * t;
+    if (p.y >= RF) { n = vec3(0, 0, 1); arc = -(p.y - RF); return t; }
+  }
+  vec2 o = vec2(ro.y - RF, ro.z - zc), d = vec2(rd.y, rd.z);
+  float a = dot(d, d), b = dot(o, d), c = dot(o, o) - RF * RF;
+  float h = max(b * b - a * c, 0.0);
+  float t = (-b + sqrt(h)) / a;
+  vec3 p = ro + rd * t;
+  n = normalize(vec3(0.0, RF - p.y, zc - p.z));
+  float ang = atan(zc - p.z, RF - p.y);   // 0 en el suelo, pi/2 en la pared
+  arc = RF * (1.5707963 - ang);
+  return t;
+}
+
+vec2 boxHit(vec3 ro, vec3 rd) {
+  vec3 inv = 1.0 / rd;
+  vec3 t0 = (uBoxMin - ro) * inv, t1 = (uBoxMax - ro) * inv;
+  vec3 tmin = min(t0, t1), tmax = max(t0, t1);
+  return vec2(max(max(tmin.x, tmin.y), tmin.z), min(min(tmax.x, tmax.y), tmax.z));
+}
+
+vec3 normalObj(vec3 p) {
+  const vec2 k = vec2(1.0, -1.0); float e = 0.0012;
+  return normalize(k.xyy * mapObj(p + k.xyy * e) + k.yyx * mapObj(p + k.yyx * e) + k.yxy * mapObj(p + k.yxy * e) + k.xxx * mapObj(p + k.xxx * e));
+}
+
+float softShadow(vec3 p, vec3 L, float maxT, float k) {
+  vec2 tb = boxHit(p, L);
+  if (tb.y < 0.0 || tb.x > tb.y) return 1.0;
+  float t = max(tb.x, 0.03), res = 1.0, end = min(tb.y, maxT);
+  for (int i = 0; i < 56; i++) {
+    float h = mapObj(p + L * t);
+    res = min(res, k * h / t);
+    t += clamp(h, 0.02, 0.35);
+    if (res < 0.001 || t > end) break;
+  }
+  res = clamp(res, 0.0, 1.0);
+  return res * res * (3.0 - 2.0 * res);
+}
+
+float aoObj(vec3 p, vec3 n) {
+  float o = 0.0, s = 1.0;
+  for (int i = 1; i <= 5; i++) {
+    float h = 0.02 + 0.09 * float(i);
+    float d = min(mapObj(p + n * h), bgSDF(p + n * h));
+    o += (h - d) * s; s *= 0.72;
+  }
+  return clamp(1.0 - 2.2 * o, 0.0, 1.0);
+}
+float aoBg(vec3 p, vec3 n) {
+  vec3 bmin = uBoxMin - 2.2, bmax = uBoxMax + 2.2;
+  if (any(lessThan(p, bmin)) || any(greaterThan(p, bmax))) return 1.0;
+  float o = 0.0;
+  for (int i = 1; i <= 4; i++) {
+    float h = 0.35 * float(i) * float(i) * 0.5 + 0.1;
+    float d = mapObj(p + n * h);
+    o += clamp((h - d) / h, 0.0, 1.0) * (1.0 / float(i));
+  }
+  return clamp(1.0 - 0.42 * o, 0.0, 1.0);
+}
+
+// marmolado de plastilina amasada
+vec3 marble(vec3 q) {
+  vec3 w = q * 1.3 + 0.9 * vec3(vnoise(q * 1.9), vnoise(q * 1.9 + 7.3), vnoise(q * 1.9 + 3.1));
+  float f = vnoise(w * 1.6) * 2.2 + 0.35 * vnoise(q * 5.0);
+  float v = fract(f);
+  float e = 0.035;
+  vec3 c = C_TERRA;
+  c = mix(c, C_CREAM, smoothstep(0.25 - e, 0.25 + e, v));
+  c = mix(c, C_SAGE,  smoothstep(0.50 - e, 0.50 + e, v));
+  c = mix(c, C_MUST,  smoothstep(0.75 - e, 0.75 + e, v));
+  c = mix(c, C_TERRA, smoothstep(1.0 - 2.0 * e, 1.0, v));
+  return c;
+}
+
+// huellas dactilares: remolinos de surcos en parches
+vec3 fingerprint(vec3 x, float sc, float seed, float pixW) {
+  vec3 y = x * sc + seed;
+  vec3 c = floor(y);
+  if (hash13(c + 5.3) < 0.35) return vec3(0.0);
+  vec3 h = vec3(hash13(c), hash13(c + 17.1), hash13(c + 31.7));
+  vec3 ctr = c + 0.32 + 0.36 * h;
+  vec3 v = y - ctr;
+  v.y *= 1.0 + 0.5 * h.x;            // remolino algo ovalado
+  float r = length(v);
+  float m = 1.0 - smoothstep(0.1, 0.3, r);
+  float spacing = 0.05;               // en unidades de celda
+  float fade = 1.0 - smoothstep(0.35, 0.75, pixW * sc / spacing);
+  float ph = r * 6.2832 / spacing + 2.5 * vnoise(y * 5.0);
+  return m * fade * cos(ph) * (v / (r + 1e-4)) * 0.22;
+}
+
+void materialAt(vec3 p, out vec3 alb, out vec3 lp, out float boilSeed) {
+  float da = 1e5, dm = 1e5;
+  if (uAtomOn > 0.5) da = atomSDF(p);
+  if (uMoonOn > 0.5) dm = moonSDF(p);
+  if (da <= dm) {
+    vec3 q = atomLocal(p);
+    lp = q; boilSeed = 1.0;
+    vec3 mc = marble(q * 1.1);
+    vec3 col = vec3(0.0); float ws = 0.0;
+    for (int i = 0; i < 8; i++) {
+      float di = length(q - uNuc[i].xyz) - uNuc[i].w;
+      float w = exp(-max(di, 0.0) * 55.0);
+      vec3 c = (mod(float(i), 2.0) < 0.5) ? C_TERRA : C_CREAM;
+      col += w * c; ws += w;
+    }
+    for (int i = 0; i < 3; i++) {
+      float dt = sdTorus(uRingM[i] * q, uRing);
+      float w = exp(-max(dt, 0.0) * 55.0);
+      col += w * C_SAGE; ws += w;
+      float de = length(q - uElec[i].xyz) - uElec[i].w;
+      w = exp(-max(de, 0.0) * 55.0);
+      col += w * C_MUST * 1.4; ws += w * 1.4;
+    }
+    col /= max(ws, 1e-4);
+    col = mix(col, mc, uMarble);
+    if (uBall > 0.01) {
+      float db = length(q) - uBall;
+      float w = exp(-max(db, 0.0) * 40.0);
+      vec3 bc = mix(mc, C_BUTTER * (0.96 + 0.08 * vnoise(q * 3.0)), uBallButter);
+      col = mix(col, bc, w * smoothstep(0.0, 0.25, uBall));
+    }
+    alb = col;
+  } else {
+    vec3 qa = moonLocal(p, uMA, uSqA), qb = moonLocal(p, uMB, uSqB);
+    float a = crescent(qa), b = crescent(qb);
+    lp = a < b ? qa : qb;
+    boilSeed = 2.0;
+    vec3 mc = marble(lp * 1.1);
+    vec3 butter = C_BUTTER * (0.95 + 0.1 * vnoise(lp * 2.5)) + vec3(0.03, 0.01, -0.01) * vnoise(lp * 9.0);
+    alb = mix(mc, butter, uButter);
+    if (uRope > 0.01) {
+      float dr = ropeSDF(qa);
+      alb = mix(alb, C_TERRA, exp(-max(dr, 0.0) * 60.0) * step(dr, a + 0.02));
+    }
+  }
+}
+
+vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
+
+// luces del plató
+const vec3 LPOS = vec3(-5.5, 8.5, 11.0);
+const vec3 LCOL = vec3(1.0, 0.78, 0.56);
+const vec3 SPOT_AT = vec3(0.6, 1.4, -2.6);
+const vec3 FILL_DIR = vec3(0.78, 0.22, 0.58);
+const vec3 FILL_COL = vec3(0.30, 0.42, 0.78);
+const vec3 RIM_DIR = vec3(0.45, 0.55, -0.70);
+const vec3 RIM_COL = vec3(1.0, 0.72, 0.50);
+
+float spotCone(vec3 p) {
+  vec3 sd = normalize(SPOT_AT - LPOS);
+  float c = dot(normalize(p - LPOS), sd);
+  return mix(0.10, 1.0, smoothstep(0.84, 0.975, c));
+}
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / uRes * 2.0 - 1.0;
+  vec3 ro = uCamPos;
+  vec3 rd = normalize(uCamRot * vec3(uv.x * uTanY * uAsp, uv.y * uTanY, -1.0));
+
+  vec3 nb; float arc;
+  float tb = bgHit(ro, rd, nb, arc);
+
+  float tObj = 1e5;
+  vec2 bx = boxHit(ro, rd);
+  if (bx.x < bx.y && bx.y > 0.0) {
+    float t = max(bx.x, 0.0);
+    for (int i = 0; i < 120; i++) {
+      vec3 p = ro + rd * t;
+      float d = mapObj(p);
+      if (d < 0.0007 * t) { tObj = t; break; }
+      t += d * 0.9;
+      if (t > bx.y) break;
+    }
+  }
+
+  vec3 col;
+  float key = 2.6 * uFlicker;
+  if (tObj < tb) {
+    vec3 p = ro + rd * tObj;
+    vec3 n = normalObj(p);
+    vec3 alb, lp; float bs;
+    materialAt(p, alb, lp, bs);
+    float pixW = uPix * tObj;
+    // detalle de superficie: abolladuras del modelado, huellas y grano
+    vec4 nd = vnoised(lp * 2.6 + bs * 11.0 + floor(uFrame * 0.5) * 0.0);
+    vec3 g = nd.yzw * 0.16;
+    g += fingerprint(lp, 1.55, bs * 3.7, pixW) * 1.4;
+    g += fingerprint(lp + 0.31, 2.1, bs * 9.1 + 4.0, pixW) * 0.7;
+    vec4 gr = vnoised(lp * 38.0 + bs);
+    g += gr.yzw * 0.02 * (1.0 - smoothstep(0.012, 0.03, pixW));
+    n = normalize(n - (g - n * dot(g, n)));
+
+    vec3 L = normalize(LPOS - p);
+    float sh = softShadow(p + n * 0.004, L, 30.0, 9.0);
+    float ao = aoObj(p, n);
+    float ndl = dot(n, L);
+    float wrapD = max((ndl + 0.28) / 1.28, 0.0);
+    vec3 sss = pow(alb, vec3(1.55)) * 1.4 * smoothstep(-0.35, 0.15, ndl) * (1.0 - smoothstep(0.15, 0.6, ndl));
+    vec3 V = -rd, Hh = normalize(L + V);
+    float fres = pow(1.0 - max(dot(n, V), 0.0), 4.0);
+    float spec = (pow(max(dot(n, Hh), 0.0), 22.0) * 0.10 + pow(max(dot(n, Hh), 0.0), 90.0) * 0.12) * (0.4 + 0.6 * fres + 0.4);
+    float spot = spotCone(p);
+    col = (alb * wrapD + sss * 0.5) * LCOL * key * sh * spot;
+    col += spec * LCOL * key * sh * spot * smoothstep(-0.1, 0.3, ndl);
+    // relleno frío y cielo/rebote
+    col += alb * FILL_COL * pow(max(dot(n, normalize(FILL_DIR)) * 0.5 + 0.5, 0.0), 1.5) * 0.45 * ao;
+    float up = n.y * 0.5 + 0.5;
+    col += alb * mix(vec3(0.07, 0.05, 0.06), vec3(0.12, 0.15, 0.26), up) * 0.6 * ao;
+    // contraluz cálido de silueta
+    float rim = pow(1.0 - max(dot(n, V), 0.0), 2.6) * max(dot(n, normalize(RIM_DIR)) + 0.35, 0.0);
+    col += RIM_COL * alb * rim * 1.2 * ao;
+    col *= mix(0.55, 1.0, ao);
+  } else {
+    vec3 p = ro + rd * tb;
+    vec3 n = nb;
+    vec3 alb = C_SLATE * (0.88 + 0.24 * vnoise(p * 0.55)) * (0.94 + 0.12 * vnoise(p * 3.1));
+    // superficie de arcilla alisada: ondulaciones suaves
+    vec4 nd = vnoised(p * 1.4);
+    vec3 g = nd.yzw * 0.06;
+    vec4 gr = vnoised(p * 22.0);
+    g += gr.yzw * 0.010;
+    vec2 st = vec2(p.x, arc);
+    float starMask = 0.0; vec3 starN = n; float starShadow = 0.0;
+    if (arc < 2.6) {
+      // dirección aproximada de la sombra en el plano del ciclorama
+      vec2 shOff = vec2(0.035, 0.045);
+      for (int i = 0; i < 24; i++) {
+        vec4 s = uStars[i];
+        vec2 d = st - s.xy;
+        float r = s.z;
+        float dd = length(d);
+        if (dd < r * 1.6) {
+          float in1 = 1.0 - smoothstep(r - 0.008, r + 0.004, dd);
+          if (in1 > starMask) {
+            starMask = in1;
+            float hz = sqrt(max(1.0 - dd * dd / (r * r), 0.0));
+            // normal del botón de arcilla en el plano local (x, arco)
+            vec3 tx = vec3(1, 0, 0), ty = normalize(cross(n, tx)) * -1.0;
+            starN = normalize(n * (hz + 0.35) + tx * (d.x / r) * 0.9 + ty * (d.y / r) * 0.9);
+            alb = mix(alb, C_STAR * s.w, in1);
+          }
+        }
+        float ds = length(d - shOff * r / 0.06);
+        starShadow = max(starShadow, (1.0 - smoothstep(r * 0.7, r * 1.25, ds)) * (1.0 - starMask));
+      }
+    }
+    n = normalize(n - (g - n * dot(g, n)) * (1.0 - starMask));
+    n = normalize(mix(n, starN, starMask));
+    vec3 L = normalize(LPOS - p);
+    float dist = length(LPOS - p);
+    float fall = pow(16.0 / dist, 2.0);
+    float sh = softShadow(p + n * 0.01, L, dist, 11.0);
+    float ao = aoBg(p, n);
+    float ndl = max(dot(n, L), 0.0);
+    float spot = spotCone(p);
+    col = alb * LCOL * key * ndl * sh * spot * fall;
+    col += alb * FILL_COL * 0.30 * ao;
+    col += alb * vec3(0.16, 0.20, 0.32) * 0.45 * ao;
+    col *= (1.0 - 0.45 * starShadow);
+    col *= mix(0.62, 1.0, ao);
+  }
+
+  // revelado: exposición, curva fílmica, viñeta y grano del fotograma
+  col *= 1.05;
+  col = aces(col);
+  col = pow(col, vec3(1.0 / 2.2));
+  vec2 q = gl_FragCoord.xy / uRes - 0.5;
+  col *= 1.0 - 0.38 * pow(length(q * vec2(1.0, 1.15)) * 1.35, 2.6);
+  col += (hash12(gl_FragCoord.xy + uFrame * 17.13) - 0.5) * 0.028;
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+const U = {
+  uRes: { value: new THREE.Vector2(W, H) },
+  uCamPos: { value: new THREE.Vector3() },
+  uCamRot: { value: new THREE.Matrix3() },
+  uTanY: { value: TAN_Y }, uAsp: { value: ASP }, uPix: { value: 2 * TAN_Y / H },
+  uFrame: { value: 0 }, uFlicker: { value: 1 },
+  uBoxMin: { value: new THREE.Vector3() }, uBoxMax: { value: new THREE.Vector3() },
+  uAtomOn: { value: 1 }, uCen: { value: new THREE.Vector3(0, Y0, 0) }, uSq: { value: new THREE.Vector3(1, 1, 1) },
+  uYaw: { value: new THREE.Matrix3() },
+  uNuc: { value: Array.from({ length: 8 }, () => new THREE.Vector4()) },
+  uKn: { value: 0.05 }, uKr: { value: 0.02 },
+  uRingM: { value: Array.from({ length: 3 }, () => new THREE.Matrix3()) },
+  uRing: { value: new THREE.Vector2(1.6, 0.07) },
+  uElec: { value: Array.from({ length: 3 }, () => new THREE.Vector4()) },
+  uBall: { value: 0 }, uKb: { value: 0.1 }, uLump: { value: 0.007 }, uMarble: { value: 0 }, uBallButter: { value: 0 },
+  uBoil: { value: new THREE.Vector3() },
+  uMoonOn: { value: 0 }, uMA: { value: new THREE.Vector4() }, uMB: { value: new THREE.Vector4() },
+  uMShape: { value: new THREE.Vector4(1, 2.5, 0, 1) },
+  uSqA: { value: new THREE.Vector2(1, 1) }, uSqB: { value: new THREE.Vector2(1, 1) },
+  uNeck: { value: 0 }, uCrater: { value: 0 }, uButter: { value: 0 }, uRope: { value: 0 },
+  uStars: { value: Array.from({ length: 24 }, (_, i) => new THREE.Vector4(...(ESTRELLAS[i] || [0, 99, 0.001, 0]))) },
+};
+const mundo = new THREE.Scene();
+const camara = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+mundo.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
+  uniforms: U,
+  vertexShader: 'void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader: frag,
+  depthTest: false, depthWrite: false,
+})));
+
+// ---------- cámara (con el temblor mínimo de un plató real) ----------
+const camBase = { r: new THREE.Vector3(), u: new THREE.Vector3(), f: new THREE.Vector3(), pos: new THREE.Vector3() };
+function ponerCamara(n) {
+  const pos = CAM.clone().add(new THREE.Vector3((azar(n, 1) - 0.5) * 0.008, (azar(n, 2) - 0.5) * 0.008, 0));
+  const f = MIRA.clone().sub(pos).normalize();
+  const r = new THREE.Vector3().crossVectors(f, new THREE.Vector3(0, 1, 0)).normalize();
+  const u = new THREE.Vector3().crossVectors(r, f);
+  const b = f.clone().negate();
+  U.uCamPos.value.copy(pos);
+  U.uCamRot.value.set(r.x, u.x, b.x, r.y, u.y, b.y, r.z, u.z, b.z);
+  Object.assign(camBase, { r, u, f, pos });
+}
+function proyectar(x, y, z) {
+  const v = new THREE.Vector3(x, y, z).sub(camBase.pos);
+  const zc = v.dot(camBase.f);
+  return [(v.dot(camBase.r) / zc / (TAN_Y * ASP) + 1) / 2 * W, (1 - v.dot(camBase.u) / zc / TAN_Y) / 2 * H];
+}
+
+// ---------- órbitas: inclinación fija de cada churro ----------
+const ORB = [0, 1, 2].map((i) => {
+  const m = new THREE.Matrix4().makeRotationZ(i * Math.PI / 3 + 0.26).multiply(new THREE.Matrix4().makeRotationX(0.36));
+  return m;
+});
+const VEL = [3, -3, 3], FASE = [0.3, 2.4, 4.4];
+
+// ---------- guion (todo en fotogramas de 12 fps) ----------
+// 0–21 átomo · 21–29 se aplasta · 26–40 se amasa en bola · 40–51 el pulgar
+// hace la Luna · 53–66 se estira y se parte · 66–80 la del sur salta y gira
+// 180° · 72–100 rótulos · 82–98 churro que completa la D · 100–108 se
+// juntan en bola · 108–119 bola → átomo con rebote.
+function estado(n) {
+  n = ((n % NF) + NF) % NF;
+  const ts = n / FPS;
+  const E = { n, ts };
+  E.atom = n < 40 || n >= 108;
+  E.moon = n >= 40 && n < 108;
+  // aplastamiento (positivo = achatado, negativo = estirado)
+  let sq = 0, m = 0;
+  if (n < 40) {
+    sq = eoc(prog(n, 21, 26)) * (1 - eio(prog(n, 26, 31)));
+    m = eio(prog(n, 26, 40));
+  } else if (n >= 108) {
+    if (n < 111) { sq = eoc(prog(n, 108, 111)); m = 1; }
+    else {
+      const u = prog(n, 111, 118);
+      sq = (1 - u) * Math.cos(u * Math.PI * 1.5);
+      m = 1 - eob(prog(n, 111, 119), 2.4);
+    }
+  }
+  E.sq = sq; E.m = m;
+  E.marble = n < 40 ? ss(0.25, 0.85, m) : 0;
+  E.ballButter = n >= 108 ? 1 : 0;
+  // lunas
+  const c = prog(n, 40, 51), cS = eio(c), cE = eob(c, 1.4);
+  let R = 1.0 + 0.36 * cS, cut = mix(2.5, 0.42, cE), shift = 0.3035 * cS, zs = 1 - 0.42 * cS;
+  let crater = ss(0.45, 1, c), butter = ss(0.15, 0.85, c);
+  const s = eio(prog(n, 53, 66));
+  let X = XM * s;
+  const st = Math.sin(Math.PI * s);
+  const sqA = [1 + 0.14 * st, 1 - 0.07 * st], sqB = [1 + 0.14 * st, 1 - 0.07 * st];
+  let neck = s > 0 && s < 0.72 ? 0.36 * Math.pow(1 - s / 0.72, 1.4) : 0;
+  const e = prog(n, 66, 80);
+  let rotB = Math.PI * eiob(e);
+  let liftB = 0.55 * Math.sin(Math.PI * cl(e / 0.85));
+  // aterrizaje: se achata un poco
+  const land = prog(n, 77, 82);
+  if (land > 0 && land < 1) { const k = Math.sin(Math.PI * land) * (1 - land); sqB[1] *= 1 - 0.16 * k; sqB[0] *= 1 + 0.1 * k; }
+  // vuelta: se juntan y se amasan otra vez en bola
+  const g = eio(prog(n, 100, 108));
+  X *= 1 - g; liftB *= 1 - g;
+  cut = mix(cut, 2.5, g); shift *= 1 - g; zs = mix(zs, 1, g); R = mix(R, 1.0, g); crater *= 1 - ss(0, 0.5, g);
+  const sg = Math.sin(Math.PI * g);
+  sqA[0] *= 1 + 0.1 * sg; sqB[0] *= 1 + 0.1 * sg;
+  E.moonP = { R, cut, shift, zs, crater, butter, X, rotB, liftB, sqA, sqB, neck };
+  E.rope = eob(prog(n, 82, 88), 2.0) * (1 - eio(prog(n, 97, 100)));
+  E.labels = ss(0, 1, prog(n, 72, 79)) * (1 - ss(0, 1, prog(n, 97, 101)));
+  E.labelsIn = prog(n, 72, 79);
+  E.turn = e;
+  return E;
+}
+
+function subir(E) {
+  const { n, ts } = E;
+  U.uFrame.value = n;
+  U.uFlicker.value = 1 + (azar(n, 3) - 0.5) * 0.03;
+  U.uBoil.value.set(1.3 + (azar(n, 4) - 0.5) * 0.5, 0.7 + (azar(n, 5) - 0.5) * 0.5, 2.1 + (azar(n, 6) - 0.5) * 0.5);
+  U.uAtomOn.value = E.atom ? 1 : 0;
+  U.uMoonOn.value = E.moon ? 1 : 0;
+  const box = new THREE.Box3();
+  if (E.atom) {
+    const m = E.m, sq = E.sq;
+    U.uSq.value.set(1 + 0.13 * sq, 1 - 0.2 * sq, 1 + 0.13 * sq);
+    const yaw = 0.22 * Math.sin(2 * Math.PI * ts / DUR) - 0.1;
+    const tilt = 0.10 * Math.sin(2 * Math.PI * ts / DUR + 1.1) + 0.05;
+    const Ry = new THREE.Matrix4().makeRotationY(yaw).multiply(new THREE.Matrix4().makeRotationX(tilt));
+    // uYaw: mundo → local del átomo
+    U.uYaw.value.setFromMatrix4(Ry.clone().transpose());
+    const ns = 1 - 0.55 * m, nr = 0.265 * (1 - 0.15 * Math.max(m, 0));
+    NUC.forEach((p, i) => {
+      const j = 0.006;
+      U.uNuc.value[i].set(p[0] * ns + (azar(n, 10 + i) - 0.5) * j, p[1] * ns + (azar(n, 20 + i) - 0.5) * j, p[2] * ns + (azar(n, 30 + i) - 0.5) * j, nr);
+    });
+    U.uKn.value = 0.06 + 0.25 * Math.max(m, 0);
+    U.uKr.value = 0.02 + 0.3 * Math.max(m, 0);
+    const Rr = 1.68 * (1 - 0.8 * m), tube = 0.092 * (1 + 0.7 * Math.max(m, 0));
+    U.uRing.value.set(Rr, tube);
+    ORB.forEach((M, i) => {
+      U.uRingM.value[i].setFromMatrix4(M.clone().transpose());
+      const th = 2 * Math.PI * VEL[i] * ts / DUR + FASE[i];
+      const v = new THREE.Vector3(Rr * Math.cos(th), 0, Rr * Math.sin(th)).applyMatrix4(M);
+      U.uElec.value[i].set(v.x, v.y, v.z, 0.19 * (1 - 0.3 * Math.max(m, 0)));
+    });
+    U.uBall.value = 1.0 * ss(0.1, 0.92, m);
+    U.uKb.value = 0.12 + 0.3 * Math.max(m, 0);
+    U.uLump.value = 0.007 + 0.05 * Math.sin(Math.PI * cl(m));
+    U.uMarble.value = E.marble;
+    U.uBallButter.value = E.ballButter;
+    const ext = Math.max(Rr + tube + 0.2, 0.6, U.uBall.value + 0.1) * 1.25 + 0.15;
+    box.expandByPoint(new THREE.Vector3(-ext, Y0 - ext, -ext)).expandByPoint(new THREE.Vector3(ext, Y0 + ext, ext));
+  }
+  if (E.moon) {
+    const P = E.moonP;
+    U.uMShape.value.set(P.R, P.cut, P.shift, P.zs);
+    U.uMA.value.set(-P.X, Y0, 0, 0);
+    U.uMB.value.set(P.X, Y0 + P.liftB, 0, P.rotB);
+    U.uSqA.value.set(P.sqA[0], P.sqA[1]);
+    U.uSqB.value.set(P.sqB[0], P.sqB[1]);
+    U.uNeck.value = P.neck;
+    U.uCrater.value = P.crater;
+    U.uButter.value = P.butter;
+    U.uRope.value = E.rope;
+    U.uLump.value = 0.007 + 0.03 * Math.sin(Math.PI * prog(n, 40, 47)) + 0.025 * Math.sin(Math.PI * prog(n, 100, 108));
+    const ex = 1.3 * P.R * 1.2;
+    box.expandByPoint(new THREE.Vector3(-P.X - ex, Y0 - ex, -ex)).expandByPoint(new THREE.Vector3(P.X + ex, Y0 + P.liftB + ex, ex));
+  }
+  U.uBoxMin.value.copy(box.min); U.uBoxMax.value.copy(box.max);
+}
+
+// ---------- capa de texto ----------
+const CREMA = '#f3e4c8', CREMA_SUAVE = 'rgba(243,228,200,0.66)', MANTEQUILLA = '#f2c66b';
+function rotular(E) {
+  gT.clearRect(0, 0, W, H);
+  // cabecera
+  gT.save();
+  gT.textBaseline = 'alphabetic';
+  gT.fillStyle = CREMA_SUAVE;
+  gT.font = '600 21px "DM Sans"';
+  gT.letterSpacing = '4.5px';
+  gT.fillText('LO QUE NO TE EXPLICARON EN CLASE', 104, 96);
+  gT.letterSpacing = '0px';
+  gT.fillStyle = CREMA;
+  gT.font = '700 78px "Fraunces"';
+  gT.shadowColor = 'rgba(8,10,20,0.35)'; gT.shadowBlur = 18; gT.shadowOffsetY = 4;
+  gT.fillText('La Luna al revés', 98, 172);
+  gT.restore();
+  // rótulos de cada hemisferio
+  const a = E.labels;
+  if (a > 0.001) {
+    const dy = (1 - eoc(E.labelsIn)) * 18;
+    const [xa] = proyectar(-XM, Y0, 0), [xb] = proyectar(XM, Y0, 0);
+    for (const [x, hemi, letra] of [[xa, 'HEMISFERIO NORTE', 'D'], [xb, 'HEMISFERIO SUR', 'C']]) {
+      gT.save();
+      gT.globalAlpha = a;
+      gT.textAlign = 'center';
+      gT.fillStyle = CREMA_SUAVE;
+      gT.font = '600 22px "DM Sans"';
+      gT.letterSpacing = '4.5px';
+      gT.fillText(hemi, x + 2, 790 + dy);
+      gT.letterSpacing = '0px';
+      gT.font = 'italic 500 50px "Fraunces"';
+      const t1 = 'parece una ', w1 = gT.measureText(t1).width;
+      gT.font = '700 64px "Fraunces"';
+      const w2 = gT.measureText(letra).width;
+      const x0 = x - (w1 + w2) / 2;
+      gT.textAlign = 'left';
+      gT.shadowColor = 'rgba(8,10,20,0.4)'; gT.shadowBlur = 14; gT.shadowOffsetY = 3;
+      gT.fillStyle = CREMA;
+      gT.font = 'italic 500 50px "Fraunces"';
+      gT.fillText(t1, x0, 852 + dy);
+      gT.fillStyle = MANTEQUILLA;
+      gT.font = '700 64px "Fraunces"';
+      gT.fillText(letra, x0 + w1, 854 + dy);
+      gT.restore();
+    }
+  }
+}
+
+// ---------- dibujo ----------
+let ultimoN = -1;
+function dibujar(t, forzar = false) {
+  const n = ((Math.floor(t * FPS + 1e-6) % NF) + NF) % NF;
+  if (n === ultimoN && !forzar) return;
+  ultimoN = n;
+  const E = estado(n);
+  ponerCamara(n);
+  subir(E);
+  renderer.render(mundo, camara);
+  rotular(E);
+}
+
+// ---------- tamaño, bucle y API de captura ----------
+const grueso = matchMedia('(pointer: coarse)').matches;
+function ajustar() {
+  const s = Math.min(innerWidth / W, innerHeight / H);
+  const cw = Math.max(1, Math.round(W * s)), ch = Math.max(1, Math.round(H * s));
+  escena.style.width = cw + 'px'; escena.style.height = ch + 'px';
+  const pr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  cvTx.width = Math.round(cw * pr); cvTx.height = Math.round(ch * pr);
+  gT.setTransform(cvTx.width / W, 0, 0, cvTx.height / H, 0, 0);
+  // la arcilla trazada con rayos va a resolución reducida fuera de la captura
+  const maxAncho = CAPTURA ? W : grueso ? 900 : 1440;
+  const prGL = Math.min(pr, maxAncho / cw);
+  renderer.setPixelRatio(prGL);
+  renderer.setSize(cw, ch, false);
+  const b = new THREE.Vector2(); renderer.getDrawingBufferSize(b);
+  U.uRes.value.copy(b);
+  U.uPix.value = 2 * TAN_Y / b.y;
+}
+
+await Promise.all([
+  document.fonts.load('700 78px "Fraunces"', 'La Luna al revés DC'),
+  document.fonts.load('italic 500 50px "Fraunces"', 'parece una'),
+  document.fonts.load('600 22px "DM Sans"', 'LO QUE NO TE EXPLICARON EN CLASE HEMISFERIO NORTE SUR'),
+]);
+await document.fonts.ready;
+ajustar();
+let ultimoT = 0;
+addEventListener('resize', () => { ajustar(); dibujar(ultimoT, true); });
+
+window.__frame = async (t) => { ultimoT = t; dibujar(t, true); };
+dibujar(0, true);
+window.__listo = true;
+
+if (!CAPTURA) {
+  const inicio = performance.now();
+  const bucle = (ahora) => {
+    ultimoT = ((ahora - inicio) / 1000) % DUR;
+    dibujar(ultimoT);
+    requestAnimationFrame(bucle);
+  };
+  requestAnimationFrame(bucle);
+}
+</script>
+</body>
+</html>
