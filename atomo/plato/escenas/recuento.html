@@ -25,7 +25,7 @@ const P = await crearPlato({
 });
 
 const TAB = { pos: [-0.8, 2.45, 0.2], escala: 0.9, inclinacion: 0.72, giro: 0.04 };
-const ATOMO = [4.1, 2.1, 0.6], A_ESC = 0.5;
+const ATOMO = [4.1, 1.95, 0.6], A_ESC = 0.5;
 const Y_TOT = 0.95, Z_TOT = 1.6, ROT_TOT = [-0.22, 0.0, 0.0];
 // los totales: «3 ✓ · 3 ✗»
 const TOTALES = [
@@ -90,8 +90,8 @@ function dibujar(t) {
     const u = prog(ts, tq - 0.3, tq);
     const st = 0.3 * Math.sin(Math.PI * u) - 0.12 * muelle(ts - tq, 2.4, 6);
     P.pieza(5, {
-      pos: [ATOMO[0] + 0.05, mix(ay + 0.4, ay + 1.62, eoc(u)) + 0.03 * Math.sin(tz * 1.5), ATOMO[2] + 0.1],
-      escala: 1.35 * kq, sq: [1 - 0.4 * st, 1 + st, 1], rot: [-0.1, -0.15 + 0.06 * Math.sin(tz * 0.8), 0.12 * (1 - eoc(u)) - 0.05 + 0.04 * Math.sin(tz * 1.3)],
+      pos: [ATOMO[0] + 0.05, mix(ay + 0.4, ay + 1.42, eoc(u)) + 0.03 * Math.sin(tz * 1.5), ATOMO[2] + 0.1],
+      escala: 1.15 * kq, sq: [1 - 0.4 * st, 1 + st, 1], rot: [-0.1, -0.15 + 0.06 * Math.sin(tz * 0.8), 0.12 * (1 - eoc(u)) - 0.05 + 0.04 * Math.sin(tz * 1.3)],
       color: COLOR.MOSTAZA, toque: ts < tq + 0.3,
     });
   }

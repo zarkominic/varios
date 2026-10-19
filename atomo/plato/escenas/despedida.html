@@ -40,7 +40,7 @@ function dibujar(t) {
   // el electrón 0 sale de su órbita y hace de mano que saluda (coordenadas locales del átomo)
   const mano = ss(0.1, 0.4, ts) * (1 - ss(tc - 0.2, tc + 0.3, ts));
   const ang = 0.95 + 0.38 * Math.sin(fase * 1.0 + 0.6);
-  const electrones = [{ pos: [2.05 * Math.cos(ang), 2.05 * Math.sin(ang), 0.35], mezcla: eio(mano) }];
+  const electrones = [{ pos: [2.05 * Math.cos(ang), 2.05 * Math.sin(ang), 0.35], mezcla: eio(mano), brazo: ss(0.35, 0.9, mano) }];
   const k = 0.07 * salto - 0.05 * muelle(ts - (tc + 0.15), 2.4, 6) * gira;
   P.atomo({
     pos: [ATOMO[0] + 0.05 * vaiven, ATOMO[1] + 0.12 * salto + 0.03 * Math.sin(tz * 2.1) + 0.04 * en, ATOMO[2]],

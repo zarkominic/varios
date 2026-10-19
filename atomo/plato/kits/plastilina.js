@@ -474,18 +474,21 @@ float sdStar5(vec2 p, float r, float rf) {
   float h = clamp(dot(p, ba) / dot(ba, ba), 0.0, r);
   return length(p - ba * h) * sign(p.y * ba.x - p.x * ba.y);
 }
+// hervor barato: bultitos que cambian en cada fotograma (silueta del átomo y del globo)
+float bultos(vec3 q) { return sin(q.x * 3.3 + uBoil.x) * sin(q.y * 2.9 + uBoil.y) * sin(q.z * 3.1 + uBoil.z); }
 float lumps(vec3 q) {
   return sin(q.x * 3.3 + uBoil.x) * sin(q.y * 2.9 + uBoil.y) * sin(q.z * 3.1 + uBoil.z)
        + 0.5 * sin(q.x * 6.1 - uBoil.y) * sin(q.y * 5.7 + uBoil.z) * sin(q.z * 6.3 + uBoil.x);
 }
 // churro de arcilla tumbado en el plano z = 0 (algo aplastado)
 float churro(float d2, float z, float r) { return (length(vec2(d2, z * 1.25)) - r * 1.25) * 0.8; }
-float fuera(int i) { return uB[i].w > 0.0 ? 0.0 : 1e5; }
+// pieza ausente: muy lejos (selección, para que un NaN de sus uniformes no se propague)
+float fuera(int i, float d) { return uB[i].w > 0.0 ? d : 1e5; }
 
 vec3 colorGlifo(float c) {
   if (c < 0.5) return C_INK;
   if (c < 1.5) return C_BUTTER;
-  if (c < 2.5) return C_MUST;
+  if (c < 2.5) return vec3(0.60, 0.33, 0.035);
   if (c < 3.5) return C_LIGHT;
   if (c < 4.5) return C_TERRA;
   return C_GREEN;
@@ -517,7 +520,12 @@ uniform vec4 uNuc[8];
 uniform mat3 uRingM[3];
 uniform vec2 uRing;
 uniform vec4 uElec[3];
+uniform vec3 uBrazo;      // grosor del brazo de churro que une cada electrón con el núcleo (0: sin brazo)
 uniform vec3 uAPrint;
+float brazo(vec3 q, int i, float k) {
+  float r = uBrazo[i] * k;
+  return sdCapsule(q, uElec[i].xyz * 0.25, uElec[i].xyz, r) + (r > 0.001 ? 0.0 : 1e5);
+}
 vec3 atomLocal(vec3 p) { return uYaw * ((p - uCen) / (uSq * uAEsc)); }
 float atomEsc() { return min(uSq.x, uSq.y) * uAEsc * 0.9; }
 float sdf_atomo(vec3 p) {
@@ -529,8 +537,9 @@ float sdf_atomo(vec3 p) {
     float dt = sdTorus(r, uRing * vec2(1.0, 1.0 + 0.1 * sin(dot(r, vec3(4.1, 2.3, 3.7)) + float(i) * 2.1 + uBoil.x)));
     float de = length(q - uElec[i].xyz) - uElec[i].w;
     d = smin(d, smin(dt, de, 0.05), 0.02);
+    d = smin(d, brazo(q, i, 1.0), 0.09);
   }
-  return d * atomEsc();
+  return (d - 0.009 * bultos(q * 1.6)) * atomEsc();
 }
 float sdfc_atomo(vec3 p) {
   vec3 q = atomLocal(p);
@@ -538,8 +547,9 @@ float sdfc_atomo(vec3 p) {
   for (int i = 0; i < 3; i++) {
     d = min(d, sdTorus(uRingM[i] * q, uRing - vec2(0.0, 0.012)));
     d = min(d, length(q - uElec[i].xyz) - uElec[i].w + 0.012);
+    d = min(d, brazo(q, i, 0.8));
   }
-  return d * atomEsc() + fuera(0);
+  return fuera(0, d * atomEsc());
 }
 // envolvente barata y conservadora (nunca más lejos que la forma real): primera fase del rayo
 float sdfa_atomo(vec3 p) {
@@ -548,6 +558,7 @@ float sdfa_atomo(vec3 p) {
   for (int i = 0; i < 3; i++) {
     d = min(d, sdTorus(uRingM[i] * q, uRing * vec2(1.0, 1.12)));
     d = min(d, length(q - uElec[i].xyz) - uElec[i].w);
+    d = min(d, brazo(q, i, 1.1));
   }
   return d * atomEsc();
 }
@@ -566,6 +577,8 @@ void mat_atomo(vec3 p, out Mat M) {
     float de = length(q - uElec[i].xyz) - uElec[i].w;
     w = exp(-max(de, 0.0) * 55.0);
     col += w * C_MUST * 1.4; ws += w * 1.4;
+    w = exp(-max(brazo(q, i, 1.0), 0.0) * 55.0);
+    col += w * C_SAGE; ws += w;
   }
   M.alb = col / max(ws, 1e-4);
   M.lp = q + uAPrint; M.bs = 1.0; M.det = 1.0; M.esc = uAEsc; M.g = vec3(0.0);
@@ -594,12 +607,12 @@ float sdf_globo(vec3 p) {
   vec3 q = uGM * (p - uGC.xyz);
   float R = uGC.w;
   float d = smin(length(q) - R, globoBanda(q, R), 0.03 * R);
-  return d * 0.95;
+  return (d - 0.006 * R * bultos(q / R * 2.2)) * 0.95;
 }
 float sdfc_globo(vec3 p) {
   vec3 q = uGM * (p - uGC.xyz);
   float R = uGC.w;
-  return min(length(q) - R * 0.985, globoBanda(q, R * 0.985)) + fuera(1);
+  return fuera(1, min(length(q) - R * 0.985, globoBanda(q, R * 0.985)));
 }
 void mat_globo(vec3 p, out Mat M) {
   vec3 q = uGM * (p - uGC.xyz);
@@ -688,7 +701,7 @@ float sdfc_tablero(vec3 p) {
   float kf, of;
   vec3 tq = fichaLocal(c, int(fi), kf, of);
   d = max(d, -sdRoundBox(c - vec3(0.0, ${f4(TAB.YW)}, 0.0), vec3(0.385, 0.385, 0.11), 0.12));
-  return min(d, fichaC(tq) * kf + of) * uTC.w + fuera(2);
+  return fuera(2, min(d, fichaC(tq) * kf + of) * uTC.w);
 }
 void mat_tablero(vec3 p, out Mat M) {
   vec3 q = uTM * (p - uTC.xyz);
@@ -727,7 +740,7 @@ float sdf_polvo(vec3 p) {
   // grumos: bolitas irregulares
   return (d - 0.035 * (vnoise(p * 16.0 + uBoil) - 0.4)) * 0.75;
 }
-float sdfc_polvo(vec3 p) { return sdf_polvo(p) + 0.004 + fuera(3); }
+float sdfc_polvo(vec3 p) { return fuera(3, sdf_polvo(p) + 0.004); }
 void mat_polvo(vec3 p, out Mat M) { M.alb = C_DUST * (0.9 + 0.2 * vnoise(p * 9.0)); M.lp = p * 4.0; M.bs = 4.0; M.det = 0.7; M.esc = 0.25; M.g = vec3(0.0); }
 `;
 
@@ -747,7 +760,7 @@ float sdf_${sufijo}(vec3 p) {
 }
 float sdfc_${sufijo}(vec3 p) {
   vec3 q = uPM[${idx}] * (p - uPC[${idx}].xyz);
-  return pzc_${t}(q, uPT[${idx}]) * uPC[${idx}].w + fuera(${b});
+  return fuera(${b}, pzc_${t}(q, uPT[${idx}]) * uPC[${idx}].w);
 }
 void mat_${sufijo}(vec3 p, out Mat M) {
   vec3 q = uPM[${idx}] * (p - uPC[${idx}].xyz); float m;
@@ -838,6 +851,9 @@ void main() {
   float key = 2.6 * uFlicker;
   vec3 col = (D * key * mix(0.16, 1.0, sa.x) + A * sa.y) * mix(0.6, 1.0, sa.y);
   fragColor = vec4(revelar(col), 1.0);
+#ifdef DBG_SOMBRA
+  fragColor = vec4(sa.x, sa.y, 0.0, 1.0);
+#endif
 }
 `;
 
@@ -1069,6 +1085,8 @@ export async function crearPlato({
   const mapC = (ids) => `float mapC(vec3 p) {\n  float d = 1e5;\n${ids.map((id) => `  d = min(d, sdfc_${id}(p));\n`).join('')}  return d;\n}\n`;
   const todos = objetos.map((o) => o.id);
   const defines = { NB, NP: Math.max(NP, 1), NPOLVO: Math.max(polvo, 1), NSTARS, NCAPS: caps.length, RAYO_PASOS: pasosRayo, SOMBRA_PASOS: pasosSombra };
+  // depuración: ?dbg=NOMBRE,OTRO añade esos #define
+  for (const k of (busqueda.get('dbg') ?? '').split(',').filter(Boolean)) defines[k] = 1;
 
   const comunes = {
     uRes: { value: new THREE.Vector2(W, H) },
@@ -1091,10 +1109,10 @@ export async function crearPlato({
     uSombraEsc: { value: sombraEsc },
     uCen: { value: new THREE.Vector3() }, uSq: { value: new THREE.Vector3(1, 1, 1) }, uAEsc: { value: 1 },
     uYaw: { value: new THREE.Matrix3() }, uNuc: { value: v4(8) },
-    uRingM: { value: m3(3) }, uRing: { value: new THREE.Vector2(1.68, 0.092) }, uElec: { value: v4(3) }, uAPrint: { value: new THREE.Vector3() },
+    uRingM: { value: m3(3) }, uRing: { value: new THREE.Vector2(1.68, 0.092) }, uElec: { value: v4(3) }, uBrazo: { value: new THREE.Vector3() }, uAPrint: { value: new THREE.Vector3() },
     uGC: { value: new THREE.Vector4() }, uGM: { value: new THREE.Matrix3() }, uCaps: { value: caps }, uGPrint: { value: new THREE.Vector3() },
     uTC: { value: new THREE.Vector4() }, uTM: { value: new THREE.Matrix3() }, uTBox: { value: new THREE.Vector4() },
-    uCelda: { value: v4(6) }, uCelda2: { value: v4(6) }, uTPrint: { value: new THREE.Vector3() }, uDigitos: { value: null },
+    uCelda: { value: v4(6) }, uCelda2: { value: Array.from({ length: 6 }, () => new THREE.Vector4(1, 0, 0, 0)) }, uTPrint: { value: new THREE.Vector3() }, uDigitos: { value: null },
     uPolvo: { value: v4(Math.max(polvo, 1)) },
     uPC: { value: v4(Math.max(NP, 1)) }, uPM: { value: m3(Math.max(NP, 1)) }, uPT: { value: v4(Math.max(NP, 1)) }, uPS: { value: v4(Math.max(NP, 1)) },
   };
@@ -1199,7 +1217,8 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
   //   pos, escala, yaw/pitch/roll (giro del cuerpo), sq [x,y,z] (aplastar en ejes del mundo),
   //   energia (0..1: late al hablar), ts (segundos: avanzan los electrones), electrones: [[x,y,z] |
   //   { pos: [x,y,z], mezcla: 0..1 } | { mundo: [dx,dy,dz], mezcla } | null] (posición local, o
-  //   desplazamiento en el mundo desde el centro, de un electrón que sale de su órbita), toque.
+  //   desplazamiento en el mundo desde el centro, de un electrón que sale de su órbita; con brazo: 0..1,
+  //   un churro lo une al núcleo, como un brazo que señala o saluda), toque.
   function ponerAtomo({ pos = [0, 2, 0], escala = 1, yaw = -0.1, pitch = 0.05, roll = 0, sq = [1, 1, 1], energia = 0, ts = 0, electrones = [], toque = false, orbita = 1 } = {}) {
     if (!atomo) return;
     U.uCen.value.set(...pos); U.uAEsc.value = escala; U.uSq.value.set(...sq);
@@ -1219,6 +1238,7 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
       const th = 2 * Math.PI * VEL[i] * ts / 10 + FASE[i];
       let v = new THREE.Vector3(Rr * Math.cos(th), 0, Rr * Math.sin(th)).applyMatrix4(M);
       const el = electrones[i];
+      U.uBrazo.value.setComponent(i, el && !Array.isArray(el) ? 0.06 * cl(el.brazo ?? 0) : 0);
       if (Array.isArray(el)) v = new THREE.Vector3(...el);
       else if (el && el.pos) v.lerp(new THREE.Vector3(...el.pos), cl(el.mezcla ?? 1));
       else if (el && el.mundo) {
