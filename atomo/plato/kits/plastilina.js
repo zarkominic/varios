@@ -60,6 +60,14 @@ export function brote(ts, tFin, antes = 0.25, sobre = 0.14) {
   if (ts < tFin) return eob(u, 2.2) * (1 + sobre * ss(0.5, 1, u));
   return 1 + sobre * muelle(ts - tFin, 2.6, 7);
 }
+// reloj de los movimientos de reposo (balanceos, giros, electrones) que frena hasta pararse
+// en los últimos `t` segundos: la escena «se asienta y queda quieta» al final
+export function calma(ts, fin, t = 0.8) {
+  const a = fin - t;
+  if (ts <= a) return ts;
+  const u = Math.min(ts - a, t);
+  return a + u - (u * u) / (2 * t);
+}
 export const veredictoATipo = (v) => (v === '✓' ? 1 : v === '✗' ? 2 : 0);
 export const COLOR = { TINTA: 0, MANTEQUILLA: 1, MOSTAZA: 2, CREMA: 3, TERRACOTA: 4, VERDE: 5 };
 
@@ -254,7 +262,7 @@ const vec3 C_OCEAN  = vec3(0.020, 0.058, 0.098);
 const vec3 C_LAND   = vec3(0.062, 0.090, 0.028);
 const vec3 C_GOLD   = vec3(0.270, 0.118, 0.010);
 const vec3 C_WATER  = vec3(0.042, 0.120, 0.230);
-const vec3 C_STEEL  = vec3(0.025, 0.028, 0.040);
+const vec3 C_STEEL  = vec3(0.038, 0.041, 0.055);
 const vec3 C_DUST   = vec3(0.380, 0.320, 0.240);
 
 const float ZW = 4.2;   // pared del fondo en z = -ZW
@@ -1190,8 +1198,8 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
   // El átomo narrador: núcleo de bolitas, tres órbitas de churro inclinadas y tres electrones.
   //   pos, escala, yaw/pitch/roll (giro del cuerpo), sq [x,y,z] (aplastar en ejes del mundo),
   //   energia (0..1: late al hablar), ts (segundos: avanzan los electrones), electrones: [[x,y,z] |
-  //   { pos: [x,y,z], mezcla: 0..1 } | null] (posición local de un electrón para sacarlo de su órbita;
-  //   con mezcla, sale poco a poco), toque (huellas nuevas).
+  //   { pos: [x,y,z], mezcla: 0..1 } | { mundo: [dx,dy,dz], mezcla } | null] (posición local, o
+  //   desplazamiento en el mundo desde el centro, de un electrón que sale de su órbita), toque.
   function ponerAtomo({ pos = [0, 2, 0], escala = 1, yaw = -0.1, pitch = 0.05, roll = 0, sq = [1, 1, 1], energia = 0, ts = 0, electrones = [], toque = false, orbita = 1 } = {}) {
     if (!atomo) return;
     U.uCen.value.set(...pos); U.uAEsc.value = escala; U.uSq.value.set(...sq);
@@ -1213,6 +1221,11 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
       const el = electrones[i];
       if (Array.isArray(el)) v = new THREE.Vector3(...el);
       else if (el && el.pos) v.lerp(new THREE.Vector3(...el.pos), cl(el.mezcla ?? 1));
+      else if (el && el.mundo) {
+        // desplazamiento en el mundo desde el centro del átomo → coordenadas locales
+        const w = new THREE.Vector3(el.mundo[0] / (sq[0] * escala), el.mundo[1] / (sq[1] * escala), el.mundo[2] / (sq[2] * escala)).applyMatrix4(R.clone().transpose());
+        v.lerp(w, cl(el.mezcla ?? 1));
+      }
       U.uElec.value[i].set(v.x, v.y, v.z, 0.19);
       ext = Math.max(ext, v.length() + 0.21);
     });

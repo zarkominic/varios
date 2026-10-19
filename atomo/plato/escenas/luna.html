@@ -296,7 +296,7 @@ const ZAX = new THREE.Vector3(0, 0, 1), XL = new THREE.Vector3(1, 0, 0), YL = ne
 const CAM0 = S(735, 548, 0), CAM1 = S(960, 540, 0);
 function dibujar(t) {
   plato.titilar(t);
-  const kc = eio(seg(t, 4.5, 6.9));
+  const kc = eio(seg(t, mF + 0.75, mN - 0.15));   // se abre el plano entre «fase» y «norte»
   plato.encuadre(CAM0.clone().lerp(CAM1, kc), 1.07 - 0.07 * kc);
   pres.actualizar(t, E.energia(t), mV);
 

@@ -14,7 +14,7 @@
 // reacciona (salta de alegría con ✓, niega con la cabeza con ✗) y todo se queda quieto.
 // Vista previa: ?n=1..6.
 import { escena } from '/atomo/plato/escena.js';
-import { crearPlato, TAB as T, cl, mix, prog, ss, eio, eoc, eic, muelle, mulberry32 } from '/atomo/plato/kits/plastilina.js';
+import { crearPlato, calma, TAB as T, cl, mix, prog, ss, eio, eoc, eic, muelle, mulberry32 } from '/atomo/plato/kits/plastilina.js';
 
 const E = await escena('marcador');
 const n0 = (E.n ?? 1) - 1;                     // casilla que recibe el sello (0..5)
@@ -43,6 +43,7 @@ const POLVO = (() => {
 
 function dibujar(t) {
   const n = P.fotograma(t), ts = n / 12;
+  const tz = calma(ts, E.duracion);          // reloj del reposo: frena al final
   P.limpiar();
 
   // ---------- el marcador, con un pequeño temblor al recibir el golpe ----------
@@ -80,7 +81,7 @@ function dibujar(t) {
 
   // ---------- el átomo reacciona ----------
   const tr = T_GOLPE + 0.08;
-  let y = ATOMO[1] + 0.03 * Math.sin(ts * 2.0), yaw = -0.45, roll = 0.04, sq = [1, 1, 1], tsE = ts;
+  let y = ATOMO[1] + 0.03 * Math.sin(tz * 2.0), yaw = -0.45, roll = 0.04, sq = [1, 1, 1], tsE = tz;
   if (SI) {
     // dos saltos de alegría y los electrones se aceleran
     const s1 = prog(ts, tr, tr + 0.42), s2 = prog(ts, tr + 0.5, tr + 0.8);
@@ -92,7 +93,7 @@ function dibujar(t) {
     const k = 0.18 * aire - 0.16 * prep - cae;   // + estira, − aplasta
     sq = [1 - 0.5 * k, 1 + k, 1 - 0.5 * k];
     roll += 0.22 * Math.sin(Math.PI * s1) * Math.sin(Math.PI * 2 * s1);
-    tsE = ts + 1.6 * eio(prog(ts, tr, tr + 0.9));
+    tsE = tz + 1.6 * eio(prog(ts, tr, tr + 0.9));
   } else {
     // niega con la cabeza y se encoge un poco
     const v = prog(ts, tr, tr + 1.0);
@@ -101,7 +102,7 @@ function dibujar(t) {
     y -= 0.12 * enc;
     sq = [1 + 0.05 * enc, 1 - 0.1 * enc, 1 + 0.05 * enc];
     roll += -0.12 * enc;
-    tsE = ts - 0.5 * eio(prog(ts, tr, tr + 1.2));
+    tsE = tz - 0.5 * eio(prog(ts, tr, tr + 1.2));
   }
   P.atomo({
     pos: [ATOMO[0], y, ATOMO[2]], escala: A_ESC, yaw, pitch: 0.08, roll, sq,

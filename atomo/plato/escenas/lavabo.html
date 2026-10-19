@@ -26,15 +26,18 @@ const M = (n, d) => E.marca(n, d);
 const m = {
   diminuto: M('diminuto', 1.33), gravedad: M('gravedad', 3.68), tanque: M('tanque', 7.958), dia: M('dia', 10.238),
   segundos: M('segundos', 13.598), giro: M('giro', 14.616), guia: M('guia', 17.946), truco: M('truco', 20.796), girar: M('girar', 22.389),
+  mit: M('mit', 5.63), girarFin: M('girar_fin', 22.8),
 };
+const VOZ1 = (E.voz ?? [0, E.duracion])[1];
 const T = {
   lupa: [m.diminuto - 0.3, m.diminuto],
   grav: [m.gravedad - 0.36, m.gravedad],
-  fueraA: [m.tanque - 0.66, m.tanque - 0.26],
-  entraTanque: [m.tanque - 0.3, m.tanque],
+  fueraA: [m.mit - 0.7, m.mit - 0.3],
+  entraTanque: [m.mit - 0.32, m.mit],          // el tanque y su placa, en «MIT»
+  llena: [m.tanque - 0.3, m.tanque],            // «llenaron un tanque»
   aro: [m.dia - 0.3, m.dia],
-  vuelta: [m.dia, m.dia + 1.4],
-  giraTanque: [m.dia + 1.4, m.dia + 2.0],
+  vuelta: [m.dia - 0.05, m.dia + 0.8],
+  giraTanque: [m.dia + 0.8, m.dia + 1.1],
   fueraTanque: [m.segundos - 0.62, m.segundos - 0.26],
   entraC: [m.segundos - 0.3, m.segundos],
   vacia: [m.segundos, m.segundos + 3.4],
@@ -52,26 +55,27 @@ const fondo = K.capa(() => K.fondoNoche({ luz: [900, 470], semilla: 91, estrella
 
 // ---------------------------------------------------------------- A y C · lavabo
 const LX = 700, LY = 500;
-const diminuta = K.arcoPts(0, 0, 15, 15, 0.2, -4.2, 24);              // antihorario, diminuta
+const diminuta = K.arcoPts(0, 0, 24, 24, 0.2, -4.3, 28);              // antihorario, diminuta
+// la flecha diminuta de Coriolis bajo su lupa (en coordenadas del seno del lavabo)
+function lupita(u, id = 21) {
+  if (u <= 0) return;
+  const g = K.g;
+  g.save(); g.translate(78, -30);
+  K.flecha(diminuta, { u: eio(u), col: C.coral, ancho: 3.4, punta: 11, alas: 2.2, d: 1, seed: id });
+  const p = K.colocar(u);
+  g.translate(p.dx * 0.6, p.dy * 0.6); g.scale(p.s, p.s);
+  K.elevar(p.d, () => {
+    g.save(); g.rotate(0.78); K.papel(K.rectRecortado(54, -8, 78, 16, 8, 23, 0.4), C.ink2, { d: 3, seed: id + 2 }); g.restore();
+    K.papel(K.anillo(44, 55, 22), C.gold, { d: 3, rule: 'evenodd', seed: id + 1 });
+  });
+  g.restore();
+}
 function lavaboA(t) {
   const g = K.g, u = ein(seg(t, T.fueraA[0], T.fueraA[1]));
   if (u >= 1) return;
   g.save(); g.translate(-1700 * u, -50 * u);
   K.elevar(10 * u, () => {
-    K.lavabo(LX, LY, { nivel: 1, giro: 0, sentido: 1, fuerza: 0, extra: () => {
-      const ul = seg(t, T.lupa[0], T.lupa[1]);
-      if (ul > 0) {
-        g.save(); g.translate(72, -26);
-        K.flecha(diminuta, { u: eio(ul), col: C.coral, ancho: 2.1, punta: 7, alas: 2.4, d: 1, seed: 21 });
-        const p = K.colocar(ul);
-        g.translate(p.dx * 0.6, p.dy * 0.6); g.scale(p.s, p.s);
-        K.elevar(p.d, () => {
-          g.save(); g.rotate(0.78); K.papel(K.rectRecortado(44, -7, 70, 14, 7, 23, 0.4), C.ink2, { d: 3, seed: 23 }); g.restore();
-          K.papel(K.anillo(36, 46, 22), C.gold, { d: 3, rule: 'evenodd', seed: 22 });
-        });
-        g.restore();
-      }
-    } });
+    K.lavabo(LX, LY, { nivel: 1, giro: 0, sentido: 1, fuerza: 0, extra: () => lupita(seg(t, T.lupa[0], T.lupa[1])) });
     // gravedad: flecha enorme
     const ug = eio(seg(t, T.grav[0], T.grav[1]));
     if (ug > 0) K.flecha([[1300, 150], [1300, 830]], { u: ug, col: C.coral, ancho: 34, punta: 104, alas: 2.0, d: 5, seed: 31 });
@@ -80,7 +84,7 @@ function lavaboA(t) {
   g.restore();
 }
 const flechaGiroC = K.arcoPts(0, 0, 238, 172, -2.2, 1.6, 40);         // horario, alrededor del agua
-const crono = (t) => (t - m.segundos) * 0.85;
+const crono = (t) => 8 / 60 * eio(seg(t, m.segundos - 0.1, m.segundos + 3.4));   // ~8 s de esfera
 function lavaboC(t) {
   const g = K.g;
   const uin = seg(t, T.entraC[0], T.entraC[1]); if (uin <= 0) return;
@@ -92,9 +96,11 @@ function lavaboC(t) {
     const fz = eio(seg(t, T.giroC[0], T.giroC[1]));
     K.lavabo(LX + 60, LY, { esc: p.s, nivel, giro: 0.35 * t + 2.6 * Math.max(0, t - T.giroC[0]), sentido: -1, fuerza: 0.25 + 0.75 * fz, extra: () => {
       if (fz > 0) K.flecha(flechaGiroC, { u: fz, col: C.gold, ancho: 9, punta: 30, d: 3, seed: 41 });
+      // lo que pierde: la flechita de Coriolis, antihoraria, junto al gran giro horario
+      lupita(seg(t, T.giroC[0], T.giroC[1]), 25);
     } });
-    const fr = Math.max(0, crono(t));
-    K.reloj(1400, 330, 118, fr % 1, { marcas: 60, cronometro: true, aro: C.teal2, cara: C.ivory, id: 975, aguja2: fr / 12, sector: Math.min(1, fr), colSector: 'rgba(214,98,74,0.32)' });
+    const fr = crono(t);
+    K.reloj(1400, 330, 118, fr, { marcas: 60, cronometro: true, aro: C.teal2, cara: C.ivory, id: 975, sector: fr, colSector: 'rgba(214,98,74,0.38)' });
   });
   g.restore();
 }
@@ -160,16 +166,22 @@ function tanqueB(t) {
     g.save(); g.translate(TX, TY); K.temblor(600, 0.45, 0.002);
     K.sombra(6, 0.6); g.drawImage(tanque.c, -tanque.ox, -tanque.oy); K.sinSombra();
     const fz = eio(seg(t, T.giraTanque[0], T.giraTanque[1]));
-    g.globalAlpha = 0.88;
-    K.papel(aguaT, C.agua, { d: 0.6, seed: 611, tb: 0.6, sa: 0.3, print: () => {
-      // agua quieta: ondas concéntricas muy suaves
-      g.strokeStyle = 'rgba(220,245,245,0.16)'; g.lineWidth = 2;
-      for (let r = 40; r < TR - 50; r += 38) { g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); }
-    } });
-    g.globalAlpha = 1;
+    const lleno = eout(seg(t, T.llena[0], T.llena[1]));
+    if (lleno > 0.02) {
+      g.save(); g.scale(lleno, lleno); g.globalAlpha = 0.88;
+      K.papel(aguaT, C.agua, { d: 0.6, seed: 611, tb: 0.6, sa: 0.3, print: () => {
+        // agua quieta: ondas concéntricas muy suaves
+        g.strokeStyle = 'rgba(220,245,245,0.16)'; g.lineWidth = 2;
+        for (let r = 40; r < TR - 50; r += 38) { g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); }
+      } });
+      g.restore();
+    }
     if (fz > 0) { g.save(); g.clip(aguaT); K.remolino(TR - 56, TR - 56, -0.7 * Math.max(0, t - T.giraTanque[0]), 1, 0.15 + 0.85 * fz, { id: 1300 }); g.restore(); }
     if (fz > 0) K.flecha(K.arcoPts(0, 0, 190, 190, 0.5, -1.9, 30), { u: fz, col: C.gold, ancho: 8, punta: 28, d: 2.4, seed: 650 });
     g.restore();
+    // una persona junto al borde, para la escala (el tanque mide dos metros)
+    { const a = 2.45, r = TR + 46; g.save(); g.translate(TX + r * Math.cos(a), TY + r * Math.sin(a)); g.rotate(a + PI); K.temblor(660, 0.5, 0.01);
+      K.personaArriba({ escala: 3, abrigo: C.ivory, pelo: C.hair, brazoI: -0.25, brazoD: 0.25, id: 661 }); g.restore(); }
     // placa del MIT, cosida al tanque
     K.puntadas([[1180, 600], [1290, 650], [1390, 640]], { col: C.goldL, u1: eio(seg(t, T.entraTanque[0] + 0.1, T.entraTanque[1])) });
     K.etiqueta(1490, 640, 'MIT 1962', { size: 46, col: C.ivory, ink: C.ink, u: seg(t, T.entraTanque[0], T.entraTanque[1]), rot: -0.05, id: 953 });
@@ -222,7 +234,10 @@ function seccionD(t) {
   const gx = lerp(XN, XS, eio(wa)) + pg.dx, gy = PIES + pg.dy;
   const truco = t >= T.lupaD[0];
   const bx = gx, by = gy - 26 * ESC;
-  const brazoMano = truco ? K.aimAt(-2, 25) + 0.12 * Math.sin((t - T.lupaD[0]) * 9) : K.aimAt(-8.2 + 0, 20);
+  const tf = Math.min(t, m.girarFin), sc = pg.s;
+  const hombro = [gx + 8.2 * ESC * sc, gy - 46 * ESC * sc];
+  const manoXY = [bx + (6 + 7 * Math.cos(3.2 * tf)) * 1.45 * sc, by + (1 + 2.4 * Math.sin(3.2 * tf)) * 1.45 * sc];
+  const brazoMano = truco ? K.aimAt((manoXY[0] - hombro[0]) / (ESC * sc), (manoXY[1] - hombro[1]) / (ESC * sc)) : K.aimAt(-8.2, 20);
   g.save(); g.translate(gx, gy); K.temblor(750, 0.5, 0.006); g.scale(pg.s, pg.s);
   K.elevar(pg.d, () => {
     K.persona({ escala: ESC, abrigo: C.blue, abrigoD: C.blueD, pantalon: C.ink, tocado: 'sombrero', colTocado: C.ivory3, brazoI: K.aimAt(8.5, 20), brazoD: brazoMano, paso: wa > 0 && wa < 1 ? wa * 2 : 0, id: 760 });
@@ -233,13 +248,18 @@ function seccionD(t) {
     const lado = wa < 0.5 ? 1 : -1;
     const fzN = 1 - eio(seg(t, T.anda[0], T.anda[0] + 0.2)), fzS = eio(seg(t, T.flechaS[0], T.flechaS[1]));
     const fz = lado > 0 ? fzN * eio(seg(t, T.entraGuia[0], T.entraGuia[1])) : fzS;
-    barreno(lado > 0 ? -1.6 * t : 1.6 * t, lado, Math.max(0.2, fz));
+    barreno(lado > 0 ? -1.6 * tf : 1.6 * tf, lado, Math.max(0.2, fz));
     if (lado > 0 && fzN > 0) K.flecha(arcN, { u: eio(ug) * fzN, col: C.gold, ancho: 5.5, punta: 20, d: 2.2, seed: 780 });
     if (lado < 0 && fzS > 0) K.flecha(arcS, { u: fzS, col: C.gold, ancho: 5.5, punta: 20, d: 2.2, seed: 781 });
-    // mano del guía metida en el agua (el truco)
-    if (truco) { g.save(); g.translate(8, 0); K.papel(K.circulo(9, 782, 0.03), C.skin, { d: 1.4, seed: 783 }); g.restore(); }
   });
   g.restore();
+  // el truco: su brazo (manga azul del hombro a la mano) metido en el agua
+  if (truco) {
+    const ut = eio(seg(t, T.lupaD[0] - 0.1, T.lupaD[0] + 0.15));
+    const hx = lerp(hombro[0] + 6, manoXY[0], ut), hy = lerp(hombro[1] + 70, manoXY[1], ut);
+    K.papel(K.tira([hombro, [hx, hy]], 2.7 * ESC * sc), C.blue, { d: 2.4, seed: 784 });
+    g.save(); g.translate(hx, hy); K.papel(K.circulo(3.3 * ESC * sc, 782, 0.03), C.skin, { d: 1.6, seed: 783 }); g.restore();
+  }
   lupa(t, bx, by);
 }
 // la lupa: vista desde arriba del barreño con la mano que lo retuerce
@@ -267,9 +287,9 @@ function lupa(t, bx, by) {
     const agua = K.circulo(LUR - 34, 801, 0.003);
     K.papel(agua, C.agua, { d: 0.8, seed: 802, tb: 0.6 });
     // la mano da vueltas (horario) desde el truco; el agua la sigue en «girar»
-    const w = 3.2, ang = 0.8 + w * Math.max(0, t - m.truco) * eio(seg(t, m.truco - 0.1, m.truco + 0.3));
+    const tf = Math.min(t, m.girarFin), w = 3.2, ang = 0.8 + w * Math.max(0, tf - m.truco) * eio(seg(tf, m.truco - 0.1, m.truco + 0.3));
     const fz = eio(seg(t, T.aguaSigue[0], T.aguaSigue[1]));
-    if (fz > 0) { g.save(); g.clip(agua); K.remolino(LUR - 40, LUR - 40, ang * 0.9, -1, 0.2 + 0.8 * fz, { id: 1340 }); g.restore(); }
+    { g.save(); g.clip(agua); K.remolino(LUR - 40, LUR - 40, 1.6 * tf + ang * 0.6, -1, 0.4 + 0.6 * fz, { id: 1340 }); g.restore(); }
     if (fz > 0) K.flecha(arcLupa, { u: fz, col: C.gold, ancho: 7, punta: 24, d: 2.4, seed: 803 });
     const fx = 52 * Math.cos(ang), fy = 52 * Math.sin(ang);
     g.save(); g.translate(fx, fy); g.rotate(-0.75 + 0.25 * Math.sin(ang)); g.translate(0, 34);
@@ -301,7 +321,7 @@ function dibujar(t) {
   lavaboA(t);
   tanqueB(t);
   lavaboC(t);
-  K.atomo(178, 170, t, E.energia(t), { escala: 0.5 });
+  K.atomo(178, 170, Math.min(t, VOZ1), E.energia(t), { escala: 0.5 });
 }
 E.iniciar((t) => K.fotograma(t, dibujar, { fondo }), { paso: 1 / 12 });
 </script>
