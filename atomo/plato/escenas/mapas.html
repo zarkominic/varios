@@ -8,13 +8,14 @@
 <body>
 <script type="module">
 // Mapas (recortes de papel). Regalo final: ¿por qué el norte está arriba en los mapas?
-// [norte] un mapamundi de papel y, encima, una flecha N. [costumbre] caen encima más copias idénticas
-// del mismo mapa con el norte arriba (la costumbre). [espacio] el montón se desbarata y la Tierra
-// flota en el espacio con flechas ↑ y ↓ que enseguida dan vueltas y se apagan: no hay arriba ni abajo.
-// [este] se posa un mapa medieval T-O (Asia arriba, Europa y África abajo) con la E arriba, como un
-// sol naciente. [orientarse] una rosa de los vientos gira hasta dejar la E arriba (bajo la marca fija).
-// [australiano] cae girando un mapamundi con el sur arriba (Australia destacada) y la etiqueta 1979.
-// [sur] una flecha S encima. [correcto] un sello ✓ sobre el mapa. Al final todo queda quieto.
+// [norte] un mapamundi de papel y, encima, una flecha N. [costumbre] entran por los lados más copias
+// idénticas del mismo mapa con el norte arriba (la costumbre). [espacio] el montón sale por la
+// izquierda y la Tierra flota en el espacio con flechas ↑ y ↓, que enseguida salen despedidas dando
+// vueltas a su alrededor: no hay arriba ni abajo. [este] se posa un mapa medieval T-O (Asia arriba,
+// Europa y África abajo) con la E arriba, como un sol naciente. [orientarse] una rosa de los vientos
+// gira hasta dejar la E arriba (bajo la marca fija). [australiano] se posa el mapa de 1979, centrado
+// en el Pacífico (Australia destacada), todavía con el norte arriba, y se clava la etiqueta 1979.
+// [sur] el mapa gira 180° y queda el sur arriba, con una flecha S. [correcto] un sello ✓ sobre el mapa.
 import { escena } from '/atomo/plato/escena.js';
 import * as K from '/atomo/plato/kits/papel.js';
 
@@ -94,7 +95,7 @@ function flechaPolo(letra, u, col, ficha, id) {
   K.etiqueta(x, y0 - 132, letra, { forma: 'circulo', size: 38, col: ficha, ink: C.ink, u: seg(u, 0.3, 1), id: id + 1 });
 }
 
-// ---------- flechas ↑ ↓ alrededor de la Tierra (sprites: se pueden desvanecer) ----------
+// ---------- flechas ↑ ↓ alrededor de la Tierra (sprite: gira entero, con su sombra) ----------
 const FLECHA_V = K.sprite(70, 150, () => K.flecha([[0, 62], [0, -62]], { ancho: 9, punta: 34, alas: 2.1, col: C.ivory, d: 2.4, seed: 330 }), 20);
 
 // ---------- mapa T-O medieval (este arriba) ----------
