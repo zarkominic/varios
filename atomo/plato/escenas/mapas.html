@@ -30,46 +30,61 @@ const MAPA = { x: 960, y: 538, w: 880 };          // mapamundi (equirrectangular
 const BORDE = 22;                                  // margen de cartulina alrededor del mapa
 const ARRIBA = MAPA.y - MAPA.w / 4 - BORDE;        // canto de arriba de la tarjeta
 const TIERRA = { x: 960, y: 500, R: 205 };
-const TO = { x: 690, y: 552, R: 228 };             // mapa T-O
-const ROSA = { x: 1316, y: 552, R: 146 };          // rosa de los vientos
+const TO = { x: 872, y: 548, R: 228 };             // mapa T-O, en el centro de los anillos
+const ROSA = { x: 1552, y: 560, R: 146 };          // rosa de los vientos, a un lado
+const LON0_SUR = 150;                              // el mapa de 1979 (McArthur) va centrado en el Pacífico
 
-// ---------- mapamundi de papel (tarjeta en caché) ----------
-/** pequeña rosa impresa en el océano: aguja hacia arriba y la letra del polo que queda arriba */
+// ---------- mapamundis de papel ----------
+/** rosita impresa en el océano: la aguja coral es siempre el norte; arriba, la letra del polo de arriba */
 function emblema(letra) {
-  const g = K.g;
+  const g = K.g, sur = letra === 'S';
   K.papel(K.circulo(30, 260, 0.01), C.ivory, { d: 1.6, seed: 261, tb: 0.45, print: () => {
     g.strokeStyle = 'rgba(26,35,66,0.35)'; g.lineWidth = 1; g.beginPath(); g.arc(0, 0, 25, 0, TAU); g.stroke();
   } });
-  K.papel(K.poligono([[0, -20], [6, 2], [0, 6], [-6, 2]]), C.coral, { d: 1, seed: 262, edge: 0.5 });
-  K.papel(K.poligono([[0, 20], [6, 2], [0, 6], [-6, 2]]), C.ink2, { d: 1, seed: 263, edge: 0.5 });
+  K.papel(K.poligono([[0, sur ? 20 : -20], [6, 2], [0, 6], [-6, 2]]), C.coral, { d: 1, seed: 262, edge: 0.5 });
+  K.papel(K.poligono([[0, sur ? -20 : 20], [6, 2], [0, 6], [-6, 2]]), C.ink2, { d: 1, seed: 263, edge: 0.5 });
   K.escribir(letra, 0, -40, { size: 20, col: C.ivory, peso: 800 });
   K.chincheta(0, 3, 3.5);
 }
-function tarjetaMapa(sur, id) {
-  const w = MAPA.w, h = w / 2;
-  return K.sprite(w + 2 * BORDE, h + 2 * BORDE, () => {
-    const g = K.g;
-    K.papel(K.rectRecortado(-w / 2 - BORDE, -h / 2 - BORDE, w + 2 * BORDE, h + 2 * BORDE, 12, id, 1), C.card, { d: 0, seed: id, tb: 0.5, print: () => {
-      g.strokeStyle = 'rgba(26,35,66,0.28)'; g.lineWidth = 1.2; g.strokeRect(-w / 2 - 10, -h / 2 - 10, w + 20, h + 20);
-      g.lineWidth = 1;
-      for (let k = -150; k <= 150; k += 30) { const x = k / 360 * w; for (const y of [-h / 2 - 10, h / 2 + 4]) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 6); g.stroke(); } }
-      for (let k = -60; k <= 60; k += 30) { const y = k / 180 * h; for (const x of [-w / 2 - 10, w / 2 + 4]) { g.beginPath(); g.moveTo(x, y); g.lineTo(x + 6, y); g.stroke(); } }
-    } });
-    K.tierraPlana(w, { lon0: 0, sur, id: id + 10, d: 1.4 });
-    // misma proyección que tierraPlana (con el sur arriba, girada 180°)
-    const P = sur ? (lon, lat) => [-lon / 360 * w, lat / 180 * h] : (lon, lat) => [lon / 360 * w, -lat / 180 * h];
-    g.save(); g.clip(K.rect(-w / 2, -h / 2, w, h));
-    // la Antártida como franja completa (tierraPlana la cierra en cuña al cruzar el antimeridiano)
-    const costa = K.HIELOS.antartida.filter(([, la]) => la > -89);
-    const ant = [[-196, costa[0][1]], ...costa.filter(([lo]) => lo < 179), [196, costa[0][1]], [196, -104], [-196, -104]].map(([lo, la]) => P(lo, la));
-    K.papel(K.poligono(ant), C.hielo, { d: 1.3, seed: id + 28 });
-    if (sur) for (const k of ['australia', 'tasmania']) K.papel(K.suave(K.CONTINENTES[k].map(([lo, la]) => P(lo, la))), C.mustard, { d: 1.8, seed: id + 30, edge: 0.7 });
-    g.restore();
-    // la rosita impresa, en mar abierto: Pacífico sur (norte arriba) u océano Índico (sur arriba)
-    g.save(); g.translate(...(sur ? P(75, -28) : [-w / 2 + 72, h / 2 - 118])); emblema(sur ? 'S' : 'N'); g.restore();
-  }, 34);
+/**
+ * La Antártida como franja continua de lado a lado (tierraPlana la cierra en cuña cuando el corte
+ * del mapa no cae en el antimeridiano). Proyección igual que la de tierraPlana.
+ */
+function franjaAntartida(w, h, lon0, sur, id) {
+  const costa = K.HIELOS.antartida.filter(([, la]) => la > -89);
+  const latEn = (lon) => {
+    const L = ((lon + 180) % 360 + 360) % 360 - 180;
+    for (let i = 0; i < costa.length - 1; i++) { const [a, la] = costa[i], [b, lb] = costa[i + 1]; if (L >= a && L <= b) return lerp(la, lb, (L - a) / ((b - a) || 1)); }
+    return costa[0][1];
+  };
+  const sg = sur ? -1 : 1, pts = [];
+  for (let i = 0; i <= 96; i++) { const x = -w / 2 - 12 + i * (w + 24) / 96; pts.push([x, -sg * latEn(lon0 + sg * x / w * 360) / 180 * h]); }
+  pts.push([w / 2 + 12, sg * (h / 2 + 14)], [-w / 2 - 12, sg * (h / 2 + 14)]);
+  K.papel(K.poligono(pts), C.hielo, { d: 1.3, seed: id });
 }
-const TARJETA_N = tarjetaMapa(false, 200), TARJETA_S = tarjetaMapa(true, 240);
+/** tarjeta de mapamundi en el origen (cartulina, mapa, arreglos y rosita); d: altura de la cartulina */
+function cartaMapa(sur, lon0, id, d) {
+  const g = K.g, w = MAPA.w, h = w / 2;
+  K.papel(K.rectRecortado(-w / 2 - BORDE, -h / 2 - BORDE, w + 2 * BORDE, h + 2 * BORDE, 12, id, 1), C.card, { d, seed: id, tb: 0.5, print: () => {
+    g.strokeStyle = 'rgba(26,35,66,0.28)'; g.lineWidth = 1.2; g.strokeRect(-w / 2 - 10, -h / 2 - 10, w + 20, h + 20);
+    g.lineWidth = 1;
+    for (let k = -150; k <= 150; k += 30) { const x = k / 360 * w; for (const y of [-h / 2 - 10, h / 2 + 4]) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 6); g.stroke(); } }
+    for (let k = -60; k <= 60; k += 30) { const y = k / 180 * h; for (const x of [-w / 2 - 10, w / 2 + 4]) { g.beginPath(); g.moveTo(x, y); g.lineTo(x + 6, y); g.stroke(); } }
+  } });
+  K.tierraPlana(w, { lon0, sur, id: id + 10, d: 1.4 });
+  const sg = sur ? -1 : 1, P = (lon, lat) => [sg * (lon - lon0) / 360 * w, -sg * lat / 180 * h];
+  g.save(); g.clip(K.rect(-w / 2, -h / 2, w, h));
+  franjaAntartida(w, h, lon0, sur, id + 28);
+  if (lon0 !== 0) {
+    // Groenlandia queda partida por el corte del mapa: se dibuja entera a los dos lados
+    for (const s of [0, 360]) K.papel(K.suave(K.HIELOS.groenlandia.map(([lo, la]) => P(lo + s, la))), C.hielo, { d: 1.3, seed: id + 29 });
+  }
+  if (sur) for (const k of ['australia', 'tasmania']) K.papel(K.poligono(K.CONTINENTES[k].map(([lo, la]) => P(lo, la))), C.coral, { d: 1.8, seed: id + 30, edge: 0.8 });
+  g.restore();
+  // la rosita, en mar abierto: Pacífico sur (norte arriba) u océano Índico (sur arriba)
+  g.save(); g.translate(...(sur ? P(80, -30) : [-w / 2 + 72, h / 2 - 118])); emblema(sur ? 'S' : 'N'); g.restore();
+}
+const TARJETA_N = K.sprite(MAPA.w + 2 * BORDE, MAPA.w / 2 + 2 * BORDE, () => cartaMapa(false, 0, 200, 0), 34);
 
 /** flecha de polo encima del mapa (N o S) con su ficha; u: 0..1 */
 function flechaPolo(letra, u, col, ficha, id) {
@@ -147,17 +162,17 @@ function rosa(giro) {
   K.papel(P.base, C.card, { d: 4.5, seed: 342, sa: 0.6, tb: 0.5, print: () => {
     g.strokeStyle = 'rgba(26,35,66,0.42)'; g.lineCap = 'round';
     for (let i = 0; i < 72; i++) { const an = i / 72 * TAU, l = i % 9 === 0 ? 10 : 5; g.lineWidth = i % 9 === 0 ? 1.8 : 1; g.beginPath(); g.moveTo((R - 7) * Math.cos(an), (R - 7) * Math.sin(an)); g.lineTo((R - 7 - l) * Math.cos(an), (R - 7 - l) * Math.sin(an)); g.stroke(); }
-    // letras con el pie hacia el centro (al girar la rosa, la que queda arriba se lee derecha)
     g.lineWidth = 1; g.strokeStyle = 'rgba(26,35,66,0.3)'; g.beginPath(); g.arc(0, 0, R - 21, 0, TAU); g.stroke();
-    [['N', -PI / 2], ['E', 0], ['S', PI / 2]].forEach(([l, an]) => {
-      g.save(); g.translate((R - 42) * Math.cos(an), (R - 42) * Math.sin(an)); g.rotate(an + PI / 2);
-      K.escribir(l, 0, 0, { size: 30, col: l === 'E' ? C.goldD : l === 'N' ? C.coralD : C.ink, peso: 900 });
-      g.restore();
-    });
   } });
   K.papel(P.dentro, C.ivory, { d: 1.4, seed: 343, tb: 0.45, edge: 0.6, print: () => {
     g.strokeStyle = 'rgba(26,35,66,0.25)'; g.lineWidth = 1; g.setLineDash([4, 5]); g.beginPath(); g.arc(0, 0, R * 0.48, 0, TAU); g.stroke(); g.setLineDash([]);
   } });
+  // letras: viajan con la rosa pero siempre derechas (se contragiran)
+  [['N', -PI / 2], ['E', 0], ['S', PI / 2]].forEach(([l, an]) => {
+    g.save(); g.translate((R - 42) * Math.cos(an), (R - 42) * Math.sin(an)); g.rotate(-giro);
+    K.escribir(l, 0, 0, { size: 30, col: l === 'E' ? C.goldD : l === 'N' ? C.coralD : C.ink, peso: 900 });
+    g.restore();
+  });
   // puntas cortas debajo, largas encima; cada mitad se ilumina según hacia dónde mira en pantalla
   for (const larga of [false, true]) for (const p of P.puntas.filter((q) => q.larga === larga)) {
     const [base, osc, cla] = COL_PUNTA(p.k);
@@ -181,41 +196,41 @@ function tarjeta(sp, x, y, rot, u, extraD = 0) {
   if (!p.vis) return;
   K.pegar(sp, x + p.dx, y + p.dy, { rot, esc: p.s, d: 5 + p.d + extraD });
 }
-const COPIAS = [[-16, 12, -0.04, -980, -260, -0.6], [14, -8, 0.032, 1000, -200, 0.5], [-8, -14, 0.016, -900, 380, 0.4], [10, 6, -0.014, 960, 360, -0.45]];
-const HUIDA = [[0, -900, -0.5], [-1200, 120, 0.4], [1200, -60, -0.35], [-200, 820, 0.6], [1000, 760, -0.4]];
+// copias del mapa: entran por los lados en [costumbre] y el montón sale por la izquierda antes de [espacio]
+const COPIAS = [[-16, 12, -0.04, -1500, 30, -0.25], [14, -8, 0.032, 1500, -20, 0.22], [-8, -14, 0.016, -1500, -10, 0.18], [10, 6, -0.014, 1500, 24, -0.2]];
 
 function escenaEn(t) {
   const g = K.g;
-  const tC = M('costumbre'), tE = M('espacio'), tA = M('australiano');
+  const tC = M('costumbre'), tE = M('espacio');
 
   // --- 1. mapamundi con el norte arriba, la flecha N y el montón de copias ---
-  const huye = eio(seg(t, tE - 0.46, tE - 0.14));
-  if (huye < 1) {
+  const huye = (i) => eio(seg(t, tE - 0.4 + 0.025 * i, tE - 0.2 + 0.025 * i));
+  if (huye(4) < 1) {
     const cartas = [[0, 0, 0, 1]];
     COPIAS.forEach(([ox, oy, r, fx, fy, fr], i) => {
       const a = tC - 0.34 + 0.065 * i, u = seg(t, a, a + 0.14);
       if (u > 0) cartas.push([ox + fx * (1 - eout(u)), oy + fy * (1 - eout(u)), r + fr * (1 - eout(u)), Math.min(1, 0.6 + u)]);
     });
     cartas.forEach(([ox, oy, r, u], i) => {
-      const [hx, hy, hr] = HUIDA[i % HUIDA.length];
-      tarjeta(TARJETA_N, MAPA.x + ox + hx * huye, MAPA.y + oy + hy * huye, r + hr * huye, u, 10 * huye);
+      const k = huye(4 - i);   // la de arriba sale primero
+      if (k < 1) tarjeta(TARJETA_N, MAPA.x + ox - 1500 * k, MAPA.y + oy + 40 * k * (i % 2 ? 1 : -1), r - 0.2 * k * (i % 2 ? 1 : -1), u, 10 * k);
     });
-    g.save(); g.translate(0, -700 * huye);
+    g.save(); g.translate(0, -620 * huye(0));
     flechaPolo('N', tramo(t, 'norte', -0.3, 0), C.coral, C.ivory, 210);
     g.restore();
   }
 
-  // --- 2. la Tierra en el espacio: flechas ↑ ↓ que pierden el sentido ---
+  // --- 2. la Tierra en el espacio: las flechas ↑ ↓ salen despedidas dando vueltas alrededor ---
   const uT = tramo(t, 'espacio', -0.3, 0), seVa = ein(tramo(t, 'este', -0.75, -0.32));
   if (uT > 0 && seVa < 1) {
     const p = K.colocar(uT), giro = 0.75 * eio(seg(t, tE, tE + 3.4)) - 0.9 * seVa;
     g.save(); g.translate(TIERRA.x + p.dx, TIERRA.y + p.dy - 760 * seVa); g.scale(p.s, p.s); g.rotate(giro);
     K.elevar(p.d + 8 * seVa, () => K.tierra(0, 0, TIERRA.R, { lon0: 10 - 9 * (t - tE), lat0: 16, id: 120 }));
     g.restore();
-    const uF = eout(uT), apaga = seg(t, tE + 0.3, tE + 1.7);
-    if (apaga < 1) [[-1, TIERRA.y - TIERRA.R - 86, 0, -1.9], [1, TIERRA.y + TIERRA.R + 86, PI, 2.4]].forEach(([s, y, r0, vuelta]) => {
-      const k = eio(apaga);
-      K.pegar(FLECHA_V, TIERRA.x + s * 70 * k, y + s * 40 * k, { rot: r0 + vuelta * k, esc: lerp(0.3, 1, uF) * (1 - 0.35 * k), alfa: uF * (1 - k), d: 3 });
+    const uF = eout(uT), k = seg(t, M('espacio_fin') + 0.05, M('espacio_fin') + 0.45);
+    if (k < 1) [[-PI / 2, 2.4], [PI / 2, 2.4]].forEach(([a0, vuelta]) => {
+      const a = a0 + vuelta * eio(k), r = TIERRA.R + 86 + 980 * ein(k);
+      K.pegar(FLECHA_V, TIERRA.x + r * Math.cos(a), TIERRA.y + r * Math.sin(a), { rot: a + PI / 2, esc: lerp(0.3, 1, uF), d: 3 + 8 * k });
     });
   }
 
@@ -223,7 +238,7 @@ function escenaEn(t) {
   const uTO = tramo(t, 'este', -0.3, 0), salen = ein(tramo(t, 'australiano', -0.75, -0.35));
   if (uTO > 0 && salen < 1) {
     const p = K.colocar(uTO);
-    g.save(); g.translate(-900 * salen, -120 * salen);
+    g.save(); g.translate(-1150 * salen, 160 * salen);
     K.pegar(MAPA_TO, TO.x + p.dx, TO.y + p.dy, { esc: p.s, rot: -0.4 * salen, d: 5 + p.d + 10 * salen });
     // la E del T-O: una ficha dorada con rayos de sol naciente
     const uE = tramo(t, 'este', -0.22, 0.02), ex = TO.x, ey = TO.y - TO.R - 62;
@@ -242,7 +257,7 @@ function escenaEn(t) {
     if (uR > 0) {
       const q = K.colocar(uR), giro = -PI / 2 * eback(tramo(t, 'orientarse', -0.3, 0), 1.2);
       // marca fija arriba: lo que queda debajo es «arriba»
-      g.save(); g.translate(1100 * salen, -80 * salen);
+      g.save(); g.translate(900 * salen, 60 * salen);
       g.save(); g.translate(ROSA.x + q.dx, ROSA.y - ROSA.R - 22 + q.dy); g.scale(q.s, q.s);
       K.papel(K.poligono([[-13, -14], [13, -14], [0, 8]]), C.coral, { d: 2.4 + q.d, seed: 390, edge: 0.7 });
       g.restore();
@@ -261,15 +276,18 @@ function escenaEn(t) {
     }
   }
 
-  // --- 4. mapamundi de 1979 con el sur arriba, la flecha S y el sello ✓ ---
+  // --- 4. el mapa de 1979 (McArthur, centrado en el Pacífico): [australiano] se posa con el norte
+  //     arriba; antes de [sur] gira 180° sobre la mesa hasta dejar el sur arriba. Se dibuja en vivo
+  //     para que la luz y las sombras no giren con él. La etiqueta 1979 queda clavada al fondo.
   const uS = tramo(t, 'australiano', -0.3, 0);
   if (uS > 0) {
-    const giro = -PI * (1 - eback(uS, 1.1));
-    tarjeta(TARJETA_S, MAPA.x, MAPA.y, giro, uS);
-    // la etiqueta del año, clavada en la esquina de arriba a la izquierda
+    const p = K.colocar(uS), uG = tramo(t, 'sur', -0.8, 0), giro = -PI * (1 - eback(uG, 1.1)), alza = Math.sin(PI * cl(uG));
+    g.save(); g.translate(MAPA.x + p.dx, MAPA.y + p.dy); g.scale(p.s, p.s); g.rotate(giro); K.temblor(245, 0.35, 0.0015);
+    K.elevar(p.d + 9 * alza, () => cartaMapa(true, LON0_SUR, 240, 5));
+    g.restore();
     const uY = tramo(t, 'australiano', -0.2, 0.04), yx = MAPA.x - MAPA.w / 2 + 70, yy = ARRIBA + 6;
     if (uY > 0) {
-      K.etiqueta(yx, yy, '1979', { forma: 'rect', size: 40, col: C.coral, ink: C.ivory, u: uY, rot: -0.07, id: 395 });
+      K.etiqueta(yx, yy, '1979', { forma: 'rect', size: 40, col: C.coral, ink: C.ivory, u: uY, rot: -0.07, id: 395, d: 4 + 8 * alza });
       if (uY >= 1) K.chincheta(yx + 1, yy - 22, 7);
     }
     flechaPolo('S', tramo(t, 'sur', -0.3, 0), C.gold, C.gold, 220);
