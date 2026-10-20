@@ -213,7 +213,7 @@ const espacio = K.capa(() => {
   let n = 0;
   for (let i = 0; i < 400 && n < 10; i++) {
     const x = 70 + r() * 1780, y = 70 + r() * 940, s = 9 + r() * 15, e = 0.3 + r() * 0.45, a = r() * PI, col = r() < 0.5 ? '#8f8fc4' : '#b9a7c9';
-    if (Math.hypot(x - 820, y - 520) < 480 || (x > 1220 && y < 330) || x > 1530) continue;
+    if (Math.hypot(x - 820, y - 520) < 480 || (x > 1220 && y < 330) || (x > 1270 && y > 430 && y < 630) || x > 1530) continue;
     n++;
     c.save(); c.translate(x, y); c.rotate(a);
     destello(0, 0, s * 1.7, 0.35, true);
@@ -380,8 +380,8 @@ function globo(z, t) {
   if (Math.cos(a1 + da / 2 - noche) < 0) da -= TAU;
   const nArc = Math.max(24, Math.min(160, Math.round(Math.abs(da) * Rn / 12)));
   for (let i = 1; i < nArc; i++) { const t2 = a1 + da * i / nArc; pts.push([Ex + Rn * Math.cos(t2), cy + Rn * Math.sin(t2)]); }
-  c.save(); c.globalAlpha = 0.72;
-  K.papel(K.poligono(pts), '#0b1235', { d: barato ? 0 : 2, seed: 1130, ta: 0.6, tb: 0, edge: barato ? 0 : 0.7, sa: 0.5 });
+  c.save(); c.globalAlpha = 0.7;    // papel vegetal: sin sombra (la sombra lo pintaría dos veces)
+  K.papel(K.poligono(pts), '#0b1235', { d: 0, seed: 1130, ta: 0.6, tb: 0, edge: barato ? 0 : 0.7 });
   c.restore();
   // luces de las ciudades (solo de noche y en la cara visible)
   if (R > 60) {
@@ -900,6 +900,7 @@ const GAL_A = lamina([-1200, -1200, 1200, 1200], 0.7, (c) => dibujaGalaxia(c), 2
 function galaxia(z) {
   if (z < 19.45) return;           // antes estamos dentro del disco: solo campos de estrellas
   const c = K.g, k = CAM.ppm * GAL_U, Gx = CAM.Gx, Gy = CAM.Gy;
+  if (k <= 1.5) destello(Gx, Gy, 1250 * k, 0.22, true);
   c.save(); c.translate(Gx, Gy); c.rotate(CAM.giro);
   if (k <= 1.5) { c.scale(k / GAL_A.r, k / GAL_A.r); c.drawImage(GAL_A.cv, GAL_A.x0 * GAL_A.r, GAL_A.y0 * GAL_A.r); }
   else { c.scale(k, k); K.zoomFisico(() => dibujaGalaxia(c, true)); }
