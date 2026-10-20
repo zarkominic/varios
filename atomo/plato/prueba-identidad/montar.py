@@ -75,7 +75,8 @@ subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-
 # Cuadrícula: todas a la vez, con el audio una sola vez.
 cols = math.ceil(math.sqrt(len(ESTILOS)))
 filas = math.ceil(len(ESTILOS) / cols)
-w, h = 1920 // cols, 1080 // filas
+w = 1920 // cols
+h = w * 9 // 16                     # cada recuadro sigue en 16:9; lo que sobra de alto, en negro
 tam = h // 15
 entradas, partes = [], []
 for k, (_, nombre) in enumerate(ESTILOS):
@@ -84,7 +85,7 @@ for k, (_, nombre) in enumerate(ESTILOS):
     partes.append(f"[{k}:v]trim=end_frame={n_esc},setpts=PTS-STARTPTS,scale={w}:{h},drawbox=x=0:y=0:w={w}:h={int(tam * 1.9)}:color=black@0.55:t=fill,"
                   f"drawtext=fontfile={FUENTE}:text='{nombre.replace(':', chr(92) + ':')}':x={tam // 2}:y={int(tam * 0.42)}:fontsize={tam}:fontcolor=white[v{k}]")
 pos = '|'.join(f'{(k % cols) * w}_{(k // cols) * h}' for k in range(len(ESTILOS)))
-grafo = ';'.join(partes) + ';' + ''.join(f'[v{k}]' for k in range(len(ESTILOS))) + f'xstack=inputs={len(ESTILOS)}:layout={pos}:fill=black[v]'
+grafo = ';'.join(partes) + ';' + ''.join(f'[v{k}]' for k in range(len(ESTILOS))) + f'xstack=inputs={len(ESTILOS)}:layout={pos}:fill=black,pad=1920:1080:(ow-iw)/2:(oh-ih)/2[v]'
 subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', *entradas, '-i', VOZ, '-filter_complex', grafo,
                 '-map', '[v]', '-map', f'{len(ESTILOS)}:a', '-c:v', 'libx264', '-crf', '20', '-preset', 'medium',
                 '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart',
