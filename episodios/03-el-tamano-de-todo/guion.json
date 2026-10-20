@@ -1,0 +1,871 @@
+{
+ "serie": "ASK Atom",
+ "numero": 3,
+ "estado": "aprobado",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "From quarks to the edge of the universe: the size of EVERYTHING",
+  "es": "Del quark al borde del universo: el tamaño de TODO"
+ },
+ "principal": "en",
+ "voces": {
+  "en": {
+   "voz": "am_fenrir",
+   "lang": "en-us",
+   "velocidad": 0.95
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 1.0
+  }
+ },
+ "escenas": [
+  {
+   "id": "ep3-hola",
+   "estilo": "plastilina",
+   "visual": "Atom de cerca en el plató, se presenta (saluda, brilla, se le unen otros átomos en una molécula, pizarrita ?→!). En «How small am I?» la cámara se aleja y Atom queda diminuto junto a la punta de un dedo.",
+   "frases": [
+    {
+     "es": "Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo, y te explico lo que no te contaron en clase.",
+     "en": "Hi, I'm Atom, one of the tiny building blocks of everything, and I explain what school didn't teach you.",
+     "n": 1,
+     "marca": "hola"
+    },
+    {
+     "es": "¿Cómo de pequeño soy?",
+     "en": "How small am I?",
+     "n": 2,
+     "marca": "pequeno",
+     "pausa": 0.6
+    }
+   ]
+  },
+  {
+   "id": "ep3-manzana",
+   "estilo": "plastilina",
+   "visual": "Una manzana de plastilina crece hasta el tamaño de la Tierra (la Tierra aparece detrás para comparar); un corte de la manzana-Tierra muestra que sus átomos serían cerezas.",
+   "frases": [
+    {
+     "es": "Si una manzana creciera hasta ser tan grande como la Tierra, sus átomos serían del tamaño de una cereza.",
+     "en": "If an apple grew to the size of the Earth, its atoms would be about the size of cherries.",
+     "n": 3,
+     "marca": "manzana"
+    }
+   ]
+  },
+  {
+   "id": "ep3-promesa",
+   "estilo": "plastilina",
+   "visual": "La regla completa se despliega, de lo más pequeño (niebla) a lo más grande (red de galaxias); un «?» busca su centro; en «It's not where you think» el «?» pasa de largo de la persona.",
+   "frases": [
+    {
+     "es": "Hoy vamos a recorrer todo lo que existe, de lo más pequeño a lo más grande.",
+     "en": "Today we'll travel through everything that exists, from the smallest to the biggest.",
+     "n": 4,
+     "marca": "viaje"
+    },
+    {
+     "es": "Y al final te diré dónde está el centro de todo esto.",
+     "en": "And at the end, I'll tell you where the middle of it all is.",
+     "n": 5,
+     "marca": "centro"
+    },
+    {
+     "es": "No es donde crees.",
+     "en": "It's not where you think.",
+     "n": 6,
+     "marca": "nocrees",
+     "pausa": 0.5
+    }
+   ]
+  },
+  {
+   "id": "ep3-numeros",
+   "estilo": "isometrico",
+   "visual": "Un cerebro con un «?»; dos montones de monedas casi iguales en una balanza; un calendario de 11½ días junto a una pila de calendarios de 31 años con una persona que crece de niña a adulta.",
+   "frases": [
+    {
+     "es": "Pero antes, un problema: tu cerebro no está hecho para estos números.",
+     "en": "But first, a problem: your brain isn't built for these numbers.",
+     "n": 7,
+     "marca": "cerebro"
+    },
+    {
+     "es": "Un millón y mil millones suenan parecido.",
+     "en": "A million and a billion sound alike.",
+     "n": 8,
+     "marca": "parecido"
+    },
+    {
+     "es": "Un millón de segundos son once días y medio.",
+     "en": "A million seconds is eleven and a half days.",
+     "n": 9,
+     "marca": "millon"
+    },
+    {
+     "es": "Mil millones de segundos son treinta y un años.",
+     "en": "A billion seconds is thirty-one years.",
+     "n": 10,
+     "marca": "milmillones"
+    }
+   ],
+   "cartela": "0"
+  },
+  {
+   "id": "ep3-saltos",
+   "estilo": "plastilina",
+   "visual": "Las monedas desaparecen; la regla de potencias de diez; cada salto multiplica por diez (una caja que contiene diez cajas); la persona aparece en el 0 con el marcador.",
+   "frases": [
+    {
+     "es": "Así que no vamos a usar números: vamos a usar saltos.",
+     "en": "So we won't use numbers. We'll use jumps.",
+     "n": 11,
+     "marca": "saltos",
+     "pausa": 0.45
+    },
+    {
+     "es": "Cada salto lo hace todo diez veces más grande.",
+     "en": "Each jump makes everything ten times bigger.",
+     "n": 12,
+     "marca": "diez"
+    },
+    {
+     "es": "Salimos de ti: salto cero.",
+     "en": "We start with you: jump zero.",
+     "n": 13,
+     "marca": "cero"
+    }
+   ]
+  },
+  {
+   "id": "ep3-pelo",
+   "estilo": "plastilina",
+   "visual": "Cuatro saltos hacia abajo: persona → mano → piel con vello → un pelo como tronco con la cota 10⁻⁴ m; un ojo con su límite de visión; todo lo que viene se apaga detrás de un velo.",
+   "frases": [
+    {
+     "es": "Primero, hacia abajo.",
+     "en": "First, down.",
+     "n": 14,
+     "marca": "abajo"
+    },
+    {
+     "es": "Cuatro saltos y llegas al grosor de un pelo: una décima de milímetro.",
+     "en": "Four jumps, and you reach the thickness of a hair: a tenth of a millimeter.",
+     "n": 15,
+     "marca": "pelo"
+    },
+    {
+     "es": "Es casi lo más pequeño que puede ver tu ojo.",
+     "en": "That's about the smallest thing your eye can see.",
+     "n": 16,
+     "marca": "ojo"
+    },
+    {
+     "es": "A partir de aquí, todo es invisible para ti.",
+     "en": "From here on, everything is invisible to you.",
+     "n": 17,
+     "marca": "invisible"
+    }
+   ],
+   "cartela": "−4"
+  },
+  {
+   "id": "ep3-celulas",
+   "estilo": "plastilina",
+   "visual": "Un salto más: glóbulos rojos que pasan como discos por un vaso; uno se para junto a la regla en 10⁻⁵.",
+   "frases": [
+    {
+     "es": "Un salto más y estás entre tus células.",
+     "en": "One more jump, and you're among your cells.",
+     "n": 18,
+     "marca": "celulas"
+    },
+    {
+     "es": "Un glóbulo rojo mide siete milésimas de milímetro.",
+     "en": "A red blood cell is seven thousandths of a millimeter across.",
+     "n": 19,
+     "marca": "globulo"
+    }
+   ],
+   "cartela": "−5"
+  },
+  {
+   "id": "ep3-fabrica",
+   "estilo": "isometrico",
+   "visual": "Un cuerpo en isométrico lleno de puntos de células y otros tantos de bacterias; una fábrica de glóbulos rojos (la médula) con un contador que sube mientras dura la frase.",
+   "frases": [
+    {
+     "es": "Tienes unos treinta billones de células, y más o menos el mismo número de bacterias viviendo contigo.",
+     "en": "You have about thirty trillion cells, and roughly as many bacteria living with you.",
+     "n": 20,
+     "marca": "bacterias"
+    },
+    {
+     "es": "Mientras escuchas esta frase, tu cuerpo fabrica unos diez millones de glóbulos rojos nuevos.",
+     "en": "While you hear this sentence, your body makes about ten million new red blood cells.",
+     "n": 21,
+     "marca": "fabrica"
+    }
+   ]
+  },
+  {
+   "id": "ep3-virus",
+   "estilo": "plastilina",
+   "visual": "Dos saltos: un virus de la gripe; un microscopio que no consigue enfocarlo; una onda de luz visible mucho más larga que el virus.",
+   "frases": [
+    {
+     "es": "Dos saltos más: un virus de la gripe.",
+     "en": "Two more jumps: a flu virus.",
+     "n": 22,
+     "marca": "virus"
+    },
+    {
+     "es": "Es tan pequeño que un microscopio normal no puede verlo.",
+     "en": "It's so small that a regular microscope can't see it.",
+     "n": 23,
+     "marca": "microscopio"
+    },
+    {
+     "es": "Y no porque el microscopio sea malo: es que la luz es demasiado gruesa.",
+     "en": "Not because the microscope is bad, but because light itself is too coarse.",
+     "n": 24,
+     "marca": "luz"
+    },
+    {
+     "es": "Sus ondas son más grandes que el virus.",
+     "en": "Its waves are bigger than the virus.",
+     "n": 25,
+     "marca": "ondas"
+    }
+   ],
+   "cartela": "−7"
+  },
+  {
+   "id": "ep3-adn",
+   "estilo": "plastilina",
+   "visual": "La doble hélice con su cota; el ADN de una célula se desenrolla hasta medir 2 m junto a una persona; vuelve a enrollarse como hilo en un carrete minúsculo.",
+   "frases": [
+    {
+     "es": "Dos más: la molécula de ADN.",
+     "en": "Two more: a DNA molecule.",
+     "n": 26,
+     "marca": "adn",
+     "es_voz": "Dos más: la molécula de a de ene."
+    },
+    {
+     "es": "Mide dos millonésimas de milímetro de ancho.",
+     "en": "It's two millionths of a millimeter wide.",
+     "n": 27,
+     "marca": "ancho"
+    },
+    {
+     "es": "Pero si estiraras el ADN de una sola de tus células, mediría unos dos metros.",
+     "en": "But if you stretched out the DNA from just one of your cells, it would be about two meters long.",
+     "n": 28,
+     "marca": "estirado",
+     "es_voz": "Pero si estiraras el a de ene de una sola de tus células, mediría unos dos metros."
+    },
+    {
+     "es": "Va doblado y enrollado, como hilo en un carrete minúsculo.",
+     "en": "It's folded and coiled, like thread on a tiny spool.",
+     "n": 29,
+     "marca": "carrete"
+    }
+   ],
+   "cartela": "−9"
+  },
+  {
+   "id": "ep3-atomo",
+   "estilo": "plastilina",
+   "visual": "Atom llega a su sitio de la regla y saluda («you've reached me»); diez millones de átomos en fila llegan a 1 mm; la pizarrita ?→!.",
+   "frases": [
+    {
+     "es": "Un salto más, y llegas a mí.",
+     "en": "One more jump, and you've reached me.",
+     "n": 30,
+     "marca": "atom"
+    },
+    {
+     "es": "Diez millones de átomos en fila hacen un milímetro.",
+     "en": "Ten million atoms in a row make one millimeter.",
+     "n": 31,
+     "marca": "fila"
+    },
+    {
+     "es": "Y aquí viene lo que no te contaron en clase.",
+     "en": "And here's what they didn't tell you in school.",
+     "n": 32,
+     "marca": "clase"
+    }
+   ],
+   "cartela": "−10"
+  },
+  {
+   "id": "ep3-estadio",
+   "estilo": "isometrico",
+   "visual": "Un estadio de fútbol con una cabeza de alfiler en el centro (el núcleo) y los electrones en la grada; casi todo vacío; la persona también se vuelve casi vacía; un gesto de humor en «Don't take it personally».",
+   "frases": [
+    {
+     "es": "Si un átomo fuera un estadio de fútbol, el núcleo sería una cabeza de alfiler en el centro.",
+     "en": "If an atom were a football stadium, the nucleus would be a pinhead in the middle.",
+     "n": 33,
+     "marca": "estadio"
+    },
+    {
+     "es": "Lo demás está casi vacío.",
+     "en": "The rest is almost empty.",
+     "n": 34,
+     "marca": "vacio",
+     "pausa": 0.45
+    },
+    {
+     "es": "Tú también.",
+     "en": "So are you.",
+     "n": 35,
+     "marca": "tu",
+     "pausa": 0.55
+    },
+    {
+     "es": "No te lo tomes como algo personal.",
+     "en": "Don't take it personally.",
+     "n": 36,
+     "marca": "personal",
+     "pausa": 0.6
+    }
+   ]
+  },
+  {
+   "id": "ep3-azucar",
+   "estilo": "papel",
+   "visual": "Toda la humanidad (una multitud de recortes) se comprime en un terrón de azúcar sobre una mesa.",
+   "frases": [
+    {
+     "es": "Si quitaras el espacio vacío de los átomos de todos los seres humanos, la humanidad entera cabría en un terrón de azúcar.",
+     "en": "If you squeezed the empty space out of the atoms of every human being, all of humanity would fit in a sugar cube.",
+     "n": 37,
+     "marca": "azucar"
+    }
+   ]
+  },
+  {
+   "id": "ep3-silla",
+   "estilo": "plastilina",
+   "visual": "La persona sentada en una silla; zoom a la frontera: electrones de la persona y de la silla se empujan sin tocarse; el terrón de azúcar queda guardado en un rincón.",
+   "frases": [
+    {
+     "es": "Entonces, ¿por qué no atraviesas la silla?",
+     "en": "So why don't you fall through your chair?",
+     "n": 38,
+     "marca": "silla"
+    },
+    {
+     "es": "Porque tus electrones y los de la silla se repelen.",
+     "en": "Because your electrons and the chair's push each other away.",
+     "n": 39,
+     "marca": "repelen"
+    },
+    {
+     "es": "En realidad, nunca has tocado nada.",
+     "en": "You've never really touched anything.",
+     "n": 40,
+     "marca": "tocado",
+     "pausa": 0.5
+    },
+    {
+     "es": "Acuérdate del terrón de azúcar: volverá a salir.",
+     "en": "Remember that sugar cube. It'll come back.",
+     "n": 41,
+     "marca": "recuerda"
+    }
+   ]
+  },
+  {
+   "id": "ep3-quarks",
+   "estilo": "plastilina",
+   "visual": "Cinco saltos: el núcleo llena la imagen; dentro de un protón, tres quarks; los quarks y los electrones como puntos sin borde.",
+   "frases": [
+    {
+     "es": "Cinco saltos más abajo está el protón: una billonésima de milímetro.",
+     "en": "Five jumps further down is the proton: a trillionth of a millimeter.",
+     "n": 42,
+     "marca": "proton"
+    },
+    {
+     "es": "Dentro hay tres quarks.",
+     "en": "Inside are three quarks.",
+     "n": 43,
+     "marca": "quarks"
+    },
+    {
+     "es": "Y a los quarks y a los electrones nadie ha conseguido medirlos.",
+     "en": "And quarks and electrons? No one has ever managed to measure them.",
+     "n": 44,
+     "marca": "medir"
+    },
+    {
+     "es": "Hasta donde sabemos, son puntos sin tamaño.",
+     "en": "As far as we know, they're points with no size at all.",
+     "n": 45,
+     "marca": "puntos"
+    }
+   ],
+   "cartela": "−15"
+  },
+  {
+   "id": "ep3-planck",
+   "estilo": "plastilina",
+   "visual": "La regla sigue bajando hasta perderse en la niebla (Planck); «?»; vuelta rápida a la persona y mirada hacia arriba.",
+   "frases": [
+    {
+     "es": "Veinte saltos más abajo está la longitud de Planck, donde la física que conocemos deja de funcionar.",
+     "en": "Twenty jumps further down is the Planck length, where the physics we know stops working.",
+     "n": 46,
+     "marca": "planck"
+    },
+    {
+     "es": "Qué hay ahí, no lo sabe nadie.",
+     "en": "What's down there, nobody knows.",
+     "n": 47,
+     "marca": "nadie",
+     "pausa": 0.6
+    },
+    {
+     "es": "Volvamos a ti, y ahora, hacia arriba.",
+     "en": "Let's go back to you, and now, head up.",
+     "n": 48,
+     "marca": "arriba"
+    }
+   ]
+  },
+  {
+   "id": "ep3-tierra",
+   "estilo": "plastilina",
+   "visual": "Siete saltos hacia arriba hasta la Tierra entera; la Tierra junto a una manzana, con la capa de aire más fina que su piel; un salto más y aparece la Luna.",
+   "frases": [
+    {
+     "es": "Siete saltos hacia arriba y ya no se te ve: la Tierra mide casi trece mil kilómetros.",
+     "en": "Seven jumps up and you've vanished from view: the Earth is almost eight thousand miles across.",
+     "n": 49,
+     "marca": "tierra"
+    },
+    {
+     "es": "Si la Tierra fuera una manzana, todo el aire que puedes respirar sería más fino que su piel.",
+     "en": "If the Earth were an apple, all the air you can breathe would be thinner than its skin.",
+     "n": 50,
+     "marca": "aire"
+    },
+    {
+     "es": "Un salto más, y aparece la Luna.",
+     "en": "One more jump, and the Moon appears.",
+     "n": 51,
+     "marca": "luna"
+    }
+   ],
+   "cartela": "+7"
+  },
+  {
+   "id": "ep3-planetas",
+   "estilo": "papel",
+   "visual": "La Tierra y la Luna en su punto más lejano; en el hueco, los otros siete planetas en fila, de papel.",
+   "frases": [
+    {
+     "es": "Cuando está en su punto más lejano, en el hueco entre ella y nosotros caben todos los demás planetas, en fila.",
+     "en": "At its farthest, every other planet fits in the gap between it and us, lined up side by side.",
+     "n": 52,
+     "marca": "planetas"
+    }
+   ]
+  },
+  {
+   "id": "ep3-sol",
+   "estilo": "plastilina",
+   "visual": "Otro salto: el Sol; se llena de Tierras diminutas.",
+   "frases": [
+    {
+     "es": "Otro salto: el Sol.",
+     "en": "Another jump: the Sun.",
+     "n": 53,
+     "marca": "sol"
+    },
+    {
+     "es": "Dentro cabrían más de un millón de Tierras.",
+     "en": "You could fit over a million Earths inside it.",
+     "n": 54,
+     "marca": "tierras"
+    }
+   ],
+   "cartela": "+9"
+  },
+  {
+   "id": "ep3-balanza",
+   "estilo": "papel",
+   "visual": "Una balanza: el Sol en un plato y los planetas como migas en el otro; el plato del Sol se hunde.",
+   "frases": [
+    {
+     "es": "Y tiene casi toda la masa del sistema solar: más del noventa y nueve por ciento.",
+     "en": "And it holds almost all the mass in the solar system: more than ninety-nine percent.",
+     "n": 55,
+     "marca": "masa"
+    },
+    {
+     "es": "Los planetas, nosotros incluidos, somos las migajas.",
+     "en": "The planets, us included, are the crumbs.",
+     "n": 56,
+     "marca": "migajas"
+    }
+   ]
+  },
+  {
+   "id": "ep3-neutrones",
+   "estilo": "plastilina",
+   "visual": "El terrón de azúcar vuelve; una estrella grande muere y se aplasta en una bola del tamaño de una ciudad (la regla baja a +4).",
+   "frases": [
+    {
+     "es": "¿Te acuerdas del terrón de azúcar?",
+     "en": "Remember the sugar cube?",
+     "n": 57,
+     "marca": "terron"
+    },
+    {
+     "es": "Hay estrellas que lo hacen de verdad.",
+     "en": "Some stars actually do it.",
+     "n": 58,
+     "marca": "estrellas"
+    },
+    {
+     "es": "Cuando una estrella grande muere, se aplasta tanto que sus átomos pierden el espacio vacío.",
+     "en": "When a big star dies, it collapses so hard that its atoms lose their empty space.",
+     "n": 59,
+     "marca": "muere"
+    },
+    {
+     "es": "Queda una estrella de neutrones: más masa que el Sol, en una bola del tamaño de una ciudad.",
+     "en": "What's left is a neutron star: more mass than the Sun, in a ball the size of a city.",
+     "n": 60,
+     "marca": "ciudad"
+    }
+   ],
+   "cartela": "+4"
+  },
+  {
+   "id": "ep3-cucharita",
+   "estilo": "papel",
+   "visual": "Una cucharita de estrella de neutrones en un plato de la balanza y todos los coches del mundo en el otro.",
+   "frases": [
+    {
+     "es": "Una cucharadita pesaría tanto como todos los coches del mundo juntos.",
+     "en": "A teaspoon of it would weigh as much as every car on Earth put together.",
+     "n": 61,
+     "marca": "cucharita"
+    }
+   ]
+  },
+  {
+   "id": "ep3-betelgeuse",
+   "estilo": "isometrico",
+   "visual": "El Sol entre otras estrellas; Betelgeuse puesta en el lugar del Sol se traga las órbitas hasta Marte; su borde difuso como una nube; en 2019 se oscurece detrás de su propio polvo.",
+   "frases": [
+    {
+     "es": "Y el Sol es una estrella del montón.",
+     "en": "And the Sun is a pretty average star.",
+     "n": 62,
+     "marca": "monton"
+    },
+    {
+     "es": "Betelgeuse, el hombro de Orión, puesta en el lugar del Sol, se tragaría Mercurio, Venus, la Tierra y Marte.",
+     "en": "Betelgeuse, Orion's shoulder, placed where the Sun is, would swallow Mercury, Venus, Earth and Mars.",
+     "n": 63,
+     "marca": "betelgeuse"
+    },
+    {
+     "es": "No sabemos su tamaño exacto: su borde es difuso, como el de una nube.",
+     "en": "We don't know its exact size: its edge is fuzzy, like a cloud's.",
+     "n": 64,
+     "marca": "borde"
+    },
+    {
+     "es": "En 2019 se apagó tanto que mucha gente pensó que iba a explotar.",
+     "en": "In 2019 it dimmed so much that many people thought it was about to explode.",
+     "n": 65,
+     "marca": "oscurece",
+     "es_voz": "En dos mil diecinueve se apagó tanto que mucha gente pensó que iba a explotar.",
+     "en_voz": "In twenty nineteen it dimmed so much that many people thought it was about to explode."
+    },
+    {
+     "es": "Era una nube de polvo que había soltado ella misma.",
+     "en": "It was a cloud of dust it had puffed out itself.",
+     "n": 66,
+     "marca": "polvo"
+    }
+   ],
+   "cartela": "+12"
+  },
+  {
+   "id": "ep3-luz",
+   "estilo": "plastilina",
+   "visual": "Cuatro saltos: los kilómetros no bastan; un rayo da siete vueltas y media a la Tierra con un reloj de 1 s; la luz tarda 8 min desde el Sol; el Sol se apaga y su imagen sigue viajando.",
+   "frases": [
+    {
+     "es": "Cuatro saltos más y los kilómetros se quedan cortos: medimos con luz.",
+     "en": "Four more jumps and miles fall short: we measure with light.",
+     "n": 67,
+     "marca": "luz"
+    },
+    {
+     "es": "La luz da siete vueltas y media a la Tierra en un segundo.",
+     "en": "Light circles the Earth seven and a half times in one second.",
+     "n": 68,
+     "marca": "vueltas"
+    },
+    {
+     "es": "Desde el Sol tarda ocho minutos en llegarnos.",
+     "en": "From the Sun, it takes eight minutes to reach us.",
+     "n": 69,
+     "marca": "ocho"
+    },
+    {
+     "es": "Si el Sol desapareciera, lo seguirías viendo ocho minutos más.",
+     "en": "If the Sun disappeared, you'd keep seeing it for eight more minutes.",
+     "n": 70,
+     "marca": "desaparece"
+    }
+   ],
+   "cartela": "+16"
+  },
+  {
+   "id": "ep3-voyager",
+   "estilo": "papel",
+   "visual": "La Voyager 1 en una tira de papel que marca un día luz; Próxima Centauri a más de 4 años luz; un reloj que marca 70.000 años.",
+   "frases": [
+    {
+     "es": "Nuestra nave más lejana, la Voyager 1, lleva casi cincuenta años viajando, y está a un día luz de nosotros.",
+     "en": "Our most distant spacecraft, Voyager 1, has been flying for almost fifty years, and it's about one light-day away.",
+     "n": 71,
+     "marca": "voyager",
+     "es_voz": "Nuestra nave más lejana, la Voyager uno, lleva casi cincuenta años viajando, y está a un día luz de nosotros.",
+     "en_voz": "Our most distant spacecraft, Voyager One, has been flying for almost fifty years, and it's about one light-day away."
+    },
+    {
+     "es": "La estrella más cercana está a más de cuatro años luz.",
+     "en": "The nearest star is more than four light-years away.",
+     "n": 72,
+     "marca": "proxima"
+    },
+    {
+     "es": "A esa velocidad, llegar hasta ella costaría unos setenta mil años.",
+     "en": "At that speed, getting there would take about seventy thousand years.",
+     "n": 73,
+     "marca": "anos"
+    }
+   ]
+  },
+  {
+   "id": "ep3-galaxia",
+   "estilo": "plastilina",
+   "visual": "Cinco saltos: la Vía Láctea desde fuera; la luz la cruza en cien mil años; una flecha diminuta en las afueras: estamos aquí.",
+   "frases": [
+    {
+     "es": "Cinco saltos más: nuestra galaxia, la Vía Láctea.",
+     "en": "Five more jumps: our galaxy, the Milky Way.",
+     "n": 74,
+     "marca": "galaxia"
+    },
+    {
+     "es": "La luz tarda cien mil años en cruzarla, y tiene cientos de miles de millones de estrellas.",
+     "en": "Light takes a hundred thousand years to cross it, and it holds hundreds of billions of stars.",
+     "n": 75,
+     "marca": "cruzar"
+    },
+    {
+     "es": "Nosotros vivimos en las afueras, a veintiséis mil años luz del centro.",
+     "en": "We live out in the suburbs, twenty-six thousand light-years from the center.",
+     "n": 76,
+     "marca": "afueras"
+    }
+   ],
+   "cartela": "+21"
+  },
+  {
+   "id": "ep3-dinosaurios",
+   "estilo": "papel",
+   "visual": "El Sol da una vuelta a la galaxia; en la vuelta anterior, en el mismo punto, aparecen los primeros dinosaurios.",
+   "frases": [
+    {
+     "es": "El Sol tarda unos doscientos treinta millones de años en dar una vuelta a la galaxia.",
+     "en": "The Sun takes about two hundred and thirty million years to go once around the galaxy.",
+     "n": 77,
+     "marca": "vuelta"
+    },
+    {
+     "es": "La última vez que pasamos por este punto, los dinosaurios acababan de aparecer.",
+     "en": "The last time we passed this spot, the first dinosaurs had just appeared.",
+     "n": 78,
+     "marca": "dinosaurios"
+    }
+   ]
+  },
+  {
+   "id": "ep3-andromeda",
+   "estilo": "plastilina",
+   "visual": "Andrómeda junto a la Vía Láctea; una persona la mira sin telescopio; su luz salió antes que los humanos modernos (línea de tiempo); las dos galaxias se acercan.",
+   "frases": [
+    {
+     "es": "Andrómeda, la vecina, está a dos millones y medio de años luz.",
+     "en": "Andromeda, our neighbor, is two and a half million light-years away.",
+     "n": 79,
+     "marca": "andromeda"
+    },
+    {
+     "es": "Es de lo más lejano que puedes ver sin telescopio.",
+     "en": "It's one of the farthest things you can see without a telescope.",
+     "n": 80,
+     "marca": "simple"
+    },
+    {
+     "es": "La luz que ves de ella esta noche salió antes de que existieran los humanos modernos.",
+     "en": "The light you see from it tonight left before modern humans existed.",
+     "n": 81,
+     "marca": "humanos"
+    },
+    {
+     "es": "Y viene hacia nosotros: dentro de miles de millones de años, puede que las dos se fundan en una sola galaxia.",
+     "en": "And it's heading our way: billions of years from now, the two may merge into a single galaxy.",
+     "n": 82,
+     "marca": "fusion"
+    }
+   ],
+   "cartela": "+22"
+  },
+  {
+   "id": "ep3-universo",
+   "estilo": "plastilina",
+   "visual": "Seis saltos: la red de filamentos de galaxias y la esfera de lo observable; «Wait»; el espacio se estira bajo un rayo de luz.",
+   "frases": [
+    {
+     "es": "Seis saltos más y llegamos al final: el universo observable.",
+     "en": "Six more jumps, and we reach the end: the observable universe.",
+     "n": 83,
+     "marca": "universo"
+    },
+    {
+     "es": "Mide unos noventa y tres mil millones de años luz.",
+     "en": "It's about ninety-three billion light-years across.",
+     "n": 84,
+     "marca": "mide"
+    },
+    {
+     "es": "Espera.",
+     "en": "Wait.",
+     "n": 85,
+     "marca": "espera",
+     "pausa": 0.6
+    },
+    {
+     "es": "Si el universo tiene trece mil ochocientos millones de años, ¿cómo puede ser tan grande?",
+     "en": "If the universe is thirteen point eight billion years old, how can it be that big?",
+     "n": 86,
+     "marca": "edad"
+    },
+    {
+     "es": "Porque mientras la luz viajaba, el espacio se iba estirando.",
+     "en": "Because while the light was traveling, space itself kept stretching.",
+     "n": 87,
+     "marca": "estira"
+    }
+   ],
+   "cartela": "+27"
+  },
+  {
+   "id": "ep3-moneda",
+   "estilo": "papel",
+   "visual": "La Vía Láctea se vuelve una moneda; el universo observable, una esfera de más de 20 km junto a una ciudad, salpicada de monedas; más allá, oscuridad con más monedas que aún no se ven.",
+   "frases": [
+    {
+     "es": "Si la Vía Láctea fuera una moneda, el universo observable sería una esfera de más de veinte kilómetros, salpicada de cientos de miles de millones de monedas.",
+     "en": "If the Milky Way were a coin, the observable universe would be a sphere more than twelve miles wide, sprinkled with hundreds of billions of coins.",
+     "n": 88,
+     "marca": "moneda"
+    },
+    {
+     "es": "Y casi seguro hay más universo más allá: su luz todavía no ha tenido tiempo de llegarnos.",
+     "en": "And there's almost certainly more universe beyond it: its light just hasn't had time to reach us.",
+     "n": 89,
+     "marca": "mas"
+    }
+   ]
+  },
+  {
+   "id": "ep3-centro",
+   "estilo": "plastilina",
+   "visual": "La regla entera de Planck al borde del universo; una flecha busca el punto medio y cae cuatro saltos por debajo de la persona, en el pelo del principio; la persona, gigante en su propio universo.",
+   "frases": [
+    {
+     "es": "Ahora, la pregunta del principio: ¿dónde está el centro de todo esto?",
+     "en": "Now, the question from the start: where's the middle of all this?",
+     "n": 90,
+     "marca": "pregunta"
+    },
+    {
+     "es": "Desde la longitud de Planck hasta el borde del universo hay algo más de sesenta saltos.",
+     "en": "From the Planck length to the edge of the universe, there are just over sixty jumps.",
+     "n": 91,
+     "marca": "sesenta"
+    },
+    {
+     "es": "El punto medio no eres tú.",
+     "en": "The midpoint isn't you.",
+     "n": 92,
+     "marca": "notu",
+     "pausa": 0.5
+    },
+    {
+     "es": "Está cuatro saltos por debajo: el grosor de un pelo.",
+     "en": "It's four jumps below you: the thickness of a hair.",
+     "n": 93,
+     "marca": "pelo"
+    },
+    {
+     "es": "El mismo pelo del primer salto: lo más pequeño que puede ver tu ojo.",
+     "en": "The same hair from our very first jump: the smallest thing your eye can see.",
+     "n": 94,
+     "marca": "mismo"
+    },
+    {
+     "es": "En tu propio universo, eres un gigante.",
+     "en": "In your own universe, you're a giant.",
+     "n": 95,
+     "marca": "gigante",
+     "pausa": 0.6
+    }
+   ],
+   "cartela": "½"
+  },
+  {
+   "id": "ep3-despedida",
+   "estilo": "plastilina",
+   "visual": "Un gigante de átomos casi vacíos en una galaxia-moneda entre muchas; Atom de cerca con un bocadillo «?» y una flecha hacia abajo (comentarios).",
+   "frases": [
+    {
+     "es": "Un gigante hecho de átomos casi vacíos, en una galaxia que es una moneda entre cientos de miles de millones.",
+     "en": "A giant made of almost-empty atoms, in a galaxy that's one coin among hundreds of billions.",
+     "n": 96,
+     "marca": "vacio"
+    },
+    {
+     "es": "¿Qué quieres que te explique ahora?",
+     "en": "What should I explain next?",
+     "n": 97,
+     "marca": "siguiente"
+    },
+    {
+     "es": "Déjamelo en los comentarios.",
+     "en": "Tell me in the comments.",
+     "n": 98,
+     "marca": "comentarios"
+    }
+   ]
+  }
+ ]
+}

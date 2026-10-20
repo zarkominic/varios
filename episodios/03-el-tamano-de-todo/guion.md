@@ -1,6 +1,6 @@
 # Episodio 3 · El tamaño de todo: del quark al universo
 
-**Estado:** borrador v3 para revisar (aplica `episodios/GUIA-NARRATIVA.md`) · **Formato:** YouTube horizontal 16:9, un solo vídeo con dos pistas de audio (inglés original y español) · **Duración objetivo:** 8–10 minutos (pasar de 8 permite anuncios a mitad del vídeo)
+**Estado:** aprobado (v3) (aplica `episodios/GUIA-NARRATIVA.md`) · **Formato:** YouTube horizontal 16:9, un solo vídeo con dos pistas de audio (inglés original y español) · **Duración objetivo:** 8–10 minutos (pasar de 8 permite anuncios a mitad del vídeo)
 
 **Hilo:**
 - **Reencuadre:** contamos el universo en *saltos*, y cada salto lo hace todo diez veces más grande. Salimos de ti, en el salto 0. Primero bajamos hasta lo más pequeño que se puede medir; luego volvemos a ti y subimos hasta el borde del universo observable.
@@ -166,7 +166,7 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 |---|---|
 | Y el Sol es una estrella del montón. | And the Sun is a pretty average star. |
 | Betelgeuse, el hombro de Orión, puesta en el lugar del Sol, se tragaría Mercurio, Venus, la Tierra y Marte. | Betelgeuse, Orion's shoulder, placed where the Sun is, would swallow Mercury, Venus, Earth and Mars. |
-| Su tamaño exacto no lo sabemos: su borde es difuso, como el de una nube. | We don't know its exact size: its edge is fuzzy, like a cloud's. |
+| No sabemos su tamaño exacto: su borde es difuso, como el de una nube. | We don't know its exact size: its edge is fuzzy, like a cloud's. |
 | En 2019 se apagó tanto que mucha gente pensó que iba a explotar. | In 2019 it dimmed so much that many people thought it was about to explode. |
 | Era una nube de polvo que había soltado ella misma. | It was a cloud of dust it had puffed out itself. |
 
