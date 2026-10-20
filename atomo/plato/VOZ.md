@@ -42,3 +42,18 @@ Cada arreglo tapó un caso, pero el planteamiento (cortar una locución larga po
    - En inglés no se dice «I'm Atom, an atom», que con esta voz suena «Adam, an Adam». La presentación fija está en `episodios/GUIA-NARRATIVA.md`.
 
 Con esto, la única revisión manual será la lista de clips señalados, normalmente vacía o de dos o tres frases.
+
+## Cómo quedó (`atomo/herramientas/locutar_frases.py`)
+
+- **Clips:** cada frase y cada idioma es un clip de Kokoro, guardado en caché.
+- **«Atom»:** se corrige en los fonemas. Pasa de `ˈæɾəm` (t blanda, suena «Adam») a `ˈætʌm`. Con eso Whisper ya oye «Atom».
+- **Control:**
+  - Whisper compara el texto y avisa si falta, sobra o se repite alguna palabra. Las cifras escritas con números y los cambios de una sola letra no cuentan.
+  - También mide los huecos dentro de una palabra. Más de 0,2 s es un fallo y el clip se vuelve a sintetizar a otra velocidad. Entre 0,16 y 0,2 s es un aviso para escucharlo.
+  - Las oclusiones normales de esta voz («exacto», «mercurio») llegan a 0,17 s.
+- **Ritmo:**
+  - El inglés va a 0,95.
+  - El español se sintetiza a la velocidad que lo acerque, entre 0,92 y 1,10, y se estira como mucho un 5 %.
+  - Si aun así es más largo, la frase dura lo que el español y el inglés deja silencio detrás. Una voz acelerada suena con prisa; un silencio tras la frase, no.
+- **Marcas:** cada frase tiene la suya, al inicio (y `_fin` al final de la frase en inglés). Así la imagen cae igual en los dos idiomas.
+- **Salida:** `informe.json` lista cada clip con su velocidad, tempo, fallos y avisos.
