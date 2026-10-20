@@ -241,7 +241,7 @@ const vec3 C_LIGHT  = vec3(0.520, 0.460, 0.350);
 const vec3 C_SAND   = vec3(0.265, 0.212, 0.150);
 const vec3 C_OCEAN  = vec3(0.020, 0.040, 0.060);
 const vec3 C_LAND   = vec3(0.070, 0.080, 0.035);
-const vec3 C_WATER  = vec3(0.040, 0.068, 0.085);
+const vec3 C_WATER  = vec3(0.055, 0.085, 0.100);
 const vec3 C_PIEL   = vec3(0.500, 0.305, 0.205);
 const vec3 C_JERSEY = vec3(0.250, 0.240, 0.220);
 const vec3 C_VAQUERO = vec3(0.120, 0.100, 0.068);
@@ -343,12 +343,12 @@ float rioD(vec2 p) {
 float centroD(vec2 p) { return length((p - CIUDAD) / vec2(2300.0, 1800.0)) - 1.0 + 0.1 * (vnoise(p / 600.0) - 0.5); }
 float ciudadD(vec2 p) { vec2 q = p - CIUDAD; return length(q * vec2(1.0, 1.12)) - 8500.0 + 3600.0 * (fbm3(p / 4200.0) - 0.5); }
 vec3 colorTejado(float k) {
-  if (k < 0.40) return vec3(0.34, 0.135, 0.075);
-  if (k < 0.58) return vec3(0.27, 0.11, 0.065);
-  if (k < 0.71) return vec3(0.115, 0.115, 0.12);
-  if (k < 0.81) return vec3(0.37, 0.27, 0.15);
-  if (k < 0.90) return vec3(0.16, 0.16, 0.135);
-  return vec3(0.27, 0.19, 0.135);
+  if (k < 0.32) return vec3(0.32, 0.15, 0.075);
+  if (k < 0.46) return vec3(0.25, 0.12, 0.065);
+  if (k < 0.62) return vec3(0.12, 0.12, 0.125);
+  if (k < 0.74) return vec3(0.34, 0.27, 0.17);
+  if (k < 0.87) return vec3(0.17, 0.165, 0.145);
+  return vec3(0.26, 0.19, 0.135);
 }
 vec3 colorCampo(float k) {
   if (k < 0.2) return vec3(0.34, 0.26, 0.12);
@@ -377,36 +377,85 @@ void arbol(inout Sup s, vec2 q, float r, float alto, float pw, float sem) {
 }
 // el barrio de p: su celda (xy) y la distancia (m) al borde con el barrio vecino (z)
 vec2 semZ(vec2 c) { return (c + 0.2 + 0.6 * hash22(c * 1.37 + 41.0)) * ZB; }
-vec3 barrio(vec2 p) {
+vec4 barrio(vec2 p) {
   vec2 c0 = floor(p / ZB);
-  float d1 = 1e12, d2 = 1e12; vec2 i1 = c0, s1 = vec2(0.0), s2 = vec2(0.0);
+  float d1 = 1e12, d2 = 1e12; vec2 i1 = c0, i2 = c0, s1 = vec2(0.0), s2 = vec2(0.0);
   for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) {
     vec2 c = c0 + vec2(float(i), float(j));
     vec2 sm = semZ(c);
     vec2 dd = p - sm; float d = dot(dd, dd);
-    if (d < d1) { d2 = d1; s2 = s1; d1 = d; s1 = sm; i1 = c; }
-    else if (d < d2) { d2 = d; s2 = sm; }
+    if (d < d1) { d2 = d1; s2 = s1; i2 = i1; d1 = d; s1 = sm; i1 = c; }
+    else if (d < d2) { d2 = d; s2 = sm; i2 = c; }
   }
-  return vec3(i1, dot(0.5 * (s1 + s2) - p, normalize(s2 - s1)));
+  return vec4(i1, dot(0.5 * (s1 + s2) - p, normalize(s2 - s1)), hash12(i1 + i2 * 1.13 + 0.37 * (i1 * i2)));
 }
-// tipo: 0 residencial · 1 casco antiguo · 2 parque · 3 campo (fuera de la ciudad)
-struct Urb { vec2 q; vec2 zid; float dZ; float tipo; float kz; };
+// tipo: 0 residencial · 1 casco antiguo · 2 parque · 3 campo (fuera de la ciudad) · 4 ensanche · 5 polígono
+// sc: escala de la trama del barrio (manzanas más grandes o más pequeñas) · av: su borde es avenida
+struct Urb { vec2 q; vec2 zid; float dZ; float tipo; float kz; float sc; float av; };
 Urb urbe(vec2 p) {
   Urb U;
-  vec3 b = barrio(p);
-  vec3 b0 = barrio(vec2(0.0));
+  vec4 b = barrio(p);
+  vec4 b0 = barrio(vec2(0.0));
   bool z0 = all(equal(b.xy, b0.xy));
-  U.zid = b.xy; U.dZ = b.z; U.kz = hash12(b.xy + 61.0);
+  U.zid = b.xy; U.dZ = b.z; U.kz = hash12(b.xy + 61.0); U.av = step(b.w, 0.62);
+  U.sc = z0 ? 1.0 : mix(0.8, 1.5, hash12(b.xy + 23.0));
   float ang = z0 ? 0.0 : (hash12(b.xy + 3.3) - 0.5) * 1.3;
   vec2 off = z0 ? vec2(0.0) : hash22(b.xy + 7.7) * vec2(PX, PY);
   vec2 q = rot2(ang) * p + off;
   q += smoothstep(300.0, 1500.0, length(p)) * 55.0 * (vec2(vnoise(p / 650.0), vnoise(p / 650.0 + 9.3)) - 0.5);
   U.q = q;
   U.tipo = 0.0;
-  if (!z0 && hash12(b.xy + 91.0) < 0.13) U.tipo = 2.0;
+  float kt = hash12(b.xy + 91.0);
+  float dCen = length(semZ(b.xy) - CIUDAD);
+  if (!z0 && kt < 0.085) U.tipo = 2.0;
+  else if (!z0 && kt < 0.36 && dCen < 5200.0) U.tipo = 4.0;
+  else if (!z0 && kt > 0.88 && dCen > 3500.0) U.tipo = 5.0;
   if (centroD(p) < 0.0) U.tipo = 1.0;
   if (ciudadD(p) > 0.0 || (!z0 && ciudadD(semZ(b.xy)) > -2300.0 && hash12(b.xy + 13.0) < 0.5)) U.tipo = 3.0;
   return U;
+}
+// ensanche: manzanas cuadradas de esquinas achaflanadas, con edificios alrededor de un patio
+void ensanche(inout Sup s, vec2 q, float pw, float hMin, float kz) {
+  float M = 113.0;
+  vec2 c = mod(q, M) - 0.5 * M;
+  vec2 bid = floor(q / M);
+  vec2 a = abs(c);
+  float hm = 0.5 * M - 10.0;
+  float dB = -max(max(a.x, a.y) - hm, (a.x + a.y) * 0.7071 - (hm * 1.4142 - 9.0));
+  float kb = hash12(bid + 4.4);
+  float hondo = 15.0 + 6.0 * kb;
+  float patio = step(hondo, dB) * step(0.12, kb);
+  float seg = floor((c.x + 2.0 * c.y) / 23.0 + 9.0 * kb);
+  vec3 tej = colorTejado(hash12(bid * 2.3 + seg) * 0.95);
+  tej = mix(tej, vec3(0.22, 0.21, 0.19), 0.35);
+  vec3 cB = mix(tej, mix(vec3(0.07, 0.07, 0.06), C_HIERBA * 0.7, step(0.6, kb)), patio * 0.9);
+  float wF = smoothstep(3.0, 8.0, pw);
+  cB = mix(cB, mix(vec3(0.24, 0.18, 0.14), vec3(0.20, 0.19, 0.17), kz) * (0.9 + 0.2 * hash12(bid)), wF);
+  float hB = max(mix((16.0 + 8.0 * kb) * (1.0 - 0.85 * patio), 16.0, wF), hMin);
+  float covB = clamp(0.5 + dB / pw, 0.0, 1.0);
+  float vis = 1.0 - smoothstep(5.0, 11.0, pw);
+  s.m = 0.0;
+  s.c = mix(cB, vec3(0.10, 0.095, 0.09), (1.0 - covB) * vis);
+  s.h = mix(hB * mix(bisel(-dB, max(1.5, pw)), 1.0, smoothstep(4.0, 9.0, pw)), 0.3, (1.0 - covB) * vis);
+  // árboles en las calles (de cerca)
+  if (pw < 2.5 && dB < -1.5 && dB > -8.5) {
+    vec2 t = vec2(c.x + c.y, c.x - c.y) / 9.0;
+    arbol(s, (fract(t) - 0.5) * 9.0 * 0.7071, 2.0, 7.0, pw, hash12(floor(t) + bid));
+  }
+}
+// polígono: naves grandes de cubierta gris (algunas en diente de sierra) y explanadas de hormigón
+void poligono(inout Sup s, vec2 q, float pw, float hMin) {
+  vec2 cel = vec2(170.0, 115.0);
+  vec2 c = mod(q, cel) - 0.5 * cel;
+  vec2 bid = floor(q / cel);
+  float k = hash12(bid + 8.1), k2 = hash12(bid + 2.2);
+  vec2 hb = vec2(50.0 + 22.0 * k, 28.0 + 16.0 * k2);
+  float d = sdRBox(c - vec2(8.0 * (k2 - 0.5), 6.0 * (k - 0.5)), hb, 2.0);
+  s.m = 0.0; s.h = 0.4;
+  s.c = vec3(0.19, 0.185, 0.175) * (0.9 + 0.2 * vnoise(q / 30.0));
+  vec3 cub = k < 0.5 ? vec3(0.24, 0.25, 0.26) : (k < 0.8 ? vec3(0.28, 0.27, 0.25) : vec3(0.18, 0.20, 0.22));
+  float sierra = step(0.6, k2) * fract(c.x / 9.0) * (1.0 - smoothstep(2.0, 5.0, pw));
+  pon(s, clamp(0.5 - d / pw, 0.0, 1.0), max(9.0 + 3.0 * sierra, hMin), cub * (0.92 + 0.12 * sierra), 0.0);
 }
 // casco: celdas de ~75 m: id (xy), distancia al eje de la calle (z) y ángulo alrededor de su centro (w)
 vec4 cascoV(vec2 p) {
@@ -429,18 +478,18 @@ void casco(inout Sup s, vec2 p, float pw, float hMin) {
   float kc = hash12(v.xy + 1.3);
   float plaza = step(kc, 0.07);
   float dB = v.z - 3.4;
-  float covB = clamp(0.5 + dB / pw, 0.0, 1.0) * (1.0 - plaza);
+  float covB = clamp(0.5 + dB / pw, 0.0, 1.0) * (1.0 - plaza) * (1.0 - 0.6 * smoothstep(5.0, 12.0, pw)) + smoothstep(5.0, 12.0, pw) * 0.6;
   s.h = 0.3; s.m = 0.0;
   s.c = vec3(0.20, 0.185, 0.165) * (0.9 + 0.2 * vnoise(p * 0.3));
   // edificios en corona alrededor de un patio, cada uno con su tejado
   float seg = floor((v.w + 3.1416) / 6.2832 * (5.0 + floor(kc * 4.0)));
   float kb = hash12(v.xy * 3.1 + seg);
-  vec3 tej = mix(colorTejado(kb * 0.85), C_CREAM * 0.62, step(0.86, kb) * 0.7);
+  vec3 tej = mix(colorTejado(kb * 0.62), C_CREAM * 0.55, step(0.9, kb) * 0.6);
   float patio = step(13.0 + 7.0 * kc, dB) * step(0.22, kc);
   vec3 cB = mix(tej, vec3(0.09, 0.085, 0.075), patio * 0.85);
   float hB = (12.0 + 10.0 * kb) * (1.0 - 0.85 * patio);
   float wF = smoothstep(3.0, 9.0, pw);
-  cB = mix(cB, mix(vec3(0.31, 0.17, 0.11), vec3(0.28, 0.25, 0.21), kc), wF);
+  cB = mix(cB, mix(vec3(0.31, 0.16, 0.10), vec3(0.24, 0.20, 0.16), kc) * (0.9 + 0.2 * vnoise(p / 90.0)), wF);
   hB = max(mix(hB, 14.0, wF), hMin);
   pon(s, covB, hB * bisel(-dB, max(1.5, pw * 1.2)), cB * (0.92 + 0.12 * vnoise(p * 0.7)), 0.0);
   // en las plazas, un par de árboles (de cerca)
@@ -462,10 +511,22 @@ void parque(inout Sup s, vec2 p, Urb U, float pw, float hMin) {
   // un estanque
   vec2 ce = semZ(U.zid) + (hash22(U.zid + 5.0) - 0.5) * 300.0;
   float de = sdElipse(rot2(U.kz * 3.0) * (p - ce), vec2(150.0, 80.0) * (0.6 + 0.6 * U.kz)) + 20.0 * (vnoise(p / 50.0) - 0.5);
-  pon(s, clamp(0.5 - de / pw, 0.0, 1.0), -1.0, C_WATER * (0.9 + 0.2 * vnoise(p / 30.0)), 1.0);
+  pon(s, clamp(0.5 - de / pw, 0.0, 1.0) * step(U.kz, 0.55), -1.0, C_WATER * (0.9 + 0.2 * vnoise(p / 30.0)), 1.0);
 }
 // la trama residencial (de lejos): teselas de tejado o jardín, luego la manzana; calles que se pierden
 void residencial(inout Sup s, vec2 q, float pw, float hMin, float kz) {
+  // de vez en cuando, una manzana entera de jardín o una plaza con árboles
+  {
+    vec2 bid0 = vec2(floor((q.x + 50.0) / PX), floor((q.y + 4.75 + 27.5) / PY));
+    if (hash12(bid0 + 77.0) < 0.05 && !(bid0.x == 0.0 && bid0.y == 0.0)) {
+      float v0 = mod(q.y + 4.75 + 27.5, PY) - 27.5, u0 = mod(q.x + 50.0, PX) - 50.0;
+      float dC0 = min(abs(v0), 50.0 - abs(u0)) - 4.6;
+      s.m = 0.0;
+      s.c = mix(C_ARBOL * (0.8 + 0.5 * vnoise(q / 6.0)), vec3(0.085, 0.08, 0.075), clamp(0.5 - dC0 / pw, 0.0, 1.0) * (1.0 - smoothstep(5.0, 11.0, pw)));
+      s.h = max(6.0 * smoothstep(0.3, 0.6, vnoise(q / 7.0)), hMin) * clamp(0.5 + dC0 / pw, 0.0, 1.0);
+      return;
+    }
+  }
   float v = mod(q.y + 4.75 + 27.5, PY) - 27.5;
   float u = mod(q.x + 50.0, PX) - 50.0;
   vec2 bid = vec2(floor((q.x + 50.0) / PX), floor((q.y + 4.75 + 27.5) / PY));
@@ -483,10 +544,10 @@ void residencial(inout Sup s, vec2 q, float pw, float hMin, float kz) {
   vec3 c = mix(cL, cB, wB);
   float h = max(mix(hL, 4.5, wB), hMin);
   float dC = min(cy, cx) - 4.6;
-  float covS = clamp(0.5 - dC / pw, 0.0, 1.0) * min(1.0, 9.2 / pw) * (1.0 - smoothstep(10.0, 22.0, pw));
+  float covS = clamp(0.5 - dC / pw, 0.0, 1.0) * min(1.0, 9.2 / pw) * (1.0 - smoothstep(5.0, 11.0, pw));
   s.m = 0.0;
   s.c = mix(c, vec3(0.085, 0.08, 0.075), covS);
-  s.h = h * bisel(-dC, max(2.0, pw)) * (1.0 - covS);
+  s.h = h * mix(bisel(-dC, max(2.0, pw)), 1.0, smoothstep(4.0, 9.0, pw)) * (1.0 - covS);
 }
 // campos: parcelas de maqueta partidas en franjas, setos, olivares, bosquecillos y pueblos
 void campos(inout Sup s, vec2 p, float pw) {
@@ -544,25 +605,34 @@ void casasCerca(inout Sup s, vec2 p, vec2 q, float dZ, float pw, float detalle);
 #endif
 // la ciudad en p (m), a la escala pw (m por px): devuelve cuánto hay de ella (0 donde es campo)
 float ciudad(inout Sup s, vec2 p, Urb U, float pw, float detalle) {
-  if (U.tipo > 2.5) return 0.0;
+  if (abs(U.tipo - 3.0) < 0.5) return 0.0;
   float hMin = 3.2 * pw / max(uKH, 0.1);
-  if (U.tipo > 1.5) parque(s, p, U, pw, hMin);
+  if (U.tipo > 4.5) poligono(s, U.q, pw, hMin);
+  else if (U.tipo > 3.5) ensanche(s, U.q, pw, hMin, U.kz);
+  else if (U.tipo > 1.5) parque(s, p, U, pw, hMin);
   else if (U.tipo > 0.5) casco(s, p, pw, hMin);
   else {
-    residencial(s, U.q, pw, hMin, U.kz);
+    residencial(s, U.q / U.sc, pw / U.sc, hMin, U.kz);
 #ifdef CERCA
     float wC = 1.0 - smoothstep(0.9, 1.6, pw);
-    if (wC > 0.0) { Sup n = s; casasCerca(n, p, U.q, U.dZ, pw, detalle); mezcla(s, n, wC); }
+    if (wC > 0.0) { Sup n = s; casasCerca(n, p, U.q / U.sc, mix(1e4, U.dZ, U.av), pw / U.sc, detalle); mezcla(s, n, wC); }
 #endif
   }
   // de muy lejos, cada barrio de un color medio (con algo de textura)
   float wZ = smoothstep(25.0, 70.0, pw);
-  vec3 cZ = (U.tipo > 1.5 ? C_HIERBA * 0.8 : U.tipo > 0.5 ? vec3(0.29, 0.23, 0.185) : mix(vec3(0.27, 0.15, 0.095), vec3(0.20, 0.185, 0.165), U.kz)) * (0.85 + 0.3 * vnoise(p / 320.0));
+  vec3 cZ = U.tipo > 4.5 ? vec3(0.21, 0.21, 0.205) : U.tipo > 3.5 ? vec3(0.23, 0.19, 0.16) : U.tipo > 1.5 ? C_HIERBA * 0.8 : U.tipo > 0.5 ? vec3(0.28, 0.18, 0.125) : mix(vec3(0.25, 0.155, 0.10), vec3(0.19, 0.18, 0.16), U.kz);
+  cZ *= 0.85 + 0.3 * vnoise(p / 320.0);
   s.c = mix(s.c, cZ, wZ * 0.8);
-  // avenidas entre barrios (con árboles a los lados) y la ronda del casco
-  float dAv = min(U.dZ, abs(centroD(p)) * 2000.0);
+  // avenidas en algunos bordes entre barrios (con árboles a los lados) y la ronda del casco; en los demás,
+  // una calle normal
+  float ronda = abs(centroD(p)) * 2000.0;
+  float dAv = min(mix(1e4, U.dZ, U.av), ronda);
   float covA = clamp((7.0 - dAv) / pw + 0.5, 0.0, 1.0) * min(1.0, max(14.0 / pw, 0.4)) * (1.0 - smoothstep(90.0, 180.0, pw));
-  pon(s, covA, 0.2, vec3(0.19, 0.18, 0.17), 0.0);
+  float covC = clamp((4.0 - U.dZ) / pw + 0.5, 0.0, 1.0) * (1.0 - U.av) * (1.0 - smoothstep(5.0, 11.0, pw));
+  pon(s, max(covC, 0.0), 0.2, vec3(0.10, 0.095, 0.09), 0.0);
+  float covT = clamp((13.5 - dAv) / pw + 0.5, 0.0, 1.0) * (1.0 - covA) * smoothstep(1.8, 3.0, pw) * (1.0 - smoothstep(30.0, 70.0, pw));
+  pon(s, covT, max(7.0, hMin), C_ARBOL * (0.85 + 0.4 * vnoise(p / 9.0)), 0.0);
+  pon(s, covA, 0.2, vec3(0.20, 0.19, 0.175), 0.0);
   if (pw < 2.5 && dAv > 7.0 && dAv < 14.0) {
     float t = (dot(p, vec2(0.6, 0.8)) + 3.0) / 11.0;
     arbol(s, vec2((fract(t) - 0.5) * 11.0, dAv - 10.5), 2.4, 8.0, pw, floor(t) * 0.37 + U.kz);
@@ -578,7 +648,8 @@ float ciudad(inout Sup s, vec2 p, Urb U, float pw, float detalle) {
   covR = max(covR, (1.0 - smoothstep(0.0, pw * 0.7, dRio)) * 0.8);
   // puentes donde las calles de la trama cruzan el río (de cerca)
   float vq = mod(U.q.y + 4.75 + 27.5, PY) - 27.5, uq = mod(U.q.x + 50.0, PX) - 50.0;
-  float puente = clamp(0.5 - (min(abs(vq), 50.0 - abs(uq)) - 4.2) / pw, 0.0, 1.0) * (1.0 - smoothstep(1.5, 3.0, pw)) * step(U.tipo, 0.5);
+  vec2 bq = floor((U.q + vec2(50.0, 32.25)) / vec2(PX, PY));
+  float puente = clamp(0.5 - (min(abs(vq), 50.0 - abs(uq)) - 4.2) / pw, 0.0, 1.0) * (1.0 - smoothstep(1.2, 2.2, pw)) * step(U.tipo, 0.5) * step(hash12(bq + 3.7), 0.3);
   pon(s, covR * (1.0 - puente), -1.5 + 0.12 * sin(p.x / 3.0 + 1.3 * sin(p.y / 2.0)), C_WATER * (0.85 + 0.25 * vnoise(p / 9.0 + uBoil.xy * 0.2)), 1.0);
   pon(s, covR * puente, 1.2, C_ACERA * 0.9, 0.0);
   return 1.0;
@@ -838,10 +909,10 @@ void nubes(inout Sup s, vec2 xy, float w) {
   float c = vnoise3(wd + 1.7) * 0.55 + vnoise3(wd * 2.6 + 3.1) * 0.3 + vnoise3(dir * 24.0 + uBoil * 0.04) * 0.15;
   c += 0.07 * cos(sl * 7.0) - 0.04;
   c *= smoothstep(0.04, 0.22, sqrt(r2));
-  float cov = smoothstep(0.615, 0.64, c) * w;
+  float cov = smoothstep(0.625, 0.655, c) * w;
   float hN = 900.0 + 6000.0 * sqrt(clamp((c - 0.6) / 0.08, 0.0, 1.0));
   s.h = mix(s.h, max(s.h, 0.0) + hN, cov);
-  s.c = mix(s.c, vec3(0.60, 0.60, 0.58) * (0.92 + 0.1 * vnoise3(dir * 40.0)), cov);
+  s.c = mix(s.c, vec3(0.55, 0.55, 0.54) * (0.9 + 0.12 * vnoise3(dir * 40.0)), cov);
   if (cov > 0.5) s.m = 2.0;
 }
 // la Tierra entera vista desde arriba (cúpula) con lo que toque a esta escala
@@ -919,43 +990,57 @@ void luna(inout Sup s, vec2 P) {
   vec3 c = mix(vec3(0.40, 0.39, 0.37), vec3(0.24, 0.24, 0.26), mar) * (0.9 + 0.2 * vnoise(n * 9.0 + uBoil.xy * 0.1));
   pon(s, cov, uTablero + hz * 0.95 + R * 0.07 * (aro - cr), c * (1.0 - 0.15 * cr), 0.0);
 }
-// (adulta) el Sol: una bola de arcilla ámbar y naranja amasada en celdillas (granulación), con el borde más
-// oscuro, un par de manchas, algo de luz propia (translucidez) y unos lazos finos de arcilla en el borde
+// (adulta) el Sol: una bola de arcilla naranja y ámbar con granulación fina (celdillas), el limbo oscuro, un
+// par de manchas, luz propia (translucidez), una cromosfera fina y rojiza en el borde y tres arcos de
+// protuberancia, translúcidos
 void sol(inout Sup s, vec2 P) {
   if (uSol.w < 0.002) return;
   vec2 q = P - uSol.xy; float R = max(uSol.z, 6.0); float r = length(q);
   float ang = atan(q.y, q.x);
-  float bordeR = R * (1.0 + 0.003 * sin(ang * 23.0 + uBoil.x * 3.0) + 0.004 * (vnoise(vec2(ang * 3.0, uBoil.z)) - 0.5));
+  float bordeR = R * (1.0 + 0.002 * sin(ang * 23.0 + uBoil.x * 3.0) + 0.003 * (vnoise(vec2(ang * 3.0, uBoil.z)) - 0.5));
   float d = r - bordeR;
   float cov = clamp(0.5 - d, 0.0, 1.0) * uSol.w;
   vec2 n = q / R;
   float mu = sqrt(max(1.0 - dot(n, n), 0.0));
-  vec2 w = n * 7.0 + 0.5 * vec2(vnoise(n * 2.5 + uBoil.xy * 0.12), vnoise(n * 2.5 + 7.0 + uBoil.yz * 0.12));
-  float gran = 0.6 * vnoise(w * 1.6) + 0.4 * vnoise(w * 3.7 + 3.0);
-  float veta = smoothstep(0.62, 0.8, vnoise(n * 3.2 + 11.0));
-  vec3 c = mix(vec3(0.55, 0.14, 0.025), vec3(0.88, 0.45, 0.10), smoothstep(0.3, 0.72, gran));
-  c = mix(c, vec3(0.42, 0.10, 0.02), veta * 0.5);
+  // granulación: celdillas brillantes separadas por surcos oscuros (Voronoi), sobre manchas más grandes
+  vec2 w = n * 26.0 + 0.5 * vec2(vnoise(n * 5.0 + uBoil.xy * 0.1), vnoise(n * 5.0 + 7.0 + uBoil.yz * 0.1));
+  vec2 wi = floor(w);
+  float f1 = 9.0, f2 = 9.0;
+  for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) {
+    vec2 o = vec2(float(i), float(j));
+    vec2 dd = wi + o + 0.15 + 0.7 * hash22(wi + o) - w;
+    float dq = dot(dd, dd);
+    if (dq < f1) { f2 = f1; f1 = dq; } else if (dq < f2) f2 = dq;
+  }
+  float cel = smoothstep(0.0, 0.35, sqrt(f2) - sqrt(f1));
+  float gran = 0.6 * cel + 0.4 * vnoise(n * 5.0 + 3.0);
+  vec3 c = mix(vec3(0.36, 0.075, 0.015), vec3(0.74, 0.32, 0.055), gran);
   float man = 0.0;
   for (int k = 0; k < 2; k++) {
     vec2 mc = k == 0 ? vec2(-0.32, 0.18) : vec2(0.22, -0.36);
-    man = max(man, 1.0 - smoothstep(0.03, 0.065, length((n - mc) * vec2(1.0, 1.4)) + 0.03 * vnoise(n * 40.0)));
+    man = max(man, 1.0 - smoothstep(0.025, 0.055, length((n - mc) * vec2(1.0, 1.4)) + 0.025 * vnoise(n * 40.0)));
   }
-  c = mix(c, vec3(0.12, 0.04, 0.02), man * 0.85);
+  c = mix(c, vec3(0.10, 0.035, 0.015), man * 0.85);
+  float limbo = 0.16 + 0.84 * pow(mu, 0.9);
   float hz = sqrt(max(R * R - r * r, 0.0));
-  ponE(s, cov, uTablero + hz * 0.35 + R * 0.01 * gran, c * (0.5 + 0.5 * mu), 3.0, 0.15 + 0.22 * mu);
+  ponE(s, cov, uTablero + hz * 0.6 + R * 0.004 * cel, c * limbo, 3.0, (0.07 + 0.15 * mu) * (1.0 - man));
+  // cromosfera: un filo rojizo y deshilachado justo fuera del borde
+  float crom = (1.0 - smoothstep(0.0, R * 0.012 * (0.6 + 0.8 * vnoise(vec2(ang * 40.0, uBoil.x))), d)) * step(0.0, d) * uSol.w;
+  ponE(s, crom, uTablero + R * 0.01, vec3(0.70, 0.17, 0.05), 3.0, 0.35);
+  // tres protuberancias: arcos de arcilla translúcida
   float pc = 0.0;
-  for (int k = 0; k < 5; k++) {
+  for (int k = 0; k < 3; k++) {
     float fk = float(k);
-    float a0 = fk * 1.2566 + 0.5 + 0.3 * sin(fk * 3.1);
-    float rr = R * (0.045 + 0.04 * hash12(vec2(fk, 2.0)));
-    vec2 cc = vec2(cos(a0), sin(a0)) * R * 0.99;
+    float a0 = fk * 2.2 + 0.9;
+    float rr = R * (0.05 + 0.035 * fk);
+    vec2 cc = vec2(cos(a0), sin(a0)) * R;
     vec2 dq = q - cc;
-    float dl = abs(length(dq) - rr) - max(R * 0.006, 1.0) * (1.0 + 0.3 * sin(atan(dq.y, dq.x) * 3.0 + uBoil.x));
-    pc = max(pc, clamp(0.5 - dl, 0.0, 1.0) * uSol.w * step(bordeR, r));
+    float grueso = max(R * 0.009, 1.2) * (1.0 + 0.5 * vnoise(dq * 0.15 + fk + uBoil.xy * 0.2));
+    float dl = abs(length(dq) - rr) - grueso;
+    s.glow += vec3(0.85, 0.24, 0.04) * 0.32 * exp(-max(dl, 0.0) / (R * 0.012 + 1.5)) * step(bordeR, r) * uSol.w;
   }
-  ponE(s, pc, uTablero + R * 0.02, vec3(0.92, 0.40, 0.08), 3.0, 0.3);
-  s.glow += vec3(1.0, 0.42, 0.10) * uSol.w * 0.5 * exp(-max(d, 0.0) / (R * 0.16 + 4.0)) * (1.0 - cov);
-  s.glow += vec3(0.6, 0.24, 0.06) * uSol.w * 0.22 * exp(-max(d, 0.0) / (R * 0.8 + 10.0)) * (1.0 - cov);
+  s.glow += vec3(1.0, 0.40, 0.09) * uSol.w * 0.42 * exp(-max(d, 0.0) / (R * 0.14 + 4.0)) * (1.0 - cov);
+  s.glow += vec3(0.55, 0.20, 0.05) * uSol.w * 0.2 * exp(-max(d, 0.0) / (R * 0.7 + 10.0)) * (1.0 - cov);
 }
 // (adulta) el sistema solar: órbitas de alambre fino de latón oscuro, planetas como cuentas de arcilla de
 // colores reales (algo exagerados de tamaño), el cinturón de asteroides y el de Kuiper como bandas de migas,
@@ -1012,9 +1097,9 @@ void sistema(inout Sup s, vec2 P) {
     float rc = r0 + (cel.x + 0.2 + 0.6 * hash12(cel + 5.0)) * (r1 - r0) / 9.0;
     float ac = (cel.y + 0.2 + 0.6 * hash12(cel + 3.0)) * 6.2832 / nA;
     vec2 pc = vec2(cos(ac), sin(ac) * SQ) * rc * uSis.z;
-    float tm = (1.0 + 0.9 * hash12(cel + 8.0)) * hay * vis;
-    cuenta(s, q - pc, tm, uTablero, vec3(0.36, 0.33, 0.29) * (0.7 + 0.6 * hash12(cel + 2.0)), 0.0, vec3(0.0));
-    s.glow += vec3(0.30, 0.27, 0.22) * 0.05 * vis * banda;
+    float tm = (1.1 + 1.1 * hash12(cel + 8.0)) * (b == 0 ? 1.0 : 1.35) * hay * vis;
+    cuenta(s, q - pc, tm, uTablero, vec3(0.44, 0.41, 0.36) * (0.7 + 0.6 * hash12(cel + 2.0)), 0.05, vec3(0.4, 0.37, 0.32));
+    s.glow += vec3(0.30, 0.27, 0.22) * (b == 0 ? 0.05 : 0.07) * vis * banda;
   }
   // un cometa: núcleo de arcilla clara y una cola larga que se aleja del Sol
   {
@@ -1088,15 +1173,15 @@ float galDensidad(vec2 g) {
 }
 // un churro (perfil redondo) de semiancho w a distancia d; se queda con el más alto
 void churroG(inout Sup s, float d, float w, float hBase, vec3 c, float pxU, float alto) {
-  if (w * pxU < 0.3) return;
+  if (w * pxU < 1.2) return;
   float cov = clamp((w - d) * pxU + 0.5, 0.0, 1.0);
   float h = hBase + sqrt(max(w * w - d * d, 0.0)) * pxU * alto;
   if (h > s.h || cov < 1.0) { s.h = mix(s.h, max(s.h, h), cov); s.c = mix(s.c, c, cov * step(s.h - 0.5, h)); if (cov > 0.5) s.m = 0.0; }
 }
-// (adulta) la galaxia con sus colores de verdad: núcleo cálido (crema y oro), brazos azulados de arcilla con
-// cúmulos de estrellas blanco-azuladas (y algún ámbar; nunca rosas), carriles de polvo oscuro por el borde
-// interior de los brazos y manchas de polvo en el disco. El bulbo es redondo en pantalla (es una esfera; el
-// disco, en cambio, se ve inclinado), con una barra corta y tenue debajo.
+// (adulta) la galaxia con sus colores de verdad: núcleo cálido (crema y oro) y redondo, brazos azulados de
+// arcilla fina que brillan (la luz de sus estrellas), cúmulos blanco-azulados (y algún ámbar; nunca rosa),
+// carriles de polvo oscuro por el borde interior de los brazos y manchas de polvo en el disco. El bulbo es
+// redondo en pantalla (es una esfera; el disco, en cambio, se ve inclinado).
 void galaxia(inout Sup s, vec2 P) {
   if (uGal.w < 0.002) return;
   float pxU = uGal.z;
@@ -1105,71 +1190,78 @@ void galaxia(inout Sup s, vec2 P) {
   float dMay, dMen, kM;
   float r = galBrazos(g, dMay, dMen, kM);
   float lr = log(max(r, 0.04));
-  float fade = 1.0 - smoothstep(0.78, 0.97, r + 0.08 * (vnoise(g * 6.0) - 0.5));
-  fade *= step(0.25, fade);
-  float ini = smoothstep(0.12, 0.24, r);
+  float fade = 1.0 - smoothstep(0.55, 0.88, r + 0.08 * (vnoise(g * 6.0) - 0.5));
+  fade *= smoothstep(0.25, 0.5, fade);
+  float ini = smoothstep(0.10, 0.22, r);
   float a = uGal.w;
-  float hB = uTablero + 0.004 * pxU;
+  float hB = uTablero + 0.003 * pxU;
   float dens = galDensidad(g);
-  float tR = smoothstep(0.15, 0.6, r);
-  // el disco: velo de estrellas, cálido cerca del centro y azulado fuera, con manchas de polvo oscuro
+  float tR = smoothstep(0.12, 0.55, r);
+  // el disco: arcilla oscura con un velo de estrellas (cálido dentro, azulado fuera) y manchas de polvo
   float dD = r - 1.0 - 0.1 * (vnoise(g * 3.0 + 1.0) - 0.5);
   float covD = (1.0 - smoothstep(-0.3, 0.05, dD)) * a;
-  float polvoD = smoothstep(0.5, 0.75, vnoise(g * 7.0 + 3.0)) * smoothstep(0.15, 0.3, r) * (1.0 - smoothstep(0.7, 0.95, r));
-  vec3 colD = mix(vec3(0.20, 0.16, 0.11), vec3(0.075, 0.085, 0.11), tR) * (0.75 + 0.5 * dens) * (0.85 + 0.3 * vnoise(g * 11.0)) * (1.0 - 0.55 * polvoD);
-  pon(s, covD, uTablero + 0.004 * pxU * (1.0 - smoothstep(-0.3, 0.0, dD)), colD, 0.0);
-  // brazos mayores: dos churros trenzados de arcilla blanco-azulada
+  float polvoD = smoothstep(0.48, 0.72, vnoise(g * 7.0 + 3.0)) * smoothstep(0.12, 0.28, r) * (1.0 - smoothstep(0.7, 0.95, r));
+  vec3 colD = mix(vec3(0.07, 0.055, 0.04), vec3(0.03, 0.034, 0.045), tR) * (0.85 + 0.3 * vnoise(g * 11.0)) * (1.0 - 0.5 * polvoD);
+  pon(s, covD, uTablero, colD, 0.0);
+  vec3 velo = mix(vec3(0.95, 0.68, 0.40), vec3(0.22, 0.32, 0.62), tR);
+  s.glow += velo * (0.05 + 0.10 * dens) * fade * (1.0 - 0.7 * polvoD) * a * smoothstep(0.0, 0.08, r);
+  // brazos mayores: dos churros finos de arcilla azulada, trenzados
   float var = 0.75 + 0.5 * vnoise(vec2(lr * 5.0, kM * 7.0));
   float corte = smoothstep(0.1, 0.24, vnoise(vec2(lr * 3.2 + 2.0, kM * 3.0 + 1.0)));
-  float w = (0.040 + 0.033 * r) * fade * ini * var * corte * a;
+  float w = (0.034 + 0.03 * r) * fade * ini * var * corte * a;
   float tw = lr * 19.0 + kM * 2.0;
   float off = 0.38 * w * sin(tw);
-  vec3 cA = mix(vec3(0.62, 0.55, 0.43), vec3(0.40, 0.48, 0.62), tR) * (0.88 + 0.24 * vnoise(g * 30.0));
-  vec3 cB = mix(vec3(0.56, 0.50, 0.40), vec3(0.34, 0.42, 0.56), tR) * (0.88 + 0.24 * vnoise(g * 27.0 + 3.0));
+  vec3 cA = mix(vec3(0.21, 0.16, 0.11), vec3(0.09, 0.13, 0.23), tR) * (0.88 + 0.24 * vnoise(g * 30.0));
+  vec3 cB = mix(vec3(0.19, 0.15, 0.10), vec3(0.075, 0.11, 0.20), tR) * (0.88 + 0.24 * vnoise(g * 27.0 + 3.0));
   float arriba = cos(tw);
-  churroG(s, abs(dMay - off), w * 0.5, hB + w * pxU * 0.14 * arriba, cA, pxU, 0.7);
-  churroG(s, abs(dMay + off), w * 0.46, hB - w * pxU * 0.14 * arriba, cB, pxU, 0.7);
-  // carril de polvo: un churro fino y oscuro por el lado de dentro del brazo
-  churroG(s, abs(dMay + w * 0.92), w * 0.2 * smoothstep(0.2, 0.36, r), hB + w * pxU * 0.08, vec3(0.040, 0.028, 0.020), pxU, 0.5);
+  float h0 = s.h;
+  churroG(s, abs(dMay - off), w * 0.5, hB + w * pxU * 0.05 * arriba, cA, pxU, 0.18);
+  churroG(s, abs(dMay + off), w * 0.46, hB - w * pxU * 0.05 * arriba, cB, pxU, 0.18);
+  float enBrazo = exp(-pow(dMay / max(w * 1.1, 1e-4), 2.0)) * step(1e-5, w);
+  s.glow += mix(vec3(0.85, 0.62, 0.36), vec3(0.24, 0.38, 0.80), tR) * 0.28 * enBrazo * mix(0.4, 1.0, fade) * a;
+  // carril de polvo: un churro fino y oscuro por el lado de dentro del brazo (tapa el brillo)
+  float wP = w * 0.2 * smoothstep(0.16, 0.3, r) * (1.0 - smoothstep(0.6, 0.85, r)) * smoothstep(0.3, 0.5, vnoise(vec2(lr * 9.0, kM * 4.0 + 2.0)));
+  float covP = clamp((wP - abs(dMay + w * 0.95)) * pxU + 0.5, 0.0, 1.0) * step(0.3, wP * pxU);
+  churroG(s, abs(dMay + w * 0.95), wP, hB + w * pxU * 0.03, vec3(0.045, 0.032, 0.024), pxU, 0.25);
+  s.glow *= 1.0 - 0.7 * covP;
   // brazos menores: más finos y más tenues
   float varm = 0.6 + 0.8 * vnoise(vec2(lr * 6.0, kM * 5.0 + 9.0));
   float cortem = smoothstep(0.22, 0.36, vnoise(vec2(lr * 4.0 + 7.0, kM * 2.0)));
-  float wm = (0.02 + 0.017 * r) * fade * ini * varm * cortem * a;
-  churroG(s, abs(dMen), wm, hB, mix(vec3(0.42, 0.38, 0.32), vec3(0.28, 0.33, 0.44), tR) * (0.9 + 0.2 * vnoise(g * 25.0)), pxU, 0.7);
-  churroG(s, abs(dMen + wm * 1.2), wm * 0.3 * smoothstep(0.25, 0.4, r), hB, vec3(0.04, 0.03, 0.022), pxU, 0.5);
-  // cúmulos a lo largo de los brazos: blanco-azulados, alguno blanco y alguno ámbar
+  float wm = (0.018 + 0.015 * r) * fade * ini * varm * cortem * a;
+  churroG(s, abs(dMen), wm, hB, mix(vec3(0.22, 0.18, 0.14), vec3(0.08, 0.11, 0.19), tR) * (0.9 + 0.2 * vnoise(g * 25.0)), pxU, 0.18);
+  s.glow += vec3(0.24, 0.36, 0.75) * 0.12 * exp(-pow(dMen / max(wm * 1.2, 1e-4), 2.0)) * step(1e-5, wm) * tR * a;
+  // cúmulos a lo largo de los brazos (cuentas redondas: celdas por ángulo, centradas en el brazo):
+  // blanco-azulados, alguno blanco y alguno ámbar
+  float th = atan(g.y, g.x);
   for (int lado2 = 0; lado2 < 2; lado2++) {
-    float u = lr * 30.0 + float(lado2) * 0.5;
+    float NB = 44.0 + 22.0 * float(lado2);
+    float u = (th + 3.14159) / 6.28318 * NB;
     float ui = floor(u);
-    vec2 sem = vec2(ui, kM * 5.0 + float(lado2) * 13.0);
+    vec2 sem = vec2(ui, kM * 5.0 + float(lado2) * 13.0 + floor(lr * 2.5) * 31.0);
     float kb = hash12(sem + 3.0);
-    float lado = (hash12(sem + 7.0) - 0.5) * 2.0;
-    float rb = exp((ui + 0.5 - float(lado2) * 0.5) / 30.0);
-    float wb = (0.040 + 0.033 * rb);
-    float dB = length(vec2((u - ui - 0.5) / 30.0 * rb * 4.35, dMay - lado * wb));
-    float rB = wb * (0.14 + 0.16 * hash12(sem + 11.0)) * step(0.35, kb) * smoothstep(0.18, 0.28, r) * (1.0 - smoothstep(0.95, 1.08, r)) * a;
-    vec3 cb = kb < 0.72 ? vec3(0.55, 0.64, 0.82) : kb < 0.92 ? vec3(0.74, 0.73, 0.70) : vec3(0.82, 0.58, 0.30);
-    if (rB > 0.0) {
+    float lado = (hash12(sem + 7.0) - 0.5) * 1.6;
+    float wb = 0.034 + 0.03 * r;
+    float dB = length(vec2((u - ui - 0.5) / NB * 6.28318 * r, dMay - lado * wb));
+    float rB = wb * (0.13 + 0.15 * hash12(sem + 11.0)) * step(0.4, kb) * smoothstep(0.18, 0.28, r) * fade * a;
+    vec3 cb = kb < 0.76 ? vec3(0.42, 0.55, 0.85) : kb < 0.94 ? vec3(0.70, 0.70, 0.68) : vec3(0.80, 0.56, 0.28);
+    if (rB * pxU > 0.8) {
       float covB = clamp((rB - dB) * pxU + 0.5, 0.0, 1.0);
-      float hBd = max(s.h, hB) + sqrt(max(rB * rB - dB * dB, 0.0)) * pxU * 0.9;
-      s.h = mix(s.h, hBd, covB); s.c = mix(s.c, cb, covB); s.e = mix(s.e, 0.12, covB);
-      s.glow += cb * 0.16 * exp(-max(dB - rB, 0.0) * pxU / 6.0) * (1.0 - covB);
+      float hBd = max(s.h, hB) + sqrt(max(rB * rB - dB * dB, 0.0)) * pxU * 0.5;
+      s.h = mix(s.h, hBd, covB); s.c = mix(s.c, cb, covB); s.e = mix(s.e, 0.25, covB);
+      s.glow += cb * 0.2 * exp(-max(dB - rB, 0.0) * pxU / 5.0) * (1.0 - covB);
     }
   }
-  // barra corta y tenue (en el disco) y el bulbo, redondo en pantalla
-  vec2 gb = rot2(-0.45) * g;
-  float dBar = sdElipse(gb, vec2(0.2, 0.06)) + 0.01 * (vnoise(g * 20.0) - 0.5);
-  float cBar = clamp(0.5 - dBar * pxU, 0.0, 1.0) * a;
-  pon(s, cBar, hB + 0.025 * pxU * bisel(dBar, 0.06), vec3(0.50, 0.40, 0.27) * (0.9 + 0.2 * vnoise(g * 30.0)), 0.0);
-  float RB = 0.125;
+  // el bulbo: una cúpula redonda y suave de arcilla crema y oro, que brilla (sin borde duro)
+  float RB = 0.095;
   float rb0 = length(g0) / RB;
-  float dN = length(g0) - RB + 0.006 * (vnoise(g0 * 30.0 + uBoil.xy * 0.2) - 0.5);
-  float cN = clamp(0.5 - dN * pxU, 0.0, 1.0) * a;
-  float hN = 0.09 * pxU * sqrt(max(1.0 - rb0 * rb0, 0.0));
-  vec3 cNuc = mix(vec3(0.66, 0.47, 0.27), vec3(0.92, 0.78, 0.55), exp(-rb0 * rb0 * 2.2)) * (0.94 + 0.12 * vnoise(g0 * 40.0));
-  ponE(s, cN, hB + hN, cNuc, 0.0, 0.14 + 0.12 * exp(-rb0 * rb0 * 2.0));
-  s.glow += vec3(1.0, 0.70, 0.40) * 0.26 * exp(-dot(g0, g0) / 0.03) * a;
-  s.glow += vec3(0.42, 0.52, 0.78) * 0.035 * dens * fade * (1.0 - 0.6 * polvoD) * a;
+  float cN = (1.0 - smoothstep(0.75, 1.05, rb0 + 0.06 * (vnoise(g0 * 30.0 + uBoil.xy * 0.2) - 0.5))) * a;
+  float hN = 0.06 * pxU * exp(-rb0 * rb0 * 1.6);
+  vec3 cNuc = mix(vec3(0.60, 0.42, 0.24), vec3(0.88, 0.74, 0.52), exp(-rb0 * rb0 * 2.0)) * (0.94 + 0.12 * vnoise(g0 * 40.0));
+  ponE(s, cN, max(s.h, hB) + hN, cNuc, 0.0, 0.10 + 0.18 * exp(-rb0 * rb0 * 2.0));
+  s.glow += vec3(1.0, 0.70, 0.40) * 0.30 * exp(-dot(g0, g0) / 0.02) * a;
+  s.glow += vec3(0.9, 0.62, 0.35) * 0.10 * exp(-dot(g, g) / 0.09) * a;
+  // la galaxia brilla sobre todo con su propia luz (material 6: el foco del plató le da poco)
+  if (covD > 0.5 && s.m < 4.5 && s.h > hB + 0.3) s.m = 6.0;
 }
 // galaxias lejanas: remolinos pequeños de plastilina alrededor
 const vec4 GLX[5] = vec4[5](vec4(-1.85, 0.95, 0.1, 0.5), vec4(-1.55, -0.78, 0.07, 2.0), vec4(1.45, -0.75, 0.08, 1.2), vec4(-0.5, 1.12, 0.045, 3.3), vec4(1.05, 1.1, 0.05, 4.4));
@@ -1187,7 +1279,7 @@ void lejanas(inout Sup s, vec2 P) {
     float brazo = smoothstep(0.55, 0.9, esp) * (1.0 - smoothstep(0.5, 1.0, r)) * smoothstep(0.12, 0.25, r);
     float nucleo = exp(-r * r * 14.0);
     float px = G.z * uGal.z;
-    float cov = clamp(max(brazo, nucleo * 1.5) * 1.6 - 0.2, 0.0, 1.0) * uGal.w * clamp(px / 6.0, 0.0, 1.0);
+    float cov = clamp(max(brazo, nucleo * 1.5) * 1.6 - 0.2, 0.0, 1.0) * uGal.w * clamp(px / 6.0, 0.0, 1.0) * 0.2;
     vec3 c = mix(vec3(0.30, 0.34, 0.44), vec3(0.72, 0.60, 0.42), clamp(nucleo * 1.6, 0.0, 1.0));
     pon(s, cov * 0.8, uTablero + px * (0.05 * brazo + 0.14 * nucleo), c, 0.0);
     s.glow += mix(vec3(0.35, 0.42, 0.6), vec3(0.9, 0.72, 0.45), nucleo) * 0.08 * (nucleo + 0.3 * brazo) * uGal.w;
@@ -1231,7 +1323,11 @@ void main() {
     s.h = uSuelo.w + t.h * uKH / uMpp; s.c = t.c; s.m = t.m;
   }
 #else
+#ifdef SISTEMA
+  for (int i = 0; i < 3; i++) estrellasOctava(s, P, uEstr[i], 0.2, 0.16);
+#else
   for (int i = 0; i < 3; i++) estrellasOctava(s, P, uEstr[i], 0.36, 0.2);
+#endif
 #endif
 #ifdef LEJOS
   tierraEntera(s, P, true);
@@ -1249,9 +1345,15 @@ void main() {
   cuenta(s, P - uSol.xy, 6.5 * uSol.w, uTablero + 1.0, vec3(0.95, 0.55, 0.16), 1.3 * uSol.w, vec3(1.0, 0.55, 0.2));
 #endif
 #ifdef ESPACIO
+#ifndef SIN_GAL
   galaxia(s, P);
+#endif
+#ifndef SIN_EG
   for (int i = 0; i < 2; i++) estrellasGal(s, P, uEstrG[i]);
+#endif
+#ifndef SIN_LEJ
   lejanas(s, P);
+#endif
   vecinas(s, P);
   cuenta(s, P - uSol.xy, 5.0 * uSol.w, uTablero + 1.0, vec3(0.95, 0.55, 0.16), 1.1 * uSol.w, vec3(1.0, 0.55, 0.2));
   marcaAqui(s, P);
@@ -1405,7 +1507,10 @@ void main() {
   float spec = (pow(nh, 12.0) * 0.03 + pow(nh, 56.0) * 0.04 * brillo) * (0.7 + 0.8 * fres) * brillo;
   vec2 qs = (P - vec2(780.0, 620.0)) / vec2(1250.0, 900.0);
   float spot = mix(0.5, 1.0, exp(-dot(qs, qs) * 1.6));
-  float key = 2.25 * uFlicker * spot;
+  float esSol = step(2.5, mat) * step(mat, 3.5);
+  float esGal = step(5.5, mat) * step(mat, 6.5);
+  float key = 2.25 * uFlicker * spot * mix(1.0, 0.3, esSol) * mix(1.0, 0.5, esGal);
+  spec *= 1.0 - 0.75 * esGal;
   float shK = mix(0.05, 1.0, sh);
   vec3 col = (alb * wrapD + sss * 0.5) * LCOL * key * shK;
   col += spec * LCOL * key * shK * smoothstep(-0.1, 0.3, ndl);
@@ -1512,9 +1617,11 @@ export function crearMundo(cont, { captura = true } = {}) {
     espacio: ['#define ESPACIO 1\n', GLSL_LEJOS + GLSL_SOL + GLSL_ESPACIO],
   };
   const progA = {};
+  // depuración: ?dbg=NOMBRE,OTRO añade esos #define a la pasada A
+  const dbg = (new URLSearchParams(location.search).get('dbg') ?? '').split(',').filter(Boolean).map((k) => `#define ${k} 1\n`).join('');
   for (const [k, [def, cuerpo]] of Object.entries(VARIANTES)) {
     const t0 = performance.now();
-    progA[k] = programa(GLSL_COMUN.replace('precision highp int;', 'precision highp int;\n' + def) + GLSL_MUNDO + cuerpo + GLSL_MAIN_A);
+    progA[k] = programa(GLSL_COMUN.replace('precision highp int;', 'precision highp int;\n' + def + dbg) + GLSL_MUNDO + cuerpo + GLSL_MAIN_A);
     if (new URLSearchParams(location.search).has('perfil')) console.log('compilar', k, Math.round(performance.now() - t0));
   }
   const progB = programa(GLSL_COMUN + GLSL_SOMBRA);

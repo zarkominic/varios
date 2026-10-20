@@ -609,7 +609,9 @@ float pz_piel(vec3 q, vec4 T, out float m) {
   float g1 = abs(fract((qw.x * 0.9 + qw.z * 0.55) * 2.0) - 0.5), g2 = abs(fract((qw.x * 0.45 - qw.z * 1.0) * 2.4) - 0.5);
   float surco = 1.0 - smoothstep(0.0, 0.05, min(g1, g2));
   float arriba = smoothstep(-0.14, -0.02, q.y);
-  losa += (0.012 * surco - 0.01 * vnoise(q * 7.0)) * arriba;
+  vec3 cpo = floor(q * 14.0);
+  float poroF = (1.0 - smoothstep(0.08, 0.2, length(fract(q * 14.0) - 0.5 - 0.25 * (vec3(hash13(cpo), hash13(cpo + 3.1), hash13(cpo + 5.7)) - 0.5)))) * step(0.55, hash13(cpo + 9.0));
+  losa += (0.012 * surco - 0.01 * vnoise(q * 7.0) - 0.004 * vnoise(q * 30.0) + 0.006 * poroF) * arriba;
   float pel = 1e5, poro = 1e5;
   for (int i = 0; i < 12; i++) {
     vec4 b = VB[i]; float L = VL[i];
@@ -1022,6 +1024,8 @@ void main() {
   float man = 0.55 * vnoise(p * 0.32 + 3.0) + 0.3 * vnoise(p * 0.9 + 7.0) + 0.15 * vnoise(p * 2.7);
   vec3 alb = C_SLATE * (0.70 + 0.62 * man) * (0.95 + 0.1 * vnoise(p * 6.0));
   alb = mix(alb, alb * vec3(1.25, 1.08, 0.86), smoothstep(1.2, -0.4, p.y) * 0.6);
+  // donde da el foco, el telón es algo más cálido (tierra tostada); fuera, carbón azul noche
+  alb = mix(alb, alb * vec3(1.35, 1.12, 0.88), smoothstep(0.4, 1.0, spotCone(p)) * 0.7);
   vec4 nd = vnoised(p * 1.4);
   vec3 g = nd.yzw * 0.035;
   vec4 gr = vnoised(p * 22.0);
@@ -1650,8 +1654,8 @@ vec3 shade(vec3 p, vec3 rd, float tObj, vec3 n, Mat M) {
   vec3 cp = lp * 26.0 + bs;
   vec3 ip = floor(cp);
   float hp = hash13(ip + 3.3);
-  float mota = (1.0 - smoothstep(0.12, 0.3, length(fract(cp) - 0.5))) * step(0.965, hp);
-  alb = mix(alb, vec3(0.50, 0.47, 0.42), mota * 0.45 * fdP * det);
+  float mota = (1.0 - smoothstep(0.1, 0.24, length(fract(cp) - 0.5))) * step(0.988, hp);
+  alb = mix(alb, vec3(0.46, 0.43, 0.39), mota * 0.35 * fdP * det);
   vec3 cf = lp * 5.0 + bs * 0.7;
   vec3 iF = floor(cf), fF = fract(cf) - 0.5;
   vec3 dF = normalize(vec3(hash13(iF + 5.1), hash13(iF + 6.2), hash13(iF + 7.3)) - 0.5);
@@ -1665,7 +1669,7 @@ vec3 shade(vec3 p, vec3 rd, float tObj, vec3 n, Mat M) {
   float ndl = dot(n, L);
   float wrapD = max((ndl + 0.16) / 1.16, 0.0);
   // translucidez: la luz entra y sale rojiza junto al terminador (piel, núcleo de Atom, el Sol)
-  vec3 sss = pow(alb, vec3(1.6)) * 1.5 * smoothstep(-0.45, 0.15, ndl) * (1.0 - smoothstep(0.15, 0.6, ndl)) * (0.3 + 1.1 * M.tr);
+  vec3 sss = pow(alb, vec3(1.6)) * 1.5 * smoothstep(-0.45, 0.15, ndl) * (1.0 - smoothstep(0.15, 0.6, ndl)) * (0.3 + 0.9 * M.tr);
   vec3 V = -rd, Hh = normalize(L + V);
   float fres = pow(1.0 - max(dot(n, V), 0.0), 4.0);
   float nh = max(dot(n, Hh), 0.0);
