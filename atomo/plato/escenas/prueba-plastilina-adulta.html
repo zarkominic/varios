@@ -202,7 +202,7 @@ function regla(ts) {
   }
   P.U.uReglaA.value.set(0, 1.5, 0.3, -c);
   P.pieza(I.REG, { pos: REG, escala: E_REG, rot: [0, -0.12, 0] });
-  P.pieza(I.FLE, { pos: [REG[0] - E_REG * 0.68 - 0.32, y, REG[2] + 0.1], escala: 0.62, rot: [0, -0.15, 0], toque: mov });
+  P.pieza(I.FLE, { pos: [REG[0] - E_REG * 0.68 - 0.36, y, REG[2] + 0.1], escala: 0.8, rot: [0, -0.15, 0], toque: mov });
 }
 
 // ---------------------------------------------------------------- fotograma
@@ -217,7 +217,7 @@ function brillo2D(S) {
 }
 // desenfoque de basculante (maqueta de macro): la foto, nítida en una franja horizontal y cada vez más
 // borrosa hacia arriba y hacia abajo
-const BASC = { 1: [560, 300, 9], 2: [640, 170, 14], 3: [600, 200, 12] };
+const BASC = { 1: [600, 260, 10], 2: [700, 120, 16], 3: [640, 160, 14] };
 function basculante(src, [yF, ancho, radio]) {
   const pad = 3 * radio, cw = src.width, ch = src.height, ks = cw / W;
   const b = document.createElement('canvas'); b.width = cw + 2 * pad; b.height = ch + 2 * pad;

@@ -3,30 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cosmos · plastilina</title>
+<title>Cosmos · plastilina adulta</title>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 </head>
 <body>
 <script type="module">
-// Segunda prueba de identidad · PLASTILINA (stop-motion a 12 fps): de ti a la Vía Láctea en 11,6 s
-// (atomo/plato/prueba-identidad/ENCARGO-COSMOS.md).
-//  0          el plató de la primera prueba: la persona de pie, la regla con la flecha en 10⁰ m y Atom
-//             junto a su hombro
-//  tu         Atom saca un electrón con brazo de churro y una manita que señala a la persona
-//  arriba     Atom da un bote y mira hacia arriba; la regla se desliza y enseña las potencias positivas
-//  siete → tierra   siete saltos ×10 hacia fuera: el plató se encoge en una mirilla y aparece el
-//             «mundo en relieve» visto desde arriba (casa y calle → barrio → ciudad → campos →
-//             región → la península → la Tierra). Cada salto, un golpe de alejamiento.
+// Segunda prueba de identidad · PLASTILINA ADULTA (versión B; prueba-identidad/ENCARGO-PLASTILINA-ADULTA.md):
+// de ti a la Vía Láctea en 11,6 s, con el guion, las marcas y los encuadres de cosmos-plastilina.html (la A) y
+// el aspecto adulto de los kits plastilina-adulta.js y plastilina-cosmos-adulta.js.
+//  0          el plató: la persona de pie, la regla de nogal con el puntero en 10⁰ m y Atom junto a su hombro
+//  tu         un electrón sale de la órbita de Atom sobre un alambre fino y señala a la persona
+//  arriba     Atom se desliza hacia arriba y a la derecha y mira arriba; la regla enseña las potencias positivas
+//  siete → tierra   siete saltos ×10 hacia fuera (casa y calle → barrio → ciudad orgánica → campos → región →
+//             la península → la Tierra), con golpes de alejamiento secos y una maqueta de macro (basculante)
 //  dos → sol  la Tierra se encoge, pasa la Luna y entra el Sol, enorme, con la Tierra como un punto
-//  doce → lactea    doce saltos cada vez más seguidos: órbitas, estrellas vecinas, campo de estrellas
-//             y la Vía Láctea en espiral; una flecha marca dónde estamos
+//  doce → lactea    doce saltos cada vez más seguidos: el sistema solar (grande y lleno), estrellas vecinas,
+//             campo de estrellas y la Vía Láctea de colores reales; un puntero ámbar marca dónde estamos
 //  después    todo se asienta y queda quieto
-// Atom (tamaño fijo en pantalla), la regla y las flechas son piezas del plató (kit plastilina-prueba);
-// el mundo lo dibuja el kit plastilina-cosmos en un lienzo debajo.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
-import { crearPlato, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, brote } from '/atomo/plato/kits/plastilina-adulta.js';
-import { TIPOS_COSMOS, uniformesRegla, hornearEtiquetas, crearMundo } from '/atomo/plato/kits/plastilina-cosmos-adulta.js';
+import { crearPlato, cl, mix, prog, ss, eio, eoc, eic, azar } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo } from '/atomo/plato/kits/plastilina-cosmos-adulta.js';
 
 const T0 = performance.now();
 const E = await escena('cosmos-plastilina-adulta', 'cosmos');
@@ -47,31 +44,31 @@ for (let k = 0; k < 7; k++) { const a = (m.siete - 0.12) + k * ((m.tierra - J1) 
   const f = (u) => 1 - Math.pow(1 - u, 1.35);
   for (let k = 0; k < 12; k++) SALTOS.push([a + (b - a) * f(k / 12), a + (b - a) * f((k + 1) / 12)]);
 }
-// exponente de la regla (continuo): cada salto suma 1 con un golpe que se pasa un poco y vuelve
+// golpe seco: arranca con fuerza y frena en firme, sin pasarse ni rebotar (como un rig de control de movimiento)
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+// exponente de la regla (continuo): cada salto suma 1
 function zRegla(t) {
   let z = 0;
   SALTOS.forEach(([a, b], k) => {
     const u = prog(t, a, b);
     if (u <= 0) return;
-    if (k < 9) z += u < 1 ? eob(u, 1.25) : 1 + 0.04 * muelle(t - b, 2.2, 7);
-    else z += eoc(u);
+    z += k < 9 ? seco(u) : eoc(u);
   });
   return z;
 }
-// el zoom de la cámara: el de la regla, salvo al final (la galaxia entera cabe en el plano)
-const zCam = (zr) => zr + 0.12 * ss(0.4, 1.0, zr) * (1 - ss(4.5, 6.0, zr)) - 0.19 * ss(19, 21, zr);
+// el zoom de la cámara: el de la regla, salvo en el sistema solar (se acerca un poco para que las órbitas
+// llenen el plano) y al final (la galaxia entera cabe en el plano)
+const zCam = (zr) => zr + 0.12 * ss(0.4, 1.0, zr) * (1 - ss(4.5, 6.0, zr)) - 0.42 * ss(11.9, 12.7, zr) * (1 - ss(13.6, 14.6, zr)) - 0.19 * ss(19, 21, zr);
 
 // ---------------------------------------------------------------- el plató (kit)
 const I = { PER: 0, REG: 1, FLE: 2, AQUI: 3 };
 const P = await crearPlato({
-  piezas: ['persona', 'reglaC', 'flecha', 'flecha'],
-  mano: true, alfa: true,
+  piezas: ['persona', 'reglaA', 'flecha', 'flecha'],
+  mano: false, alfa: true,
   sombraFondo: ['p0', 'p1'],
   sombras: { p0: ['atomo'] },
-  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 24 },
-  tiposExtra: TIPOS_COSMOS, uniformes: uniformesRegla(),
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
 });
-hornearEtiquetas(P);
 if (new URLSearchParams(location.search).has('perfil')) console.log('plato', Math.round(performance.now() - T0));
 const W = 1920, H = 1080;
 const en = (sx, sy, z) => P.punto(sx, sy, z);
@@ -95,41 +92,31 @@ const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor
 
 function estadoAtom(ts) {
   const tz = calma(ts);
-  // «arriba»: se agacha, salta hacia arriba y a la derecha (a su sitio para el viaje) y mira arriba
-  const u = eio(prog(ts, m.arriba - 0.12, m.arriba + 0.55));
-  const arco = Math.sin(Math.PI * u) * 70;
+  // «arriba»: se desliza con peso hacia arriba y a la derecha (a su sitio para el viaje) y mira arriba
+  const u = eio(prog(ts, m.arriba - 0.3, m.arriba + 0.5));
+  const arco = Math.sin(Math.PI * u) * 36;
   let sx = mix(ATOMO0[0], ATOMO1[0], u), sy = mix(ATOMO0[1], ATOMO1[1], u) - arco;
-  sy += 6 * Math.sin(tz * 1.7) + 4 * Math.sin(tz * 0.9 + 1.0);
-  const prep = Math.sin(Math.PI * prog(ts, m.arriba - 0.32, m.arriba - 0.08));
-  const vuelo = Math.sin(Math.PI * prog(ts, m.arriba - 0.08, m.arriba + 0.35));
-  let k = -0.14 * prep + 0.12 * vuelo;
-  // golpe de cada salto: se encoge un poco y rebota
-  for (const [a, b] of SALTOS.slice(0, 9)) k -= 0.06 * Math.sin(Math.PI * prog(ts, a, a + 0.12)) - 0.05 * muelle(ts - (a + 0.12), 2.4, 8) * (ts > a + 0.12 ? 1 : 0);
-  // alegría en tierra y en sol
-  for (const t0 of [m.tierra, m.sol]) {
-    const s1 = prog(ts, t0 - 0.05, t0 + 0.3);
-    sy -= 34 * Math.sin(Math.PI * s1);
-    k += 0.1 * Math.sin(Math.PI * s1) - 0.08 * muelle(ts - (t0 + 0.3), 2.6, 7) * (ts > t0 + 0.3 ? 1 : 0);
-  }
-  const mira = ss(m.arriba - 0.3, m.arriba + 0.1, ts) * (1 - 0.6 * ss(m.siete, m.siete + 0.6, ts));
-  return { sx, sy, k, mira, tz };
+  sy += 4 * Math.sin(tz * 1.3) + 3 * Math.sin(tz * 0.7 + 1.0);
+  const mira = ss(m.arriba - 0.35, m.arriba + 0.05, ts) * (1 - 0.6 * ss(m.siete, m.siete + 0.6, ts));
+  // en «tierra» y en «sol», un brillo (en atomo) en lugar de saltos de alegría
+  const brillo = Math.max(...[m.tierra, m.sol].map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))));
+  return { sx, sy, k: 0, mira, tz, brillo };
 }
 function atomo(ts) {
   const S = estadoAtom(ts), ta = tAtomo(ts);
   const en0 = ts < QUIETO ? E.energia(ts) : 0;
-  // «tu»: un electrón sale con un brazo de churro y una manita que señala a la persona
-  const kTu = ss(m.tu - 0.3, m.tu - 0.02, ts) * (1 - ss(m.tu + 0.4, m.tu + 0.7, ts));
+  // «tu»: un electrón sale de su órbita sobre un alambre fino y señala a la persona (un gesto pequeño)
+  const kTu = ss(m.tu - 0.3, m.tu - 0.02, ts) * (1 - ss(m.tu + 0.45, m.tu + 0.8, ts));
   // «lactea»: señala dónde estamos
-  const kAq = ss(m.lactea - 0.15, m.lactea + 0.2, ts) * (1 - ss(QUIETO - 0.2, QUIETO + 0.3, ts) * 0);
+  const kAq = ss(m.lactea - 0.2, m.lactea + 0.1, ts);
   const electrones = [];
-  if (kTu > 0.001) electrones.push({ pos: [-2.2, -0.7, 0.5], mezcla: eio(kTu), brazo: ss(0.15, 0.6, kTu), grosor: 0.1, mano: ss(0.35, 0.9, kTu), tamMano: 0.34 });
-  else if (kAq > 0.001) electrones.push({ pos: [-2.25, -1.3, 0.6], mezcla: eio(kAq), brazo: ss(0.15, 0.6, kAq), grosor: 0.1, mano: ss(0.35, 0.9, kAq), tamMano: 0.34 });
+  if (kTu > 0.001) electrones.push({ pos: [-2.5, -0.85, 0.5], mezcla: eio(kTu), brazo: ss(0.15, 0.6, kTu), grosor: 0.042 });
+  else if (kAq > 0.001) electrones.push({ pos: [-2.5, -1.45, 0.6], mezcla: eio(kAq), brazo: ss(0.15, 0.6, kAq), grosor: 0.042 });
   const w = en(S.sx, S.sy, A_Z);
-  const lean = -0.18 * kTu - 0.12 * kAq;
+  const lean = -0.08 * kTu - 0.06 * kAq;
   P.atomo({
-    pos: w, escala: A_ESC, yaw: -0.15 + 0.1 * Math.sin(S.tz * 0.6) + 0.25 * kTu, pitch: 0.06 - 0.55 * S.mira,
-    roll: lean, sq: [1 - 0.5 * S.k, 1 + S.k, 1 - 0.5 * S.k],
-    energia: en0, ts: ta, electrones, toque: kTu > 0.05 || kAq > 0.05,
+    pos: w, escala: A_ESC, yaw: -0.15 + 0.08 * Math.sin(S.tz * 0.5) + 0.2 * kTu, pitch: 0.06 - 0.5 * S.mira,
+    roll: lean, energia: Math.min(1, en0 + 0.45 * S.brillo), ts: ta, electrones, toque: kTu > 0.05 || kAq > 0.05,
   });
   return S;
 }
@@ -137,12 +124,12 @@ function atomo(ts) {
 // ---------------------------------------------------------------- la regla
 function regla(ts, zr) {
   // la flecha baja de la fila de arriba al centro en «arriba» (la regla enseña las potencias positivas)
-  const ya = mix(1.5, 0.0, eio(prog(ts, m.arriba - 0.25, m.arriba_fin)));
-  P.U.uReglaC.value.set(zr, ya, 0.62, 0);
+  const ya = mix(1.5, 0.0, eio(prog(ts, m.arriba - 0.3, m.arriba_fin)));
+  P.U.uReglaA.value.set(zr, ya, 0.5, zr);
   const mov = SALTOS.some(([a, b]) => ts > a && ts < b + 0.1);
   P.pieza(I.REG, { pos: REG, escala: E_REG, rot: [0, -0.12, 0], toque: mov });
   const yF = REG[1] + E_REG * ya;
-  P.pieza(I.FLE, { pos: [REG[0] - E_REG * 0.64 - 0.3, yF, REG[2] + 0.1], escala: 0.66, rot: [0, -0.15, 0], toque: mov });
+  P.pieza(I.FLE, { pos: [REG[0] - E_REG * 0.68 - 0.36, yF, REG[2] + 0.1], escala: 0.8, rot: [0, -0.15, 0], toque: mov });
 }
 
 // ---------------------------------------------------------------- la persona (plató)
@@ -226,8 +213,8 @@ function estadoMundo(ts, n) {
   });
   const S = solMundo(z), sP = aPant(C, S);
   const G = [S[0] + GAL_DESDE_SOL[0], S[1] + GAL_DESDE_SOL[1]], gP = aPant(C, G);
-  const variante = z < 3.55 ? 'cerca' : z < 7.6 ? 'lejos' : z < 11.6 ? 'sol' : 'espacio';
-  const kAqui = brote(ts, m.lactea, 0.3, 0.2);
+  const variante = z < 3.55 ? 'cerca' : z < 7.6 ? 'lejos' : z < 11.6 ? 'sol' : z < 16.9 ? 'sistema' : 'espacio';
+  const kAqui = eoc(prog(ts, m.lactea - 0.3, m.lactea));
   return {
     n, z, mpp, variante, boil: [1.3 + (azar(n, 4) - 0.5) * 0.5, 0.7 + (azar(n, 5) - 0.5) * 0.5, 2.1 + (azar(n, 6) - 0.5) * 0.5],
     flicker: 1 + (azar(n, 3) - 0.5) * 0.03,
@@ -242,6 +229,8 @@ function estadoMundo(ts, n) {
       uAqui: [sP[0], sP[1], kAqui, ss(14.0, 14.8, z) * (1 - ss(16.2, 16.9, z))],
     },
     C, sP,
+    // maqueta de macro: nítido en la franja del zoom, borroso arriba y abajo (solo mirando al suelo)
+    tilt: [C.ancla[1], 150, 13, (1 - ss(5.3, 6.1, z)) * ss(0.25, 0.9, C.zr)],
   };
 }
 
@@ -252,7 +241,10 @@ function hacerFotoPlato() {
   const nf = Math.floor(T_PLATO * 12 + 1e-6);
   P.fotograma(T_PLATO); P.limpiar();
   persona(T_PLATO);
+  // sin viñeta ni grano: el mundo (pasada D) los pone sobre la foto
+  P.U.uPost.value = 0;
   P.render(nf);
+  P.U.uPost.value = 1;
   const c = document.createElement('canvas'); c.width = P.renderer.domElement.width; c.height = P.renderer.domElement.height;
   c.getContext('2d').drawImage(P.renderer.domElement, 0, 0);
   mundo.inserto(c);
@@ -288,7 +280,7 @@ function dibujar(t) {
   P.fotograma(ts); P.limpiar();
   atomo(ts); regla(ts, zr);
   // la flecha que marca dónde estamos en la galaxia
-  const kA = brote(ts, m.lactea, 0.3, 0.2);
+  const kA = eoc(prog(ts, m.lactea - 0.3, m.lactea));
   if (kA > 0.01) {
     const pA = [est.sP[0] + 50, est.sP[1] - 50];
     P.pieza(I.AQUI, { pos: en(pA[0], pA[1], 1.2), escala: 0.5 * kA, rot: [0, 0, -2.356], toque: ts < m.lactea + 0.4 });

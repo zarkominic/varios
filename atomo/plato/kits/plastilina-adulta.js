@@ -326,22 +326,22 @@ float capsulaC(vec3 p, vec3 a, vec3 b, float r1, float r2) {
   return length(pa - ba * h) - mix(r1, r2, h);
 }
 // (adulta) piel natural, jersey de punto gris jaspeado, pantalón de lana caqui oscuro, zapatos de cuero
-const vec3 C_PIEL   = vec3(0.540, 0.330, 0.225);
+const vec3 C_PIEL   = vec3(0.500, 0.305, 0.205);
 const vec3 C_JERSEY = vec3(0.250, 0.240, 0.220);
 const vec3 C_VAQUERO = vec3(0.120, 0.100, 0.068);
 const vec3 C_PELO   = vec3(0.080, 0.052, 0.034);
 const vec3 C_UNA    = vec3(0.600, 0.420, 0.330);
-const vec3 C_DERMIS = vec3(0.480, 0.200, 0.150);
-const vec3 C_GRASA  = vec3(0.520, 0.420, 0.200);
+const vec3 C_DERMIS = vec3(0.380, 0.180, 0.135);
+const vec3 C_GRASA  = vec3(0.440, 0.360, 0.200);
 const vec3 C_MADERA = vec3(0.150, 0.080, 0.040);
 const vec3 C_PIZARRA = vec3(0.018, 0.022, 0.020);
 const vec3 C_CUERO  = vec3(0.095, 0.050, 0.026);
 const vec3 C_LABIO  = vec3(0.400, 0.190, 0.150);
 // punto del jersey: cadenetas en «V» (relieve muy fino)
 float punto(vec3 q) {
-  float u = (q.x + 0.6 * q.z) * 62.0;
-  float f = fract(q.y * 58.0 + abs(fract(u) - 0.5) * 0.9);
-  return 0.0012 * sin(6.2832 * f);
+  float u = (q.x + 0.6 * q.z) * 82.0;
+  float f = fract(q.y * 76.0 + abs(fract(u) - 0.5) * 0.9);
+  return 0.00055 * sin(6.2832 * f);
 }
 #endif
 `;
@@ -434,12 +434,12 @@ float personaPartes(vec3 q, out float m) {
   // ojos almendrados: blanco, iris oscuro (mira un poco hacia arriba y a la derecha, donde está Atom) y
   // párpados (el de arriba tapa el tercio superior); boca neutra: una línea de labios, sin sonrisa
   float blanco = elipsoideP(ah - vec3(0.044, 0.611, 0.1025), vec3(0.021, 0.0165, 0.0145));
-  float pupila = length(vec3(qh.x - (qh.x > 0.0 ? 0.045 : -0.043) - 0.003, qh.y - 0.6125, qh.z - 0.1135)) - 0.0105;
+  float pupila = length(vec3(qh.x - (qh.x > 0.0 ? 0.0445 : -0.0435) - 0.0012, qh.y - 0.6135, qh.z - 0.1132)) - 0.0115;
   float parpado = elipsoideP(ah - vec3(0.044, 0.6185, 0.1035), vec3(0.0245, 0.013, 0.0168));
   parpado = smax(parpado, 0.6145 - qh.y, 0.003);
   parpado = min(parpado, smax(elipsoideP(ah - vec3(0.044, 0.6035, 0.1015), vec3(0.0225, 0.0065, 0.0145)), qh.y - 0.6005, 0.003));
-  float boca = capsulaC(vec3(abs(qh.x), qh.y + 0.06 * qh.x * qh.x / 0.024, qh.z), vec3(0.0, 0.5545, 0.1205), vec3(0.0235, 0.5545, 0.1175), 0.0036, 0.0028);
-  float labio = elipsoideP(qh - vec3(0.0, 0.5485, 0.1155), vec3(0.019, 0.0062, 0.0085));
+  float boca = capsulaC(vec3(abs(qh.x), qh.y + 0.06 * qh.x * qh.x / 0.024, qh.z), vec3(0.0, 0.5545, 0.1238), vec3(0.0265, 0.5548, 0.1192), 0.0033, 0.0025);
+  float labio = elipsoideP(qh - vec3(0.0, 0.5487, 0.1185), vec3(0.018, 0.0058, 0.0075));
   // jersey: pecho y vientre (se estrecha en la cintura), hombros caídos, dos arrugas delante
   float ropa = elipsoideP(q - vec3(0.0, 0.25, 0.0), vec3(0.158, 0.15, 0.098));
   ropa = smin(ropa, elipsoideP(q - vec3(0.0, 0.05, 0.006), vec3(0.138, 0.15, 0.09)), 0.09);
@@ -462,7 +462,7 @@ float personaPartes(vec3 q, out float m) {
   float pierna = capsulaC(a, vec3(0.083, -0.13, 0.0), vec3(0.081, -0.525, 0.01), 0.073, 0.056);
   pierna = smin(pierna, capsulaC(a, vec3(0.081, -0.525, 0.01), vec3(0.083, -0.93, -0.004), 0.056, 0.053), 0.03);
   pant = smin(pant, pierna, 0.045);
-  pant += 0.004 * smoothstep(0.02, 0.06, q.z) * (1.0 - smoothstep(0.0, 0.01, abs(q.y + 0.51 + 0.01 * sin(a.x * 70.0))));
+  pant += 0.0015 * smoothstep(0.02, 0.06, q.z) * (1.0 - smoothstep(0.0, 0.012, abs(q.y + 0.51 + 0.01 * sin(a.x * 70.0))));
   // zapatos (0.15 H) con suela clara
   float zap = sdRoundBox(a - vec3(0.085, -0.966, 0.048), vec3(0.05, 0.03, 0.118), 0.03);
   zap = smin(zap, elipsoideP(a - vec3(0.085, -0.952, 0.112), vec3(0.058, 0.046, 0.074)), 0.03);
@@ -521,6 +521,7 @@ vec3 pzcol_persona(vec3 q, vec4 T, float m) {
   if (m < 4.5) { gBri = 1.8; return C_CUERO * v; }
   if (m < 5.5) {
     // pelo castaño oscuro, con canas en las sienes
+    gBri = 0.5;
     vec3 c = C_PELO * (0.8 + 0.35 * vnoise(q * vec3(40.0, 9.0, 40.0)));
     return mix(c, vec3(0.30, 0.28, 0.26), smoothstep(0.075, 0.115, abs(q.x)) * smoothstep(0.66, 0.6, q.y) * 0.7);
   }
@@ -604,10 +605,11 @@ const vec4 VB[12] = vec4[12](vec4(-1.0, -0.5, 0.3, 0.15), vec4(-0.62, 0.35, -0.3
 const float VL[12] = float[12](1.15, 1.3, 1.0, 1.25, 1.1, 0.95, 0.9, 1.2, 1.05, 0.9, 1.0, 1.9);
 float pz_piel(vec3 q, vec4 T, out float m) {
   float losa = sdRoundBox(q - vec3(0.0, -0.24, 0.0), vec3(1.3, 0.24, 0.85), 0.07);
-  float g1 = abs(fract((q.x * 0.9 + q.z * 0.55) * 2.0) - 0.5), g2 = abs(fract((q.x * 0.45 - q.z * 1.0) * 2.4) - 0.5);
-  float surco = 1.0 - smoothstep(0.0, 0.07, min(g1, g2));
+  vec3 qw = q + 0.22 * vec3(vnoise(q * 1.3) - 0.5, 0.0, vnoise(q * 1.3 + 5.0) - 0.5);
+  float g1 = abs(fract((qw.x * 0.9 + qw.z * 0.55) * 2.0) - 0.5), g2 = abs(fract((qw.x * 0.45 - qw.z * 1.0) * 2.4) - 0.5);
+  float surco = 1.0 - smoothstep(0.0, 0.05, min(g1, g2));
   float arriba = smoothstep(-0.14, -0.02, q.y);
-  losa += (0.02 * surco - 0.012 * vnoise(q * 7.0)) * arriba;
+  losa += (0.012 * surco - 0.01 * vnoise(q * 7.0)) * arriba;
   float pel = 1e5, poro = 1e5;
   for (int i = 0; i < 12; i++) {
     vec4 b = VB[i]; float L = VL[i];
@@ -692,12 +694,16 @@ vec3 pzcol_pelo(vec3 q, vec4 T, float m) {
 // el pelo de cerca: cilindro con escamas de cutícula que se abren hacia arriba (la punta)
 float escamaF(vec3 q) {
   float th = atan(q.z, q.x);
-  float w = 0.05 * sin(th * 3.0 + 1.3) + 0.03 * sin(th * 7.0 + 0.4) + 0.014 * sin(th * 13.0 + 2.0) + 0.006 * sin(th * 29.0 + 0.7);
-  return fract((q.y + w) / 0.235);
+  float w = 0.05 * sin(th * 3.0 + 1.3) + 0.03 * sin(th * 7.0 + 0.4) + 0.014 * sin(th * 13.0 + 2.0);
+  float y = q.y + w;
+  float fila = floor(y / 0.235);
+  // cada escama con su borde irregular (rasgado) y un desfase propio
+  y += 0.045 * (vnoise(vec3(th * 4.0, fila * 3.1, 0.0)) - 0.5) + 0.02 * (vnoise(vec3(th * 13.0, fila * 1.7, 4.0)) - 0.5);
+  return fract(y / 0.235);
 }
 float pz_tronco(vec3 q, vec4 T, out float m) {
   float f = escamaF(q);
-  float r = 1.0 + 0.03 * pow(f, 2.0) * (1.0 - smoothstep(0.88, 1.0, f)) + 0.004 * sin(atan(q.z, q.x) * 41.0 + q.y * 3.0);
+  float r = 1.0 + 0.02 * f * (1.0 - smoothstep(0.93, 1.0, f)) + 0.0025 * sin(atan(q.z, q.x) * 41.0 + q.y * 3.0);
   float d = (length(q.xz) - r) * 0.55;
   d = max(d, max(q.y - 2.4, -1.4 - q.y));
   m = f;
@@ -707,16 +713,16 @@ float pzc_tronco(vec3 q, vec4 T) { return max(length(q.xz) - 0.99, max(q.y - 2.4
 vec3 pzcol_tronco(vec3 q, vec4 T, float m) {
   // queratina castaña: vetas a lo largo del pelo, bordes de las escamas más claros
   float veta = vnoise(vec3(atan(q.z, q.x) * 9.0, q.y * 0.6, 0.0));
-  vec3 base = vec3(0.150, 0.082, 0.045) * (0.82 + 0.3 * veta);
+  vec3 base = vec3(0.105, 0.058, 0.033) * (0.82 + 0.3 * veta);
   base = mix(base * 0.62, base, smoothstep(0.0, 0.3, m));
   gTr = 0.7; gBri = 1.6;
-  return mix(base, vec3(0.25, 0.15, 0.085), smoothstep(0.72, 0.93, m) * (1.0 - smoothstep(0.96, 1.0, m)));
+  return mix(base, vec3(0.19, 0.115, 0.065), smoothstep(0.72, 0.93, m) * (1.0 - smoothstep(0.96, 1.0, m)));
 }
 ` },
   reglaA: { radio: 2.05, glifos: [], glsl: /* glsl */`
-// regla de boj con canto de latón y conteras: el exponente uReglaA.x queda a la altura uReglaA.y (local);
-// la fila del exponente actual (uReglaA.w) se ve más grande (lupa uReglaA.z) y pintada de terracota.
-// Las marcas y los números van grabados (surcos con tinta oscura).
+// regla de nogal con canto de latón y conteras: el exponente uReglaA.x queda a la altura uReglaA.y (local);
+// la fila del exponente actual (uReglaA.w) se ve más grande (lupa uReglaA.z) y pintada de ámbar.
+// Las marcas y los números van grabados y rellenos de marfil.
 uniform vec4 uReglaA;
 const float RS = 0.75, XL = -0.585, ESC0 = 0.2;
 float reglaTintaA(vec3 q, out float cur) {
@@ -736,7 +742,7 @@ float reglaTintaA(vec3 q, out float cur) {
   float txt = etiqA((q.xy - vec2(XL + 0.27, yr)) / esc, er) * esc;
   txt += (er < ${fl(ROT.E_MIN - 0.5)} || er > ${fl(ROT.E_MAX + 0.5)}) ? 1e3 : 0.0;
   cur = 1.0 - smoothstep(0.2, 0.55, abs(dd));
-  float borde = 1.0 - smoothstep(1.56, 1.7, abs(q.y));
+  float borde = 1.0 - smoothstep(1.64, 1.73, abs(q.y));
   return min(marcas - 0.0105 * borde, txt + 0.03 * (1.0 - borde));
 }
 float pz_reglaA(vec3 q, vec4 T, out float m) {
@@ -757,29 +763,35 @@ float pz_reglaA(vec3 q, vec4 T, out float m) {
 float pzc_reglaA(vec3 q, vec4 T) { return min(sdRoundBox(q, vec3(0.66, 1.83, 0.05), 0.03), sdRoundBox(vec3(q.x, abs(q.y) - 1.8, q.z), vec3(0.67, 0.065, 0.06), 0.02)); }
 vec3 pzcol_reglaA(vec3 q, vec4 T, float m) {
   if (m > 3.5 || (m > 1.5 && m < 2.5)) { gBri = 3.2; return C_BRASS * (0.88 + 0.2 * vnoise(q * vec3(30.0, 3.0, 30.0))); }
-  if (m > 2.5) return mix(C_TERRA, C_AMBAR, 0.35) * 1.1;
-  if (m > 0.5) return vec3(0.035, 0.026, 0.02);
-  // boj: vetas largas y finas a lo largo de la regla
-  float n = vnoise(vec3(q.x * 7.0, q.y * 0.7, q.z * 7.0));
-  float veta = sin((q.x + 0.1 * n + 0.03 * sin(q.y * 2.3)) * 64.0);
-  gBri = 0.8;
-  return C_WOOD * (0.9 + 0.05 * veta + 0.16 * (n - 0.5)) * (0.97 + 0.06 * vnoise(q * 40.0));
+  if (m > 2.5) { gEm = C_AMBAR * 0.10; return C_AMBAR * 1.05; }
+  if (m > 0.5) return C_MARFIL * (0.94 + 0.08 * vnoise(q * 60.0));
+  // nogal: vetas largas a lo largo de la regla, poros oscuros
+  float n = vnoise(vec3(q.x * 5.0, q.y * 0.5, q.z * 5.0));
+  float n2 = vnoise(vec3(q.x * 22.0, q.y * 1.4, q.z * 22.0));
+  float veta = sin((q.x + 0.18 * n + 0.03 * n2 + 0.05 * sin(q.y * 1.7)) * 90.0);
+  float poro = smoothstep(0.78, 0.95, vnoise(vec3(q.x * 120.0, q.y * 8.0, q.z * 120.0)));
+  gBri = 1.2;
+  return C_WOOD * (0.9 + 0.06 * veta + 0.22 * (n - 0.5) + 0.1 * (n2 - 0.5)) * (1.0 - 0.2 * poro);
 }
 ` },
   flecha: { radio: 0.62, glifos: [], glsl: /* glsl */`
 // (adulta) puntero: cuña fina y afilada de terracota, con un botón de latón detrás
+float flechaD(vec3 q, float e) {
+  // triángulo afilado: punta en (0.42, 0), base en x = −0.36 con semialto 0.16
+  vec2 p = vec2(q.x, abs(q.y));
+  float d2 = max(-0.36 - p.x, dot(p - vec2(0.42, 0.0), vec2(0.201, 0.980))) + e;
+  vec2 w = vec2(d2 + 0.03, abs(q.z) - 0.045 * clamp((0.5 - q.x) / 0.8, 0.35, 1.0));
+  return min(max(w.x, w.y), 0.0) + length(max(w, 0.0)) - 0.03;
+}
 float pz_flecha(vec3 q, vec4 T, out float m) {
-  vec3 k = vec3(q.x, q.y, q.z * 1.7);
-  float d = capsulaC(k, vec3(-0.40, 0.0, 0.0), vec3(0.40, 0.0, 0.0), 0.085, 0.008);
-  float b = length(q - vec3(-0.44, 0.0, 0.0)) - 0.085;
-  m = b < d ? 1.0 : 0.0;
-  return smin(d, b, 0.03) * 0.85;
+  m = 0.0;
+  float d = flechaD(q, 0.0);
+  // una muesca grabada a lo largo (como una aguja de instrumento)
+  d = smax(d, -max(sdSeg(q.xy, vec2(-0.3, 0.0), vec2(0.2, 0.0)) - 0.012, 0.06 - abs(q.z)), 0.006);
+  return d * 0.9;
 }
-float pzc_flecha(vec3 q, vec4 T) { return min(capsulaC(vec3(q.xy, q.z * 1.7), vec3(-0.40, 0.0, 0.0), vec3(0.38, 0.0, 0.0), 0.075, 0.006), length(q - vec3(-0.44, 0.0, 0.0)) - 0.075); }
-vec3 pzcol_flecha(vec3 q, vec4 T, float m) {
-  if (m > 0.5) { gBri = 3.0; return C_BRASS; }
-  return mix(C_TERRA, C_AMBAR, 0.3) * (0.95 + 0.1 * vnoise(q * 4.0));
-}
+float pzc_flecha(vec3 q, vec4 T) { return flechaD(q, 0.01); }
+vec3 pzcol_flecha(vec3 q, vec4 T, float m) { return mix(C_TERRA, C_AMBAR, 0.3) * (0.95 + 0.1 * vnoise(q * 4.0)); }
 ` },
   pizarra: { radio: 0.82, glifos: ['?', '!'], glsl: /* glsl */`
 // pizarrita de dos caras: «?» delante (+z) y «!» detrás (−z)
@@ -910,14 +922,15 @@ const vec3 C_WATER  = vec3(0.050, 0.085, 0.120);
 const vec3 C_STEEL  = vec3(0.038, 0.041, 0.055);
 const vec3 C_DUST   = vec3(0.170, 0.130, 0.090);
 const vec3 C_WIRE   = vec3(0.030, 0.024, 0.019);   // alambre / plastilina oscura de las órbitas
-const vec3 C_WOOD   = vec3(0.600, 0.480, 0.320);   // boj de la regla
+const vec3 C_WOOD   = vec3(0.150, 0.088, 0.052);   // nogal de la regla
+const vec3 C_MARFIL = vec3(0.600, 0.555, 0.450);   // marfil de los números incrustados
 const vec3 C_BRASS  = vec3(0.470, 0.330, 0.120);
 
 const float ZW = 4.2;   // pared del fondo en z = -ZW
 const float RF = 2.6;   // radio de la curva del ciclorama
 
 // luz de cine: principal cálida, lateral y alta (izquierda) · relleno frío y bajo · contraluz frío
-const vec3 LPOS = vec3(-9.5, 8.5, 8.0);
+const vec3 LPOS = vec3(-8.5, 11.0, 9.0);
 const vec3 LCOL = vec3(1.0, 0.80, 0.60);
 const vec3 SPOT_AT = vec3(-0.8, 1.9, -2.6);
 const vec3 FILL_DIR = vec3(0.78, 0.22, 0.58);
@@ -1553,7 +1566,7 @@ void main() {
   float tb = bgHit(ro, rd, nb, arc);
   vec3 p = ro + rd * tb;
   vec3 L = normalize(LPOS - p);
-  float sh = softShadow(p + nb * 0.01, L, length(LPOS - p), 11.0);
+  float sh = softShadow(p + nb * 0.01, L, length(LPOS - p), 6.5);
 #ifdef TENUES
   sh *= mix(1.0, softShadowT(p + nb * 0.01, L, length(LPOS - p), 8.0), uTenue);
 #endif
@@ -1656,11 +1669,16 @@ vec3 shade(vec3 p, vec3 rd, float tObj, vec3 n, Mat M) {
   vec3 V = -rd, Hh = normalize(L + V);
   float fres = pow(1.0 - max(dot(n, V), 0.0), 4.0);
   float nh = max(dot(n, Hh), 0.0);
-  // arcilla mate (brillo ancho y débil, de cera); el latón y el alambre, algo más
-  float spec = (pow(nh, 12.0) * 0.03 + pow(nh, 56.0) * 0.035 * M.bri) * (0.7 + 0.8 * fres) * M.bri;
+  // arcilla mate (brillo ancho y débil, de cera); el latón y el alambre son metal: difuso oscuro y brillo
+  // del color del metal
+  float metal = smoothstep(2.0, 3.0, M.bri);
+  float specD = (pow(nh, 12.0) * 0.03 + pow(nh, 56.0) * 0.035 * M.bri) * (0.7 + 0.8 * fres) * M.bri;
+  float specM = pow(nh, 16.0) * 0.32 + pow(nh, 90.0) * 1.1;
+  vec3 spec = mix(vec3(specD), (alb * 2.3 + 0.04) * specM, metal);
   float key = 2.75 * uFlicker * spotObj(p);
-  vec3 col = (alb * wrapD + sss * 0.5) * LCOL * key * sh;
+  vec3 col = (alb * wrapD * (1.0 - 0.55 * metal) + sss * 0.5) * LCOL * key * sh;
   col += spec * LCOL * key * sh * smoothstep(-0.1, 0.3, ndl);
+  col += alb * metal * (0.12 + 0.35 * pow(max(reflect(rd, n).y, 0.0), 2.0)) * ao;
   col += alb * FILL_COL * pow(max(dot(n, normalize(FILL_DIR)) * 0.5 + 0.5, 0.0), 1.5) * 0.45 * ao;
   float up = n.y * 0.5 + 0.5;
   col += alb * mix(vec3(0.03, 0.025, 0.025), vec3(0.06, 0.07, 0.10), up) * 0.5 * ao;
