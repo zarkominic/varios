@@ -44,7 +44,18 @@
 - **Cada cifra con una comparación**, y en cada bloque al menos un detalle humano.
 - **Golpes cortos:** uno o dos por bloque, con humor suave («Tú también. No te lo tomes como algo personal»).
 - **Lo que no se sabe:** decirlo cuando toque.
-- **Imagen:** composición nueva cada 4–6 s, con variedad de planos, y un solo estilo por vídeo cuando el tema es un viaje continuo.
+- **Imagen:** composición nueva cada 4–6 s, con variedad de planos.
+- **Estilo: la plastilina es la base y otros estilos entran por bloques**, como en el episodio 2. Allí 9 de las 17 escenas eran de plastilina (gancho, marcadores entre mitos, recuento y despedida) y cada mito iba en papel o en isométrico.
+  - **Siempre en plastilina:**
+    - Atom;
+    - la apertura y el cierre;
+    - las transiciones entre capítulos;
+    - el hilo del viaje (en el episodio 3, los saltos y la regla).
+  - **En papel o isométrico, a pantalla completa:**
+    - las explicaciones que se cierran en sí mismas, como una comparación, una anécdota o un dato;
+    - entran y salen por una transición de plastilina;
+    - nunca a mitad de un zoom continuo.
+  - **Lo que mantiene la unidad:** los tres estilos comparten paleta (la de la plastilina adulta) y Atom es siempre el mismo personaje.
 - **Cierre:** recuperar la imagen del principio y terminar con la pregunta de ASK Atom: «¿Qué quieres que te explique ahora?».
 - **Duración:** de 5 a 6 minutos mientras ajustamos la producción. Cuando sea barata, pasar de 8 minutos para tener anuncios a mitad del vídeo, que es donde Kurzgesagt gana.
 
