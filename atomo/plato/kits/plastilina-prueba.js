@@ -1,4 +1,4 @@
-// COPIA de kits/plastilina.js para la prueba de identidad (prueba-plastilina.html, prueba-mixta.html).
+// COPIA de kits/plastilina.js para las pruebas de identidad (prueba-plastilina.html, prueba-mixta.html, cosmos-plastilina.html).
 // kits/plastilina.js lo usan escenas terminadas del episodio 2 y no se toca. Añadidos de esta copia:
 //  · tipos de pieza nuevos: persona, mano, piel, pelo, tronco, regla, flecha, pizarra, vecino, cota,
 //    etiqueta (ver TIPOS_PRUEBA) y glifos 0, −, m, !;

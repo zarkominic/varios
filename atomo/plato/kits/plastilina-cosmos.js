@@ -715,7 +715,7 @@ void ciudadLejos(inout Sup s, vec2 p, float pw, float dC) {
   float sbW = smoothstep(2.6, 6.0, pw);
   float covSB = clamp(0.5 - (-dE) / pw, 0.0, 1.0);
   vec3 cSB = mix(cS, C_CREAM * 0.85, torre * 0.7);
-  float hSB = (hS + hTex) * bisel(-dE, max(30.0, pw * 2.0)) + torre * max(60.0, hMin * 4.0) * (0.6 + 0.6 * ks2);
+  float hSB = (hS + hTex) * bisel(-dE, max(30.0, pw * 2.0)) + torre * min(max(60.0, hMin * 4.0), 110.0 / max(uKH, 0.1)) * (0.6 + 0.6 * ks2);
   s.c = mix(lote, cSB, sbW);
   s.h = mix(hLote, hSB, sbW);
   s.m = 0.0;
@@ -792,12 +792,12 @@ void region(inout Sup s, vec2 p, float pw) {
   vec2 k = p / 1000.0;
   float n1 = fbm3(k / 40.0);
   vec3 c = mix(vec3(0.32, 0.22, 0.09), vec3(0.19, 0.19, 0.07), smoothstep(0.35, 0.7, n1));
-  float zona = vnoise(k / 14.0 + 3.0);
-  c = mix(c, colorCampo(zona) * 0.85, 0.55) * (0.9 + 0.2 * vnoise(k / 3.0));
+  vec2 zi = floor(k / 8.5 + 0.45 * vec2(vnoise(k / 21.0), vnoise(k / 21.0 + 5.0)));
+  c = mix(c, colorCampo(hash12(zi + 77.0)) * 0.88, 0.6) * (0.9 + 0.2 * vnoise(k / 2.2));
   // dehesa: motas de encina
   float deh = smoothstep(0.55, 0.62, vnoise(k / 22.0 + 8.0));
   vec2 dg = fract(k / max(0.35, pw / 400.0)) - 0.5;
-  c = mix(c, vec3(0.07, 0.11, 0.04), deh * (1.0 - smoothstep(0.15, 0.3, length(dg))) * 0.8);
+  c = mix(c, vec3(0.07, 0.11, 0.04), deh * (1.0 - smoothstep(0.15, 0.3, length(dg))) * 0.35);
   float h = 400.0 * n1;
   float dS = 1e9;
   for (int i = 0; i < 3; i++) dS = min(dS, sdSeg(p, SIERRA[i], SIERRA[i + 1]));
@@ -807,9 +807,9 @@ void region(inout Sup s, vec2 p, float pw) {
   float bult = 0.55 * vnoise(k / 7.0 + 1.3) + 0.3 * vnoise(k / 3.2 + 7.0) + 0.15 * vnoise(k / 1.4);
   float hm = (mS * 1900.0 + mI * 1300.0) * (0.35 + 0.65 * bult);
   h += hm;
-  vec3 roca = mix(vec3(0.25, 0.17, 0.11), vec3(0.07, 0.14, 0.06), smoothstep(0.45, 0.65, vnoise(k / 4.0)));
-  c = mix(c, roca, smoothstep(200.0, 800.0, hm));
-  c = mix(c, vec3(0.66, 0.66, 0.68), smoothstep(1500.0, 1650.0, hm));
+  vec3 roca = mix(vec3(0.19, 0.12, 0.08), vec3(0.05, 0.1, 0.04), smoothstep(0.45, 0.65, vnoise(k / 4.0)));
+  c = mix(c, roca, smoothstep(200.0, 700.0, hm));
+  c = mix(c, vec3(0.66, 0.66, 0.68), smoothstep(1450.0, 1600.0, hm));
   // embalses al pie de la sierra
   vec2 eg = k / 22.0; vec2 ei = floor(eg);
   vec2 ec = (ei + 0.25 + 0.5 * hash22(ei + 31.0)) * 22.0;
@@ -886,7 +886,7 @@ void tierraEntera(inout Sup s, vec2 P, bool detalle) {
   float wCont = smoothstep(5.35, 6.05, uZ);
 #ifdef LEJOS
   region(t, p, pw);
-  float wCampo = 1.0 - smoothstep(4.7, 5.4, uZ);
+  float wCampo = (1.0 - smoothstep(4.55, 5.0, uZ)) * (1.0 - smoothstep(500.0, 900.0, t.h));
   if (wCampo > 0.0) { Sup f = t; campos(f, p, pw); mezcla(t, f, wCampo); }
   float dC = ciudadD(p);
   float covC = clamp(0.5 - dC / pw, 0.0, 1.0);
