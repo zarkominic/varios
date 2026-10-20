@@ -36,6 +36,9 @@ Cada arreglo tapó un caso, pero el planteamiento (cortar una locución larga po
    - **Texto:** Whisper transcribe el clip y se compara con el guion. Se avisa si sobra, falta o se repite alguna palabra.
    - **Pronunciación:** se avisa de las palabras que duran el doble de lo esperado o tienen un hueco dentro, como «cen…ter».
    - **Resíntesis:** los clips señalados se vuelven a sintetizar con otra velocidad o redacción. Si siguen mal, quedan en una lista corta para escucharlos.
-5. **Voz.** Antes de locutar, elegir voz comparando muestras. En inglés, Kokoro tiene voces mejor valoradas que `am_fenrir`. Las muestras del episodio 3 están hechas ya con el método frase a frase.
+5. **Voces fijas.** `am_fenrir` en inglés y `em_santa` en español. El inglés es el audio original del vídeo, así que manda:
+   - El inglés se locuta a su velocidad natural y casi no se estira.
+   - El español es el que se ajusta: velocidad, estiramiento de ±8 % y silencio entre frases.
+   - En inglés no se dice «I'm Atom, an atom», que con esta voz suena «Adam, an Adam». La presentación fija está en `episodios/GUIA-NARRATIVA.md`.
 
 Con esto, la única revisión manual será la lista de clips señalados, normalmente vacía o de dos o tres frases.
