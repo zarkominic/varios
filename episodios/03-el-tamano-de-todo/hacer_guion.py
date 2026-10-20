@@ -1,0 +1,88 @@
+"""Genera guion.json (el que leen locutar_frases.py y el plató) a partir de guion.md y escenas.json.
+
+Uso: python3 episodios/03-el-tamano-de-todo/hacer_guion.py
+
+- guion.md manda en el texto: las frases son las filas | ES | EN | de sus tablas, en orden.
+- escenas.json manda en el reparto: qué frases van en cada escena, su estilo, su cartela, el nombre de
+  la marca de cada frase y el guion visual.
+- Lo que el sintetizador leería mal se locuta escrito como se dice («<idioma>_voz»): los años y «ADN».
+  Los subtítulos usan el texto original.
+"""
+import json, os, re
+
+D = os.path.dirname(os.path.abspath(__file__))
+md = open(f'{D}/guion.md').read().split('## Saltos')[0]
+filas = [(m.group(1), m.group(2)) for m in re.finditer(r'^\| (.+?) \| (.+?) \|$', md, re.M) if m.group(1) not in ('ES', '---')]
+plan = json.load(open(f'{D}/escenas.json'))
+
+UNI_EN = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen'.split()
+DEC_EN = {2: 'twenty', 3: 'thirty', 4: 'forty', 5: 'fifty', 6: 'sixty', 7: 'seventy', 8: 'eighty', 9: 'ninety'}
+
+def dos_en(n):
+    return UNI_EN[n] if n < 20 else DEC_EN[n // 10] + ('-' + UNI_EN[n % 10] if n % 10 else '')
+
+def anyo_en(a):
+    """1676 → sixteen seventy-six; 1909 → nineteen oh-nine; 2017 → twenty seventeen; 2000 → two thousand."""
+    alto, bajo = divmod(a, 100)
+    if bajo == 0:
+        return 'two thousand' if a == 2000 else f'{dos_en(alto)} hundred'
+    return f"{dos_en(alto)} {'oh-' + UNI_EN[bajo] if bajo < 10 else dos_en(bajo)}"
+
+UNI_ES = ('cero uno dos tres cuatro cinco seis siete ocho nueve diez once doce trece catorce quince dieciséis '
+          'diecisiete dieciocho diecinueve veinte veintiuno veintidós veintitrés veinticuatro veinticinco '
+          'veintiséis veintisiete veintiocho veintinueve').split()
+DEC_ES = {3: 'treinta', 4: 'cuarenta', 5: 'cincuenta', 6: 'sesenta', 7: 'setenta', 8: 'ochenta', 9: 'noventa'}
+CEN_ES = {1: 'ciento', 2: 'doscientos', 3: 'trescientos', 4: 'cuatrocientos', 5: 'quinientos', 6: 'seiscientos',
+          7: 'setecientos', 8: 'ochocientos', 9: 'novecientos'}
+
+def dos_es(n):
+    return UNI_ES[n] if n < 30 else DEC_ES[n // 10] + (' y ' + UNI_ES[n % 10] if n % 10 else '')
+
+def anyo_es(a):
+    """1676 → mil seiscientos setenta y seis; 2019 → dos mil diecinueve."""
+    mil, resto = divmod(a, 1000)
+    c, d = divmod(resto, 100)
+    partes = ['mil' if mil == 1 else f'{UNI_ES[mil]} mil']
+    if c:
+        partes.append('cien' if c == 1 and d == 0 else CEN_ES[c])
+    if d:
+        partes.append(dos_es(d))
+    return ' '.join(partes)
+
+def hablado(texto, l):
+    t = re.sub(r'\b(1[0-9]{3}|20[0-9]{2})\b', lambda m: (anyo_en if l == 'en' else anyo_es)(int(m.group(1))), texto)
+    if l == 'es':
+        t = re.sub(r'\bADN\b', 'a de ene', t)
+    return t
+
+escenas, usadas = [], []
+for e in plan['escenas']:
+    a, b = int(e['frase_ini']), int(e['frase_fin'])
+    assert len(e['marcas']) == b - a + 1 == len(e['guion_visual']), e['id']
+    frases = []
+    for k, marca, vis in zip(range(a, b + 1), e['marcas'], e['guion_visual']):
+        es, en = filas[k - 1]
+        f = {'n': k, 'marca': marca, 'es': es, 'en': en, 'visual': vis}
+        for l, t in (('es', es), ('en', en)):
+            if hablado(t, l) != t:
+                f[f'{l}_voz'] = hablado(t, l)
+        frases.append(f)
+        usadas.append(k)
+    x = {'id': e['id'], 'estilo': e['estilo'], 'empieza_con': e['empieza_con'], 'termina_con': e['termina_con'], 'frases': frases}
+    if e.get('cartela'):
+        x['cartela'] = e['cartela']
+    escenas.append(x)
+assert usadas == list(range(1, len(filas) + 1)), 'faltan o sobran frases'
+
+guion = {
+    'serie': 'ASK Atom', 'numero': 3, 'estado': 'aprobado (v4)', 'formato': '16:9', 'rotulos': False,
+    'titulo': {'en': 'From quarks to the edge of the universe: the size of EVERYTHING',
+               'es': 'Del quark al borde del universo: el tamaño de TODO'},
+    'principal': 'en',
+    'voces': {'en': {'voz': 'am_fenrir', 'lang': 'en-us', 'velocidad': 0.85},
+              'es': {'voz': 'em_santa', 'lang': 'es', 'velocidad': 0.92}},
+    'lotes': plan.get('lotes', []),
+    'escenas': escenas,
+}
+json.dump(guion, open(f'{D}/guion.json', 'w'), ensure_ascii=False, indent=1)
+print(len(escenas), 'escenas,', len(usadas), 'frases;', {s: sum(e['estilo'] == s for e in escenas) for s in ('plastilina', 'papel', 'isometrico')})
