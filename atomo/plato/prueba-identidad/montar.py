@@ -55,8 +55,9 @@ subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-
 # Cuadrícula de 3x3: las nueve a la vez, con el audio una sola vez.
 entradas, partes = [], []
 for k, (_, nombre) in enumerate(ESTILOS):
-    entradas += ['-ss', f'{k * n_esc / FPS:.4f}', '-t', f'{n_esc / FPS:.4f}', '-i', f'{D}/prueba-seguidas.mp4']
-    partes.append(f"[{k}:v]setpts=PTS-STARTPTS,scale=640:360,drawbox=x=0:y=0:w=640:h=46:color=black@0.55:t=fill,"
+    # De los fotogramas, no de prueba-seguidas.mp4, que ya lleva su rótulo y saldría doble.
+    entradas += ['-framerate', str(FPS), '-start_number', str(k * n_esc), '-i', f'{D}/fotos/%05d.jpg']
+    partes.append(f"[{k}:v]trim=end_frame={n_esc},setpts=PTS-STARTPTS,scale=640:360,drawbox=x=0:y=0:w=640:h=46:color=black@0.55:t=fill,"
                   f"drawtext=fontfile={FUENTE}:text='{nombre.replace(':', chr(92) + ':')}':x=12:y=10:fontsize=24:fontcolor=white[v{k}]")
 pos = '|'.join(f'{(k % 3) * 640}_{(k // 3) * 360}' for k in range(len(ESTILOS)))
 grafo = ';'.join(partes) + ';' + ''.join(f'[v{k}]' for k in range(len(ESTILOS))) + f'xstack=inputs={len(ESTILOS)}:layout={pos}[v]'
