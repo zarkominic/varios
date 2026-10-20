@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prueba de identidad · art déco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="fuentes" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Limelight&family=Poiret+One&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #060a13; overflow: hidden; }
+  canvas { position: fixed; display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Prueba de identidad · art déco (a partir de estilos/19-art-deco.html).
+// Pan de oro y marfil sobre azul noche, marco escalonado con abanicos, rayos de sol naciente y
+// destellos de cuatro puntas. Todo el oro se pinta con un mismo degradado metálico (en el marco de
+// la pantalla) que se recalcula en cada fotograma, con barridos de luz en los momentos clave.
+// La regla es una pilastra escalonada a la derecha: el valor actual se «enciende» en pan de oro.
+// [hola] Atom bota y saluda con un electrón. [atom] crece con un sol de rayos y destellos.
+// [bloques] cinco átomos de oro cierran un anillo hexagonal. [explico] aparece una placa con «?»;
+// [escuela] la placa gira sobre su eje y muestra «!». [saltos]→[pelo] cuatro zooms ×10 a través de
+// medallones: el nivel siguiente se abre dentro de un medallón dorado que crece hasta llenar la
+// pantalla (persona → mano → piel con vello → pelo sobre escamas → el pelo como una columna
+// estriada). [decima]→[milimetro] cota dorada con su cartela «10⁻⁴ m».
+import { escena } from '/atomo/plato/escena.js';
+
+const E = await escena('prueba-deco', 'prueba');
+const M = (k) => E.marca(k);
+const DUR = E.duracion, W = 1920, H = 1080, PI = Math.PI, TAU = PI * 2;
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const bgc = document.createElement('canvas');
+let S = 1;
+const FD = "'Limelight', 'Didot', serif";
+const FL = "'Poiret One', 'Futura', sans-serif";
+const CREAM = '239,228,198';
+const PC = { x: W / 2, y: H / 2 };
+
+// ---------- tiempos ----------
+const T = {
+  hola: M('hola'), holaF: M('hola_fin'), atom: M('atom'), bloques: M('bloques'), explico: M('explico'),
+  escuela: M('escuela'), saltos: M('saltos'), pelo: M('pelo'), decima: M('decima'), mm: M('milimetro'), mmF: M('milimetro_fin'),
+};
+T.quieto = DUR - 0.6;
+T.calma0 = Math.min(T.mmF, T.quieto - 0.25);
+T.d = (T.pelo - T.saltos) / 4;
+T.llegada = [1, 2, 3, 4].map((j) => T.saltos + j * T.d);
+
+// ---------- utilidades ----------
+const cl = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const lerp = (a, b, x) => a + (b - a) * x;
+const ioC = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const oC = (x) => 1 - Math.pow(1 - x, 3);
+const iC = (x) => x * x * x;
+const eback = (x, s = 1.70158) => { const c3 = s + 1; return 1 + c3 * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2); };
+const einb = (x, s = 0.6) => (s + 1) * x * x * x - s * x * x;
+const sstep = (a, b, x) => { const u = cl((x - a) / (b - a)); return u * u * (3 - 2 * u); };
+const muelle = (tau, w = 16, k = 7) => tau < 0 ? 0 : Math.sin(tau * w) * Math.exp(-tau * k);
+function mulberry32(s) { return () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let r = Math.imul(s ^ (s >>> 15), 1 | s); r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r; return ((r ^ (r >>> 14)) >>> 0) / 4294967296; }; }
+function calma(t) { const a = T.calma0, b = T.quieto; if (t <= a) return t; const u = Math.min(1, (t - a) / (b - a)); return a + (b - a) * (u - u * u / 2); }
+// matrices [a b c d e f]
+const mul = (A, B) => [A[0] * B[0] + A[2] * B[1], A[1] * B[0] + A[3] * B[1], A[0] * B[2] + A[2] * B[3], A[1] * B[2] + A[3] * B[3], A[0] * B[4] + A[2] * B[5] + A[4], A[1] * B[4] + A[3] * B[5] + A[5]];
+const zoomM = (F, s) => [s, 0, 0, s, F.x * (1 - s), F.y * (1 - s)];
+const ap = (m, x, y) => [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+const ID = [1, 0, 0, 1, 0, 0];
+const dom = (m) => new DOMMatrix([m[0], m[1], m[2], m[3], m[4], m[5]]);
+
+// ---------- oro: degradado metálico por fotograma (del demo) ----------
+const RAMP = [[0.00, [70, 46, 14]], [0.28, [132, 94, 36]], [0.52, [190, 150, 70]], [0.74, [228, 196, 120]], [0.90, [246, 230, 172]], [1.00, [255, 246, 214]]];
+function ramp(v) { v = cl(v); for (let i = 1; i < RAMP.length; i++) if (v <= RAMP[i][0]) { const [a, ca] = RAMP[i - 1], [b, cb] = RAMP[i], k = (v - a) / (b - a); return [ca[0] + (cb[0] - ca[0]) * k, ca[1] + (cb[1] - ca[1]) * k, ca[2] + (cb[2] - ca[2]) * k]; } return RAMP[RAMP.length - 1][1]; }
+let SWEEPS = [];
+function makeGold(t) {
+  const g = ctx.createLinearGradient(-180, -100, 2100, 1180), cs = [];
+  for (const [a, b, k] of SWEEPS) if (t > a && t < b) cs.push([lerp(-0.15, 1.15, ioC((t - a) / (b - a))), k]);
+  const ps = []; for (let i = 0; i <= 28; i++) ps.push(i / 28);
+  for (const [c] of cs) for (let j = -5; j <= 5; j++) { const p = c + j * 0.009; if (p > 0 && p < 1) ps.push(p); }
+  ps.sort((a, b) => a - b);
+  const drift = 0.32 * Math.sin(TAU * calma(t) / 10);
+  let last = -1;
+  for (const p of ps) {
+    if (p - last < 1e-4) continue; last = p;
+    const v = 0.5 + 0.27 * Math.sin(TAU * p * 3.1 + 0.5 + drift) + 0.15 * Math.sin(TAU * p * 8.3 + 1.9 - drift * 1.7) + 0.06 * Math.sin(TAU * p * 21 + 0.3);
+    let col = ramp(v);
+    for (const [c, k] of cs) { const d = (p - c) / 0.026, s = k * Math.exp(-d * d); col = [col[0] + (255 - col[0]) * s, col[1] + (250 - col[1]) * s, col[2] + (230 - col[2]) * s]; }
+    g.addColorStop(p, `rgb(${col[0] | 0},${col[1] | 0},${col[2] | 0})`);
+  }
+  return g;
+}
+let G = null;   // oro del fotograma
+
+// ---------- formas ----------
+const P2 = (d) => new Path2D(d);
+function steppedPath(L, Tt, R, B, s) {
+  const p = new Path2D();
+  p.moveTo(L + 2 * s, Tt); p.lineTo(R - 2 * s, Tt); p.lineTo(R - 2 * s, Tt + s); p.lineTo(R - s, Tt + s); p.lineTo(R - s, Tt + 2 * s); p.lineTo(R, Tt + 2 * s);
+  p.lineTo(R, B - 2 * s); p.lineTo(R - s, B - 2 * s); p.lineTo(R - s, B - s); p.lineTo(R - 2 * s, B - s); p.lineTo(R - 2 * s, B); p.lineTo(L + 2 * s, B);
+  p.lineTo(L + 2 * s, B - s); p.lineTo(L + s, B - s); p.lineTo(L + s, B - 2 * s); p.lineTo(L, B - 2 * s); p.lineTo(L, Tt + 2 * s); p.lineTo(L + s, Tt + 2 * s); p.lineTo(L + s, Tt + s); p.lineTo(L + 2 * s, Tt + s);
+  p.closePath(); return p;
+}
+const circ = (x, y, r) => { const p = new Path2D(); p.arc(x, y, r, 0, TAU); return p; };
+const ell = (x, y, rx, ry, rot = 0) => { const p = new Path2D(); p.ellipse(x, y, rx, ry, rot, 0, TAU); return p; };
+function diamondP(p, x, y, rx, ry) { p.moveTo(x, y - ry); p.lineTo(x + rx, y); p.lineTo(x, y + ry); p.lineTo(x - rx, y); p.closePath(); }
+const polyP = (pts, cerrar = false) => { const p = new Path2D(); pts.forEach(([x, y], i) => (i ? p.lineTo(x, y) : p.moveTo(x, y))); if (cerrar) p.closePath(); return p; };
+
+// Dibujo con matriz: los rellenos usan el sistema del nivel (sus degradados se escalan con él);
+// las líneas de oro se pasan a pantalla y se trazan con el oro del fotograma a grosor constante.
+function relleno(g, p, m, estilo, a = 1) { g.save(); g.setTransform(S * m[0], S * m[1], S * m[2], S * m[3], S * m[4], S * m[5]); g.globalAlpha = a; g.fillStyle = estilo; g.fill(p); g.restore(); }
+function oro(g, p, m, w, a = 1, estilo = null) {
+  const q = new Path2D(); q.addPath(p, dom(m));
+  g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.globalAlpha = a; g.strokeStyle = estilo || G; g.lineWidth = w; g.lineJoin = 'round'; g.lineCap = 'round'; g.stroke(q); g.restore();
+}
+function oroRelleno(g, p, m, a = 1) { const q = new Path2D(); q.addPath(p, dom(m)); g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.globalAlpha = a; g.fillStyle = G; g.fill(q); g.restore(); }
+function recorta(g, p, m) { const q = new Path2D(); q.addPath(p, dom(m)); g.setTransform(S, 0, 0, S, 0, 0); g.clip(q); }
+const lin = (x0, y0, x1, y1, stops) => { const gr = ctx.createLinearGradient(x0, y0, x1, y1); for (const [o, c] of stops) gr.addColorStop(o, c); return gr; };
+const rad = (x0, y0, r0, x1, y1, r1, stops) => { const gr = ctx.createRadialGradient(x0, y0, r0, x1, y1, r1); for (const [o, c] of stops) gr.addColorStop(o, c); return gr; };
+// grabado: rayado fino de buril dentro de un recorte (alfa según la densidad en pantalla)
+function grabado(g, clipP, m, sc, bb, ang, sp, a, col = 'rgba(120,86,34,1)') {
+  const esp = sp * sc;
+  if (esp < 1.6) return;
+  g.save(); recorta(g, clipP, m);
+  const p = new Path2D(), dx = Math.cos(ang), dy = Math.sin(ang), nx = -dy, ny = dx;
+  const cx = (bb[0] + bb[2]) / 2, cy = (bb[1] + bb[3]) / 2, R0 = Math.hypot(bb[2] - bb[0], bb[3] - bb[1]) / 2;
+  for (let c = -R0; c <= R0; c += sp) { p.moveTo(cx + c * nx - R0 * dx, cy + c * ny - R0 * dy); p.lineTo(cx + c * nx + R0 * dx, cy + c * ny + R0 * dy); }
+  const q = new Path2D(); q.addPath(p, dom(m));
+  g.globalAlpha = a * cl((esp - 1.6) / 3); g.strokeStyle = col; g.lineWidth = 1; g.stroke(q);
+  g.restore();
+}
+// destello de cuatro puntas
+function destello(g, x, y, sz, a) {
+  if (a <= 0.01) return;
+  g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.globalCompositeOperation = 'lighter';
+  const gr = rad(x, y, 0, x, y, sz * 0.9, [[0, `rgba(255,240,205,${0.45 * a})`], [1, 'rgba(255,240,205,0)']]);
+  g.fillStyle = gr; g.fillRect(x - sz, y - sz, sz * 2, sz * 2);
+  const p = new Path2D(); diamondP(p, x, y, sz * 0.07, sz); diamondP(p, x, y, sz, sz * 0.07);
+  g.fillStyle = `rgba(255,250,232,${0.95 * a})`; g.fill(p);
+  g.translate(x, y); g.rotate(PI / 4); const q = new Path2D(); diamondP(q, 0, 0, sz * 0.05, sz * 0.45); diamondP(q, 0, 0, sz * 0.45, sz * 0.05);
+  g.fillStyle = `rgba(255,250,232,${0.5 * a})`; g.fill(q);
+  g.restore();
+}
+// texto con espaciado
+function tracked(g, str, x, y, font, track, modo = 'fill', align = 'center') {
+  g.font = font;
+  const ws = [...str].map((c) => g.measureText(c).width), total = ws.reduce((a, b) => a + b, 0) + track * (ws.length - 1);
+  let cx = align === 'center' ? x - total / 2 : x;
+  g.textAlign = 'left';
+  [...str].forEach((c, i) => { modo === 'fill' ? g.fillText(c, cx, y) : g.strokeText(c, cx, y); cx += ws[i] + track; });
+  return total;
+}
+// «10» con exponente y unidad. modo: 'fill' (pan de oro) o 'stroke' (perfil)
+function potencia(g, x, y, exp, size, conM, modo, estilo, align = 'left') {
+  const fb = `${size}px ${FD}`, fe = `${Math.round(size * 0.58)}px ${FD}`;
+  g.font = fb; const w10 = g.measureText('10').width;
+  g.font = fe; const sE = String(Math.abs(exp)), wE = g.measureText(sE).width, wMin = exp < 0 ? size * 0.28 : 0;
+  g.font = fb; const wM = conM ? g.measureText('m').width + size * 0.2 : 0;
+  const tot = w10 + size * 0.05 + wMin + wE + wM;
+  let xx = align === 'center' ? x - tot / 2 : x;
+  g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  const pinta = (s, f, px, py) => { g.font = f; modo === 'fill' ? g.fillText(s, px, py) : g.strokeText(s, px, py); };
+  if (modo === 'fill') g.fillStyle = estilo; else g.strokeStyle = estilo;
+  pinta('10', fb, xx, y); xx += w10 + size * 0.05;
+  if (exp < 0) { const r = new Path2D(); r.rect(xx + wMin * 0.12, y - size * 0.62, wMin * 0.72, Math.max(1.5, size * 0.07)); modo === 'fill' ? g.fill(r) : g.stroke(r); xx += wMin; }
+  pinta(sE, fe, xx, y - size * 0.4); xx += wE + size * 0.2;
+  if (conM) pinta('m', fb, xx, y);
+  return tot;
+}
+
+// =====================================================================================
+// Fondo estático: azul noche, cuñas de sol naciente y grano (del demo)
+// =====================================================================================
+let grainTile = null;
+function buildGrain() {
+  const n = 192, c = document.createElement('canvas'); c.width = c.height = n;
+  const g = c.getContext('2d'), im = g.createImageData(n, n), rnd = mulberry32(1925);
+  for (let i = 0; i < n * n; i++) { const v = rnd(), light = v > 0.5; im.data[i * 4] = light ? 255 : 0; im.data[i * 4 + 1] = light ? 240 : 0; im.data[i * 4 + 2] = light ? 210 : 0; im.data[i * 4 + 3] = Math.floor(Math.abs(v - 0.5) * 2 * 22); }
+  g.putImageData(im, 0, 0); grainTile = c;
+}
+function buildStatic() {
+  bgc.width = cv.width; bgc.height = cv.height;
+  const b = bgc.getContext('2d');
+  b.setTransform(S, 0, 0, S, 0, 0);
+  const g = b.createRadialGradient(PC.x, PC.y, 0, PC.x, PC.y, 1250);
+  g.addColorStop(0, '#192b4e'); g.addColorStop(0.32, '#101d38'); g.addColorStop(0.68, '#0a1326'); g.addColorStop(1, '#050912');
+  b.fillStyle = g; b.fillRect(0, 0, W, H);
+  b.fillStyle = 'rgba(150,180,240,0.035)'; b.beginPath();
+  const N = 36;
+  for (let i = 0; i < N; i += 2) { const a0 = -PI / 2 + (i - 0.5) * TAU / N, a1 = a0 + TAU / N; b.moveTo(PC.x, PC.y + 380); b.arc(PC.x, PC.y + 380, 2600, a0, a1); b.closePath(); }
+  b.fill();
+  b.setTransform(1, 0, 0, 1, 0, 0);
+  b.fillStyle = b.createPattern(grainTile, 'repeat'); b.fillRect(0, 0, bgc.width, bgc.height);
+}
+let VIG;
+function marco(g) {
+  g.setTransform(S, 0, 0, S, 0, 0);
+  g.strokeStyle = G; g.lineWidth = 2.2; g.stroke(steppedPath(24, 24, W - 24, H - 24, 16));
+  g.lineWidth = 1; g.stroke(steppedPath(34, 34, W - 34, H - 34, 16));
+  for (const [x, y, a0] of [[34, 34, 0], [W - 34, 34, PI / 2], [W - 34, H - 34, PI], [34, H - 34, 3 * PI / 2]]) {
+    g.save(); g.translate(x, y); g.rotate(a0);
+    g.beginPath();
+    for (const r of [58, 72, 86]) { g.moveTo(r + 16, 16); g.arc(16, 16, r, 0, PI / 2); }
+    for (let k = 0; k <= 6; k++) { const a = k * PI / 12; g.moveTo(16 + Math.cos(a) * 20, 16 + Math.sin(a) * 20); g.lineTo(16 + Math.cos(a) * 58, 16 + Math.sin(a) * 58); }
+    g.restore();
+    g.lineWidth = 1; g.globalAlpha = 0.75; g.stroke(); g.globalAlpha = 1;
+    g.save(); g.translate(x, y); g.rotate(a0); g.beginPath(); g.arc(16, 16, 9, 0, TAU); g.restore(); g.fillStyle = G; g.fill();
+  }
+}
+
+// =====================================================================================
+// Átomo narrador: medallón de oro (del demo)
+// =====================================================================================
+const ORB = [{ tilt: -PI / 3, ph: 0.05, dir: 1 }, { tilt: 0, ph: 0.38, dir: -1 }, { tilt: PI / 3, ph: 0.71, dir: 1 }];
+const ATOM = { rx: 238, ry: 78 };
+function velAtomo(t) {
+  let v = 0.3;
+  v *= 1 + 2.4 * sstep(T.atom - 0.28, T.atom, t) * (1 - sstep(T.atom + 0.35, T.atom + 1.5, t));
+  v *= 1 + 1.3 * sstep(T.saltos - 0.15, T.saltos + 0.2, t) * (1 - sstep(T.pelo, T.pelo + 0.7, t));
+  return v * (1 - cl((t - T.calma0) / (T.quieto - T.calma0)));
+}
+const FASE = (() => {
+  const dt = 1 / 240, n = Math.ceil(DUR / dt) + 2, A = new Float64Array(n);
+  let ph = 0; for (let i = 0; i < n; i++) { A[i] = ph; ph += dt * velAtomo(i * dt); }
+  return (t) => { const f = Math.max(0, t) / dt, i = Math.min(n - 2, Math.floor(f)); return A[i] + (A[i + 1] - A[i]) * (f - i); };
+})();
+function nucleo(g, x, y, r, a = 1) {
+  g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.globalAlpha = a;
+  g.fillStyle = rad(x - r * 0.38, y - r * 0.42, r * 0.04, x, y, r, [[0, '#fff6d8'], [0.22, '#f2d68a'], [0.58, '#b98a36'], [1, '#4e3410']]);
+  g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  g.strokeStyle = G; g.lineWidth = Math.max(0.8, r * 0.05); g.beginPath(); g.arc(x, y, r * 1.22, 0, TAU); g.stroke();
+  g.lineWidth = Math.max(0.6, r * 0.025); g.beginPath(); g.arc(x, y, r * 1.38, 0, TAU); g.stroke();
+  g.globalCompositeOperation = 'lighter'; g.fillStyle = `rgba(255,244,214,${0.5 * a})`;
+  const q = new Path2D(); diamondP(q, x - r * 0.38, y - r * 0.42, r * 0.06, r * 0.4); diamondP(q, x - r * 0.38, y - r * 0.42, r * 0.4, r * 0.06); g.fill(q);
+  g.restore();
+}
+function atomo(g, t, A) {
+  const sc = A.sc * (1 + 0.05 * A.en), x = A.x, y = A.y;
+  const wk = Math.max(0.55, Math.pow(A.sc / 0.42, 0.5));
+  g.save(); g.setTransform(S, 0, 0, S, 0, 0);
+  // halo suave
+  g.globalCompositeOperation = 'lighter';
+  g.fillStyle = rad(x, y, 10 * sc, x, y, 300 * sc, [[0, `rgba(255,222,150,${0.16 + 0.1 * A.en})`], [1, 'rgba(255,222,150,0)']]);
+  g.beginPath(); g.arc(x, y, 300 * sc, 0, TAU); g.fill();
+  g.globalCompositeOperation = 'source-over';
+  // órbitas: línea de oro y su paralela fina
+  g.strokeStyle = G;
+  for (const o of ORB) {
+    g.lineWidth = 2.2 * wk; g.beginPath(); g.ellipse(x, y, ATOM.rx * sc, ATOM.ry * sc, o.tilt, 0, TAU); g.stroke();
+    g.globalAlpha = 0.45; g.lineWidth = 0.8 * wk; g.beginPath(); g.ellipse(x, y, ATOM.rx * sc + 9 * wk, ATOM.ry * sc + 9 * wk, o.tilt, 0, TAU); g.stroke(); g.globalAlpha = 1;
+  }
+  g.restore();
+  nucleo(g, x, y, 50 * sc * (1 + 0.08 * A.en));
+  // electrones con estela
+  const fase = FASE(t);
+  ORB.forEach((o, i) => {
+    const rx = ATOM.rx * sc, ry = ATOM.ry * sc, th = TAU * (o.ph + 2.6 * fase) * o.dir;
+    const ct = Math.cos(o.tilt), stt = Math.sin(o.tilt);
+    const P = (q) => [x + rx * Math.cos(q) * ct - ry * Math.sin(q) * stt, y + rx * Math.cos(q) * stt + ry * Math.sin(q) * ct];
+    let [ex, ey] = P(th);
+    const m = i === 0 ? A.mano : 0;
+    g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.strokeStyle = G; g.lineCap = 'round';
+    if (m > 0.001) {
+      const R = rx * 1.05, ang = A.manoAng, hx = x + Math.cos(ang) * R, hy = y + Math.sin(ang) * R;
+      ex = lerp(ex, hx, m); ey = lerp(ey, hy, m);
+      g.globalAlpha = cl(m * 1.5); g.lineWidth = 2.4 * wk; g.beginPath(); g.moveTo(x + (ex - x) * 0.3, y + (ey - y) * 0.3); g.lineTo(ex, ey); g.stroke();
+      if (m > 0.5) { g.globalAlpha = cl((m - 0.5) / 0.3); for (const sd of [-1, 1]) for (const dr of [0, 0.18]) { g.lineWidth = (dr ? 1.2 : 2) * wk; g.beginPath(); g.arc(x, y, R * (1 + dr), ang + sd * (0.3 + dr * 0.4), ang + sd * (0.72 + dr * 0.6), sd < 0); g.stroke(); } }
+    } else {
+      const NS = 14, lar = 0.8 + 0.5 * (A.vel - 1), dirn = -o.dir;
+      for (let k = 0; k < NS; k++) {
+        const q0 = th + dirn * (lar * (NS - k) / NS), q1 = th + dirn * (lar * (NS - k - 1) / NS), [ax, ay] = P(q0), [bx, by] = P(q1);
+        g.globalAlpha = Math.pow((k + 1) / NS, 1.6) * 0.95; g.lineWidth = (1.2 + 2.6 * (k + 1) / NS) * wk; g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.stroke();
+      }
+    }
+    g.globalAlpha = 1; g.globalCompositeOperation = 'lighter';
+    const er = 9 * wk * (1 + 0.4 * m);
+    g.fillStyle = rad(ex, ey, 0, ex, ey, er * 3.4, [[0, 'rgba(255,232,180,0.55)'], [1, 'rgba(255,232,180,0)']]); g.fillRect(ex - er * 3.4, ey - er * 3.4, er * 6.8, er * 6.8);
+    g.globalCompositeOperation = 'source-over';
+    g.fillStyle = rad(ex - er * 0.3, ey - er * 0.3, 0.5, ex, ey, er, [[0, '#fffaf0'], [0.6, '#f3dfae'], [1, '#b8893a']]); g.beginPath(); g.arc(ex, ey, er, 0, TAU); g.fill();
+    g.lineWidth = 1; g.beginPath(); g.arc(ex, ey, er * 1.5, 0, TAU); g.stroke();
+    g.restore();
+  });
+}
+// rayos de sol alrededor de un punto (presentación de Atom y zooms)
+function rayos(g, x, y, r0, r1, a, n = 48, giro = 0) {
+  if (a <= 0.01) return;
+  g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.fillStyle = G;
+  for (let i = 0; i < n; i++) {
+    const ang = -PI / 2 + i * TAU / n + giro, long = i % 2 === 1, rr1 = long ? r1 : r1 * 0.68, w0 = 0.6, w1 = long ? 7 : 4;
+    const ca = Math.cos(ang), sa = Math.sin(ang), px = -sa, py = ca;
+    g.globalAlpha = a * (long ? 0.55 : 0.32);
+    g.beginPath(); g.moveTo(x + ca * r0 + px * w0, y + sa * r0 + py * w0); g.lineTo(x + ca * rr1 + px * w1, y + sa * rr1 + py * w1); g.lineTo(x + ca * rr1 - px * w1, y + sa * rr1 - py * w1); g.lineTo(x + ca * r0 - px * w0, y + sa * r0 - py * w0); g.fill();
+  }
+  g.restore();
+}
+
+// =====================================================================================
+// Nivel 0: la persona (estatuilla déco sobre un plinto escalonado)
+// =====================================================================================
+const P0 = {
+  plinto: P2('M 380 935 L 640 935 L 640 922 L 620 922 L 620 910 L 600 910 L 600 902 L 420 902 L 420 910 L 400 910 L 400 922 L 380 922 Z'),
+  pantalon: P2('M 464 598 L 548 598 L 552 900 L 512 900 L 506 640 L 500 900 L 460 900 Z'),
+  zapI: P2('M 456 896 L 502 896 L 504 904 L 450 904 Z'), zapD: P2('M 510 896 L 556 896 L 562 904 L 508 904 Z'),
+  brazoI: P2('M 430 380 C 418 430 414 500 418 580 L 440 582 C 440 510 446 450 454 400 Z'),
+  manoI: ell(430, 600, 12, 20, 0.1),
+  chaqueta: P2('M 440 372 C 470 356 542 356 572 372 L 586 470 L 562 478 L 556 560 L 552 612 L 460 612 L 456 560 L 450 478 L 426 470 Z'),
+  camisa: P2('M 488 360 L 506 424 L 524 360 Z'),
+  corbata: P2('M 506 368 L 513 390 L 506 424 L 499 390 Z'),
+  brazoD: P2('M 562 380 C 580 420 586 470 586 532 L 690 550 L 690 582 L 588 566 C 576 566 568 556 568 540 C 566 480 560 430 548 396 Z'),
+  manoD: P2('M 688 551 C 712 543 744 547 772 559 C 781 565 777 576 766 576 L 742 578 C 746 586 740 592 728 590 L 700 586 C 694 586 690 584 688 584 Z'),
+  cuello: P2('M 496 328 L 516 328 L 518 360 L 494 360 Z'),
+  cara: ell(506, 292, 37, 45),
+  pelo: P2('M 468 288 C 462 248 484 240 506 240 C 530 240 550 250 546 290 C 540 268 526 258 506 258 C 486 258 472 270 468 288 Z'),
+};
+function persona(g, m, sc) {
+  const azul = lin(420, 360, 600, 900, [[0, '#2a426f'], [0.5, '#17284d'], [1, '#0c1630']]);
+  const piel = lin(470, 250, 560, 340, [[0, '#f6e8c8'], [0.6, '#e2c896'], [1, '#b98d52']]);
+  const pieza = (p, f, w = 1.6) => { relleno(g, p, m, f); oro(g, p, m, w); };
+  pieza(P0.plinto, '#0a1326', 1.4);
+  oro(g, polyP([[400, 916], [620, 916]]), m, 0.8, 0.6); oro(g, polyP([[420, 906], [600, 906]]), m, 0.8, 0.6);
+  pieza(P0.brazoI, azul); pieza(P0.manoI, piel, 1.2);
+  pieza(P0.pantalon, azul);
+  oro(g, polyP([[506, 640], [506, 610]]), m, 1, 0.8);
+  pieza(P0.zapI, '#05070d', 1.2); pieza(P0.zapD, '#05070d', 1.2);
+  pieza(P0.chaqueta, azul, 2);
+  grabado(g, P0.chaqueta, m, sc, [420, 350, 600, 620], -0.9, 7, 0.35, 'rgba(10,16,34,1)');
+  // solapas, botones, pañuelo y galones en cheurón
+  oro(g, polyP([[476, 362], [500, 452], [506, 470]]), m, 1.2); oro(g, polyP([[536, 362], [512, 452], [506, 470]]), m, 1.2);
+  for (const yy of [500, 530, 560]) oroRelleno(g, circ(506, yy, 3.2), m);
+  oro(g, polyP([[540, 412], [560, 412], [550, 396], [540, 412]]), m, 1.1);
+  for (const yy of [586, 596]) oro(g, polyP([[466, yy + 6], [506, yy - 8], [546, yy + 6]]), m, 1, 0.8);
+  relleno(g, P0.camisa, m, '#efe3c6'); oro(g, P0.camisa, m, 1);
+  oroRelleno(g, P0.corbata, m);
+  relleno(g, P0.cuello, m, piel); oro(g, P0.cuello, m, 1.2);
+  // brazo que presenta
+  pieza(P0.brazoD, azul); pieza(P0.manoD, piel, 1.3);
+  oro(g, polyP([[748, 559], [768, 565]]), m, 0.9, 0.8); oro(g, polyP([[744, 568], [768, 571]]), m, 0.9, 0.8);
+  oro(g, polyP([[684, 548], [684, 586]]), m, 1.6);   // puño de la camisa
+  // cabeza: rasgos mínimos
+  pieza(P0.cara, piel, 1.6);
+  grabado(g, P0.cara, m, sc, [466, 244, 546, 340], 0.9, 4.5, 0.18);
+  pieza(P0.pelo, lin(480, 240, 540, 290, [[0, '#1a1f2e'], [1, '#05070d']]), 1.4);
+  oro(g, (() => { const p = new Path2D(); p.arc(506, 292, 33, -2.6, -1.7); return p; })(), m, 1.2, 0.8);
+  oro(g, polyP([[512, 286], [522, 282], [530, 286]]), m, 1.4); oro(g, polyP([[490, 286], [498, 282], [505, 286]]), m, 1.4);
+  oro(g, polyP([[516, 296], [520, 312], [513, 315]]), m, 1, 0.8);
+  oro(g, polyP([[500, 322], [510, 326], [520, 321]]), m, 1.2);
+}
+
+// pizarrita: placa escalonada sobre un pie, con «?» que gira y queda «!»
+const PIZ = { x: 1236, y: 370, w: 300, h: 220 };
+function pizarra(g, t, m, sc) {
+  const p = eback(seg(t, T.explico - 0.3, T.explico - 0.02), 1.6);
+  if (p <= 0.001) return;
+  const { x, y, w, h } = PIZ;
+  const giro = ioC(seg(t, T.escuela - 0.3, T.escuela + 0.0)), ang = PI * giro;   // gira sobre su eje vertical
+  const sx = Math.cos(ang), cara = sx >= 0 ? '?' : '!';
+  const Mb = mul(m, [p, 0, 0, p, x * (1 - p), (y + h / 2 + 410) * (1 - p)]);
+  // pie: dos varillas y una base escalonada
+  oro(g, polyP([[x - 70, y + h / 2], [x - 110, y + h / 2 + 405]]), Mb, 2); oro(g, polyP([[x + 70, y + h / 2], [x + 110, y + h / 2 + 405]]), Mb, 2);
+  oro(g, polyP([[x, y + h / 2], [x, y + h / 2 + 380]]), Mb, 1.4, 0.8);
+  const base = P2(`M ${x - 150} ${y + h / 2 + 420} L ${x + 150} ${y + h / 2 + 420} L ${x + 150} ${y + h / 2 + 408} L ${x + 130} ${y + h / 2 + 408} L ${x + 130} ${y + h / 2 + 400} L ${x - 130} ${y + h / 2 + 400} L ${x - 130} ${y + h / 2 + 408} L ${x - 150} ${y + h / 2 + 408} Z`);
+  relleno(g, base, Mb, '#0a1326'); oro(g, base, Mb, 1.4);
+  // la placa (escala en x según el giro)
+  const Mp = mul(Mb, [Math.abs(sx) * 0.97 + 0.03, 0, 0, 1, x * (1 - (Math.abs(sx) * 0.97 + 0.03)), 0]);
+  const placa = steppedPath(x - w / 2, y - h / 2, x + w / 2, y + h / 2, 14);
+  relleno(g, placa, Mp, lin(x, y - h / 2, x, y + h / 2, [[0, '#13254a'], [1, '#0a1428']]));
+  oro(g, placa, Mp, 2.4); oro(g, steppedPath(x - w / 2 + 10, y - h / 2 + 10, x + w / 2 - 10, y + h / 2 - 10, 12), Mp, 1);
+  // abanico tenue detrás del signo
+  g.save(); recorta(g, placa, Mp); rayos(g, ...ap(Mp, x, y + 40), 30 * p, 240 * p, 0.35 * Math.abs(sx), 24); g.restore();
+  // el signo
+  const [gx, gy] = ap(Mp, x, y + 62), fs = 170 * p * Math.hypot(Mb[0], Mb[1]);
+  if (fs > 4) {
+    g.save(); g.setTransform(S * (Math.abs(sx) * 0.97 + 0.03), 0, 0, S, S * gx * (1 - (Math.abs(sx) * 0.97 + 0.03)), 0);
+    g.font = `${fs}px ${FD}`; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    g.fillStyle = '#060402'; g.globalAlpha = 0.8; g.fillText(cara, gx + 5, gy + 5); g.globalAlpha = 1;
+    const aparece = cara === '?' ? seg(t, T.explico - 0.12, T.explico + 0.08) : 1;
+    g.fillStyle = G; g.globalAlpha = aparece; g.fillText(cara, gx, gy);
+    g.restore();
+  }
+}
+// molécula: cinco átomos de oro cierran un anillo con Atom
+const A_REPOSO = { x: 700, y: 330 }, A_SC = 0.42, A_FIN = { x: 1390, y: 300 }, A_SC_FIN = 0.2;
+const HEX_R = 150;
+const SOCIO = [1, 2, 3, 4, 5].map((i, n) => { const ang = PI - i * PI / 3; return { dx: HEX_R + Math.cos(ang) * HEX_R, dy: -Math.sin(ang) * HEX_R, llega: [-0.16, -0.08, 0, 0.09, 0.18][n], desde: [[-0.2, -1.6], [0.6, -1.5], [1.7, -0.4], [1.2, 1.5], [0.1, 1.7]][n] }; });
+function posAtom(t, reposo = false) {
+  const tz = calma(t), bob = 7 * Math.sin(tz * 1.9), hop = 30 * Math.sin(PI * seg(t, T.hola - 0.24, T.hola + 0.22));
+  if (reposo || t < T.saltos) return { x: A_REPOSO.x, y: A_REPOSO.y + bob - Math.max(0, hop) };
+  const u = ioC(seg(t, T.saltos + 0.1, T.saltos + T.d * 1.2));
+  return { x: lerp(A_REPOSO.x, A_FIN.x, u) - 40 * Math.sin(PI * u), y: lerp(A_REPOSO.y, A_FIN.y, u) - 70 * Math.sin(PI * u) + bob };
+}
+function posSocio(i, t) {
+  const s = SOCIO[i], A = posAtom(t, true), tl = T.bloques + s.llega, u = seg(t, tl - 0.25, tl);
+  const fx = A.x + s.dx, fy = A.y + s.dy, ox = fx + s.desde[0] * 520, oy = fy + s.desde[1] * 420, e = ioC(u) * 0.35 + iC(u) * 0.65;
+  return { x: lerp(ox, fx, e), y: lerp(oy, fy, e), u, tl };
+}
+function molecula(g, t, m, sc) {
+  if (t < T.bloques - 0.45) return;
+  const P = SOCIO.map((s, i) => posSocio(i, t)), A = posAtom(t, true);
+  const nodos = [{ x: A.x, y: A.y, ok: 1, tl: 0 }, ...P.map((p) => ({ x: p.x, y: p.y, ok: p.u >= 1, tl: p.tl }))];
+  const fAtom = 1 - seg(t, T.saltos - 0.05, T.saltos + 0.1);
+  for (let i = 0; i < 6; i++) {
+    const a = nodos[i], c = nodos[(i + 1) % 6];
+    if (!a.ok || !c.ok) continue;
+    const toAtom = i === 0 || i === 5; if (toAtom && fAtom <= 0) continue;
+    const pr = oC(seg(t, Math.max(a.tl, c.tl), Math.max(a.tl, c.tl) + 0.18));
+    const dx = c.x - a.x, dy = c.y - a.y, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d, ra = i === 0 ? 40 : 32, rc = i === 5 ? 40 : 32;
+    const mx = (a.x + c.x) / 2, my = (a.y + c.y) / 2;
+    const p = new Path2D();
+    for (const off of [-5, 5]) { p.moveTo(lerp(mx, a.x + ux * ra, pr) - uy * off, lerp(my, a.y + uy * ra, pr) + ux * off); p.lineTo(lerp(mx, c.x - ux * rc, pr) - uy * off, lerp(my, c.y - uy * rc, pr) + ux * off); }
+    oro(g, p, m, 1.6, toAtom ? fAtom : 1);
+    const q = new Path2D(); diamondP(q, mx, my, 8 * pr, 8 * pr); oroRelleno(g, q, m, toAtom ? fAtom : 1);
+  }
+  P.forEach((p, i) => {
+    if (p.u <= 0) return;
+    const [X, Y] = ap(m, p.x, p.y), k = Math.hypot(m[0], m[1]);
+    if (p.u < 1) { const s = posSocio(i, p.tl - 0.25 + (p.u - 0.06) * 0.25), [X0, Y0] = ap(m, s.x, s.y); g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.strokeStyle = G; g.globalAlpha = 0.5; g.lineWidth = 1.2; for (const o of [-10, 0, 10]) { g.beginPath(); g.moveTo(X0 + o * 0.3, Y0 + o); g.lineTo(X, Y + o * 0.3); g.stroke(); } g.restore(); }
+    nucleo(g, X, Y, 24 * k);
+    const ch = seg(t, p.tl, p.tl + 0.35);
+    if (ch > 0 && ch < 1) destello(g, X + 18 * k, Y - 18 * k, 46 * k * Math.sin(PI * ch), Math.sin(PI * ch));
+  });
+}
+
+// =====================================================================================
+// Niveles del zoom
+// =====================================================================================
+const QS = [{ x: 728, y: 568 }, { x: 526, y: 416 }, { x: 960, y: 554 }, { x: 960, y: 400 }];
+const FS = QS.map((q) => ({ x: (10 * q.x - PC.x) / 9, y: (10 * q.y - PC.y) / 9 }));
+const RC = 112;
+function nivel0(g, t, m, sc) { persona(g, m, sc); }
+function nivel0dyn(g, t, m, sc) { pizarra(g, t, m, sc); molecula(g, t, m, sc); }
+
+// --- nivel 1: la mano (las formas de las otras pruebas, centradas)
+function capsula(x0, y0, x1, y1, w0, w1, bend) {
+  const mx = (x0 + x1) / 2, my = (y0 + y1) / 2, dx = x1 - x0, dy = y1 - y0, Ln = Math.hypot(dx, dy), nx = -dy / Ln, ny = dx / Ln;
+  const P = []; for (let i = 0; i < 18; i++) { const u = i / 17, a = (1 - u) * (1 - u), b = 2 * u * (1 - u), c = u * u; P.push([a * x0 + b * (mx + nx * bend) + c * x1, a * y0 + b * (my + ny * bend) + c * y1]); }
+  const Lp = [], Rp = [];
+  for (let i = 0; i < P.length; i++) { const a = P[Math.max(0, i - 1)], b = P[Math.min(P.length - 1, i + 1)]; let ex = b[0] - a[0], ey = b[1] - a[1]; const d = Math.hypot(ex, ey) || 1; ex /= d; ey /= d; const w = lerp(w0, w1, i / (P.length - 1)) / 2; Lp.push([P[i][0] - ey * w, P[i][1] + ex * w]); Rp.push([P[i][0] + ey * w, P[i][1] - ex * w]); }
+  const end = P[P.length - 1], a0 = Math.atan2(Lp[Lp.length - 1][1] - end[1], Lp[Lp.length - 1][0] - end[0]);
+  const cap = []; for (let i = 0; i <= 12; i++) { const a = a0 - PI * i / 12; cap.push([end[0] + Math.cos(a) * w1 / 2, end[1] + Math.sin(a) * w1 / 2]); }
+  return { p: polyP([...Lp, ...cap, ...Rp.slice().reverse()], true), P, end };
+}
+const DX1 = 196;
+const DEDOS = [[850, 466, 1150, 444, 73, 65, -12], [872, 534, 1238, 521, 83, 75, -14], [880, 612, 1292, 620, 88, 81, -12], [866, 690, 1236, 729, 86, 78, -8]].map(([a, b, c, d, e, f, k]) => capsula(a + DX1, b, c + DX1, d, e, f, k));
+const PULGAR = capsula(660 + DX1, 706, 900 + DX1, 875, 107, 88, 22);
+const MANO1 = P2('M -300 405 C 300 410 560 416 716 421 C 796 404 896 399 976 409 C 1036 417 1076 430 1096 466 C 1112 508 1114 586 1108 651 C 1102 706 1076 742 1036 752 C 976 763 896 758 836 742 C 786 729 746 723 716 724 C 560 731 300 746 -300 765 Z');
+const VELLO1 = (() => { const r = mulberry32(12), L = new Path2D(); for (let i = 0; i < 80; i++) { const x = -260 + i * 12 + (r() - 0.5) * 7, y0 = 405 + (x + 300) / 1016 * 16 + 2, l = 16 + r() * 22, a = -1.05 + (r() - 0.5) * 0.5; L.moveTo(x, y0); L.quadraticCurveTo(x + Math.cos(a) * l * 0.5 - 2, y0 + Math.sin(a) * l * 0.5, x + Math.cos(a + 0.25) * l, y0 + Math.sin(a + 0.25) * l); } return L; })();
+function nivel1(g, t, m, sc) {
+  const piel = lin(700, 380, 900, 820, [[0, '#f6e8c8'], [0.55, '#e0c38e'], [1, '#a77b44']]);
+  const pieza = (p, bb, ang) => { relleno(g, p, m, piel); grabado(g, p, m, sc, bb, ang, 6, 0.32); oro(g, p, m, 2); };
+  pieza(PULGAR.p, [820, 660, 1180, 940], 0.7);
+  DEDOS.forEach((d) => {
+    pieza(d.p, [1020, 390, 1540, 800], 0.7);
+    const [ex, ey] = d.end; oro(g, ell(ex - 30, ey - 1, 24, 17), m, 1.3, 0.9);
+    for (const k of [d.P[8], d.P[13]]) { const p = new Path2D(); p.arc(k[0] - 4, k[1] + 4, 16, -PI / 2 - 0.6, -PI / 2 + 0.5); oro(g, p, m, 1, 0.8); }
+  });
+  pieza(MANO1, [-310, 390, 1120, 780], 0.7);
+  for (const [y0, y1] of [[482, 479], [544, 544], [612, 620], [674, 693]]) { const p = new Path2D(); p.moveTo(836, lerp(570, y0, 0.6)); p.quadraticCurveTo(966, (y0 + y1) / 2 + 4, 1066, y1); oro(g, p, m, 1, 0.6); }
+  for (const dx of [0, 9]) { const p = new Path2D(); p.moveTo(716 + dx, 470); p.quadraticCurveTo(728 + dx, 505, 718 + dx, 540); oro(g, p, m, 1, 0.6); }
+  oro(g, VELLO1, m, 1.3, 0.95);
+}
+
+// --- suelo de piel en perspectiva (niveles 2 y 3)
+const proyecta = (P, X, Z) => [PC.x + P.f * X / Z, P.hz + P.K / Z];
+// nivel 2: piel con vello, grabada; horizonte en y = 560
+const SUELO2 = { hz: 560, f: 420, K: 480 };
+const VELLO2 = (() => {
+  const r = mulberry32(40), L = [], P = SUELO2;
+  for (let n = 0; L.length < 44 && n < 4000; n++) {
+    const Z = 1.05 * Math.pow(11 / 1.05, Math.sqrt(r())), X = (r() * 2 - 1) * (W / 2 + 280) / P.f * Z, [x, y] = proyecta(P, X, Z);
+    if (Math.abs(x - QS[2].x) < 90 && Z > 3) continue;
+    if (x > 1300 && x < 1500 && Z > 2.4 && Z < 9) continue;
+    L.push({ x, y, Z, lean: 0.5 + (r() - 0.5) * 0.9, w: Math.max(1.6, P.f * 0.034 / Z), len: P.f * (0.75 + r() * 0.5) / Z, curv: 0.15 + r() * 0.35 });
+  }
+  return L.sort((a, b) => b.Z - a.Z);
+})();
+function pelito(g, m, h) {
+  const tx = h.x + Math.sin(h.lean) * h.len, ty = h.y - Math.cos(h.lean) * h.len, mx = h.x + Math.sin(h.lean - h.curv) * h.len * 0.55, my = h.y - Math.cos(h.lean - h.curv) * h.len * 0.55;
+  const p = new Path2D(); p.moveTo(h.x, h.y); p.quadraticCurveTo(mx, my, tx, ty);
+  const k = Math.hypot(m[0], m[1]);
+  oroRelleno(g, ell(h.x, h.y + 1, h.w + 3, (h.w + 3) * 0.32), m, 0.9);
+  oro(g, p, m, Math.max(1, h.w * k), 1, '#5a3412');
+  if (h.w * k > 3) oro(g, p, m, Math.max(0.8, h.w * k * 0.25), 0.9);
+}
+function nivel2(g, t, m, sc) {
+  const P = SUELO2;
+  const suelo = new Path2D(); suelo.rect(-400, P.hz, W + 800, H + 700);
+  relleno(g, suelo, m, lin(0, P.hz, 0, H + 80, [[0, '#a98c62'], [0.08, '#d9bf91'], [1, '#f2e2bf']]));
+  // grabado: líneas paralelas al horizonte, cada vez más juntas
+  const L = new Path2D(); for (let Z = 1.0; Z < 30; Z *= 1.09) { const y = P.hz + P.K / Z; L.moveTo(-400, y); L.lineTo(W + 400, y); }
+  const k = Math.hypot(m[0], m[1]);
+  oro(g, L, m, 0.9, 0.45, 'rgba(120,86,34,1)');
+  // surcos en rombo (dos familias que convergen en el horizonte)
+  const S2 = new Path2D(); for (let i = -30; i <= 30; i++) { for (const s of [-1, 1]) { const xb = PC.x + i * 120, xv = PC.x + s * 2600; S2.moveTo(xv, P.hz); S2.lineTo(xb, H + 200); } }
+  g.save(); recorta(g, suelo, m); oro(g, S2, m, 0.8, 0.35, 'rgba(120,86,34,1)'); g.restore();
+  oro(g, polyP([[-400, P.hz], [W + 400, P.hz]]), m, 1.8);
+  // pelos: de atrás adelante, con el destino (recto donde lo verá el zoom) entre ellos
+  const by = QS[2].y + 28;
+  let puesto = false;
+  for (const h of VELLO2) {
+    if (!puesto && h.y > by) {
+      puesto = true;
+      const p = new Path2D(); p.moveTo(PC.x, by); p.lineTo(PC.x, by - 90); p.quadraticCurveTo(PC.x + 4, by - 250, PC.x + 92, by - 400);
+      oroRelleno(g, ell(PC.x, by + 1, 8, 2.6), m); oro(g, p, m, Math.max(1, 5.2 * k), 1, '#5a3412'); oro(g, p, m, Math.max(0.8, 1.3 * k), 0.9);
+    }
+    pelito(g, m, h);
+  }
+}
+// nivel 3: el pelo sale de la piel de escamas (motivo de escamas déco); horizonte en y = 600
+const SUELO3 = { hz: 600, f: 420, K: 440 };
+const ESCAMAS = (() => {
+  // solo las escamas que en pantalla miden más de ~14 px; las lejanas son tono
+  const P = SUELO3, p = new Path2D(), d = 0.42;
+  for (let j = 0; j < 80; j++) {
+    const Z = Math.pow(1.075, j); if (P.f * d / Z < 14) break;
+    const off = (j % 2) * d / 2, Xr = (W / 2 + 400) / P.f * Z;
+    for (let X = -Xr + off; X < Xr; X += d) {
+      const pts = []; for (let k = 0; k <= 6; k++) { const a = PI + PI * k / 6; pts.push(proyecta(P, X + d / 2 + Math.cos(a) * d / 2, Z - Math.sin(a) * d * 0.55)); }
+      p.moveTo(pts[0][0], pts[0][1]); for (const [x, y] of pts) p.lineTo(x, y);
+    }
+  }
+  return p;
+})();
+function columna(g, m, x, base, w, lean, alto, tono, k, cols = ['#6e4419', '#8a5525', '#2a1406'], al = 1) {
+  const top = [x + Math.sin(lean) * alto, base - Math.cos(lean) * alto], ca = Math.cos(lean), sa = Math.sin(lean);
+  const cuerpo = polyP([[x - ca * w / 2, base - sa * w / 2], [top[0] - ca * w / 2, top[1] - sa * w / 2], [top[0] + ca * w / 2, top[1] + sa * w / 2], [x + ca * w / 2, base + sa * w / 2]], true);
+  relleno(g, cuerpo, m, lin(x - w / 2, 0, x + w / 2, 0, [[0, cols[0]], [0.3, tono], [0.55, cols[1]], [1, cols[2]]]));
+  const fl = new Path2D(); for (const f of [-0.3, 0, 0.3]) { fl.moveTo(x + f * w, base); fl.lineTo(top[0] + f * w, top[1]); }
+  oro(g, fl, m, 0.9, 0.55 * al);
+  const bandas = new Path2D(); for (let s = w * 0.5; s < alto; s += w * 0.55) { const cx = x + Math.sin(lean) * s, cy = base - Math.cos(lean) * s; bandas.moveTo(cx - w / 2, cy); bandas.quadraticCurveTo(cx, cy + w * 0.22, cx + w / 2, cy); }
+  oro(g, bandas, m, 1, 0.75 * al);
+  oro(g, cuerpo, m, 1.6, al);
+}
+function nivel3(g, t, m, sc) {
+  const P = SUELO3, k = Math.hypot(m[0], m[1]);
+  const suelo = new Path2D(); suelo.rect(-400, P.hz, W + 800, H + 700);
+  relleno(g, suelo, m, lin(0, P.hz, 0, H + 80, [[0, '#9b7d55'], [0.1, '#d6bb8c'], [1, '#f3e4c2']]));
+  g.save(); recorta(g, suelo, m); oro(g, ESCAMAS, m, 1, 0.75, 'rgba(120,86,34,1)'); g.restore();
+  oro(g, polyP([[-400, P.hz], [W + 400, P.hz]]), m, 1.8);
+  columna(g, m, 330 + DX1, 690, 22, -0.2, 1400, '#a46a2e', k);
+  columna(g, m, 1270 + DX1, 655, 15, 0.28, 1400, '#a46a2e', k);
+  // folículo: anillos de oro
+  relleno(g, ell(PC.x, 826, 96, 28), m, '#c6a571'); oro(g, ell(PC.x, 826, 96, 28), m, 1.6); oro(g, ell(PC.x, 826, 78, 21), m, 0.9, 0.7);
+  relleno(g, ell(PC.x, 822, 52, 13), m, '#140b04'); oro(g, ell(PC.x, 822, 52, 13), m, 1.2);
+  columna(g, m, PC.x, 822, 52, 0, 1460, '#c98a45', k);
+}
+// nivel 4: el pelo como una columna estriada con escamas
+const TR = { x0: 700, x1: 1220 };
+const CUTI = (() => { const r = mulberry32(55), L = []; let y = H + 640; while (y > -660) { L.push({ y, f: r() }); y -= 62 + 26 * r(); } return L; })();
+function nivel4(g, t, m, sc) {
+  const { x0, x1 } = TR, cx = (x0 + x1) / 2, hw = (x1 - x0) / 2;
+  // otro pelo lejano: columna oscura
+  columna(g, m, 190, H + 660, 84, Math.atan2(330, H + 1320), Math.hypot(330, H + 1320), '#4a3020', Math.hypot(m[0], m[1]), ['#24160c', '#3a2414', '#0e0804'], 0.45);
+  // cuerpo de la columna
+  const tronco = new Path2D(); tronco.rect(x0, -660, x1 - x0, H + 1320);
+  relleno(g, tronco, m, lin(x0, 0, x1, 0, [[0, '#4a2a0e'], [0.12, '#8a5524'], [0.3, '#d29a55'], [0.42, '#b77a3a'], [0.75, '#6a3e17'], [1, '#1e0f04']]));
+  // estrías verticales (más juntas hacia los bordes, como en un cilindro)
+  const fl = new Path2D(); for (let i = -7; i <= 7; i++) { const x = cx + hw * Math.sin(i / 8 * PI / 2); fl.moveTo(x, -660); fl.lineTo(x, H + 660); }
+  g.save(); recorta(g, tronco, m); oro(g, fl, m, 1, 0.5);
+  // escamas de la cutícula: filas de arcos entre estrías, con sombra bajo cada borde
+  for (const c of CUTI) {
+    const row = new Path2D(), sh = new Path2D();
+    for (let i = -8; i < 8; i++) {
+      const xa = cx + hw * Math.sin(i / 8 * PI / 2), xb = cx + hw * Math.sin((i + 1) / 8 * PI / 2), xm = (xa + xb) / 2, dd = (xm - cx) / hw, yy = c.y + 18 * (1 - dd * dd) + 6 * Math.sin(i * 1.7 + c.f * 6);
+      row.moveTo(xa, yy); row.quadraticCurveTo(xm, yy - 16 - 6 * c.f, xb, yy);
+      sh.moveTo(xa, yy + 4); sh.quadraticCurveTo(xm, yy - 12 - 6 * c.f, xb, yy + 4);
+    }
+    oro(g, sh, m, 4, 0.4, 'rgba(30,14,4,1)');
+    oro(g, row, m, 1.4, 0.95);
+  }
+  // brillo largo
+  const br = new Path2D(); br.rect(x0 + hw * 0.32, -660, hw * 0.1, H + 1320);
+  relleno(g, br, m, 'rgba(255,240,205,0.16)');
+  g.restore();
+  oro(g, polyP([[x0, -660], [x0, H + 660]]), m, 3); oro(g, polyP([[x1, -660], [x1, H + 660]]), m, 3);
+  oro(g, polyP([[x0 - 12, -660], [x0 - 12, H + 660]]), m, 1, 0.6); oro(g, polyP([[x1 + 12, -660], [x1 + 12, H + 660]]), m, 1, 0.6);
+}
+// cota con cartela escalonada
+function cota(g, t) {
+  const p = oC(seg(t, T.decima - 0.16, T.decima + 0.22));
+  if (p <= 0) return;
+  const y = 660, { x0, x1 } = TR, cx = (x0 + x1) / 2, hw = (x1 - x0) / 2;
+  g.save(); g.setTransform(S, 0, 0, S, 0, 0);
+  g.strokeStyle = 'rgba(8,6,2,0.7)'; g.lineWidth = 6; g.beginPath(); g.moveTo(cx - hw * p, y + 2); g.lineTo(cx + hw * p, y + 2); g.stroke();
+  g.strokeStyle = G; g.lineWidth = 2.4; g.beginPath(); g.moveTo(cx - hw * p + 2, y); g.lineTo(cx + hw * p - 2, y); g.stroke();
+  g.lineWidth = 1; g.beginPath(); g.moveTo(cx - hw * p + 2, y - 7); g.lineTo(cx + hw * p - 2, y - 7); g.moveTo(cx - hw * p + 2, y + 7); g.lineTo(cx + hw * p - 2, y + 7); g.globalAlpha = 0.7; g.stroke(); g.globalAlpha = 1;
+  const pe = eback(seg(t, T.decima + 0.08, T.decima + 0.3), 2);
+  if (pe > 0) for (const x of [x0, x1]) {
+    const q = new Path2D(); diamondP(q, x, y, 12 * pe, 18 * pe); g.fillStyle = G; g.fill(q);
+    g.lineWidth = 1.6; g.beginPath(); g.moveTo(x, y - 52 * pe); g.lineTo(x, y + 52 * pe); g.stroke();
+  }
+  // cartela
+  const s = eback(seg(t, T.mm - 0.3, T.mm), 1.8);
+  if (s > 0.01) {
+    g.translate(cx, y - 88); g.scale(s, s);
+    const c = steppedPath(-150, -50, 150, 50, 11);
+    g.fillStyle = 'rgba(0,0,0,0.5)'; g.save(); g.translate(5, 6); g.fill(c); g.restore();
+    g.fillStyle = lin(0, -50, 0, 50, [[0, '#13254a'], [1, '#0a1428']]); g.fill(c);
+    g.strokeStyle = G; g.lineWidth = 2.2; g.stroke(c); g.lineWidth = 1; g.stroke(steppedPath(-141, -41, 141, 41, 9));
+    g.fillStyle = '#060402'; potencia(g, 4, 26, -4, 60, true, 'fill', '#060402', 'center');
+    potencia(g, 0, 22, -4, 60, true, 'fill', G, 'center');
+    g.setTransform(S, 0, 0, S, 0, 0);
+    if (s > 0.9) destello(g, cx + 150, y - 138, 40 * Math.sin(PI * seg(t, T.mm - 0.05, T.mm + 0.5)), Math.sin(PI * seg(t, T.mm - 0.05, T.mm + 0.5)));
+  }
+  g.restore();
+}
+
+// =====================================================================================
+// La regla: pilastra escalonada
+// =====================================================================================
+const RG = { x0: 1598, x1: 1812, lx: 1640, y0: 172, dy: 158 };
+const ryDe = (m) => RG.y0 + m * RG.dy;
+function regla(g, t) {
+  g.save(); g.setTransform(S, 0, 0, S, 0, 0);
+  const pil = steppedPath(RG.x0, 84, RG.x1, 990, 12);
+  g.fillStyle = 'rgba(0,0,0,0.45)'; g.save(); g.translate(6, 8); g.fill(pil); g.restore();
+  g.fillStyle = lin(0, 84, 0, 990, [[0, '#13244a'], [1, '#0a1328']]); g.fill(pil);
+  g.strokeStyle = G; g.lineWidth = 2.2; g.stroke(pil); g.lineWidth = 1; g.stroke(steppedPath(RG.x0 + 9, 93, RG.x1 - 9, 981, 10));
+  // capitel: abanico
+  g.beginPath(); const cx = (RG.x0 + RG.x1) / 2;
+  for (const r of [26, 38]) { g.moveTo(cx + r, 120); g.arc(cx, 120, r, 0, -PI, true); }
+  for (let k = 0; k <= 8; k++) { const a = -k * PI / 8; g.moveTo(cx + Math.cos(a) * 10, 120 + Math.sin(a) * 10); g.lineTo(cx + Math.cos(a) * 26, 120 + Math.sin(a) * 26); }
+  g.lineWidth = 1; g.globalAlpha = 0.8; g.stroke(); g.globalAlpha = 1;
+  // escala
+  g.lineWidth = 1.6; g.beginPath(); g.moveTo(RG.lx, 140); g.lineTo(RG.lx, 960); g.stroke();
+  g.beginPath();
+  for (let mm = -1; mm <= 5; mm++) for (let k = 1; k <= 9; k++) {
+    const y = k === 1 ? ryDe(mm) : ryDe(mm) - RG.dy * Math.log10(k);
+    if (y < 142 || y > 958) continue;
+    const len = k === 1 ? 22 : k === 5 ? 12 : 7; g.moveTo(RG.lx, y); g.lineTo(RG.lx + len, y);
+  }
+  g.lineWidth = 1.1; g.stroke();
+  // valor del marcador
+  const cam = camara(t), m = t >= T.pelo ? 4 : cam.salto >= 0 ? cam.salto + Math.max(0, cam.z) : 0;
+  const L = ultimaLlegada(t), reb = L && L.tau < 1.2 ? muelle(L.tau, 20, 8) * 0.08 : 0, y = ryDe(m + reb), cur = Math.min(4, Math.round(m));
+  for (let k = 0; k <= 4; k++) {
+    const on = k === cur ? (L ? seg(t, T.llegada[L.j] - 0.02, T.llegada[L.j] + 0.2) : 1) : 0;
+    g.globalAlpha = 0.62 * (1 - on); potencia(g, RG.lx + 30, ryDe(k) + 15, -k, 42, true, 'fill', `rgb(${CREAM})`);
+    if (on > 0) { g.globalAlpha = on; potencia(g, RG.lx + 33, ryDe(k) + 18, -k, 42, true, 'fill', '#060402'); potencia(g, RG.lx + 30, ryDe(k) + 15, -k, 42, true, 'fill', G); }
+    g.globalAlpha = 1;
+  }
+  // marcador: barra luminosa y rombo
+  g.globalCompositeOperation = 'lighter';
+  g.fillStyle = rad(RG.lx, y, 0, RG.lx, y, 36, [[0, 'rgba(255,236,190,0.35)'], [1, 'rgba(255,236,190,0)']]); g.fillRect(RG.lx - 36, y - 36, 72, 72);
+  g.globalCompositeOperation = 'source-over';
+  g.fillStyle = G; const q = new Path2D(); diamondP(q, RG.x0 - 4, y, 13, 17); g.fill(q);
+  g.fillStyle = '#0b1529'; const q2 = new Path2D(); diamondP(q2, RG.x0 - 4, y, 4.5, 6); g.fill(q2);
+  g.fillStyle = G; g.fillRect(RG.x0 + 8, y - 1.6, RG.lx - RG.x0 + 4, 3.2);
+  const v = velZoom(cam);
+  if (v > 0.08) { g.globalAlpha = v; g.lineWidth = 1.2; g.beginPath(); for (const dx of [-8, 8]) { g.moveTo(RG.x0 - 4 + dx, y - 22); g.lineTo(RG.x0 - 4 + dx, y - 22 - 60 * v); } g.stroke(); g.globalAlpha = 1; }
+  g.restore();
+  if (L && L.tau < 0.6) destello(g, RG.lx + 120, ryDe(cur) - 10, 44 * Math.sin(PI * L.tau / 0.6), Math.sin(PI * L.tau / 0.6));
+}
+
+// =====================================================================================
+// Cámara, medallones y fotograma
+// =====================================================================================
+function camara(t) {
+  if (t < T.saltos) return { k: 0, z: 0, u: 0, salto: -1 };
+  if (t >= T.pelo) return { k: 4, z: 0, u: 1, salto: -1 };
+  const j = Math.min(3, Math.floor((t - T.saltos) / T.d)), u = cl((t - T.saltos - j * T.d) / T.d);
+  return { k: j, z: einb(u), u, salto: j };
+}
+function velZoom(cam) { if (cam.salto < 0) return 0; const u = cam.u, s = 0.6; return cl((3 * (s + 1) * u * u - 2 * s * u) / (3 * (s + 1) - 2 * s)); }
+function ultimaLlegada(t) { let L = null; for (let j = 0; j < 4; j++) if (t >= T.llegada[j]) L = { j, tau: t - T.llegada[j] }; return L; }
+const NIVEL = [nivel0, nivel1, nivel2, nivel3, nivel4];
+// ---------- capas pre-renderizadas ----------
+// Lo fijo de cada nivel se pinta una sola vez: a escala 1, a 10^(1/3) y 10^(2/3) alrededor del
+// punto fijo de su zoom (se componen la de menor escala para los bordes y la mayor, más nítida, en
+// el centro) y, para verlo dentro del medallón, una región ampliada a 0,75 de resolución.
+const MARG = 40, PIR = [1, Math.pow(10, 1 / 3), Math.pow(10, 2 / 3)];
+const EXT = { x0: -200, y0: -620, x1: W + 200, y1: H + 620 }, ERES = 0.75;
+let CAPAS = [];
+function capa(k, R, s, res) {
+  const sR = s * res, c = document.createElement('canvas');
+  c.width = Math.ceil((R.x1 - R.x0) * S * sR); c.height = Math.ceil((R.y1 - R.y0) * S * sR);
+  NIVEL[k](c.getContext('2d'), 0, [sR, 0, 0, sR, -R.x0 * sR, -R.y0 * sR], sR);
+  return { c, R, s: sR };
+}
+function construirCapas() {
+  const Gt = G; G = makeGold(0);
+  CAPAS = [];
+  for (let k = 0; k <= 4; k++) {
+    const L = { pir: [] };
+    for (let i = 0; i < PIR.length; i++) {
+      if (k === 4 && i > 0) break;
+      const F = k < 4 ? FS[k] : PC, s = PIR[i];
+      const R = { x0: F.x + (-MARG - F.x) / s, y0: F.y + (-MARG - F.y) / s, x1: F.x + (W + MARG - F.x) / s, y1: F.y + (H + MARG - F.y) / s };
+      L.pir.push(capa(k, R, s, i === 0 ? 1 : 0.85));
+    }
+    if (k > 0) L.ext = capa(k, EXT, 1, ERES);
+    CAPAS.push(L);
+  }
+  G = Gt;
+}
+function pintaCapa(g, cp, m, alta) {
+  const [ex, ey] = ap(m, cp.R.x0, cp.R.y0);
+  g.save(); g.setTransform(m[0] / cp.s, m[1] / cp.s, m[2] / cp.s, m[3] / cp.s, S * ex, S * ey);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = alta ? 'high' : 'low';
+  g.drawImage(cp.c, 0, 0); g.restore();
+}
+// el nivel k visto con la matriz m (escala s); inset: dentro del medallón
+function pintaNivel(g, k, t, m, s, inset) {
+  const L = CAPAS[k];
+  if (inset) pintaCapa(g, L.ext, m, s < 0.75);
+  else {
+    let i = 0; while (i + 1 < L.pir.length && PIR[i + 1] <= s) i++;
+    pintaCapa(g, L.pir[i], m, false);
+    if (i + 1 < L.pir.length && s > 1.0001) pintaCapa(g, L.pir[i + 1], m, true);
+  }
+  if (k === 0) nivel0dyn(g, t, m, s);
+}
+
+function medallon(g, cx, cy, r, a, giro) {
+  g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.globalAlpha = a; g.strokeStyle = G;
+  g.lineWidth = 6; g.beginPath(); g.arc(cx, cy, r, 0, TAU); g.stroke();
+  g.strokeStyle = 'rgba(24,14,2,0.55)'; g.lineWidth = 0.9; g.beginPath(); g.arc(cx, cy, r, 0, TAU); g.stroke();
+  g.strokeStyle = G; g.lineWidth = 1; g.beginPath(); g.arc(cx, cy, r + 10, 0, TAU); g.stroke();
+  g.lineWidth = 1.3; g.beginPath();
+  for (let i = 0; i < 96; i++) { const an = giro + i * TAU / 96, r0 = r + (i % 2 ? 18 : 14); g.moveTo(cx + Math.cos(an) * r0, cy + Math.sin(an) * r0); g.lineTo(cx + Math.cos(an) * (r + 26), cy + Math.sin(an) * (r + 26)); }
+  g.stroke();
+  g.fillStyle = G; g.beginPath();
+  for (let i = 0; i < 48; i++) { if (i % 12 === 0) continue; const an = giro + i * TAU / 48, bx = cx + Math.cos(an) * (r + 38), by = cy + Math.sin(an) * (r + 38); g.moveTo(bx + 3, by); g.arc(bx, by, 3, 0, TAU); }
+  g.fill();
+  for (let k = 0; k < 4; k++) { const an = giro + k * PI / 2, q = new Path2D(); g.save(); g.translate(cx + Math.cos(an) * (r + 38), cy + Math.sin(an) * (r + 38)); g.rotate(an + PI / 2); diamondP(q, 0, 0, 9, 15); g.fillStyle = G; g.fill(q); g.restore(); }
+  g.restore();
+}
+function frame(tIn) {
+  const t = Math.max(0, tIn), tz = calma(t);
+  G = makeGold(t);
+  const g = ctx;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  g.drawImage(bgc, 0, 0);
+  g.setTransform(S, 0, 0, S, 0, 0);
+  // golpe en cada llegada: sacudida y destello
+  const L = ultimaLlegada(t);
+  let sx = 0, sy = 0;
+  if (L && L.tau < 0.6) { const a = 10 * Math.exp(-L.tau * 9); sx = a * Math.sin(L.tau * 83); sy = a * 0.7 * Math.cos(L.tau * 67); }
+  const SH = [1, 0, 0, 1, sx, sy];
+  g.save(); g.clip(steppedPath(34, 34, W - 34, H - 34, 16));
+  // rayos del sol detrás de Atom en [atom]
+  const A = estadoAtom(t, SH);
+  const pres = eback(seg(t, T.atom - 0.24, T.atom), 1.5) * (1 - ioC(seg(t, T.atom + 0.8, T.atom + 1.3)));
+  rayos(g, A.x, A.y, 70 * pres, 820 * pres, cl(pres), 48, 0.2 * (t - T.atom));
+  const cam = camara(t), k = cam.k, s = Math.pow(10, cam.z), F = k < 4 ? FS[k] : PC;
+  const Mk = mul(SH, zoomM(F, s));
+  pintaNivel(g, k, t, Mk, s, false);
+  if (k === 4) cota(g, t);
+  // medallón con el nivel siguiente
+  const pop = k < 4 ? (cam.salto < 0 ? (t >= T.saltos - 0.3 ? eback(seg(t, T.saltos - 0.3, T.saltos - 0.04), 1.6) : 0) : eback(seg(cam.u, 0, 0.2), 1.6)) : 0;
+  if (pop > 0.001) {
+    const Q = QS[k], [cx, cy] = ap(Mk, Q.x, Q.y), r = RC * s * pop, v = cam.salto >= 0 ? velZoom(cam) : 0;
+    rayos(g, cx, cy, r + 46, r + 46 + 700 * (0.3 + v), 0.25 + 0.75 * v, 48, 0.4 * t);
+    g.save();
+    g.setTransform(S, 0, 0, S, 0, 0); g.beginPath(); g.arc(cx, cy, r, 0, TAU); g.clip();
+    g.drawImage(bgc, 0, 0, W, H);
+    const Mi = mul(Mk, [pop / 10, 0, 0, pop / 10, Q.x - PC.x * pop / 10, Q.y - PC.y * pop / 10]);
+    pintaNivel(g, k + 1, t, Mi, s * pop / 10, true);
+    g.restore();
+    medallon(g, cx, cy, r, cl(pop), 0.3 * t);
+  }
+  // destello al llegar
+  if (L && L.tau < 0.35) {
+    g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.globalCompositeOperation = 'lighter';
+    const rr = 300 + 1400 * oC(L.tau / 0.35), al = 0.14 * (1 - L.tau / 0.35);
+    g.fillStyle = rad(PC.x, PC.y, Math.max(0, rr - 60), PC.x, PC.y, rr + 20, [[0, 'rgba(255,214,140,0)'], [0.7, `rgba(255,214,140,${al})`], [1, 'rgba(255,214,140,0)']]);
+    g.fillRect(0, 0, W, H); g.restore();
+  }
+  dibujarAtom(g, t, A, pres);
+  g.restore();
+  // viñeta y marco
+  g.setTransform(S, 0, 0, S, 0, 0); g.fillStyle = VIG; g.fillRect(0, 0, W, H);
+  marco(g);
+  regla(g, t);
+}
+function estadoAtom(t, SH) {
+  const P = posAtom(t);
+  let sc = A_SC * (1 + 0.3 * eback(seg(t, T.atom - 0.26, T.atom), 2.2) * (1 - ioC(seg(t, T.atom + 0.55, T.atom + 1.25))));
+  if (t >= T.saltos) { let n = 0; for (let j = 0; j < 4; j++) n += ioC(seg(t, T.saltos + j * T.d + T.d * 0.55, T.saltos + (j + 1) * T.d + 0.05)); sc = A_SC * Math.pow(A_SC_FIN / A_SC, n / 4); }
+  const mano = sstep(T.hola - 0.24, T.hola - 0.02, t) * (1 - sstep(T.holaF + 0.22, T.atom - 0.14, t));
+  const manoAng = -PI / 2 + 0.5 + 0.55 * Math.sin((t - T.hola + 0.12) * 12.5);
+  const vel = 1 + 2 * sstep(T.atom - 0.28, T.atom, t) * (1 - sstep(T.atom + 0.4, T.atom + 1.4, t)) + 1.2 * sstep(T.saltos, T.saltos + 0.2, t) * (1 - sstep(T.pelo, T.pelo + 0.5, t));
+  return { x: P.x + SH[4], y: P.y + SH[5], sc, en: E.energia(t), mano, manoAng, vel };
+}
+const DEST = [[-1.05, -0.55, 1.0, 0], [1.1, -0.35, 0.8, 0.08], [0.75, 0.85, 0.7, 0.15], [-0.85, 0.75, 0.9, 0.05], [0.05, -1.15, 0.75, 0.12]];
+function dibujarAtom(g, t, A, pres) {
+  // estela al viajar
+  if (t > T.saltos && t < T.saltos + T.d * 1.3) {
+    const a = posAtom(t - 0.03), c = posAtom(t + 0.03), vx = c.x - a.x, vy = c.y - a.y, v = Math.hypot(vx, vy) / 0.06;
+    if (v > 150) { const ux = vx / Math.hypot(vx, vy), uy = vy / Math.hypot(vx, vy), r = ATOM.rx * A.sc * 0.5; g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.strokeStyle = G; g.globalAlpha = cl((v - 150) / 500) * 0.8; g.lineCap = 'round'; for (const k of [-0.6, 0, 0.6]) { g.lineWidth = 1.4; g.beginPath(); g.moveTo(A.x - ux * r - uy * k * r, A.y - uy * r + ux * k * r); g.lineTo(A.x - ux * (r + Math.min(260, v * 0.25)) - uy * k * r, A.y - uy * (r + Math.min(260, v * 0.25)) + ux * k * r); g.stroke(); } g.restore(); }
+  }
+  // bote: dos arcos dorados al aterrizar
+  const lb = seg(t, T.hola + 0.18, T.hola + 0.5);
+  if (lb > 0 && lb < 1) { g.save(); g.setTransform(S, 0, 0, S, 0, 0); g.strokeStyle = G; g.globalAlpha = 1 - lb; g.lineWidth = 1.6; const r = ATOM.rx * A.sc; for (const sd of [-1, 1]) { g.beginPath(); g.arc(A.x + sd * r * 0.5, A.y + ATOM.ry * A.sc + 30, 22 + 18 * lb, sd < 0 ? PI * 1.05 : -PI * 0.25, sd < 0 ? PI * 1.3 : 0); g.stroke(); } g.restore(); }
+  atomo(g, t, A);
+  // destellos de presentación
+  if (pres > 0.01) for (const [dx, dy, s, d] of DEST) { const kk = eback(seg(t, T.atom - 0.1 + d, T.atom + 0.12 + d), 2) * (1 - seg(t, T.atom + 0.6 + d, T.atom + 1.0 + d)); destello(g, A.x + dx * ATOM.rx * A.sc * 1.1, A.y + dy * ATOM.rx * A.sc * 0.7, 46 * s * kk, kk); }
+  // destello del «!»
+  const ex = seg(t, T.escuela - 0.02, T.escuela + 0.5);
+  if (ex > 0 && ex < 1 && t < T.saltos) destello(g, PIZ.x + 120, PIZ.y - 90, 60 * Math.sin(PI * ex), Math.sin(PI * ex));
+}
+
+// ---------- tamaño, letterbox y arranque ----------
+function resize() {
+  const vw = innerWidth, vh = innerHeight, k = Math.min(vw / W, vh / H), cw = Math.round(W * k), ch = Math.round(H * k);
+  cv.style.width = cw + 'px'; cv.style.height = ch + 'px'; cv.style.left = Math.round((vw - cw) / 2) + 'px'; cv.style.top = Math.round((vh - ch) / 2) + 'px';
+  const dpr = /captura/.test(location.search) ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
+  S = cv.width / W;
+  buildStatic();
+}
+buildGrain();
+VIG = ctx.createRadialGradient(PC.x, PC.y, 300, PC.x, PC.y, 1250);
+VIG.addColorStop(0, 'rgba(6,10,19,0)'); VIG.addColorStop(0.45, 'rgba(6,10,19,0.25)'); VIG.addColorStop(1, 'rgba(4,7,14,0.85)');
+SWEEPS = [[T.atom - 0.3, T.atom + 0.9, 0.9], [T.escuela - 0.2, T.escuela + 1.0, 0.8], [T.pelo - 0.1, T.pelo + 1.1, 0.7], [T.mm - 0.2, T.mm + 0.9, 0.85]];
+resize();
+const link = document.getElementById('fuentes');
+if (!link.sheet) await new Promise((r) => { link.addEventListener('load', r, { once: true }); link.addEventListener('error', r, { once: true }); setTimeout(r, 8000); });
+try { await Promise.all([document.fonts.load(`60px ${FD}`, '10 m ?!-01234'), document.fonts.load(`34px ${FL}`, '10 m')]); await document.fonts.ready; } catch (e) { /* reserva */ }
+construirCapas();
+addEventListener('resize', () => { resize(); construirCapas(); });
+// calentamiento: se dibujan instantes representativos (y se presentan) para que las capas y los
+// degradados se rastericen durante la carga y no en el primer fotograma de cada momento
+const raf = () => new Promise((r) => requestAnimationFrame(() => r()));
+for (const t of [0.6, T.atom, T.bloques + 0.2, T.explico, T.escuela, T.saltos - 0.1, ...[0.15, 0.5, 0.85].flatMap((u) => [0, 1, 2, 3].map((j) => T.saltos + (j + u) * T.d)), T.pelo + 0.3, T.mm]) { frame(t); await raf(); await raf(); }
+E.iniciar((t) => frame(t));
+</script>
+</body>
+</html>

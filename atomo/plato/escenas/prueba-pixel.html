@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prueba de identidad · píxel</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; }
+  canvas { display: block; position: fixed; inset: 0; }
+</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Prueba de identidad · pixel art (a partir de estilos/17-pixel-art.html).
+// Escena de 320×180 píxeles reales escalada ×6 sin suavizado, paletas cerradas y tramado Bayer.
+// Todo se mueve a saltos de píxel entero y los sprites se animan por fotogramas (12–15 por segundo).
+//  · [hola] Atom da un bote (fotogramas de salto y aplastamiento).
+//  · [atom] «power-up»: parpadea entre su tamaño y uno mayor, se queda grande, brilla y acelera.
+//  · [bloques] caen átomos pequeños a golpes de rejilla, como piezas, y encajan a su alrededor.
+//  · [explico] aparece una pizarrita con una «?» de tiza; [escuela] cambia a «!» con un destello.
+//  · [saltos]→[pelo] cuatro «niveles»: cada salto amplía la imagen ×10 a vecino más próximo (los píxeles
+//    crecen en bloques) y la siguiente se funde con tramado; golpe con sacudida en cada llegada.
+//  · [decima]→[milimetro] la cota se traza píxel a píxel y salta el rótulo «10⁻⁴ m».
+import { escena } from '/atomo/plato/escena.js';
+
+const E = await escena('prueba-pixel', 'prueba');
+const M = (k) => E.marca(k);
+const DUR = E.duracion;
+const captura = new URLSearchParams(location.search).has('captura');
+
+const W = 320, H = 180, TAU = Math.PI * 2;
+const T_HOLA = M('hola'), T_ATOM = M('atom'), T_ATOM_FIN = M('atom_fin');
+const T_BLOQ = M('bloques'), T_EXPL = M('explico'), T_ESC = M('escuela');
+const T_SALT = M('saltos'), T_PELO = M('pelo'), T_DEC = M('decima'), T_MILI = M('milimetro');
+const T_MILI_FIN = M('milimetro_fin');
+const T_QUIETO = DUR - 0.6;           // la voz acaba aquí: desde este instante nada se mueve
+const FPS_S = 15;                     // fotogramas por segundo de los sprites
+const fot = (t) => Math.floor(t * FPS_S);   // número de fotograma de sprite
+
+// ── paleta cerrada (la del demo y rampas nuevas para piel, pelo, ropa y pizarra) ──
+const hex = (h) => { const n = parseInt(h.slice(1), 16); return (0xff000000 | ((n & 255) << 16) | (n & 0xff00) | (n >> 16)) >>> 0; };
+const pal = (a) => a.map(hex);
+const SKY = pal(['#06071a', '#0a0d24', '#0e1330', '#13193c', '#182048', '#1e2855', '#253162', '#2d3b6d', '#374678', '#425182', '#4f5d8d', '#5e6a97']);
+const STAR = pal(['#3c4a7e', '#5f6ea3', '#9fb2e0', '#dbe6ff', '#ffffff']);
+const WARM = pal(['#7a5a6a', '#d9a27a', '#ffd9a8']);
+const COOL = pal(['#4a6aa8', '#9cc4ff', '#e6f3ff']);
+const FARC = pal(['#161d42', '#1d2650', '#28336a', '#4a5590', '#7781b4', '#a9b2da']);
+const MIST = pal(['#33406f', '#425083']);
+const MIDC = pal(['#0f1431', '#141a3b', '#232d5c', '#34427a']);
+const FGC = pal(['#05060f', '#080a1b', '#0c0f25', '#1a234c', '#33427a', '#5a6aa3']);
+const WATER = pal(['#05071a', '#0a1029', '#111a3b', '#1b2750', '#293a6b', '#40548b', '#6d80b6']);
+const UI = pal(['#05060f', '#0b0e24', '#131a3c', '#1d2650', '#9a8063', '#e4cf96', '#fff6dc', '#ffcf5a', '#8fb8ff', '#3a4a86']);
+const ATOM = pal(['#ff7a5c', '#ffcf5a', '#fff3d0', '#2c4380', '#e8f4ff', '#7fa6f0', '#c94558', '#8ea6dc']);
+const GLOW = pal(['#3a4a86', '#5e72b4', '#8fa2dc']);
+const SKIN = pal(['#2a1420', '#55263a', '#8a4148', '#bd6a5c', '#e09a7a', '#f6c7a0', '#ffe6cc']);
+const HAIR = pal(['#120a10', '#2a1518', '#4a2620', '#74402c', '#a3633c', '#cf9256', '#f3c98a']);
+const SHIRT = pal(['#0d1f33', '#163d55', '#1f6273', '#2f8f8a', '#5cc2a0', '#a8ecc4']);
+const PANTS = pal(['#0b0d22', '#141a3d', '#20295a', '#2f3c7a', '#46579e']);
+const SHOE = pal(['#140b10', '#3a1f22', '#6a3a30']);
+const BOARD = pal(['#0a1712', '#123024', '#1c4a36', '#2a6a4c']);
+const WOOD = pal(['#2a160d', '#55301a', '#8a5a2e', '#c08a4c']);
+const CHALK = pal(['#7f9a8a', '#c4d8c8', '#f0f8ee']);
+const INK = hex('#05060f'), BLANCO = hex('#ffffff');
+
+// ── utilidades (del demo) ────────────────────────────────────────────────────
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hash2(ix, iy) { let h = (Math.imul(ix | 0, 374761393) + Math.imul(iy | 0, 668265263)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+function vnoise(x, y) {
+  const x0 = Math.floor(x), y0 = Math.floor(y), fx = x - x0, fy = y - y0;
+  const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const v00 = hash2(x0, y0), v10 = hash2(x0 + 1, y0), v01 = hash2(x0, y0 + 1), v11 = hash2(x0 + 1, y0 + 1);
+  const top = v00 + (v10 - v00) * sx, bot = v01 + (v11 - v01) * sx;
+  return top + (bot - top) * sy;
+}
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const b4 = (x, y) => (B4[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+const B2 = [0, 2, 3, 1];
+const b2 = (x, y) => (B2[((y & 1) << 1) | (x & 1)] + 0.5) / 4;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const smooth = (a, b, v) => { const p = clamp((v - a) / (b - a), 0, 1); return p * p * (3 - 2 * p); };
+const lin = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+const mix = (a, b, x) => a + (b - a) * x;
+const easeIO = (p) => p <= 0 ? 0 : p >= 1 ? 1 : p < 0.5 ? 4 * p * p * p : 1 - Math.pow(2 - 2 * p, 3) / 2;
+// cuantiza un nivel continuo con tramado 2×2 (o 4×4) dentro de una rampa
+const tone = (ramp, v, x, y) => { let l = Math.floor(v); if (v - l > b2(x, y)) l++; return ramp[clamp(l, 0, ramp.length - 1)]; };
+const tone4 = (ramp, v, x, y) => { let l = Math.floor(v); if (v - l > b4(x, y)) l++; return ramp[clamp(l, 0, ramp.length - 1)]; };
+
+// ── búferes ──────────────────────────────────────────────────────────────────
+const lienzo = document.getElementById('lienzo');
+const ctx = lienzo.getContext('2d');
+const bajo = document.createElement('canvas'); bajo.width = W; bajo.height = H;
+const bctx = bajo.getContext('2d');
+const imagen = bctx.createImageData(W, H);
+const buf = new Uint32Array(imagen.data.buffer);
+let dst = buf;                         // búfer donde se pinta ahora (el de la pantalla o el de un nivel)
+const pset = (x, y, c) => { x |= 0; y |= 0; if (x >= 0 && x < W && y >= 0 && y < H) dst[y * W + x] = c; };
+const pget = (x, y) => (x >= 0 && x < W && y >= 0 && y < H ? dst[y * W + x] : 0);
+function rect(x0, y0, x1, y1, c) { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) pset(x, y, c); }
+const nuevoNivel = () => new Uint32Array(W * H);
+
+// ── tipografía a mano: solo «10», exponentes, «m», «?» y «!» ─────────────────
+const G57 = {
+  '0': [' ### ', '#   #', '#  ##', '# # #', '##  #', '#   #', ' ### '],
+  '1': ['  #  ', ' ##  ', '# #  ', '  #  ', '  #  ', '  #  ', '#####'],
+  'm': ['     ', '     ', '## # ', '# # #', '# # #', '# # #', '# # #'],
+};
+const G35 = {
+  '0': ['###', '# #', '# #', '# #', '###'], '1': [' # ', '## ', ' # ', ' # ', '###'],
+  '2': ['## ', '  #', ' # ', '#  ', '###'], '3': ['## ', '  #', ' # ', '  #', '## '],
+  '4': ['# #', '# #', '###', '  #', '  #'], '−': ['   ', '   ', '###', '   ', '   '],
+};
+function glifo(g, x, y, e, c) {
+  for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) if (g[j][i] === '#') rect(x + i * e, y + j * e, x + i * e + e - 1, y + j * e + e - 1, c);
+}
+// ancho en píxeles de «10^exp m» a escala e
+const anchoPot = (exp, e = 1) => (5 + 1 + 5 + 1 + exp.length * 4 - 1 + 3 + 5) * e;
+// «10» + exponente volado + «m»; (x, y) = esquina superior izquierda de los dígitos grandes
+function potencia(exp, x, y, e, c, sombra) {
+  const pinta = (ox, oy, col) => {
+    glifo(G57['1'], ox, oy, e, col); glifo(G57['0'], ox + 6 * e, oy, e, col);
+    let xe = ox + 12 * e;
+    for (const ch of exp) { glifo(G35[ch], xe, oy - 2 * e, e, col); xe += 4 * e; }
+    glifo(G57.m, xe + 2 * e, oy, e, col);
+  };
+  if (sombra != null) pinta(x + e, y + e, sombra);
+  pinta(x, y, c);
+}
+const EXP = ['0', '−1', '−2', '−3', '−4'];
+
+// ════════════════════════════════════════════════════════════════════════════
+//  NIVEL 0 (10⁰ m): paisaje nocturno del demo, con la persona en una loma
+// ════════════════════════════════════════════════════════════════════════════
+const SKY_ROWS = 132, HOR = 130, LAGO_Y = 139;
+const fgTop = (x) => Math.round(150 - 12 * Math.exp(-Math.pow((x - 104) / 46, 2)) - 3 * Math.exp(-Math.pow((x - 300) / 40, 2)) + 1.2 * Math.sin(x * 0.08 + 0.4));
+function milkyAt(fx, fy) {
+  const s = fx * 0.574 + fy * 0.819 - 20, along = fx * 0.819 - fy * 0.574;
+  const n1 = vnoise(fx * 0.06 + 7, fy * 0.06 + 3), n2 = vnoise(fx * 0.15 + 1, fy * 0.15 + 9);
+  const width = 22 + 7 * Math.sin(along * 0.022);
+  let v = Math.exp(-(s * s) / (width * width)) * (0.45 + 0.75 * (0.65 * n1 + 0.35 * n2));
+  v -= 0.55 * Math.exp(-((s - 4) * (s - 4)) / 28) * smooth(0.45, 0.7, n2);
+  return Math.max(0, v);
+}
+const ESTATICO0 = nuevoNivel();       // cielo, montañas, bruma y colinas: no cambian
+const FG0 = nuevoNivel();             // loma del primer plano (se pinta encima del lago)
+const ESTRELLAS = [];
+{
+  dst = ESTATICO0;
+  // cielo: degradado + Vía Láctea (fija), con un resplandor suave donde flota Atom
+  for (let y = 0; y < SKY_ROWS; y++) for (let x = 0; x < W; x++) {
+    let v = 7.1 * Math.pow(Math.min(1, (y + 0.5) / HOR), 1.75) + 0.12;
+    v += 1.3 * milkyAt(x - 150, y - 70);
+    const da = Math.hypot(x - 150, y - 80);
+    v += 1.1 * Math.exp(-da / 40);
+    let l = Math.floor(v); if (v - l > b2(x, y)) l++;
+    ESTATICO0[y * W + x] = SKY[l > 11 ? 11 : l];
+  }
+  const rnd = mulberry32(20241017);
+  let guard = 0;
+  while (ESTRELLAS.length < 260 && guard++ < 20000) {
+    const x = Math.floor(rnd() * W), y = Math.floor(rnd() * 118);
+    if (rnd() > 0.3 + 0.9 * milkyAt(x - 150, y - 70)) continue;
+    const q = rnd();
+    ESTRELLAS.push({ x, y, type: q < 0.7 ? 0 : q < 0.93 ? 1 : 2, tint: rnd() < 0.16 ? 1 : rnd() < 0.12 ? 2 : 0, k: 1 + Math.floor(rnd() * 3), ph: Math.floor(rnd() * 8) });
+  }
+  // montañas lejanas con nieve (del demo)
+  const picos = [[-16, 110, 1, 1], [14, 105, 0.9, 1.1], [44, 112, 1, 0.9], [72, 108, 0.9, 1.0], [101, 117, 1, 1], [131, 120, 0.9, 1], [160, 114, 1.1, 0.9], [188, 106, 1, 1.1], [216, 99, 0.95, 0.85], [246, 109, 1, 1], [278, 115, 0.9, 1], [306, 103, 1.1, 1], [336, 110, 1, 1]];
+  const raw = (x) => { let h = 999; for (const [px, py, sl, sr] of picos) h = Math.min(h, py + (x < px ? (px - x) * sl : (x - px) * sr)); return h; };
+  const top = new Int16Array(W + 2);
+  for (let x = -1; x <= W; x++) top[x + 1] = Math.min(SKY_ROWS - 1, Math.round(raw(x) + (vnoise(x * 0.4, 3.3) - 0.5) * 3));
+  const LX = 150;
+  for (let x = 0; x < W; x++) {
+    const t0 = top[x + 1], sl = top[x + 2] - top[x];
+    const lit = x < LX ? sl < 0 : sl > 0, flat = sl === 0;
+    const snow = 112.5 + (vnoise(x * 0.3, 8) - 0.5) * 4;
+    for (let y = t0; y < H; y++) {
+      let c; const depth = y - t0;
+      if (y < snow) {
+        const tex = vnoise(x * 0.9, y * 0.35 + 4) > 0.62;
+        c = lit ? (depth === 0 ? FARC[5] : tex ? FARC[3] : FARC[4]) : (depth === 0 && !flat ? FARC[4] : tex ? FARC[2] : FARC[3]);
+        if (y > snow - 1.5 && b2(x, y) > 0.5) c = lit ? FARC[2] : FARC[1];
+      } else {
+        c = lit ? (depth < 2 ? FARC[3] : FARC[2]) : (depth === 0 ? FARC[2] : FARC[1]);
+        if (!lit && depth > 1 && vnoise(x * 0.7, y * 0.5) > 0.7) c = FARC[0];
+        if (lit && depth > 3 && vnoise(x * 0.8, y * 0.4 + 2) > 0.66) c = FARC[1];
+      }
+      if (y > 120) { const hz = (y - 120) / 8; if (hz > b4(x, y)) c = hz > 0.6 + 0.4 * b2(x, y) ? MIST[0] : FARC[2]; }
+      ESTATICO0[y * W + x] = c;
+    }
+  }
+  // bruma al pie de las montañas (fija)
+  for (let y = 120; y < 136; y++) {
+    const env = 1 - ((y - 128) / 8) ** 2;
+    if (env <= 0) continue;
+    for (let x = 0; x < W; x++) {
+      const X = (x - 30) / 13, d = (0.7 * vnoise(X + 40, y / 4) + 0.3 * vnoise(X * 2.5, y / 2 + 3)) * env;
+      if (d < 0.36) continue;
+      if (d > 0.5 || b2(x, y) > 0.5) ESTATICO0[y * W + x] = d > 0.55 ? MIST[1] : MIST[0];
+    }
+  }
+  // colinas medias con pinos (del demo)
+  const midTop = (x) => Math.round(133 + 2.4 * Math.sin(x * 0.045 + 0.8) + 1.5 * Math.sin(x * 0.12 + 2));
+  const m = new Uint8Array(W * H);
+  const plot = (x, y, v) => { if (x >= 0 && x < W && y >= 0 && y < H) m[y * W + x] = v; };
+  for (let x = 0; x < W; x++) for (let y = midTop(x); y < LAGO_Y; y++) m[y * W + x] = 1;
+  const rp = mulberry32(7);
+  for (let x = -12; x < W + 12;) {
+    const h = 8 + Math.floor(rp() * 9), base = midTop(x) + 1, lean = rp() < 0.5 ? 0 : 1;
+    for (let r = 0; r < h; r++) {
+      const hw = r >= h - 2 ? 0 : Math.floor((r % 4) * 0.55 + r * 0.24 + 0.25);
+      for (let k = -hw; k <= hw + (hw > 1 ? lean : 0); k++) plot(x + k, base - h + r, 2);
+    }
+    x += 4 + Math.floor(rp() * 8);
+  }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x; if (!m[i]) continue;
+    const up = y > 0 ? m[i - W] : 0, side = x < LX ? m[i + 1] : m[i - 1], opp = x < LX ? m[i - 1] : m[i + 1];
+    ESTATICO0[i] = m[i] === 2 ? ((!up || (!side && opp)) ? MIDC[3] : MIDC[0]) : (!up ? MIDC[2] : (y - midTop(x) < 2 && b2(x, y) > 0.5 ? MIDC[2] : MIDC[1]));
+  }
+  // loma del primer plano
+  const rf = mulberry32(5);
+  for (let x = 0; x < W; x++) {
+    const t0 = fgTop(x), sl = fgTop(x + 1) - fgTop(x - 1);
+    for (let y = t0; y < H; y++) {
+      const d = y - t0;
+      let c;
+      if (d === 0) c = (sl <= 0 && x > LX) || (sl >= 0 && x < LX) ? FGC[4] : FGC[3];
+      else if (d === 1) c = b2(x, y) > 0.5 ? FGC[3] : FGC[2];
+      else if (d < 5) c = FGC[2];
+      else c = tone(FGC, Math.max(0.6, 2 - (d - 5) / 16), x, y);
+      if (d > 3 && d < 14 && rf() < 0.012) c = FGC[3];
+      FG0[y * W + x] = c;
+    }
+  }
+  dst = buf;
+}
+const HIERBA = [];
+{
+  const rnd = mulberry32(99);
+  for (let x = 0; x < W; x += 1 + Math.floor(rnd() * 3)) { if (rnd() < 0.45) continue; HIERBA.push({ x, h: 1 + Math.floor(rnd() * 3), ph: rnd() < 0.5 ? 0 : 1 }); }
+}
+// lago: refleja lo pintado sobre la orilla, con ondas que cambian a fotogramas
+function dibujarLago(f) {
+  const ph = f * 0.42;
+  for (let y = LAGO_Y; y < H; y++) {
+    const dy = y - LAGO_Y, ym = LAGO_Y - 1 - Math.floor(dy * 1.4);
+    const off = dy < 2 ? 0 : Math.round(Math.sin(ph * 2 + dy * 1.7));
+    const rs = Math.floor(hash2(y, 41) * 5);
+    for (let x = 0; x < W; x++) {
+      let v = 3.0 - dy * 0.12;
+      if (ym >= 0) {
+        const c = dst[ym * W + clamp(x + off, 0, W - 1)];
+        v += ((((c & 255) * 0.3 + ((c >>> 8) & 255) * 0.59 + ((c >>> 16) & 255) * 0.11) / 255) - 0.2) * 7;
+      }
+      if (Math.sin(x * 0.21 + dy * 2.3 - ph * 2) * Math.sin(x * 0.05 + dy * 0.9 + ph) > 0.78) v += 0.9;
+      let l = Math.floor(v); if (v - l > hash2((x + rs) >> 2, y * 3 + 11)) l++;
+      dst[y * W + x] = dy === 0 ? (b2(x, y) > 0.3 ? WATER[4] : WATER[3]) : WATER[clamp(l, 0, 6)];
+    }
+  }
+}
+function dibujarFondo0(f, quieto) {
+  dst.set(ESTATICO0);
+  for (const s of ESTRELLAS) {
+    const tw = quieto ? 1 : ((f + s.ph) % (4 + s.k)) < 2 ? 0 : 1;
+    const R = s.tint === 1 ? WARM : s.tint === 2 ? COOL : null;
+    if (s.type === 0) { if (tw) pset(s.x, s.y, STAR[1]); }
+    else if (s.type === 1) pset(s.x, s.y, R ? R[1 + tw] : STAR[2 + tw]);
+    else {
+      pset(s.x, s.y, R ? R[2] : STAR[4]);
+      if (tw) { const g = R ? R[0] : STAR[1]; pset(s.x - 1, s.y, g); pset(s.x + 1, s.y, g); pset(s.x, s.y - 1, g); pset(s.x, s.y + 1, g); }
+    }
+  }
+  dibujarLago(f);
+  for (let i = LAGO_Y - 30; i < H; i++) for (let x = 0; x < W; x++) { const c = FG0[i * W + x]; if (c) dst[i * W + x] = c; }
+  const fw = Math.floor(f / 6) & 1;
+  for (const g of HIERBA) {
+    const base = fgTop(g.x) - 1;
+    for (let k = 0; k < g.h; k++) pset(g.x + ((k === g.h - 1 && g.h > 1 && ((fw + g.ph) & 1)) ? 1 : 0), base - k, k === g.h - 1 ? FGC[4] : FGC[2]);
+  }
+}
+
+// ── la persona: formas rasterizadas a 1× con contorno, sombreado en rampas y luz de Atom ──
+const dCirc = (x, y, cx, cy, r) => Math.hypot(x - cx, y - cy) - r;
+function dCap(x, y, ax, ay, bx, by, ra, rb = ra) {
+  const vx = bx - ax, vy = by - ay, t = clamp(((x - ax) * vx + (y - ay) * vy) / (vx * vx + vy * vy), 0, 1);
+  return Math.hypot(x - ax - vx * t, y - ay - vy * t) - mix(ra, rb, t);
+}
+function dCaja(x, y, cx, cy, hw, hh, r) {
+  const qx = Math.abs(x - cx) - hw + r, qy = Math.abs(y - cy) - hh + r;
+  return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
+}
+const MATS = { 1: SKIN, 2: HAIR, 3: SHIRT, 4: PANTS, 5: SHOE };
+const BASE_MAT = { 1: 4, 2: 2.4, 3: 2.6, 4: 2.2, 5: 1.2 };
+// piezas en orden de prioridad (la primera que contiene el píxel manda)
+function piezasPersona(res) {
+  const u = -res;                     // al respirar suben un píxel hombros y cabeza
+  return [
+    [2, (x, y) => Math.max(dCirc(x, y, 110, 85.2 + u, 8.1), y - (84.5 + u) - (Math.abs(x - 110) > 5.5 ? 4 : Math.abs(x - 110) < 1.5 ? 0.6 : 0))],
+    [1, (x, y) => dCirc(x, y, 110, 86.3 + u, 7.4)],
+    [1, (x, y) => dCirc(x, y, 124.6, 120.6, 3.1)],
+    [1, (x, y) => dCirc(x, y, 96.6, 120.4, 3.1)],
+    [1, (x, y) => dCap(x, y, 122.3, 108.5, 124, 117.5, 2.4, 2.2)],
+    [1, (x, y) => dCap(x, y, 98, 108.5, 97, 117.5, 2.4, 2.2)],
+    [3, (x, y) => dCap(x, y, 119.2, 99.5 + u, 122.2, 109, 3.4, 2.9)],
+    [3, (x, y) => dCap(x, y, 100.8, 99.5 + u, 98, 109, 3.4, 2.9)],
+    [1, (x, y) => dCaja(x, y, 110, 95 + u, 2.6, 2.6, 0.6)],
+    [3, (x, y) => dCaja(x, y, 110, 107.5 + u / 2, 9.6, 11 - u / 2, 4)],
+    [5, (x, y) => dCaja(x, y, 104.2, 135.6, 4.2, 2.1, 1.2)],
+    [5, (x, y) => dCaja(x, y, 116.4, 135.6, 4.2, 2.1, 1.2)],
+    [4, (x, y) => Math.min(dCaja(x, y, 110, 120, 9.2, 3.2, 1), dCap(x, y, 105.7, 121, 105.2, 133.5, 3.9, 3.4), dCap(x, y, 114.3, 121, 115, 133.5, 3.9, 3.4))],
+  ];
+}
+const ESC_P = 1.3, PIE = [110, 138], CENTRO_P = 100;
+const aPersona = (x, y) => [PIE[0] + (x - CENTRO_P) / ESC_P, PIE[1] + (y - PIE[1]) / ESC_P];   // pantalla → diseño
+const dePersona = (x, y) => [Math.round(CENTRO_P + (x - PIE[0]) * ESC_P), Math.round(PIE[1] + (y - PIE[1]) * ESC_P)];
+function spritePersona(res, parpadeo) {
+  const P0f = piezasPersona(res), x0 = 70, y0 = 52, w = 60, h = 88;
+  const P = P0f.map(([mm, f]) => [mm, (x, y) => { const [a, b] = aPersona(x, y); return f(a, b) * ESC_P; }]);
+  const mat = new Int8Array(w * h), pri = new Int8Array(w * h).fill(99), val = new Float32Array(w * h);
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+    const x = x0 + i + 0.5, y = y0 + j + 0.5;
+    for (let k = 0; k < P.length; k++) {
+      const f = P[k][1], d = f(x, y);
+      if (d > 0) continue;
+      const gx = f(x + 0.5, y) - f(x - 0.5, y), gy = f(x, y + 0.5) - f(x, y - 0.5);
+      const borde = 1 - clamp(-d / 2.2, 0, 1);
+      const luz = (gx * 0.75 - gy * 0.55) * borde + 0.25 * (1 - borde);
+      mat[j * w + i] = P[k][0]; pri[j * w + i] = k; val[j * w + i] = BASE_MAT[P[k][0]] + 1.5 * luz;
+      break;
+    }
+  }
+  const out = new Uint32Array(w * h);
+  const m = (i, j) => (i < 0 || j < 0 || i >= w || j >= h ? 0 : mat[j * w + i]);
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+    const k = j * w + i, mm = mat[k];
+    if (!mm) { if (m(i - 1, j) || m(i + 1, j) || m(i, j - 1) || m(i, j + 1)) out[k] = INK; continue; }
+    let v = val[k];
+    // borde interior: lo que queda detrás de otra pieza se oscurece
+    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const ii = i + di, jj = j + dj;
+      if (ii >= 0 && jj >= 0 && ii < w && jj < h && mat[jj * w + ii] && mat[jj * w + ii] !== mm && pri[jj * w + ii] < pri[k]) v -= 1.1;
+    }
+    if (!m(i + 1, j)) v += 1.1;       // luz de contorno: Atom está a la derecha
+    out[k] = tone(MATS[mm], v, x0 + i, y0 + j);
+  }
+  // cara: ojos, boca y un punto de brillo en el pelo
+  const P0 = (xd, yd, c, dx = 0, dy = 0) => { const [x, y] = dePersona(xd, yd); const i = x + dx - x0, j = y + dy - y0; if (i >= 0 && j >= 0 && i < w && j < h) out[j * w + i] = c; };
+  const ey = 87 - res;
+  for (const ex of [107, 112.6]) {
+    if (parpadeo) { P0(ex, ey + 1, SKIN[1]); P0(ex, ey + 1, SKIN[1], 1, 0); }
+    else { P0(ex, ey, HAIR[0]); P0(ex, ey, HAIR[0], 0, 1); P0(ex, ey, HAIR[0], 0, 2); P0(ex, ey, UI[6], 1, 0); P0(ex, ey, HAIR[0], 1, 1); P0(ex, ey, HAIR[0], 1, 2); }
+  }
+  P0(109, 91.3 - res, SKIN[2]); P0(109, 91.3 - res, SKIN[2], 1, 0); P0(109, 91.3 - res, SKIN[2], 2, 0);
+  P0(106, 89.6 - res, SKIN[4]); P0(114, 89.6 - res, SKIN[4]);
+  P0(113, 80 - res, HAIR[5]); P0(113, 80 - res, HAIR[5], 1, 0); P0(113, 80 - res, HAIR[4], 1, 1);
+  return { out, x0, y0, w, h };
+}
+const PERSONA = [spritePersona(0, false), spritePersona(1, false), spritePersona(0, true)];
+function blitSprite(s, dx = 0, dy = 0) {
+  for (let j = 0; j < s.h; j++) for (let i = 0; i < s.w; i++) { const c = s.out[j * s.w + i]; if (c) pset(s.x0 + i + dx, s.y0 + j + dy, c); }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  ATOM (el del demo: núcleo de 4×4, tres órbitas de puntos y electrones en cruz)
+// ════════════════════════════════════════════════════════════════════════════
+// fase de los electrones: velocidad angular integrada a paso fijo y leída por fotogramas
+function omegaObjetivo(t) {
+  if (t < T_ATOM - 0.15) return 3.2;
+  if (t < T_ATOM_FIN + 0.5) return 11.5;
+  if (t < T_SALT) return 4.2;
+  return 5.5;
+}
+const N_FOT = Math.ceil(DUR * FPS_S) + 2;
+const FASE = new Float32Array(N_FOT);
+{
+  let om = 3.2, fa = 0, n = 0;
+  const dt = 1 / 240;
+  for (let k = 0; k * dt <= DUR + 0.2; k++) {
+    const t = k * dt;
+    if (t >= n / FPS_S && n < N_FOT) FASE[n++] = fa;
+    if (t < T_MILI_FIN) om += ((omegaObjetivo(t) - om) / 0.18) * dt;
+    else om = Math.max(0, om - (5.5 / (T_QUIETO - 0.08 - T_MILI_FIN)) * dt);   // frena hasta pararse antes del final
+    fa += om * dt;
+  }
+}
+const NUC4 = ['.ab.', 'abba', 'baab', '.ba.'];
+const NUC6 = ['.abba.', 'abbaab', 'bbaabb', 'baabba', 'abbaab', '.abba.'];
+const NUC2 = ['ab', 'ba'];
+function dibujarAtomo(cx, cy, rx, fase, brillo, late, aplasta = 0) {
+  cx = Math.round(cx); cy = Math.round(cy);
+  const ry = rx * 0.345 - aplasta * 0.6, rxx = rx + aplasta;
+  // halo tramado
+  const R = rx * 1.12 + 1.5 * brillo + late;
+  for (let y = -Math.ceil(R); y <= R; y++) for (let x = -Math.ceil(R); x <= R; x++) {
+    const d = Math.hypot(x, y); if (d > R) continue;
+    const g = 1 - d / R, X = cx + x, Y = cy + y;
+    if (g * (1.1 + 0.5 * brillo) > b4(X, Y) + 0.2) pset(X, Y, g > 0.8 && brillo > 0.5 ? GLOW[2] : g > 0.7 ? GLOW[1] : GLOW[0]);
+  }
+  const els = [];
+  [0, Math.PI / 3, -Math.PI / 3].forEach((a, i) => {
+    const ca = Math.cos(a), sa = Math.sin(a), N = Math.round(rxx * 8.5);
+    for (let k = 0; k < N; k++) {
+      const p = (k / N) * TAU, ex = rxx * Math.cos(p), ey = ry * Math.sin(p);
+      const X = Math.round(cx + ex * ca - ey * sa), Y = Math.round(cy + ex * sa + ey * ca);
+      if (((X + Y) & 1) === 0) pset(X, Y, brillo > 0.5 ? ATOM[5] : ATOM[7]);
+    }
+    const lista = [];
+    for (let j = 0; j < 3; j++) {
+      const p = fase * (1 + i * 0.18) + i * 2.1 - j * 0.32;
+      const ex = rxx * Math.cos(p), ey = ry * Math.sin(p);
+      lista.push([Math.round(cx + ex * ca - ey * sa), Math.round(cy + ex * sa + ey * ca), Math.sin(p) > 0]);
+    }
+    els.push(lista);
+  });
+  const rapido = brillo > 0.5;
+  const dib = (front) => {
+    for (const lista of els) {
+      const [X, Y, f] = lista[0];
+      if (f !== front) continue;
+      if (rapido) for (let j = 1; j < 3; j++) pset(lista[j][0], lista[j][1], j === 1 ? ATOM[5] : ATOM[3]);   // estela
+      if (rx >= 6.5) { pset(X - 1, Y, ATOM[5]); pset(X + 1, Y, ATOM[5]); pset(X, Y - 1, ATOM[5]); pset(X, Y + 1, ATOM[5]); }
+      pset(X, Y, ATOM[4]);
+    }
+  };
+  dib(false);
+  const nuc = rx >= 10 ? NUC6 : rx >= 6.5 ? NUC4 : NUC2, n = nuc.length, o = Math.floor(n / 2);
+  if (late) for (let j = -1; j <= n; j++) for (let i = -1; i <= n; i++) {
+    const dentro = j >= 0 && i >= 0 && j < n && i < n && nuc[j][i] !== '.';
+    if (!dentro && Math.hypot(i + 0.5 - n / 2, j + 0.5 - n / 2) < n / 2 + 0.9) pset(cx - o + i, cy - o + j, ATOM[1]);
+  }
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const ch = nuc[j][i]; if (ch === '.') continue;
+    let c = ch === 'a' ? ATOM[0] : ATOM[1];
+    if (i + j <= (n > 4 ? 2 : 1)) c = ATOM[2];
+    if (j === n - 1 || i === n - 1) c = ch === 'a' ? ATOM[6] : ATOM[0];
+    if (brillo > 0.5 && (i + j) % 3 === 0) c = ATOM[2];
+    pset(cx - o + i, cy - o + j, c);
+  }
+  dib(true);
+}
+
+// ── puesta en escena de Atom (posición, tamaño y saltos, siempre en píxeles enteros) ──
+const ATOMO0 = [150, 70], ATOMO_FIN = [240, 56];
+const TZ = 0.42;                                       // duración de cada zambullida
+const PER = (T_PELO - T_SALT - TZ) / 3;               // la 4.ª llega justo en [pelo]
+const SALTO = [0, 1, 2, 3].map((i) => T_SALT + i * PER);
+const LLEGA = SALTO.map((s) => s + TZ);
+const HOP = [0, -3, -6, -8, -8, -6, -3, 0, 1, 0]; // fotogramas del bote del saludo
+function estadoAtomo(t) {
+  const f = fot(t);
+  let [x, y] = ATOMO0;
+  // flota: un píxel arriba y abajo cada 8 fotogramas (se para al final)
+  if (t < T_DEC) y += (Math.floor(f / 8) & 1) ? -1 : 0;
+  const fh = f - fot(T_HOLA - 0.27);
+  let aplasta = 0;
+  if (fh >= 0 && fh < HOP.length) { y += Math.min(0, HOP[fh]); if (HOP[fh] > 0 || fh === 0) aplasta = 1; }
+  // tamaño: «power-up» en [atom] (parpadea entre pequeño y grande y se queda grande)
+  let rx = 10;
+  const fa = fot(T_ATOM - 0.3), fA = fot(T_ATOM);
+  if (f >= fa && f < fA) rx = ((f - fa) >> 1) & 1 ? 13 : 10;
+  else if (f >= fA) rx = 13;
+  // en los saltos pierde tamaño a cada nivel y se va junto al pelo
+  const nivel = LLEGA.filter((l) => t >= l).length;
+  if (t >= T_SALT) rx = [13, 10.5, 8.5, 7, 5.5][nivel];
+  const u = 1 - Math.pow(1 - lin(t, T_SALT, T_SALT + 0.75), 3);
+  x = Math.round(mix(x, ATOMO_FIN[0], u)); y = Math.round(mix(y, ATOMO_FIN[1], u));
+  const brillo = smooth(T_ATOM - 0.06, T_ATOM, t) * (1 - smooth(T_ATOM_FIN + 0.35, T_ATOM_FIN + 0.5, t));
+  const late = t < T_QUIETO && E.energia(t) > 0.55 && (f & 1) ? 1 : 0;
+  return { x, y, rx, brillo, late, aplasta, fase: FASE[clamp(fot(Math.min(t, T_QUIETO)), 0, N_FOT - 1)] };
+}
+
+// ── [bloques]: átomos pequeños que entran a golpes desde fuera y encajan alrededor de Atom ──
+const MINI = [
+  { o: [-13, 20], tinte: 1 }, { o: [13, 20], tinte: 0 }, { o: [-26, 0], tinte: 0 },
+  { o: [26, 0], tinte: 1 }, { o: [-13, -20], tinte: 1 }, { o: [13, -20], tinte: 0 },
+];
+MINI.forEach((m, i) => { m.llega = T_BLOQ + [-0.4, -0.32, -0.24, -0.16, -0.08, 0][i]; });
+const BOLA5 = ['.aab.', 'aabbc', 'abbbc', 'bbbcc', '.bcc.'];
+function bola5(x, y, ramp, blanco) {
+  for (let j = 0; j < 5; j++) for (let i = 0; i < 5; i++) {
+    const ch = BOLA5[j][i]; if (ch === '.') continue;
+    pset(x - 2 + i, y - 2 + j, blanco ? UI[6] : ch === 'a' ? ramp[2] : ch === 'b' ? ramp[1] : ramp[0]);
+  }
+  // contorno
+  for (const [i, j] of [[-3, 0], [-3, -1], [-3, 1], [3, 0], [3, -1], [3, 1], [0, -3], [-1, -3], [1, -3], [0, 3], [-1, 3], [1, 3], [-2, -2], [2, -2], [-2, 2], [2, 2]]) if (pget(x + i, y + j) !== ramp[0]) pset(x + i, y + j, INK);
+}
+function lineaPuntos(x0, y0, x1, y1, c, salta = 2) {
+  const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+  for (let k = 0; k <= n; k++) if (k % salta === 0) pset(Math.round(mix(x0, x1, k / n)), Math.round(mix(y0, y1, k / n)), c);
+}
+function dibujarMolecula(t, A, sinCentro) {
+  const f = fot(t);
+  const pos = MINI.map((m) => {
+    const fl = fot(m.llega);
+    if (f < fl - 4) return null;
+    const tx = A.x + m.o[0], ty = A.y + m.o[1];
+    if (f >= fl) return [tx, ty, f - fl];
+    // entra en línea recta desde fuera, frenando, en 4 fotogramas
+    const d = Math.hypot(...m.o), k = (fl - f) / 4;
+    const L = 140 * k * k;
+    return [Math.round(tx + (m.o[0] / d) * L), Math.round(ty + (m.o[1] / d) * L), -1];
+  });
+  // enlaces (tras encajar): con Atom y con el vecino
+  pos.forEach((p, i) => {
+    if (!p || p[2] < 0) return;
+    const c = p[2] < 2 ? UI[6] : UI[4];
+    if (!sinCentro) lineaPuntos(A.x, A.y, p[0], p[1], c);
+  });
+  const ANILLO = [2, 4, 5, 3, 1, 0];
+  for (let k = 0; k < 6; k++) {
+    const a = pos[ANILLO[k]], b = pos[ANILLO[(k + 1) % 6]];
+    if (a && b && a[2] >= 0 && b[2] >= 0) lineaPuntos(a[0], a[1], b[0], b[1], Math.min(a[2], b[2]) < 2 ? UI[6] : UI[9]);
+  }
+  pos.forEach((p, i) => {
+    if (!p) return;
+    const ramp = MINI[i].tinte ? WARM : COOL;
+    if (p[2] < 0) { const m = MINI[i]; const d = Math.hypot(...m.o); for (let s = 1; s <= 3; s++) pset(p[0] + Math.round((m.o[0] / d) * s * 4), p[1] + Math.round((m.o[1] / d) * s * 4), s === 1 ? ramp[1] : ramp[0]); }
+    bola5(p[0], p[1], ramp, p[2] === 0);
+    if (p[2] >= 0 && p[2] < 3) {      // chispas al encajar
+      const r = 4 + p[2] * 2;
+      for (const [dx, dy] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) pset(p[0] + dx * r, p[1] + dy * r, p[2] < 2 ? UI[6] : UI[5]);
+    }
+  });
+}
+
+// ── [explico]/[escuela]: pizarrita colgada con «?» de tiza que pasa a «!» ────
+const PIZ = { x0: 186, y0: 36, x1: 246, y1: 80 };
+const INTERR = ['.######.', '##....##', '##....##', '......##', '.....##.', '....##..', '...##...', '...##...', '........', '...##...', '...##...'];
+const EXCLA = ['...##...', '...##...', '...##...', '...##...', '...##...', '...##...', '...##...', '...##...', '........', '...##...', '...##...'];
+const CAE_PIZ = [-48, -30, -13, -2, 3, 1, 0];          // fotogramas de la caída con rebote
+function dibujarPizarra(t) {
+  const fe = fot(T_EXPL - 0.4);
+  const f = fot(t);
+  if (f < fe) return;
+  const k = f - fe, dy = k < CAE_PIZ.length ? CAE_PIZ[k] : 0;
+  const fs = fot(T_ESC);
+  const tiembla = f >= fs && f < fs + 3 ? ((f - fs) & 1 ? 1 : -1) : 0;
+  const { x0, y0, x1, y1 } = PIZ;
+  const X0 = x0 + tiembla, X1 = x1 + tiembla, Y0 = y0 + dy, Y1 = y1 + dy;
+  // cuerdas hasta el techo
+  for (const cx of [X0 + 10, X1 - 10]) for (let y = 0; y < Y0; y++) pset(cx, y, (y & 3) === 0 ? UI[9] : UI[4]);
+  // marco de madera y encerado
+  rect(X0 - 1, Y0 - 1, X1 + 1, Y1 + 1, INK);
+  rect(X0, Y0, X1, Y1, WOOD[1]);
+  rect(X0, Y0, X1, Y0, WOOD[3]); rect(X0, Y0, X0, Y1, WOOD[2]); rect(X0, Y1, X1, Y1, WOOD[0]); rect(X1, Y0, X1, Y1, WOOD[0]);
+  for (let y = Y0 + 3; y <= Y1 - 3; y++) for (let x = X0 + 3; x <= X1 - 3; x++) {
+    let v = 1.4 + 0.5 * vnoise(x * 0.15, y * 0.2) - 0.25 * ((y - Y0) / (Y1 - Y0));
+    if (vnoise(x * 0.45 + 9, y * 0.9) > 0.78) v += 0.7;          // borrones de tiza
+    pset(x, y, tone(BOARD, v, x, y));
+  }
+  rect(X0 + 2, Y0 + 2, X1 - 2, Y0 + 2, WOOD[0]); rect(X0 + 2, Y0 + 2, X0 + 2, Y1 - 2, WOOD[0]);
+  for (const cx of [X0 + 10, X1 - 10]) { pset(cx, Y0 - 1, UI[5]); pset(cx, Y0, UI[6]); }
+  // repisa con una tiza
+  rect(X0 + 4, Y1 + 1, X1 - 4, Y1 + 2, WOOD[2]); rect(X0 + 4, Y1 + 3, X1 - 4, Y1 + 3, WOOD[0]);
+  rect(X1 - 14, Y1, X1 - 9, Y1, CHALK[2]);
+  // la «?» se escribe trazo a trazo; en [escuela] se borra en un soplo de polvo y salta la «!»
+  const gx = Math.round((X0 + X1) / 2) - 8, gy = Y0 + 8;
+  const fq = fot(T_EXPL - 0.2), fb = fot(T_ESC - 0.2);
+  const tiza = (g, n, polvo) => {
+    let i = 0;
+    for (let j = 0; j < g.length; j++) for (let ii = 0; ii < g[j].length; ii++) {
+      if (g[j][ii] !== '#') continue;
+      i++;
+      if (i > n) continue;
+      if (polvo && hash2(ii * 7 + j, polvo) < 0.35 * polvo) continue;
+      for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]]) pset(gx + ii * 2 + a, gy + j * 2 + b, hash2(ii * 2 + a, j * 2 + b) > 0.25 ? CHALK[2] : CHALK[1]);
+    }
+  };
+  if (f < fb) tiza(INTERR, Math.min(999, Math.max(0, (f - fq) * 12)), 0);
+  else if (f < fs) {
+    const p = f - fb;
+    tiza(INTERR, 999, p + 1);
+    for (let k = 0; k < 14; k++) pset(gx + Math.floor(hash2(k, 3) * 16), gy + 22 + p * 2 + Math.floor(hash2(k, 5) * 4), CHALK[0]);
+  } else {
+    tiza(EXCLA, 999, 0);
+    const p = f - fs;
+    if (p < 4) {
+      const cx = gx + 7, cy = gy + 10, r = 13 + p * 3;
+      for (const [dx, dy2] of [[1, 0], [-1, 0], [0.7, -0.7], [-0.7, -0.7], [0.7, 0.7], [-0.7, 0.7]]) {
+        for (let s = 0; s < 3; s++) pset(Math.round(cx + dx * (r + s)), Math.round(cy + dy2 * (r + s)), p < 2 ? UI[6] : UI[7]);
+      }
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  NIVELES 1–4 (precalculados): mano · piel con vello · un pelo que sale · el pelo
+//  El nivel k+1 es el k ampliado ×10 alrededor de FOCO[k]
+// ════════════════════════════════════════════════════════════════════════════
+const FOCO = [dePersona(124.6, 120.6), [160, 66], [160, 90], [160, 90]];
+const smin = (a, b, k) => { const h = clamp(0.5 + (0.5 * (b - a)) / k, 0, 1); return mix(b, a, h) - k * h * (1 - h); };
+// voronoi: distancia al borde de celda y centro de la celda más cercana
+function voronoi(esp, semilla) {
+  const sem = (i, j) => [(i + 0.2 + 0.6 * hash2(i * 3 + semilla, j * 7)) * esp, (j + 0.2 + 0.6 * hash2(i * 5, j * 11 + semilla)) * esp];
+  return (x, y) => {
+    const ci = Math.floor(x / esp), cj = Math.floor(y / esp);
+    let d1 = 1e9, d2 = 1e9, a = null, b = null;
+    for (let i = ci - 1; i <= ci + 1; i++) for (let j = cj - 1; j <= cj + 1; j++) {
+      const q = sem(i, j), d = (x - q[0]) ** 2 + (y - q[1]) ** 2;
+      if (d < d1) { d2 = d1; b = a; d1 = d; a = q; } else if (d < d2) { d2 = d; b = q; }
+    }
+    return [(d2 - d1) / (2 * Math.hypot(a[0] - b[0], a[1] - b[1])), a];
+  };
+}
+function linea(x0, y0, x1, y1, fn) {
+  const n = Math.max(1, Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))));
+  for (let k = 0; k <= n; k++) fn(Math.round(mix(x0, x1, k / n)), Math.round(mix(y0, y1, k / n)), k / n);
+}
+
+// nivel 1: la mano colgando junto al vaquero (tela de sarga con su costura)
+function sdfMano(x, y) {
+  let d = dCap(x, y, 151, -30, 157, 54, 21, 19.5);
+  d = smin(d, dCaja(x, y, 158, 79, 23, 24, 11), 6);
+  const dedos = [[143, 132, 4.6, -2], [152, 141, 4.9, -0.5], [161, 139, 4.8, 0.5], [170, 129, 4.3, 2]];
+  for (const [fx, fy, fr, ab] of dedos) d = smin(d, dCap(x, y, fx, 96, fx + ab, fy, fr + 0.4, fr - 0.4), 3);
+  d = smin(d, dCap(x, y, 137, 70, 128, 97, 5.6, 4.4), 4);
+  return d;
+}
+const NIVEL1 = nuevoNivel();
+{
+  dst = NIVEL1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let v = 1.4 + ((((x + y * 2) % 4) + 4) % 4 < 1 ? 0.9 : 0) + 0.5 * vnoise(x * 0.05, y * 0.05) - 0.4 * vnoise(x * 0.3, y * 0.02 + 5);
+    if (sdfMano(x + 3, y - 3) < 0) v -= 1.1;                       // sombra de la mano en la tela
+    NIVEL1[y * W + x] = tone(PANTS, v, x, y);
+  }
+  for (const sx of [56, 62]) for (let y = 0; y < H; y++) if (y % 4 < 2) pset(sx, y, UI[4]);   // costura
+  for (let y = 0; y < H; y++) { pset(59, y, PANTS[0]); pset(60, y, PANTS[3]); }
+  const az = mulberry32(3);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const d = sdfMano(x + 0.5, y + 0.5);
+    if (d > 0) { if (d < 1.1) pset(x, y, INK); continue; }
+    const gx = sdfMano(x + 1, y + 0.5) - sdfMano(x, y + 0.5), gy = sdfMano(x + 0.5, y + 1) - sdfMano(x + 0.5, y);
+    const borde = 1 - clamp(-d / 4, 0, 1);
+    let v = 3.7 + 1.6 * ((gx * 0.75 - gy * 0.55) * borde) + 0.3 * (1 - borde) + 0.35 * (vnoise(x * 0.2, y * 0.2) - 0.5);
+    if (sdfMano(x + 1.5, y + 0.5) > 0) v += 1;                    // luz de contorno
+    // tendones del dorso y pliegues de los dedos
+    for (const tx of [146, 153, 161, 168]) if (y > 64 && y < 96 && Math.abs(x - mix(158, tx, (y - 64) / 32)) < 0.8) v += 0.6;
+    for (const [fy, x0, x1] of [[111, 138, 176], [124, 138, 176], [97, 138, 176]]) if (Math.abs(y - fy - 0.02 * (x - 157) ** 2 * 0.1) < 0.6 && x > x0 && x < x1) v -= 0.9;
+    pset(x, y, tone(SKIN, v, x, y));
+  }
+  // uñas
+  for (const [fx, fy] of [[141, 128], [151, 137], [161, 135], [171, 125]]) { rect(fx, fy, fx + 3, fy + 3, SKIN[5]); rect(fx, fy, fx + 3, fy, SKIN[6]); pset(fx, fy + 3, SKIN[4]); pset(fx + 3, fy + 3, SKIN[4]); }
+  // vello del antebrazo y la muñeca (trazos de un píxel)
+  for (let n = 0; n < 120; n++) {
+    const x = Math.floor(mix(134, 182, az())), y = Math.floor(mix(0, 84, az()));
+    if (sdfMano(x, y) > -3 || az() > 0.6) continue;
+    const L = 3 + Math.floor(az() * 2), a = 1.85 + (az() - 0.5) * 0.5;
+    linea(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L, (X, Y, u) => pset(X, Y, u < 0.5 ? HAIR[2] : HAIR[3]));
+  }
+  linea(FOCO[1][0], FOCO[1][1] + 2, FOCO[1][0] + 1, FOCO[1][1] - 4, (X, Y) => pset(X, Y, HAIR[1]));
+  dst = buf;
+}
+
+// nivel 2: la piel como un mapa visto desde arriba: placas, surcos y pelos que salen de sus poros
+const VOR2 = voronoi(15, 21), VOR2B = voronoi(64, 23);
+const PELOS2 = (() => {
+  const az = mulberry32(41), out = [[160, 96, -Math.PI / 2, 76, 0]];
+  while (out.length < 10) {
+    const x = Math.floor(mix(10, 300, az())), y = Math.floor(mix(30, 172, az()));
+    if (out.some(([fx, fy]) => Math.hypot(fx - x, fy - y) < 46)) continue;
+    out.push([x, y, -Math.PI / 2 + 0.45 + (az() - 0.5) * 0.6, 50 + 40 * az(), 0.25 + (az() - 0.5) * 0.9]);
+  }
+  return out;
+})();
+const NIVEL2 = nuevoNivel();
+{
+  dst = NIVEL2;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const [e, c] = VOR2(x + 0.5, y + 0.5), [e2] = VOR2B(x + 0.5 + 7 * vnoise(y * 0.05, 1), y + 0.5);
+    let v = 3.9 + 0.5 * clamp(((c[0] - x) * 0.6 + (c[1] - y) * 0.8) / 9, -1, 1) + 0.6 * (vnoise(x * 0.06, y * 0.06) - 0.5);
+    if (e < 1.6) v -= 0.7;
+    if (e < 0.7 && hash2(Math.floor(c[0]), Math.floor(c[1])) > 0.35) v = 2.6;
+    if (e2 < 2.2) v = Math.min(v, 2.4);
+    if (e2 < 1) v = 1.3;
+    NIVEL2[y * W + x] = tone(SKIN, v, x, y);
+  }
+  for (const [fx, fy, a, L, curva] of PELOS2) {
+    const nx = Math.cos(a + Math.PI / 2), ny = Math.sin(a + Math.PI / 2);
+    const P2 = [fx + Math.cos(a) * L + nx * curva * L * 0.35, fy + Math.sin(a) * L + ny * curva * L * 0.35];
+    const P1 = [fx + Math.cos(a) * L * 0.5 + nx * curva * L * 0.45, fy + Math.sin(a) * L * 0.5 + ny * curva * L * 0.45];
+    const N = Math.ceil(L * 1.5), pts = [];
+    for (let k = 0; k <= N; k++) {
+      const u = k / N, v = 1 - u;
+      pts.push([Math.round(v * v * fx + 2 * v * u * P1[0] + u * u * P2[0]), Math.round(v * v * fy + 2 * v * u * P1[1] + u * u * P2[1]), u]);
+    }
+    for (const [X, Y, u] of pts) { pset(X + 2, Y + 2, SKIN[2]); if (u < 0.8) pset(X + 3, Y + 2, SKIN[2]); }
+    for (const [X, Y, u] of pts) { pset(X, Y, u < 0.9 ? HAIR[2] : HAIR[3]); if (u < 0.8) { pset(X - 1, Y, HAIR[1]); pset(X + 1, Y, u < 0.5 ? HAIR[5] : HAIR[4]); } }
+    rect(fx - 2, fy, fx + 2, fy + 1, INK); pset(fx - 3, fy, SKIN[1]); pset(fx + 3, fy, SKIN[1]); pset(fx, fy + 2, SKIN[2]);
+  }
+  dst = buf;
+}
+
+// nivel 3: células de la piel como un empedrado y el poro del que sale un pelo
+const PORO3 = [160, 150];
+const VOR3 = voronoi(34, 31);
+const NIVEL3 = nuevoNivel();
+{
+  dst = NIVEL3;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const [e, c] = VOR3(x + 0.5, y + 0.5);
+    let v = 3.3 + 1.1 * clamp(((c[0] - x) * 0.6 + (c[1] - y) * 0.8) / 16, -1, 1) + 0.6 * (vnoise(x * 0.06, y * 0.06) - 0.5);
+    if (e < 3) v -= 0.9 * (1 - e / 3);
+    if (e < 1.2) v = 1.4;
+    const rp = Math.hypot((x - PORO3[0]) / 1.9, y - PORO3[1]);
+    if (rp < 18) v -= 1.6 * (1 - rp / 18);
+    if (x > 149 && x < 156 && y < PORO3[1]) v -= 0.9;            // sombra del pelo
+    NIVEL3[y * W + x] = tone(SKIN, v, x, y);
+  }
+  for (let y = -6; y <= 6; y++) for (let x = -14; x <= 14; x++) {
+    const r = Math.hypot(x / 14, y / 6); if (r > 1) continue;
+    pset(PORO3[0] + x, PORO3[1] + y, r < 0.55 ? INK : r < 0.8 ? SKIN[0] : SKIN[1]);
+  }
+  const COL = [1, 3, 4, 6, 5, 4, 3, 2];
+  for (let y = 0; y < PORO3[1] + 1; y++) {
+    pset(155, y, INK); pset(164, y, INK);
+    for (let i = 0; i < 8; i++) {
+      let v = COL[i] + (y % 4 === (i >> 1) % 4 ? -1 : 0) * 0.8;
+      if (y > PORO3[1] - 4) v -= 1.5;
+      pset(156 + i, y, tone(HAIR, v, 156 + i, y));
+    }
+    if (y % 2 === 0) pset(156, y, COOL[0]);
+  }
+  dst = buf;
+}
+
+// nivel 4: el pelo como un tronco con las escamas de la cutícula, sobre un fondo de células desenfocadas
+const PX0 = 118, PX1 = 201, PCX = (PX0 + PX1 + 1) / 2, PHW = (PX1 - PX0 + 1) / 2;
+const FILAS = [];
+{
+  let y = 90 - 12 * 11;
+  for (let i = -12; i <= 12; i++) {
+    FILAS.push({ y0: y, pend: 0.05 + (hash2(i, 9) - 0.5) * 0.12, curva: 1 + 2.5 * hash2(i, 11), s: i * 13 + 5, mx: PX0 + 10 + hash2(i, 13) * 64, mh: hash2(i, 15) < 0.6 ? 2 + 3 * hash2(i, 17) : 0 });
+    y += 9 + 4 * hash2(i, 19);
+  }
+}
+const borde4 = (f, x) => {
+  const u = (x - PCX) / PHW;
+  const muesca = f.mh * Math.max(0, 1 - Math.abs(x - f.mx) / 6);
+  return f.y0 + f.pend * (x - PCX) - f.curva * (1 - u * u) + 3.6 * (vnoise(x / 11, f.s) - 0.5) + 1.6 * (vnoise(x / 3, f.s + 4) - 0.5) - muesca;
+};
+const NIVEL4 = nuevoNivel();
+{
+  dst = NIVEL4;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let v = 1.2 + 1.6 * (y / H) + 0.4 * (vnoise(x * 0.02, y * 0.03) - 0.5);
+    NIVEL4[y * W + x] = tone4(SKY, v, x, y);
+  }
+  // células de la piel, lejos y desenfocadas: discos tramados
+  const az4 = mulberry32(12);
+  for (let n = 0; n < 16; n++) {
+    const cx = mix(-10, 330, az4()), cy = mix(-10, 190, az4()), r = 12 + 22 * az4(), cal = az4() < 0.55;
+    for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) {
+      const d = Math.hypot(x - cx, y - cy) / r;
+      if (d > 1 || x < 0 || y < 0 || x >= W || y >= H) continue;
+      const base = 1.2 + 1.6 * (y / H), v = base + (cal ? 0.45 : 0.8) + (d > 0.86 ? 0.5 : 0) - 0.3 * d;
+      NIVEL4[y * W + x] = tone4(SKY, v, x, y);
+    }
+  }
+  for (let x = PX0; x <= PX1; x++) {
+    const u = (x + 0.5 - PCX) / PHW, cil = Math.sqrt(Math.max(0, 1 - u * u));
+    const bordes = FILAS.map((f) => borde4(f, x + 0.5));
+    for (let y = 0; y < H; y++) {
+      let i = 0; while (i + 1 < bordes.length && bordes[i + 1] <= y) i++;
+      const a = bordes[i], b = bordes[i + 1] ?? a + 10.6;
+      const f = clamp((y + 0.5 - a) / (b - a), 0, 1);
+      let v = 0.5 + 4.1 * Math.pow(cil, 0.8) + 0.9 * Math.exp(-(((u + 0.38) / 0.13) ** 2)) + mix(-2.4, 1.0, Math.sqrt(f));
+      const db = b - (y + 0.5);
+      if (db >= 0 && db < 0.75) v = cil > 0.4 ? 6 : 4.8;           // borde libre de la escama
+      else if (db >= 0.75 && db < 1.75) v = Math.max(v, cil > 0.4 ? 5.2 : 4);
+      NIVEL4[y * W + x] = tone4(HAIR, v, x, y);
+    }
+  }
+  for (let y = 0; y < H; y++) {
+    pset(PX0 - 1, y, INK); pset(PX1 + 1, y, INK);
+    pset(PX0, y, (y & 1) ? COOL[1] : COOL[0]);
+  }
+  // los bordes de las escamas asoman por el contorno
+  for (const f of FILAS) for (const [x, s] of [[PX0 - 1, -1], [PX1 + 1, 1]]) {
+    const y = Math.round(borde4(f, x));
+    pset(x, y, HAIR[3]); pset(x, y - 1, HAIR[2]); pset(x + s, y, INK);
+  }
+  dst = buf;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  HUD: la regla de potencias de diez como un selector de niveles
+// ════════════════════════════════════════════════════════════════════════════
+function marco(x0, y0, x1, y1, fill0, fill1) {
+  rect(x0 + 1, y0, x1 - 1, y0, UI[0]); rect(x0 + 1, y1, x1 - 1, y1, UI[0]);
+  rect(x0, y0 + 1, x0, y1 - 1, UI[0]); rect(x1, y0 + 1, x1, y1 - 1, UI[0]);
+  rect(x0 + 2, y0 + 1, x1 - 2, y0 + 1, UI[5]); rect(x0 + 1, y0 + 2, x0 + 1, y1 - 2, UI[5]);
+  rect(x0 + 2, y1 - 1, x1 - 2, y1 - 1, UI[4]); rect(x1 - 1, y0 + 2, x1 - 1, y1 - 2, UI[4]);
+  pset(x0 + 1, y0 + 1, UI[0]); pset(x1 - 1, y0 + 1, UI[0]); pset(x0 + 1, y1 - 1, UI[0]); pset(x1 - 1, y1 - 1, UI[0]);
+  rect(x0 + 2, y0 + 2, x1 - 2, y0 + 2, UI[0]); rect(x0 + 2, y0 + 2, x0 + 2, y1 - 2, UI[0]);
+  rect(x0 + 2, y1 - 2, x1 - 2, y1 - 2, UI[0]); rect(x1 - 2, y0 + 2, x1 - 2, y1 - 2, UI[0]);
+  for (let y = y0 + 3; y <= y1 - 3; y++) {
+    const v = fill0 + ((fill1 - fill0) * (y - y0 - 3)) / Math.max(1, y1 - y0 - 6);
+    for (let x = x0 + 3; x <= x1 - 3; x++) pset(x, y, tone(UI, v, x, y));
+  }
+}
+const RX = 302, RY = [28, 54, 80, 106, 132];
+function nivelRegla(t) {
+  // posición del marcador (sube de nivel a la vez que la cámara; rebota al llegar)
+  const f = fot(t);
+  let y = RY[0], llegado = 0, desde = -99;
+  for (let i = 0; i < 4; i++) {
+    if (t < SALTO[i]) break;
+    if (t < LLEGA[i]) { const u = (t - SALTO[i]) / TZ; y = Math.round(mix(RY[i], RY[i + 1], u * u)); break; }
+    y = RY[i + 1]; llegado = i + 1; desde = f - fot(LLEGA[i]);
+  }
+  if (desde >= 0 && desde < 3) y += [2, -1, 0][desde];
+  return { y, llegado, desde };
+}
+function dibujarRegla(t) {
+  marco(256, 12, 314, 147, 1.4, 0.9);
+  rect(RX, 20, RX, 140, UI[9]); rect(RX + 1, 20, RX + 1, 140, UI[3]);
+  for (let d = 0; d < 4; d++) for (let n = 2; n <= 9; n++) pset(RX + 2, Math.round(RY[d] + 26 * (1 - Math.log10(n))), n === 5 ? UI[8] : UI[9]);
+  const st = nivelRegla(t);
+  for (let d = 0; d < 5; d++) {
+    rect(RX - 3, RY[d], RX + 3, RY[d], UI[4]);
+    const activo = d === st.llegado;
+    const parpadea = activo && st.desde >= 0 && st.desde < 6 && (st.desde & 1);
+    const c = activo ? (parpadea ? UI[7] : UI[6]) : UI[9];
+    potencia(EXP[d], RX - 6 - anchoPot(EXP[d]), RY[d] - 3, 1, c, activo ? INK : null);
+  }
+  // cursor: flecha que señala el nivel
+  const y = st.y;
+  for (let k = 0; k < 4; k++) rect(RX + 4 + k, y - k, RX + 4 + k, y + k, k === 0 ? UI[6] : UI[7]);
+  pset(RX + 8, y - 4, INK); pset(RX + 8, y + 4, INK);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  COMPOSICIÓN
+// ════════════════════════════════════════════════════════════════════════════
+const NIVELES = [null, NIVEL1, NIVEL2, NIVEL3, NIVEL4];
+const N0 = nuevoNivel();
+function dibujarNivel0(t, quieto) {
+  const f = fot(t);
+  dibujarFondo0(f, quieto);
+  dibujarPizarra(t);
+  const resp = (Math.floor(f / 9) & 1), parp = f % 47 === 0 || f % 47 === 1;
+  blitSprite(PERSONA[parp ? 2 : resp]);
+  const A = t < T_SALT ? estadoAtomo(t) : { x: ATOMO0[0], y: ATOMO0[1] };
+  dibujarMolecula(Math.min(t, T_SALT - 1e-3), A, t >= T_SALT);
+}
+// amplía un nivel a vecino más próximo alrededor de su foco y funde el siguiente con tramado
+function zambullida(i, t) {
+  const u = clamp((t - SALTO[i]) / TZ, 0, 1);
+  const e = Math.pow(u, 2.2);
+  const m = Math.pow(10, e);
+  const F = FOCO[i], sp = e * e * (3 - 2 * e);
+  const Sx = mix(F[0], W / 2, sp), Sy = mix(F[1], H / 2, sp);
+  let A;
+  if (i === 0) { dst = N0; dibujarNivel0(t, false); dst = buf; A = N0; } else A = NIVELES[i];
+  // el nivel siguiente se abre en un «iris» circular (como un portal de videojuego) dentro de su cuadro
+  const B = NIVELES[i + 1], q = smooth(0.22, 0.55, e);
+  const R = (H / 2) * (m / 10) * 0.97 * smooth(0.18, 0.4, e);
+  const anillo = (fot(t) & 1) ? UI[6] : UI[7];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const px = x + 0.5 - Sx, py = y + 0.5 - Sy;
+    let c = INK;
+    const ax = Math.floor(F[0] + px / m), ay = Math.floor(F[1] + py / m);
+    if (ax >= 0 && ax < W && ay >= 0 && ay < H) c = A[ay * W + ax];
+    if (R > 3) {
+      const d = Math.hypot(px, py);
+      if (d < R - 1.5 + b4(x, y) && q > b4(y, x)) {
+        const bx = Math.floor(W / 2 + (px * 10) / m), by = Math.floor(H / 2 + (py * 10) / m);
+        if (bx >= 0 && bx < W && by >= 0 && by < H) c = B[by * W + bx];
+      } else if (d < R + 0.6 && d >= R - 1.5) c = anillo;
+      else if (d < R + 1.6 && d >= R + 0.6) c = INK;
+    }
+    buf[y * W + x] = c;
+  }
+}
+// llegada a un nivel: golpe de zoom (×1,22 → ×1), sacudida y destello de un fotograma
+function llegada(n, t) {
+  const k = fot(t) - fot(LLEGA[n - 1]);
+  const pm = k < 3 ? [1.22, 1.1, 1.04][k] : 1;
+  const sy = k < 4 ? [3, -2, 1, 0][k] : 0, sx = k < 4 ? [-1, 1, 0, 0][k] : 0;
+  const B = NIVELES[n];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const bx = Math.floor(W / 2 + (x + 0.5 - W / 2 - sx) / pm), by = Math.floor(H / 2 + (y + 0.5 - H / 2 - sy) / pm);
+    let c = bx >= 0 && bx < W && by >= 0 && by < H ? B[by * W + bx] : INK;
+    if (k === 0 && b4(x, y) < 0.25) c = UI[6];
+    buf[y * W + x] = c;
+  }
+}
+// la cota del pelo: se traza desde el centro y salta el rótulo
+function dibujarCota(t) {
+  const f = fot(t), f0 = fot(T_DEC - 0.17);
+  if (f < f0) return;
+  const yc = 112, half = Math.min(PHW + 1, (f - f0 + 1) * 6);
+  for (let x = Math.round(PCX - half); x <= Math.round(PCX + half) - 1; x++) { pset(x, yc - 1, INK); pset(x, yc, UI[6]); pset(x, yc + 1, INK); }
+  if (half > PHW) {
+    for (const [x, s] of [[PX0, 1], [PX1, -1]]) {
+      for (let y = yc - 9; y <= yc + 9; y++) if ((y & 1) === 0 || Math.abs(y - yc) < 2) { pset(x, y, UI[6]); pset(x - s, y, INK); }
+      for (let k = 1; k <= 4; k++) { rect(x + s * k, yc - (4 - k), x + s * k, yc + (4 - k), UI[6]); }
+    }
+  }
+  const fl = fot(T_MILI - 0.2);
+  if (f < fl) return;
+  const k = f - fl, alto = [3, 9, 17, 25][Math.min(3, k)];
+  const bw = 34, cy = 87;
+  marco(Math.round(PCX) - bw, cy - (alto >> 1), Math.round(PCX) + bw, cy + (alto >> 1), 1.6, 1.0);
+  if (k >= 3) potencia(EXP[4], Math.round(PCX) - (anchoPot(EXP[4], 2) >> 1), cy - 6, 2, UI[6], INK);
+}
+
+function render(tReal) {
+  const t = Math.min(tReal, T_QUIETO);
+  const quieto = tReal >= T_QUIETO;
+  dst = buf;
+  if (t < SALTO[0]) dibujarNivel0(t, quieto);
+  else {
+    let i = 0; while (i < 3 && t >= SALTO[i + 1]) i++;
+    if (t < LLEGA[i]) zambullida(i, t); else llegada(i + 1, t);
+  }
+  const A = estadoAtomo(t);
+  dibujarAtomo(A.x, A.y, A.rx, A.fase, A.brillo, A.late, A.aplasta);
+  dibujarCota(t);
+  dibujarRegla(t);
+}
+
+// ── presentación: escalado entero sin suavizado (o «sharp bilinear» si no es entero) ──
+let vista = null, medio = null, mctx = null;
+function ajustar() {
+  const dpr = captura ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const cw = Math.max(1, Math.round(vw * dpr)), ch = Math.max(1, Math.round(vh * dpr));
+  lienzo.width = cw; lienzo.height = ch;
+  lienzo.style.width = vw + 'px'; lienzo.style.height = vh + 'px';
+  const s = Math.min(cw / W, ch / H);
+  const w = Math.round(W * s), h = Math.round(H * s);
+  vista = { s, w, h, x: Math.floor((cw - w) / 2), y: Math.floor((ch - h) / 2), cw, ch };
+  const k = Math.ceil(s - 1e-6);
+  if (Math.abs(s - Math.round(s)) < 1e-6 || s < 1) medio = null;
+  else { medio = document.createElement('canvas'); medio.width = W * k; medio.height = H * k; mctx = medio.getContext('2d'); }
+}
+function presentar() {
+  bctx.putImageData(imagen, 0, 0);
+  ctx.fillStyle = '#04050d';
+  ctx.fillRect(0, 0, vista.cw, vista.ch);
+  if (!medio) {
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(bajo, 0, 0, W, H, vista.x, vista.y, vista.w, vista.h);
+  } else {
+    mctx.imageSmoothingEnabled = false;
+    mctx.drawImage(bajo, 0, 0, medio.width, medio.height);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(medio, 0, 0, medio.width, medio.height, vista.x, vista.y, vista.w, vista.h);
+  }
+}
+function dibujar(t) { render(t); presentar(); }
+
+ajustar();
+if (!captura) window.addEventListener('resize', ajustar);
+window.__pixel = { SALTO, LLEGA };
+dibujar(0);
+E.iniciar(dibujar);
+</script>
+</body>
+</html>

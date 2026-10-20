@@ -1252,6 +1252,10 @@ PAPER = buildPaper();
 buildSprites();
 let rt = 0;
 window.addEventListener('resize', () => { layout(); clearTimeout(rt); rt = setTimeout(() => { if (Math.abs(S - builtS) / builtS > 0.04) buildSprites(); }, 180); });
+// calentamiento: se dibujan instantes representativos (y se presentan) para que las capas se
+// rastericen durante la carga y no en el primer fotograma de cada momento
+const raf = () => new Promise((r) => requestAnimationFrame(() => r()));
+for (const t of [0.6, T.atom, T.bloques + 0.2, T.explico, T.escuela, T.saltos - 0.1, ...[0.15, 0.5, 0.85].flatMap((u) => [0, 1, 2, 3].map((j) => T.saltos + (j + u) * T.d)), T.pelo + 0.3, T.mm]) { frame(t); await raf(); await raf(); }
 E.iniciar((t) => frame(t));
 </script>
 </body>
