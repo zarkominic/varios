@@ -20,7 +20,8 @@ import numpy as np, soundfile as sf
 RAIZ = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 NOMBRES = {'papel': 'Recortes de papel', 'isometrico': 'Isométrico', 'plastilina': 'Plastilina',
            'mixta': 'Mixta: Atom de plastilina + papel', 'comic': 'Cómic', 'dibujo': 'Dibujo a mano',
-           'deco': 'Art déco', 'fisica': 'Física', 'pixel': 'Pixel art', 'particulas': 'Partículas'}
+           'deco': 'Art déco', 'fisica': 'Física', 'pixel': 'Pixel art', 'particulas': 'Partículas',
+           'plastilina-adulta': 'Plastilina adulta'}
 PRUEBAS = {
     'identidad': {'carpeta': 'atomo/build/prueba-identidad', 'marcas': 'marcas-prueba.json', 'prefijo': 'prueba',
                   'estilos': ['papel', 'isometrico', 'plastilina', 'mixta', 'comic', 'dibujo', 'deco', 'fisica', 'pixel']},
