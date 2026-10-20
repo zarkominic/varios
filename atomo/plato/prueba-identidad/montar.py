@@ -1,10 +1,11 @@
 """Renderiza y monta una prueba de identidad visual: el mismo fragmento en varios estilos.
 
-Uso: python atomo/plato/prueba-identidad/montar.py [identidad|cosmos] [--estilos a,b,c] [--solo-montar]
+Uso: python atomo/plato/prueba-identidad/montar.py [identidad|cosmos] [--estilos a,b,c] [--faltan] [--solo-montar]
 
   identidad   de la persona al pelo, 9 estilos (ENCARGO.md); es la prueba por defecto
   cosmos      de la persona a la Vía Láctea, 4 estilos (ENCARGO-COSMOS.md)
   --estilos   solo esos estilos, en una carpeta aparte para no pisar el render completo
+  --faltan    renderiza solo los fotogramas que faltan (render-escenas.mjs --faltan)
 
 Escribe en atomo/build/prueba-<prueba>[-<estilos>]/:
   linea.json                las escenas una tras otra, para render-escenas.mjs
@@ -56,7 +57,7 @@ linea = {'fps': FPS, 'fotogramas': n_esc * len(ESTILOS), 'duracion': n_esc * len
 json.dump(linea, open(os.path.join(D, 'linea.json'), 'w'), ensure_ascii=False)
 
 if '--solo-montar' not in args:
-    subprocess.run(['node', 'herramientas/render-escenas.mjs', D, '--trabajadores', '3'], cwd=os.path.join(RAIZ, 'atomo'), check=True)
+    subprocess.run(['node', 'herramientas/render-escenas.mjs', D, '--trabajadores', '3', *(['--faltan'] if '--faltan' in args else [])], cwd=os.path.join(RAIZ, 'atomo'), check=True)
 
 def rotulo(texto, x, y, tam):
     t = texto.replace(':', '\\:')
