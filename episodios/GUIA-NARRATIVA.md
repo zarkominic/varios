@@ -34,8 +34,9 @@
 ## Qué aplicamos en ASK Atom
 
 - **Siempre al empezar, Atom se presenta en una frase:** quién es y qué hace.
-  - Fórmula: «Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo, y te explico lo que no te contaron en clase.»
-  - En inglés: «Hi, I'm Atom, one of the tiny building blocks of everything, and I explain what school didn't teach you.»
+  - Fórmula: «Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase.»
+  - En inglés: «Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you.»
+  - «Lo que te rodea» y no «todo»: los átomos no forman la materia oscura (cambio aprobado en el episodio 3).
   - Detrás de la presentación va el gancho del vídeo.
   - En inglés no hay que decir «I'm Atom, an atom»: con la voz americana suena «Adam, an Adam».
 - **Gancho:** en los primeros 20 s, una frase que te lleve la contraria o te sorprenda, la promesa del viaje y una pregunta que se responde al final.

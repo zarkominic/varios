@@ -1,6 +1,6 @@
 # Episodio 3 · El tamaño de todo: del quark al universo
 
-**Estado:** borrador v4 para revisar, con la verificación de datos aplicada
+**Estado:** aprobado (v4), con la verificación de datos aplicada
 
 **Base:** la v3 aprobada, con los dos datos nuevos (más átomos en tu cuerpo que estrellas; estrellas contra granos de arena) y el modo de narrar de la referencia (`episodios/GUIA-NARRATIVA.md`). Cada parada sube la escalera lugar → cambio → consecuencia → qué significa para ti, explica por qué y cómo lo sabemos, y termina empujando a la siguiente. · **Formato:** YouTube horizontal 16:9, un solo vídeo con dos pistas de audio (inglés original y español) · **Duración objetivo:** 13–16 minutos
 
@@ -48,7 +48,7 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 | Casi todo es demasiado pequeño, o está demasiado lejos, para tus ojos. | Almost everything is too small, or too far away, for your eyes. |
 | Ves una franja en el medio: un pelo, la Luna, unos miles de estrellas, una galaxia tenue y, sobre todo, tu teléfono. | You see a slice in the middle: a hair, the Moon, a few thousand stars, one faint galaxy, and mostly your phone. |
 | Más allá, tus ojos se rinden. | Beyond that, your eyes give up. |
-| Yo, por ejemplo: si una manzana creciera hasta ser tan grande como la Tierra, sus átomos serían del tamaño de una cereza. | Take me: if an apple grew to the size of the Earth, its atoms would be the size of cherries. |
+| Mírame a mí: si una manzana creciera hasta ser tan grande como la Tierra, sus átomos serían del tamaño de una cereza. | Take me: if an apple grew to the size of the Earth, its atoms would be the size of cherries. |
 | Pero con microscopios, aceleradores de partículas y telescopios espaciales, hoy podemos medir la mayor parte. | But with microscopes, particle colliders and space telescopes, we can now measure most of it. |
 | Por el camino vas a descubrir que nunca has tocado nada como te imaginas, y que tienes más átomos que estrellas tiene el universo observable. | On the way, you'll learn you've never touched anything the way you imagine, and that you hold more atoms than the observable universe holds stars. |
 | Al final te diré dónde está el centro de todo esto. | At the end, I'll show you where the middle of it all is. |
@@ -61,7 +61,7 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 | ES | EN |
 |---|---|
 | Pero antes necesitamos otra regla, porque tu cerebro mete un millón y mil millones en el mismo cajón: «muchísimo». | But first, we need a new ruler, because your brain files a million and a billion under the same label: "a lot." |
-| Pero un millón de segundos son once días y medio. | But a million seconds is eleven and a half days. |
+| Fíjate: un millón de segundos son once días y medio. | Look: a million seconds is eleven and a half days. |
 | Mil millones de segundos son casi treinta y dos años. | A billion seconds is almost thirty-two years. |
 | Y un billón de segundos son unos treinta y dos mil años: entonces nadie había plantado todavía ni una semilla. | And a trillion seconds is about thirty-two thousand years: back then, no one had planted a single seed. |
 | Así que contaremos en saltos: cada salto lo hace todo diez veces más grande, como añadir un cero. | So we'll count in jumps: each jump makes everything ten times bigger, like adding a zero. |
