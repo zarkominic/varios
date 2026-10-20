@@ -317,7 +317,7 @@ function destello(g, x, y, s) {
 // =====================================================================================
 // Puesta en escena
 // =====================================================================================
-const A_REPOSO = { x: 690, y: 322 }, A_SC = 0.3;
+const A_REPOSO = { x: 694, y: 296 }, A_SC = 0.3;
 const A_FIN = { x: 1200, y: 300 }, A_SC_FIN = 0.15;
 // Anillo de seis: Atom es un vértice; los otros cinco llegan volando.
 const HEX_R = 150;
@@ -333,7 +333,7 @@ const SOCIO = [1, 2, 3, 4, 5].map((i, n) => {
 // Pizarrita
 const PIZ = { x: 1232, y: 360, w: 318, h: 222 };
 // Niveles del zoom: punto de destino Q_k en el nivel k (el nivel k+1 ocupa un décimo alrededor).
-const QS = [{ x: 714, y: 572 }, { x: 330, y: 416 }, { x: 764, y: 554 }, { x: 764, y: 400 }];
+const QS = [{ x: 702, y: 478 }, { x: 330, y: 416 }, { x: 764, y: 554 }, { x: 764, y: 400 }];
 const FS = QS.map((q) => ({ x: (10 * q.x - PC.x) / 9, y: (10 * q.y - PC.y) / 9 }));   // punto fijo de cada zoom
 
 // ---------- cámara ----------
@@ -353,63 +353,215 @@ function popInset(t, cam) {
 }
 
 // =====================================================================================
-// Nivel 0: la persona
+// Nivel 0: la persona, con las proporciones de atomo/plato/HUMANO.md
 // =====================================================================================
+// H = 697 px, de la coronilla (y 214) a la suela (y 911), con el eje en x ≈ 471. Líneas:
+// barbilla 330 · hombros 360 · codos y cintura 493 · muñecas y entrepierna 583 · dedos 653 ·
+// rodillas 723 · suelo 911. Hombros 0,25 H y caderas 0,19 H de ancho. Tramos que no cambian
+// en ninguna postura: brazo 126, antebrazo 98 y mano 70 px (0,18 · 0,14 · 0,10 H).
+// La cabeza es la del dibujo original, reducida a H/6 alrededor de la barbilla.
+const CAB = { k: 0.763, ox: 471, oy: 362, x: 471, y: 330 };
 const P0 = {
   cara: new Path2D('M 414 292 C 414 248 444 236 470 236 C 502 236 524 256 523 294 C 522 332 503 361 471 362 C 437 363 414 334 414 292 Z'),
   pelo: new Path2D('M 405 306 C 396 266 410 230 446 218 C 482 206 526 214 546 234 C 557 245 558 258 549 266 C 539 258 526 258 517 265 C 505 255 486 258 474 268 C 462 259 444 263 433 276 C 426 285 424 298 423 310 Z'),
   oreja: (() => { const p = new Path2D(); p.ellipse(420, 308, 10, 16, 0.1, 0, TAU); return p; })(),
-  cuello: new Path2D('M 450 350 L 448 398 L 488 398 L 485 348 Z'),
-  camiseta: new Path2D('M 440 392 C 453 404 478 405 493 392 L 541 404 C 562 410 576 424 586 446 L 598 474 L 567 487 L 549 467 C 547 520 545 566 540 616 L 398 616 C 393 566 391 520 390 468 L 373 486 L 343 472 L 355 442 C 364 420 378 408 398 402 Z'),
-  brazoI: new Path2D('M 349 470 C 341 512 339 562 349 608 L 381 610 C 379 566 381 520 385 482 Z'),
-  manoI: new Path2D('M 346 602 C 335 622 337 652 355 664 C 372 674 393 666 395 645 C 397 627 391 611 383 603 Z'),
-  brazoD: new Path2D('M 567 482 C 563 504 559 528 559 550 C 559 574 575 588 600 589 L 692 593 L 694 553 L 612 548 C 600 548 595 538 595 524 L 597 478 Z'),
-  manoD: new Path2D('M 690 555 C 705 548 721 546 735 549 C 750 553 763 557 770 564 C 776 571 774 584 766 585 L 741 587 C 746 593 748 602 742 605 C 733 609 719 603 708 596 C 700 593 695 591 690 589 Z'),
-  pantalon: new Path2D('M 398 610 L 541 610 C 545 680 543 780 536 884 L 482 884 L 470 692 L 459 884 L 404 884 C 397 780 395 680 398 610 Z'),
-  zapI: new Path2D('M 403 878 L 458 878 C 471 880 484 890 484 900 C 484 908 476 911 461 911 L 399 911 C 395 900 397 886 403 878 Z'),
-  zapD: new Path2D('M 481 878 L 535 878 C 549 880 563 890 565 900 C 565 908 555 911 541 911 L 478 911 C 474 900 475 886 481 878 Z'),
+  cuello: new Path2D('M 459 306 L 458 358 L 486 358 L 485 306 Z'),
+  camiseta: new Path2D('M 452 350 C 440 356 418 360 400 366 C 392 370 390 384 392 400 C 396 440 404 470 408 500 C 410 520 408 540 406 556 C 440 562 500 562 536 556 C 534 540 532 520 534 500 C 538 470 546 440 550 400 C 552 384 550 370 542 366 C 524 360 502 356 490 350 C 482 361 462 361 452 350 Z'),
+  pantalon: new Path2D('M 406 546 L 536 546 C 539 600 537 660 534 722 C 532 780 530 840 530 884 L 480 884 C 480 840 479 780 478 722 C 477 660 475 612 471 586 C 467 612 465 660 464 722 C 463 780 462 840 462 884 L 412 884 C 412 840 410 780 408 722 C 405 660 403 600 406 546 Z'),
+  zapI: new Path2D('M 410 878 L 462 878 C 474 880 485 890 485 899 C 485 907 477 911 462 911 L 404 911 C 400 900 402 886 410 878 Z'),
+  zapD: new Path2D('M 480 878 L 530 878 C 546 880 562 890 564 899 C 564 907 554 911 540 911 L 476 911 C 472 900 474 886 480 878 Z'),
 };
-function persona(g, V) {
+// Cápsula con los dos extremos redondos (radios ra y rb).
+function capsulaP(ax, ay, bx, by, ra, rb) {
+  const f = Math.atan2(by - ay, bx - ax), p = new Path2D();
+  p.arc(ax, ay, ra, f + PI / 2, f + 3 * PI / 2);
+  p.arc(bx, by, rb, f - PI / 2, f + PI / 2);
+  p.closePath();
+  return p;
+}
+// Miembro de anchura variable (semiancho wf(u), u de 0 a 1) con extremos redondos o rectos.
+function miembroP(ax, ay, bx, by, wf, capA = true, capB = true, n = 12) {
+  const f = Math.atan2(by - ay, bx - ax), nx = -Math.sin(f), ny = Math.cos(f), p = new Path2D();
+  for (let i = 0; i <= n; i++) { const u = i / n, w = wf(u), x = lerp(ax, bx, u), y = lerp(ay, by, u); if (i) p.lineTo(x + nx * w, y + ny * w); else p.moveTo(x + nx * w, y + ny * w); }
+  if (capB) p.arc(bx, by, wf(1), f + PI / 2, f - PI / 2, true);
+  for (let i = n; i >= 0; i--) { const u = i / n, w = wf(u); p.lineTo(lerp(ax, bx, u) - nx * w, lerp(ay, by, u) - ny * w); }
+  if (capA) p.arc(ax, ay, wf(0), f - PI / 2, f - 3 * PI / 2, true);
+  p.closePath();
+  return p;
+}
+// Manos en coordenadas locales: la muñeca en el origen y el eje +x hacia la punta de los dedos.
+const MANO = {
+  // abierta y plana, vista por el dorso, con el pulgar por debajo (+y): la del brazo que presenta
+  plana: { p: new Path2D('M -4 -14 C 10 -17 26 -17 38 -14 C 50 -12 61 -11 67 -7 C 73 -3 72 3 66 5 C 56 8 46 10 38 12 C 28 15 12 16 -4 14 Z'),
+    pulgar: capsulaP(8, 9, 31, 21, 7.5, 6), pulgarDetras: true,
+    lineas: [[[44, -7], [54, -6.5], [63, -5]], [[44, -1.5], [55, -1], [65, 0]], [[43, 4], [52, 4.5], [60, 5]]] },
+  // colgando, relajada, con el pulgar delante (hacia el cuerpo, −y)
+  caida: { p: new Path2D('M -3 -14 C 14 -17 36 -17 52 -12 C 64 -8 69 4 62 11 C 52 17 26 17 -3 15 Z'),
+    pulgar: capsulaP(8, -6, 29, -9, 6.5, 5), pulgarDetras: false,
+    lineas: [[[44, -8], [50, 0], [46, 9]], [[53, -6], [59, 2], [55, 10]]] },
+  // puño con el índice extendido
+  indice: { p: new Path2D('M -3 -15 C 10 -18 24 -18 33 -13 C 41 -8 41 9 34 14 C 25 19 10 18 -3 15 Z'),
+    dedo: capsulaP(27, -8, 64, -8, 6.5, 5.5),
+    pulgar: capsulaP(13, 9, 32, 2, 6, 5), pulgarDetras: false,
+    lineas: [[[33, -1], [38, 3], [35, 8]], [[27, 4], [31, 8], [28, 13]]] },
+};
+const BRAZO = { L1: 126, L2: 98, LM: 70 };
+const HOMBRO_I = [402, 362], HOMBRO_D = [540, 362];
+// Brazo derecho (a la derecha de la pantalla). u = 0: presenta, con el codo a la altura de la
+// cintura y el antebrazo horizontal; u = 1: señala arriba, con el codo por encima del hombro.
+function poseBrazoD(u) {
+  const a1 = lerp(1.25, -0.524, u), a2 = lerp(0, -1.396, u);
+  const [sx, sy] = HOMBRO_D, ex = sx + BRAZO.L1 * Math.cos(a1), ey = sy + BRAZO.L1 * Math.sin(a1);
+  return { S: HOMBRO_D, E: [ex, ey], W: [ex + BRAZO.L2 * Math.cos(a2), ey + BRAZO.L2 * Math.sin(a2)], a1, a2, mano: u < 0.5 ? 'plana' : 'indice' };
+}
+function poseBrazoI() {
+  const a1 = 1.618, a2 = 1.592;              // cuelga, un poco abierto
+  const [sx, sy] = HOMBRO_I, ex = sx + BRAZO.L1 * Math.cos(a1), ey = sy + BRAZO.L1 * Math.sin(a1);
+  return { S: HOMBRO_I, E: [ex, ey], W: [ex + BRAZO.L2 * Math.cos(a2), ey + BRAZO.L2 * Math.sin(a2)], a1, a2, mano: 'caida' };
+}
+const LUZ2 = (() => { const n = Math.hypot(LIGHT[0], LIGHT[1]); return [LIGHT[0] / n, LIGHT[1] / n]; })();
+// Trama de sombra de un miembro: crece hacia el lado contrario a la luz del tramo más cercano.
+function sombraMiembro(segs, rmax) {
+  return (x, y) => {
+    let best = Infinity, val = 0;
+    for (const [ax, ay, bx, by, r] of segs) {
+      const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1, u = cl(((x - ax) * dx + (y - ay) * dy) / L2);
+      const cx = ax + dx * u, cy = ay + dy * u, d = Math.hypot(x - cx, y - cy);
+      if (d < best) {
+        best = d;
+        const L = Math.sqrt(L2); let nx = -dy / L, ny = dx / L;
+        if (nx * LUZ2[0] + ny * LUZ2[1] > 0) { nx = -nx; ny = -ny; }
+        val = rmax * cl(((x - cx) * nx + (y - cy) * ny) / r * 1.15 + 0.05);
+      }
+    }
+    return val;
+  };
+}
+// Brazo completo: brazo, antebrazo y mano con una sola silueta de tinta (sin costuras), la
+// manga encima y los detalles de la mano.
+function brazo(g, V, P, lw = 4.5) {
+  const [sx, sy] = P.S, [ex, ey] = P.E, [wx, wy] = P.W;
+  const dx = (ex - sx) / BRAZO.L1, dy = (ey - sy) / BRAZO.L1;
+  const sup = miembroP(sx + dx * 18, sy + dy * 18, ex, ey, (u) => lerp(16.5, 14, u) + 1.4 * Math.sin(PI * u));
+  const ant = miembroP(ex, ey, wx, wy, (u) => lerp(14.2, 11.5, u) + 1.5 * Math.sin(PI * Math.min(1, u * 1.7)));
+  const M = MANO[P.mano], mt = new DOMMatrix().translateSelf(wx, wy).rotateSelf(P.a2 * 180 / PI);
+  const tr = (p) => { const q = new Path2D(); q.addPath(p, mt); return q; };
+  const mano = tr(M.p), pulgar = tr(M.pulgar), dedo = M.dedo ? tr(M.dedo) : null;
+  const piezas = [sup, ant, mano, pulgar, ...(dedo ? [dedo] : [])];
+  const tip = mt.transformPoint(new DOMPoint(BRAZO.LM, 0));
+  const segs = [[sx, sy, ex, ey, 16], [ex, ey, wx, wy, 14], [wx, wy, tip.x, tip.y, 14]];
+  const xs = [sx, ex, wx, tip.x], ys = [sy, ey, wy, tip.y];
+  const bb = [Math.min(...xs) - 30, Math.min(...ys) - 30, Math.max(...xs) + 30, Math.max(...ys) + 30];
+  g.save(); g.lineJoin = 'round'; g.strokeStyle = C.ink; g.lineWidth = 2 * lw;
+  for (const p of piezas) g.stroke(p);
+  g.fillStyle = C.skin; for (const p of piezas) g.fill(p);
+  const union = new Path2D(); for (const p of piezas) union.addPath(p);
+  g.save(); g.clip(union); g.fillStyle = C.skinDk; dots(g, V, bb[0], bb[1], bb[2], bb[3], 6, PI / 4, sombraMiembro(segs, 2.6)); g.restore();
+  // separación del pulgar o de la mano, y los dedos
+  g.lineWidth = 2.6; g.strokeStyle = C.ink;
+  if (M.pulgarDetras) g.stroke(mano); else g.stroke(pulgar);
+  if (dedo) g.stroke(dedo);
+  g.save(); g.setTransform(g.getTransform().multiply(mt));
+  g.lineCap = 'round'; g.lineWidth = 2.1; g.strokeStyle = C.ink;
+  for (const L of M.lineas) { g.beginPath(); g.moveTo(L[0][0], L[0][1]); g.quadraticCurveTo(L[1][0], L[1][1], L[2][0], L[2][1]); g.stroke(); }
+  g.fillStyle = C.white; g.globalAlpha = 0.9;
+  ribbon(g, quadPts(4, -11, 20, -14.5, 36, -12, 8), (u) => 1.8 * Math.sin(PI * u));
+  g.restore();
+  // brillo a lo largo del brazo, del lado de la luz
+  const brilloTramo = (ax, ay, bx, by, r) => {
+    const L = Math.hypot(bx - ax, by - ay) || 1; let nx = -(by - ay) / L, ny = (bx - ax) / L;
+    if (nx * LUZ2[0] + ny * LUZ2[1] < 0) { nx = -nx; ny = -ny; }
+    ribbon(g, quadPts(lerp(ax, bx, 0.18) + nx * r * 0.55, lerp(ay, by, 0.18) + ny * r * 0.55, lerp(ax, bx, 0.5) + nx * r * 0.62, lerp(ay, by, 0.5) + ny * r * 0.62, lerp(ax, bx, 0.8) + nx * r * 0.55, lerp(ay, by, 0.8) + ny * r * 0.55, 10), (u) => 1.9 * Math.sin(PI * u));
+  };
+  g.fillStyle = C.skinL; g.globalAlpha = 0.95; brilloTramo(ex, ey, wx, wy, 13); brilloTramo(sx, sy, ex, ey, 15); g.globalAlpha = 1;
+  g.restore();
+}
+// Manga corta: sale del hombro (redonda, se funde con la camiseta) y acaba recta.
+function manga(P) {
+  const [sx, sy] = P.S, dx = Math.cos(P.a1), dy = Math.sin(P.a1);
+  const a = [sx + dx * 16, sy + dy * 16], b = [sx + dx * 52, sy + dy * 52];
+  return { p: miembroP(a[0], a[1], b[0], b[1], (u) => 17.5 + 3 * sstep(0, 0.5, u), true, false), seg: [a[0], a[1], b[0], b[1], 21], b, n: [-dy, dx] };
+}
+// Camiseta: torso y mangas con una sola silueta de tinta; trama del torso y de cada manga.
+function camiseta(g, V, PI_, PD) {
+  const mI = manga(PI_), mD = manga(PD), piezas = [P0.camiseta, mI.p, mD.p];
+  g.save(); g.lineJoin = 'round'; g.strokeStyle = C.ink; g.lineWidth = 11;
+  for (const p of piezas) g.stroke(p);
+  g.fillStyle = C.red; for (const p of piezas) g.fill(p);
+  const union = new Path2D(); for (const p of piezas) union.addPath(p);
+  const sI = sombraMiembro([mI.seg], 3.3), sD = sombraMiembro([mD.seg], 3.3);
+  const dSeg = (x, y, [ax, ay, bx, by]) => { const ddx = bx - ax, ddy = by - ay, L2 = ddx * ddx + ddy * ddy, u = cl(((x - ax) * ddx + (y - ay) * ddy) / L2); return Math.hypot(x - ax - ddx * u, y - ay - ddy * u); };
+  const torso = (x, y) => 3.4 * cl((x - 478) / 62) + 2.6 * cl((y - 500) / 56);
+  g.save(); g.clip(union); g.fillStyle = C.redDk;
+  dots(g, V, 330, 290, 720, 570, 7, PI / 4, (x, y) => dSeg(x, y, mI.seg) < 22 ? sI(x, y) : dSeg(x, y, mD.seg) < 22 ? sD(x, y) : torso(x, y));
+  g.restore();
+  // dobladillo de las mangas y costura del hombro, cuello y pliegue
+  g.lineCap = 'round';
+  for (const m of [mI, mD]) {
+    const [bx, by] = m.b, [nx, ny] = m.n, [ax, ay] = [m.seg[0], m.seg[1]];
+    g.lineWidth = 2.4; g.strokeStyle = C.ink; g.beginPath(); g.moveTo(bx - (bx - ax) * 0.16 + nx * 19, by - (by - ay) * 0.16 + ny * 19); g.lineTo(bx - (bx - ax) * 0.16 - nx * 19, by - (by - ay) * 0.16 - ny * 19); g.stroke();
+  }
+  trazo(g, [[452, 350], [462, 360], [482, 360], [490, 350]], 3);
+  trazo(g, [[476, 420], [481, 470], [479, 530]], 2.2, 'rgba(23,21,27,0.55)');
+  g.restore();
+}
+// Vista (caja visible y escala) en las coordenadas de la cabeza original.
+function vistaCabeza(V, rot) {
+  const c = Math.cos(rot), s = Math.sin(rot), P = [];
+  for (const [x, y] of [[V.x0, V.y0], [V.x1, V.y0], [V.x0, V.y1], [V.x1, V.y1]]) {
+    const dx = x - CAB.x, dy = y - CAB.y;
+    P.push([CAB.ox + (dx * c + dy * s) / CAB.k, CAB.oy + (-dx * s + dy * c) / CAB.k]);
+  }
+  return { s: V.s * CAB.k, x0: Math.min(...P.map((p) => p[0])), y0: Math.min(...P.map((p) => p[1])), x1: Math.max(...P.map((p) => p[0])), y1: Math.max(...P.map((p) => p[1])) };
+}
+// pose = { brazo: 0 presenta … 1 señala arriba, mira: 0 al frente … 1 hacia arriba }
+function personaPose(g, V, pose = {}) {
+  const ub = pose.brazo ?? 0, mira = pose.mira ?? 0;
   // sombra en el suelo
-  g.save(); const sh = new Path2D(); sh.ellipse(482, 912, 128, 15, 0, 0, TAU); g.clip(sh);
-  g.fillStyle = C.ink; dots(g, V, 340, 890, 620, 930, 7, PI / 4, (x, y) => 2.9 * cl(1.25 - Math.hypot((x - 482) / 128, (y - 912) / 15))); g.restore();
-  // brazo izquierdo (colgando)
-  pieza(g, V, P0.brazoI, C.skin, [330, 460, 400, 615], [{ col: C.skinDk, sp: 6, rf: lin(350, 0, 384, 0, 2.4) }], 4.5);
-  pieza(g, V, P0.manoI, C.skin, [330, 595, 400, 675], [{ col: C.skinDk, sp: 6, rf: lin(350, 600, 392, 668, 2.6) }], 4.5);
-  trazo(g, [[360, 640], [378, 636]], 2.4); trazo(g, [[358, 652], [376, 650]], 2.4);
+  g.save(); const sh = new Path2D(); sh.ellipse(482, 912, 122, 14, 0, 0, TAU); g.clip(sh);
+  g.fillStyle = C.ink; dots(g, V, 340, 890, 620, 930, 7, PI / 4, (x, y) => 2.9 * cl(1.25 - Math.hypot((x - 482) / 122, (y - 912) / 14))); g.restore();
   // pantalón y zapatos
-  pieza(g, V, P0.pantalon, C.blue, [390, 605, 550, 890], [{ col: C.navyDk, sp: 7, rf: (x, y) => x < 470 ? 3.2 * cl((x - 425) / 40) : 3.3 * cl((x - 506) / 34) }], 5);
-  trazo(g, [[470, 692], [470, 650]], 3);
+  pieza(g, V, P0.pantalon, C.blue, [400, 540, 545, 890], [{ col: C.navyDk, sp: 7, rf: (x, y) => x < 471 ? 3.2 * cl((x - 432) / 30) : 3.3 * cl((x - 508) / 26) }], 5);
+  trazo(g, [[471, 586], [471, 556]], 3);
+  trazo(g, [[418, 726], [430, 730], [440, 727]], 2.2, 'rgba(23,21,27,0.6)'); trazo(g, [[492, 727], [504, 731], [516, 728]], 2.2, 'rgba(23,21,27,0.6)');
+  g.fillStyle = C.cyanL; g.globalAlpha = 0.55; ribbon(g, quadPts(418, 600, 416, 720, 420, 860, 12), (u) => 2.4 * Math.sin(PI * u)); g.globalAlpha = 1;
   pieza(g, V, P0.zapI, C.ink, null, null, 4);
   pieza(g, V, P0.zapD, C.ink, null, null, 4);
-  g.fillStyle = C.white; for (const [x0, x1] of [[414, 450], [492, 530]]) ribbon(g, quadPts(x0, 888, (x0 + x1) / 2, 884, x1, 888, 8), (u) => 2.2 * Math.sin(PI * u));
-  // camiseta
-  pieza(g, V, P0.camiseta, C.red, [340, 390, 600, 620], [{ col: C.redDk, sp: 7, rf: (x, y) => 3.4 * cl((x - 470) / 70) + 2.6 * cl((y - 560) / 60) }], 5.5);
-  trazo(g, [[440, 392], [453, 404], [478, 405], [493, 392]], 3);
-  trazo(g, [[390, 468], [392, 440]], 3); trazo(g, [[549, 467], [551, 440]], 3);
-  trazo(g, [[476, 470], [482, 520], [480, 580]], 2.2, 'rgba(23,21,27,0.55)');
-  // cuello y cabeza
-  pieza(g, V, P0.cuello, C.skin, [440, 340, 495, 400], [{ col: C.skinDk, sp: 6, rf: (x, y) => 3 * cl(1 - (y - 352) / 30) }], 4.5);
-  pieza(g, V, P0.cara, C.skin, [410, 230, 528, 368], [{ col: C.skinDk, sp: 6.5, rf: (x, y) => 2.9 * cl((Math.hypot(x - 440, y - 270) - 70) / 50) }], 5.5);
-  pieza(g, V, P0.oreja, C.skin, [408, 290, 432, 326], [{ col: C.skinDk, sp: 5, rf: () => 1.6 }], 3.5);
-  pieza(g, V, P0.pelo, C.hair, [395, 200, 562, 316], [{ col: C.hairDk, sp: 6, rf: (x, y) => 2.9 * cl((y - 240) / 50) + 1.6 * cl((440 - x) / 30) }], 5);
+  g.fillStyle = C.white; for (const [x0, x1] of [[418, 456], [490, 530]]) ribbon(g, quadPts(x0, 887, (x0 + x1) / 2, 883, x1, 887, 8), (u) => 2.2 * Math.sin(PI * u));
+  // cuello
+  pieza(g, V, P0.cuello, C.skin, [450, 300, 495, 362], [{ col: C.skinDk, sp: 6, rf: (x, y) => 3 * cl(1 - (y - 330) / 26) }], 4.5);
+  // brazos (el izquierdo cuelga; el derecho presenta o señala arriba) y, encima, la camiseta
+  const bI = poseBrazoI(), bD = poseBrazoD(ub);
+  brazo(g, V, bI);
+  brazo(g, V, bD);
+  camiseta(g, V, bI, bD);
+  // cabeza (inclinada hacia atrás cuando mira arriba)
+  const rot = -0.17 * mira;
+  g.save(); g.translate(CAB.x, CAB.y); g.rotate(rot); g.scale(CAB.k, CAB.k); g.translate(-CAB.ox, -CAB.oy);
+  const Vh = vistaCabeza(V, rot), lk = 1 / CAB.k * 0.86;
+  pieza(g, Vh, P0.cara, C.skin, [410, 230, 528, 368], [{ col: C.skinDk, sp: 6.5, rf: (x, y) => 2.9 * cl((Math.hypot(x - 440, y - 270) - 70) / 50) }], 5.5 * lk);
+  pieza(g, Vh, P0.oreja, C.skin, [408, 290, 432, 326], [{ col: C.skinDk, sp: 5, rf: () => 1.6 }], 3.5 * lk);
+  pieza(g, Vh, P0.pelo, C.hair, [395, 200, 562, 316], [{ col: C.hairDk, sp: 6, rf: (x, y) => 2.9 * cl((y - 240) / 50) + 1.6 * cl((440 - x) / 30) }], 5 * lk);
   g.fillStyle = C.hairL; for (const [x0, y0, x1, y1, x2, y2] of [[438, 232, 472, 218, 512, 224], [452, 246, 486, 234, 524, 238]]) ribbon(g, quadPts(x0, y0, x1, y1, x2, y2, 10), (u) => 3 * Math.sin(PI * u));
-  // cara: mira arriba, hacia Atom
+  // cara: mira a Atom (arriba a la derecha) o al cielo
+  const oy = -4 * mira, ox = 1.5 * mira;
   g.fillStyle = C.ink;
-  for (const [x, y] of [[481, 298], [512, 296]]) { g.beginPath(); g.ellipse(x, y, 6.2, 9, 0.1, 0, TAU); g.fill(); }
-  g.fillStyle = C.white; for (const [x, y] of [[483.5, 293.5], [514.5, 291.5]]) { g.beginPath(); g.arc(x, y, 2.4, 0, TAU); g.fill(); }
+  for (const [x, y] of [[481, 298], [512, 296]]) { g.beginPath(); g.ellipse(x + ox, y + oy, 6.2, 9, 0.1, 0, TAU); g.fill(); }
+  g.fillStyle = C.white; for (const [x, y] of [[483.5, 293.5], [514.5, 291.5]]) { g.beginPath(); g.arc(x + ox, y + oy - 0.5 * mira, 2.4, 0, TAU); g.fill(); }
   g.fillStyle = C.ink;
-  ribbon(g, quadPts(470, 281, 481, 272, 494, 276, 8), (u) => 2.6 * Math.sin(PI * (0.1 + 0.85 * u)));
-  ribbon(g, quadPts(504, 276, 515, 269, 527, 274, 8), (u) => 2.4 * Math.sin(PI * (0.1 + 0.85 * u)));
-  trazo(g, [[522, 304], [529, 320], [520, 323]], 2.8);
-  ribbon(g, quadPts(487, 336, 503, 346, 519, 333, 10), (u) => 2.4 * Math.sin(PI * u) + 0.4);
-  g.fillStyle = C.magenta; g.globalAlpha = 0.55; dots(g, V, 486, 312, 524, 334, 5, PI / 4, (x, y) => 1.7 * cl(1 - Math.hypot((x - 504) / 18, (y - 323) / 10))); g.globalAlpha = 1;
-  // brazo derecho, doblado: el antebrazo apunta a la derecha y la mano queda a la altura de la cintura
-  pieza(g, V, P0.brazoD, C.skin, [555, 470, 700, 600], [{ col: C.skinDk, sp: 6, rf: (x, y) => 2.6 * cl((y - 562) / 26) + 2 * cl((x - 582) / 14) * cl((548 - y) / 40) }], 4.5);
-  pieza(g, V, P0.manoD, C.skin, [686, 538, 780, 612], [{ col: C.skinDk, sp: 5.5, rf: (x, y) => 2.4 * cl((y - 568) / 22) }], 4.5);
-  trazo(g, [[751, 560], [767, 565]], 2.2); trazo(g, [[748, 571], [767, 576]], 2.2);
-  g.fillStyle = C.white; ribbon(g, quadPts(697, 552, 716, 547, 735, 550, 8), (u) => 2 * Math.sin(PI * u));
+  const cej = -5 * mira;
+  ribbon(g, quadPts(470, 281 + cej, 481, 272 + cej, 494, 276 + cej, 8), (u) => 2.6 * Math.sin(PI * (0.1 + 0.85 * u)) * lk);
+  ribbon(g, quadPts(504, 276 + cej, 515, 269 + cej, 527, 274 + cej, 8), (u) => 2.4 * Math.sin(PI * (0.1 + 0.85 * u)) * lk);
+  trazo(g, [[522, 304], [529, 320], [520, 323]], 2.8 * lk);
+  if (mira < 0.5) ribbon(g, quadPts(487, 336, 503, 346, 519, 333, 10), (u) => (2.4 * Math.sin(PI * u) + 0.4) * lk);
+  else {   // boca abierta de asombro
+    const bo = new Path2D(); bo.ellipse(505, 338, 9, 11, 0.1, 0, TAU);
+    g.fillStyle = C.redDk; g.fill(bo); g.lineWidth = 3 * lk; g.strokeStyle = C.ink; g.stroke(bo);
+  }
+  g.fillStyle = C.magenta; g.globalAlpha = 0.55; dots(g, Vh, 486, 312, 524, 334, 5, PI / 4, (x, y) => 1.7 * cl(1 - Math.hypot((x - 504) / 18, (y - 323) / 10))); g.globalAlpha = 1;
+  g.restore();
 }
+function persona(g, V) { personaPose(g, V, { brazo: 0, mira: 0 }); }
 // Fondo del nivel 0: pared con trama cian (más clara detrás de la persona) y suelo de tablas.
 function fondo0(g, V) {
   g.fillStyle = C.cyanP; g.fillRect(PP.x0 - 60, PP.y0 - 60, PWd + 120, PHt + 120);
