@@ -55,20 +55,29 @@ def hablado(texto, l):
         t = re.sub(r'\bADN\b', 'a de ene', t)
     return t
 
+# Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
+REVELACIONES = {3: 1.5, 58: 1.5, 142: 1.5}
+
 escenas, usadas = [], []
 for e in plan['escenas']:
     a, b = int(e['frase_ini']), int(e['frase_fin'])
     assert len(e['marcas']) == b - a + 1 == len(e['guion_visual']), e['id']
     frases = []
+    pausas = {int(n): s for n, s in e.get('pausas', {}).items()}
     for k, marca, vis in zip(range(a, b + 1), e['marcas'], e['guion_visual']):
         es, en = filas[k - 1]
         f = {'n': k, 'marca': marca, 'es': es, 'en': en, 'visual': vis}
+        if k in pausas:
+            f['pausa'] = pausas[k]
+        elif k in REVELACIONES and k < b:
+            f['pausa'] = REVELACIONES[k]
         for l, t in (('es', es), ('en', en)):
             if hablado(t, l) != t:
                 f[f'{l}_voz'] = hablado(t, l)
         frases.append(f)
         usadas.append(k)
-    x = {'id': e['id'], 'estilo': e['estilo'], 'empieza_con': e['empieza_con'], 'termina_con': e['termina_con'], 'frases': frases}
+    x = {'id': e['id'], 'estilo': e['estilo'], 'empieza_con': e['empieza_con'], 'termina_con': e['termina_con'],
+         'produccion': e.get('produccion', ''), 'frases': frases}
     if e.get('cartela'):
         x['cartela'] = e['cartela']
     escenas.append(x)
