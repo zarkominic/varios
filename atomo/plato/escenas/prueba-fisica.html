@@ -1,0 +1,1103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prueba de identidad · física</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  html, body { margin: 0; height: 100%; background: #04060b; overflow: hidden; }
+  #escena { position: absolute; overflow: hidden; background: #05070d; }
+  #escena canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<div id="escena"><canvas id="lienzo"></canvas></div>
+<script type="module">
+// Prueba de identidad · física (a partir de estilos/16-fisica.html).
+// Todo lo que se mueve es una simulación 2D escrita a mano, con paso fijo de 1/480 s, que se calcula
+// entera desde t=0 al cargar y se graba a 120 muestras/s; dibujar(t) solo lee la grabación.
+//  · [hola] Atom flota sobre un muelle (levitación) y da un bote con un impulso.
+//  · [atom] crece con un muelle, brilla y sus electrones aceleran (par motor y rozamiento).
+//  · [bloques] seis átomos caen desde arriba, chocan con la nube de Atom y los enlaces (muelles) los
+//    atrapan: la molécula se monta rebotando.
+//  · [explico] una pizarrita cae colgada de dos gomas elásticas (sólido rígido) con una «?» de cuentas
+//    sujetas por muelles; [escuela] las cuentas que sobran se sueltan, rebotan en la «!» y se apilan
+//    en la repisa.
+//  · [saltos]→[pelo] la cámara es la bola de la regla: cae por un tubo, choca contra una compuerta en
+//    cada potencia de diez, rebota y la compuerta se abre. La altura de la bola ES el zoom (×10 por
+//    década), así que cada choque es el golpe de zoom y el cuarto cae justo en [pelo].
+//  · [decima]→[milimetro] el rótulo «10⁻⁴ m» cae sobre la cota, que se comba como una cuerda tensa.
+import { escena } from '/atomo/plato/escena.js';
+
+const E = await escena('prueba-fisica', 'prueba');
+const M = (k) => E.marca(k);
+const DUR = E.duracion;
+const CAPTURA = new URLSearchParams(location.search).has('captura');
+
+// ── utilidades ───────────────────────────────────────────────────────────────
+const PI = Math.PI, TAU = PI * 2;
+const W = 1920, H = 1080, CX = 960, CY = 540;
+const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const lin = (s, a, b) => clamp((s - a) / (b - a));
+const mix = (a, b, x) => a + (b - a) * x;
+const smooth = (x) => x * x * (3 - 2 * x);
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const campana = (t, a, b, c, d) => smooth(lin(t, a, b)) * (1 - smooth(lin(t, c, d)));
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+// ruido de valor 2D con semilla (para texturas de piel)
+function hash2(i, j, s) {
+  let h = Math.imul(i, 374761393) + Math.imul(j, 668265263) + Math.imul(s, 2147483647);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+function ruido(x, y, s = 1) {
+  const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j;
+  const u = smooth(fx), v = smooth(fy);
+  const a = hash2(i, j, s), b = hash2(i + 1, j, s), c = hash2(i, j + 1, s), d = hash2(i + 1, j + 1, s);
+  return mix(mix(a, b, u), mix(c, d, u), v);
+}
+const fbm = (x, y, s) => 0.6 * ruido(x, y, s) + 0.3 * ruido(x * 2.1, y * 2.1, s + 7) + 0.1 * ruido(x * 4.3, y * 4.3, s + 13);
+
+// ── marcas (todo se lee de E.marca) ──────────────────────────────────────────
+const T_HOLA = M('hola'), T_ATOM = M('atom'), T_ATOM_FIN = M('atom_fin');
+const T_BLOQ = M('bloques'), T_EXPL = M('explico'), T_ESC = M('escuela');
+const T_SALT = M('saltos'), T_PELO = M('pelo'), T_DEC = M('decima'), T_MILI = M('milimetro');
+const T_MILI_FIN = M('milimetro_fin');
+
+// ── constantes físicas y de puesta en escena ─────────────────────────────────
+const G = 2600;                       // gravedad del plató (px/s²)
+const HZ = 480, DT = 1 / HZ;          // paso fijo
+const REC = 120, SPR = HZ / REC;      // grabación: 120 muestras/s
+const NREC = Math.ceil((DUR + 0.05) * REC) + 2;
+
+// Atom (coordenadas de pantalla)
+const ATOMO0 = [858, 250], ATOMO_FIN = [1318, 318];
+const MA = 4;                         // masa de Atom
+const RA_NUBE = 50;                   // radio de choque de su nube de electrones
+
+// molécula (coordenadas del nivel 0): hexágono alrededor de Atom
+const L_ENL = 104;
+const MOL = [0, 1, 2, 3, 4, 5].map((i) => {
+  const a = (i * PI) / 3;
+  const grande = i % 2 === 0;
+  return { a, dx: Math.cos(a) * L_ENL, dy: Math.sin(a) * L_ENL, r: grande ? 19 : 14, m: grande ? 1.3 : 0.8, tinte: grande ? 1 : 3 };
+});
+// orden de llegada: primero los de abajo, luego los laterales y por último los de arriba
+const ORDEN_MOL = [1, 2, 0, 3, 5, 4];
+const LLEGA_MOL = [-0.34, -0.25, -0.15, -0.06, 0.04, 0.13].map((d) => T_BLOQ + d);
+const SUELO0 = 868;                   // suelo del nivel 0
+
+// pizarrita (nivel 0): sólido rígido colgado de dos gomas
+const PIZ = { x: 1186, y: 330, hw: 165, hh: 120, m: 3 };
+PIZ.I = (PIZ.m * ((2 * PIZ.hw) ** 2 + (2 * PIZ.hh) ** 2)) / 12;
+const GOMA_X = 124, GOMA_Y0 = -40;    // anclajes en el techo (fuera de cuadro)
+const GOMA_W = 16;                    // pulsación de las gomas (rad/s)
+const GOMA_K = (PIZ.m * GOMA_W * GOMA_W) / 2;
+const GOMA_L0 = PIZ.y - PIZ.hh - GOMA_Y0 - (PIZ.m * G) / (2 * GOMA_K);
+const PIZ_TENSA = T_EXPL - 0.04;      // cuando las gomas se tensan por primera vez
+const PIZ_Y_SALIDA = -350;           // cae desde más arriba: entra en cuadro ~0,3 s antes de [explico]
+const PIZ_SALIDA = PIZ_TENSA - Math.sqrt((2 * (GOMA_L0 + GOMA_Y0 + PIZ.hh - PIZ_Y_SALIDA)) / G);
+const XI = PIZ.hw - 17, YI = PIZ.hh - 17;    // interior del marco (local)
+
+// cuentas de la «?» y la «!» (coordenadas locales de la pizarra)
+const RG = 6.6, PASO_G = 13.6;
+function muestrear(puntos, paso) {
+  const out = [puntos[0]];
+  let resto = 0;
+  for (let i = 1; i < puntos.length; i++) {
+    const [x0, y0] = puntos[i - 1], [x1, y1] = puntos[i];
+    const L = Math.hypot(x1 - x0, y1 - y0);
+    let d = paso - resto;
+    while (d <= L) { out.push([mix(x0, x1, d / L), mix(y0, y1, d / L)]); d += paso; }
+    resto = L - (d - paso);
+  }
+  return out;
+}
+const INTERROGANTE = (() => {
+  const p = [];
+  for (let a = 168; a <= 412; a += 2) { const r = (a * PI) / 180; p.push([Math.cos(r) * 40, -46 + Math.sin(r) * 40]); }
+  const [ex, ey] = p[p.length - 1];
+  for (let k = 1; k <= 10; k++) { const u = k / 10; p.push([mix(ex, 0, smooth(u)), mix(ey, 16, u)]); }
+  p.push([0, 30]);
+  const c = muestrear(p, PASO_G);
+  c.push([0, 66]);
+  return c;
+})();
+const EXCLAMACION = (() => {
+  const c = muestrear([[0, -88], [0, 30]], PASO_G);
+  c.push([0, 66]);
+  return c;
+})();
+const NG = INTERROGANTE.length;
+// a cada punto de la «!» se le asigna la cuenta libre más cercana de la «?»
+const DESTINO_G = new Int16Array(NG).fill(-1);
+{
+  const libre = new Set([...Array(NG).keys()]);
+  const orden = [EXCLAMACION.length - 1, ...EXCLAMACION.keys()].slice(0, EXCLAMACION.length);
+  for (const j of orden) {
+    let mejor = -1, md = 1e9;
+    for (const i of libre) { const d = Math.hypot(INTERROGANTE[i][0] - EXCLAMACION[j][0], INTERROGANTE[i][1] - EXCLAMACION[j][1]); if (d < md) { md = d; mejor = i; } }
+    libre.delete(mejor); DESTINO_G[mejor] = j;
+  }
+}
+const T_CAMBIO = T_ESC - 0.3;         // las cuentas cambian de sitio un poco antes de [escuela]
+
+// regla de potencias de diez (pantalla): la bola cae por un tubo y es la cámara
+const XR = 1664, YB0 = 214, DEC = 150, RB = 15;
+const YB = [0, 1, 2, 3, 4].map((k) => YB0 + k * DEC);
+const REST_B = 0.26;                  // coeficiente de restitución bola-compuerta
+const REPOSO_B = 0.03;                // pausa sobre la compuerta antes de abrirla
+const T_CAIDA = (T_PELO - T_SALT - 3 * REPOSO_B) / (4 + 6 * REST_B);
+const G_BOLA = (2 * DEC) / (T_CAIDA * T_CAIDA);
+const T_REBOTE = 2 * REST_B * T_CAIDA + REPOSO_B;
+const SUELTA = [0, 1, 2, 3].map((i) => T_SALT + i * (T_CAIDA + T_REBOTE));
+const IMPACTO = SUELTA.map((s) => s + T_CAIDA);     // el cuarto = [pelo]
+
+// cota del pelo (nivel 4)
+const PELO_HW = 250, YC = 612;
+const T_ROT_CAE = T_MILI - Math.sqrt((2 * 150) / G);   // el rótulo cae 150 px y toca la cota en [milimetro]
+
+// ── simulación (se calcula una vez, desde t=0, con paso fijo) ─────────────────
+const rnd = mulberry32(20261020);
+// Atom
+let ax = ATOMO0[0], ay = ATOMO0[1], avx = 0, avy = 0;
+let esc = 1, escv = 0, fase = 0.6, omega = 2.2;
+function anclaAtomo(s) {
+  const a = 3.5 * (1 - smooth(lin(s, T_PELO, T_DEC)));
+  const u = eio(lin(s, T_SALT + 0.05, T_PELO - 0.12));
+  return [mix(ATOMO0[0], ATOMO_FIN[0], u) + a * Math.sin(1.7 * s), mix(ATOMO0[1], ATOMO_FIN[1], u) + a * Math.sin(2.3 * s + 1)];
+}
+function escalaObjetivo(s) {
+  let e = 1 + 0.32 * smooth(lin(s, T_ATOM - 0.24, T_ATOM - 0.02)) - 0.22 * smooth(lin(s, T_ATOM_FIN + 0.15, T_ATOM_FIN + 0.5));
+  return mix(e, 0.46, eio(lin(s, T_SALT, T_PELO - 0.15)));
+}
+function omegaObjetivo(s) {
+  if (s < T_ATOM - 0.22) return 2.2;
+  if (s < T_ATOM_FIN + 0.45) return 10.5;
+  if (s < T_SALT) return 3.2;
+  return 4.2;
+}
+// molécula
+const NM = MOL.length;
+const mx = new Float64Array(NM), my = new Float64Array(NM), mvx = new Float64Array(NM), mvy = new Float64Array(NM);
+const mNace = new Float64Array(NM), mCap = new Float64Array(NM).fill(-1), mDeriva = new Float64Array(NM), mCaida = new Float64Array(NM);
+// cada átomo entra por arriba (justo fuera de cuadro) y cae en parábola hasta su hueco; los de abajo
+// llegan lanzados desde fuera para no atravesar la nube de Atom
+ORDEN_MOL.forEach((i, n) => {
+  const yHueco = ATOMO0[1] + MOL[i].dy;
+  mCaida[i] = Math.sqrt((2 * (yHueco + 40 + MOL[i].r)) / G);
+  mNace[i] = LLEGA_MOL[n] - mCaida[i];
+  const fuera = Math.sign(MOL[i].dx) * (MOL[i].dy > 1 ? 150 : MOL[i].dy < -1 ? 40 : 60);
+  mDeriva[i] = fuera + (rnd() - 0.5) * 24;
+});
+const mVivo = new Uint8Array(NM);
+// pizarrita
+let bx = PIZ.x + 16, by = PIZ_Y_SALIDA, bth = 0.075, bvx = 0, bvy = 0, bw = 0;
+// cuentas de la «?»
+const gx = new Float64Array(NG), gy = new Float64Array(NG), gvx = new Float64Array(NG), gvy = new Float64Array(NG);
+function aMundo(lx, ly) {
+  const c = Math.cos(bth), s = Math.sin(bth);
+  return [bx + c * lx - s * ly, by + s * lx + c * ly];
+}
+for (let i = 0; i < NG; i++) { const [x, y] = aMundo(...INTERROGANTE[i]); gx[i] = x; gy[i] = y; }
+// bola de la regla
+let yb = YB[0], vb = 0;
+const impactos = [];
+// rótulo y cota
+let ry = YC - 150, rv = 0, cs = 0, cv = 0;
+
+// grabación
+const recA = new Float32Array(NREC * 5), recM = new Float32Array(NREC * NM * 2);
+const recP = new Float32Array(NREC * 3), recG = new Float32Array(NREC * NG * 2);
+const recB = new Float32Array(NREC), recR = new Float32Array(NREC * 2);
+function grabar(k) {
+  recA.set([ax, ay, esc, fase, omega], k * 5);
+  for (let i = 0; i < NM; i++) { recM[(k * NM + i) * 2] = mx[i]; recM[(k * NM + i) * 2 + 1] = my[i]; }
+  recP.set([bx, by, bth], k * 3);
+  for (let i = 0; i < NG; i++) { recG[(k * NG + i) * 2] = gx[i]; recG[(k * NG + i) * 2 + 1] = gy[i]; }
+  recB[k] = yb;
+  recR[k * 2] = ry; recR[k * 2 + 1] = cs;
+}
+
+// choque entre dos discos (posición + impulso con restitución e)
+function choque(p, i, j, ri, rj, wi, wj, e, vx, vy, X, Y) {
+  const dx = X[j] - X[i], dy = Y[j] - Y[i], rr = ri + rj;
+  const d2 = dx * dx + dy * dy;
+  if (d2 >= rr * rr || d2 < 1e-9) return;
+  const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, pen = rr - d, w = wi + wj;
+  X[i] -= nx * pen * wi / w; Y[i] -= ny * pen * wi / w;
+  X[j] += nx * pen * wj / w; Y[j] += ny * pen * wj / w;
+  const vn = (vx[j] - vx[i]) * nx + (vy[j] - vy[i]) * ny;
+  if (vn < 0) {
+    const J = -(1 + e) * vn / w;
+    vx[i] -= J * nx * wi; vy[i] -= J * ny * wi; vx[j] += J * nx * wj; vy[j] += J * ny * wj;
+  }
+}
+// muelle entre dos cuerpos con masa (fuerza → velocidades)
+function muelle(x1, y1, vx1, vy1, x2, y2, vx2, vy2, L, k, c) {
+  const dx = x2 - x1, dy = y2 - y1, d = Math.hypot(dx, dy) || 1e-6, nx = dx / d, ny = dy / d;
+  const f = k * (d - L) + c * ((vx2 - vx1) * nx + (vy2 - vy1) * ny);
+  return [f * nx, f * ny];          // fuerza sobre el cuerpo 1 (el 2 recibe la opuesta)
+}
+
+function paso(n) {
+  const s = n * DT;
+  const unidos = s < T_SALT;          // en [saltos] Atom se va con la cámara y suelta la molécula
+  // ── Atom: levitación (muelle a su ancla) + lo que pesa la molécula que sostiene ──
+  const [axA, ayA] = anclaAtomo(s);
+  let fax = 484 * (axA - ax) - 26 * avx, fay = 484 * (ayA - ay) - 26 * avy;
+  if (Math.abs(s - (T_HOLA - 0.2)) < DT / 2) avy -= 360;           // bote del saludo
+  // ── molécula ──
+  for (let i = 0; i < NM; i++) {
+    if (!mVivo[i] && s >= mNace[i]) {
+      mVivo[i] = 1;
+      mx[i] = ATOMO0[0] + MOL[i].dx + mDeriva[i]; my[i] = -40 - MOL[i].r;
+      mvx[i] = -mDeriva[i] / mCaida[i]; mvy[i] = 0;
+    }
+    if (mVivo[i] && mCap[i] < 0 && unidos && my[i] >= ay + MOL[i].dy - 6) mCap[i] = s;
+  }
+  const fmx = new Float64Array(NM), fmy = new Float64Array(NM);
+  for (let i = 0; i < NM; i++) {
+    if (!mVivo[i]) continue;
+    fmy[i] += MOL[i].m * G;
+    if (mCap[i] < 0) continue;
+    if (unidos) {
+      // enlace con Atom: muelle hacia su hueco del hexágono
+      const [fx, fy] = muelle(ax, ay, avx, avy, mx[i], my[i], mvx[i], mvy[i], L_ENL, 640, 10);
+      fax += fx; fay += fy; fmx[i] -= fx; fmy[i] -= fy;
+      fay -= MOL[i].m * G;            // la levitación de Atom sostiene también este átomo
+      // empuje angular suave: cada átomo busca su ángulo (rigidez de flexión del enlace)
+      const tx = ax + MOL[i].dx, ty = ay + MOL[i].dy;
+      fmx[i] += 160 * (tx - mx[i]); fmy[i] += 160 * (ty - my[i]);
+      fax -= 160 * (tx - mx[i]); fay -= 160 * (ty - my[i]);
+    }
+    const j = (i + 1) % NM;            // enlace del anillo con el vecino
+    if (mCap[j] >= 0) {
+      const [fx, fy] = muelle(mx[i], my[i], mvx[i], mvy[i], mx[j], my[j], mvx[j], mvy[j], L_ENL, 420, 6);
+      fmx[i] += fx; fmy[i] += fy; fmx[j] -= fx; fmy[j] -= fy;
+    }
+  }
+  avx += (fax / MA) * DT; avy += (fay / MA) * DT;
+  ax += avx * DT; ay += avy * DT;
+  for (let i = 0; i < NM; i++) {
+    if (!mVivo[i]) continue;
+    const am = mCap[i] >= 0 ? 1 - 0.6 * DT : 1;
+    mvx[i] = (mvx[i] + (fmx[i] / MOL[i].m) * DT) * am; mvy[i] = (mvy[i] + (fmy[i] / MOL[i].m) * DT) * am;
+    mx[i] += mvx[i] * DT; my[i] += mvy[i] * DT;
+    if (my[i] > SUELO0 - MOL[i].r) {
+      my[i] = SUELO0 - MOL[i].r;
+      if (mvy[i] > 0) mvy[i] = mvy[i] > 120 ? -0.35 * mvy[i] : 0;
+      mvx[i] *= 0.98;
+    }
+  }
+  // choques: átomo-átomo y átomo-nube de Atom
+  const X = [...mx, ax], Y = [...my, ay], VX = [...mvx, avx], VY = [...mvy, avy];
+  for (let it = 0; it < 2; it++) {
+    for (let i = 0; i < NM; i++) {
+      if (!mVivo[i]) continue;
+      for (let j = i + 1; j < NM; j++) if (mVivo[j]) choque(0, i, j, MOL[i].r, MOL[j].r, 1 / MOL[i].m, 1 / MOL[j].m, 0.5, VX, VY, X, Y);
+      if (unidos) choque(0, i, NM, MOL[i].r, RA_NUBE * esc, 1 / MOL[i].m, 1 / MA, 0.45, VX, VY, X, Y);
+    }
+  }
+  for (let i = 0; i < NM; i++) { mx[i] = X[i]; my[i] = Y[i]; mvx[i] = VX[i]; mvy[i] = VY[i]; }
+  ax = X[NM]; ay = Y[NM]; avx = VX[NM]; avy = VY[NM];
+  // escala y electrones de Atom
+  escv += (260 * (escalaObjetivo(s) - esc) - 11 * escv) * DT; esc += escv * DT;
+  if (s < T_MILI_FIN) omega += ((omegaObjetivo(s) - omega) / 0.22) * DT;
+  else omega = Math.max(0, omega - (4.2 / 0.38) * DT);          // rozamiento: se para del todo
+  fase += omega * DT;
+
+  // ── pizarrita: sólido rígido con dos gomas (solo tiran cuando están tensas) ──
+  if (s >= PIZ_SALIDA) {
+    let fx = 0, fy = PIZ.m * G, tq = 0;
+    const c = Math.cos(bth), sn = Math.sin(bth);
+    for (const lado of [-1, 1]) {
+      const lx = lado * GOMA_X, ly = -PIZ.hh;
+      const rx = c * lx - sn * ly, ry2 = sn * lx + c * ly;
+      const qx = bx + rx, qy = by + ry2;
+      const dx = qx - (PIZ.x + lado * GOMA_X), dy = qy - GOMA_Y0, d = Math.hypot(dx, dy);
+      if (d > GOMA_L0) {
+        const nx = dx / d, ny = dy / d;
+        const vpx = bvx - bw * ry2, vpy = bvy + bw * rx;
+        const f = GOMA_K * (d - GOMA_L0) + 9 * (vpx * nx + vpy * ny);
+        if (f > 0) { fx -= f * nx; fy -= f * ny; tq += rx * (-f * ny) - ry2 * (-f * nx); }
+      }
+    }
+    bvx = (bvx + (fx / PIZ.m) * DT) * (1 - 0.5 * DT); bvy = (bvy + (fy / PIZ.m) * DT) * (1 - 0.5 * DT);
+    bw = (bw + (tq / PIZ.I) * DT) * (1 - 1.6 * DT);
+    bx += bvx * DT; by += bvy * DT; bth += bw * DT;
+  }
+  // ── cuentas de la «?» / «!» ──
+  const c = Math.cos(bth), sn = Math.sin(bth);
+  const libres = s >= T_CAMBIO;
+  for (let i = 0; i < NG; i++) {
+    let fx = 0, fy = G;
+    const sujeta = !libres || DESTINO_G[i] >= 0;
+    if (sujeta) {
+      const [lx, ly] = libres ? EXCLAMACION[DESTINO_G[i]] : INTERROGANTE[i];
+      const rx = c * lx - sn * ly, ry2 = sn * lx + c * ly;
+      const vpx = bvx - bw * ry2, vpy = bvy + bw * rx;
+      const k = libres ? 1300 : 1600, cc = libres ? 50 : 48;
+      fx += k * (bx + rx - gx[i]) + cc * (vpx - gvx[i]);
+      fy += k * (by + ry2 - gy[i]) + cc * (vpy - gvy[i]);
+    }
+    gvx[i] += fx * DT; gvy[i] += fy * DT;
+    if (!sujeta) { gvx[i] *= 1 - 0.25 * DT; gvy[i] *= 1 - 0.25 * DT; }
+    gx[i] += gvx[i] * DT; gy[i] += gvy[i] * DT;
+  }
+  if (libres) {
+    const WG = (i) => (DESTINO_G[i] >= 0 ? 0.15 : 1);
+    for (let it = 0; it < 3; it++) {
+      for (let i = 0; i < NG; i++) for (let j = i + 1; j < NG; j++) choque(0, i, j, RG, RG, WG(i), WG(j), 0.3, gvx, gvy, gx, gy);
+      // marco de la pizarra (en coordenadas locales)
+      for (let i = 0; i < NG; i++) {
+        if (DESTINO_G[i] >= 0) continue;
+        const dx = gx[i] - bx, dy = gy[i] - by;
+        let lx = c * dx + sn * dy, ly = -sn * dx + c * dy;
+        let vx = c * gvx[i] + sn * gvy[i], vy = -sn * gvx[i] + c * gvy[i];
+        // velocidad del punto de la pizarra (local)
+        const pvx = c * (bvx - bw * dy) + sn * (bvy + bw * dx), pvy = -sn * (bvx - bw * dy) + c * (bvy + bw * dx);
+        let toca = false;
+        if (ly > YI - RG) { ly = YI - RG; if (vy - pvy > 0) vy = pvy - (vy - pvy > 90 ? 0.32 * (vy - pvy) : 0); vx = pvx + (vx - pvx) * 0.985; toca = true; }
+        if (lx < -XI + RG) { lx = -XI + RG; if (vx - pvx < 0) vx = pvx - 0.3 * (vx - pvx); toca = true; }
+        if (lx > XI - RG) { lx = XI - RG; if (vx - pvx > 0) vx = pvx - 0.3 * (vx - pvx); toca = true; }
+        if (toca) {
+          gx[i] = bx + c * lx - sn * ly; gy[i] = by + sn * lx + c * ly;
+          gvx[i] = c * vx - sn * vy; gvy[i] = sn * vx + c * vy;
+        }
+      }
+    }
+  }
+  // ── bola de la regla (la cámara) ──
+  let puerta = 0;
+  while (puerta < 4 && s >= SUELTA[puerta]) puerta++;
+  if (puerta > 0 || vb !== 0) {
+    vb += G_BOLA * DT; yb += vb * DT;
+    if (yb >= YB[puerta]) {
+      yb = YB[puerta];
+      if (vb > 250) { impactos.push([s, vb]); vb = -REST_B * vb; } else vb = 0;
+    }
+  }
+  // ── rótulo que cae sobre la cota (cuerda tensa: muelle en su punto medio) ──
+  cv += ((-1440 * cs - 31 * cv) / 1.6) * DT;
+  if (s >= T_ROT_CAE) rv += G * DT;
+  ry += rv * DT; cs += cv * DT;
+  if (ry > YC + cs) {
+    const pen = ry - (YC + cs);
+    ry -= pen * (1.6 / 2.6); cs += pen * (1 / 2.6);
+    if (rv > cv) { const v = (rv + 1.6 * cv) / 2.6; rv = v; cv = v; }
+  }
+}
+
+function simular() {
+  grabar(0);
+  const total = (NREC - 1) * SPR;
+  for (let n = 0; n < total; n++) {
+    paso(n);
+    if ((n + 1) % SPR === 0) grabar((n + 1) / SPR);
+  }
+}
+
+// ── geometría de los cinco niveles (cada uno en sus coordenadas «de pantalla») ──
+// nivel 0 persona · 1 mano · 2 piel con vello · 3 un pelo que sale de la piel · 4 el pelo como un tronco
+// El nivel k+1 es el nivel k ampliado ×10 alrededor de su punto focal FOCO[k].
+const FOCO = [[703, 602], [962, 452], [960, 540], [960, 540]];
+const ANCLA = [[CX, CY]];
+for (let k = 0; k < 4; k++) ANCLA.push([ANCLA[k][0] + (FOCO[k][0] - CX) * 10 ** -k, ANCLA[k][1] + (FOCO[k][1] - CY) * 10 ** -k]);
+
+// distancias con signo
+const dCirc = (x, y, cx, cy, r) => Math.hypot(x - cx, y - cy) - r;
+function dCap(x, y, ax, ay, bx, by, ra, rb = ra) {
+  const vx = bx - ax, vy = by - ay;
+  const t = clamp(((x - ax) * vx + (y - ay) * vy) / (vx * vx + vy * vy));
+  return Math.hypot(x - ax - vx * t, y - ay - vy * t) - mix(ra, rb, t);
+}
+function dCaja(x, y, cx, cy, hw, hh, r) {
+  const qx = Math.abs(x - cx) - hw + r, qy = Math.abs(y - cy) - hh + r;
+  return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
+}
+const smin = (a, b, k) => { const h = clamp(0.5 + (0.5 * (b - a)) / k); return mix(b, a, h) - k * h * (1 - h); };
+
+// relleno hexagonal de cuentas (como las bolas ya asentadas del demo) dentro de una forma
+function rellenar(sdf, r, x0, y0, x1, y1, semilla, color) {
+  const az = mulberry32(semilla), out = [];
+  const sx = 2 * r * 1.04, sy = sx * 0.866;
+  for (let j = 0, y = y0; y <= y1; j++, y += sy) {
+    for (let x = x0 + (j % 2) * sx * 0.5; x <= x1; x += sx) {
+      const px = x + (az() - 0.5) * r * 0.3, py = y + (az() - 0.5) * r * 0.3;
+      const d = sdf(px, py);
+      if (d > -r * 0.2) continue;
+      const rr = r * (0.84 + 0.26 * az());
+      const [t, l] = color(px, py, d, az);
+      if (l > 0.02) out.push([px, py, rr, t, l]);
+    }
+  }
+  return out;
+}
+
+// nivel 0: la persona, de cuentas (la luz viene de Atom, arriba a la derecha)
+function sdfPersona(x, y) {
+  let d = dCirc(x, y, 600, 202, 54);
+  d = smin(d, dCap(x, y, 600, 250, 600, 290, 21), 10);
+  let t = smin(dCap(x, y, 542, 310, 658, 310, 26), dCap(x, y, 600, 330, 600, 505, 64, 56), 30);
+  d = smin(d, t, 8);
+  d = smin(d, dCap(x, y, 548, 316, 520, 452, 20, 17), 10);
+  d = smin(d, dCap(x, y, 520, 452, 508, 574, 17, 14), 8);
+  d = smin(d, dCaja(x, y, 506, 600, 17, 26, 13), 8);
+  d = smin(d, dCap(x, y, 652, 316, 684, 452, 20, 17), 10);
+  d = smin(d, dCap(x, y, 684, 452, 699, 574, 17, 14), 8);
+  d = smin(d, dCaja(x, y, 703, 602, 17, 26, 13), 8);
+  d = smin(d, dCap(x, y, 574, 520, 569, 846, 29, 19), 12);
+  d = smin(d, dCap(x, y, 626, 520, 633, 846, 29, 19), 12);
+  d = smin(d, dCap(x, y, 566, 852, 540, 857, 12, 10), 6);
+  d = smin(d, dCap(x, y, 636, 852, 662, 857, 12, 10), 6);
+  return d;
+}
+const NIVEL0 = rellenar(sdfPersona, 5.3, 440, 130, 760, 880, 11, (x, y, d, az) => {
+  const borde = 1 - smooth(lin(-d, 0, 15));
+  const luz = clamp((x - 540) / 170) * (1 - 0.4 * lin(y, 150, 860));
+  const u = az();
+  return [u < 0.18 ? 1 : u < 0.3 ? 2 : 0, 0.5 + 0.26 * borde + 0.26 * luz + 0.06 * az()];
+});
+
+// nivel 1: la mano (dorso), colgando; vello fino en la muñeca
+function sdfMano(x, y) {
+  let d = dCap(x, y, 962, -160, 962, 430, 150, 136);
+  d = smin(d, dCaja(x, y, 962, 610, 168, 160, 74), 40);
+  const dedos = [[856, 965, 33], [928, 1018, 36], [1000, 1006, 35], [1066, 950, 31]];
+  for (const [fx, fy, fr] of dedos) d = smin(d, dCap(x, y, fx + (fx - 962) * 0.05, 700, fx + (fx - 962) * 0.12, fy, fr + 3, fr - 2), 16);
+  d = smin(d, dCap(x, y, 810, 560, 742, 738, 42, 34), 24);
+  return d;
+}
+const NIVEL1 = rellenar(sdfMano, 7, 680, -40, 1240, 1120, 21, (x, y, d, az) => {
+  const borde = 1 - smooth(lin(-d, 0, 22));
+  const luz = clamp((x - 760) / 420) * 0.7 + 0.3 * (1 - lin(y, 0, 1080));
+  // nudillos y pliegues de los dedos: cuentas más apagadas
+  let pl = 1;
+  for (const yy of [705, 820, 905]) if (Math.abs(y - yy - 0.0004 * (x - 962) ** 2) < 6 && y > 660) pl = 0.72;
+  const u = az();
+  return [u < 0.22 ? 1 : u < 0.32 ? 4 : 0, (0.44 + 0.22 * borde + 0.28 * luz + 0.08 * az()) * pl];
+});
+// vello del nivel 1: trazos cortos (pelos de ~0,4 px de grosor real) alrededor de la muñeca
+const VELLO1 = (() => {
+  const az = mulberry32(31), out = [];
+  for (let n = 0; n < 220 && out.length < 150; n++) {
+    const x = mix(830, 1094, az()), y = mix(150, 640, az());
+    if (sdfMano(x, y) > -14) continue;
+    const a = -PI / 2 + (az() - 0.5) * 0.6, L = 13 + 12 * az();
+    out.push([x, y, x + Math.cos(a) * L, y + Math.sin(a) * L]);
+  }
+  out.push([FOCO[1][0], FOCO[1][1] + 2.2, FOCO[1][0], FOCO[1][1] - 24]);   // el pelo al que vamos
+  return out;
+})();
+
+// nivel 2: piel con surcos poligonales (como la microrrelieve real) y pelos que salen de sus folículos
+const MARGEN = 0.15;                  // los niveles densos se generan un 15 % más allá del cuadro
+const X0M = -W * MARGEN - 20, X1M = W * (1 + MARGEN) + 20, Y0M = -H * MARGEN - 20, Y1M = H * (1 + MARGEN) + 20;
+function voronoi(esp, semilla) {
+  const az = mulberry32(semilla), sem = new Map();
+  const celda = (i, j) => {
+    const k = i * 7919 + j;
+    if (!sem.has(k)) sem.set(k, [(i + 0.15 + 0.7 * az()) * esp, (j + 0.15 + 0.7 * az()) * esp]);
+    return sem.get(k);
+  };
+  // distancia al borde de celda más cercano (bisectriz entre las dos semillas más próximas)
+  return (x, y) => {
+    const ci = Math.floor(x / esp), cj = Math.floor(y / esp);
+    let d1 = 1e9, d2 = 1e9, a = null, b = null;
+    for (let i = ci - 1; i <= ci + 1; i++) for (let j = cj - 1; j <= cj + 1; j++) {
+      const q = celda(i, j), d = (x - q[0]) ** 2 + (y - q[1]) ** 2;
+      if (d < d1) { d2 = d1; b = a; d1 = d; a = q; } else if (d < d2) { d2 = d; b = q; }
+    }
+    return (d2 - d1) / (2 * Math.hypot(a[0] - b[0], a[1] - b[1]));
+  };
+}
+const SURCO2 = voronoi(190, 43), SURCO2B = voronoi(78, 47);
+function surco(x, y) {
+  const w = 14 * (fbm(x / 120, y / 120, 3) - 0.5);
+  return SURCO2(x + w, y - w);
+}
+const FOLICULOS2 = (() => {
+  const az = mulberry32(41), out = [[960, 562, -PI / 2, 300, 0]];
+  while (out.length < 13) {
+    const x = mix(60, 1860, az()), y = mix(160, 1020, az());
+    if (out.some(([fx, fy]) => Math.hypot(fx - x, fy - y) < 260)) continue;
+    out.push([x, y, -PI / 2 + (az() - 0.5) * 0.8, 210 + 150 * az(), (az() - 0.5) * 0.7]);
+  }
+  return out;
+})();
+const NIVEL2 = rellenar((x, y) => {
+  let d = -1e3;
+  for (const [fx, fy] of FOLICULOS2) d = Math.max(d, 12 - Math.hypot(x - fx, y - fy));
+  return Math.max(d, 5.5 - surco(x, y));
+}, 8.2, X0M, Y0M, X1M, Y1M, 51, (x, y, d, az) => {
+  const s = surco(x, y), s2 = SURCO2B(x * 1.03 + 9, y);
+  const meseta = smooth(lin(s, 5, 40)) * (0.75 + 0.25 * smooth(lin(s2, 1, 10)));
+  return [az() < 0.35 ? 4 : 0, 0.13 + 0.36 * meseta + 0.16 * fbm(x / 260, y / 260, 9) + 0.04 * az()];
+});
+// los pelos del nivel 2: cadenas de cuentas finas
+const PELOS2 = FOLICULOS2.map(([fx, fy, a, L, curva]) => {
+  const pts = [];
+  const N = Math.round(L / 3.6);
+  for (let i = 0; i <= N; i++) {
+    const u = i / N, b = a + curva * u;
+    const x = fx + Math.cos(a) * L * u + Math.cos(b + PI / 2) * curva * 40 * u * u;
+    const y = fy + Math.sin(a) * L * u + Math.sin(b + PI / 2) * curva * 40 * u * u;
+    pts.push([x, y]);
+  }
+  return pts;
+});
+
+// nivel 3: células de la piel alrededor del poro del que sale el pelo
+const PORO3 = [960, 762];
+const PLACA3 = voronoi(150, 63);
+const NIVEL3 = rellenar((x, y) => Math.max(34 - Math.hypot(x - PORO3[0], (y - PORO3[1]) * 1.6), 2.5 - PLACA3(x, y)), 8, X0M, Y0M, X1M, Y1M, 61, (x, y, d, az) => {
+  const r = Math.hypot(x - PORO3[0], (y - PORO3[1]) * 1.6);
+  const crater = r < 130 ? mix(0.15, 1, smooth(lin(r, 34, 130))) : 1;
+  const labio = campana(r, 105, 135, 140, 190) * 0.22;
+  const placa = smooth(lin(PLACA3(x, y), 2.5, 26));
+  const s = 0.18 + 0.2 * placa + 0.16 * fbm(x / 300, y / 300, 17) + 0.05 * fbm(x / 40, y / 40, 19);
+  return [az() < 0.4 ? 4 : 0, (s + labio) * crater + 0.03 * az()];
+});
+
+// nivel 4: el pelo, con las escamas de la cutícula como tejas (filas de cuentas en el borde libre)
+function filaCuticula(i) {
+  const h = (k) => hash2(i, k, 77);
+  return { y0: CY + i * 37 + (h(1) - 0.5) * 9, pend: (h(2) - 0.5) * 0.07, curva: 5 + 6 * h(3), s: i * 13 + 5 };
+}
+function bordeCuticula(f, x) {
+  const u = (x - CX) / PELO_HW;
+  return f.y0 + f.pend * (x - CX) - f.curva * (1 - u * u) + 7 * (ruido(x / 13, f.s, 5) - 0.5) + 3 * (ruido(x / 4.5, f.s, 6) - 0.5);
+}
+const FILAS4 = [];
+for (let i = -80; i <= 80; i++) FILAS4.push(filaCuticula(i));
+const NIVEL4 = (() => {
+  const az = mulberry32(71), out = [];
+  for (const f of FILAS4.slice(80 - 26, 80 + 27)) {
+    for (let x = CX - PELO_HW + 1; x <= CX + PELO_HW - 0.5; x += (2 * PELO_HW - 2) / 57) {
+      const u = (x - CX) / PELO_HW;
+      const cil = Math.pow(Math.max(0, 1 - u * u), 0.45) * (1 - 0.25 * clamp(u));
+      const xx = x + (az() - 0.5) * 2;
+      out.push([xx, bordeCuticula(f, xx) + (az() - 0.5) * 1.5, 4.4 * (0.82 + 0.3 * az()), az() < 0.55 ? 1 : 5, 0.18 + 0.78 * cil * (0.8 + 0.2 * az())]);
+    }
+  }
+  return out;
+})();
+const BOKEH4 = (() => {
+  const az = mulberry32(81), out = [];
+  for (let n = 0; n < 22; n++) out.push([mix(-80, 2000, az()), mix(-80, 1160, az()), 40 + 110 * az(), az() < 0.6 ? 0 : 3, 0.03 + 0.06 * az()]);
+  return out;
+})();
+const NIVELES = [NIVEL0, NIVEL1, NIVEL2, NIVEL3, NIVEL4];
+
+// ── lienzo: escena 16:9 centrada, con bandas si la ventana no es 16:9 ─────────
+const marco = document.getElementById('escena');
+const lienzo = document.getElementById('lienzo');
+const ctx = lienzo.getContext('2d');
+let escala = 1, LW = W, LH = H;
+function encajar() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const w = Math.floor(Math.min(vw, (vh * 16) / 9)), h = Math.floor((w * 9) / 16);
+  marco.style.width = w + 'px'; marco.style.height = h + 'px';
+  marco.style.left = Math.floor((vw - w) / 2) + 'px'; marco.style.top = Math.floor((vh - h) / 2) + 'px';
+  const pr = CAPTURA ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  lienzo.width = Math.round(w * pr); lienzo.height = Math.round(h * pr);
+  LW = lienzo.width; LH = lienzo.height;
+  escala = LW / W;
+  hacerFondo(); hacerBloom();
+}
+
+// ── cuentas: gradiente unitario + transformación (mucho más rápido que drawImage aquí) ──
+// 0 marfil · 1 oro pálido · 2 perla · 3 frío · 4 piel cálida · 5 ámbar (pelo)
+const TINTES = [[255, 230, 190], [255, 214, 158], [246, 240, 228], [150, 214, 255], [226, 176, 128], [222, 152, 86]];
+const rgb = (c, a = 1) => `rgba(${c.map((v) => Math.round(clamp(v, 0, 255))).join(',')},${a})`;
+const GRAD = TINTES.map(([r, g, b]) => {
+  const gr = ctx.createRadialGradient(-0.24, -0.28, 0, 0, 0, 1);
+  gr.addColorStop(0, '#ffffff');
+  gr.addColorStop(0.32, rgb([r + 12, g + 16, b + 24]));
+  gr.addColorStop(0.78, rgb([r, g * 0.93, b * 0.86]));
+  gr.addColorStop(1, rgb([r * 0.86, g * 0.76, b * 0.66], 0.75));
+  return gr;
+});
+const HALO = TINTES.map((c) => {
+  const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+  gr.addColorStop(0, rgb(c, 0.6)); gr.addColorStop(0.18, rgb(c, 0.26));
+  gr.addColorStop(0.45, rgb(c, 0.07)); gr.addColorStop(1, rgb(c, 0));
+  return gr;
+});
+const PLANO = TINTES.map((c) => rgb(c.map((v) => v * 0.9)));
+// x, y, r en píxeles del lienzo
+function cuenta(x, y, r, t, a) {
+  if (a <= 0.004) return;
+  ctx.globalAlpha = a > 1 ? 1 : a;
+  if (r < 1) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = PLANO[t]; ctx.fillRect(x - r, y - r, 2 * r, 2 * r); return; }
+  ctx.setTransform(r, 0, 0, r, x, y); ctx.fillStyle = GRAD[t];
+  ctx.beginPath(); ctx.arc(0, 0, 1, 0, TAU); ctx.fill();
+}
+function halo(x, y, r, t, a) {
+  if (a <= 0.004 || r < 0.5) return;
+  ctx.globalAlpha = a > 1 ? 1 : a;
+  ctx.setTransform(r, 0, 0, r, x, y); ctx.fillStyle = HALO[t];
+  ctx.beginPath(); ctx.arc(0, 0, 1, 0, TAU); ctx.fill();
+}
+
+// ── fondo (degradado y viñeta del demo) y búferes de resplandor ───────────────
+let FONDO = null, BL1 = null, BL2 = null;
+function hacerFondo() {
+  const c = document.createElement('canvas'); c.width = LW; c.height = LH;
+  const x = c.getContext('2d');
+  x.scale(escala, escala);
+  x.fillStyle = '#05070d'; x.fillRect(0, 0, W, H);
+  let gr = x.createRadialGradient(CX, 470, 40, CX, 470, 1150);
+  gr.addColorStop(0, 'rgba(30,42,72,0.75)'); gr.addColorStop(0.45, 'rgba(14,20,38,0.6)'); gr.addColorStop(1, 'rgba(4,6,11,0)');
+  x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  gr = x.createRadialGradient(W / 2, H / 2, 380, W / 2, H / 2, 1180);
+  gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,0.5)');
+  x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  FONDO = c;
+}
+function hacerBloom() {
+  BL1 = document.createElement('canvas'); BL1.width = Math.ceil(LW / 4); BL1.height = Math.ceil(LH / 4);
+  BL2 = document.createElement('canvas'); BL2.width = Math.ceil(LW / 16); BL2.height = Math.ceil(LH / 16);
+}
+function resplandor(fuerza) {
+  const b1 = BL1.getContext('2d'), b2 = BL2.getContext('2d');
+  b1.globalCompositeOperation = 'copy'; b1.drawImage(lienzo, 0, 0, BL1.width, BL1.height);
+  b2.globalCompositeOperation = 'copy'; b2.drawImage(BL1, 0, 0, BL2.width, BL2.height);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = 0.22 * fuerza; ctx.drawImage(BL1, 0, 0, LW, LH);
+  ctx.globalAlpha = 0.42 * fuerza; ctx.drawImage(BL2, 0, 0, LW, LH);
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+}
+
+// ── cámara: la altura de la bola de la regla da el zoom (z = décadas bajadas) ──
+function camara(z, shx, shy) {
+  const k = Math.min(3, Math.floor(z)), u = z - k;
+  const e = smooth(clamp(u));
+  const Sx = mix(FOCO[k][0], CX, e) + shx, Sy = mix(FOCO[k][1], CY, e) + shy;
+  const Z = 10 ** z, out = [];
+  for (let j = 0; j < 5; j++) {
+    const s = 10 ** -j;
+    out.push({ m: 10 ** (z - j), ox: Sx + (ANCLA[j][0] - CX * s - ANCLA[k + 1][0]) * Z, oy: Sy + (ANCLA[j][1] - CY * s - ANCLA[k + 1][1]) * Z });
+  }
+  out.S = [Sx, Sy];
+  return out;
+}
+function alfaNivel(j, z) {
+  const fin = j < 4 ? 1 - smooth(lin(z - j, 0.5, 0.92)) : 1;
+  const ini = j > 0 ? smooth(lin(z - (j - 1), 0.3, 0.78)) : 1;
+  return Math.min(fin, ini);
+}
+// transformación de un nivel para dibujar en sus coordenadas
+const ponNivel = (c) => ctx.setTransform(c.m * escala, 0, 0, c.m * escala, c.ox * escala, c.oy * escala);
+function sacudida(t) {
+  let sx = 0, sy = 0;
+  for (const [ti, v] of impactos) {
+    const d = t - ti;
+    if (d < 0 || d > 0.5) continue;
+    const a = 11 * (v / 760) * Math.exp(-d / 0.07);
+    sy += a * Math.sin(d * TAU * 14); sx += 0.35 * a * Math.sin(d * TAU * 10 + 1);
+  }
+  return [sx, sy];
+}
+
+// rejilla de puntos del banco de pruebas, que se amplía con el zoom (periódica en cada década)
+function rejilla(z, S) {
+  const f = z - Math.floor(z);
+  ctx.setTransform(escala, 0, 0, escala, 0, 0);
+  for (const [esp, a] of [[48 * 10 ** f, 1 - smooth(lin(f, 0.5, 1))], [4.8 * 10 ** f, smooth(lin(f, 0.5, 1))]]) {
+    if (a < 0.01 || esp < 9) continue;
+    const x0 = S[0] - Math.ceil(S[0] / esp) * esp, y0 = S[1] - Math.ceil(S[1] / esp) * esp;
+    ctx.beginPath();
+    for (let y = y0; y < H; y += esp) for (let x = x0; x < W; x += esp) ctx.rect(x - 1, y - 1, 2, 2);
+    ctx.globalAlpha = 0.13 * a; ctx.fillStyle = 'rgb(150,170,215)'; ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// cuentas de un nivel, con recorte a lo que se ve
+function cuentasNivel(lista, c, alfa) {
+  const k = escala, m = c.m * k, ox = c.ox * k, oy = c.oy * k;
+  for (let i = 0; i < lista.length; i++) {
+    const b = lista[i];
+    const r = b[2] * m, x = b[0] * m + ox, y = b[1] * m + oy;
+    if (x < -r || y < -r || x > LW + r || y > LH + r) continue;
+    cuenta(x, y, r, b[3], b[4] * alfa);
+  }
+}
+
+// ── extras de cada nivel (en sus coordenadas) ────────────────────────────────
+const lineal = (x0, y0, x1, y1, paradas) => { const g = ctx.createLinearGradient(x0, y0, x1, y1); for (const [o, c] of paradas) g.addColorStop(o, c); return g; };
+const SUELO_GR = lineal(250, 0, 1450, 0, [[0, 'rgba(170,186,225,0)'], [0.3, 'rgba(170,186,225,0.32)'], [0.7, 'rgba(170,186,225,0.32)'], [1, 'rgba(170,186,225,0)']]);
+const SOMBRA_GR = (() => { const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1); g.addColorStop(0, 'rgba(0,0,0,0.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); return g; })();
+const BOKEH = TINTES.map((c) => { const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1); g.addColorStop(0, rgb(c, 1)); g.addColorStop(0.72, rgb(c, 0.75)); g.addColorStop(1, rgb(c, 0)); return g; });
+// pelo del nivel 3 (tubo de 42 px) y sus líneas de cutícula (las mismas filas del nivel 4, a 1/10)
+const PELO3_GR = lineal(CX - PELO_HW / 10, 0, CX + PELO_HW / 10, 0, [[0, 'rgb(26,18,15)'], [0.16, 'rgb(112,74,46)'], [0.38, 'rgb(206,150,96)'], [0.62, 'rgb(150,100,62)'], [0.86, 'rgb(70,46,30)'], [1, 'rgb(22,16,14)']]);
+const LINEAS3 = (() => {
+  const out = [];
+  for (let i = -165; i <= 64; i++) {
+    const f = filaCuticula(i), pts = [];
+    for (let x = CX - PELO_HW; x <= CX + PELO_HW + 0.1; x += PELO_HW / 3) pts.push([CX + (x - CX) / 10, CY + (bordeCuticula(f, x) - CY) / 10]);
+    if (pts[0][1] < PORO3[1] - 2) out.push(pts);
+  }
+  return out;
+})();
+// pelo del nivel 4: bandas de las escamas, sombreado de cilindro y luz de contorno
+const PELO4 = (() => {
+  const bandas = [];
+  for (let i = 0; i + 1 < FILAS4.length; i++) {
+    const a = FILAS4[i], b = FILAS4[i + 1], p = new Path2D();
+    const xs = [];
+    for (let x = CX - PELO_HW; x <= CX + PELO_HW + 0.1; x += 14) xs.push(x);
+    p.moveTo(xs[0], bordeCuticula(a, xs[0]));
+    for (const x of xs) p.lineTo(x, bordeCuticula(a, x));
+    for (let n = xs.length - 1; n >= 0; n--) p.lineTo(xs[n], bordeCuticula(b, xs[n]));
+    p.closePath();
+    bandas.push([p, lineal(0, a.y0 - 12, 0, b.y0 - 4, [[0, 'rgba(255,226,178,0.42)'], [0.22, 'rgba(232,176,112,0.26)'], [1, 'rgba(84,54,34,0.06)']])]);
+  }
+  return {
+    bandas,
+    base: lineal(CX - PELO_HW, 0, CX + PELO_HW, 0, [[0, 'rgb(30,20,16)'], [0.2, 'rgb(96,62,40)'], [0.42, 'rgb(150,102,64)'], [0.7, 'rgb(112,74,46)'], [1, 'rgb(28,19,15)']]),
+    cilindro: lineal(CX - PELO_HW, 0, CX + PELO_HW, 0, [[0, 'rgba(5,7,13,0.9)'], [0.08, 'rgba(5,7,13,0.5)'], [0.26, 'rgba(5,7,13,0)'], [0.72, 'rgba(5,7,13,0)'], [0.9, 'rgba(5,7,13,0.42)'], [1, 'rgba(5,7,13,0.9)']]),
+    brillo: lineal(CX - PELO_HW, 0, CX + PELO_HW, 0, [[0.22, 'rgba(255,236,204,0)'], [0.33, 'rgba(255,236,204,0.13)'], [0.44, 'rgba(255,236,204,0)']]),
+  };
+})();
+
+function dibujarNivel(j, c, a) {
+  const k = escala;
+  if (j === 0) {
+    ponNivel(c);
+    ctx.globalAlpha = a; ctx.strokeStyle = SUELO_GR; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(250, SUELO0); ctx.lineTo(1450, SUELO0); ctx.stroke();
+    ctx.save(); ctx.translate(602, SUELO0 - 2); ctx.scale(140, 20); ctx.fillStyle = SOMBRA_GR;
+    ctx.beginPath(); ctx.arc(0, 0, 1, 0, TAU); ctx.fill(); ctx.restore();
+  }
+  if (j === 4) {
+    for (const [x, y, r, t, al] of BOKEH4) {
+      const m = c.m * k;
+      ctx.globalAlpha = al * a; ctx.setTransform(r * m, 0, 0, r * m, (x * c.m + c.ox) * k, (y * c.m + c.oy) * k);
+      ctx.fillStyle = BOKEH[t]; ctx.beginPath(); ctx.arc(0, 0, 1, 0, TAU); ctx.fill();
+    }
+    ponNivel(c);
+    ctx.globalAlpha = a;
+    ctx.fillStyle = PELO4.base; ctx.fillRect(CX - PELO_HW, -400, 2 * PELO_HW, 1900);
+    for (const [p, g] of PELO4.bandas) { ctx.fillStyle = g; ctx.fill(p); }
+  }
+  cuentasNivel(NIVELES[j], c, a);
+  ponNivel(c);
+  ctx.globalAlpha = a;
+  if (j === 1) {
+    ctx.strokeStyle = 'rgba(92,58,32,0.85)'; ctx.lineWidth = Math.max(0.45, 1 / c.m); ctx.lineCap = 'round';
+    ctx.beginPath();
+    for (const [x0, y0, x1, y1] of VELLO1) { ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); }
+    ctx.stroke();
+  } else if (j === 2) {
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    for (const [fx, fy] of FOLICULOS2) { ctx.beginPath(); ctx.ellipse(fx, fy + 1, 9, 6, 0, 0, TAU); ctx.fill(); }
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (const pts of PELOS2) { ctx.beginPath(); pts.forEach(([x, y], n) => (n ? ctx.lineTo(x + 3, y + 4) : ctx.moveTo(x + 3, y + 4))); ctx.stroke(); }
+    const m = c.m * k;
+    for (const pts of PELOS2) for (let n = 0; n < pts.length; n++) {
+      const x = pts[n][0] * m + c.ox * k, y = pts[n][1] * m + c.oy * k, r = 2.5 * m;
+      if (x < -r || y < -r || x > LW + r || y > LH + r) continue;
+      cuenta(x, y, r, n % 3 ? 5 : 1, a * (0.8 + 0.2 * (n / pts.length)));
+    }
+  } else if (j === 3) {
+    ctx.save(); ctx.translate(PORO3[0], PORO3[1]); ctx.scale(70, 42); ctx.fillStyle = SOMBRA_GR;
+    ctx.globalAlpha = a; ctx.beginPath(); ctx.arc(0, 0, 1, 0, TAU); ctx.fill(); ctx.fill(); ctx.restore();
+    const x0 = CX - PELO_HW / 10;
+    ctx.fillStyle = PELO3_GR; ctx.fillRect(x0, -60, PELO_HW / 5, PORO3[1] + 60);
+    ctx.strokeStyle = 'rgba(255,224,176,0.42)'; ctx.lineWidth = 0.55;
+    ctx.beginPath();
+    for (const pts of LINEAS3) { ctx.moveTo(pts[0][0], pts[0][1]); for (let n = 1; n < pts.length; n++) ctx.lineTo(pts[n][0], pts[n][1]); }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(150,214,255,0.5)'; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(x0 + 0.3, -60); ctx.lineTo(x0 + 0.3, PORO3[1]); ctx.moveTo(x0 + PELO_HW / 5 - 0.3, -60); ctx.lineTo(x0 + PELO_HW / 5 - 0.3, PORO3[1]); ctx.stroke();
+    // la raíz se hunde en la sombra del poro
+    ctx.save(); ctx.translate(PORO3[0], PORO3[1] + 4); ctx.scale(34, 16); ctx.fillStyle = SOMBRA_GR;
+    ctx.beginPath(); ctx.arc(0, 0, 1, 0, TAU); ctx.fill(); ctx.fill(); ctx.restore();
+  } else if (j === 4) {
+    ctx.fillStyle = PELO4.cilindro; ctx.fillRect(CX - PELO_HW, -400, 2 * PELO_HW, 1900);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = PELO4.brillo; ctx.fillRect(CX - PELO_HW, -400, 2 * PELO_HW, 1900);
+    ctx.globalCompositeOperation = 'source-over';
+    for (const [lw, al] of [[9, 0.1], [2.2, 0.6]]) {
+      ctx.strokeStyle = `rgba(150,214,255,${al})`; ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.moveTo(CX - PELO_HW + 1, -400); ctx.lineTo(CX - PELO_HW + 1, 1500);
+      ctx.moveTo(CX + PELO_HW - 1, -400); ctx.lineTo(CX + PELO_HW - 1, 1500); ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ── tipografía: solo potencias de diez ───────────────────────────────────────
+const F_MONO = (s) => `500 ${s}px "JetBrains Mono", ui-monospace, Menlo, monospace`;
+const F_SERIF = (s) => `400 ${s}px "Instrument Serif", Georgia, serif`;
+// «10» + exponente volado + « m»; al = 0 izq · 0.5 centro · 1 der (coordenadas de diseño)
+function potencia(exp, x, y, tam, fuente, al, color, alfa) {
+  if (alfa <= 0.003) return;
+  const fb = fuente(tam), fs = fuente(Math.round(tam * 0.6));
+  ctx.font = fb; const w10 = ctx.measureText('10').width, wm = ctx.measureText('m').width + tam * 0.22;
+  ctx.font = fs; const we = ctx.measureText(exp).width;
+  const hueco = tam * 0.05, total = w10 + hueco + we + wm;
+  const x0 = x - total * al;
+  ctx.setTransform(escala, 0, 0, escala, 0, 0);
+  ctx.globalAlpha = alfa; ctx.fillStyle = color; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.font = fb; ctx.fillText('10', x0, y); ctx.fillText('m', x0 + w10 + hueco + we + tam * 0.22, y);
+  ctx.font = fs; ctx.fillText(exp, x0 + w10 + hueco, y - tam * 0.4);
+  ctx.globalAlpha = 1;
+}
+const EXP = ['0', '−1', '−2', '−3', '−4'];
+
+// ── objetos ──────────────────────────────────────────────────────────────────
+const lienzoDe = (c, x, y) => [(x * c.m + c.ox) * escala, (y * c.m + c.oy) * escala];
+
+function dibujarMolecula(t, c, a, M2, A2) {
+  const k = escala;
+  const P = MOL.map((_, i) => lienzoDe(c, M2[i * 2], M2[i * 2 + 1]));
+  const vivo = (i) => t >= mNace[i];
+  const cap = (i) => mCap[i] >= 0 && t >= mCap[i];
+  // enlaces
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.lineCap = 'round';
+  const enlace = (x0, y0, r0, x1, y1, r1, tc) => {
+    const dx = x1 - x0, dy = y1 - y0, d = Math.hypot(dx, dy);
+    if (d < r0 + r1 + 2) return;
+    const fl = Math.exp(-Math.max(0, t - tc) / 0.16);
+    ctx.globalAlpha = a * (0.42 + 0.5 * fl);
+    ctx.strokeStyle = fl > 0.05 ? '#FFF2D8' : '#E9D9B8'; ctx.lineWidth = (2.2 + 3 * fl) * k * c.m;
+    ctx.beginPath(); ctx.moveTo(x0 + (dx / d) * r0, y0 + (dy / d) * r0); ctx.lineTo(x1 - (dx / d) * r1, y1 - (dy / d) * r1); ctx.stroke();
+  };
+  for (let i = 0; i < MOL.length; i++) {
+    if (!cap(i)) continue;
+    const j = (i + 1) % MOL.length;
+    if (cap(j)) enlace(P[i][0], P[i][1], MOL[i].r * k * c.m, P[j][0], P[j][1], MOL[j].r * k * c.m, Math.max(mCap[i], mCap[j]));
+    if (t < T_SALT) enlace(A2[0] * k, A2[1] * k, 30 * A2[2] * k, P[i][0], P[i][1], MOL[i].r * k, mCap[i]);
+  }
+  // átomos: cuenta con halo y una órbita tenue
+  for (let i = 0; i < MOL.length; i++) {
+    if (!vivo(i)) continue;
+    const [x, y] = P[i], r = MOL[i].r * k * c.m;
+    if (x < -4 * r || y < -4 * r || x > LW + 4 * r || y > LH + 4 * r) continue;
+    ctx.globalCompositeOperation = 'lighter';
+    halo(x, y, r * 3.4, MOL[i].tinte, 0.55 * a);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 0.34 * a; ctx.strokeStyle = 'rgb(196,212,250)'; ctx.lineWidth = 1.1 * k * c.m;
+    ctx.beginPath(); ctx.ellipse(x, y, r * 1.85, r * 0.62, 0.35 + i * 0.95, 0, TAU); ctx.stroke();
+    cuenta(x, y, r, MOL[i].tinte, a);
+  }
+}
+
+function dibujarPizarra(t, c, a, P3, G2) {
+  if (t < PIZ_SALIDA - 0.05) return;
+  const k = escala;
+  const [px, py, th] = P3;
+  const cs = Math.cos(th), sn = Math.sin(th);
+  // gomas (combadas mientras van flojas)
+  ponNivel(c);
+  ctx.globalAlpha = a; ctx.strokeStyle = 'rgba(190,206,245,0.5)'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+  for (const lado of [-1, 1]) {
+    const lx = lado * GOMA_X, ly = -PIZ.hh;
+    const qx = px + cs * lx - sn * ly, qy = py + sn * lx + cs * ly;
+    const ax0 = PIZ.x + lado * GOMA_X, ay0 = GOMA_Y0;
+    const d = Math.hypot(qx - ax0, qy - ay0), floja = Math.max(0, GOMA_L0 - d);
+    ctx.beginPath(); ctx.moveTo(ax0, ay0);
+    ctx.quadraticCurveTo((ax0 + qx) / 2 + lado * floja * 0.35, (ay0 + qy) / 2, qx, qy); ctx.stroke();
+  }
+  // la pizarra
+  ctx.setTransform(c.m * k * cs, c.m * k * sn, -c.m * k * sn, c.m * k * cs, (px * c.m + c.ox) * k, (py * c.m + c.oy) * k);
+  ctx.globalAlpha = a;
+  ctx.fillStyle = 'rgba(9,14,27,0.94)';
+  ctx.beginPath(); ctx.roundRect(-PIZ.hw, -PIZ.hh, 2 * PIZ.hw, 2 * PIZ.hh, 10); ctx.fill();
+  ctx.strokeStyle = 'rgba(190,204,240,0.55)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.strokeStyle = 'rgba(190,204,240,0.16)'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.roundRect(-XI, -YI, 2 * XI, 2 * YI, 5); ctx.stroke();
+  ctx.strokeStyle = 'rgba(170,186,225,0.28)';
+  ctx.beginPath();
+  for (let x = -XI + 12; x <= XI - 12; x += 12) { const L = Math.round((x + XI) / 12) % 5 === 0 ? 9 : 5; ctx.moveTo(x, -YI); ctx.lineTo(x, -YI + L); }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(233,217,184,0.4)'; ctx.fillRect(-XI, YI, 2 * XI, 3);
+  for (const lado of [-1, 1]) { ctx.beginPath(); ctx.arc(lado * GOMA_X, -PIZ.hh, 4.5, 0, TAU); ctx.strokeStyle = 'rgba(214,226,255,0.7)'; ctx.lineWidth = 1.6; ctx.stroke(); }
+  // cuentas de la «?» / «!»
+  for (let i = 0; i < NG; i++) {
+    const [x, y] = lienzoDe(c, G2[i * 2], G2[i * 2 + 1]), r = RG * k * c.m;
+    if (x < -4 * r || y < -4 * r || x > LW + 4 * r || y > LH + 4 * r) continue;
+    ctx.globalCompositeOperation = 'lighter';
+    halo(x, y, r * 3.6, 1, 0.42 * a);
+    ctx.globalCompositeOperation = 'source-over';
+    cuenta(x, y, r, DESTINO_G[i] >= 0 || t < T_CAMBIO ? 1 : 0, a);
+  }
+}
+
+// el narrador: núcleo de cuentas y tres electrones en órbitas inclinadas (como en el demo)
+const NUCLEO = [[0, 0], [10.4, 0], [-10.4, 0], [5.2, 9], [-5.2, 9], [5.2, -9], [-5.2, -9]];
+const ORB = [PI / 6, PI / 2, (5 * PI) / 6];
+function dibujarAtomo(t, x, y, sc, fase, om) {
+  const k = escala, en = E.energia(t);
+  const brillo = campana(t, T_ATOM - 0.24, T_ATOM - 0.02, T_ATOM_FIN + 0.15, T_ATOM_FIN + 0.75);
+  const s = sc * (1 + 0.05 * en + 0.04 * brillo);
+  const X = x * k, Y = y * k, A = 62 * s, B = 20 * s;
+  ctx.globalCompositeOperation = 'lighter';
+  halo(X, Y, (80 + 60 * brillo + 16 * en) * s * k, 1, 0.4 + 0.3 * en + 0.6 * brillo);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.setTransform(k, 0, 0, k, X, Y); ctx.globalAlpha = 1;
+  ctx.strokeStyle = `rgba(196,212,250,${(0.42 + 0.35 * brillo).toFixed(3)})`; ctx.lineWidth = 1.4 * Math.max(0.75, s);
+  for (const o of ORB) { ctx.beginPath(); ctx.ellipse(0, 0, A, B, o, 0, TAU); ctx.stroke(); }
+  const elec = (f, n) => {
+    const ex = A * Math.cos(f), ey = B * Math.sin(f), c = Math.cos(ORB[n]), sn = Math.sin(ORB[n]);
+    return [X + (ex * c - ey * sn) * k, Y + (ex * sn + ey * c) * k, Math.sin(f)];
+  };
+  const pinta = (p, al) => {
+    const r = (4.6 + 0.8 * p[2]) * Math.max(0.7, s) * k;
+    ctx.globalCompositeOperation = 'lighter'; halo(p[0], p[1], r * 4, 2, 0.9 * al);
+    ctx.globalCompositeOperation = 'source-over'; cuenta(p[0], p[1], r, 2, al);
+  };
+  const lista = [];
+  for (let n = 0; n < 3; n++) {
+    const f = fase + (n * TAU) / 3;
+    lista.push([elec(f, n), 1]);
+    // estela cuando giran deprisa
+    const est = clamp((om - 4) / 6);
+    for (let j = 1; j <= 4 && est > 0.02; j++) lista.push([elec(f - j * 0.075 * om / 6, n), est * (0.5 - j * 0.1)]);
+  }
+  for (const [p, al] of lista) if (p[2] < 0) pinta(p, al);
+  for (const [nx, ny] of NUCLEO) cuenta(X + nx * s * k, Y + ny * s * k, 5.6 * s * k * (1 + 0.08 * brillo), 1, 1);
+  for (const [p, al] of lista) if (p[2] >= 0) pinta(p, al);
+}
+
+// la regla: tubo de vidrio con compuertas en cada potencia de diez; la bola es la cámara
+function dibujarRegla(t, ybT, ybAt) {
+  const k = escala;
+  ctx.setTransform(k, 0, 0, k, 0, 0); ctx.globalAlpha = 1; ctx.lineCap = 'round';
+  const x0 = XR - RB - 5, x1 = XR + RB + 5, ya = YB0 - 56, yz = YB[4] + 44;
+  ctx.strokeStyle = 'rgba(190,204,240,0.34)'; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.moveTo(x0, ya); ctx.lineTo(x0, yz); ctx.moveTo(x1, ya); ctx.lineTo(x1, yz);
+  ctx.moveTo(x0, yz); ctx.lineTo(x1, yz); ctx.stroke();
+  ctx.strokeStyle = 'rgba(170,186,225,0.22)'; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let d = 0; d < 4; d++) for (let n = 2; n <= 9; n++) { const y = YB[d] + DEC * (1 - Math.log10(n)); ctx.moveTo(x1 + 5, y); ctx.lineTo(x1 + (n === 5 ? 15 : 10), y); }
+  ctx.stroke();
+  for (let d = 0; d < 5; d++) {
+    const act = clamp(1 - Math.abs(ybT - YB[d]) / 95);
+    ctx.strokeStyle = `rgba(233,217,184,${(0.3 + 0.6 * act).toFixed(3)})`; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x0 - 24, YB[d]); ctx.lineTo(x0 - 6, YB[d]); ctx.moveTo(x1 + 5, YB[d]); ctx.lineTo(x1 + 22, YB[d]); ctx.stroke();
+    potencia(EXP[d], x0 - 36, YB[d] + 10, 30, F_MONO, 1, act > 0.5 ? '#F3EBDD' : '#B0BEDE', 0.36 + 0.62 * act);
+    // compuerta: dos pestañas con bisagra en las paredes del tubo
+    const ab = d < 4 ? eio(lin(t, SUELTA[d] - 0.005, SUELTA[d] + 0.08)) * 1.45 : 0;
+    const yg = YB[d] + RB + 2.5, L = RB + 2;
+    ctx.setTransform(k, 0, 0, k, 0, 0);
+    ctx.strokeStyle = 'rgba(233,217,184,0.75)'; ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(x0, yg); ctx.lineTo(x0 + Math.cos(ab) * L, yg + Math.sin(ab) * L);
+    ctx.moveTo(x1, yg); ctx.lineTo(x1 - Math.cos(ab) * L, yg + Math.sin(ab) * L);
+    ctx.stroke();
+  }
+  // golpes: anillo que se expande desde la bola
+  impactos.forEach(([ti, v], n) => {
+    const d = t - ti;
+    if (d < 0 || d > 0.5) return;
+    const u = d / 0.5;
+    ctx.setTransform(k, 0, 0, k, 0, 0);
+    ctx.globalAlpha = 0.55 * (1 - u) * (v / 760); ctx.strokeStyle = '#FFE2B0'; ctx.lineWidth = 2.4 * (1 - u) + 0.6;
+    ctx.beginPath(); ctx.arc(XR, YB[n + 1], RB + 6 + 110 * eio(u), 0, TAU); ctx.stroke();
+  });
+  // estela y bola
+  ctx.globalCompositeOperation = 'lighter';
+  for (let j = 5; j >= 1; j--) {
+    const yj = ybAt(t - j * 0.012), v = Math.abs(ybT - yj) / (j * 0.012);
+    const f = clamp((v - 150) / 700);
+    if (f > 0.02) halo(XR * k, yj * k, RB * (1.7 - j * 0.1) * k, 1, f * (0.55 - j * 0.08));
+  }
+  halo(XR * k, ybT * k, RB * 5 * k, 1, 0.7);
+  ctx.globalCompositeOperation = 'source-over';
+  cuenta(XR * k, ybT * k, RB * k, 1, 1);
+}
+
+// la cota de lado a lado del pelo, con el rótulo que cae sobre ella (nivel 4)
+function dibujarCota(t, c, ryT, csT) {
+  const p = eio(lin(t, T_DEC - 0.2, T_DEC + 0.24));
+  if (p <= 0) return;
+  ponNivel(c);
+  ctx.lineCap = 'round';
+  const hl = PELO_HW * p, ext = smooth(lin(p, 0.6, 1));
+  ctx.globalAlpha = ext; ctx.strokeStyle = 'rgba(214,226,255,0.75)'; ctx.lineWidth = 1.6;
+  ctx.setLineDash([6, 6]);
+  ctx.beginPath(); ctx.moveTo(CX - PELO_HW, YC - 70); ctx.lineTo(CX - PELO_HW, YC + 48); ctx.moveTo(CX + PELO_HW, YC - 70); ctx.lineTo(CX + PELO_HW, YC + 48); ctx.stroke();
+  ctx.setLineDash([]);
+  for (const [lw, al, col] of [[10, 0.16, '255,226,176'], [2.6, 0.95, '243,235,221']]) {
+    ctx.globalAlpha = al; ctx.strokeStyle = `rgb(${col})`; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(CX - hl, YC); ctx.quadraticCurveTo(CX, YC + 2 * csT, CX + hl, YC); ctx.stroke();
+  }
+  ctx.globalAlpha = ext; ctx.fillStyle = '#F3EBDD';
+  for (const s of [-1, 1]) {
+    const xe = CX + s * PELO_HW;
+    ctx.beginPath(); ctx.moveTo(xe, YC); ctx.lineTo(xe - s * 18, YC - 7); ctx.lineTo(xe - s * 18, YC + 7); ctx.closePath(); ctx.fill();
+  }
+  // el rótulo: una placa con peso que se posa en la cota
+  const la = smooth(lin(t, T_DEC - 0.04, T_DEC + 0.12));
+  if (la <= 0) return;
+  ctx.globalAlpha = la * 0.92; ctx.fillStyle = 'rgba(8,12,24,0.9)';
+  ctx.beginPath(); ctx.roundRect(CX - 128, ryT - 92, 256, 88, 10); ctx.fill();
+  ctx.globalAlpha = la; ctx.strokeStyle = 'rgba(190,204,240,0.6)'; ctx.lineWidth = 1.6; ctx.stroke();
+  const [, ly] = [0, (ryT - 26) * c.m + c.oy];
+  potencia(EXP[4], CX * c.m + c.ox, ly, 64, F_SERIF, 0.5, '#F6EEDF', la);
+}
+
+// ── dibujo de un instante ────────────────────────────────────────────────────
+function dibujar(t) {
+  const kf = clamp(t * REC, 0, NREC - 1.001), k = Math.floor(kf), f = kf - k;
+  const I = (arr, n, off) => arr[k * n + off] + (arr[(k + 1) * n + off] - arr[k * n + off]) * f;
+  const ybAt = (s) => { const q = clamp(s * REC, 0, NREC - 1.001), q0 = Math.floor(q); return recB[q0] + (recB[q0 + 1] - recB[q0]) * (q - q0); };
+  const ybT = I(recB, 1, 0);
+  const z = clamp((ybT - YB0) / DEC, 0, 4);
+  const [shx, shy] = sacudida(t);
+  const cam = camara(z, shx, shy);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  ctx.drawImage(FONDO, 0, 0);
+  rejilla(z, cam.S);
+  for (let j = 0; j < 5; j++) { const a = alfaNivel(j, z); if (a > 0.003) dibujarNivel(j, cam[j], a); }
+  const A2 = [I(recA, 5, 0), I(recA, 5, 1), I(recA, 5, 2)];
+  const a0 = alfaNivel(0, z);
+  if (a0 > 0.003) {
+    const P3 = [I(recP, 3, 0), I(recP, 3, 1), I(recP, 3, 2)];
+    const G2 = new Float64Array(NG * 2); for (let i = 0; i < NG * 2; i++) G2[i] = I(recG, NG * 2, i);
+    dibujarPizarra(t, cam[0], a0, P3, G2);
+    const M2 = new Float64Array(NM * 2); for (let i = 0; i < NM * 2; i++) M2[i] = I(recM, NM * 2, i);
+    dibujarMolecula(t, cam[0], a0, M2, A2);
+  }
+  dibujarAtomo(t, A2[0], A2[1], A2[2], I(recA, 5, 3), I(recA, 5, 4));
+  if (t > T_DEC - 0.3) dibujarCota(t, cam[4], I(recR, 2, 0), I(recR, 2, 1));
+  resplandor(1);
+  dibujarRegla(t, ybT, ybAt);
+}
+
+// ── arranque ─────────────────────────────────────────────────────────────────
+encajar();
+if (!CAPTURA) window.addEventListener('resize', encajar);
+const t0 = performance.now();
+simular();
+window.__msSimulacion = Math.round(performance.now() - t0);
+// para comprobar la sincronía desde fuera
+window.__fisica = { impactos, IMPACTO, SUELTA, cap: [...mCap], pizTensa: PIZ_TENSA, cambio: T_CAMBIO, rotuloCae: T_ROT_CAE };
+try {
+  await Promise.race([
+    Promise.all([document.fonts.load(F_MONO(30), '10−234 m'), document.fonts.load(F_SERIF(64), '10−4 m')]),
+    new Promise((r) => setTimeout(r, 8000)),
+  ]);
+} catch (e) { /* sin fuentes: las de reserva */ }
+dibujar(0);
+E.iniciar(dibujar);
+</script>
+</body>
+</html>
