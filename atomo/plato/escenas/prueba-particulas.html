@@ -464,7 +464,7 @@ function dibujar(t) {
     }
     // «?» → «!»
     const rq = azar(77);
-    const nace = lin(t, T_EXPL - 0.25, T_EXPL + 0.05);
+    const nace = lin(t, T_EXPL - 0.3, T_EXPL);
     const cambio = lin(t, T_ESC - 0.3, T_ESC);
     for (let k = 0; k < N_G; k++) {
       const qd = rq(), qa = rq() * TAU, qr = rq();
@@ -511,7 +511,7 @@ function dibujar(t) {
   }
   cota.fin();
 
-  const K = 10 ** (cl(v, -60, 60) / 90);
+  const K = Math.max(0.9, 10 ** (cl(v, -60, 60) / 90));
   P.render(tt, { zoomK: K, zoomC: cam.F, bloom: [0.78, 0.48, 0.32] });
   regla(ctx, { z, desliz: 0, golpe: golpe(t) });
 }

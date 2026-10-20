@@ -420,7 +420,7 @@ const SOL_DIR_ECEF = (() => {   // anochecer en Madrid: Sol 95° al oeste, decli
 })();
 const TIERRA_VERT = /* glsl */ `
 ${GLSL_EMITIR}
-uniform float uTime, uEsc, uNubes;
+uniform float uTime, uEsc, uNubes, uTamK;
 uniform vec3 uSol;
 attribute vec4 aCol;
 attribute vec4 aTam;
@@ -464,7 +464,7 @@ void main() {
     float rim = exp(-pow(mu / 0.13, 2.0)) * step(-0.35, mu);
     a *= rim * (0.03 + 1.0 * smoothstep(-0.2, 0.35, L));
   }
-  emitir(mv, aTam.x * uEsc, col, a, max(aTam.y, 1.15));
+  emitir(mv, aTam.x * uEsc * uTamK, col, a / (uTamK * uTamK), max(aTam.y, 1.15));
 }
 `;
 function construirTierra() {
@@ -852,7 +852,7 @@ function construirGalaxia() {
   // dos brazos mayores (Escudo-Centauro y Perseo) y dos menores (Sagitario y Norma), con grumos a lo largo
   const BRAZOS = [[0, 1.0], [Math.PI, 1.0], [Math.PI / 2 + 0.35, 0.5], [1.5 * Math.PI + 0.35, 0.5]];
   const grumo = (rad, k) => Math.min(1, 0.25 + 1.6 * (fbm3(rad * 0.11, k * 7.3, 0.5, 21, 3) - 0.3));
-  const radBrazo = () => { for (;;) { const v = R0 + (-Math.log(1 - r() * 0.985)) * 26; if (v < 99) return v; } };
+  const radBrazo = () => { for (;;) { const v = R0 + (-Math.log(1 - r() * 0.985)) * 32; if (v < 99) return v; } };
   const AZUL = [0.62, 0.76, 1.0], BLANCO = [0.9, 0.93, 1.0], AMARILLO = [1.0, 0.88, 0.7], ORO = [1.0, 0.76, 0.44], ORO2 = [1.0, 0.88, 0.66];
   let i = 0;
   while (i < 150000) {
@@ -900,7 +900,7 @@ function construirGalaxia() {
   for (let q = 0; q < 17000; q++) {
     let rad, th, col, a, tam;
     if (q < 11000) { const ka = Math.floor(r() * 4), rad0 = radBrazo(); rad = rad0; th = brazo(rad0, BRAZOS[ka][0] + BARRA) + gauss(r) * 3.4 / rad0; col = [0.5, 0.62, 1.0]; a = ka < 2 ? 0.024 : 0.015; tam = 4.2; }
-    else if (q < 15000) { rad = 3 + (-Math.log(1 - r() * 0.9)) * 20; th = r() * TAU; col = [1.0, 0.8, 0.6]; a = 0.013; tam = 6; }
+    else if (q < 15000) { rad = 3 + (-Math.log(1 - r() * 0.9)) * 20; th = r() * TAU; col = [1.0, 0.8, 0.6]; a = 0.02; tam = 6; }
     else { rad = Math.abs(gauss(r)) * 7; th = r() * TAU; col = [1.0, 0.72, 0.4]; a = 0.05; tam = 4.5; }
     add(S, rad, th, gauss(r) * 0.6, col, a, tam, 1.0);
   }
@@ -950,7 +950,7 @@ const matShader = (vert, frag = GLSL_PUNTO_FRAG, extra = {}, blending = THREE.Ad
   uniforms: { ...P.U, uAlpha: { value: 1 }, uEsc: { value: 1 }, ...extra },
   vertexShader: vert, fragmentShader: frag, transparent: true, depthTest: false, depthWrite: false, blending,
 });
-const capaTierra = P.capa(construirTierra().geometria(), matShader(TIERRA_VERT, GLSL_PUNTO_FRAG, { uSol: { value: new THREE.Vector3(...SOL_DIR_ECEF) }, uNubes: { value: 0 } }), 3);
+const capaTierra = P.capa(construirTierra().geometria(), matShader(TIERRA_VERT, GLSL_PUNTO_FRAG, { uSol: { value: new THREE.Vector3(...SOL_DIR_ECEF) }, uNubes: { value: 0 }, uTamK: { value: 1 } }), 3);
 const capaLuna = P.capa(construirLuna().geometria(), null, 4);
 const capaSol = P.capa(construirSol(), matShader(SOL_VERT, GLSL_PUNTO_FRAG, { uLlega: { value: 1 } }), 3);
 const capaSistema = P.capa(construirSistema().geometria(), null, 4);
@@ -978,12 +978,37 @@ const geoP = geometria({ position: [per.pos, 3], aNor: [per.nor, 3], aInfo: [per
 const capaPersona = P.capa(geoP, materialPersona(P), 8);
 window.__msConstruccion = Math.round(performance.now() - t0);
 
+// galaxias lejanas que aparecen alrededor de la Vía Láctea (en px de pantalla, quietas)
+const lejanas = P.capaPantalla(3000, -80);
+const GAL_LEJ = (() => {
+  const r = azar(1717), out = [];
+  while (out.length < 17) {
+    const x = 110 + 1400 * r(), y = 70 + 800 * r();
+    if (((x - 790) / 660) ** 2 + ((y - 545) / 390) ** 2 < 1) continue;
+    if (x > 1120 && y < 380) continue;
+    if (out.some((g) => Math.hypot(g.x - x, g.y - y) < 140)) continue;
+    const R = 7 + 24 * r() ** 2, espiral = r() < 0.6, ang = r() * Math.PI, incl = 0.25 + 0.7 * r();
+    const pts = [], rr = azar(out.length * 31 + 5);
+    const n = Math.round(30 + R * 5);
+    for (let k = 0; k < n; k++) {
+      let u, v, c, al, t;
+      if (espiral && k > n * 0.35) {
+        const brazo = k % 2 ? 0 : Math.PI, rad = R * (0.25 + 0.75 * rr()), th = brazo + Math.log(rad / (R * 0.25) + 1) * 2.4 + gauss(rr) * 0.25;
+        u = rad * Math.cos(th); v = rad * Math.sin(th); c = rr() < 0.3 ? [1.0, 0.55, 0.75] : [0.7, 0.8, 1.0]; al = 0.05 + 0.08 * rr(); t = 1.4;
+      } else {
+        const rad = R * 0.45 * Math.abs(gauss(rr)) * (espiral ? 0.5 : 1); const th = rr() * TAU;
+        u = rad * Math.cos(th); v = rad * Math.sin(th); c = [1.0, 0.82, 0.6]; al = 0.06 + 0.1 * rr(); t = 1.5;
+      }
+      v *= incl;
+      pts.push([x + u * Math.cos(ang) - v * Math.sin(ang), y + u * Math.sin(ang) + v * Math.cos(ang), c, al, t]);
+    }
+    pts.push([x, y, [1.0, 0.9, 0.75], 0.35, 2.2]);
+    out.push({ x, y, pts });
+  }
+  return out;
+})();
 const CAPAS = [capaCalleE, capaCalle, capaBarrioDentro, capaBarrioFuera, capaCiudad, capaRegion, capaTierra, capaLuna, capaSol, capaSistema, capaKuiper, capaOort, capaEstrellas, capaGalaxia, capaPolvo, capaPuntoTierra, capaPuntoLuna, capaPuntoSol, capaPersona];
-const SOLO = new URLSearchParams(location.search).get('solo');   // depuración: ?solo=3,4 (índices de CAPAS)
-const ponAlfa = (capa, a) => {
-  capa.material.uniforms.uAlpha.value = a; capa.visible = a > 0.002;
-  if (SOLO !== null && !SOLO.split(',').map(Number).includes(CAPAS.indexOf(capa))) capa.visible = false;
-};
+const ponAlfa = (capa, a) => { capa.material.uniforms.uAlpha.value = a; capa.visible = a > 0.002; };
 
 // la Luna: pasa junto a la cámara cuando esta sube por encima de su altura
 const LUNA_OFF = [1.3e7, 3.0e8, -2.0e7];
@@ -992,7 +1017,7 @@ const lunaEn = () => [E_C[0] + LUNA_OFF[0], E_C[1] + LUNA_OFF[1], E_C[2] + LUNA_
 // ── el átomo narrador ────────────────────────────────────────────────────────
 function atomo(t, z, tt) {
   const g = campana(t, T_TU - 0.32, T_TU - 0.04, T_TU + 0.3, T_TU + 0.8);     // [tu]: se inclina hacia la persona
-  const u = eob(lin(t, T_ARR - 0.34, T_ARR + 0.12), 0.8);                      // [arriba]: sube a su sitio
+  const u = eob(lin(t, T_ARR - 0.4, T_ARR), 0.8);                              // [arriba]: sube a su sitio, llega con la palabra
   const mira = campana(t, T_ARR - 0.3, T_ARR - 0.02, T_ARR + 0.25, T_ARR + 0.9);
   const flota = 1 - 0.7 * ss(Q0, Q0 + QL, t);
   const x = mix(800 - 26 * g, 1296, u) + 3 * Math.sin(tt * 0.9) * flota;
@@ -1068,11 +1093,14 @@ function dibujar(t) {
   ponAlfa(capaBarrioFuera, aB);
   ponAlfa(capaBarrioDentro, aB * ss(1.5, 2.2, z));
   P.colocar(capaCiudad, [0, 0, 0], 100);
+  capaCiudad.material.uniforms.uTamK.value = mix(0.3, 1, ss(2.9, 4.1, z));
   ponAlfa(capaCiudad, vis(z, 2.0, 2.7, 4.6, 5.3));
   P.colocar(capaRegion, [0, 0, 0], 1e4);
+  capaRegion.material.uniforms.uTamK.value = mix(0.3, 1, ss(4.2, 5.3, z));
   ponAlfa(capaRegion, vis(z, 3.9, 4.6, 5.9, 6.6));
   // la Tierra
   P.colocar(capaTierra, E_C, 1e6, R_TIERRA);
+  capaTierra.material.uniforms.uTamK.value = mix(0.22, 1, ss(5.6, 6.9, z));
   ponAlfa(capaTierra, vis(z, 5.3, 6.1, 8.9, 9.4));
   capaTierra.material.uniforms.uNubes.value = 0.012 * tt;
   // la Luna (y su punto cuando se ve diminuta)
@@ -1129,15 +1157,19 @@ function dibujar(t) {
   P.estrellasFondo.uDesp.value.set(0, 0, kz);
 
   atomo(t, z, tt);
+  lejanas.limpiar();
+  const aL = ss(19.6, 20.7, z);
+  if (aL > 0.01) for (const g of GAL_LEJ) for (const [x, y, c, al, tm] of g.pts) lejanas.add(x, y, c[0], c[1], c[2], 1.7 * al * aL, tm);
+  lejanas.fin();
 
-  const K = cl(10 ** (Math.max(0, v) / 80), 1, z > 9.3 ? 1.03 : 1.18);
+  const K = cl(10 ** (Math.max(0, v) / 80), 1, z > 9.3 ? 1.03 : 1.11);
   const bloom = z > 8.3 && z < 11 ? [0.85, 0.55, 0.36] : [0.78, 0.48, 0.32];
   P.render(tt, { zoomK: K, zoomC: cam.F, bloom });
 
   // capa 2D: «estás aquí» y la regla
   const ctx = P.ctx2d();
   if (z > 6) { const [ax, ay] = aquiPantalla(z); dibujarAqui(ctx, t, z, ax, ay); }
-  const des = 450 * eob(lin(t, T_ARR - 0.3, T_ARR + 0.15), 0.6) + 150 * Math.max(0, z);
+  const des = 450 * eob(lin(t, T_ARR - 0.35, T_ARR), 0.6) + 150 * Math.max(0, z);
   regla(ctx, { z, desliz: des, golpe: golpe(t) });
 }
 

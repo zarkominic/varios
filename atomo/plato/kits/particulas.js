@@ -189,6 +189,7 @@ ${GLSL_EMITIR}
 uniform float uTime;
 uniform float uEsc;
 uniform float uMinPx;
+uniform float uTamK;       // al ver un nivel más de cerca de lo previsto, partículas más pequeñas (y más intensas)
 attribute vec4 aCol;
 attribute vec4 aTam;
 attribute vec4 aMov;       // luces que circulan (coches): dirección xz, velocidad, largo del tramo (sin el atributo: quietas)
@@ -197,7 +198,7 @@ void main() {
   if (aMov.z != 0.0) q.xz += aMov.xy * mod(aMov.z * uTime + aTam.w * aMov.w, aMov.w);
   vec4 mv = modelViewMatrix * vec4(q, 1.0);
   float tw = 1.0 + aTam.z * sin(uTime * (1.1 + 2.6 * fract(aTam.w * 7.13)) + aTam.w * 6.2832);
-  emitir(mv, aTam.x * uEsc, aCol.rgb, aCol.w * tw, max(aTam.y, uMinPx));
+  emitir(mv, aTam.x * uEsc * uTamK, aCol.rgb, aCol.w * tw / (aTam.x > 0.0 ? uTamK * uTamK : 1.0), max(aTam.y, uMinPx));
 }
 `;
 
@@ -612,7 +613,7 @@ export async function crearPlato({ fov = 30, fuentes = [] } = {}) {
 
   // ── material de luces ──
   P.materialLuces = (extra = {}) => new THREE.ShaderMaterial({
-    uniforms: { ...U, uAlpha: { value: 1 }, uEsc: { value: 1 }, uMinPx: { value: 1.2 }, ...extra },
+    uniforms: { ...U, uAlpha: { value: 1 }, uEsc: { value: 1 }, uMinPx: { value: 1.2 }, uTamK: { value: 1 }, ...extra },
     vertexShader: VERT_LUCES, fragmentShader: GLSL_PUNTO_FRAG,
     transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending,
   });
