@@ -12,7 +12,9 @@
 // El mismo guion, las mismas marcas y los mismos encuadres que prueba-plastilina.html (la versión A), con el
 // kit plastilina-adulta.js: paleta terrosa con un solo acento terracota/ámbar, luz de cine (principal cálida
 // y lateral, contraluz frío, sombras densas, viñeta, grano, fondo desenfocado de macro), una persona adulta
-// y serena, Atom refinado (alambre oscuro, electrones ámbar) y una regla de boj con números grabados.
+// y serena, Atom refinado y una regla de boj con números grabados.
+// (B ajustada) más luz, Atom de latón claro con electrones de ámbar y halo (se lee en el móvil), una mano de
+// arcilla creíble y el pelo-tronco con escamas de cutícula solapadas (ver la cabecera del kit).
 // El movimiento tiene peso: sin rebotes ni muelles; los golpes de zoom son secos.
 //  0        persona a la izquierda, regla de potencias de diez a la derecha, Atom junto al hombro
 //  hola     Atom se eleva un poco y un electrón sale de su órbita con un alambre fino y saluda
@@ -70,7 +72,9 @@ const ATOMO0 = [850, 330], A_ESC = 0.4, A_Z = 1.0;
 const E_REG = 1.42, REG = en(1668, 528, 0.4);
 const yMarca = (i) => REG[1] + E_REG * (1.5 - 0.75 * i);
 // nivel 1: la mano gigante
-const E_MANO = 2.9, MANO = en(960, 600, 0.5);
+// (B ajustada) más cerca de la cámara (y más pequeña, el mismo encuadre): así los dedos no se hunden bajo el
+// suelo del plató, que los oscurecía
+const E_MANO = 2.03, MANO = en(960, 600, 5.0);
 // nivel 2: bloque de piel con vello (inclinado hacia la cámara)
 const E_PIEL = 2.2, PIEL = en(960, 690, 0.2), ROT_PIEL = [0.42, -0.28, 0];
 // nivel 3: un pelo en su folículo
@@ -132,7 +136,8 @@ function nivel0(ts) {
     });
   }
 }
-function nivel1() { P.pieza(I.MANO, { pos: MANO, escala: E_MANO, rot: [0.06, -0.22, -0.05] }); }
+// (B ajustada) la mano, de tres cuartos: se ven el dorso y el pulgar
+function nivel1() { P.pieza(I.MANO, { pos: MANO, escala: E_MANO, rot: [0.06, 0.2, -0.04] }); }
 function nivel2() { P.pieza(I.PIEL, { pos: PIEL, escala: E_PIEL, rot: ROT_PIEL }); }
 function nivel3() { P.pieza(I.PELO, { pos: PELO, escala: E_PELO, rot: ROT_PELO }); }
 function nivel4(ts) {
@@ -151,8 +156,8 @@ function estadoAtom(ts) {
   for (const [a] of SALTO) P4 += eio(prog(ts, a + JS * 0.25, a + JS * 0.85));
   const k1 = eio(prog(ts, SALTO[0][0], SALTO[0][0] + JS * 0.45));
   const sx = mix(ATOMO0[0], 1390, k1) + mix(0, -50, eio(prog(P4, 1, 4))), sy = mix(ATOMO0[1], 292, k1);
-  // (B ajustada) Atom se encoge menos en los saltos (×0,62 en total, no ×0,4): sigue leyéndose en el móvil
-  let esc = A_ESC * Math.pow(0.62, P4 / 4);
+  // (B ajustada) Atom se encoge menos en los saltos (×0,72 en total, no ×0,4): sigue leyéndose en el móvil
+  let esc = A_ESC * Math.pow(0.72, P4 / 4);
   // «atom»: crece un poco y brilla (llega a su tamaño en la marca, sin pasarse) y vuelve despacio
   const up = eio(prog(ts, m.atom - 0.3, m.atom)), dn = eio(prog(ts, m.atom + 0.8, m.atom + 1.6));
   const brillo = cl(up) * (1 - dn);

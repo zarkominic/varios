@@ -90,6 +90,8 @@ const velA = (t) => (1 + 1.6 * ss(m.doce - 0.2, m.doce + 0.3, t) * (1 - ss(m.lac
 for (let i = 1; i * DT <= E.duracion + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT);
 const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor(x)); return mix(TA[i], TA[i + 1], x - i); };
 
+// 1 mientras se ve el suelo claro (de la primera mirilla a la península), 0 en el plató y en el espacio
+const sueloClaro = (ts) => { const z = zRegla(ts); return ts < SALTOS[0][0] ? 0 : ss(0.3, 0.9, z) * (1 - ss(5.6, 6.6, z)); };
 function estadoAtom(ts) {
   const tz = calma(ts);
   // «arriba»: se desliza con peso hacia arriba y a la derecha (a su sitio para el viaje) y mira arriba
@@ -114,9 +116,13 @@ function atomo(ts) {
   else if (kAq > 0.001) electrones.push({ pos: [-2.5, -1.45, 0.6], mezcla: eio(kAq), brazo: ss(0.15, 0.6, kAq), grosor: 0.042 });
   const w = en(S.sx, S.sy, A_Z);
   const lean = -0.08 * kTu - 0.06 * kAq;
+  // (B ajustada) sobre el suelo claro (casas, ciudad, campos) Atom lleva menos resplandor y un velo algo más
+  // oscuro detrás, para que el latón no se pierda sobre los ocres; en el plató y en el espacio, el halo entero
+  const kS = sueloClaro(ts);
   P.atomo({
     pos: w, escala: A_ESC, yaw: -0.15 + 0.08 * Math.sin(S.tz * 0.5) + 0.2 * kTu, pitch: 0.06 - 0.5 * S.mira,
     roll: lean, energia: Math.min(1, en0 + 0.45 * S.brillo), ts: ta, electrones, toque: kTu > 0.05 || kAq > 0.05,
+    halo: 1 - 0.55 * kS, velo: 0.1 + 0.3 * kS,
   });
   return S;
 }
@@ -274,7 +280,7 @@ function dibujar(t) {
     est.ins = { c: [nos[0] + (960 - per[0]) * s, nos[1] + (540 - per[1]) * s], s, a: 1 - ss(0.72, 1.0, ki), m: [nos[0], nos[1], rImg * s, 1] };
   }
   const S = estadoAtom(ts);
-  est.somA = [S.sx + 40, S.sy + 54, 105, 0.42];
+  est.somA = [S.sx + 40, S.sy + 54, 105, 0.42 + 0.16 * sueloClaro(ts)];
   est.somR = [1548, 240, 1840, 905, 0.38, 34];
   mundo.dibujar(est);
   P.fotograma(ts); P.limpiar();

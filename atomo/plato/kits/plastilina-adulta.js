@@ -11,6 +11,40 @@
 //    tela); Atom lleva núcleo de terracota y crema, órbitas de alambre oscuro y electrones ámbar que
 //    brillan con la voz; la regla es de madera de boj con canto de latón y números grabados con una
 //    tipografía sobria de Google Fonts (Jost), horneados en una textura de distancias (reglaA, etiqueta).
+// (B ajustada, tras verla el dueño; las marcas «(B ajustada)» señalan cada cambio):
+//  · más luz: telón más claro, charco cálido del foco más ancho y más relleno (LUZ_PLATO); el plano medio
+//    pasa de ~0,19 a ~0,26–0,29 de luminancia media, con el contraluz, la viñeta y las sombras de antes;
+//  · Atom se lee en el móvil en todos los planos: órbitas de latón claro, electrones como cuentas de ámbar
+//    con luz propia y un brillo vivo, y un halo ámbar suave detrás del núcleo (con un velo oscuro sobre
+//    fondos claros);
+//  · la mano del primer salto es una mano de arcilla creíble (GLSL_MANO): proporciones reales (0,10 H),
+//    nudillos, tendones, una vena, arrugas en las articulaciones, uñas con lúnula y variación de tono;
+//  · el pelo como tronco lleva una cutícula de escamas que se solapan como tejas o como las de una piña;
+//  · piezas con envolvente (pza_<tipo>): el rayo marcha primero con ella y solo cerca de la superficie
+//    paga la forma entera; gG: relieve fino de una pieza aplicado a la normal, no a la forma.
+// (cartela, episodio 3) la cartela de capítulo, con la misma API y maqueta en los tres kits adultos:
+//
+// CARTELA DE CAPÍTULO (la misma API en papel-adulta.js, isometrico-adulta.js y plastilina-adulta.js)
+//   const P = await crearPlato({ ..., cartela: E.cartela });   // añade la placa como la última pieza
+//   function dibujar(t) { const n = P.fotograma(t), ts = n / 12; P.limpiar(); ...; cartela(P, ts, E.cartela); P.render(n); }
+//   cartela(destino, t, texto, opciones) → presencia (1: cartela entera · 0…1: saliendo · 0: ya no está)
+//    · texto: el número del salto tal como viene en la escena (E.cartela de marcas-ep03.json): '−4', '+21',
+//      '½', '0'… (solo cifras, −, + y ½). Sin texto (undefined, null, '') no pone la placa y devuelve 0.
+//    · t: segundos desde el inicio de la escena (el del fotograma de 12 fps). De 0 a CARTELA.sale (0,75 s) la
+//      cartela está quieta, grande y centrada (ya compuesta en el instante 0: se entra por corte); de 0,75 a
+//      CARTELA.fin (1,2 s) sube y se va por arriba con peso (arranca despacio y acelera); desde 1,2 s no está.
+//      La voz entra a 1,5 s.
+//    · Maqueta común (CARTELA, en píxeles de diseño): placa de 760 × 440 centrada en (960, 470), por encima de
+//      la franja de subtítulos; el número en Jost 600, con las cifras de 240 px de alto (si no cabe en 560 px de
+//      ancho, se reduce), centrado por su tinta; marco de latón y número de ámbar sobre nogal.
+//    · En arcilla: una losa de plastilina modelada como el nogal de la regla, con un filete de latón en relieve
+//      y el número de ámbar en relieve (horneado con Jost en una textura de distancias, como los rótulos). Va de
+//      cara a la cámara, delante de la escena (80 % de la distancia al punto de mira), con la luz del plató y
+//      una sombra tenue en el ciclorama. Al salir, la mano la levanta, la ladea hacia atrás y la saca por arriba.
+//    · destino: el plató creado con { cartela: texto } (o { cartela: true }: la textura se rehace si cambia el
+//      texto). Va entre P.limpiar() y P.render(n), como las demás piezas.
+//    · opciones: { x, y (centro, px), sale, fin (s), distancia (de la cámara, unidades del mundo) }.
+//   cargarFuenteCartela(): carga Jost (crearPlato ya la carga). maquetaCartela(ctx, texto): la maqueta.
 // ----- (lo que sigue es el comentario de la copia de prueba) -----
 // COPIA de kits/plastilina.js para las pruebas de identidad (prueba-plastilina.html, prueba-mixta.html, cosmos-plastilina.html).
 // kits/plastilina.js lo usan escenas terminadas del episodio 2 y no se toca. Añadidos de esta copia:
@@ -396,6 +430,308 @@ float etiqA(vec2 p, float e) {
 }
 #endif
 `;
+// ---------------------------------------------------------------- cartela de capítulo: maqueta común
+// (adulta) Este bloque es idéntico en papel-adulta.js, isometrico-adulta.js y plastilina-adulta.js: la cartela
+// tiene la misma maqueta y el mismo tiempo en los tres estilos; cada kit solo cambia el material.
+export const CARTELA = {
+  x: 960, y: 470, w: 760, h: 440,          // la placa, en px de diseño: centrada y por encima de los subtítulos
+  borde: 30, filete: 9,                    // del canto de la placa al marco de latón, y el ancho del marco
+  alto: 240, anchoMax: 560,                // alto de las cifras y ancho máximo del número (si no cabe, se reduce)
+  sale: 0.75, fin: 1.2, sube: 900, curva: 2.2,   // quieta hasta `sale`; de `sale` a `fin` sube `sube`·u^curva px
+  fuente: 'Jost', peso: 600, css: 'https://fonts.googleapis.com/css2?family=Jost:wght@500;600&display=block',
+  caracteres: '0123456789−+½',
+  // colores de la maqueta (sRGB): placa de nogal, marco de latón y número de ámbar (el acento)
+  nogal: '#76523a', laton: '#c9a462', ambar: '#e09c4c',
+};
+/** carga Jost con las cifras, −, + y ½ (sin red, se queda la fuente de respaldo) */
+export async function cargarFuenteCartela() {
+  if (!document.querySelector('link[data-cartela]')) {
+    const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = CARTELA.css; l.dataset.cartela = '1';
+    const ok = new Promise((r) => { l.onload = r; l.onerror = r; setTimeout(r, 6000); });
+    document.head.appendChild(l);
+    await ok;
+  }
+  try {
+    await Promise.race([document.fonts.load(`${CARTELA.peso} 100px "${CARTELA.fuente}"`, CARTELA.caracteres), new Promise((r) => setTimeout(r, 8000))]);
+  } catch (e) { /* fuente de respaldo */ }
+}
+/**
+ * Maqueta del número en un contexto 2D (deja puesta su fuente): tamaño de letra para que las cifras midan
+ * CARTELA.alto px (o menos, si el número no cabe en CARTELA.anchoMax) y el desplazamiento (dx, dy) desde el
+ * centro de la placa hasta el origen de fillText (alineación izquierda, línea base alfabética) que centra la
+ * tinta del texto. Devuelve { px, font, dx, dy, w, h } (w × h: la caja de tinta).
+ */
+export function maquetaCartela(ctx, texto) {
+  const fuente = (px) => `${CARTELA.peso} ${px}px "${CARTELA.fuente}", sans-serif`;
+  ctx.font = fuente(100);
+  const cap = ctx.measureText('0').actualBoundingBoxAscent || 70;
+  let px = CARTELA.alto * 100 / cap;
+  ctx.font = fuente(px);
+  let m = ctx.measureText(texto), w = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+  if (w > CARTELA.anchoMax) {
+    px *= CARTELA.anchoMax / w; ctx.font = fuente(px);
+    m = ctx.measureText(texto); w = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+  }
+  return { px, font: fuente(px), dx: (m.actualBoundingBoxLeft - m.actualBoundingBoxRight) / 2,
+    dy: (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2, w, h: m.actualBoundingBoxAscent + m.actualBoundingBoxDescent };
+}
+/**
+ * Tiempo de la cartela en el instante t: { ve (se dibuja), u (0 quieta → 1 fuera), k (presencia = 1 − u;
+ * 0 si no se ve), dy (px que ha subido, negativo) }. o: { sale, fin }.
+ */
+export function tiempoCartela(t, o = {}) {
+  const sale = o.sale ?? CARTELA.sale, fin = o.fin ?? CARTELA.fin;
+  if (!(t >= 0 && t < fin)) return { ve: false, u: 1, k: 0, dy: 0 };
+  const u = t <= sale ? 0 : (t - sale) / (fin - sale);
+  return { ve: true, u, k: 1 - u, dy: -CARTELA.sube * Math.pow(u, CARTELA.curva) };
+}
+
+// (cartela) unidades de la placa de arcilla (las usa el tipo de pieza «cartela»)
+const CARTELA_ARCILLA = { U: 380, PXU: 300, X0: -0.95, Y0: -0.53, AN: 1.9, AL: 1.06, KD: 0.06 };
+
+// (B ajustada) la mano del primer salto: una mano de arcilla creíble, no un guante de goma. Unidades locales:
+// el pliegue de la muñeca en y ≈ 0,40 y la yema del corazón en y ≈ −1,08, así que la mano mide 1,48 (= 0,10 H,
+// lo que mide la cara de la barbilla al pelo; HUMANO.md). Proporciones de una mano real: nudillos a 0,46 del
+// largo desde la muñeca, ancho en los nudillos 0,42 del largo, falanges al 46 · 29 · 25 % del dedo, corazón >
+// anular > índice > meñique, pulgar hasta la mitad de la primera falange del índice. Dorso hacia +z (la
+// cámara), dedos hacia −y, pulgar en −x; los dedos, relajados, se doblan un poco hacia la palma y se abren en
+// abanico. Lleva nudillos, tendones que se insinúan bajo la piel, una vena, arrugas en el dorso de cada
+// articulación, uñas con lúnula y borde libre (sin vello: a esta escala no se ve; aparece al saltar a la piel),
+// y la piel con su variación de tono
+// (rubor en nudillos y yemas, más pálida sobre los tendones, más oscura en las arrugas).
+const GLSL_MANO = (() => {
+  const f4v = (a) => `vec3(${a.map((x) => x.toFixed(4)).join(', ')})`;
+  const DEDOS = [
+    { k: [-0.243, -0.235, 0.012], a: -0.055, L: 0.71, r0: 0.081, r1: 0.064, f: [0.05, 0.13, 0.09] },   // índice
+    { k: [-0.081, -0.272, 0.016], a: -0.012, L: 0.80, r0: 0.084, r1: 0.066, f: [0.04, 0.12, 0.08] },   // corazón
+    { k: [0.079, -0.252, 0.012], a: 0.03, L: 0.75, r0: 0.079, r1: 0.062, f: [0.06, 0.15, 0.1] },       // anular
+    { k: [0.226, -0.198, 0.004], a: 0.085, L: 0.57, r0: 0.069, r1: 0.054, f: [0.09, 0.19, 0.12] },     // meñique
+  ];
+  const P = [], RA = [], DO = [];
+  for (const d of DEDOS) {
+    const seg = [0.46, 0.29, 0.25].map((x) => x * d.L);
+    let p = d.k.slice(), phi = 0;
+    P.push(p.slice());
+    for (let i = 0; i < 3; i++) {
+      phi += d.f[i];
+      const dir = [Math.sin(d.a) * Math.cos(phi), -Math.cos(d.a) * Math.cos(phi), -Math.sin(phi)];
+      const len = i === 2 ? seg[i] - d.r1 : seg[i];
+      p = p.map((v, k) => v + dir[k] * len);
+      P.push(p.slice());
+      // dorso del tramo: perpendicular al dedo, hacia +z
+      DO.push([Math.sin(d.a) * Math.sin(phi), -Math.cos(d.a) * Math.sin(phi), Math.cos(phi)]);
+    }
+    RA.push(d.r0, d.r0 + (d.r1 - d.r0) * 0.5, d.r0 + (d.r1 - d.r0) * 0.82, d.r1);
+  }
+  // pulgar: base (trapecio, hacia la palma), MCF, IF y el final de la yema; su uña mira de lado (−x) y a la cámara
+  const PU = [[-0.17, 0.25, -0.03], [-0.352, 0.0, -0.004], [-0.432, -0.218, 0.012], [-0.465, -0.405, 0.02]];
+  const RPU = [0.098, 0.088, 0.079, 0.068];
+  const n = Math.hypot(-0.72, -0.08, 0.69), DPU = [-0.72 / n, -0.08 / n, 0.69 / n];
+  // articulaciones con arrugas en el dorso (PIP, DIP y nudillo de cada dedo y la del pulgar): centro, dirección
+  // del dedo, dorso y (radio, n.º de surcos, paso, fuerza)
+  const sub = (a, b) => a.map((v, k) => v - b[k]);
+  const nrm = (a) => { const l = Math.hypot(...a); return a.map((v) => v / l); };
+  const AJ = [], AD = [], AO = [], AP = [];
+  for (let i = 0; i < 4; i++) {
+    const b = i * 4;
+    AJ.push(P[b + 1], P[b + 2], [P[b][0], P[b][1] - 0.01, P[b][2]]);
+    AD.push(nrm(sub(P[b + 2], P[b])), nrm(sub(P[b + 3], P[b + 1])), nrm(sub(P[b + 1], P[b])));
+    AO.push(DO[i * 3 + 1], DO[i * 3 + 2], DO[i * 3]);
+    AP.push([RA[b + 1], 3.5, 0.0125, 1.0], [RA[b + 2], 3.0, 0.011, 0.75], [RA[b], 3.0, 0.014, 0.45]);
+  }
+  AJ.push(PU[2]); AD.push(nrm(sub(PU[3], PU[1]))); AO.push(DPU); AP.push([RPU[2], 3.0, 0.012, 0.8]);
+  const v4l = (a) => `vec4(${a.map((x) => x.toFixed(4)).join(', ')})`;
+  return /* glsl */`
+const vec3 AJ[13] = vec3[13](${AJ.map(f4v).join(', ')});
+const vec3 AD[13] = vec3[13](${AD.map(f4v).join(', ')});
+const vec3 AO[13] = vec3[13](${AO.map(f4v).join(', ')});
+const vec4 AP[13] = vec4[13](${AP.map(v4l).join(', ')});
+const vec3 MJ[16] = vec3[16](${P.map(f4v).join(', ')});
+const float MR[16] = float[16](${RA.map((x) => x.toFixed(4)).join(', ')});
+const vec3 MD[12] = vec3[12](${DO.map(f4v).join(', ')});
+const vec3 MPU[4] = vec3[4](${PU.map(f4v).join(', ')});
+const float MRPU[4] = float[4](${RPU.map((x) => x.toFixed(4)).join(', ')});
+const vec3 MDPU = ${f4v(DPU)};
+// falange: cápsula que se afina, algo aplanada en la dirección del dorso (o)
+float mnFalange(vec3 p, vec3 a, vec3 b, float r1, float r2, vec3 o) {
+  vec3 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  vec3 w = pa - ba * h; w += o * dot(w, o) * 0.14;
+  return (length(w) - mix(r1, r2, h)) * 0.94;
+}
+// arrugas del dorso de una articulación: n surcos curvos (cóncavos hacia la yema), solo en el dorso
+float mnArrugas(vec3 q, vec3 J, vec3 dir, vec3 o, float r, float n, float paso, float nz) {
+  vec3 v = q - J;
+  float s = dot(v, dir);
+  vec3 lat = v - dir * s;
+  float dz = dot(lat, o), ax = length(lat - o * dz);
+  float s2 = s - 0.45 * ax * ax / r;
+  float zz = s2 / (paso * n * 0.55);
+  float ven = exp(-zz * zz) * smoothstep(0.25 * r, 0.75 * r, dz) * (1.0 - smoothstep(0.45 * r, 0.8 * r, ax));
+  return ven * (0.5 + 0.5 * cos(s2 * 6.2832 / paso + 0.8 * sin(ax * 60.0) + nz));
+}
+// uña: lámina curva sobre el dorso de la última falange (de A, la articulación, a B, el final de la yema),
+// del 40 % del tramo hasta un borde libre que asoma un poco; u: 0 en la lúnula, 1 en el borde libre
+float mnUna(vec3 q, vec3 A, vec3 B, float rA, float rB, vec3 o, out float u) {
+  vec3 ba = B - A; float L = length(ba); vec3 dir = ba / L;
+  vec3 v = q - A; float t = dot(v, dir);
+  float s = t / L;
+  vec3 lat = v - dir * t; lat += o * dot(lat, o) * 0.14;
+  float dz = dot(lat, o), ax = length(lat - o * dz);
+  float r = mix(rA, rB, clamp(s, 0.0, 1.0));
+  float ra = length(v - dir * clamp(t, 0.0, L) + o * dot(lat, o) * 0.14) - r;
+  float lam = abs(ra - 0.0018) - 0.0042;
+  float lado = ax - 0.72 * r * sqrt(clamp((s - 0.4) / 0.16, 0.0, 1.0));
+  float largo = max(0.42 - s, s - 1.0 - 0.42 * rB / L) * L;
+  u = clamp((s - 0.42) / (0.58 + 0.42 * rB / L), 0.0, 1.0);
+  return smax(smax(lam, lado, 0.012), max(largo, 0.2 * r - dz), 0.012);
+}
+// tendón extensor: cordón que se insinúa bajo la piel, de la muñeca a cada nudillo
+float mnTendon(vec3 q, int i) {
+  vec3 k = MJ[i * 4];
+  return capsulaC(q, vec3(k.x * 0.32, 0.33, 0.052), vec3(k.x * 0.98, k.y + 0.05, 0.066), 0.022, 0.019);
+}
+float pz_mano(vec3 q, vec4 T, out float m) {
+  // antebrazo y muñeca (sección elíptica), con la apófisis del cúbito
+  float yc = clamp(q.y, 0.37, 1.95);
+  vec3 o0 = q - vec3(0.0, yc, 0.0); o0.z /= 0.72;
+  float d = (length(o0) - (0.215 + 0.035 * smoothstep(0.55, 1.7, q.y))) * 0.72;
+  d = smin(d, elipsoideP(q - vec3(0.155, 0.44, 0.08), vec3(0.034, 0.034, 0.03)), 0.04);
+  // dorso: cuatro metacarpianos en abanico desde la muñeca hasta su nudillo, aplanados, y la palma debajo
+  float dorso = 1e5;
+  for (int i = 0; i < 4; i++) {
+    vec3 k = MJ[i * 4];
+    vec3 a = vec3(k.x * 0.42, 0.34, 0.0), b = vec3(k.x, k.y + 0.03, 0.0);
+    vec3 pa = q - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    vec3 w = pa - ba * h; w.z *= 1.32;
+    dorso = smin(dorso, (length(w) - mix(0.083, MR[i * 4] + 0.012, h)) * 0.75, 0.11);
+  }
+  dorso = smin(dorso, elipsoideP(q - vec3(0.0, 0.02, -0.042), vec3(0.265, 0.31, 0.085)), 0.08);
+  // eminencias de la palma (bajo el pulgar y bajo el meñique) y el pliegue carnoso entre pulgar e índice
+  dorso = smin(dorso, elipsoideP(q - vec3(-0.185, 0.1, -0.072), vec3(0.092, 0.17, 0.085)), 0.08);
+  dorso = smin(dorso, elipsoideP(q - vec3(0.21, 0.04, -0.035), vec3(0.085, 0.25, 0.085)), 0.07);
+  dorso = smin(dorso, elipsoideP(q - vec3(-0.28, 0.0, -0.012), vec3(0.06, 0.11, 0.058)), 0.07);
+  d = smin(d, dorso, 0.12);
+  // tendones, que se insinúan, y una vena que baja hacia el pulgar
+  float ten = 1e5;
+  for (int i = 0; i < 4; i++) ten = min(ten, mnTendon(q, i));
+  d = smin(d, ten, 0.035);
+  float vena = capsulaC(q, vec3(0.13, -0.12, 0.066), vec3(0.02, 0.06, 0.074), 0.011, 0.012);
+  vena = smin(vena, capsulaC(q, vec3(0.02, 0.06, 0.074), vec3(-0.14, 0.2, 0.066), 0.012, 0.013), 0.02);
+  d = smin(d, vena, 0.03);
+  // nudillos
+  float nud = 1e5;
+  for (int i = 0; i < 4; i++) nud = min(nud, length((q - MJ[i * 4] - vec3(0.0, 0.012, -0.006)) * vec3(1.0, 0.85, 1.0)) - MR[i * 4] - (i < 2 ? 0.008 : 0.004));
+  d = smin(d, nud, 0.06);
+  // dedos: tres falanges que se afinan, con la articulación un poco más gruesa
+  float dedos = 1e5, du = 1e5;
+  int iu = 0;
+  for (int i = 0; i < 4; i++) {
+    int b = i * 4;
+    dedos = smin(dedos, mnFalange(q, MJ[b], MJ[b + 1], MR[b], MR[b + 1], MD[i * 3]), 0.045);
+    float f3 = mnFalange(q, MJ[b + 2], MJ[b + 3], MR[b + 2], MR[b + 3], MD[i * 3 + 2]);
+    if (f3 < du) { du = f3; iu = i; }
+    dedos = smin(dedos, smin(mnFalange(q, MJ[b + 1], MJ[b + 2], MR[b + 1], MR[b + 2], MD[i * 3 + 1]), f3, 0.012), 0.012);
+  }
+  // pulgar
+  float pul = smin(capsulaC(q, MPU[0], MPU[1], MRPU[0], MRPU[1]), capsulaC(q, MPU[1], MPU[2], MRPU[1], MRPU[2]), 0.03);
+  float pf3 = mnFalange(q, MPU[2], MPU[3], MRPU[2], MRPU[3], MDPU);
+  pul = smin(pul, pf3, 0.025);
+  pul = smin(pul, length(q - MPU[1] - vec3(-0.012, 0.0, 0.01)) - MRPU[1] - 0.006, 0.035);
+  vec3 uA = MJ[iu * 4 + 2], uB = MJ[iu * 4 + 3], uO = MD[iu * 3 + 2];
+  float uRa = MR[iu * 4 + 2], uRb = MR[iu * 4 + 3];
+  if (pf3 < du) { uA = MPU[2]; uB = MPU[3]; uO = MDPU; uRa = MRPU[2]; uRb = MRPU[3]; }
+  float uU;
+  float una = mnUna(q, uA, uB, uRa, uRb, uO, uU);
+  dedos = smin(dedos, pul, 0.03);
+  d = smin(d, dedos, 0.045);
+  // puño de canalé y manga del jersey
+  float th = atan(q.z, q.x);
+  float rr = length(vec2(q.x, q.z * 1.28));
+  float puno = max(rr - 0.37 - 0.011 * sin(th * 26.0), abs(q.y - 0.94) - 0.15) * 0.8;
+  float manga = max(rr - 0.35 + 0.004 * sin(6.2832 * fract(q.y * 9.0 + abs(fract(atan(q.z, q.x) * 7.0) - 0.5) * 0.9)), max(1.08 - q.y, q.y - 2.1)) * 0.85;
+  m = 0.0;
+  if (una < d) m = 1.0 + 0.49 * uU; d = smin(d, una, 0.004);
+  if (puno < d) m = 2.0; d = smin(d, puno, 0.03);
+  if (manga < d) m = 3.0; d = smin(d, manga, 0.02);
+  return d * 0.88;
+}
+// arrugas del dorso de todas las articulaciones (0..1)
+// (cada articulación arruga solo su entorno, así que basta con la más cercana)
+int mnArtCercana(vec3 q) {
+  int k = 0; float dm = 1e5;
+  for (int i = 0; i < 13; i++) { vec3 e = q - AJ[i]; float dd = dot(e, e); if (dd < dm) { dm = dd; k = i; } }
+  return k;
+}
+float mnArrugasK(vec3 q, int k, float nz) { vec4 a = AP[k]; return a.w * mnArrugas(q, AJ[k], AD[k], AO[k], a.x, a.y, a.z, nz); }
+// envolvente barata y conservadora (nunca más lejos que la forma real): la primera fase del rayo la usa hasta
+// quedar a unos píxeles de la piel, y solo entonces se calcula la mano entera (la foto de la mano tardaba 33 s)
+float pza_mano(vec3 q, vec4 T) {
+  float d = sdRoundBox(q - vec3(-0.015, 0.035, -0.015), vec3(0.36, 0.43, 0.165), 0.06) - 0.05;
+  for (int i = 0; i < 4; i++) d = min(d, sdCapsule(q, MJ[i * 4], MJ[i * 4 + 3], MR[i * 4] + 0.065));
+  d = min(d, sdCapsule(q, MPU[0], MPU[3], MRPU[0] + 0.07));
+  d = min(d, sdCapsule(q, vec3(0.0, 0.3, 0.0), vec3(0.0, 2.0, 0.0), 0.29));
+  d = min(d, max(length(q.xz) - 0.41, max(0.76 - q.y, q.y - 2.15)));
+  return d;
+}
+// forma simplificada para las sombras (la evalúan todas las pasadas de sombra, esté o no la mano en el plano:
+// pocas piezas, y por dentro de la piel)
+float pzc_mano(vec3 q, vec4 T) {
+  float d = sdRoundBox(q - vec3(-0.01, 0.02, -0.02), vec3(0.25, 0.27, 0.05), 0.045);
+  d = min(d, sdCapsule(q, MJ[0], MJ[3], 0.042));
+  d = min(d, sdCapsule(q, MJ[4], MJ[7], 0.044));
+  d = min(d, sdCapsule(q, MJ[8], MJ[11], 0.041));
+  d = min(d, sdCapsule(q, MJ[12], MJ[15], 0.034));
+  d = min(d, sdCapsule(q, MPU[0], MPU[3], 0.05));
+  d = min(d, max(length(vec2(q.x, q.z * 1.4)) - 0.19, max(0.3 - q.y, q.y - 1.0)));
+  return min(d, max(length(vec2(q.x, q.z * 1.28)) - 0.34, max(1.02 - q.y, q.y - 2.1)));
+}
+vec3 pzcol_mano(vec3 q, vec4 T, float m) {
+  float v = 0.95 + 0.1 * vnoise(q * 6.0);
+  if (m < 0.5) {
+    // piel: moteado suave, rubor en nudillos, articulaciones y yemas, más pálida sobre los tendones, un poco
+    // azulada en la vena y más oscura dentro de las arrugas
+    gTr = 1.0; gBri = 1.25;
+    // arrugas como relieve de la normal: surcos de 0,0027 de hondo (gradiente por diferencias)
+    int ka = mnArtCercana(q);
+    float nz = 1.6 * vnoise(q * 30.0);
+    float A = mnArrugasK(q, ka, nz);
+    const float EP = 0.0015;
+    gG = -0.0027 * vec3(mnArrugasK(q + vec3(EP, 0.0, 0.0), ka, nz) - A, mnArrugasK(q + vec3(0.0, EP, 0.0), ka, nz) - A, mnArrugasK(q + vec3(0.0, 0.0, EP), ka, nz) - A) / EP;
+    // poros: relieve muy fino
+    vec4 po = vnoised(q * 110.0);
+    gG += po.yzw * 0.0005 * 110.0 * 0.5;
+    vec3 c = C_PIEL * vec3(0.96, 0.9, 0.86) * (0.74 + 0.14 * vnoise(q * 3.2) + 0.07 * vnoise(q * 13.0));
+    float rub = 0.0;
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        vec3 e = q - MJ[i * 4 + j];
+        float s = j == 0 ? 0.06 : 0.04;
+        rub = max(rub, exp(-dot(e, e) / (s * s)) * (j == 3 ? 0.6 : 0.55));
+      }
+    }
+    for (int j = 1; j < 4; j++) { vec3 e = q - MPU[j]; rub = max(rub, exp(-dot(e, e) / 0.0036) * 0.8); }
+    c = mix(c, c * vec3(1.0, 0.8, 0.76), rub * 0.5);
+    float ten = 1e5;
+    for (int i = 0; i < 4; i++) ten = min(ten, mnTendon(q, i));
+    c = mix(c, c * vec3(1.06, 1.04, 0.95), (1.0 - smoothstep(-0.01, 0.02, ten)) * 0.5);
+    float vena = min(capsulaC(q, vec3(0.13, -0.12, 0.066), vec3(0.02, 0.06, 0.074), 0.011, 0.012), capsulaC(q, vec3(0.02, 0.06, 0.074), vec3(-0.14, 0.2, 0.066), 0.012, 0.013));
+    c = mix(c, c * vec3(0.84, 0.86, 0.98), (1.0 - smoothstep(0.0, 0.02, vena)) * 0.45);
+    return c * (1.0 - 0.38 * A) * (0.97 + 0.06 * vnoise(q * 40.0));
+  }
+  if (m < 1.5) {
+    // uña: rosada y translúcida, lúnula clara en la base, borde libre blanquecino, algo de brillo
+    gTr = 0.7; gBri = 1.9;
+    float u = (m - 1.0) / 0.49;
+    vec3 c = mix(vec3(0.42, 0.31, 0.27), vec3(0.36, 0.22, 0.19), smoothstep(0.08, 0.3, u));
+    c = mix(c, vec3(0.43, 0.37, 0.32), smoothstep(0.9, 0.98, u));
+    return c * (0.95 + 0.1 * vnoise(vec3(q.x * 120.0, q.y * 8.0, q.z * 120.0)));
+  }
+  if (m < 2.5) return C_JERSEY * 0.74 * v;
+  if (m < 3.5) return C_JERSEY * 0.88 * (0.86 + 0.28 * vnoise(q * vec3(40.0, 14.0, 40.0))) * v;
+  return C_PIEL * 0.6;
+}
+`;
+})();
 const TIPOS_PRUEBA = {
   persona: { radio: 1.08, glifos: [], glsl: /* glsl */`
 // Persona de plastilina con las proporciones de atomo/plato/HUMANO.md. Unidades locales: suela en
@@ -533,70 +869,7 @@ vec3 pzcol_persona(vec3 q, vec4 T, float m) {
   return mix(C_PIEL, C_LABIO, 0.55) * v;
 }
 ` },
-  mano: { radio: 2.25, glifos: [], glsl: /* glsl */`
-const vec4 VELLO_M[9] = vec4[9](vec4(-0.22, 0.32, 0.03, -0.6), vec4(-0.05, 0.36, 0.05, -0.3), vec4(0.14, 0.3, 0.06, 0.2), vec4(0.26, 0.2, 0.04, 0.5),
-  vec4(-0.18, 0.1, 0.03, -0.4), vec4(0.0, 0.16, 0.05, 0.1), vec4(0.2, 0.06, 0.06, 0.4), vec4(-0.12, -0.08, 0.03, -0.2), vec4(0.1, -0.1, 0.05, 0.3));
-float pz_mano(vec3 q, vec4 T, out float m) {
-  float palma = sdRoundBox(q - vec3(0.0, 0.06, 0.0), vec3(0.33, 0.33, 0.052), 0.11);
-  float dedos = sdCapsule(q, vec3(-0.285, -0.22, 0.0), vec3(-0.305, -0.84, 0.012), 0.088);
-  dedos = min(dedos, sdCapsule(q, vec3(-0.095, -0.24, 0.0), vec3(-0.1, -0.95, 0.012), 0.092));
-  dedos = min(dedos, sdCapsule(q, vec3(0.095, -0.24, 0.0), vec3(0.105, -0.9, 0.012), 0.088));
-  dedos = min(dedos, sdCapsule(q, vec3(0.28, -0.2, 0.0), vec3(0.322, -0.72, 0.012), 0.076));
-  float pulgar = sdCapsule(q, vec3(-0.34, 0.18, 0.02), vec3(-0.62, -0.28, 0.07), 0.095);
-  float mun = sdRoundBox(q - vec3(0.0, 0.58, 0.0), vec3(0.26, 0.24, 0.08), 0.1);
-  float d = smin(smin(smin(palma, dedos, 0.07), pulgar, 0.08), mun, 0.12);
-  // surcos de los nudillos
-  float s = 1e5;
-  for (int i = 0; i < 4; i++) {
-    float fx = -0.295 + 0.195 * float(i) + 0.012 * float(i) * float(i);
-    for (int j = 0; j < 2; j++) {
-      float y = -0.47 - 0.17 * float(j) + (i == 3 ? 0.08 : 0.0);
-      s = min(s, sdCapsule(q, vec3(fx - 0.05, y, 0.095), vec3(fx + 0.05, y - 0.012, 0.095), 0.011));
-    }
-  }
-  d = smax(d, -s, 0.012);
-  float unas = elipsoideP(q - vec3(-0.305, -0.79, 0.082), vec3(0.058, 0.08, 0.022));
-  unas = min(unas, elipsoideP(q - vec3(-0.1, -0.9, 0.086), vec3(0.06, 0.082, 0.022)));
-  unas = min(unas, elipsoideP(q - vec3(0.105, -0.855, 0.082), vec3(0.058, 0.08, 0.022)));
-  unas = min(unas, elipsoideP(q - vec3(0.318, -0.68, 0.07), vec3(0.05, 0.068, 0.02)));
-  unas = min(unas, elipsoideP(q - vec3(-0.585, -0.235, 0.15), vec3(0.06, 0.065, 0.022)));
-  // puño de canalé y manga
-  float th = atan(q.z, q.x);
-  float rr = length(vec2(q.x, q.z * 1.28));
-  float puno = max(rr - 0.4 - 0.012 * sin(th * 26.0), abs(q.y - 0.92) - 0.15) * 0.8;
-  float manga = max(rr - 0.375 + 0.004 * sin(6.2832 * fract(q.y * 9.0 + abs(fract(atan(q.z, q.x) * 7.0) - 0.5) * 0.9)), max(1.0 - q.y, q.y - 2.1)) * 0.85;
-  float pelos = 1e5;
-  for (int i = 0; i < 9; i++) {
-    vec4 v = VELLO_M[i];
-    vec3 b = vec3(v.x, v.y, 0.155);
-    pelos = min(pelos, capsulaC(q, b - vec3(0.0, 0.0, 0.01), b + vec3(0.06 * v.w, -0.12, v.z), 0.0075, 0.004));
-  }
-  m = 0.0;
-  if (unas < d) m = 1.0; d = smin(d, unas, 0.008);
-  if (puno < d) m = 2.0; d = smin(d, puno, 0.03);
-  if (manga < d) m = 3.0; d = smin(d, manga, 0.02);
-  if (pelos < d) m = 4.0; d = min(d, pelos);
-  if (m < 0.5 && s < 0.02) m = 5.0;
-  return d * 0.9;
-}
-float pzc_mano(vec3 q, vec4 T) {
-  float d = sdRoundBox(q - vec3(0.0, 0.06, 0.0), vec3(0.32, 0.32, 0.05), 0.1);
-  d = min(d, sdRoundBox(q - vec3(0.0, -0.6, 0.0), vec3(0.32, 0.3, 0.05), 0.05));
-  d = min(d, sdCapsule(q, vec3(-0.34, 0.18, 0.02), vec3(-0.62, -0.28, 0.07), 0.085));
-  d = min(d, sdRoundBox(q - vec3(0.0, 0.58, 0.0), vec3(0.24, 0.22, 0.06), 0.09));
-  return min(d, max(length(vec2(q.x, q.z * 1.28)) - 0.36, max(1.02 - q.y, q.y - 2.1)));
-}
-vec3 pzcol_mano(vec3 q, vec4 T, float m) {
-  float v = 0.95 + 0.1 * vnoise(q * 6.0);
-  if (m < 0.5) { gTr = 1.0; return C_PIEL * v * (0.96 + 0.08 * vnoise(q * 25.0)); }
-  if (m < 1.5) { gTr = 0.6; return C_UNA * v; }
-  if (m < 2.5) return C_JERSEY * 0.85 * v;
-  if (m < 3.5) return C_JERSEY * (0.86 + 0.28 * vnoise(q * vec3(40.0, 14.0, 40.0))) * v;
-  if (m < 4.5) return C_PELO;
-  gTr = 1.0;
-  return C_PIEL * 0.8;
-}
-` },
+  mano: { radio: 2.25, glifos: [], glsl: GLSL_MANO, envolvente: true },
   piel: { radio: 2.4, glifos: [], glsl: /* glsl */`
 // pelitos: base (x, z), inclinación (x, z) — el último es el del zoom (recto, en el centro)
 const vec4 VB[12] = vec4[12](vec4(-1.0, -0.5, 0.3, 0.15), vec4(-0.62, 0.35, -0.35, 0.2), vec4(-0.25, -0.45, 0.25, -0.2), vec4(0.3, -0.55, -0.3, 0.1),
@@ -637,8 +910,14 @@ vec3 pzcol_piel(vec3 q, vec4 T, float m) {
   float v = 0.94 + 0.12 * vnoise(q * 5.0);
   if (m > 0.5 && m < 1.5) { gBri = 1.5; return C_PELO * (0.9 + 0.2 * vnoise(q * 40.0)); }
   gTr = 1.0;
-  vec3 c = q.y > -0.08 ? C_PIEL * 1.02 : (q.y > -0.36 ? C_DERMIS : C_GRASA);
-  if (m > 1.5) c *= 0.84;
+  // (B ajustada) la piel con el mismo tono que la mano del salto anterior: moteada, algo rojiza alrededor de los
+  // pelos y más oscura en los surcos (antes, una losa clara uniforme que quemaba la foto)
+  vec3 sup = C_PIEL * vec3(0.95, 0.88, 0.84) * (0.62 + 0.14 * vnoise(q * 2.6) + 0.07 * vnoise(q * 9.0));
+  float rojo = 0.0;
+  for (int i = 0; i < 12; i++) { vec2 e = q.xz - VB[i].xy; rojo = max(rojo, exp(-dot(e, e) / 0.012)); }
+  sup = mix(sup, sup * vec3(1.0, 0.8, 0.76), rojo * 0.45);
+  vec3 c = q.y > -0.08 ? sup : (q.y > -0.36 ? C_DERMIS * 0.92 : C_GRASA * 0.88);
+  if (m > 1.5) c *= 0.8;
   return c * v;
 }
 ` },
@@ -692,33 +971,74 @@ vec3 pzcol_pelo(vec3 q, vec4 T, float m) {
   return vec3(0.45, 0.13, 0.11) * v;
 }
 ` },
-  tronco: { radio: 2.75, glifos: [], glsl: /* glsl */`
-// el pelo de cerca: cilindro con escamas de cutícula que se abren hacia arriba (la punta)
-float escamaF(vec3 q) {
-  float th = atan(q.z, q.x);
-  float w = 0.05 * sin(th * 3.0 + 1.3) + 0.03 * sin(th * 7.0 + 0.4) + 0.014 * sin(th * 13.0 + 2.0);
-  float y = q.y + w;
-  float fila = floor(y / 0.235);
-  // cada escama con su borde irregular (rasgado) y un desfase propio
-  y += 0.045 * (vnoise(vec3(th * 4.0, fila * 3.1, 0.0)) - 0.5) + 0.02 * (vnoise(vec3(th * 13.0, fila * 1.7, 4.0)) - 0.5);
-  return fract(y / 0.235);
+  tronco: { radio: 2.75, glifos: [], envolvente: true, glsl: /* glsl */`
+// (B ajustada) el pelo de cerca: la cutícula son escamas que se solapan como las tejas de un tejado o las de una
+// piña. Van en filas al tresbolillo que envuelven el cilindro (ESC_N por vuelta, con un leve giro en espiral);
+// cada escama tiene el borde libre redondeado hacia la punta (arriba) y tapa la base de la fila de encima, así
+// que lo que se ve de cada una es un escudo limitado arriba por su borde y abajo por los arcos de la fila de
+// debajo. Cada escama es algo distinta (alto, arco, grosor, inclinación, tono) y el borde está un poco rasgado.
+const float ESC_H = 0.235;   // alto de una fila (lo que asoma de cada escama)
+const float ESC_N = 9.0;     // escamas por vuelta
+const float ESC_W = 6.2831853 / ESC_N;
+// borde libre de la escama de la fila j en el ángulo th: altura del borde e identidad (columna, fila)
+float escBorde(float j, float th, float rasgado, out vec2 id, out float x) {
+  float off = 0.5 * ESC_W * mod(j, 2.0) + 0.3 * ESC_W * (hash12(vec2(j, 3.7)) - 0.5);
+  float u = (th - off) / ESC_W;
+  float c = floor(u);
+  x = fract(u) - 0.5;
+  id = vec2(mod(c, ESC_N), j);
+  float h1 = hash12(id + 0.37), h2 = hash12(id + 5.13), h3 = hash12(id + 9.71);
+  float arco = (0.075 + 0.05 * h1) * (1.0 - 4.0 * x * x);
+  return (j + 1.0) * ESC_H + 0.04 * (h2 - 0.5) + arco + 0.035 * (h3 - 0.5) * x * 2.0 + rasgado;
+}
+// la escama que se ve en (th, y): la de la fila más baja cuyo borde queda por encima. s: lo que queda hasta su
+// borde; id: su identidad; x: posición a lo ancho (−0,5..0,5)
+float escamaVis(float th, float y, out vec2 id, out float x) {
+  float k = floor(y / ESC_H);
+  // el borde, un poco rasgado (una sola vez por punto: la misma rasgadura vale para las filas vecinas)
+  float rg = 0.0055 * sin(th * 27.0 + 1.7 * sin(th * 9.0 + y * 2.3)) + 0.003 * sin(th * 73.0 + y * 5.1) + 0.0015 * sin(th * 151.0 - y * 7.0);
+  vec2 idA; float xA;
+  float tA = escBorde(k - 1.0, th, rg, idA, xA);
+  if (y < tA) { id = idA; x = xA; return tA - y; }
+  float tB = escBorde(k, th, rg, id, x);
+  if (y < tB) return tB - y;
+  return escBorde(k + 1.0, th, rg, id, x) - y;
+}
+float troncoRelieve(vec3 q, out float m) {
+  float th = atan(q.z, q.x) + 0.05 * q.y;
+  vec2 id; float x;
+  float s = escamaVis(th, q.y, id, x);
+  float hs = hash12(id + 2.2);
+  float grosor = 0.034 * (0.75 + 0.5 * hs) * (hs > 0.9 ? 1.5 : 1.0);
+  // la escama se levanta hacia su borde libre (con el canto redondeado) y se hunde bajo la de debajo
+  float e = grosor * smoothstep(0.0, 0.016, s) * (1.0 - smoothstep(0.02, 1.25 * ESC_H, s));
+  // abombada a lo ancho, como una teja
+  e += 0.01 * (1.0 - 4.0 * x * x);
+  m = floor(hs * 8.0) + clamp(s / (1.4 * ESC_H), 0.0, 0.999);
+  return e;
 }
 float pz_tronco(vec3 q, vec4 T, out float m) {
-  float f = escamaF(q);
-  float r = 1.0 + 0.02 * f * (1.0 - smoothstep(0.93, 1.0, f)) + 0.0025 * sin(atan(q.z, q.x) * 41.0 + q.y * 3.0);
-  float d = (length(q.xz) - r) * 0.55;
-  d = max(d, max(q.y - 2.4, -1.4 - q.y));
-  m = f;
-  return d;
+  // lejos de la superficie basta con el cilindro que lo envuelve (el relieve nunca pasa de r = 1,075)
+  float rr0 = length(q.xz);
+  m = 0.0;
+  if (rr0 > 1.11) return max(rr0 - 1.075, max(q.y - 2.4, -1.4 - q.y));
+  float e = troncoRelieve(q, m);
+  float th = atan(q.z, q.x);
+  float r = 0.985 + 0.02 * cos(2.0 * th + 0.4) + e + 0.002 * sin(th * 41.0 + q.y * 3.0);
+  float d = (rr0 - r) * 0.45;
+  return max(d, max(q.y - 2.4, -1.4 - q.y));
 }
-float pzc_tronco(vec3 q, vec4 T) { return max(length(q.xz) - 0.99, max(q.y - 2.4, -1.4 - q.y)); }
+float pza_tronco(vec3 q, vec4 T) { return max(length(q.xz) - 1.08, max(q.y - 2.4, -1.4 - q.y)); }
+float pzc_tronco(vec3 q, vec4 T) { return max(length(q.xz) - 0.97, max(q.y - 2.4, -1.4 - q.y)); }
 vec3 pzcol_tronco(vec3 q, vec4 T, float m) {
-  // queratina castaña: vetas a lo largo del pelo, bordes de las escamas más claros
+  // queratina castaña: cada escama con su tono; el borde libre, fino y translúcido, más claro y cálido; la parte
+  // que se mete bajo la escama de debajo, más oscura; vetas finas a lo largo del pelo
+  float hs = floor(m) / 8.0, s = fract(m);
   float veta = vnoise(vec3(atan(q.z, q.x) * 9.0, q.y * 0.6, 0.0));
-  vec3 base = vec3(0.105, 0.058, 0.033) * (0.82 + 0.3 * veta);
-  base = mix(base * 0.62, base, smoothstep(0.0, 0.3, m));
-  gTr = 0.7; gBri = 1.6;
-  return mix(base, vec3(0.19, 0.115, 0.065), smoothstep(0.72, 0.93, m) * (1.0 - smoothstep(0.96, 1.0, m)));
+  vec3 base = vec3(0.105, 0.058, 0.033) * (0.8 + 0.3 * veta) * (0.86 + 0.28 * hs);
+  base = mix(base, base * 0.55, smoothstep(0.45, 0.95, s));
+  gTr = 0.75; gBri = 1.7;
+  return mix(base, vec3(0.2, 0.125, 0.07), (1.0 - smoothstep(0.02, 0.09, s)) * 0.85);
 }
 ` },
   reglaA: { radio: 2.05, glifos: [], glsl: /* glsl */`
@@ -868,6 +1188,50 @@ float pz_etiqueta(vec3 q, vec4 T, out float m) {
 float pzc_etiqueta(vec3 q, vec4 T) { return sdRoundBox(q, vec3(0.68, 0.25, 0.025), 0.02); }
 vec3 pzcol_etiqueta(vec3 q, vec4 T, float m) { return m > 0.5 ? vec3(0.04, 0.03, 0.025) : vec3(0.60, 0.56, 0.47) * (0.95 + 0.08 * vnoise(q * 30.0)); }
 ` },
+  // (cartela) la placa de capítulo (ver CARTELA_ARCILLA y K.cartela)
+  cartela: { radio: 1.2, glifos: [], glsl: /* glsl */`
+uniform sampler2D uCartela;
+uniform vec4 uCartelaK;   // caja del número horneado, en unidades locales: x0, y0, ancho, alto
+// distancia con signo (unidades locales, negativa dentro) al número
+float numCartela(vec2 p) {
+  vec2 uv = (p - uCartelaK.xy) / uCartelaK.zw;
+  vec2 cuv = clamp(uv, 0.0, 1.0);
+  float d = (texture(uCartela, cuv).r - 0.5) * ${fl(2 * CARTELA_ARCILLA.KD)};
+  return d + length((uv - cuv) * uCartelaK.zw);
+}
+const vec2 CAR_H = vec2(1.0, ${fl(220 / CARTELA_ARCILLA.U)});   // semiancho y semialto de la losa
+const float CAR_Z = 0.06;                                          // semigrosor: la cara está en z = CAR_Z
+const float CAR_B = ${fl(30 / CARTELA_ARCILLA.U)}, CAR_F = ${fl(9 / CARTELA_ARCILLA.U)};   // CARTELA.borde y .filete
+float extruirC(float d2, float z, float h) { vec2 w = vec2(d2, abs(z) - h); return min(max(w.x, w.y), 0.0) + length(max(w, 0.0)); }
+float pz_cartela(vec3 q, vec4 T, out float m) {
+  float losa = sdRoundBox(q, vec3(CAR_H, CAR_Z), 0.05);
+  // filete de latón en relieve, a CAR_B del canto
+  float fil = abs(sdRoundRect(q.xy, CAR_H - CAR_B - 0.5 * CAR_F, 0.03)) - 0.5 * CAR_F;
+  float marco = extruirC(fil + 0.003, q.z - CAR_Z, 0.013) - 0.003;
+  // el número, en relieve (de la cara a z = CAR_Z + 0,05), con los cantos redondeados
+  float num = extruirC(numCartela(q.xy) + 0.008, q.z - CAR_Z - 0.02, 0.022) - 0.008;
+  m = 0.0;
+  if (marco < losa) m = 1.0;
+  if (num < min(losa, marco)) m = 2.0;
+  return smin(smin(losa, marco, 0.006), num, 0.01) * 0.85;
+}
+float pzc_cartela(vec3 q, vec4 T) { return sdRoundBox(q, vec3(CAR_H - 0.01, CAR_Z - 0.01), 0.04); }
+vec3 pzcol_cartela(vec3 q, vec4 T, float m) {
+  // el ámbar va oscuro y saturado (la luz del plató y el revelado lo aclaran): así se ve como el de papel e isométrico
+  if (m > 1.5) { vec3 a = vec3(0.44, 0.16, 0.035); gEm = a * 0.03; return a * (0.95 + 0.08 * vnoise(q * 30.0)); }
+  if (m > 0.5) { gBri = 3.2; return C_BRASS * 0.8 * (0.88 + 0.2 * vnoise(q * vec3(40.0, 4.0, 40.0))); }
+  // nogal de la regla (vetas a lo largo de la losa), con la sombra que dejan el número y el filete
+  float n = vnoise(vec3(q.x * 0.5, q.y * 5.0, q.z * 5.0));
+  float n2 = vnoise(vec3(q.x * 1.4, q.y * 22.0, q.z * 22.0));
+  float veta = sin((q.y + 0.18 * n + 0.03 * n2 + 0.05 * sin(q.x * 1.7)) * 90.0);
+  float poro = smoothstep(0.78, 0.95, vnoise(vec3(q.x * 8.0, q.y * 120.0, q.z * 120.0)));
+  float oc = 1.0 - 0.5 * (1.0 - smoothstep(-0.004, 0.05, numCartela(q.xy - vec2(0.024, -0.034))));
+  float fil = abs(sdRoundRect(q.xy - vec2(0.012, -0.016), CAR_H - CAR_B - 0.5 * CAR_F, 0.03)) - 0.5 * CAR_F;
+  oc *= 1.0 - 0.35 * (1.0 - smoothstep(-0.002, 0.025, fil));
+  gBri = 1.2;
+  return C_WOOD * 0.8 * (0.9 + 0.06 * veta + 0.22 * (n - 0.5) + 0.1 * (n2 - 0.5)) * (1.0 - 0.2 * poro) * oc;
+}
+` },
 };
 
 for (const [k, v] of Object.entries(TIPOS_PRUEBA)) {
@@ -927,8 +1291,11 @@ const vec3 C_WATER  = vec3(0.050, 0.085, 0.120);
 const vec3 C_STEEL  = vec3(0.038, 0.041, 0.055);
 const vec3 C_DUST   = vec3(0.170, 0.130, 0.090);
 const vec3 C_WIRE   = vec3(0.030, 0.024, 0.019);   // alambre oscuro (ya no lo usa Atom)
-// (B ajustada) las órbitas de Atom son de alambre de latón claro: se leen sobre el carbón y en el móvil
-const vec3 C_ORBITA = vec3(0.58, 0.40, 0.15);
+// (B ajustada) las órbitas de Atom son de alambre de latón claro: se leen sobre el carbón y en el móvil; los
+// electrones, cuentas de ámbar con luz propia (ámbar de verdad, no amarillo pálido: el revelado ACES aclara y
+// desatura lo que pasa de ~0,6, así que su color va oscuro y saturado y la luz hace el resto)
+const vec3 C_ORBITA = vec3(0.47, 0.30, 0.085);
+const vec3 C_ELEC   = vec3(0.36, 0.095, 0.01);
 const vec3 C_WOOD   = vec3(0.150, 0.088, 0.052);   // nogal de la regla
 const vec3 C_MARFIL = vec3(0.600, 0.555, 0.450);   // marfil de los números incrustados
 const vec3 C_BRASS  = vec3(0.470, 0.330, 0.120);
@@ -1156,6 +1523,9 @@ vec3 colorGlifo(float c) {
 struct Mat { vec3 alb; vec3 lp; float bs; float det; float esc; vec3 g; vec3 em; float tr; float bri; };
 // los colores de las piezas (pzcol_*) pueden fijar estos tres; mat_<pieza> los copia a Mat
 vec3 gEm = vec3(0.0); float gTr = 0.0; float gBri = 1.0;
+// (B ajustada) gG: relieve fino de la pieza (gradiente de una altura, en unidades locales), que se aplica como
+// relieve de la normal en vez de como forma: arrugas de la piel sin pagarlas en cada paso del rayo
+vec3 gG = vec3(0.0);
 `;
 // (aquí van los glifos que use el plató: ✓ y ✗ siempre)
 const GLSL_FICHA = /* glsl */`
@@ -1280,7 +1650,7 @@ void mat_atomo(vec3 p, inout Mat M) {
     wE += exp(-max(de, 0.0) * 70.0) * 6.0;   // (B ajustada) el electrón manda sobre el alambre que lo cruza
     wW += exp(-max(brazo(q, i, 1.0), 0.0) * 90.0);
   }
-  vec3 col = cN + wW * C_ORBITA + wE * C_AMBAR;
+  vec3 col = cN + wW * C_ORBITA + wE * C_ELEC;
   float ws = wN + wW + wE;
 #ifdef ATOMO_MANO
   float wm = exp(-max(mano(q), 0.0) * 55.0) * 1.5;
@@ -1291,9 +1661,10 @@ void mat_atomo(vec3 p, inout Mat M) {
   float kN = wN / ws, kW = wW / ws, kE = wE / ws;
   // brillo leve que late con la voz: el núcleo se enciende por dentro y los electrones, más
   // (B ajustada) los electrones tienen luz propia (siempre se ven) y el alambre de latón algo de brillo
-  M.em = C_AMBAR * (kN * (0.08 + 0.30 * uAEn) * smoothstep(0.42, 0.0, length(q)) + kE * (0.34 + 0.6 * uAEn)) + C_ORBITA * kW * (0.025 + 0.04 * uAEn);
+  M.em = C_AMBAR * kN * (0.08 + 0.30 * uAEn) * smoothstep(0.42, 0.0, length(q)) + C_ELEC * kE * (0.6 + 0.8 * uAEn) + C_ORBITA * kW * (0.03 + 0.04 * uAEn);
   M.tr = 0.55 * kN;
-  M.bri = mix(mix(1.0, 2.2, kW), 1.8, kE);
+  // el alambre, algo metálico (brillos de color latón); los electrones, con un brillo vivo y estrecho de cuenta
+  M.bri = mix(mix(1.0, 2.4, kW), 1.97, kE);
   M.lp = q * 0.7 + uAPrint; M.bs = 1.0; M.det = mix(0.8, 0.15, kW); M.esc = uAEsc; M.g = vec3(0.0);
 }
 `;
@@ -1475,13 +1846,18 @@ float sdfc_${sufijo}(vec3 p) {
   vec3 q = uPM[${idx}] * (p - uPC[${idx}].xyz);
   return fuera(${b}, pzc_${t}(q, uPT[${idx}]) * uPC[${idx}].w);
 }
+${TIPOS_PRUEBA[t]?.envolvente ? `float sdfa_${sufijo}(vec3 p) {
+  vec3 q = uPM[${idx}] * (p - uPC[${idx}].xyz);
+  return pza_${t}(q, uPT[${idx}]) * uPC[${idx}].w;
+}` : ''}
 void mat_${sufijo}(vec3 p, inout Mat M) {
   vec3 q = uPM[${idx}] * (p - uPC[${idx}].xyz); float m;
   pz_${t}(q, uPT[${idx}], m);
-  gEm = vec3(0.0); gTr = 0.0; gBri = 1.0;
+  gEm = vec3(0.0); gTr = 0.0; gBri = 1.0; gG = vec3(0.0);
   M.alb = pzcol_${t}(q, uPT[${idx}], m);
   // (copia de prueba) huellas a escala del mundo: una pieza grande no tiene huellas gigantes
-  M.lp = q * uPC[${idx}].w * 0.8 + uPS[${idx}].xyz; M.bs = 5.0 + float(${idx}); M.det = 1.0; M.esc = 1.25; M.g = vec3(0.0);
+  M.lp = q * uPC[${idx}].w * 0.8 + uPS[${idx}].xyz; M.bs = 5.0 + float(${idx}); M.det = 1.0; M.esc = 1.25;
+  M.g = transpose(uPM[${idx}]) * gG * uPC[${idx}].w;
   M.em = gEm; M.tr = gTr; M.bri = gBri;
 }
 `;
@@ -1727,6 +2103,10 @@ void main() {
   bestT = t;
 #endif
   for (int i = 0; i < RAYO_PASOS2; i++) {
+#ifdef SDFA_OBJ
+    // (B ajustada) si la envolvente ya sacó el rayo de la esfera, no se paga ni un paso de la forma entera
+    if (t > t1) break;
+#endif
     vec3 p = ro + rd * t;
     float d = SDF_OBJ(p);
     if (d < 0.00022 * t) { tHit = t; break; }
@@ -1873,6 +2253,46 @@ export async function hornearRotulos() {
   return tex;
 }
 
+// ---------- (cartela) la placa de capítulo en arcilla ----------
+// Una losa de plastilina modelada como el nogal de la regla, con un filete de latón en relieve y el número de
+// ámbar en relieve encima (horneado con Jost en una textura de distancias, como los rótulos). Unidades locales:
+// 1 unidad = CARTELA_ARCILLA.U px de diseño a la distancia de la placa, así que la losa mide 2 × 1,158 (los
+// 760 × 440 px de la maqueta); su cara mira a +z (a la cámara).
+// la textura de distancias del número (se rehace si cambia el texto; la fuente tiene que estar cargada)
+function hornearCartela(texto, tex = null) {
+  const { U, PXU, X0, Y0, AN, AL, KD } = CARTELA_ARCILLA;
+  const CW = Math.round(AN * PXU), CH = Math.round(AL * PXU);
+  const c = document.createElement('canvas'); c.width = CW; c.height = CH;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.fillStyle = '#000'; g.fillRect(0, 0, CW, CH);
+  const L = maquetaCartela(g, texto);
+  // px de diseño (centro de la placa en 0, y hacia abajo) → texel (fila 0 arriba = y local Y0 + AL)
+  const s = PXU / U;
+  g.setTransform(s, 0, 0, s, -X0 * PXU, (Y0 + AL) * PXU);
+  g.fillStyle = '#fff'; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  g.fillText(texto, L.dx, L.dy);
+  const px = g.getImageData(0, 0, CW, CH).data;
+  const dentro = new Float64Array(CW * CH), fuera = new Float64Array(CW * CH);
+  for (let i = 0; i < CW * CH; i++) { const a = px[i * 4] / 255; dentro[i] = a >= 0.5 ? 0 : 1e20; fuera[i] = a < 0.5 ? 0 : 1e20; }
+  edt(dentro, CW, CH); edt(fuera, CW, CH);
+  const datos = tex ? tex.image.data : new Uint8Array(CW * CH * 4);
+  for (let y = 0; y < CH; y++) for (let x = 0; x < CW; x++) {
+    const i = y * CW + x, a = px[i * 4] / 255;
+    let d = a >= 0.5 ? -(Math.sqrt(fuera[i]) - 0.5) : Math.sqrt(dentro[i]) - 0.5;
+    if (a > 0.02 && a < 0.98) d = 0.5 - a;
+    const v = Math.max(0, Math.min(255, Math.round((0.5 + d / PXU / (2 * KD)) * 255)));
+    const o = ((CH - 1 - y) * CW + x) * 4;
+    datos[o] = datos[o + 1] = datos[o + 2] = v; datos[o + 3] = 255;
+  }
+  if (!tex) {
+    tex = new THREE.DataTexture(datos, CW, CH, THREE.RGBAFormat, THREE.UnsignedByteType);
+    tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.generateMipmaps = false;
+  }
+  tex.needsUpdate = true;
+  tex.userData.texto = texto;
+  return tex;
+}
+
 // ---------- (adulta) viñeta y grano en 2D, idénticos a post() del sombreador ----------
 // Para las escenas que componen fotos en un lienzo 2D (los decorados cacheados de prueba-plastilina-adulta):
 // el plató se crea con { post: false } y, al final de cada fotograma, aplicar(g, n) oscurece los bordes y
@@ -1935,7 +2355,14 @@ export async function crearPlato({
   tiposExtra = {}, uniformes = {},
   // (adulta) post: viñeta y grano en el sombreador (true) o después, en 2D, con crearPost() (false)
   post = true,
+  // (cartela) cartela: el número de la cartela de capítulo (E.cartela), o true si se elige después. Añade la
+  // placa como la última pieza (los índices de las demás no cambian) y carga la fuente; ver cartela()
+  cartela = null,
 } = {}) {
+  const iCartela = cartela ? piezas.length : -1;
+  if (cartela) piezas = [...piezas, 'cartela'];
+  let texCartela = null;
+  if (cartela) { await cargarFuenteCartela(); texCartela = hornearCartela(typeof cartela === 'string' ? cartela : '0'); }
   for (const [k, v] of Object.entries(tiposExtra)) {
     TIPOS_PRUEBA[k] = v; RADIO_TIPO[k] = v.radio;
     GLSL_TIPOS[k] = GLSL_PRUEBA_COMUN + (v.etiqueta ? GLSL_ETIQA : '') + v.glsl;
@@ -2055,6 +2482,7 @@ export async function crearPlato({
     uPolvo: { value: v4(Math.max(polvo, 1)) },
     uEtiqA: { value: texRotulos }, uReglaA: { value: new THREE.Vector4(0, 1.5, 0.3, 0) }, uAEn: { value: 0 },
     uPC: { value: v4(Math.max(NP, 1)) }, uPM: { value: m3(Math.max(NP, 1)) }, uPT: { value: v4(Math.max(NP, 1)) }, uPS: { value: v4(Math.max(NP, 1)) },
+    uCartela: { value: texCartela }, uCartelaK: { value: new THREE.Vector4(CARTELA_ARCILLA.X0, CARTELA_ARCILLA.Y0, CARTELA_ARCILLA.AN, CARTELA_ARCILLA.AL) },
     ...uniformes,
   };
   const quad = new THREE.PlaneGeometry(2, 2);
@@ -2077,7 +2505,8 @@ export async function crearPlato({
     uFoco: { value: camara.foco ?? cam.pos.distanceTo(cam.mira) }, uK: { value: camara.desenfoque ?? 40 } };
   const pasoDes = crearPaso(GLSL_COMUN + GLSL_DESENFOQUE, { uniforms: desU });
   // sombra sobre el ciclorama: las piezas de sombraFondo, enteras; las demás, muy claras (sombraTenue)
-  const fuertes = (sombraFondo ?? todos).filter((id) => todos.includes(id) && id !== 'polvo');
+  // (cartela) la placa de la cartela solo deja una sombra tenue en el ciclorama (salvo que sombraFondo la nombre)
+  const fuertes = (sombraFondo ?? todos.filter((id) => id !== `p${iCartela}`)).filter((id) => todos.includes(id) && id !== 'polvo');
   const tenues = todos.filter((id) => !fuertes.includes(id) && id !== 'polvo');
   const mapT = tenues.length ? mapC(tenues).replace('float mapC(', 'float mapT(') : '';
   const pasoSombra = crearPaso(GLSL_COMUN + decl + mapC(fuertes) + mapT + GLSL_REVELAR + GLSL_PASO_SOMBRA,
@@ -2096,6 +2525,8 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
       extraDefs: {
         SDF_OBJ: `sdf_${o.id}`, MAT_OBJ: `mat_${o.id}`, OBJ_B: o.b, ...(o.caja ? { OBJ_CAJA: 1 } : {}),
         ...(o.id === 'atomo' ? { SDFA_OBJ: 'sdfa_atomo', RAYO_PASOS2: 48 } : { RAYO_PASOS2: pasosRayo }),
+        // (B ajustada) las piezas cuyo tipo trae envolvente (pza_<tipo>) marchan primero con ella
+        ...(o.tipo && TIPOS_PRUEBA[nombreTipo(o.tipo)]?.envolvente ? { SDFA_OBJ: `sdfa_${o.id}` } : {}),
       },
     });
   }
@@ -2230,7 +2661,7 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
         U.uManoEje.value.copy(v.clone().normalize());
         re = Math.max(re, 1.8 * tam);
       }
-      U.uElec.value[i].set(v.x, v.y, v.z, 0.135 * (1 - km) + 0.002);
+      U.uElec.value[i].set(v.x, v.y, v.z, 0.145 * (1 - km) + 0.002);
       const vw = v.clone().applyMatrix4(R).multiply(new THREE.Vector3(...sq)).multiplyScalar(escala).add(new THREE.Vector3(...pos));
       envolver(vw, re * ms);
     });
@@ -2339,6 +2770,29 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
     cajas[`p${i}`] = cubo(pos, rr);
   }
 
+  // (cartela) La cartela de capítulo: la placa queda centrada en (CARTELA.x, CARTELA.y) y mide CARTELA.w ×
+  // CARTELA.h px de diseño, de cara a la cámara (sin deformar), a `distancia` de ella (por defecto, el 80 % de la
+  // distancia al punto de mira: delante de la escena). Al salir, la mano la sube, la ladea hacia atrás y la saca
+  // por arriba. Devuelve la presencia (1 entera · 0 ya no está). o: { x, y, sale, fin, distancia }
+  function ponerCartela(t, texto, o = {}) {
+    if (iCartela < 0) throw new Error('cartela: crea el plató con crearPlato({ cartela: E.cartela }) (o cartela: true)');
+    const T = tiempoCartela(t, o);
+    if (!texto || !T.ve) { ponerPieza(iCartela, { escala: 0 }); return 0; }
+    if (U.uCartela.value.userData.texto !== String(texto)) hornearCartela(String(texto), U.uCartela.value);
+    const sx = o.x ?? CARTELA.x, sy = (o.y ?? CARTELA.y) + T.dy;
+    const D = o.distancia ?? 0.8 * cam.pos.distanceTo(cam.mira);
+    // el rayo por el píxel (sx, sy), con dir·f = 1: el punto a la profundidad D
+    const nx = (sx / W) * 2 - 1, ny = 1 - (sy / H) * 2;
+    const dir = new THREE.Vector3().addScaledVector(r, nx * cam.tanY * ASP).addScaledVector(u, ny * cam.tanY).add(f);
+    const pos = cam.pos.clone().addScaledVector(dir, D);
+    const escala = CARTELA_ARCILLA.U * 2 * D * cam.tanY / H;
+    const lev = Math.pow(T.u, 0.6);
+    const Rm = new THREE.Matrix4().makeBasis(r, u, b).multiply(new THREE.Matrix4().makeRotationX(-0.3 * lev)).multiply(new THREE.Matrix4().makeRotationZ(0.06 * lev));
+    const e = new THREE.Euler().setFromRotationMatrix(Rm, 'YXZ');
+    ponerPieza(iCartela, { pos: [pos.x, pos.y, pos.z], escala, rot: [e.x, e.y, e.z], toque: T.u > 0, huellaFija: [0.31, 0.17, 0.0] });
+    return T.k;
+  }
+
   // rectángulo de pantalla (coordenadas de recorte) que cubre unas esquinas; null si no se ve
   function rectangulo(esq) {
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
@@ -2414,6 +2868,8 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
       return nActual;
     },
     limpiar, atomo: ponerAtomo, globo: ponerGlobo, tablero: ponerTablero, polvo: ponerPolvo, pieza: ponerPieza, render,
+    // (cartela) la cartela de capítulo (mejor con la función cartela(P, t, texto) del kit) y el índice de su pieza
+    cartela: ponerCartela, iCartela,
     // punto (mundo) del centro del hueco i del tablero, a una distancia d sobre su superficie
     casilla(tab, i, d = 0) { return this.enTablero(tab, (i - 2.5) * TAB.PASO, TAB.YW, d); },
     // punto (mundo) de coordenadas locales (x, y, z) del tablero
@@ -2429,4 +2885,15 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
     // giro euler (YXZ) que alinea una pieza con el tablero (su cara +z con la normal del tablero)
     rotTablero(tab) { return [-(tab.inclinacion ?? 0.6), tab.giro ?? 0, tab.roll ?? 0]; },
   };
+}
+
+// ---------- (cartela) la cartela de capítulo, con la misma API que en papel-adulta.js e isometrico-adulta.js ----------
+/**
+ * Cartela de capítulo en arcilla: destino es el plató (crearPlato({ ..., cartela: E.cartela })). Se llama en cada
+ * fotograma entre P.limpiar() y P.render(n), con el tiempo del fotograma (ts = n / 12). Devuelve la presencia
+ * (1 entera · 0…1 saliendo · 0 ya no está). o: { x, y (centro, px), sale, fin (s), distancia (de la cámara) }
+ */
+export function cartela(destino, t, texto, o = {}) {
+  if (!destino || typeof destino.cartela !== 'function') throw new Error('cartela: el destino tiene que ser el plató de crearPlato()');
+  return destino.cartela(t, texto, o);
 }
