@@ -38,10 +38,10 @@ args = [a for a in args if a not in ('--solo', '--marcas')]
 guion_path, salida, modelos = args[:3]
 
 FPS, SR = 30, 24000
-ENTRADA, ENTRADA_CARTELA, SALIDA = 0.3, 1.2, 0.45   # s de escena antes de hablar (con cartela, más) y después
-PAUSA = {'.': 0.32, '?': 0.45, '!': 0.4, ':': 0.3}  # silencio tras la frase según su último signo
+ENTRADA, ENTRADA_CARTELA, SALIDA = 0.5, 1.5, 0.7    # s de escena antes de hablar (con cartela, más) y después
+PAUSA = {'.': 0.55, '?': 0.7, '!': 0.6, ':': 0.45}  # silencio tras la frase según su último signo
 RAPIDO, LENTO = 1.05, 0.95                          # cuánto se puede estirar el idioma que se adapta
-VEL_MIN, VEL_MAX = 0.92, 1.10                       # velocidades de síntesis que siguen sonando naturales
+VEL_MIN, VEL_MAX = 0.85, 1.05                       # velocidades de síntesis que siguen sonando naturales
 # Pronunciaciones que se corrigen en los fonemas. «Atom» en americano lleva una t blanda (ˈæɾəm) y
 # suena «Adam»; con t de verdad y vocal llena (ˈætʌm) se entiende el nombre del canal.
 FONEMAS = {'en': [('ˈæɾəm', 'ˈætʌm')], 'es': []}
@@ -95,21 +95,35 @@ def norm(w):
 
 def oir(f, l):
     """Palabras que oye Whisper en el clip: [(palabra, inicio, fin)], en caché."""
-    cache = f[:-4] + '.whisper.json'
+    cache = f[:-4] + '.whisper2.json'
     if os.path.exists(cache):
         return [tuple(x) for x in json.load(open(cache))]
     a, _ = sf.read(f)
+    # Con 0,3 s de silencio alrededor: si el clip empieza en seco, Whisper oye mal la primera palabra.
+    a = np.concatenate([np.zeros(int(0.3 * SR)), a, np.zeros(int(0.3 * SR))])
     a16 = np.interp(np.linspace(0, len(a) - 1, int(len(a) * 16000 / SR)), np.arange(len(a)), a).astype(np.float32)
     segs, _ = whisper().transcribe(a16, language=l, beam_size=5, word_timestamps=True)
-    p = [(w.word.strip(), round(w.start, 3), round(w.end, 3)) for s in segs for w in s.words]
+    p = [(w.word.strip(), round(max(0.0, w.start - 0.3), 3), round(max(0.0, w.end - 0.3), 3)) for s in segs for w in s.words]
     json.dump(p, open(cache, 'w'), ensure_ascii=False)
     return p
+
+# Letras deletreadas («a de ene» = ADN): Whisper las escribe juntas.
+LETRAS = {'a': 'a', 'be': 'b', 'ce': 'c', 'de': 'd', 'e': 'e', 'efe': 'f', 'ge': 'g', 'hache': 'h', 'i': 'i',
+          'jota': 'j', 'ka': 'k', 'ele': 'l', 'eme': 'm', 'ene': 'n', 'o': 'o', 'pe': 'p', 'cu': 'q', 'erre': 'r',
+          'ese': 's', 'te': 't', 'u': 'u', 'uve': 'v', 'equis': 'x', 'zeta': 'z'}
+
+def misma(e, o):
+    """Si dos trozos son lo mismo dicho de otra forma: «light-day»/«light day», «mediría»/«me diría»,
+    «a de ene»/«ADN», o palabras que solo cambian en una letra («you've»/«you», «our»/«are»)."""
+    if ''.join(e) == ''.join(o) or ''.join(LETRAS.get(x, '?') for x in e) == ''.join(o):
+        return True
+    return len(e) == len(o) and all(difflib.SequenceMatcher(a=x, b=y).ratio() >= 0.6 for x, y in zip(e, o))
 
 def problemas(texto, a, oidas):
     """Lo que falla en un clip comparado con su texto: (fallos, avisos), listas de textos legibles."""
     out = []
-    esp = [norm(w) for w in texto.split() if norm(w)]
-    oid = [norm(w) for w, _, _ in oidas if norm(w)]
+    esp = [norm(w) for w in texto.replace('-', ' ').split() if norm(w)]
+    oid = [norm(x) for w, _, _ in oidas for x in w.replace('-', ' ').split() if norm(x)]
     sm = difflib.SequenceMatcher(a=esp, b=oid, autojunk=False)
     for op, a0, a1, b0, b1 in sm.get_opcodes():
         if op == 'equal':
@@ -117,8 +131,8 @@ def problemas(texto, a, oidas):
         e, o = esp[a0:a1], oid[b0:b1]
         if any(re.search(r'\d', x) for x in o):          # cifras: Whisper escribe «12» por «twelve»
             continue
-        if op == 'replace' and len(e) == len(o) and all(difflib.SequenceMatcher(a=x, b=y).ratio() >= 0.6 for x, y in zip(e, o)):
-            continue                                        # «you've»/«you», «our»/«are»: misma palabra
+        if op == 'replace' and misma(e, o):
+            continue
         if op == 'insert' and all(x in esp[max(0, a0 - 2):a0 + 2] for x in o):
             out.append(f"repite «{' '.join(o)}»")
         elif op == 'insert':
@@ -177,7 +191,7 @@ def estirar(a, tempo):
 def pausa_tras(f):
     if 'pausa' in f:
         return f['pausa']
-    return PAUSA.get(f[PRINCIPAL].rstrip('»"\'')[-1:], 0.32)
+    return PAUSA.get(f[PRINCIPAL].rstrip('»"\'')[-1:], 0.55)
 
 escenas = [e for e in g['escenas'] if not solo or e['id'] in solo]
 pistas = {l: [] for l in IDIOMAS}
