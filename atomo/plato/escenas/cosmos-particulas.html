@@ -941,6 +941,7 @@ const t0 = performance.now();
 const calle = construirCalle();
 const capaCalleE = P.capa(calle.estructura.geometria(), null, 1);
 const capaCalle = P.capa(calle.luces.geometria(), null, 1);
+const capaCasas = P.capa(calle.casas.geometria(), null, 1);
 const barrio = construirBarrio();
 const capaBarrioDentro = P.capa(barrio.dentro.geometria(), null, 2);
 const capaBarrioFuera = P.capa(barrio.fuera.geometria(), null, 2);
@@ -1007,7 +1008,7 @@ const GAL_LEJ = (() => {
   }
   return out;
 })();
-const CAPAS = [capaCalleE, capaCalle, capaBarrioDentro, capaBarrioFuera, capaCiudad, capaRegion, capaTierra, capaLuna, capaSol, capaSistema, capaKuiper, capaOort, capaEstrellas, capaGalaxia, capaPolvo, capaPuntoTierra, capaPuntoLuna, capaPuntoSol, capaPersona];
+const CAPAS = [capaCalleE, capaCalle, capaCasas, capaBarrioDentro, capaBarrioFuera, capaCiudad, capaRegion, capaTierra, capaLuna, capaSol, capaSistema, capaKuiper, capaOort, capaEstrellas, capaGalaxia, capaPolvo, capaPuntoTierra, capaPuntoLuna, capaPuntoSol, capaPersona];
 const ponAlfa = (capa, a) => { capa.material.uniforms.uAlpha.value = a; capa.visible = a > 0.002; };
 
 // la Luna: pasa junto a la cámara cuando esta sube por encima de su altura
@@ -1085,11 +1086,15 @@ function dibujar(t) {
 
   P.colocar(capaCalle, [0, 0, 0], 1);
   P.colocar(capaCalleE, [0, 0, 0], 1);
+  P.colocar(capaCasas, [0, 0, 0], 1);
   ponAlfa(capaCalle, 1 - ss(1.7, 2.5, z));
+  // las casas y el barrio entran cuando la cámara ya mira hacia abajo: en el plano de la persona
+  // el horizonte cae en el borde superior y sus luces desenfocadas parecían un fallo
   ponAlfa(capaCalleE, ss(0.2, 0.75, z) * (1 - ss(1.7, 2.5, z)));
+  ponAlfa(capaCasas, ss(0.2, 0.75, z) * (1 - ss(1.7, 2.5, z)));
   P.colocar(capaBarrioDentro, [0, 0, 0], 10);
   P.colocar(capaBarrioFuera, [0, 0, 0], 10);
-  const aB = mix(0.45, 1, ss(0.25, 0.8, z)) * (1 - ss(2.9, 3.6, z));
+  const aB = ss(0.3, 0.9, z) * (1 - ss(2.9, 3.6, z));
   ponAlfa(capaBarrioFuera, aB);
   ponAlfa(capaBarrioDentro, aB * ss(1.5, 2.2, z));
   P.colocar(capaCiudad, [0, 0, 0], 100);

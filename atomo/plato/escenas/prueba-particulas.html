@@ -25,7 +25,7 @@
 import { escena } from '/atomo/plato/escena.js';
 import {
   THREE, crearPlato, persona, materialPersona, regla, F_REGLA, geometria, Luces, GLSL_EMITIR, GLSL_PUNTO_FRAG,
-  azar, gauss, cl, lin, ss, mix, eio, eoc, eob, campana, suave, fbm3, ruido3, TAU, construirCalle, construirBarrio,
+  azar, gauss, cl, lin, ss, mix, eio, eoc, eob, campana, suave, fbm3, ruido3, TAU, construirCalle,
 } from '/atomo/plato/kits/particulas.js';
 
 const E = await escena('prueba-particulas', 'prueba');
@@ -278,10 +278,9 @@ function construirTronco() {
 }
 
 // ── capas ────────────────────────────────────────────────────────────────────
-const calle = construirCalle(), barrio = construirBarrio();
+const calle = construirCalle();   // sin las luces de las casas ni el barrio: desenfocadas en el borde superior parecían un fallo
 const capaCalleE = P.capa(calle.estructura.geometria(), null, 1);
 const capaCalle = P.capa(calle.luces.geometria(), null, 1);
-const capaBarrio = P.capa(barrio.fuera.geometria(), null, 1);
 const capaMano = P.capa(construirMano().geometria(), null, 3);
 const piel = construirPiel();
 const matSombra = () => new THREE.ShaderMaterial({
@@ -360,8 +359,6 @@ function dibujar(t) {
   for (const c of [capaCalle, capaCalleE]) P.colocar(c, [0, 0, 0], 1);
   ponAlfa(capaCalle, 1 - ss(0.3, 0.7, -z));
   ponAlfa(capaCalleE, 0);
-  P.colocar(capaBarrio, [0, 0, 0], 10);
-  ponAlfa(capaBarrio, 0.45 * (1 - ss(0.2, 0.6, -z)));
   P.colocar(capaMano, P_MANO, 1e-3);
   ponAlfa(capaMano, vis(z, 0.35, 0.7, 1.6, 2.0));
   P.colocar(capaPiel, P_PIEL, 1e-4); P.colocar(capaPielS, P_PIEL, 1e-4);

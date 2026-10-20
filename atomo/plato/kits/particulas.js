@@ -962,7 +962,8 @@ export const FRIO = [0.48, 0.6, 0.95], ROJO = [1.0, 0.16, 0.1], FARO = [1.0, 0.9
 
 // ── nivel 1: la calle y la casa (m) ──────────────────────────────────────────
 export function construirCalle() {
-  const E_ = new Luces(30000), L = new Luces(20000);
+  // V: luces de las casas (ventanas y farolillos), aparte para que no salgan desenfocadas en el plano de la persona
+  const E_ = new Luces(30000), L = new Luces(20000), V = new Luces(12000);
   const r = azar(101);
   const linea = (a, b, paso, col, int, tam, dst = E_) => {
     const d = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), n = Math.max(1, Math.round(d / paso));
@@ -1009,16 +1010,16 @@ export function construirCalle() {
         for (let k = 0; k < nv; k++) {
           const xc = c.x0 + (w * (k + 0.5)) / nv, y0 = p * 3.1 + 0.95;
           if (calle && p === 0 && k === Math.floor(nv / 2)) {
-            L.add(xc, 2.45, zf + c.frente * 0.15, 1.0, 0.82, 0.55, 0.8, 0.16, 0, 0.05, r());
-            for (let q = 0; q < 10; q++) L.add(xc + (r() - 0.5) * 1.6, 0.02, zf + c.frente * (0.3 + 2 * r() ** 2), 1.0, 0.7, 0.4, 0.016, 1.4, 0, 0, r());
+            V.add(xc, 2.45, zf + c.frente * 0.15, 1.0, 0.82, 0.55, 0.8, 0.16, 0, 0.05, r());
+            for (let q = 0; q < 10; q++) V.add(xc + (r() - 0.5) * 1.6, 0.02, zf + c.frente * (0.3 + 2 * r() ** 2), 1.0, 0.7, 0.4, 0.016, 1.4, 0, 0, r());
             linea([xc - 0.5, 0, zf], [xc - 0.5, 2.1, zf], 0.25, FRIO, 0.04, 0.08); linea([xc + 0.5, 0, zf], [xc + 0.5, 2.1, zf], 0.25, FRIO, 0.04, 0.08);
             continue;
           }
           const lit = r() < 0.55;
           const col = r() < 0.16 ? TV : VENTANA;
           if (lit) {
-            for (let i = 0; i < 5; i++) for (let j = 0; j < 6; j++) L.add(xc - 0.44 + 0.22 * i + (r() - 0.5) * 0.05, y0 + 0.1 + 0.22 * j + (r() - 0.5) * 0.05, zf + c.frente * 0.03, ...col, 0.04 * (0.8 + 0.4 * r()), 0.6, 0, 0.04, r());
-            if (p === 0) for (let q = 0; q < 8; q++) L.add(xc + (r() - 0.5) * 2.4, 0.02, zf + c.frente * (0.4 + 2.5 * r() ** 2), ...col, 0.012, 1.6, 0, 0, r());
+            for (let i = 0; i < 5; i++) for (let j = 0; j < 6; j++) V.add(xc - 0.44 + 0.22 * i + (r() - 0.5) * 0.05, y0 + 0.1 + 0.22 * j + (r() - 0.5) * 0.05, zf + c.frente * 0.03, ...col, 0.04 * (0.8 + 0.4 * r()), 0.6, 0, 0.04, r());
+            if (p === 0) for (let q = 0; q < 8; q++) V.add(xc + (r() - 0.5) * 2.4, 0.02, zf + c.frente * (0.4 + 2.5 * r() ** 2), ...col, 0.012, 1.6, 0, 0, r());
           }
           for (let i = 0; i <= 5; i++) for (let j = 0; j <= 6; j++) {
             if (!(i === 0 || i === 5 || j === 0 || j === 6)) continue;
@@ -1070,7 +1071,7 @@ export function construirCalle() {
     for (const s of [-0.65, 0.65]) L.add(cx - 2.1, 0.75, cz + s, ...ROJO, 0.26, 0.16, 0, 0.02, r());
     for (const [a, b] of [[[cx - 2.2, 0.6, cz - 0.85], [cx + 2.2, 0.6, cz - 0.85]], [[cx - 2.2, 0.6, cz + 0.85], [cx + 2.2, 0.6, cz + 0.85]], [[cx - 1.2, 1.4, cz - 0.7], [cx + 0.9, 1.4, cz - 0.7]], [[cx - 1.2, 1.4, cz + 0.7], [cx + 0.9, 1.4, cz + 0.7]]]) linea(a, b, 0.3, FRIO, 0.04, 0.08);
   }
-  return { estructura: E_, luces: L };
+  return { estructura: E_, luces: L, casas: V };
 }
 
 // ── nivel 2: el barrio (unidad 10 m) ──────────────────────────────────────────
