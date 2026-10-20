@@ -1141,7 +1141,8 @@ function dibujar(t) {
   regla(ctx, { z, desliz: des, golpe: golpe(t) });
 }
 
-window.__dbg = { P, lunaEn, zDe, camaraDe, capaLuna };
+// calentamiento: se compilan todos los programas al cargar (no en el primer fotograma que se mide)
+for (const t of [3.5, 5.8, 6.66, 7.1, 8.5, 9.45, 9.8]) dibujar(t);
 dibujar(0);
 E.iniciar(dibujar);
 </script>

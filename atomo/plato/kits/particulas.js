@@ -1301,7 +1301,7 @@ export function materialPersona(P) {
         float zona = floor(aInfo.x / 10.0 + 0.001);
         float b0 = aInfo.x - zona * 10.0;
         vec3 zc = zona < 0.5 ? ZC0 : zona < 1.5 ? ZC1 : zona < 2.5 ? ZC2 : zona < 3.5 ? ZC3 : zona < 4.5 ? ZC4 : ZC5;
-        float zb = zona < 0.5 ? 1.05 : zona < 1.5 ? 0.85 : zona < 2.5 ? 1.0 : zona < 3.5 ? 0.85 : zona < 4.5 ? 0.7 : 0.05;
+        float zb = zona < 0.5 ? 1.05 : zona < 1.5 ? 0.85 : zona < 2.5 ? 1.0 : zona < 3.5 ? 0.85 : zona < 4.5 ? 0.7 : 0.03;
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
         vec3 nv = normalize(normalMatrix * aNor);
         vec3 vv = normalize(-mv.xyz);

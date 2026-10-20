@@ -312,7 +312,7 @@ function discoTierra(R, seed, extra = 0) {
   return K.poligono(pts);
 }
 function atmosfera(z) {
-  if (z < 4.15 || CAM.Rt < 40) return;
+  if (z < 4.85 || CAM.Rt < 40) return;
   // tres hojas de papel vegetal, cada una más fina y más opaca cerca del suelo
   const c = K.g, T0 = 26000 * CAM.ppm;
   for (const [f, a, seed] of [[1, 0.17, 7301], [0.55, 0.2, 7302], [0.26, 0.26, 7303]]) {
@@ -348,7 +348,7 @@ function globo(z, t) {
     c.fillStyle = gr; c.fillRect(Ex - R, Ey - R, 2 * R, 2 * R);
   } });
   c.save(); c.translate(Ex, cy);
-  const k = R * 0.985, o = barato ? { d: 0, tb: 0, edge: 0 } : {};
+  const k = R - Math.min(R * 0.015, 3), o = barato ? { d: 0, tb: 0, edge: 0 } : {};   // las tierras, justo dentro del borde
   const land = K.proyectarGlobo(Object.values(K.CONTINENTES), lon0, lat0, k);
   if (land) K.papel(land, C.sage, { d: 1.6, seed: 1106, ...o, edge: barato ? 0.8 : 1 });
   const des = K.proyectarGlobo(Object.values(K.DESIERTOS), lon0, lat0, k);
@@ -369,7 +369,7 @@ function globo(z, t) {
   const s2 = Math.hypot(SOL3[0], SOL3[1]), sx = SOL3[0] / s2, sy = SOL3[1] / s2;
   const a = [-sy, sx, 0];
   const b = [SOL3[1] * a[2] - SOL3[2] * a[1], SOL3[2] * a[0] - SOL3[0] * a[2], SOL3[0] * a[1] - SOL3[1] * a[0]];
-  const pts = [], Rn = R * 0.996, sgn = b[2] >= 0 ? 1 : -1;
+  const pts = [], Rn = R - Math.min(R * 0.004, 2.5), sgn = b[2] >= 0 ? 1 : -1;
   for (let i = 0; i <= 48; i++) {
     const be = (sgn > 0 ? 0 : PI) + i / 48 * PI;
     pts.push([Ex + (Math.cos(be) * a[0] + Math.sin(be) * b[0]) * Rn, cy - (Math.cos(be) * a[1] + Math.sin(be) * b[1]) * Rn]);
@@ -386,10 +386,10 @@ function globo(z, t) {
   // luces de las ciudades (solo de noche y en la cara visible)
   if (R > 60) {
     for (const [lo, la, w] of CIUDADES) {
-      const [x, y, zz] = proyecta3(lo, la, lon0, lat0); if (zz < 0.05) continue;
+      const [x, y, zz] = proyecta3(lo, la, lon0, lat0); if (zz < -0.001) continue;
       if (x * SOL3[0] + y * SOL3[1] + zz * SOL3[2] > -0.02) continue;
       const px = Ex + x * R, py = cy - y * R; if (px < -50 || px > 1970 || py < -50 || py > 1130) continue;
-      const rr = Math.min(60, Math.max(2.2, w * R / 160)) * (0.55 + 0.45 * zz);
+      const rr = Math.min(R > 2600 ? 14 : 60, Math.max(2.2, w * R / 160)) * (0.55 + 0.45 * Math.max(0, zz));
       destello(px, py, rr * 2.2, 0.75);
       c.fillStyle = '#fff1c4'; c.beginPath(); c.arc(px, py, Math.max(0.8, rr * 0.18), 0, TAU); c.fill();
     }
@@ -779,7 +779,7 @@ function orbitas(z, t) {
 }
 // cinturón de Kuiper y nube de Oort: confeti de papel (con su sombrita dura)
 const KUIPER = (() => { const r = K.rng(2201), v = []; for (let i = 0; i < 380; i++) { const a = r() * TAU, d = lerp(4.5e12, 7.5e12, Math.sqrt(r())); v.push([d * Math.cos(a), -Q * d * Math.sin(a), 0.6 + r() * 1.5, r() < 0.5]); } return v; })();
-const OORT = (() => { const r = K.rng(2301), v = []; for (let i = 0; i < 520; i++) { const u = r() * 2 - 1, a = r() * TAU, d = lerp(2e15, 1.6e16, Math.pow(r(), 0.6)), s = Math.sqrt(1 - u * u); v.push([d * s * Math.cos(a), d * u, 0.9 + r() * 1.5, r() < 0.3]); } return v; })();
+const OORT = (() => { const r = K.rng(2301), v = []; for (let i = 0; i < 520; i++) { const u = r() * 2 - 1, a = r() * TAU, d = lerp(1e15, 1.6e16, Math.pow(r(), 0.6)), s = Math.sqrt(1 - u * u); v.push([d * s * Math.cos(a), d * u, 0.9 + r() * 1.5, r() < 0.3]); } return v; })();
 function confeti(z) {
   const c = K.g, Sx = CAM.Sx, Sy = CAM.Sy;
   const dib = (lista, z0, z1, col) => {
@@ -827,7 +827,7 @@ function solEstrella(z) {
 // campos de estrellas: una capa por década (puntitos y estrellas de cuatro puntas)
 const CAMPOS = [17, 18, 19, 20].map((L) => {
   const r = K.rng(2600 + L), v = [];
-  for (let i = 0; i < 170; i++) v.push([(r() * 2 - 1) * 1.7 * 960 / ppm(L), (r() * 2 - 1) * 1.7 * 540 / ppm(L), 0.7 + Math.pow(r(), 3) * 2.4, r() < 0.12, r()]);
+  for (let i = 0; i < (L >= 19 ? 380 : 170); i++) v.push([(r() * 2 - 1) * 1.7 * 960 / ppm(L), (r() * 2 - 1) * 1.7 * 540 / ppm(L), 0.7 + Math.pow(r(), 3) * 2.4, r() < 0.12, r()]);
   return { L, v };
 });
 function campos(z) {
@@ -928,7 +928,7 @@ function galaxia(z) {
 // «estás aquí»: flecha de papel y aro diminuto sobre el Sol
 const AQUI = { aro: K.anillo(9, 14, 2901), flecha: K.flechaPath(K.bezierPts([250, 175], [215, 75], [110, 35], [24, 14], 30), { ancho: 6.5, punta: 26, alas: 2.4 }) };
 function aquiEstamos(t) {
-  const u = seg(t, m.lactea - 0.28, m.lactea);
+  const u = seg(t, m.lactea - 0.13, m.lactea);
   if (u <= 0) return;
   const c = K.g, x = CAM.Sx, y = CAM.Sy, p = K.colocar(u);
   K.elevar(p.d, () => {
@@ -1061,7 +1061,7 @@ function escenaEn(t) {
       atmosfera(z);
       for (const L of CAPAS) capaLejana(L, z);
       dibujaDecadas(z);                       // detrás de la franja del suelo: quedan «plantadas» en él
-      if (z < 5.05) suelo(); else if (CAM.Rt >= 40) globo(z, t);
+      if (z < 4.55) suelo(); else if (CAM.Rt >= 40) globo(z, t);
       dibujaDecadas(z, true);                 // sus luces, delante
       personaMundo(z, t);
       aroTu(z, t);

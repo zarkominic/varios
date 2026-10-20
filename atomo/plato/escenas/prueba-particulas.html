@@ -120,39 +120,51 @@ function sdfMano(x, y) {
   return d;
 }
 function construirMano() {
-  const L = new Luces(60000);
+  const L = new Luces(70000);
   const r = azar(1201);
-  // piel: rejilla con azar; borde más brillante (luz de contorno) y pliegues de los nudillos más oscuros
-  for (let y = -150; y < 200; y += 1.35) for (let x = -95; x < 75; x += 1.35) {
-    const px = x + (r() - 0.5) * 1.1, py = y + (r() - 0.5) * 1.1;
+  const dDedo = (x, y, [fx, Lf, fr]) => dCap(x, y, fx, -38, fx + fx * 0.06, -38 - Lf, fr, fr - 1.3);
+  // piel de luz: contorno brillante, interior tenue, pliegues de los nudillos y entre los dedos más oscuros
+  for (let y = -150; y < 200; y += 1.05) for (let x = -95; x < 75; x += 1.05) {
+    const px = x + (r() - 0.5) * 0.9, py = y + (r() - 0.5) * 0.9;
     const d = sdfMano(px, py);
     if (d > 0) continue;
-    const borde = 1 - ss(0, 9, -d);
-    let k = 0.1 + 0.2 * borde + 0.05 * fbm3(px / 22, py / 22, 0.3, 4, 3);
-    for (const [fx, Lf] of DEDOS) {
-      if (Math.abs(px - fx) < 11) for (const f of [0.0, 0.42, 0.75]) { const yy = -38 - Lf * f; if (Math.abs(py - yy - 0.004 * (px - fx) ** 2) < 1.6) k *= 0.55; }
-      // uña
-      const yu = -38 - Lf + 9;
-      if (Math.hypot((px - fx - fx * 0.06) / 6.5, (py - yu) / 8) < 1) k += 0.12;
+    const borde = Math.pow(1 - ss(0, 8, -d), 1.6);
+    let k = 0.035 + 0.3 * borde + 0.03 * fbm3(px / 22, py / 22, 0.3, 4, 3);
+    // separación entre dedos
+    if (py < -40) {
+      const ds = DEDOS.map((f) => dDedo(px, py, f)).sort((a, b) => a - b);
+      if (ds[1] < 1.2) k *= 0.35 + 0.65 * ss(0, 1.2, ds[1]);
+      if (ds[0] > -2.2) k += 0.12 * (1 - ss(-2.2, 0, ds[0]));
     }
-    // tendones del dorso: líneas suaves de los nudillos a la muñeca
-    for (const [fx] of DEDOS) { const t = cl((py + 40) / 95); const tx = mix(fx, fx * 0.25, t); if (py > -40 && py < 55 && Math.abs(px - tx) < 2.2) k *= 1.18; }
-    L.add(px, py, 0, ...(r() < 0.5 ? PIEL : PIEL2), k * (0.8 + 0.4 * r()), 2.3, 0, 0.05, r());
-    if (r() < 0.35) L.add(px + (r() - 0.5), py + (r() - 0.5), 0.3, 1.0, 0.86, 0.74, (0.25 + 0.3 * borde) * (0.6 + 0.8 * r()), 0.55, 0, 0.25, r());
+    for (const [fx, Lf] of DEDOS) {
+      if (Math.abs(px - fx) < 11) for (const f of [0.0, 0.42, 0.75]) { const yy = -38 - Lf * f; if (Math.abs(py - yy - 0.004 * (px - fx) ** 2) < 1.2) k *= 0.45; }
+      const yu = -38 - Lf + 9;
+      if (Math.hypot((px - fx - fx * 0.06) / 6.5, (py - yu) / 8) < 1) k += 0.08;
+    }
+    for (const [fx] of DEDOS) { const t = cl((py + 40) / 95); const tx = mix(fx, fx * 0.25, t); if (py > -40 && py < 55 && Math.abs(px - tx) < 2.2) k *= 1.2; }
+    L.add(px, py, 0, ...(r() < 0.5 ? PIEL : PIEL2), k * (0.8 + 0.4 * r()), 1.25, 0, 0.05, r());
+    if (r() < 0.22) L.add(px + (r() - 0.5), py + (r() - 0.5), 0.3, 1.0, 0.88, 0.76, (0.12 + 0.45 * borde) * (0.5 + r()), 0.45, 0, 0.3, r());
+  }
+  // resplandor interno
+  for (let q = 0; q < 1400; q++) {
+    const x = -90 + 160 * r(), y = -150 + 340 * r();
+    const d = sdfMano(x, y);
+    if (d > -6) { q--; continue; }
+    L.add(x, y, -2, 1.0, 0.72, 0.5, 0.011, 9, 0, 0, r());
   }
   // vello del dorso y del antebrazo: trazos cortos, inclinados hacia los dedos
   const pelito = (x0, y0, ang, largo, int) => {
-    for (let s = 0; s < largo; s += 0.35) L.add(x0 + Math.cos(ang) * s + 0.02 * s * s * Math.cos(ang + 1.4), y0 + Math.sin(ang) * s, 0.6, ...VELLO, int, 0.45, 0, 0.1, r());
+    for (let s = 0; s < largo; s += 0.3) L.add(x0 + Math.cos(ang) * s + 0.02 * s * s * Math.cos(ang + 1.4), y0 + Math.sin(ang) * s, 0.6, ...VELLO, int, 0.5, 0, 0.1, r());
   };
   let n = 0;
-  while (n < 160) {
+  while (n < 170) {
     const x = -70 + 140 * r(), y = -10 + 200 * r();
     if (sdfMano(x, y) > -6) continue;
-    pelito(x, y, -Math.PI / 2 - 0.35 + (r() - 0.5) * 0.5, 4 + 4 * r(), 0.22 + 0.12 * r());
+    pelito(x, y, -Math.PI / 2 - 0.35 + (r() - 0.5) * 0.5, 4 + 4 * r(), 0.35 + 0.2 * r());
     n++;
   }
   // el pelo al que vamos: sale hacia arriba desde el punto de la piel
-  pelito(MANO_PIEL[0], MANO_PIEL[1] - 4, Math.PI / 2, 9, 0.35);
+  pelito(MANO_PIEL[0], MANO_PIEL[1] - 4, Math.PI / 2, 9, 0.5);
   return L;
 }
 
@@ -168,57 +180,58 @@ const FOLICULOS = [[PIEL_FOL[0], PIEL_FOL[1], Math.PI / 2, 150, 0]];
   }
 }
 function construirPiel() {
-  const L = new Luces(90000), S = new Luces(12000);
+  const L = new Luces(80000), S = new Luces(12000);
   const r = azar(1301);
-  for (let y = -190; y < 190; y += 2.2) for (let x = -300; x < 300; x += 2.2) {
-    const px = x + (r() - 0.5) * 1.8, py = y + (r() - 0.5) * 1.8;
+  for (let y = -190; y < 190; y += 2.4) for (let x = -300; x < 300; x += 2.4) {
+    const px = x + (r() - 0.5) * 2, py = y + (r() - 0.5) * 2;
     const w = 6 * (fbm3(px / 60, py / 60, 0.5, 3, 3) - 0.5);
     const s1 = SURCO(px + w, py - w), s2 = SURCO2(px * 1.03 + 9, py);
-    let k = 0.06 + 0.14 * ss(1, 6, s1) * (0.75 + 0.25 * ss(0.3, 2.5, s2)) + 0.05 * fbm3(px / 90, py / 90, 0.2, 9, 3);
-    for (const [fx, fy] of FOLICULOS) { const dd = Math.hypot(px - fx, py - fy); if (dd < 9) k *= 0.25 + 0.75 * ss(3, 9, dd); }
-    L.add(px, py, 0, ...(r() < 0.5 ? PIEL : PIEL2), k * (0.8 + 0.4 * r()), 3.2, 0, 0.04, r());
-    if (r() < 0.25) L.add(px, py, 0.2, 1.0, 0.88, 0.76, (0.08 + 0.25 * ss(2, 8, s1)) * (0.5 + r()), 0.8, 0, 0.3, r());
+    let k = 0.012 + 0.07 * ss(0.8, 7, s1) * (0.7 + 0.3 * ss(0.3, 2.5, s2)) + 0.02 * fbm3(px / 90, py / 90, 0.2, 9, 3);
+    for (const [fx, fy] of FOLICULOS) { const dd = Math.hypot(px - fx, py - fy); if (dd < 10) k *= 0.2 + 0.8 * ss(3, 10, dd); }
+    L.add(px, py, 0, ...(r() < 0.5 ? PIEL : PIEL2), k * (0.85 + 0.3 * r()), 5.2, 0, 0.03, r());
+    if (r() < 0.22) L.add(px, py, 0.2, 1.0, 0.88, 0.76, (0.05 + 0.3 * ss(2, 8, s1)) * (0.5 + r()), 0.9, 0, 0.3, r());
   }
-  // pelos: cadenas de luz ámbar, con su sombra sobre la piel
+  // pelos: cadenas de luz ámbar con un brillo a lo largo, y su sombra sobre la piel
   for (const [fx, fy, a, Lp, curva] of FOLICULOS) {
-    const N = Math.round(Lp / 0.5);
+    const N = Math.round(Lp / 0.45);
     for (let i = 0; i <= N; i++) {
       const u = i / N, b = a + curva * u;
       const x = fx + Math.cos(a) * Lp * u + Math.cos(b + Math.PI / 2) * curva * 25 * u * u;
       const y = fy + Math.sin(a) * Lp * u + Math.sin(b + Math.PI / 2) * curva * 25 * u * u;
-      const brillo = 0.55 + 0.45 * Math.sin(u * 9 + fx);
-      L.add(x, y, 1, ...VELLO, 0.32 * brillo, 1.6, 0, 0.05, r());
-      L.add(x - 0.25, y + 0.2, 1.1, 1.0, 0.9, 0.75, 0.3 * brillo, 0.5, 0, 0.1, r());
-      S.add(x + 3, y - 3, 0.5, 0, 0, 0, 0.35, 3.4, 0, 0, r());
+      const brillo = 0.7 + 0.3 * Math.sin(u * 9 + fx);
+      L.add(x, y, 1, ...VELLO, 0.55 * brillo, 2.2, 0, 0.05, r());
+      L.add(x - 0.3, y + 0.2, 1.1, 1.0, 0.92, 0.8, 0.5 * brillo, 0.7, 0, 0.1, r());
+      S.add(x + 3.5, y - 3.5, 0.5, 0, 0, 0, 0.4, 4.5, 0, 0, r());
     }
   }
   return { L, S };
 }
 
 // ── nivel 3: un pelo que sale de su poro (unidad 10 µm) ───────────────────────
-const CELULA = voronoi(4.2, 63);
+const CELULA = voronoi(8.5, 63);
 function construirPelo() {
-  const L = new Luces(110000), S = new Luces(6000);
+  const L = new Luces(150000), S = new Luces(8000);
   const r = azar(1401);
   const HW = 4.2;                                     // medio ancho del pelo: 84 µm de grosor
-  for (let y = -190; y < 190; y += 1.05) for (let x = -300; x < 300; x += 1.05) {
-    const px = x + (r() - 0.5) * 0.9, py = y + (r() - 0.5) * 0.9;
+  for (let y = -150; y < 150; y += 1.25) for (let x = -255; x < 255; x += 1.25) {
+    const px = x + (r() - 0.5) * 1.1, py = y + (r() - 0.5) * 1.1;
+    if (Math.abs(px) < HW + 0.4 && py > POR_Y) continue;
     const rp = Math.hypot(px, (py - POR_Y) * 1.5);
-    if (Math.abs(px) < HW + 0.6 && py > POR_Y) continue;
-    const borde = ss(0.2, 1.3, CELULA(px, py));
-    const crater = rp < 60 ? mix(0.12, 1, ss(12, 60, rp)) : 1;
-    const labio = campana(rp, 45, 60, 64, 85) * 0.18;
-    let k = (0.05 + 0.13 * borde + 0.04 * fbm3(px / 70, py / 70, 0.7, 17, 3) + labio) * crater;
-    L.add(px, py, 0, ...(r() < 0.5 ? PIEL : PIEL2), k * (0.8 + 0.4 * r()), 1.5, 0, 0.04, r());
+    const borde = ss(0.25, 1.6, CELULA(px, py));
+    const crater = rp < 60 ? mix(0.1, 1, ss(12, 60, rp)) : 1;
+    const labio = campana(rp, 45, 60, 64, 85) * 0.09;
+    const k = (0.006 + 0.075 * borde + 0.02 * fbm3(px / 70, py / 70, 0.7, 17, 3) + labio) * crater;
+    L.add(px, py, 0, ...(r() < 0.5 ? PIEL : PIEL2), k * (0.85 + 0.3 * r()), 2.2, 0, 0.03, r());
+    if (r() < 0.15) L.add(px, py, 0.2, 1.0, 0.88, 0.76, (0.03 + 0.2 * borde) * (0.5 + r()) * crater, 0.5, 0, 0.3, r());
   }
   // el tallo del pelo, cilíndrico, con las líneas de la cutícula
-  for (let y = POR_Y - 6; y < 200; y += 0.32) for (let x = -HW; x <= HW; x += 0.32) {
+  for (let y = POR_Y - 6; y < 200; y += 0.36) for (let x = -HW; x <= HW; x += 0.36) {
     const u = x / HW, cil = Math.pow(Math.max(0, 1 - u * u), 0.45);
     const fila = 0.5 + 0.5 * Math.sin((y + 0.9 * Math.sin(x * 0.6)) * 2.3);
-    let k = 0.06 + 0.24 * cil * (0.82 + 0.18 * fila) + 0.25 * Math.exp(-(((u + 0.35) / 0.18) ** 2));
+    let k = 0.05 + 0.2 * cil * (0.8 + 0.2 * fila) + 0.28 * Math.exp(-(((u + 0.35) / 0.18) ** 2));
     k *= ss(POR_Y - 6, POR_Y + 10, y);
-    const borde = ss(0.85, 1, Math.abs(u));
-    L.add(x + (r() - 0.5) * 0.2, y + (r() - 0.5) * 0.2, 2, ...(borde > 0.5 ? [0.55, 0.85, 1.0] : VELLO), k + 0.25 * borde, 0.55, 0, 0.03, r());
+    const borde = ss(0.82, 1, Math.abs(u));
+    L.add(x + (r() - 0.5) * 0.2, y + (r() - 0.5) * 0.2, 2, ...(borde > 0.5 ? [0.55, 0.85, 1.0] : VELLO), k + 0.3 * borde, 0.65, 0, 0.03, r());
   }
   // sombra del pelo sobre la piel, hacia abajo a la derecha
   for (let y = POR_Y; y < 200; y += 1.2) for (let x = -HW; x <= HW; x += 1.6) S.add(x + 9, y - 5, 0, 0, 0, 0, 0.32, 6, 0, 0, r());
@@ -233,33 +246,33 @@ function filaCut(i) {
 }
 const bordeCut = (f, x) => { const u = x / PELO_HW; return f.y0 + f.pend * x - f.curva * (1 - u * u) + 4.2 * (ruido3(x / 22, f.s + 0.5, 0.3, 8) - 0.5) + 1.6 * (ruido3(x / 3.5, f.s, 0.3, 5) - 0.5); };
 function construirTronco() {
-  const L = new Luces(120000);
+  const L = new Luces(110000);
   const r = azar(1501);
-  for (let i = -28; i <= 28; i++) {
+  for (let i = -20; i <= 20; i++) {
     const f = filaCut(i), g = filaCut(i + 1);
-    for (let x = -PELO_HW; x <= PELO_HW; x += 0.42) {
+    for (let x = -PELO_HW; x <= PELO_HW; x += 0.48) {
       const u = x / PELO_HW;
-      const cil = Math.pow(Math.max(0, 1 - u * u), 0.45) * (1 - 0.3 * cl(u));
-      const brillo = Math.exp(-(((u + 0.3) / 0.16) ** 2));
-      const borde = ss(0.9, 1, Math.abs(u));
-      // el borde libre de la escama: una línea brillante
+      const cil = Math.pow(Math.max(0, 1 - u * u), 0.6) * (1 - 0.35 * cl(u));
+      const brillo = Math.exp(-(((u + 0.32) / 0.15) ** 2));
+      const borde = ss(0.86, 1, Math.abs(u));
       const yb = bordeCut(f, x);
-      L.add(x + (r() - 0.5) * 0.3, yb + (r() - 0.5) * 0.3, 1, 1.0, 0.86, 0.66, (0.1 + 0.5 * cil + 0.4 * brillo) * (0.8 + 0.4 * r()), 0.75, 0, 0.05, r());
+      // el borde libre de la escama: una línea brillante
+      L.add(x + (r() - 0.5) * 0.3, yb + (r() - 0.5) * 0.3, 1, 1.0, 0.86, 0.66, (0.04 + 0.45 * cil + 0.45 * brillo) * (0.8 + 0.4 * r()), 0.8, 0, 0.05, r());
       // la teja: de oscura (bajo la escama de arriba) a clara (hacia su borde libre)
       const yt = bordeCut(g, x);
       for (let t = 0.08; t < 1; t += 0.11) {
         const y = mix(yt, yb, t) + (r() - 0.5) * 0.5;
-        const k = (0.03 + 0.2 * cil * t * t + 0.25 * brillo * t) * (0.8 + 0.4 * r());
-        L.add(x + (r() - 0.5) * 0.4, y, 0, ...(t > 0.7 ? [1.0, 0.72, 0.42] : VELLO), k, 1.2, 0, 0.03, r());
+        const k = (0.008 + 0.16 * cil * t * t + 0.24 * brillo * t * t) * (0.8 + 0.4 * r());
+        L.add(x + (r() - 0.5) * 0.4, y, 0, ...(t > 0.7 ? [1.0, 0.72, 0.42] : VELLO), k, 1.3, 0, 0.03, r());
       }
-      if (borde > 0.3 && r() < 0.7) L.add(x, yb + (r() - 0.5) * 8, 2, 0.55, 0.85, 1.0, 0.35 * borde, 0.8, 0, 0.1, r());
+      if (borde > 0.2 && r() < 0.8) L.add(x, yb + (r() - 0.5) * 8, 2, 0.55, 0.85, 1.0, 0.45 * borde, 0.9, 0, 0.1, r());
     }
   }
   // fondo: piel desenfocada, en grandes manchas de luz
-  for (let q = 0; q < 46; q++) {
+  for (let q = 0; q < 60; q++) {
     const x = (r() - 0.5) * 900, y = (r() - 0.5) * 520;
-    if (Math.abs(x) < PELO_HW + 30 && r() < 0.7) continue;
-    L.add(x, y, -60, ...(r() < 0.75 ? PIEL : [0.55, 0.75, 1.0]), 0.025 + 0.04 * r(), 40 + 80 * r() ** 2, 0, 0.05, r());
+    if (Math.abs(x) < PELO_HW + 40) continue;
+    L.add(x, y, -60, ...(r() < 0.8 ? PIEL : [0.55, 0.75, 1.0]), 0.05 + 0.07 * r(), 30 + 70 * r() ** 2, 0, 0.05, r());
   }
   return L;
 }
@@ -303,7 +316,7 @@ const atomosMol = MOL.map(() => P.crearAtomo(9));
 const enlaces = P.capaPantalla(1400, 12);
 
 // ── la pizarra de luz: «?» que se convierte en «!» ────────────────────────────
-const PIZ = { x: 1255, y: 322, w: 300, h: 236 };
+const PIZ = { x: 1262, y: 322, w: 330, h: 262 };
 function glifo(txt, n, semilla) {
   const c = document.createElement('canvas'); c.width = 260; c.height = 260;
   const x = c.getContext('2d', { willReadFrequently: true });
@@ -312,10 +325,10 @@ function glifo(txt, n, semilla) {
   const d = x.getImageData(0, 0, 260, 260).data, llenos = [];
   for (let j = 0; j < 260; j++) for (let i = 0; i < 260; i++) if (d[(j * 260 + i) * 4 + 3] > 128) llenos.push([i, j]);
   const r = azar(semilla), out = [];
-  for (let k = 0; k < n; k++) { const [i, j] = llenos[Math.floor(r() * llenos.length)]; out.push([(i - 130 + r() - 0.5) * 0.62, (j - 140 + r() - 0.5) * 0.62]); }
+  for (let k = 0; k < n; k++) { const [i, j] = llenos[Math.floor(r() * llenos.length)]; out.push([(i - 130 + r() - 0.5) * 0.9, (j - 140 + r() - 0.5) * 0.9]); }
   return out;
 }
-const N_G = 900;
+const N_G = 1300;
 const INTERROGANTE = glifo('?', N_G, 5), EXCLAMACION = glifo('!', N_G, 6);
 // a cada partícula de la «?» le toca la de la «!» más cercana en altura (así fluyen sin cruzarse demasiado)
 {
@@ -414,7 +427,7 @@ function dibujar(t) {
       const x = mix(x0, x1, s), y = mix(y0, y1, s);
       if (Math.hypot(x - x0, y - y0) < r0 || Math.hypot(x - x1, y - y1) < r1) continue;
       const tw = 0.75 + 0.25 * Math.sin(k * 1.7 + tt * 3);
-      enlaces.add(x, y, 0.55 + 0.45 * fl, 0.85 + 0.15 * fl, 1.0, (0.22 + 0.7 * fl) * tw * (1 - dis), 3.2 + 3 * fl);
+      enlaces.add(x, y, 0.55 + 0.45 * fl, 0.85 + 0.15 * fl, 1.0, (0.5 + 0.8 * fl) * tw * (1 - dis), 4.2 + 3 * fl);
     }
   };
   MOL.forEach((m, i) => {
@@ -518,6 +531,8 @@ function potenciaGrande(ctx, n, x, y, alfa) {
   ctx.restore();
 }
 
+// calentamiento: se compilan todos los programas al cargar (no en el primer fotograma que se mide)
+for (const t of [2.8, 5.5, 7.6, 8.4, 9.05, 11]) dibujar(t);
 dibujar(0);
 E.iniciar(dibujar);
 </script>
