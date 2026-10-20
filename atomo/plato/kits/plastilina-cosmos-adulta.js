@@ -376,7 +376,8 @@ void arbol(inout Sup s, vec2 q, float r, float alto, float pw, float sem) {
   pon(s, cov, alto * (0.55 + 0.45 * hb), c, 0.0);
 }
 // el barrio de p: su celda (xy) y la distancia (m) al borde con el barrio vecino (z)
-vec2 semZ(vec2 c) { return (c + 0.2 + 0.6 * hash22(c * 1.37 + 41.0)) * ZB; }
+// (el barrio de la persona tiene su semilla justo en ella: así se sabe cuál es sin buscarlo)
+vec2 semZ(vec2 c) { return all(equal(c, vec2(0.0))) ? vec2(0.0) : (c + 0.2 + 0.6 * hash22(c * 1.37 + 41.0)) * ZB; }
 vec4 barrio(vec2 p) {
   vec2 c0 = floor(p / ZB);
   float d1 = 1e12, d2 = 1e12; vec2 i1 = c0, i2 = c0, s1 = vec2(0.0), s2 = vec2(0.0);
@@ -395,8 +396,7 @@ struct Urb { vec2 q; vec2 zid; float dZ; float tipo; float kz; float sc; float a
 Urb urbe(vec2 p) {
   Urb U;
   vec4 b = barrio(p);
-  vec4 b0 = barrio(vec2(0.0));
-  bool z0 = all(equal(b.xy, b0.xy));
+  bool z0 = all(equal(b.xy, vec2(0.0)));
   U.zid = b.xy; U.dZ = b.z; U.kz = hash12(b.xy + 61.0); U.av = step(b.w, 0.62);
   U.sc = z0 ? 1.0 : mix(0.8, 1.5, hash12(b.xy + 23.0));
   float ang = z0 ? 0.0 : (hash12(b.xy + 3.3) - 0.5) * 1.3;
@@ -874,9 +874,9 @@ void continente(inout Sup s, vec2 p, float pw) {
   float n = (fbm3(k / 140.0) - 0.5) * 0.24 + (vnoise(k / 35.0) - 0.5) * 0.12;
   float tierra = smoothstep(0.48, 0.52, a.r + n);
   float sl = senoLat(xy);
-  vec3 suelo = mix(vec3(0.16, 0.17, 0.06), vec3(0.07, 0.13, 0.05), smoothstep(0.72, 0.86, sl));
-  suelo = mix(suelo, vec3(0.27, 0.2, 0.09), smoothstep(0.55, 0.0, abs(sl - 0.62)) * 0.5);
-  suelo = mix(suelo, vec3(0.50, 0.36, 0.16), smoothstep(0.1, 0.6, b.r));
+  vec3 suelo = mix(vec3(0.15, 0.15, 0.07), vec3(0.075, 0.11, 0.055), smoothstep(0.72, 0.86, sl));
+  suelo = mix(suelo, vec3(0.25, 0.19, 0.10), smoothstep(0.55, 0.0, abs(sl - 0.62)) * 0.5);
+  suelo = mix(suelo, vec3(0.40, 0.30, 0.17), smoothstep(0.1, 0.6, b.r));
   suelo = mix(suelo, vec3(0.04, 0.11, 0.035), smoothstep(0.2, 0.7, b.g) * 0.85);
   suelo *= 0.88 + 0.24 * vnoise(k / 60.0);
   float rid = 1.0 - abs(2.0 * vnoise(k / 45.0 + 2.0) - 1.0);
