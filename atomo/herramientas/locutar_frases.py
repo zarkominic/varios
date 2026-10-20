@@ -152,7 +152,7 @@ def problemas(texto, a, oidas):
     umbral = 0.08 * np.percentile(rms, 95)
     avisos = []
     for pal, s, e in oidas:
-        if e - s < 0.3:
+        if e - s < 0.3 or re.search(r'\d', pal):   # «26,000» son varias palabras dichas
             continue
         i0, i1 = int((s + 0.06) * SR / h), int((e - 0.06) * SR / h)
         bajo = rms[i0:i1] < umbral
