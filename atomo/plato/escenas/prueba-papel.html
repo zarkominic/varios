@@ -64,7 +64,6 @@ const P = {
 function trazoPts(pts) { const p = new Path2D(); pts.forEach(([x, y], i) => (i ? p.lineTo(x, y) : p.moveTo(x, y))); return p; }
 function rayita(pts, col, w) { const c = K.g; c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round'; c.lineJoin = 'round'; c.stroke(trazoPts(pts)); }
 const afilada = (pts, w0, w1) => K.tira(pts, (u) => lerp(w0, w1, Math.pow(u, 0.8)));   // tira que se afina
-const rotar = ([x, y], a) => [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)];
 const FONDO_GRANDE = (() => { const p = new Path2D(); p.rect(-40000, -40000, 80000, 80000); p.bb = [-40000, -40000, 40000, 40000]; return p; })();
 // cielo de cartulina en vectores (sirve a cualquier escala: no deja bordes al verse pequeño)
 function cielo(semilla, tono, estrellas = 0, motas = 0) {
@@ -90,198 +89,32 @@ function cielo(semilla, tono, estrellas = 0, motas = 0) {
 }
 
 // =====================================================================================
-// NIVEL 1 · LA MANO (10⁻¹ m). También es la mano de la persona del nivel 0, a escala 1/10.
+// NIVEL 1 · LA MANO (10⁻¹ m). También es la mano de la persona del nivel 0, a escala 1/10
+// (la mano y la persona están en el kit: K.manoPrueba, K.personaPrueba; siguen HUMANO.md).
 // =====================================================================================
-const MANO = { x: 965, y: 170, rot: -0.12 };          // muñeca en el nivel 1 y giro del brazo
-const manoLocal = (p) => { const [x, y] = rotar(p, MANO.rot); return [MANO.x + x, MANO.y + y]; };
 const FOCO = [];                                      // punto de cada nivel donde está el siguiente
-FOCO[1] = manoLocal([28, 160]);
-const piezasMano = (() => {
-  const dedos = [
-    { cx: -150, y0: 250, y1: 690, w: 86, a: 0.05 }, { cx: -54, y0: 270, y1: 745, w: 90, a: 0.012 },
-    { cx: 43, y0: 265, y1: 718, w: 86, a: -0.02 }, { cx: 136, y0: 240, y1: 612, w: 74, a: -0.07 },
-  ].map((d, i) => {
-    const L = d.y1 - d.y0;
-    return {
-      ...d, i, L,
-      p: K.rectRecortado(-d.w / 2, 0, d.w, L, d.w / 2 - 2, 120 + i, 0.5),
-      una: K.rectRecortado(-d.w * 0.31, L - 118, d.w * 0.62, 96, d.w * 0.28, 130 + i, 0.4),
-      pliegues: [L * 0.42, L * 0.68],
-    };
-  });
-  const dorso = K.suave([[-136, -30], [-148, 60], [-176, 170], [-198, 262], [-196, 322], [-150, 350], [-60, 362],
-    [30, 360], [108, 350], [170, 322], [196, 270], [188, 168], [164, 70], [140, -30]]);
-  const pulgar = { p: K.rectRecortado(-50, 0, 100, 330, 48, 140, 0.5), una: K.rectRecortado(-30, 214, 60, 86, 26, 141, 0.4) };
-  const manga = (() => {      // manga con el hombro redondeado arriba (en el nivel 0 es el brazo entero)
-    const pts = [];
-    for (let i = 0; i <= 18; i++) { const a = PI + i / 18 * PI; pts.push([196 * Math.cos(a), -1500 + 196 * Math.sin(a)]); }
-    pts.push([206, -120], [-206, -120]);
-    return K.poligono(pts);
-  })();
-  const puno = K.rectRecortado(-200, -175, 400, 180, 26, 142, 0.6);
-  const r = K.rng(77), vello = [];      // pelitos del dorso (vello fino)
-  for (let i = 0; i < 24; i++) {
-    const x = -140 + r() * 290, y = 20 + r() * 290, L = 34 + r() * 30, a = -0.75 + r() * 0.35;
-    if (Math.hypot(x - 28, y - 160) < 34) continue;
-    vello.push(afilada([[x, y], [x + Math.sin(a) * L * 0.5 + 4, y - Math.cos(a) * L * 0.5], [x + Math.sin(a) * L + 2, y - Math.cos(a) * L]], 1.15, 0.3));
-  }
-  vello.push(afilada([[28, 160], [29, 138], [30, 112]], 1.5, 0.9));
-  return { dedos, dorso, pulgar, manga, puno, vello };
-})();
-function mano(o = {}) {
-  const c = K.g, Pm = piezasMano;
-  c.save(); c.translate(MANO.x, MANO.y); c.rotate(MANO.rot);
-  K.papel(Pm.manga, P.jersey, { d: 4, seed: 150, print: () => {
-    const gr = c.createLinearGradient(-200, 0, 200, 0);
-    gr.addColorStop(0, 'rgba(255,230,210,0.12)'); gr.addColorStop(0.6, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(40,10,10,0.22)');
-    c.fillStyle = gr; c.fillRect(-220, -1720, 440, 1620);
-  } });
-  // pulgar (detrás del dorso), hacia abajo y hacia el cuerpo
-  c.save(); c.translate(-150, 120); c.rotate(0.62);
-  K.papel(Pm.pulgar.p, P.pielD, { d: 3, seed: 151, print: () => { c.fillStyle = 'rgba(120,70,40,0.08)'; c.fillRect(-60, 0, 120, 340); } });
-  K.papel(Pm.pulgar.una, P.una, { d: 0.8, seed: 152, edge: 0.6 });
-  c.restore();
-  for (const d of Pm.dedos) {
-    c.save(); c.translate(d.cx, d.y0); c.rotate(d.a);
-    K.papel(d.p, d.i === 3 ? P.pielD : P.piel, { d: 3.2, seed: 160 + d.i, print: () => {
-      const gr = c.createLinearGradient(-d.w / 2, 0, d.w / 2, 0);
-      gr.addColorStop(0, 'rgba(255,240,225,0.18)'); gr.addColorStop(1, 'rgba(120,70,40,0.16)');
-      c.fillStyle = gr; c.fillRect(-d.w, 0, 2 * d.w, d.L);
-      for (const y of d.pliegues) {
-        rayita([[-d.w * 0.26, y - 4], [0, y + 3], [d.w * 0.26, y - 4]], 'rgba(150,95,60,0.55)', 3);
-        rayita([[-d.w * 0.18, y + 9], [0, y + 14], [d.w * 0.18, y + 9]], 'rgba(150,95,60,0.35)', 2.4);
-      }
-    } });
-    K.papel(d.una, P.una, { d: 1, seed: 170 + d.i, edge: 0.7, print: () => {
-      c.fillStyle = 'rgba(255,255,255,0.35)'; c.fillRect(-d.w * 0.2, d.L - 108, d.w * 0.12, 66);
-    } });
-    c.restore();
-  }
-  K.papel(Pm.dorso, P.piel, { d: 3.6, seed: 180, print: () => {
-    for (const d of Pm.dedos) rayita([[d.cx * 0.35, 10], [d.cx * 0.75, 150], [d.cx * 0.98, 300]], 'rgba(255,240,224,0.32)', 9);
-    for (const d of Pm.dedos) rayita([[d.cx - 22, d.y0 + 66], [d.cx, d.y0 + 58], [d.cx + 22, d.y0 + 66]], 'rgba(150,95,60,0.4)', 3);
-    if (o.vello !== false) {
-      for (let y = 0; y < 330; y += 9) rayita([[-170, y], [190, y + 30]], 'rgba(170,110,80,0.05)', 1.5);   // piel fina
-      c.fillStyle = 'rgba(150,100,70,0.22)';
-      for (const v of Pm.vello) { c.save(); c.translate(1.5, 1.8); c.fill(v); c.restore(); }
-      c.fillStyle = 'rgba(110,70,48,0.85)';
-      for (const v of Pm.vello) c.fill(v);
-    }
-  } });
-  K.papel(Pm.puno, P.jerseyD, { d: 4.2, seed: 190, print: () => {
-    c.strokeStyle = 'rgba(40,10,8,0.28)'; c.lineWidth = 6;
-    for (let x = -190; x <= 190; x += 24) { c.beginPath(); c.moveTo(x, -170); c.lineTo(x, 0); c.stroke(); }
-  } });
-  c.restore();
-}
+FOCO[1] = K.manoPruebaLocal([28, 160]);
 function nivel1() {
   cielo(91, 'rgba(110,105,170,0.30)', 170, 0);
-  mano();
+  K.manoPrueba();
 }
 
 // =====================================================================================
 // NIVEL 0 · LA PERSONA (10⁰ m)
 // =====================================================================================
-const PX = 600;                                       // centro de la persona; pies en y ≈ 905
-// FOCO[0]: dónde está el centro del nivel 1 dentro del nivel 0. Elegido para que el hombro de la
-// manga (la de la mano del nivel 1, a 1/10) caiga en (682, 440).
-FOCO[0] = (() => {
-  const top = manoLocal([0, -1500 - 196]);
-  return [682 - (top[0] - 960) / 10, 421 - (top[1] - 540) / 10];
-})();
-const persona = (() => {
-  const torso = (() => {
-    const p = new Path2D();
-    p.moveTo(PX - 66, 416); p.quadraticCurveTo(PX - 98, 420, PX - 100, 462); p.lineTo(PX - 88, 655);
-    p.lineTo(PX + 88, 655); p.lineTo(PX + 100, 462); p.quadraticCurveTo(PX + 98, 420, PX + 66, 416); p.closePath();
-    p.bb = [PX - 100, 416, PX + 100, 655]; return p;
-  })();
-  const pelo = (() => {
-    const p = new Path2D(), x = PX, y = 332;
-    p.moveTo(x - 63, y + 14); p.quadraticCurveTo(x - 74, y - 74, x - 2, y - 72); p.quadraticCurveTo(x + 72, y - 72, x + 64, y + 10);
-    p.quadraticCurveTo(x + 58, y - 30, x + 24, y - 34); p.quadraticCurveTo(x - 8, y - 38, x - 30, y - 20);
-    p.quadraticCurveTo(x - 48, y - 8, x - 63, y + 14); p.closePath(); p.bb = [x - 74, y - 74, x + 66, y + 16]; return p;
-  })();
-  const mechon = (() => {
-    const p = new Path2D(), x = PX, y = 332;
-    p.moveTo(x - 12, y - 68); p.quadraticCurveTo(x + 16, y - 96, x + 34, y - 84); p.quadraticCurveTo(x + 14, y - 78, x + 4, y - 60); p.closePath();
-    p.bb = [x - 12, y - 96, x + 34, y - 60]; return p;
-  })();
-  return {
-    torso, pelo, mechon,
-    cabeza: K.circulo(60, 201, 0.012), oreja: K.circulo(12, 202, 0.03),
-    cuello: K.rectRecortado(PX - 21, 380, 42, 50, 12, 203, 0.4),
-    bajo: K.rectRecortado(PX - 89, 628, 178, 32, 10, 204, 0.6),
-    collar: K.tira(K.arcoPts(PX, 408, 42, 20, 0.12, PI - 0.12, 24), 7),
-    piernaI: K.poligono([[PX - 56, 640], [PX - 4, 640], [PX - 9, 890], [PX - 50, 890]]),
-    piernaD: K.poligono([[PX + 4, 640], [PX + 56, 640], [PX + 50, 890], [PX + 9, 890]]),
-    zapatoI: K.rectRecortado(PX - 74, 880, 66, 27, 12, 205, 0.4), zapatoD: K.rectRecortado(PX + 8, 880, 66, 27, 12, 206, 0.4),
-    ojo: K.elipse(6.5, 8.5, 207, 0.02), mejilla: K.circulo(10, 208, 0.02), nariz: K.elipse(5, 4, 209, 0.03),
-    boca: K.tira(K.arcoPts(PX, 360, 13, 9, 0.35, PI - 0.35, 14), 2.3), parpado: K.rect(-7, -1.6, 14, 3.2, 1.6),
-  };
-})();
+const PX = 600, SUELO = 905;                          // centro de la persona y suela (mide 745: HUMANO.md)
+// FOCO[0]: dónde está el centro del nivel 1 dentro del nivel 0 (la mano derecha a 1/10)
+FOCO[0] = K.focoManoPersona(PX, SUELO);
 const ATOMO0 = [850, 330], PIZ0 = [1195, 345];
 // a dónde mira: a Atom, a la pizarrita y, antes de saltar, a su mano
 function mirada(t) {
-  const Mn = [700, 650];
+  const Mn = K.puntoPersona(PX, SUELO, 1, [112, -300]);
   const u1 = eio(seg(t, m.explico - 0.35, m.explico)), u2 = eio(seg(t, m.saltos - 0.75, m.saltos - 0.4));
-  const x = lerp(lerp(ATOMO0[0], PIZ0[0], u1), Mn[0], u2), y = lerp(lerp(ATOMO0[1], PIZ0[1], u1), Mn[1], u2);
-  const dx = x - PX, dy = y - 340, L = Math.hypot(dx, dy) || 1;
-  return [dx / L * 4.5, dy / L * 3.5];
+  return [lerp(lerp(ATOMO0[0], PIZ0[0], u1), Mn[0], u2), lerp(lerp(ATOMO0[1], PIZ0[1], u1), Mn[1], u2)];
 }
 const parpadea = (t) => { const f = Math.round(t * 12); return f === 25 || f === 77; };
-function brazo(lado) {   // lado 1: el de la derecha de la pantalla (el del zoom); −1: el otro, en espejo
-  const c = K.g;
-  c.save();
-  if (lado < 0) { c.translate(2 * PX, 0); c.scale(-1, 1); }
-  c.translate(FOCO[0][0], FOCO[0][1]); c.scale(0.1, 0.1); c.translate(-960, -540);
-  mano({ vello: false });
-  c.restore();
-}
 function personaDibujo(t) {
-  const c = K.g, Pp = persona;
-  c.save(); K.temblor(400, 0.35, 0.0012);
-  K.papel(Pp.piernaI, P.pantalon, { d: 2, seed: 210, print: () => { c.fillStyle = 'rgba(0,0,20,0.12)'; c.fillRect(PX - 22, 640, 22, 260); } });
-  K.papel(Pp.piernaD, P.pantalon, { d: 2, seed: 211, print: () => { c.fillStyle = 'rgba(0,0,20,0.18)'; c.fillRect(PX + 30, 640, 30, 260); } });
-  K.papel(Pp.zapatoI, C.ink, { d: 1.6, seed: 212, edge: 0.7 });
-  K.papel(Pp.zapatoD, C.ink, { d: 1.6, seed: 213, edge: 0.7 });
-  K.papel(Pp.cuello, P.pielD, { d: 1, seed: 214, edge: 0.5 });
-  K.papel(Pp.torso, P.jersey, { d: 3, seed: 215, print: () => {
-    const gr = c.createLinearGradient(PX - 100, 0, PX + 100, 0);
-    gr.addColorStop(0, 'rgba(255,230,210,0.12)'); gr.addColorStop(0.55, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(60,15,10,0.2)');
-    c.fillStyle = gr; c.fillRect(PX - 110, 410, 220, 260);
-    for (let i = -2; i <= 2; i++) { const x = PX + i * 32; rayita([[x - 16, 530], [x, 514], [x + 16, 530], [x, 546], [x - 16, 530]], 'rgba(255,225,200,0.34)', 3.4); }
-  } });
-  K.papel(Pp.bajo, P.jerseyD, { d: 1.4, seed: 216, edge: 0.6, print: () => {
-    c.strokeStyle = 'rgba(40,10,8,0.25)'; c.lineWidth = 2;
-    for (let x = PX - 86; x <= PX + 86; x += 8) { c.beginPath(); c.moveTo(x, 628); c.lineTo(x, 660); c.stroke(); }
-  } });
-  K.papel(Pp.collar, P.jerseyD, { d: 1, seed: 217, edge: 0.6 });
-  K.zoomFisico(() => { brazo(-1); brazo(1); });
-  // cabeza
-  c.save(); K.temblor(401, 0.3, 0.002);
-  for (const s of [-1, 1]) { c.save(); c.translate(PX + s * 58, 342); K.papel(Pp.oreja, P.pielD, { d: 1.2, seed: 218 + s }); c.restore(); }
-  c.save(); c.translate(PX, 332); K.papel(Pp.cabeza, P.piel, { d: 2.4, seed: 220, print: () => {
-    const gr = c.createRadialGradient(-22, -24, 8, 0, 0, 64);
-    gr.addColorStop(0, 'rgba(255,245,230,0.25)'); gr.addColorStop(1, 'rgba(150,90,60,0.16)');
-    c.fillStyle = gr; c.fillRect(-64, -64, 128, 128);
-  } }); c.restore();
-  const [ox, oy] = mirada(t), cierra = parpadea(t);
-  for (const s of [-1, 1]) {
-    c.save(); c.translate(PX + s * 21 + ox, 341 + oy);
-    if (cierra) K.papel(Pp.parpado, C.ink, { d: 0.3, seed: 221, edge: 0 });
-    else { K.papel(Pp.ojo, C.ink, { d: 0.5, seed: 222 + s, edge: 0.3 }); c.fillStyle = '#fff6e6'; c.beginPath(); c.arc(-1.8, -3.2, 2, 0, TAU); c.fill(); }
-    c.restore();
-    c.save(); c.translate(PX + s * 37, 363); K.papel(Pp.mejilla, C.rose, { d: 0.4, seed: 224 + s, edge: 0.3, ta: 0.7 }); c.restore();
-  }
-  c.save(); c.translate(PX + 1, 354); K.papel(Pp.nariz, P.pielD, { d: 0.5, seed: 226, edge: 0.4 }); c.restore();
-  K.papel(Pp.boca, C.ink2, { d: 0.3, seed: 227, edge: 0 });
-  K.papel(Pp.pelo, P.pelo, { d: 2, seed: 228, print: () => {
-    for (let i = 0; i < 5; i++) rayita([[PX - 48 + i * 22, 276], [PX - 30 + i * 22, 298]], 'rgba(255,220,190,0.14)', 3);
-  } });
-  K.papel(Pp.mechon, P.peloD, { d: 1.2, seed: 229, edge: 0.6 });
-  c.restore();
-  c.restore();
+  K.personaPrueba(PX, SUELO, { mira: mirada(t), parpadeo: parpadea(t) });
 }
 // cielo, colinas y arbolitos (capa fija)
 const fondo0 = K.capa(() => {

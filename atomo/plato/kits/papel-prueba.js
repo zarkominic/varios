@@ -934,18 +934,19 @@ export function paisajeEcuador(o = {}) {
 const PER = {};
 function piezasPersona() {
   if (PER.ok) return PER;
-  PER.piernaI = rect(-6.5, -25, 5.2, 25, 2.4); PER.piernaD = rect(1.3, -25, 5.2, 25, 2.4);
+  // proporciones de HUMANO.md con H = 76: barbilla −63, hombros −60, entrepierna −36, dedos −28, rodillas −20.5
+  PER.piernaI = rect(-6.4, -37, 5.2, 37, 2.4); PER.piernaD = rect(1.2, -37, 5.2, 37, 2.4);
   PER.zapatos = (() => { const p = rect(-8.2, -3.2, 7.4, 3.6, 1.6); p.addPath(rect(0.8, -3.2, 7.4, 3.6, 1.6)); p.bb = [-8.2, -3.2, 8.2, 0.4]; return p; })();
-  PER.abrigo = (() => { const p = new Path2D(); p.moveTo(-12.5, -19); p.lineTo(12.5, -19); p.quadraticCurveTo(13, -21, 12.2, -24); p.lineTo(9.6, -47); p.quadraticCurveTo(8.6, -52, 3.5, -52.5); p.lineTo(-3.5, -52.5); p.quadraticCurveTo(-8.6, -52, -9.6, -47); p.lineTo(-12.2, -24); p.quadraticCurveTo(-13, -21, -12.5, -19); p.closePath(); p.bb = [-13.5, -53, 13.5, -18]; return p; })();
-  PER.falda = (() => { const p = new Path2D(); p.moveTo(-15, -15); p.lineTo(15, -15); p.lineTo(9.6, -47); p.quadraticCurveTo(8.6, -52, 3.5, -52.5); p.lineTo(-3.5, -52.5); p.quadraticCurveTo(-8.6, -52, -9.6, -47); p.closePath(); p.bb = [-15, -53, 15, -15]; return p; })();
-  PER.cuello = rect(-3, -56, 6, 6, 2);
+  PER.abrigo = (() => { const p = new Path2D(); p.moveTo(-10.2, -33); p.lineTo(10.2, -33); p.quadraticCurveTo(10.7, -35, 10, -37.5); p.lineTo(8.4, -55.5); p.quadraticCurveTo(7.6, -60, 3.2, -60.3); p.lineTo(-3.2, -60.3); p.quadraticCurveTo(-7.6, -60, -8.4, -55.5); p.lineTo(-10, -37.5); p.quadraticCurveTo(-10.7, -35, -10.2, -33); p.closePath(); p.bb = [-11, -61, 11, -32]; return p; })();
+  PER.falda = (() => { const p = new Path2D(); p.moveTo(-13, -27); p.lineTo(13, -27); p.lineTo(8.4, -55.5); p.quadraticCurveTo(7.6, -60, 3.2, -60.3); p.lineTo(-3.2, -60.3); p.quadraticCurveTo(-7.6, -60, -8.4, -55.5); p.closePath(); p.bb = [-13, -61, 13, -27]; return p; })();
+  PER.cuello = rect(-2.4, -64.5, 4.8, 5.5, 2);
   PER.cabeza = circulo(8.2, 95, 0.02);
   PER.pelo = (() => { const p = new Path2D(); p.moveTo(-8.8, 0.5); p.quadraticCurveTo(-9.8, -10.5, 0, -10.6); p.quadraticCurveTo(9.8, -10.5, 8.8, -1.5); p.quadraticCurveTo(4, -5.5, -3, -4.4); p.quadraticCurveTo(-6.5, -3, -8.8, 0.5); p.closePath(); p.bb = [-10, -11, 10, 1]; return p; })();
   PER.gorra = (() => { const p = new Path2D(); p.moveTo(-9, -1.5); p.quadraticCurveTo(-9.5, -12, 0, -12.5); p.quadraticCurveTo(9.5, -12, 9, -3.5); p.lineTo(15, -2.6); p.quadraticCurveTo(15.5, -0.8, 13, -0.6); p.lineTo(-9, -1.5); p.closePath(); p.bb = [-10, -13, 16, 0]; return p; })();
   PER.sombrero = (() => { const p = new Path2D(); p.moveTo(-16, -2); p.quadraticCurveTo(0, -5.5, 16, -2); p.quadraticCurveTo(17, 0.5, 13, 0.2); p.lineTo(-13, 0.2); p.quadraticCurveTo(-17, 0.5, -16, -2); p.closePath(); p.moveTo(-8, -3.4); p.quadraticCurveTo(-8.6, -14, 0, -14.4); p.quadraticCurveTo(8.6, -14, 8, -3.4); p.closePath(); p.bb = [-17, -15, 17, 1]; return p; })();
   PER.cinta = rect(-8.2, -5.8, 16.4, 2.6, 1);
-  PER.brazo = rect(-2.6, -1, 5.2, 23, 2.6);
-  PER.mano = circulo(3.1, 97, 0.03);
+  PER.brazo = rect(-2.3, -1, 4.6, 25.3, 2.3);
+  PER.mano = elipse(2.4, 3.3, 97, 0.03);
   PER.ok = true;
   return PER;
 }
@@ -960,22 +961,22 @@ export function persona(o = {}) {
   const ab = o.abrigo ?? C.coral, abD = o.abrigoD ?? mezcla(ab, '#000000', 0.25), pt = o.pantalon ?? C.ink, piel = o.piel ?? C.skin;
   g.save(); if (o.escala && o.escala !== 1) g.scale(o.escala, o.escala);
   const paso = o.paso ?? 0, sw = Math.sin(paso * TAU) * 0.22;
-  g.save(); g.translate(-3.9, -25); g.rotate(sw); g.translate(3.9, 25); papel(P.piernaI, pt, { d: 1.3, seed: id, edge: 0.6 }); g.restore();
-  g.save(); g.translate(3.9, -25); g.rotate(-sw); g.translate(-3.9, 25); papel(P.piernaD, pt, { d: 1.3, seed: id + 9, edge: 0.6 }); g.restore();
+  g.save(); g.translate(-3.8, -37); g.rotate(sw); g.translate(3.8, 37); papel(P.piernaI, pt, { d: 1.3, seed: id, edge: 0.6 }); g.restore();
+  g.save(); g.translate(3.8, -37); g.rotate(-sw); g.translate(-3.8, 37); papel(P.piernaD, pt, { d: 1.3, seed: id + 9, edge: 0.6 }); g.restore();
   papel(P.zapatos, C.ink, { d: 1, seed: id + 10, edge: 0.5 });
   // brazo de atrás (izquierdo)
-  g.save(); g.translate(-8.5, -46); g.rotate(o.brazoI ?? 0.18); papel(P.brazo, abD, { d: 1.2, seed: id + 1, edge: 0.5 });
-  g.translate(0, 23); papel(P.mano, piel, { d: 0.8, seed: id + 11, edge: 0.5 }); if (o.manoI) o.manoI(g); g.restore();
+  g.save(); g.translate(-7.6, -57.5); g.rotate(o.brazoI ?? 0.14); papel(P.brazo, abD, { d: 1.2, seed: id + 1, edge: 0.5 });
+  g.translate(0, 27.4); papel(P.mano, piel, { d: 0.8, seed: id + 11, edge: 0.5 }); if (o.manoI) o.manoI(g); g.restore();
   papel(o.falda ? P.falda : P.abrigo, ab, { d: 1.7, seed: id + 2 });
   papel(P.cuello, piel, { d: 0.6, seed: id + 12, edge: 0.4 });
-  g.save(); g.translate(0, -61); papel(P.cabeza, piel, { d: 1.4, seed: id + 3, edge: 0.7 });
+  g.save(); g.translate(0, -68.7); g.scale(0.683, 0.683); papel(P.cabeza, piel, { d: 1.4, seed: id + 3, edge: 0.7 });   // cabeza = H/6
   const toc = o.tocado ?? 'pelo', ct = o.colTocado ?? o.pelo ?? C.hair;
   if (toc === 'pelo') papel(P.pelo, o.pelo ?? C.hair, { d: 0.8, seed: id + 4, edge: 0.6 });
   else if (toc === 'gorra') { g.save(); if (o.mirar === -1) g.scale(-1, 1); papel(P.gorra, ct, { d: 0.9, seed: id + 4, edge: 0.6 }); g.restore(); }
   else if (toc === 'sombrero') { papel(P.sombrero, ct, { d: 1, seed: id + 4, edge: 0.6 }); papel(P.cinta, C.ink, { d: 0.4, seed: id + 13, edge: 0.3 }); }
   g.restore();
-  g.save(); g.translate(8.2, -46); g.rotate(o.brazoD ?? -0.18); papel(P.brazo, ab, { d: 1.6, seed: id + 5 });
-  g.translate(0, 23); papel(P.mano, piel, { d: 1, seed: id + 14, edge: 0.5 }); if (o.manoD) o.manoD(g); g.restore();
+  g.save(); g.translate(7.6, -57.5); g.rotate(o.brazoD ?? -0.14); papel(P.brazo, ab, { d: 1.6, seed: id + 5 });
+  g.translate(0, 27.4); papel(P.mano, piel, { d: 1, seed: id + 14, edge: 0.5 }); if (o.manoD) o.manoD(g); g.restore();
   g.restore();
 }
 const PERA = {};
@@ -1005,6 +1006,244 @@ export function personaArriba(o = {}) {
   papel(PERA.cabeza, o.pelo ?? C.hair, { d: 2.4, seed: id + 3, edge: 0.7 });
   papel(PERA.cara, o.piel ?? C.skin, { d: 0.5, seed: id + 4, edge: 0.4 });
   g.restore();
+}
+
+// ---------------------------------------------------------------- la persona de la prueba de identidad
+// La persona grande de prueba-papel, prueba-mixta y cosmos-papel: de frente, jersey coral, vaqueros y
+// las manos de papel del nivel «mano» (10⁻¹ m) dibujadas a 1/10 (el zoom ×10 casa). Sigue
+// atomo/plato/HUMANO.md. Origen en el centro de la suela, arriba = −y; a escala 1 mide H = 745:
+//   coronilla −745 · barbilla −618 (0,17 H) · hombros −588 (0,21 H) · codos y cintura −447 (0,40 H)
+//   muñecas y entrepierna −350 (0,53 H) · puntas de los dedos −276 (0,63 H) · rodillas −201 (0,73 H)
+//   hombros 0,25 H de ancho (±93) · caderas 0,19 H (±71) · hombro→muñeca 0,32 H · mano 0,10 H
+export const HUMANO_H = 745;
+/** colores de la persona y de su mano */
+export const PERSONA = {
+  piel: C.skin, pielD: C.skinD, una: '#f7e0cf', pelo: '#6e4630', peloD: '#4e2f20',
+  jersey: C.coral, jerseyD: C.coralD, pantalon: C.blue,
+};
+/** muñeca de la mano grande en su marco 1920x1080 (nivel «mano») y giro del brazo */
+export const MANO_PRUEBA = { x: 965, y: 170, rot: -0.12 };
+const MANGA_TOPE = 2400;              // de la muñeca a lo alto del hombro, en unidades de la mano (0,32 H × 10)
+const trazoAbierto = (pts) => { const p = new Path2D(); pts.forEach(([x, y], i) => (i ? p.lineTo(x, y) : p.moveTo(x, y))); return p; };
+function raya(pts, col, w) { g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.lineJoin = 'round'; g.stroke(trazoAbierto(pts)); }
+const afinada = (pts, w0, w1) => tira(pts, (u) => lerp(w0, w1, Math.pow(u, 0.8)));
+/** punto p de la mano (coordenadas de la mano: muñeca en 0,0, dedos hacia +y) en su marco 1920x1080 */
+export function manoPruebaLocal([x, y]) {
+  const a = MANO_PRUEBA.rot;
+  return [MANO_PRUEBA.x + x * Math.cos(a) - y * Math.sin(a), MANO_PRUEBA.y + x * Math.sin(a) + y * Math.cos(a)];
+}
+const MP = {};
+function piezasManoPrueba() {
+  if (MP.ok) return MP;
+  MP.dedos = [
+    { cx: -150, y0: 250, y1: 690, w: 86, a: 0.05 }, { cx: -54, y0: 270, y1: 745, w: 90, a: 0.012 },
+    { cx: 43, y0: 265, y1: 718, w: 86, a: -0.02 }, { cx: 136, y0: 240, y1: 612, w: 74, a: -0.07 },
+  ].map((d, i) => {
+    const L = d.y1 - d.y0;
+    return {
+      ...d, i, L,
+      p: rectRecortado(-d.w / 2, 0, d.w, L, d.w / 2 - 2, 120 + i, 0.5),
+      una: rectRecortado(-d.w * 0.31, L - 118, d.w * 0.62, 96, d.w * 0.28, 130 + i, 0.4),
+      pliegues: [L * 0.42, L * 0.68],
+    };
+  });
+  MP.dorso = suave([[-136, -30], [-148, 60], [-176, 170], [-198, 262], [-196, 322], [-150, 350], [-60, 362],
+    [30, 360], [108, 350], [170, 322], [196, 270], [188, 168], [164, 70], [140, -30]]);
+  MP.pulgar = { p: rectRecortado(-50, 0, 100, 330, 48, 140, 0.5), una: rectRecortado(-30, 214, 60, 86, 26, 141, 0.4) };
+  MP.manga = (() => {      // manga con el hombro redondeado arriba (en la persona es el brazo entero)
+    const pts = [], cy = -MANGA_TOPE + 196;
+    for (let i = 0; i <= 18; i++) { const a = PI + i / 18 * PI; pts.push([196 * Math.cos(a), cy + 196 * Math.sin(a)]); }
+    pts.push([206, -120], [-206, -120]);
+    return poligono(pts);
+  })();
+  MP.puno = rectRecortado(-200, -175, 400, 180, 26, 142, 0.6);
+  const r = rng(77); MP.vello = [];      // pelitos del dorso (vello fino)
+  for (let i = 0; i < 24; i++) {
+    const x = -140 + r() * 290, y = 20 + r() * 290, L = 34 + r() * 30, a = -0.75 + r() * 0.35;
+    if (Math.hypot(x - 28, y - 160) < 34) continue;
+    MP.vello.push(afinada([[x, y], [x + Math.sin(a) * L * 0.5 + 4, y - Math.cos(a) * L * 0.5], [x + Math.sin(a) * L + 2, y - Math.cos(a) * L]], 1.15, 0.3));
+  }
+  MP.vello.push(afinada([[28, 160], [29, 138], [30, 112]], 1.5, 0.9));
+  MP.ok = true;
+  return MP;
+}
+/**
+ * La mano grande (nivel 10⁻¹ m) en su marco 1920x1080: muñeca en MANO_PRUEBA. o: { vello: true }
+ * La persona la usa a 1/10 como brazo y mano.
+ */
+export function manoPrueba(o = {}) {
+  const Pm = piezasManoPrueba(), P = PERSONA, c = g;
+  c.save(); c.translate(MANO_PRUEBA.x, MANO_PRUEBA.y); c.rotate(MANO_PRUEBA.rot);
+  papel(Pm.manga, P.jersey, { d: 4, seed: 150, print: () => {
+    const gr = c.createLinearGradient(-200, 0, 200, 0);
+    gr.addColorStop(0, 'rgba(255,230,210,0.12)'); gr.addColorStop(0.6, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(40,10,10,0.22)');
+    c.fillStyle = gr; c.fillRect(-220, -MANGA_TOPE - 20, 440, MANGA_TOPE - 80);
+  } });
+  // pulgar (detrás del dorso), hacia abajo y hacia el cuerpo
+  c.save(); c.translate(-150, 120); c.rotate(0.62);
+  papel(Pm.pulgar.p, P.pielD, { d: 3, seed: 151, print: () => { c.fillStyle = 'rgba(120,70,40,0.08)'; c.fillRect(-60, 0, 120, 340); } });
+  papel(Pm.pulgar.una, P.una, { d: 0.8, seed: 152, edge: 0.6 });
+  c.restore();
+  for (const d of Pm.dedos) {
+    c.save(); c.translate(d.cx, d.y0); c.rotate(d.a);
+    papel(d.p, d.i === 3 ? P.pielD : P.piel, { d: 3.2, seed: 160 + d.i, print: () => {
+      const gr = c.createLinearGradient(-d.w / 2, 0, d.w / 2, 0);
+      gr.addColorStop(0, 'rgba(255,240,225,0.18)'); gr.addColorStop(1, 'rgba(120,70,40,0.16)');
+      c.fillStyle = gr; c.fillRect(-d.w, 0, 2 * d.w, d.L);
+      for (const y of d.pliegues) {
+        raya([[-d.w * 0.26, y - 4], [0, y + 3], [d.w * 0.26, y - 4]], 'rgba(150,95,60,0.55)', 3);
+        raya([[-d.w * 0.18, y + 9], [0, y + 14], [d.w * 0.18, y + 9]], 'rgba(150,95,60,0.35)', 2.4);
+      }
+    } });
+    papel(d.una, P.una, { d: 1, seed: 170 + d.i, edge: 0.7, print: () => {
+      c.fillStyle = 'rgba(255,255,255,0.35)'; c.fillRect(-d.w * 0.2, d.L - 108, d.w * 0.12, 66);
+    } });
+    c.restore();
+  }
+  papel(Pm.dorso, P.piel, { d: 3.6, seed: 180, print: () => {
+    for (const d of Pm.dedos) raya([[d.cx * 0.35, 10], [d.cx * 0.75, 150], [d.cx * 0.98, 300]], 'rgba(255,240,224,0.32)', 9);
+    for (const d of Pm.dedos) raya([[d.cx - 22, d.y0 + 66], [d.cx, d.y0 + 58], [d.cx + 22, d.y0 + 66]], 'rgba(150,95,60,0.4)', 3);
+    if (o.vello !== false) {
+      for (let y = 0; y < 330; y += 9) raya([[-170, y], [190, y + 30]], 'rgba(170,110,80,0.05)', 1.5);   // piel fina
+      c.fillStyle = 'rgba(150,100,70,0.22)';
+      for (const v of Pm.vello) { c.save(); c.translate(1.5, 1.8); c.fill(v); c.restore(); }
+      c.fillStyle = 'rgba(110,70,48,0.85)';
+      for (const v of Pm.vello) c.fill(v);
+    }
+  } });
+  papel(Pm.puno, P.jerseyD, { d: 4.2, seed: 190, print: () => {
+    c.strokeStyle = 'rgba(40,10,8,0.28)'; c.lineWidth = 6;
+    for (let x = -190; x <= 190; x += 24) { c.beginPath(); c.moveTo(x, -170); c.lineTo(x, 0); c.stroke(); }
+  } });
+  c.restore();
+}
+// dónde va el centro del marco de la mano (960, 540) dentro de la persona (a escala 1, origen en la suela)
+// para que lo alto de la manga caiga en el hombro (±73, −588): así la mano grande a 1/10 es su brazo
+const HOMBRO = [73, -588];
+const FOCO_BRAZO = (() => {
+  const top = manoPruebaLocal([0, -MANGA_TOPE]);
+  return [HOMBRO[0] - (top[0] - 960) / 10, HOMBRO[1] - (top[1] - 540) / 10];
+})();
+/**
+ * Punto de la pantalla donde queda el centro del marco de la mano (brazo derecho en pantalla) de una
+ * persona con la suela en (x, suelo) y escala esc. Es el punto del zoom persona → mano.
+ */
+export function focoManoPersona(x, suelo, esc = 1) { return [x + FOCO_BRAZO[0] * esc, suelo + FOCO_BRAZO[1] * esc]; }
+/** punto (local de la persona, escala 1) → pantalla */
+export function puntoPersona(x, suelo, esc, [px, py]) { return [x + px * esc, suelo + py * esc]; }
+const PP = {};
+function piezasPersonaPrueba() {
+  if (PP.ok) return PP;
+  // cuerpo (origen en el centro de la suela)
+  PP.torso = (() => {
+    const p = new Path2D();
+    p.moveTo(-44, -592); p.quadraticCurveTo(-70, -591, -73, -560); p.lineTo(-69, -372);
+    p.lineTo(69, -372); p.lineTo(73, -560); p.quadraticCurveTo(70, -591, 44, -592); p.closePath();
+    p.bb = [-73, -592, 73, -372]; return p;
+  })();
+  PP.cuello = rectRecortado(-17, -642, 34, 54, 11, 203, 0.4);
+  PP.bajo = rectRecortado(-70, -386, 140, 32, 9, 204, 0.6);
+  PP.collar = tira(arcoPts(0, -598, 34, 15, 0.12, PI - 0.12, 24), 6);
+  PP.cadera = rectRecortado(-67, -380, 134, 34, 6, 209, 0.4);
+  PP.piernaI = poligono([[-67, -372], [-2, -372], [-2, -346], [-11, -18], [-53, -18]]);
+  PP.piernaD = poligono([[2, -372], [67, -372], [53, -18], [11, -18], [2, -346]]);
+  PP.zapatoI = rectRecortado(-72, -27, 64, 27, 12, 205, 0.4);
+  PP.zapatoD = rectRecortado(8, -27, 64, 27, 12, 206, 0.4);
+  // cabeza (origen en el centro de la cara; se dibuja a 0,95 con el centro en (0, −675))
+  PP.cabeza = circulo(60, 201, 0.012); PP.oreja = circulo(12, 202, 0.03);
+  PP.pelo = (() => {
+    const p = new Path2D();
+    p.moveTo(-63, 14); p.quadraticCurveTo(-74, -74, -2, -72); p.quadraticCurveTo(72, -72, 64, 10);
+    p.quadraticCurveTo(58, -30, 24, -34); p.quadraticCurveTo(-8, -38, -30, -20);
+    p.quadraticCurveTo(-48, -8, -63, 14); p.closePath(); p.bb = [-74, -74, 66, 16]; return p;
+  })();
+  PP.mechon = (() => {
+    const p = new Path2D();
+    p.moveTo(-12, -68); p.quadraticCurveTo(16, -96, 34, -84); p.quadraticCurveTo(14, -78, 4, -60); p.closePath();
+    p.bb = [-12, -96, 34, -60]; return p;
+  })();
+  PP.ojo = elipse(6.5, 8.5, 207, 0.02); PP.mejilla = circulo(10, 208, 0.02); PP.nariz = elipse(5, 4, 209, 0.03);
+  PP.boca = tira(arcoPts(0, 28, 13, 9, 0.35, PI - 0.35, 14), 2.3); PP.parpado = rect(-7, -1.6, 14, 3.2, 1.6);
+  PP.ok = true;
+  return PP;
+}
+const CABEZA = { y: -675, esc: 0.95, ojoY: 9 };
+/**
+ * La persona de la prueba (HUMANO.md), de pie, con la suela en (x, suelo).
+ * o: { esc: 1 (mide 745·esc), mira: [x, y] (punto al que mira, en las mismas coordenadas que x/suelo),
+ *      ojos: [ox, oy] (desvío de las pupilas, si no se da `mira`), parpadeo: false,
+ *      cabeza: 0 (inclinación de la cabeza, rad; > 0 la echa hacia atrás para mirar arriba), id: 400 }
+ * Se dibuja bien a cualquier escala dentro de K.zoomFisico (fibras a tamaño de pantalla).
+ */
+export function personaPrueba(x, suelo, o = {}) {
+  const S = piezasPersonaPrueba(), P = PERSONA, c = g, esc = o.esc ?? 1, id = o.id ?? 400;
+  c.save(); c.translate(x, suelo); if (esc !== 1) c.scale(esc, esc);
+  temblor(id, 0.35, 0.0012);
+  // piernas y zapatos
+  papel(S.piernaI, P.pantalon, { d: 2, seed: 210, print: () => {
+    c.fillStyle = 'rgba(0,0,20,0.12)'; c.fillRect(-24, -380, 24, 380);
+    raya([[-52, -203], [-34, -197], [-16, -202]], 'rgba(10,14,40,0.22)', 2.4);        // rodilla
+  } });
+  papel(S.piernaD, P.pantalon, { d: 2, seed: 211, print: () => {
+    c.fillStyle = 'rgba(0,0,20,0.18)'; c.fillRect(34, -380, 34, 380);
+    raya([[16, -202], [34, -197], [52, -203]], 'rgba(10,14,40,0.22)', 2.4);
+  } });
+  papel(S.cadera, P.pantalon, { d: 1.6, seed: 219, edge: 0.6, print: () => { c.fillStyle = 'rgba(0,0,20,0.1)'; c.fillRect(0, -390, 70, 50); } });
+  papel(S.zapatoI, C.ink, { d: 1.6, seed: 212, edge: 0.7 });
+  papel(S.zapatoD, C.ink, { d: 1.6, seed: 213, edge: 0.7 });
+  // jersey
+  papel(S.cuello, P.pielD, { d: 1, seed: 214, edge: 0.5 });
+  papel(S.torso, P.jersey, { d: 3, seed: 215, print: () => {
+    const gr = c.createLinearGradient(-73, 0, 73, 0);
+    gr.addColorStop(0, 'rgba(255,230,210,0.12)'); gr.addColorStop(0.55, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(60,15,10,0.2)');
+    c.fillStyle = gr; c.fillRect(-80, -600, 160, 240);
+    for (let i = -2; i <= 2; i++) { const xx = i * 27; raya([[xx - 13, -478], [xx, -491], [xx + 13, -478], [xx, -465], [xx - 13, -478]], 'rgba(255,225,200,0.34)', 3.2); }
+  } });
+  papel(S.bajo, P.jerseyD, { d: 1.4, seed: 216, edge: 0.6, print: () => {
+    c.strokeStyle = 'rgba(40,10,8,0.25)'; c.lineWidth = 2;
+    for (let xx = -68; xx <= 68; xx += 8) { c.beginPath(); c.moveTo(xx, -388); c.lineTo(xx, -352); c.stroke(); }
+  } });
+  papel(S.collar, P.jerseyD, { d: 1, seed: 217, edge: 0.6 });
+  // brazos: la mano grande a 1/10 (el izquierdo, en espejo)
+  for (const lado of [-1, 1]) {
+    c.save(); if (lado < 0) c.scale(-1, 1);
+    c.translate(FOCO_BRAZO[0], FOCO_BRAZO[1]); c.scale(0.1, 0.1); c.translate(-960, -540);
+    manoPrueba({ vello: false });
+    c.restore();
+  }
+  // cabeza
+  let [ox, oy] = o.ojos ?? [0, 0];
+  if (o.mira) {
+    const ex = x, ey = suelo + (CABEZA.y + CABEZA.ojoY * CABEZA.esc) * esc;
+    const dx = o.mira[0] - ex, dy = o.mira[1] - ey, L = Math.hypot(dx, dy) || 1;
+    ox = dx / L * 4.5; oy = dy / L * 3.5;
+  }
+  c.save(); c.translate(0, -620); if (o.cabeza) c.rotate(-o.cabeza * 0.35); c.translate(0, 620);
+  c.translate(0, CABEZA.y); c.scale(CABEZA.esc, CABEZA.esc);
+  if (o.cabeza) { c.translate(0, 40); c.scale(1, 1 - 0.06 * Math.abs(o.cabeza)); c.translate(0, -40); }
+  temblor(id + 1, 0.3, 0.002);
+  for (const s of [-1, 1]) { c.save(); c.translate(s * 58, 10); papel(S.oreja, P.pielD, { d: 1.2, seed: 218 + s }); c.restore(); }
+  papel(S.cabeza, P.piel, { d: 2.4, seed: 220, print: () => {
+    const gr = c.createRadialGradient(-22, -24, 8, 0, 0, 64);
+    gr.addColorStop(0, 'rgba(255,245,230,0.25)'); gr.addColorStop(1, 'rgba(150,90,60,0.16)');
+    c.fillStyle = gr; c.fillRect(-64, -64, 128, 128);
+  } });
+  const sube = -(o.cabeza ?? 0) * 7;          // con la cabeza atrás, la cara sube un poco dentro del óvalo
+  for (const s of [-1, 1]) {
+    c.save(); c.translate(s * 21 + ox, CABEZA.ojoY + oy + sube);
+    if (o.parpadeo) papel(S.parpado, C.ink, { d: 0.3, seed: 221, edge: 0 });
+    else { papel(S.ojo, C.ink, { d: 0.5, seed: 222 + s, edge: 0.3 }); c.fillStyle = '#fff6e6'; c.beginPath(); c.arc(-1.8, -3.2, 2, 0, TAU); c.fill(); }
+    c.restore();
+    c.save(); c.translate(s * 37, 31 + sube); papel(S.mejilla, C.rose, { d: 0.4, seed: 224 + s, edge: 0.3, ta: 0.7 }); c.restore();
+  }
+  c.save(); c.translate(1, 22 + sube); papel(S.nariz, P.pielD, { d: 0.5, seed: 226, edge: 0.4 }); c.restore();
+  c.save(); c.translate(0, sube); papel(S.boca, C.ink2, { d: 0.3, seed: 227, edge: 0 }); c.restore();
+  papel(S.pelo, P.pelo, { d: 2, seed: 228, print: () => {
+    for (let i = 0; i < 5; i++) raya([[-48 + i * 22, -56], [-30 + i * 22, -34]], 'rgba(255,220,190,0.14)', 3);
+  } });
+  papel(S.mechon, P.peloD, { d: 1.2, seed: 229, edge: 0.6 });
+  c.restore();
+  c.restore();
 }
 
 // ---------------------------------------------------------------- átomo narrador
