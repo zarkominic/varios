@@ -1,6 +1,6 @@
 # Episodio 3 · El tamaño de todo: del quark al universo
 
-**Estado:** borrador v2 para revisar (aplica `episodios/GUIA-NARRATIVA.md`) · **Formato:** YouTube horizontal 16:9, un solo vídeo con dos pistas de audio (inglés original y español) · **Duración objetivo:** unos 5 minutos
+**Estado:** borrador v3 para revisar (aplica `episodios/GUIA-NARRATIVA.md`) · **Formato:** YouTube horizontal 16:9, un solo vídeo con dos pistas de audio (inglés original y español) · **Duración objetivo:** 8–10 minutos (pasar de 8 permite anuncios a mitad del vídeo)
 
 **Hilo:**
 - **Reencuadre:** contamos el universo en *saltos*, y cada salto lo hace todo diez veces más grande. Salimos de ti, en el salto 0. Primero bajamos hasta lo más pequeño que se puede medir; luego volvemos a ti y subimos hasta el borde del universo observable.
@@ -8,7 +8,7 @@
 
 **Ancla visual:**
 - Una regla vertical de potencias de diez en metros, con un marcador «tú estás aquí» que no lleva texto.
-- Cada capítulo empieza con una cartela que solo lleva el número del salto: −4, −10, −15, +7, +9, +12, +16, +21, +27.
+- Cada capítulo empieza con una cartela que solo lleva el número del salto: 0, −4, −5, −7, −9, −10, −15, +7, +9, +4, +12, +16, +21, +22, +27, ½.
 - Los números y los símbolos valen para los dos idiomas.
 - La imagen cambia de composición cada 4–6 s.
 
@@ -22,38 +22,78 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 
 ## 0 · Gancho
 
-**Visual:** Atom de cerca. Una manzana crece hasta el tamaño de la Tierra y dentro aparecen cerezas, que son sus átomos. Después, una persona junto a Atom con la regla, que marca 0.
+**Visual:** Atom de cerca. Una manzana crece hasta el tamaño de la Tierra y dentro aparecen cerezas, que son sus átomos.
 
 | ES | EN |
 |---|---|
 | Soy un átomo. | I'm an atom. |
 | ¿Pequeño? | Small? |
 | Si una manzana creciera hasta ser tan grande como la Tierra, sus átomos serían del tamaño de una cereza. | If an apple grew to the size of the Earth, its atoms would be about the size of cherries. |
-| Hoy vamos a recorrer todo lo que existe, de lo más pequeño a lo más grande, a saltos. | Today we'll travel through everything that exists, from the smallest to the biggest, in jumps. |
-| Cada salto lo hace todo diez veces más grande. | Each jump makes everything ten times bigger. |
-| Salimos de ti: salto cero. | We start with you: jump zero. |
+| Hoy vamos a recorrer todo lo que existe, de lo más pequeño a lo más grande. | Today we'll travel through everything that exists, from the smallest to the biggest. |
 | Y al final te diré dónde está el centro de todo esto. | And at the end, I'll tell you where the middle of it all is. |
 | No es donde crees. | It's not where you think. |
 
-## −4 a −9 · La vida, hacia abajo
+## 0 · La regla
 
-**Visual:** la cámara se mete en una mano: un pelo, luego la piel, luego células, glóbulos rojos que pasan, un virus que choca contra una célula y una doble hélice de ADN. La regla baja salto a salto.
+**Visual:** Dos montones de monedas: un millón (11,5 días en un calendario) y mil millones (31,7 años). Después, la regla de saltos con la persona en el 0.
+
+| ES | EN |
+|---|---|
+| Pero antes, un problema: tu cerebro no está hecho para estos números. | But first, a problem: your brain isn't built for these numbers. |
+| Un millón y mil millones suenan parecido. | A million and a billion sound alike. |
+| Un millón de segundos son once días y medio. | A million seconds is eleven and a half days. |
+| Mil millones de segundos son treinta y un años. | A billion seconds is thirty-one years. |
+| Así que no vamos a usar números: vamos a usar saltos. | So we won't use numbers. We'll use jumps. |
+| Cada salto lo hace todo diez veces más grande. | Each jump makes everything ten times bigger. |
+| Salimos de ti: salto cero. | We start with you: jump zero. |
+
+## −4 · Un pelo
+
+**Visual:** La cámara baja hacia una mano y un pelo se vuelve un tronco enorme. Un ojo con su límite de visión.
 
 | ES | EN |
 |---|---|
 | Primero, hacia abajo. | First, down. |
 | Cuatro saltos y llegas al grosor de un pelo: una décima de milímetro. | Four jumps, and you reach the thickness of a hair: a tenth of a millimeter. |
-| Un salto más y estás entre tus células: un glóbulo rojo mide siete milésimas de milímetro. | One more, and you're among your cells: a red blood cell is seven thousandths of a millimeter. |
-| Tienes unos treinta billones de células. | You have about thirty trillion of them. |
+| Es casi lo más pequeño que puede ver tu ojo. | That's about the smallest thing your eye can see. |
+| A partir de aquí, todo es invisible para ti. | From here on, everything is invisible to you. |
+
+## −5 · Tus células
+
+**Visual:** Glóbulos rojos que pasan como discos; bacterias alrededor; una fábrica de glóbulos rojos con un contador.
+
+| ES | EN |
+|---|---|
+| Un salto más y estás entre tus células. | One more jump, and you're among your cells. |
+| Un glóbulo rojo mide siete milésimas de milímetro. | A red blood cell is seven thousandths of a millimeter across. |
+| Tienes unos treinta billones de células, y más o menos el mismo número de bacterias viviendo contigo. | You have about thirty trillion cells, and roughly as many bacteria living with you. |
+| Mientras escuchas esta frase, tu cuerpo fabrica unos diez millones de glóbulos rojos nuevos. | While you hear this sentence, your body makes about ten million new red blood cells. |
+
+## −7 · Un virus
+
+**Visual:** Un virus junto a una onda de luz visible mucho más larga que él; un microscopio que no consigue enfocarlo.
+
+| ES | EN |
+|---|---|
 | Dos saltos más: un virus de la gripe. | Two more jumps: a flu virus. |
-| Dos más: la molécula de ADN, de dos millonésimas de milímetro de ancho. | Two more: a DNA molecule, two millionths of a millimeter wide. |
+| Es tan pequeño que un microscopio normal no puede verlo. | It's so small that a regular microscope can't see it. |
+| Y no porque el microscopio sea malo: es que la luz es demasiado gruesa. | Not because the microscope is bad, but because light itself is too coarse. |
+| Sus ondas son más grandes que el virus. | Its waves are bigger than the virus. |
+
+## −9 · El ADN
+
+**Visual:** La doble hélice; luego el ADN de una célula se desenrolla hasta medir 2 m al lado de una persona.
+
+| ES | EN |
+|---|---|
+| Dos más: la molécula de ADN. | Two more: a DNA molecule. |
+| Mide dos millonésimas de milímetro de ancho. | It's two millionths of a millimeter wide. |
+| Pero si estiraras el ADN de una sola de tus células, mediría unos dos metros. | But if you stretched out the DNA from just one of your cells, it would be about two meters long. |
+| Va doblado y enrollado, como hilo en un carrete minúsculo. | It's folded and coiled, like thread on a tiny spool. |
 
 ## −10 · El átomo, casi vacío
 
-**Visual:**
-- Atom en su sitio de la regla. Diez millones de átomos en fila llegan a 1 mm.
-- Un estadio vacío con una cabeza de alfiler en el centro y una nube de electrones en las gradas.
-- Una persona sentada: las nubes de electrones de la silla y de la persona se empujan sin tocarse.
+**Visual:** Atom en su sitio de la regla; diez millones de átomos en fila llegan a 1 mm; el estadio con la cabeza de alfiler; toda la humanidad se comprime en un terrón de azúcar; una persona sentada cuyos electrones y los de la silla se empujan.
 
 | ES | EN |
 |---|---|
@@ -64,11 +104,15 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 | Lo demás está casi vacío. | The rest is almost empty. |
 | Tú también. | So are you. |
 | No te lo tomes como algo personal. | Don't take it personally. |
-| Si no atraviesas la silla es porque tus electrones y los suyos se repelen. | You don't fall through your chair because your electrons and its electrons push each other away. |
+| Si quitaras el espacio vacío de los átomos de todos los seres humanos, la humanidad entera cabría en un terrón de azúcar. | If you squeezed the empty space out of the atoms of every human being, all of humanity would fit in a sugar cube. |
+| Entonces, ¿por qué no atraviesas la silla? | So why don't you fall through your chair? |
+| Porque tus electrones y los de la silla se repelen. | Because your electrons and the chair's push each other away. |
+| En realidad, nunca has tocado nada. | You've never really touched anything. |
+| Acuérdate del terrón de azúcar: volverá a salir. | Remember that sugar cube. It'll come back. |
 
 ## −15 · Lo más pequeño
 
-**Visual:** el núcleo crece hasta llenar la imagen: protones y neutrones; dentro de un protón, tres quarks. Después, puntos sin borde (electrón, quark) con la regla en blanco por debajo.
+**Visual:** El núcleo llena la imagen; dentro de un protón, tres quarks; puntos sin borde; la regla sigue hacia abajo hasta perderse en la niebla (Planck).
 
 | ES | EN |
 |---|---|
@@ -76,65 +120,96 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 | Dentro hay tres quarks. | Inside are three quarks. |
 | Y a los quarks y a los electrones nadie ha conseguido medirlos. | And quarks and electrons? No one has ever managed to measure them. |
 | Hasta donde sabemos, son puntos sin tamaño. | As far as we know, they're points with no size at all. |
-| Aquí se acaba lo que podemos medir. | This is as far as our measurements go. |
+| Veinte saltos más abajo está la longitud de Planck, donde la física que conocemos deja de funcionar. | Twenty jumps further down is the Planck length, where the physics we know stops working. |
+| Qué hay ahí, no lo sabe nadie. | What's down there, nobody knows. |
 | Volvamos a ti, y ahora, hacia arriba. | Let's go back to you, and now, head up. |
 
-## +7 a +9 · La Tierra, la Luna y el Sol
+## +7 · La Tierra y la Luna
 
-**Visual:**
-- La cámara sale desde una persona hasta ver la Tierra entera.
-- Aparece la Luna. En el hueco, los otros siete planetas en fila.
-- El Sol se llena de Tierras.
+**Visual:** La cámara sale desde una persona hasta la Tierra; la Tierra como manzana con la capa de aire más fina que su piel; aparece la Luna y, en el hueco, los otros siete planetas en fila.
 
 | ES | EN |
 |---|---|
 | Siete saltos hacia arriba y ya no se te ve: la Tierra mide casi trece mil kilómetros. | Seven jumps up and you've vanished from view: the Earth is almost eight thousand miles across. |
-| Un salto más, y aparece la Luna. | One more, and the Moon appears. |
+| Si la Tierra fuera una manzana, todo el aire que puedes respirar sería más fino que su piel. | If the Earth were an apple, all the air you can breathe would be thinner than its skin. |
+| Un salto más, y aparece la Luna. | One more jump, and the Moon appears. |
 | Cuando está en su punto más lejano, en el hueco entre ella y nosotros caben todos los demás planetas, en fila. | At its farthest, every other planet fits in the gap between it and us, lined up side by side. |
+
+## +9 · El Sol
+
+**Visual:** El Sol se llena de Tierras; una balanza con el Sol en un plato y los planetas como migas en el otro.
+
+| ES | EN |
+|---|---|
 | Otro salto: el Sol. | Another jump: the Sun. |
 | Dentro cabrían más de un millón de Tierras. | You could fit over a million Earths inside it. |
+| Y tiene casi toda la masa del sistema solar: más del noventa y nueve por ciento. | And it holds almost all the mass in the solar system: more than ninety-nine percent. |
+| Los planetas, nosotros incluidos, somos las migajas. | The planets, us included, are the crumbs. |
+
+## +4 · El terrón de azúcar
+
+**Visual:** Una estrella grande se apaga y se aplasta en una bola del tamaño de una ciudad (la regla vuelve a +4); una cucharita junto a un montón de coches.
+
+| ES | EN |
+|---|---|
+| ¿Te acuerdas del terrón de azúcar? | Remember the sugar cube? |
+| Hay estrellas que lo hacen de verdad. | Some stars actually do it. |
+| Cuando una estrella grande muere, se aplasta tanto que sus átomos pierden el espacio vacío. | When a big star dies, it collapses so hard that its atoms lose their empty space. |
+| Queda una estrella de neutrones: más masa que el Sol, en una bola del tamaño de una ciudad. | What's left is a neutron star: more mass than the Sun, in a ball the size of a city. |
+| Una cucharadita pesaría tanto como todos los coches del mundo juntos. | A teaspoon of it would weigh as much as every car on Earth put together. |
 
 ## +12 · Estrellas gigantes
 
-**Visual:** el Sol se encoge junto a Betelgeuse, que se coloca en su sitio y se traga las órbitas de Mercurio, Venus, la Tierra y Marte. Su borde se deshace como una nube.
+**Visual:** Betelgeuse en el lugar del Sol se traga las órbitas hasta Marte; su borde se deshace como una nube; en 2019 se oscurece tras su propio polvo.
 
 | ES | EN |
 |---|---|
 | Y el Sol es una estrella del montón. | And the Sun is a pretty average star. |
 | Betelgeuse, el hombro de Orión, puesta en el lugar del Sol, se tragaría Mercurio, Venus, la Tierra y Marte. | Betelgeuse, Orion's shoulder, placed where the Sun is, would swallow Mercury, Venus, Earth and Mars. |
 | Su tamaño exacto no lo sabemos: su borde es difuso, como el de una nube. | We don't know its exact size: its edge is fuzzy, like a cloud's. |
+| En 2019 se apagó tanto que mucha gente pensó que iba a explotar. | In 2019 it dimmed so much that many people thought it was about to explode. |
+| Era una nube de polvo que había soltado ella misma. | It was a cloud of dust it had puffed out itself. |
 
 ## +16 · Medir con luz
 
-**Visual:**
-- Un rayo de luz da siete vueltas y media a la Tierra con un reloj de 1 s.
-- Del Sol a la Tierra, el reloj marca 8 min.
-- Una estrella cercana con el reloj en 4 años, y su imagen «antigua» llegando a un ojo.
+**Visual:** Un rayo da siete vueltas y media a la Tierra con un reloj de 1 s; el Sol se apaga y su imagen sigue viajando 8 min; la Voyager 1 a casi un día luz; Próxima Centauri a 4 años luz, con un reloj que marca 70.000 años.
 
 | ES | EN |
 |---|---|
 | Cuatro saltos más y los kilómetros se quedan cortos: medimos con luz. | Four more jumps and miles fall short: we measure with light. |
 | La luz da siete vueltas y media a la Tierra en un segundo. | Light circles the Earth seven and a half times in one second. |
 | Desde el Sol tarda ocho minutos en llegarnos. | From the Sun, it takes eight minutes to reach us. |
-| Desde la estrella más cercana, más de cuatro años: cuando la miras, ves el pasado. | From the nearest star, more than four years: when you look at it, you're seeing the past. |
+| Si el Sol desapareciera, lo seguirías viendo ocho minutos más. | If the Sun disappeared, you'd keep seeing it for eight more minutes. |
+| Nuestra nave más lejana, la Voyager 1, lleva casi cincuenta años viajando, y está a un día luz de nosotros. | Our most distant spacecraft, Voyager 1, has been flying for almost fifty years, and it's about one light-day away. |
+| La estrella más cercana está a más de cuatro años luz. | The nearest star is more than four light-years away. |
+| A esa velocidad, llegar hasta ella costaría unos setenta mil años. | At that speed, getting there would take about seventy thousand years. |
 
-## +21 · Galaxias
+## +21 · La Vía Láctea
 
-**Visual:**
-- La Vía Láctea vista desde fuera, con una flecha diminuta: estamos aquí.
-- Andrómeda al lado.
-- Una línea de tiempo con los primeros humanos, que aparecen mucho después de que saliera esa luz.
+**Visual:** La Vía Láctea desde fuera con una flecha diminuta («estamos aquí»); el Sol da una vuelta a la galaxia y, en la vuelta anterior, aparecen dinosaurios.
 
 | ES | EN |
 |---|---|
 | Cinco saltos más: nuestra galaxia, la Vía Láctea. | Five more jumps: our galaxy, the Milky Way. |
 | La luz tarda cien mil años en cruzarla, y tiene cientos de miles de millones de estrellas. | Light takes a hundred thousand years to cross it, and it holds hundreds of billions of stars. |
+| Nosotros vivimos en las afueras, a veintiséis mil años luz del centro. | We live out in the suburbs, twenty-six thousand light-years from the center. |
+| El Sol tarda unos doscientos treinta millones de años en dar una vuelta a la galaxia. | The Sun takes about two hundred and thirty million years to go once around the galaxy. |
+| La última vez que pasamos por este punto, los dinosaurios acababan de aparecer. | The last time we passed this spot, the first dinosaurs had just appeared. |
+
+## +22 · Andrómeda
+
+**Visual:** Andrómeda junto a la Vía Láctea; una línea de tiempo con los primeros humanos, posteriores a la salida de esa luz; las dos galaxias acercándose.
+
+| ES | EN |
+|---|---|
 | Andrómeda, la vecina, está a dos millones y medio de años luz. | Andromeda, our neighbor, is two and a half million light-years away. |
+| Es de lo más lejano que puedes ver sin telescopio. | It's one of the farthest things you can see without a telescope. |
 | La luz que ves de ella esta noche salió antes de que existieran los humanos modernos. | The light you see from it tonight left before modern humans existed. |
+| Y viene hacia nosotros: dentro de miles de millones de años, puede que las dos se fundan en una sola galaxia. | And it's heading our way: billions of years from now, the two may merge into a single galaxy. |
 
 ## +27 · El universo observable
 
-**Visual:** las galaxias se vuelven una red de filamentos y una esfera marca el límite de lo observable. Una línea de luz recorre el camino mientras el espacio se estira bajo ella.
+**Visual:** La red de filamentos de galaxias; una esfera marca el límite de lo observable; el espacio se estira bajo un rayo de luz; la Vía Láctea se vuelve una moneda dentro de una esfera de más de 20 km.
 
 | ES | EN |
 |---|---|
@@ -143,27 +218,24 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 | Espera. | Wait. |
 | Si el universo tiene trece mil ochocientos millones de años, ¿cómo puede ser tan grande? | If the universe is thirteen point eight billion years old, how can it be that big? |
 | Porque mientras la luz viajaba, el espacio se iba estirando. | Because while the light was traveling, space itself kept stretching. |
-| Y ahí dentro hay cientos de miles de millones de galaxias. | And in there are hundreds of billions of galaxies. |
+| Si la Vía Láctea fuera una moneda, el universo observable sería una esfera de más de veinte kilómetros, salpicada de cientos de miles de millones de monedas. | If the Milky Way were a coin, the observable universe would be a sphere more than twelve miles wide, sprinkled with hundreds of billions of coins. |
+| Y casi seguro hay más universo más allá: su luz todavía no ha tenido tiempo de llegarnos. | And there's almost certainly more universe beyond it: its light just hasn't had time to reach us. |
 
 ## ½ · El centro de todo
 
-**Visual:**
-- La regla entera, de la longitud de Planck al borde del universo.
-- Una flecha busca el punto medio y cae cuatro saltos por debajo de la persona: el mismo pelo del principio.
-- Cierre con Atom y el bocadillo con la «?».
+**Visual:** La regla entera, de Planck al borde del universo; una flecha busca el punto medio y cae cuatro saltos por debajo de la persona, en el mismo pelo del principio; cierre con Atom y el bocadillo con la «?».
 
 | ES | EN |
 |---|---|
 | Ahora, la pregunta del principio: ¿dónde está el centro de todo esto? | Now, the question from the start: where's the middle of all this? |
-| Desde la longitud de Planck, donde la física que conocemos deja de funcionar, hasta el borde del universo hay algo más de sesenta saltos. | From the Planck length, where the physics we know stops working, to the edge of the universe, there are just over sixty jumps. |
+| Desde la longitud de Planck hasta el borde del universo hay algo más de sesenta saltos. | From the Planck length to the edge of the universe, there are just over sixty jumps. |
 | El punto medio no eres tú. | The midpoint isn't you. |
 | Está cuatro saltos por debajo: el grosor de un pelo. | It's four jumps below you: the thickness of a hair. |
-| El mismo pelo del primer salto. | The same hair from our very first jump. |
+| El mismo pelo del primer salto: lo más pequeño que puede ver tu ojo. | The same hair from our very first jump: the smallest thing your eye can see. |
 | En tu propio universo, eres un gigante. | In your own universe, you're a giant. |
+| Un gigante hecho de átomos casi vacíos, en una galaxia que es una moneda entre cientos de miles de millones. | A giant made of almost-empty atoms, in a galaxy that's one coin among hundreds of billions. |
 | ¿Qué quieres que te explique ahora? | What should I explain next? |
 | Déjamelo en los comentarios. | Tell me in the comments. |
-
----
 
 ## Saltos (comprobación de la regla)
 
@@ -179,9 +251,11 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 | +7 | La Tierra | 12.742 km | 7,1 |
 | +8 | La distancia a la Luna | 384.400 km | 8,6 |
 | +9 | El Sol | 1,39 millones de km | 9,1 |
+| +4 | Una estrella de neutrones | ~20–24 km de diámetro | 4,3 |
 | +12 | Betelgeuse | ~1–1,5 × 10¹² m de diámetro | 12 |
 | +16 | Un año luz | 9,46 × 10¹⁵ m | 16 |
 | +21 | La Vía Láctea | ~100.000 años luz | 21 |
+| +22 | La distancia a Andrómeda | 2,5 millones de años luz | 22,4 |
 | +27 | El universo observable | 8,8 × 10²⁶ m | 26,9 |
 | −35 | La longitud de Planck | 1,6 × 10⁻³⁵ m | −34,8 |
 
@@ -190,6 +264,34 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 - Del Sol a Betelgeuse hay unos 3 saltos, y de la Vía Láctea al universo, 6.
 
 ## Datos y fuentes por comprobar antes de locutar
+
+- **Millón y mil millones de segundos:** 10⁶ s = 11,6 días; 10⁹ s = 31,7 años.
+- **Lo que ve el ojo:** resuelve unos 0,1 mm a 25 cm de distancia.
+- **Bacterias:** ~38 billones, tantas como células humanas (Sender et al., 2016).
+- **Glóbulos rojos:** se fabrican ~2–2,5 millones por segundo, unos 10 millones en una frase de ~4 s.
+- **Virus y luz:** la luz visible va de 400 a 700 nm; el microscopio óptico no resuelve por debajo de ~200 nm; el virus de la gripe mide ~100 nm.
+- **ADN:** el de una célula humana, estirado, mide ~2 m.
+- **La humanidad en un terrón de azúcar:**
+  - 8.000 millones de personas × ~60 kg = 4,8 × 10¹¹ kg.
+  - A densidad nuclear (~2,3 × 10¹⁷ kg/m³) ocupa ~2 cm³, un terrón de azúcar.
+- **Estrella de neutrones:**
+  - Densidad ~10¹⁷–10¹⁸ kg/m³, así que una cucharadita (5 cm³) pesa ~2 × 10¹² kg = 2.000 millones de t.
+  - Hay ~1.500 millones de coches de ~1,5 t, que suman ~2.200 millones de t.
+  - Su radio es de ~10–12 km, el tamaño de una ciudad.
+- **El aire respirable:** hasta ~6–8 km de altura, el 0,1 % del radio terrestre. La piel de una manzana es ~0,3 % de su radio.
+- **Masa del Sol:** el 99,86 % de la del sistema solar.
+- **Betelgeuse, el «Gran Oscurecimiento»:** fue a finales de 2019 y principios de 2020, por una nube de polvo expulsada por la propia estrella (Hubble/ESO).
+- **Voyager 1:**
+  - Lanzada en 1977.
+  - Llega a un día luz de la Tierra (~173 UA) hacia finales de 2026.
+  - Va a ~17 km/s, así que hasta Próxima (4,24 años luz) tardaría ~73.000 años.
+- **El Sol en la galaxia:**
+  - Está a ~26.000 años luz del centro.
+  - El año galáctico dura ~225–250 millones de años.
+  - Hace ~230 millones de años (Triásico) aparecían los primeros dinosaurios.
+- **Andrómeda:** que se fusione con la Vía Láctea no es seguro. Según estudios de 2025, la probabilidad es de ~50 % en 10.000 millones de años; por eso el guion dice «puede que».
+- **Moneda y universo:** con la Vía Láctea (10⁵ años luz) del tamaño de una moneda de 2,5 cm, el universo (9,3 × 10¹⁰ años luz) mide ~23 km.
+- **Más allá de lo observable:** se piensa que el universo es mayor que la parte observable, quizá infinito. «Casi seguro» es prudente.
 
 
 - **Manzana y Tierra:**
