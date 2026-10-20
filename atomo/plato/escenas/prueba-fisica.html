@@ -1226,6 +1226,9 @@ try {
     new Promise((r) => setTimeout(r, 8000)),
   ]);
 } catch (e) { /* sin fuentes: las de reserva */ }
+// calentamiento: el primer uso de las cachés grandes es lento; se paga al cargar y no en un fotograma
+for (const t of [8.45, 9.05, 9.5, 12]) dibujar(t);
+ctx.getImageData(0, 0, 1, 1);
 dibujar(0);
 E.iniciar(dibujar);
 </script>

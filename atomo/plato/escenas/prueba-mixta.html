@@ -732,6 +732,28 @@ function atomHUD(t) {
   arcilla(t, S, e, sway, ax, vec);
 }
 // ---------------------------------------------------------------- Atom de plastilina pegado en el papel
+// Copia un rectángulo (px de diseño) del lienzo de arcilla a un lienzo de CPU con readPixels: si se dibujara
+// el lienzo WebGL directamente, Chrome pasaría el lienzo de papel a GPU (SwiftShader) y cada fotograma
+// tardaría segundos.
+const tmpA = document.createElement('canvas'), tmpG = tmpA.getContext('2d', { willReadFrequently: true });
+function copiaArcilla(x0, y0, w, h) {
+  const gl = A.renderer.getContext(), kk = lienzoArcilla.width / 1920;
+  const bx = Math.max(0, Math.floor(x0 * kk)), bw = Math.max(1, Math.min(lienzoArcilla.width - bx, Math.ceil(w * kk)));
+  const bt = Math.max(0, Math.floor(y0 * kk)), bh = Math.max(1, Math.min(lienzoArcilla.height - bt, Math.ceil(h * kk)));
+  const buf = new Uint8Array(bw * bh * 4);
+  gl.readPixels(bx, lienzoArcilla.height - bt - bh, bw, bh, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+  if (tmpA.width !== bw || tmpA.height !== bh) { tmpA.width = bw; tmpA.height = bh; }
+  const im = tmpG.createImageData(bw, bh), o = im.data;
+  for (let y = 0; y < bh; y++) {
+    const s0 = (bh - 1 - y) * bw * 4, d0 = y * bw * 4;
+    for (let x = 0; x < bw * 4; x += 4) {
+      const a = buf[s0 + x + 3], k = a ? 255 / a : 0;    // el lienzo guarda color premultiplicado
+      o[d0 + x] = Math.min(255, buf[s0 + x] * k); o[d0 + x + 1] = Math.min(255, buf[s0 + x + 1] * k); o[d0 + x + 2] = Math.min(255, buf[s0 + x + 2] * k); o[d0 + x + 3] = a;
+    }
+  }
+  tmpG.putImageData(im, 0, 0);
+  return tmpA;
+}
 const ZA = 1.0, ESC_A = 0.3, COLV = [5, 2, 3];      // verde, mostaza y crema (paleta del kit de arcilla)
 function arcilla(t, S, e, sway, ax, vec) {
   const c = K.g, tq = Math.min(t, QUIETO), tz = calma(t);
@@ -765,10 +787,10 @@ function arcilla(t, S, e, sway, ax, vec) {
   const x0 = Math.max(0, Math.floor(rect[0])), y0 = Math.max(0, Math.floor(rect[1])), x1 = Math.min(1920, Math.ceil(rect[2])), y1 = Math.min(1080, Math.ceil(rect[3]));
   if (x1 <= x0 || y1 <= y0) return;
   // dos pasadas, como K.papel: sombra blanda según la altura y sombra de contacto corta
-  const kk = lienzoArcilla.width / 1920, d = 8.5 * S.esc / 0.55 + 3 * e, dc = Math.min(d, 2.5);
+  const d = 8.5 * S.esc / 0.55 + 3 * e, dc = Math.min(d, 2.5), img = copiaArcilla(x0, y0, x1 - x0, y1 - y0);
   const pegar = (col, blur, ox, oy) => {
     c.save(); c.shadowColor = col; c.shadowBlur = blur; c.shadowOffsetX = ox; c.shadowOffsetY = oy;
-    c.drawImage(lienzoArcilla, x0 * kk, y0 * kk, (x1 - x0) * kk, (y1 - y0) * kk, x0, y0, x1 - x0, y1 - y0);
+    c.drawImage(img, 0, 0, img.width, img.height, x0, y0, x1 - x0, y1 - y0);
     c.restore();
   };
   pegar('rgba(3,5,14,0.62)', 1.5 + d * 1.1, d * 0.6, d * 1.05);   // foco pequeño: sombra más definida que la del papel (las órbitas son finas)
