@@ -133,8 +133,14 @@ const GLIFOS = {
   '−': [['s', -0.2, 0, 0.2, 0]],
   'm': [['s', -0.32, -0.5, -0.32, 0.14], ['a', -0.16, -0.02, 0.16, 90, 90], ['s', 0, -0.5, 0, -0.02], ['a', 0.16, -0.02, 0.16, 90, 90], ['s', 0.32, -0.5, 0.32, -0.02]],
   '!': [['s', 0, -0.14, 0, 0.5], ['p', 0, -0.42]],
+  '7': [['s', -0.27, 0.5, 0.29, 0.5], ['s', 0.29, 0.5, -0.05, -0.5]],
+  '8': [['c', 0, 0.255, 0.215], ['c', 0, -0.225, 0.265]],
+  '9': [['c', 0, 0.21, 0.27], ['a', -0.45, 0.21, 0.72, -35, 35]],
 };
-const NOMBRE_GLIFO = { '1': 'g1', '2': 'g2', '3': 'g3', '4': 'g4', '5': 'g5', '6': 'g6', '?': 'gq', '✓': 'gsi', '✗': 'gno', '·': 'gpt', '0': 'g0', '−': 'gmenos', 'm': 'gm', '!': 'gexc' };
+const NOMBRE_GLIFO = { '1': 'g1', '2': 'g2', '3': 'g3', '4': 'g4', '5': 'g5', '6': 'g6', '?': 'gq', '✓': 'gsi', '✗': 'gno', '·': 'gpt', '0': 'g0', '−': 'gmenos', 'm': 'gm', '!': 'gexc', '7': 'g7', '8': 'g8', '9': 'g9' };
+// (para otros módulos: el GLSL de unos glifos, con sdSeg y sdArco)
+export const glslGlifos = (chars) => `float sdSeg(vec2 p, vec2 a, vec2 b) { vec2 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0); return length(pa - ba * h); }\nfloat sdArco(vec2 p, vec2 c, float r, vec2 cs, vec2 e) { p -= c; p = vec2(dot(p, cs), cs.x * p.y - cs.y * p.x); p.y = abs(p.y); return (p.y * e.x > p.x * e.y) ? length(p - e * r) : abs(length(p) - r); }\n` + [...chars].map((c) => glslGlifo(c)).join('');
+export { NOMBRE_GLIFO };
 function glslGlifo(c) {
   let s = `float ${NOMBRE_GLIFO[c]}(vec2 p, out float dp) {\n  dp = 1e5; float d = 1e5;\n`;
   for (const t of GLIFOS[c]) {
@@ -338,62 +344,120 @@ float etiquetaD(vec2 p, float e) {
 `;
 const TIPOS_PRUEBA = {
   persona: { radio: 1.08, glifos: [], glsl: /* glsl */`
+// cápsula que se afina (radio r1 en a, r2 en b)
+float capsulaC(vec3 p, vec3 a, vec3 b, float r1, float r2) {
+  vec3 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * h) - mix(r1, r2, h);
+}
+// Persona de plastilina con las proporciones de atomo/plato/HUMANO.md. Unidades locales: suela en
+// y = −1, coronilla en y ≈ 0.765 (H ≈ 1.765). Líneas: barbilla 0.46 · hombros 0.39 · codos y cintura
+// 0.056 · muñecas y entrepierna −0.173 · puntas de los dedos −0.349 · rodillas −0.525.
+// Anchos: hombros 0.45 · caderas 0.33. Tramos del brazo: 0.30 · 0.22 · 0.18.
 float personaPartes(vec3 q, out float m) {
   vec3 a = vec3(abs(q.x), q.y, q.z);
-  float pierna = sdCapsule(a, vec3(0.088, -0.9, 0.0), vec3(0.092, -0.3, 0.0), 0.08);
-  float zapato = sdRoundBox(a - vec3(0.1, -0.958, 0.045), vec3(0.068, 0.028, 0.11), 0.035);
-  float torso = sdRoundBox(q - vec3(0.0, -0.05, 0.0), vec3(0.165, 0.25, 0.092), 0.1);
-  float bajo = sdRoundBox(q - vec3(0.0, -0.315, 0.0), vec3(0.178, 0.034, 0.104), 0.04);
-  float brazo = sdCapsule(a, vec3(0.212, 0.165, 0.0), vec3(0.262, -0.2, 0.03), 0.062);
-  float puno = sdCapsule(a, vec3(0.262, -0.205, 0.032), vec3(0.266, -0.245, 0.036), 0.069);
-  float mano = elipsoideP(a - vec3(0.27, -0.325, 0.04), vec3(0.06, 0.078, 0.048));
-  mano = smin(mano, sdCapsule(a, vec3(0.245, -0.3, 0.07), vec3(0.232, -0.345, 0.092), 0.022), 0.02);
-  float cuello = sdCapsule(q, vec3(0.0, 0.18, 0.0), vec3(0.0, 0.33, 0.0), 0.058);
-  float cabeza = elipsoideP(q - vec3(0.0, 0.5, 0.0), vec3(0.2, 0.19, 0.188));
-  cabeza = smin(cabeza, length(a - vec3(0.188, 0.49, -0.01)) - 0.04, 0.02);
-  vec3 h = q - vec3(0.0, 0.515, -0.022);
-  float pelo = smax(length(h) - 0.214, -(dot(h, normalize(vec3(0.0, 1.0, 0.85))) - 0.03), 0.03);
-  pelo = smin(pelo, elipsoideP(q - vec3(0.045, 0.665, 0.105), vec3(0.1, 0.05, 0.07)), 0.04);
-  float ojos = length(a - vec3(0.066, 0.515, 0.17)) - 0.026;
-  float nariz = length(q - vec3(0.0, 0.478, 0.19)) - 0.024;
-  float boca = churro(sdArco(q.xy, vec2(0.0, 0.47), 0.055, vec2(0.0, -1.0), vec2(0.62161, 0.78333)), q.z - 0.168, 0.011);
-  float ropa = smin(smin(torso, bajo, 0.02), brazo, 0.035);
-  float piel = smin(cabeza, cuello, 0.05);
+  // la cabeza se inclina un poco hacia Atom (arriba a la derecha): giro alrededor del cuello
+  vec3 qh = q - vec3(0.0, 0.45, 0.0);
+  qh.xy = mat2(0.9975, 0.0706, -0.0706, 0.9975) * qh.xy;
+  qh.xz = mat2(0.9887, -0.1494, 0.1494, 0.9887) * qh.xz;
+  qh.yz = mat2(0.9968, 0.0799, -0.0799, 0.9968) * qh.yz;
+  qh += vec3(0.0, 0.45, 0.0);
+  vec3 ah = vec3(abs(qh.x), qh.y, qh.z);
+  // cabeza: un huevo (cráneo y mandíbula), orejas, nariz pequeña
+  float cabeza = elipsoideP(qh - vec3(0.0, 0.618, -0.006), vec3(0.116, 0.132, 0.126));
+  cabeza = smin(cabeza, elipsoideP(qh - vec3(0.0, 0.548, 0.024), vec3(0.085, 0.07, 0.093)), 0.045);
+  cabeza = smin(cabeza, elipsoideP(ah - vec3(0.113, 0.592, -0.012), vec3(0.02, 0.034, 0.026)), 0.014);
+  cabeza = smin(cabeza, elipsoideP(qh - vec3(0.0, 0.574, 0.122), vec3(0.016, 0.021, 0.018)), 0.012);
+  float cuello = capsulaC(q, vec3(0.0, 0.39, -0.014), vec3(0.0, 0.5, -0.01), 0.043, 0.041);
+  // pelo: una capa sobre el cráneo que deja la frente y las orejas a la vista, un mechón que cae
+  // de lado sobre la frente y dos bultos en la coronilla (nada de casco)
+  float pelo = elipsoideP(qh - vec3(0.0, 0.618, -0.006), vec3(0.133, 0.148, 0.14));
+  float linea = 0.585 + 0.135 * smoothstep(-0.06, 0.07, qh.z) - 0.035 * smoothstep(0.07, 0.11, ah.x) * smoothstep(-0.02, 0.04, qh.z);
+  pelo = smax(pelo, (linea - qh.y) * 0.8, 0.018);
+  float mechon = capsulaC(qh, vec3(0.07, 0.738, 0.0), vec3(-0.058, 0.7, 0.084), 0.032, 0.022);
+  mechon = smin(mechon, capsulaC(qh, vec3(0.098, 0.715, 0.03), vec3(0.03, 0.712, 0.098), 0.024, 0.018), 0.02);
+  mechon = smin(mechon, length(qh - vec3(0.022, 0.732, -0.04)) - 0.04, 0.03);
+  mechon = smin(mechon, length(qh - vec3(-0.058, 0.712, -0.06)) - 0.036, 0.03);
+  pelo = smin(pelo, mechon, 0.03) + 0.0022 * sin((0.82 * qh.x + 0.57 * qh.z) * 95.0 + 3.0 * qh.y);
+  float cejas = min(capsulaC(ah, vec3(0.022, 0.652, 0.112), vec3(0.046, 0.659, 0.109), 0.0075, 0.007), capsulaC(ah, vec3(0.046, 0.659, 0.109), vec3(0.069, 0.651, 0.099), 0.007, 0.0055));
+  // ojos: blanco y pupila (miran un poco hacia arriba y a la derecha, donde está Atom); sonrisa
+  float blanco = elipsoideP(ah - vec3(0.043, 0.612, 0.102), vec3(0.023, 0.028, 0.017));
+  float pupila = length(vec3(qh.x - (qh.x > 0.0 ? 0.044 : -0.042) - 0.004, qh.y - 0.615, qh.z - 0.114)) - 0.0135;
+  float boca = churro(sdArco(qh.xy, vec2(0.0, 0.564), 0.034, vec2(0.0, -1.0), vec2(0.766, 0.643)), qh.z - 0.117, 0.0075);
+  // jersey: pecho y vientre (se estrecha en la cintura), hombros caídos, dos arrugas delante
+  float ropa = elipsoideP(q - vec3(0.0, 0.25, 0.0), vec3(0.158, 0.15, 0.098));
+  ropa = smin(ropa, elipsoideP(q - vec3(0.0, 0.05, 0.006), vec3(0.138, 0.15, 0.09)), 0.09);
+  ropa = smin(ropa, capsulaC(a, vec3(0.045, 0.39, -0.012), vec3(0.164, 0.346, -0.006), 0.05, 0.05), 0.05);
+  ropa = smin(ropa, length(a - vec3(0.168, 0.332, -0.006)) - 0.052, 0.04);
+  float delante = smoothstep(0.03, 0.08, q.z);
+  ropa += 0.0035 * delante * (1.0 - smoothstep(0.0, 0.007, abs(q.y - 0.03 - 0.01 * sin(q.x * 29.0))));
+  ropa += 0.003 * delante * (1.0 - smoothstep(0.0, 0.006, abs(q.y + 0.012 - 0.008 * sin(q.x * 23.0 + 1.0))));
+  // brazos colgando, el codo a la altura de la cintura, con una arruga en el codo
+  float brazo = capsulaC(a, vec3(0.172, 0.346, -0.008), vec3(0.192, 0.058, -0.03), 0.049, 0.042);
+  brazo = smin(brazo, capsulaC(a, vec3(0.192, 0.058, -0.03), vec3(0.2, -0.13, 0.0), 0.042, 0.037), 0.03);
+  brazo += 0.004 * (1.0 - smoothstep(0.0, 0.008, abs(q.y - 0.07)));
+  ropa = smin(ropa, brazo, 0.014);
+  // elásticos: bajo del jersey, puños y cuello redondo
+  float elastico = elipsoideP(q - vec3(0.0, -0.062, 0.004), vec3(0.15, 0.036, 0.1)) + 0.0025 * sin(atan(q.x, q.z) * 44.0);
+  elastico = min(elastico, capsulaC(a, vec3(0.199, -0.128, 0.0), vec3(0.2, -0.163, 0.004), 0.041, 0.04) + 0.002 * sin(atan(a.x - 0.2, a.z) * 30.0));
+  elastico = min(elastico, sdTorus(q - vec3(0.0, 0.402 - 0.12 * q.z, -0.01), vec2(0.052, 0.016)));
+  // pantalón: cadera, muslos hasta la rodilla, piernas hasta el tobillo (la pierna mide 0.47 H)
+  float pant = elipsoideP(q - vec3(0.0, -0.088, 0.0), vec3(0.157, 0.1, 0.094));
+  float pierna = capsulaC(a, vec3(0.083, -0.13, 0.0), vec3(0.081, -0.525, 0.01), 0.073, 0.056);
+  pierna = smin(pierna, capsulaC(a, vec3(0.081, -0.525, 0.01), vec3(0.083, -0.93, -0.004), 0.056, 0.053), 0.03);
+  pant = smin(pant, pierna, 0.045);
+  pant += 0.004 * smoothstep(0.02, 0.06, q.z) * (1.0 - smoothstep(0.0, 0.01, abs(q.y + 0.51 + 0.01 * sin(a.x * 70.0))));
+  // zapatos (0.15 H) con suela clara
+  float zap = sdRoundBox(a - vec3(0.085, -0.966, 0.048), vec3(0.05, 0.03, 0.118), 0.03);
+  zap = smin(zap, elipsoideP(a - vec3(0.085, -0.952, 0.112), vec3(0.058, 0.046, 0.074)), 0.03);
+  // manos colgando junto al muslo, la palma hacia dentro; tres surcos entre los dedos
+  float mano = elipsoideP(a - vec3(0.2, -0.226, 0.014), vec3(0.024, 0.058, 0.044));
+  mano = smin(mano, elipsoideP(a - vec3(0.197, -0.298, 0.02), vec3(0.021, 0.05, 0.038)), 0.03);
+  mano = smin(mano, capsulaC(a, vec3(0.191, -0.2, 0.05), vec3(0.182, -0.256, 0.063), 0.017, 0.014), 0.015);
+  float surco = 1e5;
+  for (int i = 0; i < 3; i++) {
+    float zk = -0.006 + 0.024 * float(i);
+    surco = min(surco, sdCapsule(a, vec3(0.219, -0.272, zk), vec3(0.215, -0.36, zk), 0.0035));
+  }
+  mano = smax(mano, -surco, 0.006);
+  float piel = smin(cabeza, cuello, 0.025);
   float d = ropa; m = 1.0;
-  if (bajo < torso && bajo < brazo) m = 2.0;
-  if (puno < d) m = 2.0; d = smin(d, puno, 0.01);
-  if (pierna < d) m = 3.0; d = smin(d, pierna, 0.02);
-  if (zapato < d) m = 4.0; d = smin(d, zapato, 0.02);
-  if (mano < d) m = 0.0; d = smin(d, mano, 0.015);
-  if (piel < d) m = 0.0; d = smin(d, piel, 0.03);
-  if (pelo < d) m = 5.0; d = smin(d, pelo, 0.015);
-  if (nariz < d) m = 0.0; d = smin(d, nariz, 0.012);
-  if (ojos < d) m = 6.0; d = min(d, ojos);
+  if (elastico < d) m = 2.0; d = smin(d, elastico, 0.012);
+  if (pant < d) m = 3.0; d = smin(d, pant, 0.015);
+  if (zap < d) m = q.y < -0.983 ? 9.0 : 4.0; d = smin(d, zap, 0.02);
+  if (mano < d) m = 0.0; d = smin(d, mano, 0.012);
+  if (piel < d) m = 0.0; d = smin(d, piel, 0.02);
+  if (pelo < d) m = 5.0; d = smin(d, pelo, 0.012);
+  if (cejas < d) m = 5.0; d = smin(d, cejas, 0.006);
+  if (blanco < d) m = 8.0; d = smin(d, blanco, 0.006);
+  if (pupila < d) m = 6.0; d = min(d, pupila);
   if (boca < d) m = 7.0; d = min(d, boca);
   return d;
 }
 float pz_persona(vec3 q, vec4 T, out float m) { return personaPartes(q, m) * 0.9; }
 float pzc_persona(vec3 q, vec4 T) {
   vec3 a = vec3(abs(q.x), q.y, q.z);
-  float d = sdRoundBox(q - vec3(0.0, -0.05, 0.0), vec3(0.16, 0.25, 0.09), 0.09);
-  d = min(d, sdCapsule(a, vec3(0.09, -0.92, 0.0), vec3(0.09, -0.3, 0.0), 0.07));
-  d = min(d, sdCapsule(a, vec3(0.212, 0.16, 0.0), vec3(0.27, -0.3, 0.03), 0.055));
-  return min(d, length(q - vec3(0.0, 0.52, 0.0)) - 0.19);
+  float d = elipsoideP(q - vec3(0.0, 0.25, 0.0), vec3(0.14, 0.13, 0.085));
+  d = min(d, elipsoideP(q - vec3(0.0, 0.03, 0.004), vec3(0.12, 0.17, 0.08)));
+  d = min(d, length(q - vec3(0.0, 0.6, 0.0)) - 0.1);
+  d = min(d, sdCapsule(a, vec3(0.083, -0.15, 0.0), vec3(0.082, -0.92, 0.0), 0.045));
+  return min(d, sdCapsule(a, vec3(0.175, 0.33, -0.01), vec3(0.198, -0.3, 0.012), 0.03));
 }
 vec3 pzcol_persona(vec3 q, vec4 T, float m) {
   float v = 0.94 + 0.12 * vnoise(q * 9.0);
   if (m < 0.5) {
     vec3 c = C_PIEL * v;
-    float mej = 1.0 - smoothstep(0.02, 0.055, length(vec2(abs(q.x) - 0.11, q.y - 0.455)));
-    return mix(c, vec3(0.72, 0.2, 0.15), mej * 0.55 * step(0.1, q.z) * step(q.y, 0.6));
+    float mej = 1.0 - smoothstep(0.012, 0.04, length(vec2(abs(q.x) - 0.068, q.y - 0.57)));
+    return mix(c, vec3(0.72, 0.2, 0.15), mej * 0.5 * step(0.07, q.z) * step(0.45, q.y));
   }
   if (m < 1.5) return C_JERSEY * v;
-  if (m < 2.5) return C_JERSEY * 0.72 * v;
+  if (m < 2.5) return C_JERSEY * 0.74 * v;
   if (m < 3.5) return C_VAQUERO * v;
-  if (m < 4.5) return C_INK * 2.5;
-  if (m < 5.5) return C_PELO * (0.9 + 0.2 * vnoise(q * vec3(30.0, 6.0, 30.0)));
+  if (m < 4.5) return C_INK * 2.6;
+  if (m < 5.5) return C_PELO * (0.82 + 0.3 * vnoise(q * vec3(40.0, 9.0, 40.0)));
   if (m < 6.5) return C_INK;
-  return vec3(0.3, 0.05, 0.05);
+  if (m < 7.5) return vec3(0.3, 0.05, 0.05);
+  if (m < 8.5) return vec3(0.6, 0.57, 0.52);
+  return C_LIGHT * 1.05;
 }
 ` },
   mano: { radio: 2.25, glifos: [], glsl: /* glsl */`
@@ -1541,7 +1605,14 @@ export async function crearPlato({
   camara = {}, atomo = true, globo = false, tablero = false, polvo = 0, piezas = [], sombras = {},
   sombraFondo = null, sombraTenue = 0.3, mano = false,
   semilla = 20261019, pasosRayo = 90, pasosSombra = 28, sombraEsc = 3, alfa = false,
+  // tiposExtra: { nombre: { radio, glifos, glsl } } tipos de pieza de otra escena (como los de TIPOS_PRUEBA)
+  // uniformes: { uNombre: { value } } uniformes que usa su GLSL (se comparten con todos los programas)
+  tiposExtra = {}, uniformes = {},
 } = {}) {
+  for (const [k, v] of Object.entries(tiposExtra)) {
+    TIPOS_PRUEBA[k] = v; RADIO_TIPO[k] = v.radio;
+    GLSL_TIPOS[k] = GLSL_PRUEBA_COMUN + (v.etiqueta ? GLSL_ETIQUETA : '') + v.glsl;
+  }
   const busqueda = new URLSearchParams(location.search);
   const captura = busqueda.has('captura');
   const NP = piezas.length;
@@ -1652,6 +1723,7 @@ export async function crearPlato({
     uCelda: { value: v4(6) }, uCelda2: { value: Array.from({ length: 6 }, () => new THREE.Vector4(1, 0, 0, 0)) }, uTPrint: { value: new THREE.Vector3() }, uDigitos: { value: null },
     uPolvo: { value: v4(Math.max(polvo, 1)) },
     uPC: { value: v4(Math.max(NP, 1)) }, uPM: { value: m3(Math.max(NP, 1)) }, uPT: { value: v4(Math.max(NP, 1)) }, uPS: { value: v4(Math.max(NP, 1)) },
+    ...uniformes,
   };
   const quad = new THREE.PlaneGeometry(2, 2);
   const camOrto = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -1882,8 +1954,9 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
 
   // Piezas sueltas (su tipo se fija al crear el plató).
   //   { pos, escala, sq [x,y,z] (en ejes de la pieza), rot [x,y,z] (euler YXZ),
-  //     variante (ficha: '✓'|'✗'|1|2), color (glifo: COLOR.*), puntos (bocadillo: 0..3), toque }
-  function ponerPieza(i, { pos = [0, 0, 0], escala = 1, sq = [1, 1, 1], rot = [0, 0, 0], variante = 0, color = 0, puntos = 0, toque = false } = {}) {
+  //     variante (ficha: '✓'|'✗'|1|2), color (glifo: COLOR.*), puntos (bocadillo: 0..3), toque,
+  //     huellaFija [x,y,z] (desplaza las huellas dactilares de la pieza, para elegir dónde caen) }
+  function ponerPieza(i, { pos = [0, 0, 0], escala = 1, sq = [1, 1, 1], rot = [0, 0, 0], variante = 0, color = 0, puntos = 0, toque = false, huellaFija = null } = {}) {
     if (i >= NP) throw new Error(`pieza ${i}: el plató solo tiene ${NP}`);
     if (escala <= 0.005) { B[4 + i].set(0, 0, 0, 0); return; }
     const tipo = piezas[i];
@@ -1894,7 +1967,9 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
     U.uPC.value[i].set(pos[0], pos[1], pos[2], Math.min(...S));
     const v = typeof variante === 'string' ? veredictoATipo(variante) : variante;
     U.uPT.value[i].set(0, v, tipo === 'bocadillo' ? puntos : color, 0);
-    U.uPS.value[i].set(...huella(toque, 70 + i * 3), 0);
+    const hu = huella(toque, 70 + i * 3);
+    if (huellaFija) for (let k = 0; k < 3; k++) hu[k] += huellaFija[k];
+    U.uPS.value[i].set(...hu, 0);
     const rr = RADIO_TIPO[tipo.startsWith('glifo') ? 'glifo' : tipo] * Math.max(...S) + 0.03;
     B[4 + i].set(pos[0], pos[1], pos[2], rr);
     cajas[`p${i}`] = cubo(pos, rr);

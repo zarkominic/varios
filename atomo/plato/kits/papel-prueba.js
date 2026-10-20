@@ -6,6 +6,8 @@
 //  · atomo(): colores del núcleo, electrones y órbitas (o.nucA, o.nucB, o.elec, o.elecL, o.orb),
 //    fase de los electrones (o.fase, rad) y balanceo (o.balanceo) dados desde fuera.
 //  · luz(dx, dy): dirección de la sombra (por defecto la del kit) para casarla con otra técnica.
+//  · aEscala(k, fn): dibuja fn en un lienzo que luego se pegará reducido a 1/k (láminas en caché):
+//    fibras, filos de luz y sombras quedan k veces más grandes, así que al pegarlo se ven como siempre.
 // -------------------------------------------------------------------------------------
 // Kit de RECORTES DE PAPEL para las escenas del vídeo largo (atomo/plato/escenas/*.html)
 // -------------------------------------------------------------------------------------
@@ -127,10 +129,12 @@ export let g = null;
 export let F = 0;
 let main = null, cv = null, ELEV = 0, ultimo = null, marcoSp = null, FUENTE = 'Fraunces';
 // zoom físico (copia de prueba): ZF activo → textura a tamaño de pantalla y sombra ∝ escala
-let ZF = false, LX = 0.6, LY = 1.05;
+let ZF = false, LX = 0.6, LY = 1.05, FIB = 1;
 const escalaActual = () => { const m = g.getTransform(); return Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 1; };
 /** dibuja fn con «zoom físico»: fibras a tamaño de pantalla y sombras que crecen con la escala */
 export function zoomFisico(fn) { const p = ZF; ZF = true; try { fn(); } finally { ZF = p; } }
+/** dibuja fn para pegarlo después reducido a 1/k: fibras, filos y sombras k veces más grandes */
+export function aEscala(k, fn) { const p = FIB; FIB = k; try { zoomFisico(fn); } finally { FIB = p; } }
 /** dirección de la sombra por unidad de altura (por defecto 0.6, 1.05: luz arriba-izquierda) */
 export function luz(dx = 0.6, dy = 1.05) { LX = dx; LY = dy; }
 
@@ -296,7 +300,7 @@ export function sombra(d, a = 0.55) {
 /** textura de fibras sobre la pieza (ta: multiplicar, tb: trama clara) */
 export function textura(path, seed = 0, ta = 1, tb = 0.55, rule = 'nonzero') {
   pats(g);
-  const k = ZF ? 1 / escalaActual() : 1;
+  const k = (ZF ? 1 / escalaActual() : 1) * FIB;
   const M = new DOMMatrix([k, 0, 0, k, ((seed * 137.31) % 512) * k, ((seed * 91.77) % 512) * k]);
   g.save();
   if (ta > 0) { g.__pa.setTransform(M); g.globalCompositeOperation = 'multiply'; g.globalAlpha = ta; g.fillStyle = g.__pa; g.fill(path, rule); }
@@ -311,7 +315,7 @@ export function filo(path, rule = 'nonzero', a = 1) {
   const bb = path.bb; if (!bb) return;
   const m = g.getTransform(), det = m.a * m.d - m.b * m.c, sc = Math.sqrt(Math.abs(det)) || 1;
   const loc = (dx, dy) => [(m.d * dx - m.c * dy) / det, (-m.b * dx + m.a * dy) / det];
-  const mg = 4 / sc;
+  const mg = 4 * FIB / sc;
   g.save(); g.clip(path, rule);
   const band = (dx, dy, col) => {
     const [lx, ly] = loc(dx, dy), ex = mg + Math.abs(lx), ey = mg + Math.abs(ly), p = new Path2D();
@@ -319,8 +323,8 @@ export function filo(path, rule = 'nonzero', a = 1) {
     p.addPath(path, new DOMMatrix([1, 0, 0, 1, lx, ly]));
     g.fillStyle = col; g.fill(p, 'evenodd');
   };
-  band(1.15, 1.7, `rgba(255,244,222,${0.4 * a})`);
-  band(-0.8, -1.2, `rgba(16,10,6,${0.32 * a})`);
+  band(1.15 * FIB, 1.7 * FIB, `rgba(255,244,222,${0.4 * a})`);
+  band(-0.8 * FIB, -1.2 * FIB, `rgba(16,10,6,${0.32 * a})`);
   g.restore();
 }
 /**
@@ -331,13 +335,13 @@ export function filo(path, rule = 'nonzero', a = 1) {
  */
 export function papel(path, col, o = {}) {
   let d = (o.d ?? 3) + ELEV; const rule = o.rule || 'nonzero';
-  if (ZF) d *= Math.min(4, Math.max(0.3, escalaActual()));
+  if (ZF) d *= Math.min(4 * FIB, Math.max(0.3, escalaActual()));
   g.fillStyle = col;
   if (d > 0) {
     sombra(d, o.sa ?? 0.5); g.fill(path, rule);
-    if (d > 1.2) {
-      g.shadowColor = 'rgba(3,5,14,0.42)'; g.shadowBlur = 1.1;
-      g.shadowOffsetX = Math.min(d, 2.5) * 0.35 * LX / 0.6; g.shadowOffsetY = Math.min(d, 2.5) * 0.6 * LY / 1.05;
+    if (d > 1.2 * FIB) {
+      g.shadowColor = 'rgba(3,5,14,0.42)'; g.shadowBlur = 1.1 * FIB;
+      g.shadowOffsetX = Math.min(d, 2.5 * FIB) * 0.35 * LX / 0.6; g.shadowOffsetY = Math.min(d, 2.5 * FIB) * 0.6 * LY / 1.05;
       g.fill(path, rule);
     }
     sinSombra();
@@ -1218,7 +1222,7 @@ export function personaPrueba(x, suelo, o = {}) {
     const dx = o.mira[0] - ex, dy = o.mira[1] - ey, L = Math.hypot(dx, dy) || 1;
     ox = dx / L * 4.5; oy = dy / L * 3.5;
   }
-  c.save(); c.translate(0, -620); if (o.cabeza) c.rotate(-o.cabeza * 0.35); c.translate(0, 620);
+  c.save(); c.translate(0, -620); if (o.cabeza) c.rotate(o.cabeza * 0.12); c.translate(0, 620);
   c.translate(0, CABEZA.y); c.scale(CABEZA.esc, CABEZA.esc);
   if (o.cabeza) { c.translate(0, 40); c.scale(1, 1 - 0.06 * Math.abs(o.cabeza)); c.translate(0, -40); }
   temblor(id + 1, 0.3, 0.002);

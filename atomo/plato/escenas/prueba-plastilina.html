@@ -88,7 +88,7 @@ const mundo = (pos, rot, esc, q) => {
 };
 // focos: dónde está el nivel siguiente dentro de cada nivel (píxel)
 const FOCO = [
-  pant([PER[0] + E_PER * 0.27, PER[1] - E_PER * 0.325, PER[2] + E_PER * 0.05]),
+  pant([PER[0] + E_PER * 0.215, PER[1] - E_PER * 0.26, PER[2] + E_PER * 0.03]),
   pant([MANO[0] + E_MANO * 0.04, MANO[1] + E_MANO * 0.12, MANO[2] + E_MANO * 0.17]),
   pant(mundo(PIEL, ROT_PIEL, E_PIEL, [0, 0.12, 0.12])),
   pant(mundo(PELO, ROT_PELO, E_PELO, [0, 1.9, 0.8])),
@@ -115,7 +115,7 @@ function nivel0(ts) {
   const u1 = eio(prog(ts, m.explico - 0.4, m.explico)), u2 = eio(prog(ts, m.saltos - 0.8, m.saltos - 0.35));
   const giro = mix(mix(0.2, 0.32, u1), 0.12, u2);
   const resp = 0.008 * Math.sin(tz * 2.4);
-  P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + resp, 1], rot: [0.02, giro, 0], toque: false });
+  P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + resp, 1], rot: [0.02, giro, 0], toque: false, huellaFija: [0.37, 0.21, 0.0] });
   // pizarrita: brota en «explico» y gira en «escuela» (detrás: «!»)
   const kb = brote(ts, m.explico, 0.3, 0.16);
   if (kb > 0) {

@@ -1,0 +1,1149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cosmos · partículas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Segunda prueba de identidad · partículas: de ti a la Vía Láctea en 21 saltos ×10.
+// Todo es luz (kit atomo/plato/kits/particulas.js). Una cámara con origen flotante sube desde la persona:
+//  · [tu]      Atom se inclina hacia la persona y una ola de luz la recorre.
+//  · [arriba]  Atom sube a su sitio de narrador y mira arriba; la regla se desliza y enseña las potencias positivas.
+//  · [siete]→[tierra] siete saltos con golpe de zoom: calle y casa → barrio → ciudad → región → continente → la Tierra.
+//              La cámara se levanta y se inclina hasta mirar en vertical; la persona se deshace en chispas que
+//              vuelan a ser luces de la ciudad (ya no se ve en [desaparecido]).
+//  · [dos]→[sol] la Luna pasa junto a la cámara y entra el Sol, enorme, con la Tierra como un punto al lado.
+//  · [doce]→[lactea] doce saltos cada vez más seguidos: órbitas del sistema solar → cinturón de Kuiper y nube de
+//              Oort → estrellas vecinas → campo de estrellas → la Vía Láctea, cuyos brazos se enroscan hasta quedar
+//              en su sitio en [lactea], con un punto y una flecha que marcan dónde estamos.
+//  · al final todo frena y se queda quieto.
+import { escena } from '/atomo/plato/escena.js';
+import {
+  THREE, crearPlato, persona, materialPersona, regla, F_REGLA, geometria, Luces, GLSL_EMITIR, GLSL_RUIDO, GLSL_PUNTO_FRAG,
+  azar, gauss, cl, lin, ss, mix, eio, eoc, eob, campana, suave, ruido3, fbm3, TAU,
+  SODIO, LED, VENTANA, TV, FRIO, ROJO, FARO, XS, ZS, construirCalle, construirBarrio,
+} from '/atomo/plato/kits/particulas.js';
+
+const E = await escena('cosmos-particulas', 'cosmos');
+const M = (k) => E.marca(k);
+const DUR = E.duracion;
+const P = await crearPlato({ fov: 30, fuentes: [[F_REGLA(62), '10⁰¹²³⁴⁵⁶⁷⁸⁹ m −'], [F_REGLA(30), '10⁰¹²³⁴⁵⁶⁷⁸⁹ m −']] });
+const DEG = Math.PI / 180;
+
+// ── marcas y línea de tiempo ─────────────────────────────────────────────────
+const T_TU = M('tu'), T_ARR = M('arriba'), T_7 = M('siete'), T_DES = M('desaparecido'), T_TIE = M('tierra');
+const T_2 = M('dos'), T_SOL = M('sol'), T_12 = M('doce'), T_GAL = M('galaxia'), T_LAC = M('lactea');
+const VOZ_FIN = (E.voz ?? [0.5, DUR - 1.3])[1];
+
+// saltos ×10: [inicio, duración, grupo]
+const SALTOS = [];
+{
+  const A = T_7 - 0.15, DA = 0.32, PA = (T_TIE - DA - A) / 6;
+  for (let k = 0; k < 7; k++) SALTOS.push([A + k * PA, DA, 0]);
+  const B = T_2 - 0.15, DB = 0.24, PB = T_SOL - DB - B;
+  for (let k = 0; k < 2; k++) SALTOS.push([B + k * PB, DB, 1]);
+  // doce saltos cada vez más seguidos (periodos en progresión geométrica); el último aterriza en [lactea]
+  const C0 = T_12 - 0.15, r = 0.88, fr = 0.8;
+  let s = 0;
+  for (let k = 0; k < 11; k++) s += r ** k;
+  const p1 = (T_LAC - C0) / (s + fr * r ** 11);
+  let t0 = C0;
+  for (let k = 0; k < 12; k++) { const p = p1 * r ** k; SALTOS.push([t0, fr * p, 2]); t0 += p; }
+}
+function zDe(t) {
+  let z = 0;
+  for (let k = 0; k < SALTOS.length; k++) {
+    const [s, d, g] = SALTOS[k];
+    if (t <= s) break;
+    const x = (t - s) / d;
+    z += g === 2 ? (k === SALTOS.length - 1 ? eob(x, 0.9) : eoc(x)) : eob(x, 1.0);
+  }
+  return z;
+}
+// golpe de cada salto (destello del marcador y empujón de los electrones)
+function golpe(t) {
+  let g = 0;
+  for (const [s] of SALTOS) if (t >= s) g = Math.max(g, Math.exp(-(t - s) / 0.13));
+  return g;
+}
+function empujes(t) {
+  let e = 0;
+  for (const [s, d] of SALTOS) e += eoc((t - s) / (d * 1.6));
+  return e;
+}
+// reloj de las animaciones: frena al acabar la voz y se para (todo queda quieto)
+const Q0 = VOZ_FIN - 0.1, QL = 0.9;
+const tau = (t) => { const u = cl((t - Q0) / QL); return t <= Q0 ? t : Q0 + QL * (u - u ** 3 + u ** 4 / 2); };
+
+// ── mundo: metros, origen en los pies de la persona; x este, y arriba, z sur ──
+const R_E = 6.371e6;
+const LAT0 = 40.44 * DEG, LON0 = -3.665 * DEG;
+const E_C = [0, -R_E, 0];
+// base ENU en el punto de la persona, expresada en ECEF (x: lon 0, y: lon 90E, z: norte)
+const ESTE = [-Math.sin(LON0), Math.cos(LON0), 0];
+const ARRIBA = [Math.cos(LAT0) * Math.cos(LON0), Math.cos(LAT0) * Math.sin(LON0), Math.sin(LAT0)];
+const NORTE = [-Math.sin(LAT0) * Math.cos(LON0), -Math.sin(LAT0) * Math.sin(LON0), Math.cos(LAT0)];
+// mundo ← ECEF (filas: este, arriba, −norte)
+const R_TIERRA = [...ESTE, ...ARRIBA, ...NORTE.map((v) => -v)];
+const ecef = (lat, lon) => [Math.cos(lat) * Math.cos(lon), Math.cos(lat) * Math.sin(lon), Math.sin(lat)];
+// punto de la superficie (lat, lon en grados) en el mundo (m)
+function mundoDe(latd, lond, h = 0) {
+  const u = ecef(latd * DEG, lond * DEG), R = R_E + h;
+  const e = ESTE[0] * u[0] + ESTE[1] * u[1] + ESTE[2] * u[2];
+  const a = ARRIBA[0] * u[0] + ARRIBA[1] * u[1] + ARRIBA[2] * u[2];
+  const n = NORTE[0] * u[0] + NORTE[1] * u[1] + NORTE[2] * u[2];
+  return [e * R, a * R - R_E, -n * R];
+}
+
+// cámara: distancia al foco en función del exponente z (×10 por salto)
+const RHO0 = 4.826;
+const gz = (z) => mix(1, 0.86, ss(3, 7, z));
+const rhoDe = (z) => RHO0 * 10 ** z * gz(z);
+const pxEscala = (z) => (2 * rhoDe(z) * P.tanV) / 1080;     // metros por píxel en el plano del foco
+
+// ── el sistema solar (escenificado) ──────────────────────────────────────────
+const UA = 1.496e11;
+const D_SE0 = 1.215e9;                    // en [sol] la Tierra está a 590 px del Sol
+const dTS = (z) => Math.min(D_SE0 * 10 ** Math.max(0, z - 9) * gz(z) / gz(9), UA);
+const solEn = (z) => [E_C[0] - dTS(z), E_C[1], E_C[2]];
+const B_ECL = 60 * DEG;                   // inclinación del plano de las órbitas respecto a la vista
+const R_ECL = [1, 0, 0, 0, Math.sin(B_ECL), Math.cos(B_ECL), 0, -Math.cos(B_ECL), Math.sin(B_ECL)];
+// la galaxia: disco inclinado; el Sol a 0,55 del radio, abajo a la derecha del bulbo
+const I_GAL = 54 * DEG, G_GAL = -16 * DEG, U_GAL = 1.08e19, R_GAL = 100;
+const R_GALM = (() => {
+  const t = [1, 0, 0, 0, Math.sin(I_GAL), Math.cos(I_GAL), 0, -Math.cos(I_GAL), Math.sin(I_GAL)];
+  const c = Math.cos(G_GAL), s = Math.sin(G_GAL);
+  const ry = [c, 0, s, 0, 1, 0, -s, 0, c];
+  const m = new Array(9).fill(0);
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) for (let k = 0; k < 3; k++) m[i * 3 + j] += ry[i * 3 + k] * t[k * 3 + j];
+  return m;
+})();
+const SOL_GAL = [55 * Math.cos(-38 * DEG), 55 * Math.sin(-38 * DEG), 0];   // unidades de 1e19 m
+const aplicar = (m, v) => [0, 1, 2].map((i) => m[i * 3] * v[0] + m[i * 3 + 1] * v[1] + m[i * 3 + 2] * v[2]);
+const galEn = (z) => { const s = solEn(z), o = aplicar(R_GALM, SOL_GAL); return [s[0] - o[0] * U_GAL, s[1] - o[1] * U_GAL, s[2] - o[2] * U_GAL]; };
+
+// foco de la cámara: va de un objeto a otro moviéndose con suavidad en la pantalla
+function tramo(z, z0, z1, A, B) {
+  const s = suave(lin(z, z0, z1)) * 10 ** (z - z1) * gz(z) / gz(z1);
+  return [A[0] + (B[0] - A[0]) * s, A[1] + (B[1] - A[1]) * s, A[2] + (B[2] - A[2]) * s];
+}
+const H_CAM = 1.95;
+function focoDe(z) {
+  if (z < 1.6) return [0, H_CAM * (1 - ss(0.15, 1.5, z)), 0];
+  const medio = (zz) => { const s = solEn(zz); return [(s[0] + E_C[0]) / 2, E_C[1], E_C[2]]; };
+  if (z < 8.2) return [0, 0, 0];
+  if (z < 9.0) return tramo(z, 8.2, 9.0, [0, 0, 0], medio(z));
+  if (z < 10.9) return medio(z);
+  if (z < 12.3) return tramo(z, 10.9, 12.3, medio(z), solEn(z));
+  if (z < 19.2) return solEn(z);
+  return tramo(z, 19.2, 21, solEn(z), galEn(z));
+}
+// en z = 0 el foco (a 1,95 m) está por encima del cuadro: el centro de la persona (0,85 m) cae en y = 507
+const FOCO_P = [600, 507 - (H_CAM - 0.85) * 540 / (Math.tan(15 * DEG) * RHO0)], FOCO_C = [840, 520];
+function camaraDe(z) {
+  const phi = 90 * ss(0.1, 2.5, z) * DEG;
+  const rho = rhoDe(z);
+  const f = focoDe(z);
+  const C = [f[0], f[1] + rho * Math.sin(phi), f[2] + rho * Math.cos(phi)];
+  const B = [[1, 0, 0], [0, Math.cos(phi), -Math.sin(phi)], [0, Math.sin(phi), Math.cos(phi)]];
+  const k = ss(0.15, 1.6, z), kg = ss(19.4, 21, z);
+  const F = [mix(mix(FOCO_P[0], FOCO_C[0], k), 790, kg), mix(mix(FOCO_P[1], FOCO_C[1], k), 545, kg)];
+  return { C, B, U: rho / RHO0, F, phi };
+}
+const vis = (z, a0, a1, b0, b1) => ss(a0, a1, z) * (1 - ss(b0, b1, z));
+
+// destinos de las chispas de la persona: ventanas y farolas nuevas alrededor (unidad 10 m)
+function destinosPersona(n) {
+  const r = azar(303);
+  const D = new Float32Array(n * 4), V = new Float32Array(n * 4), Cc = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const rad = 40 + 1100 * r() ** 1.4, a = r() * TAU;
+    let x = rad * Math.cos(a), z = rad * Math.sin(a) * 0.75;
+    let w1, w2;
+    if (r() < 0.5) {
+      // destino en una calle horizontal: por la calle de la persona hasta la transversal más cercana y luego por ella
+      const j = Math.round((z - 5.5) / 82), xc = XS(Math.round((x - 61) / 122));
+      if (j === 0) { w1 = [x, 5.5]; w2 = [x, 5.5]; } else { w1 = [xc, 5.5]; w2 = [xc, ZS(j)]; }
+      z = ZS(j) + (r() < 0.5 ? -5 : 5);
+    } else {
+      // destino en una calle vertical: hasta ella por la calle de la persona y luego hacia arriba o abajo
+      const xi = XS(Math.round((x - 61) / 122));
+      w1 = [xi, 5.5]; w2 = [xi, z];
+      x = xi + (r() < 0.5 ? -5 : 5);
+    }
+    D[i * 4] = x / 10; D[i * 4 + 1] = 0.5; D[i * 4 + 2] = z / 10; D[i * 4 + 3] = 0.16 + 0.18 * r();
+    V.set([w1[0] / 10, w1[1] / 10, w2[0] / 10, w2[1] / 10], i * 4);
+    Cc.set(r() < 0.6 ? VENTANA : SODIO, i * 3);
+  }
+  return { D, V, Cc };
+}
+
+// ── nivel 3: la ciudad (unidad 100 m) ─────────────────────────────────────────
+const CENTRO = [-3800, 2600];
+const RIO = [[-11000, -16000], [-8200, -6000], [-6200, -1500], [-5100, 1600], [-4300, 3800], [-3300, 6500], [-1500, 11000], [1500, 18000]];
+function distPolilinea(x, z, pl) {
+  let d = 1e12;
+  for (let i = 0; i + 1 < pl.length; i++) {
+    const [ax, az] = pl[i], [bx, bz] = pl[i + 1];
+    const vx = bx - ax, vz = bz - az, t = cl(((x - ax) * vx + (z - az) * vz) / (vx * vx + vz * vz));
+    d = Math.min(d, Math.hypot(x - ax - vx * t, z - az - vz * t));
+  }
+  return d;
+}
+const AUTOVIAS = [8, 52, 112, 186, 232, 312].map((b) => b * DEG);
+function construirCiudad() {
+  const L = new Luces(120000, { mov: true });
+  L.u = 100;
+  const r = azar(404);
+  // distritos con su orientación de calles; el de la persona, alineado con su barrio
+  const SEM = [[0, 0, 0, 122, 82]];
+  for (let k = 0; k < 70; k++) SEM.push([(r() - 0.5) * 44000, (r() - 0.5) * 44000, (r() - 0.5) * 1.4, 90 + 70 * r(), 80 + 60 * r()]);
+  const distrito = (x, z) => { let m = 1e18, b = SEM[0]; for (const s of SEM) { const d = (x - s[0]) ** 2 + (z - s[1]) ** 2; if (d < m) { m = d; b = s; } } return b; };
+  const dens = (x, z) => {
+    const rc = Math.hypot(x - CENTRO[0], z - CENTRO[1]);
+    let d = Math.exp(-rc / 3600) + 0.12 * Math.exp(-rc / 8000) * (1 - ss(14000, 20000, rc));
+    for (const [sx, sz, k] of [[-1500, 15000, 0.6], [13500, -8500, 0.5], [-15500, -11000, 0.45], [11000, 9500, 0.4], [-17000, 9000, 0.4], [3000, -15000, 0.35], [-9000, 19000, 0.3], [19000, 2000, 0.3]]) d += k * Math.exp(-Math.hypot(x - sx, z - sz) / 1500);
+    // a lo largo de las autovías crece la ciudad
+    for (const b of AUTOVIAS) { const ux = Math.sin(b), uz = -Math.cos(b), px = x - CENTRO[0], pz = z - CENTRO[1], t = px * ux + pz * uz; if (t > 0) d += 0.18 * Math.exp(-Math.abs(px * uz - pz * ux) / 900) * Math.exp(-t / 16000); }
+    if (Math.hypot((x + 9000) / 2600, (z - 900) / 2000) < 1) d *= 0.04;           // gran parque al oeste
+    if (Math.hypot((x + 9500) / 6000, (z + 13000) / 4500) < 1) d *= 0.05;        // monte al noroeste
+    if (Math.hypot((x - CENTRO[0] - 1600) / 600, (z - CENTRO[1]) / 700) < 1) d *= 0.08;   // parque céntrico
+    if (distPolilinea(x, z, RIO) < 90) d = 0;
+    return d * (0.75 + 0.5 * fbm3(x / 4000, z / 4000, 0.3, 9, 3));
+  };
+  let intentos = 0;
+  // alfombra de luz (resplandor de la ciudad)
+  for (let q = 0; q < 16000; q++) {
+    const x = (r() - 0.5) * 46000, z = (r() - 0.5) * 46000, d = dens(x, z);
+    if (r() > d) { q--; continue; }
+    const rc = Math.hypot(x - CENTRO[0], z - CENTRO[1]);
+    L.add(x, 0, z, 1.0, rc < 5000 ? 0.72 : 0.58, rc < 5000 ? 0.42 : 0.28, 0.03 * Math.min(1, d), 320, 0, 0, r());
+  }
+  while (L.n < 92000 && intentos < 900000) {
+    intentos++;
+    let x = (r() - 0.5) * 46000, z = (r() - 0.5) * 46000;
+    const d = dens(x, z);
+    if (r() > Math.min(1, d * 1.15)) continue;
+    const [sx, sz, ang, ex, ez] = distrito(x, z);
+    const c = Math.cos(ang), s = Math.sin(ang);
+    let u = (x - sx) * c + (z - sz) * s, v = -(x - sx) * s + (z - sz) * c;
+    if (r() < 0.5) u = Math.round(u / ex) * ex + (r() < 0.5 ? -6 : 6); else v = Math.round(v / ez) * ez + (r() < 0.5 ? -6 : 6);
+    x = sx + u * c - v * s; z = sz + u * s + v * c;
+    const rc = Math.hypot(x - CENTRO[0], z - CENTRO[1]);
+    const blanco = rc < 3500 ? 0.75 : rc < 7000 ? 0.4 : 0.15;
+    const col = r() < blanco ? LED : r() < 0.15 ? VENTANA : SODIO;
+    L.add(x, 6, z, ...col, (0.32 + 0.32 * r()) * (0.6 + 0.4 * Math.min(1, d)), 42, 0, 0.08, r());
+  }
+  // autovías radiales, rondas y coches
+  const via = (pts, int, col, coches) => {
+    for (let i = 0; i + 1 < pts.length; i++) {
+      const [ax, az] = pts[i], [bx, bz] = pts[i + 1];
+      const lg = Math.hypot(bx - ax, bz - az), nx = -(bz - az) / lg, nz = (bx - ax) / lg;
+      for (let s = 0; s < lg; s += 26) for (const o of [-14, 14]) {
+        const x = ax + ((bx - ax) * s) / lg + nx * o, z = az + ((bz - az) * s) / lg + nz * o;
+        if (distPolilinea(x, z, RIO) < 40) continue;
+        L.add(x, 8, z, ...col, int * (0.6 + 0.4 * r()), 26, 0, 0.03, r());
+      }
+      for (let q = 0; q < coches * lg / 1000; q++) {
+        const f = r(), v = 25 + 8 * r();
+        for (const [o, cc, vv] of [[-6, FARO, v], [6, ROJO, -v]]) {
+          const k = L.add(ax + nx * o, 2, az + nz * o, ...cc, 0.5, 22, 0, 0, f);
+          L.mov(k, (bx - ax) / lg, (bz - az) / lg, vv, lg);
+        }
+      }
+    }
+  };
+  for (const b of AUTOVIAS) {
+    const pts = [];
+    for (let rr = 3200; rr < 24000; rr += 1500) {
+      const a = b + 0.12 * Math.sin(rr / 5000 + b * 3);
+      pts.push([CENTRO[0] + rr * Math.sin(a), CENTRO[1] - rr * Math.cos(a)]);
+    }
+    via(pts, 0.16 + 0.12 * r(), [1.0, 0.8, 0.55], 6);
+  }
+  for (const [rx, rz, k] of [[3300, 3900, 0.4], [6800, 7500, 0.38], [13000, 12500, 0.34]]) {
+    const pts = [];
+    for (let a = 0; a <= TAU + 0.01; a += TAU / 48) {
+      const w = 1 + 0.08 * Math.sin(3 * a + rx) + 0.05 * Math.sin(5 * a);
+      pts.push([CENTRO[0] + rx * w * Math.cos(a), CENTRO[1] + rz * w * Math.sin(a)]);
+    }
+    via(pts, k, [1.0, 0.7, 0.4], 3);
+  }
+  // aeropuerto al nordeste: pistas con luces de borde y terminales brillantes
+  const AX = 9500, AZ = -6500;
+  for (const [ox, ang, lg] of [[0, 0, 4200], [1500, 0, 4000], [-1200, -0.55, 3600], [-2400, -0.55, 3600]]) {
+    const dx = Math.sin(ang), dz = -Math.cos(ang);
+    for (let s = -lg / 2; s < lg / 2; s += 60) for (const o of [-25, 25]) L.add(AX + ox + dx * s - dz * o, 1, AZ + dz * s + dx * o, ...LED, 0.32, 18, 0, 0, r());
+    for (let s = -lg / 2; s < lg / 2; s += 30) L.add(AX + ox + dx * s, 1, AZ + dz * s, 0.4, 1.0, 0.6, 0.12, 14, 0, 0, r());
+  }
+  for (let q = 0; q < 900; q++) L.add(AX + 700 + 900 * (r() - 0.5), 10, AZ + 1200 * (r() - 0.5), ...LED, 0.35, 30, 0, 0.1, r());
+  // el río: un hilo oscuro con puentes
+  for (let i = 0; i < 16; i++) {
+    const u = r(), k = Math.floor(u * (RIO.length - 1)), f = u * (RIO.length - 1) - k;
+    const x = mix(RIO[k][0], RIO[k + 1][0], f), z = mix(RIO[k][1], RIO[k + 1][1], f);
+    for (let s = -110; s <= 110; s += 22) L.add(x + s, 6, z, ...LED, 0.35, 26, 0, 0, r());
+  }
+  return L;
+}
+
+// ── geografía: costas simplificadas (lon, lat) ────────────────────────────────
+const COSTAS = [
+  // Afro-Eurasia (cortada por detrás, en 100° E): Mediterráneo, Atlántico, Báltico, Ártico, Índico, mar Rojo y África
+  [[-5.8,35.8],[-5.3,35.9],[-2.9,35.3],[-0.6,35.7],[3.0,36.8],[7.8,36.9],[9.9,37.3],[11.0,37.0],[10.6,35.8],[10.8,34.7],[10.1,33.9],[11.0,33.7],[13.2,32.9],[15.2,32.4],[18.0,30.5],[20.0,32.1],[22.5,32.8],[24.0,32.1],[29.9,31.2],[31.0,31.6],[32.3,31.3],[34.4,31.5],[34.8,32.1],[35.0,32.8],[35.5,33.9],[35.8,34.4],[35.8,35.5],[36.2,36.6],[35.0,36.7],[34.6,36.8],[32.8,36.0],[30.7,36.9],[29.1,36.6],[27.4,37.0],[26.8,38.4],[26.7,39.3],[26.3,40.1],[26.7,40.5],[26.0,40.8],[22.9,40.6],[23.7,40.0],[22.9,39.4],[23.5,38.5],[23.7,37.9],[24.0,37.65],[22.8,37.5],[23.2,36.4],[22.4,36.4],[22.1,37.0],[21.7,36.9],[21.7,38.2],[20.7,39.0],[20.0,39.7],[19.4,40.5],[19.4,41.3],[18.9,42.1],[18.1,42.65],[16.4,43.5],[15.2,44.1],[14.4,45.3],[13.6,45.1],[13.8,45.65],[12.3,45.4],[12.5,44.9],[12.6,44.05],[13.5,43.6],[14.2,42.45],[16.1,41.9],[16.9,41.1],[17.95,40.65],[18.5,40.0],[17.2,40.45],[17.1,39.1],[16.0,37.9],[15.65,38.1],[15.9,38.7],[15.6,40.05],[14.75,40.65],[14.25,40.85],[13.55,41.2],[12.6,41.45],[12.2,41.75],[11.8,42.1],[10.5,42.95],[10.3,43.55],[9.8,44.1],[8.9,44.4],[8.4,44.3],[8.0,43.9],[7.3,43.7],[6.9,43.5],[5.9,43.1],[5.3,43.3],[4.6,43.4],[3.9,43.5],[3.05,42.7],[3.3,42.3],[2.2,41.4],[1.25,41.1],[0.9,40.7],[0.0,40.0],[-0.3,39.45],[0.2,38.75],[-0.5,38.35],[-1.0,37.6],[-2.2,36.7],[-2.45,36.85],[-3.5,36.75],[-4.4,36.7],[-4.9,36.5],[-5.35,36.1],[-5.6,36.0],[-6.3,36.5],[-6.95,37.2],[-7.4,37.2],[-7.9,37.0],[-8.95,37.0],[-8.85,37.95],[-9.1,38.6],[-9.5,38.8],[-9.4,39.35],[-8.75,40.6],[-8.7,41.15],[-8.85,41.7],[-8.75,42.2],[-9.3,42.9],[-8.4,43.4],[-7.9,43.75],[-7.0,43.55],[-5.7,43.55],[-3.8,43.45],[-3.0,43.35],[-2.0,43.3],[-1.55,43.5],[-1.25,44.65],[-1.1,45.6],[-1.2,46.15],[-2.2,47.25],[-3.1,47.5],[-3.4,47.7],[-4.7,48.0],[-4.5,48.4],[-4.0,48.7],[-2.0,48.65],[-1.5,48.65],[-1.95,49.7],[-1.6,49.65],[-0.35,49.3],[0.1,49.5],[1.1,49.95],[1.6,50.7],[1.85,50.95],[2.4,51.05],[2.9,51.2],[3.6,51.4],[4.1,51.95],[4.3,52.1],[4.75,52.95],[6.0,53.45],[7.2,53.35],[8.1,53.55],[8.7,53.85],[8.3,54.9],[8.4,55.45],[8.6,57.1],[10.6,57.75],[10.5,57.45],[10.2,56.15],[9.75,55.55],[9.45,54.8],[10.15,54.35],[10.9,53.95],[12.1,54.15],[13.4,54.6],[14.3,53.9],[15.6,54.2],[17.6,54.75],[18.65,54.4],[20.5,54.7],[21.1,55.7],[21.0,56.5],[21.55,57.4],[22.6,57.75],[24.1,57.0],[24.5,58.4],[23.5,58.9],[24.75,59.45],[28.0,59.45],[30.25,59.95],[28.75,60.7],[26.9,60.45],[25.0,60.15],[22.95,59.85],[22.25,60.45],[21.5,61.5],[21.6,63.1],[23.1,63.85],[25.45,65.0],[24.15,65.85],[22.15,65.6],[21.2,64.75],[20.25,63.8],[17.3,62.4],[17.15,60.7],[18.6,59.4],[16.6,58.6],[16.35,56.65],[15.6,56.15],[13.8,55.4],[12.95,55.6],[12.7,56.05],[11.9,57.7],[11.2,58.9],[10.75,59.9],[10.0,59.05],[8.0,58.15],[7.05,57.98],[5.6,58.95],[5.1,60.4],[5.0,61.6],[6.15,62.47],[7.7,63.1],[9.5,63.7],[11.2,64.85],[14.4,67.3],[16.0,68.6],[18.9,69.65],[23.7,70.65],[25.8,71.15],[31.1,70.35],[33.0,69.4],[41.0,67.8],[44.2,66.1],[43.5,68.6],[54.0,68.5],[60.5,69.8],[66.5,70.0],[70.0,73.2],[73.0,68.0],[78.0,72.0],[82.0,70.5],[86.0,74.0],[100.0,76.5],[100.0,20.0],[92.0,21.5],[90.0,22.0],[87.0,21.5],[85.0,19.6],[82.3,17.0],[80.3,15.0],[80.3,13.1],[79.8,10.3],[77.5,8.1],[76.3,9.9],[74.8,12.9],[73.6,15.9],[72.85,19.0],[72.6,21.3],[69.0,22.3],[68.4,23.6],[67.0,24.8],[64.5,25.25],[61.6,25.2],[57.8,25.7],[56.4,27.1],[54.6,26.6],[51.5,27.9],[50.3,29.3],[48.9,30.0],[48.0,29.4],[48.5,28.0],[49.6,26.9],[50.2,25.8],[50.8,24.8],[51.6,24.2],[54.4,24.45],[55.3,25.25],[56.1,26.1],[56.35,26.2],[56.3,24.9],[58.6,23.6],[59.8,22.5],[58.8,20.5],[57.0,18.9],[54.0,17.0],[52.2,15.6],[49.1,14.5],[45.0,12.8],[43.45,12.65],[42.8,14.8],[42.55,16.9],[41.0,19.0],[39.15,21.5],[38.05,24.1],[36.5,26.0],[35.0,28.1],[35.0,29.5],[34.6,28.0],[34.3,27.75],[32.6,29.9],[33.8,27.2],[35.6,23.9],[37.2,19.6],[39.45,15.6],[42.7,13.0],[43.15,11.6],[45.0,10.45],[51.3,11.8],[51.2,10.4],[49.0,6.0],[45.35,2.05],[42.55,-0.35],[39.65,-4.05],[39.3,-6.8],[40.5,-10.5],[40.7,-14.5],[38.0,-17.5],[34.85,-19.8],[35.5,-22.0],[32.6,-26.0],[31.0,-29.85],[27.9,-33.0],[25.6,-33.95],[20.0,-34.8],[18.4,-34.0],[17.9,-32.0],[16.45,-28.6],[15.15,-26.65],[14.5,-22.95],[13.0,-20.0],[12.15,-15.2],[13.4,-12.6],[13.25,-8.8],[12.3,-6.0],[11.85,-4.8],[9.45,0.4],[9.7,4.05],[8.3,4.8],[6.0,4.3],[3.4,6.45],[-0.2,5.55],[-2.1,4.75],[-4.0,5.3],[-7.7,4.4],[-10.8,6.3],[-13.2,8.5],[-13.7,9.5],[-15.6,11.85],[-17.45,14.7],[-16.5,16.0],[-16.0,18.1],[-17.05,20.8],[-15.95,23.7],[-14.5,26.1],[-12.9,27.95],[-9.6,30.4],[-9.75,31.5],[-9.25,32.3],[-7.6,33.6],[-6.85,34.05],[-6.15,35.2],[-5.9,35.8]],
+  // Gran Bretaña, Irlanda, Islandia
+  [[-5.7,50.05],[-4.2,50.35],[-3.3,50.6],[-1.9,50.7],[-0.8,50.75],[1.0,51.0],[1.4,51.15],[1.45,51.4],[0.9,51.5],[1.6,52.1],[1.75,52.5],[1.6,52.95],[0.3,52.95],[0.2,53.5],[-0.1,54.12],[-0.6,54.5],[-1.4,55.0],[-2.0,55.8],[-3.0,56.0],[-2.5,56.5],[-2.1,57.15],[-1.8,57.6],[-3.0,57.7],[-3.1,58.45],[-3.0,58.65],[-5.0,58.6],[-5.7,57.5],[-5.6,56.5],[-5.7,55.3],[-4.9,55.7],[-5.1,54.65],[-3.4,54.9],[-3.6,54.2],[-3.0,53.4],[-4.6,53.3],[-4.7,52.8],[-4.1,52.4],[-5.3,51.9],[-3.9,51.6],[-3.0,51.4],[-4.2,51.2],[-4.5,51.0],[-5.1,50.5]],
+  [[-6.35,52.25],[-6.1,53.35],[-6.0,54.0],[-5.9,54.6],[-6.0,55.2],[-7.4,55.4],[-8.5,55.0],[-8.5,54.5],[-10.0,54.2],[-9.9,53.4],[-9.5,52.7],[-10.4,52.1],[-9.8,51.45],[-8.3,51.8],[-7.0,52.1]],
+  [[-22.0,64.0],[-24.0,65.5],[-22.0,66.4],[-18.0,66.1],[-14.5,66.3],[-13.5,65.2],[-15.0,64.3],[-18.0,63.4],[-21.0,63.8]],
+  // islas del Mediterráneo
+  [[12.4,37.8],[13.4,38.2],[15.6,38.3],[15.1,37.3],[15.1,36.65],[14.3,36.8],[12.6,37.6]],
+  [[8.2,41.1],[9.6,41.1],[9.8,40.0],[9.6,39.1],[8.6,38.9],[8.4,39.5],[8.4,40.6]],
+  [[8.6,42.0],[9.4,43.0],[9.55,42.1],[9.2,41.4],[8.6,41.7]],
+  [[23.5,35.3],[26.3,35.3],[26.2,35.0],[24.0,34.95]],
+  [[32.3,35.0],[34.6,35.7],[34.0,34.9],[32.9,34.6]],
+  [[2.35,39.6],[3.2,39.95],[3.5,39.7],[3.2,39.35],[2.6,39.5]],
+  // Madagascar, Svalbard, Nueva Zembla
+  [[49.3,-12.0],[50.5,-15.5],[49.4,-17.5],[47.1,-24.9],[45.2,-25.5],[43.6,-23.0],[44.2,-20.0],[44.4,-16.2],[46.5,-15.7],[48.0,-13.5]],
+  [[11.0,78.0],[16.0,80.0],[27.0,80.2],[22.0,77.5],[16.0,76.5]],
+  [[52.0,71.0],[56.0,73.5],[61.0,76.0],[68.5,76.9],[63.0,74.5],[57.0,71.0],[53.0,70.5]],
+  // Groenlandia, Baffin, Ellesmere
+  [[-73.0,78.0],[-60.0,82.0],[-30.0,83.5],[-18.0,81.5],[-19.0,76.0],[-22.0,72.0],[-26.0,68.5],[-32.0,68.0],[-40.0,65.0],[-43.5,60.0],[-48.0,61.5],[-51.0,64.0],[-53.5,67.0],[-54.0,70.5],[-58.0,75.5],[-66.0,76.5]],
+  [[-62.0,66.5],[-65.0,62.5],[-72.0,64.0],[-78.5,64.5],[-80.0,70.0],[-89.0,71.0],[-80.0,73.6],[-70.0,71.0]],
+  [[-62.0,82.0],[-75.0,83.0],[-92.0,81.0],[-92.0,77.0],[-79.0,76.5],[-72.0,78.5]],
+  // Américas (cortadas por detrás en 100° O)
+  [[-100.0,68.0],[-94.0,61.0],[-92.0,57.0],[-85.0,55.3],[-80.0,51.5],[-79.0,55.0],[-77.5,58.5],[-78.0,62.3],[-73.0,62.0],[-70.0,59.0],[-65.0,60.3],[-61.5,56.5],[-56.5,52.0],[-60.0,50.0],[-64.5,49.0],[-65.0,47.0],[-63.5,45.5],[-60.0,46.8],[-63.5,44.5],[-66.0,43.5],[-70.0,43.8],[-70.0,41.7],[-72.0,41.1],[-74.0,40.5],[-74.0,39.5],[-75.0,38.8],[-76.0,37.0],[-75.5,35.2],[-78.0,33.8],[-79.9,32.7],[-81.4,30.3],[-80.6,28.4],[-80.15,25.8],[-81.0,25.1],[-82.7,27.8],[-84.0,30.0],[-88.0,30.4],[-89.2,29.1],[-91.0,29.5],[-94.0,29.5],[-97.0,27.8],[-97.4,25.9],[-97.0,22.0],[-95.5,18.8],[-94.5,18.2],[-91.0,18.7],[-90.4,21.0],[-87.0,21.5],[-87.5,18.0],[-88.3,16.0],[-84.0,15.8],[-83.3,15.0],[-83.7,11.0],[-82.0,9.2],[-79.5,9.6],[-77.0,8.6],[-75.5,10.5],[-74.2,11.2],[-71.6,12.4],[-71.0,10.8],[-68.0,10.5],[-64.0,10.6],[-61.8,10.1],[-60.0,8.5],[-57.0,6.0],[-54.0,5.8],[-51.6,4.2],[-50.0,1.8],[-50.0,0.0],[-48.5,-1.2],[-44.5,-2.5],[-41.0,-2.9],[-38.5,-3.7],[-35.2,-5.8],[-34.9,-8.1],[-38.5,-13.0],[-39.0,-17.8],[-40.3,-20.3],[-42.0,-23.0],[-43.2,-22.95],[-46.3,-24.0],[-48.5,-27.6],[-50.5,-30.5],[-52.1,-32.1],[-54.0,-34.5],[-56.2,-34.9],[-58.4,-34.6],[-57.5,-36.3],[-57.5,-38.0],[-62.2,-38.8],[-65.0,-42.5],[-67.5,-46.0],[-65.8,-47.8],[-69.0,-51.5],[-68.5,-54.8],[-75.0,-51.0],[-73.5,-42.0],[-71.5,-30.0],[-70.3,-18.5],[-76.0,-14.0],[-81.0,-5.0],[-80.0,0.0],[-78.0,2.5],[-79.5,8.0],[-83.0,8.5],[-86.0,12.0],[-91.5,14.0],[-94.0,16.0],[-100.0,17.0]],
+  [[-59.3,47.6],[-56.0,49.5],[-55.5,51.6],[-52.7,47.5],[-53.5,46.6]],
+  [[-84.9,21.9],[-80.0,23.1],[-74.1,20.2],[-77.7,19.8],[-82.0,22.3]],
+  [[-74.4,19.9],[-68.4,18.6],[-71.0,17.8],[-74.4,18.4]],
+];
+const MARES = [
+  // mar Negro y Caspio (huecos)
+  [[29.0,41.2],[27.5,42.5],[27.95,43.2],[28.65,44.2],[29.7,45.2],[30.75,46.5],[32.6,45.4],[33.5,44.5],[34.5,44.6],[36.5,45.3],[38.5,47.1],[35.5,46.4],[37.8,44.7],[39.7,43.6],[41.6,41.6],[39.7,41.0],[36.3,41.3],[35.1,42.0],[33.0,41.9],[31.8,41.45]],
+  [[47.0,44.3],[48.0,46.5],[49.5,46.4],[51.9,47.1],[53.0,45.3],[51.3,43.2],[51.15,43.65],[53.0,42.0],[52.95,40.0],[54.0,37.4],[51.0,36.7],[49.0,37.5],[49.85,40.4],[48.6,42.0],[47.5,43.0]],
+];
+const CAJAS = [...COSTAS, ...MARES].map((pl) => { let a = 1e9, b = -1e9, c = 1e9, d = -1e9; for (const [x, y] of pl) { a = Math.min(a, x); b = Math.max(b, x); c = Math.min(c, y); d = Math.max(d, y); } return [a, b, c, d]; });
+function enPoligono(lon, lat, pl) {
+  let dentro = false;
+  for (let i = 0, j = pl.length - 1; i < pl.length; j = i++) {
+    const [xi, yi] = pl[i], [xj, yj] = pl[j];
+    if ((yi > lat) !== (yj > lat) && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) dentro = !dentro;
+  }
+  return dentro;
+}
+function esTierra(lat, lon) {
+  if (lat < -62) return true;   // Antártida
+  let t = false;
+  for (let k = 0; k < COSTAS.length; k++) {
+    const b = CAJAS[k];
+    if (lon < b[0] || lon > b[1] || lat < b[2] || lat > b[3]) continue;
+    if (enPoligono(lon, lat, COSTAS[k])) { t = true; break; }
+  }
+  if (!t) return false;
+  for (let k = 0; k < MARES.length; k++) {
+    const b = CAJAS[COSTAS.length + k];
+    if (lon < b[0] || lon > b[1] || lat < b[2] || lat > b[3]) continue;
+    if (enPoligono(lon, lat, MARES[k])) return false;
+  }
+  return true;
+}
+// ciudades: lat, lon, peso
+const CIUDADES = [
+  [40.42,-3.70,3.0],[41.39,2.17,2.2],[39.47,-0.38,1.2],[37.39,-5.98,1.1],[41.65,-0.89,0.8],[36.72,-4.42,0.9],[43.26,-2.93,0.8],[38.72,-9.14,1.6],[41.15,-8.61,1.0],[41.65,-4.72,0.5],[37.98,-1.13,0.6],[38.35,-0.48,0.7],[37.88,-4.78,0.4],[37.18,-3.6,0.4],[42.24,-8.72,0.5],[43.36,-8.41,0.4],[43.5,-5.8,0.6],[43.46,-3.8,0.3],[42.8,-1.64,0.35],[40.97,-5.66,0.3],[38.88,-6.97,0.25],[36.53,-6.29,0.35],[39.57,2.65,0.4],[28.1,-15.4,0.4],[28.4,-16.3,0.4],
+  [48.86,2.35,3.0],[45.76,4.84,1.1],[43.3,5.37,1.0],[43.6,1.44,0.7],[44.84,-0.58,0.7],[47.22,-1.55,0.5],[50.63,3.06,0.8],[43.7,7.27,0.7],[48.58,7.75,0.5],[47.32,5.04,0.3],[49.44,1.1,0.4],[48.11,-1.68,0.4],
+  [51.51,-0.13,3.0],[52.49,-1.89,1.2],[53.48,-2.24,1.3],[53.8,-1.55,0.9],[55.86,-4.25,0.8],[55.95,-3.19,0.5],[51.45,-2.59,0.5],[53.35,-6.26,0.9],[54.6,-5.93,0.4],
+  [52.37,4.9,1.3],[51.92,4.48,1.0],[50.85,4.35,1.1],[51.22,4.4,0.6],[51.45,7.0,2.0],[50.94,6.96,1.1],[50.11,8.68,1.0],[52.52,13.4,1.8],[53.55,9.99,1.3],[48.14,11.58,1.2],[48.78,9.18,0.9],[51.34,12.37,0.5],[51.05,13.74,0.5],[49.45,11.08,0.5],[52.37,9.73,0.5],
+  [45.46,9.19,1.8],[45.07,7.69,0.9],[41.9,12.5,1.6],[40.85,14.27,1.3],[44.49,11.34,0.6],[43.77,11.25,0.5],[45.44,12.33,0.5],[38.12,13.36,0.6],[37.5,15.09,0.4],[41.12,16.87,0.4],[44.41,8.93,0.5],
+  [47.37,8.54,0.6],[46.2,6.14,0.5],[48.21,16.37,1.0],[50.08,14.44,0.8],[47.5,19.04,1.0],[52.23,21.01,1.0],[50.06,19.94,0.6],[51.11,17.03,0.5],[54.35,18.65,0.4],[44.43,26.1,0.9],[42.7,23.32,0.6],[44.79,20.45,0.6],[45.81,15.98,0.4],[46.06,14.51,0.3],[37.98,23.73,1.1],[40.64,22.94,0.5],
+  [55.68,12.57,0.7],[59.33,18.07,0.7],[59.91,10.75,0.5],[60.17,24.94,0.5],[57.71,11.97,0.4],[59.44,24.75,0.3],[56.95,24.11,0.4],[54.69,25.28,0.3],[53.9,27.57,0.5],
+  [55.75,37.62,2.5],[59.94,30.31,1.4],[50.45,30.52,1.0],[49.99,36.23,0.6],[46.48,30.73,0.5],[47.22,39.72,0.5],[48.7,44.5,0.5],[53.2,50.15,0.5],[55.8,49.1,0.5],[56.33,44.0,0.5],[56.84,60.6,0.5],[55.16,61.4,0.4],[54.99,73.37,0.4],[55.01,82.9,0.4],[51.67,39.2,0.4],[53.2,45.0,0.3],
+  [41.01,28.97,2.0],[39.93,32.86,0.9],[38.42,27.14,0.6],[36.9,30.7,0.4],[37.0,35.32,0.4],[32.08,34.78,0.8],[31.77,35.21,0.4],[33.89,35.5,0.5],[33.51,36.29,0.5],[36.2,37.15,0.5],[31.95,35.93,0.4],
+  [30.04,31.24,2.4],[31.2,29.92,1.0],[24.09,32.9,0.2],[25.69,32.64,0.3],[27.18,31.18,0.3],[30.79,30.99,0.6],[31.04,31.38,0.5],
+  [33.57,-7.59,1.0],[34.02,-6.84,0.5],[35.76,-5.83,0.4],[34.03,-5.0,0.4],[31.63,-8.0,0.5],[30.42,-9.6,0.3],[36.75,3.06,0.9],[35.7,-0.63,0.5],[36.36,6.61,0.3],[36.81,10.18,0.6],[34.74,10.76,0.3],[32.89,13.19,0.5],[32.12,20.07,0.3],
+  [24.71,46.68,1.0],[21.49,39.19,0.6],[21.42,39.83,0.4],[26.42,50.09,0.5],[25.2,55.27,1.0],[24.45,54.38,0.5],[25.29,51.53,0.4],[29.37,47.98,0.5],[23.59,58.41,0.3],[15.37,44.19,0.3],[33.31,44.36,0.9],[36.19,44.01,0.3],[30.5,47.8,0.4],[35.69,51.39,1.6],[32.65,51.67,0.6],[29.59,52.58,0.4],[36.3,59.6,0.5],[38.08,46.29,0.4],[40.41,49.87,0.5],[41.72,44.79,0.4],[40.18,44.51,0.3],[41.3,69.24,0.6],[43.24,76.89,0.4],[24.86,67.0,0.9],[31.55,74.34,0.8],[33.68,73.05,0.5],[28.61,77.21,1.2],[19.08,72.88,1.0],[23.02,72.57,0.6],[26.91,75.79,0.4],
+  [6.52,3.38,1.2],[9.06,7.49,0.5],[12.0,8.52,0.5],[7.38,3.95,0.4],[5.6,-0.19,0.5],[6.69,-1.62,0.3],[5.36,-4.0,0.5],[14.69,-17.45,0.5],[12.64,-8.0,0.3],[9.54,-13.68,0.3],[4.05,9.7,0.4],[3.87,11.52,0.3],[-4.32,15.31,0.6],[-4.27,15.28,0.3],[0.35,32.58,0.4],[-1.29,36.82,0.6],[9.03,38.74,0.6],[15.5,32.56,0.5],[-6.79,39.21,0.4],[-26.2,28.04,1.0],[-33.92,18.42,0.6],[-29.86,31.02,0.4],[-8.84,13.23,0.5],[-25.97,32.57,0.2],[-17.83,31.05,0.2],[-15.42,28.28,0.2],
+  [40.71,-74.0,2.6],[42.36,-71.06,1.0],[39.95,-75.17,1.0],[38.9,-77.04,1.0],[39.29,-76.61,0.5],[43.65,-79.38,1.1],[45.5,-73.57,0.8],[46.81,-71.2,0.3],[41.88,-87.63,1.6],[42.33,-83.05,0.8],[39.96,-83.0,0.4],[40.44,-80.0,0.4],[33.75,-84.39,0.8],[25.76,-80.19,1.0],[28.54,-81.38,0.4],[27.95,-82.46,0.4],[35.23,-80.84,0.4],[36.16,-86.78,0.4],[29.76,-95.37,1.0],[32.78,-96.8,0.9],[29.95,-90.07,0.3],[19.43,-99.13,1.6],[20.97,-89.62,0.2],[23.13,-82.38,0.4],[18.47,-69.9,0.4],[10.48,-66.9,0.6],[4.71,-74.07,0.7],[-23.55,-46.63,1.8],[-22.91,-43.17,1.3],[-19.92,-43.94,0.6],[-15.79,-47.88,0.5],[-12.97,-38.5,0.5],[-8.05,-34.88,0.5],[-3.72,-38.54,0.5],[-1.46,-48.5,0.3],[-30.03,-51.23,0.5],[-25.43,-49.27,0.5],[-34.6,-58.38,1.4],[-34.9,-56.16,0.3],[-33.45,-70.67,0.7],[-12.05,-77.04,0.7],
+];
+
+// ── nivel 4: la región (sobre la esfera; unidad 1e4 m) ───────────────────────
+function construirRegion() {
+  const L = new Luces(60000);
+  L.u = 1e4;
+  const r = azar(505);
+  const punto = (lat, lon, col, int, tam) => { const p = mundoDe(lat, lon, 50); return L.add(p[0], p[1], p[2], ...col, int, tam, 0, 0.06, r()); };
+  // Madrid: la misma ciudad vista de lejos (núcleo, radios de las autovías y pueblos del alfoz)
+  for (let q = 0; q < 9000; q++) {
+    const rr = -3800 * Math.log(Math.max(1e-6, r() * r()));
+    const a = r() < 0.25 ? AUTOVIAS[Math.floor(r() * 6)] + gauss(r) * 0.25 : r() * TAU;
+    const x = CENTRO[0] + rr * Math.sin(a), z = CENTRO[1] - rr * Math.cos(a);
+    const lat = 40.44 - z / 111000, lon = -3.665 + x / (111000 * Math.cos(40.44 * DEG));
+    punto(lat, lon, r() < 0.5 ? LED : SODIO, 0.3 + 0.3 * r(), 520);
+  }
+  // pueblos y ciudades de la península (las del listado, con su tamaño) y pueblos sueltos sobre tierra
+  for (const [la, lo, w] of CIUDADES) {
+    if (la < 34 || la > 46 || lo < -11 || lo > 6) continue;
+    if (Math.abs(la - 40.42) < 0.05 && Math.abs(lo + 3.7) < 0.05) continue;
+    const n = Math.round(300 * w), sd = 0.035 * Math.sqrt(w);
+    for (let q = 0; q < n; q++) punto(la + gauss(r) * sd, lo + gauss(r) * sd * 1.3, r() < 0.4 ? LED : SODIO, 0.5 + 0.5 * r(), 650);
+  }
+  let k = 0;
+  while (k < 22000) {
+    const la = 35.5 + 9 * r(), lo = -10 + 14.5 * r();
+    if (!esTierra(la, lo)) continue;
+    // la «España vacía»: el interior tiene poca luz; las costas y los valles, más
+    const costa = Math.max(0, 1 - Math.min(Math.abs(lo + 0.3 - 0.4 * (la - 39)), Math.abs(la - 36.7) * 1.2, Math.abs(la - 43.4) * 1.3, Math.abs(lo + 8.8)) / 0.7);
+    const p = 0.12 + 0.55 * costa + 0.2 * fbm3(la * 2, lo * 2, 1, 7, 3);
+    if (r() > p) continue;
+    const n = 1 + Math.floor(r() ** 3 * 22);
+    for (let q = 0; q < n; q++) punto(la + gauss(r) * 0.012, lo + gauss(r) * 0.016, r() < 0.3 ? LED : SODIO, 0.4 + 0.45 * r(), 600);
+    k += n;
+  }
+  // autovías desde Madrid: hilos de puntos tenues
+  for (const [la, lo] of [[42.34, -3.7], [41.65, -0.89], [39.47, -0.38], [37.39, -5.98], [38.88, -6.97], [43.36, -8.41], [37.98, -1.13], [40.97, -5.66], [41.39, 2.17], [37.18, -3.6]]) {
+    const n = 500;
+    for (let q = 0; q < n; q++) {
+      const u = q / n, w = 0.15 * Math.sin(u * Math.PI) * Math.sin(la * 7);
+      punto(mix(40.42, la, u) + w * 0.5, mix(-3.7, lo, u) + w, [1.0, 0.75, 0.45], 0.14 + 0.1 * r(), 450);
+    }
+  }
+  return L;
+}
+
+// ── nivel 5: la Tierra (unidad 1e6 m, coordenadas ECEF) ───────────────────────
+const SOL_DIR_ECEF = (() => {   // anochecer en Madrid: Sol 95° al oeste, declinación de octubre
+  const u = ecef(-10.5 * DEG, (-3.665 - 95) * DEG);
+  return u;
+})();
+const TIERRA_VERT = /* glsl */ `
+${GLSL_EMITIR}
+uniform float uTime, uEsc, uNubes;
+uniform vec3 uSol;
+attribute vec4 aCol;
+attribute vec4 aTam;
+attribute vec4 aX;      // x: tipo (0 superficie, 1 luces, 2 nubes, 3 atmósfera); y: océano; z, w: azar
+void main() {
+  float tipo = aX.x;
+  vec3 p = position;
+  if (tipo > 1.5 && tipo < 2.5) {
+    float a = uNubes * (0.8 + 0.4 * aX.z);
+    float c = cos(a), s = sin(a);
+    p = vec3(c * p.x - s * p.y, s * p.x + c * p.y, p.z);
+  }
+  vec3 n = normalize(p);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  vec3 nv = normalize(normalMatrix * n);
+  vec3 vv = normalize(-mv.xyz);
+  float mu = dot(nv, vv);
+  float L = dot(n, uSol);
+  float dia = smoothstep(-0.06, 0.2, L);
+  vec3 col = aCol.rgb;
+  float a = aCol.w;
+  if (tipo < 0.5) {
+    float luz = max(L, 0.0);
+    a *= (aX.y > 0.5 ? 0.006 : 0.018) + 0.95 * pow(luz, 0.7) * smoothstep(-0.05, 0.12, L);
+    // destello del Sol en el océano
+    vec3 sv = normalize(normalMatrix * uSol);
+    float esp = pow(max(dot(reflect(-sv, nv), vv), 0.0), 140.0) * aX.y;
+    a += esp * 0.7; col = mix(col, vec3(1.0, 0.95, 0.85), clamp(esp * 2.0, 0.0, 1.0));
+    // crepúsculo: franja rojiza junto al terminador
+    float crep = exp(-pow((L - 0.02) / 0.07, 2.0));
+    col = mix(col, vec3(1.0, 0.45, 0.25), 0.55 * crep); a += 0.05 * crep;
+    a *= smoothstep(-0.05, 0.15, mu);
+  } else if (tipo < 1.5) {
+    a *= (1.0 - dia) * smoothstep(0.0, 0.18, mu);
+    a *= 0.85 + 0.15 * sin(uTime * (2.0 + 3.0 * aX.z) + aX.w * 6.28);
+  } else if (tipo < 2.5) {
+    a *= mix(0.04, 1.0, smoothstep(-0.1, 0.25, L)) * smoothstep(0.0, 0.15, mu);
+    col = mix(vec3(0.4, 0.5, 0.75), col, dia);
+  } else {
+    // atmósfera: un anillo fino en el limbo, más brillante del lado del Sol
+    float rim = exp(-pow(mu / 0.13, 2.0)) * step(-0.35, mu);
+    a *= rim * (0.03 + 1.0 * smoothstep(-0.2, 0.35, L));
+  }
+  emitir(mv, aTam.x * uEsc, col, a, max(aTam.y, 1.15));
+}
+`;
+function construirTierra() {
+  const L = new Luces(150000, { extra: true });
+  const r = azar(606);
+  const R = 6.371;
+  const vis = (u) => u[0] * ARRIBA[0] + u[1] * ARRIBA[1] + u[2] * ARRIBA[2];
+  const llDe = (u) => [Math.asin(u[2]) / DEG, Math.atan2(u[1], u[0]) / DEG];
+  // superficie: retícula de Fibonacci con algo de azar
+  const NS = 120000;
+  for (let i = 0; i < NS; i++) {
+    const y = r() * 2 - 1, rr = Math.sqrt(1 - y * y), th = r() * TAU;
+    const u = [rr * Math.cos(th), rr * Math.sin(th), y];
+    if (vis(u) < -0.12) continue;
+    const [lat, lon] = llDe(u);
+    const tierra = esTierra(lat, lon);
+    let col, int = 0.5, oc = 0;
+    const al = Math.abs(lat);
+    if (!tierra) {
+      const n = fbm3(u[0] * 6, u[1] * 6, u[2] * 6, 3, 3);
+      col = [mix(0.03, 0.06, n), mix(0.16, 0.26, n), mix(0.5, 0.75, n)]; int = 0.6; oc = 1;
+      if (al > 72) { col = [0.75, 0.82, 0.95]; int = 0.5; oc = 0; }
+    } else {
+      const seco = (lat > 15 && lat < 33 && lon > -17 && lon < 60) || (lat > 36 && lat < 48 && lon > 50 && lon < 70) || (lat < -18 && lat > -30 && lon > 14 && lon < 25);
+      const n = fbm3(u[0] * 9, u[1] * 9, u[2] * 9, 5, 4);
+      if (al > 62 || (lon < -15 && lon > -75 && lat > 59)) col = [0.85, 0.9, 1.0];
+      else if (seco) col = [mix(0.72, 0.9, n), mix(0.5, 0.66, n), mix(0.26, 0.38, n)];
+      else if (al < 12) col = [0.12, mix(0.32, 0.42, n), 0.12];
+      else col = [mix(0.22, 0.4, n), mix(0.38, 0.5, n), mix(0.16, 0.26, n)];
+      int = 0.62;
+    }
+    const k = L.add(u[0] * R, u[1] * R, u[2] * R, ...col, int * (0.85 + 0.3 * r()), 0.075, 0, 0, r());
+    L.extra(k, 0, oc, r(), r());
+  }
+  // luces de las ciudades: grupos alrededor de las ciudades y pueblos sueltos con peso por región
+  const luz = (lat, lon, int) => {
+    const u = ecef(lat * DEG, lon * DEG);
+    if (vis(u) < -0.05) return;
+    const k = L.add(u[0] * R * 1.0005, u[1] * R * 1.0005, u[2] * R * 1.0005, 1.0, 0.7 + 0.12 * r(), 0.38, int, 0.02, 0, 0, r());
+    L.extra(k, 1, 0, r(), r());
+  };
+  for (const [la, lo, w] of CIUDADES) {
+    const n = Math.round(70 * w), sd = 0.16 * Math.sqrt(w);
+    for (let q = 0; q < n; q++) luz(la + gauss(r) * sd, lo + gauss(r) * sd * 1.2 / Math.cos(la * DEG), 0.3 + 0.4 * r());
+  }
+  let n = 0;
+  while (n < 42000) {
+    const la = -40 + 105 * r(), lo = -100 + 160 * r();
+    if (!esTierra(la, lo)) continue;
+    let w = 0.03;
+    if (la > 35 && la < 60 && lo > -10 && lo < 30) w = 0.75;                       // Europa
+    else if (la > 44 && la < 60 && lo >= 30 && lo < 60) w = 0.35;                  // Rusia europea
+    else if (la > 29 && la < 37 && lo > -10 && lo < 11) w = 0.4 * (la > 33 ? 1 : 0.4);  // Magreb
+    else if (Math.abs(lo - 31.2) < 0.7 && la > 22 && la < 31) w = 1.2;             // el Nilo
+    else if (la > 30 && la < 42 && lo > 26 && lo < 50) w = 0.4;                    // Turquía, Levante, Irán
+    else if (la > 20 && la < 31 && lo > 46 && lo < 57) w = 0.12;
+    else if (la > 5 && la < 14 && lo > -17 && lo < 10) w = 0.22;                    // golfo de Guinea
+    else if (la > 8 && la < 35 && lo > 66) w = 0.6;                                  // India
+    else if (la > 25 && la < 47 && lo > -95 && lo < -70) w = 0.7;                  // EE. UU. este
+    else if (la > -35 && la < -5 && lo > -55 && lo < -34) w = 0.4;                 // Brasil
+    else if (la > 15 && la < 30 && lo > -17 && lo < 46) w = 0.005;                 // Sáhara
+    if (r() > w) continue;
+    const m = 1 + Math.floor(r() ** 2 * 5);
+    for (let q = 0; q < m; q++) luz(la + gauss(r) * 0.08, lo + gauss(r) * 0.1, 0.2 + 0.32 * r());
+    n += m;
+  }
+  // nubes: bandas de latitud, borrascas en espiral y huecos claros en los anticiclones
+  const BORRASCAS = [[52, -22, 1], [58, 12, -1], [-45, -20, -1], [44, -48, 1], [12, -40, 1], [-52, 30, -1], [62, -40, 1]];
+  let c = 0, it = 0;
+  while (c < 36000 && it < 400000) {
+    it++;
+    const v = [gauss(r), gauss(r), gauss(r)], lv = Math.hypot(...v);
+    const u = v.map((x) => x / lv);
+    if (vis(u) < -0.05) continue;
+    let [lat, lon] = llDe(u);
+    let lat2 = lat, lon2 = lon, giro = 0;
+    for (const [bl, bo, s] of BORRASCAS) {
+      const d = Math.hypot(lat - bl, (lon - bo) * Math.cos(bl * DEG));
+      if (d < 14) {
+        const ang = s * 2.4 * (1 - d / 14) ** 2;
+        const dx = (lon - bo) * Math.cos(bl * DEG), dy = lat - bl;
+        lon2 = bo + (dx * Math.cos(ang) - dy * Math.sin(ang)) / Math.cos(bl * DEG); lat2 = bl + dx * Math.sin(ang) + dy * Math.cos(ang);
+        giro = Math.max(giro, (1 - d / 14));
+      }
+    }
+    const al = Math.abs(lat);
+    const banda = 0.55 * Math.exp(-(((lat - 6) / 7) ** 2)) + 0.75 * Math.exp(-(((al - 52) / 12) ** 2)) - 0.45 * Math.exp(-(((al - 24) / 7) ** 2));
+    const q = ecef(lat2 * DEG, lon2 * DEG);
+    const nn = fbm3(q[0] * 5 + 3, q[1] * 5, q[2] * 9, 11, 5);
+    const d = nn - 0.52 + 0.35 * banda + 0.25 * giro;
+    if (d < 0 || r() > d * 3) continue;
+    const k = L.add(u[0] * R * 1.012, u[1] * R * 1.012, u[2] * R * 1.012, 0.92, 0.95, 1.0, 0.22 + 0.4 * Math.min(1, d * 3), 0.085, 0, 0, r());
+    L.extra(k, 2, 0, r(), r());
+    c++;
+  }
+  // atmósfera: cáscara un poco mayor que la Tierra
+  for (let q = 0; q < 9000; q++) {
+    const v = [gauss(r), gauss(r), gauss(r)], lv = Math.hypot(...v);
+    const u = v.map((x) => x / lv);
+    if (Math.abs(vis(u)) > 0.35) { q--; continue; }
+    const k = L.add(u[0] * R * 1.022, u[1] * R * 1.022, u[2] * R * 1.022, 0.3, 0.6, 1.0, 0.22, 0.07, 0, 0, r());
+    L.extra(k, 3, 0, r(), r());
+  }
+  return L;
+}
+
+// ── la Luna (unidad 1e6 m) ────────────────────────────────────────────────────
+function construirLuna() {
+  const L = new Luces(4000);
+  const r = azar(707), R = 1.737;
+  for (let i = 0; i < 7000; i++) {
+    const v = [gauss(r), gauss(r), gauss(r)], lv = Math.hypot(...v), u = v.map((x) => x / lv);
+    if (u[1] < -0.1) continue;
+    const Ld = -u[0];
+    const mar = fbm3(u[0] * 2.4 + 5, u[1] * 2.4, u[2] * 2.4, 13, 4);
+    const alb = 0.75 - 0.4 * ss(0.5, 0.62, mar) + 0.15 * fbm3(u[0] * 12, u[1] * 12, u[2] * 12, 2, 2);
+    const luz = Math.max(0, Ld) ** 0.8 * ss(-0.02, 0.08, Ld) * alb + 0.002;
+    L.add(u[0] * R, u[1] * R, u[2] * R, 0.95, 0.92, 0.86, 0.7 * luz, 0.1, 0, 0, r());
+  }
+  return L;
+}
+
+// ── el Sol (unidad 1e8 m) ─────────────────────────────────────────────────────
+const SOL_VERT = /* glsl */ `
+${GLSL_EMITIR}
+${GLSL_RUIDO}
+uniform float uTime, uEsc, uLlega;
+attribute vec4 aCol;
+attribute vec4 aTam;
+attribute vec4 aX;      // x: tipo (0 gránulos, 1 cromosfera, 2 protuberancia, 3 corona, 4 resplandor del disco); y, z, w: parámetros
+attribute vec4 aB;      // protuberancias: el otro pie (xyz) y la altura
+const float RS = 6.957;
+void main() {
+  float tipo = aX.x;
+  vec3 p = position;
+  vec3 col = aCol.rgb;
+  float a = aCol.w;
+  float tam = aTam.x;
+  float tt = uTime;
+  if (tipo < 0.5) {
+    // gránulos que hierven (el plasma sube por el centro de cada celda y baja por los bordes)
+    vec3 q = normalize(p);
+    float gr = snoise(q * 17.0 + vec3(tt * 0.22, 0.0, -tt * 0.18));
+    float sg = snoise(q * 5.0 - vec3(tt * 0.05));
+    a *= 0.72 + 0.28 * gr + 0.14 * sg;
+    a *= 1.0 - aX.y;
+    p = q * RS * (1.0 + 0.004 * gr);
+  } else if (tipo < 1.5) {
+    vec3 q = normalize(p);
+    float h = 1.0 + 0.012 + 0.02 * (0.5 + 0.5 * snoise(q * 22.0 + vec3(tt * 0.4)));
+    p = q * RS * h;
+  } else if (tipo < 2.5) {
+    // protuberancia: el plasma corre a lo largo de un bucle magnético
+    float s = fract(aX.y + tt * aX.z);
+    vec3 A = normalize(position), B = normalize(aB.xyz);
+    vec3 m = normalize(mix(A, B, s));
+    float h = aB.w * sin(3.14159 * s) * (1.0 + 0.06 * sin(tt * 1.7 + aX.w * 9.0));
+    vec3 jit = vec3(fract(aX.w * 37.1), fract(aX.w * 71.7), fract(aX.w * 13.3)) - 0.5;
+    p = m * RS * (1.0 + h) + jit * (0.12 + 0.35 * h) + curl(m * 3.0 + vec3(tt * 0.3)) * 0.04;
+    a *= 0.6 + 0.4 * sin(s * 3.14159);
+  } else if (tipo < 3.5) {
+    // corona: serpentinas suaves que se alejan despacio
+    float u = fract(aX.y + tt * aX.z);
+    vec3 q = normalize(p);
+    p = q * RS * (1.03 + 1.7 * u * u);
+    a *= (1.0 - u) * (1.0 - u) * smoothstep(0.0, 0.08, u);
+    tam *= 1.0 + 1.5 * u;
+  }
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  vec3 nv = normalize(normalMatrix * normalize(p));
+  float mu = dot(nv, normalize(-mv.xyz));
+  if (tipo < 0.5 || tipo > 3.5) {
+    // oscurecimiento del limbo y color por temperatura
+    float l = clamp(mu, 0.0, 1.0);
+    a *= 0.32 + 0.68 * pow(l, 0.6);
+    col = mix(vec3(0.95, 0.2, 0.03), mix(vec3(1.0, 0.48, 0.1), vec3(1.0, 0.7, 0.28), l * l), smoothstep(0.0, 0.45, l));
+    a *= smoothstep(-0.04, 0.06, mu);
+  } else if (tipo < 1.5) {
+    a *= smoothstep(-0.3, -0.02, mu) * (1.0 - smoothstep(0.1, 0.35, mu));
+  } else if (tipo < 2.5) {
+    vec3 cv = normalize(normalMatrix * normalize(position));
+    a *= mix(1.0, 0.25, smoothstep(0.0, 0.3, dot(cv, normalize(-mv.xyz))));
+  }
+  emitir(mv, tam * uEsc, col, a * uLlega, max(aTam.y, 1.2));
+}
+`;
+function construirSol() {
+  const RS = 6.957;
+  const N = 90000;
+  const P3 = new Float32Array(N * 3), Cc = new Float32Array(N * 4), Tt = new Float32Array(N * 4), X = new Float32Array(N * 4), Bb = new Float32Array(N * 4);
+  const r = azar(808);
+  let n = 0;
+  const add = (p, col, a, tam, x, b = [0, 0, 0, 0]) => { if (n >= N) return; P3.set(p, n * 3); Cc.set([...col, a], n * 4); Tt.set([tam, 0, 0, r()], n * 4); X.set(x, n * 4); Bb.set(b, n * 4); n++; };
+  const esf = () => { const v = [gauss(r), gauss(r), gauss(r)], l = Math.hypot(...v); return v.map((x) => x / l); };
+  const MANCHAS = [[0.35, 0.55, 0.2], [0.42, 0.62, 0.12], [-0.3, 0.75, 0.25], [0.1, 0.85, -0.45]].map((v) => { const l = Math.hypot(...v); return v.map((x) => x / l); });
+  // resplandor continuo del disco
+  for (let i = 0; i < 7000; i++) {
+    const u = esf();
+    if (u[1] < -0.05) { i--; continue; }
+    add(u.map((x) => x * RS), [1, 0.85, 0.55], 0.5, 0.55, [4, 0, r(), r()]);
+  }
+  // gránulos (con dos grupos de manchas)
+  for (let i = 0; i < 52000; i++) {
+    const u = esf();
+    if (u[1] < -0.1) { i--; continue; }
+    let sp = 0;
+    for (const [k, m] of MANCHAS.entries()) { const d = Math.hypot(u[0] - m[0], u[1] - m[1], u[2] - m[2]); sp = Math.max(sp, (k === 1 ? 0.9 : 0.7) * (1 - ss(0.015, 0.05 + 0.02 * (k % 2), d))); }
+    add(u.map((x) => x * RS), [1, 0.9, 0.7], 0.7 * (0.8 + 0.4 * r()), 0.09, [0, sp, r(), r()]);
+  }
+  // cromosfera: un filo rojizo en el limbo
+  for (let i = 0; i < 9000; i++) {
+    const u = esf();
+    if (u[1] < -0.3 || u[1] > 0.45) { i--; continue; }
+    add(u.map((x) => x * RS), [1.0, 0.32, 0.1], 0.45 * (0.6 + 0.8 * r()), 0.08, [1, 0, 0, r()]);
+  }
+  // protuberancias en el limbo (pies a ambos lados del arco)
+  const ARCOS = [[-0.95, 0.12, 0.28, 0.09, 0.2], [0.25, 0.05, -0.97, 0.12, 0.15], [-0.55, 0.0, -0.83, 0.07, 0.27]];
+  for (const [ax, ay, az, sep, h] of ARCOS) {
+    const A = [ax, ay, az], l = Math.hypot(...A);
+    const a = A.map((x) => x / l);
+    const t = [-a[2], 0, a[0]], lt = Math.hypot(...t) || 1;
+    const Ap = a.map((x, i) => x - (t[i] / lt) * sep), Bp = a.map((x, i) => x + (t[i] / lt) * sep);
+    for (let q = 0; q < 2600; q++) add(Ap, [1.0, 0.4, 0.15], 0.3 * (0.6 + 0.8 * r()), 0.08, [2, r(), 0.03 + 0.04 * r(), r()], [...Bp, h * (0.7 + 0.6 * r())]);
+  }
+  // corona: serpentinas de luz suave
+  for (let i = 0; i < 4000; i++) {
+    const u = esf();
+    if (u[1] > 0.6) { i--; continue; }
+    const ang = Math.atan2(u[2], u[0]);
+    const serp = 0.3 + 0.7 * Math.max(Math.cos(2 * ang + 0.4), 0) ** 3 + 0.35 * Math.max(Math.cos(5 * ang + 1.3), 0) ** 6;
+    if (r() > serp) { i--; continue; }
+    add(u.map((x) => x * RS), [1.0, 0.7, 0.4], 0.035 * (0.5 + r()), 0.16, [3, r(), 0.03 + 0.03 * r(), r()]);
+  }
+  return geometria({ position: [P3.subarray(0, n * 3), 3], aCol: [Cc.subarray(0, n * 4), 4], aTam: [Tt.subarray(0, n * 4), 4], aX: [X.subarray(0, n * 4), 4], aB: [Bb.subarray(0, n * 4), 4] });
+}
+
+// ── sistema solar (unidad 1e10 m, plano de las órbitas) ────────────────────────
+const PLANETAS = [
+  // a (UA), color, brillo, tamaño (px mínimo), ángulo
+  [0.387, [0.8, 0.75, 0.7], 0.5, 2.0, 2.3], [0.723, [1.0, 0.9, 0.65], 0.75, 2.6, 4.1], [1.0, [0.45, 0.7, 1.0], 0.8, 2.8, 0],
+  [1.524, [1.0, 0.45, 0.25], 0.6, 2.3, 1.2], [5.2, [1.0, 0.8, 0.55], 0.9, 3.6, 2.6], [9.54, [1.0, 0.85, 0.55], 0.8, 3.3, 3.9],
+  [19.2, [0.6, 0.9, 1.0], 0.6, 2.8, 5.2], [30.1, [0.4, 0.55, 1.0], 0.6, 2.8, 0.8],
+];
+function construirSistema() {
+  const L = new Luces(40000);
+  L.u = 1e10;
+  const r = azar(909);
+  for (const [a, col, br, px, ang] of PLANETAS) {
+    const R = a * UA;
+    const n = Math.round(700 + 140 * Math.sqrt(a) * 6);
+    for (let i = 0; i < n; i++) {
+      const th = r() * TAU;
+      L.add(R * Math.cos(th), R * Math.sin(th), (r() - 0.5) * R * 0.003, 0.3, 0.72, 1.0, 0.15 + 0.08 * r(), R * 0.0045, 1.0, 0, r());
+    }
+    // el planeta y su estela, como los electrones de Atom
+    if (a === 1.0) continue;   // la Tierra va aparte
+    for (let i = 0; i < 160; i++) {
+      const d = i / 160, th = ang - d * 0.55;
+      L.add(R * Math.cos(th), R * Math.sin(th), 0, ...col, br * 0.35 * (1 - d) ** 1.6, R * 0.01 * (1 - 0.6 * d), 1.4 * (1 - 0.5 * d), 0, r());
+    }
+    L.add(R * Math.cos(ang), R * Math.sin(ang), 0, ...col, br * 2.2, R * 0.02, px, 0, r());
+  }
+  // cinturón de asteroides
+  for (let i = 0; i < 7000; i++) {
+    const R = (2.2 + 1.1 * r()) * UA, th = r() * TAU;
+    L.add(R * Math.cos(th), R * Math.sin(th), gauss(r) * 0.05 * UA, 0.85, 0.75, 0.6, 0.06 + 0.06 * r(), 0.004 * UA, 1.0, 0.2, r());
+  }
+  return L;
+}
+function construirKuiper() {
+  const L = new Luces(16000);
+  L.u = 1e12;
+  const r = azar(1010);
+  for (let i = 0; i < 14000; i++) {
+    const R = (30 + 22 * r() ** 1.5) * UA, th = r() * TAU;
+    L.add(R * Math.cos(th), R * Math.sin(th), gauss(r) * 2.5 * UA, 0.6, 0.72, 1.0, 0.07 + 0.09 * r(), -1, 1.0, 0.25, r());
+  }
+  return L;
+}
+function construirOort() {
+  const L = new Luces(16000);
+  L.u = 1e14;
+  const r = azar(1111);
+  for (let i = 0; i < 15000; i++) {
+    const v = [gauss(r), gauss(r), gauss(r)], lv = Math.hypot(...v);
+    const R = 10 ** (14.5 + 1.5 * r());
+    L.add((v[0] / lv) * R, (v[1] / lv) * R, (v[2] / lv) * R, 0.55, 0.68, 1.0, 0.06 + 0.1 * r(), -1, 1.0, 0.3, r());
+  }
+  return L;
+}
+
+// ── estrellas: vecinas y campo (unidad 1e16 m, plano galáctico) ───────────────
+const COLOR_ESTRELLA = (k) => (k < 0.55 ? [1.0, 0.55, 0.35] : k < 0.75 ? [1.0, 0.78, 0.55] : k < 0.88 ? [1.0, 0.93, 0.82] : k < 0.96 ? [0.86, 0.9, 1.0] : [0.62, 0.75, 1.0]);
+function construirEstrellas() {
+  const L = new Luces(30000);
+  L.u = 1e16;
+  const r = azar(1212);
+  // vecinas brillantes con nombre propio (sin rótulos): Alfa Centauri, Sirio, Proción, Altair, Vega, Fomalhaut, Arturo...
+  for (const [d, k, b] of [[4.1e16, 0.8, 2.2], [4.1e16, 0.7, 1.4], [8.1e16, 0.99, 3.4], [1.08e17, 0.9, 2.2], [1.58e17, 0.93, 2.0], [2.37e17, 0.97, 2.6], [2.37e17, 0.94, 1.8], [3.5e17, 0.72, 3.0], [4.2e17, 0.82, 2.4], [6.1e16, 0.3, 0.6], [5.6e16, 0.2, 0.5], [7.4e16, 0.35, 0.6]]) {
+    const v = [gauss(r), gauss(r) * 0.6, gauss(r)], lv = Math.hypot(...v);
+    L.add((v[0] / lv) * d, (v[1] / lv) * d, (v[2] / lv) * d, ...COLOR_ESTRELLA(k), 1.4 * b, -1, 1.6 + 0.8 * b, 0.12, r());
+  }
+  // campo: densidad ∝ 1/r² (en cada salto se ven tantas estrellas nuevas como se pierden), aplanado en el disco
+  for (let i = 0; i < 26000; i++) {
+    const d = 10 ** (16.5 + 3.6 * r());
+    const v = [gauss(r), gauss(r), gauss(r)], lv = Math.hypot(...v);
+    const plano = Math.min(1, 3e18 / d);
+    const k = r(), b = 0.25 + 1.2 * r() ** 5;
+    L.add((v[0] / lv) * d, (v[1] / lv) * d, (v[2] / lv) * d * mix(0.08, 1, plano), ...COLOR_ESTRELLA(k), b, -1, 1.1 + 1.6 * b * b, 0.15, r());
+  }
+  // nebulosas (regiones HII rosadas) y cúmulos abiertos azulados a escala de cientos de años luz
+  for (let q = 0; q < 26; q++) {
+    const d = 10 ** (18.2 + 1.2 * r()), a = r() * TAU;
+    const cx = d * Math.cos(a), cy = d * Math.sin(a), cz = gauss(r) * 2e17;
+    const neb = r() < 0.6, sz = d * (0.04 + 0.05 * r());
+    for (let i = 0; i < (neb ? 260 : 60); i++) {
+      if (neb) L.add(cx + gauss(r) * sz, cy + gauss(r) * sz * 0.8, cz + gauss(r) * sz * 0.4, 1.0, 0.35, 0.55, 0.05 + 0.05 * r(), sz * 0.5, 1.5, 0.1, r());
+      else L.add(cx + gauss(r) * sz * 0.15, cy + gauss(r) * sz * 0.15, cz + gauss(r) * sz * 0.15, 0.7, 0.82, 1.0, 0.6 + 0.6 * r(), -1, 1.6 + 1.2 * r(), 0.2, r());
+    }
+  }
+  return L;
+}
+
+// ── la Vía Láctea (unidad 1e19 m; radio del disco 100) ─────────────────────────
+const GAL_VERT = /* glsl */ `
+${GLSL_EMITIR}
+${GLSL_RUIDO}
+uniform float uTime, uEsc, uGiro, uW, uPolvo, uHalo;
+attribute vec4 aCol;
+attribute vec4 aTam;
+attribute vec4 aG;      // r, ángulo, altura, retraso del ensamblaje
+attribute vec4 aD;      // desorden inicial: Δángulo, Δr (relativo), Δaltura, azar
+void main() {
+  float r = aG.x;
+  // rotación diferencial (curva de rotación plana: ω ∝ 1/r)
+  float om = 0.35 + 2.2 / (r + 6.0);
+  float w = clamp((uW - aG.w * 0.45) / 0.55, 0.0, 1.0);
+  w = w * w * (3.0 - 2.0 * w);
+  float des = 1.0 - w;
+  // antes de asentarse, los brazos están desenroscados y el disco revuelto; se enroscan hasta su sitio
+  float th = aG.y + om * uGiro + des * (aD.x + 1.6 * log(r / 55.0 + 0.08));
+  float rr = r * (1.0 + des * aD.y);
+  float zz = aG.z + des * aD.z;
+  vec3 p = vec3(rr * cos(th), rr * sin(th), zz);
+  if (des > 0.001) {
+    vec3 c = curl(p * 0.025 + vec3(aD.w * 3.0));
+    p += c / (length(c) + 1.0) * des * (aTam.x > 0.6 ? 3.0 : 9.0);
+  }
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  float a = aCol.w * (0.25 + 0.75 * w);
+  if (aTam.x > 0.6) a *= w * w * w * w * uHalo;
+  a *= 0.88 + 0.12 * sin(uTime * (1.3 + 2.0 * aD.w) + aD.w * 40.0);
+  emitir(mv, aTam.x * uEsc, aCol.rgb, a * uPolvo, max(aTam.y, 1.0));
+}
+`;
+const POLVO_FRAG = /* glsl */ `
+varying vec3 vCol;
+varying float vAlpha;
+varying float vBokeh;
+varying vec2 vNdc;
+void main() {
+  vec2 pc = gl_PointCoord * 2.0 - 1.0;
+  float r = length(pc);
+  if (r > 1.0) discard;
+  float perfil = exp(-r * r * 3.5) * (1.0 - smoothstep(0.8, 1.0, r));
+  gl_FragColor = vec4(vCol, clamp(vAlpha * perfil, 0.0, 1.0));
+}
+`;
+function construirGalaxia() {
+  const N = 330000, ND = 34000;
+  const r = azar(1313);
+  const mk = (n) => ({ C: new Float32Array(n * 4), T: new Float32Array(n * 4), G: new Float32Array(n * 4), D: new Float32Array(n * 4), n: 0, cap: n });
+  const S = mk(N), Dd = mk(ND);
+  const add = (B, rad, th, z, col, a, tam, px) => {
+    if (B.n >= B.cap) return;
+    const i = B.n++;
+    B.C.set([col[0], col[1], col[2], a], i * 4); B.T.set([tam, px, 0, r()], i * 4);
+    const dist = Math.hypot(rad * Math.cos(th) - SOL_GAL[0], rad * Math.sin(th) - SOL_GAL[1]);
+    // primero se asienta lo que está cerca de nosotros; lo lejano llega después
+    B.G.set([rad, th, z, cl(dist / 150 + 0.12 * r())], i * 4);
+    B.D.set([gauss(r) * 0.9, (r() - 0.5) * 0.7, gauss(r) * 6, r()], i * 4);
+  };
+  const PITCH = 19 * DEG, R0 = 12, BARRA = -20 * DEG;   // el Sol queda entre dos brazos
+  const brazo = (rad, th0) => th0 + Math.log(rad / R0) / Math.tan(PITCH);
+  // dos brazos mayores (Escudo-Centauro y Perseo) y dos menores (Sagitario y Norma), con grumos a lo largo
+  const BRAZOS = [[0, 1.0], [Math.PI, 1.0], [Math.PI / 2 + 0.35, 0.5], [1.5 * Math.PI + 0.35, 0.5]];
+  const grumo = (rad, k) => Math.min(1, 0.25 + 1.6 * (fbm3(rad * 0.11, k * 7.3, 0.5, 21, 3) - 0.3));
+  const radBrazo = () => { for (;;) { const v = R0 + (-Math.log(1 - r() * 0.985)) * 26; if (v < 99) return v; } };
+  const AZUL = [0.62, 0.76, 1.0], BLANCO = [0.9, 0.93, 1.0], AMARILLO = [1.0, 0.88, 0.7], ORO = [1.0, 0.76, 0.44], ORO2 = [1.0, 0.88, 0.66];
+  let i = 0;
+  while (i < 150000) {
+    const ka = Math.floor(r() * 4), [o, peso] = BRAZOS[ka];
+    if (r() > peso) continue;
+    const rad = radBrazo();
+    if (r() > grumo(rad, ka)) continue;
+    const espina = r() < 0.45;
+    const ancho = (espina ? 1.2 + 2.0 * rad / 100 : 3.0 + 7.0 * rad / 100) * (ka < 2 ? 1 : 0.8);
+    const th = brazo(rad, o + BARRA) + gauss(r) * ancho / rad;
+    const k = r();
+    add(S, rad + gauss(r) * 0.4, th, gauss(r) * 0.45, k < 0.5 ? AZUL : k < 0.8 ? BLANCO : AMARILLO, (espina ? 0.1 : 0.07) + 0.2 * r() ** 3, -1, 1.0 + 1.5 * r() ** 8);
+    i++;
+  }
+  // estrellas jóvenes muy brillantes, en el filo de los brazos
+  for (let q = 0; q < 5000; q++) {
+    const ka = Math.floor(r() * 2), rad = radBrazo();
+    const th = brazo(rad, BRAZOS[ka][0] + BARRA) + gauss(r) * 1.4 / rad + 0.04;
+    add(S, rad, th, gauss(r) * 0.3, r() < 0.7 ? [0.7, 0.85, 1.0] : [1.0, 0.95, 0.9], 0.3 + 0.45 * r(), -1, 1.7 + 1.2 * r());
+  }
+  // espolón de Orión, donde está el Sol
+  const thS = Math.atan2(SOL_GAL[1], SOL_GAL[0]), rS = Math.hypot(SOL_GAL[0], SOL_GAL[1]);
+  for (let q = 0; q < 10000; q++) {
+    const u = (r() - 0.4) * 0.55;
+    const rad = rS + u * 24 + gauss(r) * 1.2, th = thS + u * 0.75 + gauss(r) * 0.035;
+    add(S, rad, th, gauss(r) * 0.4, r() < 0.6 ? AZUL : BLANCO, 0.08 + 0.14 * r() ** 3, -1, 1.0 + r() ** 8);
+  }
+  // disco viejo y difuso (amarillento), exponencial, con algo de estructura
+  for (let q = 0; q < 75000; q++) {
+    const rad = 2 + (-Math.log(1 - r() * 0.985)) * 22;
+    if (rad > 100) { q--; continue; }
+    add(S, rad, r() * TAU, gauss(r) * 0.8, r() < 0.7 ? AMARILLO : BLANCO, 0.045 + 0.05 * r(), -1, 1.0);
+  }
+  // barra y bulbo dorados
+  for (let q = 0; q < 42000; q++) {
+    const barra = q < 17000;
+    let x, y, zz;
+    if (barra) { x = gauss(r) * 8.5; y = gauss(r) * 2.6; zz = gauss(r) * 2.2; } else { const sR = Math.abs(gauss(r)) * 5; const v = [gauss(r), gauss(r), gauss(r) * 0.62], lv = Math.hypot(...v); x = (v[0] / lv) * sR; y = (v[1] / lv) * sR; zz = (v[2] / lv) * sR; }
+    const c = Math.cos(BARRA), s2 = Math.sin(BARRA);
+    const X = x * c - y * s2, Y = x * s2 + y * c;
+    const nuc = Math.exp(-Math.hypot(X, Y) / 4);
+    add(S, Math.hypot(X, Y), Math.atan2(Y, X), zz, r() < 0.55 ? ORO : ORO2, (0.09 + 0.09 * r()) * (0.8 + 0.6 * nuc), -1, 1.0 + r() ** 6);
+  }
+  // luz integrada: puntos grandes y muy tenues que dan cuerpo a los brazos, al disco y al núcleo
+  for (let q = 0; q < 17000; q++) {
+    let rad, th, col, a, tam;
+    if (q < 11000) { const ka = Math.floor(r() * 4), rad0 = radBrazo(); rad = rad0; th = brazo(rad0, BRAZOS[ka][0] + BARRA) + gauss(r) * 3.4 / rad0; col = [0.5, 0.62, 1.0]; a = ka < 2 ? 0.024 : 0.015; tam = 4.2; }
+    else if (q < 15000) { rad = 3 + (-Math.log(1 - r() * 0.9)) * 20; th = r() * TAU; col = [1.0, 0.8, 0.6]; a = 0.013; tam = 6; }
+    else { rad = Math.abs(gauss(r)) * 7; th = r() * TAU; col = [1.0, 0.72, 0.4]; a = 0.05; tam = 4.5; }
+    add(S, rad, th, gauss(r) * 0.6, col, a, tam, 1.0);
+  }
+  // regiones HII rosadas y cúmulos jóvenes a lo largo de los brazos
+  for (let q = 0; q < 520; q++) {
+    const ka = r() < 0.75 ? Math.floor(r() * 2) : 2 + Math.floor(r() * 2);
+    const rad = R0 + 5 + r() * 72, th = brazo(rad, BRAZOS[ka][0] + BARRA) + gauss(r) * 1.0 / rad;
+    const rosa = r() < 0.7, sz = 0.5 + 0.7 * r();
+    for (let j = 0; j < 22; j++) add(S, rad + gauss(r) * sz, th + gauss(r) * sz / rad, gauss(r) * 0.2, rosa ? [1.0, 0.28, 0.55] : [0.7, 0.86, 1.0], rosa ? 0.16 + 0.2 * r() : 0.18 + 0.25 * r(), rosa ? 0.45 : -1, rosa ? 1.2 : 1.7);
+  }
+  // cúmulos globulares en el halo
+  for (let q = 0; q < 50; q++) {
+    const v = [gauss(r), gauss(r), gauss(r) * 0.7], lv = Math.hypot(...v), d = 14 + 55 * r();
+    const cx = (v[0] / lv) * d, cy = (v[1] / lv) * d, cz = (v[2] / lv) * d;
+    for (let j = 0; j < 30; j++) { const x = cx + gauss(r) * 0.45, y = cy + gauss(r) * 0.45; add(S, Math.hypot(x, y), Math.atan2(y, x), cz + gauss(r) * 0.45, [1.0, 0.9, 0.75], 0.07, -1, 1.0); }
+  }
+  // polvo: franjas oscuras por el borde interior de los brazos, anillo nuclear y manchas sueltas
+  let q2 = 0;
+  while (q2 < ND - 4000) {
+    const ka = r() < 0.8 ? Math.floor(r() * 2) : 2 + Math.floor(r() * 2);
+    const rad = R0 * 0.9 + (-Math.log(1 - r() * 0.97)) * 28;
+    if (rad > 90) continue;
+    if (r() > grumo(rad * 1.3, ka + 5) + 0.25) continue;
+    const th = brazo(rad / 0.92, BRAZOS[ka][0] + BARRA) + gauss(r) * 0.7 / rad;
+    add(Dd, rad, th, gauss(r) * 0.2, [0, 0, 0], 0.25 + 0.3 * r(), 1.3 + 1.6 * r(), 1.0);
+    q2++;
+  }
+  for (let q = 0; q < 4000; q++) {
+    if (q < 1800) { const a = r() * TAU, rr = 9.5 + gauss(r) * 0.8; const x = rr * Math.cos(a), y = rr * Math.sin(a) * 0.55; const c = Math.cos(BARRA), s2 = Math.sin(BARRA); add(Dd, Math.hypot(x * c - y * s2, x * s2 + y * c), Math.atan2(x * s2 + y * c, x * c - y * s2), gauss(r) * 0.2, [0, 0, 0], 0.2 + 0.2 * r(), 1.2, 1.0); }
+    else { const rad = 15 + 70 * r(); add(Dd, rad, r() * TAU, gauss(r) * 0.3, [0, 0, 0], 0.08 + 0.12 * r(), 2 + 2 * r(), 1.0); }
+  }
+  const geo = (B) => geometria({ position: [new Float32Array(B.n * 3), 3], aCol: [B.C.subarray(0, B.n * 4), 4], aTam: [B.T.subarray(0, B.n * 4), 4], aG: [B.G.subarray(0, B.n * 4), 4], aD: [B.D.subarray(0, B.n * 4), 4] });
+  return { estrellas: geo(S), polvo: geo(Dd) };
+}
+
+// ── capas ────────────────────────────────────────────────────────────────────
+const t0 = performance.now();
+const calle = construirCalle();
+const capaCalleE = P.capa(calle.estructura.geometria(), null, 1);
+const capaCalle = P.capa(calle.luces.geometria(), null, 1);
+const barrio = construirBarrio();
+const capaBarrioDentro = P.capa(barrio.dentro.geometria(), null, 2);
+const capaBarrioFuera = P.capa(barrio.fuera.geometria(), null, 2);
+const capaCiudad = P.capa(construirCiudad().geometria(), null, 2);
+const capaRegion = P.capa(construirRegion().geometria(), null, 2);
+const matShader = (vert, frag = GLSL_PUNTO_FRAG, extra = {}, blending = THREE.AdditiveBlending) => new THREE.ShaderMaterial({
+  uniforms: { ...P.U, uAlpha: { value: 1 }, uEsc: { value: 1 }, ...extra },
+  vertexShader: vert, fragmentShader: frag, transparent: true, depthTest: false, depthWrite: false, blending,
+});
+const capaTierra = P.capa(construirTierra().geometria(), matShader(TIERRA_VERT, GLSL_PUNTO_FRAG, { uSol: { value: new THREE.Vector3(...SOL_DIR_ECEF) }, uNubes: { value: 0 } }), 3);
+const capaLuna = P.capa(construirLuna().geometria(), null, 4);
+const capaSol = P.capa(construirSol(), matShader(SOL_VERT, GLSL_PUNTO_FRAG, { uLlega: { value: 1 } }), 3);
+const capaSistema = P.capa(construirSistema().geometria(), null, 4);
+const capaKuiper = P.capa(construirKuiper().geometria(), null, 4);
+const capaOort = P.capa(construirOort().geometria(), null, 4);
+const capaEstrellas = P.capa(construirEstrellas().geometria(), null, 4);
+const gal = construirGalaxia();
+const extraGal = { uGiro: { value: 0 }, uW: { value: 0 }, uPolvo: { value: 1 }, uHalo: { value: 1 } };
+const capaGalaxia = P.capa(gal.estrellas, matShader(GAL_VERT, GLSL_PUNTO_FRAG, extraGal), 5);
+const capaPolvo = P.capa(gal.polvo, matShader(GAL_VERT, POLVO_FRAG, { uGiro: extraGal.uGiro, uW: extraGal.uW, uPolvo: { value: 1 }, uHalo: extraGal.uHalo }, THREE.NormalBlending), 6);
+// puntos sueltos: la Tierra y el Sol vistos de lejos
+const puntoSuelto = (col, int, px, halo) => {
+  const L = new Luces(2);
+  L.add(0, 0, 0, ...col, int, -1, px, 0, 0);
+  L.add(0, 0, 0, ...col, int * 0.12, -1, halo, 0, 0);
+  return P.capa(L.geometria(), null, 7);
+};
+const capaPuntoTierra = puntoSuelto([0.55, 0.8, 1.0], 1.3, 4.6, 20);
+const capaPuntoLuna = puntoSuelto([0.95, 0.92, 0.85], 0.7, 2.0, 7);
+const capaPuntoSol = puntoSuelto([1.0, 0.88, 0.62], 1.6, 4.0, 22);
+// la persona y sus chispas
+const per = persona({ n: 15000 });
+const dest = destinosPersona(per.n);
+const geoP = geometria({ position: [per.pos, 3], aNor: [per.nor, 3], aInfo: [per.info, 4], aDest: [dest.D, 4], aVia: [dest.V, 4], aDestCol: [dest.Cc, 3] });
+const capaPersona = P.capa(geoP, materialPersona(P), 8);
+window.__msConstruccion = Math.round(performance.now() - t0);
+
+const CAPAS = [capaCalleE, capaCalle, capaBarrioDentro, capaBarrioFuera, capaCiudad, capaRegion, capaTierra, capaLuna, capaSol, capaSistema, capaKuiper, capaOort, capaEstrellas, capaGalaxia, capaPolvo, capaPuntoTierra, capaPuntoLuna, capaPuntoSol, capaPersona];
+const SOLO = new URLSearchParams(location.search).get('solo');   // depuración: ?solo=3,4 (índices de CAPAS)
+const ponAlfa = (capa, a) => {
+  capa.material.uniforms.uAlpha.value = a; capa.visible = a > 0.002;
+  if (SOLO !== null && !SOLO.split(',').map(Number).includes(CAPAS.indexOf(capa))) capa.visible = false;
+};
+
+// la Luna: pasa junto a la cámara cuando esta sube por encima de su altura
+const LUNA_OFF = [1.3e7, 3.0e8, -2.0e7];
+const lunaEn = () => [E_C[0] + LUNA_OFF[0], E_C[1] + LUNA_OFF[1], E_C[2] + LUNA_OFF[2]];
+
+// ── el átomo narrador ────────────────────────────────────────────────────────
+function atomo(t, z, tt) {
+  const g = campana(t, T_TU - 0.32, T_TU - 0.04, T_TU + 0.3, T_TU + 0.8);     // [tu]: se inclina hacia la persona
+  const u = eob(lin(t, T_ARR - 0.34, T_ARR + 0.12), 0.8);                      // [arriba]: sube a su sitio
+  const mira = campana(t, T_ARR - 0.3, T_ARR - 0.02, T_ARR + 0.25, T_ARR + 0.9);
+  const flota = 1 - 0.7 * ss(Q0, Q0 + QL, t);
+  const x = mix(800 - 26 * g, 1296, u) + 3 * Math.sin(tt * 0.9) * flota;
+  const y = mix(292 + 6 * g, 196, u) + 4 * Math.sin(tt * 1.3 + 1) * flota;
+  const gol = golpe(t);
+  P.atomo({
+    x, y, radio: 80 * (1 + 0.05 * gol), energia: E.energia(t),
+    fase: 2.2 * tt + 0.9 * empujes(t) + 1.2 * ss(T_TU - 0.3, T_TU + 0.2, t),
+    rotX: -0.42 * mira + 0.06 * Math.sin(tt * 0.5) * flota, rotY: 0.55 * g + 0.16 * Math.sin(tt * 0.35) * flota, rotZ: 0.2 * g,
+    sombra: 0.32 + 0.33 * vis(z, 1.5, 2.5, 6.5, 7.5) + 0.3 * vis(z, 8.3, 8.9, 10.5, 11.5),
+    brillo: 1 + 0.25 * gol,
+  });
+}
+
+// ── «estás aquí» ─────────────────────────────────────────────────────────────
+function aquiPantalla(z) {
+  const pT = P.aPantalla([0, 0, 0]), pE = P.aPantalla(E_C), pS = P.aPantalla(solEn(z));
+  const a = ss(8.4, 9.0, z), b = ss(11.6, 12.6, z);
+  return [mix(mix(pT[0], pE[0], a), pS[0], b), mix(mix(pT[1], pE[1], a), pS[1], b)];
+}
+function dibujarAqui(ctx, t, z, x, y) {
+  const fuerte = ss(T_LAC - 0.32, T_LAC, t);
+  const al = Math.max(0.55 * vis(z, 6.6, 7.0, 99, 100) * (1 - ss(19.2, 19.8, z)), fuerte);
+  if (al < 0.01) return;
+  ctx.save();
+  const tt = tau(t);
+  // anillo que late y punto central
+  const R = mix(z > 8.3 && z < 13 ? 15 : 12, 16, fuerte) * (1 + 0.08 * Math.sin(tt * 5) * (1 - ss(Q0, Q0 + QL, t)));
+  ctx.globalAlpha = al * 0.9; ctx.strokeStyle = '#9fe0ff'; ctx.lineWidth = 1.6;
+  ctx.shadowColor = 'rgba(120,200,255,0.9)'; ctx.shadowBlur = 8;
+  ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
+  if (fuerte > 0.01) { ctx.globalAlpha = fuerte; ctx.fillStyle = '#e8f8ff'; ctx.beginPath(); ctx.arc(x, y, 2.6, 0, TAU); ctx.fill(); }
+  // en la galaxia, una flecha que cae sobre el punto
+  if (fuerte > 0.01) {
+    const L = 64, d = 14 * (1 - eoc(fuerte));
+    const x0 = x + 0.55 * (R + 10 + d), y0 = y - 0.83 * (R + 10 + d);
+    ctx.globalAlpha = fuerte; ctx.strokeStyle = '#e8f8ff'; ctx.lineWidth = 2.6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x0 + 0.55 * L, y0 - 0.83 * L); ctx.lineTo(x0, y0); ctx.stroke();
+    const a = Math.atan2(0.83, -0.55);
+    ctx.fillStyle = '#e8f8ff';
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + 13 * Math.cos(a - 0.45), y0 - 13 * Math.sin(a - 0.45)); ctx.lineTo(x0 + 13 * Math.cos(a + 0.45), y0 - 13 * Math.sin(a + 0.45)); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ── un instante ──────────────────────────────────────────────────────────────
+function dibujar(t) {
+  const tt = tau(t);
+  const z = zDe(t);
+  const v = (z - zDe(t - 1 / 60)) * 60;
+  const cam = camaraDe(z);
+  P.ponerVista(cam.C, cam.B, cam.U, cam.F);
+  P.U.uFocus.value = RHO0;
+  P.U.uAperture.value = 30 * (1 - ss(0.1, 0.8, z));
+
+  // persona: ola de luz en [tu], chispas desde el segundo salto hasta [desaparecido]
+  const mp = capaPersona.material.uniforms;
+  mp.uOla.value = mix(1.85, -0.2, lin(t, T_TU - 0.18, T_TU + 0.55));
+  const disp = lin(t, SALTOS[1][0] - 0.05, T_DES);
+  mp.uDisp.value = disp > 0 ? 0.0001 + disp : 0;
+  mp.uMVdest.value.copy(P.mv([0, 0, 0], 10));
+  mp.uEscDest.value = 10 / cam.U; mp.uTamDest.value = 0.16;
+  P.colocar(capaPersona, [0, 0, 0], 1);
+  ponAlfa(capaPersona, 1 - ss(3.0, 3.6, z));
+
+  P.colocar(capaCalle, [0, 0, 0], 1);
+  P.colocar(capaCalleE, [0, 0, 0], 1);
+  ponAlfa(capaCalle, 1 - ss(1.7, 2.5, z));
+  ponAlfa(capaCalleE, ss(0.2, 0.75, z) * (1 - ss(1.7, 2.5, z)));
+  P.colocar(capaBarrioDentro, [0, 0, 0], 10);
+  P.colocar(capaBarrioFuera, [0, 0, 0], 10);
+  const aB = mix(0.45, 1, ss(0.25, 0.8, z)) * (1 - ss(2.9, 3.6, z));
+  ponAlfa(capaBarrioFuera, aB);
+  ponAlfa(capaBarrioDentro, aB * ss(1.5, 2.2, z));
+  P.colocar(capaCiudad, [0, 0, 0], 100);
+  ponAlfa(capaCiudad, vis(z, 2.0, 2.7, 4.6, 5.3));
+  P.colocar(capaRegion, [0, 0, 0], 1e4);
+  ponAlfa(capaRegion, vis(z, 3.9, 4.6, 5.9, 6.6));
+  // la Tierra
+  P.colocar(capaTierra, E_C, 1e6, R_TIERRA);
+  ponAlfa(capaTierra, vis(z, 5.3, 6.1, 8.9, 9.4));
+  capaTierra.material.uniforms.uNubes.value = 0.012 * tt;
+  // la Luna (y su punto cuando se ve diminuta)
+  const pl = lunaEn();
+  P.colocar(capaLuna, pl, 1e6);
+  ponAlfa(capaLuna, vis(z, 7.5, 7.7, 9.2, 9.6));
+  P.colocar(capaPuntoLuna, pl, 1);
+  ponAlfa(capaPuntoLuna, vis(z, 8.9, 9.3, 10.3, 10.8));
+  P.colocar(capaPuntoTierra, E_C, 1);
+  ponAlfa(capaPuntoTierra, vis(z, 8.4, 9.0, 12.4, 13.2));
+  // el Sol
+  const S = solEn(z);
+  P.colocar(capaSol, S, 1e8);
+  ponAlfa(capaSol, vis(z, 8.2, 8.5, 11.4, 12.3));
+  P.colocar(capaPuntoSol, S, 1);
+  ponAlfa(capaPuntoSol, vis(z, 11.0, 11.8, 20.0, 20.6) * mix(1, 0.35, ss(13, 16, z)));
+  P.colocar(capaSistema, S, 1e10, R_ECL);
+  ponAlfa(capaSistema, vis(z, 10.6, 11.3, 13.7, 14.6));
+  P.colocar(capaKuiper, S, 1e12, R_ECL);
+  ponAlfa(capaKuiper, vis(z, 12.3, 13.0, 14.6, 15.4));
+  P.colocar(capaOort, S, 1e14);
+  ponAlfa(capaOort, vis(z, 13.6, 14.4, 16.6, 17.4));
+  P.colocar(capaEstrellas, S, 1e16, R_GALM);
+  ponAlfa(capaEstrellas, vis(z, 15.4, 16.3, 19.8, 20.5));
+  // la galaxia: se enrosca durante los últimos saltos y queda en su sitio en [lactea]
+  const G = galEn(z);
+  P.colocar(capaGalaxia, G, U_GAL, R_GALM);
+  P.colocar(capaPolvo, G, U_GAL, R_GALM);
+  const aG = ss(19.0, 20.2, z);
+  ponAlfa(capaGalaxia, aG);
+  ponAlfa(capaPolvo, aG);
+  extraGal.uW.value = Math.max(ss(19.2, 21, z), 0) * 0.6 + 0.4 * ss(T_GAL, T_LAC, t);
+  extraGal.uGiro.value = -0.12 * (tt - T_LAC);
+  extraGal.uHalo.value = ss(20.2, 20.9, z);
+
+  // fondo: cielo de la ciudad → espacio
+  const f = P.fondo;
+  const esp = ss(4.8, 5.8, z);
+  f.uCielo.value = 1 - esp;
+  f.uEspacio.value = esp;
+  f.uNebK.value = 0.032 * (1 - 0.5 * ss(19, 21, z));
+  const pe = P.aPantalla(E_C), dE = Math.hypot(cam.C[0] - E_C[0], cam.C[1] - E_C[1], cam.C[2] - E_C[2]);
+  const rE = Math.tan(Math.asin(Math.min(1, R_E / dE))) / P.tanV * 540;
+  const ps = P.aPantalla(S), dS = Math.hypot(cam.C[0] - S[0], cam.C[1] - S[1], cam.C[2] - S[2]);
+  const rS = Math.tan(Math.asin(Math.min(1, 6.957e8 / dS))) / P.tanV * 540;
+  f.uOcl.value[0].set(pe[0], pe[1], z > 4 && z < 10 ? rE : 0, 2);
+  f.uOcl.value[1].set(ps[0], ps[1], z > 8 && z < 12.5 ? rS * 1.01 : 0, 2);
+  f.uLimbo.value.set(pe[0], pe[1], rE, 1.2 * vis(z, 5.8, 6.5, 8.6, 9.3));
+  f.uCorona.value.set(ps[0], ps[1], rS, 0.22 * vis(z, 8.2, 8.5, 10.6, 11.6));
+  f.uSolDir.value.set(-1, 0, 0);
+  f.uDeriva.value.set(0.004 * Math.sin(tt * 0.2), 0.003 * Math.cos(tt * 0.17));
+  P.estrellasFondo.uAlpha.value = ss(5.6, 6.6, z) * (1 - 0.5 * ss(19.5, 21, z));
+  const kz = 1 + 0.02 * golpe(t);
+  P.estrellasFondo.uDesp.value.set(0, 0, kz);
+
+  atomo(t, z, tt);
+
+  const K = cl(10 ** (Math.max(0, v) / 80), 1, z > 9.3 ? 1.03 : 1.18);
+  const bloom = z > 8.3 && z < 11 ? [0.85, 0.55, 0.36] : [0.78, 0.48, 0.32];
+  P.render(tt, { zoomK: K, zoomC: cam.F, bloom });
+
+  // capa 2D: «estás aquí» y la regla
+  const ctx = P.ctx2d();
+  if (z > 6) { const [ax, ay] = aquiPantalla(z); dibujarAqui(ctx, t, z, ax, ay); }
+  const des = 450 * eob(lin(t, T_ARR - 0.3, T_ARR + 0.15), 0.6) + 150 * Math.max(0, z);
+  regla(ctx, { z, desliz: des, golpe: golpe(t) });
+}
+
+window.__dbg = { P, lunaEn, zDe, camaraDe, capaLuna };
+dibujar(0);
+E.iniciar(dibujar);
+</script>
+</body>
+</html>
