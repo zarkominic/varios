@@ -151,7 +151,8 @@ function estadoAtom(ts) {
   for (const [a] of SALTO) P4 += eio(prog(ts, a + JS * 0.25, a + JS * 0.85));
   const k1 = eio(prog(ts, SALTO[0][0], SALTO[0][0] + JS * 0.45));
   const sx = mix(ATOMO0[0], 1390, k1) + mix(0, -50, eio(prog(P4, 1, 4))), sy = mix(ATOMO0[1], 292, k1);
-  let esc = A_ESC * Math.pow(0.4, P4 / 4);
+  // (B ajustada) Atom se encoge menos en los saltos (×0,62 en total, no ×0,4): sigue leyéndose en el móvil
+  let esc = A_ESC * Math.pow(0.62, P4 / 4);
   // «atom»: crece un poco y brilla (llega a su tamaño en la marca, sin pasarse) y vuelve despacio
   const up = eio(prog(ts, m.atom - 0.3, m.atom)), dn = eio(prog(ts, m.atom + 0.8, m.atom + 1.6));
   const brillo = cl(up) * (1 - dn);

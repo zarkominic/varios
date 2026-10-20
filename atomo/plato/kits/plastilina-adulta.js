@@ -840,7 +840,7 @@ float pzc_vecino(vec3 q, vec4 T) { return min(length(q) - 0.31, sdCapsule(q, vec
 vec3 pzcol_vecino(vec3 q, vec4 T, float m) {
   if (m > 2.5) { gBri = 3.0; return C_BRASS; }
   if (m > 1.5) { gEm = C_AMBAR * 0.18; return C_AMBAR; }
-  if (m > 0.5) { gBri = 2.4; return C_WIRE; }
+  if (m > 0.5) { gBri = 2.2; gEm = C_ORBITA * 0.05; return C_ORBITA; }
   return colorGlifo(T.z) * (0.93 + 0.14 * vnoise(q * 5.0));
 }
 ` },
@@ -910,6 +910,9 @@ const vec3 C_SAGE   = vec3(0.120, 0.130, 0.070);   // oliva oscuro (antes, verde
 const vec3 C_MUST   = vec3(0.700, 0.360, 0.070);   // ámbar de los electrones
 const vec3 C_BUTTER = vec3(0.400, 0.320, 0.190);
 const vec3 C_SLATE  = vec3(0.016, 0.019, 0.027);   // carbón azul noche (antes, azul lila)
+// (B ajustada) el telón del plató: pizarra cálida más clara que el carbón del espacio (la imagen media pasa
+// de ~0,19 a ~0,27 de luminancia sin perder el contraste de cine)
+const vec3 C_TELON  = vec3(TELON_R, TELON_G, TELON_B);
 const vec3 C_STAR   = vec3(0.550, 0.500, 0.400);
 const vec3 C_INK    = vec3(0.013, 0.011, 0.010);
 const vec3 C_GREEN  = vec3(0.060, 0.090, 0.040);
@@ -923,7 +926,9 @@ const vec3 C_GOLD   = vec3(0.270, 0.118, 0.010);
 const vec3 C_WATER  = vec3(0.050, 0.085, 0.120);
 const vec3 C_STEEL  = vec3(0.038, 0.041, 0.055);
 const vec3 C_DUST   = vec3(0.170, 0.130, 0.090);
-const vec3 C_WIRE   = vec3(0.030, 0.024, 0.019);   // alambre / plastilina oscura de las órbitas
+const vec3 C_WIRE   = vec3(0.030, 0.024, 0.019);   // alambre oscuro (ya no lo usa Atom)
+// (B ajustada) las órbitas de Atom son de alambre de latón claro: se leen sobre el carbón y en el móvil
+const vec3 C_ORBITA = vec3(0.58, 0.40, 0.15);
 const vec3 C_WOOD   = vec3(0.150, 0.088, 0.052);   // nogal de la regla
 const vec3 C_MARFIL = vec3(0.600, 0.555, 0.450);   // marfil de los números incrustados
 const vec3 C_BRASS  = vec3(0.470, 0.330, 0.120);
@@ -999,12 +1004,13 @@ float bgHit(vec3 ro, vec3 rd, out vec3 n, out float arc) {
 float spotCone(vec3 p) {
   vec3 sd = normalize(SPOT_AT - LPOS);
   float c = dot(normalize(p - LPOS), sd);
-  return mix(0.035, 1.0, smoothstep(0.885, 0.985, c));
+  // (B ajustada) charco más ancho y con más luz alrededor
+  return mix(SPOT_MIN, 1.0, smoothstep(SPOT_A, 0.985, c)) + SPOT_HALO * smoothstep(SPOT_A - 0.12, SPOT_A + 0.04, c);
 }
 float spotObj(vec3 p) {
   vec3 sd = normalize(SPOT_AT - LPOS);
   float c = dot(normalize(p - LPOS), sd);
-  return mix(0.62, 1.0, smoothstep(0.80, 0.95, c));
+  return mix(SPOTOBJ_MIN, 1.0, smoothstep(0.80, 0.95, c));
 }
 vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
 `;
@@ -1022,7 +1028,7 @@ void main() {
   // fondo pintado: carbón azul noche con manchas grandes (como un telón de plató) y un poco de calidez
   // donde da el foco; el suelo, algo más cálido (polvo de taller)
   float man = 0.55 * vnoise(p * 0.32 + 3.0) + 0.3 * vnoise(p * 0.9 + 7.0) + 0.15 * vnoise(p * 2.7);
-  vec3 alb = C_SLATE * (0.70 + 0.62 * man) * (0.95 + 0.1 * vnoise(p * 6.0));
+  vec3 alb = C_TELON * (0.70 + 0.62 * man) * (0.95 + 0.1 * vnoise(p * 6.0));
   alb = mix(alb, alb * vec3(1.25, 1.08, 0.86), smoothstep(1.2, -0.4, p.y) * 0.6);
   // donde da el foco, el telón es algo más cálido (tierra tostada); fuera, carbón azul noche
   alb = mix(alb, alb * vec3(1.35, 1.12, 0.88), smoothstep(0.4, 1.0, spotCone(p)) * 0.7);
@@ -1037,7 +1043,7 @@ void main() {
   float ndl = max(dot(n, L), 0.0);
   float spot = spotCone(p);
   vec3 D = alb * LCOL * 1.5 * ndl * spot * fall;
-  vec3 A = alb * FILL_COL * 0.16 + alb * vec3(0.08, 0.10, 0.15) * 0.25;
+  vec3 A = alb * FILL_COL * FILL_FONDO + alb * vec3(0.08, 0.10, 0.15) * 0.25;
   fragColor = vec4(uSalida == 0 ? sqrt(clamp(D / 4.0, 0.0, 1.0)) : sqrt(clamp(A / 0.5, 0.0, 1.0)), 1.0);
 }
 `;
@@ -1271,10 +1277,10 @@ void mat_atomo(vec3 p, inout Mat M) {
     float dt = sdTorus(uRingM[i] * q, uRing);
     wW += exp(-max(dt, 0.0) * 90.0);
     float de = length(q - uElec[i].xyz) - uElec[i].w;
-    wE += exp(-max(de, 0.0) * 70.0) * 1.4;
+    wE += exp(-max(de, 0.0) * 70.0) * 6.0;   // (B ajustada) el electrón manda sobre el alambre que lo cruza
     wW += exp(-max(brazo(q, i, 1.0), 0.0) * 90.0);
   }
-  vec3 col = cN + wW * C_WIRE + wE * C_AMBAR;
+  vec3 col = cN + wW * C_ORBITA + wE * C_AMBAR;
   float ws = wN + wW + wE;
 #ifdef ATOMO_MANO
   float wm = exp(-max(mano(q), 0.0) * 55.0) * 1.5;
@@ -1284,9 +1290,10 @@ void mat_atomo(vec3 p, inout Mat M) {
   M.alb = col / ws;
   float kN = wN / ws, kW = wW / ws, kE = wE / ws;
   // brillo leve que late con la voz: el núcleo se enciende por dentro y los electrones, más
-  M.em = C_AMBAR * (kN * (0.04 + 0.30 * uAEn) * smoothstep(0.42, 0.0, length(q)) + kE * (0.16 + 0.85 * uAEn));
+  // (B ajustada) los electrones tienen luz propia (siempre se ven) y el alambre de latón algo de brillo
+  M.em = C_AMBAR * (kN * (0.08 + 0.30 * uAEn) * smoothstep(0.42, 0.0, length(q)) + kE * (0.34 + 0.6 * uAEn)) + C_ORBITA * kW * (0.025 + 0.04 * uAEn);
   M.tr = 0.55 * kN;
-  M.bri = mix(1.0, 2.6, kW);
+  M.bri = mix(mix(1.0, 2.2, kW), 1.8, kE);
   M.lp = q * 0.7 + uAPrint; M.bs = 1.0; M.det = mix(0.8, 0.15, kW); M.esc = uAEsc; M.g = vec3(0.0);
 }
 `;
@@ -1683,9 +1690,9 @@ vec3 shade(vec3 p, vec3 rd, float tObj, vec3 n, Mat M) {
   vec3 col = (alb * wrapD * (1.0 - 0.55 * metal) + sss * 0.5) * LCOL * key * sh;
   col += spec * LCOL * key * sh * smoothstep(-0.1, 0.3, ndl);
   col += alb * metal * (0.12 + 0.35 * pow(max(reflect(rd, n).y, 0.0), 2.0)) * ao;
-  col += alb * FILL_COL * pow(max(dot(n, normalize(FILL_DIR)) * 0.5 + 0.5, 0.0), 1.5) * 0.45 * ao;
+  col += alb * FILL_COL * pow(max(dot(n, normalize(FILL_DIR)) * 0.5 + 0.5, 0.0), 1.5) * FILL_OBJ * ao;
   float up = n.y * 0.5 + 0.5;
-  col += alb * mix(vec3(0.03, 0.025, 0.025), vec3(0.06, 0.07, 0.10), up) * 0.5 * ao;
+  col += alb * mix(vec3(0.03, 0.025, 0.025), vec3(0.06, 0.07, 0.10), up) * AMB_OBJ * ao;
   // contraluz frío que recorta la silueta (también a las piezas oscuras)
   float rim = pow(1.0 - max(dot(n, V), 0.0), 3.0) * max(dot(n, normalize(RIM_DIR)) + 0.25, 0.0);
   col += RIM_COL * (alb * 0.85 + 0.05) * rim * 1.9 * ao;
@@ -1744,6 +1751,24 @@ void main() {
 const VERT_PANTALLA = /* glsl */`
 in vec3 position;
 void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }
+`;
+// (B ajustada) halo de Atom: resplandor ámbar suave detrás del núcleo y un velo oscuro muy leve, más ancho,
+// que lo despega de los fondos claros. Sale premultiplicado (rgb ≤ alfa) para componer igual sobre el plató y
+// sobre transparente (render(n, { fondo: false })).
+const GLSL_HALO = /* glsl */`
+precision highp float;
+out vec4 fragColor;
+uniform vec2 uRes;
+uniform vec4 uHalo;    // centro (px de diseño, y hacia abajo) · radio de las órbitas en pantalla (px) · energía
+uniform vec4 uHaloK;   // fuerza del resplandor · fuerza del velo · —
+void main() {
+  vec2 P = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y) * (1920.0 / uRes.x);
+  float d = length(P - uHalo.xy) / max(uHalo.z, 1.0);
+  float g = uHaloK.x * (0.8 + 0.45 * uHalo.w) * (0.40 * exp(-d * d / 0.28) + 0.15 * exp(-d * d / 1.5));
+  float v = uHaloK.y * exp(-d * d / 2.4);
+  g = min(g, 0.95);
+  fragColor = vec4(vec3(1.0, 0.64, 0.31) * g, max(g, v));
+}
 `;
 const VERT_RECT = /* glsl */`
 in vec3 position;
@@ -1852,7 +1877,10 @@ export async function hornearRotulos() {
 // Para las escenas que componen fotos en un lienzo 2D (los decorados cacheados de prueba-plastilina-adulta):
 // el plató se crea con { post: false } y, al final de cada fotograma, aplicar(g, n) oscurece los bordes y
 // pone el grano del fotograma n (overlay: más grano en los medios tonos, casi nada en negros y blancos).
-export const POST = { VIG_K: 0.5, VIG_A: 0.42, VIG_B: 1.12, GRANO_K: 0.17 };
+export const POST = { VIG_K: 0.42, VIG_A: 0.42, VIG_B: 1.12, GRANO_K: 0.17 };
+// (B ajustada) luz del plató: telón más claro, charco del foco más ancho y más relleno (ver C_TELON)
+export const LUZ_PLATO = { TELON_R: 0.029, TELON_G: 0.032, TELON_B: 0.042, SPOT_MIN: 0.05, SPOT_A: 0.86, SPOT_HALO: 0.07,
+  SPOTOBJ_MIN: 0.72, FILL_FONDO: 0.30, FILL_OBJ: 0.68, AMB_OBJ: 0.8 };
 export function crearPost() {
   const ssj = (a, b, x) => { x = Math.min(1, Math.max(0, (x - a) / (b - a))); return x * x * (3 - 2 * x); };
   const vig = document.createElement('canvas'); vig.width = W; vig.height = H;
@@ -1993,6 +2021,7 @@ export async function crearPlato({
   const todos = objetos.map((o) => o.id);
   const defines = { NB, NP: Math.max(NP, 1), NPOLVO: Math.max(polvo, 1), NSTARS, NCAPS: caps.length, RAYO_PASOS: pasosRayo, SOMBRA_PASOS: pasosSombra };
   for (const [k, v] of Object.entries(POST)) defines[k] = v.toFixed(4);
+  for (const [k, v] of Object.entries(LUZ_PLATO)) defines[k] = v.toFixed(4);
   // depuración: ?dbg=NOMBRE,OTRO añade esos #define
   for (const k of (busqueda.get('dbg') ?? '').split(',').filter(Boolean)) defines[k] = 1;
 
@@ -2120,14 +2149,27 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
 
   // ---------- estado de cada fotograma ----------
   const B = U.uB.value;
+  let haloOn = false;
   const cajas = {};   // id → esquinas (mundo) del volumen envolvente, para su rectángulo de pantalla
   const cubo = (c, rr) => { const out = []; for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) out.push([c[0] + sx * rr, c[1] + sy * rr, c[2] + sz * rr]); return out; };
   function limpiar() {
+    haloOn = false;
     for (const v of B) v.set(0, 0, 0, 0);
     for (const k in cajas) delete cajas[k];
   }
   limpiar();
   let nActual = 0;
+  // (B ajustada) halo de Atom (ver GLSL_HALO)
+  const haloU = { uRes: comunes.uRes, uHalo: { value: new THREE.Vector4() }, uHaloK: { value: new THREE.Vector4(1, 0.1, 0, 0) }, uRect: { value: new THREE.Vector4() } };
+  const pasoHalo = (() => {
+    const mat = new THREE.RawShaderMaterial({
+      glslVersion: THREE.GLSL3, uniforms: haloU, vertexShader: VERT_RECT, fragmentShader: GLSL_HALO,
+      depthTest: false, depthWrite: false, transparent: true, blending: THREE.CustomBlending,
+      blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor, blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+    });
+    const s = new THREE.Scene(); const me = new THREE.Mesh(quad, mat); me.frustumCulled = false; s.add(me);
+    return { mat, escena: s };
+  })();
   const huella = (on, k) => (on ? [(azar(nActual, k) - 0.5) * 0.3, (azar(nActual, k + 1) - 0.5) * 0.3, (azar(nActual, k + 2) - 0.5) * 0.3] : [0, 0, 0]);
 
   // El átomo narrador: núcleo de bolitas, tres órbitas de churro inclinadas y tres electrones.
@@ -2137,7 +2179,9 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
   //   desplazamiento en el mundo desde el centro, de un electrón que sale de su órbita; brazo: 0..1,
   //   un churro de grosor `grosor` lo une al núcleo; mano: 0..1, el electrón se convierte en una mano
   //   de tamaño `tamMano`, si el plató se creó con { mano: true }), toque.
-  function ponerAtomo({ pos = [0, 2, 0], escala = 1, yaw = -0.1, pitch = 0.05, roll = 0, sq = [1, 1, 1], energia = 0, ts = 0, electrones = [], toque = false, orbita = 1 } = {}) {
+  //   (B ajustada) halo: fuerza del resplandor ámbar detrás del núcleo (0: sin halo) · velo: fuerza del velo
+  //   oscuro que lo despega de fondos claros.
+  function ponerAtomo({ pos = [0, 2, 0], escala = 1, yaw = -0.1, pitch = 0.05, roll = 0, sq = [1, 1, 1], energia = 0, ts = 0, electrones = [], toque = false, orbita = 1, halo = 1, velo = 0.1 } = {}) {
     if (!atomo) return;
     U.uCen.value.set(...pos); U.uAEsc.value = escala; U.uSq.value.set(...sq);
     const R = rotXYZ(pitch, yaw, roll);
@@ -2149,7 +2193,8 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
       U.uNuc.value[i].set(p[0] * ns + (azar(nActual, 10 + i) - 0.5) * j, p[1] * ns + (azar(nActual, 20 + i) - 0.5) * j, p[2] * ns + (azar(nActual, 30 + i) - 0.5) * j, nr);
     });
     // (adulta) órbitas de alambre fino (sin bajar de ~1,3 px de grosor cuando Atom se ve pequeño)
-    const Rr = 1.68 * orbita * (1 + 0.025 * e), tube = Math.max(0.034, 0.0085 / Math.max(escala, 1e-3));
+    // (B ajustada) alambre algo más grueso y nunca por debajo de ~2,4 px de radio: Atom se lee en el móvil
+    const Rr = 1.68 * orbita * (1 + 0.025 * e), tube = Math.max(0.05, 0.016 / Math.max(escala, 1e-3));
     U.uAEn.value = e;
     U.uRing.value.set(Rr, tube);
     const ms = Math.max(...sq) * escala;
@@ -2185,11 +2230,25 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
         U.uManoEje.value.copy(v.clone().normalize());
         re = Math.max(re, 1.8 * tam);
       }
-      U.uElec.value[i].set(v.x, v.y, v.z, 0.118 * (1 - km) + 0.002);
+      U.uElec.value[i].set(v.x, v.y, v.z, 0.135 * (1 - km) + 0.002);
       const vw = v.clone().applyMatrix4(R).multiply(new THREE.Vector3(...sq)).multiplyScalar(escala).add(new THREE.Vector3(...pos));
       envolver(vw, re * ms);
     });
     U.uAPrint.value.set(...huella(toque, 40));
+    // halo: centro y radio de las órbitas en pantalla
+    const pc = proyectar(pos);
+    haloOn = !!pc && (halo > 0.001 || velo > 0.001);
+    if (haloOn) {
+      const Rw = Rr * escala * Math.max(...sq);
+      const pr = proyectar([pos[0] + r.x * Rw, pos[1] + r.y * Rw, pos[2] + r.z * Rw]);
+      const Rpx = pr ? Math.hypot(pr[0] - pc[0], pr[1] - pc[1]) : 50;
+      haloU.uHalo.value.set(pc[0], pc[1], Rpx, e);
+      haloU.uHaloK.value.set(halo, velo, 0, 0);
+      const k = 1.9 * Rpx;
+      const x0 = Math.max(0, pc[0] - k), x1 = Math.min(W, pc[0] + k), y0 = Math.max(0, pc[1] - k), y1 = Math.min(H, pc[1] + k);
+      if (x1 <= x0 || y1 <= y0) haloOn = false;
+      else haloU.uRect.value.set(x0 / W * 2 - 1, 1 - y1 / H * 2, x1 / W * 2 - 1, 1 - y0 / H * 2);
+    }
     const rr = br + 0.03;
     B[0].set(bc.x, bc.y, bc.z, rr);
     cajas.atomo = cubo([bc.x, bc.y, bc.z], rr);
@@ -2331,6 +2390,7 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
       const rc = rectangulo(cajas[o.id]);
       if (!rc) continue;
       o.uRect.value.copy(rc);
+      if (o.id === 'atomo' && haloOn) renderer.render(pasoHalo.escena, camOrto);
       renderer.render(o.paso.escena, camOrto);
       medir(o.id);
     }
