@@ -33,6 +33,11 @@
 
 ## Qué aplicamos en ASK Atom
 
+- **Siempre al empezar, Atom se presenta en una frase:** quién es y qué hace.
+  - Fórmula: «Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo, y te explico lo que no te contaron en clase.»
+  - En inglés: «Hi, I'm Atom, one of the tiny building blocks of everything, and I explain what school didn't teach you.»
+  - Detrás de la presentación va el gancho del vídeo.
+  - En inglés no hay que decir «I'm Atom, an atom»: con la voz americana suena «Adam, an Adam».
 - **Gancho:** en los primeros 20 s, una frase que te lleve la contraria o te sorprenda, la promesa del viaje y una pregunta que se responde al final.
 - **Reencuadre:** una «regla» nueva para mirar el tema (en el episodio 3, los saltos ×10 desde ti).
 - **Estructura:** un viaje con capítulos y la misma ancla visual en todos (regla, línea de tiempo o marcador). La cartela de capítulo no lleva palabras, solo un número o un símbolo.

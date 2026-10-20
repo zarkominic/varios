@@ -26,8 +26,8 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 
 | ES | EN |
 |---|---|
-| Soy un átomo. | I'm an atom. |
-| ¿Pequeño? | Small? |
+| Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo, y te explico lo que no te contaron en clase. | Hi, I'm Atom, one of the tiny building blocks of everything, and I explain what school didn't teach you. |
+| ¿Cómo de pequeño soy? | How small am I? |
 | Si una manzana creciera hasta ser tan grande como la Tierra, sus átomos serían del tamaño de una cereza. | If an apple grew to the size of the Earth, its atoms would be about the size of cherries. |
 | Hoy vamos a recorrer todo lo que existe, de lo más pequeño a lo más grande. | Today we'll travel through everything that exists, from the smallest to the biggest. |
 | Y al final te diré dónde está el centro de todo esto. | And at the end, I'll tell you where the middle of it all is. |
