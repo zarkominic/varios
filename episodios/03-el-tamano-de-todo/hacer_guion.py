@@ -59,7 +59,9 @@ def hablado(texto, l):
     return t
 
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
-REVELACIONES = {3: 1.5, 58: 1.5, 142: 1.5}
+# Desde la v5 van solo en el campo `pausas` de cada escena de escenas.json (los números de aquí eran los de la v4
+# y, con el reparto v5, metían una pausa falsa tras la frase 58).
+REVELACIONES = {}
 
 escenas, usadas = [], []
 for e in plan['escenas']:
@@ -87,7 +89,7 @@ for e in plan['escenas']:
 assert usadas == list(range(1, len(filas) + 1)), 'faltan o sobran frases'
 
 guion = {
-    'serie': 'ASK Atom', 'numero': 3, 'estado': 'aprobado (v4)', 'formato': '16:9', 'rotulos': False,
+    'serie': 'ASK Atom', 'numero': 3, 'estado': 'aprobado (v5)', 'formato': '16:9', 'rotulos': False,
     'titulo': {'en': 'From quarks to the edge of the universe: the size of EVERYTHING',
                'es': 'Del quark al borde del universo: el tamaño de TODO'},
     'principal': 'en',

@@ -45,6 +45,76 @@
 //      texto). Va entre P.limpiar() y P.render(n), como las demás piezas.
 //    · opciones: { x, y (centro, px), sale, fin (s), distancia (de la cámara, unidades del mundo) }.
 //   cargarFuenteCartela(): carga Jost (crearPlato ya la carga). maquetaCartela(ctx, texto): la maqueta.
+//
+// (lote 0, episodio 3) REGLA DE −35 A +27, REGLA ENTERA Y PERSONA CON POSTURAS. Compatible con lo anterior: con lo
+// que ya escribían las escenas, prueba-plastilina-adulta.html sale idéntica píxel a píxel y cosmos-plastilina-
+// adulta.html también, salvo que ahora las filas 10²² y 10²³ llevan su rótulo (antes la textura acababa en 10²¹).
+// Demo y comprobación: escenas/ep3-lote0-demo.html (?vista=guias&postura=…&aspecto=… para guias-humano.py).
+//
+// LA REGLA (pieza 'reglaA', y una pieza 'flecha' para el marcador)
+//   Rótulos «10^e m» de 10⁻³⁵ a 10²⁷ (ROT.E_MIN…E_MAX; los de 10⁻⁴ a 10²¹ en su textura de siempre y los demás en un
+//   atlas de dos columnas, 476 × 3.776 px). Por debajo de 10⁻³⁵ la cara de la regla es la NIEBLA DE PLANCK (un cojín
+//   de arcilla gris con bocanadas) y por encima de 10²⁷, la RED DE GALAXIAS (placa azul noche con filamentos de luz
+//   y cúmulos): son los remates; se ven al llegar a los extremos o en la regla entera.
+//   const R = P.regla({ pieza, flecha, pos, escala: 1.42, rot: [0, −0.12, 0], e, ya: 0, actual: e, lupa: 0.5,
+//                       entera: 0, lupaEntera: 1.3, rango: null, marca: actual, escalaFlecha: 0.8, toque: false })
+//    · pieza / flecha: índices de las piezas 'reglaA' y 'flecha' (flecha opcional). pos, escala y rot: los de la
+//      regla (las pruebas: pos = P.punto(1668, 528, 0.4), escala 1,42); la flecha se pone sola a su izquierda.
+//    · e: el exponente que queda a la altura local ya (la losa va de y = −1,85 a 1,85 y cada potencia ocupa
+//      REGLA.RS = 0,75): para que la escala corra, anima e (puede ser fraccionario).
+//    · actual: la fila grande y en ámbar (por defecto e; fraccionario mientras se mueve); lupa: su aumento.
+//    · entera (0…1, animable): la regla se comprime sin saltos hasta verse entera, de −35 (con la niebla debajo) a
+//      +27 (con la red encima), −4 en el centro (y local 0) y una marca por potencia (63, «unas sesenta»). Entonces
+//      solo llevan rótulo −35, −4, 0, +7 y +27 y la fila actual (grande y en ámbar, aumento lupaEntera); el rótulo
+//      que choca con el actual se encoge. Las marcas del logaritmo se van al comprimirse.
+//    · marca: el exponente al que apunta la flecha (por defecto actual). Ep3-centro: entera 1, la flecha baja de
+//      +27 a 0 y cae cuatro saltos: marca y actual de 0 a −4.
+//    · rango: { de, a, marcas: 0…1, madera: 0…1 } resalta de 10^de a 10^a: sus marcas y rótulos se encienden en
+//      ámbar (marcas) y la madera se aclara (madera). «Las marcas se encienden una a una»: { de: −35, a: −35 + 62·u }.
+//    Devuelve { s, ya, RS, y(e): y local del exponente e, punto(e, x, z): punto del mundo (por defecto en el canto
+//    izquierdo, a la altura de e), flecha: el punto al que apunta }. Para poner algo junto a una marca (ep3-saltos:
+//    las miniaturas en −4, +7 y +27): P.pieza(k, { pos: R.punto(27), … }).
+//    Por dentro escribe P.U.uReglaA (s, ya, lupa, actual), uReglaB (RS, entera, —, lupaEntera) y uReglaC (de, a,
+//    marcas, madera). Las escenas que escriben uReglaA a mano siguen igual (con uReglaB y uReglaC por defecto se usa
+//    el código de antes). reglaEstado({ e, ya, entera }) da la escala sin plató; REGLA, las medidas.
+//   Miniaturas de los remates (ep3-saltos): piezas 'red' (medallón de radio 0,5 con la red de galaxias y aro de
+//   latón) y 'niebla' (nube gris de 0,6). El rótulo suelto 'etiqueta' vale para cualquier exponente de −35 a +27
+//   (variante = −e: 4 → 10⁻⁴; −27 → 10²⁷).
+//
+// LA PERSONA CON POSTURAS (pieza 'humano'; la de siempre, 'persona', queda quieta para las pruebas)
+//   La misma persona (cara, jersey, pantalón, zapatos y medidas de HUMANO.md: suela en y = −1, coronilla en 0,765,
+//   mira a +z, su izquierda en +x; de pie sobre el suelo del plató con pos [x, escala, z]), articulada:
+//   const h = P.pieza(i, { pos, escala, rot, sq, postura, aspecto, t, toque, huellaFija })
+//    · postura: un nombre de POSTURAS, con o sin tildes: 'de pie', 'sostener' (las dos manos delante del pecho,
+//      cerradas), 'señalar' (con la derecha), 'saludar' (con la derecha; el vaivén lo pone t), 'sentada' (se baja
+//      sola hasta que los pies pisan: la silla va en h.punto('asiento')), 'brazos cruzados', 'mirarse las manos',
+//      'perfil' (cara un poco arriba y ojos cerrados; de perfil girando la pieza: rot [0, ±π/2, 0]) y 'mirar
+//      arriba'; o un objeto (lo que falte, de pie; los signos, en POSTURA_BASE):
+//        { cabeza: [giro, inclina, ladea], torso: [inclina, giro, ladea], ojos: 0…1, mirada: [x, y],
+//          brazoIzq / brazoDer: [flex, abd, rot, codo, prona, muneca], manoIzq / manoDer: 0 abierta · 1 índice ·
+//          2 puño (y todo lo de en medio), piernaIzq / piernaDer: [flex, abd, rodilla, tobillo], apoyo: 1,
+//          apuntarIzq / apuntarDer: [x, y, z] (punto local: el hombro gira para que el antebrazo lo señale),
+//          fantasma: 0…1 (las manos se vuelven casi transparentes: pálidas, frías y con luz propia) }
+//      Izq/Der son los de la persona (su izquierda queda a la derecha de la pantalla si mira a cámara). Los tramos
+//      no cambian en ninguna postura: brazo 0,18 H, antebrazo 0,14 H, mano 0,10 H, pie 0,15 H.
+//    · t: el instante (s) para lo que se mueve solo ('saludar').
+//    · aspecto: 'adulto' (el de siempre, con barba y canas) · 'nino' (niño de unos 7 años: cabeza de 1/4,7 de la
+//      altura y piernas de 0,45 H; mide 1,685 en vez de 1,765 a la misma escala: junto a un adulto de 1,75 m, escala
+//      × 0,72) · 'melena' (pelo hasta la mandíbula, jersey oliva) · 'mono' (pelo recogido, jersey pizarra) · o
+//      { cuerpo: 'adulto'|'nino', pelo: 'corto'|'melena'|'mono'|{ largo, mono, mechon }, jersey: 'gris'|'oliva'|
+//      'ocre'|'pizarra'|'crema'|'arcilla'|[r, g, b], pantalon: 'caqui'|'gris'|'azul'|'marron'|[r, g, b], piel:
+//      'media'|'clara'|'morena'|'oscura'|factor, colorPelo: [r, g, b], barba: 0…1, canas: 0…1 } (ASPECTOS, aspecto()).
+//    · Devuelve h = { punto(nombre) → [x, y, z] del mundo, puntos, local, esqueleto, mundo(local) }. Nombres:
+//      cabeza, ojos, coronilla, barbilla, cuello, pecho, pelvis, asiento, regazo y hombro, codo, muneca, mano (el
+//      centro del agarre), dedos (la punta), cadera, rodilla, tobillo, pie (la punta), con Izq o Der. Lo que sostiene
+//      la mano va en h.punto('manoDer'). P.humano(i) devuelve el último h de esa pieza.
+//   Entre posturas: mezclarPosturas(a, b, u, t) interpola ángulo a ángulo; posturaEn(t, [[t0, a], [t1, b], …],
+//   { trans: 0.5 }) va de clave en clave (en cada ti la postura ya está entera; el paso dura trans s y es suave).
+//   postura(nombre, t) da el objeto completo para retocarlo; esqueletoHumano(postura, aspecto, t) da el esqueleto
+//   sin plató (p. ej., dónde quedará el asiento antes de sentarse) y HUMANO, las medidas.
+//   Coste (este servidor): más cara que 'persona' (≈ 1,7 veces en primer plano; ≈ 1,2–1,8 s por persona de 600 px
+//   de alto). Persona + regla + Atom: 3–4 s por fotograma; tres personas: 4,5–6 s. Con varias personas, lo que no se
+//   mueva va en foto (como los decorados de prueba-plastilina-adulta).
 // ----- (lo que sigue es el comentario de la copia de prueba) -----
 // COPIA de kits/plastilina.js para las pruebas de identidad (prueba-plastilina.html, prueba-mixta.html, cosmos-plastilina.html).
 // kits/plastilina.js lo usan escenas terminadas del episodio 2 y no se toca. Añadidos de esta copia:
@@ -480,29 +550,35 @@ vec2 worleyR(vec2 p) {
 }
 // la red de galaxias en p: x, filamentos (0…1) · y, cúmulos (0…1)
 vec2 redR(vec2 p) {
-  vec2 a = worleyR(p * 3.0), b = worleyR(p * 7.0 + 3.7);
-  float fil = (1.0 - smoothstep(0.0, 0.1, a.x)) * 0.75 + (1.0 - smoothstep(0.0, 0.075, b.x)) * 0.4 * (1.0 - smoothstep(0.0, 0.35, a.x));
-  return vec2(clamp(fil, 0.0, 1.0), 1.0 - smoothstep(0.0, 0.2, a.y));
+  // celdas deformadas (no un panal), filamentos que brillan más cerca de los cúmulos, un halo tenue y galaxias sueltas
+  vec2 w = p + 0.2 * vec2(vnoise(vec3(p * 1.6, 0.3)), vnoise(vec3(p * 1.6 + 5.2, 0.7))) - 0.1;
+  vec2 a = worleyR(w * 4.5), b = worleyR(w * 11.0 + 3.7);
+  float cerca = 1.0 - smoothstep(0.0, 0.45, a.y);
+  float fil = (1.0 - smoothstep(0.0, 0.035, a.x)) * (0.3 + 0.7 * cerca) + 0.14 * (1.0 - smoothstep(0.0, 0.14, a.x)) * cerca;
+  fil += (1.0 - smoothstep(0.0, 0.03, b.x)) * 0.35 * (1.0 - smoothstep(0.0, 0.22, a.x));
+  vec2 c = floor(w * 26.0), g = fract(w * 26.0) - 0.5;
+  fil += 0.7 * (1.0 - smoothstep(0.06, 0.2, length(g))) * step(0.8, hashR2(c).x) * (1.0 - smoothstep(0.0, 0.12, a.x));
+  return vec2(clamp(fil, 0.0, 1.0), 1.0 - smoothstep(0.0, 0.11, a.y));
 }
 // arcilla azul noche con los filamentos en relieve, de luz cálida, y los cúmulos claros (k: fuerza de la luz)
 vec3 colorRed(vec2 p, float k) {
   const float EP = 0.004;
   vec2 r = redR(p), rx = redR(p + vec2(EP, 0.0)), ry = redR(p + vec2(0.0, EP));
   float h0 = r.x + 0.8 * r.y;
-  gG = 0.005 * vec3((rx.x + 0.8 * rx.y - h0) / EP, (ry.x + 0.8 * ry.y - h0) / EP, 0.0);
-  vec3 c = vec3(0.020, 0.024, 0.040) * (0.85 + 0.3 * vnoise(vec3(p * 9.0, 0.0)));
-  c = mix(c, vec3(0.50, 0.38, 0.24), r.x * 0.8);
-  c = mix(c, vec3(0.62, 0.56, 0.47), r.y * 0.85);
-  gEm = (vec3(0.50, 0.34, 0.17) * r.x * 0.12 + vec3(0.55, 0.47, 0.36) * r.y * 0.3) * k;
+  gG = 0.0035 * vec3((rx.x + 0.8 * rx.y - h0) / EP, (ry.x + 0.8 * ry.y - h0) / EP, 0.0);
+  vec3 c = vec3(0.016, 0.019, 0.034) * (0.8 + 0.4 * vnoise(vec3(p * 6.0, 0.0)));
+  c = mix(c, vec3(0.36, 0.26, 0.15), r.x * 0.75);
+  c = mix(c, vec3(0.58, 0.52, 0.42), r.y * 0.9);
+  gEm = (vec3(0.55, 0.36, 0.16) * r.x * 0.2 + vec3(0.62, 0.52, 0.38) * r.y * 0.45) * k;
   gBri = 1.5;
   return c;
 }
 // arcilla gris de la niebla, con motas claras finísimas (la espuma)
 vec3 colorNiebla(vec3 p) {
-  float n = vnoise(p * 7.0), n2 = vnoise(p * 29.0);
-  float esp = step(0.94, hash13(floor(p * 60.0)));
-  gTr = 0.7; gBri = 0.6;
-  return vec3(0.30, 0.30, 0.31) * (0.82 + 0.3 * n + 0.08 * n2) + vec3(0.10) * esp * (0.5 + 0.5 * n2);
+  float n = vnoise(p * 5.0), n2 = vnoise(p * 23.0);
+  float esp = step(0.95, hash13(floor(p * 55.0)));
+  gTr = 0.8; gBri = 0.5;
+  return vec3(0.11, 0.115, 0.125) * (0.75 + 0.45 * n + 0.1 * n2) + vec3(0.06, 0.06, 0.065) * esp * (0.5 + 0.5 * n2);
 }
 #endif
 `;
@@ -820,60 +896,46 @@ const GLSL_HUMANO = /* glsl */`
 #define HUMANO_D 1
 uniform vec4 uHum[NHUM];
 vec3 huAf(int k, vec3 q) { return vec3(dot(uHum[k].xyz, q) + uHum[k].w, dot(uHum[k + 1].xyz, q) + uHum[k + 1].w, dot(uHum[k + 2].xyz, q) + uHum[k + 2].w); }
-// manos (en su marco, unidades de la persona adulta): abierta y relajada · índice estirado · puño (o agarre)
-float huManoAbierta(vec3 h) {
-  float d = elipsoideP(h - vec3(0.05, 0.0, 0.0), vec3(0.056, 0.043, 0.022));
-  d = smin(d, elipsoideP(h - vec3(0.126, -0.002, -0.004), vec3(0.054, 0.039, 0.019)), 0.03);
-  d = smin(d, capsulaC(h, vec3(0.03, 0.036, -0.006), vec3(0.085, 0.052, -0.016), 0.016, 0.013), 0.015);
-  float surco = 1e5;
-  for (int i = 0; i < 3; i++) { float vk = -0.02 + 0.021 * float(i); surco = min(surco, sdCapsule(h, vec3(0.108, vk, 0.018), vec3(0.19, vk, 0.012), 0.0035)); }
-  return smax(d, -surco, 0.006);
+// (coste) en SwiftShader todo el código corre en cada píxel, aunque esté en un «if»: por eso la mano y el pelo son
+// una sola fórmula con parámetros, no una por forma
+// dedos: losa de dos falanges en el plano (u, w), de ancho 2·hw en v, que se dobla hacia la palma: d = (cos, sin)
+// de la primera falange y de la segunda (los da el JS según lo doblados que estén)
+float huFalanges(vec3 h, vec3 K, vec4 d, float L1, float L2, float r, float hw) {
+  vec2 k = K.xz, m1 = k + vec2(d.x, -d.y) * L1, m2 = m1 + vec2(d.z, -d.w) * L2;
+  vec2 p = h.xz;
+  vec2 pa = p - k, ba = m1 - k; float t = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  float c1 = length(pa - ba * t) - r;
+  pa = p - m1; ba = m2 - m1; t = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  float c2 = length(pa - ba * t) - r * 0.92;
+  vec2 w = vec2(min(c1, c2) + 0.006, abs(h.y - K.y) - hw + 0.006);
+  return min(max(w.x, w.y), 0.0) + length(max(w, 0.0)) - 0.006;
 }
-float huManoIndice(vec3 h) {
-  float d = elipsoideP(h - vec3(0.05, 0.0, 0.0), vec3(0.056, 0.043, 0.024));
-  d = smin(d, capsulaC(h, vec3(0.1, -0.031, -0.013), vec3(0.1, 0.004, -0.013), 0.026, 0.024), 0.025);
-  d = smin(d, capsulaC(h, vec3(0.092, 0.024, 0.0), vec3(0.176, 0.026, -0.004), 0.0125, 0.0105), 0.012);
-  d = smin(d, capsulaC(h, vec3(0.03, 0.038, -0.01), vec3(0.08, 0.02, -0.03), 0.016, 0.013), 0.012);
-  return d;
+// la mano en su marco (u, hacia los dedos · v, hacia el pulgar · w, el dorso; unidades de la persona adulta).
+// DI y DF: las direcciones de las falanges del índice y de los otros tres dedos; kp: el pulgar recogido (0…1)
+float huMano(vec3 h, vec4 DI, vec4 DF, float kp) {
+  float d = elipsoideP(h - vec3(0.05, 0.0, 0.0), vec3(0.056, 0.043, 0.023));
+  float dd = huFalanges(h, vec3(0.098, 0.026, 0.002), DI, 0.042, 0.034, 0.0118, 0.0118);
+  dd = min(dd, huFalanges(h, vec3(0.1, -0.008, 0.002), DF, 0.044, 0.034, 0.0122, 0.027));
+  d = smin(d, dd, 0.012);
+  d = smax(d, -(sdCapsule(h, vec3(0.11, -0.004, 0.016), vec3(0.2, -0.004, 0.012), 0.0035) + 0.03 * DF.y), 0.005);
+  vec3 t1 = mix(vec3(0.085, 0.052, -0.016), vec3(0.09, 0.012, -0.042), kp);
+  return smin(d, capsulaC(h, vec3(0.03, 0.036, -0.006), t1, 0.016, 0.013), 0.015);
 }
-float huManoPuno(vec3 h) {
-  float d = elipsoideP(h - vec3(0.05, 0.0, 0.0), vec3(0.056, 0.043, 0.025));
-  d = smin(d, capsulaC(h, vec3(0.1, -0.031, -0.014), vec3(0.1, 0.031, -0.014), 0.027, 0.025), 0.025);
-  d = smin(d, capsulaC(h, vec3(0.035, 0.042, -0.012), vec3(0.09, 0.012, -0.04), 0.016, 0.013), 0.012);
-  return d;
-}
-float huMano(vec3 h, float f) {
-  if (f < 0.001) return huManoAbierta(h);
-  if (f < 0.999) return mix(huManoAbierta(h), huManoIndice(h), f);
-  if (f < 1.001) return huManoIndice(h);
-  if (f < 1.999) return mix(huManoIndice(h), huManoPuno(h), f - 1.0);
-  return huManoPuno(h);
-}
-// pelo: 0 corto con mechón (el de «persona») · 1 melena hasta la mandíbula con flequillo · 2 recogido en un moño
-float huPelo(vec3 qh, vec3 ah, float tipo) {
-  float pelo;
-  if (tipo < 0.5) {
-    pelo = elipsoideP(qh - vec3(0.0, 0.618, -0.006), vec3(0.133, 0.148, 0.14));
-    float linea = 0.585 + 0.135 * smoothstep(-0.06, 0.07, qh.z) - 0.035 * smoothstep(0.07, 0.11, ah.x) * smoothstep(-0.02, 0.04, qh.z);
-    pelo = smax(pelo, (linea - qh.y) * 0.8, 0.018);
-    float mechon = capsulaC(qh, vec3(0.07, 0.738, 0.0), vec3(-0.058, 0.7, 0.084), 0.032, 0.022);
-    mechon = smin(mechon, capsulaC(qh, vec3(0.098, 0.715, 0.03), vec3(0.03, 0.712, 0.098), 0.024, 0.018), 0.02);
-    mechon = smin(mechon, length(qh - vec3(0.022, 0.732, -0.04)) - 0.04, 0.03);
-    mechon = smin(mechon, length(qh - vec3(-0.058, 0.712, -0.06)) - 0.036, 0.03);
-    return smin(pelo, mechon, 0.03) + 0.0022 * sin((0.82 * qh.x + 0.57 * qh.z) * 95.0 + 3.0 * qh.y);
-  }
-  if (tipo < 1.5) {
-    pelo = elipsoideP(qh - vec3(0.0, 0.612, -0.014), vec3(0.143, 0.16, 0.151));
-    float ventana = max(max(0.035 - qh.z, qh.y - 0.668 - 0.008 * sin(qh.x * 38.0 + 1.0)), ah.x - 0.096);
-    pelo = smax(pelo, -ventana, 0.018);
-    pelo = smax(pelo, 0.495 + 0.035 * smoothstep(-0.02, 0.09, qh.z) - qh.y, 0.03);
-    return pelo + 0.0024 * sin(qh.x * 95.0 + qh.y * 18.0 + 2.0 * sin(qh.z * 30.0));
-  }
-  pelo = elipsoideP(qh - vec3(0.0, 0.62, -0.008), vec3(0.128, 0.143, 0.136));
-  float linea = 0.6 + 0.12 * smoothstep(-0.06, 0.07, qh.z) - 0.03 * smoothstep(0.07, 0.11, ah.x) * smoothstep(-0.02, 0.04, qh.z);
-  pelo = smax(pelo, (linea - qh.y) * 0.8, 0.016);
-  pelo = smin(pelo, length(qh - vec3(0.0, 0.705, -0.118)) - 0.06, 0.03);
-  return pelo + 0.0016 * sin(atan(qh.x, qh.z + 0.02) * 70.0);
+// pelo: P.x, largo (0 corto · 1 melena hasta la mandíbula con flequillo) · P.y, moño (0…1) · P.z, mechón (0…1)
+float huPelo(vec3 qh, vec3 ah, vec3 P) {
+  float L = P.x;
+  float pelo = elipsoideP(qh - vec3(0.0, mix(0.618, 0.612, L), mix(-0.006, -0.014, L)), mix(vec3(0.133, 0.148, 0.14), vec3(0.143, 0.16, 0.151), L));
+  float linea = 0.585 + 0.135 * smoothstep(-0.06, 0.07, qh.z) - 0.035 * smoothstep(0.07, 0.11, ah.x) * smoothstep(-0.02, 0.04, qh.z);
+  float ventana = max(max(0.035 - qh.z, qh.y - 0.668 - 0.008 * sin(qh.x * 38.0 + 1.0)), ah.x - 0.096);
+  float corteL = max(-ventana, 0.495 + 0.035 * smoothstep(-0.02, 0.09, qh.z) - qh.y);
+  pelo = smax(pelo, mix((linea - qh.y) * 0.8, corteL, L), 0.018);
+  float mechon = capsulaC(qh, vec3(0.07, 0.738, 0.0), vec3(-0.058, 0.7, 0.084), 0.032, 0.022);
+  mechon = smin(mechon, capsulaC(qh, vec3(0.098, 0.715, 0.03), vec3(0.03, 0.712, 0.098), 0.024, 0.018), 0.02);
+  mechon = smin(mechon, length(qh - vec3(0.022, 0.732, -0.04)) - 0.04, 0.03);
+  mechon = smin(mechon, length(qh - vec3(-0.058, 0.712, -0.06)) - 0.036, 0.03) + 0.09 * (1.0 - P.z);
+  float mono = length(qh - vec3(0.0, 0.705, -0.118)) - 0.06 + 0.09 * (1.0 - P.y);
+  pelo = smin(pelo, min(mechon, mono), 0.03);
+  return pelo + 0.0022 * sin((0.82 * qh.x + 0.57 * qh.z) * 95.0 + 3.0 * qh.y);
 }
 float huPartes(vec3 q, vec4 T, out float m) {
   int b = int(T.w + 0.5) * HU_NJ;
@@ -882,25 +944,26 @@ float huPartes(vec3 q, vec4 T, out float m) {
   vec3 at = vec3(abs(qt.x), qt.y, qt.z), ah = vec3(abs(qh.x), qh.y, qh.z);
   float kr = K.w, kh = K.y, cierre = 1.0 - PA.x;
   // ---- cabeza (en su marco; la misma que «persona», con los ojos, la mirada y el pelo de la postura) ----
-  float cabeza = elipsoideP(qh - vec3(0.0, 0.618, -0.006), vec3(0.116, 0.132, 0.126));
+  float cabeza, pelo, cejas, blanco, pupila, parpado, boca, labio;
+  cabeza = elipsoideP(qh - vec3(0.0, 0.618, -0.006), vec3(0.116, 0.132, 0.126));
   cabeza = smin(cabeza, elipsoideP(qh - vec3(0.0, 0.548, 0.024), vec3(0.085, 0.07, 0.093)), 0.045);
   cabeza = smin(cabeza, elipsoideP(ah - vec3(0.113, 0.592, -0.012), vec3(0.02, 0.034, 0.026)), 0.014);
   cabeza = smin(cabeza, capsulaC(qh, vec3(0.0, 0.608, 0.117), vec3(0.0, 0.577, 0.133), 0.0075, 0.0125), 0.012);
   cabeza = smin(cabeza, elipsoideP(ah - vec3(0.011, 0.5715, 0.124), vec3(0.0105, 0.008, 0.0095)), 0.008);
   cabeza = smin(cabeza, capsulaC(qh, vec3(0.0, 0.44, -0.012), vec3(0.0, 0.5, -0.01), 0.042, 0.041), 0.025);
-  float pelo = huPelo(qh, ah, PA.w) * kh;
-  float cejas = min(capsulaC(ah, vec3(0.019, 0.6495, 0.1135), vec3(0.046, 0.6545, 0.110), 0.0066, 0.0072), capsulaC(ah, vec3(0.046, 0.6545, 0.110), vec3(0.071, 0.6495, 0.099), 0.0072, 0.0048)) * kh;
-  float blanco = elipsoideP(ah - vec3(0.044, 0.611, 0.1025), vec3(0.021, 0.0165, 0.0145)) * kh;
+  pelo = huPelo(qh, ah, vec3(PA.w, uHum[b + 34].xy)) * kh;
+  cejas = min(capsulaC(ah, vec3(0.019, 0.6495, 0.1135), vec3(0.046, 0.6545, 0.110), 0.0066, 0.0072), capsulaC(ah, vec3(0.046, 0.6545, 0.110), vec3(0.071, 0.6495, 0.099), 0.0072, 0.0048)) * kh;
+  blanco = elipsoideP(ah - vec3(0.044, 0.611, 0.1025), vec3(0.021, 0.0165, 0.0145)) * kh;
   vec2 mir = PA.yz * vec2(0.0045, 0.0035);
-  float pupila = (length(qh - vec3((qh.x > 0.0 ? 0.044 : -0.044) + mir.x, 0.611 + mir.y, 0.1132 - 0.25 * length(mir))) - 0.0115 + 0.03 * cierre) * kh;
+  pupila = (length(qh - vec3((qh.x > 0.0 ? 0.044 : -0.044) + mir.x, 0.611 + mir.y, 0.1132 - 0.25 * length(mir))) - 0.0115 + 0.03 * cierre) * kh;
   // párpados: el de arriba baja hasta tapar el ojo (cierre = 1) y deja una línea de pestañas
   float yP = mix(0.6145, 0.5995, cierre);
-  float parpado = elipsoideP(ah - vec3(0.044, mix(0.6185, 0.6105, cierre), mix(0.1035, 0.1045, cierre)), vec3(0.0245, mix(0.013, 0.0195, cierre), mix(0.0168, 0.0174, cierre)));
+  parpado = elipsoideP(ah - vec3(0.044, mix(0.6185, 0.6105, cierre), mix(0.1035, 0.1045, cierre)), vec3(0.0245, mix(0.013, 0.0195, cierre), mix(0.0168, 0.0174, cierre)));
   parpado = smax(parpado, yP - qh.y, 0.003);
   parpado = min(parpado, smax(elipsoideP(ah - vec3(0.044, 0.6035, 0.1015), vec3(0.0225, 0.0065, 0.0145)), qh.y - 0.6005, 0.003)) * kh;
-  float pest = (min(capsulaC(ah, vec3(0.026, 0.6012, 0.1166), vec3(0.044, 0.5998, 0.1214), 0.0017, 0.0019), capsulaC(ah, vec3(0.044, 0.5998, 0.1214), vec3(0.062, 0.6012, 0.1166), 0.0019, 0.0016)) + 0.012 * (1.0 - smoothstep(0.55, 0.9, cierre))) * kh;
-  float boca = capsulaC(vec3(abs(qh.x), qh.y + 0.06 * qh.x * qh.x / 0.024, qh.z), vec3(0.0, 0.5545, 0.1238), vec3(0.0265, 0.5548, 0.1192), 0.0033, 0.0025) * kh;
-  float labio = elipsoideP(qh - vec3(0.0, 0.5487, 0.1185), vec3(0.018, 0.0058, 0.0075)) * kh;
+  boca = capsulaC(vec3(abs(qh.x), qh.y + 0.06 * qh.x * qh.x / 0.024, qh.z), vec3(0.0, 0.5545, 0.1238), vec3(0.0265, 0.5548, 0.1192), 0.0033, 0.0025) * kh;
+  labio = elipsoideP(qh - vec3(0.0, 0.5487, 0.1185), vec3(0.018, 0.0058, 0.0075)) * kh;
+  cabeza *= kh;
   // ---- torso (en su marco) ----
   float ropa = elipsoideP(qt - vec3(0.0, 0.25, 0.0), vec3(0.158, 0.15, 0.098));
   ropa = smin(ropa, elipsoideP(qt - vec3(0.0, 0.05, 0.006), vec3(0.138, 0.15, 0.09)), 0.09);
@@ -929,7 +992,7 @@ float huPartes(vec3 q, vec4 T, out float m) {
     float pu = capsulaC(q, Wr - dF * 0.042 * kr, Wr - dF * 0.008 * kr, 0.041 * kr, 0.04 * kr) + 0.002 * sin(atan(dot(qw, W4.xyz), dot(qw, V4.xyz)) * 30.0);
     punos = min(punos, pu);
     vec3 hd = q - Wr;
-    manos = min(manos, huMano(vec3(dot(hd, U4.xyz), dot(hd, V4.xyz), dot(hd, W4.xyz)) / V4.w, U4.w) * V4.w);
+    manos = min(manos, huMano(vec3(dot(hd, U4.xyz), dot(hd, V4.xyz), dot(hd, W4.xyz)) / V4.w, uHum[b + 35 + 2 * i], uHum[b + 36 + 2 * i], W4.w) * V4.w);
   }
   // ---- pelvis y piernas (pantalón) y zapatos ----
   float pant = elipsoideP(qp - vec3(0.0, -0.088, 0.0), vec3(0.16, 0.1, 0.094)) * K.z;
@@ -941,8 +1004,7 @@ float huPartes(vec3 q, vec4 T, out float m) {
     float pi = capsulaC(q, Hc, Kn, 0.073 * kr, 0.057 * kr);
     pi = smin(pi, capsulaC(q, Kn, An, 0.057 * kr, 0.053 * kr), 0.03 * kr);
     // pliegue del pantalón sobre la rodilla
-    vec3 dK = normalize(Kn - Hc);
-    pi += 0.0015 * (1.0 - smoothstep(0.0, 0.012 * kr, abs(dot(q - Kn, dK) + 0.015 * kr + 0.01 * sin(dot(q - Kn, cross(dK, vec3(0.0, 0.0, 1.0))) * 70.0))));
+    pi += 0.0015 * (1.0 - smoothstep(0.0, 0.012 * kr, abs(dot(q - Kn, Hc - Kn) * 2.53 / kr - 0.015 * kr)));
     piernas = min(piernas, pi);
     vec3 fz = F4.xyz, fy = normalize(vec3(0.0, 1.0, 0.0) - fz * fz.y), fx = cross(fy, fz);
     vec3 fq = q - An; fq = vec3(dot(fq, fx), dot(fq, fy), dot(fq, fz)) / F4.w;
@@ -952,7 +1014,7 @@ float huPartes(vec3 q, vec4 T, out float m) {
   }
   pant = smin(pant, piernas, 0.045 * kr);
   ropa = smin(ropa, brazos, 0.014) + punto(q);
-  float piel = smin(cabeza * kh, cuello, 0.025);
+  float piel = smin(cabeza, cuello, 0.025);
   float d = ropa; m = 1.0;
   if (elastico < d) m = 2.0; d = smin(d, elastico, 0.012);
   if (punos < d) m = 2.0; d = smin(d, punos, 0.012);
@@ -966,53 +1028,49 @@ float huPartes(vec3 q, vec4 T, out float m) {
   if (blanco < d) m = 8.0; d = smin(d, blanco, 0.004);
   if (pupila < d) m = 6.0; d = min(d, pupila);
   if (parpado < d) m = 0.0; d = smin(d, parpado, 0.0025);
-  if (pest < d) m = 5.0; d = min(d, pest);
   if (boca < d) m = 7.0; d = smin(d, boca, 0.003);
   return d;
 }
 #endif
 float pz_humano(vec3 q, vec4 T, out float m) { return huPartes(q, T, m) * 0.9; }
-// envolvente (nunca más lejos que la forma): torso, cabeza, pelvis y cápsulas gruesas por los miembros
+// envolvente (nunca más lejos que la forma): torso, cabeza, pelvis y cápsulas gruesas por los miembros (todo en
+// coordenadas locales, precalculado en JS: aquí no hay cambios de marco)
 float pza_humano(vec3 q, vec4 T) {
   int b = int(T.w + 0.5) * HU_NJ;
-  vec4 K = uHum[b + 33];
-  float d = sdCapsule(huAf(b, q), vec3(0.0, -0.08, 0.0), vec3(0.0, 0.42, -0.01), 0.215) * K.x;
-  d = min(d, (length(huAf(b + 3, q) - vec3(0.0, 0.615, -0.01)) - 0.21) * K.y);
-  d = min(d, (length(huAf(b + 6, q) - vec3(0.0, -0.09, 0.0)) - 0.19) * K.z);
+  vec4 tA = uHum[b + 39], hc = uHum[b + 41], pc = uHum[b + 42];
+  float d = sdCapsule(q, tA.xyz, uHum[b + 40].xyz, tA.w);
+  d = min(d, length(q - hc.xyz) - hc.w);
+  d = min(d, length(q - pc.xyz) - pc.w);
+  float kr = uHum[b + 33].w;
   for (int i = 0; i < 2; i++) {
     int k = b + 9 + 6 * i;
     vec3 Wr = uHum[k + 2].xyz;
-    d = min(d, sdCapsule(q, uHum[k].xyz, uHum[k + 1].xyz, 0.075 * K.w));
-    d = min(d, sdCapsule(q, uHum[k + 1].xyz, Wr, 0.065 * K.w));
-    d = min(d, length(q - Wr - uHum[k + 3].xyz * 0.09 * uHum[k + 4].w) - 0.12 * uHum[k + 4].w);
+    d = min(d, sdCapsule(q, uHum[k].xyz, uHum[k + 1].xyz, 0.062 * kr));
+    d = min(d, sdCapsule(q, uHum[k + 1].xyz, Wr, 0.056 * kr));
+    d = min(d, length(q - Wr - uHum[k + 3].xyz * 0.09 * uHum[k + 4].w) - 0.118 * uHum[k + 4].w);
     int j = b + 21 + 4 * i;
-    d = min(d, sdCapsule(q, uHum[j].xyz, uHum[j + 1].xyz, 0.095 * K.w));
-    d = min(d, sdCapsule(q, uHum[j + 1].xyz, uHum[j + 2].xyz, 0.08 * K.w));
+    d = min(d, sdCapsule(q, uHum[j].xyz, uHum[j + 1].xyz, 0.086 * kr));
+    d = min(d, sdCapsule(q, uHum[j + 1].xyz, uHum[j + 2].xyz, 0.07 * kr));
     d = min(d, length(q - uHum[j + 2].xyz - uHum[j + 3].xyz * 0.06 * uHum[j + 3].w + vec3(0.0, 0.03, 0.0)) - 0.17 * uHum[j + 3].w);
   }
   return d - 0.01;
 }
-// forma simplificada para las sombras (por dentro de la de detalle)
+// forma simplificada para las sombras (por dentro de la de detalle; diez piezas sin cambios de marco ni bucles: la
+// evalúan las pasadas de sombra en cada paso)
 float pzc_humano(vec3 q, vec4 T) {
   int b = int(T.w + 0.5) * HU_NJ;
-  vec4 K = uHum[b + 33];
-  vec3 qt = huAf(b, q);
-  float d = elipsoideP(qt - vec3(0.0, 0.25, 0.0), vec3(0.14, 0.13, 0.085)) * K.x;
-  d = min(d, elipsoideP(qt - vec3(0.0, 0.03, 0.004), vec3(0.12, 0.17, 0.08)) * K.x);
-  d = min(d, (length(huAf(b + 3, q) - vec3(0.0, 0.6, 0.0)) - 0.1) * K.y);
-  d = min(d, elipsoideP(huAf(b + 6, q) - vec3(0.0, -0.09, 0.0), vec3(0.14, 0.085, 0.08)) * K.z);
-  for (int i = 0; i < 2; i++) {
-    int k = b + 9 + 6 * i;
-    vec3 Wr = uHum[k + 2].xyz;
-    d = min(d, sdCapsule(q, uHum[k].xyz, uHum[k + 1].xyz, 0.032 * K.w));
-    d = min(d, sdCapsule(q, uHum[k + 1].xyz, Wr, 0.03 * K.w));
-    d = min(d, sdCapsule(q, Wr, Wr + uHum[k + 3].xyz * 0.1 * uHum[k + 4].w, 0.02 * uHum[k + 4].w));
-    int j = b + 21 + 4 * i;
-    d = min(d, sdCapsule(q, uHum[j].xyz, uHum[j + 1].xyz, 0.045 * K.w));
-    d = min(d, sdCapsule(q, uHum[j + 1].xyz, uHum[j + 2].xyz, 0.042 * K.w));
-    d = min(d, sdCapsule(q, uHum[j + 2].xyz - vec3(0.0, 0.04, 0.0), uHum[j + 2].xyz - vec3(0.0, 0.04, 0.0) + uHum[j + 3].xyz * 0.15 * uHum[j + 3].w, 0.028 * uHum[j + 3].w));
-  }
-  return d;
+  vec4 sA = uHum[b + 43], sH = uHum[b + 45];
+  float kr = uHum[b + 33].w;
+  float d = sdCapsule(q, sA.xyz, uHum[b + 44].xyz, sA.w);
+  d = min(d, length(q - sH.xyz) - sH.w);
+  d = min(d, sdCapsule(q, uHum[b + 9].xyz, uHum[b + 10].xyz, 0.032 * kr));
+  d = min(d, sdCapsule(q, uHum[b + 10].xyz, uHum[b + 11].xyz + uHum[b + 12].xyz * 0.1, 0.028 * kr));
+  d = min(d, sdCapsule(q, uHum[b + 15].xyz, uHum[b + 16].xyz, 0.032 * kr));
+  d = min(d, sdCapsule(q, uHum[b + 16].xyz, uHum[b + 17].xyz + uHum[b + 18].xyz * 0.1, 0.028 * kr));
+  d = min(d, sdCapsule(q, uHum[b + 21].xyz, uHum[b + 22].xyz, 0.05 * kr));
+  d = min(d, sdCapsule(q, uHum[b + 22].xyz, uHum[b + 23].xyz, 0.042 * kr));
+  d = min(d, sdCapsule(q, uHum[b + 25].xyz, uHum[b + 26].xyz, 0.05 * kr));
+  return min(d, sdCapsule(q, uHum[b + 26].xyz, uHum[b + 27].xyz, 0.042 * kr));
 }
 vec3 pzcol_humano(vec3 q, vec4 T, float m) {
   int b = int(T.w + 0.5) * HU_NJ;
@@ -1027,7 +1085,19 @@ vec3 pzcol_humano(vec3 q, vec4 T, float m) {
     vec3 c = cPiel * v;
     c = mix(c, c * vec3(1.06, 0.9, 0.86), (1.0 - smoothstep(0.0, 0.03, length(qh.xy - vec2(0.0, 0.575)))) * 0.6 * enCabeza * step(0.0, qh.z));
     float barba = smoothstep(0.585, 0.56, qh.y) * step(0.45, qh.y) * smoothstep(0.0, 0.06, qh.z) * (0.75 + 0.5 * hash13(floor(qh * 900.0))) * J.w * enCabeza;
-    return mix(c, c * vec3(0.78, 0.78, 0.82), barba * 0.5);
+    c = mix(c, c * vec3(0.78, 0.78, 0.82), barba * 0.5);
+    // manos fantasma (postura.fantasma, 0…1): pálidas, frías, moteadas y con luz propia, como si se volvieran
+    // transparentes (solo el color: la forma no cambia)
+    float fan = uHum[b + 34].z;
+    float dm = min(length(q - uHum[b + 11].xyz - uHum[b + 12].xyz * 0.08 * uHum[b + 13].w), length(q - uHum[b + 17].xyz - uHum[b + 18].xyz * 0.08 * uHum[b + 19].w));
+    float kf = fan * (1.0 - smoothstep(0.1, 0.15, dm / uHum[b + 13].w));
+    c = mix(c, vec3(0.28, 0.31, 0.36) * (0.65 + 0.7 * vnoise(q * 70.0)), kf * 0.85);
+    gEm = vec3(0.09, 0.12, 0.16) * kf * (0.6 + 0.8 * vnoise(q * 25.0));
+    // ojos cerrados: la línea de las pestañas en el borde del párpado
+    float cierre = 1.0 - uHum[b + 29].x;
+    float ax = abs(qh.x) - 0.044;
+    float pest = (1.0 - smoothstep(0.0011, 0.0024, abs(qh.y - 0.5998 - 0.9 * ax * ax / 0.0225))) * (1.0 - smoothstep(0.016, 0.02, abs(ax))) * step(0.105, qh.z) * smoothstep(0.55, 0.9, cierre) * enCabeza;
+    return mix(c, PE.rgb * 0.6, pest);
   }
   if (m < 1.5) return J.rgb * (0.86 + 0.28 * vnoise(q * vec3(160.0, 60.0, 160.0))) * v;
   if (m < 2.5) return J.rgb * 0.8 * v;
@@ -1390,8 +1460,9 @@ float reglaTintaA0(vec3 q, out float cur) {
   float borde = 1.0 - smoothstep(1.64, 1.73, abs(q.y));
   return min(marcas - 0.0105 * borde, txt + 0.03 * (1.0 - borde));
 }
-// (lote 0) en la regla entera, −4 y 0 quedan a cuatro filas: el rótulo de −4 baja un poco y el de 0 sube
-float offRotA(float e) { return e == -4.0 ? -0.07 : (e == 0.0 ? 0.07 : 0.0); }
+// (lote 0) en la regla entera, −4 y 0 quedan a cuatro filas: el rótulo de −4 baja un poco y el de 0 sube; los de
+// −35 y +27 se apartan de los remates
+float offRotA(float e, float esc) { return e == -4.0 ? -0.07 : e == 0.0 ? 0.07 : e == -35.0 ? 0.45 * esc + 0.012 : e == 27.0 ? -0.75 * esc - 0.004 : 0.0; }
 float reglaTintaA1(vec3 q, out float cur, out float luz) {
   float s = uReglaA.x, ya = uReglaA.y, ec = uReglaA.w, rs = uReglaB.x, k = uReglaB.y;
   float e = s + (q.y - ya) / rs;
@@ -1426,13 +1497,13 @@ float reglaTintaA1(vec3 q, out float cur, out float luz) {
   if (kE > 0.0) {
     float ecr = clamp(floor(ec + 0.5), ${fl(ROT.E_MIN)}, ${fl(ROT.E_MAX)});
     float escC = ESC_E * (1.0 + uReglaB.w) * kE;
-    float yc = ya + (ecr - s) * rs + offRotA(ecr) * k;
+    float yc = ya + (ecr - s) * rs + offRotA(ecr, escC) * k;
     float best = 1e5, eb = 0.0, yb = 0.0, sb = 0.0;
     for (int i = 0; i < 6; i++) {
       float ei = i == 0 ? -35.0 : i == 1 ? -4.0 : i == 2 ? 0.0 : i == 3 ? 7.0 : i == 4 ? 27.0 : ecr;
-      float yi = ya + (ei - s) * rs + offRotA(ei) * k;
       float dd = ei - ec;
       float esc = ESC_E * (1.0 + uReglaB.w * exp(-dd * dd * 2.4)) * kE;
+      float yi = ya + (ei - s) * rs + offRotA(ei, esc) * k;
       if (abs(ei - ecr) > 0.5) {
         float hueco = yi > yc ? (yi - 0.45 * esc) - (yc + 0.75 * escC) : (yc - 0.45 * escC) - (yi + 0.75 * esc);
         esc *= smoothstep(-0.03, 0.02, hueco);
@@ -1469,13 +1540,16 @@ float reglaRemates(vec3 q, out float mr) {
   mr = 0.0;
   float d = 1e5;
   if (yf.x > -1.86) {
+    // la nube no pasa del borde (10^-35,5): las bocanadas se quedan debajo y se salen un poco por los lados
     float y1 = min(yf.x, 1.86), hy = 0.5 * (y1 + 1.86);
-    float n = sdRoundBox(q - vec3(0.0, 0.5 * (y1 - 1.86), 0.02), vec3(0.6, hy, 0.05), 0.05) - 0.04;
-    for (int i = 0; i < 4; i++) {
-      float fi = float(i);
-      n = smin(n, length(q - vec3(-0.45 + 0.3 * fi, y1 - 0.03 + 0.035 * sin(fi * 2.3), 0.05)) - 0.12 - 0.03 * sin(fi * 1.7 + 0.5), 0.08);
+    float n = sdRoundBox(q - vec3(0.0, 0.5 * (y1 - 1.86) - 0.1, 0.03), vec3(0.58, max(hy - 0.1, 0.0), 0.06), 0.08) - 0.03;
+    for (int i = 0; i < 6; i++) {
+      float fi = float(i), r = 0.1 + 0.07 * fract(sin(fi * 12.9898 + 1.3) * 43758.5453);
+      n = smin(n, length(q - vec3(-0.56 + 0.224 * fi, y1 - r - 0.004, 0.06 + 0.05 * sin(fi * 3.1))) - r, 0.1);
     }
-    n += 0.028 * (vnoise(vec3(q.x * 6.0, (q.y - yf.x) * 6.0, q.z * 6.0)) - 0.5) + 0.006 * (vnoise(q * 23.0) - 0.5);
+    // bultos de nube: dos octavas de ruido que empujan hacia fuera
+    vec3 qn = vec3(q.x, q.y - yf.x, q.z);
+    n += 0.05 * (vnoise(qn * 3.5) - 0.5) - 0.045 * vnoise(qn * 7.0 + 2.3) + 0.008 * (vnoise(q * 19.0) - 0.5);
     if (n < d) { d = n; mr = 5.0; }
   }
   if (yf.y < 1.86) {
@@ -1509,7 +1583,7 @@ vec3 pzcol_reglaA(vec3 q, vec4 T, float m) {
   if (m > 4.5) {
     vec2 yf = reglaFinesA();
     if (m > 6.5) return colorRed(vec2(q.x, q.y - yf.y) * 1.25, 1.0);
-    if (m > 5.5) { gEm = C_AMBAR * 0.22 * uReglaC.z; return mix(C_MARFIL, C_AMBAR * 1.05, 0.85); }
+    if (m > 5.5) { gEm = C_AMBAR * (0.10 + 0.3 * uReglaC.z); return C_AMBAR * 1.05; }
     return colorNiebla(vec3(q.x, q.y - yf.x, q.z));
   }
   if (m > 3.5 || (m > 1.5 && m < 2.5)) { gBri = 3.2; return C_BRASS * (0.88 + 0.2 * vnoise(q * vec3(30.0, 3.0, 30.0))); }
@@ -2837,7 +2911,7 @@ export function crearPost() {
 // Unidades locales de la pieza (las de «persona»): suela en y = −1, coronilla en y = 0,765, H = 1,765. Los tramos
 // son los de HUMANO.md y no cambian en ninguna postura: brazo 0,18 H, antebrazo 0,14 H, mano 0,10 H, pie 0,15 H.
 export const HUMANO = {
-  H: 1.765, CORONILLA: 0.765, SUELO: -1, NJ: 34,
+  H: 1.765, CORONILLA: 0.765, SUELO: -1, NJ: 46,
   PELVIS: [0, -0.09, 0], TORSO: [0, -0.06, 0], CUELLO: [0, 0.45, -0.01],
   HOMBRO: [0.175, 0.375, -0.01], CADERA: [0.083, -0.13, 0],
   BRAZO: 0.18 * 1.765, ANTEBRAZO: 0.14 * 1.765, MANO: 0.10 * 1.765, MUSLO: 0.395, PIERNA: 0.405, TOBILLO: 0.07, PIE: 0.15 * 1.765,
@@ -2854,10 +2928,11 @@ export const MANO = { abierta: 0, indice: 1, puno: 2, agarre: 2 };
 //   apoyo: 1 → la pelvis sube o baja para que el pie más bajo pise el suelo (sentada, se baja sola)
 //   apuntarIzq / apuntarDer: [x, y, z] punto (unidades locales de la persona) al que señala ese brazo: se calculan
 //     flex y abd para que el antebrazo apunte allí (con el codo y la rotación de la postura)
+//   fantasma (0…1): las manos se vuelven pálidas y frías, con motas y luz propia (casi transparentes: ep3-vacio)
 const POSTURA_BASE = {
   cabeza: [0, 0, 0], torso: [0, 0, 0], ojos: 1, mirada: [0, 0],
   brazoIzq: [0.03, 0.06, 0, 0.12, 0, 0.05], manoIzq: 0, brazoDer: [0.03, 0.06, 0, 0.12, 0, 0.05], manoDer: 0,
-  piernaIzq: [0, 0, 0, 0], piernaDer: [0, 0, 0, 0], apoyo: 1,
+  piernaIzq: [0, 0, 0, 0], piernaDer: [0, 0, 0, 0], apoyo: 1, fantasma: 0,
 };
 export const POSTURAS = {
   depie: {},
@@ -2865,7 +2940,7 @@ export const POSTURAS = {
   sostener: { cabeza: [0, 0.14, 0], mirada: [0, -0.5], brazoIzq: [0.36, 0.1, 0.32, 1.42, 0.25, 0.05], manoIzq: 2,
     brazoDer: [0.36, 0.1, 0.32, 1.42, 0.25, 0.05], manoDer: 2 },
   // señalar con la derecha (adelante, arriba y a su derecha); el codo, doblado y por encima de la cintura
-  senalar: { cabeza: [-0.22, -0.1, 0], torso: [0, -0.08, 0], mirada: [-0.5, 0.3], brazoDer: [1.0, 0.42, 0.05, 0.5, 1.15, -0.1], manoDer: 1 },
+  senalar: { cabeza: [-0.22, -0.1, 0], torso: [0, -0.08, 0], mirada: [-0.5, 0.3], brazoDer: [0.8, 0.5, 0.1, 0.85, 1.2, -0.1], manoDer: 1 },
   // saludar con la derecha: el codo a la altura del hombro, el antebrazo hacia arriba y la palma a cámara; el
   // vaivén lo pone postura('saludar', t)
   saludar: { cabeza: [-0.06, -0.04, 0.05], brazoDer: [0.18, 1.3, -1.45, 1.75, 0.0, 0.0], manoDer: 0 },
@@ -2958,7 +3033,9 @@ export function aspecto(a = 'adulto') {
   const col = (v, tabla) => (Array.isArray(v) ? v : tabla[SIN_TILDES(v)] ?? tabla[Object.keys(tabla)[0]]);
   return {
     cuerpo: CUERPOS[SIN_TILDES(r.cuerpo)] ?? CUERPOS.adulto,
-    pelo: { corto: 0, melena: 1, mono: 2, moño: 2 }[r.pelo] ?? (typeof r.pelo === 'number' ? r.pelo : 0),
+    // pelo: { largo, mono, mechon } (0…1 cada uno; se pueden mezclar)
+    pelo: typeof r.pelo === 'object' ? { largo: 0, mono: 0, mechon: 0, ...r.pelo }
+      : ({ corto: { largo: 0, mono: 0, mechon: 1 }, melena: { largo: 1, mono: 0, mechon: 0 }, mono: { largo: 0, mono: 1, mechon: 0 } }[SIN_TILDES(r.pelo)] ?? { largo: 0, mono: 0, mechon: 1 }),
     jersey: col(r.jersey, COLORES_ROPA.jersey), pantalon: col(r.pantalon, COLORES_ROPA.pantalon),
     piel: typeof r.piel === 'number' ? r.piel : COLORES_ROPA.piel[SIN_TILDES(r.piel)] ?? 1,
     colorPelo: r.colorPelo, barba: r.barba ?? 0, canas: r.canas ?? 0,
@@ -3055,18 +3132,31 @@ export function esqueletoHumano(p = 'depie', a = 'adulto', t = null) {
   brazos.forEach((B, i) => {
     const k = 9 + 6 * i;
     D.set([B.S.x, B.S.y, B.S.z, 0], k * 4); D.set([B.E.x, B.E.y, B.E.z, 0], (k + 1) * 4); D.set([B.W.x, B.W.y, B.W.z, 0], (k + 2) * 4);
-    D.set([B.u.x, B.u.y, B.u.z, cl(manos[i], 0, 2)], (k + 3) * 4); D.set([B.v.x, B.v.y, B.v.z, C.km], (k + 4) * 4); D.set([B.w.x, B.w.y, B.w.z, 0], (k + 5) * 4);
+    // la forma de la mano (0 abierta · 1 índice · 2 puño): lo doblados que están el índice y los otros tres dedos
+    const f = cl(manos[i], 0, 2), ci = 0.06 + 0.94 * cl(f - 1), cf = 0.12 + 0.88 * cl(f);
+    const dir = (c) => [Math.cos(c * Math.PI / 2), Math.sin(c * Math.PI / 2), Math.cos(c * Math.PI), Math.sin(c * Math.PI)];
+    D.set([B.u.x, B.u.y, B.u.z, f], (k + 3) * 4); D.set([B.v.x, B.v.y, B.v.z, C.km], (k + 4) * 4); D.set([B.w.x, B.w.y, B.w.z, cl(f)], (k + 5) * 4);
+    D.set(dir(ci), (35 + 2 * i) * 4); D.set(dir(cf), (36 + 2 * i) * 4);
   });
   pies.forEach((L, i) => {
     const k = 21 + 4 * i;
     D.set([L.H.x, L.H.y, L.H.z, 0], k * 4); D.set([L.K.x, L.K.y, L.K.z, 0], (k + 1) * 4); D.set([L.A.x, L.A.y, L.A.z, 0], (k + 2) * 4);
     D.set([L.fz.x, L.fz.y, L.fz.z, C.kf], (k + 3) * 4);
   });
-  D.set([P.ojos, P.mirada[0], P.mirada[1], A.pelo], 29 * 4);
+  D.set([P.ojos, P.mirada[0], P.mirada[1], A.pelo.largo], 29 * 4);
+  D.set([A.pelo.mono, A.pelo.mechon, cl(P.fantasma ?? 0), 0], 34 * 4);
   D.set([...A.jersey, A.barba], 30 * 4);
   D.set([...A.pantalon, A.piel], 31 * 4);
   D.set([...A.colorPelo, A.canas], 32 * 4);
   D.set([Math.min(kt.x, kt.y, kt.z), C.kh, Math.min(kp.x, kp.y, kp.z), C.kr], 33 * 4);
+  // envolvente y forma de sombra, ya en coordenadas locales (el sombreador no cambia de marco en ellas)
+  const ktm = Math.min(kt.x, kt.y, kt.z), kpm = Math.min(kp.x, kp.y, kp.z);
+  const enL = (v, M) => V3(...v).applyMatrix4(M);
+  const put = (k, v, w) => D.set([v.x, v.y, v.z, w], k * 4);
+  put(39, enL([0, -0.04, 0], Mt), 0.215 * Math.max(kt.x, kt.y, kt.z)); put(40, enL([0, 0.4, -0.01], Mt), 0);
+  put(41, enL([0, 0.615, -0.01], Mh), 0.21 * C.kh); put(42, enL([0, -0.09, 0], Mp), 0.19 * Math.max(kp.x, kp.y, kp.z));
+  put(43, enL([0, 0.02, 0.004], Mt), 0.085 * ktm); put(44, enL([0, 0.3, 0.0], Mt), 0); put(45, enL([0, 0.6, 0], Mh), 0.1 * C.kh);
+  void kpm;
   // puntos con nombre (locales)
   const pt = (v) => [v.x, v.y, v.z];
   const ptos = {
@@ -3084,14 +3174,16 @@ export function esqueletoHumano(p = 'depie', a = 'adulto', t = null) {
   const yc = Math.min(pies[0].H.y, pies[1].H.y);
   ptos.asiento = [0, yc - 0.075 * C.kp[1], (pies[0].H.z + pies[1].H.z) / 2 - 0.02];
   ptos.regazo = [0, Math.max(pies[0].K.y, pies[0].H.y) + 0.07 * C.kr, (pies[0].H.z + pies[0].K.z) / 2 + 0.05];
-  // esfera envolvente: la caja de los puntos más un margen
+  // caja envolvente (la de los puntos más el grosor de cada parte) y su esfera
   const todos = Object.values(ptos);
   const mn = [0, 1, 2].map((k) => Math.min(...todos.map((v) => v[k]))), mx = [0, 1, 2].map((k) => Math.max(...todos.map((v) => v[k])));
+  const mg = 0.17 * Math.max(1, C.kh);
+  const caja = [mn.map((v) => v - mg), mx.map((v) => v + mg)];
   const c = mn.map((v, k) => (v + mx[k]) / 2);
   let r = 0;
   for (const v of todos) r = Math.max(r, Math.hypot(v[0] - c[0], v[1] - c[1], v[2] - c[2]));
   r += 0.2 * Math.max(1, C.kh);
-  return { datos: D, puntos: ptos, coronilla: ptos.coronilla[1], esfera: [...c, r], postura: P, aspecto: A };
+  return { datos: D, puntos: ptos, coronilla: ptos.coronilla[1], esfera: [...c, r], caja, postura: P, aspecto: A };
 }
 
 // ---------- el plató ----------
@@ -3552,7 +3644,10 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
     const mundoDe = (l) => { const v = new THREE.Vector3(l[0] * S[0], l[1] * S[1], l[2] * S[2]).applyMatrix4(Rm); return [pos[0] + v.x, pos[1] + v.y, pos[2] + v.z]; };
     const c = mundoDe(R.esfera), rr = R.esfera[3] * Math.max(...S) + 0.03;
     B[4 + i].set(c[0], c[1], c[2], rr);
-    cajas[`p${i}`] = cubo(c, rr);
+    // (coste) el rectángulo de pantalla sale de la caja de la postura, no de la esfera (una persona de pie es estrecha)
+    const esq = [];
+    for (const x of [0, 1]) for (const y of [0, 1]) for (const z of [0, 1]) esq.push(mundoDe([R.caja[x][0], R.caja[y][1], R.caja[z][2]]));
+    cajas[`p${i}`] = esq;
     const puntosM = {};
     for (const [n, v] of Object.entries(R.puntos)) puntosM[n] = mundoDe(v);
     const info = { puntos: puntosM, local: R.puntos, esqueleto: R, punto: (n) => puntosM[n] ?? null, mundo: mundoDe };

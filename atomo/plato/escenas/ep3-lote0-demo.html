@@ -16,8 +16,8 @@
 //            +27; las marcas se encienden una a una (rango); la flecha busca, pasa por 0 y cae cuatro saltos a −4;
 //            las miniaturas «red» y «niebla» junto a los remates
 //  16–34 s   la persona con posturas: de pie, sostener, señalar, saludar, sentada, brazos cruzados, mirarse las
-//            manos, de perfil con los ojos cerrados y mirar arriba; a la vez, un niño y una mujer con melena (que
-//            pasa a moño a mitad), cada uno con su jersey
+//            manos (que se vuelven casi transparentes: fantasma), de perfil con los ojos cerrados y mirar arriba;
+//            a la vez, un niño y una mujer con melena (que pasa a moño a mitad), cada uno con su jersey
 // ?vista=guias&postura=…&aspecto=…&giro=… : una sola persona grande y de frente (o girada) para guias-humano.py;
 // deja en window.__info la coronilla, la suela y las articulaciones en píxeles.
 import * as THREE from 'three';
@@ -121,6 +121,8 @@ if (busq.get('vista') === 'guias') {
     }
     const k = ss(16.0, 16.8, ts);
     const pose = posturaEn(ts, CLAVES, { trans: 0.55 });
+    // mirándose las manos, las manos se vuelven casi transparentes (fantasma)
+    pose.fantasma = ss(tPose('manos') + 0.1, tPose('manos') + 0.9, ts) * (1 - ss(tPose('perfil') - 0.5, tPose('perfil') - 0.1, ts));
     // de perfil: la pieza gira un cuarto de vuelta mientras dura la postura
     const perf = ss(tPose('perfil') - 0.55, tPose('perfil'), ts) * (1 - ss(tPose('arriba') - 0.55, tPose('arriba'), ts));
     const quien = [
