@@ -53,68 +53,112 @@
 //
 // LA REGLA (pieza 'reglaA', y una pieza 'flecha' para el marcador)
 //   Rótulos «10^e m» de 10⁻³⁵ a 10²⁷ (ROT.E_MIN…E_MAX; los de 10⁻⁴ a 10²¹ en su textura de siempre y los demás en un
-//   atlas de dos columnas, 476 × 3.776 px). Por debajo de 10⁻³⁵ la cara de la regla es la NIEBLA DE PLANCK (un cojín
-//   de arcilla gris con bocanadas) y por encima de 10²⁷, la RED DE GALAXIAS (placa azul noche con filamentos de luz
-//   y cúmulos): son los remates; se ven al llegar a los extremos o en la regla entera.
+//   atlas de dos columnas, 476 × 3.776 px). Por debajo de 10⁻³⁵ la cara de la regla es la NIEBLA DE PLANCK (una nube de
+//   arcilla clara y blanda: bocanadas y dos jirones que se rizan a los lados) y por encima de 10²⁷, la RED DE GALAXIAS
+//   (placa casi negra con filamentos de luz cálida, unos gruesos y otros finos o cortados, y cúmulos brillantes en los
+//   nudos): son los remates; se ven al llegar a los extremos o en la regla entera.
 //   const R = P.regla({ pieza, flecha, pos, escala: 1.42, rot: [0, −0.12, 0], e, ya: 0, actual: e, lupa: 0.5,
-//                       entera: 0, lupaEntera: 1.3, rango: null, marca: actual, escalaFlecha: 0.8, toque: false })
+//                       entera: 0, escEntera: 0.21, lupaEntera: 0.45, rango: null, marca: actual, escalaFlecha: 0.8,
+//                       separacion: 0.36, toque: false })
 //    · pieza / flecha: índices de las piezas 'reglaA' y 'flecha' (flecha opcional). pos, escala y rot: los de la
-//      regla (las pruebas: pos = P.punto(1668, 528, 0.4), escala 1,42); la flecha se pone sola a su izquierda.
+//      regla (las pruebas: pos = P.punto(1668, 528, 0.4), escala 1,42); la flecha se pone sola a su izquierda, a
+//      `separacion` del canto.
 //    · e: el exponente que queda a la altura local ya (la losa va de y = −1,85 a 1,85 y cada potencia ocupa
 //      REGLA.RS = 0,75): para que la escala corra, anima e (puede ser fraccionario).
 //    · actual: la fila grande y en ámbar (por defecto e; fraccionario mientras se mueve); lupa: su aumento.
 //    · entera (0…1, animable): la regla se comprime sin saltos hasta verse entera, de −35 (con la niebla debajo) a
-//      +27 (con la red encima), −4 en el centro (y local 0) y una marca por potencia (63, «unas sesenta»). Entonces
-//      solo llevan rótulo −35, −4, 0, +7 y +27 y la fila actual (grande y en ámbar, aumento lupaEntera); el rótulo
-//      que choca con el actual se encoge. Las marcas del logaritmo se van al comprimirse.
+//      +27 (con la red encima), −4 en el centro (y local 0) y una marca por potencia (63, «unas sesenta»). Las marcas
+//      del logaritmo y los rótulos de cada fila se van al comprimirse, y quedan:
+//        – los de referencia, −35, −4, 0, +7 y +27, de tamaño escEntera (los dígitos del «10» miden ROT.HD × escEntera
+//          unidades locales; 0,21 se lee en el móvil, a 480 px de ancho, con la regla del encuadre de las pruebas);
+//        – el actual (la fila redondeada de actual), siempre en ámbar, también con la flecha entre dos filas, y más
+//          grande: escEntera × (1 + lupaEntera), como mucho REGLA.ESC_MAX_ENTERA = 0,3 (lo que cabe en la losa del
+//          rótulo más ancho, 10⁻³⁵ m). Va en su fila; los de referencia que lo tocarían se apartan lo justo hacia
+//          fuera y, si así entrarían en un remate, no se ponen. rotulosReglaEntera({ e, ya, entera, actual, escEntera,
+//          lupaEntera }) da dónde queda cada rótulo (también sin plató; antes de crearlo supone ROT.HD = 0,9).
 //    · marca: el exponente al que apunta la flecha (por defecto actual). Ep3-centro: entera 1, la flecha baja de
 //      +27 a 0 y cae cuatro saltos: marca y actual de 0 a −4.
 //    · rango: { de, a, marcas: 0…1, madera: 0…1 } resalta de 10^de a 10^a: sus marcas y rótulos se encienden en
 //      ámbar (marcas) y la madera se aclara (madera). «Las marcas se encienden una a una»: { de: −35, a: −35 + 62·u }.
-//    Devuelve { s, ya, RS, y(e): y local del exponente e, punto(e, x, z): punto del mundo (por defecto en el canto
-//    izquierdo, a la altura de e), flecha: el punto al que apunta }. Para poner algo junto a una marca (ep3-saltos:
-//    las miniaturas en −4, +7 y +27): P.pieza(k, { pos: R.punto(27), … }).
-//    Por dentro escribe P.U.uReglaA (s, ya, lupa, actual), uReglaB (RS, entera, —, lupaEntera) y uReglaC (de, a,
-//    marcas, madera). Las escenas que escriben uReglaA a mano siguen igual (con uReglaB y uReglaC por defecto se usa
-//    el código de antes). reglaEstado({ e, ya, entera }) da la escala sin plató; REGLA, las medidas.
+//    Devuelve { s, ya, RS, entera, y(e): y local del exponente e, punto(e, x, z): punto del mundo (por defecto en el
+//    canto izquierdo, a la altura de e), flecha: el punto al que apunta, rotulos: [{ e, y (local), esc (0 = no está),
+//    actual, punto (mundo) }] (los de la regla entera) }. Para poner algo junto a una marca (ep3-saltos: las
+//    miniaturas en −4, +7 y +27): P.pieza(k, { pos: R.punto(27), … }).
+//    Por dentro escribe P.U.uReglaA (s, ya, lupa, actual), uReglaB (RS, entera, escEntera, lupaEntera), uReglaC (de,
+//    a, marcas, madera) y uRotE (los rótulos de la regla entera). P.limpiar() devuelve uReglaB, uReglaC y uRotE a lo
+//    de siempre en cada fotograma, así que P.regla va en cada fotograma, entre P.limpiar() y P.render(n), y nada pasa
+//    de un fotograma a otro. Las escenas que escriben uReglaA a mano, sin P.regla, siguen igual (con uReglaB y
+//    uReglaC por defecto se usa el código de antes). reglaEstado({ e, ya, entera }) da la escala sin plató; REGLA,
+//    las medidas.
 //   Miniaturas de los remates (ep3-saltos): piezas 'red' (medallón de radio 0,5 con la red de galaxias y aro de
-//   latón) y 'niebla' (nube gris de 0,6). El rótulo suelto 'etiqueta' vale para cualquier exponente de −35 a +27
-//   (variante = −e: 4 → 10⁻⁴; −27 → 10²⁷).
+//   latón) y 'niebla' (nube de bocanadas de 0,6 con dos jirones que se rizan). El rótulo suelto 'etiqueta' vale para cualquier exponente de −35
+//   a +27 (variante = −e: 4 → 10⁻⁴; −27 → 10²⁷).
 //
 // LA PERSONA CON POSTURAS (pieza 'humano'; la de siempre, 'persona', queda quieta para las pruebas)
 //   La misma persona (cara, jersey, pantalón, zapatos y medidas de HUMANO.md: suela en y = −1, coronilla en 0,765,
 //   mira a +z, su izquierda en +x; de pie sobre el suelo del plató con pos [x, escala, z]), articulada:
-//   const h = P.pieza(i, { pos, escala, rot, sq, postura, aspecto, t, toque, huellaFija })
+//   const h = P.pieza(i, { pos, escala, rot, sq, postura, aspecto, t, apuntar, toque, huellaFija })
 //    · postura: un nombre de POSTURAS, con o sin tildes: 'de pie', 'sostener' (las dos manos delante del pecho,
 //      cerradas), 'señalar' (con la derecha), 'saludar' (con la derecha; el vaivén lo pone t), 'sentada' (se baja
-//      sola hasta que los pies pisan: la silla va en h.punto('asiento')), 'brazos cruzados', 'mirarse las manos',
+//      sola hasta que los pies pisan; los tobillos se quedan donde estaban de pie y la pelvis va hacia atrás, sobre
+//      el asiento: de pie → sentada, los pies no resbalan; la silla va en h.punto('asiento'), y antes de sentarse,
+//      en esqueletoHumano('sentada', aspecto).puntos.asiento), 'brazos cruzados', 'mirarse las manos' ('manos'),
 //      'perfil' (cara un poco arriba y ojos cerrados; de perfil girando la pieza: rot [0, ±π/2, 0]) y 'mirar
 //      arriba'; o un objeto (lo que falte, de pie; los signos, en POSTURA_BASE):
 //        { cabeza: [giro, inclina, ladea], torso: [inclina, giro, ladea], ojos: 0…1, mirada: [x, y],
 //          brazoIzq / brazoDer: [flex, abd, rot, codo, prona, muneca], manoIzq / manoDer: 0 abierta · 1 índice ·
 //          2 puño (y todo lo de en medio), piernaIzq / piernaDer: [flex, abd, rodilla, tobillo], apoyo: 1,
-//          apuntarIzq / apuntarDer: [x, y, z] (punto local: el hombro gira para que el antebrazo lo señale),
-//          fantasma: 0…1 (las manos se vuelven casi transparentes: pálidas, frías y con luz propia) }
+//          piesFijos: 1 (0: la pelvis se queda encima de pos y son los pies los que van adelante),
+//          apuntarIzq / apuntarDer: [x, y, z] (punto local: el hombro, flex, abd y si hace falta rot, gira para que
+//            el antebrazo lo señale, con menos de 1° de error, sin saltos de un fotograma a otro y sin bajar el codo de
+//            la cintura; el codo, la pronación y la muñeca son los de la postura: con los de 'señalar', [·, ·, −0,9,
+//            1,0, 1,2, −0,1], el gesto es el de señalar, con el codo doblado),
+//          fantasma: 0…1 (las manos se vuelven casi transparentes: dejan ver lo que tienen detrás, como vidrio, con
+//          un borde de luz fría; se lee en un plano de pecho y manos) }
 //      Izq/Der son los de la persona (su izquierda queda a la derecha de la pantalla si mira a cámara). Los tramos
 //      no cambian en ninguna postura: brazo 0,18 H, antebrazo 0,14 H, mano 0,10 H, pie 0,15 H.
 //    · t: el instante (s) para lo que se mueve solo ('saludar').
+//    · apuntar: { izq, der, peso } puntos DEL MUNDO a los que señala cada brazo (como apuntarIzq/Der, sin pasar a
+//      locales; p. ej. { izq: R.flecha }); peso (0…1, 1 por defecto) lo mezcla con el brazo de la postura.
 //    · aspecto: 'adulto' (el de siempre, con barba y canas) · 'nino' (niño de unos 7 años: cabeza de 1/4,7 de la
 //      altura y piernas de 0,45 H; mide 1,685 en vez de 1,765 a la misma escala: junto a un adulto de 1,75 m, escala
-//      × 0,72) · 'melena' (pelo hasta la mandíbula, jersey oliva) · 'mono' (pelo recogido, jersey pizarra) · o
-//      { cuerpo: 'adulto'|'nino', pelo: 'corto'|'melena'|'mono'|{ largo, mono, mechon }, jersey: 'gris'|'oliva'|
+//      × 0,72; jersey ocre) · 'melena' (pelo hasta la mandíbula que enmarca la cara en óvalo, jersey oliva) · 'mono'
+//      (moño alto, que se ve de frente; jersey pizarra, piel morena) · o un objeto
+//      { base, cuerpo: 'adulto'|'nino', pelo: 'corto'|'melena'|'mono'|{ largo, mono, mechon }, jersey: 'gris'|'oliva'|
 //      'ocre'|'pizarra'|'crema'|'arcilla'|[r, g, b], pantalon: 'caqui'|'gris'|'azul'|'marron'|[r, g, b], piel:
-//      'media'|'clara'|'morena'|'oscura'|factor, colorPelo: [r, g, b], barba: 0…1, canas: 0…1 } (ASPECTOS, aspecto()).
-//    · Devuelve h = { punto(nombre) → [x, y, z] del mundo, puntos, local, esqueleto, mundo(local) }. Nombres:
-//      cabeza, ojos, coronilla, barbilla, cuello, pecho, pelvis, asiento, regazo y hombro, codo, muneca, mano (el
-//      centro del agarre), dedos (la punta), cadera, rodilla, tobillo, pie (la punta), con Izq o Der. Lo que sostiene
-//      la mano va en h.punto('manoDer'). P.humano(i) devuelve el último h de esa pieza.
+//      'media'|'clara'|'morena'|'oscura'|factor, colorPelo: [r, g, b] (lineal), barba: 0…1, canas: 0…1 }.
+//      Sin base, lo que falte sale de ASPECTO_OBJETO: cuerpo adulto, pelo corto castaño ([0,095, 0,062, 0,038]),
+//      jersey gris, pantalón caqui, piel media, sin barba ni canas. Con base ('adulto', 'nino', 'melena' o 'mono'),
+//      de ese aspecto (ASPECTOS): { base: 'nino', jersey: 'crema' } es el niño con otro jersey. Todo el aspecto va
+//      en uniformes y se puede animar fotograma a fotograma: canas de 0 a 1 con colorPelo hacia el blanco
+//      (ep3-lectura), otro jersey… (aspecto() da el resultado).
+//    · Devuelve h = { punto(nombre) → [x, y, z] del mundo, puntos (del mundo), puntosLocales, local(mundo) → [x, y, z]
+//      locales (y local.<nombre>, los puntos locales), mundo(local) → mundo, esqueleto }. Nombres: cabeza, ojos,
+//      coronilla, barbilla, cuello, pecho, pelvis, asiento, regazo y hombro, codo, muneca, mano (el centro del
+//      agarre), dedos (la punta), cadera, rodilla, tobillo, pie (la punta), con Izq o Der. Lo que sostiene la mano va
+//      en h.punto('manoDer'). P.humano(i) devuelve el último h de esa pieza.
 //   Entre posturas: mezclarPosturas(a, b, u, t) interpola ángulo a ángulo; posturaEn(t, [[t0, a], [t1, b], …],
 //   { trans: 0.5 }) va de clave en clave (en cada ti la postura ya está entera; el paso dura trans s y es suave).
 //   postura(nombre, t) da el objeto completo para retocarlo; esqueletoHumano(postura, aspecto, t) da el esqueleto
 //   sin plató (p. ej., dónde quedará el asiento antes de sentarse) y HUMANO, las medidas.
-//   Coste (este servidor): más cara que 'persona' (≈ 1,7 veces en primer plano; ≈ 1,2–1,8 s por persona de 600 px
-//   de alto). Persona + regla + Atom: 3–4 s por fotograma; tres personas: 4,5–6 s. Con varias personas, lo que no se
-//   mueva va en foto (como los decorados de prueba-plastilina-adulta).
+//   Las manos del «humano» tienen cuatro dedos de tres falanges y pulgar; valen hasta un plano de pecho y manos
+//   (ep3-medula, ep3-casa, ep3-silla), también con fantasma. Para una mano sola que llena la pantalla (un detalle), la
+//   pieza 'mano' (uñas, nudillos, tendones y venas), que no tiene fantasma: si un detalle lo necesitara, la escena
+//   compone la foto de la mano con transparencia sobre el fondo.
+//   Coste (este servidor, 1920 × 1080 con plató, una persona sola; medido con la locución corriendo al lado): cuerpo
+//   entero de 870 px de alto, 0,5–1 s; plano medio de cintura, 1,4–2,3 s (también con 'manos'); primer plano de la
+//   cara, 1,2–1,4 s; pecho y manos con 'manos' (y con fantasma), 2,5–3 s; por encima del hombro, 1,9 s. Es lo mismo
+//   o menos que 'persona' (0,8–0,9 · 1,9–2,2 · 1,7–2,1 s en los mismos planos), porque el cuerpo, la cabeza y cada
+//   mano son pasadas aparte, cada una con su programa y solo en su rectángulo, y el cuerpo se dibuja por celdas
+//   (tronco, brazos, piernas). Cada «humano» suma unos 4–5 s a la carga (sus diez programas se estrenan al cargar).
+//   En ep3-lote0-demo: una persona + regla + Atom, 1,3–1,6 s por fotograma; tres personas (adulto, niño y mujer) + regla
+//   + Atom + taburetes, 1,6–2,3 s; carga de la página, 20 s (la de prueba-plastilina-adulta, 26 s).
+//   Receta para lo que no se mueve (una persona quieta, varias, un decorado): una foto al cargar, como los decorados
+//   de prueba-plastilina-adulta. crearPlato({ …, alfa: true, post: false }) y un lienzo 2D g encima del de WebGL;
+//   al cargar: P.limpiar(); lo quieto (con el fondo); P.render(n); foto = copia del lienzo de WebGL. En cada
+//   fotograma: g.drawImage(foto); P.limpiar(); lo que se mueve (Atom, la regla…); P.render(n, { fondo: false });
+//   g.drawImage(lienzo de WebGL); crearPost().aplicar(g, n). Lo de la foto no tapa lo que se mueve ni recibe su sombra:
+//   sirve si lo que se mueve va delante o lejos de ello.
 // ----- (lo que sigue es el comentario de la copia de prueba) -----
 // COPIA de kits/plastilina.js para las pruebas de identidad (prueba-plastilina.html, prueba-mixta.html, cosmos-plastilina.html).
 // kits/plastilina.js lo usan escenas terminadas del episodio 2 y no se toca. Añadidos de esta copia:
@@ -580,23 +624,24 @@ vec2 worleyR(vec2 p) {
   }
   return vec2(d2 - d1, d3 - d1);
 }
-// la red de galaxias en p: x, filamentos (0…1) · y, cúmulos (0…1). Celdas deformadas (no un panal) cuyos bordes son
-// los filamentos: unos gruesos y brillantes, otros finos y tenues o cortados (el grosor y el brillo cambian a lo
-// largo), más brillantes cerca de los cúmulos (los nudos, con su halo), hilos finos que salen de ellos y huecos oscuros
-// con alguna galaxia suelta
+// la red de galaxias en p: x, filamentos (0…1) · y, cúmulos (0…1). No es un panal: los bordes entre celdas deformadas
+// son filamentos solo a trozos (enteros cerca de los cúmulos; lejos de ellos, donde el ruido los deja, así que la red
+// queda abierta), de grosor y brillo variables y con un halo tenue; los cúmulos son nudos brillantes con su halo, de los
+// que salen hilos finos, y en los huecos oscuros hay alguna galaxia suelta
 vec2 redR(vec2 p) {
   vec2 w = p + 0.34 * vec2(vnoise(vec3(p * 1.3, 0.3)), vnoise(vec3(p * 1.3 + 5.2, 0.7))) - 0.17;
   vec2 a = worleyR(w * 4.2), b = worleyR(w * 10.5 + 3.7);
-  float n = vnoise(vec3(w * 4.5, 1.7)), n2 = vnoise(vec3(w * 11.0, 2.9));
-  float grosor = mix(0.008, 0.042, n * n);
-  float cerca = 1.0 - smoothstep(0.0, 0.42, a.y);
-  float fil = (1.0 - smoothstep(0.0, grosor, a.x)) * mix(0.12, 1.0, smoothstep(0.3, 0.72, n + 0.25 * cerca)) * (0.4 + 0.6 * cerca);
-  fil += 0.2 * (1.0 - smoothstep(0.0, 3.5 * grosor, a.x)) * cerca;
-  fil += (1.0 - smoothstep(0.0, 0.02, b.x)) * 0.28 * smoothstep(0.45, 0.8, n2) * (1.0 - smoothstep(0.0, 0.2, a.x));
+  float n = vnoise(vec3(w * 3.2, 1.7)), n2 = vnoise(vec3(w * 11.0, 2.9));
+  float cerca = 1.0 - smoothstep(0.0, 0.4, a.y);
+  float vive = max(smoothstep(0.5, 0.68, n), cerca * cerca * cerca);
+  float grosor = mix(0.006, 0.03, n) * (0.7 + 0.8 * cerca);
+  float fil = ((1.0 - smoothstep(0.0, grosor, a.x)) + 0.3 * exp(-a.x / (2.5 * grosor + 0.012))) * vive * mix(0.3, 1.0, cerca);
+  fil += (1.0 - smoothstep(0.0, 0.016, b.x)) * 0.3 * smoothstep(0.5, 0.8, n2) * cerca * cerca;
   vec2 c = floor(w * 24.0), g = fract(w * 24.0) - 0.5;
-  fil += 0.6 * (1.0 - smoothstep(0.05, 0.18, length(g))) * step(0.86, hashR2(c).x) * smoothstep(0.08, 0.2, a.x);
-  float nudo = (1.0 - smoothstep(0.0, 0.06 + 0.07 * n, a.y)) * smoothstep(0.2, 0.5, n + cerca * 0.3);
-  return vec2(clamp(fil, 0.0, 1.0), nudo);
+  fil += 0.5 * (1.0 - smoothstep(0.04, 0.14, length(g))) * step(0.93, hashR2(c).x) * smoothstep(0.1, 0.25, a.x);
+  float nudo = (1.0 - smoothstep(0.0, 0.045 + 0.05 * n, a.y)) * smoothstep(0.2, 0.5, n + 0.3 * cerca);
+  nudo += 0.35 * exp(-a.y / 0.07) * smoothstep(0.25, 0.55, n + 0.2 * cerca);
+  return vec2(clamp(fil, 0.0, 1.0), clamp(nudo, 0.0, 1.0));
 }
 // arcilla azul noche casi negra (los huecos) con los filamentos en relieve, de luz cálida, y los cúmulos claros y
 // brillantes (k: fuerza de la luz)
@@ -611,6 +656,18 @@ vec3 colorRed(vec2 p, float k) {
   gEm = (vec3(0.55, 0.34, 0.15) * r.x * r.x * 0.28 + vec3(0.75, 0.62, 0.45) * r.y * 0.7) * k;
   gBri = 1.5;
   return c;
+}
+// un jirón de niebla: un hilo que sale de o hacia +x, se afina y se enrosca hacia arriba y hacia dentro (k: tamaño)
+float rizoN(vec3 q, vec3 o, float k) {
+  float d = 1e5;
+  vec3 a = o;
+  for (int i = 1; i <= 7; i++) {
+    float t = float(i) / 7.0, th = 3.7 * t, R = 0.13 * k * (1.0 - 0.6 * t);
+    vec3 b = o + vec3(0.1 * k * t + R * sin(th), R * (1.0 - cos(th)), 0.0);
+    d = min(d, capsulaC(q, a, b, 0.032 * k * (1.06 - 0.8 * t), 0.032 * k * (1.0 - 0.8 * t)));
+    a = b;
+  }
+  return d;
 }
 // la niebla de Planck: arcilla gris azulada clara, como algodón (motas blandas, algo translúcida y con un poco de luz
 // propia en lo más claro): una nube, no una piedra
@@ -982,7 +1039,7 @@ float huCabeza(vec3 q, int b, out float m) {
   cabeza = smin(cabeza, elipsoideP(ah - vec3(0.011, 0.5715, 0.124), vec3(0.0105, 0.008, 0.0095)), 0.008);
   cabeza = smin(cabeza, capsulaC(qh, vec3(0.0, 0.44, -0.012), vec3(0.0, 0.5, -0.01), 0.042, 0.041), 0.025);
   float pelo = huPelo(qh, ah, vec3(PA.w, PB.xy)) * kh;
-  float goma = (sdTorus(qh - vec3(0.0, 0.738, -0.062), vec2(0.03, 0.009)) + 0.1 * (1.0 - PB.y)) * kh;
+  float goma = (sdTorus(qh - vec3(0.0, 0.738, -0.062), vec2(0.03, 0.009)) + 0.1 * (1.0 - PB.x)) * kh;
   float cejas = min(capsulaC(ah, vec3(0.019, 0.6495, 0.1135), vec3(0.046, 0.6545, 0.110), 0.0066, 0.0072), capsulaC(ah, vec3(0.046, 0.6545, 0.110), vec3(0.071, 0.6495, 0.099), 0.0072, 0.0048)) * kh;
   float blanco = elipsoideP(ah - vec3(0.044, 0.611, 0.1025), vec3(0.021, 0.0165, 0.0145)) * kh;
   vec2 mir = PA.yz * vec2(0.0045, 0.0035);
@@ -1038,7 +1095,7 @@ vec3 huColCabeza(vec3 q, int b, float m) {
     // pelo (y cejas), con canas en las sienes si las lleva y la raya del moño
     gBri = 0.5;
     vec3 c = PE.rgb * (0.8 + 0.35 * vnoise(qh * vec3(40.0, 9.0, 40.0)));
-    c *= 1.0 - 0.25 * uHum[b + 34].y * (1.0 - smoothstep(0.0, 0.004, abs(qh.x))) * smoothstep(0.66, 0.72, qh.y) * step(0.0, qh.z + 0.02);
+    c *= 1.0 - 0.25 * uHum[b + 34].x * (1.0 - smoothstep(0.0, 0.004, abs(qh.x))) * smoothstep(0.66, 0.7, qh.y) * (1.0 - smoothstep(0.71, 0.725, qh.y)) * step(0.0, qh.z + 0.02);
     return mix(c, vec3(0.30, 0.28, 0.26), smoothstep(0.075, 0.115, abs(qh.x)) * smoothstep(0.66, 0.6, qh.y) * 0.7 * PE.w);
   }
   if (m < 6.5) return vec3(0.035, 0.022, 0.015);
@@ -1675,12 +1732,7 @@ float reglaRemates(vec3 q, out float mr) {
       n = smin(n, length(q - vec3(-0.63 + 0.21 * fi, y1 - r - 0.004, 0.07 + 0.05 * h2)) - r, 0.11);
       n = smin(n, length(q - vec3(-0.53 + 0.21 * fi, y1 - 0.23 - 0.05 * h, 0.1 + 0.04 * h)) - r2, 0.11);
     }
-    for (int i = 0; i < 2; i++) {
-      float sx = i == 0 ? -1.0 : 1.0;
-      vec3 a0 = vec3(sx * 0.6, y1 - 0.11, 0.08), a1 = vec3(sx * 0.72, y1 - 0.06, 0.1), a2 = vec3(sx * 0.77, y1 + 0.02, 0.09), a3 = vec3(sx * 0.71, y1 + 0.07, 0.08);
-      float jr = min(min(capsulaC(q, a0, a1, 0.032, 0.021), capsulaC(q, a1, a2, 0.021, 0.013)), capsulaC(q, a2, a3, 0.013, 0.006));
-      n = smin(n, jr, 0.035);
-    }
+    n = smin(n, rizoN(vec3(abs(q.x), q.y, q.z), vec3(0.58, y1 - 0.15, 0.08), 1.1), 0.035);
     vec3 qn = vec3(q.x, q.y - yf.x, q.z);
     n += 0.04 * (vnoise(qn * 2.6) - 0.5) + 0.012 * (vnoise(qn * 7.0 + 2.3) - 0.5);
     if (n < d) { d = n; mr = 5.0; }
@@ -1850,23 +1902,22 @@ vec3 pzcol_red(vec3 q, vec4 T, float m) {
 }
 ` },
   niebla: { radio: 0.72, glifos: [], glsl: /* glsl */`${GLSL_REMATES}
+// las bocanadas de la nube (centro y radio), sobre una base ancha y algo plana
+const vec4 BOC_N[9] = vec4[9](vec4(-0.3, 0.02, 0.06, 0.15), vec4(-0.12, 0.12, 0.04, 0.19), vec4(0.08, 0.16, 0.02, 0.2),
+  vec4(0.27, 0.07, 0.05, 0.16), vec4(0.4, -0.04, 0.03, 0.12), vec4(-0.42, -0.06, 0.02, 0.11), vec4(0.0, 0.0, 0.16, 0.16),
+  vec4(-0.2, -0.03, 0.17, 0.13), vec4(0.2, -0.04, 0.15, 0.14));
 float pz_niebla(vec3 q, vec4 T, out float m) {
-  // una nube blanda de bocanadas, con la base algo plana y un jirón que se riza a un lado
+  // una nube blanda de bocanadas de varios tamaños, con la base algo plana, y dos jirones finos que se escapan por los
+  // lados y se enroscan
   m = 0.0;
-  float d = length(q - vec3(0.0, -0.02, 0.0)) - 0.26;
-  d = smin(d, length(q - vec3(-0.28, -0.1, 0.04)) - 0.19, 0.13);
-  d = smin(d, length(q - vec3(0.3, -0.09, -0.01)) - 0.2, 0.13);
-  d = smin(d, length(q - vec3(0.13, 0.17, 0.02)) - 0.19, 0.13);
-  d = smin(d, length(q - vec3(-0.15, 0.13, 0.05)) - 0.16, 0.13);
-  d = smin(d, length(q - vec3(-0.47, -0.16, 0.0)) - 0.12, 0.12);
-  d = smin(d, length(q - vec3(0.5, -0.15, 0.02)) - 0.12, 0.12);
-  d = smin(d, length(q - vec3(0.02, -0.12, 0.17)) - 0.15, 0.12);
-  d = smax(d, -0.25 - q.y, 0.08);
-  float j = min(capsulaC(q, vec3(0.45, 0.0, 0.05), vec3(0.6, 0.13, 0.06), 0.035, 0.022), capsulaC(q, vec3(0.6, 0.13, 0.06), vec3(0.54, 0.24, 0.05), 0.022, 0.009));
-  d = smin(d, j, 0.04);
-  return (d + 0.03 * (vnoise(q * 4.0) - 0.5)) * 0.88;
+  float d = elipsoideP(q - vec3(0.0, -0.08, 0.02), vec3(0.42, 0.17, 0.24));
+  for (int i = 0; i < 9; i++) d = smin(d, length(q - BOC_N[i].xyz) - BOC_N[i].w, 0.04);
+  d = smax(d, -0.22 - q.y, 0.06);
+  d = smin(d, rizoN(q, vec3(0.46, -0.09, 0.05), 1.1), 0.03);
+  d = smin(d, rizoN(vec3(-q.x, q.y, q.z), vec3(0.44, -0.13, 0.03), 0.6), 0.03);
+  return (d + 0.02 * (vnoise(q * 5.0) - 0.5)) * 0.85;
 }
-float pzc_niebla(vec3 q, vec4 T) { return length(q - vec3(0.0, -0.02, 0.0)) - 0.3; }
+float pzc_niebla(vec3 q, vec4 T) { return max(elipsoideP(q - vec3(0.0, -0.04, 0.02), vec3(0.4, 0.2, 0.22)), -0.21 - q.y); }
 vec3 pzcol_niebla(vec3 q, vec4 T, float m) { return colorNiebla(q); }
 ` },
   // (cartela) la placa de capítulo (ver CARTELA_ARCILLA y K.cartela)
@@ -3104,7 +3155,8 @@ export const MANO = { abierta: 0, indice: 1, puno: 2, agarre: 2 };
 //   piernaIzq / piernaDer [flex (+ el muslo adelante), abd, rodilla (+ doblada), tobillo (+ la punta arriba)]
 //   apoyo: 1 → la pelvis sube o baja para que el pie más bajo pise el suelo (sentada, se baja sola)
 //   apuntarIzq / apuntarDer: [x, y, z] punto (unidades locales de la persona) al que señala ese brazo: se calculan
-//     flex y abd para que el antebrazo apunte allí (con el codo y la rotación de la postura)
+//     flex, abd y, si hace falta, rot para que el antebrazo apunte allí (con el codo, la pronación y la muñeca de la
+//     postura; ver apuntarBrazo). En P.pieza, la opción apuntar: { izq, der } los da en el mundo
 //   fantasma (0…1): las manos se vuelven casi transparentes (dejan ver lo que tienen detrás), pálidas y frías, con
 //     un borde de luz (ep3-casa, ep3-silla)
 //   piesFijos (0…1): 1 → los tobillos se quedan donde están de pie y es la pelvis la que se mueve (al sentarse, va hacia
@@ -3241,8 +3293,9 @@ function brazoFK(s, br, Rt, S, C) {
   const u = V3(0, -1, 0).transformDirection(Rh), v = V3(0, 0, 1).transformDirection(Rh), w = V3(s, 0, 0).transformDirection(Rh);
   return { S, E, W, u, v, w, dedos: W.clone().addScaledVector(u, HUMANO.MANO * C.km) };
 }
-// apuntar: flex y abd para que el antebrazo (con el codo y la rotación dados) apunte al punto P (local)
-function apuntarBrazo(s, br, Rt, S, C, P) {
+// apuntar, primera aproximación: flex y abd para que el antebrazo (con el codo y la rotación dados) apunte al punto P
+// (local); con rot fija no siempre hay solución exacta (un punto casi delante del pecho, si el antebrazo se abre mucho)
+function apuntarAnalitico(s, br, Rt, S, C, P) {
   const b = br.slice();
   const [, , rot, codo] = b;
   const w = V3(0, -1, 0).applyMatrix4(RX(-codo)).applyMatrix4(RY(-rot));   // el antebrazo en el marco del brazo (lado +1)
@@ -3266,6 +3319,45 @@ function apuntarBrazo(s, br, Rt, S, C, P) {
     b[0] = mejor.flex; b[1] = mejor.abd;
   }
   return b;
+}
+// apuntar: el hombro (flex, abd y, si hace falta, rot) para que el antebrazo, con el codo, la pronación y la muñeca de la
+// postura, señale el punto P (local). Busca (Nelder–Mead) el mínimo de: el error del ángulo al cuadrado, un poco de
+// distancia a los ángulos de la postura (el gesto se parece al de la postura y no salta de una solución a otra entre
+// fotogramas), un castigo si el codo baja de la cintura (HUMANO.md: al señalar, el codo a la altura de la cintura o por
+// encima) y los límites del hombro. Empieza en la postura y en la primera aproximación, y se queda con la mejor.
+function apuntarBrazo(s, br, Rt, S, C, P) {
+  const [f0, a0, r0, codo, pr, mu] = br;
+  const yCintura = HUMANO.CORONILLA - 0.40 * HUMANO.H;
+  const fuera = (x, a, b) => (x < a ? a - x : x > b ? x - b : 0);
+  const coste = ([f, a, r]) => {
+    const B = brazoFK(s, [f, a, r, codo, pr, mu], Rt, S, C);
+    const fa = B.W.clone().sub(B.E).normalize(), dt = P.clone().sub(B.E).normalize();
+    const e = Math.acos(cl(fa.dot(dt), -1, 1));
+    const bajo = Math.max(0, yCintura - B.E.y);
+    const lim = fuera(f, -0.8, 3.0) + fuera(a, -0.4, 2.6) + fuera(r, -2.2, 2.2);
+    return e * e + 0.004 * ((f - f0) ** 2 + (a - a0) ** 2) + 0.008 * (r - r0) ** 2 + 2 * bajo * bajo + 10 * lim * lim;
+  };
+  const nm = (x0) => {
+    let sx = [x0, ...[0, 1, 2].map((k) => x0.map((v, j) => v + (j === k ? 0.25 : 0)))].map((x) => ({ x, c: coste(x) }));
+    for (let it = 0; it < 160; it++) {
+      sx.sort((u, v) => u.c - v.c);
+      if (sx[3].c - sx[0].c < 1e-9) break;
+      const cen = [0, 1, 2].map((j) => (sx[0].x[j] + sx[1].x[j] + sx[2].x[j]) / 3);
+      const pt = (k) => cen.map((v, j) => v + k * (sx[3].x[j] - v));
+      const r = pt(-1), cr = coste(r);
+      if (cr < sx[0].c) { const e = pt(-2), ce = coste(e); sx[3] = ce < cr ? { x: e, c: ce } : { x: r, c: cr }; continue; }
+      if (cr < sx[2].c) { sx[3] = { x: r, c: cr }; continue; }
+      const k = cr < sx[3].c ? pt(-0.5) : pt(0.5), ck = coste(k);
+      if (ck < Math.min(cr, sx[3].c)) { sx[3] = { x: k, c: ck }; continue; }
+      sx = sx.map((v, i) => (i === 0 ? v : { x: v.x.map((y, j) => sx[0].x[j] + 0.5 * (y - sx[0].x[j])), c: 0 })).map((v, i) => (i === 0 ? v : { x: v.x, c: coste(v.x) }));
+    }
+    sx.sort((u, v) => u.c - v.c);
+    return sx[0];
+  };
+  const b1 = apuntarAnalitico(s, br, Rt, S, C, P);
+  let mejor = null;
+  for (const x0 of [[f0, a0, r0], [b1[0], b1[1], r0]]) { const m = nm(x0); if (!mejor || m.c < mejor.c - 1e-9) mejor = m; }
+  return [mejor.x[0], mejor.x[1], mejor.x[2], codo, pr, mu];
 }
 function piernaFK(s, pi, Hc, C) {
   const [flex, abd, rod, tob] = pi;

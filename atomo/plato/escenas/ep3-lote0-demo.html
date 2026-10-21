@@ -120,10 +120,11 @@ if (busq.get('vista') === 'guias') {
   function personas(ts, R) {
     if (ts < 16.4) {
       // A y B: el adulto de pie a la izquierda, mirando la regla; mientras la flecha busca y cae, la señala con la
-      // izquierda (apuntar: el punto del mundo de la flecha; peso, la mezcla con el brazo quieto)
+      // izquierda (apuntar: el punto del mundo de la flecha; peso, la mezcla con el brazo quieto). El codo, la rotación y
+      // la pronación son los de 'señalar' (en espejo): el codo queda doblado, por encima de la cintura (HUMANO.md)
       const mira = { cabeza: [0.25, 0.05, 0], mirada: [0.7, 0.2] };
       const k = ss(12.4, 12.9, ts) * (1 - ss(15.9, 16.3, ts));
-      const pose = k > 0 ? { ...mira, brazoIzq: [0.03, 0.06, 0.1, mix(0.12, 1.1, k), mix(0, 1.2, k), -0.1], manoIzq: k } : mira;
+      const pose = k > 0 ? { ...mira, brazoIzq: [0.03, 0.06, mix(0, -0.9, k), mix(0.12, 1.0, k), mix(0, 1.2, k), -0.1], manoIzq: k } : mira;
       P.pieza(I.ADU, { pos: [xA, E_ADU, 0.6], escala: E_ADU, rot: [0, 0.2, 0], postura: pose, t: ts, huellaFija: [0.37, 0.21, 0],
         apuntar: k > 0 && R.flecha ? { izq: R.flecha, peso: k } : null });
       return;
