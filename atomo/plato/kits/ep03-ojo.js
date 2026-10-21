@@ -73,6 +73,11 @@
 // AYUDAS
 //   haciaCamara(P, pos) → rot [x, y, 0] que pone la cara +z de una pieza en pos mirando a la cámara del plató.
 //   resplandorFranja(g, x0, x1, y, alto, fuerza) → halo aditivo en 2D de una franja horizontal de pantalla (px de diseño).
+//   sombraParpados(foto, { blur, dy, color }) → la sombra 2D de los párpados (una foto de la capa PARPADOS) sobre el globo.
+//   vinetaOjo(gc, zo) → la piel se apaga hacia los bordes alrededor del ojo enorme (zo: su tamaño respecto al de ep3-hola).
+//   EL FINAL DE ep3-hola (= el primer fotograma de ep3-ojo): HOLA (todas sus medidas), encuadreHola(P) (las colocaciones
+//   en el plató) y pintarFinalHola(P, U, { ojo, franja, cosa }) → el lienzo de ese fotograma sin Atom ni post (Atom va en
+//   HOLA.ATOM). Ver su comentario, al final del archivo, y la vista 18 de la hoja de prueba.
 //
 // COSTE (este servidor, 1920 × 1080, solo esta pieza, con la máquina tranquila): el ojo a pantalla completa, 1,5–2,5 s por
 // fotograma (PARPADOS algo menos que TODO; lejos del ojo solo se calcula la piel, porque los párpados, el globo y las
@@ -161,9 +166,11 @@ float ojPestanas(vec3 pb, float a, float lado, float largo, float dp) {
   float mech = sin(id * 2.1 + 1.3 * sin(id * 0.7));
   vec3 dir = normalize(nO * (1.0 + 0.45 * h3) + nP * (0.6 - 0.25 * h3) + vec3(0.12 * mech, 0.0, 0.0));
   if (hash12(vec2(id, 11.0)) < 0.12) L = 0.0;
-  // la raíz, en la arista de delante del borde (por fuera): la pestaña sale del borde mismo (con la raíz más adentro solo
-  // asomaba la punta, separada del borde)
-  vec3 Bo = B - nO * 0.004 - nP * 0.006;
+  // la raíz, en la arista de delante del borde, justo por dentro de la piel de fuera del párpado: la pestaña sale del
+  // borde mismo (con la raíz más adentro solo asomaba la punta, separada del borde). La piel de fuera, en el borde, está
+  // en r = 1,058 con el ojo abierto (el párpado se afina, ver ojoD) y en 1,112 cerrándose
+  float rFuera = mix(1.112, 1.058, smoothstep(0.45, 0.95, a));
+  vec3 Bo = B + nO * (rFuera - OJ_RL - 0.006) - nP * 0.006;
   // si el borde queda bajo la piel de alrededor (el párpado muy abierto, bajo la ceja), sus pestañas no salen
   vec3 qB = vec3(Bo.x * OJ_EX, Bo.y, Bo.z - OJ_BZ);
   L *= smoothstep(0.0, 0.04, qB.z - ojZs(qB.xy));
@@ -808,4 +815,133 @@ export function resplandorFranja(g, x0, x1, y, alto, fuerza = 1) {
     g.restore();
   }
   g.restore();
+}
+
+// ---------------------------------------------------------------- ayudas 2D del ojo compuesto (ep3-hola)
+/** La sombra que los párpados (una foto de la capa PARPADOS) dejan en el globo y en lo que pasa por delante: su silueta,
+ * oscura, desenfocada y algo bajada. src y el lienzo devuelto, en px de dispositivo (W = ancho de diseño). */
+export function sombraParpados(src, { blur = 18, dy = 10, color = 'rgba(8,4,3,0.75)', W = 1920 } = {}) {
+  const c = document.createElement('canvas'); c.width = src.width; c.height = src.height;
+  const gc = c.getContext('2d');
+  gc.filter = `blur(${blur * c.width / W}px)`;
+  gc.drawImage(src, 0, Math.round(dy * c.width / W));
+  gc.filter = 'none';
+  gc.globalCompositeOperation = 'source-in';
+  gc.fillStyle = color; gc.fillRect(0, 0, c.width, c.height);
+  return c;
+}
+/** La piel de la cara se apaga hacia los bordes (la mirada va a la rendija): elipse centrada en (960, 540) de
+ * 1312 × 820 px por zo (el tamaño del ojo respecto al de ep3-hola); fuera, oscura al 60 %. gc, en px de dispositivo. */
+export function vinetaOjo(gc, zo = 1, W = 1920) {
+  const k = gc.canvas.width / W;
+  gc.save();
+  gc.setTransform(k * 1.6 * zo, 0, 0, k * zo, 960 * k, 540 * k);
+  const gr = gc.createRadialGradient(0, 0, 0, 0, 0, 820);
+  gr.addColorStop(0, 'rgba(12,7,5,0)'); gr.addColorStop(0.3, 'rgba(12,7,5,0.03)'); gr.addColorStop(0.6, 'rgba(12,7,5,0.2)'); gr.addColorStop(1, 'rgba(12,7,5,0.6)');
+  gc.fillStyle = gr; gc.fillRect(-600 / zo, -540 / zo, 1200 / zo, 1080 / zo);
+  gc.restore();
+}
+
+// ---------------------------------------------------------------- el final de ep3-hola = el principio de ep3-ojo
+/**
+ * El ojo enorme del final de ep3-hola, para que ep3-ojo empiece exactamente igual (y ep3-hola lo usa para su último
+ * tramo: una sola receta). Con la cámara de las pruebas, crearPlato({ camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0],
+ * fov: 28, desenfoque: 44 } }):
+ *  · el ojo en P.punto(960, 540, Z_OJO), de cara a la cámara, con la rendija de RENDIJA_PX px de ancho (escala =
+ *    RENDIJA_PX / (2,1 · px por unidad));
+ *  · la franja, FRANJA.delante unidades locales del ojo más cerca de la cámara, de 2 × largoPx de largo y 2 × medioAltoPx
+ *    de alto;
+ *  · los párpados, en ABRE al llegar y, al final, con sus bordes a ±RENDIJA_FIN_PX px del centro (justo fuera de la
+ *    franja); las tres COSAS (px de diseño, diámetro d), detrás de los párpados (COSAS_DELANTE unidades locales del ojo
+ *    delante de su centro), apagadas al final (la foto encendida con el filtro APAGADA);
+ *  · en 2D, por este orden: fondo #0b0807, globo (CAPA.GLOBO, sin sombra), cosas apagadas, sombraParpados (SOMBRA) y
+ *    párpados (CAPA.PARPADOS, sombra: false), vinetaOjo(1), franja, resplandorFranja (HALO, en la y de la franja) y la
+ *    sombra blanda bajo el sitio de presentador de Atom (SOMBRA_ATOM). Encima van Atom (ATOM: centro y diámetro de las
+ *    órbitas en px, quieto) y el post del kit.
+ */
+export const HOLA = {
+  Z_OJO: 5.0, RENDIJA_PX: 1380, ABRE: { arriba: 0, abajo: -0.06 }, PUPILA: 0.55, RENDIJA_FIN_PX: 31,
+  FRANJA: { largoPx: 560, medioAltoPx: 26, delante: 1.2 },
+  COSAS_DELANTE: 0.9,
+  COSAS: [
+    { cosa: 'CELULA', x: 830, y: 676, d: 180, rot: [0.25, -0.3, 0.2], lado: 'abajo' },
+    { cosa: 'ATOMO', x: 1095, y: 674, d: 170, rot: [0.15, 0.45, 0], lado: 'abajo' },
+    { cosa: 'GALAXIA', x: 960, y: 392, d: 360, rot: [-0.95, 0.1, 0.4], lado: 'arriba' },
+  ],
+  APAGADA: 'brightness(0.32) saturate(0.35)',
+  SOMBRA: { blur: 18, dy: 10, color: 'rgba(8,4,3,0.75)' },
+  HALO: { x0: 400, x1: 1520, alto: 30, fuerza: 1.3 },
+  SOMBRA_ATOM: { x: 230, y: 780, r0: 40, r1: 190, color: '14,8,5', alfa: 0.55 },
+  ATOM: { x: 230, y: 780, d: 180 },
+  // nf de P.render de cada foto (el hervor de la arcilla depende de él: con los mismos, las mismas fotos)
+  NF: { globo: 9004, cosas: 9006, franja: 9007, cerrado: 9008 },
+};
+/** Las colocaciones del final de ep3-hola en el plató P: { pos, escala, rot, pxLocal (px por unidad local del ojo),
+ * franja: { pos, escala, rot, alto (variante), y (px) }, fin: { arriba, abajo } (cierres), cosas: [{ ...HOLA.COSAS[i],
+ * variante, pos, escala }] }. */
+export function encuadreHola(P) {
+  const pxU = (p) => { const a = P.proyectar(p), b = P.proyectar([p[0] + 1, p[1], p[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+  const pos = P.punto(960, 540, HOLA.Z_OJO);
+  const escala = HOLA.RENDIJA_PX / (2.1 * pxU(pos));
+  const pxLocal = escala * pxU(pos);
+  const a = P.punto(960, 540, HOLA.Z_OJO), b = P.punto(960, 540, HOLA.Z_OJO + 1);
+  const l = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+  const dir = [0, 1, 2].map((i) => (b[i] - a[i]) / l);
+  const fpos = pos.map((x, i) => x + dir[i] * HOLA.FRANJA.delante * escala);
+  const fesc = HOLA.FRANJA.largoPx / pxU(fpos);
+  const zc = HOLA.Z_OJO + HOLA.COSAS_DELANTE * escala;
+  return {
+    pos, escala, rot: haciaCamara(P, pos), pxLocal, dirCam: dir,
+    franja: { pos: fpos, escala: fesc, rot: haciaCamara(P, fpos), alto: HOLA.FRANJA.medioAltoPx / (fesc * pxU(fpos)), y: P.proyectar(fpos)[1] },
+    fin: { arriba: cierreParaAbertura(HOLA.RENDIJA_FIN_PX / pxLocal, 'arriba'), abajo: cierreParaAbertura(-HOLA.RENDIJA_FIN_PX / pxLocal, 'abajo') },
+    cosas: HOLA.COSAS.map((c) => { const p = P.punto(c.x, c.y, zc); return { ...c, variante: COSA[c.cosa], pos: p, escala: c.d / (2 * 0.5 * pxU(p)) }; }),
+  };
+}
+/**
+ * El último fotograma de ep3-hola sin Atom ni post (un lienzo del tamaño del de WebGL), para empezar ep3-ojo con él.
+ * piezas: los índices en P de { ojo, franja, cosa } (tipos de tiposOjo, con 'celula', 'atomo' y 'galaxia' entre las
+ * cosas). fotos (opcional): { globo, cerrado, franja, cosasApagadas: [3 lienzos] } ya pintadas con esta receta, para no
+ * pintarlas otra vez. Pinta con P (limpia sus piezas) y deja los uniformes del ojo en el estado final.
+ */
+export function pintarFinalHola(P, U, piezas, { fotos = {} } = {}) {
+  const E = encuadreHola(P);
+  const gl = P.renderer.domElement;
+  const nuevo = () => { const c = document.createElement('canvas'); c.width = gl.width; c.height = gl.height; return c; };
+  const foto = () => { const c = nuevo(); c.getContext('2d').drawImage(gl, 0, 0); return c; };
+  const ojo = (estado, capa, nf) => {
+    ponerOjo(U, { ...estado, pupila: HOLA.PUPILA, sombra: false });
+    P.limpiar(); P.pieza(piezas.ojo, { pos: E.pos, escala: E.escala, rot: E.rot, variante: capa }); P.render(nf, { fondo: false });
+    return foto();
+  };
+  const globo = fotos.globo ?? ojo(HOLA.ABRE, CAPA.GLOBO, HOLA.NF.globo);
+  const apagadas = fotos.cosasApagadas ?? E.cosas.map((c) => {
+    P.limpiar(); P.pieza(piezas.cosa, { pos: c.pos, escala: c.escala, rot: c.rot, variante: c.variante, color: 0 }); P.render(HOLA.NF.cosas, { fondo: false });
+    const on = foto(), off = nuevo(), go = off.getContext('2d');
+    go.filter = HOLA.APAGADA; go.drawImage(on, 0, 0); go.filter = 'none';
+    return off;
+  });
+  const franja = fotos.franja ?? (() => {
+    P.limpiar(); P.pieza(piezas.franja, { pos: E.franja.pos, escala: E.franja.escala, rot: E.franja.rot, variante: E.franja.alto }); P.render(HOLA.NF.franja, { fondo: false });
+    return foto();
+  })();
+  const cerrado = fotos.cerrado ?? ojo(E.fin, CAPA.PARPADOS, HOLA.NF.cerrado);
+  ponerOjo(U, { ...E.fin, pupila: HOLA.PUPILA, sombra: false });
+  P.limpiar();
+  const c = nuevo(), g = c.getContext('2d'), k = c.width / 1920;
+  g.fillStyle = '#0b0807'; g.fillRect(0, 0, c.width, c.height);
+  g.drawImage(globo, 0, 0);
+  for (const off of apagadas) g.drawImage(off, 0, 0);
+  g.drawImage(sombraParpados(cerrado, HOLA.SOMBRA), 0, 0);
+  g.drawImage(cerrado, 0, 0);
+  vinetaOjo(g, 1);
+  g.drawImage(franja, 0, 0);
+  g.setTransform(k, 0, 0, k, 0, 0);
+  const h = HOLA.HALO;
+  resplandorFranja(g, h.x0, h.x1, E.franja.y, h.alto, h.fuerza);
+  const s = HOLA.SOMBRA_ATOM;
+  const gr = g.createRadialGradient(s.x, s.y, s.r0, s.x, s.y, s.r1);
+  gr.addColorStop(0, `rgba(${s.color},${s.alfa})`); gr.addColorStop(1, `rgba(${s.color},0)`);
+  g.fillStyle = gr; g.fillRect(s.x - s.r1 - 10, s.y - s.r1 - 10, 2 * s.r1 + 20, 2 * s.r1 + 20);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  return c;
 }

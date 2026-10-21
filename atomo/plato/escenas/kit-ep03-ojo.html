@@ -14,12 +14,13 @@
 //   4 capa GLOBO · 5 capa PARPADOS (sobre un damero: por la rendija se ve lo de detrás) · 6 ojo casi cerrado sobre la
 //   franja (el final de ep3-hola) · 7 dos franjas (ancha y borde fino) · 8–13 las seis cosas · 14 las seis cosas,
 //   apagándose de izquierda a derecha (0 → 1) · 15 ojo en corte, puntos separados con sus haces · 16 puntos fundidos
-//   (separación 1) · 17 corte en espejo (variante 1), sin haces, separación 3
+//   (separación 1) · 17 corte en espejo (variante 1), sin haces, separación 3 · 18 pintarFinalHola: el último fotograma
+//   de ep3-hola sin Atom ni post (el primero de ep3-ojo)
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
-import { tiposOjo, uniformesOjo, ponerOjo, ponerCorte, CAPA, COSA, haciaCamara, resplandorFranja, cierreParaAbertura } from '/atomo/plato/kits/ep03-ojo.js';
+import { tiposOjo, uniformesOjo, ponerOjo, ponerCorte, CAPA, COSA, haciaCamara, resplandorFranja, cierreParaAbertura, pintarFinalHola } from '/atomo/plato/kits/ep03-ojo.js';
 
-const N = 18;
+const N = 19;
 window.ESCENA ??= { id: 'kit-ep03-ojo', duracion: N, marcas: {}, voz: [0, 0], fps: 12 };
 const E = await escena('kit-ep03-ojo', 'cosmos');
 const vistaFija = new URLSearchParams(location.search).get('vista');
@@ -54,6 +55,12 @@ function dibujar(t) {
   ponerOjo(UO, {});
   ponerCorte(UO, {});
   let fondo = true, damero = false, franja = null;
+  if (v === 18) {
+    const c = pintarFinalHola(P, UO, { ojo: I.OJO, franja: I.FR0, cosa: I.COSA });
+    g.clearRect(0, 0, W, H); g.drawImage(c, 0, 0, W, H);
+    POST.aplicar(g, v);
+    return;
+  }
   if (v <= 6) {
     const est = [
       {}, { arriba: 0.5, abajo: 0.5, mirada: [0.6, 0.35], pupila: 0.85 }, { arriba: 1, abajo: 1 }, { arriba: 0.25, entorna: 1 },

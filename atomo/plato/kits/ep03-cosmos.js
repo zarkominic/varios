@@ -56,7 +56,7 @@
 //  · varianteMundo(z): 'cerca' · 'lejos' · 'sol' · 'sistema' · 'espacio' (el sombreador que toca a esa escala).
 //
 // ENCIMA DEL MUNDO (2D, en un lienzo entre el mundo y el plató; g con la transformación de 1920 × 1080)
-//  · brilloCiudad(g, C, k, { radioMin: 9, fuerza: 1 }): el halo cálido sobre la ciudad (centro MUNDO.CIUDAD, radio
+//  · brilloCiudad(g, C, k, { radioMin: 11, fuerza: 1 }): el halo cálido sobre la ciudad (centro MUNDO.CIUDAD, radio
 //    MUNDO.R_CIUDAD), que se enciende con k (0…1). A 10⁴ cubre la ciudad entera con un resplandor ámbar y un borde
 //    suave; de lejos no baja de radioMin px (a 10⁷ es un punto cálido en el centro de la Tierra).
 //  · tierrasQueCaen(g, sprite, { t, gotas, sol: [x, y, R], rTierra, fuga }): las Tierras que caen en el Sol «como gotas
@@ -113,6 +113,13 @@
 // Cinta tendida de 1.200 px: ~0,4 s. Lo 2D (brillo, gotas, sprites), unos milisegundos.
 //
 // CONGELADO el 21-10-2026 con su hoja de prueba (escenas/ep03-cosmos-hoja.html).
+// CAMBIOS DESPUÉS DE CONGELARLO (21-10-2026, de ep3-tierra; ep3-sol y ep03-estrellas-hoja ya importan esta versión,
+// así que su API no se vuelve a tocar): HUECO.tierra pasa de [185, 450] a [165, 430] (la Luna, lejos del marcador de la
+// regla); largoAqui encoge más despacio (10^(−0,14·(zr − 1)) en vez de −0,16); brilloCiudad: radioMin por defecto 11 (era
+// 9), el suelo de alrededor se apaga un poco y de lejos queda una cuenta de luz en el centro; nuevo brilloLuna; gotasTierras
+// y tierrasQueCaen: las tres primeras gotas más lentas y hacia el centro, gotas más pequeñas y ondas sin filtros de canvas;
+// Urano algo más verde y las nubes de Neptuno más finas. En la revisión de ep3-tierra solo se tocó esta cabecera (esta
+// nota y el radioMin de brilloCiudad, que decía 9); el código, no.
 import * as THREE from 'three';
 import { crearMundo as crearMundoKit } from '/atomo/plato/kits/plastilina-cosmos-adulta.js';
 

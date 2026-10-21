@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kit pixel ep03 · demo</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #04030a; overflow: hidden; }
+  canvas { display: block; position: fixed; inset: 0; }
+</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Demo y hoja de prueba de kits/pixel-ep03.js. Cada tramo enseña una pieza:
+//  0–5 s    plató, cartela «0» (0–1,2 s), persona de pie, Atom presentador hablando, regla: corre de 10⁰ a 10⁻⁴
+//  5–9 s    las posturas: de pie · niño · sostener (con una regla de boj entre cuerpo y dedos) · señalar · saludar · mirar arriba
+//  9–12 s   Atom en cuatro tamaños sobre el cielo con paralaje (el grande saluda con el electrón del alambre)
+//  12–15 s  la regla se comprime hasta verse entera (niebla abajo, red arriba) y un «?» la recorre hacia arriba
+//  15–18 s  números y símbolos, rampas de la paleta y degradados tramados
+//  18–21 s  la cara de cerca (ojos con iris, parpadeo, mirada) y mirar arriba
+//  21–23 s  andar en tres cuartos
+//  23–26 s  guías de HUMANO.md: adulto de 200 px en (170, 245) y niño de 150 px en (380, 245) sobre fondo liso
+//  26–29 s  la mano suelta (se acerca a una silla sin tocarla) y forma(): silla, monedas y una placa
+import { escena } from '/atomo/plato/escena.js';
+import { crearPixel } from '/atomo/plato/kits/pixel-ep03.js';
+
+if (!window.ESCENA) window.__escenaDemo = true;
+const E0 = window.ESCENA ?? { id: 'px-kit-demo', duracion: 29, marcas: {}, voz: [0.5, 28.4], fps: 30, cartela: '0' };
+window.ESCENA = E0;
+const E = await escena('px-kit-demo', 'ep03px');
+const PX = crearPixel(document.getElementById('lienzo'));
+const { PAL } = PX;
+const plato = PX.crearPlato({ focoX: 260 });
+const cielo = PX.crearCielo({ semilla: 9 });
+
+function reglaBoj(xa, xb, y, alto = 4) {
+  // listón de boj con marcas (sin números)
+  for (let x = Math.round(xa); x <= Math.round(xb); x++) for (let k = 0; k < alto; k++) {
+    const v = k === 0 ? 4.4 : k === alto - 1 ? 1.4 : 3.1 + 0.4 * PX.vnoise(x * 0.4, k);
+    PX.pset(x, Math.round(y) + k, PX.tono(PAL.BOJ, v, x, k));
+    if (k === 1 && (x - Math.round(xa)) % 3 === 0) PX.pset(x, Math.round(y) + k, PAL.BOJ[1]);
+  }
+  PX.rect(xa - 1, y, xa - 1, y + alto - 1, PAL.BOJ[0]); PX.rect(xb + 1, y, xb + 1, y + alto - 1, PAL.BOJ[0]);
+}
+
+function dibujar(t) {
+  const en = E.energia(t);
+  if (t < 5) {
+    plato.dibujar({ t });
+    PX.persona({ x: 153, y: 214, altura: 118, pose: 'depie', t });
+    const e = t < 2.5 ? 0 : -4 * PX.entraSale((t - 2.5) / 2);
+    PX.regla({ e, actual: Math.round(e), t, aparece: PX.sale((t - 1.2) / 0.8) });
+    PX.atom({ ...PX.ATOM_SITIO, t, energia: en, saludo: t > 1.4 && t < 3.2 ? PX.suave(1.4, 1.8, t) * (1 - PX.suave(2.8, 3.2, t)) : 0 });
+    PX.cartela(t, E.cartela);
+  } else if (t < 9) {
+    plato.dibujar({ t, camX: 80 });
+    const y = 222, Hd = 104;
+    PX.persona({ x: 48, y, altura: Hd, pose: 'depie', t, giro: 0.25 });
+    PX.persona({ x: 106, y, altura: Hd * 0.72, pose: 'depie', t, aspecto: 'nino' });
+    const so = { x: 172, y, altura: Hd, pose: 'sostener', t };
+    PX.persona({ ...so, partes: 'sinManos' });
+    const an = PX.persona({ ...so, partes: 'manos', sombra: 0 });
+    reglaBoj(an.manos[0][0] - 26, an.manos[1][0] + 26, Math.round((an.manos[0][1] + an.manos[1][1]) / 2) - 2);
+    PX.persona({ ...so, partes: 'manos', sombra: 0 });
+    PX.persona({ x: 250, y, altura: Hd, pose: 'señalar', apunta: [330 + 20 * Math.sin(t), 40], t });
+    PX.persona({ x: 330, y, altura: Hd, pose: 'saludar', t, lado: 1 });
+    PX.persona({ x: 410, y, altura: Hd, pose: 'mirarArriba', t });
+    PX.atom({ x: 444, y: 30, r: 9, t, energia: en });
+  } else if (t < 12) {
+    const camX = (t - 9) * 28;
+    PX.limpiar(PAL.NOCHE[0]);
+    cielo.dibujar({ camX, t });
+    PX.atom({ x: 50, y: 150, r: 7, t, energia: en });
+    PX.atom({ x: 110, y: 150, r: 13, t, energia: en });
+    PX.atom({ x: 200, y: 145, r: 22, t, energia: en, brillo: PX.suave(9.5, 9.8, t) * (1 - PX.suave(10.6, 11, t)) });
+    PX.atom({ x: 350, y: 140, r: 42, t, energia: en, saludo: PX.suave(9.3, 9.8, t) });
+  } else if (t < 15) {
+    plato.dibujar({ t });
+    PX.persona({ x: 153, y: 214, altura: 118, pose: 'depie', t });
+    const ent = PX.entraSale((t - 12.3) / 1.5);
+    const R = PX.regla({ e: 0, entera: ent, actual: 0, marca: 0, t });
+    if (t > 13.8) {
+      const ee = Math.min(27, (t - 13.8) * 22);
+      const y = Math.round(R.y(ee));
+      PX.texto('?', R.x + 15, y - 3, { esc: 2, rampa: PAL.CREMA, sombra: PAL.TINTA });
+    }
+    PX.atom({ ...PX.ATOM_SITIO, t, energia: en });
+  } else if (t < 18) {
+    PX.limpiar(PAL.NOGAL[1]);
+    PX.degradado(0, 0, 479, 269, PAL.NOGAL, (x, y) => 1.2 + 0.8 * PX.fbm(x * 0.02, y * 0.02), 1);
+    PX.texto('0123456789 −+½?!✓✗→←↑↓×°%.:/=≈', 12, 12, {});
+    PX.texto('0123456789 −+½?!✓✗', 12, 26, { esc: 2 });
+    PX.texto('10^−35 m  10^−4 m  10^0 m  10^27 m  12 km  24 h  60 s  23½°', 12, 50, { esc: 1, color: PAL.CREMA[5] });
+    PX.texto('10^−4 m', 12, 66, { esc: 2, rampa: PAL.AMBAR, sombra: PAL.NOGAL[0] });
+    PX.texto('1962', 140, 66, { esc: 2, color: PAL.CREMA[4] });
+    PX.texto('−35', 12, 92, { esc: 6, rampa: PAL.AMBAR, sombra: PAL.NOGAL[0], contorno: PAL.NOGAL[0] });
+    PX.texto('+21', 150, 92, { esc: 6, rampa: PAL.AMBAR, sombra: PAL.NOGAL[0], contorno: PAL.NOGAL[0] });
+    PX.texto('½', 290, 92, { esc: 6, rampa: PAL.AMBAR, sombra: PAL.NOGAL[0], contorno: PAL.NOGAL[0] });
+    PX.texto('✓', 360, 92, { esc: 5, rampa: PAL.CREMA, sombra: PAL.NOGAL[0], contorno: PAL.NOGAL[0] });
+    PX.texto('?', 420, 92, { esc: 6, rampa: PAL.CREMA, sombra: PAL.NOGAL[0], contorno: PAL.NOGAL[0] });
+    const rampas = ['TELON', 'SUELO', 'NOCHE', 'ESTRELLA', 'NEBULOSA', 'LATON', 'TERRACOTA', 'CREMA', 'AMBAR', 'PIEL', 'PELO', 'JERSEY', 'CAQUI', 'ZAPATO', 'OJO', 'BOJ', 'NOGAL', 'NIEBLA'];
+    rampas.forEach((n, i) => {
+      const x0 = 12 + (i % 9) * 52, y0 = 160 + Math.floor(i / 9) * 22;
+      PAL[n].forEach((c, k) => PX.rect(x0 + k * 4, y0, x0 + k * 4 + 3, y0 + 14, c));
+    });
+    PX.degradadoV(12, 210, 140, 222, PAL.TELON, 0, 11);
+    PX.degradado(150, 210, 300, 222, PAL.NOCHE, (x) => (x - 150) / 150 * 9);
+    PX.degradadoRadial(340, 216, 14, PAL.AMBAR, 5, 0);
+    PX.luz(420, 216, 26, PAL.AMBAR[3], 0.8);
+    PX.niebla(440, 196, 476, 230, t);
+  } else if (t < 21) {
+    plato.dibujar({ t, camX: 60 });
+    const u = PX.suave(19.6, 20.3, t) * (1 - PX.suave(20.6, 20.9, t));
+    const mira = t < 18.8 ? [0, 0] : t < 19.4 ? [0.8, 0] : [-0.6, 0.2];
+    PX.persona({ x: 250, y: 900, altura: 840, pose: { de: 'depie', a: 'mirarArriba', u }, t, mira: u > 0.5 ? [0, -1] : mira, sombra: 0, parpadeo: t > 19.2 && t < 19.3 ? 1 : 0 });
+    PX.persona({ x: 60, y: 236, altura: 300, pose: 'depie', t, cabeza: { giro: 0.3 }, mira: [0.6, 0], sombra: 0 });
+    PX.atom({ ...PX.ATOM_SITIO, x: 440, y: 200, t, energia: en });
+  } else if (t < 23) {
+    plato.dibujar({ t });
+    const u = (t - 21) / 2;
+    PX.persona({ x: Math.round(50 + u * 220), y: 214, altura: 118, pose: 'andar', t, giro: 0.55, fase: PX.paso(t, 12) * Math.PI * 2 * 0.95 });
+    PX.atom({ ...PX.ATOM_SITIO, t, energia: en });
+  } else if (t < 26) {
+    PX.limpiar(PAL.TELON[3]);
+    PX.persona({ x: 170, y: 245, altura: 200, pose: 'depie', t, vida: false, sombra: 0 });
+    PX.persona({ x: 380, y: 245, altura: 150, pose: 'depie', t, vida: false, sombra: 0, aspecto: 'nino' });
+  } else {
+    plato.dibujar({ t, camX: 120 });
+    // silla con forma(): respaldo, asiento y patas de madera
+    const rr = (cx, cy, hw, hh, r) => (x, y) => { const qx = Math.abs(x - cx) - hw + r, qy = Math.abs(y - cy) - hh + r; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r; };
+    const veta = (x, y, v) => v + 0.35 * Math.sin(y * 0.5 + 3 * PX.vnoise(x * 0.05, y * 0.2));
+    PX.sombra(300, 236, 60, 7, 0.55);
+    for (const lx of [258, 336]) PX.forma({ x0: lx - 4, y0: 170, x1: lx + 4, y1: 236, sdf: rr(lx, 203, 3.5, 33, 2), rampa: PAL.BOJ, lo: 0.8, hi: 4, grosor: 3, textura: veta });
+    PX.forma({ x0: 250, y0: 60, x1: 350, y1: 176, sdf: rr(300, 118, 46, 56, 8), rampa: PAL.BOJ, lo: 0.8, hi: 4.4, grosor: 6, textura: veta });
+    PX.forma({ x0: 240, y0: 160, x1: 360, y1: 186, sdf: rr(300, 173, 58, 11, 5), rampa: PAL.BOJ, lo: 1, hi: 4.8, grosor: 5, textura: veta });
+    // la mano se acerca y se para sin llegar
+    const u = PX.sale((t - 26.2) / 1.6);
+    const m = PX.mano({ x: Math.round(PX.mezcla(-20, 150, u)), y: 140, largo: 92, angulo: 0.12, tipo: 'abierta', manga: 1 });
+    if (u > 0.95) PX.texto('✗', 236, 112, { esc: 3, rampa: PAL.AMBAR, contorno: PAL.TINTA });
+    // monedas
+    for (let k = 0; k < 6; k++) PX.forma({ x0: 380, y0: 220 - k * 5 - 6, x1: 420, y1: 220 - k * 5 + 6, sdf: (x, y) => Math.hypot((x - 400) / 18, (y - (220 - k * 5)) / 5) * 5 - 5, rampa: PAL.LATON, lo: 1.5, hi: 5.5, grosor: 2, textura: (x, y, v, d) => v + (d > -1.2 ? -0.8 : 0) });
+    PX.atom({ ...PX.ATOM_SITIO, t, energia: en });
+  }
+  PX.presentar(t);
+}
+E.iniciar(dibujar);
+</script>
+</body>
+</html>
