@@ -32,6 +32,8 @@ import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, azar, postura 
 import { tiposOjo, uniformesOjo, ponerOjo, CAPA, COSA, haciaCamara, resplandorFranja, cierreParaAbertura, aberturaOjo } from '/atomo/plato/kits/ep03-ojo.js';
 
 const E = await escena('ep3-hola', 'ep03');
+const __c0 = performance.now(); window.__carga = {};
+const cargaT = (k) => { window.__carga[k] = Math.round(performance.now() - __c0); };
 const M = (k) => E.marca(k);
 const m = {
   hola: M('hola'), holaFin: M('hola_fin'), crees: M('crees'), creesFin: M('crees_fin'),
@@ -39,7 +41,6 @@ const m = {
 };
 const D = E.duracion, QUIETO = D - 0.6;
 const W = 1920, H = 1080;
-const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
 function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
 
 // ---------------------------------------------------------------- tiempos (todo sale de las marcas)
@@ -124,6 +125,7 @@ const P = await crearPlato({
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
 });
 const POST = crearPost();
+cargaT('plato');
 const en = (sx, sy, z) => P.punto(sx, sy, z);
 const pant = (p) => P.proyectar(p);
 // px de pantalla por unidad del mundo a la profundidad de pos
@@ -373,13 +375,19 @@ function personaMedio(ts) {
 // pinta en vivo en cada fotograma (sin fondo), más grande y algo más cerca de la cámara: la cara nunca se amplía en 2D. El
 // fondo es la foto del plano medio sin la persona (con su sombra en el ciclorama), ampliada en 2D con el mismo zum (es un
 // fondo desenfocado y enseguida lo tapa la cabeza). El zum (en logaritmo) arranca suave y sigue a velocidad constante;
-// en T.mir0 su ojo izquierdo está en el centro y la cabeza mide unos 1380 px, y ahí se abre el ojo enorme del kit (ver
-// abajo) con el iris en el sitio y del tamaño de la pupila de plastilina.
-const EMP = { Z: 4.6, DZ: 0.5, A: 0.45 };
+// en T.mir0 su ojo izquierdo está en el centro y la cabeza mide unos 660 px (más cerca, la cabeza de plastilina deja de
+// aguantar: sombras y nariz borrosas), y ahí se abre el ojo enorme del kit (ver abajo) con el iris en el sitio y del
+// tamaño de la pupila de plastilina.
+const EMP = { Z: 2.2, DZ: 0.35, A: 0.45 };
 const empE = (u) => { const a = EMP.A; u = cl(u); return (u < a ? (u * u) / (2 * a) : u - a / 2) / (1 - a / 2); };
 // velocidad del zum al llegar a T.mir0 (logaritmo por segundo): la sigue la cara y con ella arranca el ojo enorme
 const EMP_V = Math.log(EMP.Z) / (1 - EMP.A / 2) / (T.mir0 - T.empuje);
-const zumCara = (ts) => (ts <= T.mir0 ? Math.log(EMP.Z) * empE(prog(ts, T.empuje, T.mir0)) : Math.log(EMP.Z) + EMP_V * (ts - T.mir0));
+// (después de T.mir0, mientras la mirilla la tapa, la cara frena: medio segundo con la velocidad bajando hasta 0)
+const zumCara = (ts) => {
+  if (ts <= T.mir0) return Math.log(EMP.Z) * empE(prog(ts, T.empuje, T.mir0));
+  const d = T.mir1 - T.mir0, w = prog(ts, T.mir0, T.mir1);
+  return Math.log(EMP.Z) + EMP_V * d * (w - w * w / 2);
+};
 // ---------------------------------------------------------------- el ojo (kit ep03-ojo)
 const Z_OJO = 5.0;
 const OJO_POS = en(960, 540, Z_OJO);
@@ -426,42 +434,97 @@ const FOTO_PLATO = foto();
   // y una vez la persona con la regla y el fondo (el primer fotograma que los pinta pagaba ~1,5 s de más)
   P.limpiar(); personaGeneral(T.entra1 + 0.5); P.render(9011);
 }
-// las posturas del plano medio y de la cabeza (solo el esqueleto: sin pintar) para encajar el empuje
+// el plano medio en su último instante (solo el esqueleto: sin pintar) para encajar el empuje: el centro de los ojos y su
+// ojo izquierdo (a la derecha de la pantalla), en el mundo
 P.limpiar(); personaMedio(T.empuje);
 const H_MEDIO = P.humano(I.PER);
-const OJOS_MEDIO = pant(H_MEDIO.punto('ojos'));
-const poseCara = () => P.pieza(I.PER, { pos: CARA.pos, escala: CARA.esc, rot: [0, 0.06, 0], postura: poseMedio(T.empuje), t: T.empuje, huellaFija: [0.37, 0.21, 0.0] });
-P.limpiar(); poseCara();
-const H_CARA = P.humano(I.PER);
-const OJOS_CARA = pant(H_CARA.punto('ojos'));
-// su ojo izquierdo (a la derecha de la pantalla): 0,044 de la cabeza hacia su izquierda
-const OJO_IZQ_CARA = pant(H_CARA.mundo([0.044, 0.611, 0.11]));
-// cuánto más grande es la cabeza en su foto que en el plano medio
-const R_CARA = (CARA.esc * pxU(H_CARA.punto('ojos'))) / (MED.esc * pxU(H_MEDIO.punto('ojos')));
+const OJOS_W = H_MEDIO.punto('ojos');
+const OJO_IZQ_W = (() => { const a = H_MEDIO.mundo([0, 0, 0]), b = H_MEDIO.mundo([0.044, 0, 0.003]); return OJOS_W.map((v, i) => v + b[i] - a[i]); })();
+const OJOS_MEDIO = pant(OJOS_W);
 const Y_FRANJA = pant(FR_POS)[1];
+// el empuje en el instante ts (hasta T.mir0): zum Z, el ancla (del centro de los ojos a su ojo izquierdo) en el plano
+// medio (a0, px) y dónde va (c, px), y la colocación de la persona: escalada s veces alrededor del ancla y llevada, algo
+// más cerca de la cámara, al punto del mundo que cae en c
+function estadoEmpuje(ts) {
+  const L = zumCara(Math.min(ts, T.mir0)), Z = Math.exp(L);
+  const k = eio(prog(ts, T.empuje + 0.04, T.mir0));
+  const A0 = OJOS_W.map((v, i) => mix(v, OJO_IZQ_W[i], k));
+  const a0 = pant(A0);
+  const c = [mix(a0[0], 960, k), mix(a0[1], 540, k)];
+  const Wp = en(c[0], c[1], A0[2] + EMP.DZ * L / Math.log(EMP.Z));
+  const s = (Z * pxU(A0)) / pxU(Wp);
+  return { Z, a0, c, s, Wp, pos: MED.pos.map((v, i) => Wp[i] + s * (v - A0[i])), esc: s * MED.esc };
+}
+function personaEmpuje(ts) {
+  const e = estadoEmpuje(ts);
+  const tz = calma(ts);
+  const resp = 0.006 * Math.sin(tz * 2.4);
+  const h = P.pieza(I.PER, { pos: e.pos, escala: e.esc, sq: [1, 1 + resp, 1], rot: [0, 0.06, 0], postura: poseMedio(T.empuje), t: ts, huellaFija: [0.37, 0.21, 0.0] });
+  uListon.value.x = 1; uListon.value.y = 1;
+  ponerRegla(h, MED.reg * e.s, 0.25);
+  return { e, h };
+}
+// el ojo enorme sale de la pupila de plastilina de su ojo izquierdo: en T.mir0 su iris (radio vertical 0,338 del globo)
+// mide lo que esa pupila (radio 0,0115 de la cabeza) y la mirilla, lo que el blanco (0,0165)
+const IRIS_PX = (() => { const p = OJO_POS.map((v, i) => v + dirCam[i] * 0.62 * OJO_ESC); return 0.338 * OJO_ESC * pxU(p); })();
+const MIR = (() => {
+  P.limpiar();
+  const { e } = personaEmpuje(T.mir0);
+  P.limpiar();
+  const pxCabeza = e.esc * pxU(e.Wp);
+  return { zo0: (0.0115 * pxCabeza) / IRIS_PX, r0: 0.0165 * pxCabeza, cabezaPx: 0.33 * pxCabeza };
+})();
+// tamaño del ojo enorme (zo) de T.mir0 a T.ojoZ: en logaritmo, una curva de Hermite que arranca a la velocidad del zum de
+// la cara (la pupila y el iris crecen juntos) y llega quieta a zo = 1
+function zumOjo(ts) {
+  if (ts >= T.ojoZ) return 1;
+  const d = T.ojoZ - T.mir0, u = prog(ts, T.mir0, T.ojoZ);
+  const L0 = Math.log(MIR.zo0), m0 = EMP_V * d;
+  const h00 = 2 * u ** 3 - 3 * u ** 2 + 1, h10 = u ** 3 - 2 * u ** 2 + u;
+  return Math.exp(h00 * L0 + h10 * m0);
+}
+// la mirilla: del blanco de plastilina a toda la pantalla, sin salirse nunca de la losa de piel del ojo enorme
+function radioMirilla(ts, zo) {
+  const w = prog(ts, T.mir0, T.mir1);
+  const r = mix(MIR.r0 * zo / MIR.zo0, 1120, Math.pow(eio(w), 1.6));
+  return Math.min(r, 0.85 * 2.3 * pxLocalOjo * zo);
+}
 
-// Las demás fotos se hacen la primera vez que hacen falta, repartidas entre los fotogramas baratos del empuje (así la
-// carga es corta y ningún fotograma pasa del límite): FOTOS[k]() la devuelve y, si no está, la pinta. El renderizador va
-// en orden; si se empieza a mitad (reanudar), el primer fotograma pinta de una vez las que le falten.
+// Las fotos se pintan al cargar (antes, la primera vez que hacían falta: un fotograma suelto a mitad de escena pagaba
+// todas de golpe). FOTOS[k]() la devuelve.
 const FOTOS = {};
 const perezosa = (k, desde, hacer) => { let v = null; FOTOS[k] = Object.assign(() => v ?? (v = hacer()), { desde }); };
-// el plano medio en su último instante (persona mirando a cámara, regla doblada), sin Atom
-perezosa('medio', T.empuje, () => { P.limpiar(); personaMedio(T.empuje); P.render(9002); return foto(); });
-// la cabeza de cerca, mirando a cámara
-perezosa('cara', T.empuje + 0.08, () => { P.limpiar(); poseCara(); P.render(9003); return foto(); });
+// el fondo del empuje: el plano medio en su último instante sin la persona ni la regla (con su sombra en el ciclorama):
+// fuera de su silueta (algo engordada), la foto del plano medio; dentro, la del plató vacío
+perezosa('fondoMedio', T.empuje, () => {
+  P.limpiar(); personaMedio(T.empuje); P.render(9002);
+  const medio = foto();
+  P.limpiar(); personaMedio(T.empuje); P.render(9002, { fondo: false });
+  const silueta = foto();
+  const kd = medio.width / W, gm = medio.getContext('2d');
+  gm.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < 8; i++) { const a = (i * Math.PI) / 4; gm.drawImage(silueta, Math.round(4 * kd * Math.cos(a)), Math.round(4 * kd * Math.sin(a))); }
+  gm.drawImage(silueta, 0, 0);
+  const c = lienzo(), gc = c.getContext('2d');
+  gc.drawImage(FOTO_PLATO, 0, 0); gc.drawImage(medio, 0, 0);
+  return c;
+});
+// la cara en T.mir0 (el final del empuje): durante la mirilla se sigue ampliando en 2D, frenando (hasta ×1,4 al final,
+// cuando ya casi no se ve)
+perezosa('caraFin', T.empuje, () => { const c = lienzo(); pintarCara(T.mir0, c.getContext('2d'), 9003); return c; });
 // el ojo: el globo solo y los párpados abiertos (sin sombra en la cara; la de los párpados sobre el globo va en 2D)
-perezosa('globo', T.empuje + 0.16, () => {
+perezosa('globo', T.empuje, () => {
   ponerOjo(UO, { ...ABRE, pupila: 0.55, sombra: false });
   P.limpiar(); P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.GLOBO }); P.render(9004, { fondo: false });
   return foto();
 });
-perezosa('parpados', T.empuje + 0.25, () => {
+perezosa('parpados', T.empuje, () => {
   ponerOjo(UO, { ...ABRE, pupila: 0.55, sombra: false });
   P.limpiar(); P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS }); P.render(9005, { fondo: false });
   return foto();
 });
 // las cosas, encendidas; apagadas, la misma foto oscurecida y sin color
-perezosa('cosas', T.empuje + 0.33, () => {
+perezosa('cosas', T.empuje, () => {
   for (const c of COSAS) {
     const pos = en(c.x, c.y, Z_COSA);
     const esc = c.d / (2 * 0.5 * pxU(pos));
@@ -474,18 +537,16 @@ perezosa('cosas', T.empuje + 0.33, () => {
   return true;
 });
 // la franja encendida (al aparecer se estira desde el centro en 2D)
-perezosa('franja', T.empuje + 0.41, () => {
+perezosa('franja', T.empuje, () => {
   P.limpiar(); P.pieza(I.FR, { pos: FR_POS, escala: FR_ESC, rot: haciaCamara(P, FR_POS), variante: FR_ALTO }); P.render(9007, { fondo: false });
   return foto();
 });
 // los párpados ya casi cerrados sobre la franja (el final)
-perezosa('cerrado', T.empuje + 0.5, () => {
+perezosa('cerrado', T.empuje, () => {
   ponerOjo(UO, estadoOjo(D));
   P.limpiar(); P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS }); P.render(9008, { fondo: false });
   return foto();
 });
-// las que tocan en este instante (y las anteriores que falten)
-function prepararFotos(ts) { for (const f of Object.values(FOTOS)) if (ts >= f.desde) f(); }
 // la zona de los párpados (px de diseño: x0, y0, x1, y1) y el remiendo: la foto de la cara con esa zona pintada de
 // nuevo, con el borde fundido (la exposición y el hervor de cada fotograma no dejan costura)
 const ZONA = [190, 0, 1730, 905], BORDE = 48;
@@ -544,7 +605,7 @@ function componerOjo(ts, parpados, nf) {
   gc.fillStyle = '#0b0807'; gc.fillRect(0, 0, OJO_CAPA.width, OJO_CAPA.height);
   gc.drawImage(FOTOS.globo(), 0, 0);
   FOTOS.cosas();
-  const vis = eoc(prog(ts, T.mir0 + 0.15, T.ojo1 + 0.25));
+  const vis = eoc(prog(ts, T.ojoZ - 0.05, T.ojoZ + 0.5));
   for (const c of COSAS) {
     const [a0, a1] = c.lado === 'abajo' ? [T.abajo0 - 0.05, T.abajo1 - 0.15] : [T.arriba0 - 0.05, T.arriba1 - 0.25];
     const ap = eio(prog(ts, a0, a1));
@@ -554,14 +615,46 @@ function componerOjo(ts, parpados, nf) {
   gc.globalAlpha = 1;
   gc.drawImage(sombraParpados(parpados), 0, 0);
   gc.drawImage(parpados, 0, 0);
-  // la piel de la cara se apaga hacia los bordes: la mirada va a la rendija
-  const k = OJO_CAPA.width / W;
-  gc.setTransform(k * 1.6, 0, 0, k, 0, 0);
-  const gr = gc.createRadialGradient(600, 540, 0, 600, 540, 820);
-  gr.addColorStop(0, 'rgba(12,7,5,0)'); gr.addColorStop(0.3, 'rgba(12,7,5,0.03)'); gr.addColorStop(0.6, 'rgba(12,7,5,0.2)'); gr.addColorStop(1, 'rgba(12,7,5,0.6)');
-  gc.fillStyle = gr; gc.fillRect(0, 0, 1200, 1080);
-  gc.setTransform(1, 0, 0, 1, 0, 0);
+  vinetaOjo(gc, 1);
   return OJO_CAPA;
+}
+// la piel de la cara se apaga hacia los bordes (la mirada va a la rendija): elipse centrada en el ojo, de 1312 × 820 px
+// por zo; fuera, oscura al 60 % (gc en px de dispositivo)
+function vinetaOjo(gc, zo) {
+  const k = gc.canvas.width / W;
+  gc.save();
+  gc.setTransform(k * 1.6 * zo, 0, 0, k * zo, 960 * k, 540 * k);
+  const gr = gc.createRadialGradient(0, 0, 0, 0, 0, 820);
+  gr.addColorStop(0, 'rgba(12,7,5,0)'); gr.addColorStop(0.3, 'rgba(12,7,5,0.03)'); gr.addColorStop(0.6, 'rgba(12,7,5,0.2)'); gr.addColorStop(1, 'rgba(12,7,5,0.6)');
+  gc.fillStyle = gr; gc.fillRect(-600 / zo, -540 / zo, 1200 / zo, 1080 / zo);
+  gc.restore();
+}
+// el ojo enorme en vivo (entero: globo, párpados y piel en una pasada), del tamaño zo, mientras crece en la mirilla
+const OJO_VIVO = lienzo();
+function ojoVivo(zo, nf) {
+  ponerOjo(UO, { ...ABRE, pupila: 0.55, sombra: false });
+  P.limpiar();
+  P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC * zo, rot: OJO_ROT, variante: CAPA.TODO });
+  P.render(nf, { fondo: false });
+  const gc = OJO_VIVO.getContext('2d');
+  gc.setTransform(1, 0, 0, 1, 0, 0); gc.globalAlpha = 1; gc.globalCompositeOperation = 'source-over';
+  gc.clearRect(0, 0, OJO_VIVO.width, OJO_VIVO.height);
+  gc.drawImage(lienzoGL, 0, 0);
+  vinetaOjo(gc, zo);
+  return OJO_VIVO;
+}
+// la cara durante el empuje: el fondo del plano medio ampliado con el zum y la persona en vivo encima (gx en px de diseño)
+function pintarCara(ts, gx, nf) {
+  P.limpiar();
+  const { e } = personaEmpuje(ts);
+  P.render(nf, { fondo: false });
+  const k = gx.canvas.width / W;
+  gx.save();
+  gx.setTransform(k, 0, 0, k, 0, 0);
+  gx.translate(e.c[0], e.c[1]); gx.scale(e.Z, e.Z); gx.translate(-e.a0[0], -e.a0[1]);
+  gx.drawImage(FOTOS.fondoMedio(), 0, 0, W, H);
+  gx.restore();
+  gx.save(); gx.setTransform(1, 0, 0, 1, 0, 0); gx.drawImage(lienzoGL, 0, 0); gx.restore();
 }
 
 // fotograma
@@ -573,7 +666,6 @@ function dibujar(t) {
   const nf = Math.floor(ts * 12 + 1e-6);
   ajustarCapa();
   P.fotograma(ts);
-  prepararFotos(ts);
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
 
   if (ts < T.entra0) {
@@ -619,9 +711,9 @@ function dibujar(t) {
     POST.aplicar(g, nf);
     return;
   }
-  // ---- E y F: el empuje hasta el ojo y el ojo
-  // los párpados: en vivo solo mientras se mueven; antes y después, sus fotos
-  const conOjo = ts >= T.mir0 - 0.05;
+  // ---- E y F: el empuje hasta su ojo izquierdo y el ojo enorme
+  // los párpados del ojo compuesto: en vivo solo mientras se mueven; antes y después, sus fotos
+  const conOjo = ts >= T.ojoZ;
   let parpados = !conOjo ? null : ts < T.abajo0 ? FOTOS.parpados() : ts > T.arriba1 ? FOTOS.cerrado() : null;
   if (conOjo && !parpados) {
     ponerOjo(UO, estadoOjo(ts));
@@ -639,63 +731,42 @@ function dibujar(t) {
   const ojo = conOjo ? componerOjo(ts, parpados, nf) : null;
   marcaT('componer');
   g.fillStyle = '#0b0807'; g.fillRect(0, 0, W, H);
-  // 1 · el plano medio, que se acerca a la cara (hasta el tamaño de la foto de la cabeza)
-  const u1 = prog(ts, T.empuje, T.cara - 0.12);
-  const z1 = Math.pow(R_CARA, eio(u1));
-  const c1 = [mix(OJOS_MEDIO[0], OJOS_CARA[0], eio(u1)), mix(OJOS_MEDIO[1], OJOS_CARA[1], eio(u1))];
-  const kCara = eio(prog(ts, T.cara - 0.12, T.cara + 0.06));
-  if (kCara < 1) {
-    g.save(); g.translate(c1[0], c1[1]); g.scale(z1, z1); g.translate(-OJOS_MEDIO[0], -OJOS_MEDIO[1]);
-    g.drawImage(FOTOS.medio(), 0, 0, W, H); g.restore();
+  // 1 · la cara: en vivo hasta T.mir0; después, su foto en T.mir0, que se sigue ampliando al mismo ritmo (centrada en su
+  // ojo izquierdo) mientras la mirilla la tapa
+  if (ts < T.mir0) pintarCara(ts, g, nf);
+  else if (ts < T.mir1) {
+    const z = Math.exp(zumCara(ts) - zumCara(T.mir0));
+    g.save(); g.translate(960, 540); g.scale(z, z); g.translate(-960, -540);
+    g.drawImage(FOTOS.caraFin(), 0, 0, W, H); g.restore();
   }
-  // 2 · la cabeza de cerca, que sigue hasta su ojo izquierdo
-  let camCara = null;
-  if (kCara > 0 && ts < T.mir1) {
-    let sc, foco, dest;
-    if (ts < T.cara + 0.06) { sc = Math.max(1, z1 / R_CARA); foco = OJOS_CARA; dest = c1; }
-    else {
-      const v = prog(ts, T.cara + 0.06, T.mir1);
-      sc = Math.pow(3.2, eio(v));
-      foco = [mix(OJOS_CARA[0], OJO_IZQ_CARA[0], eio(v)), mix(OJOS_CARA[1], OJO_IZQ_CARA[1], eio(v))];
-      dest = [mix(OJOS_CARA[0], 960, eio(v)), mix(OJOS_CARA[1], 540, eio(v))];
-    }
-    camCara = { sc, foco, dest };
-    g.save(); g.globalAlpha = kCara;
-    g.translate(dest[0], dest[1]); g.scale(sc, sc); g.translate(-foco[0], -foco[1]);
-    g.drawImage(FOTOS.cara(), 0, 0, W, H); g.restore();
-  }
-  // 3 · la mirilla: se abre en el ojo y deja ver el ojo enorme, que llega y frena
-  if (ojo) {
-    const um = prog(ts, T.mir0, T.mir1);
-    const r = mix(26, 1180, eio(um));
-    const zo = mix(0.5, 1, seco(prog(ts, T.mir0, T.mir1 + 0.08)));
-    // centro: el ojo izquierdo de la cabeza (donde esté en su foto), que llega al centro de la pantalla
-    let cx = 960, cy = 540;
-    if (camCara) {
-      const e = [camCara.dest[0] + camCara.sc * (OJO_IZQ_CARA[0] - camCara.foco[0]), camCara.dest[1] + camCara.sc * (OJO_IZQ_CARA[1] - camCara.foco[1])];
-      const k = eio(prog(um, 0.2, 1));
-      cx = mix(e[0], 960, k); cy = mix(e[1], 540, k);
-    }
-    if (um < 1) {
+  marcaT('cara');
+  // 2 · la mirilla: se abre en la pupila de plastilina y deja ver el ojo enorme, que crece desde su tamaño (iris sobre
+  // iris) hasta el suyo; mientras crece, en vivo y entero; ya llegado, se funde con el compuesto (globo, cosas, párpados)
+  if (ts >= T.mir0) {
+    const zo = zumOjo(ts);
+    const r = ts < T.mir1 ? radioMirilla(ts, zo) : 0;
+    const kComp = ojo ? eio(prog(ts, T.ojoZ, T.mir1 + 0.1)) : 0;
+    if (r > 0) {
       g.save();
-      g.shadowColor = 'rgba(0,0,0,0.7)'; g.shadowBlur = 40; g.fillStyle = '#0b0807';
-      g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
+      g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = Math.min(40, r * 0.4); g.fillStyle = '#0b0807';
+      g.beginPath(); g.arc(960, 540, r, 0, Math.PI * 2); g.fill();
       g.restore();
-      g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.clip();
+      g.save(); g.beginPath(); g.arc(960, 540, r, 0, Math.PI * 2); g.clip();
     } else g.save();
-    g.translate(cx, cy); g.scale(zo, zo); g.translate(-960, -540);
-    g.drawImage(ojo, 0, 0, W, H);
+    if (kComp < 1) g.drawImage(ojoVivo(zo, nf), 0, 0, W, H);
+    if (kComp > 0) { g.globalAlpha = kComp; g.drawImage(ojo, 0, 0, W, H); g.globalAlpha = 1; }
     g.restore();
-    if (um < 1) {
-      g.save(); g.strokeStyle = 'rgba(0,0,0,0.45)'; g.lineWidth = 10; g.filter = 'blur(4px)';
-      g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke(); g.restore();
+    if (r > 0) {
+      g.save(); g.strokeStyle = 'rgba(0,0,0,0.4)'; g.lineWidth = Math.min(10, r * 0.12); g.filter = 'blur(4px)';
+      g.beginPath(); g.arc(960, 540, r, 0, Math.PI * 2); g.stroke(); g.restore();
     }
+    marcaT('ojo');
     // la franja de luz, delante de todo (su propia pasada: es pequeña)
     const kf = eoc(prog(ts, T.ojo1 - 0.25, T.ojo1 + 0.35));
     if (kf > 0) {
       const sx = mix(0.2, 1, kf), sy = mix(0.55, 1, kf);
       g.save(); g.globalAlpha = Math.min(1, kf * 1.4);
-      g.translate(cx, cy); g.scale(zo, zo); g.translate(-960, -540);
+      g.translate(960, 540); g.scale(zo, zo); g.translate(-960, -540);
       g.translate(960, Y_FRANJA); g.scale(sx, sy); g.translate(-960, -Y_FRANJA);
       g.drawImage(FOTOS.franja(), 0, 0, W, H);
       g.restore();
@@ -705,7 +776,7 @@ function dibujar(t) {
   }
   {
     // sobre la piel clara, una sombra blanda detrás de Atom (que se lea en el móvil)
-    const k = ss(T.cara, T.mir1, ts) * 0.55;
+    const k = ss(T.mir0 - 0.35, T.mir1, ts) * 0.55;
     const gr = g.createRadialGradient(ATOMO_PRES[0], ATOMO_PRES[1], 40, ATOMO_PRES[0], ATOMO_PRES[1], 190);
     gr.addColorStop(0, `rgba(14,8,5,${k})`); gr.addColorStop(1, 'rgba(14,8,5,0)');
     g.fillStyle = gr; g.fillRect(ATOMO_PRES[0] - 200, ATOMO_PRES[1] - 200, 400, 400);
@@ -717,7 +788,10 @@ function dibujar(t) {
   marcaT('post');
 }
 window.__dbg = { P, pant, en, pxU, X_PER, E_PER, Z_PER, I, postura, poseSegura, marcha, personaGeneral };
-window.__info = { RUTA, AMP, PIE_INI, R_CARA, T, m, MED, CARA, OJO_ESC, FR_ESC, FR_ALTO, FIN, OJOS_MEDIO, OJOS_CARA, OJO_IZQ_CARA, pxLocalOjo };
+// las fotos, al cargar
+cargaT('previo');
+for (const [k, f] of Object.entries(FOTOS)) { f(); cargaT(k); }
+window.__info = { RUTA, AMP, PIE_INI, T, m, MED, EMP, EMP_V, MIR, IRIS_PX, OJO_ESC, FR_ESC, FR_ALTO, FIN, OJOS_MEDIO, pxLocalOjo };
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>
 </body>
