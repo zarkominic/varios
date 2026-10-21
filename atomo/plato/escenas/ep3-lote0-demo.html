@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lote 0 · regla larga, regla entera y persona con posturas</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// DEMO DEL LOTE 0 (episodio 3). No es una escena de producción: enseña lo que el lote 0 añadió a
+// kits/plastilina-adulta.js (ver la cabecera del kit) y sirve para comprobarlo.
+//  0–9 s     la regla larga: la escala corre de 10⁻³⁵ (con la niebla de Planck debajo) a 10²⁷ (con la red de
+//            galaxias encima); la potencia actual, grande y en ámbar
+//  9–16 s    la regla entera: se comprime (entera 0 → 1) hasta verse de −35 a +27 con rótulos en −35, −4, 0, +7 y
+//            +27; las marcas se encienden una a una (rango); la flecha busca, pasa por 0 y cae cuatro saltos a −4;
+//            las miniaturas «red» y «niebla» junto a los remates
+//  16–34 s   la persona con posturas: de pie, sostener, señalar, saludar, sentada, brazos cruzados, mirarse las
+//            manos, de perfil con los ojos cerrados y mirar arriba; a la vez, un niño y una mujer con melena (que
+//            pasa a moño a mitad), cada uno con su jersey
+// ?vista=guias&postura=…&aspecto=…&giro=… : una sola persona grande y de frente (o girada) para guias-humano.py;
+// deja en window.__info la coronilla, la suela y las articulaciones en píxeles.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, cl, mix, prog, ss, eio, eoc, eic, posturaEn, esqueletoHumano, HUMANO } from '/atomo/plato/kits/plastilina-adulta.js';
+
+const D = 34;
+window.ESCENA ??= { id: 'ep3-lote0-demo', duracion: D, marcas: {}, voz: [0.5, D - 0.6] };
+const E = await escena('ep3-lote0-demo', 'cosmos');
+const busq = new URLSearchParams(location.search);
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+
+// (solo para la demo) un taburete de madera: asiento en y = 0, patas hasta y = −1
+const TABURETE = { radio: 1.6, glifos: [], glsl: /* glsl */`
+float pz_taburete(vec3 q, vec4 T, out float m) {
+  vec2 w = vec2(length(q.xz) - 0.44, abs(q.y + 0.06) - 0.035);
+  float d = min(max(w.x, w.y), 0.0) + length(max(w, 0.0)) - 0.03;
+  for (int i = 0; i < 3; i++) {
+    float a = 6.2832 * float(i) / 3.0 + 0.5;
+    d = smin(d, capsulaC(q, vec3(0.3 * cos(a), -0.08, 0.3 * sin(a)), vec3(0.4 * cos(a), -1.0, 0.4 * sin(a)), 0.045, 0.04), 0.03);
+  }
+  m = 0.0;
+  return d * 0.8;
+}
+float pzc_taburete(vec3 q, vec4 T) { return max(length(q.xz) - 0.42, abs(q.y + 0.06) - 0.03); }
+vec3 pzcol_taburete(vec3 q, vec4 T, float m) { return C_MADERA * 1.6 * (0.85 + 0.3 * vnoise(q * vec3(3.0, 30.0, 3.0))); }
+` };
+
+if (busq.get('vista') === 'guias') {
+  // ---------------------------------------------------------------- vista de guías
+  const pose = busq.get('postura') ?? 'depie', asp = busq.get('aspecto') ?? 'adulto', giro = Number(busq.get('giro') ?? 0);
+  // ?tipo=persona: la persona de siempre (sin posturas), para comparar
+  const tipo = busq.get('tipo') ?? 'humano';
+  const P = await crearPlato({ piezas: [tipo], atomo: false, sombraFondo: ['p0'], camara: { pos: [0, 2.15, 40], mira: [0, 2.15, 0], fov: 7.5, desenfoque: 10 } });
+  const ESC = 2.4, pos = [0, ESC, 0];
+  function dibujar(t) {
+    const n = P.fotograma(t);
+    P.limpiar();
+    const info = P.pieza(0, { pos, escala: ESC, rot: [0, giro, 0], postura: pose, aspecto: asp, t, huellaFija: [0.37, 0.21, 0] });
+    P.render(n);
+    if (tipo !== 'humano') return;
+    const px = {};
+    for (const [k, v] of Object.entries(info.puntos)) px[k] = P.proyectar(v).map((x) => Math.round(x * 10) / 10);
+    const R = esqueletoHumano(pose, asp, t);
+    window.__info = { coronilla: P.proyectar(info.mundo([0, HUMANO.CORONILLA, -0.01]))[1], coronillaPose: px.coronilla[1],
+      suela: P.proyectar(info.mundo([0, HUMANO.SUELO, 0.05]))[1], centro: P.proyectar(info.mundo([0, 0, 0]))[0], H: HUMANO.H * ESC,
+      pxPorUnidad: P.proyectar(info.mundo([0, 0, 0]))[1] - P.proyectar(info.mundo([0, 1, 0]))[1], puntos: px, postura: pose, aspecto: asp };
+  }
+  E.iniciar(dibujar, { paso: 1 / 12 });
+} else {
+  // ---------------------------------------------------------------- la demo
+  const I = { REG: 0, FLE: 1, ADU: 2, NIN: 3, MUJ: 4, TB0: 5, TB1: 6, TB2: 7, RED: 8, NIE: 9 };
+  const P = await crearPlato({
+    piezas: ['reglaA', 'flecha', 'humano', 'humano', 'humano', 'taburete', 'taburete', 'taburete', 'red', 'niebla'],
+    tiposExtra: { taburete: TABURETE },
+    sombraFondo: ['p0', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'],
+    sombras: { p2: ['atomo'] },
+    camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+  });
+  const en = (sx, sy, z) => P.punto(sx, sy, z);
+  const E_REG = 1.42, REG = en(1668, 528, 0.4);
+  const QUIETO = D - 0.6;
+  // personas: el adulto, el niño y la mujer (en la parte C); en A y B, solo el adulto a la izquierda
+  const E_ADU = 2.4, E_NIN = 2.4 * 0.72, E_MUJ = 2.4 * 0.97;
+  const xA = en(612, 600, 0.6)[0];
+  const SITIO = { ADU: [en(760, 600, 0.6)[0], 0.6], NIN: [en(420, 600, 1.0)[0], 1.0], MUJ: [en(1110, 600, 0.3)[0], 0.3] };
+  const POSES = ['depie', 'sostener', 'senalar', 'saludar', 'sentada', 'cruzados', 'manos', 'perfil', 'arriba'];
+  const T_C = 17, PASO = 1.9;
+  const CLAVES = POSES.map((p, i) => [T_C + i * PASO, p]);
+  const tPose = (nombre) => T_C + POSES.indexOf(nombre) * PASO;
+  // la regla
+  function regla(ts) {
+    let e, ya = 0, entera = 0, actual, marca, rango = null;
+    if (ts < 9) {
+      e = mix(-35, 27, eio(prog(ts, 0.8, 8.4)));
+      actual = e;
+    } else {
+      e = 27; entera = eio(prog(ts, 9.0, 10.6));
+      // la flecha: arriba (buscando) → 0 (la persona) → cae cuatro saltos a −4
+      let m = 27;
+      m = mix(m, 0, eio(prog(ts, 12.9, 14.6)));
+      for (let k = 0; k < 4; k++) m -= seco(prog(ts, 14.9 + k * 0.32, 15.15 + k * 0.32));
+      actual = m; marca = m;
+      // las marcas se encienden una a una, de la niebla a la red, y se apagan
+      const u = prog(ts, 10.7, 12.6), apaga = 1 - ss(12.6, 13.1, ts);
+      if (u > 0 && apaga > 0) rango = { de: -35, a: -35 + 62 * u, marcas: apaga, madera: 0.35 * apaga };
+    }
+    return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e, ya, entera, actual, marca, rango, lupa: 0.55, toque: ts > 9 && ts < 16 });
+  }
+  function atomo(ts) {
+    const w = en(ts < 16 ? 850 : 300, ts < 16 ? 330 : 250, 1.0);
+    const tz = Math.min(ts, QUIETO);
+    P.atomo({ pos: [w[0], w[1] + 0.025 * Math.sin(tz * 1.1), w[2]], escala: 0.4, yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06,
+      energia: ts < QUIETO ? E.energia(ts) : 0, ts: tz });
+  }
+  function personas(ts) {
+    if (ts < 16.4) {
+      // A y B: el adulto de pie a la izquierda, mirando la regla
+      P.pieza(I.ADU, { pos: [xA, E_ADU, 0.6], escala: E_ADU, rot: [0, 0.2, 0], postura: { cabeza: [0.25, 0.05, 0], mirada: [0.7, 0.2] }, t: ts, huellaFija: [0.37, 0.21, 0] });
+      return;
+    }
+    const k = ss(16.0, 16.8, ts);
+    const pose = posturaEn(ts, CLAVES, { trans: 0.55 });
+    // de perfil: la pieza gira un cuarto de vuelta mientras dura la postura
+    const perf = ss(tPose('perfil') - 0.55, tPose('perfil'), ts) * (1 - ss(tPose('arriba') - 0.55, tPose('arriba'), ts));
+    const quien = [
+      ['ADU', E_ADU, 'adulto', 0.0], ['NIN', E_NIN, 'nino', 0.15],
+      ['MUJ', E_MUJ, ts < tPose('cruzados') - 0.3 ? 'melena' : 'mono', -0.15],
+    ];
+    const asientos = [];
+    for (const [id, esc, asp, giro0] of quien) {
+      const [x, z] = SITIO[id];
+      const xx = id === 'ADU' ? mix(xA, x, eio(prog(ts, 16.0, 16.8))) : x;
+      const rot = [0, giro0 + 1.5708 * perf, 0];
+      if (id !== 'ADU' && k < 0.01) continue;
+      P.pieza(I[id], { pos: [xx, esc, z], escala: esc * (id === 'ADU' ? 1 : k), rot, postura: pose, aspecto: asp, t: ts, huellaFija: [0.37, 0.21, 0] });
+      // el taburete: donde quedaría el asiento con la postura entera
+      const R = esqueletoHumano('sentada', asp);
+      const a = R.puntos.asiento;
+      const Rm = new THREE.Matrix4().makeRotationY(rot[1]);
+      const v = new THREE.Vector3(a[0], a[1], a[2]).multiplyScalar(esc).applyMatrix4(Rm);
+      asientos.push([xx + v.x, esc + v.y, z + v.z]);
+    }
+    const kT = ss(tPose('sentada') - 0.9, tPose('sentada') - 0.45, ts) * (1 - ss(tPose('cruzados') - 0.6, tPose('cruzados') - 0.2, ts));
+    asientos.forEach((s, i) => {
+      if (kT < 0.01) return;
+      const h = s[1];
+      P.pieza(I.TB0 + i, { pos: [s[0], s[1] - 0.004, s[2] - 0.05], escala: 1, sq: [0.6 * kT + 0.001, h, 0.6 * kT + 0.001] });
+    });
+  }
+  function miniaturas(ts, R) {
+    const k = eoc(prog(ts, 10.6, 11.2)) * (1 - ss(16.0, 16.5, ts));
+    if (k < 0.01) return;
+    const pr = R.punto(27.6, 0.0), pn = R.punto(-35.8, 0.0);
+    P.pieza(I.RED, { pos: [pr[0] - 1.9, pr[1] + 0.05, pr[2] + 0.2], escala: 0.62 * k, rot: [0.05, 0.25, 0] });
+    P.pieza(I.NIE, { pos: [pn[0] - 1.9, pn[1] + 0.25, pn[2] + 0.2], escala: 0.7 * k, rot: [0, 0.2, 0] });
+  }
+  function dibujar(t) {
+    const n = P.fotograma(t, D), ts = n / 12;
+    P.limpiar();
+    const R = regla(ts);
+    atomo(ts);
+    personas(ts);
+    miniaturas(ts, R);
+    P.render(n);
+  }
+  E.iniciar(dibujar, { paso: 1 / 12 });
+}
+</script>
+</body>
+</html>
