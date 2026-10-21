@@ -50,6 +50,17 @@
 // que ya escribían las escenas, prueba-plastilina-adulta.html sale idéntica píxel a píxel y cosmos-plastilina-
 // adulta.html también, salvo que ahora las filas 10²² y 10²³ llevan su rótulo (antes la textura acababa en 10²¹).
 // Demo y comprobación: escenas/ep3-lote0-demo.html (?vista=guias&postura=…&aspecto=… para guias-humano.py).
+// Revisión 4 (lo que cambió para quien ya lo usaba): el brazo que apunta toma el gesto de señalar (el codo doblado
+// y el índice; apuntarGesto: 0, lo de antes); posturas 'señalarIzq' y 'saludarIzq'; P.pieza(…, { partes })
+// para la receta de la foto; 'sentada' ya no abre las piernas (los tobillos no se mueven de lado; el asiento sube
+// 0,0013); el pelo corto y el moño bajan por la nuca; en la regla entera, líneas guía de los rótulos apartados y el
+// actual grande y en ámbar durante toda la transición; manos y brazos, un 15–25 % más baratos (ver COSTE).
+// Revisión 5 (la última; el kit queda cerrado): la niebla de Planck no baja del pie de la regla (al entrar o salir por
+// abajo era una almohada gris colgando debajo); en la regla entera ningún rótulo pasa del borde de la losa (no se ven a
+// trozos: el de referencia se encoge y se va, el actual se queda dentro); la palma abierta del «humano» ya no tiene la
+// mancha oscura junto a los nudillos (la sombra de su propia forma simplificada); al apuntar, lo que señala el punto es
+// la recta del índice (recto, con la muñeca recta en GESTO_SENALAR) y no el antebrazo; punto con nombre 'indice' (la
+// punta del índice); GLSL_REMATES exportado (la red de galaxias y la niebla para piezas propias).
 //
 // LA REGLA (pieza 'reglaA', y una pieza 'flecha' para el marcador)
 //   Rótulos «10^e m» de 10⁻³⁵ a 10²⁷ (ROT.E_MIN…E_MAX; los de 10⁻⁴ a 10²¹ en su textura de siempre y los demás en un
@@ -65,17 +76,36 @@
 //      `separacion` del canto.
 //    · e: el exponente que queda a la altura local ya (la losa va de y = −1,85 a 1,85 y cada potencia ocupa
 //      REGLA.RS = 0,75): para que la escala corra, anima e (puede ser fraccionario).
-//    · actual: la fila grande y en ámbar (por defecto e; fraccionario mientras se mueve); lupa: su aumento.
+//    · actual: la fila grande y en ámbar (por defecto e; fraccionario mientras se mueve); lupa: su aumento. Como
+//      siempre (prueba-plastilina-adulta sale igual), con actual fraccionario la lupa se reparte entre las dos filas
+//      vecinas y, lejos de una fila (más de ~0,4), ningún rótulo de la regla larga va en ámbar; para que mientras la
+//      escala corre haya siempre uno grande y en ámbar: actual: Math.round(e) (cambia de fila de golpe a mitad de
+//      camino).
 //    · entera (0…1, animable): la regla se comprime sin saltos hasta verse entera, de −35 (con la niebla debajo) a
 //      +27 (con la red encima), −4 en el centro (y local 0) y una marca por potencia (63, «unas sesenta»). Las marcas
 //      del logaritmo y los rótulos de cada fila se van al comprimirse, y quedan:
 //        – los de referencia, −35, −4, 0, +7 y +27, de tamaño escEntera (los dígitos del «10» miden ROT.HD × escEntera
-//          unidades locales; 0,21 se lee en el móvil, a 480 px de ancho, con la regla del encuadre de las pruebas);
+//          unidades locales). Son de apoyo: con la regla del encuadre de las pruebas, en el móvil (480 px de ancho)
+//          el «10» mide ~8 px y el exponente ~3–4 px; para leer un rótulo de referencia en el móvil, acerca la cámara
+//          a la regla (no subas escEntera: con más tamaño se apartan más de sus marcas, ver abajo);
 //        – el actual (la fila redondeada de actual), siempre en ámbar, también con la flecha entre dos filas, y más
 //          grande: escEntera × (1 + lupaEntera), como mucho REGLA.ESC_MAX_ENTERA = 0,3 (lo que cabe en la losa del
-//          rótulo más ancho, 10⁻³⁵ m). Va en su fila; los de referencia que lo tocarían se apartan lo justo hacia
-//          fuera y, si así entrarían en un remate, no se ponen. rotulosReglaEntera({ e, ya, entera, actual, escEntera,
-//          lupaEntera }) da dónde queda cada rótulo (también sin plató; antes de crearlo supone ROT.HD = 0,9).
+//          rótulo más ancho, 10⁻³⁵ m). En la transición no encoge: en cuanto entera > 0 sustituye al rótulo de su
+//          fila, del mismo tamaño (REGLA.ESC_FILA × (1 + lupa)), y llega a su tamaño de la regla entera en entera 0,5.
+//          Va en su fila; los de referencia que lo tocarían se apartan lo justo hacia fuera y, si así entrarían en un
+//          remate, no se ponen.
+//        Un rótulo solo queda junto a su marca si nada lo empuja: −35 y +27 van siempre 2 filas hacia dentro (3 con
+//        escEntera 0,3: no se meten en los remates; el actual en −35 o +27, 3 filas); con actual −4 y escEntera
+//        0,21, 10⁰ queda 2 filas por encima de la suya; con escEntera 0,3 y actual −1, 10⁰ y 10⁷ quedan a 6 filas.
+//        Todo rótulo apartado más de una fila se une a su marca con una LÍNEA GUÍA fina (del final de la marca al pie
+//        del «1»; crema, y la del actual, ámbar). Ningún rótulo de la regla entera pasa del borde de la losa (|y| local
+//        REGLA.BORDE = 1,64, donde la tinta se empieza a borrar hacia las conteras): uno de referencia que llega al borde
+//        (al entrar o salir la regla, en la transición) se encoge y se va, y el actual se queda dentro, unido a su fila
+//        por la línea guía si esta queda fuera. rotulosReglaEntera({ e, ya, entera, actual, escEntera, lupaEntera,
+//        lupa }) da dónde queda cada rótulo (también sin plató; antes de crearlo supone ROT.HD = 0,9): su y frente a
+//        R.y(e) dice cuánto se apartó.
+//      Los remates entran y salen por los extremos de la losa sin salirse de ella: la niebla sube desde el pie de la
+//      regla (por delante de la contera de abajo, nunca por debajo de ella) y la red baja desde arriba.
 //    · marca: el exponente al que apunta la flecha (por defecto actual). Ep3-centro: entera 1, la flecha baja de
 //      +27 a 0 y cae cuatro saltos: marca y actual de 0 a −4.
 //    · rango: { de, a, marcas: 0…1, madera: 0…1 } resalta de 10^de a 10^a: sus marcas y rótulos se encienden en
@@ -91,17 +121,34 @@
 //    uReglaC por defecto se usa el código de antes). reglaEstado({ e, ya, entera }) da la escala sin plató; REGLA,
 //    las medidas.
 //   Miniaturas de los remates (ep3-saltos): piezas 'red' (medallón de radio 0,5 con la red de galaxias y aro de
-//   latón) y 'niebla' (nube de bocanadas de 0,6 con dos jirones que se rizan). El rótulo suelto 'etiqueta' vale para cualquier exponente de −35
-//   a +27 (variante = −e: 4 → 10⁻⁴; −27 → 10²⁷).
+//   latón) y 'niebla' (nube de bocanadas de 0,6 con dos jirones que se rizan). El rótulo suelto 'etiqueta' vale para
+//   cualquier exponente de −35 a +27 (variante = −e: 4 → 10⁻⁴; −27 → 10²⁷).
+//   La red y la niebla para piezas propias (ep3-universo: «la red de galaxias en una losa grande»; ep3-planck: la niebla
+//   de fondo): GLSL_REMATES (exportado) trae el GLSL de los dos remates. Una pieza de tiposExtra lo pone delante del
+//   suyo y llama a colorRed(p, k) (vec2 p, un punto del plano: la escala de p da lo apretada que va la red; el remate de
+//   la regla usa q.xy × 1,25, con unas cinco celdas grandes en su ancho de 1,2; k, la fuerza de su luz, 1; devuelve el
+//   color y pone el relieve y la luz propia: gG, gEm, gBri), redR(p) (x, filamentos · y, cúmulos, 0…1), colorNiebla(q) (vec3 q, local: el algodón gris azulado, algo
+//   translúcido) y rizoN(q, o, k) (distancia a un jirón que sale de o y se riza; k, su tamaño). Por ejemplo:
+//     import { GLSL_REMATES } from '/atomo/plato/kits/plastilina-adulta.js';
+//     const LOSA_RED = { radio: 1.25, glifos: [], glsl: `${GLSL_REMATES}
+//       float pz_losared(vec3 q, vec4 T, out float m) { m = 0.0; return sdRoundBox(q, vec3(1.0, 0.6, 0.04), 0.03); }
+//       float pzc_losared(vec3 q, vec4 T) { return sdRoundBox(q, vec3(0.98, 0.58, 0.03), 0.03); }
+//       vec3 pzcol_losared(vec3 q, vec4 T, float m) { return q.z > 0.0 ? colorRed(q.xy * 1.25, 1.0) : vec3(0.03); }` };
+//     crearPlato({ piezas: ['losared', …], tiposExtra: { losared: LOSA_RED } })   // y P.pieza(i, { pos, escala, rot })
 //
 // LA PERSONA CON POSTURAS (pieza 'humano'; la de siempre, 'persona', queda quieta para las pruebas)
+//   ANTES DE ENCUADRAR (ver COSTE): un fotograma debe salir en menos de 5 s. Con las manos en primer término (pecho y
+//   manos: 'mirarse las manos', 'sostener', fantasma), LA MANO, HASTA ~300 PX DE ALTO (de la muñeca a la punta); más
+//   cerca, LA RECETA DE LA FOTO CON partes (el cuerpo y la cabeza, una foto al cargar; las manos, en vivo). Con otras
+//   personas, la regla o Atom en el mismo plano, más margen todavía.
 //   La misma persona (cara, jersey, pantalón, zapatos y medidas de HUMANO.md: suela en y = −1, coronilla en 0,765,
 //   mira a +z, su izquierda en +x; de pie sobre el suelo del plató con pos [x, escala, z]), articulada:
-//   const h = P.pieza(i, { pos, escala, rot, sq, postura, aspecto, t, apuntar, toque, huellaFija })
+//   const h = P.pieza(i, { pos, escala, rot, sq, postura, aspecto, t, apuntar, partes, toque, huellaFija })
 //    · postura: un nombre de POSTURAS, con o sin tildes: 'de pie', 'sostener' (las dos manos delante del pecho,
-//      cerradas), 'señalar' (con la derecha), 'saludar' (con la derecha; el vaivén lo pone t), 'sentada' (se baja
-//      sola hasta que los pies pisan; los tobillos se quedan donde estaban de pie y la pelvis va hacia atrás, sobre
-//      el asiento: de pie → sentada, los pies no resbalan; la silla va en h.punto('asiento'), y antes de sentarse,
+//      cerradas), 'señalar' (con la derecha), 'señalarIzq' (con la izquierda), 'saludar' (con la derecha; el vaivén
+//      lo pone t), 'saludarIzq', 'sentada' (se baja sola hasta que los pies pisan; los tobillos se quedan donde
+//      estaban de pie, también de lado (las piernas no se abren), y la pelvis va hacia atrás, sobre el asiento: de pie →
+//      sentada, los pies no resbalan; la silla va en h.punto('asiento'), y antes de sentarse,
 //      en esqueletoHumano('sentada', aspecto).puntos.asiento), 'brazos cruzados', 'mirarse las manos' ('manos'),
 //      'perfil' (cara un poco arriba y ojos cerrados; de perfil girando la pieza: rot [0, ±π/2, 0]) y 'mirar
 //      arriba'; o un objeto (lo que falte, de pie; los signos, en POSTURA_BASE):
@@ -110,16 +157,27 @@
 //          2 puño (y todo lo de en medio), piernaIzq / piernaDer: [flex, abd, rodilla, tobillo], apoyo: 1,
 //          piesFijos: 1 (0: la pelvis se queda encima de pos y son los pies los que van adelante),
 //          apuntarIzq / apuntarDer: [x, y, z] (punto local: el hombro, flex, abd y si hace falta rot, gira para que
-//            el antebrazo lo señale, con menos de 1° de error, sin saltos de un fotograma a otro y sin bajar el codo de
-//            la cintura; el codo, la pronación y la muñeca son los de la postura: con los de 'señalar', [·, ·, −0,9,
-//            1,0, 1,2, −0,1], el gesto es el de señalar, con el codo doblado),
+//            el índice lo señale: la recta del índice, recto y a lo largo de la mano, pasa por el punto con menos de 1°
+//            de error, sin saltos de un fotograma a otro y sin bajar el codo de la cintura; un punto al alcance de la
+//            mano, a menos de ~0,95 del hombro, lo señala el antebrazo. Desde cualquier postura, el brazo que apunta toma
+//            el gesto de señalar, GESTO_SENALAR (el codo doblado 1 rad, la rotación y la pronación de 'señalar', en
+//            espejo para el izquierdo, la muñeca recta y el índice extendido: el antebrazo, la mano y el índice quedan
+//            en línea): se dobla por el codo y no se estira hacia el punto (HUMANO.md), y tampoco salta de una
+//            solución a otra con los brazos de 'sostener' o 'brazos cruzados'),
+//          apuntarGesto: 1 (0…1: lo que toma del gesto; 0, el codo, la pronación, la muñeca y la mano de la postura,
+//            que con un codo muy doblado pueden saltar entre fotogramas o no llegar al punto),
 //          fantasma: 0…1 (las manos se vuelven casi transparentes: dejan ver lo que tienen detrás, como vidrio, con
 //          un borde de luz fría; se lee en un plano de pecho y manos) }
 //      Izq/Der son los de la persona (su izquierda queda a la derecha de la pantalla si mira a cámara). Los tramos
 //      no cambian en ninguna postura: brazo 0,18 H, antebrazo 0,14 H, mano 0,10 H, pie 0,15 H.
+//      PARA SEÑALAR LA REGLA DEL BORDE DERECHO (ENCARGO) USA EL BRAZO IZQUIERDO: 'señalarIzq', o apuntar: { izq:
+//      R.flecha } con cualquier postura (con la derecha, de frente a cámara, el brazo cruzaría el pecho).
 //    · t: el instante (s) para lo que se mueve solo ('saludar').
-//    · apuntar: { izq, der, peso } puntos DEL MUNDO a los que señala cada brazo (como apuntarIzq/Der, sin pasar a
-//      locales; p. ej. { izq: R.flecha }); peso (0…1, 1 por defecto) lo mezcla con el brazo de la postura.
+//    · apuntar: { izq, der, peso, gesto } puntos DEL MUNDO a los que señala cada brazo (como apuntarIzq/Der, sin pasar
+//      a locales; p. ej. { izq: R.flecha }); peso (0…1, 1 por defecto) lo mezcla con el brazo (y la mano) de la
+//      postura: animando peso de 0 a 1, la persona levanta el brazo y señala; gesto, el apuntarGesto de la postura.
+//    · partes: 'cuerpo' | 'cabeza' | 'manos' | 'manoIzq' | 'manoDer' o una lista (por defecto, todas): solo se dibujan
+//      esas; la persona entera sigue dando sombra. Para la receta de la foto (ver COSTE).
 //    · aspecto: 'adulto' (el de siempre, con barba y canas) · 'nino' (niño de unos 7 años: cabeza de 1/4,7 de la
 //      altura y piernas de 0,45 H; mide 1,685 en vez de 1,765 a la misma escala: junto a un adulto de 1,75 m, escala
 //      × 0,72; jersey ocre) · 'melena' (pelo hasta la mandíbula que enmarca la cara en óvalo, jersey oliva) · 'mono'
@@ -135,30 +193,50 @@
 //    · Devuelve h = { punto(nombre) → [x, y, z] del mundo, puntos (del mundo), puntosLocales, local(mundo) → [x, y, z]
 //      locales (y local.<nombre>, los puntos locales), mundo(local) → mundo, esqueleto }. Nombres: cabeza, ojos,
 //      coronilla, barbilla, cuello, pecho, pelvis, asiento, regazo y hombro, codo, muneca, mano (el centro del
-//      agarre), dedos (la punta), cadera, rodilla, tobillo, pie (la punta), con Izq o Der. Lo que sostiene la mano va
-//      en h.punto('manoDer'). P.humano(i) devuelve el último h de esa pieza.
+//      agarre), dedos (el extremo del eje de la mano, a 0,10 H de la muñeca: la punta del corazón con la mano abierta),
+//      indice (la punta del índice, también doblado), cadera, rodilla, tobillo, pie (la punta), con Izq o Der. Lo que
+//      sostiene la mano va en h.punto('manoDer'). Al apuntar, la recta del índice es la paralela a muneca → dedos que pasa
+//      por indice (a ~0,026 de ese eje, hacia el pulgar). P.humano(i) devuelve el último h de esa pieza.
 //   Entre posturas: mezclarPosturas(a, b, u, t) interpola ángulo a ángulo; posturaEn(t, [[t0, a], [t1, b], …],
 //   { trans: 0.5 }) va de clave en clave (en cada ti la postura ya está entera; el paso dura trans s y es suave).
 //   postura(nombre, t) da el objeto completo para retocarlo; esqueletoHumano(postura, aspecto, t) da el esqueleto
 //   sin plató (p. ej., dónde quedará el asiento antes de sentarse) y HUMANO, las medidas.
 //   Las manos del «humano» tienen cuatro dedos de tres falanges y pulgar; valen hasta un plano de pecho y manos
-//   (ep3-medula, ep3-casa, ep3-silla), también con fantasma. Para una mano sola que llena la pantalla (un detalle), la
-//   pieza 'mano' (uñas, nudillos, tendones y venas), que no tiene fantasma: si un detalle lo necesitara, la escena
-//   compone la foto de la mano con transparencia sobre el fondo.
-//   Coste (este servidor, 1920 × 1080 con plató, una persona sola; medido con la locución corriendo al lado): cuerpo
-//   entero de 870 px de alto, 0,5–1 s; plano medio de cintura, 1,4–2,3 s (también con 'manos'); primer plano de la
-//   cara, 1,2–1,4 s; pecho y manos con 'manos' (y con fantasma), 2,5–3 s; por encima del hombro, 1,9 s. Es lo mismo
-//   o menos que 'persona' (0,8–0,9 · 1,9–2,2 · 1,7–2,1 s en los mismos planos), porque el cuerpo, la cabeza y cada
-//   mano son pasadas aparte, cada una con su programa y solo en su rectángulo, y el cuerpo se dibuja por celdas
-//   (tronco, brazos, piernas). Cada «humano» suma unos 4–5 s a la carga (sus diez programas se estrenan al cargar).
-//   En ep3-lote0-demo: una persona + regla + Atom, 1,3–1,6 s por fotograma; tres personas (adulto, niño y mujer) + regla
-//   + Atom + taburetes, 1,6–2,3 s; carga de la página, 20 s (la de prueba-plastilina-adulta, 26 s).
+//   (ep3-medula, ep3-casa, ep3-silla), también con fantasma (de coste, ver COSTE: la mano, hasta ~300 px de alto, o la
+//   receta de la foto). Para una mano sola que llena la pantalla (un detalle), la pieza 'mano' (uñas, nudillos,
+//   tendones y venas), que no tiene fantasma: si un detalle lo necesitara, la escena compone la foto de la mano con
+//   transparencia sobre el fondo.
+//   COSTE (este servidor, 1920 × 1080 con plató, una persona sola, en s por fotograma, con el servidor tranquilo; con la
+//   locución u otras escenas renderizando al lado, el doble o más: con una carga de 11–14, en el plano de la barbilla a
+//   la cintura de abajo, 'de pie' ~7, 'sostener' ~10 y 'mirarse las manos' ~11). Lo que más cuesta son los brazos y las manos cuando salen grandes. Cuerpo
+//   entero de 870 px de alto, 0,5–1; plano medio de cintura, 1,4–2,3; primer plano de la cara, ~1; por encima del
+//   hombro, ~1,9. PECHO Y MANOS, con una persona de escala 2,4 y fov 26 (la mano, de la muñeca a la punta, mide en
+//   pantalla lo que se indica): de la barbilla a la cintura (cámara a 2,6; mano de ~400 px): 'de pie' 2,2; 'sostener'
+//   3,6; 'mirarse las manos' 4,5 y con fantasma 4,8–5,0: AL LÍMITE de los 5 s, y por encima con Atom, la regla u otra
+//   persona en el plano. De los hombros a las caderas (3,4; mano de ~285 px): 'mirarse las manos' con fantasma,
+//   ~2,3–2,7. Más abierto (4,6; mano de ~200 px): ~1,4–1,6. REGLA: con las manos en primer término ('mirarse las manos',
+//   fantasma, 'sostener'), que la mano no pase de ~300 px de alto. Más cerca (ep3-casa: «fantasma en primer plano»),
+//   la receta de la foto con partes (abajo): cuerpo y cabeza, una foto al cargar; las manos, en vivo (P.pieza(i, { …,
+//   partes: 'manos' })): de la barbilla a la cintura, con fantasma, ~1,5 (un 30 % del fotograma entero; medido en la
+//   misma página). Vale mientras el cuerpo y la cabeza estén quietos (en la foto no «hierven»); si la cabeza se mueve,
+//   partes: ['cabeza', 'manos'] (+0,4). Si solo cambia el fantasma y nada se mueve: dos fotos al cargar (fantasma 0 y
+//   1) y un fundido en 2D.
+//   Por qué cuesta lo que cuesta: el cuerpo, la cabeza y cada mano son pasadas aparte, cada una con su programa y solo
+//   en su rectángulo; cada mano marcha solo dentro de su esfera, y el cuerpo se dibuja por celdas (tronco, cada brazo,
+//   piernas; las cajas, por tramos). (Revisión del lote 0: un 15–25 % menos que antes en los planos de pecho y manos;
+//   antes, de la barbilla a la cintura: 'sostener' 4,4–4,8 y 'mirarse las manos' 5,0–6,0.) Cada «humano» suma ~3–4 s a
+//   la carga (el cuerpo entero, la cabeza y las manos se estrenan al cargar); las variantes del cuerpo por celdas (hasta
+//   14) se compilan la primera vez que un fotograma las pide, ~0,5 s cada una: el primer fotograma con personas tarda
+//   unos segundos más. En ep3-lote0-demo: una persona + regla + Atom, ~1,3–1,6 s por fotograma; tres personas + regla
+//   + Atom + taburetes, ~1,6–2,3 s.
 //   Receta para lo que no se mueve (una persona quieta, varias, un decorado): una foto al cargar, como los decorados
 //   de prueba-plastilina-adulta. crearPlato({ …, alfa: true, post: false }) y un lienzo 2D g encima del de WebGL;
 //   al cargar: P.limpiar(); lo quieto (con el fondo); P.render(n); foto = copia del lienzo de WebGL. En cada
 //   fotograma: g.drawImage(foto); P.limpiar(); lo que se mueve (Atom, la regla…); P.render(n, { fondo: false });
 //   g.drawImage(lienzo de WebGL); crearPost().aplicar(g, n). Lo de la foto no tapa lo que se mueve ni recibe su sombra:
-//   sirve si lo que se mueve va delante o lejos de ello.
+//   sirve si lo que se mueve va delante o lejos de ello. Con una persona, partes elige qué va en la foto y qué en vivo
+//   (al cargar, partes: ['cuerpo', 'cabeza']; en cada fotograma, partes: 'manos'): las manos van delante del pecho y
+//   reciben la sombra de la persona entera.
 // ----- (lo que sigue es el comentario de la copia de prueba) -----
 // COPIA de kits/plastilina.js para las pruebas de identidad (prueba-plastilina.html, prueba-mixta.html, cosmos-plastilina.html).
 // kits/plastilina.js lo usan escenas terminadas del episodio 2 y no se toca. Añadidos de esta copia:
@@ -562,12 +640,15 @@ float etiqA(vec2 p, float e) {
 // (lote 0) la regla de potencias (reglaA): medidas de la escala en unidades locales de la pieza (ver P.regla)
 //   RS: y local por potencia en la regla de siempre · RS_ENTERA: en la regla entera (de −35 a +27 en 2,8 de alto,
 //   con −4, el centro, en y = 0) · ESC_ENTERA: tamaño de los rótulos de referencia en la regla entera (los dígitos del
-//   «10» miden ROT.HD × ESC_ENTERA; 0,21 se lee a 480 px de ancho con la regla del encuadre de las pruebas) ·
+//   «10» miden ROT.HD × ESC_ENTERA: con la regla del encuadre de las pruebas, a 480 px de ancho el «10» mide ~8 px y el
+//   exponente ~3–4 px: son de apoyo y no se leen en el móvil; para leerlos, acerca la cámara a la regla) ·
 //   LUPA_ENTERA: aumento del rótulo actual sobre los de referencia · ESC_MAX_ENTERA: tamaño máximo del rótulo actual
 //   (el más ancho, 10⁻³⁵ m, cabe en la losa) · XL: borde izquierdo de las marcas · MEDIO: semiancho y semialto de la
-//   losa · RECTA: los exponentes que llevan rótulo en la regla entera
+//   losa · RECTA: los exponentes que llevan rótulo en la regla entera · ESC_FILA: tamaño de los rótulos de cada fila en
+//   la regla larga (el actual, × (1 + lupa)) · BORDE: |y| local desde el que la tinta se adelgaza hacia las conteras (un
+//   rótulo de la regla entera no pasa de ahí) · BORDE_FUNDIDO: lo que tarda en irse uno de referencia que llega al borde
 export const REGLA = { RS: 0.75, RS_ENTERA: 2.8 / 62, CENTRO_ENTERA: -4, ESC_ENTERA: 0.21, LUPA_ENTERA: 0.45, ESC_MAX_ENTERA: 0.3,
-  XL: -0.585, MEDIO: [0.66, 1.85], RECTA: [-35, -4, 0, 7, 27] };
+  XL: -0.585, MEDIO: [0.66, 1.85], RECTA: [-35, -4, 0, 7, 27], ESC_FILA: 0.2, BORDE: 1.64, BORDE_FUNDIDO: 0.06 };
 /**
  * (lote 0) Estado de la escala de la regla: el exponente e queda a la altura local ya y, con entera (0…1), la regla
  * se comprime (RS geométrico de 0,75 a RS_ENTERA) hasta la regla entera (−4 en y = 0), sin saltos. Devuelve
@@ -583,33 +664,56 @@ export function reglaEstado({ e = 0, ya = 0, entera = 0 } = {}) {
  * (lote 0) Dónde van los rótulos de la regla entera: los de referencia (REGLA.RECTA: −35, −4, 0, +7 y +27, de tamaño
  * escEntera) y el actual (la fila redondeada de actual, grande y en ámbar: escEntera × (1 + lupaEntera), como mucho
  * REGLA.ESC_MAX_ENTERA para que quepa en la losa). El actual va en su fila; los de referencia, en la suya, salvo que
- * choquen: entonces se apartan lo justo (hacia fuera del actual), y si así se meterían en un remate, no se ponen. Todo
- * crece con entera (de 0,2 a 0,5). Devuelve [{ e, y (local), esc (tamaño; 0 = no está), actual }] (el actual, el
- * último) y uRotE, los tres vec4 del sombreador. Lo usa P.regla; sirve para saber dónde queda un rótulo sin plató.
+ * choquen: entonces se apartan lo justo (hacia fuera del actual), y si así se meterían en un remate, no se ponen. Los de
+ * referencia crecen con entera (de 0,2 a 0,5); el actual, en cuanto entera > 0, sustituye al rótulo de su fila con el
+ * mismo tamaño (REGLA.ESC_FILA × (1 + lupa), la lupa de la regla larga) y pasa a escEntera × (1 + lupaEntera) hasta
+ * entera = 0,5: no encoge ni deja de ser ámbar en la transición. Devuelve [{ e, y (local), esc (tamaño; 0 = no está),
+ * actual }] (el actual, el último) y uRotE, los tres vec4 del sombreador. Lo usa P.regla; sirve para saber dónde queda
+ * un rótulo sin plató.
  */
-export function rotulosReglaEntera({ e = 0, ya = 0, entera = 0, actual = null, escEntera = REGLA.ESC_ENTERA, lupaEntera = REGLA.LUPA_ENTERA } = {}) {
+export function rotulosReglaEntera({ e = 0, ya = 0, entera = 0, actual = null, escEntera = REGLA.ESC_ENTERA, lupaEntera = REGLA.LUPA_ENTERA, lupa = 0.5 } = {}) {
   const st = reglaEstado({ e, ya, entera });
   const kE = ss(0.2, 0.5, entera);
   const HD = ROT.HD ?? 0.9, HUECO = 0.02;
   const sube = (sz) => (0.56 * HD + 0.03) * sz, baja = (sz) => (0.5 * HD + 0.03) * sz;
   const cur = Math.max(ROT.E_MIN, Math.min(ROT.E_MAX, Math.floor((actual ?? e) + 0.5)));
-  const escC = Math.min(escEntera * (1 + lupaEntera), REGLA.ESC_MAX_ENTERA) * kE;
-  const refs = REGLA.RECTA.map((x) => ({ e: x, y: st.y(x), esc: x === cur ? 0 : escEntera * kE, actual: false }));
-  const C = { e: cur, y: st.y(cur), esc: escC, actual: true };
+  const dd = cur - (actual ?? e), escFila = REGLA.ESC_FILA * (1 + lupa * Math.exp(-dd * dd * 2.4));
+  const escC = entera > 0 ? mix(escFila, Math.min(escEntera * (1 + lupaEntera), REGLA.ESC_MAX_ENTERA), ss(0, 0.5, entera)) : 0;
+  const refs = REGLA.RECTA.map((x) => ({ e: x, y0: st.y(x), esc: x === cur ? 0 : escEntera * kE, actual: false }));
+  const C = { e: cur, y0: st.y(cur), esc: escC, actual: true };
   // los extremos no se meten en los remates (la niebla, por debajo de −35,5; la red, por encima de +27,5)
   const suelo = st.y(ROT.E_MIN - 0.5) + 0.012, techo = st.y(ROT.E_MAX + 0.5) - 0.012;
-  const ajustar = (r) => { r.y = Math.min(Math.max(r.y, suelo + baja(r.esc)), techo - sube(r.esc)); };
-  for (const r of [...refs, C]) ajustar(r);
-  const vis = [...refs.filter((r) => r.esc > 0), C].sort((a, b) => a.y - b.y);
-  const ia = vis.indexOf(C);
-  for (let i = ia + 1; i < vis.length; i++) vis[i].y = Math.max(vis[i].y, vis[i - 1].y + sube(vis[i - 1].esc) + HUECO + baja(vis[i].esc));
-  for (let i = ia - 1; i >= 0; i--) vis[i].y = Math.min(vis[i].y, vis[i + 1].y - baja(vis[i + 1].esc) - HUECO - sube(vis[i].esc));
-  for (const r of refs) if (r.esc > 0 && (r.y + sube(r.esc) > techo + 1e-6 || r.y - baja(r.esc) < suelo - 1e-6)) r.esc = 0;
+  // (rev. 5) ni en los bordes de la losa: desde |y| = REGLA.BORDE (1,64) el sombreador adelgaza la tinta hasta borrarla
+  // (las conteras), y un rótulo que entrara o saliera por ahí se vería a trozos. El actual se queda dentro (su fila puede
+  // estar más allá: lo une a ella la línea guía; el empujón crece con entera desde 0, para empalmar con el rótulo de
+  // la regla larga); uno de referencia que llegaría al borde se encoge hasta irse (en los últimos REGLA.BORDE_FUNDIDO)
+  const LIM = REGLA.BORDE, kB = ss(0, 0.15, entera);
+  const ajustar = (r) => {
+    r.y = Math.min(Math.max(r.y0, suelo + baja(r.esc)), techo - sube(r.esc));
+    if (r === C) r.y = mix(r.y, Math.min(Math.max(r.y, -LIM + baja(r.esc)), LIM - sube(r.esc)), kB);
+  };
+  const colocar = () => {
+    for (const r of [...refs, C]) ajustar(r);
+    const vis = [...refs.filter((r) => r.esc > 0), C].sort((a, b) => a.y - b.y);
+    const ia = vis.indexOf(C);
+    for (let i = ia + 1; i < vis.length; i++) vis[i].y = Math.max(vis[i].y, vis[i - 1].y + sube(vis[i - 1].esc) + HUECO + baja(vis[i].esc));
+    for (let i = ia - 1; i >= 0; i--) vis[i].y = Math.min(vis[i].y, vis[i + 1].y - baja(vis[i + 1].esc) - HUECO - sube(vis[i].esc));
+    for (const r of refs) if (r.esc > 0 && (r.y + sube(r.esc) > techo + 1e-6 || r.y - baja(r.esc) < suelo - 1e-6)) r.esc = 0;
+  };
+  colocar();
+  let encoge = false;
+  for (const r of refs) {
+    if (!(r.esc > 0)) continue;
+    const sobra = Math.max(r.y + sube(r.esc) - LIM, -LIM - (r.y - baja(r.esc)));
+    const f = 1 - ss(-REGLA.BORDE_FUNDIDO, 0, sobra);
+    if (f < 1) { r.esc = f > 0.05 ? r.esc * f : 0; encoge = true; }
+  }
+  if (encoge) colocar();
   const uRotE = [[refs[0].y, refs[1].y, refs[2].y, refs[3].y], [refs[4].y, refs[0].esc, refs[1].esc, refs[2].esc], [refs[3].esc, refs[4].esc, C.y, C.esc]];
-  return { rotulos: [...refs, C], uRotE };
+  return { rotulos: [...refs, C].map(({ y0, ...r }) => r), uRotE };
 }
 // los remates de la regla (y las miniaturas «red» y «niebla»): la red de galaxias y la niebla de Planck
-const GLSL_REMATES = /* glsl */`
+export const GLSL_REMATES = /* glsl */`
 #ifndef REMATES_D
 #define REMATES_D 1
 vec2 hashR2(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973)); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.xx + p3.yz) * p3.zy); }
@@ -997,6 +1101,13 @@ vec3 pzcol_mano(vec3 q, vec4 T, float m) {
 const GLSL_HUMANO = /* glsl */`
 #ifndef HUMANO_D
 #define HUMANO_D 1
+// brazos que lleva una variante del cuerpo (de HU_A0 a HU_A1 − 1: 0 el izquierdo, 1 el derecho)
+#ifndef HU_A0
+#define HU_A0 0
+#endif
+#ifndef HU_A1
+#define HU_A1 2
+#endif
 uniform vec4 uHum[NHUM];
 vec3 huAf(int k, vec3 q) { return vec3(dot(uHum[k].xyz, q) + uHum[k].w, dot(uHum[k + 1].xyz, q) + uHum[k + 1].w, dot(uHum[k + 2].xyz, q) + uHum[k + 2].w); }
 
@@ -1005,8 +1116,10 @@ vec3 huAf(int k, vec3 q) { return vec3(dot(uHum[k].xyz, q) + uHum[k].w, dot(uHum
 float huPelo(vec3 qh, vec3 ah, vec3 P) {
   float L = P.x;
   float pelo = elipsoideP(qh - vec3(0.0, mix(0.618, 0.612, L), mix(-0.006, -0.016, L)), mix(vec3(0.133, 0.148, 0.14), vec3(0.146, 0.16, 0.152), L));
-  // corto: la línea del pelo deja la frente y las orejas a la vista
-  float linea = (0.585 + 0.135 * smoothstep(-0.06, 0.07, qh.z) - 0.035 * smoothstep(0.07, 0.11, ah.x) * smoothstep(-0.02, 0.04, qh.z) - qh.y) * 0.8;
+  // corto: la línea del pelo deja la frente y las orejas a la vista; por detrás baja por la nuca (lote 0: de perfil y por
+  // encima del hombro no queda un cogote de piel)
+  float nuca = smoothstep(0.25, 0.8, -qh.z / max(length(qh.xz), 1e-3));
+  float linea = (0.585 + 0.135 * smoothstep(-0.06, 0.07, qh.z) - 0.035 * smoothstep(0.07, 0.11, ah.x) * smoothstep(-0.02, 0.04, qh.z) - 0.08 * nuca - qh.y) * 0.8;
   // melena: el hueco de la cara es un óvalo (de la frente, con flequillo, a la barbilla) que el pelo enmarca con el
   // borde redondeado; las puntas acaban en ondas suaves a la altura de la mandíbula, algo más largas detrás
   float ov = (length(vec2(ah.x / 0.093, (qh.y - 0.548) / 0.118)) - 1.0) * 0.093;
@@ -1109,8 +1222,10 @@ vec3 huColCabeza(vec3 q, int b, float m) {
 // jersey (con sus mangas, el elástico y los puños), pantalón y zapatos; m: 1 jersey · 2 elástico y puños ·
 // 3 pantalón · 4 zapato · 9 suela.
 // (coste) El rectángulo del cuerpo se reparte en celdas de pantalla, y cada celda se dibuja con un programa que solo
-// lleva los grupos cuya caja cae en ella: el tronco (HU_SIN_T lo quita), los brazos (HU_SIN_A) y las piernas con la
-// pelvis y los zapatos (HU_SIN_P). Un rayo de esa celda no pasa cerca de lo que falta, así que la imagen es la misma.
+// lleva los grupos cuya caja cae en ella: el tronco (HU_SIN_T lo quita), cada brazo (HU_A0…HU_A1; HU_SIN_A, ninguno) y
+// las piernas con la pelvis y los zapatos (HU_SIN_P). Las cajas van por tramos (brazo, antebrazo, muslo…). Un rayo de esa
+// celda no pasa cerca de lo que falta, así que la imagen es la misma (salvo unos niveles en píxeles sueltos, ~0,1 % de
+// la imagen, porque el rayo da otros pasos).
 float huCuerpo(vec3 q, int b, out float m) {
   vec3 qt = huAf(b, q), qp = huAf(b + 6, q);
   vec4 K = uHum[b + 33];
@@ -1129,7 +1244,7 @@ float huCuerpo(vec3 q, int b, out float m) {
   elastico = min(elastico, sdTorus(qt - vec3(0.0, 0.402 - 0.12 * qt.z, -0.01), vec2(0.052, 0.016)) * K.x);
 #endif
 #ifndef HU_SIN_A
-  for (int i = 0; i < 2; i++) {
+  for (int i = HU_A0; i < HU_A1; i++) {
     int k = b + 9 + 6 * i;
     vec3 S = uHum[k].xyz, E = uHum[k + 1].xyz, Wr = uHum[k + 2].xyz;
     vec3 dF = normalize(Wr - E), dA = normalize(E - S);
@@ -1181,12 +1296,14 @@ float huCuerpoA(vec3 q, int b) {
   vec4 tA = uHum[b + 41];
   d = sdCapsule(q, tA.xyz, uHum[b + 42].xyz, tA.w);
 #endif
-  for (int i = 0; i < 2; i++) {
 #ifndef HU_SIN_A
+  for (int i = HU_A0; i < HU_A1; i++) {
     int k = b + 9 + 6 * i;
     d = min(d, sdCapsule(q, uHum[k].xyz, uHum[k + 1].xyz, 0.062 * kr));
     d = min(d, sdCapsule(q, uHum[k + 1].xyz, uHum[k + 2].xyz, 0.056 * kr));
+  }
 #endif
+  for (int i = 0; i < 2; i++) {
 #ifndef HU_SIN_P
     int j = b + 21 + 4 * i;
     d = min(d, sdCapsule(q, uHum[j].xyz, uHum[j + 1].xyz, 0.086 * kr));
@@ -1277,6 +1394,14 @@ vec4 huAlfaMano(int b, vec3 n, vec3 rd) {
 }
 
 // ---------------------------------------------------------------- sombra
+// el antebrazo y la mano para las sombras: del codo a, de radio r1, a b, ya dentro de la palma, de radio r2; el radio
+// baja con el cuadrado del recorrido, así que el antebrazo sigue casi entero y en la muñeca y la palma la cápsula queda
+// por dentro de la mano (rev. 5: antes, de 0,028 hasta 0,1 dentro de la mano, asomaba por la palma y entre los nudillos y
+// dejaba una mancha oscura, su sombra, en la palma abierta)
+float huSombraBrazo(vec3 q, vec3 a, vec3 b, float r1, float r2) {
+  vec3 pa = q - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * h) - mix(r1, r2, h * h);
+}
 // forma simplificada para las sombras (por dentro de la de detalle; diez piezas sin cambios de marco ni bucles: la
 // evalúan las pasadas de sombra en cada paso)
 float huSombra(vec3 q, int b) {
@@ -1285,9 +1410,9 @@ float huSombra(vec3 q, int b) {
   float d = sdCapsule(q, sA.xyz, uHum[b + 46].xyz, sA.w);
   d = min(d, length(q - sH.xyz) - sH.w);
   d = min(d, sdCapsule(q, uHum[b + 9].xyz, uHum[b + 10].xyz, 0.032 * kr));
-  d = min(d, sdCapsule(q, uHum[b + 10].xyz, uHum[b + 11].xyz + uHum[b + 12].xyz * 0.1, 0.028 * kr));
+  d = min(d, huSombraBrazo(q, uHum[b + 10].xyz, uHum[b + 11].xyz + uHum[b + 12].xyz * (0.06 * uHum[b + 13].w), 0.028 * kr, 0.012 * uHum[b + 13].w));
   d = min(d, sdCapsule(q, uHum[b + 15].xyz, uHum[b + 16].xyz, 0.032 * kr));
-  d = min(d, sdCapsule(q, uHum[b + 16].xyz, uHum[b + 17].xyz + uHum[b + 18].xyz * 0.1, 0.028 * kr));
+  d = min(d, huSombraBrazo(q, uHum[b + 16].xyz, uHum[b + 17].xyz + uHum[b + 18].xyz * (0.06 * uHum[b + 19].w), 0.028 * kr, 0.012 * uHum[b + 19].w));
   d = min(d, sdCapsule(q, uHum[b + 21].xyz, uHum[b + 22].xyz, 0.05 * kr));
   d = min(d, sdCapsule(q, uHum[b + 22].xyz, uHum[b + 23].xyz, 0.042 * kr));
   d = min(d, sdCapsule(q, uHum[b + 25].xyz, uHum[b + 26].xyz, 0.05 * kr));
@@ -1299,8 +1424,8 @@ float huSombra(vec3 q, int b) {
 const PARTES_HUMANO = [
   { suf: '', d: 'huCuerpo', a: 'huCuerpoA', c: 'huColCuerpo', arg: '' },
   { suf: 'c', d: 'huCabeza', a: 'huCabezaA', c: 'huColCabeza', arg: '' },
-  { suf: 'i', d: 'huMano', a: 'huManoA', c: 'huColMano', arg: ', 0', alfa: true },
-  { suf: 'd', d: 'huMano', a: 'huManoA', c: 'huColMano', arg: ', 1', alfa: true },
+  { suf: 'i', d: 'huMano', a: 'huManoA', c: 'huColMano', arg: ', 0', alfa: true, esf: 50 },
+  { suf: 'd', d: 'huMano', a: 'huManoA', c: 'huColMano', arg: ', 1', alfa: true, esf: 51 },
 ];
 const TIPOS_PRUEBA = {
   persona: { radio: 1.08, glifos: [], glsl: /* glsl */`
@@ -1666,10 +1791,12 @@ float reglaTintaA1(vec3 q, out float cur, out float luz) {
     }
   }
   float curT = 1.0 - smoothstep(0.2, 0.55, abs(er - ec));
-  // rótulos fila a fila (la regla de siempre): encogen y se van al comprimirse la regla
+  // rótulos fila a fila (la regla de siempre): encogen y se van al comprimirse la regla. El de la fila actual, no: con
+  // entera > 0 lo sustituye el actual de la regla entera (uRotE[2].zw), del mismo tamaño y sin recortar
   float txt = 1e3, curL = 0.0, eL = er;
   float kN = 1.0 - smoothstep(0.0, 0.3, k);
-  if (kN > 0.0 && dentro) {
+  float ecr = clamp(floor(ec + 0.5), ${fl(ROT.E_MIN)}, ${fl(ROT.E_MAX)}), sC = uRotE[2].w;
+  if (kN > 0.0 && dentro && !(sC > 0.002 && er == ecr)) {
     float dd = er - ec;
     float esc = ESC0 * (1.0 + uReglaA.z * exp(-dd * dd * 2.4)) * kN;
     if (esc > 0.002) { txt = etiqA((q.xy - vec2(XL + 0.27, yr)) / esc, er) * esc; curL = curT; }
@@ -1691,10 +1818,21 @@ float reglaTintaA1(vec3 q, out float cur, out float luz) {
       float t2 = etiqA((q.xy - vec2(XL + 0.27, yb)) / sb, eb) * sb;
       if (t2 < txt) { txt = t2; curL = 0.0; eL = eb; }
     }
-    float sC = uRotE[2].w;
+    // líneas guía: un rótulo que quedó apartado de su marca (más de una fila; a media fila aún no hay) se une a ella con
+    // un trazo fino, del final de la marca al pie del «1»: del color del rótulo (crema; el del actual, ámbar)
+    float guia = 1e5, eg = 0.0;
+    for (int i = 0; i < 5; i++) {
+      float ei = i == 0 ? -35.0 : i == 1 ? -4.0 : i == 2 ? 0.0 : i == 3 ? 7.0 : 27.0;
+      float yi = i < 4 ? Y[i] : uRotE[1].x, si = i < 4 ? Sz[i] : uRotE[2].y;
+      float yt = ya + (ei - s) * rs, f = smoothstep(0.5, 1.0, abs(yi - yt) / rs);
+      float dg = sdSeg(q.xy, vec2(XL + 0.215, yt), vec2(XL + 0.258, yi)) - 0.0052 + 0.02 * (1.0 - f);
+      if (si > 0.002 && f > 0.0 && dg < guia) { guia = dg; eg = ei; }
+    }
+    if (guia < txt) { txt = guia; curL = 0.0; eL = eg; }
     if (sC > 0.002) {
-      float ecr = clamp(floor(ec + 0.5), ${fl(ROT.E_MIN)}, ${fl(ROT.E_MAX)});
       float t3 = etiqA((q.xy - vec2(XL + 0.27, uRotE[2].z)) / sC, ecr) * sC;
+      float yt = ya + (ecr - s) * rs, f = smoothstep(0.5, 1.0, abs(uRotE[2].z - yt) / rs);
+      if (f > 0.0) t3 = min(t3, sdSeg(q.xy, vec2(XL + 0.215, yt), vec2(XL + 0.258, uRotE[2].z)) - 0.0052 + 0.02 * (1.0 - f));
       if (t3 < txt) { txt = t3; curL = 1.0; eL = ecr; }
     }
   }
@@ -1718,7 +1856,9 @@ vec2 reglaFinesA() {
 // la niebla: una nube de arcilla clara y blanda que tapa la cara por debajo de 10⁻³⁵: dos filas de bocanadas en el
 // borde de arriba (que no pasan de 10^-35,5, donde van los rótulos), algo más anchas que la regla, y dos jirones
 // finos que se escapan por los lados y se rizan; la red: una placa oscura incrustada por encima de 10²⁷ (los
-// filamentos, en el color)
+// filamentos, en el color). (rev. 5) La niebla no pasa del pie de la contera de abajo (y = −1,895): al entrar o salir
+// por abajo (la regla larga cerca de −35, las transiciones de la regla entera), lo que queda es una franja que sube por
+// la regla desde su pie, no una almohada colgando debajo de ella
 float reglaRemates(vec3 q, out float mr) {
   vec2 yf = reglaFinesA();
   mr = 0.0;
@@ -1735,6 +1875,7 @@ float reglaRemates(vec3 q, out float mr) {
     n = smin(n, rizoN(vec3(abs(q.x), q.y, q.z), vec3(0.58, y1 - 0.15, 0.08), 1.1), 0.035);
     vec3 qn = vec3(q.x, q.y - yf.x, q.z);
     n += 0.04 * (vnoise(qn * 2.6) - 0.5) + 0.012 * (vnoise(qn * 7.0 + 2.3) - 0.5);
+    n = smax(n, -(q.y + 1.895), 0.015);
     if (n < d) { d = n; mr = 5.0; }
   }
   if (yf.y < 1.86) {
@@ -2621,7 +2762,15 @@ void mat_${id}(vec3 p, inout Mat M) {
   M.g = transpose(uPM[${idx}]) * gG * uPC[${idx}].w;
   M.em = gEm; M.tr = gTr; M.bri = gBri;
 }
-${P.alfa ? `vec4 alfa_${id}(vec3 p, vec3 n, vec3 rd) { return huAlfaMano(${B}, n, rd); }\n` : ''}`;
+${P.alfa ? `vec4 alfa_${id}(vec3 p, vec3 n, vec3 rd) { return huAlfaMano(${B}, n, rd); }\n` : ''}${P.esf ? `// el tramo [t0, t1] del rayo dentro de la esfera de la parte (uHum[${P.esf}], local; con 0,012 de holgura)
+bool rango_${id}(vec3 ro, vec3 rd, inout float t0, inout float t1) {
+  vec3 o = uPM[${idx}] * (ro - uPC[${idx}].xyz), d = uPM[${idx}] * rd; vec4 s = uHum[${B} + ${P.esf}];
+  vec3 oc = o - s.xyz; float r = s.w + 0.012, a = dot(d, d), bb = dot(oc, d), c = dot(oc, oc) - r * r, h = bb * bb - a * c;
+  if (h < 0.0) return false;
+  h = sqrt(h); t0 = max(t0, (-bb - h) / a); t1 = min(t1, (-bb + h) / a);
+  return t1 > max(t0, 0.0);
+}
+` : ''}`;
   }
   return s;
 }
@@ -2855,6 +3004,11 @@ void main() {
   bool dentro = esfera(ro, rd, uB[OBJ_B], t0, t1);
 #endif
   if (!dentro) discard;
+#ifdef RANGO_OBJ
+  // (lote 0, coste) una parte con su propia esfera, más pequeña que la de la pieza (cada mano de una persona): el rayo
+  // empieza y acaba en ella
+  if (!RANGO_OBJ(ro, rd, t0, t1)) discard;
+#endif
   float t = max(t0, 0.0), tHit = -1.0, bestR = 1e5, bestT = t;
 #ifdef SDFA_OBJ
   // fase 1: envolvente barata hasta quedar cerca de la arcilla
@@ -3155,8 +3309,12 @@ export const MANO = { abierta: 0, indice: 1, puno: 2, agarre: 2 };
 //   piernaIzq / piernaDer [flex (+ el muslo adelante), abd, rodilla (+ doblada), tobillo (+ la punta arriba)]
 //   apoyo: 1 → la pelvis sube o baja para que el pie más bajo pise el suelo (sentada, se baja sola)
 //   apuntarIzq / apuntarDer: [x, y, z] punto (unidades locales de la persona) al que señala ese brazo: se calculan
-//     flex, abd y, si hace falta, rot para que el antebrazo apunte allí (con el codo, la pronación y la muñeca de la
-//     postura; ver apuntarBrazo). En P.pieza, la opción apuntar: { izq, der } los da en el mundo
+//     flex, abd y, si hace falta, rot para que la recta del índice pase por allí (con el codo, la pronación y la muñeca
+//     de la postura; un punto al alcance de la mano, el antebrazo; ver apuntarBrazo). En P.pieza, la opción apuntar:
+//     { izq, der } los da en el mundo. El brazo toma antes el gesto de señalar (GESTO_SENALAR: codo doblado 1 rad,
+//     muñeca recta e índice)
+//   apuntarGesto (0…1, 1): 0 → al apuntar se queda con el codo, la pronación, la muñeca y la mano de la postura (con un
+//     codo muy doblado la solución puede saltar entre fotogramas y no siempre llega al punto)
 //   fantasma (0…1): las manos se vuelven casi transparentes (dejan ver lo que tienen detrás), pálidas y frías, con
 //     un borde de luz (ep3-casa, ep3-silla)
 //   piesFijos (0…1): 1 → los tobillos se quedan donde están de pie y es la pelvis la que se mueve (al sentarse, va hacia
@@ -3164,8 +3322,13 @@ export const MANO = { abierta: 0, indice: 1, puno: 2, agarre: 2 };
 const POSTURA_BASE = {
   cabeza: [0, 0, 0], torso: [0, 0, 0], ojos: 1, mirada: [0, 0],
   brazoIzq: [0.03, 0.06, 0, 0.12, 0, 0.05], manoIzq: 0, brazoDer: [0.03, 0.06, 0, 0.12, 0, 0.05], manoDer: 0,
-  piernaIzq: [0, 0, 0, 0], piernaDer: [0, 0, 0, 0], apoyo: 1, fantasma: 0, piesFijos: 1,
+  piernaIzq: [0, 0, 0, 0], piernaDer: [0, 0, 0, 0], apoyo: 1, fantasma: 0, piesFijos: 1, apuntarGesto: 1,
 };
+// (lote 0) el gesto de señalar que toma el brazo que apunta (apuntarIzq/Der): el hombro [flex, abd] del que parte la
+// búsqueda, [rot, codo, prona] de 'señalar' (vale igual para los dos lados: los ángulos ya van en espejo), la muñeca
+// recta (rev. 5: antes −0,1, la de 'señalar'; recta, el antebrazo, la mano y el índice quedan en línea) y el índice
+// extendido
+export const GESTO_SENALAR = { hombro: [0.6, 0.95], brazo: [-0.9, 1.0, 1.2, 0], mano: 1 };
 export const POSTURAS = {
   depie: {},
   // sostener un objeto delante, con las dos manos a la altura del pecho (las manos, en P.pieza(...).punto('manoIzq'))
@@ -3174,11 +3337,16 @@ export const POSTURAS = {
   // señalar con la derecha (a su derecha, algo adelante y arriba: de frente se ve el índice); el codo, doblado y por
   // encima de la cintura
   senalar: { cabeza: [-0.22, -0.1, 0], torso: [0, -0.08, 0], mirada: [-0.5, 0.3], brazoDer: [0.6, 0.95, -0.9, 1.0, 1.2, -0.1], manoDer: 1 },
+  // señalar con la izquierda: 'señalar' en espejo (de frente a cámara, hacia la derecha de la pantalla, donde va la regla)
+  senalarizq: { cabeza: [0.22, -0.1, 0], torso: [0, 0.08, 0], mirada: [0.5, 0.3], brazoIzq: [0.6, 0.95, -0.9, 1.0, 1.2, -0.1], manoIzq: 1 },
   // saludar con la derecha: el codo a la altura del hombro, el antebrazo hacia arriba y la palma a cámara; el
   // vaivén lo pone postura('saludar', t)
   saludar: { cabeza: [-0.06, -0.04, 0.05], brazoDer: [0.18, 1.3, -1.45, 1.75, 0.0, 0.0], manoDer: 0 },
-  // sentada en una silla (asiento a la altura de las rodillas: P.pieza(...).punto('asiento')), manos en los muslos
-  sentada: { torso: [0.04, 0, 0], piernaIzq: [1.5, 0.08, 1.5, 0], piernaDer: [1.5, 0.08, 1.5, 0],
+  // saludar con la izquierda ('saludar' en espejo)
+  saludarizq: { cabeza: [0.06, -0.04, -0.05], brazoIzq: [0.18, 1.3, -1.45, 1.75, 0.0, 0.0], manoIzq: 0 },
+  // sentada en una silla (asiento a la altura de las rodillas: P.pieza(...).punto('asiento')), manos en los muslos; las
+  // piernas sin abrir (abd 0), para que cada tobillo se quede donde estaba de pie, también de lado
+  sentada: { torso: [0.04, 0, 0], piernaIzq: [1.5, 0, 1.5, 0], piernaDer: [1.5, 0, 1.5, 0],
     brazoIzq: [0.2, 0.05, 0.3, 1.05, 1.2, 0.25], brazoDer: [0.2, 0.05, 0.3, 1.05, 1.2, 0.25] },
   // brazos cruzados (el izquierdo por encima)
   cruzados: { cabeza: [0, 0.03, 0], brazoIzq: [0.42, 0.06, 1.38, 1.95, 0.0, 0.1], manoIzq: 2, brazoDer: [0.5, 0.06, 1.3, 1.95, 0.0, 0.1], manoDer: 2 },
@@ -3191,7 +3359,9 @@ export const POSTURAS = {
 };
 const SIN_TILDES = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z]/g, '');
 const ALIAS_POSTURA = { depie: 'depie', pie: 'depie', sostener: 'sostener', sostiene: 'sostener', senalar: 'senalar', senala: 'senalar',
-  saludar: 'saludar', saluda: 'saludar', sentada: 'sentada', sentado: 'sentada', sentarse: 'sentada', cruzados: 'cruzados',
+  senalarder: 'senalar', senalarizq: 'senalarizq', senalaizq: 'senalarizq', senalarizquierda: 'senalarizq', senalarconlaizquierda: 'senalarizq',
+  saludar: 'saludar', saluda: 'saludar', saludarder: 'saludar', saludarizq: 'saludarizq', saludaizq: 'saludarizq',
+  saludarizquierda: 'saludarizq', saludarconlaizquierda: 'saludarizq', sentada: 'sentada', sentado: 'sentada', sentarse: 'sentada', cruzados: 'cruzados',
   brazoscruzados: 'cruzados', manos: 'manos', mirarselasmanos: 'manos', miralasmanos: 'manos', perfil: 'perfil',
   perfilojoscerrados: 'perfil', arriba: 'arriba', mirararriba: 'arriba' };
 const copiaP = (p) => JSON.parse(JSON.stringify(p));
@@ -3208,9 +3378,9 @@ export function postura(p = 'depie', t = null) {
     o = { ...POSTURAS[k], _nombre: k };
   }
   const r = { ...copiaP(POSTURA_BASE), ...copiaP(o) };
-  if (typeof p === 'string' && r._nombre === 'saludar' && t !== null) {
-    const f = Math.sin(2 * Math.PI * 1.6 * t);
-    r.brazoDer[2] += 0.34 * f; r.brazoDer[3] += 0.08 * Math.sin(2 * Math.PI * 1.6 * t + 1.2);
+  if (typeof p === 'string' && (r._nombre === 'saludar' || r._nombre === 'saludarizq') && t !== null) {
+    const f = Math.sin(2 * Math.PI * 1.6 * t), b = r._nombre === 'saludar' ? r.brazoDer : r.brazoIzq;
+    b[2] += 0.34 * f; b[3] += 0.08 * Math.sin(2 * Math.PI * 1.6 * t + 1.2);
   }
   return r;
 }
@@ -3293,6 +3463,18 @@ function brazoFK(s, br, Rt, S, C) {
   const u = V3(0, -1, 0).transformDirection(Rh), v = V3(0, 0, 1).transformDirection(Rh), w = V3(s, 0, 0).transformDirection(Rh);
   return { S, E, W, u, v, w, dedos: W.clone().addScaledVector(u, HUMANO.MANO * C.km) };
 }
+// (rev. 5) el índice de la mano del «humano» (como en huManoF: nudillo, largo y grosor, en el marco u, v, w de la mano y
+// en unidades del adulto): su punta, para una curva ci (0 recto) y un puño kp (lo que se cierra el abanico)
+const INDICE = { K: [0.08, 0.0255, 0.001], L: 0.087, r: 0.0089 };
+function puntaIndice(B, ci, kp, km) {
+  const ab = 0.13 * (1 - kp), { K, L } = INDICE;
+  const a1 = 1.5 * ci, a2 = a1 + 1.75 * ci, a3 = a2 + 1.05 * ci;
+  const h = [...K];
+  for (const [a, l] of [[a1, 0.46 * L], [a2, 0.29 * L], [a3, 0.25 * L]]) { h[0] += Math.cos(a) * l; h[1] += ab * Math.cos(a) * l; h[2] -= Math.sin(a) * l; }
+  return B.W.clone().addScaledVector(B.u, h[0] * km).addScaledVector(B.v, h[1] * km).addScaledVector(B.w, h[2] * km);
+}
+// la recta por la que señala la mano con el índice extendido (el índice recto va a lo largo de u, desde su nudillo)
+const rectaIndice = (B, km) => B.W.clone().addScaledVector(B.v, INDICE.K[1] * km).addScaledVector(B.w, INDICE.K[2] * km);
 // apuntar, primera aproximación: flex y abd para que el antebrazo (con el codo y la rotación dados) apunte al punto P
 // (local); con rot fija no siempre hay solución exacta (un punto casi delante del pecho, si el antebrazo se abre mucho)
 function apuntarAnalitico(s, br, Rt, S, C, P) {
@@ -3320,19 +3502,25 @@ function apuntarAnalitico(s, br, Rt, S, C, P) {
   }
   return b;
 }
-// apuntar: el hombro (flex, abd y, si hace falta, rot) para que el antebrazo, con el codo, la pronación y la muñeca de la
-// postura, señale el punto P (local). Busca (Nelder–Mead) el mínimo de: el error del ángulo al cuadrado, un poco de
+// apuntar: el hombro (flex, abd y, si hace falta, rot) para que, con el codo, la pronación y la muñeca de la postura, la
+// recta del índice (rectaIndice, a lo largo del eje de la mano) pase por el punto P (local); si P está al alcance de la
+// mano, es el antebrazo el que lo señala (se mezclan entre 0,7 y 0,95 del hombro, en unidades del brazo). Busca (Nelder–Mead) el mínimo de: el error del ángulo al cuadrado, un poco de
 // distancia a los ángulos de la postura (el gesto se parece al de la postura y no salta de una solución a otra entre
 // fotogramas), un castigo si el codo baja de la cintura (HUMANO.md: al señalar, el codo a la altura de la cintura o por
-// encima) y los límites del hombro. Empieza en la postura y en la primera aproximación, y se queda con la mejor.
-function apuntarBrazo(s, br, Rt, S, C, P) {
+// encima; yCintura, la de la persona en su postura: sentada, más abajo) y los límites del hombro. Empieza en la postura y en la primera aproximación, y se queda con la mejor.
+function apuntarBrazo(s, br, Rt, S, C, P, yCintura = HUMANO.CORONILLA - 0.40 * HUMANO.H) {
   const [f0, a0, r0, codo, pr, mu] = br;
-  const yCintura = HUMANO.CORONILLA - 0.40 * HUMANO.H;
   const fuera = (x, a, b) => (x < a ? a - x : x > b ? x - b : 0);
+  const kLejos = ss(0.7, 0.95, P.distanceTo(S) / C.ka);
   const coste = ([f, a, r]) => {
     const B = brazoFK(s, [f, a, r, codo, pr, mu], Rt, S, C);
-    const fa = B.W.clone().sub(B.E).normalize(), dt = P.clone().sub(B.E).normalize();
-    const e = Math.acos(cl(fa.dot(dt), -1, 1));
+    // (rev. 5) lo que apunta es el índice: su recta (del nudillo, a lo largo del eje de la mano) pasa por P; antes era el
+    // antebrazo, y con la muñeca doblada la mano se desviaba ~6°. Un punto al alcance de la mano (a menos de ~0,95 del
+    // hombro) no se puede señalar con el índice por delante: ahí, como antes, apunta el antebrazo
+    const dt = P.clone().sub(rectaIndice(B, C.km)).normalize();
+    const eI = Math.acos(cl(B.u.dot(dt), -1, 1));
+    const eF = Math.acos(cl(B.W.clone().sub(B.E).normalize().dot(P.clone().sub(B.E).normalize()), -1, 1));
+    const e = mix(eF, eI, kLejos);
     const bajo = Math.max(0, yCintura - B.E.y);
     const lim = fuera(f, -0.8, 3.0) + fuera(a, -0.4, 2.6) + fuera(r, -2.2, 2.2);
     return e * e + 0.004 * ((f - f0) ** 2 + (a - a0) ** 2) + 0.008 * (r - r0) ** 2 + 2 * bajo * bajo + 10 * lim * lim;
@@ -3391,20 +3579,32 @@ export function esqueletoHumano(p = 'depie', a = 'adulto', t = null) {
   const Rt = RY(P.torso[1]).multiply(RX(P.torso[0])).multiply(RZ(P.torso[2]));
   const Mt = _M().makeTranslation(raiz.x + T0.x, raiz.y + T0.y, raiz.z + T0.z).multiply(Rt).multiply(_M().makeScale(kt.x, kt.y, kt.z)).multiply(_M().makeTranslation(-T0.x, -T0.y, -T0.z));
   const cuello = N0.clone().applyMatrix4(Mt);
+  // la cintura (0,40 H bajo la coronilla de pie), en el marco del torso: sigue a la pelvis cuando se sienta
+  const yCintura = V3(0, HUMANO.CORONILLA - 0.40 * HUMANO.H, 0).applyMatrix4(Mt).y;
   const Rh = Rt.clone().multiply(RY(P.cabeza[0])).multiply(RX(P.cabeza[1])).multiply(RZ(P.cabeza[2]));
   const Mh = _M().makeTranslation(cuello.x, cuello.y, cuello.z).multiply(Rh).multiply(_M().makeScale(C.kh, C.kh, C.kh)).multiply(_M().makeTranslation(-N0.x, -N0.y, -N0.z));
-  const brazos = [1, -1].map((s) => {
+  const manos = [P.manoIzq, P.manoDer];
+  const brazos = [1, -1].map((s, ib) => {
     const S = V3(s * HUMANO.HOMBRO[0], HUMANO.HOMBRO[1], HUMANO.HOMBRO[2]).applyMatrix4(Mt);
     let br = s > 0 ? P.brazoIzq : P.brazoDer;
     const ap = s > 0 ? P.apuntarIzq : P.apuntarDer;
     if (ap) {
-      const b2 = apuntarBrazo(s, br, Rt, S, C, V3(...ap));
       const pe = P[(s > 0 ? 'apuntarIzq' : 'apuntarDer') + 'Peso'] ?? 1;
+      // el brazo que apunta toma el gesto de señalar (rot, codo, pronación y muñeca de GESTO_SENALAR, el índice
+      // extendido): un brazo casi recto (el de 'de pie', el libre de 'señalar'…) no se estira hacia el punto, y uno muy
+      // doblado ('sostener', 'brazos cruzados', 'mirarse las manos') no salta de una solución a otra entre fotogramas.
+      // apuntarGesto (0…1) lo mezcla con el brazo de la postura (0: el codo, la pronación, la muñeca y la mano de ella)
+      const g = cl(P.apuntarGesto ?? 1);
+      // (el hombro también parte del de señalar: la solución no depende de dónde tenía el brazo la postura; el paso de un
+      // brazo al otro lo pone peso)
+      const G = [...GESTO_SENALAR.hombro, ...GESTO_SENALAR.brazo];
+      const base = g > 0 ? br.map((v, i) => mezN(v, G[i], g)) : br;
+      const b2 = apuntarBrazo(s, base, Rt, S, C, V3(...ap), yCintura);
       br = br.map((v, i) => mezN(v, b2[i], pe));
+      manos[ib] = mezN(manos[ib], GESTO_SENALAR.mano, g * pe);
     }
     return brazoFK(s, br, Rt, S, C);
   });
-  const manos = [P.manoIzq, P.manoDer];
   // datos para el sombreador
   const D = new Float32Array(HUMANO.NJ * 4);
   const fila = (k, M) => { const I = M.clone().invert().elements; for (let r = 0; r < 3; r++) D.set([I[r], I[r + 4], I[r + 8], I[r + 12]], (k + r) * 4); };
@@ -3414,10 +3614,12 @@ export function esqueletoHumano(p = 'depie', a = 'adulto', t = null) {
     D.set([B.S.x, B.S.y, B.S.z, 0], k * 4); D.set([B.E.x, B.E.y, B.E.z, 0], (k + 1) * 4); D.set([B.W.x, B.W.y, B.W.z, 0], (k + 2) * 4);
     // la forma de la mano (0 abierta · 1 índice · 2 puño): lo doblados que están el índice y los otros tres dedos; cada
     // dedo dobla sus tres falanges (nudillo, medio y punta: 1,5 · 1,75 · 1,05 rad con el puño cerrado) y el sombreador
-    // recibe el (cos, sin) del ángulo acumulado de cada una
-    const f = cl(manos[i], 0, 2), ci = 0.06 + 0.94 * cl(f - 1), cf = 0.12 + 0.88 * cl(f);
+    // recibe el (cos, sin) del ángulo acumulado de cada una. (rev. 5) Al señalar (1) el índice va recto, a lo largo del
+    // eje de la mano (antes, algo doblado hacia la palma: su recta se desviaba ~9°); abierta (0) y en puño (2), como antes
+    const f = cl(manos[i], 0, 2), ci = 0.06 * (1 - cl(f)) + cl(f - 1), cf = 0.12 + 0.88 * cl(f);
     const curva = (c) => { const a1 = 1.5 * c, a2 = a1 + 1.75 * c, a3 = a2 + 1.05 * c; return [Math.cos(a1), Math.sin(a1), Math.cos(a2), Math.sin(a2), Math.cos(a3), Math.sin(a3)]; };
     const FI = curva(ci), FO = curva(cf);
+    B.indice = puntaIndice(B, ci, cl(f), C.km);
     D.set([B.u.x, B.u.y, B.u.z, f], (k + 3) * 4); D.set([B.v.x, B.v.y, B.v.z, C.km], (k + 4) * 4); D.set([B.w.x, B.w.y, B.w.z, cl(f)], (k + 5) * 4);
     D.set([FI[0], FI[1], FI[2], FI[3]], (35 + 3 * i) * 4); D.set([FI[4], FI[5], FO[0], FO[1]], (36 + 3 * i) * 4); D.set([FO[2], FO[3], FO[4], FO[5]], (37 + 3 * i) * 4);
   });
@@ -3455,7 +3657,7 @@ export function esqueletoHumano(p = 'depie', a = 'adulto', t = null) {
   };
   ['Izq', 'Der'].forEach((L, i) => {
     const B = brazos[i];
-    ptos['hombro' + L] = pt(B.S); ptos['codo' + L] = pt(B.E); ptos['muneca' + L] = pt(B.W); ptos['dedos' + L] = pt(B.dedos);
+    ptos['hombro' + L] = pt(B.S); ptos['codo' + L] = pt(B.E); ptos['muneca' + L] = pt(B.W); ptos['dedos' + L] = pt(B.dedos); ptos['indice' + L] = pt(B.indice);
     ptos['mano' + L] = pt(B.W.clone().addScaledVector(B.u, 0.06 * C.km).addScaledVector(B.w, -0.03 * C.km));
     const G = pies[i];
     ptos['cadera' + L] = pt(G.H); ptos['rodilla' + L] = pt(G.K); ptos['tobillo' + L] = pt(G.A);
@@ -3484,12 +3686,15 @@ export function esqueletoHumano(p = 'depie', a = 'adulto', t = null) {
   // los grupos del cuerpo (tronco, cada brazo y las piernas con la pelvis y los zapatos), con 0,03 de holgura sobre su
   // forma: fuera de su caja un rayo no se acerca a ellos (ver huCuerpo)
   const enM = (M, xs, ys, zs) => { const o = []; for (const x of xs) for (const y of ys) for (const z of zs) o.push(pt(V3(x, y, z).applyMatrix4(M))); return o; };
+  // (cada grupo es una lista de cajas, una por tramo: así sus rectángulos de pantalla se ajustan más a un brazo doblado
+  // o a una pierna sentada)
+  const mA = 0.085 * C.kr, mL = 0.11 * C.kr, mF = 0.135 * C.kf;
   const grupos = {
-    T: aabb(enM(Mt, [-0.245, 0.245], [-0.14, 0.465], [-0.16, 0.16]), 0),
-    A0: aabb([ptos.hombroIzq, ptos.codoIzq, ptos.munecaIzq], 0.085 * C.kr),
-    A1: aabb([ptos.hombroDer, ptos.codoDer, ptos.munecaDer], 0.085 * C.kr),
-    P: union(aabb(enM(Mp, [-0.2, 0.2], [-0.225, 0.05], [-0.13, 0.13]), 0), aabb([ptos.caderaIzq, ptos.rodillaIzq, ptos.tobilloIzq, ptos.caderaDer, ptos.rodillaDer, ptos.tobilloDer], 0.11 * C.kr),
-      aabb([ptos.tobilloIzq, ptos.pieIzq, ptos.tobilloDer, ptos.pieDer], 0.135 * C.kf)),
+    T: [aabb(enM(Mt, [-0.245, 0.245], [-0.14, 0.465], [-0.16, 0.16]), 0)],
+    A0: [aabb([ptos.hombroIzq, ptos.codoIzq], mA), aabb([ptos.codoIzq, ptos.munecaIzq], mA)],
+    A1: [aabb([ptos.hombroDer, ptos.codoDer], mA), aabb([ptos.codoDer, ptos.munecaDer], mA)],
+    P: [aabb(enM(Mp, [-0.2, 0.2], [-0.225, 0.05], [-0.13, 0.13]), 0), ...['Izq', 'Der'].flatMap((L) => [aabb([ptos['cadera' + L], ptos['rodilla' + L]], mL),
+      aabb([ptos['rodilla' + L], ptos['tobillo' + L]], mL), aabb([ptos['tobillo' + L], ptos['pie' + L]], mF)])],
   };
   const centros = { cuerpo: pt(V3(0, 0.15, 0).applyMatrix4(Mt)), cabeza: pt(cCab), manoIzq: pt(cMano[0]), manoDer: pt(cMano[1]) };
   // caja envolvente (la de los puntos más el grosor de cada parte) y su esfera
@@ -3596,7 +3801,7 @@ export async function crearPlato({
   piezas.forEach((tipo, i) => {
     objetos.push({ id: `p${i}`, b: 4 + i, tipo });
     // (lote 0) la persona «humano» es cuatro pasadas: el cuerpo (p<i>), la cabeza (p<i>c) y las manos (p<i>i, p<i>d)
-    if (tipo === 'humano') for (const pa of PARTES_HUMANO.slice(1)) objetos.push({ id: `p${i}${pa.suf}`, b: 4 + i, tipo, base: `p${i}`, alfa: pa.alfa });
+    if (tipo === 'humano') for (const pa of PARTES_HUMANO.slice(1)) objetos.push({ id: `p${i}${pa.suf}`, b: 4 + i, tipo, base: `p${i}`, alfa: pa.alfa, esf: pa.esf });
   });
   const tiposUsados = [...new Set(piezas)];
   const glifos = new Set(['✓', '✗']);
@@ -3699,17 +3904,23 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
       // (B ajustada) las piezas cuyo tipo trae envolvente (pza_<tipo>) marchan primero con ella
       ...(o.tipo && TIPOS_PRUEBA[nombreTipo(o.tipo)]?.envolvente ? { SDFA_OBJ: `sdfa_${o.id}` } : {}),
       ...(o.alfa ? { ALFA_OBJ: `alfa_${o.id}` } : {}),
+      // (lote 0, coste) las manos de una persona: el rayo solo marcha dentro de la esfera de esa mano
+      ...(o.esf ? { RANGO_OBJ: `rango_${o.id}` } : {}),
     };
     o.uRect = { value: new THREE.Vector4(-1, -1, 1, 1) };
     o.paso = crearPaso(fuente, { vert: VERT_RECT, uniforms: { ...U, uRect: o.uRect }, mezcla: true, extraDefs: defs });
-    // (lote 0) el cuerpo de una persona: un programa por combinación de grupos (1 tronco · 2 brazos · 4 piernas); cada
-    // celda de su rectángulo se dibuja con el que solo lleva los grupos que caen en ella (ver huCuerpo)
+    // (lote 0) el cuerpo de una persona: un programa por combinación de grupos (1 tronco · 2 brazo izquierdo · 4 piernas ·
+    // 8 brazo derecho); cada celda de su rectángulo se dibuja con el que solo lleva los grupos que caen en ella (ver
+    // huCuerpo). Se crean (y SwiftShader los compila, ~0,5 s cada uno) la primera vez que una celda los pide
     if (o.tipo === 'humano' && !o.base) {
-      o.variantes = { 7: o.paso };
-      for (let mk = 1; mk < 7; mk++) {
-        o.variantes[mk] = crearPaso(fuente, { vert: VERT_RECT, uniforms: { ...U, uRect: o.uRect }, mezcla: true,
-          extraDefs: { ...defs, ...(mk & 1 ? {} : { HU_SIN_T: 1 }), ...(mk & 2 ? {} : { HU_SIN_A: 1 }), ...(mk & 4 ? {} : { HU_SIN_P: 1 }) } });
-      }
+      o.variantes = { 15: o.paso };
+      o.variante = (mk) => {
+        if (o.variantes[mk]) return o.variantes[mk];
+        const a0 = mk & 2, a1 = mk & 8;
+        return (o.variantes[mk] = crearPaso(fuente, { vert: VERT_RECT, uniforms: { ...U, uRect: o.uRect }, mezcla: true,
+          extraDefs: { ...defs, ...(mk & 1 ? {} : { HU_SIN_T: 1 }), ...(a0 || a1 ? {} : { HU_SIN_A: 1 }), ...(a0 && !a1 ? { HU_A1: 1 } : {}),
+            ...(a1 && !a0 ? { HU_A0: 1 } : {}), ...(mk & 4 ? {} : { HU_SIN_P: 1 }) } }));
+      };
     }
   }
 
@@ -3945,11 +4156,11 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
   //     punto(nombre) } con las articulaciones, las manos, el asiento… (ver esqueletoHumano)
   const rigs = {};
   function ponerPieza(i, { pos = [0, 0, 0], escala = 1, sq = [1, 1, 1], rot = [0, 0, 0], variante = 0, color = 0, puntos = 0, toque = false, huellaFija = null,
-    postura: pose = 'depie', aspecto: asp = 'adulto', t = null, apuntar = null } = {}) {
+    postura: pose = 'depie', aspecto: asp = 'adulto', t = null, apuntar = null, partes = null } = {}) {
     if (i >= NP) throw new Error(`pieza ${i}: el plató solo tiene ${NP}`);
     if (escala <= 0.005) { B[4 + i].set(0, 0, 0, 0); return; }
     const tipo = piezas[i];
-    if (tipo === 'humano') return ponerHumano(i, { pos, escala, sq, rot, toque, huellaFija, pose, asp, t, apuntar });
+    if (tipo === 'humano') return ponerHumano(i, { pos, escala, sq, rot, toque, huellaFija, pose, asp, t, apuntar, partes });
     const R = rotXYZ(...rot);
     const S = sq.map((v) => v * escala);
     const M = R.clone().transpose().premultiply(new THREE.Matrix4().makeScale(1 / S[0], 1 / S[1], 1 / S[2]));
@@ -3967,14 +4178,15 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
 
   // (lote 0) la persona con posturas: su esqueleto va a uHum, su esfera envolvente se ajusta a la postura y cada parte
   // (cuerpo, cabeza y manos) tiene su rectángulo de pantalla
-  function ponerHumano(i, { pos, escala, sq, rot, toque, huellaFija, pose, asp, t, apuntar }) {
+  function ponerHumano(i, { pos, escala, sq, rot, toque, huellaFija, pose, asp, t, apuntar, partes }) {
     const k = slotHum[i];
     const Rm = rotXYZ(...rot);
     const S = sq.map((v) => v * escala);
     const mundoDe = (l) => { const v = new THREE.Vector3(l[0] * S[0], l[1] * S[1], l[2] * S[2]).applyMatrix4(Rm); return [pos[0] + v.x, pos[1] + v.y, pos[2] + v.z]; };
     const RmT = Rm.clone().transpose();
     const localDe = (w) => { const v = new THREE.Vector3(w[0] - pos[0], w[1] - pos[1], w[2] - pos[2]).applyMatrix4(RmT); return [v.x / S[0], v.y / S[1], v.z / S[2]]; };
-    // apuntar: { izq, der } puntos del mundo a los que señala cada brazo (y peso, 0…1, la mezcla con el brazo de la postura)
+    // apuntar: { izq, der } puntos del mundo a los que señala cada brazo (y peso, 0…1, la mezcla con el brazo de la postura;
+    // gesto, 0…1, la postura.apuntarGesto)
     if (apuntar && (apuntar.izq || apuntar.der)) {
       pose = postura(pose, t);
       for (const [lado, L] of [['izq', 'Izq'], ['der', 'Der']]) {
@@ -3982,6 +4194,7 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
         pose['apuntar' + L] = localDe(apuntar[lado]);
         pose['apuntar' + L + 'Peso'] = apuntar.peso ?? 1;
       }
+      if (apuntar.gesto != null) pose.apuntarGesto = apuntar.gesto;
     }
     const R = esqueletoHumano(pose, asp, t);
     const uh = U.uHum.value;
@@ -3998,21 +4211,25 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
     // (coste) el rectángulo de pantalla de cada parte sale de su caja en la postura
     const caja = (bx) => { const esq = []; for (const x of [0, 1]) for (const y of [0, 1]) for (const z of [0, 1]) esq.push(mundoDe([bx[x][0], bx[y][1], bx[z][2]])); return esq; };
     const ids = { cuerpo: `p${i}`, cabeza: `p${i}c`, manoIzq: `p${i}i`, manoDer: `p${i}d` };
-    for (const [parte, id] of Object.entries(ids)) cajas[id] = caja(R.cajas[parte]);
-    // las celdas del cuerpo: los cortes de los rectángulos de sus grupos; cada celda, con los grupos que la cubren
+    // partes: solo se dibujan esas ('cuerpo', 'cabeza', 'manos', 'manoIzq', 'manoDer'; por defecto, todas); la persona
+    // entera sigue dando sombra (para la receta de la foto: lo quieto, fotografiado al cargar, y las manos en vivo)
+    const ver = partes == null ? null : new Set([partes].flat().flatMap((p) => (p === 'manos' ? ['manoIzq', 'manoDer'] : [p])));
+    for (const [parte, id] of Object.entries(ids)) if (!ver || ver.has(parte)) cajas[id] = caja(R.cajas[parte]);
+    // las celdas del cuerpo: los cortes de los rectángulos de sus grupos (cada grupo, con una caja por tramo: brazo y
+    // antebrazo, muslos, piernas y pies); cada celda, con los grupos que la cubren
     const rg = {};
-    for (const [g, bx] of Object.entries(R.grupos)) rg[g] = rectangulo(caja(bx));
-    const vis = Object.values(rg).filter(Boolean);
+    for (const [g, bxs] of Object.entries(R.grupos)) rg[g] = bxs.map((bx) => rectangulo(caja(bx))).filter(Boolean);
+    const vis = Object.values(rg).flat();
     const celdas = [];
     if (vis.length) {
       const xs = [...new Set(vis.flatMap((r) => [r.x, r.z]))].sort((a2, c2) => a2 - c2);
       const ys = [...new Set(vis.flatMap((r) => [r.y, r.w]))].sort((a2, c2) => a2 - c2);
-      const dentro = (r, x, y) => r && x > r.x && x < r.z && y > r.y && y < r.w;
+      const dentro = (rs, x, y) => rs.some((r) => x > r.x && x < r.z && y > r.y && y < r.w);
       for (let yb = 0; yb + 1 < ys.length; yb++) {
         let fila = null;
         for (let xb = 0; xb + 1 < xs.length; xb++) {
           const cx = (xs[xb] + xs[xb + 1]) / 2, cy = (ys[yb] + ys[yb + 1]) / 2;
-          const mk = (dentro(rg.T, cx, cy) ? 1 : 0) | (dentro(rg.A0, cx, cy) || dentro(rg.A1, cx, cy) ? 2 : 0) | (dentro(rg.P, cx, cy) ? 4 : 0);
+          const mk = (dentro(rg.T, cx, cy) ? 1 : 0) | (dentro(rg.A0, cx, cy) ? 2 : 0) | (dentro(rg.P, cx, cy) ? 4 : 0) | (dentro(rg.A1, cx, cy) ? 8 : 0);
           if (fila && fila.mk === mk && fila.rect.z === xs[xb]) { fila.rect.z = xs[xb + 1]; continue; }
           if (mk) celdas.push(fila = { mk, rect: new THREE.Vector4(xs[xb], ys[yb], xs[xb + 1], ys[yb + 1]) });
           else fila = null;
@@ -4055,7 +4272,7 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
     U.uReglaB.value.set(st.RS, cl(entera), escEntera, lupaEntera);
     if (rango) U.uReglaC.value.set(rango.de ?? rango[0], rango.a ?? rango[1], rango.marcas ?? 1, rango.madera ?? 0.5);
     else U.uReglaC.value.set(0, 0, 0, 0);
-    const lay = rotulosReglaEntera({ e, ya, entera, actual: ac, escEntera, lupaEntera });
+    const lay = rotulosReglaEntera({ e, ya, entera, actual: ac, escEntera, lupaEntera, lupa });
     lay.uRotE.forEach((v, j) => U.uRotE.value[j].set(...v));
     if (pieza != null) ponerPieza(pieza, { pos, escala, rot, toque });
     const Rm = rotXYZ(...rot);
@@ -4149,7 +4366,7 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
       if (o.variantes && celdasCuerpo[o.id]) {
         for (const c of celdasCuerpo[o.id]) {
           o.uRect.value.copy(c.rect);
-          renderer.render(o.variantes[c.mk].escena, camOrto);
+          renderer.render(o.variante(c.mk).escena, camOrto);
         }
         medir(o.id);
         continue;
@@ -4170,8 +4387,9 @@ void main() { vec2 uv = gl_FragCoord.xy / uTam, d = uDir / uTam;
   renderer.compile(pasoSombra.escena, camOrto);
   renderer.compile(pasoFondo.escena, camOrto);
   for (const o of objetos) for (const pa of o.variantes ? Object.values(o.variantes) : [o.paso]) renderer.compile(pa.escena, camOrto);
-  // (lote 0) SwiftShader compila de verdad cada programa la primera vez que dibuja: las pasadas de las personas (son
-  // muchas: cuerpo en 7 variantes, cabeza y manos) se estrenan al cargar con un píxel, y el primer fotograma no lo paga
+  // (lote 0) SwiftShader compila de verdad cada programa la primera vez que dibuja: las pasadas de las personas (el
+  // cuerpo entero, la cabeza y las manos) se estrenan al cargar con un píxel; las variantes del cuerpo por celdas (hasta
+  // 14 más) se crean y se compilan la primera vez que un fotograma las pide (~0,5 s cada una, una sola vez)
   const unPixel = new THREE.Vector4(-1, -1, -1 + 2 / W, -1 + 2 / H);
   for (const o of objetos) {
     if (o.tipo !== 'humano') continue;

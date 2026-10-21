@@ -11,15 +11,15 @@
 // DEMO DEL LOTE 0 (episodio 3). No es una escena de producción: enseña lo que el lote 0 añadió a
 // kits/plastilina-adulta.js (ver la cabecera del kit) y sirve para comprobarlo.
 //  0–9 s     la regla larga: la escala corre de 10⁻³⁵ (con la niebla de Planck debajo) a 10²⁷ (con la red de
-//            galaxias encima); la potencia actual, grande y en ámbar
+//            galaxias encima); la potencia actual (la fila más cercana: actual = Math.round(e)), grande y en ámbar
 //  9–16 s    la regla entera: se comprime (entera 0 → 1) hasta verse de −35 a +27 con rótulos en −35, −4, 0, +7 y
 //            +27 (tamaño por defecto, REGLA.ESC_ENTERA) y el actual, grande y en ámbar; las marcas se encienden una a
 //            una (rango); la flecha busca, pasa por 0 y cae cuatro saltos a −4 mientras la persona la señala (apuntar,
 //            con un punto del mundo); las miniaturas «red» y «niebla» junto a los remates
-//  16–34 s   la persona con posturas: de pie, sostener, señalar, saludar, sentada (los pies se quedan donde
-//            estaban y la pelvis va atrás, al taburete), brazos cruzados, mirarse las manos (que se vuelven casi
-//            transparentes: fantasma), de perfil con los ojos cerrados y mirar arriba; a la vez, un niño y una mujer
-//            con melena (que pasa a moño alto a mitad), cada uno con su jersey
+//  16–34 s   la persona con posturas (una cada 1,75 s desde 17 s): de pie, sostener, señalar, señalar con la izquierda,
+//            saludar, sentada (los pies se quedan donde estaban y la pelvis va atrás, al taburete), brazos cruzados,
+//            mirarse las manos (que se vuelven casi transparentes: fantasma), de perfil con los ojos cerrados y mirar
+//            arriba; a la vez, un niño y una mujer con melena (que pasa a moño alto a mitad), cada uno con su jersey
 // ?vista=guias&postura=…&aspecto=…&giro=… : una sola persona grande y de frente (o girada) para guias-humano.py;
 // deja en window.__info la coronilla, la suela y las articulaciones en píxeles.
 import * as THREE from 'three';
@@ -79,6 +79,7 @@ if (busq.get('vista') === 'guias') {
     sombras: { p2: ['atomo'] },
     camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
   });
+  const CAM = [0, 3.8, 15.5];
   const en = (sx, sy, z) => P.punto(sx, sy, z);
   const E_REG = 1.42, REG = en(1668, 528, 0.4);
   const QUIETO = D - 0.6;
@@ -86,8 +87,8 @@ if (busq.get('vista') === 'guias') {
   const E_ADU = 2.4, E_NIN = 2.4 * 0.72, E_MUJ = 2.4 * 0.97;
   const xA = en(612, 600, 0.6)[0];
   const SITIO = { ADU: [en(760, 600, 0.6)[0], 0.6], NIN: [en(420, 600, 1.0)[0], 1.0], MUJ: [en(1110, 600, 0.3)[0], 0.3] };
-  const POSES = ['depie', 'sostener', 'senalar', 'saludar', 'sentada', 'cruzados', 'manos', 'perfil', 'arriba'];
-  const T_C = 17, PASO = 1.9;
+  const POSES = ['depie', 'sostener', 'senalar', 'senalarizq', 'saludar', 'sentada', 'cruzados', 'manos', 'perfil', 'arriba'];
+  const T_C = 17, PASO = 1.75;
   const CLAVES = POSES.map((p, i) => [T_C + i * PASO, p]);
   const tPose = (nombre) => T_C + POSES.indexOf(nombre) * PASO;
   // la regla
@@ -95,7 +96,9 @@ if (busq.get('vista') === 'guias') {
     let e, ya = 0, entera = 0, actual, marca, rango = null;
     if (ts < 9) {
       e = mix(-35, 27, eio(prog(ts, 0.8, 8.4)));
-      actual = e;
+      // mientras la escala corre, la fila más cercana es la actual (grande y en ámbar; cambia de golpe a media fila): con
+      // actual: e (fraccionario), la lupa se reparte entre dos filas y, a media fila, ninguna va en ámbar
+      actual = Math.round(e);
     } else {
       e = 27; entera = eio(prog(ts, 9.0, 10.6));
       // la flecha: arriba (buscando) → 0 (la persona) → cae cuatro saltos a −4
@@ -114,18 +117,22 @@ if (busq.get('vista') === 'guias') {
     const kB = ss(12.0, 12.8, ts) * (1 - ss(15.9, 16.3, ts));
     const w = en(ts < 16 ? mix(850, 980, kB) : 300, ts < 16 ? mix(330, 215, kB) : 250, 1.0);
     const tz = Math.min(ts, QUIETO);
-    P.atomo({ pos: [w[0], w[1] + 0.025 * Math.sin(tz * 1.1), w[2]], escala: 0.4, yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06,
-      energia: ts < QUIETO ? E.energia(ts) : 0, ts: tz });
+    // en una esquina la cámara lo ve de lado y las órbitas se cruzan de canto: se gira hacia ella lo que cambia la dirección
+    // de la cámara respecto a la de su sitio en A (850, 330), donde el giro de siempre (yaw −0,15, pitch 0,06) se ve bien
+    const gy = (p) => Math.atan2(CAM[0] - p[0], CAM[2] - p[2]), gp = (p) => Math.atan2(p[1] - CAM[1], Math.hypot(CAM[0] - p[0], CAM[2] - p[2]));
+    const ref = en(850, 330, 1.0), yawCam = gy(w) - gy(ref), pitchCam = gp(w) - gp(ref);
+    P.atomo({ pos: [w[0], w[1] + 0.025 * Math.sin(tz * 1.1), w[2]], escala: 0.4, yaw: -0.15 + yawCam + 0.08 * Math.sin(tz * 0.5),
+      pitch: 0.06 - pitchCam, energia: ts < QUIETO ? E.energia(ts) : 0, ts: tz });
   }
   function personas(ts, R) {
     if (ts < 16.4) {
       // A y B: el adulto de pie a la izquierda, mirando la regla; mientras la flecha busca y cae, la señala con la
-      // izquierda (apuntar: el punto del mundo de la flecha; peso, la mezcla con el brazo quieto). El codo, la rotación y
-      // la pronación son los de 'señalar' (en espejo): el codo queda doblado, por encima de la cintura (HUMANO.md)
+      // izquierda (la regla está a su izquierda, a la derecha de la pantalla): apuntar, con el punto del mundo de la flecha
+      // y peso, la mezcla con el brazo quieto. Su brazo de pie va casi recto, así que toma el gesto de señalar
+      // (GESTO_SENALAR: el codo doblado, por encima de la cintura, y el índice; HUMANO.md)
       const mira = { cabeza: [0.25, 0.05, 0], mirada: [0.7, 0.2] };
       const k = ss(12.4, 12.9, ts) * (1 - ss(15.9, 16.3, ts));
-      const pose = k > 0 ? { ...mira, brazoIzq: [0.03, 0.06, mix(0, -0.9, k), mix(0.12, 1.0, k), mix(0, 1.2, k), -0.1], manoIzq: k } : mira;
-      P.pieza(I.ADU, { pos: [xA, E_ADU, 0.6], escala: E_ADU, rot: [0, 0.2, 0], postura: pose, t: ts, huellaFija: [0.37, 0.21, 0],
+      P.pieza(I.ADU, { pos: [xA, E_ADU, 0.6], escala: E_ADU, rot: [0, 0.2, 0], postura: mira, t: ts, huellaFija: [0.37, 0.21, 0],
         apuntar: k > 0 && R.flecha ? { izq: R.flecha, peso: k } : null });
       return;
     }
