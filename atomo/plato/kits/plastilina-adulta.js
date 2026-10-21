@@ -408,24 +408,37 @@ float etiquetaD(vec2 p, float e) {
 // distancias con signo: una fila por exponente, de ROT.E_MIN a ROT.E_MAX. Unidades de rótulo: los dígitos
 // del «10» miden ROT_HD (≤ 1) y el rótulo empieza en x = 0; el más ancho mide como mucho ROT.LMAX.
 export const FUENTE_ROTULOS = { familia: 'Jost', peso: 500, css: 'https://fonts.googleapis.com/css2?family=Jost:wght@500;600&display=block' };
+// (lote 0) De 10⁻³⁵ a 10²⁷ m (63 filas). Los rótulos de 10⁻⁴ a 10²¹ (E_MIN0..E_MAX0, los de las pruebas) siguen
+// en su textura de siempre, con el mismo tamaño (ROT.HD) y la misma consulta, así que salen idénticos; todos los
+// rótulos, también esos, van además en un atlas de COLS columnas (63 × 118 px = 7.434 px de alto no caben en
+// los móviles con MAX_TEXTURE_SIZE = 4096; en dos columnas, 476 × 3.776 px). Los rótulos más anchos que LMAX
+// (10⁻¹⁰ … 10⁻³⁵) se estrechan un poco en horizontal en vez de encoger: el «10» mide lo mismo en todos.
 export const ROT = (() => {
-  const r = { X0: -0.12, Y0: -0.72, Y1: 0.92, PXU: 72, KD: 0.22, E_MIN: -4, E_MAX: 21, LMAX: 3.05 };
+  const r = { X0: -0.12, Y0: -0.72, Y1: 0.92, PXU: 72, KD: 0.22, E_MIN: -35, E_MAX: 27, LMAX: 3.05, E_MIN0: -4, E_MAX0: 21, COLS: 2 };
   r.CW = Math.round(3.3 * r.PXU); r.X1 = r.X0 + r.CW / r.PXU;
   r.CH = Math.round((r.Y1 - r.Y0) * r.PXU); r.Y1 = r.Y0 + r.CH / r.PXU;
   r.N = r.E_MAX - r.E_MIN + 1;
+  r.N0 = r.E_MAX0 - r.E_MIN0 + 1;
+  r.FILAS = Math.ceil(r.N / r.COLS);
   return r;
 })();
 const GLSL_ETIQA = /* glsl */`
 #ifndef ETIQA_D
 #define ETIQA_D 1
-uniform sampler2D uEtiqA;
+uniform sampler2D uEtiqA;   // rótulos de 10^${ROT.E_MIN0} a 10^${ROT.E_MAX0} (los de siempre)
+uniform sampler2D uEtiqB;   // (lote 0) todos, de 10^${ROT.E_MIN} a 10^${ROT.E_MAX}, en ${ROT.COLS} columnas de ${ROT.FILAS} filas
 // distancia con signo (unidades de rótulo; negativa dentro del trazo) al rótulo «10^e m»
 float etiqA(vec2 p, float e) {
   vec2 caja = vec2(${fl(ROT.X1 - ROT.X0)}, ${fl(ROT.Y1 - ROT.Y0)});
   vec2 uv = (p - vec2(${fl(ROT.X0)}, ${fl(ROT.Y0)})) / caja;
   vec2 cuv = clamp(uv, 0.0, 1.0);
-  float fila = clamp(e - ${fl(ROT.E_MIN)}, 0.0, ${fl(ROT.N - 1)});
-  float d = (texture(uEtiqA, vec2(cuv.x, (fila + 0.01 + cuv.y * 0.98) / ${fl(ROT.N)})).r - 0.5) * ${fl(2 * ROT.KD)};
+  float fila = clamp(e - ${fl(ROT.E_MIN0)}, 0.0, ${fl(ROT.N0 - 1)});
+  float dA = texture(uEtiqA, vec2(cuv.x, (fila + 0.01 + cuv.y * 0.98) / ${fl(ROT.N0)})).r;
+  float g = clamp(e - ${fl(ROT.E_MIN)}, 0.0, ${fl(ROT.N - 1)});
+  float col = floor(g / ${fl(ROT.FILAS)} + 0.0001), fb = g - col * ${fl(ROT.FILAS)};
+  float dB = texture(uEtiqB, vec2((col * ${fl(ROT.CW)} + 0.5 + cuv.x * ${fl(ROT.CW - 1)}) / ${fl(ROT.COLS * ROT.CW)},
+                                  (fb + 0.01 + cuv.y * 0.98) / ${fl(ROT.FILAS)})).r;
+  float d = ((e > ${fl(ROT.E_MIN0 - 0.5)} && e < ${fl(ROT.E_MAX0 + 0.5)} ? dA : dB) - 0.5) * ${fl(2 * ROT.KD)};
   return d + length((uv - cuv) * caja);
 }
 #endif
