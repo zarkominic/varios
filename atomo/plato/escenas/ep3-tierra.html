@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>De ti al Sol</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EP3-TIERRA · episodio 3, frases 55–57 (cartela «+7»), plastilina adulta. Adapta cosmos-plastilina-adulta.html hasta
+// «sol», con la cámara del mundo de kits/ep03-cosmos.js (que crea esta escena).
+//  0      el fotograma 0 de cosmos-plastilina-adulta (la persona «humano» de pie a la izquierda, la regla de nogal con el
+//         marcador en 10⁰ arriba), con Atom pequeño abajo a la izquierda; encima, la cartela «+7» (quieta hasta 0,75 s,
+//         se va hacia 1,2 s); la flecha de la regla baja a la fila del centro mientras sale la cartela
+//  tierra siete saltos ×10 (el primero acaba en la marca): la foto del plató se encoge en una mirilla hacia la persona,
+//         el tejado, el barrio, la ciudad (al llegar a 10⁴ la marca de la regla brilla y la ciudad queda encendida con un
+//         halo cálido), los campos, la región, la península y la Tierra entera (10⁷); la flecha ámbar de «tú estás aquí»
+//         apunta a la persona desde el primer salto y encoge en cada uno hasta quedar en un punto sobre la ciudad
+//  hueco  salto 8 (acaba en la marca): la Tierra se encoge y se va a la izquierda y aparece la Luna, lejos, a su
+//         distancia real del apogeo (la cámara en 10^8,25 con el marcador en 10⁸); a mitad de frase, los siete planetas a
+//         escala caen uno a uno en el hueco y se quedan en fila, ajustados; la cinta de costurera se tiende de la Tierra
+//         a la Luna por encima de la fila; la cámara se acerca al final de la fila: entre Neptuno y la Luna sobra un pelo
+//         (una cota de latón lo marca); la cinta se recoge de golpe
+//  sol    salto 9 (acaba en la marca): la cámara sale hasta el Sol de crearMundo, enorme, con la Tierra como un punto a
+//         su lado (los planetas encogen y desaparecen); las Tierras caen en el Sol una tras otra, cada vez más seguidas,
+//         y se funden con una onda, como gotas en una pecera; las últimas se funden y todo queda quieto (termina_con)
+// Coste: la cámara del plató es fija. Lo quieto son fotos: el plató de la mirilla y los planetas (sprites), al cargar; el
+// mundo en cada encuadre quieto (la Tierra entera, el hueco, el plano medio y el Sol), tres fotos que se alternan (el
+// hervor), la primera vez que hacen falta. En cada fotograma se dibujan en vivo Atom, la regla y su flecha, y lo que se
+// mueve (la flecha de «tú estás aquí», la cinta, la cota); el mundo, solo mientras la cámara se mueve.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, muelle } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo, camara, camaraPorTierra, mezclarCamaras, estadoMundo, fotoMundo, aPant, tierraPx, brilloCiudad, gotasTierras,
+  tierrasQueCaen, fotoTierra, tiposCosmos, planeta, saturno, cinta, enPlato, fotoPieza, aqui, largoAqui, rotAnillos, filaPlanetas,
+  PLANETAS, MUNDO, HUECO, FINAL_TIERRA } from '/atomo/plato/kits/ep03-cosmos.js';
+
+const T0 = performance.now();
+const perfil = new URLSearchParams(location.search).has('perfil');
+const log = (...a) => { if (perfil) console.log(...a, Math.round(performance.now() - T0)); };
+const E = await escena('ep3-tierra', 'ep03');
+const M = (k) => E.marca(k);
+const m = { tierra: M('tierra'), tierraFin: M('tierra_fin'), hueco: M('hueco'), huecoFin: M('hueco_fin'), sol: M('sol'), solFin: M('sol_fin') };
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+
+// ---------------------------------------------------------------- los saltos (todo sale de las marcas)
+// 1–7 en la frase 55: el primero acaba en su marca y el séptimo deja la Tierra entera algo más de un segundo;
+// 8 acaba en «hueco» y 9 en «sol». Golpes secos: arrancan con fuerza y frenan en firme (control de movimiento)
+const J = 0.32;
+const SALTOS = [];
+{
+  const a1 = m.tierra - J + 0.02, a7 = m.tierraFin - 1.1 - J;
+  for (let k = 0; k < 7; k++) { const a = a1 + k * (a7 - a1) / 6; SALTOS.push([a, a + J]); }
+  SALTOS.push([m.hueco - J + 0.02, m.hueco + 0.02], [m.sol - J + 0.02, m.sol + 0.02]);
+}
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+function zRegla(t) { let z = 0; for (const [a, b] of SALTOS) z += seco(prog(t, a, b)); return z; }
+const enSalto = (t) => SALTOS.some(([a, b]) => t > a - 0.02 && t < b + 0.08);
+
+// frase 56: los planetas caen a mitad de frase, la cinta se tiende, la cámara se acerca al pelo y la cinta se recoge
+const L56 = m.huecoFin - m.hueco;
+const T = {
+  plato: SALTOS[0][0],                             // hasta aquí, el plató; después, el mundo
+  b4: SALTOS[3][1],                                // la regla llega a 10⁴: brilla la marca y se enciende la ciudad
+  pl0: m.hueco + 0.22 * L56, plPaso: 0.38, plCae: 0.36,
+};
+T.cinta0 = T.pl0 + 6 * T.plPaso + T.plCae + 0.2; T.cinta1 = T.cinta0 + 0.95;
+T.empuje0 = T.cinta1 + 0.1; T.empuje1 = T.empuje0 + 0.6;
+T.cota0 = T.empuje1 + 0.05; T.cota1 = T.cota0 + 0.4;
+T.recoge0 = SALTOS[8][0] - 0.3; T.recoge1 = SALTOS[8][0] - 0.02;
+// frase 57: las Tierras caen desde poco después de la marca; las últimas tocan ~1 s antes de quedarse quieto
+const GOTAS = gotasTierras({ t0: m.sol + 0.4, t1: m.solFin - 1.4, n: 34, semilla: 11 });
+
+// ---------------------------------------------------------------- el plató
+const I = { PER: 0, REG: 1, FLE: 2, AQUI: 3, CINTA: 4, COTA: 5, PLA: 6, SAT: 7 };
+const P = await crearPlato({
+  piezas: ['humano', 'reglaA', 'flecha', 'flecha', 'cinta', 'cota', 'planeta', 'saturno'],
+  tiposExtra: tiposCosmos(['planeta', 'saturno', 'cinta']),
+  alfa: true, cartela: E.cartela,
+  sombraFondo: ['p0', 'p1'],
+  sombras: { p0: ['atomo'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+log('plato');
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const E_PER = 2.4, PER = (() => { const a = en(612, 600, 0.6); return [a[0], 1.0 * E_PER, 0.6]; })();
+const E_REG = 1.42, REG = en(1655, 528, 0.4);
+
+// ---------------------------------------------------------------- capas: el mundo (oculto), el lienzo 2D y el plató
+const cont = document.getElementById('escena');
+const mundo = crearMundo(cont, { captura: P.captura });
+log('mundo');
+mundo.lienzo.style.visibility = 'hidden';
+const lienzoGL = P.renderer.domElement;
+lienzoGL.style.zIndex = '2';
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:1';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const pegar = (c) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.drawImage(c, 0, 0, capa.width, capa.height); g.restore(); };
+const copia = (c) => { const k = document.createElement('canvas'); k.width = c.width; k.height = c.height; k.getContext('2d').drawImage(c, 0, 0); return k; };
+
+// ---------------------------------------------------------------- Atom (presentador: pequeño, abajo a la izquierda)
+const A_Z = 1.0, ATOMO = [230, 780];
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(en(...ATOMO, A_Z)));
+// en la esquina la cámara lo ve de lado: se gira hacia ella lo que cambia la dirección de la cámara respecto a la de
+// su sitio en cosmos (850, 330), donde el giro de siempre se ve bien (como en ep3-lote0-demo)
+const CAM = [0, 3.8, 15.5];
+const gy = (p) => Math.atan2(CAM[0] - p[0], CAM[2] - p[2]), gp = (p) => Math.atan2(p[1] - CAM[1], Math.hypot(CAM[0] - p[0], CAM[2] - p[2]));
+const A_W = en(...ATOMO, A_Z), A_REF = en(850, 330, A_Z);
+const A_YAW = gy(A_W) - gy(A_REF), A_PITCH = gp(A_W) - gp(A_REF);
+const DT = 1 / 240, TA = [0];
+const velA = (t) => (1 + 1.1 * Math.exp(-Math.pow((t - m.tierra) / 0.4, 2)) + 0.9 * Math.exp(-Math.pow((t - m.sol) / 0.4, 2))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= D + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT);
+const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor(x)); return mix(TA[i], TA[i + 1], x - i); };
+// sobre el suelo claro (casas, ciudad, campos) menos resplandor y un velo algo más oscuro detrás
+const sueloClaro = (ts, zr) => (ts < T.plato ? 0 : ss(0.3, 0.9, zr) * (1 - ss(5.6, 6.6, zr)));
+function estadoAtom(ts) {
+  const tz = calma(ts);
+  const sx = ATOMO[0], sy = ATOMO[1] + 3 * Math.sin(tz * 1.3) + 2 * Math.sin(tz * 0.7 + 1.0);
+  // al empezar cada frase, un brillo (en vez de saltos de alegría)
+  const brillo = Math.max(...[m.tierra, m.hueco, m.sol].map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))));
+  return { sx, sy, tz, brillo };
+}
+function atomo(ts, zr) {
+  const S = estadoAtom(ts), ta = tAtomo(ts);
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  const kS = sueloClaro(ts, zr);
+  P.atomo({
+    pos: en(S.sx, S.sy, A_Z), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH,
+    energia: Math.min(1, en0 + 0.45 * S.brillo), ts: ta, halo: 1 - 0.55 * kS, velo: 0.1 + 0.3 * kS,
+  });
+  return S;
+}
+
+// ---------------------------------------------------------------- la regla
+function regla(ts, zr) {
+  // la flecha baja de la fila de arriba (el fotograma 0 de cosmos) a la del centro mientras sale la cartela
+  const ya = mix(1.5, 0.0, eio(prog(ts, 0.8, 1.45)));
+  // al llegar a 10⁴, su marca brilla un instante
+  const fl = Math.sin(Math.PI * prog(ts, T.b4 - 0.08, T.b4 + 0.75));
+  const rango = fl > 0.01 ? { de: 4, a: 4, marcas: fl, madera: 0.3 * fl } : null;
+  return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e: zr, ya, actual: zr, lupa: 0.5, rango, toque: enSalto(ts) });
+}
+
+// ---------------------------------------------------------------- la persona (plató)
+function persona(ts) {
+  const tz = calma(ts);
+  const resp = 0.008 * Math.sin(tz * 2.4);
+  P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + resp, 1], rot: [0.02, 0.18, 0], postura: 'de pie', huellaFija: [0.37, 0.21, 0.0] });
+}
+// la foto del plató para la mirilla del primer salto (solo la persona, sin viñeta ni grano)
+{
+  P.fotograma(T.plato); P.limpiar();
+  persona(T.plato);
+  P.U.uPost.value = 0;
+  P.render(Math.floor(T.plato * 12 + 1e-6));
+  P.U.uPost.value = 1;
+  mundo.inserto(copia(lienzoGL));
+}
+log('foto plato');
+
+// ---------------------------------------------------------------- los planetas: fotos (sprites) al cargar
+// Cada uno de cara a la cámara en el centro del plató, al tamaño más grande que se va a ver (el plano medio, z = 8), salvo
+// Saturno, cuyos anillos no caben enteros a ese tamaño (se amplía un 26 % en el plano medio, donde se ve a medias).
+const C_HUECO = camara(8, { hueco: true });
+const Z_MEDIO = 8.0;
+// plano medio: el pelo (entre Neptuno y la Luna) en x = 1.150
+const C_MEDIO = (() => {
+  const C0 = camaraPorTierra(Z_MEDIO, [0, HUECO.tierra[1]]);
+  const f = filaPlanetas(C0);
+  const x = (f.sobra[0] + f.sobra[1]) / 2;
+  return camaraPorTierra(Z_MEDIO, [1150 - x, HUECO.tierra[1]]);
+})();
+const ROT_SAT = rotAnillos(P);
+const SPR = PLANETAS.map((p) => {
+  const rMax = p.d / 2 / C_MEDIO.mpp;
+  const R = p.anillos ? 250 : Math.max(40, Math.min(rMax, 400));
+  const ext = p.anillos ? 2.35 : 1.08;
+  const sp = fotoPieza(P, () => {
+    const e = enPlato(P, 960, 540, R, 1.5);
+    if (p.anillos) saturno(P, I.SAT, { pos: e.pos, escala: e.escala, rot: ROT_SAT, huellaFija: [0.2, 0.1, 0.3] });
+    else planeta(P, I.PLA, { pos: e.pos, escala: e.escala, cual: p.cual, huellaFija: [0.1 * p.cual, 0.2, 0.1] });
+  }, { rect: [960 - R * ext, 540 - R * ext, 960 + R * ext, 540 + R * ext] });
+  return { sp, R, ext };
+});
+log('sprites');
+// la Tierra entera del mundo, para las gotas
+const SPRITE_T = fotoTierra(mundo, 5);
+log('tierra');
+
+// ---------------------------------------------------------------- la cámara del mundo
+function camaraEn(ts) {
+  const zr = zRegla(ts);
+  if (zr < 8 - 1e-4 || ts < T.empuje0) return camara(zr, { hueco: true });
+  if (zr < 8 + 1e-4) return mezclarCamaras(C_HUECO, C_MEDIO, eio(prog(ts, T.empuje0, T.empuje1)));
+  return mezclarCamaras(C_MEDIO, camara(9), zr - 8);
+}
+// los encuadres quietos: tres fotos del mundo que se alternan (el hervor), hechas la primera vez que hacen falta
+const FIJOS = [
+  { de: SALTOS[6][1] + 0.02, a: SALTOS[7][0] - 0.02, C: () => camara(7), n0: 900 },
+  { de: SALTOS[7][1] + 0.08, a: T.empuje0, C: () => C_HUECO, n0: 910 },
+  { de: T.empuje1 + 0.02, a: SALTOS[8][0] - 0.02, C: () => C_MEDIO, n0: 920 },
+  { de: SALTOS[8][1] + 0.08, a: D + 1, C: () => camara(9), n0: 930 },
+];
+const fotosFijas = new Map();
+function fotoFija(ts, nf, extra) {
+  const f = FIJOS.find((x) => ts >= x.de && ts < x.a);
+  if (!f) return null;
+  const k = nf % 3, clave = f.n0 + k;
+  if (!fotosFijas.has(clave)) fotosFijas.set(clave, fotoMundo(mundo, estadoMundo(f.C(), clave, extra)));
+  return fotosFijas.get(clave);
+}
+
+// ---------------------------------------------------------------- lo de encima del mundo
+// «tú estás aquí»: aparece en cuanto ya no se ve a la persona y encoge con cada salto hasta un punto; se va en el salto 8
+function flechaAqui(ts, zr, C) {
+  const k = ss(SALTOS[0][1] - 0.02, SALTOS[0][1] + 0.22, ts) * (1 - ss(SALTOS[7][0], SALTOS[7][0] + 0.14, ts));
+  if (k < 0.01) { P.pieza(I.AQUI, { escala: 0 }); return; }
+  aqui(P, I.AQUI, C, { largo: largoAqui(zr), k: eoc(k), toque: enSalto(ts) });
+}
+// el brillo de la ciudad: se enciende al llegar a 10⁴ y se queda hasta el salto 8
+const kBrillo = (ts) => ss(T.b4 - 0.1, T.b4 + 0.3, ts) * (1 - ss(SALTOS[7][0], SALTOS[7][0] + 0.18, ts));
+// los planetas: caen uno a uno en su sitio, se aplastan un poco al tocar y se quedan; en el salto 9 encogen con todo y se van
+function planetas(ts, C) {
+  if (ts < T.pl0 - 0.01) return null;
+  const f = filaPlanetas(C);
+  f.planetas.forEach((p, j) => {
+    const t0 = T.pl0 + j * T.plPaso, t1 = t0 + T.plCae;
+    if (ts < t0) return;
+    const u = prog(ts, t0, t1);
+    // cae desde arriba del cuadro (acelerando) y rebota un pelo
+    const y0 = -p.r * 1.3 - 120;
+    let y = mix(y0, p.y, eic(u));
+    const bote = ts > t1 ? muelle(ts - t1, 2.4, 7) : 0;
+    const sqy = 1 - 0.1 * bote, sqx = 1 + 0.06 * bote;
+    // se va al final del salto 9, uno tras otro
+    const fuera = 1 - eoc(prog(ts, SALTOS[8][0] + 0.14 + 0.02 * j, SALTOS[8][1] + 0.1 + 0.02 * j));
+    if (fuera <= 0.01) return;
+    const S = SPR[j], r = p.r * fuera, s = r / S.R;
+    const w = 2 * S.R * S.ext * s;
+    g.save();
+    g.translate(p.x, y + p.r * (1 - sqy) * 0.9);
+    g.scale(sqx, sqy);
+    g.drawImage(S.sp, -w / 2, -w / 2, w, w);
+    g.restore();
+  });
+  return f;
+}
+// la cinta, por encima de la fila (sobre los planetas pequeños, delante de los grandes); se recoge de golpe antes del salto 9
+function laCinta(ts, C) {
+  const ext = eio(prog(ts, T.cinta0, T.cinta1)) * (1 - eic(prog(ts, T.recoge0, T.recoge1)));
+  if (ext < 0.002) { P.pieza(I.CINTA, { escala: 0 }); return; }
+  const f = filaPlanetas(C);
+  const k = C_HUECO.mpp / C.mpp;                       // lo que ha crecido el mundo desde el hueco
+  const dy = f.tierra[2] + 14 * k;
+  cinta(P, I.CINTA, { desde: [f.desde[0], f.desde[1] - dy], hasta: [f.hasta[0], f.hasta[1] - dy], alto: 11 * k, marcas: 40, extension: ext, z: 1.5, toque: ts < T.cinta1 + 0.05 });
+}
+// la cota de latón sobre el pelo (en el plano medio)
+function laCota(ts, C) {
+  const k = eoc(prog(ts, T.cota0, T.cota1)) * (1 - ss(T.recoge0 - 0.15, T.recoge0, ts));
+  if (k < 0.01) { P.pieza(I.COTA, { escala: 0 }); return; }
+  const f = filaPlanetas(C);
+  const x0 = f.sobra[0], x1 = f.sobra[1], y = f.luna[1];
+  const e = enPlato(P, (x0 + x1) / 2, y, (x1 - x0) / 2, 1.6);
+  P.pieza(I.COTA, { pos: e.pos, escala: e.escala, sq: [1, 3.2, 3.2], variante: k, toque: k < 0.98 });
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  const ts = Math.min(t, QUIETO);
+  const nf = P.fotograma(ts);
+  const zr = zRegla(ts);
+  if (ts < T.plato) {
+    // el plató de cosmos, con la cartela encima
+    P.limpiar();
+    persona(ts); atomo(ts, zr); regla(ts, zr);
+    cartela(P, ts, E.cartela);
+    P.render(nf);
+    return;
+  }
+  ajustarCapa();
+  const C = camaraEn(ts);
+  const S = estadoAtom(ts);
+  const extra = { somA: [S.sx + 22, S.sy + 30, 62, 0.42 + 0.16 * sueloClaro(ts, zr)] };
+  // primer salto: la foto del plató se encoge en una mirilla hacia la persona (como cosmos)
+  if (C.zr < 1.05) {
+    const s = Math.pow(10, -0.85 * Math.max(C.zr, 0));
+    const per = [612, 585], nos = tierraPx(C);
+    const rImg = mix(470, 1500, ss(0.8, 1.0, s));
+    extra.ins = { c: [nos[0] + (960 - per[0]) * s, nos[1] + (540 - per[1]) * s], s, a: 1 - ss(0.72, 1.0, C.zr), m: [nos[0], nos[1], rImg * s, 1] };
+  }
+  const foto = fotoFija(ts, nf, extra);
+  if (foto) pegar(foto);
+  else { mundo.dibujar(estadoMundo(C, nf, extra)); pegar(mundo.lienzo); }
+  // 2D sobre el mundo
+  brilloCiudad(g, C, kBrillo(ts));
+  planetas(ts, C);
+  if (ts > GOTAS[0].t - 0.1) {
+    tierrasQueCaen(g, SPRITE_T, { t: ts, gotas: GOTAS, sol: FINAL_TIERRA.sol, rTierra: Math.max(MUNDO.R_TIERRA / C.mpp, 4.5) });
+  }
+  // el plató encima: Atom, la regla y lo que se mueve
+  P.limpiar();
+  atomo(ts, zr); regla(ts, zr);
+  flechaAqui(ts, zr, C);
+  laCinta(ts, C);
+  laCota(ts, C);
+  P.render(nf, { fondo: false });
+}
+// estrena los programas que se dibujan en vivo (para que ningún fotograma pague su compilación)
+{
+  P.fotograma(0); P.limpiar();
+  atomo(0, 0); regla(0, 0);
+  cinta(P, I.CINTA, { desde: [300, 300], hasta: [600, 300], alto: 10, extension: 1 });
+  P.pieza(I.COTA, { pos: en(900, 300, 1.6), escala: 0.3, variante: 1 });
+  P.pieza(I.AQUI, { pos: en(1000, 300, 1.6), escala: 0.3 });
+  P.render(0, { fondo: false });
+}
+log('listo');
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

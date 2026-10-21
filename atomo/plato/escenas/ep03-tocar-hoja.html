@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-tocar.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-tocar.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por pieza y por variante, con el plató, la luz y la cámara de las escenas de plastilina
+// (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28).
+//   __frame(0)  → la hoja entera (6 × 6 celdas de 320 × 180, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+// ?celda=k abre la celda k en la vista previa.
+import * as THREE from 'three';
+import { crearPlato, crearPost, posturaEn } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposTocar, peldano, fila, reglaMm, estadio, silla, chispas, terron, cucharilla, cajon, multitud, figurita, gato, cifra,
+  foto, nubeElectrones, brilloChispas, BASES } from '/atomo/plato/kits/ep03-tocar.js';
+
+const W = 1920, H = 1080;
+const T = ['peldano', 'fila', 'reglamm', 'estadio', 'silla', 'chispas', 'terron', 'cucharilla', 'cajon', 'multitud', 'figurita', 'gato', 'cifra', 'humano'];
+const I = Object.fromEntries(T.map((t, i) => [t, i]));
+const P = await crearPlato({
+  piezas: T, tiposExtra: tiposTocar(T.filter((t) => t !== 'humano')), atomo: false, alfa: true, post: false,
+  sombraFondo: ['p0', 'p3', 'p4', 'p8', 'p11', 'p13'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const suelo = (sx, z) => { const a = en(sx, 600, z); return [a[0], 0, z]; };
+
+// las celdas: [rótulo, poner(P), { nube }]
+const C = [];
+const cel = (rot, poner, o = {}) => C.push({ rot, poner, ...o });
+// peldaño
+for (const [par, ext] of [['AT', true], ['TA', true], ['GC', true], ['CG', false]]) cel(`peldano ${par}${ext ? '' : ' sin extremos'}`, () => peldano(P, I.peldano, { pos: en(960, 520, 2), escala: 3.6, rot: [0.25, -0.35, 0.05], par, extremos: ext }));
+cel('peldano a medida [crema, terracota]', () => peldano(P, I.peldano, { pos: en(960, 520, 2), escala: 3.6, rot: [0.25, -0.35, 0.05], par: [[0.56, 0.49, 0.37], [0.5, 0.15, 0.06]] }));
+// fila: del Atom a la línea
+cel('fila n 11 (~150 px)', () => fila(P, I.fila, { pos: en(960, 520, 2), escala: 1.05, rot: [0.15, 0, 0], n: 11, fase: 0.4 }));
+cel('fila n 41 (~40 px)', () => fila(P, I.fila, { pos: en(960, 520, 2), escala: 0.28, rot: [0.15, 0, 0], n: 41, fase: 0.4 }));
+cel('fila n 101 (~16 px)', () => fila(P, I.fila, { pos: en(960, 520, 2), escala: 0.11, rot: [0.15, 0, 0], n: 101, fase: 0.4 }));
+cel('fila n 400 (~4 px)', () => fila(P, I.fila, { pos: en(960, 520, 2), escala: 0.028, rot: [0.15, 0, 0], n: 400, fase: 0.4 }));
+cel('fila n 1e7 sinCentro, de cerca', () => fila(P, I.fila, { pos: en(960, 520, 2), escala: 1.05, rot: [0.15, 0, 0], n: 1e7, fase: 1.1, sinCentro: true }));
+cel('reglamm + fila 1e7 (1 mm)', () => {
+  const r = reglaMm(P, I.reglamm, { pos: en(900, 640, 2), escala: 6.0, rot: [-0.06, 0, 0] });
+  const a = r.punto(0, 0.232), b = r.punto(1, 0.232);
+  fila(P, I.fila, { pos: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2], escala: (b[0] - a[0]) / 1e7, rot: [-0.06, 0, 0], n: 1e7, fase: 0 });
+});
+// estadio y nube
+const EST = { pos: en(960, 560, 1), escala: 5.2, rot: [0.72, -0.18, 0] };
+cel('estadio (guisante 1)', () => estadio(P, I.estadio, { ...EST }));
+cel('estadio de cerca: el guisante', () => estadio(P, I.estadio, { pos: en(960, 600, 6), escala: 30, rot: [0.72, -0.18, 0], brilloGuisante: 0.3 }));
+cel('estadio sin guisante', () => estadio(P, I.estadio, { ...EST, guisante: 0 }));
+cel('nube anillo extension 0,45 (2D)', () => estadio(P, I.estadio, { ...EST }), { d2: (g, e) => nubeElectrones(g, { ...e.anillo, extension: 0.45, t: 0.5 }) });
+cel('nube anillo extension 1 (2D)', () => estadio(P, I.estadio, { ...EST }), { d2: (g, e) => nubeElectrones(g, { ...e.anillo, extension: 1, t: 0.5 }) });
+cel('nube bola: el átomo de lejos (2D)', () => estadio(P, I.estadio, { pos: en(960, 560, 1), escala: 2.2, rot: [0.72, -0.18, 0], brilloGuisante: 1 }),
+  { d2: (g, e) => { nubeElectrones(g, { ...e.anillo, extension: 1, t: 0.5, fuerza: 0.8 }); nubeElectrones(g, { ...e.bola, forma: 'bola', t: 0.5 }); } });
+// silla
+cel('silla', () => silla(P, I.silla, { pos: [en(960, 600, 1)[0], 0.427 * 4.2, 1], escala: 4.2, rot: [0, 0.6, 0] }));
+cel('silla + humano sentada', () => {
+  const pos = [en(960, 600, 1)[0], 2.4, 1];
+  const h = P.pieza(I.humano, { pos, escala: 2.4, rot: [0, 0.5, 0], postura: 'sentada', huellaFija: [0.37, 0.21, 0] });
+  silla(P, I.silla, { pos: h.punto('asiento'), escala: 2.4, rot: [0, 0.5, 0] });
+});
+// chispas
+cel('chispas n 9 semilla 3', () => chispas(P, I.chispas, { pos: en(960, 520, 4), escala: 3.2, n: 9, semilla: 3 }), { brillo: true });
+cel('chispas n 12 semilla 8, fuerza 0,6', () => chispas(P, I.chispas, { pos: en(960, 520, 4), escala: 3.2, n: 12, semilla: 8, fuerza: 0.6 }), { brillo: true });
+// terrón, cucharilla, cajón
+cel('terron', () => terron(P, I.terron, { pos: en(960, 540, 3), escala: 2.0, rot: [0.5, 0.6, 0] }));
+cel('cucharilla', () => cucharilla(P, I.cucharilla, { pos: en(760, 560, 3), escala: 4.0, rot: [0.35, -0.3, 0.0] }));
+cel('cucharilla + terron', () => {
+  const c = cucharilla(P, I.cucharilla, { pos: en(760, 600, 3), escala: 4.0, rot: [0.35, -0.3, 0.0] });
+  terron(P, I.terron, { pos: [c.cuenco[0], c.cuenco[1] + 0.3, c.cuenco[2]], escala: 0.55, rot: [0.1, 0.5, 0.05] });
+});
+cel('cajon cerrado', () => cajon(P, I.cajon, { pos: [en(960, 600, 1)[0], 0.4 * 3.2, 1], escala: 3.2, rot: [0.0, -0.45, 0], abierto: 0 }));
+cel('cajon abierto + terron', () => {
+  const c = cajon(P, I.cajon, { pos: [en(960, 600, 1)[0], 0.4 * 3.2, 1], escala: 3.2, rot: [0.0, -0.45, 0], abierto: 1 });
+  terron(P, I.terron, { pos: [c.interior[0], c.interior[1] + 0.32, c.interior[2]], escala: 0.6, rot: [0, 0.3, 0] });
+});
+// multitud y figurita
+cel('multitud aparicion 0,5', () => multitud(P, I.multitud, { pos: suelo(960, 1), escala: 0.75, radio: 5.5, aparicion: 0.5 }));
+cel('multitud + humano (hueco 0,9)', () => {
+  multitud(P, I.multitud, { pos: suelo(960, 0.5), escala: 0.75, radio: 6.5, hueco: 0.9, aparicion: 1, semilla: 2 });
+  P.pieza(I.humano, { pos: [suelo(960, 0.5)[0], 2.4, 0.5], escala: 2.4, postura: 'manos', huellaFija: [0.37, 0.21, 0] });
+});
+cel('figurita semilla 1', () => figurita(P, I.figurita, { pos: [en(960, 600, 2)[0], 2.6, 2], escala: 5.2, rot: [0, 0.3, 0], semilla: 1 }));
+cel('figurita semilla 4', () => figurita(P, I.figurita, { pos: [en(960, 600, 2)[0], 2.6, 2], escala: 5.2, rot: [0, -0.4, 0], semilla: 4 }));
+// gato
+cel('gato atigrado, ojos cerrados', () => gato(P, I.gato, { pos: [en(960, 600, 2)[0], 0.3 * 4.6, 2], escala: 4.6, rot: [0, -0.15, 0], pelaje: 'atigrado', ojos: 1 }));
+cel('gato gris, ojos abiertos', () => gato(P, I.gato, { pos: [en(960, 600, 2)[0], 0.3 * 4.6, 2], escala: 4.6, rot: [0, -0.15, 0], pelaje: 'gris', ojos: 0 }));
+cel('gato crema, cabeza 1', () => gato(P, I.gato, { pos: [en(960, 600, 2)[0], 0.3 * 4.6, 2], escala: 4.6, rot: [0, -0.15, 0], pelaje: 'crema', ojos: 1, cabeza: 1 }));
+// cifra
+cel('cifra 7', () => cifra(P, I.cifra, { pos: en(960, 520, 2), escala: 2.6, ceros: 0 }));
+cel('cifra 7 y 5,5 ceros', () => cifra(P, I.cifra, { pos: en(380, 520, 2), escala: 1.6, ceros: 5.5 }));
+cel('cifra 7 y 27 ceros', () => cifra(P, I.cifra, { pos: en(130, 520, 2), escala: 0.4, ceros: 27, color: 'mostaza' }));
+
+// ---------------------------------------------------------------- dibujo
+const lienzoGL = P.renderer.domElement;
+const cont = document.getElementById('escena');
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+const cache = [];
+window.__tiempos = [];
+function celda(k) {
+  if (cache[k]) return cache[k];
+  const c = C[k];
+  const a = performance.now();
+  P.fotograma(0); P.limpiar();
+  const info = c.poner(P);
+  P.render(k + 1);
+  const f = foto(P);
+  const gf = f.getContext('2d');
+  gf.setTransform(f.width / W, 0, 0, f.width / W, 0, 0);
+  if (c.d2) c.d2(gf, info);
+  if (c.brillo) brilloChispas(gf, [[960, 520, 1]], { radio: 260, fuerza: 0.5 });
+  window.__tiempos[k] = Math.round(performance.now() - a);
+  return (cache[k] = f);
+}
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+function dibujar(t) {
+  ajustarCapa();
+  const k = Math.round(t);
+  if (k >= 1 && k <= C.length) {
+    g.drawImage(celda(k - 1), 0, 0, W, H);
+    POST.aplicar(g, k);
+    return;
+  }
+  g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+  const cw = W / 6, ch = H / 6;
+  C.forEach((c, j) => {
+    const x = (j % 6) * cw, y = Math.floor(j / 6) * ch;
+    g.drawImage(celda(j), x, y, cw, ch);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(x, y + ch - 22, cw, 22);
+    g.fillStyle = '#e8dcc0'; g.font = '15px sans-serif'; g.fillText(`${j + 1}. ${c.rot}`, x + 6, y + ch - 6);
+  });
+}
+const busq = new URLSearchParams(location.search);
+window.ESCENA ??= { id: 'ep03-tocar-hoja', duracion: C.length + 1, marcas: {}, voz: [0, 0] };
+window.__celdas = C.map((c) => c.rot);
+window.__paso = 1;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>

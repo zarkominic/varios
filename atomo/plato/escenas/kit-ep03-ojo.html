@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kit del ojo · hoja de prueba</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA DE kits/ep03-ojo.js (no es una escena de producción): un fotograma por pieza y por variante, también
+// las que ep3-hola no usa. Cada segundo entero es una vista (capturar.mjs con t = 0,1,2,…; ?vista=n la deja fija):
+//   0 ojo entero abierto · 1 medio cerrado mirando arriba a la derecha, pupila grande · 2 cerrado · 3 entornado ·
+//   4 capa GLOBO · 5 capa PARPADOS (sobre un damero: por la rendija se ve lo de detrás) · 6 ojo casi cerrado sobre la
+//   franja (el final de ep3-hola) · 7 dos franjas (ancha y borde fino) · 8–13 las seis cosas · 14 las seis cosas,
+//   apagándose de izquierda a derecha (0 → 1) · 15 ojo en corte, puntos separados con sus haces · 16 puntos fundidos
+//   (separación 1) · 17 corte en espejo (variante 1), sin haces, separación 3
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposOjo, uniformesOjo, ponerOjo, ponerCorte, CAPA, COSA, haciaCamara, resplandorFranja, cierreParaAbertura } from '/atomo/plato/kits/ep03-ojo.js';
+
+const N = 18;
+window.ESCENA ??= { id: 'kit-ep03-ojo', duracion: N, marcas: {}, voz: [0, 0], fps: 12 };
+const E = await escena('kit-ep03-ojo', 'cosmos');
+const vistaFija = new URLSearchParams(location.search).get('vista');
+const UO = uniformesOjo();
+const I = { OJO: 0, FR0: 1, FR1: 2, COSA: 3, CORTE: 4 };
+const P = await crearPlato({
+  piezas: ['ojo', 'franja', 'franja', 'cosa', 'ojoCorte'], atomo: false, alfa: true, post: false,
+  tiposExtra: tiposOjo(), uniformes: UO,
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const W = 1920, H = 1080;
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustar() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const en = (x, y, z) => P.punto(x, y, z);
+const pxU = (pos) => { const a = P.proyectar(pos), b = P.proyectar([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const ZOJO = Number(new URLSearchParams(location.search).get('zojo') ?? 5);
+const OJO_POS = en(960, 540, ZOJO), OJO_ESC = 1100 / (2.1 * pxU(en(960, 540, ZOJO))), OJO_ROT = haciaCamara(P, OJO_POS);
+
+function dibujar(t) {
+  const v = vistaFija != null ? Number(vistaFija) : Math.min(N - 1, Math.floor(t + 1e-6));
+  ajustar();
+  P.fotograma(v); P.limpiar();
+  ponerOjo(UO, {});
+  ponerCorte(UO, {});
+  let fondo = true, damero = false, franja = null;
+  if (v <= 6) {
+    const est = [
+      {}, { arriba: 0.5, abajo: 0.5, mirada: [0.6, 0.35], pupila: 0.85 }, { arriba: 1, abajo: 1 }, { arriba: 0.25, entorna: 1 },
+      {}, {}, { arriba: cierreParaAbertura(0.07, 'arriba'), abajo: cierreParaAbertura(-0.07, 'abajo') },
+    ][v];
+    ponerOjo(UO, est);
+    P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: v === 4 ? CAPA.GLOBO : v === 5 ? CAPA.PARPADOS : CAPA.TODO });
+    if (v === 5) { fondo = false; damero = true; }
+    if (v === 6) {
+      const fp = en(960, 540, ZOJO + 1.25 * OJO_ESC);
+      P.pieza(I.FR0, { pos: fp, escala: 640 / pxU(fp), rot: haciaCamara(P, fp), variante: 0.07 });
+      franja = fp;
+    }
+  } else if (v === 7) {
+    P.pieza(I.FR0, { pos: en(960, 400, 3), escala: 3.2, variante: 0.09, rot: haciaCamara(P, en(960, 400, 3)) });
+    P.pieza(I.FR1, { pos: en(960, 700, 3), escala: 3.2, variante: 0.006, rot: haciaCamara(P, en(960, 700, 3)) });
+  } else if (v <= 13) {
+    const c = v - 8;
+    const pos = en(960, 520, 6);
+    const rot = c === COSA.GALAXIA ? [-0.75, 0.2, 0.15] : c === COSA.REMOLINO ? [-0.9, -0.3, 0.4] : c === COSA.ATOMO ? [0.1, 0.4, 0] : [0.05, 0.25, 0];
+    P.pieza(I.COSA, { pos, escala: 4.2, variante: c, rot });
+  } else if (v === 14) {
+    // las seis, en fila, apagándose: se dibujan una a una sobre la foto de la anterior
+    g.clearRect(0, 0, W, H);
+    for (let c = 0; c < 6; c++) {
+      P.limpiar();
+      const pos = en(220 + c * 296, 540, 3);
+      const rot = c === COSA.GALAXIA ? [-0.75, 0.2, 0.15] : c === COSA.REMOLINO ? [-0.9, -0.3, 0.4] : c === COSA.ATOMO ? [0.1, 0.4, 0] : [0.05, 0.25, 0];
+      P.pieza(I.COSA, { pos, escala: 1.55, variante: c, color: c / 5, rot });
+      P.render(v, { fondo: c === 0 });
+      g.drawImage(lienzoGL, 0, 0, W, H);
+    }
+    POST.aplicar(g, v);
+    return;
+  } else {
+    const k = v - 15;
+    ponerCorte(UO, [{ separacion: 6, brillo: 1, haces: 1 }, { separacion: 1, brillo: 1, haces: 1 }, { separacion: 3, brillo: 1, haces: 0 }][k]);
+    const pos = en(960, 520, 4);
+    P.pieza(I.CORTE, { pos, escala: 2.4, variante: k === 2 ? 1 : 0, rot: [0.15, k === 2 ? -0.55 : 0.55, 0] });
+  }
+  P.render(v, { fondo });
+  if (damero) {
+    for (let y = 0; y < H; y += 60) for (let x = 0; x < W; x += 60) { g.fillStyle = ((x + y) / 60) % 2 ? '#3a4a5a' : '#5a6a7a'; g.fillRect(x, y, 60, 60); }
+  } else g.clearRect(0, 0, W, H);
+  g.drawImage(lienzoGL, 0, 0, W, H);
+  if (franja) { const p = P.proyectar(franja); resplandorFranja(g, p[0] - 640, p[0] + 640, p[1], 30, 1); }
+  POST.aplicar(g, v);
+}
+E.iniciar(dibujar, { paso: 1 });
+</script>
+</body>
+</html>
