@@ -53,6 +53,9 @@ def hablado(texto, l):
     t = re.sub(r'\b(1[0-9]{3}|20[0-9]{2})\b', lambda m: (anyo_en if l == 'en' else anyo_es)(int(m.group(1))), texto)
     if l == 'es':
         t = re.sub(r'\bADN\b', 'a de ene', t)
+        # Nombres en inglés que la voz española lee a su manera (comprobado con Whisper).
+        for nombre, dicho in (('Jocelyn Bell', 'Yócelin Bel'),):
+            t = t.replace(nombre, dicho)
     return t
 
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
