@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-cajon · otra regla</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<style>html,body{margin:0;height:100%;background:#100e10;overflow:hidden} #c{display:block;width:100vw;height:100vh}</style>
+</head>
+<body>
+<script type="module">
+// EP3-CAJON (episodio 3, frases 11–13, cartela «0»). Isométrico: kits/isometrico-adulta.js (cartela, Atom, plató).
+// Todo lo demás es de esta escena (solo la usa ella): el pasillo con su ventana, la cinta métrica, las monedas, el
+// cerebro con su cajón, el calendario de pared, la pila de calendarios y la persona isométrica.
+//
+//  0 – 1,2 s     cartela «0» sobre el pasillo: la persona adulta de pie a la izquierda (en el sitio de la de arcilla de
+//                ep3-promesa), con la cinta métrica enrollada en la mano; Atom pequeño abajo a la izquierda
+//  cajon         la cinta sale de la caja, corre por el suelo del pasillo (la cámara la sigue), trepa a la ventana, sale,
+//                se enreda en el cielo y se pierde
+//  ½ de la frase (sin marca: a la mitad del intervalo de la frase) plano detalle: dos montones de monedas casi iguales a
+//                sus pies y un cerebro con un cajón; el cajón se abre, las monedas de los dos montones vuelan dentro y se
+//                cierra
+//  millon        plano medio: la persona, ahora niña, junto al calendario de pared, que arranca once hojas y deja la
+//                duodécima a medio arrancar (once días y medio)
+//  milmillones   plano general: la cámara se aleja hasta el encuadre del principio; en el borde derecho cae una pila de
+//                32 calendarios que llega a la altura de la regla de arcilla, y la niña crece con ella hasta la adulta
+//  fin           la pila en el sitio y con la altura de la regla de ep3-saltos; la persona adulta a la izquierda con los dos
+//                montones de monedas a sus pies; Atom abajo a la izquierda; todo quieto
+//
+// La persona es propia de la escena (el observador del kit no cumple HUMANO.md): cabeza H/6 y piernas 0,47 H de adulta;
+// cabeza 1/4,7 y piernas 0,45 H de niña; jersey gris y pantalón caqui en las dos. Crece interpolando proporciones y
+// tamaño. ?vista=guias&k=0|1 la pone sola, de frente y grande, para atomo/herramientas/guias-humano.py (deja en
+// window.__info la coronilla, la suela y el centro en píxeles).
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/isometrico-adulta.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+const { THREE, P: PAL, S, enPlano, vR, vU, vW, vF, Y, lam, basic, clamp01, lerp, seg, eio, eo, ei, eob, sstep, prng, TAU } = K;
+
+const E = await escena('ep3-cajon', 'ep03');
+const q = new URLSearchParams(location.search);
+const VISTA = q.get('vista');
+await K.cargarFuentes();
+
+// ================================================================ tiempos (desde las marcas)
+const M1 = E.marca('cajon', 1.5), F1 = E.marca('cajon_fin', 8.93);
+const M2 = E.marca('millon', 9.48), F2 = E.marca('millon_fin', 12.55);
+const M3 = E.marca('milmillones', 13.1), F3 = E.marca('milmillones_fin', 15.86);
+const DUR = E.duracion;
+const MB = lerp(M1, F1, 0.45);          // «porque tu cerebro…»: a mitad de la frase 1 (no hay marca de palabra)
+const T_B = MB - 0.25;                   // corte al plano de las monedas y el cerebro
+const T_C = M2 - 0.25;                   // corte al plano de la niña y el calendario
+const T_D = M3 - 0.3;                    // la cámara se aleja y empieza la pila
+const QUIETO = DUR - 0.6;                // de aquí al final, imagen fija
+// la cinta
+const TA0 = M1 - 0.2, TA_VENT = lerp(TA0, T_B, 0.29), TA_FUERA = lerp(TA0, T_B, 0.39), TA_ENR = lerp(TA0, T_B, 0.6), TA_PIERDE = lerp(TA0, T_B, 0.68);
+// el cajón
+const TB_ABRE = T_B + 0.4, TB_VUELA = T_B + 0.9, TB_CIERRA = F1 - 0.95;
+// el calendario: 11 hojas y media
+const TC_H0 = M2 + 0.05, TC_H1 = F2 - 0.55, TC_MEDIA = F2 - 0.3;
+// la pila
+const TD_P0 = M3 - 0.12, TD_P1 = F3 - 0.4;
+
+// ================================================================ medidas y sitios (px de diseño con la cámara base)
+const FY = -300;                         // altura del suelo del pasillo
+const H_AD = 611 / Math.sqrt(2 / 3);     // la adulta mide 611 px en pantalla, como la persona de arcilla (coronilla 266, suela 877)
+const H_NI = H_AD * 0.69;                // la niña (unos 7 años)
+const PIES = enPlano(607, 877, FY);      // el centro de la suela, en el sitio de la persona de arcilla (x ≈ 607)
+const D_PARED = 120;                     // de la persona a la pared del pasillo
+const XW = PIES.x - D_PARED;             // la cara de la pared (normal +x)
+const GRUESO = 46, ALTO_PARED = 960;     // grosor y alto de la pared
+const Z0 = PIES.z + 255, Z1 = PIES.z - 3300;   // el pasillo, de cerca a lejos (−z sube a la derecha en pantalla)
+const ANCHO = 1700;                      // del pie de la pared al borde del suelo
+const LOSA = 70;                         // grueso del suelo cortado
+const VENT = { z: PIES.z - 1620, ancho: 420, y0: 340, y1: 840 };   // la ventana (en la pared)
+const CAL = { z: PIES.z - 400, y: 350, ancho: 196, alto: 236 };    // el calendario de pared (centro)
+const CUADRO = { z: PIES.z - 1190, y: 560, ancho: 250, alto: 190 };
+const APLIQUE = { z: PIES.z - 900, y: 650 };
+const ALFOMBRA = { x0: XW + 250, x1: XW + 620 };
+// monedas a los pies (a su izquierda, a la derecha de la pantalla)
+const R_MON = 30, G_MON = 9;
+const MONTONES = [{ c: PIES.clone().addScaledVector(vR, 150).addScaledVector(vF, 70), n: 13 },
+  { c: PIES.clone().addScaledVector(vR, 232).addScaledVector(vF, 30), n: 14 }];
+// la pila de calendarios (abajo, en el sitio de la regla: x 1515–1830, de y 143 a 905)
+const PILA = { n: 32, a: 300, b: 150, alto: 834 / 32, giro: 0.12 };
+const ATOMO = { x: 230, y: 780, R: 80 };
+
+// ================================================================ colores
+const C = {
+  caqui: '#7f7155', caquiD: '#665b44', zapato: '#5e3b28', pelo: '#5a3a25', peloD: '#3f2819', tinta: '#2a2220',
+  suelo: '#7a5a40', sueloD: '#5e4431', corte: '#2c2523', corteD: '#231d1c',
+  pared: '#9a8d7b', zocalo: '#6a4b36', zocaloL: '#7d5a41', moldura: '#c9b79a', marco: '#e3d6bd', alfombra: '#5d6670', alfombraB: '#d9ccb0',
+  cinta: '#efc576', cintaD: '#3b2a1c', caja: '#b65a3b', cajaD: '#8a3f27',
+  cerebro: '#d49c86', cerebroD: '#a8695a', cerebroL: '#e8bba7',
+  hoja: '#ece2cc', hojaD: '#d8ccb2', cabecera: '#b65a3b',
+  tapas: ['#b65a3b', '#8a9466', '#6e7780', '#c9a462', '#a5533a', '#76523a'],
+};
+
+// ================================================================ utilidades
+const unos = (n, f) => Array.from({ length: n }, (_, i) => f(i));
+function lienzo(w, h, dibujar) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  dibujar(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+const caja = (w, h, d, mats) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mats);
+// caja con cada cara de un material: [+x, −x, +y, −y, +z, −z]
+const mats6 = (px, top, pz, resto = top) => [px, resto, top, resto, pz, resto];
+// sombra de contacto (mancha suave en el suelo)
+const TEX_SOMBRA = lienzo(128, 128, (x) => {
+  const g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.45, 'rgba(0,0,0,0.6)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+});
+function sombra(padre, rx, rz, op) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: TEX_SOMBRA, transparent: true, depthWrite: false, opacity: op, color: '#000000' }));
+  m.rotation.x = -Math.PI / 2; m.scale.set(2 * rx, 2 * rz, 1); m.renderOrder = 2; padre.add(m);
+  return { m, poner(p, a = op, sx = 1) { m.position.set(p.x, FY + 1.5, p.z); m.material.opacity = a; m.scale.set(2 * rx * sx, 2 * rz * sx, 1); m.visible = a > 0.003; } };
+}
+
+// ================================================================ el plató
+const plato = K.crearPlato({ estrellas: 70, semilla: 1103, libre: [[ATOMO.x - 130, ATOMO.y - 130, ATOMO.x + 130, ATOMO.y + 130]] });
+window.__lienzo = plato.renderer.domElement;
+const raiz = new THREE.Group(); plato.scene.add(raiz);
+
+// ---------------------------------------------------------------- el pasillo
+const decorado = new THREE.Group(); raiz.add(decorado);
+const mCorte = lam(C.corte), mCorteD = lam(C.corteD);
+{
+  // el suelo de tablas (a lo largo del pasillo) con su canto cortado
+  const tabla = 96, n = 10;
+  const tex = lienzo(1024, 1024, (x, w, h) => {
+    const r = prng(41);
+    for (let i = 0; i < n; i++) {
+      const x0 = i * w / n, base = new THREE.Color(C.suelo).multiplyScalar(0.86 + r() * 0.22);
+      x.fillStyle = base.getStyle(); x.fillRect(x0, 0, w / n, h);
+      // vetas
+      for (let k = 0; k < 7; k++) {
+        x.strokeStyle = `rgba(40,24,14,${0.06 + r() * 0.08})`; x.lineWidth = 1 + r() * 2;
+        const xx = x0 + 6 + r() * (w / n - 12); x.beginPath(); x.moveTo(xx, 0);
+        for (let y = 0; y <= h; y += 64) x.lineTo(xx + Math.sin(y * 0.01 + k) * 3, y);
+        x.stroke();
+      }
+      // juntas de las tablas (a lo largo y alguna testa)
+      x.fillStyle = 'rgba(28,18,12,0.85)'; x.fillRect(x0, 0, 3, h);
+      const testa = r() * h; x.fillRect(x0, testa, w / n, 3);
+    }
+  });
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  const L = Z0 - Z1, A = ANCHO + GRUESO;
+  tex.repeat.set(A / (tabla * n), L / 1024);
+  const suelo = caja(A, LOSA, L, mats6(lam(C.sueloD), new THREE.MeshLambertMaterial({ map: tex }), mCorte, mCorteD));
+  suelo.position.set(XW - GRUESO + A / 2, FY - LOSA / 2, (Z0 + Z1) / 2);
+  decorado.add(suelo);
+  // alfombra (pizarra con cenefa crema)
+  const texA = lienzo(256, 1024, (x, w, h) => {
+    x.fillStyle = C.alfombra; x.fillRect(0, 0, w, h);
+    x.strokeStyle = C.alfombraB; x.lineWidth = 10; x.strokeRect(18, -20, w - 36, h + 40);
+    x.lineWidth = 3; x.strokeRect(36, -20, w - 72, h + 40);
+    x.fillStyle = 'rgba(217,204,176,0.55)';
+    for (let y = 40; y < h; y += 128) { x.beginPath(); x.moveTo(w / 2, y); x.lineTo(w / 2 + 34, y + 40); x.lineTo(w / 2, y + 80); x.lineTo(w / 2 - 34, y + 40); x.closePath(); x.fill(); }
+  });
+  texA.wrapT = THREE.RepeatWrapping; texA.repeat.set(1, (Z0 - 240 - Z1 - 200) / 900);
+  const alf = caja(ALFOMBRA.x1 - ALFOMBRA.x0, 6, Z0 - 240 - Z1 - 200, mats6(lam('#4a525b'), new THREE.MeshLambertMaterial({ map: texA }), lam('#4a525b')));
+  alf.position.set((ALFOMBRA.x0 + ALFOMBRA.x1) / 2, FY + 3, (Z0 - 240 + Z1 + 200) / 2);
+  decorado.add(alf);
+
+  // la pared: núcleo con el hueco de la ventana, zócalo de nogal con paneles, moldura y rodapié
+  const mPared = lam(C.pared);
+  const muro = (z0, z1, y0, y1) => {
+    const m = caja(GRUESO, y1 - y0, z0 - z1, mats6(mPared, mCorte, mCorte, mCorteD));
+    m.position.set(XW - GRUESO / 2, FY + (y0 + y1) / 2, (z0 + z1) / 2); decorado.add(m); return m;
+  };
+  const vz0 = VENT.z + VENT.ancho / 2, vz1 = VENT.z - VENT.ancho / 2;
+  muro(Z0, vz0, 0, ALTO_PARED); muro(vz1, Z1, 0, ALTO_PARED);
+  muro(vz0, vz1, 0, VENT.y0); muro(vz0, vz1, VENT.y1, ALTO_PARED);
+  const ZOC = 300, mZ = lam(C.zocalo), mZL = lam(C.zocaloL), mMol = lam(C.moldura);
+  const zocalo = caja(10, ZOC, Z0 - Z1, mats6(mZ, mZ, mCorte)); zocalo.position.set(XW + 5, FY + ZOC / 2, (Z0 + Z1) / 2); decorado.add(zocalo);
+  for (let z = Z0 - 70; z > Z1 + 100; z -= 270) {   // paneles en relieve
+    const p = caja(8, ZOC - 110, 200, mats6(mZL, mZL, mZL)); p.position.set(XW + 14, FY + ZOC / 2 + 8, z - 100); decorado.add(p);
+  }
+  const mol = caja(22, 20, Z0 - Z1, mats6(mMol, mMol, mMol)); mol.position.set(XW + 11, FY + ZOC + 6, (Z0 + Z1) / 2); decorado.add(mol);
+  const rod = caja(16, 34, Z0 - Z1, mats6(mZ, mZ, mZ)); rod.position.set(XW + 8, FY + 17, (Z0 + Z1) / 2); decorado.add(rod);
+  // la ventana: marco crema, alféizar y cruceta
+  const mMarco = lam(C.marco);
+  const mk = (w, h, d, x, y, z) => { const m = caja(w, h, d, mMarco); m.position.set(x, FY + y, z); decorado.add(m); return m; };
+  const fr = 26;
+  mk(GRUESO + 30, fr, VENT.ancho + 2 * fr, XW - GRUESO / 2 + 8, VENT.y1 + fr / 2, VENT.z);
+  mk(GRUESO + 60, 22, VENT.ancho + 2 * fr + 40, XW - GRUESO / 2 + 16, VENT.y0 - 11, VENT.z);   // alféizar
+  mk(GRUESO + 30, VENT.y1 - VENT.y0, fr, XW - GRUESO / 2 + 8, (VENT.y0 + VENT.y1) / 2, vz0 + fr / 2);
+  mk(GRUESO + 30, VENT.y1 - VENT.y0, fr, XW - GRUESO / 2 + 8, (VENT.y0 + VENT.y1) / 2, vz1 - fr / 2);
+  mk(10, VENT.y1 - VENT.y0, 12, XW - GRUESO / 2, (VENT.y0 + VENT.y1) / 2, VENT.z);              // cruceta
+  mk(10, 12, VENT.ancho, XW - GRUESO / 2, VENT.y0 + (VENT.y1 - VENT.y0) * 0.55, VENT.z);
+  // el cuadro (colinas al atardecer, sin palabras) y el aplique con su luz
+  const texC = lienzo(512, 390, (x, w, h) => {
+    const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#e9c48a'); g.addColorStop(1, '#d08a5a'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#f3dfb4'; x.beginPath(); x.arc(w * 0.66, h * 0.46, h * 0.13, 0, TAU); x.fill();
+    const colina = (y0, a, f, col) => { x.fillStyle = col; x.beginPath(); x.moveTo(0, h); for (let i = 0; i <= 40; i++) x.lineTo(i * w / 40, y0 + Math.sin(i * f) * a); x.lineTo(w, h); x.fill(); };
+    colina(h * 0.62, 18, 0.35, '#8a9466'); colina(h * 0.74, 14, 0.5, '#6c7146'); colina(h * 0.86, 10, 0.7, '#59623f');
+  });
+  const cuadro = caja(14, CUADRO.alto, CUADRO.ancho, mats6(new THREE.MeshLambertMaterial({ map: texC }), lam(C.zocalo), lam(C.zocalo)));
+  cuadro.position.set(XW + 9, FY + CUADRO.y, CUADRO.z); decorado.add(cuadro);
+  const mc = caja(18, CUADRO.alto + 30, CUADRO.ancho + 30, lam('#b8925a')); mc.position.set(XW + 6, FY + CUADRO.y, CUADRO.z); decorado.add(mc);
+  const ap = caja(30, 70, 46, lam('#c9a462')); ap.position.set(XW + 15, FY + APLIQUE.y, APLIQUE.z); decorado.add(ap);
+  const pant = new THREE.Mesh(new THREE.CylinderGeometry(34, 52, 70, 8), lam('#ecd5a3', { emissive: '#7a5a2a' }));
+  pant.position.set(XW + 60, FY + APLIQUE.y + 50, APLIQUE.z); decorado.add(pant);
+  const luz = K.brillo('#f5cd8a', 0.38, 520); luz.position.set(XW + 40, FY + APLIQUE.y + 60, APLIQUE.z); decorado.add(luz);
+  const luz2 = K.brillo('#f5cd8a', 0.22, 900); luz2.position.set(XW + 30, FY + APLIQUE.y + 10, APLIQUE.z); decorado.add(luz2);
+}
+// la luna, fuera (solo se ve por encima de la pared al seguir la cinta)
+const luna = K.crearLuna({ radio: 70 });
+luna.g.position.set(XW - 900, FY + ALTO_PARED + 380, VENT.z + 420);
+raiz.add(luna.g);
+
+// ================================================================ la persona isométrica (HUMANO.md)
+// Medidas en fracciones de la altura, desde el suelo. Adulta: barbilla 0,83 (cabeza H/6), hombros 0,79, codos y cintura
+// 0,60, muñecas y entrepierna 0,47, dedos 0,365, rodillas 0,27; tramos 0,175 · 0,135 · 0,10 (brazo, antebrazo, mano);
+// hombros 0,25 H y caderas 0,19 H de ancho. Niña (como el aspecto «nino» del lote 0): cabeza 1/4,7 y piernas 0,45 H.
+const LINEAS = {
+  adulta: { barbilla: 0.83, hombros: 0.79, hombroJ: 0.775, codo: 0.60, muneca: 0.465, dedos: 0.365, entrepierna: 0.47, cadera: 0.505, rodilla: 0.27, tobillo: 0.05,
+    hombrosAncho: 0.25, caderasAncho: 0.19, brazoR: 0.029, anteR: 0.025, musloR: 0.046, piernaR: 0.035, pie: 0.15, fondo: 0.125 },
+  nina: { barbilla: 1 - 1 / 4.7, hombros: 0.752, hombroJ: 0.738, codo: 0.585, muneca: 0.462, dedos: 0.375, entrepierna: 0.45, cadera: 0.485, rodilla: 0.255, tobillo: 0.05,
+    hombrosAncho: 0.236, caderasAncho: 0.186, brazoR: 0.03, anteR: 0.027, musloR: 0.048, piernaR: 0.038, pie: 0.14, fondo: 0.13 },
+};
+function crearPersona() {
+  const g = new THREE.Group();          // en los pies; mira a +z local (de frente, rotation.y = π/4)
+  const mJ = lam(PAL.jersey), mJD = lam(PAL.jerseyD), mP = lam(C.caqui), mPD = lam(C.caquiD), mS = lam(C.zapato), mSk = lam(PAL.skin, { emissive: '#3a2620' }), mH = lam(C.pelo), mHD = lam(C.peloD), mT = basic(C.tinta);
+  const cil = (n, m) => { const geo = new THREE.CylinderGeometry(1, 1, 1, n); geo.translate(0, -0.5, 0); return new THREE.Mesh(geo, m); };   // de y = 0 a y = −1
+  const bola = (m, d = 1) => new THREE.Mesh(new THREE.IcosahedronGeometry(1, d), m);
+  // piernas
+  const piernas = [-1, 1].map((s) => {
+    const cad = new THREE.Group(); g.add(cad);
+    const muslo = cil(7, mP); cad.add(muslo);
+    const rod = new THREE.Group(); cad.add(rod);
+    const pierna = cil(7, mP); rod.add(pierna);
+    const tob = new THREE.Group(); rod.add(tob);
+    const zap = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), mS); tob.add(zap);
+    const punta = bola(mS, 0); tob.add(punta);
+    return { s, cad, muslo, rod, pierna, tob, zap, punta };
+  });
+  // pelvis (pantalón) y torso (jersey)
+  const pelvis = cil(8, mP); g.add(pelvis);
+  const cinturon = cil(8, mPD); g.add(cinturon);
+  const torsoGeo = new THREE.CylinderGeometry(1, 1, 1, 8); torsoGeo.translate(0, -0.5, 0);
+  const torso = new THREE.Mesh(torsoGeo, mJ); g.add(torso);
+  const bajo = cil(8, mJD); g.add(bajo);
+  const hombros = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 8), mJ); g.add(hombros);
+  const cuelloJ = cil(8, mJD); g.add(cuelloJ);
+  const cuello = cil(7, mSk); g.add(cuello);
+  // brazos
+  const brazos = [-1, 1].map((s) => {
+    const hom = new THREE.Group(); g.add(hom);
+    const bolaH = bola(mJ, 1); hom.add(bolaH);
+    const brazo = cil(7, mJ); hom.add(brazo);
+    const codo = new THREE.Group(); hom.add(codo);
+    const bolaC = bola(mJ, 0); codo.add(bolaC);
+    const ante = cil(7, mJ); codo.add(ante);
+    const puno = cil(7, mJD); codo.add(puno);
+    const mun = new THREE.Group(); codo.add(mun);
+    const mano = bola(mSk, 1); mun.add(mano);
+    const pulgar = bola(mSk, 0); mun.add(pulgar);
+    return { s, hom, bolaH, brazo, codo, bolaC, ante, puno, mun, mano, pulgar };
+  });
+  // cabeza
+  const cab = new THREE.Group(); g.add(cab);
+  const craneo = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 7), mSk); cab.add(craneo);   // con polo abajo: la barbilla cae justo en su línea
+  const pelo = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 7, 0, TAU, 0, Math.PI * 0.56), mH); cab.add(pelo);
+  const nuca = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 6, Math.PI * 1.1, Math.PI * 0.8, Math.PI * 0.25, Math.PI * 0.45), mH); cab.add(nuca);
+  const flequillo = bola(mH, 0); cab.add(flequillo);
+  const raya = bola(mHD, 0); cab.add(raya);
+  const ojos = [-1, 1].map(() => { const o = bola(mT, 1); cab.add(o); return o; });
+  const cejas = [-1, 1].map(() => { const c = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), mHD); cab.add(c); return c; });
+  const orejas = [-1, 1].map(() => { const o = bola(mSk, 0); cab.add(o); return o; });
+  const nariz = bola(lam('#d8b292'), 0); cab.add(nariz);
+  const boca = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), basic('#8a5a48')); cab.add(boca);
+  const somb = sombra(raiz, 135, 120, 0.42);
+
+  const L = {};
+  // k: 0 niña → 1 adulta; H: altura (mundo); pose: { izq: [flex, abd, codo], der: [...], cabeza: [giro, inclina], giro }
+  function poner(k, H, pose = {}) {
+    for (const key of Object.keys(LINEAS.adulta)) L[key] = lerp(LINEAS.nina[key], LINEAS.adulta[key], k);
+    const h = (f) => f * H;
+    g.rotation.y = Math.PI / 4 + (pose.giro ?? 0);
+    // piernas: cadera en (±hx, cadera), rodilla, tobillo; zapatos de largo pie
+    const hx = h(L.caderasAncho / 2 - L.musloR * 0.92);
+    for (const p of piernas) {
+      p.cad.position.set(p.s * hx, h(L.cadera), 0);
+      const lm = h(L.cadera - L.rodilla), lp = h(L.rodilla - L.tobillo);
+      p.muslo.scale.set(h(L.musloR), lm, h(L.musloR) * 1.05);
+      p.rod.position.set(0, -lm, 0);
+      p.pierna.scale.set(h(L.piernaR), lp, h(L.piernaR));
+      p.tob.position.set(0, -lp, 0);
+      const pl = h(L.pie), alto = h(L.tobillo) + h(0.012);
+      p.zap.scale.set(h(L.piernaR) * 2.25, alto, pl * 0.78); p.zap.position.set(p.s * h(0.004), -h(L.tobillo) + alto / 2 - h(0.006), pl * 0.17);
+      p.punta.scale.set(h(L.piernaR) * 1.12, alto * 0.62, pl * 0.2); p.punta.position.set(p.s * h(0.004), -h(L.tobillo) + alto * 0.3, pl * 0.54);
+    }
+    // pelvis: de la entrepierna a la cintura (un poco por encima del codo)
+    const yCint = h(L.codo + 0.035);
+    pelvis.scale.set(h(L.caderasAncho / 2), yCint - h(L.entrepierna), h(L.fondo * 0.46)); pelvis.position.y = yCint;
+    cinturon.scale.set(h(L.caderasAncho / 2) * 1.02, h(0.018), h(L.fondo * 0.47)); cinturon.position.y = yCint;
+    // torso: del bajo del jersey (un poco por debajo de la cintura) a los hombros
+    const yBajo = h(L.codo - 0.045), yHom = h(L.hombros);
+    torso.geometry.dispose?.();
+    const rT = h(L.hombrosAncho / 2 - L.brazoR * 1.15), rB = h(L.caderasAncho / 2 + 0.008);
+    torso.geometry = new THREE.CylinderGeometry(rT, rB, yHom - yBajo, 8, 1); torso.geometry.translate(0, -(yHom - yBajo) / 2, 0);
+    const kz = L.fondo / (L.hombrosAncho / 2) * 0.62;
+    torso.position.y = yHom; torso.scale.set(1, 1, kz);
+    // la caída de los hombros: de la línea de hombros al cuello
+    hombros.geometry.dispose();
+    hombros.geometry = new THREE.CylinderGeometry(h(0.05), rT, h(0.03), 8, 1); hombros.geometry.translate(0, h(0.015), 0);
+    hombros.position.y = yHom; hombros.scale.set(1, 1, kz);
+    bajo.scale.set(rB * 1.03, h(0.03), rB * 1.03 * L.fondo / (L.hombrosAncho / 2) * 0.62); bajo.position.y = yBajo + h(0.03);
+    cuelloJ.scale.set(h(0.047), h(0.016), h(0.042)); cuelloJ.position.y = yHom + h(0.034);
+    cuello.scale.set(h(0.03), h(0.06), h(0.03)); cuello.position.y = h(L.barbilla + 0.02);
+    // brazos (colgando, un poco abiertos; flex adelante, abd afuera, codo doblado)
+    for (const b of brazos) {
+      const P = (b.s > 0 ? pose.izq : pose.der) ?? [0.04, 0.07, 0.1];
+      const lb = h(L.hombroJ - L.codo), la = h(L.codo - L.muneca), lmano = h(L.muneca - L.dedos);
+      b.hom.position.set(b.s * h(L.hombrosAncho / 2 - L.brazoR), h(L.hombroJ), 0);
+      b.hom.rotation.set(-P[0], 0, b.s * P[1], 'ZXY');
+      b.bolaH.scale.setScalar(h(L.brazoR) * 1.05); b.bolaH.position.y = -h(0.004);
+      b.brazo.scale.set(h(L.brazoR), lb, h(L.brazoR) * 1.1);
+      b.codo.position.set(0, -lb, 0); b.codo.rotation.set(-P[2], 0, 0);
+      b.bolaC.scale.setScalar(h(L.anteR) * 1.08);
+      b.ante.scale.set(h(L.anteR), la, h(L.anteR) * 1.08);
+      b.puno.scale.set(h(L.anteR) * 1.12, h(0.022), h(L.anteR) * 1.18); b.puno.position.y = -la + h(0.022);
+      b.mun.position.set(0, -la, 0);
+      b.mano.scale.set(h(0.013), lmano / 2, h(0.027)); b.mano.position.set(0, -lmano / 2, 0);
+      b.pulgar.scale.set(h(0.009), h(0.024), h(0.009)); b.pulgar.position.set(-b.s * h(0.004), -h(0.026), h(0.024));
+    }
+    // cabeza: de la barbilla a la coronilla (el pelo llega a H)
+    const ry = h(1 - L.barbilla) / 2.09, cy = h(L.barbilla) + ry;
+    const rx = ry * 0.74, rz = ry * 0.86;
+    cab.position.set(0, cy, 0);
+    const [giroC, incl] = pose.cabeza ?? [0, 0];
+    cab.rotation.set(incl, giroC, 0, 'YXZ');
+    craneo.scale.set(rx, ry, rz);
+    pelo.scale.set(rx * 1.07, ry * 1.05, rz * 1.07); pelo.position.set(0, ry * 0.04, -rz * 0.04); pelo.rotation.x = -0.18;
+    nuca.scale.set(rx * 1.06, ry * 1.0, rz * 1.06); nuca.position.set(0, ry * 0.02, -rz * 0.02);
+    flequillo.scale.set(rx * 0.62, ry * 0.2, rz * 0.42); flequillo.position.set(rx * 0.22, ry * 0.8, rz * 0.5); flequillo.rotation.set(0.3, 0, -0.2);
+    raya.scale.set(rx * 0.35, ry * 0.14, rz * 0.5); raya.position.set(-rx * 0.42, ry * 0.86, rz * 0.2);
+    const ojoR = ry * (0.085 + 0.02 * (1 - k));
+    ojos.forEach((o, i) => { const s = i ? 1 : -1; o.scale.set(ojoR, ojoR * 1.25, ojoR * 0.6); o.position.set(s * rx * 0.4, ry * 0.02, rz * 0.94); });
+    cejas.forEach((c, i) => { const s = i ? 1 : -1; c.scale.set(rx * 0.3, ry * 0.045, rz * 0.08); c.position.set(s * rx * 0.4, ry * 0.25, rz * 0.9); c.rotation.z = -s * 0.08; });
+    orejas.forEach((o, i) => { const s = i ? 1 : -1; o.scale.set(rx * 0.16, ry * 0.2, rz * 0.14); o.position.set(s * rx * 0.98, 0, 0); });
+    nariz.scale.set(rx * 0.12, ry * 0.12, rz * 0.12); nariz.position.set(0, -ry * 0.18, rz * 0.98);
+    boca.scale.set(rx * 0.26, ry * 0.035, rz * 0.05); boca.position.set(0, -ry * 0.48, rz * 0.9);
+  }
+  return {
+    g, brazos, cab, L, poner,
+    sombra(a = 0.42) { somb.poner(g.position, a, g.userData.H ? g.userData.H / H_AD : 1); },
+  };
+}
+const persona = crearPersona();
+raiz.add(persona.g);
+persona.g.position.copy(PIES);
+
+// ---------------------------------------------------------------- la cinta métrica (caja en la mano izquierda)
+const cajaCinta = new THREE.Group();
+{
+  const sh = new THREE.Shape(); const w = 66, h = 62, r = 16;
+  sh.moveTo(-w / 2 + r, -h / 2); sh.lineTo(w / 2 - r, -h / 2); sh.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+  sh.lineTo(w / 2, h / 2 - r); sh.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2); sh.lineTo(-w / 2 + r, h / 2);
+  sh.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r); sh.lineTo(-w / 2, -h / 2 + r); sh.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+  const geo = new THREE.ExtrudeGeometry(sh, { depth: 26, bevelEnabled: true, bevelThickness: 4, bevelSize: 4, bevelSegments: 1, curveSegments: 4 });
+  geo.translate(0, 0, -13);
+  const cuerpo = new THREE.Mesh(geo, [lam(C.caja), lam(C.cajaD)]); cajaCinta.add(cuerpo);
+  const tapa = new THREE.Mesh(new THREE.CylinderGeometry(15, 15, 34, 12), lam('#e6dac2')); tapa.rotation.x = Math.PI / 2; cajaCinta.add(tapa);
+  const boca = caja(10, 10, 20, lam(C.cintaD)); boca.position.set(w / 2 - 6, -h / 2 + 8, 0); cajaCinta.add(boca);
+  const lengua = caja(14, 6, 18, lam(C.cinta)); lengua.position.set(w / 2 + 4, -h / 2 + 7, 0); cajaCinta.add(lengua);
+  cajaCinta.userData.lengua = lengua;
+}
+raiz.add(cajaCinta);
+
+// la cinta: una tira que se construye a lo largo de un camino fijo hasta el largo s(t)
+const TEX_CINTA = lienzo(512, 64, (x, w, h) => {
+  x.fillStyle = C.cinta; x.fillRect(0, 0, w, h);
+  x.fillStyle = 'rgba(120,70,20,0.35)'; x.fillRect(0, 0, w, 4); x.fillRect(0, h - 4, w, 4);
+  for (let i = 0; i < 32; i++) {
+    const X = i * w / 32 + 1, largo = i % 8 === 0 ? 0.62 : i % 4 === 0 ? 0.44 : 0.26;
+    x.fillStyle = i % 8 === 0 ? '#b65a3b' : C.cintaD;
+    x.fillRect(X, 4, i % 8 === 0 ? 5 : 3, h * largo);
+  }
+});
+TEX_CINTA.wrapS = THREE.RepeatWrapping;
+const ANCHO_CINTA = 26, PERIODO_CINTA = 200;
+function crearCinta() {
+  const N = 1600;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(N * 2 * 3), nor = new Float32Array(N * 2 * 3), uv = new Float32Array(N * 2 * 2);
+  const idx = [];
+  for (let i = 0; i < N - 1; i++) { const a = 2 * i; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+  geo.setIndex(idx);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: TEX_CINTA, side: THREE.DoubleSide }));
+  mesh.frustumCulled = false;
+  const punta = caja(18, 30, 8, lam('#c9a462')); // el gancho de latón
+  const _t = new THREE.Vector3(), _s = new THREE.Vector3(), _p = new THREE.Vector3(), _n = new THREE.Vector3();
+  return {
+    mesh, punta,
+    // pts: [{ p, n, L }] (L: largo acumulado); la tira va de s0 a s (largos); deformar(p, L) mueve cada punto
+    poner(pts, s, deformar = null, s0 = 0) {
+      let k = 0;
+      const emitir = (p, nn, L, i) => {
+        const q = deformar ? deformar(p.clone(), L) : p;
+        const prev = pts[Math.max(0, i - 1)], next = pts[Math.min(pts.length - 1, i + 1)];
+        _t.subVectors(next.p, prev.p).normalize();
+        if (deformar && i > 0 && i < pts.length - 1) {   // la tangente, de la tira deformada
+          const a = deformar(prev.p.clone(), prev.L), b = deformar(next.p.clone(), next.L);
+          if (a.distanceToSquared(b) > 1e-4) _t.subVectors(b, a).normalize();
+        }
+        _s.crossVectors(_t, nn).normalize().multiplyScalar(ANCHO_CINTA / 2);
+        pos.set([q.x + _s.x, q.y + _s.y, q.z + _s.z, q.x - _s.x, q.y - _s.y, q.z - _s.z], k * 6);
+        nor.set([nn.x, nn.y, nn.z, nn.x, nn.y, nn.z], k * 6);
+        uv.set([L / PERIODO_CINTA, 0, L / PERIODO_CINTA, 1], k * 4);
+        k++;
+        return q;
+      };
+      const entre = (i, L) => { const a = pts[i - 1], b = pts[i], u = (L - a.L) / (b.L - a.L); return { p: _p.copy(a.p).lerp(b.p, u).clone(), n: _n.copy(a.n).lerp(b.n, u).normalize().clone() }; };
+      punta.visible = false;
+      if (s > s0) {
+        for (let i = 0; i < pts.length && k < N - 1; i++) {
+          const a = pts[i];
+          if (a.L <= s0) continue;
+          if (k === 0 && i > 0) { const e = entre(i, s0); emitir(e.p, e.n, s0, i); }
+          if (a.L >= s) {
+            const e = i > 0 ? entre(i, s) : { p: a.p, n: a.n };
+            const q = emitir(e.p, e.n, s, i);
+            punta.position.copy(q); punta.lookAt(q.clone().add(_t)); punta.visible = true;
+            break;
+          }
+          emitir(a.p, a.n, a.L, i);
+        }
+      }
+      geo.setDrawRange(0, Math.max(0, k - 1) * 6);
+      geo.attributes.position.needsUpdate = geo.attributes.normal.needsUpdate = geo.attributes.uv.needsUpdate = true;
+      mesh.visible = k > 1; if (k <= 1) punta.visible = false;
+    },
+  };
+}
+const cinta = crearCinta();
+raiz.add(cinta.mesh, cinta.punta);
+
+// ---------------------------------------------------------------- monedas (una sola pieza con repetición)
+const N_MON = MONTONES[0].n + MONTONES[1].n;
+const monedas = new THREE.InstancedMesh(new THREE.CylinderGeometry(R_MON, R_MON, G_MON, 18), lam('#ffffff'), N_MON);
+monedas.frustumCulled = false;
+const MON = [];   // { stack, i, base (mundo, en el suelo), jx, jz, giro, col }
+{
+  const r = prng(77), tonos = [PAL.gold, PAL.laton, PAL.gold2, '#d9a95a'];
+  MONTONES.forEach((st, si) => {
+    for (let i = 0; i < st.n; i++) {
+      MON.push({ si, i, jx: (r() - 0.5) * 5, jz: (r() - 0.5) * 5, giro: r() * TAU, inc: (r() - 0.5) * 0.05 });
+      monedas.setColorAt(MON.length - 1, new THREE.Color(tonos[Math.floor(r() * tonos.length)]));
+    }
+  });
+  monedas.instanceColor.needsUpdate = true;
+}
+raiz.add(monedas);
+const sombrasMon = MONTONES.map(() => sombra(raiz, R_MON * 1.45, R_MON * 1.45, 0.5));
+
+// ---------------------------------------------------------------- el cerebro con su cajón
+const S_CER = 400;
+const cerebro = (() => {
+  const g = new THREE.Group();
+  const cuerpo = new THREE.Group(); g.add(cuerpo);   // frente del cerebro hacia +x local, el cajón en +z local
+  const cB = new THREE.Color(C.cerebro), cD = new THREE.Color(C.cerebroD), cL = new THREE.Color(C.cerebroL);
+  const S0 = S_CER;
+  // circunvoluciones: lomos redondeados separados por surcos estrechos, a lo largo de las curvas de nivel de un ruido
+  const surco = (x, y, z, f, sem) => {
+    const n = K.fbm(x * f + sem, y * f + 2 * sem, z * f - sem);
+    const g = Math.abs(Math.sin(n * Math.PI * 9));
+    return Math.pow(sstep(0.0, 0.55, g), 0.75);  // 0 en el surco, 1 en el lomo
+  };
+  function hemisferio(lado) {
+    let geo = new THREE.IcosahedronGeometry(1, 40);
+    geo.deleteAttribute('normal'); geo.deleteAttribute('uv'); geo = mergeVertices(geo);   // normales suaves: lomos de arcilla
+    const p = geo.attributes.position, cols = new Float32Array(p.count * 3), v = new THREE.Vector3();
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i);
+      // elipsoide: largo en x (frente +x), alto en y, ancho en z; cara de dentro plana, base algo plana
+      let x = v.x * 0.5, y = v.y * 0.32, z = v.z * 0.22;
+      // lóbulo temporal: abajo, de la mitad hacia delante, baja un poco
+      const temp = Math.exp(-(((x - 0.1) / 0.22) ** 2)) * sstep(0.1, -0.6, v.y);
+      y -= 0.07 * temp;
+      if (y < -0.24) y = -0.24 + (y + 0.24) * 0.3;
+      y += 0.035 * sstep(-0.1, 0.4, x) * sstep(0, 1, v.y) - 0.03 * sstep(-0.25, -0.5, x) * sstep(0, 1, v.y);
+      if (lado * z < -0.16) z = -lado * 0.16 + (z + lado * 0.16) * 0.2;
+      const fuera = 1 - sstep(0.1, 0.16, -lado * z);    // la cara de dentro, lisa
+      const h = surco(v.x, v.y, v.z, 1.9, lado * 3.1);
+      const k = 1 + (0.05 * h - 0.035) * fuera;
+      x *= k; y *= k; if (lado * z > 0) z *= k;
+      p.setXYZ(i, x * S0, y * S0, (z + lado * 0.222) * S0);
+      const c = cD.clone().lerp(cB, sstep(0.05, 0.55, h * fuera + (1 - fuera) * 0.8)).lerp(cL, sstep(0.7, 1, h) * 0.35 * sstep(-0.2, 0.6, v.y));
+      cols.set([c.r, c.g, c.b], i * 3);
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+    geo.computeVertexNormals();
+    return new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true }));
+  }
+  cuerpo.add(hemisferio(1), hemisferio(-1));
+  // cerebelo con láminas y tronco
+  {
+    const geo = new THREE.IcosahedronGeometry(1, 10), p = geo.attributes.position, v = new THREE.Vector3(), cols = new Float32Array(p.count * 3);
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i);
+      const cr = Math.abs(Math.sin((v.y + 0.25 * v.x) * 9));
+      const h = sstep(0, 0.45, cr);
+      const k = 1 + 0.06 * h - 0.04;
+      p.setXYZ(i, (v.x * 0.17 * k - 0.33) * S0, (v.y * 0.11 * k - 0.215) * S0, v.z * 0.33 * k * S0);
+      const c = cD.clone().lerp(cB, h * 0.85); cols.set([c.r, c.g, c.b], i * 3);
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(cols, 3)); geo.computeVertexNormals();
+    cuerpo.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true })));
+    const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.05 * S0, 0.06 * S0, 0.2 * S0, 8), lam(C.cerebroD));
+    tronco.position.set(-0.2 * S0, -0.3 * S0, 0); tronco.rotation.z = -0.35; cuerpo.add(tronco);
+  }
+  // el cajón: frente de nogal con tirador de latón; la caja entra en el cerebro
+  const cajon = new THREE.Group(); cuerpo.add(cajon);
+  const W = 0.44 * S0, Hh = 0.19 * S0, Dd = 0.36 * S0, t = 0.018 * S0;
+  const mN = lam(PAL.nogal), mNL = lam('#8a6448'), mDentro = lam('#4a3426');
+  const frente = caja(W + 0.04 * S0, Hh + 0.04 * S0, 0.035 * S0, mN); frente.position.z = 0; cajon.add(frente);
+  const filete = caja(W - 0.02 * S0, Hh - 0.02 * S0, 0.01 * S0, mNL); filete.position.z = 0.02 * S0; cajon.add(filete);
+  const tirador = new THREE.Mesh(new THREE.IcosahedronGeometry(0.03 * S0, 1), lam(PAL.laton)); tirador.position.z = 0.04 * S0; cajon.add(tirador);
+  const fondo = caja(W, t, Dd, mDentro); fondo.position.set(0, -Hh / 2 + t / 2, -Dd / 2); cajon.add(fondo);
+  for (const s of [-1, 1]) { const l = caja(t, Hh, Dd, mN); l.position.set(s * (W / 2 - t / 2), 0, -Dd / 2); cajon.add(l); }
+  const tras = caja(W, Hh, t, mN); tras.position.set(0, 0, -Dd + t / 2); cajon.add(tras);
+  const ranura = caja(W + 0.07 * S0, Hh + 0.07 * S0, 0.02 * S0, lam('#3a2420')); cuerpo.add(ranura);
+  const Z_CAJON = 0.43 * S0, Y_CAJON = -0.085 * S0;
+  ranura.position.set(0.02 * S0, Y_CAJON, Z_CAJON - 0.03 * S0);
+  const halo = K.brillo(PAL.ambarL, 0, S0 * 2.2); halo.position.z = -0.3 * S0; g.add(halo);
+  return {
+    g, cuerpo, cajon, halo, W, Hh, Dd, t,
+    abrir(u) { cajon.position.set(0.02 * S0, Y_CAJON, Z_CAJON + u * 0.34 * S0); },
+    // hueco i del montón m dentro del cajón (local del cajón)
+    hueco(m, i) { return new THREE.Vector3((m ? 1 : -1) * 0.105 * S0, -Hh / 2 + t + G_MON * (i + 0.5), -Dd * 0.52); },
+  };
+})();
+raiz.add(cerebro.g);
+const CER_POS = PIES.clone().addScaledVector(vR, 470).addScaledVector(Y, 390).addScaledVector(vF, 90);
+cerebro.g.position.copy(CER_POS);
+K.orient(cerebro.g, Y, new THREE.Vector3(1, 0, 1.2).normalize());   // de perfil, con el cajón hacia la cámara
+cerebro.cuerpo.rotation.x = -0.36;   // tres cuartos: la cara del cajón se inclina hacia la cámara
+const sombraCer = sombra(raiz, 180, 120, 0.22);
+
+// ---------------------------------------------------------------- el calendario de pared (solo números)
+const TEX_NUM = new Map();
+function texNumero(n) {
+  if (TEX_NUM.has(n)) return TEX_NUM.get(n);
+  const t = lienzo(320, 300, (x, w, h) => {
+    x.fillStyle = C.hoja; x.fillRect(0, 0, w, h);
+    x.fillStyle = 'rgba(120,90,60,0.12)'; x.fillRect(0, h - 10, w, 10);
+    if (n != null) {
+      x.font = '600 190px "Jost", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+      const m = x.measureText(String(n)); const asc = m.actualBoundingBoxAscent, desc = m.actualBoundingBoxDescent;
+      x.fillStyle = C.tinta; x.fillText(String(n), w / 2, h / 2 + (asc - desc) / 2 + 6);
+    }
+  });
+  TEX_NUM.set(n, t); return t;
+}
+const calendario = (() => {
+  const g = new THREE.Group(); raiz.add(g);
+  const W = CAL.ancho, Hh = CAL.alto, cab = 52;
+  // tablero de nogal, cabecera terracota con dos anillas y el taco de hojas
+  const tab = caja(10, Hh + 30, W + 30, lam(PAL.nogal)); tab.position.set(XW + 5, FY + CAL.y, CAL.z); g.add(tab);
+  const cabec = caja(22, cab, W + 10, lam(C.cabecera)); cabec.position.set(XW + 14, FY + CAL.y + Hh / 2 - cab / 2, CAL.z); g.add(cabec);
+  for (const s of [-1, 1]) {
+    const an = new THREE.Mesh(new THREE.TorusGeometry(9, 3, 6, 14), lam(PAL.laton));
+    an.position.set(XW + 27, FY + CAL.y + Hh / 2 - cab - 2, CAL.z + s * W * 0.27); an.rotation.y = Math.PI / 2; g.add(an);
+  }
+  const hojaAlto = Hh - cab - 14;
+  const taco = caja(24, hojaAlto, W - 12, mats6(new THREE.MeshLambertMaterial({ map: texNumero(null) }), lam(C.hojaD), lam(C.hojaD)));
+  const yTaco = FY + CAL.y + Hh / 2 - cab - 6 - hojaAlto / 2;
+  taco.position.set(XW + 16, yTaco, CAL.z); g.add(taco);
+  // las hojas: 1 … 12 (la de arriba a la vista). Cada hoja es un plano con su número; al arrancarla se abre desde arriba,
+  // se suelta, revolotea y cae al suelo.
+  const hojas = unos(12, (i) => {
+    const m = new THREE.Group();
+    const cara = new THREE.Mesh(new THREE.PlaneGeometry(W - 12, hojaAlto), new THREE.MeshLambertMaterial({ map: texNumero(i + 1) }));
+    const dorso = new THREE.Mesh(new THREE.PlaneGeometry(W - 12, hojaAlto), lam(C.hojaD)); dorso.rotation.y = Math.PI;
+    m.add(cara, dorso); g.add(m); return m;
+  });
+  const arriba = new THREE.Vector3(XW + 29.5, yTaco + hojaAlto / 2, CAL.z);
+  return { g, hojas, arriba, hojaAlto, ancho: W - 12 };
+})();
+// dónde cae cada hoja (en el suelo, alrededor de los pies)
+const CAIDA = unos(12, (i) => {
+  const r = prng(500 + i);
+  return { p: new THREE.Vector3(XW + 55 + r() * 120, FY + 3 + i * 0.7, CAL.z - 20 + (r() - 0.5) * 200), giro: r() * TAU, fase: r() * TAU, dur: 0.55 + r() * 0.2 };
+});
+const _m = new THREE.Matrix4();
+const QH0 = new THREE.Quaternion().setFromAxisAngle(Y, Math.PI / 2), EJE_Z = new THREE.Vector3(0, 0, 1);
+// postura de una hoja sobre la pared: th la despega por el canto de arriba (eje z); phi la tuerce en su plano colgando
+// de la esquina de la derecha (esquina = true: medio arrancada)
+function poseHoja(th, phi = 0, esquina = false) {
+  const q = new THREE.Quaternion().setFromAxisAngle(EJE_Z, th).multiply(QH0).multiply(new THREE.Quaternion().setFromAxisAngle(EJE_Z, phi));
+  const W = calendario.ancho, A = calendario.hojaAlto;
+  const piv = calendario.arriba.clone(); if (esquina) piv.z -= W / 2;
+  return { p: piv.add(new THREE.Vector3(esquina ? -W / 2 : 0, -A / 2, 0).applyQuaternion(q)), q };
+}
+function ponerHoja(m, i, t, tArr) {
+  let a;
+  if (t < tArr) { a = poseHoja(0); m.position.copy(a.p); m.quaternion.copy(a.q); return; }
+  const tau = t - tArr, T1 = 0.14;
+  if (tau < T1) { a = poseHoja(1.1 * eo(tau / T1)); m.position.copy(a.p); m.quaternion.copy(a.q); return; }
+  // suelta: cae revoloteando hasta su sitio y se queda plana
+  const c = CAIDA[i], u = clamp01((tau - T1) / c.dur);
+  a = poseHoja(1.1);
+  const p = a.p.clone().lerp(c.p, u);
+  p.y = lerp(a.p.y, c.p.y, Math.pow(u, 1.4)) + Math.sin(u * Math.PI) * 25;
+  p.addScaledVector(vR, Math.sin(u * 8 + c.fase) * 26 * (1 - u));
+  m.position.copy(p);
+  const qPlano = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, c.giro, 0, 'YXZ'));
+  const bam = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 1).normalize(), Math.sin(u * 7 + c.fase) * 0.6 * (1 - u));
+  m.quaternion.copy(a.q).slerp(qPlano, sstep(0, 1, u)).premultiply(bam);
+}
+function ponerMedia(m, t) {
+  const u = eo(seg(t, TC_MEDIA, TC_MEDIA + 0.35));
+  const a = poseHoja(0.16 * u, 0.55 * u, true);
+  m.position.copy(a.p); m.quaternion.copy(a.q);
+}
+const tHoja = (i) => lerp(TC_H0, TC_H1, i / 10);
+
+// ---------------------------------------------------------------- la pila de calendarios (tres piezas con repetición)
+// Cada calendario es un taco tumbado: las hojas (crema, con el canto rayado), la hoja de arriba con la cuadrícula de
+// un mes (sin palabras) y la cabecera de color delante, como la del calendario de pared.
+const pila = (() => {
+  const g = new THREE.Group(); raiz.add(g);
+  const { n, a, b, alto } = PILA;
+  const texCanto = lienzo(256, 64, (x, w, h) => {
+    x.fillStyle = C.hoja; x.fillRect(0, 0, w, h);
+    x.strokeStyle = 'rgba(110,90,60,0.32)'; x.lineWidth = 1;
+    for (let y = 5; y < h; y += 6) { x.beginPath(); x.moveTo(0, y); x.lineTo(w, y); x.stroke(); }
+  });
+  const texMes = lienzo(512, 384, (x, w, h) => {
+    x.fillStyle = C.hoja; x.fillRect(0, 0, w, h);
+    x.strokeStyle = 'rgba(42,34,32,0.5)'; x.lineWidth = 3;
+    const x0 = 26, y0 = 26, cw = (w - 52) / 7, ch = (h - 52) / 5;
+    for (let i = 0; i <= 7; i++) { x.beginPath(); x.moveTo(x0 + i * cw, y0); x.lineTo(x0 + i * cw, h - 26); x.stroke(); }
+    for (let j = 0; j <= 5; j++) { x.beginPath(); x.moveTo(x0, y0 + j * ch); x.lineTo(w - 26, y0 + j * ch); x.stroke(); }
+    x.fillStyle = 'rgba(182,90,59,0.55)'; x.fillRect(x0 + 6 * cw + 3, y0 + 3, cw - 6, h - 58);   // los domingos
+  });
+  const mCanto = new THREE.MeshLambertMaterial({ map: texCanto }), mHoja = lam(C.hoja);
+  const hojas = new THREE.InstancedMesh(new THREE.BoxGeometry(a, alto * 0.66, b), mats6(mCanto, mHoja, mCanto), n);
+  const mes = new THREE.InstancedMesh(new THREE.BoxGeometry(a - 10, alto * 0.06, b * 0.74), mats6(mHoja, new THREE.MeshLambertMaterial({ map: texMes }), mHoja), n);
+  const cabe = new THREE.InstancedMesh(new THREE.BoxGeometry(a + 4, alto * 0.36, b * 0.24), lam('#ffffff'), n);
+  const r = prng(321);
+  const J = unos(n, (i) => ({ dx: (r() - 0.5) * 12, dz: (r() - 0.5) * 8, giro: (r() - 0.5) * 0.06, col: C.tapas[(i * 7) % C.tapas.length] }));
+  J.forEach((j, i) => cabe.setColorAt(i, new THREE.Color(j.col).multiplyScalar(0.92 + r() * 0.14)));
+  cabe.instanceColor.needsUpdate = true;
+  for (const m of [hojas, mes, cabe]) { m.frustumCulled = false; g.add(m); }
+  const somb = sombra(raiz, a * 0.62, a * 0.62, 0.5);
+  return { g, hojas, mes, cabe, J, somb };
+})();
+// la base de la pila: el canto de abajo de la cara de delante en (1672, 905) con la cámara base
+const PILA_BASE = enPlano(1672, 905, FY).addScaledVector(vF, -PILA.b / 2 * 0.98);
+const PILA_Q = new THREE.Quaternion().setFromAxisAngle(Y, Math.PI / 4 - PILA.giro);
+const tPila = (i) => TD_P0 + (TD_P1 - TD_P0) * Math.pow(i / (PILA.n - 1), 0.8);   // cada vez más deprisa
+function ponerPila(t) {
+  const { n, alto, b } = PILA;
+  const visible = t >= T_D - 0.05;
+  pila.g.visible = visible;
+  if (!visible) { pila.somb.m.visible = false; return; }
+  let cuantas = 0;
+  const _p = new THREE.Vector3(), _s = new THREE.Vector3();
+  for (let i = 0; i < n; i++) {
+    const tl = tPila(i);
+    const u = seg(t, tl - 0.24, tl);
+    if (u <= 0) break;
+    const j = pila.J[i];
+    const yi = FY + i * alto + (1 - u * u) * 640;                     // cae desde arriba
+    const ap = t > tl ? 1 - 0.2 * Math.exp(-(t - tl) * 16) : 1;      // se aplasta un poco al llegar
+    const pos = PILA_BASE.clone().add(new THREE.Vector3(j.dx, 0, j.dz).applyQuaternion(PILA_Q));
+    const q = PILA_Q.clone().multiply(new THREE.Quaternion().setFromAxisAngle(Y, j.giro * (0.4 + 1.6 * (1 - u))));
+    const pon = (mesh, y, dz) => { _p.set(0, 0, dz).applyQuaternion(q).add(pos); _p.y = yi + y * ap; _m.compose(_p, q, _s.set(1, ap, 1)); mesh.setMatrixAt(i, _m); };
+    pon(pila.hojas, alto * 0.33, 0);
+    pon(pila.mes, alto * 0.69, -b * 0.13);
+    pon(pila.cabe, alto * 0.62, b / 2 - b * 0.12);
+    cuantas = i + 1;
+  }
+  for (const m of [pila.hojas, pila.mes, pila.cabe]) { m.count = cuantas; m.instanceMatrix.needsUpdate = true; }
+  pila.somb.poner(PILA_BASE, 0.5 * clamp01(cuantas / 3));
+}
+
+// ---------------------------------------------------------------- el camino de la cinta (fijo)
+persona.g.userData.H = H_AD;
+const POSE_CINTA = { izq: [0.28, 0.12, 1.25], der: [0.04, 0.07, 0.1], cabeza: [0.35, 0.12], giro: 0 };
+persona.poner(1, H_AD, POSE_CINTA);
+raiz.updateMatrixWorld(true);
+const MANO_IZQ = new THREE.Vector3(); persona.brazos[1].mano.getWorldPosition(MANO_IZQ);
+cajaCinta.position.copy(MANO_IZQ).addScaledVector(vF, 18).addScaledVector(Y, -6);
+K.orient(cajaCinta, Y, new THREE.Vector3(1, 0, 0.55).normalize());   // la boca de la cinta mira hacia el pasillo (−z)
+raiz.updateMatrixWorld(true);
+const BOCA = new THREE.Vector3(); cajaCinta.userData.lengua.getWorldPosition(BOCA);
+const CAMINO = (() => {
+  const pts = [];
+  const add = (p, n) => { const L = pts.length ? pts[pts.length - 1].L + p.distanceTo(pts[pts.length - 1].p) : 0; pts.push({ p: p.clone(), n: n.clone().normalize(), L }); };
+  const tramo = (a, b, n, paso = 10) => { const k = Math.max(1, Math.ceil(a.distanceTo(b) / paso)); for (let i = pts.length ? 1 : 0; i <= k; i++) add(a.clone().lerp(b, i / k), n); };
+  const bez = (a, c, b, n0, n1, k = 30) => { for (let i = pts.length ? 1 : 0; i <= k; i++) { const u = i / k; const p = a.clone().multiplyScalar((1 - u) ** 2).addScaledVector(c, 2 * u * (1 - u)).addScaledVector(b, u * u); add(p, n0.clone().lerp(n1, u)); } };
+  const X = new THREE.Vector3(1, 0, 0);
+  const xs = XW + 300;   // por la alfombra
+  // de la boca de la caja al suelo
+  const suelo0 = new THREE.Vector3(BOCA.x + 60, FY + 4, BOCA.z - 120);
+  bez(BOCA, new THREE.Vector3(BOCA.x + 30, BOCA.y + 10, BOCA.z - 120), suelo0, vF, Y, 24);
+  const a1 = new THREE.Vector3(xs, FY + 7, suelo0.z - 220);
+  bez(suelo0, new THREE.Vector3(suelo0.x, FY + 6, suelo0.z - 140), a1, Y, Y, 20);
+  // por el pasillo hasta la ventana
+  const a2 = new THREE.Vector3(xs, FY + 7, VENT.z + 260);
+  tramo(a1, a2, Y, 14);
+  const pie = new THREE.Vector3(XW + 24, FY + 4, VENT.z);
+  bez(a2, new THREE.Vector3(xs, FY + 7, VENT.z + 20), pie, Y, Y, 26);
+  // sube por la pared hasta el alféizar y sale
+  const alf = new THREE.Vector3(XW + 30, FY + VENT.y0 + 4, VENT.z);
+  bez(pie, new THREE.Vector3(XW + 4, FY + 20, VENT.z), new THREE.Vector3(XW + 30, FY + 60, VENT.z), Y, X, 10);
+  tramo(new THREE.Vector3(XW + 30, FY + 60, VENT.z), new THREE.Vector3(XW + 30, FY + VENT.y0 - 40, VENT.z), X, 14);
+  bez(new THREE.Vector3(XW + 30, FY + VENT.y0 - 40, VENT.z), new THREE.Vector3(XW + 34, FY + VENT.y0 + 4, VENT.z), new THREE.Vector3(XW - 20, FY + VENT.y0 + 6, VENT.z), X, Y, 12);
+  const fuera = new THREE.Vector3(XW - GRUESO - 60, FY + VENT.y0 + 20, VENT.z - 30);
+  tramo(new THREE.Vector3(XW - 20, FY + VENT.y0 + 6, VENT.z), fuera, Y, 12);
+  // fuera sube por detrás de la pared y aparece por encima
+  const arriba = new THREE.Vector3(XW - GRUESO - 160, FY + ALTO_PARED + 110, VENT.z + 60);
+  bez(fuera, new THREE.Vector3(XW - GRUESO - 260, FY + VENT.y0 + 300, VENT.z), arriba, vW, vW, 40);
+  const iFuera = pts.length - 1;
+  // el enredo: una madeja (vueltas sobre una esfera cuyo plano gira poco a poco), como una bola de cinta
+  const cen = new THREE.Vector3(XW - GRUESO - 330, FY + ALTO_PARED + 300, VENT.z + 60);
+  const R = 175, NL = 320, VUELTAS = 4.6;
+  const ini = arriba.clone(), ref = new THREE.Vector3(0.3, 0.2, 1).normalize();
+  for (let i = 1; i <= NL; i++) {
+    const u = i / NL, a = u * TAU * VUELTAS + 0.6;
+    const th = 0.5 + u * 2.4, ph = u * 1.9;
+    const n = new THREE.Vector3(Math.sin(th) * Math.cos(ph), Math.cos(th), Math.sin(th) * Math.sin(ph));
+    const e1 = new THREE.Vector3().crossVectors(n, ref).normalize(), e2 = new THREE.Vector3().crossVectors(n, e1);
+    const r = R * (0.88 + 0.12 * Math.sin(u * 23)) * (0.45 + 0.55 * sstep(0, 0.2, u));
+    const p = cen.clone().addScaledVector(e1, Math.cos(a) * r).addScaledVector(e2, Math.sin(a) * r).lerp(ini, Math.pow(1 - sstep(0, 0.14, u), 2));
+    add(p, vW);
+  }
+  return { pts, iFuera, cen, total: pts[pts.length - 1].L, Lfuera: pts[iFuera].L, Lventana: (() => { let L = 0; for (const q of pts) if (q.p.y < FY + 12) L = q.L; return L; })() };
+})();
+// el punto del cielo hacia el que se pierde la madeja (cerca de la luna)
+const LEJOS = CAMINO.cen.clone().addScaledVector(vU, 170).addScaledVector(vR, -120);
+// largo de cinta fuera de la caja en el instante t
+function largoCinta(t) {
+  const { Lventana, Lfuera, total } = CAMINO;
+  if (t < TA0) return 0;
+  if (t < TA_VENT) return Lventana * eio(seg(t, TA0, TA_VENT)) ** 0.9;
+  if (t < TA_FUERA) return lerp(Lventana, Lfuera, seg(t, TA_VENT, TA_FUERA));
+  return lerp(Lfuera, total, eo(seg(t, TA_FUERA, TA_ENR)));
+}
+
+// ================================================================ la cámara
+// encuadre: el punto del mundo en el centro de la pantalla y el zoom; la base es la del principio y el final
+const VENT_C = new THREE.Vector3(XW, FY + (VENT.y0 + VENT.y1) / 2, VENT.z);
+const CAM = {
+  base: { c: new THREE.Vector3(), z: 1 },
+  // la cinta llega a la ventana: el suelo del pasillo y la ventana
+  pasillo: { c: VENT_C.clone().lerp(new THREE.Vector3(XW + 320, FY, VENT.z + 380), 0.5), z: 0.9 },
+  // la ventana y el cielo, donde se enreda
+  ventana: { c: VENT_C.clone().lerp(CAMINO.cen, 0.42).addScaledVector(vR, 40), z: 0.76 },
+  cerebro: { c: S(900, 730), z: 1.75 },
+  nina: { c: S(760, 520), z: 1.6 },
+};
+const mezclaCam = (a, b, u) => ({ c: a.c.clone().lerp(b.c, u), z: Math.exp(lerp(Math.log(a.z), Math.log(b.z), u)) });
+function camaraEn(t) {
+  if (t < T_B) {
+    const u1 = eio(seg(t, TA0 + 0.1, TA_VENT + 0.1)), u2 = eio(seg(t, TA_VENT + 0.1, TA_ENR));
+    return mezclaCam(mezclaCam(CAM.base, CAM.pasillo, u1), CAM.ventana, u2);
+  }
+  if (t < T_C) return mezclaCam(CAM.cerebro, { c: CAM.cerebro.c, z: CAM.cerebro.z * 1.04 }, seg(t, T_B, T_C));
+  if (t < T_D) return mezclaCam(CAM.nina, { c: CAM.nina.c, z: CAM.nina.z * 1.03 }, seg(t, T_C, T_D));
+  return mezclaCam({ c: CAM.nina.c, z: CAM.nina.z * 1.03 }, CAM.base, eo(seg(t, T_D, T_D + 0.6)));
+}
+
+// ================================================================ Atom
+const pres = K.presentador(plato, { x: ATOMO.x, y: ATOMO.y, escala: ATOMO.R / 150 });
+// el tiempo de Atom se frena y se para al final (lo último queda quieto)
+const tQuieto = (t) => { const a = QUIETO - 0.8; if (t <= a) return t; const u = Math.min(t - a, 0.8); return a + u - (u * u) / 1.6; };
+
+// ================================================================ un fotograma
+let compilado = false;
+function dibujar(t) {
+  if (!compilado) {
+    // el primer fotograma compila los programas de todo lo que saldrá después (cerebro, monedas, pila, hojas), para
+    // que solo él pague la compilación
+    compilado = true;
+    for (const o of [cerebro.g, monedas, pila.g, cinta.mesh, cinta.punta, cajaCinta, ...calendario.hojas]) o.visible = true;
+    plato.renderer.compile(plato.scene, plato.camera);
+  }
+  const cam = camaraEn(t);
+  plato.encuadre(cam.c, cam.z);
+  const enA = t < T_B, enB = t >= T_B && t < T_C, enC = t >= T_C && t < T_D, enD = t >= T_D;
+
+  // la persona: adulta con la cinta (A), adulta de pie (B), niña mirando el calendario (C), niña que crece (D)
+  let k = 1, H = H_AD, pose = POSE_CINTA;
+  if (enB) pose = { izq: [0.05, 0.07, 0.15], der: [0.04, 0.07, 0.12], cabeza: [0.25, 0.25], giro: 0.05 };
+  if (enC || enD) {
+    const crece = enD ? 1 - Math.pow(1 - seg(t, TD_P0 - 0.1, TD_P1 + 0.1), 1.4) : 0;
+    k = crece; H = lerp(H_NI, H_AD, crece);
+    const mira = enC ? [lerp(0.25, 0.5, eo(seg(t, T_C, T_C + 0.5))), -0.3] : [lerp(0.5, 0.05, eo(seg(t, T_D, T_D + 0.9))), lerp(-0.3, 0, eo(seg(t, T_D, T_D + 0.9)))];
+    pose = { izq: [0.04, 0.07, 0.12], der: [0.04, 0.07, 0.12], cabeza: mira, giro: enC ? 0.14 : lerp(0.14, 0, eo(seg(t, T_D, T_D + 0.9))) };
+  }
+  persona.g.userData.H = H;
+  persona.poner(k, H, pose);
+  persona.sombra(0.4);
+
+  // la cinta (solo en A)
+  cajaCinta.visible = enA;
+  if (enA) {
+    const s = largoCinta(t);
+    // fuera, la madeja se retuerce; al perderse, la cola sale por la ventana y la madeja se aleja hacia el cielo
+    const u = eio(seg(t, TA_PIERDE, T_B - 0.06));
+    const s0 = CAMINO.total * Math.pow(u, 1.7);
+    const giro = 0.5 * Math.max(0, t - TA_FUERA);
+    const qG = new THREE.Quaternion().setFromAxisAngle(vW, giro);
+    const def = (p, L) => {
+      const w = sstep(CAMINO.Lfuera - 200, CAMINO.Lfuera + 500, L);
+      if (w <= 0) return p;
+      const g = p.clone().sub(CAMINO.cen).applyQuaternion(qG).add(CAMINO.cen);
+      p.lerp(g, w);
+      if (u > 0) p.lerp(LEJOS.clone().add(p.clone().sub(LEJOS).multiplyScalar(1 - 0.99 * u)), w);
+      return p;
+    };
+    cinta.poner(CAMINO.pts, s, def, s0);
+  } else { cinta.mesh.visible = false; cinta.punta.visible = false; }
+
+  // monedas: en el suelo a los pies (desde B); en B vuelan al cajón del cerebro
+  monedas.visible = !enA;
+  cerebro.g.visible = enB; sombraCer.m.visible = enB;
+  let abre = 0;
+  if (enB) {
+    abre = eob(seg(t, TB_ABRE, TB_ABRE + 0.4), 1.2) * (1 - eio(seg(t, TB_CIERRA, TB_CIERRA + 0.28)));
+    cerebro.abrir(abre);
+    const bob = Math.sin((t - T_B) * 2.2) * 10;
+    const golpe = Math.exp(-Math.max(0, t - TB_CIERRA - 0.28) * 7) * (t > TB_CIERRA + 0.28 ? 1 : 0);
+    cerebro.g.position.copy(CER_POS).addScaledVector(Y, bob);
+    cerebro.cuerpo.scale.set(1 + 0.05 * golpe, 1 - 0.07 * golpe * Math.cos((t - TB_CIERRA) * 20), 1 + 0.05 * golpe);
+    cerebro.halo.material.opacity = 0.12 + 0.18 * sstep(TB_VUELA - 0.2, TB_VUELA + 0.3, t) * (1 - sstep(TB_CIERRA, TB_CIERRA + 0.6, t)) + 0.25 * golpe;
+    sombraCer.poner(CER_POS.clone().addScaledVector(vR, -20), 0.2);
+    cerebro.g.updateMatrixWorld(true);
+  }
+  if (!enA) {
+    const r = R_MON;
+    MON.forEach((c, j) => {
+      const st = MONTONES[c.si];
+      const enSuelo = new THREE.Vector3(st.c.x + c.jx, FY + G_MON * (c.i + 0.5), st.c.z + c.jz);
+      let p = enSuelo, q = new THREE.Quaternion().setFromEuler(new THREE.Euler(c.inc, c.giro, c.inc * 0.7));
+      if (enB) {
+        // orden: de arriba abajo, primero el montón pequeño
+        const orden = c.si === 0 ? (st.n - 1 - c.i) : MONTONES[0].n + (st.n - 1 - c.i);
+        const t0 = TB_VUELA + orden * 0.062, vuelo = 0.36;
+        const u = seg(t, t0, t0 + vuelo);
+        if (u > 0) {
+          const destL = cerebro.hueco(c.si, c.i);
+          const dest = destL.applyMatrix4(cerebro.cajon.matrixWorld);
+          const ctrl = enSuelo.clone().lerp(dest, 0.5).addScaledVector(Y, 260);
+          const w = eio(u);
+          p = enSuelo.clone().multiplyScalar((1 - w) ** 2).addScaledVector(ctrl, 2 * w * (1 - w)).addScaledVector(dest, w * w);
+          const qd = new THREE.Quaternion(); cerebro.cajon.getWorldQuaternion(qd);
+          const voltereta = new THREE.Quaternion().setFromAxisAngle(vR, Math.sin(Math.PI * w) * 2.6);
+          q = q.slerp(qd, w).premultiply(voltereta);
+        }
+      }
+      _m.compose(p, q, new THREE.Vector3(1, 1, 1));
+      monedas.setMatrixAt(j, _m);
+    });
+    monedas.instanceMatrix.needsUpdate = true;
+  }
+  MONTONES.forEach((st, i) => {
+    let a = enA ? 0 : 0.5;
+    if (enB) a *= 1 - seg(t, TB_VUELA + (i ? MONTONES[0].n * 0.062 : 0), TB_VUELA + (i ? N_MON : MONTONES[0].n) * 0.062 + 0.2);
+    sombrasMon[i].poner(st.c, a);
+  });
+
+  // el calendario: hoja 1 a la vista hasta la frase 2; once hojas arrancadas y la duodécima a medias
+  let arriba = 0;
+  if (t >= T_C) while (arriba < 11 && t >= tHoja(arriba)) arriba++;
+  calendario.hojas.forEach((m, i) => {
+    if (i === 11) { m.visible = arriba === 11; ponerMedia(m, t); return; }
+    if (t < T_C) { m.visible = i === 0; ponerHoja(m, i, -1, 0); return; }
+    m.visible = i <= arriba;
+    ponerHoja(m, i, t, tHoja(i));
+  });
+
+  // la pila y la persona que crece con ella
+  ponerPila(t);
+
+  const ta = tQuieto(t);
+  pres.actualizar(ta, t < QUIETO ? E.energia(t) : 0);
+  plato.titilar(ta);
+  K.cartela(plato, t, E.cartela);
+  plato.render();
+}
+
+if (VISTA === 'guias') {
+  // la persona sola, de frente y grande, para guias-humano.py
+  const k = Number(q.get('k') ?? 1);
+  for (const o of [decorado, cajaCinta, cinta.mesh, cinta.punta, monedas, cerebro.g, calendario.g, pila.g, luna.g]) o.visible = false;
+  pres.atomo.g.visible = false;
+  function guias() {
+    // de frente (cámara ortográfica horizontal), para medir las proporciones del mundo sin la inclinación isométrica
+    const H = k ? H_AD : H_NI;
+    persona.poner(k, H, { cabeza: [0, 0] });
+    persona.g.position.copy(PIES); persona.g.rotation.y = Math.PI / 4;
+    const z = 764 / H, mid = PIES.clone().addScaledVector(Y, H / 2);
+    plato.encuadre(mid, z);
+    plato.camera.position.copy(mid).addScaledVector(vF, 6000); plato.camera.up.set(0, 1, 0); plato.camera.lookAt(mid);
+    plato.camera.updateProjectionMatrix(); plato.camera.updateMatrixWorld();
+    plato.render();
+    window.__info = { centro: 960, suela: 540 + z * H / 2, coronilla: 540 - z * H / 2, H: z * H, k };
+  }
+  E.iniciar(guias, { paso: 0 });
+} else {
+  // Sin calentar a propósito: cualquier trabajo de GL antes de __listo espera al proceso de GPU compartido, y con otra
+  // escena cargando a la vez la carga pasaba de 5 s a 45 s. El primer fotograma paga la compilación (≈ 2 s, una vez).
+  E.iniciar(dibujar, { paso: 0 });
+}
+</script>
+</body>
+</html>
