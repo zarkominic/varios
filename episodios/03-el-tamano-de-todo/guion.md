@@ -193,7 +193,7 @@ Cada línea es una frase, y cada frase se locuta como un clip aparte (ver `atomo
 | Se suele decir que hay más estrellas que granos de arena en todas las playas de la Tierra. | People often say there are more stars than grains of sand on all of Earth's beaches. |
 | Muchas estimaciones dicen que sí, otras que no: nadie ha contado ninguna de las dos cosas. | Many estimates say yes, some say no: nobody has counted either. |
 | Pero en otra carrera no hay ni comparación: tus átomos ganan a todas esas estrellas por goleada, miles a uno. | But in one race, there's no contest: your atoms beat all those stars, thousands to one. |
-| Técnicamente, la multitud eres tú. | Technically, you're the bigger crowd. |
+| Técnicamente, tú eres la multitud. | Technically, you're the bigger crowd. |
 | Aquí, en el borde, todos los telescopios se rinden: antes, el universo era una niebla opaca. | Here at the edge, every telescope gives up: before this, the universe was an opaque fog. |
 
 ## ½ · El centro de todo
