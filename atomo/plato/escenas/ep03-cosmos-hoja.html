@@ -15,7 +15,7 @@
 //   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
 // ?celda=k abre la celda k en la vista previa.
 import { crearPlato } from '/atomo/plato/kits/plastilina-adulta.js';
-import { crearMundo, camara, camaraPorTierra, estadoMundo, fotoMundo, aPant, tierraPx, brilloCiudad, gotasTierras, tierrasQueCaen,
+import { crearMundo, camara, camaraPorTierra, estadoMundo, fotoMundo, aPant, tierraPx, brilloCiudad, brilloLuna, gotasTierras, tierrasQueCaen,
   fotoTierra, tiposCosmos, planeta, saturno, cinta, enPlato, fotoPieza, aqui, largoAqui, rotAnillos, filaPlanetas, PLANETAS, MUNDO,
   FINAL_TIERRA, HUECO } from '/atomo/plato/kits/ep03-cosmos.js';
 
@@ -72,7 +72,7 @@ const cel = (rot, dibujar) => C_.push({ rot, dibujar });
 // el mundo con la cámara del kit (y lo que se ponga encima en 2D y en el plató)
 function vista(C, n, { opciones = {}, d2 = null, plato = null } = {}) {
   ajustar();
-  mundo.dibujar(estadoMundo(C, n, opciones));
+  mundo.dibujar(estadoMundo(C, n, { somR: null, ...opciones }));
   pegar(mundo.lienzo);
   if (d2) d2(C);
   P.fotograma(n / 12); P.limpiar();
@@ -87,8 +87,9 @@ cel('camara(5,5) brilloCiudad 1', () => vista(camara(5.5), 66, { d2: (C) => bril
 cel('camara(7) brillo + aqui (un punto)', () => vista(camara(7), 84, { d2: (C) => brilloCiudad(g, C, 1), plato: conAqui(7) }));
 cel('camara(7,5, hueco) (salto 8)', () => vista(camara(7.5, { hueco: true }), 90));
 cel('camara(8, hueco): la Luna de verdad', () => vista(camara(8, { hueco: true }), 96));
+cel('camara(8, hueco) + brilloLuna', () => vista(camara(8, { hueco: true }), 96, { d2: (C) => brilloLuna(g, C, 1) }));
 cel('hueco + planetas (fotos) + cinta', () => vista(camara(8, { hueco: true }), 96, {
-  d2: (C) => filaSprites(C),
+  d2: (C) => { filaSprites(C); brilloLuna(g, C, 1); },
   plato: (C) => { const f = filaPlanetas(C); cinta(P, I.cinta, { desde: [f.desde[0], f.desde[1] - 33], hasta: [f.hasta[0], f.hasta[1] - 33], alto: 11, marcas: 40 }); },
 }));
 cel('camara(8,5, hueco) (salto 9)', () => vista(camara(8.5, { hueco: true }), 102));

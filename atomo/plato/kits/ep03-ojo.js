@@ -23,6 +23,11 @@
 //    párpados giran alrededor de una bisagra horizontal delante del globo (OJO.H), así que se juntan en dos rincones en
 //    punta, en x = ±0,92 (OJO.EX = 1,15: la rendija es algo más ancha que el globo; se ve de unos ±0,8). Abierto, el borde
 //    de arriba queda en y = +0,48 y el de abajo en −0,34 (en el centro); cerrados, se juntan en −0,04.
+//    · Revisión de ep3-hola: abierto, el de arriba se afina hacia el borde (la cara del borde mira a la cámara: rosada y
+//      húmeda, con la raya oscura de las raíces) y las pestañas salen de esa raya; antes salían de dentro de la concha y
+//      asomaban sueltas por encima del borde. Más allá de los rincones la junta de los dos párpados se redondea (OJ_KR):
+//      antes dejaba un surco en V bajo la piel que se veía como una costura horizontal desde cada rincón. Las pestañas cuya
+//      raíz quede bajo la piel de alrededor (ceja) no salen.
 //    · Los párpados se mueven con UNIFORMES (ponerOjo, en cada fotograma): arriba / abajo = cierre de cada párpado (0
 //      abierto · 1 cerrado; < 0 abre algo más, hasta −0,1 se ve bien), mirada [x, y] (−1…1, hacia la derecha/izquierda de
 //      la pantalla y arriba/abajo), pupila (0…1; 0,5 normal), entorna (0…1: el de abajo sube y el de arriba baja un poco,
@@ -69,7 +74,7 @@
 //   haciaCamara(P, pos) → rot [x, y, 0] que pone la cara +z de una pieza en pos mirando a la cámara del plató.
 //   resplandorFranja(g, x0, x1, y, alto, fuerza) → halo aditivo en 2D de una franja horizontal de pantalla (px de diseño).
 //
-// COSTE (este servidor, 1920 × 1080, solo esta pieza, con la máquina tranquila): el ojo a pantalla completa, 1,5–2 s por
+// COSTE (este servidor, 1920 × 1080, solo esta pieza, con la máquina tranquila): el ojo a pantalla completa, 1,5–2,5 s por
 // fotograma (PARPADOS algo menos que TODO; lejos del ojo solo se calcula la piel, porque los párpados, el globo y las
 // pestañas van dentro de un «if» que en casi toda la cara no se cumple, y eso sí ahorra); una cosa de 200 px, 0,1–0,3 s;
 // el corte a 800 px, ~1 s; la franja larga, ~0,5 s (su esfera envolvente es grande: mejor una foto si no cambia). Cada
@@ -98,6 +103,8 @@ uniform vec4 uOjoB;    // pupila (0…1) · entorna (0…1) · piel (factor) · 
 uniform vec4 uCorte;   // separación (celdas) · brillo · haces · —
 const float OJ_BZ = ${f(OJO.BZ)}, OJ_RL = ${f(OJO.RL)}, OJ_EX = ${f(OJO.EX)}, OJ_H = ${f(OJO.H)};
 const float OJ_AU = ${f(OJO.ARRIBA)}, OJ_AL = ${f(OJO.ABAJO)}, OJ_AC = ${f(OJO.CIERRE)};
+// redondeo de la junta de los dos párpados (crece de OJ_XR0 a OJ_XR1 en |x| / OJ_EX: desde dentro de la rendija hasta los rincones)
+const float OJ_KR = 0.12, OJ_XR0 = 0.62, OJ_XR1 = 0.85;
 float sdCajaO(vec3 p, vec3 b) { vec3 d = abs(p) - b; return length(max(d, 0.0)) + min(max(d.x, max(d.y, d.z)), 0.0); }
 #endif
 `;
@@ -154,7 +161,12 @@ float ojPestanas(vec3 pb, float a, float lado, float largo, float dp) {
   float mech = sin(id * 2.1 + 1.3 * sin(id * 0.7));
   vec3 dir = normalize(nO * (1.0 + 0.45 * h3) + nP * (0.6 - 0.25 * h3) + vec3(0.12 * mech, 0.0, 0.0));
   if (hash12(vec2(id, 11.0)) < 0.12) L = 0.0;
-  vec3 Bo = B + nO * 0.03 + nP * 0.01;
+  // la raíz, en la arista de delante del borde (por fuera): la pestaña sale del borde mismo (con la raíz más adentro solo
+  // asomaba la punta, separada del borde)
+  vec3 Bo = B - nO * 0.004 - nP * 0.006;
+  // si el borde queda bajo la piel de alrededor (el párpado muy abierto, bajo la ceja), sus pestañas no salen
+  vec3 qB = vec3(Bo.x * OJ_EX, Bo.y, Bo.z - OJ_BZ);
+  L *= smoothstep(0.0, 0.04, qB.z - ojZs(qB.xy));
   vec3 Ex = Bo + normalize(dir + nP * 0.25) * L;
   float c = capsulaC(pb, Bo, Ex, 0.0078, 0.0022);
   return c + ((L < 0.03) ? 1e5 : 0.0);
@@ -176,13 +188,20 @@ float ojoD(vec3 q, float capa, out float m, bool fino) {
   if (r > 1.42) return capa > 0.5 && capa < 1.5 ? 1e5 : piel;
   vec2 A = ojBordes();
   // los párpados: casquetes de una concha esférica sobre el globo, cortados por planos que giran en la bisagra
-  float concha = abs(r - OJ_RL) - 0.052;
-  float conchaL = abs(r - 1.066) - 0.04;
   float delante = max(-(pb.z + 0.1), abs(k.x) - 0.95);
   vec3 ph = pb - vec3(0.0, 0.0, OJ_H);
-  float pU = smax(smax(concha, -dot(ph, vec3(0.0, cos(A.x), -sin(A.x))), 0.048), delante, 0.1);
+  float dU = dot(ph, vec3(0.0, cos(A.x), -sin(A.x)));
+  // el de arriba se afina hacia el borde (de 0,104 a 0,05 de grueso, por fuera; por dentro sigue sobre el globo): abierto,
+  // la cara del borde mira a la cámara y, gruesa, era una banda de piel entre la rendija y las pestañas
+  // (solo con el ojo abierto: al cerrarse la cara del borde ya no mira a la cámara, y el borde grueso es el que se junta
+  // con el de abajo)
+  float af = mix(1.0, smoothstep(0.0, 0.16, dU), smoothstep(0.45, 0.95, A.x));
+  float concha = (abs(r - mix(1.033, OJ_RL, af)) - mix(0.025, 0.052, af)) * 0.9;
+  float conchaL = abs(r - 1.066) - 0.04;
+  float pU = smax(smax(concha, -dU, 0.048), delante, 0.1);
   float pL = smax(smax(conchaL, -dot(ph, vec3(0.0, -cos(A.y), sin(A.y))), 0.032), delante, 0.1);
-  float par = min(pU, pL);
+  // hacia los rincones la junta de los dos párpados se redondea (sin esto queda un surco en V que la piel copia)
+  float par = smin(pU, pL, 0.001 + OJ_KR * smoothstep(OJ_XR0, OJ_XR1, abs(k.x)));
   // lagrimal: un bultito rosado en el rincón de dentro (izquierda de la pantalla)
   float lag = elipsoideP(k - vec3(-0.77, -0.025, 0.33), vec3(0.05, 0.04, 0.045));
   float cara = smin(piel, par, 0.13);
@@ -230,7 +249,8 @@ float pzc_ojo(vec3 q, vec4 T) {
   vec2 A = ojBordes();
   vec3 ph = pb - vec3(0.0, 0.0, OJ_H);
   float fuera = max(-(pb.z + 0.1), abs(k.x) - 0.92);
-  float par = min(max(max(abs(r - OJ_RL) - 0.035, fuera), -dot(ph, vec3(0.0, cos(A.x), -sin(A.x))) + 0.01),
+  float dU = dot(ph, vec3(0.0, cos(A.x), -sin(A.x))), af = mix(1.0, smoothstep(0.0, 0.16, dU), smoothstep(0.45, 0.95, A.x));
+  float par = min(max(max(abs(r - mix(1.033, OJ_RL, af)) - mix(0.012, 0.035, af), fuera), -dU + 0.01),
                   max(max(abs(r - 1.066) - 0.025, fuera), -dot(ph, vec3(0.0, -cos(A.y), sin(A.y))) + 0.01));
 #ifdef OJ_PZC0
   return 1e5;
@@ -290,6 +310,16 @@ vec3 pzcol_ojo(vec3 q, vec4 T, float m) {
   c = mix(c, c * vec3(1.1, 0.8, 0.78), (1.0 - smoothstep(0.0, 0.09, bm)) * sobreConcha * 0.55);
   float raya = (1.0 - smoothstep(0.012, 0.03, abs(bm - 0.03))) * sobreConcha * step(OJ_RL + 0.02, r);
   c = mix(c, vec3(0.05, 0.035, 0.026), raya * (bU < bL ? 0.85 : 0.45));
+  // la cara del borde de arriba (el lado del plano del párpado de arriba, bU > bL): rosada y húmeda por dentro y, por
+  // fuera, la línea oscura de las raíces de las pestañas (abierto, la cara mira a la cámara: así las pestañas salen de una
+  // raya y no de una banda de piel); todo en máscaras suaves, y se pierde antes de los rincones
+  float enCara = (1.0 - smoothstep(0.012, 0.035, bU)) * smoothstep(0.0, 0.04, bU - bL)
+               * (1.0 - smoothstep(1.06, 1.08, r)) * (1.0 - smoothstep(0.5, 0.68, abs(k.x)));
+  if (enCara > 0.001) {
+    float fuera = smoothstep(1.026, 1.042, r);
+    c = mix(c, c * vec3(1.08, 0.78, 0.76), enCara * (1.0 - fuera) * 0.6);
+    c = mix(c, vec3(0.05, 0.035, 0.026), enCara * fuera * 0.88);
+  }
   if (bL < bU) {
     // pestañas de abajo, pintadas: rayitas cortas que salen del borde
     float phL = atan(ph.y, pb.x);

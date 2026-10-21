@@ -27,7 +27,7 @@
 //    (1 UA) en z = 11,3, como en cosmos. aTierra(z): esa distancia.
 //  · camara(zr, { hueco: false }) → C. Con hueco: true, la de ep3-tierra: entre 10⁷ y 10⁹ la Tierra se va a la izquierda
 //    y la cámara se queda en z = HUECO.z (8,25) con la regla en 10⁸, para que quepa el hueco de la Luna (la Tierra en
-//    HUECO.tierra = [185, 450] px y la Luna 1.231 px a su derecha); en 7 y en 9 es la de cosmos, idéntica.
+//    HUECO.tierra = [165, 430] px y la Luna 1.231 px a su derecha, lejos del marcador de la regla); en 7 y en 9 es la de cosmos, idéntica.
 //  · camaraPorTierra(z, [px, py], zr = z) → C con la Tierra en ese píxel (cualquier encuadre se puede escribir así).
 //    tierraPx(C): dónde cae la Tierra (nosotros). mezclarCamaras(A, B, u): z lineal y la Tierra en pantalla lineal (para
 //    ir de un encuadre propio a otro sin que el mundo dé bandazos; en u = 0 es A y en u = 1 es B, exactas).
@@ -44,9 +44,15 @@
 //      que se quiera).
 //    LA LUNA va a su distancia real del apogeo (MUNDO.LUNA, 405.500 km de centro a centro), al este de la Tierra, para
 //    cualquier z: a 10⁸ (con la cámara en HUECO.z) queda a 1.231 px; a 10⁹, a 219 px de la Tierra (casi un punto).
-//  · fotoMundo(mundo, est) → lienzo con el mundo dibujado (para las fotos de lo quieto: la ciudad a 10⁴, la galaxia a
-//    10²¹…). Para que lo quieto siga «hirviendo» como el stop-motion, haz 3 fotos con n distintos y ve alternándolas
-//    (ep3-tierra lo hace así en la Tierra entera, el hueco y el Sol).
+//  · fotoMundo(mundo, est) → lienzo con el mundo dibujado (para las fotos de lo quieto: la ciudad a 10⁴ de ep3-neutrones,
+//    la galaxia a 10²¹ de ep3-mapa…). Para que lo quieto siga «hirviendo» como el stop-motion, haz 3 fotos con n
+//    distintos y ve alternándolas (ep3-tierra lo hace así en la Tierra entera, el hueco, el plano medio y el Sol).
+//    Con capas se pone cada cosa donde se quiera: ep3-andromeda puede hacer dos fotos a 10²² con la galaxia en dos
+//    sitios (capas: { uGal: [x, y, px por radio de galaxia, peso] }) y girar la de Andrómeda en 2D.
+//  · Cómo se monta (ep3-tierra): el lienzo del mundo (crearMundo lo mete el primero en #escena) se oculta; encima, un
+//    lienzo 2D donde se pega el mundo (o su foto) y se dibuja lo 2D; encima de todo, el plató (alfa: true; zIndex 2), con
+//    P.render(n, { fondo: false }) para Atom, la regla y las piezas. El primer salto (la mirilla con la foto del plató)
+//    es el de cosmos: mundo.inserto(foto) y est.ins.
 //  · varianteMundo(z): 'cerca' · 'lejos' · 'sol' · 'sistema' · 'espacio' (el sombreador que toca a esa escala).
 //
 // ENCIMA DEL MUNDO (2D, en un lienzo entre el mundo y el plató; g con la transformación de 1920 × 1080)
@@ -61,6 +67,8 @@
 //    lienzo redondo (el globo con repetición: una sola foto, n gotas).
 //  · fotoTierra(mundo, n) → lienzo de 2·(R + borde) px con la Tierra entera del mundo (la de 10⁷, con continentes, nubes
 //    y atmósfera) recortada en redondo: la misma Tierra que se acaba de ver.
+//  · brilloLuna(g, C, k, { radio: 3.2, minimo: 24 }): un halo plateado alrededor de la Luna de verdad (a 10⁸ mide 5 px de
+//    radio y sin él no se ve en el móvil); k: 0…1 (más de 1 la hace latir).
 //
 // TIPOS DE PIEZA (plató de plastilina-adulta.js con tiposExtra: tiposCosmos(nombres?))
 //  · 'planeta' · planeta(P, i, { pos, escala, rot, cual: 0…7 | 'mercurio'…'neptuno' })
@@ -93,7 +101,7 @@
 //  · filaPlanetas(C) → { tierra, luna (px y radio), desde, hasta (los bordes del hueco, px), sobra: [x0, x1] px (el
 //    pelo), planetas: [{ nombre, cual, x, y, r }] } con los planetas a escala real, en fila y tocándose, desde la
 //    superficie de la Tierra hacia la Luna, centrados en la línea Tierra–Luna. Con camara(8, { hueco: true }): la Tierra
-//    en (185, 450) de radio 19 px, Júpiter de 212 px de radio, la Luna en (1.416, 450) de 5 px y el pelo de 53 px.
+//    en (165, 430) de radio 19 px, Júpiter de 212 px de radio, la Luna en (1.396, 430) de 5 px y el pelo de 53 px.
 //
 // «TÚ ESTÁS AQUÍ»
 //  · aqui(P, i, C, { largo: 120, k: 1, desdeArriba: 10 }): la flecha del kit (pieza 'flecha' de plastilina-adulta,
@@ -165,7 +173,7 @@ export function mezclarCamaras(A, B, u) {
   return camaraPorTierra(mix(A.z, B.z, u), [mix(ta[0], tb[0], u), mix(ta[1], tb[1], u)], mix(A.zr, B.zr, u));
 }
 // el encuadre del hueco de la Luna (ep3-tierra, frase 56): la Tierra a la izquierda y la Luna a 1.231 px a su derecha
-export const HUECO = { z: 8.25, tierra: [185, 450] };
+export const HUECO = { z: 8.25, tierra: [165, 430] };
 export function camara(zr, { hueco = false } = {}) {
   if (!hueco || zr <= 7 || zr >= 9) return camCosmos(zr);
   const C7 = camCosmos(7), C9 = camCosmos(9);
@@ -241,7 +249,7 @@ export function fotoMundo(mundo, est) {
 }
 
 // ---------------------------------------------------------------- el brillo de la ciudad
-export function brilloCiudad(g, C, k, { radioMin = 9, fuerza = 1 } = {}) {
+export function brilloCiudad(g, C, k, { radioMin = 11, fuerza = 1 } = {}) {
   if (k <= 0.002) return;
   const c = aPant(C, MUNDO.CIUDAD);
   const Rv = MUNDO.R_CIUDAD / C.mpp, R = Math.max(Rv, radioMin);
@@ -249,6 +257,14 @@ export function brilloCiudad(g, C, k, { radioMin = 9, fuerza = 1 } = {}) {
   const punto = 1 - ss(radioMin * 1.5, radioMin * 6, Rv);
   const a = cl(k * fuerza);
   g.save();
+  // 0) alrededor, el suelo se apaga un poco: la ciudad se despega como si la iluminara un foco
+  const kc = ss(30, 120, Rv) * a;
+  if (kc > 0.01) {
+    g.globalCompositeOperation = 'multiply';
+    const o = g.createRadialGradient(c[0], c[1], R * 0.95, c[0], c[1], R * 3.2);
+    o.addColorStop(0, 'rgba(255,255,255,0)'); o.addColorStop(0.25, `rgba(120,95,80,${0.32 * kc})`); o.addColorStop(1, `rgba(150,125,110,${0.22 * kc})`);
+    g.fillStyle = o; g.fillRect(c[0] - R * 3.2, c[1] - R * 3.2, R * 6.4, R * 6.4);
+  }
   // 1) la ciudad se calienta (overlay ámbar): sobre el suelo claro se lee como luz, no como velo
   g.globalCompositeOperation = 'overlay';
   let h = g.createRadialGradient(c[0], c[1], 0, c[0], c[1], R * 1.15);
@@ -256,22 +272,41 @@ export function brilloCiudad(g, C, k, { radioMin = 9, fuerza = 1 } = {}) {
   g.fillStyle = h; g.beginPath(); g.arc(c[0], c[1], R * 1.15, 0, 2 * Math.PI); g.fill();
   // 2) luz: un resplandor que aclara (screen), más concentrado de lejos
   g.globalCompositeOperation = 'screen';
-  const Rg = R * (1.35 + 1.4 * punto);
+  const Rg = R * (1.35 + 1.8 * punto);
   h = g.createRadialGradient(c[0], c[1], 0, c[0], c[1], Rg);
-  h.addColorStop(0, `rgba(255,205,140,${(0.42 + 0.5 * punto) * a})`);
-  h.addColorStop(0.3, `rgba(250,170,90,${(0.3 + 0.25 * punto) * a})`);
+  h.addColorStop(0, `rgba(255,214,150,${(0.5 + 0.5 * punto) * a})`);
+  h.addColorStop(0.3, `rgba(250,175,95,${(0.36 + 0.25 * punto) * a})`);
   h.addColorStop(0.62, `rgba(230,140,60,${(0.14 + 0.1 * punto) * a})`);
   h.addColorStop(1, 'rgba(200,110,50,0)');
   g.fillStyle = h; g.beginPath(); g.arc(c[0], c[1], Rg, 0, 2 * Math.PI); g.fill();
+  // de lejos, una cuenta de luz en el centro: el punto que queda de la ciudad (y de «tú estás aquí»)
+  if (punto > 0.01) {
+    const rc = Math.max(3, radioMin * 0.34);
+    const d = g.createRadialGradient(c[0], c[1], 0, c[0], c[1], rc);
+    d.addColorStop(0, `rgba(255,236,190,${punto * a})`); d.addColorStop(0.6, `rgba(255,190,100,${0.8 * punto * a})`); d.addColorStop(1, 'rgba(255,170,80,0)');
+    g.fillStyle = d; g.beginPath(); g.arc(c[0], c[1], rc, 0, 2 * Math.PI); g.fill();
+  }
   // 3) un borde de luz cálido que marca la ciudad (solo cuando se ve grande)
   const kb = ss(40, 160, Rv) * a;
   if (kb > 0.01) {
-    g.lineWidth = Math.max(3, R * 0.035);
-    g.strokeStyle = `rgba(255,200,120,${0.4 * kb})`;
-    g.filter = `blur(${Math.max(2, R * 0.025).toFixed(1)}px)`;
-    g.beginPath(); g.arc(c[0], c[1], R * 0.97, 0, 2 * Math.PI); g.stroke();
-    g.filter = 'none';
+    // un anillo de gradiente (sin filtros de canvas, que son lentos)
+    const b = g.createRadialGradient(c[0], c[1], R * 0.86, c[0], c[1], R * 1.08);
+    b.addColorStop(0, 'rgba(255,200,120,0)'); b.addColorStop(0.5, `rgba(255,200,120,${0.32 * kb})`); b.addColorStop(1, 'rgba(255,200,120,0)');
+    g.fillStyle = b; g.beginPath(); g.arc(c[0], c[1], R * 1.08, 0, 2 * Math.PI); g.fill();
   }
+  g.restore();
+}
+
+// un halo plateado alrededor de la Luna (de lejos mide pocos píxeles): se lee sin cambiar su tamaño
+export function brilloLuna(g, C, k = 1, { radio = 3.2, minimo = 24 } = {}) {
+  if (k <= 0.002) return;
+  const p = aPant(C, lunaMundo()), r = MUNDO.R_LUNA / C.mpp;
+  const R = Math.max(r * radio, minimo);
+  g.save();
+  g.globalCompositeOperation = 'screen';
+  const h = g.createRadialGradient(p[0], p[1], r * 0.9, p[0], p[1], R);
+  h.addColorStop(0, `rgba(210,218,232,${0.6 * k})`); h.addColorStop(0.3, `rgba(160,175,200,${0.24 * k})`); h.addColorStop(1, 'rgba(120,140,170,0)');
+  g.fillStyle = h; g.beginPath(); g.arc(p[0], p[1], R, 0, 2 * Math.PI); g.fill();
   g.restore();
 }
 
@@ -284,10 +319,11 @@ export function gotasTierras({ t0, t1, n = 36, semilla = 7, acelera = 2.0 } = {}
     const u = i / Math.max(1, n - 1);
     const t = t0 + (t1 - t0) * Math.pow(u, 1 / acelera);
     // reparto uniforme en el disco, sin el borde (y las primeras, hacia el centro y arriba, que se lean)
-    const a = r() * 2 * Math.PI, rr = Math.sqrt(r()) * (i < 3 ? 0.55 : 0.88);
-    const imp = i < 3 ? [[-0.22, -0.18], [0.3, 0.1], [-0.05, 0.36]][i] : [rr * Math.cos(a), rr * Math.sin(a)];
-    const dur = mix(1.05, 0.42, Math.pow(u, 0.7)) * (0.9 + 0.2 * r());
-    const k0 = mix(16, 6, Math.pow(u, 0.6)) * (0.85 + 0.3 * r());
+    const a = r() * 2 * Math.PI, rr = Math.sqrt(r()) * 0.88;
+    // las tres primeras, despacio y hacia el centro (se leen como Tierras); luego cada vez más seguidas y pequeñas
+    const imp = i < 3 ? [[-0.16, 0.12], [0.2, -0.1], [-0.04, -0.26]][i] : [rr * Math.cos(a), rr * Math.sin(a)];
+    const dur = mix(1.3, 0.45, Math.pow(u, 0.6)) * (0.9 + 0.2 * r());
+    const k0 = mix(9, 4.5, Math.pow(u, 0.6)) * (0.85 + 0.3 * r());
     g.push({ t, dur, imp, k0, giro: (r() - 0.5) * 0.6 });
   }
   return g;
@@ -317,23 +353,28 @@ export function tierrasQueCaen(g, sprite, { t, gotas, sol, rTierra = 4, fuga = n
       h.addColorStop(0, `rgba(255,232,185,${0.8 * fl * ondas})`); h.addColorStop(0.4, `rgba(255,190,110,${0.35 * fl * ondas})`); h.addColorStop(1, 'rgba(255,170,90,0)');
       g.fillStyle = h; g.beginPath(); g.arc(ix, iy, rTierra * 6, 0, 2 * Math.PI); g.fill();
     }
-    // dos ondas que se abren y se apagan: cresta clara con su seno oscuro por dentro
+    // dos ondas que se abren y se apagan: cresta clara y cálida con su seno oscuro por dentro; se adelgazan al abrirse
     for (const [ret, kk] of [[0, 1], [0.18, 0.55]]) {
       const qq = q - ret;
       if (qq <= 0) continue;
-      const rad = rTierra * (1.3 + 10 * eoc(Math.min(1, qq / 1.0)));
-      const al = kk * (1 - ss(0.1, 1.0, qq)) * ondas;
+      const u = eoc(Math.min(1, qq / 1.0));
+      const rad = rTierra * (1.3 + 10 * u);
+      const al = kk * (1 - ss(0.05, 1.0, qq)) * ondas;
       if (al < 0.01) continue;
       g.save();
       g.translate(ix, iy); g.rotate(ang); g.scale(mu, 1);
-      const lw = Math.max(1.6, rTierra * 0.75) / Math.sqrt(mu);
+      const lw = Math.max(1.3, rTierra * 0.85 * (1 - 0.55 * u)) / Math.sqrt(mu);
+      // (sin filtros: un blur de canvas por onda cuesta segundos con muchas gotas) borde suave = trazo ancho y tenue + fino
       g.globalCompositeOperation = 'multiply';
-      g.lineWidth = lw * 1.2;
-      g.strokeStyle = `rgba(150,70,30,${0.5 * al})`;
-      g.beginPath(); g.arc(0, 0, Math.max(0.5, rad - lw * 1.1), 0, 2 * Math.PI); g.stroke();
+      g.lineWidth = lw * 1.3;
+      g.strokeStyle = `rgba(140,60,20,${0.4 * al})`;
+      g.beginPath(); g.arc(0, 0, Math.max(0.5, rad - lw * 1.2), 0, 2 * Math.PI); g.stroke();
       g.globalCompositeOperation = 'screen';
+      g.lineWidth = lw * 2.2;
+      g.strokeStyle = `rgba(255,200,130,${0.22 * al})`;
+      g.beginPath(); g.arc(0, 0, rad, 0, 2 * Math.PI); g.stroke();
       g.lineWidth = lw;
-      g.strokeStyle = `rgba(255,222,165,${0.75 * al})`;
+      g.strokeStyle = `rgba(255,214,150,${0.5 * al})`;
       g.beginPath(); g.arc(0, 0, rad, 0, 2 * Math.PI); g.stroke();
       g.restore();
     }
@@ -408,7 +449,7 @@ export function fotoPieza(P, poner, { rect = [0, 0, 1920, 1080], n = 0 } = {}) {
   return c;
 }
 // la flecha de «tú estás aquí»: apunta hacia abajo con la punta sobre nosotros
-export const largoAqui = (zr, l1 = 130) => l1 * Math.pow(10, -0.16 * Math.max(zr - 1, 0));
+export const largoAqui = (zr, l1 = 130) => l1 * Math.pow(10, -0.14 * Math.max(zr - 1, 0));
 export function aqui(P, i, C, { largo = 120, k = 1, desdeArriba = 6, toque = false } = {}) {
   if (k <= 0.005 || largo < 0.5) { P.pieza(i, { escala: 0 }); return; }
   const tip = tierraPx(C);
@@ -524,12 +565,14 @@ vec3 plColor(vec3 n, float c, out float bri) {
     vec3 col = mix(vec3(0.52, 0.42, 0.26), vec3(0.62, 0.55, 0.39), smoothstep(-0.4, 0.4, b));
     return col * (0.92 + 0.12 * plRuido(vec3(n.x * 3.0, l * 24.0, n.z * 3.0)));
   }
-  if (c < 6.5) return vec3(0.33, 0.48, 0.50) * (0.94 + 0.08 * sin(n.y * 12.0)) * (0.95 + 0.08 * plRuido(n * 4.0));
+  if (c < 6.5) return vec3(0.27, 0.45, 0.48) * (0.94 + 0.08 * sin(n.y * 12.0)) * (0.95 + 0.08 * plRuido(n * 4.0));
   vec3 col = vec3(0.10, 0.17, 0.38) * (0.88 + 0.2 * plRuido(vec3(n.x * 3.0, n.y * 10.0, n.z * 3.0)));
   vec2 gm = vec2(atan(n.x, n.z) + 0.3, (n.y + 0.3) * 2.0);
   col = mix(col, vec3(0.04, 0.07, 0.17), 1.0 - smoothstep(0.7, 1.0, length(gm / vec2(0.22, 0.12))));
-  float nube = exp(-pow((n.y + 0.08) * 22.0, 2.0)) * smoothstep(0.2, 0.5, sin(atan(n.x, n.z) * 2.0 + 0.5)) + exp(-pow((n.y - 0.42) * 26.0, 2.0)) * smoothstep(0.3, 0.6, sin(atan(n.x, n.z) * 3.0));
-  return mix(col, vec3(0.60, 0.64, 0.68), clamp(nube, 0.0, 1.0) * 0.8);
+  float lon = atan(n.x, n.z);
+  float nube = exp(-pow((n.y + 0.08 + 0.02 * sin(lon * 5.0)) * 34.0, 2.0)) * smoothstep(0.1, 0.7, sin(lon * 2.0 + 0.5)) * (0.6 + 0.4 * vnoise(n * 12.0))
+             + exp(-pow((n.y - 0.42) * 40.0, 2.0)) * smoothstep(0.3, 0.8, sin(lon * 3.0)) * (0.5 + 0.5 * vnoise(n * 14.0 + 3.0));
+  return mix(col, vec3(0.50, 0.56, 0.64), clamp(nube, 0.0, 1.0) * 0.6);
 }
 // esfera con bultitos de arcilla en la silueta (fijos)
 float plEsfera(vec3 q) { return length(q) - 1.0 - 0.006 * sin(q.x * 7.1 + 1.0) * sin(q.y * 6.3 + 2.0) * sin(q.z * 5.7); }

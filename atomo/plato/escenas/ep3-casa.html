@@ -22,10 +22,13 @@
 //  gradas   vuelve el plano general y una nube borrosa (electrones) se extiende por las gradas desde la izquierda; el
 //           césped, vacío
 //  tú       la cámara se aparta: el estadio con su nube se encoge hasta ser un átomo que se apaga entre las manos de la
-//           persona («humano», postura «mirarse las manos»), en primer plano de pecho y manos; las manos se vuelven casi
-//           transparentes (postura.fantasma 0 → 1, completo al acabar la frase) y siguen así los 2 s de silencio
-//  personal plano general: la persona de pie en el centro, con las manos así; Atom llega desde su sitio y le da tres
-//           palmaditas en el brazo con la mano de su electrón; ella vuelve la cabeza hacia él; quieto
+//           persona («humano», postura «mirarse las manos» con las manos a la altura del pecho y las palmas hacia arriba,
+//           como si lo sostuvieran), en primer plano de la cabeza a las manos (el elástico del jersey, bajo el borde);
+//           las manos se vuelven casi transparentes (postura.fantasma 0 → 1, completo al acabar la frase) y siguen así
+//           los 2 s de silencio
+//  personal plano general: la persona de pie en el centro, con las manos así; Atom llega desde su sitio (a la izquierda
+//           de la pantalla, a la derecha de ella) y le da tres palmaditas en el brazo derecho con la mano de su
+//           electrón; ella vuelve la cabeza y la mirada hacia él (a su derecha) y la ladea un poco hacia él; quieto
 // Todo se compone en 2D (crearPost al final): las composiciones quietas son fotos (el plató vacío, el peldaño, el estadio,
 // su detalle, el átomo que crece y la regla quieta; las pesadas se hacen la primera vez que hacen falta) y en cada
 // fotograma se dibuja vivo solo lo que se mueve: la fila y la persona, cuando salen, y encima Atom y la cartela (y la
@@ -37,13 +40,17 @@
 //    0,06, con el electrón 0 en su alambre saludando (pos [2,45 cos a, 2,45 sen a, 0,35], brazo 1, grosor 0,042, con
 //    a = 0,8 + 0,42·sen(2π·1,25·(t + 0,32)): a ≈ 1,05 en t = 0); regla: REGLA_0 (P.regla con e −9, ya 0,375, actual −9,
 //    marca −9, lupa 0,5, pos P.punto(1668, 528, 0,4), escala 1,42, rot [0, −0,12, 0]).
-//  · Último fotograma (ep3-silla empieza así): la persona «humano» 'adulto' de pie, con la postura 'manos' + fantasma 1 y
-//    la cabeza y la mirada vueltas hacia Atom (poseEn(QUIETO, 'F'): cabeza [0,4, 0,25, 0,06], mirada [0,9, −0,3]) en
+//  · Último fotograma (ep3-silla empieza así): la persona «humano» 'adulto' de pie, con POSE_F: 'mirarse las manos' con
+//    los brazos de esta escena (brazoIzq = brazoDer ≈ [0,87, 0,14, 0,38, 1,6, −1,25 ∓ 0,08 de vaivén, −0,6]; los
+//    exactos, en window.__fin.POSE_F), fantasma 1 y la cabeza y la mirada vueltas hacia Atom, a SU DERECHA (en el kit,
+//    giro y mirada positivos van a su izquierda): cabeza [−0,45, 0,25, 0,06] (ladea + : la coronilla hacia él), mirada
+//    [−0,6, −0,3]; en
 //    PERSONA_F (pos [P.punto(950, 600, 2)[0], 3, 2] ≈ [−0,063, 3, 2], escala 3, rot [0, 0,1, 0]: coronilla en y ≈ 84 px,
 //    suela en ≈ 939 px, centro en x ≈ 950 px); Atom a su derecha (izquierda de la pantalla) en ATOMO_F (su hombro
 //    derecho − [1,12, 0,05, −0,6] ≈ [−1,71, 4,08, 2,62]), escala 0,4, con el electrón 0 en su alambre convertido en
 //    mano (tamMano 0,3) apoyada en la parte de fuera del brazo derecho de ella, cerca del hombro; regla: la de arriba
-//    con actual −10 y marca −10. Las manos llevan un halo frío 2D muy suave. window.__fin lo da todo en números.
+//    con actual −10 y marca −10. Las manos llevan un halo frío 2D suave (en este plano, × 1,9 de fuerza y × 1,35 de
+//    radio). window.__fin lo da todo en números (POSE_F, la postura entera).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, postura, mezclarPosturas } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -117,13 +124,17 @@ const MM = 700, X0 = 430, X1 = X0 + MM, Y_HILO = 372;   // 1 mm en pantalla
 const DECADAS = Math.log10(S0 * 1e7 / MM);
 
 // estadio: plano general, foto; el guisante en GUISANTE (px); el detalle es el mismo estadio K veces más grande
-const ESTADIO = { pos: en(840, 545, 0.5), escala: 4.3, rot: [0.72, -0.16, 0], brilloGuisante: 0.2 };
+// (algo más pequeño, más abajo y a la derecha que en la primera versión: los focos de arriba quedan dentro del margen
+// seguro, y·> 60, y el muro izquierdo deja libre el sitio de Atom, abajo a la izquierda)
+const ESTADIO = { pos: en(920, 575, 0.5), escala: 3.75, rot: [0.72, -0.16, 0], brilloGuisante: 0.2 };
 const K_DET = 4.2;
 const SEP_CRECE = 700;     // el átomo que crece, en foto a este tamaño (px entre átomos)
 
 // persona: primer plano de pecho y manos (E) y plano general de pie (F)
 const PERSONA_F = { pos: [en(950, 600, 2)[0], 3.0, 2.0], escala: 3.0, rot: [0, 0.1, 0] };
-const ESC_E = 5.8, Z_E = 3.0;
+// (E) la coronilla en COR_E px: así el elástico del jersey y el pantalón quedan bajo el borde de abajo (y > 1080) y
+// el plano va de la cabeza a las manos, que suben hasta el pecho
+const ESC_E = 6.0, Z_E = 3.0, COR_E = 320;
 
 // ---------------------------------------------------------------- capa 2D
 const cont = document.getElementById('escena');
@@ -151,19 +162,25 @@ function parpadeo(n) {
 }
 
 // ---------------------------------------------------------------- persona
-const POSE_MANOS = postura('manos');
-// el primer plano: la persona gigante delante (z = 3), con los pies bajo el suelo (no se ven); la coronilla en y ≈ 70
+// 'mirarse las manos' con las manos algo más altas (flex 0,62 → 0,87) y la muñeca más echada atrás (−0,25 → −0,6): las
+// palmas, hacia arriba y hacia la cara, como si sostuvieran el átomo, tapan el puño de la manga (con fantasma, de
+// frente, se veía su agujero oscuro a través de la palma); la cabeza, algo menos baja (0,5 → 0,42): se le ve la cara.
+// La misma en el primer plano (E) y en el general (F)
+const BRAZO_MIRAR = [0.87, 0.14, 0.38, 1.6, -1.25, -0.6];
+const POSE_MANOS = { ...postura('manos'), cabeza: [0, 0.42, 0], brazoIzq: [...BRAZO_MIRAR], brazoDer: [...BRAZO_MIRAR] };
+// el primer plano: la persona gigante delante (z = 3), con los pies bajo el suelo (no se ven); la coronilla en y ≈ COR_E
 function colocarE() {
   const x = en(905, 540, Z_E)[0];
   let y = 0;
   const cor = (yy) => pant([x, yy + 0.765 * ESC_E * 0.96, Z_E + 0.14 * ESC_E])[1];
-  // la coronilla (girada hacia delante en 'manos') a 70 px: dos pasos de secante
-  let a = 0, b = 4, fa = cor(a) - 70, fb = cor(b) - 70;
-  for (let i = 0; i < 12; i++) { const c = b - fb * (b - a) / (fb - fa); a = b; fa = fb; b = c; fb = cor(c) - 70; if (Math.abs(fb) < 0.5) break; }
+  // la coronilla (girada hacia delante en 'manos') a COR_E px: pasos de secante
+  let a = 0, b = 4, fa = cor(a) - COR_E, fb = cor(b) - COR_E;
+  for (let i = 0; i < 12; i++) { const c = b - fb * (b - a) / (fb - fa); a = b; fa = fb; b = c; fb = cor(c) - COR_E; if (Math.abs(fb) < 0.5) break; }
   y = b;
   return { pos: [x, y, Z_E], escala: ESC_E, rot: [0, 0.04, 0] };
 }
 const PERSONA_E = colocarE();
+const GIRO_F = [-0.45, 0.25, 0.06], MIRADA_F = [-0.6, -0.3];
 function poseEn(ts, plano) {
   const p = { ...POSE_MANOS };
   p.fantasma = ss(T.fantasma[0], T.fantasma[1], ts);
@@ -174,11 +191,13 @@ function poseEn(ts, plano) {
   p.brazoIzq[4] += mano; p.brazoDer[4] -= mano;
   const parp = Math.max(0, 1 - Math.abs(ts - (m.tuFin + 1.05)) / 0.09);
   p.ojos = 1 - 0.9 * parp;
-  // en el plano general, al llegar Atom, ella vuelve un poco la cabeza y la mirada hacia él (su derecha)
+  // en el plano general, al llegar Atom, ella vuelve un poco la cabeza y la mirada hacia él: Atom está a SU DERECHA (a la
+  // izquierda de la pantalla), y en el kit el giro y la mirada positivos van hacia su izquierda (+x): aquí, negativos.
+  // Ladea (+) lleva la coronilla hacia su derecha: se inclina un poco hacia él
   if (plano === 'F') {
     const k = ss(T.palmadas[0] + 0.1, T.palmadas[0] + 0.6, ts);
-    p.cabeza = [mix(0, 0.4, k), mix(0.5, 0.25, k), mix(0, 0.06, k)];
-    p.mirada = [mix(0, 0.9, k), mix(-1, -0.3, k)];
+    p.cabeza = [mix(0, GIRO_F[0], k), mix(POSE_MANOS.cabeza[1], GIRO_F[1], k), mix(0, GIRO_F[2], k)];
+    p.mirada = [mix(0, MIRADA_F[0], k), mix(-1, MIRADA_F[1], k)];
   }
   return p;
 }
@@ -323,10 +342,13 @@ function ponerFila(ts, F) {
 }
 // (coste) la fila grande es una foto: la de S0 px, centrada en la casa de Atom, que se repite cada 1920 px (8 átomos) y
 // se escala alrededor del átomo 0; n: los átomos que ya han salido (se recortan los demás); alfa
+// la fila acaba detrás de la regla grande (no asoma por su derecha): se recorta en su canto izquierdo, que la tapa
+const X_FILA_MAX = 1532;
+const recorteFila = () => { g.beginPath(); g.rect(0, 0, X_FILA_MAX, H); g.clip(); };
 function filaFoto(c, sep, n = 1e7, alfa = 1) {
   if (alfa <= 0.001) return;
   const f = F('filaCasa'), C0 = pant(CASA), s = sep / S0;
-  g.save(); g.globalAlpha = alfa;
+  g.save(); g.globalAlpha = alfa; recorteFila();
   if (n < 1e6) { const hw = ((n - 1) / 2 + 0.5) * sep; g.beginPath(); g.rect(c[0] - hw, 0, 2 * hw, H); g.clip(); }
   g.translate(c[0], c[1]); g.scale(s, s); g.translate(-C0[0], -C0[1]);
   const kmax = Math.ceil((Math.max(c[0], W - c[0]) / s + C0[0]) / W) + 1;
@@ -422,7 +444,8 @@ function lienzoConMargen() {
   return { c, gc };
 }
 const dibujarConMargen = (f) => g.drawImage(f, -MARGEN * W, -MARGEN * H, W * (1 + 2 * MARGEN), H * (1 + 2 * MARGEN));
-function F(nombre) { if (!FOTOS[nombre]) FOTOS[nombre] = HACER[nombre](); return FOTOS[nombre]; }
+let hechasAhora = 0;   // fotos hechas en el fotograma en curso (al pedirlas)
+function F(nombre) { if (!FOTOS[nombre]) { FOTOS[nombre] = HACER[nombre](); hechasAhora++; } return FOTOS[nombre]; }
 // al cargar: el plató vacío (fondo de los tramos de la fila) y el peldaño
 P.fotograma(0); P.limpiar(); P.render(1999);
 FOTOS.fondo = foto(P);
@@ -476,9 +499,10 @@ function baseFila(n, ts) {
   ponerFila(ts, Fi);
   ponerReglaMm(ts);
   P.render(n, { fondo: false });
-  pegarGL();
-  // el hilo de 1 mm brilla un poco (se lee en el móvil)
-  const kh = ss(T.alejar[1] - 0.5, T.alejar[1], ts) * (1 - ss(T.zambullida[0], T.zambullida[0] + 0.3, ts));
+  g.save(); recorteFila(); pegarGL(); g.restore();
+  // el hilo de 1 mm brilla un poco (se lee en el móvil); el brillo está quieto entre X0 y X1: se apaga antes de que la
+  // regla se vaya y empiece la zambullida (que estira el hilo más allá de sus extremos)
+  const kh = ss(T.alejar[1] - 0.5, T.alejar[1], ts) * (1 - ss(T.quitaRegla[0] - 0.15, T.quitaRegla[0] + 0.05, ts));
   if (kh > 0.01) {
     g.save(); g.globalCompositeOperation = 'lighter';
     const gr = g.createLinearGradient(0, Y_HILO - 14, 0, Y_HILO + 14);
@@ -512,11 +536,14 @@ function baseEstadio(n, ts) {
 function estadioEncogido(ts, u, [qx, qy]) {
   const pg = FOTOS.pg;
   const s = Math.pow(0.03, eio(u));
+  // el centro baja hacia las manos antes de que el estadio se encoja del todo (1 − (1 − u)³): cae en las manos sin
+  // pasar, todavía grande, por delante de la cara
+  const pu = 1 - Math.pow(1 - u, 3), cx = mix(pg[0], qx, pu), cy = mix(pg[1], qy, pu);
   // el fondo del estadio se funde enseguida; el estadio y su nube siguen, cada vez más pequeños, hasta las manos
-  fotoEscalada(F('estadio'), s, pg, 1 - ss(0.0, 0.35, u), [mix(pg[0], qx, eio(u)), mix(pg[1], qy, eio(u))]);
+  fotoEscalada(F('estadio'), s, pg, 1 - ss(0.0, 0.35, u), [cx, cy]);
   // (coste) el estadio con su nube y la cáscara son dos fotos 2D hechas una vez (la nube se queda quieta mientras se aleja)
   g.save();
-  g.translate(mix(pg[0], qx, eio(u)), mix(pg[1], qy, eio(u))); g.scale(s, s); g.translate(-pg[0], -pg[1]);
+  g.translate(cx, cy); g.scale(s, s); g.translate(-pg[0], -pg[1]);
   g.globalAlpha = 1 - ss(0.75, 1.0, u);
   dibujarConMargen(F('estadioNube'));
   g.globalAlpha = ss(0.2, 0.6, u) * (1 - ss(0.8, 1.0, u));
@@ -528,16 +555,18 @@ function basePersona(n, ts, plano) {
   const h = persona(ts, plano);
   P.render(n);
   pegarGL();
-  // las manos casi transparentes llevan un halo frío muy suave (en el móvil, sobre el jersey claro, se leen mejor)
+  // las manos casi transparentes llevan un halo frío muy suave (en el móvil, sobre el jersey claro, se leen mejor); en
+  // el plano general, donde las manos son pequeñas, el halo es más fuerte y algo más ancho
   const kf = ss(T.fantasma[0], T.fantasma[1], ts);
   if (kf > 0.01) {
     g.save(); g.globalCompositeOperation = 'lighter';
+    const fz = plano === 'F' ? 1.9 : 1, rz = plano === 'F' ? 1.35 : 1;
     for (const lado of ['Izq', 'Der']) {
       const pm = pant(h.punto('mano' + lado)), pw = pant(h.punto('muneca' + lado)), pd = pant(h.punto('dedos' + lado));
-      const R = 1.5 * Math.hypot(pd[0] - pw[0], pd[1] - pw[1]);
+      const R = 1.5 * rz * Math.hypot(pd[0] - pw[0], pd[1] - pw[1]);
       const pulso = 0.85 + 0.15 * Math.sin(Math.min(ts, QUIETO) * 2.6 + (lado === 'Izq' ? 0 : 1.7));
       const gr = g.createRadialGradient(pm[0], pm[1], 0, pm[0], pm[1], R);
-      gr.addColorStop(0, `rgba(170,205,255,${0.16 * kf * pulso})`); gr.addColorStop(0.55, `rgba(140,180,240,${0.07 * kf * pulso})`); gr.addColorStop(1, 'rgba(120,160,230,0)');
+      gr.addColorStop(0, `rgba(170,205,255,${0.16 * fz * kf * pulso})`); gr.addColorStop(0.55, `rgba(140,180,240,${0.07 * fz * kf * pulso})`); gr.addColorStop(1, 'rgba(120,160,230,0)');
       g.fillStyle = gr; g.fillRect(pm[0] - R, pm[1] - R, 2 * R, 2 * R);
     }
     g.restore();
@@ -563,15 +592,22 @@ function basePersona(n, ts, plano) {
 
 // ---------------------------------------------------------------- fotograma
 // (coste) cada foto pesada se hace en un fotograma barato poco antes de hacer falta (en orden, como renderiza
-// render-escenas.mjs); si se pide un instante suelto, F() la hace al momento y el resultado es el mismo
+// render-escenas.mjs): [desde, foto, hasta]. Al final de cada fotograma que no haya tenido que hacer ninguna foto al
+// pedirla, se hace como mucho UNA: la primera cuyo «desde» ya pasó, que aún hace falta (antes de «hasta», su último
+// uso) y que no está hecha (va al lienzo de WebGL, que queda debajo de la capa 2D opaca: no se ve). Así, si se salta su
+// fotograma (un --faltan que retoma a medias), se hace en los primeros que se dibujen después, de una en una y nunca
+// encima de otra; las que ya no se van a usar no se hacen. Lo que no se puede evitar: si el primer fotograma que se
+// dibuja ya las necesita (retomar justo dentro del estadio, 8,97–15,8 s), F() hace allí las que falten, y ese
+// fotograma puede pasar de 5 s (hasta ~11 s con el servidor tranquilo, con el estreno del estadio); la imagen es la
+// misma
 const PREPARAR = [
-  [T.saludo[0] + 0.3, 'filaCasa'], [T.saludo[0] + 0.7, 'estadio'], [T.saludo[0] + 0.8, 'estadioA'],
-  [T.fundeEst[1] + 0.4, 'detalle'], [T.aparta[0] - 0.42, 'estadioNube'], [T.aparta[0] - 0.25, 'cascara'],
+  [T.saludo[0] + 0.3, 'filaCasa', T.fundeEst[1]], [T.saludo[0] + 0.7, 'estadio', T.aparta[1]], [T.saludo[0] + 0.8, 'estadioA', T.aparta[1]],
+  [T.fundeEst[1] + 0.4, 'detalle', T.deGuisante[1]], [T.aparta[0] - 0.42, 'estadioNube', T.aparta[1]], [T.aparta[0] - 0.25, 'cascara', T.aparta[1]],
 ];
 function dibujar(t) {
   const n = P.fotograma(t, D), ts = n / 12;
   ajustarCapa();
-  for (const [t0, nombre] of PREPARAR) if (ts >= t0 && ts < t0 + 0.09) F(nombre);
+  hechasAhora = 0;
   let h = null;
   if (ts < T.cruce[0]) baseA(n, ts);
   else if (ts < T.fundeEst[1]) {
@@ -598,8 +634,15 @@ function dibujar(t) {
   P.fotograma(t, D);
   capaArriba(n, ts, ts >= T.corte ? h : null);
   POST.aplicar(g, n);
+  if (!hechasAhora) {
+    const pendiente = PREPARAR.find(([t0, nombre, t1]) => ts >= t0 && ts < t1 && !FOTOS[nombre]);
+    if (pendiente) F(pendiente[1]);
+  }
 }
-window.__fin = { PELDANO, ATOMO_0, A_ESC_0, PERSONA_F, ATOMO_F, A_ESC_F: 0.4, REGLA_0, PERSONA_E, ESTADIO, K_DET, T };
+// la postura del último fotograma, entera (ep3-silla la copia): 'mirarse las manos' de esta escena, fantasma 1, con la
+// cabeza [−0,45, 0,25, 0,06] y la mirada [−0,6, −0,3] (hacia Atom, a su derecha)
+const POSE_F = (() => { const p = poseEn(D, 'F'); return { ...p, cabeza: [...p.cabeza], mirada: [...p.mirada], brazoIzq: [...p.brazoIzq], brazoDer: [...p.brazoDer] }; })();
+window.__fin = { PELDANO, ATOMO_0, A_ESC_0, PERSONA_F, POSE_F, ATOMO_F, A_ESC_F: 0.4, REGLA_0, PERSONA_E, ESTADIO, K_DET, T };
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>
 </body>

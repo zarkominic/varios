@@ -32,7 +32,7 @@
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, muelle } from '/atomo/plato/kits/plastilina-adulta.js';
-import { crearMundo, camara, camaraPorTierra, mezclarCamaras, estadoMundo, fotoMundo, aPant, tierraPx, brilloCiudad, gotasTierras,
+import { crearMundo, camara, camaraPorTierra, mezclarCamaras, estadoMundo, fotoMundo, aPant, tierraPx, brilloCiudad, brilloLuna, gotasTierras,
   tierrasQueCaen, fotoTierra, tiposCosmos, planeta, saturno, cinta, enPlato, fotoPieza, aqui, largoAqui, rotAnillos, filaPlanetas,
   PLANETAS, MUNDO, HUECO, FINAL_TIERRA } from '/atomo/plato/kits/ep03-cosmos.js';
 
@@ -65,14 +65,14 @@ const L56 = m.huecoFin - m.hueco;
 const T = {
   plato: SALTOS[0][0],                             // hasta aquí, el plató; después, el mundo
   b4: SALTOS[3][1],                                // la regla llega a 10⁴: brilla la marca y se enciende la ciudad
-  pl0: m.hueco + 0.22 * L56, plPaso: 0.38, plCae: 0.36,
+  pl0: m.hueco + 0.3 * L56, plPaso: 0.34, plCae: 0.36,
 };
-T.cinta0 = T.pl0 + 6 * T.plPaso + T.plCae + 0.2; T.cinta1 = T.cinta0 + 0.95;
+T.cinta0 = T.pl0 + 6 * T.plPaso + T.plCae + 0.18; T.cinta1 = T.cinta0 + 0.85;
 T.empuje0 = T.cinta1 + 0.1; T.empuje1 = T.empuje0 + 0.6;
 T.cota0 = T.empuje1 + 0.05; T.cota1 = T.cota0 + 0.4;
 T.recoge0 = SALTOS[8][0] - 0.3; T.recoge1 = SALTOS[8][0] - 0.02;
 // frase 57: las Tierras caen desde poco después de la marca; las últimas tocan ~1 s antes de quedarse quieto
-const GOTAS = gotasTierras({ t0: m.sol + 0.4, t1: m.solFin - 1.4, n: 34, semilla: 11 });
+const GOTAS = gotasTierras({ t0: m.sol + 0.55, t1: m.solFin - 1.4, n: 32, semilla: 11 });
 
 // ---------------------------------------------------------------- el plató
 const I = { PER: 0, REG: 1, FLE: 2, AQUI: 3, CINTA: 4, COTA: 5, PLA: 6, SAT: 7 };
@@ -106,7 +106,7 @@ function ajustarCapa() {
   if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
   const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
 }
-const pegar = (c) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.drawImage(c, 0, 0, capa.width, capa.height); g.restore(); };
+const pegar = (c, a = 1) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = a; g.drawImage(c, 0, 0, capa.width, capa.height); g.restore(); };
 const copia = (c) => { const k = document.createElement('canvas'); k.width = c.width; k.height = c.height; k.getContext('2d').drawImage(c, 0, 0); return k; };
 
 // ---------------------------------------------------------------- Atom (presentador: pequeño, abajo a la izquierda)
@@ -173,13 +173,13 @@ log('foto plato');
 // Cada uno de cara a la cámara en el centro del plató, al tamaño más grande que se va a ver (el plano medio, z = 8), salvo
 // Saturno, cuyos anillos no caben enteros a ese tamaño (se amplía un 26 % en el plano medio, donde se ve a medias).
 const C_HUECO = camara(8, { hueco: true });
-const Z_MEDIO = 8.0;
-// plano medio: el pelo (entre Neptuno y la Luna) en x = 1.150
+const Z_MEDIO = 7.8;
+// plano medio: el pelo (entre Neptuno y la Luna) en x = 930; Saturno queda fuera del cuadro (y lejos de Atom)
 const C_MEDIO = (() => {
   const C0 = camaraPorTierra(Z_MEDIO, [0, HUECO.tierra[1]]);
   const f = filaPlanetas(C0);
   const x = (f.sobra[0] + f.sobra[1]) / 2;
-  return camaraPorTierra(Z_MEDIO, [1150 - x, HUECO.tierra[1]]);
+  return camaraPorTierra(Z_MEDIO, [930 - x, HUECO.tierra[1]]);
 })();
 const ROT_SAT = rotAnillos(P);
 const SPR = PLANETAS.map((p) => {
@@ -262,8 +262,8 @@ function laCinta(ts, C) {
   if (ext < 0.002) { P.pieza(I.CINTA, { escala: 0 }); return; }
   const f = filaPlanetas(C);
   const k = C_HUECO.mpp / C.mpp;                       // lo que ha crecido el mundo desde el hueco
-  const dy = f.tierra[2] + 14 * k;
-  cinta(P, I.CINTA, { desde: [f.desde[0], f.desde[1] - dy], hasta: [f.hasta[0], f.hasta[1] - dy], alto: 11 * k, marcas: 40, extension: ext, z: 1.5, toque: ts < T.cinta1 + 0.05 });
+  const alto = 11 * Math.pow(k, 0.6), dy = f.tierra[2] + 6 + alto * 0.7;
+  cinta(P, I.CINTA, { desde: [f.desde[0], f.desde[1] - dy], hasta: [f.hasta[0], f.hasta[1] - dy], alto, marcas: 40, extension: ext, z: 1.5, toque: ts < T.cinta1 + 0.05 });
 }
 // la cota de latón sobre el pelo (en el plano medio)
 function laCota(ts, C) {
@@ -304,6 +304,18 @@ function dibujar(t) {
   else { mundo.dibujar(estadoMundo(C, nf, extra)); pegar(mundo.lienzo); }
   // 2D sobre el mundo
   brilloCiudad(g, C, kBrillo(ts));
+  // la Luna aparece (su halo late una vez al llegar) y se apaga en el salto 9
+  const kL = ss(SALTOS[7][0] + 0.12, SALTOS[7][1] + 0.1, ts) * (1 - ss(SALTOS[8][0], SALTOS[8][1], ts));
+  brilloLuna(g, C, kL * (1 + 0.8 * Math.sin(Math.PI * prog(ts, SALTOS[7][1] - 0.05, SALTOS[7][1] + 0.7))));
+  // y la Tierra, que a 10⁸ también es pequeña: un halo azul suave (su atmósfera) para que se lea en el móvil
+  if (kL > 0.01) {
+    const tp = tierraPx(C), rT = MUNDO.R_TIERRA / C.mpp, R = Math.max(rT * 2.6, 34);
+    g.save(); g.globalCompositeOperation = 'screen';
+    const h = g.createRadialGradient(tp[0], tp[1], rT * 0.95, tp[0], tp[1], R);
+    h.addColorStop(0, `rgba(120,160,220,${0.42 * kL})`); h.addColorStop(0.4, `rgba(80,120,190,${0.16 * kL})`); h.addColorStop(1, 'rgba(60,90,160,0)');
+    g.fillStyle = h; g.beginPath(); g.arc(tp[0], tp[1], R, 0, 2 * Math.PI); g.fill();
+    g.restore();
+  }
   planetas(ts, C);
   if (ts > GOTAS[0].t - 0.1) {
     tierrasQueCaen(g, SPRITE_T, { t: ts, gotas: GOTAS, sol: FINAL_TIERRA.sol, rTierra: Math.max(MUNDO.R_TIERRA / C.mpp, 4.5) });

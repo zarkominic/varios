@@ -46,16 +46,16 @@ function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t
 const T = {
   // frase 1: saludo y «la cámara se abre» a mitad de frase
   abre0: mix(m.hola, m.holaFin, 0.44), abre1: mix(m.hola, m.holaFin, 0.44) + 2.0,
-  // frase 2: la persona entra y se planta
-  entra0: m.crees - 0.85, entra1: m.crees - 0.08,
+  // frase 2: la persona entra por la derecha en cuanto Atom llega a su sitio y se planta en el suyo al decirse «crees»
+  entra0: mix(m.hola, m.holaFin, 0.44) + 1.95, entra1: m.crees - 0.05,
   // frase 3: plano medio; la regla se estira y se dobla
   medio: m.nolo - 0.26,
   // frase 4: el empuje hasta el ojo y los párpados
   empuje: m.ojos - 0.3,
 };
-T.cara = T.empuje + 0.42;        // fundido del plano medio a la foto de la cabeza
-T.mir0 = T.cara + 0.22;          // se abre la mirilla en su ojo izquierdo…
-T.mir1 = T.mir0 + 0.5;           // …y llena la pantalla con el ojo enorme
+T.mir0 = m.ojos + 0.4;           // el zum llega a su ojo izquierdo y ahí se abre el ojo enorme (iris sobre iris)…
+T.ojoZ = T.mir0 + 0.4;           // …que crece hasta su tamaño (zo = 1)…
+T.mir1 = T.ojoZ + 0.1;           // …y la mirilla ya cubre la pantalla
 T.ojo1 = T.mir1;
 const mitad4 = mix(m.ojos, m.ojosFin, 0.5);
 T.abajo0 = mitad4 - 0.45; T.abajo1 = mitad4 + 0.45;   // el párpado de abajo sube (célula y átomo)
@@ -213,7 +213,6 @@ function pasadaAtomo(ts, nf, velo = 0.1) {
 
 // ---------------------------------------------------------------- la persona y la regla
 const E_PER = 2.4, X_PER = en(612, 600, 0.6)[0], Z_PER = 0.6;
-const X_FUERA = en(-260, 600, 0.6)[0];
 const R_REG = 0.62;                       // medio largo de la regla en el plano general (unidades del mundo, con E_PER)
 // postura «sostener» con aire seguro: barbilla arriba, hombros atrás, la mirada al frente
 function poseSegura(k = 1) {
@@ -245,20 +244,85 @@ function ponerRegla(h, escalaRegla, inclina = 0.35) {
   return c;
 }
 
-// plano general: entra por la izquierda andando de perfil, se gira a cámara y se planta
+// ---- la entrada: cruza el plató andando desde fuera del cuadro, por la derecha, hasta su sitio a la izquierda. Por la
+// derecha no pasa por el sitio de Atom (abajo a la izquierda: por la izquierda, con el suelo del plató, las piernas
+// cruzaban a Atom a cualquier profundidad). El paso va atado al avance (sin patinar): el cuerpo va en línea recta a
+// velocidad constante V0 = 2 · sep · f (sep: lo que se separan los tobillos a lo largo de la marcha con los muslos a
+// ±AMP; un pie de apoyo recorre sep hacia atrás en medio ciclo) y frena en los últimos ANDA.frena s; al frenar, la
+// amplitud del paso y su ritmo bajan los dos con √(v / V0) (así su producto sigue siendo v), y las piernas se juntan justo
+// al llegar. AMP se ajusta al cargar para que el cruce dure lo que hay de T.entra0 a T.entra1.
+const ANDA = { f: 1.15, frena: 0.6 };
+const PIE_INI = (() => {
+  // de dónde sale: con el centro (la suela) unos 90 px fuera del borde derecho, algo más al fondo que su sitio
+  const z = -0.2, a = pant([0, 0, z])[0], b = pant([1, 0, z])[0];
+  return [(2010 - a) / (b - a), z];
+})();
+const RUTA = (() => {
+  const dx = X_PER - PIE_INI[0], dz = Z_PER - PIE_INI[1], L = Math.hypot(dx, dz);
+  const dur = T.entra1 - T.entra0, v0 = L / (dur - ANDA.frena / 2);
+  return { L, dir: [dx / L, dz / L], rumbo: Math.atan2(dx / L, dz / L), dur, v0 };
+})();
+// piernas al andar (fase en radianes; amp 0…1). Cada pie, respecto a su cadera, va hacia atrás a velocidad constante
+// mientras apoya (media vuelta: el seno del ángulo del muslo baja en línea recta de +sin AMP a −sin AMP, así que el pie
+// recorre lo mismo en cada fotograma) y vuelve adelante por el aire en la otra media, con la rodilla doblada. Con un
+// vaivén senoidal el pie de apoyo iba más deprisa que el cuerpo a mitad del paso y más despacio en los extremos (patinaba
+// adelante y atrás). piesFijos 0: la pelvis va sobre pos y los pies se mueven respecto a ella (con 1 la pelvis se
+// recentraría sobre los tobillos y arrastraría al pie de apoyo).
+let AMP = 0.45;
+function piernaAndar(u, amp) {
+  u -= Math.floor(u);
+  let g, rod = 0;
+  if (u < 0.5) g = 1 - 4 * u;                                       // apoyo: de delante a atrás, recto
+  else { const w = (u - 0.5) / 0.5; g = -1 + 2 * (0.5 - 0.5 * Math.cos(Math.PI * w)); rod = Math.sin(Math.PI * w); }
+  const th = Math.asin(Math.sin(AMP) * g);
+  // (el tobillo va en el marco de la pelvis: 0 es el pie plano en el suelo; en el vuelo, la punta algo arriba)
+  return [th * amp, 0.02, (0.75 * rod + 0.03) * amp, 0.2 * rod * amp];
+}
+function piernasAndar(p, fase, amp) {
+  const u = fase / (2 * Math.PI);
+  p.piernaIzq = piernaAndar(u, amp);
+  p.piernaDer = piernaAndar(u + 0.5, amp);
+  p.piesFijos = 0;
+}
+// AMP para que el pie de apoyo no patine: 2 · sep · f = V0 (sep, con el esqueleto de la propia pieza: los tobillos con los
+// muslos a +AMP y −AMP, a lo largo de la marcha)
+{
+  const sepDe = (A) => {
+    AMP = A;
+    const p = poseSegura(0);
+    piernasAndar(p, 0, 1);
+    P.limpiar();
+    const h = P.pieza(I.PER, { pos: [0, E_PER, 0], escala: E_PER, postura: p });
+    return Math.abs(h.puntosLocales.tobilloIzq[2] - h.puntosLocales.tobilloDer[2]) * E_PER;
+  };
+  const objetivo = RUTA.v0 / (2 * ANDA.f);
+  let A = 0.45;
+  for (let i = 0; i < 4; i++) A = Math.min(0.75, A * objetivo / sepDe(A));
+  AMP = A;
+  P.limpiar();
+}
+// recorrido (unidades del mundo), amplitud del paso (0…1) y tiempo de paso (s) en el instante ts
+function marcha(ts) {
+  const t = Math.min(Math.max(ts - T.entra0, 0), RUTA.dur), t1 = RUTA.dur - ANDA.frena;
+  if (t <= t1) return { s: RUTA.v0 * t, amp: 1, tau: t };
+  const w = (t - t1) / ANDA.frena;                 // 0…1 en la frenada (velocidad v0 · (1 − w))
+  return {
+    s: RUTA.v0 * (t1 + ANDA.frena * (w - w * w / 2)),
+    amp: Math.sqrt(1 - w),
+    tau: t1 + ANDA.frena * (2 / 3) * (1 - Math.pow(1 - w, 1.5)),
+  };
+}
 function personaGeneral(ts) {
-  const u = prog(ts, T.entra0, T.entra1);
-  const x = mix(X_FUERA, X_PER, seco(u * 1.02));
-  const anda = 1 - ss(0.72, 1.0, u);
-  const giro = mix(1.25, 0.16, eio(prog(ts, T.entra1 - 0.42, T.entra1 + 0.12)));
+  const M = marcha(ts);
+  const x = PIE_INI[0] + RUTA.dir[0] * M.s, z = PIE_INI[1] + RUTA.dir[1] * M.s;
+  // de perfil hacia donde anda; al frenar se gira a cámara
+  const giro = mix(RUTA.rumbo, 0.16, eio(prog(ts, T.entra1 - 0.4, T.entra1 + 0.3)));
   const p = poseSegura(ss(T.entra1 - 0.1, T.entra1 + 0.5, ts));
   uListon.value.x = 0; uListon.value.y = 0;
+  const anda = ts < T.entra1 ? M.amp : 0;
   if (anda > 0.001) {
-    const ph = 2 * Math.PI * 1.55 * (ts - T.entra0);
-    const s1 = Math.sin(ph), s2 = Math.sin(ph + Math.PI);
-    p.piernaIzq = [0.42 * s1 * anda, 0.02, 0.55 * Math.max(0, -Math.cos(ph)) * anda + 0.05 * anda, 0.15 * s1 * anda];
-    p.piernaDer = [0.42 * s2 * anda, 0.02, 0.55 * Math.max(0, Math.cos(ph)) * anda + 0.05 * anda, 0.15 * s2 * anda];
-    p.torso = [p.torso[0] + 0.07 * anda, p.torso[1], p.torso[2]];
+    piernasAndar(p, 2 * Math.PI * ANDA.f * M.tau, anda);
+    p.torso = [p.torso[0] + 0.06 * anda, p.torso[1], p.torso[2]];
   }
   // respira; a mitad de la frase 2 enseña la regla (la sube un poco hacia la cámara) y asiente
   const tz = calma(ts);
@@ -266,7 +330,7 @@ function personaGeneral(ts) {
   p.brazoIzq[0] += 0.12 * ens; p.brazoDer[0] += 0.12 * ens;
   p.cabeza = [p.cabeza[0], p.cabeza[1] + 0.06 * ens, p.cabeza[2]];
   const resp = 0.008 * Math.sin(tz * 2.4);
-  const h = P.pieza(I.PER, { pos: [x, E_PER, Z_PER], escala: E_PER, sq: [1, 1 + resp, 1], rot: [0, giro, 0], postura: p, t: ts, huellaFija: [0.37, 0.21, 0.0] });
+  const h = P.pieza(I.PER, { pos: [x, E_PER, z], escala: E_PER, sq: [1, 1 + resp, 1], rot: [0, giro, 0], postura: p, t: ts, huellaFija: [0.37, 0.21, 0.0] });
   ponerRegla(h, R_REG, 0.32);
   // para guias-humano.py: coronilla, suela y centro en píxeles
   window.__persona = { coronilla: pant(h.punto('coronilla')), suela: pant(h.mundo([0, -1, 0.05])), centro: pant(h.mundo([0, 0, 0])) };
@@ -305,14 +369,17 @@ function personaMedio(ts) {
   ponerRegla(h, MED.reg, 0.25);
   return h;
 }
-// la cabeza de cerca (la foto del empuje): los ojos en el centro, la cabeza de 570 px
-const CARA = (() => {
-  const z = 4.6;
-  const ojos = en(960, 470, z + 0.25);
-  const esc = 570 / (0.33 * pxU(ojos));
-  return { z, esc, pos: [ojos[0], ojos[1] - esc * 0.611, z] };
-})();
-
+// ---- el empuje (frase 4): un solo zum continuo del plano medio a su ojo izquierdo, sin cortes ni fundidos. La persona se
+// pinta en vivo en cada fotograma (sin fondo), más grande y algo más cerca de la cámara: la cara nunca se amplía en 2D. El
+// fondo es la foto del plano medio sin la persona (con su sombra en el ciclorama), ampliada en 2D con el mismo zum (es un
+// fondo desenfocado y enseguida lo tapa la cabeza). El zum (en logaritmo) arranca suave y sigue a velocidad constante;
+// en T.mir0 su ojo izquierdo está en el centro y la cabeza mide unos 1380 px, y ahí se abre el ojo enorme del kit (ver
+// abajo) con el iris en el sitio y del tamaño de la pupila de plastilina.
+const EMP = { Z: 4.6, DZ: 0.5, A: 0.45 };
+const empE = (u) => { const a = EMP.A; u = cl(u); return (u < a ? (u * u) / (2 * a) : u - a / 2) / (1 - a / 2); };
+// velocidad del zum al llegar a T.mir0 (logaritmo por segundo): la sigue la cara y con ella arranca el ojo enorme
+const EMP_V = Math.log(EMP.Z) / (1 - EMP.A / 2) / (T.mir0 - T.empuje);
+const zumCara = (ts) => (ts <= T.mir0 ? Math.log(EMP.Z) * empE(prog(ts, T.empuje, T.mir0)) : Math.log(EMP.Z) + EMP_V * (ts - T.mir0));
 // ---------------------------------------------------------------- el ojo (kit ep03-ojo)
 const Z_OJO = 5.0;
 const OJO_POS = en(960, 540, Z_OJO);
@@ -649,7 +716,8 @@ function dibujar(t) {
   POST.aplicar(g, nf);
   marcaT('post');
 }
-window.__info = { R_CARA, T, m, MED, CARA, OJO_ESC, FR_ESC, FR_ALTO, FIN, OJOS_MEDIO, OJOS_CARA, OJO_IZQ_CARA, pxLocalOjo };
+window.__dbg = { P, pant, en, pxU, X_PER, E_PER, Z_PER, I, postura, poseSegura, marcha, personaGeneral };
+window.__info = { RUTA, AMP, PIE_INI, R_CARA, T, m, MED, CARA, OJO_ESC, FR_ESC, FR_ALTO, FIN, OJOS_MEDIO, OJOS_CARA, OJO_IZQ_CARA, pxLocalOjo };
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>
 </body>

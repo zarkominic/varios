@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-tiempo.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-tiempo.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por pieza y por variante, con el plató, la luz y la cámara de las escenas de plastilina
+// (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28).
+//   __frame(0)  → la hoja entera (6 × 3 celdas de 320 × 180, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+import * as THREE from 'three';
+import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposTiempo, uniformesTiempo, calendario, reloj, arena, vidrioArena, rayo, caminoRebotes, caminoVueltas, hojaEn } from '/atomo/plato/kits/ep03-tiempo.js';
+
+const W = 1920, H = 1080;
+const T = ['calendario', 'reloj', 'arena'];
+const I = { cal: 0, rel: 1, are: 2 };
+const P = await crearPlato({
+  piezas: T, tiposExtra: tiposTiempo(), uniformes: uniformesTiempo(), atomo: false, alfa: true, post: false,
+  sombraFondo: ['p0', 'p1', 'p2'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const C = [];
+const cel = (rot, poner, o = {}) => C.push({ rot, poner, ...o });
+const CAL = { pos: en(960, 600, 2), escala: 3.6, rot: [0.06, -0.25, 0] };
+cel('calendario 1', () => calendario(P, I.cal, { ...CAL, numero: 1 }));
+cel('calendario 2019', () => calendario(P, I.cal, { ...CAL, numero: 2019 }));
+cel('calendario 120000', () => calendario(P, I.cal, { ...CAL, numero: 120000 }));
+cel('calendario 10000 → 20000, hoja 0,3', () => calendario(P, I.cal, { ...CAL, numero: 20000, anterior: 10000, hoja: 0.3 }));
+cel('calendario hoja 0,7 (hojaEn)', () => calendario(P, I.cal, { ...CAL, ...hojaEn(1.0, [[0, 30000], [1.1, 40000]]), hoja: 0.7 }));
+cel('calendario mes 3 (31 días)', () => calendario(P, I.cal, { ...CAL, mes: 3, dias: 31 }));
+cel('calendario mes 2 → 3, hoja 0,5', () => calendario(P, I.cal, { ...CAL, mes: 3, anterior: 2, dias: 31, diasAnterior: 28, hoja: 0.5 }));
+const REL = { pos: en(960, 520, 2), escala: 3.4, rot: [0.05, -0.2, 0] };
+cel('reloj 10:08', () => reloj(P, I.rel, { ...REL, minutos: 608 }));
+cel('reloj 8 minutos (sector 0–8)', () => reloj(P, I.rel, { ...REL, minutos: 8, sector: [0, 8] }));
+cel('reloj segundero 15 s, sector, números minutos', () => reloj(P, I.rel, { ...REL, minutos: 0, segundos: 15, sector: [0, 15], sectorSegundos: true, numeros: 'minutos' }));
+cel('reloj 1 h (sector 0–60)', () => reloj(P, I.rel, { ...REL, minutos: 60, sector: [0, 60] }));
+const ARE = { pos: en(960, 540, 2), escala: 2.5, rot: [0.08, 0.3, 0] };
+cel('arena cae 0 (+ vidrio)', () => arena(P, I.are, { ...ARE, cae: 0 }), { d2: (g, i) => vidrioArena(g, i) });
+cel('arena cae 0,4 (+ vidrio)', () => arena(P, I.are, { ...ARE, cae: 0.4 }), { d2: (g, i) => vidrioArena(g, i) });
+cel('arena cae 1 (+ vidrio)', () => arena(P, I.are, { ...ARE, cae: 1 }), { d2: (g, i) => vidrioArena(g, i) });
+cel('arena cae 0,4 sin vidrio', () => arena(P, I.are, { ...ARE, cae: 0.4 }));
+const ZZ = [[200, 800], [520, 300], [800, 760], [1150, 260], [1400, 700], [1720, 380]];
+cel('rayo luz hasta 60 %', () => {}, { d2: (g) => rayo(g, ZZ, { hasta: 0.6 * 2600 }) });
+cel('rayo frío entero, grosor 12', () => {}, { d2: (g) => rayo(g, ZZ, { grosor: 12, color: 'frio' }) });
+cel('caminoRebotes en un círculo, con salida', () => {}, { d2: (g) => {
+  const c = [900, 540], R = 380;
+  g.strokeStyle = 'rgba(255,255,255,0.2)'; g.lineWidth = 2; g.beginPath(); g.arc(c[0], c[1], R, 0, 2 * Math.PI); g.stroke();
+  const pts = caminoRebotes({ desde: c, n: 26, paso: [50, 110], dentro: (x, y) => Math.hypot(x - c[0], y - c[1]) < R * 0.94, salida: [c[0] + R, c[1] - 40], semilla: 4, deriva: 0.8 });
+  rayo(g, pts, { grosor: 6 });
+} });
+cel('caminoVueltas 7,5 alrededor de un círculo', () => {}, { d2: (g) => {
+  g.fillStyle = '#22406a'; g.beginPath(); g.arc(960, 540, 260, 0, 2 * Math.PI); g.fill();
+  rayo(g, caminoVueltas({ centro: [960, 540], rx: 330, ry: 120, vueltas: 7.5, giro: -0.3 }), { grosor: 5, hasta: 9000 });
+} });
+
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+const cache = [];
+window.__tiempos = [];
+function celda(k) {
+  if (cache[k]) return cache[k];
+  const c = C[k];
+  const a = performance.now();
+  P.fotograma(0); P.limpiar();
+  const info = c.poner(P);
+  P.render(k + 1);
+  const f = document.createElement('canvas'); f.width = lienzoGL.width; f.height = lienzoGL.height;
+  const gf = f.getContext('2d'); gf.drawImage(lienzoGL, 0, 0);
+  gf.setTransform(f.width / W, 0, 0, f.width / W, 0, 0);
+  if (c.d2) c.d2(gf, info);
+  window.__tiempos[k] = Math.round(performance.now() - a);
+  return (cache[k] = f);
+}
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+function dibujar(t) {
+  ajustarCapa();
+  const k = Math.round(t);
+  if (k >= 1 && k <= C.length) { g.drawImage(celda(k - 1), 0, 0, W, H); POST.aplicar(g, k); return; }
+  g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+  const cw = W / 6, ch = H / 6;
+  C.forEach((c, j) => {
+    const x = (j % 6) * cw, y = Math.floor(j / 6) * ch;
+    g.drawImage(celda(j), x, y, cw, ch);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(x, y + ch - 22, cw, 22);
+    g.fillStyle = '#e8dcc0'; g.font = '15px sans-serif'; g.fillText(`${j + 1}. ${c.rot}`, x + 6, y + ch - 6);
+  });
+}
+const busq = new URLSearchParams(location.search);
+window.ESCENA ??= { id: 'ep03-tiempo-hoja', duracion: C.length + 1, marcas: {}, voz: [0, 0] };
+window.__celdas = C.map((c) => c.rot);
+window.__paso = 1;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>
