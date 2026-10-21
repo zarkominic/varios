@@ -13,11 +13,13 @@
 //  0–9 s     la regla larga: la escala corre de 10⁻³⁵ (con la niebla de Planck debajo) a 10²⁷ (con la red de
 //            galaxias encima); la potencia actual, grande y en ámbar
 //  9–16 s    la regla entera: se comprime (entera 0 → 1) hasta verse de −35 a +27 con rótulos en −35, −4, 0, +7 y
-//            +27; las marcas se encienden una a una (rango); la flecha busca, pasa por 0 y cae cuatro saltos a −4;
-//            las miniaturas «red» y «niebla» junto a los remates
-//  16–34 s   la persona con posturas: de pie, sostener, señalar, saludar, sentada, brazos cruzados, mirarse las
-//            manos (que se vuelven casi transparentes: fantasma), de perfil con los ojos cerrados y mirar arriba;
-//            a la vez, un niño y una mujer con melena (que pasa a moño a mitad), cada uno con su jersey
+//            +27 (tamaño por defecto, REGLA.ESC_ENTERA) y el actual, grande y en ámbar; las marcas se encienden una a
+//            una (rango); la flecha busca, pasa por 0 y cae cuatro saltos a −4 mientras la persona la señala (apuntar,
+//            con un punto del mundo); las miniaturas «red» y «niebla» junto a los remates
+//  16–34 s   la persona con posturas: de pie, sostener, señalar, saludar, sentada (los pies se quedan donde
+//            estaban y la pelvis va atrás, al taburete), brazos cruzados, mirarse las manos (que se vuelven casi
+//            transparentes: fantasma), de perfil con los ojos cerrados y mirar arriba; a la vez, un niño y una mujer
+//            con melena (que pasa a moño alto a mitad), cada uno con su jersey
 // ?vista=guias&postura=…&aspecto=…&giro=… : una sola persona grande y de frente (o girada) para guias-humano.py;
 // deja en window.__info la coronilla, la suela y las articulaciones en píxeles.
 import * as THREE from 'three';
@@ -108,15 +110,22 @@ if (busq.get('vista') === 'guias') {
     return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e, ya, entera, actual, marca, rango, lupa: 0.55, toque: ts > 9 && ts < 16 });
   }
   function atomo(ts) {
-    const w = en(ts < 16 ? 850 : 300, ts < 16 ? 330 : 250, 1.0);
+    // (en B sube un poco, para dejar sitio al brazo que señala)
+    const kB = ss(12.0, 12.8, ts) * (1 - ss(15.9, 16.3, ts));
+    const w = en(ts < 16 ? mix(850, 980, kB) : 300, ts < 16 ? mix(330, 215, kB) : 250, 1.0);
     const tz = Math.min(ts, QUIETO);
     P.atomo({ pos: [w[0], w[1] + 0.025 * Math.sin(tz * 1.1), w[2]], escala: 0.4, yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06,
       energia: ts < QUIETO ? E.energia(ts) : 0, ts: tz });
   }
-  function personas(ts) {
+  function personas(ts, R) {
     if (ts < 16.4) {
-      // A y B: el adulto de pie a la izquierda, mirando la regla
-      P.pieza(I.ADU, { pos: [xA, E_ADU, 0.6], escala: E_ADU, rot: [0, 0.2, 0], postura: { cabeza: [0.25, 0.05, 0], mirada: [0.7, 0.2] }, t: ts, huellaFija: [0.37, 0.21, 0] });
+      // A y B: el adulto de pie a la izquierda, mirando la regla; mientras la flecha busca y cae, la señala con la
+      // izquierda (apuntar: el punto del mundo de la flecha; peso, la mezcla con el brazo quieto)
+      const mira = { cabeza: [0.25, 0.05, 0], mirada: [0.7, 0.2] };
+      const k = ss(12.4, 12.9, ts) * (1 - ss(15.9, 16.3, ts));
+      const pose = k > 0 ? { ...mira, brazoIzq: [0.03, 0.06, 0.1, mix(0.12, 1.1, k), mix(0, 1.2, k), -0.1], manoIzq: k } : mira;
+      P.pieza(I.ADU, { pos: [xA, E_ADU, 0.6], escala: E_ADU, rot: [0, 0.2, 0], postura: pose, t: ts, huellaFija: [0.37, 0.21, 0],
+        apuntar: k > 0 && R.flecha ? { izq: R.flecha, peso: k } : null });
       return;
     }
     const k = ss(16.0, 16.8, ts);
@@ -162,7 +171,7 @@ if (busq.get('vista') === 'guias') {
     P.limpiar();
     const R = regla(ts);
     atomo(ts);
-    personas(ts);
+    personas(ts, R);
     miniaturas(ts, R);
     P.render(n);
   }
