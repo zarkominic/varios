@@ -54,6 +54,7 @@ async function renderizar(esc) {
   if (faltan && Array.from({ length: f1 - f0 }, (_, k) => f0 + k).every((n) => fs.existsSync(nombre(n)))) return;
   const ESCENA = {
     id: esc.id, duracion: esc.duracion, fps, marcas: esc.marcas, voz: esc.voz ?? null,
+    cartela: esc.cartela ?? null, frases: esc.frases ?? null,
     energia: linea.energia.slice(f0, f1), n: esc.n ?? null, veredicto: esc.veredicto ?? null,
     resultados: veredictos,
   };
