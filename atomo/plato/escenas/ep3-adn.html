@@ -353,6 +353,9 @@ function fotoDfondo() {
   P.render(904);
   return (FOTO.DF = foto(P));
 }
+// (al cargar: el estreno de la persona, que compila sus programas, no lo paga ningún fotograma)
+fotoDfondo();
+window.__carga.push(['persona', Math.round(performance.now())]);
 function fotoD(cual) {
   const k = cual === 0 ? 'D0' : 'D1';
   if (FOTO[k]) return FOTO[k];
@@ -478,7 +481,7 @@ function exposicion(nf) {
 // ---------------------------------------------------------------- fotograma
 // las fotos de los cortes se hacen en fotogramas baratos poco antes de hacer falta, una por fotograma (al renderizar
 // en orden); si se pide un instante posterior sin pasar por ellos, se hacen todas las pendientes
-const PREPARAR = [[T.sale[0] + 0.1, fotoBhilo], [T.sale[0] + 0.3, fotoDfondo], [T.sale[0] + 0.5, () => fotoD(0)],
+const PREPARAR = [[T.sale[0] + 0.1, fotoBhilo], [T.sale[0] + 0.3, () => fotoD(0)],
   [T.s3[0] - 0.5, () => fotoD(1)], [T.s3[0] - 0.25, fotoEfondo], [T.s3[0], fotoE0]];
 function preparar(ts) { for (const [t0, f] of PREPARAR) if (ts >= t0) f(); }
 function dibujar(t) {

@@ -17,31 +17,37 @@
 //  0      DETALLE: Atom de cerca, centrado, sobre el telón oscuro del plató (empieza_con); bokeh de polvo delante.
 //  hola   saluda con el electrón del alambre, brilla («soy Atom») y late con la voz. A mitad de frase «la cámara se abre»:
 //         el plató se vuelve a pintar a cada escala (no se amplía: cada píxel sigue siendo un píxel) y Atom, ya pequeño,
-//         baja en curva a su sitio de presentador (PX.ATOM_SITIO).
-//  GENERAL: mientras la cámara termina de abrirse, la persona entra andando por la derecha con la regla de boj en la mano
-//         (el pie que apoya no patina: el avance sale de la pierna de apoyo, a 12 fps) y cruza el haz de luz hasta su sitio, a
-//         la izquierda; al decirse «crees» se planta, se gira a cámara y sostiene la regla con aire seguro (barbilla
-//         arriba); la enseña. Atom da un saltito al verla llegar. Sombra proyectada en el suelo y el ciclorama.
+//         baja en curva a su sitio de presentador (PX.ATOM_SITIO). El resto de la frase, el plató vacío con Atom en su
+//         sitio y la cámara que aún se aleja, muy despacio, alrededor de él (el plano general queda algo más cerrado que el
+//         plató entero del kit: ×1,3).
+//  crees  LA ENTRADA ES EL GOLPE DE LA FRASE (como en la plastilina): 0,3 s antes de «crees» la persona entra por la
+//         derecha a paso decidido, con la regla de boj en la mano (12 fps; el avance sale de la pierna de apoyo: los pies
+//         no patinan), y 1,75 s después de la marca se planta en su sitio, a la izquierda (al frenar, el pie de apoyo se
+//         queda donde está y el cuerpo llega sobre él); se gira a cámara, parpadea y enseña la regla con aire seguro.
+//         Atom la mira cuando entra y da un saltito al verla llegar. Sombra proyectada en el suelo y el ciclorama.
 //  nolosabes  PLANO MEDIO (corte): la regla se estira como una goma (las marcas se separan) y se dobla en sus manos; la
 //         persona baja la vista a mirarla; en los 2 s de silencio la regla doblada queda quieta, la persona levanta la
-//         vista a cámara y parpadea.
-//  ojos   EMPUJE: un solo zum continuo del plano medio a su ojo izquierdo (la persona se vuelve a pintar a cada escala; de
-//         cerca, fotos de la cara hechas al cargar a escalas cada 2^⅓, nunca ampliadas más de 1,26 veces); cuando su ojo mide
-//         ~70 px, el ojo enorme del kit entra con un fundido tramado (Bayer) que nace en el iris y se abre hacia los bordes, y
-//         sigue creciendo hasta llenar la pantalla; delante se abre la franja de luz. Aparecen una célula y un átomo (abajo) y
-//         el otro lado de la galaxia (arriba, sobre la pupila) y el ojo los mira (sacadas); a mitad de frase el párpado de abajo
-//         sube y apaga la célula y el átomo, y luego el de arriba baja y apaga la galaxia: queda solo la franja.
+//         vista a cámara, parpadea y la cabeza se asienta en la pose del empuje (sin saltos al empezar el zum).
+//  ojos   EMPUJE: un solo zum continuo del plano medio a su ojo izquierdo; la persona se vuelve a pintar EN VIVO a la escala
+//         exacta de cada fotograma (nunca se amplía nada: la rejilla de píxeles es siempre la misma). Con su ojo de unos
+//         60 px, la cara se funde en 0,45 s con el ojo enorme del kit, alineado iris con iris (mismo tamaño de iris y mismo
+//         párpado de arriba): la mezcla se hace en color y se vuelve a la paleta con tramado Bayer; el ojo del kit entra con
+//         la luz de la cara (misma exposición) y la recupera en 0,55 s; su ceja de pelos sueltos se borra (se repinta la piel
+//         del kit) mientras el zum la tenga en cuadro: la ceja de la cara ya ha salido por arriba. Delante se abre la franja
+//         de luz. Aparecen una célula y un átomo (abajo) y el otro lado de la galaxia (arriba, sobre la pupila) y el ojo los
+//         mira (sacadas); a mitad de frase el párpado de abajo sube y apaga la célula y el átomo, y luego el de arriba baja y
+//         apaga la galaxia: queda solo la franja.
 // FINAL = PRINCIPIO DE px-ep3-ojo: desde que se cierra el párpado de arriba (T.arriba1) el cuadro es OJO.pintarFinalHola() más
 // Atom en PX.ATOM_SITIO con el reloj t − duración (en el último fotograma, t = 0) y energía 0. window.__fin lo resume.
-// Coste (sin GPU): 50–600 ms por fotograma; el plató a escala y el ojo se pintan por píxel (20–250 ms), la persona de cerca
-// 100–450 ms (se guarda en caché mientras no cambia); el final es una foto. Al cargar: ~6 s (las fotos de la cara).
+// Coste (sin GPU): el plató general y el del plano medio se pintan una vez al cargar; en el empuje, la persona en vivo y el
+// plató solo donde no la tapa; en el fundido, la cara, el ojo del kit y la mezcla. Al cargar: ~3 s.
 import { escena } from '/atomo/plato/escena.js';
 import { crearPixel } from '/atomo/plato/kits/pixel-ep03.js';
 import * as OJO from '/atomo/plato/kits/pixel-ep03-ojo.js';
 
 const E = await escena('px-ep3-hola', 'ep03px');
 const PX = crearPixel(document.getElementById('lienzo'));
-const { PAL, W, H, clamp, mezcla, suave, entra, sale, entraSale, rebote, paso, fot, tono, vnoise, fbm, b4, mulberry32, rgb, color } = PX;
+const { PAL, W, H, clamp, mezcla, suave, sale, entraSale, rebote, paso, tono, vnoise, fbm, b4, b8, mulberry32, rgb, color } = PX;
 const CX = W / 2, CY = H / 2;
 const M = (k) => E.marca(k);
 const m = {
@@ -55,29 +61,31 @@ const energia = (t) => (t >= QUIETO ? 0 : E.energia(t));
 // ───────────────────────────────────────────────────────────── tiempos (todo sale de las marcas)
 const T = {};
 T.abre0 = mezcla(m.hola, m.holaFin, 0.44); T.abre1 = T.abre0 + 2.0;        // «la cámara se abre» a mitad de la frase 1
-T.entra0 = T.abre0 + 0.35;                                                  // empieza a andar (aún fuera de cuadro)
-T.entra1 = m.crees - 0.05;                                                  // plantada en su sitio al decirse «crees»
-T.frena = T.entra1 - 0.42;                                                  // último paso: se junta y se gira
+T.entra0 = m.crees - 0.3;                                                   // la entrada es el golpe de la frase 2…
+T.entra1 = m.crees + 1.75;                                                  // …plantada en su sitio
+T.planta = T.entra1 + 0.12;                                                 // de frente, quieta (T.frena: al calcular el paso)
 T.medio = m.nolo - 0.26;                                                    // corte al plano medio
-T.empuje = m.ojos - 0.3;                                                    // el zum hasta el ojo…
-T.ojoZ = T.empuje + 1.4;                                                    // …llega al ojo enorme (a = 175)
+T.empuje = m.ojos - 0.3;                                                    // el zum hasta el ojo:
+const ZA = 0.8, ZB = 0.45, ZC = 0.75;                                       //  acelera hasta la cara…
+T.fun0 = T.empuje + ZA; T.fun1 = T.fun0 + ZB;                               //  …se funde con el ojo enorme a ritmo constante…
+T.ojoZ = T.fun1 + ZC;                                                       //  …y frena hasta que el ojo llena la pantalla (a = 175)
 const mitad4 = mezcla(m.ojos, m.ojosFin, 0.5);
 T.abajo0 = mitad4 - 0.45; T.abajo1 = mitad4 + 0.45;                          // el párpado de abajo sube (célula y átomo)
 T.arriba0 = mitad4 + 0.05; T.arriba1 = mitad4 + 1.15;                        // el de arriba baja (la galaxia)
 
 // ───────────────────────────────────────────────────────────── el mundo: el plató (coordenadas de su capa, 640 × 270)
-// La cámara es { cx, cy, s }: el punto del mundo en el centro de la pantalla y la escala. En el plano general, s = 1 y
-// cx = 320 (camX = 80 del kit: x de pantalla = x del mundo − 80).
-const CAM0 = { cx: 320, cy: 135, s: 1 };
+// La cámara es { cx, cy, s }: el punto del mundo en el centro de la pantalla y la escala.
 const aPant = (cam, wx, wy) => [CX + (wx - cam.cx) * cam.s, CY + (wy - cam.cy) * cam.s];
 const SITIO = PX.ATOM_SITIO;                                    // { x: 58, y: 190, r: 14 }
 const ATOM_W = [SITIO.x + 80, SITIO.y];                         // Atom en el mundo
-const PER = { x: 240, y: 214, H: 118 };                         // la persona: pies en el mundo y altura
+const PER = { x: 240, y: 214, H: 118 };                         // la persona: pies en el mundo y altura (a escala 1)
 const PL = { ancho: 640, focoX: 240, focoY: 118, sueloY: 200, semilla: 11 };   // el foco cae donde se planta la persona
-const plato = PX.crearPlato(PL);
+// el plano general: Atom en su sitio de presentador y el plató a ×1,3 (la persona mide 153 px; menos pared vacía)
+const S_GEN = 1.3;
+const CAMG = { cx: ATOM_W[0] - (SITIO.x - CX) / S_GEN, cy: ATOM_W[1] - (SITIO.y - CY) / S_GEN, s: S_GEN };
 
-// el plató a cualquier escala: la misma fórmula que crearPlato (a s = 1 da los mismos píxeles), evaluada en el punto del
-// mundo de cada píxel de pantalla, con el tramado fijo a la pantalla (los píxeles no crecen: se vuelve a pintar)
+// el plató a cualquier escala: la fórmula de crearPlato, evaluada en el punto del mundo de cada píxel de pantalla, con el
+// tramado fijo a la pantalla (los píxeles no crecen: se vuelve a pintar); y el haz del foco, luz cálida tramada
 const fuenteH = [PL.focoX - 150, -60], objH = [PL.focoX, PL.sueloY + 18];
 const hax = objH[0] - fuenteH[0], hay = objH[1] - fuenteH[1], hal = Math.hypot(hax, hay);
 function haz(x, y) {
@@ -87,58 +95,51 @@ function haz(x, y) {
   const ancho2 = 18 + along * 0.42;
   return clamp(1 - perp / ancho2, 0, 1) ** 1.6 * clamp(along / 60, 0, 1) * (1 - clamp((along - hal) / 60, 0, 1));
 }
-const MOTAS = [];
-{ const rnd = mulberry32(PL.semilla * 7 + 1); for (let i = 0; i < 46; i++) MOTAS.push([rnd(), rnd(), rnd(), rnd()]); }
-const esCam0 = (c) => Math.abs(c.s - 1) < 1e-9 && Math.abs(c.cx - 320) < 1e-9 && Math.abs(c.cy - 135) < 1e-9;
-function platoEn(cam, t) {
-  if (esCam0(cam)) plato.dibujar({ t, polvo: 0 });
-  else {
-    const buf = PX.destino().buf, { ancho, focoX, focoY, sueloY, semilla } = PL;
-    for (let sy = 0; sy < H; sy++) {
-      const y = cam.cy + (sy - CY) / cam.s;
-      for (let sx = 0; sx < W; sx++) {
-        const x = cam.cx + (sx - CX) / cam.s;
-        const borde = Math.abs(x - ancho / 2) / (ancho / 2);
-        const tex = 0.55 * (fbm(x * 0.022 + semilla, y * 0.03, 3) - 0.5) + 0.25 * (vnoise(x * 0.25, y * 0.25) - 0.5);
-        let v;
-        if (y < sueloY) {
-          const k = Math.max(0, y) / sueloY;
-          v = 1.8 + 2.4 * Math.pow(k, 1.3);
-          v += 4.2 * Math.exp(-(((x - focoX) / 170) ** 2) - (((y - focoY) / 115) ** 2));
-          v += 0.9 * Math.exp(-(((y - sueloY) / 9) ** 2));
-          v -= 1.6 * borde * borde;
-          v += tex + 1.0 * haz(x, y);
-          buf[sy * W + sx] = tono(PAL.TELON, v, sx, sy, 1);
-        } else {
-          const d = (y - sueloY) / (H - sueloY);
-          v = 3.0 - 1.8 * d;
-          v += 4.0 * Math.exp(-(((x - focoX) / (150 + 90 * d)) ** 2) - (((y - (sueloY + 24)) / 26) ** 2));
-          v += 0.7 * Math.exp(-(((y - sueloY) / 6) ** 2));
-          v -= 1.8 * borde * borde;
-          v += tex * 0.6 + 0.6 * haz(x, y);
-          buf[sy * W + sx] = tono(PAL.SUELO, v, sx, sy, 1);
+const LUZ_HAZ = [70, 50, 34];
+// mascara: no pinta los píxeles que va a tapar la persona (en los planos cerrados casi toda la pantalla)
+function platoBase(cam, buf, mascara = null) {
+  const { ancho, focoX, focoY, sueloY, semilla } = PL;
+  for (let sy = 0; sy < H; sy++) {
+    const y = cam.cy + (sy - CY) / cam.s;
+    for (let sx = 0; sx < W; sx++) {
+      const i = sy * W + sx;
+      if (mascara && mascara[i]) continue;
+      const x = cam.cx + (sx - CX) / cam.s;
+      const borde = Math.abs(x - ancho / 2) / (ancho / 2);
+      const tex = 0.55 * (fbm(x * 0.022 + semilla, y * 0.03, 3) - 0.5) + 0.25 * (vnoise(x * 0.25, y * 0.25) - 0.5);
+      let v, p;
+      if (y < sueloY) {
+        const k = Math.max(0, y) / sueloY;
+        v = 1.8 + 2.4 * Math.pow(k, 1.3);
+        v += 4.2 * Math.exp(-(((x - focoX) / 170) ** 2) - (((y - focoY) / 115) ** 2));
+        v += 0.9 * Math.exp(-(((y - sueloY) / 9) ** 2));
+        v -= 1.6 * borde * borde;
+        v += tex + 1.0 * haz(x, y);
+        p = tono(PAL.TELON, v, sx, sy, 1);
+      } else {
+        const d = (y - sueloY) / (H - sueloY);
+        v = 3.0 - 1.8 * d;
+        v += 4.0 * Math.exp(-(((x - focoX) / (150 + 90 * d)) ** 2) - (((y - (sueloY + 24)) / 26) ** 2));
+        v += 0.7 * Math.exp(-(((y - sueloY) / 6) ** 2));
+        v -= 1.8 * borde * borde;
+        v += tex * 0.6 + 0.6 * haz(x, y);
+        p = tono(PAL.SUELO, v, sx, sy, 1);
+      }
+      if (y <= PL.sueloY + 30) {
+        const k = haz(x, y);
+        if (k > 0.02) {
+          const I = 0.16 * k * suave(-40, 60, y) * (1 - suave(PL.sueloY - 10, PL.sueloY + 30, y));
+          const q = Math.floor(I * 4 + b4(sx, sy)) / 4;
+          if (q > 0) p = color((p & 255) + LUZ_HAZ[0] * q, ((p >>> 8) & 255) + LUZ_HAZ[1] * q, ((p >>> 16) & 255) + LUZ_HAZ[2] * q);
         }
       }
+      buf[i] = p;
     }
   }
-  // el haz del foco, un poco más visible que en el kit: luz cálida tramada en escalones (volumen en el aire)
-  {
-    const buf = PX.destino().buf, C = [70, 50, 34];
-    for (let sy = 0; sy < H; sy++) {
-      const y = cam.cy + (sy - CY) / cam.s;
-      if (y > PL.sueloY + 30) break;
-      for (let sx = 0; sx < W; sx++) {
-        const x = cam.cx + (sx - CX) / cam.s, k = haz(x, y);
-        if (k <= 0.02) continue;
-        const I = 0.16 * k * suave(-40, 60, y) * (1 - suave(PL.sueloY - 10, PL.sueloY + 30, y));
-        const q = Math.floor(I * 4 + b4(sx, sy)) / 4;
-        if (q <= 0) continue;
-        const i = sy * W + sx, p = buf[i];
-        buf[i] = color((p & 255) + C[0] * q, ((p >>> 8) & 255) + C[1] * q, ((p >>> 16) & 255) + C[2] * q);
-      }
-    }
-  }
-  // las motas del haz (las del kit), con la cámara: de cerca son discos desenfocados
+}
+const MOTAS = [];
+{ const rnd = mulberry32(PL.semilla * 7 + 1); for (let i = 0; i < 46; i++) MOTAS.push([rnd(), rnd(), rnd(), rnd()]); }
+function motas(cam, t) {
   const tq = paso(t, 12);
   for (const [a, b, c, d] of MOTAS) {
     const along = mezcla(70, hal + 20, a), perp = (b - 0.5) * (18 + along * 0.42) * 1.4;
@@ -151,45 +152,69 @@ function platoEn(cam, t) {
     else PX.luz(X, Y, 0.9 * cam.s, rgb(cc).map((q) => q * 0.5), 0.5, 3);
   }
 }
+// los planos fijos (el general y el medio) se pintan una vez
+const FIJOS = {};
+function platoEn(cam, t, mascara = null) {
+  const dst = PX.destino().buf;
+  if (cam.fijo && FIJOS[cam.fijo]) dst.set(FIJOS[cam.fijo].buf);
+  else platoBase(cam, dst, mascara);
+  motas(cam, t);
+}
 
 // ───────────────────────────────────────────────────────────── la cámara y el sitio de Atom en cada instante
-const S0a = 4.15, S0b = 4.35;                                    // de cerca: Atom de ~60 px de radio, con un empuje lento
+const S0a = 4.15 * S_GEN, S0b = 4.35 * S_GEN;                    // de cerca: Atom de ~60 px de radio, con un empuje lento
 const S_MED = 3.0, E_MED = [224, 78];                            // plano medio: el ojo izquierdo en E_MED
-const A_POR_S = 0.011 * PER.H;                                   // medio ancho del ojo enorme por unidad de escala (entre el
-                                                                 // ancho de la almendra del kit y el de su iris)
-const S_MIR = 12, S_FIN = OJO.FIN.a / A_POR_S;                   // la cara pasa a fotos · el ojo enorme llena la pantalla
-const E_OJO = [OJO.FIN.cx, OJO.FIN.cy + 1];                      // el ojo acaba en el centro del ojo enorme (iris con iris)
+// medio ancho del ojo enorme por unidad de escala: con 0,0135 H su iris (0,37 a) y su párpado de arriba (0,40 a + 0,03 a
+// sobre el iris) miden lo mismo que el iris (0,0052 H) y el párpado (0,0058 H) del ojo de la cara
+const A_POR_S = 0.0135 * PER.H;
+const S_FIN = OJO.FIN.a / A_POR_S;                               // el ojo enorme llena la pantalla
+const S_CENTRA = 12;                                             // a esta escala el ojo ya está en E_OJO
+const E_OJO = [OJO.FIN.cx, OJO.FIN.cy + OJO.PROP.DI * OJO.FIN.a]; // el iris de la cara acaba en el iris del ojo enorme
 const lnZ = Math.log(S_FIN / S_MED);
-// el ojo izquierdo de la persona (anclas del kit, por unidad de altura), con la pose del plano medio
+// el ojo izquierdo de la persona (anclas del kit, por unidad de altura), con la pose del empuje
 const POSE_MED = { pose: 'sostener', giro: 0.06, manos: [0.012, -0.05, 0.02], vida: false };
+const POSE_ZUM = { ...POSE_MED, cabeza: { cabeceo: 0 }, mira: [0, 0], parpadeo: 0 };
 let OJO_F = [0.025, -0.901];
 {
   const capa = PX.nuevaCapa(W, H);
   PX.en(capa, () => {
-    const an = PX.persona({ ...POSE_MED, x: 240, y: 1100, altura: 1000, t: 0, cabeza: { cabeceo: 0 }, mira: [0, 0], parpadeo: 0, partes: 'sinManos', sombra: 0 });
+    const an = PX.persona({ ...POSE_ZUM, x: 240, y: 1100, altura: 1000, t: 0, partes: 'sinManos', sombra: 0 });
     OJO_F = [(an.ojos[1][0] - 240) / 1000, (an.ojos[1][1] - 1100) / 1000];
   });
 }
 const OJO_W = [PER.x + OJO_F[0] * PER.H, PER.y + OJO_F[1] * PER.H];   // el ojo en el mundo
 const camOjo = (Ep, s) => ({ cx: OJO_W[0] - (Ep[0] - CX) / s, cy: OJO_W[1] - (Ep[1] - CY) / s, s });
+const CAM_MED = camOjo(E_MED, S_MED);
+// el avance del zum (log de la escala, 0…1): sale de parado, acelera, cruza el fundido a ritmo constante (VB por segundo)
+// y frena hasta parar con el ojo enorme entero
+const LP_A = 0.62, VB = 0.47, LP_B = LP_A + VB * ZB;
+const herm = (u, m0, m1) => { const u2 = u * u, u3 = u2 * u; return (3 * u2 - 2 * u3) + m0 * (u3 - 2 * u2 + u) + m1 * (u3 - u2); };
+function lpZum(t) {
+  const p = t - T.empuje;
+  if (p <= 0) return 0;
+  if (p < ZA) return LP_A * herm(p / ZA, 0, (VB * ZA) / LP_A);
+  if (p < ZA + ZB) return LP_A + VB * (p - ZA);
+  if (p < ZA + ZB + ZC) return LP_B + (1 - LP_B) * herm((p - ZA - ZB) / ZC, (VB * ZC) / (1 - LP_B), 0);
+  return 1;
+}
 function zum(t) {                                                // escala y sitio del ojo en el empuje
-  const lp = entraSale(prog(t, T.empuje, T.ojoZ));
-  const s = S_MED * Math.exp(lnZ * lp);
-  const w = entraSale(clamp(Math.log(s / S_MED) / Math.log(S_MIR / S_MED), 0, 1));
+  const lp = lpZum(t), s = S_MED * Math.exp(lnZ * lp);
+  const w = entraSale(clamp(Math.log(s / S_MED) / Math.log(S_CENTRA / S_MED), 0, 1));
   return { s, lp, Ep: [mezcla(E_MED[0], E_OJO[0], w), mezcla(E_MED[1], E_OJO[1], w)] };
 }
 function camara(t) {
   if (t < T.abre0) return { cx: ATOM_W[0], cy: ATOM_W[1], s: mezcla(S0a, S0b, sale(t / T.abre0)), atom: [CX, CY] };
-  if (t < T.abre1) {
-    // primero encoge en el sitio y luego viaja en curva a su sitio; el plató se ajusta para que Atom no se mueva en el mundo
-    const u = entraSale(prog(t, T.abre0, T.abre1));
-    const s = Math.exp(Math.log(S0b) * (1 - u));
+  if (t < T.entra0) {
+    // la apertura (encoge y viaja en curva a su sitio) y, sin pararse, un alejamiento lento alrededor de Atom hasta que
+    // entra la persona; el plató se ajusta para que Atom no se mueva en el mundo
+    const F = 0.96 * entraSale(prog(t, T.abre0, T.abre1)) + 0.04 * sale(prog(t, T.abre1 - 0.6, T.entra0));
+    const s = Math.exp(mezcla(Math.log(S0b), Math.log(S_GEN), F));
     const uv = entraSale(prog(t, T.abre0 + 0.3, T.abre1));
     const P = [mezcla(CX, SITIO.x, uv), mezcla(CY, SITIO.y, Math.pow(uv, 0.8))];
     return { cx: ATOM_W[0] - (P[0] - CX) / s, cy: ATOM_W[1] - (P[1] - CY) / s, s, atom: P };
   }
-  if (t < T.medio) return { ...CAM0, atom: null };
-  if (t < T.empuje) return { ...camOjo(E_MED, S_MED), atom: null };
+  if (t < T.medio) return { ...CAMG, atom: null, fijo: 'G' };
+  if (t < T.empuje) return { ...CAM_MED, atom: null, fijo: 'M' };
   const z = zum(t);
   return { ...camOjo(z.Ep, z.s), atom: null, z };
 }
@@ -208,28 +233,29 @@ function luzElipse(cx, cy, rx, ry, c, fuerza, pasos = 4) {
   }
 }
 function charcoAtom(t, cam) {
-  const [x, y] = aPant(cam, ATOM_W[0], PL.sueloY + 7), s = cam.s;
-  luzElipse(x, y, 25 * s, 5 * s, rgb(PAL.AMBAR[3]), 0.2 + 0.18 * energia(t) + 0.3 * brilloA(t), 4);
+  const [x, y] = aPant(cam, ATOM_W[0], PL.sueloY + 7), sr = cam.s / S_GEN;
+  luzElipse(x, y, 25 * sr, 5 * sr, rgb(PAL.AMBAR[3]), 0.2 + 0.18 * energia(t) + 0.3 * brilloA(t), 4);
 }
 function dibAtom(t, cam) {
   const tA = t - D;                                              // el reloj de px-ep3-ojo: en el último fotograma, t = 0
   if (cam.atom) {
-    // de cerca y en la apertura: en el mundo (crece con la cámara); bote al «hola» y un vaivén lento
-    const s = cam.s, tq = paso(t, 12);
-    const bote = Math.sin(Math.PI * entraSale(prog(t, m.hola - 0.3, m.hola + 0.6))) * 2.2 * s;
-    const vaiven = Math.sin(tq * 1.3) * 0.45 * s;
-    PX.atom({ x: cam.atom[0], y: cam.atom[1] - bote + vaiven, r: SITIO.r * s, t: tA, energia: energia(t), brillo: brilloA(t), saludo: saludo(t), velo: 0.3 });
+    // de cerca y en la apertura: en el mundo (crece con la cámara; en el plano general mide SITIO.r); bote al «hola» y un
+    // vaivén lento que se apaga antes de que entre la persona
+    const sr = cam.s / S_GEN, tq = paso(t, 12);
+    const bote = Math.sin(Math.PI * entraSale(prog(t, m.hola - 0.3, m.hola + 0.6))) * 2.2 * sr;
+    const vaiven = Math.sin(tq * 1.3) * 0.45 * sr * (1 - prog(t, T.abre1, T.entra0));
+    PX.atom({ x: cam.atom[0], y: cam.atom[1] - bote + vaiven, r: SITIO.r * sr, t: tA, energia: energia(t), brillo: brilloA(t), saludo: saludo(t), velo: 0.3 });
     return;
   }
-  // presentador: mira a la persona que llega (se inclina un píxel hacia ella) y da un saltito cuando se planta
-  const mira = t < T.medio ? suave(T.entra0 + 1.2, T.entra0 + 1.8, t) : 0;
-  const salto = Math.round(3 * Math.sin(Math.PI * prog(t, m.crees - 0.12, m.crees + 0.3)));
+  // presentador: mira a la persona que entra (se inclina un píxel hacia ella) y da un saltito cuando llega
+  const mira = t < T.medio ? suave(T.entra0 + 0.45, T.entra0 + 0.85, t) : 0;
+  const salto = Math.round(3 * Math.sin(Math.PI * prog(t, T.entra1 - 0.1, T.entra1 + 0.3)));
   PX.atom({ x: SITIO.x + Math.round(mira), y: SITIO.y - salto, r: SITIO.r, t: tA, energia: energia(t) });
 }
 // bokeh: polvo desenfocado muy cerca de la cámara en el detalle (se abre y se va con la cámara)
 const BOKEH = (() => { const rnd = mulberry32(77); return Array.from({ length: 8 }, () => [rnd() * W, rnd() * H, 8 + rnd() * 12, rnd(), rnd()]); })();
 function dibBokeh(t, cam) {
-  const k = suave(1.25, 2.6, cam.s);
+  const k = suave(1.25 * S_GEN, 2.6 * S_GEN, cam.s);
   if (k <= 0) return;
   const f = Math.pow(cam.s / S0b, 1.7), tq = paso(t, 12);
   for (const [x0, y0, r0, a, b] of BOKEH) {
@@ -295,8 +321,9 @@ function liston({ x, y, L, g, ang = 0, estira = 0, dobla = 0, mano = 0 }) {
 }
 
 // ───────────────────────────────────────────────────────────── la persona
-// andar: las piernas del kit con más paso; los brazos en contrafase; la mano de delante lleva la regla
-const AMP = 0.5, RODILLA = 0.9, GIRO_ANDA = -1.05;
+// andar: las piernas del kit con paso largo (AMP se ajusta al cargar); los brazos en contrafase; la mano de delante lleva la regla
+let AMP = 0.58;
+const RODILLA = 0.9, GIRO_ANDA = -1.15;
 const piernaAnda = (p) => ({ a: 0.03, f: -AMP * Math.sin(p), k: RODILLA * Math.max(0, Math.sin(p - 1.35)) });   // en el aire va hacia delante
 function poseAndar(C, o) {
   const ph = o.fase ?? 0, sw = Math.sin(ph);
@@ -308,8 +335,10 @@ function poseAndar(C, o) {
     piernas: [piernaAnda(ph), piernaAnda(ph + Math.PI)],
   };
 }
-// el avance sale del pie que apoya (el de la pierna estirada, que no se mueve en pantalla): tabla fina del avance por fase y ritmo que
-// la lleva a su sitio; el cuerpo avanza a 12 fps, como el dibujo
+// El avance sale del pie que apoya (el de la pierna estirada, que no se mueve en pantalla): tabla fina del avance por fase.
+// Son ANDA.n fotogramas de 12 fps a ritmo fijo (cuatro pasos y medio: el último fotograma es un pie que acaba de apoyar
+// delante) desde justo fuera del borde derecho; el largo del paso (AMP) se ajusta para que, al frenar, ese pie se quede
+// donde está mientras el cuerpo llega sobre él y las piernas se juntan, con la persona en su sitio (PER.x).
 const ANDA = (() => {
   const MUSLO = 0.47 + 0.02 - 0.27, CANILLA = 0.27 - 0.045, cg = Math.cos(GIRO_ANDA), sg = Math.sin(GIRO_ANDA);
   const tobillos = (ph) => [ph, ph + Math.PI].map((p, i) => {
@@ -320,34 +349,41 @@ const ANDA = (() => {
     return [K[0] + side * Math.sin(a2) * Math.cos(f2) * CANILLA, K[1] + Math.cos(a2) * Math.cos(f2) * CANILLA, K[2] + Math.sin(f2) * CANILLA];
   });
   const off = (A) => (A[0] * cg + A[2] * sg) * PER.H;
-  const xIni = 572, xFin = PER.x + 5, n = Math.floor((T.frena - T.entra0) * 12 + 1e-6), dph = 0.005, NT = 16000;
+  const apoyo = (ph) => (Math.sin(ph - 1.35) <= 0 ? 0 : 1);
+  const n = Math.floor((T.entra1 - 0.42 - T.entra0) * 12 + 1e-6), tw = n / 12, dph = 0.005;
+  const phF = 1.35 + 0.1 + 4 * Math.PI, w = phF / tw, NT = Math.ceil(phF / dph) + 2;
+  const xIni = CAMG.cx + (W + 0.22 * PER.H * S_GEN - CX) / S_GEN;      // justo fuera del borde derecho del plano general
   const tabla = new Float32Array(NT + 1);
-  { let X = 0, prev = tobillos(0); for (let i = 1; i <= NT; i++) { const cur = tobillos(i * dph), st = Math.sin((i - 0.5) * dph - 1.35) <= 0 ? 0 : 1; X += off(prev[st]) - off(cur[st]); tabla[i] = X; prev = cur; } }
+  const llenar = () => { let X = 0, prev = tobillos(0); for (let i = 1; i <= NT; i++) { const cur = tobillos(i * dph), st = apoyo((i - 0.5) * dph); X += off(prev[st]) - off(cur[st]); tabla[i] = X; prev = cur; } };
   const avance = (ph) => { const x = ph / dph, i = Math.min(NT - 1, Math.floor(x)); return mezcla(tabla[i], tabla[i + 1], x - i); };
-  const tw = n / 12;
-  let lo = 0.5, hi = NT * dph / tw;
-  for (let i = 0; i < 40; i++) { const w = (lo + hi) / 2; if (xIni + avance(w * tw) > xFin) lo = w; else hi = w; }
-  const w = (lo + hi) / 2;
-  return { w, n, xs: Array.from({ length: n + 1 }, (_, k) => xIni + avance(w * k / 12)), porCiclo: -avance(2 * Math.PI) };
+  const st = apoyo(phF), deCara = (st ? 1 : -1) * 0.19 * 0.27 * Math.cos(0.12) * PER.H;   // ese tobillo, de pie y de frente
+  const xFinDe = () => PER.x + deCara - off(tobillos(phF)[st]);                          // ese pie no se mueve al frenar
+  let lo = 0.3, hi = 0.95;
+  for (let it = 0; it < 30; it++) { AMP = (lo + hi) / 2; llenar(); if (xFinDe() - avance(phF) < xIni) lo = AMP; else hi = AMP; }
+  AMP = (lo + hi) / 2; llenar();
+  const xFin = xFinDe(), x0 = xFin - avance(phF);
+  const xs = Array.from({ length: n + 1 }, (_, k) => x0 + avance(w * k / 12));
+  return { w, n, xIni: x0, xFin, xs, amp: AMP, vAnda: (xs[n - 1] - xs[n]) * 12, vFreno: (3 * (xs[n] - PER.x)) / (T.planta - T.entra0 - tw), pasosPorSeg: w / Math.PI };
 })();
-const POSE_SEGURA = { manos: [0.012, -0.05, 0.02] };
-// estado de la persona en el plano general: { wx, o (opciones de persona), regla (cómo va la regla) }
+T.frena = T.entra0 + ANDA.n / 12;                                           // el último fotograma del paso
+// estado de la persona en el plano general (reloj de 12 fps desde que entra): { wx, o (opciones de persona), lleva }
 function personaGeneral(t) {
   if (t < T.entra0) return null;
-  if (t < T.frena) {
-    const k = Math.min(ANDA.n, Math.floor((t - T.entra0) * 12 + 1e-6));
+  const k = Math.floor((t - T.entra0) * 12 + 1e-6), tp = T.entra0 + k / 12;
+  if (k <= ANDA.n) {
     const ph = ANDA.w * (k / 12);
-    const mira = suave(T.frena - 0.9, T.frena, t);               // al llegar, ya mira a cámara
+    const mira = suave(T.frena - 0.6, T.frena, tp);                 // al llegar, ya mira a cámara
     return { wx: ANDA.xs[k], o: { pose: poseAndar, fase: ph, giro: GIRO_ANDA, cabeza: { giro: 0.55 * mira, cabeceo: 0.03 }, mira: [0.3 * mira, 0], vida: false, parpadeo: 0 }, lleva: 0 };
   }
+  // frena (el cuerpo sobre el pie de apoyo, las piernas se juntan), se gira a cámara y se planta
   const phF = ANDA.w * (ANDA.n / 12);
-  const u = entraSale(prog(t, T.frena, T.entra1 + 0.12));
-  const g = mezcla(GIRO_ANDA, 0.12, entraSale(prog(t, T.frena, T.entra1 + 0.3)));
-  const wx = mezcla(ANDA.xs[ANDA.n], PER.x, sale(prog(t, T.frena, T.entra1)));
-  // al llegar: cabeza alta y mirada a cámara; a mitad de la frase 2 enseña la regla (la sube un poco) y asiente
-  const ens = Math.sin(Math.PI * entraSale(prog(t, m.crees + 0.7, m.crees + 2.0)));
+  const u = sale(prog(tp, T.frena, T.planta));
+  const g = mezcla(GIRO_ANDA, 0.12, u);
+  const wx = mezcla(ANDA.xs[ANDA.n], PER.x, u);
+  // plantada: cabeza alta y mirada a cámara; parpadea y enseña la regla (la sube un poco) y asiente
+  const ens = Math.sin(Math.PI * entraSale(prog(tp, T.planta + 0.03, T.medio - 0.1)));
   const cab = { giro: 0.55 * (1 - u) - 0.05 * u, cabeceo: 0.03 + 0.06 * u - 0.07 * ens };
-  const parp = Math.abs(t - (m.creesFin + 0.25)) < 0.07 ? 1 : 0;
+  const parp = Math.abs(tp - (T.entra1 + 0.1)) < 0.09 ? 1 : 0;
   const manos = [0.012, -0.05 - 0.035 * ens, 0.02 + 0.03 * ens];
   const pose = u >= 1 ? 'sostener' : { de: poseAndar, a: 'sostener', u };
   return { wx, o: { pose, fase: phF, giro: g, manos, cabeza: cab, mira: [-0.05 * u, -0.1 * u], vida: u >= 1, parpadeo: parp }, lleva: u };
@@ -365,10 +401,10 @@ function reglaEn(an, s, lleva, extra = {}) {
     L: L0 * mezcla(fl, 1, u), g: g0, ang: mezcla(angL, angS, u), mano: u * Math.hypot(b[0] - a[0], b[1] - a[1]) / 2, ...extra,
   };
 }
-// la persona con la regla entre el cuerpo y los dedos, en una capa (para la sombra proyectada)
+// la persona con la regla entre el cuerpo y los dedos, en una capa (máscara del plató y sombra proyectada)
 const capaP = PX.nuevaCapa(W, H);
 const mascara = new Uint8Array(W * H);
-function dibPersona(cam, t, st, reglaExtra, { sombraProy = 0 } = {}) {
+function rasterP(cam, t, st, reglaExtra) {
   const [x, y] = aPant(cam, st.wx ?? PER.x, PER.y), Hp = PER.H * cam.s;
   if (x - 0.35 * Hp > W || x + 0.35 * Hp < 0) return null;
   capaP.buf.fill(0);
@@ -380,32 +416,31 @@ function dibPersona(cam, t, st, reglaExtra, { sombraProy = 0 } = {}) {
     liston(reglaEn(an, cam.s, st.lleva ?? 1, reglaExtra));
     PX.persona({ ...o, partes: 'manos' });
   });
-  if (sombraProy > 0) {
-    // sombra proyectada: la luz viene de arriba a la izquierda y de delante; cae hacia atrás y a la derecha, por el suelo
-    // y el ciclorama; más suave cuanto más lejos de los pies
-    mascara.fill(0);
-    const fy = Math.round(y);
-    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
-      if (!capaP.buf[j * W + i]) continue;
-      const h = fy - j; if (h < -2) continue;
-      const X = Math.round(i + h * 0.62), Y = Math.round(fy - Math.max(0, h) * 0.3);
-      if (X < 0 || Y < 0 || X >= W || Y >= H) continue;
-      const q = Math.round(255 * clamp(1 - h / (Hp * 1.25), 0.15, 1));
-      if (q > mascara[Y * W + X]) mascara[Y * W + X] = q;
-    }
-    const buf = PX.destino().buf;
-    for (let i = 0; i < W * H; i++) {
-      const q0 = mascara[i]; if (!q0) continue;
-      const xx = i % W, yy = (i / W) | 0;
-      const q = Math.floor((q0 / 255) * sombraProy * 4 + b4(xx, yy)) / 4;
-      if (q <= 0) continue;
-      const p = buf[i], f = 1 - Math.min(0.85, q);
-      buf[i] = color((p & 255) * f, ((p >>> 8) & 255) * f, ((p >>> 16) & 255) * f * 1.04);
-    }
-    PX.sombra(Math.round(x) + Hp * 0.03, Math.round(y) + 1, Hp * 0.2, Math.max(2, Hp * 0.035), 0.5);
+  return { an, x, y, Hp };
+}
+// sombra proyectada: la luz viene de arriba a la izquierda y de delante; cae hacia atrás y a la derecha, por el suelo y el
+// ciclorama; más suave cuanto más lejos de los pies
+function sombraP(P, fuerza) {
+  mascara.fill(0);
+  const fy = Math.round(P.y);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    if (!capaP.buf[j * W + i]) continue;
+    const h = fy - j; if (h < -2) continue;
+    const X = Math.round(i + h * 0.62), Y = Math.round(fy - Math.max(0, h) * 0.3);
+    if (X < 0 || Y < 0 || X >= W || Y >= H) continue;
+    const q = Math.round(255 * clamp(1 - h / (P.Hp * 1.25), 0.15, 1));
+    if (q > mascara[Y * W + X]) mascara[Y * W + X] = q;
   }
-  PX.pegar(capaP);
-  return an;
+  const buf = PX.destino().buf;
+  for (let i = 0; i < W * H; i++) {
+    const q0 = mascara[i]; if (!q0) continue;
+    const xx = i % W, yy = (i / W) | 0;
+    const q = Math.floor((q0 / 255) * fuerza * 4 + b4(xx, yy)) / 4;
+    if (q <= 0) continue;
+    const p = buf[i], f = 1 - Math.min(0.85, q);
+    buf[i] = color((p & 255) * f, ((p >>> 8) & 255) * f, ((p >>> 16) & 255) * f * 1.04);
+  }
+  PX.sombra(Math.round(P.x) + P.Hp * 0.03, Math.round(P.y) + 1, P.Hp * 0.2, Math.max(2, P.Hp * 0.035), 0.5);
 }
 // plano medio: la regla se estira como una goma y se dobla; luego, quieta
 function reglaMedio(t) {
@@ -418,9 +453,11 @@ function personaMedio(t) {
   const baja = entraSale(prog(t, m.nolo - 0.05, m.nolo + 0.4)) * (1 - entraSale(prog(t, m.noloFin + 0.6, m.noloFin + 1.3)));
   const sorpresa = Math.sin(Math.PI * prog(t, m.nolo + 0.0, m.nolo + 0.5));
   const parp = Math.abs(t - (m.noloFin + 1.05)) < 0.07 ? 1 : 0;
+  // tras el parpadeo, la barbilla y la mirada se asientan en la pose del empuje (POSE_ZUM): el zum empieza sin saltos
+  const z = entraSale(prog(t, m.noloFin + 0.95, m.noloFin + 1.45));
   return {
     wx: PER.x,
-    o: { ...POSE_MED, cabeza: { cabeceo: 0.06 * (1 - baja) - 0.32 * baja, ladeo: 0.05 * sorpresa }, mira: [0, 0.95 * baja - 0.02], parpadeo: parp },
+    o: { ...POSE_MED, cabeza: { cabeceo: 0.06 * (1 - baja) * (1 - z) - 0.32 * baja, ladeo: 0.05 * sorpresa }, mira: [0, 0.95 * baja - 0.02 * (1 - z)], parpadeo: parp },
     lleva: 1,
   };
 }
@@ -434,52 +471,182 @@ const COSAS = [
 ];
 // el ojo mira lo que aparece (sacadas rápidas): la célula, el átomo y arriba la galaxia; al centro antes de que baje el
 // párpado de arriba (el final tiene la mirada al frente)
-const SACADAS = () => [[T.fun1 + 0.3, [-0.13, 0.09]], [T.fun1 + 0.62, [0.13, 0.09]], [T.fun1 + 0.9, [0.02, -0.13]], [T.arriba0 - 0.12, [0, 0]]];
+const SACADAS = () => [[T.fun1 + 0.25, [-0.13, 0.09]], [T.fun1 + 0.5, [0.13, 0.09]], [T.fun1 + 0.75, [0.02, -0.13]], [T.arriba0 - 0.12, [0, 0]]];
 function mirada(t) {
   let g = [0, 0];
   for (const [t0, d] of SACADAS()) { const u = suave(t0, t0 + 0.07, t); g = [mezcla(g[0], d[0], u), mezcla(g[1], d[1], u)]; }
   return g;
 }
-function estadoOjo(t, a) {
+// Ep: el iris de la cara en pantalla; el centro del ojo enorme (el corte de los párpados) queda PROP.DI·a por encima
+function estadoOjo(t, a, Ep) {
   const kb = entraSale(prog(t, T.abajo0, T.abajo1)), ka = entraSale(prog(t, T.arriba0, T.arriba1));
-  const cx = OJO.FIN.cx, cy = OJO.FIN.cy;
+  const cx = Ep[0], cy = Ep[1] - OJO.PROP.DI * a;
   const cosas = COSAS.map((c) => {
     const k = c.lid === 'abajo' ? kb : ka;
     return { tipo: c.tipo, x: cx + c.u * a, y: cy + c.v * a, r: c.r * a, giro: c.giro, aparece: sale(prog(t, T.fun1 + c.ap, T.fun1 + 0.4 + c.ap)), apagado: suave(0.12, c.lid === 'abajo' ? 0.62 : 0.85, k) };
   }).filter((c) => c.aparece > 0);
   return { cx, cy, a, arriba: ka, abajo: kb, mirada: mirada(t), pupila: 0.5, t: 0, cosas, franja: { ancho: sale(prog(t, T.fun1 - 0.15, T.fun1 + 0.45)) } };
 }
-// fotos de la cara a varias escalas (el ojo en E_OJO), para lo que asoma alrededor de la mirilla mientras se abre
-const POSE_ZUM = { ...POSE_MED, cabeza: { cabeceo: 0 }, mira: [0, 0], parpadeo: 0 };
-function pintarCara(s, Ep, t) {
-  const cam = camOjo(Ep, s), Hp = PER.H * s;
-  platoEn(cam, t);
-  PX.persona({ ...POSE_ZUM, x: Ep[0] - OJO_F[0] * Hp, y: Ep[1] - OJO_F[1] * Hp, altura: Hp, t, partes: 'todo', sombra: 0 });
+
+// La ceja del ojo enorme son pelos sueltos que, a media escala, parecen ruido, y la de la cara (más alta) ya se ha ido por
+// arriba: se borra repintando la piel del kit en cada pelo. (Copia exacta del sombreado de la piel de kits/pixel-ep03-ojo.js,
+// que es de solo lectura: su campo de alturas, su luz y su tramado.)
+const nrm = (v) => { const l = Math.hypot(v[0], v[1], v[2]); return v.map((x) => x / l); };
+const LKo = nrm([-0.46, -0.56, 0.69]), LRo = nrm([0.9, -0.18, -0.4]);
+const perfilU = (u) => { const q = clamp(1 - u * u, 0, 1); return Math.pow(q, 0.72) * (1 - 0.16 * u) / 1.0; };
+const vPliegue = (u) => -(OJO.PROP.HU * perfilU(clamp(u, -0.999, 0.999)) + 0.12) - 0.035 * u;
+function alturaPiel(u, v, vU, vL, abU) {
+  let h = 0;
+  h -= 0.07 * Math.exp(-(u * u) / 1.6 - ((v + 0.05) * (v + 0.05)) / 0.35);
+  const bu = u / 1.18, bv = (v - 0.02) / (v > 0.02 ? 0.5 : 0.66), bq = 1 - bu * bu - bv * bv;
+  if (bq > 0) h += 0.1 * suave(0, 0.85, bq);
+  const vb = v + 0.9 - 0.12 * u;
+  h += 0.12 * Math.exp(-(vb * vb) / 0.05) * Math.exp(-(u * u) / 2.6);
+  h += 0.1 * Math.exp(-((u - 0.25) * (u - 0.25)) / 0.8 - ((v - 1.0) * (v - 1.0)) / 0.15);
+  const ku = Math.exp(-Math.pow(Math.abs(u) / 1.08, 6));
+  const vC = vPliegue(u);
+  h -= 0.02 * (0.3 + 0.7 * abU) * Math.exp(-((v - vC) * (v - vC)) / 0.0007) * ku;
+  const kb = suave(1, 0.82, Math.abs(u));
+  if (vU != null && v > vC && v < vU) h += 0.024 * Math.pow(Math.sin(Math.PI * (v - vC) / (vU - vC)), 0.8) * ku * kb;
+  if (vL != null && v > vL && v < vL + 0.1) h += 0.012 * Math.sin(Math.PI * (v - vL) / 0.1) * kb;
+  if (vL != null) h -= 0.014 * Math.exp(-((v - vL - 0.19) * (v - vL - 0.19)) / 0.004) * Math.exp(-((u - 0.05) * (u - 0.05)) / 0.5);
+  return h;
 }
-const CARAS = [];
-for (let k = 0; k < 10; k++) {
-  const s = S_MIR * Math.pow(2, k / 3), capa = PX.nuevaCapa(W, H);
-  PX.en(capa, () => pintarCara(s, E_OJO, 0));
-  CARAS.push({ s, capa });
-}
-const capaOjo = PX.nuevaCapa(W, H);
-// fundido tramado (Bayer 8×8) que nace en (cx, cy) y se abre en elipse hacia los bordes
-function fundido(capa, q, cx, cy) {
-  const buf = PX.destino().buf, Rm = Math.hypot(W / 2, (H / 2) * 1.7);
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const d = Math.hypot(x + 0.5 - cx, (y + 0.5 - cy) * 1.7) / Rm;
-    if (PX.b8(x, y) < q * 1.9 - d * 0.9) buf[y * W + x] = capa.buf[y * W + x];
+const PELOS = new Set(PAL.PELO);
+function borrarCeja(capa, O) {
+  const { cx, cy, a } = O, abU = 1 - clamp(O.arriba, -0.15, 1), bordes = OJO.bordesOjo(O), buf = capa.buf;
+  const altura = (X, Y) => {
+    const xc = X + 0.5, b = bordes(xc);
+    return alturaPiel((xc - cx) / a, (Y + 0.5 - cy) / a, b ? (b[0] - cy) / a : null, b ? (b[1] - cy) / a : null, abU);
+  };
+  // los pelos de la ceja caen en u de −1,3 a 1,3 y v de −1,12 a −0,67 (las pestañas de arriba no pasan de −0,55)
+  const y0 = Math.max(0, Math.floor(cy - 1.16 * a)), y1 = Math.min(H - 1, Math.ceil(cy - 0.63 * a));
+  const x0 = Math.max(0, Math.floor(cx - 1.36 * a)), x1 = Math.min(W - 1, Math.ceil(cx + 1.34 * a));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    const i = y * W + x;
+    if (!PELOS.has(buf[i])) continue;
+    const gx = (altura(x + 1, y) - altura(x - 1, y)) * 0.5 * a, gy = (altura(x, y + 1) - altura(x, y - 1)) * 0.5 * a;
+    const n = [-gx * 1.5, -gy * 1.5, 1], nl = Math.hypot(n[0], n[1], n[2]);
+    const lam = Math.max(0, (n[0] * LKo[0] + n[1] * LKo[1] + n[2] * LKo[2]) / nl), rim = Math.max(0, (n[0] * LRo[0] + n[1] * LRo[1] + n[2] * LRo[2]) / nl);
+    const u = (x + 0.5 - cx) / a, v = (y + 0.5 - cy) / a;
+    let lv = 1.9 + 3.9 * (0.1 + 0.9 * lam) + (rim > 0.35 ? Math.min(0.6, (rim - 0.35) * 1.4) : 0);
+    lv -= 0.5 * suave(0.95, 2.0, Math.hypot(u * 0.75, v * 1.05));
+    lv -= 0.45 * Math.exp(-((v + 0.68) * (v + 0.68)) / 0.02) * Math.exp(-(u * u) / 1.4);
+    if (a >= 60) lv += 0.16 * (vnoise(x * 0.45 + 7, y * 0.45) - 0.5) + 0.1 * (vnoise(x * 1.3, y * 1.3) - 0.5);
+    buf[i] = tono(PAL.PIEL, lv, x, y, 0.4);
   }
 }
-// el fundido va de cuando la cara mide S_FUN0 a cuando mide S_FUN1 (el ojo de la cara, de unos 70 a 150 px de ancho)
-{
-  const S_FUN0 = 30, S_FUN1 = 72;
-  const cuando = (S) => { let lo = T.empuje, hi = T.ojoZ; for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (zum(mid).s < S) lo = mid; else hi = mid; } return (lo + hi) / 2; };
-  T.fun0 = cuando(S_FUN0); T.fun1 = Math.max(cuando(S_FUN1), T.fun0 + 0.25);
+// la viñeta del kit (la piel se apaga lejos del ojo), aplicada aquí después de borrar la ceja
+function vinetaKit(capa, O, vineta) {
+  if (vineta <= 0) return;
+  const { cx, cy, a } = O, buf = capa.buf;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const d = Math.hypot((x + 0.5 - cx) / (a * 1.75), (y + 0.5 - cy) / (a * 1.1));
+    const q = Math.floor(clamp((d - 0.72) * 0.9, 0, 0.6) * vineta * 5 + b4(x, y)) / 5;
+    if (q > 0) { const i = y * W + x, p = buf[i], f = 1 - q; buf[i] = color((p & 255) * f * 0.97, ((p >>> 8) & 255) * f, ((p >>> 16) & 255) * f * 1.04); }
+  }
+}
+
+// Exposición del ojo del kit dentro de su paleta: cada color de una rampa (piel, esclera, iris…) pasa al nivel de la misma
+// rampa con la luminancia multiplicada por k (nivel fraccionario, tramado Bayer como el kit). Lo que no es de una rampa (la
+// franja, los brillos) no cambia. Va antes de la viñeta.
+const RAMPAS = [PAL.PIEL, PAL.PELO, ...Object.values(OJO.PALO)];
+const EN_RAMPA = new Map();
+RAMPAS.forEach((R, r) => R.forEach((c, j) => { if (!EN_RAMPA.has(c)) EN_RAMPA.set(c, r * 64 + j); }));
+const LUMS = RAMPAS.map((R) => R.map(PX.luma));
+function nivelCon(L, Y) {
+  if (Y <= L[0]) return 0;
+  for (let j = 0; j < L.length - 1; j++) if (Y <= L[j + 1]) return j + (Y - L[j]) / Math.max(1e-6, L[j + 1] - L[j]);
+  return L.length - 1;
+}
+function exponer(capa, k) {
+  if (Math.abs(k - 1) < 1e-4) return;
+  const NIV = LUMS.map((L) => L.map((y) => nivelCon(L, y * k))), buf = capa.buf;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, rj = EN_RAMPA.get(buf[i]);
+    if (rj === undefined) continue;
+    const r = rj >> 6, j = rj & 63;
+    buf[i] = tono(RAMPAS[r], NIV[r][j], x, y, 1);
+  }
+}
+// fundido tramado (Bayer 8×8): cada píxel es de la cara o del ojo, nunca una mezcla; w(x, y) es la parte de ojo
+function fundir(cara, ojo, wFn) {
+  const out = PX.destino().buf;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    out[i] = b8(x, y) < wFn(x, y) ? ojo.buf[i] : cara.buf[i];
+  }
+}
+
+const capaOjo = PX.nuevaCapa(W, H), capaCara = PX.nuevaCapa(W, H);
+function vinetaOjo(t) { return suave(T.fun1 - 0.2, T.ojoZ, t); }
+function capaKit(O, conCeja, k = 1) {
+  PX.en(capaOjo, () => OJO.ojo({ ...O, vineta: 0 }));
+  if (!conCeja) borrarCeja(capaOjo, O);
+  exponer(capaOjo, k);
+  vinetaKit(capaOjo, O, O.vineta);
+}
+// la cara en vivo, a la escala exacta del fotograma: la persona primero y el plató solo donde no la tapa
+function pintarCara(t, cam, destino) {
+  PX.en(destino, () => {
+    const P = rasterP(cam, t, { wx: PER.x, o: POSE_ZUM, lleva: 1 }, reglaMedio(t));
+    platoEn(cam, t, P ? capaP.buf : null);
+    if (P) PX.pegar(capaP);
+  });
+}
+// exposición: la luminancia media de la piel alrededor del ojo en la cara y en el ojo del kit, en un anillo fuera de los párpados
+const PIELES = new Set(PAL.PIEL);
+function medirK(t) {
+  const cam = camara(t), a = Math.min(OJO.FIN.a, A_POR_S * cam.s), O = estadoOjo(t, a, cam.z.Ep);
+  O.vineta = 0;
+  capaKit(O, false);
+  pintarCara(t, cam, capaCara);
+  const icx = O.cx, icy = O.cy + OJO.PROP.DI * a, sA = [0, 0], sB = [0, 0];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const rho = Math.hypot((x + 0.5 - icx) / a, (y + 0.5 - icy) / (0.8 * a));
+    if (rho < 1.2 || rho > 2.4) continue;
+    const i = y * W + x;
+    if (PIELES.has(capaCara.buf[i])) { sA[0] += PX.luma(capaCara.buf[i]); sA[1]++; }
+    if (PIELES.has(capaOjo.buf[i])) { sB[0] += PX.luma(capaOjo.buf[i]); sB[1]++; }
+  }
+  return clamp(sA[0] / sA[1] / (sB[0] / sB[1]), 0.55, 1.1);
+}
+const K0 = medirK(T.fun0), K1 = medirK(T.fun1 - 1e-4);
+// La cara se funde con el ojo enorme: primero el ojo (la almendra con sus párpados, los dos de una vez: no queda el párpado
+// viejo sobre el iris nuevo) y luego, desde ahí hacia los bordes, la piel; el ojo del kit entra con la exposición de la cara
+// y la recupera en 0,55 s. Tras el fundido sigue el ojo solo.
+function pesoFundido(q, O, a) {
+  const icx = O.cx, ey0 = O.cy + OJO.PROP.DI * a - 0.12 * a, rx = 1.15 * a, ry = 0.68 * a;
+  const dEm = Math.max(...[[0, 0], [W, 0], [0, H], [W, H]].map(([x, y]) => Math.hypot((x - icx) / rx, (y - ey0) / ry)));
+  return (x, y) => {
+    const dE = Math.hypot((x + 0.5 - icx) / rx, (y + 0.5 - ey0) / ry);
+    if (dE <= 1) return (q - 0.06 * dE) / 0.2;
+    const dn = (dE - 1) / (dEm - 1);
+    return (q - 0.06 - 0.5 * dn) / (0.2 + 0.24 * Math.min(1, dn * 4));
+  };
+}
+function ojoEnorme(t, cam) {
+  const a = Math.min(OJO.FIN.a, A_POR_S * cam.s);
+  const O = estadoOjo(t, a, cam.z.Ep);
+  O.vineta = vinetaOjo(t);
+  const conCeja = t >= T.ojoZ - 0.25, expo = t < T.fun1 + 0.55;
+  if (conCeja && !expo) { OJO.ojo(O); return; }                  // el ojo del kit tal cual
+  if (t < T.fun1) {
+    const q = prog(t, T.fun0, T.fun1);
+    capaKit(O, conCeja, mezcla(K0, K1, q));
+    pintarCara(t, cam, capaCara);
+    fundir(capaCara, capaOjo, pesoFundido(q, O, a));
+  } else {
+    capaKit(O, conCeja, mezcla(K1, 1, entraSale(prog(t, T.fun1, T.fun1 + 0.55))));
+    PX.pegar(capaOjo, 0, 0, { opaco: true });
+  }
 }
 const FINAL = PX.nuevaCapa(W, H);                                // la foto del final (= el principio de px-ep3-ojo)
 PX.en(FINAL, () => OJO.pintarFinalHola());
 const finalHola = () => PX.pegar(FINAL, 0, 0, { opaco: true });
+
+// los platós de los planos fijos
+for (const [k, cam] of [['G', CAMG], ['M', CAM_MED]]) { const c = PX.nuevaCapa(W, H); platoBase(cam, c.buf); FIJOS[k] = c; }
 
 // ───────────────────────────────────────────────────────────── dibujar(t)
 function dibujar(t) {
@@ -490,30 +657,24 @@ function dibujar(t) {
     charcoAtom(t, cam);
     const st = personaGeneral(t);
     if (st) {
-      const an = dibPersona(cam, t, st, {}, { sombraProy: cam.s < 1.2 ? 0.42 : 0 });
-      if (an && esCam0(cam)) window.__persona = { centro: [Math.round(aPant(cam, st.wx, PER.y)[0]) * 4, PER.y * 4], coronilla: an.coronilla * 4, suela: an.suela * 4 };
+      const P = rasterP(cam, t, st, {});
+      if (P) {
+        sombraP(P, 0.42);
+        PX.pegar(capaP);
+        if (t >= T.planta) window.__persona = { centro: [Math.round(P.x) * 4, Math.round(P.y) * 4], coronilla: P.an.coronilla * 4, suela: P.an.suela * 4 };
+      }
     }
     dibAtom(t, cam);
     dibBokeh(t, cam);
-  } else if (t < T.empuje || cam.s < S_MIR) {
-    // plano medio y primera parte del empuje: el plató y la persona se vuelven a pintar a cada escala
-    platoEn(cam, t);
+  } else if (t < T.fun0) {
+    // plano medio y primera parte del empuje: la persona se vuelve a pintar a cada escala y el plató donde no la tapa
     const st = t < T.empuje ? personaMedio(t) : { wx: PER.x, o: POSE_ZUM, lleva: 1 };
-    dibPersona(cam, t, st, reglaMedio(t));
+    const P = rasterP(cam, t, st, reglaMedio(t));
+    platoEn(cam, t, P && !cam.fijo ? capaP.buf : null);
+    if (P) PX.pegar(capaP);
     dibAtom(t, cam);
   } else if (t < T.arriba1) {
-    // la cara sigue acercándose (fotos a escalas cada vez mayores, nunca ampliadas más de 1,26 veces) y el ojo enorme del kit
-    // aparece encima con un fundido tramado que nace en el ojo y se abre hacia los bordes; luego el ojo sigue creciendo solo
-    const s = cam.s, a = Math.min(OJO.FIN.a, A_POR_S * s);
-    const O = estadoOjo(t, a);
-    O.vineta = suave(0.35, 1, cam.z.lp);
-    const q = prog(t, T.fun0, T.fun1);
-    if (q >= 1) OJO.ojo(O);
-    else {
-      let k = 0; while (k < CARAS.length - 1 && CARAS[k + 1].s <= s) k++;
-      PX.ampliar(CARAS[k].capa, E_OJO[0], E_OJO[1], s / CARAS[k].s, E_OJO[0], E_OJO[1]);
-      if (q > 0) { PX.en(capaOjo, () => OJO.ojo(O)); fundido(capaOjo, q, O.cx, O.cy); }
-    }
+    ojoEnorme(t, cam);
     dibAtom(t, cam);
   } else {
     // el final: los dos párpados cerrados sobre la franja (foto) y Atom en su sitio
@@ -523,7 +684,7 @@ function dibujar(t) {
   PX.presentar(t);
 }
 window.__fin = { ojo: OJO.FIN, atom: { ...SITIO, t: 0, energia: 0 }, desde: T.arriba1 };
-window.__tiempos = T;
+window.__tiempos = { ...T, K0, K1, anda: { n: ANDA.n, amp: ANDA.amp, xIni: ANDA.xIni, xFin: ANDA.xFin, vAnda: ANDA.vAnda, vFreno: ANDA.vFreno, pasosPorSeg: ANDA.pasosPorSeg } };
 E.iniciar(dibujar);
 </script>
 </body>

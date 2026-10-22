@@ -58,7 +58,6 @@ const m = { h: M('humanidad'), hF: M('humanidad_fin'), s: M('silla'), sF: M('sil
 const QUIETO = D - 0.6;
 window.__carga = [['inicio', Math.round(performance.now())]];
 const W = 1920, H = 1080;
-const busq = new URLSearchParams(location.search);
 
 // tiempos de ep3-casa (para que el fotograma 0 sea su último)
 let CASA = { duracion: 21.381, marcas: { tutambien: 15.886, tutambien_fin: 16.719 } };
@@ -134,7 +133,7 @@ const P = await crearPlato({
   piezas: ['reglaA', 'flecha', 'humano', 'multitud', 'cucharilla', 'terron', 'cajon', 'silla', 'chispas', 'chispas', 'glifo:?', 'cuenta'],
   tiposExtra: { ...tiposTocar(['multitud', 'cucharilla', 'terron', 'cajon', 'silla', 'chispas']), cuenta: CUENTA },
   alfa: true, post: false, mano: true,
-  sombraFondo: (busq.get('sf') ?? 'p2,p6,p7').split(','),
+  sombraFondo: ['p2', 'p6', 'p7'],   // la persona, la cómoda y la silla (Atom va en otra pasada, sin sombra, como en ep3-casa)
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
 });
 const POST = crearPost();
