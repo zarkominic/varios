@@ -21,9 +21,10 @@
 //         sitio y la cámara que aún se aleja, muy despacio, alrededor de él (el plano general queda algo más cerrado que el
 //         plató entero del kit: ×1,3).
 //  crees  LA ENTRADA ES EL GOLPE DE LA FRASE (como en la plastilina): 0,3 s antes de «crees» la persona entra por la
-//         derecha a paso decidido, con la regla de boj en la mano (12 fps; el avance sale de la pierna de apoyo: los pies
-//         no patinan), y 1,75 s después de la marca se planta en su sitio, a la izquierda (al frenar, el pie de apoyo se
-//         queda donde está y el cuerpo llega sobre él); se gira a cámara, parpadea y enseña la regla con aire seguro.
+//         derecha a paso decidido, con la regla de boj en la mano (12 fps; el avance sale del pie que apoya, medido en las
+//         anclas del kit: los pies no patinan), y 1,75 s después de la marca se planta en su sitio, a la izquierda (al
+//         frenar, el pie de delante se queda donde está, el de atrás se levanta y se junta con él); se gira a cámara,
+//         parpadea y enseña la regla con aire seguro.
 //         Atom la mira cuando entra y da un saltito al verla llegar. Sombra proyectada en el suelo y el ciclorama.
 //  nolosabes  PLANO MEDIO (corte): la regla se estira como una goma (las marcas se separan) y se dobla en sus manos; la
 //         persona baja la vista a mirarla; en los 2 s de silencio la regla doblada queda quieta, la persona levanta la
@@ -31,12 +32,13 @@
 //  ojos   EMPUJE: un solo zum continuo del plano medio a su ojo izquierdo; la persona se vuelve a pintar EN VIVO a la escala
 //         exacta de cada fotograma (nunca se amplía nada: la rejilla de píxeles es siempre la misma). Con su ojo de unos
 //         60 px, la cara se funde en 0,45 s con el ojo enorme del kit, alineado iris con iris (mismo tamaño de iris y mismo
-//         párpado de arriba): la mezcla se hace en color y se vuelve a la paleta con tramado Bayer; el ojo del kit entra con
-//         la luz de la cara (misma exposición) y la recupera en 0,55 s; su ceja de pelos sueltos se borra (se repinta la piel
-//         del kit) mientras el zum la tenga en cuadro: la ceja de la cara ya ha salido por arriba. Delante se abre la franja
-//         de luz. Aparecen una célula y un átomo (abajo) y el otro lado de la galaxia (arriba, sobre la pupila) y el ojo los
-//         mira (sacadas); a mitad de frase el párpado de abajo sube y apaga la célula y el átomo, y luego el de arriba baja y
-//         apaga la galaxia: queda solo la franja.
+//         párpado de arriba): fundido tramado (cada píxel es de una de las dos imágenes); primero la almendra entera con sus
+//         párpados (en 0,1 s: no queda el párpado viejo sobre el iris nuevo) y luego la piel, desde el ojo hacia los bordes.
+//         El ojo del kit entra con la luz de la cara (su exposición, dentro de sus rampas) y la recupera en 0,55 s; su ceja de
+//         pelos sueltos se borra (se repinta la piel del kit) mientras el zum la tenga en cuadro: la ceja de la cara ya ha
+//         salido por arriba. Delante se abre la franja de luz. Aparecen una célula y un átomo (abajo) y el otro lado de la
+//         galaxia (arriba, sobre la pupila) y el ojo los mira (sacadas); a mitad de frase el párpado de abajo sube y apaga la
+//         célula y el átomo, y luego el de arriba baja y apaga la galaxia: queda solo la franja.
 // FINAL = PRINCIPIO DE px-ep3-ojo: desde que se cierra el párpado de arriba (T.arriba1) el cuadro es OJO.pintarFinalHola() más
 // Atom en PX.ATOM_SITIO con el reloj t − duración (en el último fotograma, t = 0) y energía 0. window.__fin lo resume.
 // Coste (sin GPU): el plató general y el del plano medio se pintan una vez al cargar; en el empuje, la persona en vivo y el
@@ -335,35 +337,43 @@ function poseAndar(C, o) {
     piernas: [piernaAnda(ph), piernaAnda(ph + Math.PI)],
   };
 }
-// El avance sale del pie que apoya (el de la pierna estirada, que no se mueve en pantalla): tabla fina del avance por fase.
-// Son ANDA.n fotogramas de 12 fps a ritmo fijo (cuatro pasos y medio: el último fotograma es un pie que acaba de apoyar
-// delante) desde justo fuera del borde derecho; el largo del paso (AMP) se ajusta para que, al frenar, ese pie se quede
-// donde está mientras el cuerpo llega sobre él y las piernas se juntan, con la persona en su sitio (PER.x).
+// Los pies no patinan: el cuerpo avanza lo que retrocede, respecto a él, el tobillo de la pierna que apoya, medido en las
+// anclas del propio kit (persona(…).pies) en cada fotograma de 12 fps. Son ANDA.n fotogramas a ritmo fijo (cuatro pasos y
+// medio: en el último, un pie acaba de apoyar delante) desde justo fuera del borde derecho. Al frenar (ANDA.J fotogramas,
+// hasta T.planta) ese pie se queda donde está mientras las piernas se juntan y el cuerpo se gira a cámara. El largo del paso
+// (AMP) se ajusta al cargar para que todo acabe con la persona en su sitio (PER.x).
+// al frenar, la pierna de delante (apoyada) se endereza bajo el cuerpo y la de atrás se levanta (dobla la rodilla) y se
+// junta con ella; los brazos pasan de llevar la regla a sostenerla con las dos manos
+const piernasFreno = (u, phF) => {
+  const r = piernaAnda(phF), d = piernaAnda(phF + Math.PI);
+  return [{ a: mezcla(r.a, 0.035, u), f: r.f * (1 - u), k: r.k * (1 - u) + 0.7 * Math.sin(Math.PI * u) }, { a: mezcla(d.a, 0.035, u), f: d.f * (1 - u), k: d.k * (1 - u) }];
+};
+const POSE_FRENO = (u, phF) => ({
+  pose: u >= 1 ? 'sostener' : { de: (C, o) => ({ ...poseAndar(C, { fase: phF }), piernas: piernasFreno(u, phF) }), a: (C, o) => ({ ...PX.POSES.sostener(C, o), piernas: piernasFreno(u, phF) }), u },
+  fase: phF, giro: mezcla(GIRO_ANDA, 0.12, u),
+});
 const ANDA = (() => {
-  const MUSLO = 0.47 + 0.02 - 0.27, CANILLA = 0.27 - 0.045, cg = Math.cos(GIRO_ANDA), sg = Math.sin(GIRO_ANDA);
-  const tobillos = (ph) => [ph, ph + Math.PI].map((p, i) => {
-    const side = i ? 1 : -1, P = piernaAnda(p);
-    const Hj = [side * 0.19 * 0.27, -0.49, 0];
-    const K = [Hj[0] + side * Math.sin(P.a) * Math.cos(P.f) * MUSLO, Hj[1] + Math.cos(P.a) * Math.cos(P.f) * MUSLO, Hj[2] + Math.sin(P.f) * MUSLO];
-    const f2 = P.f - P.k, a2 = P.a * 0.5;
-    return [K[0] + side * Math.sin(a2) * Math.cos(f2) * CANILLA, K[1] + Math.cos(a2) * Math.cos(f2) * CANILLA, K[2] + Math.sin(f2) * CANILLA];
-  });
-  const off = (A) => (A[0] * cg + A[2] * sg) * PER.H;
   const apoyo = (ph) => (Math.sin(ph - 1.35) <= 0 ? 0 : 1);
-  const n = Math.floor((T.entra1 - 0.42 - T.entra0) * 12 + 1e-6), tw = n / 12, dph = 0.005;
-  const phF = 1.35 + 0.1 + 4 * Math.PI, w = phF / tw, NT = Math.ceil(phF / dph) + 2;
-  const xIni = CAMG.cx + (W + 0.22 * PER.H * S_GEN - CX) / S_GEN;      // justo fuera del borde derecho del plano general
-  const tabla = new Float32Array(NT + 1);
-  const llenar = () => { let X = 0, prev = tobillos(0); for (let i = 1; i <= NT; i++) { const cur = tobillos(i * dph), st = apoyo((i - 0.5) * dph); X += off(prev[st]) - off(cur[st]); tabla[i] = X; prev = cur; } };
-  const avance = (ph) => { const x = ph / dph, i = Math.min(NT - 1, Math.floor(x)); return mezcla(tabla[i], tabla[i + 1], x - i); };
-  const st = apoyo(phF), deCara = (st ? 1 : -1) * 0.19 * 0.27 * Math.cos(0.12) * PER.H;   // ese tobillo, de pie y de frente
-  const xFinDe = () => PER.x + deCara - off(tobillos(phF)[st]);                          // ese pie no se mueve al frenar
-  let lo = 0.3, hi = 0.95;
-  for (let it = 0; it < 30; it++) { AMP = (lo + hi) / 2; llenar(); if (xFinDe() - avance(phF) < xIni) lo = AMP; else hi = AMP; }
-  AMP = (lo + hi) / 2; llenar();
-  const xFin = xFinDe(), x0 = xFin - avance(phF);
-  const xs = Array.from({ length: n + 1 }, (_, k) => x0 + avance(w * k / 12));
-  return { w, n, xIni: x0, xFin, xs, amp: AMP, vAnda: (xs[n - 1] - xs[n]) * 12, vFreno: (3 * (xs[n] - PER.x)) / (T.planta - T.entra0 - tw), pasosPorSeg: w / Math.PI };
+  const n = Math.floor((T.entra1 - 0.42 - T.entra0) * 12 + 1e-6), tw = n / 12;
+  const phF = 1.35 + 0.1 + 4 * Math.PI, w = phF / tw, st = apoyo(phF);
+  const J = Math.ceil((T.planta - T.entra0 - tw) * 12 - 1e-6);
+  const xIni = CAMG.cx + (W + 0.14 * PER.H * S_GEN - CX) / S_GEN;      // justo fuera del borde derecho del plano general
+  const capa = PX.nuevaCapa(W, H), Hp = PER.H * S_GEN;
+  let vez = 0;
+  // los tobillos (x en el mundo, respecto al punto entre los pies) con estas opciones de persona
+  const pies = (o) => { let an; vez++; PX.en(capa, () => { an = PX.persona({ ...o, x: 240, y: 200 + vez * 1e-6, altura: Hp, t: 0, vida: false, sombra: 0, partes: 'sinManos' }); }); return an.pies.map((q) => (q[0] - 240) / S_GEN); };
+  const medir = () => {
+    const P = []; for (let k = 0; k <= n; k++) P.push(pies({ pose: poseAndar, fase: w * k / 12, giro: GIRO_ANDA }));
+    const rel = [0]; for (let k = 1; k <= n; k++) { const sp = apoyo(w * (k - 0.5) / 12); rel.push(rel[k - 1] + P[k - 1][sp] - P[k][sp]); }
+    const F = []; for (let j = 0; j <= J; j++) F.push(pies(POSE_FRENO(j === J ? 1 : sale(j / 12 / (T.planta - T.entra0 - tw)), phF))[st]);
+    const freno = F.map((f) => PER.x + F[J] - f);                     // el cuerpo, con el pie de apoyo quieto, acaba en PER.x
+    return { rel, freno, x0: freno[0] - rel[n] };
+  };
+  let lo = 0.3, hi = 0.85, r;
+  for (let it = 0; it < 10; it++) { AMP = (lo + hi) / 2; r = medir(); if (r.x0 < xIni) lo = AMP; else hi = AMP; }
+  AMP = (lo + hi) / 2; r = medir();
+  const xs = r.rel.map((d) => r.x0 + d);
+  return { w, n, J, phF, xs, freno: r.freno, xIni: r.x0, xFin: xs[n], amp: AMP, vAnda: ((xs[0] - xs[n]) / tw), vFreno: (r.freno[0] - r.freno[1]) * 12, pasosPorSeg: w / Math.PI };
 })();
 T.frena = T.entra0 + ANDA.n / 12;                                           // el último fotograma del paso
 // estado de la persona en el plano general (reloj de 12 fps desde que entra): { wx, o (opciones de persona), lleva }
@@ -376,17 +386,14 @@ function personaGeneral(t) {
     return { wx: ANDA.xs[k], o: { pose: poseAndar, fase: ph, giro: GIRO_ANDA, cabeza: { giro: 0.55 * mira, cabeceo: 0.03 }, mira: [0.3 * mira, 0], vida: false, parpadeo: 0 }, lleva: 0 };
   }
   // frena (el cuerpo sobre el pie de apoyo, las piernas se juntan), se gira a cámara y se planta
-  const phF = ANDA.w * (ANDA.n / 12);
-  const u = sale(prog(tp, T.frena, T.planta));
-  const g = mezcla(GIRO_ANDA, 0.12, u);
-  const wx = mezcla(ANDA.xs[ANDA.n], PER.x, u);
+  const j = Math.min(ANDA.J, k - ANDA.n), u = j === ANDA.J ? 1 : sale(prog(tp, T.frena, T.planta));
+  const wx = ANDA.freno[j], { pose, fase, giro: g } = POSE_FRENO(u, ANDA.phF);
   // plantada: cabeza alta y mirada a cámara; parpadea y enseña la regla (la sube un poco) y asiente
   const ens = Math.sin(Math.PI * entraSale(prog(tp, T.planta + 0.03, T.medio - 0.1)));
   const cab = { giro: 0.55 * (1 - u) - 0.05 * u, cabeceo: 0.03 + 0.06 * u - 0.07 * ens };
   const parp = Math.abs(tp - (T.entra1 + 0.1)) < 0.09 ? 1 : 0;
   const manos = [0.012, -0.05 - 0.035 * ens, 0.02 + 0.03 * ens];
-  const pose = u >= 1 ? 'sostener' : { de: poseAndar, a: 'sostener', u };
-  return { wx, o: { pose, fase: phF, giro: g, manos, cabeza: cab, mira: [-0.05 * u, -0.1 * u], vida: u >= 1, parpadeo: parp }, lleva: u };
+  return { wx, o: { pose, fase, giro: g, manos, cabeza: cab, mira: [-0.05 * u, -0.1 * u], vida: u >= 1, parpadeo: parp }, lleva: u };
 }
 // la regla en las manos: llevada en la mano de delante (u = 0) o sostenida con las dos (u = 1)
 function reglaEn(an, s, lleva, extra = {}) {
@@ -566,7 +573,7 @@ function exponer(capa, k) {
     const i = y * W + x, rj = EN_RAMPA.get(buf[i]);
     if (rj === undefined) continue;
     const r = rj >> 6, j = rj & 63;
-    buf[i] = tono(RAMPAS[r], NIV[r][j], x, y, 1);
+    buf[i] = tono(RAMPAS[r], NIV[r][j], x, y, 0.5);
   }
 }
 // fundido tramado (Bayer 8×8): cada píxel es de la cara o del ojo, nunca una mezcla; w(x, y) es la parte de ojo

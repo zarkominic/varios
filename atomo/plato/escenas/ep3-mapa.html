@@ -48,7 +48,8 @@ import { tiposSofa, uniformesSofa, salon, SALON, hornearRayas, cieloVentana, vid
 
 const T0 = performance.now();
 window.__carga = [];
-const marcaCarga = (k) => window.__carga.push([k, Math.round(performance.now() - T0)]);
+const PERFIL = new URLSearchParams(location.search).has('perfil');
+const marcaCarga = (k) => { window.__carga.push([k, Math.round(performance.now() - T0)]); if (PERFIL) console.log('carga', k, Math.round(performance.now() - T0)); };
 const E = await escena('ep3-mapa', 'ep03');
 const M = (k) => E.marca(k);
 const m = { il: M('ilustracion', 0.5), ilFin: M('ilustracion_fin', 10.264), so: M('sofa', 10.814), soFin: M('sofa_fin', 17.156) };

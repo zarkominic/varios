@@ -266,7 +266,6 @@ const LIB_H = (() => {
   const m = [0, 1, 2].map((i) => (a[i] + b[i]) / 2);
   const rot = LECT.lib.rot, esc = LECT.lib.esc;
   const o = mundo([0, 0, 0], rot, esc, [0, -0.64, -0.05]);
-  window.__lect = { manoIzq: pant(a).map(Math.round), manoDer: pant(b).map(Math.round) };
   return { pos: [m[0] - o[0], m[1] - o[1], m[2] - o[2]], escala: esc, rot };
 })();
 // en el detalle, el libro se corre para que el punto foco de la página (x, y locales) quede en (CERCA.x, CERCA.y)

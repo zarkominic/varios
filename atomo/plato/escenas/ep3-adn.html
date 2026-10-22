@@ -209,6 +209,8 @@ function atomo(ts) {
     pos: [SITIO[0], SITIO[1] + 0.006 * Math.sin(z * 1.1), SITIO[2]], escala: A_ESC,
     yaw: -0.15 + 0.08 * Math.sin(z * 0.5), pitch: 0.06,
     energia: ts < FIN ? E.energia(ts) : 0, ts: z,
+    // delante del muro del pelo, el velo oscuro de su halo algo más fuerte (se lee mejor sobre las escamas)
+    velo: 0.1 + 0.3 * ss(T.atras[0] + 0.3, T.atras[1], ts) * (1 - ss(T.s2[0], T.s2[0] + 0.3, ts)),
   });
 }
 const REGLA_QUIETA = T.regla[1] + 0.2;
@@ -232,6 +234,17 @@ function fotoCelula(C, conMuro, n) {
   if (conMuro) P.pieza(I.tronco, MURO);
   P.render(n);
   const f = foto(P);
+  if (conMuro) {
+    // el muro, un poco desenfocado (macro): sus escamas no compiten con Atom, que va delante
+    const gf = f.getContext('2d'), k = f.width / W, b = foto(P);
+    const m = lienzo(), gm = m.getContext('2d');
+    gm.filter = `blur(${3.5 * k}px)`; gm.drawImage(b, 0, 0); gm.filter = 'none';
+    gm.globalCompositeOperation = 'destination-in';
+    const gr = gm.createLinearGradient(0, 0, (X_MURO + 80) * k, 0);
+    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.75, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    gm.fillStyle = gr; gm.fillRect(0, 0, m.width, m.height);
+    gf.drawImage(m, 0, 0);
+  }
   const pc = pant(C.pos);
   info.celula = { x: pc[0], y: pc[1], r: C.escala * pxU(C.pos) };
   P.limpiar(); ponerMadeja(C); P.render(n, { fondo: false });
