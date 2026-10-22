@@ -51,7 +51,8 @@
 //    glóbulos en sus x0 (las mismas fotos de glóbulo, desenfoques y sombras), la mota (el virus de ep03-virus.js a
 //    P.punto(960, 540, −2,6), 22 px, desenfocada) en el centro; regla e −5, ya 0,375, actual −5, marca −5, lupa 0,5; Atom
 //    con el reloj de ep3-virus en t = 0 (−calma(D_virus, D_virus) del kit), energía 0.
-// COSTE: ver PREPARAR. Lo quieto es foto (el pelo, la fila, el plató vacío, las tres siluetas, la lupa, el cuerpo de la
+// COSTE (medido con capturar en orden, fotograma a fotograma, en este servidor con carga 3–6): carga 20 s sola y 31 s con
+// ep3-virus cargando a la vez; fotogramas de 0,2 a 3,1 s de reloj (media 0,55 s), incluidos los que preparan fotos. Ver PREPARAR. Lo quieto es foto (el pelo, la fila, el plató vacío, las tres siluetas, la lupa, el cuerpo de la
 // persona, el vaso de lejos y de cerca, las fotos de los glóbulos, la mota, las cifras, la barra, la regla); en cada
 // fotograma se renderiza, sin fondo, solo lo que se mueve: Atom siempre, la cota al recogerse, la cabeza de la persona, el
 // glóbulo, el calendario y la tumbona, y la médula.
@@ -756,7 +757,7 @@ function planoE(ts, n) {
   const k = KK();
   // el decorado: el vaso de lejos con el plató y, al acercarse, el de cerca encima
   g.save(); aPantalla(g, z); g.drawImage(F('vasoL'), 0, 0, W, H); g.restore();
-  const aA = ss(1.4, 1.95, z);
+  const aA = ss(1.7, 1.99, z);
   if (aA > 0) { g.save(); aVaso(g, z); g.globalAlpha = aA; g.drawImage(F('vasoA'), 0, 0, W, H); g.restore(); }
   // la mota pasa despacio por el fondo del vaso y se para en el centro
   const um = prog(ts, T.fab, QUIETO);
@@ -857,7 +858,7 @@ function pedirFotos(pl, ts) {
   else if (pl === 'D') k.push('plato', 'reglaV');
   else {
     k.push('vasoL', 'mota', 'spr0', 'spr1', 'spr2', 'reglaV', 'b0', 'b1', 'b2', ...[...Array(10).keys()].map((d) => 'c' + d));
-    if (zoomEn(ts) > 1.35) k.push('vasoA');
+    if (zoomEn(ts) > 1.65) k.push('vasoA');
     if (ts >= T.empuje[0]) k.push('medulaF');
   }
   for (const x of k) F(x);
@@ -921,7 +922,7 @@ window.__inicio = { reloj: +C0.toFixed(4), REGLA: REGLA_C };
 
 // ?guias: la persona de esta escena de pie y entera, para atomo/herramientas/guias-humano.py (centro, coronilla y suela, px)
 if (busq.has('guias')) {
-  const esc = 870 / (1.765 * pxU(en(960, 540, 0)));
+  const esc = 640 / (1.765 * pxU(en(960, 540, 0)));
   const pos = [en(960, 540, 0)[0], esc, 0];
   window.__frame = async () => {
     ajustarCapa(); P.fotograma(0); P.limpiar();
@@ -939,7 +940,6 @@ if (busq.has('guias')) {
   hito('fotos');
   if (busq.has('prepararTodo')) for (const [, k] of PREPARAR) F(k);
   window.__medidas = { T, PERS, C0, CV, EXTRAS };
-  window.__dbg = { P, I, VASO_A, VASO_L, PERS, HUM_OP, T, sinFondo };
   window.__carga = Math.round(performance.now() - T0);
   E.iniciar(dibujar, { paso: 1 / 12 });
 }
