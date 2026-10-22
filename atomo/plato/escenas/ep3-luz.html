@@ -332,6 +332,13 @@ HACER.u4 = () => quitarSombras(F('m4_0'), somA(4)[3]);
 HACER.u7 = () => quitarSombras(F('m7_0'), somA(7)[3]);
 HACER.u16 = () => quitarSombras(F('m16_0'), somA(16)[3]);
 HACER.u21 = () => quitarSombras(F('gal0'), SOM_A[3]);
+const PEQ = {};
+function fotoDecPeq(k) {
+  if (PEQ[k]) return PEQ[k];
+  const f = fotoDec(k), a = lienzo(480, 270), b = lienzo(240, 135);
+  a.getContext('2d').drawImage(f, 0, 0, 480, 270); b.getContext('2d').drawImage(a, 0, 0, 240, 135);
+  return (PEQ[k] = b);
+}
 const CAJAS_SOMBRA = [[0, 560, 520, 1080], [1500, 192, 1888, 952]];   // múltiplos de 4: Atom (r 62 · 3,5) y la regla (± 48)
 // (coste) de 19 a 21 la galaxia sale ya suave (como la de lo quieto antes de los puntitos): el desenfoque va horneado en
 // las fotos de 20 y 21 (con el peso de su encuadre, ss(19,3, 20, z), dentro del disco de la galaxia)
@@ -384,6 +391,10 @@ function mundoSalto(C, zr, sombras = true) {
   else if (w >= 0.999) ponerDec(g, fotoDec(k1), Cb, C);
   else {
     ponerDec(g, fotoDec(k1), Cb, C);
+    // muy ampliada (más de ~2×), la foto de 0,57 enseña escalones en las líneas finas (las órbitas): encima, una copia
+    // diminuta de la misma foto, que ampliada es una bruma suave
+    const kb = ss(1.6, 3.0, Cb.mpp / C.mpp);
+    if (kb > 0.01) { g.save(); g.globalAlpha = kb; g.imageSmoothingEnabled = true; ponerDec(g, fotoDecPeq(k1), Cb, C); g.restore(); }
     if (!TMPS || TMPS.width !== capa.width || TMPS.height !== capa.height) TMPS = lienzo(capa.width, capa.height);
     const t = TMPS.getContext('2d'), kk = TMPS.width / W;
     t.setTransform(1, 0, 0, 1, 0, 0); t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, TMPS.width, TMPS.height);

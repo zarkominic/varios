@@ -83,8 +83,8 @@ const T = {
   // frase 22: «Tienes unos treinta billones de células, | y un número parecido de bacterias.»
   cota: [m.b - 0.3, m.b - 0.05],                     // la cota se recoge
   aparta: [m.b - 0.25, m.b + 0.35],                  // la fila se abre por el medio y sale por los lados
-  baja: [m.b - 0.15, m.b + 0.5],                     // el pelo cae fuera del cuadro
-  sil: [m.b + 0.05, m.b + 0.75],                     // la silueta baja desde arriba y se posa
+  baja: [m.b - 0.15, m.b + 0.35],                    // el pelo cae fuera del cuadro
+  sil: [m.b + 0.22, m.b + 0.85],                     // después, la silueta baja desde arriba y se posa
   rojo: [fr(m.b, f0Fin, 0.2), fr(m.b, f0Fin, 0.45)],   // los puntitos rojos (células) se encienden de abajo arriba
   verde: [fr(m.b, f0Fin, 0.58), fr(m.b, f0Fin, 0.83)], // y los verdes (bacterias)
   lupa: fr(m.b, f0Fin, 0.24),                        // entra la lupa
@@ -523,7 +523,6 @@ const HACER = {
   // A: el corte del pelo (con fondo, como ep3-celulas, nf 6001), el mismo sin fondo (para que caiga), la fila (sin fondo)
   // y su sombra, el plató vacío
   pelo: () => { P.fotograma(0); P.limpiar(); cortePelo(P, I.CP, { pos: CP.pos, escala: CP.esc, rot: CP.rot, largo: CP.largo }); P.render(6001); return foto(); },
-  peloSF: () => { P.fotograma(0); P.limpiar(); cortePelo(P, I.CP, { pos: CP.pos, escala: CP.esc, rot: CP.rot, largo: CP.largo }); P.render(6001, sinFondo); return foto(); },
   fila: () => { P.fotograma(0); P.limpiar(); fila(P, I.GLS, { pos: FILA.pos, escala: FILA.escala, rot: FILA.rot, n: FILA.n, llegada: 1 }); P.render(6002, sinFondo); return foto(); },
   plato: () => { P.fotograma(0); P.limpiar(); P.render(6003); return foto(); },
   reglaC: () => { P.fotograma(0); P.limpiar(); P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: ROT_REG, ...REGLA_C }); P.render(2005, sinFondo); return foto(); },
@@ -533,14 +532,43 @@ const HACER = {
   silSombra: () => sombraSilueta(F('sil0'), SOMBRA_SIL),
   lupa: () => { P.fotograma(0); P.limpiar(); P.pieza(I.LUPA, { pos: LP.pos, escala: LP.esc, rot: [0, 0, 0] }); P.render(6010, sinFondo); return recorte(...LP.caja); },
   // C: el cuerpo de la persona (con las manos, quietas) con el plató; la cabeza va viva
-  persona: () => { P.fotograma(T.persona); P.limpiar(); P.pieza(I.HUM, HUM_OP(T.persona, ['cuerpo', 'manos'])); P.render(6020); return foto(); },
   // E: el vaso de lejos (con el plató), el de cerca (el de ep3-virus, nf 900, con su círculo desenfocado), las fotos de
   // los glóbulos y la mota, las cifras y la barra; la médula quieta para el empuje
-  vasoL: () => { P.fotograma(0); P.limpiar(); P.pieza(I.VASO, VASO_L); P.render(900); return foto(); },
-  vasoA: () => { P.fotograma(0); P.limpiar(); P.pieza(I.VASO, VASO_A); P.render(900); return desenfocar(foto(), 960, 540, 40, 3.5); },
   mota: () => { P.fotograma(0); P.limpiar(); virus(P, I.VIR, MOTA); P.render(6030, sinFondo); const c = recorte(920, 500, 80, 80), d = document.createElement('canvas'); d.width = c.width; d.height = c.height; const gd = d.getContext('2d'); gd.filter = `blur(${3.5 * KK()}px)`; gd.drawImage(c, 0, 0); return d; },
   medulaF: () => { P.fotograma(T.empuje[0]); P.limpiar(); ponerMedula(T.empuje[0]); P.render(6040, sinFondo); return foto(); },
 };
+// (coste) las fotos grandes se pintan en FRANJAS horizontales (setScissor), una por fotograma barato, con su nf fijo
+// (como ep3-celulas): la persona con el plató (~8,5 s entera), el vaso de cerca (~4,5 s), el pelo sin fondo y el de lejos
+const FRANJAS = { peloSF: 2, persona: 3, vasoL: 2, vasoA: 2 };
+const PINTAR = {
+  peloSF: () => { P.fotograma(0); P.limpiar(); cortePelo(P, I.CP, { pos: CP.pos, escala: CP.esc, rot: CP.rot, largo: CP.largo }); P.render(6001, sinFondo); },
+  persona: () => { P.fotograma(T.persona); P.limpiar(); P.pieza(I.HUM, HUM_OP(T.persona, ['cuerpo', 'manos'])); P.render(6020); },
+  vasoL: () => { P.fotograma(0); P.limpiar(); P.pieza(I.VASO, VASO_L); P.render(900); },
+  vasoA: () => { P.fotograma(0); P.limpiar(); P.pieza(I.VASO, VASO_A); P.render(900); },
+};
+const DESPUES = { vasoA: (c) => desenfocar(c, 960, 540, 40, 3.5) };
+const PARCIAL = {};
+function pintarFranja(k, b) {
+  const N = FRANJAS[k];
+  const p = (PARCIAL[k] ??= { c: lienzo(), hechas: 0 });
+  if (p.hechas & (1 << b)) return true;
+  const y0 = Math.round((b * H) / N), y1 = Math.round(((b + 1) * H) / N);
+  const kk = P.renderer.getSize(new THREE.Vector2()).x / W;
+  P.renderer.setScissor(0, (H - y1) * kk, W * kk, (y1 - y0) * kk);
+  P.renderer.setScissorTest(true);
+  PINTAR[k]();
+  P.renderer.setScissorTest(false);
+  const d = lienzoGL.width / W, a = Math.round(y0 * d), h = Math.round(y1 * d) - a;
+  const gc = p.c.getContext('2d');
+  gc.clearRect(0, a, p.c.width, h);
+  gc.drawImage(lienzoGL, 0, a, p.c.width, h, 0, a, p.c.width, h);
+  p.hechas |= 1 << b;
+  return true;
+}
+for (const [k, N] of Object.entries(FRANJAS)) {
+  for (let b = 0; b < N; b++) HACER[`${k}#${b}`] = () => pintarFranja(k, b);
+  HACER[k] = () => { for (let b = 0; b < N; b++) pintarFranja(k, b); return DESPUES[k] ? DESPUES[k](PARCIAL[k].c) : PARCIAL[k].c; };
+}
 function fotoSil(k) {
   P.fotograma(0); P.limpiar();
   silueta(P, I.SIL, { pos: SIL.pos, escala: SIL.esc, rot: [0, 0, 0], colores: SILS[k].colores, mezcla: 0.5, brillo: SILS[k].brillo, peana: 0 });
@@ -824,22 +852,24 @@ function dibujar(t) {
 // suelto, F() hace allí lo que falte (ese fotograma tarda más, pero la imagen es la misma: cada foto tiene su nf fijo).
 let tipoFot = 'A';
 const LIMITE = 3600;
-const EST = { peloSF: 2200, plato: 700, sil0: 1500, sil1: 1500, sil2: 1500, silSombra: 100, lupa: 600, reglaV: 1500, persona: 3000,
-  'e:humano': 3000, 'e:globulo': 900, 'e:calendario': 1200, 'e:tumbona': 900, 'e:medula': 1200, vasoL: 2000, vasoA: 2500,
-  spr0: 600, spr1: 600, spr2: 600, mota: 600, medulaF: 1500, c: 350, b: 500 };
-const est = (k) => EST[k] ?? (k.length === 2 && 'cb'.includes(k[0]) ? EST[k[0]] : 1000);
+const EST = { 'peloSF#': 2000, 'persona#': 3000, 'vasoL#': 1400, 'vasoA#': 2400, peloSF: 10, persona: 10, vasoL: 10, vasoA: 300, plato: 1200, sil0: 3000, sil1: 2000, sil2: 1700, silSombra: 100, lupa: 600, reglaV: 1500,
+  'e:humano': 800, 'e:globulo': 400, 'e:calendario': 600, 'e:tumbona': 400, 'e:medula': 400,
+  spr0: 500, spr1: 200, spr2: 200, mota: 400, medulaF: 500, c: 300, b: 800 };
+const est = (k) => EST[k] ?? (k.includes('#') ? EST[k.split('#')[0] + '#'] : k.length === 2 && 'cb'.includes(k[0]) ? EST[k[0]] : 1000);
+const franjas = (k, desde, hasta) => [...Array(FRANJAS[k]).keys()].map((b) => [desde, `${k}#${b}`, hasta]).concat([[desde, k, hasta]]);
 const PREPARAR = [
-  [0, 'plato', T.baja[0]], [0, 'peloSF', T.baja[0]], [0, 'sil0', T.sil[0]], [0, 'silSombra', T.sil[0]],
+  [0, 'plato', T.baja[0]], ...franjas('peloSF', 0, T.baja[0]), [0, 'sil0', T.sil[0]], [0, 'silSombra', T.sil[0]],
   [0, 'sil1', T.rojo[0]], [0, 'lupa', T.lupa], [0, 'sil2', T.verde[0]],
-  [0, 'e:humano', T.persona], [0, 'persona', T.persona], [0, 'reglaV', T.persona],
+  [0, 'e:humano', T.persona], ...franjas('persona', 0, T.persona), [0, 'reglaV', T.persona],
   [T.sil[1], 'e:globulo', T.viejo], [T.sil[1], 'e:calendario', T.viejo], [T.sil[1], 'e:tumbona', T.viejo],
-  [T.persona, 'e:medula', T.fab], [T.persona, 'vasoL', T.fab], [T.persona, 'mota', T.fab],
+  [T.persona, 'e:medula', T.fab], ...franjas('vasoL', T.persona, T.fab), [T.persona, 'mota', T.fab],
   ...[0, 1, 2].map((j) => [T.persona, 'spr' + j, T.fab]),
   ...[...Array(10).keys()].map((d) => [T.viejo, 'c' + d, T.fab]), ...[0, 1, 2].map((v) => [T.viejo, 'b' + v, T.fab]),
-  [T.viejo, 'vasoA', T.empuje[0]], [T.fab, 'medulaF', T.empuje[0]],
+  ...franjas('vasoA', T.viejo, T.empuje[0]), [T.fab, 'medulaF', T.empuje[0]],
 ];
 // lo que tiene que estar hecho antes
-const ANTES = { persona: ['e:humano'], silSombra: ['sil0'] };
+const ANTES = { 'persona#0': ['e:humano'], silSombra: ['sil0'] };
+for (const [k, N] of Object.entries(FRANJAS)) ANTES[k] = [...Array(N).keys()].map((b) => `${k}#${b}`);
 function preparar(ts, gastado) {
   let queda = LIMITE - gastado;
   const hechas = [];
