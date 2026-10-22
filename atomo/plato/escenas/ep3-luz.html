@@ -142,6 +142,10 @@ const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]
 const cont = document.getElementById('escena');
 const mundo = crearMundo(cont, { captura: P.captura });
 mundo.lienzo.style.visibility = 'hidden';
+// (coste) el mundo en vivo de los saltos va en un segundo mundo a 0,57 de resolución (el de la vista previa: ~1/3 de
+// los píxeles; en movimiento no se nota); las fotos de lo quieto, en el de resolución entera
+const mundoV = crearMundo(cont, { captura: false });
+mundoV.lienzo.style.visibility = 'hidden';
 marcaCarga('mundo');
 const lienzoGL = P.renderer.domElement;
 lienzoGL.style.visibility = 'hidden';
@@ -192,7 +196,7 @@ function sinVineta(c) {
 function pegarMundoVivo(recorte = null) {
   g.save();
   if (recorte) { g.beginPath(); g.arc(recorte[0], recorte[1], recorte[2], 0, 2 * Math.PI); g.clip(); }
-  g.drawImage(mundo.lienzo, 0, 0, W, H);
+  g.drawImage(mundoV.lienzo, 0, 0, W, H);
   g.globalCompositeOperation = 'color-dodge'; g.fillStyle = GRAD_VIG(g); g.fillRect(0, 0, W, H);
   g.restore();
 }
@@ -267,12 +271,16 @@ function fotoRegla(e, n) { P.limpiar(); reglaEn(e); P.render(n, { fondo: false }
 const FOTOS = {}, HACER = {};
 const asentar = (c) => { if (c?.getContext) c.getContext('2d').getImageData(0, 0, 1, 1); return c; };
 const F = (k) => FOTOS[k] ?? (FOTOS[k] = asentar(HACER[k]()));
+const CIUDAD_C = [930, 470];
 const fotoMundoSin = (C, n, zr) => sinVineta(fotoMundo(mundo, estadoMundo(C, n, { somA: somA(zr) })));
 // la ciudad a 10⁴ (n de mundo4 de ep3-vuelta), la Tierra en CRAY, el espacio a 10¹⁶ y la galaxia a 10²¹ (la de ep3-mapa)
-for (let k = 0; k < 3; k++) {
-  HACER['m4_' + k] = () => fotoMundoSin(C4, 940 + k, 4);
-  HACER['m7_' + k] = () => fotoMundoSin(CRAY, 960 + k, 7);
-}
+// (coste) una foto del mundo cuesta ~10 s de CPU en este servidor: una por encuadre y el hervor con dos variantes 2D
+HACER.m4_0 = () => fotoMundoSin(C4, 940, 4);
+HACER.m4_1 = () => hervir(F('m4_0'), 411, CIUDAD_C);
+HACER.m4_2 = () => hervir(F('m4_0'), 423, CIUDAD_C);
+HACER.m7_0 = () => fotoMundoSin(CRAY, 960, 7);
+HACER.m7_1 = () => hervir(F('m7_0'), 711, PRAY);
+HACER.m7_2 = () => hervir(F('m7_0'), 723, PRAY);
 HACER.m16_0 = () => fotoMundoSin(C16, 980, 16);
 HACER.m16_1 = () => hervir(F('m16_0'), 311, E16);
 HACER.m16_2 = () => hervir(F('m16_0'), 323, E16);
@@ -283,8 +291,19 @@ const GAL = { c: aPant(C21, GAL_W), R: MUNDO.R_GAL / C21.mpp };
 HACER.gal0 = () => sinVineta(fotoMundo(mundo, estadoMundo(C21, N_LUZ, { somA: SOM_A })));
 HACER.gal1 = () => hervir(F('gal0'), 211, GAL.c);
 HACER.gal2 = () => hervir(F('gal0'), 223, GAL.c);
-for (const [e, nb] of [[4, 9400], [7, 9700], [16, 9160]]) for (let k = 0; k < 3; k++) HACER[`reg${e}_${k}`] = () => fotoRegla(e, nb + k);
-HACER.reg21_0 = () => fotoRegla(21, 0); HACER.reg21_1 = () => fotoRegla(21, 7101); HACER.reg21_2 = () => fotoRegla(21, 7102);
+// la regla quieta: una foto por exponente (la de 10²¹ con n = 0, la «reg0» de ep3-mapa) y el hervor en 2D (la misma foto
+// desplazada menos de medio píxel; una foto de la regla cuesta ~4 s de CPU)
+function hervirTrozo(c, semilla) {
+  const r = mulberry32(semilla), out = lienzo(c.width, c.height), go = out.getContext('2d');
+  go.drawImage(c, (r() - 0.5) * 0.8, (r() - 0.5) * 0.8);
+  out.ref = c.ref;
+  return out;
+}
+for (const [e, nb] of [[4, 9400], [7, 9700], [16, 9160], [21, 0]]) {
+  HACER[`reg${e}_0`] = () => fotoRegla(e, nb);
+  HACER[`reg${e}_1`] = () => hervirTrozo(F(`reg${e}_0`), nb + 1);
+  HACER[`reg${e}_2`] = () => hervirTrozo(F(`reg${e}_0`), nb + 2);
+}
 const regDe = (e, n) => `reg${e}_${n % 3}`;
 HACER.cartela0 = () => { P.limpiar(); cartela(P, 0, E.cartela); P.render(0, { fondo: false }); return copiaGL(); };
 
@@ -585,11 +604,11 @@ HACER.estrenoReloj = estreno(() => reloj(P, I.REL, { pos: en(100, 100, 2), escal
 HACER.estrenoArena = estreno(() => arena(P, I.ARE, { pos: en(100, 100, 2), escala: 0.02, cae: 0.5 }));
 const nS = (k) => nDe(SALTOS[k][0]);
 const PREPARAR = [
-  [1, 'm4_1'], [2, 'm4_2'], [3, 'ns1'], [4, 'reg4_1'], [5, 'reg4_2'],
-  [6, 'm7_0'], [8, 'reg7_0'], [9, 'reg7_1'], [10, 'reg7_2'],
-  [nS(2) + 6, 'm7_1'], [nS(2) + 8, 'm7_2'], [nS(2) + 9, 'estrenoReloj'],
+  [1, 'm4_1'], [2, 'm4_2'], [3, 'ns1'], [4, 'reg4_1'], [4, 'reg4_2'],
+  [5, 'reg7_0'], [6, 'reg7_1'], [6, 'reg7_2'], [8, 'm7_0'], [10, 'm7_1'], [11, 'm7_2'],
+  [nS(2) + 9, 'estrenoReloj'],
   [nDe(T.unoS) + 2, 'm16_0'], [nDe(T.unoS) + 3, 'm16_1'], [nDe(T.unoS) + 4, 'm16_2'],
-  [nDe(T.unoS) + 5, 'reg16_0'], [nDe(T.unoS) + 6, 'reg16_1'], [nDe(T.unoS) + 7, 'reg16_2'],
+  [nDe(T.unoS) + 5, 'reg16_0'], [nDe(T.unoS) + 6, 'reg16_1'], [nDe(T.unoS) + 6, 'reg16_2'],
   [nDe(T.zoom2[1]) + 1, 'gal0'], [nDe(T.zoom2[1]) + 2, 'gal1'], [nDe(T.zoom2[1]) + 3, 'gal2'],
   [nDe(T.zoom2[1]) + 4, 'suave0'], [nDe(T.zoom2[1]) + 5, 'suave1'], [nDe(T.zoom2[1]) + 6, 'suave2'],
   [nDe(T.zoom2[1]) + 7, 'reg21_0'], [nDe(T.zoom2[1]) + 8, 'reg21_1'], [nDe(T.zoom2[1]) + 9, 'reg21_2'],
@@ -615,7 +634,7 @@ function dibujar(t) {
     repintar = () => pegarFoto(f, [Et[0], Et[1], Rt]);
   } else {
     ESTADO_VIVO = estadoMundo(C, n, { somA: somA(zr) });
-    mundo.dibujar(ESTADO_VIVO);
+    mundoV.dibujar(ESTADO_VIVO);
     pegarMundoVivo();
     if (zr > 19) suavizarVivo(C.z);
     repintar = () => pegarMundoVivo([Et[0], Et[1], Rt]);

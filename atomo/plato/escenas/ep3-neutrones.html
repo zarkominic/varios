@@ -337,7 +337,8 @@ function bolita(o, e) {
   const q = new THREE.Vector3(0, 0.02 + 0.1, 0).applyEuler(new THREE.Euler(o.rot[0], o.rot[1], o.rot[2], 'YXZ')).multiplyScalar(o.escala);
   return { pos: [o.pos[0] + q.x, o.pos[1] + q.y, o.pos[2] + q.z], escala: e, rot: [0.4, 0.9, 0], brillo: 0.8 };
 }
-const anguloBal = (ts) => (ts < T.nivela[0] ? -BALANZA.A_MAX : caida(ts, { t0: T.nivela[0], dur: T.nivela[1] - T.nivela[0], de: -BALANZA.A_MAX, a: 0, rebote: 0.1, peso: 2.4 }));
+// se nivela con peso y sin pasarse (como ep3-proton): al llegar, quieta (y desde ahí, fotos)
+const anguloBal = (ts) => (ts < T.nivela[0] ? -BALANZA.A_MAX : caida(ts, { t0: T.nivela[0], dur: T.nivela[1] - T.nivela[0], de: -BALANZA.A_MAX, a: 0, rebote: 0, peso: 2.4 }));
 const E_COC = 0.72 * E_BAL;
 function ponerBalanza(ts, { conCuchara = true, bal = BAL, k = 1 } = {}) {
   const b = balanza(P, I.BAL, { ...bal, angulo: anguloBal(ts) });
@@ -389,28 +390,34 @@ function eulerDe(ex, ey) {
   const Mx = new THREE.Matrix4().makeBasis(X, Y, Z), e = new THREE.Euler().setFromRotationMatrix(Mx, 'YXZ');
   return [e.x, e.y, e.z];
 }
-// en el mundo: el mango hacia (DIR, algo hacia el fondo); el cuenco abierto hacia la cámara (y algo hacia arriba)
-const D_MUNDO = [DIR[0], DIR[1], 0.05];
-const ROT_CUC = eulerDe(D_MUNDO, [0, 0.35, 1]);
+// en el mundo: el mango hacia DIR y algo hacia el fondo, lo que sube el mango de la cucharilla (≈ 28°): así el mango
+// queda en el plano de la pantalla y no apunta a la cámara; el cuenco, abierto hacia la cámara
+const D_MUNDO = [DIR[0], DIR[1], -0.53];
+const ROT_CUC = eulerDe(D_MUNDO, [0, 0, 1]);
 const ROT_MANO = eulerDe([DIR[1], -DIR[0], 0], [DIR[0], DIR[1], 0.15]);
-const CUENCO = [1215, 640];             // dónde está el cuenco (px), sobre la ciudad, a la derecha de la bola
+const CUENCO = [1205, 650];             // dónde está el cuenco (px), sobre la ciudad, a la derecha de la bola
 const E_CUC_M = 250 / pxU(en(...CUENCO, Z_MANO));       // la cucharita mide ~250 px
 const E_MANO = E_CUC_M / 1.48 * 1.25;                  // la mano, algo más larga que la cucharita
+const E_PIZ_M = 0.12 * E_CUC_M;
+// la mano y la cucharita quietas (una pieza rígida): una foto (dos para el hervor); el temblor y la salida, en 2D
+const CUC_M = { pos: en(...CUENCO, Z_MANO), escala: E_CUC_M, rot: ROT_CUC };
+const BOLITA_M = bolita(CUC_M, E_PIZ_M);
+const BOLITA_M_PX = pant(BOLITA_M.pos), R_BOLITA_M = E_PIZ_M * pxU(BOLITA_M.pos);
+function ponerManoYCuchara() {
+  const r = cucharilla(P, I.CUC, CUC_M);
+  // la mano coge el mango por donde dice el kit (mango): entre el pulgar y el índice, bajo los dedos
+  const qm = new THREE.Vector3(-0.18, -0.62, -0.1).applyEuler(new THREE.Euler(...ROT_MANO, 'YXZ')).multiplyScalar(E_MANO);
+  P.pieza(I.MANO, { pos: [r.mango[0] - qm.x, r.mango[1] - qm.y, r.mango[2] - qm.z], escala: E_MANO, rot: ROT_MANO });
+  neutrones(P, I.PIZ, BOLITA_M);
+}
+HACER.mano_0 = () => fotoPlato(2200, ponerManoYCuchara);
+HACER.mano_1 = () => fotoPlato(2201, ponerManoYCuchara);
 function manoYCuchara(ts) {
   // tiembla (a saltos de stop-motion) y se va despacio por arriba a la derecha
-  const tb = temblor(ts, 11, 7), gi = (azar(Math.floor(ts * 12), 17) - 0.5) * 0.05;
+  const tb = temblor(ts, 11, 7), gi = (azar(Math.floor(ts * 12), 17) - 0.5) * 0.04;
   const u = eio(prog(ts, T.va[0], T.va[1]));
-  const vx = 230 * u, vy = -900 * u;
-  const cpx = [CUENCO[0] + tb[0] * (1 - u) + vx, CUENCO[1] + tb[1] * (1 - u) + vy];
-  const pos = en(cpx[0], cpx[1], Z_MANO);
-  const o = { pos, escala: E_CUC_M, rot: [ROT_CUC[0], ROT_CUC[1], ROT_CUC[2] + gi] };
-  // el agarre: la punta del mango, entre las yemas del pulgar, el índice y el corazón
-  const q = new THREE.Vector3(0.97, 0.02, 0).applyEuler(new THREE.Euler(...o.rot, 'YXZ')).multiplyScalar(E_CUC_M);
-  const agarre = [pos[0] + q.x, pos[1] + q.y, pos[2] + q.z];
-  // la mano: las yemas (un poco por detrás del mango) en el agarre: la mano lleva la cucharita colgando de la punta
-  const qm = new THREE.Vector3(-0.1, -0.98, -0.07).applyEuler(new THREE.Euler(ROT_MANO[0], ROT_MANO[1], ROT_MANO[2] + gi, 'YXZ')).multiplyScalar(E_MANO);
-  const mano = { pos: [agarre[0] - qm.x, agarre[1] - qm.y, agarre[2] - qm.z], escala: E_MANO, rot: [ROT_MANO[0], ROT_MANO[1], ROT_MANO[2] + gi] };
-  return { o, mano, cpx, u };
+  const d = [tb[0] * (1 - u) + 330 * u, tb[1] * (1 - u) - 820 * u];
+  return { d, gi: gi * (1 - u), u };
 }
 
 // ---------------------------------------------------------------- al cargar: el fotograma 0 y los estrenos
@@ -526,7 +533,7 @@ prep(T.posa + 1.2, () => compilar(() => { balanza(P, I.BAL, { pos: en(400, 300, 
 prep(T.posa + 1.4, 'fondoB'); prep(T.posa + 1.6, 'reg4Tenue');
 prep(T.estira[0], 'balNivel_0'); prep(T.aplasta[0], 'balNivel_1');
 prep(T.recupera[0], 'balDet_0'); prep(T.vuelve[0], 'balDet_1');
-prep(T.vuelve[1] + 0.2, () => compilar(() => P.pieza(I.MANO, { pos: en(400, 300, 0), escala: 0.3 })));
+prep(T.vuelve[1] + 0.1, 'mano_0'); prep(T.vuelve[1] + 0.3, 'mano_1');
 
 let ULTIMO = null;
 function dibujar(t) {
@@ -547,7 +554,7 @@ function dibujar(t) {
   } else if (ts < T.C) {
     // B · la balanza (general) y su detalle
     if (ts < T.det) {
-      const vivo = ts < T.nivela[1] + 0.9;
+      const vivo = ts < T.nivela[1] + 0.05;
       if (vivo) { P.limpiar(); ponerBalanza(ts); P.render(n, { fondo: true }); pegarGL(); }
       else g.drawImage(F('balNivel_' + (n % 2)), 0, 0, W, H);
       // la bolita brilla frío (en vivo sigue a la cucharita: aquí basta su sitio al posarse)
@@ -572,16 +579,13 @@ function dibujar(t) {
     claro = 1; sombraK = 1;
     const MC = manoYCuchara(ts);
     if (MC.u < 0.999) {
-      const pc = pant(MC.o.pos);
+      const [cx, cy] = [CUENCO[0] + MC.d[0], CUENCO[1] + MC.d[1]];
       // su sombra en la ciudad (lejos, abajo a la derecha: la mano está muy por encima del suelo)
-      sombra(pc[0] + 150, pc[1] + 170, 210, 120, 0.3 * (1 - MC.u));
-      P.limpiar();
-      P.pieza(I.MANO, MC.mano);
-      cucharilla(P, I.CUC, MC.o);
-      const bo = bolita(MC.o, 0.12 * E_CUC_M);
-      neutrones(P, I.PIZ, bo);
-      P.render(n, { fondo: false }); pegarGL();
-      brilloBolita(pant(bo.pos), 0.12 * E_CUC_M * pxU(bo.pos) * 1.1, ts, 1);
+      sombra(cx + 170, cy - 60, 230, 150, 0.32 * (1 - MC.u));
+      g.save(); g.translate(cx, cy); g.rotate(MC.gi); g.translate(-CUENCO[0], -CUENCO[1]);
+      g.drawImage(F('mano_' + (n % 2)), 0, 0, W, H);
+      brilloBolita(BOLITA_M_PX, R_BOLITA_M * 1.1, ts, 1);
+      g.restore();
     }
   }
   // Atom (sobre la ciudad, con su sombra detrás)
