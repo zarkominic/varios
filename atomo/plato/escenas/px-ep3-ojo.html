@@ -196,7 +196,7 @@ for (let y = 0; y < PELO.h; y++) for (let x = 0; x < PELO.w; x++) {
 const RAMPA_LUNA = ['#0d0f17', '#1f2230', '#3a3c4a', '#5b5c66', '#807f86', '#a7a5a7', '#cfccc6', '#efebe2'].map(hex);
 const RL = 52, LUNA = PX.nuevaCapa(2 * RL + 4, 2 * RL + 4); LUNA.ox = LUNA.oy = RL + 2;
 {
-  const L = (() => { const v = [-0.8, -0.32, 0.5], l = Math.hypot(...v); return v.map((x) => x / l); })();
+  const L = (() => { const v = [-0.62, -0.3, 0.72], l = Math.hypot(...v); return v.map((x) => x / l); })();
   const r = mulberry32(9), CR = Array.from({ length: 22 }, () => { const a = r() * Math.PI * 2, d = Math.sqrt(r()) * 0.88; return [Math.cos(a) * d, Math.sin(a) * d, 0.04 + r() * r() * 0.13]; });
   CR.push([0.08, 0.62, 0.07]);                                   // Tycho
   for (let y = 0; y < LUNA.h; y++) for (let x = 0; x < LUNA.w; x++) {
@@ -204,7 +204,7 @@ const RL = 52, LUNA = PX.nuevaCapa(2 * RL + 4, 2 * RL + 4); LUNA.ox = LUNA.oy = 
     if (q < 0) continue;
     const nz = Math.sqrt(q);
     let lam = Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]);
-    const mar = suave(0.5, 0.6, fbm(nx * 1.7 + 4.1, ny * 1.7 + 2.3, 4) + 0.12 * (ny < -0.1 ? 1 : 0) - 0.08 * (nx > 0.4 ? 1 : 0));
+    const mar = suave(0.5, 0.6, fbm(nx * 1.7 + 4.1, ny * 1.7 + 2.3, 4) - 0.1 * ny - 0.06 * nx);
     let al = 1 - 0.36 * mar;
     for (const [cu, cv, cr] of CR) {
       const dx = nx - cu, dy = ny - cv, dd = Math.hypot(dx, dy) / cr;
@@ -224,16 +224,16 @@ const ESTR = (() => {
   const r = mulberry32(73), out = [];
   const gauss = () => (r() + r() + r() + r() - 2) / 2;
   for (let i = 0; i < 380; i++) {
-    const x = gauss() * 70, y = gauss() * 34;
-    const q = r(), tipo = q < 0.8 ? 0 : q < 0.965 ? 1 : 2;
+    const x = gauss() * 190, y = gauss() * 92;
+    const q = r(), tipo = q < 0.74 ? 0 : q < 0.95 ? 1 : 2;
     out.push({ x, y, tipo, tinte: r() < 0.25 ? 1 : r() < 0.2 ? 2 : 0, k: 3 + Math.floor(r() * 5), ph: Math.floor(r() * 9) });
   }
   return out;
 })();
 const CALIDA = ['#7a5a6a', '#e0a77c', '#ffe0b0'].map(hex), FRIA = ['#4a6aa8', '#9cc4ff', '#eaf4ff'].map(hex);
 function estrellas(cx, cy, t) {
-  PX.luz(cx, cy, 70, rgb(hex('#5a4a8a')), 0.32, 4);
-  PX.luz(cx, cy, 34, rgb(hex('#c8b0e0')), 0.2, 3);
+  PX.luz(cx, cy, 95, rgb(hex('#5a4a8a')), 0.34, 4);
+  PX.luz(cx, cy, 45, rgb(hex('#c8b0e0')), 0.22, 3);
   const f = fot(t, 8);
   for (const s of ESTR) {
     const x = Math.round(cx + s.x), y = Math.round(cy + s.y), tw = ((f + s.ph) % s.k) === 0 ? 0 : 1;
@@ -331,13 +331,16 @@ function ojoTelefono(t) {
 }
 
 // ───────────────────────────────────────────────────────────── primer plano del párpado
-const CU = { cx: 176, cy: 150, a: 380 };
+// de muy cerca, solo el tramo del párpado hacia el rabillo (u de 0,1 a 0,85), con las pestañas grandes; un empuje lento que
+// deja quieto el punto u = 0,45
+const CU = { a0: 600, a1: 680, cy: 146, x45: 196 };
 function primerPlano(t) {
-  const s = CU.a / FIN.a;
+  const a = mezcla(CU.a0, CU.a1, entraSale(prog(t, T.cerca, T.general))), s = a / FIN.a;
+  const O = { a, cx: CU.x45 - 0.45 * a, cy: CU.cy };
   const fino = entraSale(prog(t, T.estrecha0, T.estrecha1)), cierra = entraSale(prog(t, T.cierra0, T.cierra1));
   const hueco = (3 * s + 1) * (1 - cierra);
   const alto = mezcla(3 * s, 0.6, fino), brillo = 1 - suave(0.45, 0.85, cierra);
-  ojoEsc({ ...CU, arriba: 1, abajo: 1, t: 0, franja: brillo > 0 ? { ancho: 1, alto: Math.min(alto, Math.max(0.6, hueco - 1)), brillo } : null }, hueco);
+  ojoEsc({ ...O, arriba: 1, abajo: 1, t: 0, franja: brillo > 0 ? { ancho: 1, alto: Math.min(alto, Math.max(0.6, hueco - 1)), brillo } : null }, hueco);
 }
 
 // ───────────────────────────────────────────────────────────── el ojo cerrado, los instrumentos y el cielo

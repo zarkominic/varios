@@ -214,7 +214,7 @@ export function telescopio() {
   // 2) el parasol: cinco capas que se abren en abanico hacia las puntas
   const SX = 118, SY = 24, PUNTA = 70, CYp = 128;
   const dentroCapa = (x, y, i) => {
-    const dx = x + 0.5 - 130, off = i * (2.4 + 3.4 * (dx / SX) ** 2), dy = y + 0.5 - (CYp + off);
+    const dx = x + 0.5 - 130, off = i * (3.0 + 4.2 * (dx / SX) ** 2), dy = y + 0.5 - (CYp + off);
     if (Math.abs(dx) > SX) return false;
     const lim = SY * (Math.abs(dx) < PUNTA ? 1 : 1 - (Math.abs(dx) - PUNTA) / (SX - PUNTA));
     return Math.abs(dy) <= lim;
@@ -226,13 +226,15 @@ export function telescopio() {
     const dx = (x + 0.5 - 130) / SX, dy = (y + 0.5 - CYp) / SY;
     let v;
     if (capa === 0) {
-      // la capa de arriba: luz de arriba a la izquierda, arrugas de la membrana y un brillo nacarado
-      v = 4.4 - 0.9 * dx - 0.9 * dy;
-      v += 0.55 * Math.sin((x * 0.55 + y * 1.6) * 0.32 + 3 * vnoise(x * 0.06, y * 0.12)) * suave(0.2, 0.9, vnoise(x * 0.03 + 4, y * 0.05));
-      v += 1.4 * Math.exp(-(((dx + 0.25) * 1.4 - dy * 0.8) ** 2) / 0.02);
+      // la capa de arriba: luz de arriba a la izquierda, pliegues largos de la membrana y un brillo nacarado
+      v = 3.1 - 0.8 * dx - 0.7 * dy;
+      v += 0.45 * Math.sin((x * 0.3 - y * 1.1) * 0.5 + 2.5 * vnoise(x * 0.04, y * 0.1)) * suave(0.35, 0.8, vnoise(x * 0.025 + 4, y * 0.05));
+      v += 1.6 * Math.exp(-(((dx + 0.3) * 1.3 - dy * 0.9) ** 2) / 0.012);
+      if (Math.abs(dy) > 0.93 || (Math.abs(dx) > 0.55 && !dentroCapa(x, y - 1, 0))) v += 1.2;   // el canto de la capa
     } else {
-      const borde = !dentroCapa(x, y - 1, capa) || (capa > 0 && dentroCapa(x, y - 1, capa - 1));
-      v = 2.9 - 0.35 * capa - 0.6 * dx + (borde ? 1.6 : 0);
+      // las de debajo: solo su canto (una línea de luz) y, entre una y otra, el hueco en sombra
+      const borde = !dentroCapa(x, y - 1, capa) || dentroCapa(x, y - 1, capa - 1);
+      v = borde ? 4.2 - 0.45 * capa - 0.7 * dx : 0.6;
     }
     put(x, y, tono(LV, v, x, y, 0.35));
   }

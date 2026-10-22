@@ -53,7 +53,7 @@
 // tres fotos que llenan el cuadro (mano, piel y página) se pintan por franjas, una franja por fotograma.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
-import { crearPlato, crearPost, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, postura } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearPlato, crearPost, cartela, CARTELA, cl, mix, prog, ss, eio, eoc, eic, azar, postura } from '/atomo/plato/kits/plastilina-adulta.js';
 import { tiposOjo, uniformesOjo, ponerCorte, puntosCorte } from '/atomo/plato/kits/ep03-ojo.js';
 
 const T0 = performance.now();
@@ -89,6 +89,8 @@ T.brillo = T.borron1 + 0.15;                                 // el pelo, nítido
 T.luz0 = T.ojo + 0.2; T.luz1 = T.ojo + 0.95;                 // la luz entra por la córnea
 T.puntos0 = T.ojo + 0.6; T.puntos1 = T.ojo + 1.25;           // y cae en la rejilla
 T.giro1 = Math.min(fr(m.rejilla, m.rejillaFin, 0.92), QUIETO - 0.3); // el ojo termina de girar
+T.cota0 = T.decima - 0.45; T.etq0 = T.milimetro - 0.3;      // la cota empieza a tenderse; la tarjeta empieza a bajar
+T.fijo = Math.max(T.decima + 0.2, T.milimetro + 0.4);        // la cota y la tarjeta, quietas (sin toque): ya son foto
 const JS = (T.saltosFin - T.saltos) * 0.8 / 4;
 const SALTO = [0, 1, 2, 3].map((k) => { const a = T.saltos + k * (T.saltosFin - T.saltos - JS) / 3; return [a, a + JS]; });
 const plano = (ts) => (ts < T.lectura ? 'saltos' : ts < T.empuje1 ? 'hombro' : ts < T.ojo ? 'pagina' : 'ojo');
@@ -294,8 +296,12 @@ OJO.pos = en(OJO.x, OJO.y, OJO.z);
 OJO.esc = OJO.diam / (2 * pxU(OJO.pos));
 
 // ---------------------------------------------------------------- Atom, regla
+// Atom sigue quieto, como lo dejó ep3-saltos, mientras está la cartela (va en su foto) y arranca suave al irse
+const A_ARR = 1.2, A_ARR_D = 0.8;
+const arranque = (x) => (x <= A_ARR ? 0 : x < A_ARR + A_ARR_D ? (x - A_ARR) * (x - A_ARR) / (2 * A_ARR_D) : x - A_ARR - A_ARR_D / 2);
+const tzAtomo = (ts) => TZ_SALTOS + arranque(calma(ts));
 function atomo(ts) {
-  const tz = TZ_SALTOS + calma(ts);
+  const tz = tzAtomo(ts);
   const w = en(ATOMO_PRES[0], ATOMO_PRES[1], A_Z);
   P.atomo({
     pos: [w[0], w[1] + 0.006 * Math.sin(tz * 1.1), w[2]], escala: A_ESC,
@@ -323,8 +329,8 @@ function nivel0(ts) {
 function nivel1() { P.pieza(I.MANO, { pos: MANO, escala: E_MANO, rot: [0.06, 0.2, -0.04] }); }
 function nivel2() { P.pieza(I.PIEL, { pos: PIEL, escala: E_PIEL, rot: ROT_PIEL }); }
 function nivel3() { P.pieza(I.PELO, { pos: PELO, escala: E_PELO, rot: ROT_PELO }); }
-function nivel4(ts) {
-  P.pieza(I.TRO, { pos: TRO, escala: E_TRO, rot: [0, 0.3, 0] });
+function nivel4(ts, tronco = true) {
+  if (tronco) P.pieza(I.TRO, { pos: TRO, escala: E_TRO, rot: [0, 0.3, 0] });
   // la cota se tiende de lado a lado (desde el centro) y la tarjeta baja a su sitio; nada rebota
   const kC = eio(prog(ts, T.decima - 0.45, T.decima)), kT = eoc(prog(ts, T.decima - 0.45, T.decima - 0.2));
   if (kT > 0) P.pieza(I.COTA, { pos: COTA.pos, escala: COTA.medio, variante: kC, sq: [1, mix(0.3, 1, kT), 1], toque: ts < T.decima + 0.2 });
@@ -451,23 +457,25 @@ function lectura(ts) {
 }
 
 // ---------------------------------------------------------------- el ojo en corte
+const poseOjo = (kG) => ({ rot: OJO.rot0.map((v, i) => mix(v, OJO.rot[i], kG)), esc: OJO.esc * mix(0.93, 1, kG) });
 function ojo(ts) {
   const kG = eio(prog(ts, T.ojo, T.giro1));
-  const rot = OJO.rot0.map((v, i) => mix(v, OJO.rot[i], kG));
-  const esc = OJO.esc * mix(0.93, 1, kG);
+  const { rot, esc } = poseOjo(kG);
   const haces = eio(prog(ts, T.luz0, T.luz1)), brillo = eio(prog(ts, T.puntos0, T.puntos1));
   ponerCorte(UO, { separacion: 6, brillo, haces });
   P.pieza(I.CORTE, { pos: OJO.pos, escala: esc, rot, variante: OJO.variante, toque: kG < 1 });
-  return { haces, brillo, rot, esc };
+  return { haces, brillo, rot, esc, kG };
 }
 
 // la luz llega del libro (fuera del cuadro, a la derecha): los haces se funden con el plató antes de la regla (se tapan
 // con la foto del plató vacío, con una máscara blanda) y un resplandor cálido marca de dónde vienen
 const LUZ = { x0: 1250, x1: 1470, y0: 270, y1: 690 };
+let mLuz = null;
 function luzLibro(O) {
   const z = LUZ;
-  const m = document.createElement('canvas'); m.width = capa.width; m.height = capa.height;
-  const gm = m.getContext('2d'), k = capa.width / W;
+  if (!mLuz || mLuz.width !== capa.width || mLuz.height !== capa.height) { mLuz = document.createElement('canvas'); mLuz.width = capa.width; mLuz.height = capa.height; }
+  const m = mLuz, gm = m.getContext('2d'), k = capa.width / W;
+  gm.setTransform(1, 0, 0, 1, 0, 0); gm.globalCompositeOperation = 'source-over'; gm.clearRect(0, 0, m.width, m.height);
   gm.setTransform(k, 0, 0, k, 0, 0);
   gm.drawImage(F('fondo'), 0, 0, W, H);
   gm.globalCompositeOperation = 'destination-in';
@@ -507,56 +515,97 @@ function dibujar(t) {
   componer(t);
   if (!hechasAhora) prepararUna(Math.min(t, NFIN / 12));
 }
+// el parpadeo de la luz del plató en lo que es foto (lo vivo ya parpadea con su render)
+function parpadeo(n) {
+  const fl = azar(n, 3) - 0.5;
+  g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
+}
+// (coste) Ningún plano dibuja entero el plató: lo quieto es foto y solo se renderiza lo que se mueve, sin fondo
+// (render(n, { fondo: false })), encima. Las fotos se piden ANTES de renderizar: si falta una, F() la pinta en el lienzo de
+// WebGL y borraría lo vivo.
 function componer(t) {
   ajustarCapa();
   tFot = Math.min(t, NFIN / 12 + 1e-4);
   const n = P.fotograma(tFot), ts = n / 12;
   const pl = plano(ts);
   if (pl === 'ojo') {
+    // el plató vacío (foto), la sombra del ojo en el suelo (dos fotos, la del principio y la del final del giro, que se
+    // funden) y, vivos, el ojo y Atom; la regla, quieta en 10⁻⁴, es una foto sin fondo que va encima de la luz
+    const fondo = F('fondo'), b0 = F('bandaOjo0'), b1 = F('bandaOjo1'), reg = F('reglaSola');
     P.limpiar();
     const O = ojo(ts);
-    P.render(n);
-    g.clearRect(0, 0, W, H); pegarGL();
-    luzLibro(O);
-    P.limpiar(); atomo(ts); regla(ts);
+    atomo(ts);
     P.render(n, { fondo: false });
+    g.drawImage(fondo, 0, 0, W, H);
+    g.drawImage(b0, 0, 0, W, H);
+    if (O.kG > 0.004) { g.globalAlpha = O.kG; g.drawImage(b1, 0, 0, W, H); g.globalAlpha = 1; }
     pegarGL();
+    luzLibro(O);
+    g.drawImage(reg, 0, 0, W, H);
+    parpadeo(n);
     POST.aplicar(g, n);
     if (n === NFIN) fin();
     return;
   }
   if (pl === 'hombro' || pl === 'pagina') {
+    const reg = F('reglaSola');
     lectura(ts);
-    P.limpiar(); atomo(ts); regla(ts);
+    P.limpiar(); atomo(ts);
     P.render(n, { fondo: false });
     pegarGL();
+    g.drawImage(reg, 0, 0, W, H);
     POST.aplicar(g, n);
     return;
   }
   // los saltos (como en la prueba)
   let k = -1, u = 0, nv = 0;
   SALTO.forEach(([a, b], i) => { if (ts >= b) nv = i + 1; if (ts >= a && ts < b) { k = i; u = (ts - a) / (b - a); } });
-  if (k < 0 && (nv === 0 || nv === 4)) {
-    // persona (con la cartela delante) y tronco (con la cota): render completo
+  if (k < 0 && nv === 0) {
+    // la persona con la cartela: mientras la cartela está quieta, todo es la foto que se hace al cargar (= el último
+    // fotograma de ep3-saltos con la cartela delante; Atom, quieto, va en ella); cuando la cartela se va, la foto sin
+    // cartela, su sombra en el fondo (foto) que se apaga con ella y la cartela viva
+    if (ts <= CARTELA.sale) {
+      g.drawImage(F('p0c'), 0, 0, W, H);
+      if (n) parpadeo(n);
+      POST.aplicar(g, n);
+      return;
+    }
+    const base = F('p0'), som = F('sombraCart');
     P.limpiar();
-    NIVEL[nv](ts);
-    atomo(ts); regla(ts);
-    if (nv === 0) cartela(P, ts, E.cartela);
-    P.render(n);
-    g.clearRect(0, 0, W, H); pegarGL();
+    const kc = cartela(P, ts, E.cartela);
+    P.render(n, { fondo: false });
+    g.drawImage(base, 0, 0, W, H);
+    if (kc > 0.004) { g.globalAlpha = kc; g.drawImage(som, 0, 0, W, H); g.globalAlpha = 1; }
+    pegarGL();
+    parpadeo(n);
+    POST.aplicar(g, n);
+    return;
+  }
+  if (k < 0 && nv === 4) {
+    // el pelo-tronco (foto); la cota y la tarjeta, vivas mientras se mueven, con la sombra de la tarjeta en el tronco
+    // (foto) que aparece mientras baja; quietas, la foto del tronco con las dos. Atom vivo; la regla, foto.
+    const fijo = ts >= T.fijo;
+    const kE = eoc(prog(ts, T.etq0, T.milimetro));
+    const base = F(fijo ? 'nivel4b' : 'nivel4'), som = !fijo && kE > 0 ? F('sombraEtq') : null, reg = F('reglaSola');
+    P.limpiar(); atomo(ts);
+    if (!fijo) nivel4(ts, false);
+    P.render(n, { fondo: false });
+    g.drawImage(base, 0, 0, W, H);
+    if (som) { g.globalAlpha = kE; g.drawImage(som, 0, 0, W, H); g.globalAlpha = 1; }
+    pegarGL();
+    g.drawImage(reg, 0, 0, W, H);
+    parpadeo(n);
     POST.aplicar(g, n);
     return;
   }
   if (k < 0) {
-    // decorado quieto (mano, piel, pelo): su foto y, encima, Atom y la regla (la foto se pide ANTES de renderizar: si
-    // falta, F() la pinta en el lienzo de WebGL y borraría a Atom y la regla)
+    // decorado quieto (mano, piel, pelo): su foto y, encima, Atom y la regla
     const fotoQuieta = F('nivel' + nv);
     P.limpiar(); atomo(ts); regla(ts);
     P.render(n, { fondo: false });
     g.drawImage(fotoQuieta, 0, 0, W, H);
     pegarGL();
-    const fl = azar(n, 3) - 0.5;
-    g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
+    parpadeo(n);
     POST.aplicar(g, n);
     return;
   }
@@ -600,14 +649,16 @@ function fin() {
       corte: { separacion: 6, brillo: 1, haces: 1 }, centroPx: c.map((v) => Math.round(v)), diametroPx: OJO.diam,
       punto: `P.punto(${OJO.x}, ${OJO.y}, ${OJO.z})` },
     regla: { pos: 'P.punto(1668, 528, 0.4)', escala: E_REG, rot: ROT_REG, e: 0, ya: 1.5, entera: 0, actual: -4, marca: -4, lupa: 0.3 },
-    atom: { centro: ATOMO_PRES, diametroOrbitas: 180, z: A_Z, ts: +(TZ_SALTOS + calma(QUIETO)).toFixed(4) },
+    atom: { centro: ATOMO_PRES, diametroOrbitas: 180, z: A_Z, ts: +tzAtomo(QUIETO).toFixed(4) },
   };
 }
 
 // ---------------------------------------------------------------- fotos y estrenos, fuera de la carga
-// (coste) Al cargar solo se crea el plató: el fotograma 0 es un render completo (la persona, la cartela, la regla y Atom)
-// y no necesita ninguna foto. Las fotos (los decorados de los saltos, el plano por encima del hombro, la página de cerca
-// y su versión borrosa, el plató vacío) y los estrenos de los programas que SwiftShader compila la primera vez que
+// (coste) Al cargar se crean el plató y UNA foto: el fotograma 0 entero (la persona, la cartela, la regla y Atom), que es
+// también la imagen de los fotogramas 1–9 (la cartela aún quieta). Las demás fotos (la persona sin la cartela y la sombra
+// de la cartela, los decorados de los saltos, el tronco con la cota y la tarjeta y la sombra de la tarjeta, la regla en
+// 10⁻⁴ sin fondo, el plano por encima del hombro, la página de cerca y su versión borrosa, el plató vacío, la sombra del
+// ojo en el suelo) y los estrenos de los programas que SwiftShader compila la primera vez que
 // dibujan (mano, piel, pelo, tronco, cota, tarjeta, libro, ojo en corte: un dibujo de unos píxeles) se hacen en
 // fotogramas baratos poco antes de hacer falta, en el orden en que renderiza render-escenas.mjs, como en ep3-casa:
 // [desde, nombre, hasta]. Al final de cada fotograma que no haya tenido que hacer nada al pedirlo, se hace como mucho UNA
@@ -635,6 +686,51 @@ function pintarFranja(k, b, pintar) {
   p.hechas |= 1 << b;
   return true;
 }
+// (coste) pinta solo la región R = [x0, y0, x1, y1] (px de diseño) con el recorte de WebGL (la pasada de la sombra no se
+// recorta, el resto sí) y la pega sobre una copia de la foto base (o sobre transparente). Con el mismo número de fotograma
+// que la base, fuera de lo que cambia los píxeles son los mismos: no hay costura.
+function pintarRegion(base, R, pintar) {
+  const [x0, y0, x1, y1] = R, kk = P.renderer.getSize(new THREE.Vector2()).x / W;
+  P.renderer.setScissor(x0 * kk, (H - y1) * kk, (x1 - x0) * kk, (y1 - y0) * kk);
+  P.renderer.setScissorTest(true);
+  pintar();
+  P.renderer.setScissorTest(false);
+  const c = lienzo(), gc = c.getContext('2d'), d = lienzoGL.width / W;
+  if (base) gc.drawImage(base, 0, 0);
+  const a = Math.round(x0 * d), b = Math.round(y0 * d), w = Math.round(x1 * d) - a, h = Math.round(y1 * d) - b;
+  gc.clearRect(a, b, w, h);
+  gc.drawImage(lienzoGL, a, b, w, h, a, b, w, h);
+  return c;
+}
+// la foto base sin lo que tapa la máscara (un render sin fondo), un poco ensanchada: queda solo la sombra que deja
+function recortar(base, mascara, r = 2) {
+  const c = lienzo(), gc = c.getContext('2d');
+  gc.drawImage(base, 0, 0);
+  gc.globalCompositeOperation = 'destination-out';
+  for (const [dx, dy] of [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r], [r, r], [-r, -r], [r, -r], [-r, r]]) gc.drawImage(mascara, dx, dy);
+  gc.globalCompositeOperation = 'source-over';
+  return c;
+}
+// regiones (px de diseño) donde cambia la imagen: la cartela y su sombra; la cota, la tarjeta y su sombra en el tronco;
+// la sombra del ojo en el suelo (por debajo del ojo, con el borde de arriba fundido)
+const R_CART = [560, 230, 1400, 920], R_ETQ = [540, 460, 1260, 840], R_OJO = [0, 800, 1920, 1080], OJO_FUNDE = 40;
+function pintarP0() { P.fotograma(0); P.limpiar(); nivel0(0); atomo(0); regla(0); }
+function pintarTronco() { P.fotograma(SALTO[3][1]); P.limpiar(); nivel4(T.fijo + 0.5); }
+function pintarOjoQuieto(kG) {
+  const { rot, esc } = poseOjo(kG);
+  P.limpiar(); ponerCorte(UO, { separacion: 6, brillo: 1, haces: 1 });
+  P.pieza(I.CORTE, { pos: OJO.pos, escala: esc, rot, variante: OJO.variante });
+}
+function bandaOjo(kG) {
+  const c = pintarRegion(null, R_OJO, () => { pintarOjoQuieto(kG); P.render(2003); });
+  const gc = c.getContext('2d'), d = c.width / W;
+  gc.globalCompositeOperation = 'destination-in';
+  const gr = gc.createLinearGradient(0, R_OJO[1] * d, 0, (R_OJO[1] + OJO_FUNDE) * d);
+  gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
+  gc.fillStyle = gr; gc.fillRect(0, 0, c.width, c.height);
+  gc.globalCompositeOperation = 'source-over';
+  return c;
+}
 function porFranjas(k, pintar) {
   for (let b = 0; b < FRANJAS[k]; b++) pintarFranja(k, b, pintar);
   return PARCIAL[k].c;
@@ -650,6 +746,16 @@ const HACER = {
   nivel1: () => basculante(porFranjas('nivel1', () => pintarNivel(1)), BASC[1]),
   nivel2: () => basculante(porFranjas('nivel2', () => pintarNivel(2)), BASC[2]),
   hombro: () => fotoHombro(porFranjas('hombro', pintarHombro)), pagina: () => porFranjas('pagina', pintarPagina), borrosa: () => fotoBorrosa(F('pagina')), fondo: () => fotoFondo(),
+  // la persona sin la cartela (solo se repinta la región de la cartela y su sombra) y la sombra de la cartela sola
+  p0: () => pintarRegion(F('p0c'), R_CART, () => { pintarP0(); P.render(0); }),
+  sombraCart: () => { const b = F('p0c'); P.fotograma(0); P.limpiar(); cartela(P, 0, E.cartela); P.render(0, { fondo: false }); return recortar(b, foto()); },
+  // la regla quieta en 10⁻⁴, sin fondo (de la cota al final)
+  reglaSola: () => { P.fotograma(T.lectura); P.limpiar(); regla(T.lectura); P.render(2004, { fondo: false }); return foto(); },
+  // el tronco con la cota y la tarjeta quietas, y la sombra de la tarjeta en el tronco sola
+  nivel4b: () => pintarRegion(F('nivel4'), R_ETQ, () => { pintarTronco(); P.render(1004); }),
+  sombraEtq: () => { const b = F('nivel4b'); P.fotograma(SALTO[3][1]); P.limpiar(); nivel4(T.fijo + 0.5, false); P.render(1004, { fondo: false }); return recortar(b, foto()); },
+  // la sombra del ojo en el suelo, al principio y al final del giro
+  bandaOjo0: () => bandaOjo(0), bandaOjo1: () => bandaOjo(1),
   'e:mano': () => estrenar(I.MANO), 'e:piel': () => estrenar(I.PIEL), 'e:pelo': () => estrenar(I.PELO), 'e:tronco': () => estrenar(I.TRO),
   'e:cota': () => estrenar(I.COTA), 'e:etiqueta': () => estrenar(I.ETQ), 'e:libro': () => estrenar(I.LIB), 'e:corte': () => estrenar(I.CORTE),
 };
@@ -669,6 +775,9 @@ function F(k) {
   return FOTO[k];
 }
 const PREPARAR = [
+  [0.05, 'p0', CARTELA.fin], [0.05, 'sombraCart', CARTELA.fin],
+  [0.05, 'reglaSola', D + 1], [0.05, 'nivel4b', T.lectura], [0.05, 'sombraEtq', T.fijo],
+  [0.05, 'bandaOjo0', D + 1], [0.05, 'bandaOjo1', D + 1],
   // en los fotogramas de la persona (1–14): sus fotos y los estrenos de los saltos, de una en una
   [0.05, 'nivel0', SALTO[0][1]], [0.05, 'e:mano', SALTO[0][1]],
   ...[0, 1, 2, 3, 4, 5].map((b) => [0.05, `nivel1#${b}`, SALTO[1][1]]), [0.05, 'nivel1', SALTO[1][1]],
@@ -696,16 +805,37 @@ const FOCO = [
   pant(mundo(PELO, ROT_PELO, E_PELO, [0, 1.9, 0.8])),
 ];
 const ZONA_FINA = zonaFina(LIB_C);
-// (coste) los programas del fotograma 0 (la persona con sus celdas, la regla, la flecha, Atom y la cartela) se estrenan al
-// cargar dibujándolo entero con un recorte de un píxel: SwiftShader los compila sin pagar el relleno
-(() => {
-  const sz = P.renderer.getSize(new THREE.Vector2());
-  P.renderer.setScissor(0, sz.y - 1, 1, 1); P.renderer.setScissorTest(true);
-  P.fotograma(0); P.limpiar(); nivel0(0); atomo(0); regla(0); cartela(P, 0, E.cartela);
-  P.render(0);
-  P.renderer.setScissorTest(false);
-  hito('estreno0');
-})();
+// el fotograma 0 entero, al cargar (estrena también los programas de la persona, la regla, la flecha, Atom y la cartela)
+FOTO.p0c = (() => { pintarP0(); cartela(P, 0, E.cartela); P.render(0); return foto(); })();
+hito('p0c');
+// ?diferencias: dónde cambia cada foto parcial (cajas en px de diseño), para comprobar las regiones R_*
+if (new URLSearchParams(location.search).has('diferencias')) {
+  const px = (c) => c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+  const caja = (a, b, fuera = null) => {
+    const A = px(a), B = px(b), M = fuera ? px(fuera) : null, w = a.width, d = W / w;
+    let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+    for (let i = 0; i < A.length; i += 4) {
+      if (M && M[i + 3] > 4) continue;
+      if (Math.max(Math.abs(A[i] - B[i]), Math.abs(A[i + 1] - B[i + 1]), Math.abs(A[i + 2] - B[i + 2])) <= 2) continue;
+      const x = (i / 4) % w, y = Math.floor(i / 4 / w);
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+    }
+    return [x0, y0, x1, y1].map((v) => Math.round(v * d));
+  };
+  const entero = (pintar) => { pintar(); return foto(); };
+  const dif = {};
+  dif.cartela = caja(FOTO.p0c, entero(() => { pintarP0(); P.render(0); }));
+  dif.etq = caja(F('nivel4'), entero(() => { pintarTronco(); P.render(1004); }));
+  const fondo = F('fondo');
+  for (const kG of [0, 1]) {
+    const ojoSolo = entero(() => { pintarOjoQuieto(kG); P.render(2003, { fondo: false }); });
+    dif['sombraOjo' + kG] = caja(fondo, entero(() => { pintarOjoQuieto(kG); P.render(2003); }), ojoSolo);
+    const A = px(ojoSolo), w = ojoSolo.width, d = W / w; let y1 = -1, x0 = 1e9, x1 = -1, y0 = 1e9;
+    for (let i = 3; i < A.length; i += 4) if (A[i] > 4) { const x = ((i - 3) / 4) % w, y = Math.floor((i - 3) / 4 / w); y1 = Math.max(y1, y); y0 = Math.min(y0, y); x0 = Math.min(x0, x); x1 = Math.max(x1, x); }
+    dif['ojo' + kG] = [x0, y0, x1, y1].map((v) => Math.round(v * d));
+  }
+  window.__dif = dif;
+}
 // ?prepararTodo: lo hace todo al cargar (para medir cuánto cuesta cada cosa)
 if (new URLSearchParams(location.search).has('prepararTodo')) for (const [, k] of PREPARAR) F(k);
 window.__carga = Math.round(performance.now() - T0);

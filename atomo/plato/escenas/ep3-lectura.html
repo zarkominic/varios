@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-lectura · leer el ADN en voz alta</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-lectura (frases 32–34, sin cartela: sigue el capítulo «−7»). Plastilina adulta (va en arcilla aunque el
+// Visual lo marca en isométrico: cambio de estilo n.º 4 de las notas, a firmar por el dueño).
+//  0          el último fotograma de ep3-adn: la doble hélice en primer plano, en vertical por el centro; regla en 10⁻⁹;
+//             Atom pequeño abajo a la izquierda
+//  leer       (la cámara se aparta, completo en la marca) plano general: la hélice a la izquierda, más pequeña; la persona
+//             («humano», postura «sentada», aspecto propio joven: sin barba ni canas) en un sillón orejero de mostaza, de tres
+//             cuartos hacia la hélice, lee en voz alta el peldaño que queda a la altura de sus ojos: la hélice sube un
+//             peldaño cada ~0,9 s (se para, el peldaño se enciende, ella asiente y pasa al siguiente) y la luz del color
+//             del peldaño le da en la cara; un calendario de taco flota junto a ella con «2026».
+//             A mitad de frase (corte, plano medio): ella de la cabeza al regazo y el calendario grande a la izquierda; las
+//             hojas pasan, despacio, deprisa y otra vez despacio, de 2026 a 2121 (solo números), y a la vez le salen canas
+//             hasta tener el pelo blanco (canas 0 → 1 y colorPelo hacia el blanco); sigue leyendo (la luz de los peldaños)
+//  bocadillo  (corte al plano general) ella, ya con el pelo blanco, sigue leyendo; una mano entra por la derecha, en
+//             primer término, con una bandeja de nogal con un bocadillo y un termo y se la acerca (completo en la marca)
+//  demi       (la cámara vuelve a la hélice, completo en la marca) la hélice parada en primer plano, como al principio, con
+//             el peldaño del centro encendido (par C–G); la cámara se acerca a ese peldaño, que resulta ser de bolitas (el
+//             peldaño de kits/ep03-tocar.js); Atom deja su sitio, vuela hasta delante del centro del peldaño y saluda
+//             con un electrón en su alambre; se asienta y queda quieto
+// Todo se compone en 2D (crearPost al final). Lo quieto son fotos: el plató con la hélice del principio (al cargar), los
+// dos decorados (sillón y cuerpo de la persona, sin la cabeza, con su sombra entera), la mano con la bandeja, la hélice
+// del final y el peldaño de bolitas, hechas una por fotograma en fotogramas baratos poco antes de hacer falta (o al
+// pedirlas). En cada fotograma va vivo, sobre transparente, solo lo que se mueve: Atom siempre; en el plano general la
+// hélice (corre), la cabeza de la persona y el calendario; en el plano medio la cabeza (las canas) y el calendario. Las
+// sombras de la hélice y del calendario en el telón, la luz del peldaño en la cara y los cambios de plano son 2D.
+// Piezas propias de la escena (tiposExtra, aquí abajo): el sillón orejero y la «ofrenda» (la manga de punto, la bandeja,
+// el bocadillo y el termo, en el marco de la mano del kit, la pieza 'mano'). La hélice es de kits/ep03-adn.js; el
+// calendario, de kits/ep03-tiempo.js; el peldaño de bolitas, de kits/ep03-tocar.js.
+//
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, desenfoque 44, sin recorte)
+//  · Fotograma 0 = el último de ep3-adn (window.__fin de ep3-adn): el plató vacío (P.render(905)), la hélice HELICE_F
+//    (pos P.punto(960, 540, 3), 262 px por unidad, largo y giro 0,35 de ep3-adn, avance 4,239, render 193) con su sombra
+//    2D (115, 42) px, blur 24, 42 %, en x 430–1580; Atom en P.punto(230, 780, 1) con la escala del presentador (órbitas
+//    de 180 px) y su reloj donde lo dejó ep3-adn (calma(D − 0,3, D) de ep3-adn: 15,742 s, yaw y bote de su fórmula); la
+//    regla REGLA_0 (e −9, ya 0,375, actual −9, marca −9, lupa 0,5, pos P.punto(1668, 528, 0,4), escala 1,42, rot
+//    [0, −0,12, 0]), render 907.
+//  · Último fotograma = el 0 de ep3-casa (sin su cartela): la foto del peldaño PELDANO (peldano() con pos P.punto(790,
+//    465, 0), escala 3,7, rot [0,16, −0,1, 0,03], par 'CG' y extremos; P.render(2000) con fondo), su parpadeo y su post del
+//    fotograma 0; Atom en P.punto(790, 470, 1,9), escala 0,5, yaw −0,15, pitch 0,06, sin bote, energía 0, reloj de las
+//    órbitas en 0 (mód. 10/3) y el electrón 0 saludando en su alambre (fase 2π·1,25·0,32: a ≈ 1,05, roll −0,04·sen);
+//    la regla de arriba (render 3009, como ep3-casa).
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eob, azar, calma, postura, esqueletoHumano } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposAdn, helice, foto, secuenciaAdn, BASES } from '/atomo/plato/kits/ep03-adn.js';
+import { tiposTiempo, uniformesTiempo, calendario } from '/atomo/plato/kits/ep03-tiempo.js';
+import { tiposTocar, peldano } from '/atomo/plato/kits/ep03-tocar.js';
+
+const E = await escena('ep3-lectura', 'ep03');
+const D = E.duracion;
+const M = (k) => E.marca(k);
+const m = { leer: M('leer'), leerFin: M('leer_fin'), boc: M('bocadillo'), bocFin: M('bocadillo_fin'), demi: M('demi'), demiFin: M('demi_fin') };
+window.__carga = [['inicio', Math.round(performance.now())]];
+const W = 1920, H = 1080;
+const TQ = D - 0.45;               // todo quieto desde aquí (los últimos 0,3 s, además, repiten fotograma)
+// el reloj de Atom donde lo dejó ep3-adn (su último fotograma: calma(D − 0,3, D))
+let D_ADN = 16.442;
+try { const t = await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json(); D_ADN = t['ep3-adn']?.duracion ?? D_ADN; } catch {}
+const ZA0 = calma(D_ADN - 0.3, D_ADN);
+
+// ---------------------------------------------------------------- tiempos (todos salen de las marcas)
+const T = {
+  t1: [m.leer - 0.3, m.leer],                                // la cámara se aparta: el plano general (completo en la marca)
+  ab: m.leer + 0.48 * (m.leerFin - m.leer),                  // a mitad de frase: corte al plano medio
+  bc: m.boc - 0.27,                                          // corte al plano general
+  mano: [m.boc - 0.27, m.boc + 0.02],                        // la mano entra (completa en la marca)
+  t4: [m.demi - 0.27, m.demi],                               // la cámara vuelve a la hélice (completo en la marca)
+  push: [m.demi + 0.25, m.demi + 1.3],                       // se acerca a un peldaño…
+  pel: [m.demi + 0.8, m.demi + 1.3],                         // … que es de bolitas
+  vuelo: [m.demi + 1.5, m.demi + 2.45],                      // Atom deja su sitio
+  saludo: [m.demi + 2.3, m.demi + 2.6],                      // y saluda
+};
+T.cal = [T.ab + 0.2, m.leerFin - 0.4];                       // las hojas del calendario y las canas
+// la hélice sube a pasos: 4,239 → 5 → … → 16 (12 pasos), uno cada PASO s, desde la marca hasta antes de volver a ella
+const N_PASOS = 12, DP = 0.36, S0 = m.leer + 0.05;
+const PASO = (T.t4[0] - 0.08 - DP - S0) / (N_PASOS - 1);
+const AV0 = 4.239, AV_FIN = 16;
+const K_FIN = -AV_FIN;                                       // el peldaño del centro al final: −16, par C–G
+function avanceEn(t) {
+  let a = AV0 + (5 - AV0) * eio(prog(t, S0, S0 + DP));
+  for (let k = 1; k < N_PASOS; k++) a += eio(prog(t, S0 + k * PASO, S0 + k * PASO + DP));
+  return a;
+}
+// el peldaño del centro se enciende cuando se para (se está leyendo) y se apaga mientras pasa
+function resaltaEn(t) {
+  if (t < S0 + 0.5 * DP) return 0;
+  let mov = 0;
+  for (let k = 0; k < N_PASOS; k++) mov = Math.max(mov, Math.sin(Math.PI * prog(t, S0 + k * PASO - 0.02, S0 + k * PASO + DP + 0.04)));
+  return ss(S0 + 0.5 * DP, S0 + DP, t) * (1 - mov);
+}
+// asiente un poco al llegar cada peldaño
+function asentir(t) {
+  let s = 0;
+  for (let k = 0; k < N_PASOS; k++) { const u = prog(t, S0 + k * PASO + DP - 0.08, S0 + k * PASO + DP + 0.42); s = Math.max(s, Math.sin(Math.PI * u)); }
+  return s;
+}
+// el calendario: de 2026 a 2121 (despacio, deprisa, despacio); la edad sigue al calendario
+const anio = (t) => { const u = prog(t, T.cal[0], T.cal[1]); return 2026 + 95 * u * u * (3 - 2 * u); };
+const edadEn = (t) => (anio(t) - 2026) / 95;
+function calEn(t) {
+  const DH = 0.2, cur = Math.floor(anio(t) + 1e-6), tgt = Math.floor(anio(t + DH) + 1e-6);
+  if (tgt <= cur) return { numero: cur, anterior: cur - 1, hoja: 0 };
+  let a = t, b = t + DH;
+  for (let i = 0; i < 24; i++) { const c = (a + b) / 2; if (anio(c) + 1e-6 >= tgt) b = c; else a = c; }
+  return { numero: tgt, anterior: cur, hoja: ss(0, 1, (t - (b - DH)) / DH) };
+}
+function plano(t) {
+  if (t < T.t1[0]) return 'S';
+  if (t < T.t1[1]) return 'T1';
+  if (t < T.ab) return 'A';
+  if (t < T.bc) return 'B';
+  if (t < T.t4[0]) return 'C';
+  if (t < T.t4[1]) return 'T4';
+  if (t < T.push[0]) return 'HD';
+  if (t < T.push[1]) return 'P';
+  return 'PEL';
+}
+
+// ---------------------------------------------------------------- piezas propias
+// el sillón orejero (unidades de la persona: el centro de arriba del asiento en el origen, el suelo en y = −0,427, mira
+// a +z; con pos = el asiento de la postura sentada y la escala de la persona, ella queda sentada en él)
+const SILLON = { radio: 1.2, glifos: [], glsl: /* glsl */`
+const vec3 SL_TELA = vec3(0.380, 0.235, 0.055);
+const vec3 SL_NOGAL = vec3(0.150, 0.085, 0.048);
+vec3 slResp(vec3 q) { vec3 r = q; r.z += 0.14 * max(q.y + 0.1, 0.0); return r; }
+float slBastidor(vec3 q) {
+  float base = sdRoundBox(q - vec3(0.0, -0.215, 0.07), vec3(0.385, 0.115, 0.33), 0.05);
+  vec3 r = slResp(q);
+  float resp = sdRoundBox(r - vec3(0.0, 0.38, -0.235), vec3(0.385, 0.55, 0.1), 0.08);
+  vec3 o = vec3(abs(r.x) - 0.33, r.y - 0.6, r.z + 0.10);
+  float orej = sdRoundBox(o, vec3(0.055, 0.27, 0.17), 0.05);
+  vec3 a = vec3(abs(q.x) - 0.32, q.y, q.z - 0.07);
+  float brazo = sdRoundBox(a - vec3(0.0, -0.06, 0.0), vec3(0.065, 0.2, 0.33), 0.05);
+  brazo = smin(brazo, sdCapsule(a, vec3(0.005, 0.15, -0.30), vec3(0.005, 0.15, 0.31), 0.075), 0.04);
+  return smin(smin(base, resp, 0.04), smin(orej, brazo, 0.05), 0.04);
+}
+float pz_sillon(vec3 q, vec4 T, out float m) {
+  m = 0.0;
+  float d = slBastidor(q);
+  vec3 c = q - vec3(0.0, -0.055, 0.1);
+  float coj = sdRoundBox(c, vec3(0.255, 0.055, 0.25), 0.045) - 0.012 * max(1.0 - c.x * c.x / 0.065, 0.0) * max(1.0 - c.z * c.z / 0.0625, 0.0);
+  if (coj < d) m = 1.0;
+  d = min(d, coj);
+  vec3 rc = slResp(q) - vec3(0.0, 0.33, -0.12);
+  float cr = sdRoundBox(rc, vec3(0.25, 0.4, 0.05), 0.045) - 0.016 * max(1.0 - rc.x * rc.x / 0.0625, 0.0) * max(1.0 - rc.y * rc.y / 0.16, 0.0);
+  if (cr < d) m = 2.0;
+  d = min(d, cr);
+  vec3 pp = vec3(abs(q.x) - 0.33, q.y, abs(q.z - 0.07) - 0.28);
+  float pata = capsulaC(pp, vec3(0.0, -0.32, 0.0), vec3(0.0, -0.427, 0.0), 0.03, 0.022);
+  if (pata < d) m = 3.0;
+  return min(d, pata);
+}
+float pzc_sillon(vec3 q, vec4 T) {
+  float base = sdRoundBox(q - vec3(0.0, -0.17, 0.07), vec3(0.37, 0.16, 0.32), 0.05);
+  vec3 r = slResp(q);
+  return min(base, sdRoundBox(r - vec3(0.0, 0.38, -0.235), vec3(0.37, 0.53, 0.09), 0.07));
+}
+vec3 pzcol_sillon(vec3 q, vec4 T, float m) {
+  if (m > 2.5) { gBri = 1.6; return SL_NOGAL * (0.9 + 0.2 * vnoise(q * vec3(8.0, 90.0, 8.0))); }
+  vec3 c = SL_TELA;
+  // terciopelo: trama fina en la normal y algo de variación (más claro donde se ha gastado)
+  gG = vec3(0.0006 * cos(q.x * 520.0), 0.0006 * cos(q.y * 520.0), 0.0006 * cos(q.z * 520.0));
+  c *= 0.9 + 0.06 * sin(q.x * 520.0) * sin(q.y * 520.0 + q.z * 520.0) + 0.16 * (vnoise(q * 9.0) - 0.5);
+  if (m > 0.5) c *= 1.07;
+  if (m < 0.5) c *= 0.9;
+  // vivos (cordón) en los cantos de los brazos
+  gBri = 0.55;
+  return c;
+}
+` };
+// la «ofrenda», en el marco de la pieza 'mano' del kit (los mismos pos, escala y rot): la mano mira con la palma a −z,
+// los dedos hacia −y y el antebrazo hacia +y. Con la palma hacia arriba (rot [π/2 + 0,15, giro, 0]), −z local es arriba,
+// −y se aleja de la cámara (hacia donde apuntan los dedos) y x va a lo ancho: la bandeja de nogal sobre la palma, el
+// bocadillo (pan con relleno) delante, a lo ancho, el termo de pie detrás, y la manga de punto crema que tapa el
+// antebrazo y sale del cuadro hacia la cámara
+const OFRENDA = { radio: 12.2, envolvente: true, glifos: [], glsl: /* glsl */`
+const vec3 OF_NOGAL = vec3(0.150, 0.085, 0.048);
+const vec3 OF_PAN = vec3(0.40, 0.19, 0.055);
+const vec3 OF_MIGA = vec3(0.56, 0.47, 0.30);
+const vec3 OF_JAMON = vec3(0.40, 0.10, 0.075);
+const vec3 OF_LECHUGA = vec3(0.13, 0.20, 0.045);
+const vec3 OF_TERMO = vec3(0.12, 0.19, 0.11);
+const vec3 OF_CREMA = vec3(0.56, 0.49, 0.37);
+const vec3 OF_LATON = vec3(0.47, 0.30, 0.085);
+const vec3 OF_LANA = vec3(0.47, 0.41, 0.31);
+const vec3 OF_BC = vec3(0.0, -0.45, -0.25);    // centro de la bandeja
+float ofCil(vec3 p, float r, float h) { vec2 d = vec2(length(p.xy) - r, abs(p.z) - h); return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)); }
+float ofBandeja(vec3 p) {
+  vec3 b = p - OF_BC;
+  float losa = sdRoundBox(b, vec3(0.95, 0.62, 0.05), 0.03);
+  float fuera = sdRoundBox(b - vec3(0.0, 0.0, -0.07), vec3(0.95, 0.62, 0.065), 0.035);
+  float dentro = sdRoundBox(b - vec3(0.0, 0.0, -0.11), vec3(0.895, 0.565, 0.1), 0.03);
+  return min(losa, max(fuera, -dentro));
+}
+// el pan, a lo ancho (x): en sus coordenadas, el eje del pan es y y la altura z (aplastada)
+vec3 ofPanQ(vec3 p) { vec3 b = p - vec3(-0.18, -0.28, -0.49); return vec3(b.y, b.x, b.z / 0.85); }
+float ofPan(vec3 p) {
+  vec3 b = ofPanQ(p);
+  float pan = sdCapsule(b, vec3(0.0, -0.46, 0.0), vec3(0.0, 0.46, 0.0), 0.2) * 0.85;
+  return smax(pan, 0.026 - abs(b.z - 0.01), 0.012);
+}
+float ofRelleno(vec3 p) {
+  vec3 b = ofPanQ(p);
+  float a = atan(b.x, -b.z);
+  float r = 0.214 + 0.014 * sin(b.y * 46.0 + 1.3 * sin(a * 3.0));
+  float d = sdCapsule(b, vec3(0.0, -0.48, 0.0), vec3(0.0, 0.48, 0.0), r) * 0.85;
+  return max(d, abs(b.z - 0.01) - 0.03);
+}
+vec3 ofTermoQ(vec3 p) { return p - vec3(0.5, -0.78, -1.0); }
+float ofTermo(vec3 p, out float m) {
+  vec3 t = ofTermoQ(p);
+  float cuerpo = ofCil(t, 0.2, 0.67) - 0.035;
+  float taza = ofCil(t - vec3(0.0, 0.0, -0.56), 0.225, 0.155) - 0.025;
+  float aro = sdTorus(vec3(t.x, t.z + 0.37, t.y), vec2(0.235, 0.018));
+  m = 3.0;
+  float d = cuerpo;
+  if (taza < d) m = 4.0;
+  d = min(d, taza);
+  if (aro < d) m = 5.0;
+  return min(d, aro);
+}
+float ofManga(vec3 p) {
+  float r = mix(0.34, 0.40, smoothstep(1.2, 3.0, p.y));
+  vec2 s = vec2(p.x, p.z - 0.02);
+  float d = smax(length(s) - r, 1.05 - p.y, 0.06);
+  return max(d, p.y - 12.0);
+}
+float pz_ofrenda(vec3 q, vec4 T, out float m) {
+  m = 0.0;
+  float d = ofBandeja(q);
+  float pan = ofPan(q);
+  if (pan < d) m = 1.0;
+  d = min(d, pan);
+  float rel = ofRelleno(q);
+  if (rel < d) m = 2.0;
+  d = min(d, rel);
+  float mt;
+  float te = ofTermo(q, mt);
+  if (te < d) m = mt;
+  d = min(d, te);
+  float ma = ofManga(q);
+  if (ma < d) m = 6.0;
+  return min(d, ma);
+}
+float pza_ofrenda(vec3 q, vec4 T) {
+  float caja = sdRoundBox(q - vec3(0.0, -0.45, -0.98), vec3(1.05, 0.75, 0.82), 0.05);
+  float manga = sdCapsule(q, vec3(0.0, 1.0, 0.02), vec3(0.0, 12.05, 0.02), 0.46);
+  return min(caja, manga) - 0.02;
+}
+float pzc_ofrenda(vec3 q, vec4 T) {
+  float mt;
+  return min(min(sdRoundBox(q - OF_BC, vec3(0.95, 0.62, 0.1), 0.03), ofTermo(q, mt)), sdCapsule(ofPanQ(q), vec3(0.0, -0.46, 0.0), vec3(0.0, 0.46, 0.0), 0.2) * 0.85);
+}
+vec3 pzcol_ofrenda(vec3 q, vec4 T, float m) {
+  if (m < 0.5) { gBri = 1.5; return OF_NOGAL * (0.85 + 0.25 * vnoise(q * vec3(4.0, 40.0, 40.0)) + 0.08 * sin(q.x * 60.0 + 4.0 * vnoise(q * 6.0))); }
+  if (m < 1.5) {
+    // corteza dorada, más clara arriba (−z), con los cortes en diagonal y algo de harina
+    vec3 b = ofPanQ(q);
+    float corte = smoothstep(0.75, 0.95, sin((b.y + b.x * 0.6) * 26.0)) * smoothstep(0.08, 0.16, -b.z);
+    vec3 c = mix(OF_PAN, OF_PAN * 1.45, smoothstep(0.0, 0.2, -b.z));
+    c = mix(c, OF_MIGA, 0.75 * corte);
+    c = mix(c, OF_MIGA * 1.1, 0.25 * smoothstep(0.55, 0.8, vnoise(q * 30.0)));
+    gBri = 0.8;
+    return c * (0.92 + 0.12 * vnoise(q * 18.0));
+  }
+  if (m < 2.5) {
+    vec3 b = ofPanQ(q);
+    float l = smoothstep(0.35, 0.65, vnoise(vec3(b.y * 9.0, atan(b.x, -b.z) * 2.0, 0.0)));
+    gBri = 1.4;
+    return mix(OF_JAMON, OF_LECHUGA, l);
+  }
+  if (m < 3.5) {
+    // esmalte verde con una franja crema
+    vec3 t = ofTermoQ(q);
+    float fr = smoothstep(0.02, 0.0, abs(t.z - 0.05) - 0.12);
+    gBri = 2.6;
+    return mix(OF_TERMO, OF_CREMA * 0.95, fr) * (0.94 + 0.08 * vnoise(q * 12.0));
+  }
+  if (m < 4.5) { gBri = 1.8; return OF_CREMA * (0.95 + 0.08 * vnoise(q * 14.0)); }
+  if (m < 5.5) { gBri = 3.0; return OF_LATON; }
+  // manga de punto: canalé en el puño, punto liso después
+  float a = atan(q.z - 0.02, q.x);
+  float pu = 1.0 - smoothstep(1.42, 1.48, q.y);
+  float rib = sin(a * 26.0);
+  gG = vec3(0.004 * pu * rib * -sin(a), 0.0, 0.004 * pu * rib * cos(a));
+  float pt = sin(q.y * 70.0) * sin(a * 40.0);
+  vec3 c = OF_LANA * (0.88 + 0.08 * mix(pt, rib, pu) + 0.12 * (vnoise(q * 8.0) - 0.5));
+  gTr = 0.2; gBri = 0.45;
+  return c;
+}
+` };
+
+// ---------------------------------------------------------------- plató
+const PIEZAS = ['reglaA', 'flecha', 'helice', 'humano', 'calendario', 'sillon', 'mano', 'ofrenda', 'peldano'];
+const I = Object.fromEntries(PIEZAS.map((t, i) => [t, i]));
+const P = await crearPlato({
+  piezas: PIEZAS, mano: false, alfa: true, post: false,
+  sombraFondo: ['humano', 'sillon', 'peldano', 'calendario'].map((k) => `p${I[k]}`),
+  tiposExtra: { ...tiposAdn(['helice']), ...tiposTiempo(['calendario']), ...tiposTocar(['peldano']), sillon: SILLON, ofrenda: OFRENDA },
+  uniformes: uniformesTiempo(),
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+window.__carga.push(['plato', Math.round(performance.now())]);
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+
+// ---------------------------------------------------------------- puesta en escena (mundo)
+// regla y Atom (los del viaje)
+const REG = en(1668, 528, 0.4), E_REG = 1.42;
+const REGLA_0 = { e: -9, ya: 0.375, lupa: 0.5 };
+const SITIO = en(230, 780, 1.0);
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(SITIO));
+const ATOMO_0 = en(790, 470, 1.9), A_ESC_0 = 0.5;           // el sitio de ep3-casa, delante del centro del peldaño
+// la hélice: F (la de ep3-adn: el principio y la vuelta, «demi») y A (el plano general, a la izquierda, más pequeña)
+const HX_F_POS = en(960, 540, 3.0), HX_F_ESC = 262 / pxU(HX_F_POS);
+const HELICE_F = { pos: HX_F_POS, escala: HX_F_ESC, rot: [0, 0, 0], largo: (560 / pxU(HX_F_POS)) / HX_F_ESC + 0.9, semilla: 0, giro: 0.35 };
+const RA = 118, HX_A_POS = en(470, 430, 0.0), HX_A_ESC = RA / pxU(HX_A_POS);
+const HELICE_A = { pos: HX_A_POS, escala: HX_A_ESC, rot: [0, 0, 0], largo: (700 / pxU(HX_A_POS)) / HX_A_ESC + 0.9, semilla: 0, giro: 0.35 };
+const C_HX_F = [960, 540], C_HX_A = pant(HX_A_POS);
+// el peldaño de bolitas (el de ep3-casa)
+const PELDANO = { pos: en(790, 465, 0.0), escala: 3.7, rot: [0.16, -0.1, 0.03], par: 'CG', extremos: true };
+// la persona: «humano» sentada, de tres cuartos hacia la hélice (gira a su derecha, la izquierda de la pantalla)
+const ROT_P = -0.8;
+const PELO_0 = [0.095, 0.062, 0.038], PELO_1 = [0.47, 0.455, 0.43];
+const aspectoEn = (k) => ({ base: 'adulto', barba: 0, canas: k, colorPelo: PELO_0.map((c, i) => mix(c, PELO_1[i], Math.pow(k, 0.8))) });
+const LOC = esqueletoHumano('sentada', aspectoEn(0)).puntos;
+function aMundo(PER, l) {
+  const c = Math.cos(PER.rot[1]), s = Math.sin(PER.rot[1]), e = PER.escala;
+  return [PER.pos[0] + e * (l[0] * c + l[2] * s), PER.pos[1] + e * l[1], PER.pos[2] + e * (-l[0] * s + l[2] * c)];
+}
+// A: plano general, de pie sobre el suelo del plató
+const E_A = 3.0, Z_A = 2.0;
+const PER_A = { pos: [en(1050, 600, Z_A)[0], E_A, Z_A], escala: E_A, rot: [0, ROT_P, 0] };
+// B: plano medio (de la cabeza al regazo): la coronilla en COR_B px; el decorado se hunde bajo el borde de abajo
+const E_B = 4.0, Z_B = 3.0, COR_B = [1000, 150];
+const PER_B = (() => {
+  const o = aMundo({ pos: [0, 0, 0], escala: E_B, rot: [0, ROT_P, 0] }, LOC.coronilla);
+  const w = en(COR_B[0], COR_B[1], Z_B + o[2]);
+  return { pos: [w[0] - o[0], w[1] - o[1], Z_B], escala: E_B, rot: [0, ROT_P, 0] };
+})();
+const sillonDe = (PER) => ({ pos: aMundo(PER, LOC.asiento), escala: PER.escala, rot: [0, PER.rot[1], 0] });
+// el calendario: flota junto a ella (A) y grande a la izquierda (B)
+const CAL_A = { pos: en(760, 245, -1.0), escala: 0, rot: [0, 0.2, 0] };
+CAL_A.escala = 135 / (1.24 * pxU(CAL_A.pos));
+const CAL_B = { pos: en(500, 380, 2.0), escala: 0, rot: [0, 0.22, 0] };
+CAL_B.escala = 400 / (1.24 * pxU(CAL_B.pos));
+// la mano con la bandeja (C), en primer término, delante de ella: sube desde abajo con la palma hacia arriba y los
+// dedos hacia ella (el antebrazo, en su manga, sale del cuadro por abajo)
+const MANO = { pos: en(1240, 750, 3.6), escala: 0.58, rot: [Math.PI / 2 + 0.15, 0.3, 0] };
+const MANO_DESDE = [150, 470];                               // de dónde llega (px, desde abajo)
+// el objetivo de la mirada: el peldaño que se lee (el centro de la hélice A)
+const OBJ_A = HX_A_POS;
+
+// ---------------------------------------------------------------- relojes de Atom
+// w: el reloj de reposo (velocidad 1 y frena hasta pararse en TQ); las órbitas (periodo 10/3 s) siguen desde donde las
+// dejó ep3-adn y llegan a 0 (mód. 10/3) en TQ, como empieza ep3-casa
+const w = (t) => calma(t, TQ + 0.3);
+const W_Q = w(TQ);
+const N_ORB = Math.round((ZA0 + W_Q) * 0.3), V_ORB = (N_ORB * 10 / 3 - ZA0) / W_Q;
+const tOrb = (t) => ZA0 + V_ORB * w(t);
+
+// ---------------------------------------------------------------- capa 2D
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const lienzo = () => { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; return c; };
+const ctx = (c) => { const x = c.getContext('2d'); x.setTransform(c.width / W, 0, 0, c.width / W, 0, 0); return x; };
+
+// ---------------------------------------------------------------- Atom
+function atomo(ts) {
+  const uv = eio(prog(ts, T.vuelo[0], T.vuelo[1]));
+  const z0 = ZA0 + w(ts), z1 = w(ts) - W_Q;
+  // presentador (las fórmulas de ep3-adn) → saludo (las de ep3-casa, que acaban en 0 en TQ)
+  const yaw = mix(-0.15 + 0.08 * Math.sin(0.5 * z0), -0.15 + 0.08 * Math.sin(0.5 * z1), uv);
+  const bote = mix(0.006 * Math.sin(1.1 * z0), 0.025 * Math.sin(1.1 * z1), uv);
+  const pos = [mix(SITIO[0], ATOMO_0[0], uv), mix(SITIO[1], ATOMO_0[1], uv) + 0.5 * Math.sin(Math.PI * uv) + bote, mix(SITIO[2], ATOMO_0[2], uv)];
+  const salK = ss(T.saludo[0], T.saludo[1], ts);
+  const fase = 2 * Math.PI * 1.25 * (z1 + 0.32);
+  const electrones = [];
+  if (salK > 0.001) {
+    const a = 0.8 + 0.42 * Math.sin(fase);
+    electrones[0] = { pos: [2.45 * Math.cos(a), 2.45 * Math.sin(a), 0.35], mezcla: eio(salK), brazo: ss(0.2, 0.7, salK), grosor: 0.042 };
+  }
+  P.atomo({
+    pos, escala: mix(A_ESC, A_ESC_0, uv), yaw, pitch: 0.06, roll: -0.04 * Math.sin(fase) * salK,
+    energia: ts < TQ ? E.energia(ts) : 0, ts: tOrb(ts), electrones, toque: salK > 0.05,
+  });
+  return pos;
+}
+function reglaFoto(n) {
+  P.limpiar();
+  P.regla({ pieza: I.reglaA, flecha: I.flecha, pos: REG, escala: E_REG, rot: [0, -0.12, 0], ...REGLA_0, actual: -9, marca: -9 });
+  P.render(n, { fondo: false });
+  return foto(P);
+}
+
+// ---------------------------------------------------------------- la persona
+// la cabeza hacia un punto del mundo: [giro, inclina] (giro + a su izquierda; inclina − hacia arriba)
+function cabezaHacia(PER, obj) {
+  const hp = aMundo(PER, LOC.cabeza);
+  const dx = obj[0] - hp[0], dy = obj[1] - hp[1], dz = obj[2] - hp[2];
+  const c = Math.cos(PER.rot[1]), s = Math.sin(PER.rot[1]);
+  const lx = c * dx - s * dz, lz = s * dx + c * dz;
+  return [Math.atan2(lx, lz), -Math.atan2(dy, Math.hypot(lx, lz))];
+}
+function poseLectura(ts, PER, obj) {
+  const p = postura('sentada');
+  const [gi, inc] = cabezaHacia(PER, obj);
+  const nod = asentir(ts);
+  p.cabeza = [0.62 * gi, 0.7 * inc + 0.07 * nod, 0.03 - 0.02 * nod];
+  p.mirada = [cl(0.75 * gi, -0.8, 0.8), cl(-0.6 * inc - 0.25 * nod, -0.6, 0.6)];
+  return p;
+}
+const HUELLA = [0.37, 0.21, 0];
+function cabeza(ts, PER, obj) {
+  return P.pieza(I.humano, { ...PER, postura: poseLectura(ts, PER, obj), aspecto: aspectoEn(edadEn(ts)), t: ts, partes: 'cabeza', huellaFija: HUELLA });
+}
+// el decorado de un plano: el plató, el sillón y el cuerpo con las manos (sin la cabeza, con su sombra entera)
+function hacerDecorado(PER, obj, n) {
+  P.fotograma(T.t1[1]); P.limpiar();
+  P.pieza(I.sillon, sillonDe(PER));
+  P.pieza(I.humano, { ...PER, postura: poseLectura(T.t1[1], PER, obj), aspecto: aspectoEn(0), t: 0, partes: ['cuerpo', 'manos'], huellaFija: HUELLA });
+  P.render(n);
+  return foto(P);
+}
+// para atomo/herramientas/guias-humano.py (sentada: valen las líneas de la cabeza y los hombros): x de la cabeza,
+// coronilla y la suela que tendría de pie (coronilla + H en px a la altura de la cabeza)
+function guias(h, PER) {
+  const cor = pant(h.punto('coronilla')), ce = pant(h.punto('cabeza'));
+  const hp = h.punto('cabeza'), Hpx = Math.abs(pant([hp[0], hp[1] + 1.765 * PER.escala, hp[2]])[1] - pant(hp)[1]);
+  window.__guias = { x: Math.round(ce[0]), coronilla: Math.round(cor[1]), suela: Math.round(cor[1] + Hpx) };
+}
+
+// ---------------------------------------------------------------- 2D: sombras, luz del peldaño y transiciones
+// la sombra de lo vivo en el telón (la luz viene de arriba a la izquierda): su silueta, desplazada y borrosa, solo en
+// una franja de x (la de la hélice o la del calendario)
+const SOMBRA_F = { dx: 115, dy: 42, blur: 24, alfa: 0.42, x0: 430, x1: 1580 };               // la de ep3-adn
+const SOMBRA_A = { dx: 70, dy: 26, blur: 18, alfa: 0.38, x0: C_HX_A[0] - 1.45 * RA, x1: C_HX_A[0] + 1.45 * RA + 70 };
+const SOMBRA_CAL = (() => { const c = pant(CAL_A.pos); return { dx: 40, dy: 16, blur: 12, alfa: 0.35, x0: c[0] - 95, x1: c[0] + 135 }; })();
+function sombra(gx, src, S) {
+  gx.save(); gx.beginPath(); gx.rect(S.x0, 0, S.x1 - S.x0, H); gx.clip();
+  gx.globalAlpha = S.alfa; gx.filter = `blur(${S.blur}px) brightness(0)`;
+  gx.drawImage(src, S.dx, S.dy, W, H);
+  gx.restore();
+}
+const sRGB = (c) => Math.round(255 * Math.pow(cl(c), 1 / 2.2));
+// una foto con los bordes fundidos (radial, alrededor de c), para encogerla sin que se vea su marco
+const PLUMA = new Map();
+function pluma(f, c) {
+  if (PLUMA.has(f)) return PLUMA.get(f);
+  const r = lienzo(), gr0 = r.getContext('2d'), k = r.width / W;
+  gr0.drawImage(f, 0, 0);
+  gr0.globalCompositeOperation = 'destination-in';
+  const R0 = Math.max(Math.hypot(c[0], c[1]), Math.hypot(W - c[0], c[1]), Math.hypot(c[0], H - c[1]), Math.hypot(W - c[0], H - c[1]));
+  const gr = gr0.createRadialGradient(c[0] * k, c[1] * k, 0.35 * R0 * k, c[0] * k, c[1] * k, 0.75 * R0 * k);
+  gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  gr0.fillStyle = gr; gr0.fillRect(0, 0, r.width, r.height);
+  PLUMA.set(f, r);
+  return r;
+}
+// la cámara se aparta o se acerca: dos fotos alineadas por la hélice (centro c y px por unidad r de cada una); la que
+// queda grande va debajo, entera; la que queda pequeña, encima, fundida por los bordes
+function cambio(u, viejo, cV, rV, nuevo, cN, rN) {
+  const e = eio(u), s = rN / rV, Z = Math.pow(s, e);
+  const c = [mix(cV[0], cN[0], e), mix(cV[1], cN[1], e)];
+  const pon = (f, z, cc, a) => { g.save(); g.globalAlpha = a; g.translate(c[0], c[1]); g.scale(z, z); g.translate(-cc[0], -cc[1]); g.drawImage(f, 0, 0, W, H); g.restore(); };
+  if (s < 1) {
+    // se aparta: la nueva (agrandada) debajo y la vieja encima, que se va
+    pon(nuevo, Z / s, cN, 1);
+    const a = 1 - ss(0.1, 0.85, u);
+    if (a > 0.001) pon(pluma(viejo, cV), Z, cV, a);
+  } else {
+    // se acerca: la vieja (agrandada) debajo y la nueva encima, que llega
+    pon(viejo, Z, cV, 1);
+    const a = ss(0.05, 0.6, u);
+    if (a > 0.001) pon(pluma(nuevo, cN), Z / s, cN, a * (1 - ss(0.7, 1, u)));
+    if (u > 0.7) pon(nuevo, Z / s, cN, ss(0.7, 1, u));
+  }
+}
+function exposicion(fl) {
+  g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- fotos
+const FOTO = {};
+let hechas = [];
+const HACER = {
+  // el decorado del plano general y el del plano medio
+  Aset: () => hacerDecorado(PER_A, OBJ_A, 931),
+  Bset: () => hacerDecorado(PER_B, OBJ_A, 932),
+  // el plano general en la marca (lo vivo de ese instante, sin Atom, sobre su decorado): la llegada de la cámara
+  A05: () => { const base = F('Aset'); const h = vivoA(T.t1[1], false); return componerA(base, h, T.t1[1], false); },
+  // la mano con la bandeja (sobre transparente)
+  MANO: () => { P.fotograma(T.mano[1]); P.limpiar(); P.pieza(I.mano, MANO); P.pieza(I.ofrenda, MANO); P.render(933, { fondo: false }); return foto(P); },
+  // el plano general justo antes de volver a la hélice (la hélice ya parada), con la mano: la salida de la cámara
+  C1: () => { const base = F('Aset'); F('MANO'); const h = vivoA(T.t4[0], false); return componerA(base, h, T.t4[0], true); },
+  // la hélice F parada, con el peldaño del final encendido (avance 16, resalta 1), con su sombra
+  HD: () => {
+    P.fotograma(T.t4[1]); P.limpiar();
+    const hx = helice(P, I.helice, { ...HELICE_F, avance: AV_FIN, resalta: 1 });
+    P.render(934, { fondo: false });
+    const f = lienzo(), gf = ctx(f);
+    gf.drawImage(F('fondo'), 0, 0, W, H); sombra(gf, lienzoGL, SOMBRA_F); gf.drawImage(lienzoGL, 0, 0, W, H);
+    // el peldaño K_FIN en pantalla: su centro y sus dos extremos (las hebras)
+    const th = 2 * Math.PI * K_FIN / 10 + HELICE_F.giro, y = (K_FIN + AV_FIN) * 0.34, e = HELICE_F.escala, p0 = HELICE_F.pos;
+    const ext = (sg) => pant([p0[0] + sg * Math.cos(th) * e, p0[1] + y * e, p0[2] + sg * Math.sin(th) * e]);
+    const [i0, d0] = [ext(1), ext(-1)].sort((p, q) => p[0] - q[0]);
+    FOTO.HDpel = { c: pant(hx.peldano(K_FIN)), izq: i0, der: d0 };
+    return f;
+  },
+  // el peldaño de bolitas (la foto de ep3-casa, con el plató)
+  PEL: () => { P.fotograma(0); P.limpiar(); peldano(P, I.peldano, PELDANO); P.render(2000); return foto(P); },
+  R1: () => reglaFoto(3009),
+  fondo: () => { P.fotograma(T.t4[1]); P.limpiar(); P.render(905); return foto(P); },
+};
+function F(k) { if (!FOTO[k]) { FOTO[k] = HACER[k](); hechas.push(k); } return FOTO[k]; }
+
+// lo vivo del plano general (sobre transparente, en lienzoGL): la hélice, la cabeza, el calendario y, si toca, Atom
+function vivoA(ts, conAtomo = true) {
+  P.fotograma(ts); P.limpiar();
+  if (conAtomo) atomo(ts);
+  helice(P, I.helice, { ...HELICE_A, avance: avanceEn(ts), resalta: resaltaEn(ts) });
+  const h = cabeza(ts, PER_A, OBJ_A);
+  calendario(P, I.calendario, { ...CAL_A, ...calEn(ts) });
+  P.render(Math.floor(ts * 12 + 1e-6), { fondo: false });
+  return h;
+}
+// compone el plano general: el decorado, las sombras de lo vivo (hélice y calendario), lo vivo y la luz del peldaño;
+// con la mano, si toca (C). En un lienzo nuevo (foto) o en g
+function componerA(base, h, ts, conMano, gx = null) {
+  const f = gx ? null : lienzo();
+  const x = gx ?? ctx(f);
+  x.drawImage(base, 0, 0, W, H);
+  sombra(x, lienzoGL, SOMBRA_A);
+  sombra(x, lienzoGL, SOMBRA_CAL);
+  x.drawImage(lienzoGL, 0, 0, W, H);
+  luzPeldanoX(x, h, ts, 1);
+  if (conMano) ponerMano(x, ts);
+  return f;
+}
+// la luz del peldaño que se lee, en el lado de la cara que mira a la hélice (del color de sus dos bases)
+function luzPeldanoX(x, h, ts, fuerza) {
+  const r = resaltaEn(ts) * fuerza;
+  if (r < 0.01 || !h) return;
+  const par = secuenciaAdn(-Math.round(avanceEn(ts)), 0);
+  const c = [0, 1, 2].map((i) => sRGB(1.9 * (BASES[par[0]][i] + BASES[par[1]][i]) / 2));
+  const ojos = pant(h.punto('ojos')), cor = pant(h.punto('coronilla')), bar = pant(h.punto('barbilla'));
+  const R = 1.25 * Math.hypot(cor[0] - bar[0], cor[1] - bar[1]);
+  const p = [ojos[0] - 0.3 * R, ojos[1] + 0.1 * R];
+  x.save(); x.globalCompositeOperation = 'lighter';
+  const gr = x.createRadialGradient(p[0], p[1], 0, p[0], p[1], R);
+  gr.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${0.16 * r})`); gr.addColorStop(0.5, `rgba(${c[0]},${c[1]},${c[2]},${0.07 * r})`); gr.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+  x.fillStyle = gr; x.fillRect(p[0] - R, p[1] - R, 2 * R, 2 * R);
+  x.restore();
+}
+// la mano entra desde abajo a la derecha, se pasa un poco y se asienta (completa en la marca)
+function ponerMano(x, ts) {
+  const u = prog(ts, T.mano[0], T.mano[1]);
+  if (u <= 0) return;
+  const k = 1 - eob(u, 1.2);
+  x.drawImage(FOTO.MANO, MANO_DESDE[0] * k, MANO_DESDE[1] * k, W, H);
+}
+
+// ---------------------------------------------------------------- al cargar: la regla, el plató y el fotograma 0
+FOTO.R0 = reglaFoto(907);
+F('fondo');
+{
+  // el principio: el plató vacío y la hélice de ep3-adn con su sombra (su último fotograma, el 193)
+  P.fotograma(193 / 12); P.limpiar();
+  helice(P, I.helice, { ...HELICE_F, avance: AV0 });
+  P.render(193, { fondo: false });
+  const f = lienzo(), gf = ctx(f);
+  gf.drawImage(FOTO.fondo, 0, 0, W, H); sombra(gf, lienzoGL, SOMBRA_F); gf.drawImage(lienzoGL, 0, 0, W, H);
+  FOTO.S0 = f;
+}
+window.__carga.push(['principio', Math.round(performance.now())]);
+
+// ---------------------------------------------------------------- fotograma
+// (coste) cada foto se hace en un fotograma barato poco antes de hacer falta (en orden, como renderiza
+// render-escenas.mjs): [desde, foto, hasta]. Al final de cada fotograma que no haya tenido que hacer ninguna foto al
+// pedirla, se hace como mucho UNA: la primera cuyo «desde» ya pasó, que aún hace falta y que no está hecha. Si se pide
+// un instante sin pasar por los anteriores, F() hace allí las que falten (la imagen es la misma).
+const PREPARAR = [
+  [0.05, 'Aset', T.t4[0] + 0.3], [0.1, 'A05', T.t1[1]], [0.2, 'Bset', T.bc], [0.28, 'MANO', T.t4[1]],
+  [T.ab + 0.1, 'HD', T.push[1]], [T.ab + 0.2, 'PEL', D + 1], [T.ab + 0.3, 'R1', D + 1],
+];
+function dibujar(t) {
+  const n = P.fotograma(t, D), ts = n / 12;
+  const quieto = ts >= TQ;
+  ajustarCapa();
+  hechas = [];
+  const pl = plano(ts);
+  let h = null;
+  if (pl === 'S' || pl === 'T1' || pl === 'T4' || pl === 'HD' || pl === 'P' || pl === 'PEL') {
+    if (pl === 'S') g.drawImage(FOTO.S0, 0, 0, W, H);
+    else if (pl === 'T1') cambio(prog(ts, T.t1[0], T.t1[1]), FOTO.S0, C_HX_F, 262, F('A05'), C_HX_A, RA);
+    else if (pl === 'T4') cambio(prog(ts, T.t4[0], T.t4[1]), F('C1'), C_HX_A, RA, F('HD'), C_HX_F, 262);
+    else if (pl === 'HD') { g.drawImage(F('HD'), 0, 0, W, H); exposicion(azar(n, 3) - 0.5); }
+    else if (pl === 'P') {
+      // la cámara se acerca al peldaño K_FIN hasta que tiene el tamaño, el sitio y el giro del peldaño de bolitas
+      const hd = F('HD'), pe = FOTO.HDpel, u = prog(ts, T.push[0], T.push[1]), e = eio(u);
+      const pi = pant(mundoPel(-1)), pd = pant(mundoPel(1)), cp = pant(PELDANO.pos);
+      const Zf = 1.1 * Math.hypot(pd[0] - pi[0], pd[1] - pi[1]) / Math.hypot(pe.der[0] - pe.izq[0], pe.der[1] - pe.izq[1]);
+      const ang = Math.atan2(pd[1] - pi[1], pd[0] - pi[0]) - Math.atan2(pe.der[1] - pe.izq[1], pe.der[0] - pe.izq[0]);
+      const Z = Math.pow(Zf, e), c = [mix(pe.c[0], cp[0], e), mix(pe.c[1], cp[1], e)];
+      g.save(); g.translate(c[0], c[1]); g.rotate(ang * e); g.scale(Z, Z); g.translate(-pe.c[0], -pe.c[1]); g.drawImage(hd, 0, 0, W, H); g.restore();
+      const a = ss(T.pel[0], T.pel[1], ts);
+      if (a > 0.001) { g.save(); g.globalAlpha = a; g.drawImage(F('PEL'), 0, 0, W, H); g.restore(); }
+      exposicion(azar(n, 3) - 0.5);
+    } else {
+      g.drawImage(F('PEL'), 0, 0, W, H);
+      exposicion(azar(quieto ? 0 : n, 3) - 0.5);
+    }
+    // Atom, vivo
+    P.fotograma(ts); P.limpiar(); atomo(ts); P.render(n, { fondo: false });
+    g.drawImage(lienzoGL, 0, 0, W, H);
+  } else if (pl === 'A' || pl === 'C') {
+    const base = F('Aset');
+    if (pl === 'C') F('MANO');
+    h = vivoA(ts);
+    componerA(base, h, ts, pl === 'C', g);
+    guias(h, PER_A);
+  } else {
+    // B: el plano medio
+    const base = F('Bset');
+    P.fotograma(ts); P.limpiar();
+    atomo(ts);
+    h = cabeza(ts, PER_B, OBJ_A);
+    calendario(P, I.calendario, { ...CAL_B, ...calEn(ts) });
+    P.render(n, { fondo: false });
+    g.drawImage(base, 0, 0, W, H);
+    g.drawImage(lienzoGL, 0, 0, W, H);
+    luzPeldanoX(g, h, ts, 1.1);
+    guias(h, PER_B);
+  }
+  // la regla (quieta en 10⁻⁹), encima de todo
+  g.drawImage(ts >= T.push[0] ? F('R1') : FOTO.R0, 0, 0, W, H);
+  POST.aplicar(g, quieto ? 0 : n);
+  if (!hechas.length) {
+    const pend = PREPARAR.find(([t0, k, t1]) => ts >= t0 && ts < t1 && !FOTO[k]);
+    if (pend) F(pend[1]);
+  }
+  window.__tiempos = hechas.length ? { fotos: hechas.join(',') } : null;
+}
+// el peldaño de bolitas: un punto de su eje x (local, ±1) en el mundo
+function mundoPel(x) {
+  const v = new THREE.Vector3(x, 0, 0).multiplyScalar(PELDANO.escala).applyEuler(new THREE.Euler(...PELDANO.rot, 'YXZ'));
+  return [PELDANO.pos[0] + v.x, PELDANO.pos[1] + v.y, PELDANO.pos[2] + v.z];
+}
+
+window.__fin = {
+  PELDANO, ATOMO_0, A_ESC_0, REGLA_0, ATOMO: { sitio: SITIO, escala: A_ESC }, HELICE_F, HELICE_A, PER_A, PER_B, CAL_A, CAL_B, MANO, T,
+  AV_FIN, K_FIN, ORBITAS: { ZA0, V_ORB, N_ORB },
+};
+window.__duracion = D;
+window.__carga.push(['listo', Math.round(performance.now())]);
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

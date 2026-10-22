@@ -330,8 +330,10 @@ function F(k) {
 function fotoRegla(n) { P.limpiar(); reglaEn(); P.render(n, { fondo: false }); return copiaGL(); }
 // la regla del corte con ep3-tierra (reg0) y dos más que se alternan con ella para el hervor (por bandas)
 for (const [k, n] of [['reg1', 7101], ['reg2', 7102]]) trabajo(k, bandas(RECT_REGLA, 2).map((rect) => ({ rect, poner: reglaEn, n })), (cs) => cs[0]);
-// la foto de la regla del fotograma n (las tres se alternan desde el fotograma 4; antes, la del corte con ep3-tierra)
-const reglaDe = (n) => (n < 4 ? 'reg0' : ['reg0', 'reg1', 'reg2'][n % 3]);
+// la foto de la regla del fotograma n (las tres se alternan desde N_HERVOR, cuando PREPARAR ya ha hecho reg1 y reg2;
+// antes, la del corte con ep3-tierra: si se pidieran antes, un fotograma pagaría las cuatro bandas de golpe)
+let N_HERVOR = 4;
+const reglaDe = (n) => (n < N_HERVOR ? 'reg0' : ['reg0', 'reg1', 'reg2'][n % 3]);
 const CIELO_F = {}, IDX_CIELO = { sol: I.SOL, estrellas: I.EST, gigante: I.GIG };
 function recortar(c, [x0, y0, x1, y1]) {
   const k = c.width / W, r = lienzo(Math.round((x1 - x0) * k), Math.round((y1 - y0) * k));
@@ -892,10 +894,12 @@ const prep = (t, ...a) => PREPARAR.push([Math.round(t * 12), ...a]);
   const uno = (...a) => { prep(t, ...a); t += 1 / 12; };
   const dos = (...a) => { prep(t, ...a); t += 2 / 12; };
   const todo = (k, f = uno) => { for (const i of pasosDe(k)) f(k, i); f(k); };
-  // A · el primer plano (el Sol vivo, ~2,5 s de CPU por fotograma; sobra sitio): un paso cada dos fotogramas
-  t = 0.25;
-  for (const k of ['reg1', 'reg2']) todo(k, dos);
+  // A · el primer plano (el Sol vivo, ~2,5 s de CPU por fotograma; sobra sitio): un paso cada dos fotogramas, después
+  // de que se abra el corte (esos fotogramas ya cuestan ~4 s); las regla del hervor, sin paso final (no hace nada)
+  t = T.corte[1];
   dos('flecha');
+  for (const k of ['reg1', 'reg2']) for (const i of pasosDe(k)) dos(k, i);
+  N_HERVOR = PREPARAR[PREPARAR.length - 1][0] + 1;
   todo('plasmaBase', dos); dos('plasma');
   for (const k of ['nucH0', 'nucH1', 'nucHe0', 'nucHe1', 'nucBlur']) dos(k);
   todo('corteS1', dos);
@@ -906,11 +910,13 @@ const prep = (t, ...a) => PREPARAR.push([Math.round(t * 12), ...a]);
   for (const k of ['corte0', 'corte1', 'persona0', 'persona1']) todo(k);
   uno('personaSombra');
   todo('monton/lejos');
+  // al final del detalle ya no hay núcleo vivo (~1,8 s): el Sol y la gigante del cielo (~3 s cada una), con hueco
+  t += 1 / 12;
+  dos('cielo/gigante'); dos('cielo/giganteApagada'); dos('cielo/sol');
   if (t > T.sale[0]) console.warn('ep3-sol: PREPARAR no cabe en el detalle', t);
-  // C · el viaje de la luz (~2–2,5 s): las estrellas de cerca en alta, el Sol y la gigante del cielo y el montón de cerca
+  // C · el viaje de la luz (~2–2,5 s): las estrellas de cerca en alta y el montón de cerca
   t = T.fuera + 0.05;
   for (const A of ALTAS) todo(A.clave);
-  uno('cielo/sol'); uno('cielo/gigante'); uno('cielo/giganteApagada');
   todo('monton/cerca');
   if (t > T.s5 - 0.05) console.warn('ep3-sol: PREPARAR no cabe en el viaje', t);
 }

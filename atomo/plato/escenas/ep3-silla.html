@@ -35,8 +35,9 @@
 //              apartan (uno se queda, el otro va a la segunda capa), como gente en un ascensor lleno; luego la cámara se
 //              aparta (otro encuadre, más frontera) y todo se calma y queda quieto
 // Coste: lo quieto es foto (la regla, la persona con la multitud y sin ella, la cómoda abierta y cerrada, la persona
-// sentada, las cuentas y las nubes); en cada fotograma se dibuja vivo solo lo que se mueve (la multitud mientras brota y
-// mientras vuela va viva con la persona, como en ep3-casa). La vista atómica es 2D con las fotos de las cuentas (8
+// sentada, las cuentas y las nubes); en cada fotograma se dibuja vivo solo lo que se mueve. En el primer general, desde
+// el fotograma 1, por capas: la foto del plató con la sombra de ella, la multitud viva (mientras brota y mientras
+// vuela; radio 2,8), la foto de su cuerpo y su cabeza y sus manos vivas. La vista atómica es 2D con las fotos de las cuentas (8
 // variantes que se alternan cada fotograma: «hierven») y las chispas del kit, vivas.
 //
 // CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, sin recorte 2D)
@@ -226,10 +227,10 @@ function poseG1(ts) {
 }
 const HUELLA = [0.37, 0.21, 0];
 function personaG1(ts, partes = null) {
-  // respira (la fase sigue la de ep3-casa); quieta desde T.lleno (es foto)
+  // (coste) el cuerpo es una foto ('cuerpoG1') desde el fotograma 1: contiene la respiración (la del fotograma 0, el
+  // último de ep3-casa) y solo se mueven la cabeza, la mirada y las manos (el fantasma); quieta desde T.lleno
   const tz = Math.min(ts, T.lleno);
-  const resp = 0.006 * Math.sin((TZC + ss(0.1, 0.9, tz) * (tz - 0.1)) * 2.2);
-  return P.pieza(I.HUM, { ...PERSONA_F, sq: [1, 1 + (ts < 0.1 ? RESP_0 : resp), 1], postura: poseG1(tz), aspecto: 'adulto', t: TSC + tz, huellaFija: HUELLA, partes });
+  return P.pieza(I.HUM, { ...PERSONA_F, sq: [1, 1 + RESP_0, 1], postura: poseG1(tz), aspecto: 'adulto', t: TSC + tz, huellaFija: HUELLA, partes });
 }
 // el halo frío de las manos casi transparentes (el de ep3-casa en su plano general: × 1,9 de fuerza, × 1,35 de radio)
 function haloManos(h, kf, ts) {
@@ -339,22 +340,39 @@ function planoG1(n, ts) {
   const A = estadoAtomoG1(ts);
   const vuela = ts >= T.comprime[0] && ts < T.comprime[1];
   if (ts < T.lleno || vuela) {
-    // vivo: la persona, la multitud que brota (o que vuela hacia la cucharilla), Atom y su cucharilla. Antes de la
-    // multitud, con el fondo (el fotograma 0 es el último de ep3-casa); con ella, sobre la foto del plató con la sombra
-    const sobreFoto = ts >= T.multitud[0];
-    if (sobreFoto) pintar(F('fondoG1'));
-    P.limpiar();
-    const h = personaG1(ts);
-    let dsc = null;
-    if (ts < T.lleno) {
-      const ua = prog(ts, T.multitud[0], T.multitud[1]);
-      if (ua > 0) multitud(P, I.MUL, { ...MULT, aparicion: ua });
-    } else {
+    // vivo: la persona, la multitud que brota (o que vuela hacia la cucharilla), Atom y su cucharilla.
+    // El fotograma 0 (el último de ep3-casa), todo junto y con el fondo. Desde el 1, por capas (coste: ni sombra ni
+    // ciclorama ni cuerpo en cada fotograma): la foto del plató con la sombra de ella ('fondoG1'); la multitud viva
+    // (con ella sin dibujar, que sigue dando sombra); la foto de su cuerpo ('cuerpoG1'), que tapa la multitud (siempre
+    // va detrás de ella, o a su lado al final del vuelo, ya diminuta); y su cabeza y sus manos, vivas
+    let dsc = null, h;
+    const ponerMultitud = () => {
+      if (ts < T.lleno) {
+        const ua = prog(ts, T.multitud[0], T.multitud[1]);
+        if (ua > 0) multitud(P, I.MUL, { ...MULT, aparicion: ua });
+        return ua > 0;
+      }
       dsc = disco(ts);
       if (dsc) multitud(P, I.MUL, { ...MULT, pos: dsc.centro, escala: dsc.esc, rot: dsc.rot, aparicion: 1 });
+      return !!dsc;
+    };
+    if (n > 0) {
+      const fondo = F('fondoG1'), cuerpo = F('cuerpoG1');
+      pintar(fondo);
+      P.limpiar();
+      if (ponerMultitud()) { personaG1(ts, []); P.render(n, { fondo: false }); pegarGL(); }
+      pintar(cuerpo);
+      P.limpiar();
+      h = personaG1(ts, ['cabeza', 'manos']);
+      P.render(n, { fondo: false });
+      pegarGL();
+    } else {
+      P.limpiar();
+      h = personaG1(ts);
+      ponerMultitud();
+      P.render(n);
+      pegarGL();
     }
-    P.render(n, { fondo: !sobreFoto });
-    pegarGL();
     haloManos(h, 1 - ss(T.fantasma[0], T.fantasma[1], ts), ts);
     // la luz cálida que se concentra en el remolino a medida que se encoge
     if (dsc) {
@@ -916,8 +934,10 @@ function planoMicro(n, ts) {
 // ---------------------------------------------------------------- fotos
 const HACER = {
   regla() { P.limpiar(); P.regla(REGLA); P.render(3010, { fondo: false }); return foto(P); },
-  // el plató del general con la sombra de ella, sin dibujarla (partes: []; la persona entera sigue dando sombra)
-  fondoG1() { P.limpiar(); personaG1(T.lleno, []); P.render(3012); return foto(P); },
+  // el plató del general con la sombra de ella, sin dibujarla (partes: []; la persona entera sigue dando sombra), y su
+  // cuerpo sin la cabeza ni las manos, sobre transparente (las dos, al cargar; en la postura del fotograma 0)
+  fondoG1() { P.limpiar(); personaG1(0, []); P.render(3012); return foto(P); },
+  cuerpoG1() { P.limpiar(); personaG1(0, ['cuerpo']); P.render(3012, { fondo: false }); return foto(P); },
   // la persona del general, quieta, con la multitud y sin ella: sobre 'fondoG1', como los fotogramas vivos
   lleno() { const base = F('fondoG1'); P.limpiar(); personaG1(T.lleno); multitud(P, I.MUL, { ...MULT, aparicion: 1 }); P.render(3012, { fondo: false }); return sobre(base); },
   personaG1() { const base = F('fondoG1'); P.limpiar(); personaG1(T.lleno); P.render(3012, { fondo: false }); return sobre(base); },
@@ -950,6 +970,8 @@ function F(nombre) { if (!FOTOS[nombre]) { FOTOS[nombre] = HACER[nombre](); hech
 P.fotograma(0);
 F('regla');
 window.__carga.push(['regla', Math.round(performance.now())]);
+F('fondoG1'); F('cuerpoG1');
+window.__carga.push(['fondo y cuerpo del general', Math.round(performance.now())]);
 P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: { ...POSE_0 }, aspecto: 'adulto' }); P.render(3020, { fondo: false });
 P.limpiar(); P.atomo({ pos: [0, 0.3, -2], escala: 0.05, electrones: [{ pos: [2, 0, 0], mezcla: 1, brazo: 1, mano: 1 }] }); P.render(3021, { fondo: false });
 window.__carga.push(['persona y Atom', Math.round(performance.now())]);
@@ -971,7 +993,7 @@ window.__carga.push(['estreno de las piezas', Math.round(performance.now())]);
 // como renderiza render-escenas.mjs): [desde, foto, hasta]. Al final de cada fotograma que no haya tenido que hacer
 // ninguna foto al pedirla, se hace como mucho UNA (va al lienzo de WebGL, que queda debajo de la capa 2D: no se ve)
 const PREPARAR = [
-  [0.05, 'fondoG1', T.multitud[0]], [0.05, 'personaG1', T.comprime[1]],
+  [0.05, 'personaG1', T.comprime[1]],
   [T.lleno + 0.05, 'cajonAbierto', T.cae[0]], [T.corte1 + 0.05, 'cajonCerrado', T.corte2],
   [T.fotoSentada + 0.05, 'cuentas', D], [T.fotoSentada + 0.05, 'nubes', D],
 ];

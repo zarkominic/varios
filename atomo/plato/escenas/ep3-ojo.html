@@ -465,8 +465,9 @@ function dibujar(t) {
   }
   if (ts < T.cerca) {
     const Z = aumento(ts);
-    if (Z <= 1.0001 && ts < T.entra0 + 0.05) {
-      // ---- el principio: el último fotograma de ep3-hola
+    const principio = Z <= 1.0001 && ts < T.entra0 + 0.05;
+    if (principio) {
+      // ---- el principio: el último fotograma de ep3-hola (la foto ya lleva la sombra de Atom)
       g.drawImage(F.final1, 0, 0, W, H);
     } else if (Z >= 1) {
       // ---- dentro de la franja (con el empuje y el principio de la apertura)
@@ -513,7 +514,7 @@ function dibujar(t) {
         marcaT('telefono');
       }
     }
-    sombraAtom(0);
+    if (!principio) sombraAtom(0);
     pasadaAtomo(ts, nf);
     POST.aplicar(g, nf);
     return;

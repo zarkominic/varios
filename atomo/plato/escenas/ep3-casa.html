@@ -184,6 +184,7 @@ function colocarE() {
 }
 const PERSONA_E = colocarE();
 const GIRO_F = [-0.45, 0.25, 0.06], MIRADA_F = [-0.6, -0.3];
+const giroF = (ts) => ss(T.palmadas[0] + 0.1, T.palmadas[0] + 0.6, ts);   // ella vuelve la cabeza hacia Atom
 function poseEn(ts, plano) {
   const p = { ...POSE_MANOS };
   p.fantasma = ss(T.fantasma[0], T.fantasma[1], ts);
@@ -198,7 +199,7 @@ function poseEn(ts, plano) {
   // izquierda de la pantalla), y en el kit el giro y la mirada positivos van hacia su izquierda (+x): aquí, negativos.
   // Ladea (+) lleva la coronilla hacia su derecha: se inclina un poco hacia él
   if (plano === 'F') {
-    const k = ss(T.palmadas[0] + 0.1, T.palmadas[0] + 0.6, ts);
+    const k = giroF(ts);
     p.cabeza = [mix(0, GIRO_F[0], k), mix(POSE_MANOS.cabeza[1], GIRO_F[1], k), mix(0, GIRO_F[2], k)];
     p.mirada = [mix(0, MIRADA_F[0], k), mix(-1, MIRADA_F[1], k)];
   }
@@ -383,8 +384,9 @@ function ponerReglaMm(ts) {
 //  · las de WebGL, en TIRAS horizontales: P.render con el recorte (scissor) de WebGL en la franja, que es lo único que
 //    SwiftShader pinta, y la franja se copia a la foto (es la misma imagen que la foto entera: cada píxel se calcula
 //    igual). Con estreno, la primera parte es una tira de una fila de píxeles: solo paga la compilación de los programas
-//    que se estrenan, que no se puede partir.
-//  · las 2D, en BANDAS: lo mismo, recortado (clip) a la banda.
+//    que se estrenan, que no se puede partir. La sombra del plató también se recorta a la tira (ver renderFilas).
+//  · las 2D (DIBUJOS), enteras en un fotograma barato: cuestan poco (sin WebGL), y en bandas recortadas (clip) la nube
+//    cambiaba en los bordes de las bandas (el desenfoque no ve lo que queda fuera del recorte).
 const GEO_EST = geometriaEstadio(P, ESTADIO);
 const FOTOS = { pg: pant(GEO_EST.guisante) };
 // detalle: el mismo estadio K_DET veces mayor alrededor del guisante (que queda en el mismo píxel)
@@ -393,27 +395,33 @@ const DETALLE = (() => {
   const g2 = geometriaEstadio(P, det).guisante;
   return { ...det, pos: [ESTADIO.pos[0] + (gp[0] - g2[0]), ESTADIO.pos[1] + (gp[1] - g2[1]), ESTADIO.pos[2] + (gp[2] - g2[2])], brilloGuisante: 0.35 };
 })();
+// las filas (px de diseño) que ocupa una fila de átomos centrada en y, a sep px entre átomos (sus esferas, de radio
+// 0,47·sep, inclinadas 0,1, y el hilo, de ~4 px), con margen
+const bandaFila = (y, sep) => [y - 0.6 * sep - 24, y + 0.6 * sep + 24];
 const RECETAS = {
   regla9: { n: 3009, fondo: false, montar: () => reglaQuieta(-9) },
-  regla10: { n: 3010, fondo: false, tiras: 4, montar: () => reglaQuieta(-10) },
+  regla10: { n: 3010, fondo: false, tiras: 8, montar: () => reglaQuieta(-10) },
   peldano: { n: 2000, montar: () => peldano(P, I.PEL, PELDANO) },
   // el plató vacío (fondo de los tramos de la fila)
   fondo: { n: 1999, tiras: 2, montar() {} },
   // la fila grande: S0 px entre átomos (exactamente, a la altura de la casa: así sus repeticiones empalman sin salto)
-  filaCasa: { n: 2004, fondo: false, tiras: 4, estreno: true, montar() {
+  filaCasa: { n: 2004, fondo: false, tiras: 4, estreno: true, banda: () => bandaFila(pant(CASA)[1], S0), montar() {
     const C0 = pant(CASA), a = en(C0[0], C0[1], Z_FILA), pxC = pant([a[0] + 1, a[1], a[2]])[0] - pant(a)[0];
     fila(P, I.FILA, { pos: a, escala: S0 / pxC, rot: [0.1, 0, 0], n: 1e7, fase: FASE_FILA });
   } },
-  estadio: { n: 2001, tiras: 4, estreno: true, montar: () => estadio(P, I.EST, ESTADIO) },
-  detalle: { n: 2002, tiras: 5, montar: () => estadio(P, I.EST, DETALLE) },
+  estadio: { n: 2001, tiras: 5, estreno: true, montar: () => estadio(P, I.EST, ESTADIO) },
+  detalle: { n: 2002, tiras: 7, montar: () => estadio(P, I.EST, DETALLE) },
   // el átomo del centro creciendo: el átomo solo, a SEP_CRECE px (se agranda en 2D hasta que llega el estadio)
-  crece: { n: 2003, fondo: false, tiras: 2, montar: () => fila(P, I.FILA, { pos: en(FOTOS.pg[0], FOTOS.pg[1], Z_FILA), escala: SEP_CRECE / PX_FILA, rot: [0.1, 0, 0], n: 1, fase: FASE_FILA }) },
+  crece: { n: 2003, fondo: false, tiras: 3, banda: () => bandaFila(FOTOS.pg[1], SEP_CRECE), montar: () => fila(P, I.FILA, { pos: en(FOTOS.pg[0], FOTOS.pg[1], Z_FILA), escala: SEP_CRECE / PX_FILA, rot: [0.1, 0, 0], n: 1, fase: FASE_FILA }) },
   // el primer plano de la persona sin las manos (cuerpo y cabeza, con el plató y la sombra de la persona entera), y la
   // misma con los ojos casi cerrados (el fotograma del parpadeo)
-  personaE: { n: 2007, tiras: 4, estreno: true, montar: () => persona(T.aparta[0], 'E', ['cuerpo', 'cabeza']) },
-  personaEparp: { n: 2008, tiras: 4, montar: () => persona(T_PARPADEO, 'E', ['cuerpo', 'cabeza']) },
+  personaE: { n: 2007, tiras: 5, estreno: true, montar: () => persona(T.aparta[0], 'E', ['cuerpo', 'cabeza']) },
+  personaEparp: { n: 2008, tiras: 5, montar: () => persona(T_PARPADEO, 'E', ['cuerpo', 'cabeza']) },
+  // el plano general: el plató con la sombra de la persona (sin ella), antes y después de que vuelva la cabeza
+  platoF0: { n: 2010, tiras: 2, soloFondo: true, montar: () => persona(T.palmadas[0], 'F') },
+  platoF1: { n: 2011, tiras: 2, soloFondo: true, montar: () => persona(QUIETO, 'F') },
   // el hilo de 1 mm posado en la regla de milímetros, quietos (sin el plató)
-  unMm: { n: 2009, fondo: false, montar() { const t1 = T.regla[1]; ponerFila(t1, estadoFila(t1)); ponerReglaMm(t1); } },
+  unMm: { n: 2009, fondo: false, banda: () => [Y_HILO - 40, H], montar() { const t1 = T.regla[1]; ponerFila(t1, estadoFila(t1)); ponerReglaMm(t1); } },
 };
 const MARGEN = 0.35;
 const DIBUJOS = {
@@ -430,11 +438,11 @@ const DIBUJOS = {
   } },
   // el estadio recortado con la nube entera por las gradas, y la cáscara sola (para encogerlos hacia las manos), con
   // margen MARGEN alrededor (lo que salía del encuadre también se ve al encogerse)
-  estadioNube: { margen: true, bandas: 3, pintar(gc) {
+  estadioNube: { margen: true, pintar(gc) {
     gc.drawImage(F('estadioA'), 0, 0, W, H);
     nubeElectrones(gc, { ...GEO_EST.anillo, extension: 1, t: T.aparta[0] - T.nube[0], semilla: 11, fuerza: 1.25 });
   } },
-  cascara: { margen: true, bandas: 3, pintar(gc) {
+  cascara: { margen: true, pintar(gc) {
     nubeElectrones(gc, { ...GEO_EST.bola, forma: 'bola', extension: 1, t: T.aparta[0] - T.nube[0], semilla: 5 });
   } },
 };
@@ -446,32 +454,40 @@ function lienzoFoto(margen = false) {
   return { c, tr: [k, 0, 0, k, m * W * k, m * H * k] };
 }
 let nCur = 0;   // el fotograma en curso (las recetas se montan en el 0 del plató y luego se vuelve a él)
-function montar(r) { P.fotograma(0); P.limpiar(); r.montar(); }
-// una tira de WebGL (filas y0…y1 del lienzo, de arriba abajo) o, sin filas, la foto entera
+// P.render(n, opc) solo en las filas y0…y1 del lienzo de WebGL (de arriba abajo; sin filas, todo); lo de fuera no se
+// toca. Con el recorte (scissor) de WebGL, SwiftShader solo pinta esas filas. La sombra del plató (con fondo) va a dos
+// lienzos de un tercio de resolución (los únicos que P.render usa además del de la pantalla): se recortan a la misma
+// franja, con 4 téxeles de más por cada lado (el suavizado toma ±1 por eje y el fondo la lee con filtro bilineal), así
+// la franja paga solo su parte de la sombra; al acabar, todo se deja como estaba. Cada píxel se calcula igual que sin
+// recorte: la franja es la misma imagen. soloFondo: deja pasar la sombra y el plató, no las piezas (el plató con la
+// sombra de lo montado)
+function renderFilas(n, opc, y0 = null, y1 = null, soloFondo = false) {
+  const R = P.renderer, pr = R.getPixelRatio(), Wb = lienzoGL.width, Hb = lienzoGL.height;
+  const fijar = R.setRenderTarget, dibujarR = R.render, tocados = new Set();
+  if (y0 !== null) {
+    // (en px CSS y desde abajo, como lo pide three; con una fila de más por cada lado)
+    R.setScissor(0, (Hb - y1 - 1) / pr, Wb / pr + 1, (y1 - y0 + 2) / pr);
+    R.setScissorTest(true);
+    R.setRenderTarget = function (rt, ...a) {
+      if (rt) {
+        const s = rt.height / Hb, ya = Math.floor((Hb - y1) * s) - 4, yb = Math.ceil((Hb - y0) * s) + 4;
+        rt.scissor.set(0, ya, rt.width, yb - ya); rt.scissorTest = true; tocados.add(rt);
+      }
+      return fijar.call(this, rt, ...a);
+    };
+  }
+  if (soloFondo) { let quedan = 1; R.render = function (...a) { if (this.getRenderTarget() === null && quedan-- <= 0) return; return dibujarR.apply(this, a); }; }
+  try { P.render(n, opc); }
+  finally {
+    R.setRenderTarget = fijar; R.render = dibujarR;
+    for (const rt of tocados) { rt.scissorTest = false; rt.scissor.set(0, 0, rt.width, rt.height); }
+    if (y0 !== null) { R.setScissorTest(false); R.setScissor(0, 0, Wb / pr, Hb / pr); }
+  }
+}
+// una receta, en las filas y0…y1 del lienzo (o entera)
 function renderReceta(r, y0 = null, y1 = null) {
   montar(r);
-  const R = P.renderer, pr = R.getPixelRatio(), Wb = lienzoGL.width, Hb = lienzoGL.height;
-  if (y0 === null) { P.render(r.n, { fondo: r.fondo }); P.fotograma(nCur / 12); return; }
-  // (en px CSS y desde abajo, como lo pide three; con una fila de más por cada lado)
-  R.setScissor(0, (Hb - y1 - 1) / pr, Wb / pr + 1, (y1 - y0 + 2) / pr);
-  R.setScissorTest(true);
-  // la sombra del plató (con fondo) va a dos lienzos de un tercio de resolución (los únicos que P.render usa): se
-  // recortan a la misma franja, con 4 téxeles de más por cada lado (el suavizado toma ±1 por eje y el fondo la lee con
-  // filtro bilineal), así la tira paga solo su parte de la sombra; al acabar, se dejan como estaban
-  const fijar = R.setRenderTarget, tocados = new Set();
-  R.setRenderTarget = function (rt, ...a) {
-    if (rt) {
-      const s = rt.height / Hb, ya = Math.floor((Hb - y1) * s) - 4, yb = Math.ceil((Hb - y0) * s) + 4;
-      rt.scissor.set(0, ya, rt.width, yb - ya); rt.scissorTest = true; tocados.add(rt);
-    }
-    return fijar.call(this, rt, ...a);
-  };
-  try { P.render(r.n, { fondo: r.fondo }); }
-  finally {
-    R.setRenderTarget = fijar;
-    for (const rt of tocados) { rt.scissorTest = false; rt.scissor.set(0, 0, rt.width, rt.height); }
-    R.setScissorTest(false); R.setScissor(0, 0, Wb / pr, Hb / pr);
-  }
+  renderFilas(r.n, { fondo: r.fondo }, y0, y1, r.soloFondo);
   P.fotograma(nCur / 12);
 }
 function pintarDibujo(d, c, tr, y0 = null, y1 = null) {
@@ -482,34 +498,45 @@ function pintarDibujo(d, c, tr, y0 = null, y1 = null) {
   d.pintar(gc);
   gc.restore();
 }
+// las partes: tiras (o bandas) iguales (un número) o con cortes en esas filas de diseño (0–1080, de arriba abajo), más
+// finas donde está lo caro; con banda (las recetas sobre transparente que solo ocupan unas filas), solo en ella: lo de
+// fuera queda transparente
+function cortes(p, Hc, m = 0, banda = null) {
+  const fila = (y) => cl(Math.round((y + m * H) * Hc / (H * (1 + 2 * m))), 0, Hc);
+  const [a, b] = banda ? banda.map(fila) : [0, Hc];
+  if (Array.isArray(p)) return [a, ...p.map(fila).filter((v) => v > a && v < b), b];
+  return Array.from({ length: p + 1 }, (_, i) => Math.round(a + i * (b - a) / p));
+}
 function hacerEntera(nombre) {
   const r = RECETAS[nombre];
-  if (r) { renderReceta(r); return foto(P); }
+  if (r && !r.banda) { renderReceta(r); return foto(P); }
+  if (r) {
+    const { c } = lienzoFoto(), [y0, y1] = cortes(1, c.height, 0, r.banda());
+    renderReceta(r, y0, y1);
+    c.getContext('2d').drawImage(lienzoGL, 0, y0, c.width, y1 - y0, 0, y0, c.width, y1 - y0);
+    return c;
+  }
   const d = DIBUJOS[nombre], { c, tr } = lienzoFoto(d.margen);
   pintarDibujo(d, c, tr);
   return c;
 }
-// una parte de la foto (en PREPARAR); cuando está la última, la foto queda en FOTOS
-// tiras (o bandas): un número (partes iguales) o la lista de los cortes, en filas de diseño (0–1080, de arriba abajo):
-// más finas donde está lo caro
-function cortes(p, Hc, m = 0) {
-  if (Array.isArray(p)) return [0, ...p.map((y) => Math.round((y + m * H) * Hc / (H * (1 + 2 * m)))), Hc];
-  return Array.from({ length: p + 1 }, (_, i) => Math.round(i * Hc / p));
-}
+// una parte de la foto (en PREPARAR); cuando está la última, la foto queda en FOTOS. (Lo 2D, Chrome lo deja pendiente
+// hasta que se usa: al acabar, se lee un píxel para que se pinte en este fotograma y no en el que la usa)
 const EN_CURSO = {};
 function pasoFoto(nombre) {
   const r = RECETAS[nombre], d = DIBUJOS[nombre];
   const st = EN_CURSO[nombre] ??= { k: r?.estreno ? -1 : 0, ...lienzoFoto(d?.margen) };
-  const cs = cortes(r ? r.tiras ?? 1 : d.bandas ?? 1, st.c.height, d?.margen ? MARGEN : 0), partes = cs.length - 1;
-  if (r && st.k < 0) renderReceta(r, 0, 1);
-  else {
+  const cs = cortes(r ? r.tiras ?? 1 : d.bandas ?? 1, st.c.height, d?.margen ? MARGEN : 0, r?.banda?.()), partes = cs.length - 1;
+  if (r && st.k < 0) renderReceta(r, cs[0], cs[0] + 1);
+  else if (r) {
     const y0 = cs[st.k], y1 = cs[st.k + 1];
-    if (r) {
-      renderReceta(r, y0, y1);
-      st.c.getContext('2d').drawImage(lienzoGL, 0, y0, st.c.width, y1 - y0, 0, y0, st.c.width, y1 - y0);
-    } else pintarDibujo(d, st.c, st.tr, y0, y1);
+    renderReceta(r, y0, y1);
+    st.c.getContext('2d').drawImage(lienzoGL, 0, y0, st.c.width, y1 - y0, 0, y0, st.c.width, y1 - y0);
+  } else pintarDibujo(d, st.c, st.tr, cs[st.k], cs[st.k + 1]);
+  if (++st.k >= partes) {
+    if (d) st.c.getContext('2d').getImageData(0, 0, 1, 1);
+    FOTOS[nombre] = st.c; delete EN_CURSO[nombre];
   }
-  if (++st.k >= partes) { FOTOS[nombre] = st.c; delete EN_CURSO[nombre]; }
 }
 let hechasAhora = 0;   // fotos hechas en el fotograma en curso (al pedirlas)
 function F(nombre) { if (!FOTOS[nombre]) { delete EN_CURSO[nombre]; FOTOS[nombre] = hacerEntera(nombre); hechasAhora++; } return FOTOS[nombre]; }
@@ -564,11 +591,18 @@ function baseFila(n, ts) {
     // (coste) el «1 mm» quieto (el hilo posado en la regla) es una foto
     g.drawImage(F('unMm'), 0, 0, W, H);
   } else {
+    // (coste) la fila viva solo se pinta en sus filas (bandaFila; la pieza ocupa la pantalla entera y el rayo marcha
+    // también donde no hay nada) y, si está, en las de la regla de milímetros (de su canto de arriba hasta abajo)
     P.limpiar();
     ponerFila(ts, Fi);
     ponerReglaMm(ts);
-    P.render(n, { fondo: false });
-    g.save(); recorteFila(); pegarGL(); g.restore();
+    let [ya, yb] = bandaFila(Fi.c[1], Fi.sep);
+    const kr = eoc(prog(ts, T.regla[0], T.regla[1])) * (1 - eic(prog(ts, T.quitaRegla[0], T.quitaRegla[1])));
+    if (kr >= 0.001) { ya = Math.min(ya, Y_HILO + (1 - kr) * 700 - 40); yb = H; }
+    ya = cl(Math.floor(ya), 0, H); yb = cl(Math.ceil(yb), 0, H);
+    const kb = lienzoGL.height / H;
+    renderFilas(n, { fondo: false }, Math.floor(ya * kb), Math.ceil(yb * kb));
+    g.save(); recorteFila(); g.beginPath(); g.rect(0, ya, W, yb - ya); g.clip(); pegarGL(); g.restore();
   }
   // el hilo de 1 mm brilla un poco (se lee en el móvil); el brillo está quieto entre X0 y X1: se apaga antes de que la
   // regla se vaya y empiece la zambullida (que estira el hilo más allá de sus extremos)
@@ -635,9 +669,16 @@ function basePersona(n, ts, plano) {
     h = persona(ts, 'E', 'manos');
     P.render(n, { fondo: false });
   } else {
+    // (coste) en el general, el plató con la sombra de la persona es una foto (dos, antes y después de que vuelva la
+    // cabeza, fundidas con ese giro: la respiración y el vaivén de las manos apenas mueven la sombra; la última es la
+    // del último fotograma) y la persona va viva encima, sobre transparente (como las manos del primer plano)
+    const kg = giroF(ts);
+    g.drawImage(F('platoF0'), 0, 0, W, H);
+    if (kg > 0.001) { g.save(); g.globalAlpha = kg; g.drawImage(F('platoF1'), 0, 0, W, H); g.restore(); }
+    parpadeo(n);
     P.limpiar();
     h = persona(ts, plano);
-    P.render(n);
+    P.render(n, { fondo: false });
   }
   pegarGL();
   // las manos casi transparentes llevan un halo frío muy suave (en el móvil, sobre el jersey claro, se leen mejor); en
@@ -686,17 +727,22 @@ function basePersona(n, ts, plano) {
 // se hacen. Lo que no se puede evitar: si el primer fotograma que se dibuja ya necesita una foto (retomar a medias),
 // F() la hace entera allí, y ese fotograma puede pasar de 5 s; la imagen es la misma
 const PREPARAR = [
-  [0.05, 'regla10', D + 1],                                          // 4 tiras: fotogramas 1–4
-  [T.marcador[1] + 0.02, 'fondo', T.fundeEst[1]],                    // 2 tiras (de aquí al estadio: el vuelo de Atom)
-  [T.marcador[1] + 0.02, 'filaCasa', T.fundeEst[1]],                 // estreno + 4 tiras
-  [T.marcador[1] + 0.02, 'estadio', T.aparta[1]],                    // estreno + 4 tiras
-  [T.marcador[1] + 0.02, 'estadioA', T.aparta[1]],
-  [T.marcador[1] + 0.02, 'crece', T.fundeEst[1]],                    // 2 tiras
-  [T.fundeEst[1] + 0.02, 'detalle', T.deGuisante[1]],                // 5 tiras (el general del estadio)
-  [T.aGuisante[1] + 0.02, 'personaE', T.corte],                      // estreno + 4 tiras (el detalle del guisante)
-  [T.aGuisante[1] + 0.02, 'personaEparp', T_PARPADEO + 0.05],        // 4 tiras
-  [T.aGuisante[1] + 0.02, 'estadioNube', T.aparta[1]],               // 3 bandas
-  [T.aGuisante[1] + 0.02, 'cascara', T.aparta[1]],                   // 3 bandas
+  [0.05, 'regla10', D + 1],                                          // 8 tiras: fotogramas 1–8 (con la cartela)
+  // del vuelo de Atom al reparto (fotogramas de ~1 s): 17 partes, en los fotogramas 18–34
+  [T.marcador[1] + 0.02, 'fondo', T.fundeEst[1]],                    // 2 tiras
+  [T.marcador[1] + 0.02, 'filaCasa', T.fundeEst[1]],                 // estreno + 4 tiras (en su banda)
+  [T.marcador[1] + 0.02, 'estadio', T.aparta[1]],                    // estreno + 5 tiras
+  [T.marcador[1] + 0.02, 'estadioA', T.aparta[1]],                   // 2D
+  [T.marcador[1] + 0.02, 'crece', T.fundeEst[1]],                    // 3 tiras (en su banda)
+  // el general del estadio: 7 partes, de 9,5 a 10 s
+  [T.fundeEst[1] + 0.02, 'detalle', T.deGuisante[1]],                // 7 tiras
+  // el detalle del guisante: 17 partes, de 11 a 12,3 s
+  [T.aGuisante[1] + 0.02, 'personaE', T.corte],                      // estreno + 5 tiras
+  [T.aGuisante[1] + 0.02, 'personaEparp', T_PARPADEO + 0.05],        // 5 tiras
+  [T.aGuisante[1] + 0.02, 'estadioNube', T.aparta[1]],               // 2D
+  [T.aGuisante[1] + 0.02, 'cascara', T.aparta[1]],                   // 2D
+  [T.aGuisante[1] + 0.02, 'platoF0', D + 1],                         // 2 tiras
+  [T.aGuisante[1] + 0.02, 'platoF1', D + 1],                         // 2 tiras
 ];
 function dibujar(t) {
   const n = P.fotograma(t, D), ts = n / 12;
@@ -735,12 +781,14 @@ function dibujar(t) {
   }
 }
 // (pruebas, con ?perfil) __foto(nombre, 'paso'): una parte de esa foto, como en PREPARAR; 'entera': la rehace entera;
-// 'comparar': la diferencia máxima (0–255) y los píxeles distintos entre la foto ya hecha por partes y la entera
+// 'comparar': la diferencia máxima (0–255) y los píxeles distintos entre la foto ya hecha por partes y la entera (las de
+// WebGL, de un P.render de todo el lienzo, sin recorte ni banda)
 if (location.search.includes('perfil')) window.__foto = (nombre, modo = 'paso') => {
   if (modo === 'paso') { pasoFoto(nombre); return !!FOTOS[nombre]; }
   if (modo.startsWith('tiras=')) { (RECETAS[nombre] ?? DIBUJOS[nombre])[RECETAS[nombre] ? 'tiras' : 'bandas'] = JSON.parse(modo.slice(6)); delete FOTOS[nombre]; return true; }
   if (modo === 'entera') { delete FOTOS[nombre]; F(nombre); return true; }
-  const a = FOTOS[nombre], b = hacerEntera(nombre), w = a.width, h = a.height;
+  const r = RECETAS[nombre];
+  const a = FOTOS[nombre], b = r ? (renderReceta(r), foto(P)) : hacerEntera(nombre), w = a.width, h = a.height;
   const da = a.getContext('2d').getImageData(0, 0, w, h).data, db = b.getContext('2d').getImageData(0, 0, w, h).data;
   let max = 0, nd = 0;
   for (let i = 0; i < da.length; i++) { const d = Math.abs(da[i] - db[i]); if (d > max) max = d; if (d > 2) nd++; }
