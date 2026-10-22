@@ -399,10 +399,10 @@ HACER.coches_1 = () => fotoCoches(2106);
 const ponerCon = (ang, conCoches) => () => { const b = balanza(P, I.BAL, { ...BAL, angulo: ang }); if (conCoches) coches(P, I.COC, { pos: b.platoDer, escala: E_COC, rot: [0, 0.4, 0] }); };
 HACER.caidaCon = () => fotoPlato(2107, ponerCon(A_CAIDA, true), { fondo: true });
 HACER.caidaSin = () => fotoPlato(2107, ponerCon(A_CAIDA, false), { fondo: true });
-HACER.nivelCon = () => fotoPlato(2108, ponerCon(0, true), { fondo: true });
-HACER.nivelSin = () => fotoPlato(2108, ponerCon(0, false), { fondo: true });
+// (nivelada: la foto de la balanza nivelada, balNivel_0, y la misma sin coches con el mismo n)
+HACER.nivelSin = () => fotoPlato(2101, () => ponerBalanza(QUIETO, { conCoches: false }), { fondo: true });
 const PUNTA_N = pant(geometriaBalanza({ ...BAL, angulo: 0 }).puntaDer);
-function cociente(kCon, kSin, [dx, dy]) {
+function cociente(kCon, kSin, [dx, dy], soltar = true) {
   const a = F(kCon), b = F(kSin), w = a.width, h = a.height, s = w / W;
   const mc = lienzo(w, h), gm = mc.getContext('2d');
   gm.drawImage(F('coches_0'), dx * s, dy * s);
@@ -415,11 +415,12 @@ function cociente(kCon, kSin, [dx, dy]) {
     for (let j = 0; j < 3; j++) d[o + j] = Math.min(255, Math.round(255 * (da[o + j] + 0.5) / (db[o + j] + 0.5)));
   }
   gc.putImageData(im, 0, 0);
-  FOTOS[kCon] = FOTOS[kSin] = null;     // ya no hacen falta
+  if (soltar) FOTOS[kCon] = null;     // ya no hace falta
+  FOTOS[kSin] = null;
   return c;
 }
 HACER.sombraCaida = () => cociente('caidaCon', 'caidaSin', [0, 0]);
-HACER.sombraNivel = () => cociente('nivelCon', 'nivelSin', [PUNTA_N[0] - PUNTA0[0], PUNTA_N[1] - PUNTA0[1]]);
+HACER.sombraNivel = () => cociente('balNivel_0', 'nivelSin', [PUNTA_N[0] - PUNTA0[0], PUNTA_N[1] - PUNTA0[1]], false);
 function pegarCoches(ts, n) {
   const ang = anguloBal(ts), u = cl((ang - A_CAIDA) / (0 - A_CAIDA));
   const p = pant(geometriaBalanza({ ...BAL, angulo: ang }).puntaDer);
@@ -592,8 +593,8 @@ prep(T.posa + 0.6, 'bola_0'); prep(T.posa + 0.7, 'bola_1');
 prep(T.posa + 0.8, 'ciudadBola_0'); prep(T.posa + 0.9, 'ciudadBola_1'); prep(T.posa + 1.0, 'ciudadBola_2');
 prep(T.posa + 1.2, () => compilar(() => { balanza(P, I.BAL, { pos: en(400, 300, 0), escala: 0.3 }); coches(P, I.COC, { pos: en(600, 300, 0), escala: 0.3 }); cucharilla(P, I.CUC, { pos: en(700, 300, 0), escala: 0.3 }); }));
 prep(T.posa + 1.4, 'fondoB'); prep(T.posa + 1.6, 'reg4Tenue');
-prep((T.acerca[0] + T.acerca[1]) / 2, 'coches_0'); prep((T.estira[0] + T.aplasta[0]) / 2, 'coches_1');
-prep(f1(0.69), 'nivelCon'); prep(f1(0.75), 'nivelSin'); prep(f1(0.83), 'caidaCon'); prep(f1(0.86), 'caidaSin');
+prep(T.posa + 1.3, 'coches_0'); prep((T.estira[0] + T.aplasta[0]) / 2, 'coches_1');
+prep(f1(0.69), 'nivelSin'); prep(f1(0.83), 'caidaCon'); prep(f1(0.86), 'caidaSin');
 prep(T.vuelve[1] + 0.2, 'sombraCaida'); prep(T.vuelve[1] + 0.45, 'sombraNivel');
 prep(T.estira[0], 'balNivel_0'); prep(T.aplasta[0], 'balNivel_1');
 prep(T.recupera[0], 'balDet_0'); prep(T.vuelve[0], 'balDet_1');
