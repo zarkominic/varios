@@ -543,10 +543,12 @@ function componer(t) {
     return;
   }
   if (k < 0) {
-    // decorado quieto (mano, piel, pelo): su foto y, encima, Atom y la regla
+    // decorado quieto (mano, piel, pelo): su foto y, encima, Atom y la regla (la foto se pide ANTES de renderizar: si
+    // falta, F() la pinta en el lienzo de WebGL y borraría a Atom y la regla)
+    const fotoQuieta = F('nivel' + nv);
     P.limpiar(); atomo(ts); regla(ts);
     P.render(n, { fondo: false });
-    g.drawImage(F('nivel' + nv), 0, 0, W, H);
+    g.drawImage(fotoQuieta, 0, 0, W, H);
     pegarGL();
     const fl = azar(n, 3) - 0.5;
     g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
