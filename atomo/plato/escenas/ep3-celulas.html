@@ -40,7 +40,7 @@
 //    e 0, ya 1,5, entera 0, actual −4, marca −4, lupa 0,3 (foto sin fondo, nf 2004); Atom en (230, 780) px a z = 1 con
 //    órbitas de 180 px, con el reloj de sus electrones donde lo dejó ep3-pelo (TZ0, de la duración de ep3-pelo).
 //  · Último fotograma (ep3-medula empieza así; window.__fin lo da en números): el plató vacío y, encima, el corte de un
-//    pelo de ep03-sangre.js (cortePelo, largo 0,6) con la cara en P.punto(900, 470, 0), 540 px de radio, rot [0,45, 0, 0]
+//    pelo de ep03-sangre.js (cortePelo, largo 0,4) con la cara en P.punto(900, 470, 0), 540 px de radio, rot [0,45, 0, 0]
 //    (foto con fondo, nf 6001); sobre su diámetro horizontal, la fila de 12 glóbulos (fila, llegada 1, escala = la del
 //    pelo / 12, rot [0,45 − π/2, 0, 0], levantada 0,35 radios de glóbulo sobre la cara), viva, con su sombra 2D
 //    (sombraSilueta dx 7, dy 9, blur 6, alfa 0,5); la cota de alambre del kit compartido tendida por encima del pelo, de
@@ -140,7 +140,8 @@ const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(en(...ATOMO_PRES, A_Z)));
 // el reloj de Atom al final de ep3-pelo: TZ_SALTOS + arranque(calma(QUIETO)) de esa página, con su duración
 let D_PELO = 13.888;
 try { const todas = await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json(); D_PELO = todas['ep3-pelo']?.duracion ?? D_PELO; } catch { /* la de la entrega */ }
-const TZ0 = 16.436 + (D_PELO - 0.6 - 0.405) - 1.6;
+// (su último fotograma es el NFIN de esa página, a 12 fps: calma(NFIN / 12) con su QUIETO = D_PELO − 0,6 y d = 0,9)
+const TZ0 = (() => { const q = D_PELO - 0.6, t = Math.floor(q * 12 + 1e-6) / 12, a = q - 0.9, u = Math.min(t - a, 0.9); return 16.436 + (a + u - (u * u) / 1.8) - 1.6; })();
 // el ojo en corte del final de ep3-pelo (variante 1: la córnea a +x, hacia la derecha de la pantalla)
 const OJO = { x: 850, y: 475, z: 4.0, diam: 640, rot: [0.15, -0.55, 0.0], variante: 1 };
 OJO.pos = en(OJO.x, OJO.y, OJO.z);
@@ -159,7 +160,7 @@ VASO.pos = en(VASO.x, VASO.y, VASO.z);
 VASO.esc = VASO.px / pxU(VASO.pos);
 const RIO = { escala: VASO.esc / 4, canal: 3.1, semilargo: 15, vel: 2.2, semilla: 3 };
 // el corte del pelo y la fila de 12 encima (12 glóbulos = el ancho del pelo: SANGRE.PELO)
-const CP = { x: 900, y: 470, z: 0, radioPx: 540, rot: [0.45, 0, 0], largo: 0.6 };
+const CP = { x: 900, y: 470, z: 0, radioPx: 540, rot: [0.45, 0, 0], largo: 0.4 };
 CP.pos = en(CP.x, CP.y, CP.z);
 CP.esc = CP.radioPx / pxU(CP.pos);
 const CPG = geometriaCortePelo({ pos: CP.pos, escala: CP.esc, rot: CP.rot });

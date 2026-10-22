@@ -247,13 +247,13 @@ vec3 vrGuanteCol(vec3 q, float lado, float m) {
   }
   if (m > 0.5) return vec3(0.36, 0.13, 0.055) * v;                     // ribete y presilla, óxido
   // tela acolchada en rombos con su pespunte
-  float s1 = fract((p.x + p.y) * 5.2), s2 = fract((p.x - p.y) * 5.2);
+  float s1 = fract((p.x + p.y) * 4.0), s2 = fract((p.x - p.y) * 4.0);
   float k1 = sin(3.14159 * s1), k2 = sin(3.14159 * s2);
   float c1 = cos(3.14159 * s1), c2 = cos(3.14159 * s2);
-  float g = 3.14159 * 5.2 * 0.05;
+  float g = 3.14159 * 4.0 * 0.018;
   gG = vec3((c1 * k2 + k1 * c2) * lado, c1 * k2 - k1 * c2, 0.0) * g;
   float costura = 1.0 - smoothstep(0.0, 0.07, min(min(s1, 1.0 - s1), min(s2, 1.0 - s2)));
-  return vec3(0.56, 0.49, 0.38) * v * (1.0 - 0.3 * costura);
+  return vec3(0.56, 0.49, 0.38) * v * (1.0 - 0.22 * costura);
 }
 `;
 

@@ -185,14 +185,23 @@ function quitarVineta(c) {
   return c;
 }
 const sinVineta = (c) => quitarVineta(c);
-// el mundo en vivo (la caída): se dibuja, se copia, se le quita la viñeta y se pega
-let MUNDO_TMP = null;
+// el mundo en vivo (la caída): se pega y se le quita la viñeta sin leer sus píxeles (leerlos cuesta en este servidor): el
+// modo color-dodge divide por (1 − gris), y el gris de esta capa es lo que oscurece la viñeta (1 − v), así que deja el
+// mundo dividido por v, como sinVineta (con 8 bits de precisión en la capa)
+const DODGE = (() => {
+  const c = lienzo(W, H), gc = c.getContext('2d'), im = gc.createImageData(W, H), d = im.data;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const a = 0.42 * ss(0.42, 1.12, Math.hypot((x + 0.5 - 960) / 1080, (y + 0.5 - 540) / 1080));
+    const o = (y * W + x) * 4, v = Math.round(255 * a);
+    d[o] = d[o + 1] = d[o + 2] = v; d[o + 3] = 255;
+  }
+  gc.putImageData(im, 0, 0);
+  return c;
+})();
 function pegarMundoVivo(est) {
   mundo.dibujar(est);
-  if (!MUNDO_TMP || MUNDO_TMP.width !== mundo.lienzo.width) MUNDO_TMP = lienzo(mundo.lienzo.width, mundo.lienzo.height);
-  MUNDO_TMP.getContext('2d', { willReadFrequently: true }).drawImage(mundo.lienzo, 0, 0);
-  quitarVineta(MUNDO_TMP);
-  g.drawImage(MUNDO_TMP, 0, 0, W, H);
+  g.drawImage(mundo.lienzo, 0, 0, W, H);
+  g.save(); g.globalCompositeOperation = 'color-dodge'; g.drawImage(DODGE, 0, 0, W, H); g.restore();
 }
 
 // ---------------------------------------------------------------- Atom: el de ep3-sol, en el mismo estado
