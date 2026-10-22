@@ -2,6 +2,14 @@
 
 **Estado:** v1, borrador para revisar
 
+**Título (propuesto):**
+- ES: El tesoro pirata que valía más que el ORO (y lo llevas en el bolsillo)
+- EN: The Pirate Treasure Worth More Than GOLD (and It's in Your Pocket)
+
+**Alternativas:**
+- Lo que no te contaron de los piratas: robaban MAPAS / What School Never Told You About Pirates: They Stole MAPS
+- El mapa que salvó a un pirata de la horca / The Map That Saved a Pirate From the Gallows
+
 **Formato:** YouTube horizontal 16:9, un solo vídeo con dos pistas de audio (inglés original y español).
 
 **Duración objetivo:** 7:30–8:00.
