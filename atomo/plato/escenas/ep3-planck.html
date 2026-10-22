@@ -337,7 +337,7 @@ function ponerAtomo(ts, kN) {
   P.atomo({
     pos: [mix(SITIO[0], posT[0], w), mix(yP, posT[1], w), mix(SITIO[2], posT[2], w)], escala: mix(A_ESC0, A_ESC1, w),
     yaw: -0.15 + w * A_YAW + 0.08 * Math.sin(p * 0.5), pitch: 0.06 - w * A_PITCH,
-    energia: ts < QUIETO ? E.energia(ts) : 0, ts: p, velo: 0.1 + 0.3 * kN,
+    energia: ts < QUIETO ? E.energia(ts) : 0, ts: p, velo: 0.1,
   });
 }
 // cuánta niebla hay detrás de Atom (más velo oscuro detrás de él sobre la niebla clara)
@@ -706,11 +706,18 @@ function dibujar(t) {
     // la regla si se mueve y Atom
     const R = estadoRegla(ts);
     if (!R.mov && ts < T.sube[0]) pintar(F(R.ac > -25 ? 'r15' : 'r35'), 1, DX_REG * R.dx);
+    // sobre la niebla clara, una sombra blanda detrás de Atom (en 2D: el velo del kit, más fuerte, deja ver su recuadro)
+    const kN = niebla(ts);
+    if (kN > 0.01) {
+      const gv = g.createRadialGradient(232, 790, 0, 232, 790, 165);
+      gv.addColorStop(0, `rgba(14,16,22,${0.42 * kN})`); gv.addColorStop(0.55, `rgba(14,16,22,${0.22 * kN})`); gv.addColorStop(1, 'rgba(14,16,22,0)');
+      g.fillStyle = gv; g.fillRect(232 - 165, 790 - 165, 330, 330);
+    }
     t2 = performance.now();
     P.limpiar();
     if (vivo) vivo();
     if (R.mov) P.regla(opRegla(R));
-    ponerAtomo(ts, niebla(ts));
+    ponerAtomo(ts, kN);
     P.render(n, { fondo: false });
     pegarGL();
     // tres fotogramas de fundido a la foto final (aparecen las sombras de Atom en el ciclorama)

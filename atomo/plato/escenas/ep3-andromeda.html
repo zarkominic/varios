@@ -119,7 +119,17 @@ const IS_FOTO = { persona: I.PER, ventana: I.VEN, sofa: I.SOFA, bol: I.BOL };
 const UO = uniformesOjo();
 const TO = tiposOjo({ cosas: ['remolino'] });
 await cargarFuenteCartela();   // (los rótulos de la regla salen como en ep3-mapa y ep3-universo)
-const P = await crearPlato({
+// (coste de la carga) crearPlato hornea el ciclorama a 1920 × 1080 (con su desenfoque), dibuja su sombra y su fondo
+// (render(0)) y estrena los programas de la persona: ~16 s de CPU en este servidor. Esta escena no enseña nunca el
+// ciclorama (todo va con render(n, { fondo: false }) sobre fotos y 2D, y solo la pasada del fondo lee lo horneado), así
+// que mientras se crea el plató no se dibuja nada; los programas se compilan igual, y los de la persona se estrenan con
+// la foto del salón, que los usa enseguida.
+async function sinDibujar(hacer) {
+  const pr = WebGL2RenderingContext.prototype, orig = {};
+  for (const k of ['drawArrays', 'drawElements', 'drawArraysInstanced', 'drawElementsInstanced', 'drawRangeElements']) { orig[k] = pr[k]; pr[k] = function () {}; }
+  try { return await hacer(); } finally { Object.assign(pr, orig); }
+}
+const P = await sinDibujar(() => crearPlato({
   piezas: ['humano', 'reglaA', 'flecha', 'ventana', 'sofa', 'bol', 'reloj', 'ojo', 'cosa', 'figurita'],
   tiposExtra: { ...tiposSofa(['ventana', 'sofa', 'bol']), ...tiposTiempo(['reloj']), ojo: TO.ojo, cosa: TO.cosa, ...tiposTocar(['figurita']) },
   uniformes: { ...uniformesSofa(), ...uniformesTiempo(), ...UO },
@@ -127,7 +137,7 @@ const P = await crearPlato({
   sombraFondo: ['p1', 'p2'],
   sombras: { p3: ['p4'], p4: ['p0', 'p5'], p5: ['p0'] },
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
-});
+}));
 marcaCarga('plató');
 const POST = crearPost();
 const RAYAS = hornearRayas();
