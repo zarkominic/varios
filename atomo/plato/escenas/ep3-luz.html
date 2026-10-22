@@ -788,7 +788,7 @@ function dibujar(t) {
     repintar = () => pegarFoto(f, [Et[0], Et[1], Rt]);
   } else {
     // (coste) los saltos y las décadas de paso: fundidos con zoom de las fotos de las décadas (el mundo no se dibuja)
-    mundoSalto(C, zr);
+    if (!window.__sinMundo) mundoSalto(C, zr);
     repintar = () => { g.save(); g.beginPath(); g.arc(Et[0], Et[1], Rt, 0, 2 * Math.PI); g.clip(); mundoSalto(C, zr, false); g.restore(); };
   }
   // 2 · la ciudad brillante y la estrella de neutrones (se quedan en la ciudad y se hacen un punto)
@@ -808,7 +808,7 @@ function dibujar(t) {
   const reglaViva = vivo || ![4, 7, 16, 21].includes(zi) || Math.abs(zr - zi) > 1e-6;
   if (!reglaViva) pegarTrozo(F(zi === 21 && n >= N_FIN ? 'reg21_0' : regDe(zi, n)));
   P.limpiar();
-  if (reglaViva) reglaEn(zr, true);
+  if (reglaViva && !window.__sinRegla) reglaEn(zr, true);
   const kReloj = relojEn(ts);
   const infoArena = arenaEn(ts);
   atomo(ts, zr < 7 ? sueloClaro(zr) : 0);
@@ -820,7 +820,7 @@ function dibujar(t) {
   unoS(ts, kReloj);
   if (ts < 0.75) g.drawImage(F('cartela0'), 0, 0, W, H);
   parpadeo(n);
-  POST.aplicar(g, n);
+  if (!window.__sinPost) POST.aplicar(g, n);
   window.__plano = `zr ${zr.toFixed(3)} z ${C.z.toFixed(3)}${vivo ? ' vivo' : ''}`;
 }
 window.__tiempos = { ...T, SALTOS: SALTOS.map(([a, b]) => [+a.toFixed(3), +b.toFixed(3)]) };

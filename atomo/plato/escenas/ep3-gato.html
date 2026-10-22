@@ -582,6 +582,8 @@ const HACER = {
   // el plató vacío y el estadio sin fondo (como en ep3-proton: n 1999 y 2001)
   fondo() { P.limpiar(); P.render(1999); return foto(P); },
   estadio() { P.limpiar(); estadio(P, I.EST, ESTADIO_0); P.render(2001, { fondo: false }); return foto(P); },
+  // la silueta ya quieta, con el plató y su sombra (desde ahí solo la cifra va viva)
+  silF() { P.limpiar(); silueta(P, I.SILU, { ...SIL_D, brillo: 0.65 }); P.render(3401); return foto(P); },
   // la balanza asentada (el plato del cuerpo abajo)
   balF() { P.limpiar(); const r = ponerBalanza(BALANZA.A_MAX); P.render(3301); DOT = pant(r.s.puntito(0.56, 0.6)); return foto(P); },
 };
@@ -679,9 +681,10 @@ window.__carga.push(['estreno de las piezas', Math.round(performance.now())]);
 
 // (coste) las fotos que no se hacen al cargar, en un fotograma barato poco antes de hacer falta: [desde, foto, hasta]
 const PREPARAR = [
-  [0.05, 'gato1', T.ojos[0]], [0.05, 'gato2', T.ojos[0]], [0.05, 'gato3', T.ojos[0]],
-  [0.05, 'gatoC', T.corteC], [0.05, 'manoC', T.corteC],
-  [T.corteC + 0.1, 'estadio', T.corteE], [T.corteC + 0.3, 'balF', T.asienta],
+  // (en el plano medio, que es 2D y barato; el plano A ya paga sus chispas)
+  [T.caricia[0], 'gato1', T.ojos[0]], [T.caricia[0], 'gato2', T.ojos[0]], [T.caricia[0], 'gato3', T.ojos[0]],
+  [T.caricia[0], 'gatoC', T.corteC], [T.caricia[0], 'manoC', T.corteC],
+  [T.corteC + 0.1, 'estadio', T.corteE], [T.corteC + 0.3, 'balF', T.asienta], [T.corteC + 0.5, 'silF', T.silueta[1]],
 ];
 
 // ---------------------------------------------------------------- los planos
@@ -785,8 +788,14 @@ function planoD(n, ts) {
   const c = cifraD(ts);
   cifra(P, I.CIF, { pos: c.pos, escala: c.escala, ceros: c.ceros, color: 'crema' });
   const s = siluetaD(ts);
-  if (s) silueta(P, I.SILU, s);
-  P.render(n);
+  if (ts >= T.silueta[1]) {
+    // (coste) la silueta quieta es foto; la cifra, viva encima
+    pintar(F('silF'));
+    P.render(n, { fondo: false });
+  } else {
+    if (s) silueta(P, I.SILU, s);
+    P.render(n);
+  }
   pegarGL();
   // el cero que acaba de salir da un destello pequeño
   const k = c.ceros - Math.floor(c.ceros);
