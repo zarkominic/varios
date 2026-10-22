@@ -16,9 +16,9 @@
 //  peru    junto a un barco español hundido de tan cargado, cofres que saltan de uno a otro; la caja cuenta días.
 //  cartas  en cubierta, un marinero inglés se lleva un rollo de cartas y a un piloto.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-drake', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { drake: M('drake', 1.5), vuelta: M('vuelta', 3.5), peru: M('peru', 10), cartas: M('cartas', 15) };
@@ -69,8 +69,8 @@ const llevar = (t) => {
   R.rect(0, 140, R.W, 147, PAL.HULL[2]); R.rect(0, 140, R.W, 140, PAL.HULL[4]);
   const a = (t - m.cartas) * 6;
   const x = lerp(250, 120, tramo(t, m.cartas + 0.2, m.cartas + 3.4));
-  R.figura(x, 148, 40, { sombrero: 'tricornio', faja: 2, objeto: 'pergamino', dir: -1, anda: a, brazoI: 'ofrece' });
-  R.figura(x + 26, 148, 38, { sombrero: 'sombrero', dir: -1, anda: a + 2, pose: 'ofrece' });
+  R.personaje(x, 150, 46, { ...ELENCO.drake, t, objeto: 'pergamino', dir: -1, anda: a });
+  R.personaje(x + 28, 150, 44, { ...ELENCO.piloto, t, dir: -1, anda: a + 2 });
 };
 
 E.iniciar((t) => {

@@ -68,13 +68,15 @@ export async function crearAventura(lienzo) {
       pantalon: o.pantalon ?? PALA.MARRON, botas: o.botas ?? PALA.NEGRO,
     };
     const respira = Math.sin(t * 2.2) > 0.6 ? -0.5 : 0;
-    const rod = o.pose === 'rodilla';
-    const cab = h * 0.11, cuelloY = -h * (rod ? 0.64 : 0.78) + respira, hombroY = cuelloY + cab * 0.35;
-    const caderaY = -h * (rod ? 0.3 : 0.42), anchoH = h * 0.15, anchoC = h * 0.12;
+    const rod = o.pose === 'rodilla', sent = o.pose === 'sentado';
+    const cab = h * 0.11, cuelloY = -h * (sent ? 0.6 : rod ? 0.64 : 0.78) + respira, hombroY = cuelloY + cab * 0.35;
+    const caderaY = -h * (sent ? 0.24 : rod ? 0.3 : 0.42), anchoH = h * 0.15, anchoC = h * 0.12;
     const pierna = h * 0.1;
     // ── piernas y botas
     const an = o.anda != null ? Math.sin(o.anda) : 0, an2 = o.anda != null ? Math.cos(o.anda) : 0;
-    const piernas = rod
+    const piernas = sent
+      ? [[-anchoC * 0.45, caderaY, h * 0.12, caderaY + h * 0.01, h * 0.14, 0], [anchoC * 0.45, caderaY, h * 0.2, caderaY + h * 0.01, h * 0.22, 0]]
+      : rod
       ? [[-anchoC * 0.45, caderaY, -h * 0.2, -h * 0.05, -h * 0.3, 0], [anchoC * 0.45, caderaY, h * 0.16, caderaY + h * 0.02, h * 0.16, 0]]
       : [[-anchoC * 0.45, caderaY, -anchoC * 0.45 + an * h * 0.08, -h * 0.22 + Math.max(0, -an2) * h * 0.02, -anchoC * 0.45 + an * h * 0.14, 0],
          [anchoC * 0.45, caderaY, anchoC * 0.45 - an * h * 0.08, -h * 0.22 + Math.max(0, an2) * h * 0.02, anchoC * 0.45 - an * h * 0.14, 0]];
@@ -121,6 +123,7 @@ export async function crearAventura(lienzo) {
         case 'arriba': ex = sx + lado * L1 * 0.35; ey = sy - L1 * 0.85; hx = ex + lado * L2 * 0.15; hy = ey - L2; break;
         case 'ofrece': ex = sx + lado * L1 * 0.55; ey = sy + L1 * 0.75; hx = ex + lado * L2 * 0.95; hy = ey - L2 * 0.1; break;
         case 'cintura': ex = sx + lado * L1 * 0.7; ey = sy + L1 * 0.6; hx = sx + lado * anchoH * 0.2; hy = caderaY - h * 0.02; break;
+        case 'cara': ex = sx + lado * L1 * 0.7; ey = sy + L1 * 0.35; hx = sx + lado * L1 * 0.75; hy = hombroY - h * 0.1; break;
         case 'saluda': ex = sx + lado * L1 * 0.6; ey = sy - L1 * 0.3; hx = ex + lado * L2 * 0.3 + Math.sin(t * 12) * h * 0.04; hy = ey - L2 * 0.9; break;
         default: ex = sx + lado * h * 0.02 + balanceo * L1 * 0.4; ey = sy + L1; hx = ex + balanceo * L2 * 0.5; hy = ey + L2;
       }
@@ -130,7 +133,7 @@ export async function crearAventura(lienzo) {
       return [hx, hy];
     };
     const p = o.pose ?? 'pie';
-    const mD = brazo(1, { senala: 'senala', brazos: 'arriba', ofrece: 'ofrece', rodilla: 'ofrece', saluda: 'saluda', manos_cintura: 'cintura' }[p] ?? o.brazoD ?? 'abajo');
+    const mD = brazo(1, o.brazoD ?? { senala: 'senala', brazos: 'arriba', ofrece: 'ofrece', rodilla: 'ofrece', saluda: 'saluda', manos_cintura: 'cintura', mide: 'cara' }[p] ?? 'abajo');
     const mI = brazo(-1, { brazos: 'arriba', manos_cintura: 'cintura' }[p] ?? o.brazoI ?? 'abajo');
     // ── cuello y cabeza
     caja(-h * 0.03, cuelloY - cab * 0.2, h * 0.03, hombroY, P.piel, 1.4);
@@ -182,6 +185,9 @@ export async function crearAventura(lienzo) {
     if (o.objeto === 'pergamino') caja(ax - h * 0.015, ay - h * 0.1, ax + h * 0.025, ay + h * 0.02, PALA.AMARILLO, 2.4);
     if (o.objeto === 'saco' || o.objeto === 'bolsa') elipse(ax + h * 0.02, ay + h * 0.05, h * (o.objeto === 'saco' ? 0.08 : 0.05), h * (o.objeto === 'saco' ? 0.09 : 0.055), PALA.MARRON, 1.8);
     if (o.objeto === 'catalejo') trazo(ax, ay, ax + h * 0.22, ay - h * 0.04, h * 0.035, PALA.ORO, 2);
+    if (o.objeto === 'sextante') { trazo(ax, ay, ax + h * 0.08, ay + h * 0.06, h * 0.02, PALA.ORO, 2); trazo(ax, ay, ax + h * 0.1, ay - h * 0.01, h * 0.02, PALA.ORO, 2); trazo(ax + h * 0.08, ay + h * 0.06, ax + h * 0.1, ay - h * 0.01, h * 0.02, PALA.ORO, 2.5); }
+    if (o.objeto === 'pluma') trazo(ax, ay, ax + h * 0.06, ay - h * 0.12, h * 0.02, PALA.BLANCO, 2.5);
+    if (o.objeto === 'pala') { trazo(ax, ay - h * 0.1, ax + h * 0.04, ay + h * 0.25, h * 0.025, PALA.MARRON, 2); caja(ax + h * 0.01, ay + h * 0.25, ax + h * 0.08, ay + h * 0.33, PALA.BLANCO, 1); }
     // loro en el hombro (al otro lado de la cara)
     if (o.loro) {
       const lx = -anchoH * 0.85, ly = hombroY - h * 0.06, ala = Math.sin(t * 9) > 0.85;
@@ -254,5 +260,61 @@ export async function crearAventura(lienzo) {
     pset(x, y - 6 - Math.round(fl * 2), PALA.ANTORCHA[4]);
   };
 
-  return { ...R, PALA, personaje, antorcha };
+  // ── más color en el cielo y el mar de la noche: resplandor morado en el horizonte y crestas turquesa
+  const cielo0 = R.cielo, mar0 = R.mar;
+  const cielo = (t, o = {}) => {
+    cielo0(t, o);
+    if (o.morado === false) return;
+    const hor = o.hor ?? 121;
+    for (let y = Math.round(hor * 0.6); y < Math.min(hor, R.H); y++) for (let x = 0; x < R.W; x++) {
+      const f = (y - hor * 0.6) / (hor * 0.4);
+      if (o.luna && Math.hypot(x - o.luna[0], y - o.luna[1]) < o.luna[2] + 2) continue;
+      if (f * 0.8 > R.b4(x, y) + 0.15) pset(x, y, f > 0.75 ? PALA.MORADO[1] : PALA.MORADO[0]);
+    }
+  };
+  const mar = (t, o = {}) => {
+    mar0(t, o);
+    const hor = o.hor ?? 121, y1 = o.y1 ?? R.H;
+    for (let y = hor + 1; y < y1; y++) for (let x = 0; x < R.W; x++) if (Math.sin(x * 0.13 + y * 0.8 - t * 2.6) * Math.sin(x * 0.05 - t) > 0.72) pset(x, y, PALA.TURQUESA[y > hor + 30 ? 3 : 2]);
+  };
+  // estandarte colgado de la pared
+  const estandarte = (x, y, w, h, rampa, t) => {
+    const s = Math.round(Math.sin(t * 1.3 + x) * 0.6);
+    R.rect(x - 1, y - 1, x + w + 1, y, PALA.ORO[2]);
+    for (let j = 0; j < h; j++) { const o_ = j > h * 0.5 ? s : 0; R.rect(x + o_, y + j, x + w + o_, y + j, rampa[2]); R.pset(x + o_, y + j, rampa[3]); R.pset(x + w + o_, y + j, rampa[1]); }
+    R.poligono([[x + s, y + h], [x + w / 2 + s, y + h + w * 0.5], [x + w + s + 1, y + h]], rampa[2]);
+    R.rect(x + w * 0.3 + s, y + h * 0.3, x + w * 0.7 + s, y + h * 0.45, PALA.ORO[2]);
+  };
+
+  return { ...R, PALA, personaje, antorcha, cielo, mar, estandarte, ELENCO };
 }
+
+// ── El elenco del episodio (para que cada personaje sea siempre el mismo)
+export const ELENCO = {
+  sharp: { sombrero: 'tricornio', barba: 'poblada', pelo: PALA.PELO_NEGRO, chaqueta: PALA.AZUL, faja: PALA.ROJO, loro: true },
+  rey: { sombrero: 'corona', peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.MORADO, capa: PALA.ROJO, armiño: true, pantalon: PALA.BLANCO },
+  reina: { sombrero: 'corona', peinado: 'peluca', pelo: PALA.PELO_ROJO, chaqueta: PALA.BLANCO, capa: PALA.AZUL, armiño: true, pantalon: PALA.BLANCO, camisa: PALA.AMARILLO },
+  oficial: { sombrero: 'capitan', peinado: 'coleta', pelo: PALA.PELO_CASTANO, chaqueta: PALA.AMARILLO, barba: 'bigote', pantalon: PALA.ROJO },
+  casaca: { sombrero: 'tricornio', peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.ROJO, pantalon: PALA.BLANCO },
+  drake: { sombrero: 'capitan', barba: 'perilla', pelo: PALA.PELO_ROJO, chaqueta: PALA.NEGRO, camisa: PALA.BLANCO, faja: PALA.ORO, pantalon: PALA.NEGRO },
+  piloto: { sombrero: 'gorro', colorSombrero: PALA.MARRON, barba: 'bigote', pelo: PALA.PELO_NEGRO, piel: PALA.PIEL_OSCURA, chaqueta: PALA.MARRON, camisa: PALA.AMARILLO },
+  colon: { sombrero: 'gorro', colorSombrero: PALA.ROJO, peinado: 'largo', pelo: PALA.PELO_BLANCO, chaqueta: PALA.VERDE, camisa: PALA.AMARILLO, capa: PALA.ROJO },
+  sabio1: { sombrero: 'gorro', colorSombrero: PALA.NEGRO, barba: 'poblada', pelo: PALA.PELO_BLANCO, chaqueta: PALA.NEGRO, camisa: PALA.BLANCO, pantalon: PALA.NEGRO },
+  sabio2: { sombrero: 'gorro', colorSombrero: PALA.MORADO, barba: 'perilla', pelo: PALA.PELO_CASTANO, chaqueta: PALA.MORADO, pantalon: PALA.NEGRO },
+  griego: { peinado: 'corto', pelo: PALA.PELO_BLANCO, barba: 'poblada', chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, pantalon: PALA.BLANCO, botas: PALA.MARRON, capa: PALA.AZUL },
+  marinero: { sombrero: 'pañuelo', colorPañuelo: PALA.ROJO, pelo: PALA.PELO_CASTANO, chaqueta: PALA.AZUL, camisa: PALA.BLANCO },
+  navegante: { sombrero: 'tricornio', pelo: PALA.PELO_RUBIO, peinado: 'coleta', chaqueta: PALA.VERDE, faja: PALA.AMARILLO },
+  pirata1: { sombrero: 'pañuelo', colorPañuelo: PALA.VERDE, pelo: PALA.PELO_ROJO, barba: 'perilla', chaqueta: PALA.ROJO },
+  pirata2: { sombrero: 'pañuelo', colorPañuelo: PALA.AZUL, piel: PALA.PIEL_OSCURA, pelo: PALA.PELO_NEGRO, chaqueta: PALA.AMARILLO, parche: true },
+  pirata3: { sombrero: 'gorro', colorSombrero: PALA.MORADO, pelo: PALA.PELO_RUBIO, chaqueta: PALA.VERDE },
+  pirataPata: { sombrero: 'pañuelo', colorPañuelo: PALA.ROJO, barba: 'poblada', pelo: PALA.PELO_CASTANO, chaqueta: PALA.MORADO, pata: true },
+  capitanPirata: { sombrero: 'tricornio', colorSombrero: PALA.ROJO, barba: 'bigote', pelo: PALA.PELO_NEGRO, chaqueta: PALA.ROJO, faja: PALA.AMARILLO, capa: PALA.NEGRO },
+  polinesio: { peinado: 'moño', pelo: PALA.PELO_NEGRO, piel: PALA.PIEL_OSCURA, chaqueta: PALA.ROJO, camisa: PALA.PIEL_OSCURA, pantalon: PALA.AMARILLO, botas: PALA.PIEL_OSCURA, chaqueta_larga: false },
+  anciano: { peinado: 'moño', pelo: PALA.PELO_BLANCO, barba: 'poblada', piel: PALA.PIEL_OSCURA, chaqueta: PALA.VERDE, camisa: PALA.PIEL_OSCURA, pantalon: PALA.AMARILLO, botas: PALA.PIEL_OSCURA, chaqueta_larga: false },
+  nino: { peinado: 'corto', pelo: PALA.PELO_NEGRO, piel: PALA.PIEL_OSCURA, chaqueta: PALA.AZUL, camisa: PALA.PIEL_OSCURA, pantalon: PALA.ROJO, botas: PALA.PIEL_OSCURA, chaqueta_larga: false },
+  harrison: { peinado: 'corto', pelo: PALA.PELO_CASTANO, chaqueta: PALA.MARRON, camisa: PALA.BLANCO, pantalon: PALA.MARRON, faja: PALA.AMARILLO },
+  harrisonViejo: { peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.MARRON, camisa: PALA.BLANCO, pantalon: PALA.MARRON },
+  astronomo: { sombrero: 'gorro', colorSombrero: PALA.AZUL, peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.AZUL, capa: PALA.MORADO },
+  lord1: { peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.ROJO },
+  lord2: { peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.NEGRO },
+};

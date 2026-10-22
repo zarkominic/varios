@@ -16,9 +16,9 @@
 //  leian       tres pistas, una tras otra: estrellas que salen por el mismo punto del horizonte, el oleaje cruzado bajo
 //              el casco (desde arriba) y aves que vuelven al atardecer hacia una isla que no se ve.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-polinesios', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { algunos: M('algunos', 1.5), poli: M('polinesios', 4), leian: M('leian', 12) };
@@ -69,7 +69,7 @@ const salenEstrellas = (t) => {
   }
   R.halo(220, 120, 8, [PAL.ORO[1], PAL.ORO[3]], 1);
   R.barco(110, 140, t, { tipo: 'canoa', esc: 1.3 });
-  R.figura(118, 128, 22, { pose: 'senala', sombrero: 'moño' });
+  R.personaje(118, 130, 26, { ...ELENCO.polinesio, t, pose: 'senala' });
 };
 const oleaje = (t) => {
   // desde arriba: dos trenes de olas que se cruzan y la canoa en medio

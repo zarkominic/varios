@@ -14,9 +14,9 @@
 //  hora   el barco solo de la escena 4, en el mismo mar; ahora la X está clavada sobre él y un reloj late encima.
 //  final  la misma noche, más abierta; la caja baja con Atom y el «?» del cierre. Todo se asienta.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-final', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, sale } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { libro: M('libro', 0.5), hora: M('hora', 6), final: M('final', 11) };

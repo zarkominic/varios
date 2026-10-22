@@ -14,9 +14,9 @@
 //  bolsillo  un teléfono asoma de un bolsillo de vaquero, con el punto azul que late.
 //  gracias   un marinero niega con la cabeza; Atom, en su caja, con un «?».
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-donde', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { donde: M('donde', 0.5), bolsillo: M('bolsillo', 6), gracias: M('gracias', 9.5) };
@@ -50,7 +50,7 @@ const marinero = (t) => {
   // cubierta de madera en primer término
   for (let y = 150; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PAL.HULL, 2.4 - (y - 150) * 0.05 + (x % 18 === 0 ? -1 : 0), x, y));
   const niega = Math.sin(t * 7) * (t > m.gracias + 1.6 && t < m.gracias + 3 ? 1 : 0);
-  R.figura(170 + Math.round(niega), 150, 52, { sombrero: 'pañuelo', faja: 2, dir: -1 });
+  R.personaje(170, 152, 54, { ...ELENCO.marinero, t, dir: Math.sin(t * 7) > 0 && niega !== 0 ? 1 : -1, pose: 'manos_cintura' });
 };
 
 E.iniciar((t) => {

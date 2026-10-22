@@ -15,9 +15,9 @@
 //  portulanos  un portulano en la mesa: el Mediterráneo con sus costas y una red de líneas que salen de rosas de los
 //              vientos; una galera pequeña sigue una de esas líneas.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-brujula', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp, sale } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { brujula: M('brujula', 1.5), port: M('portulanos', 10) };

@@ -16,9 +16,9 @@
 //  rocas   rocas negras salen de la niebla; el buque grande golpea y se escora, y tres más detrás; los faroles se
 //          apagan uno a uno. «4» y un barco en la caja.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-niebla', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { niebla: M('niebla', 1.5), flota: M('flota', 4.5), rocas: M('rocas', 10) };

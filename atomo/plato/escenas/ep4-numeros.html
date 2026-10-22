@@ -15,9 +15,9 @@
 //  polar    de noche en cubierta, un marinero mide la Polar con un sextante; el barco baja al sur: la Polar baja
 //           con él y la caja cuenta los grados (40° → 20°).
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-numeros', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { numeros: M('numeros', 1.5), latitud: M('latitud', 4.5), polar: M('polar', 10) };
@@ -36,7 +36,7 @@ const cubierta = (t) => {
   // cubierta y marinero que mide
   for (let y = 142; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PAL.HULL, 2.2 - (y - 142) * 0.05 + (x % 18 === 0 ? -1 : 0), x, y));
   R.rect(0, 136, R.W, 141, PAL.HULL[2]); R.rect(0, 136, R.W, 136, PAL.HULL[4]);
-  const f = R.figura(210, 142, 50, { sombrero: 'sombrero', pose: 'mide', objeto: 'sextante', dir: -1 });
+  const f = R.personaje(210, 144, 54, { ...ELENCO.navegante, t, pose: 'mide', objeto: 'sextante', dir: -1 });
   // la visual del sextante hacia la estrella y el horizonte (punteadas)
   const [ex, ey] = f.cabeza;
   R.linea(ex - 4, ey, px, py, PAL.ORO[3], 3);

@@ -15,9 +15,9 @@
 //            átomos como Atom.
 //  gracias2  Atom, grande en el centro, brilla y late; en la caja, una mano en el pecho (la mano del icono).
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-atomos', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { luz: M('luz', 0.5), atomos: M('atomos', 6), gracias: M('gracias2', 11) };

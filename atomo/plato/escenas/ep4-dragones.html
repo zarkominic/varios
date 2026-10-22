@@ -15,9 +15,9 @@
 //            En la caja, «2».
 //  vacios    vuelve el mapa: las serpientes se borran con tramado y el océano de los bordes queda vacío.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-dragones', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { dragones: M('dragones', 0.5), vacios: M('vacios', 11) };

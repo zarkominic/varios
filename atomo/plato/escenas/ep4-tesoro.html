@@ -17,9 +17,9 @@
 //              lo persigue encalla detrás.
 //  cuello      vuelve el pirata del principio con su libro, en la sala con velas; la horca de la ventana se borra.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-tesoro', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { ent: M('enterrados', 0.5), novela: M('novela', 5), arr: M('arrecifes', 11), cuello: M('cuello', 18) };
@@ -36,7 +36,7 @@ const playa = (t) => {
   for (let i = 0; i < B.length; i++) if (B[i] && R.hash2(i % R.W, (i / R.W) | 0) >= se) R.buf[i] = B[i];
   // la pala clavada
   R.linea(200, 150, 212, 118, PAL.HULL[4]); R.poligono([[196, 150], [204, 152], [206, 160], [194, 158]], PAL.PLATA[1]);
-  R.figura(80, 160, 40, { sombrero: 'pañuelo', faja: 2 });
+  R.personaje(84, 162, 46, { ...ELENCO.pirata1, t, pose: 'manos_cintura', objeto: 'pala' });
 };
 const tabernaFn = (t) => {
   R.interior(t, { luces: [[160, 40]], tipo: 'madera', suelo: 130 });
@@ -50,8 +50,8 @@ const tabernaFn = (t) => {
     R.disco(x, y, 2, PAL.ORO[4]); R.pset(x, y, PAL.ORO[5]);
   }
   for (const x of [150, 190, 230]) { R.rect(x - 5, 110, x + 5, 120, PAL.PLATA[1]); R.rect(x - 5, 110, x + 5, 111, PAL.MOON[4]); R.rect(x + 6, 113, x + 7, 117, PAL.PLATA[1]); }
-  R.figura(200, 160, 38, { sombrero: 'tricornio', dir: -1, pose: 'brazos' });
-  R.figura(250, 160, 36, { sombrero: 'pañuelo', faja: 2, dir: -1 });
+  R.personaje(200, 162, 44, { ...ELENCO.capitanPirata, t, dir: -1, pose: 'brazos', habla: 1 });
+  R.personaje(250, 162, 42, { ...ELENCO.pirata2, t, dir: -1, pose: Math.sin(t * 3) > 0 ? 'brazos' : 'pie' });
 };
 const novela = (t) => {
   R.mesa(t, { luz: [60, 20] });
@@ -76,9 +76,11 @@ const arrecifes = (t) => {
 };
 const sharp = (t) => {
   R.interior(t, { luces: [[90, 50], [250, 50]], suelo: 140 });
+  R.estandarte(36, 16, 14, 44, PALA.AZUL, t); R.estandarte(270, 16, 14, 44, PALA.VERDE, t);
+  R.poligono([[120, 150], [200, 150], [250, 180], [70, 180]], (x, y) => R.tone(PALA.ROJO, 1.5 + (y - 150) / 30, x, y));
   R.vela(90, 56, t); R.vela(250, 56, t);
-  R.figura(205, 150, 46, { sombrero: 'corona', capa: true, dir: -1, pose: 'ofrece', objeto: 'libro' });
-  R.figura(140, 150, 42, { sombrero: 'tricornio', faja: 2, pose: 'brazos' });
+  R.personaje(206, 152, 52, { ...ELENCO.rey, t, dir: -1, pose: 'ofrece', objeto: 'libro', sonrisa: true });
+  R.personaje(140, 152, 50, { ...ELENCO.sharp, t, pose: 'brazos', sonrisa: true });
 };
 
 E.iniciar((t) => {

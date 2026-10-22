@@ -15,9 +15,9 @@
 //           izan una bandera negra en un balandro.
 //  edad     el Caribe en el pergamino, lleno de velitas negras que se mueven entre las islas. «1650–1730» en la caja.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-oro', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { acabo: M('acabo', 1.5), guerras: M('guerras', 4.5), edad: M('edad', 13) };
@@ -51,10 +51,10 @@ const puerto = (t) => {
   R.rect(40, 140, 190, 145, PAL.HULL[3]); R.rect(40, 140, 190, 140, PAL.HULL[5]);
   for (let x = 50; x < 190; x += 20) R.rect(x, 145, x + 1, 160, PAL.HULL[2]);
   const se = tramo(t, m.guerras + 1.8, m.guerras + 2.8);
-  R.figura(64, 140, 30, { pose: 'sentado', sombrero: 'pañuelo', faja: 2 });
-  R.figura(94, 140, 30, { pose: se > 0.5 ? 'brazos' : 'sentado', sombrero: 'tricornio' });
-  R.figura(126, 140, 28, { pose: 'sentado', sombrero: 'pañuelo', faja: 2, dir: -1 });
-  R.figura(160, 140, 30, { pose: se > 0.5 ? 'senala' : 'sentado', sombrero: 'gorro' });
+  R.personaje(64, 141, 34, { ...ELENCO.pirata1, t, pose: 'sentado' });
+  R.personaje(96, 141, 34, { ...ELENCO.capitanPirata, t, pose: se > 0.5 ? 'brazos' : 'sentado' });
+  R.personaje(128, 141, 32, { ...ELENCO.pirata2, t, pose: 'sentado', dir: -1 });
+  R.personaje(162, 141, 34, { ...ELENCO.pirata3, t, pose: se > 0.5 ? 'senala' : 'sentado' });
   for (let x = 54; x < 170; x += 33) R.halo(x + 10, 132, 8, [PAL.FIRE[0]], 0.5);
 };
 // costa del Caribe a mano (lon, lat): Norteamérica, Centroamérica y el norte de Sudamérica en un solo trazo, y las Antillas

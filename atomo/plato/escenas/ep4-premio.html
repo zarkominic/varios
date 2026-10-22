@@ -14,9 +14,9 @@
 //  premio         un parlamento a la luz de las velas: bancos llenos y, en la mesa, un saco de monedas enorme;
 //                 «20000 £» en la caja.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-premio', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, sale } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { hist: M('historiadores', 0.5), premio: M('premio', 4.5) };
@@ -33,11 +33,12 @@ const restos = (t) => {
 };
 const parlamento = (t) => {
   R.interior(t, { luces: [[160, 40], [40, 60], [280, 60]], tipo: 'madera', suelo: 120, radio: 160 });
+  R.estandarte(100, 12, 12, 34, PALA.ROJO, t); R.estandarte(208, 12, 12, 34, PALA.AZUL, t);
   for (const x of [40, 160, 280]) R.vela(x, 50, t);
   // bancos llenos a los lados
   for (const [x0, dir] of [[10, 1], [230, -1]]) for (let fila = 0; fila < 2; fila++) {
     R.rect(x0, 128 + fila * 18, x0 + 80, 134 + fila * 18, PAL.HULL[3]);
-    for (let k = 0; k < 4; k++) R.figura(x0 + 12 + k * 19, 128 + fila * 18, 24, { pose: 'sentado', sombrero: k % 2 ? 'sombrero' : 'pelo', dir });
+    for (let k = 0; k < 4; k++) R.personaje(x0 + 10 + k * 19, 129 + fila * 18, 26, { ...((k + fila) % 2 ? ELENCO.lord1 : ELENCO.lord2), t: t + k + fila * 3, pose: Math.sin(t * 2 + k * 2 + fila) > 0.8 ? 'brazos' : 'sentado', dir });
   }
   // la mesa y el saco
   R.rect(120, 124, 200, 130, PAL.HULL[4]); R.rect(124, 130, 196, 150, PAL.HULL[2]);

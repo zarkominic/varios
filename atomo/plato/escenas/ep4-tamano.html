@@ -15,9 +15,9 @@
 //           mapa real se estira: Japón se va lejos y la ruta crece. «×4» en la caja.
 //  suerte   de noche, en la niebla, las carabelas van hacia el oeste y de la niebla sale una costa enorme: casi chocan.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-tamano', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, sale } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { pequena: M('pequena', 0.5), japon: M('japon', 4.5), suerte: M('suerte', 11.5) };
@@ -25,13 +25,14 @@ const real = (E.marca('japon_fin', m.japon + 6) + m.japon) / 2;
 
 const encoge = (t) => {
   R.interior(t, { luces: [[160, 50]], suelo: 140, radio: 170 });
+  R.estandarte(36, 16, 14, 44, PALA.ROJO, t); R.estandarte(270, 16, 14, 44, PALA.AZUL, t);
   R.vela(110, 70, t); R.vela(210, 70, t);
   const r = lerp(30, 16, tramo(t, m.pequena + 0.6, m.pequena + 2.2));
   R.globo(160, 86, r, 60 + t * 20, { pergamino: true, meridianos: true });
-  R.figura(124, 150, 42, { sombrero: 'sombrero', pose: 'ofrece' });
+  R.personaje(124, 152, 48, { ...ELENCO.colon, t, pose: 'ofrece', habla: 1 });
   const niega = t > m.pequena + 1.6 ? Math.round(Math.sin(t * 9)) : 0;
-  R.figura(220 + niega, 150, 40, { sombrero: 'gorro', dir: -1 });
-  R.figura(252 - niega, 150, 36, { sombrero: 'gorro', dir: -1 });
+  R.personaje(220, 152, 46, { ...ELENCO.sabio2, t, dir: niega > 0 ? 1 : -1, ceño: true });
+  R.personaje(252, 152, 44, { ...ELENCO.sabio1, t, dir: niega < 0 ? 1 : -1, ceño: true, pose: 'manos_cintura' });
 };
 const mapa = (t) => {
   R.mesa(t, { luz: [260, 20] });

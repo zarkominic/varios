@@ -15,9 +15,9 @@
 //  satelites  la cámara sube al espacio: la Tierra y satélites en órbita, cada uno con un reloj que late; de cada uno
 //             sale una onda que llega al teléfono (un punto azul en la Tierra) a destiempo.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-gps', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { hoy: M('hoy', 1.5), relojes: M('relojes', 5), sat: M('satelites', 8) };

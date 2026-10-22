@@ -14,9 +14,9 @@
 //              las estrellas como la aguja de un reloj (una esfera de reloj tenue dibujada en el cielo).
 //  harrison    un taller con una vela: un carpintero con delantal entre engranajes de madera que giran.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-luna', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { astr: M('astronomos', 1.5), harrison: M('harrison', 8) };
@@ -32,8 +32,8 @@ const observatorio = (t) => {
   // cúpula del observatorio y el telescopio
   for (let y = 120; y < R.H; y++) for (let x = 0; x < 140; x++) if (Math.hypot(x - 60, (y - 150) * 1.1) < 64 || y > 150) R.pset(x, y, R.tone(PAL.MIDC, 1.2 + (x - 20) / 120, x, y));
   R.linea(72, 118, 128, 74, PAL.ORO[2]); R.linea(72, 119, 128, 75, PAL.ORO[2]); R.linea(73, 120, 129, 76, PAL.ORO[1]);
-  R.figura(60, 150, 34, { sombrero: 'pelo', pose: 'mide', luz: 1 });
-  R.figura(100, 150, 32, { sombrero: 'sombrero', pose: 'senala', luz: 1 });
+  R.personaje(62, 152, 38, { ...ELENCO.astronomo, t, pose: 'mide', objeto: 'catalejo' });
+  R.personaje(102, 152, 36, { ...ELENCO.sabio2, t, pose: 'senala' });
 };
 const engranaje = (cx, cy, r, a, dientes) => {
   R.disco(cx, cy, r, (x, y, d) => R.tone(PAL.HULL, 4.4 - d * 1.4 - (x - cx) / (r * 2), x, y));
@@ -46,7 +46,7 @@ const taller = (t) => {
   R.rect(140, 110, 300, 116, PAL.HULL[4]); R.rect(146, 116, 152, 160, PAL.HULL[2]); R.rect(288, 116, 294, 160, PAL.HULL[2]);
   const w = (t - m.harrison) * 0.8;
   engranaje(230, 92, 16, w, 12); engranaje(258, 82, 9, -w * 1.8 + 0.2, 7); engranaje(208, 72, 8, -w * 2 + 0.5, 6);
-  R.figura(110, 160, 50, { sombrero: 'pelo', delantal: true, pose: 'senala', luz: 1 });
+  R.personaje(110, 162, 52, { ...ELENCO.harrison, t, pose: Math.sin(t * 1.5) > 0 ? 'senala' : 'manos_cintura' });
 };
 
 E.iniciar((t) => {

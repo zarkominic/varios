@@ -15,9 +15,9 @@
 //  lugar      la X del mapa se convierte en un reloj.
 //  quince     un globo gira (meridianos cada 15°); dos relojes, el del puerto y el de aquí, y su diferencia: 3 h = 45°.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-hora', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, sale } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { pesadilla: M('pesadilla', 0.5), lugar: M('lugar', 6.5), quince: M('quince', 10) };

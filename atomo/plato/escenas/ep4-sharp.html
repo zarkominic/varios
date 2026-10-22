@@ -3,113 +3,155 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Sharp · ep4</title>
+<title>Sharp · aventura · ep4</title>
 <style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
 </head>
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// EP4-SHARP (frases 2–4), cartela 1681.
-//  sharp  el balandro pirata se pega a un galeón español; desde el galeón alguien lanza un libro grueso al agua y,
-//         en el aire, lo atrapa un pirata del balandro.
-//  espana Londres de noche con niebla: tejados y una horca recortada contra la Luna.
-//  rey    sala con velas: el pirata, de rodillas, ofrece el libro al rey, que lo toma; en la ventana, la horca se desvanece.
+// EP4-SHARP (frases 2–4), cartela 1681. Estilo «pixel aventura» (kits/pixel-aventura.js): los golpes
+// que ep4-sharp, con personajes con cara, más color y más movimiento.
+//  sharp   el balandro de Sharp se pega a un galeón español; un oficial español lanza un libro por la borda y Sharp lo
+//          atrapa; plano medio en la cubierta: Sharp enseña el libro y su tripulación salta; luego el balandro se va.
+//  espana  Londres de noche: calle de casas de entramado con ventanas encendidas; dos casacas rojas pasan; al fondo,
+//          la horca en la colina, contra la Luna.
+//  rey     salón del trono: alfombra roja, estandartes y antorchas; Sharp entra andando y se arrodilla; el rey (peluca,
+//          corona, capa de armiño) toma el libro; la horca de la ventana se borra. Sin primeros planos: todo pequeño.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-sharp', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp, sale } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { sharp: M('sharp', 1.5), espana: M('espana', 7), rey: M('rey', 9.5), fin: E.duracion };
 
-// horca: dos postes y la cuerda (silueta)
-const horca = (x, suelo, h, c = PAL.INK) => {
-  R.rect(x, suelo - h, x + 1, suelo, c);
-  R.rect(x, suelo - h, x + Math.round(h * 0.45), suelo - h + 1, c);
-  R.linea(x + 1, suelo - h + Math.round(h * 0.25), x + Math.round(h * 0.2), suelo - h + 1, c);
-  R.linea(x + Math.round(h * 0.42), suelo - h + 2, x + Math.round(h * 0.42), suelo - h + Math.round(h * 0.3), c);
-  R.anillo(x + Math.round(h * 0.42) + 0.5, suelo - h + Math.round(h * 0.3) + 2.5, 2, c);
+const SHARP = { sombrero: 'tricornio', barba: 'poblada', pelo: PALA.PELO_NEGRO, chaqueta: PALA.AZUL, faja: PALA.ROJO, loro: true };
+const REY = { sombrero: 'corona', peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.MORADO, capa: PALA.ROJO, armiño: true, pantalon: PALA.BLANCO, botas: PALA.NEGRO };
+const OFICIAL = { sombrero: 'capitan', peinado: 'coleta', pelo: PALA.PELO_CASTANO, chaqueta: PALA.AMARILLO, barba: 'bigote', pantalon: PALA.ROJO };
+const CASACA = { sombrero: 'tricornio', peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.ROJO, pantalon: PALA.BLANCO, botas: PALA.NEGRO };
+
+// cielo nocturno de aventura: degradado morado-azul con estrellas
+const cieloAv = (t, hor, luna) => {
+  R.cielo(t, { hor, luna, nubes: { bandas: [[40, 10, 1]] } });
+  // resplandor morado sobre el horizonte, tramado
+  for (let y = Math.round(hor * 0.6); y < hor; y++) for (let x = 0; x < R.W; x++) { const f = (y - hor * 0.6) / (hor * 0.4); if (f * 0.8 > R.b4(x, y) + 0.15) R.pset(x, y, f > 0.75 ? PALA.MORADO[1] : PALA.MORADO[0]); }
 };
-// libro cerrado pequeño (en vuelo)
-const libroCerrado = (x, y, giro) => {
-  const w = 6, h = 4;
-  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
-    const xx = Math.round(x + (i - w / 2) * Math.cos(giro) - (j - h / 2) * Math.sin(giro)), yy = Math.round(y + (i - w / 2) * Math.sin(giro) + (j - h / 2) * Math.cos(giro));
-    R.pset(xx, yy, j === 0 || i === 0 ? PAL.MOON[3] : PAL.OBS[3]);
+const marAv = (t, hor, luzX) => {
+  R.mar(t, { hor, luzX });
+  for (let y = hor + 1; y < R.H; y++) for (let x = 0; x < R.W; x++) if (Math.sin(x * 0.13 + y * 0.8 - t * 2.6) * Math.sin(x * 0.05 - t) > 0.7) R.pset(x, y, PALA.TURQUESA[y > hor + 30 ? 3 : 2]);
+};
+const libroVuela = (x, y, giro) => {
+  for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) {
+    const u = i - 3.5, v = j - 2.5, xx = Math.round(x + u * Math.cos(giro) - v * Math.sin(giro)), yy = Math.round(y + u * Math.sin(giro) + v * Math.cos(giro));
+    R.pset(xx, yy, j === 0 || i === 0 ? PALA.AMARILLO[3] : i === 1 ? PALA.ORO[2] : PALA.ROJO[2]);
   }
 };
+const lanza = () => m.sharp + 1.6, atrapa = () => m.sharp + 2.8, primerPlano = () => m.sharp + 3.2, huida = () => m.sharp + 6.2;
+const toma = () => m.rey + 1.0;
 
 const abordaje = (t) => {
-  R.cielo(t, { luna: [250, 34, 13], nubes: true });
-  R.mar(t, { luzX: 250 });
-  const g = R.barco(110, 136, t, { tipo: 'galeon', bandera: 'espana', farol: true, esc: 0.95 });
-  const llega = tramo(t, m.sharp - 0.6, m.sharp + 1.6);
-  const bx = lerp(300, 200, llega);
-  R.barco(bx, 138, t, { tipo: 'balandro', bandera: 'pirata', dir: -1, esc: 0.9, fase: 1.3 });
-  // figuras en cubierta: el español en el galeón, el pirata en el balandro
-  R.figura(140, g.wl - 13, 14, { sombrero: 'sombrero', pose: tramo(t, m.sharp + 1.4, m.sharp + 1.7) > 0 ? 'brazos' : 'pie' });
-  const piraX = bx - 4;
-  const lanza = m.sharp + 1.8, atrapa = m.sharp + 3.0;
-  R.figura(piraX, 132, 14, { sombrero: 'pañuelo', faja: 2, pose: t > atrapa - 0.3 ? 'brazos' : 'pie', dir: -1 });
-  // el libro: sale del español, sube y cae hacia el agua; el pirata lo atrapa
-  if (t > lanza) {
-    const p = clamp((t - lanza) / (atrapa - lanza), 0, 1);
-    const x = lerp(142, piraX - 1, p), y = lerp(g.wl - 30, 104, p) - 26 * Math.sin(Math.PI * p);
-    libroCerrado(x, t < atrapa ? y : 104 + Math.round(Math.sin(t * 6)), t < atrapa ? p * 9 : 0);
+  cieloAv(t, 118, [262, 30, 12]);
+  marAv(t, 118, 262);
+  const g = R.barco(108, 140, t, { tipo: 'galeon', bandera: 'espana', farol: true, esc: 0.95 });
+  const bx = lerp(300, 206, tramo(t, m.sharp - 0.8, m.sharp + 1.2));
+  R.barco(bx, 142, t, { tipo: 'balandro', bandera: 'pirata', dir: -1, esc: 0.9, fase: 1.3 });
+  // el oficial en la borda del galeón y Sharp en el balandro
+  R.personaje(134, g.wl - 12, 32, { ...OFICIAL, t, pose: t > lanza() - 0.3 && t < lanza() + 0.4 ? 'brazos' : 'pie' });
+  const sx = bx - 2;
+  R.personaje(sx, 133, 32, { ...SHARP, t, dir: -1, pose: t > atrapa() - 0.5 ? 'brazos' : 'manos_cintura' });
+  if (t > lanza()) {
+    const p = clamp((t - lanza()) / (atrapa() - lanza()), 0, 1);
+    const x = lerp(140, sx, p), y = lerp(g.wl - 36, 98, p) - 30 * Math.sin(Math.PI * p);
+    if (p < 1) libroVuela(x, y, p * 10); else libroVuela(sx, 98, 0);
+  }
+};
+// plano medio en la cubierta del balandro: Sharp (48 px) enseña el libro; su tripulación lo celebra
+const cubiertaSharp = (t) => {
+  cieloAv(t, 112, [250, 30, 12]);
+  marAv(t, 112, 250);
+  R.barco(70, 116, t, { tipo: 'galeon', bandera: 'espana', esc: 0.45, silueta: 1, bob: 0.6 });
+  for (let y = 140; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PALA.MARRON, 2 - (y - 140) * 0.04 + (x % 16 === 0 ? -1 : 0), x, y));
+  R.rect(0, 132, R.W, 139, PALA.MARRON[1]); R.rect(0, 132, R.W, 132, PALA.MARRON[3]);
+  R.rect(286, 40, 288, 140, PALA.MARRON[0]);
+  R.bandera(287, 42, t, 'pirata', -1, 1.2);
+  const salta = Math.abs(Math.sin(t * 6)) * 3;
+  R.personaje(150, 152, 48, { ...SHARP, t, objeto: 'libro', pose: 'ofrece', sonrisa: true });
+  R.personaje(206, 152 - Math.round(salta), 42, { sombrero: 'pañuelo', colorPañuelo: PALA.VERDE, pelo: PALA.PELO_ROJO, barba: 'perilla', chaqueta: PALA.ROJO, t, pose: 'brazos', pata: true });
+  R.personaje(96, 152 - Math.round(Math.abs(Math.sin(t * 6 + 1)) * 3), 40, { sombrero: 'pañuelo', colorPañuelo: PALA.AZUL, piel: PALA.PIEL_OSCURA, pelo: PALA.PELO_NEGRO, chaqueta: PALA.AMARILLO, parche: true, t, pose: 'brazos' });
+  R.personaje(248, 152, 40, { sombrero: 'gorro', colorSombrero: PALA.MORADO, pelo: PALA.PELO_RUBIO, chaqueta: PALA.VERDE, t, pose: 'saluda', dir: -1 });
+};
+const casa = (x, ancho, alto, base, colorPared, t, k) => {
+  R.rect(x, base - alto, x + ancho, base, colorPared[1]);
+  for (let y = base - alto; y <= base; y += 9) R.rect(x, y, x + ancho, y, PALA.MARRON[1]);
+  for (let xx = x; xx <= x + ancho; xx += 8) R.rect(xx, base - alto, xx, base, PALA.MARRON[1]);
+  R.linea(x, base - alto + 9, x + 8, base - alto, PALA.MARRON[1]);
+  R.poligono([[x - 3, base - alto], [x + ancho / 2, base - alto - 14], [x + ancho + 3, base - alto]], (xx, yy) => R.tone(PALA.ROJO, 1 + (xx < x + ancho / 2 ? 1 : 0), xx, yy));
+  for (let j = 0; j < 2; j++) for (let i = 0; i < Math.floor(ancho / 12); i++) {
+    const wx = x + 4 + i * 12, wy = base - alto + 12 + j * 18, on = R.hash2(k * 9 + i, j) > 0.35;
+    R.rect(wx, wy, wx + 5, wy + 6, on ? PALA.ANTORCHA[3] : PALA.NEGRO[1]); R.rect(wx + 2, wy, wx + 2, wy + 6, PALA.MARRON[0]);
+    if (on) R.halo(wx + 2, wy + 3, 9, [PALA.ANTORCHA[1]], 0.35);
   }
 };
 const londres = (t) => {
-  R.cielo(t, { luna: [210, 50, 15], hor: 150, semilla: 4, nubes: { bandas: [[60, 10, 0.8]] } });
-  // tejados de Londres en silueta
-  const rnd = R.mulberry32(9);
-  let x = -4;
-  while (x < 330) {
-    const w = 12 + Math.floor(rnd() * 16), h = 18 + Math.floor(rnd() * 26);
-    R.rect(x, 150 - h, x + w, 180, PAL.MIDC[1]);
-    R.poligono([[x - 1, 150 - h], [x + w / 2, 150 - h - 7], [x + w + 1, 150 - h]], PAL.MIDC[1]);
-    if (rnd() < 0.5) R.rect(x + 3, 150 - h - 9, x + 5, 150 - h - 3, PAL.MIDC[1]);
-    for (let k = 0; k < 3; k++) if (rnd() < 0.4) { const wx = x + 3 + Math.floor(rnd() * (w - 6)), wy = 150 - h + 6 + Math.floor(rnd() * (h - 12)); R.rect(wx, wy, wx + 1, wy + 1, PAL.FIRE[2]); }
-    x += w + 1;
+  cieloAv(t, 120, [230, 36, 14]);
+  // colina con la horca contra la Luna
+  R.poligono([[170, 120], [200, 70], [270, 66], [320, 90], [320, 120]], PALA.SELVA[1]);
+  R.rect(228, 34, 229, 68, PALA.MARRON[0]); R.rect(228, 34, 246, 35, PALA.MARRON[0]); R.linea(244, 35, 244, 46, PALA.MARRON[0]); R.anillo(244.5, 48.5, 2, PALA.MARRON[0]);
+  // calle: casas de colores y empedrado
+  [[0, 44, 70, PALA.AMARILLO], [46, 40, 60, PALA.AZUL], [88, 50, 76, PALA.VERDE], [140, 36, 56, PALA.MORADO], [178, 46, 66, PALA.ROJO], [226, 44, 72, PALA.AMARILLO], [272, 50, 62, PALA.AZUL]].forEach(([x, w, h, c], k) => casa(x, w, h, 132, c, t, k));
+  for (let y = 132; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, ((Math.floor(x / 6) + Math.floor(y / 4)) % 2 === 0 && x % 6 !== 0 && y % 4 !== 0) ? PALA.NEGRO[2] : PALA.NEGRO[1]);
+  // farola
+  R.rect(150, 100, 151, 140, PALA.NEGRO[0]); R.rect(146, 96, 155, 101, PALA.NEGRO[0]); R.rect(148, 97, 153, 100, PALA.ANTORCHA[3]); R.halo(150, 98, 30, [PALA.ANTORCHA[0], PALA.ANTORCHA[1]], 0.6);
+  // dos casacas rojas que pasan andando
+  const a = (t - m.espana) * 7;
+  R.personaje(lerp(-20, 340, ((t - m.espana) * 0.11) % 1), 164, 44, { ...CASACA, t, anda: a, objeto: 'espada' });
+  R.personaje(lerp(-40, 320, ((t - m.espana) * 0.11) % 1), 168, 46, { ...CASACA, t: t + 1, anda: a + 1.3 });
+  R.niebla(t, 100, 150, 0.7, 5);
+};
+const salon = (t) => {
+
+  // pared de piedra con estandartes y antorchas, alfombra roja
+  R.interior(t, { luces: [[70, 40], [250, 40]], suelo: 126, radio: 170 });
+  for (const [x, c] of [[40, PALA.AZUL], [270, PALA.VERDE]]) { R.rect(x, 18, x + 18, 70, c[2]); R.rect(x, 18, x + 3, 70, c[3]); R.poligono([[x, 70], [x + 9, 80], [x + 18, 70]], c[2]); R.rect(x + 6, 32, x + 12, 40, PALA.ORO[2]); }
+  R.antorcha(80, 46, t); R.antorcha(240, 46, t);
+  R.poligono([[120, 126], [200, 126], [250, 180], [70, 180]], (x, y) => R.tone(PALA.ROJO, 1.5 + (y - 126) / 40, x, y));
+  for (let y = 128; y < R.H; y += 6) { R.pset(120 - (y - 126) * 0.93 + 4, y, PALA.ORO[2]); R.pset(200 + (y - 126) * 0.93 - 4, y, PALA.ORO[2]); }
+  // trono
+  R.rect(216, 70, 252, 128, PALA.ORO[1]); R.rect(220, 74, 248, 110, PALA.ROJO[1]); R.rect(214, 66, 254, 72, PALA.ORO[2]);
+  for (const x of [216, 234, 250]) R.disco(x + 1, 64, 2.5, PALA.ORO[3]);
+  // ventana con la horca, que se borra cuando el rey toma el libro
+  R.rect(140, 20, 180, 60, PALA.NEGRO[0]);
+  for (let y = 22; y <= 58; y++) for (let x = 142; x <= 178; x++) R.pset(x, y, R.tone(PAL.SKY, 3 + (y - 22) / 12, x, y));
+  R.lunaLlena(170, 30, 5);
+  const borra = tramo(t, toma() + 0.2, toma() + 1.2);
+  for (let y = 34; y <= 58; y++) for (let x = 148; x <= 166; x++) {
+    const enHorca = (x === 150 && y >= 34) || (y === 34 && x <= 162) || (x === 162 && y <= 42) || (Math.hypot(x - 162, y - 45) < 2.6 && Math.hypot(x - 162, y - 45) > 1.4);
+    if (enHorca && R.hash2(x, y) >= borra) R.pset(x, y, PALA.CONTORNO);
   }
-  // colina con la horca, delante de la Luna
-  R.poligono([[150, 180], [170, 128], [250, 122], [290, 180]], PAL.FGC[1]);
-  for (let xx = 170; xx < 250; xx++) R.pset(xx, 122 + Math.round((xx - 210) ** 2 / 400) + (xx < 175 ? 175 - xx : 0), PAL.FGC[3]);
-  horca(200, 124, 52);
-  R.niebla(t, 120, 180, 1.1, 6);
+  R.rect(159, 20, 160, 60, PALA.MARRON[1]); R.rect(140, 39, 180, 40, PALA.MARRON[1]);
+  // el rey en el trono; Sharp entra andando y se arrodilla
+  R.personaje(234, 130, 52, { ...REY, t, dir: -1, pose: t > toma() - 0.5 ? 'ofrece' : 'pie', objeto: t > toma() ? 'libro' : null });
+  R.personaje(172, 156, 52, { ...SHARP, t, pose: 'rodilla', objeto: t < toma() ? 'libro' : null });
 };
-const sala = (t) => {
-  R.interior(t, { luces: [[90, 50], [250, 50]], suelo: 140 });
-  R.vela(90, 56, t); R.vela(250, 56, t);
-  // ventana con la horca: se desvanece cuando el rey toma el libro
-  const wx = 150, wy = 30;
-  R.rect(wx - 1, wy - 1, wx + 41, wy + 41, PAL.HULL[3]);
-  for (let y = wy; y <= wy + 40; y++) for (let x = wx; x <= wx + 40; x++) R.pset(x, y, R.tone(PAL.SKY, 3 + (y - wy) / 14, x, y));
-  R.lunaLlena(wx + 30, wy + 10, 5);
-  const toma = m.rey + 2.0, borra = tramo(t, toma + 0.3, toma + 1.6);
-  if (borra < 1) horcaSola(wx + 10, wy + 40, 30, borra);
-  R.rect(wx + 20, wy, wx + 20, wy + 40, PAL.HULL[3]); R.rect(wx, wy + 20, wx + 40, wy + 20, PAL.HULL[3]);
-  // el rey y el pirata
-  const p = tramo(t, m.rey + 0.6, toma);
-  R.figura(205, 150, 46, { sombrero: 'corona', capa: true, dir: -1, pose: p > 0.7 ? 'ofrece' : 'pie', objeto: p >= 0.7 ? 'libro' : null });
-  R.figura(120, 150, 40, { sombrero: 'tricornio', faja: 2, pose: 'rodilla', objeto: p < 0.7 ? 'libro' : null });
+const sevaAbordaje = (t) => {
+  cieloAv(t, 118, [262, 30, 12]);
+  marAv(t, 118, 262);
+  R.barco(108, 140, t, { tipo: 'galeon', bandera: 'espana', farol: true, esc: 0.95 });
+  const bx = lerp(206, 290, tramo(t, huida(), huida() + 3));
+  R.barco(bx, 142, t, { tipo: 'balandro', bandera: 'pirata', esc: 0.9, fase: 1.3 });
+  R.personaje(bx - 4, 133, 32, { ...SHARP, t, pose: 'saluda', objeto: 'libro' });
+  R.personaje(134, 128, 32, { ...OFICIAL, t, pose: 'senala', ceño: true });
 };
-// la horca de la ventana, borrada con tramado según b
-const horcaSola = (x, suelo, h, b) => {
-  const B = R.nuevo(); const prev = R.usar(B);
-  horca(x, suelo, h, PAL.INK);
-  R.usar(prev);
-  for (let y = suelo - h; y <= suelo; y++) for (let xx = x; xx <= x + h; xx++) {
-    const c = B[y * R.W + xx];
-    if (c && R.hash2(xx, y) * 0.6 + R.b4(xx, y) * 0.4 >= b) R.pset(xx, y, c);
-  }
-};
+
 
 E.iniciar((t) => {
   R.secuencia(t, [
     [0, (t) => R.cartela(t, '1681')],
     [1.2, abordaje],
+    [primerPlano(), cubiertaSharp, 'corte'],
+    [huida(), sevaAbordaje, 'corte'],
     [m.espana - 0.2, londres],
-    [m.rey - 0.2, sala],
+    [m.rey - 0.2, salon],
   ]);
   if (t > 1.3) R.companero(t, E.energia(t));
   R.presentar();

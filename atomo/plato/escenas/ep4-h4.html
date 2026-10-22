@@ -15,9 +15,9 @@
 //  h4       un reloj de bolsillo grande abre su tapa: dentro, el mecanismo dorado late.
 //  viaje    un barco cruza el Atlántico de noche; la caja cuenta los días y, al llegar, «-39» (segundos).
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-h4', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp, sale } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { decadas: M('decadas', 0.5), h4: M('h4', 4.5), viaje: M('viaje', 8) };

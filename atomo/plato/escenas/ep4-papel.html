@@ -17,9 +17,9 @@
 //            monedas en la caja.
 //  papeleo   el papel vuela de un barco al otro y las banderas cambian con él: mismos barcos, mismos cañones.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-papel', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { heroe: M('heroe', 0.5), papel: M('papel', 7), corsario: M('corsario', 9.5), papeleo: M('papeleo', 18) };
@@ -35,15 +35,15 @@ const carta = (x, y, giro, s = 1) => {
 const partida = (t) => {
   // izquierda: sombra roja, Drake como pirata
   for (let y = 0; y < R.H; y++) for (let x = 0; x < 160; x++) R.pset(x, y, R.tone([PAL.INK, PAL.OBS[3], PAL.OBS[2]], 0.6 + 1.2 * Math.exp(-Math.hypot(x - 80, y - 90) / 50), x, y));
-  R.figura(80, 150, 50, { sombrero: 'sombrero', capa: true, objeto: 'espada', pose: 'senala' });
+  R.personaje(80, 152, 54, { ...ELENCO.drake, t, objeto: 'espada', pose: 'senala', ceño: true });
   R.icono('calavera', 76, 30, PAL.MOON[3]);
   // derecha: cubierta a la luz de faroles, la reina y Drake de rodillas
   for (let y = 0; y < R.H; y++) for (let x = 160; x < R.W; x++) R.pset(x, y, R.tone(PAL.HULL, 1 + 2.8 * Math.exp(-Math.hypot(x - 240, y - 70) / 70), x, y));
   for (let y = 150; y < R.H; y++) for (let x = 160; x < R.W; x++) R.pset(x, y, R.tone(PAL.HULL, 2.2 + (x % 16 === 0 ? -1 : 0), x, y));
   R.vela(300, 60, t);
-  R.figura(212, 150, 36, { sombrero: 'sombrero', pose: 'rodilla' });
+  R.personaje(214, 156, 46, { ...ELENCO.drake, t, pose: 'rodilla' });
   const toca = Math.sin(t * 2) > 0;
-  R.figura(268, 150, 52, { sombrero: 'corona', capa: true, dir: -1, pose: 'ofrece', objeto: 'espada', luz: 1 });
+  R.personaje(268, 152, 54, { ...ELENCO.reina, t, dir: -1, pose: 'ofrece', objeto: 'espada' });
   if (toca) R.icono('corona', 232, 30, PAL.ORO[4]);
   R.rect(159, 0, 160, R.H, PAL.UI[5]);
   // el papel cae por la raya

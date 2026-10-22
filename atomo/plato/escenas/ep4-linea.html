@@ -14,9 +14,9 @@
 //           española a la izquierda (oeste) y otra portuguesa a la derecha (este).
 //  nadie    la línea tiembla y se desplaza a un lado y a otro, como la longitud punteada del ancla; «?» en la caja.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-linea', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { reparto: M('reparto', 1.5), nadie: M('nadie', 7.5) };

@@ -14,9 +14,9 @@
 //  cartas  el libro de Sharp se abre en la mesa y sus costas se dibujan: puertos, sondas y rocas.
 //  porque  una balanza: cofre de plata contra el libro; se inclina hacia el libro. «?» en la caja.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-libro', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp, clamp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { oro: M('oro', 0.5), cartas: M('cartas', 3.5), porque: M('porque', 8.5) };

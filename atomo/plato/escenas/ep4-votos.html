@@ -15,9 +15,9 @@
 //  normas   un papel con iconos (monedas, un brazo, una pierna) que los piratas firman con una X, uno tras otro.
 //  seguro   un pirata con pata de palo recibe una bolsa de monedas; detrás, la boca de un cañón.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-votos', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo, lerp } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { capitan: M('capitan', 0.5), normas: M('normas', 5), seguro: M('seguro', 12) };
@@ -33,12 +33,12 @@ const votacion = (t) => {
   // el barril
   R.rect(144, 132, 166, 152, PAL.HULL[3]); R.rect(144, 136, 166, 137, PAL.ORO[1]); R.rect(144, 147, 166, 148, PAL.ORO[1]);
   // capitán viejo (baja) y nuevo (sube)
-  R.figura(lerp(155, 196, cambio), lerp(132, 156, cambio), 34, { sombrero: 'tricornio', capa: true, dir: cambio > 0.5 ? 1 : -1 });
-  if (cambio > 0.3) R.figura(lerp(118, 155, cambio), lerp(156, 132, cambio), 34, { sombrero: 'pañuelo', faja: 2, pose: cambio >= 1 ? 'brazos' : 'pie' });
+  R.personaje(lerp(155, 196, cambio), lerp(132, 158, cambio), 38, { ...ELENCO.capitanPirata, t, dir: cambio > 0.5 ? 1 : -1, ceño: cambio > 0.3 });
+  if (cambio > 0.3) R.personaje(lerp(118, 155, cambio), lerp(158, 132, cambio), 38, { ...ELENCO.pirata1, t, pose: cambio >= 1 ? 'brazos' : 'pie', sonrisa: cambio >= 1 });
   // la tripulación vota
   const manos = Math.sin(t * 2.2) > -0.2 && t > m.capitan + 0.6;
   for (const [x, s, h] of [[40, 'pañuelo', 34], [74, 'gorro', 32], [222, 'pañuelo', 34], [254, 'tricornio', 32], [286, 'gorro', 30]])
-    R.figura(x, 160, h, { sombrero: s, faja: s === 'pañuelo' ? 2 : null, pose: manos ? 'brazos' : 'pie', dir: x > 160 ? -1 : 1 });
+    R.personaje(x, 162, h + 4, { ...[ELENCO.pirata2, ELENCO.pirata3, ELENCO.pirataPata, ELENCO.marinero, ELENCO.pirata2][[40, 74, 222, 254, 286].indexOf(x)], t: t + x, pose: manos ? 'brazos' : 'pie', dir: x > 160 ? -1 : 1 });
 };
 const articulos = (t) => {
   R.mesa(t, { luz: [160, 20] });
@@ -61,8 +61,8 @@ const paga = (t) => {
   R.rect(250, 128, 300, 140, PAL.HULL[1]); R.disco(296.5, 134.5, 7, PAL.HULL[2]); R.disco(296.5, 134.5, 4, PAL.INK);
   R.disco(262, 146, 6, PAL.HULL[3]); R.disco(286, 146, 6, PAL.HULL[3]);
   const da = R.tramo(t, m.seguro + 0.4, m.seguro + 1.2);
-  R.figura(110, 160, 44, { sombrero: 'pañuelo', faja: 2, pata: true, pose: 'ofrece', objeto: da >= 1 ? 'bolsa' : null });
-  R.figura(180, 160, 46, { sombrero: 'tricornio', capa: true, dir: -1, pose: 'ofrece', objeto: da < 1 ? 'bolsa' : null });
+  R.personaje(110, 162, 48, { ...ELENCO.pirataPata, t, pose: 'ofrece', objeto: da >= 1 ? 'bolsa' : null, sonrisa: da >= 1 });
+  R.personaje(180, 162, 50, { ...ELENCO.pirata1, t, dir: -1, pose: 'ofrece', objeto: da < 1 ? 'bolsa' : null });
 };
 
 E.iniciar((t) => {

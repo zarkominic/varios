@@ -14,9 +14,9 @@
 //           doradas y forman un mapa de islas en el aire.
 //  bateria  en la caja, una pila tachada.
 import { escena } from '/atomo/plato/escena.js';
-import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
 const E = await escena('ep4-cantos', 'ep04');
-const R = await crearRetro(document.getElementById('lienzo'));
+const R = await crearAventura(document.getElementById('lienzo'));
 const { PAL, tramo } = R;
 const M = (k, d) => E.marca(k, d);
 const m = { cantos: M('cantos', 0.5), bateria: M('bateria', 3.8) };
@@ -42,8 +42,8 @@ E.iniciar((t) => {
   R.pset(fx, fy - 9, PAL.FIRE[4]);
   // el anciano canta (los brazos suben a ratos), el niño escucha
   const canta = Math.sin(t * 3) > 0.3;
-  R.figura(126, 160, 34, { pose: 'sentado', brazoD: canta ? 'arriba' : 'abajo', luz: 1, sombrero: 'moño' });
-  R.figura(196, 160, 22, { pose: 'sentado', dir: -1, luz: -1 });
+  R.personaje(124, 162, 40, { ...ELENCO.anciano, t, pose: 'sentado', brazoD: canta ? 'arriba' : 'abajo', habla: 1 });
+  R.personaje(198, 162, 28, { ...ELENCO.nino, t, pose: 'sentado', dir: -1 });
   const e = E.energia(t);
   R.caja(t, tramo(t, m.bateria - 0.1, m.bateria + 0.3), (x, y) => { R.icono('pila', x + 8, y + 4, PAL.UI[5]); R.icono('X', x + 7, y + 5, PAL.ROJO); }, { energia: e });
   R.companero(t, e);
