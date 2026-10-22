@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La promesa · pixel</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #04030a; overflow: hidden; }
+  canvas { display: block; position: fixed; inset: 0; }
+</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PX-EP3-PROMESA · muestra de pixel art del episodio 3, escena 3 (frases 8–10). Mismos golpes que ep3-promesa (guion.json),
+// en el lienzo de 480 × 270 de kits/pixel-ep03.js (escalado ×4). Empieza en el último fotograma de px-ep3-ojo
+// (kits/pixel-ep03-instrumentos.js: INS.pintarFinOjo() y Atom en su sitio con t = 0).
+//  0          el telescopio espacial en el centro sobre el cielo estrellado (empieza_con), igual que acaba px-ep3-ojo.
+//  destellos  DOS DESTELLOS, cada uno tras un fogonazo blanco.
+//             1 (DETALLE) el Sol prende en el espejo del telescopio y el destello se abre en fogonazo; corte a una silla de
+//               madera de tres cuartos en el plató, a contraluz, y una mano con su manga de jersey que entra por la
+//               izquierda, frena y se para con los dedos a 3 px del poste del respaldo; se acerca un poco más, duda, y el
+//               hueco nunca se cierra (la luz del fondo pasa entre los dedos y la madera).
+//             2 (PLANO MEDIO, a mitad de frase) el hueco se enciende y se abre en el segundo fogonazo; corte a la balanza de
+//               latón con peana de nogal: en el plato izquierdo, la silueta de un cuerpo humano hecha de puntitos que
+//               titilan; en el derecho, una esfera de cielo estrellado. El brazo llega meciéndose y se queda en vilo,
+//               temblando alrededor del fiel, sin decidirse.
+//  centro     (PLANO GENERAL, por corte) el mismo cielo del principio; la cámara baja hasta el plató (el cielo se funde
+//             tramado en la pared oscura) y encuentra a la persona de pie a la izquierda. La regla de potencias de diez
+//             entra por el borde derecho con el marcador en 10⁰ y se despliega entera, de la niebla de abajo a la red de
+//             arriba. Un «?» sale de la niebla y la sube a saltos, buscando su centro; la persona lo sigue con la cabeza.
+//  apuesto    el «?» llega a la altura de la persona (10⁰), no se para: pasa de largo y se va hacia arriba por la red de
+//             galaxias hasta salir del cuadro. La persona lo sigue con la mirada hacia arriba y vuelve a mirar a cámara.
+// FINAL (termina_con; px-ep3-cajon empieza en él): desde QUIETO = duración − 0,6 s el cuadro está quieto: el plató de la
+// prueba (crearPlato FIN.plato, camX 80), la persona FIN.persona, la regla FIN.regla (entera, marcador en 10⁰) y Atom en
+// PX.ATOM_SITIO con el reloj t − duración (en el último fotograma, t = 0) y energía 0. window.__fin lo resume.
+// Coste: al cargar se pintan los fondos, la silla, la balanza fija, los platos y su contenido y el viaje del cielo al
+// plató; en cada fotograma se pegan capas y, en vivo, como mucho la mano, el brazo de la balanza o la persona y la regla.
+import { escena } from '/atomo/plato/escena.js';
+import { crearPixel } from '/atomo/plato/kits/pixel-ep03.js';
+import * as INS from '/atomo/plato/kits/pixel-ep03-instrumentos.js';
+
+const E = await escena('px-ep3-promesa', 'ep03px');
+const c0 = performance.now();
+const PX = crearPixel(document.getElementById('lienzo'));
+const { PAL, W, H, clamp, mezcla, suave, sale, entra, entraSale, paso, fot, tono, vnoise, fbm, hash2, b4, b8, mulberry32, rgb, color, hex } = PX;
+const M = (k) => E.marca(k);
+const m = {
+  d: M('destellos'), dF: M('destellos_fin'), c: M('centro'), cF: M('centro_fin'), a: M('apuesto'), aF: M('apuesto_fin'),
+};
+const D = E.duracion, QUIETO = D - 0.6;
+const prog = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+const energia = (t) => (t >= QUIETO ? 0 : E.energia(t));
+
+// ───────────────────────────────────────────────────────────── tiempos (todo sale de las marcas)
+// (las palabras sueltas no tienen marca: «a mitad de frase» es la mitad del intervalo de la frase 8)
+const mitad = mezcla(m.d, m.dF, 0.5);
+const T = {
+  // fogonazo 1: el destello del espejo sube desde 0,3 s antes de la marca; corte a la silla en el blanco
+  f1a: m.d - 0.3, f1: m.d - 0.08, f1b: m.d + 0.4,
+  mano1: m.d + 1.75,                    // la mano entra y frena…
+  duda0: m.d + 2.55, duda1: m.d + 2.95, // …se acerca un poco más y se queda (el hueco no se cierra)
+  // fogonazo 2: el hueco se enciende; corte a la balanza a mitad de frase
+  f2a: mitad - 0.3, f2: mitad - 0.08, f2b: mitad + 0.42,
+  // frase 9: corte al cielo y la cámara baja al plató; la regla entra y se despliega; sale el «?»
+  cielo: m.c - 0.25, baja1: m.c + 1.05,
+  regla0: m.c + 1.05, regla1: m.c + 1.5, entera0: m.c + 1.4, entera1: m.c + 2.3, q0: m.c + 2.3,
+};
+
+// ───────────────────────────────────────────────────────────── utilidades de forma
+const segSdf = (ax, ay, bx, by, r0, r1 = r0) => (x, y) => {
+  const px = x - ax, py = y - ay, ex = bx - ax, ey = by - ay;
+  const h = clamp((px * ex + py * ey) / (ex * ex + ey * ey), 0, 1);
+  return Math.hypot(px - ex * h, py - ey * h) - mezcla(r0, r1, h);
+};
+const elipSdf = (cx, cy, rx, ry) => (x, y) => (Math.hypot((x - cx) / rx, (y - cy) / ry) - 1) * Math.min(rx, ry);
+function polySdf(P) {
+  return (x, y) => {
+    let d = (x - P[0][0]) ** 2 + (y - P[0][1]) ** 2, s = 1;
+    for (let i = 0, j = P.length - 1; i < P.length; j = i, i++) {
+      const ex = P[j][0] - P[i][0], ey = P[j][1] - P[i][1], wx = x - P[i][0], wy = y - P[i][1];
+      const h = clamp((wx * ex + wy * ey) / (ex * ex + ey * ey), 0, 1);
+      const bx = wx - ex * h, by = wy - ey * h;
+      d = Math.min(d, bx * bx + by * by);
+      const c1 = y >= P[i][1], c2 = y < P[j][1], c3 = ex * wy > ey * wx;
+      if ((c1 && c2 && c3) || (!c1 && !c2 && !c3)) s = -s;
+    }
+    return s * Math.sqrt(d);
+  };
+}
+const union = (...fs) => (x, y) => { let d = Infinity; for (const f of fs) d = Math.min(d, f(x, y)); return d; };
+const cajaDe = (P) => { const xs = P.map((p) => p[0]), ys = P.map((p) => p[1]); return { x0: Math.min(...xs) - 6, y0: Math.min(...ys) - 6, x1: Math.max(...xs) + 6, y1: Math.max(...ys) + 6 }; };
+function capaVacia() { return PX.nuevaCapa(W, H); }
+function copiaPantalla(fn) { const c = capaVacia(); PX.en(c, fn); return c; }
+
+// ═════════════════════════════════════════════════════════════ PLANO 0: el final de px-ep3-ojo
+const INICIO = copiaPantalla(() => INS.pintarFinOjo());
+const TELE_X = INS.FIN.x, TELE_Y = INS.FIN.y;
+
+// ═════════════════════════════════════════════════════════════ PLANO 1: la mano y la silla (DETALLE)
+// Silla de tres cuartos en proyección oblicua: X de delante (izquierda) a detrás (derecha), Y hacia arriba, Z a lo ancho
+// (0 = el lado de cámara, 1 = el del fondo, que se desplaza arriba a la derecha). Madera de boj con veta.
+const SX = 116, ZX = 26, ZY = -11, OX = 236, OY = 250;
+const Pt = (X, Yh, Z) => [OX + X * SX + Z * ZX, OY - Yh + Z * ZY];
+const BOJ = PAL.BOJ;
+const vetaV = (x, y, v) => v + 0.32 * Math.sin(x * 1.3 + 3.2 * vnoise(x * 0.15, y * 0.05)) + 0.2 * (vnoise(x * 0.5, y * 0.08) - 0.5);
+const vetaH = (x, y, v) => v + 0.3 * Math.sin(y * 1.2 + 3.5 * vnoise(x * 0.04, y * 0.25)) + 0.2 * (vnoise(x * 0.07, y * 0.5) - 0.5);
+function cara(P, lo, hi, textura = vetaH, grosor = 2.5, plano = 0.8) {
+  PX.forma({ ...cajaDe(P), sdf: polySdf(P), rampa: BOJ, lo, hi, grosor, plano, textura, k: 0.25 });
+}
+function palo(a, b, r0, r1, lo, hi) {
+  PX.forma({ ...cajaDe([a, b]), sdf: segSdf(a[0], a[1], b[0], b[1], r0, r1), rampa: BOJ, lo, hi, grosor: 4, textura: vetaV, k: 0.25 });
+}
+const SEAT = 98, GRUESO = 8, RAIL0 = 178, RAIL1 = 206;
+const xPoste = (Yh) => 0.955 + 0.07 * clamp((Yh - SEAT) / (RAIL1 - SEAT), 0, 1);   // el poste de atrás se inclina hacia atrás
+const SILLA = capaVacia();
+PX.en(SILLA, () => {
+  const lejos = (lo) => lo * 0.55;
+  // ── el lado del fondo (Z = 0,92), en sombra
+  palo(Pt(0.06, SEAT - GRUESO, 0.92), Pt(0.05, 0, 0.92), 3.6, 3.2, 0.5, 2.2);
+  palo(Pt(0.955, SEAT - GRUESO, 0.92), Pt(1.0, 0, 0.92), 3.8, 3.4, 0.4, 2.0);
+  palo(Pt(0.955, SEAT, 0.92), Pt(xPoste(RAIL0), RAIL0, 0.92), 3.6, 3.4, 0.5, 2.3);
+  PX.forma({ ...cajaDe([Pt(0.06, 40, 0.92), Pt(0.98, 40, 0.92)]), sdf: segSdf(...Pt(0.07, 40, 0.92), ...Pt(0.97, 40, 0.92), 2.2), rampa: BOJ, lo: lejos(1), hi: 1.8, grosor: 2, textura: vetaH });
+  // ── el asiento: la cara de arriba (con la luz) y el canto del lado de cámara
+  cara([Pt(0, SEAT, 0), Pt(1.0, SEAT, 0), Pt(1.0, SEAT, 1), Pt(0, SEAT, 1)], 2.7, 4.3, vetaH, 3, 0.85);
+  cara([Pt(0, SEAT, 0), Pt(1.0, SEAT, 0), Pt(1.0, SEAT - GRUESO, 0), Pt(0, SEAT - GRUESO, 0)], 1.4, 2.9, vetaH, 2, 0.6);
+  // los barrotes del respaldo (entre los dos postes)
+  for (const z of [0.3, 0.5, 0.7]) palo(Pt(xPoste(SEAT), SEAT, z), Pt(xPoste(RAIL0), RAIL0 + 2, z), 2.2, 1.9, 0.9, 2.9);
+  // ── el lado de cámara (Z = 0,08)
+  palo(Pt(0.06, SEAT - GRUESO, 0.08), Pt(0.05, 0, 0.08), 4.2, 3.6, 1.0, 3.9);
+  palo(Pt(0.955, SEAT - GRUESO, 0.08), Pt(1.0, 0, 0.08), 4.4, 3.8, 0.9, 3.6);
+  palo(Pt(0.955, SEAT, 0.08), Pt(xPoste(RAIL0), RAIL0, 0.08), 4.3, 4.0, 1.0, 3.8);
+  PX.forma({ ...cajaDe([Pt(0.06, 40, 0.08), Pt(0.98, 40, 0.08)]), sdf: segSdf(...Pt(0.07, 40, 0.08), ...Pt(0.97, 40, 0.08), 2.6), rampa: BOJ, lo: 1.1, hi: 3.4, grosor: 2.5, textura: vetaH });
+  // ── el travesaño de arriba del respaldo (cara de arriba, canto de atrás y la testa del lado de cámara)
+  const xa = xPoste(RAIL1) - 0.035, xb = xPoste(RAIL1) + 0.035, xa0 = xPoste(RAIL0) - 0.035, xb0 = xPoste(RAIL0) + 0.035;
+  cara([Pt(xb0, RAIL0, 0), Pt(xb, RAIL1, 0), Pt(xb, RAIL1, 1), Pt(xb0, RAIL0, 1)], 0.9, 2.2, vetaH, 2, 0.8);
+  cara([Pt(xa, RAIL1, 0), Pt(xb, RAIL1, 0), Pt(xb, RAIL1, 1), Pt(xa, RAIL1, 1)], 3.0, 4.6, vetaH, 1.5, 0.85);
+  cara([Pt(xa0, RAIL0, 0), Pt(xb0, RAIL0, 0), Pt(xb, RAIL1, 0), Pt(xa, RAIL1, 0)], 1.6, 3.6, vetaV, 3, 0.4);
+});
+// el plató de detrás: el foco cae detrás del respaldo (la luz pasa por el hueco entre los dedos y la madera)
+const PLATO_A = PX.crearPlato({ ancho: 640, focoX: 455, focoY: 64, sueloY: 234, semilla: 5 });
+const FONDO_A = copiaPantalla(() => PLATO_A.dibujar({ camX: 80, t: 0, polvo: 0 }));
+PX.en(FONDO_A, () => {
+  PX.luz(372, 58, 120, rgb(PAL.AMBAR[2]), 0.35, 5);
+  PX.sombra(318, 249, 104, 9, 0.7);
+});
+// la mano: dónde acaba (los dedos a 3 px de la madera, medido en píxeles reales fila a fila)
+const MANO = { largo: 58, angulo: 0.09, tipo: 'abierta', manga: 1.7 };
+const GAP0 = 4, GAP1 = 2;                                     // el hueco al frenar y después de dudar
+const Y_MANO = 58;
+const borde = (capa, desdeDer) => {
+  const r = new Int16Array(H).fill(desdeDer ? -999 : 9999);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (capa.buf[y * W + x]) { if (desdeDer) r[y] = x; else if (r[y] === 9999) r[y] = x; }
+  return r;
+};
+const X_REF = 200;
+const PRUEBA_MANO = copiaPantalla(() => PX.mano({ ...MANO, x: X_REF, y: Y_MANO }));
+const derMano = borde(PRUEBA_MANO, true), izqSilla = borde(SILLA, false);
+let minHueco = Infinity;
+for (let y = 0; y < H; y++) if (derMano[y] > -999 && izqSilla[y] < 9999) minHueco = Math.min(minHueco, izqSilla[y] - derMano[y] - 1);
+const X_MANO_FIN = X_REF + minHueco - GAP1;                    // la muñeca, ya pegada a la duda
+const manoX = (t) => {
+  const p = sale(prog(t, T.f1, T.mano1));
+  const x = mezcla(X_MANO_FIN - (GAP0 - GAP1) - 300, X_MANO_FIN - (GAP0 - GAP1), Math.pow(p, 0.9));
+  const d = entraSale(prog(t, T.duda0, T.duda1)) * (GAP0 - GAP1);
+  const tiembla = t > T.duda1 && t < T.f2a ? ((fot(t, 6) % 5) === 2 ? -1 : 0) : 0;
+  return Math.round(x + d + tiembla);
+};
+const manoY = (t) => Math.round(Y_MANO + 14 * (1 - sale(prog(t, T.f1, T.mano1))));
+const camA = (t) => Math.round(8 * (1 - sale(prog(t, T.f1, T.mano1 + 0.6))));   // la cámara acompaña la mano y se asienta
+function planoSilla(t) {
+  const cx = camA(t);
+  PX.pegar(FONDO_A, Math.round(-cx * 0.35), 0, { opaco: true });
+  if (cx > 0) PX.rect(W - Math.ceil(cx * 0.35), 0, W - 1, H - 1, PAL.TELON[2]);
+  polvoA(t, cx);
+  PX.pegar(SILLA, -cx, 0);
+  const x = manoX(t) - cx, y = manoY(t);
+  // el hueco: la luz del fondo pasa entre los dedos y la madera
+  const brilloHueco = suave(T.mano1 - 0.3, T.mano1 + 0.6, t) * (0.25 + 0.08 * Math.sin(t * 5));
+  PX.mano({ ...MANO, x, y });
+  if (brilloHueco > 0) PX.luz(xHueco - cx, yHueco, 12, rgb(PAL.AMBAR[4]), brilloHueco, 4);
+}
+// el centro del hueco (para la luz y el segundo fogonazo)
+let xHueco = 0, yHueco = 0;
+{
+  let n = 0, sx = 0, sy = 0;
+  for (let y = 0; y < H; y++) if (derMano[y] > -999 && izqSilla[y] < 9999 && izqSilla[y] - derMano[y] - 1 <= minHueco + 1) { sx += (izqSilla[y] + derMano[y] + (X_MANO_FIN - X_REF)) / 2; sy += y; n++; }
+  xHueco = n ? sx / n : 340; yHueco = n ? sy / n : 60;
+}
+// motas de polvo en el haz (las del plató, desplazadas con la cámara)
+function polvoA(t, cx) {
+  const tq = paso(t, 12), rnd = mulberry32(404);
+  for (let k = 0; k < 28; k++) {
+    const a = rnd(), b = rnd(), c = rnd(), d = rnd();
+    const x = Math.round(250 + a * 220 + Math.sin(tq * (0.3 + c * 0.4) + d * 9) * 5 - cx * 0.6);
+    const y = Math.round(((b * 220 + tq * (2 + c * 4)) % 220) + 6);
+    const i = y * W + x; if (x < 0 || x >= W) continue;
+    const p = PX.destino().buf[i];
+    if (PX.luma(p) > 0.22) PX.pset(x, y, c > 0.6 ? PAL.TELON[11] : PAL.TELON[9]);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════ PLANO 2: la balanza en vilo (PLANO MEDIO)
+const LAT = PAL.LATON, NOG = PAL.NOGAL;
+const PIV = [240, 54], LB = 126, HILO = 88, PRX = 42, PRY = 8, HONDO = 13;
+const PLATO_B = PX.crearPlato({ ancho: 640, focoX: 320, focoY: 96, sueloY: 226, semilla: 7 });
+const FIJA = copiaPantalla(() => {
+  PLATO_B.dibujar({ camX: 80, t: 0, polvo: 0 });
+  PX.luz(240, 120, 150, rgb(PAL.AMBAR[1]), 0.3, 5);
+  PX.sombra(240, 247, 96, 8, 0.75);
+  // peana de nogal con filete de latón
+  PX.forma({ x0: 170, y0: 232, x1: 310, y1: 252, sdf: (x, y) => { const qx = Math.abs(x - 240) - 64 + 3, qy = Math.abs(y - 243) - 7 + 3; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - 3; }, rampa: NOG, lo: 1.2, hi: 5.6, grosor: 4, textura: (x, y, v) => v + 0.4 * Math.sin(y * 1.4 + 3 * vnoise(x * 0.05, y * 0.3)) });
+  PX.rect(178, 237, 302, 237, LAT[4]); PX.rect(178, 238, 302, 238, LAT[2]);
+  PX.forma({ x0: 218, y0: 226, x1: 262, y1: 238, sdf: elipSdf(240, 233, 19, 5), rampa: LAT, lo: 1.2, hi: 5.6, grosor: 3 });
+  // columna con anillos
+  PX.forma({ x0: 232, y0: PIV[1], x1: 248, y1: 232, sdf: union(segSdf(240, PIV[1] + 6, 240, 229, 3.2, 4.2), segSdf(234, 122, 246, 122, 2), segSdf(233, 212, 247, 212, 2.6), segSdf(235, PIV[1] + 12, 245, PIV[1] + 12, 1.6)), rampa: LAT, lo: 1, hi: 5.6, grosor: 3 });
+  // el cuadrante del fiel
+  PX.forma({ x0: 226, y0: PIV[1] + 36, x1: 254, y1: PIV[1] + 54, sdf: (x, y) => { const d = Math.hypot(x - 240, y - PIV[1]); return Math.max(Math.abs(d - 46) - 4, Math.abs(x - 240) - 12); }, rampa: LAT, lo: 0.8, hi: 4.6, grosor: 2, plano: 0.5 });
+  PX.rect(240, PIV[1] + 42, 240, PIV[1] + 46, PAL.TINTA);
+  for (const dx of [-8, -4, 4, 8]) PX.pset(240 + dx, PIV[1] + 44 + Math.abs(dx) / 8, LAT[1]);
+});
+// los platos: el fondo y el borde de atrás (detrás de lo que llevan) y la panza y el borde de delante (delante)
+const PB = 64;   // las capas de los platos: 2·PB × PB, con el centro del borde en (PB, PB/2)
+function capaPlato(delante) {
+  const c = PX.nuevaCapa(2 * PB, PB), cx = PB, cy = PB / 2;
+  PX.en(c, () => {
+    if (!delante) {
+      PX.degradado(cx - PRX, cy - PRY, cx + PRX, cy + PRY, LAT, (x, y) => {
+        const u = (x + 0.5 - cx) / PRX, v = (y + 0.5 - cy) / PRY; if (u * u + v * v > 1) return null;
+        return 1.1 + 1.3 * (-v) + 0.5 * (vnoise(x * 0.2, y * 0.3) - 0.5);
+      }, 1);
+      PX.forma({ x0: cx - PRX - 2, y0: cy - PRY - 2, x1: cx + PRX + 2, y1: cy, sdf: (x, y) => Math.abs(Math.hypot((x - cx) / PRX, (y - cy) / PRY) - 1) * PRY - 0.9, rampa: LAT, lo: 2, hi: 4.6, grosor: 1, contorno: null });
+    } else {
+      const fuera = elipSdf(cx, cy, PRX, PRY + HONDO), dentro = elipSdf(cx, cy, PRX - 0.5, PRY);
+      PX.forma({ x0: cx - PRX - 2, y0: cy - 2, x1: cx + PRX + 2, y1: cy + PRY + HONDO + 2, sdf: (x, y) => Math.max(fuera(x, y), -dentro(x, y), cy - y), rampa: LAT, lo: 1.2, hi: 5.4, grosor: 5, contorno: LAT[0] });
+      for (let x = cx - PRX + 1; x <= cx + PRX - 1; x++) {
+        const u = (x + 0.5 - cx) / PRX, y = Math.floor(cy + PRY * Math.sqrt(Math.max(0, 1 - u * u)));
+        PX.pset(x, y, Math.abs(u + 0.25) < 0.45 ? LAT[6] : LAT[5]);
+      }
+    }
+  });
+  return c;
+}
+const PLATO_DETRAS = capaPlato(false), PLATO_DELANTE = capaPlato(true);
+// en el plato izquierdo: la silueta de un cuerpo humano hecha de puntitos (de la persona del kit)
+const ALTO_SIL = 74, PUNTOS = [];
+{
+  const c = PX.nuevaCapa(120, 110);
+  PX.en(c, () => PX.persona({ x: 60, y: 104, altura: ALTO_SIL, pose: 'depie', vida: false, t: 0, sombra: 0 }));
+  const lleno = (x, y) => x >= 0 && y >= 0 && x < c.w && y < c.h && c.buf[y * c.w + x] !== 0;
+  for (let y = 0; y < c.h; y++) for (let x = 0; x < c.w; x++) {
+    if (!lleno(x, y)) continue;
+    const bordeS = !lleno(x - 1, y) || !lleno(x + 1, y) || !lleno(x, y - 1) || !lleno(x, y + 1);
+    const rejilla = ((x & 1) === 0 && (y & 1) === 0) || (((x + 1) & 1) === 0 && ((y + 1) & 3) === 0 && hash2(x, y) > 0.5);
+    if ((bordeS && ((x + y) & 1) === 0) || rejilla) PUNTOS.push([x - 60, y - 104, hash2(x * 3 + 1, y * 7 + 5), bordeS ? 1 : 0]);
+  }
+}
+function silueta(t, x, y) {
+  PX.luz(x, y - 36, 52, rgb(PAL.AMBAR[2]), 0.32, 4);
+  const f = fot(t, 8);
+  for (const [dx, dy, h, bs] of PUNTOS) {
+    const ph = (h * 97 + f * 0.37 * (0.5 + h)) % 1;
+    const c = ph > 0.93 ? PAL.BLANCO : ph > 0.7 ? PAL.AMBAR[5] : bs ? PAL.CREMA[4] : h > 0.5 ? PAL.AMBAR[4] : PAL.TERRACOTA[4];
+    PX.pset(x + dx, y + dy, c);
+  }
+}
+// en el plato derecho: una esfera de cielo estrellado
+const RO = 31, ORBE = PX.nuevaCapa(2 * RO + 4, 2 * RO + 4), ESTRELLAS_O = [];
+{
+  const cx = RO + 2, cy = RO + 2, rnd = mulberry32(57);
+  PX.en(ORBE, () => {
+    for (let y = 0; y < ORBE.h; y++) for (let x = 0; x < ORBE.w; x++) {
+      const nx = (x + 0.5 - cx) / RO, ny = (y + 0.5 - cy) / RO, d2 = nx * nx + ny * ny;
+      if (d2 > 1) continue;
+      const nz = Math.sqrt(1 - d2);
+      const s = nx * 0.6 + ny * 0.8, banda = Math.exp(-((s * 1.6 - 0.05) ** 2) / 0.09) * (0.5 + 0.8 * fbm(x * 0.09 + 3, y * 0.09, 3));
+      let v = 1.0 + 3.6 * banda * nz + 1.4 * nz;
+      const neb = suave(0.55, 0.8, fbm(x * 0.06 + 11, y * 0.06 + 2, 3));
+      let c = neb > b8(x, y) ? tono(PAL.NEBULOSA, 1.5 + 3 * neb + 0.8 * nz, x, y, 1) : tono(PAL.NOCHE, v, x, y, 1);
+      // el borde coge el contraluz frío y el lado de la luz, un brillo
+      const rim = Math.pow(1 - nz, 3);
+      if (rim > 0.35 && nx > -0.2) c = tono(PAL.ESTRELLA, 0.2 + 1.6 * rim, x, y, 1);
+      if (d2 > 0.9 && b4(x, y) > 0.5) c = PAL.NOCHE[1];
+      ORBE.buf[y * ORBE.w + x] = c;
+    }
+    for (let k = 0; k < 70; k++) {
+      const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * (RO - 3);
+      const x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r);
+      const q = rnd();
+      PX.pset(x, y, q > 0.85 ? PAL.ESTRELLA[4] : q > 0.5 ? PAL.ESTRELLA[3] : PAL.ESTRELLA[2]);
+      if (q > 0.88) ESTRELLAS_O.push([x - cx, y - cy, rnd()]);
+    }
+  });
+}
+function orbe(t, x, y) {
+  // (x, y) = el centro del borde del plato; la esfera se hunde un poco en el plato
+  const cx = x, cy = y - RO + 7;
+  PX.luz(cx, cy, 56, [60, 80, 140], 0.35, 4);
+  PX.pegar(ORBE, cx - RO - 2, cy - RO - 2);
+  const f = fot(t, 8);
+  for (const [dx, dy, h] of ESTRELLAS_O) {
+    const on = ((f + Math.floor(h * 13)) % 9) < 6;
+    const X = cx + dx, Y = cy + dy;
+    PX.pset(X, Y, PAL.BLANCO);
+    if (on) { PX.pset(X - 1, Y, PAL.ESTRELLA[2]); PX.pset(X + 1, Y, PAL.ESTRELLA[2]); PX.pset(X, Y - 1, PAL.ESTRELLA[2]); PX.pset(X, Y + 1, PAL.ESTRELLA[2]); }
+  }
+}
+// el brazo: llega meciéndose tras el fogonazo y se queda en vilo, temblando sin decidirse (a > 0 baja el plato izquierdo)
+function anguloBalanza(t) {
+  const s = Math.max(0, paso(t, 15) - T.f2);
+  const amort = Math.exp(-s / 1.5);
+  return 0.075 * amort * Math.cos((2 * Math.PI * s) / 1.85) + 0.014 * (1 - amort) * Math.sin((2 * Math.PI * s) / 2.6 + 0.6);
+}
+function planoBalanza(t) {
+  PX.pegar(FIJA, 0, 0, { opaco: true });
+  const a = anguloBalanza(t), ca = Math.cos(a), sa = Math.sin(a);
+  const tipL = [PIV[0] - LB * ca, PIV[1] + LB * sa], tipR = [PIV[0] + LB * ca, PIV[1] - LB * sa];
+  const platoL = [Math.round(tipL[0]), Math.round(tipL[1] + HILO)], platoR = [Math.round(tipR[0]), Math.round(tipR[1] + HILO)];
+  // las sombras de los platos en el suelo
+  PX.sombra(platoL[0] + 6, 236, 40, 4, 0.4); PX.sombra(platoR[0] + 6, 236, 40, 4, 0.4);
+  // el brazo de latón (más grueso en el centro) con sus remates
+  PX.forma({
+    x0: Math.min(tipL[0], tipR[0]) - 6, y0: Math.min(tipL[1], tipR[1]) - 8, x1: Math.max(tipL[0], tipR[0]) + 6, y1: Math.max(tipL[1], tipR[1]) + 8,
+    sdf: union(segSdf(PIV[0], PIV[1], tipL[0], tipL[1], 3.6, 1.8), segSdf(PIV[0], PIV[1], tipR[0], tipR[1], 3.6, 1.8),
+      (x, y) => Math.hypot(x - tipL[0], y - tipL[1]) - 3.2, (x, y) => Math.hypot(x - tipR[0], y - tipR[1]) - 3.2),
+    rampa: LAT, lo: 1.2, hi: 5.8, grosor: 3,
+  });
+  // el fiel: la aguja cuelga del pivote por delante de la columna
+  const fx = PIV[0] + 44 * sa, fy = PIV[1] + 44 * ca;
+  PX.linea(PIV[0] + 1, PIV[1] + 4, fx + 1, fy, LAT[1]);
+  PX.linea(PIV[0], PIV[1] + 4, fx, fy, LAT[5]);
+  // el pivote
+  PX.forma({ x0: PIV[0] - 8, y0: PIV[1] - 12, x1: PIV[0] + 8, y1: PIV[1] + 7, sdf: union((x, y) => Math.hypot(x - PIV[0], y - PIV[1]) - 5, segSdf(PIV[0], PIV[1] - 10, PIV[0], PIV[1] - 4, 1.4, 2.4)), rampa: LAT, lo: 1.4, hi: 6, grosor: 3 });
+  for (const [tip, pl, lado] of [[tipL, platoL, -1], [tipR, platoR, 1]]) {
+    const hx = Math.round(tip[0]), hy = Math.round(tip[1]) + 3;
+    PX.anillo(hx, hy + 1, 2, LAT[4]);
+    // el hilo de atrás, el plato por dentro, lo que lleva, la panza y los dos hilos de delante
+    PX.linea(hx, hy + 3, pl[0], pl[1] - PRY, LAT[1], 2);
+    PX.pegar(PLATO_DETRAS, pl[0] - PB, pl[1] - PB / 2);
+    if (lado < 0) silueta(t, pl[0], pl[1] + 1); else orbe(t, pl[0], pl[1]);
+    PX.pegar(PLATO_DELANTE, pl[0] - PB, pl[1] - PB / 2);
+    PX.linea(hx, hy + 3, pl[0] - PRX + 1, pl[1], LAT[3]);
+    PX.linea(hx, hy + 3, pl[0] + PRX - 1, pl[1], LAT[3]);
+    PX.luz(hx, hy, 6, rgb(PAL.AMBAR[4]), 0.4, 3);
+  }
+  // un brillo recorre el brazo cuando llega
+  const g = prog(t, T.f2b, T.f2b + 0.7);
+  if (g > 0 && g < 1) { const u = mezcla(-1, 1, g); PX.luz(PIV[0] + LB * u * ca, PIV[1] - LB * u * sa, 7, rgb(PAL.AMBAR[5]), 0.7, 3); }
+}
+
+// ═════════════════════════════════════════════════════════════ PLANO 3: del cielo al plató (PLANO GENERAL)
+const FIN = {
+  plato: { ancho: 640, focoX: 240, focoY: 118, sueloY: 200, semilla: 11 }, camX: 80,
+  persona: { x: 153, y: 214, altura: 118, pose: 'depie', vida: false, t: 0 },
+  regla: { e: 0, entera: 1, actual: 0, marca: 0 },
+};
+const PLATO_C = PX.crearPlato(FIN.plato);
+const ALTO_CIELO = 360;
+const VIAJE = PX.nuevaCapa(W, ALTO_CIELO + H);
+{
+  const cielo = PX.crearCielo({ ...INS.FIN.cielo, ancho: 640, alto: H });
+  const capaCielo = copiaPantalla(() => cielo.dibujar({ camX: INS.FIN.camX, t: 0, quieto: true }));
+  const capaPlato = copiaPantalla(() => PLATO_C.dibujar({ camX: FIN.camX, t: 0, polvo: 0 }));
+  // el cielo de arriba es el del principio (el mismo encuadre, sin el telescopio); debajo sigue en espejo (sin costura)
+  // y se funde tramado en la pared oscura del plató
+  const B0 = H, B1 = ALTO_CIELO + 24;
+  for (let y = 0; y < VIAJE.h; y++) for (let x = 0; x < W; x++) {
+    const cieloC = capaCielo.buf[clamp(y < H ? y : 2 * H - 1 - y, 0, H - 1) * W + x];
+    const yp = y - ALTO_CIELO;
+    const platoC = capaPlato.buf[clamp(yp, 0, H - 1) * W + x];
+    const pared = yp < 0 ? tono(PAL.TELON, 1.2 + 0.6 * (fbm(x * 0.022 + 11, y * 0.03, 3) - 0.5) + 0.6 * suave(-80, 0, yp), x, y, 1) : platoC;
+    const k = suave(B0, B1, y);
+    VIAJE.buf[y * W + x] = k <= 0 ? cieloC : k >= 1 || b8(x, y) < k ? pared : cieloC;
+  }
+}
+const camY = (t) => Math.round(ALTO_CIELO * entraSale(prog(t, T.cielo, T.baja1)));
+// el «?»: sale de la niebla y sube a saltos buscando el centro; a la altura de la persona (10⁰) no se para
+const QK = (() => {
+  const q = T.q0, a = m.a;
+  return [[q, -37], [q + 0.14, -37], [q + 0.3, -25], [q + 0.42, -25], [q + 0.58, -15], [q + 0.68, -15], [q + 0.84, -6],
+    [a - 0.05, -2.2], [a + 0.25, 1.2], [a + 1.25, 52]];
+})();
+function eInterrogante(t) {
+  if (t <= QK[0][0]) return QK[0][1];
+  for (let i = 0; i < QK.length - 1; i++) {
+    const [ta, ea] = QK[i], [tb, eb] = QK[i + 1];
+    if (t <= tb) {
+      const u = (t - ta) / (tb - ta);
+      const f = i === QK.length - 2 ? entra(u) * 0.75 + u * 0.25 : i === QK.length - 3 ? u : i === QK.length - 4 ? sale(u) : entraSale(u);
+      return mezcla(ea, eb, f);
+    }
+  }
+  return QK[QK.length - 1][1];
+}
+function interrogante(t, R) {
+  if (t < T.q0) return null;
+  const e = eInterrogante(t), y = Math.round(R.y(e)) - 10;
+  if (y < -30) return null;
+  const busca = t < m.a - 0.2 ? [0, 1, 0, -1][fot(t, 6) & 3] : 0;
+  const x = R.x + R.ancho + 4 + busca;
+  const asoma = suave(T.q0, T.q0 + 0.15, t);
+  PX.luz(x + 7, y + 10, 22, rgb(PAL.AMBAR[3]), 0.45, 4);
+  if (asoma < 1) { if (b8(x, y) < asoma) PX.texto('?', x, y + Math.round(6 * (1 - asoma)), { esc: 3, rampa: PAL.CREMA, sombra: PAL.TINTA, contorno: PAL.TINTA }); }
+  else PX.texto('?', x, y, { esc: 3, rampa: PAL.CREMA, sombra: PAL.TINTA, contorno: PAL.TINTA });
+  return { x, y, e };
+}
+// la persona sigue al «?» con la cabeza (a 12 fps)
+function miradaPersona(t, q) {
+  const tq = paso(t, 12);
+  const mira = suave(T.regla0, T.regla1, tq) * (1 - suave(m.a + 1.15, m.a + 1.6, tq));      // hacia la regla
+  const arriba = suave(m.a + 0.2, m.a + 0.75, tq) * (1 - suave(m.a + 1.15, m.a + 1.6, tq)); // y hacia arriba
+  const baja = q ? clamp((q.e + 4) / -30, 0, 1) * (1 - arriba) : 0;                           // mientras el «?» está abajo
+  const r4 = (v) => Math.round(v * 8) / 8;
+  return {
+    pose: arriba > 0.01 ? { de: 'depie', a: 'mirarArriba', u: r4(arriba * 0.8) } : 'depie',
+    cabeza: { giro: r4(0.42 * mira), cabeceo: r4(-0.18 * baja * mira) },
+    mira: [r4(0.9 * mira), r4(arriba > 0.01 ? -1 : 0.6 * baja * mira)],
+  };
+}
+function planoGeneral(t) {
+  const cy = camY(t), llegado = cy >= ALTO_CIELO;
+  if (!llegado) PX.pegar(VIAJE, 0, -cy, { opaco: true });
+  else PLATO_C.dibujar({ camX: FIN.camX, t: Math.min(t, QUIETO), polvo: t < QUIETO ? 1 : 0 });
+  const dy = ALTO_CIELO - cy;
+  // la regla: entra por la derecha y se despliega entera
+  let R = null;
+  if (t >= T.regla0) {
+    R = PX.regla({ e: 0, actual: 0, marca: 0, entera: entraSale(prog(t, T.entera0, T.entera1)), aparece: prog(t, T.regla0, T.regla1), t: Math.min(t, QUIETO) });
+  }
+  // el destello del marcador cuando el «?» pasa por 10⁰ (por la persona)
+  if (R) {
+    const g = prog(t, m.a - 0.05, m.a + 0.55);
+    if (g > 0 && g < 1) PX.luz(R.x - 3, R.y(0), 10 + 14 * g, rgb(PAL.AMBAR[5]), 0.8 * (1 - g), 4);
+  }
+  const q = R ? interrogante(t, R) : null;
+  // la persona
+  if (dy < H + 10) {
+    const fin = t >= QUIETO;
+    const g = fin ? { pose: 'depie' } : miradaPersona(t, q);
+    PX.persona({ ...FIN.persona, ...g, y: FIN.persona.y + dy, vida: !fin, t: fin ? 0 : t });
+  }
+}
+
+// ═════════════════════════════════════════════════════════════ Atom y fogonazos
+const relojAtom = (t) => (t < T.cielo ? t : t - D);
+function fogonazo(t) {
+  // 1: el Sol prende en el espejo del telescopio y se abre en blanco; 2: el hueco entre los dedos y la silla se enciende
+  if (t >= T.f1a && t < T.f1) {
+    const u = prog(t, T.f1a, T.f1);
+    const [ex, ey] = [TELE_X - 18, TELE_Y - 14];
+    PX.luz(ex, ey, 10 + 260 * entra(u), rgb(PAL.BLANCO), 0.4 + 1.6 * u, 5);
+    const l = Math.round(3 + 40 * u * u);
+    PX.linea(ex - l, ey, ex + l, ey, PAL.BLANCO); PX.linea(ex, ey - l, ex, ey + l, PAL.BLANCO);
+    PX.velo(PAL.BLANCO, entra(suave(0.35, 1, u)));
+  } else if (t >= T.f1 && t < T.f1b) PX.velo(PAL.BLANCO, 1 - sale(prog(t, T.f1, T.f1b)));
+  else if (t >= T.f2a && t < T.f2) {
+    const u = prog(t, T.f2a, T.f2);
+    PX.luz(xHueco, yHueco, 8 + 260 * entra(u), rgb(PAL.BLANCO), 0.5 + 1.6 * u, 5);
+    PX.velo(PAL.BLANCO, entra(suave(0.3, 1, u)));
+  } else if (t >= T.f2 && t < T.f2b) PX.velo(PAL.BLANCO, 1 - sale(prog(t, T.f2, T.f2b)));
+}
+
+// ───────────────────────────────────────────────────────────── dibujar(t)
+{ const ens = PX.nuevaCapa(W, H); PX.en(ens, () => { planoSilla(T.duda1); planoBalanza(T.f2b); planoGeneral(m.a); }); }
+function dibujar(t) {
+  if (t < T.f1) PX.pegar(INICIO, 0, 0, { opaco: true });
+  else if (t < T.f2) planoSilla(t);
+  else if (t < T.cielo) planoBalanza(t);
+  else planoGeneral(t);
+  fogonazo(t);
+  PX.atom({ ...PX.ATOM_SITIO, t: relojAtom(t), energia: energia(t) });
+  PX.presentar(t);
+}
+window.__tiempos = { ...T, D, QUIETO, mitad, hueco: [xHueco, yHueco], manoFin: X_MANO_FIN, minHueco };
+window.__fin = { plato: FIN.plato, camX: FIN.camX, persona: FIN.persona, regla: FIN.regla, atom: { ...PX.ATOM_SITIO, t: 0, energia: 0 }, desde: QUIETO };
+window.__carga = Math.round(performance.now() - c0);
+E.iniciar(dibujar);
+</script>
+</body>
+</html>

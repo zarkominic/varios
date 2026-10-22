@@ -66,6 +66,7 @@ const T = {
   cielo0: enM(0.36), cielo1: enM(0.53),
 };
 T.choque = T.anillo + 0.25;   // los dos paquetes de luz del anillo se encuentran en un detector
+T.asienta = T.tele1 + 0.6;    // el telescopio, ya en su sitio: desde aquí flota (la foto del final, en 2D)
 
 // ---------------------------------------------------------------- el plató
 const UO = uniformesOjo(), UI = uniformesInstrumentos();
@@ -112,6 +113,29 @@ function pegar(gx, f, z = 1, src = [960, 540], dst = src, alfa = 1, filtro = 'no
   gx.restore();
 }
 const desenfoque = (px) => (px > 0.3 ? `blur(${(px * KD).toFixed(1)}px)` : 'none');
+// (coste) pegar con desenfoque bl (px de diseño) y brillo: si el desenfoque es grande, se pinta a media resolución (el
+// desenfoque esconde la diferencia y el filtro cuesta la cuarta parte) y se amplía al pegarlo
+const MEDIA = document.createElement('canvas');
+function pegarB(gx, f, z, src, dst, alfa, bl, brillo = 1) {
+  if (!f || alfa <= 0.002) return;
+  const fb = brillo < 0.999 ? `brightness(${brillo.toFixed(3)})` : '';
+  if (bl < 4) {
+    const fl = [bl > 0.3 ? desenfoque(bl) : '', fb].filter(Boolean).join(' ') || 'none';
+    pegar(gx, f, z, src, dst, alfa, fl);
+    return;
+  }
+  const mw = Math.round(lienzoGL.width / 2), mh = Math.round(lienzoGL.height / 2), km = mw / W;
+  if (MEDIA.width !== mw || MEDIA.height !== mh) { MEDIA.width = mw; MEDIA.height = mh; }
+  const mc = MEDIA.getContext('2d');
+  mc.setTransform(1, 0, 0, 1, 0, 0); mc.globalAlpha = 1; mc.filter = 'none'; mc.clearRect(0, 0, mw, mh);
+  mc.filter = [`blur(${(bl * km).toFixed(1)}px)`, fb].filter(Boolean).join(' ');
+  mc.setTransform(km * z, 0, 0, km * z, km * (dst[0] - src[0] * z), km * (dst[1] - src[1] * z));
+  mc.drawImage(f, 0, 0, W, H);
+  mc.filter = 'none';
+  gx.save(); gx.setTransform(1, 0, 0, 1, 0, 0); gx.globalAlpha *= alfa;
+  gx.drawImage(MEDIA, 0, 0, gx.canvas.width, gx.canvas.height);
+  gx.restore();
+}
 
 // ---------------------------------------------------------------- Atom (quieto en su sitio de presentador)
 const A_Z = 1.0, ATOM = [HOLA.ATOM.x, HOLA.ATOM.y];
@@ -253,6 +277,8 @@ function ponerTelefono(ts) {
 
 // ---------------------------------------------------------------- los instrumentos (frase 7)
 const ZI = 5.0, PXI = pxU(en(960, 540, ZI));
+// el anillo, de unos 1050 px de ancho en pantalla: entero dentro del cuadro y por encima de los subtítulos
+const ANILLO_PX = 880;
 const EFIN = encuadreFinOjo(P);
 const TEL_X0 = 2500;
 function ponerInstrumentosEn(ts) {
@@ -271,16 +297,17 @@ function ponerInstrumentosEn(ts) {
   {
     const tau = ts - T.anillo;
     if (Math.abs(tau) < 1.0) {
-      const x = 960 + corre(tau, 450, 1900), pos = en(x, 520, ZI - 1);
-      const k = instrumento(P, I.INS2, { variante: 'anillo', pos, escala: 1250 / (2.2 * pxU(pos)), rot: [0.66, 0.35 + 0.35 * tau, 0] });
+      const x = 960 + corre(tau, 450, 1900), pos = en(x, 490, ZI - 1);
+      const k = instrumento(P, I.INS2, { variante: 'anillo', pos, escala: ANILLO_PX / (2.2 * pxU(pos)), rot: [0.66, 0.35 + 0.35 * tau, 0] });
       extra.choque = pant(k.punto('detector2'));
       extra.haz = [fase, -fase].map((u) => pant(k.haz(u)));
     }
   }
-  // el telescopio: llega desde la derecha, se para en el centro (FIN_OJO) y gira despacio hasta quedarse quieto
-  if (ts >= T.tele0) {
+  // el telescopio: llega desde la derecha, se para en el centro (FIN_OJO) y termina de girar hasta quedarse en su sitio
+  // (después flota: es la foto del final, en 2D; ver dibujar)
+  if (ts >= T.tele0 && ts < T.asienta) {
     const u = eoc(prog(ts, T.tele0, T.tele1));
-    const w = eio(prog(ts, T.tele1, QUIETO));
+    const w = eio(prog(ts, T.tele1, T.asienta));
     const fin = EFIN.pos, sx = mix(TEL_X0, FIN_OJO.X, u);
     const p0 = en(sx, FIN_OJO.Y + 60 * (1 - u), FIN_OJO.Z);
     const pos = [p0[0], p0[1] + 0.05 * Math.sin((ts - T.tele0) * 1.3) * (1 - w), fin[2]];
@@ -399,7 +426,14 @@ F.dentro = (() => {
 cargaT('compuestas');
 // el cielo y el final (FIN_OJO: la receta del kit de instrumentos)
 F.cielo = cieloOjo(lienzo());
-F.fin = pintarFinOjo(P, UI, I.INS, { fotos: { cielo: F.cielo } }); cargaT('fin');
+// el telescopio del final con la receta de pintarFinOjo (encuadre, uniformes y nf del kit): la misma foto sirve para el
+// final y para el telescopio flotando
+F.tele = (() => {
+  ponerInstrumentos(UI, {});
+  P.limpiar(); instrumento(P, I.INS, { variante: 'telescopio', ...EFIN }); P.render(FIN_OJO.NF, { fondo: false });
+  return foto();
+})();
+F.fin = pintarFinOjo(P, UI, I.INS, { fotos: { cielo: F.cielo, telescopio: F.tele } }); cargaT('fin');
 
 // ---------------------------------------------------------------- composiciones
 const CAPA_OBJ = lienzo(), CAPA_TMP = lienzo();
@@ -410,7 +444,7 @@ function ojoUno(gx, Z, { yDst = YF1, franjaK = 1, dentro = 0, objetos = null, zO
   const c = [960, YF1], d = [960, yDst];
   const bl = Z > 1.15 ? Math.min(13, (Z - 1.15) * 2.3) : 0;
   if (fondo) { gx.fillStyle = '#0b0807'; gx.fillRect(0, 0, W, H); }
-  if (dentro < 0.999) pegar(gx, F.globo1, Z, c, d, 1, desenfoque(bl));
+  if (dentro < 0.999) pegarB(gx, F.globo1, Z, c, d, 1, bl);
   if (dentro > 0.001) {
     // el espacio de dentro corre despacio hacia la izquierda
     const dx = -((ts * 70) % W);
@@ -421,11 +455,22 @@ function ojoUno(gx, Z, { yDst = YF1, franjaK = 1, dentro = 0, objetos = null, zO
   if (luces) resplandores(luces, dentro);
   if (objetos) pegar(gx, objetos, zObj, c, d);
   const osc = mix(1, 0.42, ss(1.5, 5.5, Z));
-  pegar(gx, F.sombra1, Z, c, d, 1, desenfoque(bl));
-  pegar(gx, F.cerrado1, Z, c, d, 1, osc < 0.999 ? `${desenfoque(bl * 0.8)} brightness(${osc.toFixed(3)})` : desenfoque(bl * 0.8));
+  if (Math.abs(Z - Z_IN) < 1e-6 && yDst === YF1) {
+    // dentro de la franja, quietos: los párpados enormes y desenfocados son siempre los mismos (una foto, la primera
+    // vez que hacen falta)
+    if (!F.parpDentro) {
+      const c2 = lienzo(), g2 = c2.getContext('2d');
+      pegarB(g2, F.sombra1, Z, c, d, 1, bl); pegarB(g2, F.cerrado1, Z, c, d, 1, bl * 0.8, osc);
+      F.parpDentro = c2;
+    }
+    gx.save(); gx.setTransform(1, 0, 0, 1, 0, 0); gx.drawImage(F.parpDentro, 0, 0); gx.restore();
+  } else {
+    pegarB(gx, F.sombra1, Z, c, d, 1, bl);
+    pegarB(gx, F.cerrado1, Z, c, d, 1, bl * 0.8, osc);
+  }
   vinetaOjo(gx, Z); gx.setTransform(KD, 0, 0, KD, 0, 0);
   if (franjaK > 0.002) {
-    pegar(gx, F.franja1, Z, c, d, franjaK, desenfoque(bl * 0.5));
+    pegarB(gx, F.franja1, Z, c, d, franjaK, bl * 0.5);
     const h = HOLA.HALO, xm = 960 + (h.x1 - 960) * Z;
     resplandorFranja(gx, 960 - (xm - 960), xm, yDst, h.alto * Math.min(Z, 3), h.fuerza * franjaK);
   }
@@ -447,7 +492,7 @@ function aumento(ts) {
 
 // ---------------------------------------------------------------- fotograma
 const tiempos = new URLSearchParams(location.search).has('tiempos');
-function marcaT(k) { if (!tiempos) return; P.renderer.getContext().finish(); const a = performance.now(); window.__tiempos[k] = Math.round(a - window.__t0); window.__t0 = a; }
+function marcaT(k) { if (!tiempos) return; P.renderer.getContext().finish(); g.getImageData(0, 0, 1, 1); const a = performance.now(); window.__tiempos[k] = Math.round(a - window.__t0); window.__t0 = a; }
 function dibujar(t) {
   if (tiempos) { window.__tiempos = {}; window.__t0 = performance.now(); }
   const ts = Math.min(t, QUIETO);
@@ -479,6 +524,7 @@ function dibujar(t) {
         marcaT('cosas');
       }
       ojoUno(g, Z, { franjaK: 1 - ss(2.2, 4.2, Z), dentro, objetos, zObj: Z / Z_IN, luces, ts });
+      marcaT('ojo');
       // el destello al cruzar la luz de la franja
       const fl = Math.exp(-Math.pow((Math.log(Z) - Math.log(3.3)) / 0.32, 2)) * (ts < T.abre0 ? 1 : 0.4);
       if (fl > 0.01) {
@@ -516,7 +562,9 @@ function dibujar(t) {
     }
     if (!principio) sombraAtom(0);
     pasadaAtomo(ts, nf);
+    marcaT('atom');
     POST.aplicar(g, nf);
+    marcaT('post');
     return;
   }
   if (ts < T.oscuro0) {
@@ -548,6 +596,7 @@ function dibujar(t) {
   g.drawImage(F.cerca2, 0, 0, W, H);
   if (ko > 0.002) pegar(g, F.fondoI, 1, [960, 540], [960, 540], ko);
   if (kc > 0.002) pegar(g, F.cielo, 1, [960, 540], [960, 540], kc);
+  marcaT('fondo');
   // el halo cálido detrás del telescopio
   const h = FIN_OJO.HALO, kh = kc * eoc(prog(ts, T.tele0, T.tele1));
   if (kh > 0.002) {
@@ -561,6 +610,15 @@ function dibujar(t) {
   const ex = ponerInstrumentosEn(ts);
   P.render(nf, { fondo: false });
   pegarGL();
+  if (ts >= T.asienta) {
+    // el telescopio flota: sube y baja unos píxeles y se ladea apenas, cada vez menos, hasta quedarse quieto
+    const env = 1 - eio(prog(ts, T.asienta, QUIETO)), fa = ts - T.asienta;
+    const dy = -7 * Math.sin(fa * 2.1) * env, giro = 0.006 * Math.sin(fa * 1.3) * env;
+    const c = [FIN_OJO.X, FIN_OJO.Y];
+    g.save(); g.translate(c[0], c[1] + dy); g.rotate(giro); g.translate(-c[0], -c[1]);
+    g.drawImage(F.tele, 0, 0, W, H);
+    g.restore();
+  }
   marcaT('instrumentos');
   // los dos paquetes de luz que corren por el anillo (su resplandor) y su choque en el detector
   if (ex.haz && ts < T.choque) {
@@ -586,7 +644,9 @@ function dibujar(t) {
   }
   sombraAtom(kc);
   pasadaAtomo(ts, nf);
+  marcaT('atom');
   POST.aplicar(g, nf);
+  marcaT('post');
 }
 cargaT('listo');
 window.__info = { T, m, B1, B05, YF1, YC05, BANDA, ESC_TEL, EFIN, HOLA_RELOJ };

@@ -454,6 +454,7 @@ function lienzoFoto(margen = false) {
   return { c, tr: [k, 0, 0, k, m * W * k, m * H * k] };
 }
 let nCur = 0;   // el fotograma en curso (las recetas se montan en el 0 del plató y luego se vuelve a él)
+function montar(r) { P.fotograma(0); P.limpiar(); r.montar(); }
 // P.render(n, opc) solo en las filas y0…y1 del lienzo de WebGL (de arriba abajo; sin filas, todo); lo de fuera no se
 // toca. Con el recorte (scissor) de WebGL, SwiftShader solo pinta esas filas. La sombra del plató (con fondo) va a dos
 // lienzos de un tercio de resolución (los únicos que P.render usa además del de la pantalla): se recortan a la misma

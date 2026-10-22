@@ -43,7 +43,7 @@
 // (PREPARAR). Un instante suelto hace al momento lo que le falte (F) y sale igual.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
-import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, azar, muelle, mulberry32, brote, QUIETO as QUIETO_KIT } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearPlato, crearPost, cargarFuenteCartela, cl, mix, prog, ss, eio, eoc, eic, azar, muelle, mulberry32, brote, QUIETO as QUIETO_KIT } from '/atomo/plato/kits/plastilina-adulta.js';
 import { crearMundo, estadoMundo, camaraPorTierra } from '/atomo/plato/kits/ep03-cosmos.js';
 import { tiposTiempo, uniformesTiempo, rayo } from '/atomo/plato/kits/ep03-tiempo.js';
 import { tiposSofa, uniformesSofa, salon, hornearRayas, cieloVentana, vidrioVentana, recorteHueco } from '/atomo/plato/kits/ep03-sofa.js';
@@ -113,6 +113,7 @@ const I = { PER: 0, REG: 1, FLE: 2, VEN: 3, SOFA: 4, BOL: 5, REL: 6, OJO: 7, COS
 const IS_FOTO = { persona: I.PER, ventana: I.VEN, sofa: I.SOFA, bol: I.BOL };
 const UO = uniformesOjo();
 const TO = tiposOjo({ cosas: ['remolino'] });
+await cargarFuenteCartela();   // (los rótulos de la regla salen como en ep3-mapa y ep3-universo)
 const P = await crearPlato({
   piezas: ['humano', 'reglaA', 'flecha', 'ventana', 'sofa', 'bol', 'reloj', 'ojo', 'cosa', 'figurita'],
   tiposExtra: { ...tiposSofa(['ventana', 'sofa', 'bol']), ...tiposTiempo(['reloj']), ojo: TO.ojo, cosa: TO.cosa, ...tiposTocar(['figurita']) },
@@ -230,7 +231,7 @@ const E_REG = 1.42, REG = en(1655, 528, 0.4), RECT_REG = [1300, 0, 1920, 1080];
 const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
 const eRegla = (ts) => 21 + seco(prog(ts, T.salto[0], T.salto[1]));
 const destello = (ts) => { const u = prog(ts, T.salto[1] - 0.06, T.salto[1] + 0.75); return u <= 0 || u >= 1 ? 0 : Math.pow(Math.sin(Math.PI * u), 0.8); };
-const reglaViva = (ts) => ts >= T.salto[0] - 1e-6 && ts < T.salto[1] + 0.8;
+const reglaViva = (ts) => ts < T.salto[1] + 0.8;
 function regla(ts) {
   const e = eRegla(ts), fl = destello(ts);
   const rango = fl > 0.01 ? { de: 22, a: 22, marcas: 1, madera: 1.1 * fl } : null;
@@ -243,12 +244,11 @@ function fotoRegla(e, n) {
   return trozoGL(RECT_REG);
 }
 const pegarRegla = (f) => g.drawImage(f, RECT_REG[0], RECT_REG[1], RECT_REG[2] - RECT_REG[0], RECT_REG[3] - RECT_REG[1]);
-const reglaDe = (n, ts) => (ts < T.salto[0] ? 'reg21' : 'reg22' + (n % 3));
+const reglaDe = (n) => 'reg22' + (n % 3);
 
 // ---------------------------------------------------------------- las fotos (F: se hacen la primera vez que hacen falta)
 const FOTOS = {}, HACER = {};
 function F(k) { if (!(k in FOTOS)) { const a = performance.now(); FOTOS[k] = HACER[k](); window.__carga.push(['F ' + k, Math.round(performance.now() - a)]); } return FOTOS[k]; }
-HACER.reg21 = () => fotoRegla(21, 0);                   // la de ep3-mapa (su reg0)
 for (const k of [0, 1, 2]) HACER['reg22' + k] = () => fotoRegla(22, 7201 + k);
 
 // ---------------------------------------------------------------- A · el salón (la foto de ep3-mapa) y la ventana
@@ -318,8 +318,9 @@ function cielo(gx, h, ts, encima = null) {
   cieloVentana(gx, h, { t: recorrido(ts) / v, velocidad: v, rayas: RAYAS, encima });
 }
 // Andrómeda: el remolino de ep03-ojo.js, muy inclinado (casi de canto, como se ve), en una foto; en la ventana va
-// desenfocado (una manchita borrosa) con un halo frío
-const AND = { u: 0.68, v: 0.28, ancho: 0.17 };            // en el hueco (u a lo ancho, v de arriba abajo) y su ancho
+// desenfocado (una manchita borrosa, ovalada, con el núcleo más claro y un halo frío). Alrededor, las estrellas se
+// apagan un poco (la mirada va a ella)
+const AND = { u: 0.745, v: 0.26, ancho: 0.2 };          // en el hueco (u a lo ancho, v de arriba abajo) y su ancho
 function enHueco(h, u, v) {
   const top = [mix(h[0][0], h[1][0], u), mix(h[0][1], h[1][1], u)], bot = [mix(h[3][0], h[2][0], u), mix(h[3][1], h[2][1], u)];
   return [mix(top[0], bot[0], v), mix(top[1], bot[1], v)];
@@ -328,30 +329,43 @@ HACER.andro = () => {
   P.limpiar();
   const p = en(960, 540, 2.0), R = 200;
   ponerOjo(UO, {});
-  P.pieza(I.COSA, { pos: p, escala: R / (0.62 * pxU(p)), rot: [-1.12, 0.1, 0.62], variante: COSA.REMOLINO, color: 0 });
+  P.pieza(I.COSA, { pos: p, escala: R / (0.62 * pxU(p)), rot: [-1.3, 0.12, 0.6], variante: COSA.REMOLINO, color: 0 });
   P.render(6101, { fondo: false });
   const nitida = trozoGL([960 - 1.15 * R, 540 - 1.15 * R, 960 + 1.15 * R, 540 + 1.15 * R]);
-  // la manchita: desenfocada y algo más clara (se ve a simple vista)
   const c = lienzo(nitida.width, nitida.height), gc = c.getContext('2d'), k = nitida.width / (2.3 * R);
-  gc.filter = `blur(${(7 * k).toFixed(1)}px) brightness(1.5) saturate(0.7)`;
+  gc.filter = `blur(${(13 * k).toFixed(1)}px) brightness(1.7) saturate(0.6)`;
+  gc.drawImage(nitida, 0, 0);
   gc.drawImage(nitida, 0, 0);
   gc.filter = 'none';
   return { c, R, L: 2.3 * R };
 };
-function andromeda(gx, h, k, { ancho = AND.ancho, centro = null } = {}) {
+function andromeda(gx, h, k, { ancho = AND.ancho, centro = null, apaga = 1 } = {}) {
   if (k <= 0.002) return;
   const A = F('andro');
   const anchoH = Math.hypot(h[1][0] - h[0][0], h[1][1] - h[0][1]);
   const [x, y] = centro ?? enHueco(h, AND.u, AND.v);
   const w = ancho * anchoH, s = w / (2 * A.R), L = A.L * s;
   gx.save();
+  recorteHueco(gx, h);
+  // las estrellas de alrededor, algo apagadas
+  if (apaga > 0) {
+    const ap = gx.createRadialGradient(x, y, 0, x, y, w * 1.5);
+    ap.addColorStop(0, `rgba(8,12,30,${0.6 * k * apaga})`); ap.addColorStop(0.6, `rgba(8,12,30,${0.35 * k * apaga})`); ap.addColorStop(1, 'rgba(8,12,30,0)');
+    gx.fillStyle = ap; gx.fillRect(x - 1.5 * w, y - 1.5 * w, 3 * w, 3 * w);
+  }
   gx.globalCompositeOperation = 'screen';
-  // el halo frío, ancho y tenue
-  const hl = gx.createRadialGradient(x, y, 0, x, y, w * 0.95);
-  hl.addColorStop(0, `rgba(190,200,235,${0.28 * k})`); hl.addColorStop(0.45, `rgba(150,165,215,${0.1 * k})`); hl.addColorStop(1, 'rgba(140,150,200,0)');
-  gx.fillStyle = hl; gx.fillRect(x - w, y - w, 2 * w, 2 * w);
+  // el halo frío, ovalado como ella
+  gx.save(); gx.translate(x, y); gx.rotate(-0.55); gx.scale(1, 0.55);
+  const hl = gx.createRadialGradient(0, 0, 0, 0, 0, w * 0.9);
+  hl.addColorStop(0, `rgba(200,206,240,${0.32 * k})`); hl.addColorStop(0.4, `rgba(150,165,215,${0.12 * k})`); hl.addColorStop(1, 'rgba(140,150,200,0)');
+  gx.fillStyle = hl; gx.fillRect(-w, -w, 2 * w, 2 * w);
+  gx.restore();
   gx.globalAlpha = k;
   gx.drawImage(A.c, x - L / 2, y - L / 2, L, L);
+  // el núcleo, un punto lechoso
+  const nc = gx.createRadialGradient(x, y, 0, x, y, w * 0.12);
+  nc.addColorStop(0, 'rgba(255,248,230,0.85)'); nc.addColorStop(1, 'rgba(255,240,220,0)');
+  gx.fillStyle = nc; gx.fillRect(x - w * 0.12, y - w * 0.12, w * 0.24, w * 0.24);
   gx.restore();
 }
 const kAndro = (ts) => ss(T.andro[0], T.andro[1], ts);
@@ -361,12 +375,13 @@ function tramoA(n, ts) {
   const S = F('salon');
   const s = zoomA(ts), lv = llevar(s, PIV, PIV);
   const h = S.info.ventana.hueco.map(lv);
-  cielo(g, h, ts, (gx) => andromeda(gx, h, kAndro(ts)));
+  cielo(g, h, ts);
+  andromeda(g, h, kAndro(ts));
   pegarEscalada(S.foto, s, PIV);
   vidrioVentana(g, h);
   sombrasPresentador(0.8);
   const viva = reglaViva(ts);
-  if (!viva) pegarRegla(F(reglaDe(n, ts)));
+  if (!viva) pegarRegla(F(reglaDe(n)));   // (hasta que acaba el destello, la regla va en vivo, como la del fotograma 0)
   // el reloj, Atom y (mientras salta) la regla en vivo, con el número de fotograma de ep3-mapa (el hervor del fotograma 0
   // sale como su último)
   const nGL = n + MAPA.n;
@@ -382,11 +397,11 @@ function tramoA(n, ts) {
 // ---------------------------------------------------------------- B · la ventana de cerca (enfocada en el cielo)
 // el salón ampliado S_B veces alrededor del centro del hueco, que queda en C_B; la habitación, desenfocada (una foto);
 // el cielo, nítido; la cámara se acerca despacio hacia Andrómeda
-const S_B = 2.0, C_B = [900, 395];
+const S_B = 2.3, C_B = [853, 555];
 HACER.salonB = () => {
   const S = F('salon'), c = lienzo(), gc = c.getContext('2d');
   gc.setTransform(KD, 0, 0, KD, 0, 0);
-  gc.filter = `blur(${(4.5 * KD).toFixed(1)}px) brightness(0.86)`;
+  gc.filter = `blur(${(5 * KD).toFixed(1)}px) brightness(0.86)`;
   gc.translate(C_B[0], C_B[1]); gc.scale(S_B, S_B); gc.translate(-PIV[0], -PIV[1]);
   gc.drawImage(S.foto, 0, 0, W, H);
   return c;
@@ -398,12 +413,12 @@ function tramoB(n, ts) {
   const z = zoomB(ts), pb = PUNTO_B();
   const lv0 = llevar(S_B, PIV, C_B), lv = (p) => { const q = lv0(p); return [pb[0] + (q[0] - pb[0]) * z, pb[1] + (q[1] - pb[1]) * z]; };
   const h = S.info.ventana.hueco.map(lv);
-  // el cielo entero (sin recortar: el hueco ampliado se sale de la pantalla por arriba)
-  cielo(g, h, ts, (gx) => andromeda(gx, h, 1));
+  cielo(g, h, ts);
+  andromeda(g, h, 1);
   pegarEscalada(F('salonB'), z, pb);
   vidrioVentana(g, h, { fuerza: 0.7 });
   sombrasPresentador(0.8);
-  pegarRegla(F(reglaDe(n, ts)));
+  pegarRegla(F(reglaDe(n)));
   pasadaAtomo(n, ts);
 }
 
@@ -475,7 +490,7 @@ function tramoC(n, ts) {
   g.restore();
   sombraAtom(1);
   sombrasPresentador(0.7);
-  pegarRegla(F(reglaDe(n, ts)));
+  pegarRegla(F(reglaDe(n)));
   pasadaAtomo(n, ts);
 }
 
@@ -543,7 +558,7 @@ function tramoD(n, ts) {
   g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(PERF, 0, 0); g.restore();
   sombraAtom(0.6);
   sombrasPresentador(0.6);
-  pegarRegla(F(reglaDe(n, ts)));
+  pegarRegla(F(reglaDe(n)));
   pasadaAtomo(n, ts);
 }
 
@@ -619,7 +634,7 @@ function tramoE(n, ts) {
     g.drawImage(f.foto, f.x - w / 2, f.y - w * 0.92, w, w);
   });
   g.restore();
-  pegarRegla(F(reglaDe(n, ts)));
+  pegarRegla(F(reglaDe(n)));
   pasadaAtomo(n, ts);
 }
 
@@ -642,7 +657,6 @@ if (GUIAS) {
 
 // ---------------------------------------------------------------- al cargar: lo del fotograma 0, el mundo y los estrenos
 F('salon'); marcaCarga('salón');
-F('reg21'); marcaCarga('regla');
 // estrenos: Atom, el reloj y la regla en vivo (su primer dibujo compila en SwiftShader); no cambian ningún píxel
 P.fotograma(0); P.limpiar();
 relojEn(1); regla(T.salto[0]); atomo(0);
@@ -681,7 +695,7 @@ const PREPARAR = [
 // las fotos que necesita cada fotograma (se piden antes de empezar a dibujarlo, para no limpiar el plató a medias)
 function fotosDe(n, ts) {
   const k = [];
-  if (!(ts < T.B && reglaViva(ts))) k.push(reglaDe(n, ts));
+  if (!reglaViva(ts)) k.push(reglaDe(n));
   const tr = tramo(ts);
   if (tr === 'general') { k.push('salon'); if (kAndro(ts) > 0.002) k.push('andro'); }
   else if (tr === 'ventana') k.push('salon', 'salonB', 'andro');

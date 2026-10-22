@@ -180,7 +180,7 @@ vec3 pzcol_sillon(vec3 q, vec4 T, float m) {
 // la «ofrenda», en el marco de la pieza 'mano' del kit (los mismos pos, escala y rot): la mano mira con la palma a −z,
 // los dedos hacia −y y el antebrazo hacia +y. Con la palma hacia arriba (rot [π/2 + 0,15, giro, 0]), −z local es arriba,
 // −y se aleja de la cámara (hacia donde apuntan los dedos) y x va a lo ancho: la bandeja de nogal sobre la palma, el
-// bocadillo (pan con relleno) delante, a lo ancho, el termo de pie detrás, y la manga de punto crema que tapa el
+// bocadillo (pan con relleno) delante, a lo ancho, el termo de pie detrás, y la manga de punto pizarra que tapa el
 // antebrazo y sale del cuadro hacia la cámara
 const OFRENDA = { radio: 12.2, envolvente: true, glifos: [], glsl: /* glsl */`
 const vec3 OF_NOGAL = vec3(0.150, 0.085, 0.048);
@@ -191,7 +191,7 @@ const vec3 OF_LECHUGA = vec3(0.13, 0.20, 0.045);
 const vec3 OF_TERMO = vec3(0.12, 0.19, 0.11);
 const vec3 OF_CREMA = vec3(0.56, 0.49, 0.37);
 const vec3 OF_LATON = vec3(0.47, 0.30, 0.085);
-const vec3 OF_LANA = vec3(0.47, 0.41, 0.31);
+const vec3 OF_LANA = vec3(0.10, 0.12, 0.16);
 const vec3 OF_BC = vec3(0.0, -0.45, -0.25);    // centro de la bandeja
 float ofCil(vec3 p, float r, float h) { vec2 d = vec2(length(p.xy) - r, abs(p.z) - h); return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)); }
 float ofBandeja(vec3 p) {
@@ -293,8 +293,8 @@ vec3 pzcol_ofrenda(vec3 q, vec4 T, float m) {
   float rib = sin(a * 26.0);
   gG = vec3(0.004 * pu * rib * -sin(a), 0.0, 0.004 * pu * rib * cos(a));
   float pt = sin(q.y * 70.0) * sin(a * 40.0);
-  vec3 c = OF_LANA * (0.88 + 0.08 * mix(pt, rib, pu) + 0.12 * (vnoise(q * 8.0) - 0.5));
-  gTr = 0.2; gBri = 0.45;
+  vec3 c = OF_LANA * (0.9 + 0.1 * mix(pt, rib, pu) + 0.14 * (vnoise(q * 8.0) - 0.5));
+  gTr = 0.1; gBri = 0.5;
   return c;
 }
 ` };
@@ -356,8 +356,8 @@ CAL_A.escala = 135 / (1.24 * pxU(CAL_A.pos));
 const CAL_B = { pos: en(500, 380, 2.0), escala: 0, rot: [0, 0.22, 0] };
 CAL_B.escala = 400 / (1.24 * pxU(CAL_B.pos));
 // la mano con la bandeja (C), en primer término, delante de ella: sube desde abajo con la palma hacia arriba y los
-// dedos hacia ella (el antebrazo, en su manga, sale del cuadro por abajo)
-const MANO = { pos: en(1240, 750, 3.6), escala: 0.58, rot: [Math.PI / 2 + 0.15, 0.3, 0] };
+// dedos hacia ella (el antebrazo, en su manga de punto pizarra, sale del cuadro por abajo)
+const MANO = { pos: en(1225, 765, 3.6), escala: 0.64, rot: [Math.PI / 2 + 0.3, 0.15, 0] };
 const MANO_DESDE = [150, 470];                               // de dónde llega (px, desde abajo)
 // el objetivo de la mirada: el peldaño que se lee (el centro de la hélice A)
 const OBJ_A = HX_A_POS;
@@ -434,9 +434,10 @@ function cabeza(ts, PER, obj) {
   return P.pieza(I.humano, { ...PER, postura: poseLectura(ts, PER, obj), aspecto: aspectoEn(edadEn(ts)), t: ts, partes: 'cabeza', huellaFija: HUELLA });
 }
 // el decorado de un plano: el plató, el sillón y el cuerpo con las manos (sin la cabeza, con su sombra entera)
-function hacerDecorado(PER, obj, n) {
+function hacerDecorado(PER, obj, n, conCal = false) {
   P.fotograma(T.t1[1]); P.limpiar();
   P.pieza(I.sillon, sillonDe(PER));
+  if (conCal) calendario(P, I.calendario, { ...CAL_A, numero: 2026, anterior: 2025, hoja: 0 });
   P.pieza(I.humano, { ...PER, postura: poseLectura(T.t1[1], PER, obj), aspecto: aspectoEn(0), t: 0, partes: ['cuerpo', 'manos'], huellaFija: HUELLA });
   P.render(n);
   return foto(P);
@@ -454,11 +455,13 @@ function guias(h, PER) {
 // una franja de x (la de la hélice o la del calendario)
 const SOMBRA_F = { dx: 115, dy: 42, blur: 24, alfa: 0.42, x0: 430, x1: 1580 };               // la de ep3-adn
 const SOMBRA_A = { dx: 70, dy: 26, blur: 18, alfa: 0.38, x0: C_HX_A[0] - 1.45 * RA, x1: C_HX_A[0] + 1.45 * RA + 70 };
-const SOMBRA_CAL = (() => { const c = pant(CAL_A.pos); return { dx: 40, dy: 16, blur: 12, alfa: 0.35, x0: c[0] - 95, x1: c[0] + 135 }; })();
+const SOMBRA_CB = (() => { const c = pant(CAL_B.pos); return { dx: 60, dy: 22, blur: 16, alfa: 0.35, x0: Math.max(335, c[0] - 200), x1: c[0] + 260 }; })();
 function sombra(gx, src, S) {
+  const k = src.width / W, m = 2 * S.blur;
+  const sx0 = Math.max(0, S.x0 - S.dx - m), sx1 = Math.min(W, S.x1 - S.dx + m);
   gx.save(); gx.beginPath(); gx.rect(S.x0, 0, S.x1 - S.x0, H); gx.clip();
   gx.globalAlpha = S.alfa; gx.filter = `blur(${S.blur}px) brightness(0)`;
-  gx.drawImage(src, S.dx, S.dy, W, H);
+  gx.drawImage(src, sx0 * k, 0, (sx1 - sx0) * k, src.height, sx0 + S.dx, S.dy, sx1 - sx0, H);
   gx.restore();
 }
 const sRGB = (c) => Math.round(255 * Math.pow(cl(c), 1 / 2.2));
@@ -504,14 +507,16 @@ const FOTO = {};
 let hechas = [];
 const HACER = {
   // el decorado del plano general y el del plano medio
-  Aset: () => hacerDecorado(PER_A, OBJ_A, 931),
+  Aset: () => hacerDecorado(PER_A, OBJ_A, 931, true),
+  // el calendario del plano general en 2121, solo (va encima del de 2026 del decorado, en el mismo sitio)
+  CAL21: () => { P.fotograma(T.bc); P.limpiar(); calendario(P, I.calendario, { ...CAL_A, numero: 2121, anterior: 2120, hoja: 0 }); P.render(935, { fondo: false }); return foto(P); },
   Bset: () => hacerDecorado(PER_B, OBJ_A, 932),
   // el plano general en la marca (lo vivo de ese instante, sin Atom, sobre su decorado): la llegada de la cámara
   A05: () => { const base = F('Aset'); const h = vivoA(T.t1[1], false); return componerA(base, h, T.t1[1], false); },
   // la mano con la bandeja (sobre transparente)
   MANO: () => { P.fotograma(T.mano[1]); P.limpiar(); P.pieza(I.mano, MANO); P.pieza(I.ofrenda, MANO); P.render(933, { fondo: false }); return foto(P); },
   // el plano general justo antes de volver a la hélice (la hélice ya parada), con la mano: la salida de la cámara
-  C1: () => { const base = F('Aset'); F('MANO'); const h = vivoA(T.t4[0], false); return componerA(base, h, T.t4[0], true); },
+  C1: () => { const base = F('Aset'); F('MANO'); F('CAL21'); const h = vivoA(T.t4[0], false); return componerA(base, h, T.t4[0], true); },
   // la hélice F parada, con el peldaño del final encendido (avance 16, resalta 1), con su sombra
   HD: () => {
     P.fotograma(T.t4[1]); P.limpiar();
@@ -539,18 +544,17 @@ function vivoA(ts, conAtomo = true) {
   if (conAtomo) atomo(ts);
   helice(P, I.helice, { ...HELICE_A, avance: avanceEn(ts), resalta: resaltaEn(ts) });
   const h = cabeza(ts, PER_A, OBJ_A);
-  calendario(P, I.calendario, { ...CAL_A, ...calEn(ts) });
   P.render(Math.floor(ts * 12 + 1e-6), { fondo: false });
   return h;
 }
-// compone el plano general: el decorado, las sombras de lo vivo (hélice y calendario), lo vivo y la luz del peldaño;
-// con la mano, si toca (C). En un lienzo nuevo (foto) o en g
+// compone el plano general: el decorado (con el calendario en 2026; en C, encima, el de 2121), la sombra de la hélice,
+// lo vivo y la luz del peldaño; con la mano, si toca (C). En un lienzo nuevo (foto) o en g
 function componerA(base, h, ts, conMano, gx = null) {
   const f = gx ? null : lienzo();
   const x = gx ?? ctx(f);
   x.drawImage(base, 0, 0, W, H);
+  if (conMano) x.drawImage(FOTO.CAL21, 0, 0, W, H);
   sombra(x, lienzoGL, SOMBRA_A);
-  sombra(x, lienzoGL, SOMBRA_CAL);
   x.drawImage(lienzoGL, 0, 0, W, H);
   luzPeldanoX(x, h, ts, 1);
   if (conMano) ponerMano(x, ts);
@@ -600,7 +604,7 @@ window.__carga.push(['principio', Math.round(performance.now())]);
 // un instante sin pasar por los anteriores, F() hace allí las que falten (la imagen es la misma).
 const PREPARAR = [
   [0.05, 'Aset', T.t4[0] + 0.3], [0.1, 'A05', T.t1[1]], [0.2, 'Bset', T.bc], [0.28, 'MANO', T.t4[1]],
-  [T.ab + 0.1, 'HD', T.push[1]], [T.ab + 0.2, 'PEL', D + 1], [T.ab + 0.3, 'R1', D + 1],
+  [T.ab + 0.1, 'HD', T.push[1]], [T.ab + 0.2, 'CAL21', T.t4[1]], [T.t4[1] + 0.03, 'PEL', D + 1], [T.t4[1] + 0.03, 'R1', D + 1],
 ];
 function dibujar(t) {
   const n = P.fotograma(t, D), ts = n / 12;
@@ -634,7 +638,7 @@ function dibujar(t) {
     g.drawImage(lienzoGL, 0, 0, W, H);
   } else if (pl === 'A' || pl === 'C') {
     const base = F('Aset');
-    if (pl === 'C') F('MANO');
+    if (pl === 'C') { F('MANO'); F('CAL21'); }
     h = vivoA(ts);
     componerA(base, h, ts, pl === 'C', g);
     guias(h, PER_A);
@@ -647,6 +651,7 @@ function dibujar(t) {
     calendario(P, I.calendario, { ...CAL_B, ...calEn(ts) });
     P.render(n, { fondo: false });
     g.drawImage(base, 0, 0, W, H);
+    sombra(g, lienzoGL, SOMBRA_CB);
     g.drawImage(lienzoGL, 0, 0, W, H);
     luzPeldanoX(g, h, ts, 1.1);
     guias(h, PER_B);
