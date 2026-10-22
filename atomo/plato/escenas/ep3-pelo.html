@@ -548,7 +548,7 @@ function componer(t) {
     parpadeo(n);
     POST.aplicar(g, n);
     if (n === NFIN) fin();
-    baseFot = COSTE.ojo;
+    tipoFot = 'ojo';
     return;
   }
   if (pl === 'hombro' || pl === 'pagina') {
@@ -559,7 +559,7 @@ function componer(t) {
     pegarGL();
     g.drawImage(reg, 0, 0, W, H);
     POST.aplicar(g, n);
-    baseFot = COSTE.lectura;
+    tipoFot = 'lectura';
     return;
   }
   // los saltos (como en la prueba)
@@ -573,7 +573,7 @@ function componer(t) {
       g.drawImage(F('p0c'), 0, 0, W, H);
       if (n) parpadeo(n);
       POST.aplicar(g, n);
-      baseFot = COSTE.foto;
+      tipoFot = 'foto';
       return;
     }
     const base = F('p0'), som = F('sombraCart');
@@ -585,7 +585,7 @@ function componer(t) {
     pegarGL();
     parpadeo(n);
     POST.aplicar(g, n);
-    baseFot = COSTE.cartela;
+    tipoFot = 'cartela';
     return;
   }
   if (k < 0 && nv === 4) {
@@ -603,7 +603,7 @@ function componer(t) {
     g.drawImage(reg, 0, 0, W, H);
     parpadeo(n);
     POST.aplicar(g, n);
-    baseFot = COSTE.tronco;
+    tipoFot = 'tronco';
     return;
   }
   if (k < 0) {
@@ -615,11 +615,11 @@ function componer(t) {
     pegarGL();
     parpadeo(n);
     POST.aplicar(g, n);
-    baseFot = COSTE.quieto;
+    tipoFot = 'quieto';
     return;
   }
   // salto k: fotos de los dos decorados, compuestas en 2D (mirilla); Atom y la regla encima
-  baseFot = COSTE.salto;
+  tipoFot = 'salto';
   const viejo = F('nivel' + k), nuevo = F('nivel' + (k + 1));
   P.limpiar(); atomo(ts); regla(ts);
   P.render(n, { fondo: false });
@@ -680,7 +680,7 @@ let hechasAhora = 0, tFot = null;
 // (coste) las fotos más caras (la mano, la piel y la página de cerca, que llenan el cuadro, y la lectura) se pintan en FRANJAS
 // horizontales (setScissor, como los párpados de ep3-hola), una por fotograma; la sombra y el fondo son los mismos en
 // todas, así que las franjas casan. Su número de fotograma (el hervor) es fijo.
-const FRANJAS = { nivel1: 6, nivel2: 5, nivel3: 2, nivel4: 2, pagina: 2, hombro: 3 };
+const FRANJAS = { nivel1: 6, nivel2: 5, nivel3: 3, nivel4: 3, pagina: 4, hombro: 6 };
 const PARCIAL = {};
 function pintarFranja(k, b, pintar) {
   const N = FRANJAS[k], p = (PARCIAL[k] ??= { c: lienzo(), hechas: 0 });
@@ -734,8 +734,10 @@ function pintarOjoQuieto(kG) {
   P.pieza(I.CORTE, { pos: OJO.pos, escala: esc, rot, variante: OJO.variante });
 }
 // la sombra del ojo en el plató (sin el ojo): la región de abajo del render entero, menos lo que tapa el ojo
+// (en dos pasos, que van a fotogramas distintos: la región entera y después lo que tapa el ojo)
+const regionOjo = (kG) => pintarRegion(null, R_OJO, () => { pintarOjoQuieto(kG); P.render(2003); });
 function sombraOjo(kG) {
-  const s = pintarRegion(null, R_OJO, () => { pintarOjoQuieto(kG); P.render(2003); });
+  const s = F('sombraOjoR' + kG);
   const m = pintarRegion(null, R_OJO_M, () => { pintarOjoQuieto(kG); P.render(2003, { fondo: false }); });
   return recortar(s, m);
 }
@@ -764,7 +766,7 @@ const HACER = {
   nivel4b: () => pintarRegion(F('nivel4'), R_ETQ, () => { pintarTronco(); P.render(1004); }),
   sombraEtq: () => { const b = F('nivel4b'); P.fotograma(SALTO[3][1]); P.limpiar(); nivel4(T.fijo + 0.5, false); P.render(1004, { fondo: false }); return recortar(b, foto()); },
   // la sombra del ojo en el suelo, al principio y al final del giro
-  sombraOjo0: () => sombraOjo(0), sombraOjo1: () => sombraOjo(1),
+  sombraOjoR0: () => regionOjo(0), sombraOjoR1: () => regionOjo(1), sombraOjo0: () => sombraOjo(0), sombraOjo1: () => sombraOjo(1),
   'e:mano': () => estrenar(I.MANO), 'e:piel': () => estrenar(I.PIEL), 'e:pelo': () => estrenar(I.PELO), 'e:tronco': () => estrenar(I.TRO),
   'e:cota': () => estrenar(I.COTA), 'e:etiqueta': () => estrenar(I.ETQ), 'e:libro': () => estrenar(I.LIB), 'e:corte': () => estrenar(I.CORTE),
 };
@@ -785,20 +787,23 @@ function F(k) {
 }
 // [desde, nombre, hasta]: cuándo se puede hacer cada cosa (desde) y a partir de cuándo ya no hace falta (hasta), en orden
 // de prioridad. Cada fotograma que no haya tenido que hacer nada al pedirlo hace las primeras que quepan en lo que le
-// queda de PRESUPUESTO (s de CPU estimados, medidos en este servidor: COSTE es lo que cuesta componer cada tipo de
-// fotograma con sus fotos hechas; EST, cada foto o estreno) y cuyas fotos previas ya estén. Así las fotos caras van a los
-// fotogramas baratos: los de la persona con la cartela quieta (una foto), los del tronco y los de la lectura.
-const COSTE = { foto: 0.7, cartela: 2.4, salto: 5.5, quieto: 4.2, tronco: 2.0, lectura: 1.4, ojo: 5.7 }, PRESUPUESTO = 7.0;
+// queda de su presupuesto y cuyas fotos previas ya estén. Las cuentas son s de CPU medidas en este servidor con
+// render en orden: COSTE, lo que cuesta componer cada tipo de fotograma con sus fotos hechas; EST, cada foto (o franja)
+// y cada estreno; LIMITE, lo que puede llegar a costar en total un fotograma de cada tipo. Las fotos caras van a los
+// fotogramas baratos: los de la persona con la cartela, los quietos entre saltos, los del tronco y los de la lectura.
+const COSTE = { foto: 0.8, cartela: 2.4, salto: 5.5, quieto: 4.2, tronco: 1.8, lectura: 1.4, ojo: 5.6 };
+const LIMITE = { foto: 8.5, cartela: 8.5, salto: 7.5, quieto: 8.5, tronco: 6, lectura: 6, ojo: 6 };
 const EST = {
-  p0: 3.0, sombraCart: 1.1, reglaSola: 2.3, nivel0: 1.8, 'e:mano': 1.0, 'nivel1#': 4.2, nivel1: 0.2, 'e:piel': 1.8,
-  'e:pelo': 0.2, 'e:tronco': 0.1, 'e:cota': 0.1, 'e:etiqueta': 0.1, 'nivel2#': 4.5, nivel2: 0.2, 'nivel3#': 3.2, nivel3: 0.2,
-  'nivel4#': 2.6, nivel4: 0.1, nivel4b: 4.5, sombraEtq: 0.8, 'e:libro': 0.8, 'hombro#': 3.4, hombro: 0.2, 'pagina#': 3.6,
-  pagina: 0.1, borrosa: 0.2, 'e:corte': 0.4, fondo: 0.5, sombraOjo0: 3.6, sombraOjo1: 3.6,
+  p0: 4.0, sombraCart: 1.5, reglaSola: 2.4, nivel0: 3.0, 'e:mano': 1.5, 'nivel1#': 6.5, nivel1: 0.2, 'e:piel': 1.0,
+  'e:pelo': 0.2, 'e:tronco': 0.1, 'e:cota': 0.1, 'e:etiqueta': 0.1, 'nivel2#': 6.0, nivel2: 0.2, 'nivel3#': 3.7, nivel3: 0.2,
+  'nivel4#': 3.7, nivel4: 0.1, nivel4b: 3.5, sombraEtq: 1.2, 'e:libro': 0.8, 'hombro#': 3.5, hombro: 0.3, 'pagina#': 3.8,
+  pagina: 0.1, borrosa: 0.3, 'e:corte': 0.5, fondo: 0.6, sombraOjoR0: 3.8, sombraOjoR1: 3.8, sombraOjo0: 2.6, sombraOjo1: 2.6,
 };
 const est = (k) => EST[k.includes('#') ? k.split('#')[0] + '#' : k];
 const franjas = (k, desde, hasta) => [...Array(FRANJAS[k]).keys()].map((b) => [desde, `${k}#${b}`, hasta]).concat([[desde, k, hasta]]);
 const PREPARAR = [
-  // con la cartela (1–14): la persona sin la cartela y la sombra de la cartela, y los decorados de los saltos
+  // con la cartela (1–14) y en los fotogramas quietos entre saltos: la persona sin la cartela y la sombra de la cartela,
+  // los decorados de los saltos y la regla en 10⁻⁴
   [0.05, 'p0', CARTELA.fin], [0.05, 'sombraCart', CARTELA.fin], [0.05, 'nivel0', SALTO[0][1]], [0.05, 'e:mano', SALTO[0][1]],
   ...franjas('nivel1', 0.05, SALTO[1][1]), [0.05, 'e:piel', SALTO[1][1]],
   ...franjas('nivel2', 0.05, SALTO[2][1]),
@@ -807,14 +812,15 @@ const PREPARAR = [
   // con el tronco: el tronco con la cota y la tarjeta, la lectura y el ojo
   [SALTO[3][1], 'nivel4b', T.lectura], [SALTO[3][1], 'sombraEtq', T.fijo], [SALTO[3][1], 'e:libro', T.empuje1],
   ...franjas('hombro', SALTO[3][1], T.empuje1), ...franjas('pagina', SALTO[3][1], T.ojo), [SALTO[3][1], 'borrosa', T.ojo],
-  [SALTO[3][1], 'e:corte', D + 1], [SALTO[3][1], 'fondo', D + 1], [SALTO[3][1], 'sombraOjo0', D + 1], [SALTO[3][1], 'sombraOjo1', D + 1],
+  [SALTO[3][1], 'e:corte', D + 1], [SALTO[3][1], 'fondo', D + 1],
+  [SALTO[3][1], 'sombraOjoR0', D + 1], [SALTO[3][1], 'sombraOjo0', D + 1], [SALTO[3][1], 'sombraOjoR1', D + 1], [SALTO[3][1], 'sombraOjo1', D + 1],
 ];
 // lo que tiene que estar hecho antes (si no, F() lo haría dentro y se saldría del presupuesto)
-const ANTES = { borrosa: ['pagina'], nivel4b: ['nivel4'], sombraEtq: ['nivel4b'] };
+const ANTES = { borrosa: ['pagina'], nivel4b: ['nivel4'], sombraEtq: ['nivel4b'], sombraOjo0: ['sombraOjoR0'], sombraOjo1: ['sombraOjoR1'] };
 for (const [k, N] of Object.entries(FRANJAS)) ANTES[k] = [...Array(N).keys()].map((b) => `${k}#${b}`);
-let baseFot = 0;
+let tipoFot = 'foto';
 function preparar(ts) {
-  let queda = PRESUPUESTO - baseFot;
+  let queda = LIMITE[tipoFot] - COSTE[tipoFot];
   const hechas = [];
   for (const [desde, k, hasta] of PREPARAR) {
     if (ts < desde || ts >= hasta || FOTO[k] || est(k) > queda) continue;

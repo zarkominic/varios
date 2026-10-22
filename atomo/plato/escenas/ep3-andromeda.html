@@ -532,9 +532,15 @@ function sombraParpado(est, z) {
   g.save();
   g.beginPath(); g.ellipse(c[0] + 0.02 * p, (yA + yB) / 2, 0.93 * p, (yB - yA) / 2 + 2, 0, 0, 2 * Math.PI); g.clip();
   g.globalCompositeOperation = 'multiply';
-  const l = g.createLinearGradient(0, yA - 2, 0, yA + 0.2 * p);
-  l.addColorStop(0, 'rgba(70,40,30,0.75)'); l.addColorStop(0.45, 'rgba(150,110,95,0.3)'); l.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = l; g.fillRect(c[0] - p, yA - 2, 2 * p, 0.2 * p + 4);
+  // el globo se oscurece hacia los rincones (es una esfera hundida en la cuenca)
+  const ic = [c[0] + REFLEJO[0] * p * 0.7, c[1] + REFLEJO[1] * p * 0.4];
+  const rg = g.createRadialGradient(ic[0], ic[1], 0.3 * p, ic[0], ic[1], 1.05 * p);
+  rg.addColorStop(0, 'rgba(255,255,255,0)'); rg.addColorStop(0.6, 'rgba(205,180,170,0.6)'); rg.addColorStop(1, 'rgba(120,90,85,1)');
+  g.fillStyle = rg; g.fillRect(c[0] - p, yA - 4, 2 * p, yB - yA + 8);
+  // y bajo el borde del párpado de arriba, su sombra
+  const l = g.createLinearGradient(0, yA - 2, 0, yA + 0.3 * p);
+  l.addColorStop(0, 'rgba(55,30,22,0.9)'); l.addColorStop(0.35, 'rgba(140,100,85,0.45)'); l.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = l; g.fillRect(c[0] - p, yA - 2, 2 * p, 0.3 * p + 4);
   g.restore();
 }
 const OJOC = lienzo(), goc = OJOC.getContext('2d');
@@ -734,16 +740,22 @@ function tramoE(n, ts) {
 
 // ---------------------------------------------------------------- vista de guías (?guias): la persona de perfil, de cuerpo entero
 if (GUIAS) {
+  // la de perfil de la escena (rot ROT_D, la cabeza recta) y la misma de frente, de pie con los brazos colgando
   const Zg = 2.0, Eg = 2.4;
-  const pg = (() => { const a = en(900, 540, Zg); return [a[0], Eg, Zg]; })();
-  const a = pant([pg[0], pg[1] + 0.765 * Eg, pg[2]]), b = pant([pg[0], pg[1] - Eg, pg[2]]);
-  window.__guias = { x: Math.round(b[0]), coronilla: Math.round(a[1]), suela: Math.round(b[1]) };
-  E.iniciar((t) => {
+  const sitio = (sx) => { const a = en(sx, 540, Zg); return [a[0], Eg, Zg]; };
+  const pf = sitio(700), pr = sitio(1250);
+  const medir = (pg) => { const a = pant([pg[0], pg[1] + 0.765 * Eg, pg[2]]), b = pant([pg[0], pg[1] - Eg, pg[2]]); return { x: Math.round(b[0]), coronilla: Math.round(a[1]), suela: Math.round(b[1]) }; };
+  window.__guias = { perfil: medir(pf), frente: medir(pr) };
+  const pz = { ...posturaD(T.D), cabeza: [0, 0, 0] };
+  E.iniciar(() => {
     ajustarCapa();
     g.fillStyle = '#6d6a5e'; g.fillRect(0, 0, W, H);
     P.limpiar();
-    P.pieza(I.PER, { pos: pg, escala: Eg, rot: ROT_D, postura: { ...posturaD(T.D), cabeza: [0, 0, 0] }, aspecto: ASP_D, huellaFija: [0.37, 0.21, 0] });
-  // (la misma persona, de frente, a la derecha: para medir las líneas con los brazos colgando)
+    P.pieza(I.PER, { pos: pf, escala: Eg, rot: ROT_D, postura: pz, aspecto: ASP_D, huellaFija: [0.37, 0.21, 0] });
+    P.render(1, { fondo: false });
+    pegarGL();
+    P.limpiar();
+    P.pieza(I.PER, { pos: pr, escala: Eg, rot: [0, 0, 0], postura: pz, aspecto: ASP_D, huellaFija: [0.37, 0.21, 0] });
     P.render(1, { fondo: false });
     pegarGL();
   }, { paso: 1 / 12 });
@@ -770,7 +782,7 @@ const PREPARAR = [
   [1, 'andro'], [3, 'reg220'], [4, 'reg221'], [5, 'reg222'],
   [17, 'estrenoOjo'], ...[0, 1, 2, 3, 4, 5].map((b) => [19 + 2 * b, 'ojoFoto' + b]),
   [31, 'estrenoCuerpoD'], [33, 'estrenoCabezaD'], [35, 'cuerpoD0'], [37, 'cuerpoD1'], [39, 'cuerpoD2'],
-  [nDe(T.B) - 4, 'salonB'],
+  [nDe(T.B) - 1, 'salonB'],
   [nDe(T.B) + 4, 'fondoD'],
   [nDe(T.B) + 10, 'enlace'],
   [nDe(T.B) + 18, 'figs'],

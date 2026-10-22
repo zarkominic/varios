@@ -360,6 +360,73 @@ function disco(ts) {
   _eu.setFromQuaternion(_qa, 'YXZ');
   return { u, a: uB, centro, esc, rot: [_eu.x, _eu.y, _eu.z], radio: MULT.radio * esc };
 }
+// la multitud en el instante tm: brotando, llena o volando (lo que devuelve disco, o null si no vuela); hay: si se ve
+function ponerMultitud(tm) {
+  if (tm < T.comprime[0]) {
+    const ua = prog(tm, T.multitud[0], T.multitud[1]);
+    if (ua > 0) multitud(P, I.MUL, { ...MULT, aparicion: ua });
+    return { hay: ua > 0, dsc: null };
+  }
+  const dsc = disco(tm);
+  if (dsc) multitud(P, I.MUL, { ...MULT, pos: dsc.centro, escala: dsc.esc, rot: dsc.rot, aparicion: 1 });
+  return { hay: !!dsc, dsc };
+}
+// (coste) LA MULTITUD «A DOS»: mientras brota, quieta y mientras vuela (fotogramas N0_MUL…NF_MUL) cambia cada dos
+// fotogramas (6 por segundo, como se anima en stop-motion lo que va deprisa), y cada estado es una capa (sobre
+// transparente, con ella sin dibujar, que sigue dando sombra) que se hornea EN DOS MITADES, la de arriba y la de abajo
+// (recorte de WebGL por filas, partidas por el centro de la multitud), en los dos fotogramas anteriores (en orden,
+// como renderiza render-escenas.mjs): cada fotograma paga media multitud. Las dos mitades salen del mismo estado y con
+// el mismo grano (n del estado), así que la capa es la misma imagen que entera. Pedida fuera de orden (una captura
+// suelta), la capa se hace entera en ese fotograma
+const N0_MUL = Math.ceil(T.multitud[0] * 12 - 1e-6), NF_MUL = Math.ceil(T.comprime[1] * 12 - 1e-6) - 1;
+const CAPAS_MUL = new Map();
+const estadoMul = (n) => Math.floor((n - N0_MUL) / 2);
+function hornearMultitud(s, mitad) {
+  const nS = N0_MUL + 2 * s, tm = nS / 12;
+  let e = CAPAS_MUL.get(s);
+  if (!e) {
+    const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height;
+    e = { c, hecho: new Set(), dsc: null, hay: false };
+    CAPAS_MUL.set(s, e);
+  }
+  P.limpiar();
+  const r = ponerMultitud(tm);
+  e.dsc = r.dsc; e.hay = r.hay;
+  if (r.hay) {
+    personaG1(tm, []);
+    const k = lienzoGL.width / W, Hb = lienzoGL.height;
+    const cen = r.dsc ? [r.dsc.centro[0], r.dsc.centro[1] + 0.45 * r.dsc.esc, r.dsc.centro[2]] : [MULT.pos[0], 0.45 * MULT.escala, MULT.pos[2]];
+    const ys = Math.min(Hb - 1, Math.max(1, Math.round(pant(cen)[1] * k)));
+    const [y0, y1] = mitad === 'arriba' ? [0, ys] : mitad === 'abajo' ? [ys, Hb] : [0, Hb];
+    const R = P.renderer, pr = R.getPixelRatio();
+    R.setScissor(0, (Hb - y1) / pr, lienzoGL.width / pr, (y1 - y0) / pr);
+    R.setScissorTest(true);
+    try { P.render(nS, { fondo: false }); }
+    finally { R.setScissorTest(false); R.setScissor(0, 0, lienzoGL.width / pr, Hb / pr); }
+    pegarFranja(e.c.getContext('2d'), [0, y0, lienzoGL.width, y1 - y0]);
+  }
+  if (mitad === 'entera') { e.hecho.add('arriba'); e.hecho.add('abajo'); } else e.hecho.add(mitad);
+  return e;
+}
+// la capa del fotograma n (null si no hay multitud a la vista)
+function capaMultitud(n) {
+  if (n < N0_MUL || n > NF_MUL) return null;
+  const s = estadoMul(n);
+  let e = CAPAS_MUL.get(s);
+  if (!e || e.hecho.size < 2) { CAPAS_MUL.delete(s); e = hornearMultitud(s, 'entera'); }
+  CAPAS_MUL.delete(s - 1);
+  return e.hay ? e : null;
+}
+// al final del fotograma n: la mitad que toca del estado siguiente
+function prepararMultitud(n) {
+  const s = estadoMul(n) + 1;
+  if (n < N0_MUL - 2 || N0_MUL + 2 * s > NF_MUL) return;
+  const e = CAPAS_MUL.get(s);
+  const mitad = (n - N0_MUL) % 2 === 0 ? 'arriba' : 'abajo';
+  if (mitad === 'abajo' && !(e && e.hecho.has('arriba'))) return;   // fuera de orden: se hará entera al pedirla
+  if (e && e.hecho.has(mitad)) return;
+  hornearMultitud(s, mitad);
+}
 function planoG1(n, ts) {
   const A = estadoAtomoG1(ts);
   const vuela = ts >= T.comprime[0] && ts < T.comprime[1];
@@ -371,34 +438,24 @@ function planoG1(n, ts) {
     // (con ella sin dibujar, que sigue dando sombra); la foto de su cuerpo ('cuerpoG1'), que tapa la multitud (siempre
     // va detrás de ella, o a su lado al final del vuelo, ya diminuta); y su cabeza y sus manos, vivas
     let dsc = null, h;
-    const ponerMultitud = () => {
-      if (ts < T.lleno) {
-        const ua = prog(ts, T.multitud[0], T.multitud[1]);
-        if (ua > 0) multitud(P, I.MUL, { ...MULT, aparicion: ua });
-        return ua > 0;
-      }
-      dsc = disco(ts);
-      if (dsc) multitud(P, I.MUL, { ...MULT, pos: dsc.centro, escala: dsc.esc, rot: dsc.rot, aparicion: 1 });
-      return !!dsc;
-    };
     if (n > 0) {
       const fondo = F('fondoG1'), cuerpo = F('cuerpoG1');
       pintar(fondo);
-      P.limpiar();
-      if (ponerMultitud()) { personaG1(ts, []); P.render(n, { fondo: false }); pegarGL(); }
+      const e = capaMultitud(n);
+      if (e) { dsc = e.dsc; g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(e.c, 0, 0); g.restore(); }
       pintar(cuerpo);
       h = franjaPersona(ts);
       pegarFranja(g, h.franja);
     } else {
       P.limpiar();
       h = personaG1(ts);
-      ponerMultitud();
+      ponerMultitud(ts);
       P.render(n);
       pegarGL();
     }
     haloManos(h, 1 - ss(T.fantasma[0], T.fantasma[1], ts), ts);
     // la luz cálida que se concentra en el remolino a medida que se encoge
-    if (dsc && vuela) {
+    if (dsc) {
       const pc = pant([dsc.centro[0], dsc.centro[1] + 0.45 * dsc.esc, dsc.centro[2]]);
       const Rp = Math.max(40, dsc.radio * pxPorUnidad(dsc.centro[2]) * 1.15);
       brillo(pc, Rp, 0.08 + 0.3 * ss(0.25, 0.95, dsc.a));
@@ -415,6 +472,8 @@ function planoG1(n, ts) {
     }
     const ce = pant(h.mundo([0, 0, 0])), co = pant(h.mundo([0, 0.765, -0.01])), su = pant(h.mundo([0, -1, 0.05]));
     window.__guias = { x: Math.round(ce[0]), coronilla: Math.round(co[1]), suela: Math.round(su[1]) };
+    // (coste) media capa del estado siguiente de la multitud (va al lienzo de WebGL, que ya está pegado: no se ve)
+    prepararMultitud(n);
   } else {
     // después de volar: la foto de la persona sola
     pintar(F('personaG1'));
@@ -1021,7 +1080,7 @@ window.__carga.push(['estreno de las piezas', Math.round(performance.now())]);
 // ninguna foto al pedirla, se hace como mucho UNA (va al lienzo de WebGL, que queda debajo de la capa 2D: no se ve)
 const PREPARAR = [
   [0.05, 'personaG1', T.comprime[1]],
-  [0.05, 'cajonAbierto', T.cae[0]], [T.corte1 + 0.05, 'cajonCerrado', T.corte2],
+  [T.comprime[1] + 0.05, 'cajonAbierto', T.cae[0]], [T.corte1 + 0.05, 'cajonCerrado', T.corte2],
   [T.fotoSentada + 0.05, 'cuentas', D], [T.fotoSentada + 0.05, 'nubes', D],
 ];
 

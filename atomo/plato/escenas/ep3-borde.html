@@ -227,7 +227,7 @@ function atomo(ts, { velo = 0.1 } = {}) {
   });
 }
 // la sombra blanda detrás de Atom, sobre la niebla clara (para que se lea en el móvil)
-const SOMBRA_ATOM = { x: 230, y: 780, r0: 50, r1: 210, color: '8,6,8', alfa: 0.5 };
+const SOMBRA_ATOM = { x: 230, y: 780, r0: 40, r1: 200, color: '10,7,8', alfa: 0.72 };
 function sombraAtom(k) {
   if (k <= 0.002) return;
   const s = SOMBRA_ATOM, gr = g.createRadialGradient(s.x, s.y, s.r0, s.x, s.y, s.r1);
@@ -313,7 +313,7 @@ function componer(gc, n, { bal, ang, conArena, arenaE, silE, esfera, rojo = 0, n
   if (rojo < 0.999) { P.render(nFoto); gc.drawImage(lienzoGL, 0, 0, W, H); }
   if (rojo > 0.001) {
     // en el fotograma 0, la foto de ep3-universo tal cual; después, sin la esfera grande (que ya se mueve)
-    const f = esfera && esfera.k <= 0 ? F('esfera' + (n % 2)) : F('rojoSin' + (n % 2));
+    const f = esfera && esfera.k <= 0 ? F('esfera') : F('rojoSin');
     gc.save(); gc.globalAlpha = rojo; gc.drawImage(f, 0, 0, W, H); gc.restore();
   }
   if (esfera) {
@@ -332,7 +332,7 @@ function componer(gc, n, { bal, ang, conArena, arenaE, silE, esfera, rojo = 0, n
       gr.addColorStop(0, `rgba(255,190,120,${0.22 * kh})`); gr.addColorStop(1, 'rgba(255,190,120,0)');
       gc.fillStyle = gr; gc.fillRect(c[0] - 1.5 * r, c[1] - 1.5 * r, 3 * r, 3 * r); gc.restore();
     }
-    const d = F('disco' + (n % 2)), L = (R0 + PAD) * (r / R0);
+    const d = F('disco'), L = (R0 + PAD) * (r / R0);
     gc.drawImage(d, c[0] - L, c[1] - L, 2 * L, 2 * L);
     volumenEsfera(gc, c, r, 1 - ss(0.3, 0.75, r / R0));
     if (enPlato) {
@@ -438,12 +438,11 @@ const MIR = { c: [1150, 360], r: 205 };
 const NIEBLA_FIN = { escala: 260, centro: [960, 540], luz: 1, velo: 1 };
 
 const HACER = {
-  esfera0: () => cielo.foto({ red: { ...FIN.red, origen: RED.NODO }, esfera: FIN.esfera, n: 0 }),
-  esfera1: () => cielo.foto({ red: { ...FIN.red, origen: RED.NODO }, esfera: FIN.esfera, n: 1 }),
-  disco0: () => hacerDisco(F('esfera0')),
-  disco1: () => hacerDisco(F('esfera1')),
-  rojoSin0: () => hacerRojoSin(F('esfera0')),
-  rojoSin1: () => hacerRojoSin(F('esfera1')),
+  // la red con la esfera, como la pinta ep3-universo en su último fotograma (n 0): una sola foto (desde el fotograma 1
+  // la esfera ya se mueve y encoge, y no hace falta que hierva)
+  esfera: () => cielo.foto({ red: { ...FIN.red, origen: RED.NODO }, esfera: FIN.esfera, n: 0 }),
+  disco: () => hacerDisco(F('esfera')),
+  rojoSin: () => hacerRojoSin(F('esfera')),
   regla() { P.limpiar(); P.regla(REG_OP); P.render(3027, { fondo: false }); return copiaGL(); },
   // la balanza asentada con la silueta (plano medio)
   balFin() { const [c, x] = lienzo2D(); componer(x, 2101, { ...EST_FIN(), nFoto: 2101 }); return c; },
@@ -528,7 +527,7 @@ function galaxias(x, c, R) {
 
 // ---------------------------------------------------------------- al cargar
 P.fotograma(0);
-F('esfera0'); F('esfera1'); F('disco0'); F('disco1'); F('rojoSin0'); F('rojoSin1'); F('regla');
+F('esfera'); F('disco'); F('rojoSin'); F('regla');
 marcaCarga('esfera y regla');
 // estreno: Atom y lo que va vivo (para que ningún fotograma pague la compilación)
 {

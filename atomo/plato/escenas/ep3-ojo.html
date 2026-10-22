@@ -27,9 +27,9 @@
 //           FIN_OJO del kit de instrumentos; el último medio segundo es pintarFinOjo(...) más Atom quieto).
 // Coste: cámara del plató fija; lo quieto son fotos hechas al cargar (las del final de ep3-hola, el ojo entero, el
 // párpado de cerca abierto y cerrado, las franjas, el cielo y el final). En cada fotograma se dibujan Atom (en su pasada)
-// y lo que se mueve (como mucho dos cosas de la franja, el teléfono, el microscopio y el anillo o la banda de los
-// párpados). El telescopio es la foto del final (la de pintarFinOjo), movida en 2D. Los planos muy desenfocados se pintan
-// a media resolución (pegarB).
+// y lo que se mueve en 3D (como mucho dos cosas de la franja, el teléfono o la banda de los párpados). El microscopio y el
+// anillo son fotos hechas en fotogramas baratos poco antes de hacer falta (PREPARAR) y el telescopio, la foto del final
+// (la de pintarFinOjo): los tres pasan en 2D. Los planos muy desenfocados se pintan a media resolución (pegarB).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -222,7 +222,7 @@ const PARADA = [
   { nombre: 'pelo', t: T.pelo, dy: 0, d: 170 },
   { nombre: 'luna', t: T.luna, dy: -6, d: 430 },
   { nombre: 'estrellas', t: T.estrellas, dy: 4, d: 560 },
-  { nombre: 'galaxia', t: T.galaxia, dy: -4, d: 640 },
+  { nombre: 'galaxia', t: T.galaxia, dy: -4, d: 580 },
 ];
 const PARADA_V = [520, 2157], PARADA_TAU = 0.85;
 // pone las cosas de la franja que se ven en ts (en la pantalla del plano de dentro) y devuelve sus resplandores
@@ -284,32 +284,52 @@ const EFIN = encuadreFinOjo(P);
 const TEL_X0 = 2500;
 // al salir por la izquierda, los instrumentos suben (no pasan por detrás de Atom)
 const subeIzq = (x) => 0.5 * Math.max(0, 1000 - x);
-function ponerInstrumentosEn(ts) {
-  const extra = { choque: null, vivos: 0 };
-  const haz = 1, fase = 0.5 * prog(ts, T.anillo - 1.0, T.choque);
-  ponerInstrumentos(UI, { luz: 1, haz, fase });
-  // el microscopio: de tres cuartos, gira un poco al pasar
-  {
-    const tau = ts - T.micro;
-    if (Math.abs(tau) < 0.9) {
-      const x = 960 + corre(tau, 420, tau > 0 ? 2500 : 1780);   // (sale deprisa: deja sitio al anillo)
-      instrumento(P, I.INS, { variante: 'microscopio', pos: en(x, 530 - subeIzq(x), ZI), escala: 700 / (1.93 * PXI), rot: [0.14, -0.62 + 0.55 * tau, 0.03 + 0.12 * Math.max(0, tau)] });
-      extra.vivos++;
-    }
-  }
-  // el anillo del acelerador: grande, visto desde arriba de tres cuartos, con los dos paquetes de luz
-  {
-    const tau = ts - T.anillo;
-    if (Math.abs(tau) < 1.0) {
-      const x = 960 + corre(tau, 450, 1900), pos = en(x, 490 - subeIzq(x), ZI - 1);
-      extra.vivos++;
-      const k = instrumento(P, I.INS2, { variante: 'anillo', pos, escala: ANILLO_PX / (2.2 * pxU(pos)), rot: [0.66, 0.35 + 0.35 * tau, 0] });
-      extra.choque = pant(k.punto('detector2'));
-      extra.haz = [fase, -fase].map((u) => pant(k.haz(u)));
-    }
-  }
-  return extra;
+// (coste) el microscopio y el anillo son fotos, de tres cuartos, en el centro, que pasan en 2D. Se hacen en fotogramas
+// baratos (el ojo ya cerrado, antes de oscurecerse) poco antes de hacer falta, una por fotograma; el anillo, por bandas
+// horizontales (la tijera de WebGL: cada banda solo paga sus píxeles). Ver PREPARAR.
+const MICRO = { x: 960, y: 530, alto: 700, rot: [0.14, -0.62, 0.03], nf: 9210 };
+const ANILLO = { x: 960, y: 490, rot: [0.66, 0.35, 0], nf: 9220, bandas: [[150, 400], [400, 640], [640, 930]] };
+function fotoMicro() {
+  if (F.micro) return;
+  P.fotograma(0); ponerInstrumentos(UI, { luz: 1 });
+  P.limpiar();
+  instrumento(P, I.INS, { variante: 'microscopio', pos: en(MICRO.x, MICRO.y, ZI), escala: MICRO.alto / (1.93 * PXI), rot: MICRO.rot });
+  P.render(MICRO.nf, { fondo: false });
+  F.micro = foto(); F.micro.getContext('2d').getImageData(0, 0, 1, 1);
+  P.limpiar();
 }
+function fotoAnillo(b) {
+  F.anilloB ??= [];
+  if (F.anilloB[b]) return;
+  // el tubo sin luz (haz 0): los paquetes de luz corren por encima, en 2D
+  P.fotograma(0); ponerInstrumentos(UI, { haz: 0, fase: 0 });
+  P.limpiar();
+  const pos = en(ANILLO.x, ANILLO.y, ZI - 1);
+  const k = instrumento(P, I.INS2, { variante: 'anillo', pos, escala: ANILLO_PX / (2.2 * pxU(pos)), rot: ANILLO.rot });
+  if (!F.tubo) {
+    F.tubo = Array.from({ length: 289 }, (_, i) => pant(k.haz(i / 288)));
+    F.detectores = [0, 1, 2, 3].map((i) => pant(k.punto('detector' + i)));
+  }
+  const [y0, y1] = ANILLO.bandas[b], kk = lienzoGL.width / W;
+  P.renderer.setScissor(0, (H - y1) * kk, W * kk, (y1 - y0) * kk);
+  P.renderer.setScissorTest(true);
+  P.render(ANILLO.nf, { fondo: false });
+  P.renderer.setScissorTest(false);
+  F.anillo ??= lienzo();
+  const c = F.anillo.getContext('2d'), sy = Math.round(y0 * kk), sh = Math.round(y1 * kk) - sy;
+  c.drawImage(lienzoGL, 0, sy, lienzoGL.width, sh, 0, sy, lienzoGL.width, sh);
+  c.getImageData(0, 0, 1, 1);
+  F.anilloB[b] = true;
+  P.limpiar();
+}
+// el punto del tubo a u vueltas (0 en el detector de +x), en la foto
+function tuboEn(u) {
+  const n = F.tubo.length - 1, x = (((u % 1) + 1) % 1) * n, i = Math.min(n - 1, Math.floor(x)), f = x - i;
+  const a = F.tubo[i], b = F.tubo[i + 1];
+  return [mix(a[0], b[0], f), mix(a[1], b[1], f)];
+}
+// cuánto se ve el tubo a u vueltas (dentro de los cuatro detectores, nada)
+const fueraDetector = (u) => { const d = Math.abs(((u * 4 % 1) + 1) % 1 - 0.5); return 1 - ss(0.37, 0.45, d); };
 
 // ---------------------------------------------------------------- fotos al cargar
 const F = {};
@@ -432,6 +452,15 @@ F.fin = pintarFinOjo(P, UI, I.INS, { fotos: { cielo: F.cielo, telescopio: F.tele
 // ---------------------------------------------------------------- composiciones
 const CAPA_OBJ = lienzo(), CAPA_TMP = lienzo();
 function copiarGL(c) { const gc = c.getContext('2d'); gc.setTransform(1, 0, 0, 1, 0, 0); gc.clearRect(0, 0, c.width, c.height); gc.drawImage(lienzoGL, 0, 0); return c; }
+// los párpados de dentro de la franja (Z_IN, en su sitio), una foto (ver PREPARAR)
+function parpDentro() {
+  if (F.parpDentro) return;
+  const Z = Z_IN, c = [960, YF1], bl = Math.min(13, (Z - 1.15) * 2.3), osc = mix(1, 0.42, ss(1.5, 5.5, Z));
+  const c2 = lienzo(), g2 = c2.getContext('2d');
+  pegarB(g2, F.sombra1, Z, c, c, 1, bl); pegarB(g2, F.cerrado1, Z, c, c, 1, bl * 0.8, osc);
+  g2.getImageData(0, 0, 1, 1);
+  F.parpDentro = c2;
+}
 // el ojo de ep3-hola (1 ×) ampliado Z veces alrededor del centro de la franja, que queda en yDst; dentro (0…1) cambia la
 // rendija por el espacio de dentro; objetos (capa) entre el fondo y los párpados
 function ojoUno(gx, Z, { yDst = YF1, franjaK = 1, dentro = 0, objetos = null, zObj = 1, luces = null, ts = 0, fondo = true } = {}) {
@@ -452,11 +481,7 @@ function ojoUno(gx, Z, { yDst = YF1, franjaK = 1, dentro = 0, objetos = null, zO
   if (Math.abs(Z - Z_IN) < 1e-6 && yDst === YF1) {
     // dentro de la franja, quietos: los párpados enormes y desenfocados son siempre los mismos (una foto, la primera
     // vez que hacen falta)
-    if (!F.parpDentro) {
-      const c2 = lienzo(), g2 = c2.getContext('2d');
-      pegarB(g2, F.sombra1, Z, c, d, 1, bl); pegarB(g2, F.cerrado1, Z, c, d, 1, bl * 0.8, osc);
-      F.parpDentro = c2;
-    }
+    parpDentro();
     gx.save(); gx.setTransform(1, 0, 0, 1, 0, 0); gx.drawImage(F.parpDentro, 0, 0); gx.restore();
   } else {
     pegarB(gx, F.sombra1, Z, c, d, 1, bl);
@@ -484,6 +509,16 @@ function aumento(ts) {
   return Math.exp(mix(Math.log(Z_IN), Math.log(ESC_MEDIO), eio(prog(ts, T.abre0, T.abre1))));
 }
 
+// ---------------------------------------------------------------- fotos en fotogramas baratos (PREPARAR)
+// Se hacen en fotogramas baratos poco antes de hacer falta, una por fotograma (al renderizar en orden); si se pide un
+// instante posterior sin pasar por ellos, se hacen todas las pendientes. Cada una lee un píxel de su lienzo para que el
+// trabajo aplazado del lienzo 2D no caiga en el fotograma siguiente.
+//  · los párpados enormes y desenfocados de dentro de la franja: durante el empuje;
+//  · el microscopio y las tres bandas del anillo: con el ojo ya cerrado (antes de oscurecerse).
+const PREPARAR = [[T.entra0 + 0.25, parpDentro],
+  [T.cierra1 + 0.04, fotoMicro], [T.cierra1 + 0.12, () => fotoAnillo(0)], [T.cierra1 + 0.2, () => fotoAnillo(1)], [T.cierra1 + 0.29, () => fotoAnillo(2)]];
+function preparar(ts) { for (const [t0, f] of PREPARAR) if (ts >= t0) f(); }
+
 // ---------------------------------------------------------------- fotograma
 const tiempos = new URLSearchParams(location.search).has('tiempos');
 function marcaT(k) { if (!tiempos) return; P.renderer.getContext().finish(); g.getImageData(0, 0, 1, 1); const a = performance.now(); window.__tiempos[k] = Math.round(a - window.__t0); window.__t0 = a; }
@@ -492,6 +527,7 @@ function dibujar(t) {
   const ts = Math.min(t, QUIETO);
   const nf = Math.floor(ts * 12 + 1e-6);
   ajustarCapa();
+  preparar(ts);
   P.fotograma(ts);
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.filter = 'none';
 
@@ -600,9 +636,44 @@ function dibujar(t) {
     g.fillStyle = gh; g.fillRect(h.x - h.r, h.y - h.r, 2 * h.r, 2 * h.r);
     g.restore();
   }
-  P.limpiar();
-  const ex = ponerInstrumentosEn(ts);
-  if (ex.vivos) { P.render(nf, { fondo: false }); pegarGL(); }
+  // el microscopio: llega por la derecha, despacio por el centro, y sale deprisa subiendo hacia la izquierda, ladeándose
+  const tm = ts - T.micro;
+  if (Math.abs(tm) < 0.9) {
+    const x = 960 + corre(tm, 420, tm > 0 ? 2500 : 1780), y = MICRO.y - subeIzq(x);
+    g.save(); g.translate(x, y); g.rotate(-0.12 * Math.max(0, tm) + 0.02 * tm); g.translate(-MICRO.x, -MICRO.y);
+    g.drawImage(F.micro, 0, 0, W, H);
+    g.restore();
+  }
+  // el anillo del acelerador (visto desde arriba, de tres cuartos), con los dos paquetes de luz que corren por el tubo
+  // en sentidos contrarios y chocan en el detector de enfrente
+  const ta = ts - T.anillo;
+  let choque = null;
+  if (Math.abs(ta) < 1.0) {
+    const x = 960 + corre(ta, 450, 1900), y = ANILLO.y - subeIzq(x), giro = -0.03 * ta;
+    const cg = Math.cos(giro), sg = Math.sin(giro);
+    const aPant = ([px, py]) => { const dx = px - ANILLO.x, dy = py - ANILLO.y; return [x + cg * dx - sg * dy, y + sg * dx + cg * dy]; };
+    g.save(); g.translate(x, y); g.rotate(giro); g.translate(-ANILLO.x, -ANILLO.y);
+    g.drawImage(F.anillo, 0, 0, W, H);
+    g.restore();
+    const fase = 0.5 * prog(ts, T.anillo - 1.0, T.choque);
+    if (ts < T.choque + 0.05) {
+      g.save(); g.globalCompositeOperation = 'lighter';
+      for (const sgn of [1, -1]) {
+        const u0 = sgn * fase;
+        // la estela (se apaga hacia atrás) y el paquete
+        for (let j = 18; j >= 0; j--) {
+          const u = u0 - sgn * j * 0.006, vis = fueraDetector(u);
+          if (vis < 0.02) continue;
+          const [px, py] = aPant(tuboEn(u)), r = j ? 20 - 0.6 * j : 46, a = (j ? 0.5 * Math.exp(-j / 6) : 0.95) * vis;
+          const gr = g.createRadialGradient(px, py, 0, px, py, r);
+          gr.addColorStop(0, `rgba(255,${j ? 190 : 236},${j ? 110 : 200},${a})`); gr.addColorStop(0.35, `rgba(255,170,80,${a * 0.45})`); gr.addColorStop(1, 'rgba(255,150,60,0)');
+          g.fillStyle = gr; g.fillRect(px - r, py - r, 2 * r, 2 * r);
+        }
+      }
+      g.restore();
+    }
+    choque = aPant(F.detectores[2]);
+  }
   if (ts >= T.tele0) {
     // el telescopio (la foto del final, la misma pieza y encuadre que pintarFinOjo): llega flotando desde la derecha, algo
     // más lejos y ladeado, se para en el centro y sigue flotando (sube y baja unos píxeles, cada vez menos) hasta quedarse
@@ -616,21 +687,11 @@ function dibujar(t) {
     g.restore();
   }
   marcaT('instrumentos');
-  // los dos paquetes de luz que corren por el anillo (su resplandor) y su choque en el detector
-  if (ex.haz && ts < T.choque) {
-    g.save(); g.globalCompositeOperation = 'lighter';
-    for (const p of ex.haz) {
-      if (!p) continue;
-      const gr = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], 70);
-      gr.addColorStop(0, 'rgba(255,220,160,0.55)'); gr.addColorStop(0.3, 'rgba(255,170,80,0.22)'); gr.addColorStop(1, 'rgba(255,150,60,0)');
-      g.fillStyle = gr; g.fillRect(p[0] - 70, p[1] - 70, 140, 140);
-    }
-    g.restore();
-  }
-  if (ex.choque) {
+  // el choque de los dos paquetes en el detector
+  if (choque) {
     const k = Math.exp(-Math.pow((ts - T.choque) / 0.16, 2));
     if (k > 0.01) {
-      const [x, y] = ex.choque;
+      const [x, y] = choque;
       g.save(); g.globalCompositeOperation = 'lighter';
       const gr = g.createRadialGradient(x, y, 0, x, y, 260);
       gr.addColorStop(0, `rgba(255,236,200,${0.85 * k})`); gr.addColorStop(0.25, `rgba(255,190,110,${0.35 * k})`); gr.addColorStop(1, 'rgba(255,160,80,0)');

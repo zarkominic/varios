@@ -558,7 +558,8 @@ function F(nombre) { if (!FOTOS[nombre]) { delete EN_CURSO[nombre]; FOTOS[nombre
 // pieza pequeña, como dice el kit). Las demás fotos, por partes en PREPARAR
 F('peldano');
 window.__carga.push(['fondo y peldaño', Math.round(performance.now())]);
-P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: { ...POSE_MANOS, fantasma: 1 }, aspecto: 'adulto' }); P.render(2005, { fondo: false });
+const estrenarPersona = (partes = null) => { P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: { ...POSE_MANOS, fantasma: 1 }, aspecto: 'adulto', ...(partes ? { partes } : {}) }); P.render(2005, { fondo: false }); };
+if (!location.search.includes('sinestreno')) estrenarPersona();
 window.__carga.push(['persona', Math.round(performance.now())]);
 P.limpiar(); P.atomo({ pos: [0, 0.3, -2], escala: 0.05, electrones: [{ pos: [2, 0, 0], mezcla: 1, brazo: 1, mano: 1 }] }); P.render(2006, { fondo: false });
 fotoRegla(-9);
@@ -804,17 +805,24 @@ function dibujar(t) {
 }
 // (pruebas, con ?perfil) __foto(nombre, 'paso'): una parte de esa foto, como en PREPARAR; 'entera': la rehace entera;
 // 'comparar': la diferencia máxima (0–255) y los píxeles distintos entre la foto ya hecha por partes y la entera (las de
-// WebGL, de un P.render de todo el lienzo, sin recorte ni banda)
+// WebGL, de un P.render de todo el lienzo, sin recorte ni banda); 'png': la foto, como PNG
 if (location.search.includes('perfil')) window.__foto = (nombre, modo = 'paso') => {
   if (modo === 'paso') { pasoFoto(nombre); return !!FOTOS[nombre]; }
   if (modo.startsWith('tiras=')) { (RECETAS[nombre] ?? DIBUJOS[nombre])[RECETAS[nombre] ? 'tiras' : 'bandas'] = JSON.parse(modo.slice(6)); delete FOTOS[nombre]; return true; }
   if (modo === 'entera') { delete FOTOS[nombre]; F(nombre); return true; }
   if (modo === 'png') return FOTOS[nombre].toDataURL('image/png');
+  if (modo === 'estreno') { estrenarPersona(nombre === 'todas' ? null : nombre.split('+')); return true; }
   const r = RECETAS[nombre];
   const a = FOTOS[nombre], b = r ? (renderReceta(r), foto(P)) : hacerEntera(nombre), w = a.width, h = a.height;
   const da = a.getContext('2d').getImageData(0, 0, w, h).data, db = b.getContext('2d').getImageData(0, 0, w, h).data;
   let max = 0, nd = 0;
-  for (let i = 0; i < da.length; i++) { const d = Math.abs(da[i] - db[i]); if (d > max) max = d; if (d > 2) nd++; }
+  // (con el color multiplicado por el alfa: donde es transparente, el color no cuenta)
+  for (let i = 0; i < da.length; i += 4) {
+    for (let j = 0; j < 4; j++) {
+      const d = j === 3 ? Math.abs(da[i + 3] - db[i + 3]) : Math.abs(da[i + j] * da[i + 3] - db[i + j] * db[i + 3]) / 255;
+      if (d > max) max = d; if (d > 2) { nd++; break; }
+    }
+  }
   return { max, distintos: nd, w, h };
 };
 // la postura del último fotograma, entera (ep3-silla la copia): 'mirarse las manos' de esta escena, fantasma 1, con la
