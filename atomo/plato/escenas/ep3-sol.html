@@ -573,6 +573,9 @@ function capaCerca(S, donde) {
 // el cielo, compuesto como cielo() del kit (lejos, cerca, gigante y Sol), con la capa de cerca de capaCerca
 function cieloPagina(u, apaga, t) {
   const S = estadoCielo(u);
+  // las tres fotos del cielo llenan CIELO_F al hacerse: si se salta hasta aquí sin pasar por sus fotogramas de
+  // PREPARAR (un instante suelto), se hacen ahora; en orden ya están hechas y F() las devuelve sin coste
+  F('cielo/sol'); F('cielo/gigante'); F('cielo/giganteApagada');
   const FC = { ...CIELO_F, lejos: F('monton/lejos'), cerca: F('monton/cerca') };
   if (u >= 0.999) return cielo(g, FC, { u, apaga, t });
   pegarEscalada(FC.lejos, S.lejos, CIELO.sol.slice(0, 2), S.sol.slice(0, 2));

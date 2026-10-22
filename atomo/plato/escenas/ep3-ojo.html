@@ -22,12 +22,14 @@
 //  serinden (primer plano del párpado, por corte) la franja se estrecha hasta un borde fino y el ojo se cierra (los
 //           párpados en vivo, solo en la banda que se mueve).
 //  medir    sobre el ojo cerrado, que se oscurece y se desenfoca, pasan uno tras otro un microscopio, el anillo de un
-//           acelerador (con dos paquetes de luz que chocan en un detector) y un telescopio espacial que llega, se para en
-//           el centro y gira despacio mientras el ojo se funde en un cielo estrellado (termina_con: FIN_OJO del kit de
-//           instrumentos; el último segundo es pintarFinOjo(...) más Atom quieto).
+//           acelerador (con dos paquetes de luz que chocan en un detector) y un telescopio espacial que llega flotando, se
+//           para en el centro y sigue flotando cada vez menos mientras el ojo se funde en un cielo estrellado (termina_con:
+//           FIN_OJO del kit de instrumentos; el último medio segundo es pintarFinOjo(...) más Atom quieto).
 // Coste: cámara del plató fija; lo quieto son fotos hechas al cargar (las del final de ep3-hola, el ojo entero, el
 // párpado de cerca abierto y cerrado, las franjas, el cielo y el final). En cada fotograma se dibujan Atom (en su pasada)
-// y lo que se mueve (como mucho dos cosas de la franja, el teléfono, dos instrumentos o la banda de los párpados).
+// y lo que se mueve (como mucho dos cosas de la franja, el teléfono, el microscopio y el anillo o la banda de los
+// párpados). El telescopio es la foto del final (la de pintarFinOjo), movida en 2D. Los planos muy desenfocados se pintan
+// a media resolución (pegarB).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -66,7 +68,6 @@ const T = {
   cielo0: enM(0.36), cielo1: enM(0.53),
 };
 T.choque = T.anillo + 0.25;   // los dos paquetes de luz del anillo se encuentran en un detector
-T.asienta = T.tele1 + 0.6;    // el telescopio, ya en su sitio: desde aquí flota (la foto del final, en 2D)
 
 // ---------------------------------------------------------------- el plató
 const UO = uniformesOjo(), UI = uniformesInstrumentos();
@@ -281,38 +282,31 @@ const ZI = 5.0, PXI = pxU(en(960, 540, ZI));
 const ANILLO_PX = 880;
 const EFIN = encuadreFinOjo(P);
 const TEL_X0 = 2500;
+// al salir por la izquierda, los instrumentos suben (no pasan por detrás de Atom)
+const subeIzq = (x) => 0.5 * Math.max(0, 1000 - x);
 function ponerInstrumentosEn(ts) {
-  const extra = { choque: null };
+  const extra = { choque: null, vivos: 0 };
   const haz = 1, fase = 0.5 * prog(ts, T.anillo - 1.0, T.choque);
   ponerInstrumentos(UI, { luz: 1, haz, fase });
   // el microscopio: de tres cuartos, gira un poco al pasar
   {
     const tau = ts - T.micro;
     if (Math.abs(tau) < 0.9) {
-      const x = 960 + corre(tau, 420, 1780);
-      instrumento(P, I.INS, { variante: 'microscopio', pos: en(x, 540, ZI), escala: 700 / (1.93 * PXI), rot: [0.14, -0.62 + 0.55 * tau, 0.03] });
+      const x = 960 + corre(tau, 420, tau > 0 ? 2500 : 1780);   // (sale deprisa: deja sitio al anillo)
+      instrumento(P, I.INS, { variante: 'microscopio', pos: en(x, 530 - subeIzq(x), ZI), escala: 700 / (1.93 * PXI), rot: [0.14, -0.62 + 0.55 * tau, 0.03 + 0.12 * Math.max(0, tau)] });
+      extra.vivos++;
     }
   }
   // el anillo del acelerador: grande, visto desde arriba de tres cuartos, con los dos paquetes de luz
   {
     const tau = ts - T.anillo;
     if (Math.abs(tau) < 1.0) {
-      const x = 960 + corre(tau, 450, 1900), pos = en(x, 490, ZI - 1);
+      const x = 960 + corre(tau, 450, 1900), pos = en(x, 490 - subeIzq(x), ZI - 1);
+      extra.vivos++;
       const k = instrumento(P, I.INS2, { variante: 'anillo', pos, escala: ANILLO_PX / (2.2 * pxU(pos)), rot: [0.66, 0.35 + 0.35 * tau, 0] });
       extra.choque = pant(k.punto('detector2'));
       extra.haz = [fase, -fase].map((u) => pant(k.haz(u)));
     }
-  }
-  // el telescopio: llega desde la derecha, se para en el centro (FIN_OJO) y termina de girar hasta quedarse en su sitio
-  // (después flota: es la foto del final, en 2D; ver dibujar)
-  if (ts >= T.tele0 && ts < T.asienta) {
-    const u = eoc(prog(ts, T.tele0, T.tele1));
-    const w = eio(prog(ts, T.tele1, T.asienta));
-    const fin = EFIN.pos, sx = mix(TEL_X0, FIN_OJO.X, u);
-    const p0 = en(sx, FIN_OJO.Y + 60 * (1 - u), FIN_OJO.Z);
-    const pos = [p0[0], p0[1] + 0.05 * Math.sin((ts - T.tele0) * 1.3) * (1 - w), fin[2]];
-    const rot = [FIN_OJO.ROT[0] + 0.1 * (1 - u), FIN_OJO.ROT[1] + 0.9 * (1 - u) + 0.14 * (1 - w), FIN_OJO.ROT[2] - 0.12 * (1 - u)];
-    instrumento(P, I.INS, { variante: 'telescopio', pos, escala: EFIN.escala, rot });
   }
   return extra;
 }
@@ -608,14 +602,16 @@ function dibujar(t) {
   }
   P.limpiar();
   const ex = ponerInstrumentosEn(ts);
-  P.render(nf, { fondo: false });
-  pegarGL();
-  if (ts >= T.asienta) {
-    // el telescopio flota: sube y baja unos píxeles y se ladea apenas, cada vez menos, hasta quedarse quieto
-    const env = 1 - eio(prog(ts, T.asienta, QUIETO)), fa = ts - T.asienta;
-    const dy = -7 * Math.sin(fa * 2.1) * env, giro = 0.006 * Math.sin(fa * 1.3) * env;
-    const c = [FIN_OJO.X, FIN_OJO.Y];
-    g.save(); g.translate(c[0], c[1] + dy); g.rotate(giro); g.translate(-c[0], -c[1]);
+  if (ex.vivos) { P.render(nf, { fondo: false }); pegarGL(); }
+  if (ts >= T.tele0) {
+    // el telescopio (la foto del final, la misma pieza y encuadre que pintarFinOjo): llega flotando desde la derecha, algo
+    // más lejos y ladeado, se para en el centro y sigue flotando (sube y baja unos píxeles, cada vez menos) hasta quedarse
+    // quieto en su sitio
+    const u = eoc(prog(ts, T.tele0, T.tele1));
+    const env = 1 - eio(prog(ts, T.tele1, QUIETO)), fa = Math.max(0, ts - T.tele1);
+    const dx = (TEL_X0 - FIN_OJO.X) * (1 - u), dy = 70 * (1 - u) - 7 * Math.sin(fa * 2.1) * env;
+    const esc = mix(0.86, 1, u), giro = -0.1 * (1 - u) + 0.006 * Math.sin(fa * 1.3) * env;
+    g.save(); g.translate(FIN_OJO.X + dx, FIN_OJO.Y + dy); g.rotate(giro); g.scale(esc, esc); g.translate(-FIN_OJO.X, -FIN_OJO.Y);
     g.drawImage(F.tele, 0, 0, W, H);
     g.restore();
   }

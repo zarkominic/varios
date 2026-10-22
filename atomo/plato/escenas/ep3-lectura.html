@@ -30,8 +30,9 @@
 // dos decorados (sillón y cuerpo de la persona, sin la cabeza, con su sombra entera), la mano con la bandeja, la hélice
 // del final y el peldaño de bolitas, hechas una por fotograma en fotogramas baratos poco antes de hacer falta (o al
 // pedirlas). En cada fotograma va vivo, sobre transparente, solo lo que se mueve: Atom siempre; en el plano general la
-// hélice (corre), la cabeza de la persona y el calendario; en el plano medio la cabeza (las canas) y el calendario. Las
-// sombras de la hélice y del calendario en el telón, la luz del peldaño en la cara y los cambios de plano son 2D.
+// hélice (corre) y la cabeza de la persona (el calendario, quieto, va en la foto del decorado con «2026» y, en C, en una
+// foto encima con «2121»); en el plano medio la cabeza (las canas) y el calendario (sus hojas). Las sombras de la hélice
+// y del calendario grande en el telón, la luz del peldaño en la cara y los cambios de plano son 2D.
 // Piezas propias de la escena (tiposExtra, aquí abajo): el sillón orejero y la «ofrenda» (la manga de punto, la bandeja,
 // el bocadillo y el termo, en el marco de la mano del kit, la pieza 'mano'). La hélice es de kits/ep03-adn.js; el
 // calendario, de kits/ep03-tiempo.js; el peldaño de bolitas, de kits/ep03-tocar.js.
@@ -425,8 +426,8 @@ function poseLectura(ts, PER, obj) {
   const p = postura('sentada');
   const [gi, inc] = cabezaHacia(PER, obj);
   const nod = asentir(ts);
-  p.cabeza = [0.62 * gi, 0.7 * inc + 0.07 * nod, 0.03 - 0.02 * nod];
-  p.mirada = [cl(0.75 * gi, -0.8, 0.8), cl(-0.6 * inc - 0.25 * nod, -0.6, 0.6)];
+  p.cabeza = [0.52 * gi, 0.7 * inc + 0.07 * nod, 0.03 - 0.02 * nod];
+  p.mirada = [cl(0.85 * gi, -0.85, 0.85), cl(-0.6 * inc - 0.25 * nod, -0.6, 0.6)];
   return p;
 }
 const HUELLA = [0.37, 0.21, 0];

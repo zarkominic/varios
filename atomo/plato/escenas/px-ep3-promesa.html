@@ -17,10 +17,11 @@
 // (kits/pixel-ep03-instrumentos.js: INS.pintarFinOjo() y Atom en su sitio con t = 0).
 //  0          el telescopio espacial en el centro sobre el cielo estrellado (empieza_con), igual que acaba px-ep3-ojo.
 //  destellos  DOS DESTELLOS, cada uno tras un fogonazo blanco.
-//             1 (DETALLE) el Sol prende en el espejo del telescopio y el destello se abre en fogonazo; corte a una silla de
-//               madera de tres cuartos en el plató, a contraluz, y una mano con su manga de jersey que entra por la
-//               izquierda, frena y se para con los dedos a 3 px del poste del respaldo; se acerca un poco más, duda, y el
-//               hueco nunca se cierra (la luz del fondo pasa entre los dedos y la madera).
+//             1 (DETALLE) el Sol prende en el espejo del telescopio y el destello se abre en fogonazo; corte, de cerca, al
+//               respaldo de una silla de madera de tres cuartos en el plató, a contraluz, y una mano con su manga de jersey
+//               que baja en diagonal desde arriba a la izquierda, frena y se para con los dedos a 8 px del travesaño; se
+//               acerca hasta 4 px, duda, y el hueco nunca se cierra (la luz del fondo brilla entre los dedos y la madera;
+//               el hueco se mide fila a fila al cargar).
 //             2 (PLANO MEDIO, a mitad de frase) el hueco se enciende y se abre en el segundo fogonazo; corte a la balanza de
 //               latón con peana de nogal: en el plato izquierdo, la silueta de un cuerpo humano hecha de puntitos que
 //               titilan; en el derecho, una esfera de cielo estrellado. El brazo llega meciéndose y se queda en vilo,
@@ -43,7 +44,7 @@ import * as INS from '/atomo/plato/kits/pixel-ep03-instrumentos.js';
 const E = await escena('px-ep3-promesa', 'ep03px');
 const c0 = performance.now();
 const PX = crearPixel(document.getElementById('lienzo'));
-const { PAL, W, H, clamp, mezcla, suave, sale, entra, entraSale, paso, fot, tono, vnoise, fbm, hash2, b4, b8, mulberry32, rgb, color, hex } = PX;
+const { PAL, W, H, clamp, mezcla, lin, suave, sale, entra, entraSale, paso, fot, tono, vnoise, fbm, hash2, b4, b8, mulberry32, rgb, color, hex } = PX;
 const M = (k) => E.marca(k);
 const m = {
   d: M('destellos'), dF: M('destellos_fin'), c: M('centro'), cF: M('centro_fin'), a: M('apuesto'), aF: M('apuesto_fin'),
@@ -100,8 +101,8 @@ const TELE_X = INS.FIN.x, TELE_Y = INS.FIN.y;
 // ═════════════════════════════════════════════════════════════ PLANO 1: la mano y la silla (DETALLE)
 // Silla de tres cuartos en proyección oblicua: X de delante (izquierda) a detrás (derecha), Y hacia arriba, Z a lo ancho
 // (0 = el lado de cámara, 1 = el del fondo, que se desplaza arriba a la derecha). Madera de boj con veta.
-const SX = 116, ZX = 26, ZY = -11, OX = 236, OY = 250;
-const Pt = (X, Yh, Z) => [OX + X * SX + Z * ZX, OY - Yh + Z * ZY];
+const SX = 150, ZX = 34, ZY = -14, OX = 222, OY = 360, KY = 1.3;        // de cerca: las patas salen por abajo
+const Pt = (X, Yh, Z) => [OX + X * SX + Z * ZX, OY - Yh * KY + Z * ZY];
 const BOJ = PAL.BOJ;
 const vetaV = (x, y, v) => v + 0.32 * Math.sin(x * 1.3 + 3.2 * vnoise(x * 0.15, y * 0.05)) + 0.2 * (vnoise(x * 0.5, y * 0.08) - 0.5);
 const vetaH = (x, y, v) => v + 0.3 * Math.sin(y * 1.2 + 3.5 * vnoise(x * 0.04, y * 0.25)) + 0.2 * (vnoise(x * 0.07, y * 0.5) - 0.5);
@@ -109,6 +110,7 @@ function cara(P, lo, hi, textura = vetaH, grosor = 2.5, plano = 0.8) {
   PX.forma({ ...cajaDe(P), sdf: polySdf(P), rampa: BOJ, lo, hi, grosor, plano, textura, k: 0.25 });
 }
 function palo(a, b, r0, r1, lo, hi) {
+  r0 *= KY; r1 *= KY;
   PX.forma({ ...cajaDe([a, b]), sdf: segSdf(a[0], a[1], b[0], b[1], r0, r1), rampa: BOJ, lo, hi, grosor: 4, textura: vetaV, k: 0.25 });
 }
 const SEAT = 98, GRUESO = 8, RAIL0 = 178, RAIL1 = 206;
@@ -138,16 +140,13 @@ PX.en(SILLA, () => {
   cara([Pt(xa0, RAIL0, 0), Pt(xb0, RAIL0, 0), Pt(xb, RAIL1, 0), Pt(xa, RAIL1, 0)], 1.6, 3.6, vetaV, 3, 0.4);
 });
 // el plató de detrás: el foco cae detrás del respaldo (la luz pasa por el hueco entre los dedos y la madera)
-const PLATO_A = PX.crearPlato({ ancho: 640, focoX: 455, focoY: 64, sueloY: 234, semilla: 5 });
+const PLATO_A = PX.crearPlato({ ancho: 640, focoX: 462, focoY: 104, sueloY: 246, semilla: 5 });
 const FONDO_A = copiaPantalla(() => PLATO_A.dibujar({ camX: 80, t: 0, polvo: 0 }));
-PX.en(FONDO_A, () => {
-  PX.luz(372, 58, 120, rgb(PAL.AMBAR[2]), 0.35, 5);
-  PX.sombra(318, 249, 104, 9, 0.7);
-});
+PX.en(FONDO_A, () => PX.luz(384, 104, 120, rgb(PAL.AMBAR[2]), 0.4, 5));
 // la mano: dónde acaba (los dedos a 3 px de la madera, medido en píxeles reales fila a fila)
-const MANO = { largo: 58, angulo: 0.09, tipo: 'abierta', manga: 1.7 };
-const GAP0 = 4, GAP1 = 2;                                     // el hueco al frenar y después de dudar
-const Y_MANO = 58;
+const MANO = { largo: 64, angulo: 0.15, tipo: 'abierta', manga: 1.8 };
+const GAP0 = 8, GAP1 = 4;                                     // el hueco al frenar y después de dudar
+const Y_MANO = 100;
 const borde = (capa, desdeDer) => {
   const r = new Int16Array(H).fill(desdeDer ? -999 : 9999);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (capa.buf[y * W + x]) { if (desdeDer) r[y] = x; else if (r[y] === 9999) r[y] = x; }
@@ -161,12 +160,12 @@ for (let y = 0; y < H; y++) if (derMano[y] > -999 && izqSilla[y] < 9999) minHuec
 const X_MANO_FIN = X_REF + minHueco - GAP1;                    // la muñeca, ya pegada a la duda
 const manoX = (t) => {
   const p = sale(prog(t, T.f1, T.mano1));
-  const x = mezcla(X_MANO_FIN - (GAP0 - GAP1) - 300, X_MANO_FIN - (GAP0 - GAP1), Math.pow(p, 0.9));
+  const x = mezcla(X_MANO_FIN - (GAP0 - GAP1) - 330, X_MANO_FIN - (GAP0 - GAP1), Math.pow(p, 0.9));
   const d = entraSale(prog(t, T.duda0, T.duda1)) * (GAP0 - GAP1);
   const tiembla = t > T.duda1 && t < T.f2a ? ((fot(t, 6) % 5) === 2 ? -1 : 0) : 0;
   return Math.round(x + d + tiembla);
 };
-const manoY = (t) => Math.round(Y_MANO + 14 * (1 - sale(prog(t, T.f1, T.mano1))));
+const manoY = (t) => Math.round(Y_MANO - 26 * (1 - sale(prog(t, T.f1, T.mano1))));
 const camA = (t) => Math.round(8 * (1 - sale(prog(t, T.f1, T.mano1 + 0.6))));   // la cámara acompaña la mano y se asienta
 function planoSilla(t) {
   const cx = camA(t);
@@ -256,11 +255,11 @@ const ALTO_SIL = 74, PUNTOS = [];
   }
 }
 function silueta(t, x, y) {
-  PX.luz(x, y - 36, 52, rgb(PAL.AMBAR[2]), 0.32, 4);
+  PX.luz(x, y - 36, 56, rgb(PAL.AMBAR[2]), 0.45, 4);
   const f = fot(t, 8);
   for (const [dx, dy, h, bs] of PUNTOS) {
     const ph = (h * 97 + f * 0.37 * (0.5 + h)) % 1;
-    const c = ph > 0.93 ? PAL.BLANCO : ph > 0.7 ? PAL.AMBAR[5] : bs ? PAL.CREMA[4] : h > 0.5 ? PAL.AMBAR[4] : PAL.TERRACOTA[4];
+    const c = ph > 0.92 ? PAL.BLANCO : ph > 0.66 ? PAL.AMBAR[5] : bs ? PAL.CREMA[5] : h > 0.3 ? PAL.AMBAR[4] : PAL.TERRACOTA[5];
     PX.pset(x + dx, y + dy, c);
   }
 }
@@ -355,6 +354,16 @@ const FIN = {
   regla: { e: 0, entera: 1, actual: 0, marca: 0 },
 };
 const PLATO_C = PX.crearPlato(FIN.plato);
+// la pared del plató por encima de su borde de arriba (la misma fórmula que crearPlato, sin costura en y = 0)
+function paredV(x, y) {
+  const { ancho, focoX, focoY, sueloY, semilla } = FIN.plato;
+  const fu = [focoX - 150, -60], ob = [focoX, sueloY + 18], ax = ob[0] - fu[0], ay = ob[1] - fu[1], al = Math.hypot(ax, ay);
+  const px = x - fu[0], py = y - fu[1], along = (px * ax + py * ay) / al, perp = Math.abs(px * ay - py * ax) / al;
+  const haz = along <= 0 ? 0 : clamp(1 - perp / (18 + along * 0.42), 0, 1) ** 1.6 * clamp(along / 60, 0, 1) * (1 - clamp((along - al) / 60, 0, 1));
+  const borde = Math.abs(x - ancho / 2) / (ancho / 2);
+  const tex = 0.55 * (fbm(x * 0.022 + semilla, y * 0.03, 3) - 0.5) + 0.25 * (vnoise(x * 0.25, y * 0.25) - 0.5);
+  return 1.8 + 4.2 * Math.exp(-(((x - focoX) / 170) ** 2) - (((y - focoY) / 115) ** 2)) - 1.6 * borde * borde + tex + haz;
+}
 const ALTO_CIELO = 360;
 const VIAJE = PX.nuevaCapa(W, ALTO_CIELO + H);
 {
@@ -368,7 +377,7 @@ const VIAJE = PX.nuevaCapa(W, ALTO_CIELO + H);
     const cieloC = capaCielo.buf[clamp(y < H ? y : 2 * H - 1 - y, 0, H - 1) * W + x];
     const yp = y - ALTO_CIELO;
     const platoC = capaPlato.buf[clamp(yp, 0, H - 1) * W + x];
-    const pared = yp < 0 ? tono(PAL.TELON, 1.2 + 0.6 * (fbm(x * 0.022 + 11, y * 0.03, 3) - 0.5) + 0.6 * suave(-80, 0, yp), x, y, 1) : platoC;
+    const pared = yp < 0 ? tono(PAL.TELON, paredV(x + FIN.camX, yp) - 1.6 * lin(yp, 0, -110), x, y, 1) : platoC;
     const k = suave(B0, B1, y);
     VIAJE.buf[y * W + x] = k <= 0 ? cieloC : k >= 1 || b8(x, y) < k ? pared : cieloC;
   }
@@ -413,7 +422,7 @@ function miradaPersona(t, q) {
   const r4 = (v) => Math.round(v * 8) / 8;
   return {
     pose: arriba > 0.01 ? { de: 'depie', a: 'mirarArriba', u: r4(arriba * 0.8) } : 'depie',
-    cabeza: { giro: r4(0.42 * mira), cabeceo: r4(-0.18 * baja * mira) },
+    cabeza: { giro: r4(0.42 * mira * (1 - 0.4 * arriba)), cabeceo: r4(0.5 * arriba - 0.2 * baja * mira) },
     mira: [r4(0.9 * mira), r4(arriba > 0.01 ? -1 : 0.6 * baja * mira)],
   };
 }
@@ -425,7 +434,9 @@ function planoGeneral(t) {
   // la regla: entra por la derecha y se despliega entera
   let R = null;
   if (t >= T.regla0) {
-    R = PX.regla({ e: 0, actual: 0, marca: 0, entera: entraSale(prog(t, T.entera0, T.entera1)), aparece: prog(t, T.regla0, T.regla1), t: Math.min(t, QUIETO) });
+    const p = entraSale(prog(t, T.entera0, T.entera1));
+    const entera = p < 0.45 ? (p / 0.45) * 0.3 : 0.5 + ((p - 0.45) / 0.55) * 0.5;
+    R = PX.regla({ e: 0, actual: 0, marca: 0, entera, aparece: prog(t, T.regla0, T.regla1), t: Math.min(t, QUIETO) });
   }
   // el destello del marcador cuando el «?» pasa por 10⁰ (por la persona)
   if (R) {
