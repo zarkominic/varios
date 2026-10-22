@@ -158,7 +158,11 @@ const E_TRO = 2.15, TRO = (() => { const a = en(900, 540, -0.4); return [a[0], 1
 const VASO = { x: 960, y: 505, z: 0, px: 390, rot: [0.1, -0.22, 0.03], semilargo: 4.2 };
 VASO.pos = en(VASO.x, VASO.y, VASO.z);
 VASO.esc = VASO.px / pxU(VASO.pos);
-const RIO = { escala: VASO.esc / 4, canal: 3.1, semilargo: 15, vel: 2.2, semilla: 3 };
+// (coste) el río del kit a pantalla completa cuesta ~15 s de CPU por fotograma aquí: el río va en 2D, con fotos de un
+// glóbulo (fila de 1 del kit) en POSES poses de un vuelco (de cara, de canto y de cara otra vez: el disco es simétrico, así
+// que el vuelco cierra), hechas al preparar; cada glóbulo del río avanza, vuelca (cambia de pose cada pocos fotogramas, como
+// en stop-motion), gira un poco en el plano y es más pequeño y lento cuanto más al fondo (paralaje)
+const RIO = { diam: 200, n: 24, vel: 260, poses: 8, semilla: 7 };
 // el corte del pelo y la fila de 12 encima (12 glóbulos = el ancho del pelo: SANGRE.PELO)
 const CP = { x: 900, y: 470, z: 0, radioPx: 540, rot: [0.45, 0, 0], largo: 0.4 };
 CP.pos = en(CP.x, CP.y, CP.z);
@@ -249,16 +253,20 @@ function luzLibro(ts) {
 // ---------------------------------------------------------------- el ojo de fuera
 // llega cansado (entornado, mirando con esfuerzo) y el párpado de arriba cae, pesado (arranca despacio y acelera), hasta
 // cerrarse del todo; el de abajo sube un poco
-function estadoOjo(ts) {
-  const u = eic(prog(ts, T.cierra[0], T.cierra[1]));
-  return { arriba: mix(0.14, 1, u), abajo: mix(0.02, 1, u), entorna: 0.3 * (1 - u), pupila: HOLA.PUPILA, mirada: [0, -0.1], sombra: true };
-}
-function pintarOjo(ts, nf) {
-  ponerOjo(UO, estadoOjo(ts));
+// (coste) el ojo de fuera a pantalla completa es caro: el cierre va en stop-motion con cuatro fotos (abierto, dos pasos y
+// cerrado), con el mismo nf (el mismo hervor): la abierta entera y las otras tres solo en la zona de los párpados (R_OJO)
+const PASOS_OJO = [0, 0.42, 0.8, 1];
+const estadoOjo = (u) => ({ arriba: mix(0.14, 1, u), abajo: mix(0.02, 1, u), entorna: 0.3 * (1 - u), pupila: HOLA.PUPILA, mirada: [0, -0.1], sombra: true });
+function pintarOjo(u, nf = EXT.nf) {
+  ponerOjo(UO, estadoOjo(u));
   P.limpiar();
   P.pieza(I.OJO, { pos: EXT.pos, escala: EXT.esc, rot: EXT.rot, variante: CAPA.TODO });
   P.render(nf);
 }
+// la foto del cierre que toca en ts (0…3): cae pesado, más deprisa al final
+const pasoOjo = (ts) => { const k = prog(ts, T.cierra[0], T.cierra[1]); return k < 0.34 ? 0 : k < 0.62 ? 1 : k < 0.86 ? 2 : 3; };
+// la zona de los párpados y las pestañas (px de diseño), donde cambian las fotos del cierre
+const R_OJO = [Math.round(EXT.x - 0.7 * EXT.rendija), Math.round(EXT.y - 0.78 * EXT.px), Math.round(EXT.x + 0.7 * EXT.rendija), Math.round(EXT.y + 0.5 * EXT.px)];
 // la piel, apagada hacia los bordes (la mirada va al párpado)
 function vineta(gc) { vinetaOjo(gc, EXT.rendija / HOLA.RENDIJA_PX); }
 // el sitio de la mirilla: el párpado de arriba, cerrado, encima de las pestañas
@@ -302,8 +310,44 @@ function troncoEmpujado(s) {
 }
 
 // ---------------------------------------------------------------- el río y la fila
-const avance = (ts) => RIO.vel * (ts - T.mir2[0]);
-function ponerRio(ts) { rio(P, I.GLS, { pos: VASO.pos, escala: RIO.escala, rot: VASO.rot, semilargo: RIO.semilargo, canal: RIO.canal, avance: avance(ts), semilla: RIO.semilla }); }
+// las poses: un glóbulo en el centro del cuadro (a la profundidad del vaso), girando sobre un eje algo inclinado
+const POSE = (() => { const c = en(960, 540, 0.5); return { pos: c, escala: (RIO.diam / 2) / (0.97 * pxU(c)), lado: 300 }; })();
+function pintarPose(k) {
+  P.fotograma(0); P.limpiar();
+  fila(P, I.GLS, { pos: POSE.pos, escala: POSE.escala, rot: [0.3 + (k * Math.PI) / RIO.poses, 0.45, 0.1], n: 1 });
+  P.render(7000 + k, { fondo: false });
+  const L = POSE.lado, c = document.createElement('canvas'), d = lienzoGL.width / W;
+  c.width = c.height = Math.round(L * d);
+  c.getContext('2d').drawImage(lienzoGL, Math.round((960 - L / 2) * d), Math.round((540 - L / 2) * d), c.width, c.height, 0, 0, c.width, c.height);
+  return c;
+}
+// los glóbulos del río: altura en la luz del vaso, profundidad (escala), fase, pose, giro en el plano y su ritmo de vuelco
+const GLOBULOS_RIO = (() => {
+  let a = RIO.semilla >>> 0;
+  const r = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const L = [];
+  for (let i = 0; i < RIO.n; i++) {
+    const p = 0.62 + 0.5 * r();
+    L.push({ y: 175 + 640 * ((i * 0.618 + 0.3 * r()) % 1), p, x0: (i / RIO.n) * 2500 + 90 * r(), pose: Math.floor(r() * RIO.poses), cada: 2 + Math.floor(3 * r()), giro: (r() - 0.5) * 0.9 });
+  }
+  return L.sort((u, v) => u.p - v.p);
+})();
+let capaR = null;
+// el río en ts, en una capa del tamaño del lienzo (sin sombra)
+function capaRio(ts) {
+  if (!capaR || capaR.width !== lienzoGL.width) capaR = lienzo();
+  const gc = capaR.getContext('2d'), d = capaR.width / W;
+  gc.setTransform(1, 0, 0, 1, 0, 0); gc.clearRect(0, 0, capaR.width, capaR.height);
+  gc.setTransform(d, 0, 0, d, 0, 0);
+  const n = Math.round(ts * 12), dt = ts - T.mir2[0];
+  for (const c of GLOBULOS_RIO) {
+    const x = ((c.x0 + RIO.vel * c.p * dt) % 2500) - 290;
+    const k = (c.pose + Math.floor(n / c.cada)) % RIO.poses;
+    const s = c.p, L = POSE.lado * s;
+    gc.save(); gc.translate(x, c.y); gc.rotate(c.giro); gc.drawImage(F('pose' + k), -L / 2, -L / 2, L, L); gc.restore();
+  }
+  return capaR;
+}
 const llegada = (ts) => prog(ts, T.fila[0], T.fila[1]);
 function ponerFila(ts) { fila(P, I.GLS, { pos: FILA.pos, escala: FILA.escala, rot: FILA.rot, n: FILA.n, llegada: llegada(ts), toque: llegada(ts) < 1 }); }
 function ponerCota(ts) {
@@ -358,10 +402,7 @@ function componer(t) {
   if (pl === 'ojo') {
     // el ojo de fuera: vivo mientras se cierra (con fondo: la piel llena el cuadro), después la foto del ojo cerrado
     const reg = F('regla4');
-    if (ts < T.cierra[1]) {
-      pintarOjo(ts, n);
-      pegarGL(); vineta(g);
-    } else { g.drawImage(F('ojoCerrado'), 0, 0, W, H); parpadeo(n); }
+    g.drawImage(F('ojo' + pasoOjo(ts)), 0, 0, W, H); vineta(g); parpadeo(n);
     sombraAtom();
     P.limpiar(); atomo(ts, 0.3);
     P.render(n, { fondo: false });
@@ -371,7 +412,7 @@ function componer(t) {
     return;
   }
   if (pl === 'mir1' || pl === 'tronco') {
-    const reg = F('regla4'), tro = F('tronco'), cer = F('ojoCerrado');
+    const reg = F('regla4'), tro = F('tronco'), cer = F('ojoVin');
     if (pl === 'mir1') mirilla(cer, tro, FOCO_PARPADO, prog(ts, T.mir1[0], T.mir1[1]));
     else troncoEmpujado(empujeTronco(ts));
     P.limpiar(); atomo(ts);
@@ -385,12 +426,11 @@ function componer(t) {
   if (pl === 'mir2') {
     // el vaso con el río vivo, compuesto aparte (la mirilla lo escala) y, encima, Atom y la regla, vivos (corre la escala)
     const tro = F('tronco'), vas = F('vaso');
-    P.limpiar(); ponerRio(ts);
-    P.render(n, { fondo: false });
+    const cr = capaRio(ts);
     const nuevo = lienzo(), gn = nuevo.getContext('2d');
     gn.drawImage(vas, 0, 0);
-    gn.drawImage(sombraSilueta(lienzoGL, SOMBRA_RIO), 0, 0);
-    gn.drawImage(lienzoGL, 0, 0);
+    gn.drawImage(sombraSilueta(cr, SOMBRA_RIO), 0, 0);
+    gn.drawImage(cr, 0, 0);
     // el viejo (el tronco) entra con el empuje con que lo dejó el plano anterior
     const viejo = lienzo(), gv = viejo.getContext('2d'), s0 = empujeTronco(T.mir2[0]), k = viejo.width / W;
     gv.setTransform(k, 0, 0, k, 0, 0);
@@ -407,10 +447,11 @@ function componer(t) {
   if (pl === 'vaso') {
     // la foto del vaso; vivos, el río (con su sombra 2D en la pared) y Atom; la regla en 10⁻⁵, foto
     const vas = F('vaso'), reg = F('regla5');
-    P.limpiar(); ponerRio(ts); atomo(ts, 0.3);
+    const cr = capaRio(ts);
+    P.limpiar(); atomo(ts, 0.3);
     P.render(n, { fondo: false });
     g.drawImage(vas, 0, 0, W, H);
-    sombraVivo(SOMBRA_RIO);
+    pegar(sombraSilueta(cr, SOMBRA_RIO)); pegar(cr);
     sombraAtom(0.8);
     pegarGL();
     g.drawImage(reg, 0, 0, W, H);
@@ -462,19 +503,26 @@ function fin() {
 const FOTO = {};
 let hechasAhora = 0, tFot = null;
 // las fotos grandes se pintan en FRANJAS horizontales (setScissor), una por fotograma, con su número de fotograma fijo
-const FRANJAS = { tronco: 3, vaso: 3, pelo: 2 };
+const FRANJAS = { tronco: 6, vaso: 4, pelo: 3, ojo0: 6, ojo1: 2, ojo2: 2, ojo3: 2 };
+// zona de cada foto por franjas (px de diseño; por defecto, el cuadro entero) y la foto sobre la que se pega
+const ZONA = { ojo1: R_OJO, ojo2: R_OJO, ojo3: R_OJO };
+const BASE = { ojo1: 'ojo0', ojo2: 'ojo0', ojo3: 'ojo0' };
 const PARCIAL = {};
 function pintarFranja(k, b, pintar) {
-  const N = FRANJAS[k], p = (PARCIAL[k] ??= { c: lienzo(), hechas: 0 });
+  const N = FRANJAS[k];
+  const p = (PARCIAL[k] ??= (() => { const c = lienzo(); if (BASE[k]) c.getContext('2d').drawImage(F(BASE[k]), 0, 0); return { c, hechas: 0 }; })());
   if (p.hechas & (1 << b)) return true;
-  const y0 = Math.round(b * H / N), y1 = Math.round((b + 1) * H / N);
+  const [zx0, zy0, zx1, zy1] = ZONA[k] ?? [0, 0, W, H];
+  const y0 = Math.round(zy0 + b * (zy1 - zy0) / N), y1 = Math.round(zy0 + (b + 1) * (zy1 - zy0) / N);
   const kk = P.renderer.getSize(new THREE.Vector2()).x / W;
-  P.renderer.setScissor(0, (H - y1) * kk, W * kk, (y1 - y0) * kk);
+  P.renderer.setScissor(zx0 * kk, (H - y1) * kk, (zx1 - zx0) * kk, (y1 - y0) * kk);
   P.renderer.setScissorTest(true);
   pintar();
   P.renderer.setScissorTest(false);
-  const d = lienzoGL.width / W, a = Math.round(y0 * d), h = Math.round(y1 * d) - a;
-  p.c.getContext('2d').drawImage(lienzoGL, 0, a, lienzoGL.width, h, 0, a, lienzoGL.width, h);
+  const d = lienzoGL.width / W, a = Math.round(y0 * d), h = Math.round(y1 * d) - a, x = Math.round(zx0 * d), w = Math.round(zx1 * d) - x;
+  const gc = p.c.getContext('2d');
+  gc.clearRect(x, a, w, h);
+  gc.drawImage(lienzoGL, x, a, w, h, x, a, w, h);
   p.hechas |= 1 << b;
   return true;
 }
@@ -484,6 +532,8 @@ const PINTAR = {
   vaso: () => { P.fotograma(0); P.limpiar(); vaso(P, I.VASO, { pos: VASO.pos, escala: VASO.esc, rot: VASO.rot, semilargo: VASO.semilargo }); P.render(5001); },
   pelo: () => { P.fotograma(0); P.limpiar(); cortePelo(P, I.CP, { pos: CP.pos, escala: CP.esc, rot: CP.rot, largo: CP.largo }); P.render(6001); },
 };
+for (let k = 0; k < RIO.poses; k++) HACER['pose' + k] = () => pintarPose(k);
+for (let j = 0; j < 4; j++) PINTAR['ojo' + j] = () => { P.fotograma(0); pintarOjo(PASOS_OJO[j]); };
 function estrenar(i) {
   P.limpiar();
   P.pieza(i, { pos: en(960, 540, 0), escala: 0.012 });
@@ -496,8 +546,10 @@ const HACER = {
   regla4: () => { P.limpiar(); P.regla(reglaOp(0)); P.render(2004, { fondo: false }); return foto(); },
   regla5: () => { P.limpiar(); P.regla(reglaOp(1)); P.render(2005, { fondo: false }); return foto(); },
   'e:ojo': () => { ponerOjo(UO, estadoOjo(0)); return estrenar(I.OJO); },
-  ojoCerrado: () => { pintarOjo(T.cierra[1] + 1, EXT.nf); const c = foto(); vineta(c.getContext('2d')); return c; },
+  // el ojo cerrado con la viñeta, para la mirilla
+  ojoVin: () => { const c = lienzo(), gc = c.getContext('2d'); gc.drawImage(F('ojo3'), 0, 0); vineta(gc); return c; },
   tronco: () => porFranjas('tronco', PINTAR.tronco), vaso: () => porFranjas('vaso', PINTAR.vaso), pelo: () => porFranjas('pelo', PINTAR.pelo),
+  ojo0: () => porFranjas('ojo0', PINTAR.ojo0), ojo1: () => porFranjas('ojo1', PINTAR.ojo1), ojo2: () => porFranjas('ojo2', PINTAR.ojo2), ojo3: () => porFranjas('ojo3', PINTAR.ojo3),
   'e:tronco': () => estrenar(I.TRO), 'e:vaso': () => estrenar(I.VASO), 'e:cortePelo': () => estrenar(I.CP), 'e:cota': () => estrenar(I.COTA),
   'e:globulos': () => { P.limpiar(); rio(P, I.GLS, { pos: en(960, 540, 0), escala: 0.012, semilargo: 2, canal: 1 }); P.render(3000 + I.GLS, { fondo: false }); return true; },
 };
@@ -513,25 +565,28 @@ function F(k) {
   }
   return FOTO[k];
 }
-// presupuesto (s aproximados de este servidor, tranquilo): COSTE, lo que cuesta componer cada tipo de fotograma con sus
-// fotos hechas; EST, cada foto (o franja) y cada estreno; LIMITE, lo que puede llegar a costar un fotograma
-const COSTE = { corte: 1.6, ojo: 2.6, mir1: 0.7, tronco: 0.6, mir2: 2.6, vaso: 2.0, pelo: 1.4 };
-const LIMITE = 4.4;
+// presupuesto, en s de CPU del navegador medidos en este servidor (bin/cap.mjs; el mismo fotograma de ep3-pelo con el ojo
+// en corte da ~10): COSTE, lo que cuesta componer cada tipo de fotograma con sus fotos hechas; EST, cada foto (o franja)
+// y cada estreno; LIMITE, lo que puede llegar a costar un fotograma
+const COSTE = { corte: 5.8, ojo: 1.5, mir1: 1.4, tronco: 1.3, mir2: 4.0, vaso: 2.5, pelo: 6.5 };
+const LIMITE = 8.6;
 const EST = {
-  'e:tronco': 0.8, 'tronco#': 2.6, tronco: 0.1, ojoCerrado: 2.4, 'e:vaso': 0.8, 'vaso#': 1.6, vaso: 0.1, 'e:globulos': 0.8,
-  regla5: 1.2, 'e:cortePelo': 0.8, 'pelo#': 2.2, pelo: 0.1, 'e:cota': 0.3,
+  'ojo0#': 2.8, ojo0: 0.1, 'ojo1#': 2.6, ojo1: 0.1, 'ojo2#': 2.6, ojo2: 0.1, 'ojo3#': 2.6, ojo3: 0.1, ojoVin: 0.2,
+  'e:tronco': 1.5, 'tronco#': 2.7, tronco: 0.1, 'e:vaso': 1.5, 'vaso#': 2.4, vaso: 0.1, 'e:globulos': 1.5,
+  regla5: 2.5, pose: 1.0, 'e:cortePelo': 1.5, 'pelo#': 2.4, pelo: 0.1, 'e:cota': 0.6,
 };
-const est = (k) => EST[k.includes('#') ? k.split('#')[0] + '#' : k];
+const est = (k) => EST[k.includes('#') ? k.split('#')[0] + '#' : k.startsWith('pose') ? 'pose' : k];
 const franjas = (k, desde, hasta) => [...Array(FRANJAS[k]).keys()].map((b) => [desde, `${k}#${b}`, hasta]).concat([[desde, k, hasta]]);
 const PREPARAR = [
-  [0, 'e:tronco', T.mir1[0]], ...franjas('tronco', 0, T.mir1[0]), [0, 'ojoCerrado', T.cierra[1]],
-  [0, 'e:vaso', T.mir2[0]], [0, 'e:globulos', T.mir2[0]], ...franjas('vaso', 0, T.mir2[0]), [0, 'regla5', T.mir2[1]],
+  ...franjas('ojo0', 0, T.ojo), ...franjas('ojo1', 0, T.cierra[1]), ...franjas('ojo2', 0, T.cierra[1]), ...franjas('ojo3', 0, T.cierra[1]),
+  [0, 'ojoVin', T.mir1[1]], [0, 'e:tronco', T.mir1[0]], ...franjas('tronco', 0, T.mir1[0]),
+  [0, 'e:vaso', T.mir2[0]], [0, 'e:globulos', T.mir2[0]], ...[...Array(RIO.poses).keys()].map((k) => [0, 'pose' + k, T.mir2[0]]), ...franjas('vaso', 0, T.mir2[0]), [0, 'regla5', T.mir2[1]],
   [0, 'e:cortePelo', T.pelo], [0, 'e:cota', T.pelo], ...franjas('pelo', 0, T.pelo),
 ];
 // lo que tiene que estar hecho antes (si no, F() lo haría dentro y se saldría del presupuesto)
-const ANTES = { tronco: ['e:tronco'], vaso: ['e:vaso'], pelo: ['e:cortePelo'] };
+const ANTES = { pose0: ['e:globulos'], tronco: ['e:tronco'], vaso: ['e:vaso'], pelo: ['e:cortePelo'], ojo0: [], ojo1: ['ojo0'], ojo2: ['ojo0'], ojo3: ['ojo0'], ojoVin: ['ojo3'] };
 for (const [k, N] of Object.entries(FRANJAS)) {
-  for (let b = 0; b < N; b++) ANTES[`${k}#${b}`] = ANTES[k].slice();
+  for (let b = 0; b < N; b++) ANTES[`${k}#${b}`] = (ANTES[k] ?? []).slice();
   ANTES[k] = [...Array(N).keys()].map((b) => `${k}#${b}`);
 }
 let tipoFot = 'corte';

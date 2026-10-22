@@ -39,7 +39,8 @@
 //        SANGRE.PASO_RIO a lo largo, repartidos dentro de un cilindro de radio `canal` (algo hacia el fondo, −z: para un
 //        vaso abierto por delante), cada uno con su giro, que dan vueltas despacio al avanzar. avance: lo que ha corrido
 //        el río (unidades locales; p. ej. ts × 1,6); semilla (0…999): otro reparto. Los que salen por un extremo
-//        desaparecen (pon semilargo más allá del cuadro). Devuelve { eje: [a, b] (mundo) }.
+//        desaparecen (pon semilargo más allá del cuadro). El río no da sombra en el plató ni en otras piezas (sería caro):
+//        su sombra va en 2D, con sombraSilueta. Devuelve { eje: [a, b] (mundo) }.
 //  · 'vaso' · vaso(P, i, { abierto: true, semilargo: 3 })
 //      Un vaso sanguíneo recto a lo largo de x: la luz de radio 1 y la pared de 1 a 1,3, en tres capas que se ven en los
 //      cortes (íntima rosa pálida, media muscular de rosa teja con fibras en anillo, adventicia crema con fibras), y por
@@ -302,15 +303,8 @@ float pz_globulos(vec3 q, vec4 T, out float m) { return sgEsRio(T) ? sgRio(q, T,
 float pzc_globulos(vec3 q, vec4 T) {
   float m;
   if (sgEsRio(T)) {
-    // (coste) la sombra del río: cada glóbulo como un disco grueso sin girar (los tres más cercanos)
-    float s0 = floor((q.x - T.x) / SG_PR), d = 1e5;
-    for (int j = -1; j <= 1; j++) {
-      vec2 g; vec3 c = sgRioC(s0 + float(j), T, g);
-      c.x += T.x;
-      if (abs(c.x) >= T.z) continue;
-      d = min(d, length(q - c) - 0.62);
-    }
-    return min(d, SG_PR - 0.6);
+    // (coste) el río no da sombra ni oclusión en el plató (es caro y casi no se ve): su sombra va en 2D (sombraSilueta)
+    return 1e3;
   }
   return sgFila(q, T, m) + 0.03;
 }

@@ -35,9 +35,14 @@
 // general y el detalle del virus, el fondo del microscopio, el plató vacío, el virus nítido y borroso, la onda); la
 // primera al cargar y las demás en fotogramas baratos poco antes de hacer falta (ver PREPARAR). En cada fotograma va vivo
 // solo lo que se mueve: Atom siempre; la cartela al principio; la regla mientras corre la escala (después, una capa fija
-// encima de todo); el microscopio (por la rueda); la moneda, los dos guantes y el «?». La onda que viaja es su foto
+// encima de todo); el microscopio (por la rueda); los dos guantes y el «?» (la moneda es una foto: los guantes le
+// dejan su sombra en 2D, sombraViva). La onda que viaja es su foto
 // desplazada en 2D (una onda que corre es la misma forma movida), con su brillo.
 //
+// COSTE (medido con la máquina a carga 27 en 4 núcleos, en s de CPU del navegador sumando sus procesos): carga 28,8
+// (56,7 s reales con esa carga); fotogramas: vaso con la cartela ~2,5 · la regla corriendo en la mirilla ~6,8 · general y
+// detalle ~1 · microscopio ~4,7 · onda ~2,2 · guantes ~5,3 · vuelta ~1,3–1,9. Los fotogramas que hacen una foto de
+// PREPARAR, uno cada vez, ~6–10.
 // CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, desenfoque 44, sin recorte)
 //  · Fotograma 0 (ep3-medula termina así; window.__inicio lo da en números): el plató con el VASO (medio tubo abierto
 //    hacia la cámara, eje en x, pos P.punto(960, 520, −1,2), radio ≈ 330 px, largo de borde a borde), siete glóbulos

@@ -39,15 +39,20 @@
 //    (su reloj, calculado con las marcas de ep3-tierra y de ep3-sol, como allí) y el plató con n = 254; el parpadeo y crearPost
 //    con n = 254. Desde ahí Atom sigue con su vaivén y coge su ritmo en medio segundo.
 //  · Último fotograma (window.__fin.final): el espacio de fondoCielo (el mismo de arriba); la gigante en corte (corte 1,
-//    apaga 0,9, hunde 1) centrada en (900, 480) con 460 px de radio (solComoMundo, z −1), con su halo y, encima, el halo frío
-//    de la bola del centro; la regla en 10⁴ entera (foto con n = 9402), Atom en (230, ~780) quieto, viñeta y grano de crearPost.
+//    apaga 0,9, hunde 1; hueco 8 del plató) centrada en (900, 480) con 460 px de radio (solComoMundo, z −1), con su halo y,
+//    encima, el halo frío de la bola del centro; la regla en 10⁴ entera (fotos de n 9400–9402), Atom en (230, ~780) quieto,
+//    viñeta y grano de crearPost.
 // COSTE: todo se compone en 2D (crearPost al final). Al cargar: las fotos del cielo (las siete partes del kit), el espacio
 // sin Sol, la regla en 10⁹ y los estrenos de Atom y la cartela (la gigante ya se estrena con la foto del cielo). En los
 // fotogramas baratos de la cartela: la compilación de la cómoda, el terrón y la partícula (con una tijera de un píxel), el
 // mundo a 10⁹ con el Sol, el Sol pequeño (sprite), las tres reglas de 10⁴ y la apagada; en el plano de la estrella, las seis
 // fotos de las partículas (sprites). En vivo: Atom, la
 // regla mientras se mueve, el mundo mientras la cámara cae (de 10⁹ a 10⁴), la cómoda y el terrón mientras se mueven y la
-// gigante (corte, enfriamiento y colapso). Lo quieto (la ciudad a 10⁴, la regla quieta) son fotos que se alternan (hervor).
+// gigante del plano general (corte, enfriamiento y colapso). Lo quieto (la cartela, la ciudad a 10⁴, la regla quieta) son
+// fotos que se alternan (hervor). La gigante de cerca, la bola (cuatro pasos) y el encuadre final son fotos por bandas (la
+// tijera de WebGL), repartidas al final del plano del terrón y en el plano de cerca quieto; el acercamiento y la salida,
+// fundidos con zoom entre la foto de partida y la de llegada. El mundo en vivo se pega sin leer sus píxeles (la viñeta se
+// quita con color-dodge).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteCartela, cartela, cl, mix, prog, ss, eio, eoc, eic, eob, azar, mulberry32, muelle, brote } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -587,13 +592,53 @@ function sacudida(ts) {
   const n = Math.floor(ts * 12), a = 9 * (1 - u);
   return [(azar(n, 401) - 0.5) * 2 * a, (azar(n, 402) - 0.5) * 2 * a];
 }
+// la gigante viva del plano general (corte, enfriamiento y colapso); después del colapso se queda en hunde 0,5 hasta que
+// el centro se aprieta en la bola (de cerca, en cuatro pasos de stop-motion: HU)
 function estadoGigante(ts) {
   const corte = eob(prog(ts, T.corte[0], T.corte[1]), 1.2);
   const apaga = mix(CIELO.apaga, 0.9, eio(prog(ts, T.apaga[0], T.apaga[1])));
-  let hunde = 0.5 * eic(prog(ts, T.hunde[0], T.hunde[1]));
-  hunde += 0.05 * ss(T.hunde[1], T.bola[0], ts) + 0.45 * eio(prog(ts, T.bola[0], T.bola[1]));
+  const hunde = 0.5 * eic(prog(ts, T.hunde[0], T.hunde[1]));
   return { corte: cl(corte, 0, 1.06), apaga, hunde };
 }
+const HU = [0.5, 0.62, 0.75, 0.88, 1];
+function huEn(ts) { const u = prog(ts, T.bola[0], T.bola[1]); return u <= 0 ? HU[0] : HU[Math.min(4, 1 + Math.floor(u * 4 - 1e-9))]; }
+
+// (coste) la gigante de cerca llena la pantalla (~6–9 s de CPU en vivo): de cerca y en el encuadre final son fotos, hechas
+// POR BANDAS (la tijera de WebGL: cada banda solo paga sus píxeles; el resultado es el mismo que la foto entera) en los
+// fotogramas baratos (PREPARAR): el final del plano del terrón y el plano de cerca quieto. El acercamiento y la salida son
+// fundidos con zoom entre dos fotos (la del encuadre de partida y la de llegada, escaladas al encuadre del momento).
+function conTijera(rect, fn) {
+  const Rr = P.renderer, k = lienzoGL.width / W, pr = Rr.getPixelRatio(), Hd = lienzoGL.height;
+  const x0 = Math.max(0, Math.floor(rect[0] * k) - 1), x1 = Math.min(lienzoGL.width, Math.ceil(rect[2] * k) + 1);
+  const y0 = Math.max(0, Math.floor(rect[1] * k) - 1), y1 = Math.min(Hd, Math.ceil(rect[3] * k) + 1);
+  Rr.setScissorTest(true); Rr.setScissor(x0 / pr, (Hd - y1) / pr, (x1 - x0) / pr, (y1 - y0) / pr);
+  try { fn(); } finally { Rr.setScissorTest(false); }
+}
+const TRAB = {};
+function trabajo(clave, poner, nn, nb) {
+  const pasos = [];
+  for (let b = 0; b < nb; b++) pasos.push([0, Math.round(H * b / nb), W, Math.round(H * (b + 1) / nb)]);
+  TRAB[clave] = { pasos, poner, nn, capa: null, hechos: new Set() };
+  HACER[clave] = () => { TRAB[clave].pasos.forEach((_, i) => pasoTrabajo(clave, i)); return TRAB[clave].capa; };
+}
+function pasoTrabajo(clave, i) {
+  const t = TRAB[clave];
+  if (FOTOS[clave] || t.hechos.has(i)) return;
+  const c = t.capa ?? (t.capa = lienzo()), r = t.pasos[i];
+  conTijera(r, () => { P.limpiar(); t.poner(); P.render(t.nn, { fondo: false }); });
+  const k = lienzoGL.width / W, x0 = Math.floor(r[0] * k), y0 = Math.floor(r[1] * k), x1 = Math.ceil(r[2] * k), y1 = Math.ceil(r[3] * k);
+  c.getContext('2d').drawImage(lienzoGL, x0, y0, x1 - x0, y1 - y0, x0, y0, x1 - x0, y1 - y0);
+  c.getContext('2d').getImageData(x0, y0, 1, 1);      // (coste) hecho ya, en este fotograma
+  t.hechos.add(i);
+}
+const ponerGig = (G, hunde) => () => gigante(P, I.GIG, { ...solComoMundo(P, [G.c[0], G.c[1], G.R], G.z), corte: 1, apaga: 0.9, hunde });
+trabajo('gC', ponerGig(GC, 0.5), 9700, 2);                                   // el plano general tras el colapso
+trabajo('gD5_0', ponerGig(GD, 0.5), 9701, 4); trabajo('gD5_1', ponerGig(GD, 0.5), 9702, 4);   // de cerca (hervor)
+HU.slice(1).forEach((h, j) => trabajo('gD' + (j + 1), ponerGig(GD, h), 9710 + j, 4));        // la bola, en cuatro pasos
+trabajo('gE_0', ponerGig(GE, 1), 9720, 2); trabajo('gE_1', ponerGig(GE, 1), 9721, 2);         // el encuadre final (hervor)
+const fotoD = (hu, n) => (hu === HU[0] ? 'gD5_' + (n % 2) : 'gD' + HU.indexOf(hu));
+// una foto de la gigante (hecha con el encuadre G) llevada al encuadre del momento (enc): el núcleo a su sitio y escalada
+const capaGig = (clave, G, enc, alfa = 1) => pegarEscalada(F(clave), enc.R / G.R, G.c, enc.c, alfa);
 // las partículas del centro (en px relativos al núcleo, con el encuadre de cerca): tres protones y su electrón cada uno
 const PARES = [
   { p: [330, -60], e: [480, -170] },
@@ -677,13 +722,22 @@ function planoEstrella(ts, n) {
     g.drawImage(s, sp[0] - L, sp[1] - L, 2 * L, 2 * L);
     g.restore();
   }
-  // la gigante: su resplandor (debajo) y la pieza, viva
+  // la gigante: su resplandor (debajo) y la pieza (viva en el plano general; de cerca y al salir, fotos)
   halo(g, c[0], c[1], R, 1 - 0.72 * st.apaga, 'gigante');
-  P.limpiar();
-  const geo = gigante(P, I.GIG, { ...solComoMundo(P, [c[0], c[1], R], enc.z), ...st, toque: ts < T.corte[1] + 0.1 || (ts > T.hunde[0] && ts < T.hunde[1] + 0.1) });
-  P.render(n, { fondo: false });
-  pegarGL();
-  const core = pant(geo.nucleo), rCore = geo.radioNucleo * pxU(geo.nucleo);
+  let core, rCore;
+  const hu = huEn(ts);
+  if (ts < T.acerca[0]) {
+    P.limpiar();
+    const geo = gigante(P, I.GIG, { ...solComoMundo(P, [c[0], c[1], R], enc.z), ...st, toque: ts < T.corte[1] + 0.1 || (ts > T.hunde[0] && ts < T.hunde[1] + 0.1) });
+    P.render(n, { fondo: false });
+    pegarGL();
+    core = pant(geo.nucleo); rCore = geo.radioNucleo * pxU(geo.nucleo);
+  } else {
+    if (enc.a < 1) { capaGig('gC', GC, enc); capaGig('gD5_' + (n % 2), GD, enc, ss(0.2, 0.8, enc.a)); }
+    else if (enc.b <= 0) capaGig(fotoD(hu, n), GD, enc);
+    else { capaGig('gD4', GD, enc); capaGig('gE_' + (n % 2), GE, enc, ss(0.15, 0.75, enc.b)); }
+    core = c; rCore = R * mix(0.2, 0.075, ss(0, 0.7, hu));
+  }
   // se queda sin combustible: el fuego del núcleo chisporrotea y se apaga
   const ua = prog(ts, T.apaga[0], T.apaga[1]);
   const fuego = (1 - eio(ua)) * (ua < 1 ? 0.75 + 0.25 * Math.sin(ts * 31) * Math.sin(ts * 13 + 1) : 0) * ss(T.corte[0], T.corte[1], ts);
@@ -709,7 +763,7 @@ function planoEstrella(ts, n) {
   // Atom (sobre el corte de cerca, con su sombra)
   sombraAtom(ts, enc.a * (1 - enc.b));
   P.limpiar(); atomo(ts, { claro: 0.6 * enc.a * (1 - enc.b) }); P.render(n, { fondo: false }); pegarGL();
-  return { geo, core, rCore, enc };
+  return { core, rCore, enc, hu };
 }
 
 // ---------------------------------------------------------------- fotograma
@@ -724,6 +778,16 @@ prep(5, 'reg4_0'); prep(6, 'reg4_1'); prep(7, 'reg4_2'); prep(8, 'reg4Tenue'); p
 {
   let nn = Math.round((m.colapso + 0.25) * 12);
   for (const tipo of ['electron', 'proton', 'neutron']) for (const k of [0, 1]) prep(nn++, `p_${tipo}${k}`);
+  // las fotos de cerca (hunde 0,5) y la del plano general tras el colapso: al final del plano del terrón (la cómoda ya se
+  // ha ido: Atom, el terrón y la foto de la ciudad), repartidas
+  const reparto = (claves, n0, n1) => {
+    const pasos = claves.flatMap((k) => TRAB[k].pasos.map((_, i) => [k, i]));
+    const d = Math.max(1, Math.floor((n1 - n0 + 1) / pasos.length));
+    pasos.forEach(([k, i], j) => prep(n0 + j * d, () => pasoTrabajo(k, i)));
+  };
+  reparto(['gD5_0', 'gD5_1', 'gC'], Math.ceil(T.vaCajon[1] * 12) + 1, Math.floor(T.C * 12) - 1);
+  // las de la bola y las del encuadre final: en el plano de cerca quieto (fotos, partículas y Atom)
+  reparto(['gD1', 'gD2', 'gD3', 'gD4', 'gE_0', 'gE_1'], Math.ceil(T.acerca[1] * 12) + 1, Math.floor(T.bola[0] * 12) - 1);
 }
 let ULTIMO = null;
 function dibujar(t) {
@@ -811,12 +875,13 @@ window.__fin = {
   // el último fotograma (el primero de ep3-neutrones)
   final: {
     fondo: { foto: 'fondoCielo(mundo, 932, { somA })', somA: SOM_A },
-    gigante: { centro: GE.c, radio: GE.R, z: GE.z, corte: 1, apaga: 0.9, hunde: 1, halo: 'gigante con k = 1 − 0,72 · apaga; encima, halo neutrones (dentro: false) de la bola' },
+    gigante: { centro: GE.c, radio: GE.R, z: GE.z, corte: 1, apaga: 0.9, hunde: 1, fotos: 'gE_0 / gE_1 (n 9720 / 9721), hueco 8 del plató',
+      halo: 'halo(gigante, k = 1 − 0,72 · apaga) debajo; encima, halo(neutrones, dentro: false) de la bola, radio 0,075 · R' },
     regla: { e: 4, foto: 'n = 9400 + (n % 3)' },
     atomo: (() => { const S = estadoAtom(QUIETO); return { sx: S.sx, sy: S.sy, tz: S.tz, ta: FIN_SOL.ta + tabla(TA, QUIETO), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH }; })(),
   },
 };
-window.__ultimo = () => ULTIMO && { core: ULTIMO.core, rCore: ULTIMO.rCore, enc: ULTIMO.enc };
+window.__ultimo = () => ULTIMO;
 marcaCarga('listo');
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>
