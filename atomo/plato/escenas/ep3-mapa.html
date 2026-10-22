@@ -19,7 +19,7 @@
 //               (empezando junto a «aquí», el Sol: medimos desde dentro); una antena de radio manda ondas y va marcando nubes
 //               de gas; puntos y nubes (una máscara sobre la foto de la galaxia) acaban dibujando la espiral
 //  sofa         (corte, por encima del hombro: SALON.cerca de ep03-sofa.js) la persona sentada en el sofá, de espaldas, con
-//               la mano en el bol de palomitas; por la ventana las estrellas pasan en rayas; dentro de la ventana aparecen
+//               la mano en el bol de palomitas (en el brazo del sofá); por la ventana las estrellas pasan en rayas; dentro de la ventana aparecen
 //               la Tierra y la Luna y un trazo de luz va de una a otra dos veces mientras el reloj de la pared da una hora
 //               (la cuña ámbar se llena: cada pasada, media hora). Después (corte, SALON.general) el salón entero
 // CONTINUIDAD
@@ -28,11 +28,17 @@
 //    al final; la regla P.regla con e 21, ya 0, actual 21, lupa 0,5 en P.punto(1655, 528, 0,4), escala 1,42, rot
 //    [0, −0,12, 0]; Atom en (230, 780) (A_ESC, A_YAW y A_PITCH como ep3-tierra y ep3-sol) arrancando quieto.
 //  · Último fotograma (ep3-andromeda empieza así): salon(P, I, { encuadre: 'general', reloj: { minutos: 60, sector:
-//    [0, 60] } }) de ep03-sofa.js con el cielo de la ventana cieloVentana(g, hueco, { t: TQ, rayas: hornearRayas() }) y
-//    vidrioVentana encima; la misma regla; Atom en (230, 780). window.__fin lo da en números.
-// Coste: todo se compone en 2D (crearPost al final). Lo quieto son fotos hechas al cargar: la galaxia (dos, para el hervor),
-// el espacio sin galaxia, el marco ya cerrado, los dos encuadres del salón, la Tierra y la Luna. En vivo: Atom y la regla
-// siempre; el marco mientras cae; el pincel; el satélite y la antena; el reloj mientras corre.
+//    [0, 60] } }) de ep03-sofa.js (en una foto, con la cuña ámbar viva relojAmbar y los bordes algo más oscuros luzSalon),
+//    con el cielo de la ventana cieloVentana(g, hueco, { t: TQ, rayas: hornearRayas() }) debajo y vidrioVentana encima; la
+//    misma regla; Atom en (230, 780). window.__fin lo da en números.
+// Coste: todo se compone en 2D (crearPost al final). Lo quieto son fotos hechas al cargar: la galaxia (una; el fondo del
+// mapa sale de ella tapando la galaxia), el marco ya cerrado, los dos encuadres del salón (el hueco de la ventana,
+// transparente: debajo va el cielo en 2D), la Tierra y la Luna. En vivo: Atom y la regla siempre; el marco mientras cae
+// (hasta 1,25 s); el pincel; el satélite y la antena; el reloj mientras corre. Los puntos y las nubes del mapa, las ondas,
+// los rayos, el cielo de la ventana y el trazo de la Tierra a la Luna son 2D (milisegundos).
+// Piezas propias de la escena (tiposExtra, aquí abajo): el marco dorado, el pincel, el satélite y la antena de radio.
+// Del kit ep03-sofa.js (lo crea esta escena): la ventana, el sofá, el bol y SALON; de ep03-tiempo.js, el reloj y el rayo;
+// de ep03-cosmos.js, el mundo a 10²¹; del kit de plastilina, la persona, la regla, Atom, el globo y la luna.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteCartela, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, mulberry32, brote, QUIETO as QUIETO_KIT } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -968,7 +974,7 @@ function dibujar(t) {
   window.__plano = plano;
 }
 window.__fin = {
-  final: 'salon(P, I, { encuadre: "general", reloj: { minutos: 60, sector: [0, 60] } }) + cieloVentana(t = TQ) + vidrioVentana; regla e 21; Atom (230, 780)',
+  final: 'cieloVentana(t = TQ) + foto de salon(P, I, { encuadre: "general", reloj: { minutos: 60, sector: [0, 60] } }) con relojAmbar(60) y luzSalon(foco: la cabeza) + vidrioVentana + sombrasPresentador(0,8); regla e 21; Atom (230, 780); parpadeo y crearPost',
   TQ, n: Math.floor((D - QUIETO_KIT) * 12 + 1e-6), tiempos: T,
   atomo: (() => { const S = estadoAtom(D); return { tz: S.tz, ta: tabla(TA, D) }; })(),
 };

@@ -276,7 +276,8 @@ function planoD(ts) {
   const [gi, inc] = cabezaHacia(hl.punta);
   p.cabeza = [0.55 * gi * k, 0.75 * inc * k, 0.04 * k];
   p.mirada = [0.5 * k, 0.55 * k];
-  P.pieza(I.humano, { ...PERSONA, postura: p, t: ts, partes: 'cabeza' });
+  const h = P.pieza(I.humano, { ...PERSONA, postura: p, t: ts, partes: 'cabeza' });
+  window.__persona = { coronilla: pant(h.punto('coronilla')), suela: pant(h.mundo([0, -1, 0.05])), centro: pant(h.mundo([0, 0, 0])) };
   // la cota de latón (de la base a la punta, a la derecha del hilo) y la tarjeta «2 m»
   const kC = eio(prog(ts, T.cota[0], T.cota[1])), kT = eoc(prog(ts, T.tarjeta[0], T.tarjeta[1]));
   if (kC > 0) P.pieza(I.cota, { pos: [COTA_X, DOS_M / 2, BASE_D[2]], escala: DOS_M / 2, sq: [1, 0.28, 0.6], rot: [0, 0, Math.PI / 2], variante: kC, toque: kC < 1 });
@@ -408,7 +409,7 @@ function borrosa(f) {
   if (BORROSA.has(f)) return BORROSA.get(f);
   const c = lienzo(), gc = c.getContext('2d'), k = c.width / W;
   gc.filter = `blur(${14 * k}px)`;
-  gc.drawImage(f, -0.2 * c.width, -0.2 * c.height, 1.4 * c.width, 1.4 * c.height);
+  gc.drawImage(f, 0, 0);
   BORROSA.set(f, c);
   return c;
 }
@@ -416,18 +417,19 @@ function borrosa(f) {
 // que se abre; A: el punto de la nueva que acaba en el centro del círculo (y en su sitio)
 function mirilla(u, viejo, nuevo, F, A = [W / 2, H / 2]) {
   const pu = eio(cl(u / 0.8)), px = mix(F[0], A[0], pu), py = mix(F[1], A[1], pu);
-  const sO = Math.pow(10, 0.5 * eio(cl(u / 0.7))), sN = mix(0.8, 1, seco(prog(u, 0.05, 0.85)));
   const r = 1500 * eio(prog(u, 0, 0.62));
   const lejos = Math.max(Math.hypot(px, py), Math.hypot(W - px, py), Math.hypot(px, H - py), Math.hypot(W - px, H - py));
+  const rr = Math.min(r, lejos + 60);
+  // la foto nueva llega algo pequeña (0,8 → 1) pero siempre cubre lo que se ve del círculo dentro del cuadro
+  const cubre = Math.max(Math.min(px, rr) / A[0], Math.min(W - px, rr) / (W - A[0]), Math.min(py, rr) / A[1], Math.min(H - py, rr) / (H - A[1]));
+  const sO = Math.pow(10, 0.5 * eio(cl(u / 0.7))), sN = Math.max(mix(0.8, 1, seco(prog(u, 0.05, 0.85))), cubre);
   g.save();
   g.save(); g.translate(px, py); g.scale(sO, sO); g.translate(-F[0], -F[1]); g.drawImage(viejo, 0, 0, W, H); g.restore();
   if (r > 2) {
-    const rr = Math.min(r, lejos + 60);
     g.save(); g.shadowColor = 'rgba(0,0,0,0.75)'; g.shadowBlur = 46; g.fillStyle = '#0b0c0f';
     g.beginPath(); g.arc(px, py, rr, 0, Math.PI * 2); g.fill(); g.restore();
     g.save(); g.beginPath(); g.arc(px, py, rr, 0, Math.PI * 2); g.clip();
     g.translate(px, py); g.scale(sN, sN); g.translate(-A[0], -A[1]);
-    if (sN < 0.999) g.drawImage(borrosa(nuevo), 0, 0, W, H);
     g.drawImage(nuevo, 0, 0, W, H);
     g.restore();
     if (r < lejos) { g.strokeStyle = 'rgba(0,0,0,0.45)'; g.lineWidth = 10; g.filter = 'blur(4px)'; g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.stroke(); g.filter = 'none'; }
@@ -464,7 +466,7 @@ function alejarse(u) {
   g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill(); g.restore();
   g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.clip();
   g.translate(cx, cy); g.scale(s, s); g.translate(-cb.x, -cb.y);
-  if (s < 0.999) g.drawImage(borrosa(FOTO.Bh), 0, 0, W, H);
+  if (s < 0.999) g.drawImage(borrosa(FOTO.Bh), -0.25 * W, -0.25 * H, 1.5 * W, 1.5 * H);
   g.drawImage(FOTO.Bh, 0, 0, W, H);
   g.restore();
 }
@@ -477,7 +479,7 @@ function exposicion(nf) {
 // las fotos de los cortes se hacen en fotogramas baratos poco antes de hacer falta, una por fotograma (al renderizar
 // en orden); si se pide un instante posterior sin pasar por ellos, se hacen todas las pendientes
 const PREPARAR = [[T.sale[0] + 0.1, fotoBhilo], [T.sale[0] + 0.3, fotoDfondo], [T.sale[0] + 0.5, () => fotoD(0)],
-  [T.s3[0] - 0.75, () => fotoD(1)], [T.s3[0] - 0.5, fotoEfondo], [T.s3[0] - 0.3, fotoE0]];
+  [T.s3[0] - 0.5, () => fotoD(1)], [T.s3[0] - 0.25, fotoEfondo], [T.s3[0], fotoE0]];
 function preparar(ts) { for (const [t0, f] of PREPARAR) if (ts >= t0) f(); }
 function dibujar(t) {
   const ts = Math.min(t, D - 0.3);

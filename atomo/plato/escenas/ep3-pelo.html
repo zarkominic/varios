@@ -24,8 +24,9 @@
 //  ½ pelo   DETALLE del pelo-tronco: en la segunda mitad de la frase, la cota de alambre se tiende de lado a lado del
 //           pelo y baja la tarjeta «10⁻⁴ m».
 //  rejilla  PLANO MEDIO por encima del hombro (corte): la cabeza del «humano», de perfil hacia la derecha, lee un libro
-//           abierto a un palmo de la cara (el hombro de primer término, desenfocado). En la página derecha, trazos de tinta
-//           cada vez más finos y, entre ellos, un pelo que cruza la página y asoma por el canto.
+//           abierto que sostiene con las dos manos a un palmo de la cara (el hombro de primer término, desenfocado). En
+//           la página derecha, trazos de tinta cada vez más finos y, entre ellos, un pelo que cruza la página y asoma por
+//           el canto.
 //  ¼ rej.   DETALLE de la página (empuje 2D que acelera hacia el pelo y corte a la foto de cerca, que se asienta): los
 //           trazos más finos que el pelo se emborronan en gris y el pelo queda nítido, con un brillo: es lo último que se
 //           distingue.
@@ -233,11 +234,12 @@ const escAtomo = (sx, sy, d) => d / (2 * (1.68 + 0.16) * pxU(en(sx, sy, A_Z)));
 const A_ESC = escAtomo(...ATOMO_PRES, 180);
 const TZ_SALTOS = 16.436;   // calma(QUIETO) de ep3-saltos: la fase de sus electrones y su vaivén al cortar
 
-// plano por encima del hombro: la cabeza del «humano», muy cerca de la cámara, de perfil hacia la derecha y algo de
-// espaldas; el libro a un palmo de su cara, girado hacia ella (y algo hacia la cámara)
+// plano por encima del hombro: la cabeza del «humano», muy cerca de la cámara, de perfil hacia la derecha; el libro, en
+// sus manos a un palmo de la cara, girado hacia ella (y algo hacia la cámara)
 const LECT = {
   per: { x: 430, y: 445, z: 9.2, esc: 4.3, giro: Math.PI / 2 - 0.12 },
-  lib: { x: 1190, y: 640, z: 8.4, ancho: 480, rot: [-0.42, -0.62, 0.05] },
+  brazo: [1.05, 0.12, 0.3, 1.55, 0.25, 0.1],
+  lib: { esc: 0.8, rot: [-0.42, -0.62, 0.05] },
   // la página de cerca: el pelo cruza la pantalla por (CERCA.x, CERCA.y); el libro, más cerca y casi de frente
   cerca: { x: 900, y: 500, z: 9.0, ancho: 2200, rot: [-0.16, -0.2, 0.02], foco: [0.5, 0.0] },
 };
@@ -246,7 +248,27 @@ function colocarLibro(L) {
   const esc = L.ancho / (2.0 * pxU(pos0));
   return { pos: pos0, escala: esc, rot: L.rot };
 }
-const LIB_H = colocarLibro(LECT.lib);
+// la persona de la lectura (enorme, cerca de la cámara: los pies quedan muy por debajo del cuadro) sostiene el libro con
+// las dos manos, a un palmo de la cara; el canto de abajo del libro va entre sus manos
+const PER_H = (() => { const L = LECT.per, a = en(L.x, L.y, L.z); return { pos: [a[0], a[1] - 0.62 * L.esc, a[2]], escala: L.esc, rot: [0, L.giro, 0] }; })();
+const POSE_H = (() => {
+  const p = postura('depie');
+  p.cabeza = [0.05, 0.3, 0.04]; p.mirada = [0.1, -0.45]; p.torso = [0.1, 0, 0];
+  p.brazoDer = [...LECT.brazo]; p.manoDer = 1.6;
+  p.brazoIzq = [...LECT.brazo]; p.manoIzq = 1.6;
+  return p;
+})();
+const LIB_H = (() => {
+  P.limpiar();
+  const h = P.pieza(I.PER, { ...PER_H, postura: POSE_H });
+  P.limpiar();
+  const a = h.punto('manoIzq'), b = h.punto('manoDer');
+  const m = [0, 1, 2].map((i) => (a[i] + b[i]) / 2);
+  const rot = LECT.lib.rot, esc = LECT.lib.esc;
+  const o = mundo([0, 0, 0], rot, esc, [0, -0.64, -0.05]);
+  window.__lect = { manoIzq: pant(a).map(Math.round), manoDer: pant(b).map(Math.round) };
+  return { pos: [m[0] - o[0], m[1] - o[1], m[2] - o[2]], escala: esc, rot };
+})();
 // en el detalle, el libro se corre para que el punto foco de la página (x, y locales) quede en (CERCA.x, CERCA.y)
 const LIB_C = (() => {
   const L = LECT.cerca, b = colocarLibro(L);
@@ -342,19 +364,16 @@ function pintarNivel(k) {
 function fotoNivel(k) { pintarNivel(k); const f = foto(); return BASC[k] ? basculante(f, BASC[k]) : f; }
 
 // ---------------------------------------------------------------- la lectura: sus fotos
-function fotoHombro() {
+function pintarHombro() {
   P.limpiar();
-  const L = LECT.per;
-  const pos = en(L.x, L.y, L.z);
-  // la persona, enorme y cerca: la cabeza en (L.x, L.y); los pies quedan muy por debajo del cuadro
-  const p = postura('depie');
-  p.cabeza = [0.05, 0.26, 0.04]; p.mirada = [0.1, -0.5]; p.torso = [0.1, 0, 0];
-  const S = L.esc, yCab = 0.62;   // altura local de los ojos, más o menos
-  P.pieza(I.PER, { pos: [pos[0], pos[1] - yCab * S, pos[2]], escala: S, rot: [0, L.giro, 0], postura: p, partes: ['cuerpo', 'cabeza'] });
+  P.pieza(I.PER, { ...PER_H, postura: POSE_H });
   P.pieza(I.LIB, { pos: LIB_H.pos, escala: LIB_H.escala, rot: LIB_H.rot, color: aaLibro(LIB_H) });
   P.render(2001);
-  // el hombro de primer término, desenfocado (el foco está en la cara y en el libro)
-  const f = foto(), c = desenfocar(f, 9), gc = c.getContext('2d'), k = c.width / W;
+}
+function fotoHombro(src) {
+  // el hombro de primer término, desenfocado (el foco está en la cara, las manos y el libro)
+  const f = lienzo(); f.getContext('2d').drawImage(src, 0, 0);
+  const c = desenfocar(f, 9), gc = c.getContext('2d'), k = c.width / W;
   gc.globalCompositeOperation = 'destination-in';
   const gr = gc.createLinearGradient(0, 700 * k, 0, 830 * k);
   gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
@@ -591,10 +610,10 @@ function fin() {
 // fotograma tarda más, pero la imagen es la misma: cada foto lleva su número de fotograma fijo).
 const FOTO = {};
 let hechasAhora = 0, tFot = null;
-// (coste) las fotos más caras (la mano, la piel y la página de cerca, que llenan el cuadro) se pintan en FRANJAS
+// (coste) las fotos más caras (la mano, la piel y la página de cerca, que llenan el cuadro, y la lectura) se pintan en FRANJAS
 // horizontales (setScissor, como los párpados de ep3-hola), una por fotograma; la sombra y el fondo son los mismos en
 // todas, así que las franjas casan. Su número de fotograma (el hervor) es fijo.
-const FRANJAS = { nivel1: 6, nivel2: 3, pagina: 2 };
+const FRANJAS = { nivel1: 6, nivel2: 3, pagina: 2, hombro: 2 };
 const PARCIAL = {};
 function pintarFranja(k, b, pintar) {
   const N = FRANJAS[k], p = (PARCIAL[k] ??= { c: lienzo(), hechas: 0 });
@@ -624,12 +643,12 @@ const HACER = {
   nivel0: () => fotoNivel(0), nivel3: () => fotoNivel(3), nivel4: () => fotoNivel(4),
   nivel1: () => basculante(porFranjas('nivel1', () => pintarNivel(1)), BASC[1]),
   nivel2: () => basculante(porFranjas('nivel2', () => pintarNivel(2)), BASC[2]),
-  hombro: () => fotoHombro(), pagina: () => porFranjas('pagina', pintarPagina), borrosa: () => fotoBorrosa(F('pagina')), fondo: () => fotoFondo(),
+  hombro: () => fotoHombro(porFranjas('hombro', pintarHombro)), pagina: () => porFranjas('pagina', pintarPagina), borrosa: () => fotoBorrosa(F('pagina')), fondo: () => fotoFondo(),
   'e:mano': () => estrenar(I.MANO), 'e:piel': () => estrenar(I.PIEL), 'e:pelo': () => estrenar(I.PELO), 'e:tronco': () => estrenar(I.TRO),
   'e:cota': () => estrenar(I.COTA), 'e:etiqueta': () => estrenar(I.ETQ), 'e:libro': () => estrenar(I.LIB), 'e:corte': () => estrenar(I.CORTE),
 };
 for (const [k, N] of Object.entries(FRANJAS)) {
-  const pintar = k === 'pagina' ? pintarPagina : () => pintarNivel(Number(k.slice(-1)));
+  const pintar = k === 'pagina' ? pintarPagina : k === 'hombro' ? pintarHombro : () => pintarNivel(Number(k.slice(-1)));
   for (let b = 0; b < N; b++) HACER[`${k}#${b}`] = () => pintarFranja(k, b, pintar);
 }
 function F(k) {
@@ -652,7 +671,7 @@ const PREPARAR = [
   // en los saltos (fotogramas de dos fotos en 2D, los más baratos): el resto de decorados, la lectura y el ojo
   ...[0, 1, 2].map((b) => [SALTO[0][0], `nivel2#${b}`, SALTO[2][1]]), [SALTO[0][0], 'nivel2', SALTO[2][1]],
   [SALTO[0][0], 'nivel3', SALTO[3][1]], [SALTO[0][0], 'nivel4', SALTO[3][1]], [SALTO[0][0], 'e:libro', T.empuje1],
-  [SALTO[0][0], 'hombro', T.empuje1], [SALTO[0][0], 'pagina#0', T.ojo], [SALTO[0][0], 'pagina#1', T.ojo], [SALTO[0][0], 'pagina', T.ojo],
+  [SALTO[0][0], 'hombro#0', T.empuje1], [SALTO[0][0], 'hombro#1', T.empuje1], [SALTO[0][0], 'hombro', T.empuje1], [SALTO[0][0], 'pagina#0', T.ojo], [SALTO[0][0], 'pagina#1', T.ojo], [SALTO[0][0], 'pagina', T.ojo],
   [SALTO[0][0], 'borrosa', T.ojo], [SALTO[0][0], 'e:corte', D + 1], [SALTO[0][0], 'fondo', D + 1],
 ];
 function prepararUna(ts) {
@@ -671,7 +690,6 @@ const FOCO = [
   pant(mundo(PELO, ROT_PELO, E_PELO, [0, 1.9, 0.8])),
 ];
 const ZONA_FINA = zonaFina(LIB_C);
-window.__focos = FOCO.map((p) => p && p.map((v) => Math.round(v)));
 // (coste) los programas del fotograma 0 (la persona con sus celdas, la regla, la flecha, Atom y la cartela) se estrenan al
 // cargar dibujándolo entero con un recorte de un píxel: SwiftShader los compila sin pagar el relleno
 (() => {

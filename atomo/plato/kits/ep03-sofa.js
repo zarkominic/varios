@@ -114,9 +114,18 @@
 //    piezas que usa ep3-mapa: sombras: { <ventana>: [<sofá>], <sofá>: [<persona>, <bol>], <bol>: [<persona>] } (la
 //    pared con la sombra de la persona cuesta mucho más y casi no se ve).
 //
-// COSTE (este servidor, 1920 × 1080; con otras escenas renderizando al lado, el doble o más): ver la hoja de prueba
-// (window.__tiempos). La pared con la ventana llenando la pantalla, ~1–2 s (una foto al cargar: no va en vivo); el sofá
-// de ~900 px, ~1 s; el bol de ~300 px, ~0,6 s; el cielo y el vidrio, unos milisegundos.
+// COSTE (medido el 22-10-2026 con el servidor muy cargado, load 30–39 en los 4 núcleos, así que en tiempo de reloj es
+// varias veces lo de un servidor tranquilo; window.__tiempos de la hoja da cada celda): la hoja entera, 377 s de CPU
+// para 27 celdas. Sofá, bol o mesita solos, 7–11 s de reloj por celda; la pared con la ventana llenando la pantalla,
+// 33–69 s de reloj (es lo caro: va SIEMPRE en una foto al cargar, nunca en vivo); el salón entero con la persona, 26–61 s
+// (en ep3-mapa, las dos fotos del salón suman ~25 s de CPU de la carga). El cielo (hornearRayas, ~0,2 s una vez) y el
+// vidrio, unos milisegundos por fotograma. La pared es un solo programa: cada foto paga la pantalla entera (sombras
+// suaves de las piezas que se le digan en `sombras`; cuantas menos, más barata).
+//
+// CONGELADO el 22-10-2026 con su hoja de prueba (escenas/ep03-sofa-hoja.html, 27 celdas: sofá en sus cinco telas, de
+// tres plazas, con la plaza hundida y de espaldas, con la persona sentada; el bol en sus tres colores, medio y vacío; la
+// mesita de nogal y de haya; la ventana con cada parteluz, pared, cortinas, aspecto y suelo; el cielo a velocidad 1, 0,4
+// y 0; y el salón: general, cerca y con el bol en la mesita). Las escenas que lo usan no lo cambian.
 import * as THREE from 'three';
 import { esqueletoHumano, postura } from '/atomo/plato/kits/plastilina-adulta.js';
 import { reloj as relojTiempo } from '/atomo/plato/kits/ep03-tiempo.js';

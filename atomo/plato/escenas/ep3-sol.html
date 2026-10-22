@@ -705,6 +705,7 @@ const guiasDe = (o) => { P.limpiar(); const h = P.pieza(I.PER, { ...o, postura: 
   const c = pant(h.mundo([0, 0.765, -0.01])), su = pant(h.mundo([0, -1, 0.05])), ce = pant(h.mundo([0, 0, 0]));
   return { x: Math.round(ce[0]), coronilla: Math.round(c[1]), suela: Math.round(su[1]) }; };
 window.__guias = guiasDe(PER);
+// ?dbg: para medir el coste de cada parte desde fuera (no cambia nada del dibujo)
 if (new URLSearchParams(location.search).has('dbg')) window.__dbg = { P, g, F, atomo, reglaEn, pegarGL, POST, ajustarCapa, FIN_TIERRA };
 window.__fin = { CIELO, SOL3_PX, PER, DIANA, CARA, T, CH,
   // el último fotograma (el primero de ep3-vuelta): el fondo, el cielo y el estado de Atom
