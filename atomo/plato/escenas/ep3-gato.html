@@ -75,8 +75,7 @@ const mitad1 = m.t + 0.5 * (m.tF - m.t);
 const T = {
   aparta: [0.2, 1.3],                          // la cámara se aparta del hueco (empieza 0,3 s antes de la marca)
   caricia: [1.3, mitad1 - 0.12],               // plano medio: la mano acaricia al gato (dos pasadas)
-  ojos: [m.t + 1.0, m.t + 1.45],               // el gato cierra los ojos de gusto
-  cabeza: [m.t + 0.85, m.t + 1.9],             // y levanta la cabeza hacia la mano
+  ojos: [m.t + 1.6, m.t + 2.1],                // el gato cierra los ojos de gusto y levanta la cabeza hacia la mano
   corteC: mitad1 - 0.12,                       // DETALLE del hueco, a mitad de frase
   corteD: m.s - 0.2,                           // GENERAL de la cifra
   siete: [m.s - 0.2, m.s + 0.1],               // el 7 brota
@@ -411,7 +410,7 @@ const Z_B = 6.0, EG_B = 6.0, EM_B = 0.245 * EG_B;
 const GATO_B = (() => {
   const o = { pos: [0, 0.3 * EG_B, Z_B], escala: EG_B, rot: [0, -0.15, 0], pelaje: 'atigrado' };
   const l = pant(mundoPieza(o, [-0.05, 0.12, 0]));
-  const obj = en(760, l[1], Z_B);
+  const obj = en(600, l[1], Z_B);
   o.pos = [o.pos[0] + obj[0] - mundoPieza(o, [-0.05, 0.12, 0])[0], o.pos[1], o.pos[2]];
   return o;
 })();
@@ -442,7 +441,7 @@ function puntoMasBajo(f) {
   return [960, 540];
 }
 // la caricia: dos pasadas de los hombros a la cadera (el punto más bajo de la mano, en px de pantalla sobre el lomo)
-const X_HOMBROS = 900, X_CADERA = 430;
+const X_HOMBROS = 760, X_CADERA = 400;
 function caricia(ts) {
   const [t0, t1] = T.caricia;
   const u = prog(ts, t0, t1 + 0.05);
@@ -455,22 +454,47 @@ function caricia(ts) {
   else x = mix(X_HOMBROS, X_CADERA, eio(prog(u, ...pasadas[1])));
   return { x, alza };
 }
-function manoB(ts) {
-  const c = caricia(ts);
-  const y = TOPE_B(c.x) + 4 - 70 * c.alza;          // un poco hundida en el pelo (4 px)
-  const sx = c.x - BAJO_B[0], sy = y - BAJO_B[1];
-  const pos = en(sx, sy, Z_B + 0.15);
-  return { pos, escala: EM_B, rot: ROT_B };
+// (coste) el plano medio es 2D: el plató vacío, la sombra del gato, el gato (una foto por gesto: abre → cierra los ojos de
+// gusto y levanta la cabeza, en cuatro fotos «a dos», como se anima en stop-motion) y la mano (una foto que se desplaza
+// en 2D). La foto de la mano se hace con su punto más bajo (la yema del corazón) en la cadera y hundido 45 px: en
+// cualquier otro punto de la caricia la foto solo sube o va a la derecha, y la manga, cortada por el borde de arriba
+// de la foto, sigue saliendo por arriba del cuadro
+const YEMA = [-0.09, -1.06, -0.07];
+const ESTADOS_GATO = [[0, 0], [0.45, 0.1], [1, 0.25], [1, 0.4]];   // [ojos, cabeza]
+const estadoGato = (ts) => (ts < T.ojos[0] ? 0 : Math.min(3, 1 + Math.floor((ts - T.ojos[0]) * 6 + 1e-6)));
+let SOMBRA_G = null;
+function manoBPos() {
+  F('gato0');
+  const o = { pos: [0, 0, 0], escala: EM_B, rot: ROT_B };
+  const v = mundoPieza(o, YEMA), obj = en(X_CADERA, TOPE_B(X_CADERA) + 45, Z_B + 0.15);
+  return { ...o, pos: [obj[0] - v[0], obj[1] - v[1], obj[2] - v[2]] };
 }
-function gatoB(ts) {
-  return { ...GATO_B, ojos: ss(T.ojos[0], T.ojos[1], ts), cabeza: 0.4 * eio(prog(ts, T.cabeza[0], T.cabeza[1])) };
+function compB(dc, ts) {
+  dc.drawImage(F('fondo'), 0, 0, W, H);
+  // la sombra del gato en el suelo
+  const S = SOMBRA_G;
+  dc.save(); dc.translate(S.cx, S.cy); dc.scale(1, S.ry / S.rx);
+  const gs = dc.createRadialGradient(0, 0, 0, 0, 0, S.rx);
+  gs.addColorStop(0, 'rgba(6,4,3,0.55)'); gs.addColorStop(0.7, 'rgba(6,4,3,0.3)'); gs.addColorStop(1, 'rgba(6,4,3,0)');
+  dc.fillStyle = gs; dc.fillRect(-S.rx, -S.rx, 2 * S.rx, 2 * S.rx);
+  dc.restore();
+  dc.drawImage(F('gato' + estadoGato(ts)), 0, 0, W, H);
+  const c = caricia(ts), y = TOPE_B(c.x) + 4 - 70 * c.alza;
+  // la sombra de la palma en el pelo
+  const xs = c.x + 170, ys = TOPE_B(xs) + 22, a = 0.42 * (1 - 0.7 * c.alza);
+  dc.save(); dc.translate(xs, ys); dc.scale(1, 0.16);
+  const gm = dc.createRadialGradient(0, 0, 0, 0, 0, 210);
+  gm.addColorStop(0, `rgba(30,12,4,${a})`); gm.addColorStop(1, 'rgba(30,12,4,0)');
+  dc.fillStyle = gm; dc.fillRect(-210, -210, 420, 420);
+  dc.restore();
+  const dx = c.x - BAJO_B[0], dy = y - BAJO_B[1];
+  window.__dyMax = Math.max(window.__dyMax ?? -1e9, dy);
+  dc.drawImage(F('manoB'), dx, dy, W, H);
 }
-// la referencia de la mano: dónde queda su punto más bajo respecto al punto de pantalla de su pos
-const REF_B = en(960, 300, Z_B + 0.15);
 
 // ---------------------------------------------------------------- C · el detalle del hueco (fotos)
 const Z_C = 6.0, EG_C = 15, EM_C = 0.245 * EG_C;
-const GAP_C = [960, 560], HUECO_C = 30;          // el centro del hueco y su alto (px)
+const GAP_C = [600, 560], HUECO_C = 30;          // el centro del hueco y su alto (px)
 const GATO_C = (() => {
   const o = { pos: [0, 0, Z_C], escala: EG_C, rot: [0, -0.15, 0], pelaje: 'atigrado', ojos: 1, cabeza: 0 };
   const l = mundoPieza(o, [-0.05, 0.12, 0]);
@@ -491,7 +515,7 @@ function cifraD(ts) {
   const A = mix(200, 46, ua);                       // avance de una cifra (px)
   const Y = mix(500, 228, ua);
   // la cámara sigue al último cero: el 7 se va a la izquierda cuando el último pasaría de x = 1450 (suave)
-  const X0 = mix(560, 144, ua), exceso = X0 + A * c - 1390;
+  const X0 = mix(560, 144, ua), exceso = X0 + A * Math.min(27, c + 1) - 1390;
   const X7 = X0 - (exceso <= -60 ? 0 : exceso < 60 ? (exceso + 60) * (exceso + 60) / 240 : exceso);
   const escala = A / (0.66 * pxU(Z_D));
   const brota = eob(prog(ts, T.siete[0], T.siete[1]), 2.0);
@@ -542,32 +566,48 @@ const HACER = {
   regla() { P.limpiar(); P.regla(REGLA); P.render(3010, { fondo: false }); return foto(P); },
   cuentas() { hacerCuentas(); return true; },
   nubes() { hacerNubes(); return true; },
-  // el gato del plano medio solo (sin fondo, para su contorno) y la mano de referencia (para su punto más bajo)
-  medidasB() {
-    P.limpiar(); gato(P, I.GATO, GATO_B); P.render(3101, { fondo: false });
-    const x0 = X_CADERA - 80, x1 = X_HOMBROS + 80;
-    TOPE_B = contornoArriba(foto(P), x0, x1);
-    P.limpiar(); P.pieza(I.MANO, { pos: REF_B, escala: EM_B, rot: ROT_B }); P.render(3102, { fondo: false });
-    const b = puntoMasBajo(foto(P)), r = pant(REF_B);
-    BAJO_B = [b[0] - r[0], b[1] - r[1]];
-    P.limpiar();
-    return true;
-  },
   // el plano medio en el instante en que se funde (para apartarse del hueco en 2D)
-  planoB() { F('medidasB'); P.limpiar(); gato(P, I.GATO, gatoB(T.aparta[1])); P.pieza(I.MANO, manoB(T.aparta[1])); P.render(3103); return foto(P); },
-  // el detalle: el gato (con el fondo) y la mano (sin fondo), alineadas en 2D para dejar el hueco
-  gatoC() { P.limpiar(); gato(P, I.GATO, GATO_C); P.render(3201); return foto(P); },
-  manoC() {
-    P.limpiar(); P.pieza(I.MANO, MANO_C); P.render(3202, { fondo: false });
-    const f = foto(P);
+  planoB() {
+    const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height;
+    const gc = c.getContext('2d'); gc.setTransform(c.width / W, 0, 0, c.width / W, 0, 0);
+    compB(gc, T.aparta[1]);
+    return c;
+  },
+  // el plató vacío y el estadio sin fondo (como en ep3-proton: n 1999 y 2001)
+  fondo() { P.limpiar(); P.render(1999); return foto(P); },
+  estadio() { P.limpiar(); estadio(P, I.EST, ESTADIO_0); P.render(2001, { fondo: false }); return foto(P); },
+  // la balanza asentada (el plato del cuerpo abajo)
+  balF() { P.limpiar(); const r = ponerBalanza(BALANZA.A_MAX); P.render(3301); DOT = pant(r.s.puntito(0.56, 0.6)); return foto(P); },
+};
+const FOTOS = {};
+let hechasAhora = 0;
+// (coste) FOTOS POR FRANJAS: las piezas grandes se fotografían (sin fondo) en `partes` franjas horizontales, una por
+// fotograma barato (recorte de WebGL por filas, como la multitud de ep3-silla), con el mismo n en todas; pedida antes de
+// tiempo (una captura suelta), la foto se hace entera en ese fotograma. `despues` mide lo que haga falta de la foto
+const gatoBEn = (k) => () => gato(P, I.GATO, { ...GATO_B, ojos: ESTADOS_GATO[k][0], cabeza: ESTADOS_GATO[k][1] });
+const FRANJAS = {
+  gato0: { partes: 1, nf: 3101, pinta: gatoBEn(0), despues(c) {
+    TOPE_B = contornoArriba(c, 200, 1500);
+    // la sombra en el suelo: bajo la fila más baja del gato
+    const k = c.width / W, d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+    let yb = 0, xa = W, xb = 0;
+    for (let y = c.height - 1; y >= 0 && !yb; y -= 2) for (let x = 0; x < c.width; x += 3) if (d[(y * c.width + x) * 4 + 3] > 128) { yb = y / k; break; }
+    const yr = Math.round((yb - 40) * k);
+    for (let x = 0; x < c.width; x += 3) if (d[(yr * c.width + x) * 4 + 3] > 128) { xa = Math.min(xa, x / k); xb = Math.max(xb, x / k); }
+    SOMBRA_G = { cx: (xa + xb) / 2, cy: yb - 6, rx: (xb - xa) / 2 + 60, ry: 34 };
+  } },
+  gato1: { partes: 2, nf: 3101, pinta: gatoBEn(1) },
+  gato2: { partes: 2, nf: 3101, pinta: gatoBEn(2) },
+  gato3: { partes: 2, nf: 3101, pinta: gatoBEn(3) },
+  manoB: { partes: 1, nf: 3102, pinta: () => P.pieza(I.MANO, manoBPos()), despues(c) { BAJO_B = puntoMasBajo(c); } },
+  // el detalle: el gato y la mano, alineadas en 2D para dejar el hueco
+  gatoC: { partes: 3, nf: 3201, pinta: () => gato(P, I.GATO, GATO_C) },
+  manoC: { partes: 6, nf: 3202, pinta: () => P.pieza(I.MANO, MANO_C), despues(f) {
     const b = puntoMasBajo(f);
-    // el lomo del gato del detalle, debajo del punto más bajo de la mano
-    P.limpiar(); gato(P, I.GATO, GATO_C); P.render(3203, { fondo: false });
-    const tope = contornoArriba(foto(P), 40, W - 40);
-    P.limpiar();
+    const tope = contornoArriba(F('gatoC'), 40, W - 40);
     ALINEA_C = [GAP_C[0] - b[0], tope(GAP_C[0]) - HUECO_C - b[1]];
     // el tramo de la palma que queda a ras del pelo (donde van las chispas y los pelos que se erizan)
-    const gc = f.getContext('2d'), k = f.width / W, d = gc.getImageData(0, 0, f.width, f.height).data;
+    const k = f.width / W, d = f.getContext('2d').getImageData(0, 0, f.width, f.height).data;
     let xa = W, xb = 0;
     for (let x = 40; x < W - 40; x += 4) {
       const px = Math.round(x * k);
@@ -578,19 +618,37 @@ const HACER = {
       if (hueco < HUECO_C + 40) { xa = Math.min(xa, x + ALINEA_C[0]); xb = Math.max(xb, x + ALINEA_C[0]); }
     }
     PALMA_C = { xa, xb, tope, yH: tope(GAP_C[0]) - HUECO_C / 2 };
-    return f;
-  },
-  // el plató vacío y el estadio sin fondo (como en ep3-proton: n 1999 y 2001)
-  fondo() { P.limpiar(); P.render(1999); return foto(P); },
-  estadio() { P.limpiar(); estadio(P, I.EST, ESTADIO_0); P.render(2001, { fondo: false }); return foto(P); },
-  // la balanza asentada (el plato del cuerpo abajo)
-  balF() { P.limpiar(); const r = ponerBalanza(BALANZA.A_MAX); P.render(3301); DOT = pant(r.s.puntito(0.56, 0.6)); return foto(P); },
+  } },
 };
-const FOTOS = {};
-let hechasAhora = 0;
+const EN_CURSO = {};
+function hornear(nombre, k) {
+  const def = FRANJAS[nombre];
+  let e = EN_CURSO[nombre];
+  if (!e) { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; e = EN_CURSO[nombre] = { c, hechas: new Set() }; }
+  const Hb = lienzoGL.height, Wb = lienzoGL.width;
+  const [y0, y1] = k < 0 ? [0, Hb] : [Math.floor((k * Hb) / def.partes), Math.floor(((k + 1) * Hb) / def.partes)];
+  P.limpiar(); def.pinta();
+  const R = P.renderer, pr = R.getPixelRatio();
+  R.setScissor(0, (Hb - y1) / pr, Wb / pr, (y1 - y0) / pr); R.setScissorTest(true);
+  try { P.render(def.nf, { fondo: false }); } finally { R.setScissorTest(false); R.setScissor(0, 0, Wb / pr, Hb / pr); }
+  P.limpiar();
+  const gc = e.c.getContext('2d');
+  gc.clearRect(0, y0, Wb, y1 - y0); gc.drawImage(lienzoGL, 0, y0, Wb, y1 - y0, 0, y0, Wb, y1 - y0);
+  if (k < 0) for (let i = 0; i < def.partes; i++) e.hechas.add(i); else e.hechas.add(k);
+  if (e.hechas.size >= def.partes) { FOTOS[nombre] = e.c; delete EN_CURSO[nombre]; if (def.despues) def.despues(e.c); }
+}
+// la franja siguiente de una foto por franjas (devuelve false si ya está)
+function siguienteFranja(nombre) {
+  if (FOTOS[nombre]) return false;
+  const e = EN_CURSO[nombre], def = FRANJAS[nombre];
+  let k = 0; while (e && e.hechas.has(k)) k++;
+  const a = performance.now(); hornear(nombre, k); window.__fotos.push([nombre + '#' + k, nAhora, Math.round(performance.now() - a)]);
+  return true;
+}
 window.__fotos = [];
 let nAhora = -1;
 function F(nombre) {
+  if (!FOTOS[nombre] && FRANJAS[nombre]) { const a = performance.now(); delete EN_CURSO[nombre]; hornear(nombre, -1); hechasAhora++; window.__fotos.push([nombre, nAhora, Math.round(performance.now() - a)]); }
   if (!FOTOS[nombre]) { const a = performance.now(); FOTOS[nombre] = HACER[nombre](); hechasAhora++; window.__fotos.push([nombre, nAhora, Math.round(performance.now() - a)]); }
   return FOTOS[nombre];
 }
@@ -599,7 +657,7 @@ function F(nombre) {
 P.fotograma(0);
 F('regla'); F('cuentas'); F('nubes');
 window.__carga.push(['regla, cuentas y nubes', Math.round(performance.now())]);
-F('planoB');
+F('fondo'); F('gato0'); F('manoB'); F('planoB');
 window.__carga.push(['plano medio', Math.round(performance.now())]);
 {
   // (coste) el estreno de las piezas que salen vivas más tarde: diminutas y fuera de cuadro
@@ -615,8 +673,9 @@ window.__carga.push(['estreno de las piezas', Math.round(performance.now())]);
 
 // (coste) las fotos que no se hacen al cargar, en un fotograma barato poco antes de hacer falta: [desde, foto, hasta]
 const PREPARAR = [
-  [0.05, 'gatoC', T.corteC], [0.15, 'manoC', T.corteC],
-  [T.corteC + 0.1, 'fondo', T.corteE], [T.corteC + 0.3, 'estadio', T.corteE], [T.corteC + 0.6, 'balF', T.asienta],
+  [0.05, 'gato1', T.ojos[0]], [0.05, 'gato2', T.ojos[0]], [0.05, 'gato3', T.ojos[0]],
+  [0.05, 'gatoC', T.corteC], [0.05, 'manoC', T.corteC],
+  [T.corteC + 0.1, 'estadio', T.corteE], [T.corteC + 0.3, 'balF', T.asienta],
 ];
 
 // ---------------------------------------------------------------- los planos
@@ -649,11 +708,7 @@ function planoA(n, ts) {
   resplandorFranja(q[1], 120 * Math.max(0.3, s / SMAX), mix(1, 0.5, u));
 }
 function planoB(n, ts) {
-  P.limpiar();
-  gato(P, I.GATO, gatoB(ts));
-  P.pieza(I.MANO, manoB(ts));
-  P.render(n);
-  pegarGL();
+  compB(g, ts);
   // el contacto: unas chispitas muy tenues donde la palma toca el pelo (no se tocan: se empujan)
   const c = caricia(ts);
   const k = (1 - c.alza) * (0.55 + 0.45 * azar(n, 21));
@@ -665,6 +720,7 @@ function planoC(n, ts) {
   const s = 1 + 0.07 * eio(u);
   F('manoC');
   const piv = [GAP_C[0], PALMA_C.yH];
+  pintar(F('fondo'));
   fotoEscalada(F('gatoC'), s, piv);
   // la mano respira un poco (sube y baja 3 px) sin tocar nunca el pelo
   const dy = -3 * Math.sin((ts - T.corteC) * 2.4);
@@ -672,9 +728,12 @@ function planoC(n, ts) {
   g.translate(piv[0], piv[1]); g.scale(s, s); g.translate(-piv[0], -piv[1]);
   // la sombra de la palma sobre el pelo
   const yS = PALMA_C.yH + HUECO_C / 2 + 6;
-  let gr = g.createLinearGradient(0, yS - 10, 0, yS + 60);
-  gr.addColorStop(0, 'rgba(10,6,4,0.45)'); gr.addColorStop(1, 'rgba(10,6,4,0)');
-  g.fillStyle = gr; g.fillRect(GAP_C[0] - 520, yS - 10, 1040, 70);
+  const xS = (PALMA_C.xa + PALMA_C.xb) / 2, rS = (PALMA_C.xb - PALMA_C.xa) / 2 + 80;
+  g.save(); g.translate(xS, yS + 8); g.scale(1, 0.09);
+  let gr = g.createRadialGradient(0, 0, 0, 0, 0, rS);
+  gr.addColorStop(0, 'rgba(20,8,3,0.5)'); gr.addColorStop(1, 'rgba(20,8,3,0)');
+  g.fillStyle = gr; g.fillRect(-rS, -rS, 2 * rS, 2 * rS);
+  g.restore();
   pelos(n, ts);
   g.drawImage(F('manoC'), ALINEA_C[0], ALINEA_C[1] + dy, W, H);
   g.restore();
@@ -794,7 +853,7 @@ function dibujar(t) {
   POST.aplicar(g, n);
   if (!hechasAhora) {
     const pendiente = PREPARAR.find(([t0, nombre, t1]) => ts >= t0 && ts < t1 && !FOTOS[nombre]);
-    if (pendiente) F(pendiente[1]);
+    if (pendiente) { if (FRANJAS[pendiente[1]]) siguienteFranja(pendiente[1]); else F(pendiente[1]); }
   }
 }
 window.__inicio = { silla: { D_S, TZ_S, NZ_S, A0 }, Z: MI.Z5, O: [960, 540], REGLA: { ...REGLA, pieza: undefined, flecha: undefined }, SITIO, A_ESC };

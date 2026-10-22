@@ -53,9 +53,10 @@
 // en 10⁻⁵ (sin fondo). En cada fotograma se renderiza, sin fondo, lo que se mueve: Atom siempre; el ojo en corte (la luz
 // se mueve); la regla mientras corre la escala; la fila de glóbulos y la cota. El ojo de fuera que se cierra son cuatro
 // fotos (la abierta entera y las otras tres solo en la zona de los párpados, sin sombra de los párpados en la cara para que
-// casen) y el río va en 2D con fotos de un glóbulo. Al cargar se hacen el plató, la foto del ojo en corte y la regla en
-// 10⁻⁴ y se estrena el ojo de fuera; las demás fotos (las grandes, por franjas) y los estrenos se reparten por
-// presupuesto entre los fotogramas baratos, antes de hacer falta (PREPARAR).
+// casen) y el río va en 2D con fotos de un glóbulo. Al cargar se hacen el plató, la foto del ojo en corte, la regla en
+// 10⁻⁴, el estreno del ojo de fuera y sus dos primeras fotos (abierto y 0,2; no caben junto a un fotograma del ojo en
+// corte); las demás fotos (las grandes, por franjas) y los estrenos se reparten por presupuesto (en s de reloj) entre los
+// fotogramas, antes de hacer falta, sin que ninguno pase de ~3,6 s (PREPARAR).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cl, mix, prog, eio, eoc, eic, azar } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -568,24 +569,25 @@ function F(k) {
   }
   return FOTO[k];
 }
-// presupuesto, en s de CPU del navegador medidos en este servidor (bin/cap.mjs; el mismo fotograma de ep3-pelo con el ojo
-// en corte da ~10): COSTE, lo que cuesta componer cada tipo de fotograma con sus fotos hechas; EST, cada foto (o franja)
-// y cada estreno; LIMITE, lo que puede llegar a costar un fotograma
-const COSTE = { corte: 5.8, ojo: 1.5, mir1: 1.4, tronco: 1.3, mir2: 4.0, vaso: 2.5, pelo: 6.5 };
-const LIMITE = 8.6;
+// presupuesto, en s de reloj por fotograma con capturar.mjs en este servidor con carga ~11–14 (el contrato: ≤ 5 s):
+// COSTE, lo que cuesta componer cada tipo de fotograma con sus fotos hechas; EST, cada foto (o franja) y cada estreno;
+// LIMITE, lo que puede llegar a costar un fotograma
+const COSTE = { corte: 2.2, ojo: 0.3, mir1: 0.3, tronco: 0.3, mir2: 2.2, vaso: 0.3, pelo: 2.2 };
+const LIMITE = 3.6;
 const EST = {
-  'ojo0#': 2.8, ojo0: 0.1, 'ojo1#': 2.8, ojo1: 0.1, 'ojo2#': 2.8, ojo2: 0.1, 'ojo3#': 2.8, ojo3: 0.1, ojoVin: 0.3,
-  'e:tronco': 2.0, 'tronco#': 3.0, tronco: 0.1, 'e:vaso': 2.5, 'vaso#': 4.0, vaso: 0.1, 'e:globulos': 3.0,
-  regla5: 3.5, pose: 2.0, 'e:cortePelo': 2.5, 'pelo#': 3.5, pelo: 0.1, 'e:cota': 1.5,
+  'ojo2#0': 2.7, 'ojo2#': 1.6, ojo2: 0.05, 'ojo3#': 1.6, ojo3: 0.05, ojoVin: 0.1,
+  'e:tronco': 0.3, 'tronco#': 0.9, tronco: 0.05, 'e:vaso': 0.3, 'vaso#': 1.8, vaso: 0.05, 'e:globulos': 0.3,
+  regla5: 1.0, pose: 0.85, 'e:cortePelo': 0.4, 'pelo#': 1.3, pelo: 0.05, 'e:cota': 0.3,
 };
-const est = (k) => EST[k.includes('#') ? k.split('#')[0] + '#' : k.startsWith('pose') ? 'pose' : k];
+const est = (k) => EST[k] ?? EST[k.includes('#') ? k.split('#')[0] + '#' : k.startsWith('pose') ? 'pose' : k];
 const franjas = (k, desde, hasta) => [...Array(FRANJAS[k]).keys()].map((b) => [desde, `${k}#${b}`, hasta]).concat([[desde, k, hasta]]);
 const PREPARAR = [
-  ...franjas('ojo0', 0, T.ojo), ...franjas('ojo1', 0, T.cierra[1]), ...franjas('ojo2', 0, T.cierra[1]), ...franjas('ojo3', 0, T.cierra[1]),
+  ...franjas('ojo2', 0, T.cierra[1]), ...franjas('ojo3', 0, T.cierra[1]),
+  // los estrenos, baratos, caben en los fotogramas del ojo en corte
+  [0, 'e:tronco', T.mir1[0]], [0, 'e:vaso', T.mir2[0]], [0, 'e:globulos', T.mir2[0]], [0, 'e:cortePelo', T.pelo], [0, 'e:cota', T.pelo],
   // (lo que no corre prisa, a partir de los fotogramas baratos del ojo de fuera)
-  [T.ojo, 'ojoVin', T.mir1[1]], [T.ojo, 'e:tronco', T.mir1[0]], ...franjas('tronco', T.ojo, T.mir1[0]),
-  [T.ojo, 'e:vaso', T.mir2[0]], [T.ojo, 'e:globulos', T.mir2[0]], ...[...Array(RIO.poses).keys()].map((k) => [T.ojo, 'pose' + k, T.mir2[0]]), ...franjas('vaso', T.ojo, T.mir2[0]), [T.ojo, 'regla5', T.mir2[1]],
-  [T.ojo, 'e:cortePelo', T.pelo], [T.ojo, 'e:cota', T.pelo], ...franjas('pelo', T.ojo, T.pelo),
+  [T.ojo, 'ojoVin', T.mir1[1]], ...franjas('tronco', T.ojo, T.mir1[0]), ...[...Array(RIO.poses).keys()].map((k) => [T.ojo, 'pose' + k, T.mir2[0]]), ...franjas('vaso', T.ojo, T.mir2[0]), [T.ojo, 'regla5', T.mir2[1]],
+  ...franjas('pelo', T.ojo, T.pelo),
 ];
 // lo que tiene que estar hecho antes (si no, F() lo haría dentro y se saldría del presupuesto)
 const ANTES = { pose0: ['e:globulos'], tronco: ['e:tronco'], vaso: ['e:vaso'], pelo: ['e:cortePelo'], ojo0: [], ojo1: ['ojo0'], ojo2: ['ojo0'], ojo3: ['ojo0'], ojoVin: ['ojo3'] };
@@ -606,9 +608,9 @@ function preparar(ts) {
   window.__hechas = hechas;
 }
 
-// al cargar: la foto del ojo en corte, la regla en 10⁻⁴ y el estreno del ojo de fuera (estrenan también los programas
-// del ojo en corte, la regla, la flecha y Atom)
-F('baseOjo'); F('regla4'); F('e:ojo');
+// al cargar: la foto del ojo en corte, la regla en 10⁻⁴, el estreno del ojo de fuera (estrenan también los programas
+// del ojo en corte, la regla, la flecha y Atom) y las dos primeras fotos del ojo de fuera (abierto y 0,2)
+F('baseOjo'); F('regla4'); F('e:ojo'); F('ojo0'); F('ojo1');
 P.limpiar(); atomo(0); P.render(0, { fondo: false });
 hito('fotos');
 window.__medidas = { R_OJO, FOCO_PARPADO, FOCO_CANTO, COTA, T, ojoExt: { pos: EXT.pos, escala: EXT.esc, px: EXT.px }, vasoEsc: VASO.esc, pelo: { pos: CP.pos, escala: CP.esc } };
