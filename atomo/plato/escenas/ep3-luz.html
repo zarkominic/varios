@@ -45,6 +45,11 @@
 // el mundo y la regla durante los saltos, el reloj mientras corre el segundero y el reloj de arena mientras cae la arena.
 // El rayo, la cinta, los puntitos y los destellos son 2D (milisegundos). Las fotos se hacen en fotogramas baratos poco
 // antes de hacer falta (PREPARAR); un instante suelto las hace al momento (sale lo mismo).
+// El mundo en vivo de los saltos va en un segundo crearMundo con captura: false (0,57 de resolución, ~1/3 del coste);
+// en movimiento no se nota y lo quieto es siempre foto a resolución entera.
+// Medido el 22-10-2026, los 215 fotogramas en orden (carga del servidor 6–15): listo en 24 s (49 s de CPU); CPU media
+// 3,5 s por fotograma; lo quieto 0,3–3 s; los saltos en vivo 6–10 s (61 fotogramas); las tres fotos del mundo a
+// resolución entera (10⁷, 10¹⁶ y 10²¹), 10–16 s cada una, en un fotograma barato cada una.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteCartela, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, mulberry32, brote, QUIETO as QUIETO_KIT } from '/atomo/plato/kits/plastilina-adulta.js';

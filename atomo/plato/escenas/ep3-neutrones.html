@@ -391,13 +391,14 @@ function eulerDe(ex, ey) {
   return [e.x, e.y, e.z];
 }
 // en el mundo: el mango hacia DIR y algo hacia el fondo, lo que sube el mango de la cucharilla (≈ 28°): así el mango
-// queda en el plano de la pantalla y no apunta a la cámara; el cuenco, abierto hacia la cámara
+// queda en el plano de la pantalla y no apunta a la cámara; el cuenco, abierto hacia la cámara y algo girado sobre el
+// mango (de canto, el cuello del mango no se ve)
 const D_MUNDO = [DIR[0], DIR[1], -0.53];
-const ROT_CUC = eulerDe(D_MUNDO, [0, 0, 1]);
+const ROT_CUC = eulerDe(D_MUNDO, [-DIR[1] * 0.9, DIR[0] * 0.9, 1]);
 const ROT_MANO = eulerDe([DIR[1], -DIR[0], 0], [DIR[0], DIR[1], 0.15]);
-const CUENCO = [1205, 650];             // dónde está el cuenco (px), sobre la ciudad, a la derecha de la bola
-const E_CUC_M = 250 / pxU(en(...CUENCO, Z_MANO));       // la cucharita mide ~250 px
-const E_MANO = E_CUC_M / 1.48 * 1.25;                  // la mano, algo más larga que la cucharita
+const CUENCO = [1175, 700];             // dónde está el cuenco (px), sobre la ciudad, a la derecha de la bola
+const E_CUC_M = 330 / pxU(en(...CUENCO, Z_MANO));       // la cucharita mide ~330 px (el cuello del mango es fino)
+const E_MANO = E_CUC_M / 1.48 * 1.0;                   // la mano, tan larga como la cucharita
 const E_PIZ_M = 0.12 * E_CUC_M;
 // la mano y la cucharita quietas (una pieza rígida): una foto (dos para el hervor); el temblor y la salida, en 2D
 const CUC_M = { pos: en(...CUENCO, Z_MANO), escala: E_CUC_M, rot: ROT_CUC };
@@ -405,8 +406,8 @@ const BOLITA_M = bolita(CUC_M, E_PIZ_M);
 const BOLITA_M_PX = pant(BOLITA_M.pos), R_BOLITA_M = E_PIZ_M * pxU(BOLITA_M.pos);
 function ponerManoYCuchara() {
   const r = cucharilla(P, I.CUC, CUC_M);
-  // la mano coge el mango por donde dice el kit (mango): entre el pulgar y el índice, bajo los dedos
-  const qm = new THREE.Vector3(-0.18, -0.62, -0.1).applyEuler(new THREE.Euler(...ROT_MANO, 'YXZ')).multiplyScalar(E_MANO);
+  // la mano pellizca el cuello del mango con las yemas (el mango, tan fino, apenas se ve entre las yemas y el cuenco)
+  const qm = new THREE.Vector3(-0.12, -0.3, -0.1).applyEuler(new THREE.Euler(...ROT_MANO, 'YXZ')).multiplyScalar(E_MANO);
   P.pieza(I.MANO, { pos: [r.mango[0] - qm.x, r.mango[1] - qm.y, r.mango[2] - qm.z], escala: E_MANO, rot: ROT_MANO });
   neutrones(P, I.PIZ, BOLITA_M);
 }
