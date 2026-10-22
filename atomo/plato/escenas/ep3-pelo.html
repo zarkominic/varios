@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-pelo · salto −4, el grosor de un pelo</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-pelo (frases 17–18, cartela «−4»). Plastilina adulta: el plató de las pruebas, el «humano» del lote 0,
+// la regla del lote 0 y el ojo en corte de kits/ep03-ojo.js (de ep3-hola, congelado). Adapta los saltos de
+// prueba-plastilina-adulta.html («saltos → pelo» y «decima → milimetro»). No crea ningún kit: el libro abierto (con el
+// pelo encima) es un tipo de pieza de esta escena (tiposExtra), porque solo lo usa ella.
+//
+// Planos. La cámara del plató es fija: los acercamientos son fotos con empuje 2D, mirillas o cortes, como en la prueba.
+//  0        GENERAL (empieza_con = último fotograma de ep3-saltos): la persona de pie a la izquierda, la regla normal en el
+//           borde derecho con el marcador en 10⁰ y Atom abajo a la izquierda; delante, la cartela «−4» (quieta hasta
+//           0,75 s, se va por arriba hacia 1,2 s).
+//  pelo     «Salto menos cuatro…»: cuatro saltos ×10 con mirilla, como en la prueba (la primera se abre en la mano de la
+//           derecha de la pantalla, la manoIzq del «humano», donde brilló al final de ep3-saltos): persona → mano → piel
+//           con vello → un pelo en su folículo → el pelo como tronco. El marcador baja una fila en cada salto, de 10⁰ a
+//           10⁻⁴. Los decorados de mano, piel y pelo son fotos hechas al cargar, con desenfoque de basculante.
+//  ½ pelo   DETALLE del pelo-tronco: en la segunda mitad de la frase, la cota de alambre se tiende de lado a lado del
+//           pelo y baja la tarjeta «10⁻⁴ m».
+//  rejilla  PLANO MEDIO por encima del hombro (corte): la cabeza del «humano», de perfil y algo de espaldas, lee un libro
+//           abierto a un palmo de la cara. En la página derecha, trazos de tinta cada vez más finos y, entre ellos, un pelo.
+//  ⅕ rej.   DETALLE de la página (empuje 2D desde el plano medio que acaba en la foto de cerca): los trazos más finos
+//           que el pelo se emborronan en gris y el pelo queda nítido, con un brillo: es lo último que se distingue.
+//  ½ rej.   CORTE DEL OJO (corte, a mitad de frase): el ojo en corte de perfil, con la córnea hacia la derecha (de donde
+//           viene la luz del libro); la luz entra, se cruza en el cristalino y cae en dos puntos de la rejilla de puntitos
+//           del fondo; el ojo gira un poco para enseñar la rejilla. Último fotograma (termina_con), quieto 0,6 s.
+// Las palabras sueltas no tienen marca: los golpes de dentro de una frase van a una fracción fija de su intervalo
+// (E.marca(x) … E.marca(x + '_fin')).
+//
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, sin recorte 2D)
+//  · fotograma 0 = el último de ep3-saltos (y la cartela delante): persona «humano», aspecto 'adulto', escala 2,4,
+//    pos [P.punto(612, 600, 0,6)[0], 2,4, 0,6], rot [0, 0,2, 0], 'de pie'; regla P.regla con pos P.punto(1668, 528, 0,4),
+//    escala 1,42, rot [0, −0,12, 0], e 0, ya 1,5, entera 0, actual 0, marca 0, lupa 0,3; Atom, el presentador de ep3-hola
+//    (centro (230, 780) px a z = 1, órbitas de 180 px), con el reloj de sus electrones donde lo dejó ep3-saltos.
+//  · último fotograma (= el primero de ep3-celulas; en números en window.__fin): ojoCorte de ep03-ojo.js, variante 1 (la
+//    córnea a +x, a la derecha de la pantalla), pos P.punto(OJO.x, OJO.y, OJO.z), escala OJO.esc, rot OJO.rot, con
+//    ponerCorte({ separacion: 6, brillo: 1, haces: 1 }) y el fondo del plató; la regla igual que arriba pero con actual
+//    −4 y marca −4 (el marcador en 10⁻⁴, la fila de abajo de la regla); Atom en su sitio de presentador.
+// Coste: decorados quietos en fotos al cargar (mano, piel, pelo, plano por encima del hombro y página de cerca); en cada
+// fotograma solo Atom, la regla y lo que se mueve (la persona del principio con la cartela, el pelo-tronco con la cota,
+// el ojo en corte).
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, postura } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposOjo, uniformesOjo, ponerCorte } from '/atomo/plato/kits/ep03-ojo.js';
+
+const T0 = performance.now();
+// lo que tarda cada paso de la carga (ms desde el principio), para medirla
+const tiempos = (window.__tiempos = {});
+const hito = (k) => { tiempos[k] = Math.round(performance.now() - T0); };
+const E = await escena('ep3-pelo', 'ep03');
+const M = (k) => E.marca(k);
+const m = { pelo: M('pelo'), peloFin: M('pelo_fin'), rejilla: M('rejilla'), rejillaFin: M('rejilla_fin') };
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+const fr = (a, b, u) => a + (b - a) * u;
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const T = {
+  // frase 17: «Salto menos cuatro: | una décima de milímetro, | el grosor de un pelo.»
+  saltos: m.pelo - 0.25,                          // el primer salto arranca (la cartela ya se fue a 1,2 s)
+  saltosFin: fr(m.pelo, m.peloFin, 0.45),          // el cuarto salto termina: el pelo-tronco
+  decima: fr(m.pelo, m.peloFin, 0.55),             // la cota, tendida (segunda mitad de la frase)
+  milimetro: fr(m.pelo, m.peloFin, 0.74),          // la tarjeta 10⁻⁴ m, en su sitio
+  // frase 18: «Es casi el detalle más fino que puedes distinguir, | porque el fondo del ojo | es una rejilla de células…»
+  lectura: m.rejilla - 0.12,                       // corte al plano por encima del hombro
+  empuje0: fr(m.rejilla, m.rejillaFin, 0.15),      // empuje hacia la página
+  empuje1: fr(m.rejilla, m.rejillaFin, 0.27),      // ya en el detalle de la página
+  ojo: fr(m.rejilla, m.rejillaFin, 0.5) - 0.12,    // corte al ojo (a mitad de frase)
+};
+T.borron0 = T.empuje1 - 0.25; T.borron1 = T.empuje1 + 0.55;  // los trazos finos se emborronan
+T.brillo = T.borron1 + 0.15;                                 // el pelo, nítido, brilla un instante
+T.luz0 = T.ojo + 0.2; T.luz1 = T.ojo + 0.95;                 // la luz entra por la córnea
+T.puntos0 = T.ojo + 0.6; T.puntos1 = T.ojo + 1.25;           // y cae en la rejilla
+T.giro1 = Math.min(fr(m.rejilla, m.rejillaFin, 0.92), QUIETO - 0.3); // el ojo termina de girar
+const JS = (T.saltosFin - T.saltos) * 0.8 / 4;
+const SALTO = [0, 1, 2, 3].map((k) => { const a = T.saltos + k * (T.saltosFin - T.saltos - JS) / 3; return [a, a + JS]; });
+const plano = (ts) => (ts < T.lectura ? 'saltos' : ts < T.empuje1 ? 'hombro' : ts < T.ojo ? 'pagina' : 'ojo');
+
+// ---------------------------------------------------------------- el libro (tipo de pieza de la escena)
+// Un libro abierto de arcilla. Local: el lomo en x = 0, cada página de |x| ≈ 0,04 a 0,955 y de y = −0,66 a 0,66; las hojas
+// miran a +z y suben desde el lomo (lbZ). Página izquierda: renglones sin letras (barritas grises). Página derecha: trazos de
+// tinta cada vez más finos (LB_Y, LB_W: medio grueso) y, entre el cuarto y el quinto, un pelo de verdad (geometría, el color
+// del pelo del kit) que cruza la página y asoma por el canto. T.z (color de P.pieza) = unidades locales por píxel en ese
+// encuadre, para filtrar los trazos finos sin que parpadeen.
+const LB = { RP: 0.0065, X0: 0.1, X1: 1.06, Y: [0.50, 0.36, 0.235, 0.125, -0.07, -0.155, -0.23, -0.295], W: [0.034, 0.022, 0.014, 0.0085, 0.0042, 0.0026, 0.0016, 0.001] };
+const lbZ = (x) => { const a = Math.abs(x), u = cl(a / 0.45); return 0.12 * u * u * (3 - 2 * u) + 0.02 * a; };
+const lbPeloY = (x) => 0.03 + 0.012 * Math.sin(x * 4.7 + 0.6) + 0.006 * Math.sin(x * 11.0);
+const LIBRO = { radio: 1.3, glifos: [], glsl: /* glsl */`
+float lbZ(float x) { float a = abs(x); return 0.12 * smoothstep(0.0, 0.45, a) + 0.02 * a; }
+const float LB_RP = ${LB.RP.toFixed(4)}, LB_X0 = ${LB.X0.toFixed(3)}, LB_X1 = ${LB.X1.toFixed(3)};
+const float LB_Y[8] = float[8](${LB.Y.map((v) => v.toFixed(4)).join(', ')});
+const float LB_W[8] = float[8](${LB.W.map((v) => v.toFixed(4)).join(', ')});
+float lbPeloY(float x) { return 0.03 + 0.012 * sin(x * 4.7 + 0.6) + 0.006 * sin(x * 11.0); }
+float lbPeloZ(float x) { float s = max(x - 0.955, 0.0); return lbZ(min(x, 0.955)) + LB_RP - 0.35 * s - 3.0 * s * s; }
+float lbPelo(vec3 q) {
+  float t = clamp(q.x, LB_X0, LB_X1);
+  vec3 c = vec3(t, lbPeloY(t), lbPeloZ(t));
+  float r = LB_RP * (1.0 - 0.45 * smoothstep(0.9, LB_X1, t));
+  return (length(q - c) - r) * 0.8;
+}
+float lbHojas(vec3 q) {
+  float a = abs(q.x);
+  float dz = max(q.z - lbZ(q.x), -0.07 - q.z) * 0.86;
+  vec2 e = vec2(a - 0.955, abs(q.y) - 0.66);
+  float dc = length(max(e, 0.0)) + min(max(e.x, e.y), 0.0);
+  return smax(dz, dc, 0.012);
+}
+float lbTapa(vec3 q) {
+  float d = sdRoundBox(q - vec3(0.0, 0.0, -0.093), vec3(1.0, 0.7, 0.02), 0.014);
+  return min(d, sdCapsule(q, vec3(0.0, -0.69, -0.085), vec3(0.0, 0.69, -0.085), 0.045));
+}
+float pz_libro(vec3 q, vec4 T, out float m) {
+  float d = lbHojas(q), t = lbTapa(q), p = lbPelo(q);
+  m = 0.0;
+  if (t < d) { d = t; m = 1.0; }
+  if (p < d) { d = p; m = 2.0; }
+  return d;
+}
+float pzc_libro(vec3 q, vec4 T) { return min(lbHojas(q), lbTapa(q)) + 0.004; }
+// cobertura (filtro de caja de un píxel de alto aa) de una franja de y = c ± w
+float lbFranja(float y, float c, float w, float aa) { return clamp(min(c + w, y + 0.5 * aa) - max(c - w, y - 0.5 * aa), 0.0, aa) / aa; }
+float lbTrazos(vec2 p, float aa) {
+  float ex = smoothstep(0.155, 0.17, p.x) * (1.0 - smoothstep(0.845, 0.86, p.x));
+  if (ex <= 0.0) return 0.0;
+  float k = 0.0;
+  for (int i = 0; i < 8; i++) {
+    float fi = float(i);
+    float c = LB_Y[i] + 0.0035 * (vnoise(vec3(p.x * 7.0, fi * 3.1, 0.5)) - 0.5);
+    float w = LB_W[i] * (0.88 + 0.24 * vnoise(vec3(p.x * 23.0, fi * 5.3, 1.7)));
+    k = max(k, lbFranja(p.y, c, w, aa));
+  }
+  return k * ex;
+}
+float lbTexto(vec2 p, float aa) {
+  if (p.x > -0.15 || p.x < -0.87) return 0.0;
+  float fila = floor((0.585 - p.y) / 0.074);
+  if (fila < 0.0 || fila > 15.0) return 0.0;
+  float c = 0.585 - (fila + 0.5) * 0.074;
+  float cov = lbFranja(p.y, c, 0.0105, aa);
+  float letra = floor((p.x + 0.87) / 0.0135);
+  float hueco = step(0.82, hash12(vec2(letra, fila + 0.37)));
+  float fin = -0.15 - 0.3 * hash12(vec2(fila, 9.0)) * step(0.62, hash12(vec2(fila, 4.0)));
+  return cov * (1.0 - hueco) * step(p.x, fin);
+}
+vec3 pzcol_libro(vec3 q, vec4 T, float m) {
+  float v = 0.95 + 0.1 * vnoise(q * 9.0);
+  if (m > 1.5) { gBri = 1.7; gTr = 0.4; return C_PELO * (0.8 + 0.4 * vnoise(q * vec3(4.0, 60.0, 60.0))); }
+  if (m > 0.5) return mix(C_TERRA, C_WOOD, 0.45) * 0.95 * v;
+  float aa = max(T.z, 1e-4);
+  vec3 papel = C_CREAM * 1.13 * (0.96 + 0.05 * vnoise(q * 31.0) + 0.03 * vnoise(q * 4.0));
+  gTr = 0.6;
+  // el canto de las hojas: rayitas
+  if (q.z < lbZ(q.x) - 0.006) return papel * (0.72 + 0.1 * (0.5 + 0.5 * sin(q.z * 950.0))) * v;
+  papel *= mix(0.62, 1.0, smoothstep(0.0, 0.22, abs(q.x)));
+  float tinta = q.x > 0.0 ? lbTrazos(q.xy, aa) : 0.42 * lbTexto(q.xy, aa);
+  return mix(papel, vec3(0.035, 0.026, 0.02), tinta) * v;
+}
+` };
+
+// ---------------------------------------------------------------- el plató
+const UO = uniformesOjo();
+const I = { PER: 0, REG: 1, FLE: 2, MANO: 3, PIEL: 4, PELO: 5, TRO: 6, COTA: 7, ETQ: 8, LIB: 9, CORTE: 10 };
+const P = await crearPlato({
+  piezas: ['humano', 'reglaA', 'flecha', 'mano', 'piel', 'pelo', 'tronco', 'cota', 'etiqueta', 'libro', 'ojoCorte'],
+  alfa: true, post: false, cartela: E.cartela,
+  tiposExtra: { libro: LIBRO, ojoCorte: tiposOjo({ cosas: ['celula'] }).ojoCorte }, uniformes: UO,
+  sombraFondo: ['p0', 'p3', 'p4', 'p5', 'p6', 'p9', 'p10'],
+  sombras: { p6: ['p7', 'p8'], p0: ['atomo'], p9: ['p0'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+hito('plato');
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+// punto de un objeto girado (euler YXZ, como el kit) y escalado
+const mundo = (pos, rot, esc, q) => {
+  const v = new THREE.Vector3(...q).multiplyScalar(esc).applyEuler(new THREE.Euler(rot[0], rot[1], rot[2], 'YXZ'));
+  return [pos[0] + v.x, pos[1] + v.y, pos[2] + v.z];
+};
+
+// lienzo 2D encima del de WebGL (se compone aquí; viñeta y grano al final)
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const lienzo = () => { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; return c; };
+function foto() { const c = lienzo(); c.getContext('2d').drawImage(lienzoGL, 0, 0); return c; }
+function pegarGL() { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lienzoGL, 0, 0); g.restore(); }
+
+// ---------------------------------------------------------------- puesta en escena (mundo)
+// nivel 0: la persona (la de ep3-saltos)
+const E_PER = 2.4, PER = [en(612, 600, 0.6)[0], E_PER, 0.6], ROT_PER = 0.2;
+// regla y marcador (fijos, los de las pruebas)
+const E_REG = 1.42, REG = en(1668, 528, 0.4), ROT_REG = [0, -0.12, 0];
+// niveles 1–4: los de la prueba
+const E_MANO = 2.03, MANO = en(960, 600, 5.0);
+const E_PIEL = 2.2, PIEL = en(960, 690, 0.2), ROT_PIEL = [0.42, -0.28, 0];
+const E_PELO = 1.75, PELO = en(1010, 800, 0.0), ROT_PELO = [0.32, -0.32, 0];
+const E_TRO = 2.15, TRO = (() => { const a = en(900, 540, -0.4); return [a[0], 1.4 * E_TRO, -0.4]; })();
+const COTA = (() => {
+  const zC = TRO[2] + E_TRO + 0.35, yC = en(900, 660, zC)[1];
+  const bL = pant([TRO[0] - E_TRO * 1.03, yC, TRO[2]]), bR = pant([TRO[0] + E_TRO * 1.03, yC, TRO[2]]);
+  const a = en(bL[0], 660, zC), b = en(bR[0], 660, zC);
+  return { pos: [(a[0] + b[0]) / 2, a[1], zC], medio: (b[0] - a[0]) / 2 };
+})();
+const ETQ = en(900, 570, TRO[2] + E_TRO + 0.45);
+// Atom: el presentador de ep3-hola (centro (230, 780), órbitas de 180 px); su reloj sigue donde lo dejó ep3-saltos
+const A_Z = 1.0, ATOMO_PRES = [230, 780];
+const escAtomo = (sx, sy, d) => d / (2 * (1.68 + 0.16) * pxU(en(sx, sy, A_Z)));
+const A_ESC = escAtomo(...ATOMO_PRES, 180);
+const TZ_SALTOS = 16.436;   // calma(QUIETO) de ep3-saltos: la fase de sus electrones y su vaivén al cortar
+
+// plano por encima del hombro: la cabeza del «humano», muy cerca de la cámara, de perfil hacia la derecha y algo de
+// espaldas; el libro a un palmo de su cara, girado hacia ella (y algo hacia la cámara)
+const LECT = {
+  per: { x: 560, y: 470, z: 9.2, esc: 4.3, giro: Math.PI / 2 + 0.28 },
+  lib: { x: 1150, y: 560, z: 8.4, ancho: 600, rot: [-0.32, -0.62, 0.05] },
+  // la página de cerca: el pelo cruza la pantalla por (CERCA.x, CERCA.y); el libro, más cerca y casi de frente
+  cerca: { x: 900, y: 450, z: 9.0, ancho: 2500, rot: [-0.16, -0.2, 0.02], foco: [0.5, 0.0] },
+};
+function colocarLibro(L) {
+  const pos0 = en(L.x, L.y, L.z);
+  const esc = L.ancho / (2.0 * pxU(pos0));
+  return { pos: pos0, escala: esc, rot: L.rot };
+}
+const LIB_H = colocarLibro(LECT.lib);
+// en el detalle, el libro se corre para que el punto foco de la página (x, y locales) quede en (CERCA.x, CERCA.y)
+const LIB_C = (() => {
+  const L = LECT.cerca, b = colocarLibro(L);
+  const f = [L.foco[0], L.foco[1], lbZ(L.foco[0])];
+  for (let i = 0; i < 4; i++) {
+    const p = pant(mundo(b.pos, b.rot, b.escala, f));
+    const a = en(p[0], p[1], b.pos[2]), o = en(L.x, L.y, b.pos[2]);
+    b.pos = [b.pos[0] + o[0] - a[0], b.pos[1] + o[1] - a[1], b.pos[2]];
+  }
+  return b;
+})();
+const aaLibro = (b) => 1 / (b.escala * pxU(b.pos));
+const pPagina = (b, x, y) => pant(mundo(b.pos, b.rot, b.escala, [x, y, lbZ(x)]));
+const pPelo = (b, x) => pant(mundo(b.pos, b.rot, b.escala, [x, lbPeloY(x), lbZ(Math.min(x, 0.955)) + LB.RP]));
+
+// el ojo en corte (variante 1: la córnea a +x, hacia la derecha de la pantalla, de donde viene la luz del libro)
+const OJO = { x: 930, y: 478, z: 4.0, diam: 720, rot0: [0.12, -0.36, 0.0], rot: [0.15, -0.55, 0.0], variante: 1 };
+OJO.pos = en(OJO.x, OJO.y, OJO.z);
+OJO.esc = OJO.diam / (2 * pxU(OJO.pos));
+
+// ---------------------------------------------------------------- Atom, regla
+function atomo(ts) {
+  const tz = TZ_SALTOS + calma(ts);
+  const w = en(ATOMO_PRES[0], ATOMO_PRES[1], A_Z);
+  P.atomo({
+    pos: [w[0], w[1] + 0.006 * Math.sin(tz * 1.1), w[2]], escala: A_ESC,
+    yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06,
+    energia: ts < QUIETO ? E.energia(ts) : 0, ts: tz,
+  });
+}
+// el marcador baja una fila en cada salto, con peso; la fila a la que apunta, más grande y en ámbar
+function regla(ts) {
+  let c = 0, mov = false;
+  for (let k = 0; k < 4; k++) {
+    const u = prog(ts, SALTO[k][0] + JS * 0.3, SALTO[k][1]);
+    c += eio(u);
+    mov = mov || (u > 0 && u < 1);
+  }
+  return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: ROT_REG, e: 0, ya: 1.5, entera: 0, actual: -c, marca: -c, lupa: 0.3, toque: mov });
+}
+
+// ---------------------------------------------------------------- niveles de los saltos (los de la prueba)
+let manoPx = null;
+function nivel0(ts) {
+  const h = P.pieza(I.PER, { pos: PER, escala: E_PER, rot: [0, ROT_PER, 0], postura: postura('depie'), t: ts, huellaFija: [0.37, 0.21, 0.0] });
+  manoPx = pant(h.punto('manoIzq'));
+  window.__persona = { coronilla: pant(h.punto('coronilla')), suela: pant(h.mundo([0, -1, 0.05])), centro: pant(h.mundo([0, 0, 0])) };
+  return h;
+}
+function nivel1() { P.pieza(I.MANO, { pos: MANO, escala: E_MANO, rot: [0.06, 0.2, -0.04] }); }
+function nivel2() { P.pieza(I.PIEL, { pos: PIEL, escala: E_PIEL, rot: ROT_PIEL }); }
+function nivel3() { P.pieza(I.PELO, { pos: PELO, escala: E_PELO, rot: ROT_PELO }); }
+function nivel4(ts) {
+  P.pieza(I.TRO, { pos: TRO, escala: E_TRO, rot: [0, 0.3, 0] });
+  // la cota se tiende de lado a lado (desde el centro) y la tarjeta baja a su sitio; nada rebota
+  const kC = eio(prog(ts, T.decima - 0.45, T.decima)), kT = eoc(prog(ts, T.decima - 0.45, T.decima - 0.2));
+  if (kT > 0) P.pieza(I.COTA, { pos: COTA.pos, escala: COTA.medio, variante: kC, sq: [1, mix(0.3, 1, kT), 1], toque: ts < T.decima + 0.2 });
+  const kE = eoc(prog(ts, T.milimetro - 0.3, T.milimetro));
+  if (kE > 0) P.pieza(I.ETQ, { pos: [ETQ[0], ETQ[1] + 0.35 * (1 - kE), ETQ[2]], escala: 1.15 * mix(0.5, 1, kE), variante: 4, rot: [-0.06 - 0.5 * (1 - kE), 0, 0.02], toque: ts < T.milimetro + 0.4 });
+}
+const NIVEL = [nivel0, nivel1, nivel2, nivel3, nivel4];
+// desenfoque de basculante (maqueta de macro), como en la prueba
+const BASC = { 1: [600, 260, 10], 2: [700, 120, 16], 3: [640, 160, 14] };
+function basculante(src, [yF, ancho, radio]) {
+  const pad = 3 * radio, cw = src.width, ch = src.height, ks = cw / W;
+  const b = document.createElement('canvas'); b.width = cw + 2 * pad; b.height = ch + 2 * pad;
+  const gb = b.getContext('2d');
+  gb.drawImage(src, 0, 0, b.width, b.height); gb.drawImage(src, pad, pad);
+  const c = lienzo(), gc = c.getContext('2d');
+  gc.filter = `blur(${radio * ks}px)`; gc.drawImage(b, -pad, -pad); gc.filter = 'none';
+  gc.globalCompositeOperation = 'destination-in';
+  const gr = gc.createLinearGradient(0, 0, 0, ch);
+  const f = (y) => cl(y / H);
+  gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(f(yF - ancho - 260), 'rgba(0,0,0,0.85)');
+  gr.addColorStop(f(yF - ancho), 'rgba(0,0,0,0)'); gr.addColorStop(f(yF + ancho), 'rgba(0,0,0,0)');
+  gr.addColorStop(f(yF + ancho + 260), 'rgba(0,0,0,0.85)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
+  gc.fillStyle = gr; gc.fillRect(0, 0, cw, ch);
+  const o = lienzo(), go = o.getContext('2d'); go.drawImage(src, 0, 0); go.drawImage(c, 0, 0);
+  return o;
+}
+const CACHE = [];
+function cacheNivel(k) {
+  if (CACHE[k]) return CACHE[k];
+  const tf = k === 0 ? SALTO[0][0] : SALTO[k - 1][1];
+  P.fotograma(tf); P.limpiar();
+  NIVEL[k](tf);
+  P.render(1000 + k);
+  const f = foto();
+  return (CACHE[k] = BASC[k] ? basculante(f, BASC[k]) : f);
+}
+
+// ---------------------------------------------------------------- la lectura: fotos al cargar
+const FOTO = {};
+function fotoHombro() {
+  P.limpiar();
+  const L = LECT.per;
+  const pos = en(L.x, L.y, L.z);
+  // la persona, enorme y cerca: la cabeza en (L.x, L.y); los pies quedan muy por debajo del cuadro
+  const p = postura('depie');
+  p.cabeza = [0.05, 0.42, 0.04]; p.mirada = [0.15, -0.75]; p.torso = [0.12, 0, 0];
+  const S = L.esc, yCab = 0.62;   // altura local de los ojos, más o menos
+  P.pieza(I.PER, { pos: [pos[0], pos[1] - yCab * S, pos[2]], escala: S, rot: [0, L.giro, 0], postura: p, partes: ['cuerpo', 'cabeza'] });
+  P.pieza(I.LIB, { pos: LIB_H.pos, escala: LIB_H.escala, rot: LIB_H.rot, color: aaLibro(LIB_H) });
+  P.render(2001);
+  return foto();
+}
+function fotoPagina() {
+  P.limpiar();
+  P.pieza(I.LIB, { pos: LIB_C.pos, escala: LIB_C.escala, rot: LIB_C.rot, color: aaLibro(LIB_C) });
+  P.render(2002);
+  return foto();
+}
+
+// ---------------------------------------------------------------- composición 2D de la lectura
+// empuje de la foto del hombro hacia el foco de la página, hasta casar con la foto de cerca
+const FOCO_H = pPagina(LIB_H, LECT.cerca.foco[0], LECT.cerca.foco[1]);
+const FOCO_C = [LECT.cerca.x, LECT.cerca.y];
+const K_EMPUJE = (() => {
+  // cuánto más grande se ve la página en la foto de cerca (a lo largo del pelo)
+  const a = pPagina(LIB_H, 0.3, 0.03), b = pPagina(LIB_H, 0.7, 0.03), c = pPagina(LIB_C, 0.3, 0.03), d = pPagina(LIB_C, 0.7, 0.03);
+  return Math.hypot(d[0] - c[0], d[1] - c[1]) / Math.hypot(b[0] - a[0], b[1] - a[1]);
+})();
+function dibujarFotoEn(src, foco, destino, s) {
+  g.save(); g.translate(destino[0], destino[1]); g.scale(s, s); g.translate(-foco[0], -foco[1]); g.drawImage(src, 0, 0, W, H); g.restore();
+}
+// la zona de los trazos más finos que el pelo (de y = −0,045 a −0,33 en la página derecha), en píxeles de la foto de cerca
+function zonaFina(b) {
+  const pts = [[0.15, -0.045], [0.87, -0.045], [0.87, -0.33], [0.15, -0.33]].map(([x, y]) => pPagina(b, x, y));
+  return pts;
+}
+function lectura(ts) {
+  const deriva = 1 + 0.035 * eio(prog(ts, T.lectura, T.empuje0 + 0.2));
+  const u = eio(prog(ts, T.empuje0, T.empuje1));
+  const sH = deriva * Math.pow(K_EMPUJE, u);
+  // la foto del hombro se acerca al foco y lo lleva al sitio del foco de cerca
+  const dst = [mix(FOCO_H[0], FOCO_C[0], u), mix(FOCO_H[1], FOCO_C[1], u)];
+  g.fillStyle = '#0b0807'; g.fillRect(0, 0, W, H);
+  const kC = ss(0.55, 1.0, u);
+  if (kC < 1) dibujarFotoEn(FOTO.hombro, FOCO_H, dst, sH);
+  if (kC > 0) {
+    g.save(); g.globalAlpha = kC;
+    dibujarFotoEn(FOTO.pagina, FOCO_C, dst, sH / K_EMPUJE);
+    g.restore();
+  }
+  if (plano(ts) !== 'pagina' && u < 1) return;
+  // detalle: los trazos más finos que el pelo se emborronan en gris; el pelo queda nítido y brilla un instante
+  const b = 9 * eio(prog(ts, T.borron0, T.borron1));
+  if (b > 0.05) {
+    const z = zonaFina(LIB_C);
+    g.save();
+    g.beginPath(); z.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.clip();
+    g.filter = `blur(${(b * capa.width / W).toFixed(2)}px)`;
+    g.drawImage(FOTO.pagina, 0, 0, W, H);
+    g.filter = 'none';
+    g.restore();
+  }
+  const kb = Math.sin(Math.PI * prog(ts, T.brillo - 0.35, T.brillo + 0.7));
+  if (kb > 0.01) {
+    g.save(); g.globalCompositeOperation = 'lighter';
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    for (const [lw, a] of [[34, 0.07], [12, 0.16], [4, 0.28]]) {
+      g.strokeStyle = `rgba(255,190,110,${a * kb})`; g.lineWidth = lw;
+      g.beginPath();
+      for (let i = 0; i <= 40; i++) { const x = mix(0.16, 0.86, i / 40), p = pPelo(LIB_C, x); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); }
+      g.stroke();
+    }
+    g.restore();
+  }
+}
+
+// ---------------------------------------------------------------- el ojo en corte
+function ojo(ts) {
+  const kG = eio(prog(ts, T.ojo, T.giro1));
+  const rot = OJO.rot0.map((v, i) => mix(v, OJO.rot[i], kG));
+  const esc = OJO.esc * mix(0.93, 1, kG);
+  const haces = eio(prog(ts, T.luz0, T.luz1)), brillo = eio(prog(ts, T.puntos0, T.puntos1));
+  ponerCorte(UO, { separacion: 6, brillo, haces });
+  P.pieza(I.CORTE, { pos: OJO.pos, escala: esc, rot, variante: OJO.variante, toque: kG < 1 });
+  return { haces, brillo };
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  ajustarCapa();
+  const n = P.fotograma(t, D), ts = n / 12;
+  const pl = plano(ts);
+  if (pl === 'ojo') {
+    P.limpiar();
+    ojo(ts); atomo(ts); regla(ts);
+    P.render(n);
+    g.clearRect(0, 0, W, H); pegarGL();
+    POST.aplicar(g, n);
+    if (ts >= QUIETO - 1e-6) fin();
+    return;
+  }
+  if (pl === 'hombro' || pl === 'pagina') {
+    lectura(ts);
+    P.limpiar(); atomo(ts); regla(ts);
+    P.render(n, { fondo: false });
+    pegarGL();
+    POST.aplicar(g, n);
+    return;
+  }
+  // los saltos (como en la prueba)
+  let k = -1, u = 0, nv = 0;
+  SALTO.forEach(([a, b], i) => { if (ts >= b) nv = i + 1; if (ts >= a && ts < b) { k = i; u = (ts - a) / (b - a); } });
+  if (k < 0 && (nv === 0 || nv === 4)) {
+    // persona (con la cartela delante) y tronco (con la cota): render completo
+    P.limpiar();
+    NIVEL[nv](ts);
+    atomo(ts); regla(ts);
+    if (nv === 0) cartela(P, ts, E.cartela);
+    P.render(n);
+    g.clearRect(0, 0, W, H); pegarGL();
+    POST.aplicar(g, n);
+    return;
+  }
+  if (k < 0) {
+    // decorado quieto (mano, piel, pelo): su foto y, encima, Atom y la regla
+    P.limpiar(); atomo(ts); regla(ts);
+    P.render(n, { fondo: false });
+    g.drawImage(CACHE[nv], 0, 0, W, H);
+    pegarGL();
+    const fl = azar(n, 3) - 0.5;
+    g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
+    POST.aplicar(g, n);
+    return;
+  }
+  // salto k: fotos de los dos decorados, compuestas en 2D (mirilla); Atom y la regla encima
+  const viejo = cacheNivel(k), nuevo = cacheNivel(k + 1);
+  P.limpiar(); atomo(ts); regla(ts);
+  P.render(n, { fondo: false });
+  const F = FOCO[k];
+  const pu = eio(cl(u / 0.8)), px = mix(F[0], W / 2, pu), py = mix(F[1], H / 2, pu);
+  const sO = Math.pow(10, 0.5 * eio(cl(u / 0.7))), sN = mix(0.8, 1, seco(prog(u, 0.05, 0.85)));
+  const r = 1500 * eio(prog(u, 0, 0.62));
+  const lejos = Math.max(Math.hypot(px, py), Math.hypot(W - px, py), Math.hypot(px, H - py), Math.hypot(W - px, H - py));
+  g.save();
+  if (r < lejos) {
+    g.save(); g.translate(px, py); g.scale(sO, sO); g.translate(-F[0], -F[1]); g.drawImage(viejo, 0, 0, W, H); g.restore();
+    if (r > 2) {
+      const rx0 = px - W / 2 * sN, ry0 = py - H / 2 * sN, rw = W * sN, rh = H * sN;
+      g.save(); g.beginPath(); g.rect(rx0, ry0, rw, rh); g.clip();
+      g.shadowColor = 'rgba(0,0,0,0.75)'; g.shadowBlur = 46; g.fillStyle = '#0b0c0f';
+      g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.fill(); g.restore();
+      g.save(); g.beginPath(); g.rect(rx0, ry0, rw, rh); g.clip();
+      g.save(); g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.clip();
+      g.translate(px, py); g.scale(sN, sN); g.translate(-W / 2, -H / 2); g.drawImage(nuevo, 0, 0, W, H);
+      g.restore();
+      g.strokeStyle = 'rgba(0,0,0,0.45)'; g.lineWidth = 10; g.filter = 'blur(4px)'; g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.stroke(); g.filter = 'none';
+      g.restore();
+    }
+  } else {
+    g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+    g.translate(px, py); g.scale(sN, sN); g.translate(-W / 2, -H / 2); g.drawImage(nuevo, 0, 0, W, H);
+  }
+  g.restore();
+  pegarGL();
+  POST.aplicar(g, n);
+}
+// el último fotograma, en números, para ep3-celulas
+function fin() {
+  const c = pant(OJO.pos);
+  window.__fin = {
+    ojoCorte: { pos: OJO.pos.map((v) => +v.toFixed(5)), escala: +OJO.esc.toFixed(5), rot: OJO.rot, variante: OJO.variante,
+      corte: { separacion: 6, brillo: 1, haces: 1 }, centroPx: c.map((v) => Math.round(v)), diametroPx: OJO.diam,
+      punto: `P.punto(${OJO.x}, ${OJO.y}, ${OJO.z})` },
+    regla: { pos: 'P.punto(1668, 528, 0.4)', escala: E_REG, rot: ROT_REG, e: 0, ya: 1.5, entera: 0, actual: -4, marca: -4, lupa: 0.3 },
+    atom: { centro: ATOMO_PRES, diametroOrbitas: 180, z: A_Z, ts: +(TZ_SALTOS + calma(QUIETO)).toFixed(4) },
+  };
+}
+
+// ---------------------------------------------------------------- al cargar: las fotos de los decorados
+for (let k = 0; k < 5; k++) { cacheNivel(k); hito('nivel' + k); }
+// focos: dónde está el nivel siguiente dentro de cada nivel (píxel); el primero, la mano que brilló en ep3-saltos
+const FOCO = [
+  manoPx,
+  pant([MANO[0] + E_MANO * 0.04, MANO[1] + E_MANO * 0.12, MANO[2] + E_MANO * 0.17]),
+  pant(mundo(PIEL, ROT_PIEL, E_PIEL, [0, 0.12, 0.12])),
+  pant(mundo(PELO, ROT_PELO, E_PELO, [0, 1.9, 0.8])),
+];
+FOTO.hombro = fotoHombro(); hito('hombro');
+FOTO.pagina = fotoPagina(); hito('pagina');
+window.__carga = Math.round(performance.now() - T0);
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-sofa.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-sofa.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por pieza y por variante, con el plató, la luz y la cámara de las escenas de plastilina
+// (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28).
+//   __frame(0)  → la hoja entera (6 columnas de celdas de 320 × 180, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+import * as THREE from 'three';
+import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposTiempo, uniformesTiempo } from '/atomo/plato/kits/ep03-tiempo.js';
+import { tiposSofa, uniformesSofa, sofa, sofaPara, bol, ventana, hornearRayas, cieloVentana, vidrioVentana, salon, SALON } from '/atomo/plato/kits/ep03-sofa.js';
+
+const W = 1920, H = 1080;
+const T = ['ventana', 'sofa', 'bol', 'humano', 'reloj'];
+const I = { ventana: 0, sofa: 1, bol: 2, persona: 3, reloj: 4 };
+const P = await crearPlato({
+  piezas: T, tiposExtra: { ...tiposSofa(), ...tiposTiempo(['reloj']) }, uniformes: { ...uniformesSofa(), ...uniformesTiempo() },
+  atomo: false, alfa: true, post: false,
+  sombraFondo: ['p1', 'p2', 'p3'], sombras: { p0: ['p1', 'p2', 'p3', 'p4'], p1: ['p2', 'p3'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const RAYAS = hornearRayas();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pxU = (pos) => { const a = P.proyectar(pos), b = P.proyectar([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const C = [];
+const cel = (rot, poner, o = {}) => C.push({ rot, poner, ...o });
+
+// el sofá: de frente y un poco girado, sobre el suelo del plató (las patas pisan y = 0)
+const SOFA = (e = 2.4, rotY = -0.35, x = 960) => ({ pos: [en(x, 600, 0.5)[0], 0.427 * e, 0.5], escala: e, rot: [0, rotY, 0] });
+for (const tela of ['oliva', 'terracota', 'mostaza', 'pizarra', 'crema']) cel(`sofá ${tela}, 2 plazas, cojín`, () => sofa(P, I.sofa, { ...SOFA(), tela }));
+cel('sofá oliva, 3 plazas, sin cojín', () => sofa(P, I.sofa, { ...SOFA(2.0, -0.3), plazas: 3, cojin: false }));
+cel('sofá terracota, plaza 1 hundida', () => sofa(P, I.sofa, { ...SOFA(2.4, 0.4), tela: 'terracota', hundido: 1 }));
+cel('sofá de espaldas (rot π − 0,5)', () => sofa(P, I.sofa, { ...SOFA(2.4, Math.PI - 0.5) }));
+// la persona sentada en el sofá (sofaPara): de frente y de espaldas
+cel('humano sentada en el sofá (sofaPara)', () => {
+  const pos = [en(960, 600, 0.5)[0], 2.4, 0.5];
+  const h = P.pieza(I.persona, { pos, escala: 2.4, rot: [0, -0.35, 0], postura: 'sentada', huellaFija: [0.37, 0.21, 0] });
+  sofa(P, I.sofa, sofaPara(h.punto('asiento'), 2.4, -0.35, 0, 2));
+});
+// el bol
+const BOL = { pos: en(960, 700, 2), escala: 3.4, rot: [0.35, 0.3, 0] };
+for (const color of ['crema', 'terracota', 'pizarra']) cel(`bol ${color}, palomitas 1`, () => bol(P, I.bol, { ...BOL, color }));
+cel('bol crema, palomitas 0,5', () => bol(P, I.bol, { ...BOL, palomitas: 0.5 }));
+cel('bol crema, vacío (palomitas 0)', () => bol(P, I.bol, { ...BOL, palomitas: 0 }));
+// la ventana en su trozo de pared, con el cielo debajo y el vidrio encima
+const VEN = { pos: [0.4, 3.0, -1.5], escala: 3.0 };
+const conCielo = (vel = 1, t = 0.6) => ({ fondo: (g, v) => cieloVentana(g, v.hueco, { t, rayas: RAYAS, velocidad: vel }), d2: (g, v) => vidrioVentana(g, v.hueco) });
+cel('ventana cruz, salvia, cortinas', () => ventana(P, I.ventana, { ...VEN }), conCielo());
+cel('ventana sin parteluz, crema', () => ventana(P, I.ventana, { ...VEN, parteluz: 'ninguno', pared: 'crema' }), conCielo());
+cel('ventana vertical, arcilla, sin cortinas', () => ventana(P, I.ventana, { ...VEN, parteluz: 'vertical', pared: 'arcilla', cortinas: false }), conCielo());
+cel('ventana pizarra, aspecto 0,8', () => ventana(P, I.ventana, { ...VEN, pared: 'pizarra', aspecto: 0.8 }), conCielo());
+cel('ventana con suelo de tablas', () => ventana(P, I.ventana, { pos: [0.4, 4.2, -2.5], escala: 2.6, suelo: 2.4, muro: [3.4, 1.62, 2.2] }), conCielo());
+cel('cielo: velocidad 0,4', () => ventana(P, I.ventana, { ...VEN, cortinas: false }), conCielo(0.4, 1.3));
+cel('cielo: velocidad 0 (puntos)', () => ventana(P, I.ventana, { ...VEN, cortinas: false }), conCielo(0, 1.3));
+cel('cielo sin el vidrio', () => ventana(P, I.ventana, { ...VEN, cortinas: false }), { fondo: (g, v) => cieloVentana(g, v.hueco, { t: 0.6, rayas: RAYAS }) });
+// el salón entero (el final de ep3-mapa)
+cel('SALON general (reloj en 1 h)', () => salon(P, I, { encuadre: 'general', reloj: { minutos: 60, sector: [0, 60] } }), {
+  fondo: (g, s) => cieloVentana(g, s.ventana.hueco, { t: 0.6, rayas: RAYAS }), d2: (g, s) => vidrioVentana(g, s.ventana.hueco) });
+cel('SALON cerca (reloj en 0)', () => salon(P, I, { encuadre: 'cerca', reloj: { minutos: 0 } }), {
+  fondo: (g, s) => cieloVentana(g, s.ventana.hueco, { t: 0.6, rayas: RAYAS }), d2: (g, s) => vidrioVentana(g, s.ventana.hueco) });
+
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+lienzoGL.style.visibility = 'hidden';
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+const cache = [];
+window.__tiempos = [];
+function celda(k) {
+  if (cache[k]) return cache[k];
+  const c = C[k];
+  const a = performance.now();
+  P.fotograma(0); P.limpiar();
+  const info = c.poner(P);
+  // las celdas con cielo: piezas sobre transparente y el cielo debajo; las demás, con el ciclorama
+  const conFondo = !c.fondo;
+  P.render(k + 1, conFondo ? {} : { fondo: false });
+  const f = document.createElement('canvas'); f.width = lienzoGL.width; f.height = lienzoGL.height;
+  const gf = f.getContext('2d');
+  gf.setTransform(f.width / W, 0, 0, f.width / W, 0, 0);
+  if (c.fondo) { gf.fillStyle = '#151a30'; gf.fillRect(0, 0, W, H); c.fondo(gf, info); }
+  gf.setTransform(1, 0, 0, 1, 0, 0);
+  gf.drawImage(lienzoGL, 0, 0);
+  gf.setTransform(f.width / W, 0, 0, f.width / W, 0, 0);
+  if (c.d2) c.d2(gf, info);
+  gf.setTransform(1, 0, 0, 1, 0, 0);
+  POST.aplicar(gf, k + 1);
+  window.__tiempos[k] = Math.round(performance.now() - a);
+  return (cache[k] = f);
+}
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+function dibujar(t) {
+  ajustarCapa();
+  const k = Math.round(t);
+  if (k >= 1 && k <= C.length) { g.drawImage(celda(k - 1), 0, 0, W, H); return; }
+  g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+  const cw = W / 6, ch = H / 6;
+  C.forEach((c, j) => {
+    const x = (j % 6) * cw, y = Math.floor(j / 6) * ch;
+    g.drawImage(celda(j), x, y, cw, ch);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(x, y + ch - 22, cw, 22);
+    g.fillStyle = '#e8dcc0'; g.font = '15px sans-serif'; g.fillText(`${j + 1}. ${c.rot}`, x + 6, y + ch - 6);
+  });
+}
+const busq = new URLSearchParams(location.search);
+window.ESCENA ??= { id: 'ep03-sofa-hoja', duracion: C.length + 1, marcas: {}, voz: [0, 0] };
+window.__celdas = C.map((c) => c.rot);
+window.__paso = 1;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>

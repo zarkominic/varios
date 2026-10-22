@@ -50,6 +50,7 @@ const T0 = performance.now();
 window.__carga = [];
 const marcaCarga = (k) => window.__carga.push([k, Math.round(performance.now() - T0)]);
 const E = await escena('ep3-sol', 'ep03');
+marcaCarga('escena');
 const M = (k) => E.marca(k);
 const m = { fusion: M('fusion'), fusionFin: M('fusion_fin'), rebota: M('rebota'), rebotaFin: M('rebota_fin'), pequeno: M('pequeno'), pequenoFin: M('pequeno_fin') };
 const D = E.duracion, QUIETO = D - 0.6;
@@ -100,6 +101,7 @@ const I = { PER: 0, REG: 1, FLE: 2, SOL: 3, NUC: 4, CAL: 5, REL: 6, EST: 7, GIG:
 // pide la fuente en cuanto añade la hoja de estilos, antes de que llegue, y sin cartela se queda con la de respaldo (más
 // fina). ep3-tierra tiene cartela, y su cargarFuenteCartela() espera a la hoja: aquí se hace lo mismo antes del plató
 await cargarFuenteCartela();
+marcaCarga('fuente');
 const P = await crearPlato({
   piezas: ['humano', 'reglaA', 'flecha', 'sol', 'nucleo', 'calendario', 'reloj', 'estrellas', 'gigante', 'flechagorda'],
   tiposExtra: { ...tiposEstrellas(['sol', 'nucleo', 'estrellas', 'gigante']), ...tiposTiempo(['calendario', 'reloj']), flechagorda: FLECHA_GORDA },
@@ -174,6 +176,7 @@ const FIN_TIERRA = await (async () => {
   // n: el número de fotograma con que ep3-tierra dibuja su último fotograma (el hervor y el parpadeo de la luz del plató)
   return { tz: Qt - 0.45, ta, n: Math.max(0, Math.floor(Qt * 12 + 1e-6)) };
 })();
+marcaCarga('fin tierra');
 // el mío arranca quieto (como lo dejó) y coge su ritmo en medio segundo; al final se calma igual
 const DT = 1 / 240, TA = [0], TZ = [0];
 const velA = (t) => ss(0, 0.7, t) * (1 + 0.8 * Math.exp(-Math.pow((t - m.fusion) / 0.4, 2)) + 0.8 * Math.exp(-Math.pow((t - m.rebota) / 0.4, 2)) + 0.8 * Math.exp(-Math.pow((t - m.pequeno) / 0.4, 2))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
@@ -193,9 +196,17 @@ function atomo(ts, { claro = 0 } = {}) {
   const en0 = ts < QUIETO ? E.energia(ts) : 0;
   P.atomo({
     pos: en(S.sx, S.sy, A_Z), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH,
-    energia: Math.min(1, en0 + 0.45 * S.brillo), ts: FIN_TIERRA.ta + tabla(TA, ts), halo: 1 - 0.55 * claro, velo: 0.1 + 0.35 * claro,
+    energia: Math.min(1, en0 + 0.45 * S.brillo), ts: FIN_TIERRA.ta + tabla(TA, ts), halo: 1 - 0.55 * claro, velo: 0.1,
   });
   return S;
+}
+// sobre el plasma claro del detalle, una sombra cálida y redonda detrás de Atom (en 2D, antes de pegarlo) para que se lea
+function sombraAtom(ts, k) {
+  if (k <= 0.01) return;
+  const S = estadoAtom(ts), R = 170;
+  const gr = g.createRadialGradient(S.sx, S.sy, 0, S.sx, S.sy, R);
+  gr.addColorStop(0, `rgba(70,30,10,${0.5 * k})`); gr.addColorStop(0.5, `rgba(70,30,10,${0.3 * k})`); gr.addColorStop(1, 'rgba(70,30,10,0)');
+  g.fillStyle = gr; g.fillRect(S.sx - R, S.sy - R, 2 * R, 2 * R);
 }
 
 // ---------------------------------------------------------------- la regla (quieta en 10⁹: la de ep3-tierra al acabar)
@@ -355,7 +366,7 @@ function hacerPlasma() {
 }
 
 // ---------------------------------------------------------------- al cargar: lo del primer fotograma y los estrenos
-F('mundoSol'); F('mundoSinSol');
+F('mundoSol'); marcaCarga('foto mundo'); F('mundoSinSol');
 marcaCarga('mundo y regla');
 // (coste) se estrenan Atom, la regla, el Sol, el calendario y el reloj (su primer dibujo compila en SwiftShader)
 P.fotograma(0); P.limpiar();
@@ -601,7 +612,7 @@ function tramo34(n, ts) {
   const kr = ss(T.pan[1] - 0.35, T.pan[1] + 0.1, ts);
   if (kr > 0.01 && punta) {
     // el reloj va con la luz, por encima, hasta que la luz se acerca a la cara (allí se queda)
-    const xr = Math.min(Math.max(punta[0] - 30, 430), DIANA[0] + per.dx - 280), yr = 225;
+    const xr = Math.min(Math.max(punta[0] - 30, 430), DIANA[0] + per.dx - 280), yr = cl(punta[1] - 175, 140, 400);
     const R = relojEn(ts);
     reloj(P, I.REL, { pos: en(xr, yr, 1.6), escala: 0.62 * eob(kr, 1.4), rot: [0.05, 0.15, 0], minutos: R.minutos, sector: R.sector, toque: kr < 1 });
   }
@@ -655,6 +666,7 @@ function dibujar(t) {
       brilloNucleo(g, NUC1[0], NUC1[1], 0.3 * SR * 0.84 * s, 0.85);
     }
     if (ue > 0) { g.save(); g.globalAlpha = ss(0.35, 1, ue); tramo2(n, ts); g.restore(); }
+    sombraAtom(ts, ss(0.3, 1, ue));
     P.limpiar(); atomo(ts, { claro: ss(0.3, 1, ue) }); P.render(n, { fondo: false }); pegarGL();
   } else if (ts < T.s5) {
     // volver: el detalle se funde en el corte que se aleja desde el núcleo (en tramo34)
@@ -665,6 +677,7 @@ function dibujar(t) {
       g.translate(NUC3[0], NUC3[1]); g.scale(1 + 0.6 * us, 1 + 0.6 * us); g.translate(-NUC3[0], -NUC3[1]);
       tramo2(n, ts);
       g.restore();
+      sombraAtom(ts, 1 - ss(0, 0.7, us));
       P.limpiar(); atomo(ts, { claro: 1 - ss(0, 0.7, us) }); P.render(n, { fondo: false }); pegarGL();
     }
   } else tramo5(n, ts);

@@ -15,12 +15,12 @@
 //           allí, brillando: es su casa
 //  ½ casa   del propio Atom salen átomos como él, a los dos lados, en fila; Atom vuelve a su sitio (abajo a la izquierda);
 //           la fila se aleja (la cámara se aparta) y los átomos se funden en un hilo de ámbar, que acaba exactamente
-//           entre el 0 y el 1 mm de una regla de boj que sube desde abajo
-//  estadio  la regla se va, la cámara vuelve al centro del hilo hasta ver los átomos y el del centro crece hasta ser un
-//           estadio de fútbol vacío, con el guisante en el centro del campo; a mitad de frase, la cámara se acerca al
-//           guisante (detalle)
-//  gradas   vuelve el plano general y una nube borrosa (electrones) se extiende por las gradas desde la izquierda; el
-//           césped, vacío
+//           entre el 0 y el 1 mm de una regla de boj que sube desde abajo; el «1 mm» se queda quieto hasta acabar la frase
+//  estadio  (en el hueco entre frases) la regla se va y la cámara vuelve al centro del hilo hasta ver los átomos; el del
+//           centro crece hasta ser un estadio de fútbol vacío, con el guisante en el centro del campo; hacia la mitad de
+//           la frase, un empuje corto y corte al detalle del guisante en el círculo central
+//  gradas   corte de vuelta al plano general (que se asienta) y una nube borrosa (electrones) se extiende por las gradas
+//           desde la izquierda; el césped, vacío
 //  tú       la cámara se aparta: el estadio con su nube se encoge hasta ser un átomo que se apaga entre las manos de la
 //           persona («humano», postura «mirarse las manos» con las manos a la altura del pecho y las palmas hacia arriba,
 //           como si lo sostuvieran), en primer plano de la cabeza a las manos (el elástico del jersey, bajo el borde);
@@ -30,9 +30,9 @@
 //           de la pantalla, a la derecha de ella) y le da tres palmaditas en el brazo derecho con la mano de su
 //           electrón; ella vuelve la cabeza y la mirada hacia él (a su derecha) y la ladea un poco hacia él; quieto
 // Todo se compone en 2D (crearPost al final): las composiciones quietas son fotos (el plató vacío, el peldaño, el estadio,
-// su detalle, el átomo que crece y la regla quieta; las pesadas se hacen la primera vez que hacen falta) y en cada
-// fotograma se dibuja vivo solo lo que se mueve: la fila y la persona, cuando salen, y encima Atom y la cartela (y la
-// regla mientras baja el marcador).
+// su detalle, el átomo que crece, la regla quieta y, en el primer plano, la persona sin las manos; las pesadas se hacen
+// en un fotograma barato poco antes de hacer falta) y en cada fotograma se dibuja vivo solo lo que se mueve: la fila,
+// las manos del primer plano o la persona del general, y encima Atom y la cartela (y la regla mientras baja el marcador).
 //
 // CONTINUIDAD (números; cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, sin recorte 2D)
 //  · Fotograma 0 (ep3-lectura termina así): PELDANO (abajo: peldano() con pos P.punto(790, 465, 0), escala 3,7, rot
@@ -85,8 +85,9 @@ const T = {
   zambullida: [m.casaFin + 0.12, m.estadio - 0.02],             // vuelta al centro del hilo
   crece: [m.estadio - 0.05, m.estadio + 0.85],                  // el átomo del centro crece
   fundeEst: [m.estadio + 0.35, m.estadio + 0.8],                // … y es el estadio
-  aGuisante: [m.estadio + 0.47 * (m.estadioFin - m.estadio), m.estadio + 0.47 * (m.estadioFin - m.estadio) + 1.0],
-  deGuisante: [m.gradas - 0.45, m.gradas - 0.08],
+  // «…el núcleo sería un guisante en el centro»: empuje y corte al detalle hacia la mitad de la frase
+  aGuisante: [m.estadio + 0.4 * (m.estadioFin - m.estadio), m.estadio + 0.4 * (m.estadioFin - m.estadio) + 0.45],
+  deGuisante: [m.gradas - 0.4, m.gradas + 0.25],                // corte de vuelta al general y se asienta
   nube: [m.gradas - 0.2, m.gradas + 1.15],                      // la nube se extiende por las gradas
   aparta: [m.tu - 0.62, m.tu - 0.08],                           // la cámara se aparta del estadio
   fantasma: [m.tu - 0.12, m.tuFin - 0.05],                      // las manos se vuelven casi transparentes
@@ -191,7 +192,7 @@ function poseEn(ts, plano) {
   const mano = 0.08 * Math.sin((tz - m.tu) * 1.3) * ss(m.tuFin, m.tuFin + 0.6, tz);
   p.brazoIzq = [...POSE_MANOS.brazoIzq]; p.brazoDer = [...POSE_MANOS.brazoDer];
   p.brazoIzq[4] += mano; p.brazoDer[4] -= mano;
-  const parp = Math.max(0, 1 - Math.abs(ts - (m.tuFin + 1.05)) / 0.09);
+  const parp = Math.max(0, 1 - Math.abs(ts - T_PARPADEO) / 0.09);
   p.ojos = 1 - 0.9 * parp;
   // en el plano general, al llegar Atom, ella vuelve un poco la cabeza y la mirada hacia él: Atom está a SU DERECHA (a la
   // izquierda de la pantalla), y en el kit el giro y la mirada positivos van hacia su izquierda (+x): aquí, negativos.
@@ -203,11 +204,18 @@ function poseEn(ts, plano) {
   }
   return p;
 }
-function persona(ts, plano) {
+// (coste) en el primer plano (E) la persona es la receta de la foto del kit: el cuerpo y la cabeza, quietos, son una
+// foto (FOTOS.personaE, con el plató; FOTOS.personaEparp, la misma con los ojos casi cerrados, para el fotograma del
+// parpadeo); en cada fotograma solo van vivas las manos (que cambian a fantasma y giran un poco). Por eso en E no
+// respira (en el general, sí)
+function persona(ts, plano, partes = null) {
   const o = plano === 'E' ? PERSONA_E : PERSONA_F;
-  const resp = 0.006 * Math.sin(Math.min(ts, QUIETO) * 2.2);
-  return P.pieza(I.HUM, { ...o, sq: [1, 1 + resp, 1], postura: poseEn(ts, plano), aspecto: 'adulto', t: ts, huellaFija: [0.37, 0.21, 0] });
+  const resp = plano === 'E' ? 0 : 0.006 * Math.sin(Math.min(ts, QUIETO) * 2.2);
+  const op = { ...o, sq: [1, 1 + resp, 1], postura: poseEn(ts, plano), aspecto: 'adulto', t: ts, huellaFija: [0.37, 0.21, 0] };
+  if (partes) op.partes = partes;
+  return P.pieza(I.HUM, op);
 }
+const T_PARPADEO = m.tuFin + 1.05;
 
 // ---------------------------------------------------------------- Atom
 const DT = 1 / 240, TA = [0];
@@ -405,19 +413,7 @@ const HACER = {
     const g2 = geometriaEstadio(P, det).guisante;
     det.pos = [ESTADIO.pos[0] + (gp[0] - g2[0]), ESTADIO.pos[1] + (gp[1] - g2[1]), ESTADIO.pos[2] + (gp[2] - g2[2])];
     P.limpiar(); estadio(P, I.EST, { ...det, brilloGuisante: 0.35 }); P.render(2002);
-    // bordes suaves: mientras se acerca o se aleja, la foto no llena la pantalla y se funde con el estadio agrandado
-    // que lleva debajo (sin marco ni costura recta)
-    const c = foto(P), gc = c.getContext('2d'), bw = 0.07 * c.width, bh = 0.07 * c.height;
-    gc.globalCompositeOperation = 'destination-in';
-    let gr = gc.createLinearGradient(0, 0, c.width, 0);
-    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(bw / c.width, 'rgba(0,0,0,1)');
-    gr.addColorStop(1 - bw / c.width, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-    gc.fillStyle = gr; gc.fillRect(0, 0, c.width, c.height);
-    gr = gc.createLinearGradient(0, 0, 0, c.height);
-    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(bh / c.height, 'rgba(0,0,0,1)');
-    gr.addColorStop(1 - bh / c.height, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-    gc.fillStyle = gr; gc.fillRect(0, 0, c.width, c.height);
-    return c;
+    return foto(P);
   },
   // el átomo del centro creciendo: el átomo solo, a SEP_CRECE px (se agranda en 2D hasta que llega el estadio), y la
   // fila a S0 px centrada en el guisante (los vecinos se apartan y se apagan)
@@ -439,6 +435,15 @@ const HACER = {
     const { c, gc } = lienzoConMargen();
     nubeElectrones(gc, { ...GEO_EST.bola, forma: 'bola', extension: 1, t: T.aparta[0] - T.nube[0], semilla: 5 });
     return c;
+  },
+  // el primer plano de la persona sin las manos (cuerpo y cabeza, con el plató y la sombra de la persona entera)
+  personaE() {
+    P.limpiar(); persona(T.aparta[0], 'E', ['cuerpo', 'cabeza']); P.render(2007);
+    return foto(P);
+  },
+  personaEparp() {
+    P.limpiar(); persona(T_PARPADEO, 'E', ['cuerpo', 'cabeza']); P.render(2008);
+    return foto(P);
   },
   filaCasa() {
     const C0 = pant(CASA);
@@ -493,7 +498,9 @@ function baseFila(n, ts) {
     // el átomo del centro sigue creciendo solo; los vecinos se apartan y se apagan (fotos que se agrandan)
     const s = Fi.sep / S0, kv = ss(1.05, 1.9, s);
     filaFoto(Fi.c, Fi.sep, 1e7, 1 - kv);
-    if (kv > 0) fotoEscalada(F('crece'), Fi.sep / SEP_CRECE, FOTOS.pg, kv);
+    // el átomo que crece se apaga a la vez que entra el estadio (sus órbitas no se quedan por encima de las gradas)
+    const ko = 1 - ss(0.25, 0.85, prog(ts, T.fundeEst[0], T.fundeEst[1]));
+    if (kv > 0) fotoEscalada(F('crece'), Fi.sep / SEP_CRECE, FOTOS.pg, kv * ko);
     parpadeo(n);
     return Fi;
   }
@@ -528,25 +535,27 @@ function baseFila(n, ts) {
 }
 function baseEstadio(n, ts) {
   const pg = FOTOS.pg;
-  // empujes: hacia el guisante (s de 1,03 a K_DET) y de vuelta (en «gradas»)
-  const ui = eio(prog(ts, T.aGuisante[0], T.aGuisante[1])), uo = eio(prog(ts, T.deGuisante[0], T.deGuisante[1]));
-  const lento = 1 + 0.03 * prog(ts, T.fundeEst[1], T.aGuisante[0]);
-  let s = mix(lento, K_DET * 1.0, ui);
-  s *= 1 + 0.035 * prog(ts, T.aGuisante[1], T.deGuisante[0]) * (1 - uo);
-  s = mix(s, 1, uo);
-  // cuánto se ve la foto de detalle: entra al final del acercamiento, cuando ya casi llena la pantalla
-  const kd = ss(0.62 * K_DET, 0.92 * K_DET, s);
-  // la foto de detalle (con bordes suaves) va siempre encima del estadio agrandado, que llena lo que ella no llega a
-  // tapar (antes, mientras se acercaba, quedaba un marco oscuro alrededor)
-  fotoEscalada(F('estadio'), s, pg);
-  if (kd > 0) fotoEscalada(F('detalle'), s / K_DET, pg, kd);
-  // la nube de electrones por las gradas
-  const un = prog(ts, T.nube[0], T.nube[1]);
-  if (un > 0 && s < 1.2) {
-    const A = GEO_EST.anillo;
-    nubeElectrones(g, { ...A, extension: eoc(un), t: Math.min(ts, QUIETO) - T.nube[0], semilla: 11, fuerza: 1.25 });
+  // del general al detalle, POR CORTE: el general se empuja un poco hacia el guisante (s de 1,03 a 1,3) y corta al
+  // detalle (el estadio K_DET veces mayor en 3D, con el guisante en el mismo píxel), que sigue empujando despacio (1 →
+  // 1,06); en «gradas», corte de vuelta al general, que se asienta de 1,1 a 1. (Un fundido entre las dos fotos no
+  // vale: el estadio K_DET veces mayor tiene otra perspectiva y las líneas del campo salían dobles.)
+  if (ts >= T.aGuisante[1] && ts < T.deGuisante[0]) {
+    const sd = 1 + 0.06 * eoc(prog(ts, T.aGuisante[1], T.deGuisante[0]));
+    fotoEscalada(F('detalle'), sd, pg);
+    parpadeo(n);
+    return;
   }
-
+  let s = 1 + 0.03 * prog(ts, T.fundeEst[1], T.aGuisante[0]);
+  s *= 1 + 0.26 * eic(prog(ts, T.aGuisante[0], T.aGuisante[1]));
+  if (ts >= T.deGuisante[0]) s = mix(1.1, 1, eoc(prog(ts, T.deGuisante[0], T.deGuisante[1])));
+  fotoEscalada(F('estadio'), s, pg);
+  // la nube de electrones por las gradas (escalada con el estadio)
+  const un = prog(ts, T.nube[0], T.nube[1]);
+  if (un > 0) {
+    g.save(); g.translate(pg[0], pg[1]); g.scale(s, s); g.translate(-pg[0], -pg[1]);
+    nubeElectrones(g, { ...GEO_EST.anillo, extension: eoc(un), t: Math.min(ts, QUIETO) - T.nube[0], semilla: 11, fuerza: 1.25 });
+    g.restore();
+  }
   parpadeo(n);
 }
 // el estadio con su nube, recortado, encogiéndose hacia el punto (qx, qy)
@@ -568,9 +577,19 @@ function estadioEncogido(ts, u, [qx, qy]) {
   g.restore();
 }
 function basePersona(n, ts, plano) {
-  P.limpiar();
-  const h = persona(ts, plano);
-  P.render(n);
+  let h;
+  if (plano === 'E') {
+    // el parpadeo (un fotograma con los ojos casi cerrados) es otra foto: la cabeza en vivo sobre la foto no vale (se
+    // ve el cuello entero, con su remate, por encima del cuello del jersey)
+    g.drawImage(F(Math.abs(ts - T_PARPADEO) < 0.045 ? 'personaEparp' : 'personaE'), 0, 0, W, H);
+    P.limpiar();
+    h = persona(ts, 'E', 'manos');
+    P.render(n, { fondo: false });
+  } else {
+    P.limpiar();
+    h = persona(ts, plano);
+    P.render(n);
+  }
   pegarGL();
   // las manos casi transparentes llevan un halo frío muy suave (en el móvil, sobre el jersey claro, se leen mejor); en
   // el plano general, donde las manos son pequeñas, el halo es más fuerte y algo más ancho
@@ -619,7 +638,9 @@ function basePersona(n, ts, plano) {
 // misma
 const PREPARAR = [
   [T.saludo[0] + 0.3, 'filaCasa', T.fundeEst[1]], [T.saludo[0] + 0.7, 'estadio', T.aparta[1]], [T.saludo[0] + 0.8, 'estadioA', T.aparta[1]],
-  [T.fundeEst[1] + 0.4, 'detalle', T.deGuisante[1]], [T.aparta[0] - 0.42, 'estadioNube', T.aparta[1]], [T.aparta[0] - 0.25, 'cascara', T.aparta[1]],
+  [T.fundeEst[1] + 0.4, 'detalle', T.deGuisante[1]], [T.deGuisante[1] + 0.2, 'personaE', T.corte],
+  [T.fantasma[1] + 0.2, 'personaEparp', T_PARPADEO + 0.05],
+  [T.aparta[0] - 0.42, 'estadioNube', T.aparta[1]], [T.aparta[0] - 0.25, 'cascara', T.aparta[1]],
 ];
 function dibujar(t) {
   const n = P.fotograma(t, D), ts = n / 12;

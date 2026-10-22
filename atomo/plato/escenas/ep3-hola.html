@@ -14,12 +14,15 @@
 //  hola   Atom se eleva, un electrón sale de su órbita sobre un alambre fino y saluda; brilla y late con la voz.
 //         A mitad de frase «la cámara se abre»: Atom encoge y baja a su sitio de presentador (abajo a la izquierda)
 //         mientras el telón se aclara y el plató (su foto) se aleja en 2D.
-//  crees  en cuanto Atom llega a su sitio, la persona («humano» del lote 0, postura «sostener», con una regla corriente
-//         de boj) entra por la derecha y cruza el plató andando hasta su sitio, a la izquierda (por la derecha no pasa por
-//         el sitio de Atom); el paso va atado al avance (los pies no patinan) y las piernas se juntan justo al llegar, al
-//         decirse «crees»; se gira a cámara y sostiene la regla con aire seguro (barbilla arriba). Atom la mira.
-//  nolosabes  plano medio: la regla se estira como una goma y se dobla en sus manos; la persona baja la cabeza a
-//         mirarla; en los 2 s de silencio la regla doblada queda quieta y la persona levanta la vista a cámara.
+//         Hasta la frase 2, Atom solo en su sitio, en el plató abierto (el telón ya claro).
+//  crees  la entrada es el golpe de la frase: 0,3 s antes de «crees» la persona («humano» del lote 0, postura
+//         «sostener», con una regla corriente de boj) entra por la derecha y cruza el plató a paso decidido hasta su
+//         sitio, a la izquierda (por la derecha no pasa por el sitio de Atom); el paso va atado al avance (los pies no
+//         patinan) y las piernas se juntan justo al llegar (1,75 s después de la marca); se gira a cámara, sostiene la
+//         regla con aire seguro (barbilla arriba) y la enseña. Atom la sigue con la mirada.
+//  nolosabes  plano medio: la regla se estira como una goma (se pasa un poco y vuelve) y se dobla en sus manos con un
+//         rebote que se apaga antes del silencio; la persona baja la cabeza a mirarla; en los 2 s de silencio la regla
+//         doblada queda quieta y la persona levanta la vista a cámara.
 //  ojos   un solo zum continuo (sin cortes ni fundidos) del plano medio a su ojo izquierdo: la persona en vivo, cada vez
 //         más grande, sobre el fondo del plano medio ampliado; en su ojo, el ojo enorme del kit (kits/ep03-ojo.js) se abre
 //         con el iris en el sitio y del tamaño de la pupila de plastilina y crece, en una mirilla de borde muy suave, hasta
@@ -55,9 +58,10 @@ function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t
 // ---------------------------------------------------------------- tiempos (todo sale de las marcas)
 const T = {
   // frase 1: saludo y «la cámara se abre» a mitad de frase
-  abre0: mix(m.hola, m.holaFin, 0.44), abre1: mix(m.hola, m.holaFin, 0.44) + 2.0,
-  // frase 2: la persona entra por la derecha en cuanto Atom llega a su sitio y se planta en el suyo al decirse «crees»
-  entra0: mix(m.hola, m.holaFin, 0.44) + 1.95, entra1: m.crees - 0.05,
+  abre0: mix(m.hola, m.holaFin, 0.44), abre1: mix(m.hola, m.holaFin, 0.44) + 2.6,
+  // frase 2: la persona entra (es el golpe de la frase): arranca 0,3 s antes de «crees», cruza el plató a paso
+  // decidido desde la derecha y se planta en su sitio en el primer tercio de la frase; luego enseña la regla
+  entra0: m.crees - 0.3, entra1: m.crees + 1.75,
   // frase 3: plano medio; la regla se estira y se dobla
   medio: m.nolo - 0.26,
   // frase 4: el empuje hasta el ojo y los párpados
@@ -180,7 +184,7 @@ function estadoAtom(ts) {
   const brillo = up * (1 - dn);
   esc *= 1 + 0.08 * brillo;
   // mira a la persona (en el plano general) y luego al frente
-  const kMira = ss(T.entra0 + 0.2, m.crees, ts) * (1 - ss(T.medio - 0.3, T.medio, ts)) * 0.6;
+  const kMira = ss(T.entra0, T.entra1, ts) * (1 - ss(T.medio - 0.3, T.medio, ts)) * 0.6;
   return { sx, sy, esc, brillo, kMira };
 }
 function atomo(ts, velo = 0.1) {
@@ -262,7 +266,7 @@ function ponerRegla(h, escalaRegla, inclina = 0.35) {
 // ±AMP; un pie de apoyo recorre sep hacia atrás en medio ciclo) y frena en los últimos ANDA.frena s; al frenar, la
 // amplitud del paso y su ritmo bajan los dos con √(v / V0) (así su producto sigue siendo v), y las piernas se juntan justo
 // al llegar. AMP se ajusta al cargar para que el cruce dure lo que hay de T.entra0 a T.entra1.
-const ANDA = { f: 1.15, frena: 0.6 };
+const ANDA = { f: 1.5, frena: 0.5 };
 const PIE_INI = (() => {
   // de dónde sale: con el centro (la suela) unos 90 px fuera del borde derecho, algo más al fondo que su sitio
   const z = -0.2, a = pant([0, 0, z])[0], b = pant([1, 0, z])[0];
@@ -335,9 +339,9 @@ function personaGeneral(ts) {
     piernasAndar(p, 2 * Math.PI * ANDA.f * M.tau, anda);
     p.torso = [p.torso[0] + 0.06 * anda, p.torso[1], p.torso[2]];
   }
-  // respira; a mitad de la frase 2 enseña la regla (la sube un poco hacia la cámara) y asiente
+  // respira; ya plantada, enseña la regla (la sube un poco hacia la cámara) y asiente
   const tz = calma(ts);
-  const ens = Math.sin(Math.PI * eio(prog(ts, m.crees + 0.7, m.crees + 2.0)));
+  const ens = Math.sin(Math.PI * eio(prog(ts, T.entra1 + 0.15, T.medio - 0.1)));
   p.brazoIzq[0] += 0.12 * ens; p.brazoDer[0] += 0.12 * ens;
   p.cabeza = [p.cabeza[0], p.cabeza[1] + 0.06 * ens, p.cabeza[2]];
   const resp = 0.008 * Math.sin(tz * 2.4);
@@ -370,13 +374,21 @@ function poseMedio(ts) {
   p.ojos = 1 - bl;
   return p;
 }
+// 0 → 1 en d s desde t0 y luego un rebote amortiguado (amplitud a, periodo 3,4·tau, se apaga con tau)
+function goma(ts, t0, d, a, tau) {
+  if (ts <= t0) return 0;
+  if (ts < t0 + d) return eio((ts - t0) / d) * (1 + a * eio((ts - t0) / d));
+  const u = ts - t0 - d;
+  return 1 + a * Math.cos(2 * Math.PI * u / (3.4 * tau)) * Math.exp(-u / tau);
+}
 function personaMedio(ts) {
   const tz = calma(ts);
   const resp = 0.006 * Math.sin(tz * 2.4);
   const h = P.pieza(I.PER, { pos: MED.pos, escala: MED.esc, sq: [1, 1 + resp, 1], rot: [0, 0.06, 0], postura: poseMedio(ts), t: ts, huellaFija: [0.37, 0.21, 0.0] });
-  // la regla: se estira como una goma y se descuelga por los dos lados; después, quieta
-  uListon.value.x = eio(prog(ts, m.nolo - 0.25, m.nolo + 0.15));
-  uListon.value.y = eio(prog(ts, m.nolo - 0.05, m.nolo + 0.6));
+  // la regla: se estira como una goma (se pasa un 8 % y vuelve) y se descuelga por los dos lados con un rebote que se
+  // apaga al acabar la frase; después, quieta
+  uListon.value.x = goma(ts, m.nolo - 0.25, 0.3, 0.08, 0.16);
+  uListon.value.y = goma(ts, m.nolo - 0.05, 0.38, 0.1, 0.14);
   ponerRegla(h, MED.reg, 0.25);
   return h;
 }
