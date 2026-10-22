@@ -49,9 +49,10 @@
 // En vivo: Atom, la regla durante los saltos, el reloj mientras corre el segundero y el reloj de arena mientras cae la
 // arena. El rayo, la cinta, los puntitos y los destellos son 2D (milisegundos).
 // Al cargar: la ciudad (10⁴), la Tierra (10⁷) y la galaxia (10²¹) a resolución entera (~8 s de CPU cada una: no caben en
-// un fotograma) y las décadas 5 y 6. El resto de fotos, una por fotograma barato poco antes de hacer falta (PREPARAR: las
-// décadas 8–20 y las reglas de 16 y 21 en el plano quieto de la Tierra antes de que empiecen las vueltas); un instante
-// suelto las hace al momento (sale lo mismo). El espacio a 10¹⁶ (1 s en pantalla) es la foto de 0,57.
+// un fotograma). El resto de fotos, una por fotograma barato poco antes de hacer falta (PREPARAR: las décadas 5 y 6 al
+// principio, con el brillo de la ciudad horneado en sus fotos para que esos fotogramas sean baratos; las décadas 8–20 y
+// las reglas de 16 y 21 en el plano quieto de la Tierra antes de que empiecen las vueltas); un instante suelto las hace
+// al momento (sale lo mismo). El espacio a 10¹⁶ (1 s en pantalla) es la foto de 0,57.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteCartela, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, mulberry32, brote, QUIETO as QUIETO_KIT } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -329,6 +330,7 @@ HACER.u4 = () => quitarSombras(F('m4_0'), somA(4)[3]);
 HACER.u7 = () => quitarSombras(F('m7_0'), somA(7)[3]);
 HACER.u16 = () => quitarSombras(F('m16_0'), somA(16)[3]);
 HACER.u21 = () => quitarSombras(F('gal0'), SOM_A[3]);
+const CAJAS_SOMBRA = [[0, 560, 520, 1080], [1500, 192, 1888, 952]];   // múltiplos de 4: Atom (r 62 · 3,5) y la regla (± 48)
 const fotoDec = (k) => F([4, 7, 16, 21].includes(k) ? 'u' + k : 'd' + k);
 // la pluma del borde de la foto encogida (para que no se vea su canto recto sobre la de debajo)
 const PLUMA = (() => {
@@ -367,8 +369,10 @@ function mundoSalto(C, zr, sombras = true) {
     g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1 - w; g.drawImage(TMPS, 0, 0); g.restore();
   }
   if (sombras) {
+    // (coste) solo donde hay sombra: alrededor de la de Atom y de la de la regla (en cuartos de píxel de la imagen)
+    const im = imgSombras(Math.round(somA(zr)[3] * 100) / 100, false);
     g.save(); g.globalCompositeOperation = 'multiply'; g.imageSmoothingEnabled = true;
-    g.drawImage(imgSombras(Math.round(somA(zr)[3] * 100) / 100, false), 0, 0, W, H);
+    for (const [x0, y0, x1, y1] of CAJAS_SOMBRA) g.drawImage(im, x0 / 4, y0 / 4, (x1 - x0) / 4, (y1 - y0) / 4, x0, y0, x1 - x0, y1 - y0);
     g.restore();
   }
 }
@@ -400,17 +404,28 @@ for (let k = 0; k < 2; k++) HACER['ns' + k] = () => {
   return c;
 };
 const CIUDAD4 = aPant(C4, MUNDO.CIUDAD);
-function estrellaNeutrones(C, n, k = 1) {
+function estrellaNeutrones(C, n, k = 1, conHalo = true) {
   const c = aPant(C, MUNDO.CIUDAD), R = R_NS / C.mpp;
   const kh = ss(0.6, 4, R) * k;
   if (kh <= 0.003) return;
-  halo(g, c[0], c[1], Math.max(R, 1.5), kh, 'neutrones');
+  if (conHalo) halo(g, c[0], c[1], Math.max(R, 1.5), kh, 'neutrones');
   if (R < 0.8) return;
   const s = F('ns' + (n % 2)), L = s.L * (R / NS_PX);
   g.save(); g.globalAlpha = ss(0.8, 3, R) * k;
   g.drawImage(s, c[0] - L, c[1] - L, 2 * L, 2 * L);
   g.restore();
 }
+// (coste) quieto en 10⁴ el brillo de la ciudad y el halo de la estrella no cambian: van horneados en las fotos de la ciudad
+// (c4_0…2; las mismas operaciones sobre los mismos píxeles), y en el fotograma solo se pega el sprite
+for (let k = 0; k < 3; k++) HACER['c4_' + k] = () => {
+  const f = F('m4_' + k), c = lienzo(f.width, f.height), gc = c.getContext('2d'), kk = f.width / W;
+  gc.drawImage(f, 0, 0);
+  gc.setTransform(kk, 0, 0, kk, 0, 0);
+  brilloCiudad(gc, C4, 1);
+  const R = R_NS / C4.mpp;
+  halo(gc, CIUDAD4[0], CIUDAD4[1], Math.max(R, 1.5), ss(0.6, 4, R), 'neutrones');
+  return c;
+};
 
 // ---------------------------------------------------------------- las siete vueltas y media
 const R0 = MUNDO.R_TIERRA / CRAY.mpp;                    // la Tierra en CRAY (px)
@@ -679,10 +694,9 @@ function rayoCruza(ts) {
 // ---------------------------------------------------------------- al cargar: lo del fotograma 0 y los estrenos
 F('m4_0'); marcaCarga('ciudad');
 F('ns0'); F('reg4_0'); F('cartela0'); marcaCarga('fotos 0');
-// (coste) las fotos del mundo a resolución entera (~8 s de CPU: no caben en ningún fotograma) y las décadas del primer
-// salto (no hay fotogramas baratos bastantes antes de él)
-F('m7_0'); F('gal0'); marcaCarga('fotos enteras');
-F('d5'); F('d6'); F('u4'); marcaCarga('décadas 5 y 6');
+// (coste) las fotos del mundo a resolución entera (~8 s de CPU: no caben en ningún fotograma)
+F('m7_0'); F('gal0');
+F('c4_0'); marcaCarga('fotos enteras');
 P.fotograma(0); P.limpiar(); atomo(0, 1); P.render(0, { fondo: false });
 marcaCarga('estrenos');
 const estreno = (poner) => () => { P.limpiar(); poner(); P.render(0, { fondo: false }); return true; };
@@ -694,8 +708,8 @@ const nS = (k) => nDe(SALTOS[k][0]);
 const nQ = nDe(SALTOS[2][1]) + 1;
 const EN_Q = ['d8', 'd9', 'd10', 'd11', 'd12', 'd13', 'd14', 'd15', 'm16_0', 'd17', 'd18', 'd19', 'd20', 'reg16_0', 'reg21_0'];
 const PREPARAR = [
-  [0, 'reg7_0'], [1, 'm4_1'], [2, 'm4_2'], [3, 'ns1'], [4, 'reg4_1'], [4, 'reg4_2'],
-  [6, 'reg7_1'], [6, 'reg7_2'], [8, 'u7'], [10, 'm7_1'], [11, 'm7_2'],
+  [1, 'c4_1'], [1, 'ns1'], [1, 'reg4_1'], [2, 'c4_2'], [2, 'reg4_2'], [3, 'd5'], [4, 'm7_1'], [5, 'd6'], [6, 'm7_2'],
+  [7, 'reg7_0'], [8, 'u4'], [8, 'u7'], [8, 'reg7_1'], [8, 'reg7_2'],
   ...EN_Q.map((k, j) => [nQ + j, k]),
   [nS(2) + 9, 'estrenoReloj'],
   [nDe(T.unoS) + 2, 'u16'], [nDe(T.unoS) + 3, 'm16_1'], [nDe(T.unoS) + 4, 'm16_2'],
@@ -720,7 +734,7 @@ function dibujar(t) {
   const Et = tierraPx(C), Rt = MUNDO.R_TIERRA / C.mpp;
   if (!vivo && zi === 21 && ts > T.zoom3[0]) galaxia(n, ts);
   else if (!vivo && (zi === 4 || zi === 7 || zi === 16)) {
-    const f = F(`m${zi}_${n % 3}`);
+    const f = F(`${zi === 4 ? 'c' : 'm'}${zi}_${n % 3}`);
     pegarFoto(f);
     repintar = () => pegarFoto(f, [Et[0], Et[1], Rt]);
   } else {
@@ -731,7 +745,8 @@ function dibujar(t) {
   }
   // 2 · la ciudad brillante y la estrella de neutrones (se quedan en la ciudad y se hacen un punto)
   const kCiudad = 1 - ss(SALTOS[2][1] - 0.1, SALTOS[2][1] + 0.7, ts);
-  if (kCiudad > 0.003 && zr < 8) { brilloCiudad(g, C, kCiudad); estrellaNeutrones(C, n, kCiudad); }
+  const horneada = !vivo && zi === 4;
+  if (kCiudad > 0.003 && zr < 8) { if (!horneada) brilloCiudad(g, C, kCiudad); estrellaNeutrones(C, n, kCiudad, !horneada); }
   // 3 · las vueltas de la luz (se encogen con la Tierra y se apagan al empezar a subir)
   const sCab = VUELTAS.L * prog(ts, T.rayo[0], T.rayo[1]);
   const kV = 1 - ss(T.zoom2[0] + 0.1, T.zoom2[0] + 0.7, ts);
@@ -766,7 +781,7 @@ window.__inicio = {
   regla: 'e 4 (foto n 9400)', atomo: ATOMO,
 };
 window.__fin = { mundo: `camara(21), n ${N_LUZ}, somA ${SOM_A.map((v) => +v.toFixed(2))}`, regla: 'e 21 (foto n 0)', atomo: ATOMO, galaxia: GAL };
-if (new URLSearchParams(location.search).has('sonda')) window.__dbg = { mundo, mundoV, estadoMundo, fotoMundo, camAt, sinVineta, somA, P, reglaEn, atomo, POST, g };
+if (new URLSearchParams(location.search).has('sonda')) window.__dbg = { mundo, mundoV, estadoMundo, fotoMundo, camAt, sinVineta, somA, P, reglaEn, atomo, POST, g, mundoSalto, F, parpadeo };
 marcaCarga('listo');
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>
