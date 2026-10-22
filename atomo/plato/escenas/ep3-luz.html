@@ -806,7 +806,7 @@ const primerRJ = (desde) => { for (let nn = nPar(desde); nn < desde + 60; nn += 
 const RJ2 = primerRJ(nDe(T.zoom2[0]) - 2), RJ3 = primerRJ(nDe(T.zoom3[0]) - 2);
 const EN_Q = ['d8', 'd9', 'd10', 'd11', 'd12', 'd13', 'd14', 'd15', 'm16_0', 'd17', 'd18', 'd19', 'd20', 'reg16_0', 'reg21_0'];
 const PREPARAR = [
-  [1, 'c4_1'], [1, 'ns1'], [1, 'reg4_1'], [2, 'c4_2'], [2, 'reg4_2'], [3, 'd5'], [4, 'm7_1'], [4, 'vueltas'], [5, 'd6'],
+  [0, 'd6'], [1, 'c4_1'], [1, 'ns1'], [1, 'reg4_1'], [2, 'c4_2'], [2, 'reg4_2'], [3, 'd5'], [4, 'm7_1'], [4, 'vueltas'],
   [6, 'm7_2'], [6, 'cinta'],
   // los dos primeros estados de la regla de cada tanda de saltos (por bandas), en fotogramas baratos de antes
   [nQ - 2, ['banda', RJ2, 0]], [nQ - 1, ['banda', RJ2, 1]], [nDe(T.rayo[0]) + 1, ['banda', RJ2 + 2, 0]], [nDe(T.rayo[0]) + 5, ['banda', RJ2 + 2, 1]],
