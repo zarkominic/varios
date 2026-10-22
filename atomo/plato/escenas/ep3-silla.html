@@ -13,25 +13,31 @@
 // de ámbar como las de Atom, una sola pieza con repetición, fotografiada al cargar y repetida en 2D).
 //  0           (= último fotograma de ep3-casa) la persona de pie en el centro, «mirarse las manos» con fantasma 1, la
 //              cabeza vuelta hacia Atom, que le da la palmadita en el brazo derecho; regla en 10⁻¹⁰
-//  humanidad   GENERAL. Atom retira la mano y saca una cucharilla; alrededor de la persona brota la humanidad (una
-//              multitud de figuritas que crecen del suelo) mientras sus manos vuelven a ser opacas (fantasma 1 → 0);
-//              ella mira la cucharilla; la multitud se levanta en remolino y se comprime en ella: un terrón diminuto
-//              que destella
-//  ½ humanidad DETALLE (corte). Atom, la cucharilla con el terrón y debajo una cómoda de nogal con el cajón abierto;
-//              Atom inclina la cucharilla, el terrón cae dentro y el cajón se cierra (a mitad de frase); Atom vuelve
-//              a su sitio, abajo a la izquierda, y la cucharilla se encoge hasta desaparecer
-//  silla       GENERAL (corte). La persona de pie, de tres cuartos; una silla entra deslizándose por detrás, ella se
-//              sienta (sentada completa en la marca) y aparece un «?» de arcilla junto al asiento, que ella mira
+//  humanidad   GENERAL. Atom retira la mano y saca una cucharilla; detrás de ella y a sus lados brota la humanidad (una
+//              multitud de figuritas que crecen del suelo; por encima de los subtítulos) mientras sus manos vuelven a ser
+//              opacas (fantasma 1 → 0); ella mira la cucharilla; la multitud entera (en 3D) se levanta del suelo, se
+//              inclina hacia la cámara girando como un remolino y se encoge por un arco hasta la cucharilla: un terrón
+//              diminuto que destella
+//  ½ humanidad DETALLE (corte, 3,0 s). Atom, la cucharilla con el terrón y debajo una cómoda de nogal con el cajón
+//              abierto; Atom inclina la cucharilla, el terrón cae dentro y el cajón se cierra (a mitad de frase); Atom
+//              vuelve a su sitio, abajo a la izquierda, y la cucharilla se encoge hasta desaparecer; hasta el final de la
+//              frase («… cabría en un terrón de azúcar») la cámara se acerca despacio al cajón cerrado y por su rendija se
+//              escapa una luz cálida
+//  silla       GENERAL (corte en el silencio entre las frases 40 y 41). La persona de pie, de tres cuartos; la silla llega
+//              deslizándose por detrás, ella se sienta (sentada en la marca) y aparece un «?» de arcilla encima de su
+//              regazo, delante de ella, que ella mira
 //  repelen     DETALLE: el «?» se va; empuje 2D hasta la frontera entre su muslo y el asiento, que se gira hasta quedar
-//              en horizontal y se funde con la vista atómica: arriba los átomos de la persona (nubes caqui con sus
-//              electrones), abajo los de la silla (nubes de haya); el lado de arriba baja, rebota y se queda a un hueco
-//              finísimo, con chispitas y un cojín de luz
-//  ½ repelen   otro encuadre (la cámara se aparta un poco): llegan electrones de las capas de atrás y se amontonan
-//              junto al hueco; a mitad de frase se apartan (uno se queda, el otro va a la segunda capa), como gente en
-//              un ascensor lleno; queda quieto
-// Coste: lo quieto es foto (la regla, la multitud entera con la persona, la persona sola, la cómoda abierta y cerrada,
-// la persona sentada, las cuentas y las nubes); en cada fotograma se dibuja vivo solo lo que se mueve. La vista atómica
-// es 2D con las fotos de las cuentas (8 variantes que se alternan cada fotograma: «hierven») y las chispas del kit, vivas.
+//              en horizontal y se funde (entera y opaca, de una vez) con la vista atómica: arriba los átomos de la
+//              persona (nubes caqui con sus electrones), abajo los de la silla (nubes de haya); el lado de arriba baja,
+//              rebota y se queda a un hueco finísimo, con chispitas y un cojín de luz
+//  ½ repelen   antes de la mitad, las capas de atrás se apagan y llegan electrones de atrás (con estela) que se meten
+//              encima de los de la fila de delante: cada pareja se aplasta, tiembla y se pone al rojo; a mitad de frase se
+//              apartan (uno se queda, el otro va a la segunda capa), como gente en un ascensor lleno; luego la cámara se
+//              aparta (otro encuadre, más frontera) y todo se calma y queda quieto
+// Coste: lo quieto es foto (la regla, la persona con la multitud y sin ella, la cómoda abierta y cerrada, la persona
+// sentada, las cuentas y las nubes); en cada fotograma se dibuja vivo solo lo que se mueve (la multitud mientras brota y
+// mientras vuela va viva con la persona, como en ep3-casa). La vista atómica es 2D con las fotos de las cuentas (8
+// variantes que se alternan cada fotograma: «hierven») y las chispas del kit, vivas.
 //
 // CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, sin recorte 2D)
 //  · Fotograma 0: el último de ep3-casa (window.__fin de ep3-casa): PERSONA_F (pos [P.punto(950, 600, 2)[0], 3, 2],
@@ -43,9 +49,9 @@
 //    (cargarFuenteCartela antes de crearPlato, como en las escenas con cartela).
 //  · Último fotograma (ep3-gato empieza así): la vista atómica con Z = 240 px por distancia entre átomos, el hueco en
 //    horizontal por el centro (y = 540 px; 0,32 de alto: 77 px entre las caras de las cuentas), los electrones de cada
-//    lado en dos capas (la de delante cada 0,5 a ±0,26 del centro del hueco; la segunda, desplazada 0,25, a ±0,62),
-//    nubes caqui arriba y de haya abajo, chispitas en el hueco; regla en 10⁻¹⁰; Atom en SITIO (P.punto(230, 780, 1)),
-//    escala 0,37, con un velo oscuro detrás. window.__fin lo da en números.
+//    lado en dos capas (la de delante cada 0,5 a ±0,26 del centro del hueco; la segunda, cada 1 y desplazada 0,25, a
+//    ±0,62), nubes caqui arriba y de haya abajo, chispitas en el hueco; regla en 10⁻¹⁰; Atom en SITIO
+//    (P.punto(230, 780, 1)), escala 0,37, con un velo oscuro detrás. window.__fin lo da en números.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteCartela, cl, mix, prog, ss, eio, eoc, eic, eob, azar, postura, mezclarPosturas, COLOR } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -77,26 +83,29 @@ const T = {
   mirada1: [0.22, 0.75],                       // ella deja de mirar a Atom y mira la multitud
   mirada2: [m.h + 0.5, m.h + 0.98],            // … y la cucharilla
   lleno: m.h + 1.0,                            // desde aquí la persona y la multitud están quietas (foto)
-  comprime: [m.h + 1.3, m.h + 2.1],            // la multitud se levanta en remolino y se comprime en la cucharilla
+  comprime: [m.h + 1.15, m.h + 2.05],          // la multitud entera se levanta girando y se encoge en la cucharilla
   terron: [m.h + 1.98, m.h + 2.16],            // el terrón aparece, con un destello
-  corte1: mitad1 - 1.0,                        // DETALLE: la cucharilla y la cómoda
-  acerca: [mitad1 - 0.9, mitad1 - 0.42],       // Atom lleva la cucharilla sobre el cajón
+  corte1: mitad1 - 0.88,                       // DETALLE: la cucharilla y la cómoda
+  acerca: [mitad1 - 0.84, mitad1 - 0.42],      // Atom lleva la cucharilla sobre el cajón
   inclina: [mitad1 - 0.5, mitad1 - 0.28],      // la inclina
   cae: [mitad1 - 0.32, mitad1 + 0.02],         // el terrón cae dentro (a mitad de frase)
   endereza: [mitad1 + 0.02, mitad1 + 0.35],
   cierra: [mitad1 + 0.02, mitad1 + 0.45],      // el cajón se cierra
   vuelve: [mitad1 + 0.5, mitad1 + 1.35],       // Atom vuelve a su sitio; la cucharilla se encoge
-  corte2: mitad1 + 1.55,                       // GENERAL de la silla
-  sillaEntra: [m.s - 1.85, m.s - 1.2],         // la silla entra deslizándose
-  sienta: [m.s - 0.72, m.s - 0.04],            // se sienta (completa en la marca)
-  interroga: [m.s - 0.04, m.s + 0.3],          // el «?»
-  miraInt: [m.s + 0.35, m.s + 0.8],            // ella lo mira
-  interrogaFuera: [m.r - 1.2, m.r - 0.85],     // el «?» se va antes del empuje
+  // (el cajón cerrado se queda hasta el final de la frase 40: «… cabría en un terrón de azúcar»; la cámara se le
+  // acerca despacio y por la rendija se escapa la luz cálida de la humanidad guardada)
+  corte2: m.hF + 0.05,                         // GENERAL de la silla, en el silencio entre las frases 40 y 41
+  sillaEntra: [m.s - 0.55, m.s - 0.3],         // la silla llega deslizándose por detrás de ella
+  sienta: [m.s - 0.48, m.s - 0.04],            // se sienta (completa en la marca)
+  interroga: [m.s - 0.04, m.s + 0.3],          // el «?», sobre su regazo
+  miraInt: [m.s + 0.2, m.s + 0.65],            // ella lo mira
+  interrogaFuera: [m.r - 1.05, m.r - 0.82],    // el «?» se va antes del empuje
   empuje: [m.r - 0.8, m.r - 0.05],             // empuje 2D hasta la frontera (completo en la marca)
   baja3: [m.r - 0.1, m.r + 0.8],               // el lado de la persona baja y rebota en el hueco
-  aleja: [mitad3 - 0.85, mitad3 - 0.3],        // otro encuadre: la cámara se aparta un poco
-  amontona: [mitad3 - 0.62, mitad3 - 0.04],    // llegan electrones y se amontonan
-  aparta: [mitad3, mitad3 + 1.25],             // se apartan para no amontonarse
+  amontona: [mitad3 - 1.0, mitad3 - 0.12],     // llegan electrones de atrás y se amontonan en la fila de delante
+  aparta: [mitad3, mitad3 + 0.9],              // a mitad de frase se apartan para no amontonarse
+  aleja: [mitad3 + 0.35, mitad3 + 1.45],       // otro encuadre: la cámara se aparta (y se ve más frontera)
+  calma: [mitad3 + 0.5, mitad3 + 1.5],         // las capas de atrás vuelven a encenderse
 };
 T.fotoSentada = T.miraInt[1] + 0.1;            // desde aquí la persona sentada está quieta (foto)
 
@@ -277,8 +286,9 @@ CUC1.pos = posPara(CUC1, [0, -0.01, 0], CUENCO1);
 const MANGO1 = enPieza(CUC1, [0.86, 0.11, 0]);
 const A_HOLD = sumar(MANGO1, [-0.95, 0.18, -0.12]);
 const TER1 = 0.085;      // el terrón diminuto (lado, en el mundo)
-// (coste) la multitud es lo más caro del plano general (vive mientras brota): su radio es el justo para rodearla
-const MULT = { pos: [PERSONA_F.pos[0], 0, 2.0], escala: 0.85, radio: 3.4, hueco: 1.3, semilla: 3 };
+// (coste) la multitud es lo más caro del plano general (vive mientras brota y mientras vuela). Va detrás de ella y a
+// los lados (su borde de delante, justo detrás de sus pies): así queda por encima de los subtítulos (y < 880)
+const MULT = { pos: [PERSONA_F.pos[0], 0, -1.8], escala: 0.85, radio: 3.6, hueco: 0, semilla: 3 };
 function estadoAtomoG1(ts) {
   const u = eio(prog(ts, T.suelta[0], T.suelta[1]));
   const pos = [mix(ATOMO_F[0], A_HOLD[0], u), mix(ATOMO_F[1], A_HOLD[1], u) + 0.25 * Math.sin(Math.PI * u), mix(ATOMO_F[2], A_HOLD[2], u)];
@@ -301,124 +311,80 @@ function terronG1(ts, c) {
   if (k <= 0.01 || !c) return;
   terron(P, I.TER, { pos: [c.cuenco[0], c.cuenco[1] + 0.5 * TER1 * k + 0.004, c.cuenco[2]], escala: TER1 * k, rot: [0.08, 0.6, 0.04] });
 }
-// la multitud en grumos (manchas redondas de borde suave con unas pocas figuritas, de la foto de la multitud): se levantan
-// y entran en remolino en la cucharilla, por delante y por detrás de la persona
-const GR = { paso: 54, radio: 60, y0: 470 };
-let GRUMOS = null;
-function grumos() {
-  if (GRUMOS) return GRUMOS;
-  const f = F('mult'), k = f.width / W, gc = f.getContext('2d');
-  const Y0 = Math.round(GR.y0 * k), fw = f.width;
-  const d = gc.getImageData(0, Y0, fw, f.height - Y0).data;
-  const alfaEn = (x, y) => { const xi = Math.round(x * k), yi = Math.round(y * k) - Y0; return xi < 0 || xi >= fw || yi < 0 || yi >= f.height - Y0 ? 0 : d[(yi * fw + xi) * 4 + 3]; };
-  const B = pant(CUENCO1), R = GR.radio, S = GR.paso;
-  const lista = [];
-  for (let fila = 0, y = GR.y0 + R * 0.6; y < H + R * 0.5; y += S * 0.866, fila++) for (let x = (fila % 2) * S / 2; x < W; x += S) {
-    let a = 0, nn = 0;
-    for (let yy = -R * 0.6; yy <= R * 0.6; yy += 8) for (let xx = -R * 0.6; xx <= R * 0.6; xx += 8) { a += alfaEn(x + xx, y + yy); nn++; }
-    if (a / nn < 8) continue;
-    // su imagen: la multitud a través de una máscara redonda de borde suave
-    const c = document.createElement('canvas'); c.width = c.height = Math.ceil(2 * R * k);
-    const g2 = c.getContext('2d');
-    g2.drawImage(f, (x - R) * k, (y - R) * k, 2 * R * k, 2 * R * k, 0, 0, c.width, c.height);
-    g2.globalCompositeOperation = 'destination-in';
-    g2.drawImage(MASCARA, 0, 0, c.width, c.height);
-    lista.push({ x, y, c, dx: x - B[0], dy: y - B[1], r: azar(Math.round(x) + 7, Math.round(y) + 3) });
-  }
-  // salen antes los que están más cerca de la cucharilla
-  const ds = lista.map((t) => Math.hypot(t.dx, t.dy * 0.6)), dmin = Math.min(...ds), dmax = Math.max(...ds);
-  lista.forEach((t, i) => { t.d = 0.4 * (ds[i] - dmin) / (dmax - dmin + 1) + 0.07 * t.r; });
-  return (GRUMOS = lista);
-}
-// la máscara redonda de borde suave (y el agujero que deja cada grumo al irse)
-const MASCARA = (() => {
-  const c = document.createElement('canvas'); c.width = c.height = 128;
-  const gc = c.getContext('2d'), gr = gc.createRadialGradient(64, 64, 0, 64, 64, 64);
-  gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.56, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-  gc.fillStyle = gr; gc.fillRect(0, 0, 128, 128);
-  return c;
-})();
-const RESTO = document.createElement('canvas');
-function remolino(ts) {
+// la humanidad entera, en 3D, se levanta del suelo girando como un remolino y se encoge hasta caber en la cucharilla:
+// la misma pieza de la multitud (con sus figuritas de arcilla), que sube, se inclina hacia la cámara (se ve el corro
+// entero girando), da vueltas cada vez más deprisa y se encoge (exponencial: de 3 m de radio a 4 cm) hasta el cuenco
+const _qa = new THREE.Quaternion(), _qb = new THREE.Quaternion(), _eu = new THREE.Euler();
+const EJE_X = new THREE.Vector3(1, 0, 0), EJE_Y = new THREE.Vector3(0, 1, 0);
+function disco(ts) {
   const u = prog(ts, T.comprime[0], T.comprime[1]);
-  const B = pant(CUENCO1), R = GR.radio;
-  const fl = F('lleno'), k = fl.width / W;
-  // lo que queda de la multitud: la foto con la persona (así la tapa bien), con un agujero donde ya no hay grumo
-  if (RESTO.width !== fl.width || RESTO.height !== fl.height) { RESTO.width = fl.width; RESTO.height = fl.height; }
-  const gr = RESTO.getContext('2d');
-  gr.setTransform(1, 0, 0, 1, 0, 0); gr.globalCompositeOperation = 'source-over'; gr.clearRect(0, 0, RESTO.width, RESTO.height);
-  const yc = Math.round((GR.y0 - 10) * k);
-  gr.drawImage(fl, 0, yc, fl.width, fl.height - yc, 0, yc, fl.width, fl.height - yc);
-  gr.globalCompositeOperation = 'destination-out';
-  const atras = [], delante = [];
-  for (const t of grumos()) {
-    const v = prog(u, t.d, t.d + 0.55);
-    if (v <= 0) continue;
-    gr.drawImage(MASCARA, (t.x - R) * k, (t.y - R) * k, 2 * R * k, 2 * R * k);
-    if (v >= 1) continue;
-    // en un remolino alrededor de un eje vertical por la cucharilla: los de la derecha pasan por detrás de ella
-    const e = Math.pow(v, 1.3);
-    const rho = Math.abs(t.dx) * (1 - e), fi = (t.dx >= 0 ? 0 : Math.PI) - 2.3 * Math.pow(v, 1.2);
-    const h = t.dy * (1 - Math.pow(e, 0.8)) - 60 * Math.sin(Math.PI * v) * (1 - e);
-    const x = B[0] + rho * Math.cos(fi), y = B[1] + h + rho * Math.sin(fi) * 0.28;
-    const sc = Math.pow(1 - e, 0.9) * (1 + 0.18 * Math.sin(fi));
-    const q = { t, x, y, sc, a: 1 - ss(0.8, 1, v), giro: 0.35 * (fi - (t.dx >= 0 ? 0 : Math.PI)) };
-    (Math.sin(fi) < -0.05 ? atras : delante).push(q);
-  }
-  pintar(RESTO);
-  const dibujaGrumo = (q) => {
-    if (q.sc < 0.02 || q.a < 0.01) return;
-    g.save(); g.globalAlpha = q.a; g.translate(q.x, q.y); g.rotate(q.giro); g.scale(q.sc, q.sc);
-    g.drawImage(q.t.c, -R, -R, 2 * R, 2 * R); g.restore();
-  };
-  atras.forEach(dibujaGrumo);
-  // la persona otra vez encima de los que pasan por detrás (solo de las rodillas para arriba: abajo están las figuritas
-  // de delante, que la tapan)
-  g.save(); g.beginPath(); g.rect(0, 0, W, 800); g.clip(); pintar(F('personaSola')); g.restore();
-  delante.forEach(dibujaGrumo);
-  // la estela: luz cálida que sigue al remolino
-  g.save(); g.globalCompositeOperation = 'lighter';
-  for (const q of [...atras, ...delante]) { const Rg = 18 + 34 * q.sc; g.globalAlpha = 0.14 * q.a; g.drawImage(CHISPA2D, q.x - Rg, q.y - Rg, 2 * Rg, 2 * Rg); }
-  g.restore();
-  // la luz se concentra en el cuenco
-  brillo(B, 50 + 80 * eio(u), 0.34 * ss(0.3, 0.95, u) * (1 - ss(0, 0.5, prog(ts, T.terron[1], T.terron[1] + 0.6))));
+  if (u >= 1) return null;
+  const uA = prog(u, 0, 0.45), uB = prog(u, 0.4, 1), eA = eio(uA);
+  // A: se levanta del suelo (detrás de ella) y se inclina hacia la cámara: se ve el corro entero, girando
+  const A = [MULT.pos[0], 1.6 * eA, MULT.pos[2] + 0.4 * eA];
+  // B: se encoge hacia la cucharilla por un arco que sale hacia la derecha de ella (la izquierda de la pantalla)
+  const C1 = CUENCO1;
+  const centro = [mix(A[0], C1[0], eoc(uB)) - 0.9 * Math.sin(Math.PI * uB), mix(A[1], C1[1], eio(uB)), mix(A[2], C1[2], eic(uB))];
+  const esc = MULT.escala * (1 - 0.22 * eA) * Math.exp(Math.log(0.016) * Math.pow(uB, 1.25));
+  // gira sobre su eje, cada vez más deprisa, y se inclina hacia la cámara mientras sube
+  const giro = 5.5 * Math.PI * Math.pow(u, 2.1);
+  const incl = 0.62 * eA * (1 - 0.5 * eio(uB));
+  _qa.setFromAxisAngle(EJE_X, incl); _qb.setFromAxisAngle(EJE_Y, giro); _qa.multiply(_qb);
+  _eu.setFromQuaternion(_qa, 'YXZ');
+  return { u, a: uB, centro, esc, rot: [_eu.x, _eu.y, _eu.z], radio: MULT.radio * esc };
 }
 function planoG1(n, ts) {
   const A = estadoAtomoG1(ts);
-  if (ts < T.lleno) {
-    // vivo: la persona, la multitud que brota, Atom y su cucharilla
-    const ua = prog(ts, T.multitud[0], T.multitud[1]);
+  const vuela = ts >= T.comprime[0] && ts < T.comprime[1];
+  if (ts < T.lleno || vuela) {
+    // vivo: la persona, la multitud que brota (o que vuela hacia la cucharilla), Atom y su cucharilla
     P.limpiar();
     const h = personaG1(ts);
-    if (ua > 0) multitud(P, I.MUL, { ...MULT, aparicion: ua });
+    let dsc = null;
+    if (ts < T.lleno) {
+      const ua = prog(ts, T.multitud[0], T.multitud[1]);
+      if (ua > 0) multitud(P, I.MUL, { ...MULT, aparicion: ua });
+    } else {
+      dsc = disco(ts);
+      if (dsc) multitud(P, I.MUL, { ...MULT, pos: dsc.centro, escala: dsc.esc, rot: dsc.rot, aparicion: 1 });
+    }
     P.render(n);
     pegarGL();
     haloManos(h, 1 - ss(T.fantasma[0], T.fantasma[1], ts), ts);
+    // la luz cálida que se concentra en el remolino a medida que se encoge
+    if (dsc) {
+      const pc = pant([dsc.centro[0], dsc.centro[1] + 0.45 * dsc.esc, dsc.centro[2]]);
+      const Rp = Math.max(40, dsc.radio * pxPorUnidad(dsc.centro[2]) * 1.15);
+      brillo(pc, Rp, 0.08 + 0.3 * ss(0.25, 0.95, dsc.a));
+    }
     // Atom (y lo que lleva) en otra pasada, sin sombra en el ciclorama: como en ep3-casa
     P.limpiar();
     atomo(ts, A);
     terronG1(ts, cucharillaG1(ts));
     P.render(n, { fondo: false });
     pegarGL();
+    if (vuela) {
+      const u = prog(ts, T.comprime[0], T.comprime[1]);
+      brillo(pant(CUENCO1), 50 + 80 * eio(u), 0.34 * ss(0.4, 0.95, u));
+    }
     const ce = pant(h.mundo([0, 0, 0])), co = pant(h.mundo([0, 0.765, -0.01])), su = pant(h.mundo([0, -1, 0.05]));
     window.__guias = { x: Math.round(ce[0]), coronilla: Math.round(co[1]), suela: Math.round(su[1]) };
   } else {
-    // quietas: la foto de la persona con la multitud; después, la multitud se levanta en remolino (grumos)
-    if (ts < T.comprime[0]) pintar(F('lleno'));
-    else { pintar(F('personaG1')); remolino(ts); }
+    // quietas: la foto de la persona con la multitud; después de volar, la persona sola
+    pintar(F(ts < T.comprime[0] ? 'lleno' : 'personaG1'));
     P.limpiar();
     atomo(ts, A);
     terronG1(ts, cucharillaG1(ts));
     P.render(n, { fondo: false });
     pegarGL();
-    // destello del terrón (se lee en el móvil aunque sea diminuto)
-    const cu = pant(CUENCO1);
-    const ud = prog(ts, T.terron[0], T.terron[1] + 0.5);
-    if (ud > 0) {
-      const k = ud < 1 ? Math.sin(Math.PI * Math.min(1, ud * 1.4)) : 0;
-      brillo([cu[0], cu[1] - 8], 130, 0.5 * k, '255,240,215');
-      brillo([cu[0], cu[1] - 8], 24, 0.22 + 0.25 * k, '255,248,235');
-    }
+  }
+  // destello del terrón (se lee en el móvil aunque sea diminuto)
+  const cu = pant(CUENCO1);
+  const ud = prog(ts, T.terron[0], T.terron[1] + 0.5);
+  if (ud > 0) {
+    const k = ud < 1 ? Math.sin(Math.PI * Math.min(1, ud * 1.4)) : 0;
+    brillo([cu[0], cu[1] - 8], 130, 0.5 * k, '255,240,215');
+    brillo([cu[0], cu[1] - 8], 24, 0.22 + 0.25 * k, '255,248,235');
   }
   parpadeo(n);
 }
@@ -481,6 +447,24 @@ function atomoD2(ts, A, sp) {
   const asoma = Math.sin(Math.PI * prog(ts, T.inclina[0], T.cierra[1])) * 0.18;
   return atomo(ts, { pos: A.pos, esc: mix(A2_ESC, A_ESC, A.uv), mano: sp.mango, km, roll: -asoma, energiaExtra: 0.3 * Math.sin(Math.PI * prog(ts, T.cae[1], T.cae[1] + 0.5)) });
 }
+// la luz de la humanidad guardada, por la rendija del cajón cerrado (arriba y a los lados del frente)
+const RENDIJA = [];
+for (let i = 0; i <= 16; i++) RENDIJA.push([-0.455 + 0.91 * i / 16, 0.2, 0.378, 1]);
+for (let i = 1; i <= 5; i++) for (const sx of [-1, 1]) RENDIJA.push([sx * 0.468, 0.2 - 0.4 * i / 6, 0.378, 0.55 - 0.07 * i]);
+function rendija(ts) {
+  const k = ss(T.cierra[1] - 0.05, T.cierra[1] + 0.6, ts);
+  if (k <= 0.01) return;
+  const tz = Math.min(ts, QUIETO);
+  g.save(); g.globalCompositeOperation = 'lighter';
+  RENDIJA.forEach(([x, y, z, f], i) => {
+    const p = pant(enPieza(CAJ2, [x, y, z]));
+    const pulso = 0.78 + 0.22 * Math.sin(tz * 2.3 + i * 0.7);
+    const R = 30 * f + 10;
+    g.globalAlpha = 0.34 * k * f * pulso;
+    g.drawImage(CHISPA2D, p[0] - R, p[1] - R * 0.6, 2 * R, 1.2 * R);
+  });
+  g.restore();
+}
 function planoD2(n, ts) {
   const S = estadoD2(ts);
   const kEsc = 1 - eic(prog(ts, T.vuelve[0], T.vuelve[0] + 0.55));
@@ -497,10 +481,21 @@ function planoD2(n, ts) {
     P.render(n);
     pegarGL();
     P.limpiar();
-  } else {
-    pintar(F(ts < T.cae[0] ? 'cajonAbierto' : 'cajonCerrado'));
+  } else if (ts < T.cae[0]) {
+    pintar(F('cajonAbierto'));
     P.limpiar();
-    if (ts < T.cae[0]) terron(P, I.TER, { pos: tr.pos, escala: TER2, rot: tr.rot });
+    terron(P, I.TER, { pos: tr.pos, escala: TER2, rot: tr.rot });
+  } else {
+    // el cajón cerrado, hasta el final de la frase: la cámara se le acerca despacio (2D sobre su foto) y por la
+    // rendija del cajón se escapa la luz cálida de lo que guarda
+    const zc = eio(prog(ts, T.cierra[1] + 0.12, T.corte2));
+    const cz = pant(enPieza(CAJ2, [0, 0, 0.36]));
+    g.save();
+    g.translate(cz[0], cz[1]); g.scale(1 + 0.065 * zc, 1 + 0.065 * zc); g.translate(-cz[0], -cz[1]);
+    pintar(F('cajonCerrado'));
+    rendija(ts);
+    g.restore();
+    P.limpiar();
   }
   if (kEsc > 0.02) cucharilla(P, I.CUC, { ...sp.o, toque: ts > T.acerca[0] && ts < T.endereza[1] });
   atomoD2(ts, A, sp);
@@ -524,17 +519,21 @@ let SILLA3 = null, INT3 = null;
   P.limpiar();
   const h = P.pieza(I.HUM, { ...PERSONA_3, postura: POSE_SENTADA, aspecto: 'adulto' });
   SILLA3 = sillaPara(h.punto('asiento'), PERSONA_3.escala, TH3);
-  // el «?» junto al asiento, por el lado que se ve, algo por encima de la cadera
-  INT3 = enPieza(SILLA3, [-0.5, 0.36, 0.06]);
+  // el «?» sobre el asiento: encima de su regazo, delante de ella (entre las rodillas y el pecho), donde lo mira
+  const reg = h.punto('regazo'), rod = mezclar3(h.punto('rodillaIzq'), h.punto('rodillaDer'), 0.5);
+  const fr = [Math.sin(TH3), 0, Math.cos(TH3)];
+  const b = mezclar3(reg, rod, 0.6);
+  INT3 = [b[0] + 0.75 * fr[0], reg[1] + 0.72, b[2] + 0.75 * fr[2]];
   P.limpiar();
 }
+const MIRA_INT = { cabeza: [0.12, 0.36, 0.05], mirada: [0.15, -0.55] };
 function poseG3(ts) {
   const u = eio(prog(ts, T.sienta[0], T.sienta[1]));
   const p = mezclarPosturas(POSE_PIE, POSE_SENTADA, u);
-  // mira el «?» (a su derecha, abajo)
+  // mira el «?» (delante de ella, encima del regazo): baja la cabeza hacia él y lo mira
   const k = eio(prog(ts, T.miraInt[0], T.miraInt[1]));
-  p.cabeza = [mix(p.cabeza[0], -0.55, k), mix(p.cabeza[1], 0.35, k), mix(p.cabeza[2], -0.05, k)];
-  p.mirada = [mix(p.mirada[0], -0.7, k), mix(p.mirada[1], -0.5, k)];
+  p.cabeza = [mix(p.cabeza[0], MIRA_INT.cabeza[0], k), mix(p.cabeza[1], MIRA_INT.cabeza[1], k), mix(p.cabeza[2], MIRA_INT.cabeza[2], k)];
+  p.mirada = [mix(p.mirada[0], MIRA_INT.mirada[0], k), mix(p.mirada[1], MIRA_INT.mirada[1], k)];
   return p;
 }
 function sillaG3(ts) {
@@ -589,20 +588,25 @@ for (const lado of [-1, 1]) for (let f = 0; f < 3; f++) for (let i = -8; i <= 8;
   const x = i + (f % 2) * 0.5 + (lado > 0 ? 0.27 : 0) + 0.12 * (azar(i + 40, f + 5 + (lado > 0 ? 9 : 0)) - 0.5);
   ATOMOS.push({ x, y: lado * (Y_AT + f * 0.86), lado, f, sem: azar(i + 70, f + (lado > 0 ? 20 : 30)) });
 }
-// electrones: los de la capa de delante (cada 0,5), los que llegan de atrás y se amontonan, y los de las capas de atrás
+// electrones: los de la capa de delante (cada 0,5) y, por cada dos de ellos, uno que llega de atrás antes de la mitad
+// de la frase: sale de su átomo de la segunda fila (borroso, luego nítido y con estela), se mete encima del de delante
+// (casi en su sitio: los dos se aplastan, tiemblan, se ponen al rojo y dan un brillo caliente: «no caben») y, a mitad
+// de frase, se aparta a la segunda capa (desplazada 0,25, cada 1); y los de las órbitas
 const ELEC = [];
 for (const lado of [-1, 1]) {
   const dx = lado > 0 ? 0.13 : 0;
+  const delante = {};
   for (let j = -18; j <= 17; j++) {
     const x = (j + 0.5) * 0.5 + dx;
-    ELEC.push({ tipo: 'del', lado, x0: x, y0: lado * Y_DEL, sem: azar(j + 100, lado > 0 ? 1 : 2), j });
+    const e = { tipo: 'del', lado, x0: x, y0: lado * Y_DEL, sem: azar(j + 100, lado > 0 ? 1 : 2), j };
+    ELEC.push(e); delante[j] = e;
   }
-  // uno de cada dos huecos recibe a uno que llega de atrás: se amontona encima del de delante y se aparta a la segunda capa
   for (let j = -18; j <= 17; j += 2) {
     const x = (j + 0.5) * 0.5 + dx;
     const r = azar(j + 300, lado > 0 ? 3 : 4);
-    ELEC.push({ tipo: 'llega', lado, x0: x + 0.3 * (r - 0.5), y0: lado * (Y_AT + 0.86 + 0.2 * (r - 0.5)), xa: x + 0.06, ya: lado * (Y_DEL + 0.04),
-      x1: x + 0.25, y1: lado * Y_SEG, sem: r, j });
+    const e = { tipo: 'llega', lado, x0: x + 0.3 * (r - 0.5), y0: lado * (Y_AT + 0.86 + 0.2 * (r - 0.5)), xa: x + 0.085, ya: lado * (Y_DEL + 0.035),
+      x1: x + 0.25, y1: lado * Y_SEG, sem: r, j, par: delante[j] };
+    ELEC.push(e); delante[j].par = e;
   }
 }
 for (const a of ATOMOS) {
@@ -611,6 +615,15 @@ for (const a of ATOMOS) {
 }
 // el lado de la persona llega desde 0,45 más arriba, baja y rebota en el hueco
 const caida = (ts) => -0.45 * (1 - eob(prog(ts, T.baja3[0], T.baja3[1]), 1.4));
+// mientras se amontonan, las capas de atrás se apagan (se lee la fila de delante); vuelven con la calma
+const apagado = (ts) => ss(T.amontona[0], T.amontona[0] + 0.45, ts) * (1 - ss(T.calma[0], T.calma[1], ts));
+// el viaje del que llega: ul (de su átomo al sitio del de delante), ua (a la segunda capa) y cuánto están apretados
+function llegada(e, ts) {
+  const ul = eio(prog(ts, T.amontona[0] + 0.25 * e.sem, T.amontona[1] - 0.12 + 0.12 * e.sem));
+  const retraso = 0.16 * cl(Math.abs(e.x1) / 4);
+  const ua = prog(ts, T.aparta[0] + retraso, T.aparta[0] + retraso + 0.62);
+  return { ul, ua, apretado: ss(0.55, 1, ul) * (1 - ss(0, 0.3, ua)) };
+}
 // posición de cada electrón (unidades) en el instante ts, y su capa (0 delante … 2 atrás)
 function posElectron(e, ts, n) {
   const tz = Math.min(ts, QUIETO), nz = Math.min(n, Math.floor(QUIETO * 12));
@@ -625,26 +638,30 @@ function posElectron(e, ts, n) {
   }
   // empujan hacia el hueco, un poco, cada uno a su ritmo
   const empuja = 0.022 * Math.sin(tz * (3.1 + 2.3 * e.sem) + e.sem * 9) * e.lado;
-  const retraso = 0.3 * cl(Math.abs(e.x0) / 4.5);
   if (e.tipo === 'del') {
-    // al apartarse, los de delante se corren un poco hacia un lado para dejar sitio
-    const ua = prog(ts, T.aparta[0] + retraso, T.aparta[0] + retraso + 0.75);
-    const corre = -0.07 * Math.sin(Math.PI * ua) * (e.j % 2 === 0 ? 1 : -1);
-    return { x: e.x0 + corre + jit(1), y: e.y0 + caer + empuja + jit(2), f: 0 };
+    let x = e.x0, y = e.y0 + empuja, ap = 0;
+    if (e.par) {
+      // el de atrás se le mete encima: se corre un poco, se aplasta y tiembla
+      ap = llegada(e.par, ts).apretado;
+      x += -0.05 * ap + 0.03 * ap * Math.sin(tz * 37 + e.sem * 7);
+      y += 0.012 * ap * Math.cos(tz * 31 + e.sem * 5);
+    }
+    return { x: x + jit(1), y: y + caer + jit(2), f: 0, apretado: ap };
   }
-  // los que llegan: de su átomo de atrás al sitio del de delante (se amontonan) y luego a la segunda capa
-  const ul = eio(prog(ts, T.amontona[0] + 0.15 * e.sem, T.amontona[1]));
-  const ua = eio(prog(ts, T.aparta[0] + retraso, T.aparta[0] + retraso + 0.8));
-  let x = mix(e.x0, e.xa, ul), y = mix(e.y0, e.ya, ul);
-  x = mix(x, e.x1, ua); y = mix(y, e.y1, ua);
-  // apretados: tiemblan
-  const apretado = ul * (1 - ua);
-  x += 0.035 * apretado * Math.sin(tz * 31 + e.sem * 7);
-  return { x: x + jit(1), y: y + caer + jit(2), f: ul > 0.5 ? 0 : 1, apretado };
+  // el que llega: de su átomo de atrás al sitio del de delante (se amontonan) y, a mitad de frase, a la segunda capa
+  const L = llegada(e, ts);
+  const uae = eob(L.ua, 1.6);
+  let x = mix(e.x0, e.xa, L.ul), y = mix(e.y0, e.ya, L.ul);
+  x = mix(x, e.x1, uae); y = mix(y, e.y1, uae);
+  x += 0.03 * L.apretado * Math.sin(tz * 41 + e.sem * 3 + 2);
+  y += 0.012 * L.apretado * Math.cos(tz * 27 + e.sem * 9);
+  // borroso mientras está en su átomo de atrás; nítido en cuanto sale hacia delante
+  const nit = L.ua > 0 ? 1 : ss(0.02, 0.22, L.ul);
+  return { x: x + jit(1), y: y + caer + jit(2), f: 0, nit, apretado: L.apretado, ul: L.ul, ua: L.ua };
 }
 
 // fotos 2D al cargar: las cuentas (8 variantes de un electrón, nítidas y desenfocadas) y las nubes (3 por lado)
-const CUENTAS = [[], [], []];
+const CUENTAS = [[], [], []], ROJAS = [];      // ROJAS: las de delante, al rojo (apretadas)
 const PASO_CUENTA = 200, R_CUENTA = 0.42 * PASO_CUENTA;
 function hacerCuentas() {
   const z = 6.0, esc = PASO_CUENTA / pxPorUnidad(z);
@@ -656,6 +673,12 @@ function hacerCuentas() {
     const s = document.createElement('canvas'); s.width = s.height = Math.round(PASO_CUENTA * k);
     s.getContext('2d').drawImage(f, (c[0] - PASO_CUENTA / 2) * k, (c[1] - PASO_CUENTA / 2) * k, PASO_CUENTA * k, PASO_CUENTA * k, 0, 0, s.width, s.height);
     CUENTAS[0].push(s);
+    const rj = document.createElement('canvas'); rj.width = rj.height = s.width;
+    const gj = rj.getContext('2d');
+    gj.drawImage(s, 0, 0);
+    gj.globalCompositeOperation = 'multiply'; gj.fillStyle = 'rgb(255,120,90)'; gj.fillRect(0, 0, rj.width, rj.height);
+    gj.globalCompositeOperation = 'destination-in'; gj.drawImage(s, 0, 0);
+    ROJAS.push(rj);
     // las de las capas de atrás: desenfocadas y más oscuras
     for (const [capaN, bl, osc] of [[1, 5, 0.3], [2, 10, 0.5]]) {
       const b = document.createElement('canvas'); b.width = b.height = s.width;
@@ -683,70 +706,123 @@ function hacerNubes() {
     NUBES[lado].push(c);
   }
 }
-function cuenta(x, y, r, v, capaN, alfa) {
+function cuenta(c, x, y, r, v, capaN, alfa, ex = 1, ey = 1, rojo = 0) {
+  if (alfa <= 0.003) return;
   const s = CUENTAS[capaN][v % 8], d = r * PASO_CUENTA / R_CUENTA;
-  g.globalAlpha = alfa;
-  g.drawImage(s, x - d / 2, y - d / 2, d, d);
+  c.globalAlpha = alfa;
+  c.drawImage(s, x - d * ex / 2, y - d * ey / 2, d * ex, d * ey);
+  if (rojo > 0.01 && capaN === 0) { c.globalAlpha = alfa * rojo; c.drawImage(ROJAS[v % 8], x - d * ex / 2, y - d * ey / 2, d * ex, d * ey); }
 }
-function vistaAtomica(n, ts, { O, Z, Cx = 0, Cy = 0, alfa = 1 }) {
-  if (alfa <= 0.001) return;
+// la vista atómica, siempre opaca, en el contexto c (el de la capa o uno aparte para fundirla entera de una vez)
+function vistaAtomica(c, n, ts, { O, Z, Cx = 0, Cy = 0 }) {
   F('cuentas'); F('nubes');
   const sx = (x) => O[0] + Z * (x - Cx), sy = (y) => O[1] + Z * (y - Cy);
   const caer = caida(ts), nz = Math.min(n, Math.floor(QUIETO * 12));
-  g.save(); g.globalAlpha = alfa;
-  // fondo: penumbra caqui arriba y de haya abajo
+  const kd = apagado(ts);
+  c.save();
+  // fondo: penumbra caqui arriba y de haya abajo (opaco: las franjas se pisan sin sumar transparencia)
   const yh = sy(0);
-  g.fillStyle = 'rgb(14,12,10)'; g.fillRect(-W, -H, 3 * W, H + yh);
-  g.fillStyle = 'rgb(16,10,7)'; g.fillRect(-W, yh, 3 * W, 2 * H);
-  let gr = g.createLinearGradient(0, yh - 3.2 * Z, 0, yh);
+  c.globalAlpha = 1;
+  c.fillStyle = 'rgb(14,12,10)'; c.fillRect(-W, -H, 3 * W, H + yh);
+  c.fillStyle = 'rgb(16,10,7)'; c.fillRect(-W, yh, 3 * W, 2 * H);
+  let gr = c.createLinearGradient(0, yh - 3.2 * Z, 0, yh);
   gr.addColorStop(0, 'rgba(14,12,10,1)'); gr.addColorStop(1, 'rgba(46,41,31,1)');
-  g.fillStyle = gr; g.fillRect(-W, yh - 3.2 * Z, 3 * W, 3.2 * Z);
-  gr = g.createLinearGradient(0, yh, 0, yh + 3.2 * Z);
+  c.fillStyle = gr; c.fillRect(-W, yh - 3.2 * Z, 3 * W, 3.2 * Z);
+  gr = c.createLinearGradient(0, yh, 0, yh + 3.2 * Z);
   gr.addColorStop(0, 'rgba(52,33,20,1)'); gr.addColorStop(1, 'rgba(16,10,7,1)');
-  g.fillStyle = gr; g.fillRect(-W, yh, 3 * W, 3.2 * Z);
+  c.fillStyle = gr; c.fillRect(-W, yh, 3 * W, 3.2 * Z);
   // las nubes de los átomos y sus electrones, de atrás a delante (los de atrás, más oscuros y desenfocados)
   const xMin = Cx - (O[0] + 80) / Z - 1, xMax = Cx + (W - O[0] + 80) / Z + 1;
   const elec = ELEC.map((e) => [posElectron(e, ts, n), e]);
+  const donde = new Map(elec.map(([p, e]) => [e, p]));
+  const variante = (e) => Math.floor(azar(nz, Math.floor((e.sem ?? 0.5) * 997) + 11) * 8);
   for (let f = 2; f >= 0; f--) {
     for (const a of ATOMOS) {
       if (a.f !== f || a.x < xMin || a.x > xMax) continue;
       const y = a.y + (a.lado < 0 ? caer : 0);
       const R = Z * (0.6 + 0.04 * a.sem) * (1 - 0.06 * f);
       const nb = NUBES[a.lado][Math.floor(a.sem * 3)];
-      g.globalAlpha = alfa * (f === 0 ? 0.95 : f === 1 ? 0.55 : 0.32);
+      c.globalAlpha = f === 0 ? 0.95 * (1 - 0.5 * kd) : (f === 1 ? 0.55 : 0.32) * (1 - 0.75 * kd);
       const s = R / R_NUBE;
-      g.drawImage(nb, sx(a.x) - (R_NUBE + 30) * s, sy(y) - (R_NUBE + 30) * s, (2 * R_NUBE + 60) * s, (2 * R_NUBE + 60) * s);
+      c.drawImage(nb, sx(a.x) - (R_NUBE + 30) * s, sy(y) - (R_NUBE + 30) * s, (2 * R_NUBE + 60) * s, (2 * R_NUBE + 60) * s);
       // el núcleo: un guisante de luz, diminuto
-      if (f < 2) { g.globalAlpha = alfa * (f === 0 ? 0.85 : 0.4); g.fillStyle = 'rgb(255,205,150)'; g.beginPath(); g.arc(sx(a.x), sy(y), Math.max(1.3, 0.006 * Z), 0, 6.283); g.fill(); }
+      if (f < 2) { c.globalAlpha = (f === 0 ? 0.85 : 0.4) * (1 - 0.6 * kd); c.fillStyle = 'rgb(255,205,150)'; c.beginPath(); c.arc(sx(a.x), sy(y), Math.max(1.3, 0.006 * Z), 0, 6.283); c.fill(); }
     }
     for (const [p, e] of elec) {
-      if (p.f !== f || p.x < xMin || p.x > xMax) continue;
+      if (e.tipo === 'llega' || p.f !== f || p.x < xMin || p.x > xMax) continue;
       const r = Z * MI.RE * (f === 0 ? 1 : f === 1 ? 0.82 : 0.68);
-      const v = Math.floor(azar(nz, Math.floor((e.sem ?? 0.5) * 997) + 11) * 8);
-      cuenta(sx(p.x), sy(p.y), r, v, f, alfa * (f === 0 ? 1 : f === 1 ? 0.8 : 0.55));
+      let a = f === 0 ? 1 : f === 1 ? 0.8 : 0.55;
+      if (e.tipo === 'orbita') a *= 1 - (f === 0 ? 0.6 : 0.8) * kd;
+      const ap = p.apretado || 0;
+      cuenta(c, sx(p.x), sy(p.y), r, variante(e), f, a, 1 - 0.16 * ap, 1 + 0.1 * ap, 0.9 * ap);
     }
   }
-  g.restore();
+  // los que llegan de atrás, encima de todo: borrosos en su átomo; al salir, nítidos y con estela
+  const r0 = Z * MI.RE;
+  for (const [p, e] of elec) {
+    if (e.tipo !== 'llega' || p.x < xMin || p.x > xMax) continue;
+    const v = variante(e);
+    if (p.nit < 1) cuenta(c, sx(p.x), sy(p.y), r0 * 0.82, v, 1, 0.8 * (1 - 0.65 * kd) * (1 - p.nit));
+    if (p.nit <= 0) continue;
+    if (p.ul > 0.04 && p.ul < 0.97 && p.ua <= 0) {
+      // estela: un trazo de luz ámbar desde donde estaba hace un momento
+      const q = posElectron(e, Math.max(T.amontona[0], ts - 0.16), n);
+      const x0 = sx(q.x), y0 = sy(q.y), x1 = sx(p.x), y1 = sy(p.y);
+      if (Math.hypot(x1 - x0, y1 - y0) > 4) {
+        c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = p.nit;
+        const ge = c.createLinearGradient(x0, y0, x1, y1);
+        ge.addColorStop(0, 'rgba(255,170,80,0)'); ge.addColorStop(1, 'rgba(255,185,100,0.55)');
+        c.strokeStyle = ge; c.lineCap = 'round'; c.lineWidth = 1.3 * r0;
+        c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+        c.restore();
+      }
+    }
+    const ap = p.apretado;
+    cuenta(c, sx(p.x), sy(p.y), r0, v, 0, p.nit, 1 - 0.16 * ap, 1 + 0.1 * ap, 0.9 * ap);
+  }
+  c.restore();
   // brillo propio de los electrones de delante (como los de Atom)
-  g.save(); g.globalCompositeOperation = 'lighter';
-  for (const [p] of elec) {
+  c.save(); c.globalCompositeOperation = 'lighter';
+  for (const [p, e] of elec) {
     if (p.f !== 0 || p.x < xMin || p.x > xMax) continue;
     const R = Z * MI.RE * 2.4;
-    g.globalAlpha = 0.13 * alfa;
-    g.drawImage(CHISPA2D, sx(p.x) - R, sy(p.y) - R, 2 * R, 2 * R);
+    const viaja = e.tipo === 'llega' && p.ul > 0.04 && p.ul < 0.97 && p.ua <= 0 ? 1 : 0;
+    c.globalAlpha = 0.13 * (e.tipo === 'llega' ? p.nit * (1 + 1.3 * viaja) : e.tipo === 'orbita' ? 1 - 0.6 * kd : 1);
+    c.drawImage(CHISPA2D, sx(p.x) - R, sy(p.y) - R, 2 * R, 2 * R);
   }
-  g.restore();
+  // el apretón: donde dos electrones se amontonan, un brillo caliente que tiembla
+  for (const [p, e] of elec) {
+    if (e.tipo !== 'llega' || p.apretado <= 0.01 || p.x < xMin || p.x > xMax) continue;
+    const q = donde.get(e.par);
+    const mx = (sx(p.x) + sx(q.x)) / 2, my = (sy(p.y) + sy(q.y)) / 2;
+    const R = 0.5 * Z, fl = 0.8 + 0.2 * azar(nz, Math.floor(e.sem * 500) + 3);
+    const k = p.apretado * fl;
+    const gg = c.createRadialGradient(mx, my, 0, mx, my, R);
+    gg.addColorStop(0, `rgba(255,120,60,${0.7 * k})`); gg.addColorStop(0.35, `rgba(240,75,35,${0.32 * k})`); gg.addColorStop(1, 'rgba(220,55,25,0)');
+    c.globalAlpha = 1; c.fillStyle = gg; c.fillRect(mx - R, my - R, 2 * R, 2 * R);
+  }
+  c.restore();
   // el cojín: una franja de luz fría muy suave en el hueco, que late con las chispas
   const hz = (MI.HUECO / 2) * Z;
-  const k = alfa * (0.7 + 0.3 * azar(nz, 77)) * ss(T.baja3[0] + 0.3, T.baja3[1], ts);
+  const k = (0.7 + 0.3 * azar(nz, 77)) * ss(T.baja3[0] + 0.3, T.baja3[1], ts);
   if (k > 0.01) {
-    g.save(); g.globalCompositeOperation = 'lighter';
+    c.save(); c.globalCompositeOperation = 'lighter';
     const y0 = sy(0) + caer * 0.5 * Z;
-    gr = g.createLinearGradient(0, y0 - hz * 1.2, 0, y0 + hz * 1.2);
+    gr = c.createLinearGradient(0, y0 - hz * 1.2, 0, y0 + hz * 1.2);
     gr.addColorStop(0, 'rgba(150,185,240,0)'); gr.addColorStop(0.5, `rgba(165,195,250,${0.16 * k})`); gr.addColorStop(1, 'rgba(150,185,240,0)');
-    g.fillStyle = gr; g.fillRect(0, y0 - hz * 1.2, W, 2.4 * hz);
-    g.restore();
+    c.fillStyle = gr; c.fillRect(-W, y0 - hz * 1.2, 3 * W, 2.4 * hz);
+    c.restore();
   }
+}
+// un lienzo aparte del tamaño de la capa (la vista atómica se dibuja ahí entera y opaca y se funde de una vez)
+const APARTE = document.createElement('canvas');
+function lienzoAparte() {
+  if (APARTE.width !== capa.width || APARTE.height !== capa.height) { APARTE.width = capa.width; APARTE.height = capa.height; }
+  const c = APARTE.getContext('2d'), k = APARTE.width / W;
+  c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.filter = 'none';
+  c.clearRect(0, 0, APARTE.width, APARTE.height);
+  c.setTransform(k, 0, 0, k, 0, 0);
+  return c;
 }
 // las chispas del kit, vivas: dos piezas a lo largo del hueco (centro en pantalla y), semilla por fotograma
 const PX_CHISPA = 330;       // px por unidad local de la pieza (cada una cubre 660 px)
@@ -798,11 +874,15 @@ function planoMicro(n, ts) {
     alfa = ss(0.45, 0.9, up);
     Z = MI.Z4 * s / SMAX;
     O = q;
-    g.save(); g.translate(q[0], q[1]); g.rotate(giro * (1 - alfa)); g.translate(-q[0], -q[1]);
-    vistaAtomica(n, ts, { O, Z, alfa });
-    g.restore();
+    if (alfa > 0.001) {
+      // la vista atómica, entera y opaca en un lienzo aparte (con su giro), y fundida de una vez sobre la foto
+      const c = lienzoAparte();
+      c.translate(q[0], q[1]); c.rotate(giro * (1 - alfa)); c.translate(-q[0], -q[1]);
+      vistaAtomica(c, n, ts, { O, Z });
+      g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = alfa; g.drawImage(APARTE, 0, 0); g.restore();
+    }
   } else {
-    vistaAtomica(n, ts, { O, Z, alfa: 1 });
+    vistaAtomica(g, n, ts, { O, Z });
   }
   // chispas vivas en el hueco
   const fz = alfa * (0.55 + 0.45 * ss(T.baja3[0] + 0.25, T.baja3[0] + 0.5, ts)) * ss(T.empuje[1] - 0.25, T.empuje[1] + 0.1, ts);
@@ -831,12 +911,9 @@ function planoMicro(n, ts) {
 // ---------------------------------------------------------------- fotos
 const HACER = {
   regla() { P.limpiar(); P.regla(REGLA); P.render(3010, { fondo: false }); return foto(P); },
-  // la multitud entera, sola (para el remolino)
-  mult() { P.limpiar(); multitud(P, I.MUL, { ...MULT, aparicion: 1 }); P.render(3011, { fondo: false }); return foto(P); },
   // la persona del general, quieta, con la multitud y sin ella (con el fondo y su sombra)
   lleno() { P.limpiar(); personaG1(T.lleno); multitud(P, I.MUL, { ...MULT, aparicion: 1 }); P.render(3012); return foto(P); },
   personaG1() { P.limpiar(); personaG1(T.lleno); P.render(3012); return foto(P); },
-  personaSola() { P.limpiar(); personaG1(T.lleno); P.render(3012, { fondo: false }); return foto(P); },
   // la cómoda, abierta y cerrada (con el fondo y su sombra)
   cajonAbierto() { P.limpiar(); cajon(P, I.CAJ, { ...CAJ2, abierto: 1 }); P.render(3013); return foto(P); },
   cajonCerrado() { P.limpiar(); cajon(P, I.CAJ, { ...CAJ2, abierto: 0 }); P.render(3014); return foto(P); },
@@ -868,7 +945,7 @@ window.__carga.push(['persona y Atom', Math.round(performance.now())]);
 // como renderiza render-escenas.mjs): [desde, foto, hasta]. Al final de cada fotograma que no haya tenido que hacer
 // ninguna foto al pedirla, se hace como mucho UNA (va al lienzo de WebGL, que queda debajo de la capa 2D: no se ve)
 const PREPARAR = [
-  [0.05, 'personaG1', T.comprime[1]], [0.05, 'personaSola', T.comprime[1]], [T.lleno + 0.05, 'mult', T.comprime[1]],
+  [0.05, 'personaG1', T.comprime[1]],
   [T.lleno + 0.05, 'cajonAbierto', T.cae[0]], [T.corte1 + 0.05, 'cajonCerrado', T.corte2],
   [T.fotoSentada + 0.05, 'cuentas', D], [T.fotoSentada + 0.05, 'nubes', D],
 ];

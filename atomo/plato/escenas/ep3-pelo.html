@@ -99,7 +99,7 @@ const plano = (ts) => (ts < T.lectura ? 'saltos' : ts < T.empuje1 ? 'hombro' : t
 // tinta cada vez más finos (LB_Y, LB_W: medio grueso) y, entre el cuarto y el quinto, un pelo de verdad (geometría, el color
 // del pelo del kit) que cruza la página y asoma por el canto. T.z (color de P.pieza) = unidades locales por píxel en ese
 // encuadre, para filtrar los trazos finos sin que parpadeen.
-const LB = { RP: 0.0065, X0: 0.1, X1: 1.06, Y: [0.50, 0.36, 0.235, 0.125, -0.07, -0.155, -0.23, -0.295], W: [0.034, 0.022, 0.014, 0.0085, 0.0042, 0.0026, 0.0016, 0.001] };
+const LB = { RP: 0.0065, X0: 0.1, X1: 1.0, Y: [0.50, 0.36, 0.235, 0.125, -0.07, -0.155, -0.23, -0.295], W: [0.034, 0.022, 0.014, 0.0085, 0.0042, 0.0026, 0.0016, 0.001] };
 const lbZ = (x) => { const a = Math.abs(x), u = cl(a / 0.45); return 0.12 * u * u * (3 - 2 * u) + 0.02 * a; };
 const lbPeloY = (x) => 0.03 + 0.012 * Math.sin(x * 4.7 + 0.6) + 0.006 * Math.sin(x * 11.0);
 const LIBRO = { radio: 1.3, glifos: [], glsl: /* glsl */`
@@ -412,7 +412,7 @@ function lectura(ts) {
     // el plano por encima del hombro: una deriva lenta y, al final, un empuje que acelera hacia el pelo de la página
     const deriva = 1 + 0.03 * eio(prog(ts, T.lectura, T.empuje0));
     const u = eic(prog(ts, T.empuje0, T.empuje1));
-    dibujarFotoEn(F('hombro'), FOCO_H, [mix(FOCO_H[0], 1020, u), mix(FOCO_H[1], 520, u)], deriva * mix(1, 2.6, u));
+    dibujarFotoEn(F('hombro'), FOCO_H, [mix(FOCO_H[0], 1020, u), mix(FOCO_H[1], 520, u)], deriva * mix(1, 2.0, u));
     return;
   }
   // el detalle (por corte, al final del empuje): llega algo grande y se asienta
