@@ -38,7 +38,7 @@
 // entero (la persona, la regla y Atom en una pasada con fondo y el hervor del fotograma 0, como ep3-tierra): es su
 // fotograma 0 sin la cartela. Se funde con lo de antes en tres fotogramas (aparece la sombra de Atom en el ciclorama).
 import { escena } from '/atomo/plato/escena.js';
-import { crearPlato, crearPost, GLSL_REMATES, COLOR, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, postura, mezclarPosturas, HUMANO } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearPlato, crearPost, GLSL_REMATES, COLOR, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, mulberry32, postura, mezclarPosturas, HUMANO } from '/atomo/plato/kits/plastilina-adulta.js';
 import { tiposTocar, estadio, geometriaEstadio, nubeElectrones, foto, mundoPieza } from '/atomo/plato/kits/ep03-tocar.js';
 import { resplandor } from '/atomo/plato/kits/ep03-nucleo.js';
 
@@ -117,6 +117,9 @@ const vec4 COPA_A[11] = vec4[11](
   vec4(-0.02, 0.6, 0.0, 0.17), vec4(0.02, 0.74, 0.01, 0.14), vec4(0.0, 0.86, 0.0, 0.1),
   vec4(-0.11, 0.05, 0.09, 0.15), vec4(0.12, 0.3, 0.08, 0.14));
 float pz_arbol(vec3 q, vec4 T, out float m) {
+  // (coste) lejos del árbol, la caja que lo envuelve
+  float caja = sdRoundBox(q - vec3(0.0, -0.075, 0.0), vec3(0.36, 1.08, 0.34), 0.08);
+  if (caja > 0.06) { m = 0.0; return caja; }
   float te = elipsoideP(q - vec3(0.0, -1.03, 0.0), vec3(0.3, 0.09, 0.26));
   float tr = capsulaC(q, vec3(0.0, -1.0, 0.0), vec3(0.01, 0.55, 0.0), 0.05, 0.016);
   tr = smin(tr, capsulaC(q, vec3(0.0, -0.62, 0.0), vec3(0.11, -0.36, 0.05), 0.022, 0.01), 0.02);
@@ -399,6 +402,19 @@ const HACER = {
   // estrena el programa del remolino vivo (SwiftShader compila al dibujar por primera vez)
   estrenoRem() { P.limpiar(); P.pieza(I.REM, { pos: en(60, 60, 2), escala: 0.05 }); P.render(2102, { fondo: false }); return true; },
   estadio() { P.limpiar(); estadio(P, I.EST, ESTADIO); P.render(2103, { fondo: false }); return foto(P); },
+  // el átomo inflado entero: un halo oscuro (para que su nube brille sobre la niebla), el estadio y la neblina de sus dos
+  // nubes (sin las motas, que van vivas); y el mismo, desenfocado (el empuje hasta el árbol)
+  atomo() {
+    const { c, gc } = lienzo();
+    const RV = R_BOLA * 1.4, gv = gc.createRadialGradient(BC[0], BC[1], 0, BC[0], BC[1], RV);
+    gv.addColorStop(0, 'rgba(12,14,20,0.5)'); gv.addColorStop(0.6, 'rgba(12,14,20,0.3)'); gv.addColorStop(1, 'rgba(12,14,20,0)');
+    gc.fillStyle = gv; gc.fillRect(BC[0] - RV, BC[1] - RV, 2 * RV, 2 * RV);
+    gc.drawImage(F('estadio'), 0, 0, W, H);
+    nubeElectrones(gc, { ...GEO_EST.anillo, ...NUBE_A, motas: 0 });
+    nubeElectrones(gc, { ...GEO_EST.bola, ...NUBE_B, motas: 0 });
+    return c;
+  },
+  atomoB() { const { c, gc } = lienzo(); gc.filter = 'blur(9px)'; gc.drawImage(F('atomo'), 0, 0, W, H); gc.filter = 'none'; return c; },
   arbol() { P.limpiar(); P.pieza(I.ARB, ARBOL0); P.render(2104, { fondo: false }); return foto(P); },
   arbolG() { P.limpiar(); P.pieza(I.ARB, ARBOL1); P.render(2105, { fondo: false }); return foto(P); },
   sueloL: () => fotoSuelo(0, false, 2106), sueloB: () => fotoSuelo(1, false, 2107),
@@ -426,7 +442,8 @@ const HACER = {
 // (coste) lo que no hace falta en el fotograma 0 se hace en un fotograma barato poco antes: [desde, nombre, hasta]
 const PREPARAR = [
   [0.05, 'niebla', 1.0], [0.12, 'estrenoRem', 0.8], [0.2, 'r35', FIN_SALTOS],
-  [FIN_SALTOS + 0.12, 'estadio', T.infla[0]], [FIN_SALTOS + 0.2, 'arbol', T.infla[0]],
+  [FIN_SALTOS + 0.12, 'estadio', T.infla[0]], [FIN_SALTOS + 0.2, 'atomo', T.infla[0]], [FIN_SALTOS + 0.3, 'arbol', T.infla[0]],
+  [m.a + 0.3, 'atomoB', T.empuje[0]],
   [m.a + 0.6, 'arbolG', T.empuje[0]], [m.a + 1.0, 'sueloL', T.corteSuelo], [m.a + 1.4, 'sueloB', T.corteSuelo],
   [T.parpadea + 0.3, 'sueloLQ', T.asienta], [T.parpadea + 0.8, 'sueloBQ', T.asienta], [T.parpadea + 1.3, 'estrenoPie1', T.plato[0]],
   [T.parpadea + 1.8, 'estrenoPie2', T.plato[0]], [T.parpadea + 2.3, 'plato', T.plato[0]], [T.parpadea + 2.8, 'final', QUIETO - 0.3],
@@ -464,11 +481,20 @@ function mirilla(dc, ts) {
 }
 
 // ---------------------------------------------------------------- niebla en 2D
+// (coste) toda la niebla 2D se pinta en un lienzo a un cuarto de resolución (es blanda) y se pega ampliada: neblina(fn)
+const BAJA = 4, lienzoBajo = document.createElement('canvas');
+lienzoBajo.width = W / BAJA; lienzoBajo.height = H / BAJA;
+const gb = lienzoBajo.getContext('2d');
+function neblina(fn) {
+  gb.setTransform(1, 0, 0, 1, 0, 0); gb.clearRect(0, 0, lienzoBajo.width, lienzoBajo.height);
+  gb.setTransform(1 / BAJA, 0, 0, 1 / BAJA, 0, 0);
+  if (fn(gb) === false) return;
+  g.save(); g.imageSmoothingQuality = 'high'; g.drawImage(lienzoBajo, 0, 0, W, H); g.restore();
+}
 // las bocanadas que pasan de largo al hundirse (como la nube de ep3-proton, en gris): cada una a su profundidad zi; con
 // el avance S, su distancia al centro y su tamaño crecen como S / zi
-function nieblaPasa(S, k, c = [960, 540]) {
-  if (k < 0.01) return;
-  g.save();
+function nieblaPasa(dc, S, k, c = [960, 540]) {
+  if (k < 0.01) return false;
   for (let i = 0; i < 30; i++) {
     const zi = Math.exp(Math.log(1.3) + (Math.log(40) - Math.log(1.3)) * azar(i, 61)), f = S / zi;
     if (f < 0.3 || f > 5) continue;
@@ -478,41 +504,65 @@ function nieblaPasa(S, k, c = [960, 540]) {
     if (x + R < 0 || x - R > W || y + R < 0 || y - R > H) continue;
     const oscura = azar(i, 65) < 0.3;
     const col = oscura ? '70,76,92' : '214,218,228';
-    const gr = g.createRadialGradient(x, y, 0, x, y, R);
+    const gr = dc.createRadialGradient(x, y, 0, x, y, R);
     gr.addColorStop(0, `rgba(${col},${(oscura ? 0.2 : 0.3) * al})`); gr.addColorStop(0.5, `rgba(${col},${(oscura ? 0.08 : 0.12) * al})`); gr.addColorStop(1, `rgba(${col},0)`);
-    g.fillStyle = gr; g.fillRect(x - R, y - R, 2 * R, 2 * R);
+    dc.fillStyle = gr; dc.fillRect(x - R, y - R, 2 * R, 2 * R);
   }
-  g.restore();
 }
 // la niebla que baja (la cámara sube): bocanadas estiradas en vertical según la velocidad
-function nieblaSube(Y, v, k) {
-  if (k < 0.01) return;
-  g.save();
+function nieblaSube(dc, Y, v, k) {
+  if (k < 0.01) return false;
   const est = 1 + Math.min(3.5, v / 900);
   for (let i = 0; i < 18; i++) {
     const x = 1920 * azar(i, 81), y = ((azar(i, 82) * 1800 + Y * (0.6 + 0.8 * azar(i, 84))) % 1800) - 360;
     const R = 80 + 170 * azar(i, 83), oscura = azar(i, 85) < 0.3;
     const col = oscura ? '70,76,92' : '214,218,228';
-    g.save(); g.translate(x, y); g.scale(1, est);
-    const gr = g.createRadialGradient(0, 0, 0, 0, 0, R);
+    dc.save(); dc.translate(x, y); dc.scale(1, est);
+    const gr = dc.createRadialGradient(0, 0, 0, 0, 0, R);
     gr.addColorStop(0, `rgba(${col},${(oscura ? 0.18 : 0.26) * k})`); gr.addColorStop(1, `rgba(${col},0)`);
-    g.fillStyle = gr; g.fillRect(-R, -R, 2 * R, 2 * R);
-    g.restore();
+    dc.fillStyle = gr; dc.fillRect(-R, -R, 2 * R, 2 * R);
+    dc.restore();
   }
-  g.restore();
 }
 // bruma que deriva despacio, encima de lo que se ve en la niebla (muy tenue: no tapa)
-function bruma(ts, k = 1) {
-  g.save();
+function bruma(dc, ts, k = 1) {
+  if (k < 0.01) return false;
   const t = Math.min(ts, QUIETO);
   for (let i = 0; i < 9; i++) {
     const x = ((azar(i, 91) * 2400 + t * (14 + 22 * azar(i, 92))) % 2400) - 240, y = 120 + 820 * azar(i, 93);
     const R = 220 + 260 * azar(i, 94);
-    const gr = g.createRadialGradient(x, y, 0, x, y, R);
+    const gr = dc.createRadialGradient(x, y, 0, x, y, R);
     gr.addColorStop(0, `rgba(208,212,222,${0.07 * k})`); gr.addColorStop(1, 'rgba(208,212,222,0)');
-    g.fillStyle = gr; g.fillRect(x - R, y - R, 2 * R, 2 * R);
+    dc.fillStyle = gr; dc.fillRect(x - R, y - R, 2 * R, 2 * R);
   }
-  g.restore();
+}
+// las motas de la nube de electrones (electrones que giran, como las de nubeElectrones de ep03-tocar.js, sin su neblina,
+// que va horneada en la foto del átomo): pequeñas y nítidas, con una estela corta
+const MOTAS = (() => {
+  const r = mulberry32(905), lista = [];
+  const conj = (geo, forma, n, k) => {
+    const { centro, ejeX, ejeY } = geo, rIn = geo.interior ?? 0.6, rEx = geo.exterior ?? 1.06;
+    for (let i = 0; i < n; i++) {
+      const rr = forma === 'anillo' ? rIn + (rEx - rIn) * (r() + r() + r()) / 3 : 1 - 0.45 * Math.pow(r(), 1.6);
+      lista.push({ c: centro, ax: ejeX, ay: ejeY, th0: r() * 2 * Math.PI, rr, w: (0.3 + 0.5 * r()) * (r() < 0.5 ? -1 : 1), sz: 0.8 + 1.3 * r() * r(), k });
+    }
+  };
+  conj(GEO_EST.anillo, 'anillo', 240, NUBE_A.fuerza);
+  conj(GEO_EST.bola, 'bola', 300, Math.min(1, NUBE_B.fuerza));
+  return lista;
+})();
+function motas(dc, t, k = 1) {
+  dc.save(); dc.lineCap = 'round';
+  const en2 = (M, th) => [M.c[0] + (M.ax[0] * Math.cos(th) + M.ay[0] * Math.sin(th)) * M.rr, M.c[1] + (M.ax[1] * Math.cos(th) + M.ay[1] * Math.sin(th)) * M.rr];
+  for (const M of MOTAS) {
+    const th = M.th0 + M.w * t, v = M.k * k;
+    const [x, y] = en2(M, th), [x2, y2] = en2(M, th - M.w * 0.08);
+    dc.strokeStyle = `rgba(255,190,110,${0.25 * v})`; dc.lineWidth = M.sz;
+    dc.beginPath(); dc.moveTo(x2, y2); dc.lineTo(x, y); dc.stroke();
+    dc.fillStyle = `rgba(255,212,150,${0.6 * v})`;
+    dc.beginPath(); dc.arc(x, y, M.sz, 0, 2 * Math.PI); dc.fill();
+  }
+  dc.restore();
 }
 
 // ---------------------------------------------------------------- los tramos
@@ -541,8 +591,8 @@ function tramoA(n, ts) {
   if (kF > 0.001) pintar(F('niebla'), kF);
   // bajamos: las bocanadas pasan de largo
   const S = Math.exp(Math.log(34) * prog(ts, T.pasa[0], T.pasa[1]));
-  nieblaPasa(S, ss(T.pasa[0], T.pasa[0] + 0.4, ts) * (1 - ss(T.pasa[1] - 0.5, T.pasa[1], ts)));
-  if (ts > T.pasa[1] - 0.6) bruma(ts, ss(T.pasa[1] - 0.6, T.pasa[1], ts));
+  const kP = ss(T.pasa[0], T.pasa[0] + 0.4, ts) * (1 - ss(T.pasa[1] - 0.5, T.pasa[1], ts)), kB = ss(T.pasa[1] - 0.6, T.pasa[1], ts);
+  neblina((dc) => { const a = nieblaPasa(dc, S, kP), b = bruma(dc, ts, kB); return a !== false || b !== false; });
   parpadeo(n);
 }
 // B · el átomo inflado y el árbol; a mitad de frase, el empuje hasta el árbol
@@ -565,21 +615,16 @@ function tramoB(n, ts) {
   // el átomo: se infla desde un punto (la onda empuja la niebla) y, con el empuje, se desenfoca
   const s = inflado(ts);
   if (s > 0.001) {
+    // (coste) el átomo con su halo y la neblina de su nube es una foto (y otra desenfocada, para el empuje); en vivo, solo
+    // las motas que giran
     conCam(C.Z, ARB_C, C.Q, () => {
       g.translate(BC[0], BC[1]); g.scale(s, s); g.translate(-BC[0], -BC[1]);
-      const RV = R_BOLA * 1.4, gv = g.createRadialGradient(BC[0], BC[1], 0, BC[0], BC[1], RV);
-      gv.addColorStop(0, 'rgba(12,14,20,0.5)'); gv.addColorStop(0.6, 'rgba(12,14,20,0.3)'); gv.addColorStop(1, 'rgba(12,14,20,0)');
-      g.fillStyle = gv; g.fillRect(BC[0] - RV, BC[1] - RV, 2 * RV, 2 * RV);
-      if (desenf > 0.01) g.filter = `blur(${(7 * desenf).toFixed(1)}px)`;
-      g.drawImage(F('estadio'), 0, 0, W, H);
-      g.filter = 'none';
-      const t = Math.min(ts, QUIETO);
-      nubeElectrones(g, { ...GEO_EST.anillo, ...NUBE_A, t, desenfoque: 7 + 10 * desenf });
-      nubeElectrones(g, { ...GEO_EST.bola, ...NUBE_B, t, desenfoque: 7 + 10 * desenf });
+      if (desenf < 1) pintar(F('atomo'), 1);
+      if (desenf > 0) pintar(F('atomoB'), desenf);
+      motas(g, Math.min(ts, QUIETO), 1 - 0.5 * desenf);
     });
-    const uo = prog(ts, T.infla[0], T.infla[1] + 0.5);
-    if (uo > 0 && uo < 1) nieblaPasa(Math.exp(Math.log(8) * uo), Math.sin(Math.PI * uo) * 0.8, BC);
   }
+  const uo = prog(ts, T.infla[0], T.infla[1] + 0.5);
   // el árbol: brota de su terrón (de lejos, foto pequeña); con el empuje, se funde con su foto de cerca
   const ub = prog(ts, T.brota[0], T.brota[1]);
   if (ub > 0) {
@@ -592,7 +637,7 @@ function tramoB(n, ts) {
     });
     if (kG > 0) conCam(C.Z / ZB, ARB_Q, C.Q, () => { g.globalAlpha = kG; g.drawImage(F('arbolG'), 0, 0, W, H); });
   }
-  bruma(ts);
+  neblina((dc) => { if (uo > 0 && uo < 1) nieblaPasa(dc, Math.exp(Math.log(8) * uo), Math.sin(Math.PI * uo) * 0.8, BC); bruma(dc, ts); });
   parpadeo(n);
 }
 // C · el suelo que parpadea y el «?»
@@ -626,8 +671,8 @@ function tramoE(n, ts) {
   // subimos: la niebla pasa hacia abajo
   const R = estadoRegla(ts), R1 = estadoRegla(ts + 1 / 12);
   const Y = 2600 * (R.ac + 35) / 35 + 500 * eic(u), v = 12 * (2600 * (R1.ac - R.ac) / 35);
-  nieblaSube(Y, v, ss(T.vuelta[0], T.vuelta[0] + 0.3, ts) * (1 - ss(T.plato[0] + 0.1, T.plato[1], ts)));
-  if (kP < 1) bruma(ts, 1 - kP);
+  const kS = ss(T.vuelta[0], T.vuelta[0] + 0.3, ts) * (1 - ss(T.plato[0] + 0.1, T.plato[1], ts));
+  neblina((dc) => { const a = nieblaSube(dc, Y, v, kS), b = bruma(dc, ts, 1 - kP); return a !== false || b !== false; });
   parpadeo(n, 1 - kP);
 }
 // ---------------------------------------------------------------- fotograma
@@ -644,7 +689,7 @@ function dibujar(t) {
     let vivo = null;
     if (ts < T.infla[0]) tramoA(n, ts);
     else if (ts < T.corteSuelo) tramoB(n, ts);
-    else if (ts < T.vuelta[0]) { vivo = tramoC(n, ts); bruma(ts); parpadeo(n); }
+    else if (ts < T.vuelta[0]) { vivo = tramoC(n, ts); neblina((dc) => bruma(dc, ts)); parpadeo(n); }
     else tramoE(n, ts);
     // encima: la regla (foto si está quieta; después de subir ya va en la foto del plató) y, en una pasada, lo vivo,
     // la regla si se mueve y Atom
