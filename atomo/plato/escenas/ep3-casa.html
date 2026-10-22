@@ -559,7 +559,7 @@ function F(nombre) { if (!FOTOS[nombre]) { delete EN_CURSO[nombre]; FOTOS[nombre
 F('peldano');
 window.__carga.push(['fondo y peldaño', Math.round(performance.now())]);
 const estrenarPersona = (partes = null) => { P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: { ...POSE_MANOS, fantasma: 1 }, aspecto: 'adulto', ...(partes ? { partes } : {}) }); P.render(2005, { fondo: false }); };
-if (!location.search.includes('sinestreno')) estrenarPersona();
+estrenarPersona();
 window.__carga.push(['persona', Math.round(performance.now())]);
 P.limpiar(); P.atomo({ pos: [0, 0.3, -2], escala: 0.05, electrones: [{ pos: [2, 0, 0], mezcla: 1, brazo: 1, mano: 1 }] }); P.render(2006, { fondo: false });
 fotoRegla(-9);

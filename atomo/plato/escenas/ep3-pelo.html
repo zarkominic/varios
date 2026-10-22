@@ -92,7 +92,7 @@ T.brillo = T.borron1 + 0.15;                                 // el pelo, nítido
 T.luz0 = T.ojo + 0.2; T.luz1 = T.ojo + 0.95;                 // la luz entra por la córnea
 T.puntos0 = T.ojo + 0.6; T.puntos1 = T.ojo + 1.25;           // y cae en la rejilla
 T.giro1 = Math.min(fr(m.rejilla, m.rejillaFin, 0.92), QUIETO - 0.3); // el ojo termina de girar
-T.cota0 = T.decima - 0.45; T.etq0 = T.milimetro - 0.3;      // la cota empieza a tenderse; la tarjeta empieza a bajar
+T.etq0 = T.milimetro - 0.3;                                  // la tarjeta empieza a bajar
 T.fijo = Math.max(T.decima + 0.2, T.milimetro + 0.4);        // la cota y la tarjeta, quietas (sin toque): ya son foto
 const JS = (T.saltosFin - T.saltos) * 0.8 / 4;
 const SALTO = [0, 1, 2, 3].map((k) => { const a = T.saltos + k * (T.saltosFin - T.saltos - JS) / 3; return [a, a + JS]; });
@@ -787,9 +787,9 @@ function F(k) {
 }
 // [desde, nombre, hasta]: cuándo se puede hacer cada cosa (desde) y a partir de cuándo ya no hace falta (hasta), en orden
 // de prioridad. Cada fotograma que no haya tenido que hacer nada al pedirlo hace las primeras que quepan en lo que le
-// queda de su presupuesto y cuyas fotos previas ya estén. Las cuentas son s de CPU medidas en este servidor con
-// render en orden: COSTE, lo que cuesta componer cada tipo de fotograma con sus fotos hechas; EST, cada foto (o franja)
-// y cada estreno; LIMITE, lo que puede llegar a costar en total un fotograma de cada tipo. Las fotos caras van a los
+// queda de su presupuesto y cuyas fotos previas ya estén. Las cuentas son s de CPU aproximadas (medidas en este
+// servidor con render en orden): COSTE, lo que cuesta componer cada tipo de fotograma con sus fotos hechas; EST, cada
+// foto (o franja) y cada estreno; LIMITE, lo que puede llegar a costar en total un fotograma de cada tipo. Las fotos caras van a los
 // fotogramas baratos: los de la persona con la cartela, los quietos entre saltos, los del tronco y los de la lectura.
 const COSTE = { foto: 0.8, cartela: 2.4, salto: 5.5, quieto: 4.2, tronco: 1.8, lectura: 1.4, ojo: 5.6 };
 const LIMITE = { foto: 8.5, cartela: 8.5, salto: 7.5, quieto: 8.5, tronco: 6, lectura: 6, ojo: 6 };

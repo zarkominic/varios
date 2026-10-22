@@ -231,11 +231,28 @@ const E_REG = 1.42, REG = en(1655, 528, 0.4), RECT_REG = [1300, 0, 1920, 1080];
 const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
 const eRegla = (ts) => 21 + seco(prog(ts, T.salto[0], T.salto[1]));
 const destello = (ts) => { const u = prog(ts, T.salto[1] - 0.06, T.salto[1] + 0.75); return u <= 0 || u >= 1 ? 0 : Math.pow(Math.sin(Math.PI * u), 0.8); };
-const reglaViva = (ts) => ts < T.salto[1] + 0.8;
+// en vivo solo en el fotograma 0 (su foto, reg21, sale de ese render) y mientras salta, hasta el primer fotograma ya en
+// 10²² (su foto, reg220, también); el resto son fotos (reg221 y reg222, el mismo render con el hervor en 2D)
+const N_REG22 = Math.ceil(T.salto[1] * 12 - 1e-6);      // el primer fotograma con la regla en 10²²
+const reglaViva = (n) => n === 0 || (n >= Math.floor(T.salto[0] * 12 + 1e-6) && n <= N_REG22);
 function regla(ts) {
-  const e = eRegla(ts), fl = destello(ts);
-  const rango = fl > 0.01 ? { de: 22, a: 22, marcas: 1, madera: 1.1 * fl } : null;
-  return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e, ya: 0, actual: Math.round(e), lupa: 0.5 + 0.22 * fl, rango, toque: ts < T.salto[1] + 0.08 });
+  const e = eRegla(ts);
+  return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e, ya: 0, actual: Math.round(e), lupa: 0.5, toque: ts >= T.salto[0] && ts < T.salto[1] });
+}
+// el destello de la fila de 10²² al llegar (en 2D, encima de la regla): un resplandor ámbar en el rótulo y en sus marcas
+const FILA22 = (() => { P.limpiar(); const R = P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e: 22, ya: 0, actual: 22, lupa: 0.5 }); P.limpiar(); return { flecha: pant(R.flecha), canto: pant(R.punto(22)) }; })();
+function brilloRegla(ts) {
+  const fl = destello(ts);
+  if (fl <= 0.01) return;
+  const [cx, cy] = FILA22.canto;
+  g.save(); g.globalCompositeOperation = 'screen';
+  const h = g.createRadialGradient(cx + 150, cy, 10, cx + 150, cy, 220);
+  h.addColorStop(0, `rgba(255,200,120,${0.42 * fl})`); h.addColorStop(0.5, `rgba(255,170,80,${0.16 * fl})`); h.addColorStop(1, 'rgba(255,160,70,0)');
+  g.fillStyle = h; g.fillRect(cx - 80, cy - 220, 460, 440);
+  const l = g.createRadialGradient(cx + 22, cy, 0, cx + 22, cy, 60);
+  l.addColorStop(0, `rgba(255,215,140,${0.45 * fl})`); l.addColorStop(1, 'rgba(255,215,140,0)');
+  g.fillStyle = l; g.fillRect(cx - 40, cy - 60, 124, 120);
+  g.restore();
 }
 function fotoRegla(e, n) {
   P.limpiar();
@@ -244,12 +261,38 @@ function fotoRegla(e, n) {
   return trozoGL(RECT_REG);
 }
 const pegarRegla = (f) => g.drawImage(f, RECT_REG[0], RECT_REG[1], RECT_REG[2] - RECT_REG[0], RECT_REG[3] - RECT_REG[1]);
-const reglaDe = (n) => 'reg22' + (n % 3);
+const reglaDe = (n, ts = n / 12) => (ts < T.salto[0] ? 'reg21' : 'reg22' + (n % 3));
 
 // ---------------------------------------------------------------- las fotos (F: se hacen la primera vez que hacen falta)
 const FOTOS = {}, HACER = {};
 function F(k) { if (!(k in FOTOS)) { const a = performance.now(); FOTOS[k] = HACER[k](); window.__carga.push(['F ' + k, Math.round(performance.now() - a)]); } return FOTOS[k]; }
-for (const k of [0, 1, 2]) HACER['reg22' + k] = () => fotoRegla(22, 7201 + k);
+HACER.reg21 = () => fotoRegla(21, MAPA.n);
+HACER.reg220 = () => fotoRegla(22, N_REG22 + MAPA.n);
+// el hervor de lo quieto sin otro render: la misma foto desplazada menos de medio píxel (y girada y escalada una
+// milésima) y con la luz que respira (manchas suaves de ±2 %), como en ep3-mapa
+function hervir(f, semilla, c) {
+  const r = mulberry32(semilla), k = f.width / (f.ref[2] - f.ref[0]), out = lienzo(f.width, f.height), go = out.getContext('2d');
+  go.setTransform(k, 0, 0, k, 0, 0);
+  const cx = c[0] - f.ref[0], cy = c[1] - f.ref[1];
+  go.translate(cx + (r() - 0.5) * 0.9, cy + (r() - 0.5) * 0.9);
+  go.rotate((r() - 0.5) * 0.0024);
+  const e = 1 + (r() - 0.5) * 0.0024;
+  go.scale(e, e);
+  go.translate(-cx, -cy);
+  go.drawImage(f, 0, 0, f.ref[2] - f.ref[0], f.ref[3] - f.ref[1]);
+  const rz = lienzo(16, 27), gz = rz.getContext('2d'), im = gz.createImageData(16, 27);
+  for (let i = 0; i < 16 * 27; i++) { const v = Math.round(128 + (r() - 0.5) * 40); im.data[i * 4] = im.data[i * 4 + 1] = im.data[i * 4 + 2] = v; im.data[i * 4 + 3] = 255; }
+  gz.putImageData(im, 0, 0);
+  go.setTransform(1, 0, 0, 1, 0, 0);
+  go.globalCompositeOperation = 'soft-light'; go.globalAlpha = 0.45; go.imageSmoothingEnabled = true;
+  go.drawImage(rz, 0, 0, out.width, out.height);
+  go.globalCompositeOperation = 'destination-in'; go.globalAlpha = 1;
+  go.drawImage(f, 0, 0);
+  out.ref = f.ref;
+  return out;
+}
+HACER.reg221 = () => hervir(F('reg220'), 221, [1655, 528]);
+HACER.reg222 = () => hervir(F('reg220'), 223, [1655, 528]);
 
 // ---------------------------------------------------------------- A · el salón (la foto de ep3-mapa) y la ventana
 const N_FOTO_SALON = 5002;
@@ -291,9 +334,10 @@ HACER.salon = () => {
 const PIV = [1114, 334];                                // el centro del hueco de la ventana (encuadre general)
 const PIV3 = en(PIV[0], PIV[1], -2.9);
 const relojEn = (s) => salon(P, { reloj: I.REL }, { encuadre: { s, pivote: PIV3 }, reloj: { minutos: 60, sector: [0, 60] } }).reloj;
-function relojAmbar(gg, info, min) {
+HACER.reloj = () => { P.limpiar(); const info = relojEn(1); P.render(MAPA.n, { fondo: false }); return { c: copiaGL(), info }; };
+function relojAmbar(gg, info, min, s = 1) {
   if (!info || min <= 0.2) return;
-  const c = pant(info.centro), R = pxU(info.centro) * info.radio * 0.86;
+  const c = llevar(s, PIV, PIV)(pant(info.centro)), R = pxU(info.centro) * info.radio * 0.86 * s;
   const a0 = -Math.PI / 2, a1 = a0 + (min / 60) * 2 * Math.PI;
   gg.save();
   gg.globalCompositeOperation = 'multiply';
@@ -382,18 +426,25 @@ function tramoA(n, ts) {
   pegarEscalada(S.foto, s, PIV);
   vidrioVentana(g, h);
   sombrasPresentador(0.8);
-  const viva = reglaViva(ts);
-  if (!viva) pegarRegla(F(reglaDe(n)));   // (hasta que acaba el destello, la regla va en vivo, como la del fotograma 0)
-  // el reloj, Atom y (mientras salta) la regla en vivo, con el número de fotograma de ep3-mapa (el hervor del fotograma 0
-  // sale como su último)
-  const nGL = n + MAPA.n;
-  P.limpiar();
-  const rel = relojEn(s);
-  if (viva) regla(ts);
-  atomo(ts);
-  P.render(nGL, { fondo: false });
-  pegarGL();
-  relojAmbar(g, rel, 60);
+  // el reloj de la pared: una foto (en una hora, quieto) con el mismo acercamiento, y su cuña ámbar encima
+  const R = F('reloj');
+  pegarEscalada(R.c, s, PIV);
+  relojAmbar(g, R.info, 60, s);
+  const viva = reglaViva(n);
+  if (!viva) pegarRegla(F(reglaDe(n, ts)));
+  // Atom y (mientras salta) la regla en vivo, con el número de fotograma de ep3-mapa (el hervor del fotograma 0 sale como
+  // su último); el fotograma 0 se pinta al cargar (gl0)
+  if (n === 0) g.drawImage(F('gl0'), 0, 0, W, H);
+  else {
+    P.limpiar();
+    if (viva) regla(ts);
+    atomo(ts);
+    P.render(n + MAPA.n, { fondo: false });
+    // (la foto de la regla en 10²² sale del primer render que llega)
+    if (n === N_REG22 && !('reg220' in FOTOS)) FOTOS.reg220 = trozoGL(RECT_REG);
+    pegarGL();
+  }
+  brilloRegla(ts);
 }
 
 // ---------------------------------------------------------------- B · la ventana de cerca (enfocada en el cielo)
@@ -448,13 +499,15 @@ function fotoPorBandas(clave, nb, poner, n) {
   };
   HACER[clave] = () => { for (let b = 0; b < nb; b++) F(clave + b); return foto.c; };
 }
-// pega el rectángulo [x0, y0, x1, y1] del lienzo de WebGL en gx con los bordes fundidos (pluma px)
+// pega el rectángulo [x0, y0, x1, y1] del lienzo de WebGL (o de src, del tamaño del rectángulo) en gx con los bordes
+// fundidos (pluma px)
 const PARCHE = lienzo();
-function pegarParche(gx, [x0, y0, x1, y1], pluma) {
+function pegarParche(gx, [x0, y0, x1, y1], pluma, src = null) {
   const k = lienzoGL.width / W, pc = PARCHE.getContext('2d');
   const X0 = Math.floor(x0 * k), Y0 = Math.floor(y0 * k), w = Math.ceil((x1 - x0) * k), h = Math.ceil((y1 - y0) * k);
   pc.setTransform(1, 0, 0, 1, 0, 0); pc.globalCompositeOperation = 'source-over';
-  pc.clearRect(0, 0, w, h); pc.drawImage(lienzoGL, X0, Y0, w, h, 0, 0, w, h);
+  pc.clearRect(0, 0, w, h);
+  if (src) pc.drawImage(src, 0, 0, w, h, 0, 0, w, h); else pc.drawImage(lienzoGL, X0, Y0, w, h, 0, 0, w, h);
   pc.globalCompositeOperation = 'destination-in';
   const p = pluma * k;
   const gv = pc.createLinearGradient(0, 0, 0, h);
@@ -469,8 +522,10 @@ function pegarParche(gx, [x0, y0, x1, y1], pluma) {
 // ---------------------------------------------------------------- C · el ojo (el exterior de ep03-ojo.js)
 // de frente, algo a la izquierda (la regla va a la derecha), mirando arriba a la derecha (la ventana). La cara entera es
 // una foto (hecha por bandas en el plano de la ventana); en cada fotograma solo se pinta en vivo el rectángulo de los
-// párpados, las pestañas y el globo (BANDA_C), fundido sobre la foto. La cámara se acerca despacio (en 2D)
-const OJO_C = { c: [800, 455], z: 5.0, rendija: 760, mirada: [0.5, 0.42] };
+// párpados, las pestañas y el globo (BANDA_C), fundido sobre la foto; y a dos por imagen (los párpados cambian cada dos
+// fotogramas, «on twos»): la banda de cada par de fotogramas se pinta en dos mitades, una en cada uno de los dos
+// fotogramas anteriores (un instante suelto la pinta entera al momento: sale igual). La cámara se acerca despacio (en 2D)
+const OJO_C = { c: [800, 455], z: 5.0, rendija: 720, mirada: [0.5, 0.42] };
 const P_OJO = en(OJO_C.c[0], OJO_C.c[1], OJO_C.z);
 const ESC_OJO = OJO_C.rendija / (2.1 * pxU(P_OJO));
 const ROT_OJO = haciaCamara(P, P_OJO);
@@ -530,28 +585,56 @@ function sombraParpado(est, z) {
   const yA = c[1] - ab.arriba * p, yB = c[1] - ab.abajo * p;
   if (yB - yA < 3) return;
   g.save();
-  g.beginPath(); g.ellipse(c[0] + 0.02 * p, (yA + yB) / 2, 0.93 * p, (yB - yA) / 2 + 2, 0, 0, 2 * Math.PI); g.clip();
+  g.beginPath(); g.ellipse(c[0] + 0.03 * p, (yA + yB) / 2, 0.74 * p, (yB - yA) / 2, 0, 0, 2 * Math.PI); g.clip();
   g.globalCompositeOperation = 'multiply';
-  // el globo se oscurece hacia los rincones (es una esfera hundida en la cuenca)
+  // el globo se oscurece algo hacia los rincones (es una esfera hundida en la cuenca)
   const ic = [c[0] + REFLEJO[0] * p * 0.7, c[1] + REFLEJO[1] * p * 0.4];
-  const rg = g.createRadialGradient(ic[0], ic[1], 0.3 * p, ic[0], ic[1], 1.05 * p);
-  rg.addColorStop(0, 'rgba(255,255,255,0)'); rg.addColorStop(0.6, 'rgba(205,180,170,0.6)'); rg.addColorStop(1, 'rgba(120,90,85,1)');
+  const rg = g.createRadialGradient(ic[0], ic[1], 0.35 * p, ic[0], ic[1], 0.95 * p);
+  rg.addColorStop(0, 'rgba(255,255,255,0)'); rg.addColorStop(1, 'rgba(190,165,155,1)');
   g.fillStyle = rg; g.fillRect(c[0] - p, yA - 4, 2 * p, yB - yA + 8);
   // y bajo el borde del párpado de arriba, su sombra
-  const l = g.createLinearGradient(0, yA - 2, 0, yA + 0.3 * p);
-  l.addColorStop(0, 'rgba(55,30,22,0.9)'); l.addColorStop(0.35, 'rgba(140,100,85,0.45)'); l.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = l; g.fillRect(c[0] - p, yA - 2, 2 * p, 0.3 * p + 4);
+  const l = g.createLinearGradient(0, yA, 0, yA + 0.24 * p);
+  l.addColorStop(0, 'rgba(80,48,36,0.8)'); l.addColorStop(0.4, 'rgba(160,120,105,0.4)'); l.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = l; g.fillRect(c[0] - p, yA, 2 * p, 0.24 * p + 4);
   g.restore();
 }
 const OJOC = lienzo(), goc = OJOC.getContext('2d');
+// los pares de fotogramas del ojo: el par j son los fotogramas N_C0 + 2j y N_C0 + 2j + 1; sus párpados, en el instante
+// del medio, con el hervor del primero
+const N_C0 = Math.ceil(T.C * 12 - 1e-6), N_C1 = Math.ceil(T.D * 12 - 1e-6) - 1, J_MAX = Math.floor((N_C1 - N_C0) / 2);
+const tPar = (j) => (N_C0 + 2 * j + 0.5) / 12;
+const parDe = (n) => Math.max(0, Math.min(J_MAX, Math.floor((n - N_C0) / 2)));
+const PARES = new Map();
+const MEDIA_C = Math.round((BANDA_C[1] + BANDA_C[3]) / 2);
+function mitadPar(j, h) {
+  const k = lienzoGL.width / W;
+  let e = PARES.get(j);
+  if (!e) {
+    e = { c: lienzo(Math.ceil((BANDA_C[2] - BANDA_C[0]) * k), Math.ceil((BANDA_C[3] - BANDA_C[1]) * k)), hechas: new Set() };
+    PARES.set(j, e);
+  }
+  if (e.hechas.has(h)) return e;
+  const r = h === 0 ? [BANDA_C[0], BANDA_C[1], BANDA_C[2], MEDIA_C + 2] : [BANDA_C[0], MEDIA_C - 2, BANDA_C[2], BANDA_C[3]];
+  ponerOjoEn(estadoOjo(tPar(j)));
+  renderRect(N_C0 + 2 * j, r);
+  const X0 = Math.floor(BANDA_C[0] * k), a0 = Math.floor(r[1] * k), a1 = Math.ceil(r[3] * k), Y0 = Math.floor(BANDA_C[1] * k);
+  e.c.getContext('2d').drawImage(lienzoGL, X0, a0, e.c.width, a1 - a0, 0, a0 - Y0, e.c.width, a1 - a0);
+  e.hechas.add(h);
+  return e;
+}
+function par(j) { mitadPar(j, 0); mitadPar(j, 1); for (const q of PARES.keys()) if (q < j - 1) PARES.delete(q); return PARES.get(j).c; }
+// el trabajo del fotograma m: la mitad que le toca del par siguiente
+function adelantarOjo(m) {
+  if (m < N_C0 - 2 || m > N_C1 - 2) return;
+  const j = Math.floor((m - N_C0) / 2) + 1, h = (((m - N_C0) % 2) + 2) % 2;
+  if (j <= J_MAX) mitadPar(j, h);
+}
 function tramoC(n, ts) {
-  const est = estadoOjo(ts), z = zoomC(ts);
+  const j = parDe(n), tj = tPar(j), est = estadoOjo(tj), z = zoomC(ts);
   goc.setTransform(1, 0, 0, 1, 0, 0); goc.globalCompositeOperation = 'source-over';
   goc.drawImage(F('ojoFoto'), 0, 0);
-  ponerOjoEn(est);
-  renderRect(n, BANDA_C);
-  pegarParche(goc, BANDA_C, PLUMA_C);
-  g.fillStyle = '#1a0f0a'; g.fillRect(0, 0, W, H);
+  pegarParche(goc, BANDA_C, PLUMA_C, par(j));
+  g.fillStyle = '#9c7258'; g.fillRect(0, 0, W, H);   // (la piel, donde la losa de la cara se curva y se acaba: la esquina)
   pegarEscalada(OJOC, z, OJO_C.c);
   sombraParpado(est, z);
   reflejo(est, ts, z);
@@ -592,14 +675,19 @@ function personaD(ts, extra = {}) {
   return P.pieza(I.PER, { pos: POS_D, escala: E_D, rot: ROT_D, postura: posturaD(ts), aspecto: ASP_D, huellaFija: [0.37, 0.21, 0], ...extra });
 }
 fotoPorBandas('cuerpoD', 3, () => { P.limpiar(); personaD(T.D, { partes: ['cuerpo', 'manos'] }); }, 9401);
-// el rectángulo de la cabeza (con margen para lo que se mueve al dejarla caer)
+// el rectángulo de la cabeza, del cuello y del cuello del jersey (con margen para lo que se mueve al dejarla caer): ahí
+// se pinta en vivo la persona entera (con su profundidad), fundida sobre la foto del cuerpo
 const CAJA_CAB = (() => {
-  const h = (() => { P.limpiar(); return personaD(T.D); })(), h2 = (() => { P.limpiar(); return personaD(T.cae[1]); })();
-  const pts = [];
-  for (const hh of [h, h2]) for (const k of ['coronilla', 'cabeza', 'barbilla', 'ojos']) pts.push(pant(hh.punto(k)));
-  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
-  const r = 0.62 * (Math.max(...ys) - Math.min(...ys));
-  return [Math.min(...xs) - r * 1.25, Math.min(...ys) - r * 0.8, Math.max(...xs) + r * 1.25, Math.max(...ys) + r * 0.75].map(Math.round);
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const t of [T.D, mix(T.cae[0], T.cae[1], 0.5), T.cae[1]]) {
+    P.limpiar();
+    const h = personaD(t);
+    const cab = pant(h.punto('cabeza')), cor = pant(h.punto('coronilla')), bar = pant(h.punto('barbilla')), cue = pant(h.punto('cuello'));
+    const hh = Math.hypot(cor[0] - bar[0], cor[1] - bar[1]);
+    x0 = Math.min(x0, cab[0] - 0.85 * hh, cor[0] - 0.6 * hh); x1 = Math.max(x1, cab[0] + 0.85 * hh, bar[0] + 0.5 * hh);
+    y0 = Math.min(y0, cor[1] - 0.3 * hh, cab[1] - 0.8 * hh); y1 = Math.max(y1, cue[1] + 0.55 * hh, bar[1] + 0.45 * hh);
+  }
+  return [x0, y0, x1, y1].map(Math.round);
 })();
 P.limpiar();
 // el fondo: la pared de noche (en penumbra, con la lámpara cálida a la izquierda) y, a la derecha, la ventana (marco
@@ -665,7 +753,31 @@ function tramoD(n, ts) {
 
 // ---------------------------------------------------------------- E · el espacio a 10²² y la línea de tiempo (ENLACE)
 HACER.mundo = () => { const mundo = crearMundo(cont, { captura: P.captura }); mundo.lienzo.style.visibility = 'hidden'; return mundo; };
-HACER.enlace = () => fotoEnlace(F('mundo'), estadoMundo, camaraPorTierra, { n: 7 });
+// la foto del mundo de ENLACE (fotoEnlace, como ep3-universo) es un render del mundo entero, caro: se hace en cuatro
+// bandas horizontales, una por fotograma barato. Sin tocar el kit: durante cada banda, las pasadas del mundo (sus
+// gl.viewport, a resolución entera o a media) llevan un recorte (scissor) a esas filas; lo de fuera se queda como estaba.
+// Como todas las bandas pintan el mismo estado, lo que una pasada lee de una banda anterior ya es lo bueno; las bandas se
+// solapan 120 px para que los muestreos de alrededor (sombras, posproceso) caigan en filas ya pintadas. La última banda
+// es la propia llamada a fotoEnlace, que lee el lienzo entero.
+const BANDAS_E = [[0, 330], [210, 600], [480, 870], [750, 1080]];
+function mundoEnBanda([y0, y1], hacer) {
+  const mundo = F('mundo'), gm = mundo.lienzo.getContext('webgl2'), BHm = mundo.lienzo.height;
+  const vp = gm.viewport;
+  gm.viewport = function (x, y, w, h) {
+    vp.call(gm, x, y, w, h);
+    const a = Math.floor(h * (1 - y1 / H)), b = Math.ceil(h * (1 - y0 / H));
+    gm.scissor(x, a, w, b - a);
+  };
+  gm.enable(gm.SCISSOR_TEST);
+  try { return hacer(mundo); } finally { gm.disable(gm.SCISSOR_TEST); delete gm.viewport; }
+}
+const estEnlace = () => estadoMundo(camaraPorTierra(ENLACE.z, ENLACE.via, ENLACE.z), 7, { luna: 0, capas: { uGal: [ENLACE.via[0], ENLACE.via[1], ENLACE.rVia, 1], uSol: [0, 0, 1, 0], uSis: [0, 0, 1, 0], uVec: [0, 0, 1, 0], uAqui: [0, 0, 0, 0] } });
+for (let b = 0; b < BANDAS_E.length - 1; b++) HACER['enlace' + b] = () => mundoEnBanda(BANDAS_E[b], (mundo) => { mundo.dibujar(estEnlace()); return true; });
+HACER.enlace = () => {
+  if (busq.has('enlaceEntero')) return fotoEnlace(F('mundo'), estadoMundo, camaraPorTierra, { n: 7 });   // (para comprobar)
+  for (let b = 0; b < BANDAS_E.length - 1; b++) F('enlace' + b);
+  return mundoEnBanda(BANDAS_E[BANDAS_E.length - 1], (mundo) => fotoEnlace(mundo, estadoMundo, camaraPorTierra, { n: 7 }));
+};
 const RODV = (() => { const [a, b] = ENLACE.vara; return { a, b, L: Math.hypot(b[0] - a[0], b[1] - a[1]) }; })();
 // las figuritas, como en ep3-universo (una foto de cada una con su semilla)
 HACER.figs = () => ENLACE.figuritas.map((f) => {
@@ -764,11 +876,13 @@ if (GUIAS) {
 
 // ---------------------------------------------------------------- al cargar: lo del fotograma 0, el mundo y los estrenos
 F('salon'); marcaCarga('salón');
-// estrenos: Atom, el reloj y la regla en vivo (su primer dibujo compila en SwiftShader); no cambian ningún píxel
-P.fotograma(0); P.limpiar();
-relojEn(1); regla(T.salto[0]); atomo(0);
-P.render(0, { fondo: false });
-marcaCarga('estrenos');
+// el fotograma 0: el reloj (una foto) y, en un render aparte, la regla en 10²¹ y Atom (gl0; de él sale la foto reg21).
+// Estos renders estrenan también los programas de Atom, el reloj y la regla
+P.fotograma(0);
+F('reloj');
+HACER.gl0 = () => { P.limpiar(); regla(0); atomo(0); P.render(MAPA.n, { fondo: false }); if (!('reg21' in FOTOS)) FOTOS.reg21 = trozoGL(RECT_REG); return copiaGL(); };
+F('gl0');
+marcaCarga('fotograma 0');
 F('mundo'); marcaCarga('mundo');
 // lo demás, en fotogramas baratos poco antes de hacer falta (en orden, como renderiza render-escenas.mjs)
 const nDe = (t) => Math.floor(t * 12 + 1e-6);
@@ -779,20 +893,20 @@ HACER.estrenoOjo = () => { ponerOjoEn(estadoOjo(T.C)); renderRect(0, TIRA); retu
 HACER.estrenoCuerpoD = () => { P.limpiar(); personaD(T.D, { partes: ['cuerpo', 'manos'] }); renderRect(0, TIRA); return true; };
 HACER.estrenoCabezaD = () => { P.limpiar(); personaD(T.D); renderRect(0, TIRA); return true; };
 const PREPARAR = [
-  [1, 'andro'], [3, 'reg220'], [4, 'reg221'], [5, 'reg222'],
+  [1, 'andro'], [N_REG22 + 1, 'reg221'], [N_REG22 + 2, 'reg222'],
   [17, 'estrenoOjo'], ...[0, 1, 2, 3, 4, 5].map((b) => [19 + 2 * b, 'ojoFoto' + b]),
   [31, 'estrenoCuerpoD'], [33, 'estrenoCabezaD'], [35, 'cuerpoD0'], [37, 'cuerpoD1'], [39, 'cuerpoD2'],
   [nDe(T.B) - 1, 'salonB'],
   [nDe(T.B) + 4, 'fondoD'],
-  [nDe(T.B) + 10, 'enlace'],
+  [nDe(T.B) + 8, 'enlace0'], [nDe(T.B) + 10, 'enlace1'], [nDe(T.B) + 12, 'enlace2'], [nDe(T.B) + 14, 'enlace'],
   [nDe(T.B) + 18, 'figs'],
 ];
 // las fotos que necesita cada fotograma (se piden antes de empezar a dibujarlo, para no limpiar el plató a medias)
 function fotosDe(n, ts) {
   const k = [];
-  if (!reglaViva(ts)) k.push(reglaDe(n));
+  if (!reglaViva(n)) k.push(reglaDe(n, ts));
   const tr = tramo(ts);
-  if (tr === 'general') { k.push('salon'); if (kAndro(ts) > 0.002) k.push('andro'); }
+  if (tr === 'general') { k.push('salon', 'reloj'); if (kAndro(ts) > 0.002) k.push('andro'); }
   else if (tr === 'ventana') k.push('salon', 'salonB', 'andro');
   else if (tr === 'ojo') k.push('ojoFoto');
   else if (tr === 'perfil') k.push('fondoD', 'andro', 'cuerpoD');
@@ -805,6 +919,7 @@ function dibujar(t) {
   ajustarCapa();
   const n = P.fotograma(t, D), ts = n / 12;
   for (const [nk, k] of PREPARAR) if (n === nk) F(k);
+  adelantarOjo(n);
   for (const k of fotosDe(n, ts)) F(k);
   ajustarCapa();
   g.fillStyle = '#05060b'; g.fillRect(0, 0, W, H);
@@ -818,6 +933,7 @@ function dibujar(t) {
   POST.aplicar(g, n);
   window.__plano = tr;
 }
+window.__info = { BANDA_C, CAJA_CAB, N_C0, N_C1, FILA22, puntos: (() => { const o = {}; for (const t of [T.D, T.cae[1]]) { P.limpiar(); const h = personaD(t); for (const k of ['coronilla', 'cabeza', 'barbilla', 'ojos', 'cuello', 'hombroIzq', 'hombroDer', 'pecho']) o[k + '@' + t.toFixed(1)] = pant(h.punto(k)).map(Math.round); } P.limpiar(); return o; })() };
 window.__fin = {
   final: 'ENLACE de ep03-universo.js: fotoEnlace(n 7) + las dos galaxias + la vara (rayo grosor 4, brillo 0,12, sombra 0,6) + la luz en ENLACE.luz (rayo grosor 6) + las figuritas de ENLACE.figuritas; la regla en 10²² (foto); Atom en (230, 780)',
   TQ, tiempos: T, figuritas: T_FIG, mapa: MAPA, atomo: (() => { const S = estadoAtom(D); return { sy: S.sy, tz: S.tz, ta: tabla(TA, D) }; })(),

@@ -24,7 +24,7 @@
 //  ½ frase     (DETALLE; sin marca de palabra: al 42 % del intervalo de la frase 11, «porque…») dos montones de monedas casi
 //              iguales en el suelo del plató y, flotando, un cerebro de perfil con un cajón de nogal en el costado. El cajón
 //              se abre, las monedas de los dos montones vuelan en chorro y caen dentro del mismo cajón, que se cierra de golpe
-//              (etiqueta con «!»: «muchísimo»).
+//              (etiqueta con «!»: «muchísimo»); ya lleno, el cerebro flota hasta el centro del cuadro.
 //  millon      (PLANO MEDIO, por corte) la persona, ahora niña, de medio cuerpo junto a un calendario de taco colgado en la
 //              pared, solo con números: arranca once hojas, que salen volando y caen revoloteando, y la duodécima se queda
 //              arrancada a medias (once días y medio).
@@ -367,7 +367,7 @@ function cinta(L, camX) {
   for (let k = -2; k <= 2; k++) PX.pset(Math.round(p[0] - uy * k + 2 * ux - camX), Math.round(p[1] + ux * k + 2 * uy), LAT[1]);
 }
 // fuera: la cinta sube, se enrolla en un nudo de bucles contra el cielo y el nudo se aleja hacia VP hasta perderse
-const G = [791, 176], CK = [784, 140], VP = [810, 62], NPF = 1500, APROX = 0.14;
+const G = [791, 176], CK = [784, 140], VP = [812, 116], NPF = 1500, APROX = 0.14;
 function nudo(v) {
   const th = v * TAU * 5.3 + Math.PI * 0.5;
   const r = (13 + 6 * Math.sin(2.3 * th + 0.6) + 3 * Math.sin(5.1 * th)) * (0.6 + 0.4 * Math.sin(Math.PI * Math.min(1, v * 1.3 + 0.2)));
@@ -402,7 +402,7 @@ function cintaFuera(t, camX) {
     if (x < VENT.x0 || x > VENT.x1 || y < VENT.y0 || y > VENT.y1 + 1) continue;
     if (borra > 0 && b4(sx, sy) < borra * (0.35 + 0.65 * u / Math.max(uT, 1e-3)) * 1.05) continue;
     // el contorno oscuro solo pisa lo que es fondo o cinta de mucho antes (así se ven los cruces por encima)
-    for (let dy = -1; dy <= ancho; dy++) for (let dx = -1; dx <= ancho; dx++) {
+    if (ancho > 1) for (let dy = -1; dy <= ancho; dy++) for (let dx = -1; dx <= ancho; dx++) {
       const qx = sx + dx, qy = sy + dy; if (qx < 0 || qy < 0 || qx >= W || qy >= H) continue;
       const j = qy * W + qx; if (SELLO[j] < i - 14) { PX.pset(qx, qy, PAL.NOCHE[0]); SELLO[j] = Math.min(SELLO[j], -1e8); }
     }
@@ -436,7 +436,7 @@ function planoPasillo(t) {
 const PLATO_B = PX.crearPlato({ ancho: 640, focoX: 330, focoY: 96, sueloY: 206, semilla: 23 });
 const FONDO_B = capaDe(W, H, () => PLATO_B.dibujar({ camX: 80, t: 0, polvo: 0 }));
 function spriteMoneda(rx, ry, grosor, emblema = false) {
-  const w = 2 * rx + 3, h = 2 * ry + grosor + 3, cx = w / 2, cy = ry + 1.5;
+  const w = 2 * Math.ceil(rx) + 4, h = Math.ceil(2 * ry + grosor) + 3, cx = w / 2, cy = ry + 1.5;
   return capaDe(w, h, () => {
     const dentro = (x, y) => {
       const u = (x + 0.5 - cx) / rx, a = (y + 0.5 - cy) / ry, b = (y + 0.5 - cy - grosor) / ry;
@@ -486,10 +486,10 @@ const CEREBRO = capaDe(240, 172, () => {
   const sdfC = sunion(12, elip(122, 64, 74, 48), elip(106, 90, 52, 25), elip(174, 76, 30, 32));
   PX.forma({ x0: 40, y0: 10, x1: 210, y1: 120, sdf: sdfC, rampa: ROSA, lo: 1.7, hi: 5.4, grosor: 12, k: 0.25,
     textura: (x, y, v, d) => {
-      const n = x / 10.5 + 2.2 * fbm(x * 0.028 + 3, y * 0.034 + 1, 3) + 0.5 * Math.sin(y * 0.07 + x * 0.02) + 0.35 * vnoise(x * 0.09, y * 0.09);
+      const n = x / 9.5 + 6.5 * fbm(x * 0.025 + 3, y * 0.03 + 1, 3) + 1.2 * Math.sin(y * 0.06);
       const f = n - Math.floor(n);
-      let w = v + 0.9 * Math.sin(Math.PI * f) - 0.45;
-      if (f < 0.13 && d < -1.5) w -= 2.0;
+      let w = v + 0.85 * Math.sin(Math.PI * f) - 0.4;
+      if (f < 0.13 && d < -1.5) w -= 2.1;
       // la cisura lateral y la central (lo que hace que se lea como un cerebro)
       const yS = 90 - (x - 70) * 0.27 - 4 * Math.sin((x - 70) * 0.05);
       if (x > 64 && x < 152 && Math.abs(y - yS) < 1.3) w -= 2.3;
@@ -549,9 +549,11 @@ function planoCerebro(t) {
   PX.pegar(FONDO_B, 0, 0, { opaco: true });
   const golpe = t >= T.cierra1 && t < T.cierra1 + 0.1 ? 1 : 0;
   const bob = Math.round(1.4 * Math.sin(paso(t, 8) * 2.4)) + golpe;
-  const cx = CER.x, cy = CER.y + bob;
+  // ya lleno, el cerebro se va flotando al centro del cuadro y se queda con su cajón cerrado
+  const centra = entraSale(prog(paso(t, 15), T.cierra1 + 0.15, T.cierra1 + 0.9));
+  const cx = CER.x - Math.round(96 * centra), cy = CER.y + bob + Math.round(20 * centra);
   // sombras en el suelo
-  PX.sombra(352, 232, 66, 6, 0.5);
+  PX.sombra(352 - 96 * centra, 232, 66, 6, 0.5);
   // los montones (de abajo arriba); la de arriba se va cuando le toca
   const salidas = MONTONES.map(() => 0);
   for (const v of VUELOS) if (t >= v.t0) salidas[v.p]++;
@@ -630,6 +632,22 @@ function hojaPlegada(n, p, temblor = 0) {
   }
   if (yf < HOJA.h) PX.oscurecer(HOJA.x, HOJA.y + yf, HOJA.x + HOJA.w - 1, HOJA.y + Math.min(HOJA.h - 1, yf + 2), 0.35);
 }
+// la hoja arrancada a medias: suelta por la izquierda, cuelga girada de su esquina de arriba a la derecha
+function hojaColgando(n, th) {
+  blit(HOJAS[n + 1], HOJA.x, HOJA.y);
+  const pxv = HOJA.x + HOJA.w, pyv = HOJA.y, c = Math.cos(th), s = Math.sin(th), S = HOJAS[n];
+  // la sombra que la hoja echa sobre la de debajo
+  for (let py = HOJA.y; py < HOJA.y + HOJA.h + 40; py++) for (let px = HOJA.x - 4; px < HOJA.x + HOJA.w; px++) {
+    const X = px + 0.5 - pxv - 2, Y = py + 0.5 - pyv - 3, lx = X * c - Y * s, ly = X * s + Y * c;
+    if (lx >= -HOJA.w && lx < 0 && ly >= 0 && ly < HOJA.h && px >= HOJA.x && py < HOJA.y + HOJA.h + 4) PX.oscurecer(px, py, px, py, 0.3);
+  }
+  for (let py = HOJA.y; py < HOJA.y + HOJA.h + 40; py++) for (let px = HOJA.x - 30; px < HOJA.x + HOJA.w; px++) {
+    const X = px + 0.5 - pxv, Y = py + 0.5 - pyv, lx = X * c - Y * s, ly = X * s + Y * c;
+    const ix = Math.floor(HOJA.w + lx), iy = Math.floor(ly);
+    if (ix < 0 || iy < 0 || ix >= HOJA.w || iy >= HOJA.h) continue;
+    PX.pset(px, py, ix === 0 || iy === HOJA.h - 1 ? PAL.CREMA[2] : S.buf[iy * HOJA.w + ix]);
+  }
+}
 // una hoja que vuela: se da la vuelta (ancho × cos) y gira un poco mientras cae revoloteando
 function hojaVolando(n, tau) {
   const x = HOJA.x + HOJA.w * 0.75 + 260 * tau + 14 * Math.sin(5 * tau + n), y = HOJA.y + 10 - 70 * tau + 260 * tau * tau;
@@ -663,8 +681,10 @@ function planoCalendario(t) {
     if (t >= b) { n = k + 1; volando.push([k, t - b]); }
     else if (t >= a) { n = k; p = entra(prog(t, a, b)); break; }
   }
-  if (n === 12 && t >= T.media0) { p = 0.36 * sale(prog(t, T.media0, T.media1)); if (t > T.media1) temblor = t < QUIETO ? [0, 1, 0, 0, 1, 1, 0][fot(t, 10) % 7] : 0; }
-  if (p > 0) hojaPlegada(n, p, temblor); else blit(HOJAS[n], HOJA.x, HOJA.y);
+  if (n === 12 && t >= T.media0) {
+    const th = 0.27 * PX.rebote(prog(t, T.media0, T.media1)) + (t > T.media1 ? 0.012 * [0, 1, 0, -1, 0, 1, -1][fot(t, 8) % 7] : 0);
+    hojaColgando(12, th);
+  } else if (p > 0) hojaPlegada(n, p, temblor); else blit(HOJAS[n], HOJA.x, HOJA.y);
   blit(CABECERA, 0, 0);
   // la niña, de medio cuerpo, mira el calendario
   const tq = paso(t, 12);
