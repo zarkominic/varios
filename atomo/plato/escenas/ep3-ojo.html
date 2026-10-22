@@ -156,11 +156,13 @@ function sombraAtom(kCielo = 0) {
 }
 
 // ---------------------------------------------------------------- el ojo a tres escalas
-// 1 × = el de ep3-hola (encuadreHola); 0,5 × = el ojo entero (frase 5, segunda mitad); ESC_CERCA × = el párpado de cerca
-// (frase 6). Mismo centro (960, 540, Z_OJO), misma rotación; los párpados en el estado final de ep3-hola (FIN).
+// 1 × = el de ep3-hola (encuadreHola); ESC_MEDIO × = el ojo entero (frase 5, segunda mitad: otra foto, el ojo más
+// pequeño en el mismo sitio). Mismo centro (960, 540, Z_OJO), misma rotación; los párpados en el estado final de ep3-hola
+// (FIN). El párpado de cerca (frase 6) son las capas de 1 × ampliadas ESC_CERCA veces en 2D: renderizado más grande, el ojo
+// se acerca tanto a la cámara que la luz del plató le llega rasante y la piel sale oscura y morada.
 const EH = encuadreHola(P);
 const FIN = EH.fin, PUP = HOLA.PUPILA;
-const ESC_MEDIO = 0.5, ESC_CERCA = 2.0;
+const ESC_MEDIO = 0.62, ESC_CERCA = 1.8;
 const R_OJO = new THREE.Euler(...EH.rot, 'YXZ');
 // y de pantalla del borde de cada párpado en el centro de la rendija (ojo a k veces la escala de ep3-hola)
 function bordesPx(k, estado = FIN) {
@@ -179,15 +181,12 @@ function franjaEn(k, medioAltoPx = HOLA.FRANJA.medioAltoPx * k) {
   const fesc = HOLA.FRANJA.largoPx * k / pxU(fpos);
   return { pos: fpos, escala: fesc, rot: haciaCamara(P, fpos), alto: medioAltoPx / (fesc * pxU(fpos)), y: pant(fpos)[1] };
 }
-const B1 = bordesPx(1), B05 = bordesPx(ESC_MEDIO), B2 = bordesPx(ESC_CERCA);
+const B1 = bordesPx(1), B05 = bordesPx(ESC_MEDIO);
 const YF1 = EH.franja.y;                                  // el centro de la franja de ep3-hola
-const YC05 = (B05[0] + B05[1]) / 2, YC2 = (B2[0] + B2[1]) / 2;
+const YC05 = (B05[0] + B05[1]) / 2;
 const FR05 = franjaEn(ESC_MEDIO);
-const FR2 = franjaEn(ESC_CERCA, Math.min(HOLA.FRANJA.medioAltoPx * ESC_CERCA, 0.8 * (B2[1] - B2[0]) / 2));
-const FR2_MEDIO = Math.min(HOLA.FRANJA.medioAltoPx * ESC_CERCA, 0.8 * (B2[1] - B2[0]) / 2);
-// la banda de pantalla que tocan los párpados al cerrarse de cerca (con las pestañas de arriba) y su pluma
-const BANDA = [Math.max(0, Math.round(B2[0] - 300)), Math.min(H, Math.round(B2[1] + 130))], PLUMA = 44;
-const SOMBRA2 = { blur: HOLA.SOMBRA.blur * ESC_CERCA, dy: HOLA.SOMBRA.dy * ESC_CERCA, color: HOLA.SOMBRA.color };
+// la banda de pantalla (a 1 ×) que tocan los párpados al cerrarse (con las pestañas de arriba) y su pluma
+const BANDA = [Math.max(0, Math.round(B1[0] - 150)), Math.min(H, Math.round(B1[1] + 70))], PLUMA = 26;
 
 // ---------------------------------------------------------------- el desfile por la franja (frase 5)
 const Z_IN = 7;                                            // el aumento dentro de la franja (respecto a ep3-hola)
@@ -195,10 +194,10 @@ const ZP = 6.0, PXP = pxU(en(960, YF1, ZP));
 // recorrido horizontal (px) a τ s del paso por el centro: despacio por el centro, deprisa al entrar y al salir
 const corre = (tau, v0, v1) => -(v0 * tau + v1 * tau * tau * tau);
 const PARADA = [
-  { nombre: 'pelo', t: T.pelo, dy: 0, d: 150 },
-  { nombre: 'luna', t: T.luna, dy: -12, d: 330 },
-  { nombre: 'estrellas', t: T.estrellas, dy: 6, d: 420 },
-  { nombre: 'galaxia', t: T.galaxia, dy: -8, d: 470 },
+  { nombre: 'pelo', t: T.pelo, dy: 0, d: 170 },
+  { nombre: 'luna', t: T.luna, dy: -6, d: 430 },
+  { nombre: 'estrellas', t: T.estrellas, dy: 4, d: 560 },
+  { nombre: 'galaxia', t: T.galaxia, dy: -4, d: 640 },
 ];
 const PARADA_V = [520, 2157], PARADA_TAU = 0.85;
 // pone las cosas de la franja que se ven en ts (en la pantalla del plano de dentro) y devuelve sus resplandores
@@ -219,10 +218,10 @@ function ponerParada(ts) {
       luces.push({ x, y, r: o.d * 0.9, color: '255,214,150', a: 0.10 });
     } else if (o.nombre === 'estrellas') {
       P.pieza(I.COSA, { pos, escala: o.d / PXP, rot: [0.15, 0.5 * tau, 0.2 * tau], variante: COSA.ESTRELLAS, color: 0 });
-      luces.push({ x, y, r: o.d * 0.85, color: '255,220,160', a: 0.16 });
+      luces.push({ x, y, r: o.d * 0.8, color: '255,220,160', a: 0.24 });
     } else {
       P.pieza(I.COSA2, { pos, escala: o.d / PXP, rot: [-0.85, 0.2, 0.5 - 0.7 * tau], variante: COSA.REMOLINO, color: 0 });
-      luces.push({ x, y, r: o.d * 0.8, color: '190,200,240', a: 0.14, ey: 0.55 });
+      luces.push({ x, y, r: o.d * 0.75, color: '200,205,240', a: 0.22, ey: 0.6 });
     }
   }
   return luces;
@@ -240,7 +239,7 @@ function resplandores(luces, k = 1) {
 }
 
 // ---------------------------------------------------------------- el teléfono (frase 5, segunda mitad)
-const ZT = 7.0, Y_TEL = YC05 + 4, TEL_PX = 500;
+const ZT = 7.0, Y_TEL = YC05 + 100, TEL_PX = 580;
 const ESC_TEL = TEL_PX / (0.96 * pxU(en(960, Y_TEL, ZT)));
 function ponerTelefono(ts) {
   const u = eoc(prog(ts, T.tel0, T.tel1));
@@ -258,7 +257,7 @@ const EFIN = encuadreFinOjo(P);
 const TEL_X0 = 2500;
 function ponerInstrumentosEn(ts) {
   const extra = { choque: null };
-  const haz = 1, fase = 0.5 * eio(prog(ts, T.anillo - 0.9, T.choque));
+  const haz = 1, fase = 0.5 * prog(ts, T.anillo - 1.0, T.choque);
   ponerInstrumentos(UI, { luz: 1, haz, fase });
   // el microscopio: de tres cuartos, gira un poco al pasar
   {
@@ -272,10 +271,10 @@ function ponerInstrumentosEn(ts) {
   {
     const tau = ts - T.anillo;
     if (Math.abs(tau) < 1.0) {
-      const x = 960 + corre(tau, 450, 2050), pos = en(x, 560, ZI - 1);
-      const k = instrumento(P, I.INS2, { variante: 'anillo', pos, escala: 1500 / (2.2 * pxU(pos)), rot: [0.62, 0.35 + 0.35 * tau, 0] });
+      const x = 960 + corre(tau, 450, 1900), pos = en(x, 520, ZI - 1);
+      const k = instrumento(P, I.INS2, { variante: 'anillo', pos, escala: 1250 / (2.2 * pxU(pos)), rot: [0.66, 0.35 + 0.35 * tau, 0] });
       extra.choque = pant(k.punto('detector2'));
-      extra.haz = [0, 0.5].map((d) => pant(k.haz(fase + d)));
+      extra.haz = [fase, -fase].map((u) => pant(k.haz(u)));
     }
   }
   // el telescopio: llega desde la derecha, se para en el centro (FIN_OJO) y gira despacio hasta quedarse quieto
@@ -332,12 +331,11 @@ F.sombra1 = sombraParpados(F.cerrado1, HOLA.SOMBRA);
 // 0,5 ×: el ojo entero (una sola foto, con sus sombras de verdad) y su franja
 F.ojo05 = fotoOjo(ESC_MEDIO, FIN, CAPA.TODO, 9102, true); cargaT('ojo05');
 F.franja05 = fotoFranja(FR05, 9103); cargaT('franja05');
-// ESC_CERCA ×: los párpados casi cerrados (FIN) y cerrados (la banda que cambia, remendada sobre FIN), y la franja
-F.parp2 = fotoOjo(ESC_CERCA, FIN, CAPA.PARPADOS, 9104); cargaT('parp2');
+// los párpados cerrados (1 ×): la banda que cambia, en vivo, remendada sobre la foto FIN
 const REM = lienzo(), PARCHE = lienzo();
 function bandaParpados(estado, nf) {
   ponerOjo(UO, { ...estado, pupila: PUP, sombra: false });
-  P.limpiar(); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala * ESC_CERCA, rot: EH.rot, variante: CAPA.PARPADOS });
+  P.limpiar(); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala, rot: EH.rot, variante: CAPA.PARPADOS });
   const k = lienzoGL.width / W;
   P.renderer.setScissor(0, (H - BANDA[1]) * k, W * k, (BANDA[1] - BANDA[0]) * k);
   P.renderer.setScissorTest(true);
@@ -353,22 +351,22 @@ function bandaParpados(estado, nf) {
   pc.fillStyle = gy; pc.fillRect(0, y0, W, y1 - y0);
   const rc = REM.getContext('2d');
   rc.setTransform(1, 0, 0, 1, 0, 0); rc.globalCompositeOperation = 'source-over';
-  rc.clearRect(0, 0, REM.width, REM.height); rc.drawImage(F.parp2, 0, 0); rc.drawImage(PARCHE, 0, 0);
+  rc.clearRect(0, 0, REM.width, REM.height); rc.drawImage(F.cerrado1, 0, 0); rc.drawImage(PARCHE, 0, 0);
   return REM;
 }
 const CERRADO = { arriba: 1, abajo: 1 };
-F.cerr2 = (() => { const c = lienzo(); c.getContext('2d').drawImage(bandaParpados(CERRADO, 9105), 0, 0); return c; })(); cargaT('cerr2');
-F.franja2 = fotoFranja(FR2, 9106); cargaT('franja2');
-F.sombraP2 = sombraParpados(F.parp2, SOMBRA2);
-F.sombraC2 = sombraParpados(F.cerr2, SOMBRA2);
+F.cerr1 = (() => { const c = lienzo(); c.getContext('2d').drawImage(bandaParpados(CERRADO, 9105), 0, 0); return c; })(); cargaT('cerr1');
+F.sombraC1 = sombraParpados(F.cerr1, HOLA.SOMBRA);
 // el párpado de cerca: el globo (la foto de 1 ×, ampliada: solo asoma por la rendija), la sombra y los párpados
 function componerCerca(gx, parp, sombraP) {
   gx.fillStyle = '#0b0807'; gx.fillRect(0, 0, W, H);
-  pegar(gx, F.globo1, ESC_CERCA, [960, YF1], [960, YC2], 1, desenfoque(2));
-  gx.save(); gx.setTransform(1, 0, 0, 1, 0, 0); gx.drawImage(sombraP, 0, 0); gx.drawImage(parp, 0, 0); gx.restore();
+  const c = [960, YF1];
+  pegar(gx, F.globo1, ESC_CERCA, c);
+  pegar(gx, sombraP, ESC_CERCA, c);
+  pegar(gx, parp, ESC_CERCA, c);
   vinetaOjo(gx, ESC_CERCA); gx.setTransform(KD, 0, 0, KD, 0, 0);
 }
-F.cerca2 = (() => { const c = lienzo(), gc = c.getContext('2d'); ajustarCapa(); gc.setTransform(KD, 0, 0, KD, 0, 0); componerCerca(gc, F.cerr2, F.sombraC2); return c; })();
+F.cerca2 = (() => { const c = lienzo(), gc = c.getContext('2d'); ajustarCapa(); gc.setTransform(KD, 0, 0, KD, 0, 0); componerCerca(gc, F.cerr1, F.sombraC1); return c; })();
 // el fondo de los instrumentos: el ojo cerrado de cerca, oscuro y desenfocado (horneado)
 F.fondoI = (() => {
   const c = lienzo(), gc = c.getContext('2d');
@@ -381,12 +379,12 @@ F.dentro = (() => {
   const c = document.createElement('canvas'); c.width = Math.round(2 * W * KD); c.height = lienzoGL.height;
   const gc = c.getContext('2d'); gc.setTransform(KD, 0, 0, KD, 0, 0);
   const gr = gc.createLinearGradient(0, YF1 - 300, 0, YF1 + 300);
-  gr.addColorStop(0, '#0a0706'); gr.addColorStop(0.5, '#1a120c'); gr.addColorStop(1, '#0a0706');
+  gr.addColorStop(0, '#0d0907'); gr.addColorStop(0.5, '#2c1d12'); gr.addColorStop(1, '#0d0907');
   gc.fillStyle = gr; gc.fillRect(0, 0, 2 * W, H);
   gc.globalCompositeOperation = 'lighter';
   gc.save(); gc.translate(W, YF1); gc.scale(1, 0.16);
   const br = gc.createRadialGradient(0, 0, 0, 0, 0, 2 * W);
-  br.addColorStop(0, 'rgba(255,186,120,0.13)'); br.addColorStop(0.5, 'rgba(255,170,100,0.06)'); br.addColorStop(1, 'rgba(255,160,90,0)');
+  br.addColorStop(0, 'rgba(255,190,125,0.22)'); br.addColorStop(0.5, 'rgba(255,170,100,0.08)'); br.addColorStop(1, 'rgba(255,160,90,0)');
   gc.fillStyle = br; gc.fillRect(-2 * W, -2 * W, 4 * W, 4 * W);
   gc.restore();
   let s = 777; const r = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
@@ -422,8 +420,9 @@ function ojoUno(gx, Z, { yDst = YF1, franjaK = 1, dentro = 0, objetos = null, zO
   }
   if (luces) resplandores(luces, dentro);
   if (objetos) pegar(gx, objetos, zObj, c, d);
+  const osc = mix(1, 0.42, ss(1.5, 5.5, Z));
   pegar(gx, F.sombra1, Z, c, d, 1, desenfoque(bl));
-  pegar(gx, F.cerrado1, Z, c, d, 1, desenfoque(bl * 0.8));
+  pegar(gx, F.cerrado1, Z, c, d, 1, osc < 0.999 ? `${desenfoque(bl * 0.8)} brightness(${osc.toFixed(3)})` : desenfoque(bl * 0.8));
   vinetaOjo(gx, Z); gx.setTransform(KD, 0, 0, KD, 0, 0);
   if (franjaK > 0.002) {
     pegar(gx, F.franja1, Z, c, d, franjaK, desenfoque(bl * 0.5));
@@ -507,7 +506,7 @@ function dibujar(t) {
         const k = eoc(prog(ts, T.tel0, T.tel1));
         g.save(); g.globalCompositeOperation = 'lighter'; g.translate(960, tel.y); g.scale(1, 0.6);
         const gr = g.createRadialGradient(0, 0, 60, 0, 0, 560);
-        gr.addColorStop(0, `rgba(170,190,230,${0.16 * k})`); gr.addColorStop(1, 'rgba(170,190,230,0)');
+        gr.addColorStop(0, `rgba(190,200,225,${0.06 * k})`); gr.addColorStop(1, 'rgba(190,200,225,0)');
         g.fillStyle = gr; g.fillRect(-560, -560, 1120, 1120);
         g.restore();
         pegarGL();
@@ -521,22 +520,22 @@ function dibujar(t) {
   }
   if (ts < T.oscuro0) {
     // ---- el párpado de cerca: la franja se estrecha hasta un borde fino y el ojo se cierra
-    let parp = F.parp2, sombraP = F.sombraP2;
-    if (ts >= T.cierra1) { parp = F.cerr2; sombraP = F.sombraC2; }
+    let parp = F.cerrado1, sombraP = F.sombra1;
+    if (ts >= T.cierra1) { parp = F.cerr1; sombraP = F.sombraC1; }
     else if (ts > T.cierra0) {
       const u = eio(prog(ts, T.cierra0, T.cierra1));
       parp = bandaParpados({ arriba: mix(FIN.arriba, 1, u), abajo: mix(FIN.abajo, 1, u) }, nf);
-      sombraP = sombraParpados(parp, SOMBRA2);
+      sombraP = sombraParpados(parp, HOLA.SOMBRA);
       marcaT('parpados');
     }
     componerCerca(g, parp, sombraP);
     const ue = eio(prog(ts, T.estrecha0, T.estrecha1));
-    const sy = mix(1, 2.5 / FR2_MEDIO, ue);
+    const sy = mix(1, 1.6 / HOLA.FRANJA.medioAltoPx, ue);
     const kf = 1 - ss(T.cierra0 + 0.15, T.cierra1 - 0.1, ts);
     if (kf > 0.002) {
-      pegar(g, F.franja2, 1, [960, FR2.y], [960, FR2.y], kf, 'none', sy);
+      pegar(g, F.franja1, ESC_CERCA, [960, YF1], [960, YF1], kf, 'none', sy);
       const xm = 960 + (HOLA.HALO.x1 - 960) * ESC_CERCA;
-      resplandorFranja(g, 960 - (xm - 960), xm, FR2.y, HOLA.HALO.alto * ESC_CERCA * mix(1, 0.25, ue), HOLA.HALO.fuerza * kf * mix(1, 0.7, ue));
+      resplandorFranja(g, 960 - (xm - 960), xm, YF1, HOLA.HALO.alto * ESC_CERCA * mix(1, 0.25, ue), HOLA.HALO.fuerza * kf * mix(1, 0.7, ue));
     }
     sombraAtom(0);
     pasadaAtomo(ts, nf);
@@ -562,7 +561,17 @@ function dibujar(t) {
   P.render(nf, { fondo: false });
   pegarGL();
   marcaT('instrumentos');
-  // el choque de los dos paquetes de luz en el detector
+  // los dos paquetes de luz que corren por el anillo (su resplandor) y su choque en el detector
+  if (ex.haz && ts < T.choque) {
+    g.save(); g.globalCompositeOperation = 'lighter';
+    for (const p of ex.haz) {
+      if (!p) continue;
+      const gr = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], 70);
+      gr.addColorStop(0, 'rgba(255,220,160,0.55)'); gr.addColorStop(0.3, 'rgba(255,170,80,0.22)'); gr.addColorStop(1, 'rgba(255,150,60,0)');
+      g.fillStyle = gr; g.fillRect(p[0] - 70, p[1] - 70, 140, 140);
+    }
+    g.restore();
+  }
   if (ex.choque) {
     const k = Math.exp(-Math.pow((ts - T.choque) / 0.16, 2));
     if (k > 0.01) {
@@ -579,7 +588,7 @@ function dibujar(t) {
   POST.aplicar(g, nf);
 }
 cargaT('listo');
-window.__info = { T, m, B1, B05, B2, YF1, YC05, YC2, BANDA, FR2_MEDIO, ESC_TEL, EFIN, HOLA_RELOJ };
+window.__info = { T, m, B1, B05, YF1, YC05, BANDA, ESC_TEL, EFIN, HOLA_RELOJ };
 // el último fotograma, para ep3-promesa (ver la cabecera): la receta del kit de instrumentos y Atom quieto en su sitio
 window.__fin = (() => {
   const av = tAvance(QUIETO), tz = HOLA_RELOJ.tz + av, w = en(ATOM[0], ATOM[1], A_Z);

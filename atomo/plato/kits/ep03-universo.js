@@ -23,8 +23,8 @@
 //      de la red: una celda grande = 1/RED.K). RED.NODO es un cúmulo brillante: con origen RED.NODO, en `centro` hay un nudo
 //      (ahí va «nosotros», la Vía Láctea). luz: la fuerza de su luz propia; velo (0…1): cuánto se ve (0: transparente).
 //      celdaRed(z) y veloRed(z): la escala y lo que se ve de la red con el mundo en 10^z (la red no encoge ×10 en cada salto,
-//      como el mundo, sino ×2,3: de una celda de ~2.800 px en 10²² a 45 px en 10²⁷; empieza a verse hacia 10^22,3 y está
-//      entera en 10^23,6).
+//      como el mundo, sino ×2: de una celda de ~1.400 px en 10²² a 45 px en 10²⁷; empieza a verse hacia 10^22,25 y está
+//      entera en 10^23,4).
 //  · esfera: { c, r, k: 1, borde: 1, cristal: 1, fuera: 0.5, lupa: 0.1, puntos: 1 }
 //      LA ESFERA DE LO OBSERVABLE (necesita red): una cáscara de vidrio translúcida, centrada en c con radio r px. Dentro, la
 //      red se ve algo aumentada (lupa: la refracción del vidrio, 0…0,3), más clara y llena de puntitos-galaxia (puntos);
@@ -109,9 +109,9 @@ const ss = (a, b, x) => { x = cl((x - a) / (b - a)); return x * x * (3 - 2 * x);
 export const RED = { K: 4.2, NODO: [0.0672, 0.0422] };
 export const ESFERA_M = 4.4e26;
 /** px de una celda grande de la red con el mundo en 10^z (×2,3 por salto; 45 px en 10²⁷) */
-export const celdaRed = (z) => 45 * Math.pow(10, (27 - z) * 0.36);
+export const celdaRed = (z) => 45 * Math.pow(10, (27 - z) * 0.3);
 /** lo que se ve de la red con el mundo en 10^z */
-export const veloRed = (z) => ss(22.3, 23.6, z);
+export const veloRed = (z) => ss(22.25, 23.4, z);
 export const ENLACE = {
   z: 22, via: [190, 560], rVia: 27, andromeda: [1430, 183], rAnd: 40, giroAnd: -0.62, aplastaAnd: 0.42,
   luz: 0.9, figuritas: [],
@@ -187,7 +187,6 @@ vec3 redEn(vec2 P, float extra) {
   return luzArcilla(alb, n, gBri) * charco(P) + gEm * uRed.w * (1.0 + extra);
 }
 #endif
-#ifdef NIEBLA
 vec2 hashN2(vec2 p) { return vec2(hash12(p), hash12(p + 17.31)); }
 // una capa de bocanadas: casquetes de esfera en una rejilla con desorden, fundidos con un máximo suave (algodón)
 float bocanadas(vec2 q, float sem) {
@@ -205,13 +204,14 @@ float bocanadas(vec2 q, float sem) {
   }
   return log(s) / 9.0 - 0.25;
 }
-// la niebla brillante: bocanadas de arcilla que brilla (q en bocanadas grandes)
-vec3 nieblaEn(vec2 q, float n) {
+// la niebla brillante: bocanadas de arcilla que brilla (q en bocanadas grandes; esc: px por bocanada; luz: la luz propia).
+// h: la altura de las bocanadas (0…~1,2)
+vec3 nieblaEn(vec2 q, float n, float esc, float luz, out float h) {
   float h1 = bocanadas(q, 0.0);
   float h2 = bocanadas(q * 2.4 + 5.3, 11.0);
   float h3 = vnoise(vec3(q * 9.0, 1.0 + floor(n) * 0.37));
-  float h = max(h1, 0.62 * h2 + 0.35 * h1) + 0.03 * h3;
-  vec2 gq = vec2(dFdx(h), dFdy(h)) * uNie.z / (1920.0 / uRes.x);
+  h = max(h1, 0.62 * h2 + 0.35 * h1) + 0.03 * h3;
+  vec2 gq = vec2(dFdx(h), dFdy(h)) * esc / (1920.0 / uRes.x);
   vec3 nr = normalize(vec3(-gq * 0.9, 1.0));
   // el color: crema en lo alto de las bocanadas, ámbar en lo hondo, y manchas grandes algo más frías (el fondo cósmico)
   float t = vnoise(vec3(q * 0.45 + 11.0, 3.0)), f = vnoise(vec3(q * 0.8 + 21.0, 6.0));
@@ -221,10 +221,9 @@ vec3 nieblaEn(vec2 q, float n) {
   c = mix(c, vec3(0.40, 0.40, 0.45) * (0.65 + 0.55 * alto), 0.4 * smoothstep(0.6, 0.85, f));
   vec3 col = luzArcilla(c * 0.75, nr, 0.5);
   // brilla por dentro: luz propia, algo más fuerte en lo hondo (como algodón con una luz detrás)
-  col += c * (0.3 + 0.45 * (1.0 - alto)) * uNie.w;
+  col += c * (0.3 + 0.45 * (1.0 - alto)) * luz;
   return col;
 }
-#endif
 void main() {
   vec2 P = disenio();
   vec3 col = vec3(0.0);
@@ -258,13 +257,13 @@ void main() {
     vec3 cg = mix(vec3(0.9, 0.76, 0.55), vec3(0.66, 0.74, 0.9), hash12(ci + 5.0));
     col += cg * pt * 0.4 * k * dentro * uEsf3.x * (0.35 + 0.65 * cerca);
   }
-  // la niebla brillante en el borde interior: el límite de lo que se ve (bocanadas pequeñas, que brillan)
-  float banda = smoothstep(0.7, 0.995, r) * dentro;
+  // la niebla brillante en el borde interior: el límite de lo que se ve (bocanadas que brillan y entran irregulares)
   if (uEsf2.x > 0.001) {
-    float vb = vnoise(vec3(d * 7.0, 1.0)) * 0.5 + vnoise(vec3(d * 17.0, 2.0)) * 0.32 + vnoise(vec3(d * 40.0, 3.0)) * 0.18;
-    vec3 nb = mix(vec3(0.66, 0.40, 0.17), vec3(0.95, 0.80, 0.58), smoothstep(0.3, 0.8, vb));
-    float bk = pow(banda, 1.4) * smoothstep(0.15, 0.7, vb + 0.4 * banda) * uEsf2.x * k;
-    col = mix(col, nb, 0.4 * bk) + nb * 0.5 * bk;
+    float hb;
+    vec3 nb = nieblaEn(d * 9.0 + 3.0, uRedO.w, uEsf.z / 9.0, 1.0, hb);
+    float borde = smoothstep(0.8 - 0.1 * hb, 0.93 - 0.06 * hb, r) * dentro;
+    float bk = borde * uEsf2.x * k;
+    col = mix(col, nb, 0.92 * bk) + nb * 0.12 * bk;
   }
   // el cristal: un velo de vidrio, una franja oscura justo dentro del filo (el grueso del vidrio), el filo de luz, el
   // reflejo del foco (una media luna fina arriba a la izquierda y un brillo pequeño y nítido) y un halo cálido fuera
@@ -293,7 +292,8 @@ void main() {
 #ifdef NIEBLA
   {
     vec2 q = (P - uNie.xy) / uNie.z;
-    vec3 nb = nieblaEn(q, uRedO.w);
+    float hn;
+    vec3 nb = nieblaEn(q, uRedO.w, uNie.z, uNie.w, hn);
     // el hueco que se abre: un círculo de borde rasgado (las bocanadas se apartan)
     float an = 1.0;
     if (uNie2.z > 0.5) {

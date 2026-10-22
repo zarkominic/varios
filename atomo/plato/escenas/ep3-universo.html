@@ -330,19 +330,19 @@ function laGoma(ts, h) {
   const pa = pant(a), pb = pant(b);
   const z = (a[2] + b[2]) / 2 + 0.05;
   const est = cl((largoGoma(ts) / LARGOS[0] - 1) / 1.3);
-  const gm = goma(P, I.GOMA, { desde: pa, hasta: pb, alto: 30, z, estira: est, marcas: 9, toque: ts < T.tira[1] + 0.1 && ts > T.tira[0] });
+  const gm = goma(P, I.GOMA, { desde: pa, hasta: pb, alto: 38, z, estira: est, marcas: 9, toque: ts < T.tira[1] + 0.1 && ts > T.tira[0] });
   // la hormiga
   const u = uHormiga(ts);
   const top = gm.punto(u);
   const wt = en(top[0], top[1], z);
-  const esc = 92 / pxU(wt);
+  const esc = 118 / pxU(wt);
   const paso = (u - U_HOR0) * 9.0;
   const ang = Math.atan2(-(pb[1] - pa[1]), pb[0] - pa[0]);
   hormiga(P, I.HOR, { pos: [wt[0], wt[1] + 0.3 * esc, wt[2] + 0.02], escala: esc, paso, rot: [0, 0, ang] });
   // la meta, clavada en la goma
   const tm = gm.punto(U_META);
   const wm = en(tm[0], tm[1] + 6, z);
-  meta(P, I.META, { pos: wm, escala: 132 / pxU(wm), ondea: ts * 0.9, rot: [0, -0.25, ang] });
+  meta(P, I.META, { pos: wm, escala: 168 / pxU(wm), ondea: ts * 0.9, rot: [0, -0.25, ang] });
   return gm;
 }
 

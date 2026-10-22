@@ -42,7 +42,8 @@
 // FINAL = PRINCIPIO DE px-ep3-ojo: desde que se cierra el párpado de arriba (T.arriba1) el cuadro es OJO.pintarFinalHola() más
 // Atom en PX.ATOM_SITIO con el reloj t − duración (en el último fotograma, t = 0) y energía 0. window.__fin lo resume.
 // Coste (sin GPU): el plató general y el del plano medio se pintan una vez al cargar; en el empuje, la persona en vivo y el
-// plató solo donde no la tapa; en el fundido, la cara, el ojo del kit y la mezcla. Al cargar: ~3 s.
+// plató solo donde no la tapa; las caras de los 18 fotogramas más caros (la cabeza llena la pantalla, hasta el final del
+// fundido) se pintan al cargar, cada una a su escala exacta. Al cargar: ~10–15 s.
 import { escena } from '/atomo/plato/escena.js';
 import { crearPixel } from '/atomo/plato/kits/pixel-ep03.js';
 import * as OJO from '/atomo/plato/kits/pixel-ep03-ojo.js';
@@ -609,6 +610,15 @@ function pintarCara(t, cam, destino, rects = [[0, 0, W, H]]) {
   }
   PX.en(destino, () => { platoEn(cam, t, capaP.buf, rects); PX.pegar(capaP); });
 }
+// Los fotogramas de 30 fps con la cara más cara de pintar (la cabeza llena la pantalla: desde 0,17 s antes del fundido hasta
+// su final) se pintan al cargar, cada uno a SU escala exacta (nada se amplía); un instante fuera de la rejilla se pinta en vivo
+// igual. Así ningún fotograma pasa de unos 0,6 s.
+const CARAS = new Map();
+const nFot = (t) => { const n = Math.round(t * 30); return Math.abs(t * 30 - n) < 1e-6 ? n : null; };
+function caraEn(t, cam, destino, rects) {
+  const n = nFot(t), c = n != null ? CARAS.get(n) : null;
+  if (c) destino.buf.set(c); else pintarCara(t, cam, destino, rects);
+}
 // exposición: la luminancia media de la piel alrededor del ojo en la cara y en el ojo del kit, en un anillo fuera de los párpados
 const PIELES = new Set(PAL.PIEL);
 function medirK(t) {
@@ -677,7 +687,7 @@ function ojoEnorme(t, cam) {
   if (t < T.fun1) {
     const q = prog(t, T.fun0, T.fun1), F = pesoFundido(q, O, a);
     if (F.ojo) capaKit(O, conCeja, mezcla(K0, K1, q), F.ojo);
-    if (F.cara.length) pintarCara(t, cam, capaCara, F.cara);
+    if (F.cara.length) caraEn(t, cam, capaCara, F.cara);
     fundir(capaCara, capaOjo, F.w);
   } else {
     capaKit(O, conCeja, mezcla(K1, 1, entraSale(prog(t, T.fun1, T.fun1 + 0.55))));
@@ -691,8 +701,14 @@ const finalHola = () => PX.pegar(FINAL, 0, 0, { opaco: true });
 // los platós de los planos fijos
 for (const [k, cam] of [['G', CAMG], ['M', CAM_MED]]) { const c = PX.nuevaCapa(W, H); platoBase(cam, c.buf); FIJOS[k] = c; }
 
-// en frío, el primer fotograma del fundido costaba casi el doble (compilación y recolección de memoria): se ensaya uno al cargar
-{ const ensayo = PX.nuevaCapa(W, H), t = T.fun0 + 0.2; PX.en(ensayo, () => ojoEnorme(t, camara(t))); }
+// las caras de los fotogramas caros (ver CARAS) y un ensayo del fundido (en frío costaba casi el doble: compilación)
+for (let n = Math.ceil((T.fun0 - 0.17) * 30 - 1e-6); n / 30 < T.fun1; n++) {
+  const t = n / 30, cam = camara(t), capa = PX.nuevaCapa(W, H);
+  let rects = [[0, 0, W, H]];
+  if (t >= T.fun0) { const a = Math.min(OJO.FIN.a, A_POR_S * cam.s); rects = pesoFundido(prog(t, T.fun0, T.fun1), estadoOjo(t, a, cam.z.Ep), a).cara; }
+  if (rects.length) { pintarCara(t, cam, capa, rects); CARAS.set(n, capa.buf); }
+}
+{ const ensayo = PX.nuevaCapa(W, H), t = Math.round((T.fun0 + 0.2) * 30) / 30; PX.en(ensayo, () => ojoEnorme(t, camara(t))); }
 
 // ───────────────────────────────────────────────────────────── dibujar(t)
 function dibujar(t) {
@@ -714,7 +730,7 @@ function dibujar(t) {
     dibBokeh(t, cam);
   } else if (t < T.fun0) {
     // plano medio y primera parte del empuje: la persona se vuelve a pintar a cada escala y el plató donde no la tapa
-    if (t >= T.empuje && manosFuera(cam)) pintarCara(t, cam, PX.destino());   // solo la cabeza (las manos, fuera)
+    if (t >= T.empuje && manosFuera(cam)) caraEn(t, cam, PX.destino(), [[0, 0, W, H]]);   // solo la cabeza (las manos, fuera)
     else {
       const st = t < T.empuje ? personaMedio(t) : { wx: PER.x, o: POSE_ZUM, lleva: 1 };
       const P = rasterP(cam, t, st, reglaMedio(t));
