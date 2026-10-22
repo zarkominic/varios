@@ -537,7 +537,7 @@ const CLAVES_CAL = (() => {
 })();
 function relojEn(ts) {
   // el reloj llega con la luz que sale y marca 8 minutos mientras viaja
-  const u = prog(ts, T.fuera, T.llega);
+  const u = prog(ts, T.pan[1] - 0.2, T.llega);   // de 0 (cuando aparece, tras el pan) a 8 al llegar a la cara
   return { minutos: 8 * u, sector: [0, 8 * u] };
 }
 function tramo34(n, ts) {
@@ -550,7 +550,8 @@ function tramo34(n, ts) {
   // el corte (foto) con su resplandor
   const s = panS(up), c = panXY(up, SOL3_PX);
   const sTot = s * sEnt;
-  const cc = [mix(NUC3[0] + (SOL3_PX[0] - NUC3[0]) * sEnt, c[0], up), mix(NUC3[1] + (SOL3_PX[1] - NUC3[1]) * sEnt, c[1], up)];
+  // (la entrada desde el núcleo y el pan no se solapan: el centro de la entrada, desplazado lo que lleve el pan)
+  const cc = [NUC3[0] + (SOL3_PX[0] - NUC3[0]) * sEnt + c[0] - SOL3_PX[0], NUC3[1] + (SOL3_PX[1] - NUC3[1]) * sEnt + c[1] - SOL3_PX[1]];
   halo(g, cc[0], cc[1], SOL3_PX[2] * sTot, 1, 'sol');
   pegarEscalada(F(n % 2 ? 'corte1' : 'corte0'), sTot, SOL3_PX.slice(0, 2), cc);
   // la transformación del plano medio → la pantalla (para el rayo y el núcleo)
@@ -592,7 +593,7 @@ function tramo34(n, ts) {
     if (ts > T.fuera) {
       // fuera: de la salida a la mejilla
       const diana = [DIANA[0] + per.dx, DIANA[1]];
-      const uo = eio(prog(ts, T.fuera, T.llega));
+      const uo = 1 - Math.pow(1 - prog(ts, T.fuera, T.llega), 1.25);   // la luz va casi a velocidad constante (el reloj, igual)
       const exterior = Math.hypot(diana[0] - camino[camino.length - 1][0], diana[1] - camino[camino.length - 1][1]);
       pts = [...camino, diana];
       hasta = L3 * sTot + exterior * uo;
@@ -615,8 +616,10 @@ function tramo34(n, ts) {
     const h = hojaEn(ts, CLAVES_CAL, 0.17);
     // se queda atrás: se va hacia la izquierda y hacia abajo, encogiendo
     const ua = eic(prog(ts, T.pan[0], T.pan[0] + 0.35));
-    const pc = en(CAL_X - 260 * ua, CAL_Y + 30 * (1 - ss(T.sale[0], T.sale[1], ts)) + 220 * ua, 1.2);
-    calendario(P, I.CAL, { ...CAL3, escala: CAL3.escala * (1 - 0.6 * ua), pos: pc, ...h, toque: h.hoja > 0 || ua > 0 });
+    // (se va con el pan, como el Sol, y encoge hasta desaparecer)
+    const pc = en(CAL_X - (PAN.de[0] - PAN.a[0]) * up, CAL_Y + 30 * (1 - ss(T.sale[0], T.sale[1], ts)) + 60 * ua, 1.2);
+    const kIn = eob(prog(ts, T.sale[0] + 0.05, T.sale[1] + 0.12), 1.3);   // entra de un salto al volver del núcleo
+    calendario(P, I.CAL, { ...CAL3, escala: CAL3.escala * (1 - 0.85 * ua) * Math.max(0.02, kIn), pos: pc, ...h, toque: h.hoja > 0 || ua > 0 || kIn < 1 });
   }
   const kr = ss(T.pan[1] - 0.35, T.pan[1] + 0.1, ts);
   if (kr > 0.01 && punta) {

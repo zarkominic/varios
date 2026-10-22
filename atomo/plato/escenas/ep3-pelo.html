@@ -671,6 +671,7 @@ const FOCO = [
   pant(mundo(PELO, ROT_PELO, E_PELO, [0, 1.9, 0.8])),
 ];
 const ZONA_FINA = zonaFina(LIB_C);
+window.__focos = FOCO.map((p) => p && p.map((v) => Math.round(v)));
 // (coste) los programas del fotograma 0 (la persona con sus celdas, la regla, la flecha, Atom y la cartela) se estrenan al
 // cargar dibujándolo entero con un recorte de un píxel: SwiftShader los compila sin pagar el relleno
 (() => {
