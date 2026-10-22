@@ -453,6 +453,12 @@ const HACER = {
     const c = foto(P);
     return c;
   },
+  // el estreno de la persona (pequeña y fuera de cuadro, en el lienzo de WebGL, bajo la capa 2D opaca): no es una foto,
+  // solo paga la compilación de su material antes de la primera foto suya (personaE, a ~14 s)
+  estrenoPersona() {
+    P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: { ...POSE_MANOS, fantasma: 1 }, aspecto: 'adulto' }); P.render(2005, { fondo: false });
+    return true;
+  },
   filaCasa() {
     const C0 = pant(CASA);
     P.limpiar();
@@ -477,10 +483,9 @@ function F(nombre) { if (!FOTOS[nombre]) { FOTOS[nombre] = HACER[nombre](); hech
 P.fotograma(0); P.limpiar(); peldano(P, I.PEL, PELDANO); P.render(2000);
 FOTOS.peldano = foto(P);
 window.__carga.push(['fondo y peldaño', Math.round(performance.now())]);
-// (coste) la persona se estrena aquí, pequeña: su primer dibujo paga la compilación de SwiftShader (~6 s)
-P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: { ...POSE_MANOS, fantasma: 1 }, aspecto: 'adulto' }); P.render(2005, { fondo: false });
-window.__carga.push(['persona', Math.round(performance.now())]);
-// (coste) también se estrenan Atom (con su mano) y la regla: la foto de la regla en 10⁻⁹ se hace ya
+// (coste) la persona NO se estrena al cargar (su primer dibujo, la compilación de SwiftShader, eran ~9 s de CPU y ~25 s
+// de pared con el servidor cargado): se estrena en un fotograma barato del vuelo de Atom (PREPARAR, 'estrenoPersona')
+// (coste) se estrenan Atom (con su mano) y la regla: la foto de la regla en 10⁻⁹ se hace ya
 P.limpiar(); P.atomo({ pos: [0, 0.3, -2], escala: 0.05, electrones: [{ pos: [2, 0, 0], mezcla: 1, brazo: 1, mano: 1 }] }); P.render(2006, { fondo: false });
 fotoRegla(-9);
 window.__carga.push(['Atom y regla', Math.round(performance.now())]);
@@ -649,6 +654,7 @@ function basePersona(n, ts, plano) {
 // misma
 const PREPARAR = [
   [0.05, 'regla10', D + 1], [0.05, 'fondo', T.fundeEst[1]],         // en los fotogramas 1 y 2 (el 0 ya es caro)
+  [T.vuelo[0] + 0.1, 'estrenoPersona', T.deGuisante[1] + 0.2],       // en el vuelo de Atom (fotogramas de ~1 s)
   [T.saludo[0] + 0.3, 'filaCasa', T.fundeEst[1]], [T.saludo[0] + 0.7, 'estadio', T.aparta[1]], [T.saludo[0] + 0.8, 'estadioA', T.aparta[1]],
   [T.fundeEst[1] + 0.4, 'detalle', T.deGuisante[1]], [T.deGuisante[1] + 0.2, 'personaE', T.corte],
   [T.fantasma[1] + 0.2, 'personaEparp', T_PARPADEO + 0.05],
