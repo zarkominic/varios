@@ -68,15 +68,15 @@ const T = {
   // frase 17: «Salto menos cuatro: | una décima de milímetro, | el grosor de un pelo.»
   saltos: m.pelo - 0.25,                          // el primer salto arranca (la cartela ya se fue a 1,2 s)
   saltosFin: fr(m.pelo, m.peloFin, 0.45),          // el cuarto salto termina: el pelo-tronco
-  decima: fr(m.pelo, m.peloFin, 0.55),             // la cota, tendida (segunda mitad de la frase)
-  milimetro: fr(m.pelo, m.peloFin, 0.74),          // la tarjeta 10⁻⁴ m, en su sitio
+  decima: fr(m.pelo, m.peloFin, 0.6),              // la cota, tendida (segunda mitad de la frase)
+  milimetro: fr(m.pelo, m.peloFin, 0.78),          // la tarjeta 10⁻⁴ m, en su sitio
   // frase 18: «Es casi el detalle más fino que puedes distinguir, | porque el fondo del ojo | es una rejilla de células…»
   lectura: m.rejilla - 0.12,                       // corte al plano por encima del hombro
-  empuje0: fr(m.rejilla, m.rejillaFin, 0.15),      // empuje hacia la página
-  empuje1: fr(m.rejilla, m.rejillaFin, 0.27),      // ya en el detalle de la página
+  empuje0: fr(m.rejilla, m.rejillaFin, 0.14),      // empuje hacia la página
+  empuje1: fr(m.rejilla, m.rejillaFin, 0.24),      // corte al detalle de la página
   ojo: fr(m.rejilla, m.rejillaFin, 0.5) - 0.12,    // corte al ojo (a mitad de frase)
 };
-T.borron0 = T.empuje1 - 0.25; T.borron1 = T.empuje1 + 0.55;  // los trazos finos se emborronan
+T.borron0 = T.empuje1 + 0.1; T.borron1 = T.empuje1 + 0.85;   // los trazos finos se emborronan
 T.brillo = T.borron1 + 0.15;                                 // el pelo, nítido, brilla un instante
 T.luz0 = T.ojo + 0.2; T.luz1 = T.ojo + 0.95;                 // la luz entra por la córnea
 T.puntos0 = T.ojo + 0.6; T.puntos1 = T.ojo + 1.25;           // y cae en la rejilla
@@ -174,7 +174,7 @@ const P = await crearPlato({
   alfa: true, post: false, cartela: E.cartela,
   tiposExtra: { libro: LIBRO, ojoCorte: tiposOjo({ cosas: ['celula'] }).ojoCorte }, uniformes: UO,
   sombraFondo: ['p0', 'p3', 'p4', 'p5', 'p6', 'p9', 'p10'],
-  sombras: { p6: ['p7', 'p8'], p0: ['atomo'], p9: ['p0'] },
+  sombras: { p6: ['p8'], p0: ['atomo'], p9: ['p0'] },
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
 });
 const POST = crearPost();
@@ -229,10 +229,10 @@ const TZ_SALTOS = 16.436;   // calma(QUIETO) de ep3-saltos: la fase de sus elect
 // plano por encima del hombro: la cabeza del «humano», muy cerca de la cámara, de perfil hacia la derecha y algo de
 // espaldas; el libro a un palmo de su cara, girado hacia ella (y algo hacia la cámara)
 const LECT = {
-  per: { x: 560, y: 470, z: 9.2, esc: 4.3, giro: Math.PI / 2 + 0.28 },
-  lib: { x: 1150, y: 560, z: 8.4, ancho: 600, rot: [-0.32, -0.62, 0.05] },
+  per: { x: 430, y: 445, z: 9.2, esc: 4.3, giro: Math.PI / 2 - 0.12 },
+  lib: { x: 1190, y: 640, z: 8.4, ancho: 480, rot: [-0.42, -0.62, 0.05] },
   // la página de cerca: el pelo cruza la pantalla por (CERCA.x, CERCA.y); el libro, más cerca y casi de frente
-  cerca: { x: 900, y: 450, z: 9.0, ancho: 2500, rot: [-0.16, -0.2, 0.02], foco: [0.5, 0.0] },
+  cerca: { x: 900, y: 500, z: 9.0, ancho: 2200, rot: [-0.16, -0.2, 0.02], foco: [0.5, 0.0] },
 };
 function colocarLibro(L) {
   const pos0 = en(L.x, L.y, L.z);
@@ -256,7 +256,7 @@ const pPagina = (b, x, y) => pant(mundo(b.pos, b.rot, b.escala, [x, y, lbZ(x)]))
 const pPelo = (b, x) => pant(mundo(b.pos, b.rot, b.escala, [x, lbPeloY(x), lbZ(Math.min(x, 0.955)) + LB.RP]));
 
 // el ojo en corte (variante 1: la córnea a +x, hacia la derecha de la pantalla, de donde viene la luz del libro)
-const OJO = { x: 930, y: 478, z: 4.0, diam: 720, rot0: [0.12, -0.36, 0.0], rot: [0.15, -0.55, 0.0], variante: 1 };
+const OJO = { x: 850, y: 475, z: 4.0, diam: 640, rot0: [0.12, -0.36, 0.0], rot: [0.15, -0.55, 0.0], variante: 1 };
 OJO.pos = en(OJO.x, OJO.y, OJO.z);
 OJO.esc = OJO.diam / (2 * pxU(OJO.pos));
 
@@ -339,13 +339,31 @@ function fotoHombro() {
   const pos = en(L.x, L.y, L.z);
   // la persona, enorme y cerca: la cabeza en (L.x, L.y); los pies quedan muy por debajo del cuadro
   const p = postura('depie');
-  p.cabeza = [0.05, 0.42, 0.04]; p.mirada = [0.15, -0.75]; p.torso = [0.12, 0, 0];
+  p.cabeza = [0.05, 0.26, 0.04]; p.mirada = [0.1, -0.5]; p.torso = [0.1, 0, 0];
   const S = L.esc, yCab = 0.62;   // altura local de los ojos, más o menos
   P.pieza(I.PER, { pos: [pos[0], pos[1] - yCab * S, pos[2]], escala: S, rot: [0, L.giro, 0], postura: p, partes: ['cuerpo', 'cabeza'] });
   P.pieza(I.LIB, { pos: LIB_H.pos, escala: LIB_H.escala, rot: LIB_H.rot, color: aaLibro(LIB_H) });
   P.render(2001);
-  return foto();
+  // el hombro de primer término, desenfocado (el foco está en la cara y en el libro)
+  const f = foto(), c = lienzo(), gc = c.getContext('2d'), k = c.width / W;
+  gc.filter = `blur(${9 * k}px)`; gc.drawImage(f, 0, 0); gc.filter = 'none';
+  gc.globalCompositeOperation = 'destination-in';
+  const gr = gc.createLinearGradient(0, 700 * k, 0, 830 * k);
+  gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
+  gc.fillStyle = gr; gc.fillRect(0, 0, 900 * k, c.height);
+  const gx = gc.createLinearGradient(760 * k, 0, 900 * k, 0);
+  gx.addColorStop(0, 'rgba(0,0,0,1)'); gx.addColorStop(1, 'rgba(0,0,0,0)');
+  gc.fillStyle = gx; gc.fillRect(0, 0, c.width, c.height);
+  f.getContext('2d').drawImage(c, 0, 0);
+  return f;
 }
+// la página de cerca, desenfocada (lo que el ojo ya no separa)
+function fotoBorrosa(src) {
+  const c = lienzo(), gc = c.getContext('2d');
+  gc.filter = `blur(${9 * c.width / W}px)`; gc.drawImage(src, 0, 0); gc.filter = 'none';
+  return c;
+}
+function fotoFondo() { P.limpiar(); P.render(2003); return foto(); }
 function fotoPagina() {
   P.limpiar();
   P.pieza(I.LIB, { pos: LIB_C.pos, escala: LIB_C.escala, rot: LIB_C.rot, color: aaLibro(LIB_C) });
@@ -354,46 +372,41 @@ function fotoPagina() {
 }
 
 // ---------------------------------------------------------------- composición 2D de la lectura
-// empuje de la foto del hombro hacia el foco de la página, hasta casar con la foto de cerca
+// el foco de la página (el pelo) en las dos fotos
 const FOCO_H = pPagina(LIB_H, LECT.cerca.foco[0], LECT.cerca.foco[1]);
 const FOCO_C = [LECT.cerca.x, LECT.cerca.y];
-const K_EMPUJE = (() => {
-  // cuánto más grande se ve la página en la foto de cerca (a lo largo del pelo)
-  const a = pPagina(LIB_H, 0.3, 0.03), b = pPagina(LIB_H, 0.7, 0.03), c = pPagina(LIB_C, 0.3, 0.03), d = pPagina(LIB_C, 0.7, 0.03);
-  return Math.hypot(d[0] - c[0], d[1] - c[1]) / Math.hypot(b[0] - a[0], b[1] - a[1]);
-})();
 function dibujarFotoEn(src, foco, destino, s) {
   g.save(); g.translate(destino[0], destino[1]); g.scale(s, s); g.translate(-foco[0], -foco[1]); g.drawImage(src, 0, 0, W, H); g.restore();
 }
 // la zona de los trazos más finos que el pelo (de y = −0,045 a −0,33 en la página derecha), en píxeles de la foto de cerca
 function zonaFina(b) {
-  const pts = [[0.15, -0.045], [0.87, -0.045], [0.87, -0.33], [0.15, -0.33]].map(([x, y]) => pPagina(b, x, y));
+  const pts = [];
+  for (let i = 0; i <= 12; i++) pts.push(pPagina(b, mix(0.1, 0.93, i / 12), -0.045));
+  for (let i = 12; i >= 0; i--) pts.push(pPagina(b, mix(0.1, 0.93, i / 12), -0.34));
   return pts;
 }
 function lectura(ts) {
-  const deriva = 1 + 0.035 * eio(prog(ts, T.lectura, T.empuje0 + 0.2));
-  const u = eio(prog(ts, T.empuje0, T.empuje1));
-  const sH = deriva * Math.pow(K_EMPUJE, u);
-  // la foto del hombro se acerca al foco y lo lleva al sitio del foco de cerca
-  const dst = [mix(FOCO_H[0], FOCO_C[0], u), mix(FOCO_H[1], FOCO_C[1], u)];
   g.fillStyle = '#0b0807'; g.fillRect(0, 0, W, H);
-  const kC = ss(0.55, 1.0, u);
-  if (kC < 1) dibujarFotoEn(FOTO.hombro, FOCO_H, dst, sH);
-  if (kC > 0) {
-    g.save(); g.globalAlpha = kC;
-    dibujarFotoEn(FOTO.pagina, FOCO_C, dst, sH / K_EMPUJE);
-    g.restore();
+  if (ts < T.empuje1) {
+    // el plano por encima del hombro: una deriva lenta y, al final, un empuje que acelera hacia el pelo de la página
+    const deriva = 1 + 0.03 * eio(prog(ts, T.lectura, T.empuje0));
+    const u = eic(prog(ts, T.empuje0, T.empuje1));
+    dibujarFotoEn(FOTO.hombro, FOCO_H, [mix(FOCO_H[0], 1020, u), mix(FOCO_H[1], 520, u)], deriva * mix(1, 2.6, u));
+    return;
   }
-  if (plano(ts) !== 'pagina' && u < 1) return;
-  // detalle: los trazos más finos que el pelo se emborronan en gris; el pelo queda nítido y brilla un instante
-  const b = 9 * eio(prog(ts, T.borron0, T.borron1));
-  if (b > 0.05) {
-    const z = zonaFina(LIB_C);
+  // el detalle (por corte, al final del empuje): llega algo grande y se asienta
+  const v = eoc(prog(ts, T.empuje1, T.empuje1 + 0.6));
+  g.save();
+  g.translate(FOCO_C[0], FOCO_C[1]); g.scale(mix(1.1, 1, v), mix(1.1, 1, v)); g.translate(-FOCO_C[0], -FOCO_C[1]);
+  g.drawImage(FOTO.pagina, 0, 0, W, H);
+  // los trazos más finos que el pelo se emborronan en gris (la foto borrosa, hecha al cargar, entra encima); el pelo
+  // queda nítido y brilla un instante
+  const b = eio(prog(ts, T.borron0, T.borron1));
+  if (b > 0.004) {
     g.save();
-    g.beginPath(); z.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.clip();
-    g.filter = `blur(${(b * capa.width / W).toFixed(2)}px)`;
-    g.drawImage(FOTO.pagina, 0, 0, W, H);
-    g.filter = 'none';
+    g.beginPath(); ZONA_FINA.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.clip();
+    g.globalAlpha = b;
+    g.drawImage(FOTO.borrosa, 0, 0, W, H);
     g.restore();
   }
   const kb = Math.sin(Math.PI * prog(ts, T.brillo - 0.35, T.brillo + 0.7));
@@ -408,6 +421,7 @@ function lectura(ts) {
     }
     g.restore();
   }
+  g.restore();
 }
 
 // ---------------------------------------------------------------- el ojo en corte
@@ -421,6 +435,35 @@ function ojo(ts) {
   return { haces, brillo };
 }
 
+// la luz llega del libro (fuera del cuadro, a la derecha): los haces se funden con el plató antes de la regla (se tapan
+// con la foto del plató vacío, con una máscara blanda) y un resplandor cálido marca de dónde vienen
+const LUZ = { x0: 1250, x1: 1470, y0: 270, y1: 690 };
+function luzLibro(O) {
+  const z = LUZ;
+  const m = document.createElement('canvas'); m.width = capa.width; m.height = capa.height;
+  const gm = m.getContext('2d'), k = capa.width / W;
+  gm.setTransform(k, 0, 0, k, 0, 0);
+  gm.drawImage(FOTO.fondo, 0, 0, W, H);
+  gm.globalCompositeOperation = 'destination-in';
+  const gx = gm.createLinearGradient(z.x0, 0, z.x1, 0);
+  gx.addColorStop(0, 'rgba(0,0,0,0)'); gx.addColorStop(1, 'rgba(0,0,0,1)');
+  gm.fillStyle = gx; gm.fillRect(z.x0, z.y0, W - z.x0, z.y1 - z.y0);
+  const gy = gm.createLinearGradient(0, z.y0, 0, z.y1);
+  gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(0.15, 'rgba(0,0,0,1)'); gy.addColorStop(0.85, 'rgba(0,0,0,1)'); gy.addColorStop(1, 'rgba(0,0,0,0)');
+  gm.fillStyle = gy; gm.fillRect(0, 0, W, H);
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(m, 0, 0); g.restore();
+  // resplandor: la luz que entra por la derecha, hacia la córnea
+  const kl = O.haces;
+  if (kl < 0.01) return;
+  const c = pant(OJO.pos);
+  g.save(); g.globalCompositeOperation = 'lighter';
+  g.translate(1500, c[1]); g.scale(1, 0.45);
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, 520);
+  gr.addColorStop(0, `rgba(255,214,150,${0.3 * kl})`); gr.addColorStop(0.4, `rgba(255,190,120,${0.12 * kl})`); gr.addColorStop(1, 'rgba(255,180,110,0)');
+  g.fillStyle = gr; g.fillRect(-520, -520, 1040, 1040);
+  g.restore();
+}
+
 // ---------------------------------------------------------------- fotograma
 function dibujar(t) {
   ajustarCapa();
@@ -428,9 +471,13 @@ function dibujar(t) {
   const pl = plano(ts);
   if (pl === 'ojo') {
     P.limpiar();
-    ojo(ts); atomo(ts); regla(ts);
+    const O = ojo(ts);
     P.render(n);
     g.clearRect(0, 0, W, H); pegarGL();
+    luzLibro(O);
+    P.limpiar(); atomo(ts); regla(ts);
+    P.render(n, { fondo: false });
+    pegarGL();
     POST.aplicar(g, n);
     if (ts >= QUIETO - 1e-6) fin();
     return;
@@ -513,7 +560,8 @@ function fin() {
 }
 
 // ---------------------------------------------------------------- al cargar: las fotos de los decorados
-for (let k = 0; k < 5; k++) { cacheNivel(k); hito('nivel' + k); }
+const SOLO = new URLSearchParams(location.search).get('solo');
+if (!SOLO) for (let k = 0; k < 5; k++) { cacheNivel(k); hito('nivel' + k); }
 // focos: dónde está el nivel siguiente dentro de cada nivel (píxel); el primero, la mano que brilló en ep3-saltos
 const FOCO = [
   manoPx,
@@ -523,6 +571,9 @@ const FOCO = [
 ];
 FOTO.hombro = fotoHombro(); hito('hombro');
 FOTO.pagina = fotoPagina(); hito('pagina');
+FOTO.borrosa = fotoBorrosa(FOTO.pagina);
+const ZONA_FINA = zonaFina(LIB_C);
+FOTO.fondo = fotoFondo(); hito('fondo');
 window.__carga = Math.round(performance.now() - T0);
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>

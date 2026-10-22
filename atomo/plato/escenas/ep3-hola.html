@@ -23,21 +23,21 @@
 //  nolosabes  plano medio: la regla se estira como una goma (se pasa un poco y vuelve) y se dobla en sus manos con un
 //         rebote que se apaga antes del silencio; la persona baja la cabeza a mirarla; en los 2 s de silencio la regla
 //         doblada queda quieta y la persona levanta la vista a cámara.
-//  ojos   un solo zum continuo (sin cortes ni fundidos) del plano medio a su ojo izquierdo: la persona en vivo, cada vez
-//         más grande, sobre el fondo del plano medio ampliado; en su ojo, el ojo enorme del kit (kits/ep03-ojo.js) se abre
-//         con el iris en el sitio y del tamaño de la pupila de plastilina y crece, en una mirilla de borde muy suave, hasta
-//         llenar la pantalla; delante, la franja de luz. A mitad de frase el párpado de abajo sube y tapa una célula y un
-//         átomo, que se apagan, y el de arriba baja y tapa el otro lado de la galaxia; quedan casi cerrados sobre la
-//         franja (termina_con).
+//  ojos   un zum continuo del plano medio a su ojo izquierdo: la persona en vivo, cada vez más grande, sobre el fondo
+//         del plano medio ampliado; al llegar cierra los ojos y la cara, que sigue entrando (foto, cada vez más
+//         desenfocada), se funde con el ojo enorme del kit (kits/ep03-ojo.js), cerrado y centrado en el mismo sitio. El
+//         ojo enorme se abre de par en par: en él, la galaxia arriba y la célula y el átomo abajo; delante se enciende la
+//         franja de luz. A mitad de frase el párpado de abajo sube y tapa la célula y el átomo, que se apagan, y el de
+//         arriba baja y tapa el otro lado de la galaxia; quedan casi cerrados sobre la franja (termina_con).
 // FINAL = PRINCIPIO DE ep3-ojo: desde que los párpados se cierran (T.arriba1) el cuadro es pintarFinalHola(...) del kit
 // (globo, cosas apagadas, sombra de los párpados, párpados casi cerrados, viñeta, franja con su halo y la sombra bajo
 // Atom; las medidas, en HOLA y encuadreHola) más Atom en su sitio de presentador (HOLA.ATOM: centro (230, 780), órbitas
 // de 180 px, quieto) y el post. ep3-ojo pinta su primer fotograma con la misma función (y los mismos índices de pieza
 // si quiere el mismo hervor) y lo compara con la captura de t = 19,153 de esta escena. window.__fin lo resume.
 // Coste: la cámara del plató es fija; lo quieto son fotos hechas al cargar (el plató vacío, el fondo del plano medio sin
-// la persona, la cara al final del zum, el globo del ojo, las tres cosas encendidas y apagadas, los párpados abiertos,
-// el ojo entero y el final). En cada fotograma se dibujan solo Atom (en su pasada), la persona y la regla cuando se
-// mueven, el ojo enorme mientras crece y los párpados mientras se cierran (solo su zona).
+// la persona, la cara al final del zum, el globo del ojo, las tres cosas encendidas y apagadas, los párpados abiertos y
+// cerrados y el final). En cada fotograma se dibujan solo Atom (en su pasada), la persona y la regla cuando se mueven
+// y los párpados del ojo enorme mientras se abren o se cierran (solo su zona).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, azar, postura } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -67,10 +67,10 @@ const T = {
   // frase 4: el empuje hasta el ojo y los párpados
   empuje: m.ojos - 0.3,
 };
-T.mir0 = m.ojos + 0.4;           // el zum llega a su ojo izquierdo y ahí se abre el ojo enorme (iris sobre iris)…
-T.ojoZ = T.mir0 + 0.34;          // …que crece hasta su tamaño (zo = 1)…
-T.mir1 = T.ojoZ + 0.1;           // …y la mirilla ya cubre la pantalla
-T.ojo1 = T.mir1;
+T.fun0 = m.ojos + 0.36;          // el zum llega a su ojo izquierdo (ya cerrado) y se funde con el ojo enorme, cerrado…
+T.fun1 = T.fun0 + 0.32;          // …que ya llena la pantalla (el ojo enorme está quieto; la cara sigue entrando)
+T.abreOjo0 = T.fun1 - 0.06; T.abreOjo1 = T.abreOjo0 + 0.42;   // el ojo enorme se abre (se ven las cosas)
+T.ojo1 = T.abreOjo1 - 0.05;      // y delante se enciende la franja
 const mitad4 = mix(m.ojos, m.ojosFin, 0.5);
 T.abajo0 = mitad4 - 0.45; T.abajo1 = mitad4 + 0.45;   // el párpado de abajo sube (célula y átomo)
 T.arriba0 = mitad4 + 0.05; T.arriba1 = mitad4 + 1.15; // el de arriba baja (la galaxia)
@@ -392,22 +392,23 @@ function personaMedio(ts) {
   ponerRegla(h, MED.reg, 0.25);
   return h;
 }
-// ---- el empuje (frase 4): un solo zum continuo del plano medio a su ojo izquierdo, sin cortes ni fundidos. La persona se
-// pinta en vivo en cada fotograma (sin fondo), más grande y algo más cerca de la cámara: la cara nunca se amplía en 2D. El
-// fondo es la foto del plano medio sin la persona (con su sombra en el ciclorama), ampliada en 2D con el mismo zum (es un
-// fondo desenfocado y enseguida lo tapa la cabeza). El zum (en logaritmo) arranca suave y sigue a velocidad constante;
-// en T.mir0 su ojo izquierdo está en el centro y la cabeza mide unos 660 px (más cerca, la cabeza de plastilina deja de
-// aguantar: sombras y nariz borrosas), y ahí se abre el ojo enorme del kit (ver abajo) con el iris en el sitio y del
-// tamaño de la pupila de plastilina.
+// ---- el empuje (frase 4): un zum continuo del plano medio a su ojo izquierdo. La persona se pinta en vivo en cada
+// fotograma (sin fondo), más grande y algo más cerca de la cámara: hasta T.fun0 la cara nunca se amplía en 2D. El fondo
+// es la foto del plano medio sin la persona (con su sombra en el ciclorama), ampliada en 2D con el mismo zum (es un fondo
+// desenfocado y enseguida lo tapa la cabeza). El zum (en logaritmo) arranca suave y sigue a velocidad constante; en
+// T.fun0 su ojo izquierdo está en el centro y la cabeza mide unos 660 px (más cerca, la cabeza de plastilina deja de
+// aguantar: sombras y nariz borrosas). Ahí la persona ya ha cerrado los ojos y la foto de la cara sigue entrando al
+// mismo ritmo (en 2D, cada vez más desenfocada, como un empujón rápido) mientras se funde con el ojo enorme del kit,
+// cerrado y centrado en el mismo sitio; ya entero, el ojo enorme se abre. (Antes, una mirilla con el ojo enorme
+// creciendo desde la pupila de plastilina: los fotogramas de en medio mezclaban dos cejas y dos pieles a escalas
+// distintas y la cara, ampliada ×3, se veía a escalones.)
 const EMP = { Z: 2.2, DZ: 0.35, A: 0.45 };
 const empE = (u) => { const a = EMP.A; u = cl(u); return (u < a ? (u * u) / (2 * a) : u - a / 2) / (1 - a / 2); };
-// velocidad del zum al llegar a T.mir0 (logaritmo por segundo): la sigue la cara y con ella arranca el ojo enorme
-const EMP_V = Math.log(EMP.Z) / (1 - EMP.A / 2) / (T.mir0 - T.empuje);
-// (después de T.mir0, mientras la mirilla la tapa, la cara crece con el ojo enorme, hasta ×3: así la piel del ojo enorme
-// no se derrama sobre el fondo del plató; ver zumOjo)
+// velocidad del zum al llegar a T.fun0 (logaritmo por segundo): con ella sigue la foto de la cara en el fundido
+const EMP_V = Math.log(EMP.Z) / (1 - EMP.A / 2) / (T.fun0 - T.empuje);
 const zumCara = (ts) => {
-  if (ts <= T.mir0) return Math.log(EMP.Z) * empE(prog(ts, T.empuje, T.mir0));
-  return Math.log(EMP.Z) + Math.min(Math.log(3), Math.log(zumOjo(ts) / MIR.zo0));
+  if (ts <= T.fun0) return Math.log(EMP.Z) * empE(prog(ts, T.empuje, T.fun0));
+  return Math.log(EMP.Z) + EMP_V * (ts - T.fun0);
 };
 // ---------------------------------------------------------------- el ojo (kit ep03-ojo)
 // El encuadre del ojo enorme, la franja, las cosas y el final son los del kit (encuadreHola, HOLA y pintarFinalHola):
@@ -421,10 +422,18 @@ const FR_POS = EH.franja.pos, FR_ESC = EH.franja.escala, FR_ALTO = EH.franja.alt
 // los párpados: abiertos de par en par al llegar; al final, sus bordes justo por encima y por debajo de la franja
 const ABRE = HOLA.ABRE;
 const FIN = EH.fin;
+// cerrados (1) en el fundido, se abren de par en par (T.abreOjo0…1) y luego se cierran sobre la franja
 function estadoOjo(ts) {
+  const ko = eio(prog(ts, T.abreOjo0, T.abreOjo1));
   const kb = eio(prog(ts, T.abajo0, T.abajo1)), ka = eio(prog(ts, T.arriba0, T.arriba1));
-  return { arriba: mix(ABRE.arriba, FIN.arriba, ka), abajo: mix(ABRE.abajo, FIN.abajo, kb), mirada: [0, 0], pupila: HOLA.PUPILA, sombra: false };
+  return {
+    arriba: ka > 0 ? mix(ABRE.arriba, FIN.arriba, ka) : mix(1, ABRE.arriba, ko),
+    abajo: kb > 0 ? mix(ABRE.abajo, FIN.abajo, kb) : mix(1, ABRE.abajo, ko),
+    mirada: [0, 0], pupila: HOLA.PUPILA, sombra: false,
+  };
 }
+// los párpados quietos tienen foto (cerrados del todo o abiertos de par en par); null: se mueven y van en vivo
+const fotoParpados = (ts) => (ts < T.abreOjo0 ? FOTOS.cerrados() : ts >= T.abreOjo1 && ts < T.abajo0 ? FOTOS.parpados() : null);
 // las cosas que se apagan tras los párpados: abajo una célula y un átomo; arriba el otro lado de la galaxia
 const COSAS = EH.cosas.map((c) => ({ ...c }));
 
@@ -456,12 +465,12 @@ const OJOS_W = H_MEDIO.punto('ojos');
 const OJO_IZQ_W = (() => { const a = H_MEDIO.mundo([0, 0, 0]), b = H_MEDIO.mundo([0.044, 0, 0.003]); return OJOS_W.map((v, i) => v + b[i] - a[i]); })();
 const OJOS_MEDIO = pant(OJOS_W);
 const Y_FRANJA = pant(FR_POS)[1];
-// el empuje en el instante ts (hasta T.mir0): zum Z, el ancla (del centro de los ojos a su ojo izquierdo) en el plano
+// el empuje en el instante ts (hasta T.fun0): zum Z, el ancla (del centro de los ojos a su ojo izquierdo) en el plano
 // medio (a0, px) y dónde va (c, px), y la colocación de la persona: escalada s veces alrededor del ancla y llevada, algo
 // más cerca de la cámara, al punto del mundo que cae en c
 function estadoEmpuje(ts) {
-  const L = zumCara(Math.min(ts, T.mir0)), Z = Math.exp(L);
-  const k = eio(prog(ts, T.empuje + 0.04, T.mir0));
+  const L = zumCara(Math.min(ts, T.fun0)), Z = Math.exp(L);
+  const k = eio(prog(ts, T.empuje + 0.04, T.fun0));
   const A0 = OJOS_W.map((v, i) => mix(v, OJO_IZQ_W[i], k));
   const a0 = pant(A0);
   const c = [mix(a0[0], 960, k), mix(a0[1], 540, k)];
@@ -473,44 +482,16 @@ function personaEmpuje(ts) {
   const e = estadoEmpuje(ts);
   const tz = calma(ts);
   const resp = 0.006 * Math.sin(tz * 2.4);
-  // al llegar cierra los ojos (un parpadeo que no se abre): el ojo enorme sale cerrado de su ojo izquierdo y se abre ya
-  // grande, así nunca hay un ojo de verdad abierto junto a uno de plastilina
+  // al llegar cierra los ojos, despacio: la cara se funde con el ojo enorme cerrado, que se abre ya grande (así nunca hay
+  // un ojo de verdad abierto junto a uno de plastilina)
   const p = poseMedio(T.empuje);
-  p.ojos = 1 - ss(T.mir0 - 0.15, T.mir0 - 0.02, ts);
+  p.ojos = 1 - ss(T.fun0 - 0.34, T.fun0 - 0.1, ts);
   const h = P.pieza(I.PER, { pos: e.pos, escala: e.esc, sq: [1, 1 + resp, 1], rot: [0, 0.06, 0], postura: p, t: ts, huellaFija: [0.37, 0.21, 0.0] });
   uListon.value.x = 1; uListon.value.y = 1;
   ponerRegla(h, MED.reg * e.s, 0.25);
   return { e, h };
 }
-// el ojo enorme sale de la pupila de plastilina de su ojo izquierdo: en T.mir0 su iris (radio vertical 0,338 del globo)
-// mide lo que esa pupila (radio 0,0115 de la cabeza) y la mirilla, lo que el blanco (0,0165)
-const IRIS_PX = (() => { const p = OJO_POS.map((v, i) => v + dirCam[i] * 0.62 * OJO_ESC); return 0.338 * OJO_ESC * pxU(p); })();
-const MIR = (() => {
-  P.limpiar();
-  const { e } = personaEmpuje(T.mir0);
-  P.limpiar();
-  const pxCabeza = e.esc * pxU(e.Wp);
-  return { zo0: (0.0115 * pxCabeza) / IRIS_PX, r0: 0.0165 * pxCabeza, cabezaPx: 0.33 * pxCabeza };
-})();
-// tamaño del ojo enorme (zo) de T.mir0 a T.ojoZ: en logaritmo, una curva de Hermite que arranca a la velocidad del zum de
-// la cara (la pupila y el iris crecen juntos) y llega quieta a zo = 1
-function zumOjo(ts) {
-  if (ts >= T.ojoZ) return 1;
-  const d = T.ojoZ - T.mir0, u = prog(ts, T.mir0, T.ojoZ);
-  const L0 = Math.log(MIR.zo0), m0 = EMP_V * d;
-  const h00 = 2 * u ** 3 - 3 * u ** 2 + 1, h10 = u ** 3 - 2 * u ** 2 + u;
-  return Math.exp(h00 * L0 + h10 * m0);
-}
-// la mirilla: un círculo de borde muy suave (se funde con la cara, no es una lupa) que crece del blanco de plastilina a
-// toda la pantalla, sin salirse nunca de la losa de piel del ojo enorme (radio exterior, donde ya es transparente)
-const MIR_BORDE = 0.4;   // parte del radio que ocupa el fundido
 const FONDO_PAD = 160;   // margen del fondo del empuje (px de diseño)
-function radioMirilla(ts, zo) {
-  const w = prog(ts, T.mir0, T.mir1);
-  const r = mix(MIR.r0 * zo / MIR.zo0 / (1 - MIR_BORDE), 1900, eio(w));
-  return Math.min(r, 0.9 * 2.3 * pxLocalOjo * zo);
-}
-const MIRILLA = lienzo();
 
 // Las fotos se pintan al cargar (antes, la primera vez que hacían falta: un fotograma suelto a mitad de escena pagaba
 // todas de golpe). FOTOS[k]() la devuelve.
@@ -539,9 +520,8 @@ perezosa('fondoMedio', T.empuje, () => {
   gx.drawImage(x, pd, 0, 1, h + 2 * pd, 0, 0, pd, h + 2 * pd); gx.drawImage(x, w + pd - 1, 0, 1, h + 2 * pd, w + pd, 0, pd, h + 2 * pd);
   return x;
 });
-// la cara en T.mir0 (el final del empuje): durante la mirilla se sigue ampliando en 2D con el ojo enorme (hasta ×3, ya casi
-// tapada por la mirilla)
-perezosa('caraFin', T.empuje, () => { const c = lienzo(); pintarCara(T.mir0, c.getContext('2d'), 9003); return c; });
+// la cara en T.fun0 (el final del empuje, con los ojos cerrados): en el fundido se sigue ampliando en 2D
+perezosa('caraFin', T.empuje, () => { const c = lienzo(); pintarCara(T.fun0, c.getContext('2d'), 9003); return c; });
 // el ojo: el globo solo y los párpados abiertos (sin sombra en la cara; la de los párpados sobre el globo va en 2D)
 perezosa('globo', T.empuje, () => {
   ponerOjo(UO, { ...ABRE, pupila: HOLA.PUPILA, sombra: false });
@@ -550,6 +530,12 @@ perezosa('globo', T.empuje, () => {
 });
 perezosa('parpados', T.empuje, () => {
   ponerOjo(UO, { ...ABRE, pupila: 0.55, sombra: false });
+  P.limpiar(); P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS }); P.render(9005, { fondo: false });
+  return foto();
+});
+// los párpados cerrados del todo (el ojo enorme del fundido, antes de abrirse)
+perezosa('cerrados', T.empuje, () => {
+  ponerOjo(UO, { arriba: 1, abajo: 1, pupila: 0.55, sombra: false });
   P.limpiar(); P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS }); P.render(9005, { fondo: false });
   return foto();
 });
@@ -569,8 +555,6 @@ perezosa('franja', T.empuje, () => {
   P.limpiar(); P.pieza(I.FR, { pos: FR_POS, escala: FR_ESC, rot: EH.franja.rot, variante: FR_ALTO }); P.render(HOLA.NF.franja, { fondo: false });
   return foto();
 });
-// el ojo entero en vivo ya de su tamaño (el final de la mirilla, antes de fundirse con el compuesto)
-perezosa('ojoEntero', T.empuje, () => { const c = lienzo(); c.getContext('2d').drawImage(ojoVivo(1, 9009, false), 0, 0); return c; });
 // el final (los párpados ya casi cerrados sobre la franja, las cosas apagadas, la franja con su halo y la sombra bajo
 // Atom): la receta del kit, con las fotos de arriba (ep3-ojo la pinta igual: pintarFinalHola)
 perezosa('final', T.empuje, () => pintarFinalHola(P, UO, { ojo: I.OJO, franja: I.FR, cosa: I.COSA }, {
@@ -624,7 +608,8 @@ function componerOjo(ts, parpados, nf) {
   gc.fillStyle = '#0b0807'; gc.fillRect(0, 0, OJO_CAPA.width, OJO_CAPA.height);
   gc.drawImage(FOTOS.globo(), 0, 0);
   FOTOS.cosas();
-  const vis = eoc(prog(ts, T.ojoZ - 0.05, T.ojoZ + 0.5));
+  // (las cosas están ahí desde el principio: las descubren los párpados al abrirse)
+  const vis = 1;
   for (const c of COSAS) {
     const [a0, a1] = c.lado === 'abajo' ? [T.abajo0 - 0.05, T.abajo1 - 0.15] : [T.arriba0 - 0.05, T.arriba1 - 0.25];
     const ap = eio(prog(ts, a0, a1));
@@ -636,28 +621,6 @@ function componerOjo(ts, parpados, nf) {
   gc.drawImage(parpados, 0, 0);
   vinetaOjo(gc, 1);
   return OJO_CAPA;
-}
-// el ojo enorme en vivo (entero: globo, párpados y piel en una pasada), del tamaño zo, mientras crece en la mirilla
-const OJO_VIVO = lienzo();
-// sus párpados: cerrados al salir (como los de plastilina, que acaban de cerrarse) y abiertos ya grande, en T.ojoZ
-function parpadosMirilla(ts) {
-  const k = eio(prog(ts, T.mir0 + 0.06, T.ojoZ));
-  return { arriba: mix(1, ABRE.arriba, k), abajo: mix(1, ABRE.abajo, k) };
-}
-function ojoVivo(zo, nf, foto = true, parp = ABRE) {
-  // (ya de su tamaño y abierto no cambia: su foto)
-  if (foto && zo >= 0.9999 && parp.arriba === ABRE.arriba && parp.abajo === ABRE.abajo) return FOTOS.ojoEntero();
-  ponerOjo(UO, { ...parp, pupila: HOLA.PUPILA, sombra: false });
-  P.limpiar();
-  P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC * zo, rot: OJO_ROT, variante: CAPA.TODO });
-  P.render(nf, { fondo: false });
-  const gc = OJO_VIVO.getContext('2d');
-  gc.setTransform(1, 0, 0, 1, 0, 0); gc.globalAlpha = 1; gc.globalCompositeOperation = 'source-over';
-  gc.clearRect(0, 0, OJO_VIVO.width, OJO_VIVO.height);
-  gc.drawImage(lienzoGL, 0, 0);
-  // (la viñeta, solo cuando ya es grande: pequeño, oscurecería la piel alrededor del ojo dentro de la cara)
-  gc.globalAlpha = ss(0.45, 1, zo); vinetaOjo(gc, zo); gc.globalAlpha = 1;
-  return OJO_VIVO;
 }
 // la cara durante el empuje: el fondo del plano medio ampliado con el zum y la persona en vivo encima (gx en px de diseño)
 function pintarCara(ts, gx, nf) {
@@ -735,73 +698,62 @@ function dibujar(t) {
     POST.aplicar(g, nf);
     return;
   }
-  // ---- E y F: el empuje hasta su ojo izquierdo y el ojo enorme
-  // los párpados del ojo compuesto: en vivo solo mientras se mueven; antes, su foto
-  const conOjo = ts >= T.ojoZ;
-  let parpados = !conOjo ? null : ts < T.abajo0 ? FOTOS.parpados() : null;
-  if (conOjo && !parpados) {
-    ponerOjo(UO, estadoOjo(ts));
-    P.limpiar();
-    P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS });
-    // (coste) solo se pinta la zona que tocan los párpados y sus pestañas; el resto de la cara es la foto
-    const sz = P.renderer.getSize(new THREE.Vector2()), k = sz.x / W;
-    P.renderer.setScissor(ZONA[0] * k, (H - ZONA[3]) * k, (ZONA[2] - ZONA[0]) * k, (ZONA[3] - ZONA[1]) * k);
-    P.renderer.setScissorTest(true);
-    P.render(nf, { fondo: false });
-    P.renderer.setScissorTest(false);
-    marcaT('parpados');
-    parpados = remendar(FOTOS.parpados());
+  // ---- E y F: el empuje hasta su ojo izquierdo, el fundido con el ojo enorme cerrado, que se abre, y sus párpados
+  // los párpados del ojo compuesto: su foto mientras están quietos; en vivo solo mientras se mueven
+  const kOjo = eio(prog(ts, T.fun0, T.fun1));
+  let ojo = null;
+  if (kOjo > 0) {
+    let parpados = fotoParpados(ts);
+    if (!parpados) {
+      ponerOjo(UO, estadoOjo(ts));
+      P.limpiar();
+      P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS });
+      // (coste) solo se pinta la zona que tocan los párpados y sus pestañas; el resto de la cara es la foto
+      const sz = P.renderer.getSize(new THREE.Vector2()), k = sz.x / W;
+      P.renderer.setScissor(ZONA[0] * k, (H - ZONA[3]) * k, (ZONA[2] - ZONA[0]) * k, (ZONA[3] - ZONA[1]) * k);
+      P.renderer.setScissorTest(true);
+      P.render(nf, { fondo: false });
+      P.renderer.setScissorTest(false);
+      marcaT('parpados');
+      parpados = remendar(FOTOS.parpados());
+    }
+    ojo = componerOjo(ts, parpados, nf);
+    marcaT('componer');
   }
-  const ojo = conOjo ? componerOjo(ts, parpados, nf) : null;
-  marcaT('componer');
   g.fillStyle = '#0b0807'; g.fillRect(0, 0, W, H);
-  // 1 · la cara: en vivo hasta T.mir0; después, su foto en T.mir0, que se sigue ampliando al mismo ritmo (centrada en su
-  // ojo izquierdo) mientras la mirilla la tapa
-  if (ts < T.mir0) pintarCara(ts, g, nf);
-  else if (ts < T.mir1) {
-    const z = Math.exp(zumCara(ts) - zumCara(T.mir0));
-    g.save(); g.translate(960, 540); g.scale(z, z); g.translate(-960, -540);
-    g.drawImage(FOTOS.caraFin(), 0, 0, W, H); g.restore();
+  // 1 · la cara: en vivo hasta T.fun0; en el fundido, su foto en T.fun0, que sigue entrando al mismo ritmo (centrada en
+  // su ojo izquierdo) y se desenfoca como en un empujón rápido
+  if (kOjo < 1) {
+    if (ts < T.fun0) pintarCara(ts, g, nf);
+    else {
+      const z = Math.exp(zumCara(ts) - zumCara(T.fun0));
+      g.save();
+      g.filter = `blur(${(10 * (z - 1)).toFixed(1)}px)`;
+      g.translate(960, 540); g.scale(z, z); g.translate(-960, -540);
+      g.drawImage(FOTOS.caraFin(), 0, 0, W, H);
+      g.restore();
+    }
   }
   marcaT('cara');
-  // 2 · la mirilla: se abre en la pupila de plastilina y deja ver el ojo enorme, que crece desde su tamaño (iris sobre
-  // iris) hasta el suyo; mientras crece, en vivo y entero; ya llegado, se funde con el compuesto (globo, cosas, párpados)
-  if (ts >= T.mir0) {
-    const zo = zumOjo(ts);
-    const r = ts < T.mir1 ? radioMirilla(ts, zo) : 0;
-    const kComp = ojo ? eio(prog(ts, T.ojoZ, T.mir1 + 0.1)) : 0;
-    // el ojo (en vivo mientras crece; ya llegado, fundiéndose con el compuesto) en su lienzo, recortado por la mirilla
-    const gm = MIRILLA.getContext('2d');
-    gm.setTransform(1, 0, 0, 1, 0, 0); gm.globalAlpha = 1; gm.globalCompositeOperation = 'source-over';
-    gm.clearRect(0, 0, MIRILLA.width, MIRILLA.height);
-    if (kComp < 1) gm.drawImage(ojoVivo(zo, nf, true, ts >= T.ojoZ ? ABRE : parpadosMirilla(ts)), 0, 0);
-    if (kComp > 0) { gm.globalAlpha = kComp; gm.drawImage(ojo, 0, 0); gm.globalAlpha = 1; }
-    if (r > 0 && r < 1890) {
-      const kd = MIRILLA.width / W;
-      gm.globalCompositeOperation = 'destination-in';
-      const gr = gm.createRadialGradient(960 * kd, 540 * kd, r * (1 - MIR_BORDE) * kd, 960 * kd, 540 * kd, r * kd);
-      gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.5, 'rgba(0,0,0,0.6)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-      gm.fillStyle = gr; gm.fillRect(0, 0, MIRILLA.width, MIRILLA.height);
-      gm.globalCompositeOperation = 'source-over';
-    }
-    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(MIRILLA, 0, 0); g.restore();
+  // 2 · el ojo enorme (compuesto), fundiéndose sobre la cara; delante, la franja de luz
+  if (ojo) {
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = kOjo; g.drawImage(ojo, 0, 0); g.restore();
     marcaT('ojo');
-    // la franja de luz, delante de todo (su propia pasada: es pequeña)
+    // la franja de luz, delante de todo (su foto: al encenderse se estira desde el centro en 2D)
     const kf = eoc(prog(ts, T.ojo1 - 0.25, T.ojo1 + 0.35));
     if (kf > 0) {
       const sx = mix(0.2, 1, kf), sy = mix(0.55, 1, kf);
       g.save(); g.globalAlpha = Math.min(1, kf * 1.4);
-      g.translate(960, 540); g.scale(zo, zo); g.translate(-960, -540);
       g.translate(960, Y_FRANJA); g.scale(sx, sy); g.translate(-960, -Y_FRANJA);
       g.drawImage(FOTOS.franja(), 0, 0, W, H);
       g.restore();
       const xF = 560 * sx;
-      resplandorFranja(g, 960 - xF, 960 + xF, 540 + (Y_FRANJA - 540) * zo, 30, 1.3 * kf);
+      resplandorFranja(g, 960 - xF, 960 + xF, Y_FRANJA, 30, 1.3 * kf);
     }
   }
   {
     // sobre la piel clara, una sombra blanda detrás de Atom (que se lea en el móvil)
-    const k = ss(T.mir0 - 0.35, T.mir1, ts) * 0.55;
+    const k = Math.max(ss(T.fun0 - 0.5, T.fun0, ts) * 0.3, kOjo * 0.55);
     const gr = g.createRadialGradient(ATOMO_PRES[0], ATOMO_PRES[1], 40, ATOMO_PRES[0], ATOMO_PRES[1], 190);
     gr.addColorStop(0, `rgba(14,8,5,${k})`); gr.addColorStop(1, 'rgba(14,8,5,0)');
     g.fillStyle = gr; g.fillRect(ATOMO_PRES[0] - 200, ATOMO_PRES[1] - 200, 400, 400);
@@ -815,7 +767,7 @@ function dibujar(t) {
 // las fotos, al cargar
 cargaT('previo');
 for (const [k, f] of Object.entries(FOTOS)) { f(); cargaT(k); }
-window.__info = { RUTA, AMP, PIE_INI, T, m, MED, EMP, EMP_V, MIR, IRIS_PX, OJO_ESC, FR_ESC, FR_ALTO, FIN, OJOS_MEDIO, pxLocalOjo };
+window.__info = { RUTA, AMP, PIE_INI, T, m, MED, EMP, EMP_V, OJO_ESC, FR_ESC, FR_ALTO, FIN, OJOS_MEDIO, pxLocalOjo };
 // el último fotograma, para ep3-ojo (ver la cabecera): la receta del kit y Atom quieto en su sitio
 window.__fin = (() => {
   const tz = calma(QUIETO), w = en(ATOMO_PRES[0], ATOMO_PRES[1], A_Z);

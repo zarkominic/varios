@@ -98,6 +98,7 @@
 // (window.__tiempos). La pared con la ventana llenando la pantalla, ~1–2 s (una foto al cargar: no va en vivo); el sofá
 // de ~900 px, ~1 s; el bol de ~300 px, ~0,6 s; el cielo y el vidrio, unos milisegundos.
 import * as THREE from 'three';
+import { esqueletoHumano, postura } from '/atomo/plato/kits/plastilina-adulta.js';
 import { reloj as relojTiempo } from '/atomo/plato/kits/ep03-tiempo.js';
 
 const W = 1920, H = 1080;
@@ -144,8 +145,8 @@ vec3 sfTela(float v) {
 // un cojín de asiento (abombado arriba, con el canto redondo); x local del cojín
 float sfCojin(vec3 p, float hund) {
   float d = sdRoundBox(p - vec3(0.0, -0.068, 0.0), vec3(0.318, 0.062, 0.262), 0.055);
-  float b = (1.0 - p.x * p.x / 0.1) * (1.0 - p.z * p.z / 0.069);
-  d -= 0.016 * max(b, 0.0);
+  float b = max(1.0 - p.x * p.x / 0.1, 0.0) * max(1.0 - p.z * p.z / 0.069, 0.0);
+  d -= 0.016 * b;
   // hundido donde se sienta alguien
   d += hund * 0.03 * exp(-dot(p.xz, p.xz) / 0.03) * smoothstep(-0.07, 0.0, p.y);
   return d;
@@ -154,7 +155,7 @@ float sfRespaldo(vec3 p) {
   // cojín del respaldo, algo echado hacia atrás
   p.z += 0.09 * (p.y - 0.19);
   float d = sdRoundBox(p - vec3(0.0, 0.19, -0.205), vec3(0.315, 0.185, 0.07), 0.068);
-  d -= 0.012 * max((1.0 - p.x * p.x / 0.1) * (1.0 - (p.y - 0.19) * (p.y - 0.19) / 0.034), 0.0);
+  d -= 0.012 * max(1.0 - p.x * p.x / 0.1, 0.0) * max(1.0 - (p.y - 0.19) * (p.y - 0.19) / 0.034, 0.0);
   return d;
 }
 float pz_sofa(vec3 q, vec4 T, out float m) {
@@ -197,7 +198,7 @@ float pz_sofa(vec3 q, vec4 T, out float m) {
     float ca = 0.55, cb = 0.3;
     c.xy = mat2(cos(ca), sin(ca), -sin(ca), cos(ca)) * c.xy;
     c.yz = mat2(cos(cb), sin(cb), -sin(cb), cos(cb)) * c.yz;
-    float cj = sdRoundBox(c, vec3(0.15, 0.15, 0.035), 0.04) - 0.02 * max((1.0 - c.x * c.x / 0.03) * (1.0 - c.y * c.y / 0.03), 0.0);
+    float cj = sdRoundBox(c, vec3(0.15, 0.15, 0.035), 0.04) - 0.02 * max(1.0 - c.x * c.x / 0.03, 0.0) * max(1.0 - c.y * c.y / 0.03, 0.0);
     if (cj < d) m = 4.0;
     d = min(d, cj);
   }
@@ -235,13 +236,16 @@ vec3 pzcol_sofa(vec3 q, vec4 T, float m) {
 // ---------------------------------------------------------------- BOL DE PALOMITAS
 // T: x palomitas (0…1) · y color del bol
 const GLSL_BOL = /* glsl */`
-const float BOL_R = 0.527;                // radio de la esfera del cuenco (borde de radio 0,5 en y = 0,36)
+const float BOL_R = 0.567;                // radio de la esfera del cuenco (borde de radio 0,5 en y = 0,36)
+const float BOL_Y = 0.06;                 // el cuenco empieza encima del pie
 float bolCuenco(vec3 q) {
-  vec3 c = q - vec3(0.0, BOL_R, 0.0);
+  vec3 c = q - vec3(0.0, BOL_R + BOL_Y, 0.0);
   float sh = abs(length(c) - BOL_R + 0.02) - 0.02;
   sh = smax(sh, q.y - 0.36, 0.012);
-  sh = smax(sh, -q.y + 0.004, 0.01);     // la base, plana
-  return sh;
+  // el pie: un aro bajo
+  vec2 pf = vec2(length(q.xz) - 0.19, q.y - 0.035);
+  float pie = sdRoundRect(pf, vec2(0.03, 0.035), 0.012);
+  return smin(sh, pie, 0.03);
 }
 // altura del montón de palomitas a la distancia r del eje
 float bolMonton(float r, float k) { return 0.33 + k * 0.2 * (1.0 - r * r / 0.23); }
@@ -271,8 +275,7 @@ float bolPalomitas(vec3 q, float k, out float cel) {
   }
   // el relleno de debajo (que no se vea el fondo del bol entre palomitas)
   float rq = length(q.xz);
-  float relleno = max(q.y - (bolMonton(rq, k) - 0.035), rq - 0.47);
-  relleno = max(relleno, -(q.y - 0.05));
+  float relleno = max(q.y - (bolMonton(rq, k) - 0.035), length(q - vec3(0.0, BOL_R + BOL_Y, 0.0)) - BOL_R + 0.045);
   d = smin(d, relleno, 0.03);
   return d;
 }
@@ -286,7 +289,8 @@ float pz_bol(vec3 q, vec4 T, out float m) {
 }
 float pzc_bol(vec3 q, vec4 T) {
   float rq = length(q.xz);
-  return max(max(rq - 0.48, -q.y), q.y - bolMonton(rq, T.x) + 0.02);
+  float e = length(q - vec3(0.0, BOL_R + BOL_Y, 0.0)) - BOL_R + 0.012;
+  return max(max(e, q.y - max(bolMonton(rq, T.x) - 0.03, 0.34)), 0.06 - q.y);
 }
 vec3 pzcol_bol(vec3 q, vec4 T, float m) {
   if (m > 0.5) {
@@ -304,10 +308,10 @@ vec3 pzcol_bol(vec3 q, vec4 T, float m) {
   float r = length(q.xz);
   vec3 c = SF_CREMA * 1.04;
   float v = T.y;
-  if (length(q - vec3(0.0, BOL_R, 0.0)) > BOL_R - 0.02 && q.y < 0.35) {
+  if (length(q - vec3(0.0, BOL_R + BOL_Y, 0.0)) > BOL_R - 0.02 && q.y < 0.35) {
     if (v < 0.5) {
       c = SF_CREMA * 1.05;
-      float raya = smoothstep(0.006, 0.0, abs(q.y - 0.27) - 0.028) + smoothstep(0.004, 0.0, abs(q.y - 0.205) - 0.008);
+      float raya = smoothstep(0.006, 0.0, abs(q.y - 0.29) - 0.026) + smoothstep(0.004, 0.0, abs(q.y - 0.225) - 0.008);
       c = mix(c, vec3(0.42, 0.12, 0.05), raya);
     } else if (v < 1.5) c = vec3(0.40, 0.125, 0.055);
     else c = vec3(0.075, 0.09, 0.115);
@@ -363,10 +367,7 @@ float vnCortinas(vec3 q, out float m) {
   m = 0.0;
   if (uVentana.w < 0.5) return 1e5;
   float a = uVentana.x * 0.5;
-  float yb = a + 0.2;                                        // la barra
-  float barra = sdCapsule(q, vec3(-0.92, yb, 0.16), vec3(0.92, yb, 0.16), 0.018);
-  barra = min(barra, length(q - vec3(-0.95, yb, 0.16)) - 0.034);
-  barra = min(barra, length(q - vec3(0.95, yb, 0.16)) - 0.034);
+  float yb = a + 0.2;                                        // la barra (va aparte: vnBarra)
   // cada paño: de x = ±0,58 a ±0,9, del suelo del hueco − 0,4 a la barra; recogido a media altura (más estrecho)
   vec3 c = vec3(abs(q.x), q.y, q.z);
   float yl = -a - 0.42;
@@ -376,10 +377,13 @@ float vnCortinas(vec3 q, out float m) {
   float hw = 0.16 * rec;
   float pli = 0.022 * sin((c.x - xc) / max(hw, 0.05) * 9.4 + 0.6) * (0.6 + 0.4 * rec);
   float pano = sdRoundBox(vec3(c.x - xc, c.y - (yl + yb) * 0.5, c.z - 0.12 - pli), vec3(hw, (yb - yl) * 0.5, 0.012), 0.01);
-  float d = pano * 0.8;
   m = 3.0;
-  if (barra < d) m = 4.0;
-  return min(d, barra);
+  return pano * 0.8;
+}
+float vnBarra(vec3 q) {
+  float yb = uVentana.x * 0.5 + 0.2;
+  vec3 c = vec3(abs(q.x), q.y, q.z);
+  return min(sdCapsule(q, vec3(-0.92, yb, 0.16), vec3(0.92, yb, 0.16), 0.018), length(c - vec3(0.95, yb, 0.16)) - 0.034);
 }
 float pz_ventana(vec3 q, vec4 T, out float m) {
   float a = uVentana.x * 0.5;
@@ -387,8 +391,6 @@ float pz_ventana(vec3 q, vec4 T, out float m) {
   float L = uVentana2.x, y0 = -uVentana2.y, y1 = uVentana2.z;
   float pared = sdRoundBox(q - vec3(0.0, (y0 + y1) * 0.5, -0.07), vec3(L, (y1 - y0) * 0.5, 0.07), 0.02);
   pared = max(pared, -sdRoundRect(q.xy, vec2(0.5, a) + 0.01, 0.004));
-  // textura de llana (relieve muy suave en la forma: se nota en el borde de la sombra)
-  pared -= 0.002 * vnoise(q * vec3(5.0, 5.0, 1.0));
   // el rodapié
   float rod = sdRoundBox(q - vec3(0.0, y0 + 0.07, 0.012), vec3(L, 0.07, 0.012), 0.006);
   m = 0.0;
@@ -403,10 +405,22 @@ float pz_ventana(vec3 q, vec4 T, out float m) {
     d = min(d, su);
   }
   float mm;
-  float ma = vnMadera(q, mm);
-  if (ma < d) { d = ma; m = mm; }
-  float cu = vnCortinas(q, mm);
-  if (cu < d) { d = cu; m = mm; }
+  // (coste) el marco y el alféizar, solo cerca del hueco; las cortinas, solo a los lados: lejos, su caja
+  float cajaM = sdRoundBox(q - vec3(0.0, -0.05, 0.04), vec3(0.66, a + 0.2, 0.2), 0.0);
+  if (cajaM < d) {
+    float ma = cajaM > 0.05 ? cajaM : vnMadera(q, mm);
+    if (ma < d) { d = ma; m = cajaM > 0.05 ? 1.0 : mm; }
+  }
+  if (uVentana.w > 0.5) {
+    float ba = vnBarra(q);
+    if (ba < d) { d = ba; m = 4.0; }
+    float yb = a + 0.2, yl = -a - 0.42;
+    float cajaC = sdRoundBox(vec3(abs(q.x) - 0.75, q.y - (yb + yl) * 0.5, q.z - 0.13), vec3(0.24, (yb - yl) * 0.5 + 0.06, 0.08), 0.0);
+    if (cajaC < d) {
+      float cu = cajaC > 0.05 ? cajaC : vnCortinas(q, mm);
+      if (cu < d) { d = cu; m = cajaC > 0.05 ? 3.0 : mm; }
+    }
+  }
   return d;
 }
 float pzc_ventana(vec3 q, vec4 T) {
@@ -447,7 +461,40 @@ vec3 pzcol_ventana(vec3 q, vec4 T, float m) {
   vec3 c = vnPared(uVentana.z);
   float ll = vnoise(q * vec3(3.0, 3.0, 1.0)) * 0.6 + vnoise(q * vec3(11.0, 9.0, 1.0)) * 0.4;
   c *= 0.9 + 0.16 * (ll - 0.5);
+  // marcas de llana (relieve fino en la normal)
+  gG = vec3(0.004 * (vnoise(q * vec3(6.0, 5.0, 1.0)) - 0.5), 0.004 * (vnoise(q * vec3(5.0, 6.0, 1.0) + 3.1) - 0.5), 0.0);
   gBri = 0.6;
+  return c;
+}
+`;
+
+
+// ---------------------------------------------------------------- MESITA (auxiliar, junto al sofá)
+// T: y madera (0 nogal, 1 haya)
+const GLSL_MESITA = /* glsl */`
+float pz_mesita(vec3 q, vec4 T, out float m) {
+  // tablero redondo (radio 0,22, canto redondeado) y tres patas abiertas que se afinan; el suelo en y = −0,55
+  vec2 w = vec2(length(q.xz) - 0.2, q.y + 0.018);
+  float tab = sdRoundRect(w, vec2(0.02, 0.016), 0.014) - 0.002;
+  tab = min(tab, max(length(q.xz) - 0.21, abs(q.y + 0.018) - 0.016));
+  float pa = 1e5;
+  for (int k = 0; k < 3; k++) {
+    float a = 6.2832 * float(k) / 3.0 + 0.6;
+    vec2 c = vec2(cos(a), sin(a));
+    pa = min(pa, capsulaC(q, vec3(c.x * 0.1, -0.03, c.y * 0.1), vec3(c.x * 0.17, -0.548, c.y * 0.17), 0.022, 0.012));
+  }
+  // un aro que une las patas a media altura
+  float aro = length(vec2(length(q.xz) - 0.135, q.y + 0.32)) - 0.008;
+  m = 0.0;
+  return min(tab, min(pa, aro));
+}
+float pzc_mesita(vec3 q, vec4 T) { return max(length(q.xz) - 0.19, abs(q.y + 0.018) - 0.014); }
+vec3 pzcol_mesita(vec3 q, vec4 T, float m) {
+  vec3 c = T.y < 0.5 ? SF_NOGAL * 1.15 : vec3(0.20, 0.105, 0.048);
+  float v = q.y > -0.04 ? sfVeta(q.x, q.zy, 140.0) : sfVeta(q.y, q.xz, 160.0);
+  c *= 0.88 + 0.08 * v + 0.12 * (vnoise(q * vec3(3.0, 30.0, 3.0)) - 0.5);
+  if (q.y > -0.003 && length(q.xz) < 0.19) c *= 1.1;
+  gBri = 1.6;
   return c;
 }
 `;
@@ -456,6 +503,7 @@ const TIPOS = {
   sofa: { radio: 1.32, glifos: [], glsl: GLSL_COMUN + GLSL_SOFA },
   bol: { radio: 0.72, glifos: [], glsl: GLSL_COMUN + GLSL_BOL },
   ventana: { radio: 7.5, glifos: [], glsl: GLSL_COMUN + GLSL_VENTANA },
+  mesita: { radio: 0.64, glifos: [], glsl: GLSL_COMUN + GLSL_MESITA },
 };
 export const TIPOS_SOFA = TIPOS;
 export function tiposSofa(nombres = null) {
@@ -508,6 +556,11 @@ export function bol(P, i, o = {}) {
     base: mundoPieza(b, [0, 0, 0]), boca: mundoPieza(b, [0, k > 0 ? 0.33 + 0.2 * k + 0.06 : 0.1, 0]),
     borde: (ang) => mundoPieza(b, [0.5 * Math.cos(ang), 0.36, 0.5 * Math.sin(ang)]),
   };
+}
+export function mesita(P, i, o = {}) {
+  const b = base(o);
+  P.pieza(i, { ...b, variante: o.madera === 'haya' ? 1 : 0 });
+  return { tablero: mundoPieza(b, [0, 0, 0]), suelo: mundoPieza(b, [0, -0.55, 0]) };
 }
 export function ventana(P, i, o = {}) {
   exigir(P, 'uVentana');
@@ -670,12 +723,19 @@ export function vidrioVentana(g, hueco, { fuerza = 1 } = {}) {
 // ---------------------------------------------------------------- EL SALÓN (el final de ep3-mapa)
 // Medidas en el mundo del plató, con la cámara de las pruebas, en el encuadre general. El encuadre «cerca» es el mismo
 // salón escalado s veces alrededor de `pivote` (como acercar la cámara a ese punto: la perspectiva es la de verdad).
+// La persona se sienta en la plaza de la derecha (la 0 del sofá, que mira hacia atrás) y mete la mano derecha en el bol,
+// que está en una mesita junto al brazo del sofá.
 export const SALON = {
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28 },
   ventana: { pos: [1.3, 3.75, -3.0], escala: 3.1, aspecto: 1.12, parteluz: 'cruz', pared: 'salvia', cortinas: true, muro: [3.3, 3.75 / 3.1, 1.25], suelo: 2.8 },
-  persona: { pos: [-2.75, 2.4, 1.0], escala: 2.4, rot: [0, Math.PI - 0.55, 0], postura: 'sentada', aspecto: 'adulto' },
-  sofa: { tela: 'oliva', plazas: 2, plaza: 1, cojin: true },
-  bol: { color: 'crema', escala: 0.24, brazo: 'der', palomitas: 1, rot: [0.0, 0.4, 0] },
+  persona: { pos: [-2.2, 2.4, 1.0], escala: 2.4, rot: [0, Math.PI - 0.35, 0], aspecto: 'adulto',
+    cabeza: [-0.32, -0.12, 0.04], mirada: [-0.3, 0.35] },
+  sofa: { tela: 'oliva', plazas: 2, plaza: 0, cojin: true },
+  // la mesita, en unidades del sofá (de la persona): junto a su brazo −x (a la derecha de la persona)
+  mesita: { en: [-(0.66 + 0.17 + 0.25), 0.123, 0.02] },
+  bol: { color: 'crema', escala: 0.24, palomitas: 1, giro: 0.4 },
+  // la mano derecha, dentro del bol: el punto (unidades del bol) que busca la palma
+  mano: { en: [0.06, 0.5, 0.12] },
   reloj: { en: [-1.42, 0.36], escala: 0.62 },
   encuadres: { general: { s: 1, pivote: [0, 0, 0] }, cerca: { s: 1.55, pivote: [-0.2, 3.4, -1.2] } },
 };
@@ -684,45 +744,88 @@ export function transformarSalon(encuadre = 'general') {
   const { s, pivote: c } = E;
   return { s, p: (w) => [c[0] + (w[0] - c[0]) * s, c[1] + (w[1] - c[1]) * s, c[2] + (w[2] - c[2]) * s] };
 }
-export function salon(P, I, { encuadre = 'general', reloj = null, persona = {}, sofa: oSofa = {}, bol: oBol = {}, ventana: oVen = {} } = {}) {
+// la postura de la persona del salón: sentada, la cabeza hacia la ventana y la mano derecha en el bol. El brazo se
+// busca (flex, abd y codo) para que la palma caiga en `objetivo` (punto local de la persona); se guarda por objetivo
+const cacheBrazo = new Map();
+function brazoHacia(base, objetivo, asp) {
+  const clave = objetivo.map((v) => v.toFixed(3)).join(',');
+  if (cacheBrazo.has(clave)) return cacheBrazo.get(clave);
+  const prueba = (f, a, c) => {
+    const pz = { ...base, brazoDer: [f, a, 0.15, c, 1.25, 0.35], manoDer: 1.3 };
+    const m = esqueletoHumano(pz, asp).puntos.manoDer;
+    return Math.hypot(m[0] - objetivo[0], m[1] - objetivo[1], m[2] - objetivo[2]);
+  };
+  let mejor = [0.2, 0.5, 0.6], dm = 1e9;
+  for (let f = -0.4; f <= 1.21; f += 0.16) for (let a = 0.0; a <= 1.41; a += 0.14) for (let c = 0.15; c <= 1.5; c += 0.15) {
+    const d = prueba(f, a, c); if (d < dm) { dm = d; mejor = [f, a, c]; }
+  }
+  // afinar
+  let paso = 0.08;
+  for (let it = 0; it < 24; it++) {
+    let mejoro = false;
+    for (const k of [0, 1, 2]) for (const sg of [-1, 1]) {
+      const v = [...mejor]; v[k] += sg * paso;
+      if (v[2] < 0.1) continue;           // el codo, siempre algo doblado
+      const d = prueba(...v); if (d < dm) { dm = d; mejor = v; mejoro = true; }
+    }
+    if (!mejoro) paso *= 0.5;
+  }
+  const r = { brazoDer: [mejor[0], mejor[1], 0.15, mejor[2], 1.25, 0.35], error: dm };
+  cacheBrazo.set(clave, r);
+  return r;
+}
+export function posturaSalon(objetivoLocal = null, extra = {}) {
+  const Pe = SALON.persona;
+  const base = { ...postura('sentada'), cabeza: Pe.cabeza, mirada: Pe.mirada, ...extra };
+  if (!objetivoLocal) return base;
+  const b = brazoHacia(base, objetivoLocal, Pe.aspecto);
+  return { ...base, brazoDer: b.brazoDer, manoDer: 1.3 };
+}
+// del mundo a lo local de una pieza de persona (pos, escala, rot)
+function localPersona(pos, e, rot, w) {
+  const v = new THREE.Vector3(w[0] - pos[0], w[1] - pos[1], w[2] - pos[2]).applyEuler(new THREE.Euler(rot[0], rot[1], rot[2], 'YXZ').clone()).multiplyScalar(1);
+  // inversa del giro: aplicar el giro transpuesto
+  const R = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(rot[0], rot[1], rot[2], 'YXZ')).transpose();
+  const u = new THREE.Vector3(w[0] - pos[0], w[1] - pos[1], w[2] - pos[2]).applyMatrix4(R);
+  return [u.x / e, u.y / e, u.z / e];
+}
+export function salon(P, I, { encuadre = 'general', reloj = null, persona = {}, sofa: oSofa = {}, bol: oBol = {}, ventana: oVen = {}, mano = true } = {}) {
   const X = transformarSalon(encuadre);
   const out = { encuadre };
   if (I.ventana != null) {
     const V = { ...SALON.ventana, ...oVen };
     out.ventana = ventana(P, I.ventana, { ...V, pos: X.p(V.pos), escala: V.escala * X.s });
   }
-  // la persona (sentada) y, debajo, el sofá con su plaza en el asiento de ella
+  // dónde queda el asiento de la persona sentada (sin plató: el esqueleto), y el sofá con su plaza ahí
   const Pe = { ...SALON.persona, ...persona };
-  const e = Pe.escala * X.s;
-  let asiento = null;
-  if (I.persona != null) {
-    out.persona = P.pieza(I.persona, { pos: X.p(Pe.pos), escala: e, rot: Pe.rot, postura: Pe.postura, aspecto: Pe.aspecto, t: Pe.t ?? 0, partes: Pe.partes ?? null, huellaFija: [0.37, 0.21, 0] });
-    asiento = out.persona.punto('asiento');
-  } else {
-    const h = esqueletoSentada(P, Pe, X);
-    asiento = h;
-  }
+  const e = Pe.escala * X.s, pos = X.p(Pe.pos);
+  const sk0 = esqueletoHumano(posturaSalon(null), Pe.aspecto);
+  const aMundo = (l) => mundoPieza({ pos, escala: e, rot: Pe.rot }, l);
+  const asiento = aMundo(sk0.puntos.asiento);
   const S = { ...SALON.sofa, ...oSofa };
   const colS = sofaPara(asiento, e, Pe.rot[1], S.plaza, S.plazas);
-  if (I.sofa != null) out.sofa = sofa(P, I.sofa, { ...colS, tela: S.tela, plazas: S.plazas, cojin: S.cojin, hundido: S.plaza });
-  else out.sofa = sofaInfo(colS, S.plazas);
-  // el bol, en lo alto de un brazo del sofá
+  out.sofa = I.sofa != null ? sofa(P, I.sofa, { ...colS, tela: S.tela, plazas: S.plazas, cojin: S.cojin, hundido: S.plaza }) : sofaInfo(colS, S.plazas);
+  // la mesita, junto al brazo del sofá, y el bol encima
+  const colM = { pos: mundoPieza(colS, SALON.mesita.en), escala: e, rot: [0, Pe.rot[1] + 0.3, 0] };
+  out.mesita = I.mesita != null ? mesita(P, I.mesita, colM) : { tablero: mundoPieza(colM, [0, 0, 0]) };
   const B = { ...SALON.bol, ...oBol };
-  if (I.bol != null) {
-    const brazo = B.brazo === 'izq' ? out.sofa.brazoIzq : out.sofa.brazoDer;
-    out.bol = bol(P, I.bol, { pos: brazo, escala: B.escala * e, rot: [B.rot[0], Pe.rot[1] + B.rot[1], B.rot[2]], color: B.color, palomitas: B.palomitas });
+  const colB = { pos: out.mesita.tablero, escala: B.escala * e, rot: [0, Pe.rot[1] + B.giro, 0] };
+  out.bol = I.bol != null ? bol(P, I.bol, { ...colB, color: B.color, palomitas: B.palomitas }) : null;
+  // la persona, con la mano derecha en el bol
+  if (I.persona != null) {
+    const obj = mano ? localPersona(pos, e, Pe.rot, mundoPieza(colB, SALON.mano.en)) : null;
+    const pz = Pe.postura ?? posturaSalon(obj);
+    out.persona = P.pieza(I.persona, { pos, escala: e, rot: Pe.rot, postura: pz, aspecto: Pe.aspecto, t: Pe.t ?? 0, partes: Pe.partes ?? null, huellaFija: [0.37, 0.21, 0] });
   }
   // el reloj de pared (de ep03-tiempo.js), colgado en la pared junto a la ventana
   if (I.reloj != null && reloj && out.ventana) {
     const R = SALON.reloj;
     const w = out.ventana.pared(R.en[0], R.en[1]);
-    const pos = [w[0], w[1], w[2] + 0.1 * X.s];
-    out.reloj = relojTiempo(P, I.reloj, { pos, escala: R.escala * X.s, rot: [0, 0, 0], ...reloj });
+    const posR = [w[0], w[1], w[2] + 0.1 * X.s];
+    out.reloj = relojTiempo(P, I.reloj, { pos: posR, escala: R.escala * X.s, rot: [0, 0, 0], ...reloj });
   }
   return out;
 }
-// (sin la pieza de la persona) dónde quedaría su asiento: lo calcula el kit de plastilina con su esqueleto
-let esqueletoSentada = () => { throw new Error('ep03-sofa: salon() sin persona necesita I.persona'); };
 function sofaInfo(b, plazas) {
   const hw = plazas * 0.33;
   return {

@@ -16,15 +16,15 @@
 import * as THREE from 'three';
 import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
 import { tiposTiempo, uniformesTiempo } from '/atomo/plato/kits/ep03-tiempo.js';
-import { tiposSofa, uniformesSofa, sofa, sofaPara, bol, ventana, hornearRayas, cieloVentana, vidrioVentana, salon, SALON } from '/atomo/plato/kits/ep03-sofa.js';
+import { tiposSofa, uniformesSofa, sofa, sofaPara, bol, mesita, ventana, hornearRayas, cieloVentana, vidrioVentana, salon, SALON } from '/atomo/plato/kits/ep03-sofa.js';
 
 const W = 1920, H = 1080;
-const T = ['ventana', 'sofa', 'bol', 'humano', 'reloj'];
-const I = { ventana: 0, sofa: 1, bol: 2, persona: 3, reloj: 4 };
+const T = ['ventana', 'sofa', 'bol', 'humano', 'reloj', 'mesita'];
+const I = { ventana: 0, sofa: 1, bol: 2, persona: 3, reloj: 4, mesita: 5 };
 const P = await crearPlato({
   piezas: T, tiposExtra: { ...tiposSofa(), ...tiposTiempo(['reloj']) }, uniformes: { ...uniformesSofa(), ...uniformesTiempo() },
   atomo: false, alfa: true, post: false,
-  sombraFondo: ['p1', 'p2', 'p3'], sombras: { p0: ['p1', 'p2', 'p3', 'p4'], p1: ['p2', 'p3'] },
+  sombraFondo: ['p1', 'p2', 'p3', 'p5'], sombras: { p0: ['p1', 'p2', 'p3', 'p4', 'p5'], p1: ['p3'], p5: ['p2', 'p3'], p2: ['p3'] },
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
 });
 const POST = crearPost();
@@ -51,6 +51,8 @@ const BOL = { pos: en(960, 700, 2), escala: 3.4, rot: [0.35, 0.3, 0] };
 for (const color of ['crema', 'terracota', 'pizarra']) cel(`bol ${color}, palomitas 1`, () => bol(P, I.bol, { ...BOL, color }));
 cel('bol crema, palomitas 0,5', () => bol(P, I.bol, { ...BOL, palomitas: 0.5 }));
 cel('bol crema, vacío (palomitas 0)', () => bol(P, I.bol, { ...BOL, palomitas: 0 }));
+cel('mesita de nogal con el bol', () => { const m = mesita(P, I.mesita, { pos: [en(960, 600, 1)[0], 0.55 * 5, 1], escala: 5, rot: [0, 0.3, 0] }); bol(P, I.bol, { pos: m.tablero, escala: 0.24 * 5 }); });
+cel('mesita de haya', () => mesita(P, I.mesita, { pos: [en(960, 600, 1)[0], 0.55 * 5, 1], escala: 5, rot: [0, 0.3, 0], madera: 'haya' }));
 // la ventana en su trozo de pared, con el cielo debajo y el vidrio encima
 const VEN = { pos: [0.4, 3.0, -1.5], escala: 3.0 };
 const conCielo = (vel = 1, t = 0.6) => ({ fondo: (g, v) => cieloVentana(g, v.hueco, { t, rayas: RAYAS, velocidad: vel }), d2: (g, v) => vidrioVentana(g, v.hueco) });

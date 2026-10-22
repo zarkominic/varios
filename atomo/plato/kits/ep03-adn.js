@@ -105,16 +105,25 @@ const SEC = (() => { const r = semillero(31415); return Array.from({ length: 64 
 export const PARES_ADN = ['AT', 'TA', 'GC', 'CG'];
 export function secuenciaAdn(k, semilla = 0) { const j = (((Math.round(k) + 17 * Math.round(semilla)) % 64) + 64) % 64; return PARES_ADN[SEC[j]]; }
 
-// ---------------------------------------------------------------- la madeja: los lazos
+// ---------------------------------------------------------------- la madeja: el ovillo
+// un núcleo de hilo apretado (radio MA_R0) cuyas vueltas de fuera (MAD_S: 36 círculos máximos ondulados) son solo color
+// y relieve, calculados una vez por píxel, y 5 lazos sueltos de verdad (MAD_M, MAD_A) que le dan la silueta floja
+const rotAzar = (r) => {
+  const u1 = r(), u2 = r(), u3 = r();
+  const q = new THREE.Quaternion(Math.sqrt(1 - u1) * Math.sin(2 * Math.PI * u2), Math.sqrt(1 - u1) * Math.cos(2 * Math.PI * u2),
+    Math.sqrt(u1) * Math.sin(2 * Math.PI * u3), Math.sqrt(u1) * Math.cos(2 * Math.PI * u3));
+  return new THREE.Matrix3().setFromMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q));
+};
 const MAD = (() => {
-  const r = semillero(20261022), N = 16, out = [];
-  for (let i = 0; i < N; i++) {
-    const u1 = r(), u2 = r(), u3 = r();
-    const q = new THREE.Quaternion(Math.sqrt(1 - u1) * Math.sin(2 * Math.PI * u2), Math.sqrt(1 - u1) * Math.cos(2 * Math.PI * u2),
-      Math.sqrt(u1) * Math.sin(2 * Math.PI * u3), Math.sqrt(u1) * Math.cos(2 * Math.PI * u3));
-    const m = new THREE.Matrix3().setFromMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q));
-    const rho = i < 11 ? 0.84 + 0.11 * r() : 0.62 + 0.12 * r();
-    out.push({ m, a: [rho, 0.03 + 0.03 * r(), 0.035 + 0.05 * r(), 6.2832 * r()] });
+  const r = semillero(20261022), out = [];
+  for (let i = 0; i < 5; i++) out.push({ m: rotAzar(r), a: [0.96 + 0.06 * r(), 0.03 + 0.02 * r(), 0.04 + 0.04 * r(), 6.2832 * r()] });
+  return out;
+})();
+const MADS = (() => {
+  const r = semillero(4242), out = [];
+  for (let i = 0; i < 36; i++) {
+    const z = 2 * r() - 1, a = 2 * Math.PI * r(), k = Math.sqrt(1 - z * z);
+    out.push([k * Math.cos(a), z, k * Math.sin(a), 6.2832 * r()]);
   }
   return out;
 })();
@@ -125,13 +134,13 @@ const ORG = (() => {
   const nc = ADN_MEDIDAS.nucleo, rn = ADN_MEDIDAS.RN;
   const dentro = (p, k) => (p[0] / 1.0) ** 2 + (p[1] / 0.74) ** 2 + (p[2] / 0.94) ** 2 < k * k;
   const lejos = (p, d) => Math.hypot(p[0] - nc[0], p[1] - nc[1], p[2] - nc[2]) > rn + d;
-  while (mito.length < 12) {
+  while (mito.length < 34) {
     const p = [2 * r() - 1, 1.5 * r() - 0.75, 2 * r() - 1];
     if (!dentro(p, 0.82) || !lejos(p, 0.14)) continue;
     const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(r() * 6.28, r() * 6.28, r() * 6.28));
     mito.push({ p, m: new THREE.Matrix3().setFromMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q)) });
   }
-  while (ves.length < 18) {
+  while (ves.length < 46) {
     const p = [2 * r() - 1, 1.5 * r() - 0.75, 2 * r() - 1];
     if (!dentro(p, 0.86) || !lejos(p, 0.08)) continue;
     ves.push([...p, 0.028 + 0.035 * r()]);
@@ -151,21 +160,26 @@ float adL(vec4 T) { return max(T.w, 1.0); }
 const vec3 AD_HILO = vec3(0.60, 0.515, 0.375);     // el hilo del ADN: crema de marfil
 const vec3 AD_LATON = vec3(0.47, 0.30, 0.085);
 const vec3 AD_MEMBRANA = vec3(0.50, 0.335, 0.285);  // membrana: arcilla rosada
-const vec3 AD_CITO = vec3(0.60, 0.50, 0.355);       // citoplasma (cara del corte): gelatina clara
-const vec3 AD_MITO = vec3(0.42, 0.135, 0.055);      // mitocondria: terracota
+const vec3 AD_CITO = vec3(0.47, 0.35, 0.26);        // citoplasma (cara del corte): gelatina clara
+const vec3 AD_MITO = vec3(0.36, 0.125, 0.06);       // mitocondria: terracota
 const vec3 AD_RE = vec3(0.40, 0.215, 0.175);        // retículo: arcilla
-const vec3 AD_NUCLEO = vec3(0.125, 0.15, 0.215);    // envoltura del núcleo: pizarra azulada
+const vec3 AD_NUCLEO = vec3(0.10, 0.105, 0.165);    // envoltura del núcleo: pizarra azulada
 const float AD_FIB = 0.05;                          // radio del hilo
 // el retorcido del hilo (dos cabos): u a lo largo del hilo, a alrededor (rad); 0…1
 float adRetorcido(float u, float a) { return 0.5 + 0.5 * sin(u * 62.0 + 2.0 * a); }
 const int MAD_N = ${MAD.length};
 const mat3 MAD_M[${MAD.length}] = mat3[${MAD.length}](${MAD.map((l) => m3(l.m)).join(', ')});
 const vec4 MAD_A[${MAD.length}] = vec4[${MAD.length}](${MAD.map((l) => `vec4(${l.a.map(fl).join(', ')})`).join(', ')});
-// la madeja (radio ~1,08): id del lazo más cercano (−1: el núcleo apretado); uv: (a lo largo, alrededor) para el color
+const int MAD_NS = ${MADS.length};
+const vec4 MAD_S[${MADS.length}] = vec4[${MADS.length}](${MADS.map((v) => `vec4(${v.map(fl).join(', ')})`).join(', ')});
+const float MA_R0 = 0.9;
+vec3 adOvGiro(vec3 q, float sem) { q.xz = adGiro(sem * 1.9) * q.xz; q.xy = adGiro(sem * 0.7) * q.xy; return q; }
+vec3 adOvGiroInv(vec3 q, float sem) { q.xy = adGiro(-sem * 0.7) * q.xy; q.xz = adGiro(-sem * 1.9) * q.xz; return q; }
+// la madeja (radio ~1,08): id del lazo suelto más cercano (−1: el ovillo); uv: (a lo largo, alrededor) del lazo
 float adMadeja(vec3 q, float sem, out float id, out vec2 uv) {
-  q.xz = adGiro(sem * 1.9) * q.xz; q.xy = adGiro(sem * 0.7) * q.xy;
-  float d = (length(q) - 0.56) * 0.9 + 0.012 * sin(q.x * 23.0) * sin(q.y * 19.0) * sin(q.z * 21.0);
-  id = -1.0; uv = vec2(atan(q.z, q.x) * 3.0 + q.y * 9.0, 0.0);
+  q = adOvGiro(q, sem);
+  float d = length(q) - MA_R0 + 0.008 * sin(q.x * 13.0 + sem) * sin(q.y * 11.0) * sin(q.z * 12.0);
+  id = -1.0; uv = vec2(0.0);
   float dm = d;
   for (int i = 0; i < MAD_N; i++) {
     vec3 p = MAD_M[i] * q;
@@ -177,9 +191,38 @@ float adMadeja(vec3 q, float sem, out float id, out vec2 uv) {
     vec2 w = vec2(length(p.xz) - rho, p.y - y0);
     float di = (length(w) - AD_FIB) * 0.85;
     if (di < dm) { dm = di; id = float(i); uv = vec2(th * rho, atan(w.y, w.x)); }
-    d = smin(d, di, 0.012);
+    d = smin(d, di, 0.02);
   }
   return d;
+}
+// las vueltas del ovillo (color y relieve en un punto de su superficie, en unidades de la madeja): devuelve el color
+// y en g el relieve (gradiente, para gG); la vuelta de índice mayor queda encima en los cruces
+vec3 adOvillo(vec3 q, float sem, out vec3 g) {
+  vec3 u = normalize(adOvGiro(q, sem));
+  const float w = 0.058;
+  float top = -1.0, aT = 0.0, alT = 0.0; vec3 nT = vec3(0.0, 1.0, 0.0);
+  for (int i = 0; i < MAD_NS; i++) {
+    vec3 n = MAD_S[i].xyz;
+    vec3 e1 = normalize(cross(n, vec3(0.31, 0.95, 0.07)));
+    vec3 e2 = cross(n, e1);
+    float al = atan(dot(u, e2), dot(u, e1));
+    float a = dot(u, n) + 0.035 * sin(3.0 * al + MAD_S[i].w + sem);
+    if (abs(a) < w) { top = float(i); aT = a; alT = al; nT = n; }
+  }
+  g = vec3(0.0);
+  if (top < 0.0) return AD_HILO * 0.12 * (0.7 + 0.6 * smoothstep(0.3, 0.7, vnoise(q * vec3(40.0, 9.0, 40.0))));
+  float x = aT / w, pf = sqrt(max(1.0 - x * x, 0.0));
+  vec3 t = nT - u * dot(u, nT);
+  g = adOvGiroInv(-t * x / max(pf, 0.25) * 0.7, sem);
+  float k = 0.86 + 0.16 * adH(top + 3.0 * sem);
+  return AD_HILO * k * (0.32 + 0.68 * pf) * (0.86 + 0.2 * adRetorcido(alT * MA_R0, asin(clamp(x, -1.0, 1.0)) * 1.5));
+}
+// el color del hilo en un punto de la madeja (id y uv de adMadeja)
+vec3 adColorMadeja(vec3 q, float sem, float id, vec2 uv, out vec3 g) {
+  g = vec3(0.0);
+  if (id < -0.5) return adOvillo(q, sem, g);
+  float k = 0.86 + 0.16 * adH(id + 40.0 + 3.0 * sem);
+  return AD_HILO * k * (0.84 + 0.2 * adRetorcido(uv.x, uv.y));
 }
 #endif
 `;
@@ -230,17 +273,18 @@ float pzc_celula(vec3 q, vec4 T) {
   float corte = clamp(T.x, 0.0, 1.0);
   float d = elipsoideP(q, vec3(0.96, 0.7, 0.9));
   if (corte > 0.001) d = max(d, -ceCuna(q, corte * 0.98));
-  return min(d, length(q - AD_NC) - AD_RN * 0.95);
+  float dn = length(q - AD_NC);
+  return min(d, T.z > 0.5 ? dn - AD_RN * 0.95 : (T.w > 0.5 ? dn - AD_RN * 0.8 * 0.86 : 1e5));
 }
 // los poros de la envoltura: puntitos oscuros en una red de Fibonacci (n: la normal)
 float cePoros(vec3 n) {
   float best = 1.0;
-  for (int i = 0; i < 90; i++) {
-    float y = 1.0 - (float(i) + 0.5) * 2.0 / 90.0, r = sqrt(1.0 - y * y), a = float(i) * 2.39996;
+  for (int i = 0; i < 220; i++) {
+    float y = 1.0 - (float(i) + 0.5) * 2.0 / 220.0, r = sqrt(1.0 - y * y), a = float(i) * 2.39996;
     vec3 p = vec3(cos(a) * r, y, sin(a) * r);
     best = min(best, length(n - p));
   }
-  return 1.0 - smoothstep(0.045, 0.075, best);
+  return 1.0 - smoothstep(0.022, 0.04, best);
 }
 vec3 ceCitoplasma(vec3 q, float sem) {
   vec3 c = AD_CITO * (0.93 + 0.12 * vnoise(q * 9.0 + sem));
@@ -257,7 +301,7 @@ vec3 ceCitoplasma(vec3 q, float sem) {
     vec3 cp = CE_MP[i];
     cp.xz = adGiro(sem * 0.9) * cp.xz;
     vec3 p = CE_MM[i] * (q - cp);
-    float dm = elipsoideP(p, vec3(0.16, 0.062, 0.07));
+    float dm = elipsoideP(p, vec3(0.18, 0.068, 0.078));
     if (dm < 0.006) {
       float borde = smoothstep(-0.018, -0.004, dm);
       float cresta = smoothstep(0.55, 0.85, sin(p.x * 70.0 + 2.0 * sin(p.y * 40.0)));
@@ -282,19 +326,22 @@ vec3 pzcol_celula(vec3 q, vec4 T, float m) {
   float sem = floor(T.y + 0.5);
   if (m > 9.5) {
     // la madeja de dentro
-    float sM = AD_RN * 0.8, id; vec2 uv;
-    adMadeja((q - AD_NC) / sM, sem, id, uv);
-    gTr = 0.45; gBri = 1.3;
-    if (id < -0.5) return AD_HILO * 0.42 * (0.8 + 0.4 * vnoise(q * 40.0));
-    float k = 0.86 + 0.16 * adH(id + 3.0 * sem);
-    return AD_HILO * k * (0.84 + 0.2 * adRetorcido(uv.x, uv.y));
+    float sM = AD_RN * 0.8, id; vec2 uv; vec3 g;
+    vec3 qm = (q - AD_NC) / sM;
+    adMadeja(qm, sem, id, uv);
+    vec3 c = adColorMadeja(qm, sem, id, uv, g);
+    gG = g; gTr = 0.45; gBri = 1.3;
+    // la luz que entra por la envoltura translúcida
+    gEm = c * 0.22;
+    return c;
   }
   if (m > 1.5) {
     vec3 qn = q - AD_NC;
     vec3 n = normalize(qn);
     gTr = 0.55; gBri = 1.7;
     vec3 c = AD_NUCLEO * (0.88 + 0.22 * vnoise(q * 16.0));
-    c = mix(c, c * 0.42, cePoros(n));
+    float po = cePoros(n);
+    c = mix(c, c * 0.5, po);
     // la cara de dentro del cuenco (nucleo 0): más oscura, para que la madeja destaque
     if (length(qn) < AD_RN - 0.02) c *= 0.55;
     return c;
@@ -336,15 +383,16 @@ float pza_madeja(vec3 q, vec4 T) {
   float d = length(q) - 1.12;
   return T.z > 0.001 ? min(d, sdCapsule(q, MA_A, MA_A + (MA_D1 + MA_D2 + MA_D3) * T.z, 0.24)) : d;
 }
-float pzc_madeja(vec3 q, vec4 T) { return length(q) - 0.9; }
+float pzc_madeja(vec3 q, vec4 T) { return length(q) - 0.88; }
 vec3 pzcol_madeja(vec3 q, vec4 T, float m) {
   float sem = floor(T.y + 0.5), id; vec2 uv;
   gTr = 0.45; gBri = 1.3;
   if (m > 99.5) return AD_HILO * (0.84 + 0.2 * adRetorcido(q.y * 3.0, atan(q.z, q.x)));
   adMadeja(q, sem, id, uv);
-  if (id < -0.5) return AD_HILO * 0.42 * (0.8 + 0.4 * vnoise(q * 30.0));
-  float k = 0.86 + 0.16 * adH(id + 3.0 * sem);
-  return AD_HILO * k * (0.84 + 0.2 * adRetorcido(uv.x, uv.y));
+  vec3 g;
+  vec3 c = adColorMadeja(q, sem, id, uv, g);
+  gG = g;
+  return c;
 }
 `;
 
@@ -412,7 +460,7 @@ float hxPeldano(vec3 q, float k, float giro, out vec3 pr) {
   float yk = k * HX_H;
   pr = q - vec3(0.0, yk, 0.0);
   pr.xz = adGiro(-(HX_W * yk + giro)) * pr.xz;
-  float d = sdRoundBox(pr, vec3(HX_R - 0.06, 0.038, 0.105), 0.034);
+  float d = sdRoundBox(pr, vec3(HX_R - 0.06, 0.056, 0.12), 0.045);
   // la costura del centro
   d = smax(d, 0.022 - abs(pr.x), 0.012);
   return d;

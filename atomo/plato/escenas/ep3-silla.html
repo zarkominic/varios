@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-silla · por qué no atraviesas la silla</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-silla (frases 40–42, sin cartela). Plastilina adulta + kits/ep03-tocar.js (multitud, cucharilla,
+// terrón, cajón, silla y chispas). Los electrones de la frontera son una pieza propia de esta página ('cuenta': cuentas
+// de ámbar como las de Atom, una sola pieza con repetición, fotografiada al cargar y repetida en 2D).
+//  0          (= último fotograma de ep3-casa) la persona de pie en el centro, «mirarse las manos» con fantasma 1, la
+//             cabeza vuelta hacia Atom, que le da la palmadita en el brazo derecho; regla en 10⁻¹⁰
+//  humanidad  GENERAL. Atom retira la mano y saca una cucharilla; alrededor de la persona brota la humanidad (una
+//             multitud de figuritas) mientras sus manos vuelven a ser opacas (fantasma 1 → 0); la multitud se levanta
+//             y se comprime en la cucharilla de Atom: un terrón de azúcar diminuto que brilla
+//  ½ humanidad DETALLE (corte). La cucharilla con el terrón, grande, en la mano de Atom; Atom la lleva a una cómoda de
+//             nogal con el cajón abierto, la deja caer dentro y el cajón se cierra (a mitad de frase); Atom vuelve a su
+//             sitio, abajo a la izquierda
+//  silla      GENERAL (corte). La persona de pie, de tres cuartos; una silla entra deslizándose por detrás, ella se
+//             sienta (sentada completa en la marca) y aparece un «?» de arcilla junto al asiento, que ella mira
+//  repelen    DETALLE: empuje 2D hacia la frontera entre su muslo y el asiento, que se funde con la vista atómica: arriba
+//             los átomos de la persona (nubes caqui con sus electrones), abajo los de la silla (nubes de haya); el
+//             lado de arriba baja, rebota y se queda a un hueco finísimo, con chispitas y un cojín de luz
+//  ½ repelen  la cámara se aparta un poco (otro encuadre): llegan electrones de las capas de atrás y se amontonan
+//             junto al hueco; se apartan de dos en dos para no amontonarse (uno se queda, el otro se va a la segunda
+//             capa), como gente en un ascensor lleno; queda quieto
+// Coste: lo quieto es foto (la regla, la multitud entera, la persona del general, la persona sentada, las cuentas y
+// las nubes); en cada fotograma se dibuja vivo solo lo que se mueve. La vista atómica es 2D con las fotos de las cuentas
+// (8 variantes que se alternan cada fotograma: «hierven») y las chispas del kit, vivas.
+//
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, sin recorte 2D)
+//  · Fotograma 0: el último de ep3-casa (window.__fin de ep3-casa): PERSONA_F (pos [P.punto(950, 600, 2)[0], 3, 2],
+//    escala 3, rot [0, 0,1, 0]) con POSE_F ('mirarse las manos' de ep3-casa, fantasma 1, cabeza [−0,45, 0,25, 0,06] y
+//    mirada [−0,6, −0,3]) y el halo frío de las manos; Atom en ATOMO_F (su hombro derecho − [1,12, 0,05, −0,6]), escala
+//    0,4, con la mano del electrón 0 en el brazo de ella; regla REG (P.regla con e −9, ya 0,375, actual y marca −10,
+//    lupa 0,5, pos P.punto(1668, 528, 0,4), escala 1,42, rot [0, −0,12, 0]). Los tiempos de ep3-casa salen de
+//    marcas-ep03.json (con los de ahora si no se puede leer).
+//  · Último fotograma (ep3-gato empieza así): la vista atómica con Z = 240 px por distancia entre átomos, el hueco en
+//    horizontal por el centro (y = 540 px, 0,32 de alto: 77 px entre las caras de las cuentas), los electrones de cada
+//    lado en dos capas (la de delante cada 0,5 a ±0,26 del centro del hueco; la segunda, desplazada 0,25, a ±0,68),
+//    nubes caqui arriba y de haya abajo, chispitas en el hueco; regla en 10⁻¹⁰; Atom en SITIO (P.punto(230, 780, 1)),
+//    escala 0,37. window.__fin lo da en números.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, eob, azar, postura, mezclarPosturas, COLOR } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposTocar, multitud, cucharilla, terron, cajon, silla, sillaPara, chispas, foto, nubeElectrones, mundoPieza } from '/atomo/plato/kits/ep03-tocar.js';
+
+const E = await escena('ep3-silla', 'ep03');
+const D = E.duracion;
+const M = (k) => E.marca(k);
+const m = { h: M('humanidad'), hF: M('humanidad_fin'), s: M('silla'), sF: M('silla_fin'), r: M('repelen'), rF: M('repelen_fin') };
+const QUIETO = D - 0.6;
+window.__carga = [['inicio', Math.round(performance.now())]];
+const W = 1920, H = 1080;
+
+// tiempos de ep3-casa (para que el fotograma 0 sea su último)
+let CASA = { duracion: 21.381, marcas: { tutambien: 15.886, tutambien_fin: 16.719 } };
+try {
+  const todas = await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json();
+  if (todas['ep3-casa']?.marcas?.tutambien) CASA = todas['ep3-casa'];
+} catch { /* se quedan los de arriba */ }
+
+// ---------------------------------------------------------------- tiempos (todos salen de las marcas)
+const mitad1 = m.h + 0.5 * (m.hF - m.h);       // «… la humanidad entera cabría…»: el terrón se guarda
+const mitad3 = m.r + 0.5 * (m.rF - m.r);       // «… una regla cuántica…»: los electrones se apartan
+const T = {
+  suelta: [0.12, 0.95],                        // Atom retira la mano del brazo y la lleva a la cucharilla
+  cuchara: [0.62, 0.95],                       // la cucharilla aparece en su mano
+  multitud: [m.h - 0.2, m.h + 1.05],           // brota la humanidad
+  fantasma: [m.h - 0.1, m.h + 1.05],           // las manos vuelven a ser opacas
+  mirada: [0.3, 1.0],                          // ella mira a su alrededor y a la cucharilla
+  comprime: [m.h + 1.3, m.h + 2.05],           // la multitud se levanta y se comprime en la cucharilla
+  terron: [m.h + 1.92, m.h + 2.12],            // el terrón aparece, con un destello
+  corte1: mitad1 - 1.0,                        // DETALLE de la cucharilla
+  lleva: [mitad1 - 0.75, mitad1 - 0.3],        // Atom lleva la cucharilla sobre el cajón
+  baja: [mitad1 - 0.32, mitad1 - 0.08],        // la baja
+  suelta2: [mitad1 - 0.1, mitad1 + 0.05],      // la suelta: cae dentro
+  cierra: [mitad1 + 0.05, mitad1 + 0.5],       // el cajón se cierra (a mitad de frase)
+  vuelve: [mitad1 + 0.55, mitad1 + 1.35],      // Atom vuelve a su sitio
+  corte2: mitad1 + 1.55,                       // GENERAL de la silla
+  sillaEntra: [m.s - 1.85, m.s - 1.2],         // la silla entra deslizándose
+  sienta: [m.s - 0.72, m.s - 0.04],            // se sienta (completa en la marca)
+  interroga: [m.s - 0.04, m.s + 0.3],          // el «?»
+  miraInt: [m.s + 0.35, m.s + 0.8],            // ella lo mira
+  empuje: [m.r - 0.8, m.r - 0.05],             // empuje 2D hasta la frontera (completo en la marca)
+  baja3: [m.r - 0.1, m.r + 0.8],               // el lado de la persona baja y rebota en el hueco
+  aleja: [mitad3 - 0.85, mitad3 - 0.3],        // otro encuadre: la cámara se aparta un poco
+  amontona: [mitad3 - 0.6, mitad3 - 0.02],     // llegan electrones y se amontonan
+  aparta: [mitad3, mitad3 + 1.25],             // se apartan para no amontonarse
+};
+T.fotoSentada = T.miraInt[1] + 0.1;            // desde aquí la persona sentada está quieta (foto)
+
+// ---------------------------------------------------------------- la cuenta (electrón): pieza propia
+// ocho cuentas de ámbar en fila (x = −3,5 … 3,5, radio 0,42), cada una con su relieve: las variantes de un electrón
+const GLSL_CUENTA = /* glsl */`
+const vec3 CE_ELEC = vec3(0.36, 0.095, 0.01);
+float ceUna(vec3 p, float k) {
+  float d = length(p) - 0.42;
+  d += 0.022 * (vnoise(p * 4.5 + k * 7.31) - 0.5) + 0.009 * (vnoise(p * 12.0 + k * 3.7) - 0.5);
+  return d;
+}
+float pz_cuenta(vec3 q, vec4 T, out float m) {
+  m = 0.0;
+  float k = clamp(floor(q.x + 4.0), 0.0, 7.0);
+  float d = ceUna(q - vec3(k - 3.5, 0.0, 0.0), k);
+  float k2 = clamp(k + (q.x + 4.0 - k > 0.5 ? 1.0 : -1.0), 0.0, 7.0);
+  d = min(d, ceUna(q - vec3(k2 - 3.5, 0.0, 0.0), k2));
+  return d * 0.9;
+}
+float pzc_cuenta(vec3 q, vec4 T) { return 1e5; }
+vec3 pzcol_cuenta(vec3 q, vec4 T, float m) {
+  gEm = CE_ELEC * 0.75; gBri = 1.97;
+  return CE_ELEC * (0.95 + 0.1 * vnoise(q * 6.0));
+}
+`;
+const CUENTA = { radio: 4.05, glifos: [], glsl: GLSL_CUENTA };
+
+// ---------------------------------------------------------------- plató
+const I = { REG: 0, FLE: 1, HUM: 2, MUL: 3, CUC: 4, TER: 5, CAJ: 6, SIL: 7, CH1: 8, CH2: 9, INT: 10, CUE: 11 };
+const P = await crearPlato({
+  piezas: ['reglaA', 'flecha', 'humano', 'multitud', 'cucharilla', 'terron', 'cajon', 'silla', 'chispas', 'chispas', 'glifo:?', 'cuenta'],
+  tiposExtra: { ...tiposTocar(['multitud', 'cucharilla', 'terron', 'cajon', 'silla', 'chispas']), cuenta: CUENTA },
+  alfa: true, post: false, mano: true,
+  sombraFondo: ['p2', 'p4', 'p5', 'p6', 'p7'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+window.__carga.push(['plató', Math.round(performance.now())]);
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxPorUnidad = (z) => { const a = en(960, 540, z); return pant([a[0] + 1, a[1], z])[0] - pant(a)[0]; };
+const sumar = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+const restar = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const mezclar3 = (a, b, u) => [mix(a[0], b[0], u), mix(a[1], b[1], u), mix(a[2], b[2], u)];
+// punto local de una pieza colocada con { pos, escala, rot } (euler YXZ)
+const enPieza = (o, l) => mundoPieza(o, l);
+// pos para que el punto local l de la pieza caiga en el punto del mundo w
+const posPara = (o, l, w) => restar(w, restar(mundoPieza({ ...o, pos: [0, 0, 0] }, l), [0, 0, 0]));
+
+// regla (la de ep3-casa, en 10⁻¹⁰): una foto
+const E_REG = 1.42, REG = en(1668, 528, 0.4);
+const REGLA = { pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e: -9, ya: 0.375, lupa: 0.5, actual: -10, marca: -10 };
+// Atom: su sitio de presentador (abajo a la izquierda, ~180 px)
+const A_Z = 1.0, A_ESC = 0.37, SITIO = en(230, 780, A_Z);
+
+// ---------------------------------------------------------------- capa 2D
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const pegarGL = (alfa = 1) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = alfa; g.drawImage(lienzoGL, 0, 0); g.restore(); };
+function parpadeo(n) {
+  const f = azar(n, 3) - 0.5;
+  g.fillStyle = f > 0 ? `rgba(255,236,210,${f * 0.03})` : `rgba(0,0,6,${-f * 0.04})`; g.fillRect(0, 0, W, H);
+}
+function brillo(p, R, a, color = '255,190,110') {
+  if (a <= 0.003) return;
+  g.save(); g.globalCompositeOperation = 'lighter';
+  const gr = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], R);
+  gr.addColorStop(0, `rgba(${color},${a})`); gr.addColorStop(0.35, `rgba(${color},${a * 0.32})`); gr.addColorStop(1, `rgba(${color},0)`);
+  g.fillStyle = gr; g.fillRect(p[0] - R, p[1] - R, 2 * R, 2 * R);
+  g.restore();
+}
+
+// ---------------------------------------------------------------- la persona
+// fotograma 0 = último de ep3-casa: su 'mirarse las manos' (las manos algo más altas y las palmas hacia la cara),
+// fantasma 1, la cabeza y la mirada hacia Atom
+const BRAZO_MIRAR = [0.87, 0.14, 0.38, 1.6, -1.25, -0.6];
+const POSE_MANOS = { ...postura('manos'), cabeza: [0, 0.42, 0], brazoIzq: [...BRAZO_MIRAR], brazoDer: [...BRAZO_MIRAR] };
+const PERSONA_F = { pos: [en(950, 600, 2)[0], 3.0, 2.0], escala: 3.0, rot: [0, 0.1, 0] };
+const DC = CASA.duracion, QC = DC - 0.6, TSC = Math.floor((DC - 0.3) * 12 + 1e-6) / 12, TZC = Math.min(TSC, QC);
+const MANO_C = 0.08 * Math.sin((TZC - CASA.marcas.tutambien) * 1.3) * ss(CASA.marcas.tutambien_fin, CASA.marcas.tutambien_fin + 0.6, TZC);
+const POSE_0 = { ...POSE_MANOS, fantasma: 1, ojos: 1, cabeza: [-0.45, 0.25, 0.06], mirada: [-0.6, -0.3],
+  brazoIzq: [...BRAZO_MIRAR], brazoDer: [...BRAZO_MIRAR] };
+POSE_0.brazoIzq[4] += MANO_C; POSE_0.brazoDer[4] -= MANO_C;
+const RESP_0 = 0.006 * Math.sin(TZC * 2.2);
+// en el general, después: mira la cucharilla de Atom (a su derecha, abajo)
+const CABEZA_1 = [-0.32, 0.45, 0.03], MIRADA_1 = [-0.55, -0.7];
+function poseG1(ts) {
+  const p = { ...POSE_0, brazoIzq: [...POSE_0.brazoIzq], brazoDer: [...POSE_0.brazoDer] };
+  p.fantasma = 1 - ss(T.fantasma[0], T.fantasma[1], ts);
+  const k = eio(prog(ts, T.mirada[0], T.mirada[1]));
+  p.cabeza = [mix(POSE_0.cabeza[0], CABEZA_1[0], k), mix(POSE_0.cabeza[1], CABEZA_1[1], k), mix(POSE_0.cabeza[2], CABEZA_1[2], k)];
+  p.mirada = [mix(POSE_0.mirada[0], MIRADA_1[0], k), mix(POSE_0.mirada[1], MIRADA_1[1], k)];
+  return p;
+}
+const HUELLA = [0.37, 0.21, 0];
+function personaG1(ts) {
+  // respira (la fase sigue la de ep3-casa); quieta desde que empieza a comprimirse la multitud (es foto)
+  const tz = Math.min(ts, T.comprime[0]);
+  const resp = 0.006 * Math.sin((TZC + ss(0.1, 0.9, tz) * (tz - 0.1)) * 2.2);
+  return P.pieza(I.HUM, { ...PERSONA_F, sq: [1, 1 + (ts < 0.1 ? RESP_0 : resp), 1], postura: poseG1(Math.min(ts, T.comprime[0])), aspecto: 'adulto', t: TSC + ts, huellaFija: HUELLA });
+}
+// el halo frío de las manos casi transparentes (el de ep3-casa en su plano general: × 1,9 de fuerza, × 1,35 de radio)
+function haloManos(h, kf, ts) {
+  if (kf <= 0.01) return;
+  g.save(); g.globalCompositeOperation = 'lighter';
+  for (const lado of ['Izq', 'Der']) {
+    const pm = pant(h.punto('mano' + lado)), pw = pant(h.punto('muneca' + lado)), pd = pant(h.punto('dedos' + lado));
+    const R = 1.5 * 1.35 * Math.hypot(pd[0] - pw[0], pd[1] - pw[1]);
+    const pulso = 0.85 + 0.15 * Math.sin((QC + ts) * 2.6 + (lado === 'Izq' ? 0 : 1.7));
+    const gr = g.createRadialGradient(pm[0], pm[1], 0, pm[0], pm[1], R);
+    gr.addColorStop(0, `rgba(170,205,255,${0.16 * 1.9 * kf * pulso})`); gr.addColorStop(0.55, `rgba(140,180,240,${0.07 * 1.9 * kf * pulso})`); gr.addColorStop(1, 'rgba(120,160,230,0)');
+    g.fillStyle = gr; g.fillRect(pm[0] - R, pm[1] - R, 2 * R, 2 * R);
+  }
+  g.restore();
+}
+
+// ---------------------------------------------------------------- Atom
+// su reloj sigue el de ep3-casa (allí acabó parado): los electrones y el balanceo arrancan suaves
+const calmaC = (t) => { const a = QC - 0.9; if (t <= a) return t; const u = Math.min(t - a, 0.9); return a + u - (u * u) / 1.8; };
+const TZ_A0 = calmaC(TSC), TA_A0 = TZ_A0;   // (en ep3-casa, su reloj de electrones y el de balanceo valen lo mismo al final)
+const DT = 1 / 240, RELOJ = [0];
+const velA = (t) => ss(0.08, 0.8, t) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= D + 0.2; i++) RELOJ.push(RELOJ[i - 1] + velA((i - 0.5) * DT) * DT);
+const reloj = (t) => { const x = t / DT, i = Math.min(RELOJ.length - 2, Math.floor(x)); return mix(RELOJ[i], RELOJ[i + 1], x - i); };
+// dibuja Atom: pos, escala y la mano del electrón 0 (punto del mundo o null) con su mezcla
+function atomo(ts, { pos, esc, mano = null, km = 0, energiaExtra = 0, inclina = 0 }) {
+  const r = reloj(ts), tz = TZ_A0 + r, ta = TA_A0 + r;
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  const bote = 0.025 * Math.sin(tz * 1.1);
+  const electrones = [];
+  if (mano && km > 0.001) electrones[0] = { mundo: restar(mano, pos), mezcla: eio(km), brazo: km, grosor: 0.055, mano: km, tamMano: 0.3 };
+  P.atomo({ pos: [pos[0], pos[1] + bote, pos[2]], escala: esc, yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06, roll: inclina,
+    energia: Math.min(1, en0 + energiaExtra), ts: ta, electrones, toque: km > 0.05 });
+  return [pos[0], pos[1] + bote, pos[2]];
+}
+
+// ---------------------------------------------------------------- GENERAL 1: la multitud y la cucharilla
+let ATOMO_F = null, OBJ_F = null;      // Atom y el punto del brazo donde apoya la mano (fotograma 0)
+{
+  const h = P.pieza(I.HUM, { ...PERSONA_F, postura: POSE_0, aspecto: 'adulto' });
+  const hom = h.punto('hombroDer');
+  ATOMO_F = [hom[0] - 1.12, hom[1] - 0.05, hom[2] + 0.6];
+  const h2 = P.pieza(I.HUM, { ...PERSONA_F, sq: [1, 1 + RESP_0, 1], postura: POSE_0, aspecto: 'adulto', t: TSC, huellaFija: HUELLA });
+  const b = h2.punto('codoDer'), s = h2.punto('hombroDer');
+  OBJ_F = [mix(s[0], b[0], 0.3) - 0.2, mix(s[1], b[1], 0.3) + 0.05, mix(s[2], b[2], 0.3) + 0.05];
+  P.limpiar();
+}
+// la cucharilla de Atom (a la derecha de ella, que es la izquierda de la pantalla), con el mango hacia él
+const CUC1 = { escala: 0.62, rot: [-0.42, Math.PI + 0.2, 0.05] };
+const CUENCO1 = en(772, 492, 2.9);
+CUC1.pos = posPara(CUC1, [0, -0.01, 0], CUENCO1);
+const MANGO1 = enPieza(CUC1, [0.86, 0.11, 0]);
+const A_HOLD = sumar(MANGO1, [-0.98, 0.16, -0.12]);
+const TER1 = 0.075;      // el terrón diminuto (lado, en el mundo)
+const MULT = { pos: [PERSONA_F.pos[0], 0, 2.0], escala: 1.0, radio: 3.45, hueco: 1.1, semilla: 3 };
+function estadoAtomoG1(ts) {
+  const u = eio(prog(ts, T.suelta[0], T.suelta[1]));
+  const pos = [mix(ATOMO_F[0], A_HOLD[0], u), mix(ATOMO_F[1], A_HOLD[1], u) + 0.25 * Math.sin(Math.PI * u), mix(ATOMO_F[2], A_HOLD[2], u)];
+  // la mano: del brazo de ella al mango (por un arco que no pasa por su cuerpo)
+  const ob = OBJ_F, tg = MANGO1;
+  const mano = [mix(ob[0], tg[0], u), mix(ob[1], tg[1], u) + 0.2 * Math.sin(Math.PI * u), mix(ob[2], tg[2], u) + 0.35 * Math.sin(Math.PI * u)];
+  // al saludar con el terrón: un saltito de orgullo
+  const orgullo = ss(T.terron[1], T.terron[1] + 0.25, ts) * Math.max(0, Math.sin(Math.PI * prog(ts, T.terron[1], T.terron[1] + 0.5)));
+  return { pos: [pos[0], pos[1] + 0.08 * orgullo, pos[2]], esc: 0.4, mano: [mano[0], mano[1] + 0.08 * orgullo, mano[2]], km: 1 };
+}
+function cucharillaG1(ts, dy = 0) {
+  const k = eob(prog(ts, T.cuchara[0], T.cuchara[1]), 2.2);
+  if (k <= 0.01) return null;
+  const esc = CUC1.escala * k;
+  // la cucharilla crece desde el mango (que está en la mano de Atom)
+  const o = { escala: esc, rot: CUC1.rot };
+  o.pos = sumar(posPara(o, [0.86, 0.11, 0], MANGO1), [0, dy, 0]);
+  return cucharilla(P, I.CUC, { ...o, toque: k < 1 });
+}
+function terronG1(ts, c, dy = 0) {
+  const k = eob(prog(ts, T.terron[0], T.terron[1]), 2.4);
+  if (k <= 0.01 || !c) return;
+  terron(P, I.TER, { pos: [c.cuenco[0], c.cuenco[1] + 0.5 * TER1 * k + 0.004 + dy, c.cuenco[2]], escala: TER1 * k, rot: [0.08, 0.6, 0.04] });
+}
+function planoG1(n, ts) {
+  const comp = ts >= T.comprime[0];
+  const ua = prog(ts, T.multitud[0], T.multitud[1]);
+  const A = estadoAtomoG1(ts);
+  if (!comp) {
+    // vivo: la persona, la multitud que brota, Atom y su cucharilla
+    P.limpiar();
+    const h = personaG1(ts);
+    if (ua > 0) multitud(P, I.MUL, { ...MULT, aparicion: ua });
+    atomo(ts, A);
+    const c = cucharillaG1(ts);
+    terronG1(ts, c);
+    P.render(n);
+    pegarGL();
+    haloManos(h, 1 - ss(T.fantasma[0], T.fantasma[1], ts), ts);
+    const ce = pant(h.mundo([0, 0, 0])), co = pant(h.mundo([0, 0.765, -0.01])), su = pant(h.mundo([0, -1, 0.05]));
+    window.__guias = { x: Math.round(ce[0]), coronilla: Math.round(co[1]), suela: Math.round(su[1]) };
+  } else {
+    // la multitud se levanta y se comprime en la cucharilla (foto de la multitud en 2D) sobre la foto de la persona
+    g.drawImage(F('personaG1'), 0, 0, W, H);
+    const u = prog(ts, T.comprime[0], T.comprime[1]);
+    const cu = pant(CUENCO1), c0 = pant(MULT.pos);
+    const s = Math.pow(0.012, eic(u) * 0.85 + 0.15 * u);
+    const lev = eio(cl(u * 1.4));
+    const cx = mix(c0[0], cu[0], lev), cy = mix(c0[1], cu[1], lev);
+    const alfa = 1 - ss(0.82, 1.0, u);
+    const fm = F('mult');
+    // estela: varias copias algo mayores, más tenues (desenfoque de zoom)
+    for (let k = 3; k >= 0; k--) {
+      const sk = s * (1 + 0.09 * k * Math.sin(Math.PI * Math.min(1, u * 1.3)));
+      g.save(); g.globalAlpha = alfa * (k === 0 ? 1 : 0.16);
+      g.translate(cx, cy); g.scale(sk, sk * mix(1, 0.75, eio(u))); g.translate(-c0[0], -c0[1]);
+      g.drawImage(fm, 0, 0, W, H);
+      g.restore();
+    }
+    // la luz se concentra en el cuenco
+    brillo(cu, 60 + 70 * eio(u), 0.32 * ss(0.35, 0.95, u) * (1 - ss(0.0, 0.5, prog(ts, T.terron[1], T.terron[1] + 0.6))));
+    P.limpiar();
+    atomo(ts, A);
+    const c = cucharillaG1(ts);
+    terronG1(ts, c);
+    P.render(n, { fondo: false });
+    pegarGL();
+    // destello del terrón (se lee en el móvil aunque sea diminuto)
+    const ud = prog(ts, T.terron[0], T.terron[1] + 0.5);
+    if (ud > 0) {
+      const k = Math.sin(Math.PI * Math.min(1, ud * 1.4)) * (ud < 1 ? 1 : 0);
+      brillo([cu[0], cu[1] - 8], 120, 0.5 * k, '255,240,215');
+      brillo([cu[0], cu[1] - 8], 26, 0.25 + 0.25 * k, '255,248,235');
+    }
+  }
+  parpadeo(n);
+}
+
+// ---------------------------------------------------------------- DETALLE 2: la cucharilla y el cajón
+const CAJ2 = { escala: 3.3, rot: [0, -0.32, 0] };
+CAJ2.pos = [en(1215, 600, 1.4)[0], 0.4 * 3.3, 1.4];
+const CUC2 = { escala: 2.15, rot: [-0.5, Math.PI + 0.22, 0.03] };
+const CUENCO2 = en(905, 470, 5.0);
+const TER2 = 0.27;
+let INT2 = null, INT2C = null;   // el fondo del cajón abierto y cerrado (mundo)
+{
+  P.limpiar();
+  INT2 = cajon(P, I.CAJ, { ...CAJ2, abierto: 1 }).interior;
+  INT2C = cajon(P, I.CAJ, { ...CAJ2, abierto: 0 }).interior;
+  P.limpiar();
+}
+// dónde va la cucharilla: su cuenco (mundo) y su giro en cada instante; cae dentro del cajón al soltarla
+const ROT_DENTRO = [0.0, Math.PI - 0.32, 0.0];
+const EJE_CAJ = [Math.cos(CAJ2.rot[1]), 0, -Math.sin(CAJ2.rot[1])];   // el eje x de la cómoda (mundo)
+const DENTRO = sumar(INT2, [EJE_CAJ[0] * 1.2, 0.12, EJE_CAJ[2] * 1.2]);
+function estadoD2(ts) {
+  const dentro = DENTRO, sobre = sumar(DENTRO, [0, 1.35, 0.1]);
+  const ul = eio(prog(ts, T.lleva[0], T.lleva[1])), ub = eio(prog(ts, T.baja[0], T.baja[1]));
+  let c = mezclar3(CUENCO2, sobre, ul);
+  c = [c[0], c[1] + 0.35 * Math.sin(Math.PI * ul), c[2]];
+  c = mezclar3(c, sumar(DENTRO, [0, 0.45, 0.05]), ub);
+  const r = [mix(CUC2.rot[0], -0.12, ul), mix(CUC2.rot[1], ROT_DENTRO[1], ul), mix(CUC2.rot[2], 0, ul)];
+  // al soltarla cae (y el cajón la tapa)
+  const uc = prog(ts, T.suelta2[0], T.suelta2[1] + 0.12);
+  if (uc > 0) c = [c[0], mix(c[1], dentro[1], uc * uc), mix(c[2], dentro[2], uc)];
+  // el cajón cerrándose se la lleva
+  const ab = 1 - eio(prog(ts, T.cierra[0], T.cierra[1]));
+  const dz = (1 - ab) * 0.5 * CAJ2.escala;
+  const dirZ = [Math.sin(CAJ2.rot[1]), 0, Math.cos(CAJ2.rot[1])];
+  c = sumar(c, [-dirZ[0] * dz, 0, -dirZ[2] * dz]);
+  return { cuenco: c, rot: r, abierto: ab, suelta: uc > 0 };
+}
+const A2_ESC = 0.6;
+function planoD2(n, ts) {
+  const S = estadoD2(ts);
+  const o = { escala: CUC2.escala, rot: S.rot };
+  o.pos = posPara(o, [0, -0.01, 0], S.cuenco);
+  const mango = enPieza(o, [0.86, 0.11, 0]);
+  // Atom: a la izquierda del mango, con la mano en él; al soltar, la mano vuelve y él se va a su sitio
+  const junto = sumar(mango, [-1.85, 0.32, -0.35]);
+  const uv = eio(prog(ts, T.vuelve[0], T.vuelve[1]));
+  const km = 1 - ss(T.suelta2[0], T.suelta2[1] + 0.35, ts);
+  const fijo = S.suelta ? estadoD2(T.suelta2[0] - 1e-3) : null;
+  const base = fijo ? (() => { const of = { escala: CUC2.escala, rot: fijo.rot }; of.pos = posPara(of, [0, -0.01, 0], fijo.cuenco); return sumar(enPieza(of, [0.86, 0.11, 0]), [-1.85, 0.32, -0.35]); })() : junto;
+  const pos = [mix(base[0], SITIO[0], uv), mix(base[1], SITIO[1], uv) + 0.6 * Math.sin(Math.PI * uv), mix(base[2], SITIO[2], uv)];
+  const esc = mix(A2_ESC, A_ESC, uv);
+  P.limpiar();
+  cajon(P, I.CAJ, { ...CAJ2, abierto: S.abierto, toque: S.abierto > 0 && S.abierto < 1 });
+  const c = cucharilla(P, I.CUC, { ...o, toque: ts > T.lleva[0] && ts < T.suelta2[1] });
+  terron(P, I.TER, { pos: [c.cuenco[0], c.cuenco[1] + 0.5 * TER2 + 0.01, c.cuenco[2]], escala: TER2, rot: [S.rot[0] * 0.5 + 0.08, 0.6, 0.04] });
+  const manoFija = fijo ? (() => { const of = { escala: CUC2.escala, rot: fijo.rot }; of.pos = posPara(of, [0, -0.01, 0], fijo.cuenco); return sumar(enPieza(of, [0.86, 0.11, 0]), [0, 0.3 * ss(T.suelta2[0], T.suelta2[1] + 0.3, ts), 0]); })() : mango;
+  atomo(ts, { pos, esc, mano: km > 0.001 ? manoFija : null, km });
+  P.render(n);
+  pegarGL();
+  // el terrón brilla un poco al llegar (la humanidad entera)
+  const pt = pant([c.cuenco[0], c.cuenco[1] + 0.5 * TER2, c.cuenco[2]]);
+  const kb = (1 - ss(T.lleva[0], T.lleva[0] + 0.4, ts)) * (0.6 + 0.4 * Math.sin(ts * 9));
+  brillo(pt, 110, 0.18 * kb, '255,236,205');
+  parpadeo(n);
+}
+
+// ---------------------------------------------------------------- GENERAL 3: la silla
+const TH3 = 0.72;          // de tres cuartos: mira a la derecha de la pantalla
+const PERSONA_3 = { pos: [en(840, 600, 1.6)[0], 3.0, 1.6], escala: 3.0, rot: [0, TH3, 0] };
+const POSE_PIE = { ...postura('de pie'), cabeza: [-0.1, 0.12, 0], mirada: [-0.2, -0.2] };
+const POSE_SENTADA = { ...postura('sentada'), cabeza: [0, 0.08, 0] };
+let SILLA3 = null, INT3 = null;
+{
+  P.limpiar();
+  const h = P.pieza(I.HUM, { ...PERSONA_3, postura: POSE_SENTADA, aspecto: 'adulto' });
+  SILLA3 = sillaPara(h.punto('asiento'), PERSONA_3.escala, TH3);
+  // el «?» junto al asiento, por el lado que se ve, a la altura de la cadera, y un poco más arriba
+  INT3 = enPieza(SILLA3, [-0.5, 0.36, 0.06]);
+  P.limpiar();
+}
+function poseG3(ts) {
+  const u = eio(prog(ts, T.sienta[0], T.sienta[1]));
+  const p = mezclarPosturas(POSE_PIE, POSE_SENTADA, u);
+  // mira el «?» (a su derecha, abajo)
+  const k = eio(prog(ts, T.miraInt[0], T.miraInt[1]));
+  p.cabeza = [mix(p.cabeza[0], -0.55, k), mix(p.cabeza[1], 0.35, k), mix(p.cabeza[2], -0.05, k)];
+  p.mirada = [mix(p.mirada[0], -0.7, k), mix(p.mirada[1], -0.5, k)];
+  return p;
+}
+function sillaG3(ts) {
+  const u = prog(ts, T.sillaEntra[0], T.sillaEntra[1]);
+  if (u <= 0) return;
+  const x = 4.2 * (1 - eoc(u));
+  const balanceo = 0.07 * Math.sin(Math.PI * 2 * u) * (1 - u);
+  silla(P, I.SIL, { ...SILLA3, pos: [SILLA3.pos[0] + x, SILLA3.pos[1], SILLA3.pos[2]], rot: [0, TH3, balanceo], toque: u < 1 });
+}
+function interrogacion(ts) {
+  const u = prog(ts, T.interroga[0], T.interroga[1]);
+  if (u <= 0) return 0;
+  const k = eob(u, 2.0);
+  const tz = Math.min(ts, QUIETO);
+  const sube = 0.05 * Math.sin((tz - T.interroga[1]) * 2.4) * ss(T.interroga[1], T.interroga[1] + 0.4, tz);
+  P.pieza(I.INT, { pos: [INT3[0], INT3[1] + 0.2 * (1 - k) + sube, INT3[2]], escala: 0.62 * k, rot: [0, 0.25, 0.08 * Math.sin(tz * 1.7)], color: COLOR.MOSTAZA, toque: u < 1 });
+  return k;
+}
+function planoG3(n, ts, { soloFoto = false } = {}) {
+  if (!soloFoto && ts >= T.fotoSentada) {
+    // la persona ya está quieta: su foto (con la silla); vivos, el «?» y Atom
+    g.drawImage(F('sentada'), 0, 0, W, H);
+    P.limpiar();
+    const k = interrogacion(ts);
+    atomo(ts, { pos: SITIO, esc: A_ESC });
+    P.render(n, { fondo: false });
+    pegarGL();
+    brillo(pant(INT3), 90, 0.1 * k);
+    parpadeo(n);
+    return;
+  }
+  P.limpiar();
+  const tz = Math.min(ts, T.fotoSentada);
+  const resp = 0.006 * Math.sin(tz * 2.2);
+  P.pieza(I.HUM, { ...PERSONA_3, sq: [1, 1 + resp, 1], postura: poseG3(tz), aspecto: 'adulto', t: tz, huellaFija: HUELLA, toque: ts > T.sienta[0] && ts < T.sienta[1] });
+  sillaG3(Math.max(ts, soloFoto ? T.sillaEntra[1] : ts));
+  if (soloFoto) { P.render(4001); return; }
+  const k = interrogacion(ts);
+  atomo(ts, { pos: SITIO, esc: A_ESC });
+  P.render(n);
+  pegarGL();
+  brillo(pant(INT3), 90, 0.1 * k);
+  parpadeo(n);
+}
+
+// ---------------------------------------------------------------- la frontera: vista atómica (2D)
+// unidades: 1 = distancia entre átomos; el centro del hueco en y = 0 (y hacia abajo, como la pantalla); arriba (y < 0)
+// la persona, abajo la silla. La vista: pantalla = O + Z·(p − C)
+const MI = { Z4: 360, Z5: 240, HUECO: 0.32, RE: 0.1 };
+const Y_DEL = MI.HUECO / 2 + MI.RE;       // capa de delante de electrones (centro de las cuentas)
+const Y_SEG = Y_DEL + 0.42;               // segunda capa
+const ATOMOS = [];                        // { x, y, lado, f }
+for (const lado of [-1, 1]) for (let f = 0; f < 3; f++) for (let i = -8; i <= 8; i++) {
+  const x = i + (f % 2) * 0.5 + (lado > 0 ? 0.27 : 0) + 0.12 * (azar(i + 40, f + 5 + (lado > 0 ? 9 : 0)) - 0.5);
+  ATOMOS.push({ x, y: lado * (MI.HUECO / 2 + 0.52 + f * 0.86), lado, f, sem: azar(i + 70, f + (lado > 0 ? 20 : 30)) });
+}
+// electrones: los de la capa de delante (cada 0,5), los que llegan de atrás y se amontonan, y los de las capas de atrás
+const ELEC = [];
+for (const lado of [-1, 1]) {
+  const dx = lado > 0 ? 0.13 : 0;
+  for (let j = -18; j <= 17; j++) {
+    const x = (j + 0.5) * 0.5 + dx;
+    ELEC.push({ tipo: 'del', lado, x0: x, y0: lado * Y_DEL, sem: azar(j + 100, lado > 0 ? 1 : 2), j });
+  }
+  // uno de cada dos huecos recibe a uno que llega de atrás
+  for (let j = -18; j <= 17; j += 2) {
+    const x = (j + 0.5) * 0.5 + dx;
+    const r = azar(j + 300, lado > 0 ? 3 : 4);
+    ELEC.push({ tipo: 'llega', lado, x0: x + 0.3 * (r - 0.5), y0: lado * (MI.HUECO / 2 + 0.52 + 0.86 + 0.2 * (r - 0.5)), xa: x + 0.07, ya: lado * (Y_DEL + 0.03),
+      x1: x + 0.25, y1: lado * Y_SEG, sem: r, j });
+  }
+}
+for (const a of ATOMOS) {
+  if (a.f === 0) {
+    // el que queda en el lado de fuera del átomo de delante
+    ELEC.push({ tipo: 'orbita', lado: a.lado, cx: a.x, cy: a.y, r: 0.3, fase: a.sem * 6.28, w: 0.35 + 0.2 * a.sem, f: 0, lejos: true });
+  } else {
+    for (let k = 0; k < 3; k++) ELEC.push({ tipo: 'orbita', lado: a.lado, cx: a.x, cy: a.y, r: 0.3 + 0.05 * k, fase: a.sem * 6.28 + k * 2.1, w: (0.3 + 0.2 * a.sem) * (k % 2 ? -1 : 1), f: a.f });
+  }
+}
+// el lado de la persona llega desde 0,45 más arriba, baja y rebota en el hueco
+const caida = (ts) => -0.45 * (1 - eob(prog(ts, T.baja3[0], T.baja3[1]), 1.4));
+// posición de cada electrón (unidades) en el instante ts, y su capa (0 delante … 2 atrás)
+function posElectron(e, ts, n) {
+  const tz = Math.min(ts, QUIETO);
+  const jit = (k) => 0.01 * (azar(n, Math.floor(e.sem * 1000) + k) - 0.5);
+  // el lado de la persona baja y rebota al llegar al hueco (el de la silla se queda)
+  const caer = e.lado < 0 ? caida(ts) : 0;
+  if (e.tipo === 'orbita') {
+    const a = e.fase + e.w * tz;
+    let y = e.cy + e.r * 0.85 * Math.sin(a);
+    // el de la cara de delante va por el lado de fuera de su nube (lejos del hueco)
+    if (e.f === 0) y = e.cy + e.lado * (Math.abs(e.r * 0.85 * Math.sin(a)) * 0.9 + 0.05);
+    return { x: e.cx + e.r * Math.cos(a) + jit(1), y: y + caer + jit(2), f: e.f };
+  }
+  // empujan hacia el hueco, un poco, cada uno a su ritmo
+  const empuja = 0.025 * Math.sin(tz * (3.1 + 2.3 * e.sem) + e.sem * 9) * e.lado;
+  if (e.tipo === 'del') {
+    // al apartarse, los de delante se corren un poco hacia un lado para dejar sitio
+    const ua = prog(ts, T.aparta[0] + 0.25 * cl(Math.abs(e.x0) / 4), T.aparta[0] + 0.25 * cl(Math.abs(e.x0) / 4) + 0.75);
+    const corre = -0.07 * Math.sin(Math.PI * ua) * (e.j % 2 === 0 ? 1 : -1);
+    return { x: e.x0 + corre + jit(1), y: e.y0 + caer + empuja + jit(2), f: 0 };
+  }
+  // los que llegan: de su átomo de atrás al hueco de delante (se amontonan) y luego a la segunda capa
+  const ul = eio(prog(ts, T.amontona[0] + 0.15 * e.sem, T.amontona[1]));
+  const d0 = 0.25 * cl(Math.abs(e.x0) / 4);
+  const ua = eio(prog(ts, T.aparta[0] + d0, T.aparta[0] + d0 + 0.8));
+  let x = mix(e.x0, e.xa, ul), y = mix(e.y0, e.ya, ul);
+  x = mix(x, e.x1, ua); y = mix(y, e.y1, ua);
+  // apretados: tiemblan
+  const apretado = ul * (1 - ua);
+  x += 0.03 * apretado * Math.sin(tz * 31 + e.sem * 7);
+  return { x: x + jit(1), y: y + caer * (1 - ul) + jit(2), f: ul > 0.5 ? 0 : 1, apretado };
+}
+
+// fotos 2D al cargar: las cuentas (8 variantes de un electrón) y las nubes (3 por lado)
+const CUENTAS = [];
+let R_CUENTA = 84;
+function hacerCuentas() {
+  const z = 6.0, paso = 200, esc = paso / pxPorUnidad(z);
+  const o = { pos: en(960, 540, z), escala: esc, rot: [0, 0, 0] };
+  P.limpiar(); P.pieza(I.CUE, o); P.render(3001, { fondo: false });
+  const f = foto(P), k = f.width / W;
+  R_CUENTA = 0.42 * paso;
+  for (let i = 0; i < 8; i++) {
+    const c = pant(mundoPieza(o, [i - 3.5, 0, 0]));
+    const s = document.createElement('canvas'); s.width = s.height = Math.round(paso * k);
+    s.getContext('2d').drawImage(f, (c[0] - paso / 2) * k, (c[1] - paso / 2) * k, paso * k, paso * k, 0, 0, s.width, s.height);
+    CUENTAS.push(s);
+  }
+  P.limpiar();
+}
+const NUBES = { '-1': [], '1': [] };
+const R_NUBE = 200;      // radio de la nube en su foto (px)
+function hacerNubes() {
+  const tintes = { '-1': [118, 104, 78], '1': [150, 92, 50] };
+  for (const lado of [-1, 1]) for (let s = 0; s < 3; s++) {
+    const c = document.createElement('canvas'); c.width = c.height = 2 * R_NUBE + 60;
+    const gc = c.getContext('2d');
+    const C = R_NUBE + 30;
+    nubeElectrones(gc, { centro: [C, C], ejeX: [R_NUBE * 0.95, 0], ejeY: [0, R_NUBE * 0.95], forma: 'bola', motas: 0, bocanadas: 120, fuerza: 1.15, semilla: 31 + s * 7 + (lado > 0 ? 50 : 0), desenfoque: 9 });
+    // tinte: caqui (el pantalón) arriba, haya (la silla) abajo
+    gc.globalCompositeOperation = 'source-atop';
+    const [r, gg, b] = tintes[lado];
+    gc.fillStyle = `rgba(${r},${gg},${b},0.55)`; gc.fillRect(0, 0, c.width, c.height);
+    NUBES[lado].push(c);
+  }
+}
+// cada cuenta, en pantalla: (x, y) centro, r radio (px), variante, alfa, desenfoque (0…1: las de atrás)
+function cuenta(x, y, r, v, alfa = 1) {
+  const s = CUENTAS[v % 8], d = 2 * r * (100 / 84);
+  g.globalAlpha = alfa;
+  g.drawImage(s, x - d / 2, y - d / 2, d, d);
+  g.globalAlpha = 1;
+}
+function vistaAtomica(n, ts, { O, Z, Cx = 0, Cy = 0, alfa = 1 }) {
+  if (alfa <= 0.001) return;
+  const sx = (x) => O[0] + Z * (x - Cx), sy = (y) => O[1] + Z * (y - Cy);
+  const tz = Math.min(ts, QUIETO);
+  const caer = caida(ts);
+  g.save(); g.globalAlpha = alfa;
+  // fondo: penumbra caqui arriba y de haya abajo; el hueco, oscuro
+  const yh = sy(0);
+  g.fillStyle = 'rgb(14,12,10)'; g.fillRect(-W, -H, 3 * W, H + yh);
+  g.fillStyle = 'rgb(16,10,7)'; g.fillRect(-W, yh, 3 * W, 2 * H);
+  let gr = g.createLinearGradient(0, yh - 3.2 * Z, 0, yh);
+  gr.addColorStop(0, 'rgba(14,12,10,1)'); gr.addColorStop(1, 'rgba(46,41,31,1)');
+  g.fillStyle = gr; g.fillRect(-W, yh - 3.2 * Z, 3 * W, 3.2 * Z);
+  gr = g.createLinearGradient(0, yh, 0, yh + 3.2 * Z);
+  gr.addColorStop(0, 'rgba(52,33,20,1)'); gr.addColorStop(1, 'rgba(16,10,7,1)');
+  g.fillStyle = gr; g.fillRect(-W, yh, 3 * W, 3.2 * Z);
+  g.restore();
+  g.save(); g.globalAlpha = alfa;
+  // las nubes de los átomos, de atrás a delante (las de atrás, más oscuras y desenfocadas)
+  const xMin = Cx - (O[0] + 60) / Z - 1, xMax = Cx + (W - O[0] + 60) / Z + 1;
+  for (let f = 2; f >= 0; f--) {
+    for (const a of ATOMOS) {
+      if (a.f !== f || a.x < xMin || a.x > xMax) continue;
+      const y = a.y + (a.lado < 0 ? caer : 0);
+      const R = Z * (0.6 + 0.04 * a.sem) * (1 - 0.06 * f);
+      const nb = NUBES[a.lado][Math.floor(a.sem * 3)];
+      g.globalAlpha = alfa * (f === 0 ? 0.95 : f === 1 ? 0.62 : 0.38);
+      const s = R / R_NUBE;
+      g.drawImage(nb, sx(a.x) - (R_NUBE + 30) * s, sy(y) - (R_NUBE + 30) * s, (2 * R_NUBE + 60) * s, (2 * R_NUBE + 60) * s);
+      // el núcleo: un guisante de luz, diminuto
+      if (f < 2) { g.globalAlpha = alfa * (f === 0 ? 0.8 : 0.4); g.fillStyle = 'rgba(255,200,140,1)'; g.beginPath(); g.arc(sx(a.x), sy(y), Math.max(1.2, 0.006 * Z), 0, 6.283); g.fill(); }
+    }
+    // electrones de esa capa
+    const lista = [];
+    for (const e of ELEC) {
+      const p = posElectron(e, ts, n);
+      if (p.f !== f) continue;
+      if (p.x < xMin || p.x > xMax) continue;
+      lista.push([p, e]);
+    }
+    for (const [p, e] of lista) {
+      const r = Z * MI.RE * (f === 0 ? 1 : f === 1 ? 0.85 : 0.7);
+      const v = Math.floor(azar(n, Math.floor((e.sem ?? 0.5) * 997) + 11) * 8);
+      cuenta(sx(p.x), sy(p.y), r, v, alfa * (f === 0 ? 1 : f === 1 ? 0.7 : 0.45));
+      // brillo propio (como los de Atom)
+      if (f === 0) brillo([sx(p.x), sy(p.y)], r * 2.3, 0.1 * alfa, '255,170,80');
+    }
+  }
+  g.restore();
+  // el cojín: una franja de luz fría muy suave en el hueco, que late con las chispas
+  const hz = (MI.HUECO / 2) * Z;
+  const k = alfa * (0.6 + 0.4 * azar(n, 77)) * ss(T.baja3[0] + 0.3, T.baja3[1], ts);
+  if (k > 0.01) {
+    g.save(); g.globalCompositeOperation = 'lighter';
+    const y0 = sy(0) + caer * 0.5 * Z;
+    gr = g.createLinearGradient(0, y0 - hz, 0, y0 + hz);
+    gr.addColorStop(0, 'rgba(160,190,240,0)'); gr.addColorStop(0.5, `rgba(170,200,250,${0.12 * k})`); gr.addColorStop(1, 'rgba(160,190,240,0)');
+    g.fillStyle = gr; g.fillRect(0, y0 - hz, W, 2 * hz);
+    g.restore();
+  }
+}
+// las chispas del kit, vivas: dos piezas a lo largo del hueco (centro en pantalla y), semilla por fotograma
+const PX_CHISPA = 340;       // px por unidad local de la pieza (cada una cubre 680 px)
+function ponerChispas(n, ts, y, fuerza) {
+  if (fuerza <= 0.01) return;
+  const z = 8.0, esc = PX_CHISPA / pxPorUnidad(z);
+  const nz = Math.floor(Math.min(ts, QUIETO) * 12);
+  chispas(P, I.CH1, { pos: en(960 - PX_CHISPA, y, z), escala: esc, n: 9, semilla: nz * 2 + 1, fuerza });
+  chispas(P, I.CH2, { pos: en(960 + PX_CHISPA, y, z), escala: esc, n: 9, semilla: nz * 2 + 2, fuerza });
+}
+// resplandor de las chispas: la capa de WebGL (solo chispas) desenfocada y sumada, en la franja del hueco
+function resplandor(y, alto) {
+  const k = lienzoGL.width / W;
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'lighter';
+  g.filter = `blur(${(14 * k).toFixed(1)}px)`; g.globalAlpha = 0.9;
+  const y0 = Math.max(0, (y - alto) * k), h = Math.min(lienzoGL.height - y0, 2 * alto * k);
+  g.drawImage(lienzoGL, 0, y0, lienzoGL.width, h, 0, y0, lienzoGL.width, h);
+  g.filter = 'none'; g.restore();
+}
+function planoMicro(n, ts) {
+  const up = prog(ts, T.empuje[0], T.empuje[1]);
+  // la cámara de la vista atómica: Z, y el punto de la pantalla donde queda el hueco
+  const ual = eio(prog(ts, T.aleja[0], T.aleja[1]));
+  let Z = mix(MI.Z4 * (1 + 0.04 * prog(ts, T.empuje[1], T.aleja[0])), MI.Z5, ual);
+  let O = [960, 540], alfa = 1;
+  if (up < 1) {
+    // empuje 2D en la foto de la persona sentada, hacia la frontera muslo–asiento, que se gira hasta quedar en horizontal
+    const ue = eic(up) * 0.55 + eio(up) * 0.45;
+    const s = Math.exp(Math.log(SMAX) * ue);
+    const q = [mix(CONTACTO[0], 960, eio(up)), mix(CONTACTO[1], 540, eio(up))];
+    const giro = -ANG_CONTACTO * eio(up);
+    g.save();
+    g.translate(q[0], q[1]); g.rotate(giro); g.scale(s, s); g.translate(-CONTACTO[0], -CONTACTO[1]);
+    const bl = Math.min(10, Math.max(0, (s - 1.5) * 1.2));
+    if (bl > 0.3) g.filter = `blur(${(bl / s).toFixed(2)}px)`;
+    g.drawImage(F('sentada'), 0, 0, W, H);
+    g.filter = 'none';
+    g.restore();
+    alfa = ss(0.45, 0.9, up);
+    Z = MI.Z4 * s / SMAX;
+    O = q;
+    g.save(); g.translate(q[0], q[1]); g.rotate(giro * (1 - alfa)); g.translate(-q[0], -q[1]);
+    vistaAtomica(n, ts, { O, Z, alfa });
+    g.restore();
+  } else {
+    vistaAtomica(n, ts, { O, Z, alfa: 1 });
+  }
+  // chispas vivas en el hueco y Atom
+  const fz = alfa * (0.55 + 0.45 * ss(T.baja3[0] + 0.25, T.baja3[0] + 0.5, ts)) * ss(T.empuje[1] - 0.25, T.empuje[1] + 0.1, ts);
+  const yH = O[1] + caida(ts) * 0.5 * Z;
+  P.limpiar();
+  ponerChispas(n, ts, yH, fz);
+  P.render(n, { fondo: false });
+  pegarGL();
+  if (fz > 0.01) resplandor(yH, 120);
+  P.limpiar();
+  atomo(ts, { pos: SITIO, esc: A_ESC });
+  P.render(n, { fondo: false });
+  pegarGL();
+  parpadeo(n);
+}
+
+// ---------------------------------------------------------------- fotos
+const HACER = {
+  regla() { P.limpiar(); P.regla(REGLA); P.render(3010, { fondo: false }); return foto(P); },
+  // la multitud entera, sola (para comprimirla en 2D)
+  mult() { P.limpiar(); multitud(P, I.MUL, { ...MULT, aparicion: 1 }); P.render(3011, { fondo: false }); return foto(P); },
+  // la persona del general, quieta (con el fondo y su sombra)
+  personaG1() { P.limpiar(); personaG1(T.comprime[0]); P.render(3012); return foto(P); },
+  // la persona sentada con la silla (sin el «?» ni Atom)
+  sentada() { planoG3(4001, T.fotoSentada, { soloFoto: true }); return foto(P); },
+};
+const FOTOS = {};
+let hechasAhora = 0;
+function F(nombre) { if (!FOTOS[nombre]) { FOTOS[nombre] = HACER[nombre](); hechasAhora++; } return FOTOS[nombre]; }
+// la frontera muslo–asiento en la foto de la persona sentada (px) y su inclinación
+let CONTACTO = [0, 0], ANG_CONTACTO = 0;
+const SMAX = 12;
+{
+  const a = pant(enPieza(SILLA3, [-0.2, 0.0, 0.17])), b = pant(enPieza(SILLA3, [-0.2, 0.0, -0.12]));
+  CONTACTO = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - 4];
+  ANG_CONTACTO = Math.atan2(a[1] - b[1], a[0] - b[0]);
+  if (ANG_CONTACTO > Math.PI / 2) ANG_CONTACTO -= Math.PI;
+  if (ANG_CONTACTO < -Math.PI / 2) ANG_CONTACTO += Math.PI;
+}
+// al cargar: la regla, la multitud, las cuentas y las nubes; el estreno de la persona y de Atom con su mano
+P.fotograma(0);
+F('regla');
+window.__carga.push(['regla', Math.round(performance.now())]);
+P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: { ...POSE_0 }, aspecto: 'adulto' }); P.render(3020, { fondo: false });
+P.limpiar(); P.atomo({ pos: [0, 0.3, -2], escala: 0.05, electrones: [{ pos: [2, 0, 0], mezcla: 1, brazo: 1, mano: 1 }] }); P.render(3021, { fondo: false });
+window.__carga.push(['persona y Atom', Math.round(performance.now())]);
+F('mult');
+window.__carga.push(['multitud', Math.round(performance.now())]);
+hacerCuentas(); hacerNubes();
+window.__carga.push(['cuentas y nubes', Math.round(performance.now())]);
+
+// (coste) las fotos que no se hacen al cargar se preparan en un fotograma barato poco antes de hacer falta
+const PREPARAR = [[T.multitud[0] - 0.25, 'personaG1', T.comprime[1]]];
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  const n = P.fotograma(t, D), ts = n / 12;
+  ajustarCapa();
+  hechasAhora = 0;
+  if (ts < T.corte1) planoG1(n, ts);
+  else if (ts < T.corte2) planoD2(n, ts);
+  else if (ts < T.empuje[0]) planoG3(n, ts);
+  else planoMicro(n, ts);
+  P.fotograma(t, D);
+  g.drawImage(F('regla'), 0, 0, W, H);
+  POST.aplicar(g, n);
+  if (!hechasAhora) {
+    const pendiente = PREPARAR.find(([t0, nombre, t1]) => ts >= t0 && ts < t1 && !FOTOS[nombre]);
+    if (pendiente) F(pendiente[1]);
+  }
+}
+window.__fin = { Z: MI.Z5, O: [960, 540], HUECO: MI.HUECO, RE: MI.RE, Y_DEL, Y_SEG, SITIO, A_ESC, REGLA: { ...REGLA, pieza: undefined, flecha: undefined },
+  ATOMO_F, PERSONA_F, POSE_0, PERSONA_3, SILLA3, CONTACTO, ANG_CONTACTO, T };
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

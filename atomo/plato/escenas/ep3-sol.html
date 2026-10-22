@@ -692,6 +692,7 @@ const guiasDe = (o) => { P.limpiar(); const h = P.pieza(I.PER, { ...o, postura: 
   const c = pant(h.mundo([0, 0.765, -0.01])), su = pant(h.mundo([0, -1, 0.05])), ce = pant(h.mundo([0, 0, 0]));
   return { x: Math.round(ce[0]), coronilla: Math.round(c[1]), suela: Math.round(su[1]) }; };
 window.__guias = guiasDe(PER);
+if (new URLSearchParams(location.search).has('dbg')) window.__dbg = { P, g, F, atomo, reglaEn, pegarGL, POST, ajustarCapa, FIN_TIERRA };
 window.__fin = { CIELO, SOL3_PX, PER, DIANA, CARA, T, CH,
   // el último fotograma (el primero de ep3-vuelta): el fondo, el cielo y el estado de Atom
   final: { fondo: { n: 932, somA: SOM_A }, cielo: { u: 1, apaga: CIELO.apaga }, atomo: (() => { const S = estadoAtom(QUIETO); return { sx: S.sx, sy: S.sy, tz: S.tz, ta: FIN_TIERRA.ta + tabla(TA, QUIETO), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH }; })() } };

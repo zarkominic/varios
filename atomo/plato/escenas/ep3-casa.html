@@ -290,18 +290,15 @@ function regla(ts) {
   const ac = mix(-9, -10, u);
   return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], ...REGLA_0, actual: ac, marca: ac, toque: u > 0 && u < 1 });
 }
-// la regla quieta es una foto (una para 10⁻⁹ y otra para 10⁻¹⁰, hechas la primera vez que hacen falta); solo se
-// dibuja viva mientras baja el marcador
-const FOTO_REGLA = {};
-function fotoRegla(ac) {
-  if (!FOTO_REGLA[ac]) {
-    P.limpiar();
-    P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], ...REGLA_0, actual: ac, marca: ac });
-    P.render(3000 - ac, { fondo: false });
-    FOTO_REGLA[ac] = foto(P);
-  }
-  return FOTO_REGLA[ac];
+// la regla quieta es una foto (una para 10⁻⁹, al cargar, y otra para 10⁻¹⁰, en un fotograma barato antes de que baje
+// el marcador: FOTOS.regla9 y FOTOS.regla10); solo se dibuja viva mientras baja el marcador
+function hacerFotoRegla(ac) {
+  P.limpiar();
+  P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], ...REGLA_0, actual: ac, marca: ac });
+  P.render(3000 - ac, { fondo: false });
+  return foto(P);
 }
+const fotoRegla = (ac) => F(ac === -10 ? 'regla10' : 'regla9');
 function capaArriba(n, ts, h = null) {
   const um = prog(ts, T.marcador[0], T.marcador[1]);
   const viva = um > 0 && um < 1;
@@ -390,6 +387,10 @@ let GEO_EST = null;
 GEO_EST = geometriaEstadio(P, ESTADIO);
 const FOTOS = { pg: pant(GEO_EST.guisante) };
 const HACER = {
+  regla9: () => hacerFotoRegla(-9),
+  regla10: () => hacerFotoRegla(-10),
+  // el plató vacío (fondo de los tramos de la fila)
+  fondo() { const n0 = P.fotograma(0); P.limpiar(); P.render(1999); const f = foto(P); P.fotograma(n0 / 12); return f; },
   estadio() { P.limpiar(); estadio(P, I.EST, ESTADIO); P.render(2001); return foto(P); },
   // el estadio recortado (para encogerlo y para que crezca desde el átomo): la foto con un óvalo de bordes suaves
   estadioA() {
@@ -465,18 +466,16 @@ function lienzoConMargen() {
 const dibujarConMargen = (f) => g.drawImage(f, -MARGEN * W, -MARGEN * H, W * (1 + 2 * MARGEN), H * (1 + 2 * MARGEN));
 let hechasAhora = 0;   // fotos hechas en el fotograma en curso (al pedirlas)
 function F(nombre) { if (!FOTOS[nombre]) { FOTOS[nombre] = HACER[nombre](); hechasAhora++; } return FOTOS[nombre]; }
-// al cargar: el plató vacío (fondo de los tramos de la fila) y el peldaño
-P.fotograma(0); P.limpiar(); P.render(1999);
-FOTOS.fondo = foto(P);
-P.limpiar(); peldano(P, I.PEL, PELDANO); P.render(2000);
+// al cargar: el peldaño (el plató vacío y la regla en 10⁻¹⁰, en los primeros fotogramas: ver PREPARAR)
+P.fotograma(0); P.limpiar(); peldano(P, I.PEL, PELDANO); P.render(2000);
 FOTOS.peldano = foto(P);
 window.__carga.push(['fondo y peldaño', Math.round(performance.now())]);
 // (coste) la persona se estrena aquí, pequeña: su primer dibujo paga la compilación de SwiftShader (~6 s)
 P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: { ...POSE_MANOS, fantasma: 1 }, aspecto: 'adulto' }); P.render(2005, { fondo: false });
 window.__carga.push(['persona', Math.round(performance.now())]);
-// (coste) también se estrenan Atom (con su mano) y la regla: las dos fotos de la regla quieta se hacen ya
+// (coste) también se estrenan Atom (con su mano) y la regla: la foto de la regla en 10⁻⁹ se hace ya
 P.limpiar(); P.atomo({ pos: [0, 0.3, -2], escala: 0.05, electrones: [{ pos: [2, 0, 0], mezcla: 1, brazo: 1, mano: 1 }] }); P.render(2006, { fondo: false });
-fotoRegla(-9); fotoRegla(-10);
+fotoRegla(-9);
 window.__carga.push(['Atom y regla', Math.round(performance.now())]);
 // las demás fotos se preparan en fotogramas baratos poco antes de hacer falta (ver PREPARAR), o al pedirlas
 ATOMO_F = (() => {
@@ -493,7 +492,7 @@ function baseA(n, ts) {
 }
 function baseFila(n, ts) {
   const Fi = estadoFila(ts);
-  g.drawImage(FOTOS.fondo, 0, 0, W, H);
+  g.drawImage(F('fondo'), 0, 0, W, H);
   if (ts >= T.crece[0]) {
     // el átomo del centro sigue creciendo solo; los vecinos se apartan y se apagan (fotos que se agrandan)
     const s = Fi.sep / S0, kv = ss(1.05, 1.9, s);
@@ -637,6 +636,7 @@ function basePersona(n, ts, plano) {
 // fotograma puede pasar de 5 s (hasta ~11 s con el servidor tranquilo, con el estreno del estadio); la imagen es la
 // misma
 const PREPARAR = [
+  [0, 'regla10', D + 1], [0, 'fondo', T.fundeEst[1]],
   [T.saludo[0] + 0.3, 'filaCasa', T.fundeEst[1]], [T.saludo[0] + 0.7, 'estadio', T.aparta[1]], [T.saludo[0] + 0.8, 'estadioA', T.aparta[1]],
   [T.fundeEst[1] + 0.4, 'detalle', T.deGuisante[1]], [T.deGuisante[1] + 0.2, 'personaE', T.corte],
   [T.fantasma[1] + 0.2, 'personaEparp', T_PARPADEO + 0.05],

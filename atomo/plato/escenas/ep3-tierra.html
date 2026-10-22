@@ -39,7 +39,7 @@ import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, muelle } from '/atomo/plato/kits/plastilina-adulta.js';
 import { crearMundo, camara, camaraPorTierra, mezclarCamaras, estadoMundo, fotoMundo, aPant, tierraPx, brilloCiudad, brilloLuna, gotasTierras,
-  tierrasQueCaen, fotoTierra, tiposCosmos, planeta, saturno, cinta, enPlato, fotoPieza, aqui, largoAqui, filaPlanetas,
+  tierrasQueCaen, tiposCosmos, planeta, saturno, cinta, enPlato, fotoPieza, aqui, largoAqui, filaPlanetas,
   lunaMundo, aMundo, PLANETAS, MUNDO, HUECO, FINAL_TIERRA } from '/atomo/plato/kits/ep03-cosmos.js';
 
 const T0 = performance.now();
@@ -101,6 +101,23 @@ const pant = (p) => P.proyectar(p);
 const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
 const E_PER = 2.4, PER = (() => { const a = en(612, 600, 0.6); return [a[0], 1.0 * E_PER, 0.6]; })();
 const E_REG = 1.42, REG = en(1655, 528, 0.4);
+
+// ---------------------------------------------------------------- lo que se prepara después de cargar
+// Para que la escena esté lista antes, lo que no hace falta en los primeros fotogramas (las fotos de los planetas y el
+// estreno de la cinta, la cota y la flecha de «tú estás aquí») se hace en los fotogramas baratos (el plató, la Tierra
+// entera y la espera de la Luna), unas pocas cosas cada vez y al principio del fotograma, antes de dibujarlo (lo que dejan
+// en el lienzo del plató se pisa). Un fotograma que necesite algo que aún no está (capturas sueltas o fuera de orden) lo
+// hace en ese momento.
+const TAREAS = [];
+function tarea(nombre, fn) {
+  const k = { nombre, fn, hecha: false };
+  TAREAS.push(k);
+  return () => { if (!k.hecha) { k.hecha = true; const a = performance.now(); k.fn(); log('tarea ' + nombre + ' ' + Math.round(performance.now() - a)); } };
+}
+const hacer = (k) => { if (!k.hecha) { k.hecha = true; const a = performance.now(); k.fn(); log('tarea ' + k.nombre + ' ' + Math.round(performance.now() - a)); } };
+function adelantar(t0, presupuesto = 900) {
+  for (const k of TAREAS) { if (performance.now() - t0 > presupuesto) break; hacer(k); }
+}
 
 // ---------------------------------------------------------------- capas: el mundo (oculto), el lienzo 2D y el plató
 const cont = document.getElementById('escena');
@@ -230,13 +247,14 @@ log('foto plato');
 // Cada uno de cara a la cámara en el centro del plató, al tamaño más grande que se va a ver (el plano medio, z = 8), salvo
 // Saturno, cuyos anillos no caben enteros a ese tamaño (se amplía un 26 % en el plano medio, donde se ve a medias).
 const C_HUECO = camara(8, { hueco: true });
-const Z_MEDIO = 7.8;
-// plano medio: el pelo (entre Neptuno y la Luna) en x = 930; Saturno queda fuera del cuadro (y lejos de Atom)
+const Z_MEDIO = 7.65;
+// plano medio (detalle): Neptuno grande, el pelo (entre Neptuno y la Luna, ~210 px) en x = 975 y la Luna; Urano se ve a
+// medias en el borde y Saturno, anillos incluidos, queda fuera del cuadro
 const C_MEDIO = (() => {
   const C0 = camaraPorTierra(Z_MEDIO, [0, HUECO.tierra[1]]);
   const f = filaPlanetas(C0);
   const x = (f.sobra[0] + f.sobra[1]) / 2;
-  return camaraPorTierra(Z_MEDIO, [930 - x, HUECO.tierra[1]]);
+  return camaraPorTierra(Z_MEDIO, [975 - x, HUECO.tierra[1]]);
 })();
 // los anillos, muy inclinados pero en «/» y a 57° (no 70°): no pasan de y 80–780 en el hueco (dentro de 60–880) y, al
 // acercarse la cámara, su mitad de abajo queda a la izquierda de Saturno, que sale del cuadro antes de la esquina de Atom
@@ -255,21 +273,22 @@ function rotAnillosB(angulo, apertura) {
   return [eu.x, eu.y, eu.z];
 }
 const ROT_SAT = rotAnillosB(-57 * Math.PI / 180, 0.2);
+// Las fotos de los planetas no hacen falta hasta la frase 56: se hacen después de cargar (ver «lo que se prepara después
+// de cargar»). Júpiter no se ve nunca más grande que en el hueco (en el acercamiento sale del cuadro antes de crecer)
 const SPR = PLANETAS.map((p) => {
   const rMax = p.d / 2 / C_MEDIO.mpp;
-  const R = p.anillos ? 250 : Math.max(40, Math.min(rMax, 400));
+  const R = p.anillos ? 250 : Math.max(40, Math.min(rMax, p.nombre === 'jupiter' ? 1.15 * p.d / 2 / C_HUECO.mpp : 400));
   const ext = p.anillos ? 2.35 : 1.08;
-  const sp = fotoPieza(P, () => {
-    const e = enPlato(P, 960, 540, R, 1.5);
-    if (p.anillos) saturno(P, I.SAT, { pos: e.pos, escala: e.escala, rot: ROT_SAT, huellaFija: [0.2, 0.1, 0.3] });
-    else planeta(P, I.PLA, { pos: e.pos, escala: e.escala, cual: p.cual, huellaFija: [0.1 * p.cual, 0.2, 0.1] });
-  }, { rect: [960 - R * ext, 540 - R * ext, 960 + R * ext, 540 + R * ext] });
-  return { sp, R, ext };
+  const S = { R, ext, sp: null };
+  S.hacer = tarea('planeta ' + p.nombre, () => {
+    S.sp = fotoPieza(P, () => {
+      const e = enPlato(P, 960, 540, R, 1.5);
+      if (p.anillos) saturno(P, I.SAT, { pos: e.pos, escala: e.escala, rot: ROT_SAT, huellaFija: [0.2, 0.1, 0.3] });
+      else planeta(P, I.PLA, { pos: e.pos, escala: e.escala, cual: p.cual, huellaFija: [0.1 * p.cual, 0.2, 0.1] });
+    }, { rect: [960 - R * ext, 540 - R * ext, 960 + R * ext, 540 + R * ext] });
+  });
+  return S;
 });
-log('sprites');
-// la Tierra entera del mundo, para las gotas
-const SPRITE_T = fotoTierra(mundo, 5);
-log('tierra');
 
 // ---------------------------------------------------------------- la cámara del mundo
 function camaraEn(ts) {
@@ -303,6 +322,45 @@ function fotoFija(ts, nf, extra) {
   const k = nf % 3, clave = f.n0 + k;
   if (!fotosFijas.has(clave)) fotosFijas.set(clave, fotoMundo(mundo, estadoMundo(f.C(), clave, extra)));
   return fotosFijas.get(clave);
+}
+// lo que el mundo lleva encima en el instante ts (la sombra de Atom, el color del espacio y la mirilla del primer salto)
+function extraEn(ts, C, zr) {
+  const S = estadoAtom(ts);
+  const extra = { somA: [S.sx + 22, S.sy + 30, 62, 0.42 + 0.16 * sueloClaro(ts, zr)] };
+  const cs = capasSol(ts, C);
+  if (cs) extra.capas = cs;
+  // primer salto: la foto del plató se encoge en una mirilla hacia la persona (como cosmos)
+  if (C.zr < 1.05) {
+    const s = Math.pow(10, -0.85 * Math.max(C.zr, 0));
+    const per = [612, 585], nos = tierraPx(C);
+    const rImg = mix(470, 1500, ss(0.8, 1.0, s));
+    extra.ins = { c: [nos[0] + (960 - per[0]) * s, nos[1] + (540 - per[1]) * s], s, a: 1 - ss(0.72, 1.0, C.zr), m: [nos[0], nos[1], rImg * s, 1] };
+  }
+  return extra;
+}
+// las Tierras que caen en el Sol son la Tierra entera de 10⁷ que se acaba de ver: un recorte redondo de la primera foto de
+// ese encuadre (con el borde de la atmósfera fundido), reducido en pasos de ½ a 128 px (se dibuja a menos de 100 px)
+let SPRITE_T = null;
+function spriteTierra() {
+  if (SPRITE_T) return SPRITE_T;
+  const ts = FIJOS[0].de + 1e-3, C = camara(7);
+  const foto = fotoFija(ts, 0, extraEn(ts, C, zRegla(ts)));
+  const [cx, cy] = tierraPx(C), R = MUNDO.R_TIERRA / C.mpp, Rb = R * 1.06, k = foto.width / W, L = 128;
+  let src = foto, sx = (cx - Rb) * k, sy = (cy - Rb) * k, lado = 2 * Rb * k;
+  while (lado / 2 > L) {
+    const n = Math.round(lado / 2), d = document.createElement('canvas'); d.width = d.height = n;
+    d.getContext('2d').drawImage(src, sx, sy, lado, lado, 0, 0, n, n);
+    src = d; sx = 0; sy = 0; lado = n;
+  }
+  const c = document.createElement('canvas'); c.width = c.height = L;
+  const x = c.getContext('2d');
+  x.beginPath(); x.arc(L / 2, L / 2, L / 2, 0, 2 * Math.PI); x.clip();
+  x.drawImage(src, sx, sy, lado, lado, 0, 0, L, L);
+  x.globalCompositeOperation = 'destination-in';
+  const h = x.createRadialGradient(L / 2, L / 2, (L / 2) * (R / Rb) * 0.97, L / 2, L / 2, L / 2);
+  h.addColorStop(0, 'rgba(0,0,0,1)'); h.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = h; x.fillRect(0, 0, L, L);
+  return (SPRITE_T = c);
 }
 
 // ---------------------------------------------------------------- lo de encima del mundo
@@ -489,8 +547,16 @@ function ondaLuna(ts, C) {
 }
 
 // ---------------------------------------------------------------- fotograma
+// los fotogramas baratos, donde se adelanta lo que se prepara después de cargar: el plató y la espera de la Luna (pasadas
+// sus tres primeras fotos)
+const barato = (ts) => ts < T.plato || (ts > SALTOS[7][1] + 0.4 && ts < T.pl0 - 0.1);
 function dibujar(t) {
+  const t0 = performance.now();
   const ts = Math.min(t, QUIETO);
+  // antes de dibujar: lo que este fotograma ya necesita y, si es barato, algo de lo que vendrá
+  if (ts >= T.pl0 - 0.02) SPR.forEach((S) => S.hacer());
+  if (ts > GOTAS[0].t - 0.1) spriteTierra();
+  if (barato(ts)) adelantar(t0);
   const nf = P.fotograma(ts);
   const zr = zRegla(ts);
   limpiarSobre();
@@ -504,17 +570,7 @@ function dibujar(t) {
   }
   ajustarCapa();
   const C = camaraEn(ts);
-  const S = estadoAtom(ts);
-  const extra = { somA: [S.sx + 22, S.sy + 30, 62, 0.42 + 0.16 * sueloClaro(ts, zr)] };
-  const cs = capasSol(ts, C);
-  if (cs) extra.capas = cs;
-  // primer salto: la foto del plató se encoge en una mirilla hacia la persona (como cosmos)
-  if (C.zr < 1.05) {
-    const s = Math.pow(10, -0.85 * Math.max(C.zr, 0));
-    const per = [612, 585], nos = tierraPx(C);
-    const rImg = mix(470, 1500, ss(0.8, 1.0, s));
-    extra.ins = { c: [nos[0] + (960 - per[0]) * s, nos[1] + (540 - per[1]) * s], s, a: 1 - ss(0.72, 1.0, C.zr), m: [nos[0], nos[1], rImg * s, 1] };
-  }
+  const extra = extraEn(ts, C, zr);
   const foto = fotoFija(ts, nf, extra);
   if (foto) pegar(foto);
   else { mundo.dibujar(estadoMundo(C, nf, extra)); pegar(mundo.lienzo); }
@@ -539,7 +595,7 @@ function dibujar(t) {
   }
   planetas(ts, C);
   if (ts > GOTAS[0].t - 0.1) {
-    tierrasQueCaen(g, SPRITE_T, { t: ts, gotas: GOTAS, sol: FINAL_TIERRA.sol, rTierra: Math.max(MUNDO.R_TIERRA / C.mpp, 4.5) });
+    tierrasQueCaen(g, spriteTierra(), { t: ts, gotas: GOTAS, sol: FINAL_TIERRA.sol, rTierra: Math.max(MUNDO.R_TIERRA / C.mpp, 4.5) });
   }
   // el plató encima: Atom, la regla y lo que se mueve
   P.limpiar();
@@ -551,15 +607,21 @@ function dibujar(t) {
   P.render(nf, { fondo: false });
   brilloMarca(ts, R);
 }
-// estrena los programas que se dibujan en vivo (para que ningún fotograma pague su compilación)
+// estrena los programas que se dibujan en vivo (para que ningún fotograma pague su compilación): Atom y la regla al cargar;
+// la flecha de «tú estás aquí», la cinta y la cota, después (la primera de las tareas: la flecha sale a 1,5 s)
 {
   P.fotograma(0); P.limpiar();
   atomo(0, 0); regla(0, 0);
+  P.render(0, { fondo: false });
+}
+tarea('estreno de la flecha, la cinta y la cota', () => {
+  P.fotograma(0); P.limpiar();
   cinta(P, I.CINTA, { desde: [300, 300], hasta: [600, 300], alto: 10, extension: 1 });
   P.pieza(I.COTA, { pos: en(900, 300, 1.6), escala: 0.3, variante: 1 });
   P.pieza(I.AQUI, { pos: en(1000, 300, 1.6), escala: 0.3 });
   P.render(0, { fondo: false });
-}
+});
+TAREAS.unshift(TAREAS.pop());
 log('listo');
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>
