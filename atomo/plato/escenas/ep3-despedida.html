@@ -93,7 +93,7 @@ const P = await crearPlato({
   piezas: ['reglaA', 'flecha', 'ojo', 'franja', 'tronco', 'humano', 'fila', 'remolino', 'mano', 'gigante', 'bocadillo', 'glifo:?'],
   tiposExtra: { ...tiposOjo({ cosas: ['galaxia'] }), ...tiposTocar(['fila']), ...tiposEstrellas(['gigante']) },
   uniformes: { ...UO, ...uniformesEstrellas() },
-  alfa: true, post: false,
+  alfa: true, post: false, mano: true,
   sombraFondo: ['p5', 'p6'],
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
 });
@@ -207,21 +207,22 @@ function atomoPlato(ts) {
   // el electrón sobre alambre: primero se toca el pecho (se señala) y luego sale hacia la cámara (señala a cámara)
   let aplasta = 0, electrones = [], toque = false, pitch = 0.06, yaw = -0.15 + 0.08 * Math.sin(tz * 0.5), roll = 0, bote = 0;
   if (!cerca) {
-    // «yo»: el electrón sale de su órbita, se acerca y da dos toques en su propio núcleo (completo al decir «yo»);
+    // «yo»: el electrón sale de su órbita sobre su alambre, se vuelve una manita (la del kit, { mano: true }) y da dos toques
+    // en su propio núcleo (completo al decir «yo»);
     // «y tú»: sale hacia la cámara, abajo a la derecha, y se queda señalando; al acabar la frase vuelve a su órbita
     const kSale = ss(T.yo[0] - 0.25, T.yo[0] + 0.05, ts), kFin = 1 - ss(T.suelta[0], T.suelta[1], ts);
     const kTu = ss(T.tu[0], T.tu[1], ts);
     const toques = Math.max(0, Math.sin(Math.PI * prog(ts, T.yo[1] - 0.2, T.yo[1] + 0.06)), Math.sin(Math.PI * prog(ts, T.yo[1] + 0.12, T.yo[1] + 0.38)));
     const llega = ss(T.yo[0] - 0.05, T.yo[1] - 0.15, ts);
-    const fuera = [2.4, 1.35, 0.6], pecho = [0.7, 0.25, 0.75], tu = [2.0, -1.25, 2.5];
+    const fuera = [2.4, 1.35, 0.6], pecho = [0.55, 0.3, 1.05], tu = [2.0, -0.3, 2.1];
     let p = [0, 1, 2].map((i) => mix(fuera[i], pecho[i], eio(llega)));
     p = [p[0] + 0.25 * (1 - toques) * llega, p[1] + 0.12 * (1 - toques) * llega, p[2] + 0.1 * (1 - toques) * llega];
     p = [0, 1, 2].map((i) => mix(p[i], tu[i], eio(kTu)));
     const sale = kSale * kFin;
-    if (sale > 0.001) { electrones = [{ pos: p, mezcla: eio(sale), brazo: ss(0.15, 0.7, sale), grosor: 0.05 }]; toque = true; }
-    // al tocarse se recoge un poco; al señalar a cámara se inclina hacia ella
-    pitch = 0.06 + 0.08 * llega * (1 - kTu) - 0.14 * kTu * kFin;
-    yaw += 0.12 * llega * (1 - kTu) - 0.2 * kTu * kFin;
+    if (sale > 0.001) { electrones = [{ pos: p, mezcla: eio(sale), brazo: ss(0.15, 0.7, sale), grosor: 0.05, mano: ss(0.3, 0.9, sale), tamMano: 0.42 }]; toque = true; }
+    // al tocarse se recoge un poco; al señalar a cámara da un bote hacia ella
+    pitch = 0.06 + 0.08 * llega * (1 - kTu);
+    yaw += 0.12 * llega * (1 - kTu);
     bote = 0.04 * toques + 0.06 * Math.sin(Math.PI * prog(ts, T.tu[0], T.tu[1] + 0.3));
     aplasta = 0.07 * toques * llega;
   }
