@@ -99,11 +99,11 @@ function haz(x, y) {
 }
 const LUZ_HAZ = [70, 50, 34];
 // mascara: no pinta los píxeles que va a tapar la persona (en los planos cerrados casi toda la pantalla)
-function platoBase(cam, buf, mascara = null) {
+function platoBase(cam, buf, mascara = null, rects = [[0, 0, W, H]]) {
   const { ancho, focoX, focoY, sueloY, semilla } = PL;
-  for (let sy = 0; sy < H; sy++) {
+  for (const [rx, ry, rw, rh] of rects) for (let sy = ry; sy < ry + rh; sy++) {
     const y = cam.cy + (sy - CY) / cam.s;
-    for (let sx = 0; sx < W; sx++) {
+    for (let sx = rx; sx < rx + rw; sx++) {
       const i = sy * W + sx;
       if (mascara && mascara[i]) continue;
       const x = cam.cx + (sx - CX) / cam.s;
@@ -156,10 +156,10 @@ function motas(cam, t) {
 }
 // los planos fijos (el general y el medio) se pintan una vez
 const FIJOS = {};
-function platoEn(cam, t, mascara = null) {
+function platoEn(cam, t, mascara = null, rects) {
   const dst = PX.destino().buf;
   if (cam.fijo && FIJOS[cam.fijo]) dst.set(FIJOS[cam.fijo].buf);
-  else platoBase(cam, dst, mascara);
+  else platoBase(cam, dst, mascara, rects);
   motas(cam, t);
 }
 
@@ -544,10 +544,10 @@ function borrarCeja(capa, O) {
   }
 }
 // la viñeta del kit (la piel se apaga lejos del ojo), aplicada aquí después de borrar la ceja
-function vinetaKit(capa, O, vineta) {
+function vinetaKit(capa, O, vineta, [x0, y0, x1, y1] = [0, 0, W - 1, H - 1]) {
   if (vineta <= 0) return;
   const { cx, cy, a } = O, buf = capa.buf;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
     const d = Math.hypot((x + 0.5 - cx) / (a * 1.75), (y + 0.5 - cy) / (a * 1.1));
     const q = Math.floor(clamp((d - 0.72) * 0.9, 0, 0.6) * vineta * 5 + b4(x, y)) / 5;
     if (q > 0) { const i = y * W + x, p = buf[i], f = 1 - q; buf[i] = color((p & 255) * f * 0.97, ((p >>> 8) & 255) * f, ((p >>> 16) & 255) * f * 1.04); }
@@ -566,10 +566,10 @@ function nivelCon(L, Y) {
   for (let j = 0; j < L.length - 1; j++) if (Y <= L[j + 1]) return j + (Y - L[j]) / Math.max(1e-6, L[j + 1] - L[j]);
   return L.length - 1;
 }
-function exponer(capa, k) {
+function exponer(capa, k, [x0, y0, x1, y1] = [0, 0, W - 1, H - 1]) {
   if (Math.abs(k - 1) < 1e-4) return;
   const NIV = LUMS.map((L) => L.map((y) => nivelCon(L, y * k))), buf = capa.buf;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
     const i = y * W + x, rj = EN_RAMPA.get(buf[i]);
     if (rj === undefined) continue;
     const r = rj >> 6, j = rj & 63;
@@ -587,19 +587,34 @@ function fundir(cara, ojo, wFn) {
 
 const capaOjo = PX.nuevaCapa(W, H), capaCara = PX.nuevaCapa(W, H);
 function vinetaOjo(t) { return suave(T.fun1 - 0.2, T.ojoZ, t); }
-function capaKit(O, conCeja, k = 1) {
-  PX.en(capaOjo, () => OJO.ojo({ ...O, vineta: 0 }));
+// el ojo del kit (recorte: [x0, y0, x1, y1], inclusivo; fuera, la capa queda como estaba y no se usa)
+function capaKit(O, conCeja, k = 1, rec = [0, 0, W - 1, H - 1]) {
+  PX.en(capaOjo, () => OJO.ojo({ ...O, vineta: 0, x0: rec[0], y0: rec[1], x1: rec[2], y1: rec[3] }));
   if (!conCeja) borrarCeja(capaOjo, O);
-  exponer(capaOjo, k);
-  vinetaKit(capaOjo, O, O.vineta);
+  exponer(capaOjo, k, rec);
+  vinetaKit(capaOjo, O, O.vineta, rec);
 }
-// la cara en vivo, a la escala exacta del fotograma: la persona primero y el plató solo donde no la tapa
-function pintarCara(t, cam, destino) {
-  PX.en(destino, () => {
-    const P = rasterP(cam, t, { wx: PER.x, o: POSE_ZUM, lleva: 1 }, reglaMedio(t));
-    platoEn(cam, t, P ? capaP.buf : null);
-    if (P) PX.pegar(capaP);
-  });
+// La cara en vivo, a la escala exacta del fotograma, solo en los rectángulos [x, y, ancho, alto] que aún la enseñan (con
+// origen múltiplo de 24, el tramado y las texturas del kit caen en los mismos píxeles que pintándola entera): la persona
+// primero y el plató solo donde no la tapa. Las manos quedan muy por debajo del cuadro.
+// (en teselas de 240 × 144 como mucho: el rasterizado del kit cuesta bastante más que el área en una capa grande)
+const teselas = (rects) => rects.flatMap(([rx, ry, rw, rh]) => {
+  const out = [];
+  for (let y = ry; y < ry + rh; y += 144) for (let x = rx; x < rx + rw; x += 240) out.push([x, y, Math.min(240, rx + rw - x), Math.min(144, ry + rh - y)]);
+  return out;
+});
+const manosFuera = (cam) => aPant(cam, PER.x, PER.y)[1] - 0.725 * PER.H * cam.s > H - 2;
+function pintarCara(t, cam, destino, rects = [[0, 0, W, H]]) {
+  rects = teselas(rects);
+  const [x, y] = aPant(cam, PER.x, PER.y), Hp = PER.H * cam.s;
+  const o = { ...POSE_ZUM, x, y, altura: Hp, t, sombra: 0, partes: 'todo' };
+  capaP.buf.fill(0);
+  for (const [rx, ry, rw, rh] of rects) {
+    const L = PX.nuevaCapa(rw, rh);
+    PX.en(L, () => PX.persona({ ...o, x: x - rx, y: y - ry }));
+    for (let j = 0; j < rh; j++) capaP.buf.set(L.buf.subarray(j * rw, (j + 1) * rw), (ry + j) * W + rx);
+  }
+  PX.en(destino, () => { platoEn(cam, t, capaP.buf, rects); PX.pegar(capaP); });
 }
 // exposición: la luminancia media de la piel alrededor del ojo en la cara y en el ojo del kit, en un anillo fuera de los párpados
 const PIELES = new Set(PAL.PIEL);
@@ -624,12 +639,40 @@ const K0 = medirK(T.fun0), K1 = medirK(T.fun1 - 1e-4);
 // y la recupera en 0,55 s. Tras el fundido sigue el ojo solo.
 function pesoFundido(q, O, a) {
   const icx = O.cx, ey0 = O.cy + OJO.PROP.DI * a - 0.12 * a, rx = 1.15 * a, ry = 0.68 * a;
+  const dE = (x, y) => Math.hypot((x + 0.5 - icx) / rx, (y + 0.5 - ey0) / ry);
   const dEm = Math.max(...[[0, 0], [W, 0], [0, H], [W, H]].map(([x, y]) => Math.hypot((x - icx) / rx, (y - ey0) / ry)));
-  return (x, y) => {
-    const dE = Math.hypot((x + 0.5 - icx) / rx, (y + 0.5 - ey0) / ry);
-    if (dE <= 1) return (q - 0.06 * dE) / 0.2;
-    const dn = (dE - 1) / (dEm - 1);
+  const wDe = (d) => {                                            // decrece con d
+    if (d <= 1) return (q - 0.06 * d) / 0.2;
+    const dn = (d - 1) / (dEm - 1);
     return (q - 0.06 - 0.5 * dn) / (0.2 + 0.24 * Math.min(1, dn * 4));
+  };
+  // celdas de 24 px: dónde hace falta aún la cara (algún píxel con w < 1) y dónde ya hay ojo (w > 0)
+  const C = 24, rects = [];
+  let prev = [], k0 = W, k1 = -1, j0 = H, j1 = -1;
+  for (let y0 = 0; y0 < H; y0 += C) {
+    const y1 = Math.min(H, y0 + C), runs = [];
+    let ini = -1;
+    for (let x0 = 0; x0 < W; x0 += C) {
+      const x1 = Math.min(W, x0 + C);
+      const dMax = Math.max(dE(x0, y0), dE(x1 - 1, y0), dE(x0, y1 - 1), dE(x1 - 1, y1 - 1));
+      const dMin = dE(clamp(Math.floor(icx), x0, x1 - 1), clamp(Math.floor(ey0), y0, y1 - 1));
+      if (wDe(Math.max(0, dMin - 0.02)) > 0) { k0 = Math.min(k0, x0); k1 = Math.max(k1, x1 - 1); j0 = Math.min(j0, y0); j1 = Math.max(j1, y1 - 1); }
+      const cara = wDe(dMax + 0.02) < 1;
+      if (cara && ini < 0) ini = x0;
+      if (!cara && ini >= 0) { runs.push([ini, x0]); ini = -1; }
+    }
+    if (ini >= 0) runs.push([ini, W]);
+    const sig = [];
+    for (const [xa, xb] of runs) {
+      const r = prev.find((p) => p.x0 === xa && p.x1 === xb);
+      if (r) { r.y1 = y1; sig.push(r); } else { const nr = { x0: xa, x1: xb, y0, y1 }; rects.push(nr); sig.push(nr); }
+    }
+    prev = sig;
+  }
+  return {
+    w: (x, y) => wDe(dE(x, y)),
+    cara: rects.map((r) => [r.x0, r.y0, r.x1 - r.x0, r.y1 - r.y0]),
+    ojo: k1 >= 0 ? [k0, j0, k1, j1] : null,
   };
 }
 function ojoEnorme(t, cam) {
@@ -639,10 +682,10 @@ function ojoEnorme(t, cam) {
   const conCeja = t >= T.ojoZ - 0.25, expo = t < T.fun1 + 0.55;
   if (conCeja && !expo) { OJO.ojo(O); return; }                  // el ojo del kit tal cual
   if (t < T.fun1) {
-    const q = prog(t, T.fun0, T.fun1);
-    capaKit(O, conCeja, mezcla(K0, K1, q));
-    pintarCara(t, cam, capaCara);
-    fundir(capaCara, capaOjo, pesoFundido(q, O, a));
+    const q = prog(t, T.fun0, T.fun1), F = pesoFundido(q, O, a);
+    if (F.ojo) capaKit(O, conCeja, mezcla(K0, K1, q), F.ojo);
+    if (F.cara.length) pintarCara(t, cam, capaCara, F.cara);
+    fundir(capaCara, capaOjo, F.w);
   } else {
     capaKit(O, conCeja, mezcla(K1, 1, entraSale(prog(t, T.fun1, T.fun1 + 0.55))));
     PX.pegar(capaOjo, 0, 0, { opaco: true });
@@ -675,10 +718,13 @@ function dibujar(t) {
     dibBokeh(t, cam);
   } else if (t < T.fun0) {
     // plano medio y primera parte del empuje: la persona se vuelve a pintar a cada escala y el plató donde no la tapa
-    const st = t < T.empuje ? personaMedio(t) : { wx: PER.x, o: POSE_ZUM, lleva: 1 };
-    const P = rasterP(cam, t, st, reglaMedio(t));
-    platoEn(cam, t, P && !cam.fijo ? capaP.buf : null);
-    if (P) PX.pegar(capaP);
+    if (t >= T.empuje && manosFuera(cam)) pintarCara(t, cam, PX.destino());   // solo la cabeza: por teselas
+    else {
+      const st = t < T.empuje ? personaMedio(t) : { wx: PER.x, o: POSE_ZUM, lleva: 1 };
+      const P = rasterP(cam, t, st, reglaMedio(t));
+      platoEn(cam, t, P && !cam.fijo ? capaP.buf : null);
+      if (P) PX.pegar(capaP);
+    }
     dibAtom(t, cam);
   } else if (t < T.arriba1) {
     ojoEnorme(t, cam);

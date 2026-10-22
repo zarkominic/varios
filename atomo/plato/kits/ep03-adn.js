@@ -27,7 +27,7 @@
 //      plana en y ≈ −0,68) con la membrana rosada y translúcida; corte (0…1) abre una cuña vertical que mira a +z (0:
 //      cerrada · 1: unos 56° a cada lado) y deja ver el citoplasma en las dos caras del corte (gelatina clara con
 //      gránulos, mitocondrias de terracota con sus crestas, vesículas crema, el retículo en bandas alrededor del núcleo
-//      y la membrana doble en el borde). El NÚCLEO es una esfera de radio 0,44 en ADN_MEDIDAS.nucleo ([0, 0,04, 0,02]):
+//      y la membrana doble en el borde). Los orgánulos van modelados sobre cada cara, como en una maqueta de museo. El NÚCLEO es una esfera de radio 0,44 en ADN_MEDIDAS.nucleo ([0, 0,04, 0,02]):
 //      no se corta, asoma entero en la cuña.
 //        nucleo 1: la envoltura entera, de pizarra azulada con sus poros (opaca).
 //        nucleo 0: solo la mitad de atrás de la envoltura (z < 0: un cuenco oscuro) con la MADEJA dentro (madeja: true).
@@ -76,9 +76,15 @@
 //    madeja(P, i, { pos: c.nucleo, escala: 0,8 × ADN_MEDIDAS.RN × escala de la célula, rot: la de la célula, semilla:
 //    la de la célula }): es la misma madeja de dentro, en el mismo sitio. Respeta la transformación de g.
 //
-// COSTE (este servidor, 1920 × 1080, servidor cargado con otros agentes renderizando; ver la hoja): célula de ~600 px,
-// 1,5–3 s (es una foto: se hace al cargar); madeja de ~500 px, 1–2 s; hilo, 0,2–0,6 s (vivo); hélice a pantalla
-// completa en vertical, 1,5–3 s (viva). Lo quieto se fotografía; lo que se mueve lleva envolvente.
+// COSTE (este servidor, 1920 × 1080; en segundos de CPU del navegador, sumando sus hilos, que no dependen tanto de la
+// carga del servidor: con 4 núcleos libres, el tiempo real es de un tercio a la mitad). Celda de la hoja (con el
+// plató, su sombra y el estreno del programa): célula de ~420 px, 4,2 · con la madeja dentro, 7,3 · la célula de cerca
+// con el núcleo translúcido (dos fotos a pantalla completa), 28 · madeja de ~500 px, 10,7 · hilo, 3,8 · hélice a
+// pantalla completa en vertical, 7,2, y de cerca, 8. Dentro de ep3-adn (sin estreno, sobre transparente, con Atom):
+// hélice a toda la altura, 6,4–7,2 por fotograma; el hilo, 0,5–2. Como referencia, prueba-plastilina-adulta cuesta
+// 8,2–8,5 en sus fotogramas con la persona y 90,8 al cargar. Lo quieto se fotografía (la célula siempre: es una foto
+// al cargar); lo que se mueve lleva envolvente. Ojo con los bucles en el color de una pieza (pzcol): este servidor los
+// paga en cada píxel aunque no apliquen; por eso los poros y los orgánulos se colocan con una red (O(1)) y no con listas.
 //
 // CONGELADO el 22-10-2026, entregado con la hoja de prueba (escenas/ep03-adn-hoja.html: __frame(0) la hoja entera,
 // __frame(k) la celda k). Las escenas que lo usan no lo cambian.
@@ -130,25 +136,6 @@ const MADS = (() => {
   return out;
 })();
 
-// ---------------------------------------------------------------- la célula: orgánulos (solo color en las caras del corte)
-const ORG = (() => {
-  const r = semillero(7031), mito = [], ves = [];
-  const nc = ADN_MEDIDAS.nucleo, rn = ADN_MEDIDAS.RN;
-  const dentro = (p, k) => (p[0] / 1.0) ** 2 + (p[1] / 0.74) ** 2 + (p[2] / 0.94) ** 2 < k * k;
-  const lejos = (p, d) => Math.hypot(p[0] - nc[0], p[1] - nc[1], p[2] - nc[2]) > rn + d;
-  while (mito.length < 34) {
-    const p = [2 * r() - 1, 1.5 * r() - 0.75, 2 * r() - 1];
-    if (!dentro(p, 0.82) || !lejos(p, 0.14)) continue;
-    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(r() * 6.28, r() * 6.28, r() * 6.28));
-    mito.push({ p, m: new THREE.Matrix3().setFromMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q)) });
-  }
-  while (ves.length < 46) {
-    const p = [2 * r() - 1, 1.5 * r() - 0.75, 2 * r() - 1];
-    if (!dentro(p, 0.86) || !lejos(p, 0.08)) continue;
-    ves.push([...p, 0.028 + 0.035 * r()]);
-  }
-  return { mito, ves };
-})();
 
 // ---------------------------------------------------------------- GLSL común del kit
 const GLSL_COMUN = /* glsl */`
@@ -233,11 +220,6 @@ vec3 adColorMadeja(vec3 q, float sem, float id, vec2 uv, out vec3 g) {
 const GLSL_CELULA = /* glsl */`
 const vec3 AD_NC = ${v3(ADN_MEDIDAS.nucleo)};
 const float AD_RN = ${fl(ADN_MEDIDAS.RN)};
-const int CE_NMITO = ${ORG.mito.length};
-const vec3 CE_MP[${ORG.mito.length}] = vec3[${ORG.mito.length}](${ORG.mito.map((o) => v3(o.p)).join(', ')});
-const mat3 CE_MM[${ORG.mito.length}] = mat3[${ORG.mito.length}](${ORG.mito.map((o) => m3(o.m)).join(', ')});
-const int CE_NVES = ${ORG.ves.length};
-const vec4 CE_V[${ORG.ves.length}] = vec4[${ORG.ves.length}](${ORG.ves.map((v) => `vec4(${v.map(fl).join(', ')})`).join(', ')});
 float ceForma(vec3 q) {
   float d = elipsoideP(q, vec3(1.0, 0.74, 0.94));
   d = smax(d, -0.68 - q.y, 0.1);
@@ -278,16 +260,16 @@ float pzc_celula(vec3 q, vec4 T) {
   float dn = length(q - AD_NC);
   return min(d, T.z > 0.5 ? dn - AD_RN * 0.95 : (T.w > 0.5 ? dn - AD_RN * 0.8 * 0.86 : 1e5));
 }
-// los poros de la envoltura: puntitos oscuros en una red de Fibonacci (n: la normal)
+// los poros de la envoltura: puntitos oscuros repartidos al azar (n: la normal; uno como mucho por celda de una red
+// de 0,2: O(1), sin recorrer una lista)
 float cePoros(vec3 n) {
-  float best = 1.0;
-  for (int i = 0; i < 220; i++) {
-    float y = 1.0 - (float(i) + 0.5) * 2.0 / 220.0, r = sqrt(1.0 - y * y), a = float(i) * 2.39996;
-    vec3 p = vec3(cos(a) * r, y, sin(a) * r);
-    best = min(best, length(n - p));
-  }
-  return 1.0 - smoothstep(0.022, 0.04, best);
+  vec3 p = n * 5.0;
+  vec3 ic = floor(p);
+  vec3 f = fract(p) - 0.5 - 0.3 * (vec3(hash13(ic + 2.1), hash13(ic + 4.3), hash13(ic + 6.5)) - 0.5);
+  float r = 0.11 + 0.07 * hash13(ic + 8.8);
+  return 1.0 - smoothstep(r, r + 0.07, length(f));
 }
+vec3 ceH3(vec3 p) { return vec3(hash13(p + 1.7), hash13(p + 5.3), hash13(p + 9.1)); }
 vec3 ceCitoplasma(vec3 q, float sem) {
   vec3 c = AD_CITO * (0.93 + 0.12 * vnoise(q * 9.0 + sem));
   // gránulos (ribosomas)
@@ -298,28 +280,39 @@ vec3 ceCitoplasma(vec3 q, float sem) {
   float banda = sin(e * 88.0 + 1.6 * sin(an * 3.0 + q.z * 5.0 + sem));
   float er = smoothstep(0.62, 0.9, banda) * smoothstep(0.035, 0.07, e) * (1.0 - smoothstep(0.17, 0.3, e)) * (0.55 + 0.45 * vnoise(q * 7.0));
   c = mix(c, AD_RE, er * 0.85);
-  // mitocondrias: óvalos de terracota con un borde más oscuro y sus crestas
-  for (int i = 0; i < CE_NMITO; i++) {
-    vec3 cp = CE_MP[i];
-    cp.xz = adGiro(sem * 0.9) * cp.xz;
-    vec3 p = CE_MM[i] * (q - cp);
-    float dm = elipsoideP(p, vec3(0.18, 0.068, 0.078));
-    if (dm < 0.006) {
-      float borde = smoothstep(-0.018, -0.004, dm);
-      float cresta = smoothstep(0.55, 0.85, sin(p.x * 70.0 + 2.0 * sin(p.y * 40.0)));
-      vec3 cm = mix(AD_MITO * 1.25, AD_MITO * 0.75, cresta * (1.0 - borde));
-      cm = mix(cm, AD_MITO * 0.6, borde);
-      c = mix(c, cm, 1.0 - smoothstep(0.0, 0.006, dm));
-    }
-  }
-  // vesículas: círculos crema con el borde más oscuro
-  for (int i = 0; i < CE_NVES; i++) {
-    vec4 v = CE_V[i];
-    vec3 vp = v.xyz; vp.xz = adGiro(sem * 0.9) * vp.xz;
-    float dv = length(q - vp) - v.w;
-    if (dv < 0.006) {
-      vec3 cv = mix(vec3(0.66, 0.6, 0.46), vec3(0.42, 0.3, 0.2), smoothstep(-0.012, -0.002, dv));
-      c = mix(c, cv, 1.0 - smoothstep(0.0, 0.006, dv));
+  // los orgánulos, modelados sobre cada cara del corte (como en una maqueta de museo): en el plano de la cara, uno como
+  // mucho por celda de una red de 0,26, buscando en las 4 celdas que rodean el punto (O(1)); ni junto al núcleo ni
+  // junto a la membrana
+  if (e < 0.06 || -ceForma(q) < 0.045) return c;
+  vec2 pc = vec2(q.x, q.z + 0.12);
+  float cara = q.x > 0.0 ? 1.0 : 0.0;
+  vec2 p = vec2(length(pc), q.y) / 0.26 + vec2(sem * 3.7 + cara * 17.3, sem * 1.3);
+  vec2 ib = floor(p - 0.5);
+  for (int k = 0; k < 4; k++) {
+    vec2 ic = ib + vec2(float(k & 1), float((k >> 1) & 1));
+    vec2 f = p - ic;
+    vec3 j = ceH3(vec3(ic, cara + 0.37));
+    float h = j.z;
+    if (h < 0.42) {
+      // mitocondria: un óvalo de terracota (medio largo 0,13, medio ancho 0,055), con borde más oscuro y sus crestas
+      vec2 v = (f - (0.5 + 0.3 * (j.xy - 0.5))) * 0.26;
+      float a = 6.2832 * hash13(vec3(ic, cara + 5.1));
+      v = adGiro(a) * v;
+      float dm = (length(v / vec2(0.13, 0.055)) - 1.0) * 0.055;
+      if (dm < 0.006) {
+        float borde = smoothstep(-0.016, -0.004, dm);
+        float cresta = smoothstep(0.5, 0.85, sin(v.x * 75.0 + 1.5 * sin(v.y * 60.0)));
+        vec3 cm = mix(AD_MITO * 1.25, AD_MITO * 0.72, cresta * (1.0 - borde));
+        cm = mix(cm, AD_MITO * 0.6, borde);
+        c = mix(c, cm, 1.0 - smoothstep(0.0, 0.006, dm));
+      }
+    } else if (h < 0.72) {
+      // vesícula: un círculo crema con el borde más oscuro
+      float dv = length((f - (0.5 + 0.5 * (j.xy - 0.5))) * 0.26) - (0.025 + 0.03 * hash13(vec3(ic, cara + 3.3)));
+      if (dv < 0.006) {
+        vec3 cv = mix(vec3(0.66, 0.6, 0.46), vec3(0.42, 0.3, 0.2), smoothstep(-0.012, -0.002, dv));
+        c = mix(c, cv, 1.0 - smoothstep(0.0, 0.006, dv));
+      }
     }
   }
   return c;
