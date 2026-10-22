@@ -77,7 +77,7 @@ T.mir = [T.B, T.B + 2.1];                         // la mirilla de la persona en
 T.zB = [T.B, T.B2 - 0.1];                         // el mundo: de 10^17,4 a 10²¹
 T.zB2 = [T.B2, T.C - 0.45];                       // la galaxia sobre la red: de 10²¹ a 10²⁶
 T.flash = [T.C, m.na + 0.12];                     // el destello llega a su máximo al decirse la frase
-T.exp1 = T.C2 + 0.35; T.exp2 = T.C2 + 1.25;       // las dos estrellas explotan
+T.exp1 = T.C2 + 0.85; T.exp2 = T.C2 + 1.6;        // las dos estrellas explotan
 T.llega = fr(m.na, m.naF, 0.93);                  // los últimos átomos entran en la mano
 T.bajaR = [T.C2 + 0.5, m.naF - 0.25];             // la flecha de 26 a 0
 T.sale = [T.Dp, T.Dp + 0.6];                      // la regla sale por la derecha
@@ -197,7 +197,7 @@ function atomoPres(ts) {
   });
 }
 // Atom en el plató (planos D y E): centrado, como al empezar ep3-hola
-const A_D = { c: [960, 575], d: 430 }, A_E = { c: [800, 560], d: 610 };
+const A_D = { c: [940, 560], d: 500 }, A_E = { c: [800, 560], d: 610 };
 const A_ESC_D = escAtomo(...A_D.c, A_D.d), A_ESC_E = escAtomo(...A_E.c, A_E.d);
 function atomoPlato(ts) {
   const cerca = ts >= T.Ep;
@@ -205,7 +205,7 @@ function atomoPlato(ts) {
   const tz = RELOJ.tz + calma(ts), ta = RELOJ.ta + tAtomo(ts);
   const en0 = ts < QUIETO ? E.energia(ts) : 0;
   // el electrón sobre alambre: primero se toca el pecho (se señala) y luego sale hacia la cámara (señala a cámara)
-  let electrones = [], toque = false, pitch = 0.06, yaw = -0.15 + 0.08 * Math.sin(tz * 0.5), roll = 0, bote = 0;
+  let aplasta = 0, electrones = [], toque = false, pitch = 0.06, yaw = -0.15 + 0.08 * Math.sin(tz * 0.5), roll = 0, bote = 0;
   if (!cerca) {
     // «yo»: el electrón sale de su órbita, se acerca y da dos toques en su propio núcleo (completo al decir «yo»);
     // «y tú»: sale hacia la cámara, abajo a la derecha, y se queda señalando; al acabar la frase vuelve a su órbita
@@ -213,7 +213,7 @@ function atomoPlato(ts) {
     const kTu = ss(T.tu[0], T.tu[1], ts);
     const toques = Math.max(0, Math.sin(Math.PI * prog(ts, T.yo[1] - 0.2, T.yo[1] + 0.06)), Math.sin(Math.PI * prog(ts, T.yo[1] + 0.12, T.yo[1] + 0.38)));
     const llega = ss(T.yo[0] - 0.05, T.yo[1] - 0.15, ts);
-    const fuera = [1.9, 1.15, 0.9], pecho = [0.62, 0.22, 0.72], tu = [1.55, -0.75, 2.7];
+    const fuera = [2.4, 1.35, 0.6], pecho = [0.7, 0.25, 0.75], tu = [2.0, -1.25, 2.5];
     let p = [0, 1, 2].map((i) => mix(fuera[i], pecho[i], eio(llega)));
     p = [p[0] + 0.25 * (1 - toques) * llega, p[1] + 0.12 * (1 - toques) * llega, p[2] + 0.1 * (1 - toques) * llega];
     p = [0, 1, 2].map((i) => mix(p[i], tu[i], eio(kTu)));
@@ -223,11 +223,12 @@ function atomoPlato(ts) {
     pitch = 0.06 + 0.08 * llega * (1 - kTu) - 0.14 * kTu * kFin;
     yaw += 0.12 * llega * (1 - kTu) - 0.2 * kTu * kFin;
     bote = 0.04 * toques + 0.06 * Math.sin(Math.PI * prog(ts, T.tu[0], T.tu[1] + 0.3));
+    aplasta = 0.07 * toques * llega;
   }
   const w = en(S.c[0], S.c[1], A_Z);
   const kB = ss(m.ex - 0.3, m.ex + 0.1, ts);                // con el bocadillo, mira un poco hacia él
   P.atomo({
-    pos: [w[0], w[1] + bote + 0.012 * Math.sin(tz * 1.1), w[2]], escala: esc,
+    pos: [w[0], w[1] + bote + 0.012 * Math.sin(tz * 1.1), w[2]], escala: esc, sq: [1 + 0.6 * aplasta, 1 - aplasta, 1 + 0.6 * aplasta],
     yaw: yaw + 0.22 * kB, pitch: pitch - 0.05 * kB, roll,
     energia: en0, ts: ta, electrones, toque, halo: 1, velo: 0.1,
   });
@@ -374,10 +375,9 @@ function bandaParpados(estado, nf, BANDA) {
   rc.clearRect(0, 0, REM.width, REM.height); rc.drawImage(F('cerrado'), 0, 0);
   if (BANDA !== BANDA_C) {
     // en la apertura la banda es más alta: lo de dentro se borra antes de pegar (la rendija abierta es transparente)
+    // (solo por dentro de la pluma: en la pluma quedan la foto entera y el parche encima, sin costura)
     rc.globalCompositeOperation = 'destination-out'; rc.setTransform(k, 0, 0, k, 0, 0);
-    const g2 = rc.createLinearGradient(0, y0, 0, y1);
-    g2.addColorStop(0, 'rgba(0,0,0,0)'); g2.addColorStop(p, 'rgba(0,0,0,1)'); g2.addColorStop(1 - p, 'rgba(0,0,0,1)'); g2.addColorStop(1, 'rgba(0,0,0,0)');
-    rc.fillStyle = g2; rc.fillRect(0, y0, W, y1 - y0);
+    rc.fillStyle = '#000'; rc.fillRect(0, y0 + PLUMA, W, y1 - y0 - 2 * PLUMA);
     rc.globalCompositeOperation = 'source-over'; rc.setTransform(1, 0, 0, 1, 0, 0);
   }
   rc.drawImage(PARCHE, 0, 0);
@@ -488,7 +488,7 @@ const HIDROGENO = (() => {
 // el plano de las estrellas: las dos que mueren, la mano, y los átomos que vuelan hacia ella
 const ESTRELLA1 = { c: [430, 300], r: 165 };       // la gigante roja (la pieza de ep03-estrellas.js)
 const ESTRELLA2 = { c: [930, 165], r: 46 };        // otra menor, blanca, que explota después
-const MANO_C = [1185, 640];                        // el centro de la palma (px)
+const MANO_C = [1100, 650];                        // el centro de la palma (px)
 const PALMA = { rx: 105, ry: 40 };                 // donde se posan (elipse sobre la palma, px)
 const VUELAN = (() => {
   const r = mulberry32(5), o = [];
@@ -692,12 +692,12 @@ function planoB(n, ts) {
   const um = prog(ts, T.mir[0], T.mir[1]);
   puntoNosotros(g, NOS, { r: 5, k: ss(0.75, 1, um) });
   if (um < 1) {
-    const ur = ss(0, 0.18, um) * 0.18 + Math.max(0, um - 0.18);   // arranca suave y luego encoge a ritmo constante
-    const r = 1300 * Math.pow(0.004, ur);
+    // corte a la mirilla (la persona entera dentro) y encoge a ritmo constante
+    const r = 600 * Math.pow(0.008, um);
     const c = [mix(960, NOS[0], eio(um)), mix(540, NOS[1], eio(um))];
     g.save();
     g.beginPath(); g.arc(c[0], c[1], r, 0, 6.2832); g.clip();
-    fotoEscalada(g, F('per' + (n % 2)), 1.025 * Math.pow(r / 1300, 0.85), [960, 560], c);
+    fotoEscalada(g, F('per' + (n % 2)), r / 500, [960, 560], c);
     cieloA(g, ts);
     g.restore();
     if (r < 1100) {
