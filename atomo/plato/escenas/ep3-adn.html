@@ -15,26 +15,34 @@
 //            detalle: la envoltura de pizarra, translúcida, con la madeja de hilo dentro); la escala corre de 10⁻⁷ a
 //            10⁻⁹ (completa a 0,9 s de la marca). A mitad de frase la cámara se aparta (plano general): la célula de
 //            museo abierta en cuña, con su núcleo, y al lado, a la izquierda, el canto de un pelo como un muro inmenso
-//  dosmetros el hilo sale del núcleo y se estira hacia arriba, fuera de la célula y del plano; la mirilla se cierra
-//            sobre una motita en el suelo del plató: es la célula, junto a la persona («humano» de pie, como en las
-//            pruebas); el hilo sube desde ella hasta 2 m, más alto que la persona, que lo sigue con la mirada; una cota
-//            de latón y la tarjeta «2 m»
+//  dosmetros el hilo sale del núcleo y se estira hacia arriba, fuera de la célula y del plano; la cámara se aparta: un
+//            círculo se cierra sobre la célula, que se encoge hasta ser una motita que brilla en el suelo del plató,
+//            junto a la persona («humano» de pie, aspecto «adulto», en el sitio de la de las pruebas); el hilo sube
+//            desde ella hasta 2 m, más alto que la persona, que lo sigue con la cabeza y la mirada; una cota de latón
+//            y la tarjeta «2 m»
 //  letras    mirilla en el hilo, a media altura: la doble hélice en primer plano, en vertical por el centro, con sus
 //            peldaños de cuatro colores, que corre hacia arriba sin fin y frena hasta quedarse quieta al final
-// Todo se compone en 2D (crearPost al final). Las composiciones quietas son fotos (el virus, el núcleo de cerca, la célula
-// con el muro, y las de los cortes, que se hacen la primera vez que hacen falta); en cada fotograma se dibuja vivo solo
-// lo que se mueve: Atom y la regla siempre, el hilo que sale, y en los planos de la persona y de la hélice, el plano
-// entero (con el plató y su sombra).
+// Todo se compone en 2D (crearPost al final). Las composiciones quietas son fotos: el virus, el núcleo de cerca, la
+// célula con el muro y el fondo de la persona (su cuerpo y sus manos, con la sombra entera) al cargar; las de los cortes
+// (la célula con el hilo fuera, los dos extremos del plano de la persona, el plató vacío y la primera hélice), en
+// fotogramas baratos poco antes de hacer falta, una por fotograma. En cada fotograma va vivo solo lo que se mueve,
+// sobre transparente: Atom siempre; la regla mientras corre la escala (después es una capa fija, encima de todo); el
+// hilo que sale; la cabeza de la persona, el hilo de 2 m, la cota y la tarjeta; la hélice (su sombra en el telón, en
+// 2D). El núcleo translúcido: la foto con la envoltura y, encima, la madeja sola tras un velo radial (velarNucleo).
 //
-// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, sin recorte 2D)
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, desenfoque 44, sin recorte)
 //  · Fotograma 0 (ep3-virus termina así): el plató vacío y, en el centro (960, 540), el virus de esta página (VIRUS: una
-//    bolita de pizarra violácea con espículas, de ~64 px, a z = 2) desenfocado con un círculo de blur(5 px) de 120 px;
-//    regla: P.regla con e −7, ya 0,375, actual −7, marca −7, lupa 0,5, pos P.punto(1668, 528, 0,4), escala 1,42, rot
-//    [0, −0,12, 0]; Atom en P.punto(230, 780, 1) con la escala del presentador (180 px), yaw −0,15, pitch 0,06.
-//    (Si ep3-virus tiene su propio virus, que lo deje así en el centro; el corte entra por una mirilla en ese punto.)
-//  · Último fotograma (ep3-lectura empieza así): la hélice de kits/ep03-adn.js con HELICE_F (window.__fin.HELICE_F:
-//    pos, escala, rot, largo, semilla, giro y el avance final) sobre el plató (P.render con fondo), Atom en su sitio de
-//    presentador (como arriba) y la regla REGLA_0 de ep3-casa: e −9, ya 0,375, actual −9, marca −9, lupa 0,5.
+//    bolita de pizarra violácea con espículas, de ~76 px, a z = 2, sin sombra) desenfocado con un círculo de blur(5 px)
+//    de 120 px de radio; regla: P.regla con e −7, ya 0,375, actual −7, marca −7, lupa 0,5, pos P.punto(1668, 528, 0,4),
+//    escala 1,42, rot [0, −0,12, 0] (la convención de ep3-casa: la potencia actual en ya 0,375); Atom en
+//    P.punto(230, 780, 1) con la escala del presentador (órbitas de 180 px: 0,333), yaw −0,15, pitch 0,06.
+//    (Si ep3-virus tiene su propio virus, que lo deje así en el centro: el corte entra por una mirilla en ese punto.)
+//  · Último fotograma (ep3-lectura empieza así; window.__fin lo da en números): el plató vacío (P.render sin piezas,
+//    con fondo); encima, la hélice de kits/ep03-adn.js, HELICE_F = { pos: [0, 2,5903, 3] (= P.punto(960, 540, 3)),
+//    escala 1,5192, rot [0, 0, 0], largo 3,037, semilla 0, giro 0,35, avance 4,239 } renderizada sobre transparente,
+//    con su sombra en 2D (sombraHelice: la silueta, desplazada (115, 42) px, blur(24 px), negra al 42 %, solo en
+//    x 430–1580); Atom en su sitio de presentador (como arriba, quieto: la energía a 0) y la regla REGLA_0 de ep3-casa:
+//    e −9, ya 0,375, actual −9, marca −9, lupa 0,5, encima de todo.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteRotulos, cl, mix, prog, ss, eio, eoc, eic, azar, calma, postura } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -413,10 +421,12 @@ function brilloHilo(gx, hl, k = 1) {
   gx.restore();
 }
 // la sombra de la hélice en el telón (la luz viene de arriba a la izquierda): su silueta, desplazada y borrosa
+const SOMBRA_HX = { dx: 115, dy: 42, blur: 24, alfa: 0.42, x0: 430, x1: 1580 };
 function sombraHelice(gx, src) {
-  gx.save(); gx.beginPath(); gx.rect(430, 0, 1150, H); gx.clip();
-  gx.globalAlpha = 0.42; gx.filter = 'blur(24px) brightness(0)';
-  gx.drawImage(src, 115, 42, W, H);
+  const S = SOMBRA_HX;
+  gx.save(); gx.beginPath(); gx.rect(S.x0, 0, S.x1 - S.x0, H); gx.clip();
+  gx.globalAlpha = S.alfa; gx.filter = `blur(${S.blur}px) brightness(0)`;
+  gx.drawImage(src, S.dx, S.dy, W, H);
   gx.restore();
 }
 // una foto agrandada y borrosa, para rellenar lo que no cubre la foto encogida dentro de un círculo
@@ -534,7 +544,8 @@ function dibujar(t) {
 }
 
 window.__fin = {
-  HELICE_F: { ...HELICE, avance: avanceEn(D) }, REGLA_0, ATOMO: { pos: SITIO, escala: A_ESC, yaw: -0.15, pitch: 0.06 },
+  HELICE_F: { ...HELICE, avance: avanceEn(D) }, SOMBRA_HX, REGLA_0, ATOMO: { pos: SITIO, escala: A_ESC, yaw: -0.15, pitch: 0.06 },
+  VIRUS: { centro: [960, 540], z: 2, escala: VIR.escala, rot: [0.3, 0.5, 0], blur: 5, radioBlur: 120 }, REGLA_INICIO: { ...REGLA_0, e: -7 },
   CEL_C, CEL_B, MURO, PER, BASE_D, DOS_M, T,
 };
 window.__carga.push(['listo', Math.round(performance.now())]);

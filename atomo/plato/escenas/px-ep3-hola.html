@@ -597,15 +597,8 @@ function capaKit(O, conCeja, k = 1, rec = [0, 0, W - 1, H - 1]) {
 // La cara en vivo, a la escala exacta del fotograma, solo en los rectángulos [x, y, ancho, alto] que aún la enseñan (con
 // origen múltiplo de 24, el tramado y las texturas del kit caen en los mismos píxeles que pintándola entera): la persona
 // primero y el plató solo donde no la tapa. Las manos quedan muy por debajo del cuadro.
-// (en teselas de 240 × 144 como mucho: el rasterizado del kit cuesta bastante más que el área en una capa grande)
-const teselas = (rects) => rects.flatMap(([rx, ry, rw, rh]) => {
-  const out = [];
-  for (let y = ry; y < ry + rh; y += 144) for (let x = rx; x < rx + rw; x += 240) out.push([x, y, Math.min(240, rx + rw - x), Math.min(144, ry + rh - y)]);
-  return out;
-});
 const manosFuera = (cam) => aPant(cam, PER.x, PER.y)[1] - 0.725 * PER.H * cam.s > H - 2;
 function pintarCara(t, cam, destino, rects = [[0, 0, W, H]]) {
-  rects = teselas(rects);
   const [x, y] = aPant(cam, PER.x, PER.y), Hp = PER.H * cam.s;
   const o = { ...POSE_ZUM, x, y, altura: Hp, t, sombra: 0, partes: 'todo' };
   capaP.buf.fill(0);
@@ -644,7 +637,7 @@ function pesoFundido(q, O, a) {
   const wDe = (d) => {                                            // decrece con d
     if (d <= 1) return (q - 0.06 * d) / 0.2;
     const dn = (d - 1) / (dEm - 1);
-    return (q - 0.06 - 0.5 * dn) / (0.2 + 0.24 * Math.min(1, dn * 4));
+    return (q - 0.06 - 0.62 * dn) / (0.2 + 0.12 * Math.min(1, dn * 4));
   };
   // celdas de 24 px: dónde hace falta aún la cara (algún píxel con w < 1) y dónde ya hay ojo (w > 0)
   const C = 24, rects = [];
@@ -718,7 +711,7 @@ function dibujar(t) {
     dibBokeh(t, cam);
   } else if (t < T.fun0) {
     // plano medio y primera parte del empuje: la persona se vuelve a pintar a cada escala y el plató donde no la tapa
-    if (t >= T.empuje && manosFuera(cam)) pintarCara(t, cam, PX.destino());   // solo la cabeza: por teselas
+    if (t >= T.empuje && manosFuera(cam)) pintarCara(t, cam, PX.destino());   // solo la cabeza (las manos, fuera)
     else {
       const st = t < T.empuje ? personaMedio(t) : { wx: PER.x, o: POSE_ZUM, lleva: 1 };
       const P = rasterP(cam, t, st, reglaMedio(t));

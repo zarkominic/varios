@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-universo.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-universo.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por pieza y por variante: el cielo (la red, la esfera, la niebla brillante), la galaxia en una foto y
+// «nosotros», y las piezas de arcilla (la goma, la hormiga y la meta) con el plató, la luz y la cámara de las escenas de
+// plastilina (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28), sobre el cielo o el plató.
+//   __frame(0)  → la hoja entera (6 × 4 celdas de 320 × 180, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo, estadoMundo, camaraPorTierra } from '/atomo/plato/kits/ep03-cosmos.js';
+import { crearCielo, celdaRed, veloRed, RED, ENLACE, FINAL_UNIVERSO, fotoGalaxia, puntoNosotros, tiposUniverso, uniformesUniverso,
+  goma, hormiga, meta } from '/atomo/plato/kits/ep03-universo.js';
+
+const W = 1920, H = 1080;
+const I = { goma: 0, hormiga: 1, meta: 2 };
+const P = await crearPlato({
+  piezas: ['goma', 'hormiga', 'meta'], tiposExtra: tiposUniverso(), uniformes: uniformesUniverso(), atomo: false, alfa: true, post: false,
+  sombraFondo: ['p0', 'p1', 'p2'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const cont = document.getElementById('escena');
+const cielo = crearCielo();
+let mundo = null;
+const elMundo = () => { if (!mundo) { mundo = crearMundo(cont, { captura: P.captura }); mundo.lienzo.style.visibility = 'hidden'; } return mundo; };
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pxU = (pos) => { const a = P.proyectar(pos), b = P.proyectar([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const NODO = RED.NODO;
+const F = FINAL_UNIVERSO;
+const RED45 = { ...F.red, origen: NODO };
+
+// celdas: { rot, cielo: est | null, plato: (fondo con ciclorama) | null, poner: () => piezas, d2: (g) => 2D encima }
+const C = [];
+const cel = (rot, o) => C.push({ rot, ...o });
+cel('red, celda 45 (10²⁷)', { cielo: { red: RED45, n: 1 } });
+cel('red, celda 220 (10²⁵), origen NODO en (840, 470)', { cielo: { red: { celda: celdaRed(25), centro: [840, 470], origen: NODO }, n: 1 } });
+cel('red, celda 1240 (10²³), velo 0,5', { cielo: { red: { celda: celdaRed(23), centro: [840, 470], origen: NODO, velo: veloRed(23) * 0.5 }, n: 1 }, fondo: '#1d1b1b' });
+cel('red, res 0,5 (en movimiento)', { cielo: { red: { celda: celdaRed(26), centro: [840, 470], origen: NODO }, n: 1, res: 0.5 } });
+cel('esfera (FINAL_UNIVERSO)', { cielo: { red: RED45, esfera: F.esfera, n: 1 }, d2: (g) => puntoNosotros(g, F.esfera.c) });
+cel('esfera k 0,4 (aparece)', { cielo: { red: RED45, esfera: { ...F.esfera, k: 0.4 }, n: 1 } });
+cel('esfera sin borde de niebla, cristal 0,5', { cielo: { red: RED45, esfera: { ...F.esfera, borde: 0, cristal: 0.5 }, n: 1 } });
+cel('esfera fuera 0,9, lupa 0,25, sin puntos', { cielo: { red: RED45, esfera: { ...F.esfera, fuera: 0.9, lupa: 0.25, puntos: 0 }, n: 1 } });
+cel('esfera grande (r 700, celda 95)', { cielo: { red: { celda: 95, centro: [900, 760], origen: NODO }, esfera: { ...F.esfera, c: [900, 760], r: 700 }, n: 1 } });
+cel('niebla brillante (pared)', { cielo: { niebla: { escala: 260 }, n: 1 } });
+cel('niebla de cerca (escala 700)', { cielo: { niebla: { escala: 700, centro: [700, 400] }, n: 1 } });
+cel('niebla que se abre (abre 420)', { cielo: { niebla: { escala: 260, abre: 420, borde: 120 }, n: 1 }, fondo: '#101018' });
+cel('niebla velo 0,5 sobre la red', { cielo: { red: RED45, niebla: { escala: 260, velo: 0.5 }, n: 1 } });
+cel('galaxia (fotoGalaxia) y Andrómeda (ENLACE)', { fondo: '#1d1b1b', d2: (g) => {
+  const gal = galaxia();
+  const [x, y] = [560, 560], s = 160 / gal.r;
+  g.drawImage(gal.lienzo, x - gal.lienzo.width * s / 2, y - gal.lienzo.height * s / 2, gal.lienzo.width * s, gal.lienzo.height * s);
+  g.save(); g.translate(1340, 520); g.rotate(ENLACE.giroAnd); g.scale(1, ENLACE.aplastaAnd);
+  const s2 = 240 / gal.r; g.drawImage(gal.lienzo, -gal.lienzo.width * s2 / 2, -gal.lienzo.height * s2 / 2, gal.lienzo.width * s2, gal.lienzo.height * s2);
+  g.restore();
+} });
+cel('puntoNosotros (r 5 y r 9)', { cielo: { red: { ...RED45, velo: 0.6 }, n: 1 }, fondo: '#1d1b1b', d2: (g) => { puntoNosotros(g, [700, 540]); puntoNosotros(g, [1200, 540], { r: 9 }); } });
+const GOMA = { desde: [260, 560], hasta: [1260, 560], alto: 34, z: 1.5 };
+cel('goma látex, estira 0', { plato: true, poner: () => goma(P, I.goma, { ...GOMA }) });
+cel('goma estirada (estira 1, ×1,6)', { plato: true, poner: () => goma(P, I.goma, { ...GOMA, desde: [120, 560], hasta: [1720, 560], estira: 1 }) });
+cel('goma oliva y pizarra (marcas 5, 15)', { plato: true, poner: () => goma(P, I.goma, { ...GOMA, color: 'oliva', marcas: 5, desde: [260, 420], hasta: [1260, 700] }) });
+cel('goma pizarra, marcas 15', { plato: true, poner: () => goma(P, I.goma, { ...GOMA, color: 'pizarra', marcas: 15 }) });
+const HOR = () => { const p = en(860, 560, 1.5); return { pos: p, escala: 380 / pxU(p) }; };
+cel('hormiga, paso 0', { plato: true, poner: () => hormiga(P, I.hormiga, { ...HOR(), paso: 0 }) });
+cel('hormiga, paso 0,5', { plato: true, poner: () => hormiga(P, I.hormiga, { ...HOR(), paso: 0.5 }) });
+cel('hormiga, paso 0,25, de tres cuartos', { plato: true, poner: () => hormiga(P, I.hormiga, { ...HOR(), paso: 0.25, rot: [0.25, -0.6, 0] }) });
+const MET = () => { const p = en(860, 760, 1.5); return { pos: p, escala: 560 / pxU(p) }; };
+cel('meta, ondea 0', { plato: true, poner: () => meta(P, I.meta, { ...MET(), ondea: 0 }) });
+cel('meta, ondea 0,5', { plato: true, poner: () => meta(P, I.meta, { ...MET(), ondea: 0.5, rot: [0, -0.4, 0] }) });
+cel('juntas sobre la red: goma, hormiga y meta', { cielo: { red: { celda: 120, centro: [840, 470], origen: NODO, velo: 0.85 }, n: 1 }, poner: () => {
+  const gm = goma(P, I.goma, { desde: [200, 600], hasta: [1500, 600], alto: 30, estira: 0.5, marcas: 11 });
+  const ph = en(...gm.punto(0.3), 1.5), escH = 120 / pxU(ph);
+  hormiga(P, I.hormiga, { pos: [ph[0], ph[1] + 0.3 * escH, ph[2]], escala: escH, paso: 0.3 });
+  const pm = en(...gm.punto(0.8), 1.5);
+  meta(P, I.meta, { pos: pm, escala: 150 / pxU(pm), ondea: 0.2 });
+} });
+
+let GAL = null;
+function galaxia() {
+  if (GAL) return GAL;
+  GAL = fotoGalaxia(elMundo(), estadoMundo, camaraPorTierra, { radio: 300, n: 3 });
+  return GAL;
+}
+
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:3';
+cont.appendChild(capa);
+lienzoGL.style.visibility = 'hidden';
+const g = capa.getContext('2d');
+const cache = [];
+window.__tiempos = [];
+function celda(k) {
+  if (cache[k]) return cache[k];
+  const c = C[k];
+  const a = performance.now();
+  const f = document.createElement('canvas'); f.width = W; f.height = H;
+  const gf = f.getContext('2d');
+  gf.fillStyle = c.fondo ?? '#000'; gf.fillRect(0, 0, W, H);
+  if (c.cielo) gf.drawImage(cielo.dibujar(c.cielo), 0, 0, W, H);
+  if (c.plato || c.poner) {
+    P.fotograma(0); P.limpiar();
+    c.poner?.();
+    if (c.plato) P.render(k + 1);
+    else P.render(k + 1, { fondo: false });
+    gf.drawImage(lienzoGL, 0, 0, W, H);
+  }
+  if (c.d2) c.d2(gf);
+  POST.aplicar(gf, k);
+  window.__tiempos[k] = Math.round(performance.now() - a);
+  return (cache[k] = f);
+}
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+function dibujar(t) {
+  ajustarCapa();
+  const k = Math.round(t);
+  if (k >= 1 && k <= C.length) { g.drawImage(celda(k - 1), 0, 0, W, H); return; }
+  g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+  const cw = W / 6, ch = H / 6;
+  C.forEach((c, j) => {
+    const x = (j % 6) * cw, y = Math.floor(j / 6) * ch;
+    g.drawImage(celda(j), x, y, cw, ch);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(x, y + ch - 22, cw, 22);
+    g.fillStyle = '#e8dcc0'; g.font = '14px sans-serif'; g.fillText(`${j + 1}. ${c.rot}`, x + 6, y + ch - 6);
+  });
+}
+const busq = new URLSearchParams(location.search);
+window.ESCENA ??= { id: 'ep03-universo-hoja', duracion: C.length + 1, marcas: {}, voz: [0, 0] };
+window.__celdas = C.map((c) => c.rot);
+window.__paso = 1;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>

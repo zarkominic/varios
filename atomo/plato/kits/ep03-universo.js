@@ -102,7 +102,7 @@ const mix = (a, b, x) => a + (b - a) * x;
 const ss = (a, b, x) => { x = cl((x - a) / (b - a)); return x * x * (3 - 2 * x); };
 
 // ---------------------------------------------------------------- escalas
-export const RED = { K: 4.2, NODO: [0, 0] };
+export const RED = { K: 4.2, NODO: [0.0672, 0.0422] };
 export const ESFERA_M = 4.4e26;
 /** px de una celda grande de la red con el mundo en 10^z (×2,3 por salto; 45 px en 10²⁷) */
 export const celdaRed = (z) => 45 * Math.pow(10, (27 - z) * 0.36);
@@ -257,7 +257,7 @@ void main() {
     float vb = vnoise(vec3(d * 7.0, 1.0)) * 0.5 + vnoise(vec3(d * 17.0, 2.0)) * 0.32 + vnoise(vec3(d * 40.0, 3.0)) * 0.18;
     vec3 nb = mix(vec3(0.66, 0.40, 0.17), vec3(0.95, 0.80, 0.58), smoothstep(0.3, 0.8, vb));
     float bk = pow(banda, 1.4) * smoothstep(0.15, 0.7, vb + 0.4 * banda) * uEsf2.x * k;
-    col = mix(col, nb * 0.85, 0.7 * bk) + nb * 0.3 * bk * bk;
+    col = mix(col, nb, 0.4 * bk) + nb * 0.5 * bk;
   }
   // el cristal: un velo de vidrio, una franja oscura justo dentro del filo (el grueso del vidrio), el filo de luz, el
   // reflejo del foco (una media luna fina arriba a la izquierda y un brillo pequeño y nítido) y un halo cálido fuera
@@ -471,7 +471,7 @@ float pz_goma(vec3 q, vec4 T, out float m) {
 float pzc_goma(vec3 q, vec4 T) { float a = gomaA(); return sdRoundBox(q, vec3(0.99, a * 0.9, 0.42 * a), 0.4 * a); }
 vec3 pzcol_goma(vec3 q, vec4 T, float m) {
   float a = gomaA();
-  vec3 c = uGoma.w < 0.5 ? vec3(0.50, 0.36, 0.19) : uGoma.w < 1.5 ? vec3(0.17, 0.18, 0.09) : vec3(0.09, 0.10, 0.12);
+  vec3 c = uGoma.w < 0.5 ? vec3(0.30, 0.15, 0.055) : uGoma.w < 1.5 ? vec3(0.13, 0.14, 0.06) : vec3(0.07, 0.08, 0.10);
   c *= 0.9 + 0.16 * vnoise(q * vec3(40.0, 120.0, 120.0));
   // las marcas: puntos de tinta repartidos a lo largo (se separan y se alargan al estirar)
   float N = max(uGoma.z, 1.0);
@@ -479,8 +479,8 @@ vec3 pzcol_goma(vec3 q, vec4 T, float m) {
   float iu = floor(u);
   vec2 dm = vec2((u - iu - 0.5) * 2.0 / N / (a * (1.0 + 1.1 * uGoma.y)), q.y / (a * (1.0 - 0.15 * uGoma.y)));
   float punto = 1.0 - smoothstep(0.42, 0.52, length(dm));
-  if (q.z > 0.0 && iu >= 0.0 && iu < N) c = mix(c, vec3(0.03, 0.022, 0.02), punto);
-  gBri = 1.7; gTr = 0.4;
+  if (q.z > 0.0 && iu >= 0.0 && iu < N) c = mix(c, vec3(0.6, 0.53, 0.4), punto);
+  gBri = 2.2; gTr = 0.6;
   return c;
 }
 `;
@@ -492,63 +492,67 @@ float hoPata(vec3 q, vec3 cad, vec3 rod, vec3 pie, float r) {
 float pz_hormiga(vec3 q, vec4 T, out float m) {
   float ph = T.y * 6.2832;
   // cuerpo: cabeza, tórax, pecíolo y gáster
-  float cab = elipsoideP(q - vec3(0.37, 0.05, 0.0), vec3(0.095, 0.085, 0.08));
-  float tor = elipsoideP(q - vec3(0.15, 0.02, 0.0), vec3(0.15, 0.062, 0.06));
-  tor = smin(tor, elipsoideP(q - vec3(0.21, 0.055, 0.0), vec3(0.07, 0.05, 0.05)), 0.03);
-  float pec = length(q - vec3(-0.03, 0.03, 0.0)) - 0.038;
-  float gas = elipsoideP(q - vec3(-0.25, 0.07, 0.0), vec3(0.2, 0.135, 0.125));
-  float d = smin(smin(cab, tor, 0.035), smin(pec, gas, 0.03), 0.03);
-  d = smin(d, capsulaC(q, vec3(0.05, 0.02, 0.0), vec3(-0.06, 0.04, 0.0), 0.03, 0.03), 0.02);
+  float cab = elipsoideP(q - vec3(0.37, 0.06, 0.0), vec3(0.09, 0.08, 0.075));
+  float tor = elipsoideP(q - vec3(0.16, 0.03, 0.0), vec3(0.14, 0.055, 0.052));
+  tor = smin(tor, elipsoideP(q - vec3(0.22, 0.06, 0.0), vec3(0.065, 0.045, 0.045)), 0.03);
+  float pec = length(q - vec3(-0.01, 0.045, 0.0)) - 0.034;
+  float gas = elipsoideP(q - vec3(-0.22, 0.09, 0.0), vec3(0.19, 0.125, 0.115));
+  float d = smin(smin(cab, tor, 0.03), smin(pec, gas, 0.025), 0.025);
+  d = smin(d, capsulaC(q, vec3(0.06, 0.03, 0.0), vec3(-0.04, 0.05, 0.0), 0.026, 0.026), 0.02);
   m = 0.0;
   // mandíbulas
   for (int s = -1; s <= 1; s += 2) {
-    float z = 0.035 * float(s);
-    d = smin(d, capsulaC(q, vec3(0.44, 0.0, z), vec3(0.52, -0.03, z * 0.4), 0.018, 0.008), 0.01);
+    float z = 0.032 * float(s);
+    d = smin(d, capsulaC(q, vec3(0.43, 0.01, z), vec3(0.5, -0.02, z * 0.4), 0.016, 0.007), 0.01);
   }
   // antenas acodadas (escapo hacia arriba y adelante, funículo hacia delante y abajo); se mecen con el paso
   for (int s = -1; s <= 1; s += 2) {
-    float z = 0.045 * float(s), sw = 0.02 * sin(ph + float(s));
-    vec3 a0 = vec3(0.43, 0.1, z), a1 = vec3(0.47, 0.26 + sw, z * 1.6), a2 = vec3(0.6 + sw, 0.2, z * 2.2);
-    float an = min(capsulaC(q, a0, a1, 0.013, 0.011), capsulaC(q, a1, a2, 0.011, 0.014));
+    float z = 0.04 * float(s), sw = 0.02 * sin(ph + float(s));
+    vec3 a0 = vec3(0.42, 0.11, z), a1 = vec3(0.45, 0.27 + sw, z * 1.6), a2 = vec3(0.59 + sw, 0.19, z * 2.2);
+    float an = min(capsulaC(q, a0, a1, 0.011, 0.009), capsulaC(q, a1, a2, 0.009, 0.012));
     if (an < d) m = 1.0;
-    d = smin(d, an, 0.008);
+    d = smin(d, an, 0.006);
   }
-  // seis patas a trípode: [delantera, media, trasera] × [izquierda (−z), derecha (+z)]
+  // seis patas a trípode, finas y acodadas: el fémur sube hacia fuera hasta la rodilla (alta) y la tibia baja hasta el
+  // pie, por delante (las de delante), debajo (las de en medio) o por detrás (las de atrás)
   for (int k = 0; k < 3; k++) {
     float fk = float(k);
-    float x0 = 0.22 - 0.075 * fk;
-    float dx = 0.15 - 0.15 * fk;
+    float x0 = 0.23 - 0.07 * fk;
+    float rx = 0.33 - 0.15 * fk - 0.04 * fk * fk;
+    float px = 0.44 - 0.26 * fk - 0.06 * fk * fk;
     for (int s = -1; s <= 1; s += 2) {
       float grupo = mod(fk + (s > 0 ? 1.0 : 0.0), 2.0);
       float f = ph + grupo * 3.14159;
       float pasoX = 0.07 * sin(f);
       float alza = 0.05 * max(0.0, cos(f));
-      vec3 cad = vec3(x0, -0.02, 0.035 * float(s));
-      vec3 pie = vec3(x0 + dx + pasoX, -0.3 + alza, 0.2 * float(s));
-      vec3 rod = vec3(mix(x0, pie.x, 0.5) + 0.05 * (1.0 - fk) - 0.02, 0.08 + 0.5 * alza, 0.15 * float(s));
-      float pa = hoPata(q, cad, rod, pie, 0.019);
+      vec3 cad = vec3(x0, -0.01, 0.03 * float(s));
+      vec3 pie = vec3(px + pasoX, -0.3 + alza, 0.19 * float(s));
+      vec3 rod = vec3(rx + 0.6 * pasoX, 0.07 + 0.6 * alza, 0.13 * float(s));
+      float pa = min(capsulaC(q, cad, rod, 0.017, 0.013), capsulaC(q, rod, pie, 0.012, 0.006));
       if (pa < d) m = 1.0;
-      d = smin(d, pa, 0.012);
+      d = smin(d, pa, 0.008);
     }
   }
   // ojos
   for (int s = -1; s <= 1; s += 2) {
-    float o = length(q - vec3(0.4, 0.08, 0.07 * float(s))) - 0.026;
+    float o = length(q - vec3(0.4, 0.09, 0.065 * float(s))) - 0.024;
     if (o < d + 0.004) m = 2.0;
     d = smin(d, o, 0.006);
   }
   return d * 0.9;
 }
 float pzc_hormiga(vec3 q, vec4 T) {
-  return min(elipsoideP(q - vec3(-0.25, 0.07, 0.0), vec3(0.18, 0.12, 0.11)), elipsoideP(q - vec3(0.25, 0.03, 0.0), vec3(0.2, 0.06, 0.055)));
+  return min(elipsoideP(q - vec3(-0.22, 0.09, 0.0), vec3(0.17, 0.11, 0.1)), elipsoideP(q - vec3(0.25, 0.04, 0.0), vec3(0.2, 0.05, 0.05)));
 }
 vec3 pzcol_hormiga(vec3 q, vec4 T, float m) {
-  vec3 c = vec3(0.045, 0.024, 0.016) * (0.85 + 0.3 * vnoise(q * 30.0));
-  // el gáster con bandas algo más claras y rojizas; las patas, algo más claras
-  if (q.x < -0.06) c *= 1.0 + 0.6 * smoothstep(0.6, 0.95, sin((q.x + 0.25) * 48.0) * 0.5 + 0.5);
-  if (m > 0.5 && m < 1.5) c = vec3(0.07, 0.04, 0.026);
-  if (m > 1.5) { gBri = 3.5; return vec3(0.012, 0.01, 0.01); }
-  gBri = 2.6;
+  // casi negra, con el tórax y las patas de un pardo rojizo oscuro; en el gáster, los bordes de los segmentos algo más
+  // claros
+  vec3 c = vec3(0.016, 0.010, 0.008) * (0.85 + 0.3 * vnoise(q * 30.0));
+  if (q.x > 0.04 && q.x < 0.3) c = vec3(0.05, 0.02, 0.011);
+  if (q.x < -0.05) c *= 1.0 + 1.2 * smoothstep(0.85, 0.98, sin((q.x + 0.22) * 40.0) * 0.5 + 0.5);
+  if (m > 0.5 && m < 1.5) c = vec3(0.045, 0.022, 0.012);
+  if (m > 1.5) { gBri = 4.0; return vec3(0.01, 0.008, 0.008); }
+  gBri = 3.0;
   return c;
 }
 `;

@@ -37,8 +37,13 @@
 //   geometriaBalanza({ pos, escala, rot, angulo }) (también sin plató) → { pivote, puntaIzq, puntaDer, platoIzq,
 //      platoDer (mundo: el centro del fondo de cada platillo, donde se posa lo que lleva), peana (mundo: el centro de su
 //      cara de arriba), fiel (mundo: la punta del fiel), angulo }.
-//   enPlato(geo, lado, l = [0, 0, 0], escalaBalanza) → punto del mundo en el platillo 'izq' | 'der' desplazado l (unidades
-//      de la balanza, en ejes del mundo girados como la balanza): para poner varias cosas en un plato.
+//   enPlato(geo, lado, l = [0, 0, 0]) → punto del mundo en el platillo 'izq' | 'der' desplazado l (unidades de la balanza,
+//      en ejes girados como la balanza): para poner varias cosas en un plato.
+//   EL PLATILLO SUELTO (tipo 'platillo'): platillo(P, i, { geo, lado }) pone solo ese platillo, idéntico y en el mismo
+//      sitio que el de la balanza geo. Para la receta de la foto: la balanza quieta va en una foto y, en cada fotograma,
+//      el platillo vivo con lo que lleva encima (P.render(n, { fondo: false })): así el borde del platillo tapa bien lo
+//      que hay dentro (si lo vivo se pintara sin él encima de la foto, quedaría delante del reborde). Devuelve
+//      { centro (el del reborde), fondo }.
 //
 // EL MOVIMIENTO (funciones puras de t, en segundos; devuelven el ángulo)
 //   caida(t, { t0, dur: 0,7, de: 0, a: A_MAX, rebote: 0,18, peso: 2,4 }) — CAÍDA CON PESO: hasta t0 vale de; de t0 a
@@ -112,11 +117,6 @@ vec3 bzColor(float v) {
 }
 float bzElip(vec3 p, vec3 r) { float k0 = length(p / r), k1 = length(p / (r * r)); return k0 * (k0 - 1.0) / max(k1, 1e-5); }
 mat2 bzGiro(float a) { float c = cos(a), s = sin(a); return mat2(c, s, -s, c); }
-#endif
-`;
-
-// ---------------------------------------------------------------- la balanza
-const GLSL_BALANZA = /* glsl */`
 const float BZ_H = ${fl(BALANZA.HILO)};
 const vec2 BZ_P = vec2(${fl(BALANZA.PLATO[0])}, ${fl(BALANZA.PLATO[1])});
 float bzPlatillo(vec3 q, vec3 P) {
@@ -128,6 +128,11 @@ float bzPlatillo(vec3 q, vec3 P) {
   float e = length(vec2(length(r.xz / BZ_P) - 0.97, r.y / 0.22)) * 0.22 - 0.012;
   return min(d, e);
 }
+#endif
+`;
+
+// ---------------------------------------------------------------- la balanza
+const GLSL_BALANZA = /* glsl */`
 float bzHilos(vec3 q, vec3 E, vec3 P) {
   float d = sdCapsule(q, E, P + vec3(-(BZ_P.x - 0.03), 0.0, 0.0), 0.006);
   d = min(d, sdCapsule(q, E, P + vec3(BZ_P.x - 0.03, 0.0, 0.0), 0.006));
@@ -198,6 +203,18 @@ vec3 pzcol_balanza(vec3 q, vec4 T, float m) {
   }
   gBri = 3.2;
   return C_BRASS * 0.8 * (0.88 + 0.2 * vnoise(q * vec3(30.0, 3.0, 30.0)));
+}
+`;
+
+// ---------------------------------------------------------------- el platillo suelto (para la receta de la foto)
+const GLSL_PLATILLO = /* glsl */`
+// T.x, T.w: dónde está el platillo en las unidades de la balanza (para que el latón tenga la misma veta que en la foto)
+float pz_platillo(vec3 q, vec4 T, out float m) { m = 0.0; return bzPlatillo(q, vec3(0.0)) * 0.9; }
+float pzc_platillo(vec3 q, vec4 T) { return max(bzElip(q, vec3(BZ_P.x - 0.02, 0.075, BZ_P.y - 0.02)), q.y); }
+vec3 pzcol_platillo(vec3 q, vec4 T, float m) {
+  vec3 qb = q + vec3(T.x, T.w, 0.0);
+  gBri = 3.2;
+  return C_BRASS * 0.8 * (0.88 + 0.2 * vnoise(qb * vec3(30.0, 3.0, 30.0)));
 }
 `;
 
@@ -276,7 +293,7 @@ vec3 pzcol_silueta(vec3 q, vec4 T, float m) {
   vec3 c = esB ? bzColor(T.w) : bzColor(T.x);
   c *= 0.85 + 0.3 * fract(h * 7.31);
   gTr = 0.3;
-  gEm = c * (0.04 + 0.5 * T.z) * (0.75 + 0.5 * fract(h * 13.7));
+  gEm = c * (0.03 + 0.32 * T.z) * (0.75 + 0.5 * fract(h * 13.7));
   return c;
 }
 `;
@@ -289,7 +306,7 @@ float ciEstrellas(vec3 q, out float id) {
   // de ~0,15 rad de arco), con la estrella dentro de su celda y lejos del borde (no se corta)
   vec3 n = normalize(q / CI_R);
   float el = asin(clamp(n.y, 0.0, 1.0)), az = atan(n.z, n.x);
-  const float CA = 0.15;
+  const float CA = 0.105;
   float fila = floor(el / CA);
   float elc = (fila + 0.5) * CA;
   float nAz = max(1.0, floor(6.2832 * cos(elc) / CA));
@@ -299,7 +316,7 @@ float ciEstrellas(vec3 q, out float id) {
   float es = (fila + 0.25 + 0.5 * bzH2(ce + 1.7)) * CA;
   float as = (col + 0.25 + 0.5 * bzH2(ce + 5.3)) / nAz * 6.2832 - 3.14159;
   vec3 o = vec3(cos(es) * cos(as), sin(es), cos(es) * sin(as)) * CI_R * 1.004;
-  float r = h < 0.6 ? 0.006 + 0.006 * bzH2(ce + 9.7) : (h < 0.92 ? 0.011 + 0.006 * bzH2(ce + 2.2) : 0.0);
+  float r = h < 0.72 ? 0.0032 + 0.0028 * bzH2(ce + 9.7) : (h < 0.86 ? 0.0075 + 0.0035 * bzH2(ce + 2.2) : 0.0);
   if (es < 0.06) r = 0.0;
   id = h;
   return r > 0.0 ? length(q - o) - r : 1e5;
@@ -319,7 +336,7 @@ vec3 pzcol_cielo(vec3 q, vec4 T, float m) {
   if (m > 0.5) {
     float h = m - 1.0;
     vec3 c = h < 0.35 ? vec3(0.62, 0.42, 0.14) : vec3(0.60, 0.55, 0.44);
-    gEm = c * (0.3 + 1.1 * b) * (0.7 + 0.6 * fract(h * 17.0));
+    gEm = c * (0.5 + 1.6 * b) * (0.7 + 0.6 * fract(h * 17.0));
     gBri = 2.0;
     return c;
   }
@@ -337,58 +354,67 @@ vec3 pzcol_cielo(vec3 q, vec4 T, float m) {
 
 // ---------------------------------------------------------------- la montaña de coches
 const GLSL_COCHES = /* glsl */`
-const float CO_C = 0.1;     // celda de la red de coches
+const float CO_C = 0.1;     // celda de la red de coches (dos redes cruzadas, la segunda movida media celda)
 float coMonte(vec3 q) {
-  // monte de radio 0,46 y alto 0,72, la cima redondeada
+  // monte de radio 0,46 y alto 0,72, la cima redondeada (fuera del radio el cono sigue hacia abajo: no hay suelo)
   float r = length(q.xz);
-  float h = 0.72 * (1.0 - pow(clamp(r / 0.46, 0.0, 1.0), 1.25));
+  float h = 0.72 * (1.0 - pow(r / 0.46, 1.25));
   return max((q.y - h) * 0.42, -q.y);
 }
-float coCoche(vec3 p, float h, out float mm) {
+float coCoche(vec3 p, out float mm) {
   // carrocería, cabina y cuatro ruedas (el coche mira a +x), de 0,08 de largo
-  float cuerpo = sdRoundBox(p - vec3(0.0, 0.0, 0.0), vec3(0.04, 0.011, 0.019), 0.008);
+  float cuerpo = sdRoundBox(p, vec3(0.04, 0.011, 0.019), 0.008);
   float cabina = sdRoundBox(p - vec3(-0.004, 0.017, 0.0), vec3(0.021, 0.009, 0.016), 0.007);
   vec3 r = p; r.x = abs(r.x) - 0.025; r.z = abs(r.z) - 0.018; r.y += 0.011;
   float rueda = max(length(r.xy) - 0.011, abs(r.z) - 0.005);
   float d = smin(cuerpo, cabina, 0.006);
   mm = 0.0;
-  // las lunas: una franja de la cabina
-  if (cabina < cuerpo && p.y > 0.016) mm = 1.0;
+  if (cabina < cuerpo && p.y > 0.016) mm = 1.0;       // las lunas
   if (rueda < d) mm = 2.0;
   return min(d, rueda);
 }
+// el coche de la celda cc de la red o (0 o 1): distancia y material
+float coCelda(vec3 q, vec3 cc, float o, inout float m) {
+  vec3 c = (cc + 0.5 + o * 0.5) * CO_C;
+  if (coMonte(c) > 0.012) return 1e5;
+  vec3 k = cc + o * 31.7;
+  float h = bzH3(k);
+  vec3 p = q - c - (vec3(bzH3(k + 1.3), bzH3(k + 2.9), bzH3(k + 4.1)) - 0.5) * 0.02;
+  p.xz = bzGiro(h * 6.2832) * p.xz;
+  p.xy = bzGiro((bzH3(k + 6.6) - 0.5) * 1.6) * p.xy;
+  p.yz = bzGiro((bzH3(k + 7.7) - 0.5) * 1.4) * p.yz;
+  float mm;
+  float dc = coCoche(p, mm);
+  if (dc < 1e4) m = 1.0 + mm + 3.0 * floor(bzH3(k + 9.1) * 7.0);
+  return dc;
+}
 float pz_coches(vec3 q, vec4 T, out float m) {
   float monte = coMonte(q);
-  // el núcleo oscuro del monte (los huecos entre coches se ven en sombra)
-  float nucleo = monte + 0.05;
+  // el núcleo del monte, en sombra (los huecos entre coches)
+  float d = monte + 0.045;
   m = 0.0;
-  float d = nucleo;
-  // los coches de la celda en la que está q y de la de arriba (para que no se corten por arriba)
-  vec3 ce = floor(q / CO_C);
-  for (int k = 0; k < 2; k++) {
-    vec3 cc = ce + vec3(0.0, float(k), 0.0);
-    vec3 c = (cc + 0.5) * CO_C;
-    if (coMonte(c) > 0.0) continue;
-    float h = bzH3(cc);
-    vec3 p = q - c - (vec3(bzH3(cc + 1.3), bzH3(cc + 2.9), bzH3(cc + 4.1)) - 0.5) * 0.012;
-    p.xz = bzGiro(h * 6.2832) * p.xz;
-    p.xy = bzGiro((bzH3(cc + 6.6) - 0.5) * 0.9) * p.xy;
-    p.yz = bzGiro((bzH3(cc + 7.7) - 0.5) * 0.7) * p.yz;
-    float mm;
-    float dc = coCoche(p, h, mm);
-    if (dc < d) { d = dc; m = 1.0 + mm + 3.0 * floor(h * 7.0); }
+  for (int r = 0; r < 2; r++) {
+    float o = float(r);
+    vec3 ce = floor(q / CO_C - o * 0.5);
+    for (int k = 0; k < 2; k++) {
+      float mk = 0.0;
+      float dc = coCelda(q, ce + vec3(0.0, float(k), 0.0), o, mk);
+      if (dc < d) { d = dc; m = mk; }
+    }
   }
-  // no saltarse una celda: el rayo avanza como mucho hasta el borde de la suya
-  vec3 f = fract(q / CO_C) * CO_C;
-  float borde = min(min(min(f.x, CO_C - f.x), min(f.y, CO_C - f.y)), min(f.z, CO_C - f.z)) + 0.004;
-  if (monte < 0.06) d = min(d, borde);
+  // no saltarse una celda: el rayo avanza como mucho hasta el borde de la suya (de las dos redes)
+  vec3 f = fract(q / CO_C) * CO_C, f2 = fract(q / CO_C - 0.5) * CO_C;
+  float b1 = min(min(min(f.x, CO_C - f.x), min(f.y, CO_C - f.y)), min(f.z, CO_C - f.z));
+  float b2 = min(min(min(f2.x, CO_C - f2.x), min(f2.y, CO_C - f2.y)), min(f2.z, CO_C - f2.z));
+  float borde = min(b1, b2) + 0.004;
+  if (monte < 0.07) d = min(d, borde);
   else d = min(d, monte);
   return d * 0.9;
 }
-float pzc_coches(vec3 q, vec4 T) { return coMonte(q) + 0.05; }
-float pza_coches(vec3 q, vec4 T) { return coMonte(q) - 0.06; }
+float pzc_coches(vec3 q, vec4 T) { return coMonte(q) + 0.045; }
+float pza_coches(vec3 q, vec4 T) { return coMonte(q) - 0.07; }
 vec3 pzcol_coches(vec3 q, vec4 T, float m) {
-  if (m < 0.5) return vec3(0.02, 0.018, 0.016);
+  if (m < 0.5) return vec3(0.035, 0.028, 0.022) * (0.8 + 0.4 * vnoise(q * 40.0));
   float k = floor((m - 1.0) / 3.0), mm = m - 1.0 - 3.0 * k;
   if (mm > 1.5) return vec3(0.015, 0.014, 0.013);
   if (mm > 0.5) { gBri = 3.0; return vec3(0.03, 0.04, 0.05); }
@@ -409,7 +435,7 @@ vec3 pzcol_coches(vec3 q, vec4 T, float m) {
 const GLSL_ARENA = /* glsl */`
 float arMonte(vec3 q) {
   float r = length(q.xz * vec2(1.0, 1.15));
-  float h = 0.26 * (1.0 - smoothstep(0.0, 1.0, r / 0.36)) + 0.035 * exp(-pow((q.x - 0.25) / 0.07, 2.0) - pow((q.z - 0.06) / 0.1, 2.0));
+  float h = 0.26 * (1.0 - smoothstep(0.0, 1.0, r / 0.36)) + 0.035 * exp(-pow((q.x - 0.25) / 0.07, 2.0) - pow((q.z - 0.06) / 0.1, 2.0)) - 0.6 * max(0.0, r - 0.37);
   return max((q.y - h) * 0.6, -q.y);
 }
 float pz_arena(vec3 q, vec4 T, out float m) {
@@ -430,6 +456,7 @@ vec3 pzcol_arena(vec3 q, vec4 T, float m) {
 
 const TIPOS = {
   balanza: { radio: BALANZA.RADIO, glifos: [], glsl: GLSL_COMUN + GLSL_BALANZA },
+  platillo: { radio: 0.4, glifos: [], glsl: GLSL_COMUN + GLSL_PLATILLO },
   silueta: { envolvente: true, radio: 0.98, glifos: [], glsl: GLSL_COMUN + GLSL_SILUETA },
   cielo: { radio: 0.72, glifos: [], glsl: GLSL_COMUN + GLSL_CIELO },
   coches: { envolvente: true, radio: 0.9, glifos: [], glsl: GLSL_COMUN + GLSL_COCHES },
@@ -471,6 +498,15 @@ export function balanza(P, i, o = {}) {
   const b = base(o);
   P.pieza(i, { ...b, variante: o.angulo ?? 0 });
   return geometriaBalanza(o);
+}
+// el platillo suelto en el sitio del platillo 'izq' | 'der' de la balanza geo (lo que devuelve balanza o geometriaBalanza)
+export function platillo(P, i, { geo, lado = 'izq', toque = false } = {}) {
+  const o = geo._o, a = o.angulo, c = Math.cos(a), s = Math.sin(a);
+  const E = lado === 'izq' ? [-c, -s, 0] : [c, s, 0];
+  const l = [E[0], E[1] - BALANZA.HILO, 0];
+  P.pieza(i, { pos: mundoPieza(o, l), escala: o.escala, rot: o.rot, sq: o.sq, toque, huellaFija: o.huellaFija });
+  escribirT(P, i, l[0], l[1]);
+  return { centro: mundoPieza(o, l), fondo: mundoPieza(o, [l[0], l[1] + BALANZA.FONDO, 0]) };
 }
 // punto en el plato 'izq' | 'der', desplazado l (unidades de la balanza, girado como ella)
 export function enPlato(geo, lado, l = [0, 0, 0]) {
