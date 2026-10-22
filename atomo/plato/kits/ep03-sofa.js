@@ -65,6 +65,10 @@
 //      centro (mundo y px), punto(u, v): el punto del mundo del hueco en (u, v) ∈ [−0,5, 0,5]² (u a lo ancho, v a lo alto),
 //      alfeizar: el centro de lo alto del alféizar (mundo), pared(x, y): un punto de la cara de la pared en unidades del
 //      hueco (mundo; para colgar el reloj) }.
+//  · 'mesita' · mesita(P, i, { madera: 'nogal' })
+//      Mesita auxiliar redonda de nogal (o 'haya'): tablero de radio 0,22 con el canto redondeado, tres patas abiertas
+//      que se afinan y un aro a media altura. Unidades = las de la persona: lo alto del tablero en el origen y el suelo en
+//      y = −0,55. Devuelve { tablero, suelo } (mundo: el bol va en tablero).
 //
 // EL CIELO DE LA VENTANA (2D; g con la transformación de 1920 × 1080)
 //  · hornearRayas({ semilla: 3, ancho: 1024, alto: 640 }) → rayas: tres capas (lejos, medio, cerca) de estrellas en rayas
@@ -84,15 +88,27 @@
 //
 // EL SALÓN (el plano final de ep3-mapa, el primero de ep3-andromeda)
 //  · SALON: las medidas del salón con la cámara del plató de las pruebas (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28):
-//    dónde van la pared con la ventana, el sofá, la persona («humano», 'sentada', aspecto 'adulto', de espaldas), el bol
-//    y el reloj de pared (de ep03-tiempo.js), en dos encuadres: SALON.general (el plano entero) y SALON.cerca (por encima
-//    del hombro, la ventana grande y el reloj al lado). El último fotograma de ep3-mapa es SALON.general con el reloj
-//    en una hora (minutos 60, sector [0, 60]).
-//  · salon(P, I, { encuadre: 'general', reloj: null, persona: {}, n }) pone las piezas del salón en el plató (entre
-//    P.limpiar() y P.render): I = { ventana, sofa, persona, bol, reloj } (índices de las piezas; las que falten no se
-//    ponen; el reloj necesita uniformesTiempo() y tiposTiempo(['reloj']) de ep03-tiempo.js y, en reloj, sus opciones:
-//    { minutos, sector }). persona: lo que se quiera cambiar de su P.pieza (p. ej. postura). Devuelve { ventana (lo de
-//    ventana()), sofa, bol, persona (h), reloj (lo de reloj()), encuadre }.
+//    la pared con la ventana (y su suelo de tablas), el sofá oliva de dos plazas, la persona («humano», 'sentada',
+//    aspecto 'adulto', de espaldas, en la plaza de la derecha, con la cabeza girada hacia la ventana), la mesita junto al
+//    brazo del sofá con el bol de palomitas (la mano derecha de la persona, dentro del bol) y el reloj de pared de
+//    ep03-tiempo.js a la izquierda de la ventana. Dos encuadres (SALON.encuadres): 'general' (el plano entero: la cabeza
+//    en ~(667, 461) px, el hueco de la ventana de (930, 129) a (1298, 539), el reloj en (591, 203) con 74 px de radio) y
+//    'cerca' (por encima del hombro: el mismo salón escalado 1,35 alrededor de un punto, que es acercar la cámara; la
+//    cabeza en ~(462, 486), el hueco de (873, 45) a (1353, 579), el reloj en (430, 141) con 96 px). Atom (230, 780) y la
+//    regla (borde derecho) quedan libres en los dos. El ÚLTIMO FOTOGRAMA DE ep3-mapa es el 'general' con el reloj en una
+//    hora (minutos 60, sector [0, 60]) y el cielo de la ventana con hornearRayas() por defecto.
+//  · salon(P, I, { encuadre: 'general', reloj: null, persona: {}, sofa: {}, bol: {}, ventana: {}, mano: true }) pone las
+//    piezas del salón en el plató (entre P.limpiar() y P.render): I = { ventana, sofa, persona, mesita, bol, reloj }
+//    (índices de las piezas; las que falten no se ponen: con solo { reloj } pone el reloj, p. ej. en vivo encima de la
+//    foto del salón; el reloj necesita uniformesTiempo() y tiposTiempo(['reloj']) de ep03-tiempo.js, y en `reloj` sus
+//    opciones: { minutos, sector }). persona / sofa / bol / ventana: lo que se quiera cambiar de SALON (p. ej. persona:
+//    { postura } para otra postura; con mano: false la mano no busca el bol). encuadre: 'general', 'cerca' o
+//    { s, pivote }. Devuelve { ventana (lo de ventana()), sofa, mesita, bol, persona (h), reloj (lo de reloj()), encuadre }.
+//    Para el esqueleto sin plató: posturaSalon(objetivoLocal) (la postura con el brazo derecho que busca un punto local)
+//    y transformarSalon(encuadre) → { s, p(mundo) }.
+//    Recetas: la persona, el sofá, la mesita, el bol y la pared no se mueven: van en una foto al cargar (P.render(n,
+//    { fondo: false }): el hueco queda transparente); en vivo solo lo que cambia (el reloj, Atom, la regla). Las sombras
+//    entre piezas que usa ep3-mapa: sombras: { <ventana>: [<persona>, <sofá>], <sofá>: [<persona>], <mesita>: [<bol>] }.
 //
 // COSTE (este servidor, 1920 × 1080; con otras escenas renderizando al lado, el doble o más): ver la hoja de prueba
 // (window.__tiempos). La pared con la ventana llenando la pantalla, ~1–2 s (una foto al cargar: no va en vivo); el sofá
@@ -728,7 +744,7 @@ export function vidrioVentana(g, hueco, { fuerza = 1 } = {}) {
 export const SALON = {
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28 },
   ventana: { pos: [1.3, 3.75, -3.0], escala: 3.1, aspecto: 1.12, parteluz: 'cruz', pared: 'salvia', cortinas: true, muro: [3.3, 3.75 / 3.1, 1.25], suelo: 2.8 },
-  persona: { pos: [-2.2, 2.4, 1.0], escala: 2.4, rot: [0, Math.PI - 0.35, 0], aspecto: 'adulto',
+  persona: { pos: [-1.53, 2.4, 1.0], escala: 2.4, rot: [0, Math.PI - 0.35, 0], aspecto: 'adulto',
     cabeza: [-0.32, -0.12, 0.04], mirada: [-0.3, 0.35] },
   sofa: { tela: 'oliva', plazas: 2, plaza: 0, cojin: true },
   // la mesita, en unidades del sofá (de la persona): junto a su brazo −x (a la derecha de la persona)
@@ -737,7 +753,7 @@ export const SALON = {
   // la mano derecha, dentro del bol: el punto (unidades del bol) que busca la palma
   mano: { en: [0.06, 0.5, 0.12] },
   reloj: { en: [-1.42, 0.36], escala: 0.62 },
-  encuadres: { general: { s: 1, pivote: [0, 0, 0] }, cerca: { s: 1.55, pivote: [-0.2, 3.4, -1.2] } },
+  encuadres: { general: { s: 1, pivote: [0, 0, 0] }, cerca: { s: 1.35, pivote: [1.2, 3.23, -1.0] } },
 };
 export function transformarSalon(encuadre = 'general') {
   const E = typeof encuadre === 'string' ? SALON.encuadres[encuadre] : encuadre;

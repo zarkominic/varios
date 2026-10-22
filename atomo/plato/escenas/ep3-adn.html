@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-adn · salto −9: el ADN</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-adn (frases 29–31, sin cartela: sigue el capítulo «−7»). Plastilina adulta + kits/ep03-adn.js (que
+// crea esta escena; hoja de prueba en escenas/ep03-adn-hoja.html).
+//  0         el virus diminuto en el centro, sin forma (borroso), sobre el plató; regla en 10⁻⁷; Atom abajo a la izquierda
+//  adn       «salto menos nueve»: se abre una mirilla en el virus y la cámara entra en el núcleo de una célula (plano
+//            detalle: la envoltura de pizarra, translúcida, con la madeja de hilo dentro); la escala corre de 10⁻⁷ a
+//            10⁻⁹ (completa a 0,9 s de la marca). A mitad de frase la cámara se aparta (plano general): la célula de
+//            museo abierta en cuña, con su núcleo, y al lado, a la izquierda, el canto de un pelo como un muro inmenso
+//  dosmetros el hilo sale del núcleo y se estira hacia arriba, fuera de la célula y del plano; la mirilla se cierra
+//            sobre una motita en el suelo del plató: es la célula, junto a la persona («humano» de pie, como en las
+//            pruebas); el hilo sube desde ella hasta 2 m, más alto que la persona, que lo sigue con la mirada; una cota
+//            de latón y la tarjeta «2 m»
+//  letras    mirilla en el hilo, a media altura: la doble hélice en primer plano, en vertical por el centro, con sus
+//            peldaños de cuatro colores, que corre hacia arriba sin fin y frena hasta quedarse quieta al final
+// Todo se compone en 2D (crearPost al final). Las composiciones quietas son fotos (el virus, el núcleo de cerca, la célula
+// con el muro, y las de los cortes, que se hacen la primera vez que hacen falta); en cada fotograma se dibuja vivo solo
+// lo que se mueve: Atom y la regla siempre, el hilo que sale, y en los planos de la persona y de la hélice, el plano
+// entero (con el plató y su sombra).
+//
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, sin recorte 2D)
+//  · Fotograma 0 (ep3-virus termina así): el plató vacío y, en el centro (960, 540), el virus de esta página (VIRUS: una
+//    bolita de pizarra violácea con espículas, de ~64 px, a z = 2) desenfocado con un círculo de blur(5 px) de 120 px;
+//    regla: P.regla con e −7, ya 0,375, actual −7, marca −7, lupa 0,5, pos P.punto(1668, 528, 0,4), escala 1,42, rot
+//    [0, −0,12, 0]; Atom en P.punto(230, 780, 1) con la escala del presentador (180 px), yaw −0,15, pitch 0,06.
+//    (Si ep3-virus tiene su propio virus, que lo deje así en el centro; el corte entra por una mirilla en ese punto.)
+//  · Último fotograma (ep3-lectura empieza así): la hélice de kits/ep03-adn.js con HELICE_F (window.__fin.HELICE_F:
+//    pos, escala, rot, largo, semilla, giro y el avance final) sobre el plató (P.render con fondo), Atom en su sitio de
+//    presentador (como arriba) y la regla REGLA_0 de ep3-casa: e −9, ya 0,375, actual −9, marca −9, lupa 0,5.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cargarFuenteRotulos, cl, mix, prog, ss, eio, eoc, eic, azar, calma, postura } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposAdn, celula, madeja, hilo, helice, foto, velarNucleo, ADN_MEDIDAS } from '/atomo/plato/kits/ep03-adn.js';
+
+const E = await escena('ep3-adn', 'ep03');
+const D = E.duracion;
+const M = (k) => E.marca(k);
+const m = { adn: M('adn'), adnFin: M('adn_fin'), dos: M('dosmetros'), dosFin: M('dosmetros_fin'), letras: M('letras'), letrasFin: M('letras_fin') };
+window.__carga = [['inicio', Math.round(performance.now())]];
+const W = 1920, H = 1080;
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+const FIN = D - 0.45;              // todo quieto desde aquí (los últimos 0,3 s, además, repiten fotograma)
+
+// ---------------------------------------------------------------- tiempos (todos salen de las marcas)
+const T = {
+  s1: [m.adn - 0.25, m.adn + 0.95],                         // mirilla: del virus al núcleo (detalle)
+  regla: [m.adn - 0.2, m.adn + 0.9],                        // la escala corre de 10⁻⁷ a 10⁻⁹
+  atras: [m.adn + 0.52 * (m.adnFin - m.adn), 0],            // la cámara se aparta: la célula y el muro del pelo
+  sale: [m.dos - 0.2, m.dos + 0.85],                        // el hilo sale del núcleo y se estira fuera del plano
+  s2: [m.dos + 0.8, m.dos + 1.7],                           // la cámara se aparta: la célula se encoge hasta la motita
+  crece: [m.dos + 1.65, m.dos + 2.75],                      // el hilo sube hasta 2 m
+  cota: [m.dos + 2.6, m.dos + 3.05],                        // la cota de latón
+  tarjeta: [m.dos + 2.85, m.dos + 3.25],                    // la tarjeta «2 m»
+  s3: [m.letras - 0.3, m.letras + 0.85],                    // mirilla en el hilo: la doble hélice
+};
+T.atras[1] = T.atras[0] + 0.9;
+function plano(t) {
+  if (t < T.s1[0]) return 'A';
+  if (t < T.s1[1]) return 'S1';
+  if (t < T.atras[0]) return 'C';
+  if (t < T.atras[1]) return 'AT';
+  if (t < T.s2[0]) return 'B';
+  if (t < T.s2[1]) return 'S2';
+  if (t < T.s3[0]) return 'D';
+  if (t < T.s3[1]) return 'S3';
+  return 'E';
+}
+
+// ---------------------------------------------------------------- piezas propias de la escena
+// el virus de la escena anterior, en pequeño y sin forma (ep03-virus.js es de ep3-virus): bolita con espículas
+const VIRUS = { radio: 0.62, glifos: [], glsl: /* glsl */`
+float pz_virusmota(vec3 q, vec4 T, out float m) {
+  float d = length(q) - 0.4;
+  for (int i = 0; i < 24; i++) {
+    float y = 1.0 - (float(i) + 0.5) * 2.0 / 24.0, r = sqrt(1.0 - y * y), a = float(i) * 2.39996;
+    vec3 n = vec3(cos(a) * r, y, sin(a) * r);
+    d = smin(d, sdCapsule(q, n * 0.36, n * 0.55, 0.035), 0.03);
+  }
+  m = 0.0;
+  return d;
+}
+float pzc_virusmota(vec3 q, vec4 T) { return length(q) - 0.4; }
+vec3 pzcol_virusmota(vec3 q, vec4 T, float m) { gTr = 0.4; return vec3(0.2, 0.16, 0.22) * (0.9 + 0.2 * vnoise(q * 9.0)); }
+` };
+// la tarjeta «2 m»: la de la cota de ep3-pelo (crema, texto grabado con Jost), con el texto en una textura
+const TARJETA = { radio: 0.72, glifos: [], glsl: /* glsl */`
+uniform sampler2D uTxt2m;
+float pz_tarjeta(vec3 q, vec4 T, out float m) { m = 0.0; return sdRoundBox(q, vec3(0.62, 0.26, 0.03), 0.025); }
+float pzc_tarjeta(vec3 q, vec4 T) { return sdRoundBox(q, vec3(0.6, 0.24, 0.025), 0.02); }
+vec3 pzcol_tarjeta(vec3 q, vec4 T, float m) {
+  float a = q.z > 0.0 ? texture(uTxt2m, vec2(q.x / 1.24 + 0.5, q.y / 0.52 + 0.5)).r : 0.0;
+  return mix(vec3(0.60, 0.56, 0.47) * (0.95 + 0.08 * vnoise(q * 30.0)), vec3(0.04, 0.03, 0.025), smoothstep(0.3, 0.7, a));
+}
+` };
+await cargarFuenteRotulos();
+const tex2m = (() => {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 215;
+  const x = c.getContext('2d');
+  x.fillStyle = '#000'; x.fillRect(0, 0, c.width, c.height);
+  x.fillStyle = '#fff'; x.font = '500 150px "Jost", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText('2 m', 256, 112);
+  const t = new THREE.CanvasTexture(c); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false;
+  return t;
+})();
+
+const PIEZAS = ['celula', 'madeja', 'hilo', 'helice', 'tronco', 'humano', 'reglaA', 'flecha', 'cota', 'tarjeta', 'virusmota'];
+const I = Object.fromEntries(PIEZAS.map((t, i) => [t, i]));
+const P = await crearPlato({
+  piezas: PIEZAS, mano: false, alfa: true, post: false,
+  sombraFondo: PIEZAS.map((t, i) => `p${i}`).filter((id, i) => PIEZAS[i] !== 'virusmota' && PIEZAS[i] !== 'hilo'),
+  tiposExtra: { ...tiposAdn(['celula', 'madeja', 'hilo', 'helice']), tarjeta: TARJETA, virusmota: VIRUS },
+  uniformes: { uTxt2m: { value: tex2m } },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+window.__carga.push(['plato', Math.round(performance.now())]);
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const mundo = (pos, rot, esc, q) => {
+  const v = new THREE.Vector3(...q).multiplyScalar(esc).applyEuler(new THREE.Euler(rot[0], rot[1], rot[2], 'YXZ'));
+  return [pos[0] + v.x, pos[1] + v.y, pos[2] + v.z];
+};
+
+// ---------------------------------------------------------------- puesta en escena (mundo)
+// regla y Atom (los de todas las escenas del viaje)
+const REG = en(1668, 528, 0.4), E_REG = 1.42;
+const REGLA_0 = { e: -9, ya: 0.375, lupa: 0.5 };
+const A_Z = 1.0, ATOMO_PRES = [230, 780], SITIO = en(...ATOMO_PRES, A_Z);
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(SITIO));
+// A: el virus, en el centro
+const VIR = { pos: en(960, 540, 2), escala: 0 };
+VIR.escala = 38 / (0.55 * pxU(VIR.pos));
+// la célula: la misma de lado en los dos planos (C de cerca, B entera junto al muro)
+const ROT_CEL = [0.12, -0.38, 0], SEM = 0;
+function celulaEn(sx, sy, zN, rpx) {
+  const w = en(sx, sy, zN);
+  const esc = rpx / pxU(w) / ADN_MEDIDAS.RN;
+  const off = mundo([0, 0, 0], ROT_CEL, esc, ADN_MEDIDAS.nucleo);
+  return { pos: [w[0] - off[0], w[1] - off[1], w[2] - off[2]], escala: esc, rot: ROT_CEL };
+}
+const CEL_C = celulaEn(960, 540, 6.0, 290);
+// B: la célula apoyada en el suelo, a la derecha del centro
+const CEL_B = (() => { const esc = 2.2, x = en(1030, 600, 0.6)[0]; return { pos: [x, 0.7 * esc, 0.6], escala: esc, rot: ROT_CEL }; })();
+// el muro: el pelo como tronco a escala grande, con su canto en x ≈ X_MURO px (a la altura de la célula)
+const X_MURO = 450, E_MURO = 7.0;
+const MURO = (() => {
+  // busca la x del eje para que el canto (la tangente desde la cámara) caiga en X_MURO
+  const zc = -5.2, cam = [0, 15.5];
+  const canto = (xc) => {
+    const vx = xc - cam[0], vz = zc - cam[1], d = Math.hypot(vx, vz), a = Math.asin(Math.min(1, E_MURO * 0.985 / d));
+    const ang = Math.atan2(vz, vx) + a;                     // la tangente de la derecha (vista desde la cámara)
+    const L = Math.sqrt(Math.max(0, d * d - (E_MURO * 0.985) ** 2));
+    return pant([cam[0] + Math.cos(ang) * L, 2.6, cam[1] + Math.sin(ang) * L])[0];
+  };
+  let a = -40, b = 10;
+  for (let k = 0; k < 50; k++) { const c = (a + b) / 2; if (canto(c) < X_MURO) a = c; else b = c; }
+  return { pos: [(a + b) / 2, 1.4 * E_MURO, zc], escala: E_MURO, rot: [0, 0.3, 0] };
+})();
+// D: la persona (la de las pruebas) y el hilo de 2 m junto a ella, que sale de la motita (la célula) en el suelo
+const E_PER = 2.4, PER = [en(612, 600, 0.6)[0], E_PER, 0.6], ROT_PER = 0.2;
+const METRO = 1.765 * E_PER / 1.75;                         // la persona mide 1,75 m
+const DOS_M = 2 * METRO;
+const R_HILO_D = 0.026;
+const BASE_D = [en(905, 600, 1.0)[0], 0, 1.0];
+const MOTA = { pos: [BASE_D[0], 0.62 * 0.11, BASE_D[2]], escala: 0.11, rot: [0.1, -0.4, 0] };
+const COTA_X = BASE_D[0] + 0.5;
+// E: la hélice en primer plano, en vertical por el centro
+const HX_POS = en(960, 540, 3.0);
+const HX_ESC = 262 / pxU(HX_POS);
+const HX_LARGO = (560 / pxU(HX_POS)) / HX_ESC + 0.9;
+const HELICE = { pos: HX_POS, escala: HX_ESC, rot: [0.0, 0, 0.0], largo: HX_LARGO, semilla: 0, giro: 0.35 };
+
+// ---------------------------------------------------------------- relojes
+const tz = (ts) => calma(ts, D);
+// el avance de la hélice: arranca al acabar la mirilla, corre ~1,5 peldaños/s y frena hasta pararse en FIN
+const DT = 1 / 240, AV = [0];
+const velHx = (t) => 1.5 * ss(T.s3[1] - 0.25, T.s3[1] + 0.55, t) * (1 - ss(FIN - 2.2, FIN, t));
+for (let i = 1; i * DT <= D + 0.2; i++) AV.push(AV[i - 1] + velHx((i - 0.5) * DT) * DT);
+const avanceEn = (t) => { const x = Math.max(0, t) / DT, i = Math.min(AV.length - 2, Math.floor(x)); return mix(AV[i], AV[i + 1], x - i); };
+
+// ---------------------------------------------------------------- capa 2D
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const lienzo = () => { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; return c; };
+
+// ---------------------------------------------------------------- Atom y la regla (vivos en todos los fotogramas)
+function atomo(ts) {
+  const z = tz(ts);
+  P.atomo({
+    pos: [SITIO[0], SITIO[1] + 0.006 * Math.sin(z * 1.1), SITIO[2]], escala: A_ESC,
+    yaw: -0.15 + 0.08 * Math.sin(z * 0.5), pitch: 0.06,
+    energia: ts < FIN ? E.energia(ts) : 0, ts: z,
+  });
+}
+function regla(ts) {
+  const u = eio(prog(ts, T.regla[0], T.regla[1]));
+  const e = -7 - 2 * u;
+  return P.regla({ pieza: I.reglaA, flecha: I.flecha, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e, ya: REGLA_0.ya, actual: Math.round(e), marca: e,
+    lupa: REGLA_0.lupa, toque: u > 0 && u < 1 });
+}
+
+// ---------------------------------------------------------------- los planos
+function ponerCelula(C, nucleo = 1) { return celula(P, I.celula, { ...C, corte: 1, nucleo, semilla: SEM }); }
+function ponerMadeja(C) {
+  const c = mundo(C.pos, C.rot, C.escala, ADN_MEDIDAS.nucleo);
+  madeja(P, I.madeja, { pos: c, escala: 0.8 * ADN_MEDIDAS.RN * C.escala, rot: C.rot, semilla: SEM });
+}
+// la célula con su núcleo translúcido: la foto con la envoltura y, encima, la madeja sola tras el velo
+function fotoCelula(C, conMuro, n) {
+  P.fotograma(0); P.limpiar();
+  const info = ponerCelula(C, 1);
+  if (conMuro) P.pieza(I.tronco, MURO);
+  P.render(n);
+  const f = foto(P);
+  const pc = pant(C.pos);
+  info.celula = { x: pc[0], y: pc[1], r: C.escala * pxU(C.pos) };
+  P.limpiar(); ponerMadeja(C); P.render(n, { fondo: false });
+  const mj = foto(P);
+  const gf = f.getContext('2d'); gf.setTransform(f.width / W, 0, 0, f.width / W, 0, 0);
+  velarNucleo(gf, mj, info.elipse, { opacidad: 0.4, borde: 0.95 });
+  return { f, info };
+}
+// el hilo que sale del núcleo en B (u: 0…1 del estirón)
+const HILO_B = (() => {
+  P.fotograma(0); P.limpiar();
+  const info = ponerCelula(CEL_B, 1);
+  const esc = ADN_MEDIDAS.HILO * 0.8 * ADN_MEDIDAS.RN * CEL_B.escala / ADN_MEDIDAS.HILO;   // el grueso del hilo de la madeja
+  const top = en(0, -60, info.salida[2])[1];
+  return { pos: info.salida, escala: esc, largoMax: (top - info.salida[1]) / esc * 1.1, salida: info.salida };
+})();
+function hiloB(u, ts) {
+  if (u <= 0) return;
+  hilo(P, I.hilo, { pos: HILO_B.salida, escala: HILO_B.escala, rot: [0.08, 0, -0.12], largo: HILO_B.largoMax * eio(u), tension: mix(0.15, 0.85, eio(u)), fase: 2.2 * u + 0.4 * tz(ts) });
+}
+// D: la persona mira la punta del hilo; el hilo sube desde la motita
+function cabezaHacia(w) {
+  const dx = w[0] - PER[0], dy = w[1] - (PER[1] + E_PER * 0.611), dz = w[2] - PER[2];
+  const c = Math.cos(ROT_PER), s = Math.sin(ROT_PER);
+  const lx = c * dx - s * dz, lz = s * dx + c * dz;
+  return [Math.atan2(lx, lz), -Math.atan2(dy, Math.hypot(lx, lz))];
+}
+function planoD(ts, { vivo = true } = {}) {
+  const uC = eio(prog(ts, T.crece[0], T.crece[1]));
+  celula(P, I.celula, { ...MOTA, corte: 0 });
+  const h0 = MOTA.pos[1] + 0.06;
+  const largo = 0.25 + (DOS_M - h0 - 0.25) * uC;
+  const esc = R_HILO_D / ADN_MEDIDAS.HILO;
+  const hl = hilo(P, I.hilo, { pos: [BASE_D[0], h0, BASE_D[2]], escala: esc, largo: largo / esc, tension: 0.9, fase: 1.3 + 0.5 * uC });
+  // la persona: de pie, sigue con la mirada la punta del hilo
+  const p = postura('depie');
+  const k = eio(prog(ts, T.crece[0] + 0.15, T.crece[1] + 0.25));
+  const [gi, inc] = cabezaHacia(hl.punta);
+  p.cabeza = [0.55 * gi * k, 0.75 * inc * k, 0.04 * k];
+  p.mirada = [0.5 * k, 0.55 * k];
+  const resp = 0.008 * Math.sin(tz(ts) * 2.4) * (1 - ss(FIN - 0.9, FIN, ts));
+  P.pieza(I.humano, { pos: PER, escala: E_PER, sq: [1, 1 + resp, 1], rot: [0, ROT_PER, 0], postura: p, t: ts, huellaFija: [0.37, 0.21, 0] });
+  // la cota de latón (de la base a la punta, a la derecha del hilo) y la tarjeta «2 m»
+  const kC = eio(prog(ts, T.cota[0], T.cota[1])), kT = eoc(prog(ts, T.tarjeta[0], T.tarjeta[1]));
+  if (kC > 0) P.pieza(I.cota, { pos: [COTA_X, DOS_M / 2, BASE_D[2]], escala: DOS_M / 2, sq: [1, 0.28, 0.6], rot: [0, 0, Math.PI / 2], variante: kC, toque: kC < 1 });
+  if (kT > 0) P.pieza(I.tarjeta, { pos: [COTA_X + 0.98, DOS_M / 2 + 0.25 * (1 - kT), BASE_D[2] + 0.1], escala: 1.25 * mix(0.5, 1, kT), rot: [-0.05 - 0.5 * (1 - kT), -0.12, 0.02], toque: kT < 1 });
+  return hl;
+}
+// E: la hélice
+function planoE(ts) {
+  return helice(P, I.helice, { ...HELICE, avance: avanceEn(ts) });
+}
+
+// ---------------------------------------------------------------- fotos (al cargar y las de los cortes, la primera vez)
+const FOTO = {};
+{
+  // A: el virus, desenfocado
+  P.fotograma(0); P.limpiar();
+  P.pieza(I.virusmota, { pos: VIR.pos, escala: VIR.escala, rot: [0.3, 0.5, 0] });
+  P.render(900);
+  const f = foto(P), gf = f.getContext('2d'), k = f.width / W;
+  const b = foto(P);
+  gf.save(); gf.beginPath(); gf.arc(960 * k, 540 * k, 120 * k, 0, Math.PI * 2); gf.clip();
+  gf.filter = `blur(${5 * k}px)`; gf.drawImage(b, 0, 0); gf.restore();
+  FOTO.A = f;
+}
+window.__carga.push(['virus', Math.round(performance.now())]);
+{ const r = fotoCelula(CEL_C, false, 901); FOTO.C = r.f; FOTO.Cinfo = r.info; }
+window.__carga.push(['nucleo', Math.round(performance.now())]);
+{ const r = fotoCelula(CEL_B, true, 902); FOTO.B = r.f; FOTO.Binfo = r.info; }
+window.__carga.push(['celula', Math.round(performance.now())]);
+// B con el hilo ya fuera (para la mirilla que se cierra)
+function fotoBhilo() {
+  if (FOTO.Bh) return FOTO.Bh;
+  P.fotograma(T.sale[1]); P.limpiar(); hiloB(1, T.sale[1]); P.render(903, { fondo: false });
+  const c = lienzo(), gc = c.getContext('2d');
+  gc.drawImage(FOTO.B, 0, 0); gc.drawImage(lienzoGL, 0, 0);
+  return (FOTO.Bh = c);
+}
+// D al principio (sin Atom ni regla) y al final
+function fotoD(cual) {
+  const k = cual === 0 ? 'D0' : 'D1';
+  if (FOTO[k]) return FOTO[k];
+  const t = cual === 0 ? T.s2[1] : T.s3[0];
+  P.fotograma(t); P.limpiar(); const hl = planoD(t); P.render(904 + cual);
+  const f = foto(P);
+  brilloHilo(f.getContext('2d'), hl, f.width / W, t);
+  FOTO[k + 'hilo'] = hl;
+  return (FOTO[k] = f);
+}
+function fotoE0() {
+  if (FOTO.E0) return FOTO.E0;
+  P.fotograma(T.s3[1]); P.limpiar(); planoE(T.s3[0]); P.render(906);
+  return (FOTO.E0 = foto(P));
+}
+
+// ---------------------------------------------------------------- 2D: brillos y mirillas
+// el hilo de 2 m: un brillo suave a lo largo, para que se lea en el móvil
+function brilloHilo(gx, hl, k = 1, ts = 0) {
+  if (!hl) return;
+  gx.save(); gx.setTransform(k, 0, 0, k, 0, 0); gx.globalCompositeOperation = 'lighter';
+  gx.strokeStyle = 'rgba(255,214,150,0.11)'; gx.lineCap = 'round';
+  for (const [w, a] of [[16, 0.07], [8, 0.1]]) {
+    gx.lineWidth = w; gx.strokeStyle = `rgba(255,214,150,${a})`;
+    gx.beginPath();
+    for (let j = 0; j <= 24; j++) { const p = pant(hl.punto(j / 24)); if (j) gx.lineTo(p[0], p[1]); else gx.moveTo(p[0], p[1]); }
+    gx.stroke();
+  }
+  // la motita (la célula) brilla un poco
+  const pm = pant(MOTA.pos);
+  const gr = gx.createRadialGradient(pm[0], pm[1], 2, pm[0], pm[1], 46);
+  gr.addColorStop(0, 'rgba(255,200,150,0.35)'); gr.addColorStop(1, 'rgba(255,190,140,0)');
+  gx.fillStyle = gr; gx.fillRect(pm[0] - 50, pm[1] - 50, 100, 100);
+  gx.restore();
+}
+// mirilla (como los saltos de prueba-plastilina-adulta): la foto vieja se hunde hacia F y la nueva llega en un círculo
+// que se abre; A: el punto de la nueva que acaba en el centro del círculo (y en su sitio)
+function mirilla(u, viejo, nuevo, F, A = [W / 2, H / 2]) {
+  const pu = eio(cl(u / 0.8)), px = mix(F[0], A[0], pu), py = mix(F[1], A[1], pu);
+  const sO = Math.pow(10, 0.5 * eio(cl(u / 0.7))), sN = mix(0.8, 1, seco(prog(u, 0.05, 0.85)));
+  const r = 1500 * eio(prog(u, 0, 0.62));
+  const lejos = Math.max(Math.hypot(px, py), Math.hypot(W - px, py), Math.hypot(px, H - py), Math.hypot(W - px, H - py));
+  g.save();
+  if (r < lejos) {
+    g.save(); g.translate(px, py); g.scale(sO, sO); g.translate(-F[0], -F[1]); g.drawImage(viejo, 0, 0, W, H); g.restore();
+    if (r > 2) {
+      const rx0 = px - A[0] * sN, ry0 = py - A[1] * sN, rw = W * sN, rh = H * sN;
+      g.save(); g.beginPath(); g.rect(rx0, ry0, rw, rh); g.clip();
+      g.shadowColor = 'rgba(0,0,0,0.75)'; g.shadowBlur = 46; g.fillStyle = '#0b0c0f';
+      g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.fill(); g.restore();
+      g.save(); g.beginPath(); g.rect(rx0, ry0, rw, rh); g.clip();
+      g.save(); g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.clip();
+      g.translate(px, py); g.scale(sN, sN); g.translate(-A[0], -A[1]); g.drawImage(nuevo, 0, 0, W, H);
+      g.restore();
+      g.strokeStyle = 'rgba(0,0,0,0.45)'; g.lineWidth = 10; g.filter = 'blur(4px)'; g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.stroke(); g.filter = 'none';
+      g.restore();
+    }
+  } else {
+    g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+    g.translate(px, py); g.scale(sN, sN); g.translate(-A[0], -A[1]); g.drawImage(nuevo, 0, 0, W, H);
+  }
+  g.restore();
+}
+// la cámara se aparta del núcleo (C) a la célula entera (B): las dos fotos, alineadas por el núcleo
+function apartarse(u) {
+  const ec = FOTO.Cinfo.elipse, eb = FOTO.Binfo.elipse;
+  const z0 = ec.r / eb.r;
+  const k = eio(u), z = Math.pow(z0, 1 - k);
+  const cx = mix(ec.x, eb.x, k), cy = mix(ec.y, eb.y, k);
+  g.save(); g.translate(cx, cy); g.scale(z, z); g.translate(-eb.x, -eb.y); g.drawImage(FOTO.B, 0, 0, W, H); g.restore();
+  const a = 1 - ss(0.0, 0.55, u);
+  if (a > 0.001) {
+    g.save(); g.globalAlpha = a; g.translate(cx, cy); g.scale(z / z0, z / z0); g.translate(-ec.x, -ec.y); g.drawImage(FOTO.C, 0, 0, W, H); g.restore();
+  }
+}
+// la cámara se aparta de la célula (B) hasta la motita del plató (D0): primero un círculo se cierra alrededor de la
+// célula; después la célula, dentro de su círculo, se encoge hasta la motita mientras el plató se aleja alrededor
+function alejarse(u) {
+  const cb = FOTO.Binfo.celula, pm = pant(MOTA.pos);
+  const rB = cb.r * 1.18, rM = Math.max(6, pxU(MOTA.pos) * MOTA.escala * 1.05);
+  const Zmax = rB / rM;
+  const u1 = eio(prog(u, 0, 0.32)), k = eio(prog(u, 0.22, 1));
+  const Z = Math.pow(Zmax, 1 - k);                         // el plató (D0) agrandado alrededor de la motita
+  const s = Z / Zmax;                                      // la foto de B, encogida
+  const cx = mix(cb.x, pm[0], k), cy = mix(cb.y, pm[1], k);
+  g.save(); g.translate(cx, cy); g.scale(Z, Z); g.translate(-pm[0], -pm[1]); g.drawImage(FOTO.D0, 0, 0, W, H); g.restore();
+  const lejos = Math.max(Math.hypot(cb.x, cb.y), Math.hypot(W - cb.x, cb.y), Math.hypot(cb.x, H - cb.y), Math.hypot(W - cb.x, H - cb.y));
+  const r = mix(lejos, rB, u1) * s;
+  g.save();
+  g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 40 * s; g.fillStyle = 'rgba(11,12,15,0.9)';
+  g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill(); g.restore();
+  g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.clip();
+  g.translate(cx, cy); g.scale(s, s); g.translate(-cb.x, -cb.y); g.drawImage(FOTO.Bh, 0, 0, W, H);
+  g.restore();
+  // al final, la célula ya es la motita: el círculo se funde con ella
+}
+function exposicion(nf) {
+  const fl = azar(nf, 3) - 0.5;
+  g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  const ts = Math.min(t, D - 0.3);
+  ajustarCapa();
+  const nf = Math.floor(ts * 12 + 1e-6);
+  const pl = plano(ts);
+  if (pl === 'D' || pl === 'E') {
+    // planos vivos enteros, con el plató y su sombra
+    const hl = pl === 'D' ? (P.fotograma(ts), P.limpiar(), planoD(ts)) : (P.fotograma(ts), P.limpiar(), planoE(ts), null);
+    atomo(ts); regla(ts);
+    P.render(nf);
+    g.drawImage(lienzoGL, 0, 0, W, H);
+    if (hl) brilloHilo(g, hl, 1, ts);
+    POST.aplicar(g, nf);
+    return;
+  }
+  // los demás: fotos compuestas en 2D (y las de los cortes, que se hacen la primera vez), con lo vivo encima
+  if (pl === 'S2') { fotoBhilo(); fotoD(0); }
+  if (pl === 'S3') { fotoD(1); fotoE0(); }
+  P.fotograma(ts); P.limpiar();
+  atomo(ts); regla(ts);
+  if (pl === 'B') hiloB(prog(ts, T.sale[0], T.sale[1]), ts);
+  P.render(nf, { fondo: false });
+  if (pl === 'A') g.drawImage(FOTO.A, 0, 0, W, H);
+  else if (pl === 'S1') mirilla(prog(ts, T.s1[0], T.s1[1]), FOTO.A, FOTO.C, [960, 540], [FOTO.Cinfo.elipse.x, FOTO.Cinfo.elipse.y]);
+  else if (pl === 'C') {
+    // empuje lento hacia el núcleo
+    const z = 1 + 0.035 * prog(ts, T.s1[1], T.atras[0]);
+    const e = FOTO.Cinfo.elipse;
+    g.save(); g.translate(e.x, e.y); g.scale(z, z); g.translate(-e.x, -e.y); g.drawImage(FOTO.C, 0, 0, W, H); g.restore();
+  } else if (pl === 'AT') apartarse(prog(ts, T.atras[0], T.atras[1]));
+  else if (pl === 'B') g.drawImage(FOTO.B, 0, 0, W, H);
+  else if (pl === 'S2') alejarse(prog(ts, T.s2[0], T.s2[1])); else if (pl === 'S3') {
+    const hl = FOTO.D1hilo, F = pant(hl.punto(0.55));
+    mirilla(prog(ts, T.s3[0], T.s3[1]), FOTO.D1, FOTO.E0, F);
+  }
+  if (pl === 'A' || pl === 'C' || pl === 'B') exposicion(nf);
+  g.drawImage(lienzoGL, 0, 0, W, H);
+  POST.aplicar(g, nf);
+}
+
+window.__fin = {
+  HELICE_F: { ...HELICE, avance: avanceEn(D) }, REGLA_0, ATOMO: { pos: SITIO, escala: A_ESC, yaw: -0.15, pitch: 0.06 },
+  CEL_C, CEL_B, MURO, PER, BASE_D, DOS_M, T,
+};
+window.__carga.push(['listo', Math.round(performance.now())]);
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

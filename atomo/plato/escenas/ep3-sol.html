@@ -60,12 +60,12 @@ const mitad = (a, b) => (a + b) / 2;
 // ---------------------------------------------------------------- tiempos (todo sale de las marcas)
 const T = {
   funde: [m.fusion - 0.42, m.fusion - 0.26],          // la foto del mundo da paso a la pieza (iguales)
-  corte: [m.fusion - 0.28, m.fusion + 0.04],          // el octante se abre (completo en la marca)
+  corte: [m.fusion - 0.3, m.fusion],                  // el octante se abre (completo en la marca)
   flechas: [m.fusion + 0.55, m.fusion + 1.0],         // llegan las flechas…
   aprieta: [m.fusion + 1.0, m.fusion + 2.4],          // … y aprietan
   calor: [m.fusion + 1.7, m.fusion + 3.4],            // el núcleo se pone al rojo blanco
   entra: [mitad(m.fusion, m.fusionFin) - 0.3, mitad(m.fusion, m.fusionFin) + 0.05],   // la cámara entra en el núcleo
-  sale: [m.rebota - 0.28, m.rebota + 0.02],           // y vuelve al corte, en plano medio
+  sale: [m.rebota - 0.3, m.rebota],                   // y vuelve al corte, en plano medio (completo en la marca)
   rayo: [m.rebota + 0.1, null],                        // el rayo rebota dentro…
   fuera: mitad(m.rebota, m.rebotaFin) - 0.05,          // … y sale por el borde (a mitad de frase)
   llega: m.rebotaFin - 0.7,                            // llega a la cara
@@ -238,10 +238,13 @@ const HACER = {
   nucBlur: () => desenfocar(F('nucH0'), 7, 0.75),
   // el plasma del núcleo (fondo del detalle)
   plasma: () => hacerPlasma(),
+  // estrenos (compilan sus programas; ~4 s la persona, ~1 s el calendario y el reloj, con el servidor tranquilo)
+  estrenoPersona: () => { P.limpiar(); P.pieza(I.PER, { pos: en(200, 100, -2), escala: 0.15, rot: PER.rot, postura: POSE_PER }); P.render(1, { fondo: false }); return true; },
+  estrenoTiempo: () => { P.limpiar(); calendario(P, I.CAL, { pos: en(1000, 200, 0), escala: 0.05 }); reloj(P, I.REL, { pos: en(1100, 200, 0), escala: 0.05 }); P.render(0, { fondo: false }); return true; },
   // la flecha de arcilla (sprite)
   flecha: () => { P.limpiar(); P.pieza(I.FG, { pos: en(960, 540, 2), escala: 120 / pxU(en(960, 540, 2)), rot: [0.5, 0, 0] }); P.render(5300, { fondo: false }); return recortar(copiaGL(), [820, 470, 1100, 610]); },
   // la persona de perfil, de cintura para arriba (dos fotos)
-  persona0: () => fotoPersona(5401), persona1: () => fotoPersona(5402),
+  persona0: () => (F('estrenoPersona'), fotoPersona(5401)), persona1: () => (F('estrenoPersona'), fotoPersona(5402)),
   // la persona a la sombra, antes de que llegue la luz (horneada: un filtro de lienzo en cada fotograma cuesta)
   personaSombra: () => { const c = F('persona0'), d = lienzo(c.width, c.height), gd = d.getContext('2d'); gd.filter = 'brightness(0.62) saturate(0.82)'; gd.drawImage(c, 0, 0); return d; },
   // el cielo (ep03-estrellas.js), en cinco fotos
@@ -372,17 +375,14 @@ function hacerPlasma() {
 }
 
 // ---------------------------------------------------------------- al cargar: lo del primer fotograma y los estrenos
-F('mundoSol'); marcaCarga('foto mundo'); F('mundoSinSol'); F('reg0');
+F('mundoSol'); marcaCarga('foto mundo'); F('reg0');
 marcaCarga('mundo y regla');
-// (coste) se estrenan Atom, la regla, el Sol, el calendario y el reloj (su primer dibujo compila en SwiftShader)
+// (coste) se estrenan Atom y el Sol, que se dibujan desde el principio (su primer dibujo compila en SwiftShader); el
+// calendario, el reloj y la persona se estrenan pequeños en fotogramas baratos del detalle (PREPARAR), no al cargar
 P.fotograma(0); P.limpiar();
 atomo(0); sol(P, I.SOL, { ...SOL1, escala: 0.05 * SOL1.escala, corte: 1 });
-calendario(P, I.CAL, { pos: en(1000, 200, 0), escala: 0.05 }); reloj(P, I.REL, { pos: en(1100, 200, 0), escala: 0.05 });
 P.render(0, { fondo: false });
 marcaCarga('estrenos');
-// la persona se estrena pequeña (su compilación, ~4 s, no la paga ningún fotograma)
-if (!new URLSearchParams(location.search).has('sinEstreno')) { P.limpiar(); P.pieza(I.PER, { pos: en(200, 100, -2), escala: 0.15, rot: PER.rot, postura: POSE_PER }); P.render(1, { fondo: false }); }
-marcaCarga('persona');
 
 // ---------------------------------------------------------------- tramos
 // S1: el Sol del mundo → la pieza → el corte que se abre, las flechas que aprietan y el núcleo al rojo blanco
@@ -641,10 +641,11 @@ function tramo5(n, ts) {
 // (coste) cada foto pesada se hace en un fotograma barato poco antes de hacer falta (en orden, como renderiza
 // render-escenas.mjs); si se pide un instante suelto, F() la hace al momento y el resultado es el mismo
 const PREPARAR = [
-  [0.08, 'flecha'], [0.15, 'reg1'], [0.32, 'reg2'],
+  [0, 'mundoSinSol'], [0.15, 'reg1'], [0.32, 'reg2'], [0.48, 'flecha'],
   [1.0, 'plasma'], [1.25, 'nucH0'], [1.45, 'nucH1'], [1.65, 'nucHe0'], [1.85, 'nucHe1'], [2.05, 'nucBlur'], [T.entra[0] - 0.2, 'corteS1'],
-  [T_DET + 0.3, 'corte0'], [T_DET + 0.55, 'corte1'], [T_DET + 0.8, 'persona0'], [T_DET + 1.15, 'persona1'], [T_DET + 1.3, 'personaSombra'], [T_DET + 1.45, 'espacio'],
-  ...PARTES_CIELO.map((k, i) => [T_DET + 1.7 + 0.25 * i, 'cielo/' + k]),
+  [T_DET + 0.2, 'corte0'], [T_DET + 0.4, 'corte1'], [T_DET + 0.6, 'estrenoPersona'], [T_DET + 0.85, 'persona0'], [T_DET + 1.1, 'persona1'],
+  [T_DET + 1.3, 'personaSombra'], [T_DET + 1.45, 'espacio'], [T_DET + 1.65, 'estrenoTiempo'],
+  ...PARTES_CIELO.map((k, i) => [T_DET + 1.9 + 0.25 * i, 'cielo/' + k]),
 ];
 function dibujar(t) {
   const ts = Math.min(t, QUIETO);

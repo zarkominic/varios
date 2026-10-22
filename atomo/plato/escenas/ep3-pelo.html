@@ -318,14 +318,13 @@ function basculante(src, [yF, ancho, radio]) {
   const o = lienzo(), go = o.getContext('2d'); go.drawImage(src, 0, 0); go.drawImage(c, 0, 0);
   return o;
 }
-function fotoNivel(k) {
+function pintarNivel(k) {
   const tf = k === 0 ? SALTO[0][0] : SALTO[k - 1][1];
   P.fotograma(tf); P.limpiar();
   NIVEL[k](tf);
   P.render(1000 + k);
-  const f = foto();
-  return BASC[k] ? basculante(f, BASC[k]) : f;
 }
+function fotoNivel(k) { pintarNivel(k); const f = foto(); return BASC[k] ? basculante(f, BASC[k]) : f; }
 
 // ---------------------------------------------------------------- la lectura: sus fotos
 function fotoHombro() {
@@ -359,11 +358,10 @@ function fotoBorrosa(src) {
   return c;
 }
 function fotoFondo() { P.limpiar(); P.render(2003); return foto(); }
-function fotoPagina() {
+function pintarPagina() {
   P.limpiar();
   P.pieza(I.LIB, { pos: LIB_C.pos, escala: LIB_C.escala, rot: LIB_C.rot, color: aaLibro(LIB_C) });
   P.render(2002);
-  return foto();
 }
 
 // ---------------------------------------------------------------- composición 2D de la lectura
@@ -571,6 +569,29 @@ function fin() {
 // fotograma tarda más, pero la imagen es la misma: cada foto lleva su número de fotograma fijo).
 const FOTO = {};
 let hechasAhora = 0;
+// (coste) las fotos más caras (la mano, la piel y la página de cerca, que llenan el cuadro) se pintan en FRANJAS
+// horizontales (setScissor, como los párpados de ep3-hola), una por fotograma; la sombra y el fondo son los mismos en
+// todas, así que las franjas casan. Su número de fotograma (el hervor) es fijo.
+const FRANJAS = { nivel1: 4, nivel2: 2, pagina: 2 };
+const PARCIAL = {};
+function pintarFranja(k, b, pintar) {
+  const N = FRANJAS[k], p = (PARCIAL[k] ??= { c: lienzo(), hechas: 0 });
+  if (p.hechas & (1 << b)) return true;
+  const y0 = Math.round(b * H / N), y1 = Math.round((b + 1) * H / N);
+  const sz = P.renderer.getSize(new THREE.Vector2()), kk = sz.x / W;
+  P.renderer.setScissor(0, (H - y1) * kk, W * kk, (y1 - y0) * kk);
+  P.renderer.setScissorTest(true);
+  pintar();
+  P.renderer.setScissorTest(false);
+  const d = lienzoGL.width / W, a = Math.round(y0 * d), h = Math.round(y1 * d) - a;
+  p.c.getContext('2d').drawImage(lienzoGL, 0, a, lienzoGL.width, h, 0, a, lienzoGL.width, h);
+  p.hechas |= 1 << b;
+  return true;
+}
+function porFranjas(k, pintar) {
+  for (let b = 0; b < FRANJAS[k]; b++) pintarFranja(k, b, pintar);
+  return PARCIAL[k].c;
+}
 function estrenar(i) {
   P.limpiar();
   P.pieza(i, { pos: en(960, 540, 0), escala: 0.012 });
@@ -578,11 +599,17 @@ function estrenar(i) {
   return true;
 }
 const HACER = {
-  nivel0: () => fotoNivel(0), nivel1: () => fotoNivel(1), nivel2: () => fotoNivel(2), nivel3: () => fotoNivel(3), nivel4: () => fotoNivel(4),
-  hombro: () => fotoHombro(), pagina: () => fotoPagina(), borrosa: () => fotoBorrosa(F('pagina')), fondo: () => fotoFondo(),
+  nivel0: () => fotoNivel(0), nivel3: () => fotoNivel(3), nivel4: () => fotoNivel(4),
+  nivel1: () => basculante(porFranjas('nivel1', () => pintarNivel(1)), BASC[1]),
+  nivel2: () => basculante(porFranjas('nivel2', () => pintarNivel(2)), BASC[2]),
+  hombro: () => fotoHombro(), pagina: () => porFranjas('pagina', pintarPagina), borrosa: () => fotoBorrosa(F('pagina')), fondo: () => fotoFondo(),
   'e:mano': () => estrenar(I.MANO), 'e:piel': () => estrenar(I.PIEL), 'e:pelo': () => estrenar(I.PELO), 'e:tronco': () => estrenar(I.TRO),
   'e:cota': () => estrenar(I.COTA), 'e:etiqueta': () => estrenar(I.ETQ), 'e:libro': () => estrenar(I.LIB), 'e:corte': () => estrenar(I.CORTE),
 };
+for (const [k, N] of Object.entries(FRANJAS)) {
+  const pintar = k === 'pagina' ? pintarPagina : () => pintarNivel(Number(k.slice(-1)));
+  for (let b = 0; b < N; b++) HACER[`${k}#${b}`] = () => pintarFranja(k, b, pintar);
+}
 function F(k) {
   if (!FOTO[k]) {
     const a = performance.now();
@@ -594,11 +621,13 @@ function F(k) {
 }
 const PREPARAR = [
   // en los fotogramas de la persona (1–14): sus fotos y los estrenos de los saltos, de una en una
-  [0.05, 'nivel0', SALTO[0][1]], [0.05, 'e:mano', SALTO[0][1]], [0.05, 'nivel1', SALTO[1][1]],
-  [0.05, 'e:piel', SALTO[1][1]], [0.05, 'nivel2', SALTO[2][1]], [0.05, 'e:pelo', SALTO[2][1]], [0.05, 'nivel3', SALTO[3][1]],
-  [0.05, 'e:tronco', SALTO[3][1]], [0.05, 'nivel4', SALTO[3][1]], [0.05, 'e:cota', T.decima], [0.05, 'e:etiqueta', T.milimetro],
-  // en los saltos (fotogramas de dos fotos en 2D, los más baratos): la lectura y el ojo
-  [SALTO[0][0], 'e:libro', T.empuje1], [SALTO[0][0], 'hombro', T.empuje1], [SALTO[0][0], 'pagina', T.ojo],
+  [0.05, 'nivel0', SALTO[0][1]], [0.05, 'e:mano', SALTO[0][1]],
+  ...[0, 1, 2, 3].map((b) => [0.05, `nivel1#${b}`, SALTO[1][1]]), [0.05, 'nivel1', SALTO[1][1]],
+  [0.05, 'e:piel', SALTO[1][1]], [0.05, 'nivel2#0', SALTO[2][1]], [0.05, 'nivel2#1', SALTO[2][1]], [0.05, 'nivel2', SALTO[2][1]],
+  [0.05, 'e:pelo', SALTO[2][1]], [0.05, 'nivel3', SALTO[3][1]], [0.05, 'e:tronco', SALTO[3][1]], [0.05, 'nivel4', SALTO[3][1]],
+  // en los saltos (fotogramas de dos fotos en 2D, los más baratos): los estrenos de lo que queda, la lectura y el ojo
+  [SALTO[0][0], 'e:cota', T.decima], [SALTO[0][0], 'e:etiqueta', T.milimetro], [SALTO[0][0], 'e:libro', T.empuje1],
+  [SALTO[0][0], 'hombro', T.empuje1], [SALTO[0][0], 'pagina#0', T.ojo], [SALTO[0][0], 'pagina#1', T.ojo], [SALTO[0][0], 'pagina', T.ojo],
   [SALTO[0][0], 'borrosa', T.ojo], [SALTO[0][0], 'e:corte', D + 1], [SALTO[0][0], 'fondo', D + 1],
 ];
 function prepararUna(ts) {

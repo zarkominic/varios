@@ -199,11 +199,11 @@ function brilloMarca(ts, R) {
   const fila = Math.hypot(...[0, 1].map((i) => pant(R.punto(5, 0.12))[i] - pL[i]));   // px entre dos filas
   gs.save();
   gs.globalCompositeOperation = 'screen';
-  // la fila entera (marcas y rótulo), una banda de luz cálida
+  // la fila entera (marcas y rótulo), una banda de luz cálida (sin lavar el rótulo, que se sigue leyendo)
   const cx = (pL[0] + pT[0]) / 2, cy = (pL[1] + pT[1]) / 2, rx = Math.abs(pL[0] - pT[0]) * 0.5 + fila * 0.55, ry = fila * 0.36;
   gs.translate(cx, cy); gs.scale(1, ry / rx);
   let h = gs.createRadialGradient(0, 0, 0, 0, 0, rx);
-  h.addColorStop(0, `rgba(255,196,120,${0.5 * fl})`); h.addColorStop(0.45, `rgba(240,160,80,${0.3 * fl})`); h.addColorStop(1, 'rgba(220,130,60,0)');
+  h.addColorStop(0, `rgba(255,196,120,${0.36 * fl})`); h.addColorStop(0.45, `rgba(240,160,80,${0.24 * fl})`); h.addColorStop(1, 'rgba(220,130,60,0)');
   gs.fillStyle = h; gs.beginPath(); gs.arc(0, 0, rx, 0, 2 * Math.PI); gs.fill();
   gs.setTransform(sobre.width / W, 0, 0, sobre.width / W, 0, 0);
   // el rótulo, más encendido
