@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-sangre.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-sangre.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por pieza y por variante, con el plató, la luz y la cámara de las escenas de plastilina
+// (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28).
+//   __frame(0)  → la hoja entera (5 × 3 celdas de 384 × 216, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+// ?celda=k abre la celda k en la vista previa. window.__tiempos[k] da lo que tardó cada celda (ms).
+import * as THREE from 'three';
+import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposSangre, globulo, fila, rio, vaso, cortePelo, medula, sombraSilueta, SANGRE } from '/atomo/plato/kits/ep03-sangre.js';
+
+const W = 1920, H = 1080;
+const T = ['globulo', 'globulos', 'vaso', 'cortePelo', 'medula'];
+const I = Object.fromEntries(T.map((t, i) => [t, i]));
+const P = await crearPlato({
+  piezas: T, tiposExtra: tiposSangre(), atomo: false, alfa: true, post: false,
+  sombraFondo: ['p0', 'p1', 'p2', 'p3', 'p4'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pxU = (p) => { const a = P.proyectar(p), b = P.proyectar([p[0] + 1, p[1], p[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+// rot que pone la cara +z de una pieza en pos mirando a la cámara
+function haciaCamara(pos) {
+  const s = P.proyectar(pos), a = P.punto(s[0], s[1], pos[2]), b = P.punto(s[0], s[1], pos[2] + 1);
+  const d = new THREE.Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2]).normalize();
+  return [-Math.asin(d.y), Math.atan2(d.x, d.z), 0];
+}
+const esc = (sx, sy, z, px) => px / pxU(en(sx, sy, z));   // escala que da px por unidad local
+
+const C = [];
+const cel = (rot, poner) => C.push({ rot, poner });
+const G0 = en(960, 520, 2);
+cel('globulo de frente', () => globulo(P, I.globulo, { pos: G0, escala: esc(960, 520, 2, 230), rot: haciaCamara(G0) }));
+cel('globulo de tres cuartos', () => globulo(P, I.globulo, { pos: G0, escala: esc(960, 520, 2, 230), rot: [0.75, 0.45, 0.1] }));
+cel('globulo de canto', () => globulo(P, I.globulo, { pos: G0, escala: esc(960, 520, 2, 260), rot: [0.05, 1.5, 0.15] }));
+cel('globulo edad 0,5', () => globulo(P, I.globulo, { pos: G0, escala: esc(960, 520, 2, 230), rot: [0.45, 0.3, 0.05], edad: 0.5 }));
+cel('globulo edad 1 (viejo)', () => globulo(P, I.globulo, { pos: G0, escala: esc(960, 520, 2, 230), rot: [0.45, 0.3, 0.05], edad: 1 }));
+const F0 = en(960, 560, 1);
+cel('fila 12, llegada 1 (tumbada)', () => fila(P, I.globulos, { pos: F0, escala: esc(960, 560, 1, 62), rot: [-1.05, 0, 0], n: 12 }));
+cel('fila 12, llegada 0,45 (llegan)', () => fila(P, I.globulos, { pos: F0, escala: esc(960, 560, 1, 62), rot: [-1.05, 0, 0], n: 12, llegada: 0.45 }));
+cel('rio (avance 0, canal 3)', () => rio(P, I.globulos, { pos: en(960, 520, 1), escala: esc(960, 520, 1, 70), rot: [0, 0, 0.05], semilargo: 13, canal: 3 }));
+const V0 = en(960, 520, 0);
+cel('vaso abierto + rio dentro', () => {
+  const e = esc(960, 520, 0, 300);
+  vaso(P, I.vaso, { pos: V0, escala: e, rot: [0.1, -0.25, 0.04], semilargo: 3.6 });
+  rio(P, I.globulos, { pos: V0, escala: e / 4, rot: [0.1, -0.25, 0.04], semilargo: 13, canal: 3.1, avance: 2 });
+});
+cel('vaso entero', () => vaso(P, I.vaso, { pos: V0, escala: esc(960, 520, 0, 230), rot: [0.15, -0.5, 0.1], semilargo: 3, abierto: false }));
+const P0 = en(960, 470, 0);
+cel('cortePelo (largo 1,2)', () => cortePelo(P, I.cortePelo, { pos: P0, escala: esc(960, 470, 0, 470), rot: [0.45, 0.2, 0], largo: 1.2 }));
+cel('cortePelo + fila 12 (fin de ep3-celulas)', () => {
+  const e = esc(960, 470, 0, 470), rot = [0.45, 0, 0];
+  const c = cortePelo(P, I.cortePelo, { pos: P0, escala: e, rot, largo: 0.9 });
+  // la fila, tumbada sobre la cara del corte (su eje z = la normal de la cara)
+  const n = c.normal, k = (e / SANGRE.PELO) * 0.35;
+  fila(P, I.globulos, { pos: [c.centro[0] + n[0] * k, c.centro[1] + n[1] * k, c.centro[2] + n[2] * k], escala: e / SANGRE.PELO, rot: [rot[0] - Math.PI / 2, 0, 0], n: 12 });
+});
+const M0 = en(960, 500, 0);
+cel('medula (brillo 0)', () => medula(P, I.medula, { pos: M0, escala: esc(960, 500, 0, 400), rot: [0.55, 0.3, 0], largo: 1 }));
+cel('medula brillo 1', () => medula(P, I.medula, { pos: M0, escala: esc(960, 500, 0, 400), rot: [0.55, 0.3, 0], largo: 1, brillo: 1, brilloFase: 0.3 }));
+cel('rio sobre foto + sombraSilueta', () => rio(P, I.globulos, { pos: en(960, 520, 1), escala: esc(960, 520, 1, 70), rot: [0, 0, 0.05], semilargo: 13, canal: 3, avance: 5, semilla: 7 }), );
+C[C.length - 1].sombra = true;
+
+// ---------------------------------------------------------------- dibujo
+const lienzoGL = P.renderer.domElement;
+const cont = document.getElementById('escena');
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+const copia = () => { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; c.getContext('2d').drawImage(lienzoGL, 0, 0); return c; };
+const cache = [];
+window.__tiempos = [];
+let fondo = null;
+function celda(k) {
+  if (cache[k]) return cache[k];
+  const c = C[k];
+  const a = performance.now();
+  P.fotograma(0); P.limpiar();
+  c.poner(P);
+  let f;
+  if (c.sombra) {
+    // la receta de las escenas: el fondo (foto), la sombra 2D de lo vivo y lo vivo sin fondo
+    if (!fondo) { P.limpiar(); P.render(99); fondo = copia(); P.limpiar(); c.poner(P); }
+    P.render(k + 1, { fondo: false });
+    const vivo = copia();
+    f = document.createElement('canvas'); f.width = vivo.width; f.height = vivo.height;
+    const gf = f.getContext('2d');
+    gf.drawImage(fondo, 0, 0); gf.drawImage(sombraSilueta(vivo, { dx: 26, dy: 34, blur: 18, alfa: 0.5 }), 0, 0); gf.drawImage(vivo, 0, 0);
+  } else {
+    P.render(k + 1);
+    f = copia();
+  }
+  window.__tiempos[k] = Math.round(performance.now() - a);
+  return (cache[k] = f);
+}
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+const COL = 5, FIL = 3;
+function dibujar(t) {
+  ajustarCapa();
+  const k = Math.round(t);
+  if (k >= 1 && k <= C.length) {
+    g.drawImage(celda(k - 1), 0, 0, W, H);
+    POST.aplicar(g, k);
+    return;
+  }
+  g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+  const cw = W / COL, ch = H / FIL;
+  C.forEach((c, j) => {
+    const x = (j % COL) * cw, y = Math.floor(j / COL) * ch;
+    g.drawImage(celda(j), x, y, cw, ch);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(x, y + ch - 24, cw, 24);
+    g.fillStyle = '#e8dcc0'; g.font = '15px sans-serif'; g.fillText(`${j + 1}. ${c.rot}`, x + 7, y + ch - 7);
+  });
+}
+const busq = new URLSearchParams(location.search);
+window.ESCENA ??= { id: 'ep03-sangre-hoja', duracion: C.length + 1, marcas: {}, voz: [0, 0] };
+window.__celdas = C.map((c) => c.rot);
+window.__paso = 1;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>

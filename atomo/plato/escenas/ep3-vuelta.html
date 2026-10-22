@@ -42,9 +42,10 @@
 //    apaga 0,9, hunde 1) centrada en (900, 480) con 460 px de radio (solComoMundo, z −1), con su halo y, encima, el halo frío
 //    de la bola del centro; la regla en 10⁴ entera (foto con n = 9402), Atom en (230, ~780) quieto, viñeta y grano de crearPost.
 // COSTE: todo se compone en 2D (crearPost al final). Al cargar: las fotos del cielo (las siete partes del kit), el espacio
-// sin Sol, los estrenos (Atom, la regla, la cartela, la gigante, la cómoda, el terrón y la partícula, estos con una tijera
-// de un píxel: solo compilan). En los fotogramas baratos de la cartela: el mundo a 10⁹ con el Sol, el Sol pequeño (sprite), las
-// tres reglas de 10⁴ y la apagada; en el plano de la estrella, las seis fotos de las partículas (sprites). En vivo: Atom, la
+// sin Sol, la regla en 10⁹ y los estrenos de Atom y la cartela (la gigante ya se estrena con la foto del cielo). En los
+// fotogramas baratos de la cartela: la compilación de la cómoda, el terrón y la partícula (con una tijera de un píxel), el
+// mundo a 10⁹ con el Sol, el Sol pequeño (sprite), las tres reglas de 10⁴ y la apagada; en el plano de la estrella, las seis
+// fotos de las partículas (sprites). En vivo: Atom, la
 // regla mientras se mueve, el mundo mientras la cámara cae (de 10⁹ a 10⁴), la cómoda y el terrón mientras se mueven y la
 // gigante (corte, enfriamiento y colapso). Lo quieto (la ciudad a 10⁴, la regla quieta) son fotos que se alternan (hervor).
 import * as THREE from 'three';
@@ -320,18 +321,14 @@ marcaCarga('cielo');
 F('espacio');
 marcaCarga('espacio');
 F('reg9');
-// (coste) los programas que se dibujan en vivo se estrenan ahora (su primer dibujo compila en SwiftShader): Atom y la
-// cartela de verdad; la gigante ya está (la foto del cielo); la cómoda, el terrón y la partícula, con una tijera de un píxel
+// (coste) los programas que se dibujan en vivo se estrenan antes de hacer falta (su primer dibujo compila en SwiftShader):
+// Atom y la cartela ahora, de verdad; la gigante ya está (la foto del cielo); la cómoda, el terrón y la partícula, en los
+// primeros fotogramas (los de la cartela quieta, baratos), con una tijera de un píxel: solo compilan
 P.fotograma(0); P.limpiar(); atomo(0); cartela(P, 0, E.cartela); P.render(0, { fondo: false });
-{
+function compilar(poner) {
   const R = P.renderer;
   R.setScissorTest(true); R.setScissor(0, 0, 1, 1);
-  try {
-    P.limpiar();
-    cajon(P, I.CAJ, { pos: en(400, 300, 0), escala: 0.5 }); terron(P, I.TER, { pos: en(600, 300, 0), escala: 0.3 });
-    particula(P, I.PAR, { pos: en(800, 300, 0), escala: 0.3 }); gigante(P, I.GIG, { pos: en(1000, 300, -1), escala: 0.5, corte: 1, hunde: 0.7 });
-    P.render(1, { fondo: false });
-  } finally { R.setScissorTest(false); }
+  try { P.limpiar(); poner(); P.render(1, { fondo: false }); } finally { R.setScissorTest(false); P.limpiar(); }
 }
 marcaCarga('estrenos');
 
@@ -583,9 +580,9 @@ function estadoGigante(ts) {
 }
 // las partículas del centro (en px relativos al núcleo, con el encuadre de cerca): tres protones y su electrón cada uno
 const PARES = [
-  { p: [300, -70], e: [430, -170] },
-  { p: [140, -300], e: [20, -405] },
-  { p: [500, -330], e: [610, -230] },
+  { p: [330, -60], e: [480, -170] },
+  { p: [150, -330], e: [10, -430] },
+  { p: [560, -350], e: [650, -250] },
 ];
 const temblor = (ts, k, a = 6) => { const n = Math.floor(ts * 12); return [(azar(n, 200 + k) - 0.5) * a + a * 0.7 * Math.sin(ts * 2.1 + k), (azar(n, 300 + k) - 0.5) * a + a * 0.7 * Math.cos(ts * 1.7 + 2 * k)]; };
 function sprite(f, [x, y], r, { alfa = 1, sq = [1, 1], rot = 0 } = {}) {
@@ -601,7 +598,7 @@ function particulas(ts, n, core, kpx) {
   const ue = eoc(prog(ts, T.salen[0], T.salen[1]));
   // se aprietan: todo se acerca al núcleo poco a poco (la presión)
   const ap = 1 - 0.14 * eio(prog(ts, T.salen[1], T.caen[0]));
-  const RP = 52 * kpx, RE = 52 * kpx;      // el electrón de la foto ya es 0,45 del protón
+  const RP = 72 * kpx, RE = 72 * kpx;      // el electrón de la foto ya es 0,45 del protón (32 px)
   PARES.forEach((pr, k) => {
     const tc = T.choques[k];
     const tm = temblor(ts, k * 7, 5 * kpx), te = temblor(ts, k * 7 + 3, 7 * kpx);
@@ -650,7 +647,10 @@ function planoEstrella(ts, n) {
   const k = R / GC.R;                          // lo que ha crecido el encuadre desde el plano general
   // el Sol al lado (para la escala); con el acercamiento se va del cuadro
   const sp = [c[0] + (SOL_C[0] - GC.c[0]) * k, c[1] + (SOL_C[1] - GC.c[1]) * k], sR = SOL_C[2] * k;
-  if (sp[0] - sR * 4 < W && sp[1] - sR * 4 < H) {
+  // (solo en el plano general: con el acercamiento sale del cuadro y no vuelve, el final es la estrella sola)
+  const kSol = 1 - ss(T.acerca[0], T.acerca[0] + 0.25, ts);
+  if (kSol > 0.01 && sp[0] - sR * 4 < W && sp[1] - sR * 4 < H) {
+    g.save(); g.globalAlpha = kSol;
     halo(g, sp[0], sp[1], sR, 1.6, 'sol');
     g.save(); g.globalCompositeOperation = 'screen';
     const Rg = sR * 3.4, gr = g.createRadialGradient(sp[0], sp[1], sR * 0.8, sp[0], sp[1], Rg);
@@ -659,6 +659,7 @@ function planoEstrella(ts, n) {
     g.restore();
     const s = F('solSprite'), L = sR / s.r;
     g.drawImage(s, sp[0] - L, sp[1] - L, 2 * L, 2 * L);
+    g.restore();
   }
   // la gigante: su resplandor (debajo) y la pieza, viva
   halo(g, c[0], c[1], R, 1 - 0.72 * st.apaga, 'gigante');
@@ -699,7 +700,10 @@ function planoEstrella(ts, n) {
 // lo que se prepara en los fotogramas baratos (n: número de fotograma a 12 fps); un instante suelto lo hace al pedirlo
 const PREPARAR = [];
 const prep = (n, k) => PREPARAR.push([n, k]);
-prep(2, 'mundoSol'); prep(4, 'solSprite'); prep(5, 'reg4_0'); prep(6, 'reg4_1'); prep(7, 'reg4_2'); prep(8, 'reg4Tenue');
+prep(1, () => compilar(() => cajon(P, I.CAJ, { pos: en(400, 300, 0), escala: 0.5 })));
+prep(2, 'mundoSol');
+prep(3, () => compilar(() => { terron(P, I.TER, { pos: en(600, 300, 0), escala: 0.3 }); particula(P, I.PAR, { pos: en(800, 300, 0), escala: 0.3 }); }));
+prep(4, 'solSprite'); prep(5, 'reg4_0'); prep(6, 'reg4_1'); prep(7, 'reg4_2'); prep(8, 'reg4Tenue');
 {
   let nn = Math.round((m.colapso + 0.25) * 12);
   for (const tipo of ['electron', 'proton', 'neutron']) for (const k of [0, 1]) prep(nn++, `p_${tipo}${k}`);
@@ -709,7 +713,7 @@ function dibujar(t) {
   const ts = Math.min(t, QUIETO);
   const n = Math.floor(ts * 12 + 1e-6);
   ajustarCapa();
-  for (const [n0, k] of PREPARAR) if (n === n0) F(k);
+  for (const [n0, k] of PREPARAR) if (n === n0) { if (typeof k === 'function') k(); else F(k); }
   // el fotograma 0 es el último de ep3-sol: su plató, su parpadeo y su grano van con el número de fotograma de allí
   const nP = n === 0 ? FIN_SOL.n : n;
   P.fotograma(ts);

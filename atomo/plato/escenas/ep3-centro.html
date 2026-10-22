@@ -20,9 +20,10 @@
 //             plató de las pruebas, que también se aleja: la persona de pie a la izquierda y la regla, que se comprime
 //             hasta verse entera (de la niebla de Planck a la red). La flecha se queda arriba, en +27, y busca: baja un
 //             par de filas y vuelve
-//  sesenta    PLANO MEDIO (corte). La regla de cerca (la misma regla entera, más grande) sube por el cuadro: la cámara
-//             sube de la niebla de Planck a la red mientras las marcas se encienden en ámbar una a una (rango), con el
-//             frente encendido siempre cerca del centro. Arriba, la flecha en +27
+//  sesenta    PLANO MEDIO (corte; un recorte 2D del render, como dice la producción: la regla entera fotografiada 1,35
+//             veces más grande y ampliada 1,56 en 2D). La cámara sube de la niebla de Planck a la red mientras las marcas
+//             se encienden en ámbar una a una (la foto con el rango entero, recortada por debajo de la última marca
+//             alcanzada). Al final, arriba, la red y la flecha en +27
 //  medio      GENERAL (corte). Las marcas se apagan; la flecha baja de +27 a 0, a la altura de la persona, que la señala
 //             con la izquierda (apuntar); se para un instante en 0 («no eres tú») y cae cuatro saltos secos a −4
 //  pelo       Junto a la marca −4 se abre la mirilla del pelo (la foto del pelo-tronco de la prueba), que brilla en la
@@ -41,11 +42,12 @@
 //    foto del pelo-tronco escalada SC_FIN alrededor de su eje, con un aro de luz); la regla entera en la posición de
 //    FINAL_UNIVERSO (P.punto(1655, 528, 0,4), escala 1,42, rot [0, −0,12, 0]) con entera 1, actual −4, marca −4,
 //    lupaEntera 1,3, con la flecha; Atom en (230, 780), quieto, con la sombra cálida del ojo (HOLA.SOMBRA_ATOM).
-// Coste (≤ 5 s por fotograma dibujado): lo quieto son fotos (la niebla, el plató con la persona, el plató vacío, el
-// pelo-tronco, el general del final con la persona señalando, la regla en −4, las capas del ojo). En vivo: Atom siempre;
-// la regla mientras cambia; la niebla al abrirse (a media resolución); la persona solo en la frase 87, cuando señala; los
-// párpados mientras se cierran (en una banda). Las fotos que no hacen falta al principio se hacen en fotogramas baratos
-// poco antes (PREPARAR).
+// Coste (≤ 5 s por fotograma dibujado): lo quieto son fotos (la niebla, el plató con la persona, el plató vacío, la regla
+// de cerca apagada y encendida, el pelo-tronco, el general del final con la persona señalando, la regla en −4, las capas
+// del ojo). En vivo: Atom siempre; la regla del general mientras cambia (y la cartela al principio); la niebla al abrirse
+// (a media resolución); la persona solo en la frase 87, cuando señala; los párpados mientras se cierran (solo la banda
+// que se mueve). Las fotos que no hacen falta al cargar se hacen en fotogramas baratos poco antes (PREPARAR; las de la
+// regla de cerca, por bandas horizontales).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cartela, cl, mix, prog, ss, eio, eoc, eob, HUMANO } from '/atomo/plato/kits/plastilina-adulta.js';
