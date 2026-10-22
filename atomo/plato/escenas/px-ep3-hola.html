@@ -25,13 +25,16 @@
 //  nolosabes  PLANO MEDIO (corte): la regla se estira como una goma (las marcas se separan) y se dobla en sus manos; la
 //         persona baja la vista a mirarla; en los 2 s de silencio la regla doblada queda quieta, la persona levanta la
 //         vista a cámara y parpadea.
-//  ojos   EMPUJE: un solo zum continuo del plano medio a su ojo izquierdo (la persona se vuelve a pintar a cada escala hasta
-//         que la cabeza llena la pantalla); en el ojo se abre el ojo enorme del kit en una mirilla que crece y lo tapa todo;
-//         delante, la franja de luz. Aparecen una célula y un átomo (abajo) y el otro lado de la galaxia (arriba); a mitad de
-//         frase el párpado de abajo sube y los apaga, y luego el de arriba baja y apaga la galaxia: queda solo la franja.
+//  ojos   EMPUJE: un solo zum continuo del plano medio a su ojo izquierdo (la persona se vuelve a pintar a cada escala; de
+//         cerca, fotos de la cara hechas al cargar a escalas cada 2^⅓, nunca ampliadas más de 1,26 veces); cuando su ojo mide
+//         ~70 px, el ojo enorme del kit entra con un fundido tramado (Bayer) que nace en el iris y se abre hacia los bordes, y
+//         sigue creciendo hasta llenar la pantalla; delante se abre la franja de luz. Aparecen una célula y un átomo (abajo) y
+//         el otro lado de la galaxia (arriba, sobre la pupila) y el ojo los mira (sacadas); a mitad de frase el párpado de abajo
+//         sube y apaga la célula y el átomo, y luego el de arriba baja y apaga la galaxia: queda solo la franja.
 // FINAL = PRINCIPIO DE px-ep3-ojo: desde que se cierra el párpado de arriba (T.arriba1) el cuadro es OJO.pintarFinalHola() más
 // Atom en PX.ATOM_SITIO con el reloj t − duración (en el último fotograma, t = 0) y energía 0. window.__fin lo resume.
-// Coste: el plató ampliado y el ojo se pintan por píxel (20–200 ms); la persona de cerca, 100–450 ms; el final, una foto.
+// Coste (sin GPU): 50–600 ms por fotograma; el plató a escala y el ojo se pintan por píxel (20–250 ms), la persona de cerca
+// 100–450 ms (se guarda en caché mientras no cambia); el final es una foto. Al cargar: ~6 s (las fotos de la cara).
 import { escena } from '/atomo/plato/escena.js';
 import { crearPixel } from '/atomo/plato/kits/pixel-ep03.js';
 import * as OJO from '/atomo/plato/kits/pixel-ep03-ojo.js';
@@ -372,7 +375,7 @@ function dibPersona(cam, t, st, reglaExtra, { sombraProy = 0 } = {}) {
   let an;
   const o = { ...st.o, x, y, altura: Hp, t, sombra: 0 };
   PX.en(capaP, () => {
-    if (y - 0.8 * Hp > H + 4) { an = PX.persona({ ...o, partes: 'todo' }); return; }     // las manos y la regla, fuera de cuadro
+    if (y - 0.725 * Hp > H - 2) { an = PX.persona({ ...o, partes: 'todo' }); return; }   // las manos (y la regla), fuera de cuadro
     an = PX.persona({ ...o, partes: 'sinManos' });
     liston(reglaEn(an, cam.s, st.lleva ?? 1, reglaExtra));
     PX.persona({ ...o, partes: 'manos' });
@@ -425,18 +428,26 @@ function personaMedio(t) {
 // ───────────────────────────────────────────────────────────── el ojo enorme
 // las cosas, en unidades del ojo (x = cx + u·a…): abajo una célula y un átomo; arriba el otro lado de la galaxia
 const COSAS = [
-  { tipo: 'galaxia', u: 0.05, v: -0.215, r: 0.21, giro: -0.3, ap: 0.05, lid: 'arriba' },
+  { tipo: 'galaxia', u: 0.03, v: -0.15, r: 0.25, giro: -0.3, ap: 0.05, lid: 'arriba' },     // sobre la pupila: se lee
   { tipo: 'celula', u: -0.27, v: 0.13, r: 0.088, ap: 0.2, lid: 'abajo' },
   { tipo: 'atomo', u: 0.275, v: 0.135, r: 0.082, giro: 0.4, ap: 0.32, lid: 'abajo' },
 ];
+// el ojo mira lo que aparece (sacadas rápidas): la célula, el átomo y arriba la galaxia; al centro antes de que baje el
+// párpado de arriba (el final tiene la mirada al frente)
+const SACADAS = () => [[T.fun1 + 0.3, [-0.13, 0.09]], [T.fun1 + 0.62, [0.13, 0.09]], [T.fun1 + 0.9, [0.02, -0.13]], [T.arriba0 - 0.12, [0, 0]]];
+function mirada(t) {
+  let g = [0, 0];
+  for (const [t0, d] of SACADAS()) { const u = suave(t0, t0 + 0.07, t); g = [mezcla(g[0], d[0], u), mezcla(g[1], d[1], u)]; }
+  return g;
+}
 function estadoOjo(t, a) {
   const kb = entraSale(prog(t, T.abajo0, T.abajo1)), ka = entraSale(prog(t, T.arriba0, T.arriba1));
   const cx = OJO.FIN.cx, cy = OJO.FIN.cy;
   const cosas = COSAS.map((c) => {
     const k = c.lid === 'abajo' ? kb : ka;
-    return { tipo: c.tipo, x: cx + c.u * a, y: cy + c.v * a, r: c.r * a, giro: c.giro, aparece: sale(prog(t, T.fun1 + c.ap, T.fun1 + 0.4 + c.ap)), apagado: suave(0.12, c.lid === 'abajo' ? 0.62 : 0.72, k) };
+    return { tipo: c.tipo, x: cx + c.u * a, y: cy + c.v * a, r: c.r * a, giro: c.giro, aparece: sale(prog(t, T.fun1 + c.ap, T.fun1 + 0.4 + c.ap)), apagado: suave(0.12, c.lid === 'abajo' ? 0.62 : 0.85, k) };
   }).filter((c) => c.aparece > 0);
-  return { cx, cy, a, arriba: ka, abajo: kb, mirada: [0, 0], pupila: 0.5, t: 0, cosas, franja: { ancho: sale(prog(t, T.fun1 - 0.15, T.fun1 + 0.45)) } };
+  return { cx, cy, a, arriba: ka, abajo: kb, mirada: mirada(t), pupila: 0.5, t: 0, cosas, franja: { ancho: sale(prog(t, T.fun1 - 0.15, T.fun1 + 0.45)) } };
 }
 // fotos de la cara a varias escalas (el ojo en E_OJO), para lo que asoma alrededor de la mirilla mientras se abre
 const POSE_ZUM = { ...POSE_MED, cabeza: { cabeceo: 0 }, mira: [0, 0], parpadeo: 0 };
@@ -466,11 +477,9 @@ function fundido(capa, q, cx, cy) {
   const cuando = (S) => { let lo = T.empuje, hi = T.ojoZ; for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (zum(mid).s < S) lo = mid; else hi = mid; } return (lo + hi) / 2; };
   T.fun0 = cuando(S_FUN0); T.fun1 = Math.max(cuando(S_FUN1), T.fun0 + 0.25);
 }
-let FINAL = null;                                                // la foto del final (= el principio de px-ep3-ojo)
-function finalHola() {
-  if (!FINAL) { FINAL = PX.nuevaCapa(W, H); PX.en(FINAL, () => OJO.pintarFinalHola()); }
-  PX.pegar(FINAL, 0, 0, { opaco: true });
-}
+const FINAL = PX.nuevaCapa(W, H);                                // la foto del final (= el principio de px-ep3-ojo)
+PX.en(FINAL, () => OJO.pintarFinalHola());
+const finalHola = () => PX.pegar(FINAL, 0, 0, { opaco: true });
 
 // ───────────────────────────────────────────────────────────── dibujar(t)
 function dibujar(t) {
@@ -514,7 +523,7 @@ function dibujar(t) {
   PX.presentar(t);
 }
 window.__fin = { ojo: OJO.FIN, atom: { ...SITIO, t: 0, energia: 0 }, desde: T.arriba1 };
-window.__tiempos = T; window.__anda = { w: ANDA.w, porCiclo: ANDA.porCiclo, x0: ANDA.xs[0], xn: ANDA.xs[ANDA.n] };
+window.__tiempos = T;
 E.iniciar(dibujar);
 </script>
 </body>

@@ -462,7 +462,19 @@ const FOTO_PLATO = foto();
 P.limpiar(); personaMedio(T.empuje);
 const H_MEDIO = P.humano(I.PER);
 const OJOS_W = H_MEDIO.punto('ojos');
-const OJO_IZQ_W = (() => { const a = H_MEDIO.mundo([0, 0, 0]), b = H_MEDIO.mundo([0.044, 0, 0.003]); return OJOS_W.map((v, i) => v + b[i] - a[i]); })();
+// su ojo izquierdo (a la derecha de la pantalla), en el marco de la cabeza: el kit lo pone en (±0,044, 0,611, ~0,11) de la
+// cabeza, cuyo marco sale de sus puntos (cabeza en (0, 0,61, 0), ojos en (0, 0,611, 0,11), coronilla en (0, 0,765, −0,01)),
+// con la escala de la cabeza (antes se sumaba el desvío en el marco del cuerpo, sin la escala de la cabeza, y el ancla
+// quedaba ~45 px a la izquierda del ojo)
+const OJO_IZQ_W = (() => {
+  const V = (p) => new THREE.Vector3(...p);
+  const cab = V(H_MEDIO.punto('cabeza')), ojos = V(OJOS_W), cor = V(H_MEDIO.punto('coronilla'));
+  const fw = ojos.clone().sub(cab), kh = fw.length() / 0.11;
+  fw.normalize();
+  const up = cor.clone().sub(cab); up.sub(fw.clone().multiplyScalar(up.dot(fw))).normalize();
+  const der = new THREE.Vector3().crossVectors(up, fw).normalize();
+  return ojos.clone().addScaledVector(der, 0.044 * kh).addScaledVector(fw, 0.0032 * kh).toArray();
+})();
 const OJOS_MEDIO = pant(OJOS_W);
 const Y_FRANJA = pant(FR_POS)[1];
 // el empuje en el instante ts (hasta T.fun0): zum Z, el ancla (del centro de los ojos a su ojo izquierdo) en el plano
@@ -700,7 +712,7 @@ function dibujar(t) {
   }
   // ---- E y F: el empuje hasta su ojo izquierdo, el fundido con el ojo enorme cerrado, que se abre, y sus párpados
   // los párpados del ojo compuesto: su foto mientras están quietos; en vivo solo mientras se mueven
-  const kOjo = eio(prog(ts, T.fun0, T.fun1));
+  const kOjo = eio(prog(ts, T.fun0 + 0.08, T.fun1 + 0.04));
   let ojo = null;
   if (kOjo > 0) {
     let parpados = fotoParpados(ts);
@@ -721,14 +733,14 @@ function dibujar(t) {
     marcaT('componer');
   }
   g.fillStyle = '#0b0807'; g.fillRect(0, 0, W, H);
-  // 1 · la cara: en vivo hasta T.fun0; en el fundido, su foto en T.fun0, que sigue entrando al mismo ritmo (centrada en
-  // su ojo izquierdo) y se desenfoca como en un empujón rápido
+  // 1 · la cara: en vivo hasta T.fun0; en el fundido, su foto en T.fun0, que sigue entrando (centrada en su ojo
+  // izquierdo) y acelera hasta ×4 desenfocándose, como un empujón rápido: el ojo enorme aparece sobre una piel ya borrosa
   if (kOjo < 1) {
     if (ts < T.fun0) pintarCara(ts, g, nf);
     else {
-      const z = Math.exp(zumCara(ts) - zumCara(T.fun0));
+      const u = ts - T.fun0, z = Math.exp(EMP_V * u + 10 * u * u);
       g.save();
-      g.filter = `blur(${(10 * (z - 1)).toFixed(1)}px)`;
+      g.filter = `blur(${(6 * (z - 1)).toFixed(1)}px)`;
       g.translate(960, 540); g.scale(z, z); g.translate(-960, -540);
       g.drawImage(FOTOS.caraFin(), 0, 0, W, H);
       g.restore();

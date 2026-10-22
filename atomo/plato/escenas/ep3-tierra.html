@@ -109,8 +109,8 @@ const E_REG = 1.42, REG = en(1655, 528, 0.4);
 // en el lienzo del plató se pisa). Un fotograma que necesite algo que aún no está (capturas sueltas o fuera de orden) lo
 // hace en ese momento.
 const TAREAS = [];
-function tarea(nombre, fn) {
-  const k = { nombre, fn, hecha: false };
+function tarea(nombre, fn, orden = 10) {
+  const k = { nombre, fn, hecha: false, orden };
   TAREAS.push(k);
   return () => { if (!k.hecha) { k.hecha = true; const a = performance.now(); k.fn(); log('tarea ' + nombre + ' ' + Math.round(performance.now() - a)); } };
 }
@@ -226,22 +226,24 @@ function brilloMarca(ts, R) {
   gs.restore();
 }
 
+// ?guias: sin cartela, y en window.__guias el centro, la coronilla y la suela de la persona en píxeles (guias-humano.py)
+const GUIAS = new URLSearchParams(location.search).has('guias');
 // ---------------------------------------------------------------- la persona (plató)
 function persona(ts) {
   const tz = calma(ts);
   const resp = 0.008 * Math.sin(tz * 2.4);
   P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + resp, 1], rot: [0.02, 0.18, 0], postura: 'de pie', huellaFija: [0.37, 0.21, 0.0] });
 }
-// la foto del plató para la mirilla del primer salto (solo la persona, sin viñeta ni grano)
-{
+// la foto del plató para la mirilla del primer salto (solo la persona, sin viñeta ni grano). Es la primera tarea: se hace
+// al principio del primer fotograma del plató, que de todos modos estrena los programas de la persona
+const fotoPlato = tarea('foto del plató', () => {
   P.fotograma(T.plato); P.limpiar();
   persona(T.plato);
   P.U.uPost.value = 0;
   P.render(Math.floor(T.plato * 12 + 1e-6));
   P.U.uPost.value = 1;
   mundo.inserto(copia(lienzoGL));
-}
-log('foto plato');
+}, 0);
 
 // ---------------------------------------------------------------- los planetas: fotos (sprites) al cargar
 // Cada uno de cara a la cámara en el centro del plató, al tamaño más grande que se va a ver (el plano medio, z = 8), salvo
@@ -554,6 +556,7 @@ function dibujar(t) {
   const t0 = performance.now();
   const ts = Math.min(t, QUIETO);
   // antes de dibujar: lo que este fotograma ya necesita y, si es barato, algo de lo que vendrá
+  if (ts >= T.plato && zRegla(ts) < 1.05) fotoPlato();
   if (ts >= T.pl0 - 0.02) SPR.forEach((S) => S.hacer());
   if (ts > GOTAS[0].t - 0.1) spriteTierra();
   if (barato(ts)) adelantar(t0);
@@ -564,7 +567,7 @@ function dibujar(t) {
     // el plató de cosmos, con la cartela encima
     P.limpiar();
     persona(ts); atomo(ts, zr); regla(ts, zr);
-    cartela(P, ts, E.cartela);
+    if (!GUIAS) cartela(P, ts, E.cartela);
     P.render(nf);
     return;
   }
@@ -608,7 +611,8 @@ function dibujar(t) {
   brilloMarca(ts, R);
 }
 // estrena los programas que se dibujan en vivo (para que ningún fotograma pague su compilación): Atom y la regla al cargar;
-// la flecha de «tú estás aquí», la cinta y la cota, después (la primera de las tareas: la flecha sale a 1,5 s)
+// la flecha de «tú estás aquí», la cinta y la cota, después (la segunda de las tareas, tras la foto del plató: la flecha
+// sale a 1,5 s)
 {
   P.fotograma(0); P.limpiar();
   atomo(0, 0); regla(0, 0);
@@ -620,8 +624,13 @@ tarea('estreno de la flecha, la cinta y la cota', () => {
   P.pieza(I.COTA, { pos: en(900, 300, 1.6), escala: 0.3, variante: 1 });
   P.pieza(I.AQUI, { pos: en(1000, 300, 1.6), escala: 0.3 });
   P.render(0, { fondo: false });
-});
-TAREAS.unshift(TAREAS.pop());
+}, 1);
+TAREAS.sort((a, b) => a.orden - b.orden);
+if (GUIAS) {
+  const a = pant([PER[0], PER[1] + 0.765 * E_PER, PER[2]]), b = pant([PER[0], PER[1] - E_PER, PER[2]]);
+  window.__guias = { x: Math.round(b[0]), coronilla: Math.round(a[1]), suela: Math.round(b[1]) };
+  console.log('guias', JSON.stringify(window.__guias));
+}
 log('listo');
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>

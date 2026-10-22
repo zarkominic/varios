@@ -783,8 +783,7 @@ export function posturaSalon(objetivoLocal = null, extra = {}) {
 }
 // del mundo a lo local de una pieza de persona (pos, escala, rot)
 function localPersona(pos, e, rot, w) {
-  const v = new THREE.Vector3(w[0] - pos[0], w[1] - pos[1], w[2] - pos[2]).applyEuler(new THREE.Euler(rot[0], rot[1], rot[2], 'YXZ').clone()).multiplyScalar(1);
-  // inversa del giro: aplicar el giro transpuesto
+  // la inversa del giro: el giro transpuesto
   const R = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(rot[0], rot[1], rot[2], 'YXZ')).transpose();
   const u = new THREE.Vector3(w[0] - pos[0], w[1] - pos[1], w[2] - pos[2]).applyMatrix4(R);
   return [u.x / e, u.y / e, u.z / e];
@@ -792,12 +791,13 @@ function localPersona(pos, e, rot, w) {
 export function salon(P, I, { encuadre = 'general', reloj = null, persona = {}, sofa: oSofa = {}, bol: oBol = {}, ventana: oVen = {}, mano = true } = {}) {
   const X = transformarSalon(encuadre);
   const out = { encuadre };
-  if (I.ventana != null) {
-    const V = { ...SALON.ventana, ...oVen };
-    out.ventana = ventana(P, I.ventana, { ...V, pos: X.p(V.pos), escala: V.escala * X.s });
-  }
+  const V = { ...SALON.ventana, ...oVen };
+  const colV = { pos: X.p(V.pos), escala: V.escala * X.s, rot: [0, 0, 0] };
+  if (I.ventana != null) out.ventana = ventana(P, I.ventana, { ...V, ...colV });
+  const pared = (x, y) => mundoPieza(colV, [x, y, 0]);
   // dónde queda el asiento de la persona sentada (sin plató: el esqueleto), y el sofá con su plaza ahí
   const Pe = { ...SALON.persona, ...persona };
+  if (I.persona == null && I.sofa == null && I.mesita == null && I.bol == null) { colocarReloj(); return out; }
   const e = Pe.escala * X.s, pos = X.p(Pe.pos);
   const sk0 = esqueletoHumano(posturaSalon(null), Pe.aspecto);
   const aMundo = (l) => mundoPieza({ pos, escala: e, rot: Pe.rot }, l);
@@ -817,14 +817,16 @@ export function salon(P, I, { encuadre = 'general', reloj = null, persona = {}, 
     const pz = Pe.postura ?? posturaSalon(obj);
     out.persona = P.pieza(I.persona, { pos, escala: e, rot: Pe.rot, postura: pz, aspecto: Pe.aspecto, t: Pe.t ?? 0, partes: Pe.partes ?? null, huellaFija: [0.37, 0.21, 0] });
   }
+  colocarReloj();
+  return out;
   // el reloj de pared (de ep03-tiempo.js), colgado en la pared junto a la ventana
-  if (I.reloj != null && reloj && out.ventana) {
+  function colocarReloj() {
+    if (I.reloj == null || !reloj) return;
     const R = SALON.reloj;
-    const w = out.ventana.pared(R.en[0], R.en[1]);
+    const w = pared(R.en[0], R.en[1]);
     const posR = [w[0], w[1], w[2] + 0.1 * X.s];
     out.reloj = relojTiempo(P, I.reloj, { pos: posR, escala: R.escala * X.s, rot: [0, 0, 0], ...reloj });
   }
-  return out;
 }
 function sofaInfo(b, plazas) {
   const hw = plazas * 0.33;

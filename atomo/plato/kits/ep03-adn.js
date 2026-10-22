@@ -71,8 +71,10 @@
 //    con nucleo 1) la foto con nucleo 0 (fotoAbierta, la madeja dentro) a través de una máscara radial en la elipse del
 //    núcleo: en el centro se ve la madeja (el velo deja pasar 1 − opacidad) y hacia el borde la envoltura se vuelve
 //    opaca (borde: opacidad en el borde), como el cristal esmerilado. Las dos fotos tienen que ser del mismo encuadre;
-//    lo que no es el núcleo es igual en las dos, así que la máscara solo cambia el núcleo. Respeta la transformación
-//    de g (se puede mover y escalar con la foto).
+//    lo que no es el núcleo es igual en las dos, así que la máscara solo cambia el núcleo. Más barato (y es lo que hace
+//    ep3-adn): en vez de la foto con nucleo 0, la MADEJA SOLA sobre transparente (P.render(n, { fondo: false }) con
+//    madeja(P, i, { pos: c.nucleo, escala: 0,8 × ADN_MEDIDAS.RN × escala de la célula, rot: la de la célula, semilla:
+//    la de la célula }): es la misma madeja de dentro, en el mismo sitio. Respeta la transformación de g.
 //
 // COSTE (este servidor, 1920 × 1080, servidor cargado con otros agentes renderizando; ver la hoja): célula de ~600 px,
 // 1,5–3 s (es una foto: se hace al cargar); madeja de ~500 px, 1–2 s; hilo, 0,2–0,6 s (vivo); hélice a pantalla

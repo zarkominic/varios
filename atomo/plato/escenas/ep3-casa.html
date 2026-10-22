@@ -381,9 +381,9 @@ function ponerReglaMm(ts) {
 
 // ---------------------------------------------------------------- fotos al cargar
 let GEO_EST = null;
-// las fotos: el fondo, el peldaño y la regla quieta (y el estreno de la persona y de Atom) se hacen al cargar; las demás
-// se preparan en un fotograma barato poco antes de hacer falta (PREPARAR) o, si se pide un instante suelto, al pedirlas;
-// así la carga no pasa de 60 s con otra escena cargando a la vez y ningún fotograma pasa de 5 s
+// las fotos: el peldaño y la regla en 10⁻⁹ (y el estreno de la persona y de Atom) se hacen al cargar; las demás se
+// preparan en un fotograma barato poco antes de hacer falta (PREPARAR) o, si se pide un instante suelto, al pedirlas;
+// así la carga es lo más corta posible y ningún fotograma paga más de una foto
 GEO_EST = geometriaEstadio(P, ESTADIO);
 const FOTOS = { pg: pant(GEO_EST.guisante) };
 const HACER = {
@@ -445,6 +445,13 @@ const HACER = {
   personaEparp() {
     P.limpiar(); persona(T_PARPADEO, 'E', ['cuerpo', 'cabeza']); P.render(2008);
     return foto(P);
+  },
+  // el hilo de 1 mm posado en la regla de milímetros, quietos (sin el plató)
+  unMm() {
+    const t1 = T.regla[1];
+    P.limpiar(); ponerFila(t1, estadoFila(t1)); ponerReglaMm(t1); P.render(2009, { fondo: false });
+    const c = foto(P);
+    return c;
   },
   filaCasa() {
     const C0 = pant(CASA);
@@ -515,11 +522,16 @@ function baseFila(n, ts) {
     parpadeo(n);
     return Fi;
   }
-  P.limpiar();
-  ponerFila(ts, Fi);
-  ponerReglaMm(ts);
-  P.render(n, { fondo: false });
-  g.save(); recorteFila(); pegarGL(); g.restore();
+  if (ts >= T.regla[1] && ts < T.quitaRegla[0]) {
+    // (coste) el «1 mm» quieto (el hilo posado en la regla) es una foto
+    g.drawImage(F('unMm'), 0, 0, W, H);
+  } else {
+    P.limpiar();
+    ponerFila(ts, Fi);
+    ponerReglaMm(ts);
+    P.render(n, { fondo: false });
+    g.save(); recorteFila(); pegarGL(); g.restore();
+  }
   // el hilo de 1 mm brilla un poco (se lee en el móvil); el brillo está quieto entre X0 y X1: se apaga antes de que la
   // regla se vaya y empiece la zambullida (que estira el hilo más allá de sus extremos)
   const kh = ss(T.alejar[1] - 0.5, T.alejar[1], ts) * (1 - ss(T.quitaRegla[0] - 0.15, T.quitaRegla[0] + 0.05, ts));
@@ -636,7 +648,7 @@ function basePersona(n, ts, plano) {
 // fotograma puede pasar de 5 s (hasta ~11 s con el servidor tranquilo, con el estreno del estadio); la imagen es la
 // misma
 const PREPARAR = [
-  [0, 'regla10', D + 1], [0, 'fondo', T.fundeEst[1]],
+  [0.05, 'regla10', D + 1], [0.05, 'fondo', T.fundeEst[1]],         // en los fotogramas 1 y 2 (el 0 ya es caro)
   [T.saludo[0] + 0.3, 'filaCasa', T.fundeEst[1]], [T.saludo[0] + 0.7, 'estadio', T.aparta[1]], [T.saludo[0] + 0.8, 'estadioA', T.aparta[1]],
   [T.fundeEst[1] + 0.4, 'detalle', T.deGuisante[1]], [T.deGuisante[1] + 0.2, 'personaE', T.corte],
   [T.fantasma[1] + 0.2, 'personaEparp', T_PARPADEO + 0.05],
