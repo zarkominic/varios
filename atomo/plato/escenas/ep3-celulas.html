@@ -18,12 +18,14 @@
 //             de la rejilla; regla en 10⁻⁴; Atom abajo a la izquierda.
 //  serinden   «Ahí es donde tus ojos se rinden»: los dos puntos de luz se acercan sobre la rejilla y, cuando ya no queda
 //             una célula a oscuras entre ellos (separación 1, CORTE.FUSION), se funden en uno, que late una vez.
-//  ½ ser.     PRIMER PLANO (corte): el ojo de fuera, cansado (entornado), y el párpado se cierra, pesado.
+//  ½ ser.     PRIMER PLANO (corte): el ojo de fuera, cansado (entornado), y el párpado se cierra, pesado (cuatro fotos en
+//             stop-motion: abierto, dos pasos y cerrado).
 //  celulas    «Salto menos cinco…»: en el párpado cerrado se abre una mirilla (como las de la prueba) sobre el pelo-tronco
 //             (la foto del nivel 4); empuje 2D hacia su canto derecho y, en el canto, otra mirilla: la cámara se mete
 //             hasta un río rojo, y el marcador baja de 10⁻⁴ a 10⁻⁵ (la escala corre una fila hacia arriba; la flecha se
 //             queda en la fila de abajo). PLANO MEDIO: un vaso sanguíneo abierto a lo largo, de lado a lado del cuadro,
-//             y dentro un río de glóbulos rojos (discos hundidos por el centro) que pasa hacia la derecha dando vueltas.
+//             y dentro un río de glóbulos rojos (discos hundidos por el centro) que pasa hacia la derecha volcando (en 2D:
+//             fotos de un glóbulo del kit en ocho poses de un vuelco, con paralaje; ver RIO).
 //  docena     GENERAL (corte): el corte de un pelo flota en el centro, con la cara hacia arriba y hacia la cámara; doce
 //             glóbulos llegan uno a uno, de izquierda a derecha, y se posan en fila sobre el diámetro horizontal: el
 //             primero toca el borde de la izquierda y el último el de la derecha. Al final, una cota de alambre (la de
@@ -49,10 +51,11 @@
 // Coste (≤ 5 s por fotograma dibujado): ningún fotograma renderiza dos piezas grandes. Lo quieto es foto: el plató con el
 // ojo en corte (con su sombra), el ojo de fuera cerrado, el pelo-tronco, el vaso, el corte del pelo y la regla en 10⁻⁴ y
 // en 10⁻⁵ (sin fondo). En cada fotograma se renderiza, sin fondo, lo que se mueve: Atom siempre; el ojo en corte (la luz
-// se mueve); el ojo de fuera mientras se cierra (con fondo: la piel llena el cuadro); la regla mientras corre la escala;
-// el río; la fila de glóbulos y la cota. Al cargar se hacen el plató, la foto del ojo en corte y la regla en 10⁻⁴ y se
-// estrena el ojo de fuera; las demás fotos (las grandes, por franjas) y los estrenos se reparten por presupuesto entre
-// los fotogramas baratos, antes de hacer falta (PREPARAR).
+// se mueve); la regla mientras corre la escala; la fila de glóbulos y la cota. El ojo de fuera que se cierra son cuatro
+// fotos (la abierta entera y las otras tres solo en la zona de los párpados, sin sombra de los párpados en la cara para que
+// casen) y el río va en 2D con fotos de un glóbulo. Al cargar se hacen el plató, la foto del ojo en corte y la regla en
+// 10⁻⁴ y se estrena el ojo de fuera; las demás fotos (las grandes, por franjas) y los estrenos se reparten por
+// presupuesto entre los fotogramas baratos, antes de hacer falta (PREPARAR).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cl, mix, prog, eio, eoc, eic, azar } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -255,8 +258,8 @@ function luzLibro(ts) {
 // cerrarse del todo; el de abajo sube un poco
 // (coste) el ojo de fuera a pantalla completa es caro: el cierre va en stop-motion con cuatro fotos (abierto, dos pasos y
 // cerrado), con el mismo nf (el mismo hervor): la abierta entera y las otras tres solo en la zona de los párpados (R_OJO)
-const PASOS_OJO = [0, 0.42, 0.8, 1];
-const estadoOjo = (u) => ({ arriba: mix(0.14, 1, u), abajo: mix(0.02, 1, u), entorna: 0.3 * (1 - u), pupila: HOLA.PUPILA, mirada: [0, -0.1], sombra: true });
+const PASOS_OJO = [0, 0.2, 0.5, 1];
+const estadoOjo = (u) => ({ arriba: mix(0.14, 1, u), abajo: mix(0.02, 1, u), entorna: 0.3 * (1 - u), pupila: HOLA.PUPILA, mirada: [0, -0.1], sombra: false });
 function pintarOjo(u, nf = EXT.nf) {
   ponerOjo(UO, estadoOjo(u));
   P.limpiar();
@@ -264,9 +267,9 @@ function pintarOjo(u, nf = EXT.nf) {
   P.render(nf);
 }
 // la foto del cierre que toca en ts (0…3): cae pesado, más deprisa al final
-const pasoOjo = (ts) => { const k = prog(ts, T.cierra[0], T.cierra[1]); return k < 0.34 ? 0 : k < 0.62 ? 1 : k < 0.86 ? 2 : 3; };
+const pasoOjo = (ts) => { const k = prog(ts, T.cierra[0], T.cierra[1]); return k < 0.3 ? 0 : k < 0.55 ? 1 : k < 0.8 ? 2 : 3; };
 // la zona de los párpados y las pestañas (px de diseño), donde cambian las fotos del cierre
-const R_OJO = [Math.round(EXT.x - 0.7 * EXT.rendija), Math.round(EXT.y - 0.78 * EXT.px), Math.round(EXT.x + 0.7 * EXT.rendija), Math.round(EXT.y + 0.5 * EXT.px)];
+const R_OJO = [Math.round(EXT.x - 0.72 * EXT.rendija), Math.max(0, Math.round(EXT.y - 0.85 * EXT.px)), Math.round(EXT.x + 0.72 * EXT.rendija), Math.round(EXT.y + 0.6 * EXT.px)];
 // la piel, apagada hacia los bordes (la mirada va al párpado)
 function vineta(gc) { vinetaOjo(gc, EXT.rendija / HOLA.RENDIJA_PX); }
 // el sitio de la mirilla: el párpado de arriba, cerrado, encima de las pestañas
@@ -532,7 +535,6 @@ const PINTAR = {
   vaso: () => { P.fotograma(0); P.limpiar(); vaso(P, I.VASO, { pos: VASO.pos, escala: VASO.esc, rot: VASO.rot, semilargo: VASO.semilargo }); P.render(5001); },
   pelo: () => { P.fotograma(0); P.limpiar(); cortePelo(P, I.CP, { pos: CP.pos, escala: CP.esc, rot: CP.rot, largo: CP.largo }); P.render(6001); },
 };
-for (let k = 0; k < RIO.poses; k++) HACER['pose' + k] = () => pintarPose(k);
 for (let j = 0; j < 4; j++) PINTAR['ojo' + j] = () => { P.fotograma(0); pintarOjo(PASOS_OJO[j]); };
 function estrenar(i) {
   P.limpiar();
@@ -553,6 +555,7 @@ const HACER = {
   'e:tronco': () => estrenar(I.TRO), 'e:vaso': () => estrenar(I.VASO), 'e:cortePelo': () => estrenar(I.CP), 'e:cota': () => estrenar(I.COTA),
   'e:globulos': () => { P.limpiar(); rio(P, I.GLS, { pos: en(960, 540, 0), escala: 0.012, semilargo: 2, canal: 1 }); P.render(3000 + I.GLS, { fondo: false }); return true; },
 };
+for (let k = 0; k < RIO.poses; k++) HACER['pose' + k] = () => pintarPose(k);
 for (const k of Object.keys(FRANJAS)) for (let b = 0; b < FRANJAS[k]; b++) HACER[`${k}#${b}`] = () => pintarFranja(k, b, PINTAR[k]);
 function F(k) {
   if (!FOTO[k]) {
@@ -607,7 +610,7 @@ function preparar(ts) {
 F('baseOjo'); F('regla4'); F('e:ojo');
 P.limpiar(); atomo(0); P.render(0, { fondo: false });
 hito('fotos');
-window.__medidas = { FOCO_PARPADO, FOCO_CANTO, COTA, T, ojoExt: { pos: EXT.pos, escala: EXT.esc, px: EXT.px }, vasoEsc: VASO.esc, pelo: { pos: CP.pos, escala: CP.esc } };
+window.__medidas = { R_OJO, FOCO_PARPADO, FOCO_CANTO, COTA, T, ojoExt: { pos: EXT.pos, escala: EXT.esc, px: EXT.px }, vasoEsc: VASO.esc, pelo: { pos: CP.pos, escala: CP.esc } };
 // ?prepararTodo: lo hace todo al cargar (para medir cuánto cuesta cada cosa)
 if (new URLSearchParams(location.search).has('prepararTodo')) for (const [, k] of PREPARAR) F(k);
 window.__carga = Math.round(performance.now() - T0);

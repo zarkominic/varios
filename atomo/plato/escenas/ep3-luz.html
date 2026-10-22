@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La luz y el año luz</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EP3-LUZ · episodio 3, frases 67–69 (cartela «+16»), plastilina adulta. Usa ep03-cosmos.js, ep03-tiempo.js y
+// ep03-estrellas.js (no crea ningún kit).
+//  0        la estrella de neutrones sobre la ciudad brillante vista desde arriba (el mundo de cosmos a 10⁴, camara(4)),
+//           la regla en 10⁴, Atom pequeño abajo a la izquierda; encima, la cartela «+16» (quieta hasta 0,75 s; se va
+//           hacia 1,2 s)
+//  subir    (plano general) tres saltos secos ×10, de 10⁴ a 10⁷: la cámara sale de la ciudad (la estrella de neutrones se
+//           queda en ella y se hace un punto) hasta ver la Tierra entera; la Luna va a su distancia real (a 10⁷ queda
+//           fuera de cuadro); el brillo de la ciudad se apaga
+//  anoluz   (plano medio) un rayo de luz de alambre (el de ep03-tiempo.js) da siete vueltas y media a la Tierra (por
+//           detrás de ella en la mitad de atrás) mientras un reloj de pared de arcilla, arriba a la derecha, avanza el
+//           segundero de 0 a 1 s; al cerrar la última media vuelta aparece «1 s» bajo el reloj. A mitad de frase el reloj
+//           se va y una cinta de costurera de año luz arranca de la Tierra y se pierde a lo lejos (sale por la izquierda);
+//           la cámara la sigue en nueve saltos cada vez más seguidos hasta 10¹⁶: el Sol pasa, el sistema solar se hace un
+//           punto y, en 10¹⁶, la cinta enseña sus marcas de verdad: 1 y 2 años luz (un año luz son 511 px a 10¹⁶)
+//  galaxia  cinco saltos más, de 10¹⁶ a 10²¹ (completos poco después de «Jump twenty-one»): la Vía Láctea de crearMundo
+//           vista desde fuera, todavía suave (sin sus puntitos). A mitad de frase un rayo de luz la cruza despacio, de
+//           la izquierda hasta un reloj de arena enorme que ha brotado a su derecha (la arena cae mientras la cruza), y
+//           la espiral se va llenando de puntitos, cada vez más deprisa (cada uno con un destello pequeño); el rayo se
+//           apaga, el reloj se va y queda la galaxia entera, quieta (termina_con)
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28)
+//  · Fotograma 0 (window.__inicio; ep3-neutrones no existe todavía y su último fotograma debería ser este, sin la
+//    cartela): el mundo de ep03-cosmos.js con camara(4) y n = 940 (como mundo4_0 de ep3-vuelta), sin viñeta;
+//    brilloCiudad(g, camara(4), 1); la estrella de neutrones (pieza 'neutrones' de ep03-estrellas.js, brillo 0,6) en el
+//    centro de la ciudad (aPant(camara(4), MUNDO.CIUDAD) = (1009, 365)) con R_NS = 4.700 m de radio (254 px a 10⁴) y su
+//    halo 'neutrones'; la regla P.regla con e 4, ya 0, actual 4, lupa 0,5 en P.punto(1655, 528, 0,4), escala 1,42, rot
+//    [0, −0,12, 0] (foto n = 9400); Atom en (230, 780) arrancando quieto; parpadeo y crearPost.
+//  · Último fotograma = el primero de ep3-mapa (comprobado con su captura t = 0): el mundo con camara(21), n = 214 y somA
+//    [252, 811,7, 62, 0,42], sin viñeta; la regla en 10²¹ (foto con n = 0, como «reg0» de ep3-mapa); Atom en (230, 780);
+//    parpadeo y crearPost.
+// COSTE: todo se compone en 2D (crearPost al final). Lo quieto son fotos (tres que se alternan para el hervor): la ciudad
+// a 10⁴, la Tierra a 10⁷, el espacio a 10¹⁶ y la galaxia a 10²¹ (estas dos últimas: una foto del mundo y dos variantes
+// 2D, como en ep3-mapa), la regla quieta en 4, 7, 16 y 21, la cartela y la estrella de neutrones (sprite). En vivo: Atom,
+// el mundo y la regla durante los saltos, el reloj mientras corre el segundero y el reloj de arena mientras cae la arena.
+// El rayo, la cinta, los puntitos y los destellos son 2D (milisegundos). Las fotos se hacen en fotogramas baratos poco
+// antes de hacer falta (PREPARAR); un instante suelto las hace al momento (sale lo mismo).
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cargarFuenteCartela, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, mulberry32, brote, QUIETO as QUIETO_KIT } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo, camara, camaraPorTierra, estadoMundo, fotoMundo, brilloCiudad, aPant, tierraPx, solMundo, MUNDO } from '/atomo/plato/kits/ep03-cosmos.js';
+import { tiposEstrellas, uniformesEstrellas, neutrones, halo } from '/atomo/plato/kits/ep03-estrellas.js';
+import { tiposTiempo, uniformesTiempo, reloj, arena, vidrioArena, rayo, caminoVueltas } from '/atomo/plato/kits/ep03-tiempo.js';
+
+const T0 = performance.now();
+window.__carga = [];
+const PERFIL = new URLSearchParams(location.search).has('perfil');
+const marcaCarga = (k) => { window.__carga.push([k, Math.round(performance.now() - T0)]); if (PERFIL) console.log('carga', k, Math.round(performance.now() - T0)); };
+const E = await escena('ep3-luz', 'ep03');
+const M = (k, d) => E.marca(k, d);
+const m = { subir: M('subir', 1.5), subirFin: M('subir_fin', 3.066), anoluz: M('anoluz', 4.249), anoluzFin: M('anoluz_fin', 10.712),
+  galaxia: M('galaxia', 11.262), galaxiaFin: M('galaxia_fin', 17.47) };
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+const mitad = (a, b) => (a + b) / 2;
+const nDe = (t) => Math.floor(t * 12 + 1e-6);
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const M68 = mitad(m.anoluz, m.anoluzFin), M69 = mitad(m.galaxia, m.galaxiaFin);
+const T = {
+  rayo: [m.anoluz - 0.2, m.anoluz + 0.45 * (m.anoluzFin - m.anoluz)],   // siete vueltas y media (el segundero, de 0 a 1)
+  reloj: m.anoluz,                                                       // el reloj brota (completo en la marca)
+  cinta: [M68 - 0.25, M68 + 0.3],                                        // la cinta se tiende (a mitad de frase)
+  zoom2: [M68 + 0.15, m.anoluzFin - 0.75],                               // de 10⁷ a 10¹⁶, siguiendo la cinta
+  zoom3: [m.galaxia - 0.3, m.galaxia + 0.85],                            // de 10¹⁶ a 10²¹
+  cruza: [M69 - 0.15, M69 + 2.1],                                        // el rayo cruza la galaxia (cae la arena)
+  puntos: [M69 - 0.05, m.galaxiaFin - 0.55],                             // la espiral se llena de puntitos
+};
+T.unoS = T.rayo[1] + 0.12;                                // «1 s» bajo el reloj
+T.relojFuera = [T.cinta[0] - 0.12, T.cinta[0] + 0.25];    // el reloj se va
+T.lleno = [T.puntos[1] - 0.05, T.puntos[1] + 0.4];        // lo que falte de la galaxia se aclara de golpe (suave)
+T.rayoFuera = [T.cruza[1] + 0.3, T.cruza[1] + 0.75];
+T.arenaFuera = [T.cruza[1] + 0.3, T.cruza[1] + 0.7];
+
+// ---------------------------------------------------------------- los saltos de la regla (cada uno suma 1)
+const SALTOS = [];
+{ const a0 = m.subir - 0.25; for (let k = 0; k < 3; k++) SALTOS.push([a0 + k * 0.58, a0 + k * 0.58 + 0.4, 0]); }
+{
+  const [a, b] = T.zoom2, f = (u) => 1 - Math.pow(1 - u, 1.35);
+  for (let k = 0; k < 9; k++) SALTOS.push([a + (b - a) * f(k / 9), a + (b - a) * f((k + 1) / 9), k < 3 ? 0 : 1]);
+}
+{ const [a, b] = T.zoom3; for (let k = 0; k < 5; k++) SALTOS.push([a + (b - a) * k / 5, a + (b - a) * (k + 1) / 5, 1]); }
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+function zRegla(ts) {
+  let z = 4;
+  for (const [a, b, tipo] of SALTOS) { const u = prog(ts, a, b); if (u > 0) z += tipo ? eoc(u) : seco(u); }
+  return z;
+}
+const enSalto = (ts) => SALTOS.some(([a, b]) => ts > a && ts < b);
+
+// ---------------------------------------------------------------- la cámara del mundo
+// 4 → 7: de camara(4) (la ciudad) a CRAY (la Tierra entera algo más pequeña y a la izquierda: deja sitio al reloj y a las
+// vueltas); 7 → 16: siguiendo la cinta (la Tierra se va abajo a la derecha, a E16); 16 → 21: a camara(21) (la galaxia de
+// ep3-mapa). La Tierra en pantalla y el exponente de la cámara, lineales en el de la regla dentro de cada tramo.
+const C4 = camara(4), C21 = camara(21);
+const ZRAY = 7.15, PRAY = [760, 480];
+const CRAY = camaraPorTierra(ZRAY, PRAY, 7);
+const E16 = [1290, 640], C16 = camaraPorTierra(16, E16, 16);
+const E21 = tierraPx(C21);
+function camAt(zr) {
+  if (zr <= 4) return C4;
+  if (zr >= 21) return C21;
+  if (zr <= 7) {
+    const u = (zr - 4) / 3, t4 = tierraPx(C4);
+    return camaraPorTierra(mix(C4.z, ZRAY, u), [mix(t4[0], PRAY[0], u), mix(t4[1], PRAY[1], u)], zr);
+  }
+  if (zr <= 16) { const u = (zr - 7) / 9, v = ss(0, 1, u); return camaraPorTierra(mix(ZRAY, 16, u), [mix(PRAY[0], E16[0], v), mix(PRAY[1], E16[1], v)], zr); }
+  const u = (zr - 16) / 5;
+  return camaraPorTierra(mix(16, C21.z, u), [mix(E16[0], E21[0], u), mix(E16[1], E21[1], u)], zr);
+}
+
+// ---------------------------------------------------------------- el plató
+const I = { NS: 0, REG: 1, FLE: 2, REL: 3, ARE: 4 };
+await cargarFuenteCartela();
+const P = await crearPlato({
+  piezas: ['neutrones', 'reglaA', 'flecha', 'reloj', 'arena'],
+  tiposExtra: { ...tiposEstrellas(['neutrones']), ...tiposTiempo(['reloj', 'arena']) },
+  uniformes: { ...uniformesEstrellas(), ...uniformesTiempo() },
+  alfa: true, post: false, cartela: E.cartela,
+  sombraFondo: ['p1', 'p2'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+marcaCarga('plató');
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+
+// ---------------------------------------------------------------- capas: el mundo (oculto) y el lienzo 2D encima
+const cont = document.getElementById('escena');
+const mundo = crearMundo(cont, { captura: P.captura });
+mundo.lienzo.style.visibility = 'hidden';
+marcaCarga('mundo');
+const lienzoGL = P.renderer.domElement;
+lienzoGL.style.visibility = 'hidden';
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:3';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+ajustarCapa();
+const lienzo = (w = lienzoGL.width, h = lienzoGL.height) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+const pegarGL = () => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lienzoGL, 0, 0); g.restore(); };
+const copiaGL = () => { const c = lienzo(); c.getContext('2d').drawImage(lienzoGL, 0, 0); return c; };
+function trozoGL([x0, y0, x1, y1]) {
+  const k = lienzoGL.width / W, c = lienzo(Math.round((x1 - x0) * k), Math.round((y1 - y0) * k));
+  c.getContext('2d').drawImage(lienzoGL, Math.round(x0 * k), Math.round(y0 * k), c.width, c.height, 0, 0, c.width, c.height);
+  c.ref = [x0, y0, x1, y1];
+  return c;
+}
+const pegarTrozo = (c) => g.drawImage(c, c.ref[0], c.ref[1], c.ref[2] - c.ref[0], c.ref[3] - c.ref[1]);
+// el «parpadeo» de la luz del plató (como ep3-sol y ep3-mapa)
+function parpadeo(n) {
+  const fl = azar(n, 3) - 0.5;
+  g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
+}
+// la viñeta del mundo, quitada (crearPost la vuelve a poner al final): color-dodge con 1 − v (la de ep3-mapa)
+const VIG = { K: 0.42, A: 0.42, B: 1.12 };
+const GRAD_VIG = (gc) => {
+  const R = Math.hypot(960, 540) + 2;
+  const gr = gc.createRadialGradient(960, 540, 0, 960, 540, R);
+  for (let i = 0; i <= 24; i++) {
+    const r = (i / 24) * R, v = 1 - VIG.K * ss(VIG.A, VIG.B, r / 1080);
+    const q = Math.round((1 - v) * 255);
+    gr.addColorStop(i / 24, `rgb(${q},${q},${q})`);
+  }
+  return gr;
+};
+function sinVineta(c) {
+  const gc = c.getContext('2d'), k = c.width / W;
+  gc.save(); gc.setTransform(k, 0, 0, k, 0, 0);
+  gc.globalCompositeOperation = 'color-dodge'; gc.fillStyle = GRAD_VIG(gc); gc.fillRect(0, 0, W, H);
+  gc.restore();
+  return c;
+}
+// el mundo en vivo, pegado en g sin su viñeta (con recorte opcional: un círculo [x, y, r])
+function pegarMundoVivo(recorte = null) {
+  g.save();
+  if (recorte) { g.beginPath(); g.arc(recorte[0], recorte[1], recorte[2], 0, 2 * Math.PI); g.clip(); }
+  g.drawImage(mundo.lienzo, 0, 0, W, H);
+  g.globalCompositeOperation = 'color-dodge'; g.fillStyle = GRAD_VIG(g); g.fillRect(0, 0, W, H);
+  g.restore();
+}
+function pegarFoto(f, recorte = null) {
+  g.save();
+  if (recorte) { g.beginPath(); g.arc(recorte[0], recorte[1], recorte[2], 0, 2 * Math.PI); g.clip(); }
+  g.drawImage(f, 0, 0, W, H);
+  g.restore();
+}
+// el hervor de lo quieto sin otra foto del mundo (el de ep3-mapa): la foto desplazada menos de medio píxel, girada y
+// escalada una milésima alrededor de c, y con la luz que respira (manchas de ±2 %)
+function hervir(f, semilla, c) {
+  const r = mulberry32(semilla), k = f.width / W, out = lienzo(f.width, f.height), go = out.getContext('2d');
+  go.setTransform(k, 0, 0, k, 0, 0);
+  go.translate(c[0] + (r() - 0.5) * 0.9, c[1] + (r() - 0.5) * 0.9);
+  go.rotate((r() - 0.5) * 0.0024);
+  const e = 1 + (r() - 0.5) * 0.0024;
+  go.scale(e, e);
+  go.translate(-c[0], -c[1]);
+  go.drawImage(f, 0, 0, W, H);
+  const rz = lienzo(48, 27), gz = rz.getContext('2d'), im = gz.createImageData(48, 27);
+  for (let i = 0; i < 48 * 27; i++) { const v = Math.round(128 + (r() - 0.5) * 40); im.data[i * 4] = im.data[i * 4 + 1] = im.data[i * 4 + 2] = v; im.data[i * 4 + 3] = 255; }
+  gz.putImageData(im, 0, 0);
+  go.setTransform(1, 0, 0, 1, 0, 0);
+  go.globalCompositeOperation = 'soft-light'; go.globalAlpha = 0.45; go.imageSmoothingEnabled = true;
+  go.drawImage(rz, 0, 0, out.width, out.height);
+  return out;
+}
+
+// ---------------------------------------------------------------- Atom (presentador: pequeño, abajo a la izquierda)
+const A_Z = 1.0, ATOMO = [230, 780];
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(en(...ATOMO, A_Z)));
+const CAM = [0, 3.8, 15.5];
+const gy = (p) => Math.atan2(CAM[0] - p[0], CAM[2] - p[2]), gp = (p) => Math.atan2(p[1] - CAM[1], Math.hypot(CAM[0] - p[0], CAM[2] - p[2]));
+const A_W = en(...ATOMO, A_Z), A_REF = en(850, 330, A_Z);
+const A_YAW = gy(A_W) - gy(A_REF), A_PITCH = gp(A_W) - gp(A_REF);
+const DT = 1 / 240, TA = [0], TZ = [0];
+const golpes = [m.subir, m.anoluz, m.galaxia];
+const pico = (t, t0) => Math.exp(-Math.pow((t - t0) / 0.4, 2));
+const velA = (t) => ss(0, 0.7, t) * (1 + golpes.reduce((s, t0) => s + 0.8 * pico(t, t0), 0) + 0.6 * pico(t, M68) + 0.6 * pico(t, M69)) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+const velZ = (t) => ss(0, 0.7, t) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= D + 0.2; i++) { TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT); TZ.push(TZ[i - 1] + velZ((i - 0.5) * DT) * DT); }
+const tabla = (Tb, t) => { const x = t / DT, i = Math.min(Tb.length - 2, Math.max(0, Math.floor(x))); return mix(Tb[i], Tb[i + 1], x - i); };
+// sobre el suelo claro (la ciudad y los campos, hasta ~10⁶) menos resplandor y un velo algo más oscuro detrás
+const sueloClaro = (zr) => 1 - ss(5.6, 6.6, zr);
+function estadoAtom(ts) {
+  const tz = tabla(TZ, ts);
+  const sx = ATOMO[0], sy = ATOMO[1] + 3 * Math.sin(tz * 1.3) + 2 * Math.sin(tz * 0.7 + 1.0);
+  const brillo = Math.max(...golpes.map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))));
+  return { sx, sy, tz, brillo };
+}
+function atomo(ts, claro = 0) {
+  const S = estadoAtom(ts);
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  P.atomo({
+    pos: en(S.sx, S.sy, A_Z), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH,
+    energia: Math.min(1, en0 + 0.45 * S.brillo), ts: tabla(TA, ts), halo: 1 - 0.55 * claro, velo: 0.1 + 0.3 * claro,
+  });
+  return S;
+}
+const S0 = estadoAtom(0);
+const SOM_A = [S0.sx + 22, S0.sy + 30, 62, 0.42];          // la sombra de Atom en el mundo (la de ep3-mapa en el espacio)
+const somA = (zr) => [SOM_A[0], SOM_A[1], SOM_A[2], 0.42 + 0.16 * sueloClaro(zr)];
+
+// ---------------------------------------------------------------- la regla
+const E_REG = 1.42, REG = en(1655, 528, 0.4);
+const reglaEn = (e, toque = false) => P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e, ya: 0, actual: Math.round(e), lupa: 0.5, toque });
+const RECT_REG = [1300, 0, 1920, 1080];
+function fotoRegla(e, n) { P.limpiar(); reglaEn(e); P.render(n, { fondo: false }); return trozoGL(RECT_REG); }
+
+// ---------------------------------------------------------------- fotos
+const FOTOS = {}, HACER = {};
+const asentar = (c) => { if (c?.getContext) c.getContext('2d').getImageData(0, 0, 1, 1); return c; };
+const F = (k) => FOTOS[k] ?? (FOTOS[k] = asentar(HACER[k]()));
+const fotoMundoSin = (C, n, zr) => sinVineta(fotoMundo(mundo, estadoMundo(C, n, { somA: somA(zr) })));
+// la ciudad a 10⁴ (n de mundo4 de ep3-vuelta), la Tierra en CRAY, el espacio a 10¹⁶ y la galaxia a 10²¹ (la de ep3-mapa)
+for (let k = 0; k < 3; k++) {
+  HACER['m4_' + k] = () => fotoMundoSin(C4, 940 + k, 4);
+  HACER['m7_' + k] = () => fotoMundoSin(CRAY, 960 + k, 7);
+}
+HACER.m16_0 = () => fotoMundoSin(C16, 980, 16);
+HACER.m16_1 = () => hervir(F('m16_0'), 311, E16);
+HACER.m16_2 = () => hervir(F('m16_0'), 323, E16);
+const N_LUZ = 214, N_FIN = nDe(QUIETO);   // N_FIN: desde aquí, las fotos del fotograma 0 de ep3-mapa
+                                       // el n de la galaxia de ep3-mapa (su fotograma 0)
+const GAL_W = [solMundo(C21.z)[0] - 0.328 * MUNDO.R_GAL, solMundo(C21.z)[1] + 0.330 * MUNDO.R_GAL];
+const GAL = { c: aPant(C21, GAL_W), R: MUNDO.R_GAL / C21.mpp };
+HACER.gal0 = () => sinVineta(fotoMundo(mundo, estadoMundo(C21, N_LUZ, { somA: SOM_A })));
+HACER.gal1 = () => hervir(F('gal0'), 211, GAL.c);
+HACER.gal2 = () => hervir(F('gal0'), 223, GAL.c);
+for (const [e, nb] of [[4, 9400], [7, 9700], [16, 9160]]) for (let k = 0; k < 3; k++) HACER[`reg${e}_${k}`] = () => fotoRegla(e, nb + k);
+HACER.reg21_0 = () => fotoRegla(21, 0); HACER.reg21_1 = () => fotoRegla(21, 7101); HACER.reg21_2 = () => fotoRegla(21, 7102);
+const regDe = (e, n) => `reg${e}_${n % 3}`;
+HACER.cartela0 = () => { P.limpiar(); cartela(P, 0, E.cartela); P.render(0, { fondo: false }); return copiaGL(); };
+
+// ---------------------------------------------------------------- la estrella de neutrones (sprite: dos fotos)
+const R_NS = 4700;                                         // m: «del tamaño de una ciudad» (la ciudad del mundo mide 9 km de radio)
+const NS_PX = 300;
+for (let k = 0; k < 2; k++) HACER['ns' + k] = () => {
+  const pos = en(960, 540, 1.5), e = NS_PX / pxU(pos);
+  P.limpiar(); neutrones(P, I.NS, { pos, escala: e, brillo: 0.6, rot: [0.2, 0.3 + 0.9 * k, 0] }); P.render(8800 + k, { fondo: false });
+  const L = NS_PX * 1.08;
+  const c = trozoGL([960 - L, 540 - L, 960 + L, 540 + L]); c.L = L;
+  return c;
+};
+const CIUDAD4 = aPant(C4, MUNDO.CIUDAD);
+function estrellaNeutrones(C, n, k = 1) {
+  const c = aPant(C, MUNDO.CIUDAD), R = R_NS / C.mpp;
+  const kh = ss(0.6, 4, R) * k;
+  if (kh <= 0.003) return;
+  halo(g, c[0], c[1], Math.max(R, 1.5), kh, 'neutrones');
+  if (R < 0.8) return;
+  const s = F('ns' + (n % 2)), L = s.L * (R / NS_PX);
+  g.save(); g.globalAlpha = ss(0.8, 3, R) * k;
+  g.drawImage(s, c[0] - L, c[1] - L, 2 * L, 2 * L);
+  g.restore();
+}
+
+// ---------------------------------------------------------------- las siete vueltas y media
+const R0 = MUNDO.R_TIERRA / CRAY.mpp;                    // la Tierra en CRAY (px)
+const VUELTAS = (() => {
+  const desde = 0.92 * Math.PI, puntos = 56, giro = -0.16;
+  const pts = caminoVueltas({ centro: [0, 0], rx: 1.36 * R0, ry: 0.4 * 1.36 * R0, vueltas: 7.5, desde, giro, puntos, separa: 0.17 });
+  // tramos de delante (abajo: sin a > 0) y de detrás (arriba: los tapa la Tierra), con su longitud acumulada
+  const tramos = [];
+  let cur = null, s = 0;
+  pts.forEach((p, k) => {
+    if (k > 0) s += Math.hypot(p[0] - pts[k - 1][0], p[1] - pts[k - 1][1]);
+    const del = Math.sin(desde + (k / puntos) * 2 * Math.PI) > 0;
+    if (!cur || cur.del !== del) {
+      const prev = k > 0 ? [pts[k - 1]] : [];
+      cur = { del, pts: prev, s0: k > 0 ? s - Math.hypot(p[0] - pts[k - 1][0], p[1] - pts[k - 1][1]) : 0 };
+      tramos.push(cur);
+    }
+    cur.pts.push(p);
+  });
+  for (const t of tramos) { let L = 0; for (let k = 1; k < t.pts.length; k++) L += Math.hypot(t.pts[k][0] - t.pts[k - 1][0], t.pts[k][1] - t.pts[k - 1][1]); t.L = L; }
+  return { tramos, L: s };
+})();
+// dibuja las vueltas hasta la longitud sCab (px de CRAY), con la Tierra en o y escala esc; repintar() vuelve a pintar el
+// disco de la Tierra encima de los tramos de detrás
+function vueltas(sCab, o, esc, alfa, repintar) {
+  if (alfa <= 0.003 || sCab <= 0) return;
+  const gros = Math.max(1.2, 6 * esc);
+  const uno = (t) => {
+    if (t.s0 >= sCab) return;
+    const cab = sCab < t.s0 + t.L && sCab < VUELTAS.L - 0.5 ? 1 : 0;
+    const q = t.pts.map((p) => [o[0] + p[0] * esc, o[1] + p[1] * esc]);
+    rayo(g, q, { hasta: (sCab - t.s0) * esc, grosor: gros, cabeza: cab, sombra: 0.6 });
+  };
+  g.save(); g.globalAlpha = alfa;
+  for (const t of VUELTAS.tramos) if (!t.del) uno(t);
+  g.restore();
+  repintar();
+  g.save(); g.globalAlpha = alfa;
+  for (const t of VUELTAS.tramos) if (t.del) uno(t);
+  g.restore();
+}
+
+// ---------------------------------------------------------------- el reloj de 1 s (arriba a la derecha) y «1 s»
+const RELOJ = { c: [1335, 292], r: 118 };
+const RELOJ_POS = en(RELOJ.c[0], RELOJ.c[1], 1.2), RELOJ_ESC = RELOJ.r / pxU(RELOJ_POS);
+function relojEn(ts) {
+  const kIn = brote(ts, T.reloj, 0.3), kOut = 1 - eic(prog(ts, T.relojFuera[0], T.relojFuera[1]));
+  const k = kIn * kOut;
+  if (k <= 0.002) return 0;
+  const seg = prog(ts, T.rayo[0], T.rayo[1]);           // el segundero, a la velocidad de la luz (constante)
+  reloj(P, I.REL, { pos: RELOJ_POS, escala: RELOJ_ESC * k, rot: [0.05, -0.1, 0], minutos: 130, segundos: seg, sector: seg > 0.001 ? [0, seg] : null, sectorSegundos: true,
+    toque: ts < T.reloj + 0.2 || (ts > T.rayo[0] && ts < T.rayo[1] + 0.1) });
+  return k;
+}
+function unoS(ts, kReloj) {
+  const k = brote(ts, T.unoS, 0.22) * (1 - eic(prog(ts, T.relojFuera[0], T.relojFuera[1])));
+  if (k <= 0.01) return;
+  const [x, y] = [RELOJ.c[0], RELOJ.c[1] + RELOJ.r + 78];
+  g.save();
+  g.translate(x, y); g.scale(k, k);
+  g.font = '600 76px Jost, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = 'rgba(10,6,4,0.55)'; g.fillText('1 s', 3, 5);
+  g.fillStyle = '#e8a64a'; g.fillText('1 s', 0, 0);
+  g.restore();
+  // un destello al aparecer
+  const u = prog(ts, T.unoS - 0.1, T.unoS + 0.45);
+  if (u > 0 && u < 1) {
+    g.save(); g.globalCompositeOperation = 'screen';
+    const R = 120, a = Math.sin(Math.PI * u) * 0.5;
+    const h = g.createRadialGradient(x, y, 0, x, y, R);
+    h.addColorStop(0, `rgba(255,220,160,${a})`); h.addColorStop(1, 'rgba(255,170,80,0)');
+    g.fillStyle = h; g.fillRect(x - R, y - R, 2 * R, 2 * R); g.restore();
+  }
+}
+
+// ---------------------------------------------------------------- la cinta de año luz (2D: tela crema, canto cosido)
+const DIR = (() => { const a = Math.PI + 0.21; return [Math.cos(a), Math.sin(a)]; })();   // a la izquierda y algo arriba
+const NOR = [DIR[1], -DIR[0]];                            // la perpendicular hacia arriba (y < 0)
+const AL = 9.461e15;
+function cintaAL(C, ts, alfa) {
+  const ext = eoc(prog(ts, T.cinta[0], T.cinta[1]));
+  if (ext <= 0.002 || alfa <= 0.003) return;
+  const o = tierraPx(C), Rt = MUNDO.R_TIERRA / C.mpp;
+  const a0 = Rt * 1.03, LMAX = 2600, L = a0 + (LMAX - a0) * ext;
+  const ancho = 24, h = ancho / 2;
+  const P0 = [o[0] + DIR[0] * a0, o[1] + DIR[1] * a0], P1 = [o[0] + DIR[0] * L, o[1] + DIR[1] * L];
+  const banda = (dx, dy, w) => { g.beginPath(); g.moveTo(P0[0] + NOR[0] * w + dx, P0[1] + NOR[1] * w + dy); g.lineTo(P1[0] + NOR[0] * w + dx, P1[1] + NOR[1] * w + dy); g.lineTo(P1[0] - NOR[0] * w + dx, P1[1] - NOR[1] * w + dy); g.lineTo(P0[0] - NOR[0] * w + dx, P0[1] - NOR[1] * w + dy); g.closePath(); };
+  g.save(); g.globalAlpha = alfa;
+  // sombra (dos pasadas: corta y densa, ancha y tenue)
+  banda(9, 13, h + 6); g.fillStyle = 'rgba(8,6,10,0.16)'; g.fill();
+  banda(5, 7, h + 1); g.fillStyle = 'rgba(8,6,10,0.3)'; g.fill();
+  // la tela: crema con los cantos algo más oscuros (luz de arriba a la izquierda)
+  const gr = g.createLinearGradient(o[0] + NOR[0] * h, o[1] + NOR[1] * h, o[0] - NOR[0] * h, o[1] - NOR[1] * h);
+  gr.addColorStop(0, '#d9c6a0'); gr.addColorStop(0.18, '#efe0bf'); gr.addColorStop(0.7, '#e2cfa8'); gr.addColorStop(1, '#a8916c');
+  banda(0, 0, h); g.fillStyle = gr; g.fill();
+  // una veta de tela muy suave a lo largo
+  g.strokeStyle = 'rgba(120,95,60,0.12)'; g.lineWidth = 1;
+  for (const w of [-5, -1, 3, 7]) { g.beginPath(); g.moveTo(P0[0] + NOR[0] * w, P0[1] + NOR[1] * w); g.lineTo(P1[0] + NOR[0] * w, P1[1] + NOR[1] * w); g.stroke(); }
+  // el canto cosido
+  g.setLineDash([7, 5]); g.strokeStyle = 'rgba(132,98,58,0.85)'; g.lineWidth = 1.7;
+  for (const w of [h - 3.5, -(h - 3.5)]) { g.beginPath(); g.moveTo(P0[0] + NOR[0] * w, P0[1] + NOR[1] * w); g.lineTo(P1[0] + NOR[0] * w, P1[1] + NOR[1] * w); g.stroke(); }
+  g.setLineDash([]);
+  // las marcas: una por año luz (larga) y media (corta), de verdad: se ven cuando caben
+  const paso = AL / C.mpp;
+  const kM = ss(8, 30, paso);
+  if (kM > 0.01) {
+    for (let j = 1; j * paso * 0.5 < L && j < 400; j++) {
+      const d = j * paso * 0.5;
+      if (d < a0 + 4) continue;
+      const larga = j % 2 === 0, x = o[0] + DIR[0] * d, y = o[1] + DIR[1] * d;
+      const w = larga ? h : h * 0.45, kj = larga ? kM : kM * ss(40, 90, paso);
+      if (kj < 0.01) continue;
+      g.strokeStyle = `rgba(38,24,14,${0.92 * kj})`; g.lineWidth = larga ? 3.2 : 2;
+      const w2 = larga ? -h : h - 2 * w;
+      g.beginPath(); g.moveTo(x + NOR[0] * h, y + NOR[1] * h); g.lineTo(x + NOR[0] * w2, y + NOR[1] * w2); g.stroke();
+      if (larga) {
+        const kd = ss(150, 300, paso) * kj;
+        if (kd > 0.01) {
+          const tx = x + NOR[0] * (h + 34), ty = y + NOR[1] * (h + 34);
+          g.font = '600 52px Jost, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+          g.fillStyle = `rgba(10,6,4,${0.6 * kd})`; g.fillText(String(j / 2), tx + 3, ty + 4);
+          g.fillStyle = `rgba(240,226,196,${kd})`; g.fillText(String(j / 2), tx, ty);
+        }
+      }
+    }
+  }
+  // el arranque (un remate de latón junto a la Tierra) y, mientras se tiende, la punta de latón
+  const laton = (p, largo, ancho2) => {
+    g.save(); g.translate(p[0], p[1]); g.rotate(Math.atan2(DIR[1], DIR[0]));
+    const gl = g.createLinearGradient(0, -ancho2, 0, ancho2);
+    gl.addColorStop(0, '#f1d78f'); gl.addColorStop(0.35, '#c9993f'); gl.addColorStop(1, '#6d4a17');
+    g.fillStyle = 'rgba(8,6,10,0.3)'; g.fillRect(-largo / 2 + 4, -ancho2 + 6, largo, 2 * ancho2);
+    g.fillStyle = gl; g.fillRect(-largo / 2, -ancho2, largo, 2 * ancho2);
+    g.restore();
+  };
+  if (Rt > 6) laton(P0, 14, h + 3);
+  if (ext < 0.999) laton(P1, 20, h + 3);
+  g.restore();
+}
+
+// ---------------------------------------------------------------- la galaxia: suave y, después, llena de puntitos
+const BLUR = 3.2;
+function suave(f) {
+  const c = lienzo(f.width, f.height), gc = c.getContext('2d'), k = f.width / W;
+  gc.filter = `blur(${BLUR * k}px)`; gc.drawImage(f, 0, 0); gc.filter = 'none';
+  // solo dentro del disco de la galaxia (con el borde suave): fuera queda la foto nítida
+  gc.setTransform(k, 0, 0, k, 0, 0);
+  gc.globalCompositeOperation = 'destination-in';
+  const h = gc.createRadialGradient(GAL.c[0], GAL.c[1], GAL.R * 0.98, GAL.c[0], GAL.c[1], GAL.R * 1.25);
+  h.addColorStop(0, 'rgba(0,0,0,1)'); h.addColorStop(1, 'rgba(0,0,0,0)');
+  gc.fillStyle = h; gc.fillRect(0, 0, W, H);
+  return c;
+}
+for (let k = 0; k < 3; k++) HACER['suave' + k] = () => suave(F('gal' + k));
+// los puntitos: donde la foto nítida tiene un punto de luz que la suave no tiene; con su instante de nacer (cada vez más
+// seguidos) y su radio
+HACER.puntos = () => {
+  const f = F('gal0'), s = F('suave0'), k = f.width / W;
+  const x0 = Math.max(0, Math.floor((GAL.c[0] - GAL.R * 1.1) * k)), y0 = Math.max(0, Math.floor((GAL.c[1] - GAL.R * 1.1) * k));
+  const w = Math.min(f.width - x0, Math.ceil(2.2 * GAL.R * k)), h = Math.min(f.height - y0, Math.ceil(2.2 * GAL.R * k));
+  const a = f.getContext('2d').getImageData(x0, y0, w, h).data, b = s.getContext('2d').getImageData(x0, y0, w, h).data;
+  const lum = (d, i) => 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2];
+  const cand = [];
+  const paso = Math.max(1, Math.round(2 * k));
+  for (let y = 0; y < h; y += paso) for (let x = 0; x < w; x += paso) {
+    const i = (y * w + x) * 4, dl = lum(a, i) - lum(b, i);
+    if (dl > 26) cand.push([x0 / k + x / k, y0 / k + y / k, dl]);
+  }
+  // un punto por cada mancha (los máximos: nada a menos de 7 px de otro más brillante)
+  cand.sort((p, q) => q[2] - p[2]);
+  const out = [], celda = new Map(), key = (x, y) => `${Math.floor(x / 8)},${Math.floor(y / 8)}`;
+  for (const p of cand) {
+    let ok = true;
+    for (let dx = -1; dx <= 1 && ok; dx++) for (let dy = -1; dy <= 1 && ok; dy++) for (const q of celda.get(`${Math.floor(p[0] / 8) + dx},${Math.floor(p[1] / 8) + dy}`) ?? []) if (Math.hypot(q[0] - p[0], q[1] - p[1]) < 7) { ok = false; break; }
+    if (!ok) continue;
+    out.push(p); const kk = key(p[0], p[1]); if (!celda.has(kk)) celda.set(kk, []); celda.get(kk).push(p);
+  }
+  // orden de nacimiento: al azar (con semilla), cada vez más seguidos
+  const r = mulberry32(1969);
+  out.forEach((p) => (p.o = r()));
+  out.sort((p, q) => p.o - q.o);
+  const [t0, t1] = T.puntos, N = out.length;
+  return out.map((p, i) => ({ x: p[0], y: p[1], t: t0 + (t1 - t0) * Math.pow(i / Math.max(1, N - 1), 1 / 2.3), r: 5.5 + 3 * cl(p[2] / 120) }));
+};
+const MASCARA = lienzo(), gm = MASCARA.getContext('2d');
+// la galaxia en el instante ts: la nítida debajo y, encima, la suave con agujeros en los puntitos ya nacidos
+function galaxia(n, ts) {
+  const k = n >= N_FIN ? 0 : n % 3;
+  pegarFoto(F('gal' + k));
+  const lleno = ss(T.lleno[0], T.lleno[1], ts);
+  if (lleno >= 0.999) return;
+  const kk = MASCARA.width / W;
+  gm.setTransform(1, 0, 0, 1, 0, 0); gm.globalCompositeOperation = 'source-over'; gm.clearRect(0, 0, MASCARA.width, MASCARA.height);
+  gm.drawImage(F('suave' + k), 0, 0);
+  if (ts > T.puntos[0]) {
+    gm.setTransform(kk, 0, 0, kk, 0, 0);
+    gm.globalCompositeOperation = 'destination-out';
+    gm.fillStyle = '#000';
+    gm.beginPath();
+    for (const p of F('puntos')) { if (p.t > ts) break; const rr = p.r * Math.min(1, 0.4 + (ts - p.t) / 0.12); gm.moveTo(p.x + rr, p.y); gm.arc(p.x, p.y, rr, 0, 2 * Math.PI); }
+    gm.fill();
+  }
+  g.save(); g.globalAlpha = 1 - lleno; g.drawImage(MASCARA, 0, 0, W, H); g.restore();
+  // el destello de cada puntito al nacer
+  if (ts > T.puntos[0]) {
+    g.save(); g.globalCompositeOperation = 'screen';
+    for (const p of F('puntos')) {
+      if (p.t > ts) break;
+      const u = (ts - p.t) / 0.42;
+      if (u >= 1) continue;
+      const R = p.r * 2.6, a = 0.75 * (1 - u) * (1 - u);
+      const h = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, R);
+      h.addColorStop(0, `rgba(255,250,235,${a})`); h.addColorStop(0.35, `rgba(200,220,255,${0.45 * a})`); h.addColorStop(1, 'rgba(160,190,255,0)');
+      g.fillStyle = h; g.fillRect(p.x - R, p.y - R, 2 * R, 2 * R);
+    }
+    g.restore();
+  }
+}
+// el mundo en vivo durante los saltos de 16 a 21: la galaxia sale ya suave
+function suavizarVivo(z) {
+  const k = ss(19.3, 20.0, z);
+  if (k <= 0.01) return;
+  const tmp = lienzo(), gt = tmp.getContext('2d'), kk = tmp.width / W;
+  gt.filter = `blur(${BLUR * kk}px)`; gt.drawImage(capa, 0, 0); gt.filter = 'none';
+  // el disco de la galaxia en pantalla ahora
+  const est = ESTADO_VIVO;
+  const gx = est.capas.uGal[0], gyy = est.capas.uGal[1], gr = est.capas.uGal[2];
+  gt.setTransform(kk, 0, 0, kk, 0, 0); gt.globalCompositeOperation = 'destination-in';
+  const h = gt.createRadialGradient(gx, gyy, gr * 0.98, gx, gyy, gr * 1.25);
+  h.addColorStop(0, 'rgba(0,0,0,1)'); h.addColorStop(1, 'rgba(0,0,0,0)');
+  gt.fillStyle = h; gt.fillRect(0, 0, W, H);
+  g.save(); g.globalAlpha = k; g.drawImage(tmp, 0, 0, W, H); g.restore();
+}
+let ESTADO_VIVO = null;
+
+// ---------------------------------------------------------------- el rayo que cruza la galaxia y el reloj de arena
+const CRUCE = [[GAL.c[0] - GAL.R - 110, GAL.c[1] + 118], [1168, GAL.c[1] - 64]];
+const ARENA = { c: [1302, 404], alto: 500 };
+const ARENA_POS = en(ARENA.c[0], ARENA.c[1], 1.0), ARENA_ESC = (ARENA.alto / 2) / pxU(ARENA_POS);
+function arenaEn(ts) {
+  const kIn = brote(ts, T.cruza[0], 0.35, 0.08), u = prog(ts, T.arenaFuera[0], T.arenaFuera[1]);
+  const k = kIn * (1 - eic(u));
+  if (k <= 0.002) return null;
+  const cae = eio(prog(ts, T.cruza[0], T.cruza[1]));
+  const pos = [ARENA_POS[0], ARENA_POS[1] - 0.6 * eic(u), ARENA_POS[2]];
+  const info = arena(P, I.ARE, { pos, escala: ARENA_ESC * k, rot: [0.05, -0.25, 0.04 * u], cae, toque: ts < T.cruza[0] + 0.15 || (ts > T.cruza[0] && ts < T.cruza[1] + 0.1) || u > 0 });
+  info.k = k;
+  return info;
+}
+function rayoCruza(ts) {
+  const u = prog(ts, T.cruza[0], T.cruza[1]);
+  if (u <= 0) return;
+  const a = 1 - ss(T.rayoFuera[0], T.rayoFuera[1], ts);
+  if (a <= 0.003) return;
+  const L = Math.hypot(CRUCE[1][0] - CRUCE[0][0], CRUCE[1][1] - CRUCE[0][1]);
+  g.save(); g.globalAlpha = a;
+  rayo(g, CRUCE, { hasta: L * u, grosor: 7, cabeza: u < 1 ? 1 : 0.6, sombra: 0.5 });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- al cargar: lo del fotograma 0 y los estrenos
+F('m4_0'); marcaCarga('ciudad');
+F('ns0'); F('reg4_0'); F('cartela0'); marcaCarga('fotos 0');
+P.fotograma(0); P.limpiar(); atomo(0, 1); P.render(0, { fondo: false });
+marcaCarga('estrenos');
+const estreno = (poner) => () => { P.limpiar(); poner(); P.render(0, { fondo: false }); return true; };
+HACER.estrenoReloj = estreno(() => reloj(P, I.REL, { pos: en(100, 100, 2), escala: 0.02, segundos: 0.5, sector: [0, 0.5], sectorSegundos: true }));
+HACER.estrenoArena = estreno(() => arena(P, I.ARE, { pos: en(100, 100, 2), escala: 0.02, cae: 0.5 }));
+const nS = (k) => nDe(SALTOS[k][0]);
+const PREPARAR = [
+  [1, 'm4_1'], [2, 'm4_2'], [3, 'ns1'], [4, 'reg4_1'], [5, 'reg4_2'],
+  [6, 'm7_0'], [8, 'reg7_0'], [9, 'reg7_1'], [10, 'reg7_2'],
+  [nS(2) + 6, 'm7_1'], [nS(2) + 8, 'm7_2'], [nS(2) + 9, 'estrenoReloj'],
+  [nDe(T.unoS) + 2, 'm16_0'], [nDe(T.unoS) + 3, 'm16_1'], [nDe(T.unoS) + 4, 'm16_2'],
+  [nDe(T.unoS) + 5, 'reg16_0'], [nDe(T.unoS) + 6, 'reg16_1'], [nDe(T.unoS) + 7, 'reg16_2'],
+  [nDe(T.zoom2[1]) + 1, 'gal0'], [nDe(T.zoom2[1]) + 2, 'gal1'], [nDe(T.zoom2[1]) + 3, 'gal2'],
+  [nDe(T.zoom2[1]) + 4, 'suave0'], [nDe(T.zoom2[1]) + 5, 'suave1'], [nDe(T.zoom2[1]) + 6, 'suave2'],
+  [nDe(T.zoom2[1]) + 7, 'reg21_0'], [nDe(T.zoom2[1]) + 8, 'reg21_1'], [nDe(T.zoom2[1]) + 9, 'reg21_2'],
+  [nDe(T.zoom2[1]) + 10, 'puntos'], [nDe(T.zoom2[1]) + 11, 'estrenoArena'],
+];
+
+// ---------------------------------------------------------------- dibujar
+function dibujar(t) {
+  ajustarCapa();
+  const n0 = nDe(Math.min(t, D - QUIETO_KIT));
+  for (const [nk, k] of PREPARAR) if (n0 === nk) F(k);
+  const n = P.fotograma(t, D), ts = n / 12;
+  const zr = zRegla(ts), C = camAt(zr), vivo = enSalto(ts);
+  const zi = Math.round(zr);
+  g.fillStyle = '#05060b'; g.fillRect(0, 0, W, H);
+  // 1 · el mundo (foto si está quieto; en vivo durante los saltos)
+  let repintar = () => {};
+  const Et = tierraPx(C), Rt = MUNDO.R_TIERRA / C.mpp;
+  if (!vivo && zi === 21 && ts > T.zoom3[0]) galaxia(n, ts);
+  else if (!vivo && (zi === 4 || zi === 7 || zi === 16)) {
+    const f = F(`m${zi}_${n % 3}`);
+    pegarFoto(f);
+    repintar = () => pegarFoto(f, [Et[0], Et[1], Rt]);
+  } else {
+    ESTADO_VIVO = estadoMundo(C, n, { somA: somA(zr) });
+    mundo.dibujar(ESTADO_VIVO);
+    pegarMundoVivo();
+    if (zr > 19) suavizarVivo(C.z);
+    repintar = () => pegarMundoVivo([Et[0], Et[1], Rt]);
+  }
+  // 2 · la ciudad brillante y la estrella de neutrones (se quedan en la ciudad y se hacen un punto)
+  const kCiudad = 1 - ss(SALTOS[2][1] - 0.1, SALTOS[2][1] + 0.7, ts);
+  if (kCiudad > 0.003 && zr < 8) { brilloCiudad(g, C, kCiudad); estrellaNeutrones(C, n, kCiudad); }
+  // 3 · las vueltas de la luz (se encogen con la Tierra y se apagan al empezar a subir)
+  const sCab = VUELTAS.L * prog(ts, T.rayo[0], T.rayo[1]);
+  const kV = 1 - ss(T.zoom2[0] + 0.1, T.zoom2[0] + 0.7, ts);
+  if (sCab > 0 && kV > 0.003) vueltas(sCab, Et, Rt / R0, kV, repintar);
+  // 4 · la cinta de año luz (se pierde a lo lejos al pasar de 10¹⁶)
+  const kC = 1 - ss(16.3, 17.3, zr);
+  if (ts > T.cinta[0] && kC > 0.003) cintaAL(C, ts, kC);
+  // 5 · el rayo que cruza la galaxia
+  rayoCruza(ts);
+  // 6 · la regla (foto quieta o en vivo) y el plató en vivo: Atom, el reloj, el reloj de arena, la cartela
+  const reglaViva = vivo || ![4, 7, 16, 21].includes(zi) || Math.abs(zr - zi) > 1e-6;
+  if (!reglaViva) pegarTrozo(F(zi === 21 && n >= N_FIN ? 'reg21_0' : regDe(zi, n)));
+  P.limpiar();
+  if (reglaViva) reglaEn(zr, true);
+  const kReloj = relojEn(ts);
+  const infoArena = arenaEn(ts);
+  atomo(ts, zr < 7 ? sueloClaro(zr) : 0);
+  const cartelaViva = ts >= 0.75 && ts < 1.3;
+  if (cartelaViva) cartela(P, ts, E.cartela);
+  P.render(n, { fondo: false });
+  pegarGL();
+  if (infoArena) vidrioArena(g, infoArena, { fuerza: infoArena.k });
+  unoS(ts, kReloj);
+  if (ts < 0.75) g.drawImage(F('cartela0'), 0, 0, W, H);
+  parpadeo(n);
+  POST.aplicar(g, n);
+  window.__plano = { n, zr: +zr.toFixed(3), z: +C.z.toFixed(3), vivo };
+}
+window.__tiempos = { ...T, SALTOS: SALTOS.map(([a, b]) => [+a.toFixed(3), +b.toFixed(3)]) };
+window.__inicio = {
+  mundo: 'camara(4), n 940, sin viñeta', brilloCiudad: 1, estrellaNeutrones: { centro: CIUDAD4, radio_m: R_NS, radio_px: R_NS / C4.mpp, brillo: 0.6 },
+  regla: 'e 4 (foto n 9400)', atomo: ATOMO,
+};
+window.__fin = { mundo: `camara(21), n ${N_LUZ}, somA ${SOM_A.map((v) => +v.toFixed(2))}`, regla: 'e 21 (foto n 0)', atomo: ATOMO, galaxia: GAL };
+marcaCarga('listo');
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

@@ -71,10 +71,13 @@
 //
 // COSTE (este servidor, 1920 × 1080, con el plató; con otras escenas renderizando a la vez, el doble o más): ver
 // window.__tiempos de la hoja de prueba. Un glóbulo de 400 px, ~0,4 s; la fila de 12 quietos (1100 px de ancho), ~0,6 s,
-// y mientras llegan (se calculan los 12), ~1 s; el río a pantalla completa, ~1–1,5 s; el vaso abierto a pantalla
-// completa, ~2 s (mejor una foto); el corte del pelo de 1100 px, ~1,5 s (foto); la médula de 800 px, ~1,5 s (foto).
-// Lo que no se mueve se fotografía al cargar (el vaso, el pelo, la médula) y encima van los glóbulos vivos con
-// sombraSilueta.
+// y mientras llegan (se calculan los 12), ~1 s (en ep3-celulas, la fila con la cota y Atom: ~5 s de CPU del navegador
+// por fotograma, medidos con su bin/cap.mjs, donde el ojo en corte de ep3-pelo da ~10); el vaso abierto a pantalla
+// completa, ~2 s (mejor una foto, por franjas); el corte del pelo de 1100 px, ~1,5 s (foto); la médula de 800 px, ~1,5 s
+// (foto). EL RÍO A PANTALLA COMPLETA ES CARO (~15 s de CPU por fotograma, el triple que la fila): para un río grande,
+// ep3-celulas fotografía un glóbulo (fila de 1) en ocho poses de un vuelco y mueve las fotos en 2D (su capaRio); el río
+// del kit vale para un río pequeño o lejano. Lo que no se mueve se fotografía (el vaso, el pelo, la médula) y encima van
+// los glóbulos vivos con sombraSilueta.
 //
 // CONGELADO el 22-10-2026, entregado con la hoja de prueba (escenas/ep03-sangre-hoja.html).
 import * as THREE from 'three';

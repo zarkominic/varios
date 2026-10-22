@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La estrella de neutrones</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EP3-NEUTRONES · episodio 3, frases 64–66 (sin cartela), plastilina adulta. Usa ep03-cosmos.js, ep03-estrellas.js,
+// ep03-balanza.js y ep03-tocar.js (no crea ningún kit). La balanza y la cucharita van en arcilla aunque el Visual las marca
+// en papel (cambio de estilo n.º 10 de las notas de escenas.json: lo tiene que firmar el dueño).
+//  0         (= último de ep3-vuelta) la estrella grande y rojiza en corte, centrada, con el centro hundido en una bola
+//            apretada; regla en 10⁴; Atom pequeño abajo a la izquierda
+//  ciudad    (empieza 0,15 s antes de la marca) la bola apretada sale del corte hacia la cámara, girando, y crece hasta
+//            llenar casi el cuadro mientras la estrella se apaga y se aleja; detrás, el espacio se vuelve la ciudad vista
+//            desde arriba (el mundo de cosmos a 10⁴, encendida); la bola cae sobre la ciudad y se posa: es del mismo tamaño
+//            que la ciudad (golpe seco, sacudida, anillo de polvo, pulso frío; Atom da un respingo). PLANO MEDIO (a mitad
+//            de frase): la cámara se acerca un poco; Atom va hacia la bola, se estira hacia ella, se aplasta agobiado
+//            (tiembla) y vuelve a su sitio
+//  cucharita GENERAL (corte, 0,2 s antes): la balanza de latón de ep3-proton con una montaña de coches en el plato derecho,
+//            caída a la derecha; la cucharita, con su bolita gris de estrella de neutrones, cae en el plato izquierdo
+//            (posada en la marca) y la balanza se nivela con peso y se queda equilibrada (el fiel en la raya). A mitad de
+//            frase, DETALLE (corte): el plato de la cucharita, con su bolita que brilla frío, y los coches al fondo
+//  derramar  GENERAL (corte, 0,2 s antes): la ciudad con la estrella de neutrones; una mano de arcilla (dorso arriba)
+//            sostiene la cucharita sobre la ciudad y tiembla; la mano se la lleva despacio por arriba a la derecha y queda
+//            la estrella de neutrones sobre la ciudad, quieta (termina_con)
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28)
+//  · Fotograma 0 = el último de ep3-vuelta (window.__fin.final de allí): el espacio de fondoCielo(mundo, 932, { somA }) sin
+//    viñeta; el halo de la gigante; la gigante en corte (corte 1, apaga 0,9, hunde 1; hueco 8 del plató) centrada en
+//    (900, 480) con 460 px de radio (z −1), foto n 9721; encima el halo frío de la bola (radio 0,075 · R); la regla en 10⁴
+//    (foto n 9402); Atom en el estado en que lo deja ep3-vuelta (su reloj, calculado con las marcas de ep3-tierra, ep3-sol
+//    y ep3-vuelta, como allí); parpadeo y crearPost con n = 191 (el último de ep3-vuelta). Los huecos del plató de la
+//    regla (1), su flecha (2) y la gigante (8) son los de ep3-vuelta: así las fotos salen iguales.
+//  · Último fotograma (window.__fin.final, para ep3-luz): la ciudad a 10⁴ (fotoMundo de camara(4), n 940–942, SIN la
+//    sombra de Atom horneada: la sombra de Atom es 2D) con brilloCiudad(k 1); la estrella de neutrones (pieza 'neutrones',
+//    brillo 0,6) centrada en la ciudad (CIUDAD, ≈ (963, 398)) con 340 px de radio, su sombra 2D y su halo frío; la regla en
+//    10⁴ (fotos n 9400–9402); Atom en (230, ~780), quieto; parpadeo y crearPost.
+// COSTE: todo se compone en 2D (crearPost al final). En vivo solo Atom y lo que se mueve: la bola mientras vuela y cae, la
+// balanza mientras se nivela (con los coches, la cucharita y la bolita) y la mano con la cucharita. Lo quieto son fotos
+// que se alternan (hervor): la gigante, el espacio, la ciudad, la ciudad con la bola, la regla, el plató de la balanza, la
+// balanza nivelada y su detalle. Las fotos caras se hacen en fotogramas baratos (PREPARAR); un instante suelto las hace al
+// pedirlas.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo, camara, estadoMundo, fotoMundo, brilloCiudad, aPant, MUNDO } from '/atomo/plato/kits/ep03-cosmos.js';
+import { tiposEstrellas, uniformesEstrellas, gigante, neutrones, halo, destello, solComoMundo, fondoCielo } from '/atomo/plato/kits/ep03-estrellas.js';
+import { tiposBalanza, balanza, coches, geometriaBalanza, enPlato, caida, BALANZA } from '/atomo/plato/kits/ep03-balanza.js';
+import { tiposTocar, cucharilla } from '/atomo/plato/kits/ep03-tocar.js';
+
+const T0 = performance.now();
+window.__carga = [];
+const marcaCarga = (k) => window.__carga.push([k, Math.round(performance.now() - T0)]);
+const E = await escena('ep3-neutrones', 'ep03');
+marcaCarga('escena');
+const M = (k) => E.marca(k);
+const m = { ciudad: M('ciudad'), ciudadFin: M('ciudad_fin'), cuchara: M('cucharita'), cucharaFin: M('cucharita_fin'), derramar: M('derramar'), derramarFin: M('derramar_fin') };
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const f1 = (x) => m.ciudad + x * (m.ciudadFin - m.ciudad);       // fracciones de la frase 64
+const T = {
+  sale: [m.ciudad - 0.15, f1(0.18)],          // la bola sale del corte hacia la cámara (crece)
+  fondo: [f1(0.14), f1(0.2)],                 // detrás, el espacio y la estrella dan paso a la ciudad
+  cae: [f1(0.19), f1(0.31)],                  // la bola cae sobre la ciudad
+  acerca: [f1(0.46), f1(0.55)],               // PLANO MEDIO: la cámara se acerca; Atom va hacia la bola (a mitad de frase)
+  estira: [f1(0.56), f1(0.63)],               // Atom se estira hacia la bola
+  aplasta: [f1(0.63), f1(0.73)],              // … y se aplasta, agobiado
+  recupera: [f1(0.73), f1(0.78)],
+  vuelve: [f1(0.79), f1(0.9)],                // vuelve a su sitio
+  B: m.cuchara - 0.2,                         // GENERAL: la balanza (corte)
+  cuchara: [m.cuchara - 0.2, m.cuchara],      // la cucharita cae en su plato (posada en la marca)
+  nivela: [m.cuchara + 0.02, m.cuchara + 0.95],
+  det: (m.cuchara + m.cucharaFin) / 2 - 0.05, // DETALLE (corte), a mitad de frase
+  C: m.derramar - 0.2,                        // GENERAL: la ciudad, la mano y la cucharita (corte)
+  va: [m.derramar + 0.55, Math.min(m.derramarFin + 0.5, QUIETO - 0.05)],   // la mano se la lleva despacio
+};
+T.posa = T.cae[1];
+
+// ---------------------------------------------------------------- el plató
+// (continuidad) los huecos de la regla (1), su flecha (2) y la gigante (8) son los de ep3-vuelta: el hueco siembra las
+// huellas, los bultos y el grano de cada pieza, y las fotos tienen que salir iguales
+const I = { BOLA: 0, REG: 1, FLE: 2, BAL: 3, COC: 4, CUC: 5, PIZ: 6, MANO: 7, GIG: 8 };
+const P = await crearPlato({
+  piezas: ['neutrones', 'reglaA', 'flecha', 'balanza', 'coches', 'cucharilla', 'neutrones', 'mano', 'gigante'],
+  tiposExtra: { ...tiposEstrellas(['gigante', 'neutrones']), ...tiposBalanza(['balanza', 'coches']), ...tiposTocar(['cucharilla']) },
+  uniformes: { ...uniformesEstrellas() },
+  alfa: true, post: false,
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+marcaCarga('plató');
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+
+// ---------------------------------------------------------------- capas: el mundo (oculto) y el lienzo 2D encima
+const cont = document.getElementById('escena');
+const mundo = crearMundo(cont, { captura: P.captura });
+mundo.lienzo.style.visibility = 'hidden';
+marcaCarga('mundo');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:3';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const pegarGL = (alfa = 1) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = alfa; g.drawImage(lienzoGL, 0, 0); g.restore(); };
+const lienzo = (w = lienzoGL.width, h = lienzoGL.height) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+const copiaGL = () => { const c = lienzo(); c.getContext('2d').drawImage(lienzoGL, 0, 0); return c; };
+// una foto de 1920 × 1080 escalada s veces alrededor de (px, py), que queda en (qx, qy)
+function pegarEscalada(f, s, [px, py], [qx, qy] = [px, py], alfa = 1) {
+  if (alfa <= 0.002) return;
+  g.save(); g.globalAlpha *= alfa;
+  g.translate(qx, qy); g.scale(s, s); g.translate(-px, -py);
+  g.drawImage(f, 0, 0, W, H);
+  g.restore();
+}
+// el «parpadeo» de la luz del plató (como ep3-sol y ep3-vuelta)
+function parpadeo(n) {
+  const f = azar(n, 3) - 0.5;
+  g.fillStyle = f > 0 ? `rgba(255,236,210,${f * 0.03})` : `rgba(0,0,6,${-f * 0.04})`; g.fillRect(0, 0, W, H);
+}
+// la viñeta del mundo, quitada (crearPost la vuelve a poner al final): la misma cuenta que ep3-vuelta
+function sinVineta(c) {
+  const gc = c.getContext('2d', { willReadFrequently: true }), w = c.width, h = c.height, k = W / w;
+  const im = gc.getImageData(0, 0, w, h), d = im.data;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const v = 1 - 0.42 * ss(0.42, 1.12, Math.hypot(((x + 0.5) * k - 960) / 1080, ((y + 0.5) * k - 540) / 1080));
+    if (v > 0.999) continue;
+    const o = (y * w + x) * 4, f = 1 / v;
+    d[o] = Math.min(255, d[o] * f); d[o + 1] = Math.min(255, d[o + 1] * f); d[o + 2] = Math.min(255, d[o + 2] * f);
+  }
+  gc.putImageData(im, 0, 0);
+  return c;
+}
+// las fotos del mundo se pegan y se les quita la viñeta sin leer sus píxeles (color-dodge, como ep3-vuelta)
+const DODGE = (() => {
+  const c = lienzo(W, H), gc = c.getContext('2d'), im = gc.createImageData(W, H), d = im.data;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const a = 0.42 * ss(0.42, 1.12, Math.hypot((x + 0.5 - 960) / 1080, (y + 0.5 - 540) / 1080));
+    const o = (y * W + x) * 4, v = Math.round(255 * a);
+    d[o] = d[o + 1] = d[o + 2] = v; d[o + 3] = 255;
+  }
+  gc.putImageData(im, 0, 0);
+  return c;
+})();
+function pegarMundo(c) {
+  g.drawImage(c, 0, 0, W, H);
+  g.save(); g.globalCompositeOperation = 'color-dodge'; g.drawImage(DODGE, 0, 0, W, H); g.restore();
+}
+// una sombra blanda en el suelo (2D, multiply)
+function sombra(x, y, rx, ry, a) {
+  if (a <= 0.01) return;
+  g.save(); g.globalCompositeOperation = 'multiply';
+  g.translate(x, y); g.scale(1, ry / rx);
+  const h = g.createRadialGradient(0, 0, 0, 0, 0, rx);
+  h.addColorStop(0, `rgba(60,40,30,${a})`); h.addColorStop(0.6, `rgba(90,65,50,${0.6 * a})`); h.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = h; g.beginPath(); g.arc(0, 0, rx, 0, 2 * Math.PI); g.fill();
+  g.restore();
+}
+const temblor = (ts, k, a = 6) => { const n = Math.floor(ts * 12); return [(azar(n, 200 + k) - 0.5) * a, (azar(n, 300 + k) - 0.5) * a]; };
+
+// ---------------------------------------------------------------- Atom: el de ep3-vuelta, en el mismo estado
+const A_Z = 1.0, ATOMO = [230, 780];
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(en(...ATOMO, A_Z)));
+const CAM = [0, 3.8, 15.5];
+const gy = (p) => Math.atan2(CAM[0] - p[0], CAM[2] - p[2]), gp = (p) => Math.atan2(p[1] - CAM[1], Math.hypot(CAM[0] - p[0], CAM[2] - p[2]));
+const A_W = en(...ATOMO, A_Z), A_REF = en(850, 330, A_Z);
+const A_YAW = gy(A_W) - gy(A_REF), A_PITCH = gp(A_W) - gp(A_REF);
+const DT = 1 / 240;
+const tabla = (Tb, t) => { const x = t / DT, i = Math.min(Tb.length - 2, Math.max(0, Math.floor(x))); return mix(Tb[i], Tb[i + 1], x - i); };
+const pico = (t, t0) => Math.exp(-Math.pow((t - t0) / 0.4, 2));
+// el reloj de Atom al acabar ep3-vuelta, con la misma cuenta que allí (que parte de ep3-tierra y ep3-sol), con sus marcas
+const FIN_VUELTA = await (async () => {
+  let todas = null;
+  try { todas = await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json(); } catch (e) { /* las de abajo */ }
+  const mt = todas?.['ep3-tierra'] ?? { duracion: 19.751, marcas: { tierra: 1.5, sol: 15.019 } };
+  const ms = todas?.['ep3-sol'] ?? { duracion: 21.848, marcas: { fusion: 0.5, rebota: 8.83, pequeno: 16.64 } };
+  const mv = todas?.['ep3-vuelta'] ?? { duracion: 16.562, marcas: { vuelta: 1.5, terron: 4.231, colapso: 8.241 } };
+  // ep3-tierra
+  const Qt = mt.duracion - 0.6, mT = mt.marcas.tierra, mS = mt.marcas.sol;
+  const vel = (t) => (1 + 1.1 * Math.exp(-Math.pow((t - mT) / 0.4, 2)) + 0.9 * Math.exp(-Math.pow((t - mS) / 0.4, 2))) * (1 - eio(prog(t, Qt - 0.9, Qt)));
+  let ta0 = 0, t = 0;
+  for (; t + DT <= Qt + 1e-9; t += DT) ta0 += vel(t + DT / 2) * DT;
+  const tz0 = Qt - 0.45;
+  // ep3-sol
+  const Ds = ms.duracion, Qs = Ds - 0.6, mk = ms.marcas;
+  const velAs = (t) => ss(0, 0.7, t) * (1 + 0.8 * pico(t, mk.fusion) + 0.8 * pico(t, mk.rebota) + 0.8 * pico(t, mk.pequeno)) * (1 - eio(prog(t, Qs - 0.9, Qs)));
+  const velZs = (t) => ss(0, 0.7, t) * (1 - eio(prog(t, Qs - 0.9, Qs)));
+  const TAs = [0], TZs = [0];
+  for (let i = 1; i * DT <= Ds + 0.2; i++) { TAs.push(TAs[i - 1] + velAs((i - 0.5) * DT) * DT); TZs.push(TZs[i - 1] + velZs((i - 0.5) * DT) * DT); }
+  const sol = { tz: tz0 + tabla(TZs, Qs), ta: ta0 + tabla(TAs, Qs) };
+  // ep3-vuelta
+  const Dv = mv.duracion, Qv = Dv - 0.6, mm = mv.marcas;
+  const velAv = (t) => ss(0, 0.7, t) * (1 + 0.8 * pico(t, mm.vuelta) + 0.8 * pico(t, mm.terron) + 0.8 * pico(t, mm.colapso)) * (1 - eio(prog(t, Qv - 0.9, Qv)));
+  const velZv = (t) => ss(0, 0.7, t) * (1 - eio(prog(t, Qv - 0.9, Qv)));
+  const TAv = [0], TZv = [0];
+  for (let i = 1; i * DT <= Dv + 0.2; i++) { TAv.push(TAv[i - 1] + velAv((i - 0.5) * DT) * DT); TZv.push(TZv[i - 1] + velZv((i - 0.5) * DT) * DT); }
+  const somA = [ATOMO[0] + 22, ATOMO[1] + 3 * Math.sin(tz0 * 1.3) + 2 * Math.sin(tz0 * 0.7 + 1.0) + 30, 62, 0.42];
+  return { tz: sol.tz + tabla(TZv, Qv), ta: sol.ta + tabla(TAv, Qv), n: Math.max(0, Math.floor(Qv * 12 + 1e-6)), somA };
+})();
+marcaCarga('fin vuelta');
+// el mío arranca quieto (como lo dejó ep3-vuelta) y coge su ritmo en medio segundo; al final se calma igual
+const TA = [0], TZ = [0];
+const velA = (t) => ss(0, 0.7, t) * (1 + 0.8 * pico(t, m.ciudad) + 0.8 * pico(t, m.cuchara) + 0.8 * pico(t, m.derramar) + 1.2 * ss(T.acerca[0], T.estira[0], t) * (1 - ss(T.recupera[0], T.vuelve[0], t))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+const velZ = (t) => ss(0, 0.7, t) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= D + 0.2; i++) { TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT); TZ.push(TZ[i - 1] + velZ((i - 0.5) * DT) * DT); }
+// a mitad de la frase 64, Atom va hacia la bola, se estira, se aplasta y vuelve (px de pantalla)
+const A_JUNTO = [600, 728];
+function estadoAtom(ts) {
+  const tz = FIN_VUELTA.tz + tabla(TZ, ts);
+  let sx = ATOMO[0], sy = ATOMO[1] + 3 * Math.sin(tz * 1.3) + 2 * Math.sin(tz * 0.7 + 1.0);
+  const ida = eio(prog(ts, T.acerca[0], T.acerca[1])) * (1 - eio(prog(ts, T.vuelve[0], T.vuelve[1])));
+  const ke = Math.sin(Math.PI * 0.5 * prog(ts, T.estira[0], T.estira[1])) * (1 - eio(prog(ts, T.aplasta[0], T.aplasta[0] + 0.18)));
+  const ka = eob(prog(ts, T.aplasta[0], T.aplasta[0] + 0.22), 1.2) * (1 - eio(prog(ts, T.recupera[0], T.recupera[1])));
+  // estirado, la bola tira de él (unos píxeles hacia ella); aplastado, tiembla
+  const tb = ka > 0.02 ? temblor(ts, 5, 5 * ka) : [0, 0];
+  sx = mix(sx, A_JUNTO[0], ida) + 26 * ke + tb[0];
+  sy = mix(sy, A_JUNTO[1], ida) - 30 * ke + 16 * ka + tb[1];
+  // al empezar cada frase, un brillo
+  const brillo = Math.max(...[m.ciudad, m.cuchara, m.derramar].map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))));
+  return { sx, sy, tz, brillo, ke, ka, ida };
+}
+// el respingo de Atom cuando la bola se posa en la ciudad: se aplasta y vuelve
+function respingo(ts) { const u = prog(ts, T.posa - 0.04, T.posa + 0.5); return u > 0 && u < 1 ? Math.sin(Math.PI * u) * Math.exp(-2.2 * u) : 0; }
+function atomo(ts, { claro = 0 } = {}) {
+  const S = estadoAtom(ts);
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  const j = respingo(ts);
+  const sq = [
+    (1 + 0.13 * j) * (1 - 0.24 * S.ke) * (1 + 0.3 * S.ka),
+    (1 - 0.17 * j) * (1 + 0.42 * S.ke) * (1 - 0.4 * S.ka),
+    (1 + 0.13 * j) * (1 - 0.24 * S.ke) * (1 + 0.3 * S.ka),
+  ];
+  P.atomo({
+    pos: en(S.sx, S.sy + 10 * j, A_Z), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH,
+    roll: -0.32 * S.ke + 0.06 * S.ka * Math.sin(ts * 40),
+    sq, energia: Math.min(1, en0 + 0.45 * S.brillo + 0.4 * j + 0.3 * S.ka), ts: FIN_VUELTA.ta + tabla(TA, ts),
+    halo: 1 - 0.55 * claro, velo: 0.1 + 0.3 * claro,
+  });
+  return S;
+}
+// sobre lo claro (la ciudad), una sombra cálida y redonda detrás de Atom (como en ep3-vuelta sobre el corte) y su sombra
+// en el suelo (la que ep3-vuelta hornea en la foto del mundo, aquí en 2D porque Atom se mueve)
+function sombraAtom(ts, k) {
+  if (k <= 0.01) return;
+  const S = estadoAtom(ts), R = 170;
+  sombra(S.sx + 22, S.sy + 30, 62, 52, 0.5 * k);
+  const gr = g.createRadialGradient(S.sx, S.sy, 0, S.sx, S.sy, R);
+  gr.addColorStop(0, `rgba(40,14,8,${0.5 * k})`); gr.addColorStop(0.5, `rgba(40,14,8,${0.28 * k})`); gr.addColorStop(1, 'rgba(40,14,8,0)');
+  g.fillStyle = gr; g.fillRect(S.sx - R, S.sy - R, 2 * R, 2 * R);
+}
+
+// ---------------------------------------------------------------- la regla (la de ep3-vuelta, quieta en 10⁴)
+const E_REG = 1.42, REG = en(1655, 528, 0.4);
+const reglaEn = (e) => P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e, ya: 0, actual: e, lupa: 0.5, rango: null, toque: false });
+
+// ---------------------------------------------------------------- fotos
+const FOTOS = {}, HACER = {};
+// (coste) el lienzo 2D aplaza su trabajo hasta que alguien lo lee: leer un píxel lo obliga a hacerlo ya
+const asentar = (c) => { if (c?.getContext) c.getContext('2d').getImageData(0, 0, 1, 1); return c; };
+const F = (k) => FOTOS[k] ?? (FOTOS[k] = asentar(HACER[k]()));
+function fotoPlato(n, poner, { fondo = false } = {}) { P.limpiar(); poner(); P.render(n, { fondo }); return copiaGL(); }
+// los encuadres de la gigante de ep3-vuelta (el final: la estrella en corte, centrada)
+const GE = { c: [900, 480], R: 460, z: -1 };
+const R_CORE = 0.075 * GE.R;
+const ponerGig = () => gigante(P, I.GIG, { ...solComoMundo(P, [GE.c[0], GE.c[1], GE.R], GE.z), corte: 1, apaga: 0.9, hunde: 1 });
+// la ciudad a 10⁴
+const C4 = camara(4);
+const CIUDAD = aPant(C4, MUNDO.CIUDAD);
+// la estrella de neutrones posada: del mismo tamaño que la ciudad (la ciudad asoma un poco alrededor)
+const R_B = 340, Z_B = 2;
+const bolaEn = ([x, y], R, rot = [0.35, 0.6, 0]) => { const pos = en(x, y, Z_B); return { pos, escala: R / pxU(pos), rot }; };
+const BOLA = bolaEn(CIUDAD, R_B);
+Object.assign(HACER, {
+  gE_0: () => fotoPlato(9720, ponerGig), gE_1: () => fotoPlato(9721, ponerGig),
+  reg4_0: () => fotoPlato(9400, () => reglaEn(4)), reg4_1: () => fotoPlato(9401, () => reglaEn(4)), reg4_2: () => fotoPlato(9402, () => reglaEn(4)),
+  reg4Tenue: () => { const c = F('reg4_0'), d = lienzo(c.width, c.height), gd = d.getContext('2d'); gd.filter = 'grayscale(0.8) brightness(0.7)'; gd.drawImage(c, 0, 0); return d; },
+  // la bola posada (dos fotos para el hervor)
+  bola_0: () => fotoPlato(9800, () => neutrones(P, I.BOLA, { ...BOLA, brillo: 0.6 })),
+  bola_1: () => fotoPlato(9801, () => neutrones(P, I.BOLA, { ...BOLA, brillo: 0.6 })),
+});
+// el espacio de ep3-vuelta sin viñeta, con la misma sombra de Atom horneada (somA: la del Atom del final de ep3-tierra,
+// FIN_SOL.tz0 allí)
+HACER.espacio = () => sinVineta(fondoCielo(mundo, 932, { somA: FIN_VUELTA.somA }));
+// el mundo a 10⁴ (la ciudad), quieto: tres fotos que se alternan (el hervor); sin la sombra de Atom (va en 2D)
+for (let k = 0; k < 3; k++) HACER['mundo4_' + k] = () => fotoMundo(mundo, estadoMundo(C4, 940 + k));
+// la ciudad con la estrella de neutrones posada, compuesta (sin viñeta): tres fotos
+function componerCiudadBola(k) {
+  const c = lienzo(), x = c.getContext('2d'), s = c.width / W;
+  x.setTransform(s, 0, 0, s, 0, 0);
+  pegarMundoEn(x, F('mundo4_' + k));
+  brilloCiudad(x, C4, 1);
+  bolaEnCiudad(x, CIUDAD, R_B, F('bola_' + (k % 2)), 1);
+  return c;
+}
+function pegarMundoEn(x, c) {
+  x.drawImage(c, 0, 0, W, H);
+  x.save(); x.globalCompositeOperation = 'color-dodge'; x.drawImage(DODGE, 0, 0, W, H); x.restore();
+}
+for (let k = 0; k < 3; k++) HACER['ciudadBola_' + k] = () => componerCiudadBola(k);
+// la bola en la ciudad (en el contexto x): su sombra, su halo frío debajo, la foto (o nada si va viva) y el filo frío
+function bolaEnCiudad(x, [cx, cy], R, foto, kHalo = 1, alto = 0) {
+  // la sombra en el suelo: cuanto más alta, más ancha, más corrida y más tenue
+  const gS = x;
+  gS.save(); gS.globalCompositeOperation = 'multiply';
+  const ox = R * (0.1 + 0.35 * alto), oy = R * (0.13 + 0.45 * alto), rs = R * (1.04 + 0.25 * alto), a = 0.62 * (1 - 0.55 * alto);
+  const h = gS.createRadialGradient(cx + ox, cy + oy, R * 0.5, cx + ox, cy + oy, rs);
+  h.addColorStop(0, `rgba(40,28,24,${a})`); h.addColorStop(0.75, `rgba(70,50,40,${0.55 * a})`); h.addColorStop(1, 'rgba(255,255,255,0)');
+  gS.fillStyle = h; gS.beginPath(); gS.arc(cx + ox, cy + oy, rs, 0, 2 * Math.PI); gS.fill();
+  gS.restore();
+  halo(x, cx, cy, R, 0.75 * kHalo, 'neutrones');
+  if (foto) { x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(foto, 0, 0); x.restore(); }
+  halo(x, cx, cy, R, 0.5 * kHalo, 'neutrones', { dentro: false });
+}
+
+// ---------------------------------------------------------------- la balanza (la de ep3-proton: mismo sitio, mismo tamaño)
+const E_BAL = 3.0;
+const BAL = { pos: [en(880, 500, 0)[0], -BALANZA.SUELO * E_BAL, 0], escala: E_BAL, rot: [0, -0.1, 0] };
+// la cucharita en su plato: el cuenco hacia el centro del plato y el mango apoyado en el borde, hacia fuera y hacia delante
+const E_CUC = 0.5 * E_BAL;
+const E_PIZ = 0.075 * E_CUC;            // la bolita de estrella de neutrones en el cuenco
+function cucharaEnPlato(b, alto = 0, escala = E_BAL) {
+  const k = escala / E_BAL;
+  const c = enPlato(b, 'izq', [-0.1, 0.02, 0.04]);
+  return { pos: [c[0], c[1] + alto, c[2]], escala: E_CUC * k, rot: [0, 0.35, 0.12] };
+}
+function bolita(o, e) {
+  // el cuenco de la cucharilla está en su origen (fondo en y ≈ −0,02): la bolita, encima
+  const q = new THREE.Vector3(0, 0.02 + 0.075, 0).applyEuler(new THREE.Euler(o.rot[0], o.rot[1], o.rot[2], 'YXZ')).multiplyScalar(o.escala);
+  return { pos: [o.pos[0] + q.x, o.pos[1] + q.y, o.pos[2] + q.z], escala: e, rot: [0.4, 0.9, 0], brillo: 0.9 };
+}
+const anguloBal = (ts) => (ts < T.nivela[0] ? -BALANZA.A_MAX : caida(ts, { t0: T.nivela[0], dur: T.nivela[1] - T.nivela[0], de: -BALANZA.A_MAX, a: 0, rebote: 0.1, peso: 2.4 }));
+const E_COC = 0.85 * E_BAL;
+function ponerBalanza(ts, { conCuchara = true, bal = BAL, k = 1 } = {}) {
+  const b = balanza(P, I.BAL, { ...bal, angulo: anguloBal(ts) });
+  coches(P, I.COC, { pos: b.platoDer, escala: E_COC * k, rot: [0, 0.4, 0] });
+  if (conCuchara) {
+    const u = prog(ts, T.cuchara[0], T.cuchara[1]);
+    const o = cucharaEnPlato(b, 1.6 * E_BAL * k * Math.pow(1 - u, 2), bal.escala);
+    if (u < 1) o.rot = [0.25 * (1 - u), 0.35 + 0.6 * (1 - u), 0.12 + 0.3 * (1 - u)];
+    cucharilla(P, I.CUC, o);
+    neutrones(P, I.PIZ, bolita(o, E_PIZ * k));
+    return { b, o };
+  }
+  return { b };
+}
+// el detalle: la misma balanza, más grande, con el plato de la cucharita en (760, 600)
+const K_DET = 2.3;
+const BAL_DET = (() => {
+  const o = { pos: [0, 0, 0], escala: E_BAL * K_DET, rot: BAL.rot, angulo: 0 };
+  const geo = geometriaBalanza(o), want = en(760, 610, 1.2);
+  return { ...o, pos: [want[0] - geo.platoIzq[0], want[1] - geo.platoIzq[1], want[2] - geo.platoIzq[2]] };
+})();
+Object.assign(HACER, {
+  fondoB: () => fotoPlato(2100, () => {}, { fondo: true }),
+  balNivel_0: () => fotoPlato(2101, () => ponerBalanza(QUIETO), { fondo: true }),
+  balNivel_1: () => fotoPlato(2102, () => ponerBalanza(QUIETO), { fondo: true }),
+  balDet_0: () => fotoPlato(2103, () => ponerBalanza(QUIETO, { bal: BAL_DET, k: K_DET }), { fondo: true }),
+  balDet_1: () => fotoPlato(2104, () => ponerBalanza(QUIETO, { bal: BAL_DET, k: K_DET }), { fondo: true }),
+});
+// dónde brilla la bolita (px) en el plano general y en el detalle
+const PIZ_PX = (() => { const b = geometriaBalanza({ ...BAL, angulo: 0 }); return pant(bolita(cucharaEnPlato(b), E_PIZ).pos); })();
+const PIZ_DET = (() => { const b = geometriaBalanza({ ...BAL_DET }); return pant(bolita(cucharaEnPlato(b, 0, BAL_DET.escala), E_PIZ * K_DET).pos); })();
+function brilloBolita([x, y], r, ts, k = 1) {
+  const p = 0.85 + 0.15 * Math.sin(ts * 5.3);
+  halo(g, x, y, r, 1.1 * p * k, 'neutrones', { dentro: false });
+}
+
+// ---------------------------------------------------------------- la mano con la cucharita (sobre la ciudad)
+// la cucharita, vista desde arriba: el cuenco hacia la cámara y el mango hacia arriba a la derecha, hacia la mano; la mano
+// (la pieza 'mano' del kit: dorso hacia la cámara, dedos hacia −y, pulgar en −x), con el dorso arriba y los dedos hacia
+// el cuenco: el mango pasa por debajo de los dedos
+const Z_MANO = 3.2;
+const DIR = (() => { const a = -0.62; return [Math.cos(a), -Math.sin(a)]; })();     // del cuenco hacia la mano (pantalla)
+function eulerDe(ex, ey) {
+  // la rotación que lleva el eje x local a ex y el y local a ey (en el mundo), como euler YXZ
+  const X = new THREE.Vector3(...ex).normalize(), Y0 = new THREE.Vector3(...ey);
+  const Z = new THREE.Vector3().crossVectors(X, Y0).normalize(), Y = new THREE.Vector3().crossVectors(Z, X);
+  const Mx = new THREE.Matrix4().makeBasis(X, Y, Z), e = new THREE.Euler().setFromRotationMatrix(Mx, 'YXZ');
+  return [e.x, e.y, e.z];
+}
+// en el mundo: el mango hacia (DIR, algo hacia el fondo); el cuenco abierto hacia la cámara (y algo hacia arriba)
+const D_MUNDO = [DIR[0], DIR[1], -0.25];
+const ROT_CUC = eulerDe(D_MUNDO, [0, 0.35, 1]);
+const ROT_MANO = eulerDe([DIR[1], -DIR[0], 0], [DIR[0], DIR[1], 0.15]);
+const CUENCO = [1250, 585];             // dónde está el cuenco (px), sobre la ciudad, a la derecha de la bola
+const E_CUC_M = 190 / pxU(en(...CUENCO, Z_MANO));       // la cucharita mide ~190 px
+const E_MANO = 1.0 * E_CUC_M / 1.48 * 1.55;            // la mano, algo más larga que la cucharita
+function manoYCuchara(ts) {
+  // tiembla (a saltos de stop-motion) y se va despacio por arriba a la derecha
+  const tb = temblor(ts, 11, 7), gi = (azar(Math.floor(ts * 12), 17) - 0.5) * 0.05;
+  const u = eio(prog(ts, T.va[0], T.va[1]));
+  const vx = 520 * u, vy = -760 * u;
+  const cpx = [CUENCO[0] + tb[0] * (1 - u) + vx, CUENCO[1] + tb[1] * (1 - u) + vy];
+  const pos = en(cpx[0], cpx[1], Z_MANO);
+  const o = { pos, escala: E_CUC_M, rot: [ROT_CUC[0], ROT_CUC[1], ROT_CUC[2] + gi] };
+  // el agarre: un poco antes del final del mango
+  const q = new THREE.Vector3(0.9, 0.03, 0).applyEuler(new THREE.Euler(...o.rot, 'YXZ')).multiplyScalar(E_CUC_M);
+  const agarre = [pos[0] + q.x, pos[1] + q.y, pos[2] + q.z];
+  // la mano: el centro del agarre (bajo los dedos, entre el pulgar y el índice) en el agarre
+  const qm = new THREE.Vector3(-0.12, -0.55, -0.12).applyEuler(new THREE.Euler(ROT_MANO[0], ROT_MANO[1], ROT_MANO[2] + gi, 'YXZ')).multiplyScalar(E_MANO);
+  const mano = { pos: [agarre[0] - qm.x, agarre[1] - qm.y, agarre[2] - qm.z], escala: E_MANO, rot: [ROT_MANO[0], ROT_MANO[1], ROT_MANO[2] + gi] };
+  return { o, mano, cpx, u };
+}
+
+// ---------------------------------------------------------------- al cargar: el fotograma 0 y los estrenos
+F('espacio'); F('gE_1'); F('reg4_2');
+marcaCarga('fotograma 0');
+// (coste) los programas que se dibujan en vivo se estrenan antes de hacer falta (su primer dibujo compila en SwiftShader),
+// con una tijera de un píxel: solo compilan
+function compilar(poner) {
+  const R = P.renderer;
+  R.setScissorTest(true); R.setScissor(0, 0, 1, 1);
+  try { P.limpiar(); poner(); P.render(1, { fondo: false }); } finally { R.setScissorTest(false); P.limpiar(); }
+}
+P.fotograma(0); P.limpiar(); atomo(0); P.render(0, { fondo: false });
+compilar(() => neutrones(P, I.BOLA, { pos: en(400, 300, 0), escala: 0.3 }));
+marcaCarga('estrenos');
+
+// ---------------------------------------------------------------- A · la bola sale del corte, cae y se posa en la ciudad
+// el centro y el radio de la bola en cada momento (px), y lo alta que está (0 posada … 1 lo más cerca de la cámara)
+const R_MAX = 560, C_MAX = [958, 452];
+function estadoBola(ts) {
+  const us = prog(ts, T.sale[0], T.sale[1]), uc = prog(ts, T.cae[0], T.cae[1]);
+  const a = eic(us) * 0.75 + 0.25 * us;           // arranca despacio (se despega) y se lanza
+  let c = [mix(GE.c[0], C_MAX[0], eio(us)), mix(GE.c[1], C_MAX[1], eio(us))], R = Math.exp(mix(Math.log(R_CORE), Math.log(R_MAX), a));
+  const b = eic(uc);                                // cae acelerando
+  c = [mix(c[0], CIUDAD[0], b), mix(c[1], CIUDAD[1], b)]; R = mix(R, R_B, b);
+  // al posarse rebota una nada (crece y vuelve) y el mundo tiembla
+  const bo = muelle(ts - T.posa, 2.6, 7);
+  if (ts > T.posa) R = R_B * (1 + 0.035 * bo);
+  // gira mientras vuela y deshace el giro al caer (posada, la de la foto)
+  return { c, R, alto: 1 - b, us, uc, rot: [0.35 + 0.9 * us * (1 - b), 0.6 + 1.2 * us * (1 - b), 0.2 * us * (1 - b)] };
+}
+function sacudida(ts) {
+  const u = prog(ts, T.posa - 0.02, T.posa + 0.4);
+  if (u <= 0 || u >= 1) return [0, 0];
+  const n = Math.floor(ts * 12), a = 8 * (1 - u);
+  return [(azar(n, 401) - 0.5) * 2 * a, (azar(n, 402) - 0.5) * 2 * a];
+}
+// el acercamiento del plano medio (2D, sobre la foto del mundo; la regla y Atom no se mueven)
+const ZC = [900, 470];
+const ZOOM = (ts) => (ts >= T.B ? 1 : 1 + 0.2 * eio(prog(ts, T.acerca[0] - 0.15, T.acerca[1] - 0.1)));
+function ciudadQuieta(ts, n, { zoom = 1 } = {}) {
+  const sh = sacudida(ts);
+  g.save();
+  g.translate(sh[0], sh[1]);
+  if (zoom !== 1) { g.translate(ZC[0], ZC[1]); g.scale(zoom, zoom); g.translate(-ZC[0], -ZC[1]); }
+  g.drawImage(F('ciudadBola_' + (n % 3)), 0, 0, W, H);
+  g.restore();
+}
+function planoBola(ts, n, nP) {
+  const S = estadoBola(ts);
+  const kF = ss(T.fondo[0], T.fondo[1], ts);
+  const sh = sacudida(ts);
+  // el fondo: el espacio con la estrella que se apaga y se aleja; debajo, la ciudad que aparece
+  if (kF > 0.001) {
+    g.save(); g.translate(sh[0], sh[1]);
+    pegarMundo(F('mundo4_' + (n % 3)));
+    brilloCiudad(g, C4, 1);
+    g.restore();
+  }
+  if (kF < 0.999) {
+    g.save(); g.globalAlpha = 1 - kF;
+    g.drawImage(F('espacio'), 0, 0, W, H);
+    const ua = eio(prog(ts, T.sale[0] + 0.2, T.fondo[1]));
+    const s = 1 - 0.14 * ua, k = 1 - 0.75 * ua;
+    halo(g, GE.c[0], GE.c[1], GE.R * s, (1 - 0.72 * 0.9) * k, 'gigante');
+    pegarEscalada(F('gE_' + (nP % 2)), s, GE.c, GE.c, k);
+    if (ua > 0) { g.fillStyle = `rgba(14,8,10,${0.35 * ua})`; g.fillRect(0, 0, W, H); }
+    g.restore();
+  }
+  // la bola: en el corte (antes de salir) es la de la foto, con su halo frío; luego, viva
+  if (ts < T.sale[0]) {
+    halo(g, GE.c[0], GE.c[1], R_CORE, 1, 'neutrones', { dentro: false });
+    return S;
+  }
+  const c = [S.c[0] + sh[0], S.c[1] + sh[1]];
+  // sobre la ciudad: su sombra y su halo (debajo)
+  const kc = kF;
+  if (kc > 0.01) {
+    g.save(); g.globalAlpha = kc;
+    bolaEnCiudad(g, c, S.R, null, 1, S.alto);
+    g.restore();
+  } else halo(g, c[0], c[1], S.R, 0.8, 'neutrones');
+  P.limpiar();
+  neutrones(P, I.BOLA, { ...bolaEn(c, S.R, S.rot), brillo: 0.6 + 0.3 * (1 - S.us), toque: S.uc > 0 && S.uc < 1 });
+  P.render(n, { fondo: false }); pegarGL();
+  halo(g, c[0], c[1], S.R, 0.5, 'neutrones', { dentro: false });
+  // al posarse: un pulso frío y un anillo de polvo que se abre por la ciudad
+  const vp = ts - T.posa;
+  if (vp > -0.02 && vp < 1.0) {
+    const kp = Math.exp(-Math.max(vp, 0) / 0.3) * ss(-0.02, 0.04, vp);
+    destello(g, c[0], c[1], 0.5 * S.R, 0.35 * kp, { rayos: 0, color: 'frio' });
+    const ua = prog(vp, 0, 0.7);
+    if (ua > 0 && ua < 1) {
+      const ra = S.R * mix(1.02, 1.5, eoc(ua));
+      g.save();
+      g.strokeStyle = `rgba(245,232,205,${0.6 * (1 - ua)})`; g.lineWidth = mix(18, 3, ua);
+      g.beginPath(); g.arc(c[0] + 8, c[1] + 10, ra, 0, 2 * Math.PI); g.stroke();
+      g.restore();
+    }
+  }
+  return S;
+}
+
+// ---------------------------------------------------------------- fotograma
+// lo que se prepara en los fotogramas baratos (n: número de fotograma a 12 fps); un instante suelto lo hace al pedirlo
+const PREPARAR = [];
+const prep = (t, k) => PREPARAR.push([Math.round(t * 12), k]);
+prep(0.1, 'gE_0'); prep(0.2, 'reg4_0'); prep(0.3, 'reg4_1');
+prep(T.fondo[0] - 0.6, 'mundo4_0'); prep(T.fondo[0] - 0.5, 'mundo4_1'); prep(T.fondo[0] - 0.4, 'mundo4_2');
+prep(T.posa + 0.6, 'bola_0'); prep(T.posa + 0.7, 'bola_1');
+prep(T.posa + 0.8, 'ciudadBola_0'); prep(T.posa + 0.9, 'ciudadBola_1'); prep(T.posa + 1.0, 'ciudadBola_2');
+prep(T.posa + 1.2, () => compilar(() => { balanza(P, I.BAL, { pos: en(400, 300, 0), escala: 0.3 }); coches(P, I.COC, { pos: en(600, 300, 0), escala: 0.3 }); cucharilla(P, I.CUC, { pos: en(700, 300, 0), escala: 0.3 }); }));
+prep(T.posa + 1.4, 'fondoB'); prep(T.posa + 1.6, 'reg4Tenue');
+prep(T.estira[0], 'balNivel_0'); prep(T.aplasta[0], 'balNivel_1');
+prep(T.recupera[0], 'balDet_0'); prep(T.vuelve[0], 'balDet_1');
+prep(T.vuelve[1] + 0.2, () => compilar(() => P.pieza(I.MANO, { pos: en(400, 300, 0), escala: 0.3 })));
+
+let ULTIMO = null;
+function dibujar(t) {
+  const ts = Math.min(t, QUIETO);
+  const n = Math.floor(ts * 12 + 1e-6);
+  ajustarCapa();
+  for (const [n0, k] of PREPARAR) if (n === n0) { if (typeof k === 'function') k(); else F(k); }
+  // el fotograma 0 es el último de ep3-vuelta: su parpadeo y su grano van con el número de fotograma de allí
+  const nP = n === 0 ? FIN_VUELTA.n : n;
+  P.fotograma(ts);
+  let regla = 'normal', claro = 0, sombraK = 0;
+  if (ts < T.B) {
+    // A · la bola: sale del corte, cae y se posa; después, la ciudad quieta (fotos) y Atom que va y vuelve
+    const quieta = ts >= T.posa + 1.05;
+    if (!quieta) { const S = planoBola(ts, n, nP); claro = ss(T.fondo[0], T.fondo[1], ts); ULTIMO = S; }
+    else { ciudadQuieta(ts, n, { zoom: ZOOM(ts) }); claro = 1; }
+    sombraK = claro;
+  } else if (ts < T.C) {
+    // B · la balanza (general) y su detalle
+    if (ts < T.det) {
+      const vivo = ts < T.nivela[1] + 0.9;
+      if (vivo) { P.limpiar(); ponerBalanza(ts); P.render(n, { fondo: true }); pegarGL(); }
+      else g.drawImage(F('balNivel_' + (n % 2)), 0, 0, W, H);
+      // la bolita brilla frío (en vivo sigue a la cucharita: aquí basta su sitio al posarse)
+      const kb = ss(T.cuchara[1] - 0.05, T.cuchara[1] + 0.1, ts);
+      if (kb > 0) {
+        const b = geometriaBalanza({ ...BAL, angulo: anguloBal(ts) }), p = pant(bolita(cucharaEnPlato(b), E_PIZ).pos);
+        brilloBolita(p, 14, ts, kb);
+      }
+      // al posarse la cucharita, un pulso frío
+      const vp = ts - T.cuchara[1];
+      if (vp > -0.02 && vp < 0.6) destello(g, PIZ_PX[0], PIZ_PX[1] - 6, 60, 0.6 * Math.exp(-Math.max(vp, 0) / 0.2) * ss(-0.02, 0.03, vp), { rayos: 6, giro: 0.3, color: 'frio' });
+    } else {
+      const z = 1 + 0.05 * eio(prog(ts, T.det, T.C));
+      pegarEscalada(F('balDet_' + (n % 2)), z, PIZ_DET);
+      brilloBolita(PIZ_DET, 14 * K_DET * z, ts, 1);
+    }
+    regla = 'tenue';
+  } else {
+    // C · la ciudad con la estrella de neutrones; la mano tiembla con la cucharita y se la lleva
+    ciudadQuieta(ts, n);
+    claro = 1; sombraK = 1;
+    const MC = manoYCuchara(ts);
+    if (MC.u < 0.999) {
+      const pc = pant(MC.o.pos);
+      // su sombra en la ciudad (lejos, abajo a la derecha: la mano está muy por encima del suelo)
+      sombra(pc[0] + 150, pc[1] + 170, 210, 120, 0.3 * (1 - MC.u));
+      P.limpiar();
+      P.pieza(I.MANO, MC.mano);
+      cucharilla(P, I.CUC, MC.o);
+      const bo = bolita(MC.o, 0.075 * E_CUC_M);
+      neutrones(P, I.PIZ, bo);
+      P.render(n, { fondo: false }); pegarGL();
+      brilloBolita(pant(bo.pos), 0.075 * E_CUC_M * pxU(bo.pos) * 1.1, ts, 1);
+    }
+  }
+  // Atom (sobre la ciudad, con su sombra detrás)
+  sombraAtom(ts, sombraK);
+  P.limpiar(); atomo(ts, { claro }); P.render(nP, { fondo: false }); pegarGL();
+  // la regla en 10⁴ (quieta: fotos que se alternan); en la balanza (un inserto: no se mide en 10⁴), apagada
+  if (regla === 'normal') g.drawImage(F(n === 0 ? 'reg4_2' : 'reg4_' + (n % 3)), 0, 0, W, H);
+  else { g.save(); g.globalAlpha = 0.5; g.drawImage(F('reg4Tenue'), 0, 0, W, H); g.restore(); }
+  parpadeo(nP);
+  POST.aplicar(g, nP);
+}
+window.__fin = {
+  T, CIUDAD, R_B, FIN_VUELTA,
+  // el último fotograma (el primero de ep3-luz)
+  final: {
+    mundo: { camara: 'camara(4)', fotos: 'fotoMundo(mundo, estadoMundo(C4, 940 + k)) sin somA, k = n % 3', brilloCiudad: 1 },
+    bola: { pieza: "neutrones (hueco 0)", centro: CIUDAD, radio: R_B, z: Z_B, rot: BOLA.rot, brillo: 0.6, fotos: 'n 9800 / 9801',
+      sombra: 'radial multiply, centro + (0,1 R, 0,13 R), radio 1,04 R', halo: "halo(neutrones) 0,75 debajo y 0,5 encima (dentro: false)" },
+    regla: { e: 4, foto: 'n = 9400 + (n % 3)' },
+    atomo: (() => { const S = estadoAtom(QUIETO); return { sx: S.sx, sy: S.sy, tz: S.tz, ta: FIN_VUELTA.ta + tabla(TA, QUIETO), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH, claro: 1, sombra: 'sombraAtom(k 1)' }; })(),
+  },
+};
+window.__ultimo = () => ULTIMO;
+marcaCarga('listo');
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>
