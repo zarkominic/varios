@@ -370,9 +370,12 @@ function fotoOnda() {
   P.render(909, { fondo: false });
   const t = recorte(960 - LAMBDA, 540 - OH, 2 * LAMBDA, 2 * OH);
   // su brillo: la misma onda, desenfocada (se suma con 'lighter')
+  // (se desenfoca la onda repetida tres veces y se recorta la del centro: el brillo empalma sin costura)
+  const a3 = document.createElement('canvas'); a3.width = 3 * t.width; a3.height = t.height;
+  const g3 = a3.getContext('2d'), kk = t.width / (2 * LAMBDA);
+  for (const f of [14, 5]) { g3.filter = `blur(${f * kk}px)`; for (let j = -1; j <= 3; j++) g3.drawImage(t, j * t.width, 0); }
   const b = document.createElement('canvas'); b.width = t.width; b.height = t.height;
-  const gb = b.getContext('2d'), kk = t.width / (2 * LAMBDA);
-  gb.filter = `blur(${14 * kk}px)`; gb.drawImage(t, 0, 0); gb.filter = `blur(${5 * kk}px)`; gb.drawImage(t, 0, 0);
+  b.getContext('2d').drawImage(a3, t.width, 0, t.width, t.height, 0, 0, t.width, t.height);
   FOTO.ondaBrillo = b;
   return (FOTO.onda = t);
 }
@@ -547,11 +550,11 @@ function planoG(ts) {
   const mon = null;
   // derecho: la muñeca abajo a la derecha, los dedos hacia la cara de la moneda
   const fr = 1.4 * Math.PI * 2 * u / 1.6;
-  const pD = en(1125 + 26 * Math.cos(fr), 850 + 70 * ent + 20 * Math.sin(fr), 3.45);
+  const pD = en(1195 + 26 * Math.cos(fr), 850 + 70 * ent + 20 * Math.sin(fr), 3.45);
   guante(P, I.GD, { lado: 'der', pos: pD, escala: G_ESC, rot: [-0.22, -0.15, 0.5 + 0.07 * Math.sin(fr)] });
   // izquierdo: abajo a la izquierda, sujeta el canto; toquecitos
   const tq = Math.max(0, Math.sin(u * 2 * Math.PI * 1.6));
-  const pI = en(700 - 8 * tq, 915 + 90 * ent - 14 * tq, 3.4 + 0.1 * tq);
+  const pI = en(635 - 8 * tq, 915 + 90 * ent - 14 * tq, 3.4 + 0.1 * tq);
   guante(P, I.GI, { lado: 'izq', pos: pI, escala: G_ESC, rot: [-0.16 - 0.06 * tq, 0.12, -0.45], sq: [1, 1 - 0.04 * tq, 1 + 0.03 * tq] });
   // el «?»
   const b = brote(ts, T.pregunta, 0.3, 0.12);

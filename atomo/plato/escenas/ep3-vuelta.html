@@ -69,7 +69,9 @@ const W = 1920, H = 1080;
 // ---------------------------------------------------------------- tiempos (todo sale de las marcas)
 const T = {
   rev: [m.vuelta - 0.55, m.vuelta],                    // marcha atrás: el cielo de u = 1 a u = 0 (completo en la marca)
-  mundo: [m.vuelta - 0.08, m.vuelta + 0.08],           // el cielo da paso al mundo a 10⁹ (el mismo Sol en el mismo sitio)
+  // el cielo da paso al mundo a 10⁹ (el mismo Sol en el mismo sitio, la Tierra como un punto y la Luna) al empezar el primer
+  // salto: en ese fotograma la cámara apenas se ha movido y el cambio es un corte entre dos imágenes casi iguales
+  mundo: [m.vuelta + 0.08, m.vuelta + 0.08],
 };
 // cinco saltos secos ×10, de 10⁹ a 10⁴ (como los de ep3-tierra, al revés): el primero arranca al acabar la marcha atrás y
 // el último acaba antes de que empiece el plano del terrón
@@ -103,7 +105,7 @@ T.acerca = [fr(0.47), fr(0.53)];                      // la cámara entra en el 
 T.salen = [fr(0.535), fr(0.585)];                     // salen las partículas del núcleo
 T.choques = [fr(0.62), fr(0.67), fr(0.72)];           // cada electrón se mete en su protón
 T.caen = [fr(0.76), fr(0.84)];                        // los neutrones caen al centro
-T.bola = [fr(0.78), fr(0.88)];                        // el centro se aprieta en una bola (hunde → 1)
+T.bola = [fr(0.785), fr(0.85)];                       // el centro se aprieta en una bola (hunde → 1, en cuatro pasos)
 T.regla = [fr(0.80), fr(0.90)];                       // la regla se vuelve a encender
 T.aleja = [fr(0.86), fr(0.95)];                       // la cámara sale hasta la estrella en corte
 
@@ -198,11 +200,11 @@ const DODGE = (() => {
   gc.putImageData(im, 0, 0);
   return c;
 })();
-function pegarMundoVivo(est) {
-  mundo.dibujar(est);
-  g.drawImage(mundo.lienzo, 0, 0, W, H);
+function pegarMundo(c) {
+  g.drawImage(c, 0, 0, W, H);
   g.save(); g.globalCompositeOperation = 'color-dodge'; g.drawImage(DODGE, 0, 0, W, H); g.restore();
 }
+function pegarMundoVivo(est) { mundo.dibujar(est); pegarMundo(mundo.lienzo); }
 
 // ---------------------------------------------------------------- Atom: el de ep3-sol, en el mismo estado
 const A_Z = 1.0, ATOMO = [230, 780];
@@ -294,10 +296,10 @@ const CIELO_F = {}, IDX_CIELO = { sol: I.SOL, estrellas: I.EST, gigante: I.GIG }
 Object.assign(HACER, {
   // el espacio sin Sol ni Tierra (el fondo del cielo y del plano de la estrella): el de ep3-sol
   espacio: () => sinVineta(fondoCielo(mundo, 932, { somA: SOM_A })),
-  // el mundo a 10⁹ con su Sol (la foto del primer fotograma de ep3-sol): donde acaba la marcha atrás
-  mundoSol: () => sinVineta(fotoMundo(mundo, estadoMundo(camara(9), 931, { somA: SOM_A }))),
-  // la regla en 10⁹ del último fotograma de ep3-sol (su foto «reg2») y las de 10⁴ (tres, para el hervor) y la apagada
-  reg9: () => fotoPlato(7102, () => reglaEn(9)),
+  // la regla en 10⁹ del último fotograma de ep3-sol (su foto «reg2») y dos más para el hervor; las de 10⁴ (tres) y la apagada
+  reg9: () => fotoPlato(7102, () => reglaEn(9)), reg9_1: () => fotoPlato(7103, () => reglaEn(9)), reg9_2: () => fotoPlato(7104, () => reglaEn(9)),
+  // la cartela quieta (de 0 a 0,75 s no se mueve): una foto
+  cartela0: () => fotoPlato(0, () => cartela(P, 0, E.cartela)),
   reg4_0: () => fotoPlato(9400, () => reglaEn(4)), reg4_1: () => fotoPlato(9401, () => reglaEn(4)), reg4_2: () => fotoPlato(9402, () => reglaEn(4)),
   reg4Tenue: () => { const c = F('reg4_0'), d = lienzo(c.width, c.height), gd = d.getContext('2d'); gd.filter = 'grayscale(0.8) brightness(0.7)'; gd.drawImage(c, 0, 0); return d; },
   // el Sol pequeño del plano de la estrella: la foto del Sol del cielo (376 px), recortada y reducida a mitades
@@ -310,10 +312,11 @@ Object.assign(HACER, {
     return c;
   },
 });
-// el mundo a 10⁴ (la ciudad), quieto: tres fotos que se alternan (el hervor), hechas la primera vez que hacen falta
+// el mundo a 10⁴ (la ciudad), quieto: tres fotos que se alternan (el hervor), hechas la primera vez que hacen falta (en esos
+// fotogramas, en vez de dibujar el mundo en vivo); se guardan con su viñeta y se les quita al pegarlas (pegarMundo)
 const C4 = camara(4);
 const SOM_A4 = [ATOMO[0] + 22, ATOMO[1] + 30, 62, 0.58];
-for (let k = 0; k < 3; k++) HACER['mundo4_' + k] = () => sinVineta(fotoMundo(mundo, estadoMundo(C4, 940 + k, { somA: SOM_A4 })));
+for (let k = 0; k < 3; k++) HACER['mundo4_' + k] = () => fotoMundo(mundo, estadoMundo(C4, 940 + k, { somA: SOM_A4 }));
 // las partículas (sprites; dos fotos de cada una para el hervor): electrón, protón y neutrón
 const R_PAR = 64;
 function fotoParticula(tipo, nn) {
@@ -336,7 +339,8 @@ F('reg9');
 // (coste) los programas que se dibujan en vivo se estrenan antes de hacer falta (su primer dibujo compila en SwiftShader):
 // Atom y la cartela ahora, de verdad; la gigante ya está (la foto del cielo); la cómoda, el terrón y la partícula, en los
 // primeros fotogramas (los de la cartela quieta, baratos), con una tijera de un píxel: solo compilan
-P.fotograma(0); P.limpiar(); atomo(0); cartela(P, 0, E.cartela); P.render(0, { fondo: false });
+P.fotograma(0); P.limpiar(); atomo(0); P.render(0, { fondo: false });
+F('cartela0');
 function compilar(poner) {
   const R = P.renderer;
   R.setScissorTest(true); R.setScissor(0, 0, 1, 1);
@@ -542,7 +546,7 @@ function terrenoB(ts, n) {
   const z = ZOOM(ts), zm = zoomEn(ts);
   g.save();
   if (z !== 1) { g.translate(CIUDAD[0], CIUDAD[1]); g.scale(z, z); g.translate(-CIUDAD[0], -CIUDAD[1]); }
-  g.drawImage(F('mundo4_' + (n % 3)), 0, 0, W, H);
+  pegarMundo(F('mundo4_' + (n % 3)));
   brilloCiudad(g, C4, kBrillo(ts));
   g.restore();
   // al posarse el terrón: un pulso de luz en la ciudad y un anillo de polvo que se abre
@@ -683,7 +687,7 @@ function planoEstrella(ts, n) {
   // se queda sin combustible: el fuego del núcleo chisporrotea y se apaga
   const ua = prog(ts, T.apaga[0], T.apaga[1]);
   const fuego = (1 - eio(ua)) * (ua < 1 ? 0.75 + 0.25 * Math.sin(ts * 31) * Math.sin(ts * 13 + 1) : 0) * ss(T.corte[0], T.corte[1], ts);
-  if (fuego > 0.01) brilloNucleo(g, core[0], core[1], 0.2 * R, 0.85 * fuego);
+  if (fuego > 0.01) brilloNucleo(g, core[0], core[1], 0.26 * R, 1.1 * fuego);
   // el centro se hunde: un anillo frío que se cierra hacia el centro y, al llegar, el destello azulado
   const uh = prog(ts, T.hunde[0] - 0.04, T.hunde[1]);
   if (uh > 0 && uh < 1) {
@@ -712,10 +716,11 @@ function planoEstrella(ts, n) {
 // lo que se prepara en los fotogramas baratos (n: número de fotograma a 12 fps); un instante suelto lo hace al pedirlo
 const PREPARAR = [];
 const prep = (n, k) => PREPARAR.push([n, k]);
-prep(1, () => compilar(() => cajon(P, I.CAJ, { pos: en(400, 300, 0), escala: 0.5 })));
-prep(2, 'mundoSol');
-prep(3, () => compilar(() => { terron(P, I.TER, { pos: en(600, 300, 0), escala: 0.3 }); particula(P, I.PAR, { pos: en(800, 300, 0), escala: 0.3 }); }));
-prep(4, 'solSprite'); prep(5, 'reg4_0'); prep(6, 'reg4_1'); prep(7, 'reg4_2'); prep(8, 'reg4Tenue');
+prep(1, 'reg9_1');
+prep(2, () => compilar(() => cajon(P, I.CAJ, { pos: en(400, 300, 0), escala: 0.5 })));
+prep(3, 'reg9_2');
+prep(4, () => compilar(() => { terron(P, I.TER, { pos: en(600, 300, 0), escala: 0.3 }); particula(P, I.PAR, { pos: en(800, 300, 0), escala: 0.3 }); }));
+prep(5, 'reg4_0'); prep(6, 'reg4_1'); prep(7, 'reg4_2'); prep(8, 'reg4Tenue'); prep(8, 'solSprite');
 {
   let nn = Math.round((m.colapso + 0.25) * 12);
   for (const tipo of ['electron', 'proton', 'neutron']) for (const k of [0, 1]) prep(nn++, `p_${tipo}${k}`);
@@ -734,12 +739,13 @@ function dibujar(t) {
     // A1 · el cielo de ep3-sol, que se deshace hacia el Sol del mundo; la cartela encima
     g.drawImage(F('espacio'), 0, 0, W, H);
     cieloVuelta(1 - eio(prog(ts, T.rev[0], T.rev[1])));
-    const km = ss(T.mundo[0], T.mundo[1], ts);
-    if (km > 0) { g.save(); g.globalAlpha = km; g.drawImage(F('mundoSol'), 0, 0, W, H); g.restore(); }
     P.limpiar(); atomo(ts);
-    if (n === 0) regla = F('reg9'); else reglaEn(9);
-    if (ts < 1.3) cartela(P, ts, E.cartela);
+    const cartelaViva = ts >= 0.75 && ts < 1.3;
+    if (cartelaViva) cartela(P, ts, E.cartela);
     P.render(nP, { fondo: false }); pegarGL();
+    if (ts < 0.75) g.drawImage(F('cartela0'), 0, 0, W, H);
+    // la regla quieta en 10⁹: la foto del final de ep3-sol y, desde el fotograma 4, las tres que se alternan (hervor)
+    regla = F(n < 4 ? 'reg9' : ['reg9', 'reg9_1', 'reg9_2'][n % 3]);
   } else if (ts < T.C) {
     // A2 · la caída de 10⁹ a 10⁴ (el mundo en vivo) · B · la ciudad quieta (fotos), la cómoda y el terrón
     const zr = zRegla(ts);
@@ -749,8 +755,7 @@ function dibujar(t) {
     if (quieto4) terrenoB(ts, n);
     else {
       const S = estadoAtom(ts);
-      if (zr > 8.999) g.drawImage(F('mundoSol'), 0, 0, W, H);
-      else pegarMundoVivo(estadoMundo(C, n, { somA: [S.sx + 22, S.sy + 30, 62, 0.42 + 0.16 * kS] }));
+      pegarMundoVivo(estadoMundo(C, n, { somA: [S.sx + 22, S.sy + 30, 62, 0.42 + 0.16 * kS] }));
       brilloCiudad(g, C, kBrillo(ts));
       nubes(zr, C);
       aire(zr, C);

@@ -419,14 +419,24 @@ const HACER = {
   arbolG() { P.limpiar(); P.pieza(I.ARB, ARBOL1); P.render(2105, { fondo: false }); return foto(P); },
   sueloL: () => fotoSuelo(0, false, 2106), sueloB: () => fotoSuelo(1, false, 2107),
   sueloLQ: () => fotoSuelo(0, true, 2108), sueloBQ: () => fotoSuelo(1, true, 2109),
-  // el plató con la persona de pie y la regla en 10⁰ (sus sombras en el ciclorama); Atom va vivo encima
-  // la persona de pie estrena sus programas en dos fotogramas (el cuerpo; la cabeza y las manos) antes de su foto
-  estrenoPie1() { P.limpiar(); P.pieza(I.HUM, { ...PIE, partes: 'cuerpo' }); P.render(2120, { fondo: false }); return true; },
-  estrenoPie2() { P.limpiar(); P.pieza(I.HUM, { ...PIE, partes: ['cabeza', 'manos'] }); P.render(2121, { fondo: false }); return true; },
+  // la persona de pie estrena sus programas (SwiftShader compila cada variante del cuerpo la primera vez que se dibuja)
+  // repartida en tres fotogramas: las piernas (subida, el tronco fuera de cuadro), el tronco (bajada) y la cabeza y las manos
+  estrenoPie1() { P.limpiar(); P.pieza(I.HUM, { ...PIE, pos: [PER[0], PER[1] + 4.1, PER[2]], partes: 'cuerpo' }); P.render(2120, { fondo: false }); return true; },
+  estrenoPie2() { P.limpiar(); P.pieza(I.HUM, { ...PIE, pos: [PER[0], PER[1] - 4.1, PER[2]], partes: 'cuerpo' }); P.render(2121, { fondo: false }); return true; },
+  estrenoPie3() { P.limpiar(); P.pieza(I.HUM, { ...PIE, partes: ['cabeza', 'manos'] }); P.render(2122, { fondo: false }); return true; },
+  // el plató vacío (solo el ciclorama) y el plató con la persona y la regla sin Atom: la foto final con el sitio de Atom (y
+  // su sombra) tapado con el plató vacío, con borde blando (el ciclorama es el mismo: no se nota); Atom va vivo encima
+  vacio() { P.limpiar(); P.render(2111); return foto(P); },
   plato() {
-    P.limpiar(); personaDePie();
-    P.regla(opRegla(REGLA_FIN));
-    P.render(2110); return foto(P);
+    const { c, gc } = lienzo();
+    gc.drawImage(F('final'), 0, 0, W, H);
+    const { c: c2, gc: g2 } = lienzo();
+    g2.drawImage(F('vacio'), 0, 0, W, H);
+    const R = 210, gr = g2.createRadialGradient(235, 805, 0, 235, 805, R);
+    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.75, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g2.globalCompositeOperation = 'destination-in'; g2.fillStyle = gr; g2.fillRect(0, 0, W, H);
+    gc.drawImage(c2, 0, 0, W, H);
+    return c;
   },
   // el último fotograma, quieto: el plató entero en una pasada con fondo y el hervor del fotograma 0, como ep3-tierra
   final() {
@@ -446,7 +456,8 @@ const PREPARAR = [
   [m.a + 0.3, 'atomoB', T.empuje[0]],
   [m.a + 0.6, 'arbolG', T.empuje[0]], [m.a + 1.0, 'sueloL', T.corteSuelo], [m.a + 1.4, 'sueloB', T.corteSuelo],
   [T.parpadea + 0.3, 'sueloLQ', T.asienta], [T.parpadea + 0.8, 'sueloBQ', T.asienta], [T.parpadea + 1.3, 'estrenoPie1', T.plato[0]],
-  [T.parpadea + 1.8, 'estrenoPie2', T.plato[0]], [T.parpadea + 2.3, 'plato', T.plato[0]], [T.parpadea + 2.8, 'final', QUIETO - 0.3],
+  [T.parpadea + 1.6, 'estrenoPie2', T.plato[0]], [T.parpadea + 1.9, 'estrenoPie3', T.plato[0]], [T.parpadea + 2.3, 'final', T.plato[0]],
+  [T.parpadea + 2.7, 'vacio', T.plato[0]], [T.parpadea + 2.9, 'plato', T.plato[0]],
 ];
 
 // ---------------------------------------------------------------- la mirilla (la de ep3-proton, ya entera)

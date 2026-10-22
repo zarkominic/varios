@@ -284,10 +284,15 @@ vec3 sgRioL(vec3 q, float s, vec4 T, out float vis) {
 float sgRio(vec3 q, vec4 T, out float m) {
   float s0 = floor((q.x - T.x) / SG_PR), d = 1e5; m = 0.0;
   for (int j = -2; j <= 2; j++) {
-    float s = s0 + float(j), vis;
-    vec3 p = sgRioL(q, s, T, vis);
-    if (vis < 0.5) continue;
-    float dk = sgGlob(p, 0.0);
+    float s = s0 + float(j);
+    // (coste) lejos de un glóbulo basta su esfera (radio 1): el giro y la forma solo se pagan cerca
+    vec2 g; vec3 c = sgRioC(s, T, g);
+    c.x += T.x;
+    if (abs(c.x) >= T.z) continue;
+    float de = length(q - c) - 1.0;
+    if (de > 0.12) { if (de < d) { d = de; m = s; } continue; }
+    float vis;
+    float dk = sgGlob(sgRioL(q, s, T, vis), 0.0);
     if (dk < d) { d = dk; m = s; }
   }
   // los glóbulos de las casillas que no se miran quedan a más de 2 pasos menos su radio
@@ -296,7 +301,17 @@ float sgRio(vec3 q, vec4 T, out float m) {
 float pz_globulos(vec3 q, vec4 T, out float m) { return sgEsRio(T) ? sgRio(q, T, m) : sgFila(q, T, m); }
 float pzc_globulos(vec3 q, vec4 T) {
   float m;
-  if (sgEsRio(T)) return sgRio(q, T, m) + 0.03;
+  if (sgEsRio(T)) {
+    // (coste) la sombra del río: cada glóbulo como un disco grueso sin girar (los tres más cercanos)
+    float s0 = floor((q.x - T.x) / SG_PR), d = 1e5;
+    for (int j = -1; j <= 1; j++) {
+      vec2 g; vec3 c = sgRioC(s0 + float(j), T, g);
+      c.x += T.x;
+      if (abs(c.x) >= T.z) continue;
+      d = min(d, length(q - c) - 0.62);
+    }
+    return min(d, SG_PR - 0.6);
+  }
   return sgFila(q, T, m) + 0.03;
 }
 float pza_globulos(vec3 q, vec4 T) {

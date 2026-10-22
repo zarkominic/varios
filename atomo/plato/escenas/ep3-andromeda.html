@@ -324,10 +324,32 @@ function retoque(gf) {
   blob(676, 440, 6, 6, '150,110,78', 0.9, 'darken');
   gf.restore();
 }
+// (coste de la carga) el cuerpo de la persona se dibuja por celdas, y cada celda pide su propio programa (una variante
+// sin los grupos que no caen en ella), que SwiftShader compila la primera vez (~10 s de CPU para las de esta postura, al
+// cargar). En esta foto las celdas se dibujan con el programa del cuerpo entero, ya compilado por el kit al crear el
+// plató: se le quitan a cada variante sus defines HU_* mientras dura la foto (three reutiliza entonces el programa ya
+// hecho) y se le devuelven después (los fotogramas de la persona de perfil las compilan como siempre). La imagen es la
+// misma (el kit: «salvo unos niveles en píxeles sueltos»); solo cuesta algo más de relleno en las celdas del cuerpo.
+const HU_DEFS = ['HU_SIN_T', 'HU_SIN_A', 'HU_A0', 'HU_A1', 'HU_SIN_P'];
+function conCuerpoEntero(hacer) {
+  const r = P.renderer, render0 = r.render, quitados = new Map();
+  r.render = function (escena, cam) {
+    const mat = escena.children?.[0]?.material;
+    if (mat?.defines && !quitados.has(mat) && HU_DEFS.some((k) => k in mat.defines)) {
+      const q = {}; for (const k of HU_DEFS) if (k in mat.defines) { q[k] = mat.defines[k]; delete mat.defines[k]; }
+      quitados.set(mat, q); mat.needsUpdate = true;
+    }
+    return render0.call(this, escena, cam);
+  };
+  try { return hacer(); } finally {
+    r.render = render0;
+    for (const [mat, q] of quitados) { Object.assign(mat.defines, q); mat.needsUpdate = true; }
+  }
+}
 HACER.salon = () => {
   P.limpiar();
   const info = salon(P, IS_FOTO, { encuadre: 'general' });
-  P.render(N_FOTO_SALON, { fondo: false });
+  conCuerpoEntero(() => P.render(N_FOTO_SALON, { fondo: false }));
   const foto = copiaGL(), gf = foto.getContext('2d'), k = foto.width / W;
   gf.setTransform(k, 0, 0, k, 0, 0);
   luzSalon(gf, pant(info.persona.punto('cabeza')));
