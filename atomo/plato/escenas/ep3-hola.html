@@ -25,9 +25,9 @@
 //         doblada queda quieta y la persona levanta la vista a cámara.
 //  ojos   un zum continuo del plano medio a su ojo izquierdo: la persona en vivo, cada vez más grande, sobre el fondo
 //         del plano medio ampliado; al llegar cierra los ojos y la cara, que sigue entrando (foto, cada vez más
-//         desenfocada), se funde con el ojo enorme del kit (kits/ep03-ojo.js), cerrado y centrado en el mismo sitio. El
-//         ojo enorme se abre de par en par: en él, la galaxia arriba y la célula y el átomo abajo; delante se enciende la
-//         franja de luz. A mitad de frase el párpado de abajo sube y tapa la célula y el átomo, que se apagan, y el de
+//         desenfocada), se funde con el ojo enorme del kit (kits/ep03-ojo.js), casi cerrado (como al final de la
+//         escena) y centrado en el mismo sitio. El ojo enorme se abre de par en par: en él, la galaxia arriba y la célula
+//         y el átomo abajo; delante se enciende la franja de luz. A mitad de frase el párpado de abajo sube y tapa la célula y el átomo, que se apagan, y el de
 //         arriba baja y tapa el otro lado de la galaxia; quedan casi cerrados sobre la franja (termina_con).
 // FINAL = PRINCIPIO DE ep3-ojo: desde que los párpados se cierran (T.arriba1) el cuadro es pintarFinalHola(...) del kit
 // (globo, cosas apagadas, sombra de los párpados, párpados casi cerrados, viñeta, franja con su halo y la sombra bajo
@@ -36,7 +36,7 @@
 // si quiere el mismo hervor) y lo compara con la captura de t = 19,153 de esta escena. window.__fin lo resume.
 // Coste: la cámara del plató es fija; lo quieto son fotos hechas al cargar (el plató vacío, el fondo del plano medio sin
 // la persona, la cara al final del zum, el globo del ojo, las tres cosas encendidas y apagadas, los párpados abiertos y
-// cerrados y el final). En cada fotograma se dibujan solo Atom (en su pasada), la persona y la regla cuando se mueven
+// casi cerrados y el final). En cada fotograma se dibujan solo Atom (en su pasada), la persona y la regla cuando se mueven
 // y los párpados del ojo enorme mientras se abren o se cierran (solo su zona).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
@@ -422,18 +422,19 @@ const FR_POS = EH.franja.pos, FR_ESC = EH.franja.escala, FR_ALTO = EH.franja.alt
 // los párpados: abiertos de par en par al llegar; al final, sus bordes justo por encima y por debajo de la franja
 const ABRE = HOLA.ABRE;
 const FIN = EH.fin;
-// cerrados (1) en el fundido, se abren de par en par (T.abreOjo0…1) y luego se cierran sobre la franja
+// casi cerrados en el fundido (como al final, FIN), se abren de par en par (T.abreOjo0…1) y luego se cierran sobre la
+// franja
 function estadoOjo(ts) {
   const ko = eio(prog(ts, T.abreOjo0, T.abreOjo1));
   const kb = eio(prog(ts, T.abajo0, T.abajo1)), ka = eio(prog(ts, T.arriba0, T.arriba1));
   return {
-    arriba: ka > 0 ? mix(ABRE.arriba, FIN.arriba, ka) : mix(1, ABRE.arriba, ko),
-    abajo: kb > 0 ? mix(ABRE.abajo, FIN.abajo, kb) : mix(1, ABRE.abajo, ko),
+    arriba: ka > 0 ? mix(ABRE.arriba, FIN.arriba, ka) : mix(FIN.arriba, ABRE.arriba, ko),
+    abajo: kb > 0 ? mix(ABRE.abajo, FIN.abajo, kb) : mix(FIN.abajo, ABRE.abajo, ko),
     mirada: [0, 0], pupila: HOLA.PUPILA, sombra: false,
   };
 }
-// los párpados quietos tienen foto (cerrados del todo o abiertos de par en par); null: se mueven y van en vivo
-const fotoParpados = (ts) => (ts < T.abreOjo0 ? FOTOS.cerrados() : ts >= T.abreOjo1 && ts < T.abajo0 ? FOTOS.parpados() : null);
+// los párpados quietos tienen foto (casi cerrados o abiertos de par en par); null: se mueven y van en vivo
+const fotoParpados = (ts) => (ts < T.abreOjo0 ? FOTOS.casiCerrados() : ts >= T.abreOjo1 && ts < T.abajo0 ? FOTOS.parpados() : null);
 // las cosas que se apagan tras los párpados: abajo una célula y un átomo; arriba el otro lado de la galaxia
 const COSAS = EH.cosas.map((c) => ({ ...c }));
 
@@ -494,8 +495,8 @@ function personaEmpuje(ts) {
   const e = estadoEmpuje(ts);
   const tz = calma(ts);
   const resp = 0.006 * Math.sin(tz * 2.4);
-  // al llegar cierra los ojos, despacio: la cara se funde con el ojo enorme cerrado, que se abre ya grande (así nunca hay
-  // un ojo de verdad abierto junto a uno de plastilina)
+  // al llegar cierra los ojos, despacio: la cara se funde con el ojo enorme casi cerrado, que se abre ya grande (así nunca
+  // hay un ojo de verdad abierto junto a uno de plastilina)
   const p = poseMedio(T.empuje);
   p.ojos = 1 - ss(T.fun0 - 0.34, T.fun0 - 0.1, ts);
   const h = P.pieza(I.PER, { pos: e.pos, escala: e.esc, sq: [1, 1 + resp, 1], rot: [0, 0.06, 0], postura: p, t: ts, huellaFija: [0.37, 0.21, 0.0] });
@@ -545,10 +546,12 @@ perezosa('parpados', T.empuje, () => {
   P.limpiar(); P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS }); P.render(9005, { fondo: false });
   return foto();
 });
-// los párpados cerrados del todo (el ojo enorme del fundido, antes de abrirse)
-perezosa('cerrados', T.empuje, () => {
-  ponerOjo(UO, { arriba: 1, abajo: 1, pupila: 0.55, sombra: false });
-  P.limpiar(); P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS }); P.render(9005, { fondo: false });
+// los párpados casi cerrados sobre la franja (FIN): el ojo enorme del fundido, antes de abrirse, y el del final. Con la
+// receta exacta de pintarFinalHola (estado, pupila, sombra y nf), que la recibe como fotos.cerrado: así el final sale
+// idéntico al primer fotograma de ep3-ojo (que la pinta sin fotos) y la carga se ahorra un render del ojo
+perezosa('casiCerrados', T.empuje, () => {
+  ponerOjo(UO, { ...FIN, pupila: HOLA.PUPILA, sombra: false });
+  P.limpiar(); P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS }); P.render(HOLA.NF.cerrado, { fondo: false });
   return foto();
 });
 // las cosas, encendidas; apagadas, la misma foto oscurecida y sin color
@@ -570,7 +573,7 @@ perezosa('franja', T.empuje, () => {
 // el final (los párpados ya casi cerrados sobre la franja, las cosas apagadas, la franja con su halo y la sombra bajo
 // Atom): la receta del kit, con las fotos de arriba (ep3-ojo la pinta igual: pintarFinalHola)
 perezosa('final', T.empuje, () => pintarFinalHola(P, UO, { ojo: I.OJO, franja: I.FR, cosa: I.COSA }, {
-  fotos: { globo: FOTOS.globo(), franja: FOTOS.franja(), cosasApagadas: (FOTOS.cosas(), COSAS.map((c) => c.off)) },
+  fotos: { globo: FOTOS.globo(), franja: FOTOS.franja(), cerrado: FOTOS.casiCerrados(), cosasApagadas: (FOTOS.cosas(), COSAS.map((c) => c.off)) },
 }));
 // la zona de los párpados (px de diseño: x0, y0, x1, y1) y el remiendo: la foto de la cara con esa zona pintada de
 // nuevo, con el borde fundido (la exposición y el hervor de cada fotograma no dejan costura)
@@ -710,7 +713,7 @@ function dibujar(t) {
     POST.aplicar(g, nf);
     return;
   }
-  // ---- E y F: el empuje hasta su ojo izquierdo, el fundido con el ojo enorme cerrado, que se abre, y sus párpados
+  // ---- E y F: el empuje hasta su ojo izquierdo, el fundido con el ojo enorme casi cerrado, que se abre, y sus párpados
   // los párpados del ojo compuesto: su foto mientras están quietos; en vivo solo mientras se mueven
   const kOjo = eio(prog(ts, T.fun0 + 0.08, T.fun1 + 0.04));
   let ojo = null;

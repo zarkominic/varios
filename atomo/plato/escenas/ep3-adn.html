@@ -54,7 +54,7 @@ const T = {
   s1: [m.adn - 0.25, m.adn + 0.95],                         // mirilla: del virus al núcleo (detalle)
   regla: [m.adn - 0.2, m.adn + 0.9],                        // la escala corre de 10⁻⁷ a 10⁻⁹
   atras: [m.adn + 0.52 * (m.adnFin - m.adn), 0],            // la cámara se aparta: la célula y el muro del pelo
-  sale: [m.dos - 0.2, m.dos + 0.85],                        // el hilo sale del núcleo y se estira fuera del plano
+  sale: [m.dos - 0.2, m.dos + 0.75],                        // el hilo sale del núcleo y se estira fuera del plano
   s2: [m.dos + 0.8, m.dos + 1.7],                           // la cámara se aparta: la célula se encoge hasta la motita
   crece: [m.dos + 1.65, m.dos + 2.75],                      // el hilo sube hasta 2 m
   cota: [m.dos + 2.6, m.dos + 3.05],                        // la cota de latón
@@ -297,7 +297,17 @@ const FOTO = {};
   FOTO.A = f;
 }
 window.__carga.push(['virus', Math.round(performance.now())]);
-{ const r = fotoCelula(CEL_C, false, 901); FOTO.C = r.f; FOTO.Cinfo = r.info; }
+{
+  const r = fotoCelula(CEL_C, false, 901); FOTO.C = r.f; FOTO.Cinfo = r.info;
+  // la misma foto con los bordes fundidos (para apartarse sin que se vea su marco)
+  const c = lienzo(), gc = c.getContext('2d'), k = c.width / W;
+  gc.drawImage(r.f, 0, 0);
+  gc.globalCompositeOperation = 'destination-in';
+  const e = r.info.elipse, gr = gc.createRadialGradient(e.x * k, e.y * k, 380 * k, e.x * k, e.y * k, 900 * k);
+  gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  gc.fillStyle = gr; gc.fillRect(0, 0, c.width, c.height);
+  FOTO.Cplum = c;
+}
 window.__carga.push(['nucleo', Math.round(performance.now())]);
 { const r = fotoCelula(CEL_B, true, 902); FOTO.B = r.f; FOTO.Binfo = r.info; }
 window.__carga.push(['celula', Math.round(performance.now())]);
@@ -382,7 +392,7 @@ function apartarse(u) {
   g.save(); g.translate(cx, cy); g.scale(z, z); g.translate(-eb.x, -eb.y); g.drawImage(FOTO.B, 0, 0, W, H); g.restore();
   const a = 1 - ss(0.0, 0.55, u);
   if (a > 0.001) {
-    g.save(); g.globalAlpha = a; g.translate(cx, cy); g.scale(z / z0, z / z0); g.translate(-ec.x, -ec.y); g.drawImage(FOTO.C, 0, 0, W, H); g.restore();
+    g.save(); g.globalAlpha = a; g.translate(cx, cy); g.scale(z / z0, z / z0); g.translate(-ec.x, -ec.y); g.drawImage(u < 0.02 ? FOTO.C : FOTO.Cplum, 0, 0, W, H); g.restore();
   }
 }
 // la cámara se aparta de la célula (B) hasta la motita del plató (D0): primero un círculo se cierra alrededor de la
@@ -412,8 +422,13 @@ function exposicion(nf) {
 }
 
 // ---------------------------------------------------------------- fotograma
+// las fotos de los cortes se hacen en fotogramas baratos poco antes de hacer falta, una por fotograma (al renderizar
+// en orden); si se pide un instante posterior sin pasar por ellos, se hacen todas las pendientes
+const PREPARAR = [[T.sale[0] + 0.1, fotoBhilo], [T.sale[0] + 0.3, () => fotoD(0)], [T.s3[0] - 0.6, () => fotoD(1)], [T.s3[0] - 0.35, fotoE0]];
+function preparar(ts) { for (const [t0, f] of PREPARAR) if (ts >= t0) f(); }
 function dibujar(t) {
   const ts = Math.min(t, D - 0.3);
+  preparar(ts);
   ajustarCapa();
   const nf = Math.floor(ts * 12 + 1e-6);
   const pl = plano(ts);
@@ -427,9 +442,7 @@ function dibujar(t) {
     POST.aplicar(g, nf);
     return;
   }
-  // los demás: fotos compuestas en 2D (y las de los cortes, que se hacen la primera vez), con lo vivo encima
-  if (pl === 'S2') { fotoBhilo(); fotoD(0); }
-  if (pl === 'S3') { fotoD(1); fotoE0(); }
+  // los demás: fotos compuestas en 2D, con lo vivo encima
   P.fotograma(ts); P.limpiar();
   atomo(ts); regla(ts);
   if (pl === 'B') hiloB(prog(ts, T.sale[0], T.sale[1]), ts);

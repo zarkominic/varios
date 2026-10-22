@@ -257,7 +257,7 @@ const P = await crearPlato({
   uniformes: { ...uniformesSofa(), ...uniformesTiempo() },
   globo: true, alfa: true, post: false,
   sombraFondo: ['p1', 'p2'],
-  sombras: { p3: ['p0', 'p4'], p4: ['p0', 'p5'], p5: ['p0'] },
+  sombras: { p3: ['p4'], p4: ['p0', 'p5'], p5: ['p0'] },
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
 });
 marcaCarga('plató');
@@ -373,9 +373,26 @@ const SOL = aPant(C21, solMundo(C21.z));                // dónde estamos (el So
 const FOTOS = {};
 const HACER = {
   gal0: () => sinVineta(fotoMundo(mundo, estadoMundo(C21, N_LUZ, { somA: SOM_A }))),
-  gal1: () => sinVineta(fotoMundo(mundo, estadoMundo(C21, N_LUZ + 1, { somA: SOM_A }))),
-  // el espacio sin la galaxia (el fondo del mapa)
-  espacio: () => sinVineta(fotoMundo(mundo, estadoMundo(C21, N_LUZ + 2, { somA: SOM_A, capas: { uGal: [0, 0, 1, 0] } }))),
+  // el espacio sin la galaxia (el fondo del mapa): la misma foto con la galaxia tapada por el color del fondo de
+  // alrededor (un disco de borde suave; así no hace falta otra foto del mundo al cargar)
+  espacio: () => {
+    const f = F('gal0'), c = lienzo(f.width, f.height), gc = c.getContext('2d'), k = f.width / W;
+    gc.drawImage(f, 0, 0);
+    const d = f.getContext('2d').getImageData(0, 0, f.width, f.height).data;
+    let sr = 0, sg = 0, sb = 0, nn = 0;
+    for (let i = 0; i < 64; i++) {
+      const a = (i / 64) * 2 * Math.PI, x = Math.round((GAL.c[0] + 1.18 * GAL.R * Math.cos(a)) * k), y = Math.round((GAL.c[1] + 1.18 * GAL.R * Math.sin(a)) * k);
+      if (x < 0 || y < 0 || x >= f.width || y >= f.height) continue;
+      const o = (y * f.width + x) * 4; sr += d[o]; sg += d[o + 1]; sb += d[o + 2]; nn++;
+    }
+    const col = [sr, sg, sb].map((v) => Math.round(v / Math.max(nn, 1)));
+    gc.setTransform(k, 0, 0, k, 0, 0);
+    const h = gc.createRadialGradient(GAL.c[0], GAL.c[1], 0.8 * GAL.R, GAL.c[0], GAL.c[1], 1.12 * GAL.R);
+    h.addColorStop(0, `rgb(${col})`); h.addColorStop(1, `rgba(${col},0)`);
+    gc.fillStyle = `rgb(${col})`; gc.beginPath(); gc.arc(GAL.c[0], GAL.c[1], 0.8 * GAL.R + 1, 0, 2 * Math.PI); gc.fill();
+    gc.fillStyle = h; gc.fillRect(GAL.c[0] - 1.12 * GAL.R, GAL.c[1] - 1.12 * GAL.R, 2.24 * GAL.R, 2.24 * GAL.R);
+    return c;
+  },
 };
 function F(k) { if (!FOTOS[k]) FOTOS[k] = HACER[k](); return FOTOS[k]; }
 if (new URLSearchParams(location.search).has('sonda')) {
@@ -396,7 +413,7 @@ if (new URLSearchParams(location.search).has('sonda')) {
   window.__frame = async () => {}; window.__listo = true;
   await new Promise(() => {});
 }
-F('gal0'); F('gal1'); F('espacio');
+F('gal0'); F('espacio');
 marcaCarga('galaxia');
 
 // ---------------------------------------------------------------- S1 · el marco, el lienzo y el pincel
@@ -540,7 +557,7 @@ function pincel(ts, s) {
 }
 function tramo1(n, ts) {
   const s = empuje(ts);
-  const gal = F(((n >> 1) & 1) ? 'gal1' : 'gal0');
+  const gal = F('gal0');
   if (s > 1.0005) pegarEscalada(gal, s, EMP_C); else g.drawImage(gal, 0, 0, W, H);
   // la pincelada (en el cuadro, con el empuje)
   const up = prog(ts, T.pincel.pinta[0], T.pincel.pinta[1]);
@@ -570,19 +587,25 @@ const PUNTOS = (() => {
   const x0 = Math.floor((GAL.c[0] - GAL.R) * k), y0 = Math.floor((GAL.c[1] - GAL.R) * k), w = Math.ceil(2 * GAL.R * k), h = Math.ceil(2 * GAL.R * k);
   const d = gc.getImageData(x0, y0, w, h).data;
   const lum = (x, y) => { const i = ((Math.round((y - GAL.c[1] + GAL.R) * k) * w) + Math.round((x - GAL.c[0] + GAL.R) * k)) * 4; return (0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]) / 255; };
+  const azul = (x, y) => { const i = ((Math.round((y - GAL.c[1] + GAL.R) * k) * w) + Math.round((x - GAL.c[0] + GAL.R) * k)) * 4; return (d[i + 2] - d[i]) / 255; };
   const r = mulberry32(2026), out = [];
   let intentos = 0;
-  while (out.length < 2400 && intentos < 200000) {
+  while (out.length < 2600 && intentos < 300000) {
     intentos++;
     const a = r() * 2 * Math.PI, rr = Math.sqrt(r()) * GAL.R * 0.97;
     const x = GAL.c[0] + rr * Math.cos(a), y = GAL.c[1] + rr * Math.sin(a);
     const L = lum(x, y);
-    if (r() > Math.pow(cl((L - 0.1) / 0.6), 1.3)) continue;
+    // en los brazos (azulados) y, menos, en el bulbo (lo más claro): así los puntos dibujan la espiral
+    const pb = cl((azul(x, y) - 0.04) / 0.1) * cl((L - 0.22) / 0.15), pc = 0.5 * cl((L - 0.55) / 0.25);
+    if (r() > Math.max(pb, pc)) continue;
     const p = aMapa([x, y]);
-    out.push({ x: p[0], y: p[1], L, d: Math.hypot(p[0] - SOL_M[0], p[1] - SOL_M[1]) * (0.75 + 0.5 * r()), r: 1.6 + 1.6 * r() });
+    const dS = Math.hypot(p[0] - SOL_M[0], p[1] - SOL_M[1]) / (2 * GAL.R * MAPA.s);
+    out.push({ x: p[0], y: p[1], L, dS, d: 0.3 * dS + 0.7 * r(), r: 1.3 + 1.3 * r() });
   }
-  out.sort((a, b) => a.d - b.d);
-  return out;
+  // los primeros, los más cercanos al Sol (medimos desde dentro); luego, por toda la galaxia, algo antes cerca
+  out.sort((a, b) => a.dS - b.dS);
+  const prim = out.slice(0, 14), resto = out.slice(14).sort((a, b) => a.d - b.d);
+  return [...prim, ...resto];
 })();
 // el calendario de los puntos: los primeros, uno a uno; luego cada vez más seguidos
 const N_UNO = 9;
@@ -683,7 +706,7 @@ function mapa(ts) {
     if (u <= 0) continue;
     const R = nb.R * (0.45 + 0.55 * eoc(u));
     const h = gm.createRadialGradient(nb.x, nb.y, 0, nb.x, nb.y, R);
-    h.addColorStop(0, `rgba(255,255,255,${0.85 * u})`); h.addColorStop(0.55, `rgba(255,255,255,${0.5 * u})`); h.addColorStop(1, 'rgba(255,255,255,0)');
+    h.addColorStop(0, `rgba(255,255,255,${u})`); h.addColorStop(0.6, `rgba(255,255,255,${0.75 * u})`); h.addColorStop(1, 'rgba(255,255,255,0)');
     gm.fillStyle = h; gm.fillRect(nb.x - R, nb.y - R, 2 * R, 2 * R);
   }
   gm.fillStyle = '#fff';
@@ -709,8 +732,8 @@ function mapa(ts) {
     const R = (i < N_UNO ? 3.6 : p.r) * kp;
     g.fillStyle = `rgba(255,244,222,${0.95 * kp})`;
     g.beginPath(); g.arc(p.x, p.y, R, 0, 2 * Math.PI); g.fill();
-    const dur = i < N_UNO ? 0.5 : 0.25;
-    if (edad < dur && (i < 200 || (i & 3) === 0)) {
+    const dur = i < N_UNO ? 0.5 : 0.22;
+    if (edad < dur && (i < N_UNO + 24 || i % 9 === 0)) {
       const u = edad / dur;
       g.strokeStyle = `rgba(255,200,120,${(1 - u) * (i < N_UNO ? 0.95 : 0.5)})`;
       g.lineWidth = i < N_UNO ? 3 : 1.5;
@@ -863,6 +886,10 @@ function tierraLuna(gg, h, ts) {
   const ha = gg.createRadialGradient(pT[0], pT[1], rT * 0.9, pT[0], pT[1], rT * 1.6);
   ha.addColorStop(0, `rgba(120,170,230,${0.35 * kA})`); ha.addColorStop(1, 'rgba(120,170,230,0)');
   gg.fillStyle = ha; gg.fillRect(pT[0] - rT * 2, pT[1] - rT * 2, rT * 4, rT * 4);
+  // y el de la Luna (plateado: de lejos es pequeña)
+  const hl = gg.createRadialGradient(pL[0], pL[1], 0, pL[0], pL[1], rL * 2.6);
+  hl.addColorStop(0, `rgba(230,225,200,${0.4 * kA})`); hl.addColorStop(1, 'rgba(200,205,220,0)');
+  gg.fillStyle = hl; gg.fillRect(pL[0] - rL * 2.6, pL[1] - rL * 2.6, rL * 5.2, rL * 5.2);
   const fT = F('tierra'), fL = F('luna');
   const sT = rT * kA / 120, sL = rL * kA / 55;
   gg.drawImage(fT, pT[0] - 150 * sT, pT[1] - 150 * sT, 300 * sT, 300 * sT);

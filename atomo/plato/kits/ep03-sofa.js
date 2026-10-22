@@ -89,14 +89,17 @@
 // EL SALÓN (el plano final de ep3-mapa, el primero de ep3-andromeda)
 //  · SALON: las medidas del salón con la cámara del plató de las pruebas (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28):
 //    la pared con la ventana (y su suelo de tablas), el sofá oliva de dos plazas, la persona («humano», 'sentada',
-//    aspecto 'adulto', de espaldas, en la plaza de la derecha, con la cabeza girada hacia la ventana), la mesita junto al
-//    brazo del sofá con el bol de palomitas (la mano derecha de la persona, dentro del bol) y el reloj de pared de
-//    ep03-tiempo.js a la izquierda de la ventana. Dos encuadres (SALON.encuadres): 'general' (el plano entero: la cabeza
-//    en ~(667, 461) px, el hueco de la ventana de (930, 129) a (1298, 539), el reloj en (591, 203) con 74 px de radio) y
-//    'cerca' (por encima del hombro: el mismo salón escalado 1,35 alrededor de un punto, que es acercar la cámara; la
-//    cabeza en ~(462, 486), el hueco de (873, 45) a (1353, 579), el reloj en (430, 141) con 96 px). Atom (230, 780) y la
-//    regla (borde derecho) quedan libres en los dos. El ÚLTIMO FOTOGRAMA DE ep3-mapa es el 'general' con el reloj en una
-//    hora (minutos 60, sector [0, 60]) y el cielo de la ventana con hornearRayas() por defecto.
+//    aspecto 'adulto', de espaldas, en la plaza de la derecha, con la cabeza girada hacia la ventana), el bol de
+//    palomitas en lo alto del brazo del sofá que tiene a su derecha (con la mano derecha dentro: el brazo se busca para
+//    que la palma caiga en el montón, con el codo doblado) y el reloj de pared de ep03-tiempo.js a la izquierda de la
+//    ventana. Dos encuadres (SALON.encuadres): 'general' (el plano entero: la cabeza en ~(720, 461) px, el hueco de la
+//    ventana de (930, 129) a (1298, 539), el bol en ~(872, 631), el reloj en (591, 203) con 74 px de radio) y 'cerca'
+//    (por encima del hombro: el mismo salón escalado 1,35 alrededor de un punto, que es acercar la cámara; la cabeza en
+//    ~(538, 486), el hueco de (873, 45) a (1353, 579), el bol en ~(758, 736), el reloj en (430, 141) con 96 px). Atom
+//    (230, 780) y la regla (borde derecho) no tapan a la persona ni la ventana. El ÚLTIMO FOTOGRAMA DE ep3-mapa es el
+//    'general' con el reloj en una hora (minutos 60, sector [0, 60]; ep3-mapa pinta encima, en 2D, la cuña ámbar más viva
+//    y oscurece un poco los bordes de la habitación: ver relojAmbar y luzSalon en la escena) y el cielo de la ventana con
+//    hornearRayas() por defecto. Con bol: { donde: 'mesita' } el bol va en la mesita (si I.mesita está), junto al brazo.
 //  · salon(P, I, { encuadre: 'general', reloj: null, persona: {}, sofa: {}, bol: {}, ventana: {}, mano: true }) pone las
 //    piezas del salón en el plató (entre P.limpiar() y P.render): I = { ventana, sofa, persona, mesita, bol, reloj }
 //    (índices de las piezas; las que falten no se ponen: con solo { reloj } pone el reloj, p. ej. en vivo encima de la
@@ -106,9 +109,10 @@
 //    { s, pivote }. Devuelve { ventana (lo de ventana()), sofa, mesita, bol, persona (h), reloj (lo de reloj()), encuadre }.
 //    Para el esqueleto sin plató: posturaSalon(objetivoLocal) (la postura con el brazo derecho que busca un punto local)
 //    y transformarSalon(encuadre) → { s, p(mundo) }.
-//    Recetas: la persona, el sofá, la mesita, el bol y la pared no se mueven: van en una foto al cargar (P.render(n,
-//    { fondo: false }): el hueco queda transparente); en vivo solo lo que cambia (el reloj, Atom, la regla). Las sombras
-//    entre piezas que usa ep3-mapa: sombras: { <ventana>: [<persona>, <sofá>], <sofá>: [<persona>], <mesita>: [<bol>] }.
+//    Recetas: la persona, el sofá, el bol y la pared no se mueven: van en una foto al cargar (P.render(n, { fondo:
+//    false }): el hueco queda transparente); en vivo solo lo que cambia (el reloj, Atom, la regla). Las sombras entre
+//    piezas que usa ep3-mapa: sombras: { <ventana>: [<sofá>], <sofá>: [<persona>, <bol>], <bol>: [<persona>] } (la
+//    pared con la sombra de la persona cuesta mucho más y casi no se ve).
 //
 // COSTE (este servidor, 1920 × 1080; con otras escenas renderizando al lado, el doble o más): ver la hoja de prueba
 // (window.__tiempos). La pared con la ventana llenando la pantalla, ~1–2 s (una foto al cargar: no va en vivo); el sofá

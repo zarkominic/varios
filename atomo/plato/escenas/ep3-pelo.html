@@ -20,16 +20,19 @@
 //  pelo     «Salto menos cuatro…»: cuatro saltos ×10 con mirilla, como en la prueba (la primera se abre en la mano de la
 //           derecha de la pantalla, la manoIzq del «humano», donde brilló al final de ep3-saltos): persona → mano → piel
 //           con vello → un pelo en su folículo → el pelo como tronco. El marcador baja una fila en cada salto, de 10⁰ a
-//           10⁻⁴. Los decorados de mano, piel y pelo son fotos hechas al cargar, con desenfoque de basculante.
+//           10⁻⁴. Los decorados de mano, piel y pelo son fotos (ver Coste), con desenfoque de basculante.
 //  ½ pelo   DETALLE del pelo-tronco: en la segunda mitad de la frase, la cota de alambre se tiende de lado a lado del
 //           pelo y baja la tarjeta «10⁻⁴ m».
-//  rejilla  PLANO MEDIO por encima del hombro (corte): la cabeza del «humano», de perfil y algo de espaldas, lee un libro
-//           abierto a un palmo de la cara. En la página derecha, trazos de tinta cada vez más finos y, entre ellos, un pelo.
-//  ⅕ rej.   DETALLE de la página (empuje 2D desde el plano medio que acaba en la foto de cerca): los trazos más finos
-//           que el pelo se emborronan en gris y el pelo queda nítido, con un brillo: es lo último que se distingue.
+//  rejilla  PLANO MEDIO por encima del hombro (corte): la cabeza del «humano», de perfil hacia la derecha, lee un libro
+//           abierto a un palmo de la cara (el hombro de primer término, desenfocado). En la página derecha, trazos de tinta
+//           cada vez más finos y, entre ellos, un pelo que cruza la página y asoma por el canto.
+//  ¼ rej.   DETALLE de la página (empuje 2D que acelera hacia el pelo y corte a la foto de cerca, que se asienta): los
+//           trazos más finos que el pelo se emborronan en gris y el pelo queda nítido, con un brillo: es lo último que se
+//           distingue.
 //  ½ rej.   CORTE DEL OJO (corte, a mitad de frase): el ojo en corte de perfil, con la córnea hacia la derecha (de donde
-//           viene la luz del libro); la luz entra, se cruza en el cristalino y cae en dos puntos de la rejilla de puntitos
-//           del fondo; el ojo gira un poco para enseñar la rejilla. Último fotograma (termina_con), quieto 0,6 s.
+//           viene la luz del libro); la luz entra (los haces del kit, que se funden con el plató antes de la regla, y un
+//           resplandor cálido a la derecha), se cruza en el cristalino y cae en dos puntos de la rejilla de puntitos del
+//           fondo; el ojo gira un poco para enseñar la rejilla. Último fotograma (termina_con), quieto 0,6 s.
 // Las palabras sueltas no tienen marca: los golpes de dentro de una frase van a una fracción fija de su intervalo
 // (E.marca(x) … E.marca(x + '_fin')).
 //
@@ -42,9 +45,11 @@
 //    córnea a +x, a la derecha de la pantalla), pos P.punto(OJO.x, OJO.y, OJO.z), escala OJO.esc, rot OJO.rot, con
 //    ponerCorte({ separacion: 6, brillo: 1, haces: 1 }) y el fondo del plató; la regla igual que arriba pero con actual
 //    −4 y marca −4 (el marcador en 10⁻⁴, la fila de abajo de la regla); Atom en su sitio de presentador.
-// Coste: decorados quietos en fotos al cargar (mano, piel, pelo, plano por encima del hombro y página de cerca); en cada
-// fotograma solo Atom, la regla y lo que se mueve (la persona del principio con la cartela, el pelo-tronco con la cota,
-// el ojo en corte).
+// Coste: lo quieto son fotos (mano, piel, pelo, el plano por encima del hombro, la página de cerca y su versión borrosa,
+// el plató vacío) y en cada fotograma solo se dibujan Atom, la regla y lo que se mueve (la persona del principio con la
+// cartela, el pelo-tronco con la cota, el ojo en corte). Al cargar solo se crea el plató; las fotos y los estrenos de
+// los programas se hacen de uno en uno en fotogramas baratos, poco antes de hacer falta (PREPARAR, como ep3-casa), y las
+// tres fotos que llenan el cuadro (mano, piel y página) se pintan por franjas, una franja por fotograma.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, postura } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -58,6 +63,8 @@ const E = await escena('ep3-pelo', 'ep03');
 const M = (k) => E.marca(k);
 const m = { pelo: M('pelo'), peloFin: M('pelo_fin'), rejilla: M('rejilla'), rejillaFin: M('rejilla_fin') };
 const D = E.duracion, QUIETO = D - 0.6;
+// desde el fotograma NFIN la imagen es la misma (también el hervor de la arcilla y el grano): los últimos 0,6 s, quietos
+const NFIN = Math.floor(QUIETO * 12 + 1e-6);
 const W = 1920, H = 1080;
 const fr = (a, b, u) => a + (b - a) * u;
 const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
@@ -461,11 +468,12 @@ function luzLibro(O) {
 function dibujar(t) {
   hechasAhora = 0;
   componer(t);
-  if (!hechasAhora) prepararUna(P.fotograma(t, D) / 12);
+  if (!hechasAhora) prepararUna(Math.min(t, NFIN / 12));
 }
 function componer(t) {
   ajustarCapa();
-  const n = P.fotograma(t, D), ts = n / 12;
+  tFot = Math.min(t, NFIN / 12 + 1e-4);
+  const n = P.fotograma(tFot), ts = n / 12;
   const pl = plano(ts);
   if (pl === 'ojo') {
     P.limpiar();
@@ -477,7 +485,7 @@ function componer(t) {
     P.render(n, { fondo: false });
     pegarGL();
     POST.aplicar(g, n);
-    if (ts >= QUIETO - 1e-6) fin();
+    if (n === NFIN) fin();
     return;
   }
   if (pl === 'hombro' || pl === 'pagina') {
@@ -568,7 +576,7 @@ function fin() {
 // WebGL, que queda debajo de la capa 2D opaca: no se ve. Si se pide un instante suelto, F() hace allí lo que falte (ese
 // fotograma tarda más, pero la imagen es la misma: cada foto lleva su número de fotograma fijo).
 const FOTO = {};
-let hechasAhora = 0;
+let hechasAhora = 0, tFot = null;
 // (coste) las fotos más caras (la mano, la piel y la página de cerca, que llenan el cuadro) se pintan en FRANJAS
 // horizontales (setScissor, como los párpados de ep3-hola), una por fotograma; la sombra y el fondo son los mismos en
 // todas, así que las franjas casan. Su número de fotograma (el hervor) es fijo.
@@ -616,6 +624,8 @@ function F(k) {
     FOTO[k] = HACER[k]();
     tiempos[k] = Math.round(performance.now() - a);
     hechasAhora++;
+    // una foto mueve el reloj del plató (P.fotograma): vuelve al del fotograma que se está componiendo
+    if (tFot !== null) P.fotograma(tFot);
   }
   return FOTO[k];
 }
