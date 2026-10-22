@@ -609,8 +609,8 @@ const FRANJAS = {
   gato3: { partes: 2, nf: 3101, pinta: gatoBEn(3) },
   manoB: { partes: 1, nf: 3102, pinta: () => P.pieza(I.MANO, manoBPos()), despues(c) { BAJO_B = puntoMasBajo(c); } },
   // el detalle: el gato y la mano, alineadas en 2D para dejar el hueco
-  gatoC: { partes: 3, nf: 3201, pinta: () => gato(P, I.GATO, GATO_C) },
-  manoC: { partes: 6, nf: 3202, pinta: () => P.pieza(I.MANO, MANO_C), despues(f) {
+  gatoC: { partes: 8, nf: 3201, pinta: () => gato(P, I.GATO, GATO_C) },
+  manoC: { partes: 18, nf: 3202, pinta: () => P.pieza(I.MANO, MANO_C), despues(f) {
     const b = puntoMasBajo(f);
     const tope = contornoArriba(F('gatoC'), 40, W - 40);
     ALINEA_C = [GAP_C[0] - b[0], tope(GAP_C[0]) - HUECO_C - b[1]];
