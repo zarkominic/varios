@@ -255,7 +255,7 @@ const SOLM = solComoMundo(P, FINAL_TIERRA.sol, 0);                 // el Sol del
 const SOL1 = SOLM;                                                  // primer plano del corte: en el mismo sitio
 const [SX, SY, SR] = FINAL_TIERRA.sol;
 // plano medio (rebota): algo más cerca y algo a la izquierda (deja sitio al calendario)
-const SOL3_PX = [650, 465, 410];
+const SOL3_PX = [700, 445, 392];
 const SOL3 = solComoMundo(P, SOL3_PX, 0);
 function fotoCorte(n) { P.limpiar(); const s = sol(P, I.SOL, { ...SOL3, corte: 1, calor: 1, aprieta: 1 }); P.render(n, { fondo: false }); return copiaGL(); }
 // geometría del corte del plano medio (sin dibujar): dónde caen sus caras y su núcleo en pantalla
@@ -283,7 +283,7 @@ const L3 = largoCamino(CAMINO3);
 const REBOTES = (() => { const out = []; let s = 0; for (let k = 1; k < CAMINO3.length - 1; k++) { s += Math.hypot(CAMINO3[k][0] - CAMINO3[k - 1][0], CAMINO3[k][1] - CAMINO3[k - 1][1]); out.push([s, ...CAMINO3[k]]); } return out; })();
 
 // el plano del viaje (pan): el Sol se queda a la izquierda, grande; la persona, a la derecha
-const PAN = { s: 1.0, de: [SOL3_PX[0], SOL3_PX[1]], a: [-80, 380] };     // el corte se escala s alrededor de su centro y va a `a`
+const PAN = { s: 1.0, de: [SOL3_PX[0], SOL3_PX[1]], a: [-40, 320] };     // el corte se escala s alrededor de su centro y va a `a`
 const panXY = (u, [x, y]) => [mix(x, PAN.a[0] + (x - PAN.de[0]) * PAN.s, u), mix(y, PAN.a[1] + (y - PAN.de[1]) * PAN.s, u)];
 const panS = (u) => mix(1, PAN.s, u);
 
@@ -302,7 +302,7 @@ const PER = (() => {
 })();
 const CARA = (() => { P.limpiar(); const h = P.pieza(I.PER, { ...PER, postura: POSE_PER }); P.limpiar(); return { ojos: pant(h.punto('ojos')), cabeza: pant(h.punto('cabeza')), barbilla: pant(h.punto('barbilla')), coronilla: pant(h.punto('coronilla')) }; })();
 // la luz llega a la mejilla, delante del ojo
-const DIANA = [CARA.ojos[0] - 24, CARA.ojos[1] + 30];   // el pómulo, junto a la nariz, del lado del Sol
+const DIANA = [CARA.ojos[0] + 6, CARA.ojos[1] + 42];    // el pómulo, bajo el ojo, del lado del Sol
 function fotoPersona(n) {
   P.limpiar();
   P.pieza(I.PER, { ...PER, postura: POSE_PER, huellaFija: [0.37, 0.21, 0.0] });
@@ -409,7 +409,7 @@ function tramo1(n, ts) {
   return uf;
 }
 // S2: dentro del núcleo
-const NUC_ACTORES = { A: [520, 380], B: [910, 300], C: [1310, 500], D: [1090, 290], E: [880, 760], F: [905, 440] };
+const NUC_ACTORES = { A: [440, 340], B: [800, 250], C: [1230, 650], D: [1150, 290], E: [790, 735], F: [720, 480] };
 const FONDO_NUC = (() => {
   // los del fondo (desenfocados): pequeños, lejos de Atom (abajo a la izquierda) y de la regla
   const r = mulberry32(31), out = [];
@@ -465,8 +465,8 @@ function tramo2(n, ts) {
     }
     return mid;
   };
-  const m1 = choque(CH.a, 'A', 'B', [-70, -20]);
-  const m2 = choque(CH.b, 'C', 'D', [40, -40]);
+  const m1 = choque(CH.a, 'A', 'B', [-60, 40]);
+  const m2 = choque(CH.b, 'C', 'D', [-50, 30]);
   // el que se deja aplastar: E, abajo; F baja y se le sienta encima; E se aplasta despacio y se ladea (sin cara: el gesto es
   // todo), aguanta un momento así y se funde con F
   const [a0, a1] = CH.aplasta;
@@ -507,9 +507,10 @@ function tramo2(n, ts) {
   }
 }
 // S3–S4: el corte en plano medio, el rayo que rebota, el calendario; la luz sale y viaja con el reloj hasta la cara
-const CAL3 = { pos: en(1290, 560, 1.2), escala: 2.15, rot: [0.04, -0.28, 0] };
+const CAL_X = 1238, CAL_Y = 548;
+const CAL3 = { pos: en(CAL_X, CAL_Y, 1.2), escala: 1.85, rot: [0.04, -0.28, 0] };
 const CLAVES_CAL = (() => {
-  const t0 = T.rayo[0], t1 = T.fuera - 0.05;
+  const t0 = T.rayo[0], t1 = T.fuera - 0.6;
   const nums = [1, 10, 100, 1000, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000];
   // las primeras más despacio; después, cada vez más seguidas
   return nums.map((v, i) => [t0 + 0.15 + (t1 - t0 - 0.15) * Math.pow(i / (nums.length - 1), 0.78), v]);
@@ -521,9 +522,8 @@ function relojEn(ts) {
 }
 function tramo34(n, ts) {
   const up = eio(prog(ts, T.pan[0], T.pan[1]));
-  // fondo: el espacio con la Tierra (corte) → el espacio sin ella (viaje), algo desplazado
-  g.drawImage(F('mundoSinSol'), 0, 0, W, H);
-  if (up > 0) { g.save(); g.globalAlpha = up; g.drawImage(F('espacio'), -40 * up, 0, W + 80, H); g.restore(); }
+  // fondo: el espacio (sin la Tierra: en el plano medio estorbaba junto al calendario), que se desplaza un poco con el pan
+  g.drawImage(F('espacio'), -40 * up, 0, W + 80, H);
   // entrada desde el detalle: la foto del corte se agranda alrededor del núcleo; aquí, al revés, desde el núcleo
   const ue = eio(prog(ts, T.sale[0], T.sale[1]));
   const sEnt = mix(3.2, 1, ue);
@@ -595,7 +595,7 @@ function tramo34(n, ts) {
     const h = hojaEn(ts, CLAVES_CAL, 0.17);
     // se queda atrás: se va hacia la izquierda y hacia abajo, encogiendo
     const ua = eic(prog(ts, T.pan[0], T.pan[0] + 0.35));
-    const pc = en(1290 - 260 * ua, 560 + 30 * (1 - ss(T.sale[0], T.sale[1], ts)) + 220 * ua, 1.2);
+    const pc = en(CAL_X - 260 * ua, CAL_Y + 30 * (1 - ss(T.sale[0], T.sale[1], ts)) + 220 * ua, 1.2);
     calendario(P, I.CAL, { ...CAL3, escala: CAL3.escala * (1 - 0.6 * ua), pos: pc, ...h, toque: h.hoja > 0 || ua > 0 });
   }
   const kr = ss(T.pan[1] - 0.35, T.pan[1] + 0.1, ts);
@@ -608,7 +608,7 @@ function tramo34(n, ts) {
   P.render(n, { fondo: false });
   pegarGL();
 }
-function personaEn(ts, up) { return { k: ss(T.pan[0] + 0.3, T.pan[1], ts), dx: 360 * (1 - eoc(prog(ts, T.pan[0] + 0.2, T.pan[1] + 0.1))) }; }
+function personaEn(ts, up) { return { k: ts >= T.pan[0] ? 1 : 0, dx: (PAN.de[0] - PAN.a[0]) * (1 - up) }; }
 // S5: el cielo
 function tramo5(n, ts) {
   g.drawImage(F('espacio'), 0, 0, W, H);
@@ -655,7 +655,7 @@ function dibujar(t) {
       brilloNucleo(g, NUC1[0], NUC1[1], 0.3 * SR * 0.84 * s, 0.85);
     }
     if (ue > 0) { g.save(); g.globalAlpha = ss(0.35, 1, ue); tramo2(n, ts); g.restore(); }
-    P.limpiar(); atomo(ts); P.render(n, { fondo: false }); pegarGL();
+    P.limpiar(); atomo(ts, { claro: ss(0.3, 1, ue) }); P.render(n, { fondo: false }); pegarGL();
   } else if (ts < T.s5) {
     // volver: el detalle se funde en el corte que se aleja desde el núcleo (en tramo34)
     tramo34(n, ts);
@@ -665,7 +665,7 @@ function dibujar(t) {
       g.translate(NUC3[0], NUC3[1]); g.scale(1 + 0.6 * us, 1 + 0.6 * us); g.translate(-NUC3[0], -NUC3[1]);
       tramo2(n, ts);
       g.restore();
-      P.limpiar(); atomo(ts); P.render(n, { fondo: false }); pegarGL();
+      P.limpiar(); atomo(ts, { claro: 1 - ss(0, 0.7, us) }); P.render(n, { fondo: false }); pegarGL();
     }
   } else tramo5(n, ts);
   // encima de todo: la regla, en vivo y en cada fotograma, como en ep3-tierra (con su hervor); la viñeta y el grano

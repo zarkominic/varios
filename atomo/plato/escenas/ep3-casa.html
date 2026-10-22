@@ -77,10 +77,12 @@ const T = {
   reparto: [mitad - 0.3, mitad + 0.2],                          // salen los átomos a los dos lados (fila de 25)
   cruce: [mitad - 0.3, mitad + 0.05],                           // el peldaño se va (fundido)
   vuelta: [mitad + 0.12, mitad + 1.0],                          // Atom vuelve a su sitio
-  alejar: [mitad + 0.35, m.casaFin - 1.1],                      // la fila se aleja hasta 1 mm
-  regla: [m.casaFin - 1.25, m.casaFin - 0.62],                  // sube la regla de milímetros
-  quitaRegla: [m.estadio - 0.78, m.estadio - 0.48],
-  zambullida: [m.estadio - 0.7, m.estadio - 0.02],              // vuelta al centro del hilo
+  alejar: [mitad + 0.3, m.casaFin - 1.35],                      // la fila se aleja hasta 1 mm
+  regla: [m.casaFin - 1.6, m.casaFin - 1.0],                    // sube la regla de milímetros (mientras el hilo se posa)
+  // el «1 mm» entero (hilo sobre la regla) se queda quieto hasta acabar la frase (~1,1 s); luego la regla se va y la
+  // cámara vuelve al centro del hilo en el hueco entre frases
+  quitaRegla: [m.casaFin + 0.08, m.casaFin + 0.36],
+  zambullida: [m.casaFin + 0.12, m.estadio - 0.02],             // vuelta al centro del hilo
   crece: [m.estadio - 0.05, m.estadio + 0.85],                  // el átomo del centro crece
   fundeEst: [m.estadio + 0.35, m.estadio + 0.8],                // … y es el estadio
   aGuisante: [m.estadio + 0.47 * (m.estadioFin - m.estadio), m.estadio + 0.47 * (m.estadioFin - m.estadio) + 1.0],
@@ -403,7 +405,19 @@ const HACER = {
     const g2 = geometriaEstadio(P, det).guisante;
     det.pos = [ESTADIO.pos[0] + (gp[0] - g2[0]), ESTADIO.pos[1] + (gp[1] - g2[1]), ESTADIO.pos[2] + (gp[2] - g2[2])];
     P.limpiar(); estadio(P, I.EST, { ...det, brilloGuisante: 0.35 }); P.render(2002);
-    return foto(P);
+    // bordes suaves: mientras se acerca o se aleja, la foto no llena la pantalla y se funde con el estadio agrandado
+    // que lleva debajo (sin marco ni costura recta)
+    const c = foto(P), gc = c.getContext('2d'), bw = 0.07 * c.width, bh = 0.07 * c.height;
+    gc.globalCompositeOperation = 'destination-in';
+    let gr = gc.createLinearGradient(0, 0, c.width, 0);
+    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(bw / c.width, 'rgba(0,0,0,1)');
+    gr.addColorStop(1 - bw / c.width, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    gc.fillStyle = gr; gc.fillRect(0, 0, c.width, c.height);
+    gr = gc.createLinearGradient(0, 0, 0, c.height);
+    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(bh / c.height, 'rgba(0,0,0,1)');
+    gr.addColorStop(1 - bh / c.height, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    gc.fillStyle = gr; gc.fillRect(0, 0, c.width, c.height);
+    return c;
   },
   // el átomo del centro creciendo: el átomo solo, a SEP_CRECE px (se agranda en 2D hasta que llega el estadio), y la
   // fila a S0 px centrada en el guisante (los vecinos se apartan y se apagan)
@@ -520,8 +534,11 @@ function baseEstadio(n, ts) {
   let s = mix(lento, K_DET * 1.0, ui);
   s *= 1 + 0.035 * prog(ts, T.aGuisante[1], T.deGuisante[0]) * (1 - uo);
   s = mix(s, 1, uo);
-  const kd = ss(1.6, 2.6, s);     // cuánto se ve la foto de detalle
-  if (kd < 1) fotoEscalada(F('estadio'), s, pg);
+  // cuánto se ve la foto de detalle: entra al final del acercamiento, cuando ya casi llena la pantalla
+  const kd = ss(0.62 * K_DET, 0.92 * K_DET, s);
+  // la foto de detalle (con bordes suaves) va siempre encima del estadio agrandado, que llena lo que ella no llega a
+  // tapar (antes, mientras se acercaba, quedaba un marco oscuro alrededor)
+  fotoEscalada(F('estadio'), s, pg);
   if (kd > 0) fotoEscalada(F('detalle'), s / K_DET, pg, kd);
   // la nube de electrones por las gradas
   const un = prog(ts, T.nube[0], T.nube[1]);

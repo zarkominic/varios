@@ -46,6 +46,7 @@ const T0 = performance.now();
 const perfil = new URLSearchParams(location.search).has('perfil');
 const log = (...a) => { if (perfil) console.log(...a, Math.round(performance.now() - T0)); };
 const E = await escena('ep3-tierra', 'ep03');
+log('escena');
 const M = (k) => E.marca(k);
 const m = { tierra: M('tierra'), tierraFin: M('tierra_fin'), hueco: M('hueco'), huecoFin: M('hueco_fin'), sol: M('sol'), solFin: M('sol_fin') };
 const D = E.duracion, QUIETO = D - 0.6;
