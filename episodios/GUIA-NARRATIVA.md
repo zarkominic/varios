@@ -64,3 +64,15 @@
 
 - **Texto en pantalla:** ellos rotulan en inglés y tienen un canal por idioma. Nosotros, un solo vídeo con dos audios, así que solo números y símbolos.
 - **Su estilo gráfico:** vector plano, pájaros mascota. Tenemos el nuestro: Atom y el muestrario de estilos.
+
+## Nombres de los estilos (para pedirlos sin confusión)
+
+| Nombre | Qué es | Referencia |
+|---|---|---|
+| **pixel retro** (o «pixel del muestrario», «estilo 17») | El pixel art del muestrario original: retro clásico, colores saturados, personaje tipo videojuego | `estilos/17-pixel-art.html` |
+| **pixel canal** | El pixel art de la muestra del episodio 3: indie moderno, paleta terrosa del canal, Atom de latón y persona con las proporciones de `HUMANO.md` | `atomo/plato/escenas/px-ep3-*.html`, kit `atomo/plato/kits/pixel-ep03.js` |
+| **plastilina adulta** | La base del canal desde el episodio 3 | `kits/plastilina-adulta.js` |
+| **plastilina infantil** | La plastilina A de la prueba de identidad (colores de juguete) | `escenas/prueba-plastilina.html` |
+| **papel** / **isométrico** | Las versiones con la paleta del canal | `kits/papel-adulta.js`, `kits/isometrico-adulta.js` |
+
+Cualquier estilo del muestrario se pide por su número (`estilos/NN-*.html`): «estilo 17 tal cual» significa copiarlo sin adaptarlo a la paleta ni al Atom del canal.
