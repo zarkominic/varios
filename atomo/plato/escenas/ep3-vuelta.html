@@ -639,6 +639,23 @@ trabajo('gE_0', ponerGig(GE, 1), 9720, 2); trabajo('gE_1', ponerGig(GE, 1), 9721
 const fotoD = (hu, n) => (hu === HU[0] ? 'gD5_' + (n % 2) : 'gD' + HU.indexOf(hu));
 // una foto de la gigante (hecha con el encuadre G) llevada al encuadre del momento (enc): el núcleo a su sitio y escalada
 const capaGig = (clave, G, enc, alfa = 1) => pegarEscalada(F(clave), enc.R / G.R, G.c, enc.c, alfa);
+// la foto de cerca, encogida (en el fundido), con un borde redondo y suave alrededor del núcleo: así no se ve el canto
+// recto de la foto sobre la de debajo
+let TMPG = null;
+function capaGigRedonda(clave, G, enc, alfa) {
+  if (alfa <= 0.002) return;
+  if (!TMPG || TMPG.width !== capa.width) TMPG = lienzo(capa.width, capa.height);
+  const t = TMPG.getContext('2d'), k = capa.width / W, s = enc.R / G.R;
+  t.setTransform(1, 0, 0, 1, 0, 0); t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, TMPG.width, TMPG.height);
+  t.setTransform(k, 0, 0, k, 0, 0);
+  t.save(); t.translate(enc.c[0], enc.c[1]); t.scale(s, s); t.translate(-G.c[0], -G.c[1]); t.drawImage(F(clave), 0, 0, W, H); t.restore();
+  const r1 = s * Math.min(G.c[0], W - G.c[0], G.c[1], H - G.c[1]);
+  t.globalCompositeOperation = 'destination-in';
+  const gr = t.createRadialGradient(enc.c[0], enc.c[1], 0.55 * r1, enc.c[0], enc.c[1], 0.98 * r1);
+  gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  t.fillStyle = gr; t.fillRect(0, 0, W, H);
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = alfa; g.drawImage(TMPG, 0, 0); g.restore();
+}
 // las partículas del centro (en px relativos al núcleo, con el encuadre de cerca): tres protones y su electrón cada uno
 const PARES = [
   { p: [330, -60], e: [480, -170] },
@@ -733,15 +750,22 @@ function planoEstrella(ts, n) {
     pegarGL();
     core = pant(geo.nucleo); rCore = geo.radioNucleo * pxU(geo.nucleo);
   } else {
-    if (enc.a < 1) { capaGig('gC', GC, enc); capaGig('gD5_' + (n % 2), GD, enc, ss(0.2, 0.8, enc.a)); }
+    if (enc.a < 1) { capaGig('gC', GC, enc); capaGigRedonda('gD5_' + (n % 2), GD, enc, ss(0.2, 0.8, enc.a)); }
     else if (enc.b <= 0) capaGig(fotoD(hu, n), GD, enc);
-    else { capaGig('gD4', GD, enc); capaGig('gE_' + (n % 2), GE, enc, ss(0.15, 0.75, enc.b)); }
+    else { capaGig('gE_' + (n % 2), GE, enc); capaGigRedonda('gD4', GD, enc, 1 - ss(0.2, 0.8, enc.b)); }
     core = c; rCore = R * mix(0.2, 0.075, ss(0, 0.7, hu));
   }
   // se queda sin combustible: el fuego del núcleo chisporrotea y se apaga
   const ua = prog(ts, T.apaga[0], T.apaga[1]);
-  const fuego = (1 - eio(ua)) * (ua < 1 ? 0.75 + 0.25 * Math.sin(ts * 31) * Math.sin(ts * 13 + 1) : 0) * ss(T.corte[0], T.corte[1], ts);
-  if (fuego > 0.01) brilloNucleo(g, core[0], core[1], 0.26 * R, 1.1 * fuego);
+  // (chisporrotea a saltos de stop-motion: fuerte, débil, fuerte… cada vez menos, hasta apagarse)
+  const fuego = (1 - eio(ua)) * (ua < 1 ? 0.5 + 0.5 * Math.abs(Math.sin(ts * 31) * Math.sin(ts * 13 + 1)) : 0) * ss(T.corte[0], T.corte[1], ts);
+  if (fuego > 0.01) {
+    brilloNucleo(g, core[0], core[1], 0.3 * R * (1 - 0.35 * ua), 1.5 * fuego);
+    g.save(); g.globalCompositeOperation = 'screen';
+    const Rf = 0.55 * R, gf = g.createRadialGradient(core[0], core[1], 0, core[0], core[1], Rf);
+    gf.addColorStop(0, `rgba(255,170,70,${0.55 * fuego})`); gf.addColorStop(0.45, `rgba(240,110,40,${0.2 * fuego})`); gf.addColorStop(1, 'rgba(220,80,30,0)');
+    g.fillStyle = gf; g.beginPath(); g.arc(core[0], core[1], Rf, 0, 2 * Math.PI); g.fill(); g.restore();
+  }
   // el centro se hunde: un anillo frío que se cierra hacia el centro y, al llegar, el destello azulado
   const uh = prog(ts, T.hunde[0] - 0.04, T.hunde[1]);
   if (uh > 0 && uh < 1) {
