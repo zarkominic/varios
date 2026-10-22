@@ -276,7 +276,7 @@ const ponerGig = () => gigante(P, I.GIG, { ...solComoMundo(P, [GE.c[0], GE.c[1],
 const C4 = camara(4);
 const CIUDAD = aPant(C4, MUNDO.CIUDAD);
 // la estrella de neutrones posada: del mismo tamaño que la ciudad (la ciudad asoma un poco alrededor)
-const R_B = 340, Z_B = 2;
+const R_B = 305, Z_B = 2, BRILLO_B = 0.35;
 const bolaEn = ([x, y], R, rot = [0.35, 0.6, 0]) => { const pos = en(x, y, Z_B); return { pos, escala: R / pxU(pos), rot }; };
 const BOLA = bolaEn(CIUDAD, R_B);
 Object.assign(HACER, {
@@ -284,8 +284,8 @@ Object.assign(HACER, {
   reg4_0: () => fotoPlato(9400, () => reglaEn(4)), reg4_1: () => fotoPlato(9401, () => reglaEn(4)), reg4_2: () => fotoPlato(9402, () => reglaEn(4)),
   reg4Tenue: () => { const c = F('reg4_0'), d = lienzo(c.width, c.height), gd = d.getContext('2d'); gd.filter = 'grayscale(0.8) brightness(0.7)'; gd.drawImage(c, 0, 0); return d; },
   // la bola posada (dos fotos para el hervor)
-  bola_0: () => fotoPlato(9800, () => neutrones(P, I.BOLA, { ...BOLA, brillo: 0.6 })),
-  bola_1: () => fotoPlato(9801, () => neutrones(P, I.BOLA, { ...BOLA, brillo: 0.6 })),
+  bola_0: () => fotoPlato(9800, () => neutrones(P, I.BOLA, { ...BOLA, brillo: BRILLO_B })),
+  bola_1: () => fotoPlato(9801, () => neutrones(P, I.BOLA, { ...BOLA, brillo: BRILLO_B })),
 });
 // el espacio de ep3-vuelta sin viñeta, con la misma sombra de Atom horneada (somA: la del Atom del final de ep3-tierra,
 // FIN_SOL.tz0 allí)
@@ -316,17 +316,17 @@ function bolaEnCiudad(x, [cx, cy], R, foto, kHalo = 1, alto = 0) {
   h.addColorStop(0, `rgba(40,28,24,${a})`); h.addColorStop(0.75, `rgba(70,50,40,${0.55 * a})`); h.addColorStop(1, 'rgba(255,255,255,0)');
   gS.fillStyle = h; gS.beginPath(); gS.arc(cx + ox, cy + oy, rs, 0, 2 * Math.PI); gS.fill();
   gS.restore();
-  halo(x, cx, cy, R, 0.75 * kHalo, 'neutrones');
+  halo(x, cx, cy, R, 0.35 * kHalo, 'neutrones');
   if (foto) { x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(foto, 0, 0); x.restore(); }
-  halo(x, cx, cy, R, 0.5 * kHalo, 'neutrones', { dentro: false });
+  halo(x, cx, cy, R, 0.3 * kHalo, 'neutrones', { dentro: false });
 }
 
 // ---------------------------------------------------------------- la balanza (la de ep3-proton: mismo sitio, mismo tamaño)
 const E_BAL = 3.0;
 const BAL = { pos: [en(880, 500, 0)[0], -BALANZA.SUELO * E_BAL, 0], escala: E_BAL, rot: [0, -0.1, 0] };
 // la cucharita en su plato: el cuenco hacia el centro del plato y el mango apoyado en el borde, hacia fuera y hacia delante
-const E_CUC = 0.5 * E_BAL;
-const E_PIZ = 0.075 * E_CUC;            // la bolita de estrella de neutrones en el cuenco
+const E_CUC = 0.62 * E_BAL;
+const E_PIZ = 0.1 * E_CUC;            // la bolita de estrella de neutrones en el cuenco
 function cucharaEnPlato(b, alto = 0, escala = E_BAL) {
   const k = escala / E_BAL;
   const c = enPlato(b, 'izq', [-0.1, 0.02, 0.04]);
@@ -334,11 +334,11 @@ function cucharaEnPlato(b, alto = 0, escala = E_BAL) {
 }
 function bolita(o, e) {
   // el cuenco de la cucharilla está en su origen (fondo en y ≈ −0,02): la bolita, encima
-  const q = new THREE.Vector3(0, 0.02 + 0.075, 0).applyEuler(new THREE.Euler(o.rot[0], o.rot[1], o.rot[2], 'YXZ')).multiplyScalar(o.escala);
-  return { pos: [o.pos[0] + q.x, o.pos[1] + q.y, o.pos[2] + q.z], escala: e, rot: [0.4, 0.9, 0], brillo: 0.9 };
+  const q = new THREE.Vector3(0, 0.02 + 0.1, 0).applyEuler(new THREE.Euler(o.rot[0], o.rot[1], o.rot[2], 'YXZ')).multiplyScalar(o.escala);
+  return { pos: [o.pos[0] + q.x, o.pos[1] + q.y, o.pos[2] + q.z], escala: e, rot: [0.4, 0.9, 0], brillo: 0.8 };
 }
 const anguloBal = (ts) => (ts < T.nivela[0] ? -BALANZA.A_MAX : caida(ts, { t0: T.nivela[0], dur: T.nivela[1] - T.nivela[0], de: -BALANZA.A_MAX, a: 0, rebote: 0.1, peso: 2.4 }));
-const E_COC = 0.85 * E_BAL;
+const E_COC = 0.72 * E_BAL;
 function ponerBalanza(ts, { conCuchara = true, bal = BAL, k = 1 } = {}) {
   const b = balanza(P, I.BAL, { ...bal, angulo: anguloBal(ts) });
   coches(P, I.COC, { pos: b.platoDer, escala: E_COC * k, rot: [0, 0.4, 0] });
@@ -353,10 +353,12 @@ function ponerBalanza(ts, { conCuchara = true, bal = BAL, k = 1 } = {}) {
   return { b };
 }
 // el detalle: la misma balanza, más grande, con el plato de la cucharita en (760, 600)
-const K_DET = 2.3;
+// girada de tres cuartos (el brazo se va hacia el fondo, con el pie y los coches detrás) y algo inclinada hacia la
+// cámara: se ve dentro del plato
+const K_DET = 1.9;
 const BAL_DET = (() => {
-  const o = { pos: [0, 0, 0], escala: E_BAL * K_DET, rot: BAL.rot, angulo: 0 };
-  const geo = geometriaBalanza(o), want = en(760, 610, 1.2);
+  const o = { pos: [0, 0, 0], escala: E_BAL * K_DET, rot: [0.3, 0.9, 0], angulo: 0 };
+  const geo = geometriaBalanza(o), want = en(620, 640, 1.5);
   return { ...o, pos: [want[0] - geo.platoIzq[0], want[1] - geo.platoIzq[1], want[2] - geo.platoIzq[2]] };
 })();
 Object.assign(HACER, {
@@ -379,7 +381,7 @@ function brilloBolita([x, y], r, ts, k = 1) {
 // (la pieza 'mano' del kit: dorso hacia la cámara, dedos hacia −y, pulgar en −x), con el dorso arriba y los dedos hacia
 // el cuenco: el mango pasa por debajo de los dedos
 const Z_MANO = 3.2;
-const DIR = (() => { const a = -0.62; return [Math.cos(a), -Math.sin(a)]; })();     // del cuenco hacia la mano (pantalla)
+const DIR = (() => { const a = -1.15; return [Math.cos(a), -Math.sin(a)]; })();     // del cuenco hacia la mano (pantalla)
 function eulerDe(ex, ey) {
   // la rotación que lleva el eje x local a ex y el y local a ey (en el mundo), como euler YXZ
   const X = new THREE.Vector3(...ex).normalize(), Y0 = new THREE.Vector3(...ey);
@@ -388,25 +390,25 @@ function eulerDe(ex, ey) {
   return [e.x, e.y, e.z];
 }
 // en el mundo: el mango hacia (DIR, algo hacia el fondo); el cuenco abierto hacia la cámara (y algo hacia arriba)
-const D_MUNDO = [DIR[0], DIR[1], -0.25];
+const D_MUNDO = [DIR[0], DIR[1], 0.05];
 const ROT_CUC = eulerDe(D_MUNDO, [0, 0.35, 1]);
 const ROT_MANO = eulerDe([DIR[1], -DIR[0], 0], [DIR[0], DIR[1], 0.15]);
-const CUENCO = [1250, 585];             // dónde está el cuenco (px), sobre la ciudad, a la derecha de la bola
-const E_CUC_M = 190 / pxU(en(...CUENCO, Z_MANO));       // la cucharita mide ~190 px
-const E_MANO = 1.0 * E_CUC_M / 1.48 * 1.55;            // la mano, algo más larga que la cucharita
+const CUENCO = [1215, 640];             // dónde está el cuenco (px), sobre la ciudad, a la derecha de la bola
+const E_CUC_M = 250 / pxU(en(...CUENCO, Z_MANO));       // la cucharita mide ~250 px
+const E_MANO = E_CUC_M / 1.48 * 1.25;                  // la mano, algo más larga que la cucharita
 function manoYCuchara(ts) {
   // tiembla (a saltos de stop-motion) y se va despacio por arriba a la derecha
   const tb = temblor(ts, 11, 7), gi = (azar(Math.floor(ts * 12), 17) - 0.5) * 0.05;
   const u = eio(prog(ts, T.va[0], T.va[1]));
-  const vx = 520 * u, vy = -760 * u;
+  const vx = 230 * u, vy = -900 * u;
   const cpx = [CUENCO[0] + tb[0] * (1 - u) + vx, CUENCO[1] + tb[1] * (1 - u) + vy];
   const pos = en(cpx[0], cpx[1], Z_MANO);
   const o = { pos, escala: E_CUC_M, rot: [ROT_CUC[0], ROT_CUC[1], ROT_CUC[2] + gi] };
-  // el agarre: un poco antes del final del mango
-  const q = new THREE.Vector3(0.9, 0.03, 0).applyEuler(new THREE.Euler(...o.rot, 'YXZ')).multiplyScalar(E_CUC_M);
+  // el agarre: la punta del mango, entre las yemas del pulgar, el índice y el corazón
+  const q = new THREE.Vector3(0.97, 0.02, 0).applyEuler(new THREE.Euler(...o.rot, 'YXZ')).multiplyScalar(E_CUC_M);
   const agarre = [pos[0] + q.x, pos[1] + q.y, pos[2] + q.z];
-  // la mano: el centro del agarre (bajo los dedos, entre el pulgar y el índice) en el agarre
-  const qm = new THREE.Vector3(-0.12, -0.55, -0.12).applyEuler(new THREE.Euler(ROT_MANO[0], ROT_MANO[1], ROT_MANO[2] + gi, 'YXZ')).multiplyScalar(E_MANO);
+  // la mano: las yemas (un poco por detrás del mango) en el agarre: la mano lleva la cucharita colgando de la punta
+  const qm = new THREE.Vector3(-0.1, -0.98, -0.07).applyEuler(new THREE.Euler(ROT_MANO[0], ROT_MANO[1], ROT_MANO[2] + gi, 'YXZ')).multiplyScalar(E_MANO);
   const mano = { pos: [agarre[0] - qm.x, agarre[1] - qm.y, agarre[2] - qm.z], escala: E_MANO, rot: [ROT_MANO[0], ROT_MANO[1], ROT_MANO[2] + gi] };
   return { o, mano, cpx, u };
 }
@@ -490,11 +492,11 @@ function planoBola(ts, n, nP) {
     g.save(); g.globalAlpha = kc;
     bolaEnCiudad(g, c, S.R, null, 1, S.alto);
     g.restore();
-  } else halo(g, c[0], c[1], S.R, 0.8, 'neutrones');
+  } else halo(g, c[0], c[1], S.R, 0.45, 'neutrones');
   P.limpiar();
-  neutrones(P, I.BOLA, { ...bolaEn(c, S.R, S.rot), brillo: 0.6 + 0.3 * (1 - S.us), toque: S.uc > 0 && S.uc < 1 });
+  neutrones(P, I.BOLA, { ...bolaEn(c, S.R, S.rot), brillo: BRILLO_B + 0.4 * (1 - S.us), toque: S.uc > 0 && S.uc < 1 });
   P.render(n, { fondo: false }); pegarGL();
-  halo(g, c[0], c[1], S.R, 0.5, 'neutrones', { dentro: false });
+  halo(g, c[0], c[1], S.R, 0.3, 'neutrones', { dentro: false });
   // al posarse: un pulso frío y un anillo de polvo que se abre por la ciudad
   const vp = ts - T.posa;
   if (vp > -0.02 && vp < 1.0) {
@@ -556,7 +558,8 @@ function dibujar(t) {
       }
       // al posarse la cucharita, un pulso frío
       const vp = ts - T.cuchara[1];
-      if (vp > -0.02 && vp < 0.6) destello(g, PIZ_PX[0], PIZ_PX[1] - 6, 60, 0.6 * Math.exp(-Math.max(vp, 0) / 0.2) * ss(-0.02, 0.03, vp), { rayos: 6, giro: 0.3, color: 'frio' });
+      const pz = pant(bolita(cucharaEnPlato(geometriaBalanza({ ...BAL, angulo: anguloBal(ts) })), E_PIZ).pos);
+      if (vp > -0.02 && vp < 0.6) destello(g, pz[0], pz[1], 60, 0.6 * Math.exp(-Math.max(vp, 0) / 0.2) * ss(-0.02, 0.03, vp), { rayos: 6, giro: 0.3, color: 'frio' });
     } else {
       const z = 1 + 0.05 * eio(prog(ts, T.det, T.C));
       pegarEscalada(F('balDet_' + (n % 2)), z, PIZ_DET);
@@ -575,10 +578,10 @@ function dibujar(t) {
       P.limpiar();
       P.pieza(I.MANO, MC.mano);
       cucharilla(P, I.CUC, MC.o);
-      const bo = bolita(MC.o, 0.075 * E_CUC_M);
+      const bo = bolita(MC.o, 0.12 * E_CUC_M);
       neutrones(P, I.PIZ, bo);
       P.render(n, { fondo: false }); pegarGL();
-      brilloBolita(pant(bo.pos), 0.075 * E_CUC_M * pxU(bo.pos) * 1.1, ts, 1);
+      brilloBolita(pant(bo.pos), 0.12 * E_CUC_M * pxU(bo.pos) * 1.1, ts, 1);
     }
   }
   // Atom (sobre la ciudad, con su sombra detrás)

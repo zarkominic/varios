@@ -506,7 +506,7 @@ function fin() {
 const FOTO = {};
 let hechasAhora = 0, tFot = null;
 // las fotos grandes se pintan en FRANJAS horizontales (setScissor), una por fotograma, con su número de fotograma fijo
-const FRANJAS = { tronco: 6, vaso: 4, pelo: 3, ojo0: 6, ojo1: 2, ojo2: 2, ojo3: 2 };
+const FRANJAS = { tronco: 6, vaso: 4, pelo: 3, ojo0: 8, ojo1: 3, ojo2: 3, ojo3: 3 };
 // zona de cada foto por franjas (px de diseño; por defecto, el cuadro entero) y la foto sobre la que se pega
 const ZONA = { ojo1: R_OJO, ojo2: R_OJO, ojo3: R_OJO };
 const BASE = { ojo1: 'ojo0', ojo2: 'ojo0', ojo3: 'ojo0' };
@@ -574,17 +574,18 @@ function F(k) {
 const COSTE = { corte: 5.8, ojo: 1.5, mir1: 1.4, tronco: 1.3, mir2: 4.0, vaso: 2.5, pelo: 6.5 };
 const LIMITE = 8.6;
 const EST = {
-  'ojo0#': 2.8, ojo0: 0.1, 'ojo1#': 2.6, ojo1: 0.1, 'ojo2#': 2.6, ojo2: 0.1, 'ojo3#': 2.6, ojo3: 0.1, ojoVin: 0.2,
-  'e:tronco': 1.5, 'tronco#': 2.7, tronco: 0.1, 'e:vaso': 1.5, 'vaso#': 2.4, vaso: 0.1, 'e:globulos': 1.5,
-  regla5: 2.5, pose: 1.0, 'e:cortePelo': 1.5, 'pelo#': 2.4, pelo: 0.1, 'e:cota': 0.6,
+  'ojo0#': 2.8, ojo0: 0.1, 'ojo1#': 2.8, ojo1: 0.1, 'ojo2#': 2.8, ojo2: 0.1, 'ojo3#': 2.8, ojo3: 0.1, ojoVin: 0.3,
+  'e:tronco': 2.0, 'tronco#': 3.0, tronco: 0.1, 'e:vaso': 2.5, 'vaso#': 4.0, vaso: 0.1, 'e:globulos': 3.0,
+  regla5: 3.5, pose: 2.0, 'e:cortePelo': 2.5, 'pelo#': 3.5, pelo: 0.1, 'e:cota': 1.5,
 };
 const est = (k) => EST[k.includes('#') ? k.split('#')[0] + '#' : k.startsWith('pose') ? 'pose' : k];
 const franjas = (k, desde, hasta) => [...Array(FRANJAS[k]).keys()].map((b) => [desde, `${k}#${b}`, hasta]).concat([[desde, k, hasta]]);
 const PREPARAR = [
   ...franjas('ojo0', 0, T.ojo), ...franjas('ojo1', 0, T.cierra[1]), ...franjas('ojo2', 0, T.cierra[1]), ...franjas('ojo3', 0, T.cierra[1]),
-  [0, 'ojoVin', T.mir1[1]], [0, 'e:tronco', T.mir1[0]], ...franjas('tronco', 0, T.mir1[0]),
-  [0, 'e:vaso', T.mir2[0]], [0, 'e:globulos', T.mir2[0]], ...[...Array(RIO.poses).keys()].map((k) => [0, 'pose' + k, T.mir2[0]]), ...franjas('vaso', 0, T.mir2[0]), [0, 'regla5', T.mir2[1]],
-  [0, 'e:cortePelo', T.pelo], [0, 'e:cota', T.pelo], ...franjas('pelo', 0, T.pelo),
+  // (lo que no corre prisa, a partir de los fotogramas baratos del ojo de fuera)
+  [T.ojo, 'ojoVin', T.mir1[1]], [T.ojo, 'e:tronco', T.mir1[0]], ...franjas('tronco', T.ojo, T.mir1[0]),
+  [T.ojo, 'e:vaso', T.mir2[0]], [T.ojo, 'e:globulos', T.mir2[0]], ...[...Array(RIO.poses).keys()].map((k) => [T.ojo, 'pose' + k, T.mir2[0]]), ...franjas('vaso', T.ojo, T.mir2[0]), [T.ojo, 'regla5', T.mir2[1]],
+  [T.ojo, 'e:cortePelo', T.pelo], [T.ojo, 'e:cota', T.pelo], ...franjas('pelo', T.ojo, T.pelo),
 ];
 // lo que tiene que estar hecho antes (si no, F() lo haría dentro y se saldría del presupuesto)
 const ANTES = { pose0: ['e:globulos'], tronco: ['e:tronco'], vaso: ['e:vaso'], pelo: ['e:cortePelo'], ojo0: [], ojo1: ['ojo0'], ojo2: ['ojo0'], ojo3: ['ojo0'], ojoVin: ['ojo3'] };

@@ -10,9 +10,9 @@
 <script type="module">
 // EP3-LUZ · episodio 3, frases 67–69 (cartela «+16»), plastilina adulta. Usa ep03-cosmos.js, ep03-tiempo.js y
 // ep03-estrellas.js (no crea ningún kit).
-//  0        la estrella de neutrones sobre la ciudad brillante vista desde arriba (el mundo de cosmos a 10⁴, camara(4)),
-//           la regla en 10⁴, Atom pequeño abajo a la izquierda; encima, la cartela «+16» (quieta hasta 0,75 s; se va
-//           hacia 1,2 s)
+//  0        la estrella de neutrones sobre la ciudad brillante vista desde arriba (el mundo de cosmos a 10⁴, con la
+//           ciudad en el centro), la regla en 10⁴, Atom pequeño abajo a la izquierda; encima, la cartela «+16» (quieta
+//           hasta 0,75 s; se va hacia 1,2 s)
 //  subir    (plano general) tres saltos secos ×10, de 10⁴ a 10⁷: la cámara sale de la ciudad (la estrella de neutrones se
 //           queda en ella y se hace un punto) hasta ver la Tierra entera; la Luna va a su distancia real (a 10⁷ queda
 //           fuera de cuadro); el brillo de la ciudad se apaga
@@ -29,11 +29,13 @@
 //           apaga, el reloj se va y queda la galaxia entera, quieta (termina_con)
 // CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28)
 //  · Fotograma 0 (window.__inicio; ep3-neutrones no existe todavía y su último fotograma debería ser este, sin la
-//    cartela): el mundo de ep03-cosmos.js con camara(4) y n = 940 (como mundo4_0 de ep3-vuelta), sin viñeta;
-//    brilloCiudad(g, camara(4), 1); la estrella de neutrones (pieza 'neutrones' de ep03-estrellas.js, brillo 0,6) en el
-//    centro de la ciudad (aPant(camara(4), MUNDO.CIUDAD) = (1009, 365)) con R_NS = 4.700 m de radio (254 px a 10⁴) y su
+//    cartela): el mundo de ep03-cosmos.js a 10⁴ con la z de camara(4) (4,12) pero con la ciudad en el centro de la
+//    pantalla, (930, 470) (camaraPorTierra(4,12, [787, 572]); en camara(4) estaría en (1009, 365), arriba y medio tapada
+//    por la cartela), n = 940, sin viñeta; brilloCiudad(g, C4, 1); la estrella de neutrones (pieza 'neutrones' de
+//    ep03-estrellas.js, brillo 0,6; un sprite) sobre el centro de la ciudad con R_NS = 4.700 m de radio (193 px) y su
 //    halo 'neutrones'; la regla P.regla con e 4, ya 0, actual 4, lupa 0,5 en P.punto(1655, 528, 0,4), escala 1,42, rot
-//    [0, −0,12, 0] (foto n = 9400); Atom en (230, 780) arrancando quieto; parpadeo y crearPost.
+//    [0, −0,12, 0] (foto n = 9400); Atom en (230, 780) arrancando quieto; parpadeo y crearPost. window.__inicio lo da
+//    en números.
 //  · Último fotograma = el primero de ep3-mapa (comprobado con su captura t = 0): el mundo con camara(21), n = 214 y somA
 //    [252, 811,7, 62, 0,42], sin viñeta; la regla en 10²¹ (foto con n = 0, como «reg0» de ep3-mapa); Atom en (230, 780);
 //    parpadeo y crearPost.
@@ -66,16 +68,16 @@ const nDe = (t) => Math.floor(t * 12 + 1e-6);
 // ---------------------------------------------------------------- tiempos (todo sale de las marcas)
 const M68 = mitad(m.anoluz, m.anoluzFin), M69 = mitad(m.galaxia, m.galaxiaFin);
 const T = {
-  rayo: [m.anoluz - 0.2, m.anoluz + 0.45 * (m.anoluzFin - m.anoluz)],   // siete vueltas y media (el segundero, de 0 a 1)
+  rayo: [m.anoluz - 0.2, m.anoluz + 0.36 * (m.anoluzFin - m.anoluz)],   // siete vueltas y media (el segundero, de 0 a 1)
   reloj: m.anoluz,                                                       // el reloj brota (completo en la marca)
-  cinta: [M68 - 0.25, M68 + 0.3],                                        // la cinta se tiende (a mitad de frase)
-  zoom2: [M68 + 0.15, m.anoluzFin - 0.75],                               // de 10⁷ a 10¹⁶, siguiendo la cinta
+  cinta: [M68 - 0.15, M68 + 0.4],                                        // la cinta se tiende (a mitad de frase)
+  zoom2: [M68 + 0.3, m.anoluzFin - 0.75],                                // de 10⁷ a 10¹⁶, siguiendo la cinta
   zoom3: [m.galaxia - 0.3, m.galaxia + 0.85],                            // de 10¹⁶ a 10²¹
   cruza: [M69 - 0.15, M69 + 2.1],                                        // el rayo cruza la galaxia (cae la arena)
   puntos: [M69 - 0.05, m.galaxiaFin - 0.55],                             // la espiral se llena de puntitos
 };
 T.unoS = T.rayo[1] + 0.12;                                // «1 s» bajo el reloj
-T.relojFuera = [T.cinta[0] - 0.12, T.cinta[0] + 0.25];    // el reloj se va
+T.relojFuera = [M68 - 0.1, M68 + 0.25];                  // el reloj se va (con la cinta)
 T.lleno = [T.puntos[1] - 0.05, T.puntos[1] + 0.4];        // lo que falte de la galaxia se aclara de golpe (suave)
 T.rayoFuera = [T.cruza[1] + 0.3, T.cruza[1] + 0.75];
 T.arenaFuera = [T.cruza[1] + 0.3, T.cruza[1] + 0.7];
@@ -100,7 +102,9 @@ const enSalto = (ts) => SALTOS.some(([a, b]) => ts > a && ts < b);
 // 4 → 7: de camara(4) (la ciudad) a CRAY (la Tierra entera algo más pequeña y a la izquierda: deja sitio al reloj y a las
 // vueltas); 7 → 16: siguiendo la cinta (la Tierra se va abajo a la derecha, a E16); 16 → 21: a camara(21) (la galaxia de
 // ep3-mapa). La Tierra en pantalla y el exponente de la cámara, lineales en el de la regla dentro de cada tramo.
-const C4 = camara(4), C21 = camara(21);
+// el primer encuadre: el de camara(4) (z 4,12) con la ciudad en el centro (930, 470) en vez de en (1009, 365)
+const C4 = (() => { const c = camara(4), d = [MUNDO.CIUDAD[0] / c.mpp, -MUNDO.CIUDAD[1] / c.mpp]; return camaraPorTierra(c.z, [930 - d[0], 470 - d[1]], 4); })();
+const C21 = camara(21);
 const ZRAY = 7.15, PRAY = [760, 480];
 const CRAY = camaraPorTierra(ZRAY, PRAY, 7);
 const E16 = [1290, 640], C16 = camaraPorTierra(16, E16, 16);
@@ -363,12 +367,15 @@ function relojEn(ts) {
 function unoS(ts, kReloj) {
   const k = brote(ts, T.unoS, 0.22) * (1 - eic(prog(ts, T.relojFuera[0], T.relojFuera[1])));
   if (k <= 0.01) return;
-  const [x, y] = [RELOJ.c[0], RELOJ.c[1] + RELOJ.r + 78];
+  const [x, y] = [RELOJ.c[0], RELOJ.c[1] + RELOJ.r + 88];
   g.save();
   g.translate(x, y); g.scale(k, k);
-  g.font = '600 76px Jost, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillStyle = 'rgba(10,6,4,0.55)'; g.fillText('1 s', 3, 5);
-  g.fillStyle = '#e8a64a'; g.fillText('1 s', 0, 0);
+  const fondo = g.createRadialGradient(0, 0, 0, 0, 0, 110);
+  fondo.addColorStop(0, 'rgba(8,5,4,0.5)'); fondo.addColorStop(1, 'rgba(8,5,4,0)');
+  g.fillStyle = fondo; g.fillRect(-110, -110, 220, 220);
+  g.font = '600 96px Jost, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = 'rgba(10,6,4,0.6)'; g.fillText('1 s', 3, 6);
+  g.fillStyle = '#f2b65c'; g.fillText('1 s', 0, 0);
   g.restore();
   // un destello al aparecer
   const u = prog(ts, T.unoS - 0.1, T.unoS + 0.45);
@@ -383,14 +390,14 @@ function unoS(ts, kReloj) {
 
 // ---------------------------------------------------------------- la cinta de año luz (2D: tela crema, canto cosido)
 const DIR = (() => { const a = Math.PI + 0.21; return [Math.cos(a), Math.sin(a)]; })();   // a la izquierda y algo arriba
-const NOR = [DIR[1], -DIR[0]];                            // la perpendicular hacia arriba (y < 0)
+const NOR = [-DIR[1], DIR[0]];                            // la perpendicular hacia arriba (y < 0)
 const AL = 9.461e15;
 function cintaAL(C, ts, alfa) {
   const ext = eoc(prog(ts, T.cinta[0], T.cinta[1]));
   if (ext <= 0.002 || alfa <= 0.003) return;
   const o = tierraPx(C), Rt = MUNDO.R_TIERRA / C.mpp;
   const a0 = Rt * 1.03, LMAX = 2600, L = a0 + (LMAX - a0) * ext;
-  const ancho = 24, h = ancho / 2;
+  const ancho = 30, h = ancho / 2;
   const P0 = [o[0] + DIR[0] * a0, o[1] + DIR[1] * a0], P1 = [o[0] + DIR[0] * L, o[1] + DIR[1] * L];
   const banda = (dx, dy, w) => { g.beginPath(); g.moveTo(P0[0] + NOR[0] * w + dx, P0[1] + NOR[1] * w + dy); g.lineTo(P1[0] + NOR[0] * w + dx, P1[1] + NOR[1] * w + dy); g.lineTo(P1[0] - NOR[0] * w + dx, P1[1] - NOR[1] * w + dy); g.lineTo(P0[0] - NOR[0] * w + dx, P0[1] - NOR[1] * w + dy); g.closePath(); };
   g.save(); g.globalAlpha = alfa;
@@ -418,14 +425,14 @@ function cintaAL(C, ts, alfa) {
       const larga = j % 2 === 0, x = o[0] + DIR[0] * d, y = o[1] + DIR[1] * d;
       const w = larga ? h : h * 0.45, kj = larga ? kM : kM * ss(40, 90, paso);
       if (kj < 0.01) continue;
-      g.strokeStyle = `rgba(38,24,14,${0.92 * kj})`; g.lineWidth = larga ? 3.2 : 2;
+      g.strokeStyle = `rgba(38,24,14,${0.92 * kj})`; g.lineWidth = larga ? 4.5 : 2.4;
       const w2 = larga ? -h : h - 2 * w;
       g.beginPath(); g.moveTo(x + NOR[0] * h, y + NOR[1] * h); g.lineTo(x + NOR[0] * w2, y + NOR[1] * w2); g.stroke();
       if (larga) {
         const kd = ss(150, 300, paso) * kj;
         if (kd > 0.01) {
-          const tx = x + NOR[0] * (h + 34), ty = y + NOR[1] * (h + 34);
-          g.font = '600 52px Jost, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+          const tx = x + NOR[0] * (h + 50), ty = y + NOR[1] * (h + 50);
+          g.font = '600 76px Jost, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
           g.fillStyle = `rgba(10,6,4,${0.6 * kd})`; g.fillText(String(j / 2), tx + 3, ty + 4);
           g.fillStyle = `rgba(240,226,196,${kd})`; g.fillText(String(j / 2), tx, ty);
         }
@@ -447,7 +454,7 @@ function cintaAL(C, ts, alfa) {
 }
 
 // ---------------------------------------------------------------- la galaxia: suave y, después, llena de puntitos
-const BLUR = 3.2;
+const BLUR = 6;
 function suave(f) {
   const c = lienzo(f.width, f.height), gc = c.getContext('2d'), k = f.width / W;
   gc.filter = `blur(${BLUR * k}px)`; gc.drawImage(f, 0, 0); gc.filter = 'none';
@@ -471,8 +478,10 @@ HACER.puntos = () => {
   const cand = [];
   const paso = Math.max(1, Math.round(2 * k));
   for (let y = 0; y < h; y += paso) for (let x = 0; x < w; x += paso) {
+    const X = (x0 + x) / k, Y = (y0 + y) / k;
+    if (Math.hypot(X - GAL.c[0], Y - GAL.c[1]) > GAL.R * 0.96) continue;
     const i = (y * w + x) * 4, dl = lum(a, i) - lum(b, i);
-    if (dl > 26) cand.push([x0 / k + x / k, y0 / k + y / k, dl]);
+    if (dl > 30) cand.push([X, Y, dl]);
   }
   // un punto por cada mancha (los máximos: nada a menos de 7 px de otro más brillante)
   cand.sort((p, q) => q[2] - p[2]);
@@ -542,8 +551,8 @@ function suavizarVivo(z) {
 let ESTADO_VIVO = null;
 
 // ---------------------------------------------------------------- el rayo que cruza la galaxia y el reloj de arena
-const CRUCE = [[GAL.c[0] - GAL.R - 110, GAL.c[1] + 118], [1168, GAL.c[1] - 64]];
-const ARENA = { c: [1302, 404], alto: 500 };
+const CRUCE = [[GAL.c[0] - GAL.R - 110, GAL.c[1] + 118], [1132, GAL.c[1] - 60]];
+const ARENA = { c: [1262, 404], alto: 500 };
 const ARENA_POS = en(ARENA.c[0], ARENA.c[1], 1.0), ARENA_ESC = (ARENA.alto / 2) / pxU(ARENA_POS);
 function arenaEn(ts) {
   const kIn = brote(ts, T.cruza[0], 0.35, 0.08), u = prog(ts, T.arenaFuera[0], T.arenaFuera[1]);
@@ -640,11 +649,11 @@ function dibujar(t) {
   if (ts < 0.75) g.drawImage(F('cartela0'), 0, 0, W, H);
   parpadeo(n);
   POST.aplicar(g, n);
-  window.__plano = { n, zr: +zr.toFixed(3), z: +C.z.toFixed(3), vivo };
+  window.__plano = `zr ${zr.toFixed(3)} z ${C.z.toFixed(3)}${vivo ? ' vivo' : ''}`;
 }
 window.__tiempos = { ...T, SALTOS: SALTOS.map(([a, b]) => [+a.toFixed(3), +b.toFixed(3)]) };
 window.__inicio = {
-  mundo: 'camara(4), n 940, sin viñeta', brilloCiudad: 1, estrellaNeutrones: { centro: CIUDAD4, radio_m: R_NS, radio_px: R_NS / C4.mpp, brillo: 0.6 },
+  mundo: `camaraPorTierra(${C4.z.toFixed(3)}, [${tierraPx(C4).map((v) => v.toFixed(1))}]), n 940, sin viñeta`, brilloCiudad: 1, estrellaNeutrones: { centro: CIUDAD4, radio_m: R_NS, radio_px: R_NS / C4.mpp, brillo: 0.6 },
   regla: 'e 4 (foto n 9400)', atomo: ATOMO,
 };
 window.__fin = { mundo: `camara(21), n ${N_LUZ}, somA ${SOM_A.map((v) => +v.toFixed(2))}`, regla: 'e 21 (foto n 0)', atomo: ATOMO, galaxia: GAL };
