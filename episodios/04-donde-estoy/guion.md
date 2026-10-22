@@ -101,7 +101,7 @@
 | Para decir dónde estás en la Tierra, necesitas dos números. | To say where you are on Earth, you need two numbers. |
 | La latitud: cuánto al norte o al sur. La longitud: cuánto al este o al oeste. | Latitude: how far north or south. Longitude: how far east or west. |
 | La latitud es fácil: cuanto más alta ves la estrella Polar, más al norte estás. | Latitude is easy: the higher the North Star sits in your sky, the farther north you are. |
-| La longitud es una pesadilla: si vas hacia el este o el oeste, el cielo es el mismo, solo que antes o después. | Longitude is a nightmare: sail east or west, and the sky looks the same, only earlier or later. |
+| La longitud es una pesadilla: si vas hacia el este o el oeste, el cielo es el mismo, solo que antes o después. | Longitude is a nightmare: head east or west, and the sky looks the same, only earlier or later. |
 | Así que la longitud no es un lugar. Es una hora. | So longitude isn't really a place. It's a time. |
 | La Tierra gira quince grados cada hora: si sabes la hora de tu puerto y la hora donde estás, la diferencia es tu longitud. | The Earth turns fifteen degrees every hour: know the time back home and the time where you are, and the difference is your longitude. |
 | Fácil. Salvo que, durante miles de años, ningún reloj aguantaba un barco. | Simple. Except that, for thousands of years, no clock could survive a ship. |

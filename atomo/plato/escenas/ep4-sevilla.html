@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sevilla · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-SEVILLA (frases 35–37).
+//  secretos  un cofre lleno de mapas enrollados se cierra y una llave enorme gira en la cerradura; candado en la caja.
+//  sevilla   Sevilla de noche (la Giralda recortada contra la Luna); dentro, a la luz de las velas, un mapa enorme en
+//            la pared (el Padrón Real) y dos pilotos que añaden trazos nuevos.
+//  fortuna   el cofre de mapas brilla más que el cofre de oro; luego, en el mar, una vela negra en el horizonte.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-sevilla', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, lerp, clamp, sale } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { secretos: M('secretos', 0.5), sevilla: M('sevilla', 3.5), fortuna: M('fortuna', 10.5) };
+const dentro = m.sevilla + 1.8, piratas = (m.fortuna + E.marca('fortuna_fin', m.fortuna + 5)) / 2;
+
+const rollos = (x0, y0, n) => { for (let k = 0; k < n; k++) { const x = x0 + k * 6, y = y0 - (k % 2) * 3; R.rect(x, y, x + 4, y + 10, PAL.PERG[4]); R.rect(x, y, x, y + 10, PAL.PERG[2]); R.rect(x + 1, y + 10, x + 3, y + 10, PAL.ROJO); } };
+const cierra = (t) => {
+  R.mesa(t, { luz: [100, 30] });
+  R.vela(60, 40, t, { r: 24 });
+  const tapa = 1 - tramo(t, m.secretos + 0.2, m.secretos + 0.9);
+  if (tapa > 0.05) rollos(140, 98, 8);
+  R.cofre(160, 130, t, { w: 56, abierto: tapa > 0.05, tapa, metal: 'plata' });
+  if (tapa > 0.05) rollos(140, 100, 8);
+  // la llave enorme entra y gira
+  const entra = tramo(t, m.secretos + 0.8, m.secretos + 1.4), gira = tramo(t, m.secretos + 1.4, m.secretos + 1.9);
+  if (entra > 0) {
+    const kx = lerp(260, 170, entra), ky = 108;
+    const a = gira * Math.PI / 2, ca = Math.cos(a), sa = Math.sin(a);
+    for (let i = 0; i < 40; i++) for (let j = -1; j <= 1; j++) R.pset(kx + i, ky + j * ca, PAL.ORO[3]);
+    R.anillo(kx + 46, ky + 0.5, 6, PAL.ORO[4]); R.anillo(kx + 46, ky + 0.5, 5, PAL.ORO[2]);
+    for (let k = 0; k < 4; k++) R.pset(kx + 2 + k, ky + 2 + Math.round(3 * sa) * (k % 2), PAL.ORO[3]);
+  }
+};
+const giralda = (t) => {
+  R.cielo(t, { luna: [210, 40, 13], hor: 160, semilla: 41 });
+  // la Giralda: torre cuadrada con su cuerpo de campanas y el remate
+  const cx = 150, base = 160;
+  R.rect(cx - 9, base - 100, cx + 9, base, PAL.MIDC[1]);
+  R.rect(cx - 7, base - 118, cx + 7, base - 100, PAL.MIDC[1]);
+  R.rect(cx - 5, base - 128, cx + 5, base - 118, PAL.MIDC[1]);
+  R.rect(cx - 2, base - 136, cx + 2, base - 128, PAL.MIDC[1]);
+  R.rect(cx, base - 142, cx, base - 136, PAL.MIDC[2]);
+  for (let y = base - 96; y < base - 10; y += 14) R.rect(cx - 1, y, cx + 1, y + 5, PAL.FIRE[1]);
+  R.rect(cx - 9, base - 100, cx - 9, base, PAL.MIDC[3]);
+  R.rect(0, base - 22, 320, 180, PAL.MIDC[0]);
+  for (let x = 0; x < 320; x += 13) R.rect(x, base - 26 - (x % 3) * 3, x + 9, base - 22, PAL.MIDC[0]);
+};
+const padron = (t) => {
+  R.interior(t, { luces: [[60, 60], [260, 60]], suelo: 150, radio: 180 });
+  R.vela(60, 70, t); R.vela(260, 70, t);
+  R.pergamino(80, 14, 240, 110, { luz: [160, 10], semilla: 29 });
+  const pj = R.proyector(86, 20, 234, 104, -120, 60, -50, 70);
+  R.recorte([86, 20, 234, 104]); R.mundo(pj, { tierra: 2.4 }); R.recorte(null);
+  // trazos nuevos que aparecen (lo que cuenta cada piloto)
+  for (let k = 0; k < 6; k++) {
+    const p = tramo(t, dentro + 0.6 + k * 0.7, dentro + 1.1 + k * 0.7);
+    if (p <= 0) continue;
+    const x = 110 + R.hash2(k, 1) * 100, y = 34 + R.hash2(k, 2) * 60;
+    R.linea(x, y, x + 10 * p, y + 4 * p * Math.sin(k), PAL.ROJO);
+  }
+  const escribe = Math.sin(t * 8) > 0 ? 1 : 0;
+  R.figura(118, 150, 42, { sombrero: 'sombrero', pose: 'senala', luz: -1 });
+  R.figura(206, 150 - escribe, 40, { sombrero: 'gorro', pose: 'senala', dir: -1, luz: 1 });
+};
+const dosCofres = (t) => {
+  R.mesa(t, { luz: [160, 30] });
+  R.vela(160, 30, t, { r: 18 });
+  R.cofre(90, 130, t, { w: 44 });
+  const brillo = tramo(t, m.fortuna + 0.3, m.fortuna + 1.2);
+  R.halo(230, 100, 30 + 12 * brillo, [PAL.FIRE[0], PAL.ORO[3], PAL.ORO[5]], 0.6 + 0.8 * brillo);
+  rollos(212, 104, 7);
+  R.cofre(230, 130, t, { w: 44, metal: 'plata' });
+  rollos(212, 106, 7);
+};
+const velaNegra = (t) => {
+  R.cielo(t, { luna: [80, 40, 12], hor: 120, semilla: 43 });
+  R.mar(t, { hor: 120, luzX: 80 });
+  const x = 250 - (t - piratas) * 5;
+  R.barco(x, 124, t, { tipo: 'balandro', esc: 0.55, velaNegra: true, bandera: 'pirata', dir: -1 });
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, cierra], [m.sevilla - 0.2, giralda], [dentro, padron], [m.fortuna - 0.2, dosCofres], [piratas, velaNegra]]);
+  const e = E.energia(t);
+  R.caja(t, t < m.sevilla - 0.2 ? tramo(t, m.secretos + 1.5, m.secretos + 1.9) : 0, (x, y) => R.icono('candado', x + 6, y, undefined, undefined, 2), { energia: e });
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

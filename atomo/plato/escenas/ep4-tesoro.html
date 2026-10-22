@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tesoros · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-TESORO (frases 52–55).
+//  enterrados  en la playa, una pala junto a un hoyo; el cofre del hoyo se desvanece. Luego, en una taberna, las
+//              monedas se gastan: saltan del cofre a las jarras.
+//  novela      un libro abierto con un mapa del tesoro y una X roja grande; «1883» en la caja.
+//  arrecifes   de noche, un balandro pirata se cuela entre arrecifes que brillan bajo el agua; un barco de guerra que
+//              lo persigue encalla detrás.
+//  cuello      vuelve el pirata del principio con su libro, en la sala con velas; la horca de la ventana se borra.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-tesoro', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, lerp, clamp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { ent: M('enterrados', 0.5), novela: M('novela', 5), arr: M('arrecifes', 11), cuello: M('cuello', 18) };
+const taberna = m.ent + (m.novela - m.ent) * 0.55;
+
+const playa = (t) => {
+  R.cielo(t, { luna: [240, 34, 12], hor: 110, semilla: 59 });
+  R.mar(t, { hor: 110, y1: 126, luzX: 240 });
+  for (let y = 126; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PAL.PERG, 1.2 + (y - 126) * 0.03 + (R.hash2(x, y) - 0.5) * 0.8, x, y));
+  // el hoyo y el cofre que se desvanece
+  R.poligono([[120, 150], [134, 142], [170, 142], [184, 150], [170, 158], [134, 158]], PAL.HULL[1]);
+  const se = tramo(t, m.ent + 1.4, m.ent + 2.4);
+  const B = R.nuevo(), prev = R.usar(B); R.cofre(152, 152, t, { w: 26, abierto: false }); R.usar(prev);
+  for (let i = 0; i < B.length; i++) if (B[i] && R.hash2(i % R.W, (i / R.W) | 0) >= se) R.buf[i] = B[i];
+  // la pala clavada
+  R.linea(200, 150, 212, 118, PAL.HULL[4]); R.poligono([[196, 150], [204, 152], [206, 160], [194, 158]], PAL.PLATA[1]);
+  R.figura(80, 160, 40, { sombrero: 'pañuelo', faja: 2 });
+};
+const tabernaFn = (t) => {
+  R.interior(t, { luces: [[160, 40]], tipo: 'madera', suelo: 130 });
+  R.vela(160, 50, t, { r: 30 });
+  R.rect(40, 120, 280, 126, PAL.HULL[4]); R.rect(40, 126, 280, 130, PAL.HULL[2]);
+  R.cofre(80, 120, t, { w: 30 });
+  // monedas que saltan a las jarras
+  for (let k = 0; k < 6; k++) {
+    const f = ((t - taberna) * 0.9 + k / 6) % 1;
+    const x = lerp(80, 150 + (k % 3) * 40, f), y = 108 - 34 * Math.sin(Math.PI * f);
+    R.disco(x, y, 2, PAL.ORO[4]); R.pset(x, y, PAL.ORO[5]);
+  }
+  for (const x of [150, 190, 230]) { R.rect(x - 5, 110, x + 5, 120, PAL.PLATA[1]); R.rect(x - 5, 110, x + 5, 111, PAL.MOON[4]); R.rect(x + 6, 113, x + 7, 117, PAL.PLATA[1]); }
+  R.figura(200, 160, 38, { sombrero: 'tricornio', dir: -1, pose: 'brazos' });
+  R.figura(250, 160, 36, { sombrero: 'pañuelo', faja: 2, dir: -1 });
+};
+const novela = (t) => {
+  R.mesa(t, { luz: [60, 20] });
+  R.vela(40, 40, t, { r: 22 });
+  R.libro(170, 86, 190, t, { p: 1, semilla: 41, luz: [60, 20] });
+  const p = tramo(t, m.novela + 0.5, m.novela + 1.2);
+  if (p > 0) { R.linea(200, 120, lerp(200, 236, p), lerp(120, 70, p), PAL.ROJO, 4); }
+  if (p >= 1) { R.equis(240, 66, 6); R.equis(241, 66, 6); }
+};
+const arrecifes = (t) => {
+  R.cielo(t, { luna: [50, 30, 10], hor: 96, semilla: 61 });
+  // agua poco profunda: los arrecifes brillan bajo la superficie
+  for (let y = 96; y < R.H; y++) for (let x = 0; x < R.W; x++) {
+    const arr = R.vnoise(x * 0.05, y * 0.12) > 0.7;
+    const w = Math.sin(x * 0.2 + y * 0.6 - t * 2) > 0.8;
+    R.pset(x, y, arr ? R.tone([PAL.WATER[4], PAL.WATER[5], PAL.COOL[0], PAL.COOL[1]], 0.8 + 1.4 * R.vnoise(x * 0.3, y * 0.3) + (w ? 0.6 : 0), x, y) : R.tone(PAL.WATER, 2.2 + (y - 96) * 0.02 + (w ? 1.2 : 0), x, y));
+  }
+  const p = clamp((t - m.arr) / 6, 0, 1);
+  R.barco(lerp(30, 250, p), 126 + 6 * Math.sin(p * 6), t, { tipo: 'balandro', esc: 0.7, bandera: 'pirata', velaNegra: true });
+  const encalla = tramo(t, m.arr + 2.4, m.arr + 3.2);
+  R.barco(lerp(-40, 70, Math.min(p * 1.5, 1)) - (1 - encalla) * 0, 120 + encalla * 4, t, { tipo: 'guerra', esc: 0.6, bandera: 'ingles', cabeceo: 1 + encalla * 4, bob: encalla > 0.5 ? 0 : 1.6 });
+};
+const sharp = (t) => {
+  R.interior(t, { luces: [[90, 50], [250, 50]], suelo: 140 });
+  R.vela(90, 56, t); R.vela(250, 56, t);
+  R.figura(205, 150, 46, { sombrero: 'corona', capa: true, dir: -1, pose: 'ofrece', objeto: 'libro' });
+  R.figura(140, 150, 42, { sombrero: 'tricornio', faja: 2, pose: 'brazos' });
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, playa], [taberna, tabernaFn], [m.novela - 0.2, novela], [m.arr - 0.2, arrecifes], [m.cuello - 0.2, sharp]]);
+  const e = E.energia(t);
+  R.caja(t, t > m.novela && t < m.arr - 0.2 ? tramo(t, m.novela + 1.2, m.novela + 1.6) : 0, (x, y) => R.numero('1883', x + 6, y + 12), { energia: e });
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

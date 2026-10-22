@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Átomos · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-ATOMOS (frases 73–75).
+//  luz       un rayo de luz recorre una regla corta, una y otra vez, mientras un reloj da un tic diminuto.
+//  atomos    zoom dentro de un satélite: el satélite, su reloj y, dentro del reloj, una red de átomos que vibran:
+//            átomos como Atom.
+//  gracias2  Atom, grande en el centro, brilla y late; en la caja, una mano en el pecho (la mano del icono).
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-atomos', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, lerp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { luz: M('luz', 0.5), atomos: M('atomos', 6), gracias: M('gracias2', 11) };
+const dentro = m.atomos + (m.gracias - m.atomos) * 0.4;
+
+const regla = (t) => {
+  R.cielo(t, { hor: 180, semilla: 73 });
+  const x0 = 60, x1 = 260, y = 90;
+  R.rect(x0, y, x1, y + 10, PAL.HULL[4]); R.rect(x0, y, x1, y, PAL.HULL[5]);
+  for (let x = x0; x <= x1; x += 10) R.rect(x, y + 1, x, y + (x % 50 === 10 ? 6 : 3), PAL.HULL[1]);
+  const f = ((t - m.luz) * 0.9) % 1, lx = lerp(x0, x1, f);
+  for (let k = 0; k < 30; k++) R.pset(lx - k, y - 6, k < 4 ? PAL.STAR[4] : k < 12 ? PAL.COOL[2] : PAL.COOL[0]);
+  R.halo(lx, y - 6, 6, [PAL.COOL[0], PAL.COOL[1]], 1);
+  R.esfera(160, 140, 10, t, { hora: Math.floor(t * 0.9) / 720 });
+};
+const satGrande = (t) => {
+  R.cielo(t, { hor: 180, semilla: 75 });
+  const z = tramo(t, m.atomos, dentro);
+  const s = lerp(1, 3, z);
+  R.rect(160 - 16 * s, 90 - 16 * s, 160 + 16 * s, 90 + 16 * s, PAL.ORO[2]);
+  R.rect(160 - 14 * s, 90 - 14 * s, 160 + 14 * s, 90 + 14 * s, PAL.ORO[1]);
+  for (const sd of [-1, 1]) R.rect(160 + sd * 18 * s, 90 - 8 * s, 160 + sd * 60 * s, 90 + 8 * s, PAL.COOL[0]);
+  R.esfera(160, 90, 9 * s, t, { vel: 120 });
+};
+const red = (t) => {
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PAL.SKY, 1 + 2 * Math.exp(-Math.hypot(x - 160, y - 90) / 90), x, y));
+  for (let j = 0; j < 4; j++) for (let i = 0; i < 7; i++) {
+    const x = 40 + i * 40 + Math.round(2 * Math.sin(t * 40 + i * 1.7 + j)), y = 30 + j * 36 + Math.round(2 * Math.cos(t * 37 + j * 1.3 + i));
+    R.atomo(x, y, t * 3 + i + j, { r: 9 });
+  }
+};
+const atomGrande = (t) => {
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PAL.SKY, 0.6 + 2.6 * Math.exp(-Math.hypot(x - 160, y - 84) / 70), x, y));
+  const e = E.energia(t);
+  R.halo(160, 84, 30 + 6 * e, [PAL.GLOW[0], PAL.GLOW[1]], 0.8);
+  // un átomo grande: órbitas del kit a su tamaño y el núcleo ×3 (cada píxel, un bloque de 3 × 3)
+  R.atomo(160, 84, t, { r: 40, energia: e });
+  const nuc = ['.ab.', 'abba', 'baab', '.ba.'], bob = e > 0.45 ? 2 : 0;
+  for (let j = 0; j < 4; j++) for (let i = 0; i < 4; i++) {
+    const ch = nuc[j][i]; if (ch === '.') continue;
+    let c = ch === 'a' ? PAL.ATOM[0] : PAL.ATOM[1];
+    if (i + j === 1) c = PAL.ATOM[2];
+    if (j === 3 || i === 3) c = ch === 'a' ? PAL.ATOM[6] : PAL.ATOM[0];
+    R.rect(154 + i * 3, 78 + j * 3 - bob, 156 + i * 3, 80 + j * 3 - bob, c);
+  }
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, regla], [m.atomos - 0.2, satGrande], [dentro, red, 'iris'], [m.gracias - 0.2, atomGrande]], { fundido: 0.45 });
+  const e = E.energia(t);
+  R.caja(t, t > m.gracias ? tramo(t, m.gracias + 1.2, m.gracias + 1.6) : 0, (x, y) => R.icono('mano', x + 6, y, undefined, undefined, 2), { energia: e });
+  if (t < m.gracias - 0.2) R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

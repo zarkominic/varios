@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Votos · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-VOTOS (frases 49–51).
+//  capitan  en cubierta, a la luz de los faroles, la tripulación vota a mano alzada: un capitán baja del barril y
+//           otro sube.
+//  normas   un papel con iconos (monedas, un brazo, una pierna) que los piratas firman con una X, uno tras otro.
+//  seguro   un pirata con pata de palo recibe una bolsa de monedas; detrás, la boca de un cañón.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-votos', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, lerp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { capitan: M('capitan', 0.5), normas: M('normas', 5), seguro: M('seguro', 12) };
+
+const cubierta = (t, luces) => {
+  R.cielo(t, { luna: [270, 30, 10], hor: 100, semilla: 57 });
+  for (let y = 100; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PAL.HULL, 1.4 + (y - 100) * 0.02 + (x % 20 === 0 ? -0.8 : 0), x, y));
+  for (const [x, y] of luces) { R.rect(x, y - 30, x, y, PAL.HULL[1]); R.halo(x, y - 30, 26, [PAL.HULL[3], PAL.FIRE[0]], 0.9); R.pset(x, y - 30, PAL.FIRE[4]); R.pset(x, y - 29, PAL.FIRE[2]); }
+};
+const votacion = (t) => {
+  cubierta(t, [[60, 110], [250, 110]]);
+  const cambio = tramo(t, m.capitan + 1.8, m.capitan + 2.6);
+  // el barril
+  R.rect(144, 132, 166, 152, PAL.HULL[3]); R.rect(144, 136, 166, 137, PAL.ORO[1]); R.rect(144, 147, 166, 148, PAL.ORO[1]);
+  // capitán viejo (baja) y nuevo (sube)
+  R.figura(lerp(155, 196, cambio), lerp(132, 156, cambio), 34, { sombrero: 'tricornio', capa: true, dir: cambio > 0.5 ? 1 : -1 });
+  if (cambio > 0.3) R.figura(lerp(118, 155, cambio), lerp(156, 132, cambio), 34, { sombrero: 'pañuelo', faja: 2, pose: cambio >= 1 ? 'brazos' : 'pie' });
+  // la tripulación vota
+  const manos = Math.sin(t * 2.2) > -0.2 && t > m.capitan + 0.6;
+  for (const [x, s, h] of [[40, 'pañuelo', 34], [74, 'gorro', 32], [222, 'pañuelo', 34], [254, 'tricornio', 32], [286, 'gorro', 30]])
+    R.figura(x, 160, h, { sombrero: s, faja: s === 'pañuelo' ? 2 : null, pose: manos ? 'brazos' : 'pie', dir: x > 160 ? -1 : 1 });
+};
+const articulos = (t) => {
+  R.mesa(t, { luz: [160, 20] });
+  R.vela(260, 40, t, { r: 22 });
+  R.pergamino(90, 14, 230, 150, { luz: [160, 10], semilla: 39 });
+  // tres reglas en iconos: monedas → reparto; brazo → precio; pierna → precio
+  const fila = (y, dib) => { dib(110, y); R.linea(140, y + 4, 200, y + 4, PAL.PERG[1], 2); };
+  fila(30, (x, y) => { for (let k = 0; k < 3; k++) R.disco(x + k * 5 + 2.5, y + 4.5, 2.5, PAL.ORO[3 + (k % 2)]); });
+  fila(54, (x, y) => { R.linea(x, y + 6, x + 10, y + 2, PAL.TINTA); R.linea(x, y + 7, x + 10, y + 3, PAL.TINTA); R.disco(x + 11.5, y + 2.5, 2, PAL.TINTA); });
+  fila(78, (x, y) => { R.linea(x + 3, y, x + 3, y + 10, PAL.TINTA); R.linea(x + 4, y, x + 4, y + 10, PAL.TINTA); R.linea(x + 4, y + 10, x + 8, y + 10, PAL.TINTA); });
+  // firmas: una X tras otra
+  const n = Math.floor(tramo(t, m.normas + 1.2, m.seguro - 0.6) * 8);
+  for (let k = 0; k < n; k++) R.equis(110 + (k % 4) * 30, 106 + Math.floor(k / 4) * 18, 3, k % 3 ? PAL.TINTA : PAL.ROJO);
+  // la pluma
+  if (n < 8) { const x = 110 + (n % 4) * 30, y = 106 + Math.floor(n / 4) * 18; R.linea(x, y, x + 14, y - 20, PAL.MOON[4]); R.linea(x + 1, y, x + 15, y - 20, PAL.MOON[2]); }
+};
+const paga = (t) => {
+  cubierta(t, [[160, 108]]);
+  // cañón en primer término a la derecha
+  R.rect(250, 128, 300, 140, PAL.HULL[1]); R.disco(296.5, 134.5, 7, PAL.HULL[2]); R.disco(296.5, 134.5, 4, PAL.INK);
+  R.disco(262, 146, 6, PAL.HULL[3]); R.disco(286, 146, 6, PAL.HULL[3]);
+  const da = R.tramo(t, m.seguro + 0.4, m.seguro + 1.2);
+  R.figura(110, 160, 44, { sombrero: 'pañuelo', faja: 2, pata: true, pose: 'ofrece', objeto: da >= 1 ? 'bolsa' : null });
+  R.figura(180, 160, 46, { sombrero: 'tricornio', capa: true, dir: -1, pose: 'ofrece', objeto: da < 1 ? 'bolsa' : null });
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, votacion], [m.normas - 0.2, articulos], [m.seguro - 0.2, paga]]);
+  const e = E.energia(t);
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

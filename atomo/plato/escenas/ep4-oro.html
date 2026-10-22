@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Edad de oro · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-ORO (frases 46–48), cartela 1700.
+//  acabo    el papel con sello arde en la llama de una vela hasta desaparecer.
+//  guerras  un puerto caribeño de noche: palmeras, marineros sin trabajo sentados en el muelle; varios se levantan e
+//           izan una bandera negra en un balandro.
+//  edad     el Caribe en el pergamino, lleno de velitas negras que se mueven entre las islas. «1650–1730» en la caja.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-oro', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, lerp, clamp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { acabo: M('acabo', 1.5), guerras: M('guerras', 4.5), edad: M('edad', 13) };
+
+const arde = (t) => {
+  R.interior(t, { luces: [[160, 80]], tipo: 'madera', radio: 130 });
+  R.vela(160, 110, t, { r: 34, alto: 30 });
+  const p = tramo(t, m.acabo + 0.2, m.acabo + 2.4);
+  // el papel baja hacia la llama y se consume de abajo arriba
+  const x0 = 146, y0 = 62, w = 28, h = 36;
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+    const quemado = (h - j) / h + 0.2 * R.hash2(i, j) < p * 1.3;
+    const borde = !quemado && (h - j) / h + 0.2 * R.hash2(i, j) < p * 1.3 + 0.08;
+    if (quemado) continue;
+    const sello = Math.hypot(i - w / 2, j - h * 0.75) < 4;
+    R.pset(x0 + i, y0 + j, borde ? (R.hash2(i, j + Math.floor(t * 10)) > 0.5 ? PAL.FIRE[3] : PAL.FIRE[1]) : sello ? PAL.ROJO : j % 4 === 2 && i > 3 && i < w - 3 ? PAL.PERG[2] : PAL.MOON[3]);
+  }
+  if (p > 0 && p < 1) for (let k = 0; k < 6; k++) { const y = y0 + h * (1 - p) - 4 - ((t * 20 + k * 5) % 14); R.pset(x0 + 4 + k * 4 + Math.round(Math.sin(t * 9 + k)), y, PAL.FIRE[k % 2 ? 2 : 3]); }
+};
+const palmera = (x, suelo, h, t) => {
+  for (let k = 0; k < h; k++) { const xx = Math.round(x + 6 * Math.pow(k / h, 1.6)); R.pset(xx, suelo - k, PAL.FGC[2]); R.pset(xx + 1, suelo - k, PAL.FGC[2]); }
+  const cx = x + 6, cy = suelo - h, v = Math.sin(t * 1.5) * 0.15;
+  for (const a of [-2.8, -2.2, -0.4, -0.9, 2.5, 0.5]) for (let s = 0; s < 14; s++) R.pset(Math.round(cx + Math.cos(a + v) * s), Math.round(cy + Math.sin(a + v) * s * 0.6 + 0.02 * s * s), PAL.FGC[2]);
+};
+const puerto = (t) => {
+  R.cielo(t, { luna: [70, 34, 12], hor: 122, semilla: 55 });
+  R.mar(t, { hor: 122, luzX: 70 });
+  palmera(30, 130, 44, t); palmera(286, 128, 50, t);
+  R.barco(220, 136, t, { tipo: 'balandro', esc: 0.85, dir: -1, bandera: tramo(t, m.guerras + 3.2, m.guerras + 4) > 0.5 ? 'pirata' : null });
+  // muelle con marineros
+  R.rect(40, 140, 190, 145, PAL.HULL[3]); R.rect(40, 140, 190, 140, PAL.HULL[5]);
+  for (let x = 50; x < 190; x += 20) R.rect(x, 145, x + 1, 160, PAL.HULL[2]);
+  const se = tramo(t, m.guerras + 1.8, m.guerras + 2.8);
+  R.figura(64, 140, 30, { pose: 'sentado', sombrero: 'pañuelo', faja: 2 });
+  R.figura(94, 140, 30, { pose: se > 0.5 ? 'brazos' : 'sentado', sombrero: 'tricornio' });
+  R.figura(126, 140, 28, { pose: 'sentado', sombrero: 'pañuelo', faja: 2, dir: -1 });
+  R.figura(160, 140, 30, { pose: se > 0.5 ? 'senala' : 'sentado', sombrero: 'gorro' });
+  for (let x = 54; x < 170; x += 33) R.halo(x + 10, 132, 8, [PAL.FIRE[0]], 0.5);
+};
+// costa del Caribe a mano (lon, lat): Norteamérica, Centroamérica y el norte de Sudamérica en un solo trazo, y las Antillas
+const CONTINENTE = [[-100, 33], [-81, 33], [-81, 30.5], [-80, 27], [-80.1, 25.4], [-81, 25.2], [-81.8, 26.7], [-82.7, 28], [-83.6, 29.9], [-85.4, 29.7], [-88, 30.4], [-89.6, 30.2], [-89.4, 29], [-90.5, 29.1], [-93.8, 29.7], [-97.2, 27.8], [-97.5, 25], [-97.8, 22.3], [-96.5, 19.8], [-95, 18.6], [-94, 18.2], [-92, 18.6], [-91, 19], [-90.4, 20.5], [-90.3, 21], [-88, 21.5], [-86.8, 21.3], [-87.5, 19.5], [-87.8, 18.2], [-88.3, 16.5], [-87, 15.8], [-84, 15.9], [-83.2, 15], [-83.6, 13], [-83.7, 11], [-82.5, 9.5], [-81, 8.8], [-79.6, 9.6], [-78, 8.9], [-77.4, 8.7], [-76.8, 8.6], [-75.6, 9.4], [-75.2, 10.7], [-74.2, 11.2], [-72.5, 11.9], [-71.3, 12.3], [-71.6, 11], [-71, 10.9], [-70.2, 11.6], [-68.4, 10.6], [-66.2, 10.6], [-64.2, 10.6], [-61.9, 10.7], [-61, 10.2], [-60, 8.5], [-58, 6], [-58, 3], [-100, 3]];
+const ANTILLAS = [
+  [[-84.9, 21.9], [-83, 22.9], [-80.5, 23.2], [-77.5, 22], [-75.6, 21], [-74.2, 20.2], [-75.7, 19.9], [-77.7, 19.8], [-78.5, 21.5], [-81, 21.7], [-82.8, 21.6], [-84.4, 21.8]],
+  [[-74.4, 18.4], [-72.8, 19.9], [-71, 19.9], [-69, 19.2], [-68.4, 18.6], [-70, 18.2], [-71.4, 17.6], [-72.6, 18.1], [-74.4, 18.1]],
+  [[-78.3, 18.4], [-77, 18.5], [-76.2, 18], [-77.2, 17.8], [-78.3, 18.2]],
+  [[-67.2, 18.5], [-65.6, 18.4], [-65.6, 18], [-67.2, 18]],
+  [[-61.5, 10.7], [-60.9, 10.8], [-61, 10.1], [-61.9, 10.1]],
+];
+const caribe = (t) => {
+  R.mesa(t, { luz: [60, 20] });
+  R.pergamino(16, 12, 304, 148, { luz: [60, 20], semilla: 37 });
+  const pj = R.proyector(22, 18, 298, 142, -100, -55, 5, 32);
+  R.recorte([22, 18, 298, 142]);
+  for (const pts of [CONTINENTE, ...ANTILLAS]) R.costa(pts.map(([a, b]) => pj(a, b)), { tierra: 2.4 });
+  for (const [lon, lat] of [[-61.6, 16.2], [-61, 14.6], [-61.2, 13.2], [-61.7, 12.1], [-61.4, 15.4], [-62.8, 17.3], [-63.1, 18.1], [-77.3, 25.1], [-76.2, 24.3], [-75.5, 23.5], [-78.2, 26.6], [-77.2, 26.4], [-73.6, 21.1]]) { const [x, y] = pj(lon, lat); R.disco(x, y, 1.3, R.tone(PAL.PERG, 2.4, x, y)); R.pset(x, y + 1, PAL.TINTA); }
+  R.recorte(null);
+  // velitas negras que van y vienen
+  const n = Math.round(lerp(4, 22, tramo(t, m.edad + 0.4, m.edad + 3)));
+  for (let k = 0; k < n; k++) {
+    const lon = -86 + R.hash2(k, 1) * 24 + 2 * Math.sin(t * 0.5 + k), lat = 13 + R.hash2(k, 2) * 9 + 1.2 * Math.cos(t * 0.4 + k * 2);
+    const [x, y] = pj(lon, lat);
+    R.poligono([[x, y - 5], [x + 3, y], [x, y]], PAL.INK); R.rect(x - 2, y, x + 3, y + 1, PAL.HULL[2]);
+  }
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, (t) => R.cartela(t, '1700')], [1.2, arde], [m.guerras - 0.2, puerto], [m.edad - 0.2, caribe]]);
+  const e = E.energia(t);
+  R.caja(t, t > m.edad ? tramo(t, m.edad + 1.4, m.edad + 1.8) : 0, (x, y) => R.numero('1650-1730', x + 1, y + 12), { energia: e });
+  if (t > 1.3) R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

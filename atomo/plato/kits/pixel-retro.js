@@ -71,6 +71,16 @@ export const tramo = (t, a, b) => easeIO(clamp((t - a) / Math.max(1e-6, b - a), 
 export const tone = (ramp, v, x, y) => { let l = Math.floor(v); if (v - l > b2(x, y)) l++; return ramp[clamp(l, 0, ramp.length - 1)]; };
 export const tone4 = (ramp, v, x, y) => { let l = Math.floor(v); if (v - l > b4(x, y)) l++; return ramp[clamp(l, 0, ramp.length - 1)]; };
 
+// punto dentro de un polígono [[x, y], …] (regla par-impar)
+export function dentro(pts, x, y) {
+  let c = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i], [xj, yj] = pts[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+}
+
 // ── Mapas del mundo de baja resolución (lon, lat), para pergaminos y globos ──────────────────────────────────────
 export const CONTINENTES = {
   norteamerica: [[-166, 66], [-140, 70], [-120, 72], [-95, 72], [-80, 66], [-62, 58], [-56, 50], [-66, 44], [-76, 35], [-81, 30], [-80, 25], [-84, 30], [-90, 29], [-97, 26], [-97, 21], [-87, 21], [-88, 16], [-83, 10], [-79, 8], [-85, 11], [-92, 15], [-105, 20], [-110, 24], [-114, 31], [-117, 33], [-124, 40], [-124, 48], [-135, 58], [-152, 59], [-165, 61]],
@@ -112,7 +122,10 @@ export async function crearRetro(lienzo) {
   let B = PANT;
   const nuevo = () => new Uint32Array(W * H);
   const usar = (b) => { const a = B; B = b ?? PANT; return a; };
-  const pset = (x, y, c) => { x |= 0; y |= 0; if (x >= 0 && x < W && y >= 0 && y < H) B[y * W + x] = c; };
+  // recorte: lo que se dibuja con pset, linea, poligono y disco queda dentro de [x0, y0, x1, y1] (para mapas)
+  let CL = null;
+  const recorte = (r) => { CL = r ? r.map(Math.round) : null; };
+  const pset = (x, y, c) => { x |= 0; y |= 0; if (CL && (x < CL[0] || x > CL[2] || y < CL[1] || y > CL[3])) return; if (x >= 0 && x < W && y >= 0 && y < H) B[y * W + x] = c; };
   const pget = (x, y) => (x >= 0 && x < W && y >= 0 && y < H ? B[(y | 0) * W + (x | 0)] : 0);
   const rect = (x0, y0, x1, y1, c) => { for (let y = Math.max(0, y0 | 0); y <= Math.min(H - 1, y1 | 0); y++) for (let x = Math.max(0, x0 | 0); x <= Math.min(W - 1, x1 | 0); x++) B[y * W + x] = c; };
   const llenar = (c) => B.fill(c);
@@ -122,7 +135,7 @@ export async function crearRetro(lienzo) {
     const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
     let e = dx + dy, k = 0;
     for (;;) {
-      if (!punteado || (k % punteado) < punteado / 2) pset(x0, y0, typeof c === 'function' ? c(x0, y0, k) : c);
+      if (!punteado || (k % punteado) < punteado / 2) { const col = typeof c === 'function' ? c(x0, y0, k) : c; if (col != null) pset(x0, y0, col); }
       k++;
       if (x0 === x1 && y0 === y1) break;
       const e2 = 2 * e;
@@ -141,8 +154,9 @@ export async function crearRetro(lienzo) {
         if ((ay <= y + 0.5 && by > y + 0.5) || (by <= y + 0.5 && ay > y + 0.5)) xs.push(ax + (y + 0.5 - ay) / (by - ay) * (bx - ax));
       }
       xs.sort((a, b) => a - b);
+      if (CL && (y < CL[1] || y > CL[3])) continue;
       for (let k = 0; k + 1 < xs.length; k += 2)
-        for (let x = Math.max(0, Math.round(xs[k])); x < Math.min(W, Math.round(xs[k + 1])); x++) B[y * W + x] = typeof c === 'function' ? c(x, y) : c;
+        for (let x = Math.max(CL ? CL[0] : 0, Math.round(xs[k])); x < Math.min(CL ? CL[2] + 1 : W, Math.round(xs[k + 1])); x++) B[y * W + x] = typeof c === 'function' ? c(x, y) : c;
     }
   };
   const disco = (cx, cy, r, c) => {
@@ -251,11 +265,13 @@ export async function crearRetro(lienzo) {
     mano: ['..#.#.', '.##.##', '######', '######', '.####.', '..##..'],
     luna: ['..##.', '.#...', '#....', '#....', '.#...', '..##.'],
   };
-  const icono = (nombre, x, y, c = PAL.UI[7], sombra = PAL.UI[0]) => {
+  // icono(nombre, x, y, color, sombra, escala): escala 2 para los iconos solos de la caja
+  const icono = (nombre, x, y, c = PAL.UI[7], sombra = PAL.UI[0], esc = 1) => {
     const f = ICONOS[nombre];
-    for (let j = 0; j < f.length; j++) for (let i = 0; i < f[j].length; i++) if (f[j][i] === '#') { pset(x + i, y + j + 1, sombra); }
-    for (let j = 0; j < f.length; j++) for (let i = 0; i < f[j].length; i++) if (f[j][i] === '#') pset(x + i, y + j, c);
-    return f[0].length;
+    const px = (i, j, col) => { for (let a = 0; a < esc; a++) for (let b = 0; b < esc; b++) pset(x + i * esc + a, y + j * esc + b, col); };
+    for (let j = 0; j < f.length; j++) for (let i = 0; i < f[j].length; i++) if (f[j][i] === '#') px(i, j + 1 / esc, sombra);
+    for (let j = 0; j < f.length; j++) for (let i = 0; i < f[j].length; i++) if (f[j][i] === '#') px(i, j, c);
+    return f[0].length * esc;
   };
 
   // ── El átomo narrador (los dos del estilo 17: el del retrato y el compañero) ───────────────────────────────────
@@ -359,6 +375,21 @@ export async function crearRetro(lienzo) {
       const u = modo === 'barrido' ? (x / W) * 0.7 + b4(x, y) * 0.3 : modo === 'iris' ? Math.hypot(x - W / 2, (y - H / 2) * 1.6) / 190 * 0.75 + b4(x, y) * 0.25 : b4(x, y) * 0.6 + hash2(x >> 1, y >> 1) * 0.4;
       PANT[y * W + x] = u < p ? b[y * W + x] : a[y * W + x];
     }
+  };
+
+  // secuencia(t, planos): planos = [[desde, dibuja(t), modo?], …]; entre plano y plano, fundido tramado de o.fundido s
+  // (el plano anterior sigue animándose mientras se funde). Modos: 'bayer', 'barrido', 'iris'; 'corte' sin fundido.
+  const bufA = new Uint32Array(W * H), bufB = new Uint32Array(W * H);
+  const secuencia = (t, planos, o = {}) => {
+    const fx = o.fundido ?? 0.35;
+    let i = 0;
+    for (let k = 0; k < planos.length; k++) if (t >= planos[k][0]) i = k;
+    const [t0, f, modo] = planos[i];
+    if (i > 0 && t - t0 < fx && modo !== 'corte') {
+      usar(bufA); planos[i - 1][1](t); usar(bufB); f(t); usar(null);
+      fundido(bufA, bufB, (t - t0) / fx, modo ?? o.modo ?? 'bayer');
+    } else f(t);
+    return i;
   };
 
   // ── Cielo nocturno: degradado, halo de la Luna, estrellas que titilan, nubes ────────────────────────────────────
@@ -602,7 +633,7 @@ export async function crearRetro(lienzo) {
         const u = i / ancho, v = j / alto;
         if (tipo === 'pirata' || tipo === 'negra') c = j === 0 || i === ancho ? PAL.HULL[3] : PAL.INK;
         else if (tipo === 'ingles') c = (Math.abs(v - 0.5) < 0.18 || Math.abs(u - 0.4) < 0.14) ? PAL.OBS[2] : PAL.MOON[4];
-        else if (tipo === 'espana') c = Math.abs(v - 0.5) < 0.2 || Math.abs(u - 0.5) < 0.12 ? PAL.OBS[2] : PAL.MOON[3];  // aspa / cruz de Borgoña simplificada
+        else if (tipo === 'espana') c = Math.abs(u - v) < 0.16 || Math.abs(u + v - 1) < 0.16 ? PAL.OBS[2] : PAL.MOON[3];  // aspa de Borgoña
         else if (tipo === 'estandarte') c = v < 0.5 ? (u < 0.5 ? PAL.OBS[2] : PAL.TITLE[2]) : (u < 0.5 ? PAL.TITLE[2] : PAL.OBS[2]);
         else c = PAL.MOON[3];
         pset(bx + lado * i, by + j + off, c);
@@ -740,6 +771,38 @@ export async function crearRetro(lienzo) {
       linea(cx, cy, cx + Math.cos(a) * L, cy + Math.sin(a) * L, k === 12 ? acento : c);
     }
     anillo(cx + 0.5, cy + 0.5, r * 0.35, c);
+  };
+  // EL ANCLA DEL EPISODIO: el mapa de la X. Mesa, pergamino con el mundo y su cuadrícula; la latitud (línea firme) y la
+  // longitud (punteada, tiembla según o.tiembla 0–1); la X en el cruce, que baila con la longitud; o.clavada (0–1) la
+  // fija con un aro. o.lat / o.lon: dónde está el barco; o.lineas: [latitud, longitud] visibles (0–1, avance del trazo).
+  const ancla = (t, o = {}) => {
+    const x0 = o.x0 ?? 40, y0 = o.y0 ?? 16, x1 = o.x1 ?? 284, y1 = o.y1 ?? 146;
+    mesa(t, { luz: [x0 + 10, y0] });
+    pergamino(x0, y0, x1, y1, { luz: [x0 + 10, y0], semilla: 11 });
+    const pj = proyector(x0 + 10, y0 + 8, x1 - 10, y1 - 8);
+    recorte([x0 + 3, y0 + 3, x1 - 3, y1 - 3]);
+    if (o.mundo !== false) mundo(pj, { tierra: 2.4 });
+    recorte(null);
+    const [gx0, gy0] = pj(-180, 80), [gx1, gy1] = pj(180, -60);
+    if (o.cuadricula !== false) {
+      for (let k = -150; k < 180; k += 30) { const [x] = pj(k, 0); linea(x, gy0, x, gy1, PAL.PERG[1], 3); }
+      for (let k = -40; k <= 60; k += 20) { const [, y] = pj(0, k); linea(gx0, y, gx1, y, PAL.PERG[1], 3); }
+    }
+    const lat = o.lat ?? 25, lon0 = o.lon ?? -45, tb = o.tiembla ?? 1, cl = o.clavada ?? 0;
+    const lon = lon0 + tb * (14 * Math.sin(t * 2.3) + 9 * Math.sin(t * 5.1 + 1));
+    const [lx, ly] = pj(lon, lat);
+    const [la, lo] = o.lineas ?? [1, 1];
+    if (la > 0) { const xe = gx0 + (gx1 - gx0) * la; linea(gx0, ly, xe, ly, PAL.ROJO); linea(gx0, ly + 1, xe, ly + 1, PAL.OBS[3]); }
+    if (lo > 0) {
+      const ye = gy0 + (gy1 - gy0) * lo;
+      const sac = tb * (cl < 1 ? 1 : 0);
+      for (let y = Math.round(gy0); y <= ye; y++) {
+        const dx = Math.round(sac * 1.5 * Math.sin(y * 0.5 + t * 20));
+        if (cl >= 1 || (y + Math.floor(t * 8)) % 4 < 2) { pset(lx + dx, y, PAL.ROJO); if (cl >= 1) pset(lx + 1, y, PAL.OBS[3]); }
+      }
+    }
+    if (o.x !== false && la > 0 && lo > 0) { equis(lx, ly, 3); if (cl > 0) anillo(lx + 0.5, ly + 0.5, 6 - 2 * cl, PAL.ROJO); }
+    return { pj, lx, ly };
   };
   // la mesa de madera bajo el pergamino, a la luz de una vela
   const mesa = (t, o = {}) => {
@@ -912,9 +975,9 @@ export async function crearRetro(lienzo) {
 
   return {
     W, H, TAU, PAL, captura, get buf() { return B; }, PANT, nuevo, usar, pset, pget, rect, llenar, copiar, linea, poligono, disco, anillo, halo,
-    sprite, silueta, mascara, numero, icono, ICONOS, atomo, companero, SITIO, marco, caja, cartela, fundido,
+    recorte, dentro, sprite, silueta, mascara, numero, icono, ICONOS, atomo, companero, SITIO, marco, caja, cartela, fundido, secuencia,
     cielo, lunaLlena, nubes, niebla, mar, barco, bandera, figura, pergamino, proyector, costa, mundo, equis, rosa,
-    mesa, vela, interior, cofre, libro, esfera, telefono, globo, presentar,
+    mesa, ancla, vela, interior, cofre, libro, esfera, telefono, globo, presentar,
     tone, tone4, b2, b4, hash2, vnoise, clamp, smooth, easeIO, sale, lerp, tramo, mulberry32, hex,
   };
 }

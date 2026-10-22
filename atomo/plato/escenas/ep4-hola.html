@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-HOLA (frase 1). Mar de noche con Luna; un galeón lejano en silueta cruza el horizonte. La caja de diálogo baja
+// y Atom saluda en su retrato (una mano en la caja); el compañero late abajo a la izquierda.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-hola', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { tramo } = R;
+const hola = E.marca('hola', 0.5);
+
+E.iniciar((t) => {
+  R.cielo(t, { luna: [74, 46, 16], nubes: { bandas: [[40, 9, 1], [86, 7, 0.7]] } });
+  R.mar(t, { luzX: 74 });
+  R.barco(150 + t * 2.2, 122, t, { tipo: 'galeon', esc: 0.42, silueta: 1, bob: 0.6 });
+  R.barco(250, 140, t, { tipo: 'galeon', esc: 0.75, bandera: 'pirata', farol: true, dir: -1 });
+  const e = E.energia(t);
+  R.caja(t, tramo(t, hola - 0.25, hola + 0.15), (x, y) => {
+    const ola = Math.sin(t * 9) > 0 ? 0 : 1;
+    R.icono('mano', x + 6, y + ola, undefined, undefined, 2);
+  }, { energia: e });
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

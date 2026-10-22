@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ningún reloj · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-RELOJ (frases 17–18).
+//  reloj  en un camarote que se balancea (se ve por el ojo de buey), un reloj de péndulo: el péndulo enloquece con
+//         las olas y el reloj se para.
+//  ojo    la X salta por el mapa del ancla; luego, de noche, un barco va derecho a una roca en sombra y choca.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-reloj', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, clamp, lerp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { reloj: M('reloj', 0.5), ojo: M('ojo', 5.5) };
+const para = m.reloj + 3.2;
+
+const camarote = (t) => {
+  R.interior(t, { luces: [[220, 40]], tipo: 'madera', suelo: 150, radio: 190 });
+  R.vela(250, 70, t, { r: 18 });
+  // ojo de buey: el horizonte se inclina con el balanceo
+  const ox = 230, oy = 100, or = 20, inc = 0.25 * Math.sin(t * 1.9);
+  R.disco(ox, oy, or + 3, PAL.ORO[1]); R.disco(ox, oy, or + 1.5, PAL.HULL[1]);
+  R.disco(ox, oy, or, (x, y) => { const h = (y - oy) - (x - ox) * Math.tan(inc); return h > 0 ? R.tone(PAL.WATER, 3 + Math.sin(x * 0.4 + t * 3), x, y) : R.tone(PAL.SKY, 4 + (y - oy + or) / 8, x, y); });
+  // reloj de péndulo
+  const cx = 110, top = 22;
+  R.rect(cx - 18, top, cx + 18, top + 120, PAL.HULL[3]); R.rect(cx - 16, top + 2, cx + 16, top + 118, PAL.HULL[2]);
+  R.rect(cx - 18, top, cx + 18, top + 1, PAL.HULL[5]);
+  R.esfera(cx, top + 20, 13, t, para < t ? { hora: (para) / 60 * 40 } : { vel: 40 });
+  // péndulo: normal, luego desbocado, luego quieto y torcido
+  const loco = tramo(t, m.reloj + 0.8, m.reloj + 2.0);
+  let a = 0.28 * Math.sin(t * 4.4);
+  if (t < para) a = lerp(a, 0.9 * Math.sin(t * 7.1) * Math.sin(t * 2.3 + 1), loco);
+  else a = 0.5;
+  const px = cx + Math.sin(a) * 60, py = top + 40 + Math.cos(a) * 60;
+  R.rect(cx - 12, top + 38, cx + 12, top + 112, PAL.HULL[1]);
+  R.linea(cx, top + 40, px, py, PAL.ORO[2]);
+  R.disco(px, py, 6, (x, y, d) => R.tone(PAL.ORO, 4.5 - d * 2.5, x, y));
+};
+const mapaSalta = (t) => R.ancla(t, { tiembla: 3 });
+const choque = (t) => {
+  const golpe = m.ojo + 3.4;
+  const tiembla = t > golpe && t < golpe + 0.5 ? Math.round(2 * Math.sin(t * 60)) : 0;
+  R.cielo(t, { hor: 118, semilla: 12, nubes: { bandas: [[40, 10, 1.2]], densidad: 0.1 } });
+  R.mar(t, { hor: 118 });
+  // la roca en sombra
+  R.poligono([[200, 150], [212, 104], [228, 92], [246, 100], [262, 150]], PAL.FGC[1]);
+  R.linea(212, 104, 228, 92, PAL.FGC[3]); R.linea(228, 92, 246, 100, PAL.FGC[3]);
+  const x = lerp(30, 172, clamp((t - m.ojo) / 3.4, 0, 1));
+  const escora = t > golpe ? tramo(t, golpe, golpe + 1.5) : 0;
+  R.barco(x + tiembla, 136 + escora * 6, t, { tipo: 'galeon', esc: 0.75, farol: escora < 0.5, cabeceo: 1 + escora * 3 });
+  if (t > golpe && t < golpe + 0.6) for (let k = 0; k < 20; k++) { const a = R.hash2(k, 3) * Math.PI, r = (t - golpe) * 60 * R.hash2(k, 5); R.pset(200 + Math.cos(a) * r, 130 - Math.sin(a) * r, PAL.STAR[4]); }
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, camarote], [m.ojo - 0.2, mapaSalta], [m.ojo + 1.4, choque]]);
+  R.companero(t, E.energia(t));
+  R.presentar();
+});
+</script>
+</body>
+</html>

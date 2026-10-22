@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Es una hora · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-HORA (frases 14–16).
+//  pesadilla  un barco navega al este bajo un cielo que gira igual (las estrellas pasan de largo); luego el mapa del
+//             ancla con la longitud temblando.
+//  lugar      la X del mapa se convierte en un reloj.
+//  quince     un globo gira (meridianos cada 15°); dos relojes, el del puerto y el de aquí, y su diferencia: 3 h = 45°.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-hora', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, lerp, sale } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { pesadilla: M('pesadilla', 0.5), lugar: M('lugar', 6.5), quince: M('quince', 10) };
+
+const alEste = (t) => {
+  R.cielo(t, { luna: [60, 36, 10], giro: -t * 9, semilla: 70 });
+  R.mar(t, { luzX: 60 });
+  R.barco(120 + (t - m.pesadilla) * 4, 136, t, { tipo: 'galeon', esc: 0.8, farol: true });
+};
+const mapaTiembla = (t) => {
+  const a = R.ancla(t, { tiembla: 1, x: t < m.lugar + 0.2 });
+  // la X se convierte en un reloj
+  const p = tramo(t, m.lugar + 0.1, m.lugar + 0.7);
+  if (p > 0) R.esfera(a.lx, a.ly, 2 + 7 * sale(p), t, { vel: 30 });
+};
+const globoRelojes = (t) => {
+  R.cielo(t, { hor: 180, semilla: 8 });
+  R.globo(90, 84, 46, t * 15, { pergamino: true, meridianos: true });
+  // dos relojes: el del puerto (casa) y el de aquí (barco); el de aquí va 3 h por delante
+  const aparece = tramo(t, m.quince + 2.2, m.quince + 2.8);
+  if (aparece > 0) {
+    R.esfera(200, 84, 16 * sale(aparece), t, { hora: 12 });
+    R.esfera(262, 84, 16 * sale(aparece), t, { hora: 15 });
+    if (aparece >= 1) { R.icono('globo', 197, 106); R.icono('barco', 259, 106); }
+  }
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, alEste], [m.pesadilla + 2.6, mapaTiembla], [m.quince - 0.2, globoRelojes]]);
+  const e = E.energia(t);
+  const enCaja = t > m.lugar && t < m.quince - 0.2 ? tramo(t, m.lugar + 0.5, m.lugar + 0.9) : t > m.quince ? tramo(t, m.quince + 0.3, m.quince + 0.7) : 0;
+  R.caja(t, enCaja, (x, y) => {
+    if (t < m.quince) R.icono('reloj', x + 6, y, undefined, undefined, 2);
+    else if (t < m.quince + 4) { R.numero('15°', x + 4, y + 12); R.numero('1 h', x + 38, y + 12, { rampa: PAL.UI.slice(4) }); }
+    else R.numero('3 h = 45°', x + 2, y + 12);
+  }, { energia: e });
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

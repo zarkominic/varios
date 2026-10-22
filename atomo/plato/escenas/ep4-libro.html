@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El libro · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-LIBRO (frases 5–7).
+//  oro     en la mesa, a la luz de una vela, un cofre de oro y un mapa del tesoro con una X; una gran X roja los tacha.
+//  cartas  el libro de Sharp se abre en la mesa y sus costas se dibujan: puertos, sondas y rocas.
+//  porque  una balanza: cofre de plata contra el libro; se inclina hacia el libro. «?» en la caja.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-libro', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, lerp, clamp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { oro: M('oro', 0.5), cartas: M('cartas', 3.5), porque: M('porque', 8.5) };
+
+const tachado = (t) => {
+  R.mesa(t, { luz: [150, 40] });
+  R.vela(150, 36, t, { r: 22 });
+  R.cofre(95, 120, t, { w: 40 });
+  // mapa del tesoro pequeño con su X
+  R.pergamino(180, 76, 250, 122, { luz: [150, 40], semilla: 7 });
+  R.costa([[192, 112], [196, 92], [210, 84], [232, 88], [240, 104], [228, 116], [205, 117]], { tierra: 2.2 });
+  R.linea(200, 110, 222, 98, PAL.TINTA, 3);
+  R.equis(223, 97, 2);
+  // la X grande que lo tacha todo
+  const p = tramo(t, m.oro + 0.5, m.oro + 1.1);
+  if (p > 0) {
+    const L = 34 * p;
+    for (const [cx, cy] of [[95, 104], [215, 100]]) for (let k = -L; k <= L; k++) for (let g = -2; g <= 2; g++) {
+      R.pset(cx + k + g, cy + k * 0.8, PAL.ROJO); R.pset(cx + k + g, cy - k * 0.8, PAL.ROJO);
+    }
+  }
+};
+const libroAbierto = (t) => {
+  R.mesa(t, { luz: [60, 30] });
+  R.vela(46, 36, t, { r: 24 });
+  R.libro(170, 88, 190, t, { p: tramo(t, m.cartas, m.cartas + 3.2), luz: [60, 30] });
+};
+// balanza de latón: inclinación a (positivo = baja el plato derecho)
+const balanza = (cx, top, a, t) => {
+  R.rect(cx - 1, top, cx + 1, top + 74, PAL.ORO[2]); R.rect(cx - 12, top + 74, cx + 12, top + 77, PAL.ORO[1]);
+  const L = 66, dx = Math.cos(a) * L, dy = Math.sin(a) * L;
+  R.linea(cx - dx, top + 2 - dy, cx + dx, top + 2 + dy, PAL.ORO[4]); R.linea(cx - dx, top + 3 - dy, cx + dx, top + 3 + dy, PAL.ORO[2]);
+  R.disco(cx + 0.5, top + 2.5, 2.5, PAL.ORO[4]);
+  const platos = [[cx - dx, top + 2 - dy], [cx + dx, top + 2 + dy]];
+  for (const [px, py] of platos) {
+    R.linea(px, py, px - 14, py + 30, PAL.ORO[1]); R.linea(px, py, px + 14, py + 30, PAL.ORO[1]);
+    for (let k = -16; k <= 16; k++) { R.pset(px + k, py + 30 + Math.round(k * k / 90), PAL.ORO[3]); R.pset(px + k, py + 31 + Math.round(k * k / 90), PAL.ORO[1]); }
+  }
+  return platos.map(([x, y]) => [x, y + 30]);
+};
+const pesar = (t) => {
+  R.interior(t, { luces: [[160, 30]], tipo: 'madera', suelo: 150 });
+  R.vela(160, 26, t, { r: 26 });
+  const a = 0.22 * R.easeIO(clamp((t - m.porque - 0.4) / 1.4, 0, 1)) - 0.02 * Math.sin(t * 3) * Math.exp(-Math.max(0, t - m.porque - 1.8));
+  const [pi, pd] = balanza(160, 40, a, t);
+  R.cofre(pi[0], pi[1] - 1, t, { w: 24, metal: 'plata' });
+  // el libro cerrado en el plato derecho
+  const [bx, by] = pd;
+  R.rect(bx - 11, by - 8, bx + 11, by - 1, PAL.OBS[3]); R.rect(bx - 11, by - 8, bx + 11, by - 8, PAL.MOON[3]); R.rect(bx - 10, by - 6, bx + 10, by - 3, PAL.MOON[2]); R.rect(bx - 11, by - 3, bx + 11, by - 1, PAL.OBS[3]);
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, tachado], [m.cartas - 0.2, libroAbierto], [m.porque - 0.2, pesar]]);
+  const e = E.energia(t);
+  R.caja(t, tramo(t, m.porque + 0.2, m.porque + 0.6), (x, y) => R.icono('?', x + 6, y, undefined, undefined, 2), { energia: e });
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

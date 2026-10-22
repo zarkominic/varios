@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Final · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-FINAL (frases 76–78).
+//  libro  en la mesa, el libro de Sharp, el cofre de plata y un teléfono, uno junto a otro; el teléfono brilla.
+//  hora   el barco solo de la escena 4, en el mismo mar; ahora la X está clavada sobre él y un reloj late encima.
+//  final  la misma noche, más abierta; la caja baja con Atom y el «?» del cierre. Todo se asienta.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-final', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, sale } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { libro: M('libro', 0.5), hora: M('hora', 6), final: M('final', 11) };
+const QUIETO = E.duracion - 0.6;
+
+const mesa = (t) => {
+  R.mesa(t, { luz: [160, 30] });
+  R.vela(160, 30, t, { r: 18 });
+  // el libro de Sharp, cerrado
+  R.rect(40, 104, 92, 126, PAL.OBS[3]); R.rect(44, 126, 92, 130, PAL.MOON[3]); for (let x = 46; x < 92; x += 2) R.pset(x, 128, PAL.MOON[1]);
+  R.rect(40, 104, 92, 104, PAL.OBS[4]); R.rect(40, 104, 41, 130, PAL.HULL[2]);
+  for (const [x, y] of [[42, 106], [88, 106], [42, 122], [88, 122]]) R.rect(x, y, x + 2, y + 2, PAL.ORO[4]);
+  R.rosa(66, 115, 6, PAL.ORO[3], PAL.ORO[5]);
+  R.cofre(160, 130, t, { w: 44, metal: 'plata' });
+  const brilla = tramo(t, m.libro + 2.4, m.libro + 3.2);
+  R.halo(250, 104, 30 * brilla + 1, [PAL.COOL[0], PAL.COOL[1]], 0.9);
+  R.telefono(250, 104, 50, t, {});
+};
+const barcoSolo = (t) => {
+  R.cielo(t, { hor: 110, semilla: 33, nubes: { bandas: [[30, 10, 1], [70, 8, 0.9]], densidad: 0.05 } });
+  R.mar(t, { hor: 110 });
+  R.barco(160, 128, t, { tipo: 'galeon', esc: 0.6, farol: true });
+  const c = sale(tramo(t, m.hora + 0.3, m.hora + 0.8));
+  R.equis(160, 72, 4); R.anillo(160.5, 72.5, 7 + 6 * (1 - c), PAL.ROJO);
+  R.esfera(160, 50, 8, t, { vel: 60 });
+};
+const cierre = (t) => {
+  const tt = Math.min(t, QUIETO);
+  R.cielo(tt, { luna: [80, 44, 15], nubes: { bandas: [[40, 9, 1], [86, 7, 0.7]] } });
+  R.mar(tt, { luzX: 80 });
+  R.barco(200, 138, tt, { tipo: 'galeon', esc: 0.75, farol: true, bandera: 'pirata', dir: -1 });
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, mesa], [m.hora - 0.2, barcoSolo], [m.final - 0.2, cierre]]);
+  const e = E.energia(t), tt = Math.min(t, QUIETO);
+  R.caja(tt, t > m.final ? tramo(t, m.final + 0.1, m.final + 0.5) : 0, (x, y) => R.icono('?', x + 6, y, undefined, undefined, 2), { energia: e });
+  R.companero(tt, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

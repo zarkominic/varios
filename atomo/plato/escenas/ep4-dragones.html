@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dragones · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-DRAGONES (frases 26–27).
+//  dragones  un mapa medieval redondo con serpientes marinas que se mueven en el océano de alrededor; luego, un globo
+//            pequeño de cobre gira y, en un rincón, brilla un garabato diminuto (la inscripción: ilegible a propósito).
+//            En la caja, «2».
+//  vacios    vuelve el mapa: las serpientes se borran con tramado y el océano de los bordes queda vacío.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-dragones', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, clamp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { dragones: M('dragones', 0.5), vacios: M('vacios', 11) };
+const globoT = m.dragones + (m.vacios - m.dragones) * 0.55;
+
+const serpiente = (x0, y0, t, fase, borra) => {
+  for (let k = 0; k < 30; k++) {
+    const x = x0 + k * 1.6, y = y0 + 5 * Math.sin(k * 0.45 - t * 4 + fase);
+    if (R.hash2(Math.round(x), Math.round(y)) < borra) continue;
+    const r = k < 4 ? 2.8 : 2.2 - k / 30 * 1.4;
+    R.disco(x, y, r, k % 3 ? PAL.OBS[3] : PAL.OBS[2]);
+    if (k === 1) { R.pset(x - 1, y - 2, PAL.TITLE[1]); R.pset(x - 3, y, PAL.ROJO); }
+  }
+};
+const mapaRedondo = (t) => {
+  R.mesa(t, { luz: [160, 30] });
+  R.pergamino(40, 8, 280, 150, { luz: [160, 20], semilla: 17 });
+  // océano exterior y el mundo redondo (T-O medieval)
+  const cx = 160, cy = 80, r = 50;
+  R.disco(cx, cy, r + 14, (x, y) => R.tone(PAL.PERG, 3 + 0.4 * Math.sin((x + y) * 0.5), x, y));
+  R.disco(cx, cy, r, (x, y) => R.tone(PAL.PERG, 2.2 + 0.4 * R.vnoise(x * 0.2, y * 0.2), x, y));
+  R.anillo(cx, cy, r, PAL.TINTA); R.anillo(cx, cy, r + 14, PAL.TINTA);
+  R.linea(cx - r, cy, cx + r, cy, PAL.TINTA); R.linea(cx, cy, cx, cy + r, PAL.TINTA);
+  // ciudades y montes en miniatura
+  for (const [x, y] of [[140, 60], [175, 58], [150, 96], [182, 100], [160, 44]]) { R.rect(x, y, x + 3, y + 3, PAL.ROJO); R.pset(x + 1, y - 1, PAL.ROJO); }
+  const borra = tramo(t, m.vacios + 0.3, m.vacios + 1.6);
+  serpiente(62, 30, t, 0, borra); serpiente(214, 118, t, 2, borra); serpiente(60, 126, t, 4, borra); serpiente(222, 34, t, 1, borra);
+};
+const globoCobre = (t) => {
+  R.interior(t, { luces: [[160, 50]], suelo: 140 });
+  R.vela(240, 70, t);
+  R.rect(158, 118, 162, 140, PAL.ORO[1]); R.rect(146, 138, 174, 141, PAL.ORO[1]);
+  R.anillo(160, 76, 44, PAL.ORO[2]);
+  R.globo(160, 76, 40, 100 + t * 25, { pergamino: true });
+  // el garabato de la inscripción (ilegible), que brilla
+  const b = 0.5 + 0.5 * Math.sin(t * 5);
+  for (let k = 0; k < 9; k++) R.pset(176 + k, 92 + (k % 3 === 1 ? -1 : 0), b > 0.5 ? PAL.TITLE[1] : PAL.ORO[3]);
+  R.halo(180, 92, 9, [PAL.ORO[2], PAL.ORO[4]], 0.8 * b);
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, mapaRedondo], [globoT, globoCobre], [m.vacios - 0.2, mapaRedondo]]);
+  const e = E.energia(t);
+  R.caja(t, t > globoT && t < m.vacios - 0.2 ? tramo(t, globoT + 0.4, globoT + 0.8) : 0, (x, y) => R.numero('2', x + 6, y + 12), { energia: e });
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GPS · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-GPS (frases 70–72), cartela GPS.
+//  hoy        el pergamino del ancla se funde en la pantalla de un teléfono: el mismo mapa, ahora con el punto azul.
+//  relojes    junto al teléfono, un reloj que late (en la caja, un reloj).
+//  satelites  la cámara sube al espacio: la Tierra y satélites en órbita, cada uno con un reloj que late; de cada uno
+//             sale una onda que llega al teléfono (un punto azul en la Tierra) a destiempo.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('ep4-gps', 'ep04');
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL, tramo, lerp, clamp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { hoy: M('hoy', 1.5), relojes: M('relojes', 5), sat: M('satelites', 8) };
+
+const pergamino = (t) => R.ancla(t, { tiembla: 0, clavada: 1 });
+const movil = (t) => {
+  R.mesa(t, { luz: [160, 30] });
+  R.telefono(160, 86, 150, t, { semilla: 6 });
+  if (t > m.relojes) R.esfera(240, 70, 16, t, { vel: 60 });
+};
+const SATS = [[60, 40, 0], [150, 22, 1], [250, 34, 2], [290, 90, 3]];
+const satelite = (x, y, t) => {
+  R.rect(x - 3, y - 3, x + 3, y + 3, PAL.ORO[3]); R.rect(x - 2, y - 2, x + 2, y + 2, PAL.ORO[2]);
+  for (const s of [-1, 1]) { R.rect(x + s * 5, y - 2, x + s * 13, y + 2, PAL.COOL[0]); for (let k = 5; k <= 13; k += 3) R.rect(x + s * k, y - 2, x + s * k, y + 2, PAL.FARC[2]); }
+  if (Math.sin(t * 6 + x) > 0) R.pset(x, y, PAL.STAR[4]);
+};
+const espacio = (t) => {
+  R.cielo(t, { hor: 180, semilla: 71 });
+  R.globo(160, 190, 80, 260 + t * 2, {});
+  const [px, py] = [150, 116];
+  R.halo(px, py, 5 + Math.sin(t * 4), [PAL.COOL[0], PAL.COOL[1]], 1); R.pset(px, py, PAL.COOL[2]);
+  SATS.forEach(([x0, y0, i]) => {
+    const x = x0 + Math.round(6 * Math.sin(t * 0.3 + i)), y = y0;
+    satelite(x, y, t);
+    R.esfera(x, y - 12, 4, t, { vel: 120 });
+    // la onda: un pulso que viaja del satélite al teléfono, cada uno con su retraso
+    if (t > m.sat + 0.4) {
+      const f = ((t - m.sat) * 0.6 + i * 0.23) % 1;
+      const d = Math.hypot(px - x, py - y), r = f * d;
+      const a0 = Math.atan2(py - y, px - x);
+      for (let k = -6; k <= 6; k++) { const a = a0 + k * 0.05; R.pset(x + Math.cos(a) * r, y + Math.sin(a) * r, PAL.COOL[f > 0.9 ? 2 : 1]); }
+    }
+  });
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, (t) => R.cartela(t, 'GPS')], [1.2, pergamino], [m.hoy + 0.8, movil, 'iris'], [m.sat - 0.2, espacio]], { fundido: 0.5 });
+  const e = E.energia(t);
+  R.caja(t, t > m.relojes && t < m.sat - 0.2 ? tramo(t, m.relojes + 0.2, m.relojes + 0.6) : 0, (x, y) => R.icono('reloj', x + 6, y, undefined, undefined, 2), { energia: e });
+  if (t > 1.3) R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>
