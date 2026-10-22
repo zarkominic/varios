@@ -54,7 +54,11 @@
 // un fotograma). El resto de fotos, una por fotograma barato poco antes de hacer falta (PREPARAR: las décadas 5 y 6 al
 // principio, con el brillo de la ciudad horneado en sus fotos para que esos fotogramas sean baratos; las décadas 8–20 y
 // las reglas de 16 y 21 en el plano quieto de la Tierra antes de que empiecen las vueltas); un instante suelto las hace
-// al momento (sale lo mismo). El espacio a 10¹⁶ (1 s en pantalla) es la foto de 0,57.
+// al momento (sale lo mismo).
+// Medido el 22-10-2026 (2.ª versión, sin mundo en vivo), los 215 fotogramas en orden con la CPU de cada uno (carga del
+// servidor ~5): listo en 36 s (63 s de CPU); CPU media 2,3 s, máxima 4,54 s (n = 42, una foto de década); los 54
+// fotogramas de los saltos, media 2,4 s y máxima 3,9 s; reloj máximo 2,2 s. Con la carga a ~8, la misma carga tardó
+// 55 s (casi todo, los dos mundos y las tres fotos enteras). El espacio a 10¹⁶ (1 s en pantalla) es la foto de 0,57.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteCartela, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, mulberry32, brote, QUIETO as QUIETO_KIT } from '/atomo/plato/kits/plastilina-adulta.js';

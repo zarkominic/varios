@@ -407,10 +407,10 @@ const POSE_0 = postura('manos');
 function poseEn(ts) {
   const p = JSON.parse(JSON.stringify(POSE_0));
   const u = prog(ts, T.sorpresa - 0.12, T.sorpresa + 0.14);
-  const k = u <= 0 ? 0 : eob(u, 2.2);
+  const k = u <= 0 ? 0 : eob(u, 1.6);
   const quieto = Math.min(ts, T.viejo);
   // mirándose las manos: un balanceo leve de la cabeza (lee); de golpe, la cabeza atrás, los ojos abiertos y la mirada arriba
-  p.cabeza = [0.05 * Math.sin((quieto - T.persona) * 1.7) * (1 - cl(k)), mix(0.5, -0.24, k), 0.06 * cl(k)];
+  p.cabeza = [0.05 * Math.sin((quieto - T.persona) * 1.7) * (1 - cl(k)), mix(0.5, -0.08, k), 0.06 * cl(k)];
   p.ojos = mix(0.7, 1, ss(0, 0.6, u));
   p.mirada = [0, mix(-1, 0.25, cl(k))];
   return p;
@@ -538,8 +538,9 @@ const HACER = {
   medulaF: () => { P.fotograma(T.empuje[0]); P.limpiar(); ponerMedula(T.empuje[0]); P.render(6040, sinFondo); return foto(); },
 };
 // (coste) las fotos grandes se pintan en FRANJAS horizontales (setScissor), una por fotograma barato, con su nf fijo
-// (como ep3-celulas): la persona con el plató (~8,5 s entera), el vaso de cerca (~4,5 s), el pelo sin fondo y el de lejos
-const FRANJAS = { peloSF: 2, persona: 3, vasoL: 2, vasoA: 2 };
+// (como ep3-celulas): la persona con el plató (~8,5 s entera la primera vez, que compila las celdas del cuerpo) y el pelo
+// sin fondo. Los vasos van enteros (su coste es la pasada de sombra, que cada franja repetiría), en fotogramas baratos
+const FRANJAS = { peloSF: 2, persona: 4, vasoL: 1, vasoA: 1 };
 const PINTAR = {
   peloSF: () => { P.fotograma(0); P.limpiar(); cortePelo(P, I.CP, { pos: CP.pos, escala: CP.esc, rot: CP.rot, largo: CP.largo }); P.render(6001, sinFondo); },
   persona: () => { P.fotograma(T.persona); P.limpiar(); P.pieza(I.HUM, HUM_OP(T.persona, ['cuerpo', 'manos'])); P.render(6020); },
@@ -661,7 +662,7 @@ function planoAB(ts, n, pl) {
     g.drawImage(F('plato'), 0, 0, W, H);
     if (dy < 1200) {
       const pe = F('peloSF');
-      g.save(); g.translate(0, dy); pegar(sombraSilueta(pe, { dx: 18, dy: 24, blur: 16, alfa: 0.45 })); pegar(pe); g.restore();
+      g.save(); g.translate(0, dy); g.drawImage(sombraSilueta(pe, { dx: 18, dy: 24, blur: 16, alfa: 0.45 }), 0, 0, W, H); g.drawImage(pe, 0, 0, W, H); g.restore();
     }
   }
   // la silueta (baja y se posa; luego se encienden sus puntitos)
@@ -831,6 +832,7 @@ function componer(t) {
   const n = P.fotograma(tFot), ts = n / 12;
   const pl = plano(ts);
   tipoFot = pl;
+  pedirFotos(pl, ts);
   if (pl === 'A' || pl === 'B') planoAB(ts, n, pl);
   else if (pl === 'C') planoC(ts, n);
   else if (pl === 'D') planoD(ts, n);
@@ -838,6 +840,27 @@ function componer(t) {
   parpadeo(n);
   POST.aplicar(g, n);
   if (n === NFIN) fin();
+}
+// (coste) las fotos se piden ANTES de renderizar lo vivo: si falta una, F() la pinta en el lienzo de WebGL y borraría lo vivo
+function pedirFotos(pl, ts) {
+  const k = [];
+  if (pl === 'A' || pl === 'B') {
+    k.push('reglaC', 'fila', caePelo(ts) > 0 ? 'plato' : 'pelo');
+    if (caePelo(ts) > 0 && caePelo(ts) < 1200) k.push('peloSF');
+    if (pl === 'B' || ts >= T.sil[0]) {
+      k.push('silSombra', 'sil0');
+      if (ts >= T.rojo[0]) k.push('sil1');
+      if (ts >= T.verde[0]) k.push('sil2');
+    }
+    if (pl === 'B') k.push('plato', 'lupa');
+  } else if (pl === 'C') k.push('persona', 'reglaV');
+  else if (pl === 'D') k.push('plato', 'reglaV');
+  else {
+    k.push('vasoL', 'mota', 'spr0', 'spr1', 'spr2', 'reglaV', 'b0', 'b1', 'b2', ...[...Array(10).keys()].map((d) => 'c' + d));
+    if (zoomEn(ts) > 1.35) k.push('vasoA');
+    if (ts >= T.empuje[0]) k.push('medulaF');
+  }
+  for (const x of k) F(x);
 }
 function dibujar(t) {
   const a = performance.now();
@@ -852,7 +875,7 @@ function dibujar(t) {
 // suelto, F() hace allí lo que falte (ese fotograma tarda más, pero la imagen es la misma: cada foto tiene su nf fijo).
 let tipoFot = 'A';
 const LIMITE = 3600;
-const EST = { 'peloSF#': 2000, 'persona#': 3000, 'vasoL#': 1400, 'vasoA#': 2400, peloSF: 10, persona: 10, vasoL: 10, vasoA: 300, plato: 1200, sil0: 3000, sil1: 2000, sil2: 1700, silSombra: 100, lupa: 600, reglaV: 1500,
+const EST = { 'peloSF#': 2000, 'persona#': 3200, 'vasoL#': 2900, 'vasoA#': 3300, peloSF: 10, persona: 10, vasoL: 10, vasoA: 300, plato: 1200, sil0: 3000, sil1: 2000, sil2: 1700, silSombra: 100, lupa: 600, reglaV: 1500,
   'e:humano': 800, 'e:globulo': 400, 'e:calendario': 600, 'e:tumbona': 400, 'e:medula': 400,
   spr0: 500, spr1: 200, spr2: 200, mota: 400, medulaF: 500, c: 300, b: 800 };
 const est = (k) => EST[k] ?? (k.includes('#') ? EST[k.split('#')[0] + '#'] : k.length === 2 && 'cb'.includes(k[0]) ? EST[k[0]] : 1000);
@@ -862,10 +885,10 @@ const PREPARAR = [
   [0, 'sil1', T.rojo[0]], [0, 'lupa', T.lupa], [0, 'sil2', T.verde[0]],
   [0, 'e:humano', T.persona], ...franjas('persona', 0, T.persona), [0, 'reglaV', T.persona],
   [T.sil[1], 'e:globulo', T.viejo], [T.sil[1], 'e:calendario', T.viejo], [T.sil[1], 'e:tumbona', T.viejo],
-  [T.persona, 'e:medula', T.fab], ...franjas('vasoL', T.persona, T.fab), [T.persona, 'mota', T.fab],
-  ...[0, 1, 2].map((j) => [T.persona, 'spr' + j, T.fab]),
-  ...[...Array(10).keys()].map((d) => [T.viejo, 'c' + d, T.fab]), ...[0, 1, 2].map((v) => [T.viejo, 'b' + v, T.fab]),
-  ...franjas('vasoA', T.viejo, T.empuje[0]), [T.fab, 'medulaF', T.empuje[0]],
+  [T.sil[1], 'e:medula', T.fab], ...franjas('vasoL', T.sil[1], T.fab), [T.sil[1], 'mota', T.fab],
+  ...[0, 1, 2].map((j) => [T.sil[1], 'spr' + j, T.fab]),
+  ...[...Array(10).keys()].map((d) => [T.sil[1], 'c' + d, T.fab]), ...[0, 1, 2].map((v) => [T.sil[1], 'b' + v, T.fab]),
+  ...franjas('vasoA', T.fab, T.empuje[0]), [T.fab, 'medulaF', T.empuje[0]],
 ];
 // lo que tiene que estar hecho antes
 const ANTES = { 'persona#0': ['e:humano'], silSombra: ['sil0'] };
@@ -910,10 +933,13 @@ if (busq.has('guias')) {
 } else {
   // al cargar: lo del fotograma 0 (el pelo con su fondo, la fila, la regla de ep3-celulas) y los estrenos de la cota y Atom
   F('pelo'); F('fila'); F('reglaC');
+  // la primera franja de la persona compila las celdas del cuerpo (~5 s, una sola vez): no cabe en ningún fotograma
+  F('persona#0');
   P.limpiar(); ponerCota(0); atomo(0); P.render(0, sinFondo);
   hito('fotos');
   if (busq.has('prepararTodo')) for (const [, k] of PREPARAR) F(k);
   window.__medidas = { T, PERS, C0, CV, EXTRAS };
+  window.__dbg = { P, I, VASO_A, VASO_L, PERS, HUM_OP, T, sinFondo };
   window.__carga = Math.round(performance.now() - T0);
   E.iniciar(dibujar, { paso: 1 / 12 });
 }
