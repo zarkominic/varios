@@ -317,6 +317,9 @@ for (const tipo of ['electron', 'proton', 'neutron']) for (const k of [0, 1]) HA
 
 // ---------------------------------------------------------------- al cargar: el cielo del final de ep3-sol, el espacio y los estrenos
 for (const parte of PARTES_CIELO) fotoCielo(P, IDX_CIELO, parte, CIELO_F);
+// (coste) los desenfoques de las fotos del cielo (el kit los hace con filtros de lienzo) se hacen ya, al cargar, y no en el
+// fotograma 0
+for (const k of ['sol', 'gigante', 'giganteApagada', 'cerca', 'lejos']) asentar(CIELO_F[k]);
 marcaCarga('cielo');
 F('espacio');
 marcaCarga('espacio');

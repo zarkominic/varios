@@ -11,7 +11,7 @@
 // HOJA DE PRUEBA del kit del episodio 3 kits/ep03-sangre.js (no es una escena del vídeo: lleva rótulos).
 // Un fotograma por pieza y por variante, con el plató, la luz y la cámara de las escenas de plastilina
 // (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28).
-//   __frame(0)  → la hoja entera (5 × 3 celdas de 384 × 216, con su rótulo)
+//   __frame(0)  → la hoja entera (4 × 4 celdas de 480 × 270, con su rótulo)
 //   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
 // ?celda=k abre la celda k en la vista previa. window.__tiempos[k] da lo que tardó cada celda (ms).
 import * as THREE from 'three';
@@ -108,7 +108,7 @@ function ajustarCapa() {
   if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
   g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
 }
-const COL = 5, FIL = 3;
+const COL = 4, FIL = 4;
 function dibujar(t) {
   ajustarCapa();
   const k = Math.round(t);

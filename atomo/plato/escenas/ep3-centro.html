@@ -38,8 +38,9 @@
 //  · Fotograma 0 = el último de ep3-borde (window.__fin de ep3-borde): ver arriba; window.__inicio.
 //  · Último fotograma (ep3-despedida empieza así; window.__fin lo da en números): el ojo de encuadreHola (ep03-ojo.js) con
 //    los párpados cerrados ({ arriba: 1, abajo: 1 }) sobre la franja reducida al pelo (la franja de encuadreHola, estirada
-//    en x por FIN.franja.sx alrededor de x 960, y su halo), con la cuenta del pelo en el centro (CF, radio R_PELO: la
-//    foto del pelo-tronco escalada SC_FIN alrededor de su eje, con un aro de luz); la regla entera en la posición de
+//    en x por FIN.franja.sx alrededor de x 960, y su halo; queda tras la cuenta), con la cuenta del pelo en el centro
+//    (CF, radio R_PELO: la tira del pelo-tronco, y de 140 a 700 de su foto repetida en vertical, escalada SC_FIN con su
+//    punto SRC0 en el centro, y un aro de luz); la regla entera en la posición de
 //    FINAL_UNIVERSO (P.punto(1655, 528, 0,4), escala 1,42, rot [0, −0,12, 0]) con entera 1, actual −4, marca −4,
 //    lupaEntera 1,3, con la flecha; Atom en (230, 780), quieto, con la sombra cálida del ojo (HOLA.SOMBRA_ATOM).
 // Coste (≤ 5 s por fotograma dibujado): lo quieto son fotos (la niebla, el plató con la persona, el plató vacío, la regla
@@ -252,17 +253,23 @@ const MIR0 = { r: 125 };                                          // la mirilla 
 // la foto del pelo dentro de una mirilla de radio r: escalada lo justo para cubrirla de arriba abajo sin llegar a la base
 // del pelo (que está en el suelo del plató), con el punto SRC0 de la foto en el centro; a pantalla completa, tal cual
 const SRC0 = [HC[0], 400];
-const scPelo = (r) => Math.min(1, 1.35 * r / 540);
+const TIRA = { y0: 140, y1: 700 };
+const scFoto = (r) => Math.min(1, 1.35 * r / 540);
+// al alejarse hacia el ojo, en la mirilla pequeña (r < 400) el pelo es un hilo que la cruza de arriba abajo: la foto se
+// funde con «la tira» (el tramo del pelo sin la base, repetido hacia arriba y hacia abajo, sobre el color del fondo de la
+// foto) y por debajo de r 200 el pelo encoge menos que la mirilla (en la cuenta del final, un hilo de ~44 px en 100 px)
+const scPelo = (r) => (r >= 200 ? scFoto(r) : mix(0.075, 0.5, cl((r - 50) / 150)));
+const kTira = (r) => 1 - ss(200, 400, r);
 // el ojo del gancho (encuadreHola) y la cuenta del pelo en el centro de su franja
 const EH = encuadreHola(P);
 const CF = [960, Math.round(EH.franja.y)];
 const R_PELO = 50;
 const SC_FIN = scPelo(R_PELO);
-const SX_FIN = (3.6 * R_PELO) / (2 * HOLA.FRANJA.largoPx);          // la franja, reducida casi a la cuenta del pelo
+const SX_FIN = (1.9 * R_PELO) / (2 * HOLA.FRANJA.largoPx);          // la franja, reducida a la cuenta del pelo (tras ella)
 const CERRADO = { arriba: 1, abajo: 1 };
 
 // la mirilla del pelo: centro c, radio r; la foto del pelo escalada sc con su punto src en c; brillo (0…1)
-function mirillaPelo(gx, c, r, sc, src, brillo, { sombra = 1, aro = 1 } = {}) {
+function mirillaPelo(gx, c, r, sc, src, brillo, { sombra = 1, aro = 1, tira = false } = {}) {
   if (r <= 1) return;
   if (sombra > 0.01 && r < 900) {
     gx.save(); gx.shadowColor = `rgba(0,0,0,${0.7 * sombra})`; gx.shadowBlur = 40; gx.fillStyle = '#0b0c0f';
@@ -270,7 +277,18 @@ function mirillaPelo(gx, c, r, sc, src, brillo, { sombra = 1, aro = 1 } = {}) {
   }
   gx.save(); gx.beginPath(); gx.arc(c[0], c[1], r, 0, 6.2832); gx.clip();
   gx.fillStyle = '#0b0c0f'; gx.fillRect(c[0] - r, c[1] - r, 2 * r, 2 * r);
-  fotoEscalada(gx, F('tronco'), sc, src, c);
+  const kt = tira ? kTira(r) : 0;
+  if (kt < 1) fotoEscalada(gx, F('tronco'), sc, src, c);
+  if (kt > 0) {
+    const t = F('tira');
+    gx.save(); gx.globalAlpha *= kt;
+    gx.fillStyle = t.fondo; gx.fillRect(c[0] - r, c[1] - r, 2 * r, 2 * r);
+    gx.translate(c[0], c[1]); gx.scale(sc, sc); gx.translate(-src[0], -src[1]);
+    // la tira (en px de diseño de la foto: x de t.x0 a t.x1, y de TIRA.y0 a TIRA.y1), repetida en vertical
+    const alto = TIRA.y1 - TIRA.y0, k0 = Math.floor((src[1] - r / sc - TIRA.y0) / alto) - 1, k1 = Math.ceil((src[1] + r / sc - TIRA.y0) / alto) + 1;
+    for (let k = k0; k <= k1; k++) gx.drawImage(t.lienzo, t.x0, TIRA.y0 + k * alto, t.x1 - t.x0, alto + 1);
+    gx.restore();
+  }
   if (brillo > 0.005) {
     // el pelo brilla: luz ámbar a lo largo del pelo (en la foto, una banda vertical en su eje) y un filo en sus bordes
     gx.save(); gx.globalCompositeOperation = 'lighter';
@@ -315,11 +333,6 @@ function bordesPx(estado) {
 }
 const B1 = bordesPx(EH.fin);
 const BANDA = [Math.max(0, Math.round(B1[0] - 150)), Math.min(H, Math.round(B1[1] + 70))], PLUMA = 26;
-function fotoOjo(estado, capaO, nf) {
-  ponerOjo(UO, { ...estado, pupila: HOLA.PUPILA, sombra: false });
-  P.limpiar(); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala, rot: EH.rot, variante: capaO }); P.render(nf, { fondo: false });
-  return copiaGL();
-}
 // los párpados en un estado: solo la banda que se mueve, en vivo, remendada sobre la foto de los párpados casi cerrados
 const REM = lienzo2D()[0], PARCHE = lienzo2D()[0];
 function bandaParpados(estado, nf) {
@@ -388,13 +401,30 @@ const HACER = {
   fondo() { P.limpiar(); P.render(7002); return copiaGL(); },
   // el pelo-tronco del nivel 4 de prueba-plastilina-adulta (la misma pieza, el mismo sitio, el mismo n)
   tronco() { P.limpiar(); P.pieza(I.TRO, { pos: TRO, escala: E_TRO, rot: [0, 0.3, 0] }); P.render(1004); return copiaGL(); },
+  // el pelo sin la base (para repetirlo en vertical) y el color medio del fondo de la foto
+  tira() {
+    const f = F('tronco'), kk = f.width / W, x0 = Math.round(HC[0] - R_PEL - 50), x1 = Math.round(HC[0] + R_PEL + 50);
+    const c = document.createElement('canvas'); c.width = Math.round((x1 - x0) * kk); c.height = Math.round((TIRA.y1 - TIRA.y0) * kk);
+    const xc = c.getContext('2d');
+    xc.drawImage(f, x0 * kk, TIRA.y0 * kk, c.width, c.height, 0, 0, c.width, c.height);
+    // los bordes de los lados, fundidos (sin costuras con el color de fondo)
+    xc.globalCompositeOperation = 'destination-in';
+    const lg = xc.createLinearGradient(0, 0, c.width, 0), fe = 45 / (x1 - x0);
+    lg.addColorStop(0, 'rgba(0,0,0,0)'); lg.addColorStop(fe, 'rgba(0,0,0,1)'); lg.addColorStop(1 - fe, 'rgba(0,0,0,1)'); lg.addColorStop(1, 'rgba(0,0,0,0)');
+    xc.fillStyle = lg; xc.fillRect(0, 0, c.width, c.height);
+    const m = document.createElement('canvas'); m.width = m.height = 1;
+    const mx = m.getContext('2d'); mx.drawImage(f, 60 * kk, 150 * kk, 420 * kk, 500 * kk, 0, 0, 1, 1);
+    const [r, gg, b] = mx.getImageData(0, 0, 1, 1).data;
+    return { lienzo: c, x0, x1, fondo: `rgb(${r},${gg},${b})` };
+  },
   // la regla en −4 (con la flecha), sin fondo, para ir encima
   reglaFin() { P.limpiar(); P.regla(OP_FIN); P.render(7003, { fondo: false }); return copiaGL(); },
   // el general del final de la frase 87: la persona señala la flecha en −4 (sin Atom)
   fotoC() { P.limpiar(); const R = P.regla(OP_FIN); persona(T.mir[0], R, 1); P.render(7004); return copiaGL(); },
   // el ojo del gancho: las capas de ep3-hola (mismos n: las mismas fotos)
-  globo: () => fotoOjo(HOLA.ABRE, CAPA.GLOBO, HOLA.NF.globo),
-  cerrado: () => fotoOjo(EH.fin, CAPA.PARPADOS, HOLA.NF.cerrado),
+  // (por bandas, repartidas entre fotogramas baratos: el ojo a pantalla completa es la foto más cara)
+  globo() { for (let k = 0; k < BANDAS_OJO.length; k++) F(`globo_${k}`); return LOJO.globo; },
+  cerrado() { for (let k = 0; k < BANDAS_OJO.length; k++) F(`cerrado_${k}`); return LOJO.cerrado; },
   franja() { P.limpiar(); P.pieza(I.FR, { pos: EH.franja.pos, escala: EH.franja.escala, rot: EH.franja.rot, variante: EH.franja.alto }); P.render(HOLA.NF.franja, { fondo: false }); return copiaGL(); },
   cosas() {
     return EH.cosas.map((c) => {
@@ -424,6 +454,24 @@ function bandaReglaB(lit, k) {
   return true;
 }
 for (const lit of [0, 1]) for (let k = 0; k < 3; k++) HACER[`rb${lit}_${k}`] = () => bandaReglaB(lit, k);
+// las capas del ojo del gancho (las de ep3-hola, mismos n), por bandas
+const BANDAS_OJO = [[0, 270], [270, 540], [540, 810], [810, 1080]];
+const LOJO = {}, CAPAS_OJO = { globo: [HOLA.ABRE, CAPA.GLOBO, HOLA.NF.globo], cerrado: [EH.fin, CAPA.PARPADOS, HOLA.NF.cerrado] };
+function bandaOjo(nombre, k) {
+  const [estado, capaO, nf] = CAPAS_OJO[nombre], [y0, y1] = BANDAS_OJO[k], kk = lienzoGL.width / W;
+  LOJO[nombre] ??= lienzo2D()[0];
+  ponerOjo(UO, { ...estado, pupila: HOLA.PUPILA, sombra: false });
+  P.limpiar(); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala, rot: EH.rot, variante: capaO });
+  P.renderer.setScissor(0, (H - y1) * kk, W * kk, (y1 - y0) * kk);
+  P.renderer.setScissorTest(true);
+  P.render(nf, { fondo: false });
+  P.renderer.setScissorTest(false);
+  const x = LOJO[nombre].getContext('2d');
+  x.setTransform(1, 0, 0, 1, 0, 0);
+  x.drawImage(lienzoGL, 0, y0 * kk, W * kk, (y1 - y0) * kk, 0, y0 * kk, W * kk, (y1 - y0) * kk);
+  return true;
+}
+for (const nombre of ['globo', 'cerrado']) for (let k = 0; k < BANDAS_OJO.length; k++) HACER[`${nombre}_${k}`] = () => bandaOjo(nombre, k);
 
 // ---------------------------------------------------------------- al cargar
 P.fotograma(0);
@@ -496,7 +544,7 @@ function planoM(n, ts) {
   if (uc < 1) g.drawImage(F('fotoC'), 0, 0, W, H);
   const c = [mix(MIR_C[0], 960, uc), mix(MIR_C[1], 540, uc)];
   const r = uc > 0 ? MIR0.r * Math.pow(R_FULL / MIR0.r, uc) : MIR0.r * eob(um, 1.4);
-  const sc = scPelo(uc > 0 ? r : MIR0.r);
+  const sc = scFoto(uc > 0 ? r : MIR0.r);
   const src = [mix(SRC0[0], 960, uc), mix(SRC0[1], 540, uc)];
   if (uc >= 1) mirillaPelo(g, [960, 540], R_FULL + 400, 1, [960, 540], brillo, { sombra: 0, aro: 0 });
   else mirillaPelo(g, c, r, sc, src, brillo, { sombra: 1, aro: 1 - ss(0.75, 1, uc) });
@@ -524,7 +572,7 @@ function planoO(n, ts) {
   // la cuenta del pelo en el centro de la franja (la mirilla que encoge)
   const src = [mix(960, SRC0[0], uv), mix(540, SRC0[1], uv)];
   const brillo = mix(0.6, 0.85, uv) * (1 - 0.15 * uk);
-  mirillaPelo(g, [960, mix(540, CF[1], uv)], r, scPelo(r), src, brillo, { sombra: ss(0.2, 0.6, uv) * 0.6, aro: ss(0.1, 0.5, uv) });
+  mirillaPelo(g, [960, mix(540, CF[1], uv)], r, scPelo(r), src, brillo, { sombra: ss(0.2, 0.6, uv) * 0.6, aro: ss(0.1, 0.5, uv), tira: true });
   g.drawImage(F('reglaFin'), 0, 0, W, H);
   pasadaViva(n, ts);
 }
@@ -551,19 +599,16 @@ function dibujar(t) {
 const PREPARAR = [
   [T.abre[1] + 0.05, 'fondo', T.B], [T.abre[1] + 0.15, 'rb0_0', T.B], [T.abre[1] + 0.25, 'rb0_1', T.B], [T.abre[1] + 0.35, 'rb0_2', T.B],
   [T.abre[1] + 0.45, 'rb1_0', T.B], [T.abre[1] + 0.55, 'rb1_1', T.B], [T.abre[1] + 0.65, 'rb1_2', T.B],
-  [T.abre[1] + 0.8, 'tronco', T.mir[0]], [T.abre[1] + 0.9, 'reglaFin', T.mir[0]],
-  [T.sube[0] + 0.5, 'cosas', T.vuelve[0]],
-  [T.cae0 + 1.26, 'fotoC', T.mir[0]],
-  [T.crece[1] + 0.05, 'globo', T.vuelve[0]], [T.crece[1] + 0.2, 'cerrado', T.vuelve[0]], [T.crece[1] + 0.35, 'franja', T.vuelve[0]],
-  [T.crece[1] + 0.5, 'sombra', T.vuelve[0]], [T.crece[1] + 0.6, 'ojoFull', T.vuelve[0]],
-  [T.vuelve[1], 'cerr1', T.cierra[0]], [T.vuelve[1] + 0.1, 'sombraC', T.cierra[0]],
+  // en el plano medio (fotogramas baratos: dos fotos y Atom), lo que hace falta después
+  ...['tronco', 'tira', 'reglaFin', 'fotoC', 'cosas', 'globo_0', 'globo_1', 'globo_2', 'globo_3', 'globo', 'cerrado_0', 'cerrado_1', 'cerrado_2',
+    'cerrado_3', 'cerrado', 'franja', 'sombra', 'ojoFull', 'cerr1', 'sombraC'].map((nombre, i) => [T.B + 0.1 + 0.25 * i, nombre, T.mir[0]]),
 ];
 window.__T = T;
 window.__inicio = { niebla: NIEBLA_FIN, nieblaFoto: BORDE_N % 2, sombraAtom: SOMBRA_NIEBLA, atomo: ATOMO, aEscala: A_ESC, reloj: RELOJ, regla: FIN_U.regla };
 window.__fin = {
   ojo: { pos: EH.pos, escala: EH.escala, rot: EH.rot, estado: CERRADO, pupila: HOLA.PUPILA },
   franja: { pos: EH.franja.pos, escala: EH.franja.escala, rot: EH.franja.rot, alto: EH.franja.alto, sx: SX_FIN, halo: HOLA.HALO },
-  pelo: { c: CF, r: R_PELO, escalaFoto: SC_FIN, puntoFoto: SRC0, foto: 'prueba-plastilina-adulta nivel 4: tronco en TRO, escala 2,15, rot [0, 0,3, 0], P.render(1004)' },
+  pelo: { c: CF, r: R_PELO, escalaFoto: SC_FIN, puntoFoto: SRC0, tira: TIRA, foto: 'prueba-plastilina-adulta nivel 4: tronco en TRO, escala 2,15, rot [0, 0,3, 0], P.render(1004)' },
   regla: { ...OP_FIN, pos: FIN_U.regla.pos, enPx: true }, atomo: ATOMO, aEscala: A_ESC, sombraAtom: HOLA.SOMBRA_ATOM,
   reloj: { tz: RELOJ.tz + calma(QUIETO), ta: RELOJ.ta + tAtomo(QUIETO) },
 };

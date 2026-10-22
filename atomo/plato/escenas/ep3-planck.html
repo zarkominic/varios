@@ -53,7 +53,6 @@ const m = {
 };
 const D = E.duracion, QUIETO = D - 0.6;
 const W = 1920, H = 1080;
-const GUIAS = new URLSearchParams(location.search).has('guias');
 // el final de ep3-proton (su último fotograma), para empezar donde se quedó: su duración y su marca «bascula»
 let PRO = { D: 22.872, b: 20.538 };
 try {
@@ -82,8 +81,6 @@ const T = {
   sube: [m.ar - 0.15, m.ar + 1.35],        // la regla sube disparada de 10⁻³⁵ a 10⁰ (1,5 s)
   plato: [m.ar + 0.65, m.ar + 1.35],       // la niebla se funde en el plató
 };
-T.final = T.sube[1] + 0.02;                // desde aquí, el plató entero en una pasada (como ep3-tierra)
-T.funde = T.final + 0.25;                  // (tres fotogramas de fundido con la composición de antes)
 
 // ---------------------------------------------------------------- piezas propias (sencillas)
 // LA NIEBLA DE FONDO: una losa ancha de bocanadas blandas de colorNiebla (dos tamaños), de 2,4 × 1,44 (cara hacia +z)
@@ -125,7 +122,7 @@ float pz_arbol(vec3 q, vec4 T, out float m) {
   tr = smin(tr, capsulaC(q, vec3(0.0, -0.55, 0.0), vec3(-0.1, -0.3, 0.04), 0.02, 0.01), 0.02);
   float co = 1e5;
   for (int i = 0; i < 11; i++) co = smin(co, length(q - COPA_A[i].xyz) - COPA_A[i].w, 0.09);
-  co += 0.05 * (vnoise(q * 6.0) - 0.5) + 0.022 * (vnoise(q * 15.0) - 0.5);
+  co += 0.06 * (vnoise(q * 6.5) - 0.5);
   float d = min(te, tr);
   m = te < tr ? 2.0 : 1.0;
   if (co < d) { d = co; m = 0.0; }
@@ -277,7 +274,7 @@ const ZB = 2.45, ARB_Q = [1075, 500];
 const ARBOL0 = { pos: en(ARB_C[0], ARB_C[1], ARB_Z), escala: ARB_ESC, rot: [0.04, 0.3, 0] };
 const ARBOL1 = { pos: en(ARB_Q[0], ARB_Q[1], ARB_Z), escala: ARB_ESC * ZB, rot: [0.04, 0.3, 0] };
 // el suelo, inclinado hacia la cámara (como si la cámara lo mirara desde arriba), y el «?» de pie sobre él
-const SUE = { pos: en(880, 615, 0.0), escala: 3.2, rot: [0.45, 0.2, 0] };
+const SUE = { pos: en(880, 580, 0.0), escala: 3.0, rot: [0.45, 0.2, 0] };
 const PRG_ALTO = 3.3;                                 // alto del «?» (unidades del mundo; el glifo mide 1)
 const PRG_LOCAL = [0.02, 0, -0.18];                   // dónde se posa, en el suelo (unidades locales del suelo)
 function opPregunta(ts) {
@@ -336,7 +333,7 @@ function ponerAtomo(ts, kN) {
   P.atomo({
     pos: [mix(SITIO[0], posT[0], w), mix(yP, posT[1], w), mix(SITIO[2], posT[2], w)], escala: mix(A_ESC0, A_ESC1, w),
     yaw: -0.15 + w * A_YAW + 0.08 * Math.sin(p * 0.5), pitch: 0.06 - w * A_PITCH,
-    energia: ts < QUIETO ? E.energia(ts) : 0, ts: p, velo: 0.1 + 0.26 * kN,
+    energia: ts < QUIETO ? E.energia(ts) : 0, ts: p, velo: 0.1 + 0.3 * kN,
   });
 }
 // cuánta niebla hay detrás de Atom (más velo oscuro detrás de él sobre la niebla clara)
@@ -356,7 +353,9 @@ function personaBascula() {
   P.pieza(I.BAS, BASCULA);
   P.pieza(I.HUM, { ...PERSONA0, sq: [1, 1 + resp, 1], postura: mezclarPosturas(POSE_0, POSE_F, 1), aspecto: 'adulto', huellaFija: [0.37, 0.21, 0] });
 }
-const personaDePie = () => P.pieza(I.HUM, { pos: PER, escala: E_PER, sq: [1, 1, 1], rot: [0.02, 0.18, 0], postura: 'de pie', huellaFija: [0.37, 0.21, 0.0] });
+const PIE = { pos: PER, escala: E_PER, sq: [1, 1, 1], rot: [0.02, 0.18, 0], postura: 'de pie', huellaFija: [0.37, 0.21, 0.0] };
+const personaDePie = () => P.pieza(I.HUM, PIE);
+const REGLA_FIN = { ac: 0, Yc: 1.5, d: 0, mov: false, pos: REG_T };
 function fotoRegla(R, nf) { P.limpiar(); P.regla({ ...opRegla(R), toque: false }); P.render(nf, { fondo: false }); return foto(P); }
 const reglaFija = (ac) => ({ ac, Yc: -0.375, d: 1, mov: false, pos: REG_P });
 const fotoSuelo = (b, conQ, nf) => {
@@ -379,10 +378,21 @@ const HACER = {
   inicio() { const { c, gc } = lienzo(); gc.drawImage(F('persona'), 0, 0, W, H); mirilla(gc, T.zoom[0]); return c; },
   // la niebla de fondo (con el plató detrás por si algún borde no la cubre)
   niebla() {
+    // la losa de niebla se hace pequeña (un tercio del cuadro: barata) y se amplía 3,2 veces (más blanda, como niebla);
+    // debajo, pizarra azulada, y encima un tono gris azulado medio para que se lean el árbol, el suelo y Atom
     P.limpiar();
-    P.pieza(I.NIE, { pos: en(960, 520, -4.0), escala: 8.4, rot: [0.03, 0, 0] });
-    P.render(2101);
-    return foto(P);
+    P.pieza(I.NIE, { pos: en(960, 540, -4.0), escala: 8.4 / 3.2, rot: [0.03, 0, 0] });
+    P.render(2101, { fondo: false });
+    const f = foto(P), k = f.width / W, sw = 600, sh = 338;
+    const { c, gc } = lienzo();
+    const gb = gc.createLinearGradient(0, 0, 0, H); gb.addColorStop(0, '#4a505c'); gb.addColorStop(1, '#30343c');
+    gc.fillStyle = gb; gc.fillRect(0, 0, W, H);
+    gc.save(); gc.filter = 'blur(5px)';
+    gc.drawImage(f, (960 - sw / 2) * k, (540 - sh / 2) * k, sw * k, sh * k, -40, -24, W + 80, H + 48);
+    gc.restore();
+    gc.globalCompositeOperation = 'multiply'; gc.fillStyle = 'rgb(150,158,176)'; gc.fillRect(0, 0, W, H);
+    gc.globalCompositeOperation = 'source-over';
+    return c;
   },
   // estrena el programa del remolino vivo (SwiftShader compila al dibujar por primera vez)
   estrenoRem() { P.limpiar(); P.pieza(I.REM, { pos: en(60, 60, 2), escala: 0.05 }); P.render(2102, { fondo: false }); return true; },
@@ -392,10 +402,23 @@ const HACER = {
   sueloL: () => fotoSuelo(0, false, 2106), sueloB: () => fotoSuelo(1, false, 2107),
   sueloLQ: () => fotoSuelo(0, true, 2108), sueloBQ: () => fotoSuelo(1, true, 2109),
   // el plató con la persona de pie y la regla en 10⁰ (sus sombras en el ciclorama); Atom va vivo encima
+  // la persona de pie estrena sus programas en dos fotogramas (el cuerpo; la cabeza y las manos) antes de su foto
+  estrenoPie1() { P.limpiar(); P.pieza(I.HUM, { ...PIE, partes: 'cuerpo' }); P.render(2120, { fondo: false }); return true; },
+  estrenoPie2() { P.limpiar(); P.pieza(I.HUM, { ...PIE, partes: ['cabeza', 'manos'] }); P.render(2121, { fondo: false }); return true; },
   plato() {
     P.limpiar(); personaDePie();
-    P.regla({ ...opRegla({ ac: 0, Yc: 1.5, d: 0, mov: false, pos: REG_T }) });
+    P.regla(opRegla(REGLA_FIN));
     P.render(2110); return foto(P);
+  },
+  // el último fotograma, quieto: el plató entero en una pasada con fondo y el hervor del fotograma 0, como ep3-tierra
+  final() {
+    P.limpiar();
+    const h = personaDePie();
+    P.regla(opRegla(REGLA_FIN));
+    ponerAtomo(QUIETO + 0.1, 0);
+    P.render(0, { fondo: true });
+    guias(h);
+    return foto(P);
   },
 };
 // (coste) lo que no hace falta en el fotograma 0 se hace en un fotograma barato poco antes: [desde, nombre, hasta]
@@ -403,7 +426,8 @@ const PREPARAR = [
   [0.05, 'niebla', 1.0], [0.12, 'estrenoRem', 0.8], [0.2, 'r35', FIN_SALTOS],
   [FIN_SALTOS + 0.12, 'estadio', T.infla[0]], [FIN_SALTOS + 0.2, 'arbol', T.infla[0]],
   [m.a + 0.6, 'arbolG', T.empuje[0]], [m.a + 1.0, 'sueloL', T.corteSuelo], [m.a + 1.4, 'sueloB', T.corteSuelo],
-  [T.parpadea + 0.3, 'sueloLQ', T.asienta], [T.parpadea + 0.8, 'sueloBQ', T.asienta], [T.parpadea + 1.6, 'plato', T.plato[0]],
+  [T.parpadea + 0.3, 'sueloLQ', T.asienta], [T.parpadea + 0.8, 'sueloBQ', T.asienta], [T.parpadea + 1.3, 'estrenoPie1', T.plato[0]],
+  [T.parpadea + 1.8, 'estrenoPie2', T.plato[0]], [T.parpadea + 2.3, 'plato', T.plato[0]], [T.parpadea + 2.8, 'final', QUIETO - 0.3],
 ];
 
 // ---------------------------------------------------------------- la mirilla (la de ep3-proton, ya entera)
@@ -443,12 +467,13 @@ function mirilla(dc, ts) {
 function nieblaPasa(S, k, c = [960, 540]) {
   if (k < 0.01) return;
   g.save();
-  for (let i = 0; i < 44; i++) {
+  for (let i = 0; i < 30; i++) {
     const zi = Math.exp(Math.log(1.3) + (Math.log(40) - Math.log(1.3)) * azar(i, 61)), f = S / zi;
     if (f < 0.3 || f > 5) continue;
     const al = k * Math.exp(-Math.pow((Math.log(f) - 0.25) / 0.7, 2));
     const a = 2 * Math.PI * azar(i, 62), rr = (60 + 340 * azar(i, 63)) * f;
-    const x = c[0] + Math.cos(a) * rr, y = c[1] + Math.sin(a) * rr * 0.86, R = Math.min(760, (60 + 110 * azar(i, 64)) * f);
+    const x = c[0] + Math.cos(a) * rr, y = c[1] + Math.sin(a) * rr * 0.86, R = Math.min(520, (60 + 110 * azar(i, 64)) * f);
+    if (x + R < 0 || x - R > W || y + R < 0 || y - R > H) continue;
     const oscura = azar(i, 65) < 0.3;
     const col = oscura ? '70,76,92' : '214,218,228';
     const gr = g.createRadialGradient(x, y, 0, x, y, R);
@@ -461,8 +486,8 @@ function nieblaPasa(S, k, c = [960, 540]) {
 function nieblaSube(Y, v, k) {
   if (k < 0.01) return;
   g.save();
-  const est = 1 + Math.min(5, v / 900);
-  for (let i = 0; i < 26; i++) {
+  const est = 1 + Math.min(3.5, v / 900);
+  for (let i = 0; i < 18; i++) {
     const x = 1920 * azar(i, 81), y = ((azar(i, 82) * 1800 + Y * (0.6 + 0.8 * azar(i, 84))) % 1800) - 360;
     const R = 80 + 170 * azar(i, 83), oscura = azar(i, 85) < 0.3;
     const col = oscura ? '70,76,92' : '214,218,228';
@@ -540,6 +565,9 @@ function tramoB(n, ts) {
   if (s > 0.001) {
     conCam(C.Z, ARB_C, C.Q, () => {
       g.translate(BC[0], BC[1]); g.scale(s, s); g.translate(-BC[0], -BC[1]);
+      const RV = R_BOLA * 1.4, gv = g.createRadialGradient(BC[0], BC[1], 0, BC[0], BC[1], RV);
+      gv.addColorStop(0, 'rgba(12,14,20,0.5)'); gv.addColorStop(0.6, 'rgba(12,14,20,0.3)'); gv.addColorStop(1, 'rgba(12,14,20,0)');
+      g.fillStyle = gv; g.fillRect(BC[0] - RV, BC[1] - RV, 2 * RV, 2 * RV);
       if (desenf > 0.01) g.filter = `blur(${(7 * desenf).toFixed(1)}px)`;
       g.drawImage(F('estadio'), 0, 0, W, H);
       g.filter = 'none';
@@ -588,7 +616,7 @@ function tramoE(n, ts) {
     for (let j = 3; j >= 0; j--) {
       g.save();
       g.globalAlpha = (j ? 0.22 : 1) * (1 - ss(0.75, 1, u));
-      g.translate(880, 615 + dy - j * 60 * u); g.rotate(giro); g.translate(-880, -615);
+      g.translate(880, 580 + dy - j * 60 * u); g.rotate(giro); g.translate(-880, -580);
       g.drawImage(f, 0, 0, W, H);
       g.restore();
     }
@@ -600,58 +628,43 @@ function tramoE(n, ts) {
   if (kP < 1) bruma(ts, 1 - kP);
   parpadeo(n, 1 - kP);
 }
-// el plató entero (persona, regla y Atom en una pasada con fondo): como el fotograma 0 de ep3-tierra
-function pasadaFinal(n, ts) {
-  P.limpiar();
-  const h = personaDePie();
-  P.regla(opRegla(estadoRegla(ts)));
-  ponerAtomo(ts, 0);
-  P.render(n, { fondo: true });
-  return h;
-}
-
 // ---------------------------------------------------------------- fotograma
 function dibujar(t) {
   const t0 = performance.now();
   const n = P.fotograma(t, D), ts = n / 12;
   ajustarCapa();
   hechas = [];
-  // el último fotograma quieto lleva el hervor del fotograma 0 de ep3-tierra (el corte empalma igual)
+  let t2 = 0;
+  // el último fotograma quieto es la foto 'final' (el plató entero con el hervor del fotograma 0 de ep3-tierra)
   const nr = ts >= QUIETO ? 0 : n;
-  if (ts >= T.funde) {
-    pasadaFinal(nr, ts);
-    pegarGL();
-  } else {
+  if (ts >= QUIETO) pintar(F('final'));
+  else {
     let vivo = null;
     if (ts < T.infla[0]) tramoA(n, ts);
     else if (ts < T.corteSuelo) tramoB(n, ts);
-    else if (ts < T.vuelta[0]) { vivo = tramoC(n, ts); bruma(ts); }
+    else if (ts < T.vuelta[0]) { vivo = tramoC(n, ts); bruma(ts); parpadeo(n); }
     else tramoE(n, ts);
-    if (ts >= T.corteSuelo && ts < T.vuelta[0]) parpadeo(n);
-    // encima: la regla (foto si está quieta) y, en una pasada, lo vivo, la regla si se mueve y Atom
+    // encima: la regla (foto si está quieta; después de subir ya va en la foto del plató) y, en una pasada, lo vivo,
+    // la regla si se mueve y Atom
     const R = estadoRegla(ts);
-    // (después de subir, la regla en 10⁰ ya va en la foto del plató)
     if (!R.mov && ts < T.sube[0]) pintar(F(R.ac > -25 ? 'r15' : 'r35'), 1, DX_REG * R.dx);
+    t2 = performance.now();
     P.limpiar();
     if (vivo) vivo();
     if (R.mov) P.regla(opRegla(R));
     ponerAtomo(ts, niebla(ts));
     P.render(n, { fondo: false });
     pegarGL();
-    if (ts >= T.final) {
-      // el fundido a la pasada entera (aparecen las sombras de Atom y de la regla en el ciclorama)
-      const h = pasadaFinal(nr, ts);
-      pegarGL(ss(T.final, T.funde, ts + 1 / 24));
-      if (GUIAS) guias(h);
-    }
+    // tres fotogramas de fundido a la foto final (aparecen las sombras de Atom en el ciclorama)
+    if (ts >= QUIETO - 0.25) pintar(F('final'), ss(QUIETO - 0.25, QUIETO, ts + 1 / 24));
   }
-  if (ts >= T.funde && GUIAS) guias(P.humano(I.HUM));
   POST.aplicar(g, nr);
+  const t3 = performance.now();
   if (!hechas.length) {
     const pendiente = PREPARAR.find(([a, nombre, b]) => ts >= a && ts < b && !FOTOS[nombre]);
     if (pendiente) F(pendiente[1]);
   }
-  window.__tiempos = { ms: Math.round(performance.now() - t0), fotos: hechas };
+  window.__tiempos = { ms: Math.round(performance.now() - t0), d2: t2 ? Math.round(t2 - t0) : 0, gl: t2 ? Math.round(t3 - t2) : 0, fotos: hechas };
 }
 // para atomo/herramientas/guias-humano.py: centro, coronilla y suela de la persona de pie (px)
 function guias(h) {
@@ -668,7 +681,7 @@ F('esfera'); F('r15'); marcaCarga('esfera y regla');
 P.limpiar(); P.regla(opRegla(estadoRegla(0))); ponerAtomo(0, 0); P.render(0, { fondo: false });
 marcaCarga('listo');
 window.__inicio = { BASCULA, PERSONA: PERSONA0, POSE_F, MIRILLA, DIAL, REGLA: opRegla(reglaFija(-15)), SITIO, A_ESC: A_ESC0, fase: PRO_TZ };
-window.__fin = { PERSONA: { pos: PER, escala: E_PER, rot: [0.02, 0.18, 0], postura: 'de pie' }, REGLA: opRegla({ ac: 0, Yc: 1.5, d: 0, mov: false, pos: REG_T }),
+window.__fin = { PERSONA: { pos: PER, escala: E_PER, rot: [0.02, 0.18, 0], postura: 'de pie' }, REGLA: opRegla(REGLA_FIN),
   ATOMO: { sitio: [230, 781.68], escala: A_ESC1, yaw: -0.15 + A_YAW, pitch: 0.06 - A_PITCH, fase: 0 } };
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>

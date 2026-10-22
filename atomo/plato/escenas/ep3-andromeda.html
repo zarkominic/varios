@@ -15,32 +15,37 @@
 //             bol, el reloj en una hora, las estrellas en rayas por la ventana, la regla en 10²¹ y Atom abajo a la izquierda
 //  andromeda  (plano general) la regla salta a 10²² (completa en la marca, con un destello en su fila); las rayas de la
 //             ventana frenan hasta quedarse en estrellas quietas y en el vidrio de arriba a la derecha aparece Andrómeda,
-//             una manchita borrosa (el remolino de ep03-ojo.js, desenfocado); la cámara se acerca despacio a la ventana.
-//             A mitad de frase (corte, plano medio): la ventana de cerca, enfocada en el cielo (la habitación, desenfocada;
-//             la cabeza de la persona asoma abajo a la izquierda): la manchita entre estrellas quietas, que se acerca
-//  serinden   (corte, primer plano) el ojo de la persona mira arriba a la derecha; en la córnea, el reflejo de la ventana
+//             una manchita borrosa y ovalada (el remolino de ep03-ojo.js, desenfocado), con las estrellas de alrededor algo
+//             apagadas; la cámara se acerca despacio a la ventana. A mitad de frase (corte, plano medio): la ventana de
+//             cerca, enfocada en el cielo (la habitación, desenfocada): la manchita entre estrellas quietas, que se acerca
+//  serinden   (corte, primer plano) el ojo de la persona mira arriba a la derecha; en la pupila, el reflejo de la ventana
 //             con la manchita. El ojo entorna la mirada (los párpados se juntan, la pupila se abre); a mitad de frase llega
-//             a su límite (un temblor, el reflejo se apaga) y el párpado se cierra. (corte, plano medio) la persona de perfil,
-//             con los ojos cerrados frente a la ventana, deja caer la cabeza: se rinde
-//  humanos    (corte, plano general) el espacio a 10²²: la Vía Láctea y Andrómeda, pequeñas y lejos, unidas por la vara de
-//             alambre de la línea de tiempo. En la marca la luz sale de Andrómeda (un destello) y avanza por el alambre; en
-//             la Vía Láctea no hay nadie; cuando la luz va por el último tramo brotan tres figuritas (los primeros humanos
-//             modernos); la luz se para en ENLACE.luz y todo queda quieto (termina_con = ENLACE de ep03-universo.js)
+//             a su límite (un temblor, el reflejo se apaga) y el párpado se cierra. (corte, plano medio) la persona de
+//             perfil, con los ojos cerrados, la cara alzada hacia la ventana, deja caer la cabeza: se rinde
+//  humanos    (corte) el espacio a 10²², cerca de Andrómeda (la Vía Láctea, fuera del cuadro): en la marca la luz sale de
+//             Andrómeda (un destello y un anillo) y avanza por la vara de alambre de la línea de tiempo mientras la cámara
+//             se aleja hasta ENLACE (las dos galaxias, pequeñas y lejos); en la Vía Láctea no hay nadie; cuando la luz va
+//             por el último tramo brotan tres figuritas (los primeros humanos modernos); la luz se para en ENLACE.luz y
+//             todo queda quieto (termina_con = ENLACE de ep03-universo.js)
 // CONTINUIDAD
-//  · Fotograma 0 = el último de ep3-mapa, con su receta (ver window.__fin de ep3-mapa): la foto del salón general (sin
-//    reloj) con luzSalon y su retoque, el cielo cieloVentana(t = TQ de ep3-mapa, rayas de hornearRayas()) debajo y el vidrio
-//    encima, sombrasPresentador(0,8), la regla en 10²¹ (la foto de P.render(0)), el reloj en vivo en una hora con la cuña
-//    ámbar, Atom en (230, 780) con el reloj de sus electrones donde lo dejó ep3-mapa (se recalcula con sus marcas) y el
-//    mismo número de fotograma para el hervor y el parpadeo.
-//  · Último fotograma = ENLACE (el fotograma 0 de ep3-universo, sin su cartela): fotoEnlace(n 7), las dos galaxias, la vara
-//    con la luz en ENLACE.luz y las figuritas como allí; la regla en 10²²; Atom en (230, 780), con el balanceo en el punto
-//    con el que empieza ep3-universo.
-// COSTE (servidor sin GPU): todo se compone en 2D (crearPost al final). Lo quieto son fotos: el salón (al cargar), la
-// regla (en 10²¹ y, en 10²², tres fotos que se alternan para el hervor), la habitación desenfocada del plano de la ventana,
-// Andrómeda, el fondo del plano de perfil, el fondo del espacio y las galaxias, y las figuritas. En vivo: Atom siempre;
-// el reloj en el plano general; la regla mientras salta; el ojo (frase 73, primera mitad) y la persona de perfil.
-// Al cargar solo se hace lo del fotograma 0 y el mundo; lo demás, en fotogramas baratos poco antes de hacer falta
-// (PREPARAR). Un instante suelto hace al momento lo que le falte (F) y sale igual.
+//  · Fotograma 0 = el último de ep3-mapa, con su receta (ver window.__fin de ep3-mapa): la foto del salón general con
+//    luzSalon y su retoque, el cielo cieloVentana(t = TQ de ep3-mapa, rayas de hornearRayas()) debajo y el vidrio encima,
+//    sombrasPresentador(0,8), la regla en 10²¹, el reloj en una hora con la cuña ámbar, Atom en (230, 780) con el reloj de
+//    sus electrones y su balanceo donde los dejó ep3-mapa (se recalculan con sus marcas) y el número de fotograma de su
+//    último fotograma para el hervor y el parpadeo.
+//  · Último fotograma = ENLACE (el fotograma 0 de ep3-universo, sin su cartela): fotoEnlace(n 7), las dos galaxias, la
+//    vara con la luz en ENLACE.luz y las figuritas, con las recetas de ep3-universo; la regla en 10²²; Atom en (230, 780),
+//    con el balanceo en el punto con el que empieza ep3-universo.
+// COSTE (servidor sin GPU; medido en el informe): todo se compone en 2D (crearPost al final). Lo quieto son fotos: el
+// salón y el reloj (al cargar), la regla (en 10²¹, la del fotograma 0; en 10²², la del primer render que llega, con dos
+// variantes de hervor en 2D), Andrómeda, la habitación desenfocada del plano de la ventana, la cara alrededor del ojo, el
+// cuerpo y el fondo del perfil, el fondo del espacio con las galaxias (el render del mundo, en cuatro bandas con scissor:
+// sale idéntico al entero) y las figuritas. En vivo: Atom siempre; la regla solo mientras salta; los párpados del ojo
+// (solo su rectángulo, a dos por imagen y cada imagen en dos mitades, una por fotograma) y la cabeza de perfil (solo su
+// rectángulo, con la persona entera para que el cuello quede dentro del jersey). Al cargar solo se hace lo del fotograma
+// 0 y el mundo (que hay que crear antes: su compilación no cabe en un fotograma); lo demás, en fotogramas baratos poco
+// antes de hacer falta (PREPARAR). Un instante suelto hace al momento lo que le falte (F) y sale igual.
+// ?guias: la persona de perfil de la escena y la misma de frente, de cuerpo entero (window.__guias, para guias-humano.py).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteCartela, cl, mix, prog, ss, eio, eoc, eic, azar, muelle, mulberry32, brote, QUIETO as QUIETO_KIT } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -502,7 +507,7 @@ function fotoPorBandas(clave, nb, poner, n) {
 // pega el rectángulo [x0, y0, x1, y1] del lienzo de WebGL (o de src, del tamaño del rectángulo) en gx con los bordes
 // fundidos (pluma px)
 const PARCHE = lienzo();
-function pegarParche(gx, [x0, y0, x1, y1], pluma, src = null) {
+function pegarParche(gx, [x0, y0, x1, y1], pluma, src = null, retocar = null) {
   const k = lienzoGL.width / W, pc = PARCHE.getContext('2d');
   const X0 = Math.floor(x0 * k), Y0 = Math.floor(y0 * k), w = Math.ceil((x1 - x0) * k), h = Math.ceil((y1 - y0) * k);
   pc.setTransform(1, 0, 0, 1, 0, 0); pc.globalCompositeOperation = 'source-over';
@@ -516,6 +521,7 @@ function pegarParche(gx, [x0, y0, x1, y1], pluma, src = null) {
   const gh = pc.createLinearGradient(0, 0, w, 0);
   gh.addColorStop(0, 'rgba(0,0,0,0)'); gh.addColorStop(p / w, 'rgba(0,0,0,1)'); gh.addColorStop(1 - p / w, 'rgba(0,0,0,1)'); gh.addColorStop(1, 'rgba(0,0,0,0)');
   pc.fillStyle = gh; pc.fillRect(0, 0, w, h);
+  if (retocar) { pc.setTransform(k, 0, 0, k, -X0, -Y0); retocar(pc); pc.setTransform(1, 0, 0, 1, 0, 0); }
   gx.save(); gx.setTransform(1, 0, 0, 1, 0, 0); gx.drawImage(PARCHE, 0, 0, w, h, X0, Y0, w, h); gx.restore();
 }
 
@@ -524,14 +530,14 @@ function pegarParche(gx, [x0, y0, x1, y1], pluma, src = null) {
 // una foto (hecha por bandas en el plano de la ventana); en cada fotograma solo se pinta en vivo el rectángulo de los
 // párpados, las pestañas y el globo (BANDA_C), fundido sobre la foto; y a dos por imagen (los párpados cambian cada dos
 // fotogramas, «on twos»): la banda de cada par de fotogramas se pinta en dos mitades, una en cada uno de los dos
-// fotogramas anteriores (un instante suelto la pinta entera al momento: sale igual). La cámara se acerca despacio (en 2D)
+// fotogramas anteriores (un instante suelto la pinta entera al momento: sale igual). La cámara está quieta. La viñeta de la piel y la luz fría de la ventana van horneadas en la foto y en cada banda
 const OJO_C = { c: [800, 455], z: 5.0, rendija: 720, mirada: [0.5, 0.42] };
 const P_OJO = en(OJO_C.c[0], OJO_C.c[1], OJO_C.z);
 const ESC_OJO = OJO_C.rendija / (2.1 * pxU(P_OJO));
 const ROT_OJO = haciaCamara(P, P_OJO);
 const PX_OJO = ESC_OJO * pxU(P_OJO);                    // px por unidad local del ojo
-const BANDA_C = [OJO_C.c[0] - 1.2 * PX_OJO, OJO_C.c[1] - 1.0 * PX_OJO, OJO_C.c[0] + 1.2 * PX_OJO, OJO_C.c[1] + 0.84 * PX_OJO].map(Math.round);
-const PLUMA_C = 30;
+const BANDA_C = [OJO_C.c[0] - 1.12 * PX_OJO, OJO_C.c[1] - 0.86 * PX_OJO, OJO_C.c[0] + 1.12 * PX_OJO, OJO_C.c[1] + 0.66 * PX_OJO].map(Math.round);
+const PLUMA_C = 26;
 function estadoOjo(ts) {
   const u = eio(prog(ts, T.entorna[0], T.entorna[1]));
   const c = eic(prog(ts, T.cierra[0], T.cierra[1]));
@@ -546,8 +552,30 @@ function ponerOjoEn(est) {
   P.limpiar();
   P.pieza(I.OJO, { pos: P_OJO, escala: ESC_OJO, rot: ROT_OJO, variante: CAPA.TODO });
 }
-fotoPorBandas('ojoFoto', 6, () => ponerOjoEn(estadoOjo(T.C)), 9301);
-const zoomC = (ts) => mix(1, 1.05, eio(prog(ts, T.C, T.D)));
+fotoPorBandas('ojoFotoSin', 6, () => ponerOjoEn(estadoOjo(T.C)), 9301);
+// la piel se apaga hacia los bordes (la mirada va al ojo) y una luz fría de la ventana llega de arriba a la derecha
+// (gc con la transformación de px de diseño)
+function luzOjo(gc) {
+  gc.save();
+  gc.translate(OJO_C.c[0], OJO_C.c[1]); gc.scale(1.6, 1);
+  const vg = gc.createRadialGradient(0, 0, 0, 0, 0, 820);
+  vg.addColorStop(0, 'rgba(12,7,5,0)'); vg.addColorStop(0.35, 'rgba(12,7,5,0.04)'); vg.addColorStop(0.7, 'rgba(12,7,5,0.26)'); vg.addColorStop(1, 'rgba(12,7,5,0.55)');
+  gc.fillStyle = vg; gc.fillRect(-900, -760, 1800, 1520);
+  gc.restore();
+  gc.save(); gc.globalCompositeOperation = 'soft-light';
+  const fr = gc.createLinearGradient(1500, 0, 800, 600);
+  fr.addColorStop(0, 'rgba(130,160,225,0.35)'); fr.addColorStop(1, 'rgba(130,160,225,0)');
+  gc.fillStyle = fr; gc.fillRect(0, 0, W, H);
+  gc.restore();
+}
+HACER.ojoFoto = () => {
+  const c = lienzo(), gc = c.getContext('2d');
+  gc.setTransform(KD, 0, 0, KD, 0, 0);
+  gc.fillStyle = '#9c7258'; gc.fillRect(0, 0, W, H);   // (la piel, donde la losa de la cara se curva y se acaba: la esquina)
+  gc.drawImage(F('ojoFotoSin'), 0, 0, W, H);
+  luzOjo(gc);
+  return c;
+};
 // el reflejo de la ventana en la córnea, con la manchita (entre los párpados; se apaga en el límite). El centro, medido
 // en el render con esta mirada: un poco arriba a la izquierda del centro de la pupila
 const REFLEJO = [0.27, -0.16];
@@ -598,7 +626,6 @@ function sombraParpado(est, z) {
   g.fillStyle = l; g.fillRect(c[0] - p, yA, 2 * p, 0.24 * p + 4);
   g.restore();
 }
-const OJOC = lienzo(), goc = OJOC.getContext('2d');
 // los pares de fotogramas del ojo: el par j son los fotogramas N_C0 + 2j y N_C0 + 2j + 1; sus párpados, en el instante
 // del medio, con el hervor del primero
 const N_C0 = Math.ceil(T.C * 12 - 1e-6), N_C1 = Math.ceil(T.D * 12 - 1e-6) - 1, J_MAX = Math.floor((N_C1 - N_C0) / 2);
@@ -622,7 +649,19 @@ function mitadPar(j, h) {
   e.hechas.add(h);
   return e;
 }
-function par(j) { mitadPar(j, 0); mitadPar(j, 1); for (const q of PARES.keys()) if (q < j - 1) PARES.delete(q); return PARES.get(j).c; }
+function par(j) {
+  mitadPar(j, 0); mitadPar(j, 1);
+  for (const q of PARES.keys()) if (q < j - 1) PARES.delete(q);
+  const e = PARES.get(j);
+  if (!e.luz) {   // (la viñeta y la luz fría, una vez por par, como en la foto)
+    const gc = e.c.getContext('2d'), k = lienzoGL.width / W;
+    gc.setTransform(k, 0, 0, k, -Math.floor(BANDA_C[0] * k), -Math.floor(BANDA_C[1] * k));
+    luzOjo(gc);
+    gc.setTransform(1, 0, 0, 1, 0, 0);
+    e.luz = true;
+  }
+  return e.c;
+}
 // el trabajo del fotograma m: la mitad que le toca del par siguiente
 function adelantarOjo(m) {
   if (m < N_C0 - 2 || m > N_C1 - 2) return;
@@ -630,26 +669,11 @@ function adelantarOjo(m) {
   if (j <= J_MAX) mitadPar(j, h);
 }
 function tramoC(n, ts) {
-  const j = parDe(n), tj = tPar(j), est = estadoOjo(tj), z = zoomC(ts);
-  goc.setTransform(1, 0, 0, 1, 0, 0); goc.globalCompositeOperation = 'source-over';
-  goc.drawImage(F('ojoFoto'), 0, 0);
-  pegarParche(goc, BANDA_C, PLUMA_C, par(j));
-  g.fillStyle = '#9c7258'; g.fillRect(0, 0, W, H);   // (la piel, donde la losa de la cara se curva y se acaba: la esquina)
-  pegarEscalada(OJOC, z, OJO_C.c);
-  sombraParpado(est, z);
-  reflejo(est, ts, z);
-  // la piel se apaga hacia los bordes (la mirada va al ojo) y una luz fría de la ventana llega de arriba a la derecha
-  g.save();
-  g.translate(OJO_C.c[0], OJO_C.c[1]); g.scale(1.6, 1);
-  const vg = g.createRadialGradient(0, 0, 0, 0, 0, 820);
-  vg.addColorStop(0, 'rgba(12,7,5,0)'); vg.addColorStop(0.35, 'rgba(12,7,5,0.04)'); vg.addColorStop(0.7, 'rgba(12,7,5,0.26)'); vg.addColorStop(1, 'rgba(12,7,5,0.55)');
-  g.fillStyle = vg; g.fillRect(-900, -760, 1800, 1520);
-  g.restore();
-  g.save(); g.globalCompositeOperation = 'soft-light';
-  const fr = g.createLinearGradient(1500, 0, 800, 600);
-  fr.addColorStop(0, 'rgba(130,160,225,0.35)'); fr.addColorStop(1, 'rgba(130,160,225,0)');
-  g.fillStyle = fr; g.fillRect(0, 0, W, H);
-  g.restore();
+  const j = parDe(n), tj = tPar(j), est = estadoOjo(tj);
+  g.drawImage(F('ojoFoto'), 0, 0, W, H);
+  pegarParche(g, BANDA_C, PLUMA_C, par(j));
+  sombraParpado(est, 1);
+  reflejo(est, ts, 1);
   sombraAtom(1);
   sombrasPresentador(0.7);
   pegarRegla(F(reglaDe(n)));
@@ -674,18 +698,27 @@ function posturaD(ts) {
 function personaD(ts, extra = {}) {
   return P.pieza(I.PER, { pos: POS_D, escala: E_D, rot: ROT_D, postura: posturaD(ts), aspecto: ASP_D, huellaFija: [0.37, 0.21, 0], ...extra });
 }
-fotoPorBandas('cuerpoD', 3, () => { P.limpiar(); personaD(T.D, { partes: ['cuerpo', 'manos'] }); }, 9401);
+fotoPorBandas('cuerpoDSin', 3, () => { P.limpiar(); personaD(T.D, { partes: ['cuerpo', 'manos'] }); }, 9401);
+// la luz fría de la ventana, que recorta el perfil (solo sobre la persona: source-atop; gc en px de diseño)
+function luzVentanaD(gc) {
+  gc.save(); gc.globalCompositeOperation = 'source-atop';
+  const rl = gc.createLinearGradient(X_D + 260, 0, X_D + 40, 0);
+  rl.addColorStop(0, 'rgba(150,175,235,0.42)'); rl.addColorStop(1, 'rgba(150,175,235,0)');
+  gc.fillStyle = rl; gc.fillRect(X_D + 30, 0, 700, H);
+  gc.restore();
+}
+HACER.cuerpoD = () => { const c = lienzo(), gc = c.getContext('2d'); gc.drawImage(F('cuerpoDSin'), 0, 0); gc.setTransform(KD, 0, 0, KD, 0, 0); luzVentanaD(gc); return c; };
 // el rectángulo de la cabeza, del cuello y del cuello del jersey (con margen para lo que se mueve al dejarla caer): ahí
 // se pinta en vivo la persona entera (con su profundidad), fundida sobre la foto del cuerpo
 const CAJA_CAB = (() => {
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-  for (const t of [T.D, mix(T.cae[0], T.cae[1], 0.5), T.cae[1]]) {
+  for (const t of [T.D, mix(T.cae[0], T.cae[1], 0.25), mix(T.cae[0], T.cae[1], 0.5), mix(T.cae[0], T.cae[1], 0.75), T.cae[1]]) {
     P.limpiar();
     const h = personaD(t);
     const cab = pant(h.punto('cabeza')), cor = pant(h.punto('coronilla')), bar = pant(h.punto('barbilla')), cue = pant(h.punto('cuello'));
     const hh = Math.hypot(cor[0] - bar[0], cor[1] - bar[1]);
-    x0 = Math.min(x0, cab[0] - 0.85 * hh, cor[0] - 0.6 * hh); x1 = Math.max(x1, cab[0] + 0.85 * hh, bar[0] + 0.5 * hh);
-    y0 = Math.min(y0, cor[1] - 0.3 * hh, cab[1] - 0.8 * hh); y1 = Math.max(y1, cue[1] + 0.55 * hh, bar[1] + 0.45 * hh);
+    x0 = Math.min(x0, cab[0] - 0.62 * hh); x1 = Math.max(x1, cab[0] + 0.7 * hh);
+    y0 = Math.min(y0, cor[1] - 0.16 * hh, cab[1] - 0.64 * hh); y1 = Math.max(y1, cue[1] + 0.24 * hh, bar[1] + 0.22 * hh);
   }
   return [x0, y0, x1, y1].map(Math.round);
 })();
@@ -721,30 +754,15 @@ HACER.fondoD = () => {
   gc.drawImage(a, 0, 0);
   return c;
 };
-// la persona: la foto del cuerpo, la cabeza en vivo y la luz fría de la ventana, que recorta el perfil (solo sobre ella)
-const PERF = lienzo(), gpf = PERF.getContext('2d');
 function tramoD(n, ts) {
   g.drawImage(F('fondoD'), 0, 0, W, H);
-  const cuerpo = F('cuerpoD');
+  g.drawImage(F('cuerpoD'), 0, 0, W, H);
+  // la caja de la cabeza, en vivo con la persona entera (el cuello y el jersey a su profundidad), con la misma luz y los
+  // bordes fundidos: tapa la foto (donde hay cuerpo, es el mismo cuerpo)
   P.limpiar();
   personaD(ts);
   renderRect(n, CAJA_CAB);
-  gpf.setTransform(1, 0, 0, 1, 0, 0); gpf.globalCompositeOperation = 'source-over';
-  gpf.clearRect(0, 0, PERF.width, PERF.height);
-  gpf.drawImage(cuerpo, 0, 0);
-  // (lo de la caja, con el cuello y el jersey a su profundidad: tapa la foto, con los bordes fundidos)
-  const k = lienzoGL.width / W, [x0, y0, x1, y1] = CAJA_CAB;
-  gpf.save(); gpf.globalCompositeOperation = 'destination-out';
-  gpf.setTransform(k, 0, 0, k, 0, 0);
-  const pl = 22, mk = (a, b, c2, d2) => { gpf.fillRect(a, b, c2, d2); };
-  mk(x0 + pl, y0 + pl, x1 - x0 - 2 * pl, y1 - y0 - 2 * pl);
-  gpf.restore();
-  pegarParche(gpf, CAJA_CAB, pl);
-  gpf.setTransform(KD, 0, 0, KD, 0, 0); gpf.globalCompositeOperation = 'source-atop';
-  const rl = gpf.createLinearGradient(X_D + 260, 0, X_D + 40, 0);
-  rl.addColorStop(0, 'rgba(150,175,235,0.42)'); rl.addColorStop(1, 'rgba(150,175,235,0)');
-  gpf.fillStyle = rl; gpf.fillRect(0, 0, W, H);
-  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(PERF, 0, 0); g.restore();
+  pegarParche(g, CAJA_CAB, 22, null, luzVentanaD);
   sombraAtom(0.6);
   sombrasPresentador(0.6);
   pegarRegla(F(reglaDe(n)));
@@ -894,10 +912,10 @@ HACER.estrenoCuerpoD = () => { P.limpiar(); personaD(T.D, { partes: ['cuerpo', '
 HACER.estrenoCabezaD = () => { P.limpiar(); personaD(T.D); renderRect(0, TIRA); return true; };
 const PREPARAR = [
   [1, 'andro'], [N_REG22 + 1, 'reg221'], [N_REG22 + 2, 'reg222'],
-  [17, 'estrenoOjo'], ...[0, 1, 2, 3, 4, 5].map((b) => [19 + 2 * b, 'ojoFoto' + b]),
-  [31, 'estrenoCuerpoD'], [33, 'estrenoCabezaD'], [35, 'cuerpoD0'], [37, 'cuerpoD1'], [39, 'cuerpoD2'],
+  [17, 'estrenoOjo'], ...[0, 1, 2, 3, 4, 5].map((b) => [19 + 2 * b, 'ojoFotoSin' + b]), [30, 'ojoFoto'],
+  [31, 'estrenoCuerpoD'], [33, 'estrenoCabezaD'], [35, 'cuerpoDSin0'], [37, 'cuerpoDSin1'], [39, 'cuerpoDSin2'],
   [nDe(T.B) - 1, 'salonB'],
-  [nDe(T.B) + 4, 'fondoD'],
+  [nDe(T.B) + 4, 'fondoD'], [nDe(T.B) + 6, 'cuerpoD'],
   [nDe(T.B) + 8, 'enlace0'], [nDe(T.B) + 10, 'enlace1'], [nDe(T.B) + 12, 'enlace2'], [nDe(T.B) + 14, 'enlace'],
   [nDe(T.B) + 18, 'figs'],
 ];
@@ -909,7 +927,7 @@ function fotosDe(n, ts) {
   if (tr === 'general') { k.push('salon', 'reloj'); if (kAndro(ts) > 0.002) k.push('andro'); }
   else if (tr === 'ventana') k.push('salon', 'salonB', 'andro');
   else if (tr === 'ojo') k.push('ojoFoto');
-  else if (tr === 'perfil') k.push('fondoD', 'andro', 'cuerpoD');
+  else if (tr === 'perfil') k.push('fondoD', 'cuerpoD');
   else if (tr === 'espacio') k.push('enlace', 'figs');
   return k;
 }
@@ -933,7 +951,7 @@ function dibujar(t) {
   POST.aplicar(g, n);
   window.__plano = tr;
 }
-window.__info = { BANDA_C, CAJA_CAB, N_C0, N_C1, FILA22, puntos: (() => { const o = {}; for (const t of [T.D, T.cae[1]]) { P.limpiar(); const h = personaD(t); for (const k of ['coronilla', 'cabeza', 'barbilla', 'ojos', 'cuello', 'hombroIzq', 'hombroDer', 'pecho']) o[k + '@' + t.toFixed(1)] = pant(h.punto(k)).map(Math.round); } P.limpiar(); return o; })() };
+window.__info = { BANDA_C, CAJA_CAB, N_C0, N_C1 };
 window.__fin = {
   final: 'ENLACE de ep03-universo.js: fotoEnlace(n 7) + las dos galaxias + la vara (rayo grosor 4, brillo 0,12, sombra 0,6) + la luz en ENLACE.luz (rayo grosor 6) + las figuritas de ENLACE.figuritas; la regla en 10²² (foto); Atom en (230, 780)',
   TQ, tiempos: T, figuritas: T_FIG, mapa: MAPA, atomo: (() => { const S = estadoAtom(D); return { sy: S.sy, tz: S.tz, ta: tabla(TA, D) }; })(),

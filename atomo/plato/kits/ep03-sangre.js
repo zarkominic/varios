@@ -87,13 +87,13 @@ const cl = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
 // PELO: glóbulos que caben en el ancho de un pelo
 export const SANGRE = { R: 1, PASO: 2, ST: 0.38, PASO_RIO: 1.3, VASO: { R: 1, PARED: 0.3, SEMILARGO_MAX: 4.2 }, PELO: 12, NMAX: 16 };
 export const COLORES_SANGRE = {
-  globulo: [0.40, 0.032, 0.022],      // carmesí apagado (lineal)
+  globulo: [0.34, 0.027, 0.02],       // carmesí (lineal)
   viejo: [0.15, 0.06, 0.036],         // el pardo del glóbulo viejo
   endotelio: [0.40, 0.15, 0.115],
   media: [0.36, 0.085, 0.065],
   adventicia: [0.40, 0.29, 0.19],
-  corteza: [0.30, 0.165, 0.085],      // la corteza del pelo, caramelo
-  medulaPelo: [0.07, 0.04, 0.025],
+  corteza: [0.25, 0.135, 0.068],      // la corteza del pelo, caramelo
+  medulaPelo: [0.095, 0.054, 0.032],
   hueso: [0.50, 0.44, 0.33],
   medulaRoja: [0.28, 0.035, 0.03],
   periostio: [0.44, 0.31, 0.235],
@@ -381,7 +381,7 @@ float sgMedR(vec2 p) { float a = atan(p.y, p.x); return 0.2 + 0.035 * sin(a * 3.
 float sgCaraPelo(vec2 p) {
   float r = length(p);
   // la médula, hundida; la cutícula del borde, un poco más alta que la corteza
-  return -0.035 * (1.0 - smoothstep(sgMedR(p) - 0.03, sgMedR(p) + 0.015, r)) + 0.006 * smoothstep(0.88, 0.92, r);
+  return -0.018 * (1.0 - smoothstep(sgMedR(p) - 0.03, sgMedR(p) + 0.015, r)) + 0.006 * smoothstep(0.88, 0.92, r);
 }
 float pz_cortePelo(vec3 q, vec4 T, out float m) {
   vec3 k = vec3(q.x, q.y, q.z / 0.94);
@@ -411,18 +411,18 @@ vec3 pzcol_cortePelo(vec3 q, vec4 T, float m) {
   float rm = sgMedR(p);
   if (r < rm + 0.006) {
     // la médula: esponjosa y oscura, con agujeritos
-    float hueco = 1.0 - smoothstep(0.25, 0.4, vnoise(vec3(p * 38.0, 2.0)));
-    gTr = 0.3;
-    return mix(SG_MEDPELO * 1.5, SG_MEDPELO * 0.45, hueco) * v;
+    float hueco = 1.0 - smoothstep(0.2, 0.32, vnoise(vec3(p * 30.0, 2.0)));
+    gTr = 0.4;
+    return mix(SG_MEDPELO * (1.0 + 0.3 * vnoise(vec3(p * 12.0, 4.0))), SG_MEDPELO * 0.55, hueco * 0.8) * v;
   }
   // la corteza: celdas poligonales con fibrillas (puntitos) y gránulos de melanina
-  vec4 vo = sgVoronoi(p * 13.0);
-  vec3 c = SG_CORTEZA * (0.86 + 0.26 * hash12(vo.yz + 3.0)) * v;
-  float fib = vnoise(vec3(p * 160.0, 0.5));
-  c *= 0.9 + 0.16 * fib;
-  c = mix(c, c * 0.5, 1.0 - smoothstep(0.02, 0.07, vo.x));
+  vec4 vo = sgVoronoi(p * 7.5);
+  vec3 c = SG_CORTEZA * (0.88 + 0.22 * hash12(vo.yz + 3.0)) * v;
+  float fib = vnoise(vec3(p * 120.0, 0.5));
+  c *= 0.92 + 0.12 * fib;
+  c = mix(c, c * 0.72, 1.0 - smoothstep(0.015, 0.06, vo.x));
   vec2 gc = p * 46.0, gi = floor(gc);
-  float gr = step(0.82, hash12(gi + 7.7)) * (1.0 - smoothstep(0.14, 0.3, length(fract(gc) - 0.5 - 0.25 * (vec2(hash12(gi), hash12(gi + 1.3)) - 0.5))));
+  float gr = step(0.9, hash12(gi + 7.7)) * (1.0 - smoothstep(0.14, 0.3, length(fract(gc) - 0.5 - 0.25 * (vec2(hash12(gi), hash12(gi + 1.3)) - 0.5))));
   c = mix(c, vec3(0.03, 0.017, 0.01), gr * 0.85);
   // el borde de la médula, más oscuro (sombra del hundimiento)
   c *= mix(0.7, 1.0, smoothstep(rm, rm + 0.06, r));
