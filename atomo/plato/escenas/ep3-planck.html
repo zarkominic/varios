@@ -34,8 +34,9 @@
 // mirilla, la regla en 10⁻¹⁵ y en 10⁻³⁵, la niebla, el estadio, el árbol de lejos y de cerca, el suelo liso y con
 // baldosas, con y sin el «?», y el plató con la persona); las que no hacen falta en el fotograma 0 se hacen en fotogramas
 // baratos, poco antes de hacer falta (PREPARAR). En vivo, solo lo que se mueve: Atom (siempre), la regla mientras baja o
-// sube, el remolino mientras gira y el «?» con el suelo mientras cae; y al final, el plató entero (la persona, la regla y
-// Atom en una pasada con fondo, como ep3-tierra, para que el último fotograma sea su fotograma 0).
+// sube, el remolino mientras gira y el «?» con el suelo mientras cae. El último fotograma quieto es una foto del plató
+// entero (la persona, la regla y Atom en una pasada con fondo y el hervor del fotograma 0, como ep3-tierra): es su
+// fotograma 0 sin la cartela. Se funde con lo de antes en tres fotogramas (aparece la sombra de Atom en el ciclorama).
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, GLSL_REMATES, COLOR, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, postura, mezclarPosturas, HUMANO } from '/atomo/plato/kits/plastilina-adulta.js';
 import { tiposTocar, estadio, geometriaEstadio, nubeElectrones, foto, mundoPieza } from '/atomo/plato/kits/ep03-tocar.js';
@@ -105,7 +106,7 @@ float pz_nieblon(vec3 q, vec4 T, out float m) {
   return d * 0.85;
 }
 float pzc_nieblon(vec3 q, vec4 T) { return sdRoundBox(q - vec3(0.0, 0.0, -0.09), vec3(1.18, 0.7, 0.045), 0.04); }
-vec3 pzcol_nieblon(vec3 q, vec4 T, float m) { return colorNiebla(q * 2.2) * 1.15; }
+vec3 pzcol_nieblon(vec3 q, vec4 T, float m) { vec3 c = colorNiebla(q * 2.2); gTr = 0.0; return c * 1.15; }
 ` };
 // EL ÁRBOL: un álamo alto y estrecho sobre su terrón de tierra con hierba. El pie del tronco en y = −1, la copa hasta
 // y ≈ 0,96 (de −0,57 a 0,96, unos 0,5 de ancho) y el terrón debajo, hasta y ≈ −1,12
@@ -387,11 +388,12 @@ const HACER = {
     const { c, gc } = lienzo();
     const gb = gc.createLinearGradient(0, 0, 0, H); gb.addColorStop(0, '#4a505c'); gb.addColorStop(1, '#30343c');
     gc.fillStyle = gb; gc.fillRect(0, 0, W, H);
-    gc.save(); gc.filter = 'blur(5px)';
+    gc.save(); gc.filter = 'blur(8px)';
     gc.drawImage(f, (960 - sw / 2) * k, (540 - sh / 2) * k, sw * k, sh * k, -40, -24, W + 80, H + 48);
     gc.restore();
     gc.globalCompositeOperation = 'multiply'; gc.fillStyle = 'rgb(150,158,176)'; gc.fillRect(0, 0, W, H);
     gc.globalCompositeOperation = 'source-over';
+    gc.fillStyle = 'rgba(92,98,112,0.22)'; gc.fillRect(0, 0, W, H);      // menos contraste: niebla, no piedra
     return c;
   },
   // estrena el programa del remolino vivo (SwiftShader compila al dibujar por primera vez)
