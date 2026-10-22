@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El cajón · pixel</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #04030a; overflow: hidden; }
+  canvas { display: block; position: fixed; inset: 0; }
+</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PX-EP3-CAJON · muestra de pixel art del episodio 3, escena 4 (frases 11–13, cartela «0»). Mismos golpes que ep3-cajon
+// (guion.json), en el lienzo de 480 × 270 de kits/pixel-ep03.js (escalado ×4). Empieza en el último fotograma de
+// px-ep3-promesa (window.__fin de esa escena: plató, persona, regla entera con el marcador en 10⁰, Atom con t = 0).
+//  0 – 1,2 s   cartela «0» sobre el último fotograma de px-ep3-promesa (quieto).
+//  cajon       (PLANO GENERAL → TRAVELLING, por corte 0,25 s antes) la misma persona en el mismo sitio, ahora en un pasillo
+//              de noche (papel pintado, zócalo de nogal, apliques, puertas, alfombra), con una cinta métrica roja en la mano.
+//              La cinta sale disparada, cae al suelo y corre por el pasillo; la cámara la sigue hasta la ventana abierta del
+//              fondo (cortinas que se mecen, luna, tejados). La cinta trepa por la pared, pasa el alféizar, sale, se enreda en
+//              bucles contra el cielo y se aleja hasta perderse en la noche.
+//  ½ frase     (DETALLE; sin marca de palabra: al 42 % del intervalo de la frase 11, «porque…») dos montones de monedas casi
+//              iguales en el suelo del plató y, flotando, un cerebro de perfil con un cajón de nogal en el costado. El cajón
+//              se abre, las monedas de los dos montones vuelan en chorro y caen dentro del mismo cajón, que se cierra de golpe
+//              (etiqueta con «!»: «muchísimo»).
+//  millon      (PLANO MEDIO, por corte) la persona, ahora niña, de medio cuerpo junto a un calendario de taco colgado en la
+//              pared, solo con números: arranca once hojas, que salen volando y caen revoloteando, y la duodécima se queda
+//              arrancada a medias (once días y medio).
+//  milmillones (PLANO GENERAL, por corte; el encuadre del principio) la niña a la izquierda, con los dos montones de monedas
+//              a sus pies; caen 32 calendarios, uno tras otro, y forman una pila en el borde derecho, en el sitio de la regla;
+//              la niña crece con la pila (proporciones y tamaño, edad 0 → 1 del kit) y mira cómo sube.
+// FINAL (termina_con): desde QUIETO = duración − 0,6 s, quieto: el plató del principio, la persona adulta de pie en su sitio
+// (x 153, suela 214, 118 px) con los dos montones a sus pies, la pila de 32 calendarios en el sitio y con la altura de la
+// regla (x 410–441, y 14–222) y Atom en PX.ATOM_SITIO. window.__fin lo resume.
+// ?vista=guias&k=0|1 pone sola a la niña (0) o a la adulta (1), grande y de frente, para atomo/herramientas/guias-humano.py
+// (window.__info: centro, coronilla y suela en píxeles de 1920).
+// Coste: al cargar se pintan el pasillo, el cielo de la ventana, el cerebro, las monedas y las hojas; en cada fotograma se
+// pegan capas y, en vivo, la cinta, las cortinas, la persona, el cajón, las monedas que vuelan, las hojas y la pila.
+import { escena } from '/atomo/plato/escena.js';
+import { crearPixel } from '/atomo/plato/kits/pixel-ep03.js';
+import { PALO } from '/atomo/plato/kits/pixel-ep03-ojo.js';
+
+const E = await escena('px-ep3-cajon', 'ep03px');
+const c0 = performance.now();
+const q = new URLSearchParams(location.search);
+const PX = crearPixel(document.getElementById('lienzo'));
+const { PAL, W, H, clamp, mezcla, suave, sale, entra, entraSale, paso, fot, tono, vnoise, fbm, hash2, b4, b8, mulberry32, rgb, hex, mezclaColor } = PX;
+const TAU = Math.PI * 2;
+const pal = (a) => a.map(hex);
+const M = (k, d) => E.marca(k, d);
+const m = {
+  c: M('cajon', 1.5), cF: M('cajon_fin', 8.929), mi: M('millon', 9.479), miF: M('millon_fin', 12.554),
+  mm: M('milmillones', 13.104), mmF: M('milmillones_fin', 15.856),
+};
+const D = E.duracion, QUIETO = D - 0.6;
+const prog = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+const energia = (t) => (t >= QUIETO ? 0 : E.energia(t));
+
+// ───────────────────────────────────────────────────────────── tiempos (todo sale de las marcas)
+// las palabras sueltas no tienen marca: «porque tu cerebro…» se toma al 42 % del intervalo de la frase 11
+const porque = mezcla(m.c, m.cF, 0.42);
+const T = {
+  pasillo: m.c - 0.25,                    // corte al pasillo
+  suelta: m.c - 0.08,                     // la cinta sale disparada
+  pared: m.c + 1.42,                      // la punta llega a la pared, bajo la ventana
+  fuera: m.c + 1.62,                      // pasa el alféizar y sale
+  enredo: m.c + 2.25,                     // el enredo, completo
+  cajon: porque - 0.2,                    // corte al cerebro (DETALLE)
+};
+T.perdido = T.cajon - 0.12;               // ya no se ve
+T.abre0 = T.cajon + 0.3; T.abre1 = T.cajon + 0.62;
+T.vuela0 = T.abre1 - 0.05; T.vuela1 = m.cF - 1.75;   // salen las monedas
+T.cierra0 = m.cF - 1.08; T.cierra1 = T.cierra0 + 0.13;
+T.calendario = m.mi - 0.25;               // corte a la niña y el calendario (PLANO MEDIO)
+T.hoja0 = m.mi + 0.12; T.hojaDt = (m.miF - 0.55 - T.hoja0) / 10.6;   // once hojas…
+T.media0 = T.hoja0 + 11 * T.hojaDt; T.media1 = T.media0 + 0.24;      // …y la duodécima, a medias
+T.general = m.mm - 0.25;                  // corte al plano general
+T.pila0 = m.mm - 0.05; T.pila1 = m.mmF - 0.45;                       // caen los 32 calendarios
+T.vuelve0 = m.mmF - 0.35; T.vuelve1 = QUIETO - 0.05;                 // la persona vuelve a mirar a cámara
+
+// ───────────────────────────────────────────────────────────── utilidades
+const rr = (cx, cy, hw, hh, r) => (x, y) => { const qx = Math.abs(x - cx) - hw + r, qy = Math.abs(y - cy) - hh + r; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r; };
+const elip = (cx, cy, rx, ry) => (x, y) => (Math.hypot((x - cx) / rx, (y - cy) / ry) - 1) * Math.min(rx, ry);
+const segSdf = (ax, ay, bx, by, r0, r1 = r0) => (x, y) => {
+  const px = x - ax, py = y - ay, ex = bx - ax, ey = by - ay;
+  const h = clamp((px * ex + py * ey) / (ex * ex + ey * ey), 0, 1);
+  return Math.hypot(px - ex * h, py - ey * h) - mezcla(r0, r1, h);
+};
+const sunion = (k, ...fs) => (x, y) => { let d = fs[0](x, y); for (let i = 1; i < fs.length; i++) { const b = fs[i](x, y), h = clamp(0.5 + 0.5 * (b - d) / k, 0, 1); d = mezcla(b, d, h) - k * h * (1 - h); } return d; };
+const smax = (a, b, k) => { const h = clamp(0.5 + 0.5 * (b - a) / k, 0, 1); return mezcla(a, b, h) + k * h * (1 - h); };
+const smin = (a, b, k) => -smax(-a, -b, k);
+function capaDe(w, h, fn) { const c = PX.nuevaCapa(w, h); PX.en(c, fn); return c; }
+// pega una capa con transparencia (0) sin recorrer toda la pantalla
+function blit(capa, dx, dy) {
+  const Tt = PX.destino(); dx = Math.round(dx); dy = Math.round(dy);
+  const x0 = Math.max(0, dx), x1 = Math.min(Tt.w, dx + capa.w), y0 = Math.max(0, dy), y1 = Math.min(Tt.h, dy + capa.h);
+  for (let y = y0; y < y1; y++) {
+    const fs = (y - dy) * capa.w - dx, fd = y * Tt.w;
+    for (let x = x0; x < x1; x++) { const c = capa.buf[fs + x]; if (c) Tt.buf[fd + x] = c; }
+  }
+}
+const sumarLuz = (x, y, r, c, f, p = 4) => PX.luz(x, y, r, typeof c === 'number' ? rgb(c) : c, f, p);
+
+// ═════════════════════════════════════════════════════════════ PLANO 0: el final de px-ep3-promesa
+const FINP = {
+  plato: { ancho: 640, focoX: 240, focoY: 118, sueloY: 200, semilla: 11 }, camX: 80,
+  persona: { x: 153, y: 214, altura: 118, pose: 'depie', vida: false, t: 0 },
+  regla: { e: 0, entera: 1, actual: 0, marca: 0 },
+};
+let tFinPromesa = 15.775 - 0.6;   // px-ep3-promesa congela la regla en su QUIETO
+try { const todas = await (await fetch('/atomo/plato/escenas/marcas-ep03px.json')).json(); if (todas['px-ep3-promesa']) tFinPromesa = todas['px-ep3-promesa'].duracion - 0.6; } catch { /* valor por defecto */ }
+const PLATO = PX.crearPlato(FINP.plato);
+const INICIO = capaDe(W, H, () => {
+  PLATO.dibujar({ camX: FINP.camX, t: tFinPromesa, polvo: 0 });
+  PX.regla({ ...FINP.regla, aparece: 1, t: tFinPromesa });
+  PX.persona({ ...FINP.persona });
+});
+
+// ═════════════════════════════════════════════════════════════ PLANO 1: el pasillo (TRAVELLING)
+const PW = 980, BASE = 202, CAMF = 470;
+const VENT = { x0: 744, x1: 832, y0: 40, y1: 176 };                 // el cristal (por dentro del marco)
+const ABIERTO = 112;                                                  // la hoja de abajo, subida: de aquí al alféizar no hay cristal
+const APLIQUES = [214, 470];
+const PUERTAS = [[286, 338], [560, 612]];
+const PARED = pal(['#080c0f', '#0c1316', '#11191c', '#172124', '#1d292b', '#243233', '#2c3c3b', '#364744', '#41534e', '#4e6159', '#5d7067', '#6f8277']);
+const PISO = pal(['#0c0807', '#150e0b', '#20150f', '#2c1d14', '#3a271a', '#4a3220', '#5c3f28', '#704e31', '#865e3b']);
+const ALFOMBRA = pal(['#13070a', '#220b10', '#341016', '#47161c', '#5c1f23', '#74292b', '#8c3833']);
+const CORTINA = pal(['#10060a', '#1e0a10', '#2f0f17', '#43151f', '#591c27', '#712630', '#8b333a']);
+const FRIO = PALO.FRIO, NOGAL = PAL.NOGAL, LAT = PAL.LATON;
+const lamparaV = (x, y) => {
+  let v = 0;
+  for (const lx of APLIQUES) {
+    const dx = x - lx, dy = y - 92;
+    v += 3.4 * Math.exp(-((dx / (8 + 0.62 * Math.abs(dy))) ** 2)) * Math.exp(-Math.abs(dy) / 75) + 1.5 * Math.exp(-(dx * dx + dy * dy) / (62 * 62));
+  }
+  return v;
+};
+const lunaV = (x, y) => 1.2 * Math.exp(-(((x - 788) / 70) ** 2) - (((y - 120) / 75) ** 2));
+const PAS = PX.nuevaCapa(PW, H);
+PX.en(PAS, () => {
+  const rnd = mulberry32(77);
+  // techo y moldura
+  PX.degradado(0, 0, PW - 1, 14, NOGAL, (x, y) => 0.4 + y * 0.06 + 0.25 * lamparaV(x, 30), 1);
+  for (let x = 0; x < PW; x++) { const l = 0.3 * lamparaV(x, 40); PX.pset(x, 15, tono(NOGAL, 4.2 + l, x, 15)); PX.pset(x, 16, tono(NOGAL, 3 + l, x, 16)); PX.pset(x, 17, tono(NOGAL, 1.6 + l, x, 17)); }
+  // papel pintado: rayas finas y un rombo tramado; luz de los apliques en V y la luna junto a la ventana
+  PX.degradado(0, 18, PW - 1, 126, PARED, (x, y) => {
+    let v = 2.2 + 0.5 * (y - 18) / 108;
+    v += ((x >> 3) & 1) ? 0.22 : 0;
+    const dx = Math.abs(((x + 8) % 16) - 8), dy = Math.abs(((y + 4) % 22) - 11);
+    if (dx + dy * 0.75 < 3.2) v += 0.55;
+    v += 0.45 * (fbm(x * 0.05, y * 0.05) - 0.5);
+    v -= 1.4 * Math.exp(-(y - 18) / 10);
+    v += lamparaV(x, y) + lunaV(x, y);
+    v -= 1.2 * suave(880, 980, x);
+    return v;
+  }, 1);
+  for (const lx of APLIQUES) sumarLuz(lx, 92, 74, PAL.AMBAR[2], 0.42, 4);
+  // moldura del zócalo
+  for (let x = 0; x < PW; x++) { const l = 0.35 * lamparaV(x, 120); [4.6, 3.6, 2.8, 2.0, 1.0].forEach((v, k) => PX.pset(x, 127 + k, tono(NOGAL, v + l, x, 127 + k))); }
+  // zócalo de nogal con cuarterones (bisel: arriba a la izquierda en sombra, abajo a la derecha con luz)
+  PX.degradado(0, 132, PW - 1, 194, NOGAL, (x, y) => {
+    const l = 0.38 * lamparaV(x, y - 30) + 0.4 * lunaV(x, y);
+    const px = ((x + 20) % 64 + 64) % 64, enPanel = px >= 9 && px <= 58 && y >= 140 && y <= 187;
+    let v = 2.5 + l + 0.35 * Math.sin(x * 0.7 + 4 * vnoise(x * 0.08, y * 0.03)) + 0.3 * (vnoise(x * 0.3, y * 0.05) - 0.5);
+    if (enPanel) {
+      v += 0.35;
+      if (px === 9 || y === 140) v -= 1.6;
+      else if (px === 58 || y === 187) v += 1.0;
+      else if (px === 10 || y === 141) v -= 0.7;
+    }
+    return v - 1.2 * suave(880, 980, x);
+  }, 1);
+  // rodapié
+  for (let x = 0; x < PW; x++) { const l = 0.3 * lamparaV(x, 160); [4.2, 3.0, 2.4, 2.2, 2.0, 1.6, 0.6].forEach((v, k) => PX.pset(x, 195 + k, tono(NOGAL, v + l - 0.8 * suave(880, 980, x), x, 195 + k))); }
+  // suelo de tarima: tablas a lo largo, más estrechas hacia la pared
+  const filas = [BASE]; for (let k = 1; k <= 10; k++) filas.push(BASE + Math.round(68 * (k / 10) ** 1.45));
+  const juntas = filas.map(() => { const out = []; let x = -rnd() * 120; while (x < PW) { out.push(Math.round(x)); x += 95 + rnd() * 80; } return out; });
+  for (let r = 0; r < filas.length - 1; r++) {
+    const ya = filas[r], yb = filas[r + 1];
+    for (let y = ya; y < yb && y < H; y++) for (let x = 0; x < PW; x++) {
+      const tabla = juntas[r].filter((j) => j <= x).length;
+      let v = 3.1 + 0.9 * (hash2(r, tabla) - 0.5) + 0.32 * Math.sin(x * 0.33 + r * 2 + 4 * vnoise(x * 0.02, r * 3.1)) + 0.3 * (vnoise(x * 0.12, y * 0.6 + r * 9) - 0.5);
+      for (const lx of APLIQUES) v += 2.3 * Math.exp(-(((x - lx) / 62) ** 2) - (((y - 212) / 13) ** 2));
+      v += 1.2 * Math.exp(-(((x - 335) / 26) ** 2) - (((y - 205) / 6) ** 2));             // la luz que sale bajo la puerta
+      v -= 0.9 * (y - BASE) / 68;
+      if (y === ya) v -= 1.7;
+      if (juntas[r].includes(x)) v -= 1.5;
+      v -= 1.2 * suave(880, 980, x);
+      PX.pset(x, y, tono(PISO, v, x, y, 1));
+    }
+  }
+  // la alfombra del pasillo: campo rojo oscuro con rombos y cenefa ocre
+  PX.degradado(0, 228, PW - 1, 257, ALFOMBRA, (x, y) => {
+    let v = 2.3 + 0.35 * (vnoise(x * 0.2, y * 0.4) - 0.5);
+    for (const lx of APLIQUES) v += 1.4 * Math.exp(-(((x - lx) / 70) ** 2));
+    const dx = Math.abs(((x + 14) % 28) - 14), dy = Math.abs(y - 243);
+    const r = dx / 11 + dy / 8;
+    if (r < 1 && r > 0.72) v += 1.4; else if (r < 0.35) v += 0.9;
+    if (y === 228) v -= 1.3;
+    if (y === 232 || y === 253) v += 1.6;
+    return v - 1.2 * suave(880, 980, x);
+  }, 1);
+  for (let x = 0; x < PW; x++) for (const y of [230, 255]) PX.pset(x, y, tono(PAL.AMBAR, 1.3 + 0.6 * lamparaV(x, 120) * 0.3 + (((x >> 1) & 1) ? 0.3 : 0), x, y, 1));
+  for (let x = 0; x < PW; x++) PX.pset(x, 258, ALFOMBRA[0]);
+  // la luz de la luna en el suelo, delante de la ventana (con la sombra de la cruz del marco)
+  for (let y = BASE + 1; y < 246; y++) {
+    const off = (y - BASE) * 1.35, xa = VENT.x0 - 4 - off, xb = VENT.x1 + 2 - off;
+    for (let x = Math.floor(xa); x <= xb; x++) {
+      const borde = Math.min(x - xa, xb - x, 246 - y) / 5;
+      const cruz = Math.abs(x - (xa + xb) / 2) < 1.6 || Math.abs(y - (BASE + 14)) < 1;
+      const f = clamp(borde, 0, 1) * (cruz ? 0.25 : 1) * (1 - (y - BASE) / 60);
+      const qv = Math.floor(f * 0.55 * 4 + b4(x, y)) / 4;
+      if (qv > 0) { const p = PX.pget(x, y), [r, g, b] = rgb(p); PX.pset(x, y, PX.color(r + 70 * qv, g + 95 * qv, b + 140 * qv)); }
+    }
+  }
+  // puertas: jamba, hoja con cuarterones, pomo de latón; bajo la primera, la luz de una habitación
+  for (const [a, b] of PUERTAS) {
+    PX.forma({ x0: a, y0: 60, x1: b, y1: BASE, sdf: rr((a + b) / 2, 131, (b - a) / 2, 71, 1), rampa: NOGAL, lo: 2.6, hi: 6, grosor: 2, plano: 0.75, k: 0.3,
+      textura: (x, y, v) => v + 0.3 * lamparaV(x, y) * 0.5 + 0.25 * Math.sin(y * 0.8 + 3 * vnoise(x * 0.3, y * 0.04)) });
+    PX.forma({ x0: a + 5, y0: 66, x1: b - 5, y1: BASE, sdf: rr((a + b) / 2, 134, (b - a) / 2 - 5, 68, 0), rampa: NOGAL, lo: 1.3, hi: 3.6, grosor: 2, plano: 0.85, k: 0.3,
+      textura: (x, y, v) => {
+        let w = v + 0.3 * lamparaV(x, y) * 0.4 + 0.25 * Math.sin(x * 0.9 + 3 * vnoise(x * 0.1, y * 0.02));
+        const px = x - a - 5, py = y - 66, an = b - a - 10;
+        const inX = (px >= 5 && px <= an / 2 - 3) || (px >= an / 2 + 3 && px <= an - 5), inY = (py >= 6 && py <= 58) || (py >= 66 && py <= 128);
+        if (inX && inY) { w += 0.3; const e = [px - 5, an / 2 - 3 - px, px - an / 2 - 3, an - 5 - px].filter((d) => d >= 0); const de = Math.min(...e); if (de < 1 || py === 6 || py === 66) w -= 1.3; else if (py === 58 || py === 128) w += 0.9; }
+        return w;
+      } });
+    PX.forma({ x0: b - 15, y0: 133, x1: b - 7, y1: 141, sdf: elip(b - 11, 137, 2.6, 2.6), rampa: LAT, lo: 1.6, hi: 6, grosor: 2 });
+  }
+  for (let x = PUERTAS[0][0] + 5; x <= PUERTAS[0][1] - 5; x++) { PX.pset(x, BASE - 1, PAL.AMBAR[4]); PX.pset(x, BASE - 2, PAL.AMBAR[2]); }
+  // cuadro con un paisaje al atardecer (marco dorado) y espejo ovalado
+  PX.forma({ x0: 376, y0: 46, x1: 432, y1: 90, sdf: rr(404, 68, 27, 21, 1), rampa: LAT, lo: 1.2, hi: 4.6, grosor: 3, k: 0.3 });
+  PX.degradado(381, 51, 427, 85, PAL.TERRACOTA, (x, y) => 4.3 - (y - 51) * 0.09, 1);
+  PX.disco(410, 70, 5, PAL.AMBAR[4]);
+  PX.degradado(381, 66, 427, 85, NOGAL, (x, y) => { const h1 = 72 + 5 * Math.sin(x * 0.11 + 1) + 3 * Math.sin(x * 0.29), h2 = 77 + 3 * Math.sin(x * 0.17 + 2); return y > h2 ? 1.2 : y > h1 ? 2.6 : null; }, 1);
+  PX.degradado(381, 81, 427, 85, PAL.TERRACOTA, (x, y) => ((x + y) & 3) === 0 ? 3.2 : null, 0);
+  PX.oscurecer(381, 51, 427, 85, 0.25);
+  PX.forma({ x0: 648, y0: 50, x1: 684, y1: 96, sdf: elip(666, 73, 16, 21), rampa: LAT, lo: 1.2, hi: 4.6, grosor: 3, k: 0.3 });
+  PX.forma({ x0: 652, y0: 55, x1: 680, y1: 92, sdf: elip(666, 73, 12, 17), rampa: FRIO, lo: 0.4, hi: 1.8, grosor: 4, plano: 0.6, contorno: LAT[0],
+    textura: (x, y, v) => v + (Math.abs(x - y * 0.5 - 625) < 2.5 ? 1.4 : 0) });
+  // apliques: placa y brazo de latón, pantalla de tela que brilla
+  for (const lx of APLIQUES) {
+    PX.forma({ x0: lx - 4, y0: 98, x1: lx + 4, y1: 110, sdf: elip(lx, 104, 2.6, 5), rampa: LAT, lo: 1.5, hi: 5.5, grosor: 2 });
+    PX.linea(lx, 98, lx, 96, LAT[3]);
+    PX.forma({ x0: lx - 9, y0: 82, x1: lx + 9, y1: 97, sdf: (x, y) => { const k = (y - 84) / 11; const hw = mezcla(4.5, 7.5, clamp(k, 0, 1)); return Math.max(Math.abs(x - lx) - hw, 84 - y, y - 95); }, rampa: PAL.CREMA, lo: 3.4, hi: 5.4, grosor: 2, plano: 0.6, contorno: PAL.AMBAR[1] });
+    sumarLuz(lx, 90, 16, PAL.AMBAR[4], 0.6, 4);
+  }
+  // la ventana: cielo de noche, luna, tejados con ventanas encendidas
+  PX.degradado(VENT.x0, VENT.y0, VENT.x1, VENT.y1, PAL.NOCHE, (x, y) => 1.2 + 4.2 * ((y - VENT.y0) / (VENT.y1 - VENT.y0)) ** 1.6 + 0.6 * (fbm(x * 0.04, y * 0.05) - 0.5), 1);
+  const re = mulberry32(5);
+  for (let i = 0; i < 26; i++) { const x = Math.round(VENT.x0 + 2 + re() * 84), y = Math.round(VENT.y0 + 2 + re() * 90); PX.pset(x, y, re() < 0.3 ? PAL.ESTRELLA[3] : PAL.ESTRELLA[1]); }
+  PX.disco(812, 58, 6.5, PAL.CREMA[5]); PX.disco(809, 56, 6, 0);
+  for (let y = 50; y < 66; y++) for (let x = 804; x < 820; x++) { const a = Math.hypot(x + 0.5 - 812, y + 0.5 - 58) <= 6.5, b = Math.hypot(x + 0.5 - 808.6, y + 0.5 - 56) <= 6; if (a && !b) PX.pset(x, y, Math.hypot(x - 814, y - 59) < 4 ? PAL.CREMA[5] : PAL.CREMA[4]); else if (a && b) PX.pset(x, y, tono(PAL.NOCHE, 2.2, x, y)); }
+  sumarLuz(812, 58, 26, FRIO[3], 0.28, 4);
+  const techo = (x) => { const i = Math.floor((x - VENT.x0) / 13); const h = 150 + Math.floor(hash2(i, 3) * 14); const fx = (x - VENT.x0) % 13; return h + (hash2(i, 9) < 0.5 ? Math.abs(fx - 6) * 0.9 : 0); };
+  for (let x = VENT.x0; x <= VENT.x1; x++) {
+    const h = Math.round(techo(x));
+    for (let y = h; y <= VENT.y1; y++) PX.pset(x, y, tono(PAL.NOCHE, y === h ? 2.4 : 1.1 + 0.4 * (y - h) / 20, x, y));
+    if (hash2(x, 17) < 0.07) PX.rect(x, h - 6, x + 1, h, PAL.NOCHE[1]);
+  }
+  for (let i = 0; i < 18; i++) { const x = Math.round(VENT.x0 + 3 + re() * 82), y = Math.round(techo(x) + 5 + re() * 14); if (y < VENT.y1 - 1) PX.pset(x, y, re() < 0.5 ? PAL.AMBAR[3] : PAL.AMBAR[4]); }
+  sumarLuz(788, 176, 60, PAL.AMBAR[1], 0.25, 3);
+  // el marco de la ventana (madera pintada de crema, con el filo de luna) y el alféizar
+  PX.forma({ x0: 736, y0: 32, x1: 840, y1: 180, sdf: (x, y) => Math.max(rr(788, 106, 51, 73, 1)(x, y), -rr(788, 108, 44, 68, 0)(x, y)), rampa: PAL.CREMA, lo: 1.2, hi: 3.6, grosor: 2, plano: 0.5, k: 0.3,
+    textura: (x, y, v) => v + 0.4 * lunaV(x, y) });
+  PX.forma({ x0: 726, y0: 175, x1: 850, y1: 188, sdf: rr(788, 181.5, 60, 4.5, 1), rampa: PAL.CREMA, lo: 1.4, hi: 4.2, grosor: 2, plano: 0.5, k: 0.3 });
+  for (let x = 728; x <= 848; x++) PX.pset(x, 186, PARED[1]);
+});
+// los travesaños y el cristal de la hoja de arriba (van encima de lo que pasa fuera)
+const VID = PX.nuevaCapa(PW, H);
+PX.en(VID, () => {
+  // cristal: un tinte frío tramado y dos reflejos en diagonal
+  for (let y = VENT.y0; y < ABIERTO - 6; y++) for (let x = VENT.x0; x <= VENT.x1; x++) {
+    const d = (x + y * 0.8) % 46;
+    if (d < 4 && b8(x, y) < 0.55) PX.pset(x, y, FRIO[2]);
+    else if (d > 6 && d < 8 && b8(x, y) < 0.3) PX.pset(x, y, FRIO[1]);
+  }
+  const barra = (x0, y0, x1, y1) => PX.forma({ x0, y0, x1, y1, sdf: rr((x0 + x1) / 2, (y0 + y1) / 2, (x1 - x0) / 2, (y1 - y0) / 2, 0), rampa: PAL.CREMA, lo: 1.3, hi: 3.4, grosor: 1.5, plano: 0.4, k: 0.3, textura: (x, y, v) => v + 0.4 * lunaV(x, y) });
+  barra(786, VENT.y0, 789, ABIERTO - 6);          // la cruz de la hoja de arriba
+  barra(VENT.x0, 72, VENT.x1, 74);
+  barra(VENT.x0, ABIERTO - 9, VENT.x1, ABIERTO - 4); // los dos peinazos (la hoja de abajo, subida, delante)
+  barra(VENT.x0 - 1, ABIERTO - 4, VENT.x1 + 1, ABIERTO);
+  for (let x = VENT.x0; x <= VENT.x1; x++) PX.pset(x, ABIERTO + 1, PAL.NOCHE[0]);
+});
+function cortinas(t, camX) {
+  const f = paso(t, 8);
+  for (const [x0, x1, lado, fase] of [[712, 742, -1, 0], [834, 864, 1, 1.7]]) {
+    const sw = 2.6 * Math.sin(f * 1.9 + fase) + 1.2 * Math.sin(f * 3.1 + fase * 2);
+    for (let y = 24; y <= 196; y++) {
+      const k = ((y - 24) / 172) ** 2, dx = Math.round(sw * k - lado * 3 * k);
+      for (let x = x0; x <= x1; x++) {
+        const sx = x + dx - camX; if (sx < 0 || sx >= W) continue;
+        const u = (x - x0) / (x1 - x0);
+        let v = 2.4 + 1.1 * Math.sin((x - x0) * 0.62 + 0.8 * Math.sin(y * 0.03 + fase) + sw * 0.15) + 0.4 * (vnoise(x * 0.2, y * 0.05) - 0.5);
+        v += lado < 0 ? 1.2 * u * u : 1.2 * (1 - u) * (1 - u);     // el canto de la ventana recibe la luna
+        if (x === x0 || x === x1) v -= 1.2;
+        if (y > 192) v -= 1;
+        PX.pset(sx, y, tono(CORTINA, v, sx, y, 1));
+      }
+    }
+  }
+  // la barra de latón
+  for (let x = 706; x <= 870; x++) { const sx = x - camX; if (sx < 0 || sx >= W) continue; PX.pset(sx, 21, LAT[5]); PX.pset(sx, 22, LAT[3]); PX.pset(sx, 23, LAT[1]); }
+  for (const xf of [704, 872]) PX.disco(xf - camX, 22, 2.5, LAT[3]);
+}
+// estrellas que titilan en la ventana
+const TITILAN = (() => { const r = mulberry32(31), o = []; for (let i = 0; i < 9; i++) o.push([Math.round(VENT.x0 + 4 + r() * 80), Math.round(VENT.y0 + 4 + r() * 80), Math.floor(r() * 7)]); return o; })();
+
+// la persona del pasillo, con la cinta métrica en la mano de la derecha de la pantalla
+const PER_P = { x: 153, y: 214, altura: 118, pose: 'depie' };
+const ANC_P = (() => { let a; capaDe(W, H, () => { a = PX.persona({ ...PER_P, vida: false, partes: 'sinManos' }); }); return a; })();
+const CAJA = [Math.round(ANC_P.manos[1][0]) + 2, Math.round(ANC_P.manos[1][1]) + 1];
+function estuche(x, y, conUneta) {
+  PX.forma({ x0: x - 9, y0: y - 9, x1: x + 9, y1: y + 9, sdf: rr(x, y, 7.5, 7.5, 3.5), rampa: PAL.TERRACOTA, lo: 1.2, hi: 4.9, grosor: 3 });
+  PX.forma({ x0: x - 5, y0: y - 5, x1: x + 4, y1: y + 4, sdf: elip(x - 0.5, y - 0.5, 3.4, 3.4), rampa: LAT, lo: 1.6, hi: 6, grosor: 2 });
+  PX.pset(x - 1, y - 1, LAT[6]);
+  PX.rect(x + 7, y + 2, x + 8, y + 5, PAL.TINTA);
+  if (conUneta) { PX.rect(x + 8, y + 2, x + 10, y + 4, PAL.AMBAR[4]); PX.rect(x + 8, y + 4, x + 10, y + 4, PAL.AMBAR[2]); PX.rect(x + 11, y + 1, x + 11, y + 5, LAT[4]); }
+}
+// el camino de la cinta (coordenadas del pasillo): sale del estuche, cae al suelo, corre por la tarima, trepa bajo la
+// ventana y pasa el alféizar
+const CAMINO = (() => {
+  const A = [CAJA[0] + 9, CAJA[1] + 3], B = [A[0] + 76, 217];
+  const pts = [];
+  const bez = (p0, p1, p2, p3, n) => { for (let i = 0; i <= n; i++) { const u = i / n, a = (1 - u) ** 3, b = 3 * u * (1 - u) ** 2, c = 3 * u * u * (1 - u), d = u ** 3; pts.push([a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0], a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1]]); } };
+  const recta = (p, q2, n) => { for (let i = 1; i <= n; i++) pts.push([mezcla(p[0], q2[0], i / n), mezcla(p[1], q2[1], i / n)]); };
+  bez(A, [A[0] + 30, A[1] - 3], [A[0] + 56, 217], B, 160);
+  recta(B, [783, 217], 1000);
+  bez([783, 217], [788, 217], [791, 210], [791, 203], 30);
+  recta([791, 203], [791, 188], 30);
+  bez([791, 188], [793, 186], [793, 182], [791, 178], 20);
+  recta([791, 178], [791, 176], 4);
+  const s = [0];
+  for (let i = 1; i < pts.length; i++) s.push(s[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const idx = (L) => { let a = 0, b = s.length - 1; while (a < b) { const c = (a + b + 1) >> 1; if (s[c] <= L) a = c; else b = c - 1; } return a; };
+  return { pts, s, idx, pared: s[161 + 1000 - 1], total: s[s.length - 1] };
+})();
+function largoCinta(t) {
+  if (t < T.suelta) return 0;
+  if (t < T.pared) { const p = prog(t, T.suelta, T.pared); return CAMINO.pared * (1.75 * p - 0.75 * p * p); }
+  return mezcla(CAMINO.pared, CAMINO.total, sale(prog(t, T.pared, T.fuera)));
+}
+function camaraPasillo(t) {
+  const L = largoCinta(t), P = CAMINO.pts[CAMINO.idx(L)];
+  return Math.round(smin(smax(P[0] - 296, 0, 50), CAMF, 50));
+}
+function cinta(L, camX) {
+  if (L <= 0) return;
+  const { pts, s } = CAMINO, n = CAMINO.idx(L);
+  let ux = 1, uy = 0;
+  const dib = (i, k, c) => { const p = pts[i]; PX.pset(Math.round(p[0] - uy * k - camX), Math.round(p[1] + ux * k), c); };
+  for (let i = 0; i <= n; i++) {
+    const p = pts[i], nx = pts[Math.min(i + 1, pts.length - 1)], pv = pts[Math.max(i - 1, 0)];
+    const dx = nx[0] - pv[0], dy = nx[1] - pv[1], l = Math.hypot(dx, dy) || 1; ux = dx / l; uy = dy / l;
+    const sx = Math.round(p[0] - camX); if (sx < -3 || sx > W + 3) continue;
+    const mat = Math.floor(L - s[i]);
+    if (p[1] > 215.5) PX.oscurecer(sx, Math.round(p[1]) + 2, sx, Math.round(p[1]) + 2, 0.45);   // sombra sobre la tarima
+    dib(i, 1, PAL.AMBAR[2]);
+    dib(i, 0, mat % 40 === 12 || mat % 40 === 13 ? PAL.TERRACOTA[3] : mat % 4 === 0 ? NOGAL[1] : PAL.AMBAR[4]);
+    dib(i, -1, mat % 20 === 0 ? NOGAL[1] : PAL.AMBAR[5]);
+  }
+  // la uñeta de latón de la punta
+  const p = pts[n];
+  for (let k = -2; k <= 2; k++) PX.pset(Math.round(p[0] - uy * k + ux - camX), Math.round(p[1] + ux * k + uy), k < 0 ? LAT[5] : LAT[3]);
+  for (let k = -2; k <= 2; k++) PX.pset(Math.round(p[0] - uy * k + 2 * ux - camX), Math.round(p[1] + ux * k + 2 * uy), LAT[1]);
+}
+// fuera: la cinta sube, se enrolla en un nudo de bucles contra el cielo y el nudo se aleja hacia VP hasta perderse
+const G = [791, 176], CK = [784, 140], VP = [810, 62], NPF = 1500, APROX = 0.14;
+function nudo(v) {
+  const th = v * TAU * 5.3 + Math.PI * 0.5;
+  const r = (13 + 6 * Math.sin(2.3 * th + 0.6) + 3 * Math.sin(5.1 * th)) * (0.6 + 0.4 * Math.sin(Math.PI * Math.min(1, v * 1.3 + 0.2)));
+  return [CK[0] + 5 * Math.sin(0.8 * th) + 1.3 * r * Math.cos(th), CK[1] + 4 * Math.cos(1.1 * th) + 0.95 * r * Math.sin(th)];
+}
+const K0 = nudo(0);
+function puntoFuera(u, s) {
+  // s: escala del nudo alrededor de VP (1 cerca … 0 perdido)
+  if (u < APROX) {
+    const v = u / APROX, k = [VP[0] + (K0[0] - VP[0]) * s, VP[1] + (K0[1] - VP[1]) * s];
+    return [mezcla(G[0], k[0], v) + 6 * s * Math.sin(v * Math.PI), mezcla(G[1], k[1], v)];
+  }
+  const p = nudo((u - APROX) / (1 - APROX));
+  return [VP[0] + (p[0] - VP[0]) * s, VP[1] + (p[1] - VP[1]) * s];
+}
+const SELLO = new Int32Array(W * H);
+function cintaFuera(t, camX) {
+  if (t < T.fuera - 0.06) return;
+  const uT = sale(prog(t, T.fuera - 0.06, T.enredo));
+  const k = entraSale(prog(t, T.enredo + 0.05, T.perdido - 0.08));
+  const s = 1 - 0.9 * k;
+  const borra = prog(t, T.enredo + 0.25, T.perdido - 0.05);
+  SELLO.fill(-1e9);
+  const ancho = s > 0.5 ? 2 : 1;
+  let prev = null, punta = null;
+  const n = Math.floor(NPF * uT);
+  for (let i = 0; i <= n; i++) {
+    const u = i / NPF, [x, y] = puntoFuera(u, s);
+    const sx = Math.round(x - camX), sy = Math.round(y);
+    if (prev && prev[0] === sx && prev[1] === sy) continue;
+    prev = [sx, sy]; punta = [x, y];
+    if (x < VENT.x0 || x > VENT.x1 || y < VENT.y0 || y > VENT.y1 + 1) continue;
+    if (borra > 0 && b4(sx, sy) < borra * (0.35 + 0.65 * u / Math.max(uT, 1e-3)) * 1.05) continue;
+    // el contorno oscuro solo pisa lo que es fondo o cinta de mucho antes (así se ven los cruces por encima)
+    for (let dy = -1; dy <= ancho; dy++) for (let dx = -1; dx <= ancho; dx++) {
+      const qx = sx + dx, qy = sy + dy; if (qx < 0 || qy < 0 || qx >= W || qy >= H) continue;
+      const j = qy * W + qx; if (SELLO[j] < i - 14) { PX.pset(qx, qy, PAL.NOCHE[0]); SELLO[j] = Math.min(SELLO[j], -1e8); }
+    }
+    for (let dy = 0; dy < ancho; dy++) for (let dx = 0; dx < ancho; dx++) {
+      const qx = sx + dx, qy = sy + dy; if (qx < 0 || qy < 0 || qx >= W || qy >= H) continue;
+      const lvl = (ancho === 1 ? 4.2 - 1.6 * k : dx + dy === 0 ? 5.2 : dy === 1 ? 3.3 : 4.3) - (i % 9 === 0 ? 1.4 : 0);
+      PX.pset(qx, qy, tono(PAL.AMBAR, lvl, qx, qy, 0.4)); SELLO[qy * W + qx] = i;
+    }
+  }
+  if (punta && uT < 1) { const px = Math.round(punta[0] - camX), py = Math.round(punta[1]); PX.rect(px, py - 1, px + 1, py + 1, LAT[4]); }
+}
+function planoPasillo(t) {
+  const camX = camaraPasillo(t);
+  PX.pegar(PAS, -camX, 0, { opaco: true });
+  for (const [x, y, ph] of TITILAN) if ((fot(t, 6) + ph) % 7 === 0) { const sx = x - camX; PX.pset(sx, y, PAL.ESTRELLA[4]); PX.pset(sx - 1, y, PAL.ESTRELLA[1]); PX.pset(sx + 1, y, PAL.ESTRELLA[1]); }
+  cintaFuera(t, camX);
+  blit(VID, -camX, 0);
+  cortinas(t, camX);
+  // la persona (sale del cuadro por la izquierda cuando la cámara sigue a la cinta)
+  const xs = PER_P.x - camX;
+  if (xs > -40) {
+    const o = { ...PER_P, x: xs, t, mira: t > T.suelta ? [0.6, 0.2] : [0, 0], cabeza: t > T.suelta + 0.08 ? { giro: 0.25, cabeceo: -0.08 } : undefined };
+    PX.persona({ ...o, partes: 'sinManos' });
+    estuche(CAJA[0] - camX, CAJA[1], t < T.suelta);
+    PX.persona({ ...o, partes: 'manos', sombra: 0 });
+  }
+  cinta(largoCinta(t), camX);
+}
+
+// ═════════════════════════════════════════════════════════════ PLANO 2: las monedas y el cerebro (DETALLE)
+const PLATO_B = PX.crearPlato({ ancho: 640, focoX: 330, focoY: 96, sueloY: 206, semilla: 23 });
+const FONDO_B = capaDe(W, H, () => PLATO_B.dibujar({ camX: 80, t: 0, polvo: 0 }));
+function spriteMoneda(rx, ry, grosor, emblema = false) {
+  const w = 2 * rx + 3, h = 2 * ry + grosor + 3, cx = w / 2, cy = ry + 1.5;
+  return capaDe(w, h, () => {
+    const dentro = (x, y) => {
+      const u = (x + 0.5 - cx) / rx, a = (y + 0.5 - cy) / ry, b = (y + 0.5 - cy - grosor) / ry;
+      if (u * u + a * a <= 1) return 1;
+      if (Math.abs(u) <= 1 && (y + 0.5 >= cy && y + 0.5 <= cy + grosor || u * u + b * b <= 1)) return 2;
+      return 0;
+    };
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const d = dentro(x, y); if (!d) continue;
+      const u = (x + 0.5 - cx) / rx, a = (y + 0.5 - cy) / ry;
+      let c;
+      if (d === 1) {
+        const r = Math.hypot(u, a);
+        let v = 3.5 - 0.9 * u - 0.6 * a;
+        if (r > 0.8) v += (u + a < 0 ? 1.4 : -1.1);
+        else if (emblema && Math.abs(r - 0.48) < 0.09) v += (u + a < 0 ? -0.9 : 0.9);
+        else if (emblema && r < 0.16) v += 0.8;
+        c = tono(LAT, v, x, y, 0.4);
+      } else {
+        let v = 2.3 - 0.9 * u - ((x & 1) ? 0.45 : 0);
+        if (y + 0.5 - cy > grosor - 0.5 + ry * Math.sqrt(Math.max(0, 1 - u * u)) - 1.2) v -= 0.9;
+        c = tono(LAT, v, x, y, 0.3);
+      }
+      PX.pset(x, y, c);
+    }
+    // contorno
+    const lleno = (x, y) => x >= 0 && y >= 0 && x < w && y < h && dentro(x, y);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (!lleno(x, y) && (lleno(x - 1, y) || lleno(x + 1, y) || lleno(x, y - 1) || lleno(x, y + 1))) PX.pset(x, y, LAT[0]);
+  });
+}
+const MON = spriteMoneda(13, 4, 4);
+const GIRA = [4, 7, 10, 12, 13, 12, 10, 7, 4, 1.5].map((ry) => spriteMoneda(13, ry, 2.5, ry > 6));
+const MONTONES = [{ x: 166, n: 18 }, { x: 242, n: 19 }];
+const BASE_M = 228, PASO_M = 4;
+const jit = (p, i) => Math.round((hash2(p * 7 + 1, i) - 0.5) * 3);
+// el cerebro, de perfil (mira a la izquierda), con un hueco de cajón en el costado
+const CER = { x: 230, y: 18 };        // dónde va la esquina de su capa en pantalla
+const CAJ = { x0: 86, x1: 138, y0: 50, y1: 72 };   // el hueco del cajón (en la capa)
+const CEREBRO = capaDe(240, 172, () => {
+  const ROSA = PALO.CELULA;
+  // tronco y cerebelo (detrás)
+  PX.forma({ x0: 132, y0: 96, x1: 166, y1: 150, sdf: segSdf(152, 104, 146, 142, 9, 6), rampa: ROSA, lo: 0.8, hi: 2.6, grosor: 6,
+    textura: (x, y, v) => v + 0.25 * Math.sin(y * 0.6) });
+  PX.forma({ x0: 146, y0: 94, x1: 208, y1: 134, sdf: elip(176, 113, 27, 16), rampa: ROSA, lo: 1.0, hi: 3.8, grosor: 7,
+    textura: (x, y, v) => { const f = (((y + 2 * Math.sin(x * 0.18) + 0.1 * (x - 176)) / 3) % 1 + 1) % 1; return v - (f < 0.34 ? 1.1 : 0) + 0.3 * Math.sin(f * Math.PI); } });
+  // el cerebro: lóbulo frontal a la izquierda, temporal abajo; circunvoluciones con curvas de nivel de un ruido
+  const sdfC = sunion(12, elip(122, 64, 74, 48), elip(106, 90, 52, 25), elip(174, 76, 30, 32));
+  PX.forma({ x0: 40, y0: 10, x1: 210, y1: 120, sdf: sdfC, rampa: ROSA, lo: 1.7, hi: 5.4, grosor: 12, k: 0.25,
+    textura: (x, y, v, d) => {
+      const n = x / 10.5 + 2.2 * fbm(x * 0.028 + 3, y * 0.034 + 1, 3) + 0.5 * Math.sin(y * 0.07 + x * 0.02) + 0.35 * vnoise(x * 0.09, y * 0.09);
+      const f = n - Math.floor(n);
+      let w = v + 0.9 * Math.sin(Math.PI * f) - 0.45;
+      if (f < 0.13 && d < -1.5) w -= 2.0;
+      // la cisura lateral y la central (lo que hace que se lea como un cerebro)
+      const yS = 90 - (x - 70) * 0.27 - 4 * Math.sin((x - 70) * 0.05);
+      if (x > 64 && x < 152 && Math.abs(y - yS) < 1.3) w -= 2.3;
+      else if (x > 64 && x < 152 && y - yS > 1.2 && y - yS < 3.2) w += 0.6;
+      const xC = 128 - (y - 18) * 0.42;
+      if (y > 16 && y < 66 && Math.abs(x - xC - 3 * Math.sin(y * 0.2)) < 1.1) w -= 2.1;
+      return w;
+    } });
+  // el marco de madera del hueco del cajón y el hueco a oscuras
+  PX.forma({ x0: CAJ.x0 - 4, y0: CAJ.y0 - 4, x1: CAJ.x1 + 4, y1: CAJ.y1 + 4, sdf: (x, y) => Math.max(rr((CAJ.x0 + CAJ.x1) / 2, (CAJ.y0 + CAJ.y1) / 2, (CAJ.x1 - CAJ.x0) / 2 + 3, (CAJ.y1 - CAJ.y0) / 2 + 3, 2)(x, y), -rr((CAJ.x0 + CAJ.x1) / 2, (CAJ.y0 + CAJ.y1) / 2, (CAJ.x1 - CAJ.x0) / 2, (CAJ.y1 - CAJ.y0) / 2, 0)(x, y)),
+    rampa: NOGAL, lo: 2.4, hi: 6, grosor: 1.5, plano: 0.3 });
+  PX.rect(CAJ.x0, CAJ.y0, CAJ.x1, CAJ.y1, NOGAL[0]);
+});
+const MONEDITA = spriteMoneda(5, 1.5, 1);
+function cajon(a, dentro, cx, cy) {
+  // a: cuánto está abierto (0…1); dentro: monedas que ya han caído
+  const dy = Math.round(10 * a), cr = Math.round(2 * a);
+  const x0 = cx + CAJ.x0, x1 = cx + CAJ.x1, y0 = cy + CAJ.y0, y1 = cy + CAJ.y1;
+  if (a > 0.02) {
+    // el interior: fondo oscuro, los costados del cajón y las monedas que van llenándolo
+    for (let y = y0; y <= y0 + dy + 1; y++) for (let x = x0 - cr; x <= x1 + cr; x++) PX.pset(x, y, tono(NOGAL, 0.6 + 1.6 * (y - y0) / Math.max(1, dy + 1), x, y));
+    PX.linea(x0, y0, x0 - cr, y0 + dy, NOGAL[4]); PX.linea(x1, y0, x1 + cr, y0 + dy, NOGAL[3]);
+    const r = mulberry32(3);
+    for (let i = 0; i < Math.min(dentro, 26); i++) {
+      const mx = x0 + 4 + r() * (x1 - x0 - 8), my = y0 + dy - 1 - r() * Math.min(dy - 1, 2 + i * 0.25);
+      blit(MONEDITA, mx - MONEDITA.w / 2, my - 2);
+    }
+  }
+  // el frente: tabla de nogal con su tirador y un tarjetero con «!»
+  const fx0 = x0 - cr, fx1 = x1 + cr, fy0 = y0 + dy, fy1 = y1 + dy + Math.round(a);
+  PX.forma({ x0: fx0, y0: fy0, x1: fx1, y1: fy1, sdf: rr((fx0 + fx1) / 2, (fy0 + fy1) / 2, (fx1 - fx0) / 2 + 0.5, (fy1 - fy0) / 2 + 0.5, 1.5), rampa: NOGAL, lo: 2.6, hi: 6.2, grosor: 2.5, plano: 0.55, k: 0.3,
+    textura: (x, y, v) => v + 0.35 * Math.sin(x * 0.55 + 3 * vnoise(x * 0.06, y * 0.25)) });
+  const mx = Math.round((fx0 + fx1) / 2);
+  PX.forma({ x0: mx - 9, y0: fy1 - 8, x1: mx + 9, y1: fy1 - 2, sdf: rr(mx, fy1 - 5, 7, 2, 2), rampa: LAT, lo: 1.5, hi: 6, grosor: 2 });
+  PX.forma({ x0: mx - 7, y0: fy0 + 2, x1: mx + 7, y1: fy0 + 12, sdf: rr(mx, fy0 + 7, 6.5, 5, 1), rampa: LAT, lo: 1.4, hi: 5.2, grosor: 1.5, plano: 0.4 });
+  PX.rect(mx - 4, fy0 + 4, mx + 4, fy0 + 10, PAL.CREMA[4]);
+  PX.texto('!', mx - 2, fy0 + 4 + 2, { color: PAL.TERRACOTA[2], sombra: null });
+}
+// las monedas: el orden de salida (alternando montones) y el vuelo de cada una
+const VUELOS = (() => {
+  const out = [], quedan = MONTONES.map((p) => p.n);
+  const N = MONTONES[0].n + MONTONES[1].n;
+  for (let j = 0; j < N; j++) {
+    let p = j % 2; if (!quedan[p]) p = 1 - p;
+    quedan[p]--;
+    const t0 = mezcla(T.vuela0, T.vuela1, (j / (N - 1)) ** 0.85);
+    out.push({ p, i: quedan[p], t0, t1: t0 + 0.44, dest: [CER.x + mezcla(CAJ.x0 + 13, CAJ.x1 - 13, hash2(j, 5)), CER.y + CAJ.y0 + 5], fase: Math.floor(hash2(j, 9) * 10) });
+  }
+  return out;
+})();
+function aperturaCajon(t) {
+  if (t < T.abre0) return 0;
+  if (t < T.cierra0) return sale(prog(t, T.abre0, T.abre1));
+  return 1 - entra(prog(t, T.cierra0, T.cierra1));
+}
+function planoCerebro(t) {
+  PX.pegar(FONDO_B, 0, 0, { opaco: true });
+  const golpe = t >= T.cierra1 && t < T.cierra1 + 0.1 ? 1 : 0;
+  const bob = Math.round(1.4 * Math.sin(paso(t, 8) * 2.4)) + golpe;
+  const cx = CER.x, cy = CER.y + bob;
+  // sombras en el suelo
+  PX.sombra(352, 232, 66, 6, 0.5);
+  // los montones (de abajo arriba); la de arriba se va cuando le toca
+  const salidas = MONTONES.map(() => 0);
+  for (const v of VUELOS) if (t >= v.t0) salidas[v.p]++;
+  MONTONES.forEach((pm, p) => {
+    const n = pm.n - salidas[p];
+    if (n > 0) PX.sombra(pm.x + 1, BASE_M + 1, 20, 4, 0.55);
+    for (let i = 0; i < n; i++) blit(MON, pm.x - MON.w / 2 + jit(p, i), BASE_M - MON.h - i * PASO_M);
+  });
+  // el cerebro y el cajón
+  blit(CEREBRO, cx, cy);
+  const a = aperturaCajon(t);
+  const dentro = VUELOS.filter((v) => t >= v.t1).length;
+  const dib = (v, ent) => {
+    const u = prog(t, v.t0, v.t1);
+    if (u <= 0 || u >= 1 || (u > 0.82) !== ent) return;
+    const pm = MONTONES[v.p], x0 = pm.x + jit(v.p, v.i), y0 = BASE_M - MON.h / 2 - v.i * PASO_M - 2;
+    const [x1, y1] = v.dest;
+    const x = mezcla(x0, x1, u), y = mezcla(y0, y1 + bob, u) - (70 + 0.25 * (y0 - y1)) * 4 * u * (1 - u) * (1 - 0.3 * u);
+    const s = GIRA[(fot(t, 18) + v.fase) % GIRA.length];
+    blit(s, x - s.w / 2, y - s.h / 2);
+  };
+  for (const v of VUELOS) dib(v, true);      // las que ya entran en el cajón van detrás del frente
+  cajon(a, dentro, cx, cy);
+  for (const v of VUELOS) dib(v, false);
+  // al cerrarse: un soplo de polvo y el cerebro se ilumina un momento
+  const g = prog(t, T.cierra1, T.cierra1 + 0.5);
+  if (g > 0 && g < 1) {
+    sumarLuz(cx + 112, cy + 62, 90, PALO.CELULA[5], 0.45 * (1 - g), 4);
+    const r = mulberry32(12);
+    for (let i = 0; i < 14; i++) { const ang = r() * Math.PI - Math.PI, d = 6 + 26 * sale(g) * (0.5 + r()); PX.pset(Math.round(cx + 112 + Math.cos(ang) * (30 + d)), Math.round(cy + 76 + Math.sin(ang) * 0.3 * d + 6 * g), g < 0.6 ? PAL.CREMA[4] : PAL.CREMA[2]); }
+  }
+}
+
+// ═════════════════════════════════════════════════════════════ PLANO 3: la niña y el calendario (PLANO MEDIO)
+const PLATO_K = PX.crearPlato({ ancho: 640, focoX: 350, focoY: 70, sueloY: 256, semilla: 31 });
+const FONDO_K = capaDe(W, H, () => PLATO_K.dibujar({ camX: 80, t: 0, polvo: 0 }));
+const CAL = { x: 252, y: 40, w: 104, h: 138 };                 // el tablero
+const HOJA = { x: CAL.x + 8, y: CAL.y + 30, w: 88, h: 96 };     // la hoja
+const NINA = { x: 136, y: 456, altura: 384, aspecto: 'nino', pose: 'depie' };
+const TABLERO = capaDe(W, H, () => {
+  // el cordel y el clavo
+  PX.linea(CAL.x + 14, CAL.y + 3, CAL.x + CAL.w / 2, CAL.y - 18, PAL.CREMA[1]); PX.linea(CAL.x + CAL.w - 14, CAL.y + 3, CAL.x + CAL.w / 2, CAL.y - 18, PAL.CREMA[1]);
+  PX.forma({ x0: CAL.x + CAL.w / 2 - 4, y0: CAL.y - 22, x1: CAL.x + CAL.w / 2 + 4, y1: CAL.y - 14, sdf: elip(CAL.x + CAL.w / 2, CAL.y - 18, 2.5, 2.5), rampa: LAT, lo: 1.4, hi: 6, grosor: 2 });
+  PX.forma({ x0: CAL.x, y0: CAL.y, x1: CAL.x + CAL.w, y1: CAL.y + CAL.h, sdf: rr(CAL.x + CAL.w / 2, CAL.y + CAL.h / 2, CAL.w / 2, CAL.h / 2, 4), rampa: NOGAL, lo: 2.6, hi: 6.3, grosor: 3, plano: 0.6, k: 0.3,
+    textura: (x, y, v) => v + 0.4 * Math.sin(y * 0.4 + 3 * vnoise(x * 0.04, y * 0.12)) });
+  // el canto del taco (hojas debajo)
+  for (let k = 0; k < 4; k++) PX.rect(HOJA.x + 1, HOJA.y + HOJA.h + k, HOJA.x + HOJA.w - 1, HOJA.y + HOJA.h + k, k % 2 ? PAL.CREMA[2] : PAL.CREMA[3]);
+  PX.rect(HOJA.x + 1, HOJA.y + HOJA.h + 4, HOJA.x + HOJA.w - 1, HOJA.y + HOJA.h + 4, NOGAL[1]);
+});
+const CABECERA = capaDe(W, H, () => {
+  PX.forma({ x0: HOJA.x - 3, y0: CAL.y + 6, x1: HOJA.x + HOJA.w + 3, y1: HOJA.y + 2, sdf: rr(HOJA.x + HOJA.w / 2, (CAL.y + 6 + HOJA.y + 2) / 2, HOJA.w / 2 + 3, (HOJA.y + 2 - CAL.y - 6) / 2, 2), rampa: PAL.TERRACOTA, lo: 1.4, hi: 4.6, grosor: 3, plano: 0.55, k: 0.3 });
+  for (const rx of [HOJA.x + 22, HOJA.x + HOJA.w - 22]) { PX.forma({ x0: rx - 5, y0: CAL.y + 3, x1: rx + 5, y1: CAL.y + 14, sdf: (x, y) => Math.abs(Math.hypot(x - rx, y - (CAL.y + 9)) - 3.4) - 1.2, rampa: LAT, lo: 1.5, hi: 6, grosor: 1.5 }); }
+});
+// las hojas: número grande arriba (sin palabras) y, abajo, la cuadrícula del mes con el día marcado en rojo
+const HOJAS = [];
+for (let n = 1; n <= 13; n++) HOJAS[n] = capaDe(HOJA.w, HOJA.h, () => {
+  PX.degradado(0, 0, HOJA.w - 1, HOJA.h - 1, PAL.CREMA, (x, y) => 4.15 - 0.5 * (x + y) / (HOJA.w + HOJA.h) + 0.25 * (vnoise(x * 0.3, y * 0.3) - 0.5), 1);
+  PX.rect(0, 3, HOJA.w - 1, 3, PAL.TERRACOTA[3]);
+  PX.texto(String(n), HOJA.w / 2 + 1, 14, { esc: 5, color: NOGAL[1], sombra: null, alinear: 'centro', suave: false });
+  for (let k = 0; k < 28; k++) {
+    const gx = 10 + (k % 7) * 10, gy = 66 + Math.floor(k / 7) * 6;
+    PX.rect(gx, gy, gx + 5, gy + 2, k + 1 === n ? PAL.TERRACOTA[3] : k + 1 < n ? PAL.CREMA[2] : PAL.CREMA[3]);
+  }
+  for (let x = 0; x < HOJA.w; x++) PX.pset(x, 0, PAL.CREMA[2]);
+});
+// dibuja la hoja n con su parte de abajo levantándose (p 0…1: el pliegue sube de abajo arriba); debajo, la siguiente
+function hojaPlegada(n, p, temblor = 0) {
+  blit(HOJAS[n + 1], HOJA.x, HOJA.y);
+  const yf = Math.round(HOJA.h * (1 - p)) + temblor;          // el pliegue (en la hoja)
+  const banda = Math.min(13, Math.round((HOJA.h - yf) * 0.32));
+  const Tt = PX.destino(), S = HOJAS[n];
+  for (let y = 0; y < yf - banda; y++) for (let x = 0; x < HOJA.w; x++) PX.pset(HOJA.x + x, HOJA.y + y, S.buf[y * HOJA.w + x]);
+  for (let y = Math.max(0, yf - banda); y < yf; y++) {
+    const u = (y - (yf - banda)) / Math.max(1, banda);
+    for (let x = 0; x < HOJA.w; x++) PX.pset(HOJA.x + x, HOJA.y + y, tono(PAL.CREMA, 4.9 - 1.7 * u + (x === 0 || x === HOJA.w - 1 ? -1 : 0), HOJA.x + x, HOJA.y + y, 1));
+  }
+  if (yf < HOJA.h) PX.oscurecer(HOJA.x, HOJA.y + yf, HOJA.x + HOJA.w - 1, HOJA.y + Math.min(HOJA.h - 1, yf + 2), 0.35);
+}
+// una hoja que vuela: se da la vuelta (ancho × cos) y gira un poco mientras cae revoloteando
+function hojaVolando(n, tau) {
+  const x = HOJA.x + HOJA.w * 0.75 + 260 * tau + 14 * Math.sin(5 * tau + n), y = HOJA.y + 10 - 70 * tau + 260 * tau * tau;
+  const psi = 1.4 + 8.5 * tau + n * 0.7, th = 0.35 * Math.sin(5 * tau + n) + 1.1 * tau;
+  const cs = Math.cos(psi), sx = Math.max(0.06, Math.abs(cs)), escala = 0.62 - 0.12 * Math.min(1, tau * 1.5);
+  const hw = HOJA.w / 2 * escala, hh = HOJA.h / 2 * escala;
+  const ct = Math.cos(th), st = Math.sin(th), R = Math.hypot(hw * sx, hh) + 2;
+  const S = HOJAS[n];
+  for (let py = Math.floor(y - R); py <= Math.ceil(y + R); py++) for (let px = Math.floor(x - R); px <= Math.ceil(x + R); px++) {
+    if (px < 0 || py < 0 || px >= W || py >= H) continue;
+    const dx = px + 0.5 - x, dy = py + 0.5 - y;
+    const lx = (dx * ct + dy * st) / sx, ly = -dx * st + dy * ct;
+    if (Math.abs(lx) > hw || Math.abs(ly) > hh) continue;
+    const borde = Math.abs(lx) > hw - 1 / sx || Math.abs(ly) > hh - 1;
+    let c;
+    if (cs > 0) { const ix = clamp(Math.floor((lx / hw + 1) / 2 * HOJA.w), 0, HOJA.w - 1), iy = clamp(Math.floor((ly / hh + 1) / 2 * HOJA.h), 0, HOJA.h - 1); c = S.buf[iy * HOJA.w + ix]; }
+    else c = tono(PAL.CREMA, 3.2 + 0.6 * sx, px, py, 1);
+    if (borde) c = PAL.CREMA[1];
+    PX.pset(px, py, c);
+  }
+}
+function planoCalendario(t) {
+  PX.pegar(FONDO_K, 0, 0, { opaco: true });
+  PX.sombraRect(CAL.x + 5, CAL.y + 6, CAL.x + CAL.w + 5, CAL.y + CAL.h + 5, 0.5, 5);
+  blit(TABLERO, 0, 0);
+  // las hojas: once enteras y la duodécima, a medias
+  let n = 1, p = 0, temblor = 0;
+  const volando = [];
+  for (let k = 1; k <= 11; k++) {
+    const a = T.hoja0 + (k - 1) * T.hojaDt, b = a + 0.17;
+    if (t >= b) { n = k + 1; volando.push([k, t - b]); }
+    else if (t >= a) { n = k; p = entra(prog(t, a, b)); break; }
+  }
+  if (n === 12 && t >= T.media0) { p = 0.36 * sale(prog(t, T.media0, T.media1)); if (t > T.media1) temblor = t < QUIETO ? [0, 1, 0, 0, 1, 1, 0][fot(t, 10) % 7] : 0; }
+  if (p > 0) hojaPlegada(n, p, temblor); else blit(HOJAS[n], HOJA.x, HOJA.y);
+  blit(CABECERA, 0, 0);
+  // la niña, de medio cuerpo, mira el calendario
+  const tq = paso(t, 12);
+  const sigue = suave(T.hoja0 + 0.3, T.hoja0 + 0.8, tq);
+  PX.persona({ ...NINA, t, cabeza: { giro: 0.32, cabeceo: Math.round((0.12 - 0.1 * sigue) * 8) / 8 }, mira: [0.85, Math.round((-0.35 + 0.45 * sigue) * 4) / 4], sombra: 0 });
+  for (const [k, tau] of volando) if (tau < 0.9) hojaVolando(k, tau);
+}
+
+// ═════════════════════════════════════════════════════════════ PLANO 4: la pila de calendarios (PLANO GENERAL)
+const PILA = { n: 32, x: 410, w: 32, y0: 14, y1: 222 };
+const ALTO_B = (PILA.y1 - PILA.y0) / PILA.n;
+const yBloque = (i) => Math.round(PILA.y1 - (i + 1) * ALTO_B);           // borde de arriba del calendario i
+const BLOQUES = [0, 1, 2].map((var_) => capaDe(PILA.w + 2, 9, () => {
+  const w = PILA.w, h = 7;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let c;
+    if (y === 0) c = PAL.TERRACOTA[4];
+    else if (y === 1) c = PAL.TERRACOTA[3];
+    else if (y === 2) c = PAL.TERRACOTA[2];
+    else if (y === h - 1) c = NOGAL[1];
+    else c = tono(PAL.CREMA, (y % 2 ? 3.6 : 2.7) - 0.6 * (x / w) + (var_ - 1) * 0.3, x, y, 0.3);
+    if (x === 0) c = y < 3 ? PAL.TERRACOTA[1] : PAL.CREMA[1];
+    if (x === w - 1) c = y < 3 ? PAL.TERRACOTA[2] : PAL.CREMA[2];
+    PX.pset(x, y, c);
+  }
+  for (const rx of [7, w - 8]) { PX.pset(rx, 0, LAT[5]); PX.pset(rx, 1, LAT[3]); }
+}));
+const TAPA = capaDe(PILA.w + 2, 3, () => { PX.rect(1, 0, PILA.w - 2, 0, PAL.CREMA[5]); PX.rect(0, 1, PILA.w - 1, 1, PAL.CREMA[4]); PX.rect(5, 1, PILA.w - 6, 1, PAL.CREMA[3]); });
+const tAterriza = (i) => mezcla(T.pila0 + 0.2, T.pila1, (i / (PILA.n - 1)) ** 0.92);
+const jitB = (i) => Math.round((hash2(i, 41) - 0.5) * 4);
+const MONT_PIES = [{ x: 126, n: 6 }, { x: 182, n: 7 }];
+const MON_P = spriteMoneda(7, 2.5, 2);
+const SUELTAS = [[108, 222], [199, 223]];
+function montonesPies() {
+  for (const [x, y] of SUELTAS) { PX.sombra(x, y + 1, 7, 2, 0.4); blit(MON_P, x - MON_P.w / 2, y - MON_P.h + 2); }
+  for (const pm of MONT_PIES) {
+    PX.sombra(pm.x + 1, 220, 11, 3, 0.5);
+    for (let i = 0; i < pm.n; i++) blit(MON_P, pm.x - MON_P.w / 2 + Math.round((hash2(pm.x, i) - 0.5) * 3), 221 - MON_P.h - i * 3);
+  }
+}
+function pila(t) {
+  let caidos = 0;
+  PX.sombra(PILA.x + PILA.w / 2, 223, 24, 4, 0.55 * clamp((t - T.pila0) * 4, 0, 1));
+  for (let i = 0; i < PILA.n; i++) {
+    const ta = tAterriza(i);
+    if (t < ta - 0.22) break;
+    const yl = yBloque(i);
+    let y = yl;
+    if (t < ta) y = Math.round(mezcla(-14, yl, entra(prog(t, ta - 0.22, ta))));
+    else { caidos++; if (t < ta + 0.06) y = yl + 1; }
+    blit(BLOQUES[Math.floor(hash2(i, 7) * 3)], PILA.x + jitB(i), y);
+  }
+  if (caidos === PILA.n) blit(TAPA, PILA.x + jitB(PILA.n - 1), yBloque(PILA.n - 1) - 2);
+  return caidos;
+}
+function planoGeneral(t) {
+  const fin = t >= QUIETO;
+  PLATO.dibujar({ camX: FINP.camX, t: Math.min(t, QUIETO), polvo: fin ? 0 : 1 });
+  const caidos = pila(t);
+  const e = caidos / PILA.n;
+  const tq = paso(t, 12);
+  const mira = suave(T.pila0, T.pila0 + 0.35, tq) * (1 - suave(T.vuelve0, T.vuelve1, tq));
+  const alto = clamp(caidos / PILA.n, 0, 1);
+  const r8 = (v) => Math.round(v * 8) / 8;
+  const o = { x: 153, y: 214, altura: Math.round(mezcla(74, 118, e)), edad: e, pose: 'depie', t: fin ? 0 : t, vida: !fin };
+  if (!fin && mira > 0.01) Object.assign(o, { cabeza: { giro: r8(0.3 * mira), cabeceo: r8((0.1 + 0.3 * alto) * mira) }, mira: [r8(0.9 * mira), r8(-0.9 * alto * mira)] });
+  PX.persona(o);
+  montonesPies();
+}
+
+// ═════════════════════════════════════════════════════════════ dibujar(t)
+function dibujar(t) {
+  if (t < T.pasillo) PX.pegar(INICIO, 0, 0, { opaco: true });
+  else if (t < T.cajon) planoPasillo(t);
+  else if (t < T.calendario) planoCerebro(t);
+  else if (t < T.general) planoCalendario(t);
+  else planoGeneral(t);
+  PX.atom({ ...PX.ATOM_SITIO, t, energia: energia(t) });
+  PX.cartela(t, E.cartela);
+  PX.presentar(t);
+}
+function guias(k) {
+  PX.limpiar(PAL.TELON[3]);
+  const a = PX.persona({ x: 240, y: 262, altura: 250, edad: k, pose: 'depie', vida: false, sombra: 0 });
+  window.__info = { x: 240 * 4, coronilla: a.coronilla * 4, suela: a.suela * 4 };
+  PX.presentar(0);
+}
+// calienta las cachés (la primera persona de cada plano)
+{ const c = PX.nuevaCapa(W, H); PX.en(c, () => { planoPasillo(T.pasillo); planoCerebro(T.cajon); planoCalendario(T.calendario); planoGeneral(D); }); }
+window.__tiempos = { ...T, D, QUIETO, porque, caja: CAJA, pared: CAMINO.pared, total: CAMINO.total };
+window.__fin = { plato: FINP.plato, camX: FINP.camX, persona: { ...FINP.persona }, pila: { ...PILA, alto: ALTO_B }, monedas: MONT_PIES, atom: { ...PX.ATOM_SITIO }, desde: QUIETO };
+window.__carga = Math.round(performance.now() - c0);
+if (q.get('vista') === 'guias') { const k = Number(q.get('k') ?? 1); E.iniciar(() => guias(k)); }
+else E.iniciar(dibujar);
+</script>
+</body>
+</html>

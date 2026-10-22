@@ -212,6 +212,8 @@ const YC05 = (B05[0] + B05[1]) / 2;
 const FR05 = franjaEn(ESC_MEDIO);
 // la banda de pantalla (a 1 ×) que tocan los párpados al cerrarse (con las pestañas de arriba) y su pluma
 const BANDA = [Math.max(0, Math.round(B1[0] - 150)), Math.min(H, Math.round(B1[1] + 70))], PLUMA = 26;
+// (coste) y en x, solo lo que se ve en el primer plano del párpado (ESC_CERCA veces alrededor del centro), con margen
+const BANDA_X = [Math.round(960 - 960 / ESC_CERCA - 50), Math.round(960 + 960 / ESC_CERCA + 50)];
 
 // ---------------------------------------------------------------- el desfile por la franja (frase 5)
 const Z_IN = 7;                                            // el aumento dentro de la franja (respecto a ep3-hola)
@@ -362,6 +364,36 @@ function fotoFranja(fr, nf) {
   P.limpiar(); P.pieza(I.FR, { pos: fr.pos, escala: fr.escala, rot: fr.rot, variante: fr.alto }); P.render(nf, { fondo: false });
   return foto();
 }
+// (coste) las fotos grandes que no hacen falta en el fotograma 0 se hacen por bandas horizontales (la tijera de WebGL:
+// cada banda solo paga sus píxeles), una banda por fotograma barato (ver PREPARAR); con todas, F[clave] es la foto
+const BANDAS = {
+  // el ojo entero (frase 5, segunda mitad): una sola foto, con sus sombras de verdad
+  ojo05: { nf: 9102, filas: [0, 180, 360, 540, 585, 630, 675, 720, 810, 900, 1080],   // (la franja del párpado de abajo, cara: bandas finas)
+    poner: () => { ponerOjo(UO, { ...FIN, pupila: PUP, sombra: true }); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala * ESC_MEDIO, rot: EH.rot, variante: CAPA.TODO }); } },
+  // el telescopio del final con la receta de pintarFinOjo (encuadre, uniformes y nf del kit): la misma foto sirve para
+  // el final y para el telescopio que llega flotando
+  tele: { nf: FIN_OJO.NF, filas: [0, 400, 640, 1080],
+    poner: () => { ponerInstrumentos(UI, {}); instrumento(P, I.INS, { variante: 'telescopio', ...EFIN }); } },
+};
+function fotoBanda(clave, b) {
+  const d = BANDAS[clave];
+  d.hechas ??= [];
+  if (d.hechas[b]) return;
+  d.lienzo ??= lienzo();
+  P.fotograma(0); P.limpiar(); d.poner();
+  const kk = lienzoGL.width / W, y0 = d.filas[b], y1 = d.filas[b + 1];
+  P.renderer.setScissor(0, (H - y1) * kk, W * kk, (y1 - y0) * kk);
+  P.renderer.setScissorTest(true);
+  P.render(d.nf, { fondo: false });
+  P.renderer.setScissorTest(false);
+  const c = d.lienzo.getContext('2d'), sy = Math.round(y0 * kk), sh = Math.round(y1 * kk) - sy;
+  c.drawImage(lienzoGL, 0, sy, lienzoGL.width, sh, 0, sy, lienzoGL.width, sh);
+  c.getImageData(0, 0, 1, 1);
+  d.hechas[b] = true;
+  P.limpiar();
+  if (d.hechas.filter(Boolean).length === d.filas.length - 1) F[clave] = d.lienzo;
+}
+const bandasDe = (clave) => BANDAS[clave].filas.slice(1).map((_, b) => () => fotoBanda(clave, b));
 // 1 ×: las capas del final de ep3-hola (globo, párpados casi cerrados, franja) y el fotograma entero
 F.globo1 = fotoOjo(1, HOLA.ABRE, CAPA.GLOBO, HOLA.NF.globo); cargaT('globo1');
 F.cerrado1 = fotoOjo(1, FIN, CAPA.PARPADOS, HOLA.NF.cerrado); cargaT('cerrado1');
@@ -369,16 +401,15 @@ F.franja1 = fotoFranja({ ...EH.franja, alto: EH.franja.alto }, HOLA.NF.franja); 
 F.final1 = pintarFinalHola(P, UO, { ojo: I.OJO, franja: I.FR, cosa: I.COSA }, { fotos: { globo: F.globo1, franja: F.franja1, cerrado: F.cerrado1 } });
 cargaT('final1');
 F.sombra1 = sombraParpados(F.cerrado1, HOLA.SOMBRA);
-// 0,5 ×: el ojo entero (una sola foto, con sus sombras de verdad) y su franja
-F.ojo05 = fotoOjo(ESC_MEDIO, FIN, CAPA.TODO, 9102, true); cargaT('ojo05');
-F.franja05 = fotoFranja(FR05, 9103); cargaT('franja05');
+// 0,5 ×: el ojo entero y su franja (en fotogramas baratos: PREPARAR)
+function fotoFranja05() { if (F.franja05) return; P.fotograma(0); F.franja05 = fotoFranja(FR05, 9103); F.franja05.getContext('2d').getImageData(0, 0, 1, 1); P.limpiar(); }
 // los párpados cerrados (1 ×): la banda que cambia, en vivo, remendada sobre la foto FIN
 const REM = lienzo(), PARCHE = lienzo();
 function bandaParpados(estado, nf) {
   ponerOjo(UO, { ...estado, pupila: PUP, sombra: false });
   P.limpiar(); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala, rot: EH.rot, variante: CAPA.PARPADOS });
   const k = lienzoGL.width / W;
-  P.renderer.setScissor(0, (H - BANDA[1]) * k, W * k, (BANDA[1] - BANDA[0]) * k);
+  P.renderer.setScissor(BANDA_X[0] * k, (H - BANDA[1]) * k, (BANDA_X[1] - BANDA_X[0]) * k, (BANDA[1] - BANDA[0]) * k);
   P.renderer.setScissorTest(true);
   P.render(nf, { fondo: false });
   P.renderer.setScissorTest(false);
@@ -389,15 +420,35 @@ function bandaParpados(estado, nf) {
   pc.globalCompositeOperation = 'destination-in'; pc.setTransform(k, 0, 0, k, 0, 0);
   const [y0, y1] = BANDA, gy = pc.createLinearGradient(0, y0, 0, y1), p = PLUMA / (y1 - y0);
   gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(p, 'rgba(0,0,0,1)'); gy.addColorStop(1 - p, 'rgba(0,0,0,1)'); gy.addColorStop(1, 'rgba(0,0,0,0)');
-  pc.fillStyle = gy; pc.fillRect(0, y0, W, y1 - y0);
+  pc.fillStyle = gy; pc.fillRect(BANDA_X[0], y0, BANDA_X[1] - BANDA_X[0], y1 - y0);
   const rc = REM.getContext('2d');
   rc.setTransform(1, 0, 0, 1, 0, 0); rc.globalCompositeOperation = 'source-over';
   rc.clearRect(0, 0, REM.width, REM.height); rc.drawImage(F.cerrado1, 0, 0); rc.drawImage(PARCHE, 0, 0);
   return REM;
 }
 const CERRADO = { arriba: 1, abajo: 1 };
-F.cerr1 = (() => { const c = lienzo(); c.getContext('2d').drawImage(bandaParpados(CERRADO, 9105), 0, 0); return c; })(); cargaT('cerr1');
-F.sombraC1 = sombraParpados(F.cerr1, HOLA.SOMBRA);
+// los párpados cerrados, su sombra, el párpado de cerca cerrado y el fondo de los instrumentos (en fotogramas baratos:
+// PREPARAR, con el párpado de cerca aún abierto)
+function fotoCerrado() {
+  if (F.cerr1) return;
+  P.fotograma(0);
+  const c = lienzo(), gc = c.getContext('2d'); gc.drawImage(bandaParpados(CERRADO, 9105), 0, 0); gc.getImageData(0, 0, 1, 1);
+  F.cerr1 = c; P.limpiar();
+}
+function fotoCerca() {
+  if (F.cerca2) return;
+  F.sombraC1 = sombraParpados(F.cerr1, HOLA.SOMBRA);
+  const c = lienzo(), gc = c.getContext('2d'); gc.setTransform(KD, 0, 0, KD, 0, 0); componerCerca(gc, F.cerr1, F.sombraC1);
+  gc.getImageData(0, 0, 1, 1);
+  F.cerca2 = c;
+}
+function fotoFondoI() {
+  if (F.fondoI) return;
+  const c = lienzo(), gc = c.getContext('2d');
+  gc.filter = `blur(${(9 * KD).toFixed(1)}px) brightness(0.36) saturate(0.8)`; gc.drawImage(F.cerca2, 0, 0); gc.filter = 'none';
+  gc.getImageData(0, 0, 1, 1);
+  F.fondoI = c;
+}
 // el párpado de cerca: el globo (la foto de 1 ×, ampliada: solo asoma por la rendija), la sombra y los párpados
 function componerCerca(gx, parp, sombraP) {
   gx.fillStyle = '#0b0807'; gx.fillRect(0, 0, W, H);
@@ -407,13 +458,7 @@ function componerCerca(gx, parp, sombraP) {
   pegar(gx, parp, ESC_CERCA, c);
   vinetaOjo(gx, ESC_CERCA); gx.setTransform(KD, 0, 0, KD, 0, 0);
 }
-F.cerca2 = (() => { const c = lienzo(), gc = c.getContext('2d'); ajustarCapa(); gc.setTransform(KD, 0, 0, KD, 0, 0); componerCerca(gc, F.cerr1, F.sombraC1); return c; })();
-// el fondo de los instrumentos: el ojo cerrado de cerca, oscuro y desenfocado (horneado)
-F.fondoI = (() => {
-  const c = lienzo(), gc = c.getContext('2d');
-  gc.filter = `blur(${(9 * KD).toFixed(1)}px) brightness(0.36) saturate(0.8)`; gc.drawImage(F.cerca2, 0, 0); gc.filter = 'none';
-  return c;
-})();
+ajustarCapa();
 // dentro de la franja: oscuro cálido con una bruma de luz a lo largo y motas desenfocadas (una tira el doble de ancha
 // que la pantalla, que corre despacio hacia la izquierda: la cámara viaja por la franja)
 F.dentro = (() => {
@@ -438,16 +483,15 @@ F.dentro = (() => {
   return c;
 })();
 cargaT('compuestas');
-// el cielo y el final (FIN_OJO: la receta del kit de instrumentos)
-F.cielo = cieloOjo(lienzo());
-// el telescopio del final con la receta de pintarFinOjo (encuadre, uniformes y nf del kit): la misma foto sirve para el
-// final y para el telescopio flotando
-F.tele = (() => {
-  ponerInstrumentos(UI, {});
-  P.limpiar(); instrumento(P, I.INS, { variante: 'telescopio', ...EFIN }); P.render(FIN_OJO.NF, { fondo: false });
-  return foto();
-})();
-F.fin = pintarFinOjo(P, UI, I.INS, { fotos: { cielo: F.cielo, telescopio: F.tele } }); cargaT('fin');
+// el cielo y el final (FIN_OJO: la receta del kit de instrumentos, con la foto del telescopio por bandas), en fotogramas
+// baratos: PREPARAR
+function fotoCielo() { if (F.cielo) return; F.cielo = cieloOjo(lienzo()); F.cielo.getContext('2d').getImageData(0, 0, 1, 1); }
+function fotoFin() {
+  if (F.fin) return;
+  F.fin = pintarFinOjo(P, UI, I.INS, { fotos: { cielo: F.cielo, telescopio: F.tele } });
+  F.fin.getContext('2d').getImageData(0, 0, 1, 1);
+  P.limpiar();
+}
 
 // ---------------------------------------------------------------- composiciones
 const CAPA_OBJ = lienzo(), CAPA_TMP = lienzo();
@@ -513,10 +557,17 @@ function aumento(ts) {
 // Se hacen en fotogramas baratos poco antes de hacer falta, una por fotograma (al renderizar en orden); si se pide un
 // instante posterior sin pasar por ellos, se hacen todas las pendientes. Cada una lee un píxel de su lienzo para que el
 // trabajo aplazado del lienzo 2D no caiga en el fotograma siguiente.
-//  · los párpados enormes y desenfocados de dentro de la franja: durante el empuje;
-//  · el microscopio y las tres bandas del anillo: con el ojo ya cerrado (antes de oscurecerse).
-const PREPARAR = [[T.entra0 + 0.25, parpDentro],
-  [T.cierra1 + 0.04, fotoMicro], [T.cierra1 + 0.12, () => fotoAnillo(0)], [T.cierra1 + 0.2, () => fotoAnillo(1)], [T.cierra1 + 0.29, () => fotoAnillo(2)]];
+//  · durante el empuje: los párpados enormes y desenfocados de dentro de la franja, el ojo entero (diez bandas) y su franja;
+//  · con el párpado de cerca aún abierto: los párpados cerrados, el párpado de cerca cerrado y el fondo de los instrumentos;
+//  · con el ojo ya cerrado: el microscopio y las tres bandas del anillo;
+//  · mientras pasan el microscopio y el anillo: el cielo, el telescopio (tres bandas) y el final.
+const cada = (t0, fs) => fs.map((f, i) => [t0 + i / 12 + 1e-4, f]);
+const PREPARAR = [
+  ...cada(T.entra0, [parpDentro, ...bandasDe('ojo05'), fotoFranja05]),
+  ...cada(T.cerca + 0.1, [fotoCerrado, fotoCerca, fotoFondoI]),
+  ...cada(T.cierra1 + 0.04, [fotoMicro, () => fotoAnillo(0), () => fotoAnillo(1), () => fotoAnillo(2)]),
+  ...cada(m.medir + 0.25, [fotoCielo, ...bandasDe('tele'), fotoFin]),
+];
 function preparar(ts) { for (const [t0, f] of PREPARAR) if (ts >= t0) f(); }
 
 // ---------------------------------------------------------------- fotograma

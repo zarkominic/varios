@@ -33,6 +33,12 @@
 // hélice (corre) y la cabeza de la persona (el calendario, quieto, va en la foto del decorado con «2026» y, en C, en una
 // foto encima con «2121»); en el plano medio la cabeza (las canas) y el calendario (sus hojas). Las sombras de la hélice
 // y del calendario grande en el telón, la luz del peldaño en la cara y los cambios de plano son 2D.
+// COSTE (22-10-2026, los 183 fotogramas en orden, con el servidor a carga 20–25 y otras escenas renderizando; CPU del
+// navegador sumando hilos): lista en 55 s de pared (33 s de CPU; a carga ~12, 34 s). Plano general con la hélice viva
+// (A y C) ~5,1–5,2 s de CPU (máx. 6,0; de pared, 1,5–3 s a carga ~10 y ~7 s a carga 25); plano medio ~3,3 (máx. 3,8);
+// los tramos de fotos (principio, cambios de plano, hélice parada, acercamiento y peldaño) ~1,1 (máx. 1,6). Los
+// fotogramas que hacen una foto pesan más: n 1 (decorado A, estreno de la persona) 14, n 3 (decorado B) 9, n 4 (la mano)
+// 10, n 55 (la hélice del final) 9, n 132 (el plano general de salida) 7, n 135 (el peldaño de bolitas) 15.
 // Piezas propias de la escena (tiposExtra, aquí abajo): el sillón orejero y la «ofrenda» (la manga de punto, la bandeja,
 // el bocadillo y el termo, en el marco de la mano del kit, la pieza 'mano'). La hélice es de kits/ep03-adn.js; el
 // calendario, de kits/ep03-tiempo.js; el peldaño de bolitas, de kits/ep03-tocar.js.
@@ -305,7 +311,7 @@ const PIEZAS = ['reglaA', 'flecha', 'helice', 'humano', 'calendario', 'sillon', 
 const I = Object.fromEntries(PIEZAS.map((t, i) => [t, i]));
 const P = await crearPlato({
   piezas: PIEZAS, mano: false, alfa: true, post: false,
-  sombraFondo: ['humano', 'sillon', 'peldano', 'calendario'].map((k) => `p${I[k]}`),
+  sombraFondo: ['humano', 'sillon', 'peldano'].map((k) => `p${I[k]}`),
   tiposExtra: { ...tiposAdn(['helice']), ...tiposTiempo(['calendario']), ...tiposTocar(['peldano']), sillon: SILLON, ofrenda: OFRENDA },
   uniformes: uniformesTiempo(),
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
@@ -438,10 +444,16 @@ function cabeza(ts, PER, obj) {
 function hacerDecorado(PER, obj, n, conCal = false) {
   P.fotograma(T.t1[1]); P.limpiar();
   P.pieza(I.sillon, sillonDe(PER));
-  if (conCal) calendario(P, I.calendario, { ...CAL_A, numero: 2026, anterior: 2025, hoja: 0 });
   P.pieza(I.humano, { ...PER, postura: poseLectura(T.t1[1], PER, obj), aspecto: aspectoEn(0), t: 0, partes: ['cuerpo', 'manos'], huellaFija: HUELLA });
   P.render(n);
-  return foto(P);
+  const f = foto(P);
+  if (conCal) {
+    // el calendario quieto (2026), con su sombra 2D en el telón (la misma convención que la hélice: abajo a la derecha)
+    P.limpiar(); calendario(P, I.calendario, { ...CAL_A, numero: 2026, anterior: 2025, hoja: 0 }); P.render(n + 10, { fondo: false });
+    const gf = ctx(f);
+    sombra(gf, lienzoGL, SOMBRA_CA); gf.drawImage(lienzoGL, 0, 0, W, H);
+  }
+  return f;
 }
 // para atomo/herramientas/guias-humano.py (sentada: valen las líneas de la cabeza y los hombros): x de la cabeza,
 // coronilla y la suela que tendría de pie (coronilla + H en px a la altura de la cabeza)
@@ -456,6 +468,7 @@ function guias(h, PER) {
 // una franja de x (la de la hélice o la del calendario)
 const SOMBRA_F = { dx: 115, dy: 42, blur: 24, alfa: 0.42, x0: 430, x1: 1580 };               // la de ep3-adn
 const SOMBRA_A = { dx: 70, dy: 26, blur: 18, alfa: 0.38, x0: C_HX_A[0] - 1.45 * RA, x1: C_HX_A[0] + 1.45 * RA + 70 };
+const SOMBRA_CA = (() => { const c = pant(CAL_A.pos); return { dx: 34, dy: 14, blur: 11, alfa: 0.32, x0: c[0] - 80, x1: c[0] + 120 }; })();
 const SOMBRA_CB = (() => { const c = pant(CAL_B.pos); return { dx: 60, dy: 22, blur: 16, alfa: 0.35, x0: Math.max(335, c[0] - 200), x1: c[0] + 260 }; })();
 function sombra(gx, src, S) {
   const k = src.width / W, m = 2 * S.blur;
