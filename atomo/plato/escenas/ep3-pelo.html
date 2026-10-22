@@ -53,7 +53,7 @@
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, postura } from '/atomo/plato/kits/plastilina-adulta.js';
-import { tiposOjo, uniformesOjo, ponerCorte } from '/atomo/plato/kits/ep03-ojo.js';
+import { tiposOjo, uniformesOjo, ponerCorte, puntosCorte } from '/atomo/plato/kits/ep03-ojo.js';
 
 const T0 = performance.now();
 // lo que tarda cada paso de la carga (ms desde el principio), para medirla
@@ -180,7 +180,7 @@ const P = await crearPlato({
   piezas: ['humano', 'reglaA', 'flecha', 'mano', 'piel', 'pelo', 'tronco', 'cota', 'etiqueta', 'libro', 'ojoCorte'],
   alfa: true, post: false, cartela: E.cartela,
   tiposExtra: { libro: LIBRO, ojoCorte: tiposOjo({ cosas: ['celula'] }).ojoCorte }, uniformes: UO,
-  sombraFondo: ['p0', 'p3', 'p4', 'p5', 'p6', 'p9', 'p10'],
+  sombraFondo: ['p0', 'p1', 'p3', 'p4', 'p5', 'p6', 'p9', 'p10'],
   sombras: { p6: ['p8'], p0: ['atomo'], p9: ['p0'] },
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
 });
@@ -308,13 +308,21 @@ function nivel4(ts) {
 const NIVEL = [nivel0, nivel1, nivel2, nivel3, nivel4];
 // desenfoque de basculante (maqueta de macro), como en la prueba
 const BASC = { 1: [600, 260, 10], 2: [700, 120, 16], 3: [640, 160, 14] };
+// (coste) desenfoque a media resolución (un cuarto de los píxeles y la mitad de radio: lo desenfocado no pierde nada),
+// con los bordes alargados para que no entre negro
+function desenfocar(src, radio) {
+  const r = radio * src.width / W / 2, pad = Math.ceil(3 * r), w = Math.ceil(src.width / 2), h = Math.ceil(src.height / 2);
+  const a = document.createElement('canvas'); a.width = w + 2 * pad; a.height = h + 2 * pad;
+  const ga = a.getContext('2d');
+  ga.drawImage(src, 0, 0, a.width, a.height); ga.drawImage(src, pad, pad, w, h);
+  const b = document.createElement('canvas'); b.width = a.width; b.height = a.height;
+  const gb = b.getContext('2d'); gb.filter = `blur(${r}px)`; gb.drawImage(a, 0, 0); gb.filter = 'none';
+  const c = lienzo(); c.getContext('2d').drawImage(b, pad, pad, w, h, 0, 0, c.width, c.height);
+  return c;
+}
 function basculante(src, [yF, ancho, radio]) {
-  const pad = 3 * radio, cw = src.width, ch = src.height, ks = cw / W;
-  const b = document.createElement('canvas'); b.width = cw + 2 * pad; b.height = ch + 2 * pad;
-  const gb = b.getContext('2d');
-  gb.drawImage(src, 0, 0, b.width, b.height); gb.drawImage(src, pad, pad);
-  const c = lienzo(), gc = c.getContext('2d');
-  gc.filter = `blur(${radio * ks}px)`; gc.drawImage(b, -pad, -pad); gc.filter = 'none';
+  const cw = src.width, ch = src.height;
+  const c = desenfocar(src, radio), gc = c.getContext('2d');
   gc.globalCompositeOperation = 'destination-in';
   const gr = gc.createLinearGradient(0, 0, 0, ch);
   const f = (y) => cl(y / H);
@@ -346,8 +354,7 @@ function fotoHombro() {
   P.pieza(I.LIB, { pos: LIB_H.pos, escala: LIB_H.escala, rot: LIB_H.rot, color: aaLibro(LIB_H) });
   P.render(2001);
   // el hombro de primer término, desenfocado (el foco está en la cara y en el libro)
-  const f = foto(), c = lienzo(), gc = c.getContext('2d'), k = c.width / W;
-  gc.filter = `blur(${9 * k}px)`; gc.drawImage(f, 0, 0); gc.filter = 'none';
+  const f = foto(), c = desenfocar(f, 9), gc = c.getContext('2d'), k = c.width / W;
   gc.globalCompositeOperation = 'destination-in';
   const gr = gc.createLinearGradient(0, 700 * k, 0, 830 * k);
   gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
@@ -359,11 +366,7 @@ function fotoHombro() {
   return f;
 }
 // la página de cerca, desenfocada (lo que el ojo ya no separa)
-function fotoBorrosa(src) {
-  const c = lienzo(), gc = c.getContext('2d');
-  gc.filter = `blur(${9 * c.width / W}px)`; gc.drawImage(src, 0, 0); gc.filter = 'none';
-  return c;
-}
+function fotoBorrosa(src) { return desenfocar(src, 9); }
 function fotoFondo() { P.limpiar(); P.render(2003); return foto(); }
 function pintarPagina() {
   P.limpiar();
@@ -432,7 +435,7 @@ function ojo(ts) {
   const haces = eio(prog(ts, T.luz0, T.luz1)), brillo = eio(prog(ts, T.puntos0, T.puntos1));
   ponerCorte(UO, { separacion: 6, brillo, haces });
   P.pieza(I.CORTE, { pos: OJO.pos, escala: esc, rot, variante: OJO.variante, toque: kG < 1 });
-  return { haces, brillo };
+  return { haces, brillo, rot, esc };
 }
 
 // la luz llega del libro (fuera del cuadro, a la derecha): los haces se funden con el plató antes de la regla (se tapan
@@ -452,6 +455,17 @@ function luzLibro(O) {
   gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(0.15, 'rgba(0,0,0,1)'); gy.addColorStop(0.85, 'rgba(0,0,0,1)'); gy.addColorStop(1, 'rgba(0,0,0,0)');
   gm.fillStyle = gy; gm.fillRect(0, 0, W, H);
   g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(m, 0, 0); g.restore();
+  // los dos puntos de luz sobre la rejilla, con un brillo suave (se leen en el móvil); variante 1: x en espejo
+  if (O.brillo > 0.01) {
+    g.save(); g.globalCompositeOperation = 'lighter';
+    for (const q of puntosCorte(6)) {
+      const p = pant(mundo(OJO.pos, O.rot, O.esc, [OJO.variante ? -q[0] : q[0], q[1], q[2]]));
+      const gr = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], 34);
+      gr.addColorStop(0, `rgba(255,222,165,${0.55 * O.brillo})`); gr.addColorStop(0.35, `rgba(255,200,130,${0.2 * O.brillo})`); gr.addColorStop(1, 'rgba(255,190,120,0)');
+      g.fillStyle = gr; g.fillRect(p[0] - 34, p[1] - 34, 68, 68);
+    }
+    g.restore();
+  }
   // resplandor: la luz que entra por la derecha, hacia la córnea
   const kl = O.haces;
   if (kl < 0.01) return;
@@ -580,7 +594,7 @@ let hechasAhora = 0, tFot = null;
 // (coste) las fotos más caras (la mano, la piel y la página de cerca, que llenan el cuadro) se pintan en FRANJAS
 // horizontales (setScissor, como los párpados de ep3-hola), una por fotograma; la sombra y el fondo son los mismos en
 // todas, así que las franjas casan. Su número de fotograma (el hervor) es fijo.
-const FRANJAS = { nivel1: 4, nivel2: 2, pagina: 2 };
+const FRANJAS = { nivel1: 6, nivel2: 3, pagina: 2 };
 const PARCIAL = {};
 function pintarFranja(k, b, pintar) {
   const N = FRANJAS[k], p = (PARCIAL[k] ??= { c: lienzo(), hechas: 0 });
@@ -632,11 +646,12 @@ function F(k) {
 const PREPARAR = [
   // en los fotogramas de la persona (1–14): sus fotos y los estrenos de los saltos, de una en una
   [0.05, 'nivel0', SALTO[0][1]], [0.05, 'e:mano', SALTO[0][1]],
-  ...[0, 1, 2, 3].map((b) => [0.05, `nivel1#${b}`, SALTO[1][1]]), [0.05, 'nivel1', SALTO[1][1]],
-  [0.05, 'e:piel', SALTO[1][1]], [0.05, 'nivel2#0', SALTO[2][1]], [0.05, 'nivel2#1', SALTO[2][1]], [0.05, 'nivel2', SALTO[2][1]],
-  [0.05, 'e:pelo', SALTO[2][1]], [0.05, 'nivel3', SALTO[3][1]], [0.05, 'e:tronco', SALTO[3][1]], [0.05, 'nivel4', SALTO[3][1]],
-  // en los saltos (fotogramas de dos fotos en 2D, los más baratos): los estrenos de lo que queda, la lectura y el ojo
-  [SALTO[0][0], 'e:cota', T.decima], [SALTO[0][0], 'e:etiqueta', T.milimetro], [SALTO[0][0], 'e:libro', T.empuje1],
+  ...[0, 1, 2, 3, 4, 5].map((b) => [0.05, `nivel1#${b}`, SALTO[1][1]]), [0.05, 'nivel1', SALTO[1][1]],
+  [0.05, 'e:piel', SALTO[1][1]], [0.05, 'e:pelo', SALTO[2][1]], [0.05, 'e:tronco', SALTO[3][1]],
+  [0.05, 'e:cota', T.decima], [0.05, 'e:etiqueta', T.milimetro],
+  // en los saltos (fotogramas de dos fotos en 2D, los más baratos): el resto de decorados, la lectura y el ojo
+  ...[0, 1, 2].map((b) => [SALTO[0][0], `nivel2#${b}`, SALTO[2][1]]), [SALTO[0][0], 'nivel2', SALTO[2][1]],
+  [SALTO[0][0], 'nivel3', SALTO[3][1]], [SALTO[0][0], 'nivel4', SALTO[3][1]], [SALTO[0][0], 'e:libro', T.empuje1],
   [SALTO[0][0], 'hombro', T.empuje1], [SALTO[0][0], 'pagina#0', T.ojo], [SALTO[0][0], 'pagina#1', T.ojo], [SALTO[0][0], 'pagina', T.ojo],
   [SALTO[0][0], 'borrosa', T.ojo], [SALTO[0][0], 'e:corte', D + 1], [SALTO[0][0], 'fondo', D + 1],
 ];
@@ -656,6 +671,16 @@ const FOCO = [
   pant(mundo(PELO, ROT_PELO, E_PELO, [0, 1.9, 0.8])),
 ];
 const ZONA_FINA = zonaFina(LIB_C);
+// (coste) los programas del fotograma 0 (la persona con sus celdas, la regla, la flecha, Atom y la cartela) se estrenan al
+// cargar dibujándolo entero con un recorte de un píxel: SwiftShader los compila sin pagar el relleno
+(() => {
+  const sz = P.renderer.getSize(new THREE.Vector2());
+  P.renderer.setScissor(0, sz.y - 1, 1, 1); P.renderer.setScissorTest(true);
+  P.fotograma(0); P.limpiar(); nivel0(0); atomo(0); regla(0); cartela(P, 0, E.cartela);
+  P.render(0);
+  P.renderer.setScissorTest(false);
+  hito('estreno0');
+})();
 // ?prepararTodo: lo hace todo al cargar (para medir cuánto cuesta cada cosa)
 if (new URLSearchParams(location.search).has('prepararTodo')) for (const [, k] of PREPARAR) F(k);
 window.__carga = Math.round(performance.now() - T0);

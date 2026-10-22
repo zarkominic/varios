@@ -790,7 +790,8 @@ function ondasAnt(ts) {
       g.lineWidth = 4 - 2 * v;
       g.beginPath(); g.arc(o[0], o[1], R, an - 0.32, an + 0.32); g.stroke();
     }
-    const kb = Math.exp(-Math.max(0, ts - nb.t) / 0.25) * (ts >= nb.t ? 1 : 0);
+    // al llegar la onda, la nube brilla y se queda con un resplandor tenue (el gas que marca la antena)
+    const kb = ts >= nb.t ? Math.exp(-(ts - nb.t) / 0.25) + 0.45 * ss(nb.t, nb.t + 0.5, ts) * (1 - ss(T.entera[0], T.entera[1], ts)) : 0;
     if (kb > 0.02) {
       g.globalCompositeOperation = 'screen';
       const h = g.createRadialGradient(nb.x, nb.y, 0, nb.x, nb.y, nb.R * 1.1);
