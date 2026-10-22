@@ -27,17 +27,19 @@
 //         del plano medio ampliado; al llegar cierra los ojos y la cara, que sigue entrando (foto, cada vez más
 //         desenfocada), se funde con el ojo enorme del kit (kits/ep03-ojo.js), casi cerrado (como al final de la
 //         escena) y centrado en el mismo sitio. El ojo enorme se abre de par en par: en él, la galaxia arriba y la célula
-//         y el átomo abajo; delante se enciende la franja de luz. A mitad de frase el párpado de abajo sube y tapa la célula y el átomo, que se apagan, y el de
-//         arriba baja y tapa el otro lado de la galaxia; quedan casi cerrados sobre la franja (termina_con).
+//         y el átomo abajo; delante se enciende la franja de luz. A mitad de frase, uno tras otro, el párpado de abajo
+//         sube y tapa la célula y el átomo, que se apagan, y el de arriba baja y tapa el otro lado de la galaxia; quedan
+//         casi cerrados sobre la franja (termina_con).
 // FINAL = PRINCIPIO DE ep3-ojo: desde que los párpados se cierran (T.arriba1) el cuadro es pintarFinalHola(...) del kit
 // (globo, cosas apagadas, sombra de los párpados, párpados casi cerrados, viñeta, franja con su halo y la sombra bajo
 // Atom; las medidas, en HOLA y encuadreHola) más Atom en su sitio de presentador (HOLA.ATOM: centro (230, 780), órbitas
 // de 180 px, quieto) y el post. ep3-ojo pinta su primer fotograma con la misma función (y los mismos índices de pieza
 // si quiere el mismo hervor) y lo compara con la captura de t = 19,153 de esta escena. window.__fin lo resume.
-// Coste: la cámara del plató es fija; lo quieto son fotos hechas al cargar (el plató vacío, el fondo del plano medio sin
-// la persona, la cara al final del zum, el globo del ojo, las tres cosas encendidas y apagadas, los párpados abiertos y
-// casi cerrados y el final). En cada fotograma se dibujan solo Atom (en su pasada), la persona y la regla cuando se mueven
-// y los párpados del ojo enorme mientras se abren o se cierran (solo su zona).
+// Coste: la cámara del plató es fija; lo quieto son fotos: el plató vacío, al cargar; las del tramo final (el fondo del
+// plano medio sin la persona, la cara al final del zum, el globo del ojo, las tres cosas encendidas y apagadas, los
+// párpados abiertos y casi cerrados y el final), en segundo plano nada más cargar (ver FOTOS). En cada fotograma se
+// dibujan solo Atom (en su pasada), la persona y la regla cuando se mueven y los párpados del ojo enorme mientras se
+// abren o se cierran (solo la zona del que se mueve).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, azar, postura } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -72,8 +74,10 @@ T.fun1 = T.fun0 + 0.32;          // …que ya llena la pantalla (el ojo enorme e
 T.abreOjo0 = T.fun1 - 0.06; T.abreOjo1 = T.abreOjo0 + 0.42;   // el ojo enorme se abre (se ven las cosas)
 T.ojo1 = T.abreOjo1 - 0.05;      // y delante se enciende la franja
 const mitad4 = mix(m.ojos, m.ojosFin, 0.5);
-T.abajo0 = mitad4 - 0.45; T.abajo1 = mitad4 + 0.45;   // el párpado de abajo sube (célula y átomo)
-T.arriba0 = mitad4 + 0.05; T.arriba1 = mitad4 + 1.15; // el de arriba baja (la galaxia)
+// a mitad de frase, uno detrás de otro (nunca los dos a la vez: así cada fotograma pinta en vivo solo la mitad del ojo
+// que se mueve, ver zonaParpados): primero sube el de abajo (célula y átomo) y luego baja el de arriba (la galaxia)
+T.abajo0 = mitad4 - 0.6; T.abajo1 = mitad4 + 0.15;
+T.arriba0 = T.abajo1; T.arriba1 = T.arriba0 + 1.0;
 
 // ---------------------------------------------------------------- la regla corriente (pieza propia)
 // Listón de boj de 50 cm con las marcas de los centímetros grabadas (sin números). Local: largo de −1 a 1, ancho 0,12,
@@ -455,8 +459,12 @@ const FOTO_PLATO = foto();
   P.pieza(I.FR, { pos: en(1960, -40, 0), escala: 0.02, variante: FR_ALTO });
   P.pieza(I.COSA, { pos: en(1960, 1120, 0), escala: 0.02, variante: COSA.CELULA });
   P.render(9010, { fondo: false });
-  // y una vez la persona con la regla y el fondo (el primer fotograma que los pinta pagaba ~1,5 s de más)
+  // y una vez la persona con la regla y el fondo (el primer fotograma que los pinta pagaba ~1,5 s de más); con la tijera
+  // en un cuadrito: los programas se compilan igual y no se paga un fotograma entero
+  const sz = P.renderer.getSize(new THREE.Vector2()), k = sz.x / W;
+  P.renderer.setScissor(600 * k, 500 * k, 8 * k, 8 * k); P.renderer.setScissorTest(true);
   P.limpiar(); personaGeneral(T.entra1 + 0.5); P.render(9011);
+  P.renderer.setScissorTest(false);
 }
 // el plano medio en su último instante (solo el esqueleto: sin pintar) para encajar el empuje: el centro de los ojos y su
 // ojo izquierdo (a la derecha de la pantalla), en el mundo
@@ -506,10 +514,14 @@ function personaEmpuje(ts) {
 }
 const FONDO_PAD = 160;   // margen del fondo del empuje (px de diseño)
 
-// Las fotos se pintan al cargar (antes, la primera vez que hacían falta: un fotograma suelto a mitad de escena pagaba
-// todas de golpe). FOTOS[k]() la devuelve.
+// Las fotos del tramo final (desde el empuje, t ≥ 14 s) no se pintan al cargar, sino en segundo plano justo después
+// (window.__listo): una por tarea, en el orden en que hacen falta, mientras se dibujan los primeros fotogramas, que no
+// las usan. Al cargar costaban ~95 s de CPU con el servidor ocupado (~140 de los ~220 s de pared de la carga). Si un
+// fotograma las necesita antes de que estén (una captura suelta del final nada más cargar), las pinta él al empezar
+// (prepararFotos), con el mismo resultado: cada foto se pinta con el reloj del plató en 0 (P.fotograma(0), del que
+// depende la huella de las piezas) y su nf, sea cuando sea. FOTOS[k]() la devuelve.
 const FOTOS = {};
-const perezosa = (k, desde, hacer) => { let v = null; FOTOS[k] = Object.assign(() => v ?? (v = hacer()), { desde }); };
+const perezosa = (k, desde, hacer) => { let v = null; FOTOS[k] = Object.assign(() => v ?? (P.fotograma(0), v = hacer()), { desde }); };
 // el fondo del empuje: el plano medio en su último instante sin la persona ni la regla (con su sombra en el ciclorama):
 // fuera de su silueta (algo engordada), la foto del plano medio; dentro, la del plató vacío
 perezosa('fondoMedio', T.empuje, () => {
@@ -576,10 +588,21 @@ perezosa('final', T.empuje, () => pintarFinalHola(P, UO, { ojo: I.OJO, franja: I
   fotos: { globo: FOTOS.globo(), franja: FOTOS.franja(), cerrado: FOTOS.casiCerrados(), cosasApagadas: (FOTOS.cosas(), COSAS.map((c) => c.off)) },
 }));
 // la zona de los párpados (px de diseño: x0, y0, x1, y1) y el remiendo: la foto de la cara con esa zona pintada de
-// nuevo, con el borde fundido (la exposición y el hervor de cada fotograma no dejan costura)
+// nuevo, con el borde fundido (la exposición y el hervor de cada fotograma no dejan costura). Fuera de ZONA los párpados
+// no cambian nada (medido: la diferencia entre abiertos y casi cerrados cae en x 209–1744, y 25–902).
 const ZONA = [190, 0, 1730, 905], BORDE = 48;
+// (coste) mientras se mueve un solo párpado se pinta en vivo solo su mitad: el de arriba no baja de la franja ni el de
+// abajo sube de ella (sus bordes quedan a ±31 px del centro, y = 540), y lo demás es la foto del otro párpado quieto en
+// el mismo estado: abiertos de par en par mientras sube el de abajo; casi cerrados mientras baja el de arriba (el de
+// abajo ya está en FIN). Al abrirse el ojo se mueven los dos: la zona entera.
+const ZONA_ABAJO = [ZONA[0], 470, ZONA[2], ZONA[3]], ZONA_ARRIBA = [ZONA[0], 0, ZONA[2], 640];
+function zonaParpados(ts) {
+  if (ts >= T.abajo0 && ts < T.abajo1) return { zona: ZONA_ABAJO, base: FOTOS.parpados };
+  if (ts >= T.arriba0) return { zona: ZONA_ARRIBA, base: FOTOS.casiCerrados };
+  return { zona: ZONA, base: FOTOS.parpados };
+}
 const REMIENDO = lienzo(), PARCHE = lienzo();
-function remendar(base) {
+function remendar(base, R = ZONA) {
   const kd = REMIENDO.width / W;
   const pc = PARCHE.getContext('2d');
   pc.setTransform(1, 0, 0, 1, 0, 0); pc.globalCompositeOperation = 'source-over';
@@ -587,14 +610,16 @@ function remendar(base) {
   pc.drawImage(lienzoGL, 0, 0);
   pc.globalCompositeOperation = 'destination-in';
   pc.setTransform(kd, 0, 0, kd, 0, 0);
-  // máscara: la zona con los bordes en degradado (arriba no hace falta: es el borde del cuadro)
-  const [x0, y0, x1, y1] = ZONA;
+  // máscara: la zona con los bordes en degradado (en el borde del cuadro no hace falta)
+  const [x0, y0, x1, y1] = R;
+  const bA = y0 > 0 ? BORDE : 0, bB = y1 < H ? BORDE : 0;
   const gx = pc.createLinearGradient(x0, 0, x1, 0);
   gx.addColorStop(0, 'rgba(0,0,0,0)'); gx.addColorStop(BORDE / (x1 - x0), 'rgba(0,0,0,1)');
   gx.addColorStop(1 - BORDE / (x1 - x0), 'rgba(0,0,0,1)'); gx.addColorStop(1, 'rgba(0,0,0,0)');
   pc.fillStyle = gx; pc.fillRect(x0, y0, x1 - x0, y1 - y0);
   const gy = pc.createLinearGradient(0, y0, 0, y1);
-  gy.addColorStop(0, 'rgba(0,0,0,1)'); gy.addColorStop(1 - BORDE / (y1 - y0), 'rgba(0,0,0,1)'); gy.addColorStop(1, 'rgba(0,0,0,0)');
+  gy.addColorStop(0, `rgba(0,0,0,${bA ? 0 : 1})`); gy.addColorStop(bA / (y1 - y0), 'rgba(0,0,0,1)');
+  gy.addColorStop(1 - bB / (y1 - y0), 'rgba(0,0,0,1)'); gy.addColorStop(1, `rgba(0,0,0,${bB ? 0 : 1})`);
   pc.globalCompositeOperation = 'destination-in';
   pc.fillStyle = gy; pc.fillRect(x0, y0, x1 - x0, y1 - y0);
   const rc = REMIENDO.getContext('2d');
@@ -602,12 +627,9 @@ function remendar(base) {
   rc.clearRect(0, 0, REMIENDO.width, REMIENDO.height);
   // fuera de la zona, la foto; dentro, lo nuevo (con el borde fundido sobre la foto)
   rc.drawImage(base, 0, 0);
-  rc.save(); rc.setTransform(kd, 0, 0, kd, 0, 0);
-  rc.beginPath(); rc.rect(ZONA[0] + BORDE, ZONA[1], ZONA[2] - ZONA[0] - 2 * BORDE, ZONA[3] - ZONA[1] - BORDE);
-  rc.restore();
   rc.save(); rc.globalCompositeOperation = 'destination-out';
   rc.setTransform(kd, 0, 0, kd, 0, 0);
-  rc.fillStyle = '#000'; rc.fillRect(ZONA[0] + BORDE, ZONA[1], ZONA[2] - ZONA[0] - 2 * BORDE, ZONA[3] - ZONA[1] - BORDE);
+  rc.fillStyle = '#000'; rc.fillRect(x0 + BORDE, y0 + bA, x1 - x0 - 2 * BORDE, y1 - y0 - bA - bB);
   rc.restore();
   rc.drawImage(PARCHE, 0, 0);
   return REMIENDO;
@@ -639,6 +661,7 @@ function componerOjo(ts, parpados, nf) {
 }
 // la cara durante el empuje: el fondo del plano medio ampliado con el zum y la persona en vivo encima (gx en px de diseño)
 function pintarCara(ts, gx, nf) {
+  FOTOS.fondoMedio();   // (antes de pintar a la persona: si aún no está, se pinta ahora y usa el lienzo de WebGL)
   P.limpiar();
   const { e } = personaEmpuje(ts);
   P.render(nf, { fondo: false });
@@ -654,10 +677,18 @@ function pintarCara(ts, gx, nf) {
 // fotograma
 const tiempos = new URLSearchParams(location.search).has('tiempos');
 function marcaT(k) { if (!tiempos) return; P.renderer.getContext().finish(); const a = performance.now(); window.__tiempos[k] = Math.round(a - window.__t0); window.__t0 = a; }
+// las fotos que necesita el instante ts (antes de pintar nada: cada una usa el lienzo de WebGL)
+function prepararFotos(ts) {
+  if (ts < T.empuje) return;
+  const ks = ts < T.fun0 ? ['fondoMedio'] : ts <= T.arriba1 ? ['caraFin', 'globo', 'cosas', 'casiCerrados', 'parpados', 'franja'] : ['final'];
+  for (const k of ks) FOTOS[k]();
+}
 function dibujar(t) {
   if (tiempos) { window.__tiempos = {}; window.__t0 = performance.now(); }
   const ts = Math.min(t, QUIETO);
   const nf = Math.floor(ts * 12 + 1e-6);
+  prepararFotos(ts);
+  marcaT('fotos');
   ajustarCapa();
   P.fotograma(ts);
   g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
@@ -723,14 +754,15 @@ function dibujar(t) {
       ponerOjo(UO, estadoOjo(ts));
       P.limpiar();
       P.pieza(I.OJO, { pos: OJO_POS, escala: OJO_ESC, rot: OJO_ROT, variante: CAPA.PARPADOS });
-      // (coste) solo se pinta la zona que tocan los párpados y sus pestañas; el resto de la cara es la foto
+      // (coste) solo se pinta la zona que tocan los párpados que se mueven; el resto de la cara es la foto
+      const { zona: Z, base } = zonaParpados(ts);
       const sz = P.renderer.getSize(new THREE.Vector2()), k = sz.x / W;
-      P.renderer.setScissor(ZONA[0] * k, (H - ZONA[3]) * k, (ZONA[2] - ZONA[0]) * k, (ZONA[3] - ZONA[1]) * k);
+      P.renderer.setScissor(Z[0] * k, (H - Z[3]) * k, (Z[2] - Z[0]) * k, (Z[3] - Z[1]) * k);
       P.renderer.setScissorTest(true);
       P.render(nf, { fondo: false });
       P.renderer.setScissorTest(false);
       marcaT('parpados');
-      parpados = remendar(FOTOS.parpados());
+      parpados = remendar(base(), Z);
     }
     ojo = componerOjo(ts, parpados, nf);
     marcaT('componer');
@@ -779,9 +811,7 @@ function dibujar(t) {
   POST.aplicar(g, nf);
   marcaT('post');
 }
-// las fotos, al cargar
 cargaT('previo');
-for (const [k, f] of Object.entries(FOTOS)) { f(); cargaT(k); }
 window.__info = { RUTA, AMP, PIE_INI, T, m, MED, EMP, EMP_V, OJO_ESC, FR_ESC, FR_ALTO, FIN, OJOS_MEDIO, pxLocalOjo };
 // el último fotograma, para ep3-ojo (ver la cabecera): la receta del kit y Atom quieto en su sitio
 window.__fin = (() => {
@@ -797,6 +827,18 @@ window.__fin = (() => {
   };
 })();
 E.iniciar(dibujar, { paso: 1 / 12 });
+// las fotos del final, en segundo plano (ver FOTOS); window.__fotos = true cuando están todas
+{
+  const cola = ['fondoMedio', 'caraFin', 'casiCerrados', 'globo', 'cosas', 'franja', 'parpados', 'final'];
+  const siguiente = () => {
+    const k = cola.shift();
+    if (!k) { window.__fotos = true; return; }
+    FOTOS[k](); cargaT(k);
+    setTimeout(siguiente, 0);
+  };
+  window.__fotos = false;
+  setTimeout(siguiente, 0);
+}
 </script>
 </body>
 </html>

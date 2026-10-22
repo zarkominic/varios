@@ -940,6 +940,19 @@ window.__carga.push(['regla', Math.round(performance.now())]);
 P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: { ...POSE_0 }, aspecto: 'adulto' }); P.render(3020, { fondo: false });
 P.limpiar(); P.atomo({ pos: [0, 0.3, -2], escala: 0.05, electrones: [{ pos: [2, 0, 0], mezcla: 1, brazo: 1, mano: 1 }] }); P.render(3021, { fondo: false });
 window.__carga.push(['persona y Atom', Math.round(performance.now())]);
+// (coste) el estreno de las piezas que salen vivas (multitud, cucharilla, terrón, silla, chispas y «?»): diminutas y
+// fuera de cuadro, para que SwiftShader compile sus programas al cargar y no en su primer fotograma
+P.limpiar();
+multitud(P, I.MUL, { pos: [0, 0.2, -2], escala: 0.02, radio: 3.6, aparicion: 1, semilla: 3 });
+cucharilla(P, I.CUC, { pos: [0.3, 0.3, -2], escala: 0.05 });
+terron(P, I.TER, { pos: [0.6, 0.3, -2], escala: 0.05 });
+silla(P, I.SIL, { pos: [-0.3, 0.3, -2], escala: 0.05 });
+chispas(P, I.CH1, { pos: [-0.6, 0.3, -2], escala: 0.05, n: 8, semilla: 1 });
+chispas(P, I.CH2, { pos: [-0.9, 0.3, -2], escala: 0.05, n: 8, semilla: 2 });
+P.pieza(I.INT, { pos: [0.9, 0.3, -2], escala: 0.05, color: COLOR.MOSTAZA });
+P.render(3022, { fondo: false });
+P.limpiar();
+window.__carga.push(['estreno de las piezas', Math.round(performance.now())]);
 
 // (coste) las fotos que no se hacen al cargar se preparan en un fotograma barato poco antes de hacer falta (en orden,
 // como renderiza render-escenas.mjs): [desde, foto, hasta]. Al final de cada fotograma que no haya tenido que hacer

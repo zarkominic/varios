@@ -41,9 +41,9 @@ const RED45 = { ...F.red, origen: NODO };
 const C = [];
 const cel = (rot, o) => C.push({ rot, ...o });
 cel('red, celda 45 (10²⁷)', { cielo: { red: RED45, n: 1 } });
-cel('red, celda 220 (10²⁵), origen NODO en (840, 470)', { cielo: { red: { celda: celdaRed(25), centro: [840, 470], origen: NODO }, n: 1 } });
-cel('red, celda 1240 (10²³), velo 0,5', { cielo: { red: { celda: celdaRed(23), centro: [840, 470], origen: NODO, velo: veloRed(23) * 0.5 }, n: 1 }, fondo: '#1d1b1b' });
-cel('red, res 0,5 (en movimiento)', { cielo: { red: { celda: celdaRed(26), centro: [840, 470], origen: NODO }, n: 1, res: 0.5 } });
+cel('red, celda 220 (10²⁵), origen NODO en (960, 470)', { cielo: { red: { celda: celdaRed(25), centro: [960, 470], origen: NODO }, n: 1 } });
+cel('red, celda 1240 (10²³), velo 0,5', { cielo: { red: { celda: celdaRed(23), centro: [960, 470], origen: NODO, velo: veloRed(23) * 0.5 }, n: 1 }, fondo: '#1d1b1b' });
+cel('red, res 0,5 (en movimiento)', { cielo: { red: { celda: celdaRed(26), centro: [960, 470], origen: NODO }, n: 1, res: 0.5 } });
 cel('esfera (FINAL_UNIVERSO)', { cielo: { red: RED45, esfera: F.esfera, n: 1 }, d2: (g) => puntoNosotros(g, F.esfera.c) });
 cel('esfera k 0,4 (aparece)', { cielo: { red: RED45, esfera: { ...F.esfera, k: 0.4 }, n: 1 } });
 cel('esfera sin borde de niebla, cristal 0,5', { cielo: { red: RED45, esfera: { ...F.esfera, borde: 0, cristal: 0.5 }, n: 1 } });
@@ -74,7 +74,7 @@ cel('hormiga, paso 0,25, de tres cuartos', { plato: true, poner: () => hormiga(P
 const MET = () => { const p = en(860, 760, 1.5); return { pos: p, escala: 560 / pxU(p) }; };
 cel('meta, ondea 0', { plato: true, poner: () => meta(P, I.meta, { ...MET(), ondea: 0 }) });
 cel('meta, ondea 0,5', { plato: true, poner: () => meta(P, I.meta, { ...MET(), ondea: 0.5, rot: [0, -0.4, 0] }) });
-cel('juntas sobre la red: goma, hormiga y meta', { cielo: { red: { celda: 120, centro: [840, 470], origen: NODO, velo: 0.85 }, n: 1 }, poner: () => {
+cel('juntas sobre la red: goma, hormiga y meta', { cielo: { red: { celda: 120, centro: [960, 470], origen: NODO, velo: 0.85 }, n: 1 }, poner: () => {
   const gm = goma(P, I.goma, { desde: [200, 600], hasta: [1500, 600], alto: 30, estira: 0.5, marcas: 11 });
   const ph = en(...gm.punto(0.3), 1.5), escH = 120 / pxU(ph);
   hormiga(P, I.hormiga, { pos: [ph[0], ph[1] + 0.3 * escH, ph[2]], escala: escH, paso: 0.3 });

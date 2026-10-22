@@ -58,7 +58,7 @@
 //    Atom en (230, 780). El fondo es el mundo de ep03-cosmos.js en 10²² sin galaxia (camaraPorTierra(22, …) con capas: { uGal:
 //    [0, 0, 1, 0] }); las dos galaxias son fotos de la de crearMundo (fotoGalaxia, abajo) puestas en 2D.
 //  · FINAL_UNIVERSO (el último fotograma de ep3-universo = el primero de ep3-borde): la red con celda 45 y origen RED.NODO en
-//    (840, 470), y la esfera en c (840, 470), r 330, k 1, borde 1, cristal 1, fuera 0,5, lupa 0,1; un punto ámbar en el
+//    (960, 470), y la esfera en c (960, 470), r 300 (el sitio y el tamaño del disco de ep3-arena), k 1, borde 1, cristal 1, fuera 0,5, lupa 0,1; un punto ámbar en el
 //    centro (la Vía Láctea: nosotros, ver puntoNosotros); la regla en 10²⁷ (como en ENLACE, e 27); Atom en (230, 780).
 //  · fotoEnlace(mundo, estadoMundo, camaraPorTierra, { z: 22, via, radio: 27, n }) → { fondo, galaxia: { lienzo, r } }: UNA
 //    foto del mundo en 10²² con la galaxia en su sitio: el fondo de ENLACE sin la galaxia (tapada con el color de
@@ -126,8 +126,8 @@ export const ENLACE = {
   ENLACE.figuritas = [[22, 46, 3], [48, 52, 7], [74, 44, 12]].map(([d, alto, semilla]) => ({ x: Math.round(xb + ux * d), y: Math.round(yb + uy * d), alto, semilla }));
 }
 export const FINAL_UNIVERSO = {
-  red: { celda: 45, centro: [840, 470], origen: null, luz: 1, velo: 1 },
-  esfera: { c: [840, 470], r: 330, k: 1, borde: 1, cristal: 1, fuera: 0.5, lupa: 0.1, puntos: 1 },
+  red: { celda: 45, centro: [960, 470], origen: null, luz: 1, velo: 1 },
+  esfera: { c: [960, 470], r: 300, k: 1, borde: 1, cristal: 1, fuera: 0.5, lupa: 0.1, puntos: 1 },
   regla: { e: 27, ya: 0, actual: 27, lupa: 0.5, pos: [1655, 528, 0.4], escala: 1.42, rot: [0, -0.12, 0] }, atomo: [230, 780],
 };
 
@@ -261,9 +261,9 @@ void main() {
   if (uEsf2.x > 0.001) {
     float hb;
     vec3 nb = nieblaEn(d * 9.0 + 3.0, uRedO.w, uEsf.z / 9.0, 1.0, hb);
-    float borde = smoothstep(0.8 - 0.1 * hb, 0.93 - 0.06 * hb, r) * dentro;
+    float borde = smoothstep(0.83 - 0.1 * hb, 0.945 - 0.06 * hb, r) * dentro;
     float bk = borde * uEsf2.x * k;
-    col = mix(col, nb, 0.92 * bk) + nb * 0.12 * bk;
+    col = mix(col, nb, 0.86 * bk) + nb * 0.12 * bk;
   }
   // el cristal: un velo de vidrio, una franja oscura justo dentro del filo (el grueso del vidrio), el filo de luz, el
   // reflejo del foco (una media luna fina arriba a la izquierda y un brillo pequeño y nítido) y un halo cálido fuera

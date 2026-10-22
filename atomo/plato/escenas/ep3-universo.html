@@ -22,7 +22,7 @@
 //  espera    Atom sale de su sitio hacia la esfera, crece un poco y levanta una mano (un electrón sobre alambre): espera;
 //            después de la frase, 2 s de silencio con la mano levantada
 //  comopuede (corte, plano de abajo) la esfera enorme llena la pantalla por arriba; Atom, delante y con la mano aún levantada,
-//            la mira; sobre ella aparece un «?» de arcilla ámbar; la cámara se acerca despacio
+//            la mira; sobre ella brota un «?» de arcilla ámbar (completo en la marca); la cámara se acerca despacio
 //  goma      (corte, plató) la persona, de cintura para arriba, sostiene una goma elástica con los dos puños; una hormiga
 //            camina por ella hacia una banderita de meta; la persona estira la goma con la mano derecha de la pantalla (su
 //            izquierda): las marcas se separan y la meta se aleja aunque la hormiga no pare. Al final (corte) la cámara vuelve
@@ -73,8 +73,8 @@ const T = {
   esfera: [SALTOS[4][1] + 0.08, SALTOS[4][1] + 0.85],   // la esfera se cierra alrededor
   sale: [m.es - 0.62, m.es - 0.02],                     // Atom va hacia la esfera (llega en la marca)
   mano: [m.es - 0.34, m.es - 0.02],                     // levanta la mano (arriba en la marca)
-  D: m.co - 0.14,                                       // corte: la esfera enorme
-  preg: m.co + 0.45,                                    // el «?» (completo)
+  D: m.co - 0.28,                                       // corte: la esfera enorme
+  preg: m.co + 0.05,                                    // el «?» (brota justo tras el corte; completo en la marca)
   E: m.go - 0.2,                                        // corte: la goma
   tira: [m.go + 0.5, m.go + 3.9],                       // la persona estira la goma
   F: Math.min(m.goFin - 1.6, m.go + 4.65),              // corte: vuelta a la esfera
@@ -136,7 +136,7 @@ for (let i = 1; i * DT <= D + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT)
 const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor(x)); return mix(TA[i], TA[i + 1], x - i); };
 // dónde está y cómo está Atom en cada tramo: A (en casa; en «espera» va hacia la esfera, crece y levanta la mano), D (delante
 // de la esfera enorme, mirándola, con la mano levantada), E (en casa) y F (en casa, quieto)
-const A_ESFERA = [455, 690], A_D = [345, 700];
+const A_ESFERA = [610, 705], A_D = [345, 700];
 function estadoAtom(ts) {
   const tz = calma(ts);
   let sx = ATOMO[0], sy = ATOMO[1], esc = A_ESC, mano = 0, mira = [0, 0], brillo = 0;
@@ -279,14 +279,14 @@ const PREG = [1010, 400];
 function planoD(ts, nf) {
   // la cámara se acerca despacio (un empuje 2D hacia el «?»)
   const u = eio(prog(ts, T.D, T.E));
-  const s = mix(1, 1.05, u);
+  const s = mix(1, 1.07, u);
   g.save();
   g.translate(PREG[0], PREG[1]); g.scale(s, s); g.translate(-PREG[0], -PREG[1]);
   g.drawImage(fotoD(nf), 0, 0, W, H);
   g.restore();
 }
 function pregunta(ts) {
-  const k = brote(ts, T.preg, 0.32, 0.12);
+  const k = brote(ts, T.preg, 0.27, 0.12);
   if (k <= 0.01) { P.pieza(I.PREG, { escala: 0 }); return; }
   const tz = calma(ts);
   const p = en(PREG[0], PREG[1] + 6 * Math.sin(tz * 1.4), 1.6);
@@ -397,7 +397,7 @@ function dibujar(t) {
 }
 marcaCarga('estreno');
 window.__fin = { ...FIN, atomo: ATOMO, aEscala: A_ESC };
-if (GUIAS) {
+{
   const a = pant([PER[0], PER[1] + 0.765 * E_PER, PER[2]]), b = pant([PER[0], PER[1] - E_PER, PER[2]]);
   window.__guias = { x: Math.round(b[0]), coronilla: Math.round(a[1]), suela: Math.round(b[1]) };
 }

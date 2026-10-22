@@ -17,25 +17,35 @@
 //               A mitad de frase (corte, plano medio): un mapa a oscuras con su cuadrícula; un satélite de arcilla gira
 //               despacio y, con un rayo fino, pone un punto por cada estrella que mide, uno a uno y cada vez más deprisa
 //               (empezando junto a «aquí», el Sol: medimos desde dentro); una antena de radio manda ondas y va marcando nubes
-//               de gas; puntos y nubes (una máscara sobre la foto de la galaxia) acaban dibujando la espiral
-//  sofa         (corte, por encima del hombro: SALON.cerca de ep03-sofa.js) la persona sentada en el sofá, de espaldas, con
-//               la mano en el bol de palomitas (en el brazo del sofá); por la ventana las estrellas pasan en rayas; dentro de la ventana aparecen
-//               la Tierra y la Luna y un trazo de luz va de una a otra dos veces mientras el reloj de la pared da una hora
-//               (la cuña ámbar se llena: cada pasada, media hora). Después (corte, SALON.general) el salón entero
+//               de gas; puntos y nubes (una máscara sobre la foto de la galaxia) acaban dibujando la espiral, y al final
+//               se descubre el disco entero (solo el disco: el espacio de alrededor no cambia)
+//  sofa         (corte, por encima del hombro) la persona sentada en el sofá, de espaldas, con la mano en el bol de
+//               palomitas (en el brazo del sofá); por la ventana las estrellas pasan en rayas; en los dos vidrios de la
+//               diagonal aparecen la Tierra (abajo a la izquierda) y la Luna (arriba a la derecha) y un trazo de luz va de una
+//               a otra dos veces mientras el reloj de la pared da una hora (la cuña ámbar se llena: cada pasada, media hora).
+//               Con «aunque estés en el sofá», la cámara se aleja despacio hasta el salón entero (el plano final)
 // CONTINUIDAD
 //  · Fotograma 0 = el último de ep3-luz según su termina_con (ep3-luz no existe todavía): el mundo de ep03-cosmos.js con
 //    camara(21), estadoMundo n = 214 (el fotograma quieto de ep3-luz, (18,17 − 0,3) × 12), sin viñeta y con la de crearPost
 //    al final; la regla P.regla con e 21, ya 0, actual 21, lupa 0,5 en P.punto(1655, 528, 0,4), escala 1,42, rot
 //    [0, −0,12, 0]; Atom en (230, 780) (A_ESC, A_YAW y A_PITCH como ep3-tierra y ep3-sol) arrancando quieto.
-//  · Último fotograma (ep3-andromeda empieza así): salon(P, I, { encuadre: 'general', reloj: { minutos: 60, sector:
-//    [0, 60] } }) de ep03-sofa.js (en una foto, con la cuña ámbar viva relojAmbar y los bordes algo más oscuros luzSalon),
-//    con el cielo de la ventana cieloVentana(g, hueco, { t: TQ, rayas: hornearRayas() }) debajo y vidrioVentana encima; la
-//    misma regla; Atom en (230, 780). window.__fin lo da en números.
-// Coste: todo se compone en 2D (crearPost al final). Lo quieto son fotos hechas al cargar: la galaxia (una; el fondo del
-// mapa sale de ella tapando la galaxia), el marco ya cerrado, los dos encuadres del salón (el hueco de la ventana,
-// transparente: debajo va el cielo en 2D), la Tierra y la Luna. En vivo: Atom y la regla siempre; el marco mientras cae
-// (hasta 1,25 s); el pincel; el satélite y la antena; el reloj mientras corre. Los puntos y las nubes del mapa, las ondas,
-// los rayos, el cielo de la ventana y el trazo de la Tierra a la Luna son 2D (milisegundos).
+//  · Último fotograma (ep3-andromeda empieza así): el salón de ep03-sofa.js, salon(P, I, { encuadre: 'general' }), en una
+//    foto (con los bordes algo más oscuros, luzSalon), y el reloj en vivo con { minutos: 60, sector: [0, 60] } y la cuña
+//    ámbar viva relojAmbar encima; el cielo de la ventana cieloVentana(g, hueco, { t: TQ, rayas: hornearRayas() }) debajo
+//    y vidrioVentana encima; la misma regla; Atom en (230, 780). window.__fin lo da en números.
+// COSTE (servidor sin GPU; la carga y el coste de cada fotograma, medidos en CPU, en el informe)
+//  · Todo se compone en 2D (crearPost al final). Lo quieto son fotos: la galaxia (una foto del mundo; el hervor, dos
+//    variantes 2D de la misma foto: un desplazamiento de menos de medio píxel y una luz que respira ±2 %), la regla (quieta
+//    en 10²¹: tres fotos que se alternan para el hervor, como en ep3-sol; en vivo se llevaba más de la mitad de cada
+//    fotograma), el marco ya cerrado, el pincel (dos sprites: suelto y apretado, con su sombra), el fondo y la galaxia del
+//    mapa, la Tierra, la Luna y el salón entero (UNA foto: el plano por encima del hombro es esa misma foto ampliada 1,4
+//    veces en 2D, y el final, la cámara que se aleja hasta 1). En vivo: Atom siempre; el marco mientras cae (hasta 1,25
+//    s); el satélite y la antena; el reloj en el salón.
+//  · Al cargar solo se hace lo del fotograma 0 (el plató, el mundo, la galaxia y la regla) y se estrenan Atom y el marco;
+//    lo demás se prepara en fotogramas baratos poco antes de hacer falta (PREPARAR), como en ep3-sol. La foto del salón
+//    (la más cara: la pared con la ventana llena la pantalla) se hace por bandas horizontales (el recorte de WebGL, con el
+//    mismo número de fotograma: el resultado es idéntico a la foto entera), una cada pocos fotogramas del plano del cuadro,
+//    que solo lleva a Atom en vivo. Si se pide un instante suelto, F() hace al momento lo que falte (sale lo mismo).
 // Piezas propias de la escena (tiposExtra, aquí abajo): el marco dorado, el pincel, el satélite y la antena de radio.
 // Del kit ep03-sofa.js (lo crea esta escena): la ventana, el sofá, el bol y SALON; de ep03-tiempo.js, el reloj y el rayo;
 // de ep03-cosmos.js, el mundo a 10²¹; del kit de plastilina, la persona, la regla, Atom, el globo y la luna.
@@ -44,7 +54,7 @@ import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteCartela, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, mulberry32, brote, QUIETO as QUIETO_KIT } from '/atomo/plato/kits/plastilina-adulta.js';
 import { crearMundo, camara, estadoMundo, fotoMundo, aPant, solMundo, MUNDO } from '/atomo/plato/kits/ep03-cosmos.js';
 import { tiposTiempo, uniformesTiempo, rayo } from '/atomo/plato/kits/ep03-tiempo.js';
-import { tiposSofa, uniformesSofa, salon, SALON, hornearRayas, cieloVentana, vidrioVentana } from '/atomo/plato/kits/ep03-sofa.js';
+import { tiposSofa, uniformesSofa, salon, hornearRayas, cieloVentana, vidrioVentana, recorteHueco } from '/atomo/plato/kits/ep03-sofa.js';
 
 const T0 = performance.now();
 window.__carga = [];
@@ -59,7 +69,7 @@ const mitad = (a, b) => (a + b) / 2;
 
 // ---------------------------------------------------------------- tiempos (todo sale de las marcas)
 const T = {
-  marco: [0.06, m.il],                                  // el marco cae y se cierra (completo en la marca)
+  marco: [Math.max(0.06, m.il - 0.3), m.il],            // el marco cae y se cierra (empieza 0,3 s antes; completo en la marca)
   lienzo: [m.il - 0.2, m.il + 0.6],                     // la trama del lienzo
   B: mitad(m.il, m.ilFin) - 0.3,                        // corte al mapa (a mitad de frase)
   C1: m.so - 0.22,                                      // corte al salón, por encima del hombro
@@ -73,14 +83,14 @@ const LB = T.C1 - T.B;
 T.puntos = [T.B + 0.35, T.C1 - 0.75];
 T.nubes = [T.B + 0.12 * LB, T.C1 - 0.7];
 T.entera = [T.C1 - 1.0, T.C1 - 0.35];
-// el salón: la Tierra y la Luna, el reloj y las dos pasadas del trazo
+// el salón: la Tierra y la Luna, el reloj y las dos pasadas del trazo; después la cámara se aleja hasta el salón entero
 const LC = m.soFin - m.so;
 T.tl = m.so + 0.12;                                     // aparecen la Tierra y la Luna (brote)
 T.reloj = [m.so + 0.06 * LC, m.so + 0.55 * LC];         // una hora
 T.pasa1 = [T.reloj[0] + 0.05, mitad(...T.reloj) - 0.05];
 T.pasa2 = [mitad(...T.reloj) + 0.05, T.reloj[1]];
 T.fueraTL = [T.reloj[1] + 0.25, T.reloj[1] + 0.6];
-T.C2 = T.reloj[1] + 0.75;                               // corte al salón entero
+T.retro = [T.reloj[1] + 0.5, T.reloj[1] + 2.35];        // la cámara se aleja (con «aunque estés en el sofá»)
 const TQ = Math.floor((D - QUIETO_KIT) * 12 + 1e-6) / 12;   // el último fotograma que se mueve (luego, quieto)
 
 // ---------------------------------------------------------------- piezas propias (sencillas)
@@ -256,7 +266,7 @@ vec3 pzcol_antena(vec3 q, vec4 T, float m) {
 // ---------------------------------------------------------------- el plató
 // (continuidad) la persona, la regla y su flecha en los huecos 0, 1 y 2, como en ep3-tierra y ep3-sol
 const I = { PER: 0, REG: 1, FLE: 2, VEN: 3, SOFA: 4, BOL: 5, REL: 6, MARCO: 7, PIN: 8, SAT: 9, ANT: 10, LUNA: 11 };
-const IS = { persona: I.PER, ventana: I.VEN, sofa: I.SOFA, bol: I.BOL, reloj: I.REL };
+const IS_FOTO = { persona: I.PER, ventana: I.VEN, sofa: I.SOFA, bol: I.BOL };   // el salón de la foto (el reloj va en vivo)
 await cargarFuenteCartela();
 const P = await crearPlato({
   piezas: ['humano', 'reglaA', 'flecha', 'ventana', 'sofa', 'bol', 'reloj', 'marco', 'pincel', 'satelite', 'antena', 'luna'],
@@ -292,6 +302,14 @@ function ajustarCapa() {
 const pegarGL = (alfa = 1) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = alfa; g.drawImage(lienzoGL, 0, 0); g.restore(); };
 const lienzo = (w = lienzoGL.width, h = lienzoGL.height) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 const copiaGL = () => { const c = lienzo(); c.getContext('2d').drawImage(lienzoGL, 0, 0); return c; };
+// un trozo [x0, y0, x1, y1] (px de diseño) del lienzo de WebGL, con su sitio (para pegarlo con pegarTrozo)
+function trozoGL([x0, y0, x1, y1]) {
+  const k = lienzoGL.width / W, c = lienzo(Math.round((x1 - x0) * k), Math.round((y1 - y0) * k));
+  c.getContext('2d').drawImage(lienzoGL, Math.round(x0 * k), Math.round(y0 * k), c.width, c.height, 0, 0, c.width, c.height);
+  c.ref = [x0, y0, x1, y1];
+  return c;
+}
+const pegarTrozo = (c) => g.drawImage(c, c.ref[0], c.ref[1], c.ref[2] - c.ref[0], c.ref[3] - c.ref[1]);
 // una foto de 1920 × 1080 escalada s veces alrededor de (px, py)
 function pegarEscalada(f, s, [px, py], alfa = 1) {
   if (alfa <= 0.002) return;
@@ -323,6 +341,25 @@ function sinVineta(c) {
   gc.fillStyle = gr; gc.fillRect(0, 0, W, H);
   gc.restore();
   return c;
+}
+// el hervor de lo quieto sin otra foto del mundo: la misma foto desplazada menos de medio píxel (y girada y escalada
+// una milésima alrededor de c) y con la luz que respira: manchas suaves de ±2 % (soft-light de un ruido de valor)
+function hervir(f, semilla, c) {
+  const r = mulberry32(semilla), k = f.width / W, out = lienzo(f.width, f.height), go = out.getContext('2d');
+  go.setTransform(k, 0, 0, k, 0, 0);
+  go.translate(c[0] + (r() - 0.5) * 0.9, c[1] + (r() - 0.5) * 0.9);
+  go.rotate((r() - 0.5) * 0.0024);
+  const e = 1 + (r() - 0.5) * 0.0024;
+  go.scale(e, e);
+  go.translate(-c[0], -c[1]);
+  go.drawImage(f, 0, 0, W, H);
+  const rz = lienzo(48, 27), gz = rz.getContext('2d'), im = gz.createImageData(48, 27);
+  for (let i = 0; i < 48 * 27; i++) { const v = Math.round(128 + (r() - 0.5) * 40); im.data[i * 4] = im.data[i * 4 + 1] = im.data[i * 4 + 2] = v; im.data[i * 4 + 3] = 255; }
+  gz.putImageData(im, 0, 0);
+  go.setTransform(1, 0, 0, 1, 0, 0);
+  go.globalCompositeOperation = 'soft-light'; go.globalAlpha = 0.45; go.imageSmoothingEnabled = true;
+  go.drawImage(rz, 0, 0, out.width, out.height);
+  return out;
 }
 
 // ---------------------------------------------------------------- Atom (presentador: pequeño, abajo a la izquierda)
@@ -369,65 +406,59 @@ function sombrasPresentador(fuerza = 1) {
 }
 
 // ---------------------------------------------------------------- la regla (quieta en 10²¹: la de ep3-luz al acabar)
+// en fotos, como en ep3-sol: tres que se alternan para el hervor (reg0 es la del fotograma 0)
 const E_REG = 1.42, REG = en(1655, 528, 0.4);
 const reglaEn = () => P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e: 21, ya: 0, actual: 21, lupa: 0.5 });
+const RECT_REG = [1300, 0, 1920, 1080];
+function fotoRegla(n) { P.limpiar(); reglaEn(); P.render(n, { fondo: false }); return trozoGL(RECT_REG); }
+const reglaDe = (n) => (n < 19 ? 'reg0' : ['reg0', 'reg1', 'reg2'][n % 3]);   // (reg1 y reg2, en fotogramas baratos)
 
 // ---------------------------------------------------------------- la galaxia (fotos del mundo a 10²¹)
 const C21 = camara(21);
 const N_LUZ = 214;                                      // el fotograma quieto de ep3-luz
 const GAL = { c: aPant(C21, [solMundo(C21.z)[0] - 0.328 * MUNDO.R_GAL, solMundo(C21.z)[1] + 0.330 * MUNDO.R_GAL]), R: MUNDO.R_GAL / C21.mpp };
 const SOL = aPant(C21, solMundo(C21.z));                // dónde estamos (el Sol) en la galaxia
+const galDe = (n) => (n < 1 ? 'gal0' : ['gal0', 'gal1', 'gal2'][n % 3]);
 const FOTOS = {};
 const HACER = {
   gal0: () => sinVineta(fotoMundo(mundo, estadoMundo(C21, N_LUZ, { somA: SOM_A }))),
-  // el espacio sin la galaxia (el fondo del mapa): la misma foto con la galaxia tapada por el color del fondo de
-  // alrededor (un disco de borde suave; así no hace falta otra foto del mundo al cargar)
-  espacio: () => {
-    const f = F('gal0'), c = lienzo(f.width, f.height), gc = c.getContext('2d'), k = f.width / W;
-    gc.drawImage(f, 0, 0);
-    const d = f.getContext('2d').getImageData(0, 0, f.width, f.height).data;
-    let sr = 0, sg = 0, sb = 0, nn = 0;
-    for (let i = 0; i < 64; i++) {
-      const a = (i / 64) * 2 * Math.PI, x = Math.round((GAL.c[0] + 1.18 * GAL.R * Math.cos(a)) * k), y = Math.round((GAL.c[1] + 1.18 * GAL.R * Math.sin(a)) * k);
-      if (x < 0 || y < 0 || x >= f.width || y >= f.height) continue;
-      const o = (y * f.width + x) * 4; sr += d[o]; sg += d[o + 1]; sb += d[o + 2]; nn++;
-    }
-    const col = [sr, sg, sb].map((v) => Math.round(v / Math.max(nn, 1)));
-    gc.setTransform(k, 0, 0, k, 0, 0);
-    const h = gc.createRadialGradient(GAL.c[0], GAL.c[1], 0.8 * GAL.R, GAL.c[0], GAL.c[1], 1.12 * GAL.R);
-    h.addColorStop(0, `rgb(${col})`); h.addColorStop(1, `rgba(${col},0)`);
-    gc.fillStyle = `rgb(${col})`; gc.beginPath(); gc.arc(GAL.c[0], GAL.c[1], 0.8 * GAL.R + 1, 0, 2 * Math.PI); gc.fill();
-    gc.fillStyle = h; gc.fillRect(GAL.c[0] - 1.12 * GAL.R, GAL.c[1] - 1.12 * GAL.R, 2.24 * GAL.R, 2.24 * GAL.R);
-    return c;
-  },
+  gal1: () => hervir(F('gal0'), 211, GAL.c),
+  gal2: () => hervir(F('gal0'), 223, GAL.c),
+  reg0: () => fotoRegla(0), reg1: () => fotoRegla(7101), reg2: () => fotoRegla(7102),
 };
 function F(k) { if (!FOTOS[k]) FOTOS[k] = HACER[k](); return FOTOS[k]; }
-if (new URLSearchParams(location.search).has('sonda')) {
-  // (para encuadrar) dónde caen en pantalla las cosas del salón, sin dibujar nada
-  const r = {};
-  for (const enc of ['cerca', 'general']) {
-    P.limpiar();
-    const s = salon(P, IS, { encuadre: enc, reloj: { minutos: 0 } });
-    const pr = (w) => pant(w).map((v) => Math.round(v));
-    const h = s.persona;
-    r[enc] = { hueco: s.ventana.hueco.map((p) => p.map(Math.round)), reloj: pr(s.reloj.centro), relojR: Math.round(pxU(s.reloj.centro) * s.reloj.radio),
-      cabeza: pr(h.punto('cabeza')), coronilla: pr(h.punto('coronilla')), hombroI: pr(h.punto('hombroIzq')), hombroD: pr(h.punto('hombroDer')),
-      pelvis: pr(h.punto('pelvis')), manoD: pr(h.punto('manoDer')), codoD: pr(h.punto('codoDer')), respaldo: pr(s.sofa.respaldo), brazoI: pr(s.sofa.brazoIzq), brazoD: pr(s.sofa.brazoDer),
-      bol: pr(s.bol.boca) };
+// el espacio sin la galaxia (el fondo del mapa): la misma foto con la galaxia tapada por el color del fondo de
+// alrededor (un disco de borde suave; así no hace falta otra foto del mundo)
+function espacioDe(f) {
+  const c = lienzo(f.width, f.height), gc = c.getContext('2d'), k = f.width / W;
+  gc.drawImage(f, 0, 0);
+  const fc = f.getContext('2d');
+  let sr = 0, sg = 0, sb = 0, nn = 0;
+  for (let i = 0; i < 64; i++) {
+    const a = (i / 64) * 2 * Math.PI, x = Math.round((GAL.c[0] + 1.18 * GAL.R * Math.cos(a)) * k), y = Math.round((GAL.c[1] + 1.18 * GAL.R * Math.sin(a)) * k);
+    if (x < 0 || y < 0 || x >= f.width || y >= f.height) continue;
+    const d = fc.getImageData(x, y, 1, 1).data; sr += d[0]; sg += d[1]; sb += d[2]; nn++;
   }
-  P.limpiar();
-  window.__sonda = r;
-  window.__frame = async () => {}; window.__listo = true;
-  await new Promise(() => {});
+  const col = [sr, sg, sb].map((v) => Math.round(v / Math.max(nn, 1)));
+  gc.setTransform(k, 0, 0, k, 0, 0);
+  const h = gc.createRadialGradient(GAL.c[0], GAL.c[1], 0.8 * GAL.R, GAL.c[0], GAL.c[1], 1.12 * GAL.R);
+  h.addColorStop(0, `rgb(${col})`); h.addColorStop(1, `rgba(${col},0)`);
+  gc.fillStyle = `rgb(${col})`; gc.beginPath(); gc.arc(GAL.c[0], GAL.c[1], 0.8 * GAL.R + 1, 0, 2 * Math.PI); gc.fill();
+  gc.fillStyle = h; gc.fillRect(GAL.c[0] - 1.12 * GAL.R, GAL.c[1] - 1.12 * GAL.R, 2.24 * GAL.R, 2.24 * GAL.R);
+  return c;
 }
-F('gal0'); F('espacio');
+for (const i of [0, 1, 2]) HACER['esp' + i] = () => espacioDe(F('gal' + i));
+const espDe = (n) => 'esp' + ['0', '1', '2'][n % 3];
+F('gal0');
 marcaCarga('galaxia');
+F('reg0');
+marcaCarga('regla');
 
 // ---------------------------------------------------------------- S1 · el marco, el lienzo y el pincel
 const MARCO_C = [GAL.c[0] + 6, GAL.c[1] + 2], MARCO_W = 760;   // el hueco del marco: 760 × 640 px, alrededor de la galaxia
 const Z_MARCO = 1.5, Z_PINCEL = 2.4;
 const E_MARCO = MARCO_W / pxU(en(...MARCO_C, Z_MARCO));
-const posMarco = (k = 1, dx = 0, dy = 0) => en(MARCO_C[0] + dx, MARCO_C[1] + dy, Z_MARCO);
+const posMarco = () => en(MARCO_C[0], MARCO_C[1], Z_MARCO);
 function marcoVivo(ts) {
   const u = prog(ts, T.marco[0], T.marco[1]);
   // cae desde fuera (grande) y se cierra; al llegar, rebota un poco y se asienta
@@ -450,7 +481,8 @@ const TRAMA = (() => {
   return c;
 })();
 const HUECO_M = [MARCO_C[0] - MARCO_W / 2, MARCO_C[1] - MARCO_W * 0.421, MARCO_W, MARCO_W * 0.842];
-function lienzoCuadro(k) {
+function lienzoCuadro(k, g2 = g) {
+  const g = g2;
   if (k <= 0.002) return;
   g.save();
   g.beginPath(); g.rect(...HUECO_M); g.clip();
@@ -492,7 +524,8 @@ function puntoTrazo(u) {
   }
   return TRAZO[TRAZO.length - 1];
 }
-function pincelada(u) {
+function pincelada(u, g2 = g) {
+  const g = g2;
   if (u <= 0.001) return;
   const r = mulberry32(5);
   g.save();
@@ -532,12 +565,40 @@ function pincelada(u) {
 const EMP_C = puntoTrazo(0.5);
 const empuje = (ts) => 1 + 0.12 * eio(prog(ts, T.empuje[0], T.empuje[1]));
 const empujar = (s, [x, y]) => [EMP_C[0] + (x - EMP_C[0]) * s, EMP_C[1] + (y - EMP_C[1]) * s];
-// el pincel: la punta sobre el trazo (con el empuje), el mango hacia arriba a la derecha
-function pincel(ts, s) {
+// el pincel: dos sprites (suelto y apretado: las cerdas se doblan), hechos con la pieza en el centro de la pantalla
+// (siempre mide 520 px; su giro no cambia), y su sombra (la silueta apretada, oscura y desenfocada)
+const PIN_REF = [960, 560];
+function fotoPincel(apr) {
+  P.limpiar();
+  const pos = en(...PIN_REF, Z_PINCEL);
+  P.pieza(I.PIN, { pos, escala: 520 / 1.5 / pxU(pos), rot: [0.25, 0.3, -0.62] });
+  P.U.uPT.value[I.PIN].x = apr;
+  P.render(4101 + apr, { fondo: false });
+  // la caja del pincel: lo que no es transparente alrededor de la punta
+  const k = lienzoGL.width / W, X0 = 700, Y0 = 0, X1 = 1500, Y1 = 700;
+  const c = trozoGL([X0, Y0, X1, Y1]), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+  let a0 = c.width, a1 = 0, b0 = c.height, b1 = 0;
+  for (let y = 0; y < c.height; y += 2) for (let x = 0; x < c.width; x += 2) if (d[(y * c.width + x) * 4 + 3] > 8) { a0 = Math.min(a0, x); a1 = Math.max(a1, x); b0 = Math.min(b0, y); b1 = Math.max(b1, y); }
+  const caja = [X0 + a0 / k - 8, Y0 + b0 / k - 8, X0 + a1 / k + 8, Y0 + b1 / k + 8].map(Math.round);
+  const s = trozoGL(caja);
+  return { c: s, dx: caja[0] - PIN_REF[0], dy: caja[1] - PIN_REF[1], w: caja[2] - caja[0], h: caja[3] - caja[1] };
+}
+HACER.pincel0 = () => fotoPincel(0);
+HACER.pincel1 = () => fotoPincel(1);
+HACER.sombraPincel = () => {
+  const s = F('pincel1'), k = lienzoGL.width / W, mg = Math.round(30 * k);
+  const c = lienzo(s.c.width + 2 * mg, s.c.height + 2 * mg), gc = c.getContext('2d');
+  gc.filter = `brightness(0) blur(${(7 * k).toFixed(1)}px)`;
+  gc.drawImage(s.c, mg, mg);
+  return { c, dx: s.dx - mg / k, dy: s.dy - mg / k, w: c.width / k, h: c.height / k };
+};
+const sprite = (s, [x, y], alfa = 1) => { if (alfa <= 0.002) return; g.save(); g.globalAlpha = alfa; g.drawImage(s.c, x + s.dx, y + s.dy, s.w, s.h); g.restore(); };
+// dónde está la punta, cuánto aprieta y a qué altura del cuadro (0: tocándolo)
+function estadoPincel(ts) {
   const Tp = T.pincel;
-  if (ts < Tp.entra[0] - 0.05 || ts > Tp.sale[1] + 0.05) return;
+  if (ts < Tp.entra[0] - 0.05 || ts > Tp.sale[1] + 0.05) return null;
   const ini = puntoTrazo(0), fin = puntoTrazo(1);
-  let tip, apr = 0;
+  let tip, apr = 0, alto = 1;
   const arriba = [ini[0] + 70, ini[1] - 95];
   if (ts < Tp.toca) {
     const u = eoc(prog(ts, Tp.entra[0], Tp.entra[1]));
@@ -546,39 +607,66 @@ function pincel(ts, s) {
     const v = prog(ts, Tp.entra[1], Tp.toca);
     tip = [mix(tip[0], ini[0], eic(v)), mix(tip[1], ini[1], eic(v))];
     apr = ss(0.7, 1, v);
+    alto = 1 - 0.75 * u - 0.25 * eic(v);
   } else if (ts < Tp.pinta[1]) {
     const u = eio(prog(ts, Tp.pinta[0], Tp.pinta[1]));
     tip = puntoTrazo(u);
-    apr = 0.9 + 0.1 * Math.sin(ts * 9);
+    apr = 1; alto = 0;
   } else {
     const u = prog(ts, Tp.pinta[1], Tp.sale[1]);
     const lev = eoc(prog(ts, Tp.pinta[1], Tp.sale[0]));
     const ido = eic(prog(ts, Tp.sale[0], Tp.sale[1]));
     tip = [fin[0] + 40 * lev + 700 * ido, fin[1] - 70 * lev - 900 * ido];
     apr = 1 - ss(0, 0.3, u);
+    alto = 0.3 * lev + 0.7 * ido;
   }
-  const p = empujar(s, tip);
-  const E_PIN = 520 / 1.5 / pxU(en(p[0], p[1], Z_PINCEL));
-  P.pieza(I.PIN, { pos: en(p[0], p[1], Z_PINCEL), escala: E_PIN, rot: [0.25, 0.3, -0.62], toque: apr > 0.5 });
-  P.U.uPT.value[I.PIN].x = apr;
+  return { tip, apr, alto };
 }
+function pincel(ts, s) {
+  const e = estadoPincel(ts);
+  if (!e) return;
+  const p = empujar(s, e.tip);
+  // la sombra, sobre el cuadro: más cerca de la punta y más oscura cuanto más baja el pincel
+  const so = F('sombraPincel'), off = 12 + 70 * e.alto;
+  g.save(); g.globalCompositeOperation = 'multiply';
+  sprite(so, [p[0] + off * 0.55, p[1] + off * 0.8], 0.42 * (1 - 0.8 * e.alto));
+  g.restore();
+  sprite(F(e.apr > 0.5 ? 'pincel1' : 'pincel0'), p);
+}
+// (coste) desde que el marco queda quieto, el cuadro (la galaxia con su hervor, la trama del lienzo y el marco) es una sola
+// foto por variante; desde que acaba la pincelada, también con ella (cuadroP): cada fotograma lo pega una vez, escalado
+function cuadro(k, pintado) {
+  const c = lienzo(), gc = c.getContext('2d'), kk = c.width / W;
+  gc.setTransform(kk, 0, 0, kk, 0, 0);
+  gc.drawImage(F('gal' + k), 0, 0, W, H);
+  lienzoCuadro(1, gc);
+  // la pincelada, encima de la trama (como mientras se pinta: pintura fresca sobre el lienzo)
+  if (pintado) pincelada(1, gc);
+  gc.drawImage(F('marco'), 0, 0, W, H);
+  return c;
+}
+for (const k of [0, 1, 2]) { HACER['cuadro' + k] = () => cuadro(k, false); HACER['cuadroP' + k] = () => cuadro(k, true); }
+const cuadroDe = (n, ts) => (ts >= T.pincel.pinta[1] ? 'cuadroP' : 'cuadro') + (n % 3);
 function tramo1(n, ts) {
   const s = empuje(ts);
-  const gal = F('gal0');
-  if (s > 1.0005) pegarEscalada(gal, s, EMP_C); else g.drawImage(gal, 0, 0, W, H);
-  // la pincelada (en el cuadro, con el empuje)
-  const up = prog(ts, T.pincel.pinta[0], T.pincel.pinta[1]);
-  if (up > 0) { g.save(); g.translate(EMP_C[0], EMP_C[1]); g.scale(s, s); g.translate(-EMP_C[0], -EMP_C[1]); pincelada(eio(up)); g.restore(); }
-  // el lienzo
-  const kl = ss(T.lienzo[0], T.lienzo[1], ts);
-  if (kl > 0) { g.save(); g.translate(EMP_C[0], EMP_C[1]); g.scale(s, s); g.translate(-EMP_C[0], -EMP_C[1]); lienzoCuadro(kl); g.restore(); }
-  P.limpiar();
   const vivo = ts < T.marco[1] + 0.75;
-  if (vivo && ts >= T.marco[0]) marcoVivo(ts);
-  if (!vivo) pegarEscalada(F('marco'), s, EMP_C);
+  const escalar = (f) => { g.save(); g.translate(EMP_C[0], EMP_C[1]); g.scale(s, s); g.translate(-EMP_C[0], -EMP_C[1]); f(); g.restore(); };
+  if (vivo) {
+    // mientras cae el marco: la galaxia, la trama del lienzo (que aparece) y el marco en vivo
+    g.drawImage(F(galDe(n)), 0, 0, W, H);
+    const kl = ss(T.lienzo[0], T.lienzo[1], ts);
+    if (kl > 0) lienzoCuadro(kl);
+  } else {
+    pegarEscalada(F(cuadroDe(n, ts)), s, EMP_C);
+    // la pincelada mientras se pinta (encima de la trama; cuando acaba, va en la foto)
+    const up = prog(ts, T.pincel.pinta[0], T.pincel.pinta[1]);
+    if (up > 0 && up < 1) escalar(() => pincelada(eio(up)));
+  }
+  g.drawImage(F(reglaDe(n)), ...RECT_REG.slice(0, 2), RECT_REG[2] - RECT_REG[0], RECT_REG[3] - RECT_REG[1]);
   pincel(ts, s);
+  P.limpiar();
+  if (vivo && ts >= T.marco[0]) marcoVivo(ts);
   atomo(ts);
-  reglaEn();
   P.render(n, { fondo: false });
   pegarGL();
 }
@@ -588,13 +676,15 @@ function tramo1(n, ts) {
 const MAPA = { s: 0.84, c: [1030, 468] };
 const aMapa = ([x, y]) => [MAPA.c[0] + (x - GAL.c[0]) * MAPA.s, MAPA.c[1] + (y - GAL.c[1]) * MAPA.s];
 const SOL_M = aMapa(SOL);
-// los puntos: muestreados de la foto (más donde hay más luz), ordenados desde el Sol hacia fuera
-const PUNTOS = (() => {
+// los puntos y las nubes (se calculan una vez, de la foto de la galaxia, poco antes del mapa)
+HACER.datos = () => {
   const f = F('gal0'), k = f.width / W, gc = f.getContext('2d');
   const x0 = Math.floor((GAL.c[0] - GAL.R) * k), y0 = Math.floor((GAL.c[1] - GAL.R) * k), w = Math.ceil(2 * GAL.R * k), h = Math.ceil(2 * GAL.R * k);
   const d = gc.getImageData(x0, y0, w, h).data;
-  const lum = (x, y) => { const i = ((Math.round((y - GAL.c[1] + GAL.R) * k) * w) + Math.round((x - GAL.c[0] + GAL.R) * k)) * 4; return (0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]) / 255; };
-  const azul = (x, y) => { const i = ((Math.round((y - GAL.c[1] + GAL.R) * k) * w) + Math.round((x - GAL.c[0] + GAL.R) * k)) * 4; return (d[i + 2] - d[i]) / 255; };
+  const pix = (x, y) => ((Math.round((y - GAL.c[1] + GAL.R) * k) * w) + Math.round((x - GAL.c[0] + GAL.R) * k)) * 4;
+  const lum = (x, y) => { const i = pix(x, y); return (0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]) / 255; };
+  const azul = (x, y) => { const i = pix(x, y); return (d[i + 2] - d[i]) / 255; };
+  // los puntos: muestreados de la foto (más donde hay más luz), ordenados desde el Sol hacia fuera
   const r = mulberry32(2026), out = [];
   let intentos = 0;
   while (out.length < 2600 && intentos < 300000) {
@@ -611,39 +701,40 @@ const PUNTOS = (() => {
   }
   // los primeros, los más cercanos al Sol (medimos desde dentro); luego, por toda la galaxia, algo antes cerca
   out.sort((a, b) => a.dS - b.dS);
-  const prim = out.slice(0, 14), resto = out.slice(14).sort((a, b) => a.d - b.d);
-  return [...prim, ...resto];
-})();
-// el calendario de los puntos: los primeros, uno a uno; luego cada vez más seguidos
-const N_UNO = 9;
-PUNTOS.forEach((p, i) => {
-  if (i < N_UNO) p.t = T.puntos[0] + i * 0.26 * (1 - 0.04 * i);
-  else { const u = (i - N_UNO) / (PUNTOS.length - N_UNO); p.t = mix(T.puntos[0] + N_UNO * 0.23, T.puntos[1], Math.pow(u, 0.42)); }
-});
-// las nubes de gas: en los brazos (donde la foto tiene luz media), separadas, en orden de giro (la antena barre)
-const NUBES = (() => {
-  const f = F('gal0'), k = f.width / W, gc = f.getContext('2d');
-  const x0 = Math.floor((GAL.c[0] - GAL.R) * k), y0 = Math.floor((GAL.c[1] - GAL.R) * k), w = Math.ceil(2 * GAL.R * k), h = Math.ceil(2 * GAL.R * k);
-  const d = gc.getImageData(x0, y0, w, h).data;
-  const lum = (x, y) => { const i = ((Math.round((y - GAL.c[1] + GAL.R) * k) * w) + Math.round((x - GAL.c[0] + GAL.R) * k)) * 4; return (0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]) / 255; };
-  const r = mulberry32(77), out = [];
-  let intentos = 0;
-  while (out.length < 34 && intentos < 50000) {
+  const PUNTOS = [...out.slice(0, 14), ...out.slice(14).sort((a, b) => a.d - b.d)];
+  // el calendario de los puntos: los primeros, uno a uno; luego cada vez más seguidos
+  PUNTOS.forEach((p, i) => {
+    if (i < N_UNO) p.t = T.puntos[0] + i * 0.26 * (1 - 0.04 * i);
+    else { const u = (i - N_UNO) / (PUNTOS.length - N_UNO); p.t = mix(T.puntos[0] + N_UNO * 0.23, T.puntos[1], Math.pow(u, 0.42)); }
+  });
+  // las nubes de gas: en los brazos (donde la foto tiene luz media), separadas, en orden de giro (la antena barre)
+  const r2 = mulberry32(77), NUBES = [];
+  intentos = 0;
+  while (NUBES.length < 34 && intentos < 50000) {
     intentos++;
-    const a = r() * 2 * Math.PI, rr = GAL.R * (0.3 + 0.62 * Math.sqrt(r()));
+    const a = r2() * 2 * Math.PI, rr = GAL.R * (0.3 + 0.62 * Math.sqrt(r2()));
     const x = GAL.c[0] + rr * Math.cos(a), y = GAL.c[1] + rr * Math.sin(a);
     const L = lum(x, y);
     if (L < 0.18 || L > 0.75) continue;
     const p = aMapa([x, y]);
-    if (out.some((o) => Math.hypot(o.x - p[0], o.y - p[1]) < 52)) continue;
-    out.push({ x: p[0], y: p[1], R: (40 + 26 * r()) * MAPA.s, an: Math.atan2(y - GAL.c[1], x - GAL.c[0]) });
+    if (NUBES.some((o) => Math.hypot(o.x - p[0], o.y - p[1]) < 52)) continue;
+    NUBES.push({ x: p[0], y: p[1], R: (40 + 26 * r2()) * MAPA.s, an: Math.atan2(y - GAL.c[1], x - GAL.c[0]) });
   }
   // la antena las va marcando en orden de ángulo (barre la galaxia), empezando por el lado del Sol
   const a0 = Math.atan2(SOL_M[1] - MAPA.c[1], SOL_M[0] - MAPA.c[0]);
-  out.sort((p, q) => ((p.an - a0 + 8 * Math.PI) % (2 * Math.PI)) - ((q.an - a0 + 8 * Math.PI) % (2 * Math.PI)));
-  out.forEach((nb, i) => { nb.t = mix(T.nubes[0], T.nubes[1], Math.pow(i / (out.length - 1), 0.85)); });
-  return out;
-})();
+  NUBES.sort((p, q) => ((p.an - a0 + 8 * Math.PI) % (2 * Math.PI)) - ((q.an - a0 + 8 * Math.PI) % (2 * Math.PI)));
+  NUBES.forEach((nb, i) => { nb.t = mix(T.nubes[0], T.nubes[1], Math.pow(i / (NUBES.length - 1), 0.85)); });
+  return { PUNTOS, NUBES };
+};
+const N_UNO = 9;
+// la galaxia del mapa (con su hervor): la foto escalada al mapa y recortada a su disco
+for (const i of [0, 1, 2]) HACER['galMapa' + i] = () => {
+  const c = lienzo(W, H), gc = c.getContext('2d');
+  gc.translate(MAPA.c[0], MAPA.c[1]); gc.scale(MAPA.s, MAPA.s); gc.translate(-GAL.c[0], -GAL.c[1]);
+  gc.drawImage(F('gal' + i), 0, 0, W, H);
+  return c;
+};
+const galMapaDe = (n) => 'galMapa' + ['0', '1', '2'][n % 3];
 // el satélite (arriba a la izquierda) y la antena (abajo, a la izquierda del mapa)
 const SAT = { p: [370, 265], z: 2.0, px: 440 };
 const ANT = { p: [575, 770], z: 2.0, px: 290 };
@@ -694,16 +785,13 @@ function aqui(ts, k) {
   g.fillStyle = h; g.fillRect(x - 30, y - 30, 60, 60);
   g.restore();
 }
-// la máscara: los puntos (círculos) y las nubes (manchas suaves) descubren la foto de la galaxia (escalada al mapa)
+// la máscara: los puntos (círculos) y las nubes (manchas suaves) descubren la foto de la galaxia (escalada al mapa); al
+// final, el disco entero (solo el disco: un degradado radial que cubre hasta 0,95 R y se apaga en 1,08 R)
 const MASC = lienzo(W / 2, H / 2), gm = MASC.getContext('2d');
 const DESC = lienzo(W, H), gd = DESC.getContext('2d');
-const GAL_MAPA = (() => {
-  const c = lienzo(W, H), gc = c.getContext('2d');
-  gc.translate(MAPA.c[0], MAPA.c[1]); gc.scale(MAPA.s, MAPA.s); gc.translate(-GAL.c[0], -GAL.c[1]);
-  gc.drawImage(F('gal0'), 0, 0, W, H);
-  return c;
-})();
-function mapa(ts) {
+const R_MAPA = GAL.R * MAPA.s;
+function mapa(n, ts) {
+  const { PUNTOS, NUBES } = F('datos');
   const kE = ss(T.entera[0], T.entera[1], ts);
   // la máscara, a media resolución
   gm.setTransform(1, 0, 0, 1, 0, 0); gm.clearRect(0, 0, MASC.width, MASC.height);
@@ -723,10 +811,14 @@ function mapa(ts) {
     vistos++;
     gm.beginPath(); gm.arc(p.x, p.y, 4 + 2 * p.L, 0, 2 * Math.PI); gm.fill();
   }
-  if (kE > 0) { gm.fillStyle = `rgba(255,255,255,${kE})`; gm.fillRect(0, 0, W, H); }
+  if (kE > 0) {
+    const h = gm.createRadialGradient(MAPA.c[0], MAPA.c[1], 0.95 * R_MAPA, MAPA.c[0], MAPA.c[1], 1.08 * R_MAPA);
+    h.addColorStop(0, `rgba(255,255,255,${kE})`); h.addColorStop(1, 'rgba(255,255,255,0)');
+    gm.fillStyle = h; gm.fillRect(MAPA.c[0] - 1.1 * R_MAPA, MAPA.c[1] - 1.1 * R_MAPA, 2.2 * R_MAPA, 2.2 * R_MAPA);
+  }
   // lo descubierto: la galaxia por la máscara
   gd.setTransform(1, 0, 0, 1, 0, 0); gd.globalCompositeOperation = 'source-over'; gd.clearRect(0, 0, DESC.width, DESC.height);
-  gd.drawImage(GAL_MAPA, 0, 0, DESC.width, DESC.height);
+  gd.drawImage(F(galMapaDe(n)), 0, 0, DESC.width, DESC.height);
   gd.globalCompositeOperation = 'destination-in';
   gd.drawImage(MASC, 0, 0, DESC.width, DESC.height);
   g.save(); g.globalCompositeOperation = 'lighten'; g.drawImage(DESC, 0, 0, W, H); g.restore();
@@ -752,6 +844,7 @@ function mapa(ts) {
 }
 // los rayos del satélite: a los primeros puntos, uno a uno; luego, unos cuantos a la vez y más tenues
 function rayosSat(ts) {
+  const { PUNTOS } = F('datos');
   const o = puntaSat(ts);
   g.save();
   g.globalCompositeOperation = 'screen';
@@ -781,6 +874,7 @@ function rayosSat(ts) {
 }
 // las ondas de la antena: tres arcos que salen de la bocina hacia la nube que está marcando
 function ondasAnt(ts) {
+  const { NUBES } = F('datos');
   const o = bocaAnt;
   g.save();
   g.lineCap = 'round';
@@ -809,25 +903,24 @@ function ondasAnt(ts) {
   g.restore();
 }
 function tramo2(n, ts) {
-  g.drawImage(F('espacio'), 0, 0, W, H);
+  g.drawImage(F(espDe(n)), 0, 0, W, H);
   cuadricula(1 - 0.6 * ss(T.entera[0], T.entera[1], ts));
-  mapa(ts);
+  mapa(n, ts);
   aqui(ts, 1 - ss(T.entera[1], T.C1, ts) * 0.4);
   ondasAnt(ts);
+  g.drawImage(F(reglaDe(n)), ...RECT_REG.slice(0, 2), RECT_REG[2] - RECT_REG[0], RECT_REG[3] - RECT_REG[1]);
   P.limpiar();
-  const sq = 1 + 0.02 * Math.sin(ts * 3.1);
   P.pieza(I.SAT, { pos: en(...SAT.p, SAT.z), escala: E_SAT, rot: rotSat(ts) });
   P.U.uPT.value[I.SAT].x = 1;
   P.pieza(I.ANT, { pos: en(...ANT.p, ANT.z), escala: E_ANT, rot: ROT_ANT });
   P.U.uPT.value[I.ANT].x = TILT_ANT + 0.05 * Math.sin(ts * 2.2);
   atomo(ts);
-  reglaEn();
   P.render(n, { fondo: false });
   pegarGL();
   rayosSat(ts);
 }
 
-// ---------------------------------------------------------------- S3 · el salón (dos encuadres: por encima del hombro y entero)
+// ---------------------------------------------------------------- S3 · el salón (una foto; la cámara, en 2D)
 // la cuña ámbar del reloj, más viva que la del kit (que en el móvil apenas se ve): un sector multiplicado encima
 function relojAmbar(gg, info, min) {
   if (!info || min <= 0.2) return;
@@ -852,131 +945,232 @@ function luzSalon(gc, foco) {
   gc.fillStyle = h; gc.fillRect(0, 0, W, H);
   gc.restore();
 }
-function fotoSalon(encuadre, minutos, nFoto) {
+// LA FOTO DEL SALÓN, POR BANDAS. Cada banda es el mismo render (las mismas piezas y el mismo número de fotograma) con
+// el recorte de WebGL (scissor) en esas filas: los píxeles salen idénticos a los de la foto entera, y su coste (la pared
+// llena la pantalla) se reparte entre varios fotogramas baratos. Se solapan 2 px (el recorte va en px del lienzo).
+const N_FOTO_SALON = 5002, BANDAS = new URLSearchParams(location.search).has('entera') ? 1 : 12;   // ?entera: una sola banda (para comprobar)
+const SALON_F = { foto: null, info: null, hechas: new Set() };
+// el salón entero con el recorte de WebGL en las filas [a0, a1) del lienzo (px del lienzo, de arriba abajo)
+function salonEnFilas(a0, a1, I2 = IS_FOTO, extra = {}) {
+  const r = P.renderer, hd = lienzoGL.height, pr = r.getPixelRatio();
   P.limpiar();
-  const s = salon(P, IS, { encuadre, reloj: { minutos, sector: minutos > 0 ? [0, minutos] : null } });
-  P.render(nFoto, { fondo: false });
-  const foto = copiaGL(), gf = foto.getContext('2d'), k = foto.width / W;
-  gf.setTransform(k, 0, 0, k, 0, 0);
-  relojAmbar(gf, s.reloj, minutos);
-  luzSalon(gf, pant(s.persona.punto('cabeza')));
-  return { foto, info: s };
+  const info = salon(P, I2, { encuadre: 'general', ...extra });
+  if (I2 === IS_FOTO) SALON_F.info = info;
+  r.setScissor(0, (hd - a1) / pr, lienzoGL.width / pr, (a1 - a0) / pr);
+  r.setScissorTest(true);
+  try { P.render(N_FOTO_SALON, { fondo: false }); } finally { r.setScissorTest(false); }
 }
-HACER.cerca = () => fotoSalon('cerca', 0, 5001);
-HACER.general = () => fotoSalon('general', 60, 5002);
+function bandaSalon(b) {
+  if (SALON_F.hechas.has(b)) return;
+  if (!SALON_F.foto) SALON_F.foto = lienzo();
+  const hd = lienzoGL.height;
+  const y0 = Math.round((b * hd) / BANDAS / 2) * 2, y1 = b === BANDAS - 1 ? hd : Math.round(((b + 1) * hd) / BANDAS / 2) * 2;
+  salonEnFilas(Math.max(0, y0 - 2), Math.min(hd, y1 + 2));
+  const gf = SALON_F.foto.getContext('2d');
+  gf.drawImage(lienzoGL, 0, y0, lienzoGL.width, y1 - y0, 0, y0, lienzoGL.width, y1 - y0);
+  SALON_F.hechas.add(b);
+}
+// (coste) los estrenos del salón: cada pasada (la pared, el sofá, el bol y cada celda del cuerpo de la persona, la
+// cabeza y las manos) se compila al dibujarla por primera vez; con un recorte de dos filas cuesta solo eso. Van por
+// piezas, cada una en un fotograma barato, y ninguna banda lo paga
+const estrenoSalon = (I2, extra) => () => { salonEnFilas(0, 2, I2, extra); return true; };
+HACER.estrenoPared = estrenoSalon({ ventana: I.VEN });
+HACER.estrenoSofa = estrenoSalon({ sofa: I.SOFA, bol: I.BOL });
+HACER.estrenoCabeza = estrenoSalon({ persona: I.PER }, { persona: { partes: ['cabeza', 'manos'] } });
+HACER.estrenoCuerpo = estrenoSalon({ persona: I.PER }, { persona: { partes: 'cuerpo' } });
+// el cuerpo, por trozos: cada celda del cuerpo (según los grupos que la cubren) tiene su propio programa, y estrenarlos
+// todos en un fotograma costaba ~11 s de CPU. En cada trozo, el render deja pasar como mucho UN dibujo que estrene
+// programa (crece renderer.info.programs) y se salta los demás (son dibujos de dos filas en el lienzo de WebGL, que no se
+// ve); el kit no se toca. Al final, estrenoCuerpo (sin límite) asegura que no quede ninguno
+function estrenoCuerpoTrozo() {
+  const r = P.renderer, orig = r.render;
+  let nuevos = 0;
+  r.render = function (escena, cam) {
+    if (nuevos >= 1) return;
+    const n0 = r.info.programs.length;
+    orig.call(this, escena, cam);
+    if (r.info.programs.length > n0) nuevos++;
+  };
+  try { salonEnFilas(0, 2, { persona: I.PER }, { persona: { partes: 'cuerpo' } }); } finally { r.render = orig; }
+  return true;
+}
+const N_TROZOS = 8;
+for (let k = 0; k < N_TROZOS; k++) HACER['estrenoCuerpo' + k] = estrenoCuerpoTrozo;
+// (retoque) el «humano» de espaldas del kit compartido deja en esta postura y este encuadre dos defectos: una mancha
+// gris en lo bajo del pelo, junto a la oreja, y un agujero oscuro en el cuello del jersey, en la nuca (más una mota
+// clara en el pelo). Se suavizan en 2D sobre la foto, con mezclas que solo van en un sentido: una sombra cálida
+// (multiply) sobre la mancha, el color del jersey con «lighten» (rellena lo oscuro y deja el punto, más claro) y el del
+// pelo con «darken» sobre la mota. Medido en el encuadre general (px de diseño).
+function retoque(gf) {
+  gf.save();
+  const blob = (x, y, rx, ry, col, a, modo) => {
+    gf.save(); gf.globalCompositeOperation = modo; gf.translate(x, y); gf.scale(1, ry / rx);
+    const h = gf.createRadialGradient(0, 0, 0, 0, 0, rx);
+    h.addColorStop(0, `rgba(${col},${a})`); h.addColorStop(0.6, `rgba(${col},${a * 0.65})`); h.addColorStop(1, `rgba(${col},0)`);
+    gf.fillStyle = h; gf.fillRect(-rx, -rx, 2 * rx, 2 * rx); gf.restore();
+  };
+  blob(738, 476, 30, 34, '150,108,78', 0.5, 'multiply');
+  blob(710, 542, 17, 8, '206,189,164', 0.95, 'lighten');
+  blob(676, 440, 6, 6, '150,110,78', 0.9, 'darken');
+  gf.restore();
+}
+for (let b = 0; b < BANDAS; b++) HACER['salon' + b] = () => { bandaSalon(b); return true; };
+HACER.salon = () => {
+  for (let b = 0; b < BANDAS; b++) F('salon' + b);
+  const gf = SALON_F.foto.getContext('2d'), k = SALON_F.foto.width / W;
+  gf.setTransform(k, 0, 0, k, 0, 0);
+  luzSalon(gf, pant(SALON_F.info.persona.punto('cabeza')));
+  retoque(gf);
+  gf.setTransform(1, 0, 0, 1, 0, 0);
+  return { foto: SALON_F.foto, info: SALON_F.info };
+};
+// la cámara del salón: un acercamiento en 2D de la foto alrededor de PIV (por encima del hombro: 1,4, que se aleja
+// muy despacio hasta 1,37) y, con «aunque estés en el sofá», el alejamiento hasta 1 (el salón entero)
+const PIV = [900, 300], Z_HOMBRO = [1.4, 1.37];
+function zoomSalon(ts) {
+  const d = prog(ts, T.C1, T.retro[0]), r = eio(prog(ts, T.retro[0], T.retro[1]));
+  return mix(mix(Z_HOMBRO[0], Z_HOMBRO[1], d), 1, r);
+}
+const zP = (s, [x, y]) => [PIV[0] + (x - PIV[0]) * s, PIV[1] + (y - PIV[1]) * s];
+// el reloj de la pared, en vivo encima de la foto, con el mismo acercamiento: el encuadre { s, pivote } del kit escala el
+// salón alrededor de un punto del plano del reloj (z = −2,9) que cae en PIV, y en ese plano es el mismo zoom que el 2D
+const PIV3 = en(PIV[0], PIV[1], -2.9);
+const relojEn = (s, min) => salon(P, { reloj: I.REL }, { encuadre: { s, pivote: PIV3 }, reloj: { minutos: min, sector: min > 0.2 ? [0, min] : null } }).reloj;
 // la Tierra y la Luna (fotos, para dentro de la ventana)
-HACER.tierra = () => {
-  P.limpiar(); P.globo({ pos: en(960, 540, 2), radio: 120 / pxU(en(960, 540, 2)), inclinacion: 0.41, giro: 2.2 }); P.render(5101, { fondo: false });
-  const c = lienzo(Math.round(300 * lienzoGL.width / W), Math.round(300 * lienzoGL.width / W)), k = lienzoGL.width / W;
+function fotoCuerpo(poner, n) {
+  P.limpiar(); poner(); P.render(n, { fondo: false });
+  const k = lienzoGL.width / W, c = lienzo(Math.round(300 * k), Math.round(300 * k));
   c.getContext('2d').drawImage(lienzoGL, (960 - 150) * k, (540 - 150) * k, 300 * k, 300 * k, 0, 0, c.width, c.height);
   return c;
-};
-HACER.luna = () => {
-  P.limpiar(); P.pieza(I.LUNA, { pos: en(960, 540, 2), escala: 110 / pxU(en(960, 540, 2)), rot: [0, -0.3, 0] }); P.render(5102, { fondo: false });
-  const c = lienzo(Math.round(300 * lienzoGL.width / W), Math.round(300 * lienzoGL.width / W)), k = lienzoGL.width / W;
-  c.getContext('2d').drawImage(lienzoGL, (960 - 150) * k, (540 - 150) * k, 300 * k, 300 * k, 0, 0, c.width, c.height);
-  return c;
-};
+}
+HACER.tierra = () => fotoCuerpo(() => P.globo({ pos: en(960, 540, 2), radio: 120 / pxU(en(960, 540, 2)), inclinacion: 0.41, giro: 2.2 }), 5101);
+HACER.luna = () => fotoCuerpo(() => P.pieza(I.LUNA, { pos: en(960, 540, 2), escala: 110 / pxU(en(960, 540, 2)), rot: [0, -0.3, 0] }), 5102);
 // dentro de la ventana (unidades del hueco: u de 0 a 1 a lo ancho, v de 0 a 1 de arriba abajo)
 function enHueco(h, u, v) {
   const top = [mix(h[0][0], h[1][0], u), mix(h[0][1], h[1][1], u)], bot = [mix(h[3][0], h[2][0], u), mix(h[3][1], h[2][1], u)];
   return [mix(top[0], bot[0], v), mix(top[1], bot[1], v)];
 }
+// la Tierra en el vidrio de abajo a la izquierda y la Luna en el de arriba a la derecha (lejos del parteluz en cruz,
+// que va por u = 0,5 y v = 0,5); delante de las rayas (las estrellas están mucho más lejos) y detrás del marco
+const TL = { T: [0.25, 0.72], L: [0.78, 0.27], rT: 0.1, rL: 0.072 };
 function tierraLuna(gg, h, ts) {
   const kA = brote(ts, T.tl + 0.25, 0.3, 0.12), kF = 1 - ss(T.fueraTL[0], T.fueraTL[1], ts);
   if (kA <= 0.001 || kF <= 0.001) return;
   const anchoH = Math.hypot(h[1][0] - h[0][0], h[1][1] - h[0][1]);
-  const pT = enHueco(h, 0.24, 0.66), pL = enHueco(h, 0.8, 0.5);
-  const rT = 0.085 * anchoH, rL = 0.05 * anchoH;
+  const pT = enHueco(h, ...TL.T), pL = enHueco(h, ...TL.L);
+  const rT = TL.rT * anchoH, rL = TL.rL * anchoH;
   gg.save();
+  recorteHueco(gg, h);
   gg.globalAlpha = kF;
   // el halo de la Tierra
-  const ha = gg.createRadialGradient(pT[0], pT[1], rT * 0.9, pT[0], pT[1], rT * 1.6);
-  ha.addColorStop(0, `rgba(120,170,230,${0.35 * kA})`); ha.addColorStop(1, 'rgba(120,170,230,0)');
+  const ha = gg.createRadialGradient(pT[0], pT[1], rT * 0.9, pT[0], pT[1], rT * 1.7);
+  ha.addColorStop(0, `rgba(120,170,230,${0.4 * kA})`); ha.addColorStop(1, 'rgba(120,170,230,0)');
   gg.fillStyle = ha; gg.fillRect(pT[0] - rT * 2, pT[1] - rT * 2, rT * 4, rT * 4);
-  // y el de la Luna (plateado: de lejos es pequeña)
-  const hl = gg.createRadialGradient(pL[0], pL[1], 0, pL[0], pL[1], rL * 2.6);
-  hl.addColorStop(0, `rgba(230,225,200,${0.4 * kA})`); hl.addColorStop(1, 'rgba(200,205,220,0)');
-  gg.fillStyle = hl; gg.fillRect(pL[0] - rL * 2.6, pL[1] - rL * 2.6, rL * 5.2, rL * 5.2);
+  // y el de la Luna: plateado y ancho (que se lea en el móvil)
+  gg.globalCompositeOperation = 'screen';
+  const hl = gg.createRadialGradient(pL[0], pL[1], rL * 0.3, pL[0], pL[1], rL * 3.4);
+  hl.addColorStop(0, `rgba(235,232,215,${0.55 * kA})`); hl.addColorStop(0.35, `rgba(215,220,235,${0.22 * kA})`); hl.addColorStop(1, 'rgba(200,205,220,0)');
+  gg.fillStyle = hl; gg.fillRect(pL[0] - rL * 3.4, pL[1] - rL * 3.4, rL * 6.8, rL * 6.8);
+  gg.globalCompositeOperation = 'source-over';
   const fT = F('tierra'), fL = F('luna');
   const sT = rT * kA / 120, sL = rL * kA / 55;
   gg.drawImage(fT, pT[0] - 150 * sT, pT[1] - 150 * sT, 300 * sT, 300 * sT);
   gg.drawImage(fL, pL[0] - 150 * sL, pL[1] - 150 * sL, 300 * sL, 300 * sL);
-  // el trazo: de la Tierra a la Luna (por arriba) y de vuelta (por abajo): dos veces la distancia
+  // el trazo: de la Tierra a la Luna (por encima de la recta que las une) y de vuelta (por debajo): dos veces la distancia
+  const dx = pL[0] - pT[0], dy = pL[1] - pT[1], dl = Math.hypot(dx, dy), d = [dx / dl, dy / dl], na = [d[1], -d[0]];
+  const borde = (p, r, sx, sn) => { const v = [sx * d[0] + sn * na[0], sx * d[1] + sn * na[1]], l = Math.hypot(...v); return [p[0] + (v[0] / l) * r, p[1] + (v[1] / l) * r]; };
+  const a = borde(pT, rT * 1.12, 1, 0.75), b = borde(pL, rL * 1.45, -1, 0.75);
+  const c = borde(pL, rL * 1.45, -1, -0.75), e = borde(pT, rT * 1.12, 1, -0.75);
   const ida = [], vuelta = [];
-  const a = [pT[0] + rT * 1.05, pT[1] - rT * 0.3], b = [pL[0] - rL * 1.3, pL[1] - rL * 0.2];
-  const c = [pL[0] - rL * 1.3, pL[1] + rL * 0.4], d = [pT[0] + rT * 1.05, pT[1] + rT * 0.35];
   for (let i = 0; i <= 40; i++) {
     const u = i / 40, arc = Math.sin(Math.PI * u);
-    ida.push([mix(a[0], b[0], u), mix(a[1], b[1], u) - arc * 0.16 * anchoH]);
-    vuelta.push([mix(c[0], d[0], u), mix(c[1], d[1], u) + arc * 0.12 * anchoH]);
+    ida.push([mix(a[0], b[0], u) + na[0] * arc * 0.12 * anchoH, mix(a[1], b[1], u) + na[1] * arc * 0.12 * anchoH]);
+    vuelta.push([mix(c[0], e[0], u) - na[0] * arc * 0.1 * anchoH, mix(c[1], e[1], u) - na[1] * arc * 0.1 * anchoH]);
   }
   const u1 = eio(prog(ts, T.pasa1[0], T.pasa1[1])), u2 = eio(prog(ts, T.pasa2[0], T.pasa2[1]));
   const L = (pts) => { let s = 0; for (let i = 1; i < pts.length; i++) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return s; };
-  if (u1 > 0) rayo(gg, ida, { hasta: u1 * L(ida), grosor: 5, cabeza: u1 < 1 ? 1 : 0 });
-  if (u2 > 0) rayo(gg, vuelta, { hasta: u2 * L(vuelta), grosor: 5, cabeza: u2 < 1 ? 1 : 0 });
+  const gr = Math.max(4, 0.011 * anchoH);
+  if (u1 > 0) rayo(gg, ida, { hasta: u1 * L(ida), grosor: gr, cabeza: u1 < 1 ? 1 : 0 });
+  if (u2 > 0) rayo(gg, vuelta, { hasta: u2 * L(vuelta), grosor: gr, cabeza: u2 < 1 ? 1 : 0 });
   gg.restore();
 }
-function salonCompuesto(n, ts, cual) {
-  const S = F(cual);
-  const h = S.info.ventana.hueco;
-  const tc = Math.min(ts, TQ);
-  cieloVentana(g, h, { t: tc, rayas: RAYAS, encima: cual === 'cerca' ? (gg) => tierraLuna(gg, h, ts) : null });
-  g.drawImage(S.foto, 0, 0, W, H);
+function tramo3(n, ts) {
+  const S = F('salon');
+  const s = zoomSalon(ts);
+  const h = S.info.ventana.hueco.map((p) => zP(s, p));
+  cieloVentana(g, h, { t: Math.min(ts, TQ), rayas: RAYAS });
+  tierraLuna(g, h, ts);
+  pegarEscalada(S.foto, s, PIV);
   vidrioVentana(g, h);
   sombrasPresentador(0.8);
+  g.drawImage(F(reglaDe(n)), ...RECT_REG.slice(0, 2), RECT_REG[2] - RECT_REG[0], RECT_REG[3] - RECT_REG[1]);
   P.limpiar();
-  let min = 0, rel = null;
-  if (cual === 'cerca') {
-    const u = prog(ts, T.reloj[0], T.reloj[1]);
-    min = 60 * eio(u);
-    if (u > 0) rel = salonReloj(min);
-  }
+  const min = 60 * eio(prog(ts, T.reloj[0], T.reloj[1]));
+  const rel = relojEn(s, min);
   atomo(ts);
-  reglaEn();
   P.render(n, { fondo: false });
   pegarGL();
-  if (rel) relojAmbar(g, rel, min);
+  relojAmbar(g, rel, min);
+  return s;
 }
-// el reloj de la pared, en vivo (encima de su foto): las agujas y la cuña de la hora que pasa
-function salonReloj(min) {
-  return salon(P, { reloj: I.REL }, { encuadre: 'cerca', reloj: { minutos: min, sector: min > 0.2 ? [0, min] : null } }).reloj;
-}
-// ---------------------------------------------------------------- al cargar: las fotos y los estrenos
-F('marco');
-marcaCarga('marco');
-F('tierra'); F('luna');
-marcaCarga('tierra y luna');
-F('cerca');
-marcaCarga('salón cerca');
-F('general');
-marcaCarga('salón general');
-// (coste) se estrenan los programas de lo que va en vivo (su primer dibujo compila en SwiftShader)
+
+// ---------------------------------------------------------------- al cargar: lo del fotograma 0 y los estrenos
+// (coste) se estrenan Atom y el marco (que cae desde 0,3 s antes de «ilustracion»): su primer dibujo compila en SwiftShader
 P.fotograma(0); P.limpiar();
-atomo(0); reglaEn();
-P.pieza(I.PIN, { pos: en(100, 100, 2), escala: 0.05 });
-P.pieza(I.SAT, { pos: en(200, 100, 2), escala: 0.05 });
-P.pieza(I.ANT, { pos: en(300, 100, 2), escala: 0.05 });
+atomo(0);
+P.pieza(I.MARCO, { pos: en(100, 100, 2), escala: 0.05 });
 P.render(0, { fondo: false });
 marcaCarga('estrenos');
+// lo demás, en fotogramas baratos poco antes de hacer falta (en orden, como renderiza render-escenas.mjs); un instante
+// suelto lo hace al momento (F) y sale lo mismo. Los estrenos (compilar el satélite, la antena y el reloj) no cambian
+// ningún píxel: solo quitan la compilación del primer fotograma que los dibuja.
+const estreno = (...poner) => () => { P.limpiar(); for (const f of poner) f(); P.render(0, { fondo: false }); return true; };
+HACER.estrenoMapa = estreno(() => P.pieza(I.SAT, { pos: en(200, 100, 2), escala: 0.05 }), () => P.pieza(I.ANT, { pos: en(300, 100, 2), escala: 0.05 }));
+HACER.estrenoReloj = estreno(() => relojEn(0.1, 0));
+const nDe = (t) => Math.floor(t * 12 + 1e-6);
+const N_QUIETO = nDe(T.marco[1] + 0.75);                // el primer fotograma con el marco quieto (foto)
+const PREPARAR = [
+  [0, 'marco'], [0, 'gal1'], [1, 'gal2'],
+  [N_QUIETO - 3, 'cuadro0'], [N_QUIETO - 2, 'cuadro1'], [N_QUIETO - 1, 'cuadro2'],
+  [N_QUIETO, 'pincel0'], [N_QUIETO + 1, 'pincel1'], [N_QUIETO + 1, 'sombraPincel'], [N_QUIETO + 2, 'reg1'], [N_QUIETO + 3, 'reg2'],
+  [N_QUIETO + 5, 'estrenoPared'], [N_QUIETO + 6, 'cuadroP0'], [N_QUIETO + 7, 'estrenoSofa'], [N_QUIETO + 8, 'cuadroP1'],
+  [N_QUIETO + 9, 'estrenoCabeza'], [N_QUIETO + 10, 'cuadroP2'],
+  ...Array.from({ length: N_TROZOS }, (_, k) => [N_QUIETO + 11 + k, 'estrenoCuerpo' + k]), [N_QUIETO + 11 + N_TROZOS, 'estrenoCuerpo'],
+  ...Array.from({ length: BANDAS }, (_, b) => [N_QUIETO + 13 + N_TROZOS + 2 * b, 'salon' + b]),
+  [nDe(T.B) - 6, 'datos'], [nDe(T.B) - 5, 'esp0'], [nDe(T.B) - 5, 'esp1'], [nDe(T.B) - 4, 'esp2'],
+  [nDe(T.B) - 4, 'galMapa0'], [nDe(T.B) - 3, 'galMapa1'], [nDe(T.B) - 3, 'galMapa2'], [nDe(T.B) - 2, 'estrenoMapa'],
+  [nDe(T.B) + 6, 'salon'], [nDe(T.B) + 10, 'tierra'], [nDe(T.B) + 14, 'luna'], [nDe(T.B) + 18, 'estrenoReloj'],
+];
+// las fotos que necesita cada fotograma (se piden antes de empezar a dibujarlo, para no limpiar el plató a medias)
+function fotosDe(n, ts) {
+  const k = [reglaDe(n)];
+  if (ts < T.B) {
+    k.push(ts < T.marco[1] + 0.75 ? galDe(n) : cuadroDe(n, ts));
+    const e = estadoPincel(ts);
+    if (e) k.push('sombraPincel', e.apr > 0.5 ? 'pincel1' : 'pincel0');
+  } else if (ts < T.C1) k.push('datos', espDe(n), galMapaDe(n));
+  else { k.push('salon'); if (ts > T.tl - 0.2 && ts < T.fueraTL[1]) k.push('tierra', 'luna'); }
+  return k;
+}
 
 // ---------------------------------------------------------------- dibujar
 function dibujar(t) {
   ajustarCapa();
   const n = P.fotograma(t, D), ts = n / 12;
+  for (const [nk, k] of PREPARAR) if (n === nk) F(k);
+  for (const k of fotosDe(n, ts)) F(k);
   g.fillStyle = '#05060b'; g.fillRect(0, 0, W, H);
   let plano;
   if (ts < T.B) { tramo1(n, ts); plano = 'cuadro'; }
   else if (ts < T.C1) { tramo2(n, ts); plano = 'mapa'; }
-  else if (ts < T.C2) { salonCompuesto(n, ts, 'cerca'); plano = 'cerca'; }
-  else { salonCompuesto(n, ts, 'general'); plano = 'general'; }
+  else { const s = tramo3(n, ts); plano = s > 1.2 ? 'hombro' : s > 1.001 ? 'alejandose' : 'salon'; }
   parpadeo(n);
   POST.aplicar(g, n);
   window.__plano = plano;
 }
 window.__fin = {
-  final: 'cieloVentana(t = TQ) + foto de salon(P, I, { encuadre: "general", reloj: { minutos: 60, sector: [0, 60] } }) con relojAmbar(60) y luzSalon(foco: la cabeza) + vidrioVentana + sombrasPresentador(0,8); regla e 21; Atom (230, 780); parpadeo y crearPost',
-  TQ, n: Math.floor((D - QUIETO_KIT) * 12 + 1e-6), tiempos: T,
+  final: 'cieloVentana(t = TQ) + foto de salon(P, I, { encuadre: "general" }) (sin reloj) con luzSalon(foco: la cabeza) + vidrioVentana + sombrasPresentador(0,8) + foto de la regla (e 21) + reloj en vivo salon(P, { reloj }, { encuadre: { s: 1, pivote }, reloj: { minutos: 60, sector: [0, 60] } }) con relojAmbar(60); Atom (230, 780); parpadeo y crearPost',
+  TQ, n: Math.floor((D - QUIETO_KIT) * 12 + 1e-6), tiempos: T, piv: PIV, zoom: Z_HOMBRO, preparar: PREPARAR,
   atomo: (() => { const S = estadoAtom(D); return { tz: S.tz, ta: tabla(TA, D) }; })(),
 };
 marcaCarga('listo');

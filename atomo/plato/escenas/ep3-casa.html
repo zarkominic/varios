@@ -290,14 +290,9 @@ function regla(ts) {
   const ac = mix(-9, -10, u);
   return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], ...REGLA_0, actual: ac, marca: ac, toque: u > 0 && u < 1 });
 }
-// la regla quieta es una foto (una para 10⁻⁹, al cargar, y otra para 10⁻¹⁰, en un fotograma barato antes de que baje
-// el marcador: FOTOS.regla9 y FOTOS.regla10); solo se dibuja viva mientras baja el marcador
-function hacerFotoRegla(ac) {
-  P.limpiar();
-  P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], ...REGLA_0, actual: ac, marca: ac });
-  P.render(3000 - ac, { fondo: false });
-  return foto(P);
-}
+// la regla quieta es una foto (una para 10⁻⁹, al cargar, y otra para 10⁻¹⁰, por tiras en los primeros fotogramas:
+// FOTOS.regla9 y FOTOS.regla10); solo se dibuja viva mientras baja el marcador
+const reglaQuieta = (ac) => P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], ...REGLA_0, actual: ac, marca: ac });
 const fotoRegla = (ac) => F(ac === -10 ? 'regla10' : 'regla9');
 function capaArriba(n, ts, h = null) {
   const um = prog(ts, T.marcador[0], T.marcador[1]);
