@@ -781,7 +781,7 @@ window.__inicio = {
   regla: 'e 4 (foto n 9400)', atomo: ATOMO,
 };
 window.__fin = { mundo: `camara(21), n ${N_LUZ}, somA ${SOM_A.map((v) => +v.toFixed(2))}`, regla: 'e 21 (foto n 0)', atomo: ATOMO, galaxia: GAL };
-if (new URLSearchParams(location.search).has('sonda')) window.__dbg = { mundo, mundoV, estadoMundo, fotoMundo, camAt, sinVineta, somA, P, reglaEn, atomo, POST, g, mundoSalto, F, parpadeo };
+if (new URLSearchParams(location.search).has('sonda')) window.__dbg = { mundo, mundoV, estadoMundo, fotoMundo, camAt, sinVineta, somA, P, reglaEn, atomo, POST, g, mundoSalto, F, parpadeo, cintaAL, zRegla, pegarGL, ajustarCapa };
 marcaCarga('listo');
 E.iniciar(dibujar, { paso: 1 / 12 });
 </script>

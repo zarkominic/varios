@@ -54,8 +54,8 @@
 // se mueve); la regla mientras corre la escala; la fila de glóbulos y la cota. El ojo de fuera que se cierra son cuatro
 // fotos (la abierta entera y las otras tres solo en la zona de los párpados, sin sombra de los párpados en la cara para que
 // casen) y el río va en 2D con fotos de un glóbulo. Al cargar se hacen el plató, la foto del ojo en corte, la regla en
-// 10⁻⁴, el estreno del ojo de fuera y sus dos primeras fotos (abierto y 0,2; no caben junto a un fotograma del ojo en
-// corte); las demás fotos (las grandes, por franjas) y los estrenos se reparten por presupuesto (en s de reloj) entre los
+// 10⁻⁴, el estreno del ojo de fuera, sus dos primeras fotos (abierto y 0,2; no caben junto a un fotograma del ojo en
+// corte) y el vaso; las demás fotos (las grandes, por franjas) y los estrenos se reparten por presupuesto (en s de reloj) entre los
 // fotogramas, antes de hacer falta, sin que ninguno pase de ~3,6 s (PREPARAR).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
@@ -319,8 +319,13 @@ const POSE = (() => { const c = en(960, 540, 0.5); return { pos: c, escala: (RIO
 function pintarPose(k) {
   P.fotograma(0); P.limpiar();
   fila(P, I.GLS, { pos: POSE.pos, escala: POSE.escala, rot: [0.3 + (k * Math.PI) / RIO.poses, 0.45, 0.1], n: 1 });
+  // (coste) solo se pinta el cuadrado que se recorta
+  const L = POSE.lado, kk = P.renderer.getSize(new THREE.Vector2()).x / W;
+  P.renderer.setScissor((960 - L / 2) * kk, (540 - L / 2) * kk, L * kk, L * kk);
+  P.renderer.setScissorTest(true);
   P.render(7000 + k, { fondo: false });
-  const L = POSE.lado, c = document.createElement('canvas'), d = lienzoGL.width / W;
+  P.renderer.setScissorTest(false);
+  const c = document.createElement('canvas'), d = lienzoGL.width / W;
   c.width = c.height = Math.round(L * d);
   c.getContext('2d').drawImage(lienzoGL, Math.round((960 - L / 2) * d), Math.round((540 - L / 2) * d), c.width, c.height, 0, 0, c.width, c.height);
   return c;
@@ -507,10 +512,11 @@ function fin() {
 const FOTO = {};
 let hechasAhora = 0, tFot = null;
 // las fotos grandes se pintan en FRANJAS horizontales (setScissor), una por fotograma, con su número de fotograma fijo
-// (coste) el ojo abierto (ojo0) y el primer paso del cierre (ojo1) se hacen al cargar, de una vez: cada franja con fondo
-// repite la pasada de sombra entera. Los pasos del cierre (ojo1-3) van sin fondo (sin sombra), encima del ojo abierto: en
-// la zona de los párpados el ojo lo tapa todo.
-const FRANJAS = { tronco: 6, vaso: 8, pelo: 3, ojo0: 1, ojo1: 1, ojo2: 3, ojo3: 3 };
+// (coste) cada franja con fondo repite entera la pasada de sombra, que es casi todo lo que cuesta una foto con fondo: las
+// fotos con fondo van en pocas franjas (el ojo abierto, el primer paso del cierre y el vaso, de una vez al cargar; el
+// tronco y el pelo, en dos y tres fotogramas baratos). Los pasos del cierre (ojo1-3) van sin fondo (sin sombra), encima del ojo abierto: en la zona de
+// los párpados el ojo lo tapa todo; ojo2 y ojo3, por franjas.
+const FRANJAS = { tronco: 2, vaso: 1, pelo: 3, ojo0: 1, ojo1: 1, ojo2: 3, ojo3: 3 };
 // zona de cada foto por franjas (px de diseño; por defecto, el cuadro entero) y la foto sobre la que se pega
 const ZONA = { ojo1: R_OJO, ojo2: R_OJO, ojo3: R_OJO };
 const BASE = { ojo1: 'ojo0', ojo2: 'ojo0', ojo3: 'ojo0' };
@@ -579,9 +585,9 @@ function F(k) {
 const COSTE = { corte: 3.8, ojo: 0.3, mir1: 0.3, tronco: 0.3, mir2: 3.0, vaso: 0.3, pelo: 2.5 };
 const LIMITE = 4.2;
 const EST = {
-  'ojo2#': 2.3, ojo2: 0.05, 'ojo3#': 2.3, ojo3: 0.05, ojoVin: 0.1,
-  'e:tronco': 3.0, 'tronco#': 1.8, tronco: 0.05, 'e:vaso': 1.0, 'vaso#': 2.5, vaso: 0.05, 'e:globulos': 1.0,
-  regla5: 2.0, pose: 2.2, 'e:cortePelo': 1.0, 'pelo#': 2.8, pelo: 0.05, 'e:cota': 1.0,
+  'ojo2#': 2.8, ojo2: 0.05, 'ojo3#': 2.8, ojo3: 0.05, ojoVin: 0.1,
+  'e:tronco': 3.0, 'tronco#': 3.6, tronco: 0.05, 'e:globulos': 1.0,
+  regla5: 2.8, pose: 2.8, 'e:cortePelo': 1.0, 'pelo#': 3.8, pelo: 0.05, 'e:cota': 1.0,
 };
 const est = (k) => EST[k] ?? EST[k.includes('#') ? k.split('#')[0] + '#' : k.startsWith('pose') ? 'pose' : k];
 const franjas = (k, desde, hasta) => [...Array(FRANJAS[k]).keys()].map((b) => [desde, `${k}#${b}`, hasta]).concat([[desde, k, hasta]]);
@@ -589,7 +595,7 @@ const PREPARAR = [
   ...franjas('ojo2', 0, T.cierra[1]), ...franjas('ojo3', 0, T.cierra[1]),
   // (lo que no corre prisa, a partir de los fotogramas baratos del ojo de fuera)
   [T.ojo, 'ojoVin', T.mir1[1]], [T.ojo, 'e:tronco', T.mir1[0]], ...franjas('tronco', T.ojo, T.mir1[0]),
-  [T.ojo, 'e:vaso', T.mir2[0]], [T.ojo, 'e:globulos', T.mir2[0]], ...[...Array(RIO.poses).keys()].map((k) => [T.ojo, 'pose' + k, T.mir2[0]]), ...franjas('vaso', T.ojo, T.mir2[0]), [T.ojo, 'regla5', T.mir2[1]],
+  [T.ojo, 'e:globulos', T.mir2[0]], ...[...Array(RIO.poses).keys()].map((k) => [T.ojo, 'pose' + k, T.mir2[0]]), [T.ojo, 'regla5', T.mir2[1]],
   [T.ojo, 'e:cortePelo', T.pelo], [T.ojo, 'e:cota', T.pelo], ...franjas('pelo', T.ojo, T.pelo),
 ];
 // lo que tiene que estar hecho antes (si no, F() lo haría dentro y se saldría del presupuesto)
@@ -612,8 +618,8 @@ function preparar(ts) {
 }
 
 // al cargar: la foto del ojo en corte, la regla en 10⁻⁴, el estreno del ojo de fuera (estrenan también los programas
-// del ojo en corte, la regla, la flecha y Atom) y las dos primeras fotos del ojo de fuera (abierto y 0,2)
-F('baseOjo'); F('regla4'); F('e:ojo'); F('ojo0'); F('ojo1');
+// del ojo en corte, la regla, la flecha y Atom), las dos primeras fotos del ojo de fuera (abierto y 0,2) y el vaso
+F('baseOjo'); F('regla4'); F('e:ojo'); F('ojo0'); F('ojo1'); F('vaso');
 P.limpiar(); atomo(0); P.render(0, { fondo: false });
 hito('fotos');
 window.__medidas = { R_OJO, FOCO_PARPADO, FOCO_CANTO, COTA, T, ojoExt: { pos: EXT.pos, escala: EXT.esc, px: EXT.px }, vasoEsc: VASO.esc, pelo: { pos: CP.pos, escala: CP.esc } };
