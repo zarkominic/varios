@@ -29,11 +29,12 @@
 //            a la esfera, con Atom ya en su sitio, abajo a la izquierda, y se queda quieta (termina_con = FINAL_UNIVERSO)
 // CONTINUIDAD
 //  · Fotograma 0 = ENLACE de kits/ep03-universo.js (ep3-andromeda todavía no existe: este es el encuadre que su último
-//    fotograma tiene que dar). Último fotograma = FINAL_UNIVERSO (el primero de ep3-borde). window.__fin lo da en números.
+//    fotograma tiene que dar). Último fotograma = FINAL_UNIVERSO (el primero de ep3-borde), con la esfera en el sitio y del
+//    tamaño del disco de ep3-arena: centro (960, 470), radio 300. window.__fin lo da en números.
 // Coste: todo se compone en 2D y la viñeta y el grano van al final (crearPost). Lo quieto son fotos: el fondo del mundo en
 // 10²² y la galaxia (al cargar), las figuritas (al cargar), la red en cada parada del viaje y la esfera (la primera vez que
-// hacen falta). En vivo: la red a media resolución mientras salta, la esfera mientras aparece y en la vuelta final, Atom y
-// la regla siempre, el «?» y, en la goma, la persona, la goma, la hormiga y la meta.
+// hacen falta). En vivo: la red a media resolución mientras salta, la esfera mientras aparece (la vuelta final es la foto
+// del final ampliada en 2D), Atom y la regla siempre, el «?» y, en la goma, la persona, la goma, la hormiga y la meta.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cartela, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, brote, COLOR, mezclarPosturas, esqueletoHumano } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -226,7 +227,7 @@ function galaxias(zr, ts) {
   const kAp = (1 - ss(1.5, 6, rA)) * (1 - ss(4, 26, Math.hypot(...dA)));
   if (kAp > 0.01 && Math.hypot(...dA) > 6) puntoNosotros(g, [nos[0] + dA[0], nos[1] + dA[1]], { r: 2.5, k: 0.6 * kAp });
   const kP = (1 - kSpr) ;
-  puntoNosotros(g, nos, { r: mix(5, 4.5, esferaK(ts)), k: Math.max(kP, 0) });
+  puntoNosotros(g, nos, { r: mix(7, 4.5, esferaK(ts)), k: Math.max(kP, 0) });
 }
 // la línea de tiempo de ep3-andromeda (vara de alambre, luz en el último tramo y figuritas): se apaga tras la cartela
 function lineaTiempo(ts) {
@@ -376,9 +377,12 @@ function dibujar(t) {
   } else {
     // la vuelta: la cámara se aleja de la esfera hasta el encuadre del principio de ep3-borde
     const u = eio(prog(ts, T.vuelta[0], T.vuelta[1]));
+    // (la foto quieta del final, ampliada en 2D alrededor del centro de la esfera: lo mismo que acercar la red y la esfera,
+    // y mucho más barato que pintarlas en vivo)
     if (u < 1) {
       const s = mix(1.3, 1, u), c = FIN.esfera.c;
-      pegar(cielo.dibujar({ red: { ...FIN.red, origen: ORIGEN, celda: FIN.red.celda * s }, esfera: { ...FIN.esfera, r: FIN.esfera.r * s }, n: nf }));
+      g.save(); g.translate(c[0], c[1]); g.scale(s, s); g.translate(-c[0], -c[1]);
+      g.drawImage(fotoEsfera(nf), 0, 0, W, H); g.restore();
     } else pegar(fotoEsfera(nf));
     puntoNosotros(g, FIN.esfera.c, { r: 4.5, k: 1 });
     atomo(ts);

@@ -35,11 +35,10 @@
 // Atom; las medidas, en HOLA y encuadreHola) más Atom en su sitio de presentador (HOLA.ATOM: centro (230, 780), órbitas
 // de 180 px, quieto) y el post. ep3-ojo pinta su primer fotograma con la misma función (y los mismos índices de pieza
 // si quiere el mismo hervor) y lo compara con la captura de t = 19,153 de esta escena. window.__fin lo resume.
-// Coste: la cámara del plató es fija; lo quieto son fotos: el plató vacío, al cargar; las del tramo final (el fondo del
-// plano medio sin la persona, la cara al final del zum, el globo del ojo, las tres cosas encendidas y apagadas, los
-// párpados abiertos y casi cerrados y el final), en segundo plano nada más cargar (ver FOTOS). En cada fotograma se
-// dibujan solo Atom (en su pasada), la persona y la regla cuando se mueven y los párpados del ojo enorme mientras se
-// abren o se cierran (solo la zona del que se mueve).
+// Coste: la cámara del plató es fija; lo quieto son fotos hechas al cargar (el plató vacío, el fondo del plano medio sin
+// la persona, la cara al final del zum, el globo del ojo, las tres cosas encendidas y apagadas, los párpados abiertos y
+// casi cerrados y el final). En cada fotograma se dibujan solo Atom (en su pasada), la persona y la regla cuando se mueven
+// y los párpados del ojo enorme mientras se abren o se cierran (solo la zona del que se mueve).
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, azar, postura } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -514,12 +513,12 @@ function personaEmpuje(ts) {
 }
 const FONDO_PAD = 160;   // margen del fondo del empuje (px de diseño)
 
-// Las fotos del tramo final (desde el empuje, t ≥ 14 s) no se pintan al cargar, sino en segundo plano justo después
-// (window.__listo): una por tarea, en el orden en que hacen falta, mientras se dibujan los primeros fotogramas, que no
-// las usan. Al cargar costaban ~95 s de CPU con el servidor ocupado (~140 de los ~220 s de pared de la carga). Si un
-// fotograma las necesita antes de que estén (una captura suelta del final nada más cargar), las pinta él al empezar
-// (prepararFotos), con el mismo resultado: cada foto se pinta con el reloj del plató en 0 (P.fotograma(0), del que
-// depende la huella de las piezas) y su nf, sea cuando sea. FOTOS[k]() la devuelve.
+// Las fotos se pintan al cargar (antes, la primera vez que hacían falta: un fotograma suelto a mitad de escena pagaba
+// todas de golpe). (Probado y descartado: pintarlas en segundo plano después de window.__listo. La carga bajaba a la
+// mitad, pero cada foto ocupa el hilo varios segundos seguidos y las capturas de pantalla que esperaban se pasaban de
+// los 30 s de Playwright.) Cada foto se pinta con el reloj del plató en 0 (P.fotograma(0), del que depende la huella de
+// las piezas) y su nf; prepararFotos las pide al empezar el fotograma, antes de pintar nada, por si alguna faltara.
+// FOTOS[k]() la devuelve.
 const FOTOS = {};
 const perezosa = (k, desde, hacer) => { let v = null; FOTOS[k] = Object.assign(() => v ?? (P.fotograma(0), v = hacer()), { desde }); };
 // el fondo del empuje: el plano medio en su último instante sin la persona ni la regla (con su sombra en el ciclorama):
@@ -811,7 +810,9 @@ function dibujar(t) {
   POST.aplicar(g, nf);
   marcaT('post');
 }
+// las fotos, al cargar (ver FOTOS)
 cargaT('previo');
+for (const [k, f] of Object.entries(FOTOS)) { f(); cargaT(k); }
 window.__info = { RUTA, AMP, PIE_INI, T, m, MED, EMP, EMP_V, OJO_ESC, FR_ESC, FR_ALTO, FIN, OJOS_MEDIO, pxLocalOjo };
 // el último fotograma, para ep3-ojo (ver la cabecera): la receta del kit y Atom quieto en su sitio
 window.__fin = (() => {
@@ -827,18 +828,6 @@ window.__fin = (() => {
   };
 })();
 E.iniciar(dibujar, { paso: 1 / 12 });
-// las fotos del final, en segundo plano (ver FOTOS); window.__fotos = true cuando están todas
-{
-  const cola = ['fondoMedio', 'caraFin', 'casiCerrados', 'globo', 'cosas', 'franja', 'parpados', 'final'];
-  const siguiente = () => {
-    const k = cola.shift();
-    if (!k) { window.__fotos = true; return; }
-    FOTOS[k](); cargaT(k);
-    setTimeout(siguiente, 0);
-  };
-  window.__fotos = false;
-  setTimeout(siguiente, 0);
-}
 </script>
 </body>
 </html>

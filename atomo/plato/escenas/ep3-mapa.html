@@ -46,6 +46,8 @@
 //    (la más cara: la pared con la ventana llena la pantalla) se hace por bandas horizontales (el recorte de WebGL, con el
 //    mismo número de fotograma: el resultado es idéntico a la foto entera), una cada pocos fotogramas del plano del cuadro,
 //    que solo lleva a Atom en vivo. Si se pide un instante suelto, F() hace al momento lo que falte (sale lo mismo).
+//  · Medido el 22-10-2026, los 215 fotogramas dibujados en orden (como render-escenas.mjs): CPU media 1,97 s, máxima
+//    4,26 s (el fotograma 0); la carga, 20 s de reloj con el servidor tranquilo (40 s de CPU) y 49 s con load ~12.
 // Piezas propias de la escena (tiposExtra, aquí abajo): el marco dorado, el pincel, el satélite y la antena de radio.
 // Del kit ep03-sofa.js (lo crea esta escena): la ventana, el sofá, el bol y SALON; de ep03-tiempo.js, el reloj y el rayo;
 // de ep03-cosmos.js, el mundo a 10²¹; del kit de plastilina, la persona, la regla, Atom, el globo y la luna.

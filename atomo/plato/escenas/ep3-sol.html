@@ -48,8 +48,11 @@
 // 10⁹: tres fotos que se alternan para el hervor), el corte del plano medio, la persona, los núcleos (sprites), el calor
 // del núcleo y el cielo. Las fotos caras se hacen POR BANDAS (la tijera de WebGL: cada banda solo paga sus píxeles; sin
 // ella, una pasada del montón de estrellas cuesta ~2,3 s de CPU aunque no dibuje nada), repartidas en fotogramas baratos
-// (PREPARAR) para que ningún fotograma pase de ~5 s de CPU en este servidor. Al cargar: las fotos del fotograma 0 (el
-// mundo con y sin el Sol, la regla), los estrenos de Atom y del Sol, y la compilación de las variantes de la persona en
+// (PREPARAR: un paso por fotograma, en tres tramos: el primer plano, el detalle y el viaje de la luz; cada paso lee un
+// píxel de su lienzo para que el trabajo aplazado del lienzo 2D no caiga en el fotograma siguiente) para que ningún
+// fotograma pase de ~5 s de CPU en este servidor. Al cargar: las fotos del fotograma 0 (el mundo con y sin el Sol, la
+// regla), la del espacio sin Sol (otra foto del mundo, ~6 s de una vez), los estrenos de Atom y del Sol, y la
+// compilación de las variantes de la persona en
 // su encuadre, del calendario y del reloj (dibujándolos con una tijera de un píxel: solo compilan). En vivo: Atom siempre;
 // el Sol mientras se abre y se calienta; el núcleo que se deja aplastar; el calendario y el reloj mientras se mueven.
 import * as THREE from 'three';
@@ -226,6 +229,7 @@ function hacerPaso(clave, i) {
   if (p.zoom) p.zoom.usar(dibujar); else dibujar();
   const k = lienzoGL.width / W, x0 = Math.floor(p.rect[0] * k), y0 = Math.floor(p.rect[1] * k), x1 = Math.ceil(p.rect[2] * k), y1 = Math.ceil(p.rect[3] * k);
   c.getContext('2d').drawImage(lienzoGL, x0, y0, x1 - x0, y1 - y0, x0, y0, x1 - x0, y1 - y0);
+  c.getContext('2d').getImageData(x0, y0, 1, 1);      // (coste) hecho ya, en este fotograma (ver asentar)
   t.hechos.add(i);
 }
 
@@ -314,11 +318,14 @@ const HACER = {
   'cielo/gigante': () => (fotoCielo(P, IDX_CIELO, 'gigante', CIELO_F), CIELO_F.gigante),
   'cielo/giganteApagada': () => (fotoCielo(P, IDX_CIELO, 'giganteApagada', CIELO_F), CIELO_F.giganteApagada),
 };
+// (coste) el lienzo 2D aplaza su trabajo (los desenfoques, sobre todo) hasta que alguien lo lee: leer un píxel lo
+// obliga a hacerlo ya, en el fotograma del paso, y no en el siguiente, encima de otro paso
+const asentar = (c) => { if (c?.getContext) c.getContext('2d').getImageData(0, 0, 1, 1); return c; };
 function F(k) {
   if (FOTOS[k]) return FOTOS[k];
   const t = TRABAJOS[k];
-  if (t) { t.pasos.forEach((_, i) => hacerPaso(k, i)); return (FOTOS[k] = t.fin(t.capas)); }
-  return (FOTOS[k] = HACER[k]());
+  if (t) { t.pasos.forEach((_, i) => hacerPaso(k, i)); return (FOTOS[k] = asentar(t.fin(t.capas))); }
+  return (FOTOS[k] = asentar(HACER[k]()));
 }
 function fotoRegla(n) { P.limpiar(); reglaEn(); P.render(n, { fondo: false }); return copiaGL(); }
 // la regla del corte con ep3-tierra (reg0) y dos más que se alternan con ella para el hervor (por bandas)
@@ -402,7 +409,7 @@ const CARA = (() => { P.limpiar(); const h = P.pieza(I.PER, { ...PER, postura: P
 const DIANA = [CARA.ojos[0] + 55, CARA.ojos[1] + 30];
 const ponerPersona = () => P.pieza(I.PER, { ...PER, postura: POSE_PER, huellaFija: [0.37, 0.21, 0.0] });
 const RECT_PER = [880, Math.round(CARA.coronilla[1] - 40), 1420, H];
-for (const [k, n] of [['persona0', 5401], ['persona1', 5402]]) trabajo(k, bandas(RECT_PER, 3).map((rect) => ({ rect, poner: ponerPersona, n })), (cs) => cs[0]);
+for (const [k, n] of [['persona0', 5401], ['persona1', 5402]]) trabajo(k, bandas(RECT_PER, 5).map((rect) => ({ rect, poner: ponerPersona, n })), (cs) => cs[0]);
 // donde el alambre se para: justo antes de la piel, en la recta que va de la salida de la luz (con el pan acabado) al
 // pómulo (la primera opacidad de la foto de la persona en esa recta, 14 px antes)
 let CONTACTO = null;
@@ -441,8 +448,9 @@ Object.assign(HACER, {
   // la flecha de arcilla (sprite)
   flecha: () => { P.limpiar(); P.pieza(I.FG, { pos: en(960, 540, 2), escala: 120 / pxU(en(960, 540, 2)), rot: [0.5, 0, 0] }); P.render(5300, { fondo: false }); return recortar(copiaGL(), [820, 470, 1100, 610]); },
 });
-// el plasma: una foto del núcleo de arcilla muy de cerca (al rojo blanco), desenfocada y caldeada
-trabajo('plasma', bandas([0, 0, W, H], 3).map((rect) => ({ rect, poner: () => sol(P, I.SOL, { ...solComoMundo(P, [960 - 2600, 540 - 600, 9000], 0), corte: 1, calor: 0.85, aprieta: 1 }), n: 5500 })), ([base]) => {
+// el plasma: una foto del núcleo de arcilla muy de cerca (al rojo blanco), desenfocada y caldeada (en dos pasos: la base
+// con su desenfoque y, después, las bocanadas y el borde)
+trabajo('plasmaBase', bandas([0, 0, W, H], 3).map((rect) => ({ rect, poner: () => sol(P, I.SOL, { ...solComoMundo(P, [960 - 2600, 540 - 600, 9000], 0), corte: 1, calor: 0.85, aprieta: 1 }), n: 5500 })), ([base]) => {
   const c = lienzo(), gc = c.getContext('2d'), k = c.width / W;
   gc.setTransform(k, 0, 0, k, 0, 0);
   const gr = gc.createRadialGradient(960, 520, 0, 960, 520, 1150);
@@ -452,7 +460,11 @@ trabajo('plasma', bandas([0, 0, W, H], 3).map((rect) => ({ rect, poner: () => so
   gc.globalAlpha = 0.55; gc.globalCompositeOperation = 'soft-light';
   gc.filter = `blur(${(6 * k).toFixed(1)}px)`;
   gc.drawImage(base, 0, 0);
-  gc.filter = 'none'; gc.globalAlpha = 1; gc.globalCompositeOperation = 'source-over';
+  return c;
+});
+HACER.plasma = () => {
+  const c = lienzo(), gc = c.getContext('2d'), k = c.width / W;
+  gc.drawImage(F('plasmaBase'), 0, 0);
   // bocanadas de luz (desenfocadas)
   const r = mulberry32(5);
   gc.setTransform(k, 0, 0, k, 0, 0);
@@ -469,7 +481,7 @@ trabajo('plasma', bandas([0, 0, W, H], 3).map((rect) => ({ rect, poner: () => so
   v.addColorStop(0, 'rgba(255,255,255,1)'); v.addColorStop(1, 'rgba(200,110,60,1)');
   gc.fillStyle = v; gc.fillRect(0, 0, W, H);
   return c;
-});
+};
 
 // ---------------------------------------------------------------- el cielo: los montones, por bandas, y los de cerca en alta
 // el montón como lo fotografía fotoCielo de ep03-estrellas.js (la misma losa, la misma semilla, el mismo fotograma, sus dos
@@ -523,7 +535,7 @@ const ventana = (S) => { const st = estadoCielo(uDeS(S)); return [CIELO.sol[0] +
 const ALTAS = [2.6, 1.95].map((k) => {
   const Z = camaraZoom(k, ventana(k * 1.2));
   const Mn = CIELO.monton.cerca;
-  trabajo('alta/' + k, bandas([0, 0, W, H], NB_MONTON + 1).map((rect) => ({ rect, poner: ponerMonton('cerca', [-9, 9, -9, 9]), n: 7000 + 3 + Mn.semilla, zoom: Z })), ([c]) => acabarMonton(c, 'cerca', Z));
+  trabajo('alta/' + k, bandas([0, 0, W, H], 10).map((rect) => ({ rect, poner: ponerMonton('cerca', [-9, 9, -9, 9]), n: 7000 + 3 + Mn.semilla, zoom: Z })), ([c]) => acabarMonton(c, 'cerca', Z));
   return { k, Z, clave: 'alta/' + k };
 });
 const VACIO = lienzo(1, 1);
@@ -569,6 +581,9 @@ function cieloPagina(u, apaga, t) {
 // ---------------------------------------------------------------- al cargar: lo del primer fotograma, los estrenos y las compilaciones
 F('mundoSol'); marcaCarga('foto mundo'); F('reg0'); F('mundoSinSol');
 marcaCarga('mundo y regla');
+// (coste) el espacio sin Sol ni Tierra es otra foto del mundo (~6 s de CPU de una vez: no cabe en ningún fotograma)
+F('espacio');
+marcaCarga('espacio');
 // (coste) se estrenan Atom y el Sol, que se dibujan desde el principio (su primer dibujo compila en SwiftShader)
 P.fotograma(0); P.limpiar();
 atomo(0); sol(P, I.SOL, { ...SOL1, escala: 0.05 * SOL1.escala, corte: 1 });
@@ -868,40 +883,42 @@ function tramo5(n, ts) {
 // (coste) cada foto cara se hace por pasos (bandas) en fotogramas baratos poco antes de hacer falta, en orden, como
 // renderiza render-escenas.mjs; si se pide un instante suelto, F() la hace al momento y el resultado es el mismo.
 // [instante, clave] hace la foto entera (o termina la de pasos); [instante, clave, paso] hace solo ese paso.
+// Cada paso va a un número de fotograma (entero: con instantes en coma flotante, alguno se saltaba y caía en otro).
 const PREPARAR = [];
-const prep = (t, ...a) => PREPARAR.push([t, ...a]);
+const prep = (t, ...a) => PREPARAR.push([Math.round(t * 12), ...a]);
 {
   const pasosDe = (k) => TRABAJOS[k].pasos.map((_, i) => i);
-  // el primer plano (vivo, ~2,5 s de CPU por fotograma): pasos pequeños
-  let t = 0.25;
+  let t;
   const uno = (...a) => { prep(t, ...a); t += 1 / 12; };
-  for (const k of ['reg1', 'reg2']) { for (const i of pasosDe(k)) uno(k, i); uno(k); }
-  uno('flecha');
-  for (const i of pasosDe('plasma')) uno('plasma', i);
-  uno('plasma');
-  for (const k of ['nucH0', 'nucH1', 'nucHe0', 'nucHe1', 'nucBlur']) uno(k);
-  for (const i of pasosDe('corteS1')) uno('corteS1', i);
-  uno('corteS1');
-  uno('regTenue');
-  // el detalle (sprites y un núcleo vivo, ~1,5–2 s de CPU por fotograma): el plano medio, la persona y el cielo
+  const dos = (...a) => { prep(t, ...a); t += 2 / 12; };
+  const todo = (k, f = uno) => { for (const i of pasosDe(k)) f(k, i); f(k); };
+  // A · el primer plano (el Sol vivo, ~2,5 s de CPU por fotograma; sobra sitio): un paso cada dos fotogramas
+  t = 0.25;
+  for (const k of ['reg1', 'reg2']) todo(k, dos);
+  dos('flecha');
+  todo('plasmaBase', dos); dos('plasma');
+  for (const k of ['nucH0', 'nucH1', 'nucHe0', 'nucHe1', 'nucBlur']) dos(k);
+  todo('corteS1', dos);
+  dos('regTenue');
+  if (t > T.entra[0]) console.warn('ep3-sol: PREPARAR no cabe en el primer plano', t);
+  // B · el detalle (sprites y un núcleo vivo, ~2,3 s): el plano medio, la persona y el montón de lejos
   t = T_DET + 0.1;
-  for (const k of ['corte0', 'corte1']) { for (const i of pasosDe(k)) uno(k, i); uno(k); }
-  for (const k of ['persona0', 'persona1']) { for (const i of pasosDe(k)) uno(k, i); uno(k); }
+  for (const k of ['corte0', 'corte1', 'persona0', 'persona1']) todo(k);
   uno('personaSombra');
-  uno('espacio');
+  todo('monton/lejos');
+  if (t > T.sale[0]) console.warn('ep3-sol: PREPARAR no cabe en el detalle', t);
+  // C · el viaje de la luz (~2–2,5 s): las estrellas de cerca en alta, el Sol y la gigante del cielo y el montón de cerca
+  t = T.fuera + 0.05;
+  for (const A of ALTAS) todo(A.clave);
   uno('cielo/sol'); uno('cielo/gigante'); uno('cielo/giganteApagada');
-  for (const k of ['monton/lejos', 'monton/cerca']) { for (const i of pasosDe(k)) uno(k, i); uno(k); }
-  // el viaje (~2 s de CPU por fotograma): las estrellas de cerca en alta
-  if (t > T.sale[0] - 0.1) console.warn('ep3-sol: PREPARAR no cabe en el detalle', t);
-  t = T.pan[1] + 0.1;
-  for (const A of ALTAS) { for (const i of pasosDe(A.clave)) uno(A.clave, i); uno(A.clave); }
+  todo('monton/cerca');
   if (t > T.s5 - 0.05) console.warn('ep3-sol: PREPARAR no cabe en el viaje', t);
 }
 function dibujar(t) {
   const ts = Math.min(t, QUIETO);
   const n = Math.floor(ts * 12 + 1e-6);
   ajustarCapa();
-  for (const [t0, k, i] of PREPARAR) if (ts >= t0 && ts < t0 + 0.07) { if (i === undefined) F(k); else hacerPaso(k, i); }
+  for (const [n0, k, i] of PREPARAR) if (n === n0) { if (i === undefined) F(k); else hacerPaso(k, i); }
   // el fotograma 0 es el último de ep3-tierra: su plató (Atom y la regla) se dibuja con el número de fotograma de allí
   const nP = ts < T.funde[0] ? FIN_TIERRA.n : n;
   if (ts < T.funde[0]) {
@@ -962,7 +979,7 @@ window.__guias = guiasDe(PER);
 if (new URLSearchParams(location.search).has('dbg')) window.__dbg = { P, g, F, atomo, reglaEn, pegarGL, POST, ajustarCapa, FIN_TIERRA, TRABAJOS, hacerPaso, PREPARAR, ALTAS, conTijera, capaCerca, cieloPagina };
 window.__fin = { CIELO, SOL3_PX, PER, DIANA, CARA, T, CH, NUC3, SALIDA3,
   altas: ALTAS.map((A) => ({ k: A.k, mira: A.Z.mira, x0: A.Z.afin.x0, s: A.Z.afin.s, errorAfin: A.Z.err })),
-  preparar: PREPARAR.map(([t0, k, i]) => [Math.round(t0 * 1000) / 1000, k, i]),
+  preparar: PREPARAR.map(([n0, k, i]) => [n0, k, i]),
   // el último fotograma (el primero de ep3-vuelta): el fondo, el cielo y el estado de Atom
   final: { fondo: { n: 932, somA: SOM_A }, cielo: { u: 1, apaga: CIELO.apaga }, atomo: (() => { const S = estadoAtom(QUIETO); return { sx: S.sx, sy: S.sy, tz: S.tz, ta: FIN_TIERRA.ta + tabla(TA, QUIETO), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH }; })() } };
 if (new URLSearchParams(location.search).get('vista') === 'guias') {

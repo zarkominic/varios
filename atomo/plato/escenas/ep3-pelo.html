@@ -187,6 +187,11 @@ const P = await crearPlato({
 });
 const POST = crearPost();
 hito('plato');
+// ?perfil: lo que tarda cada pasada de cada render (window.__perfiles), para medir
+if (new URLSearchParams(location.search).has('perfil')) {
+  const r0 = P.render;
+  P.render = (n, o) => { r0(n, o); (window.__perfiles ??= []).push({ n, fondo: o?.fondo !== false, ...window.__perfil }); };
+}
 const en = (sx, sy, z) => P.punto(sx, sy, z);
 const pant = (p) => P.proyectar(p);
 const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
