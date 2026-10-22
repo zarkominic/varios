@@ -39,8 +39,8 @@
 // CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, sin recorte 2D)
 //  · Fotograma 0 (ep3-gato termina así; window.__inicio lo da en números): el estadio de ep03-tocar.js ESTADIO_0 (pos
 //    P.punto(880, 500, 0,5), rot [0,72, −0,18, 0], brilloGuisante 1, la escala que da a su nube-cáscara un radio de
-//    470 px) con las dos nubes 2D de nubeElectrones (anillo: extension 1, fuerza 0,8, semilla 11; cáscara: forma
-//    'bola', semilla 5; t = 0,5 + ts) sobre el plató vacío; regla REG (P.regla con e −9, ya 0,375, actual y marca −10,
+//    390 px) con las dos nubes 2D de nubeElectrones (anillo: extension 1, fuerza 0,95, semilla 11; cáscara: forma
+//    'bola', semilla 5, fuerza 1,25, motas 300; t = 0,5 + ts) sobre el plató vacío; regla REG (P.regla con e −9, ya 0,375, actual y marca −10,
 //    lupa 0,5, pos P.punto(1668, 528, 0,4), escala 1,42, rot [0, −0,12, 0]); Atom en SITIO (P.punto(230, 780, 1)),
 //    escala 0,37. En el fotograma 0 la cámara ya empuja (×1,0 → ×1,08 hasta 1,3 s, alrededor del guisante).
 //  · Último fotograma (ep3-planck empieza así; window.__fin): la persona «humano» 'adulto' de pie en la báscula de
@@ -75,7 +75,7 @@ const T = {
   creceAtom: [m.p + 0.85, m.p + 1.75],          // Atom, enorme al fondo, a la izquierda
   entra: [mitadP - 0.25, mitadP + 0.45],        // empuje hasta el protón de delante y fundido a su interior
   reglaC: [mitadP - 0.05, mitadP + 0.3],        // el marcador baja a 10⁻¹⁵, completo al entrar
-  vuelveAtom: [mitadP - 0.15, mitadP + 0.65],   // Atom vuelve a ser el presentador pequeño
+  vuelveAtom: [mitadP - 0.75, mitadP - 0.05],   // Atom vuelve a ser el presentador pequeño (antes de entrar: no tapa)
   corteBal: m.q - 0.22,                         // GENERAL de la balanza (completo en la marca)
   caen: [m.q + 0.3, m.q + 0.68],                // los quarks caen en su plato…
   asienta: m.q + 1.9,                           // … que baja una nada, rebota y se queda (desde aquí, foto)
@@ -117,12 +117,13 @@ const A_Z = 1.0, A_ESC = 0.37, SITIO = en(230, 780, A_Z);
 const GRANDE = (() => { const z = -1.6, pos = en(330, 470, z); return { pos, esc: 520 / (1.68 * pxU(z)) }; })();
 
 // el átomo de lejos (fotograma 0): el estadio con la escala que da a su cáscara 470 px de radio
-const EST_POS = en(880, 500, 0.5), EST_ROT = [0.72, -0.18, 0];
+const EST_POS = en(880, 500, 0.5), EST_ROT = [0.72, -0.18, 0], R_BOLA = 390;
 const ESTADIO_0 = (() => {
   const g1 = geometriaEstadio(P, { pos: EST_POS, escala: 1, rot: EST_ROT });
-  return { pos: EST_POS, escala: 470 / g1.bola.ejeX[0], rot: EST_ROT, brilloGuisante: 1 };
+  return { pos: EST_POS, escala: R_BOLA / g1.bola.ejeX[0], rot: EST_ROT, brilloGuisante: 1 };
 })();
 const GEO_EST = geometriaEstadio(P, ESTADIO_0);
+const NUBE_A = { extension: 1, semilla: 11, fuerza: 0.95 }, NUBE_B = { forma: 'bola', semilla: 5, fuerza: 1.25, motas: 300 };
 const PG = pant(GEO_EST.guisante);
 const R_GUIS = 0.014 * ESTADIO_0.escala * pxU(0.5);     // radio del guisante en pantalla (px)
 
@@ -151,7 +152,7 @@ const BAL_DET = (() => {
 // los quarks en su plato: el triángulo recostado hacia atrás, los dos de abajo apoyados en el fondo
 const QP_SEP = 0.72, QP_ROT_X = -Math.PI / 2 + 0.95;
 function quarksEnPlato(geo, escalaBal) {
-  const e = 0.3 * escalaBal / E_BAL * (E_BAL / 3.0);    // radio de cada quark: 0,051 del brazo
+  const e = 0.32 * escalaBal;                            // radio de cada quark: 0,054 del brazo
   const alto = (0.5 * QUARKS.RT * QP_SEP * Math.cos(QP_ROT_X - 0) + QUARKS.RB) * e;
   return { pos: enPlato(geo, 'izq', [0.02, alto / escalaBal, 0.03]), escala: e, rot: [QP_ROT_X, 0.28, 0], separacion: QP_SEP };
 }
@@ -254,18 +255,15 @@ const HACER = {
   // la nube entera quieta (para la zambullida: pasa de largo), con margen
   nube() {
     const { c, gc } = lienzoConMargen();
-    nubeElectrones(gc, { ...GEO_EST.anillo, extension: 1, t: 0.5 + T.zambulle[0], semilla: 11, fuerza: 0.8 });
-    nubeElectrones(gc, { ...GEO_EST.bola, forma: 'bola', t: 0.5 + T.zambulle[0], semilla: 5 });
+    nubeElectrones(gc, { ...GEO_EST.anillo, ...NUBE_A, t: 0.5 + T.zambulle[0] });
+    nubeElectrones(gc, { ...GEO_EST.bola, ...NUBE_B, t: 0.5 + T.zambulle[0] });
     return c;
   },
-  // el núcleo: sin fondo (crece desde el guisante) y con su plató y su sombra (el plano del núcleo); dos tomas que se
-  // alternan (las bolitas tiemblan un poco: el núcleo está vivo)
+  // el núcleo, sin fondo (crece desde el guisante y Atom va detrás de él)
   nucA() { P.limpiar(); nucleo(P, I.NUC, { ...NUCLEO, tiembla: 1, fase: 0.3 }); P.render(2002, { fondo: false }); return foto(P); },
-  nucF() { P.limpiar(); nucleo(P, I.NUC, { ...NUCLEO, tiembla: 1, fase: 0.3 }); P.render(2003); return foto(P); },
-  nucF2() { P.limpiar(); nucleo(P, I.NUC, { ...NUCLEO, tiembla: 1, fase: 1.9 }); P.render(2004); return foto(P); },
   // el interior del protón: el cuenco de su piel con los quarks quietos (los vivos van encima)
   interior() {
-    P.limpiar(); quarks(P, I.QK, { ...INTERIOR, bandas: 0, vibra: 0, brillo: 1, fase: 0, cascara: 1 }); P.render(2005);
+    P.limpiar(); quarks(P, I.QK, { ...INTERIOR, bandas: 0, vibra: 0, brillo: 1, fase: 0, cascara: 1, soloCascara: true }); P.render(2005);
     return foto(P);
   },
   // la balanza quieta: con los quarks (tras asentarse), sin ellos (con el platillo vivo encima) y nivelada
@@ -358,10 +356,10 @@ function destellos(c, rx, ry, ts, k, n = 14) {
 P.fotograma(0);
 F('fondo'); F('estadio'); F('r10');
 window.__carga.push(['fondo, estadio y regla', Math.round(performance.now())]);
-// (coste) estrenos baratos: la persona pequeña (su primer dibujo compila), Atom y las piezas vivas
+// (coste) la persona se estrena aquí, pequeña: su primer dibujo paga la compilación de SwiftShader (como en ep3-casa); lo
+// demás se estrena en el primer fotograma que lo dibuja (Atom y la regla, en el 0)
 P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: POSE_F, aspecto: 'adulto' }); P.render(2020, { fondo: false });
-P.limpiar(); P.atomo({ pos: [0, 0.3, -2], escala: 0.05 }); quarks(P, I.QK, { pos: [0.5, 0.3, -2], escala: 0.05 }); P.render(2021, { fondo: false });
-window.__carga.push(['estrenos', Math.round(performance.now())]);
+window.__carga.push(['persona', Math.round(performance.now())]);
 
 // ---------------------------------------------------------------- los tramos
 // A · el átomo de lejos y la zambullida hasta el núcleo
@@ -376,10 +374,14 @@ function tramoAtomo(n, ts) {
   const aE = 1 - ss(2.2, 7, s), aN = 1 - ss(6, 26, s);
   fotoEscalada(F('estadio'), s, PG, aE, q);
   if (uz <= 0) {
-    nubeElectrones(g, { ...GEO_EST.anillo, extension: 1, t: 0.5 + ts, semilla: 11, fuerza: 0.8 });
-    nubeElectrones(g, { ...GEO_EST.bola, forma: 'bola', t: 0.5 + ts, semilla: 5 });
-    // el empuje lento: las nubes también (se pintan escaladas)
+    // el empuje lento: las nubes vivas (sus motas giran), escaladas con el estadio
+    g.save(); g.translate(PG[0], PG[1]); g.scale(s, s); g.translate(-PG[0], -PG[1]);
+    nubeElectrones(g, { ...GEO_EST.anillo, ...NUBE_A, t: 0.5 + ts });
+    nubeElectrones(g, { ...GEO_EST.bola, ...NUBE_B, t: 0.5 + ts });
+    g.restore();
   } else conMargen(g, F('nube'), s, PG, aN, q);
+  // la nube pasa de largo: bocanadas a distintas profundidades que crecen y se apartan del centro
+  nubePasa(q, s, ss(0.0, 0.15, uz) * (1 - ss(0.8, 1.0, uz)));
   // el guisante se vuelve el núcleo
   const sN = s / S_MAX;
   const aU = ss(0.06, 0.3, sN);
@@ -389,6 +391,38 @@ function tramoAtomo(n, ts) {
   if (kg > 0.01) resplandor(g, q[0], q[1], 40 + 60 * Math.min(1, s / 6), { fuerza: 0.6 * kg });
   parpadeo(n);
 }
+// las bocanadas de la nube al atravesarla (2D): cada una a su profundidad zi; con el empuje s, su distancia al centro y su
+// tamaño crecen como s / zi y se ven sobre todo cuando pasan cerca (s ≈ zi)
+function nubePasa(q, s, k) {
+  if (k < 0.01) return;
+  g.save();
+  const l0 = Math.log(1.6), l1 = Math.log(S_MAX * 0.7);
+  for (let i = 0; i < 46; i++) {
+    const zi = Math.exp(l0 + (l1 - l0) * azar(i, 61)), f = s / zi;
+    if (f < 0.3 || f > 5) continue;
+    const lf = Math.log(f), al = k * Math.exp(-Math.pow((lf - 0.25) / 0.7, 2));
+    const a = 2 * Math.PI * azar(i, 62), rr = (70 + 330 * azar(i, 63)) * f;
+    const x = q[0] + Math.cos(a) * rr, y = q[1] + Math.sin(a) * rr * 0.86;
+    const R = Math.min(700, (55 + 95 * azar(i, 64)) * f);
+    const ambar = azar(i, 65) < 0.25;
+    const gr = g.createRadialGradient(x, y, 0, x, y, R);
+    const c = ambar ? '255,170,90' : '236,222,196';
+    gr.addColorStop(0, `rgba(${c},${(ambar ? 0.16 : 0.24) * al})`); gr.addColorStop(0.5, `rgba(${c},${(ambar ? 0.07 : 0.1) * al})`); gr.addColorStop(1, `rgba(${c},0)`);
+    g.fillStyle = gr; g.fillRect(x - R, y - R, 2 * R, 2 * R);
+  }
+  // motas de ámbar que salen disparadas hacia fuera (estelas)
+  g.lineCap = 'round';
+  for (let i = 0; i < 70; i++) {
+    const zi = Math.exp(l0 + (l1 - l0) * azar(i, 71)), f = s / zi;
+    if (f < 0.4 || f > 4) continue;
+    const a = 2 * Math.PI * azar(i, 72), r0 = 40 + 300 * azar(i, 73);
+    const r1 = r0 * f, r2 = r0 * f * 0.86;
+    const al = k * Math.exp(-Math.pow(Math.log(f) / 0.8, 2));
+    g.strokeStyle = `rgba(255,200,130,${0.55 * al})`; g.lineWidth = 1.5 + 2.5 * azar(i, 74) * Math.min(2, f);
+    g.beginPath(); g.moveTo(q[0] + Math.cos(a) * r2, q[1] + Math.sin(a) * r2 * 0.86); g.lineTo(q[0] + Math.cos(a) * r1, q[1] + Math.sin(a) * r1 * 0.86); g.stroke();
+  }
+  g.restore();
+}
 // B · el núcleo, con Atom enorme al fondo; y C · la entrada en el protón
 function tramoNucleo(n, ts, conAtomo) {
   const ue = prog(ts, T.entra[0], T.entra[1]);
@@ -396,8 +430,6 @@ function tramoNucleo(n, ts, conAtomo) {
   const se = sB * Math.pow(16, eic(ue));
   const q = [mix(FP[0], QK_C[0], eio(ue)), mix(FP[1], QK_C[1], eio(ue))];
   const piv = ue > 0 ? FP : NUC_C, dest = ue > 0 ? q : NUC_C;
-  // el plató (que también se agranda al entrar)
-  const nf = Math.floor(n / 2) % 2 ? 'nucF2' : 'nucF';
   if (ue <= 0) {
     // el núcleo en su plató; Atom vivo detrás (lo dibuja quien llama, entre el fondo y el núcleo)
     g.drawImage(F('fondo'), 0, 0, W, H);
@@ -439,7 +471,8 @@ function dibujar(t) {
     tramoAtomo(n, ts);
   } else if (ts < T.corteBal) {
     const ue = prog(ts, T.entra[0], T.entra[1]);
-    const atomoDetras = S.k > 0.02;
+    // Atom va detrás del núcleo mientras está grande; cuando vuelve a su sitio y ya es pequeño, delante
+    const atomoDetras = S.k > 0.02 && !(ts >= T.vuelveAtom[0] && S.k < 0.35);
     // Atom enorme, detrás del núcleo y desenfocado (pasada propia)
     const conAtomo = atomoDetras ? () => {
       P.limpiar(); ponerAtomo(ts); P.render(n, { fondo: false });
@@ -555,8 +588,6 @@ function dibujar(t) {
     if (!reglaViva) g.drawImage(F(fotoR), 0, 0, W, H);
     arriba();
     pegarGL();
-  } else if (ts >= T.corteBal) {
-    // Atom y la cartela no han ido en la pasada viva de la balanza o la persona: van ya en ella (ponerAtomo en arriba)
   }
   POST.aplicar(g, n);
   if (!hechasAhora) {
@@ -572,14 +603,14 @@ function mirilla(ts) {
   const d = pant(DIAL);
   g.save();
   // el cono que une la esfera de la báscula con la mirilla
-  const a = Math.atan2(c[1] - d[1], c[0] - d[0]), dl = Math.hypot(c[0] - d[0], c[1] - d[1]);
-  const b = Math.asin(Math.min(0.99, (r * s) / dl));
+  // (las tangentes desde la esfera al aro)
+  const fi = Math.atan2(d[1] - c[1], d[0] - c[0]), dl = Math.hypot(c[0] - d[0], c[1] - d[1]);
+  const al = Math.acos(Math.min(0.99, (r * s) / dl));
   g.globalAlpha = 0.5 * ss(0.3, 1, u);
   g.fillStyle = 'rgba(255,236,200,0.08)'; g.strokeStyle = 'rgba(232,210,170,0.55)'; g.lineWidth = 2;
   g.beginPath(); g.moveTo(d[0], d[1]);
-  const t1 = [c[0] - Math.cos(a - b) * r * s * 0 + 0, 0];
-  const pA = [c[0] + r * s * Math.cos(a + Math.PI / 2 + b), c[1] + r * s * Math.sin(a + Math.PI / 2 + b)];
-  const pB = [c[0] + r * s * Math.cos(a - Math.PI / 2 - b), c[1] + r * s * Math.sin(a - Math.PI / 2 - b)];
+  const pA = [c[0] + r * s * Math.cos(fi + al), c[1] + r * s * Math.sin(fi + al)];
+  const pB = [c[0] + r * s * Math.cos(fi - al), c[1] + r * s * Math.sin(fi - al)];
   g.lineTo(...pA); g.lineTo(...pB); g.closePath(); g.fill();
   g.beginPath(); g.moveTo(d[0], d[1]); g.lineTo(...pA); g.moveTo(d[0], d[1]); g.lineTo(...pB); g.stroke();
   g.globalAlpha = 1;
@@ -622,7 +653,7 @@ const PREPARAR = [
   [T.asienta + 0.2, 'balSinQ', T.nivela[0]], [T.asienta + 0.5, 'balNivel', T.cortePer],
   [T.nivela[1] + 0.3, 'esfera', D + 1], [T.inclina[1] + 0.12, 'persona', D + 1],
 ];
-window.__inicio = { ESTADIO_0, NUBES: { anillo: { extension: 1, fuerza: 0.8, semilla: 11 }, bola: { forma: 'bola', semilla: 5 }, t: '0,5 + ts' }, REGLA: reglaOp(-10), SITIO, A_ESC };
+window.__inicio = { ESTADIO_0, NUBES: { anillo: NUBE_A, bola: NUBE_B, t: '0,5 + ts' }, REGLA: reglaOp(-10), SITIO, A_ESC };
 window.__fin = { BASCULA, PERSONA, POSE_F, MIRILLA, DIAL, REGLA: reglaOp(-15), SITIO, A_ESC, T };
 window.__carga.push(['listo', Math.round(performance.now())]);
 E.iniciar(dibujar, { paso: 1 / 12 });

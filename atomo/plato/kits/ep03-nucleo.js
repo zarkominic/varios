@@ -32,8 +32,8 @@
 //      El protón entero: una bola de radio 1 de la misma arcilla roja que los protones del núcleo, algo translúcida, con
 //      sus bultitos y huellas. brillo (0…1): luz propia cálida. Devuelve { centro, radio (mundo), apoyo (mundo: el punto
 //      de abajo, para posarlo en un plato) }.
-//  · 'quarks' · quarks(P, i, { bandas: 1, vibra: 1, brillo: 1, fase: 0, cascara: 0, separacion: 1 })
-//      El protón abierto: tres quarks (bolas de radio QUARKS.RB = 0,17, de terracota, oliva y pizarra azul: los tres
+//  · 'quarks' · quarks(P, i, { bandas: 1, vibra: 1, brillo: 1, fase: 0, cascara: 0, separacion: 1, soloCascara })
+//      El protón abierto: tres quarks (bolas de radio QUARKS.RB = 0,17, de rojo granate, oliva y pizarra azul: los tres
 //      «colores», apagados, de la paleta) en los vértices de un triángulo de radio QUARKS.RT = 0,45 en el plano xy (la cara
 //      mira a +z; el quark 0 arriba), unidos por tres CINTAS ELÁSTICAS de goma ámbar (planas, algo retorcidas) que vibran
 //      y brillan:
@@ -45,6 +45,8 @@
 //          (radio 1, abierto hacia +z): «estamos dentro del protón». 0: sin cáscara; 1: la media esfera entera;
 //          entre medias, un casquete más pequeño (solo el fondo);
 //        – separacion (0,5…1,2): escala el triángulo (los quarks más juntos o más separados; las cintas se ajustan).
+//        – soloCascara (true): solo la cáscara, sin quarks ni cintas (para fotografiar el cuenco sin las sombras de los
+//          quarks y poner encima los quarks vivos, con cascara 0).
 //      Para posarlos en un plato: rot [−π/2, 0, 0] (el triángulo tumbado) y pos a QUARKS.RB × escala sobre el fondo.
 //      Devuelve { centro, quarks: [mundo × 3], cintas: [[mundo del medio de la cinta 0–1], …] }.
 //
@@ -111,7 +113,7 @@ export const QUARKS = { RB: 0.17, RT: 0.45, CASCARA: 1.0 };
 // los colores (lineales, como la paleta del plató)
 export const COLORES_NUCLEO = {
   proton: [0.36, 0.062, 0.034], neutron: [0.205, 0.192, 0.172],
-  quarks: [[0.42, 0.10, 0.035], [0.12, 0.17, 0.05], [0.055, 0.085, 0.17]], cinta: [0.62, 0.27, 0.045],
+  quarks: [[0.26, 0.022, 0.03], [0.10, 0.16, 0.04], [0.045, 0.075, 0.17]], cinta: [0.60, 0.22, 0.03],
 };
 const v3 = (c) => `vec3(${c.map(fl).join(', ')})`;
 
@@ -198,12 +200,15 @@ vec3 pzcol_proton(vec3 q, vec4 T, float m) {
 `;
 
 const GLSL_QUARKS = /* glsl */`
-// T.x = fase (s) · T.y = bandas (0…1) · T.z = brillo (0…1) · T.w = cáscara × 1000 (entero) + vibra (0…0,999)
+// T.x = fase (s) · T.y = bandas (0…1) · T.z = brillo (0…1; + 2: solo la cáscara) · T.w = cáscara × 1000 (entero) +
+// vibra (0…0,999)
 // T del cuerpo: el triángulo se escala con «separacion», que va en el entero de T.y: T.y = bandas + 2 × round(sep × 100)
 float quSep(vec4 T) { float s = floor(T.y * 0.5) / 100.0; return s > 0.01 ? s : 1.0; }
 float quBandas(vec4 T) { return T.y - 2.0 * floor(T.y * 0.5); }
 float quVibra(vec4 T) { return fract(T.w); }
 float quCascara(vec4 T) { return floor(T.w) / 1000.0; }
+bool quSolo(vec4 T) { return T.z > 1.5; }
+float quBrillo(vec4 T) { return T.z > 1.5 ? T.z - 2.0 : T.z; }
 vec3 quQ(int k, vec4 T) {
   float a = 1.5708 + float(k) * 2.0944;
   // los quarks tiemblan un poco (se mueven: su energía)
@@ -227,12 +232,12 @@ float quCinta(vec3 q, int k, vec4 T, out float sOut) {
   float w2 = sin(6.28318 * s) * cos(T.x * 12.5 + fk * 1.3);
   vec3 c = A + ab * s + nIn * (v * 0.07 * w1 - 0.02) + nz * (v * 0.045 * w2);
   vec3 r = q - c;
-  // sección: cinta plana (ancho 0,13 en z, grosor 0,036), algo retorcida a lo largo
+  // sección: cinta plana (ancho 0,09 en el plano del triángulo, de cara a +z; grosor 0,034), algo retorcida
   float tw = 0.9 * (s - 0.5) + 0.25 * fk;
   float cs = cos(tw), sn = sin(tw);
   vec2 x = vec2(dot(r, nIn), dot(r, nz));
   x = vec2(cs * x.x - sn * x.y, sn * x.x + cs * x.y);
-  float d = sdRoundRect(x, vec2(0.018, 0.064), 0.014);
+  float d = sdRoundRect(x, vec2(0.046, 0.017), 0.013);
   float dl = abs(dot(r, t));
   d = length(vec2(max(d, 0.0), max(dl - 0.004, 0.0))) + min(max(d, dl - 0.004), 0.0);
   // crecen desde los dos quarks y se juntan en el medio
@@ -254,6 +259,7 @@ float quCascaraD(vec3 q, vec4 T) {
 }
 float pz_quarks(vec3 q, vec4 T, out float m) {
   float d = 1e5; m = 0.0;
+  if (quSolo(T)) { m = 7.0; return quCascaraD(q, T); }
   for (int k = 0; k < 3; k++) {
     float dq = length(q - quQ(k, T)) - ${fl(QUARKS.RB)} - 0.004 * bultos(q * 11.0);
     if (dq < d) { d = dq; m = float(k); }
@@ -271,20 +277,22 @@ float pz_quarks(vec3 q, vec4 T, out float m) {
 }
 float pzc_quarks(vec3 q, vec4 T) {
   float d = 1e5;
+  if (quSolo(T)) return quCascaraD(q, T) + 0.01;
   for (int k = 0; k < 3; k++) d = min(d, length(q - quQ(k, T)) - ${fl(QUARKS.RB * 0.9)});
   return min(d, quCascaraD(q, T) + 0.01);
 }
 float pza_quarks(vec3 q, vec4 T) {
   float r = ${fl(QUARKS.RT)} * quSep(T) + ${fl(QUARKS.RB)} + 0.12;
   float d = length(q) - r;
-  if (quBandas(T) < 0.001) {
+  if (quSolo(T)) d = 1e5;
+  else if (quBandas(T) < 0.001) {
     d = 1e5;
     for (int k = 0; k < 3; k++) d = min(d, length(q - quQ(k, T)) - ${fl(QUARKS.RB)} - 0.03);
   }
   return min(d, quCascaraD(q, T) - 0.02);
 }
 vec3 pzcol_quarks(vec3 q, vec4 T, float m) {
-  float b = T.z;
+  float b = quBrillo(T);
   float lat = 0.75 + 0.25 * sin(T.x * 6.0);
   if (m > 6.5) {
     // la piel del protón por dentro: arcilla roja, más clara y cálida hacia el centro (le llega la luz de las cintas)
@@ -298,10 +306,10 @@ vec3 pzcol_quarks(vec3 q, vec4 T, float m) {
     float s = fract(m);
     float k = floor(m - 3.0);
     float corre = 0.6 + 0.4 * sin(s * 18.0 - T.x * 7.0 + k * 2.0);
-    vec3 c = NU_CINTA * (0.86 + 0.14 * sin(q.z * 140.0)) * (0.92 + 0.12 * vnoise(q * 20.0));
+    vec3 c = NU_CINTA * (0.86 + 0.14 * sin(s * 90.0)) * (0.92 + 0.12 * vnoise(q * 20.0));
     gBri = 1.6;
-    gEm = NU_CINTA * b * (0.22 + 0.3 * corre) * lat;
-    return c * 0.85;
+    gEm = NU_CINTA * b * (0.06 + 0.16 * corre) * lat;
+    return c * 0.8;
   }
   int k = int(m + 0.5);
   vec3 c = k == 0 ? NU_Q0 : (k == 1 ? NU_Q1 : NU_Q2);
@@ -368,7 +376,7 @@ export function quarks(P, i, o = {}) {
   const b = base(o);
   const sep = Math.max(0.5, Math.min(1.2, o.separacion ?? 1));
   const bandas = cl(o.bandas ?? 1);
-  P.pieza(i, { ...b, variante: bandas + 2 * Math.round(sep * 100), color: cl(o.brillo ?? 1) });
+  P.pieza(i, { ...b, variante: bandas + 2 * Math.round(sep * 100), color: cl(o.brillo ?? 1) + (o.soloCascara ? 2 : 0) });
   escribirT(P, i, o.fase ?? 0, Math.round(cl(o.cascara ?? 0) * 1000) + Math.min(0.999, cl(o.vibra ?? 1)));
   return geometriaQuarks(o);
 }

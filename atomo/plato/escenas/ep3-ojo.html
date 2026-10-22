@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La franja de los ojos</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EP3-OJO · episodio 3, escena 2 (frases 5–7), plastilina adulta. Ojo, párpados, franja y cosas de kits/ep03-ojo.js
+// (ep3-hola); microscopio, anillo y telescopio de kits/ep03-instrumentos.js (lo crea esta escena; hoja de prueba:
+// escenas/ep03-instrumentos-hoja.html).
+//  0        el último fotograma de ep3-hola, igual: pintarFinalHola(...) del kit del ojo y Atom quieto en su sitio.
+//  franja   (plano detalle) la cámara se mete en la franja: un empuje en 2D hacia la rendija; al cruzar la luz de la
+//           franja, un destello cálido, y dentro, entre los párpados enormes y desenfocados, un espacio oscuro con una
+//           bruma cálida a lo largo. Pasan de cerca, uno tras otro, de derecha a izquierda (despacio por el centro y
+//           deprisa al entrar y salir): un pelo (el tronco del kit, con su cutícula), la Luna (la del kit), un puñado de
+//           estrellas y una galaxia tenue (las 'cosa' ESTRELLAS y REMOLINO). En la segunda mitad de la frase, (plano
+//           general) la cámara se abre de golpe al ojo entero, casi cerrado sobre la franja, y entra desde abajo,
+//           enorme, un teléfono tumbado que tapa casi toda la franja (solo asoman sus puntas).
+//  serinden (primer plano del párpado, por corte) la franja se estrecha hasta un borde fino y el ojo se cierra (los
+//           párpados en vivo, solo en la banda que se mueve).
+//  medir    sobre el ojo cerrado, que se oscurece y se desenfoca, pasan uno tras otro un microscopio, el anillo de un
+//           acelerador (con dos paquetes de luz que chocan en un detector) y un telescopio espacial que llega, se para en
+//           el centro y gira despacio mientras el ojo se funde en un cielo estrellado (termina_con: FIN_OJO del kit de
+//           instrumentos; el último segundo es pintarFinOjo(...) más Atom quieto).
+// Coste: cámara del plató fija; lo quieto son fotos hechas al cargar (las del final de ep3-hola, el ojo entero, el
+// párpado de cerca abierto y cerrado, las franjas, el cielo y el final). En cada fotograma se dibujan Atom (en su pasada)
+// y lo que se mueve (como mucho dos cosas de la franja, el teléfono, dos instrumentos o la banda de los párpados).
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposOjo, uniformesOjo, ponerOjo, CAPA, COSA, OJO, resplandorFranja, sombraParpados, vinetaOjo, HOLA, encuadreHola, pintarFinalHola, haciaCamara } from '/atomo/plato/kits/ep03-ojo.js';
+import { tiposInstrumentos, uniformesInstrumentos, ponerInstrumentos, instrumento, FIN_OJO, encuadreFinOjo, cieloOjo, pintarFinOjo } from '/atomo/plato/kits/ep03-instrumentos.js';
+
+const E = await escena('ep3-ojo', 'ep03');
+const __c0 = performance.now(); window.__carga = {};
+const cargaT = (k) => { window.__carga[k] = Math.round(performance.now() - __c0); };
+const M = (k) => E.marca(k);
+const m = {
+  franja: M('franja'), franjaFin: M('franja_fin'), rinden: M('serinden'), rindenFin: M('serinden_fin'),
+  medir: M('medir'), medirFin: M('medir_fin'),
+};
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+// (las palabras sueltas no tienen marca: lo que pasa dentro de una frase va en fracciones de la frase)
+const enF = (u) => mix(m.franja, m.franjaFin, u);
+const enM = (u) => mix(m.medir, m.medirFin, u);
+const T = {
+  // frase 5: el empuje hasta dentro de la franja (arranca 0,2 s antes de la marca) y el desfile
+  entra0: m.franja - 0.2, entra1: m.franja + 1.0,
+  pelo: enF(0.26), luna: enF(0.35), estrellas: enF(0.455), galaxia: enF(0.585),
+  // segunda mitad: la cámara se abre al ojo entero y entra el teléfono
+  abre0: enF(0.665), abre1: enF(0.665) + 0.55,
+  tel0: enF(0.72), tel1: enF(0.84),
+  // frase 6: corte al párpado; la franja se estrecha (es el golpe: completo poco después de la marca) y el ojo se cierra
+  cerca: m.rinden - 0.22,
+  estrecha0: m.rinden - 0.15, estrecha1: m.rinden + 0.55,
+  cierra0: m.rinden + 0.5, cierra1: m.rinden + 1.15,
+  // frase 7: el ojo cerrado se oscurece (desde 0,5 s antes de la marca) y pasan los instrumentos
+  oscuro0: m.medir - 0.5, oscuro1: m.medir + 0.15,
+  micro: enM(0.075), anillo: enM(0.27), tele0: enM(0.40), tele1: enM(0.58),
+  cielo0: enM(0.36), cielo1: enM(0.53),
+};
+T.choque = T.anillo + 0.25;   // los dos paquetes de luz del anillo se encuentran en un detector
+
+// ---------------------------------------------------------------- el plató
+const UO = uniformesOjo(), UI = uniformesInstrumentos();
+// (el ojo, la franja y la cosa en los mismos índices que en ep3-hola: las huellas y el hervor de sus fotos salen iguales)
+const I = { PELO: 0, LUNA: 1, OJO: 2, FR: 3, COSA: 4, COSA2: 5, INS: 6, INS2: 7 };
+const P = await crearPlato({
+  piezas: ['tronco', 'luna', 'ojo', 'franja', 'cosa', 'cosa', 'instrumento', 'instrumento'],
+  alfa: true, post: false,
+  tiposExtra: {
+    ...tiposOjo({ cosas: ['celula', 'atomo', 'galaxia', 'estrellas', 'remolino', 'telefono'] }),
+    ...tiposInstrumentos({ variantes: ['microscopio', 'anillo', 'telescopio'] }),
+  },
+  uniformes: { ...UO, ...UI },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+cargaT('plato');
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+
+// lienzo 2D encima del de WebGL (se compone todo aquí; viñeta y grano al final)
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+let KD = 1;   // px de dispositivo por px de diseño
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  KD = capa.width / W; g.setTransform(KD, 0, 0, KD, 0, 0);
+}
+const lienzo = () => { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; return c; };
+function foto() { const c = lienzo(); c.getContext('2d').drawImage(lienzoGL, 0, 0); return c; }
+function pegarGL(gx = g) { gx.save(); gx.setTransform(1, 0, 0, 1, 0, 0); gx.drawImage(lienzoGL, 0, 0); gx.restore(); }
+// pega una foto (del tamaño del lienzo) escalada z veces: el punto src de la foto queda en dst (px de diseño)
+function pegar(gx, f, z = 1, src = [960, 540], dst = src, alfa = 1, filtro = 'none', sy = 1) {
+  if (!f || alfa <= 0.002) return;
+  gx.save(); gx.globalAlpha *= alfa;
+  if (filtro !== 'none') gx.filter = filtro;
+  gx.translate(dst[0], dst[1]); gx.scale(z, z * sy); gx.translate(-src[0], -src[1]);
+  gx.drawImage(f, 0, 0, W, H);
+  gx.restore();
+}
+const desenfoque = (px) => (px > 0.3 ? `blur(${(px * KD).toFixed(1)}px)` : 'none');
+
+// ---------------------------------------------------------------- Atom (quieto en su sitio de presentador)
+const A_Z = 1.0, ATOM = [HOLA.ATOM.x, HOLA.ATOM.y];
+const A_ESC = HOLA.ATOM.d / (2 * (1.68 + 0.16) * pxU(en(ATOM[0], ATOM[1], A_Z)));
+// el reloj de los electrones sigue donde lo dejó ep3-hola (su tAtomo en su QUIETO, con sus marcas): arranca despacio y
+// se para al final
+const DT = 1 / 240;
+async function relojHola() {
+  let hola = 0.5, dur = 19.153;
+  try { const j = await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json(); hola = j['ep3-hola'].marcas.hola; dur = j['ep3-hola'].duracion; } catch { /* valores de la locución actual */ }
+  const QH = dur - 0.6;
+  const v = (t) => (1 + 1.4 * ss(hola - 0.2, hola + 0.3, t) * (1 - ss(hola + 1.6, hola + 2.6, t))) * (1 - eio(prog(t, QH - 0.9, QH)));
+  let a = 0;
+  for (let i = 1; i * DT <= QH + 1e-9; i++) a += v((i - 0.5) * DT) * DT;
+  // tz de ep3-hola en su final (calma(QUIETO) = QUIETO − 0,45)
+  return { ta: a, tz: QH - 0.45 };
+}
+const HOLA_RELOJ = await relojHola();
+const velA = (t) => ss(0, 0.8, t) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+const TA = [0];
+for (let i = 1; i * DT <= D + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT);
+const tAvance = (t) => { const x = Math.max(0, t) / DT, i = Math.min(TA.length - 2, Math.floor(x)); return mix(TA[i], TA[i + 1], x - i); };
+function atomo(ts) {
+  const av = tAvance(ts), tz = HOLA_RELOJ.tz + av;
+  const w = en(ATOM[0], ATOM[1], A_Z);
+  P.atomo({
+    pos: [w[0], w[1] + 0.006 * Math.sin(tz * 1.1), w[2]], escala: A_ESC,
+    yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06, roll: 0,
+    energia: ts < QUIETO ? E.energia(ts) : 0, ts: HOLA_RELOJ.ta + av, velo: 0.1,
+  });
+}
+function pasadaAtomo(ts, nf) { P.limpiar(); atomo(ts); P.render(nf, { fondo: false }); pegarGL(); }
+// la sombra blanda bajo el sitio de Atom (que se lea en el móvil): la del ojo (cálida) y la del cielo (fría)
+function sombraAtom(kCielo = 0) {
+  const a = HOLA.SOMBRA_ATOM, b = FIN_OJO.SOMBRA_ATOM;
+  for (const [s, k] of [[a, 1 - kCielo], [b, kCielo]]) {
+    if (k <= 0.002) continue;
+    const gr = g.createRadialGradient(s.x, s.y, s.r0, s.x, s.y, s.r1);
+    gr.addColorStop(0, `rgba(${s.color},${s.alfa * k})`); gr.addColorStop(1, `rgba(${s.color},0)`);
+    g.fillStyle = gr; g.fillRect(s.x - s.r1 - 10, s.y - s.r1 - 10, 2 * s.r1 + 20, 2 * s.r1 + 20);
+  }
+}
+
+// ---------------------------------------------------------------- el ojo a tres escalas
+// 1 × = el de ep3-hola (encuadreHola); 0,5 × = el ojo entero (frase 5, segunda mitad); ESC_CERCA × = el párpado de cerca
+// (frase 6). Mismo centro (960, 540, Z_OJO), misma rotación; los párpados en el estado final de ep3-hola (FIN).
+const EH = encuadreHola(P);
+const FIN = EH.fin, PUP = HOLA.PUPILA;
+const ESC_MEDIO = 0.5, ESC_CERCA = 2.0;
+const R_OJO = new THREE.Euler(...EH.rot, 'YXZ');
+// y de pantalla del borde de cada párpado en el centro de la rendija (ojo a k veces la escala de ep3-hola)
+function bordesPx(k, estado = FIN) {
+  const ang = (c, a0) => mix(a0, OJO.CIERRE, c);
+  const au = ang(estado.arriba, OJO.ARRIBA), al = Math.min(ang(estado.abajo, OJO.ABAJO), au - 0.004);
+  const y = (a) => {
+    const s = Math.sin(a), c = Math.cos(a), rho = Math.sqrt(OJO.RL * OJO.RL - OJO.H * OJO.H * s * s);
+    const q = new THREE.Vector3(0, (rho - OJO.H * c) * s, OJO.H + (rho - OJO.H * c) * c - OJO.BZ).multiplyScalar(EH.escala * k).applyEuler(R_OJO);
+    return pant([EH.pos[0] + q.x, EH.pos[1] + q.y, EH.pos[2] + q.z])[1];
+  };
+  return [y(au), y(al)];
+}
+// la franja delante del ojo a k veces (la receta de encuadreHola): pos, escala, rot, alto (variante) e y de pantalla
+function franjaEn(k, medioAltoPx = HOLA.FRANJA.medioAltoPx * k) {
+  const fpos = EH.pos.map((x, i) => x + EH.dirCam[i] * HOLA.FRANJA.delante * EH.escala * k);
+  const fesc = HOLA.FRANJA.largoPx * k / pxU(fpos);
+  return { pos: fpos, escala: fesc, rot: haciaCamara(P, fpos), alto: medioAltoPx / (fesc * pxU(fpos)), y: pant(fpos)[1] };
+}
+const B1 = bordesPx(1), B05 = bordesPx(ESC_MEDIO), B2 = bordesPx(ESC_CERCA);
+const YF1 = EH.franja.y;                                  // el centro de la franja de ep3-hola
+const YC05 = (B05[0] + B05[1]) / 2, YC2 = (B2[0] + B2[1]) / 2;
+const FR05 = franjaEn(ESC_MEDIO);
+const FR2 = franjaEn(ESC_CERCA, Math.min(HOLA.FRANJA.medioAltoPx * ESC_CERCA, 0.8 * (B2[1] - B2[0]) / 2));
+const FR2_MEDIO = Math.min(HOLA.FRANJA.medioAltoPx * ESC_CERCA, 0.8 * (B2[1] - B2[0]) / 2);
+// la banda de pantalla que tocan los párpados al cerrarse de cerca (con las pestañas de arriba) y su pluma
+const BANDA = [Math.max(0, Math.round(B2[0] - 300)), Math.min(H, Math.round(B2[1] + 130))], PLUMA = 44;
+const SOMBRA2 = { blur: HOLA.SOMBRA.blur * ESC_CERCA, dy: HOLA.SOMBRA.dy * ESC_CERCA, color: HOLA.SOMBRA.color };
+
+// ---------------------------------------------------------------- el desfile por la franja (frase 5)
+const Z_IN = 7;                                            // el aumento dentro de la franja (respecto a ep3-hola)
+const ZP = 6.0, PXP = pxU(en(960, YF1, ZP));
+// recorrido horizontal (px) a τ s del paso por el centro: despacio por el centro, deprisa al entrar y al salir
+const corre = (tau, v0, v1) => -(v0 * tau + v1 * tau * tau * tau);
+const PARADA = [
+  { nombre: 'pelo', t: T.pelo, dy: 0, d: 150 },
+  { nombre: 'luna', t: T.luna, dy: -12, d: 330 },
+  { nombre: 'estrellas', t: T.estrellas, dy: 6, d: 420 },
+  { nombre: 'galaxia', t: T.galaxia, dy: -8, d: 470 },
+];
+const PARADA_V = [520, 2157], PARADA_TAU = 0.85;
+// pone las cosas de la franja que se ven en ts (en la pantalla del plano de dentro) y devuelve sus resplandores
+function ponerParada(ts) {
+  const luces = [];
+  for (const o of PARADA) {
+    const tau = ts - o.t;
+    if (Math.abs(tau) > PARADA_TAU) continue;
+    const x = 960 + corre(tau, ...PARADA_V), y = YF1 + o.dy;
+    const pos = en(x, y, ZP);
+    if (o.nombre === 'pelo') {
+      // el tronco del kit (cutícula de escamas): radio 1, de y −1,4 a 2,4, estirado ×2,8 para cruzar la rendija
+      const esc = (o.d / 2) / PXP, sq = [1, 2.8, 1], rot = [0, 0.9 * tau, 0.2];
+      const c = new THREE.Vector3(0, 0.5 * sq[1] * esc, 0).applyEuler(new THREE.Euler(...rot, 'YXZ'));
+      P.pieza(I.PELO, { pos: [pos[0] - c.x, pos[1] - c.y, pos[2] - c.z], escala: esc, sq, rot, huellaFija: [0.3, 0.1, 0.2] });
+    } else if (o.nombre === 'luna') {
+      P.pieza(I.LUNA, { pos, escala: o.d / PXP, rot: [0.1, 0.35 * tau, 0.25] });
+      luces.push({ x, y, r: o.d * 0.9, color: '255,214,150', a: 0.10 });
+    } else if (o.nombre === 'estrellas') {
+      P.pieza(I.COSA, { pos, escala: o.d / PXP, rot: [0.15, 0.5 * tau, 0.2 * tau], variante: COSA.ESTRELLAS, color: 0 });
+      luces.push({ x, y, r: o.d * 0.85, color: '255,220,160', a: 0.16 });
+    } else {
+      P.pieza(I.COSA2, { pos, escala: o.d / PXP, rot: [-0.85, 0.2, 0.5 - 0.7 * tau], variante: COSA.REMOLINO, color: 0 });
+      luces.push({ x, y, r: o.d * 0.8, color: '190,200,240', a: 0.14, ey: 0.55 });
+    }
+  }
+  return luces;
+}
+function resplandores(luces, k = 1) {
+  g.save(); g.globalCompositeOperation = 'lighter';
+  for (const l of luces) {
+    g.save(); g.translate(l.x, l.y); g.scale(1, l.ey ?? 1);
+    const gr = g.createRadialGradient(0, 0, 0, 0, 0, l.r);
+    gr.addColorStop(0, `rgba(${l.color},${l.a * k})`); gr.addColorStop(1, `rgba(${l.color},0)`);
+    g.fillStyle = gr; g.fillRect(-l.r, -l.r, 2 * l.r, 2 * l.r);
+    g.restore();
+  }
+  g.restore();
+}
+
+// ---------------------------------------------------------------- el teléfono (frase 5, segunda mitad)
+const ZT = 7.0, Y_TEL = YC05 + 4, TEL_PX = 500;
+const ESC_TEL = TEL_PX / (0.96 * pxU(en(960, Y_TEL, ZT)));
+function ponerTelefono(ts) {
+  const u = eoc(prog(ts, T.tel0, T.tel1));
+  const asienta = ss(T.tel1, T.tel1 + 0.6, ts);
+  const y = mix(H + 340, Y_TEL, u) + 3 * Math.sin((ts - T.tel1) * 2.3) * asienta;
+  // sube algo ladeado y se endereza al llegar (en la mano: un vaivén mínimo)
+  const rot = [-0.1 + 0.25 * (1 - u), 0.12 * (1 - u) + 0.015 * Math.sin(ts * 1.7) * asienta, Math.PI / 2 - 0.03 + 0.16 * (1 - u)];
+  P.pieza(I.COSA, { pos: en(960, y, ZT), escala: ESC_TEL, rot, variante: COSA.TELEFONO, color: 0 });
+  return { y, u };
+}
+
+// ---------------------------------------------------------------- los instrumentos (frase 7)
+const ZI = 5.0, PXI = pxU(en(960, 540, ZI));
+const EFIN = encuadreFinOjo(P);
+const TEL_X0 = 2500;
+function ponerInstrumentosEn(ts) {
+  const extra = { choque: null };
+  const haz = 1, fase = 0.5 * eio(prog(ts, T.anillo - 0.9, T.choque));
+  ponerInstrumentos(UI, { luz: 1, haz, fase });
+  // el microscopio: de tres cuartos, gira un poco al pasar
+  {
+    const tau = ts - T.micro;
+    if (Math.abs(tau) < 0.9) {
+      const x = 960 + corre(tau, 420, 1780);
+      instrumento(P, I.INS, { variante: 'microscopio', pos: en(x, 540, ZI), escala: 700 / (1.93 * PXI), rot: [0.14, -0.62 + 0.55 * tau, 0.03] });
+    }
+  }
+  // el anillo del acelerador: grande, visto desde arriba de tres cuartos, con los dos paquetes de luz
+  {
+    const tau = ts - T.anillo;
+    if (Math.abs(tau) < 1.0) {
+      const x = 960 + corre(tau, 450, 2050), pos = en(x, 560, ZI - 1);
+      const k = instrumento(P, I.INS2, { variante: 'anillo', pos, escala: 1500 / (2.2 * pxU(pos)), rot: [0.62, 0.35 + 0.35 * tau, 0] });
+      extra.choque = pant(k.punto('detector2'));
+      extra.haz = [0, 0.5].map((d) => pant(k.haz(fase + d)));
+    }
+  }
+  // el telescopio: llega desde la derecha, se para en el centro (FIN_OJO) y gira despacio hasta quedarse quieto
+  if (ts >= T.tele0) {
+    const u = eoc(prog(ts, T.tele0, T.tele1));
+    const w = eio(prog(ts, T.tele1, QUIETO));
+    const fin = EFIN.pos, sx = mix(TEL_X0, FIN_OJO.X, u);
+    const p0 = en(sx, FIN_OJO.Y + 60 * (1 - u), FIN_OJO.Z);
+    const pos = [p0[0], p0[1] + 0.05 * Math.sin((ts - T.tele0) * 1.3) * (1 - w), fin[2]];
+    const rot = [FIN_OJO.ROT[0] + 0.1 * (1 - u), FIN_OJO.ROT[1] + 0.9 * (1 - u) + 0.14 * (1 - w), FIN_OJO.ROT[2] - 0.12 * (1 - u)];
+    instrumento(P, I.INS, { variante: 'telescopio', pos, escala: EFIN.escala, rot });
+  }
+  return extra;
+}
+
+// ---------------------------------------------------------------- fotos al cargar
+const F = {};
+P.fotograma(0);
+// el estreno de los programas (SwiftShader compila de verdad cada uno la primera vez que dibuja): todas las piezas
+// diminutas y fuera de cuadro, para que ese coste no caiga en un fotograma
+{
+  const lejos = (sx, sy) => en(sx, sy, 0);
+  P.limpiar();
+  ponerOjo(UO, { ...FIN, pupila: PUP, sombra: false }); ponerInstrumentos(UI, {});
+  P.pieza(I.OJO, { pos: lejos(-40, 1120), escala: 0.02, variante: CAPA.PARPADOS });
+  P.pieza(I.FR, { pos: lejos(1960, -40), escala: 0.02, variante: 0.05 });
+  P.pieza(I.COSA, { pos: lejos(-40, -40), escala: 0.02, variante: COSA.TELEFONO });
+  P.pieza(I.COSA2, { pos: lejos(1960, 1120), escala: 0.02, variante: COSA.REMOLINO });
+  P.pieza(I.PELO, { pos: lejos(-60, 540), escala: 0.01 });
+  P.pieza(I.LUNA, { pos: lejos(1980, 540), escala: 0.02 });
+  instrumento(P, I.INS, { variante: 'telescopio', pos: lejos(960, -60), escala: 0.02 });
+  instrumento(P, I.INS2, { variante: 'anillo', pos: lejos(960, 1140), escala: 0.02 });
+  atomo(0);
+  P.render(9010, { fondo: false });
+}
+cargaT('estreno');
+// el ojo en una capa (la misma receta que pintarFinalHola: pupila, sin sombra en la cara, su nf)
+function fotoOjo(k, estado, capaOjo, nf, sombra = false) {
+  ponerOjo(UO, { ...estado, pupila: PUP, sombra });
+  P.limpiar(); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala * k, rot: EH.rot, variante: capaOjo }); P.render(nf, { fondo: false });
+  return foto();
+}
+function fotoFranja(fr, nf) {
+  P.limpiar(); P.pieza(I.FR, { pos: fr.pos, escala: fr.escala, rot: fr.rot, variante: fr.alto }); P.render(nf, { fondo: false });
+  return foto();
+}
+// 1 ×: las capas del final de ep3-hola (globo, párpados casi cerrados, franja) y el fotograma entero
+F.globo1 = fotoOjo(1, HOLA.ABRE, CAPA.GLOBO, HOLA.NF.globo); cargaT('globo1');
+F.cerrado1 = fotoOjo(1, FIN, CAPA.PARPADOS, HOLA.NF.cerrado); cargaT('cerrado1');
+F.franja1 = fotoFranja({ ...EH.franja, alto: EH.franja.alto }, HOLA.NF.franja); cargaT('franja1');
+F.final1 = pintarFinalHola(P, UO, { ojo: I.OJO, franja: I.FR, cosa: I.COSA }, { fotos: { globo: F.globo1, franja: F.franja1, cerrado: F.cerrado1 } });
+cargaT('final1');
+F.sombra1 = sombraParpados(F.cerrado1, HOLA.SOMBRA);
+// 0,5 ×: el ojo entero (una sola foto, con sus sombras de verdad) y su franja
+F.ojo05 = fotoOjo(ESC_MEDIO, FIN, CAPA.TODO, 9102, true); cargaT('ojo05');
+F.franja05 = fotoFranja(FR05, 9103); cargaT('franja05');
+// ESC_CERCA ×: los párpados casi cerrados (FIN) y cerrados (la banda que cambia, remendada sobre FIN), y la franja
+F.parp2 = fotoOjo(ESC_CERCA, FIN, CAPA.PARPADOS, 9104); cargaT('parp2');
+const REM = lienzo(), PARCHE = lienzo();
+function bandaParpados(estado, nf) {
+  ponerOjo(UO, { ...estado, pupila: PUP, sombra: false });
+  P.limpiar(); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala * ESC_CERCA, rot: EH.rot, variante: CAPA.PARPADOS });
+  const k = lienzoGL.width / W;
+  P.renderer.setScissor(0, (H - BANDA[1]) * k, W * k, (BANDA[1] - BANDA[0]) * k);
+  P.renderer.setScissorTest(true);
+  P.render(nf, { fondo: false });
+  P.renderer.setScissorTest(false);
+  // el remiendo: la foto FIN y, encima, la banda nueva con los bordes fundidos (arriba y abajo)
+  const pc = PARCHE.getContext('2d');
+  pc.setTransform(1, 0, 0, 1, 0, 0); pc.globalCompositeOperation = 'source-over';
+  pc.clearRect(0, 0, PARCHE.width, PARCHE.height); pc.drawImage(lienzoGL, 0, 0);
+  pc.globalCompositeOperation = 'destination-in'; pc.setTransform(k, 0, 0, k, 0, 0);
+  const [y0, y1] = BANDA, gy = pc.createLinearGradient(0, y0, 0, y1), p = PLUMA / (y1 - y0);
+  gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(p, 'rgba(0,0,0,1)'); gy.addColorStop(1 - p, 'rgba(0,0,0,1)'); gy.addColorStop(1, 'rgba(0,0,0,0)');
+  pc.fillStyle = gy; pc.fillRect(0, y0, W, y1 - y0);
+  const rc = REM.getContext('2d');
+  rc.setTransform(1, 0, 0, 1, 0, 0); rc.globalCompositeOperation = 'source-over';
+  rc.clearRect(0, 0, REM.width, REM.height); rc.drawImage(F.parp2, 0, 0); rc.drawImage(PARCHE, 0, 0);
+  return REM;
+}
+const CERRADO = { arriba: 1, abajo: 1 };
+F.cerr2 = (() => { const c = lienzo(); c.getContext('2d').drawImage(bandaParpados(CERRADO, 9105), 0, 0); return c; })(); cargaT('cerr2');
+F.franja2 = fotoFranja(FR2, 9106); cargaT('franja2');
+F.sombraP2 = sombraParpados(F.parp2, SOMBRA2);
+F.sombraC2 = sombraParpados(F.cerr2, SOMBRA2);
+// el párpado de cerca: el globo (la foto de 1 ×, ampliada: solo asoma por la rendija), la sombra y los párpados
+function componerCerca(gx, parp, sombraP) {
+  gx.fillStyle = '#0b0807'; gx.fillRect(0, 0, W, H);
+  pegar(gx, F.globo1, ESC_CERCA, [960, YF1], [960, YC2], 1, desenfoque(2));
+  gx.save(); gx.setTransform(1, 0, 0, 1, 0, 0); gx.drawImage(sombraP, 0, 0); gx.drawImage(parp, 0, 0); gx.restore();
+  vinetaOjo(gx, ESC_CERCA); gx.setTransform(KD, 0, 0, KD, 0, 0);
+}
+F.cerca2 = (() => { const c = lienzo(), gc = c.getContext('2d'); ajustarCapa(); gc.setTransform(KD, 0, 0, KD, 0, 0); componerCerca(gc, F.cerr2, F.sombraC2); return c; })();
+// el fondo de los instrumentos: el ojo cerrado de cerca, oscuro y desenfocado (horneado)
+F.fondoI = (() => {
+  const c = lienzo(), gc = c.getContext('2d');
+  gc.filter = `blur(${(9 * KD).toFixed(1)}px) brightness(0.36) saturate(0.8)`; gc.drawImage(F.cerca2, 0, 0); gc.filter = 'none';
+  return c;
+})();
+// dentro de la franja: oscuro cálido con una bruma de luz a lo largo y motas desenfocadas (una tira el doble de ancha
+// que la pantalla, que corre despacio hacia la izquierda: la cámara viaja por la franja)
+F.dentro = (() => {
+  const c = document.createElement('canvas'); c.width = Math.round(2 * W * KD); c.height = lienzoGL.height;
+  const gc = c.getContext('2d'); gc.setTransform(KD, 0, 0, KD, 0, 0);
+  const gr = gc.createLinearGradient(0, YF1 - 300, 0, YF1 + 300);
+  gr.addColorStop(0, '#0a0706'); gr.addColorStop(0.5, '#1a120c'); gr.addColorStop(1, '#0a0706');
+  gc.fillStyle = gr; gc.fillRect(0, 0, 2 * W, H);
+  gc.globalCompositeOperation = 'lighter';
+  gc.save(); gc.translate(W, YF1); gc.scale(1, 0.16);
+  const br = gc.createRadialGradient(0, 0, 0, 0, 0, 2 * W);
+  br.addColorStop(0, 'rgba(255,186,120,0.13)'); br.addColorStop(0.5, 'rgba(255,170,100,0.06)'); br.addColorStop(1, 'rgba(255,160,90,0)');
+  gc.fillStyle = br; gc.fillRect(-2 * W, -2 * W, 4 * W, 4 * W);
+  gc.restore();
+  let s = 777; const r = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  for (let i = 0; i < 70; i++) {
+    const x = r() * 2 * W, y = YF1 + (r() - 0.5) * 380, R = 5 + 22 * r(), a = 0.03 + 0.08 * r();
+    const b = gc.createRadialGradient(x, y, 0, x, y, R);
+    b.addColorStop(0, `rgba(255,${200 + Math.round(40 * r())},150,${a})`); b.addColorStop(0.7, `rgba(255,200,150,${a * 0.6})`); b.addColorStop(1, 'rgba(255,200,150,0)');
+    gc.fillStyle = b; gc.beginPath(); gc.arc(x, y, R, 0, 2 * Math.PI); gc.fill();
+  }
+  return c;
+})();
+cargaT('compuestas');
+// el cielo y el final (FIN_OJO: la receta del kit de instrumentos)
+F.cielo = cieloOjo(lienzo());
+F.fin = pintarFinOjo(P, UI, I.INS, { fotos: { cielo: F.cielo } }); cargaT('fin');
+
+// ---------------------------------------------------------------- composiciones
+const CAPA_OBJ = lienzo(), CAPA_TMP = lienzo();
+function copiarGL(c) { const gc = c.getContext('2d'); gc.setTransform(1, 0, 0, 1, 0, 0); gc.clearRect(0, 0, c.width, c.height); gc.drawImage(lienzoGL, 0, 0); return c; }
+// el ojo de ep3-hola (1 ×) ampliado Z veces alrededor del centro de la franja, que queda en yDst; dentro (0…1) cambia la
+// rendija por el espacio de dentro; objetos (capa) entre el fondo y los párpados
+function ojoUno(gx, Z, { yDst = YF1, franjaK = 1, dentro = 0, objetos = null, zObj = 1, luces = null, ts = 0, fondo = true } = {}) {
+  const c = [960, YF1], d = [960, yDst];
+  const bl = Z > 1.15 ? Math.min(13, (Z - 1.15) * 2.3) : 0;
+  if (fondo) { gx.fillStyle = '#0b0807'; gx.fillRect(0, 0, W, H); }
+  if (dentro < 0.999) pegar(gx, F.globo1, Z, c, d, 1, desenfoque(bl));
+  if (dentro > 0.001) {
+    // el espacio de dentro corre despacio hacia la izquierda
+    const dx = -((ts * 70) % W);
+    gx.save(); gx.globalAlpha = dentro; gx.translate(960, yDst); gx.scale(Z / Z_IN, Z / Z_IN); gx.translate(-960, -YF1);
+    gx.drawImage(F.dentro, dx, 0, 2 * W, H); gx.drawImage(F.dentro, dx + 2 * W, 0, 2 * W, H);
+    gx.restore();
+  }
+  if (luces) resplandores(luces, dentro);
+  if (objetos) pegar(gx, objetos, zObj, c, d);
+  pegar(gx, F.sombra1, Z, c, d, 1, desenfoque(bl));
+  pegar(gx, F.cerrado1, Z, c, d, 1, desenfoque(bl * 0.8));
+  vinetaOjo(gx, Z); gx.setTransform(KD, 0, 0, KD, 0, 0);
+  if (franjaK > 0.002) {
+    pegar(gx, F.franja1, Z, c, d, franjaK, desenfoque(bl * 0.5));
+    const h = HOLA.HALO, xm = 960 + (h.x1 - 960) * Z;
+    resplandorFranja(gx, 960 - (xm - 960), xm, yDst, h.alto * Math.min(Z, 3), h.fuerza * franjaK);
+  }
+}
+// el ojo entero (0,5 ×) ampliado z veces (1 en su sitio)
+function ojoMedio(gx, z, yDst = YC05) {
+  gx.fillStyle = '#0b0807'; gx.fillRect(0, 0, W, H);
+  pegar(gx, F.ojo05, z, [960, YC05], [960, yDst]);
+  vinetaOjo(gx, ESC_MEDIO * z); gx.setTransform(KD, 0, 0, KD, 0, 0);
+  pegar(gx, F.franja05, z, [960, YC05], [960, yDst]);
+  const h = HOLA.HALO, xm = 960 + (h.x1 - 960) * ESC_MEDIO * z;
+  resplandorFranja(gx, 960 - (xm - 960), xm, yDst + (FR05.y - YC05) * z, h.alto * ESC_MEDIO * z, h.fuerza);
+}
+// el aumento del plano en ts (respecto al ojo de ep3-hola): del 1 al de dentro, y de dentro al ojo entero
+function aumento(ts) {
+  if (ts < T.abre0) return Math.exp(Math.log(Z_IN) * eio(prog(ts, T.entra0, T.entra1)));
+  return Math.exp(mix(Math.log(Z_IN), Math.log(ESC_MEDIO), eio(prog(ts, T.abre0, T.abre1))));
+}
+
+// ---------------------------------------------------------------- fotograma
+const tiempos = new URLSearchParams(location.search).has('tiempos');
+function marcaT(k) { if (!tiempos) return; P.renderer.getContext().finish(); const a = performance.now(); window.__tiempos[k] = Math.round(a - window.__t0); window.__t0 = a; }
+function dibujar(t) {
+  if (tiempos) { window.__tiempos = {}; window.__t0 = performance.now(); }
+  const ts = Math.min(t, QUIETO);
+  const nf = Math.floor(ts * 12 + 1e-6);
+  ajustarCapa();
+  P.fotograma(ts);
+  g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.filter = 'none';
+
+  if (ts >= QUIETO - 1e-6) {
+    // ---- el final, quieto: la receta del kit de instrumentos (= el principio de ep3-promesa)
+    g.drawImage(F.fin, 0, 0, W, H);
+    pasadaAtomo(ts, nf);
+    POST.aplicar(g, nf);
+    return;
+  }
+  if (ts < T.cerca) {
+    const Z = aumento(ts);
+    if (Z <= 1.0001 && ts < T.entra0 + 0.05) {
+      // ---- el principio: el último fotograma de ep3-hola
+      g.drawImage(F.final1, 0, 0, W, H);
+    } else if (Z >= 1) {
+      // ---- dentro de la franja (con el empuje y el principio de la apertura)
+      const dentro = ss(2.6, 4.6, Z);
+      let objetos = null, luces = null;
+      if (ts > T.pelo - PARADA_TAU && ts < T.galaxia + PARADA_TAU) {
+        P.limpiar(); luces = ponerParada(ts); P.render(nf, { fondo: false });
+        objetos = copiarGL(CAPA_OBJ);
+        marcaT('cosas');
+      }
+      ojoUno(g, Z, { franjaK: 1 - ss(2.2, 4.2, Z), dentro, objetos, zObj: Z / Z_IN, luces, ts });
+      // el destello al cruzar la luz de la franja
+      const fl = Math.exp(-Math.pow((Math.log(Z) - Math.log(3.3)) / 0.32, 2)) * (ts < T.abre0 ? 1 : 0.4);
+      if (fl > 0.01) {
+        g.save(); g.globalCompositeOperation = 'lighter';
+        g.translate(960, YF1); g.scale(1, 0.45);
+        const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1100);
+        gr.addColorStop(0, `rgba(255,228,190,${0.55 * fl})`); gr.addColorStop(0.4, `rgba(255,200,140,${0.22 * fl})`); gr.addColorStop(1, 'rgba(255,190,120,0)');
+        g.fillStyle = gr; g.fillRect(-1100, -1100, 2200, 2200);
+        g.restore();
+      }
+    } else {
+      // ---- el ojo entero (con el fundido desde el de 1 × al final de la apertura) y el teléfono
+      const z = Z / ESC_MEDIO, yd = mix(YC05, YF1, cl(z - 1));
+      ojoMedio(g, z, yd);
+      const a1 = ss(0.62, 0.95, Z);
+      if (a1 > 0.002) {
+        const gt = CAPA_TMP.getContext('2d');
+        gt.setTransform(1, 0, 0, 1, 0, 0); gt.clearRect(0, 0, CAPA_TMP.width, CAPA_TMP.height);
+        gt.setTransform(KD, 0, 0, KD, 0, 0); gt.globalAlpha = 1;
+        ojoUno(gt, Z, { yDst: yd, fondo: false });
+        g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = a1; g.drawImage(CAPA_TMP, 0, 0); g.restore();
+      }
+      if (ts > T.tel0) {
+        P.limpiar(); const tel = ponerTelefono(ts); P.render(nf, { fondo: false });
+        // la luz de la pantalla sobre la piel
+        const k = eoc(prog(ts, T.tel0, T.tel1));
+        g.save(); g.globalCompositeOperation = 'lighter'; g.translate(960, tel.y); g.scale(1, 0.6);
+        const gr = g.createRadialGradient(0, 0, 60, 0, 0, 560);
+        gr.addColorStop(0, `rgba(170,190,230,${0.16 * k})`); gr.addColorStop(1, 'rgba(170,190,230,0)');
+        g.fillStyle = gr; g.fillRect(-560, -560, 1120, 1120);
+        g.restore();
+        pegarGL();
+        marcaT('telefono');
+      }
+    }
+    sombraAtom(0);
+    pasadaAtomo(ts, nf);
+    POST.aplicar(g, nf);
+    return;
+  }
+  if (ts < T.oscuro0) {
+    // ---- el párpado de cerca: la franja se estrecha hasta un borde fino y el ojo se cierra
+    let parp = F.parp2, sombraP = F.sombraP2;
+    if (ts >= T.cierra1) { parp = F.cerr2; sombraP = F.sombraC2; }
+    else if (ts > T.cierra0) {
+      const u = eio(prog(ts, T.cierra0, T.cierra1));
+      parp = bandaParpados({ arriba: mix(FIN.arriba, 1, u), abajo: mix(FIN.abajo, 1, u) }, nf);
+      sombraP = sombraParpados(parp, SOMBRA2);
+      marcaT('parpados');
+    }
+    componerCerca(g, parp, sombraP);
+    const ue = eio(prog(ts, T.estrecha0, T.estrecha1));
+    const sy = mix(1, 2.5 / FR2_MEDIO, ue);
+    const kf = 1 - ss(T.cierra0 + 0.15, T.cierra1 - 0.1, ts);
+    if (kf > 0.002) {
+      pegar(g, F.franja2, 1, [960, FR2.y], [960, FR2.y], kf, 'none', sy);
+      const xm = 960 + (HOLA.HALO.x1 - 960) * ESC_CERCA;
+      resplandorFranja(g, 960 - (xm - 960), xm, FR2.y, HOLA.HALO.alto * ESC_CERCA * mix(1, 0.25, ue), HOLA.HALO.fuerza * kf * mix(1, 0.7, ue));
+    }
+    sombraAtom(0);
+    pasadaAtomo(ts, nf);
+    POST.aplicar(g, nf);
+    return;
+  }
+  // ---- los instrumentos sobre el ojo cerrado, que se oscurece y se funde en el cielo
+  const ko = eio(prog(ts, T.oscuro0, T.oscuro1)), kc = eio(prog(ts, T.cielo0, T.cielo1));
+  g.drawImage(F.cerca2, 0, 0, W, H);
+  if (ko > 0.002) pegar(g, F.fondoI, 1, [960, 540], [960, 540], ko);
+  if (kc > 0.002) pegar(g, F.cielo, 1, [960, 540], [960, 540], kc);
+  // el halo cálido detrás del telescopio
+  const h = FIN_OJO.HALO, kh = kc * eoc(prog(ts, T.tele0, T.tele1));
+  if (kh > 0.002) {
+    g.save(); g.globalCompositeOperation = 'lighter';
+    const gh = g.createRadialGradient(h.x, h.y, 0, h.x, h.y, h.r);
+    gh.addColorStop(0, `rgba(255,190,110,${h.alfa * kh})`); gh.addColorStop(1, 'rgba(255,170,90,0)');
+    g.fillStyle = gh; g.fillRect(h.x - h.r, h.y - h.r, 2 * h.r, 2 * h.r);
+    g.restore();
+  }
+  P.limpiar();
+  const ex = ponerInstrumentosEn(ts);
+  P.render(nf, { fondo: false });
+  pegarGL();
+  marcaT('instrumentos');
+  // el choque de los dos paquetes de luz en el detector
+  if (ex.choque) {
+    const k = Math.exp(-Math.pow((ts - T.choque) / 0.16, 2));
+    if (k > 0.01) {
+      const [x, y] = ex.choque;
+      g.save(); g.globalCompositeOperation = 'lighter';
+      const gr = g.createRadialGradient(x, y, 0, x, y, 260);
+      gr.addColorStop(0, `rgba(255,236,200,${0.85 * k})`); gr.addColorStop(0.25, `rgba(255,190,110,${0.35 * k})`); gr.addColorStop(1, 'rgba(255,160,80,0)');
+      g.fillStyle = gr; g.fillRect(x - 260, y - 260, 520, 520);
+      g.restore();
+    }
+  }
+  sombraAtom(kc);
+  pasadaAtomo(ts, nf);
+  POST.aplicar(g, nf);
+}
+cargaT('listo');
+window.__info = { T, m, B1, B05, B2, YF1, YC05, YC2, BANDA, FR2_MEDIO, ESC_TEL, EFIN, HOLA_RELOJ };
+// el último fotograma, para ep3-promesa (ver la cabecera): la receta del kit de instrumentos y Atom quieto en su sitio
+window.__fin = (() => {
+  const av = tAvance(QUIETO), tz = HOLA_RELOJ.tz + av, w = en(ATOM[0], ATOM[1], A_Z);
+  return {
+    t: D, quieto: QUIETO, receta: 'pintarFinOjo(P, U, i) de kits/ep03-instrumentos.js (FIN_OJO, encuadreFinOjo, cieloOjo)',
+    telescopio: { ...EFIN, variante: 'telescopio', uniformes: { rueda: 0, haz: 0, fase: 0, luz: 0 } },
+    atom: { centro: ATOM, diametroOrbitas: HOLA.ATOM.d, pos: [w[0], w[1] + 0.006 * Math.sin(tz * 1.1), w[2]], escala: A_ESC,
+      yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06, roll: 0, energia: 0, ts: HOLA_RELOJ.ta + av, velo: 0.1 },
+    camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+  };
+})();
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

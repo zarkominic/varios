@@ -691,6 +691,9 @@ const finalHola = () => PX.pegar(FINAL, 0, 0, { opaco: true });
 // los platós de los planos fijos
 for (const [k, cam] of [['G', CAMG], ['M', CAM_MED]]) { const c = PX.nuevaCapa(W, H); platoBase(cam, c.buf); FIJOS[k] = c; }
 
+// en frío, el primer fotograma del fundido costaba casi el doble (compilación y recolección de memoria): se ensaya uno al cargar
+{ const ensayo = PX.nuevaCapa(W, H), t = T.fun0 + 0.2; PX.en(ensayo, () => ojoEnorme(t, camara(t))); }
+
 // ───────────────────────────────────────────────────────────── dibujar(t)
 function dibujar(t) {
   const cam = camara(t);

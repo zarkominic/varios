@@ -60,9 +60,13 @@
 //  · FINAL_UNIVERSO (el último fotograma de ep3-universo = el primero de ep3-borde): la red con celda 45 y origen RED.NODO en
 //    (840, 470), y la esfera en c (840, 470), r 330, k 1, borde 1, cristal 1, fuera 0,5, lupa 0,1; un punto ámbar en el
 //    centro (la Vía Láctea: nosotros, ver puntoNosotros); la regla en 10²⁷ (como en ENLACE, e 27); Atom en (230, 780).
+//  · fotoEnlace(mundo, estadoMundo, camaraPorTierra, { z: 22, via, radio: 27, n }) → { fondo, galaxia: { lienzo, r } }: UNA
+//    foto del mundo en 10²² con la galaxia en su sitio: el fondo de ENLACE sin la galaxia (tapada con el color de
+//    alrededor) y la galaxia recortada en redondo (la Vía Láctea y, girada, aplastada y ×1,5, Andrómeda). Así se hace
+//    ENLACE en ep3-universo (y lo puede hacer igual ep3-andromeda).
 //  · fotoGalaxia(mundo, estadoMundo, camaraPorTierra, { radio: 300, n }) → { lienzo, r }: la galaxia de crearMundo sola, a
-//    radio px, recortada en redondo con el borde fundido (para ponerla en 2D a cualquier tamaño y giro). Recibe las
-//    funciones de ep03-cosmos.js (este kit no lo importa).
+//    radio px, recortada en redondo con el borde fundido (para ponerla en 2D a cualquier tamaño y giro, también grande).
+//    Las dos reciben las funciones de ep03-cosmos.js (este kit no lo importa).
 //  · puntoNosotros(g, [x, y], { r: 5, k: 1 }): una cuenta de luz ámbar con su halo (la Vía Láctea encogida hasta un punto).
 //
 // ================================================================================================ LAS PIEZAS
@@ -110,13 +114,16 @@ export const celdaRed = (z) => 45 * Math.pow(10, (27 - z) * 0.36);
 export const veloRed = (z) => ss(22.3, 23.6, z);
 export const ENLACE = {
   z: 22, via: [190, 560], rVia: 27, andromeda: [1430, 183], rAnd: 40, giroAnd: -0.62, aplastaAnd: 0.42,
-  luz: 0.9, figuritas: [{ x: 300, y: 538, alto: 46, semilla: 3 }, { x: 330, y: 529, alto: 52, semilla: 7 }, { x: 362, y: 519, alto: 44, semilla: 12 }],
+  luz: 0.9, figuritas: [],
   regla: { e: 22, ya: 0, actual: 22, lupa: 0.5, pos: [1655, 528, 0.4], escala: 1.42, rot: [0, -0.12, 0] }, atomo: [230, 780],
 };
 {
   const [x0, y0] = ENLACE.via, [x1, y1] = ENLACE.andromeda, L = Math.hypot(x1 - x0, y1 - y0), ux = (x1 - x0) / L, uy = (y1 - y0) / L;
   // de Andrómeda a la Vía Láctea (la luz va de Andrómeda hacia nosotros), de borde a borde
   ENLACE.vara = [[x1 - ux * ENLACE.rAnd * 0.75, y1 - uy * ENLACE.rAnd * 0.75], [x0 + ux * ENLACE.rVia * 1.1, y0 + uy * ENLACE.rVia * 1.1]];
+  // tres figuritas de pie sobre la vara, entre la Vía Láctea y la luz (a 22, 48 y 74 px del extremo de la vara)
+  const [xb, yb] = ENLACE.vara[1];
+  ENLACE.figuritas = [[22, 46, 3], [48, 52, 7], [74, 44, 12]].map(([d, alto, semilla]) => ({ x: Math.round(xb + ux * d), y: Math.round(yb + uy * d), alto, semilla }));
 }
 export const FINAL_UNIVERSO = {
   red: { celda: 45, centro: [840, 470], origen: null, luz: 1, velo: 1 },
@@ -432,6 +439,42 @@ export function fotoGalaxia(mundo, estadoMundo, camaraPorTierra, { radio = 300, 
   h.addColorStop(0, 'rgba(0,0,0,1)'); h.addColorStop(1, 'rgba(0,0,0,0)');
   x.fillStyle = h; x.fillRect(0, 0, L, L);
   return { lienzo: c, r: radio };
+}
+/**
+ * El fondo de ENLACE en una sola foto del mundo: el mundo de crearMundo en 10^z con la galaxia en `via` a `radio` px por
+ * radio de galaxia; devuelve { fondo: el lienzo sin la galaxia (tapada con el color de alrededor), galaxia: { lienzo, r }
+ * (la galaxia recortada en redondo, para ponerla en 2D: la Vía Láctea y, girada, aplastada y algo mayor, Andrómeda) }.
+ */
+export function fotoEnlace(mundo, estadoMundo, camaraPorTierra, { z = ENLACE.z, via = ENLACE.via, radio = ENLACE.rVia, n = 0 } = {}) {
+  const C = camaraPorTierra(z, via, z);
+  mundo.dibujar(estadoMundo(C, n, { luna: 0, capas: { uGal: [via[0], via[1], radio, 1], uSol: [0, 0, 1, 0], uSis: [0, 0, 1, 0], uVec: [0, 0, 1, 0], uAqui: [0, 0, 0, 0] } }));
+  const k = mundo.lienzo.width / W;
+  const fondo = document.createElement('canvas'); fondo.width = mundo.lienzo.width; fondo.height = mundo.lienzo.height;
+  const f = fondo.getContext('2d'); f.drawImage(mundo.lienzo, 0, 0);
+  const L = Math.round(radio * 2.6);
+  const gal = document.createElement('canvas'); gal.width = gal.height = Math.round(L * k);
+  const x = gal.getContext('2d');
+  x.drawImage(mundo.lienzo, (via[0] - L / 2) * k, (via[1] - L / 2) * k, L * k, L * k, 0, 0, gal.width, gal.height);
+  x.globalCompositeOperation = 'destination-in';
+  const h = x.createRadialGradient(gal.width / 2, gal.height / 2, radio * 0.82 * k, gal.width / 2, gal.height / 2, gal.width / 2);
+  h.addColorStop(0, 'rgba(0,0,0,1)'); h.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = h; x.fillRect(0, 0, gal.width, gal.height);
+  // el fondo sin la galaxia: un disco blando del color medio de un anillo alrededor
+  const R0 = radio * 1.35, R1 = radio * 1.9;
+  const d = f.getImageData(Math.max(0, (via[0] - R1) * k) | 0, Math.max(0, (via[1] - R1) * k) | 0, Math.ceil(2 * R1 * k), Math.ceil(2 * R1 * k)).data;
+  let sr = 0, sg = 0, sb = 0, cnt = 0;
+  const lado = Math.ceil(2 * R1 * k);
+  for (let yy = 0; yy < lado; yy++) for (let xx = 0; xx < lado; xx++) {
+    const rr = Math.hypot(xx - lado / 2, yy - lado / 2) / k;
+    if (rr < R0 || rr > R1) continue;
+    const o = (yy * lado + xx) * 4; sr += d[o]; sg += d[o + 1]; sb += d[o + 2]; cnt++;
+  }
+  const c = cnt ? [sr / cnt, sg / cnt, sb / cnt].map(Math.round) : [28, 26, 26];
+  f.setTransform(k, 0, 0, k, 0, 0);
+  const t = f.createRadialGradient(via[0], via[1], radio * 0.9, via[0], via[1], R0 * 1.1);
+  t.addColorStop(0, `rgba(${c},1)`); t.addColorStop(1, `rgba(${c},0)`);
+  f.fillStyle = t; f.beginPath(); f.arc(via[0], via[1], R0 * 1.1, 0, 2 * Math.PI); f.fill();
+  return { fondo, galaxia: { lienzo: gal, r: radio * k } };
 }
 /** Una cuenta de luz ámbar con su halo: la Vía Láctea encogida hasta un punto (nosotros). */
 export function puntoNosotros(g, [x, y], { r = 5, k = 1 } = {}) {
