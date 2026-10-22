@@ -517,14 +517,14 @@ function componer(t) {
   const viejo = F('nivel' + k), nuevo = F('nivel' + (k + 1));
   P.limpiar(); atomo(ts); regla(ts);
   P.render(n, { fondo: false });
-  const F = FOCO[k];
-  const pu = eio(cl(u / 0.8)), px = mix(F[0], W / 2, pu), py = mix(F[1], H / 2, pu);
+  const FK = FOCO[k];
+  const pu = eio(cl(u / 0.8)), px = mix(FK[0], W / 2, pu), py = mix(FK[1], H / 2, pu);
   const sO = Math.pow(10, 0.5 * eio(cl(u / 0.7))), sN = mix(0.8, 1, seco(prog(u, 0.05, 0.85)));
   const r = 1500 * eio(prog(u, 0, 0.62));
   const lejos = Math.max(Math.hypot(px, py), Math.hypot(W - px, py), Math.hypot(px, H - py), Math.hypot(W - px, H - py));
   g.save();
   if (r < lejos) {
-    g.save(); g.translate(px, py); g.scale(sO, sO); g.translate(-F[0], -F[1]); g.drawImage(viejo, 0, 0, W, H); g.restore();
+    g.save(); g.translate(px, py); g.scale(sO, sO); g.translate(-FK[0], -FK[1]); g.drawImage(viejo, 0, 0, W, H); g.restore();
     if (r > 2) {
       const rx0 = px - W / 2 * sN, ry0 = py - H / 2 * sN, rw = W * sN, rh = H * sN;
       g.save(); g.beginPath(); g.rect(rx0, ry0, rw, rh); g.clip();

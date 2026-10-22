@@ -65,10 +65,11 @@ cel('cielo: velocidad 0,4', () => ventana(P, I.ventana, { ...VEN, cortinas: fals
 cel('cielo: velocidad 0 (puntos)', () => ventana(P, I.ventana, { ...VEN, cortinas: false }), conCielo(0, 1.3));
 cel('cielo sin el vidrio', () => ventana(P, I.ventana, { ...VEN, cortinas: false }), { fondo: (g, v) => cieloVentana(g, v.hueco, { t: 0.6, rayas: RAYAS }) });
 // el salón entero (el final de ep3-mapa)
-cel('SALON general (reloj en 1 h)', () => salon(P, I, { encuadre: 'general', reloj: { minutos: 60, sector: [0, 60] } }), {
-  fondo: (g, s) => cieloVentana(g, s.ventana.hueco, { t: 0.6, rayas: RAYAS }), d2: (g, s) => vidrioVentana(g, s.ventana.hueco) });
-cel('SALON cerca (reloj en 0)', () => salon(P, I, { encuadre: 'cerca', reloj: { minutos: 0 } }), {
-  fondo: (g, s) => cieloVentana(g, s.ventana.hueco, { t: 0.6, rayas: RAYAS }), d2: (g, s) => vidrioVentana(g, s.ventana.hueco) });
+const IS = { ventana: I.ventana, sofa: I.sofa, bol: I.bol, persona: I.persona, reloj: I.reloj };
+const conCieloS = { fondo: (g, s) => cieloVentana(g, s.ventana.hueco, { t: 0.6, rayas: RAYAS }), d2: (g, s) => vidrioVentana(g, s.ventana.hueco) };
+cel('SALON general (reloj en 1 h): el final de ep3-mapa', () => salon(P, IS, { encuadre: 'general', reloj: { minutos: 60, sector: [0, 60] } }), conCieloS);
+cel('SALON cerca (reloj en 0)', () => salon(P, IS, { encuadre: 'cerca', reloj: { minutos: 0 } }), conCieloS);
+cel('SALON general, bol en la mesita, sofá terracota', () => salon(P, I, { encuadre: 'general', reloj: { minutos: 30, sector: [0, 30] }, bol: { donde: 'mesita', escala: 0.24 }, sofa: { tela: 'terracota' } }), conCieloS);
 
 const cont = document.getElementById('escena');
 const lienzoGL = P.renderer.domElement;

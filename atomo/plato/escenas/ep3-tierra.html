@@ -24,15 +24,17 @@
 //         y su halo, más grande el primer segundo, late una vez; a mitad de frase, los siete planetas a escala caen uno a
 //         uno en el hueco y se quedan en fila, ajustados (Saturno con los anillos en «/», dentro de y 80–780); la cinta de
 //         costurera se tiende desde lo alto de la Tierra, por encima de los planetas pequeños, hasta tocar con su punta el
-//         borde de la Luna; la cámara se acerca de golpe (como un salto) al final de la fila: entre Neptuno y la Luna
-//         sobra un pelo (una cota de latón lo marca, encima de la cinta); la cinta se recoge de golpe. El fondo del hueco y
-//         del plano medio es el mismo (el resplandor del Sol del hueco)
+//         borde de la Luna; la cámara se acerca de golpe (como un salto, a 10^7,65) al final de la fila, en un detalle:
+//         Neptuno grande (Urano a medias en el borde, Saturno fuera), el pelo que sobra entre Neptuno y la Luna (una cota
+//         de latón lo marca, encima de la cinta) y la Luna; la cinta se recoge de golpe. El fondo del hueco y del plano
+//         medio es el mismo (el resplandor del Sol del hueco)
 //  sol    salto 9 (acaba en la marca): la cámara sale hasta el Sol de crearMundo, enorme, con la Tierra como un punto a
 //         su lado (los planetas encogen y desaparecen); las Tierras caen en el Sol una tras otra, cada vez más seguidas,
 //         y se funden con una onda, como gotas en una pecera; las últimas se funden y todo queda quieto (termina_con)
-// Coste: la cámara del plató es fija. Lo quieto son fotos: el plató de la mirilla, los planetas (sprites) y las nubes, al
-// cargar; el mundo en cada encuadre quieto (la Tierra entera, el hueco, el plano medio y el Sol), tres fotos que se
-// alternan (el hervor), la primera vez que hacen falta. En cada fotograma se dibujan en vivo Atom, la regla y su flecha,
+// Coste: la cámara del plató es fija. Lo quieto son fotos: las nubes, al cargar; el plató de la mirilla y los planetas
+// (sprites), después de cargar, en los fotogramas baratos (ver «lo que se prepara después de cargar»); el mundo en cada
+// encuadre quieto (la Tierra entera, el hueco, el plano medio y el Sol), tres fotos que se alternan (el hervor), la
+// primera vez que hacen falta; las Tierras que caen, un recorte de la primera foto de la Tierra entera. En cada fotograma se dibujan en vivo Atom, la regla y su flecha,
 // y lo que se mueve (la flecha de «tú estás aquí», la cinta, la cota); el mundo, solo mientras la cámara se mueve y en las
 // paradas del viaje (de 10¹ a 10⁶). Encima de todo, un lienzo 2D («sobre») para la luz del destello de 10⁴.
 import * as THREE from 'three';
@@ -72,7 +74,9 @@ const L56 = m.huecoFin - m.hueco;
 const T = {
   plato: SALTOS[0][0],                             // hasta aquí, el plató; después, el mundo
   b4: SALTOS[3][1],                                // la regla llega a 10⁴: brilla la marca y se enciende la ciudad
-  pl0: m.hueco + 0.3 * L56, plPaso: 0.34, plCae: 0.36,
+  // a un 30 % de la frase; si la voz cambia y la frase 56 se queda corta, antes, para que lo que sigue (fila, cinta,
+  // acercamiento, cota y un segundo para mirarlo: ~5,1 s) acabe antes de recoger la cinta, 0,6 s antes de «sol»
+  pl0: Math.max(m.hueco + 1.0, Math.min(m.hueco + 0.3 * L56, m.sol - 0.6 - 5.1)), plPaso: 0.34, plCae: 0.36,
 };
 // el destello de la marca 10⁴: centrado en la parada en 10⁴ (entre el salto 4 y el 5), no al arrancar el 5
 T.b4a = T.b4 - 0.1; T.b4b = SALTOS[4][0] + 0.12;
@@ -246,8 +250,9 @@ const fotoPlato = tarea('foto del plató', () => {
 }, 0);
 
 // ---------------------------------------------------------------- los planetas: fotos (sprites) al cargar
-// Cada uno de cara a la cámara en el centro del plató, al tamaño más grande que se va a ver (el plano medio, z = 8), salvo
-// Saturno, cuyos anillos no caben enteros a ese tamaño (se amplía un 26 % en el plano medio, donde se ve a medias).
+// Cada uno de cara a la cámara en el centro del plató, al tamaño más grande que se va a ver (el plano medio, Z_MEDIO), salvo
+// Júpiter (el del hueco) y Saturno (250 px de radio, anillos incluidos), que en el acercamiento salen del cuadro antes de
+// crecer más que eso.
 const C_HUECO = camara(8, { hueco: true });
 const Z_MEDIO = 7.65;
 // plano medio (detalle): Neptuno grande, el pelo (entre Neptuno y la Luna, ~210 px) en x = 975 y la Luna; Urano se ve a

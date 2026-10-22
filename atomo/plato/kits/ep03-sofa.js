@@ -744,12 +744,13 @@ export function vidrioVentana(g, hueco, { fuerza = 1 } = {}) {
 export const SALON = {
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28 },
   ventana: { pos: [1.3, 3.75, -3.0], escala: 3.1, aspecto: 1.12, parteluz: 'cruz', pared: 'salvia', cortinas: true, muro: [3.3, 3.75 / 3.1, 1.25], suelo: 2.8 },
-  persona: { pos: [-1.53, 2.4, 1.0], escala: 2.4, rot: [0, Math.PI - 0.35, 0], aspecto: 'adulto',
+  persona: { pos: [-1.2, 2.4, 1.0], escala: 2.4, rot: [0, Math.PI - 0.35, 0], aspecto: 'adulto',
     cabeza: [-0.32, -0.12, 0.04], mirada: [-0.3, 0.35] },
   sofa: { tela: 'oliva', plazas: 2, plaza: 0, cojin: true },
-  // la mesita, en unidades del sofá (de la persona): junto a su brazo −x (a la derecha de la persona)
+  // la mesita (si se pone), en unidades del sofá (de la persona): junto a su brazo −x (a la derecha de la persona)
   mesita: { en: [-(0.66 + 0.17 + 0.25), 0.123, 0.02] },
-  bol: { color: 'crema', escala: 0.24, palomitas: 1, giro: 0.4 },
+  // el bol: en lo alto del brazo del sofá que tiene al lado (donde: 'brazo'; z: hacia el frente del brazo) o en la mesita
+  bol: { color: 'crema', escala: 0.2, palomitas: 1, giro: 0.4, donde: 'brazo', z: 0.07 },
   // la mano derecha, dentro del bol: el punto (unidades del bol) que busca la palma
   mano: { en: [0.06, 0.5, 0.12] },
   reloj: { en: [-1.42, 0.36], escala: 0.62 },
@@ -821,11 +822,14 @@ export function salon(P, I, { encuadre = 'general', reloj = null, persona = {}, 
   const S = { ...SALON.sofa, ...oSofa };
   const colS = sofaPara(asiento, e, Pe.rot[1], S.plaza, S.plazas);
   out.sofa = I.sofa != null ? sofa(P, I.sofa, { ...colS, tela: S.tela, plazas: S.plazas, cojin: S.cojin, hundido: S.plaza }) : sofaInfo(colS, S.plazas);
-  // la mesita, junto al brazo del sofá, y el bol encima
+  // la mesita (si se pone), junto al brazo del sofá
   const colM = { pos: mundoPieza(colS, SALON.mesita.en), escala: e, rot: [0, Pe.rot[1] + 0.3, 0] };
   out.mesita = I.mesita != null ? mesita(P, I.mesita, colM) : { tablero: mundoPieza(colM, [0, 0, 0]) };
+  // el bol: en el brazo del sofá junto a la persona (o en la mesita)
   const B = { ...SALON.bol, ...oBol };
-  const colB = { pos: out.mesita.tablero, escala: B.escala * e, rot: [0, Pe.rot[1] + B.giro, 0] };
+  const hw = S.plazas * 0.33, lado = S.plaza === 0 ? -1 : 1;
+  const sobre = B.donde === 'mesita' ? out.mesita.tablero : mundoPieza(colS, [lado * (hw + 0.09), 0.262, B.z ?? 0.07]);
+  const colB = { pos: sobre, escala: B.escala * e, rot: [0, Pe.rot[1] + B.giro, 0] };
   out.bol = I.bol != null ? bol(P, I.bol, { ...colB, color: B.color, palomitas: B.palomitas }) : null;
   // la persona, con la mano derecha en el bol
   if (I.persona != null) {

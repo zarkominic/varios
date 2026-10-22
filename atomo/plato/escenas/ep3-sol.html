@@ -19,8 +19,9 @@
 //          fundirse
 //  rebota  vuelve el corte (plano medio, algo más cerca): un rayo de luz de alambre rebota dentro como una bola de pinball
 //          mientras un calendario de arcilla pasa hojas de 1 a 120000 (años); a mitad de frase la luz sale por el borde, la
-//          cámara la sigue (el Sol se queda a la izquierda) y viaja con un reloj que marca 8 minutos hasta la cara de una
-//          persona de perfil, con los ojos cerrados al sol, que se ilumina al llegar
+//          cámara la sigue (el Sol se queda arriba a la izquierda y la persona entra por la derecha con el mismo
+//          movimiento) y viaja con un reloj que marca 8 minutos hasta la mejilla de una persona de perfil, con los ojos
+//          cerrados al sol, que se ilumina al llegar
 //  pequeno (completo en la marca) el Sol entero, otra vez en su sitio del mundo, se encoge entre un montón de estrellas de
 //          arcilla y, al fondo, arriba a la derecha, entra una estrella mucho mayor y rojiza que empieza a apagarse;
 //          quieto (termina_con: el cielo de ep03-estrellas.js con u = 1, CIELO)
@@ -34,10 +35,12 @@
 //    ep03-estrellas.js (el Sol pequeño en (930, 470) con 62 px, la gigante en (1262, 236) con 150 px, los dos montones);
 //    la misma regla; Atom en (230, 781,5) con tz 39,149 y electrones en ta 42,086 (escala 0,3326, yaw 0,182, pitch 0,256),
 //    sin energía; después la viñeta y el grano de crearPost.
-// Coste: todo se compone en 2D (crearPost al final). Lo quieto son fotos: el mundo (con y sin Sol), la regla, el corte del
-// plano medio, la persona, los núcleos (sprites), el calor del núcleo y el cielo; las que no hacen falta en el primer
-// fotograma se preparan en fotogramas baratos poco antes (PREPARAR) o al pedirlas. En vivo: Atom siempre; el Sol mientras
-// se abre y se calienta; el calendario y el reloj mientras se mueven.
+// Coste: todo se compone en 2D (crearPost al final). Lo quieto son fotos: el mundo (con y sin Sol), la regla (quieta en
+// 10⁹: tres fotos que se alternan para el hervor; en vivo se llevaba ~2/3 de cada fotograma), el corte del plano medio, la
+// persona, los núcleos (sprites), el calor del núcleo y el cielo. Al cargar solo se hace lo del fotograma 0 (el mundo con
+// el Sol, la regla del corte) y se estrenan Atom y el Sol; lo demás (el mundo sin Sol, las otras fotos, el estreno de la
+// persona, del calendario y del reloj) se prepara en fotogramas baratos poco antes (PREPARAR) o al pedirlo. En vivo: Atom
+// siempre; el Sol mientras se abre y se calienta; el calendario y el reloj mientras se mueven.
 import * as THREE from 'three';
 import { escena } from '/atomo/plato/escena.js';
 import { crearPlato, crearPost, cargarFuenteCartela, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, mulberry32, brote } from '/atomo/plato/kits/plastilina-adulta.js';
@@ -498,13 +501,13 @@ function tramo2(n, ts) {
     // F baja hasta posarse sobre E (y sigue apretando mientras E cede)
     const baja = eoc(prog(ts, a0 - 0.9, a0));
     const final = eic(prog(ts, a1 + 0.15, tc));
-    const hE = 1 - 0.4 * k;                                    // lo que mide E de alto (× su tamaño)
+    const hE = 1 - 0.46 * k;                                   // lo que mide E de alto (× su tamaño)
     const rN = S * R_NUC * 0.62 * 1.05;                        // radio del racimo en pantalla
     const ye0 = xe[1] + rN * (1 - hE);                         // E cede por arriba: su base no se mueve
     const yf = mix(pf[1], ye0 - rN * hE - rN * 0.9, baja);
     const xf = [mix(pf[0], xe[0] + 12 * k, baja) + tf[0] * (1 - baja), yf + tf[1] * (1 - baja)];
     // resignación: se aplasta (más ancho y más bajo, sin moverse de su sitio: cede por arriba) y se ladea, despacio
-    const sqE = [1 + 0.28 * k, hE], rotE = 0.45 * k;
+    const sqE = [1 + 0.3 * k, hE], rotE = 0.55 * k;
     const ye = ye0;
     mE = [mix(xe[0], (xe[0] + xf[0]) / 2, final), mix(ye, (ye + xf[1]) / 2, final)];
     spriteNucleo(H0, [mix(xe[0], mE[0], final), mix(ye, mE[1], final)], { s: S, rot: rotE, sq: sqE, brillo: 0.15 + 0.5 * final });

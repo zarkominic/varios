@@ -248,16 +248,16 @@ vec3 pzcol_antena(vec3 q, vec4 T, float m) {
 
 // ---------------------------------------------------------------- el plató
 // (continuidad) la persona, la regla y su flecha en los huecos 0, 1 y 2, como en ep3-tierra y ep3-sol
-const I = { PER: 0, REG: 1, FLE: 2, VEN: 3, SOFA: 4, BOL: 5, MES: 6, REL: 7, MARCO: 8, PIN: 9, SAT: 10, ANT: 11, LUNA: 12 };
-const IS = { persona: I.PER, ventana: I.VEN, sofa: I.SOFA, bol: I.BOL, mesita: I.MES, reloj: I.REL };
+const I = { PER: 0, REG: 1, FLE: 2, VEN: 3, SOFA: 4, BOL: 5, REL: 6, MARCO: 7, PIN: 8, SAT: 9, ANT: 10, LUNA: 11 };
+const IS = { persona: I.PER, ventana: I.VEN, sofa: I.SOFA, bol: I.BOL, reloj: I.REL };
 await cargarFuenteCartela();
 const P = await crearPlato({
-  piezas: ['humano', 'reglaA', 'flecha', 'ventana', 'sofa', 'bol', 'mesita', 'reloj', 'marco', 'pincel', 'satelite', 'antena', 'luna'],
-  tiposExtra: { ...tiposSofa(['ventana', 'sofa', 'bol', 'mesita']), ...tiposTiempo(['reloj']), marco: MARCO, pincel: PINCEL, satelite: SATELITE, antena: ANTENA },
+  piezas: ['humano', 'reglaA', 'flecha', 'ventana', 'sofa', 'bol', 'reloj', 'marco', 'pincel', 'satelite', 'antena', 'luna'],
+  tiposExtra: { ...tiposSofa(['ventana', 'sofa', 'bol']), ...tiposTiempo(['reloj']), marco: MARCO, pincel: PINCEL, satelite: SATELITE, antena: ANTENA },
   uniformes: { ...uniformesSofa(), ...uniformesTiempo() },
   globo: true, alfa: true, post: false,
   sombraFondo: ['p1', 'p2'],
-  sombras: { p3: ['p0', 'p4'], p4: ['p0'], p6: ['p5'] },
+  sombras: { p3: ['p0', 'p4'], p4: ['p0', 'p5'], p5: ['p0'] },
   camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
 });
 marcaCarga('plató');
@@ -389,7 +389,7 @@ if (new URLSearchParams(location.search).has('sonda')) {
     r[enc] = { hueco: s.ventana.hueco.map((p) => p.map(Math.round)), reloj: pr(s.reloj.centro), relojR: Math.round(pxU(s.reloj.centro) * s.reloj.radio),
       cabeza: pr(h.punto('cabeza')), coronilla: pr(h.punto('coronilla')), hombroI: pr(h.punto('hombroIzq')), hombroD: pr(h.punto('hombroDer')),
       pelvis: pr(h.punto('pelvis')), manoD: pr(h.punto('manoDer')), codoD: pr(h.punto('codoDer')), respaldo: pr(s.sofa.respaldo), brazoI: pr(s.sofa.brazoIzq), brazoD: pr(s.sofa.brazoDer),
-      mesita: pr(s.mesita.tablero), bol: pr(s.bol.boca) };
+      bol: pr(s.bol.boca) };
   }
   P.limpiar();
   window.__sonda = r;
@@ -590,21 +590,33 @@ PUNTOS.forEach((p, i) => {
   if (i < N_UNO) p.t = T.puntos[0] + i * 0.26 * (1 - 0.04 * i);
   else { const u = (i - N_UNO) / (PUNTOS.length - N_UNO); p.t = mix(T.puntos[0] + N_UNO * 0.23, T.puntos[1], Math.pow(u, 0.42)); }
 });
-// las nubes de gas: en los brazos (luz media), repartidas en ángulo, de una en una
+// las nubes de gas: en los brazos (donde la foto tiene luz media), separadas, en orden de giro (la antena barre)
 const NUBES = (() => {
+  const f = F('gal0'), k = f.width / W, gc = f.getContext('2d');
+  const x0 = Math.floor((GAL.c[0] - GAL.R) * k), y0 = Math.floor((GAL.c[1] - GAL.R) * k), w = Math.ceil(2 * GAL.R * k), h = Math.ceil(2 * GAL.R * k);
+  const d = gc.getImageData(x0, y0, w, h).data;
+  const lum = (x, y) => { const i = ((Math.round((y - GAL.c[1] + GAL.R) * k) * w) + Math.round((x - GAL.c[0] + GAL.R) * k)) * 4; return (0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]) / 255; };
   const r = mulberry32(77), out = [];
-  const N = 30;
-  for (let i = 0; i < N; i++) {
-    const a = (i / N) * 2 * Math.PI * 1.6 + 0.4 + 0.3 * r();
-    const rr = GAL.R * (0.35 + 0.55 * ((i * 0.618) % 1));
-    const p = aMapa([GAL.c[0] + rr * Math.cos(a), GAL.c[1] + rr * Math.sin(a) * 0.95]);
-    out.push({ x: p[0], y: p[1], R: (36 + 34 * r()) * MAPA.s, t: mix(T.nubes[0], T.nubes[1], Math.pow(i / (N - 1), 0.8)) });
+  let intentos = 0;
+  while (out.length < 34 && intentos < 50000) {
+    intentos++;
+    const a = r() * 2 * Math.PI, rr = GAL.R * (0.3 + 0.62 * Math.sqrt(r()));
+    const x = GAL.c[0] + rr * Math.cos(a), y = GAL.c[1] + rr * Math.sin(a);
+    const L = lum(x, y);
+    if (L < 0.18 || L > 0.75) continue;
+    const p = aMapa([x, y]);
+    if (out.some((o) => Math.hypot(o.x - p[0], o.y - p[1]) < 52)) continue;
+    out.push({ x: p[0], y: p[1], R: (40 + 26 * r()) * MAPA.s, an: Math.atan2(y - GAL.c[1], x - GAL.c[0]) });
   }
+  // la antena las va marcando en orden de ángulo (barre la galaxia), empezando por el lado del Sol
+  const a0 = Math.atan2(SOL_M[1] - MAPA.c[1], SOL_M[0] - MAPA.c[0]);
+  out.sort((p, q) => ((p.an - a0 + 8 * Math.PI) % (2 * Math.PI)) - ((q.an - a0 + 8 * Math.PI) % (2 * Math.PI)));
+  out.forEach((nb, i) => { nb.t = mix(T.nubes[0], T.nubes[1], Math.pow(i / (out.length - 1), 0.85)); });
   return out;
 })();
 // el satélite (arriba a la izquierda) y la antena (abajo, a la izquierda del mapa)
-const SAT = { p: [360, 270], z: 2.0, px: 330 };
-const ANT = { p: [560, 790], z: 2.0, px: 300 };
+const SAT = { p: [370, 265], z: 2.0, px: 440 };
+const ANT = { p: [575, 770], z: 2.0, px: 290 };
 const E_SAT = SAT.px / 2.7 / pxU(en(...SAT.p, SAT.z)), E_ANT = ANT.px / 1.9 / pxU(en(...ANT.p, ANT.z));
 const rotSat = (ts) => [0.32 + 0.05 * Math.sin(ts * 0.9), 0.15 + 0.2 * (ts - T.B), 0.3];
 // el extremo del telescopio del satélite, en pantalla
@@ -614,10 +626,16 @@ function puntaSat(ts) {
   const c = en(...SAT.p, SAT.z);
   return pant([c[0] + v.x, c[1] + v.y, c[2] + v.z]);
 }
-const ROT_ANT = [0, 0.5, -0.62];
+const ROT_ANT = [0, Math.PI / 2 - 0.35, 0];
+const TILT_ANT = -0.85;
 const bocaAnt = (() => {
   const R = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(...ROT_ANT, 'YXZ'));
-  const v = new THREE.Vector3(0, -0.12 + 0.33, 0).multiplyScalar(E_ANT).applyMatrix4(R);
+  // la bocina: (0, 0,33) desde el eje de la horquilla (y = −0,12), con el plato girado TILT_ANT alrededor de x
+  const c0 = Math.cos(TILT_ANT), s0 = Math.sin(TILT_ANT);
+  // (en el GLSL: p.yz = mat2(c, s, −s, c) · p.yz, es decir y' = c·y − s·z, z' = s·y + c·z con p local → plato; la
+  // inversa lleva el punto del plato (0, 0,33, 0) a lo local)
+  const yl = c0 * 0.33, zl = -s0 * 0.33;
+  const v = new THREE.Vector3(0, -0.12 + yl, zl).multiplyScalar(E_ANT).applyMatrix4(R);
   const c = en(...ANT.p, ANT.z);
   return pant([c[0] + v.x, c[1] + v.y, c[2] + v.z]);
 })();
@@ -660,20 +678,20 @@ function mapa(ts) {
   // la máscara, a media resolución
   gm.setTransform(1, 0, 0, 1, 0, 0); gm.clearRect(0, 0, MASC.width, MASC.height);
   gm.setTransform(0.5, 0, 0, 0.5, 0, 0);
+  for (const nb of NUBES) {
+    const u = prog(ts, nb.t, nb.t + 0.7);
+    if (u <= 0) continue;
+    const R = nb.R * (0.45 + 0.55 * eoc(u));
+    const h = gm.createRadialGradient(nb.x, nb.y, 0, nb.x, nb.y, R);
+    h.addColorStop(0, `rgba(255,255,255,${0.85 * u})`); h.addColorStop(0.55, `rgba(255,255,255,${0.5 * u})`); h.addColorStop(1, 'rgba(255,255,255,0)');
+    gm.fillStyle = h; gm.fillRect(nb.x - R, nb.y - R, 2 * R, 2 * R);
+  }
   gm.fillStyle = '#fff';
   let vistos = 0;
   for (const p of PUNTOS) {
     if (p.t > ts) break;
     vistos++;
-    gm.beginPath(); gm.arc(p.x, p.y, 6.5 + 3 * p.L, 0, 2 * Math.PI); gm.fill();
-  }
-  for (const nb of NUBES) {
-    const u = prog(ts, nb.t, nb.t + 0.6);
-    if (u <= 0) continue;
-    const R = nb.R * (0.4 + 0.6 * eoc(u));
-    const h = gm.createRadialGradient(nb.x, nb.y, 0, nb.x, nb.y, R);
-    h.addColorStop(0, `rgba(255,255,255,${0.95 * u})`); h.addColorStop(0.6, `rgba(255,255,255,${0.55 * u})`); h.addColorStop(1, 'rgba(255,255,255,0)');
-    gm.fillStyle = h; gm.fillRect(nb.x - R, nb.y - R, 2 * R, 2 * R);
+    gm.beginPath(); gm.arc(p.x, p.y, 4 + 2 * p.L, 0, 2 * Math.PI); gm.fill();
   }
   if (kE > 0) { gm.fillStyle = `rgba(255,255,255,${kE})`; gm.fillRect(0, 0, W, H); }
   // lo descubierto: la galaxia por la máscara
@@ -682,20 +700,21 @@ function mapa(ts) {
   gd.globalCompositeOperation = 'destination-in';
   gd.drawImage(MASC, 0, 0, DESC.width, DESC.height);
   g.save(); g.globalCompositeOperation = 'lighten'; g.drawImage(DESC, 0, 0, W, H); g.restore();
-  // los puntos, encima: cada estrella medida, una cuenta de luz (las nuevas, más grandes y con destello)
+  // los puntos, encima: cada estrella medida es una cuenta de luz nítida; al aparecer, un anillo que se abre
   g.save();
   g.globalCompositeOperation = 'screen';
+  const kp = 1 - 0.55 * kE;
   for (let i = 0; i < vistos; i++) {
     const p = PUNTOS[i], edad = ts - p.t;
-    const nueva = Math.exp(-edad / 0.18) * (i < 60 ? 1 : 0.5);
-    const R = p.r * (1 + 1.6 * nueva) * (1 - 0.6 * kE);
-    if (i < 60 || nueva > 0.05) {
-      const h = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, R * 3);
-      h.addColorStop(0, `rgba(255,248,232,${0.95})`); h.addColorStop(0.35, `rgba(255,214,150,${0.45 + 0.4 * nueva})`); h.addColorStop(1, 'rgba(255,190,110,0)');
-      g.fillStyle = h; g.fillRect(p.x - R * 3, p.y - R * 3, R * 6, R * 6);
-    } else {
-      g.fillStyle = `rgba(255,240,215,${0.75 * (1 - 0.5 * kE)})`;
-      g.fillRect(p.x - R * 0.5, p.y - R * 0.5, R, R);
+    const R = (i < N_UNO ? 3.6 : p.r) * kp;
+    g.fillStyle = `rgba(255,244,222,${0.95 * kp})`;
+    g.beginPath(); g.arc(p.x, p.y, R, 0, 2 * Math.PI); g.fill();
+    const dur = i < N_UNO ? 0.5 : 0.25;
+    if (edad < dur && (i < 200 || (i & 3) === 0)) {
+      const u = edad / dur;
+      g.strokeStyle = `rgba(255,200,120,${(1 - u) * (i < N_UNO ? 0.95 : 0.5)})`;
+      g.lineWidth = i < N_UNO ? 3 : 1.5;
+      g.beginPath(); g.arc(p.x, p.y, R + (i < N_UNO ? 26 : 12) * eoc(u), 0, 2 * Math.PI); g.stroke();
     }
   }
   g.restore();
@@ -734,20 +753,26 @@ function rayosSat(ts) {
 function ondasAnt(ts) {
   const o = bocaAnt;
   g.save();
-  g.globalCompositeOperation = 'screen';
   g.lineCap = 'round';
   for (const nb of NUBES) {
-    const t0 = nb.t - 0.55;
-    const u = prog(ts, t0, nb.t + 0.1);
-    if (u <= 0 || u >= 1) continue;
-    const dx = nb.x - o[0], dy = nb.y - o[1], L = Math.hypot(dx, dy), an = Math.atan2(dy, dx);
+    // tres ondas salen de la bocina hacia la nube; al llegar la onda, la nube brilla un momento
+    const t0 = nb.t - 0.5;
+    const an = Math.atan2(nb.y - o[1], nb.x - o[0]);
     for (let k = 0; k < 3; k++) {
-      const v = u * 1.25 - k * 0.12;
+      const v = prog(ts, t0 + k * 0.1, t0 + k * 0.1 + 0.45);
       if (v <= 0 || v >= 1) continue;
-      const R = 30 + v * (L - 30);
-      g.strokeStyle = `rgba(150,200,255,${0.55 * Math.sin(Math.PI * v)})`;
-      g.lineWidth = 3;
-      g.beginPath(); g.arc(o[0], o[1], R, an - 0.16, an + 0.16); g.stroke();
+      const R = 24 + v * 190;
+      g.globalCompositeOperation = 'screen';
+      g.strokeStyle = `rgba(170,210,255,${0.75 * Math.sin(Math.PI * v)})`;
+      g.lineWidth = 4 - 2 * v;
+      g.beginPath(); g.arc(o[0], o[1], R, an - 0.32, an + 0.32); g.stroke();
+    }
+    const kb = Math.exp(-Math.max(0, ts - nb.t) / 0.25) * (ts >= nb.t ? 1 : 0);
+    if (kb > 0.02) {
+      g.globalCompositeOperation = 'screen';
+      const h = g.createRadialGradient(nb.x, nb.y, 0, nb.x, nb.y, nb.R * 1.1);
+      h.addColorStop(0, `rgba(170,200,255,${0.35 * kb})`); h.addColorStop(1, 'rgba(150,180,255,0)');
+      g.fillStyle = h; g.fillRect(nb.x - nb.R * 1.1, nb.y - nb.R * 1.1, nb.R * 2.2, nb.R * 2.2);
     }
   }
   g.restore();
@@ -763,7 +788,7 @@ function tramo2(n, ts) {
   P.pieza(I.SAT, { pos: en(...SAT.p, SAT.z), escala: E_SAT, rot: rotSat(ts) });
   P.U.uPT.value[I.SAT].x = 1;
   P.pieza(I.ANT, { pos: en(...ANT.p, ANT.z), escala: E_ANT, rot: ROT_ANT });
-  P.U.uPT.value[I.ANT].x = 0.08 * Math.sin(ts * 2.2);
+  P.U.uPT.value[I.ANT].x = TILT_ANT + 0.05 * Math.sin(ts * 2.2);
   atomo(ts);
   reglaEn();
   P.render(n, { fondo: false });
@@ -772,12 +797,39 @@ function tramo2(n, ts) {
 }
 
 // ---------------------------------------------------------------- S3 · el salón (dos encuadres: por encima del hombro y entero)
-const SALONES = {};
+// la cuña ámbar del reloj, más viva que la del kit (que en el móvil apenas se ve): un sector multiplicado encima
+function relojAmbar(gg, info, min) {
+  if (!info || min <= 0.2) return;
+  const c = pant(info.centro), R = pxU(info.centro) * info.radio * 0.86;
+  const a0 = -Math.PI / 2, a1 = a0 + (min / 60) * 2 * Math.PI;
+  gg.save();
+  gg.globalCompositeOperation = 'multiply';
+  gg.fillStyle = 'rgba(255,150,55,0.62)';
+  gg.beginPath(); gg.moveTo(c[0], c[1]); gg.arc(c[0], c[1], R, a0, a1); gg.closePath(); gg.fill();
+  gg.globalCompositeOperation = 'screen';
+  gg.strokeStyle = 'rgba(255,190,110,0.5)'; gg.lineWidth = Math.max(2, R * 0.05);
+  gg.beginPath(); gg.arc(c[0], c[1], R * 0.97, a0, a1); gg.stroke();
+  gg.restore();
+}
+// el salón de noche: los bordes, algo más oscuros y cálidos (solo sobre la habitación: el hueco sigue transparente)
+function luzSalon(gc, foco) {
+  gc.save();
+  gc.globalCompositeOperation = 'source-atop';
+  const R = 1250;
+  const h = gc.createRadialGradient(foco[0], foco[1], 120, foco[0], foco[1], R);
+  h.addColorStop(0, 'rgba(255,190,120,0.06)'); h.addColorStop(0.45, 'rgba(40,24,16,0.08)'); h.addColorStop(1, 'rgba(18,10,8,0.42)');
+  gc.fillStyle = h; gc.fillRect(0, 0, W, H);
+  gc.restore();
+}
 function fotoSalon(encuadre, minutos, nFoto) {
   P.limpiar();
   const s = salon(P, IS, { encuadre, reloj: { minutos, sector: minutos > 0 ? [0, minutos] : null } });
   P.render(nFoto, { fondo: false });
-  return { foto: copiaGL(), info: s };
+  const foto = copiaGL(), gf = foto.getContext('2d'), k = foto.width / W;
+  gf.setTransform(k, 0, 0, k, 0, 0);
+  relojAmbar(gf, s.reloj, minutos);
+  luzSalon(gf, pant(s.persona.punto('cabeza')));
+  return { foto, info: s };
 }
 HACER.cerca = () => fotoSalon('cerca', 0, 5001);
 HACER.general = () => fotoSalon('general', 60, 5002);
@@ -804,7 +856,7 @@ function tierraLuna(gg, h, ts) {
   if (kA <= 0.001 || kF <= 0.001) return;
   const anchoH = Math.hypot(h[1][0] - h[0][0], h[1][1] - h[0][1]);
   const pT = enHueco(h, 0.24, 0.66), pL = enHueco(h, 0.8, 0.5);
-  const rT = 0.085 * anchoH, rL = 0.034 * anchoH;
+  const rT = 0.085 * anchoH, rL = 0.05 * anchoH;
   gg.save();
   gg.globalAlpha = kF;
   // el halo de la Tierra
@@ -812,7 +864,7 @@ function tierraLuna(gg, h, ts) {
   ha.addColorStop(0, `rgba(120,170,230,${0.35 * kA})`); ha.addColorStop(1, 'rgba(120,170,230,0)');
   gg.fillStyle = ha; gg.fillRect(pT[0] - rT * 2, pT[1] - rT * 2, rT * 4, rT * 4);
   const fT = F('tierra'), fL = F('luna');
-  const sT = rT * kA / 120, sL = rL * kA / 50;
+  const sT = rT * kA / 120, sL = rL * kA / 55;
   gg.drawImage(fT, pT[0] - 150 * sT, pT[1] - 150 * sT, 300 * sT, 300 * sT);
   gg.drawImage(fL, pL[0] - 150 * sL, pL[1] - 150 * sL, 300 * sL, 300 * sL);
   // el trazo: de la Tierra a la Luna (por arriba) y de vuelta (por abajo): dos veces la distancia
@@ -839,18 +891,21 @@ function salonCompuesto(n, ts, cual) {
   vidrioVentana(g, h);
   sombrasPresentador(0.8);
   P.limpiar();
+  let min = 0, rel = null;
   if (cual === 'cerca') {
-    const u = prog(ts, T.reloj[0], T.reloj[1]), min = 60 * eio(u);
-    if (u > 0) salonReloj(min);
+    const u = prog(ts, T.reloj[0], T.reloj[1]);
+    min = 60 * eio(u);
+    if (u > 0) rel = salonReloj(min);
   }
   atomo(ts);
   reglaEn();
   P.render(n, { fondo: false });
   pegarGL();
+  if (rel) relojAmbar(g, rel, min);
 }
 // el reloj de la pared, en vivo (encima de su foto): las agujas y la cuña de la hora que pasa
 function salonReloj(min) {
-  salon(P, { reloj: I.REL }, { encuadre: 'cerca', reloj: { minutos: min, sector: min > 0.2 ? [0, min] : null } });
+  return salon(P, { reloj: I.REL }, { encuadre: 'cerca', reloj: { minutos: min, sector: min > 0.2 ? [0, min] : null } }).reloj;
 }
 // ---------------------------------------------------------------- al cargar: las fotos y los estrenos
 F('marco');
