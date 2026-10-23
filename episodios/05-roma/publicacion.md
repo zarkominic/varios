@@ -64,4 +64,4 @@ El resto de cifras, con su fuente, están en la sección «Datos y fuentes» de 
 
 ## Antes de publicar
 - **Pista de audio en español:** YouTube solo deja subir pistas de audio extra a algunos canales. Si el canal aún no puede, el español se sube como vídeo aparte.
-- **Miniatura:** pendiente.
+- **Miniatura:** `atomo/plato/escenas/rm-miniatura.html` (captura en t = 1, 1280 × 720): el denario partido por una grieta, «95% → 5%» y el emperador niño con la corona cayéndose.

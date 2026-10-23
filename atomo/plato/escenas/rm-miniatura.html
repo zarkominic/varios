@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Miniatura · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-MINIATURA · la miniatura del episodio 5 (se captura en t = 1). Un denario enorme partido por una grieta: la mitad
+// izquierda de plata («95%»), la derecha de cobre («5%»). A la derecha, el emperador niño con la corona que se le cae;
+// al fondo, Roma al atardecer. Sin palabras: solo números.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+const E = await escena('rm-miniatura', 'ep05');
+const R = await crearRoma(document.getElementById('lienzo'));
+const { PALA, PR, ELENCO } = R;
+const dibujar = (t) => {
+  R.cieloR(t, 'tarde', { sol: [206, 132, 14], nubes: { n: 4 } });
+  R.skyline(150, { semilla: 11, esc: 1.4 });
+  R.colinas(168, { amp: 5, luz: 1, rampa: PR.HIERBA });
+  // halo detrás de la moneda
+  R.halo(116, 92, 78, [PALA.AMARILLO[1], PALA.AMARILLO[2]], 1);
+  const cx = 116, cy = 94, r = 62;
+  R.denario(cx, cy, r, 0.97, 0.9);
+  R.recorte([cx + 1, 0, R.W - 1, R.H - 1]); R.denario(cx, cy, r, 0.02, 0.9, { brillo: false }); R.recorte(null);
+  // la grieta, en zigzag de arriba abajo
+  let x = cx;
+  for (let y = cy - r; y <= cy + r; y += 4) { const nx = cx + ((y / 4) % 2 ? 3 : -2); R.linea(Math.round(x), y, Math.round(nx), y + 4, PALA.CONTORNO); R.linea(Math.round(x) + 1, y, Math.round(nx) + 1, y + 4, PALA.CONTORNO); x = nx; }
+  R.numero('95%', cx - 40, 26, { tam: 16, rampa: [PR.PLATA[4], PR.PLATA[3], PR.PLATA[3], PR.PLATA[2], PR.PLATA[1]], centro: true });
+  R.numero('5%', cx + 40, 26, { tam: 16, rampa: [PR.COBRE[4], PR.COBRE[3], PR.COBRE[3], PR.COBRE[2], PR.COBRE[1]], centro: true });
+  // el emperador niño con la corona que se le cae
+  R.personaje(260, 176, 84, { ...ELENCO.emperadorNino, sombrero: 'no', t: 0.5, pose: 'pie', brazoD: 'ofrece', brazoI: 'ofrece', ceño: true, luz: { lado: -1, color: R.hex('#ffb060') }, sombra: false });
+  // la corona que se le cae, girando, con rayas de movimiento
+  const kx = 284, ky = 66, k = 1.6, ang = 0.5;
+  for (let yy = -9 * k; yy <= 0; yy += 0.5) for (let xx = -11 * k; xx <= 11 * k; xx += 0.5) if (yy > -5 * k || ((xx + 11 * k) / (4.4 * k)) % 2 < 1) R.pset(kx + Math.round(xx * Math.cos(ang) - yy * Math.sin(ang)), ky + Math.round(xx * Math.sin(ang) + yy * Math.cos(ang)), R.tone(PALA.ORO, 2.4 + (yy < -3 * k ? 0.8 : 0) - xx * 0.03, kx + Math.round(xx), ky + Math.round(yy)));
+  for (const dx of [-8, 0, 8]) R.disco(kx + Math.round(dx * Math.cos(ang) + 4 * Math.sin(ang)), ky + Math.round(dx * Math.sin(ang) - 4 * Math.cos(ang)), 2, PALA.ROJO[2]);
+  for (const [dx, dy] of [[-22, -14], [-16, -22], [-8, -26]]) R.linea(kx + dx, ky + dy, kx + dx - 8, ky + dy - 8, PALA.BLANCO[3]);
+  // la flecha de 95 % a 5 %
+  R.icono('flecha', cx - 7, 13, PALA.BLANCO[3], PALA.CONTORNO, 2);
+  R.companero(t, 0.6, 26, 140);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
