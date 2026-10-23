@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Constantino · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-CONSTANTINO (frases 48–49). Constantino con armadura y capa púrpura, con un escudo redondo con la cruz; un
+// trirreme se lleva la capital hacia el este y en la caja sale «330». Luego el mapa: monedas que viajan de Roma a
+// Constantinopla y nubes de tormenta que se quedan sobre el oeste.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-constantino');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { con: M('constantino', 0.5), est: M('este', 9) };
+const constantino = { ...ELENCO.legionario, sombrero: 'diadema', capa: PALA.PURPURA, pelo: PALA.PELO_CASTANO, peinado: 'corto' };
+const puerto = (t) => {
+  R.cieloR(t, 'dia', { hor: 118, nubes: { n: 4 } });
+  R.mar(t, { hor: 118 });
+  for (let x = 250; x < R.W; x++) for (let y = 104 + Math.round(4 * Math.sin(x * 0.2)); y < 118; y++) R.pset(x, y, PALA.PURPURA[1]);
+  for (const [x, r] of [[268, 9], [292, 6]]) { R.disco(x, 104, r, PALA.MARMOL[2]); R.rect(x - r, 104, x + r, 114, PALA.MARMOL[2]); }
+  const p = tramo(t, m.con + 4, m.con + 9);
+  R.trirreme(lerp(110, 230, p), 126, t, { esc: 1.1, vela: PALA.PURPURA, carga: true });
+  R.suelo(146, PALA.MARMOL, { losas: true });
+  R.personaje(70, 172, 46, { ...constantino, t, pose: t > m.con + 4 ? 'senala' : 'pie' });
+  const ex = 54, ey = 150; R.disco(ex, ey, 9, PALA.ROJO[1]); R.anillo(ex, ey, 9, PALA.ORO[2]); R.icono('cruz', ex - 3, ey - 3, PALA.ORO[3], PALA.ROJO[0]);
+};
+const flujo = (t) => {
+  const u = t - m.est;
+  R.mapa(t, { imperio: 1, italia: 1, oeste: tramo(u, 2, 5) * 0.35 });
+  const a = R.lugar('roma'), b = R.lugar('constantinopla');
+  for (let k = 0; k < 6; k++) { const f = (u * 0.35 + k / 6) % 1, x = lerp(a[0], b[0], f), y = lerp(a[1], b[1], f) - Math.sin(f * Math.PI) * 18; R.disco(x, y, 2, PALA.ORO[4]); R.pset(Math.round(x), Math.round(y), PALA.ORO[5]); }
+  R.punto(...b, t, PALA.ORO, 3); R.punto(...a, t, PALA.PURPURA);
+  if (u > 2) R.nubesR(t, { rampa: PR.TORMENTA, base: 1, n: 5, y0: 30, y1: 120, vel: 1.5 });
+};
+rodar(E, R, [[0, puerto], [m.est - 0.2, flujo]], { caja: (t, e) => R.caja(t, t > m.con + 6 && t < m.est - 0.2 ? tramo(t, m.con + 6, m.con + 6.4) : 0, (x, y) => R.numero('330', x + 6, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

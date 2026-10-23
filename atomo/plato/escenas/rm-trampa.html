@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trampa · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-TRAMPA (frases 35–37). Cartela «193». Legionarios en fila cobran de un cofre que se vacía. Luego el denario: unas
+// tijeras le recortan plata (la barra baja) y entra un chorro de cobre. Al final, dos monedas con la misma cara: la de
+// la izquierda brilla, la de la derecha no; sus barras, «95%» y «50%».
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-trampa');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { eje: M('ejercito', 1.5), tra: M('trampa', 7), car: M('cara', 12) };
+const paga = (t) => {
+  R.cieloR(t, 'tarde', { hor: 120, sol: [50, 110, 9] }); R.suelo(120, PR.TIERRA, { luz: 1.8 });
+  R.cofre(70, 156, t, { w: 30 });
+  R.personaje(40, 166, 42, { ...ELENCO.senador, banda: PALA.ORO, t, pose: 'ofrece', objeto: 'bolsa' });
+  for (let k = 0; k < 6; k++) { const x = 110 + k * 34; R.personaje(x, 166 + (k & 1) * 4, 38, { ...ELENCO.legionario, t: t + k, dir: -1, pose: k === 0 && Math.sin(t * 3) > 0 ? 'ofrece' : 'pie', objeto: k ? 'gladio' : undefined }); }
+  for (let k = 0; k < 4; k++) { const f = ((t - m.eje) * 0.8 + k / 4) % 1, x = lerp(70, 110, f), y = 136 - 18 * Math.sin(Math.PI * f); R.disco(x, y, 2, PALA.ORO[4]); }
+};
+const tijera = (t) => {
+  R.cieloR(t, 'tarde', { sol: [60, 150, 12], nubes: { n: 3 } });
+  const u = t - m.tra, plata = lerp(0.95, 0.5, tramo(u, 1, 4.5));
+  R.denario(140, 86, 44, plata, t);
+  const ab = Math.abs(Math.sin(u * 5));
+  if (u > 0.8 && u < 4.8) R.tijeras(Math.round(lerp(196, 170, (u * 0.6) % 1)), Math.round(lerp(40, 70, (u * 0.6) % 1)), ab, { ang: 2.4 });
+  if (u > 2) for (let k = 0; k < 14; k++) { const y = 10 + ((k * 7 + u * 60) % 60); R.pset(140 + Math.round(Math.sin(k) * 2), Math.round(y), PR.COBRE[3 - (k & 1)]); }
+  R.barra(262, 140, 90, plata);
+};
+const dos = (t) => {
+  R.cieloR(t, 'tarde', { sol: [160, 150, 12], nubes: { n: 3 } });
+  R.denario(90, 80, 36, 0.95, t); R.denario(220, 80, 36, 0.5, t, { brillo: false });
+  R.barra(86, 160, 30, 0.95); R.barra(216, 160, 30, 0.5);
+};
+rodar(E, R, [[0, paga], [m.tra - 0.2, tijera], [m.car - 0.2, dos]], { cartela: '193' });
+</script>
+</body>
+</html>

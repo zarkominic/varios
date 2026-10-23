@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Este · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-ESTE (frases 55–57). Cartela «1453». El mapa: el oeste se apaga a trozos y el este sigue iluminado; en la caja,
+// un contador corre de 476 a 1453. Luego un remolino de iconos (espadas, moneda, calavera, corona, reloj, cruz…) con
+// «210» en la caja. Al final, cuatro empujan a la vez una columna (un legionario, un mercader, un enfermo y un
+// senador) y la columna cae.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-este');
+const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
+const m = { est: M('este', 1.5), raz: M('razones', 8), muc: M('muchas', 15) };
+const mapa = (t) => { R.mapa(t, { imperio: 1, italia: 1, oeste: tramo(t, m.est + 0.5, m.est + 3) * 0.75 }); R.punto(...R.lugar('constantinopla'), t, PALA.ORO, 3); };
+const ICONOS = ['espadas', 'moneda', 'calavera', 'corona', 'reloj', 'cruz', 'casa', 'arena', 'punal', 'laurel', 'persona', '?'];
+const remolino = (t) => {
+  R.cieloR(t, 'tormenta', { nubes: { n: 3 } });
+  const u = t - m.raz, n = Math.min(34, Math.floor(4 + u * 8));
+  for (let k = 0; k < n; k++) { const r = 18 + (k * 7) % 70, a = k * 2.39 + t * (0.6 + 12 / r); R.icono(ICONOS[k % ICONOS.length], Math.round(160 + Math.cos(a) * r * 1.5 - 7), Math.round(86 + Math.sin(a) * r * 0.75 - 7), [PALA.AMARILLO[3], PALA.BLANCO[2], PALA.ROJO[3], PR.PLATA[3]][k % 4], undefined, 2); }
+};
+const columna = (t) => {
+  R.cieloR(t, 'tarde', { hor: 130, sol: [270, 120, 10] }); R.suelo(130, PALA.MARMOL, { losas: true });
+  const u = t - m.muc, cae = clamp((u - 3.5) / 1.6, 0, 1) ** 2, ang = cae * Math.PI / 2 * 0.98;
+  // la columna gira sobre su base (x 170, y 160)
+  const bx = 176, by = 162, L = 104, w = 9;
+  const P = (s, d) => [bx + Math.sin(ang) * s + Math.cos(ang) * d, by - Math.cos(ang) * s + Math.sin(ang) * d];
+  R.poligono([P(0, -w), P(L, -w), P(L, w), P(0, w)], (x, y) => R.tone(PALA.MARMOL, 3 - ((x - bx) * Math.cos(ang) + (y - by) * Math.sin(ang) + w) / (2 * w) * 2, x, y));
+  R.poligono([P(L, -w - 4), P(L + 6, -w - 4), P(L + 6, w + 4), P(L, w + 4)], PALA.MARMOL[3]);
+  const empuja = (x, g, o) => R.personaje(x, 172, 36, { ...g, t, pose: u > 1 ? 'ofrece' : 'pie', anda: u > 1 && cae < 1 ? t * 5 : null, ceño: true, ...o });
+  if (u > 0.4) empuja(124, ELENCO.legionario, { objeto: 'gladio' });
+  if (u > 0.9) empuja(104, ELENCO.ciudadano, { objeto: 'bolsa', chaqueta: PALA.AMARILLO, camisa: PALA.AMARILLO, falda: PALA.AMARILLO });
+  if (u > 1.4) empuja(84, ELENCO.ciudadano, { piel: PALA.PIEL_OSCURA, chaqueta: PALA.NEGRO, camisa: PALA.NEGRO, falda: PALA.NEGRO, pelo: PALA.PELO_BLANCO });
+  if (u > 1.9) empuja(64, ELENCO.senador, {});
+  if (cae >= 1) for (let k = 0; k < 20; k++) { const f = ((u - 5.1) * 2 + k / 20) % 1; if (u < 6.5) R.pset(Math.round(bx + 20 + k * 5 + f * 6), Math.round(160 - Math.sin(f * Math.PI) * 10), PR.GRIS[3]); }
+};
+rodar(E, R, [[0, mapa], [m.raz - 0.2, remolino], [m.muc - 0.2, columna]], { cartela: '1453', caja: (t, e) => R.caja(t, t < m.muc - 0.2 ? tramo(t, m.est + 0.6, m.est + 1) : 0, (x, y) => R.numero(t < m.raz - 0.2 ? String(Math.round(lerp(476, 1453, tramo(t, m.est + 1, m.est + 4.5)))) : '210', x + 4, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

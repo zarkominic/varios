@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Consules · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-CONSULES (frases 13–15). Cartela «509». Un foro pequeño: el trono se retira y suben dos pedestales. Dos cónsules
+// con toga, cada uno con su reloj de arena encima; uno levanta la mano y el otro se la tacha con una X (el veto). Se
+// acaba la arena: bajan los dos y suben otros dos, y detrás de cada uno forma una fila de legionarios.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-consules');
+const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
+const m = { rep: M('republica', 1.5), con: M('consules', 7), del: M('delegado', 14) };
+const reloj = (x, y, f) => {
+  R.rect(x - 6, y - 12, x + 6, y - 11, PALA.MARRON[2]); R.rect(x - 6, y + 11, x + 6, y + 12, PALA.MARRON[2]);
+  for (let j = -10; j <= 10; j++) { const w = Math.max(1, Math.round(Math.abs(j) * 0.5)); R.rect(x - w - 1, y + j, x - w - 1, y + j, PR.PLATA[3]); R.rect(x + w + 1, y + j, x + w + 1, y + j, PR.PLATA[2]); const arena = j < 0 ? (-j) / 10 < (1 - f) * 0.9 : (j / 10) > 1 - f * 0.9; if (arena && w > 0) R.rect(x - w, y + j, x + w, y + j, PR.PAJA[3]); }
+  if (f < 1) R.pset(x, y + 1 + (Math.floor(f * 40) % 3), PR.PAJA[3]);
+};
+const foro = (t) => { R.cieloR(t, 'dia', { hor: 128 }); R.templo(70, 128, 80, 50); R.templo(260, 128, 70, 44); R.suelo(128, PALA.MARMOL, { losas: true, luz: 2.2 }); };
+const pedestal = (x, h) => { R.rect(x - 12, 150 - h, x + 12, 150, PALA.MARMOL[2]); R.rect(x - 14, 150 - h - 2, x + 14, 150 - h, PALA.MARMOL[3]); R.rect(x - 12, 150 - h, x - 11, 150, PALA.MARMOL[3]); R.rect(x + 11, 150 - h, x + 12, 150, PALA.MARMOL[1]); };
+const consul = (i) => ({ ...ELENCO.senador, pelo: [PALA.PELO_CASTANO, PALA.PELO_NEGRO, PALA.PELO_RUBIO, PALA.PELO_ROJO][i], barba: i === 1 ? 'perilla' : 'no', peinado: 'corto' });
+const trono = (t) => {
+  foro(t);
+  const p = tramo(t, m.rep + 2, m.rep + 3.2);
+  R.trono(lerp(160, -40, p), 150);
+  const sube = tramo(t, m.rep + 3.2, m.rep + 4.4);
+  if (sube > 0) { pedestal(120, Math.round(14 * sube)); pedestal(200, Math.round(14 * sube)); }
+};
+const veto = (t) => {
+  foro(t);
+  const fin = t >= m.del, cambio = tramo(t, m.del + 3.5, m.del + 4.8), nuevos = t >= m.del + 4.1;
+  pedestal(120, 14); pedestal(200, 14);
+  const f = fin ? 1 : clamp((t - m.con) / (m.del - m.con), 0, 1);
+  const baja = fin && !nuevos ? cambio * 2 : 0, sube_ = nuevos ? 1 - (cambio - 0.5) * 2 : 0;
+  const yy = 136 - 40 * Math.max(0, baja, sube_);
+  for (const [x, i] of [[120, nuevos ? 2 : 0], [200, nuevos ? 3 : 1]]) {
+    const levanta = !nuevos && x === 120 && t > m.con + 2.6 && t < m.con + 6, tacha = !nuevos && x === 200 && t > m.con + 3.2 && t < m.con + 6;
+    R.personaje(x, yy + (baja ? 60 * baja : 0), 42, { ...consul(i), t, dir: x < 160 ? 1 : -1, pose: levanta ? 'brazos' : tacha ? 'senala' : 'pie', ceño: tacha });
+    reloj(x, 70, nuevos ? clamp((cambio - 0.5) * 0.2, 0, 1) : f);
+  }
+  if (!nuevos && t > m.con + 3.4 && t < m.con + 6) R.equis(120, 92, 7);
+  if (t > m.del + 6) { const p = tramo(t, m.del + 6, m.del + 7); for (let k = 0; k < 3; k++) for (const s of [-1, 1]) R.personaje(160 + s * (60 + k * 22) , 172, 34, { ...ELENCO.legionario, t, dir: -s, objeto: 'gladio', anda: p < 1 ? t * 7 : null }); }
+};
+rodar(E, R, [[0, trono], [m.con - 0.2, veto]], { cartela: '509' });
+</script>
+</body>
+</html>

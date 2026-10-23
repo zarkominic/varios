@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Monedas · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-MONEDAS (frases 5–6). El chaval, ya sin corona, se encoge de hombros ante el trono vacío («?» en la caja). Luego,
+// sobre el atardecer: dos espadas cruzadas que se tachan («no mires las batallas») y el denario que aparece brillante
+// y se va oscureciendo hasta el cobre, con su barra de plata.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-monedas');
+const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
+const m = { enc: M('encogimiento', 0.5), mon: M('monedas', 4) };
+const S = R.SUELO_SALON;
+const encoge = (t) => {
+  R.salon(t, { estatua: true });
+  const hombros = Math.sin((t - m.enc) * 2.2) > -0.2;
+  R.personaje(126, S + 26, 40, { ...ELENCO.emperadorNino, t, brazoD: hombros ? 'ofrece' : 'abajo', brazoI: hombros ? 'ofrece' : 'abajo', ceño: true });
+};
+const monedas = (t) => {
+  R.cieloR(t, 'tarde', { sol: [160, 150, 14], nubes: { n: 4 } });
+  const u = t - m.mon, aparece = tramo(u, 3.2, 3.9);
+  if (aparece < 1) {
+    // dos espadas cruzadas; una X roja las tacha
+    for (const s of [-1, 1]) { R.linea(160 - s * 34, 50, 160 + s * 34, 118, PR.PLATA[3]); R.linea(161 - s * 34, 50, 161 + s * 34, 118, PR.PLATA[1]); R.rect(160 + s * 26 - 6, 106, 160 + s * 26 + 6, 108, PALA.ORO[2]); }
+    if (u > 2.2) { const p = tramo(u, 2.2, 2.7); for (let k = -2; k <= 2; k++) { R.linea(124 + k, 46, lerp(124, 196, p) + k, lerp(46, 122, p), PALA.ROJO[2]); R.linea(196 + k, 46, lerp(196, 124, p) + k, lerp(46, 122, p), PALA.ROJO[2]); } }
+  }
+  if (aparece > 0) {
+    const plata = lerp(0.95, 0.05, tramo(u, 5, 9));
+    R.denario(160, 84, Math.round(8 + 36 * R.sale(aparece)), plata, t);
+    if (aparece >= 1) R.barra(262, 130, 70, plata);
+  }
+};
+rodar(E, R, [[0, encoge], [m.mon - 0.2, monedas]], { caja: (t, e) => R.caja(t, t < m.mon - 0.2 ? tramo(t, m.enc + 1, m.enc + 1.4) : 0, (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

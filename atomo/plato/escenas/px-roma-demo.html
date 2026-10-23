@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pixel roma · demo</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Demo del kit pixel-roma: t 0–1 mapa, 1–2 denario y barra, 2–3 animales, 3–4 ciudad, 4–5 Panteón.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+const R = await crearRoma(document.getElementById('lienzo'));
+const { PALA, PR, ELENCO } = R;
+const planos = [
+  (t) => { R.mapa(t, { imperio: 1, grietas: 0.3 }); R.ruta([R.lugar('cartago'), R.lugar('cartagena'), R.lugar('alpes'), R.lugar('cannas')], 0.8); R.punto(...R.lugar('roma'), t); },
+  (t) => { R.cieloR(t, 'tarde', { sol: [250, 100, 8] }); R.denario(110, 90, 40, 0.95, t); R.denario(220, 90, 30, 0.05, t, { hueco: 0.5 }); R.barra(290, 150, 80, 0.95); },
+  (t) => { R.cieloR(t, 'dia'); R.colinas(120, { amp: 14 }); R.suelo(140, PR.HIERBA); R.loba(60, 160, t, { anda: true }); R.elefante(150, 160, t, { anda: true, manta: PALA.ROJO }); R.oveja(220, 158, t); R.caballo(270, 162, t); R.cesta(30, 150, t); R.perro(100, 172, t, { duerme: true }); },
+  (t) => { R.cieloR(t, 'tarde', { sol: [60, 90, 10] }); R.skyline(110); R.insula(10, 150, 60, 4, t, { humo: true }); R.insula(80, 150, 50, 5, t); R.templo(200, 150, 70, 40); R.puesto(250, 160, t); R.suelo(150, PALA.MARMOL, { losas: true }); R.personaje(150, 170, 40, { ...ELENCO.ciudadano, t, anda: t * 7 }); R.trirreme(280, 60, t); },
+  (t) => { R.panteon(t); R.acueducto(0, 120, 175, 140, t, { p: 1 }); R.personaje(200, 172, 40, { ...ELENCO.cesar, t }); R.personaje(240, 172, 40, { ...ELENCO.legionario, t, dir: -1, objeto: 'gladio', pose: 'senala' }); },
+];
+window.__frame = async (t) => { R.secuencia(t, planos.map((f, i) => [i, f])); R.companero(t, 0.4); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Salon · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-SALON (frases 2–4). Cartela «476». El salón de mármol al atardecer: el emperador niño, con la corona que le queda
+// grande, se la quita (al decir «takes off») y se la tiende a Odoacro, que entra por la derecha, la coge y la mete en un
+// cofre. Luego, fuera, una calle cualquiera: un panadero saca pan del horno, un perro duerme, la gente pasa.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-salon');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { corona: M('corona', 1.5), general: M('general', 9), fuera: M('fuera', 13) };
+const S = R.SUELO_SALON;
+const salon = (t) => {
+  R.salon(t);
+  const quita = t >= m.corona + 4.5, sube = t >= m.corona + 4.1 && t < m.corona + 5.4, tiende = t >= m.general && t < m.general + 1.5;
+  const coge = t >= m.general + 1.2, guarda = t >= m.general + 2.6;
+  R.personaje(126, S + 26, 40, { ...ELENCO.emperadorNino, t, sombrero: quita ? 'no' : 'corona', brazoD: tiende ? 'ofrece' : sube ? 'arriba' : 'abajo', pose: tiende ? 'ofrece' : 'pie', objeto: quita && !coge ? 'corona' : undefined, ceño: coge });
+  const llega = tramo(t, m.corona + 2, m.corona + 5);
+  const ox = guarda ? lerp(176, 220, tramo(t, m.general + 2.6, m.general + 3.6)) : lerp(300, 176, llega);
+  R.cofre(232, S + 26, t, { w: 20, abierto: !(t > m.general + 3.6), tapa: 1 });
+  R.personaje(ox, S + 28, 50, { ...ELENCO.odoacro, t, dir: guarda && t < m.general + 3.6 ? 1 : -1, anda: (llega > 0 && llega < 1) || (guarda && t < m.general + 3.6) ? t * 7 : null, pose: tiende || (coge && !guarda) ? 'ofrece' : 'pie', objeto: coge && t < m.general + 3.5 ? 'corona' : undefined, ceño: true });
+};
+const calle = (t) => {
+  R.cieloR(t, 'dia', { hor: 140 });
+  R.insula(-6, 140, 70, 5, t); R.insula(70, 140, 56, 4, t, { rampa: PALA.AMARILLO });
+  R.templo(190, 140, 64, 34); R.insula(236, 140, 90, 4, t);
+  R.suelo(140, PALA.MARMOL, { losas: true, luz: 2 });
+  // el horno del panadero: cúpula de barro con fuego
+  R.disco(50, 140, 13, PALA.TERRACOTA[2]); R.rect(37, 140, 63, 141, PALA.TERRACOTA[1]); R.disco(50, 138, 5, PALA.CONTORNO);
+  R.disco(50, 139, 3, PALA.ANTORCHA[Math.floor(t * 10) % 2 ? 2 : 3]);
+  const saca = (t - m.fuera) % 4;
+  R.personaje(80, 162, 42, { ...ELENCO.ciudadano, t, dir: -1, pelo: PALA.PELO_NEGRO, chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, falda: PALA.BLANCO, pose: saca < 2 ? 'ofrece' : 'pie', objeto: saca < 2 ? 'pergamino' : undefined, sonrisa: true });
+  R.perro(160, 166, t, { duerme: true });
+  for (const [x0, v, pre] of [[340, -18, 'senador'], [-30, 22, 'ciudadano'], [400, -14, 'ciudadano']]) {
+    const x = x0 + v * (t - m.fuera);
+    R.personaje(x, 168, 42, { ...ELENCO[pre], t, dir: Math.sign(v), anda: t * 7, pelo: pre === 'ciudadano' && v > 0 ? PALA.PELO_ROJO : undefined, chaqueta: pre === 'ciudadano' && v < -15 ? PALA.VERDE : undefined, camisa: pre === 'ciudadano' && v < -15 ? PALA.VERDE : undefined, falda: pre === 'ciudadano' && v < -15 ? PALA.VERDE : undefined });
+  }
+};
+rodar(E, R, [[0, salon], [m.fuera - 0.2, calle]], { cartela: '476', durCartela: 2.4 });
+</script>
+</body>
+</html>

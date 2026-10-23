@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Loba · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-LOBA (frases 7–8). Cartela «753». De noche, siete colinas junto a un río; una loba se acerca a una cesta con dos
+// bebés y la husmea. Luego, de día, los gemelos ya mayores discuten en lo alto de una colina; uno empuja al otro, que
+// sale rodando del cuadro, y se queda solo; aparece una casita en la caja (la ciudad).
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-loba');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { loba: M('loba', 1.5), her: M('hermanos', 9) };
+const pastor = { peinado: 'corto', chaqueta: PALA.MARRON, camisa: PALA.MARRON, falda: PALA.MARRON, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARRON };
+const rio = (y0, y1, t) => { for (let y = y0; y < y1; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PR.AGUA, 1.2 + (Math.sin(x * 0.25 + y - t * 3) > 0.85 ? 1.5 : 0) + (y - y0) * 0.05, x, y)); };
+const noche = (t) => {
+  R.cielo(t, { luna: [250, 30, 10], hor: 120, semilla: 75 });
+  for (let k = 0; k < 7; k++) R.colinas(108 + (k % 3) * 6, { amp: 9, frec: 0.05 + k * 0.004, semilla: k * 1.7, luz: 0.6 + k * 0.15, rampa: PR.HIERBA, hasta: 140 });
+  rio(140, 152, t);
+  R.suelo(152, PR.HIERBA, { luz: 1.4 });
+  R.cesta(190, 156, t);
+  const p = tramo(t, m.loba + 0.5, m.loba + 4);
+  R.loba(lerp(-20, 168, p), 162, t, { anda: p > 0 && p < 1, cabeza: p >= 1 ? 3 + Math.sin(t * 4) : 0 });
+};
+const colina = (t) => {
+  R.cieloR(t, 'dia', { hor: 120 });
+  R.colinas(118, { amp: 6, luz: 1.8, semilla: 7 });
+  R.poligono([[60, 180], [160, 128], [260, 180]], (x, y) => R.tone(PR.HIERBA, 2.6 - (y - 128) * 0.02, x, y));
+  const u = t - M('hermanos', 9), empuja = u > 4.2, vuela = R.clamp((u - 4.4) / 1.2, 0, 1);
+  R.personaje(132, 140, 40, { ...pastor, chaqueta: PALA.AZUL, camisa: PALA.AZUL, falda: PALA.AZUL, pelo: PALA.PELO_CASTANO, t, habla: empuja ? 0 : 1, pose: empuja && u < 5.4 ? 'ofrece' : u < 4.2 ? 'senala' : 'manos_cintura', ceño: true });
+  if (vuela < 1) R.personaje(186 + vuela * 160, 140 + vuela * vuela * 40 - Math.sin(vuela * Math.PI) * 20, 40, { ...pastor, chaqueta: PALA.ROJO, camisa: PALA.ROJO, falda: PALA.ROJO, pelo: PALA.PELO_CASTANO, t, dir: -1, habla: empuja ? 0 : (Math.sin(t * 3) > 0 ? 1 : 0), pose: vuela > 0 ? 'brazos' : 'senala', ceño: true });
+};
+rodar(E, R, [[0, noche], [m.her - 0.2, colina]], { cartela: '753', caja: (t, e) => R.caja(t, t > m.her + 6 ? tramo(t, m.her + 6, m.her + 6.4) : 0, (x, y) => R.icono('casa', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

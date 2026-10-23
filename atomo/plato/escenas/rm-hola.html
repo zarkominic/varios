@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-HOLA (frase 1). Roma al atardecer desde una colina: cielo naranja, la silueta de la ciudad con templos y cúpulas,
+// cipreses delante y pájaros. La caja baja y Atom saluda desde su retrato.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-hola');
+const { PALA, PR, tramo } = R;
+const vista = (t) => {
+  R.cieloR(t, 'tarde', { sol: [210, 96, 11] });
+  R.skyline(118, { semilla: 3, esc: 1.2 });
+  R.templo(150, 118, 46, 20, { rampa: [PALA.PURPURA[0], PALA.PURPURA[1], PALA.PURPURA[1], PALA.PURPURA[2], PALA.PURPURA[2]] });
+  R.colinas(140, { amp: 12, luz: 1.4, semilla: 4 });
+  R.colinas(162, { amp: 8, luz: 2.2, frec: 0.05, semilla: 2 });
+  for (const x of [52, 64, 270, 286]) for (let y = 0; y < 34; y++) { const w = Math.round(3.5 * Math.sin(Math.PI * y / 34) + 0.5); R.rect(x - w, 150 - y, x + w, 150 - y, PR.HIERBA[y % 5 === 0 ? 2 : 0]); }
+  for (let k = 0; k < 5; k++) { const x = (k * 53 + t * 14) % 340 - 10, y = 40 + 9 * Math.sin(k * 2 + t * 0.5), a = Math.sin(t * 9 + k) > 0 ? 1 : 0; R.pset(Math.round(x), Math.round(y), PALA.CONTORNO); R.pset(Math.round(x) - 1, Math.round(y) - a, PALA.CONTORNO); R.pset(Math.round(x) + 1, Math.round(y) - a, PALA.CONTORNO); }
+};
+rodar(E, R, [[0, vista]], { caja: (t, e) => R.caja(t, tramo(t, 0.4, 0.9), (x, y) => R.icono('mano', x + 6, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

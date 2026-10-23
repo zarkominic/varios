@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ciudad · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-CIUDAD (frases 33–34). Una calle de Roma llena: bloques de pisos con ropa tendida (uno humea), un puesto de comida
+// con vapor, gente que va y viene y un carro. Luego la ciudad al atardecer, tranquila, y un contador que sube a «200».
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-ciudad');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { ciu: M('ciudad', 0.5), paz: M('paz', 10) };
+const tun = (c, extra = {}) => ({ ...ELENCO.ciudadano, chaqueta: c, camisa: c, falda: c, ...extra });
+const calle = (t) => {
+  R.cieloR(t, 'dia', { hor: 132 });
+  R.insula(-4, 132, 64, 6, t, { humo: true, fuego: t > m.ciu + 4 }); R.insula(64, 132, 60, 7, t, { rampa: PALA.AMARILLO }); R.insula(128, 132, 70, 6, t); R.insula(202, 132, 56, 7, t, { rampa: PALA.AMARILLO }); R.insula(262, 132, 64, 6, t);
+  R.suelo(132, PALA.MARMOL, { losas: true, luz: 1.8 });
+  R.puesto(150, 150, t);
+  const gente = [[tun(PALA.AZUL), 16, 0], [tun(PALA.VERDE, { pelo: PALA.PELO_RUBIO }), -20, 60], [ELENCO.senador, 12, 130], [tun(PALA.ROJO, { piel: PALA.PIEL_OSCURA, pelo: PALA.PELO_NEGRO }), -15, 200], [tun(PALA.AMARILLO, { pelo: PALA.PELO_ROJO, objeto: 'saco' }), 18, 260], [tun(PALA.MORADO), -24, 300], [ELENCO.legionario, 14, 90]];
+  gente.forEach(([g, v, x0], i) => { const x = ((x0 + v * (t - m.ciu)) % 380 + 380) % 380 - 30; R.personaje(x, 160 + (i % 3) * 7, 36, { ...g, t: t + i, dir: Math.sign(v), anda: t * 7, objeto: g.objeto ?? (g === ELENCO.legionario ? 'gladio' : undefined) }); });
+  const cx = ((40 + (t - m.ciu) * 26) % 400) - 40;
+  R.rect(cx - 14, 168, cx + 14, 176, PR.MADERA[2]); R.disco(cx - 9, 177, 4, PR.MADERA[0]); R.disco(cx + 9, 177, 4, PR.MADERA[0]);
+  R.oveja(cx + 26, 178, t);
+};
+const tarde = (t) => {
+  R.cieloR(t, 'tarde', { sol: [240, 110, 12] });
+  R.skyline(124, { semilla: 11, esc: 1.3 }); R.templo(110, 124, 60, 30, { rampa: [PALA.PURPURA[0], PALA.PURPURA[1], PALA.PURPURA[1], PALA.PURPURA[2], PALA.PURPURA[2]] });
+  R.colinas(150, { amp: 6, luz: 1.2, rampa: PR.HIERBA });
+  for (let k = 0; k < 4; k++) { const x = (k * 80 + t * 6) % 340 - 10; R.pset(Math.round(x), 50 + k * 6, PALA.CONTORNO); R.pset(Math.round(x) - 1, 49 + k * 6, PALA.CONTORNO); R.pset(Math.round(x) + 1, 49 + k * 6, PALA.CONTORNO); }
+};
+rodar(E, R, [[0, calle], [m.paz - 0.2, tarde]], { caja: (t, e) => R.caja(t, t > m.paz + 0.4 ? tramo(t, m.paz + 0.4, m.paz + 0.8) : 0, (x, y) => R.numero(String(Math.round(200 * tramo(t, m.paz + 0.8, m.paz + 3))), x + 8, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

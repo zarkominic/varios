@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Diocleciano · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-DIOCLECIANO (frases 46–47). Cartela «284». Unas tijeras bajan por el mapa y lo parten en dos (oeste y este se
+// separan un poco); aparece un emperador en cada esquina y «4» en la caja. Luego un muro con una tabla de precios
+// clavada (solo números); los mercaderes tapan sus puestos y la gente se queda mirando con la cesta vacía.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-diocleciano');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { cua: M('cuatro', 1.5), pre: M('precios', 9) };
+const emp = (c, pelo, barba) => ({ ...ELENCO.cesar, sombrero: 'diadema', capa: c, pelo, barba });
+const parte = (t) => {
+  const u = t - m.cua, corte = tramo(u, 1.5, 3.5), sep = tramo(u, 3.5, 4.2) * 6;
+  const B = R.nuevo(), prev = R.usar(B); R.mapa(t, { imperio: 1, italia: 1 }); R.usar(prev);
+  const cx = Math.round(R.lugar([19, 40])[0]);
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) { const sx = x < cx - sep ? x + sep : x > cx + sep ? x - sep : -1; R.pset(x, y, sx >= 0 ? B[y * R.W + sx] : PALA.CONTORNO); }
+  for (let y = 0; y < corte * R.H; y++) R.pset(cx, y, PALA.CONTORNO);
+  if (corte > 0 && corte < 1) R.tijeras(cx, Math.round(corte * R.H), Math.abs(Math.sin(u * 8)), { ang: Math.PI / 2 });
+  if (u > 4.4) [[40, 70, PALA.PURPURA, PALA.PELO_BLANCO, 'poblada'], [280, 70, PALA.ROJO, PALA.PELO_NEGRO, 'perilla'], [60, 172, PALA.AZUL, PALA.PELO_CASTANO, 'no'], [270, 172, PALA.VERDE, PALA.PELO_RUBIO, 'bigote']].forEach(([x, y, c, p, b], i) => { if (u > 4.4 + i * 0.25) R.personaje(x, y, 34, { ...emp(c, p, b), t: t + i, dir: x < 160 ? 1 : -1, pose: 'manos_cintura' }); });
+};
+const tabla = (t) => {
+  R.cieloR(t, 'dia', { hor: 100 });
+  R.muralla(0, 319, 130, 90, { luz: 2.4, rampa: PALA.MARMOL });
+  R.rect(110, 46, 210, 112, PALA.MARMOL[3]); R.rect(108, 44, 212, 46, PALA.MARMOL[1]); R.rect(108, 112, 212, 114, PALA.MARMOL[1]);
+  [['8', '12', '30'], ['4', '6', '100'], ['16', '2', '50']].forEach((fila, j) => fila.forEach((n, i) => R.numero(n, 122 + i * 30, 64 + j * 18, { color: PALA.MARMOL[0], sombra: false })));
+  R.suelo(130, PALA.MARMOL, { losas: true });
+  const u = t - m.pre, tapa = tramo(u, 3, 4.5);
+  for (const x of [20, 250]) { R.puesto(x, 150, t); if (tapa > 0) R.rect(x - 2, 150 - 22 * tapa, x + 32, 150, PALA.MARRON[1]); }
+  R.personaje(110, 170, 40, { ...ELENCO.ciudadano, t, pose: u > 4.5 ? 'ofrece' : 'pie', brazoI: u > 4.5 ? 'ofrece' : 'abajo', objeto: 'bolsa', ceño: true });
+  R.personaje(200, 170, 40, { ...ELENCO.ciudadano, chaqueta: PALA.VERDE, camisa: PALA.VERDE, falda: PALA.VERDE, pelo: PALA.PELO_RUBIO, t, dir: -1, pose: 'senala' });
+};
+rodar(E, R, [[0, parte], [m.pre - 0.2, tabla]], { cartela: '284', caja: (t, e) => R.caja(t, t > m.cua + 4.6 && t < m.pre - 0.2 ? tramo(t, m.cua + 4.6, m.cua + 5) : 0, (x, y) => R.numero('4', x + 12, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

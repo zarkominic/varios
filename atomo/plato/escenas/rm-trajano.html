@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trajano · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-TRAJANO (frases 29–31). Cartela «117». El mapa: el imperio en púrpura llega a su máximo, de Britania a
+// Mesopotamia. Luego cinco personas de pie; una se ilumina y «1/5» en la caja. Al final, el mapa otra vez con una
+// estrella en Hispania (junto a Sevilla), una línea hasta Roma y Trajano, pequeño, con laurel y armadura.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-trajano');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { map: M('mapa', 1.5), qui: M('quinto', 8), sev: M('sevilla', 12) };
+const trajano = { ...ELENCO.legionario, sombrero: 'laurel', capa: PALA.PURPURA, pelo: PALA.PELO_CASTANO, peinado: 'corto' };
+const mapa = (t) => { R.mapa(t, { imperio: lerp(0.45, 1, tramo(t, m.map + 1, m.map + 5)), italia: 1 }); R.punto(...R.lugar('roma'), t); };
+const cinco = (t) => {
+  R.cieloR(t, 'tarde', { hor: 130, sol: [160, 120, 10] }); R.suelo(130, PALA.MARMOL, { losas: true });
+  const gente = [ELENCO.barbaro, { ...ELENCO.ciudadano, chaqueta: PALA.AZUL, camisa: PALA.AZUL, falda: PALA.AZUL, piel: PALA.PIEL_OSCURA, pelo: PALA.PELO_NEGRO }, ELENCO.senador, { ...ELENCO.ciudadano, chaqueta: PALA.VERDE, camisa: PALA.VERDE, falda: PALA.VERDE }, { ...ELENCO.polinesio, sombrero: 'no' }];
+  const luz = t > m.qui + 1;
+  gente.forEach((g, i) => {
+    const x = 60 + i * 50;
+    if (i === 2 && luz) R.halo(x, 140, 30, [PALA.AMARILLO[1], PALA.AMARILLO[2]], 1);
+    R.personaje(x, 168, 40, { ...g, t: t + i, sonrisa: i === 2 && luz });
+  });
+};
+const sevilla = (t) => {
+  R.mapa(t, { imperio: 1, italia: 1 });
+  const [sx, sy] = R.lugar('sevilla'), [rx, ry] = R.lugar('roma');
+  R.ruta([[sx, sy], [rx, ry]], tramo(t, m.sev + 1, m.sev + 3), PALA.AMARILLO[3]);
+  for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2 + t; R.linea(sx, sy, Math.round(sx + Math.cos(a) * 5), Math.round(sy + Math.sin(a) * 5), PALA.AMARILLO[3]); }
+  R.punto(sx, sy, t, PALA.AMARILLO); R.punto(rx, ry, t);
+  R.personaje(250, 172, 40, { ...trajano, t, pose: t > m.sev + 3.5 ? 'manos_cintura' : 'senala', dir: -1 });
+};
+rodar(E, R, [[0, mapa], [m.qui - 0.2, cinco], [m.sev - 0.2, sevilla]], { cartela: '117', caja: (t, e) => R.caja(t, t > m.qui + 1 && t < m.sev - 0.2 ? tramo(t, m.qui + 1, m.qui + 1.4) : 0, (x, y) => R.numero('1/5', x + 4, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

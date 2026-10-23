@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cannas · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-CANNAS (frases 19–21). Cannas: filas de legionarios que caen uno tras otro (quedan los escudos en el suelo);
+// «50000» en la caja. Luego una fila nueva de reclutas se levanta y avanza. Al final, el mapa: la mancha roja se
+// extiende, y tres personas de otros pueblos se ponen la toga.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-cannas');
+const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
+const m = { can: M('cannas', 0.5), rec: M('recluta', 6), sup: M('superpoder', 12) };
+const campo = (t) => { R.cieloR(t, 'tarde', { hor: 110, sol: [250, 100, 10] }); R.colinas(110, { amp: 6, luz: 1.4, rampa: PR.TIERRA }); R.suelo(110, PR.TIERRA, { luz: 1.8 }); };
+const escudoSuelo = (x, y) => { R.disco(x, y, 3, PALA.ROJO[1]); R.rect(x - 5, y - 1, x + 5, y + 1, PALA.ROJO[2]); R.pset(x, y, PALA.ORO[2]); };
+const caen = (t) => {
+  campo(t);
+  const u = t - m.can;
+  for (let fila = 0; fila < 4; fila++) for (let k = 0; k < 9; k++) {
+    const x = 40 + k * 30 + (fila & 1) * 15, y = 122 + fila * 13, cae = u > 1 + k * 0.25 + fila * 0.4;
+    if (cae) escudoSuelo(x, y - 2); else R.personaje(x, y, 26, { ...ELENCO.legionario, t: t + k, objeto: 'gladio', capa: null });
+  }
+};
+const reclutas = (t) => {
+  campo(t);
+  for (let fila = 0; fila < 4; fila++) for (let k = 0; k < 9; k++) escudoSuelo(40 + k * 30 + (fila & 1) * 15, 120 + fila * 13);
+  const p = tramo(t, m.rec + 0.6, m.rec + 2), av = tramo(t, m.rec + 2.6, m.rec + 5);
+  for (let k = 0; k < 8; k++) { const y = lerp(190, 176, p) - av * 6; R.personaje(30 + k * 36 + av * 10, y, 34, { ...ELENCO.legionario, t: t + k, objeto: 'gladio', anda: av > 0 && av < 1 ? t * 7 : null, ceño: true }); }
+};
+const mapa = (t) => { R.mapa(t, { imperio: lerp(0.18, 0.45, tramo(t, m.sup, m.sup + 3)), italia: 1, colorImperio: PALA.ROJO }); R.punto(...R.lugar('roma'), t, PALA.ROJO); };
+const togas = (t) => {
+  R.cieloR(t, 'dia', { hor: 130 }); R.templo(160, 130, 120, 54); R.suelo(130, PALA.MARMOL, { losas: true });
+  const p = (i) => t > m.sup + 3.8 + i * 0.6;
+  const antes = [ELENCO.barbaro, { ...ELENCO.ciudadano, chaqueta: PALA.AZUL, camisa: PALA.AZUL, falda: PALA.AZUL, piel: PALA.PIEL_OSCURA, pelo: PALA.PELO_NEGRO }, { ...ELENCO.ciudadano, chaqueta: PALA.VERDE, camisa: PALA.VERDE, falda: PALA.VERDE, pelo: PALA.PELO_RUBIO }];
+  antes.forEach((a, i) => {
+    const x = 90 + i * 70;
+    R.personaje(x, 168, 42, p(i) ? { ...ELENCO.senador, pelo: a.pelo, piel: a.piel, peinado: a.peinado, barba: a.barba, banda: null, t, sonrisa: true } : { ...a, t });
+    if (Math.abs(t - (m.sup + 3.8 + i * 0.6)) < 0.25) for (let k = 0; k < 8; k++) R.pset(Math.round(x + 14 * Math.cos(k + t * 9)), Math.round(150 + 14 * Math.sin(k + t * 9)), PALA.AMARILLO[3]);
+  });
+};
+rodar(E, R, [[0, caen], [m.rec - 0.2, reclutas], [m.sup - 0.2, mapa], [m.sup + 3.4, togas]], { caja: (t, e) => R.caja(t, t > m.can + 2.5 && t < m.rec ? tramo(t, m.can + 2.5, m.can + 2.9) : 0, (x, y) => R.numero('50000', x + 2, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

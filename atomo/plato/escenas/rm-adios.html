@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adios · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-ADIOS (frase 61). Roma de noche bajo la Luna: la silueta de la ciudad con ventanas encendidas; Atom en su caja con
+// el «?» del cierre.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-adios');
+const { PALA, PR, tramo } = R;
+const noche = (t) => {
+  R.cielo(t, { luna: [120, 38, 11], hor: 170, semilla: 88 });
+  R.skyline(130, { semilla: 9, esc: 1.3, color: PALA.CONTORNO, borde: PALA.PURPURA[0] });
+  R.insula(20, 150, 50, 4, t, { noche: true, rampa: PALA.PURPURA }); R.insula(240, 150, 60, 4, t, { noche: true, rampa: PALA.PURPURA });
+  R.colinas(160, { amp: 6, luz: 0.6, rampa: PR.HIERBA });
+};
+rodar(E, R, [[0, noche]], { caja: (t, e) => R.caja(t, tramo(t, 0.3, 0.7), (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

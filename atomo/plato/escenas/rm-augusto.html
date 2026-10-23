@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Augusto · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-AUGUSTO (frases 26–28). El joven Octavio recoge del suelo una corona de laurel ante los senadores. Un senador le
+// ofrece una corona de rey: él dice que no con la cabeza y se pone el laurel; los senadores aplauden sin ganas; «1» en
+// la caja (el primer ciudadano). Al final, el denario brilla y su barra sube hasta «95%».
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-augusto');
+const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
+const m = { oct: M('octavio', 0.5), aug: M('augusto', 6), den: M('denario', 13) };
+const octavio = { ...ELENCO.cesar, pelo: PALA.PELO_RUBIO, peinado: 'corto', capa: null };
+const sala = (t) => { R.salon(t, { trono: false, estatua: false, cortina: false }); };
+const senadores = (t, aplauden) => { for (let k = 0; k < 4; k++) { const x = 200 + k * 30; R.personaje(x, 158 + (k & 1) * 6, 38, { ...ELENCO.senador, pelo: [PALA.PELO_BLANCO, PALA.PELO_CASTANO][k & 1], peinado: k === 2 ? 'calvo' : 'corto', t: t + k, dir: -1, pose: aplauden && Math.sin(t * 3 + k) > 0.3 ? 'brazos' : 'pie', ceño: true }); } };
+const recoge = (t) => {
+  sala(t);
+  const agacha = t > m.oct + 1 && t < m.oct + 2.6, tiene = t >= m.oct + 2.2;
+  if (!tiene) R.disco(122, 154, 3, PALA.LAUREL[2]);
+  R.personaje(110, 158, 42, { ...octavio, sombrero: 'no', t, pose: agacha ? 'rodilla' : 'pie', objeto: tiene ? 'pergamino' : undefined });
+  senadores(t, false);
+};
+const rechaza = (t) => {
+  sala(t);
+  const u = t - m.aug, niega = u > 0.6 && u < 2.6, pone = u > 2.8;
+  R.personaje(110, 158, 42, { ...octavio, sombrero: pone ? 'laurel' : 'no', t, dir: niega && Math.sin(t * 10) > 0 ? -1 : 1, sonrisa: pone });
+  R.personaje(170, 158, 40, { ...ELENCO.senador, pelo: PALA.PELO_BLANCO, t, dir: -1, pose: u < 3 ? 'ofrece' : 'pie', objeto: u < 3 ? 'corona' : undefined });
+  senadores(t, u > 3.5);
+};
+const denario = (t) => {
+  R.cieloR(t, 'tarde', { sol: [60, 140, 12], nubes: { n: 3 } });
+  const u = t - m.den, plata = 0.95 * tramo(u, 0.6, 2.2);
+  R.denario(140, 84, 44, 0.95, t);
+  R.barra(250, 140, 90, plata, { numero: u > 0.6 });
+  if (u > 3 && Math.sin(t * 6) > 0) R.rect(244, 144, 260, 146, PALA.AMARILLO[3]);
+};
+rodar(E, R, [[0, recoge], [m.aug - 0.2, rechaza], [m.den - 0.2, denario]], { caja: (t, e) => R.caja(t, t > m.aug + 3.6 && t < m.den - 0.2 ? tramo(t, m.aug + 3.6, m.aug + 4) : 0, (x, y) => { R.icono('persona', x + 4, y + 2, undefined, undefined, 2); R.numero('1', x + 22, y + 12); }, { energia: e }) });
+</script>
+</body>
+</html>
