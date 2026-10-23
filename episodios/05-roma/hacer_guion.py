@@ -51,8 +51,10 @@ def anyo_es(a):
     return ' '.join(partes)
 
 def corto_en(a):
-    """Años de tres cifras como se dicen: 476 → four seventy-six; 509 → five oh-nine; 410 → four ten."""
+    """Años de tres cifras como se dicen: 476 → four seventy-six; 509 → five oh-nine; 410 → four ten; 800 → eight hundred."""
     alto, bajo = divmod(a, 100)
+    if bajo == 0:
+        return f'{UNI_EN[alto]} hundred'
     return f"{UNI_EN[alto]} {'oh-' + UNI_EN[bajo] if bajo < 10 else dos_en(bajo)}"
 
 def corto_es(a):
