@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Roma · muestra de estilo</title>
+</head>
+<body>
+<script type="module">
+// RM-MUESTRA · 10 s de muestra del estilo del episodio 5 (papel recortado romano, kits/papel-roma.js).
+// Gancho: año 476. Un salón de mármol a medio vaciar, al atardecer; cortinas de púrpura, columnas y un trono.
+// El emperador adolescente (corona demasiado grande) se la quita; el general Odoacro (pieles, barba) espera con
+// la mano tendida. Atom cuelga de su hilo arriba a la izquierda y late con la voz.
+import * as K from '/atomo/plato/kits/papel-roma.js';
+const { RO } = K;
+await K.preparar();
+const DUR = 9.8;
+
+const fondo = K.capa(() => {
+  const g = K.g;
+  // pared de mármol cálido con la luz del atardecer entrando por los arcos
+  const full = new Path2D(); full.rect(0, 0, K.W, K.H); full.bb = [0, 0, K.W, K.H];
+  K.papel(full, RO.marmolD, { d: 0, seed: 3, ta: 1, tb: 0.4, edge: 0 });
+  for (const [x, w] of [[300, 260], [1360, 260]]) {
+    const arco = new Path2D(); arco.moveTo(x, 760); arco.lineTo(x, 330); arco.arc(x + w / 2, 330, w / 2, Math.PI, 0); arco.lineTo(x + w, 760); arco.closePath(); arco.bb = [x, 330 - w / 2, x + w, 760];
+    K.papel(arco, RO.cieloB, { d: 1, seed: x, edge: 0.4 });
+    const sol = K.circulo(70, x + 1, 0.01); g.save(); g.translate(x + w / 2, 520); K.papel(sol, RO.ocreL, { d: 1.4, seed: x + 2, edge: 0.4 }); g.restore();
+    g.save(); g.translate(x, 600); K.papel(K.poligono([[0, 160], [0, 40], [60, 10], [130, 50], [200, 20], [w, 60], [w, 160]]), RO.cieloC, { d: 1.6, seed: x + 3 }); g.restore();
+  }
+  // luz cálida en el suelo
+  const gr = g.createRadialGradient(960, 700, 80, 960, 760, 1000);
+  gr.addColorStop(0, 'rgba(255,190,120,0.22)'); gr.addColorStop(1, 'rgba(40,20,20,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, K.W, K.H);
+  // suelo de mosaico
+  g.save(); g.translate(0, 790);
+  K.papel(K.rect(0, 0, K.W, 300), RO.terracotaD, { d: 1, seed: 40 });
+  for (let i = 0; i < 24; i++) K.papel(K.rect(i * 84 + 6, 18, 70, 18, 2), i % 2 ? RO.ocre : RO.marmol, { d: 0.8, seed: 41 + i, edge: 0.3 });
+  g.restore();
+  // columnas
+  for (const x of [200, 700, 1220, 1720]) { g.save(); g.translate(x, 800); K.columna(560, { id: x }); g.restore(); }
+  // cortinas púrpura (una caída, la otra recogida: el salón se está vaciando)
+  g.save(); g.translate(560, 140); K.cortina(240, 620, { id: 7 }); g.restore();
+  // estrado y trono
+  g.save(); g.translate(1060, 800);
+  K.papel(K.rect(-260, -40, 520, 40, 4), RO.marmol, { d: 2.4, seed: 60 });
+  K.papel(K.rect(-150, -330, 300, 60, 10), RO.oro, { d: 3, seed: 61 });
+  K.papel(K.rect(-130, -290, 260, 250, 8), RO.purpura, { d: 2.6, seed: 62 });
+  K.papel(K.rect(-150, -150, 40, 110, 6), RO.oro, { d: 3, seed: 63 });
+  K.papel(K.rect(110, -150, 40, 110, 6), RO.oro, { d: 3, seed: 64 });
+  g.restore();
+  // un cofre abierto y vacío, y una estatua caída (el saqueo ya ha pasado por aquí)
+  g.save(); g.translate(360, 820); K.papel(K.rect(-70, -70, 140, 70, 6), RO.bronceD, { d: 2.2, seed: 70 }); K.papel(K.rect(-74, -96, 148, 24, 6), RO.bronce, { d: 2.6, seed: 71 }); g.restore();
+  g.save(); g.translate(1640, 860); g.rotate(-1.35); K.papel(K.rect(-24, -170, 48, 170, 10), RO.marmol, { d: 2, seed: 72 }); K.papel(K.circulo(30, 73), RO.marmol, { d: 2.2, seed: 73 }); g.restore();
+});
+
+const escena = (t) => {
+  const g = K.g;
+  // el chaval se quita la corona (1,0 s → 2,6 s) y se la tiende al general
+  const quita = K.eio(K.seg(t, 4.4, 5.8)), tiende = K.eio(K.seg(t, 6.6, 7.8));
+  const coronaEnCabeza = quita < 0.5;
+  g.save(); g.translate(1060, 762);
+  K.romano({ escala: 1.45, joven: true, peinado: 'rizos', pelo: RO.peloRub, ropa: 'toga', color: RO.marmol, banda: RO.purpura, capa: RO.purpura,
+    tocado: coronaEnCabeza ? 'corona' : 'no', brazoD: K.lerp(-0.12, -2.6, quita) + K.lerp(0, 1.4, tiende), brazoI: 0.1,
+    cabeza: 0.12 * quita - 0.1 * tiende, cejas: 0.6, boca: 0, mirar: -1, id: 3, t,
+    mano: (gg) => { if (!coronaEnCabeza) { gg.save(); gg.translate(-6, 6); gg.rotate(0.2); K.papel(K.poligono([[-30, 0], [-26, -30], [-16, -12], [-6, -36], [4, -12], [14, -34], [22, -10], [32, -26], [32, 2]]), RO.oro, { d: 3, seed: 85 }); gg.restore(); } } });
+  g.restore();
+  // Odoacro: pieles, barba larga, pelo largo; da un paso y tiende la mano
+  const llega = K.eio(K.seg(t, 0.2, 1.4));
+  g.save(); g.translate(K.lerp(560, 700, llega), 940);
+  K.romano({ escala: 1.75, ropa: 'pieles', color: RO.rojoD, peinado: 'largo', pelo: RO.peloR, barba: 'larga', capa: RO.piel_animal,
+    paso: llega < 1 ? t * 1.6 : 0, brazoD: K.lerp(-0.1, -1.35, K.seg(t, 6.4, 7.2)), cejas: -0.6, mirar: 1, id: 9, t });
+  g.restore();
+  // Atom en su sitio (arriba a la izquierda), latiendo
+  K.atomo(170, 210, t, 0.35 + 0.35 * Math.abs(Math.sin(t * 6.1) * Math.sin(t * 2.3)), { escala: 0.5 });
+};
+
+window.__frame = async (t) => { const tq = Math.floor(t * 12) / 12; K.fotograma(tq, (u) => escena(u), { fondo }); };
+window.__listo = true;
+</script>
+</body>
+</html>
