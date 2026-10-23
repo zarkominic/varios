@@ -14,166 +14,26 @@
 // pintado, remos y público en cubierta; ánforas, cajas y norays en el muelle; una estoa pintada a la derecha y la
 // Acrópolis al fondo. Sócrates (cabezón, calvo y barbudo) explica algo con el dedo en alto; el ciudadano se sorprende
 // y da un salto («!»); el público del barco se ríe y saluda. Personajes dibujados píxel a píxel (no por código).
-import { crearRetro, hex } from '/atomo/plato/kits/pixel-retro.js';
-const R = await crearRetro(document.getElementById('lienzo'));
+// ESCENA CANÓNICA del estilo chibi: personajes, caras y público vienen del kit pixel-chibi.js; el fondo es de esta escena.
+// Guía: episodios/GUIA-ESTILO.md.
+import { crearChibi, ELENCO_CHIBI, COL, P, tela } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = await crearChibi(document.getElementById('lienzo'));
 const { pset, rect, linea, poligono, disco } = R;
 const DUR = 5;
+const C = COL;
 
-// ── paleta plana ─────────────────────────────────────────────────────────────────────────────────────────────────
-const C = Object.fromEntries(Object.entries({
-  k: '#1c1222', cielo1: '#5cb6f2', cielo2: '#7cc6f6', cielo3: '#a2d8fa', nube: '#ffffff', nubeS: '#d2ecfc', nubeS2: '#a8d6f2',
-  colina: '#94a4c8', colinaS: '#7a88b0', colinaL: '#b4c0dc', marmolL: '#f6f2ea', marmol: '#dcd6ca', marmolS: '#aaa293',
-  mar1: '#2a64b0', mar2: '#3678c4', mar3: '#4f94d8', marL: '#cfe8ff', marHondo: '#1b4486', marHondo2: '#22549c',
-  mad0: '#3a2214', mad1: '#5e3a1e', mad2: '#83552c', mad3: '#a8743c', mad4: '#c8955a',
-  casco0: '#3c2014', casco1: '#5a3018', casco2: '#7a4422', franja: '#c83a3a', franjaS: '#8e2424',
-  bronce: '#d29a34', bronceS: '#94621a', vela: '#f0e4c4', velaS: '#cbb88c', cuerda: '#b8985e',
-  terra: '#c25a2c', terraL: '#e88450', terraS: '#8a3a1a', negroFig: '#2a1810',
-  azulPint: '#2e5aa8', rojoPint: '#b8322e', oro: '#e8b830', hierro: '#5a5a6a', hierroL: '#8c8ca0', hierroS: '#3a3a48',
-  gaviota: '#ffffff', gaviotaS: '#b8c4d4',
-}).map(([k, v]) => [k, hex(v)]));
-// paleta de los personajes (letras de los dibujos)
-const P = Object.fromEntries(Object.entries({
-  k: '#1c1222', S: '#f6c290', s: '#d48a5a', W: '#f6f6f6', w: '#b8bccc', T: '#ece0bc', t: '#bfae80', B: '#93603a', b: '#64401f',
-  L: '#6a4020', m: '#7a2026', H: '#2c2232', h: '#54466a', A: '#3e74d4', a: '#2a50a0', Q: '#d24040', q: '#922828', E: '#ffffff',
-  o: '#f0c040', G: '#7a4a24',
-}).map(([k, v]) => [k, hex(v)]));
-
-// dibuja una rejilla de letras (dir = −1 la voltea)
-const dibujo = (filas, x, y, dir = 1, pal = P) => filas.forEach((f, j) => { for (let i = 0; i < f.length; i++) { const c = pal[f[i]]; if (c == null) continue; pset(Math.round(x + (dir > 0 ? i : f.length - 1 - i)), Math.round(y + j), c); } });
-
-// ── personajes (15 px de ancho; cabeza de 14 y cuerpo de 14: cabezones, como en la referencia) ──────────────────────
-const CAB_SOC = [
-  '....kkkkkk.....',
-  '..kkSSSSSSkk...',
-  '.kSSSSSSSSSSk..',
-  'kWWSSSSSSSSSSk.',
-  'kWWSSSSSSSSSSk.',
-  'kWWsSSSSSSSSSk.',
-  'kWWsSSSSSSSSSSk',
-  'kWWWSSSSSSSSsk.',
-  '.kWWWWWWWWWWWk.',
-  '.kWWWWWWWWWWWk.',
-  '..kWWWWWwWWWk..',
-  '..kWWWWWWWWWk..',
-  '...kWWWWWWWk...',
-  '....kkWWWkk....',
-];
-const CUERPO_SOC = [
-  '...kkTTTTBBkk..',
-  '..kTTTTTBBBBTk.',
-  '.kSkTTTBBBBTkSk',
-  '.kSkTTBBBBTTkSk',
-  '.kSkTBBBBTTTkSk',
-  '.kskBBBBTTTTksk',
-  '..kkBBBTTTTTkk.',
-  '...kBBTTTTTTk..',
-  '...kbBttttttk..',
-  '...kbbttttttk..',
-  '....kkkkkkkk...',
-  '.....kSk.kSk...',
-  '.....kSk.kSk...',
-  '....kLLk.kLLk..',
-];
-const CAB_CIU = [
-  '...kkkkkkkk....',
-  '..kHhHHhHHhkk..',
-  '.kHHhHhHHhHHHk.',
-  'kHhHHHHHHHHhHk.',
-  'kHHHHSSSSSSSSk.',
-  'kHHHsSSSSSSSSk.',
-  'kHHssSSSSSSSSSk',
-  'kHHsSSSSSSSSsk.',
-  '.kHSSSSSSSSSSk.',
-  '.kSSSSSSSSSSk..',
-  '..kSSSSSSSSsk..',
-  '...kksSSSSkk...',
-  '.....kkkkk.....',
-];
-const CUERPO_CIU = [
-  '...kkAAAAAkk...',
-  '..kQoAAAAAAAk..',
-  '.kQQkAAaAAAkSk.',
-  '.kQQkAAaAAAkSk.',
-  '.kQqkGGGGGGkSk.',
-  '.kQqkAaAAaAksk.',
-  '.kqqkAaAAaAkk..',
-  '.kqqkaAAaAAk...',
-  '..kqkaaaaaak...',
-  '...kkkkkkkk....',
-  '....kSk.kSk....',
-  '....kLk.kLk....',
-  '...kLLk.kLLk...',
-];
-// variantes sin el brazo que se levanta (se borra la columna del brazo, se deja el contorno del cuerpo)
-const sinBrazo = (filas, i0, j0, j1) => filas.map((f, j) => (j >= j0 && j <= j1 ? f.slice(0, i0) + 'k' + '.'.repeat(f.length - i0 - 1) : f));
-const CUERPO_SOC_DEDO = sinBrazo(CUERPO_SOC, 12, 2, 5);
-const CUERPO_CIU_BRAZOS = sinBrazo(CUERPO_CIU, 11, 2, 5);
-// cara: ojos, cejas y boca encima de la cabeza (x relativo a la rejilla, mirando a la derecha)
-const cara = (x, y, dir, o) => {
-  const px = (i, j, c) => pset(Math.round(x + (dir > 0 ? i : 14 - i)), Math.round(y + j), c);
-  const ey = o.ojosY ?? 5, cejaY = ey - 1 - (o.sorpresa ? 1 : 0);
-  for (const ex of [8, 12]) {
-    if (o.sorpresa) { px(ex, ey, P.E); px(ex, ey + 1, P.k); px(ex - 1, ey, P.k); px(ex - 1, ey + 1, P.E); }
-    else if (o.parpadea) px(ex, ey + 1, P.k);
-    else { px(ex, ey, P.k); px(ex, ey + 1, P.k); }
-    px(ex - 1, cejaY, o.ceja); px(ex, cejaY, o.ceja);
-  }
-  const my = o.bocaY ?? 9;
-  if (o.sorpresa) { px(10, my, P.k); px(11, my, P.k); px(10, my + 1, P.m); px(11, my + 1, P.m); px(10, my + 2, P.k); px(11, my + 2, P.k); }
-  else if (o.habla) { px(9, my, P.k); px(10, my, P.k); px(11, my, P.k); px(10, my + 1, P.m); }
-  else if (o.sonrisa) { px(9, my, P.k); px(10, my + 1, P.k); px(11, my + 1, P.k); px(12, my, P.k); }
-  else { px(10, my, P.k); px(11, my, P.k); }
-};
-// brazo levantado (el dedo índice arriba) o los dos (sorpresa): columnas de piel con su contorno
-const brazoArriba = (x, yHombro, yMano, abierta = false) => {
-  for (let y = yMano; y <= yHombro; y++) { pset(x - 1, y, P.k); pset(x, y, P.S); pset(x + 1, y, y < yMano + 3 ? P.S : P.s); pset(x + 2, y, P.k); }
-  if (abierta) { rect(x - 1, yMano - 3, x + 2, yMano - 1, P.k); rect(x, yMano - 2, x + 1, yMano - 1, P.S); pset(x - 1, yMano - 3, P.S); pset(x + 2, yMano - 3, P.S); pset(x - 2, yMano - 4, P.k); pset(x + 3, yMano - 4, P.k); return; }
-  pset(x, yMano - 1, P.k); pset(x + 1, yMano - 1, P.k); pset(x + 1, yMano - 3, P.k); pset(x + 1, yMano - 2, P.S); pset(x + 2, yMano - 2, P.k); pset(x, yMano - 2, P.k);
-};
-const socrates = (x, suelo, t, o) => {
-  const resp = Math.sin(t * 3) > 0.7 ? 1 : 0, yC = suelo - 14, yH = yC - 13 + resp;
-  dibujo(o.dedo ? CUERPO_SOC_DEDO : CUERPO_SOC, x, yC, 1);
-  if (o.dedo) brazoArriba(x + 14, yC + 3, yH - 3);
-  dibujo(CAB_SOC, x, yH, 1);
-  cara(x, yH, 1, { ceja: P.w, habla: o.habla, sonrisa: o.sonrisa, parpadea: (t % 2.3) < 0.1, bocaY: 9 });
-};
-const ciudadano = (x, suelo, t, o) => {
-  const salto = o.salto ?? 0, yC = suelo - 13 - salto, yH = yC - 12;
-  dibujo(o.sorpresa ? CUERPO_CIU_BRAZOS : CUERPO_CIU, x, yC, -1);
-  if (o.sorpresa) { brazoArriba(x + 1, yC + 3, yH + 1, true); brazoArriba(x + 12, yC + 3, yH + 1, true); }
-  dibujo(CAB_CIU, x, yH, -1);
-  cara(x, yH, -1, { ceja: P.H, sorpresa: o.sorpresa, sonrisa: o.sonrisa, parpadea: (t % 2.9) < 0.1, ojosY: 6, bocaY: 9 });
-  pset(x + 4, yH + 8, P.s); pset(x + 9, yH + 8, P.s);   // mejillas
-  if (salto > 0) for (let i = -5; i <= 5; i++) if (Math.abs(i) > 2 - salto * 0.2) pset(x + 7 + i, suelo + 1, C.mad1);
-};
-
-// ── público del barco (bustos de frente, 9 × 12) ──
-const BUSTOS = {
-  rizos: ['..kkkkk..', '.kHhHhHk.', 'kHhHHHhHk', 'kHSSSSSHk', 'kSeSSSeSk', 'kSSSsSSSk', '.kSSmSSk.', '..kSSSk..', '.kkCCCkk.', 'kCCCCCCCk', 'kCcCCCcCk', 'kCcCCCcCk'],
-  calvo: ['..kkkkk..', '.kSSSSSk.', 'kWSSSSSWk', 'kWSSSSSWk', 'kSeSSSeSk', 'kSSSsSSSk', 'kWWWmWWWk', '.kWWWWWk.', '.kkWWWkk.', 'kCCCCCCCk', 'kCcCCCcCk', 'kCcCCCcCk'],
-  mujer: ['...kkk...', '..kHHHk..', '.kVVVVVk.', 'kVHHHHHVk', 'kVSSSSSVk', 'kVeSSSeVk', 'kVSSsSSVk', 'kVSSmSSVk', 'kVkSSSkVk', '.kkCoCkk.', 'kCCCCCCCk', 'kCcCCCcCk'],
-  soldado: ['..kRRRk..', '.kRRRRRk.', '..kZZZk..', '.kZZzZZk.', 'kZZZZZZZk', 'kZkSSSkZk', 'kZeSSSeZk', 'kZSSsSSZk', 'kZkSmSkZk', '.kkkkkkk.', 'kCCCCCCCk', 'kCcCCCcCk'],
-  marinero: ['...kkk...', '..kPPPk..', '.kPPpPPk.', 'kPPPPPPPk', 'kHSSSSSHk', 'kSeSSSeSk', 'kSSSsSSSk', '.kSSmSSk.', '..kkkkk..', '.kCCCCCk.', 'kCcCCCcCk', 'kCcCCCcCk'],
-};
-const BOCA = { rizos: [4, 6], calvo: [4, 6], mujer: [4, 7], soldado: [4, 8], marinero: [4, 7] };
-const tela = (a, b) => ({ C: hex(a), c: hex(b) });
 const PUBLICO = [
-  ['marinero', { ...tela('#3e74d4', '#2a50a0'), H: hex('#5a3418'), P: hex('#a8743c'), p: hex('#7a5028') }, 48],
-  ['mujer', { ...tela('#8050b8', '#52287e'), H: hex('#2c2232'), V: hex('#f0e4c4') }, 68],
-  ['calvo', { ...tela('#ece0bc', '#bfae80') }, 88],
-  ['soldado', { ...tela('#d24040', '#922828'), R: hex('#d24040'), Z: hex('#d29a34'), z: hex('#f0c868') }, 108],
-  ['rizos', { ...tela('#46a04a', '#246a34'), H: hex('#a03a24'), h: hex('#d86a3a') }, 128],
-  ['mujer', { ...tela('#d27a30', '#a04a14'), H: hex('#c8a038'), V: hex('#cfe8ff') }, 148],
-  ['rizos', { ...tela('#ece0bc', '#bfae80'), H: hex('#2c2232'), h: hex('#54466a') }, 168],
+  ['marinero', tela('#3e74d4', '#2a50a0', { H: '#5a3418', P: '#a8743c', p: '#7a5028' }), 48],
+  ['mujer', tela('#8050b8', '#52287e', { H: '#2c2232', V: '#f0e4c4' }), 68],
+  ['calvo', tela('#ece0bc', '#bfae80'), 88],
+  ['soldado', tela('#d24040', '#922828', { R: '#d24040', Z: '#d29a34', z: '#f0c868' }), 108],
+  ['rizos', tela('#46a04a', '#246a34', { H: '#a03a24', h: '#d86a3a' }), 128],
+  ['mujer', tela('#d27a30', '#a04a14', { H: '#c8a038', V: '#cfe8ff' }), 148],
+  ['rizos', tela('#ece0bc', '#bfae80', { H: '#2c2232', h: '#54466a' }), 168],
 ];
 // ── fondo ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-const nube = (cx, cy, w) => {
-  const bolas = [[0, 0, w * 0.32], [-w * 0.32, w * 0.06, w * 0.24], [w * 0.3, w * 0.05, w * 0.26], [-w * 0.1, -w * 0.12, w * 0.26], [w * 0.14, -w * 0.08, w * 0.22]];
-  for (const [dx, dy, r] of bolas) disco(Math.round(cx + dx), Math.round(cy + dy + 1), Math.round(r), C.nubeS2);
-  for (const [dx, dy, r] of bolas) disco(Math.round(cx + dx), Math.round(cy + dy), Math.round(r), C.nubeS);
-  for (const [dx, dy, r] of bolas) disco(Math.round(cx + dx - 1), Math.round(cy + dy - 2), Math.round(r * 0.8), C.nube);
-  rect(Math.round(cx - w * 0.55), Math.round(cy + w * 0.18), Math.round(cx + w * 0.55), Math.round(cy + w * 0.3), C.nubeS);
-};
+const nube = R.nube;
 const cielo = (t) => {
   for (let y = 0; y < 92; y++) rect(0, y, 319, y, y < 30 ? C.cielo1 : y < 62 ? C.cielo2 : C.cielo3);
   for (const [x0, y, w, v] of [[30, 20, 46, 2], [150, 12, 60, 1.4], [270, 26, 40, 2.4], [210, 50, 30, 1.8], [80, 56, 26, 2.2]]) nube(((x0 + t * v) % 380) - 30, y, w);
@@ -216,11 +76,8 @@ const trirreme = (t) => {
   for (let i = 0; i < 16; i++) { const y = yb(34) + Math.round(Math.sin(t * 9 - i * 0.6) * 1.5) + (i > 8 ? 1 : 0); rect(111 + i, y, 111 + i, y + Math.max(1, 3 - Math.floor(i / 6)), C.franja); }
   // borda y público en cubierta: bustos dibujados uno a uno, que parpadean, se ríen y saludan
   PUBLICO.forEach(([tipo, pal, x], k) => {
-    const salto = t > 3 ? Math.round(Math.max(0, Math.sin(t * 8 + k * 1.3)) * 2) : 0, y = yb(92) - salto;
-    const ojos = (t + k * 0.7) % 2.6 < 0.1 ? 'S' : 'k', rie = t > 3.1;
-    dibujo(BUSTOS[tipo], x - 4, y, 1, { ...P, ...pal, e: P[ojos], m: rie ? P.m : P.k });
-    if (rie) { const [mx, my] = BOCA[tipo]; pset(x - 4 + mx - 1, y + my, P.k); pset(x - 4 + mx + 1, y + my, P.k); pset(x - 4 + mx, y + my + 1, P.k); }
-    if (t > 2.7 && k % 2 === 0) { const ay = y + 3 - Math.round(Math.abs(Math.sin(t * 10 + k)) * 2); for (let yy = ay; yy <= y + 10; yy++) { pset(x + 5, yy, P.k); pset(x + 6, yy, P.S); pset(x + 7, yy, P.k); } rect(x + 5, ay - 2, x + 7, ay - 1, P.k); pset(x + 6, ay - 1, P.S); }
+    const salto = t > 3 ? Math.round(Math.max(0, Math.sin(t * 8 + k * 1.3)) * 2) : 0;
+    R.busto(tipo, pal, x - 4, yb(92) - salto, t, { rie: t > 3.1, saluda: t > 2.7 && k % 2 === 0 });
   });
   rect(34, yb(104), 196, yb(104), C.k); rect(34, yb(103), 196, yb(103), C.mad3);
 };
@@ -264,9 +121,7 @@ const estoa = () => {
   poligono([[244, 86], [282, 76], [320, 70], [320, 86]], C.terra); linea(244, 86, 320, 70, C.k); for (let x = 250; x < 320; x += 5) linea(x, 86, x, 86 - Math.round((x - 244) * 0.2), C.terraS);
   for (const x of [254, 270, 286, 302, 318]) { rect(x - 3, 93, x + 3, 95, C.marmolL); rect(x - 2, 95, x + 2, 128, C.marmol); rect(x - 2, 95, x - 2, 128, C.marmolL); rect(x + 1, 95, x + 2, 128, C.marmolS); rect(x - 3, 128, x + 3, 131, C.marmolS); rect(x + 3, 95, x + 3, 128, C.k); }
 };
-const gaviota = (x, y, t, k) => { const a = Math.sin(t * 9 + k) > 0; pset(x, y, C.gaviota); pset(x - 1, y - (a ? 1 : 0), C.gaviota); pset(x - 2, y - (a ? 2 : 0), C.gaviota); pset(x + 1, y - (a ? 1 : 0), C.gaviota); pset(x + 2, y - (a ? 2 : 0), C.gaviota); pset(x, y + 1, C.gaviotaS); };
-const bocadillo = (x, y, t) => { rect(x - 4, y - 9, x + 4, y + 1, C.k); rect(x - 3, y - 8, x + 3, y, C.nube); pset(x - 1, y + 2, C.k); pset(x, y + 2, C.k); pset(x - 1, y + 1, C.nube); rect(x, y - 7, x, y - 3, P.Q); pset(x, y - 1, P.Q); };
-
+const gaviota = R.gaviota;
 const dibujar = (t) => {
   cielo(t); acropolis(); mar(t); velero(214, 96, t, 1); velero(150, 93, t, 0.7); estoa(); trirreme(t);
   for (const [x, y] of [[ (t * 22) % 360 - 20, 30 ], [ (t * 16 + 120) % 360 - 20, 44 ], [ (t * 19 + 230) % 360 - 20, 22 ]]) gaviota(Math.round(x), y, t, x);
@@ -277,10 +132,10 @@ const dibujar = (t) => {
   for (let k = 0; k < 3; k++) { disco(80, 129 - k, 5 - k, k % 2 ? C.mad3 : C.cuerda); } disco(80, 127, 1, C.mad1);
   // los personajes
   const habla = t < 2.1 && Math.sin(t * 15) > 0;
-  socrates(126, 145, t, { dedo: t > 0.5 && t < 2.6, habla, sonrisa: t > 3.2 });
+  R.actor(ELENCO_CHIBI.socrates, 126, 145, t, { dedo: t > 0.5 && t < 2.6, habla, sonrisa: t > 3.2 });
   const s = t > 2.2 && t < 2.9 ? Math.round(Math.sin((t - 2.2) / 0.7 * Math.PI) * 9) : 0;
-  ciudadano(172, 145, t, { sorpresa: t > 2.15 && t < 3.4, salto: s, sonrisa: t > 3.4 });
-  if (t > 2.15 && t < 3.3) bocadillo(186, 112 - s, t);
+  R.actor(ELENCO_CHIBI.ciudadano, 172, 145, t, { dir: -1, sorpresa: t > 2.15 && t < 3.4, salto: s, sonrisa: t > 3.4 });
+  if (t > 2.15 && t < 3.3) R.bocadillo(186, 112 - s);
   R.companero(t, 0.4);
 };
 window.__frame = async (t) => { dibujar(t % DUR); R.presentar(); };
