@@ -1,6 +1,6 @@
-# Episodio 6 · Los griegos: por qué la primera democracia mató a su hombre más sabio
+# Episodio 6 · La antigua Grecia: por qué la primera democracia mató a su hombre más sabio
 
-**Estado:** v1, para revisar.
+**Estado:** v1.1, para revisar. El título y el gancho dicen desde el principio que hablamos de la antigua Grecia.
 
 **Formato:** el del episodio 5. YouTube horizontal 16:9, un solo vídeo con dos pistas de audio: inglés (el original) y español (doblaje).
 
@@ -40,23 +40,23 @@
   - Alejandro y el mundo griego: 338–146, con una estrella.
 - **Cartelas:** 399, 800, 490, 479, 431, 338, 146.
 
-**Título:**
-- ES: ¿Por qué la primera democracia mató a su hombre más sabio?
-- EN: Why Did the First Democracy Kill Its Wisest Man?
+**Título** (el tema va siempre delante; el gancho, detrás):
+- ES: La antigua Grecia en 10 minutos: por qué la primera democracia mató a su hombre más sabio
+- EN: Ancient Greece in 10 Minutes: Why the First Democracy Killed Its Wisest Man
 
 **Alternativas:**
-- Los griegos se lo inventaron (casi) todo / The Greeks Invented (Almost) Everything
-- Mil ciudades, ningún país / A Thousand Cities, No Country
+- Los antiguos griegos: mil ciudades, ningún país… y (casi) todo inventado / The Ancient Greeks: A Thousand Cities, No Country, and (Almost) Everything Invented
+- Grecia antigua explicada: de Maratón a Alejandro Magno / Ancient Greece Explained: From Marathon to Alexander the Great
 
 ## 0 · El gancho (399 antes de Cristo)
 
 | ES | EN |
 |---|---|
 | Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase. | Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you. |
-| Es el 399 antes de Cristo, en Atenas, la ciudad que inventó la democracia. Quinientos un ciudadanos normales y corrientes están a punto de votar. | It's 399 BC, in Athens, the city that invented democracy. Five hundred and one ordinary citizens are about to vote. |
+| Es el 399 antes de Cristo, en Atenas, en la antigua Grecia, la ciudad que inventó la democracia. Quinientos un ciudadanos normales y corrientes están a punto de votar. | It's 399 BC, in Athens, in ancient Greece, the city that invented democracy. Five hundred and one ordinary citizens are about to vote. |
 | El acusado es un hombre de setenta años que nunca escribió un libro, nunca robó nada y nunca hizo daño a nadie. ¿Su delito? Hacer demasiadas preguntas. Se llama Sócrates. | On trial is a seventy-year-old man who never wrote a book, never stole anything, and never hurt anyone. His crime? Asking too many questions. His name is Socrates. |
 | El veredicto: culpable. La pena: muerte. | The verdict: guilty. The sentence: death. |
-| ¿Cómo acaba la primera democracia de la historia matando a su hombre más sabio? Para entenderlo hace falta la historia entera. Y, otra vez, cabe en diez minutos. | So how does the first democracy in history end up killing its wisest man? To get it, you need the whole story. And, once again, it fits in ten minutes. |
+| ¿Cómo acaba la primera democracia de la historia matando a su hombre más sabio? Para entenderlo hace falta la historia entera de la antigua Grecia. Y cabe en diez minutos. | So how does the first democracy in history end up killing its wisest man? To get it, you need the whole story of ancient Greece. And it fits in ten minutes. |
 
 ## 1 · El mapa
 
