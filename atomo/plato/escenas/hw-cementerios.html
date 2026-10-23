@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cementerios · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-CEMENTERIOS (frase 27). Un cementerio al atardecer lleno de flores en las lápidas y gente que lleva ramos. Luego, de
+// noche, una familia filipina junto a una tumba, con velas y comida. Al final, un río en China con farolillos que flotan y
+// se reflejan; en la caja, la luna y «15/7».
+import { preparar, rodar, noche, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-cementerios');
+const { PALA, PR, NARANJA, tramo, lerp } = R;
+const m0 = M('cementerios', 0.5), L = E.duracion - m0, T = (f) => m0 + f * L;
+const FLORES = [PALA.ROJO, NARANJA, PALA.AMARILLO, PALA.BLANCO, PALA.MORADO];
+const PERSONA = (c, pelo) => ({ peinado: 'corto', pelo, chaqueta: c, camisa: PALA.BLANCO, pantalon: PALA.NEGRO, chaqueta_larga: false });
+const cementerio = (t) => {
+  R.ambiente({ luz: { lado: 1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.cieloR(t, 'tarde', { hor: 120, sol: [270, 100, 10] });
+  R.colinas(120, { amp: 4, luz: 1.4, rampa: PR.HIERBA });
+  R.suelo(120, PR.HIERBA, { luz: 1.6 });
+  for (let f = 0; f < 3; f++) for (let k = 0; k < 7; k++) { const x = 24 + k * 44 + (f & 1) * 22, y = 132 + f * 16; R.lapida(x, y, { w: 5 + (k % 2), h: 11 + (k % 3), flores: FLORES[(k + f) % 5] }); }
+  R.personaje(120, 172, 24, { ...PERSONA(PALA.NEGRO, PALA.PELO_BLANCO), falda: PALA.NEGRO, largoFalda: 0.4, t, brazoD: 'ofrece' });
+  R.personaje(206, 172, 24, { ...PERSONA(PALA.AZUL, PALA.PELO_CASTANO), t: t + 1, dir: -1, brazoD: 'ofrece' });
+};
+const vigilia = (t) => {
+  noche(R, t, { luna: [250, 30, 11], hor: 140 });
+  sueloNoche(R, 140);
+  R.lapida(160, 152, { w: 12, h: 22, rampa: PR.ROCA });
+  for (let k = 0; k < 6; k++) R.vela(130 + k * 12, 150 + (k % 2) * 4, t + k, { r: 16 });
+  R.rect(180, 162, 210, 165, PALA.BLANCO[2]); R.disco(188, 160, 3, PALA.ORO[2]); R.disco(200, 160, 3, PALA.ROJO[2]);
+  R.personaje(96, 176, 24, { ...PERSONA(PALA.ROJO, PALA.PELO_NEGRO), t, pose: 'sentado', luz: { lado: 1, color: PALA.ANTORCHA[3] } });
+  R.personaje(232, 176, 18, { ...PERSONA(PALA.AMARILLO, PALA.PELO_NEGRO), t: t + 1, pose: 'sentado', dir: -1, luz: { lado: -1, color: PALA.ANTORCHA[3] } });
+  R.personaje(262, 176, 26, { ...PERSONA(PALA.AZUL, PALA.PELO_NEGRO), t: t + 2, dir: -1, luz: { lado: -1, color: PALA.ANTORCHA[3] } });
+};
+const rio = (t) => {
+  noche(R, t, { luna: [70, 30, 11], hor: 100, colinas: false });
+  for (let k = 0; k < 8; k++) { const x0 = k * 42 - 10; R.poligono([[x0, 100], [x0 + 6, 88], [x0 + 34, 88], [x0 + 40, 100]], PALA.NEGRO[1]); R.poligono([[x0 + 2, 88], [x0 + 20, 80], [x0 + 38, 88]], PALA.CONTORNO); }
+  R.mar(t, { hor: 100, oleaje: 0.4 });
+  for (let k = 0; k < 9; k++) { const x = Math.round(((k * 41 + t * 6) % 360) - 20), y = 112 + (k % 4) * 15; R.halo(x, y + 6, 10, [PALA.ROJO[0], PALA.ROJO[1]], 0.5); R.rect(x - 2, y + 7, x + 2, y + 9, PALA.ROJO[1]); R.farolChino(x, y, t + k); }
+};
+rodar(E, R, [[0, cementerio], [T(0.4), vigilia], [T(0.72), rio]], {
+  año: 2026,
+  caja: (t, e) => R.caja(t, t > T(0.76) ? tramo(t, T(0.76), T(0.76) + 0.4) : 0, (x, y) => { R.icono('luna', x, y + 5, PR.NIEVE[3], PALA.CONTORNO); R.numero('15/7', x + 10, y + 12); }, { energia: e }),
+});
+</script>
+</body>
+</html>

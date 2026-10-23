@@ -1,0 +1,482 @@
+{
+ "serie": "ASK Atom",
+ "numero": 7,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Halloween in 10 Minutes: How a Celtic Night of the Dead Took Over the World",
+  "es": "Halloween en 10 minutos: cómo una noche celta de los muertos conquistó el mundo"
+ },
+ "principal": "en",
+ "voces": {
+  "en": {
+   "voz": "am_fenrir",
+   "lang": "en-us",
+   "velocidad": 0.85
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.92
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "hw-hola",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "hola",
+     "es": "Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase.",
+     "en": "Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you.",
+     "visual": "Una calle de noche con calabazas encendidas en los porches; la caja baja y Atom saluda."
+    }
+   ]
+  },
+  {
+   "id": "hw-gancho",
+   "estilo": "pixel",
+   "empieza_con": "cartela 31/10",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 2,
+     "marca": "puertas",
+     "es": "Es 31 de octubre. Millones de niños se disfrazan de monstruos y llaman a la puerta de desconocidos para pedirles caramelos. Si lo piensas un segundo, es rarísimo.",
+     "en": "It's October 31st. Millions of kids dress up as monsters and knock on strangers' doors to ask for candy. If you think about it for a second, that's really weird.",
+     "visual": "Niños disfrazados (bruja, fantasma, vampiro, calabaza) llaman a una puerta y les dan caramelos."
+    },
+    {
+     "n": 3,
+     "marca": "mundo",
+     "es": "Y no pasa solo en Estados Unidos: hay calabazas en Tokio, en Madrid, en Ciudad de México y en Seúl.",
+     "en": "And it's not just in the United States: there are pumpkins in Tokyo, in Madrid, in Mexico City and in Seoul.",
+     "visual": "Mapa del mundo en pergamino: calabacitas que se encienden en Tokio, Madrid, Ciudad de México y Seúl."
+    },
+    {
+     "n": 4,
+     "marca": "pregunta",
+     "es": "¿Cómo una noche celta de los muertos de hace dos mil años acabó convertida en una fiesta de caramelos en medio planeta? Es la historia de Halloween, y cabe en diez minutos.",
+     "en": "So how did a two-thousand-year-old Celtic night of the dead turn into a candy party on half the planet? This is the story of Halloween, and it fits in ten minutes.",
+     "visual": "Una hoguera celta a la izquierda y un cuenco de caramelos a la derecha; «?» en la caja.",
+     "es_voz": "¿Cómo una noche celta de los muertos de hace dos mil años acabó convertida en una fiesta de caramelos en medio planeta? Es la historia de jálouin, y cabe en diez minutos."
+    }
+   ],
+   "cartela": "31/10"
+  },
+  {
+   "id": "hw-mapa",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "mapa",
+     "es": "Primero, el mapa. Esto es el extremo noroeste de Europa: Irlanda, Escocia, Gales. Hace dos mil años vivían aquí los celtas: granjeros, pastores y guerreros, en un lugar frío donde el invierno da miedo de verdad.",
+     "en": "First, the map. This is the far northwest of Europe: Ireland, Scotland, Wales. Two thousand years ago, this is where the Celts lived: farmers, herders and warriors, in a cold place where winter is genuinely scary.",
+     "visual": "Zoom del mapa a Irlanda, Escocia y Gales; viento y nieve."
+    },
+    {
+     "n": 6,
+     "marca": "calendario",
+     "es": "Ahora el calendario. Para ellos el año no tenía cuatro estaciones, tenía dos mitades: la luminosa y la oscura. Y la mitad oscura empezaba más o menos cuando ahora es Halloween.",
+     "en": "Now the calendar. For them, the year didn't have four seasons. It had two halves: the light half and the dark half. And the dark half began roughly where Halloween is today.",
+     "visual": "Una rueda del año partida en mitad luminosa (sol) y mitad oscura (luna); el marcador entra en la oscura.",
+     "es_voz": "Ahora el calendario. Para ellos el año no tenía cuatro estaciones, tenía dos mitades: la luminosa y la oscura. Y la mitad oscura empezaba más o menos cuando ahora es jálouin."
+    }
+   ]
+  },
+  {
+   "id": "hw-samhain",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "samhain",
+     "es": "Esa noche se llamaba Samhain. Se acababa la cosecha, se bajaba el ganado de los montes y se encendían grandes hogueras.",
+     "en": "That night was called Samhain. The harvest was over, the cattle came down from the hills, and huge bonfires were lit.",
+     "visual": "De noche, una colina con hogueras; el ganado baja; gente con capas alrededor del fuego.",
+     "es_voz": "Esa noche se llamaba sáuin. Se acababa la cosecha, se bajaba el ganado de los montes y se encendían grandes hogueras.",
+     "en_voz": "That night was called Sow-in. The harvest was over, the cattle came down from the hills, and huge bonfires were lit."
+    },
+    {
+     "n": 8,
+     "marca": "puerta",
+     "es": "Las historias irlandesas cuentan que esa noche se abría la puerta al otro mundo: los muertos y los espíritus podían pasear entre los vivos.",
+     "en": "Irish stories tell that on that night the door to the otherworld opened: the dead and the spirits could walk among the living.",
+     "visual": "Un túmulo en la colina se abre con luz verde; figuras fantasmales pasean entre la gente."
+    }
+   ]
+  },
+  {
+   "id": "hw-ofrendas",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "comida",
+     "es": "Así que, según muchas versiones, la gente dejaba comida para los muertos, y quizá se disfrazaba para que los espíritus no la reconocieran.",
+     "en": "So, according to many versions, people left out food for the dead, and maybe wore disguises so the spirits wouldn't recognize them.",
+     "visual": "Platos de comida en las puertas; aldeanos con máscaras caminan entre fantasmas, que no los reconocen."
+    },
+    {
+     "n": 10,
+     "marca": "aviso",
+     "es": "Un aviso honesto: los celtas casi no escribían, y mucho de lo que sabemos lo apuntaron siglos después unos monjes. Los detalles son discutidos. La idea de fondo, no: una noche oscura, fuego, y los muertos muy cerca.",
+     "en": "An honest warning: the Celts barely wrote anything down, and much of what we know was recorded centuries later by monks. The details are debated. The core idea isn't: a dark night, fire, and the dead very close.",
+     "visual": "Un monje escribe a la luz de una vela siglos después; «?» en la caja."
+    }
+   ]
+  },
+  {
+   "id": "hw-santos",
+   "estilo": "pixel",
+   "empieza_con": "cartela 835",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "iglesia",
+     "es": "Luego llega el cristianismo. Y la Iglesia hace algo que hace a menudo: en vez de prohibir la fiesta antigua, pone una suya encima.",
+     "en": "Then Christianity arrives. And the Church does something it often does: instead of banning the old festival, it puts one of its own on top of it.",
+     "visual": "Una iglesia de piedra se levanta junto a la colina de las hogueras."
+    },
+    {
+     "n": 12,
+     "marca": "santos",
+     "es": "Hacia el año 835, el día de Todos los Santos, el uno de noviembre, se celebra ya en toda la Iglesia de Occidente. Y poco después, el día dos, el de los Fieles Difuntos: un día para rezar por todos los muertos.",
+     "en": "By around 835, All Saints' Day, on November first, is celebrated across the whole Western Church. And soon after, November second becomes All Souls' Day: a day to pray for all the dead.",
+     "visual": "Dentro, velas; en la caja, «1» y «2» de noviembre.",
+     "es_voz": "Hacia el año ochocientos treinta y cinco, el día de Todos los Santos, el uno de noviembre, se celebra ya en toda la Iglesia de Occidente. Y poco después, el día dos, el de los Fieles Difuntos: un día para rezar por todos los muertos.",
+     "en_voz": "By around eight thirty-five, All Saints' Day, on November first, is celebrated across the whole Western Church. And soon after, November second becomes All Souls' Day: a day to pray for all the dead."
+    }
+   ],
+   "cartela": "835"
+  },
+  {
+   "id": "hw-nombre",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "nombre",
+     "es": "En inglés antiguo, «santo» se decía hallow. La víspera de Todos los Santos era All Hallows' Eve. Abrévialo unos cuantos siglos, y tienes Halloween.",
+     "en": "In old English, a saint was a hallow. The night before All Saints' was All Hallows' Eve. Shorten it for a few centuries, and you get Halloween.",
+     "visual": "Una vidriera con santos con aureola; cae la noche sobre ella.",
+     "es_voz": "En inglés antiguo, «santo» se decía jálou. La víspera de Todos los Santos era ol jálous ív. Abrévialo unos cuantos siglos, y tienes jálouin."
+    },
+    {
+     "n": 14,
+     "marca": "misma",
+     "es": "Los muertos siguen en la misma fecha. Solo ha cambiado quién los invita.",
+     "en": "The dead are still on the same date. Only the host has changed.",
+     "visual": "Fantasmas que vuelven a pasear la misma noche, ahora bajo el campanario."
+    }
+   ]
+  },
+  {
+   "id": "hw-almas",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "almas",
+     "es": "En la Gran Bretaña medieval, los pobres van de casa en casa la noche de difuntos pidiendo «pasteles de alma». A cambio, prometen rezar por los muertos de esa familia. Te suena, ¿verdad?",
+     "en": "In medieval Britain, poor people go door to door on the night of the dead, asking for \"soul cakes\". In exchange, they promise to pray for the family's dead. Sounds familiar, right?",
+     "visual": "Una aldea medieval: gente pobre llama a las puertas y recibe pasteles redondos con una cruz."
+    },
+    {
+     "n": 16,
+     "marca": "disfraces",
+     "es": "En Escocia e Irlanda, los niños salen disfrazados, cantan o recitan algo en cada puerta, y les dan fruta o monedas.",
+     "en": "In Scotland and Ireland, kids go out in disguise, sing or recite something at each door, and get fruit or coins.",
+     "visual": "Niños escoceses disfrazados cantan en una puerta y reciben manzanas y monedas."
+    }
+   ]
+  },
+  {
+   "id": "hw-jack",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "jack",
+     "es": "Y en Irlanda tallan caras en nabos con una brasa dentro, por una leyenda: un tal Jack el Tacaño engañó al diablo tantas veces que, al morir, no lo querían ni en el cielo ni en el infierno.",
+     "en": "And in Ireland they carve faces into turnips with an ember inside, because of a legend: a man called Stingy Jack tricked the devil so many times that when he died, neither heaven nor hell would take him.",
+     "visual": "Jack engaña al diablo, que se queda subido a un árbol.",
+     "es_voz": "Y en Irlanda tallan caras en nabos con una brasa dentro, por una leyenda: un tal yak el Tacaño engañó al diablo tantas veces que, al morir, no lo querían ni en el cielo ni en el infierno."
+    },
+    {
+     "n": 18,
+     "marca": "farol",
+     "es": "Desde entonces vaga por la noche con un nabo hueco como farolillo. Jack del farol: jack-o'-lantern.",
+     "en": "Since then, he wanders the night with a hollow turnip as a lantern. Jack of the lantern: jack-o'-lantern.",
+     "visual": "Jack vaga de noche con un nabo tallado que brilla.",
+     "es_voz": "Desde entonces vaga por la noche con un nabo hueco como farolillo. yak del farol: yakoulántern."
+    }
+   ]
+  },
+  {
+   "id": "hw-hambruna",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1845",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 19,
+     "marca": "hambruna",
+     "es": "Y entonces, una tragedia. En 1845, una plaga destruye la cosecha de patatas en Irlanda. En pocos años muere alrededor de un millón de personas, y otro millón emigra, sobre todo a Estados Unidos.",
+     "en": "And then, a tragedy. In 1845, a blight destroys Ireland's potato crop. Within a few years, around a million people die, and another million emigrate, most of them to the United States.",
+     "visual": "Un campo de patatas se ennegrece; familias con hatillos suben a un barco; mapa del Atlántico con la ruta a Nueva York.",
+     "es_voz": "Y entonces, una tragedia. En mil ochocientos cuarenta y cinco, una plaga destruye la cosecha de patatas en Irlanda. En pocos años muere alrededor de un millón de personas, y otro millón emigra, sobre todo a Estados Unidos.",
+     "en_voz": "And then, a tragedy. In eighteen forty-five, a blight destroys Ireland's potato crop. Within a few years, around a million people die, and another million emigrate, most of them to the United States."
+    }
+   ],
+   "cartela": "1845"
+  },
+  {
+   "id": "hw-calabaza",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "calabaza",
+     "es": "Se llevan sus costumbres. Pero en América hay un problema: los nabos escasean. Y hay otra cosa, enorme, naranja y fácil de tallar, que crece allí y en ningún otro sitio del mundo antiguo: la calabaza.",
+     "en": "They bring their customs with them. But in America there's a problem: turnips are scarce. And there's something else, huge, orange and easy to carve, that grows there and nowhere in the old world: the pumpkin.",
+     "visual": "Una granja americana: un nabo pequeñito junto a una calabaza enorme; una familia talla la calabaza y se enciende."
+    }
+   ]
+  },
+  {
+   "id": "hw-gamberros",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "gamberros",
+     "es": "A principios del siglo veinte, Halloween en Estados Unidos es sobre todo gamberradas: verjas arrancadas, ventanas pintadas. Así que los pueblos lo intentan reconducir con fiestas y desfiles para los niños.",
+     "en": "In the early twentieth century, Halloween in the United States is mostly pranks: gates pulled off, windows painted. So towns try to tame it with parties and parades for kids.",
+     "visual": "Un pueblo de principios del siglo XX: gamberros arrancan una verja y pintan ventanas; luego un desfile infantil con farolillos.",
+     "es_voz": "A principios del siglo veinte, jálouin en Estados Unidos es sobre todo gamberradas: verjas arrancadas, ventanas pintadas. Así que los pueblos lo intentan reconducir con fiestas y desfiles para los niños."
+    }
+   ]
+  },
+  {
+   "id": "hw-truco",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1927",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "truco",
+     "es": "La primera vez que aparece por escrito «truco o trato» es en 1927, en un periódico de Canadá. Y después de la Segunda Guerra Mundial, con el fin del racionamiento del azúcar, las fábricas de caramelos descubren la noche más rentable del año.",
+     "en": "The first time \"trick or treat\" shows up in print is in 1927, in a Canadian newspaper. And after World War Two, once sugar rationing ends, candy companies discover the most profitable night of the year.",
+     "visual": "Niños de gorra llaman a una puerta en 1927; luego una fábrica con cintas de caramelos.",
+     "es_voz": "La primera vez que aparece por escrito «truco o trato» es en mil novecientos veintisiete, en un periódico de Canadá. Y después de la Segunda Guerra Mundial, con el fin del racionamiento del azúcar, las fábricas de caramelos descubren la noche más rentable del año.",
+     "en_voz": "The first time \"trick or treat\" shows up in print is in nineteen twenty-seven, in a Canadian newspaper. And after World War Two, once sugar rationing ends, candy companies discover the most profitable night of the year."
+    },
+    {
+     "n": 23,
+     "marca": "industria",
+     "es": "Hoy los estadounidenses se gastan más de diez mil millones de dólares cada Halloween. La fiesta de los pobres que pedían pasteles se ha convertido en una industria.",
+     "en": "Today, Americans spend more than ten billion dollars every Halloween. A festival of poor people begging for cakes has become an industry.",
+     "visual": "Una tienda llena de disfraces y caramelos; la caja registradora cuenta dólares.",
+     "es_voz": "Hoy los estadounidenses se gastan más de diez mil millones de dólares cada jálouin. La fiesta de los pobres que pedían pasteles se ha convertido en una industria."
+    }
+   ],
+   "cartela": "1927"
+  },
+  {
+   "id": "hw-mundo",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "peliculas",
+     "es": "Y desde Estados Unidos, las películas y la televisión lo exportan a todo el planeta. En Tokio se juntaba tanta gente disfrazada que el barrio de Shibuya ahora pide que no vayas.",
+     "en": "And from the United States, movies and TV export it to the whole planet. In Tokyo, so many people in costumes packed into Shibuya that the district now asks people not to come.",
+     "visual": "Una pantalla de cine con una calabaza; el mapa del mundo se llena de calabazas; una multitud disfrazada en Shibuya con una X."
+    }
+   ]
+  },
+  {
+   "id": "hw-muertos",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 25,
+     "marca": "otros",
+     "es": "Pero muchos países ya tenían su propia noche para los muertos, y justo por estas fechas.",
+     "en": "But many countries already had their own night for the dead, right around these dates.",
+     "visual": "Mapa del mundo: brillan México, España, Filipinas y China."
+    },
+    {
+     "n": 26,
+     "marca": "mexico",
+     "es": "En México, el Día de Muertos no es el Halloween mexicano: es una fiesta familiar y alegre, con altares, flores de cempasúchil y calaveras de azúcar, que mezcla tradiciones indígenas con el calendario católico. La UNESCO la declaró patrimonio de la humanidad.",
+     "en": "In Mexico, the Day of the Dead is not Mexican Halloween: it's a joyful family celebration, with altars, marigold flowers and sugar skulls, mixing Indigenous traditions with the Catholic calendar. UNESCO lists it as part of humanity's heritage.",
+     "visual": "Un altar de muertos con cempasúchil, velas, calaveras de azúcar y papel picado; una familia sonríe.",
+     "es_voz": "En México, el Día de Muertos no es el jálouin mexicano: es una fiesta familiar y alegre, con altares, flores de cempasúchil y calaveras de azúcar, que mezcla tradiciones indígenas con el calendario católico. La UNESCO la declaró patrimonio de la humanidad."
+    }
+   ]
+  },
+  {
+   "id": "hw-cementerios",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 27,
+     "marca": "cementerios",
+     "es": "En España y en buena parte de Latinoamérica, el uno de noviembre se llenan los cementerios de flores. En Filipinas, familias enteras pasan la noche junto a sus tumbas. Y en China, el festival de los fantasmas hambrientos tiene la misma idea, en otra época del año.",
+     "en": "In Spain and much of Latin America, cemeteries fill with flowers on November first. In the Philippines, whole families spend the night beside their graves. And in China, the Hungry Ghost Festival has the same idea, at another time of year.",
+     "visual": "Un cementerio con flores; una familia filipina con velas junto a una tumba; farolillos chinos en un río."
+    }
+   ]
+  },
+  {
+   "id": "hw-oscuridad",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "oscuridad",
+     "es": "¿Por qué tantas culturas piensan en la muerte justo cuando llega la oscuridad? Porque en el norte, cuando acaba la cosecha y las noches se alargan, es cuando el mundo parece morirse un poco.",
+     "en": "Why do so many cultures think about death just as the darkness arrives? Because in the north, when the harvest ends and the nights get longer, that's when the world seems to die a little.",
+     "visual": "Un globo con la noche que crece en el norte; un campo cosechado se oscurece."
+    },
+    {
+     "n": 29,
+     "marca": "sur",
+     "es": "Curiosamente, en el hemisferio sur estas fechas caen en plena primavera. El calendario viajó, pero el otoño se quedó en el norte.",
+     "en": "Funnily enough, in the southern hemisphere these dates fall in the middle of spring. The calendar traveled, but the autumn stayed in the north.",
+     "visual": "Pantalla partida: en el norte, hojas que caen; en el sur, flores que se abren."
+    }
+   ]
+  },
+  {
+   "id": "hw-dentro",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 30,
+     "marca": "ventana",
+     "es": "Así que la próxima vez que veas una calabaza en una ventana, piensa en todo lo que lleva dentro.",
+     "en": "So the next time you see a pumpkin in a window, think about everything that's inside it.",
+     "visual": "Una calabaza en una ventana; zoom hacia dentro."
+    },
+    {
+     "n": 31,
+     "marca": "dentro",
+     "es": "Una hoguera celta, una fiesta de la Iglesia, un nabo irlandés, un millón de emigrantes, una verdura americana y unas cuantas fábricas de caramelos.",
+     "en": "A Celtic bonfire, a Church holiday, an Irish turnip, a million emigrants, an American vegetable, and a few candy factories.",
+     "visual": "Dentro aparecen uno a uno: una hoguera, una iglesia, un nabo, un barco, una calabaza y un caramelo."
+    }
+   ]
+  },
+  {
+   "id": "hw-recuerdo",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 32,
+     "marca": "recuerdo",
+     "es": "Y una idea que tienen casi todos los pueblos: una noche al año para recordar a los que ya no están.",
+     "en": "And an idea almost every people shares: one night a year to remember the ones who are gone.",
+     "visual": "Velas en las ventanas de un pueblo de noche; familias que miran fotos."
+    }
+   ]
+  },
+  {
+   "id": "hw-atomos",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 33,
+     "marca": "atomos",
+     "es": "Por cierto, en algo los celtas tenían razón: los muertos están más cerca de lo que crees. Los átomos no se gastan. Pasan de unos seres vivos a otros, y es muy probable que algunos de los tuyos estuvieran antes en personas que vivieron hace siglos.",
+     "en": "By the way, the Celts were right about one thing: the dead are closer than you think. Atoms don't wear out. They pass from one living thing to another, and it's very likely that some of yours were once inside people who lived centuries ago.",
+     "visual": "Átomos que salen de una figura antigua y llegan flotando a un niño de hoy."
+    },
+    {
+     "n": 34,
+     "marca": "fantasma",
+     "es": "Así que este Halloween, no hace falta disfrazarse de fantasma. Un poco, ya lo llevas puesto.",
+     "en": "So this Halloween, you don't need to dress up as a ghost. A little bit of one, you're already wearing.",
+     "visual": "El niño disfrazado de fantasma sonríe; Atom brilla en su sábana.",
+     "es_voz": "Así que este jálouin, no hace falta disfrazarse de fantasma. Un poco, ya lo llevas puesto."
+    }
+   ]
+  },
+  {
+   "id": "hw-adios",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 35,
+     "marca": "adios",
+     "es": "¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios.",
+     "en": "What should I explain next? Tell me in the comments.",
+     "visual": "La calle de las calabazas; Atom en su caja con el «?»."
+    }
+   ]
+  }
+ ]
+}

@@ -221,6 +221,19 @@ export async function crearAventura(lienzo) {
       if (sb === 'laurel') for (let k = 0; k < 6; k++) { const x = hx - cab * 0.95 + k * cab * 0.28; elipse(x, hy - cab * 0.82, cab * 0.14, cab * 0.1, LR, 2.2); }
       else put(hx + cab * 0.3, hy - cab * 0.8, PALA.ROJO, 2.5);
       trazo(hx - cab * 1.0, hy - cab * 0.65, hx - cab * 1.3, hy - cab * 0.1 + Math.sin(t * 3) * cab * 0.08, cab * 0.14, LR, 1.4);   // cintas detrás
+    } else if (sb === 'bruja') {
+      const c = o.colorSombrero ?? PALA.NEGRO;
+      for (let x = -cab * 1.7; x <= cab * 1.7; x += 0.5) put(x + hx, hy - cab * 0.7, c, 1.6);
+      for (let y = hy - cab * 2.8; y <= hy - cab * 0.7; y += 0.5) { const f = (y - (hy - cab * 2.8)) / (cab * 2.1), w = cab * 0.9 * f; for (let x = -w; x <= w; x += 0.5) put(x + hx - (1 - f) * cab * 0.5, y, c, 1.4); }
+      for (let x = -cab * 0.9; x <= cab * 0.9; x += 0.5) put(x + hx, hy - cab * 0.95, PALA.MORADO, 2.2);
+    } else if (sb === 'capucha') {
+      const c = o.colorSombrero ?? PALA.MARRON;
+      for (let y = hy - cab * 1.2; y <= hy + cab * 0.9; y += 0.5) for (let x = -cab * 1.2; x <= cab * 0.2; x += 0.5) if ((x / (cab * 1.2)) ** 2 + ((y - hy + cab * 0.1) / (cab * 1.15)) ** 2 <= 1) put(x + hx, y, c, 1.3);
+      for (let x = -cab * 0.6; x <= cab * 0.75; x += 0.5) put(x + hx, hy - cab * 1.05, c, 1.5);
+    } else if (sb === 'cuernos') {
+      for (const s_ of [-1, 1]) trazo(hx + s_ * cab * 0.5, hy - cab * 0.8, hx + s_ * cab * 0.9, hy - cab * 1.6, Math.max(1, cab * 0.25), PALA.MARRON, 2);
+    } else if (sb === 'torques') {
+      for (let x = -cab * 0.5; x <= cab * 0.5; x += 0.5) put(x + hx, cuelloY + cab * 0.15, PALA.ORO, 2.4);
     } else if (sb === 'gorro') {
       for (let y = hy - cab * 1.6; y <= hy - cab * 0.6; y += 0.5) for (let x = -cab * 0.95; x <= cab * 0.95 - (hy - cab * 0.6 - y) * 0.5; x += 0.5) put(x + hx, y, o.colorSombrero ?? PALA.ROJO, 1.6);
     }
@@ -407,5 +420,15 @@ export const ELENCO = {
   alejandro: { peinado: 'rizos', pelo: PALA.PELO_RUBIO, chaqueta: PALA.BRONCE, camisa: PALA.BRONCE, falda: PALA.MORADO, largoFalda: 0.2, capa: PALA.MORADO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.ORO },
   zeus: { peinado: 'largo', pelo: PALA.PELO_BLANCO, barba: 'poblada', chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, falda: PALA.BLANCO, largoFalda: 0.4, banda: PALA.ORO, capa: PALA.AZUL, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.ORO, sombrero: 'laurel', colorLaurel: PALA.ORO, objeto: 'rayo' },
   hercules: { peinado: 'corto', pelo: PALA.PELO_NEGRO, barba: 'poblada', chaqueta: PALA.PIEL, camisa: PALA.PIEL, falda: PALA.MARRON, largoFalda: 0.2, capa: PALA.AMARILLO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARRON, objeto: 'maza' },
+  // ── Halloween (episodio 7)
+  celta: { peinado: 'largo', pelo: PALA.PELO_ROJO, barba: 'bigote', chaqueta: PALA.VERDE, camisa: PALA.VERDE, pantalon: PALA.MARRON, botas: PALA.MARRON, capa: PALA.ROJO, chaqueta_larga: false, faja: PALA.ORO, sombrero: 'torques' },
+  celta2: { peinado: 'coleta', pelo: PALA.PELO_RUBIO, chaqueta: PALA.AZUL, camisa: PALA.AZUL, falda: PALA.AZUL, largoFalda: 0.42, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, botas: PALA.MARRON, capa: PALA.VERDE, chaqueta_larga: false, faja: PALA.ORO, sombrero: 'torques' },
+  monje: { peinado: 'calvo', pelo: PALA.PELO_CASTANO, chaqueta: PALA.MARRON, camisa: PALA.MARRON, falda: PALA.MARRON, largoFalda: 0.44, antebrazo: PALA.MARRON, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.BLANCO, sombrero: 'capucha', colorSombrero: PALA.MARRON },
+  diablo: { peinado: 'corto', pelo: PALA.PELO_NEGRO, barba: 'perilla', piel: PALA.ROJO, chaqueta: PALA.NEGRO, camisa: PALA.ROJO, pantalon: PALA.NEGRO, botas: PALA.NEGRO, capa: PALA.ROJO, chaqueta_larga: true, sombrero: 'cuernos' },
+  jack: { peinado: 'corto', pelo: PALA.PELO_ROJO, barba: 'perilla', chaqueta: PALA.VERDE, camisa: PALA.BLANCO, pantalon: PALA.MARRON, botas: PALA.MARRON, chaqueta_larga: true, sombrero: 'gorro', colorSombrero: PALA.MARRON },
+  pobre: { peinado: 'corto', pelo: PALA.PELO_CASTANO, chaqueta: PALA.MARRON, camisa: PALA.MARRON, falda: PALA.MARRON, largoFalda: 0.3, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, botas: PALA.MARRON, chaqueta_larga: false, faja: PALA.MARRON, sombrero: 'capucha', colorSombrero: PALA.NEGRO },
+  bruja: { peinado: 'largo', pelo: PALA.PELO_NEGRO, chaqueta: PALA.NEGRO, camisa: PALA.MORADO, falda: PALA.NEGRO, largoFalda: 0.4, antebrazo: PALA.NEGRO, pantalon: PALA.NEGRO, botas: PALA.NEGRO, chaqueta_larga: false, faja: PALA.MORADO, sombrero: 'bruja' },
+  vampiro: { peinado: 'corto', pelo: PALA.PELO_NEGRO, chaqueta: PALA.NEGRO, camisa: PALA.BLANCO, pantalon: PALA.NEGRO, botas: PALA.NEGRO, capa: PALA.ROJO, chaqueta_larga: true },
+  disfrazCalabaza: { peinado: 'corto', pelo: PALA.PELO_CASTANO, chaqueta: pal(['#5a1e08', '#a8400e', '#e0741c', '#ffa83a']), camisa: pal(['#5a1e08', '#a8400e', '#e0741c', '#ffa83a']), pantalon: PALA.VERDE, botas: PALA.NEGRO, chaqueta_larga: false, sombrero: 'gorro', colorSombrero: PALA.VERDE },
   barbaro: { peinado: 'largo', pelo: PALA.PELO_RUBIO, barba: 'bigote', chaqueta: PALA.VERDE, camisa: PALA.VERDE, pantalon: PALA.MARRON, botas: PALA.PIELES, capa: PALA.PIELES, capaCorta: true, chaqueta_larga: false, antebrazo: PALA.PIEL },
 };

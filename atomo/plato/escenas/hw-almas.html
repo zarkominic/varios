@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Almas · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-ALMAS (frases 15–16). Una calle medieval: unos pobres llaman a una puerta y reciben pasteles redondos con una
+// cruz; en la caja, «pastel = caramelo ?». Luego unos niños escoceses disfrazados (máscaras y una sábana) cantan en una
+// puerta (notas) y reciben manzanas y monedas.
+import { preparar, rodar, noche, casa, sueloNoche, pastel } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-almas');
+const { PALA, PR, ELENCO, tramo, lerp, sale } = R;
+const m = { alm: M('almas', 0.5), dis: M('disfraces', 10) };
+const La = m.dis - m.alm;
+const mascara = (r, c) => { const [x, y] = r.cabeza; R.rect(x - 2, y - 2, x + 3, y + 1, c); R.pset(x - 1, y - 1, PALA.CONTORNO); R.pset(x + 2, y - 1, PALA.CONTORNO); };
+const nota = (x, y) => { R.rect(x + 2, y - 5, x + 2, y, PALA.BLANCO[3]); R.rect(x + 2, y - 5, x + 4, y - 5, PALA.BLANCO[3]); R.disco(x + 1, y, 1, PALA.BLANCO[3]); };
+const calle = (t, ab) => {
+  noche(R, t, { luna: [150, 28, 10], murcielagos: 2 });
+  casa(R, 84, 148, t, { medieval: true, w: 32, h: 34 });
+  const px = casa(R, 236, 148, t, { medieval: true, w: 36, h: 38, abierta: ab, puertaX: -20 });
+  sueloNoche(R, 149, { losas: true, rampa: PR.ROCA, luz: 0.9 });
+  return px;
+};
+const almas = (t) => {
+  const u = t - m.alm, ab = tramo(u, 3, 3.6), llega = sale(tramo(u, 0, 3));
+  const px = calle(t, ab);
+  if (ab > 0.5) { const r = R.personaje(px, 148, 28, { ...ELENCO.monje, peinado: 'corto', sombrero: undefined, chaqueta: PALA.ROJO, camisa: PALA.ROJO, falda: PALA.ROJO, t, dir: -1, pose: 'ofrece', sombra: false }); if (u > 4) pastel(R, r.mano[0], r.mano[1]); }
+  for (let k = 0; k < 3; k++) { const x = Math.round(lerp(-20 - k * 22, px - 22 - k * 20, llega)); const r = R.personaje(x, 164, 22, { ...ELENCO.pobre, t: t + k, anda: llega < 1 ? t * 7 + k : undefined, brazoD: llega >= 1 && k === 0 ? 'ofrece' : k === 2 && u > 6 ? 'cara' : undefined }); if (k === 0 && u > 4.8) pastel(R, r.mano[0], r.mano[1]); }
+};
+const disfraces = (t) => {
+  const u = t - m.dis, ab = tramo(u, 1.2, 1.8);
+  const px = calle(t, ab);
+  if (ab > 0.5) { const r = R.personaje(px, 148, 28, { peinado: 'coleta', pelo: PALA.PELO_ROJO, chaqueta: PALA.VERDE, camisa: PALA.BLANCO, falda: PALA.VERDE, largoFalda: 0.4, pantalon: PALA.VERDE, chaqueta_larga: false, t, dir: -1, pose: 'ofrece', sonrisa: true, sombra: false }); if (u > 3) { const f = (u * 0.8) % 1; const [hx, hy] = r.mano; R.disco(Math.round(lerp(hx, px - 30, f)), Math.round(lerp(hy, 150, f) - Math.sin(f * Math.PI) * 10), 2, f * 10 % 2 < 1 ? PALA.ROJO[2] : PALA.ORO[3]); } }
+  const NI = [{ chaqueta: PALA.AZUL, mask: PALA.BLANCO[3] }, null, { chaqueta: PALA.MARRON, mask: PALA.NEGRO[1] }];
+  NI.forEach((n, k) => {
+    const x = px - 30 - k * 20;
+    if (!n) return R.fantasma(x, 160, 0.75, t + k);
+    mascara(R.personaje(x, 164, 19, { peinado: 'corto', pelo: PALA.PELO_ROJO, chaqueta: n.chaqueta, camisa: PALA.BLANCO, pantalon: PALA.MARRON, botas: PALA.MARRON, chaqueta_larga: false, t: t + k, brazoD: 'cara' }), n.mask);
+  });
+  for (let k = 0; k < 4; k++) { const f = (t * 0.5 + k / 4) % 1; nota(Math.round(px - 70 + k * 12 + Math.sin(t * 2 + k) * 3), Math.round(140 - f * 34)); }
+};
+rodar(E, R, [[0, almas], [m.dis - 0.2, disfraces]], {
+  año: (t) => (t < m.dis ? 1400 : 1800),
+  caja: (t, e) => R.caja(t, t > m.alm + 0.72 * La && t < m.dis - 0.2 ? tramo(t, m.alm + 0.72 * La, m.alm + 0.72 * La + 0.4) : 0, (x, y) => { R.disco(x + 6, y + 8, 6, PALA.ORO[2]); R.rect(x + 2, y + 8, x + 10, y + 8, PALA.MARRON[1]); R.rect(x + 6, y + 4, x + 6, y + 12, PALA.MARRON[1]); R.numero('=', x + 16, y + 12); R.icono('caramelo', x + 28, y + 1, PALA.ROJO[3], PALA.CONTORNO, 2); R.icono('?', x + 48, y + 1, undefined, undefined, 2); }, { energia: e }),
+});
+</script>
+</body>
+</html>

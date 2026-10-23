@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jack · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-JACK (frases 17–18). La leyenda de Jack el Tacaño: el diablo se ha quedado atrapado en lo alto de un árbol seco
+// (Jack ha tallado una cruz en el tronco) y Jack se ríe abajo. Luego Jack vaga de noche entre la niebla con un nabo
+// hueco tallado y una brasa dentro como farolillo.
+import { preparar, rodar, noche, arbolSeco, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-jack');
+const { PALA, ELENCO, tramo, lerp } = R;
+const m = { jac: M('jack', 0.5), far: M('farol', 10) };
+const arbol = (t) => {
+  const u = t - m.jac;
+  noche(R, t, { luna: [250, 34, 14], hor: 150, murcielagos: 2 });
+  sueloNoche(R, 150);
+  arbolSeco(R, 180, 152, 2);
+  R.personaje(196, 92, 22, { ...ELENCO.diablo, t, pose: 'brazos', sombra: false });
+  if (u > 1.5) { R.rect(178, 128, 182, 128, PALA.BLANCO[3]); R.rect(180, 125, 180, 134, PALA.BLANCO[3]); }
+  R.personaje(130, 162, 24, { ...ELENCO.jack, t, pose: u > 2 ? 'senala' : undefined, sonrisa: true });
+  R.niebla(t, 144, 176, 0.8, 4);
+};
+const farol = (t) => {
+  const u = t - m.far;
+  noche(R, t, { luna: [60, 30, 11], hor: 150 });
+  sueloNoche(R, 150);
+  arbolSeco(R, 250, 150, 1.4); arbolSeco(R, 40, 150, 1);
+  const x = Math.round(lerp(60, 240, tramo(u, 0, E.duracion - m.far)));
+  const r = R.personaje(x, 160, 24, { ...ELENCO.jack, t, anda: t * 5, brazoD: 'ofrece', luz: { lado: 1, color: PALA.ANTORCHA[3] } });
+  R.nabo(r.mano[0] + 3, r.mano[1] + 9, 0.8, t);
+  R.niebla(t, 142, 178, 1, 5);
+};
+rodar(E, R, [[0, arbol], [m.far - 0.2, farol]], { año: 1800 });
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Truco · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-TRUCO (frases 22–23). Cartela «1927». Niños con gorra y disfraz llaman a una puerta y les dan caramelos. Luego una
+// fábrica: una cinta llena de caramelos y engranajes que giran. Al final una tienda llena de disfraces, calabazas y
+// bolsas de caramelos; la caja registradora suma: «$10000000000».
+import { preparar, rodar, noche, casa, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-truco');
+const { PALA, PR, ELENCO, NARANJA, tramo, lerp, sale } = R;
+const m = { tru: M('truco', 1.5), ind: M('industria', 12) };
+const T2 = m.tru + 0.42 * (m.ind - m.tru);
+const COLORES = [PALA.ROJO, PALA.AZUL, PALA.VERDE, PALA.AMARILLO, PALA.MORADO];
+const dulce = (x, y, c) => { x = Math.round(x); y = Math.round(y); R.rect(x - 1, y - 1, x + 1, y + 1, c[2]); R.pset(x - 2, y - 1, c[1]); R.pset(x - 2, y + 1, c[1]); R.pset(x + 2, y - 1, c[1]); R.pset(x + 2, y + 1, c[1]); R.pset(x, y - 1, c[3]); };
+const GORRA = { peinado: 'corto', pelo: PALA.PELO_CASTANO, chaqueta: PALA.MARRON, camisa: PALA.BLANCO, pantalon: PALA.MARRON, botas: PALA.NEGRO, chaqueta_larga: false, sombrero: 'gorro', colorSombrero: PALA.MARRON };
+const puerta = (t) => {
+  const u = t - m.tru, ab = tramo(u, 1.6, 2.2), llega = sale(tramo(u, 0, 1.6));
+  noche(R, t, { murcielagos: 2 });
+  const px = casa(R, 220, 148, t, { w: 42, h: 42, abierta: ab, puertaX: -22, pared: [PALA.CONTORNO, PALA.MARRON[0], PALA.MARRON[1], PALA.MARRON[2]] });
+  sueloNoche(R, 151);
+  R.calabaza(270, 150, 0.7, t);
+  if (ab > 0.5) R.personaje(px, 148, 30, { peinado: 'corto', pelo: PALA.PELO_BLANCO, barba: 'bigote', chaqueta: PALA.NEGRO, camisa: PALA.BLANCO, pantalon: PALA.NEGRO, t, dir: -1, pose: 'ofrece', sonrisa: true, sombra: false });
+  for (let k = 0; k < 3; k++) R.personaje(Math.round(lerp(-20 - k * 22, px - 24 - k * 22, llega)), 162, 20, { ...GORRA, ...(k === 1 ? { chaqueta: PALA.NEGRO, capa: PALA.ROJO } : {}), colorSombrero: [PALA.MARRON, PALA.NEGRO, PALA.AZUL][k], t: t + k, anda: llega < 1 ? t * 9 + k : undefined, brazoD: llega >= 1 && ab > 0.5 ? 'ofrece' : undefined, sonrisa: true });
+};
+const fabrica = (t) => {
+  const u = t - T2;
+  R.ambiente({ luz: { lado: 1, color: PALA.AMARILLO[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[160, 60]], suelo: 150, tipo: 'piedra', radio: 220 });
+  for (const [x, y, r, s] of [[60, 70, 18, 1], [100, 54, 12, -1.5], [250, 66, 16, -1]]) { R.disco(x, y, r, PR.ROCA[1]); R.disco(x, y, r - 4, PR.ROCA[2]); for (let k = 0; k < 8; k++) { const a = t * s + k * Math.PI / 4; R.disco(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r), 2, PR.ROCA[1]); } R.disco(x, y, 3, PALA.CONTORNO); }
+  R.rect(0, 118, R.W, 124, PALA.CONTORNO); R.rect(0, 117, R.W, 117, PR.ROCA[3]);
+  for (let x = 0; x < R.W; x += 10) R.disco(Math.round(x + (t * 20) % 10), 121, 2, PR.ROCA[2]);
+  for (let k = 0; k < 24; k++) dulce(((k * 14 + t * 20) % 340) - 10, 114, COLORES[k % 5]);
+  R.rect(140, 80, 190, 112, PR.ROCA[2]); R.rect(144, 84, 186, 96, PALA.CONTORNO); R.halo(165, 90, 14, [PALA.AMARILLO[1], PALA.AMARILLO[2]], 0.6 + 0.3 * Math.sin(t * 6));
+  for (let k = 0; k < 3; k++) R.personaje(60 + k * 90, 174, 24, { peinado: 'corto', pelo: [PALA.PELO_NEGRO, PALA.PELO_RUBIO, PALA.PELO_CASTANO][k], chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, pantalon: PALA.AZUL, chaqueta_larga: false, sombrero: 'gorro', colorSombrero: PALA.BLANCO, t: t + k, brazoD: 'ofrece', dir: k === 2 ? -1 : 1 });
+};
+const tienda = (t) => {
+  R.ambiente({ luz: { lado: 1, color: PALA.AMARILLO[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[160, 50]], suelo: 150, tipo: 'madera', radio: 240 });
+  for (const y of [60, 92, 124]) R.rect(20, y, 300, y + 3, PR.MADERA[1]);
+  for (let k = 0; k < 9; k++) { const x = 34 + k * 31; R.calabaza(x, 60, 0.55, t + k, { luz: false }); R.poligono([[x - 6, 92], [x + 6, 92], [x, 76]], [PALA.MORADO, PALA.NEGRO][k % 2][2]); R.rect(x - 8, 92, x + 8, 93, [PALA.MORADO, PALA.NEGRO][k % 2][1]); for (let j = 0; j < 4; j++) dulce(x - 6 + j * 4, 121 - (j % 2) * 3, COLORES[(k + j) % 5]); }
+  R.rect(210, 132, 300, 150, PR.MADERA[2]); R.rect(240, 118, 270, 132, PR.ROCA[2]); R.rect(244, 121, 266, 126, PALA.VERDE[0]); R.numero('$', 255, 128, { centro: true });
+  R.personaje(140, 172, 22, { ...ELENCO.bruja, t, objeto: 'bolsa' });
+  R.personaje(182, 172, 18, { ...ELENCO.disfrazCalabaza, t: t + 1, sonrisa: true });
+};
+rodar(E, R, [[0, puerta], [T2, fabrica], [m.ind - 0.2, tienda]], {
+  cartela: '1927', año: (t) => (t < T2 ? 1927 : t < m.ind ? 1947 : 2026),
+  caja: (t, e) => R.caja(t, t > m.ind + 0.6 ? tramo(t, m.ind + 0.6, m.ind + 1) : 0, (x, y) => R.numero('$' + String(Math.round(10000000000 * Math.min(1, R.tramo(t, m.ind + 1, m.ind + 3)))), x + 2, y + 12), { energia: e, x0: 172, x1: 314, y: 24 }),
+});
+</script>
+</body>
+</html>

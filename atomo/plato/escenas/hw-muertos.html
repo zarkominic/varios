@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Muertos · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-MUERTOS (frases 25–26). El mapa del mundo: se encienden velas en México, España, Latinoamérica, Filipinas y China.
+// Luego un altar de muertos con cempasúchil, velas, calaveras de azúcar, fotos y papel picado, y una familia que sonríe;
+// un camino de pétalos naranjas. Al final, en la caja, el globo y «2008» (la UNESCO).
+import { preparar, rodar } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-muertos');
+const { PALA, PR, NARANJA, tramo, lerp } = R;
+const m = { otr: M('otros', 0.5), mex: M('mexico', 8) };
+const Lm = E.duracion - m.mex;
+const SITIOS = [[-99.1, 19.4], [-3.7, 40.4], [-77, -12], [-74, 4.6], [121, 14.6], [116.4, 39.9], [-90.5, 14.6]];
+const mapa = (t) => {
+  const u = t - m.otr;
+  R.cielo(t, { hor: 180, semilla: 8, n: 120 });
+  R.pergamino(18, 26, 302, 164, { semilla: 6 });
+  const pj = R.proyector(26, 32, 294, 158, -170, 180, -56, 76);
+  R.recorte([21, 29, 299, 161]); R.mundo(pj, { tierra: 2.4 }); R.recorte(null);
+  SITIOS.forEach(([lo, la], k) => { if (u < 0.6 + k * 0.6) return; const [x, y] = pj(lo, la).map(Math.round); R.vela(x, y - 3, t + k, { r: 9, alto: 4 }); });
+};
+const FAMILIA = [[70, 30, { peinado: 'coleta', pelo: PALA.PELO_NEGRO, chaqueta: PALA.ROJO, camisa: PALA.BLANCO, falda: PALA.ROJO, largoFalda: 0.4, pantalon: PALA.ROJO, chaqueta_larga: false }], [92, 18, { peinado: 'corto', pelo: PALA.PELO_NEGRO, chaqueta: PALA.AMARILLO, camisa: PALA.BLANCO, pantalon: PALA.AZUL, chaqueta_larga: false }], [254, 30, { peinado: 'corto', pelo: PALA.PELO_BLANCO, barba: 'bigote', chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, pantalon: PALA.MARRON, chaqueta_larga: false, sombrero: 'gorro', colorSombrero: PALA.ORO }]];
+const altar = (t) => {
+  R.ambiente({ luz: { lado: 1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[160, 100]], suelo: 160, tipo: 'madera', radio: 190 });
+  R.altar(160, 158, t, { w: 64 });
+  for (let k = 0; k < 18; k++) { const x = 160 + Math.round(Math.sin(k * 0.7) * 6) - 2, y = 162 + k; R.pset(x + (k % 3), y, NARANJA[3]); R.pset(x + 2 - (k % 2), y, NARANJA[2]); }
+  for (const [x, h, el] of FAMILIA) R.personaje(x, 176, h, { ...el, piel: PALA.PIEL[2] ? PALA.PIEL : PALA.PIEL, t: t + x, dir: x < 160 ? 1 : -1, sonrisa: true, brazoD: x === 254 ? 'ofrece' : undefined });
+};
+rodar(E, R, [[0, mapa], [m.mex - 0.2, altar]], {
+  año: 2026,
+  caja: (t, e) => R.caja(t, t > m.mex + 0.78 * Lm ? tramo(t, m.mex + 0.78 * Lm, m.mex + 0.78 * Lm + 0.4) : 0, (x, y) => { R.icono('globo', x, y + 5, PALA.AZUL[3], PALA.CONTORNO); R.numero('2008', x + 12, y + 12); }, { energia: e }),
+});
+</script>
+</body>
+</html>

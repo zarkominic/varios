@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Atomos · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-ATOMOS (frases 33–34). A la izquierda, un celta de hace siglos, pálido como un recuerdo; de él salen átomos que
+// cruzan la pantalla y llegan a un chico de hoy, a la derecha, mientras la barra de tiempo corre de los celtas a hoy.
+// Luego ese chico, disfrazado de fantasma con una sábana, sonríe ante su puerta; Atom brilla en su sábana.
+import { preparar, rodar, noche, casa, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-atomos');
+const { PALA, ELENCO, VERDEF, tramo, lerp } = R;
+const m = { ato: M('atomos', 0.5), fan: M('fantasma', 12) };
+const La = m.fan - m.ato;
+const viaje = (t) => {
+  const u = t - m.ato;
+  noche(R, t, { luna: [160, 30, 10], hor: 150 });
+  sueloNoche(R, 150);
+  R.personaje(64, 164, 30, { ...ELENCO.celta, chaqueta: VERDEF, camisa: VERDEF, pantalon: VERDEF, botas: VERDEF, capa: VERDEF, pelo: VERDEF, piel: VERDEF, faja: VERDEF, t, sombra: false, luz: undefined });
+  R.personaje(256, 164, 26, { peinado: 'corto', pelo: PALA.PELO_NEGRO, chaqueta: PALA.ROJO, camisa: PALA.BLANCO, pantalon: PALA.AZUL, botas: PALA.BLANCO, chaqueta_larga: false, t, dir: -1, sonrisa: u > 0.8 * La });
+  for (let k = 0; k < 8; k++) { const f = tramo(u, 0.25 * La + k * 0.4, 0.25 * La + k * 0.4 + 3.2); if (f <= 0 || f >= 1) continue; const x = Math.round(lerp(70, 252, f)), y = Math.round(lerp(130, 128, f) - Math.sin(f * Math.PI) * (36 + k * 4)); R.atomo(x, y, t + k, { r: 4 }); }
+};
+const fantasma = (t) => {
+  noche(R, t, { luna: [50, 30, 11], murcielagos: 2 });
+  casa(R, 240, 148, t, { w: 40, h: 40, abierta: 1, puertaX: -20 });
+  sueloNoche(R, 151);
+  R.calabaza(280, 150, 0.8, t);
+  R.fantasma(150, 166, 1.5, t);
+  const b = Math.round(Math.sin(t * 2 + 150) * 3);
+  R.rect(147, 166 - 21 + b, 153, 166 - 21 + b, PALA.CONTORNO); R.pset(146, 166 - 22 + b, PALA.CONTORNO); R.pset(154, 166 - 22 + b, PALA.CONTORNO);
+  R.halo(150, 166 - 10 + b, 10, [PALA.AZUL[1], PALA.AZUL[2]], 0.6);
+  R.atomo(150, 166 - 10 + b, t, { r: 5, energia: 0.8 });
+};
+rodar(E, R, [[0, viaje], [m.fan - 0.2, fantasma]], {
+  año: (t) => (t < m.fan ? Math.round(lerp(-100, 2026, tramo(t, m.ato + 0.25 * La, m.ato + 0.25 * La + 6))) : 2026),
+  barra: (t) => ({ numero: t > m.ato + 0.25 * La + 6 }),
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gamberros · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-GAMBERROS (frase 21). Un pueblo de principios del siglo XX: dos gamberros con gorra arrancan la verja de una casa y
+// pintarrajean una ventana. Luego, la misma calle con un desfile de niños disfrazados con farolillos de calabaza y
+// guirnaldas de banderines.
+import { preparar, rodar, noche, casa, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-gamberros');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('gamberros', 0.5), L = E.duracion - m0, T = (f) => m0 + f * L;
+const GORRA = { peinado: 'corto', chaqueta: PALA.MARRON, camisa: PALA.BLANCO, pantalon: PALA.AZUL, botas: PALA.NEGRO, chaqueta_larga: false, sombrero: 'gorro', colorSombrero: PALA.NEGRO };
+const calle = (t) => {
+  noche(R, t, { luna: [40, 28, 10] });
+  casa(R, 110, 140, t, { w: 36, h: 36 });
+  casa(R, 250, 140, t, { w: 32, h: 32, pared: [PALA.CONTORNO, PALA.ROJO[0], PALA.ROJO[1], PALA.ROJO[2]], luz: 0.6 });
+  sueloNoche(R, 143, { losas: true, rampa: PR.ROCA, luz: 1 });
+};
+const vallas = (x0, x1, y) => { for (let x = x0; x <= x1; x += 5) { R.rect(x, y - 10, x + 2, y, PALA.BLANCO[2]); R.pset(x + 1, y - 11, PALA.BLANCO[3]); } R.rect(x0, y - 7, x1 + 2, y - 7, PALA.BLANCO[1]); };
+const gamberradas = (t) => {
+  const u = t - m0;
+  calle(t);
+  vallas(30, 80, 150); vallas(116, 170, 150);
+  const g = tramo(u, 1.5, 4);
+  if (g < 0.75) { const c = Math.cos(g / 0.75 * 1.3); for (let i = 0; i <= 30; i += 5) { const x = Math.round(84 + i * c); R.rect(x, 140, x + 1, 150, PALA.BLANCO[2]); } R.rect(84, 143, Math.round(84 + 30 * c) + 1, 143, PALA.BLANCO[1]); }
+  else for (let i = 0; i <= 30; i += 5) R.rect(118 + i, 166, 119 + i, 168, PALA.BLANCO[2]);
+  R.personaje(Math.round(lerp(126, 140, g)), 164, 22, { ...GORRA, pelo: PALA.PELO_ROJO, t, brazoD: 'ofrece', brazoI: 'ofrece' });
+  const n = Math.floor(tramo(u, 2, 0.5 * L) * 7);
+  for (let k = 0; k < n; k++) R.linea(268 + (k % 2) * 3, 108 + k * 2, 276 - (k % 2) * 3, 112 + k * 2, PALA.BLANCO[3]);
+  R.personaje(258, 160, 22, { ...GORRA, pelo: PALA.PELO_NEGRO, chaqueta: PALA.VERDE, t: t + 2, pose: 'senala', dir: 1 });
+};
+const desfile = (t) => {
+  const u = t - T(0.55);
+  calle(t);
+  for (let k = 0; k < 14; k++) { const x = 4 + k * 23, y = 50 + Math.round(Math.sin(k * 0.9) * 3); R.poligono([[x, y], [x + 8, y], [x + 4, y + 7]], [PALA.ROJO, PALA.AMARILLO, PALA.AZUL][k % 3][2]); }
+  R.linea(0, 50, R.W, 50, PALA.BLANCO[1]);
+  const TIPOS = [ELENCO.bruja, null, ELENCO.vampiro, ELENCO.disfrazCalabaza, ELENCO.bruja, null];
+  TIPOS.forEach((el, k) => {
+    const x = Math.round(((u * 16 + k * 44) % 380) - 40);
+    if (!el) return R.fantasma(x, 162, 0.75, t + k);
+    const r = R.personaje(x, 166, 20, { ...el, t: t + k, anda: t * 7 + k, brazoD: 'ofrece', sonrisa: true });
+    R.calabaza(r.mano[0] + 3, r.mano[1] + 6, 0.35, t + k);
+  });
+};
+rodar(E, R, [[0, gamberradas], [T(0.55), desfile]], { año: (t) => (t < T(0.55) ? 1910 : 1925) });
+</script>
+</body>
+</html>

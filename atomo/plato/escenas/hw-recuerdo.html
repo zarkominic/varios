@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Recuerdo · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-RECUERDO (frase 32). Un pueblo de noche con una vela en cada ventana; luego, dentro de una casa, una familia ante una
+// mesa con fotos enmarcadas, velas y flores: recuerdan a los que ya no están.
+import { preparar, rodar, noche, casa, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-recuerdo');
+const { PALA, PR, NARANJA, tramo } = R;
+const m0 = M('recuerdo', 0.5), L = E.duracion - m0, T = (f) => m0 + f * L;
+const pueblo = (t) => {
+  noche(R, t, { luna: [260, 30, 12], hor: 150 });
+  for (const [x, w, h, c] of [[50, 26, 30, PALA.AZUL], [130, 30, 38, PALA.VERDE], [212, 26, 30, PALA.MORADO], [290, 26, 34, PALA.MARRON]]) casa(R, x, 148, t, { w, h, pared: [PALA.CONTORNO, c[0], c[1], c[2]] });
+  sueloNoche(R, 150);
+  R.niebla(t, 144, 176, 0.7, 4);
+};
+const FOTOS = [[118, PALA.PELO_BLANCO], [146, PALA.PELO_NEGRO], [174, PALA.PELO_CASTANO], [202, PALA.PELO_BLANCO]];
+const mesa = (t) => {
+  R.ambiente({ luz: { lado: 1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[160, 100]], suelo: 150, tipo: 'madera', radio: 170 });
+  R.rect(100, 128, 220, 134, PR.MADERA[2]); R.rect(106, 134, 110, 150, PR.MADERA[1]); R.rect(210, 134, 214, 150, PR.MADERA[1]);
+  for (const [x, pelo] of FOTOS) { R.rect(x - 8, 106, x + 8, 128, PALA.ORO[1]); R.rect(x - 6, 108, x + 6, 126, PALA.BLANCO[1]); R.disco(x, 115, 4, PALA.PIEL[2]); R.rect(x - 4, 110, x + 4, 112, pelo[2]); R.rect(x - 5, 121, x + 5, 126, PALA.AZUL[1]); }
+  for (let k = 0; k < 5; k++) R.vela(112 + k * 24, 122, t + k, { r: 12, alto: 5 });
+  for (let k = 0; k < 6; k++) R.disco(108 + k * 20, 127, 2, [PALA.ROJO, NARANJA, PALA.AMARILLO][k % 3][3]);
+  R.personaje(88, 176, 30, { peinado: 'coleta', pelo: PALA.PELO_CASTANO, chaqueta: PALA.MORADO, camisa: PALA.BLANCO, falda: PALA.MORADO, largoFalda: 0.4, pantalon: PALA.MORADO, chaqueta_larga: false, t, dir: 1 });
+  R.personaje(230, 176, 20, { peinado: 'corto', pelo: PALA.PELO_CASTANO, chaqueta: PALA.ROJO, camisa: PALA.BLANCO, pantalon: PALA.AZUL, chaqueta_larga: false, t: t + 1, dir: -1, sonrisa: true });
+  R.personaje(254, 176, 32, { peinado: 'corto', pelo: PALA.PELO_NEGRO, chaqueta: PALA.AZUL, camisa: PALA.BLANCO, pantalon: PALA.NEGRO, t: t + 2, dir: -1 });
+};
+rodar(E, R, [[0, pueblo], [T(0.4), mesa]], { año: 2026 });
+</script>
+</body>
+</html>

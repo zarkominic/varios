@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Miniatura · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-MINIATURA · la miniatura del episodio 7 (se captura en t = 1). De noche, bajo una luna enorme: a la izquierda una
+// hoguera celta con un fantasma verde que sube del humo; a la derecha, una calabaza tallada gigante encendida. Una
+// flecha va de la una a la otra y arriba, «31/10». Sin palabras: solo números y símbolos.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { noche } from '/atomo/plato/escenas/hw-comun.js';
+const E = await escena('hw-miniatura', 'ep07');
+const R = await crearRoma(document.getElementById('lienzo'));
+const { PALA, NARANJA, VERDEF } = R;
+const dibujar = (t) => {
+  noche(R, t, { luna: [278, 44, 20], hor: 150, murcielagos: 5 });
+  R.suelo(150, [PALA.CONTORNO, PALA.MORADO[0], PALA.PURPURA[0], PALA.PURPURA[1]], { luz: 1.4 });
+  for (const [dx, f] of [[-5, 0.4], [0, 0.9], [5, 1.3], [2, 2.1]]) R.hoguera(70 + dx, 164, 1.8, f);
+  R.fantasma(70, 112, 2.2, 0.2, { rampa: VERDEF });
+  for (const x of [63, 77]) { R.disco(x, 74, 3, PALA.CONTORNO); R.pset(x - 1, 73, VERDEF[3]); }
+  R.disco(70, 87, 4, PALA.CONTORNO); R.disco(70, 86, 2, VERDEF[0]);
+  R.halo(232, 140, 90, [NARANJA[0], NARANJA[1]], 1);
+  R.calabaza(232, 176, 5.2, 0.35);
+  R.ruta([[112, 110], [168, 110]], 1, PALA.BLANCO[3]);
+  R.numero('31/10', 160, 34, { tam: 16, rampa: [NARANJA[4], NARANJA[4], NARANJA[3], NARANJA[2], NARANJA[1]], centro: true });
+  R.companero(t, 0.6, 22, 122);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -43,11 +43,13 @@ export const LUGARES = {
   delos: [25.27, 37.4], pela: [22.52, 40.76], queronea: [22.85, 38.5], babilonia: [44.42, 32.54], persepolis: [52.89, 29.93],
   sardes: [28.04, 38.49], siracusa: [15.3, 37.07], massalia: [5.4, 43.3], napoles: [14.25, 40.85], cirene: [21.86, 32.82],
   bizancio: [29, 41], olbia: [31.9, 46.7], sinope: [35.1, 42.0], emporion: [3.1, 42.1], tebas: [23.32, 38.32], corinto: [22.93, 37.9],
+  dublin: [-6.26, 53.35], nuevayork: [-74, 40.7], edimburgo: [-3.19, 55.95], tara: [-6.6, 53.58],
   mileto: [27.28, 37.53], efeso: [27.34, 37.94], troya: [26.24, 39.96], indo: [71.5, 32], bactra: [66.9, 36.76], siena: [32.9, 24.09],
 };
 // Mares (polígonos en lon/lat): todo lo que no es mar es tierra.
 const MAR = {
   med: [[-5.6, 36.1], [-4.5, 36.7], [-2, 36.8], [-0.5, 38.3], [0.2, 39.5], [-0.3, 40.2], [1, 41], [3.2, 41.9], [3.1, 43], [4.5, 43.4], [6.5, 43.1], [8.5, 44.4], [10, 44], [10.5, 43], [12.3, 41.7], [14, 40.8], [15.6, 40], [15.8, 38.5], [16.6, 38.4], [17.1, 39], [16.5, 39.8], [17.2, 40.5], [18.5, 40.1], [18, 40.6], [16, 41.9], [14, 42.6], [12.4, 44.2], [12.3, 45.4], [13.7, 45.6], [15, 44.5], [17, 43.4], [19, 42], [19.5, 40.5], [20.0, 39.7], [20.3, 39.3], [20.7, 38.9], [21.1, 38.4], [21.3, 37.9], [21.6, 37.6], [21.7, 37.0], [21.9, 36.8], [22.2, 37.0], [22.4, 36.45], [22.6, 36.8], [22.8, 36.5], [23.05, 36.45], [23.0, 37.0], [22.75, 37.5], [23.2, 37.4], [23.1, 37.6], [23.4, 37.95], [23.6, 37.9], [24.0, 37.65], [24.05, 38.0], [23.6, 38.4], [22.9, 38.85], [22.6, 38.9], [23.0, 39.2], [22.9, 39.6], [22.6, 40.0], [22.6, 40.5], [23.0, 40.5], [23.7, 40.2], [23.4, 40.0], [24.0, 40.0], [24.4, 40.15], [23.9, 40.5], [24.5, 40.9], [25.5, 40.9], [26.0, 40.8], [26.3, 40.1], [26.6, 39.3], [26.9, 38.9], [26.6, 38.6], [27.0, 38.4], [26.3, 38.3], [27.2, 37.9], [27.3, 37.4], [27.6, 37.0], [28.2, 36.7], [30.5, 36.8], [32.8, 36.1], [36, 36.8], [35.9, 35], [35, 33], [34.3, 31.3], [32.3, 31.2], [30, 31.4], [25, 31.8], [20, 32], [20, 30.4], [19, 30.3], [15.6, 31.6], [11.5, 33.1], [10.2, 34.2], [11, 35.2], [10.2, 36.9], [9.8, 37.3], [8, 36.9], [3, 36.8], [0, 35.8], [-2, 35.1], [-5.4, 35.9]],
+  atlanticoN: [[-20, 18], [-20, 74], [-80, 74], [-80, 63], [-64, 60], [-60, 55], [-56, 52], [-60, 47], [-66, 44.5], [-70, 42], [-74, 40.5], [-75.5, 37], [-76, 35], [-81, 31], [-80.2, 25.5], [-82, 24], [-82, 18]],
   corinto: [[21.7, 38.35], [22.4, 38.2], [22.9, 38.03], [23.15, 38.0], [22.9, 38.15], [22.2, 38.42], [21.6, 38.5]],
   arabigo: [[56.5, 26.5], [57, 25.5], [61, 25.2], [66.5, 25.3], [68, 23.5], [70, 22.5], [72.8, 21], [73.2, 17], [75, 12], [77.5, 8], [80, 8], [80, 0], [43, 0], [43, 11.5], [51, 11.8], [52, 12.2], [55, 17], [57.5, 19], [59.5, 22.5], [58.5, 23.6], [56.5, 24]],
   marmara: [[26.4, 40.2], [27.5, 40.3], [29, 40.4], [29.1, 41.1], [28, 41], [26.7, 40.6]],
@@ -66,6 +68,9 @@ const ISLAS = {
   corcega: [[8.6, 41.4], [9.4, 41.4], [9.5, 43], [8.7, 42.6]],
   creta: [[23.5, 35.3], [26.3, 35.1], [26.2, 35.4], [23.6, 35.6]],
   chipre: [[32.3, 34.7], [34.6, 35.6], [33.9, 35.1], [32.5, 35.1]],
+  groenlandia: [[-55, 60], [-42, 60], [-20, 70], [-18, 80], [-40, 83], [-62, 80], [-68, 76], [-58, 68]],
+  islandia: [[-24, 63.4], [-18, 63.4], [-13.5, 64.5], [-14.5, 66.4], [-22, 66.4], [-24, 65.5]],
+  terranova: [[-59.4, 47.6], [-55.5, 46.6], [-52.6, 46.8], [-53, 49.5], [-55.5, 51.6], [-57.2, 50.6]],
   eubea: [[22.8, 38.95], [23.6, 38.55], [24.6, 38.0], [24.4, 38.3], [23.4, 38.95], [22.9, 39.05]],
   lesbos: [[25.85, 39.1], [26.6, 39.0], [26.4, 39.4], [25.9, 39.35]],
   quios: [[25.9, 38.2], [26.15, 38.25], [26.1, 38.6], [25.9, 38.55]],
@@ -124,6 +129,10 @@ export async function crearRoma(lienzo) {
     rana: ['.#...#.', '###.###', '#######', '.#####.', '#.#.#.#'],
     urna: ['.#####.', '..#.#..', '.#####.', '#######', '#######', '.#####.', '..###..'],
     rayo: ['...###', '..###.', '.###..', '#####.', '..##..', '.##...', '#.....'],
+    fuego: ['...#...', '..##...', '..###..', '.#####.', '.##.##.', '#######', '.#####.'],
+    calabaza: ['...#...', '.##.##.', '#######', '#.#.#.#', '#######', '#.....#', '.#####.'],
+    caramelo: ['#.....#', '##.#.##', '.#####.', '#######', '.#####.', '##.#.##', '#.....#'],
+    murcielago: ['#.....#', '##.#.##', '#######', '.##.##.', '..#.#..'],
     mascara: ['.#####.', '#######', '#.###.#', '#######', '##.#.##', '#.###.#', '.#####.'],
   });
 
@@ -545,7 +554,7 @@ export async function crearRoma(lienzo) {
   };
   const lugar = (nombre, rc, v) => proyMapa(...(Array.isArray(nombre) ? nombre : LUGARES[nombre]), rc, v).map(Math.round);
   // encuadres con nombre para el zoom
-  const VISTAS = { mundo: VISTA, italia: [5, 20.5, 36.2, 47.2], roma: [11.2, 13.8, 41.2, 43.0], egeo: [18.6, 32.8, 34.4, 42.4], grecia: [21.0, 25.4, 36.6, 39.1], salamina: [23.2, 23.9, 37.75, 38.15], persia: [-6, 80, 10.5, 58.8] };
+  const VISTAS = { mundo: VISTA, italia: [5, 20.5, 36.2, 47.2], roma: [11.2, 13.8, 41.2, 43.0], egeo: [18.6, 32.8, 34.4, 42.4], grecia: [21.0, 25.4, 36.6, 39.1], salamina: [23.2, 23.9, 37.75, 38.15], persia: [-6, 80, 10.5, 58.8], irlanda: [-11.5, 0.5, 51.3, 58.0], atlantico: [-82, 12, 18, 70.8] };
   const entre = (a, b, p) => a.map((q, i) => q + (b[i] - q) * p);
   // punto que late sobre el mapa (una ciudad), con su color
   const punto = (x, y, t, c = PALA.ORO, r = 2) => { const l = Math.sin(t * 5) > 0 ? 1 : 0; disco(x, y, r + l, CONTORNO); disco(x, y, r - 1 + l, c[3]); pset(x, y, c[2]); };
@@ -660,8 +669,83 @@ export async function crearRoma(lienzo) {
   const ambiente = (o) => { AMB = o || {}; };
   const personaje = (cx, suelo_, h, o = {}) => R.personaje(cx, suelo_, h, { ...AMB, ...o });
 
+  // ── Halloween y fiestas de los muertos ────────────────────────────────────────────────────────────────────────
+  const NARANJA = pal(['#5a1e08', '#a8400e', '#e0741c', '#ffa83a', '#ffd88a']);
+  const NABO = pal(['#4a3050', '#8a6a94', '#c8b0c8', '#f0e4ec']);
+  const VERDEF = pal(['#0e3a24', '#1e7a44', '#46c46a', '#a8ffb0']);   // verde «fantasma»
+  // calabaza tallada (o.tallada: cara encendida que parpadea; o.luz: halo)
+  const calabaza = (x, suelo_, s, t, o = {}) => {
+    const w = 9 * s, h = 7 * s, cy = suelo_ - h;
+    if (o.tallada !== false && o.luz !== false) R.halo(x, cy, 14 * s, [NARANJA[0], NARANJA[1]], 0.7);
+    for (let y = -h; y <= h; y++) for (let xx = -w; xx <= w; xx++) {
+      const d = (xx / w) ** 2 + (y / h) ** 2; if (d > 1) continue;
+      const costilla = Math.abs(Math.sin((xx / w) * Math.PI * 2.2)) < 0.12;
+      pset(Math.round(x + xx), Math.round(cy + y), tone(NARANJA, 2.6 - xx / w * 0.9 - y / h * 0.5 + (costilla ? -1 : 0), Math.round(x + xx), Math.round(cy + y)));
+    }
+    rect(x - 1, cy - h - 3 * s, x + 1, cy - h, PR.HIERBA[1]); pset(x + 2, cy - h - 3 * s, PR.HIERBA[2]);
+    if (o.tallada !== false) {
+      const fl = 0.5 + 0.5 * Math.sin(t * 13 + x) * Math.sin(t * 5), c = fl > 0.3 ? PALA.AMARILLO[3] : PALA.AMARILLO[2];
+      for (const sx of [-1, 1]) poligono([[x + sx * 4 * s - 2 * s, cy - 1 * s], [x + sx * 4 * s, cy - 4 * s], [x + sx * 4 * s + 2 * s, cy - 1 * s]], c);
+      poligono([[x - 6 * s, cy + 1.5 * s], [x + 6 * s, cy + 1.5 * s], [x + 4 * s, cy + 4.5 * s], [x - 4 * s, cy + 4.5 * s]], c);
+      rect(x - 2 * s, cy + 1.5 * s, x - 1 * s, cy + 3 * s, NARANJA[1]); rect(x + 1 * s, cy + 3 * s, x + 2 * s, cy + 4.5 * s, NARANJA[1]);
+    }
+  };
+  // nabo tallado irlandés, con una brasa dentro
+  const nabo = (x, suelo_, s, t, o = {}) => {
+    const r = 6 * s, cy = suelo_ - r;
+    if (o.luz !== false) R.halo(x, cy, 12 * s, [NARANJA[0], NARANJA[1]], 0.6);
+    for (let y = -r; y <= r; y++) for (let xx = -r; xx <= r; xx++) { if (Math.hypot(xx, y * 1.1) > r) continue; pset(Math.round(x + xx), Math.round(cy + y), tone(NABO, 2.4 - xx / r * 0.9 - (y < -r * 0.4 ? -0.6 : 0) + (y < -r * 0.3 ? 0 : 0), Math.round(x + xx), Math.round(cy + y))); }
+    for (let y = -r; y < -r * 0.3; y++) for (let xx = -r; xx <= r; xx++) if (Math.hypot(xx, y * 1.1) <= r) pset(Math.round(x + xx), Math.round(cy + y), tone(PALA.MORADO, 2, Math.round(x + xx), Math.round(cy + y)));
+    const c = Math.sin(t * 11 + x) > -0.3 ? PALA.ANTORCHA[3] : PALA.ANTORCHA[2];
+    rect(x - 3 * s, cy - 1 * s, x - 1.5 * s, cy, c); rect(x + 1.5 * s, cy - 1 * s, x + 3 * s, cy, c); rect(x - 3 * s, cy + 2 * s, x + 3 * s, cy + 3 * s, c);
+    linea(x, cy - r, x - 2 * s, cy - r - 4 * s, PR.HIERBA[2]);
+  };
+  // hoguera con troncos, llamas, chispas y su luz
+  const hoguera = (x, suelo_, s, t) => {
+    R.halo(x, suelo_ - 8 * s, 34 * s, [PALA.ANTORCHA[0], PALA.ANTORCHA[1]], 0.85);
+    for (const d of [-1, 1]) linea(x - 8 * s * d, suelo_, x + 6 * s * d, suelo_ - 5 * s, PR.MADERA[1]);
+    for (let k = 0; k < 9; k++) { const hh = (8 + 10 * hash2(k, Math.floor(t * 12))) * s * (1 - Math.abs(k - 4) / 6); linea(Math.round(x - 4 * s + k * s), suelo_ - 2, Math.round(x - 4 * s + k * s), Math.round(suelo_ - 2 - hh), k % 3 === 0 ? PALA.ANTORCHA[4] : k % 2 ? PALA.ANTORCHA[3] : PALA.ANTORCHA[2]); }
+    for (let k = 0; k < 6; k++) { const f = ((t * 0.7 + k / 6) % 1); pset(Math.round(x + Math.sin(k * 3 + t) * 6 * s), Math.round(suelo_ - 14 * s - f * 30 * s), PALA.ANTORCHA[3]); }
+  };
+  const murcielagos = (t, o = {}) => {
+    const n = o.n ?? 5;
+    for (let k = 0; k < n; k++) { const x = ((k * 71 + t * (14 + k * 3)) % 360) - 20, y = (o.y0 ?? 20) + 20 * hash2(k, 4) + 6 * Math.sin(t * 2 + k), ala = Math.sin(t * 14 + k) > 0; R.icono('murcielago', Math.round(x), Math.round(y) - (ala ? 1 : 0), PALA.CONTORNO, PALA.NEGRO[2]); }
+  };
+  const lapida = (x, suelo_, o = {}) => {
+    const w = o.w ?? 7, h = o.h ?? 12, rp = o.rampa ?? PR.ROCA;
+    for (let y = suelo_ - h; y <= suelo_; y++) for (let xx = -w; xx <= w; xx++) { if (y < suelo_ - h + w && Math.hypot(xx, y - (suelo_ - h + w)) > w) continue; pset(x + xx, y, tone(rp, 2.4 - xx / w * 0.8, x + xx, y)); }
+    if (o.cruz !== false) { rect(x - 2, suelo_ - h + 4, x + 2, suelo_ - h + 4, rp[0]); rect(x, suelo_ - h + 2, x, suelo_ - h + 8, rp[0]); }
+    if (o.flores) for (let k = 0; k < 5; k++) { pset(x - 6 + k * 3, suelo_ - 1, o.flores[3]); pset(x - 6 + k * 3, suelo_, PR.HIERBA[2]); }
+  };
+  const caramelos = (x, y, n, t) => { for (let k = 0; k < n; k++) { const cx = x + (k % 4) * 6 - 9, cy = y - Math.floor(k / 4) * 4, c = [PALA.ROJO, PALA.AZUL, PALA.VERDE, PALA.AMARILLO, PALA.MORADO][k % 5]; rect(cx - 1, cy - 1, cx + 1, cy + 1, c[2]); pset(cx - 2, cy - 1, c[1]); pset(cx - 2, cy + 1, c[1]); pset(cx + 2, cy - 1, c[1]); pset(cx + 2, cy + 1, c[1]); pset(cx, cy - 1, c[3]); } };
+  // fantasma de sábana (con ojos), que flota
+  const fantasma = (x, suelo_, s, t, o = {}) => {
+    const fl = Math.sin(t * 2 + x) * 2 * s, rp = o.rampa ?? PALA.BLANCO;
+    bicho(x, suelo_ + fl, 1, [['e', 0, -14 * s, 7 * s, 8 * s, rp, 2.4], ['l', -6 * s, -10 * s, -7 * s, -1 * s, 3 * s, rp, 2.2], ['l', 6 * s, -10 * s, 7 * s, -1 * s, 3 * s, rp, 2], ['e', 0, -6 * s, 7 * s, 5 * s, rp, 2.2],
+      ['d', -2 * s, -15 * s, CONTORNO], ['d', 2 * s, -15 * s, CONTORNO], ['d', -2 * s, -14 * s, CONTORNO], ['d', 2 * s, -14 * s, CONTORNO]], { r: Math.ceil(20 * s) });
+  };
+  // altar de muertos: escalones con mantel, cempasúchil, velas, calaveras de azúcar, fotos y papel picado arriba
+  const altar = (cx, suelo_, t, o = {}) => {
+    const w = o.w ?? 70;
+    for (let k = 0; k < 3; k++) { const y = suelo_ - k * 14, ww = w - k * 16; rect(cx - ww, y - 14, cx + ww, y, PALA.MORADO[1 + (k & 1)]); rect(cx - ww, y - 14, cx + ww, y - 13, PALA.BLANCO[3]); }
+    for (let k = 0; k < 14; k++) { const x = cx - w + 4 + k * (2 * w - 8) / 13; R.disco(Math.round(x), suelo_ - 1, 2, NARANJA[3]); pset(Math.round(x), suelo_ - 1, NARANJA[4]); }
+    for (let k = 0; k < 4; k++) { const x = Math.round(cx - 36 + k * 24), y = suelo_ - 16; rect(x - 1, y - 6, x + 1, y, PALA.BLANCO[3]); const f = Math.sin(t * 13 + k) > 0 ? 1 : 0; pset(x, y - 7 - f, PALA.ANTORCHA[3]); pset(x, y - 8 - f, PALA.AMARILLO[3]); R.halo(x, y - 8, 8, [PALA.ANTORCHA[0], PALA.ANTORCHA[1]], 0.5); }
+    for (let k = 0; k < 3; k++) { const x = Math.round(cx - 20 + k * 20), y = suelo_ - 34; R.disco(x, y, 4, PALA.BLANCO[3]); pset(x - 2, y - 1, [PALA.AZUL, PALA.ROJO, PALA.VERDE][k][2]); pset(x + 2, y - 1, [PALA.AZUL, PALA.ROJO, PALA.VERDE][k][2]); rect(x - 1, y + 2, x + 1, y + 2, PALA.ROJO[2]); }
+    for (let k = 0; k < 2; k++) { const x = Math.round(cx - 12 + k * 24), y = suelo_ - 48; rect(x - 5, y - 8, x + 5, y + 4, PR.MADERA[2]); rect(x - 4, y - 7, x + 4, y + 3, PALA.PIEL[1 + k]); }
+    for (let k = 0; k < 9; k++) { const x = cx - w + k * (2 * w) / 8, y = suelo_ - 70, c = [PALA.ROJO, NARANJA, PALA.AMARILLO, PALA.VERDE, PALA.AZUL, PALA.MORADO][k % 6]; poligono([[x - 6, y], [x + 6, y], [x + 6, y + 9 + Math.round(Math.sin(t * 2 + k))], [x - 6, y + 9]], c[2]); pset(Math.round(x), y + 4, c[0]); }
+    linea(cx - w - 6, suelo_ - 70, cx + w + 6, suelo_ - 70, PALA.NEGRO[2]);
+  };
+  const farolChino = (x, y, t) => { const b = Math.round(Math.sin(t * 1.5 + x) * 2); R.halo(x, y + b, 10, [PALA.ROJO[0], PALA.ROJO[1]], 0.6); R.disco(x, y + b, 4, PALA.ROJO[2]); rect(x - 4, y + b - 1, x + 4, y + b, PALA.ROJO[3]); rect(x - 2, y + b - 5, x + 2, y + b - 4, PALA.ORO[2]); rect(x - 2, y + b + 4, x + 2, y + b + 5, PALA.ORO[2]); };
+  // rueda del año: mitad luminosa y mitad oscura, con un marcador (ang en radianes desde arriba)
+  const ruedaAño = (cx, cy, r, ang) => {
+    for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) { const d = Math.hypot(x, y); if (d > r) continue; const a = Math.atan2(x, -y), luz = a > 0; pset(cx + x, cy + y, d > r - 1.5 ? PALA.CONTORNO : luz ? tone(PALA.AMARILLO, 2.5 - d / r, cx + x, cy + y) : tone(PALA.MORADO, 1.2 - d / r * 0.6, cx + x, cy + y)); }
+    R.disco(cx + Math.round(r * 0.5), cy, 4, PALA.AMARILLO[3]); R.disco(cx - Math.round(r * 0.5), cy, 4, PR.NIEVE[3]); R.disco(cx - Math.round(r * 0.5) + 2, cy - 1, 3, PALA.MORADO[1]);
+    linea(cx, cy, Math.round(cx + Math.sin(ang) * (r - 2)), Math.round(cy - Math.cos(ang) * (r - 2)), PALA.ROJO[3]); R.disco(cx, cy, 2, PALA.ROJO[3]);
+  };
+
   return {
     ...R, PALA, PR, ELENCO, LUGARES, ZONAS, personaje, ambiente, mapaAño, estadoAño, flechaMapa,
+    NARANJA, NABO, VERDEF, calabaza, nabo, hoguera, murcielagos, lapida, caramelos, fantasma, altar, farolChino, ruedaAño,
     nubesR, cieloR, colinas, skyline, columna, templo, insula, puesto, trono, salon, SUELO_SALON, mosaico, suelo, acueducto,
     panteon, muralla, empalizada, cabana, bicho, loba, perro, oveja, elefante, caballo, cesta, trirreme,
     mapa, proyMapa, lugar, VISTAS, entre, barraTiempo, tramosTiempo, ZONAS_MAPA: ZONAS, punto, ruta, denario, barra, tijeras,
