@@ -9,33 +9,25 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// RM-VACIA (frases 43–45). El mapa del imperio se agrieta por la frontera y se llena de manchas (epidemias); a la
-// derecha, la barra del denario cae hasta «5%». Luego un soldado muerde su moneda y pone cara de asco, y los precios
-// saltan en la caja: 1, 10, 100. Al final, la moneda se vacía por dentro hasta quedar como un anillo de cobre.
+// RM-VACIA (frases 30–31). El denario con su barra cae a «5%»; luego un soldado muerde su moneda y pone cara de asco
+// mientras los precios saltan en la caja (1, 10, 100). Al final, la moneda se vacía por dentro hasta quedar como un
+// anillo de cobre.
 import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
 const { E, R, M } = await preparar('rm-vacia');
 const { PALA, PR, ELENCO, tramo, lerp } = R;
-const m = { fro: M('fronteras', 0.5), sue: M('sueldo', 7), hue: M('hueca', 13) };
-const mapa = (t) => {
-  const u = t - m.fro;
-  R.mapa(t, { rc: [0, 0, 259, 179], imperio: 1, italia: 1, grietas: tramo(u, 0.5, 2.5) * 0.8, manchas: tramo(u, 2, 4.5) });
-  for (let y = 0; y < R.H; y++) for (let x = 260; x < R.W; x++) R.pset(x, y, R.tone(PR.TORMENTA, 1.4 + y * 0.008, x, y));
-  R.barra(282, 160, 110, lerp(0.5, 0.05, tramo(u, 4, 6.2)));
-};
+const m = { mon: M('moneda', 0.5), hue: M('hueca', 11) };
+const t1 = m.mon + 3.4;
+const cae = (t) => { R.cieloR(t, 'tormenta', { nubes: { n: 3 } }); const pl = lerp(0.5, 0.05, tramo(t, m.mon + 0.5, m.mon + 3)); R.denario(140, 86, 44, pl, t, { brillo: false }); R.barra(262, 150, 90, pl); };
 const muerde = (t) => {
   R.cieloR(t, 'tormenta', { hor: 130 }); R.suelo(130, PR.TIERRA, { luz: 1.4 });
-  R.puesto(200, 150, t);
-  const u = t - m.sue, muerde_ = u > 1 && u < 3.2;
-  R.personaje(130, 168, 46, { ...ELENCO.legionario, t, pose: muerde_ ? 'mide' : 'ofrece', objeto: muerde_ ? undefined : 'bolsa', ceño: u > 2.2 });
-  if (muerde_) { const [cx, cy] = [139, 116]; R.disco(cx, cy, 2, PR.COBRE[3]); }
+  R.puesto(200, 152, t);
+  const u = t - t1, muerde_ = u > 0.4 && u < 2.6;
+  R.personaje(130, 168, 32, { ...ELENCO.legionario, t, pose: muerde_ ? 'mide' : 'ofrece', objeto: muerde_ ? undefined : 'bolsa', ceño: u > 1.6 });
+  if (muerde_) R.disco(136, 133, 1.5, PR.COBRE[3]);
 };
-const hueca = (t) => {
-  R.cieloR(t, 'tormenta', { nubes: { n: 4 } });
-  const u = t - m.hue;
-  R.denario(160, 86, 46, 0.05, t, { hueco: tramo(u, 0.8, 4) * 0.9, brillo: false });
-};
-const precio = (t) => { const u = t - m.sue; return u < 3.4 ? '1' : u < 4.4 ? '10' : '100'; };
-rodar(E, R, [[0, mapa], [m.sue - 0.2, muerde], [m.hue - 0.2, hueca]], { caja: (t, e) => R.caja(t, t > m.sue + 3 && t < m.hue - 0.2 ? tramo(t, m.sue + 3, m.sue + 3.4) : 0, (x, y) => { R.icono('moneda', x + 2, y + 4); R.numero(precio(t), x + 14, y + 12); }, { energia: e }) });
+const hueca = (t) => { R.cieloR(t, 'tormenta', { nubes: { n: 4 } }); R.denario(160, 86, 46, 0.05, t, { hueco: tramo(t, m.hue + 0.8, m.hue + 3.5) * 0.9, brillo: false }); };
+const precio = (t) => { const u = t - t1; return u < 3 ? '1' : u < 4.2 ? '10' : '100'; };
+rodar(E, R, [[0, cae], [t1, muerde], [m.hue - 0.2, hueca]], { año: 270, caja: (t, e) => R.caja(t, t > t1 + 2.6 && t < m.hue - 0.2 ? tramo(t, t1 + 2.6, t1 + 3) : 0, (x, y) => { R.icono('moneda', x + 2, y + 4); R.numero(precio(t), x + 14, y + 12); }, { energia: e }) });
 </script>
 </body>
 </html>

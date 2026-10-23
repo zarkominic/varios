@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Actos · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-ACTOS (frase 7). De noche sobre Roma, la barra de tiempo se enciende por tramos: un rey, dos cónsules y un
+// emperador encima de cada uno; luego sube a su sitio, arriba a la izquierda, con el marcador en 753.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-actos');
+const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
+const SOL = R.hex('#ffb060');
+const luz = { lado: 1, color: SOL };
+const c = M('actos', 0.5);
+const barra = (t) => {
+  R.cielo(t, { luna: [270, 34, 9], hor: 180, semilla: 21 });
+  R.skyline(150, { semilla: 4, color: PALA.CONTORNO, borde: PALA.PURPURA[0] });
+  R.colinas(168, { amp: 5, luz: 0.5, rampa: PR.HIERBA });
+  const sube = tramo(t, c + 9.8, c + 11.1), y = Math.round(lerp(112, 5, sube)), alto = Math.round(lerp(7, 2, sube));
+  const enc = clamp((t - c - 2.1) / 0.5, 0, 1) + clamp((t - c - 3.4) / 0.5, 0, 1) + clamp((t - c - 7.1) / 0.5, 0, 1);
+  if (sube < 1) R.barraTiempo(t, null, { y, alto, encendidos: enc, x0: lerp(40, 22, sube), x1: lerp(280, 168, sube) });
+  if (sube < 0.3) {
+    const X = (a) => Math.round(40 + (a + 753) / 1229 * 240), sy = y - 2;
+    const toga = { ...ELENCO.senador, luz, sombra: PALA.CONTORNO };
+    if (enc > 0.5) R.personaje((X(-753) + X(-509)) / 2, sy, 26, { ...toga, sombrero: 'corona', capa: PALA.ROJO, banda: PALA.ORO, pelo: PALA.PELO_NEGRO, barba: 'poblada', t });
+    if (enc > 1.5) { R.personaje((X(-509) + X(-27)) / 2 - 10, sy, 26, { ...toga, pelo: PALA.PELO_CASTANO, t, dir: 1 }); R.personaje((X(-509) + X(-27)) / 2 + 10, sy, 26, { ...toga, pelo: PALA.PELO_BLANCO, t, dir: -1 }); }
+    if (enc > 2.5) R.personaje((X(-27) + X(476)) / 2, sy, 26, { ...ELENCO.cesar, luz, sombra: PALA.CONTORNO, t });
+  }
+};
+rodar(E, R, [[0, barra]], { año: (t) => (t > c + 11.1 ? -753 : null) });
+</script>
+</body>
+</html>

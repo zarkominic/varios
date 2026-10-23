@@ -9,32 +9,31 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// RM-SUBASTA (frases 38–39). Un palacio: un guardia pretoriano con un mazo, dos ricos que pujan subiendo sacos de
-// monedas (la puja sube en la caja: 5000, 20000, 25000) y el trono en medio. Luego el ganador se sienta; un reloj de
-// arena cuenta de «66» a 0 y el trono se queda vacío.
+// RM-SUBASTA (frase 27). El palacio: un guardia pretoriano con un mazo, dos ricos que pujan subiendo sacos de monedas
+// (la puja sube en la caja: 5000, 20000, 25000). El ganador se sienta en el trono; la caja cuenta de «66» a 0 y él
+// parpadea y desaparece, como en las recreativas.
 import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
 const { E, R, M } = await preparar('rm-subasta');
 const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
-const m = { sub: M('subasta', 0.5), did: M('didio', 8) };
+const m0 = M('subasta', 0.5), dur = E.duracion ?? 12, td = m0 + (dur - m0) * 0.6;
 const rico = (c, pelo) => ({ ...ELENCO.senador, chaqueta: c, camisa: c, falda: c, banda: PALA.ORO, pelo, faja: PALA.ORO });
-const pretoriano = { ...ELENCO.legionario, capa: PALA.NEGRO, colorCresta: PALA.MORADO, chaqueta: PALA.BRONCE };
+const pretoriano = { ...ELENCO.legionario, capa: PALA.NEGRO, colorCresta: PALA.MORADO };
 const S = R.SUELO_SALON;
 const puja = (t) => {
   R.salon(t, { estatua: false });
-  R.personaje(170, S + 26, 44, { ...pretoriano, t, dir: -1, pose: Math.sin(t * 4) > 0.6 ? 'arriba' : 'pie', brazoD: Math.sin(t * 4) > 0.6 ? 'arriba' : 'abajo', objeto: 'pala' });
-  const u = t - m.sub, turno = Math.floor(u / 1.2) % 2;
-  R.personaje(230, S + 30, 42, { ...rico(PALA.AZUL, PALA.PELO_BLANCO), t, dir: -1, pose: turno === 0 && u > 2 ? 'brazos' : 'pie', objeto: 'saco', habla: turno === 0 ? 1 : 0 });
-  R.personaje(280, S + 30, 42, { ...rico(PALA.VERDE, PALA.PELO_CASTANO), barba: 'bigote', t, dir: -1, pose: turno === 1 && u > 2 ? 'brazos' : 'pie', objeto: 'saco', habla: turno === 1 ? 1 : 0, ceño: true });
+  const u = t - m0, turno = Math.floor(u / 1.1) % 2, golpe = Math.sin(t * 4) > 0.6;
+  R.personaje(172, S + 22, 30, { ...pretoriano, t, dir: -1, brazoD: golpe ? 'arriba' : 'abajo', objeto: 'pala' });
+  R.personaje(226, S + 24, 28, { ...rico(PALA.AZUL, PALA.PELO_BLANCO), t, dir: -1, pose: turno === 0 && u > 2 ? 'brazos' : 'pie', objeto: 'saco', habla: turno === 0 ? 1 : 0 });
+  R.personaje(266, S + 24, 28, { ...rico(PALA.VERDE, PALA.PELO_CASTANO), barba: 'bigote', t, dir: -1, pose: turno === 1 && u > 2 ? 'brazos' : 'pie', objeto: 'saco', habla: turno === 1 ? 1 : 0, ceño: true });
 };
 const didio = (t) => {
   R.salon(t, { estatua: false });
-  const u = t - m.did, se = tramo(t, m.did + 0.2, m.did + 1.2), fin = clamp((u - 2) / 3, 0, 1);
-  // al acabarse la arena, el ganador parpadea y desaparece, como en las recreativas
-  if (fin < 1 && (fin < 0.2 || Math.floor(t * 15) % 2 === 0)) R.personaje(lerp(240, 106, se), lerp(S + 30, S - 6, se), 40, { ...rico(PALA.AZUL, PALA.PELO_BLANCO), sombrero: 'laurel', t, pose: se >= 1 ? 'sentado' : 'pie', anda: se > 0 && se < 1 ? t * 7 : null, sonrisa: fin < 0.3 });
-  R.personaje(180, S + 26, 44, { ...pretoriano, t, dir: -1 });
+  const u = t - td, se = tramo(t, td + 0.2, td + 1.2), fin = clamp((u - 1.8) / 2.6, 0, 1);
+  if (fin < 1 && (fin < 0.2 || Math.floor(t * 15) % 2 === 0)) R.personaje(lerp(226, 106, se), lerp(S + 24, S - 8, se), 28, { ...rico(PALA.AZUL, PALA.PELO_BLANCO), sombrero: 'laurel', t, pose: se >= 1 ? 'sentado' : 'pie', anda: se > 0 && se < 1 ? t * 7 : null, sonrisa: fin < 0.3, sombra: se >= 1 ? false : PALA.CONTORNO });
+  R.personaje(172, S + 22, 30, { ...pretoriano, t, dir: -1 });
 };
-const cifra = (t) => { const u = t - m.sub; return u < 3 ? '5000' : u < 5 ? '20000' : '25000'; };
-rodar(E, R, [[0, puja], [m.did - 0.2, didio]], { caja: (t, e) => R.caja(t, tramo(t, m.sub + 1.6, m.sub + 2), (x, y) => { if (t < m.did - 0.2) { R.icono('moneda', x + 2, y + 4); R.numero(cifra(t), x + 12, y + 12); } else { R.icono('arena', x + 2, y + 4); R.numero(String(Math.max(0, Math.round(66 * (1 - tramo(t, m.did + 1.4, m.did + 5))))), x + 14, y + 12); } }, { energia: e }) });
+const cifra = (t) => { const u = t - m0; return u < 3 ? '5000' : u < 4.6 ? '20000' : '25000'; };
+rodar(E, R, [[0, puja], [td, didio]], { año: 193, caja: (t, e) => R.caja(t, tramo(t, m0 + 1.6, m0 + 2), (x, y) => { if (t < td) { R.icono('moneda', x + 2, y + 4); R.numero(cifra(t), x + 12, y + 12); } else { R.icono('arena', x + 2, y + 4); R.numero(String(Math.max(0, Math.round(66 * (1 - tramo(t, td + 1.4, td + 4.4))))), x + 14, y + 12); } }, { energia: e }) });
 </script>
 </body>
 </html>

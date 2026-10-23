@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hunos · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-HUNOS (frase 35). El mapa: una flecha roja llega desde las estepas (los hunos) y empuja flechas amarillas de
+// pueblos germanos que cruzan la frontera hacia el oeste. Luego un oficial romano paga con una bolsa a guerreros
+// germanos, que se ponen un casco romano.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-hunos');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('hunos', 0.5), dur = E.duracion ?? 14, t1 = m0 + (dur - m0) * 0.55;
+const mapa = (t) => {
+  const u = t - m0;
+  R.mapaAño(t, 376, { oeste: 0.2 });
+  R.flechaMapa([R.lugar([50, 50]), R.lugar([40, 49]), R.lugar([32, 48])], tramo(u, 0.3, 2.2), PALA.ROJO[3]);
+  R.flechaMapa([R.lugar([30, 48]), R.lugar([24, 45]), R.lugar([18, 45])], tramo(u, 2, 3.8), PALA.AMARILLO[3]);
+  R.flechaMapa([R.lugar([22, 52]), R.lugar([14, 49]), R.lugar([7, 47])], tramo(u, 2.5, 4.3), PALA.AMARILLO[3]);
+  R.flechaMapa([R.lugar([12, 55]), R.lugar([6, 51]), R.lugar([1, 47])], tramo(u, 3, 4.8), PALA.AMARILLO[3]);
+};
+const paga = (t) => {
+  R.cieloR(t, 'tarde', { hor: 128, sol: [60, 116, 9] }); R.colinas(128, { amp: 6, luz: 1.3 }); R.suelo(140, PR.TIERRA, { luz: 1.8 });
+  const u = t - t1;
+  R.personaje(90, 168, 30, { ...ELENCO.legionario, capa: PALA.ROJO, t, pose: 'ofrece', objeto: 'bolsa' });
+  for (let k = 0; k < 4; k++) { const ok = u > 1 + k * 0.5; R.personaje(150 + k * 34, 168 + (k & 1) * 4, 30, { ...ELENCO.barbaro, pelo: [PALA.PELO_RUBIO, PALA.PELO_ROJO, PALA.PELO_CASTANO, PALA.PELO_RUBIO][k], barba: ['bigote', 'poblada', 'perilla', 'poblada'][k], sombrero: ok ? 'casco' : 'no', t: t + k, dir: -1, objeto: 'gladio', sonrisa: ok }); }
+};
+rodar(E, R, [[0, mapa], [t1, paga]], { año: (t) => Math.round(lerp(376, 400, tramo(t, m0, dur))) });
+</script>
+</body>
+</html>

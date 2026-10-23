@@ -97,7 +97,7 @@ for e in plan['escenas']:
 assert usadas == list(range(1, len(filas) + 1)), 'faltan o sobran frases'
 
 guion = {
-    'serie': 'ASK Atom', 'numero': 5, 'estado': 'v2', 'formato': '16:9', 'rotulos': False,
+    'serie': 'ASK Atom', 'numero': 5, 'estado': 'v3', 'formato': '16:9', 'rotulos': False,
     'titulo': {'en': "Rome Didn't Fall in a Day: The Story Its COINS Tell",
                'es': 'Roma no cayó en un día: la historia que cuentan sus MONEDAS'},
     'principal': 'en',

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Italia · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-ITALIA (frases 13–14). El mapa: la mancha roja de Roma se extiende por Italia guerra a guerra (espadas que
+// saltan aquí y allá), y abajo tres vencidos se ponen la toga. Luego, al otro lado del mar, aparece Cartago en
+// amarillo; espadas en la caja.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-italia');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { ita: M('italia', 0.5), car: M('cartago', 11) };
+const año = (t) => Math.round(t < m.car ? lerp(-509, -270, tramo(t, m.ita + 1, m.ita + 6)) : lerp(-270, -264, tramo(t, m.car, m.car + 2)));
+const italia = (t) => {
+  R.mapaAño(t, año(t), { vista: R.VISTAS.italia, tiber: 1, colorImperio: PALA.ROJO });
+  if (t < m.ita + 6) for (let k = 0; k < 3; k++) { const f = ((t - m.ita) * 0.7 + k / 3) % 1; if (f < 0.4) { const [x, y] = R.lugar([[13.5, 42.5], [15, 41], [11.5, 43.3]][k], undefined, R.VISTAS.italia); R.icono('espadas', x - 3, y - 3, PALA.BLANCO[3]); } }
+  if (t > m.ita + 6.2) {
+    for (let x = 0; x < R.W; x++) for (let y = 140; y < R.H; y++) if (R.b4(x, y) < 0.7) R.pset(x, y, PALA.CONTORNO);
+    [ELENCO.barbaro, { ...ELENCO.ciudadano, chaqueta: PALA.AZUL, camisa: PALA.AZUL, falda: PALA.AZUL, pelo: PALA.PELO_NEGRO }, { ...ELENCO.ciudadano, chaqueta: PALA.VERDE, camisa: PALA.VERDE, falda: PALA.VERDE, pelo: PALA.PELO_RUBIO }].forEach((g, i) => {
+      const x = 110 + i * 50, toga = t > m.ita + 6.8 + i * 0.5;
+      R.personaje(x, 172, 28, toga ? { ...ELENCO.senador, pelo: g.pelo, barba: g.barba, banda: null, t, sonrisa: true } : { ...g, t });
+      if (Math.abs(t - (m.ita + 6.8 + i * 0.5)) < 0.25) for (let k = 0; k < 8; k++) R.pset(Math.round(x + 10 * Math.cos(k + t * 9)), Math.round(158 + 10 * Math.sin(k + t * 9)), PALA.AMARILLO[3]);
+    });
+  }
+};
+const cartago = (t) => {
+  R.mapaAño(t, año(t), { colorImperio: PALA.ROJO, cartago: tramo(t, m.car + 0.5, m.car + 2.5) });
+  R.punto(...R.lugar('cartago'), t, PALA.AMARILLO, 2);
+};
+rodar(E, R, [[0, italia], [m.car - 0.2, cartago, 'iris']], { año, caja: (t, e) => R.caja(t, t > m.car + 2.6 ? tramo(t, m.car + 2.6, m.car + 3) : 0, (x, y) => R.icono('espadas', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

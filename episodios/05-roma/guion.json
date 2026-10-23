@@ -1,7 +1,7 @@
 {
  "serie": "ASK Atom",
  "numero": 5,
- "estado": "v2",
+ "estado": "v3",
  "formato": "16:9",
  "rotulos": false,
  "titulo": {
@@ -35,7 +35,7 @@
      "marca": "hola",
      "es": "Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase.",
      "en": "Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you.",
-     "visual": "Roma al atardecer desde una colina: tejados, templos y cipreses; la caja baja y Atom saluda en su retrato."
+     "visual": "Roma al atardecer desde una colina; la caja baja y Atom saluda."
     }
    ]
   },
@@ -49,31 +49,40 @@
     {
      "n": 2,
      "marca": "corona",
-     "es": "Es el año 476. Un chaval de unos dieciséis años se quita la corona del imperio más poderoso que ha existido.",
-     "en": "It's the year 476. A kid of about sixteen takes off the crown of the most powerful empire the world has ever seen.",
-     "visual": "Salón de mármol al atardecer: el emperador niño, con una corona que le queda grande, se la quita.",
-     "es_voz": "Es el año cuatrocientos setenta y seis. Un chaval de unos dieciséis años se quita la corona del imperio más poderoso que ha existido.",
-     "en_voz": "It's the year four seventy-six. A kid of about sixteen takes off the crown of the most powerful empire the world has ever seen."
+     "es": "Es el año 476. Un chaval de unos dieciséis años se quita la corona del imperio más poderoso que ha existido y se la da a un general bárbaro.",
+     "en": "It's the year 476. A kid of about sixteen takes off the crown of the most powerful empire the world has ever seen, and hands it to a barbarian general.",
+     "visual": "Salón de mármol: el emperador niño se quita la corona y se la da a Odoacro, que la guarda en un cofre.",
+     "es_voz": "Es el año cuatrocientos setenta y seis. Un chaval de unos dieciséis años se quita la corona del imperio más poderoso que ha existido y se la da a un general bárbaro.",
+     "en_voz": "It's the year four seventy-six. A kid of about sixteen takes off the crown of the most powerful empire the world has ever seen, and hands it to a barbarian general."
     },
     {
      "n": 3,
-     "marca": "general",
-     "es": "Se la da a un general bárbaro. Y ya está.",
-     "en": "He hands it to a barbarian general. And that's it.",
-     "visual": "Se la tiende a Odoacro, que la coge y la mete en un cofre."
-    },
-    {
-     "n": 4,
      "marca": "fuera",
      "es": "Sin batalla final. Sin incendio. Fuera, la gente sigue con su día.",
      "en": "No final battle. No fire. Outside, people just carry on with their day.",
-     "visual": "Fuera, una calle: un panadero saca pan, un perro duerme, nadie mira."
+     "visual": "Fuera, una calle: un panadero, un perro que duerme, gente que pasa."
     }
    ],
    "cartela": "476"
   },
   {
-   "id": "rm-monedas",
+   "id": "rm-pregunta",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "pregunta",
+     "es": "¿Cómo se acaba algo tan enorme con un encogimiento de hombros? Para entenderlo hace falta la historia entera. Y cabe en diez minutos.",
+     "en": "So how does something that huge end with a shrug? To get it, you need the whole story. And it fits in ten minutes.",
+     "visual": "El chaval se encoge de hombros ante el trono vacío; «?» en la caja; el salón se funde en el mapa."
+    }
+   ]
+  },
+  {
+   "id": "rm-mapa",
    "estilo": "pixel",
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
@@ -81,17 +90,33 @@
    "frases": [
     {
      "n": 5,
-     "marca": "encogimiento",
-     "es": "¿Cómo se acaba algo tan enorme con un encogimiento de hombros?",
-     "en": "So how does something that huge end with a shrug?",
-     "visual": "El chaval se encoge de hombros; «?» en la caja."
+     "marca": "mapa",
+     "es": "Primero, el mapa. Esto es el Mediterráneo, el mar que está en medio de todo. Y esta bota que se mete en él es Italia.",
+     "en": "First, the map. This is the Mediterranean, the sea in the middle of everything. And this boot sticking into it is Italy.",
+     "visual": "El Mediterráneo: el mar se ilumina; luego la bota de Italia; zoom a Italia."
     },
     {
      "n": 6,
-     "marca": "monedas",
-     "es": "Porque lleva doscientos años acabándose. Y para verlo, no mires las batallas. Mira las monedas.",
-     "en": "Because it's been ending for two hundred years. And to see it, don't watch the battles. Watch the coins.",
-     "visual": "Dos espadas cruzadas se tachan y aparece el denario: plata brillante que se oscurece a cobre."
+     "marca": "tiber",
+     "es": "A media bota hay un río, el Tíber, y a su lado, unas colinas. Ahí empieza Roma: no como un imperio, sino como una aldea.",
+     "en": "Halfway down the boot there's a river, the Tiber, and next to it, a few hills. That's where Rome starts: not as an empire, but as a village.",
+     "visual": "El Tíber se dibuja, salen las siete colinas, zoom a Roma y la aldea al atardecer."
+    }
+   ]
+  },
+  {
+   "id": "rm-actos",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "actos",
+     "es": "Su historia tiene tres actos. Primero, reyes. Luego, una república, donde nadie puede ser rey. Y al final, un imperio, gobernado otra vez por un solo hombre. Quédate con esta barra: vamos a ir recorriéndola.",
+     "en": "Its story has three acts. First, kings. Then a republic, where nobody gets to be king. And finally an empire, ruled by one man again. Keep an eye on this bar: we're going to move along it.",
+     "visual": "La barra de tiempo se enciende: un rey, dos cónsules, un emperador; sube arriba con el marcador en 753."
     }
    ]
   },
@@ -103,26 +128,19 @@
    "produccion": "",
    "frases": [
     {
-     "n": 7,
-     "marca": "loba",
-     "es": "Rebobinemos. Mucho. Hasta el 753 antes de Cristo, cuando, según la leyenda, una loba encuentra a dos bebés gemelos.",
-     "en": "Let's rewind. A lot. To 753 BC, when, legend says, a wolf finds two baby twins.",
-     "visual": "Siete colinas junto a un río de noche; una loba encuentra una cesta con dos bebés.",
-     "es_voz": "Rebobinemos. Mucho. Hasta el setecientos cincuenta y tres antes de Cristo, cuando, según la leyenda, una loba encuentra a dos bebés gemelos.",
-     "en_voz": "Let's rewind. A lot. To seven fifty-three B.C., when, legend says, a wolf finds two baby twins."
-    },
-    {
      "n": 8,
-     "marca": "hermanos",
-     "es": "Crecen, discuten dónde fundar una ciudad, y Rómulo gana la discusión de la peor manera posible. La ciudad se queda con su nombre.",
-     "en": "They grow up, argue about where to build a city, and Romulus wins the argument in the worst way possible. The city gets his name.",
-     "visual": "Los gemelos, mayores, discuten en una colina; uno empuja al otro fuera del cuadro y se queda solo."
+     "marca": "loba",
+     "es": "Según la leyenda, a Roma la funda en el 753 antes de Cristo Rómulo, un chico criado por una loba junto a su hermano gemelo.",
+     "en": "Legend says Rome is founded in 753 BC by Romulus, a boy raised by a wolf along with his twin brother.",
+     "visual": "El mapa con Roma como un punto; de noche, una loba encuentra a los gemelos junto al río.",
+     "es_voz": "Según la leyenda, a Roma la funda en el setecientos cincuenta y tres antes de Cristo Rómulo, un chico criado por una loba junto a su hermano gemelo.",
+     "en_voz": "Legend says Rome is founded in seven fifty-three B.C. by Romulus, a boy raised by a wolf along with his twin brother."
     }
    ],
    "cartela": "753"
   },
   {
-   "id": "rm-asilo",
+   "id": "rm-aldea",
    "estilo": "pixel",
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
@@ -130,40 +148,17 @@
    "frases": [
     {
      "n": 9,
-     "marca": "puertas",
-     "es": "Para llenarla, dice la leyenda, abre las puertas a fugitivos y forajidos de toda la zona.",
-     "en": "To fill it, the legend says, he opens the gates to runaways and outlaws from all around.",
-     "visual": "Una empalizada con una puerta que se abre: entra gente harapienta con sacos."
+     "marca": "aldea",
+     "es": "La versión real es menos épica: pastores, cabañas y mucho barro. Pero el sitio es bueno: un río para comerciar, colinas para defenderse, y justo en el centro de Italia.",
+     "en": "The real version is less epic: shepherds, huts, and a lot of mud. But the spot is good: a river to trade on, hills to defend, and right in the middle of Italy.",
+     "visual": "La aldea: barro, cabañas, una barca que sube el río con mercancía y vigías en las colinas."
     },
     {
      "n": 10,
-     "marca": "nadie",
-     "es": "O sea, que los primeros romanos son, básicamente, gente que no tiene a dónde ir.",
-     "en": "So the first Romans are, basically, people with nowhere else to go.",
-     "visual": "Los recién llegados saludan con cara de no tener a dónde ir."
-    }
-   ]
-  },
-  {
-   "id": "rm-barro",
-   "estilo": "pixel",
-   "empieza_con": "corte desde la escena anterior",
-   "termina_con": "",
-   "produccion": "",
-   "frases": [
-    {
-     "n": 11,
-     "marca": "cabanas",
-     "es": "La versión real es menos épica: unas cabañas de pastores en siete colinas junto a un río, y mucho barro.",
-     "en": "The real version is less epic: a few shepherds' huts on seven hills by a river, and a lot of mud.",
-     "visual": "Cabañas de pastores en colinas, un río, ovejas y barro que salpica."
-    },
-    {
-     "n": 12,
      "marca": "reyes",
-     "es": "Durante un par de siglos mandan reyes. Hasta que la gente se harta de ellos.",
-     "en": "For a couple of centuries, kings run the place. Until people get sick of them.",
-     "visual": "Reyes con corona se suceden en un trono; al último le cae una patada y sale volando."
+     "es": "Durante dos siglos mandan reyes. Hasta que uno abusa tanto de su poder que los romanos lo echan, y juran no volver a tener rey nunca.",
+     "en": "For two centuries, kings rule. Until one of them abuses his power so badly that the Romans throw him out, and swear never to have a king again.",
+     "visual": "Reyes que se suceden en un trono de madera; al último lo echan a patadas y los romanos juran con la mano en alto."
     }
    ]
   },
@@ -175,33 +170,65 @@
    "produccion": "",
    "frases": [
     {
-     "n": 13,
-     "marca": "republica",
-     "es": "En el 509 antes de Cristo, los romanos echan a su último rey y prueban algo nuevo: la república.",
-     "en": "In 509 BC, the Romans kick out their last king and try something new: a republic.",
-     "visual": "Un foro pequeño: el trono vacío se retira y entran dos pedestales.",
-     "es_voz": "En el quinientos nueve antes de Cristo, los romanos echan a su último rey y prueban algo nuevo: la república.",
-     "en_voz": "In five oh-nine B.C., the Romans kick out their last king and try something new: a republic."
-    },
-    {
-     "n": 14,
+     "n": 11,
      "marca": "consules",
-     "es": "En lugar de un rey, tienes dos cónsules. Cada uno puede vetar al otro, y los dos caducan al año.",
-     "en": "Instead of one king, you get two consuls. Each can veto the other, and both expire after a year.",
-     "visual": "Dos cónsules con toga, cada uno con un reloj de arena encima; uno levanta la mano y el otro la tacha (X)."
+     "es": "Así que en el 509 antes de Cristo inventan un sistema para que nadie acumule demasiado poder: dos jefes, los cónsules, que pueden bloquearse entre ellos y que se cambian cada año.",
+     "en": "So in 509 BC they invent a system to make sure nobody gets too much power: two leaders, called consuls, who can block each other, and who are replaced every year.",
+     "visual": "El mapa con Roma diminuta; dos cónsules en pedestales con relojes de arena; uno levanta la mano y el otro la tacha.",
+     "es_voz": "Así que en el quinientos nueve antes de Cristo inventan un sistema para que nadie acumule demasiado poder: dos jefes, los cónsules, que pueden bloquearse entre ellos y que se cambian cada año.",
+     "en_voz": "So in five oh-nine B.C. they invent a system to make sure nobody gets too much power: two leaders, called consuls, who can block each other, and who are replaced every year."
     },
     {
-     "n": 15,
+     "n": 12,
      "marca": "delegado",
-     "es": "Imagina que el delegado de tu clase tiene fecha de caducidad y un gemelo que puede bloquearle todo. Pues eso, pero con ejércitos.",
-     "en": "Imagine your class president comes with an expiry date, and a twin who can block everything they do. That, but with armies.",
-     "visual": "Se acaba la arena: bajan los dos y suben otros dos."
+     "es": "Imagina que el delegado de tu clase tiene fecha de caducidad y un gemelo que puede vetarle todo. Pues eso, pero con ejércitos.",
+     "en": "Imagine your class president comes with an expiry date, and a twin who can veto everything. That, but with armies.",
+     "visual": "Se acaba la arena y cambian los dos; detrás de cada uno, una fila de legionarios."
     }
    ],
    "cartela": "509"
   },
   {
-   "id": "rm-senado",
+   "id": "rm-italia",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "italia",
+     "es": "Y funciona. Poco a poco, guerra a guerra, Roma se queda con Italia. Y a los que vence no los destruye: los convierte en aliados, y más tarde en romanos. Su ejército no para de crecer.",
+     "en": "And it works. Slowly, war by war, Rome takes over Italy. And the people it beats, it doesn't destroy: it turns them into allies, and later into Romans. Its army keeps growing.",
+     "visual": "Mapa: la mancha roja se extiende por Italia; los vencidos se ponen la toga."
+    },
+    {
+     "n": 14,
+     "marca": "cartago",
+     "es": "Eso la pone cara a cara con Cartago, la superpotencia del otro lado del mar, en lo que hoy es Túnez.",
+     "en": "That puts it face to face with Carthage, the superpower across the sea, in what is today Tunisia.",
+     "visual": "Mapa: aparece Cartago en amarillo al otro lado del mar; espadas en la caja."
+    }
+   ]
+  },
+  {
+   "id": "rm-anibal",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "anibal",
+     "es": "Su general, Aníbal, hace lo impensable: cruza los Alpes con elefantes y destroza un ejército romano tras otro. En Cannas mueren cincuenta mil romanos en un solo día.",
+     "en": "Its general, Hannibal, does the unthinkable: he crosses the Alps with elephants and wipes out one Roman army after another. At Cannae, fifty thousand Romans die in a single day.",
+     "visual": "Elefantes subiendo los Alpes nevados; luego en Cannas caen filas de legionarios; «50000»."
+    }
+   ]
+  },
+  {
+   "id": "rm-gana",
    "estilo": "pixel",
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
@@ -209,92 +236,28 @@
    "frases": [
     {
      "n": 16,
-     "marca": "senado",
-     "es": "Y por encima, un Senado de unos trescientos señores mayores que discuten todo durante horas. Algunas cosas no cambian.",
-     "en": "And above them sits a Senate of about three hundred older men who argue about everything for hours. Some things never change.",
-     "visual": "El Senado en gradas, lleno de ancianos con toga que gesticulan; el sol cruza las ventanas deprisa."
+     "marca": "gana",
+     "es": "Cualquier otro país se rendiría. Roma no. Recluta más hombres, sigue luchando y gana. Y después de Cartago, ya no queda nadie en el Mediterráneo capaz de pararla.",
+     "en": "Any other country would surrender. Rome doesn't. It recruits more men, keeps fighting, and wins. And after Carthage, there's no one left in the Mediterranean who can stop it.",
+     "visual": "Una fila nueva de reclutas se levanta; mapa: el rojo rodea el Mediterráneo."
     }
    ]
   },
   {
-   "id": "rm-cartago",
-   "estilo": "pixel",
-   "empieza_con": "cartela 218",
-   "termina_con": "",
-   "produccion": "",
-   "frases": [
-    {
-     "n": 17,
-     "marca": "cartago",
-     "es": "Roma crece. Y choca con Cartago, la gran potencia del otro lado del mar.",
-     "en": "Rome grows. And it runs into Carthage, the superpower across the sea.",
-     "visual": "Mapa del Mediterráneo: la mancha roja de Roma crece por Italia y choca con la de Cartago."
-    },
-    {
-     "n": 18,
-     "marca": "alpes",
-     "es": "En el 218 antes de Cristo, un general cartaginés llamado Aníbal hace algo que nadie espera: cruza los Alpes con elefantes.",
-     "en": "In 218 BC, a Carthaginian general named Hannibal does something nobody sees coming: he marches elephants over the Alps.",
-     "visual": "Montañas nevadas: una fila de elefantes sube los Alpes con soldados; nieve que cae.",
-     "es_voz": "En el doscientos dieciocho antes de Cristo, un general cartaginés llamado Aníbal hace algo que nadie espera: cruza los Alpes con elefantes.",
-     "en_voz": "In two eighteen B.C., a Carthaginian general named Hannibal does something nobody sees coming: he marches elephants over the Alps."
-    }
-   ],
-   "cartela": "218"
-  },
-  {
-   "id": "rm-cannas",
+   "id": "rm-problema",
    "estilo": "pixel",
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
    "produccion": "",
    "frases": [
     {
-     "n": 19,
-     "marca": "cannas",
-     "es": "Y aplasta a los romanos. En Cannas mueren unos cincuenta mil en un solo día.",
-     "en": "And he crushes the Romans. At Cannae, around fifty thousand of them die in a single day.",
-     "visual": "Campo de batalla: filas de escudos rojos caen como fichas; «50000» en la caja."
-    },
-    {
-     "n": 20,
-     "marca": "recluta",
-     "es": "Cualquier otro país pediría la paz. Roma no. Sigue reclutando, sigue luchando, y acaba ganando.",
-     "en": "Any other country would ask for peace. Rome doesn't. It keeps recruiting, keeps fighting, and eventually wins.",
-     "visual": "Una fila nueva de reclutas se levanta y avanza."
-    },
-    {
-     "n": 21,
-     "marca": "superpoder",
-     "es": "Ese es su superpoder: no rendirse nunca, y convertir en romanos a los que conquista.",
-     "en": "That's its superpower: never giving up, and turning the people it conquers into Romans.",
-     "visual": "Mapa: la mancha roja se extiende; gente de otros pueblos se pone la toga."
+     "n": 17,
+     "marca": "problema",
+     "es": "Pero aquí está el problema. El sistema estaba pensado para gobernar una ciudad, no medio mundo conocido. Conquistar hace a los generales ricos y famosos, y los soldados empiezan a ser más fieles a su general que a Roma.",
+     "en": "But here's the problem. The system was built to run a city, not half the known world. Conquest makes generals rich and famous, and soldiers start being more loyal to their general than to Rome.",
+     "visual": "Un general crece ante el Senado y su sombra lo tapa; sus soldados se giran hacia él y no hacia el templo."
     }
    ]
-  },
-  {
-   "id": "rm-piratas",
-   "estilo": "pixel",
-   "empieza_con": "cartela 44",
-   "termina_con": "",
-   "produccion": "",
-   "frases": [
-    {
-     "n": 22,
-     "marca": "generales",
-     "es": "Pero ganar tanto tiene trampa: los generales se vuelven más poderosos que la república.",
-     "en": "But winning that much has a catch: generals become more powerful than the republic.",
-     "visual": "Un general con capa roja crece y su sombra tapa el edificio del Senado."
-    },
-    {
-     "n": 23,
-     "marca": "piratas",
-     "es": "Fíjate en Julio César. De joven lo secuestran unos piratas. Piden un rescate y él se ofende: pedid más, les dice, que valgo más.",
-     "en": "Take Julius Caesar. As a young man, he's kidnapped by pirates. They ask for a ransom, and he's offended: ask for more, he says, I'm worth more.",
-     "visual": "Un barco pirata: el joven César, sentado y tranquilo, sube con la mano el saco del rescate; «20» pasa a «50»."
-    }
-   ],
-   "cartela": "44"
   },
   {
    "id": "rm-rubicon",
@@ -304,85 +267,64 @@
    "produccion": "",
    "frases": [
     {
-     "n": 24,
+     "n": 18,
      "marca": "rubicon",
-     "es": "En el 49 antes de Cristo, César cruza un riachuelo, el Rubicón, con su ejército. La ley lo prohíbe. Lo hace igual.",
-     "en": "In 49 BC, Caesar crosses a small river, the Rubicon, with his army. The law says he can't. He does it anyway.",
-     "visual": "Un riachuelo: César y sus legionarios lo cruzan; detrás, una línea punteada se rompe.",
-     "en_voz": "In 49 B.C., Caesar crosses a small river, the Rubicon, with his army. The law says he can't. He does it anyway."
+     "es": "En el 49 antes de Cristo, uno de esos generales, Julio César, cruza con su ejército un riachuelo, el Rubicón. La ley lo prohíbe. Lo hace igual, y gana una guerra civil.",
+     "en": "In 49 BC, one of those generals, Julius Caesar, crosses a small river, the Rubicon, with his army. The law forbids it. He does it anyway, and wins a civil war.",
+     "visual": "César y sus legionarios cruzan el Rubicón; la línea de la ley se rompe.",
+     "en_voz": "In 49 B.C., one of those generals, Julius Caesar, crosses a small river, the Rubicon, with his army. The law forbids it. He does it anyway, and wins a civil war."
     },
     {
-     "n": 25,
+     "n": 19,
      "marca": "idus",
-     "es": "Gana la guerra civil y se hace dictador. En el 44, un grupo de senadores lo mata a puñaladas en pleno Senado.",
-     "en": "He wins the civil war and makes himself dictator. In 44 BC, a group of senators stabs him to death in the Senate.",
-     "visual": "Dentro del Senado: sombras con puñales se acercan a César; un calendario marca «15».",
-     "en_voz": "He wins the civil war and makes himself dictator. In 44 B.C., a group of senators stabs him to death in the Senate."
+     "es": "En el 44, unos senadores que temen que se haga rey lo matan a puñaladas. Quieren salvar la república. Lo que consiguen son trece años más de guerra civil.",
+     "en": "In 44 BC, senators who fear he'll make himself king stab him to death. They want to save the republic. What they get is thirteen more years of civil war.",
+     "visual": "Senadores con puñales rodean a César; fundido rojo; «13» en la caja.",
+     "en_voz": "In 44 B.C., senators who fear he'll make himself king stab him to death. They want to save the republic. What they get is thirteen more years of civil war."
     }
    ]
   },
   {
    "id": "rm-augusto",
    "estilo": "pixel",
+   "empieza_con": "cartela 27",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "augusto",
+     "es": "El ganador es Octavio, el heredero adoptivo de César. Él aprendió la lección: nunca te llames rey. Se hace llamar «primer ciudadano», toma el nombre de Augusto y mantiene el Senado de adorno. El mejor cambio de imagen de la historia.",
+     "en": "The winner is Caesar's adopted heir, Octavian. He's learned the lesson: never call yourself king. He calls himself \"first citizen\", takes the name Augustus, and keeps the Senate around for show. The greatest rebrand in history.",
+     "visual": "El mapa con la mancha alrededor del Mediterráneo; Octavio rechaza la corona de rey y se pone el laurel; «1» en la caja."
+    },
+    {
+     "n": 21,
+     "marca": "emperador",
+     "es": "En la práctica, Roma ya tiene emperador. Y durante unos doscientos años, funciona increíblemente bien.",
+     "en": "In practice, Rome now has an emperor. And for about two hundred years, it works incredibly well.",
+     "visual": "El emperador en su trono; la ciudad en paz al atardecer; «200» en la caja."
+    }
+   ],
+   "cartela": "27"
+  },
+  {
+   "id": "rm-cumbre",
+   "estilo": "pixel",
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
    "produccion": "",
    "frases": [
     {
-     "n": 26,
-     "marca": "octavio",
-     "es": "Quieren salvar la república. Lo que consiguen es que su heredero adoptivo, Octavio, se quede con todo.",
-     "en": "They want to save the republic. What they get is his adopted heir, Octavian, taking everything.",
-     "visual": "El joven Octavio recoge una corona de laurel del suelo."
-    },
-    {
-     "n": 27,
-     "marca": "augusto",
-     "es": "Octavio se hace llamar Augusto y nunca dice «soy rey». Solo «el primer ciudadano». Es el mejor cambio de imagen de la historia.",
-     "en": "Octavian renames himself Augustus and never says \"I'm king\". Just \"first citizen\". It's the greatest rebrand in history.",
-     "visual": "Rechaza una corona de rey y se pone el laurel; los senadores aplauden sin ganas."
-    },
-    {
-     "n": 28,
-     "marca": "denario",
-     "es": "Y su moneda, el denario, es casi plata pura. Acuérdate de ese número.",
-     "en": "And his coin, the denarius, is almost pure silver. Remember that number.",
-     "visual": "El denario brilla con su barra de plata: «95%»."
+     "n": 22,
+     "marca": "cumbre",
+     "es": "Hacia el año 117, Roma llega a su tamaño máximo: de Gran Bretaña a Irak, alrededor de todo el Mediterráneo. Más o menos una de cada cinco personas de la Tierra vive dentro de estas fronteras.",
+     "en": "Around the year 117, Rome hits its maximum size: from Britain to Iraq, all the way around the Mediterranean. Roughly one in five people on Earth live inside these borders.",
+     "visual": "Mapa: el imperio llega a su máximo; cinco personas, una iluminada, «1/5».",
+     "es_voz": "Hacia el año ciento diecisiete, Roma llega a su tamaño máximo: de Gran Bretaña a Irak, alrededor de todo el Mediterráneo. Más o menos una de cada cinco personas de la Tierra vive dentro de estas fronteras.",
+     "en_voz": "Around the year one seventeen, Rome hits its maximum size: from Britain to Iraq, all the way around the Mediterranean. Roughly one in five people on Earth live inside these borders."
     }
    ]
-  },
-  {
-   "id": "rm-trajano",
-   "estilo": "pixel",
-   "empieza_con": "cartela 117",
-   "termina_con": "",
-   "produccion": "",
-   "frases": [
-    {
-     "n": 29,
-     "marca": "mapa",
-     "es": "Avanzamos hasta el año 117. Con el emperador Trajano, Roma llega a su tamaño máximo: de Gran Bretaña a Irak.",
-     "en": "Fast forward to the year 117. Under the emperor Trajan, Rome hits its maximum size: from Britain to Iraq.",
-     "visual": "Mapa: el imperio en púrpura se extiende de Britania a Mesopotamia.",
-     "es_voz": "Avanzamos hasta el año ciento diecisiete. Con el emperador Trajano, Roma llega a su tamaño máximo: de Gran Bretaña a Irak.",
-     "en_voz": "Fast forward to the year one seventeen. Under the emperor Trajan, Rome hits its maximum size: from Britain to Iraq."
-    },
-    {
-     "n": 30,
-     "marca": "quinto",
-     "es": "Más o menos uno de cada cinco humanos del planeta vive bajo su mando.",
-     "en": "Roughly one in five humans on the planet lives under its rule.",
-     "visual": "Cinco personitas: una se ilumina; «1/5» en la caja."
-    },
-    {
-     "n": 31,
-     "marca": "sevilla",
-     "es": "¿Y Trajano? Nacido en Hispania, cerca de la actual Sevilla. Un chico de provincias al frente del mundo conocido.",
-     "en": "And Trajan himself? Born in Hispania, near today's Seville. A kid from the provinces, running the known world.",
-     "visual": "Una estrella sobre Hispania, junto a Sevilla; Trajano con laurel y armadura."
-    }
-   ],
-   "cartela": "117"
   },
   {
    "id": "rm-obras",
@@ -392,67 +334,53 @@
    "produccion": "",
    "frases": [
     {
-     "n": 32,
+     "n": 23,
      "marca": "obras",
-     "es": "Construyen calzadas que siguen bajo algunas carreteras, acueductos que traen agua de montañas lejanas, y un hormigón tan bueno que la cúpula del Panteón sigue en pie hoy.",
-     "en": "They build roads that still lie under some modern highways, aqueducts that carry water from distant mountains, and concrete so good that the dome of the Pantheon is still standing today.",
-     "visual": "Una calzada que se traza sola por el campo, un acueducto con agua que corre y el Panteón con su rayo de luz."
+     "es": "Las calzadas lo conectan todo. Los acueductos traen agua de las montañas. Y construyen con un hormigón tan bueno que la cúpula del Panteón sigue en pie hoy.",
+     "en": "Roads connect everything. Aqueducts bring water down from the mountains. And they build with concrete so good that the dome of the Pantheon is still standing today.",
+     "visual": "Una calzada que se traza sola, un acueducto que se levanta y el Panteón con su rayo de luz."
     }
    ]
   },
   {
-   "id": "rm-ciudad",
+   "id": "rm-denario",
    "estilo": "pixel",
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
    "produccion": "",
    "frases": [
     {
-     "n": 33,
-     "marca": "ciudad",
-     "es": "Si paseas por Roma, eres uno de casi un millón de personas, apiñadas en bloques de pisos que a veces se derrumban o arden, con comida callejera en cada esquina.",
-     "en": "Walk through Rome and you're one of about a million people, packed into apartment blocks that sometimes collapse or burn, with street food on every corner.",
-     "visual": "Calle de Roma: bloques de pisos, ropa tendida, un puesto de comida, gente; un bloque humea."
-    },
-    {
-     "n": 34,
-     "marca": "paz",
-     "es": "Casi doscientos años de relativa paz. Para la época, eso es ciencia ficción.",
-     "en": "Almost two hundred years of relative peace. For the time, that's science fiction.",
-     "visual": "La ciudad al atardecer, tranquila; un contador sube a «200»."
+     "n": 24,
+     "marca": "denario",
+     "es": "Y todo eso funciona gracias a una cosa: el dinero. En concreto, una moneda de plata, el denario. Con Augusto es casi plata pura. Acuérdate de esta moneda: nos va a contar el resto de la historia.",
+     "en": "And all of it runs on one thing: money. Specifically, a silver coin called the denarius. Under Augustus, it's almost pure silver. Remember this coin. It's going to tell us the rest of the story.",
+     "visual": "El denario brilla y su barra sube a «95%»."
     }
    ]
   },
   {
    "id": "rm-trampa",
    "estilo": "pixel",
-   "empieza_con": "cartela 193",
+   "empieza_con": "cartela 180",
    "termina_con": "",
    "produccion": "",
    "frases": [
     {
-     "n": 35,
-     "marca": "ejercito",
-     "es": "Pero mantener todo eso cuesta una fortuna, sobre todo pagar al ejército.",
-     "en": "But keeping all that running costs a fortune, especially paying the army.",
-     "visual": "Legionarios en fila cobran su paga de un cofre que se vacía."
+     "n": 25,
+     "marca": "catch",
+     "es": "Pero hay trampa. El imperio deja de crecer. Y cuando dejas de conquistar, dejas de conseguir oro, tierras y esclavos gratis. Pero sigues teniendo que pagar al mayor ejército del mundo.",
+     "en": "But here's the catch. The empire stops growing. And when you stop conquering, you stop getting gold, land and slaves for free. But you still have to pay the biggest army in the world.",
+     "visual": "El mapa quieto con la frontera que brilla; legionarios cobran de un cofre que se vacía."
     },
     {
-     "n": 36,
+     "n": 26,
      "marca": "trampa",
-     "es": "Así que los emperadores empiezan a hacer trampa: menos plata en las monedas, y más cobre.",
-     "en": "So emperors start cheating: less silver in the coins, more copper.",
-     "visual": "El denario: unas tijeras le recortan la plata y la barra baja; un chorro de cobre entra."
-    },
-    {
-     "n": 37,
-     "marca": "cara",
-     "es": "Misma cara, mismo valor en teoría. Menos valor en tu mano.",
-     "en": "Same face, same value on paper. Less value in your hand.",
-     "visual": "Dos monedas con la misma cara; una brilla menos."
+     "es": "Así que los emperadores hacen trampa: meten menos plata en la moneda, y más cobre. Misma cara, mismo valor en teoría. Menos valor en tu mano.",
+     "en": "So emperors cheat: they put less silver in the coin, and more copper. Same face, same value on paper. Less value in your hand.",
+     "visual": "Unas tijeras recortan la plata del denario y entra cobre; la barra baja a «50%»."
     }
    ],
-   "cartela": "193"
+   "cartela": "180"
   },
   {
    "id": "rm-subasta",
@@ -462,55 +390,40 @@
    "produccion": "",
    "frases": [
     {
-     "n": 38,
+     "n": 27,
      "marca": "subasta",
-     "es": "Y en el 193 pasa algo surrealista: la guardia del emperador lo mata y subasta el imperio al mejor postor.",
-     "en": "And in 193, something surreal happens: the emperor's own guard kills him and auctions off the empire to the highest bidder.",
-     "visual": "Palacio: un guardia con un mazo; dos ricos pujan con sacos de monedas; el trono, en medio.",
-     "es_voz": "Y en el ciento noventa y tres pasa algo surrealista: la guardia del emperador lo mata y subasta el imperio al mejor postor.",
-     "en_voz": "And in one ninety-three, something surreal happens: the emperor's own guard kills him and auctions off the empire to the highest bidder."
-    },
-    {
-     "n": 39,
-     "marca": "didio",
-     "es": "El ganador, Didio Juliano, dura sesenta y seis días. La peor compra de la historia.",
-     "en": "The winner, Didius Julianus, lasts sixty-six days. Worst purchase in history.",
-     "visual": "El ganador se sienta; un reloj de arena con «66» se vacía y el trono queda vacío."
+     "es": "Y el ejército sabe quién le paga. En el 193, la guardia del emperador lo mata y subasta el imperio al mejor postor. El ganador dura sesenta y seis días.",
+     "en": "And the army knows who pays it. In 193, the emperor's own guard kills him and auctions off the empire to the highest bidder. The winner lasts sixty-six days.",
+     "visual": "Un pretoriano con un mazo; dos ricos pujan; el ganador se sienta y desaparece cuando la caja llega a 0.",
+     "es_voz": "Y el ejército sabe quién le paga. En el ciento noventa y tres, la guardia del emperador lo mata y subasta el imperio al mejor postor. El ganador dura sesenta y seis días.",
+     "en_voz": "And the army knows who pays it. In one ninety-three, the emperor's own guard kills him and auctions off the empire to the highest bidder. The winner lasts sixty-six days."
     }
    ]
   },
   {
    "id": "rm-caos",
    "estilo": "pixel",
-   "empieza_con": "cartela 235",
+   "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
    "produccion": "",
    "frases": [
     {
-     "n": 40,
+     "n": 28,
      "marca": "caos",
-     "es": "En el 235 empieza medio siglo de puro caos.",
-     "en": "In 235, half a century of pure chaos begins.",
-     "visual": "El trono bajo un cielo de tormenta.",
-     "es_voz": "En el doscientos treinta y cinco empieza medio siglo de puro caos.",
-     "en_voz": "In two thirty-five, half a century of pure chaos begins."
+     "es": "A partir del 235, todo empeora. En cincuenta años, más de veinte emperadores, casi todos asesinados o muertos en batalla. Cualquier general con un ejército quiere su turno.",
+     "en": "From 235, it gets worse. In fifty years, more than twenty emperors, almost all murdered or killed in battle. Any general with an army wants a turn.",
+     "visual": "Bajo la tormenta, emperadores que pasan por el trono cada vez más deprisa; «20+».",
+     "es_voz": "A partir del doscientos treinta y cinco, todo empeora. En cincuenta años, más de veinte emperadores, casi todos asesinados o muertos en batalla. Cualquier general con un ejército quiere su turno.",
+     "en_voz": "From two thirty-five, it gets worse. In fifty years, more than twenty emperors, almost all murdered or killed in battle. Any general with an army wants a turn."
     },
     {
-     "n": 41,
-     "marca": "veinte",
-     "es": "En cincuenta años, más de veinte emperadores. Casi todos acaban asesinados o muertos en batalla.",
-     "en": "In fifty years, more than twenty emperors. Almost all of them are murdered or die in battle.",
-     "visual": "Emperadores que pasan por el trono cada vez más deprisa; el contador sube a «20+»."
-    },
-    {
-     "n": 42,
-     "marca": "valeriano",
-     "es": "A uno de ellos, Valeriano, lo capturan vivo los persas. Nunca vuelve.",
-     "en": "One of them, Valerian, is captured alive by the Persians. He never comes back.",
-     "visual": "Un emperador encadenado entre jinetes persas que se alejan."
+     "n": 29,
+     "marca": "fronteras",
+     "es": "Mientras tanto, a las fronteras las empujan los pueblos germanos desde el norte y Persia desde el este, y las epidemias barren las ciudades.",
+     "en": "Meanwhile, the borders are pushed by Germanic peoples from the north and by Persia from the east, and epidemics sweep through the cities.",
+     "visual": "Mapa: flechas que empujan desde el norte y el este y manchas oscuras de epidemias."
     }
-   ],
-   "cartela": "235"
+   ]
   },
   {
    "id": "rm-vacia",
@@ -520,21 +433,14 @@
    "produccion": "",
    "frases": [
     {
-     "n": 43,
-     "marca": "fronteras",
-     "es": "Las fronteras se rompen, llegan epidemias, y la moneda baja a menos de un cinco por ciento de plata.",
-     "en": "Borders break, epidemics arrive, and the coin drops to less than five percent silver.",
-     "visual": "Mapa: la frontera se agrieta y manchas oscuras se extienden; la barra del denario cae a «5%»."
+     "n": 30,
+     "marca": "moneda",
+     "es": "¿Y la moneda? Menos de un cinco por ciento de plata. Imagina que te pagan el sueldo en monedas que son un noventa y cinco por ciento otra cosa. Los precios se disparan.",
+     "en": "And the coin? Less than five percent silver. Imagine getting paid in coins that are ninety-five percent something else. Prices explode.",
+     "visual": "Un soldado muerde su moneda; los precios saltan 1, 10, 100; la barra a «5%»."
     },
     {
-     "n": 44,
-     "marca": "sueldo",
-     "es": "Imagina que te pagan el sueldo en monedas que son un noventa y cinco por ciento otra cosa. Los precios se disparan.",
-     "en": "Imagine getting paid in coins that are ninety-five percent something else. Prices explode.",
-     "visual": "Un soldado muerde su moneda y pone cara de asco; los precios saltan: 1, 10, 100."
-    },
-    {
-     "n": 45,
+     "n": 31,
      "marca": "hueca",
      "es": "Roma no se cae de golpe. Se va vaciando por dentro, como esa moneda.",
      "en": "Rome isn't falling all at once. It's being hollowed out from the inside, like that coin.",
@@ -543,25 +449,18 @@
    ]
   },
   {
-   "id": "rm-diocleciano",
+   "id": "rm-partir",
    "estilo": "pixel",
    "empieza_con": "cartela 284",
    "termina_con": "",
    "produccion": "",
    "frases": [
     {
-     "n": 46,
-     "marca": "cuatro",
-     "es": "Algunos emperadores intentan arreglarlo. Diocleciano parte el imperio para poder gobernarlo, y llega a haber cuatro emperadores a la vez.",
-     "en": "Some emperors try to fix it. Diocletian splits the empire so it can actually be run, at one point with four emperors at once.",
-     "visual": "Unas tijeras parten el mapa en dos; aparece un emperador en cada esquina (cuatro)."
-    },
-    {
-     "n": 47,
-     "marca": "precios",
-     "es": "También fija por ley precios máximos para casi todo. No funciona: la gente simplemente deja de vender.",
-     "en": "He also sets maximum prices by law for almost everything. It doesn't work: people just stop selling.",
-     "visual": "Un muro con una tabla de precios clavada; los mercaderes tapan sus puestos."
+     "n": 32,
+     "marca": "partir",
+     "es": "Luego llegan los remiendos. El emperador Diocleciano decide que el imperio es demasiado grande para una sola persona y lo parte: una mitad occidental y una oriental, cada una con sus gobernantes.",
+     "en": "Then come the patches. The emperor Diocletian decides the empire is too big for one person and splits it: a western half and an eastern half, each with its own rulers.",
+     "visual": "Unas tijeras parten el mapa en dos; un gobernante a cada lado."
     }
    ],
    "cartela": "284"
@@ -574,20 +473,34 @@
    "produccion": "",
    "frases": [
     {
-     "n": 48,
+     "n": 33,
      "marca": "constantino",
-     "es": "Luego Constantino hace dos cosas enormes: apoya el cristianismo y, en el 330, muda la capital al este, a una ciudad nueva: Constantinopla.",
-     "en": "Then Constantine does two huge things: he backs Christianity, and in 330 he moves the capital east, to a brand-new city: Constantinople.",
-     "visual": "Constantino con un escudo con el crismón; un barco lleva la capital hacia el este; «330» en la caja.",
-     "es_voz": "Luego Constantino hace dos cosas enormes: apoya el cristianismo y, en el trescientos treinta, muda la capital al este, a una ciudad nueva: Constantinopla.",
-     "en_voz": "Then Constantine does two huge things: he backs Christianity, and in three thirty he moves the capital east, to a brand-new city: Constantinople."
+     "es": "Unas décadas después, Constantino apoya el cristianismo y construye una capital nueva en el este: Constantinopla, la actual Estambul. El dinero, el comercio y el poder se van con ella.",
+     "en": "A few decades later, Constantine backs Christianity and builds a new capital in the east: Constantinople, today's Istanbul. The money, the trade and the power move with it.",
+     "visual": "Constantino con el escudo de la cruz; un barco se lleva la capital al este; «330»."
     },
     {
-     "n": 49,
+     "n": 34,
      "marca": "este",
-     "es": "El dinero y el poder se van con ella. El oeste se queda con los problemas.",
-     "en": "The money and the power move with it. The West keeps the problems.",
-     "visual": "Mapa: las monedas fluyen al este y el oeste se queda con nubes de tormenta."
+     "es": "El este es rico y está bien defendido. El oeste tiene más frontera, menos dinero y más problemas.",
+     "en": "The East is rich and well defended. The West has longer borders, less money, and more problems.",
+     "visual": "Mapa: el este se ilumina con monedas que fluyen; nubes de tormenta sobre el oeste."
+    }
+   ]
+  },
+  {
+   "id": "rm-hunos",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 35,
+     "marca": "hunos",
+     "es": "Y entonces llegan los hunos desde las estepas. Huyendo de ellos, pueblos germanos enteros entran en el oeste. Y Roma, sin dinero ni soldados, empieza a contratarlos para que luchen por ella.",
+     "en": "And then the Huns arrive from the steppes. Fleeing them, whole Germanic peoples pour into the West. And Rome, short of money and soldiers, starts hiring them to fight for it.",
+     "visual": "Mapa: flechas de los hunos desde las estepas empujan las de los germanos hacia el oeste; luego un oficial romano paga a guerreros germanos."
     }
    ]
   },
@@ -599,22 +512,13 @@
    "produccion": "",
    "frases": [
     {
-     "n": 50,
-     "marca": "godos",
-     "es": "En el 410, los visigodos saquean la ciudad de Roma. Nadie lo conseguía desde hacía ochocientos años.",
-     "en": "In 410, the Visigoths sack the city of Rome. Nobody has done that in eight hundred years.",
-     "visual": "Una ciudad amurallada de noche: los godos entran por la puerta; «800» en la caja.",
-     "es_voz": "En el cuatrocientos diez, los visigodos saquean la ciudad de Roma. Nadie lo conseguía desde hacía ochocientos años.",
-     "en_voz": "In four ten, the Visigoths sack the city of Rome. Nobody has done that in eight hundred years."
-    },
-    {
-     "n": 51,
-     "marca": "vandalos",
-     "es": "En el 455 llegan los vándalos y se pasan dos semanas llevándose todo lo que pueden.",
-     "en": "In 455, the Vandals show up and spend two weeks taking everything they can carry.",
-     "visual": "Barcos vándalos en la costa; carros cargados de oro suben a bordo.",
-     "es_voz": "En el cuatrocientos cincuenta y cinco llegan los vándalos y se pasan dos semanas llevándose todo lo que pueden.",
-     "en_voz": "In four fifty-five, the Vandals show up and spend two weeks taking everything they can carry."
+     "n": 36,
+     "marca": "saqueo",
+     "es": "En el 410, uno de esos pueblos, los visigodos, saquea la ciudad de Roma. Nadie lo conseguía desde hacía ochocientos años. En el 455, los vándalos lo repiten.",
+     "en": "In 410, one of those peoples, the Visigoths, sacks the city of Rome. Nobody had done that in eight hundred years. In 455, the Vandals do it again.",
+     "visual": "De noche, los godos entran por la puerta de Roma; «800»; luego barcos vándalos cargando oro.",
+     "es_voz": "En el cuatrocientos diez, uno de esos pueblos, los visigodos, saquea la ciudad de Roma. Nadie lo conseguía desde hacía ochocientos años. En el cuatrocientos cincuenta y cinco, los vándalos lo repiten.",
+     "en_voz": "In four ten, one of those peoples, the Visigoths, sacks the city of Rome. Nobody had done that in eight hundred years. In four fifty-five, the Vandals do it again."
     }
    ],
    "cartela": "410"
@@ -627,36 +531,20 @@
    "produccion": "",
    "frases": [
     {
-     "n": 52,
+     "n": 37,
      "marca": "odoacro",
-     "es": "Y en el 476 volvemos a aquel salón de mármol. El general Odoacro depone al chaval y manda la corona a Constantinopla con un mensaje: aquí ya no hace falta emperador.",
-     "en": "And in 476, we're back in that marble hall. The general Odoacer removes the teenager and sends the crown to Constantinople with a message: we don't need an emperor here anymore.",
-     "visual": "El salón de mármol del principio: Odoacro mete la corona en un cofre y un barco se la lleva hacia el este.",
-     "es_voz": "Y en el cuatrocientos setenta y seis volvemos a aquel salón de mármol. El general Odoacro depone al chaval y manda la corona a Constantinopla con un mensaje: aquí ya no hace falta emperador.",
-     "en_voz": "And in four seventy-six, we're back in that marble hall. The general Odoacer removes the teenager and sends the crown to Constantinople with a message: we don't need an emperor here anymore."
-    }
-   ]
-  },
-  {
-   "id": "rm-villa",
-   "estilo": "pixel",
-   "empieza_con": "corte desde la escena anterior",
-   "termina_con": "",
-   "produccion": "",
-   "frases": [
-    {
-     "n": 53,
-     "marca": "villa",
-     "es": "Al chaval no lo matan. Lo mandan a una villa junto al mar, con una pensión. Jubilado a los dieciséis.",
-     "en": "They don't kill the kid. They send him to a villa by the sea, with a pension. Retired at sixteen.",
-     "visual": "Una villa junto al mar: el chaval en una tumbona con una bolsa de monedas."
+     "es": "En el 476, el emperador de occidente es un chaval de dieciséis años al que casi no le queda nada que gobernar. El poder de verdad lo tiene un general germano, Odoacro, que depone al chaval y manda la corona a Constantinopla con un mensaje: aquí ya no hace falta emperador.",
+     "en": "By 476, the western emperor is a sixteen-year-old with almost nothing left to rule. The real power belongs to a Germanic general, Odoacer, who removes the kid and sends the crown to Constantinople with a message: we don't need an emperor here anymore.",
+     "visual": "El salón del principio: Odoacro guarda la corona y un barco se la lleva al este.",
+     "es_voz": "En el cuatrocientos setenta y seis, el emperador de occidente es un chaval de dieciséis años al que casi no le queda nada que gobernar. El poder de verdad lo tiene un general germano, Odoacro, que depone al chaval y manda la corona a Constantinopla con un mensaje: aquí ya no hace falta emperador.",
+     "en_voz": "By four seventy-six, the western emperor is a sixteen-year-old with almost nothing left to rule. The real power belongs to a Germanic general, Odoacer, who removes the kid and sends the crown to Constantinople with a message: we don't need an emperor here anymore."
     },
     {
-     "n": 54,
+     "n": 38,
      "marca": "nombre",
-     "es": "¿Y cómo se llama? Rómulo Augusto. Como el primer rey, y como el primer emperador. La historia a veces tiene guionistas.",
-     "en": "And his name? Romulus Augustus. Like the first king, and the first emperor. Sometimes history has writers.",
-     "visual": "Tres estatuas: Rómulo con la loba, Augusto con laurel y el chaval; la misma corona sobre las tres."
+     "es": "Al chaval ni siquiera lo matan. Lo mandan a una villa con una pensión. ¿Su nombre? Rómulo Augusto. Como el primer rey, y como el primer emperador.",
+     "en": "They don't even kill the kid. They send him to a villa with a pension. His name? Romulus Augustus. Like the first king, and the first emperor.",
+     "visual": "La villa junto al mar con el chaval jubilado; luego tres estatuas: Rómulo con la loba, Augusto y el chaval."
     }
    ]
   },
@@ -668,46 +556,23 @@
    "produccion": "",
    "frases": [
     {
-     "n": 55,
+     "n": 39,
      "marca": "este",
-     "es": "Pero, ¿cayó Roma de verdad? La mitad oriental sigue otros mil años, hasta 1453.",
-     "en": "But did Rome really fall? The eastern half keeps going for another thousand years, until 1453.",
-     "visual": "Mapa: el oeste se apaga en piezas y el este sigue iluminado; un contador avanza hasta «1453».",
-     "es_voz": "Pero, ¿cayó Roma de verdad? La mitad oriental sigue otros mil años, hasta mil cuatrocientos cincuenta y tres.",
-     "en_voz": "But did Rome really fall? The eastern half keeps going for another thousand years, until fourteen fifty-three."
+     "es": "Entonces, ¿cayó Roma? La mitad. La mitad oriental sigue otros mil años, hasta 1453.",
+     "en": "So, did Rome fall? Half of it did. The eastern half keeps going for another thousand years, until 1453.",
+     "visual": "Mapa: el oeste se apaga y el este sigue encendido; el contador va de 476 a 1453.",
+     "es_voz": "Entonces, ¿cayó Roma? La mitad. La mitad oriental sigue otros mil años, hasta mil cuatrocientos cincuenta y tres.",
+     "en_voz": "So, did Rome fall? Half of it did. The eastern half keeps going for another thousand years, until fourteen fifty-three."
     },
     {
-     "n": 56,
+     "n": 40,
      "marca": "razones",
-     "es": "¿Y por qué cayó el oeste? Un historiador alemán reunió doscientas diez razones distintas que se han propuesto. Doscientas diez.",
-     "en": "And why did the West fall? One German historian collected two hundred and ten different reasons people have proposed. Two hundred and ten.",
-     "visual": "Muchos iconos en remolino; «210» en la caja."
-    },
-    {
-     "n": 57,
-     "marca": "muchas",
-     "es": "La respuesta honesta: muchas a la vez. Guerras, dinero, epidemias, política. Como casi todo lo que se rompe.",
-     "en": "The honest answer: many at once. Wars, money, epidemics, politics. Like almost everything that breaks.",
-     "visual": "Cuatro iconos (espadas, moneda, calavera, corona) empujan a la vez una columna que cae."
+     "es": "¿Y por qué cayó el oeste? Los historiadores han propuesto más de doscientas razones. La respuesta honesta es: muchas a la vez. Un imperio demasiado grande para su sistema, un ejército que elegía emperadores, un dinero que perdía su valor y enemigos que llegaron cuando estaba más débil.",
+     "en": "And why did the West fall? Historians have proposed more than two hundred reasons. The honest answer is: many at once. An empire too big for its system, an army that picked emperors, money that lost its value, and enemies who arrived when it was weakest.",
+     "visual": "Cuatro empujan a la vez una columna (un legionario, un mercader, un enfermo y un senador) y cae."
     }
    ],
    "cartela": "1453"
-  },
-  {
-   "id": "rm-hoy",
-   "estilo": "pixel",
-   "empieza_con": "corte desde la escena anterior",
-   "termina_con": "",
-   "produccion": "",
-   "frases": [
-    {
-     "n": 58,
-     "marca": "hoy",
-     "es": "Y Roma nunca se fue del todo. Sus calzadas están bajo nuestras carreteras, julio y agosto llevan el nombre de dos de sus gobernantes, y si hablas español, estás hablando latín que siguió evolucionando.",
-     "en": "And Rome never fully left. Its roads lie under ours, July and August are named after two of its rulers, and if you speak Spanish, French or Italian, you're speaking Latin that kept evolving.",
-     "visual": "Una calle de hoy: el asfalto se abre y debajo asoma la calzada; un calendario con «7» y «8»."
-    }
-   ]
   },
   {
    "id": "rm-cobre",
@@ -717,18 +582,43 @@
    "produccion": "",
    "frases": [
     {
-     "n": 59,
+     "n": 41,
      "marca": "cobre",
      "es": "Los imperios casi nunca caen con una explosión. Caen como aquella moneda: un poco cada año, hasta que un día es cobre con una cara bonita.",
      "en": "Empires almost never fall with a bang. They fall like that coin: a little every year, until one day it's just copper with a pretty face on it.",
-     "visual": "El denario pierde brillo año a año hasta ser cobre con una cara bonita."
-    },
+     "visual": "El denario pierde la plata año a año hasta ser cobre con una cara bonita."
+    }
+   ]
+  },
+  {
+   "id": "rm-hoy",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
     {
-     "n": 60,
+     "n": 42,
+     "marca": "hoy",
+     "es": "Y Roma nunca se fue del todo. Sus calzadas están bajo nuestras carreteras, julio y agosto llevan el nombre de sus gobernantes, y si hablas español, estás hablando latín que siguió evolucionando.",
+     "en": "And Rome never fully left. Its roads lie under ours, July and August are named after its rulers, and if you speak Spanish, French or Italian, you're speaking Latin that kept evolving.",
+     "visual": "Una calle de hoy con la calzada debajo; un calendario con el 7 y el 8; una chica habla y le sale un laurel."
+    }
+   ]
+  },
+  {
+   "id": "rm-plata",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 43,
      "marca": "plata",
-     "es": "Y la plata que salió de esas monedas no desapareció. Sus átomos, como yo, siguen por ahí. Quizá en algo que llevas puesto ahora mismo.",
-     "en": "And the silver that left those coins didn't disappear. Its atoms, like me, are still around. Maybe in something you're wearing right now.",
-     "visual": "Zoom a la plata: átomos que salen volando hacia un anillo y un teléfono."
+     "es": "¿Y la plata que salió de esas monedas? No desapareció. Sus átomos, como yo, siguen por ahí. Quizá en algo que llevas puesto ahora mismo.",
+     "en": "And the silver that left those coins? It didn't disappear. Its atoms, like me, are still around. Maybe in something you're wearing right now.",
+     "visual": "De la moneda salen átomos que vuelan a un anillo y a un teléfono."
     }
    ]
   },
@@ -740,11 +630,11 @@
    "produccion": "",
    "frases": [
     {
-     "n": 61,
+     "n": 44,
      "marca": "adios",
      "es": "¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios.",
      "en": "What should I explain next? Tell me in the comments.",
-     "visual": "Atom en su caja con el «?» sobre Roma de noche."
+     "visual": "Roma de noche; Atom en su caja con el «?»."
     }
    ]
   }

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Plata · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-PLATA (frase 43). De la moneda de cobre salen átomos de plata que vuelan, unos a un anillo y otros a un teléfono.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-plata');
+const { PALA, PR, tramo, lerp } = R;
+const m0 = M('plata', 0.5);
+const atomos = (t) => {
+  R.cieloR(t, 'tarde', { sol: [160, 150, 12], nubes: { n: 3 } });
+  const u = t - m0;
+  R.denario(160, 92, 30, 0.04, t, { brillo: false });
+  R.anillo(70, 70, 10, PR.PLATA[3]); R.anillo(70, 70, 9, PR.PLATA[2]); R.disco(70, 59, 3, PALA.TURQUESA[3]);
+  R.rect(236, 46, 262, 96, PALA.NEGRO[1]); R.rect(238, 50, 260, 90, PALA.AZUL[1]); R.disco(249, 70, 3, PALA.AZUL[3]);
+  for (let k = 0; k < 6; k++) { const f = ((u * 0.3 + k / 6) % 1), tx = k % 2 ? 249 : 70, x = lerp(160, tx, f), y = lerp(92, 70, f) - Math.sin(f * Math.PI) * 30; if (u > 1) R.atomo(Math.round(x), Math.round(y), t + k, { r: 4 }); }
+};
+rodar(E, R, [[0, atomos]]);
+</script>
+</body>
+</html>

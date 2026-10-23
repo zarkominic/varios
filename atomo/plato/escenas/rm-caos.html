@@ -9,31 +9,29 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// RM-CAOS (frases 40–42). Cartela «235». El trono bajo un cielo de tormenta con rayos. Emperadores que pasan por él
-// cada vez más deprisa (cada uno sale de una forma) mientras el contador sube a «20+». Luego, en el desierto, jinetes
-// persas se llevan a un emperador encadenado hacia el atardecer.
+// RM-CAOS (frases 28–29). Bajo una tormenta con rayos, emperadores que pasan por el trono cada vez más deprisa (cada
+// uno sale de una forma) mientras el contador sube a «20+». Luego el mapa: flechas que empujan desde el norte
+// (germanos) y desde el este (Persia), y manchas oscuras de epidemias que se extienden.
 import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
 const { E, R, M } = await preparar('rm-caos');
-const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
-const m = { cao: M('caos', 1.5), vei: M('veinte', 5), val: M('valeriano', 11) };
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { cao: M('caos', 0.5), fro: M('fronteras', 10) };
 const emp = (i) => ({ ...ELENCO.cesar, sombrero: i % 3 === 0 ? 'laurel' : 'diadema', capa: [PALA.PURPURA, PALA.ROJO, PALA.AZUL, PALA.VERDE][i % 4], pelo: [PALA.PELO_NEGRO, PALA.PELO_CASTANO, PALA.PELO_RUBIO, PALA.PELO_BLANCO, PALA.PELO_ROJO][i % 5], barba: ['no', 'poblada', 'perilla', 'bigote'][i % 4] });
-const tormenta = (t) => { R.cieloR(t, 'tormenta', { hor: 140, rayos: [230, 0] }); R.colinas(140, { amp: 8, luz: 0.8, rampa: PR.ROCA }); R.suelo(146, PR.ROCA, { luz: 1.2 }); R.trono(160, 150, { esc: 1.1 }); };
-const vacio = (t) => { tormenta(t); };
 const desfile = (t) => {
-  tormenta(t);
-  const u = Math.max(0, t - m.vei), n = Math.floor(Math.pow(u * 2.2, 1.25)), f = (Math.pow(u * 2.2, 1.25)) % 1;
-  const i = n, sale = f > 0.6 ? (f - 0.6) / 0.4 : 0, modo = i % 3;
-  R.personaje(160 + (modo === 0 ? sale * 200 : modo === 1 ? -sale * 200 : 0), 140 + (modo === 2 ? sale * 60 : 0) - (modo !== 2 ? Math.sin(sale * Math.PI) * 30 : 0), 40, { ...emp(i), t, pose: sale > 0 ? 'brazos' : 'sentado', ceño: sale > 0 });
+  R.ambiente({ luz: { lado: 1, color: PR.NUBE[1] }, sombra: PALA.CONTORNO });
+  R.cieloR(t, 'tormenta', { rayos: [230, 0] }); R.colinas(140, { amp: 8, luz: 0.8, rampa: PR.ROCA }); R.suelo(146, PR.ROCA, { luz: 1.2 });
+  R.trono(160, 150, { esc: 0.8 });
+  const u = Math.max(0, t - m.cao - 1.5), x_ = Math.pow(u * 2.2, 1.25), i = Math.floor(x_), f = x_ % 1, sale = f > 0.6 ? (f - 0.6) / 0.4 : 0, modo = i % 3;
+  R.personaje(160 + (modo === 0 ? sale * 200 : modo === 1 ? -sale * 200 : 0), 142 + (modo === 2 ? sale * 60 : 0) - (modo !== 2 ? Math.sin(sale * Math.PI) * 26 : 0), 28, { ...emp(i), t, pose: sale > 0 ? 'brazos' : 'sentado', ceño: sale > 0, sombra: false });
 };
-const persas = (t) => {
-  R.cieloR(t, 'tarde', { hor: 120, sol: [280, 110, 12] }); R.colinas(120, { amp: 6, luz: 2.6, rampa: PR.PAJA, frec: 0.02 }); R.suelo(130, PR.PAJA, { luz: 2.6 });
-  const p = (t - m.val) * 10;
-  for (let k = 0; k < 3; k++) { const x = 120 + k * 60 + p; R.caballo(x, 170, t + k, { anda: true, rampa: k === 1 ? PALA.NEGRO : PALA.MARRON }); R.personaje(x - 1, 152, 28, { ...ELENCO.barbaro, sombrero: 'gorro', colorSombrero: [PALA.AZUL, PALA.ROJO, PALA.AMARILLO][k], peinado: 'corto', barba: 'poblada', pelo: PALA.PELO_NEGRO, chaqueta: [PALA.ROJO, PALA.AZUL, PALA.VERDE][k], camisa: PALA.AMARILLO, capa: null, t, pose: 'sentado' }); }
-  const vx = 70 + p;
-  R.personaje(vx, 172, 36, { ...emp(1), capa: null, t, anda: t * 6, ceño: true, pose: 'pie' });
-  for (let x = vx + 6; x < 120 + p - 10; x += 2) R.pset(x, 150 + Math.round(Math.sin(x * 0.3) * 1), PR.GRIS[3]);
+const empujes = (t) => {
+  const u = t - m.fro;
+  R.mapaAño(t, 260, { manchas: tramo(u, 3, 7) * 0.7 });
+  R.flechaMapa([R.lugar([4, 58]), R.lugar([6, 54]), R.lugar([7.5, 50.5])], tramo(u, 0.5, 2.5), PALA.AMARILLO[3]);
+  R.flechaMapa([R.lugar([21, 57]), R.lugar([22, 51]), R.lugar([22, 46])], tramo(u, 0.8, 2.8), PALA.AMARILLO[3]);
+  R.flechaMapa([R.lugar([50, 32]), R.lugar([45, 34]), R.lugar([40.5, 35.5])], tramo(u, 1.5, 3.5), PALA.ROJO[3]);
 };
-rodar(E, R, [[0, vacio], [m.vei - 0.2, desfile], [m.val - 0.2, persas]], { cartela: '235', caja: (t, e) => R.caja(t, t > m.vei && t < m.val - 0.2 ? tramo(t, m.vei, m.vei + 0.4) : 0, (x, y) => { const u = Math.max(0, t - m.vei), n = Math.min(20, Math.floor(Math.pow(u * 2.2, 1.25)) + 1); R.numero(n >= 20 ? '20+' : String(n), x + 8, y + 12); }, { energia: e }) });
+rodar(E, R, [[0, desfile], [m.fro - 0.2, empujes]], { año: (t) => Math.round(lerp(235, 284, tramo(t, m.cao + 1.5, m.fro))), caja: (t, e) => R.caja(t, t > m.cao + 1.5 && t < m.fro - 0.2 ? tramo(t, m.cao + 1.5, m.cao + 1.9) : 0, (x, y) => { const u = Math.max(0, t - m.cao - 1.5), n = Math.min(20, Math.floor(Math.pow(u * 2.2, 1.25)) + 1); R.numero(n >= 20 ? '20+' : String(n), x + 8, y + 12); }, { energia: e }) });
 </script>
 </body>
 </html>

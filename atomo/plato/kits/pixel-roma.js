@@ -578,8 +578,38 @@ export async function crearRoma(lienzo) {
     pset(x, y, CONTORNO);
   };
 
+  // ── El imperio en el mapa según el año: cuánto ocupa Roma en cada momento (año negativo = antes de Cristo) ─────
+  // mapaAño(t, año, o): Roma diminuta en el 753, Italia hacia el 264 a. C., el Mediterráneo hacia el 27 a. C., el máximo
+  // en el 117; desde el 395 el oeste se va apagando hasta el 476. Pinta Roma (y Constantinopla desde el 330).
+  const estadoAño = (a) => {
+    const f = (x, x0, x1) => clamp((x - x0) / (x1 - x0), 0, 1);
+    if (a < -264) return { italia: lerp(0.06, 1, f(a, -509, -264)), imperio: 0 };
+    return { italia: 1, imperio: a < -146 ? lerp(0.18, 0.42, f(a, -264, -146)) : a < -27 ? lerp(0.42, 0.66, f(a, -146, -27)) : lerp(0.66, 1, f(a, -27, 117)),
+      oeste: a > 395 ? lerp(0, 0.6, f(a, 395, 476)) : 0 };
+  };
+  const mapaAño = (t, año, o = {}) => {
+    const e = estadoAño(año);
+    mapa(t, { ...e, ...o });
+    const v = o.vista;
+    punto(...lugar('roma', undefined, v), t, PALA.ROJO, 2);
+    if (año >= 330) punto(...lugar('constantinopla', undefined, v), t, PALA.ORO, 2);
+  };
+  // flecha gruesa sobre el mapa (migraciones, empujones): pts en píxeles, p = cuánto se ha dibujado
+  const flechaMapa = (pts, p, c = PALA.ROJO[3]) => {
+    ruta(pts, p, c, { continua: true, grueso: 2, flecha: false });
+    if (p <= 0) return;
+    const L = []; let tot = 0; for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); L.push(d); tot += d; }
+    let q = tot * p, i = 1; while (i < pts.length - 1 && q > L[i - 1]) { q -= L[i - 1]; i++; }
+    const [ax, ay] = pts[i - 1], f = Math.min(1, q / L[i - 1]), bx = ax + (pts[i][0] - ax) * f, by = ay + (pts[i][1] - ay) * f, ang = Math.atan2(pts[i][1] - ay, pts[i][0] - ax);
+    poligono([[bx + Math.cos(ang) * 6, by + Math.sin(ang) * 6], [bx + Math.cos(ang + 2.3) * 6, by + Math.sin(ang + 2.3) * 6], [bx + Math.cos(ang - 2.3) * 6, by + Math.sin(ang - 2.3) * 6]], c);
+  };
+  // ambiente de la escena: luz (contraluz) y sombra por defecto para todos los personajes
+  let AMB = {};
+  const ambiente = (o) => { AMB = o || {}; };
+  const personaje = (cx, suelo_, h, o = {}) => R.personaje(cx, suelo_, h, { ...AMB, ...o });
+
   return {
-    ...R, PALA, PR, ELENCO, LUGARES, ZONAS,
+    ...R, PALA, PR, ELENCO, LUGARES, ZONAS, personaje, ambiente, mapaAño, estadoAño, flechaMapa,
     nubesR, cieloR, colinas, skyline, columna, templo, insula, puesto, trono, salon, SUELO_SALON, mosaico, suelo, acueducto,
     panteon, muralla, empalizada, cabana, bicho, loba, perro, oveja, elefante, caballo, cesta, trirreme,
     mapa, proyMapa, lugar, VISTAS, entre, barraTiempo, punto, ruta, denario, barra, tijeras,

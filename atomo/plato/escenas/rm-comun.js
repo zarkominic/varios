@@ -6,13 +6,16 @@
 //   rodar(E, R, [[0, plano1], [M('general'), plano2]], { cartela: '476', caja: (t, e) => … });
 //
 // Con o.cartela, la cartela ocupa de 0 a o.durCartela (1,3 s por defecto) y el primer plano empieza ahí. Atom está
-// siempre en su sitio (abajo a la izquierda), salvo durante la cartela.
+// siempre en su sitio (abajo a la izquierda), salvo durante la cartela. Con o.año (número o función de t) se dibuja la
+// barra de tiempo arriba a la izquierda con ese año.
 import { escena } from '/atomo/plato/escena.js';
 import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
 
 export async function preparar(id) {
   const E = await escena(id, 'ep05');
   const R = await crearRoma(document.getElementById('lienzo'));
+  // por defecto, el sol de la tarde da por la derecha y los personajes proyectan sombra
+  R.ambiente({ luz: { lado: 1, color: R.hex('#ffb060') }, sombra: R.PALA.CONTORNO });
   return { E, R, M: (k, d) => E.marca(k, d) };
 }
 
@@ -25,6 +28,9 @@ export function rodar(E, R, planos, o = {}) {
     R.secuencia(t, lista, { fundido: o.fundido ?? 0.35 });
     const e = E.energia(t);
     if (o.caja) o.caja(t, e);
+    // la barra de tiempo, arriba a la izquierda, con el año de la escena (salvo en la cartela)
+    const año = typeof o.año === 'function' ? o.año(t) : o.año;
+    if (año != null && (!o.cartela || t > dc) && t >= (o.barraDesde ?? 0)) R.barraTiempo(t, año, { x0: 22, x1: 168, y: 5, alto: 2 });
     if (!o.cartela || t > dc + 0.1) R.companero(t, e);
     R.presentar();
   }, { paso: 1 / 15 });

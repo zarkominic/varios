@@ -23,7 +23,7 @@ const vista = (t) => {
   for (const x of [52, 64, 270, 286]) for (let y = 0; y < 34; y++) { const w = Math.round(3.5 * Math.sin(Math.PI * y / 34) + 0.5); R.rect(x - w, 150 - y, x + w, 150 - y, PR.HIERBA[y % 5 === 0 ? 2 : 0]); }
   for (let k = 0; k < 5; k++) { const x = (k * 53 + t * 14) % 340 - 10, y = 40 + 9 * Math.sin(k * 2 + t * 0.5), a = Math.sin(t * 9 + k) > 0 ? 1 : 0; R.pset(Math.round(x), Math.round(y), PALA.CONTORNO); R.pset(Math.round(x) - 1, Math.round(y) - a, PALA.CONTORNO); R.pset(Math.round(x) + 1, Math.round(y) - a, PALA.CONTORNO); }
 };
-rodar(E, R, [[0, vista]], { caja: (t, e) => R.caja(t, tramo(t, 0.4, 0.9), (x, y) => R.icono('mano', x + 6, y, undefined, undefined, 2), { energia: e }) });
+rodar(E, R, [[0, vista]], { año: 476, barraDesde: 1, caja: (t, e) => R.caja(t, tramo(t, 0.4, 0.9), (x, y) => R.icono('mano', x + 6, y, undefined, undefined, 2), { energia: e }) });
 </script>
 </body>
 </html>
