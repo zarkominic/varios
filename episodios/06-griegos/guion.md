@@ -1,6 +1,6 @@
 # Episodio 6 · La antigua Grecia: por qué la primera democracia mató a su hombre más sabio
 
-**Estado:** v1.1, para revisar. El título y el gancho dicen desde el principio que hablamos de la antigua Grecia.
+**Estado:** v1.2, para revisar. El título y el gancho dicen desde el principio que hablamos de la antigua Grecia.
 
 **Formato:** el del episodio 5. YouTube horizontal 16:9, un solo vídeo con dos pistas de audio: inglés (el original) y español (doblaje).
 
@@ -19,6 +19,7 @@
   - La peste, la derrota y los tiranos (alumnos de Sócrates) llevan a una democracia con miedo, y de ahí al juicio.
   - Ciudades agotadas caen ante Macedonia, y Alejandro extiende el griego por medio mundo.
   - Roma conquista Grecia y Grecia conquista Roma.
+- **La mitología, como legado:** no se cuenta como historia (no empuja la causa y efecto), pero entra en el cierre: dioses, héroes y mitos que siguen en películas, videojuegos, expresiones y marcas.
 - **El hilo de Atom:** Demócrito inventa la palabra átomo; el cierre es que tardamos dos mil años en darle la razón.
 
 ## Estilo visual
@@ -127,6 +128,7 @@
 |---|---|
 | En el 146 antes de Cristo, Roma conquista Grecia. Pero, como escribió un poeta romano, la Grecia conquistada conquista a su conquistador: los romanos aprenden griego y copian sus templos, sus estatuas y hasta sus dioses. | In 146 BC, Rome conquers Greece. But, as a Roman poet put it, captive Greece captures its conqueror: Romans learn Greek and copy its temples, its statues and even its gods. |
 | Y a través de Roma todo eso te llega a ti: la democracia, el teatro, las Olimpiadas, la filosofía, la geometría, el alfabeto. Hasta palabras como música, política o, bueno, átomo. | And through Rome, all of it reaches you: democracy, theater, the Olympics, philosophy, geometry, the alphabet. Even words like music, politics or, well, atom. |
+| Y sus mitos: Zeus y los dioses del Olimpo, Hércules y sus doce trabajos, la guerra de Troya, el viaje de diez años de Ulises para volver a casa. Están en películas y videojuegos, en expresiones como el talón de Aquiles o la caja de Pandora, y hasta en tus zapatillas: Nike era la diosa griega de la victoria. | And their myths: Zeus and the gods of Olympus, Hercules and his twelve labors, the Trojan War, Odysseus and his ten-year trip home. They're in movies and video games, in phrases like an Achilles' heel or Pandora's box, and even on your sneakers: Nike was the Greek goddess of victory. |
 | Sócrates nunca escribió una palabra. Lo conocemos porque un alumno, Platón, apuntó sus conversaciones. Esas preguntas se siguen haciendo hoy en las aulas. | Socrates never wrote a word. We know him because a student, Plato, wrote down his conversations. Those questions are still being asked in classrooms today. |
 | ¿Y Demócrito? Nunca vio un átomo. Solo pensó mucho. Hicieron falta más de dos mil años para demostrar que tenía razón. | And Democritus? He never saw an atom. He just thought very hard. It took more than two thousand years to prove him right. |
 | Nada mal para unas ranas alrededor de una charca. | Not bad for a bunch of frogs around a pond. |
@@ -181,4 +183,10 @@
 - **146 a. C.:** Roma destruye Corinto; Grecia pasa a dominio romano.
 - **Horacio:** *Epístolas*, II, 1, 156 («Graecia capta ferum victorem cepit»).
 - **Palabras griegas:** música, política y átomo.
+- **Mitos:**
+  - Nike es la diosa griega de la victoria;
+  - la «caja» de Pandora era una vasija (*pithos*, en Hesíodo), y lo de «caja» viene de Erasmo;
+  - el talón de Aquiles es tardío (Estacio, siglo I d. C.), pero la expresión es la de hoy;
+  - Hércules es el nombre romano de Heracles;
+  - el viaje de Ulises (Odiseo) dura diez años en la *Odisea*.
 - **Prueba de los átomos:** Einstein (1905) y Perrin (1908), unos 2.300 años después de Demócrito.
