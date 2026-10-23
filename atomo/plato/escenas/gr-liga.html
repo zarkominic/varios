@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Liga · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-LIGA (frases 20–21). Cartela «479». Mapa del Egeo: de cada ciudad sale una moneda que viaja a la isla de Delos. Luego
+// el montón de monedas se muda a Atenas; en la Acrópolis se levanta el Partenón columna a columna y, abajo, los aliados
+// llegan cargados y agachan la cabeza.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-liga');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { lig: M('liga', 1.5), tes: M('tesoro', 9) };
+const t2 = m.tes + 4.5;
+const CIUD = ['mileto', 'efeso', 'troya', 'bizancio', 'corinto', 'tebas', [25.4, 37.1], [26.5, 39.2], [24.7, 40.7], [27.9, 36.3]];
+const flujo = (t, destino, p0) => {
+  const v = R.VISTAS.egeo;
+  R.mapa(t, { vista: v });
+  const [dx, dy] = R.lugar(destino, undefined, v);
+  CIUD.forEach((c, k) => { const [x, y] = R.lugar(c, undefined, v), f = ((t - p0) * 0.4 + k / CIUD.length) % 1; R.punto(x, y, t, PALA.AZUL, 1); if (t > p0) { R.disco(lerp(x, dx, f), lerp(y, dy, f), 2, PALA.ORO[3]); } });
+  R.punto(dx, dy, t, PALA.ORO, 3);
+};
+const partenon = (t) => {
+  R.cieloR(t, 'dia', { hor: 140 });
+  acropolis(R, 160, 140, t, { esc: 1.6, obra: tramo(t, t2, t2 + 4) });
+  R.suelo(140, PALA.MARMOL, { losas: true });
+  for (let k = 0; k < 4; k++) { const p = tramo(t, t2 + 1 + k * 0.6, t2 + 3 + k * 0.6); R.personaje(lerp(-20, 40 + k * 26, p), 172, 24, { ...ELENCO.griego, banda: [PALA.VERDE, PALA.ROJO, PALA.AMARILLO, PALA.MORADO][k], t: t + k, anda: p > 0 && p < 1 ? t * 7 : null, objeto: 'saco', pose: p >= 1 ? 'rodilla' : 'pie' }); }
+};
+rodar(E, R, [[0, (t) => flujo(t, 'delos', m.lig + 1)], [m.tes - 0.2, (t) => flujo(t, 'atenas', m.tes + 0.5)], [t2, partenon]], { cartela: '479', año: (t) => (t < m.tes ? -478 : t < t2 ? -454 : -447) });
+</script>
+</body>
+</html>

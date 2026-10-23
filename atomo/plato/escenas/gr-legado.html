@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Legado · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-LEGADO (frase 40). Hoy: aparecen uno tras otro, sobre un fondo moderno, una urna de votar con una papeleta, un
+// escenario con telón, una antorcha olímpica encendida, un triángulo con su ángulo recto y unas letras griegas; al final
+// Atom aparece junto a la palabra que es su nombre (solo la letra α).
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-legado');
+const { PALA, PR, tramo, lerp } = R;
+await Promise.race([document.fonts.load("16px 'Press Start 2P'", 'ΑΒΓΔΩα'), new Promise((r) => setTimeout(r, 8000))]);
+const m0 = M('legado', 0.5), dur = E.duracion ?? 14;
+const hoy = (t) => {
+  R.cieloR(t, 'tarde', { hor: 124, sol: [300, 110, 9], nubes: { n: 3 } });
+  R.suelo(124, PALA.MARMOL, { losas: true, luz: 2.2 });
+  for (const x of [40, 100, 160, 220, 271]) { R.rect(x - 18, 122, x + 18, 126, PALA.MARMOL[3]); R.rect(x - 16, 126, x + 16, 128, PALA.MARMOL[1]); }
+  const u = t - m0, paso = (dur - m0) / 6, ve = (k) => u > k * paso;
+  if (ve(0)) { const x = 40; R.rect(x - 14, 90, x + 14, 120, PALA.BLANCO[3]); R.rect(x - 14, 90, x + 14, 92, PALA.AZUL[2]); R.rect(x - 6, 86, x + 6, 88, PALA.CONTORNO); const f = ((u * 0.8) % 1); R.rect(x - 4, 70 + f * 16, x + 4, 76 + f * 16, PALA.BLANCO[2]); }
+  if (ve(1)) { const x = 100; R.rect(x - 20, 80, x + 20, 122, PALA.ROJO[1]); R.rect(x - 18, 84, x - 2, 120, PALA.ROJO[2]); R.rect(x + 2, 84, x + 18, 120, PALA.ROJO[2]); R.rect(x - 22, 120, x + 22, 124, PR.MADERA[2]); }
+  if (ve(2)) { const x = 160; R.rect(x - 2, 88, x + 2, 122, PALA.ORO[2]); R.rect(x - 5, 84, x + 5, 88, PALA.ORO[3]); for (let k = 0; k < 6; k++) { const hh = 6 + 8 * R.hash2(k, Math.floor(t * 12)); R.linea(x - 3 + k, 84, x - 3 + k, 84 - hh * (1 - Math.abs(k - 2.5) / 4), k % 2 ? PALA.ANTORCHA[3] : PALA.ANTORCHA[2]); } }
+  if (ve(3)) { const x = 220; R.linea(x - 16, 122, x + 16, 122, PALA.AZUL[3]); R.linea(x - 16, 122, x - 16, 86, PALA.AZUL[3]); R.linea(x - 16, 86, x + 16, 122, PALA.AZUL[3]); R.rect(x - 15, 116, x - 10, 121, PALA.AMARILLO[3]); }
+  if (ve(4)) ['Α', 'Β', 'Γ', 'Δ'].forEach((ch, k) => R.numero(ch, 260 + (k % 2) * 22, 96 + Math.floor(k / 2) * 22, { tam: 16 }));
+  if (ve(5)) { R.halo(160, 150, 18, [R.PAL.GLOW[0], R.PAL.GLOW[1]], 1); R.atomo(160, 150, t, { r: 10 }); }
+};
+rodar(E, R, [[0, hoy]]);
+</script>
+</body>
+</html>

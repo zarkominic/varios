@@ -9,6 +9,7 @@
 // mar; los personajes, los interiores y los acentos usan las rampas de PALA (3–4 tonos por material, luz por la
 // izquierda, contorno #140a1a).
 import { crearRetro, pal, hex } from '/atomo/plato/kits/pixel-retro.js';
+const PR_MADERA = pal(['#2e1a10', '#4e3018', '#704a28', '#946a3c']);
 
 export const PALA = {
   CONTORNO: hex('#140a1a'),
@@ -235,6 +236,15 @@ export async function crearAventura(lienzo) {
     if (o.objeto === 'gladio') { trazo(ax, ay, ax + h * 0.02, ay - h * 0.2, Math.max(1, h * 0.025), PALA.BLANCO, 2.6); trazo(ax - h * 0.03, ay - h * 0.01, ax + h * 0.03, ay - h * 0.01, Math.max(1, h * 0.02), PALA.BRONCE, 2); }
     if (o.objeto === 'pluma') trazo(ax, ay, ax + h * 0.06, ay - h * 0.12, h * 0.02, PALA.BLANCO, 2.5);
     if (o.objeto === 'pala') { trazo(ax, ay - h * 0.1, ax + h * 0.04, ay + h * 0.25, h * 0.025, PALA.MARRON, 2); caja(ax + h * 0.01, ay + h * 0.25, ax + h * 0.08, ay + h * 0.33, PALA.BLANCO, 1); }
+    // objetos griegos: lanza (y la sarisa macedonia, mucho más larga), copa, maza, rayo; escudo redondo en la otra mano
+    if (o.objeto === 'lanza' || o.objeto === 'sarisa') { const L = o.objeto === 'sarisa' ? h * 1.5 : h * 0.75; trazo(ax - h * 0.05, ay + h * 0.2, ax + L * 0.45, ay - L * 0.85, Math.max(1, h * 0.022), PR_MADERA, 2); trazo(ax + L * 0.43, ay - L * 0.8, ax + L * 0.47, ay - L * 0.88, Math.max(1.5, h * 0.035), PALA.BLANCO, 2.6); }
+    if (o.objeto === 'copa') { elipse(ax + h * 0.02, ay - h * 0.03, h * 0.035, h * 0.022, PALA.MARRON, 2); trazo(ax + h * 0.02, ay - h * 0.01, ax + h * 0.02, ay + h * 0.02, Math.max(1, h * 0.012), PALA.MARRON, 2); }
+    if (o.objeto === 'maza') { trazo(ax, ay + h * 0.05, ax + h * 0.12, ay - h * 0.25, h * 0.04, PALA.MARRON, 1.8); elipse(ax + h * 0.12, ay - h * 0.26, h * 0.05, h * 0.06, PALA.MARRON, 1.6); }
+    if (o.objeto === 'rayo') { const zx = [0, 0.06, -0.01, 0.08, 0.02, 0.1]; for (let k = 0; k < zx.length - 1; k++) trazo(ax + zx[k] * h, ay - k * h * 0.07, ax + zx[k + 1] * h, ay - (k + 1) * h * 0.07, Math.max(1, h * 0.03), PALA.AMARILLO, 3); }
+    if (o.escudo) {
+      const [bx, by] = mI, r = h * 0.13, frente = o.escudoDelante !== false;
+      if (frente) { elipse(bx - h * 0.02, by - h * 0.06, r, r * 1.05, o.escudo, 1.6); elipse(bx - h * 0.02, by - h * 0.06, r * 0.72, r * 0.75, o.escudo, 2.2); if (o.emblema) elipse(bx - h * 0.02, by - h * 0.06, r * 0.25, r * 0.3, o.emblema, 2); }
+    }
     // loro en el hombro (al otro lado de la cara)
     if (o.loro) {
       const lx = -anchoH * 0.85, ly = hombroY - h * 0.06, ala = Math.sin(t * 9) > 0.85;
@@ -384,5 +394,18 @@ export const ELENCO = {
   ciudadano: { peinado: 'corto', pelo: PALA.PELO_CASTANO, chaqueta: PALA.TERRACOTA, camisa: PALA.TERRACOTA, falda: PALA.TERRACOTA, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARRON },
   legionario: { sombrero: 'casco', pelo: PALA.PELO_NEGRO, chaqueta: PALA.BRONCE, camisa: PALA.BRONCE, falda: PALA.ROJO, largoFalda: 0.2, pteruges: PALA.MARRON, capa: PALA.ROJO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARRON },
   cesar: { sombrero: 'laurel', peinado: 'corto', pelo: PALA.PELO_CASTANO, chaqueta: PALA.MARMOL, camisa: PALA.MARMOL, falda: PALA.MARMOL, largoFalda: 0.36, banda: PALA.PURPURA, capa: PALA.PURPURA, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.ORO },
+  // ── Grecia (episodio 6): quitón (túnica corta) o manto largo, hoplitas con escudo redondo y lanza
+  hoplita: { sombrero: 'casco', colorCresta: PALA.AZUL, pelo: PALA.PELO_NEGRO, barba: 'perilla', chaqueta: PALA.BRONCE, camisa: PALA.BRONCE, falda: PALA.BLANCO, largoFalda: 0.2, pteruges: PALA.BLANCO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARRON, escudo: PALA.BRONCE, emblema: PALA.AZUL, objeto: 'lanza' },
+  espartano: { sombrero: 'casco', colorCresta: PALA.ROJO, pelo: PALA.PELO_CASTANO, barba: 'poblada', chaqueta: PALA.BRONCE, camisa: PALA.BRONCE, falda: PALA.ROJO, largoFalda: 0.2, capa: PALA.ROJO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARRON, escudo: PALA.BRONCE, emblema: PALA.ROJO, objeto: 'lanza' },
+  persa: { sombrero: 'gorro', colorSombrero: PALA.AMARILLO, peinado: 'corto', pelo: PALA.PELO_NEGRO, barba: 'poblada', piel: PALA.PIEL_OSCURA, chaqueta: PALA.MORADO, camisa: PALA.AMARILLO, pantalon: PALA.AMARILLO, botas: PALA.MARRON, chaqueta_larga: true, faja: PALA.ORO, escudo: PALA.MARRON, objeto: 'lanza' },
+  macedonio: { sombrero: 'casco', colorCresta: PALA.BLANCO, pelo: PALA.PELO_CASTANO, chaqueta: PALA.ROJO, camisa: PALA.ROJO, falda: PALA.ROJO, largoFalda: 0.18, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.BRONCE, escudo: PALA.BRONCE, emblema: PALA.ORO, objeto: 'sarisa' },
+  griego: { peinado: 'corto', pelo: PALA.PELO_NEGRO, barba: 'perilla', chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, falda: PALA.BLANCO, largoFalda: 0.36, banda: PALA.AZUL, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.BLANCO },
+  griega: { peinado: 'moño', pelo: PALA.PELO_NEGRO, chaqueta: PALA.ROJO, camisa: PALA.ROJO, falda: PALA.ROJO, largoFalda: 0.42, banda: PALA.AMARILLO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.AMARILLO },
+  socrates: { peinado: 'calvo', pelo: PALA.PELO_BLANCO, barba: 'poblada', chaqueta: PALA.MARRON, camisa: PALA.MARRON, falda: PALA.MARRON, largoFalda: 0.36, banda: PALA.NEGRO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: false, botas: PALA.PIEL, chaqueta_larga: false, faja: PALA.MARRON },
+  platon: { peinado: 'corto', pelo: PALA.PELO_CASTANO, barba: 'poblada', chaqueta: PALA.AZUL, camisa: PALA.AZUL, falda: PALA.AZUL, largoFalda: 0.36, banda: PALA.BLANCO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.AZUL },
+  aristoteles: { peinado: 'corto', pelo: PALA.PELO_NEGRO, barba: 'perilla', chaqueta: PALA.VERDE, camisa: PALA.VERDE, falda: PALA.VERDE, largoFalda: 0.36, banda: PALA.ORO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.VERDE },
+  alejandro: { peinado: 'rizos', pelo: PALA.PELO_RUBIO, chaqueta: PALA.BRONCE, camisa: PALA.BRONCE, falda: PALA.MORADO, largoFalda: 0.2, capa: PALA.MORADO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.ORO },
+  zeus: { peinado: 'largo', pelo: PALA.PELO_BLANCO, barba: 'poblada', chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, falda: PALA.BLANCO, largoFalda: 0.4, banda: PALA.ORO, capa: PALA.AZUL, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.ORO, sombrero: 'laurel', colorLaurel: PALA.ORO, objeto: 'rayo' },
+  hercules: { peinado: 'corto', pelo: PALA.PELO_NEGRO, barba: 'poblada', chaqueta: PALA.PIEL, camisa: PALA.PIEL, falda: PALA.MARRON, largoFalda: 0.2, capa: PALA.AMARILLO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARRON, objeto: 'maza' },
   barbaro: { peinado: 'largo', pelo: PALA.PELO_RUBIO, barba: 'bigote', chaqueta: PALA.VERDE, camisa: PALA.VERDE, pantalon: PALA.MARRON, botas: PALA.PIELES, capa: PALA.PIELES, capaCorta: true, chaqueta_larga: false, antebrazo: PALA.PIEL },
 };

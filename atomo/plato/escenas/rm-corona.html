@@ -52,7 +52,7 @@ const estatuas = (t) => {
     if (k === 'romulo') R.loba(x - 8, 148, 0, { rampa: PALA.MARMOL, esc: 0.6 });
   });
 };
-rodar(E, R, [[0, salon], [tb, viaje], [m.nom - 0.2, villa], [m.nom + 4.6, estatuas]], { año: 476, caja: (t, e) => R.caja(t, t > tb + 0.5 && t < m.nom - 0.2 ? tramo(t, tb + 0.5, tb + 0.9) : 0, (x, y) => { R.icono('corona', x + 4, y + 4, PALA.ORO[4], undefined, 2); R.icono('flecha', x + 20, y + 5, undefined, undefined, 2); }, { energia: e }) });
+rodar(E, R, [[0, salon], [tb, viaje], [m.nom - 0.2, villa], [m.nom + 4.6, estatuas]], { año: 476, caja: (t, e) => R.caja(t, t > tb + 0.5 && t < m.nom - 0.2 ? tramo(t, tb + 0.5, tb + 0.9) : 0, (x, y) => { R.icono('corona', x + 4, y + 4, PALA.ORO[3], undefined, 2); R.icono('flecha', x + 20, y + 5, undefined, undefined, 2); }, { energia: e }) });
 </script>
 </body>
 </html>

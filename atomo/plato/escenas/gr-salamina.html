@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Salamina · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-SALAMINA (frase 19). Mapa del estrecho de Salamina: la flota persa (barquitos morados) entra en el canal estrecho y
+// los barcos griegos (azules) salen de detrás de la isla y la encierran; los morados desaparecen. Luego el mapa del
+// Egeo: las ciudades griegas se unen con líneas.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-salamina');
+const { PALA, PR, tramo, lerp } = R;
+const m0 = M('salamina', 0.5), dur = E.duracion ?? 18, t1 = m0 + (dur - m0) * 0.6;
+const barco = (x, y, c, d) => { R.rect(x - 3, y, x + 3, y + 1, PR.MADERA[1]); R.pset(x + 4 * d, y, PR.MADERA[1]); R.rect(x - 1, y - 3, x + 1, y - 1, c); R.pset(x, y - 4, PR.MADERA[0]); };
+const estrecho = (t) => {
+  // un esquema del estrecho (más claro que el mapa real a esta escala): la costa del Ática arriba, la isla de Salamina
+  // abajo a la izquierda y el canal estrecho entre las dos
+  const u = t - m0;
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) {
+    const costa = 62 + 14 * Math.sin(x * 0.02) + 4 * R.vnoise(x * 0.1, 1), isla = Math.hypot((x - 70) / 120, (y - 150) / 62) < 1 + 0.08 * (R.vnoise(x * 0.08, y * 0.08) - 0.5);
+    const tierra = y < costa || isla;
+    R.pset(x, y, tierra ? R.tone(PR.TIERRA, 2.4 + (R.hash2(x >> 1, y >> 1) - 0.5) * 0.6, x, y) : R.tone(PR.MAR, 2 + (Math.sin(x * 0.3 + y * 0.9 - t * 1.6) > 0.85 ? 1 : 0), x, y));
+  }
+  for (let x = 0; x < R.W; x++) { const c = Math.round(62 + 14 * Math.sin(x * 0.02) + 4 * R.vnoise(x * 0.1, 1)); R.pset(x, c, PR.TIERRA[0]); }
+  const entra = tramo(u, 0.5, 4), cierra = tramo(u, 3, 6), hunde = tramo(u, 5.5, 8);
+  for (let k = 0; k < 18; k++) { if (R.hash2(k, 3) < hunde) continue; const x = lerp(330, 210, entra) + (k % 6) * 14 - (Math.floor(k / 6)) * 6, y = 94 + Math.floor(k / 6) * 12; barco(Math.round(x), y, PALA.MORADO[2], -1); }
+  for (let k = 0; k < 12; k++) { const x = lerp(60, 150, cierra) + (k % 4) * 14, y = lerp(130, 104, cierra) + Math.floor(k / 4) * 12; barco(Math.round(x), Math.round(y), PALA.AZUL[2], 1); }
+};
+const unidas = (t) => {
+  const v = R.VISTAS.egeo, u = t - t1;
+  R.mapa(t, { vista: v });
+  const cs = ['atenas', 'esparta', 'corinto', 'tebas', 'olimpia', 'delos', 'mileto', 'efeso'].map((c) => R.lugar(c, undefined, v));
+  cs.forEach((a, i) => cs.forEach((b, j) => { if (j > i && (i + j) % 3 === 0) R.ruta([a, b], tramo(u, 0.3 + i * 0.2, 1.5 + i * 0.2), PALA.AMARILLO[3], { flecha: false, continua: true }); }));
+  cs.forEach(([x, y]) => R.punto(x, y, t, PALA.AZUL, 2));
+};
+rodar(E, R, [[0, estrecho], [t1, unidas, 'iris']], { año: (t) => (t < t1 ? -480 : -479) });
+</script>
+</body>
+</html>

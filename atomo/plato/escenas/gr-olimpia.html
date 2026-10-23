@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Olimpia · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-OLIMPIA (frase 10). El estadio de Olimpia: una pista de tierra con taludes de hierba llenos de gente; corredores que
+// cruzan; un juez con laurel. Luego dos soldados de ciudades rivales (crestas roja y azul) dejan las lanzas en el suelo
+// y se dan la mano; laurel en la caja.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-olimpia');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('olimpia', 0.5), dur = E.duracion ?? 14, t1 = m0 + (dur - m0) * 0.55;
+const corredor = (c) => ({ ...ELENCO.griego, chaqueta: PALA.PIEL, camisa: PALA.PIEL, falda: c, largoFalda: 0.14, banda: null, faja: c, barba: 'no' });
+const estadio = (t) => {
+  R.cieloR(t, 'dia', { hor: 100 });
+  R.colinas(100, { amp: 10, luz: 1.6 });
+  for (let y = 100; y < 126; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PR.HIERBA, 2.2 + (R.hash2(x >> 1, y >> 1) - 0.5) * 0.6, x, y));
+  for (let k = 0; k < 60; k++) { const x = (k * 37) % 320, y = 104 + (k * 13) % 18; R.pset(x, y, [PALA.ROJO[2], PALA.BLANCO[3], PALA.AZUL[2], PALA.AMARILLO[2]][k % 4]); R.pset(x, y - 1, PALA.PIEL[2]); }
+  R.suelo(126, PR.TIERRA, { luz: 2.6 });
+  for (let k = 0; k < 4; k++) { const x = ((t - m0) * (34 + k * 3) + k * 20) % 380 - 30; R.personaje(x, 150 + k * 7, 24, { ...corredor([PALA.ROJO, PALA.AZUL, PALA.VERDE, PALA.AMARILLO][k]), t: t + k, anda: t * 10 }); }
+  R.personaje(290, 140, 26, { ...ELENCO.griego, sombrero: 'laurel', t, dir: -1, pose: 'brazos' });
+};
+const tregua = (t) => {
+  R.cieloR(t, 'tarde', { hor: 130, sol: [160, 120, 10] }); R.suelo(130, PR.TIERRA, { luz: 2.2 });
+  const u = t - t1, deja = u > 1, junta = tramo(t, t1 + 1.6, t1 + 2.8);
+  for (const [s, cresta] of [[-1, PALA.ROJO], [1, PALA.AZUL]]) R.personaje(160 + s * lerp(60, 14, junta), 168, 30, { ...ELENCO.hoplita, colorCresta: cresta, emblema: cresta, t, dir: -s, objeto: deja ? undefined : 'lanza', pose: junta >= 1 ? 'ofrece' : 'pie', anda: junta > 0 && junta < 1 ? t * 7 : null, sonrisa: junta >= 1 });
+  if (deja) for (const s of [-1, 1]) { R.linea(160 + s * 90, 172, 160 + s * 60, 172, PR.MADERA[2]); R.pset(160 + s * 60, 172, PALA.BLANCO[3]); }
+};
+rodar(E, R, [[0, estadio], [t1, tregua]], { año: -776, caja: (t, e) => R.caja(t, t > t1 + 2.6 ? tramo(t, t1 + 2.6, t1 + 3) : 0, (x, y) => R.icono('laurel', x + 8, y, PALA.LAUREL[3], undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

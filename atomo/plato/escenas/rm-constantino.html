@@ -32,7 +32,7 @@ const flujo = (t) => {
   const u = t - m.est;
   R.mapaAño(t, 340, { oeste: tramo(u, 2, 5) * 0.35 });
   const a = R.lugar('roma'), b = R.lugar('constantinopla');
-  for (let k = 0; k < 6; k++) { const f = (u * 0.35 + k / 6) % 1, x = lerp(a[0], b[0], f), y = lerp(a[1], b[1], f) - Math.sin(f * Math.PI) * 18; R.disco(x, y, 2, PALA.ORO[4]); R.pset(Math.round(x), Math.round(y), PALA.ORO[5]); }
+  for (let k = 0; k < 6; k++) { const f = (u * 0.35 + k / 6) % 1, x = lerp(a[0], b[0], f), y = lerp(a[1], b[1], f) - Math.sin(f * Math.PI) * 18; R.disco(x, y, 2, PALA.ORO[3]); R.pset(Math.round(x), Math.round(y), PALA.AMARILLO[3]); }
   R.punto(...b, t, PALA.ORO, 3);
   if (u > 2) R.nubesR(t, { rampa: PR.TORMENTA, base: 1, n: 5, y0: 30, y1: 120, vel: 1.5 });
 };

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mapa · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-MAPA (frases 6–8). El mapa antes de la historia: el Mediterráneo; zoom al Egeo, con las montañas de Grecia en
+// relieve y el mar de islas. Aparecen puntitos de ciudades por todos los valles e islas («1000+»). Luego, desde el Egeo,
+// barcos y colonias por todo el Mediterráneo y el mar Negro, y ranitas que croan alrededor del mar.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-mapa');
+const { PALA, PR, tramo, lerp, clamp } = R;
+const m = { map: M('mapa', 0.5), val: M('valles', 7), mar: M('mar', 17) };
+const CIUDADES = Array.from({ length: 70 }, (_, k) => [20.3 + R.hash2(k, 1) * 7.6, 36.4 + R.hash2(k, 2) * 4.6]);
+const COLONIAS = ['massalia', 'emporion', 'napoles', 'siracusa', 'cirene', 'bizancio', 'olbia', 'sinope', 'mileto', 'efeso'];
+const relieve = (v, rc) => {   // montañas: puntos de sombra y luz sobre la tierra griega
+  for (let k = 0; k < 140; k++) { const [x, y] = R.lugar([20.5 + R.hash2(k, 7) * 6, 37 + R.hash2(k, 8) * 4], rc, v); const p = R.pget(x, y); if (p === PR.TIERRA[1] || p === PR.TIERRA[2] || p === PR.TIERRA[3] || p === PR.HIERBA[2] || p === PR.HIERBA[3]) { R.pset(x, y - 1, PR.TIERRA[4]); R.pset(x + 1, y, PR.TIERRA[0]); R.pset(x - 1, y, PR.TIERRA[3]); } }
+};
+const egeo = (t) => {
+  const v = t < m.map + 3 ? R.VISTAS.mundo : R.entre(R.VISTAS.mundo, R.VISTAS.egeo, tramo(t, m.map + 3, m.map + 5.5));
+  R.mapa(t, { vista: v, luzMar: t > m.map + 6 ? 0.5 + 0.5 * Math.sin(t * 4) : 0 });
+  if (t > m.map + 5.5) relieve(v);
+  const n = Math.floor(tramo(t, m.val + 1, m.val + 6) * CIUDADES.length);
+  for (let k = 0; k < n; k++) { const [x, y] = R.lugar(CIUDADES[k], undefined, v); const p = R.pget(x, y); if (p !== PR.MAR[2] && p !== PR.MAR[3] && p !== PR.MAR[1]) { R.pset(x, y, PALA.AMARILLO[3]); R.pset(x + 1, y, PALA.CONTORNO); } }
+};
+const rana = (x, y, t, k) => { const salta = Math.sin(t * 3 + k * 1.7) > 0.85 ? 1 : 0; R.icono('rana', x - 3, y - 3 - salta, PALA.VERDE[3], PALA.CONTORNO); };
+const colonias = (t) => {
+  const u = t - m.mar;
+  R.mapa(t, {});
+  const [ax, ay] = R.lugar('atenas');
+  COLONIAS.forEach((c, k) => { const p = tramo(u, 0.5 + k * 0.35, 2 + k * 0.35); if (p <= 0) return; const [x, y] = R.lugar(c); R.ruta([[ax, ay], [x, y]], p, PALA.BLANCO[3], { flecha: false }); if (p >= 1) R.punto(x, y, t, PALA.AMARILLO, 1); });
+  R.punto(ax, ay, t, PALA.AZUL, 2);
+  if (u > 7) COLONIAS.concat(['atenas', 'alejandria', 'cartago', 'troya']).forEach((c, k) => { const [x, y] = R.lugar(c); rana(x + 4, y - 4, t, k); });
+};
+rodar(E, R, [[0, egeo], [m.mar - 0.2, colonias]], { año: -800, barraDesde: 99, caja: (t, e) => R.caja(t, t > m.val + 4 && t < m.mar - 0.2 ? tramo(t, m.val + 4, m.val + 4.4) : 0, (x, y) => R.numero('1000+', x + 2, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

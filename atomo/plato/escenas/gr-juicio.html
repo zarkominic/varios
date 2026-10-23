@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Juicio · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-JUICIO (frases 2–4). Cartela «399». El tribunal al aire libre: quinientos un ciudadanos en gradas y, en medio, un
+// hombre mayor. Sócrates, calvo y barbudo, con su capa raída, se encoge de hombros («?»). Los jurados echan piedrecitas
+// en dos urnas: en la caja, 280 contra 220.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-juicio');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { jui: M('juicio', 1.5), soc: M('socrates', 9), ver: M('veredicto', 20) };
+const fondo = (t) => { R.cieloR(t, 'dia', { hor: 100 }); acropolis(R, 250, 96, t, { esc: 0.7 }); R.colinas(100, { amp: 4, luz: 1.6, rampa: PR.TIERRA }); };
+const gradas = (t, votan) => {
+  for (let g = 0; g < 4; g++) {
+    const y = 104 + g * 12; R.rect(0, y, R.W, y + 11, PALA.MARMOL[2 - (g & 1)]); R.rect(0, y, R.W, y, PALA.MARMOL[3]);
+    for (let k = 0; k < 20; k++) { const x = 8 + k * 16 + (g & 1) * 8; if (Math.abs(x - 160) < 18 && g === 3) continue; R.personaje(x, y + 9, 13, { ...ELENCO.griego, pelo: [PALA.PELO_NEGRO, PALA.PELO_CASTANO, PALA.PELO_BLANCO][(k + g) % 3], banda: [PALA.AZUL, PALA.ROJO, PALA.VERDE][(k * 3 + g) % 3], t: t + k + g, pose: votan && Math.sin(t * 2 + k + g * 3) > 0.6 ? 'ofrece' : 'sentado', sombra: false, luz: undefined }); }
+  }
+};
+const tribunal = (t) => { fondo(t); gradas(t, false); R.suelo(152, PR.TIERRA, { luz: 2 }); R.personaje(160, 172, 30, { ...ELENCO.socrates, t, ceño: false }); };
+const encoge = (t) => { fondo(t); gradas(t, false); R.suelo(152, PR.TIERRA, { luz: 2 }); const h = Math.sin((t - m.soc) * 2.2) > -0.2 && t > m.soc + 5; R.personaje(160, 172, 30, { ...ELENCO.socrates, t, brazoD: h ? 'ofrece' : 'abajo', brazoI: h ? 'ofrece' : 'abajo', sonrisa: true }); };
+const urnas = (t) => {
+  fondo(t); gradas(t, true); R.suelo(152, PR.TIERRA, { luz: 2 });
+  for (const [x, c] of [[120, PALA.NEGRO], [200, PALA.TERRACOTA]]) { R.poligono([[x - 10, 158], [x - 14, 168], [x - 8, 178], [x + 8, 178], [x + 14, 168], [x + 10, 158]], (xx, y) => R.tone(c, 2.2 - (xx - x) * 0.05, xx, y)); R.rect(x - 6, 154, x + 6, 158, c[2]); }
+  for (let k = 0; k < 8; k++) { const f = ((t - m.ver) * 0.9 + k / 8) % 1, lado = k % 5 < 3 ? 120 : 200; R.disco(lado + Math.sin(k) * 4, lerp(120, 156, f), 1, k % 5 < 3 ? PALA.BLANCO[3] : PALA.NEGRO[2]); }
+  R.personaje(160, 176, 26, { ...ELENCO.socrates, t, sombra: false });
+};
+rodar(E, R, [[0, tribunal], [m.soc - 0.2, encoge], [m.ver - 0.2, urnas]], { cartela: '399', año: -399, caja: (t, e) => R.caja(t, t > m.soc + 6 && t < m.ver - 0.2 ? tramo(t, m.soc + 6, m.soc + 6.4) : t > m.ver + 0.8 ? tramo(t, m.ver + 0.8, m.ver + 1.2) : 0, (x, y) => { if (t < m.ver) R.icono('?', x + 8, y, undefined, undefined, 2); else { R.icono('urna', x + 2, y + 4); R.numero('280', x + 12, y + 12, { color: PALA.ROJO[3] }); R.numero('220', x + 42, y + 12, { color: PALA.BLANCO[3] }); } }, { energia: e }) });
+</script>
+</body>
+</html>

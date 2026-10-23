@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Persia · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-PERSIA (frase 14). Cartela «490». Mapa ancho: el Imperio persa se extiende enorme, de Egipto a la India; Grecia es
+// un rincón diminuto en el borde, que late.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-persia');
+const { PALA, PR, tramo } = R;
+const m0 = M('persia', 1.5);
+const mapa = (t) => {
+  const v = R.VISTAS.persia;
+  R.mapa(t, { vista: v, zonas: [{ pol: R.ZONAS_MAPA.persia, color: PALA.MORADO, p: tramo(t, m0 + 0.5, m0 + 4), centro: [52.9, 29.9], radio: 40 }, { pol: R.ZONAS_MAPA.grecia, color: PALA.AZUL, luz: 2.6 + Math.sin(t * 6) }] });
+  R.punto(...R.lugar('persepolis', undefined, v), t, PALA.ORO, 2); R.punto(...R.lugar('atenas', undefined, v), t, PALA.AZUL, 1);
+};
+rodar(E, R, [[0, mapa]], { cartela: '490', año: -490 });
+</script>
+</body>
+</html>

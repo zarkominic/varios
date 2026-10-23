@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Peste · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-PESTE (frase 28). La ciudad abarrotada dentro de los muros, de noche: manchas oscuras que se extienden de casa en casa,
+// gente que cae; Pericles, con su casco, se apaga; «1/4» en la caja.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-peste');
+const { PALA, PR, ELENCO, tramo } = R;
+const m0 = M('peste', 0.5), dur = E.duracion ?? 10;
+const ciudad = (t) => {
+  R.ambiente({ luz: { lado: 1, color: PR.NIEVE[1] }, sombra: false });
+  R.cielo(t, { hor: 110, semilla: 17 });
+  acropolis(R, 160, 110, t, { esc: 1, roca: [PALA.CONTORNO, PALA.NEGRO[1], PALA.NEGRO[2]], marmol: [PALA.NEGRO[1], PALA.NEGRO[2], PALA.NEGRO[3], PALA.NEGRO[3]] });
+  for (let y = 110; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PR.ROCA, 1 + (y - 110) * 0.01 + (((x >> 3) + (y >> 3)) & 1 ? 0.3 : 0), x, y));
+  const p = tramo(t, m0 + 1, m0 + 5);
+  for (let y = 110; y < R.H; y++) for (let x = 0; x < R.W; x++) if (R.vnoise(x * 0.05, y * 0.08) < p * 0.7 && R.b4(x, y) < 0.6) R.pset(x, y, PALA.CONTORNO);
+  for (let k = 0; k < 8; k++) { const cae = R.hash2(k, 5) < p * 0.5; R.personaje(30 + k * 38, 170 - (k & 1) * 8, 18, { ...ELENCO.griego, t: t + k, pose: cae ? 'rodilla' : 'pie', ceño: true }); }
+  const pericles = { ...ELENCO.hoplita, sombrero: 'casco', escudo: null, objeto: undefined, chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, falda: PALA.BLANCO, largoFalda: 0.36, banda: PALA.MORADO, pteruges: null, barba: 'poblada' };
+  if (t < dur - 2.2 || Math.floor(t * 8) % 2) R.personaje(160, 176, 26, { ...pericles, t, pose: t > dur - 3 ? 'rodilla' : 'pie' });
+};
+rodar(E, R, [[0, ciudad]], { año: -430, caja: (t, e) => R.caja(t, t > m0 + 3 ? tramo(t, m0 + 3, m0 + 3.4) : 0, (x, y) => R.numero('1/4', x + 6, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

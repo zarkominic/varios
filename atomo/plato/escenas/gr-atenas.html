@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Atenas · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-ATENAS (frases 12–13). Cartela «508». El ágora de Atenas: puestos, barcos al fondo y gente que discute; luego, en la
+// colina de la asamblea, los ciudadanos levantan la mano para votar. Después, la trampa: solo vota una parte; mujeres,
+// esclavos y extranjeros quedan detrás de una línea, en gris; «1/10» en la caja.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-atenas');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { ate: M('atenas', 1.5), tra: M('trampa', 12) };
+const t1 = m.ate + 4;
+const ciud = (i) => ({ ...ELENCO.griego, pelo: [PALA.PELO_NEGRO, PALA.PELO_CASTANO, PALA.PELO_BLANCO][i % 3], banda: [PALA.AZUL, PALA.ROJO, PALA.VERDE, PALA.AMARILLO][i % 4], barba: ['perilla', 'poblada', 'no'][i % 3] });
+const agora = (t) => {
+  R.cieloR(t, 'dia', { hor: 120 }); acropolis(R, 230, 112, t, { esc: 0.9 }); R.mar(t, { hor: 112, y1: 120 });
+  R.suelo(120, PALA.MARMOL, { losas: true, luz: 2.2 });
+  R.puesto(30, 140, t); R.puesto(250, 140, t);
+  for (let k = 0; k < 7; k++) { const x = 70 + k * 26, dis = Math.sin(t * 2 + k) > 0; R.personaje(x, 160 + (k & 1) * 6, 24, { ...ciud(k), t: t + k, dir: k % 2 ? -1 : 1, pose: dis ? 'senala' : 'brazos', habla: 1 }); }
+};
+const asamblea = (t, gris) => {
+  R.cieloR(t, 'dia', { hor: 110 }); acropolis(R, 80, 100, t, { esc: 0.6 });
+  R.poligono([[0, 180], [0, 120], [160, 100], [320, 120], [320, 180]], (x, y) => R.tone(PR.ROCA, 2.2 - (y - 100) * 0.01, x, y));
+  const vota = Math.sin(t * 1.5) > -0.3;
+  for (let f = 0; f < 3; f++) for (let k = 0; k < 9; k++) R.personaje(40 + k * 30 + (f & 1) * 14, (gris ? 118 : 128) + f * (gris ? 10 : 12), 18, { ...ciud(k + f), t: t + k, pose: vota ? 'arriba' : 'pie', brazoD: vota ? 'arriba' : 'abajo', sombra: false });
+  if (gris) {
+    R.rect(0, 150, R.W, 151, PALA.ROJO[3]);
+    const fuera = [ELENCO.griega, { ...ELENCO.griega, chaqueta: PALA.VERDE, camisa: PALA.VERDE, falda: PALA.VERDE }, { ...ELENCO.ciudadano, chaqueta: PALA.MARRON, camisa: PALA.MARRON, falda: PALA.MARRON, piel: PALA.PIEL_OSCURA }, { ...ELENCO.persa, escudo: null, objeto: undefined }, ELENCO.griega, { ...ELENCO.ciudadano, chaqueta: PALA.MARRON, camisa: PALA.MARRON, falda: PALA.MARRON }];
+    for (let y = 152; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PR.ROCA, 1.2, x, y));
+    fuera.forEach((g, k) => R.personaje(50 + k * 44, 176, 22, { ...g, t: t + k, ceño: true, sombra: false }));
+    for (let y = 152; y < R.H; y++) for (let x = 0; x < R.W; x++) if (R.b4(x, y) < 0.45) R.pset(x, y, PALA.NEGRO[1]);
+  }
+};
+rodar(E, R, [[0, agora], [t1, (t) => asamblea(t, false)], [m.tra - 0.2, (t) => asamblea(t, true)]], { cartela: '508', año: -508, caja: (t, e) => R.caja(t, t > m.tra + 4 ? tramo(t, m.tra + 4, m.tra + 4.4) : 0, (x, y) => R.numero('1/10', x + 4, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

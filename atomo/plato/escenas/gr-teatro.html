@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Teatro · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-TEATRO (frase 22). Un teatro griego en la ladera, lleno: gradas en semicírculo con miles de puntitos de público que
+// aplauden; en el escenario, dos actores con máscaras de reír y de llorar (en la caja, la máscara).
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-teatro');
+const { PALA, PR, ELENCO, tramo } = R;
+const m0 = M('teatro', 0.5);
+const teatro = (t) => {
+  R.cieloR(t, 'tarde', { hor: 80, sol: [280, 70, 10] }); R.colinas(80, { amp: 8, luz: 1.4 });
+  const cx = 160, cy = 196;
+  for (let y = 60; y < 150; y++) for (let x = 0; x < R.W; x++) {
+    const d = Math.hypot(x - cx, (y - cy) * 1.6); if (d < 70 || d > 230) continue;
+    const fila = Math.floor((d - 70) / 8), borde = (d - 70) % 8 < 1.2, pasillo = Math.abs(Math.atan2(y - cy, x - cx) * 9 % 1) < 0.06;
+    let c = R.tone(PALA.MARMOL, 2.2 - fila * 0.08 + (borde ? -1 : 0), x, y);
+    if (!borde && !pasillo && R.hash2(x >> 1, y) < 0.55) { const ap = Math.sin(t * 9 + x * 0.7 + y) > 0.6; c = [PALA.ROJO[2], PALA.AZUL[2], PALA.BLANCO[2], PALA.AMARILLO[2], PALA.VERDE[2]][(x * 7 + y * 3) % 5]; if (ap && R.hash2(x, y) > 0.7) c = PALA.PIEL[3]; }
+    R.pset(x, y, c);
+  }
+  R.rect(80, 150, 240, 158, PALA.MARMOL[3]); R.suelo(158, PR.TIERRA, { luz: 2.4 });
+  R.rect(100, 120, 220, 150, PALA.MARMOL[2]); for (let k = 0; k < 6; k++) R.rect(104 + k * 22, 122, 108 + k * 22, 150, PALA.MARMOL[3]);
+  R.personaje(140, 170, 26, { ...ELENCO.griego, banda: PALA.ROJO, t, pose: 'brazos' }); R.icono('mascara', 137, 141, PALA.BLANCO[3], PALA.CONTORNO);
+  R.personaje(180, 170, 26, { ...ELENCO.griego, banda: PALA.AZUL, t, dir: -1, pose: 'cara' }); R.icono('mascara', 177, 141, PALA.AMARILLO[3], PALA.CONTORNO);
+};
+rodar(E, R, [[0, teatro]], { año: -440, caja: (t, e) => R.caja(t, tramo(t, m0 + 2, m0 + 2.4), (x, y) => R.icono('mascara', x + 8, y, PALA.BLANCO[3], undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

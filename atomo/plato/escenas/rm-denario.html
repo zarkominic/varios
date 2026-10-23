@@ -18,7 +18,7 @@ const m0 = M('denario', 0.5), dur = E.duracion ?? 12;
 const moneda = (t) => {
   R.cieloR(t, 'tarde', { sol: [60, 140, 12], nubes: { n: 3 } });
   const u = t - m0, aparece = tramo(u, 3, 4), plata = 0.95 * tramo(u, 4.2, 6);
-  for (let k = 0; k < 6; k++) { const f = ((u * 0.5 + k / 6) % 1), x = lerp(-10, 330, f), y = 160 - Math.abs(Math.sin(f * Math.PI * 3)) * 16; R.disco(x, y, 2, PALA.ORO[4]); R.pset(Math.round(x), Math.round(y), PALA.ORO[5]); }
+  for (let k = 0; k < 6; k++) { const f = ((u * 0.5 + k / 6) % 1), x = lerp(-10, 330, f), y = 160 - Math.abs(Math.sin(f * Math.PI * 3)) * 16; R.disco(x, y, 2, PALA.ORO[3]); R.pset(Math.round(x), Math.round(y), PALA.AMARILLO[3]); }
   if (aparece > 0) R.denario(140, 84, Math.round(6 + 38 * R.sale(aparece)), 0.95, t);
   if (u > 4.2) R.barra(250, 140, 86, plata);
   if (u > dur - m0 - 3.5 && Math.sin(t * 6) > 0) R.rect(244, 144, 260, 146, PALA.AMARILLO[3]);
