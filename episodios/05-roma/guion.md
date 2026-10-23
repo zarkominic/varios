@@ -85,6 +85,8 @@
 |---|---|
 | Todo empieza, según la leyenda, en el 753 antes de Cristo, con dos gemelos criados por una loba. | It all starts, according to legend, in 753 BC, with twin brothers raised by a wolf. |
 | Rómulo y Remo discuten dónde fundar su ciudad. Rómulo gana la discusión de la peor manera posible, y la ciudad se queda con su nombre. | Romulus and Remus argue about where to build their city. Romulus wins the argument in the worst way possible, and the city gets his name. |
+| Y para llenarla, según la misma leyenda, abrió las puertas a fugitivos y forajidos de toda la zona. | And to fill it, according to the same legend, he opened the gates to runaways and outlaws from all around. |
+| O sea, que los primeros romanos fueron, básicamente, gente que no tenía a dónde ir. | So the first Romans were, basically, people with nowhere else to go. |
 | La versión sin leyenda es menos épica: unas cabañas de pastores en siete colinas junto a un río, y mucho barro. | The version without the legend is less epic: a few shepherds' huts on seven hills by a river, and a lot of mud. |
 | Durante un par de siglos los gobernaron reyes. Hasta que se hartaron de ellos. | For a couple of centuries, kings ran the place. Until people got sick of them. |
 
@@ -102,6 +104,7 @@
 | En el 509 antes de Cristo echaron al último rey e inventaron algo nuevo: la república. | In 509 BC, they kicked out the last king and invented something new: the republic. |
 | En lugar de un rey, dos cónsules. Cada uno podía vetar al otro, y los dos caducaban al año. | Instead of one king, two consuls. Each could veto the other, and both expired after a year. |
 | Imagina que el delegado de tu clase tiene fecha de caducidad y un gemelo que puede bloquearle todo. Pues eso, pero con ejércitos. | Imagine your class president comes with an expiry date and a twin who can block everything he does. That, but with armies. |
+| Y por encima, un Senado de unos trescientos señores mayores que discutían todo durante horas. Algunas cosas no cambian. | And above them, a Senate of about three hundred older men who argued about everything for hours. Some things never change. |
 
 ## 218 · El chico de los elefantes
 
@@ -133,6 +136,7 @@
 | ES | EN |
 |---|---|
 | Pero ganar tanto tiene un problema: los generales se vuelven más poderosos que la república. | But winning that much has a downside: generals become more powerful than the republic. |
+| César ya apuntaba maneras de joven: unos piratas lo secuestraron y pidieron un rescate. Él se ofendió, y les dijo que pidieran más, porque valía más. | Caesar had shown his style young: pirates kidnapped him and asked for a ransom. He was offended, and told them to ask for more, because he was worth more. |
 | En el 49 antes de Cristo, Julio César cruzó un riachuelo, el Rubicón, con su ejército, algo que la ley prohibía. | In 49 BC, Julius Caesar crossed a small river, the Rubicon, with his army, which the law forbade. |
 | Ganó la guerra civil y se hizo dictador. En el 44, un grupo de senadores lo mató a puñaladas en pleno Senado. | He won the civil war and made himself dictator. In 44 BC, a group of senators stabbed him to death in the Senate. |
 | Querían salvar la república. Lo que consiguieron fue que su sobrino adoptivo, Octavio, se quedara con todo. | They wanted to save the republic. What they got was his adopted heir, Octavian, taking everything. |
@@ -152,7 +156,9 @@
 |---|---|
 | Hacia el año 117, con el emperador Trajano, Roma llegó a su tamaño máximo: desde Gran Bretaña hasta Irak. | Around the year 117, under the emperor Trajan, Rome hit its maximum size: from Britain to Iraq. |
 | Más o menos uno de cada cinco humanos del planeta vivía bajo su bandera. | Roughly one in five humans on the planet lived under its flag. |
+| Y el propio Trajano había nacido en Hispania, cerca de la actual Sevilla. Un chico de provincias, al frente del mundo conocido. | And Trajan himself was born in Hispania, near today's Seville. A kid from the provinces, running the known world. |
 | Construyeron calzadas que todavía están debajo de algunas carreteras, acueductos que traían agua de montañas lejanas, y un hormigón tan bueno que la cúpula del Panteón sigue en pie hoy. | They built roads that still lie under some modern highways, aqueducts that carried water from distant mountains, and concrete so good that the dome of the Pantheon is still standing today. |
+| La ciudad de Roma rondaba el millón de habitantes, apiñados en bloques de pisos que a veces se derrumbaban o ardían, con puestos de comida callejera en cada esquina. | The city of Rome had around a million people, packed into apartment blocks that sometimes collapsed or burned down, with street-food stands on every corner. |
 | Fueron casi doscientos años de relativa paz. Para la época, eso era ciencia ficción. | Almost two hundred years of relative peace. For the time, that was science fiction. |
 
 ## 193 · Las primeras grietas
@@ -183,6 +189,7 @@
 |---|---|
 | En el año 235 empezó medio siglo de puro caos. | In 235, half a century of pure chaos began. |
 | En cincuenta años hubo más de veinte emperadores, y casi todos acabaron asesinados o muertos en batalla. | In fifty years there were more than twenty emperors, and almost all of them ended up murdered or killed in battle. |
+| A uno de ellos, Valeriano, lo capturaron los persas vivo. Nunca volvió. | One of them, Valerian, was captured alive by the Persians. He never came back. |
 | Las fronteras se rompían, llegaron epidemias, y la moneda llegó a tener menos de un cinco por ciento de plata. | The borders were breaking, epidemics came, and the coin dropped to less than five percent silver. |
 | Imagina que te pagan el sueldo en monedas que son un noventa y cinco por ciento otra cosa. Los precios se dispararon. | Imagine getting paid in coins that are ninety-five percent something else. Prices exploded. |
 | Roma no se cayó de golpe. Se fue vaciando por dentro, como esa moneda. | Rome didn't fall all at once. It was being hollowed out from the inside, like that coin. |
@@ -229,6 +236,8 @@
 | ES | EN |
 |---|---|
 | Aunque, ¿cayó Roma de verdad? La mitad oriental siguió funcionando otros mil años, hasta 1453. | But did Rome really fall? The eastern half kept going for another thousand years, until 1453. |
+| ¿Y por qué cayó el oeste? Un historiador alemán llegó a reunir doscientas diez razones distintas que se han propuesto. Doscientas diez. | And why did the West fall? One German historian collected two hundred and ten different reasons people have proposed. Two hundred and ten. |
+| La respuesta honesta es que fueron muchas a la vez: guerras, dinero, epidemias, política. Como casi todo lo que se rompe. | The honest answer is that it was many at once: wars, money, epidemics, politics. Like almost everything that breaks. |
 | Y la del oeste nunca desapareció del todo: sus calles están bajo nuestras carreteras, julio y agosto se llaman por dos de sus gobernantes, y si hablas español, estás hablando latín que ha evolucionado. | And the western half never fully disappeared: its streets lie under our roads, July and August are named after two of its rulers, and if you speak Spanish, you're speaking Latin that kept evolving. |
 | Los imperios casi nunca caen con una explosión. Caen como aquella moneda: un poco cada año, hasta que un día es cobre con una cara bonita. | Empires almost never fall with a bang. They fall like that coin: a little every year, until one day it's just copper with a pretty face on it. |
 | Y la plata que se fue no desapareció. Sus átomos, como yo, siguen por ahí. Quizá en algo que llevas puesto. | And the silver that left those coins didn't disappear. Its atoms, like me, are still around. Maybe in something you're wearing. |
@@ -265,3 +274,10 @@
 - **Bizancio:** hasta la caída de Constantinopla en 1453.
 - **Julio y agosto:** por Julio César y Augusto (César no fue emperador; se dice «dos de sus gobernantes»).
 - **Español:** lengua romance, descendiente del latín vulgar.
+- **Asilo de Rómulo:** Livio (I, 8) cuenta que Rómulo abrió un asilo para fugitivos; es leyenda y se dice como tal.
+- **Senado:** unos 300 miembros en la república temprana y media (luego más con Sila y César). PROBABLE.
+- **César y los piratas:** Plutarco (*César*, 2) y Suetonio: le pidieron 20 talentos y él dijo que valía 50.
+- **Trajano:** nacido en Itálica (Santiponce, junto a Sevilla), el primer emperador nacido fuera de Italia.
+- **Roma ciudad:** cerca de un millón de habitantes en el siglo II (estimación habitual, debatida); las *insulae* se derrumbaban e incendiaban (Juvenal, Sátira III); los *thermopolia* eran puestos de comida.
+- **Valeriano:** capturado por Sapor I en Edesa (260), murió prisionero.
+- **210 razones:** Alexander Demandt, *Der Fall Roms* (1984), recopiló 210 explicaciones propuestas.
