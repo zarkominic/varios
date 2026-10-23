@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cleopatra · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-CLEOPATRA (frases 35–36). Cartela «30». El puerto de Alejandría: el barco real de Cleopatra, dorado y con la vela
+// morada; Cleopatra en el muelle. Luego llegan legionarios romanos desfilando y la bandera griega se cambia por el
+// estandarte rojo de Roma.
+import { preparar, rodar, alejandria, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-cleopatra');
+const m = { cle: M('cleopatra2', 1.5), rom: M('roma', 8) };
+const reina = (t) => { alejandria(R, t, { barca: 120, bandera: 'griega' }); R.actor(EL.egipcia, 180, 145, t, { tocado: 'diadema', sonrisa: true, habla: Math.sin(t * 6) > 0.6 }); };
+const roma = (t) => {
+  const u = t - m.rom, llega = R.tramo(u, 0, 3);
+  alejandria(R, t, { barca: 120, bandera: llega > 0.8 ? 'roma' : 'griega' });
+  R.actor(EL.egipcia, 236, 145, t, { tocado: 'diadema', dir: -1, triste: llega > 0.8 });
+  for (let k = 0; k < 4; k++) R.actor(EL.legionario, Math.round(R.lerp(-30 - k * 24, 140 - k * 24, llega)), 145, t + k * 0.3, { anda: llega < 1 });
+};
+rodar(E, R, [[0, reina], [m.rom - 0.2, roma]], { cartela: '30', año: (t) => (t < m.rom ? -40 : -30) });
+</script>
+</body>
+</html>

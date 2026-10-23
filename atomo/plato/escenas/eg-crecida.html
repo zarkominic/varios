@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Crecida · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-CRECIDA (frase 6). La orilla del Nilo: el río crece, cubre los campos con agua color barro y, al retirarse, los
+// deja cubiertos de barro negro y brillante.
+import { preparar, rodar, nilo, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-crecida');
+const { tramo } = R;
+const m0 = M('crecida', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  const u = t - m0, sube = tramo(u, 0.1 * L, 0.4 * L), baja = tramo(u, 0.6 * L, 0.8 * L);
+  nilo(R, t, { nivel: 1 + R.easeIO(sube) - R.easeIO(baja), barro: baja > 0.5 ? 1 : 0, silos: 1 });
+  R.actor(EL.campesino, 150, 145, t, { sorpresa: sube > 0.3 && baja < 0.5, sonrisa: baja >= 1 });
+};
+rodar(E, R, [[0, plano]], { año: -3200 });
+</script>
+</body>
+</html>

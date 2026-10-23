@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Final · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-FINAL (frase 43). La Gran Pirámide al atardecer; sobre sus caras corren olas y conchitas, como si fuera un trozo
+// de fondo del mar levantado hacia el cielo.
+import { preparar, rodar, guiza, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-final');
+const m0 = M('final', 0.5);
+const plano = (t) => {
+  guiza(R, t, { fase: 'terminada', tarde: true, esfinge: true });
+  const ola = R.tramo(t - m0, 1, 4);
+  for (let k = 0; k < 6; k++) { const y = 60 + k * 11, hw = Math.round((y - 40) * 0.82); for (let x = 196 - hw + 2; x < 196 + hw - 2; x++) { const w = Math.sin(x * 0.3 + t * 3 + k) > 0.6; if (w && R.hash2(x, k) < ola) R.pset(x, y + (w ? 0 : 1), C.agua3); } }
+};
+rodar(E, R, [[0, plano]], { año: -2560 });
+</script>
+</body>
+</html>

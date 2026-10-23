@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-GANCHO (frases 2–4). Una línea de tiempo en el cielo del desierto: a la izquierda la pirámide (2560 a. C.), en
+// medio Cleopatra (69 a. C.) y a la derecha la Luna con un cohete (1969). El tramo de la pirámide a Cleopatra se
+// enciende en naranja («2500») y el de Cleopatra a la Luna en azul («2000»): ella queda más cerca de la Luna. Luego
+// Cleopatra, de turista, mira boquiabierta una pirámide vieja y gastada. Al final, el Nilo al amanecer y «?».
+import { preparar, rodar, guiza, nilo, cieloEg, EL, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-gancho');
+const { tramo, lerp } = R;
+const m = { cle: M('cleopatra', 0.5), pie: M('piensalo', 9), pre: M('pregunta', 17) };
+const L = m.pie - m.cle;
+const X0 = 46, X1 = 280, Y = 92;
+const X = (a) => Math.round(X0 + (a + 2560) / (1969 + 2560) * (X1 - X0));
+const linea = (t) => {
+  const u = t - m.cle;
+  cieloEg(R, t, { hor: 132, sol: null, nubes: false });
+  for (let y = 132; y < 180; y++) R.rect(0, y, 319, y, y === 132 ? C.k : y < 136 ? C.arenaL : y % 9 === 0 ? C.arenaS : C.arena);
+  // la barra
+  R.rect(X0 - 1, Y - 1, X1 + 1, Y + 3, C.k); R.rect(X0, Y, X1, Y + 2, C.blanco);
+  const a = tramo(u, 0.25 * L, 0.5 * L), b = tramo(u, 0.55 * L, 0.8 * L), xc = X(-69);
+  if (a > 0) R.rect(X0, Y, Math.round(lerp(X0, xc, a)), Y + 2, C.rocaS);
+  if (b > 0) R.rect(xc, Y, Math.round(lerp(xc, X1, b)), Y + 2, C.azul);
+  // pirámide, Cleopatra y la Luna con el cohete
+  const pir = (x, y) => { R.poligono([[x, y - 22], [x - 20, y], [x + 20, y]], C.calizaL); R.poligono([[x, y - 22], [x, y], [x + 20, y]], C.calizaS); R.linea(x, y - 22, x - 20, y, C.k); R.linea(x, y - 22, x + 20, y, C.k); R.poligono([[x, y - 23], [x - 3, y - 19], [x + 3, y - 19]], C.oro); };
+  pir(X0, Y - 4);
+  R.disco(X1, Y - 22, 15, C.k); R.disco(X1, Y - 22, 14, C.calizaL); R.disco(X1 + 4, Y - 26, 4, C.calizaS); R.disco(X1 - 5, Y - 18, 3, C.calizaS); R.disco(X1 + 6, Y - 14, 2, C.calizaS);
+  const rx = X1 - 26, ry = Y - 44 + Math.round(Math.sin(t * 3)); R.rect(rx - 3, ry, rx + 3, ry + 16, C.k); R.rect(rx - 2, ry + 1, rx + 2, ry + 15, C.blanco); R.rect(rx - 1, ry - 3, rx + 1, ry, C.rojo); R.pset(rx, ry - 4, C.rojo); R.rect(rx - 5, ry + 12, rx - 3, ry + 16, C.rojo); R.rect(rx + 3, ry + 12, rx + 5, ry + 16, C.rojo); R.disco(rx, ry + 6, 1, C.azul); R.rect(rx - 1, ry + 17, rx + 1, ry + 19 + Math.round(Math.abs(Math.sin(t * 20)) * 2), C.oro);
+  R.actor(EL.egipcia, xc - 7, Y - 4, t, { tocado: 'diadema', sonrisa: u > 0.8 * L });
+  for (const [xx, n] of [[X0, ''], [xc, ''], [X1, '']]) R.rect(xx, Y + 3, xx, Y + 6, C.k);
+  if (a >= 1) R.numero('2500', Math.round((X0 + xc) / 2), Y + 16, { centro: true, color: C.rocaS });
+  if (b >= 1) R.numero('2000', Math.round((xc + X1) / 2), Y + 16, { centro: true, color: C.azul });
+  R.numero('2560', X0, Y + 30, { centro: true }); R.numero('69', xc, Y + 30, { centro: true }); R.numero('1969', X1, Y + 30, { centro: true });
+};
+const turista = (t) => {
+  guiza(R, t, { fase: 'vieja', bloques: false });
+  R.actor(EL.egipcia, 120, 145, t, { tocado: 'diadema', sorpresa: true, dir: 1 });
+  R.actor(EL.calvo, 92, 145, t, { pal: { T: R.hex('#8050b8') } });
+};
+const amanecer = (t) => nilo(R, t, { tarde: true, barcas: true });
+rodar(E, R, [[0, linea], [m.pie - 0.2, turista], [m.pre - 0.2, amanecer]], {
+  año: (t) => (t < m.pie ? null : t < m.pre ? -69 : null), barraDesde: m.pie,
+  caja: (t, e) => R.caja(t, t > m.pre + 1.2 ? tramo(t, m.pre + 1.2, m.pre + 1.6) : 0, (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }),
+});
+</script>
+</body>
+</html>

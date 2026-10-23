@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adios · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-ADIOS (frase 44). Guiza de noche bajo las estrellas, con las pirámides y la esfinge; Atom en su caja con el «?».
+import { preparar, rodar, guiza } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R } = await preparar('eg-adios');
+rodar(E, R, [[0, (t) => guiza(R, t, { fase: 'terminada', noche: true, esfinge: true, bloques: false })]], {
+  caja: (t, e) => R.caja(t, R.tramo(t, 0.3, 0.7), (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }),
+});
+</script>
+</body>
+</html>

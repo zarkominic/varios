@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tierras · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-TIERRAS (frase 7). El mapa de cerca: la franja negra del Nilo, «la tierra negra», y a los lados el desierto que
+// se vuelve rojo, «la tierra roja».
+import { preparar, rodar, mapaEg } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-tierras');
+const m0 = M('tierras', 0.5), L = E.duracion - m0;
+const plano = (t) => { const u = t - m0; mapaEg(R, t, { vista: R.VISTAS.nilo, verde: true, negro: u < 0.75 * L, rojo: u > 0.35 * L ? 1 : 0 }); };
+rodar(E, R, [[0, plano]], { año: -3200 });
+</script>
+</body>
+</html>

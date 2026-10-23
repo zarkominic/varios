@@ -21,7 +21,13 @@ export const P = paleta({
   k: '#1c1222', S: '#f6c290', s: '#d48a5a', W: '#f6f6f6', w: '#b8bccc', T: '#ece0bc', t: '#bfae80', B: '#93603a', b: '#64401f',
   L: '#6a4020', m: '#7a2026', H: '#2c2232', h: '#54466a', A: '#3e74d4', a: '#2a50a0', Q: '#d24040', q: '#922828', E: '#ffffff',
   o: '#f0c040', G: '#7a4a24',
+  // Egipto: N nemes azul · O oro · g oro sombra · Y turquesa · D corona roja · X/x corona blanca · J/j máscara de chacal
+  // · K corona azul · U barba postiza · Z/z metal (plata) · C/c ropa · F pantalón · M/m caballo · V/v cocodrilo
+  N: '#2a4fa8', O: '#e8b830', g: '#a87a18', Y: '#2aa8a0', D: '#c83a3a', X: '#f2eee2', x: '#c8c0b0', J: '#2a2430', j: '#4c4660',
+  K: '#2e5aa8', U: '#2a2440', Z: '#c0c4d4', z: '#8c90a4', C: '#3a4a7a', c: '#26305a', F: '#6a5a4a', M: '#a0683a', V: '#4a8a3a', v: '#2e5a24',
 });
+// piel morena de los egipcios (y de los demás pueblos del Mediterráneo oriental)
+export const PIEL_EG = { S: hex('#d0905e'), s: hex('#a0623a') };
 
 // Materiales planos de los fondos (3–5 tonos cada uno, sin tramas).
 export const COL = paleta({
@@ -111,7 +117,289 @@ const CIUDADANO = {
   ],
   brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: P.H, mejillas: [[10, 8], [5, 8]],
 };
+
+// ── Egipto ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// cabezas de 13 filas (ojos en la 6, boca en la 9) y cuerpos de 13 (o 9 sentado)
+const CAB_CORTO = [
+  '...kkkkkkkk....',
+  '..kHHHHHHHHk...',
+  '.kHHhHHHHhHHk..',
+  'kHHHHHHHHHHHHk.',
+  'kHHHSSSSSSSSSk.',
+  'kHHsSSSSSSSSSk.',
+  'kHHssSSSSSSSSSk',
+  'kHHsSSSSSSSSsk.',
+  '.kHSSSSSSSSSSk.',
+  '.kSSSSSSSSSSk..',
+  '..kSSSSSSSSsk..',
+  '...kksSSSSkk...',
+  '.....kkkkk.....',
+];
+const CAB_CALVO = CAB_CORTO.map((f, j) => (j < 4 ? f.replace(/[Hh]/g, 'S') : f.replace(/H/g, 'S')));
+const CUERPO_EG = [
+  '....kkSSSkk....',
+  '..kkSSSSSSSkk..',
+  '.kSkSSSSSSSkSk.',
+  '.kSkSsSSSsSkSk.',
+  '.kSkSSSSSSSkSk.',
+  '.kskTTTTTTTksk.',
+  '..kkTTTTTTtkk..',
+  '...kTTTTTTtk...',
+  '...kTTtTTTtk...',
+  '...ktttttttk...',
+  '....kSk.kSk....',
+  '....kSk.kSk....',
+  '...kSSk.kSSk...',
+];
+// escriba sentado con las piernas cruzadas (el papiro se dibuja aparte, en el regazo)
+const CUERPO_SENTADO = [
+  '....kkSSSkk....',
+  '..kkSSSSSSSkk..',
+  '.kSkSSSSSSSkSk.',
+  '.kSkSsSSSsSkSk.',
+  '.kSkkSSSSSkkSk.',
+  '.kSSkTTTTTkSSk.',
+  'kTTTTTTTTTTTTTk',
+  'kTTtTTTTTTTtTTk',
+  '.kkkkkkkkkkkkk.',
+];
+// faraón: nemes a rayas azul y oro (sin tapar la cara) y barba postiza
+const CAB_NEMES = [
+  '....kkkkkkk....',
+  '..kkNNNNNNNkk..',
+  '.kOOOOOOOOOOOk.',
+  'kNNNNNNNNNNNNk.',
+  'kOOOOOkSSSSSSk.',
+  'kNNNNkSSSSSSSk.',
+  'kOOOOksSSSSSSSk',
+  'kNNNNkSSSSSSsk.',
+  'kOOOOkSSSSSSSk.',
+  'kNNNNkSSSSSSk..',
+  'kOOOOkkSSSSsk..',
+  'kNNNk..kkUUk...',
+  '.kkk....kUUk...',
+  '.........kk....',
+];
+const CUERPO_FARAON = [
+  '...kkYOYOYkk...',
+  '..kOYOYOYOYOk..',
+  '.kSkYOYOYOYkSk.',
+  '.kSkSSSSSSSkSk.',
+  '.kSkSsSSSsSkSk.',
+  '.kskOOOOOOOksk.',
+  '..kkTTOOOTTkk..',
+  '...kTTOgOTtk...',
+  '...kTTOgOTtk...',
+  '...kttOgOttk...',
+  '....kSk.kSk....',
+  '....kOk.kOk....',
+  '...kOOk.kOOk...',
+];
+// mujer egipcia: peluca negra con el flequillo por encima de las cejas, vestido blanco y collar
+const CAB_EGIPCIA = [
+  '...kkkkkkkk....',
+  '..kHHHHHHHHk...',
+  '.kHHhHHHHHHHk..',
+  'kHHHHHHHHHHHHk.',
+  'kHHHHSSSSSSSSk.',
+  'kHHHHSSSSSSSSk.',
+  'kHHHsSSSSSSSSSk',
+  'kHHHSSSSSSSSsk.',
+  'kHHHSSSSSSSSSk.',
+  'kHHHkSSSSSSSk..',
+  'kHHHkkSSSSSkk..',
+  'kHHHk.kkkkk....',
+  '.kkk...........',
+];
+const CUERPO_EGIPCIA = [
+  '....kkSSSkk....',
+  '..kkYOYOYOYkk..',
+  '.kSkTYOYOYTkSk.',
+  '.kSkTTTTTTTkSk.',
+  '.kSkTTTTTTTkSk.',
+  '.kskTTTtTTTksk.',
+  '..kkTTTtTTTkk..',
+  '...kTTTtTTTk...',
+  '...kTTTtTTTk...',
+  '...kTTTtTTtk...',
+  '...kTTtttTtk...',
+  '...kkkkkkkkk...',
+  '....kSk.kSk....',
+];
+// sacerdote con máscara de chacal (Anubis): sin cara, ojo de oro
+const CAB_CHACAL = [
+  '...kk...kk.....',
+  '..kJk..kJk.....',
+  '..kJJk.kJJk....',
+  '..kJJJkJJJJk...',
+  '.kJJJJJJJJJk...',
+  '.kJJJJJJJJJJk..',
+  'kOJJJJJJJOJJk..',
+  'kOJJJJJJJJJJJk.',
+  'kOJJJJJJJJJJJJk',
+  'kOJJJJJJJJJjjk.',
+  'kOJJJJJJJkkkk..',
+  'kOJJJJJJk......',
+  '.kkkkkkk.......',
+];
+// extranjeros de Asia (hicsos, hititas): pelo en seta y barba
+const CAB_BARBA = [
+  '...kkkkkkkk....',
+  '..kHHHHHHHHk...',
+  '.kHHhHHHHhHHk..',
+  'kHHHHHHHHHHHHk.',
+  'kHHHSSSSSSSSSk.',
+  'kHHHsSSSSSSSSk.',
+  'kHHssSSSSSSSSSk',
+  'kHHsSSSSSSSSsk.',
+  'kHHHSSSSSSSSSk.',
+  '.kHHHHHHHHHHk..',
+  '..kHHHHHHHHk...',
+  '...kHHHHHHHk...',
+  '....kkHHHkk....',
+];
+const CUERPO_TUNICA = [
+  '...kkAAAAAkk...',
+  '..kAQQQQQQQAk..',
+  '.kSkAAAAAAAkSk.',
+  '.kSkQQQQQQQkSk.',
+  '.kSkAAAAAAAkSk.',
+  '.kskQQQQQQQksk.',
+  '..kkAAAAAAAkk..',
+  '...kQQQQQQQk...',
+  '...kAAAAAAAk...',
+  '...kkkkkkkkk...',
+  '....kSk.kSk....',
+  '....kLk.kLk....',
+  '...kLLk.kLLk...',
+];
+// legionario romano: casco con penacho, armadura de láminas y faldón rojo
+const CAB_LEGIO = [
+  '.....kkkkk.....',
+  '....kQQQQQk....',
+  '...kkkkkkkkk...',
+  '..kZZZZZZZZZk..',
+  '.kZZZZZZZZZZZk.',
+  'kZZZZZSSSSSSSk.',
+  'kZZZZkSSSSSSSk.',
+  'kZZZkksSSSSSSSk',
+  'kZZZkSSSSSSSsk.',
+  '.kZZkSSSSSSSSk.',
+  '..kkkSSSSSSSk..',
+  '....kkSSSSSkk..',
+  '......kkkkk....',
+];
+const CUERPO_LEGIO = [
+  '...kkZZZZZkk...',
+  '..kZZZZZZZZZk..',
+  '.kSkZzZzZzZkSk.',
+  '.kSkZZZZZZZkSk.',
+  '.kSkZzZzZzZkSk.',
+  '.kskGGGGGGGksk.',
+  '..kkQQQQQQQkk..',
+  '...kQqQqQqQk...',
+  '...kQQQQQQQk...',
+  '...kkkkkkkkk...',
+  '....kSk.kSk....',
+  '....kLk.kLk....',
+  '...kLLk.kLLk...',
+];
+// europeo moderno (1799–1922): levita o chaqueta, pantalón y botas
+const CUERPO_EUROPEO = [
+  '...kkWWWWWkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCCWCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCWCCCkCk.',
+  '.kSkCCCoCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCkCCCk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '..kkkkk.kkkkk..',
+];
+// tocados que se pintan encima de la cabeza: [rejilla, desplazamiento vertical]
+export const TOCADOS = {
+  // la doble corona: la blanca del sur dentro de la roja del norte
+  doble: [[
+    '.......kkk.....',
+    '......kXXXk....',
+    '......kXXXk....',
+    '.....kXXXXxk...',
+    'kkk..kXXXXXk...',
+    'kDk..kXXXXxk...',
+    'kDk.kXXXXXXxk..',
+    'kDkkkkkkkkkkkk.',
+    'kDDDDDDDDDDDDk.',
+    'kDDDDDDDDDDDdk.',
+  ], -7],
+  blanca: [[
+    '.......kkk.....',
+    '......kXXXk....',
+    '......kXXXk....',
+    '.....kXXXXxk...',
+    '.....kXXXXXk...',
+    '....kXXXXXXxk..',
+    '...kXXXXXXXXxk.',
+    '..kXXXXXXXXXXk.',
+    '.kXXXXXXXXXXXk.',
+  ], -5],
+  // la corona azul de guerra (jepresh) con su cobra de oro delante
+  azul: [[
+    '....kkkkkk.....',
+    '..kkKKKKKKkk...',
+    '.kKKOKKKOKKKk..',
+    '.kKKKKKOKKKKk..',
+    'kKKOKKKKKKOKKk.',
+    'kKKKKKOKKKKKOk.',
+    'kKKKKKKKKKKKOk.',
+  ], -3],
+  // diadema de oro con cobra (Cleopatra, reinas)
+  diadema: [[
+    '............kk.',
+    '...........kOk.',
+    'kkkkkkkkkkkkOk.',
+    'kOOOOOOOOOOOOk.',
+    '.kkkkkkkkkkkk..',
+  ], 1],
+  // salacot de explorador (1922)
+  salacot: [[
+    '....kkkkkkk....',
+    '...kWWWWWWWk...',
+    '..kWWWWWWWWWk..',
+    '.kWwwwwwwwwWWk.',
+    'kWWWWWWWWWWWWWk',
+    '.kkkkkkkkkkkkk.',
+  ], -3],
+  // bicornio de soldado francés (1799) con escarapela
+  bicornio: [[
+    'kk.........kk..',
+    'kNkkkkkkkkkNk..',
+    '.kNNNNNNNWDNk..',
+    '..kkkkkkkkkk...',
+  ], -1],
+};
+export const PIEL_CLARA = { S: hex('#f6c290'), s: hex('#d48a5a') };
+const EG = { ...PIEL_EG, T: hex('#f4eedc'), t: hex('#c8bc9a') };
+export const ELENCO_EG = {
+  campesino: { cab: CAB_CORTO, cuerpo: CUERPO_EG, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: P.H, pal: EG, kohl: true },
+  calvo: { cab: CAB_CALVO, cuerpo: CUERPO_EG, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: P.s, pal: EG, kohl: true },
+  escriba: { cab: CAB_CALVO, cuerpo: CUERPO_SENTADO, brazoCol: 11, altoCuerpo: 9, altoCab: 12, ojosY: 6, bocaY: 9, ceja: P.s, pal: EG, kohl: true },
+  faraon: { cab: CAB_NEMES, cuerpo: CUERPO_FARAON, brazoCol: 11, altoCuerpo: 13, altoCab: 11, ojosY: 6, bocaY: 9, ceja: P.H, pal: EG, kohl: true },
+  faraona: { cab: CAB_NEMES.slice(0, 11).concat(['kNNNk..kkkk....', '.kkk...........']), cuerpo: CUERPO_FARAON, brazoCol: 11, altoCuerpo: 13, altoCab: 11, ojosY: 6, bocaY: 9, ceja: P.H, pal: EG, kohl: true },
+  rey: { cab: CAB_CORTO, cuerpo: CUERPO_FARAON, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: P.H, pal: EG, kohl: true, barba: true },
+  egipcia: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EGIPCIA, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: P.H, pal: EG, kohl: true },
+  chacal: { cab: CAB_CHACAL, cuerpo: CUERPO_EG, brazoCol: 11, altoCuerpo: 13, altoCab: 12, sinCara: true, pal: EG },
+  barbudo: { cab: CAB_BARBA, cuerpo: CUERPO_TUNICA, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: P.H, pal: { ...PIEL_EG, H: hex('#1c1424') } },
+  legionario: { cab: CAB_LEGIO, cuerpo: CUERPO_LEGIO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 7, bocaY: 10, ceja: P.k, pal: PIEL_CLARA },
+  europeo: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), pal: { ...PIEL_CLARA, H: hex('#5a3418'), h: hex('#8a5428') } },
+};
+
 export const ELENCO_CHIBI = { socrates: SOCRATES, ciudadano: CIUDADANO };
+// todos los personajes juntos
+Object.assign(ELENCO_CHIBI, ELENCO_EG);
 
 // ── Público: bustos de frente (9 × 12) que se asoman por encima de una borda, un muro o una grada ─────────────────
 export const BUSTOS = {
@@ -120,13 +408,17 @@ export const BUSTOS = {
   mujer: ['...kkk...', '..kHHHk..', '.kVVVVVk.', 'kVHHHHHVk', 'kVSSSSSVk', 'kVeSSSeVk', 'kVSSsSSVk', 'kVSSmSSVk', 'kVkSSSkVk', '.kkCoCkk.', 'kCCCCCCCk', 'kCcCCCcCk'],
   soldado: ['..kRRRk..', '.kRRRRRk.', '..kZZZk..', '.kZZzZZk.', 'kZZZZZZZk', 'kZkSSSkZk', 'kZeSSSeZk', 'kZSSsSSZk', 'kZkSmSkZk', '.kkkkkkk.', 'kCCCCCCCk', 'kCcCCCcCk'],
   marinero: ['...kkk...', '..kPPPk..', '.kPPpPPk.', 'kPPPPPPPk', 'kHSSSSSHk', 'kSeSSSeSk', 'kSSSsSSSk', '.kSSmSSk.', '..kkkkk..', '.kCCCCCk.', 'kCcCCCcCk', 'kCcCCCcCk'],
+  peluca: ['..kkkkk..', '.kHHHHHk.', 'kHHHHHHHk', 'kHSSSSSHk', 'kHeSSSeHk', 'kHSSsSSHk', 'kHSSmSSHk', 'kHkSSSkHk', '.kkYOYkk.', 'kCYOYOYCk', 'kCcCCCcCk', 'kCcCCCcCk'],
+  egipcia: ['..kkkkk..', '.kHOOOHk.', 'kHHHHHHHk', 'kHSSSSSHk', 'kHeSSSeHk', 'kHSSsSSHk', 'kHSSmSSHk', 'kHHSSSHHk', 'kHkkkkkHk', 'kCYOYOYCk', 'kCCCCCCCk', 'kCcCCCcCk'],
 };
-const BOCA = { rizos: [4, 6], calvo: [4, 6], mujer: [4, 7], soldado: [4, 8], marinero: [4, 7] };
+const BOCA = { rizos: [4, 6], calvo: [4, 6], mujer: [4, 7], soldado: [4, 8], marinero: [4, 7], peluca: [4, 6], egipcia: [4, 6] };
 // colores de un busto: ropa (luz, sombra) y lo que haga falta (H, h, V, Z, z, R, P, p)
 export const tela = (luz, sombra, extra = {}) => ({ C: hex(luz), c: hex(sombra), ...paleta(extra) });
 
-export async function crearChibi(lienzo) {
-  const R = await crearRetro(lienzo);
+export async function crearChibi(lienzo) { return conChibi(await crearRetro(lienzo)); }
+
+// añade lo del estilo chibi a un kit ya creado (crearRetro, crearRoma…), para mezclar mapas y personajes en una escena
+export function conChibi(R) {
   const { pset, rect, disco } = R;
 
   // dibuja una rejilla de letras con una paleta (dir = −1 la voltea)
@@ -162,7 +454,7 @@ export async function crearChibi(lienzo) {
   // salto (px), habla, sonrisa, sorpresa, enfado, triste, pal (cambia letras: otro pelo, otra ropa)
   const sinBrazoCache = new Map();
   const actor = (def, x, suelo, t, o = {}) => {
-    const dir = o.dir ?? 1, pal = o.pal ? { ...P, ...o.pal } : P, salto = o.salto ?? 0;
+    const dir = o.dir ?? 1, pal = { ...P, ...(def.pal || {}), ...(o.pal || {}) }, salto = o.salto ?? 0;
     const resp = def.respira && Math.sin(t * 3) > 0.7 ? 1 : 0;
     const yC = suelo - def.altoCuerpo - salto, yH = yC - def.altoCab + resp;
     const levanta = o.dedo || o.brazos || o.sorpresa;
@@ -171,8 +463,16 @@ export async function crearChibi(lienzo) {
     if (o.dedo && !o.brazos && !o.sorpresa) brazoArriba(dir > 0 ? x + 14 : x, yC + 3, yH - 3);
     if (o.brazos || o.sorpresa) { brazoArriba(x + 1, yC + 3, yH + 1, true); brazoArriba(x + 12, yC + 3, yH + 1, true); }
     dibujo(def.cab, x, yH, dir, pal);
-    cara(x, yH, dir, { ceja: def.ceja, ojosY: def.ojosY, bocaY: def.bocaY, parpadea: (t + x * 0.13) % 2.6 < 0.1, ...o });
-    for (const [i, j] of def.mejillas ?? []) pset(Math.round(x + (dir > 0 ? i : 14 - i)), yH + j, P.s);
+    const px = (i, j, c) => pset(Math.round(x + (dir > 0 ? i : 14 - i)), Math.round(yH + j), c);
+    if (!def.sinCara) {
+      cara(x, yH, dir, { ceja: def.ceja, ojosY: def.ojosY, bocaY: def.bocaY, parpadea: (t + x * 0.13) % 2.6 < 0.1, ...o });
+      if (def.kohl || o.kohl) for (const ex of [8, 12]) px(ex + 1, def.ojosY ?? 5, P.k);   // el ojo pintado de los egipcios
+      for (const [i, j] of def.mejillas ?? []) px(i, j, pal.s);
+      if (o.bigote) { px(9, (def.bocaY ?? 9) - 1, pal.H); px(10, (def.bocaY ?? 9) - 1, pal.H); px(11, (def.bocaY ?? 9) - 1, pal.H); px(12, (def.bocaY ?? 9) - 1, pal.H); }
+      if (o.barba ?? def.barba) for (let j = (def.bocaY ?? 9) + 2; j <= (def.bocaY ?? 9) + 4; j++) { px(9, j, P.k); px(10, j, P.U); px(11, j, P.U); px(12, j, P.k); }
+    }
+    const toc = o.tocado ?? def.tocado;
+    if (toc) { const [g, dy] = TOCADOS[toc]; dibujo(g, x, yH + dy, dir, pal); }
     if (salto > 0) for (let i = -5; i <= 5; i++) if (Math.abs(i) > 2 - salto * 0.2) pset(x + 7 + i, suelo + 1, COL.mad1);
     return { cabeza: [x + 7, yH], mano: [dir > 0 ? x + 15 : x, yH - 4] };
   };
@@ -203,5 +503,51 @@ export async function crearChibi(lienzo) {
     if (o.icono) R.icono(o.icono, x - 2, y - 7, P.k, COL.nube); else { rect(x, y - 7, x, y - 3, P.Q); pset(x, y - 1, P.Q); }
   };
 
-  return { ...R, P, COL, dibujo, cara, brazoArriba, actor, busto, nube, gaviota, bocadillo };
+  // caballo de perfil (mirando a la derecha) con dos posturas de patas al galope
+  const CABALLO = [
+    '.....................kk...',
+    '....................kHMk..',
+    '...................kHMMMk.',
+    '..................kHMMkMMk',
+    '.................kHMMMMMMk',
+    '................kHMMMk.kk.',
+    '...............kHMMMk.....',
+    '..kkkkkkkkkkkkkHMMMk......',
+    '.kMMMMMMMMMMMMMMMMk.......',
+    'kHMMMMMMMMMMMMMMMMk.......',
+    'kHkMMMMMMMMMMMMMMMk.......',
+    'kHkmMMMMMMMMMMMMMk........',
+    '.k.kmMMkkkkkkkMmk.........',
+  ];
+  const PATAS = [['...kMk.......kMk..........', '...kMk.......kMk..........', '...kmk.......kmk..........', '...kkk.......kkk..........'],
+                 ['..kMk.........kMk........', '.kMk...........kMk.......', 'kmk.............kmk......', 'kkk.............kkk......']];
+  const caballo = (x, suelo, t, o = {}) => {
+    const dir = o.dir ?? 1, f = o.galopa ? Math.floor(t * 8) % 2 : 0, y = suelo - 17 - (o.galopa && f ? 1 : 0);
+    const pal = { ...P, M: o.color ?? P.M, m: o.sombra ?? hex('#6a4020'), H: hex('#2a1810') };
+    dibujo(CABALLO, x, y, dir, pal); dibujo(PATAS[f], x, y + 13, dir, pal);
+  };
+  // carro de guerra: caja con baranda, rueda de seis radios y el caballo delante; o.conductor = def del reparto
+  const carro = (x, suelo, t, o = {}) => {
+    const dir = o.dir ?? 1, X = (i) => Math.round(x + dir * i);
+    caballo(dir > 0 ? x + 14 : x - 36, suelo, t, { ...o, dir });
+    for (let i = 4; i <= 16; i++) pset(X(i), suelo - 9, P.k);   // lanza que une el carro al caballo
+    if (o.conductor) actor(o.conductor, dir > 0 ? x - 6 : x - 8, suelo - 6, t, { dir, ...(o.conductorOpc || {}) });
+    for (let i = -4; i <= 6; i++) for (let j = 0; j < 7; j++) pset(X(i), suelo - 13 + j, j === 0 || i === -4 || i === 6 ? P.k : j < 2 ? P.O : P.D);
+    const cx = X(1), cy = suelo - 5, giro = t * 9 * dir;
+    disco(cx, cy, 5, P.k); disco(cx, cy, 4, P.M); disco(cx, cy, 3, P.k);
+    for (let k = 0; k < 6; k++) { const a = giro + k * Math.PI / 3; for (let r = 0; r <= 3; r++) pset(Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r), P.M); }
+    pset(cx, cy, P.O);
+  };
+  // cocodrilo que asoma en el agua (o tumbado en la orilla)
+  const COCODRILO = [
+    '........kkk..kkk..kk.....',
+    '..kkkkkkVVVkkVVVkkVVkkk..',
+    '.kVVVVVVVVVVVVVVVVVVVVOVk',
+    'kvVVVVVVVVVVVVVVVVVVVVVVk',
+    '.kvvvvvvvvvvvvvvvvvkWkWkk',
+    '..kkkkkkkkkkkkkkkkk.k.k..',
+  ];
+  const cocodrilo = (x, y, t, o = {}) => dibujo(COCODRILO, x, y + Math.round(Math.sin(t * 1.5 + x) * 0.6), o.dir ?? 1);
+
+  return { ...R, P, COL, dibujo, cara, brazoArriba, actor, busto, nube, gaviota, bocadillo, caballo, carro, cocodrilo };
 }

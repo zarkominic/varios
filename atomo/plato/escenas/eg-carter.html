@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Carter · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-CARTER (frase 32). Cartela «1922». La tumba de Tutankamón a oscuras: un arqueólogo con salacot y una vela asoma y
+// la luz va descubriendo el oro, las estatuas guardianas y la máscara dorada.
+import { preparar, rodar, tumba, EL, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-carter');
+const m0 = M('carter', 1.5), L = E.duracion - m0;
+const plano = (t) => {
+  const u = t - m0, luz = R.tramo(u, 0.2, 0.6 * L);
+  tumba(R, t, { modo: 'tesoro', luz });
+  const r = R.actor(EL.europeo, 52, 145, t, { tocado: 'salacot', bigote: true, sorpresa: luz > 0.5, pal: { C: R.hex('#c8b894'), c: R.hex('#a08a64') } });
+  R.vela(70, 128, t, { r: 10, alto: 3 });
+};
+rodar(E, R, [[0, plano]], { cartela: '1922', año: 1922 });
+</script>
+</body>
+</html>

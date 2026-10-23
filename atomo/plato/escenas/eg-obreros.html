@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Obreros · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-OBREROS (frases 17–18). El pueblo de los obreros junto a la obra: hornos de pan con humo, jarras de cerveza y
+// panes en conos; dos obreros tiran de un bloque en un trineo y otro le entablilla la pierna a un compañero. Luego la
+// orilla del Nilo cubierta por la crecida y los campesinos que se van caminando hacia la obra.
+import { preparar, rodar, guiza, nilo, EL, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-obreros');
+const { tramo, lerp } = R;
+const m = { obr: M('obreros', 0.5), tur: M('turnos', 12) };
+const pueblo = (t) => {
+  const u = t - m.obr;
+  guiza(R, t, { fase: 'obra', p: 0.7, pueblo: true });
+  // trineo con bloque del que tiran dos obreros
+  const bx = Math.round(lerp(150, 230, (u * 0.06) % 1));
+  R.rect(bx - 14, 143, bx + 2, 145, C.madera); R.rect(bx - 12, 133, bx, 142, C.caliza); R.rect(bx - 12, 133, bx, 133, C.calizaL); R.rect(bx - 13, 132, bx + 1, 132, C.k);
+  R.linea(bx + 2, 138, bx + 20, 134, C.madera);
+  R.actor(EL.campesino, bx + 18, 145, t, { anda: true }); R.actor(EL.campesino, bx + 34, 145, t + 0.5, { pal: { H: R.hex('#4a2a18') } });
+  // el que cura la pierna
+  R.actor(EL.calvo, 70, 145, t, { dir: 1, sonrisa: true });
+  R.rect(86, 141, 100, 145, C.blanco); R.rect(86, 141, 86, 145, C.k); R.rect(100, 141, 100, 145, C.k); R.rect(92, 139, 93, 146, C.madera);
+  R.actor(EL.campesino, 104, 145, t, { dir: -1, triste: true });
+};
+const camino = (t) => {
+  const u = t - m.tur;
+  nilo(R, t, { nivel: 2 });
+  for (let k = 0; k < 4; k++) R.actor(k % 2 ? EL.campesino : EL.calvo, Math.round(80 + k * 30 + u * 14), 145, t + k, { anda: true, pal: k === 2 ? { H: R.hex('#4a2a18') } : {} });
+};
+rodar(E, R, [[0, pueblo], [m.tur - 0.2, camino]], { año: -2560 });
+</script>
+</body>
+</html>

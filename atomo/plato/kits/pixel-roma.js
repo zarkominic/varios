@@ -45,6 +45,9 @@ export const LUGARES = {
   bizancio: [29, 41], olbia: [31.9, 46.7], sinope: [35.1, 42.0], emporion: [3.1, 42.1], tebas: [23.32, 38.32], corinto: [22.93, 37.9],
   dublin: [-6.26, 53.35], nuevayork: [-74, 40.7], edimburgo: [-3.19, 55.95], tara: [-6.6, 53.58],
   mileto: [27.28, 37.53], efeso: [27.34, 37.94], troya: [26.24, 39.96], indo: [71.5, 32], bactra: [66.9, 36.76], siena: [32.9, 24.09],
+  // Egipto
+  menfis: [31.25, 29.85], guiza: [31.13, 29.98], luxor: [32.65, 25.7], asuan: [32.9, 24.09], kerma: [30.4, 19.6], napata: [31.8, 18.5],
+  kadesh: [36.5, 34.56], hattusa: [34.6, 40.0], avaris: [31.82, 30.79],
 };
 // Mares (polígonos en lon/lat): todo lo que no es mar es tierra.
 const MAR = {
@@ -134,6 +137,12 @@ export async function crearRoma(lienzo) {
     caramelo: ['#.....#', '##.#.##', '.#####.', '#######', '.#####.', '##.#.##', '#.....#'],
     murcielago: ['#.....#', '##.#.##', '#######', '.##.##.', '..#.#..'],
     mascara: ['.#####.', '#######', '#.###.#', '#######', '##.#.##', '#.###.#', '.#####.'],
+    piramide: ['...#...', '..###..', '..#.#..', '.#####.', '.#.#.#.', '#######', '#######'],
+    carro: ['.....##', '....###', '#######', '.#..##.', '###....', '#.#....', '###....'],
+    ankh: ['..###..', '.#...#.', '.#...#.', '..###..', '#######', '...#...', '...#...'],
+    ojo: ['.#####.', '#..#..#', '.#####.', '...#...', '..#.#..', '.#...#.', '#.....#'],
+    corazon: ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...'],
+    pluma: ['....##.', '...###.', '..####.', '.####..', '.###...', '.#.....', '#......'],
   });
 
   // ── Cielos: tarde, día y tormenta (la noche es R.cielo) ─────────────────────────────────────────────────────────
@@ -554,7 +563,7 @@ export async function crearRoma(lienzo) {
   };
   const lugar = (nombre, rc, v) => proyMapa(...(Array.isArray(nombre) ? nombre : LUGARES[nombre]), rc, v).map(Math.round);
   // encuadres con nombre para el zoom
-  const VISTAS = { mundo: VISTA, italia: [5, 20.5, 36.2, 47.2], roma: [11.2, 13.8, 41.2, 43.0], egeo: [18.6, 32.8, 34.4, 42.4], grecia: [21.0, 25.4, 36.6, 39.1], salamina: [23.2, 23.9, 37.75, 38.15], persia: [-6, 80, 10.5, 58.8], irlanda: [-11.5, 0.5, 51.3, 58.0], atlantico: [-82, 12, 18, 70.8] };
+  const VISTAS = { mundo: VISTA, italia: [5, 20.5, 36.2, 47.2], roma: [11.2, 13.8, 41.2, 43.0], egeo: [18.6, 32.8, 34.4, 42.4], grecia: [21.0, 25.4, 36.6, 39.1], salamina: [23.2, 23.9, 37.75, 38.15], persia: [-6, 80, 10.5, 58.8], irlanda: [-11.5, 0.5, 51.3, 58.0], atlantico: [-82, 12, 18, 70.8], egipto: [20, 42, 16.5, 36.5], nilo: [26.5, 37.5, 21.5, 32.6] };
   const entre = (a, b, p) => a.map((q, i) => q + (b[i] - q) * p);
   // punto que late sobre el mapa (una ciudad), con su color
   const punto = (x, y, t, c = PALA.ORO, r = 2) => { const l = Math.sin(t * 5) > 0 ? 1 : 0; disco(x, y, r + l, CONTORNO); disco(x, y, r - 1 + l, c[3]); pset(x, y, c[2]); };

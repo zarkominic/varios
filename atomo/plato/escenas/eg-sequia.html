@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sequia · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-SEQUIA (frases 19–20). Cartela «2181». El río bajo entre bancos de barro, los campos agrietados y los silos vacíos;
+// el faraón preocupado y un campesino triste. Luego el mapa: Egipto se rompe en trozos de colores que se separan.
+import { preparar, rodar, nilo, mapaEg, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-sequia');
+const m = { seq: M('sequia', 1.5), rom: M('rompe', 12) };
+const seca = (t) => {
+  nilo(R, t, { nivel: 0, seco: true, silos: 0, barcas: false });
+  R.actor(EL.faraon, 140, 145, t, { triste: true }); R.actor(EL.campesino, 176, 145, t, { dir: -1, triste: true });
+};
+const rota = (t) => mapaEg(R, t, { vista: R.VISTAS.nilo, verde: true, trozos: R.tramo(t - m.rom, 0.3, 2.5) });
+rodar(E, R, [[0, seca], [m.rom - 0.2, rota]], { cartela: '2181', año: -2181 });
+</script>
+</body>
+</html>

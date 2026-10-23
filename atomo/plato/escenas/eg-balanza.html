@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Balanza · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-BALANZA (frase 29). En la sala del juicio, la balanza con el corazón a un lado y la pluma al otro; el sacerdote
+// chacal la mira, y el monstruo (cabeza de cocodrilo) espera abriendo la boca. El corazón pesa más y la balanza se
+// inclina.
+import { preparar, rodar, tumba, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-balanza');
+const m0 = M('balanza', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  const u = t - m0;
+  tumba(R, t, { modo: 'juicio', inclina: -R.tramo(u, 0.55 * L, 0.75 * L) });
+  R.actor(EL.chacal, 96, 145, t, {});
+};
+rodar(E, R, [[0, plano]], { año: -1300 });
+</script>
+</body>
+</html>

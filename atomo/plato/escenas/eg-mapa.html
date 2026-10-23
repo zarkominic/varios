@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mapa · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-MAPA (frase 5). El mapa antes que la historia: del Mediterráneo, zoom al noreste de África, todo arena; el Nilo
+// se dibuja de sur a norte, con su delta.
+import { preparar, rodar, mapaEg } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-mapa');
+const m0 = M('mapa', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  const u = t - m0;
+  const v = R.entre(R.VISTAS.mundo, R.VISTAS.egipto, R.easeIO(R.tramo(u, 0.6, 0.4 * L)));
+  mapaEg(R, t, { vista: v, nilo: R.tramo(u, 0.5 * L, 0.95 * L) });
+};
+rodar(E, R, [[0, plano]], { año: -3200, barraDesde: m0 + 0.4 * L });
+</script>
+</body>
+</html>
