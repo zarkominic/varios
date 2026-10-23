@@ -85,32 +85,24 @@ export async function crearAventura(lienzo) {
     };
     const respira = Math.sin(t * 2.2) > 0.6 ? -0.5 : 0;
     const rod = o.pose === 'rodilla', sent = o.pose === 'sentado';
-    // proporciones humanas (unas 6 cabezas de alto, piernas hasta la mitad); o.clasico: las de antes (4,5 cabezas)
-    const cl = !!o.clasico;
-    const cab = h * (cl ? 0.11 : 0.084), cuelloY = -h * (sent ? (cl ? 0.6 : 0.64) : rod ? (cl ? 0.64 : 0.68) : (cl ? 0.78 : 0.835)) + respira, hombroY = cuelloY + cab * (cl ? 0.35 : 0.55);
-    const caderaY = -h * (sent ? (cl ? 0.24 : 0.27) : rod ? (cl ? 0.3 : 0.34) : (cl ? 0.42 : 0.48)), anchoH = h * (cl ? 0.15 : 0.125), anchoC = h * (cl ? 0.12 : 0.095);
-    const pierna = h * (cl ? 0.1 : 0.085), rodY = -h * (cl ? 0.22 : 0.25);
+    const cab = h * 0.11, cuelloY = -h * (sent ? 0.6 : rod ? 0.64 : 0.78) + respira, hombroY = cuelloY + cab * 0.35;
+    const caderaY = -h * (sent ? 0.24 : rod ? 0.3 : 0.42), anchoH = h * 0.15, anchoC = h * 0.12;
+    const pierna = h * 0.1;
     // ── piernas y botas
     const an = o.anda != null ? Math.sin(o.anda) : 0, an2 = o.anda != null ? Math.cos(o.anda) : 0;
     const piernas = sent
       ? [[-anchoC * 0.45, caderaY, h * 0.12, caderaY + h * 0.01, h * 0.14, 0], [anchoC * 0.45, caderaY, h * 0.2, caderaY + h * 0.01, h * 0.22, 0]]
       : rod
       ? [[-anchoC * 0.45, caderaY, -h * 0.2, -h * 0.05, -h * 0.3, 0], [anchoC * 0.45, caderaY, h * 0.16, caderaY + h * 0.02, h * 0.16, 0]]
-      : [[-anchoC * 0.45, caderaY, -anchoC * 0.45 + an * h * 0.08, rodY + Math.max(0, -an2) * h * 0.02, -anchoC * 0.45 + an * h * 0.14, 0],
-         [anchoC * 0.45, caderaY, anchoC * 0.45 - an * h * 0.08, rodY + Math.max(0, an2) * h * 0.02, anchoC * 0.45 - an * h * 0.14, 0]];
-    // con proporciones humanas, cada pierna y cada brazo son «otro material» (una copia de la rampa): el sombreado por
-    // bandas les marca el borde y se separan del tronco y entre sí, en vez de fundirse en un bloque
-    const copia = (rp) => (cl ? rp : rp.slice());
+      : [[-anchoC * 0.45, caderaY, -anchoC * 0.45 + an * h * 0.08, -h * 0.22 + Math.max(0, -an2) * h * 0.02, -anchoC * 0.45 + an * h * 0.14, 0],
+         [anchoC * 0.45, caderaY, anchoC * 0.45 - an * h * 0.08, -h * 0.22 + Math.max(0, an2) * h * 0.02, anchoC * 0.45 - an * h * 0.14, 0]];
     piernas.forEach(([x0, y0, x1, y1, x2, y2], i) => {
       const esPata = o.pata && i === 1;
-      const pant = i === 1 ? copia(P.pantalon) : P.pantalon;
-      trazo(x0, y0, x1, y1, pierna, pant, 1.4);
+      trazo(x0, y0, x1, y1, pierna, P.pantalon, 1.4);
       if (esPata) trazo(x1, y1, x2, y2 - 1, Math.max(1.5, pierna * 0.35), PALA.MARRON, 2);
       else {
-        // pantorrilla más fina que el muslo (con proporciones humanas)
-        if (!cl) trazo(x1, y1, x1 + (x2 - x1) * 0.4, y1 + (y2 - y1) * 0.4, pierna * 0.8, pant, 1.4);
-        trazo(x1, y1 + h * 0.06, x2, y2 - h * 0.03, pierna * (cl ? 0.9 : 0.72), o.sandalias ? pant : P.botas, 1);
-        caja(x2 - pierna * 0.45, y2 - h * 0.035, x2 + pierna * (cl ? 0.8 : 0.9), y2, o.sandalias ? PALA.MARRON : P.botas, 1);
+        trazo(x1, y1 + h * 0.06, x2, y2 - h * 0.03, pierna * 0.9, o.sandalias ? P.pantalon : P.botas, 1);
+        caja(x2 - pierna * 0.45, y2 - h * 0.035, x2 + pierna * 0.8, y2, o.sandalias ? PALA.MARRON : P.botas, 1);
         if (o.sandalias) caja(x2 - pierna * 0.4, y2 - h * 0.075, x2 + pierna * 0.4, y2 - h * 0.06, PALA.MARRON, 1.6);
       }
     });
@@ -154,7 +146,7 @@ export async function crearAventura(lienzo) {
     // ── brazos
     const brazo = (lado, pose) => {
       const sx = lado * anchoH * 0.92, sy = hombroY + h * 0.025;
-      const L1 = h * (cl ? 0.16 : 0.17), L2 = h * (cl ? 0.16 : 0.165);
+      const L1 = h * 0.16, L2 = h * 0.16;
       let ex, ey, hx, hy;
       const balanceo = o.anda != null ? Math.sin(o.anda + (lado > 0 ? Math.PI : 0)) * 0.35 : 0;
       switch (pose) {
@@ -166,19 +158,18 @@ export async function crearAventura(lienzo) {
         case 'saluda': ex = sx + lado * L1 * 0.6; ey = sy - L1 * 0.3; hx = ex + lado * L2 * 0.3 + Math.sin(t * 12) * h * 0.04; hy = ey - L2 * 0.9; break;
         default: ex = sx + lado * h * 0.02 + balanceo * L1 * 0.4; ey = sy + L1; hx = ex + balanceo * L2 * 0.5; hy = ey + L2;
       }
-      const manga = copia(P.chaqueta), ante = o.antebrazo ? copia(o.antebrazo) : manga;
-      trazo(sx, sy, ex, ey, h * (cl ? 0.085 : 0.07), manga, 1.5);
-      trazo(ex, ey, hx, hy, h * (cl ? 0.075 : 0.06), ante, 1.6);
-      elipse(hx, hy + h * 0.01, h * (cl ? 0.035 : 0.03), h * (cl ? 0.035 : 0.03), P.piel, 2);
+      trazo(sx, sy, ex, ey, h * 0.085, P.chaqueta, 1.5);
+      trazo(ex, ey, hx, hy, h * 0.075, o.antebrazo ?? P.chaqueta, 1.6);
+      elipse(hx, hy + h * 0.01, h * 0.035, h * 0.035, P.piel, 2);
       return [hx, hy];
     };
     const p = o.pose ?? 'pie';
     const mD = brazo(1, o.brazoD ?? { senala: 'senala', brazos: 'arriba', ofrece: 'ofrece', rodilla: 'ofrece', saluda: 'saluda', manos_cintura: 'cintura', mide: 'cara' }[p] ?? 'abajo');
     const mI = brazo(-1, { brazos: 'arriba', manos_cintura: 'cintura' }[p] ?? o.brazoI ?? 'abajo');
     // ── cuello y cabeza
-    caja(-h * (cl ? 0.03 : 0.026), cuelloY - cab * 0.2, h * (cl ? 0.03 : 0.026), hombroY, P.piel, 1.4);
+    caja(-h * 0.03, cuelloY - cab * 0.2, h * 0.03, hombroY, P.piel, 1.4);
     const hy = cuelloY - cab * 0.95, hx = cab * 0.08;
-    elipse(hx, hy, cab * (cl ? 0.92 : 0.86), cab, P.piel, 2);
+    elipse(hx, hy, cab * 0.92, cab, P.piel, 2);
     // oreja
     elipse(hx - cab * 0.15, hy + cab * 0.1, cab * 0.2, cab * 0.28, P.piel, 1.4);
     // nariz (hacia donde mira)
@@ -291,23 +282,16 @@ export async function crearAventura(lienzo) {
       else if (dr < N * 3 && (x + y) % 2 === 0) v -= 1;   // transición tramada solo en una franja estrecha
       out[k] = rp[Math.max(0, Math.min(rp.length - 1, v))];
     }
-    // contorno: píxel vacío junto a uno lleno. Con proporciones humanas es selectivo: por arriba y por el lado de la luz
-    // toma el tono más oscuro del material que bordea (no una línea negra), y solo por abajo y por la sombra es oscuro
+    // contorno: píxel vacío junto a uno lleno
     for (let y = 0; y < H2; y++) for (let x = 0; x < W2; x++) {
       const k = y * W2 + x; if (col[k]) continue;
-      const der = x < W2 - 1 && col[k + 1], aba = y < H2 - 1 && col[k + W2];
-      if (!((x > 0 && col[k - 1]) || der || (y > 0 && col[k - W2]) || aba)) continue;
-      out[k] = !cl && (der || aba) ? ramp[aba ? k + W2 : k + 1][0] : PALA.CONTORNO;
+      if ((x > 0 && col[k - 1]) || (x < W2 - 1 && col[k + 1]) || (y > 0 && col[k - W2]) || (y < H2 - 1 && col[k + W2])) out[k] = PALA.CONTORNO;
     }
     // contraluz: el borde de la silueta que da a la luz se enciende (un píxel)
     if (o.luz) {
       const ld = (o.luz.lado ?? 1) * dir, lc = o.luz.color;
-      // con proporciones humanas el contraluz es entero solo en cabeza y hombros; más abajo, tramado (si no, parece un
-      // contorno de color alrededor de todo el cuerpo)
-      const yCorte = oy + hombroY + h * 0.12;
       for (let y = 0; y < H2; y++) for (let x = 0; x < W2; x++) {
         const k = y * W2 + x; if (!col[k]) continue;
-        if (!cl && y > yCorte && (y & 1)) continue;
         const nx = x + ld; if (nx < 0 || nx >= W2 || !col[k + ld]) out[k] = lc;
         else if (y > 0 && !col[k - W2] && (x + y) % 2 === 0) out[k] = lc;   // y algo de luz por arriba
       }
@@ -318,7 +302,6 @@ export async function crearAventura(lienzo) {
     const pup = Math.max(1, Math.round(ojoW * 0.5));
     const parpadea = (t % 3.7) < 0.12;
     const ex = hx + cab * 0.42, ey = hy - cab * 0.12;
-    const mini = !cl && cab < 3.6;   // cabeza de 6–7 px o menos: un ojo, sin cejas ni boca (si no, parece un emoticono)
     const ojo = (x0, blanco) => {
       for (let j = 0; j < ojoH; j++) for (let i = 0; i < ojoW; i++) {
         if (parpadea) { face(x0 + i - ojoW / 2, ey + ojoH - 1, PALA.CONTORNO); continue; }
@@ -332,15 +315,15 @@ export async function crearAventura(lienzo) {
     if (cab >= 7) for (let k = 0; k < Math.max(1, cab * 0.12); k++) face(hx + cab * 0.98, hy + cab * 0.32 + k, P.piel[0]);  // sombra de la nariz
     if (o.parche) { for (let j = -1; j <= ojoH; j++) for (let i = -1; i <= ojoW; i++) face(ex + i - ojoW / 2, ey + j, PALA.NEGRO[0]); for (let k = -cab; k <= cab * 0.6; k += 0.5) face(hx + k, hy - cab * 0.55 + k * 0.25, PALA.NEGRO[0]); }
     const ceja = o.ceño ? 0.15 : 0, gc = Math.max(1, Math.round(cab * 0.1));
-    if (!mini || o.ceño) for (const x0 of cab >= 7 ? [ex, ex - cab * 0.5] : [ex]) for (let i = -1; i <= ojoW; i++) for (let g = 0; g < gc; g++) face(x0 + i - ojoW / 2, ey - Math.max(1, cab * 0.16) - g + (o.ceño && i === -1 ? 1 : 0), P.pelo[0]);
+    for (const x0 of cab >= 7 ? [ex, ex - cab * 0.5] : [ex]) for (let i = -1; i <= ojoW; i++) for (let g = 0; g < gc; g++) face(x0 + i - ojoW / 2, ey - Math.max(1, cab * 0.16) - g + (o.ceño && i === -1 ? 1 : 0), P.pelo[0]);
     const bocaY = hy + cab * 0.5, bocaX = hx + cab * 0.48;
     const abre = o.habla ? (Math.sin(t * 17) * Math.sin(t * 7) > 0.1 ? o.habla : 0) : 0;
     const bw = Math.max(1, Math.round(cab * 0.35));
     const bh = Math.max(1, Math.round(cab * 0.08));
-    if (!mini || abre > 0) for (let i = 0; i < bw; i++) for (let g = 0; g < bh; g++) face(bocaX + i - bw / 2, bocaY + g, PALA.CONTORNO);
+    for (let i = 0; i < bw; i++) for (let g = 0; g < bh; g++) face(bocaX + i - bw / 2, bocaY + g, PALA.CONTORNO);
     if (abre > 0) for (let i = 0; i < bw; i++) for (let g = 0; g < Math.max(1, Math.round(cab * 0.2 * abre)); g++) face(bocaX + i - bw / 2, bocaY + bh + g, g === 0 ? PALA.CONTORNO : PALA.ROJO[1]);
-    if (o.sonrisa && !abre && !mini) { face(bocaX - bw / 2 - 1, bocaY - 1, PALA.CONTORNO); face(bocaX + bw / 2, bocaY - 1, PALA.CONTORNO); }
-    if ((ba === 'bigote' || ba === 'poblada' || ba === 'perilla') && !mini) for (let i = -1; i <= bw; i++) face(bocaX + i - bw / 2, bocaY - 1, P.pelo[1]);
+    if (o.sonrisa && !abre) { face(bocaX - bw / 2 - 1, bocaY - 1, PALA.CONTORNO); face(bocaX + bw / 2, bocaY - 1, PALA.CONTORNO); }
+    if (ba === 'bigote' || ba === 'poblada' || ba === 'perilla') for (let i = -1; i <= bw; i++) face(bocaX + i - bw / 2, bocaY - 1, P.pelo[1]);
     // ── al lienzo
     const X0 = Math.round(cx - ox), Y0 = Math.round(suelo - oy);
     if (o.sombra !== undefined && o.sombra !== false) {
