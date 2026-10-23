@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Francia · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-FRANCIA (frase 29). París de noche, con la torre Eiffel: los escaparates se llenan de calabazas encendidas en 1997
+// («1997» en la caja) y, mientras la barra avanza, se van apagando una a una. Luego, una balanza: a un lado una
+// calabaza y al otro una vela con flores de cempasúchil; se balancea sin decidirse.
+import { preparar, rodar, noche, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-francia');
+const { PALA, PR, NARANJA, tramo, lerp } = R;
+const m0 = M('francia', 0.5), L = E.duracion - m0, T = (f) => m0 + f * L;
+const eiffel = (cx, base, c) => {
+  for (let y = 0; y <= 96; y++) { const w = Math.round(2 + Math.pow((96 - y) / 96, 2.2) * 26); const yy = base - y; R.pset(cx - w, yy, c); R.pset(cx + w, yy, c); R.pset(cx - w + 1, yy, c); R.pset(cx + w - 1, yy, c); if (y % 8 === 0) R.rect(cx - w, yy, cx + w, yy, c); }
+  R.rect(cx - 22, base - 34, cx + 22, base - 31, c); R.rect(cx - 12, base - 66, cx + 12, base - 64, c); R.rect(cx, base - 104, cx, base - 96, c);
+  for (let x = -16; x <= 16; x++) { const h = Math.round(Math.sqrt(Math.max(0, 1 - (x / 17) ** 2)) * 12); R.rect(cx + x, base - h, cx + x, base - h, PALA.CONTORNO); }
+};
+const paris = (t) => {
+  noche(R, t, { luna: [60, 30, 10], colinas: false, hor: 128 });
+  R.rect(0, 100, R.W, 128, PALA.NEGRO[1]); for (let x = 0; x < R.W; x += 28) R.poligono([[x, 100], [x + 14, 90], [x + 28, 100]], PALA.NEGRO[1]);
+  for (let x = 6; x < R.W; x += 26) R.rect(x, 106, x + 6, 112, PALA.AMARILLO[1]);
+  eiffel(232, 112, PALA.CONTORNO); eiffel(233, 112, PALA.CONTORNO);
+  R.rect(0, 128, R.W, 152, PR.ROCA[1]); R.rect(0, 128, R.W, 129, PR.ROCA[3]);
+  sueloNoche(R, 152, { losas: true, rampa: PR.ROCA, luz: 0.9 });
+  const apaga = tramo(t, T(0.25), T(0.55));
+  for (let k = 0; k < 7; k++) { const x = 22 + k * 44, on = t > T(0.06) + k * 0.15 && k / 7 >= apaga; R.rect(x - 16, 132, x + 16, 150, on ? PALA.ANTORCHA[1] : PALA.CONTORNO); R.rect(x - 17, 131, x + 17, 131, PALA.ROJO[1]); R.calabaza(x, 150, 0.7, t + k, { tallada: on, luz: on }); }
+};
+const balanza = (t) => {
+  noche(R, t, { luna: [270, 30, 10] });
+  sueloNoche(R, 150);
+  const ang = Math.sin((t - T(0.58)) * 1.4) * 0.22, cx = 160, cy = 64, L2 = 70;
+  R.rect(cx - 2, cy, cx + 2, 150, PR.MADERA[1]); R.rect(cx - 20, 146, cx + 20, 150, PR.MADERA[1]);
+  const ax = Math.round(cx - Math.cos(ang) * L2), ay = Math.round(cy - Math.sin(ang) * L2), bx = Math.round(cx + Math.cos(ang) * L2), by = Math.round(cy + Math.sin(ang) * L2);
+  R.linea(ax, ay, bx, by, PALA.ORO[2]); R.linea(ax, ay + 1, bx, by + 1, PALA.ORO[1]); R.disco(cx, cy, 3, PALA.ORO[3]);
+  for (const [px, py] of [[ax, ay], [bx, by]]) { R.linea(px, py, px - 14, py + 30, PALA.ORO[1]); R.linea(px, py, px + 14, py + 30, PALA.ORO[1]); R.rect(px - 18, py + 30, px + 18, py + 32, PALA.ORO[2]); }
+  R.calabaza(ax, ay + 30, 1, t);
+  R.vela(bx, by + 18, t, { r: 14, alto: 10 });
+  for (let k = 0; k < 6; k++) { const x = bx - 14 + k * 5 + (k > 2 ? 4 : 0); R.disco(x, by + 27, 2, NARANJA[3]); R.pset(x, by + 27, NARANJA[4]); }
+};
+rodar(E, R, [[0, paris], [T(0.58), balanza]], {
+  año: (t) => (t < T(0.58) ? Math.round(lerp(1997, 2006, tramo(t, T(0.2), T(0.55)))) : 2026),
+  caja: (t, e) => R.caja(t, t > T(0.08) && t < T(0.56) ? tramo(t, T(0.08), T(0.08) + 0.4) : 0, (x, y) => R.numero('1997', x + 2, y + 12), { energia: e }),
+});
+</script>
+</body>
+</html>
