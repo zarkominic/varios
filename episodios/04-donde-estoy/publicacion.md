@@ -1,6 +1,6 @@
 # Episodio 4 · Material para publicar
 
-**Duración:** 8:13 (493,5 s).
+**Duración:** 8:08 (488,6 s).
 - Un solo vídeo: audio principal en inglés y pista de audio en español.
 - Subtítulos en inglés y en español.
 
@@ -41,14 +41,14 @@ Salen de los inicios de escena de `atomo/build/largo/ep04/linea.json`; cada uno 
 | 0:00 | A pirate and a stolen book | Un pirata y un libro robado |
 | 0:54 | Two numbers | Dos números |
 | 1:42 | No maps needed | Sin mapas |
-| 2:14 | Compasses and dragons | Brújulas y dragones |
-| 2:53 | Columbus's mistake | El error de Colón |
-| 3:31 | An invisible line | Una línea invisible |
-| 4:01 | Privateer or pirate? | ¿Corsario o pirata? |
-| 4:49 | The golden age of piracy | La edad de oro de la piratería |
-| 5:53 | Lost in the fog | Perdidos en la niebla |
-| 6:26 | A clock | Un reloj |
-| 7:18 | The clock in your pocket | El reloj en tu bolsillo |
+| 2:13 | Compasses and dragons | Brújulas y dragones |
+| 2:52 | Columbus's mistake | El error de Colón |
+| 3:29 | An invisible line | Una línea invisible |
+| 3:59 | Privateer or pirate? | ¿Corsario o pirata? |
+| 4:47 | The golden age of piracy | La edad de oro de la piratería |
+| 5:50 | Lost in the fog | Perdidos en la niebla |
+| 6:22 | A clock | Un reloj |
+| 7:14 | The clock in your pocket | El reloj en tu bolsillo |
 
 ## Fuentes (para la descripción)
 
