@@ -31,6 +31,13 @@ export const PALA = {
   TURQUESA: pal(['#0a2a3a', '#12505e', '#1e8088', '#46b8b0', '#9ae8d8']),
   SELVA: pal(['#0a1a14', '#123a24', '#1e5a30', '#3a8a3e', '#6ab84a']),
   ANTORCHA: pal(['#6a1a10', '#c84a18', '#f08a20', '#ffd040', '#fff8c0']),
+  // Roma
+  MARMOL: pal(['#6a5e6e', '#a89aa6', '#d8ccc8', '#f4ece2', '#ffffff']),
+  BRONCE: pal(['#3e2410', '#7a4a1c', '#b8782c', '#e8b05a', '#fff0b0']),
+  TERRACOTA: pal(['#4a1c14', '#86321e', '#c0582e', '#e48a52']),
+  PURPURA: pal(['#2e0828', '#5a1446', '#8e2a6a', '#c45a96']),
+  PIELES: pal(['#2a1a10', '#4e3220', '#7a5434', '#a88058']),
+  LAUREL: pal(['#1a3a12', '#2e6a1e', '#5a9a2e', '#a0d050']),
 };
 
 export async function crearAventura(lienzo) {
@@ -42,10 +49,16 @@ export async function crearAventura(lienzo) {
   // 150–200 y el suelo fuera de cuadro sirve de primer plano: la cara sale grande).
   // o: piel, pelo (rampa), peinado ('corto', 'largo', 'coleta', 'calvo', 'peluca', 'moño'), barba ('no', 'perilla',
   //    'poblada', 'bigote'), sombrero ('no', 'tricornio', 'pañuelo', 'corona', 'capitan', 'gorro'), chaqueta (rampa),
-  //    camisa (rampa), pantalon (rampa), botas (rampa), faja (rampa o null), capa (rampa o null), parche, pata, loro,
+  //    camisa (rampa), pantalon (rampa), botas (rampa), faja (rampa o null), capa (rampa o null), capaCorta (la capa llega a la cadera), parche, pata, loro,
   //    pose ('pie', 'senala', 'brazos', 'ofrece', 'rodilla', 'manos_cintura', 'saluda'), dir (1 mira a la derecha),
   //    anda (fase en radianes: ciclo de paso) , t (para parpadear y respirar), habla (0–1: la boca se abre),
-  //    objeto ('libro', 'espada', 'pergamino', 'saco', 'bolsa', 'catalejo', 'farol').
+  //    objeto ('libro', 'espada', 'pergamino', 'saco', 'bolsa', 'catalejo', 'farol', 'corona', 'gladio').
+  // Ropa romana: falda (rampa: túnica o toga hasta la rodilla; largoFalda en fracción de h), pteruges (rampa: tiras
+  //    de cuero de la armadura), banda (rampa: la franja de la toga en diagonal), antebrazo (rampa: brazos desnudos con
+  //    la piel), sandalias (true: espinilla desnuda y sandalia), sombrero 'casco' (bronce con cresta, colorCresta),
+  //    'laurel' (corona de hojas; colorLaurel), 'diadema'; tamSombrero agranda la corona (la del emperador niño).
+  // Regla del pelo: el pelo va solo arriba y detrás de la cabeza; nunca baja por la frente hasta los ojos ni cae por
+  //    delante de la cara. Los ojos, las cejas y la boca se pintan al final, encima de todo.
   const personaje = (cx, suelo, h, o = {}) => {
     const t = o.t ?? 0, dir = o.dir ?? 1;
     const W2 = Math.ceil(h * 1.1) + 12, H2 = Math.ceil(h * 1.3) + 8;
@@ -85,19 +98,32 @@ export async function crearAventura(lienzo) {
       trazo(x0, y0, x1, y1, pierna, P.pantalon, 1.4);
       if (esPata) trazo(x1, y1, x2, y2 - 1, Math.max(1.5, pierna * 0.35), PALA.MARRON, 2);
       else {
-        trazo(x1, y1 + h * 0.06, x2, y2 - h * 0.03, pierna * 0.9, P.botas, 1);
-        caja(x2 - pierna * 0.45, y2 - h * 0.035, x2 + pierna * 0.8, y2, P.botas, 1);
+        trazo(x1, y1 + h * 0.06, x2, y2 - h * 0.03, pierna * 0.9, o.sandalias ? P.pantalon : P.botas, 1);
+        caja(x2 - pierna * 0.45, y2 - h * 0.035, x2 + pierna * 0.8, y2, o.sandalias ? PALA.MARRON : P.botas, 1);
+        if (o.sandalias) caja(x2 - pierna * 0.4, y2 - h * 0.075, x2 + pierna * 0.4, y2 - h * 0.06, PALA.MARRON, 1.6);
       }
     });
     // ── capa (detrás del cuerpo)
     if (o.capa) {
       const vuelo = Math.sin(t * 1.8) * h * 0.02;
-      for (let y = hombroY; y <= (rod ? -2 : -h * 0.06); y += 0.5) {
+      for (let y = hombroY; y <= (o.capaCorta ? caderaY + h * 0.06 : rod ? -2 : -h * 0.06); y += 0.5) {
         const f = (y - hombroY) / (h * 0.75);
         const w = anchoH * (1.05 + f * 0.6);
         for (let x = -w - vuelo * f; x <= w * 0.9; x += 0.5) put(x, y, o.capa, 1.2 + (x < 0 ? 0 : 0.3));
       }
       if (o.armiño) for (let x = -anchoH * 1.2; x <= anchoH * 1.1; x += 0.5) for (let y = hombroY - 1; y <= hombroY + h * 0.05; y += 0.5) put(x, y, PALA.BLANCO, (Math.round(x * 2 + y * 3) % 5 === 0) ? 0 : 2.5);
+    }
+    // ── falda de túnica o toga (y las tiras de cuero de la armadura)
+    if (o.falda) {
+      const y1 = caderaY + h * (o.largoFalda ?? 0.24);
+      for (let y = caderaY - h * 0.02; y <= y1; y += 0.5) {
+        const f = (y - caderaY) / (y1 - caderaY), w = anchoC * (1.15 + 0.35 * Math.max(0, f)) + Math.abs(an) * h * 0.03 * f;
+        for (let x = -w; x <= w; x += 0.5) put(x, y, o.falda, 1.5 + (Math.round(x * 2 / Math.max(1, h * 0.06)) % 2 ? -0.4 : 0));
+      }
+    }
+    if (o.pteruges) {
+      const n = 5, w = anchoC * 1.25, y1 = caderaY + h * 0.17;
+      for (let k = 0; k < n; k++) { const x = -w + (k + 0.5) * 2 * w / n; caja(x - w / n * 0.7, caderaY, x + w / n * 0.7, y1, o.pteruges, 1.6); }
     }
     // ── tronco: camisa, chaqueta abierta, faja
     for (let y = hombroY; y <= caderaY + h * 0.04; y += 0.5) {
@@ -112,6 +138,8 @@ export async function crearAventura(lienzo) {
     for (let y = caderaY - h * 0.035; y <= caderaY + h * 0.01; y += 0.5) for (let x = -anchoH * 0.8; x <= anchoH * 0.8; x += 0.5) put(x, y, o.faja ?? PALA.MARRON, 1.8);
     if (o.faja) { trazo(anchoH * 0.5, caderaY, anchoH * 0.7, caderaY + h * 0.1, 1.5, o.faja, 1.5); }
     caja(-1, caderaY - h * 0.03, 1, caderaY - h * 0.005, PALA.ORO, 2);
+    if (o.capa === PALA.PIELES) for (let x = -anchoH * 1.15; x <= anchoH * 1.05; x += 0.5) for (let y = hombroY - h * 0.02; y <= hombroY + h * 0.045; y += 0.5) put(x, y, PALA.PIELES, (Math.round(x * 2 + y * 5) % 4 === 0) ? 1 : 2.4);   // cuello de pieles
+    if (o.banda) trazo(-anchoH * 0.85, hombroY, anchoH * 0.7, caderaY + h * 0.02, Math.max(1.5, h * 0.05), o.banda, 1.8);
     // ── brazos
     const brazo = (lado, pose) => {
       const sx = lado * anchoH * 0.92, sy = hombroY + h * 0.025;
@@ -128,7 +156,7 @@ export async function crearAventura(lienzo) {
         default: ex = sx + lado * h * 0.02 + balanceo * L1 * 0.4; ey = sy + L1; hx = ex + balanceo * L2 * 0.5; hy = ey + L2;
       }
       trazo(sx, sy, ex, ey, h * 0.085, P.chaqueta, 1.5);
-      trazo(ex, ey, hx, hy, h * 0.075, P.chaqueta, 1.6);
+      trazo(ex, ey, hx, hy, h * 0.075, o.antebrazo ?? P.chaqueta, 1.6);
       elipse(hx, hy + h * 0.01, h * 0.035, h * 0.035, P.piel, 2);
       return [hx, hy];
     };
@@ -146,10 +174,12 @@ export async function crearAventura(lienzo) {
     // pelo según peinado
     const pe = o.peinado ?? 'corto';
     if (pe !== 'calvo') {
-      for (let y = hy - cab * 1.05; y <= hy - cab * 0.35; y += 0.5) for (let x = -cab * 0.95; x <= cab * 0.7; x += 0.5) if ((x / cab) ** 2 + ((y - hy) / cab) ** 2 <= 1.12) put(x + hx, y, P.pelo, 1.5);
+      // casquete: por delante (hacia la cara) se queda alto, lejos de cejas y ojos
+      for (let y = hy - cab * 1.05; y <= hy - cab * 0.35; y += 0.5) for (let x = -cab * 0.95; x <= cab * 0.7; x += 0.5) if ((x / cab) ** 2 + ((y - hy) / cab) ** 2 <= 1.12 && (x < cab * 0.1 || y <= hy - cab * 0.62)) put(x + hx, y, P.pelo, 1.5);
       for (let y = hy - cab * 0.4; y <= hy + cab * (pe === 'largo' || pe === 'peluca' ? 1.3 : 0.4); y += 0.5) for (let x = -cab * 1.0; x <= -cab * 0.35; x += 0.5) put(x + hx, y, P.pelo, 1.3);
       if (pe === 'coleta') trazo(hx - cab, hy, hx - cab * 1.5, hy + cab * 1.2, cab * 0.35, P.pelo, 1.2);
-      if (pe === 'peluca') for (let k = 0; k < 4; k++) { elipse(hx - cab * 0.9, hy + k * cab * 0.45, cab * 0.32, cab * 0.25, P.pelo, 2); elipse(hx + cab * 0.75, hy + k * cab * 0.45 - cab * 0.2, cab * 0.3, cab * 0.24, P.pelo, 2); }
+      if (pe === 'peluca') for (let k = 0; k < 4; k++) elipse(hx - cab * 0.9, hy + k * cab * 0.45, cab * 0.32, cab * 0.25, P.pelo, 2);
+      if (pe === 'rizos') for (let k = 0; k < 5; k++) elipse(hx - cab * 0.7 + k * cab * 0.3, hy - cab * 0.95 + Math.abs(k - 1.5) * cab * 0.12, cab * 0.24, cab * 0.2, P.pelo, 2);
       if (pe === 'moño') elipse(hx - cab * 0.4, hy - cab * 1.15, cab * 0.4, cab * 0.32, P.pelo, 1.6);
     }
     // barba
@@ -170,11 +200,24 @@ export async function crearAventura(lienzo) {
       for (let y = hy - cab * 1.08; y <= hy - cab * 0.45; y += 0.5) for (let x = -cab * 0.98; x <= cab * 0.9; x += 0.5) if ((x / cab) ** 2 + ((y - hy) / cab) ** 2 <= 1.15) put(x + hx, y, o.colorPañuelo ?? PALA.ROJO, 2);
       trazo(hx - cab, hy - cab * 0.5, hx - cab * 1.5, hy + cab * 0.1 + Math.sin(t * 6) * cab * 0.1, cab * 0.25, o.colorPañuelo ?? PALA.ROJO, 1.5);
     } else if (sb === 'corona') {
-      for (let y = hy - cab * 1.55; y <= hy - cab * 0.8; y += 0.5) for (let x = -cab * 0.85; x <= cab * 0.85; x += 0.5) {
-        const pico = ((x + cab) / (cab * 0.42)) % 2 < 1;
-        if (y > hy - cab * 1.15 || pico) put(x + hx, y, PALA.ORO, 2);
+      // tamSombrero > 1: la corona le queda grande (más ancha y alta), pero se apoya en la frente, nunca en los ojos
+      const ks = o.tamSombrero ?? 1;
+      for (let y = hy - cab * (0.8 + 0.75 * ks); y <= hy - cab * 0.8; y += 0.5) for (let x = -cab * 0.85 * ks; x <= cab * 0.85 * ks; x += 0.5) {
+        const pico = ((x + cab * ks) / (cab * 0.42 * ks)) % 2 < 1;
+        if (y > hy - cab * (0.8 + 0.35 * ks) || pico) put(x + hx, y, PALA.ORO, 2);
       }
-      for (const x of [-cab * 0.5, 0, cab * 0.5]) put(x + hx, hy - cab * 1.0, PALA.ROJO, 2.5);
+      for (const x of [-cab * 0.5 * ks, 0, cab * 0.5 * ks]) put(x + hx, hy - cab * (0.8 + 0.2 * ks), PALA.ROJO, 2.5);
+    } else if (sb === 'casco') {
+      for (let y = hy - cab * 1.25; y <= hy - cab * 0.5; y += 0.5) for (let x = -cab * 1.05; x <= cab * 0.85; x += 0.5) if ((x / (cab * 1.05)) ** 2 + ((y - hy + cab * 0.5) / (cab * 0.78)) ** 2 <= 1) put(x + hx, y, PALA.BRONCE, 2);
+      caja(hx - cab * 1.1, hy - cab * 0.55, hx + cab * 0.9, hy - cab * 0.45, PALA.BRONCE, 1.4);           // visera
+      caja(hx - cab * 1.15, hy - cab * 0.5, hx - cab * 0.8, hy + cab * 0.15, PALA.BRONCE, 1.4);          // cubrenuca (detrás)
+      for (let x = -cab * 0.9; x <= cab * 0.7; x += 0.5) { const yy = hy - cab * 1.25 - cab * 0.5 * Math.sqrt(Math.max(0, 1 - ((x + cab * 0.1) / (cab * 0.85)) ** 2)); for (let y = yy; y <= hy - cab * 1.2; y += 0.5) put(x + hx, y, o.colorCresta ?? PALA.ROJO, 1.8); }
+    } else if (sb === 'laurel' || sb === 'diadema') {
+      const LR = sb === 'diadema' ? PALA.ORO : (o.colorLaurel ?? PALA.LAUREL);
+      caja(hx - cab * 0.95, hy - cab * 0.72, hx + cab * 0.55, hy - cab * 0.62, LR, 1.6);
+      if (sb === 'laurel') for (let k = 0; k < 6; k++) { const x = hx - cab * 0.95 + k * cab * 0.28; elipse(x, hy - cab * 0.82, cab * 0.14, cab * 0.1, LR, 2.2); }
+      else put(hx + cab * 0.3, hy - cab * 0.8, PALA.ROJO, 2.5);
+      trazo(hx - cab * 1.0, hy - cab * 0.65, hx - cab * 1.3, hy - cab * 0.1 + Math.sin(t * 3) * cab * 0.08, cab * 0.14, LR, 1.4);   // cintas detrás
     } else if (sb === 'gorro') {
       for (let y = hy - cab * 1.6; y <= hy - cab * 0.6; y += 0.5) for (let x = -cab * 0.95; x <= cab * 0.95 - (hy - cab * 0.6 - y) * 0.5; x += 0.5) put(x + hx, y, o.colorSombrero ?? PALA.ROJO, 1.6);
     }
@@ -186,6 +229,8 @@ export async function crearAventura(lienzo) {
     if (o.objeto === 'saco' || o.objeto === 'bolsa') elipse(ax + h * 0.02, ay + h * 0.05, h * (o.objeto === 'saco' ? 0.08 : 0.05), h * (o.objeto === 'saco' ? 0.09 : 0.055), PALA.MARRON, 1.8);
     if (o.objeto === 'catalejo') trazo(ax, ay, ax + h * 0.22, ay - h * 0.04, h * 0.035, PALA.ORO, 2);
     if (o.objeto === 'sextante') { trazo(ax, ay, ax + h * 0.08, ay + h * 0.06, h * 0.02, PALA.ORO, 2); trazo(ax, ay, ax + h * 0.1, ay - h * 0.01, h * 0.02, PALA.ORO, 2); trazo(ax + h * 0.08, ay + h * 0.06, ax + h * 0.1, ay - h * 0.01, h * 0.02, PALA.ORO, 2.5); }
+    if (o.objeto === 'corona') { const c = h * 0.075; for (let x = -c; x <= c; x += 0.5) for (let y = -c * 1.1; y <= 0; y += 0.5) if (y > -c * 0.5 || ((x + c) / (c * 0.5)) % 2 < 1) put(ax + x, ay - h * 0.02 + y, PALA.ORO, 2); put(ax, ay - h * 0.02 - c * 0.3, PALA.ROJO, 2.5); }
+    if (o.objeto === 'gladio') { trazo(ax, ay, ax + h * 0.02, ay - h * 0.2, Math.max(1, h * 0.025), PALA.BLANCO, 2.6); trazo(ax - h * 0.03, ay - h * 0.01, ax + h * 0.03, ay - h * 0.01, Math.max(1, h * 0.02), PALA.BRONCE, 2); }
     if (o.objeto === 'pluma') trazo(ax, ay, ax + h * 0.06, ay - h * 0.12, h * 0.02, PALA.BLANCO, 2.5);
     if (o.objeto === 'pala') { trazo(ax, ay - h * 0.1, ax + h * 0.04, ay + h * 0.25, h * 0.025, PALA.MARRON, 2); caja(ax + h * 0.01, ay + h * 0.25, ax + h * 0.08, ay + h * 0.33, PALA.BLANCO, 1); }
     // loro en el hombro (al otro lado de la cara)
@@ -317,4 +362,12 @@ export const ELENCO = {
   astronomo: { sombrero: 'gorro', colorSombrero: PALA.AZUL, peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.AZUL, capa: PALA.MORADO },
   lord1: { peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.ROJO },
   lord2: { peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.NEGRO },
+  // ── Roma (episodio 5): túnica o toga con falda, brazos desnudos, sandalias
+  emperadorNino: { sombrero: 'corona', tamSombrero: 1.35, peinado: 'rizos', pelo: PALA.PELO_RUBIO, chaqueta: PALA.MARMOL, camisa: PALA.MARMOL, falda: PALA.MARMOL, largoFalda: 0.36, banda: PALA.PURPURA, capa: PALA.PURPURA, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.ORO },
+  odoacro: { peinado: 'largo', pelo: PALA.PELO_ROJO, barba: 'poblada', chaqueta: PALA.ROJO, camisa: PALA.ROJO, pantalon: PALA.AZUL, botas: PALA.PIELES, capa: PALA.PIELES, capaCorta: true, faja: PALA.BRONCE, chaqueta_larga: false, antebrazo: PALA.PIEL },
+  senador: { peinado: 'corto', pelo: PALA.PELO_BLANCO, chaqueta: PALA.MARMOL, camisa: PALA.MARMOL, falda: PALA.MARMOL, largoFalda: 0.36, banda: PALA.PURPURA, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARMOL },
+  ciudadano: { peinado: 'corto', pelo: PALA.PELO_CASTANO, chaqueta: PALA.TERRACOTA, camisa: PALA.TERRACOTA, falda: PALA.TERRACOTA, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARRON },
+  legionario: { sombrero: 'casco', pelo: PALA.PELO_NEGRO, chaqueta: PALA.BRONCE, camisa: PALA.BRONCE, falda: PALA.ROJO, largoFalda: 0.2, pteruges: PALA.MARRON, capa: PALA.ROJO, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.MARRON },
+  cesar: { sombrero: 'laurel', peinado: 'corto', pelo: PALA.PELO_CASTANO, chaqueta: PALA.MARMOL, camisa: PALA.MARMOL, falda: PALA.MARMOL, largoFalda: 0.36, banda: PALA.PURPURA, capa: PALA.PURPURA, antebrazo: PALA.PIEL, pantalon: PALA.PIEL, sandalias: true, chaqueta_larga: false, faja: PALA.ORO },
+  barbaro: { peinado: 'largo', pelo: PALA.PELO_RUBIO, barba: 'bigote', chaqueta: PALA.VERDE, camisa: PALA.VERDE, pantalon: PALA.MARRON, botas: PALA.PIELES, capa: PALA.PIELES, capaCorta: true, chaqueta_larga: false, antebrazo: PALA.PIEL },
 };

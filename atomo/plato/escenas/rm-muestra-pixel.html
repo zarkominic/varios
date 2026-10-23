@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Roma · muestra pixel</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-MUESTRA-PIXEL · muestra de estilo del episodio 5 (pixel aventura, ropa romana).
+//  cartela   «476».
+//  salon     salón de mármol al atardecer: tres arcos con el cielo naranja y la silueta de Roma, cortinas púrpura
+//            rasgadas, un trono en su estrado y una estatua caída. El emperador niño (corona que le queda grande) se
+//            la quita y se la tiende a Odoacro, que entra por la derecha con sus pieles. Atom abajo a la izquierda.
+import { escena } from '/atomo/plato/escena.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
+import { pal } from '/atomo/plato/kits/pixel-retro.js';
+const E = await escena('rm-muestra-pixel', 'ep05');
+const R = await crearAventura(document.getElementById('lienzo'));
+const { tramo, lerp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { salon: 2.4, chaval: M('chaval', 3.2), quita: M('quita', 4.3), tiende: 6.4 };
+
+const SUELO = 132;
+
+const salon = (t) => {
+  // pared de mármol con luz cálida entrando por los arcos
+  for (let y = 0; y < SUELO; y++) for (let x = 0; x < R.W; x++) {
+    let l = 0; for (const ax of [80, 160, 240]) l = Math.max(l, 1 - Math.hypot(x - ax, (y - 70) * 0.9) / 120);
+    const junta = (y % 16 === 0) || ((x + (Math.floor(y / 16) & 1) * 12) % 24 === 0) ? -0.7 : 0;
+    R.pset(x, y, R.tone(PALA.MARMOL, 0.6 + 2.0 * l + junta * l, x, y));
+  }
+  // tres arcos al cielo del atardecer
+  for (const ax of [80, 160, 240]) {
+    const w = 22, top = 34, base = SUELO - 22;
+    for (let y = top - w; y <= base; y++) for (let x = ax - w; x <= ax + w; x++) {
+      if (y < top && Math.hypot(x - ax, y - top) > w) continue;
+      R.pset(x, y, R.tone(PALA_CIELO, 0.3 + (y - (top - w)) / (base - top + w) * 5.4, x, y));
+    }
+    // el sol bajo en el arco central, la ciudad en silueta
+    if (ax === 160) { R.disco(160, 86, 9, PALA_CIELO_SOL[1]); R.disco(160, 86, 7, PALA_CIELO_SOL[0]); }
+    for (let x = ax - w; x <= ax + w; x++) {
+      const h = 6 + 5 * R.hash2(x >> 2, ax) + (Math.abs(x - ax + 8) < 5 ? 6 - Math.abs(x - ax + 8) : 0);
+      for (let y = Math.round(base - h); y <= base; y++) R.pset(x, y, PALA.PURPURA[0]);
+    }
+    // marco del arco
+    for (let a = Math.PI; a <= TAU; a += 0.02) { R.pset(Math.round(ax + Math.cos(a) * (w + 1)), Math.round(top + Math.sin(a) * (w + 1)), PALA.MARMOL[1]); R.pset(Math.round(ax + Math.cos(a) * (w + 2)), Math.round(top + Math.sin(a) * (w + 2)), PALA.MARMOL[0]); }
+    R.rect(ax - w - 2, base, ax + w + 2, base + 2, PALA.MARMOL[1]);
+  }
+  // columnas delante de la pared
+  for (const cx of [40, 120, 200, 280]) {
+    for (let y = 8; y < SUELO; y++) for (let x = cx - 6; x <= cx + 6; x++) {
+      const u = (x - cx + 6) / 12, estria = ((x - cx + 6) % 3 === 0) ? -0.8 : 0;
+      R.pset(x, y, R.tone(PALA.MARMOL, 3.6 - u * 2.8 + estria, x, y));
+    }
+    R.rect(cx - 9, 4, cx + 9, 8, PALA.MARMOL[3]); R.rect(cx - 9, 8, cx + 9, 9, PALA.MARMOL[1]);
+    R.rect(cx - 8, SUELO - 4, cx + 8, SUELO, PALA.MARMOL[2]); R.rect(cx - 8, SUELO - 1, cx + 8, SUELO, PALA.MARMOL[0]);
+  }
+  R.rect(0, 0, R.W, 3, PALA.MARMOL[0]);
+  // cortina púrpura rasgada, colgando de la columna izquierda
+  for (let y = 9; y < 96; y++) {
+    const ancho = 16 - y * 0.08 + 2 * Math.sin(y * 0.2 + t * 1.2), x0 = 46;
+    for (let x = x0; x < x0 + ancho; x++) {
+      if (y > 80 && R.hash2(x, 7) * 16 < y - 80) continue;   // el borde rasgado
+      R.pset(x, y, R.tone(PALA.PURPURA, 2.6 - ((x - x0) % 6) * 0.35 + (x - x0 < 1 ? 1 : 0), x, y));
+    }
+  }
+  // suelo de mosaico: terracota y mármol en damero que se aleja
+  for (let y = SUELO; y < R.H; y++) {
+    const z = 0.35 + 0.65 * (y - SUELO) / (R.H - SUELO);
+    for (let x = 0; x < R.W; x++) {
+      const u = (x - 160) / (z * 30), v = 2.2 / z;
+      const casilla = (Math.floor(u) + Math.floor(v)) & 1;
+      const junta = (u - Math.floor(u)) * z * 30 < 1 || (v - Math.floor(v)) < 0.05 / z;
+      R.pset(x, y, junta ? PALA.MARMOL[0] : casilla ? R.tone(PALA.TERRACOTA, 1.6 + z, x, y) : R.tone(PALA.MARMOL, 1.6 + z, x, y));
+    }
+  }
+  // luz del atardecer en el suelo
+  for (let y = SUELO; y < R.H; y++) for (let x = 120; x < 200; x++) if (R.b4(x, y) < 0.25 - Math.abs(x - 160 - (y - SUELO) * 0.4) / 200) R.pset(x, y, PALA.AMARILLO[3]);
+  // estrado y trono
+  R.rect(70, SUELO - 4, 150, SUELO + 6, PALA.MARMOL[2]); R.rect(70, SUELO - 5, 150, SUELO - 4, PALA.MARMOL[3]); R.rect(70, SUELO + 6, 150, SUELO + 7, PALA.MARMOL[0]);
+  R.rect(92, 92, 120, 96, PALA.ORO[2]); R.rect(94, 96, 118, SUELO - 6, PALA.PURPURA[2]); R.rect(94, 96, 96, SUELO - 6, PALA.PURPURA[3]);
+  R.rect(88, 108, 93, SUELO - 5, PALA.ORO[1]); R.rect(119, 108, 124, SUELO - 5, PALA.ORO[1]); R.rect(88, 108, 93, 109, PALA.ORO[3]); R.rect(119, 108, 124, 109, PALA.ORO[3]);
+  R.disco(106, 90, 3, PALA.ORO[3]);
+  // estatua caída a la derecha, al fondo
+  R.poligono([[236, SUELO + 6], [276, SUELO + 2], [278, SUELO + 7], [238, SUELO + 11]], (x, y) => R.tone(PALA.MARMOL, 3 - (y - SUELO - 2) / 4, x, y));
+  R.disco(282, SUELO + 3, 4, PALA.MARMOL[3]); R.pset(283, SUELO + 2, PALA.MARMOL[1]);
+  R.poligono([[226, SUELO + 2], [236, SUELO + 2], [236, SUELO + 9], [226, SUELO + 9]], PALA.MARMOL[1]);
+
+  // el emperador niño: está de pie ante el trono; se quita la corona y se la tiende a Odoacro
+  const quita = t >= m.quita + 0.3, sube = t >= m.quita - 0.1 && t < m.quita + 1.0, tiende = t >= m.tiende;
+  R.personaje(126, SUELO + 26, 40, {
+    ...ELENCO.emperadorNino, t, dir: 1,
+    sombrero: quita ? 'no' : 'corona',
+    brazoD: tiende ? 'ofrece' : sube ? 'arriba' : 'abajo',
+    objeto: quita ? 'corona' : undefined,
+    pose: tiende ? 'ofrece' : 'pie',
+  });
+  // Odoacro entra por la derecha y, al final, alarga la mano
+  const llega = tramo(t, m.salon + 0.2, m.salon + 2.8);
+  const ox = lerp(300, 196, llega);
+  R.personaje(ox, SUELO + 28, 50, { ...ELENCO.odoacro, t, dir: -1, anda: llega > 0 && llega < 1 ? t * 7 : null, pose: t > m.tiende + 1.0 ? 'ofrece' : 'pie', ceño: true });
+};
+const TAU = Math.PI * 2;
+const PALA_CIELO = pal(['#3a1446', '#6a2450', '#a83a4a', '#e0663a', '#f8a048', '#ffd878']);
+const PALA_CIELO_SOL = pal(['#fff4c0', '#ffc860']);
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, (t) => R.cartela(t / m.salon, '476')], [m.salon, salon]]);
+  if (t > m.salon + 0.1) R.companero(t, E.energia(t));
+  R.presentar();
+}, { paso: 1 / 12 });
+</script>
+</body>
+</html>
