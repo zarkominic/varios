@@ -11,8 +11,8 @@ Sustituye a locutar_escenas.py + preparar_largo.py desde el episodio 3 (ver atom
      ninguna sale limpia, se queda la mejor y va a la lista de <salida>/informe.json.
   3. Alineación por frases. Cada pareja de frases empieza a la vez en las dos pistas.
      - El idioma principal (guion «principal», inglés por defecto) va a su velocidad natural.
-     - El otro se sintetiza a una velocidad que lo acerque (entre 0,92 y 1,10, para que siga sonando
-       natural) y luego se estira entero con rubberband, como mucho un 5 % en cada sentido.
+     - El otro se sintetiza a una velocidad que lo acerque (entre 0,85 y 1,10, para que siga sonando
+       natural) y luego se estira entero con rubberband, como mucho un 10 % en cada sentido (desde el episodio 4: con un 5 % quedaban frases de casi 1 s de diferencia).
      - Si aun así es más largo, la frase ocupa lo que dure el más largo y el principal deja silencio
        detrás; si es más corto, el silencio lo deja él. Nunca se acelera una voz hasta que suene con prisa.
   4. Las marcas son el inicio de cada frase (con «_fin» al final de la frase principal), así caen
@@ -40,8 +40,8 @@ guion_path, salida, modelos = args[:3]
 FPS, SR = 30, 24000
 ENTRADA, ENTRADA_CARTELA, SALIDA = 0.5, 1.5, 0.7    # s de escena antes de hablar (con cartela, más) y después
 PAUSA = {'.': 0.55, '?': 0.7, '!': 0.6, ':': 0.45}  # silencio tras la frase según su último signo
-RAPIDO, LENTO = 1.05, 0.95                          # cuánto se puede estirar el idioma que se adapta
-VEL_MIN, VEL_MAX = 0.85, 1.05                       # velocidades de síntesis que siguen sonando naturales
+RAPIDO, LENTO = 1.10, 0.90                          # cuánto se puede estirar el idioma que se adapta
+VEL_MIN, VEL_MAX = 0.85, 1.10                       # velocidades de síntesis que siguen sonando naturales
 # Pronunciaciones que se corrigen en los fonemas. «Atom» en americano lleva una t blanda (ˈæɾəm) y
 # suena «Adam»; con t de verdad y vocal llena (ˈætʌm) se entiende el nombre del canal.
 FONEMAS = {'en': [('ˈæɾəm', 'ˈætʌm')], 'es': []}

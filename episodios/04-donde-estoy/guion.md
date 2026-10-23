@@ -176,7 +176,7 @@
 |---|---|
 | Dos años después, España y Portugal se repartieron el mundo recién alcanzado con una línea de polo a polo. | Two years later, Spain and Portugal split the newly reached world in two, with a line from pole to pole. |
 | El problema: era una línea de longitud, y nadie sabía encontrarla. | The problem: it was a line of longitude, and nobody could find it. |
-| Así que los mapas se volvieron secretos de Estado. | So maps became state secrets. |
+| Así, los mapas se volvieron secretos de Estado. | So maps became state secrets. |
 | En Sevilla, España guardaba un mapa maestro, el Padrón Real, que se corregía con lo que contaba cada piloto. | In Seville, Spain kept a master map, the Padrón Real, updated with what every pilot reported. |
 | Una buena carta valía una fortuna. Y donde hay fortunas en el mar, hay piratas. | A good chart was worth a fortune. And where there's a fortune at sea, there are pirates. |
 
@@ -222,7 +222,7 @@
 | Un siglo después, se acabó el papeleo. | About a century later, the paperwork ran out. |
 | Cuando terminaban las guerras, miles de marineros entrenados para asaltar se quedaban sin trabajo, y muchos siguieron asaltando sin licencia. | When wars ended, thousands of sailors trained to raid were suddenly out of work, and many kept raiding without a license. |
 | Es la edad de oro de la piratería, más o menos de 1650 a 1730, con el Caribe en el centro. | That's the golden age of piracy, roughly from 1650 to 1730, centered on the Caribbean. |
-| Muchas tripulaciones elegían a su capitán, y podían echarlo con una votación. | Many crews elected their captain, and could vote him out. |
+| Muchas tripulaciones elegían a su capitán, y podían echarlo votando. | Many crews elected their captain, and could vote him out. |
 | Firmaban normas por escrito: cómo repartir el botín, y cuánto cobrabas si perdías un brazo o una pierna. | They signed written articles: how to split the loot, and how much you got for losing an arm or a leg. |
 | En cierto modo, era un seguro. Con más cañones. | In a way, it was an early form of insurance. With more cannons. |
 | ¿Y los tesoros enterrados? Casi nunca. El botín se gastaba rápido. | And buried treasure? Almost never. The loot was spent fast. |
