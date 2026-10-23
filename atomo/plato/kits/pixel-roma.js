@@ -409,65 +409,95 @@ export async function crearRoma(lienzo) {
   };
 
   // ── El mapa del Mediterráneo (proyección lon/lat simple), con el imperio y las zonas encima ──────────────────────
+  // o.vista = [lon0, lon1, lat0, lat1] encuadra el mapa (por defecto, del Atlántico a Mesopotamia): interpolando la
+  // vista entre dos encuadres se hace zoom (el Mediterráneo → Italia → el Tíber).
+  const VISTA = [LON0, LON1, LAT0, LAT1];
   const mapas = new Map();
-  const proyMapa = (lon, lat, rc = [0, 0, W - 1, H - 1]) => [rc[0] + (lon - LON0) / (LON1 - LON0) * (rc[2] - rc[0]), rc[1] + (LAT1 - lat) / (LAT1 - LAT0) * (rc[3] - rc[1])];
-  const lonlat = (x, y, rc) => [LON0 + (x - rc[0]) / (rc[2] - rc[0]) * (LON1 - LON0), LAT1 - (y - rc[1]) / (rc[3] - rc[1]) * (LAT1 - LAT0)];
-  const baseMapa = (rc) => {
-    const k = rc.join(',');
+  const proyMapa = (lon, lat, rc = [0, 0, W - 1, H - 1], v = VISTA) => [rc[0] + (lon - v[0]) / (v[1] - v[0]) * (rc[2] - rc[0]), rc[1] + (v[3] - lat) / (v[3] - v[2]) * (rc[3] - rc[1])];
+  const lonlat = (x, y, rc, v = VISTA) => [v[0] + (x - rc[0]) / (rc[2] - rc[0]) * (v[1] - v[0]), v[3] - (y - rc[1]) / (rc[3] - rc[1]) * (v[3] - v[2])];
+  const baseMapa = (rc, v) => {
+    const k = rc.join(',') + '|' + v.map((q) => q.toFixed(3)).join(',');
     if (mapas.has(k)) return mapas.get(k);
-    const tierra = new Uint8Array(W * H), imp = new Uint8Array(W * H), ita = new Uint8Array(W * H), car = new Uint8Array(W * H), dist = new Float32Array(W * H), lon = new Float32Array(W * H);
+    if (mapas.size > 6) mapas.clear();
+    const tierra = new Uint8Array(W * H), imp = new Uint8Array(W * H), ita = new Uint8Array(W * H), car = new Uint8Array(W * H), dist = new Float32Array(W * H), lon = new Float32Array(W * H), lat = new Float32Array(W * H);
+    const cajas = (G) => Object.values(G).map((P) => [P, Math.min(...P.map((q) => q[0])), Math.max(...P.map((q) => q[0])), Math.min(...P.map((q) => q[1])), Math.max(...P.map((q) => q[1]))]);
+    const mares = cajas(MAR), islas = cajas(ISLAS);
+    const en = (L, a, b) => L.some(([P, x0, x1, y0, y1]) => a >= x0 && a <= x1 && b >= y0 && b <= y1 && dentroPol(a, b, P));
     for (let y = rc[1]; y <= rc[3]; y++) for (let x = rc[0]; x <= rc[2]; x++) {
-      const [a, b] = lonlat(x + 0.5, y + 0.5, rc), i = y * W + x;
-      let t = !Object.values(MAR).some((P) => dentroPol(a, b, P));
-      if (Object.values(ISLAS).some((P) => dentroPol(a, b, P))) t = true;
+      const [a0, b0] = lonlat(x + 0.5, y + 0.5, rc, v), i = y * W + x;
+      // la costa se ondula un poco con ruido, para que no se vean los segmentos rectos al hacer zoom
+      const a = a0 + (vnoise(a0 * 2.2, b0 * 2.2) - 0.5) * 0.3 + (vnoise(a0 * 7, b0 * 7 + 5) - 0.5) * 0.1;
+      const b = b0 + (vnoise(a0 * 2.2 + 9, b0 * 2.2) - 0.5) * 0.3 + (vnoise(a0 * 7 + 3, b0 * 7) - 0.5) * 0.1;
+      const t = !en(mares, a, b) || en(islas, a, b);
       tierra[i] = t ? 1 : 0;
       imp[i] = t && dentroPol(a, b, ZONAS.imperio) ? 1 : 0;
       ita[i] = t && dentroPol(a, b, ZONAS.italia) ? 1 : 0;
       car[i] = t && dentroPol(a, b, ZONAS.cartago) ? 1 : 0;
-      dist[i] = Math.hypot(a - LUGARES.roma[0], (b - LUGARES.roma[1]) * 1.3);
-      lon[i] = a;
+      dist[i] = Math.hypot(a0 - LUGARES.roma[0], (b0 - LUGARES.roma[1]) * 1.3);
+      lon[i] = a0; lat[i] = b0;
     }
-    const m = { tierra, imp, ita, car, dist, lon };
+    const m = { tierra, imp, ita, car, dist, lon, lat };
     mapas.set(k, m);
     return m;
   };
-  // mapa(t, o): o.rc = rectángulo; o.imperio = 0–1 (crece desde Roma); o.italia, o.cartago = 0–1 (zonas tempranas);
-  // o.colorImperio; o.oeste / o.este = oscurecer (0–1) a un lado de o.corte (lon); o.manchas = 0–1 (epidemias);
-  // o.grietas = 0–1 (la frontera se rompe).
+  // El Tíber (de los Apeninos a Ostia, pasando por Roma)
+  const TIBER = [[12.1, 43.9], [12.35, 43.4], [12.4, 43.0], [12.6, 42.6], [12.55, 42.2], [12.48, 41.9], [12.36, 41.8], [12.25, 41.73]];
+  // mapa(t, o): o.rc = rectángulo; o.vista = encuadre; o.imperio = 0–1 (crece desde Roma); o.italia, o.cartago = 0–1
+  // (zonas tempranas); o.colorImperio; o.oeste / o.este = oscurecer (0–1) a un lado de o.corte (lon); o.manchas = 0–1
+  // (epidemias); o.grietas = 0–1 (la frontera se rompe); o.luzMar / o.luzItalia = 0–1 (resaltar el mar o la bota);
+  // o.tiber = 0–1 (el río se dibuja desde la fuente); o.colinas = 0–1 (las siete colinas junto a Roma).
   const mapa = (t, o = {}) => {
-    const rc = o.rc ?? [0, 0, W - 1, H - 1], M = baseMapa(rc), ci = o.colorImperio ?? PALA.PURPURA;
-    const pImp = o.imperio ?? 0, maxD = 42;
+    const rc = o.rc ?? [0, 0, W - 1, H - 1], v = o.vista ?? VISTA, M = baseMapa(rc, v), ci = o.colorImperio ?? PALA.PURPURA;
+    const pImp = o.imperio ?? 0, maxD = 42, ppg = (rc[2] - rc[0]) / (v[1] - v[0]);   // píxeles por grado
+    const [cx0, cy0] = proyMapa(...LUGARES.cartago, rc, v);
     for (let y = rc[1]; y <= rc[3]; y++) for (let x = rc[0]; x <= rc[2]; x++) {
       const i = y * W + x;
       let c;
       if (!M.tierra[i]) {
         const ola = Math.sin(x * 0.3 + y * 0.9 - t * 1.6) * Math.sin(x * 0.07 + t * 0.4) > 0.8;
-        c = tone(PR.MAR, 2.2 + (ola ? 1 : 0) + 0.4 * vnoise(x * 0.05, y * 0.05), x, y);
+        c = tone(PR.MAR, 2.2 + (ola ? 1 : 0) + 0.4 * vnoise(x * 0.05, y * 0.05) + (o.luzMar ?? 0) * 1.4, x, y);
         const costa = (x > 0 && M.tierra[i - 1]) || (x < W - 1 && M.tierra[i + 1]) || (y > 0 && M.tierra[i - W]) || (y < H - 1 && M.tierra[i + W]);
-        if (costa) c = PR.MAR[3];
+        if (costa) c = PR.MAR[4];
       } else {
-        const v = 2.3 + 0.9 * (vnoise(x * 0.06, y * 0.06) - 0.5) + 0.4 * (hash2(x >> 1, y >> 1) - 0.5);
-        const norte = (rc[3] - y) / (rc[3] - rc[1]) * (LAT1 - LAT0) + LAT0 > 43.5;   // bosques solo al norte; el sur, ocre
-        c = (norte && vnoise(x * 0.05 + 9, y * 0.05) > 0.45 ? tone(PR.HIERBA, v, x, y) : tone(PR.TIERRA, v, x, y));
+        const vv = 2.3 + 0.9 * (vnoise(M.lon[i] * 0.35, M.lat[i] * 0.35) - 0.5) + 0.4 * (hash2(x >> 1, y >> 1) - 0.5);
+        const norte = M.lat[i] > 43.5;   // bosques solo al norte; el sur, ocre
+        const bosque = vnoise(M.lon[i] * 0.9 + 9, M.lat[i] * 0.9) + 0.25 * vnoise(M.lon[i] * 3, M.lat[i] * 3) + (norte ? 0.12 : -0.2);
+        c = (bosque > 0.68 + 0.12 * b4(x, y) ? tone(PR.HIERBA, vv, x, y) : tone(PR.TIERRA, vv, x, y));
+        if (o.luzItalia && M.ita[i]) c = tone(PR.TIERRA, vv + 1.6 * o.luzItalia, x, y);
         const frente = M.dist[i] / maxD;
         let enImp = M.imp[i] && frente < pImp - 0.04 * b4(x, y);
         if (o.italia && M.ita[i] && M.dist[i] < o.italia * 9 + 1 * b4(x, y)) enImp = true;
         if (enImp) c = tone(ci, 2.1 + 0.6 * (vnoise(x * 0.08, y * 0.08) - 0.5), x, y);
-        if (o.cartago && M.car[i] && Math.hypot(...[x, y].map((q, j) => q - proyMapa(...LUGARES.cartago, rc)[j])) < o.cartago * 70 + 3 * b4(x, y)) c = tone(PALA.AMARILLO, 1.8, x, y);
+        if (o.cartago && M.car[i] && Math.hypot(x - cx0, y - cy0) < o.cartago * 70 * ppg / 5.16 + 3 * b4(x, y)) c = tone(PALA.AMARILLO, 1.8, x, y);
         if (o.manchas && M.imp[i] && vnoise(x * 0.09 + 3, y * 0.09) < o.manchas * 0.6 - 0.05 + 0.1 * b4(x, y)) c = tone(PALA.NEGRO, 1.4, x, y);
         const borde = M.imp[i] && ((x > 0 && M.tierra[i - 1] && !M.imp[i - 1]) || (x < W - 1 && M.tierra[i + 1] && !M.imp[i + 1]) || (y > 0 && M.tierra[i - W] && !M.imp[i - W]) || (y < H - 1 && M.tierra[i + W] && !M.imp[i + W]));
         if (borde && pImp > 0.99) c = o.grietas && hash2(x >> 1, y >> 1) < o.grietas ? PALA.ROJO[2] : ci[0];
         const costa = (x > 0 && !M.tierra[i - 1]) || (x < W - 1 && !M.tierra[i + 1]) || (y > 0 && !M.tierra[i - W]) || (y < H - 1 && !M.tierra[i + W]);
-        if (costa) c = PR.TIERRA[0];
+        if (costa) c = o.luzItalia && M.ita[i] ? PALA.AMARILLO[3] : PR.TIERRA[0];
       }
       let osc = 0;
       if (o.oeste && M.lon[i] < (o.corte ?? 19)) osc = o.oeste; if (o.este && M.lon[i] >= (o.corte ?? 19)) osc = o.este;
       if (osc && b4(x, y) < osc) c = (x + y) & 1 ? PALA.CONTORNO : PR.MAR[0];
       pset(x, y, c);
     }
+    if (o.tiber) {
+      const pts = TIBER.map(([a, b]) => proyMapa(a, b, rc, v)), g = Math.max(1, Math.round(ppg / 40));
+      ruta(pts, o.tiber, PR.AGUA[3], { flecha: false, continua: true, grueso: g });
+    }
+    if (o.colinas) {
+      const [rx, ry] = proyMapa(...LUGARES.roma, rc, v), s = ppg / 160;
+      [[0.15, -0.05], [-0.05, -0.12], [0.1, 0.12], [-0.15, 0.05], [0.25, 0.08], [0.02, 0.24], [-0.12, -0.25]].forEach(([dx, dy], k) => {
+        if (o.colinas * 7 < k + 0.5) return;
+        const hx = rx + dx * ppg * 0.6 + 6 * s, hy = ry - dy * ppg * 0.6;
+        for (let j = 0; j < 6 * s; j++) { const w = Math.round((6 * s - j) * 1.3); R.rect(Math.round(hx - w), Math.round(hy - j), Math.round(hx + w), Math.round(hy - j), tone(PR.HIERBA, 1.4 + j / (6 * s) * 2, Math.round(hx), Math.round(hy - j))); }
+      });
+    }
     if (o.marco !== false) { rect(rc[0], rc[1], rc[2], rc[1], PALA.MARRON[0]); rect(rc[0], rc[3], rc[2], rc[3], PALA.MARRON[0]); rect(rc[0], rc[1], rc[0], rc[3], PALA.MARRON[0]); rect(rc[2], rc[1], rc[2], rc[3], PALA.MARRON[0]); }
   };
-  const lugar = (nombre, rc) => proyMapa(...(Array.isArray(nombre) ? nombre : LUGARES[nombre]), rc).map(Math.round);
+  const lugar = (nombre, rc, v) => proyMapa(...(Array.isArray(nombre) ? nombre : LUGARES[nombre]), rc, v).map(Math.round);
+  // encuadres con nombre para el zoom
+  const VISTAS = { mundo: VISTA, italia: [5, 20.5, 36.2, 47.2], roma: [11.2, 13.8, 41.2, 43.0] };
+  const entre = (a, b, p) => a.map((q, i) => q + (b[i] - q) * p);
   // punto que late sobre el mapa (una ciudad), con su color
   const punto = (x, y, t, c = PALA.ORO, r = 2) => { const l = Math.sin(t * 5) > 0 ? 1 : 0; disco(x, y, r + l, CONTORNO); disco(x, y, r - 1 + l, c[3]); pset(x, y, c[2]); };
   // ruta punteada que se dibuja (p 0–1) a lo largo de una lista de puntos [x, y]
@@ -477,9 +507,31 @@ export async function crearRoma(lienzo) {
     for (let i = 1; i < pts.length && quedan > 0; i++) {
       const f = Math.min(1, quedan / L[i - 1]), [ax, ay] = pts[i - 1], bx = ax + (pts[i][0] - ax) * f, by = ay + (pts[i][1] - ay) * f;
       const n = Math.ceil(L[i - 1] * f);
-      for (let k = 0; k <= n; k++) { const x = Math.round(ax + (bx - ax) * k / Math.max(1, n)), y = Math.round(ay + (by - ay) * k / Math.max(1, n)); if (((x + y) >> 1) % 2 === 0) { pset(x, y + 1, CONTORNO); pset(x, y, c); if (o.grueso) { pset(x + 1, y + 1, CONTORNO); pset(x + 1, y, c); } } }
+      for (let k = 0; k <= n; k++) { const x = Math.round(ax + (bx - ax) * k / Math.max(1, n)), y = Math.round(ay + (by - ay) * k / Math.max(1, n)); if (o.continua || ((x + y) >> 1) % 2 === 0) { const g = o.grueso === true ? 2 : (o.grueso || 1); for (let gx = 0; gx < g; gx++) for (let gy = 0; gy < g; gy++) { if (!o.continua) pset(x + gx, y + gy + 1, CONTORNO); pset(x + gx, y + gy, c); } } }
       quedan -= L[i - 1];
       if (quedan <= 0 && o.flecha !== false) { const a = Math.atan2(by - ay, bx - ax); for (const s of [-1, 1]) linea(Math.round(bx), Math.round(by), Math.round(bx - 4 * Math.cos(a + s * 0.6)), Math.round(by - 4 * Math.sin(a + s * 0.6)), c); }
+    }
+  };
+
+  // ── La barra de tiempo: reyes (753–509 a. C.), república (509–27 a. C.) e imperio (27 a. C.–476), con un marcador.
+  // barraTiempo(t, año, o): año negativo = antes de Cristo. o.x0, o.x1, o.y, o.alto; o.encendidos (0–3, cuántos tramos
+  // se ven, para presentarla); o.iconos (true: corona, dos personas y laurel encima de cada tramo, a escala o.esc).
+  const TRAMOS = [[-753, -509, PALA.ORO, 'corona'], [-509, -27, PALA.ROJO, 'persona'], [-27, 476, PALA.PURPURA, 'laurel']];
+  const barraTiempo = (t, año, o = {}) => {
+    const x0 = o.x0 ?? 40, x1 = o.x1 ?? 280, y = o.y ?? 8, alto = o.alto ?? 3, enc = o.encendidos ?? 3, esc = o.esc ?? 1;
+    const X = (a) => Math.round(x0 + (a + 753) / (476 + 753) * (x1 - x0));
+    rect(x0 - 1, y - 1, x1 + 1, y + alto, CONTORNO);
+    TRAMOS.forEach(([a, b, rp, ic], i) => {
+      const on = enc > i, p = clamp(enc - i, 0, 1);
+      for (let x = X(a); x <= X(a) + (X(b) - X(a)) * p; x++) for (let j = 0; j < alto; j++) pset(x, y + j, on ? tone(rp, 2.6 - j / alto * 1.2 + (j === 0 ? 1 : 0), x, y + j) : PALA.NEGRO[1]);
+      if (o.iconos && on) { const cx = (X(a) + X(b)) / 2, w = R.ICONOS[ic][0].length * esc; R.icono(ic, Math.round(cx - w / 2 - (ic === 'persona' ? w * 0.6 : 0)), y - 9 * esc, rp[3], CONTORNO, esc); if (ic === 'persona') R.icono(ic, Math.round(cx + w * 0.1), y - 9 * esc, rp[3], CONTORNO, esc); }
+      rect(X(a), y - 1, X(a), y + alto, CONTORNO);
+    });
+    if (o.cero !== false) { rect(X(0), y + alto, X(0), y + alto + 2, PALA.BLANCO[3]); }
+    if (año != null) {
+      const mx = X(clamp(año, -753, 476)), parp = Math.sin(t * 6) > -0.3;
+      if (parp) { pset(mx, y + alto + 1, PALA.BLANCO[3]); rect(mx - 1, y + alto + 2, mx + 1, y + alto + 2, PALA.BLANCO[3]); rect(mx - 2, y + alto + 3, mx + 2, y + alto + 3, PALA.BLANCO[3]); }
+      if (o.numero !== false) R.numero(String(Math.abs(Math.round(año))), mx, y + alto + 13, { centro: true });
     }
   };
 
@@ -530,6 +582,6 @@ export async function crearRoma(lienzo) {
     ...R, PALA, PR, ELENCO, LUGARES, ZONAS,
     nubesR, cieloR, colinas, skyline, columna, templo, insula, puesto, trono, salon, SUELO_SALON, mosaico, suelo, acueducto,
     panteon, muralla, empalizada, cabana, bicho, loba, perro, oveja, elefante, caballo, cesta, trirreme,
-    mapa, proyMapa, lugar, punto, ruta, denario, barra, tijeras,
+    mapa, proyMapa, lugar, VISTAS, entre, barraTiempo, punto, ruta, denario, barra, tijeras,
   };
 }

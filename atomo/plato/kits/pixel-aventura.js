@@ -57,6 +57,8 @@ export async function crearAventura(lienzo) {
   //    de cuero de la armadura), banda (rampa: la franja de la toga en diagonal), antebrazo (rampa: brazos desnudos con
   //    la piel), sandalias (true: espinilla desnuda y sandalia), sombrero 'casco' (bronce con cresta, colorCresta),
   //    'laurel' (corona de hojas; colorLaurel), 'diadema'; tamSombrero agranda la corona (la del emperador niño).
+  // Luz y suelo: luz = { lado: 1 (luz desde la derecha) o −1, color } pinta el borde de la silueta que mira a la luz
+  //    (el contraluz del estilo 17); sombra (color o false) pone una sombra tramada bajo los pies.
   // Regla del pelo: el pelo va solo arriba y detrás de la cabeza; nunca baja por la frente hasta los ojos ni cae por
   //    delante de la cara. Los ojos, las cejas y la boca se pintan al final, encima de todo.
   const personaje = (cx, suelo, h, o = {}) => {
@@ -262,6 +264,15 @@ export async function crearAventura(lienzo) {
       const k = y * W2 + x; if (col[k]) continue;
       if ((x > 0 && col[k - 1]) || (x < W2 - 1 && col[k + 1]) || (y > 0 && col[k - W2]) || (y < H2 - 1 && col[k + W2])) out[k] = PALA.CONTORNO;
     }
+    // contraluz: el borde de la silueta que da a la luz se enciende (un píxel)
+    if (o.luz) {
+      const ld = (o.luz.lado ?? 1) * dir, lc = o.luz.color;
+      for (let y = 0; y < H2; y++) for (let x = 0; x < W2; x++) {
+        const k = y * W2 + x; if (!col[k]) continue;
+        const nx = x + ld; if (nx < 0 || nx >= W2 || !col[k + ld]) out[k] = lc;
+        else if (y > 0 && !col[k - W2] && (x + y) % 2 === 0) out[k] = lc;   // y algo de luz por arriba
+      }
+    }
     // ── cara: ojos, cejas, boca (se pintan encima, escalan con la cabeza)
     const face = (x, y, c) => { const X = Math.round(ox + x * dir), Y = Math.round(oy + y); if (X >= 0 && X < W2 && Y >= 0 && Y < H2) out[Y * W2 + X] = c; };
     const ojoW = Math.max(1, Math.round(cab * 0.3)), ojoH = Math.max(1, Math.round(cab * 0.34));
@@ -292,6 +303,10 @@ export async function crearAventura(lienzo) {
     if (ba === 'bigote' || ba === 'poblada' || ba === 'perilla') for (let i = -1; i <= bw; i++) face(bocaX + i - bw / 2, bocaY - 1, P.pelo[1]);
     // ── al lienzo
     const X0 = Math.round(cx - ox), Y0 = Math.round(suelo - oy);
+    if (o.sombra !== undefined && o.sombra !== false) {
+      const sw = Math.round(h * 0.22), sy = Math.round(suelo) + 1;
+      for (let j = -1; j <= 1; j++) for (let i = -sw; i <= sw; i++) if ((i / sw) ** 2 + j * j * 0.5 <= 1 && R.b4(Math.round(cx) + i, sy + j) < 0.6) pset(Math.round(cx) + i, sy + j, o.sombra);
+    }
     for (let y = 0; y < H2; y++) for (let x = 0; x < W2; x++) { const c = out[y * W2 + x]; if (c) pset(X0 + x, Y0 + y, c); }
     return { cabeza: [cx + hx * dir, suelo + hy], mano: [cx + mD[0] * dir, suelo + mD[1]], manoI: [cx + mI[0] * dir, suelo + mI[1]] };
   };
