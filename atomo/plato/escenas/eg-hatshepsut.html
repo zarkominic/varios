@@ -11,16 +11,21 @@
 <script type="module">
 // EG-HATSHEPSUT (frase 23). En la sala del trono, Hatshepsut con su peluca y su diadema; se pone el nemes de faraón y
 // después la barba postiza, y sonríe.
-import { preparar, rodar, trono, EL } from '/atomo/plato/escenas/eg-comun.js';
+import { preparar, rodar, trono, EL, C } from '/atomo/plato/escenas/eg-comun.js';
 const { E, R, M } = await preparar('eg-hatshepsut');
 const m0 = M('hatshepsut', 0.5), L = E.duracion - m0;
 const plano = (t) => {
   const u = t - m0;
   trono(R, t, { abanicos: true });
   if (u < 0.45 * L) R.actor(EL.egipcia, 152, 145, t, { tocado: 'diadema', dir: -1 });
-  else R.actor(EL.faraona, 152, 145, t, { dir: -1, sonrisa: u > 0.75 * L, barba: u > 0.68 * L });
-  R.actor(EL.calvo, 210, 145, t, { dir: -1, sorpresa: u > 0.72 * L }); R.actor(EL.egipcia, 236, 145, t + 1, { dir: -1, sorpresa: u > 0.74 * L });
-  R.actor(EL.campesino, 92, 145, t + 2, { sorpresa: u > 0.73 * L }); R.actor(EL.escriba, 64, 145, t + 3, {});
+  else {
+    const cae = u > 0.8 * L && u < 0.9 * L, f = R.tramo(u, 0.8 * L, 0.8 * L + 0.35);
+    R.actor(EL.faraona, 152, 145, t, { dir: -1, sonrisa: u > 0.75 * L && !cae, sorpresa: cae && u < 0.84 * L, manos: false, enfado: cae && u >= 0.84 * L, barba: u > 0.68 * L && !cae });
+    if (cae) { const y = Math.round(R.lerp(131, 142, f * f)); R.rect(154, y, 157, y + 3, R.P.U); R.rect(154, y, 154, y + 3, C.k); R.rect(157, y, 157, y + 3, C.k); }
+  }
+  const risa = u > 0.82 * L && u < 0.92 * L;
+  R.actor(EL.calvo, 210, 145, t, { dir: -1, sorpresa: u > 0.72 * L && !risa, manos: false, sonrisa: risa }); R.actor(EL.egipcia, 236, 145, t + 1, { dir: -1, sorpresa: u > 0.74 * L && !risa, sonrisa: risa });
+  R.actor(EL.campesino, 92, 145, t + 2, { sorpresa: u > 0.73 * L && !risa, sonrisa: risa }); R.actor(EL.escriba, 64, 145, t + 3, {});
 };
 rodar(E, R, [[0, plano]], { año: -1470 });
 </script>

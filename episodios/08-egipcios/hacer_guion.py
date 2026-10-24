@@ -15,6 +15,15 @@ D = os.path.dirname(os.path.abspath(__file__))
 md = open(f'{D}/guion.md').read().split('## Datos')[0]
 filas = [(m.group(1), m.group(2)) for m in re.finditer(r'^\| (.+?) \| (.+?) \|$', md, re.M) if m.group(1) not in ('ES', '---', 'Decorado') and not m.group(1).startswith('**')]
 plan = json.load(open(f'{D}/escenas.json'))
+# Primera frase de cada acto («## N · …»): lleva un silencio más largo delante, como un título.
+ACTOS, n = set(), 0
+for linea in md.splitlines():
+    if re.match(r'^## \d+ ·', linea):
+        ACTOS.add(n + 1)
+    m = re.match(r'^\| (.+?) \| (.+?) \|$', linea)
+    if m and m.group(1) not in ('ES', '---', 'Decorado') and not m.group(1).startswith('**'):
+        n += 1
+assert n == len(filas)
 
 UNI_EN = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen'.split()
 DEC_EN = {2: 'twenty', 3: 'thirty', 4: 'forty', 5: 'fifty', 6: 'sixty', 7: 'seventy', 8: 'eighty', 9: 'ninety'}
@@ -92,6 +101,8 @@ for e in plan['escenas']:
     for k, marca, vis in zip(range(a, b + 1), e['marcas'], e['guion_visual']):
         es, en = filas[k - 1]
         f = {'n': k, 'marca': marca, 'es': es, 'en': en, 'visual': vis}
+        if k in ACTOS and k > 1:
+            f['acto'] = True
         if k in pausas:
             f['pausa'] = pausas[k]
         elif k in REVELACIONES and k < b:

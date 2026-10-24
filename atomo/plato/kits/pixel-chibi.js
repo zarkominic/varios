@@ -457,11 +457,11 @@ export function conChibi(R) {
     const dir = o.dir ?? 1, pal = { ...P, ...(def.pal || {}), ...(o.pal || {}) }, salto = o.salto ?? 0;
     const resp = def.respira && Math.sin(t * 3) > 0.7 ? 1 : 0;
     const yC = suelo - def.altoCuerpo - salto, yH = yC - def.altoCab + resp;
-    const levanta = o.dedo || o.brazos || o.sorpresa;
+    const manos = o.sorpresa && o.manos === true, levanta = o.dedo || o.brazos || manos;   // las manos arriba junto a la cabeza parecían orejas: la sorpresa va en la cara (o.manos: true para levantarlas)
     if (levanta && !sinBrazoCache.has(def)) sinBrazoCache.set(def, sinBrazo(def.cuerpo, def.brazoCol));
     dibujo(levanta ? sinBrazoCache.get(def) : def.cuerpo, x, yC, dir, pal);
-    if (o.dedo && !o.brazos && !o.sorpresa) brazoArriba(dir > 0 ? x + 14 : x, yC + 3, yH - 3);
-    if (o.brazos || o.sorpresa) { brazoArriba(x + 1, yC + 3, yH + 1, true); brazoArriba(x + 12, yC + 3, yH + 1, true); }
+    if (o.dedo && !o.brazos && !manos) brazoArriba(dir > 0 ? x + 14 : x, yC + 3, yH - 3);
+    if (o.brazos || manos) { brazoArriba(x + 1, yC + 3, yH + 1, true); brazoArriba(x + 12, yC + 3, yH + 1, true); }
     dibujo(def.cab, x, yH, dir, pal);
     const px = (i, j, c) => pset(Math.round(x + (dir > 0 ? i : 14 - i)), Math.round(yH + j), c);
     if (!def.sinCara) {

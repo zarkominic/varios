@@ -57,3 +57,23 @@ Con esto, la única revisión manual será la lista de clips señalados, normalm
   - Si aun así es más largo, la frase dura lo que el español y el inglés deja silencio detrás. Una voz acelerada suena con prisa; un silencio tras la frase, no.
 - **Marcas:** cada frase tiene la suya, al inicio (y `_fin` al final de la frase en inglés). Así la imagen cae igual en los dos idiomas.
 - **Salida:** `informe.json` lista cada clip con su velocidad, tempo, fallos y avisos.
+
+## Pausas dentro de la frase (desde el episodio 8)
+
+- **El problema:** Kokoro comprime la puntuación. En el episodio 8 había comas con 0 s de pausa (mediana de 0,30 s), y no había silencio de más entre actos.
+- **La solución:** la misma que el modo por cláusulas de PyKokoro. Cada frase se locuta en trozos partidos por sus signos, y el silencio se pone entre clips, así que nunca cae dentro de una palabra.
+- **Pausas dentro de la frase:**
+  - coma: 0,3 s;
+  - punto y coma, dos puntos: 0,42 s;
+  - raya: 0,32 s;
+  - punto: 0,6 s;
+  - interrogación: 0,65 s.
+- **Pausas entre frases** (cada fila del guion es un punto y aparte):
+  - punto: 0,8 s;
+  - interrogación: 0,9 s;
+  - exclamación: 0,85 s.
+- **Antes de cada acto** (`## N ·` en el guion, marcado `acto` por `hacer_guion.py`): 1,4 s de silencio, como un título.
+- **No se parte:**
+  - después de una inicial con punto («B.C.», «a. C.»);
+  - en una coma sin espacio («1,300»).
+  - Una coma tras una sola palabra («So,») se queda pegada a lo que sigue.

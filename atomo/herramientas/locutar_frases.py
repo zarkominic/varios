@@ -39,7 +39,12 @@ guion_path, salida, modelos = args[:3]
 
 FPS, SR = 30, 24000
 ENTRADA, ENTRADA_CARTELA, SALIDA = 0.5, 1.5, 0.7    # s de escena antes de hablar (con cartela, más) y después
-PAUSA = {'.': 0.55, '?': 0.7, '!': 0.6, ':': 0.45}  # silencio tras la frase según su último signo
+ENTRADA_ACTO = 1.4                                  # s de silencio antes de la primera frase de un acto (un «título»)
+PAUSA = {'.': 0.8, '?': 0.9, '!': 0.85, ':': 0.6}   # silencio tras la frase (un punto y aparte) según su último signo
+# Silencio dentro de una frase, entre trozos. Kokoro comprime la puntuación: en el episodio 8 había
+# comas con 0 s de pausa. Como en el modo por cláusulas de PyKokoro, la frase se locuta en trozos
+# partidos por los signos y la pausa se pone entre clips, así nunca cae dentro de una palabra.
+PAUSA_DENTRO = {',': 0.3, ';': 0.42, ':': 0.42, '—': 0.32, '.': 0.6, '?': 0.65, '!': 0.6}
 RAPIDO, LENTO = 1.10, 0.90                          # cuánto se puede estirar el idioma que se adapta
 VEL_MIN, VEL_MAX = 0.85, 1.10                       # velocidades de síntesis que siguen sonando naturales
 # Pronunciaciones que se corrigen en los fonemas. «Atom» en americano lleva una t blanda (ˈæɾəm) y
@@ -179,6 +184,43 @@ def clip_limpio(texto, l, velocidades):
             break
     return mejor
 
+# Corte tras un signo seguido de espacio. No se corta tras una inicial con punto («B.C.», «a. C.»).
+CORTE = re.compile(r'(?<![\s.][A-Za-z]\.)(?<=[,;:.?!])\s+|\s+—\s+')
+
+def trozos_voz(texto):
+    """[(trozo, signo final)] de una frase, partida por sus signos; el último trozo lleva signo ''."""
+    out, i = [], 0
+    for m in CORTE.finditer(texto):
+        t = texto[i:m.start()].strip()
+        if t:
+            out.append([t, '—' if '—' in m.group() else t[-1]])
+        i = m.end()
+    out.append([texto[i:].strip(), ''])
+    # Un trozo de una sola palabra suelta («So,») se queda pegado al siguiente: suena mejor entero.
+    k = 0
+    while k < len(out) - 1:
+        if len(out[k][0].split()) < 2 and out[k][1] == ',':
+            out[k + 1][0] = out[k][0] + ' ' + out[k + 1][0]
+            out.pop(k)
+        else:
+            k += 1
+    return [tuple(x) for x in out]
+
+def frase_voz(texto, l, velocidades):
+    """La frase en trozos limpios unidos con su pausa: (audio, oídas, velocidad, fallos, avisos)."""
+    partes, oidas, prob, av, vels, t = [], [], [], [], [], 0.0
+    for trozo, signo in trozos_voz(texto):
+        a, f, vel, p, v = clip_limpio(trozo, l, velocidades)
+        oidas += [(w, s + t, x + t) for w, s, x in oir(f, l)]
+        prob += p; av += v; vels.append(vel)
+        partes.append(a)
+        t += len(a) / SR
+        if signo:
+            sil = np.zeros(int(PAUSA_DENTRO[signo] * SR))
+            partes.append(sil)
+            t += len(sil) / SR
+    return np.concatenate(partes), oidas, float(np.mean(vels)), prob, av
+
 def estirar(a, tempo):
     if abs(tempo - 1) < 0.005:
         return a
@@ -201,19 +243,23 @@ lineas, informe, t_global = [], [], 0.0
 v0 = {l: VOCES[l]['velocidad'] for l in IDIOMAS}
 for e in escenas:
     entrada = ENTRADA_CARTELA if e.get('cartela') else ENTRADA
+    if e['frases'][0].get('acto'):
+        entrada = max(entrada, ENTRADA_ACTO)
     colocados, t = [], entrada
     marcas, frases = {}, []
     for k, f in enumerate(e['frases']):
+        if k and f.get('acto'):
+            t += ENTRADA_ACTO - pausa_tras(e['frases'][k - 1])
         texto = {l: f.get(f'{l}_voz', f[l]) for l in IDIOMAS}
-        a_p, f_p, vel_p, prob_p, av_p = clip_limpio(texto[PRINCIPAL], PRINCIPAL, [v0[PRINCIPAL], v0[PRINCIPAL] - 0.03, v0[PRINCIPAL] + 0.03, v0[PRINCIPAL] + 0.05])
+        a_p, oid_p, vel_p, prob_p, av_p = frase_voz(texto[PRINCIPAL], PRINCIPAL, [v0[PRINCIPAL], v0[PRINCIPAL] - 0.03, v0[PRINCIPAL] + 0.03, v0[PRINCIPAL] + 0.05])
         d_p = len(a_p) / SR
         # El otro idioma: primero a su velocidad; si queda lejos, a la que lo acerca.
-        a_o, _ = sintetizar(texto[OTRO], OTRO, v0[OTRO])
+        a_o = frase_voz(texto[OTRO], OTRO, [v0[OTRO]])[0]
         r = len(a_o) / SR / d_p
         vel = v0[OTRO] if 0.95 <= r <= 1.05 else float(np.clip(v0[OTRO] * r / (1.03 if r > 1 else 0.98), VEL_MIN, VEL_MAX))
-        a_o, f_o, vel_o, prob_o, av_o = clip_limpio(texto[OTRO], OTRO, [vel, max(VEL_MIN, vel - 0.04), min(VEL_MAX, vel + 0.04)])
+        a_o, oid_o, vel_o, prob_o, av_o = frase_voz(texto[OTRO], OTRO, [vel, max(VEL_MIN, vel - 0.04), min(VEL_MAX, vel + 0.04)])
         tempo = float(np.clip(len(a_o) / SR / d_p, LENTO, RAPIDO))
-        oidas = {PRINCIPAL: oir(f_p, PRINCIPAL), OTRO: [(w, s / tempo, x / tempo) for w, s, x in oir(f_o, OTRO)]}
+        oidas = {PRINCIPAL: oid_p, OTRO: [(w, s / tempo, x / tempo) for w, s, x in oid_o]}
         a_o = estirar(a_o, tempo)
         hueco = max(d_p, len(a_o) / SR)
         colocados.append((t, {PRINCIPAL: a_p, OTRO: a_o}))

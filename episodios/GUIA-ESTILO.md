@@ -22,7 +22,8 @@
 - **Caras expresivas:** ojos de 2 px, cejas y boca.
   - Gestos: normal, `habla`, `sonrisa`, `sorpresa` (ojos grandes y boca en «O»), `enfado`, `triste`.
   - Parpadean solos.
-- **Gestos del cuerpo:** `dedo` (explica con el índice arriba), `brazos` o `sorpresa` (las dos manos abiertas arriba), `salto` (en píxeles, con polvo en el suelo).
+- **Gestos del cuerpo:** `dedo` (explica con el índice arriba), `brazos` (las dos manos abiertas arriba), `salto` (en píxeles, con polvo en el suelo).
+  - `sorpresa` va solo en la cara: con las manos junto a la cabeza parecían orejas. `manos: true` las levanta igualmente.
 - **El pelo nunca tapa la cara:** la regla de siempre.
 - **Variantes sin dibujar de nuevo:** `pal` cambia letras, por ejemplo otro color de pelo (`H`/`h`) u otra túnica (`A`/`a`).
 - **Personaje nuevo:** se dibuja una vez, con cabeza y cuerpo, y se añade a `ELENCO_CHIBI`. Calcular unos 20–30 min por personaje.
@@ -39,6 +40,19 @@
 - **Se mueven:** parpadean, ríen con la boca abierta (`rie`), saludan con la mano (`saluda`) y dan saltitos.
 - **Nada de cabecitas redondas iguales:** se ven de baja calidad.
 
+## Humor
+
+Cada episodio lleva **6–8 gags cortos** (1–3 s), pegados a lo que dice la frase y sin quitarle protagonismo a la voz. En el episodio 8:
+- en la crecida, uno sentado en un cesto se va río abajo saludando;
+- un obrero resbala desde lo alto de la pirámide, aterriza mareado y levanta el pulgar;
+- en la hambruna, un ladrón flaco roba una hogaza y el campesino sale detrás;
+- a Hatshepsut se le cae la barba postiza y la corte aguanta la risa;
+- los hijos de Ramsés corretean y él suda;
+- un soldado francés tropieza con la piedra de Rosetta;
+- el sacerdote que echa la sal estornuda y queda blanco.
+
+Piezas en `eg-comun.js`: `mareo`, `polvareda`, `trote`, `gotaSudor`, `pan`. Que nunca sea morboso.
+
 ## Fondos
 
 - **Planos de color con bandas:**
@@ -51,6 +65,11 @@
   - las ánforas con asas y una banda de figuras negras, las cajas, los norays de hierro y la cuerda enrollada;
   - los veleros y la Acrópolis al fondo.
 - **Todo se mueve un poco:** barcos que cabecean, banderas al viento, gaviotas, agua.
+- **Nunca vacío:** cada decorado lleva su ambiente de serie (en `eg-comun.js`, se quita con una opción):
+  - cielo: un halcón que planea y bandadas de golondrinas (de ibis al atardecer); de noche, estrellas fugaces;
+  - río: ibis que cruzan, peces que saltan, un hipopótamo que asoma, libélulas, un ibis pescando, ocas;
+  - desierto: rachas de viento con arena y una caravana de burros al fondo;
+  - interiores: un gato que mueve la cola y bosteza, motas de polvo en la luz y, en las tumbas, una araña.
 - **Composición de escenario de juego:**
   - un suelo horizontal claro (el muelle, de y 132 a 146) donde se plantan los personajes, con los pies en y ≈ 145;
   - el decorado detrás;
@@ -59,7 +78,8 @@
 
 ## Lo que no cambia
 
-- **Atom** abajo a la izquierda, y la caja de Atom arriba a la derecha.
+- **Atom** abajo a la izquierda, un 50 % más grande que en los episodios 1–7.
+- **Sin caja arriba a la derecha** (desde el episodio 8: el público no la entendía). Los números y símbolos que iban en ella le salen a Atom en un **bocadillo de cómic**. Las escenas siguen llamando a `R.caja(...)`.
 - **El formato del episodio:** los mapas con zoom, la barra de tiempo arriba a la izquierda, las cartelas con el año, y el orden de primero el mapa y la historia como causa y efecto (ver `GUIA-NARRATIVA.md`).
 - **Sin palabras en pantalla:** solo números y símbolos («!», «?», «$»…).
 - **Personajes pequeños:** sin primeros planos.

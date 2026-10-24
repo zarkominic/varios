@@ -36,7 +36,33 @@ export async function preparar(id) {
   const E = await escena(id, 'ep08');
   const R = conChibi(await crearRoma(document.getElementById('lienzo')));
   R.tramosTiempo([[-3100, -2181, R.PALA.ORO, 'piramide'], [-2181, -1077, R.PALA.AZUL, 'carro'], [-1077, -30, R.PALA.MORADO, 'corona']]);
+  conAtomGrande(R);
   return { E, R, M: (k, d) => E.marca(k, d) };
+}
+
+// Desde el episodio 8 no hay caja arriba a la derecha (el público no la entendía): Atom, abajo a la izquierda, es un
+// 50 % más grande y lo que antes iba en la caja (números y símbolos) le sale en un bocadillo de cómic. Las escenas
+// siguen llamando a R.caja(t, p, contenido, o) igual que antes.
+const ATOM = [30, 120];
+function conAtomGrande(R) {
+  const { rect, pset } = R, base = R.companero;
+  R.companero = (t, e = 0) => {
+    const x = ATOM[0], y = ATOM[1] + Math.round(1.4 * Math.sin(2 * Math.PI * t / 2.6)), r = 13 + 2.4 * e;
+    for (let j = -16; j <= 16; j++) for (let i = -16; i <= 16; i++) { const g = 1 - Math.hypot(i, j) / r; if (g > 0.35) pset(x + i, y + j, g > 0.75 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+    R.atomo(x, y, t, { r: 10, orbita: R.PAL.ATOM[7], energia: e });
+  };
+  R.companeroPequeno = base;
+  R.caja = (t, p, contenido, o = {}) => {
+    if (p <= 0) return;
+    const w = Math.round(((o.x1 ?? 302) - (o.x0 ?? 196) - 22) * Math.min(1, 0.4 + p)), h = Math.round(26 * Math.min(1, 0.4 + p));
+    const x0 = 50, y1 = 104, y0 = y1 - h, x1 = x0 + w, fondo = R.PAL.UI[0], borde = C.blanco;
+    // cola que apunta a Atom
+    for (let k = 0; k <= 9; k++) { const cx = Math.round(x0 + 8 - k * 1.3), cy = y1 + k; rect(cx - Math.max(0, 3 - k / 3), cy, cx + Math.max(0, 3 - k / 3), cy, fondo); pset(cx - Math.max(0, 3 - k / 3) - 1, cy, borde); pset(cx + Math.max(0, 3 - k / 3) + 1, cy, borde); }
+    rect(x0 + 2, y0 - 1, x1 - 2, y0 - 1, C.k); rect(x0 + 2, y1 + 1, x1 - 2, y1 + 1, C.k); rect(x0 - 1, y0 + 2, x0 - 1, y1 - 2, C.k); rect(x1 + 1, y0 + 2, x1 + 1, y1 - 2, C.k);
+    rect(x0 + 1, y0, x1 - 1, y1, borde); rect(x0, y0 + 1, x1, y1 - 1, borde);
+    rect(x0 + 2, y0 + 1, x1 - 2, y1 - 1, fondo); rect(x0 + 1, y0 + 2, x1 - 1, y1 - 2, fondo);
+    if (p >= 1 && contenido) contenido(x0 + 5, y0 + 4, x1 - 4);
+  };
 }
 
 // igual que en los episodios 5–7: cartela, planos, caja, barra de tiempo arriba a la izquierda y Atom
@@ -61,13 +87,183 @@ export function rodar(E, R, planos, o = {}) {
 // cielo: día (tres bandas y bruma en el horizonte), tarde (atardecer) o noche (estrellas); o.sol = [x, y, r]
 export function cieloEg(R, t, o = {}) {
   const hor = o.hor ?? 92;
-  if (o.noche) { R.cielo(t, { luna: o.luna ?? [250, 30, 10], hor, semilla: 8 }); return; }
+  if (o.noche) { R.cielo(t, { luna: o.luna ?? [250, 30, 10], hor, semilla: 8 }); if (o.aves !== false) fugaz(R, t); return; }
   const bandas = o.tarde ? [C.tarde1, C.tarde2, C.tarde3, C.tarde4] : [C.cielo1, C.cielo2, C.cielo3, C.bruma];
   for (let y = 0; y < hor; y++) R.rect(0, y, 319, y, bandas[Math.min(3, Math.floor((y / hor) * (y > hor - 8 ? 4 : 3.4)))]);
   const sol = o.sol ?? (o.tarde ? [250, hor - 18, 12] : [270, 22, 9]);
   if (sol) { R.disco(sol[0], sol[1], sol[2] + 2, o.tarde ? C.tarde4 : C.solL); R.disco(sol[0], sol[1], sol[2], C.sol); }
   if (!o.tarde && o.nubes !== false) for (const [x0, y, w, v] of [[40, 24, 34, 1.5], [170, 14, 44, 1], [120, 44, 22, 2]]) R.nube(((x0 + t * v) % 380) - 30, y, w);
+  if (o.aves !== false) { halcon(R, t, 200, Math.min(26, hor - 30)); bandada(R, t, { tipo: o.tarde ? 'ibis' : 'golondrina', n: o.tarde ? 3 : 4, y: Math.min(40, hor - 22), cada: 8 }); }
 }
+
+// ── ambiente: que ningún decorado se quede quieto ni vacío ──────────────────────────────────────────────────────────
+// Todo plano y de un píxel (sin tramas): aves, viento con arena, bichos del río, peces, un gato, motas en la luz.
+const azar = (k) => { const x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const AVE = pal({ gol: '#28304e', golB: '#f2ece0', ibis: '#f4f0e6', ibisS: '#c8c0b0', halcon: '#7a4a26', halconS: '#4e2e16', halconL: '#c89a5a', pez: '#c8d4dc', pezS: '#7a8aa0' });
+
+// un ave en (x, y) con aleteo; tipo 'golondrina', 'ibis' o 'halcon' (este planea en círculo); d = 1 a la derecha
+export function ave(R, x, y, t, tipo = 'golondrina', d = 1, k = 0) {
+  const { pset } = R, X = (i) => Math.round(x + i * d); y = Math.round(y);
+  const a = Math.sin(t * (tipo === 'ibis' ? 7 : 12) + k * 1.7) > 0;
+  if (tipo === 'golondrina') {
+    pset(X(0), y, AVE.gol); pset(X(1), y, AVE.gol); pset(X(0), y + 1, AVE.golB); pset(X(-1), y, AVE.gol); pset(X(-2), y + 1, AVE.gol); pset(X(-2), y - 1, AVE.gol);
+    if (a) { pset(X(0), y - 1, AVE.gol); pset(X(-1), y - 2, AVE.gol); pset(X(-1), y - 3, AVE.gol); } else { pset(X(-1), y + 1, AVE.gol); pset(X(-1), y + 2, AVE.gol); }
+  } else if (tipo === 'ibis') {
+    for (let i = -1; i <= 3; i++) pset(X(i), y, AVE.ibis); pset(X(-2), y, AVE.gol); pset(X(-3), y + 1, AVE.gol); pset(X(-4), y + 1, AVE.gol);
+    pset(X(4), y - 1, AVE.gol); pset(X(5), y - 1, AVE.gol); pset(X(6), y, AVE.gol); pset(X(7), y + 1, AVE.gol);
+    if (a) { pset(X(1), y - 1, AVE.ibis); pset(X(2), y - 2, AVE.ibis); pset(X(2), y - 3, AVE.gol); } else { pset(X(1), y + 1, AVE.ibisS); pset(X(2), y + 2, AVE.ibisS); pset(X(2), y + 3, AVE.gol); }
+  } else {
+    const b = Math.round(Math.sin(t * 2 + k));
+    for (let i = -5; i <= 5; i++) pset(X(i), y - (Math.abs(i) > 2 ? b : 0), Math.abs(i) > 3 ? AVE.halconS : AVE.halcon);
+    pset(X(0), y + 1, AVE.halconL); pset(X(-1), y + 1, AVE.halconL); pset(X(1), y - 1, AVE.halconS); pset(X(2), y - 1, AVE.halconS); pset(X(-2), y + 1, AVE.halconS); pset(X(-3), y + 1, AVE.halconS);
+  }
+}
+
+// bandada que cruza la pantalla cada cierto tiempo; o.tipo, o.n, o.y, o.v (px/s), o.d, o.cada (s entre pasadas)
+export function bandada(R, t, o = {}) {
+  const tipo = o.tipo ?? 'golondrina', n = o.n ?? 4, v = o.v ?? (tipo === 'ibis' ? 26 : 48), d = o.d ?? 1, cada = o.cada ?? 9, sem = o.semilla ?? 0;
+  const ciclo = Math.max(cada, 380 / v + 1), u = (t + sem * 3.1) % ciclo, x0 = -30 + u * v;
+  for (let k = 0; k < n; k++) {
+    const x = x0 - (k % 2 ? 7 : 0) * k - k * 3, y = (o.y ?? 30) + (k % 2 ? 4 : -2) * Math.ceil(k / 2) + (tipo === 'golondrina' ? Math.sin(t * 3 + k) * 3 : 0);
+    ave(R, d === 1 ? x : 319 - x, y, t, tipo, d, k + sem);
+  }
+}
+
+// halcón que planea en círculos (Horus vigila desde arriba)
+export function halcon(R, t, cx = 230, cy = 26, r = 22) {
+  const a = t * 0.45; ave(R, cx + Math.cos(a) * r, cy + Math.sin(a) * r * 0.35, t, 'halcon', Math.sin(a) > 0 ? -1 : 1);
+}
+
+// viento: rachas de arena que barren el suelo entre y0 e y1; o.fuerza (0–2), o.color
+export function viento(R, t, o = {}) {
+  const y0 = o.y0 ?? 120, y1 = o.y1 ?? 145, f = (o.fuerza ?? 1) * (0.6 + 0.4 * Math.sin(t * 0.7)), n = Math.round(10 * f);
+  for (let k = 0; k < n; k++) {
+    const v = 90 + azar(k) * 70, x = ((azar(k + 50) * 400 + t * v) % 420) - 50, y = Math.round(y0 + azar(k + 9) * (y1 - y0) + Math.sin(t * 4 + k) * 1.2), L = 4 + Math.round(azar(k + 3) * 8);
+    R.rect(Math.round(x), y, Math.round(x + L), y, o.color ?? C.arenaL); if (L > 8) R.rect(Math.round(x + L + 3), y, Math.round(x + L + 5), y, o.color ?? C.arenaL);
+  }
+  for (let k = 0; k < Math.round(6 * f); k++) {   // granos que saltan
+    const v = 70 + azar(k + 20) * 40, x = ((azar(k + 70) * 400 + t * v) % 400) - 40, fase = (t * 2 + azar(k)) % 1;
+    R.pset(Math.round(x), Math.round(y1 - Math.sin(fase * Math.PI) * 4), o.grano ?? C.arenaS);
+  }
+}
+
+// libélulas que se paran y salen disparadas cerca de los juncos
+export function libelulas(R, t, zonas) {
+  zonas.forEach(([x0, y0], k) => {
+    const paso = Math.floor(t / 1.1 + k), u = Math.min(1, ((t / 1.1 + k) % 1) * 4);
+    const ax = x0 + (azar(paso + k * 9) - 0.5) * 30, ay = y0 + (azar(paso + k * 9 + 1) - 0.5) * 10, bx = x0 + (azar(paso + k * 9 + 2) - 0.5) * 30, by = y0 + (azar(paso + k * 9 + 3) - 0.5) * 10;
+    const x = Math.round(ax + (bx - ax) * u), y = Math.round(ay + (by - ay) * u), ala = Math.floor(t * 20) % 2;
+    R.rect(x - 2, y, x + 1, y, C.turqS); R.pset(x + 1, y, C.turq); R.pset(x - 1, y - 1 + ala, C.aguaL); R.pset(x, y - 1 + ala, C.aguaL);
+  });
+}
+
+// pez que salta del agua cada `cada` segundos en (x, y), con salpicón
+export function pez(R, t, x, y, cada = 5, k = 0) {
+  const u = ((t + k * 1.9) % cada) / 0.9;
+  if (u < 1) {
+    const px = Math.round(x + u * 12), py = Math.round(y - Math.sin(u * Math.PI) * 9), d = u < 0.5 ? -1 : 1;
+    R.rect(px - 1, py, px + 1, py, AVE.pez); R.pset(px + 2, py, AVE.pez); R.pset(px - 2, py - d, AVE.pezS); R.pset(px - 2, py + d, AVE.pezS); R.pset(px, py + 1, AVE.pezS);
+  }
+  for (const [s, xx] of [[0, x], [1, x + 12]]) { const w = u - s; if (w > -0.05 && w < 0.35) { R.pset(xx - 1, y - 1, C.aguaL); R.pset(xx + 1, y - 1, C.aguaL); R.pset(xx, y - 2, C.aguaL); R.rect(xx - 2, y, xx + 2, y, C.aguaL); } }
+}
+
+// hipopótamo que asoma la cabeza (ojos, orejas y narices) y vuelve a hundirse
+export function hipo(R, t, x, y, cada = 11) {
+  const u = (t % cada) / cada; if (u > 0.45) return;
+  const h = Math.round(Math.min(1, Math.sin(u / 0.45 * Math.PI) * 1.6) * 4), c = pal({ a: '#8a7a8e', s: '#5e5266', l: '#b4a4b4' });
+  if (h <= 0) return;
+  for (let i = 0; i < 14; i++) for (let j = 0; j < h; j++) R.pset(x + i, y - j, j === h - 1 ? c.l : i > 10 ? c.s : c.a);
+  if (h >= 3) { R.pset(x + 1, y - h, c.s); R.pset(x + 3, y - h, c.s); R.pset(x + 2, y - h + 1, C.k); R.pset(x + 11, y - h + 1, C.k); R.pset(x + 13, y - h + 1, C.k); }
+  if (h >= 4 && Math.floor(t * 3) % 7 !== 0) R.pset(x + 4, y - h + 2, C.k);
+  R.rect(x - 2, y + 1, x + 16, y + 1, C.aguaL);
+}
+
+// ibis de pie en el agua que pica con el pico
+export function ibisPie(R, t, x, suelo, k = 0) {
+  const pica = Math.sin(t * 0.9 + k) > 0.6;
+  R.rect(x, suelo - 5, x, suelo, AVE.gol); R.rect(x + 2, suelo - 5, x + 2, suelo, AVE.gol);
+  R.rect(x - 2, suelo - 9, x + 3, suelo - 6, AVE.ibis); R.rect(x - 2, suelo - 6, x + 3, suelo - 6, AVE.ibisS); R.pset(x - 3, suelo - 8, AVE.gol); R.pset(x - 3, suelo - 7, AVE.gol);
+  if (pica) { R.pset(x + 4, suelo - 7, AVE.gol); R.pset(x + 5, suelo - 5, AVE.gol); R.pset(x + 5, suelo - 6, AVE.gol); R.pset(x + 6, suelo - 3, AVE.gol); R.pset(x + 6, suelo - 4, AVE.gol); }
+  else { R.rect(x + 3, suelo - 13, x + 3, suelo - 9, AVE.gol); R.pset(x + 4, suelo - 14, AVE.gol); R.pset(x + 5, suelo - 14, AVE.gol); R.pset(x + 6, suelo - 13, AVE.gol); R.pset(x + 7, suelo - 12, AVE.gol); R.pset(x + 8, suelo - 11, AVE.gol); }
+}
+
+// gato egipcio sentado de perfil, con la cola que se mueve, parpadeo y, de vez en cuando, un bostezo
+export function gato(R, x, suelo, t, o = {}) {
+  const c = pal({ a: '#c8a060', s: '#8e6a38', r: '#5a4024', l: '#e4c890', ojo: '#3a8a3a' }), d = o.dir ?? 1, X = (i) => x + i * d;
+  for (let j = 0; j < 7; j++) R.rect(Math.min(X(-3), X(3 - (j < 2 ? 1 : 0))), suelo - j, Math.max(X(-3), X(3 - (j < 2 ? 1 : 0))), suelo - j, j % 3 === 1 ? c.r : c.a);
+  R.rect(Math.min(X(0), X(3)), suelo - 11, Math.max(X(0), X(3)), suelo - 7, c.a); R.pset(X(4), suelo - 8, c.l); R.pset(X(4), suelo - 9, c.a);
+  R.pset(X(0), suelo - 12, c.s); R.pset(X(3), suelo - 12, c.s); R.pset(X(0), suelo - 13, c.r); R.pset(X(3), suelo - 13, c.r);
+  const bosteza = (t % 9) < 0.8, parpadea = (t % 3.3) < 0.15;
+  R.pset(X(2), suelo - 10, parpadea || bosteza ? c.r : c.ojo); if (bosteza) { R.pset(X(4), suelo - 8, C.rojoS); R.pset(X(4), suelo - 7, C.rojoS); }
+  for (let i = 1; i <= 6; i++) R.pset(X(-3 - i), Math.round(suelo - Math.max(0, i - 2) * (0.6 + 0.5 * Math.sin(t * 2.2 + i * 0.4))), i > 4 ? c.r : c.a);
+  R.pset(X(2), suelo, c.l); R.pset(X(3), suelo, c.l);
+}
+
+// motas de polvo que flotan en la luz (interiores)
+export function motas(R, t, x0, x1, y0, y1, n = 14, color = C.paredL) {
+  for (let k = 0; k < n; k++) { const x = x0 + ((azar(k) * (x1 - x0) + Math.sin(t * 0.4 + k) * 6 + t * 1.5) % (x1 - x0)), y = y1 - ((azar(k + 30) * (y1 - y0) + t * (2 + azar(k + 5) * 2)) % (y1 - y0)); if (Math.sin(t * 1.3 + k * 2) > -0.3) R.pset(Math.round(x), Math.round(y), color); }
+}
+
+// araña que baja y sube de su hilo (techos de las tumbas)
+export function arana(R, t, x, y0, largo = 30) {
+  const u = (Math.sin(t * 0.5) + 1) / 2, y = Math.round(y0 + u * largo);
+  R.rect(x, y0, x, y - 2, C.calizaD); R.disco(x, y, 1, C.k); for (const s of [-1, 1]) { R.pset(x + 2 * s, y - 1, C.k); R.pset(x + 2 * s, y + 1, C.k); R.pset(x + 3 * s, y + (Math.floor(t * 4) % 2), C.k); }
+}
+
+// estrella fugaz cada `cada` segundos (cielos de noche)
+export function fugaz(R, t, cada = 6) {
+  const u = (t % cada) / 0.6, k = Math.floor(t / cada); if (u > 1) return;
+  const x = 40 + azar(k) * 200 + u * 50, y = 10 + azar(k + 1) * 30 + u * 18;
+  for (let i = 0; i < 7; i++) R.pset(Math.round(x - i * 1.6), Math.round(y - i * 0.6), i < 2 ? C.blanco : C.calizaS);
+}
+
+// burro con alforjas, de perfil (mirando a la derecha), que trota; x = grupa
+export function burro(R, x, suelo, t, o = {}) {
+  const c = pal({ a: '#8c8494', s: '#5e5866', l: '#b4acb8', h: '#2a2430' }), d = o.dir ?? 1, X = (i) => Math.round(x + i * d), f = Math.floor(t * 6 + x) % 2;
+  for (let i = 0; i <= 10; i++) R.rect(Math.min(X(i), X(i)), suelo - 9, X(i), suelo - 5, i % 4 === 3 ? c.s : c.a);
+  for (let i = 0; i <= 10; i++) R.pset(X(i), suelo - 5, c.l);
+  R.rect(Math.min(X(10), X(13)), suelo - 13, Math.max(X(10), X(13)), suelo - 9, c.a); R.pset(X(14), suelo - 10, c.a); R.pset(X(14), suelo - 9, c.s); R.pset(X(12), suelo - 12, c.h);
+  R.pset(X(10), suelo - 15, c.a); R.pset(X(10), suelo - 14, c.a); R.pset(X(11), suelo - 15, c.s); R.pset(X(11), suelo - 14, c.s);   // orejas largas
+  for (const [i, ff] of [[1, f], [3, 1 - f], [8, 1 - f], [10, f]]) { R.rect(X(i + (ff ? 1 : 0)), suelo - 4, X(i + (ff ? 1 : 0)), suelo, c.s); }
+  R.pset(X(-1), suelo - 8, c.h); R.pset(X(-2), suelo - 7, c.h);
+  if (o.carga !== false) { R.rect(Math.min(X(3), X(8)), suelo - 12, Math.max(X(3), X(8)), suelo - 9, C.blanco); R.rect(Math.min(X(4), X(7)), suelo - 8, Math.max(X(4), X(7)), suelo - 6, C.calizaS); }
+}
+
+// caravana lejana: un arriero y burros cargados que cruzan las dunas del fondo
+export function caravana(R, t, y, o = {}) {
+  const v = o.v ?? 7, x0 = ((t * v + (o.desfase ?? 0)) % 420) - 60, d = o.dir ?? 1;
+  const X = (i) => (d === 1 ? x0 + i : 319 - x0 - i);
+  mini(R, X(0), y, t, { anda: true, ropa: C.blanco });
+  for (let k = 1; k <= (o.n ?? 2); k++) burro(R, X(-k * 18), y, t + k, { dir: d });
+}
+
+// ocas del Nilo en fila: la madre delante y los pollitos detrás
+export function ocas(R, t, x, suelo, d = 1) {
+  const c = pal({ a: '#a88a6a', s: '#6e5a44', b: '#f2ece0', p: '#e89a3a', po: '#e8d070' });
+  const paso = Math.floor(t * 6) % 2;
+  const pato = (px, s) => { px = Math.round(px);
+    if (s) { R.rect(px - 2, suelo - 4, px + 2, suelo - 1, c.a); R.rect(px - 2, suelo - 1, px + 2, suelo - 1, c.b); R.rect(px + 2 * d, suelo - 7, px + 2 * d, suelo - 4, c.a); R.pset(px + 3 * d, suelo - 7, c.p); R.pset(px + 2 * d, suelo - 7, c.s); R.pset(px - 1, suelo, c.p); R.pset(px + 1 - paso, suelo, c.p); }
+    else { R.rect(px - 1, suelo - 2, px + 1, suelo - 1, c.po); R.pset(px + d, suelo - 3, c.po); R.pset(px + 2 * d, suelo - 3, c.p); R.pset(px, suelo, c.p); }
+  };
+  pato(x, true); for (let k = 1; k <= 3; k++) pato(x - d * (6 + k * 5), false);
+}
+
+// ── gags: piezas cortas para los momentos graciosos ────────────────────────────────────────────────────────────────
+// estrellitas que giran sobre la cabeza de alguien que se ha dado un golpe (x, y = coronilla)
+export function mareo(R, x, y, t) {
+  for (let k = 0; k < 3; k++) { const a = t * 5 + k * 2.1, px = Math.round(x + Math.cos(a) * 7), py = Math.round(y - 3 + Math.sin(a) * 2); R.pset(px, py, C.oroL); R.pset(px - 1, py, C.oro); R.pset(px + 1, py, C.oro); R.pset(px, py - 1, C.oro); R.pset(px, py + 1, C.oro); }
+}
+// polvareda (o nube de sal) que crece y se deshace: u 0–1
+export function polvareda(R, x, y, u, color = C.arenaL, grande = 1) {
+  if (u <= 0 || u >= 1) return;
+  for (let k = 0; k < 6; k++) { const a = Math.PI * (k / 5), d = (4 + u * 12) * grande, r = Math.round((4 - u * 3.5) * grande); if (r > 0) R.disco(Math.round(x + Math.cos(a) * d * (k % 2 ? 1 : 0.7)), Math.round(y - Math.sin(a) * d * 0.5), r, color); }
+}
+// saltitos de ir corriendo (para el salto de R.actor)
+export const trote = (t) => Math.round(Math.abs(Math.sin(t * 14)) * 2);
+// gota de sudor junto a la cabeza
+export function gotaSudor(R, x, y, t) { const dy = Math.round((t * 6) % 4); R.pset(x, y + dy, C.aguaL); R.pset(x, y + dy + 1, C.agua3); R.pset(x - 1, y + dy + 1, C.aguaL); }
+// hogaza de pan
+export function pan(R, x, y) { R.rect(x - 3, y - 2, x + 3, y, C.ocre); R.rect(x - 2, y - 3, x + 2, y - 3, C.ocre); R.rect(x - 2, y - 2, x + 2, y - 2, C.oroL); R.pset(x - 3, y, C.ocreS); R.pset(x + 3, y, C.ocreS); }
 
 // palmera datilera: tronco con anillos y penacho de hojas que se mece
 export function palmera(R, x, suelo, s = 1, t = 0) {
@@ -237,6 +433,12 @@ export function nilo(R, t, o = {}) {
     for (let y = ny; y <= y1; y++) for (let x = x0 + 3; x <= x1 - 3; x++) if ((x + y) % 2 === 0 || y > ny + 1) pset(x, y, y === ny ? C.aguaL : C.agua2);
     rect(x0 - 1, y0 - 1, x1 + 1, y0, C.k); rect(x0 - 1, y0, x0, y1, C.k); rect(x1, y0, x1 + 1, y1, C.k);
   }
+  // ambiente del río: ibis, peces, hipopótamo, libélulas, un ibis pescando en el canal y, si no hay agua, viento con polvo
+  if (nivel >= 1) { pez(R, t, 118, arriba + 8, 5); pez(R, t, 252, arriba + 11, 7, 1); bandada(R, t, { tipo: 'ibis', n: 3, y: 62, d: -1, cada: 13, semilla: 2 }); }
+  if (nivel === 1 && !o.cocodrilo && o.hipo !== false) hipo(R, t, 160, arriba + 9);
+  if (nivel !== 0 && o.desierto !== true) { libelulas(R, t, [[34, 150], [244, 151]]); if (o.ibis !== false) ibisPie(R, t, 278, 158); }
+  if (nivel === 1 && !o.desierto && o.ocas !== false) { const f = (t % 16) / 16; ocas(R, t, R.lerp(340, -40, f), 157, -1); }
+  if (nivel === 0 || o.seco || o.desierto) viento(R, t, { y0: o.desierto ? 108 : 100, y1: 129, fuerza: 1.4, color: C.caminoL, grano: C.grieta });
 }
 
 // ── B · Guiza en obras ────────────────────────────────────────────────────────────────────────────────────────────
@@ -311,6 +513,7 @@ export function guiza(R, t, o = {}) {
   if (!o.noche) for (let x = 3; x < 320; x += 17) { pset(x, 138 + (x % 3), C.arenaS); pset(x + 1, 138 + (x % 3), C.arenaS); }
   if (o.bloques !== false) for (const [x, w] of [[250, 14], [266, 10], [16, 12]]) { rect(x, 136, x + w, 145, C.caliza); rect(x, 136, x + w, 136, C.calizaL); rect(x + w - 2, 137, x + w, 145, C.calizaS); rect(x - 1, 135, x + w + 1, 135, C.k); rect(x - 1, 136, x - 1, 145, C.k); rect(x + w + 1, 136, x + w + 1, 145, C.k); }
   for (let y = 146; y < 180; y++) rect(0, y, 319, y, o.noche ? C.arenaD : y < 148 ? C.arenaS : (y + Math.floor(Math.sin(y) * 2)) % 6 === 0 ? C.arenaL : C.arena);
+  if (!o.noche) { viento(R, t, { y0: 134, y1: 145, fuerza: o.viento ?? 0.8 }); if (o.caravana !== false) caravana(R, t, 128, { v: 9, n: 2, dir: -1, desfase: 140 }); }
 }
 
 // ── C · la sala del trono ─────────────────────────────────────────────────────────────────────────────────────────
@@ -372,6 +575,8 @@ export function trono(R, t, o = {}) {
     for (let k = 0; k < 9; k++) { const a = Math.PI * (0.15 + k * 0.0875); const L = Math.round((40 + (k % 2) * 8) * o.sol); const ex = Math.round(sx + Math.cos(a) * (rr + L)), ey = Math.round(sy + Math.sin(a) * (rr + L)); R.linea(Math.round(sx + Math.cos(a) * rr), Math.round(sy + Math.sin(a) * rr), ex, ey, C.oro); if (o.sol > 0.8) { pset(ex, ey, C.oroL); pset(ex - 1, ey + 1, C.oroL); pset(ex + 1, ey + 1, C.oroL); } }
   }
 
+  if (o.gato !== false) gato(R, o.gato ?? 304, 145, t, { dir: -1 });
+  motas(R, t, 0, 319, 22, 128, 16, C.paredL);
 }
 
 // ── D · la tumba ──────────────────────────────────────────────────────────────────────────────────────────────────
@@ -407,6 +612,7 @@ export function tumba(R, t, o = {}) {
     for (let y = 132; y < 146; y++) rect(0, y, 319, y, y === 132 ? C.k : y < 135 ? C.arenaL : C.arena);
     for (let y = 146; y < 180; y++) rect(0, y, 319, y, y % 7 === 0 ? C.arenaS : C.arena);
     for (const [x, w] of [[30, 6], [250, 9], [300, 5]]) { disco(x, 146, w, C.rocaS); disco(x - 1, 145, w - 1, C.roca); }
+    viento(R, t, { y0: 134, y1: 145, fuerza: 1 });
     return;
   }
   paredPintada(R, t, modo !== 'pared');
@@ -470,6 +676,7 @@ export function tumba(R, t, o = {}) {
     const top = Math.round(132 - ar * 100);
     for (let x = 0; x < 320; x++) { const yy = top + Math.round(3 * Math.sin(x * 0.08 + t)); for (let y = yy; y < 132; y++) pset(x, y, y === yy ? C.arenaL : C.arena); }
   }
+  if (o.bichos !== false) { arana(R, t, 252, 18, 24); motas(R, t, 20, 300, 40, 128, 12, C.oroL); }
 }
 
 // ── E · el puerto de Alejandría ───────────────────────────────────────────────────────────────────────────────────
@@ -517,4 +724,5 @@ export function alejandria(R, t, o = {}) {
     if (o.bandera === 'roma') { rect(bx - 6, 92, bx + 7, 94, C.oro); R.disco(bx, 89, 3, C.oro); pset(bx - 3, 88, C.oro); pset(bx + 3, 88, C.oro); rect(bx - 5, 96, bx + 6, 108, C.rojo); rect(bx - 5, 108, bx + 6, 109, C.oro); }
     else for (let i = 0; i < 16; i++) { const y = 93 + Math.round(Math.sin(t * 6 - i * 0.5) * 1.5); rect(bx + 2 + i, y, bx + 2 + i, y + 7, i % 4 < 2 ? C.azulL : C.blanco); }
   }
+  if (o.aves !== false) for (let k = 0; k < 3; k++) R.gaviota(Math.round(((t * (14 + k * 4) + k * 110) % 380) - 30), Math.round(30 + k * 9 + Math.sin(t * 1.3 + k) * 4), t, k);
 }

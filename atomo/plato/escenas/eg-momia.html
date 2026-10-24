@@ -11,12 +11,14 @@
 <script type="module">
 // EG-MOMIA (frases 27–28). El taller de embalsamar a la luz de las antorchas: la momia vendada en su mesa, el sacerdote
 // con máscara de chacal, el montón de sal, la cesta y los cuatro vasos. Luego el gancho; en la caja, «70» días.
-import { preparar, rodar, tumba, EL } from '/atomo/plato/escenas/eg-comun.js';
+import { preparar, rodar, tumba, EL, C, polvareda } from '/atomo/plato/escenas/eg-comun.js';
 const { E, R, M } = await preparar('eg-momia');
 const m = { mue: M('muerte', 0.5), mom: M('momia', 8) };
 const taller = (t, gancho) => {
   tumba(R, t, { modo: 'taller', gancho });
-  R.actor(EL.chacal, 132, 145, t, { brazos: gancho && Math.sin(t * 3) > 0 });
+  const u = t - m.mom, sal = gancho && u > 3;
+  R.actor(EL.chacal, 132, 145, t, { brazos: gancho && !sal && Math.sin(t * 3) > 0, salto: gancho && u > 3 && u < 3.25 ? 3 : 0, sorpresa: gancho && u > 3 && u < 4, manos: false, pal: sal ? { S: C.blanco, s: C.calizaS, J: C.blanco, j: C.calizaS, O: C.calizaL } : {} });
+  if (gancho) polvareda(R, 139, 128, (u - 3) / 0.9, C.blanco, 1.4);
   R.actor(EL.calvo, 196, 145, t, { dir: -1, dedo: gancho });
 };
 rodar(E, R, [[0, (t) => taller(t, false)], [m.mom - 0.2, (t) => taller(t, true)]], {
