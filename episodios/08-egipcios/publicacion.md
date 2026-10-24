@@ -1,13 +1,13 @@
 # Episodio 8 · Material para publicar
 
-**Duración:** 7:57 (476,8 s).
+**Duración:** 7:56 (476,3 s), v2: pausas por cláusulas, ambiente, gags, Atom arriba a la derecha y el gancho en tríptico.
 - Un solo vídeo: audio principal en inglés y pista de audio en español.
 - Subtítulos en inglés y en español.
 - **Estilo:** primer episodio en el estilo canónico pixel chibi (`GUIA-ESTILO.md`).
 
 ## Títulos
-- **EN:** Ancient Egypt in 10 Minutes: Why Cleopatra Lived Closer to Us Than to the Pyramids
-- **ES:** El antiguo Egipto en 10 minutos: por qué Cleopatra vivió más cerca de nosotros que de las pirámides
+- **EN:** Ancient Egypt in 8 Minutes: Why Cleopatra Lived Closer to Us Than to the Pyramids
+- **ES:** El antiguo Egipto en 8 minutos: por qué Cleopatra vivió más cerca de nosotros que de las pirámides
 
 ## Descripción (EN)
 
@@ -40,13 +40,13 @@ Salen de los inicios de escena de `atomo/build/largo/ep08/linea.json`: uno por a
 | Tiempo | EN | ES |
 |---|---|---|
 | 0:00 | Cleopatra and the Moon | Cleopatra y la Luna |
-| 0:36 | First, the map | Primero, el mapa |
+| 0:37 | First, the map | Primero, el mapa |
 | 1:19 | The river makes a country | El río hace un país |
-| 2:07 | The pyramids | Las pirámides |
-| 3:25 | The empire | El imperio |
-| 4:35 | Death | La muerte |
-| 5:50 | The end | El final |
-| 6:48 | What's left | Lo que queda |
+| 2:08 | The pyramids | Las pirámides |
+| 3:28 | The empire | El imperio |
+| 4:36 | Death | La muerte |
+| 5:51 | The end | El final |
+| 6:47 | What's left | Lo que queda |
 
 ## Fuentes (para la descripción)
 
@@ -67,3 +67,4 @@ El resto de cifras, con su fuente, están en la sección «Datos y fuentes» de 
 ## Antes de publicar
 - **Pista de audio en español:** YouTube solo deja subir pistas de audio extra a algunos canales. Si el canal aún no puede, el español se sube como vídeo aparte.
 - **Miniatura:** `atomo/plato/escenas/eg-miniatura.html` (captura en t = 1, 1280 × 720): la Gran Pirámide, Cleopatra y la Luna con un cohete, con «2500» y «2000» arriba.
+- **Título con «8 minutos»:** el vídeo dura 7:56; «10 minutos» prometería algo que no es.
