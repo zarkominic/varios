@@ -1,6 +1,6 @@
 # Episodio 9 · Acción de Gracias y Black Friday: cómo una cena de 1621 acabó en el mayor día de compras del año
 
-**Estado:** v1, para revisar.
+**Estado:** v2: v1 aprobada y reescrita con las tres técnicas de la guía narrativa (segunda persona y presente, un detalle humano por acto, remates cortos).
 
 **Formato:**
 - El de los episodios 5–8: YouTube horizontal 16:9, un solo vídeo con dos pistas de audio, inglés (el original) y español (doblaje).
@@ -56,78 +56,80 @@
 | ES | EN |
 |---|---|
 | Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase. | Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you. |
-| En la primera Acción de Gracias, el pavo probablemente no fue el protagonista. Y el Black Friday no se llama así por los beneficios de las tiendas: el nombre se lo pusieron unos policías hartos. | At the first Thanksgiving, turkey probably wasn't the star. And Black Friday isn't named after store profits: it was named by some very annoyed police officers. |
-| Así que, ¿cómo una cena de cosecha de 1621 se convirtió en el mayor día de compras del año? | So how did a harvest dinner from 1621 turn into the biggest shopping day of the year? |
+| En la primera Acción de Gracias, el pavo probablemente no fue el protagonista. Y el Black Friday no se llama así por los beneficios de las tiendas. Se lo pusieron unos policías hartos. | At the first Thanksgiving, turkey probably wasn't the star. And Black Friday isn't named after store profits. It was named by some very annoyed police officers. |
+| Así que, ¿cómo se convierte una cena de cosecha de 1621 en el mayor día de compras del año? Vamos a verlo. | So how does a harvest dinner from 1621 turn into the biggest shopping day of the year? Let's find out. |
 
 ## 1 · El mapa
 
 | ES | EN |
 |---|---|
-| Primero, el mapa. Esto es la costa de lo que hoy es Massachusetts, y en 1620 ya vivía aquí un pueblo: los wampanoag. | First, the map. This is the coast of what is now Massachusetts, and in 1620 people already lived here: the Wampanoag. |
-| En noviembre de ese año llega un barco, el Mayflower, con ciento dos ingleses que buscaban un sitio para vivir su religión a su manera. | That November a ship arrives, the Mayflower, with a hundred and two English settlers looking for a place to practice their religion their own way. |
-| Pero llegan justo antes del invierno, sin comida suficiente. Para la primavera, casi la mitad ha muerto. | But they arrive right before winter, without enough food. By spring, almost half of them have died. |
-| Y aquí entra un hombre increíble: Tisquantum, o Squanto. Hablaba inglés porque años antes lo habían secuestrado y vendido como esclavo en España. | And here comes an incredible man: Tisquantum, or Squanto. He spoke English because years earlier he had been kidnapped and sold as a slave in Spain. |
-| Escapó, pasó por Inglaterra y volvió a casa. Y ahora les enseña a los colonos a sembrar maíz con un pescado enterrado como abono. | He escaped, made his way through England and back home. And now he teaches the settlers to plant corn with a fish buried as fertilizer. |
+| Primero, el mapa. Esto es la costa de lo que hoy es Massachusetts. Y no está vacía: aquí viven los wampanoag desde hace miles de años. | First, the map. This is the coast of what is now Massachusetts. And it isn't empty: the Wampanoag have lived here for thousands of years. |
+| Ahora imagina que eres uno de los ciento dos pasajeros del Mayflower. Llevas dos meses en el mar, y llegas en noviembre, a una costa helada, sin casa y sin comida. | Now imagine you're one of the hundred and two passengers on the Mayflower. You've spent two months at sea, and you arrive in November, on a frozen coast, with no house and no food. |
+| Para la primavera, de cada dos pasajeros, uno ya no está. | By spring, out of every two passengers, one is gone. |
+| Y entonces aparece un hombre que te habla en tu idioma. Se llama Tisquantum, o Squanto, y su historia es increíble. | And then a man walks up and speaks to you in your own language. His name is Tisquantum, or Squanto, and his story is incredible. |
+| Años antes lo secuestraron y lo vendieron como esclavo en España. Escapó, cruzó Inglaterra y logró volver a casa. Y cuando llegó, su aldea ya no existía: una epidemia había acabado con todos. | Years earlier he was kidnapped and sold as a slave in Spain. He escaped, made his way through England and got back home. And when he arrived, his village was gone: an epidemic had killed everyone. |
+| Aun así, os enseña a sembrar maíz con un pescado enterrado como abono. Sin él, probablemente no habría segundo invierno. | Even so, he teaches you to plant corn with a fish buried as fertilizer. Without him, there probably wouldn't be a second winter. |
 
 ## 2 · La cena de 1621
 
 | ES | EN |
 |---|---|
-| En otoño de 1621 la cosecha sale bien, y los colonos lo celebran. | In the fall of 1621 the harvest is good, and the settlers celebrate. |
-| Llega el jefe wampanoag, Massasoit, con noventa hombres, y la fiesta dura tres días. Ellos traen cinco ciervos. | The Wampanoag leader, Massasoit, arrives with ninety men, and the feast lasts three days. They bring five deer. |
-| ¿Y el pavo? Las cartas de la época hablan de aves, sobre todo patos y gansos. Pavo pudo haber, pero nadie lo cuenta. | And the turkey? The letters from that time talk about birds, mostly ducks and geese. There may have been turkey, but nobody mentions it. |
-| Tampoco hubo tarta de calabaza: no tenían horno ni casi azúcar. | There was no pumpkin pie either: they had no oven and almost no sugar. |
-| Y no era una fiesta de amistad eterna. Era una alianza: los wampanoag necesitaban aliados contra sus enemigos, y los ingleses, no morirse de hambre. | And it wasn't a celebration of eternal friendship. It was an alliance: the Wampanoag needed allies against their enemies, and the English needed not to starve. |
-| La paz duró unos cincuenta años y acabó en guerra. Por eso, para muchos nativos americanos, este día es hoy un día de luto. | The peace lasted about fifty years and ended in war. That's why, for many Native Americans, this day is a day of mourning. |
+| Otoño de 1621. Esta vez la cosecha sale bien, y lo celebráis. | Fall of 1621. This time the harvest is good, and you celebrate. |
+| Llega el jefe wampanoag, Massasoit, con noventa hombres. Son más que vosotros. La fiesta dura tres días, y ellos traen cinco ciervos. | The Wampanoag leader, Massasoit, arrives with ninety men. That's more than all of you. The feast lasts three days, and they bring five deer. |
+| ¿Y el pavo? Las cartas de la época hablan de aves, sobre todo patos y gansos. Pavo pudo haber, pero nadie lo menciona. | And the turkey? The letters from that time talk about birds, mostly ducks and geese. There may have been turkey, but nobody mentions it. |
+| ¿Tarta de calabaza? Tampoco. No hay horno ni casi azúcar. | Pumpkin pie? Nope. No oven, and almost no sugar. |
+| Y no es una fiesta de amistad eterna. Es una alianza: los wampanoag necesitan aliados contra sus enemigos, y los ingleses, no morirse de hambre. | And it's not a celebration of eternal friendship. It's an alliance: the Wampanoag need allies against their enemies, and the English need not to starve. |
+| La paz dura unos cincuenta años y acaba en guerra. Por eso, para muchos nativos americanos, este día es hoy un día de luto. | The peace lasts about fifty years and ends in war. That's why, for many Native Americans, this day is a day of mourning. |
 
 ## 3 · Cómo se convierte en fiesta
 
 | ES | EN |
 |---|---|
-| Durante doscientos años, la cena de 1621 casi se olvida. Cada estado celebra su día de gracias cuando quiere. | For two hundred years, the 1621 dinner is almost forgotten. Each state celebrates its own day of thanks whenever it likes. |
-| Hasta que llega Sarah Josepha Hale, la autora de «María tenía un corderito». Durante diecisiete años escribe cartas a cinco presidentes pidiendo una fiesta nacional. | Then comes Sarah Josepha Hale, the author of "Mary Had a Little Lamb." For seventeen years she writes letters to five presidents asking for a national holiday. |
-| En 1863, en plena guerra civil, Lincoln por fin le hace caso: un día para que un país partido en dos dé gracias a la vez. | In 1863, in the middle of the Civil War, Lincoln finally listens: one day for a country split in two to give thanks at the same time. |
-| ¿Y por qué el pavo? Porque era grande, daba para toda la familia y no servía para otra cosa. La gallina pone huevos y la vaca da leche. El pavo solo sirve para la cena. | And why turkey? Because it was big, it fed the whole family, and it was good for nothing else. A hen lays eggs and a cow gives milk. A turkey is only good for dinner. |
+| Después, durante doscientos años, casi nadie se acuerda de aquella cena. Cada estado da gracias el día que le apetece. | After that, for two hundred years, almost nobody remembers that dinner. Each state gives thanks whenever it feels like it. |
+| Hasta que aparece Sarah Josepha Hale, la autora de «María tenía un corderito». Y se empeña. | Until Sarah Josepha Hale shows up, the author of "Mary Had a Little Lamb." And she won't let it go. |
+| Durante diecisiete años escribe cartas a mano a cinco presidentes. Cuatro no le hacen caso. | For seventeen years she writes letters by hand to five presidents. Four of them ignore her. |
+| El quinto es Lincoln. En 1863, en plena guerra civil, le dice que sí: un día para que un país partido en dos dé gracias a la vez. | The fifth one is Lincoln. In 1863, in the middle of the Civil War, he says yes: one day for a country split in two to give thanks at the same time. |
+| ¿Y por qué el pavo? Porque es grande, da para toda la familia y no sirve para nada más. La gallina pone huevos y la vaca da leche. El pavo solo sirve para la cena. | And why turkey? Because it's big, it feeds the whole family, and it's good for nothing else. A hen lays eggs and a cow gives milk. A turkey is only good for dinner. |
 
 ## 4 · De la fiesta a las compras
 
 | ES | EN |
 |---|---|
-| Y ahora, las compras. En 1924, unos grandes almacenes de Nueva York organizan un desfile el día de Acción de Gracias. Al final del desfile llega Santa Claus. | And now, the shopping. In 1924, a big New York department store holds a parade on Thanksgiving Day. At the end of the parade comes Santa Claus. |
-| El mensaje está claro: cuando llega Santa, empieza la Navidad. Y las tiendas tenían una regla: nada de anuncios navideños antes de Acción de Gracias. | The message is clear: when Santa arrives, Christmas begins. And stores had a rule: no Christmas ads before Thanksgiving. |
-| Así que, cuanto antes cayera Acción de Gracias, más días de compras navideñas. | So the earlier Thanksgiving fell, the more days of Christmas shopping there were. |
-| En 1939, noviembre tiene cinco jueves, y la fiesta cae el día 30. Las tiendas protestan: es demasiado tarde. | In 1939, November has five Thursdays, and the holiday falls on the 30th. Stores complain: that's too late. |
-| Y el presidente Roosevelt la adelanta una semana. | So President Roosevelt moves it up a week. |
-| El país se parte: veintitrés estados la celebran el día nuevo, veintidós el día de siempre, y tres, los dos días. Lo llaman «Franksgiving». | The country splits: twenty-three states celebrate on the new date, twenty-two on the old one, and three on both. People call it "Franksgiving." |
-| En 1941 el Congreso zanja el lío: Acción de Gracias será el cuarto jueves de noviembre. Y ahí sigue. | In 1941 Congress settles the mess: Thanksgiving will be the fourth Thursday in November. And it still is. |
+| Y ahora, el dinero. Nueva York, 1924. Unos grandes almacenes sacan un desfile a la calle el día de Acción de Gracias, y al final del desfile llega Santa Claus. | And now, the money. New York, 1924. A big department store puts a parade on the street on Thanksgiving Day, and at the end of the parade comes Santa Claus. |
+| El mensaje está claro: ha llegado Santa, empieza la Navidad. Y las tiendas tienen una regla: ni un anuncio navideño antes de Acción de Gracias. | The message is clear: Santa's here, Christmas starts now. And stores have a rule: not a single Christmas ad before Thanksgiving. |
+| Así que, cuanto antes caiga Acción de Gracias, más días de compras navideñas. | So the earlier Thanksgiving falls, the more days of Christmas shopping. |
+| 1939. Noviembre tiene cinco jueves, y la fiesta cae el día 30. Las tiendas protestan: demasiado tarde. | 1939. November has five Thursdays, and the holiday falls on the 30th. Stores complain: too late. |
+| Y el presidente Roosevelt, sin más, la adelanta una semana. | So President Roosevelt simply moves it up a week. |
+| Imagina el lío: tu familia cena el jueves nuevo y tus primos del estado de al lado, el viejo. Veintitrés estados por un lado, veintidós por otro, y tres celebran los dos. Lo llaman «Franksgiving». | Imagine the mess: your family eats on the new Thursday and your cousins next door, on the old one. Twenty-three states one way, twenty-two the other, and three celebrate both. People call it "Franksgiving." |
+| En 1941 el Congreso dice basta: el cuarto jueves de noviembre, y no se hable más. Y así sigue. | In 1941 Congress says enough: the fourth Thursday in November, end of story. And it still is. |
 
 ## 5 · Black Friday
 
 | ES | EN |
 |---|---|
-| Ahora, el viernes de después. Filadelfia, años cincuenta. | Now, the Friday after. Philadelphia, the 1950s. |
-| Ese día la ciudad se llena: miles de personas empiezan las compras de Navidad, y el sábado se juega en la ciudad un gran partido de fútbol americano, el del Ejército contra la Marina. | That day the city fills up: thousands of people start their Christmas shopping, and on Saturday the city hosts a huge football game, Army versus Navy. |
-| Atascos, aceras llenas, ladrones aprovechando el lío. Y ningún policía puede pedir el día libre. | Traffic jams, packed sidewalks, shoplifters taking advantage of the chaos. And no police officer is allowed to take the day off. |
-| Los policías lo llaman «el viernes negro». Así, como algo malo. | The police call it "Black Friday." As in, something bad. |
-| A las tiendas no les gusta, e intentan cambiarlo por «el gran viernes». No cuela. | Stores hate it, and they try to rebrand it as "Big Friday." It doesn't stick. |
-| Así que, en los años ochenta, se inventan otra historia: que es el día en que las cuentas de las tiendas pasan de los números rojos a los negros. Suena bien, pero es posterior. | So, in the 1980s, they come up with a new story: that it's the day store accounts go from red ink to black. It sounds nice, but it came later. |
+| Ahora, el viernes de después. Filadelfia, años cincuenta. Eres policía, y hoy no puedes pedir el día libre. Nadie puede. | Now, the Friday after. Philadelphia, the 1950s. You're a police officer, and you can't take today off. Nobody can. |
+| Porque hoy media ciudad empieza las compras de Navidad, y mañana se juega aquí el gran partido de fútbol americano entre el Ejército y la Marina. | Because today half the city starts its Christmas shopping, and tomorrow the big Army versus Navy football game is played right here. |
+| Atascos, aceras llenas, ladrones aprovechando el lío. Y tú, con el silbato, en medio. | Traffic jams, packed sidewalks, shoplifters taking advantage of the chaos. And you, with your whistle, right in the middle. |
+| Los policías le ponen nombre: «el viernes negro». Y no es un piropo. | The police give it a name: "Black Friday." And it's not a compliment. |
+| A las tiendas no les gusta nada, e intentan cambiarlo por «el gran viernes». No cuela. | Stores hate it, and they try to rebrand it as "Big Friday." It doesn't stick. |
+| Así que, en los años ochenta, cuentan otra historia: que es el día en que sus cuentas pasan de los números rojos a los negros. Suena bonito. Pero llegó después. | So, in the 1980s, they tell a different story: that it's the day their accounts go from red ink to black. It sounds nice. But it came later. |
 
 ## 6 · Hoy
 
 | ES | EN |
 |---|---|
-| Desde entonces el Black Friday no ha parado de crecer: colas de madrugada, tiendas que abren a medianoche y ofertas que duran una semana entera. | Since then Black Friday has never stopped growing: lines before dawn, stores opening at midnight, and deals that last a whole week. |
-| En 2005 se inventa el Cyber Monday, para las compras por internet del lunes siguiente. Y hoy se compra más desde el móvil que en la cola. | In 2005, Cyber Monday is invented for online shopping on the following Monday. And today more shopping happens on phones than in lines. |
-| Y en los años 2010 el Black Friday cruza el océano: llega a Europa y a Latinoamérica, donde ni siquiera se celebra Acción de Gracias. | And in the 2010s, Black Friday crosses the ocean: it reaches Europe and Latin America, where Thanksgiving isn't even celebrated. |
+| Desde entonces, el Black Friday no ha parado de crecer: colas de madrugada, tiendas que abren a medianoche, ofertas que duran una semana entera. | Since then, Black Friday has never stopped growing: lines before dawn, stores opening at midnight, deals that last a whole week. |
+| En 2005 llega el Cyber Monday, para comprar por internet el lunes siguiente. Y hoy, probablemente, ni te levantas del sofá: compras desde el móvil. | In 2005 comes Cyber Monday, for shopping online the following Monday. And today, you probably don't even get off the couch: you shop on your phone. |
+| Y en los años 2010 el Black Friday cruza el océano. Llega a Europa y a Latinoamérica, donde nadie celebra Acción de Gracias. Nos quedamos con las ofertas y nos saltamos la cena. | And in the 2010s, Black Friday crosses the ocean. It reaches Europe and Latin America, where nobody celebrates Thanksgiving. We kept the deals and skipped the dinner. |
 | Una cena de cosecha, una escritora tozuda, una guerra, un desfile, un presidente con prisa y unos policías hartos. Así se hace una tradición. | A harvest dinner, a stubborn writer, a war, a parade, a president in a hurry and some very annoyed police officers. That's how you make a tradition. |
 
 ## 7 · El sueño de después
 
 | ES | EN |
 |---|---|
-| Por cierto: ¿te entra sueño después de la cena de Acción de Gracias? Seguro que te han dicho que es por el pavo. | By the way: do you get sleepy after Thanksgiving dinner? I bet someone told you it's the turkey. |
-| El pavo lleva triptófano, una molécula que ayuda a fabricar las sustancias del sueño. Pero el pollo lleva casi lo mismo, y nadie se duerme después de unos nuggets. | Turkey has tryptophan, a molecule your body uses to make sleep chemicals. But chicken has about the same amount, and nobody passes out after some nuggets. |
-| Lo que te tumba es la cantidad: tu cuerpo manda la energía a digerir una comida enorme, y tú te apagas. | What knocks you out is the amount: your body sends its energy to digesting a giant meal, and you shut down. |
+| Por cierto: ¿te entra sueño después de la cena? Seguro que alguien te ha dicho que es culpa del pavo. | By the way: do you get sleepy after the big dinner? I bet someone told you it's the turkey's fault. |
+| El pavo lleva triptófano, una molécula con la que tu cuerpo fabrica las sustancias del sueño. Pero el pollo lleva casi lo mismo. Y nadie se duerme después de unos nuggets. | Turkey has tryptophan, a molecule your body uses to make sleep chemicals. But chicken has about the same amount. And nobody passes out after some nuggets. |
+| Lo que te tumba es la cantidad. Tu cuerpo manda toda su energía a digerir una comida enorme, y tú te apagas. | What knocks you out is the amount. Your body sends all its energy to digesting a giant meal, and you shut down. |
 | Como un peregrino después de tres días de fiesta. | Just like a pilgrim after a three-day feast. |
 | ¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios. | What should I explain next? Tell me in the comments. |
 
@@ -148,5 +150,6 @@
   - la explicación de los números rojos y negros aparece en 1981.
   - Fuentes: [History.com](https://www.history.com/articles/black-friday-thanksgiving-origins-history), [WGBH](https://www.wgbh.org/news/local/2015-11-25/how-black-friday-got-its-name-its-not-what-you-think).
 - **Cyber Monday:** lo acuñó Shop.org (de la Federación Nacional de Minoristas) en 2005.
-- **Compras desde el móvil:** comprobar los datos de Adobe del Black Friday de 2025 antes de afirmarlo.
+- **Compras desde el móvil:** la frase 34 dice «probablemente… compras desde el móvil», sin cifra; no hace falta el dato de Adobe.
+- **La aldea de Tisquantum:** Patuxet, vaciada por una epidemia (1616–1619) antes de que volviera; Plymouth se fundó encima.
 - **Triptófano:** el pavo y el pollo llevan cantidades parecidas; la somnolencia se debe al tamaño de la comida (y al alcohol).
