@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lincoln · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-LINCOLN (frase 19). B en el siglo XIX: Lincoln dice que sí; un soldado de azul y otro de gris se sientan a la misma
+// mesa y acaban sonriendo.
+import { preparar, rodar, comedor, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-lincoln');
+const m0 = M('lincoln', 1.5), L = E.duracion - m0;
+const plano = (t) => {
+  const u = t - m0;
+  comedor(R, t, { epoca: 'xix', mesa: R.tramo(u, 0.35 * L, 0.6 * L) });
+  R.actor(EL.lincoln, 60, 145, t, { dedo: u > 0.2 * L && u < 0.5 * L, habla: Math.sin(t * 6) > 0.4, sonrisa: u > 0.5 * L });
+  const en = R.tramo(u, 0.15 * L, 0.45 * L);
+  R.actor(EL.soldadoAzul, Math.round(R.lerp(-20, 104, en)), 145, t + 1, { anda: en > 0 && en < 1, sonrisa: u > 0.6 * L, enfado: u <= 0.6 * L });
+  R.actor(EL.soldadoGris, Math.round(R.lerp(340, 230, en)), 145, t + 2, { dir: -1, anda: en > 0 && en < 1, sonrisa: u > 0.6 * L, enfado: u <= 0.6 * L });
+};
+rodar(E, R, [[0, plano]], { cartela: '1863', año: 1863 });
+</script>
+</body>
+</html>

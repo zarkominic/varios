@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-GANCHO (frases 2–4). Cartela «31/10». Niños disfrazados (bruja, fantasma, vampiro, calabaza) llegan a una puerta y
+// les dan caramelos («?» en la caja). Luego el mapa del mundo en pergamino: se encienden calabazas en Nueva York, Tokio,
+// Madrid, Ciudad de México y Seúl. Al final, una hoguera celta a la izquierda y un cuenco de caramelos a la derecha,
+// unidos por una flecha, mientras la barra de tiempo corre de los celtas a hoy; «?» en la caja.
+import { preparar, rodar, noche, casa, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-gancho');
+const { PALA, ELENCO, NARANJA, tramo, lerp, sale } = R;
+const m = { pue: M('puertas', 1.5), mun: M('mundo', 10), pre: M('pregunta', 17) };
+const COLORES = [PALA.ROJO, PALA.AZUL, PALA.VERDE, PALA.AMARILLO, PALA.MORADO];
+const dulce = (x, y, c) => { x = Math.round(x); y = Math.round(y); R.rect(x - 1, y - 1, x + 1, y + 1, c[2]); R.pset(x - 2, y - 1, c[1]); R.pset(x - 2, y + 1, c[1]); R.pset(x + 2, y - 1, c[1]); R.pset(x + 2, y + 1, c[1]); R.pset(x, y - 1, c[3]); };
+const nino = (i, x, t, o = {}) => i === 1 ? R.fantasma(x, 160, 0.8, t + i) : R.personaje(x, 160, 21, { ...ELENCO[['bruja', '', 'vampiro', 'disfrazCalabaza'][i]], t: t + i, ...o });
+const puertas = (t) => {
+  const u = t - m.pue, ab = tramo(u, 3.6, 4.2), llega = sale(tramo(u, 0, 3.4));
+  noche(R, t, { murcielagos: 3 });
+  const px = casa(R, 236, 148, t, { w: 44, h: 44, abierta: ab, puertaX: -24 });
+  sueloNoche(R, 151);
+  R.calabaza(186, 150, 0.7, t); R.calabaza(290, 150, 0.9, t);
+  if (ab > 0.5) R.personaje(px, 148, 30, { peinado: 'coleta', pelo: PALA.PELO_RUBIO, chaqueta: PALA.VERDE, camisa: PALA.BLANCO, pantalon: PALA.AZUL, botas: PALA.MARRON, chaqueta_larga: false, t, dir: -1, pose: 'ofrece', sonrisa: true, sombra: false });
+  for (let i = 3; i >= 0; i--) nino(i, lerp(-24 - i * 24, px - 24 - i * 22, llega), t, { anda: llega < 1 ? t * 9 + i : undefined, brazoD: llega >= 1 && ab > 0.5 ? 'ofrece' : undefined, sonrisa: true });
+  if (ab > 0.9) for (let k = 0; k < 6; k++) { const f = ((u - 4.4) * 0.9 + k / 6) % 1; if (u < 4.4 + k / 6 / 0.9) continue; const i = k % 4, x1 = px - 24 - i * 22 + 4; dulce(lerp(px - 10, x1, f), lerp(128, 146, f) - Math.sin(f * Math.PI) * 14, COLORES[k % 5]); }
+};
+const CIUDADES = [[-74, 40.7], [139.7, 35.7], [-3.7, 40.4], [-99.1, 19.4], [127, 37.6]];
+const mundo = (t) => {
+  const u = t - m.mun;
+  R.cielo(t, { hor: 180, semilla: 4, n: 120 });
+  R.pergamino(18, 26, 302, 164, { semilla: 5 });
+  const pj = R.proyector(26, 32, 294, 158, -170, 180, -56, 76);
+  R.recorte([21, 29, 299, 161]); R.mundo(pj, { tierra: 2.4 }); R.recorte(null);
+  CIUDADES.forEach(([lo, la], k) => {
+    const a = u - (0.4 + k * 1.1); if (a < 0) return;
+    const [x, y] = pj(lo, la).map(Math.round);
+    R.halo(x, y, 12, [NARANJA[0], NARANJA[1]], Math.min(1, a * 2) * 0.9);
+    R.icono('calabaza', x - 3, y - 4 - (a < 0.25 ? 2 : 0), NARANJA[3], PALA.CONTORNO);
+  });
+};
+const pregunta = (t) => {
+  const u = t - m.pre;
+  noche(R, t, { luna: [160, 30, 10] });
+  sueloNoche(R, 150);
+  R.hoguera(78, 150, 0.9, t);
+  R.personaje(50, 154, 22, { ...ELENCO.celta, t, luz: { lado: 1, color: PALA.ANTORCHA[3] } });
+  R.personaje(106, 154, 22, { ...ELENCO.celta2, t: t + 1, dir: -1, luz: { lado: -1, color: PALA.ANTORCHA[3] } });
+  for (let y = 0; y <= 8; y++) for (let x = -14; x <= 14; x++) if ((x / 14) ** 2 + (y / 8) ** 2 <= 1) R.pset(244 + x, 142 + y, R.tone(NARANJA, 2.6 - x / 14 * 0.8 - y / 8, 244 + x, 142 + y));
+  R.rect(230, 141, 258, 142, NARANJA[3]);
+  R.caramelos(244, 140, 10, t);
+  R.personaje(212, 156, 21, { ...ELENCO.disfrazCalabaza, t, brazoD: 'ofrece', sonrisa: true });
+  R.calabaza(288, 150, 0.9, t);
+  R.ruta([[122, 112], [198, 112]], tramo(u, 0.8, 2.6), PALA.BLANCO[3]);
+};
+rodar(E, R, [[0, puertas], [m.mun - 0.2, mundo], [m.pre - 0.2, pregunta]], {
+  cartela: '31/10',
+  año: (t) => (t < m.pre + 0.5 ? 2026 : lerp(-100, 2026, tramo(t, m.pre + 0.6, m.pre + 3.6))),
+  barra: (t) => ({ numero: t < m.pre + 0.5 || t > m.pre + 3.6 }),
+  caja: (t, e) => R.caja(t, t > m.mun - 2.6 && t < m.mun - 0.2 ? tramo(t, m.mun - 2.6, m.mun - 2.2) : t > m.pre + 3.8 ? tramo(t, m.pre + 3.8, m.pre + 4.2) : 0, (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }),
+});
+</script>
+</body>
+</html>

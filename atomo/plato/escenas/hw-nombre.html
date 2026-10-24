@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nombre · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-NOMBRE (frases 13–14). Una vidriera gótica con tres santos con aureola; fuera cae la noche y la luz se apaga. En la
+// caja, «1/11» y luego la víspera, «31/10». Después, la iglesia de noche: la campana se mueve y los fantasmas verdes
+// vuelven a pasear la misma noche bajo el campanario; lejos, una hoguera en la colina.
+import { preparar, rodar, noche, iglesia, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-nombre');
+const { PALA, PR, VERDEF, tramo, lerp } = R;
+const m = { nom: M('nombre', 0.5), mis: M('misma', 9) };
+const Ln = m.mis - m.nom;
+const SANTOS = [[134, PALA.ROJO], [160, PALA.AZUL], [186, PALA.VERDE]];
+const vidriera = (t) => {
+  const u = t - m.nom, luz = lerp(1, 0.35, tramo(u, 0.45 * Ln, 0.9 * Ln));
+  R.ambiente({ luz: { lado: 1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[160, 80]], radio: 200 });
+  const x0 = 116, x1 = 204, y0 = 26, y1 = 156, cx = 160, ra = 44;
+  for (let y = y0 - 3; y <= y1 + 3; y++) for (let x = x0 - 3; x <= x1 + 3; x++) {
+    const arco = y < y0 + ra && Math.hypot(x - cx, y - (y0 + ra)) > ra + 3; if (arco) continue;
+    const dentro = !(y < y0 + ra && Math.hypot(x - cx, y - (y0 + ra)) > ra) && x >= x0 && x <= x1 && y >= y0 && y <= y1;
+    if (!dentro) { R.pset(x, y, PR.ROCA[1]); continue; }
+    const plomo = (x - x0) % 11 === 0 || (y - y0) % 13 === 0;
+    const rp = [PALA.AZUL, PALA.MORADO, PALA.AZUL, PALA.ROJO][(Math.floor((x - x0) / 11) + Math.floor((y - y0) / 13)) % 4];
+    R.pset(x, y, plomo ? PALA.CONTORNO : R.tone(rp, (1.2 + 1.6 * luz) - (y - y0) / (y1 - y0) * 0.5, x, y));
+  }
+  for (const [x, c] of SANTOS) {
+    R.poligono([[x - 8, 140], [x - 4, 86], [x + 4, 86], [x + 8, 140]], (xx, yy) => R.tone(c, 1 + 1.8 * luz - (xx - x) * 0.05, xx, yy));
+    R.anillo(x + 0.5, 78.5, 8, PALA.ORO[luz > 0.6 ? 3 : 2]);
+    R.disco(x, 79, 5, R.tone(PALA.PIEL, 1 + 1.5 * luz, x, 79));
+  }
+};
+const misma = (t) => {
+  const u = t - m.mis;
+  noche(R, t, { luna: [56, 30, 11], hor: 150 });
+  R.hoguera(76, 146, 0.35, t);
+  iglesia(R, 200, 150, t, { esc: 1.3, campana: true });
+  sueloNoche(R, 150);
+  for (let k = 0; k < 4; k++) { const x = Math.round(70 + ((u * 10 + k * 70) % 220)); R.fantasma(x, 166, 0.75, t + k * 2, { rampa: VERDEF }); }
+};
+rodar(E, R, [[0, vidriera], [m.mis - 0.2, misma]], {
+  año: 1000,
+  caja: (t, e) => R.caja(t, t > m.nom + 0.3 * Ln && t < m.mis - 0.2 ? tramo(t, m.nom + 0.3 * Ln, m.nom + 0.3 * Ln + 0.4) : 0, (x, y) => R.numero(t < m.nom + 0.62 * Ln ? '1/11' : '31/10', x + 2, y + 12, { color: t < m.nom + 0.62 * Ln ? PALA.AMARILLO[3] : undefined }), { energia: e }),
+});
+</script>
+</body>
+</html>

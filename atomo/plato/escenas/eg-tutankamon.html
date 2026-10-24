@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tutankamon · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-TUTANKAMON (frase 25). Un niño faraón en un trono enorme, con el nemes; en la caja, «9» y luego «19».
+import { preparar, rodar, trono, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-tutankamon');
+const m0 = M('tutankamon', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  trono(R, t, { abanicos: true });
+  // un trono enorme para un niño
+  const C2 = { oro: R.hex('#e8b830'), oroS: R.hex('#a87a18'), k: R.hex('#1c1222'), azul: R.hex('#2a4fa8') };
+  R.rect(176, 84, 186, 145, C2.k); R.rect(177, 85, 185, 144, C2.oro); R.rect(183, 85, 185, 144, C2.oroS); R.rect(140, 118, 186, 124, C2.oro); R.rect(140, 124, 186, 125, C2.k);
+  R.rect(140, 125, 144, 145, C2.oroS); for (let y = 88; y < 116; y += 6) R.rect(178, y, 184, y + 2, C2.azul);
+  R.actor(EL.faraon, 152, 118, t, { dir: -1, sonrisa: t - m0 < 0.6 * L, triste: t - m0 > 0.75 * L });
+  R.actor(EL.calvo, 228, 145, t, { dir: -1 }); R.actor(EL.calvo, 92, 145, t + 1, {});
+};
+rodar(E, R, [[0, plano]], {
+  año: -1330,
+  caja: (t, e) => R.caja(t, t > m0 + 0.4 * L ? R.tramo(t, m0 + 0.4 * L, m0 + 0.4 * L + 0.4) : 0, (x, y) => R.numero(t < m0 + 0.7 * L ? '9' : '19', x + 6, y + 12), { energia: e }),
+});
+</script>
+</body>
+</html>

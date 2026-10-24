@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pregunta · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-PREGUNTA (frase 5). Sócrates solo, de noche, mirando las estrellas sobre Atenas; «?» en la caja; al final la escena
+// se funde en el mapa (la historia entera de la antigua Grecia empieza ahí).
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-pregunta');
+const { PALA, PR, ELENCO, tramo } = R;
+const m0 = M('pregunta', 0.5), dur = E.duracion ?? 8;
+const noche = (t) => {
+  R.ambiente({ luz: { lado: 1, color: PR.NIEVE[2] }, sombra: PALA.CONTORNO });
+  R.cielo(t, { luna: [250, 30, 10], hor: 180, semilla: 61 });
+  acropolis(R, 90, 140, t, { esc: 0.9, roca: [PALA.CONTORNO, PALA.NEGRO[1], PALA.NEGRO[2]], marmol: [PALA.NEGRO[1], PALA.NEGRO[2], PALA.NEGRO[3], PALA.NEGRO[3]] });
+  R.colinas(150, { amp: 4, luz: 0.5, rampa: PR.HIERBA });
+  R.personaje(200, 168, 30, { ...ELENCO.socrates, t, pose: 'cara' });
+};
+const mapa = (t) => R.mapa(t, {});
+rodar(E, R, [[0, noche], [dur - 1.6, mapa, 'iris']], { año: -399, caja: (t, e) => R.caja(t, t < dur - 1.6 ? tramo(t, m0 + 0.8, m0 + 1.2) : 0, (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adios · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-ADIOS (frase 45). Atenas de noche bajo la Luna, con la Acrópolis iluminada; Atom en su caja con el «?» del cierre.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-adios');
+const { PALA, PR, tramo } = R;
+const noche = (t) => {
+  R.cielo(t, { luna: [120, 38, 11], hor: 180, semilla: 88 });
+  R.halo(170, 110, 50, [PALA.ANTORCHA[0], PALA.ANTORCHA[1]], 0.6);
+  acropolis(R, 170, 140, t, { esc: 1.2, roca: [PALA.CONTORNO, PALA.NEGRO[1], PALA.NEGRO[2]], marmol: [PALA.ANTORCHA[1], PALA.ANTORCHA[2], PALA.AMARILLO[2], PALA.AMARILLO[3]] });
+  R.colinas(160, { amp: 5, luz: 0.5, rampa: PR.HIERBA });
+};
+rodar(E, R, [[0, noche]], { caja: (t, e) => R.caja(t, tramo(t, 0.3, 0.7), (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

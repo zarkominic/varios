@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>De ti al Sol</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EP3-TIERRA · episodio 3, frases 55–57 (cartela «+7»), plastilina adulta. Adapta cosmos-plastilina-adulta.html hasta
+// «sol», con la cámara del mundo de kits/ep03-cosmos.js (que crea esta escena).
+//  0      el fotograma 0 de cosmos-plastilina-adulta (la persona «humano» de pie a la izquierda, la regla de nogal con el
+//         marcador en 10⁰ arriba), con Atom pequeño abajo a la izquierda; encima, la cartela «+7» (quieta hasta 0,75 s,
+//         se va hacia 1,2 s); la flecha de la regla baja a la fila del centro mientras sale la cartela
+//  tierra siete saltos ×10 (el primero acaba en la marca): la foto del plató se encoge en una mirilla hacia la persona,
+//         el tejado, el barrio, la ciudad (al llegar a 10⁴ la ciudad queda encendida con un halo cálido y, en la parada de
+//         10⁴, su marca de la regla destella: la madera de la fila se enciende, el rótulo da un respingo y un brillo de
+//         latón se abre en el canto), las nubes (cúmulos de arcilla con su sombra a 10⁵ y bancos sobre el mar a 10⁶), el
+//         azul del aire en los bordes que, al salir, se vuelve negro, y la Tierra entera (10⁷); la flecha ámbar de «tú
+//         estás aquí» apunta a la persona desde el primer salto y encoge en cada uno hasta quedar en un punto
+//  hueco  salto 8 (acaba en la marca): la Tierra se encoge y se va a la izquierda y aparece la Luna, lejos, a su
+//         distancia real del apogeo (la cámara en 10^8,25 con el marcador en 10⁸): una onda plateada se cierra sobre ella
+//         y su halo, más grande el primer segundo, late una vez; a mitad de frase, los siete planetas a escala caen uno a
+//         uno en el hueco y se quedan en fila, ajustados (Saturno con los anillos en «/», dentro de y 80–780); la cinta de
+//         costurera se tiende desde lo alto de la Tierra, por encima de los planetas pequeños, hasta tocar con su punta el
+//         borde de la Luna; la cámara se acerca de golpe (como un salto, a 10^7,65) al final de la fila, en un detalle:
+//         Neptuno grande (Urano a medias en el borde, Saturno fuera), el pelo que sobra entre Neptuno y la Luna (una cota
+//         de latón lo marca, encima de la cinta) y la Luna; la cinta se recoge de golpe. El fondo del hueco y del plano
+//         medio es el mismo (el resplandor del Sol del hueco)
+//  sol    salto 9 (acaba en la marca): la cámara sale hasta el Sol de crearMundo, enorme, con la Tierra como un punto a
+//         su lado (los planetas encogen y desaparecen); las Tierras caen en el Sol una tras otra, cada vez más seguidas,
+//         y se funden con una onda, como gotas en una pecera; las últimas se funden y todo queda quieto (termina_con)
+// Coste: la cámara del plató es fija. Lo quieto son fotos: las nubes, al cargar; el plató de la mirilla y los planetas
+// (sprites), después de cargar, en los fotogramas baratos (ver «lo que se prepara después de cargar»); el mundo en cada
+// encuadre quieto (la Tierra entera, el hueco, el plano medio y el Sol), tres fotos que se alternan (el hervor), la
+// primera vez que hacen falta; las Tierras que caen, un recorte de la primera foto de la Tierra entera. En cada fotograma se dibujan en vivo Atom, la regla y su flecha,
+// y lo que se mueve (la flecha de «tú estás aquí», la cinta, la cota); el mundo, solo mientras la cámara se mueve y en las
+// paradas del viaje (de 10¹ a 10⁶). Encima de todo, un lienzo 2D («sobre») para la luz del destello de 10⁴.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, cartela, cl, mix, prog, ss, eio, eoc, eic, azar, muelle } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo, camara, camaraPorTierra, mezclarCamaras, estadoMundo, fotoMundo, aPant, tierraPx, brilloCiudad, brilloLuna, gotasTierras,
+  tierrasQueCaen, tiposCosmos, planeta, saturno, cinta, enPlato, fotoPieza, aqui, largoAqui, filaPlanetas,
+  lunaMundo, aMundo, PLANETAS, MUNDO, HUECO, FINAL_TIERRA } from '/atomo/plato/kits/ep03-cosmos.js';
+
+const T0 = performance.now();
+const perfil = new URLSearchParams(location.search).has('perfil');
+const log = (...a) => { if (perfil) console.log(...a, Math.round(performance.now() - T0)); };
+const E = await escena('ep3-tierra', 'ep03');
+log('escena');
+const M = (k) => E.marca(k);
+const m = { tierra: M('tierra'), tierraFin: M('tierra_fin'), hueco: M('hueco'), huecoFin: M('hueco_fin'), sol: M('sol'), solFin: M('sol_fin') };
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+
+// ---------------------------------------------------------------- los saltos (todo sale de las marcas)
+// 1–7 en la frase 55: el primero acaba en su marca y el séptimo deja la Tierra entera algo más de un segundo;
+// 8 acaba en «hueco» y 9 en «sol». Golpes secos: arrancan con fuerza y frenan en firme (control de movimiento)
+const J = 0.32;
+const SALTOS = [];
+{
+  const a1 = m.tierra - J + 0.02, a7 = m.tierraFin - 1.1 - J;
+  for (let k = 0; k < 7; k++) { const a = a1 + k * (a7 - a1) / 6; SALTOS.push([a, a + J]); }
+  SALTOS.push([m.hueco - J + 0.02, m.hueco + 0.02], [m.sol - J + 0.02, m.sol + 0.02]);
+}
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+function zRegla(t) { let z = 0; for (const [a, b] of SALTOS) z += seco(prog(t, a, b)); return z; }
+const enSalto = (t) => SALTOS.some(([a, b]) => t > a - 0.02 && t < b + 0.08);
+
+// frase 56: los planetas caen a mitad de frase, la cinta se tiende, la cámara se acerca al pelo y la cinta se recoge
+const L56 = m.huecoFin - m.hueco;
+const T = {
+  plato: SALTOS[0][0],                             // hasta aquí, el plató; después, el mundo
+  b4: SALTOS[3][1],                                // la regla llega a 10⁴: brilla la marca y se enciende la ciudad
+  // a un 30 % de la frase; si la voz cambia y la frase 56 se queda corta, antes, para que lo que sigue (fila, cinta,
+  // acercamiento, cota y un segundo para mirarlo: ~5,1 s) acabe antes de recoger la cinta, 0,6 s antes de «sol»
+  pl0: Math.max(m.hueco + 1.0, Math.min(m.hueco + 0.3 * L56, m.sol - 0.6 - 5.1)), plPaso: 0.34, plCae: 0.36,
+};
+// el destello de la marca 10⁴: centrado en la parada en 10⁴ (entre el salto 4 y el 5), no al arrancar el 5
+T.b4a = T.b4 - 0.1; T.b4b = SALTOS[4][0] + 0.12;
+T.cinta0 = T.pl0 + 6 * T.plPaso + T.plCae + 0.18; T.cinta1 = T.cinta0 + 0.85;
+// el acercamiento al pelo es un golpe seco como los saltos; empieza en un fotograma (a 12 por segundo), así el primero
+// que se mueve ya va por el 70 % y Saturno sale del cuadro sin pasar sus anillos por la esquina de Atom
+T.empuje0 = Math.ceil((T.cinta1 + 0.1) * 12 - 1e-6) / 12; T.empuje1 = T.empuje0 + J;
+T.cota0 = T.empuje1 + 0.05; T.cota1 = T.cota0 + 0.4;
+T.recoge0 = SALTOS[8][0] - 0.3; T.recoge1 = SALTOS[8][0] - 0.02;
+// frase 57: las Tierras caen desde poco después de la marca; las últimas tocan ~1 s antes de quedarse quieto
+const GOTAS = gotasTierras({ t0: m.sol + 0.55, t1: m.solFin - 1.4, n: 32, semilla: 11 });
+
+// ---------------------------------------------------------------- el plató
+const I = { PER: 0, REG: 1, FLE: 2, AQUI: 3, CINTA: 4, COTA: 5, PLA: 6, SAT: 7 };
+const P = await crearPlato({
+  piezas: ['humano', 'reglaA', 'flecha', 'flecha', 'cinta', 'cota', 'planeta', 'saturno'],
+  tiposExtra: tiposCosmos(['planeta', 'saturno', 'cinta']),
+  alfa: true, cartela: E.cartela,
+  sombraFondo: ['p0', 'p1'],
+  sombras: { p0: ['atomo'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+log('plato');
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const E_PER = 2.4, PER = (() => { const a = en(612, 600, 0.6); return [a[0], 1.0 * E_PER, 0.6]; })();
+const E_REG = 1.42, REG = en(1655, 528, 0.4);
+
+// ---------------------------------------------------------------- lo que se prepara después de cargar
+// Para que la escena esté lista antes, lo que no hace falta en los primeros fotogramas (las fotos de los planetas y el
+// estreno de la cinta, la cota y la flecha de «tú estás aquí») se hace en los fotogramas baratos (el plató, la Tierra
+// entera y la espera de la Luna), unas pocas cosas cada vez y al principio del fotograma, antes de dibujarlo (lo que dejan
+// en el lienzo del plató se pisa). Un fotograma que necesite algo que aún no está (capturas sueltas o fuera de orden) lo
+// hace en ese momento.
+const TAREAS = [];
+function tarea(nombre, fn, orden = 10) {
+  const k = { nombre, fn, hecha: false, orden };
+  TAREAS.push(k);
+  return () => { if (!k.hecha) { k.hecha = true; const a = performance.now(); k.fn(); log('tarea ' + nombre + ' ' + Math.round(performance.now() - a)); } };
+}
+const hacer = (k) => { if (!k.hecha) { k.hecha = true; const a = performance.now(); k.fn(); log('tarea ' + k.nombre + ' ' + Math.round(performance.now() - a)); } };
+function adelantar(t0, presupuesto = 900) {
+  for (const k of TAREAS) { if (performance.now() - t0 > presupuesto) break; hacer(k); }
+}
+
+// ---------------------------------------------------------------- capas: el mundo (oculto), el lienzo 2D y el plató
+const cont = document.getElementById('escena');
+const mundo = crearMundo(cont, { captura: P.captura });
+log('mundo');
+mundo.lienzo.style.visibility = 'hidden';
+const lienzoGL = P.renderer.domElement;
+lienzoGL.style.zIndex = '2';
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:1';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+// encima del plató, un lienzo 2D para la luz del destello de 10⁴ (se borra en cada fotograma)
+const sobre = document.createElement('canvas');
+sobre.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:3;pointer-events:none';
+cont.appendChild(sobre);
+const gs = sobre.getContext('2d');
+function limpiarSobre() {
+  if (sobre.width !== lienzoGL.width || sobre.height !== lienzoGL.height) { sobre.width = lienzoGL.width; sobre.height = lienzoGL.height; }
+  gs.setTransform(1, 0, 0, 1, 0, 0); gs.clearRect(0, 0, sobre.width, sobre.height);
+  const k = sobre.width / W; gs.setTransform(k, 0, 0, k, 0, 0);
+}
+const pegar = (c, a = 1) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = a; g.drawImage(c, 0, 0, capa.width, capa.height); g.restore(); };
+const copia = (c) => { const k = document.createElement('canvas'); k.width = c.width; k.height = c.height; k.getContext('2d').drawImage(c, 0, 0); return k; };
+
+// ---------------------------------------------------------------- Atom (presentador: pequeño, abajo a la izquierda)
+const A_Z = 1.0, ATOMO = [230, 780];
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(en(...ATOMO, A_Z)));
+// en la esquina la cámara lo ve de lado: se gira hacia ella lo que cambia la dirección de la cámara respecto a la de
+// su sitio en cosmos (850, 330), donde el giro de siempre se ve bien (como en ep3-lote0-demo)
+const CAM = [0, 3.8, 15.5];
+const gy = (p) => Math.atan2(CAM[0] - p[0], CAM[2] - p[2]), gp = (p) => Math.atan2(p[1] - CAM[1], Math.hypot(CAM[0] - p[0], CAM[2] - p[2]));
+const A_W = en(...ATOMO, A_Z), A_REF = en(850, 330, A_Z);
+const A_YAW = gy(A_W) - gy(A_REF), A_PITCH = gp(A_W) - gp(A_REF);
+const DT = 1 / 240, TA = [0];
+const velA = (t) => (1 + 1.1 * Math.exp(-Math.pow((t - m.tierra) / 0.4, 2)) + 0.9 * Math.exp(-Math.pow((t - m.sol) / 0.4, 2))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= D + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT);
+const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor(x)); return mix(TA[i], TA[i + 1], x - i); };
+// sobre el suelo claro (casas, ciudad, campos) menos resplandor y un velo algo más oscuro detrás
+const sueloClaro = (ts, zr) => (ts < T.plato ? 0 : ss(0.3, 0.9, zr) * (1 - ss(5.6, 6.6, zr)));
+function estadoAtom(ts) {
+  const tz = calma(ts);
+  const sx = ATOMO[0], sy = ATOMO[1] + 3 * Math.sin(tz * 1.3) + 2 * Math.sin(tz * 0.7 + 1.0);
+  // al empezar cada frase, un brillo (en vez de saltos de alegría)
+  const brillo = Math.max(...[m.tierra, m.hueco, m.sol].map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))));
+  return { sx, sy, tz, brillo };
+}
+function atomo(ts, zr) {
+  const S = estadoAtom(ts), ta = tAtomo(ts);
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  const kS = sueloClaro(ts, zr);
+  P.atomo({
+    pos: en(S.sx, S.sy, A_Z), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH,
+    energia: Math.min(1, en0 + 0.45 * S.brillo), ts: ta, halo: 1 - 0.55 * kS, velo: 0.1 + 0.3 * kS,
+  });
+  return S;
+}
+
+// ---------------------------------------------------------------- la regla
+// al llegar a 10⁴, su marca brilla un instante: la madera de esa fila se enciende, el rótulo da un respingo y encima
+// (lienzo «sobre») un resplandor ámbar y un brillo de latón en el canto; en la parada de 10⁴, a tope
+function destello4(ts) { const u = prog(ts, T.b4a, T.b4b); return u <= 0 || u >= 1 ? 0 : Math.pow(Math.sin(Math.PI * u), 0.8); }
+function regla(ts, zr) {
+  // la flecha baja de la fila de arriba (el fotograma 0 de cosmos) a la del centro mientras sale la cartela
+  const ya = mix(1.5, 0.0, eio(prog(ts, 0.8, 1.45)));
+  const fl = destello4(ts);
+  const rango = fl > 0.01 ? { de: 4, a: 4, marcas: 1, madera: 1.1 * fl } : null;
+  return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e: zr, ya, actual: zr, lupa: 0.5 + 0.22 * fl, rango, toque: enSalto(ts) });
+}
+// el resplandor del destello, encima de todo (sin grano: es luz)
+function brilloMarca(ts, R) {
+  const fl = destello4(ts);
+  if (fl < 0.01) return;
+  const pL = pant(R.punto(4, 0.12)), pT = pant(R.punto(4, -0.47)), pE = pant(R.punto(4, -0.66, 0.08));
+  const fila = Math.hypot(...[0, 1].map((i) => pant(R.punto(5, 0.12))[i] - pL[i]));   // px entre dos filas
+  gs.save();
+  gs.globalCompositeOperation = 'screen';
+  // la fila entera (marcas y rótulo), una banda de luz cálida (sin lavar el rótulo, que se sigue leyendo)
+  const cx = (pL[0] + pT[0]) / 2, cy = (pL[1] + pT[1]) / 2, rx = Math.abs(pL[0] - pT[0]) * 0.5 + fila * 0.55, ry = fila * 0.36;
+  gs.translate(cx, cy); gs.scale(1, ry / rx);
+  let h = gs.createRadialGradient(0, 0, 0, 0, 0, rx);
+  h.addColorStop(0, `rgba(255,196,120,${0.36 * fl})`); h.addColorStop(0.45, `rgba(240,160,80,${0.24 * fl})`); h.addColorStop(1, 'rgba(220,130,60,0)');
+  gs.fillStyle = h; gs.beginPath(); gs.arc(0, 0, rx, 0, 2 * Math.PI); gs.fill();
+  gs.setTransform(sobre.width / W, 0, 0, sobre.width / W, 0, 0);
+  // el rótulo, más encendido
+  h = gs.createRadialGradient(pL[0], pL[1], 0, pL[0], pL[1], fila * 0.42);
+  h.addColorStop(0, `rgba(255,226,170,${0.3 * fl})`); h.addColorStop(1, 'rgba(255,200,130,0)');
+  gs.fillStyle = h; gs.beginPath(); gs.arc(pL[0], pL[1], fila * 0.42, 0, 2 * Math.PI); gs.fill();
+  // un brillo de latón en el canto, a la altura de la marca: una estrella de cuatro puntas que se abre y se cierra
+  const L = fila * 0.36 * fl, Lv = L * 0.7;
+  const rayo = (dx, dy, l, w) => {
+    const r = gs.createLinearGradient(pE[0] - dx * l, pE[1] - dy * l, pE[0] + dx * l, pE[1] + dy * l);
+    r.addColorStop(0, 'rgba(255,230,170,0)'); r.addColorStop(0.5, `rgba(255,244,214,${0.95 * fl})`); r.addColorStop(1, 'rgba(255,230,170,0)');
+    gs.fillStyle = r; gs.beginPath();
+    gs.moveTo(pE[0] - dx * l, pE[1] - dy * l); gs.lineTo(pE[0] - dy * w, pE[1] + dx * w); gs.lineTo(pE[0] + dx * l, pE[1] + dy * l); gs.lineTo(pE[0] + dy * w, pE[1] - dx * w);
+    gs.closePath(); gs.fill();
+  };
+  rayo(1, 0, L, 3.2); rayo(0, 1, Lv, 3.2);
+  h = gs.createRadialGradient(pE[0], pE[1], 0, pE[0], pE[1], 16);
+  h.addColorStop(0, `rgba(255,248,225,${0.9 * fl})`); h.addColorStop(1, 'rgba(255,220,150,0)');
+  gs.fillStyle = h; gs.beginPath(); gs.arc(pE[0], pE[1], 16, 0, 2 * Math.PI); gs.fill();
+  gs.restore();
+}
+
+// ?guias: sin cartela, y en window.__guias el centro, la coronilla y la suela de la persona en píxeles (guias-humano.py)
+const GUIAS = new URLSearchParams(location.search).has('guias');
+// ---------------------------------------------------------------- la persona (plató)
+function persona(ts) {
+  const tz = calma(ts);
+  const resp = 0.008 * Math.sin(tz * 2.4);
+  P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + resp, 1], rot: [0.02, 0.18, 0], postura: 'de pie', huellaFija: [0.37, 0.21, 0.0] });
+}
+// la foto del plató para la mirilla del primer salto (solo la persona, sin viñeta ni grano). Es la primera tarea: se hace
+// al principio del primer fotograma del plató, que de todos modos estrena los programas de la persona
+const fotoPlato = tarea('foto del plató', () => {
+  P.fotograma(T.plato); P.limpiar();
+  persona(T.plato);
+  P.U.uPost.value = 0;
+  P.render(Math.floor(T.plato * 12 + 1e-6));
+  P.U.uPost.value = 1;
+  mundo.inserto(copia(lienzoGL));
+}, 0);
+
+// ---------------------------------------------------------------- los planetas: fotos (sprites) al cargar
+// Cada uno de cara a la cámara en el centro del plató, al tamaño más grande que se va a ver (el plano medio, Z_MEDIO), salvo
+// Júpiter (el del hueco) y Saturno (250 px de radio, anillos incluidos), que en el acercamiento salen del cuadro antes de
+// crecer más que eso.
+const C_HUECO = camara(8, { hueco: true });
+const Z_MEDIO = 7.65;
+// plano medio (detalle): Neptuno grande, el pelo (entre Neptuno y la Luna, ~210 px) en x = 975 y la Luna; Urano se ve a
+// medias en el borde y Saturno, anillos incluidos, queda fuera del cuadro
+const C_MEDIO = (() => {
+  const C0 = camaraPorTierra(Z_MEDIO, [0, HUECO.tierra[1]]);
+  const f = filaPlanetas(C0);
+  const x = (f.sobra[0] + f.sobra[1]) / 2;
+  return camaraPorTierra(Z_MEDIO, [975 - x, HUECO.tierra[1]]);
+})();
+// los anillos, muy inclinados pero en «/» y a 57° (no 70°): no pasan de y 80–780 en el hueco (dentro de 60–880) y, al
+// acercarse la cámara, su mitad de abajo queda a la izquierda de Saturno, que sale del cuadro antes de la esquina de Atom
+// (rotAnillos del kit, con el ángulo en «/», enseñaría la cara de abajo, sin luz: aquí la misma cuenta con la otra cara)
+function rotAnillosB(angulo, apertura) {
+  const c = P.punto(960, 540, 0), d = P.punto(1060, 540, 0), e = P.punto(960, 440, 0);
+  const der = new THREE.Vector3(d[0] - c[0], d[1] - c[1], d[2] - c[2]).normalize();
+  const arr = new THREE.Vector3(e[0] - c[0], e[1] - c[1], e[2] - c[2]).normalize();
+  const hacia = new THREE.Vector3().crossVectors(der, arr).normalize();
+  const mayor = der.clone().multiplyScalar(Math.cos(angulo)).addScaledVector(arr, -Math.sin(angulo)).normalize();
+  const perp = new THREE.Vector3().crossVectors(hacia, mayor).normalize();
+  const ab = Math.asin(cl(apertura, 0, 1));
+  const normal = perp.clone().multiplyScalar(Math.cos(ab)).addScaledVector(hacia, Math.sin(ab)).normalize();
+  const z = new THREE.Vector3().crossVectors(mayor, normal).normalize();
+  const eu = new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().makeBasis(mayor, normal, z), 'YXZ');
+  return [eu.x, eu.y, eu.z];
+}
+const ROT_SAT = rotAnillosB(-57 * Math.PI / 180, 0.2);
+// Las fotos de los planetas no hacen falta hasta la frase 56: se hacen después de cargar (ver «lo que se prepara después
+// de cargar»). Júpiter no se ve nunca más grande que en el hueco (en el acercamiento sale del cuadro antes de crecer)
+const SPR = PLANETAS.map((p) => {
+  const rMax = p.d / 2 / C_MEDIO.mpp;
+  const R = p.anillos ? 250 : Math.max(40, Math.min(rMax, p.nombre === 'jupiter' ? 1.15 * p.d / 2 / C_HUECO.mpp : 400));
+  const ext = p.anillos ? 2.35 : 1.08;
+  const S = { R, ext, sp: null };
+  S.hacer = tarea('planeta ' + p.nombre, () => {
+    S.sp = fotoPieza(P, () => {
+      const e = enPlato(P, 960, 540, R, 1.5);
+      if (p.anillos) saturno(P, I.SAT, { pos: e.pos, escala: e.escala, rot: ROT_SAT, huellaFija: [0.2, 0.1, 0.3] });
+      else planeta(P, I.PLA, { pos: e.pos, escala: e.escala, cual: p.cual, huellaFija: [0.1 * p.cual, 0.2, 0.1] });
+    }, { rect: [960 - R * ext, 540 - R * ext, 960 + R * ext, 540 + R * ext] });
+  });
+  return S;
+});
+
+// ---------------------------------------------------------------- la cámara del mundo
+function camaraEn(ts) {
+  const zr = zRegla(ts);
+  if (zr < 8 - 1e-4 || ts < T.empuje0) return camara(zr, { hueco: true });
+  if (zr < 8 + 1e-4) return mezclarCamaras(C_HUECO, C_MEDIO, seco(prog(ts, T.empuje0, T.empuje1)));
+  return mezclarCamaras(C_MEDIO, camara(9), zr - 8);
+}
+// los encuadres quietos: tres fotos del mundo que se alternan (el hervor), hechas la primera vez que hacen falta
+const FIJOS = [
+  { de: SALTOS[6][1] + 0.02, a: SALTOS[7][0] - 0.02, C: () => camara(7), n0: 900 },
+  { de: SALTOS[7][1] + 0.08, a: T.empuje0 + 0.01, C: () => C_HUECO, n0: 910 },
+  { de: T.empuje1 + 0.02, a: SALTOS[8][0] - 0.02, C: () => C_MEDIO, n0: 920 },
+  { de: SALTOS[8][1] + 0.08, a: D + 1, C: () => camara(9), n0: 930 },
+];
+// el color del espacio: el resplandor del Sol (fuera del cuadro, arriba a la izquierda) calienta el hueco; en el
+// acercamiento y el plano medio se queda el del hueco (si no, al acercarse la cámara el fondo pasaría de pardo a gris)
+// y en el salto 9 pasa al de cada cámara, que en 10⁹ es el de siempre (el primer fotograma de ep3-sol)
+const SOL_HUECO = estadoMundo(C_HUECO, 0).capas.uSol;
+function capasSol(ts, C) {
+  if (ts < T.empuje0 - 1e-6) return null;
+  const w = ss(8.0, 8.3, C.zr);
+  if (w >= 1) return null;
+  const nat = estadoMundo(C, 0).capas.uSol;
+  return { uSol: SOL_HUECO.map((v, i) => mix(v, nat[i], w)) };
+}
+const fotosFijas = new Map();
+function fotoFija(ts, nf, extra) {
+  const f = FIJOS.find((x) => ts >= x.de && ts < x.a);
+  if (!f) return null;
+  const k = nf % 3, clave = f.n0 + k;
+  if (!fotosFijas.has(clave)) fotosFijas.set(clave, fotoMundo(mundo, estadoMundo(f.C(), clave, extra)));
+  return fotosFijas.get(clave);
+}
+// lo que el mundo lleva encima en el instante ts (la sombra de Atom, el color del espacio y la mirilla del primer salto)
+function extraEn(ts, C, zr) {
+  const S = estadoAtom(ts);
+  const extra = { somA: [S.sx + 22, S.sy + 30, 62, 0.42 + 0.16 * sueloClaro(ts, zr)] };
+  const cs = capasSol(ts, C);
+  if (cs) extra.capas = cs;
+  // primer salto: la foto del plató se encoge en una mirilla hacia la persona (como cosmos)
+  if (C.zr < 1.05) {
+    const s = Math.pow(10, -0.85 * Math.max(C.zr, 0));
+    const per = [612, 585], nos = tierraPx(C);
+    const rImg = mix(470, 1500, ss(0.8, 1.0, s));
+    extra.ins = { c: [nos[0] + (960 - per[0]) * s, nos[1] + (540 - per[1]) * s], s, a: 1 - ss(0.72, 1.0, C.zr), m: [nos[0], nos[1], rImg * s, 1] };
+  }
+  return extra;
+}
+// las Tierras que caen en el Sol son la Tierra entera de 10⁷ que se acaba de ver: un recorte redondo de la primera foto de
+// ese encuadre (con el borde de la atmósfera fundido), reducido en pasos de ½ a 128 px (se dibuja a menos de 100 px)
+let SPRITE_T = null;
+function spriteTierra() {
+  if (SPRITE_T) return SPRITE_T;
+  const ts = FIJOS[0].de + 1e-3, C = camara(7);
+  const foto = fotoFija(ts, 0, extraEn(ts, C, zRegla(ts)));
+  const [cx, cy] = tierraPx(C), R = MUNDO.R_TIERRA / C.mpp, Rb = R * 1.06, k = foto.width / W, L = 128;
+  let src = foto, sx = (cx - Rb) * k, sy = (cy - Rb) * k, lado = 2 * Rb * k;
+  while (lado / 2 > L) {
+    const n = Math.round(lado / 2), d = document.createElement('canvas'); d.width = d.height = n;
+    d.getContext('2d').drawImage(src, sx, sy, lado, lado, 0, 0, n, n);
+    src = d; sx = 0; sy = 0; lado = n;
+  }
+  const c = document.createElement('canvas'); c.width = c.height = L;
+  const x = c.getContext('2d');
+  x.beginPath(); x.arc(L / 2, L / 2, L / 2, 0, 2 * Math.PI); x.clip();
+  x.drawImage(src, sx, sy, lado, lado, 0, 0, L, L);
+  x.globalCompositeOperation = 'destination-in';
+  const h = x.createRadialGradient(L / 2, L / 2, (L / 2) * (R / Rb) * 0.97, L / 2, L / 2, L / 2);
+  h.addColorStop(0, 'rgba(0,0,0,1)'); h.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = h; x.fillRect(0, 0, L, L);
+  return (SPRITE_T = c);
+}
+
+// ---------------------------------------------------------------- lo de encima del mundo
+// «tú estás aquí»: aparece en cuanto ya no se ve a la persona y encoge con cada salto hasta un punto; se va en el salto 8
+function flechaAqui(ts, zr, C) {
+  const k = ss(SALTOS[0][1] - 0.02, SALTOS[0][1] + 0.22, ts) * (1 - ss(SALTOS[7][0], SALTOS[7][0] + 0.14, ts));
+  if (k < 0.01) { P.pieza(I.AQUI, { escala: 0 }); return; }
+  aqui(P, I.AQUI, C, { largo: largoAqui(zr), k: eoc(k), toque: enSalto(ts) });
+}
+// el brillo de la ciudad: se enciende al llegar a 10⁴ y se queda hasta el salto 8
+const kBrillo = (ts) => ss(T.b4 - 0.1, T.b4 + 0.3, ts) * (1 - ss(SALTOS[7][0], SALTOS[7][0] + 0.18, ts));
+// los planetas: caen uno a uno en su sitio, se aplastan un poco al tocar y se quedan; en el salto 9 encogen con todo y se van
+function planetas(ts, C) {
+  if (ts < T.pl0 - 0.01) return null;
+  const f = filaPlanetas(C);
+  f.planetas.forEach((p, j) => {
+    const t0 = T.pl0 + j * T.plPaso, t1 = t0 + T.plCae;
+    if (ts < t0) return;
+    const u = prog(ts, t0, t1);
+    // cae desde arriba del cuadro (acelerando) y rebota un pelo
+    const y0 = -p.r * 1.3 - 120;
+    let y = mix(y0, p.y, eic(u));
+    const bote = ts > t1 ? muelle(ts - t1, 2.4, 7) : 0;
+    const sqy = 1 - 0.1 * bote, sqx = 1 + 0.06 * bote;
+    // se va al final del salto 9, uno tras otro
+    const fuera = 1 - eoc(prog(ts, SALTOS[8][0] + 0.14 + 0.02 * j, SALTOS[8][1] + 0.1 + 0.02 * j));
+    if (fuera <= 0.01) return;
+    const S = SPR[j], r = p.r * fuera, s = r / S.R;
+    const w = 2 * S.R * S.ext * s;
+    g.save();
+    g.translate(p.x, y + p.r * (1 - sqy) * 0.9);
+    g.scale(sqx, sqy);
+    g.drawImage(S.sp, -w / 2, -w / 2, w, w);
+    g.restore();
+  });
+  return f;
+}
+// la cinta: sale apoyada en lo alto de la Tierra, pasa justo por encima de Mercurio, Venus y Marte (y por delante de los
+// grandes) y baja, casi recta, hasta tocar con su punta de latón el borde de la Luna, en la línea Tierra–Luna: mide de
+// superficie a superficie. Se recoge de golpe antes del salto 9
+function geomCinta(C) {
+  const f = filaPlanetas(C);
+  const k = C_HUECO.mpp / C.mpp;                       // lo que ha crecido el mundo desde el hueco
+  const alto = 11 * Math.pow(k, 0.6);
+  const [tx, ty, rT] = f.tierra;
+  const x0 = tx + 0.15 * rT, [x1, y1] = f.hasta;
+  let y0 = ty - Math.sqrt(1 - 0.0225) * rT - alto * 0.5 + 0.5;
+  for (const p of f.planetas) {
+    if (p.r > 2.5 * rT) continue;                      // los pequeños, por debajo
+    const yl = y0 + (y1 - y0) * (p.x - x0) / (x1 - x0);
+    const falta = yl + alto * 0.5 - (p.y - p.r - 1.5);
+    if (falta > 0) y0 -= falta * (x1 - x0) / (x1 - p.x);
+  }
+  return { f, alto, desde: [x0, y0], hasta: [x1, y1] };
+}
+function laCinta(ts, C) {
+  const ext = eio(prog(ts, T.cinta0, T.cinta1)) * (1 - eic(prog(ts, T.recoge0, T.recoge1)));
+  if (ext < 0.002) { P.pieza(I.CINTA, { escala: 0 }); return; }
+  const c = geomCinta(C);
+  cinta(P, I.CINTA, { desde: c.desde, hasta: c.hasta, alto: c.alto, marcas: 40, extension: ext, z: 1.5, toque: ts < T.cinta1 + 0.05 });
+}
+// la cota de latón sobre el pelo (en el plano medio), encima de la cinta: sus dos patas bajan hasta el borde de Neptuno
+// y el de la Luna
+function laCota(ts, C) {
+  const k = eoc(prog(ts, T.cota0, T.cota1)) * (1 - ss(T.recoge0 - 0.15, T.recoge0, ts));
+  if (k < 0.01) { P.pieza(I.COTA, { escala: 0 }); return; }
+  const c = geomCinta(C), f = c.f;
+  const x0 = f.sobra[0], x1 = f.sobra[1], hl = (x1 - x0) / 2;
+  const y = f.luna[1] - c.alto * 0.5 - 0.6 * hl - 6;
+  const e = enPlato(P, (x0 + x1) / 2, y, hl, 1.6);
+  P.pieza(I.COTA, { pos: e.pos, escala: e.escala, sq: [1, 3.2, 3.2], variante: k, toque: k < 0.98 });
+}
+
+// ---------------------------------------------------------------- las nubes y el azul que se vuelve negro (frase 55)
+// Nubes de arcilla blanca pegadas al suelo (en metros, con el origen en nosotros), con su sombra: cúmulos sueltos a 10⁵
+// (lejos de la ciudad) y bancos sobre el mar a 10⁶ (encima de nosotros, despejado, como en la Tierra de 10⁷). Fotos al
+// cargar; en cada fotograma, 2D. Luego el aire: un velo azul en los bordes que, al salir hacia 10⁷, se vuelve negro.
+function fotoNube(sem, banco) {
+  const r = (k) => azar(sem, k), L = 256;
+  // la silueta: lóbulos en una mancha redonda (cúmulo) o alargada y ondulada (banco, como las nubes de la Tierra de 10⁷)
+  const lob = [];
+  const n = banco ? 26 : 9;
+  for (let i = 0; i < n; i++) {
+    if (banco) {
+      const u = (i / (n - 1)) * 2 - 1;
+      lob.push([L / 2 + u * L * 0.34 + (r(40 + i) - 0.5) * L * 0.04,
+        L / 2 + (r(50 + i) - 0.5) * L * 0.2 * (1 - 0.55 * Math.abs(u)) + Math.sin(u * 2.4 + sem) * L * 0.035,
+        L * (0.05 + 0.035 * r(30 + i)) * (1 - 0.4 * Math.abs(u))]);
+    } else {
+      const a = (i / n) * 2 * Math.PI + r(10 + i) * 0.7, d = 0.06 + 0.11 * r(20 + i);
+      lob.push([L / 2 + Math.cos(a) * d * L * 1.1, L / 2 + Math.sin(a) * d * L * 0.8, L * (0.08 + 0.06 * r(30 + i))]);
+    }
+  }
+  if (!banco) lob.push([L / 2, L / 2, L * 0.17]);
+  const lobulos = (x, k = 1, dx = 0, dy = 0) => { x.beginPath(); for (const [cx, cy, rr] of lob) { x.moveTo(cx + dx + rr * k, cy + dy); x.arc(cx + dx, cy + dy, rr * k, 0, 2 * Math.PI); } x.fill(); };
+  const c = document.createElement('canvas'); c.width = c.height = L;
+  const x = c.getContext('2d');
+  // arcilla blanca: el tono de sombra de base, la luz (la silueta desenfocada y corrida hacia la luz) y un brillo por bulto
+  x.fillStyle = 'rgb(176,182,195)'; lobulos(x);
+  x.globalCompositeOperation = 'source-atop';
+  x.filter = 'blur(5px)'; x.fillStyle = 'rgb(228,228,224)'; lobulos(x, 0.9, -L * 0.016, -L * 0.022); x.filter = 'none';
+  for (const [cx, cy, rr] of lob) {
+    const h = x.createRadialGradient(cx - rr * 0.3, cy - rr * 0.35, 0, cx - rr * 0.3, cy - rr * 0.35, rr * 0.7);
+    h.addColorStop(0, 'rgba(250,249,244,0.32)'); h.addColorStop(1, 'rgba(250,249,244,0)');
+    x.fillStyle = h; x.fillRect(cx - rr * 1.1, cy - rr * 1.1, rr * 2.2, rr * 2.2);
+  }
+  const blando = (src, px) => { const k = document.createElement('canvas'); k.width = k.height = L; const y = k.getContext('2d'); y.filter = `blur(${px}px)`; y.drawImage(src, 0, 0); y.filter = 'none'; return k; };
+  const s = blando(c, 8), y = s.getContext('2d');
+  y.globalCompositeOperation = 'source-in'; y.fillStyle = 'rgb(46,36,28)'; y.fillRect(0, 0, L, L);
+  return { c: blando(c, 0.8), b: blando(c, 7), s };
+}
+const FOTOS_NUBE = [[3, 7, 12, 19].map((k) => fotoNube(k, false)), [5, 11, 17, 29].map((k) => fotoNube(k, true))];
+const NUBES = [];
+{
+  // [x, y, ancho, giro] en px del encuadre quieto de 10⁵ (cúmulos) y de 10⁶ (bancos sobre el mar), pasados a metros
+  const A = [[330, 230, 220, 0.3], [620, 120, 180, -0.4], [1190, 170, 230, 0.8], [1320, 660, 190, 2.1], [1030, 830, 210, 1.2], [620, 850, 170, -0.9], [1240, 420, 150, 0.5]];
+  const B = [[150, 170, 330, 1.0], [300, 420, 300, 1.25], [440, 640, 230, 1.35], [790, 110, 300, 0.15], [1130, 80, 220, -0.1], [1240, 640, 150, 0.4]];
+  for (const [lista, z, pob] of [[A, 5, 0], [B, 6, 1]]) {
+    const C = camara(z);
+    lista.forEach(([x, y, d, giro], j) => NUBES.push({ w: aMundo(C, [x, y]), d: d * C.mpp, giro, pob, sp: FOTOS_NUBE[pob][j % 4], esp: j % 2 }));
+  }
+}
+function nubes(ts, zr, C) {
+  const k = [ss(4.4, 4.75, zr) * (1 - ss(5.3, 5.65, zr)), ss(5.75, 6.0, zr) * (1 - ss(6.4, 6.72, zr))];
+  if (k[0] < 0.01 && k[1] < 0.01) return;
+  const tw = (1 - ss(5.3, 6.1, C.z)) * ss(0.25, 0.9, C.zr);        // el desenfoque de maqueta del mundo
+  const vis = [];
+  for (const n of NUBES) {
+    const kk = k[n.pob]; if (kk < 0.01) continue;
+    const p = aPant(C, n.w), d = n.d / C.mpp;
+    if (d < 3 || p[0] < -d || p[0] > W + d || p[1] < -d || p[1] > H + d) continue;
+    vis.push({ n, kk, p, d });
+  }
+  g.save();
+  g.globalCompositeOperation = 'multiply';
+  for (const { n, kk, p, d } of vis) {
+    const o = Math.min(d * 0.1, 24);
+    g.save(); g.globalAlpha = 0.6 * kk; g.translate(p[0] + o, p[1] + o * 1.4); g.rotate(n.giro); g.scale(n.esp ? -1 : 1, 1);
+    g.drawImage(n.sp.s, -d / 2, -d / 2, d, d); g.restore();
+  }
+  g.globalCompositeOperation = 'source-over';
+  for (const { n, kk, p, d } of vis) {
+    const b = tw * ss(130, 260, Math.abs(p[1] - C.ancla[1]));
+    g.save(); g.translate(p[0], p[1]); g.rotate(n.giro); g.scale(n.esp ? -1 : 1, 1);
+    if (b < 0.99) { g.globalAlpha = 0.94 * kk * (1 - b); g.drawImage(n.sp.c, -d / 2, -d / 2, d, d); }
+    if (b > 0.01) { g.globalAlpha = 0.94 * kk * b; g.drawImage(n.sp.b, -d / 2, -d / 2, d, d); }
+    g.restore();
+  }
+  g.restore();
+}
+function aire(zr, C) {
+  const k = ss(5.3, 5.9, zr) * (1 - ss(6.55, 6.8, zr));
+  if (k < 0.01) return;
+  const u = ss(5.95, 6.45, zr);                                    // 0: el azul del aire · 1: el negro del espacio
+  const [cx, cy] = C.ancla;
+  g.save();
+  if (u < 0.99) {
+    g.globalCompositeOperation = 'screen';
+    const h = g.createRadialGradient(cx, cy, 380, cx, cy, 1250);
+    h.addColorStop(0, 'rgba(120,160,215,0)'); h.addColorStop(0.45, `rgba(120,160,215,${0.16 * k * (1 - u)})`); h.addColorStop(1, `rgba(150,188,236,${0.46 * k * (1 - u)})`);
+    g.fillStyle = h; g.fillRect(0, 0, W, H);
+  }
+  if (u > 0.01) {
+    // al salir: un velo que multiplica (tiñe de azul y oscurece) desde el centro hacia fuera, hasta el negro en las esquinas
+    g.globalCompositeOperation = 'multiply';
+    const a = k * u, c = (rgb) => `rgb(${rgb.map((v) => Math.round(255 + (v - 255) * a)).join(',')})`;
+    const h = g.createRadialGradient(cx, cy, mix(820, 420, u), cx, cy, 1250);
+    h.addColorStop(0, c([255, 255, 255])); h.addColorStop(0.25, c([150, 185, 240])); h.addColorStop(0.55, c([45, 85, 185]));
+    h.addColorStop(0.85, c([10, 18, 50])); h.addColorStop(1, c([2, 3, 10]));
+    g.fillStyle = h; g.fillRect(0, 0, W, H);
+  }
+  g.restore();
+}
+// la Luna llega: una onda de luz plateada que se cierra sobre ella (se lee en el móvil aunque mida 10 px)
+function ondaLuna(ts, C) {
+  const t0 = SALTOS[7][1] - 0.1, u = prog(ts, t0, t0 + 0.55);
+  if (u <= 0 || u >= 1) return;
+  const p = aPant(C, lunaMundo()), r = mix(200, 34, eoc(u)), a = ss(0, 0.12, u) * (1 - ss(0.55, 1, u)), w = mix(14, 7, u);
+  g.save(); g.globalCompositeOperation = 'screen';
+  const h = g.createRadialGradient(p[0], p[1], Math.max(0, r - w), p[0], p[1], r + w);
+  h.addColorStop(0, 'rgba(170,190,225,0)'); h.addColorStop(0.5, `rgba(228,234,246,${0.85 * a})`); h.addColorStop(1, 'rgba(170,190,225,0)');
+  g.fillStyle = h; g.beginPath(); g.arc(p[0], p[1], r + w, 0, 2 * Math.PI); g.fill();
+  g.restore();
+}
+
+// ---------------------------------------------------------------- fotograma
+// los fotogramas baratos, donde se adelanta lo que se prepara después de cargar: el plató y la espera de la Luna (pasadas
+// sus tres primeras fotos)
+const barato = (ts) => ts < T.plato || (ts > SALTOS[7][1] + 0.4 && ts < T.pl0 - 0.1);
+function dibujar(t) {
+  const t0 = performance.now();
+  const ts = Math.min(t, QUIETO);
+  // antes de dibujar: lo que este fotograma ya necesita y, si es barato, algo de lo que vendrá
+  if (ts >= T.plato && zRegla(ts) < 1.05) fotoPlato();
+  if (ts >= T.pl0 - 0.02) SPR.forEach((S) => S.hacer());
+  if (ts > GOTAS[0].t - 0.1) spriteTierra();
+  if (barato(ts)) adelantar(t0);
+  const nf = P.fotograma(ts);
+  const zr = zRegla(ts);
+  limpiarSobre();
+  if (ts < T.plato) {
+    // el plató de cosmos, con la cartela encima
+    P.limpiar();
+    persona(ts); atomo(ts, zr); regla(ts, zr);
+    if (!GUIAS) cartela(P, ts, E.cartela);
+    P.render(nf);
+    return;
+  }
+  ajustarCapa();
+  const C = camaraEn(ts);
+  const extra = extraEn(ts, C, zr);
+  const foto = fotoFija(ts, nf, extra);
+  if (foto) pegar(foto);
+  else { mundo.dibujar(estadoMundo(C, nf, extra)); pegar(mundo.lienzo); }
+  // 2D sobre el mundo
+  brilloCiudad(g, C, kBrillo(ts));
+  nubes(ts, zr, C);
+  aire(zr, C);
+  // la Luna aparece (una onda se cierra sobre ella y su halo, más grande el primer segundo, late una vez) y se apaga en
+  // el salto 9
+  const kL = ss(SALTOS[7][0] + 0.12, SALTOS[7][1] + 0.1, ts) * (1 - ss(SALTOS[8][0], SALTOS[8][1], ts));
+  const llega = 1 - ss(SALTOS[7][1] + 1.0, SALTOS[7][1] + 1.8, ts);
+  brilloLuna(g, C, kL * (1 + 0.9 * Math.sin(Math.PI * prog(ts, SALTOS[7][1] - 0.1, SALTOS[7][1] + 1.3))), { minimo: 24 + 24 * llega });
+  ondaLuna(ts, C);
+  // y la Tierra, que a 10⁸ también es pequeña: un halo azul suave (su atmósfera) para que se lea en el móvil
+  if (kL > 0.01) {
+    const tp = tierraPx(C), rT = MUNDO.R_TIERRA / C.mpp, R = Math.max(rT * 2.6, 34);
+    g.save(); g.globalCompositeOperation = 'screen';
+    const h = g.createRadialGradient(tp[0], tp[1], rT * 0.95, tp[0], tp[1], R);
+    h.addColorStop(0, `rgba(120,160,220,${0.42 * kL})`); h.addColorStop(0.4, `rgba(80,120,190,${0.16 * kL})`); h.addColorStop(1, 'rgba(60,90,160,0)');
+    g.fillStyle = h; g.beginPath(); g.arc(tp[0], tp[1], R, 0, 2 * Math.PI); g.fill();
+    g.restore();
+  }
+  planetas(ts, C);
+  if (ts > GOTAS[0].t - 0.1) {
+    tierrasQueCaen(g, spriteTierra(), { t: ts, gotas: GOTAS, sol: FINAL_TIERRA.sol, rTierra: Math.max(MUNDO.R_TIERRA / C.mpp, 4.5) });
+  }
+  // el plató encima: Atom, la regla y lo que se mueve
+  P.limpiar();
+  atomo(ts, zr);
+  const R = regla(ts, zr);
+  flechaAqui(ts, zr, C);
+  laCinta(ts, C);
+  laCota(ts, C);
+  P.render(nf, { fondo: false });
+  brilloMarca(ts, R);
+}
+// estrena los programas que se dibujan en vivo (para que ningún fotograma pague su compilación): Atom y la regla al cargar;
+// la flecha de «tú estás aquí», la cinta y la cota, después (la segunda de las tareas, tras la foto del plató: la flecha
+// sale a 1,5 s)
+{
+  P.fotograma(0); P.limpiar();
+  atomo(0, 0); regla(0, 0);
+  P.render(0, { fondo: false });
+}
+tarea('estreno de la flecha, la cinta y la cota', () => {
+  P.fotograma(0); P.limpiar();
+  cinta(P, I.CINTA, { desde: [300, 300], hasta: [600, 300], alto: 10, extension: 1 });
+  P.pieza(I.COTA, { pos: en(900, 300, 1.6), escala: 0.3, variante: 1 });
+  P.pieza(I.AQUI, { pos: en(1000, 300, 1.6), escala: 0.3 });
+  P.render(0, { fondo: false });
+}, 1);
+TAREAS.sort((a, b) => a.orden - b.orden);
+if (GUIAS) {
+  const a = pant([PER[0], PER[1] + 0.765 * E_PER, PER[2]]), b = pant([PER[0], PER[1] - E_PER, PER[2]]);
+  window.__guias = { x: Math.round(b[0]), coronilla: Math.round(a[1]), suela: Math.round(b[1]) };
+  console.log('guias', JSON.stringify(window.__guias));
+}
+log('listo');
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

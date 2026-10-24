@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Monstruos · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-MONSTRUOS (frases 26–27). Sobre una mesa, una postal antigua de Halloween: una bruja en su escoba cruza la luna y un
+// gato negro arquea el lomo sobre una valla, con calabazas. Luego un cine de 1931 en blanco y negro: en la pantalla, un
+// castillo, Drácula con su capa y la criatura de Frankenstein; «1931» en la caja.
+import { preparar, rodar } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-monstruos');
+const { PALA, PR, ELENCO, NARANJA, tramo, lerp } = R;
+const m = { pos: M('postales', 0.5), cin: M('cine', 9) };
+const gato = (x, y, c) => { R.rect(x - 6, y - 5, x + 4, y, c); R.rect(x - 7, y - 3, x - 6, y, c); R.disco(x + 6, y - 6, 3, c); R.pset(x + 4, y - 10, c); R.pset(x + 8, y - 10, c); R.pset(x + 4, y - 9, c); R.pset(x + 8, y - 9, c); for (let k = 0; k < 8; k++) R.pset(x - 8 - Math.round(k * 0.4), y - 2 - k, c); R.pset(x + 7, y - 7, PALA.AMARILLO[3]); };
+const postal = (t) => {
+  const u = t - m.pos;
+  R.ambiente({ luz: { lado: 1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[160, 80]], radio: 230, tipo: 'madera' });
+  const x0 = 64, y0 = 26, x1 = 256, y1 = 154;
+  R.rect(x0 + 3, y0 + 3, x1 + 3, y1 + 3, PALA.CONTORNO);
+  R.rect(x0, y0, x1, y1, PR.PAJA[3]);
+  R.recorte([x0 + 6, y0 + 6, x1 - 6, y1 - 6]);
+  for (let y = y0 + 6; y <= y1 - 6; y++) for (let x = x0 + 6; x <= x1 - 6; x++) R.pset(x, y, R.tone(NARANJA, 3.2 - (y - y0) / (y1 - y0) * 2.4, x, y));
+  R.disco(196, 64, 22, PALA.AMARILLO[3]);
+  const bx = Math.round(lerp(120, 230, (u * 0.08) % 1)), by = 66 + Math.round(Math.sin(t * 2) * 3);
+  R.linea(bx - 14, by + 2, bx + 12, by - 2, PR.MADERA[0]); for (let k = 0; k < 5; k++) R.linea(bx - 14, by + 2, bx - 20, by - 1 + k * 2, PR.PAJA[1]);
+  R.personaje(bx, by, 18, { ...ELENCO.bruja, chaqueta: PALA.NEGRO, camisa: PALA.NEGRO, falda: PALA.NEGRO, t, pose: 'sentado', sombra: false, luz: undefined });
+  R.rect(x0, 128, x1, y1, PALA.CONTORNO);
+  for (let x = x0 + 8; x < x1 - 6; x += 7) R.rect(x, 118, x + 3, 130, PALA.CONTORNO);
+  R.rect(x0, 122, x1, 123, PALA.CONTORNO);
+  gato(150, 118, PALA.CONTORNO);
+  R.calabaza(100, 140, 0.8, t, { luz: false }); R.calabaza(220, 140, 0.6, t, { luz: false });
+  R.recorte(null);
+};
+const GRIS = [PALA.CONTORNO, PR.GRIS[0], PR.GRIS[1], PR.GRIS[2], PR.GRIS[3]];
+const cine = (t) => {
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone([PALA.CONTORNO, PALA.NEGRO[1], PALA.MORADO[0], PALA.MORADO[1]], 0.5 + 1.4 * Math.max(0, 1 - Math.hypot(x - 160, y - 60) / 170), x, y));
+  R.rect(60, 18, 260, 120, PALA.BLANCO[1]); R.rect(62, 20, 258, 118, PALA.CONTORNO);
+  R.recorte([62, 20, 258, 118]);
+  const fl = 0.15 * Math.sin(t * 23) * Math.sin(t * 7);
+  for (let y = 20; y <= 118; y++) for (let x = 62; x <= 258; x++) R.pset(x, y, R.tone(GRIS, 1.6 + fl + (y - 20) / 98 * 1.2 + (R.hash2(x, y + Math.floor(t * 12)) > 0.995 ? 2 : 0), x, y));
+  R.poligono([[150, 80], [150, 44], [156, 36], [162, 44], [162, 80]], GRIS[1]); R.rect(162, 56, 210, 80, GRIS[1]); R.rect(204, 40, 214, 80, GRIS[1]); for (let x = 166; x < 204; x += 8) R.rect(x, 52, x + 4, 56, GRIS[1]); R.rect(182, 64, 186, 70, GRIS[4]);
+  R.rect(62, 100, 258, 118, GRIS[1]);
+  R.personaje(110, 112, 34, { ...ELENCO.vampiro, piel: GRIS.slice(1), chaqueta: GRIS, camisa: GRIS.slice(2), pantalon: GRIS, botas: GRIS, capa: GRIS, pelo: GRIS, t, brazoD: 'arriba', sombra: false, luz: undefined });
+  R.personaje(224, 112, 44, { peinado: 'corto', pelo: GRIS, piel: GRIS.slice(1), chaqueta: GRIS, camisa: GRIS, pantalon: GRIS, botas: GRIS, chaqueta_larga: true, t, dir: -1, brazoD: 'senala', brazoI: 'senala', anda: t * 2, sombra: false, luz: undefined });
+  R.recorte(null);
+  for (let k = 0; k < 15; k++) { const x = 10 + k * 21 + (k % 2) * 6, y = 160 + (k % 3) * 4; R.disco(x, y, 7, PALA.CONTORNO); R.rect(x - 11, y + 5, x + 11, R.H, PALA.CONTORNO); }
+};
+rodar(E, R, [[0, postal], [m.cin - 0.2, cine]], {
+  año: (t) => (t < m.cin ? 1905 : 1931),
+  caja: (t, e) => R.caja(t, t > m.cin + 0.8 ? tramo(t, m.cin + 0.8, m.cin + 1.2) : 0, (x, y) => R.numero('1931', x + 2, y + 12), { energia: e }),
+});
+</script>
+</body>
+</html>

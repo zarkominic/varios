@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-saltos · contar en saltos</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-saltos (frases 14–16, sin cartela). Plastilina adulta: el plató de las pruebas, el «humano» del lote 0
+// y la regla del lote 0 (regla entera). No usa ningún kit del episodio y no crea ninguno: las cajas y el contador son
+// tipos de pieza de esta escena (tiposExtra), porque solo los usa ella.
+//
+// Planos. La cámara del plató es fija: el detalle y el plano medio son otra puesta en escena, por corte, como los niveles de
+// prueba-plastilina-adulta. En los generales y en el detalle la regla es la del encuadre de las pruebas, en el borde derecho.
+//  0        GENERAL (empieza_con): la persona de pie a la izquierda y la regla entera en el borde derecho, de la niebla a la
+//           red, con el marcador en 10⁰; Atom abajo a la izquierda.
+//  saltos   «Así que contaremos en saltos»: una cajita de arcilla brota en el centro y, junto a la regla (a la izquierda del
+//           marcador), un «1»; la persona la mira.
+//  ¼ saltos DETALLE de la caja (corte): primer salto, la cámara se aparta y la cajita es una de diez en su bandeja (el
+//           contador gana un 0: 10); segundo salto, la bandeja es una de diez en la caja grande de nogal (100): «una caja
+//           que contiene diez cajas, que contienen diez cajas». El 1 y sus ceros siguen junto a la regla.
+//  cero     GENERAL (corte): la persona señala con la izquierda el marcador en 10⁰ («tú estás en el salto cero»).
+//  ⅕ cero   PLANO MEDIO DE LA REGLA (corte; la regla entera más cerca, sin la persona): «la cámara señala» −4 (el rótulo
+//           10⁻⁴ m grande y en ámbar y, junto a la marca, el pelo del kit), sube a +7 (la Tierra, el globo del kit) y a +27
+//           (la red de galaxias en su medallón). La miniatura de cada marca es grande mientras es la suya y se queda
+//           pequeña junto a su marca.
+//  fin cero GENERAL (corte): la persona de pie; la regla, todavía entera, con el rótulo grande otra vez en 10⁰.
+//  abajo    la regla vuelve a su escala normal (entera 1 → 0, con e 0 y ya 1,5; completa en la marca); «la cámara mira hacia
+//           abajo»: la mano de la derecha de la pantalla (su manoIzq, FOCO[0] de la prueba) brilla un instante y se apaga
+//           antes del final. Último fotograma = fotograma 0 de prueba-plastilina-adulta sin pizarra ni moléculas
+//           (termina_con), quieto los últimos 0,6 s.
+// Las palabras sueltas no tienen marca: los golpes de dentro de una frase van a una fracción fija de su intervalo
+// (E.marca(x) … E.marca(x + '_fin')).
+//
+// CONTINUIDAD (números; cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, sin recorte 2D)
+//  · persona: «humano», aspecto 'adulto', escala 2,4, pos [P.punto(612, 600, 0,6)[0], 2,4, 0,6], rot [0, 0,2, 0] (el giro
+//    de la «persona» de la prueba en su fotograma 0), postura 'de pie', sin respiración en el primer y el último fotograma.
+//  · regla: P.regla con pos P.punto(1668, 528, 0,4), escala 1,42, rot [0, −0,12, 0], e 0, ya 1,5, lupa 0,3, lupaEntera 1,3,
+//    marca 0; fotograma 0: entera 1, actual 0, sin rango; último: entera 0, actual 0.
+//  · Atom: el presentador de ep3-hola: centro en (230, 780) px a z = 1, órbitas de 180 px, yaw −0,15, pitch 0,06.
+//  · window.__fin da en píxeles la mano que brilla (h.punto('manoIzq')) y FOCO[0] de la prueba, para ep3-pelo.
+// Coste: todo en vivo (no hay nada quieto que merezca foto): persona entera, regla, Atom y como mucho tres piezas más.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, reglaEstado, REGLA, postura } from '/atomo/plato/kits/plastilina-adulta.js';
+
+const T0 = performance.now();
+const E = await escena('ep3-saltos', 'ep03');
+const M = (k) => E.marca(k);
+const m = {
+  saltos: M('saltos'), saltosFin: M('saltos_fin'), cero: M('cero'), ceroFin: M('cero_fin'), abajo: M('abajo'), abajoFin: M('abajo_fin'),
+};
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+const fr = (a, b, u) => a + (b - a) * u;
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+// los movimientos de reposo se frenan hasta quedar quietos en QUIETO
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const T = {
+  // frase 14: «Así que contaremos en saltos: | cada salto lo hace todo diez veces más grande, | como añadir un cero.»
+  uno: m.saltos,                                  // la cajita y el «1» (completos en la marca)
+  detalle: fr(m.saltos, m.saltosFin, 0.25),       // corte al detalle de la caja (empieza la segunda parte)
+  salto1: fr(m.saltos, m.saltosFin, 0.43),        // 10 (completo)
+  salto2: fr(m.saltos, m.saltosFin, 0.73),        // 100 (completo)
+  // frase 15: «Tú estás en el salto cero: | un pelo…, cuatro saltos más abajo; | la Tierra, siete más arriba; | y el borde…, veintisiete.»
+  g2: m.cero - 0.22,                               // corte al general
+  cero: m.cero,                                   // señala el marcador (10⁰)
+  pelo: fr(m.cero, m.ceroFin, 0.2),               // −4
+  tierra: fr(m.cero, m.ceroFin, 0.43),            // +7
+  borde: fr(m.cero, m.ceroFin, 0.64),             // +27
+  g3: m.ceroFin + 0.05,                            // corte al general del final
+  // frase 16: «Empecemos bajando.»
+  normal: m.abajo,                                 // la regla, otra vez normal (completa en la marca)
+};
+T.regla = T.pelo - 0.28;                           // corte al plano medio de la regla
+T.brillo = m.abajo + 0.5;                          // el brillo de la mano, en su punto
+T.apaga = Math.min(m.abajoFin + 0.05, QUIETO - 0.2);   // ya sin brillo
+const plano = (ts) => (ts < T.detalle ? 'G1' : ts < T.g2 ? 'D' : ts < T.regla ? 'G2' : ts < T.g3 ? 'R' : 'G3');
+
+// ---------------------------------------------------------------- tipos de pieza de la escena
+// CAJAS: «una caja que contiene diez cajas, que contienen diez cajas». Una sola pieza con repetición: cajitas con tapa
+// (paso 1, de 0,8), bandejas de diez cajitas (filas, paso 1,4 en y) y la caja grande de nogal con canto de latón, que
+// lleva diez bandejas. Lo abierto mira a +z. El origen local es el centro de la cajita del principio (la i = 4 de la fila
+// j = 4), así que el «alejarse» de cada salto es concéntrico. T.y = nivel (0 una cajita · 1 una bandeja llena · 2 la caja
+// grande llena); al pasar de un nivel al siguiente, las nueve que faltan brotan alternando a un lado y a otro, y la caja
+// que las contiene brota alrededor al final.
+const CAJAS = { radio: 9.4, glifos: [], envolvente: true, glsl: /* glsl */`
+const float CJ_PY = 1.4;
+// orden de aparición de la celda i (0…9) alrededor de la 4: 5, 3, 6, 2, 7, 1, 8, 0, 9
+float cjRango(float i) { float d = i - 4.0; return d > 0.5 ? 2.0 * d - 1.0 : -2.0 * d; }
+float cjBrote(float rango, float k) {
+  if (rango < 0.5) return 1.0;
+  float u = clamp((k - 0.02 - (rango - 1.0) * 0.072) / 0.2, 0.0, 1.0);
+  return 1.0 - (1.0 - u) * (1.0 - u) * (1.0 - u);
+}
+float cjCaja(vec3 q, float s, out float m) {
+  // cajita: cuerpo y tapa algo más ancha (escala s, alrededor de su centro)
+  q /= max(s, 1e-3);
+  float cuerpo = sdRoundBox(q - vec3(0.0, 0.0, -0.06), vec3(0.37, 0.37, 0.33), 0.06);
+  float tapa = sdRoundBox(q - vec3(0.0, 0.0, 0.3), vec3(0.4, 0.4, 0.1), 0.05);
+  m = tapa < cuerpo ? 1.0 : 0.0;
+  return min(cuerpo, tapa) * s;
+}
+// bandeja abierta: semiancho interior e (x, y), fondo de z0 a z0 + suelo, paredes de grosor g hasta z1
+float cjBandeja(vec3 q, vec2 e, float z0, float z1, float g, float suelo) {
+  float zc = 0.5 * (z0 + z1), hz = 0.5 * (z1 - z0);
+  float fuera = sdRoundBox(q - vec3(0.0, 0.0, zc), vec3(e + g, hz), 0.045);
+  vec3 b = abs(q - vec3(0.0, 0.0, zc + suelo)) - vec3(e, hz);
+  float dentro = length(max(b, 0.0)) + min(max(b.x, max(b.y, b.z)), 0.0);
+  return smax(fuera, -dentro, 0.03);
+}
+const vec2 CJ_FILA = vec2(5.06, 0.56);        // interior de una bandeja (centro en x = 0,5)
+const vec2 CJ_GRANDE = vec2(5.26, 7.04);      // interior de la caja grande (centro en (0,5, 0,7))
+// una fila: diez cajitas en su bandeja; q, relativo al centro de su cajita 4. Se miden las dos celdas más cercanas (así
+// el rayo no se mete en la vecina)
+float cjFila(vec3 q, float k1, bool central, out float m) {
+  float i0 = clamp(floor(q.x), -4.0, 4.0);
+  float d = 1e5; m = 0.0;
+  for (int t = 0; t < 2; t++) {
+    float i = i0 + float(t);
+    float ki = central ? cjBrote(cjRango(i + 4.0), k1) : 1.0;
+    float mc;
+    float dc = ki > 0.001 ? cjCaja(q - vec3(i, 0.0, 0.0), ki, mc) : 1e5;
+    if (dc < d) { d = dc; m = mc; }
+  }
+  float kb = central ? clamp((k1 - 0.62) / 0.3, 0.0, 1.0) : 1.0;
+  float sb = 1.0 - (1.0 - kb) * (1.0 - kb) * (1.0 - kb);
+  vec3 qb = (q - vec3(0.5, 0.0, -0.08)) / max(sb, 1e-3);
+  float b = kb > 0.001 ? cjBandeja(qb, CJ_FILA, -0.37, 0.08, 0.09, 0.1) * sb : 1e5;
+  if (b < d) { m = 2.0; d = b; }
+  return d;
+}
+float cjForma(vec3 q, float L, out float m) {
+  float k1 = clamp(L, 0.0, 1.0), k2 = clamp(L - 1.0, 0.0, 1.0);
+  float d = 1e5; m = 0.0;
+  if (L < 1.0001) return cjFila(q, k1, true, m);
+  // las dos filas más cercanas, cada una con su brote (alrededor de su centro)
+  float j0 = clamp(floor(q.y / CJ_PY), -4.0, 4.0);
+  for (int t = 0; t < 2; t++) {
+    float j = j0 + float(t);
+    float sj = cjBrote(cjRango(j + 4.0), k2);
+    vec3 c = vec3(0.5, j * CJ_PY, -0.08);
+    float mf;
+    float df = sj > 0.001 ? cjFila((q - c) / sj + vec3(0.5, 0.0, -0.08), 1.0, false, mf) * sj : 1e5;
+    if (df < d) { d = df; m = mf; }
+  }
+  float kg = clamp((k2 - 0.62) / 0.3, 0.0, 1.0);
+  float sg = 1.0 - (1.0 - kg) * (1.0 - kg) * (1.0 - kg);
+  vec3 qg = (q - vec3(0.5, 0.7, -0.2)) / max(sg, 1e-3);
+  float gr = kg > 0.001 ? cjBandeja(qg, CJ_GRANDE, -0.45, 0.02, 0.13, 0.12) * sg : 1e5;
+  if (gr < d) { d = gr; m = qg.z > -0.06 ? 4.0 : 3.0; }
+  return d;
+}
+float pz_cajas(vec3 q, vec4 T, out float m) { return cjForma(q, T.y, m) * 0.95; }
+// envolvente: la caja que encierra lo que hay en este nivel (nunca más lejos que la forma)
+float pza_cajas(vec3 q, vec4 T) {
+  float L = T.y;
+  vec3 c = vec3(0.0, 0.0, -0.02), e = vec3(0.45, 0.45, 0.45);
+  if (L > 0.001) { c = vec3(0.5, 0.0, -0.06); e = vec3(5.3, 0.8, 0.5); }
+  if (L > 1.001) { c = vec3(0.5, 0.7, -0.1); e = vec3(5.5, 7.3, 0.6); }
+  vec3 b = abs(q - c) - e;
+  return (length(max(b, 0.0)) + min(max(b.x, max(b.y, b.z)), 0.0)) * 0.95;
+}
+// para las sombras (dentro de la forma): la cajita de la celda más cercana, con su brote, y el fondo de la bandeja o
+// de la caja grande. Todas las cajitas dan sombra, no solo la primera
+float pzc_cajas(vec3 q, vec4 T) {
+  float L = T.y, k1 = clamp(L, 0.0, 1.0), k2 = clamp(L - 1.0, 0.0, 1.0);
+  bool grande = L > 1.0001;
+  float j = grande ? clamp(floor(q.y / CJ_PY + 0.5), -4.0, 5.0) : 0.0;
+  float sj = grande ? cjBrote(cjRango(j + 4.0), k2) : 1.0;
+  vec3 r = (q - vec3(0.5, j * CJ_PY, -0.08)) / max(sj, 1e-3) + vec3(0.5, 0.0, -0.08);
+  float i = clamp(floor(r.x + 0.5), -4.0, 5.0);
+  float ki = grande ? 1.0 : cjBrote(cjRango(i + 4.0), k1);
+  float d = ki * sj > 0.001 ? sdRoundBox((r - vec3(i, 0.0, -0.04)) / max(ki, 1e-3), vec3(0.34, 0.34, 0.36), 0.05) * ki * sj : 1e5;
+  if (L > 0.999) d = min(d, sdRoundBox(q - vec3(0.5, 0.0, -0.4), vec3(5.0, 0.5, 0.04), 0.02));
+  if (L > 1.999) d = min(d, sdRoundBox(q - vec3(0.5, 0.7, -0.58), vec3(5.2, 7.0, 0.05), 0.02));
+  return d;
+}
+vec3 pzcol_cajas(vec3 q, vec4 T, float m) {
+  float v = 0.93 + 0.14 * vnoise(q * 3.1);
+  if (m > 3.5) { gBri = 3.0; return C_BRASS * 1.05; }
+  if (m > 2.5) return C_WOOD * 1.35 * (0.9 + 0.2 * vnoise(q * vec3(1.5, 9.0, 1.5)));
+  if (m > 1.5) return mix(C_BUTTER, C_OCHRE, 0.55) * 1.1 * v;
+  // cajitas: crema, la tapa algo más tostada; cada una con su tono
+  vec2 id = floor(vec2(q.x + 0.5, q.y / CJ_PY + 0.5));
+  float h = hash12(id + 3.7);
+  vec3 c = m > 0.5 ? vec3(0.50, 0.40, 0.27) : C_CREAM * 0.98;
+  return c * v * (0.94 + 0.12 * h);
+}
+` };
+
+// CONTADOR: un «1» y sus ceros, glifos de churro (los del kit) con un contador. T.y = ceros (el último, fraccionario,
+// brota); T.z = color de colorGlifo. Alto 1 (de −0,5 a 0,5); el «1» va en x = 0 y cada cero, 0,66 más a la derecha.
+const CONTADOR = { radio: 2.2, glifos: ['1', '0'], glsl: /* glsl */`
+float pz_contador(vec3 q, vec4 T, out float m) {
+  m = 0.0;
+  float dp;
+  vec3 p = q + vec3(0.99, 0.0, 0.0);   // centro de «100» en el origen
+  float d = churro(g1(p.xy, dp), p.z, 0.085);
+  for (int k = 1; k <= 3; k++) {
+    float s = clamp(T.y - float(k - 1), 0.0, 1.0);
+    s = 1.0 - (1.0 - s) * (1.0 - s) * (1.0 - s);
+    vec3 r = (p - vec3(0.66 * float(k), 0.0, 0.0)) / max(s, 1e-3);
+    float dz = churro(g0(r.xy, dp), r.z, 0.085) * max(s, 1e-3);
+    d = min(d, s > 0.01 ? dz : 1e5);
+  }
+  return d;
+}
+float pzc_contador(vec3 q, vec4 T) { float m; return pz_contador(q, T, m); }
+vec3 pzcol_contador(vec3 q, vec4 T, float m) { return colorGlifo(T.z) * (0.93 + 0.14 * vnoise(q * 5.0)); }
+` };
+
+// ---------------------------------------------------------------- el plató
+const busq = new URLSearchParams(location.search);
+const MINI_PELO = busq.get('mini') === 'tronco' ? 'tronco' : 'pelo';
+const I = { PER: 0, REG: 1, FLE: 2, CAJ: 3, CNT: 4, PELO: 5, RED: 6 };
+const P = await crearPlato({
+  piezas: ['humano', 'reglaA', 'flecha', 'cajas', 'contador', MINI_PELO, 'red'],
+  globo: true, alfa: true, post: false,
+  tiposExtra: { cajas: CAJAS, contador: CONTADOR },
+  sombraFondo: ['p0', 'p1'],
+  sombras: { p0: ['atomo'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+// px de pantalla por unidad del mundo a la profundidad de pos
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+
+// lienzo 2D encima del de WebGL (se compone aquí; viñeta y grano al final)
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+function pegarGL() { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lienzoGL, 0, 0); g.restore(); }
+
+// ---------------------------------------------------------------- puesta en escena
+// la regla de los generales y del detalle (la de las pruebas)
+const E_REG = 1.42, REG = en(1668, 528, 0.4), ROT_REG = [0, -0.12, 0];
+// el plano medio de la regla: la misma regla entera, KR veces más grande, con su centro en X_RM; la marca que se señala
+// queda a la altura Y_RM (la de +27, algo más baja: así se ve la red de encima)
+const KR = 1.8, X_RM = 1340;
+const Y_RM = (e) => (e > 20 ? 450 : e > 0 ? 540 : 560);
+// la persona, en el sitio de la de la prueba
+const E_PER = 2.4, PER = [en(612, 600, 0.6)[0], E_PER, 0.6], ROT_PER = 0.2;
+// la cajita del general (flota en el centro) y la caja del detalle (más cerca, a la izquierda del contador)
+const Z_CG = 1.8, CAJ_G = en(1000, 470, Z_CG);
+const ESC_CG = 118 / (0.8 * pxU(CAJ_G));                 // la cajita, de unos 118 px
+const Z_CD = 4.6, CAJ_D = en(765, 425, Z_CD);
+const PX_CD = pxU(CAJ_D);
+const ESC_D0 = 300 / (0.8 * PX_CD);                      // la cajita sola, de unos 300 px
+const ESC_D1 = 720 / (10.3 * PX_CD);                     // la bandeja, de unos 720 px de largo
+const ESC_D2 = 570 / (10.8 * PX_CD);                     // la caja grande, de unos 570 px de ancho
+const ROT_CAJA = [-0.95, -0.28, 0.0];
+// Atom: el presentador de ep3-hola
+const A_Z = 1.0, ATOMO_PRES = [230, 780];
+const escAtomo = (sx, sy, d) => d / (2 * (1.68 + 0.16) * pxU(en(sx, sy, A_Z)));
+const A_ESC = escAtomo(...ATOMO_PRES, 180);
+// FOCO[0] de prueba-plastilina-adulta (la mano de la derecha de la pantalla, con la «persona» sin girar)
+const FOCO0 = pant([PER[0] + E_PER * 0.215, PER[1] - E_PER * 0.26, PER[2] + E_PER * 0.03]);
+
+// ---------------------------------------------------------------- la regla
+const RE = { e: 0, ya: 1.5, lupa: 0.3, lupaEntera: 1.3 };
+const ENTERA = reglaEstado({ e: RE.e, ya: RE.ya, entera: 1 });
+// en el plano medio: la marca a la que mira la cámara (−4 → +7 → +27, con peso) y dónde queda en pantalla
+function focoRegla(ts) {
+  const u1 = eio(prog(ts, T.tierra - 0.62, T.tierra - 0.04)), u2 = eio(prog(ts, T.borde - 0.62, T.borde - 0.04));
+  const e = mix(mix(-4, 7, u1), 27, u2);
+  const y = mix(mix(Y_RM(-4), Y_RM(7), u1), Y_RM(27), u2);
+  return { e, y };
+}
+function colocacionRegla(ts) {
+  if (plano(ts) !== 'R') return { pos: REG, escala: E_REG, flecha: 0.8, sep: 0.36 };
+  const S = E_REG * KR, F = focoRegla(ts);
+  const base = en(X_RM, 540, REG[2]);
+  // la y del mundo que cae en (x de la marca, F.y) a la profundidad de la regla; la marca está en pos.y + S·y(e)
+  const Yt = en(X_RM - 0.66 * S * pxU(base), F.y, REG[2])[1];
+  return { pos: [base[0], Yt - S * ENTERA.y(F.e), REG[2]], escala: S, flecha: 0.8 * 1.4, sep: 0.36 * KR };
+}
+// el rótulo grande y ámbar (actual): 10⁰, salvo en el plano medio, donde va con la marca señalada, de golpe
+function actualEn(ts) {
+  if (plano(ts) !== 'R') return 0;
+  if (ts >= T.borde - 0.12) return 27;
+  if (ts >= T.tierra - 0.12) return 7;
+  return -4;
+}
+const enteraEn = (ts) => 1 - eio(prog(ts, T.normal - 0.43, T.normal + 0.02));
+function regla(ts) {
+  const C = colocacionRegla(ts);
+  return P.regla({
+    pieza: I.REG, flecha: I.FLE, pos: C.pos, escala: C.escala, rot: ROT_REG, e: RE.e, ya: RE.ya, entera: enteraEn(ts),
+    actual: actualEn(ts), marca: 0, lupa: RE.lupa, lupaEntera: RE.lupaEntera, escalaFlecha: C.flecha, separacion: C.sep,
+    toque: Math.abs(ts - (T.normal - 0.2)) < 0.3,
+  });
+}
+
+// ---------------------------------------------------------------- Atom
+function atomo(ts) {
+  const tz = calma(ts);
+  const w = en(ATOMO_PRES[0], ATOMO_PRES[1], A_Z);
+  P.atomo({
+    pos: [w[0], w[1] + 0.006 * Math.sin(tz * 1.1), w[2]], escala: A_ESC,
+    yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06,
+    energia: ts < QUIETO ? E.energia(ts) : 0, ts: tz,
+  });
+}
+
+// ---------------------------------------------------------------- la persona
+const respira = (ts) => 0.008 * Math.sin(calma(ts) * 2.4) * (1 - ss(QUIETO - 0.9, QUIETO, ts));
+// dirección de la cabeza (giro, inclina) hacia un punto del mundo
+function cabezaHacia(w) {
+  const dx = w[0] - PER[0], dy = w[1] - (PER[1] + E_PER * 0.611), dz = w[2] - PER[2];
+  const c = Math.cos(ROT_PER), s = Math.sin(ROT_PER);
+  const lx = c * dx - s * dz, lz = s * dx + c * dz;
+  return [Math.atan2(lx, lz), -Math.atan2(dy, Math.hypot(lx, lz))];
+}
+function persona(ts, R) {
+  const pl = plano(ts);
+  if (pl === 'D' || pl === 'R') return null;
+  const p = postura('depie');
+  let apuntar = null;
+  if (pl === 'G1') {
+    // mira la cajita que brota en el centro
+    const k = eio(prog(ts, T.uno - 0.15, T.uno + 0.45));
+    const [gi, inc] = cabezaHacia(CAJ_G);
+    p.cabeza = [0.75 * gi * k, 0.6 * inc * k, 0.03 * k];
+    p.mirada = [0.6 * k, -0.25 * k];
+  } else if (pl === 'G2') {
+    // «tú estás en el salto cero»: señala con la izquierda el marcador y lo mira
+    const k = eio(prog(ts, T.g2 + 0.02, T.cero + 0.18));
+    const [gi, inc] = cabezaHacia(R.flecha);
+    p.cabeza = [0.7 * gi * k, 0.6 * inc * k, 0];
+    p.mirada = [0.7 * k, 0.1 * k];
+    p.torso = [0, 0.06 * k, 0];
+    apuntar = { izq: R.flecha, peso: k };
+  }
+  const h = P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + respira(ts), 1], rot: [0, ROT_PER, 0], postura: p, t: ts, apuntar, huellaFija: [0.37, 0.21, 0.0] });
+  window.__persona = { coronilla: pant(h.punto('coronilla')), suela: pant(h.mundo([0, -1, 0.05])), centro: pant(h.mundo([0, 0, 0])) };
+  return h;
+}
+
+// ---------------------------------------------------------------- las cajas y el contador
+function nivelCajas(ts) {
+  return eio(prog(ts, T.salto1 - 0.62, T.salto1)) + eio(prog(ts, T.salto2 - 0.62, T.salto2));
+}
+function cajas(ts) {
+  const pl = plano(ts);
+  const tz = calma(ts);
+  if (pl === 'G1') {
+    const k = eoc(prog(ts, T.uno - 0.3, T.uno));
+    if (k <= 0) return;
+    P.pieza(I.CAJ, { pos: [CAJ_G[0], CAJ_G[1] + 0.03 * Math.sin(tz * 1.3) + 0.25 * (1 - k), CAJ_G[2]], escala: ESC_CG * mix(0.3, 1, k),
+      rot: [ROT_CAJA[0], ROT_CAJA[1] + 0.06 * Math.sin(tz * 0.6), ROT_CAJA[2]], variante: 0, toque: k < 1 });
+    return;
+  }
+  if (pl !== 'D') return;
+  const L = nivelCajas(ts);
+  // el «alejarse» de cada salto va por delante de las cajas nuevas (y frena en seco)
+  const z1 = eio(prog(ts, T.salto1 - 0.72, T.salto1 - 0.08)), z2 = eio(prog(ts, T.salto2 - 0.72, T.salto2 - 0.08));
+  const esc = ESC_D0 * Math.pow(ESC_D1 / ESC_D0, z1) * Math.pow(ESC_D2 / ESC_D1, z2);
+  // el centro de la pieza se corre para que lo que hay quede centrado
+  const rot = [ROT_CAJA[0], ROT_CAJA[1] + 0.04 * Math.sin(tz * 0.5), ROT_CAJA[2]];
+  const Rm = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(rot[0], rot[1], rot[2], 'YXZ'));
+  const v = new THREE.Vector3(0.5 * z1 * esc, 0.7 * z2 * esc, 0).applyMatrix4(Rm);
+  P.pieza(I.CAJ, { pos: [CAJ_D[0] - v.x, CAJ_D[1] - v.y, CAJ_D[2] - v.z], escala: esc, rot, variante: L,
+    toque: (L > 0.02 && L < 0.98) || (L > 1.02 && L < 1.98) });
+}
+const CNT_ALTO = 92;   // px del contador
+function contador(ts, R) {
+  const pl = plano(ts);
+  if (pl !== 'G1' && pl !== 'D') return;
+  const k = eoc(prog(ts, T.uno - 0.3, T.uno));
+  if (k <= 0) return;
+  const ceros = eio(prog(ts, T.salto1 - 0.3, T.salto1)) + eio(prog(ts, T.salto2 - 0.3, T.salto2));
+  // a la izquierda del marcador, con el «1» fijo y los ceros hacia la regla
+  const f = pant(R.flecha);
+  const base = en(f[0] - 315, f[1] - 4, 0.9);
+  const esc = CNT_ALTO / pxU(base);
+  const tz = calma(ts);
+  // el centro de la pieza es el de «100»: el «1» queda en x = −0,99
+  P.pieza(I.CNT, { pos: [base[0] + 0.99 * esc, base[1] + 0.01 * Math.sin(tz * 1.7) + 0.15 * (1 - k), base[2]], escala: esc * mix(0.4, 1, k),
+    rot: [0, -0.1, 0], variante: ceros, color: 3, toque: k < 1 || (ceros % 1) > 0.01 });
+}
+
+// ---------------------------------------------------------------- las miniaturas junto a la regla (plano medio)
+// la de cada marca: grande mientras es la suya (y su rótulo, el grande y ámbar) y pequeña después, junto a su marca
+const MINI = [
+  { e: -4, t: () => T.pelo, grande: 250, peq: 115 },
+  { e: 7, t: () => T.tierra, grande: 230, peq: 115 },
+  { e: 27, t: () => T.borde, grande: 260, peq: 150 },
+];
+function miniaturas(ts, R) {
+  if (plano(ts) !== 'R') return;
+  const tz = calma(ts);
+  MINI.forEach((mi, idx) => {
+    const t1 = mi.t();
+    const k = eoc(prog(ts, t1 - 0.34, t1 - 0.02));
+    if (k <= 0) return;
+    const sig = idx + 1 < MINI.length ? MINI[idx + 1].t() : null;
+    const chica = sig === null ? 0 : eio(prog(ts, sig - 0.45, sig - 0.05));
+    const tam = mix(mi.grande, mi.peq, chica) * mix(0.25, 1, k);
+    // a la izquierda de la marca, por fuera del marcador (la flecha mide unos 90·KR px)
+    const pm = pant(R.punto(mi.e));
+    const sx = pm[0] - 215 - tam / 2, sy = pm[1];
+    const w = en(sx, sy, 1.2);
+    const u = pxU(w);
+    const toque = k < 1 || (chica > 0 && chica < 1);
+    if (mi.e === -4) {
+      if (MINI_PELO === 'tronco') P.pieza(I.PELO, { pos: w, escala: tam / (2 * 2.2 * u), rot: [0.15, 0.35, -0.35], toque });
+      else {
+        // el pelo sale de la losa hacia arriba: se baja la pieza para que el conjunto quede centrado en la marca
+        const e = tam / (2 * 1.75 * u);
+        P.pieza(I.PELO, { pos: [w[0], w[1] - 0.55 * e, w[2]], escala: e, rot: [0.5, -0.45 + 0.05 * Math.sin(tz * 0.7), 0], toque });
+      }
+    } else if (mi.e === 7) {
+      P.globo({ pos: w, radio: tam / (2 * 1.08 * u), inclinacion: 0.41, giro: 1.2 + 0.3 * tz, toque });
+    } else {
+      P.pieza(I.RED, { pos: w, escala: tam / (2 * 0.5 * u), rot: [0.05, 0.25 + 0.04 * Math.sin(tz * 0.6), 0], toque });
+    }
+  });
+}
+
+// ---------------------------------------------------------------- el brillo de la mano (la cámara «mira hacia abajo»)
+function brilloMano(ts, h) {
+  const k = ss(T.brillo - 0.45, T.brillo, ts) * (1 - ss(T.brillo + 0.1, T.apaga, ts));
+  if (k < 0.004 || !h) return;
+  const p = pant(h.punto('manoIzq'));
+  g.save(); g.globalCompositeOperation = 'lighter';
+  const R = 170;
+  const gr = g.createRadialGradient(p[0], p[1], 4, p[0], p[1], R);
+  gr.addColorStop(0, `rgba(255,205,135,${0.72 * k})`); gr.addColorStop(0.22, `rgba(245,160,80,${0.3 * k})`); gr.addColorStop(1, 'rgba(200,110,50,0)');
+  g.fillStyle = gr; g.fillRect(p[0] - R, p[1] - R, 2 * R, 2 * R);
+  g.restore();
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  ajustarCapa();
+  const n = P.fotograma(t, D), ts = n / 12;
+  P.limpiar();
+  const R = regla(ts);
+  atomo(ts);
+  const h = persona(ts, R);
+  cajas(ts);
+  contador(ts, R);
+  miniaturas(ts, R);
+  P.render(n);
+  g.clearRect(0, 0, W, H);
+  pegarGL();
+  brilloMano(ts, h);
+  POST.aplicar(g, n);
+  if (ts >= QUIETO - 1e-6 && h) {
+    window.__fin = { manoIzq: pant(h.punto('manoIzq')).map((x) => Math.round(x)), foco0: FOCO0.map((x) => Math.round(x)) };
+  }
+}
+window.__carga = Math.round(performance.now() - T0);
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

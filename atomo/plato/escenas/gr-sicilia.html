@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sicilia · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-SICILIA (frase 29). Mapa: una flecha azul de barcos sale de Atenas, rodea el Peloponeso y llega a Siracusa, en Sicilia;
+// allí la flecha se rompe y los barquitos desaparecen; «27» años en la caja.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-sicilia');
+const { PALA, PR, tramo, lerp } = R;
+const m0 = M('sicilia', 0.5);
+const v = [11, 27, 33.8, 42.8];
+const mapa = (t) => {
+  R.mapa(t, { vista: v });
+  const pts = ['atenas', [23.2, 36.3], [21.3, 36.6], [19.5, 37.6], [16.5, 37.4], 'siracusa'].map((c) => R.lugar(c, undefined, v));
+  const p = tramo(t, m0 + 1.5, m0 + 4.5), rompe = tramo(t, m0 + 5, m0 + 6.5);
+  if (rompe < 1) R.flechaMapa(pts, p, PALA.AZUL[3]);
+  const [sx, sy] = pts[pts.length - 1];
+  for (let k = 0; k < 8; k++) { if (R.hash2(k, 9) < rompe) continue; const x = sx + 6 + (k % 4) * 5, y = sy - 4 + Math.floor(k / 4) * 6; R.rect(x - 2, y, x + 2, y + 1, PR.MADERA[1]); R.rect(x - 1, y - 2, x + 1, y - 1, PALA.AZUL[2]); }
+  R.punto(...R.lugar('atenas', undefined, v), t, PALA.AZUL, 2); R.punto(sx, sy, t, PALA.ROJO, 2);
+};
+rodar(E, R, [[0, mapa]], { año: -413, caja: (t, e) => R.caja(t, tramo(t, m0 + 0.3, m0 + 0.7), (x, y) => R.numero(String(Math.max(1, Math.round(27 * tramo(t, m0 + 0.7, m0 + 3)))), x + 10, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

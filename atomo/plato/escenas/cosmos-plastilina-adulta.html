@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cosmos · plastilina adulta</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Segunda prueba de identidad · PLASTILINA ADULTA (versión B; prueba-identidad/ENCARGO-PLASTILINA-ADULTA.md):
+// de ti a la Vía Láctea en 11,6 s, con el guion, las marcas y los encuadres de cosmos-plastilina.html (la A) y
+// el aspecto adulto de los kits plastilina-adulta.js y plastilina-cosmos-adulta.js.
+//  0          el plató: la persona de pie, la regla de nogal con el puntero en 10⁰ m y Atom junto a su hombro
+//  tu         un electrón sale de la órbita de Atom sobre un alambre fino y señala a la persona
+//  arriba     Atom se desliza hacia arriba y a la derecha y mira arriba; la regla enseña las potencias positivas
+//  siete → tierra   siete saltos ×10 hacia fuera (casa y calle → barrio → ciudad orgánica → campos → región →
+//             la península → la Tierra), con golpes de alejamiento secos y una maqueta de macro (basculante)
+//  dos → sol  la Tierra se encoge, pasa la Luna y entra el Sol, enorme, con la Tierra como un punto
+//  doce → lactea    doce saltos cada vez más seguidos: el sistema solar (grande y lleno), estrellas vecinas,
+//             campo de estrellas y la Vía Láctea de colores reales; un puntero ámbar marca dónde estamos
+//  después    todo se asienta y queda quieto
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, cl, mix, prog, ss, eio, eoc, eic, azar } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo } from '/atomo/plato/kits/plastilina-cosmos-adulta.js';
+
+const T0 = performance.now();
+const E = await escena('cosmos-plastilina-adulta', 'cosmos');
+const M = (k) => E.marca(k);
+const m = {};
+for (const k of ['tu', 'arriba', 'siete', 'desaparecido', 'tierra', 'dos', 'sol', 'doce', 'galaxia', 'lactea']) { m[k] = M(k); m[k + '_fin'] = M(k + '_fin'); }
+const QUIETO = E.duracion - 0.6;
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+
+// ---------------------------------------------------------------- los saltos
+// 1–7: de siete a tierra, repartidos; 8–9: de dos a sol; 10–21: de doce a lactea, cada vez más seguidos
+const J1 = 0.32;
+const SALTOS = [];
+for (let k = 0; k < 7; k++) { const a = (m.siete - 0.12) + k * ((m.tierra - J1) - (m.siete - 0.12)) / 6; SALTOS.push([a, a + J1]); }
+{ const a = m.dos - 0.14, j = (m.sol - a) / 2; SALTOS.push([a, a + j], [a + j, m.sol]); }
+{
+  const a = m.doce - 0.12, b = m.lactea;
+  const f = (u) => 1 - Math.pow(1 - u, 1.35);
+  for (let k = 0; k < 12; k++) SALTOS.push([a + (b - a) * f(k / 12), a + (b - a) * f((k + 1) / 12)]);
+}
+// golpe seco: arranca con fuerza y frena en firme, sin pasarse ni rebotar (como un rig de control de movimiento)
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+// exponente de la regla (continuo): cada salto suma 1
+function zRegla(t) {
+  let z = 0;
+  SALTOS.forEach(([a, b], k) => {
+    const u = prog(t, a, b);
+    if (u <= 0) return;
+    z += k < 9 ? seco(u) : eoc(u);
+  });
+  return z;
+}
+// el zoom de la cámara: el de la regla, salvo en el sistema solar (se acerca un poco para que las órbitas
+// llenen el plano) y al final (la galaxia entera cabe en el plano)
+const zCam = (zr) => zr + 0.12 * ss(0.4, 1.0, zr) * (1 - ss(4.5, 6.0, zr)) - 0.42 * ss(11.9, 12.7, zr) * (1 - ss(13.6, 14.6, zr)) - 0.19 * ss(19, 21, zr);
+
+// ---------------------------------------------------------------- el plató (kit)
+const I = { PER: 0, REG: 1, FLE: 2, AQUI: 3 };
+const P = await crearPlato({
+  piezas: ['persona', 'reglaA', 'flecha', 'flecha'],
+  mano: false, alfa: true,
+  sombraFondo: ['p0', 'p1'],
+  sombras: { p0: ['atomo'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+if (new URLSearchParams(location.search).has('perfil')) console.log('plato', Math.round(performance.now() - T0));
+const W = 1920, H = 1080;
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const E_PER = 2.4, PER = (() => { const a = en(612, 600, 0.6); return [a[0], 1.0 * E_PER, 0.6]; })();
+const E_REG = 1.42, REG = en(1655, 528, 0.4);
+const A_ESC = 0.4, A_Z = 1.0;
+const ATOMO0 = [850, 330], ATOMO1 = [1335, 292];
+
+// ---------------------------------------------------------------- el mundo (debajo del plató)
+const cont = document.getElementById('escena');
+const mundo = crearMundo(cont, { captura: P.captura });
+P.renderer.domElement.style.zIndex = '1';
+
+// ---------------------------------------------------------------- Atom
+const DT = 1 / 240, TA = [0];
+const velA = (t) => (1 + 1.6 * ss(m.doce - 0.2, m.doce + 0.3, t) * (1 - ss(m.lactea, m.lactea + 0.8, t))
+  + 1.2 * Math.exp(-Math.pow((t - m.tierra) / 0.35, 2))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= E.duracion + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT);
+const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor(x)); return mix(TA[i], TA[i + 1], x - i); };
+
+// 1 mientras se ve el suelo claro (de la primera mirilla a la península), 0 en el plató y en el espacio
+const sueloClaro = (ts) => { const z = zRegla(ts); return ts < SALTOS[0][0] ? 0 : ss(0.3, 0.9, z) * (1 - ss(5.6, 6.6, z)); };
+function estadoAtom(ts) {
+  const tz = calma(ts);
+  // «arriba»: se desliza con peso hacia arriba y a la derecha (a su sitio para el viaje) y mira arriba
+  const u = eio(prog(ts, m.arriba - 0.3, m.arriba + 0.5));
+  const arco = Math.sin(Math.PI * u) * 36;
+  let sx = mix(ATOMO0[0], ATOMO1[0], u), sy = mix(ATOMO0[1], ATOMO1[1], u) - arco;
+  sy += 4 * Math.sin(tz * 1.3) + 3 * Math.sin(tz * 0.7 + 1.0);
+  const mira = ss(m.arriba - 0.35, m.arriba + 0.05, ts) * (1 - 0.6 * ss(m.siete, m.siete + 0.6, ts));
+  // en «tierra» y en «sol», un brillo (en atomo) en lugar de saltos de alegría
+  const brillo = Math.max(...[m.tierra, m.sol].map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))));
+  return { sx, sy, k: 0, mira, tz, brillo };
+}
+function atomo(ts) {
+  const S = estadoAtom(ts), ta = tAtomo(ts);
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  // «tu»: un electrón sale de su órbita sobre un alambre fino y señala a la persona (un gesto pequeño)
+  const kTu = ss(m.tu - 0.3, m.tu - 0.02, ts) * (1 - ss(m.tu + 0.45, m.tu + 0.8, ts));
+  // «lactea»: señala dónde estamos
+  const kAq = ss(m.lactea - 0.2, m.lactea + 0.1, ts);
+  const electrones = [];
+  if (kTu > 0.001) electrones.push({ pos: [-2.5, -0.85, 0.5], mezcla: eio(kTu), brazo: ss(0.15, 0.6, kTu), grosor: 0.042 });
+  else if (kAq > 0.001) electrones.push({ pos: [-2.5, -1.45, 0.6], mezcla: eio(kAq), brazo: ss(0.15, 0.6, kAq), grosor: 0.042 });
+  const w = en(S.sx, S.sy, A_Z);
+  const lean = -0.08 * kTu - 0.06 * kAq;
+  // (B ajustada) sobre el suelo claro (casas, ciudad, campos) Atom lleva menos resplandor y un velo algo más
+  // oscuro detrás, para que el latón no se pierda sobre los ocres; en el plató y en el espacio, el halo entero
+  const kS = sueloClaro(ts);
+  P.atomo({
+    pos: w, escala: A_ESC, yaw: -0.15 + 0.08 * Math.sin(S.tz * 0.5) + 0.2 * kTu, pitch: 0.06 - 0.5 * S.mira,
+    roll: lean, energia: Math.min(1, en0 + 0.45 * S.brillo), ts: ta, electrones, toque: kTu > 0.05 || kAq > 0.05,
+    halo: 1 - 0.55 * kS, velo: 0.1 + 0.3 * kS,
+  });
+  return S;
+}
+
+// ---------------------------------------------------------------- la regla
+function regla(ts, zr) {
+  // la flecha baja de la fila de arriba al centro en «arriba» (la regla enseña las potencias positivas)
+  const ya = mix(1.5, 0.0, eio(prog(ts, m.arriba - 0.3, m.arriba_fin)));
+  P.U.uReglaA.value.set(zr, ya, 0.5, zr);
+  const mov = SALTOS.some(([a, b]) => ts > a && ts < b + 0.1);
+  P.pieza(I.REG, { pos: REG, escala: E_REG, rot: [0, -0.12, 0], toque: mov });
+  const yF = REG[1] + E_REG * ya;
+  P.pieza(I.FLE, { pos: [REG[0] - E_REG * 0.68 - 0.36, yF, REG[2] + 0.1], escala: 0.8, rot: [0, -0.15, 0], toque: mov });
+}
+
+// ---------------------------------------------------------------- la persona (plató)
+function persona(ts) {
+  const tz = calma(ts);
+  const giro = 0.18 + 0.06 * ss(m.tu - 0.3, m.tu + 0.1, ts);
+  const resp = 0.008 * Math.sin(tz * 2.4);
+  P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + resp, 1], rot: [0.02, giro, 0], toque: false, huellaFija: [0.37, 0.21, 0.0] });
+}
+
+// ---------------------------------------------------------------- la cámara del mundo
+// Todo se coloca en metros, con origen en la persona (x este, y norte), y se pasa a píxeles con la escala
+// del momento: 540 px son 10^z m. Las distancias del sistema solar son de verdad desde z ≈ 11,3; antes,
+// el Sol está «al lado» de la Tierra (como pide el guion) y se va alejando hasta su sitio.
+const R_TIERRA = 6.371e6, R_SOL = 6.96e8, UA = 1.496e11, AL = 9.461e15, R_GAL = 5e20;
+const FI_T = -0.9378;                                         // la Tierra en su órbita (elipse inclinada)
+const aTierra = (z) => Math.pow(10, mix(Math.log10(1.49e9), Math.log10(UA), ss(9.0, 11.3, z)));
+const solMundo = (z) => { const a = aTierra(z); return [-a * Math.cos(FI_T), -0.45 * a * Math.sin(FI_T)]; };
+const GAL_DESDE_SOL = [-0.328 * R_GAL, 0.330 * R_GAL];        // el centro de la galaxia visto desde el Sol
+function centroCam(z) {
+  const S = solMundo(z);
+  const w1 = ss(8.2, 9.05, z), w2 = ss(19.2, 20.8, z);
+  const c = [S[0] * w1, S[1] * w1];
+  return [mix(c[0], S[0] + GAL_DESDE_SOL[0], w2), mix(c[1], S[1] + GAL_DESDE_SOL[1], w2)];
+}
+function anclaCam(z) {
+  let x = mix(612, 820, ss(0.5, 2.6, z)), y = mix(585, 500, ss(0.5, 2.6, z));
+  x = mix(x, 720, ss(8.2, 9.05, z)); y = mix(y, 470, ss(8.2, 9.05, z));
+  x = mix(x, 800, ss(19.2, 20.8, z)); y = mix(y, 480, ss(19.2, 20.8, z));
+  return [x, y];
+}
+function camara(ts) {
+  const zr = zRegla(ts), z = zCam(zr);
+  return { zr, z, mpp: Math.pow(10, z) / 540, ancla: anclaCam(z), centro: centroCam(z) };
+}
+const aPant = (C, w) => [C.ancla[0] + (w[0] - C.centro[0]) / C.mpp, C.ancla[1] - (w[1] - C.centro[1]) / C.mpp];
+const fr = (x) => x - Math.floor(x);
+// la Luna: pasa por delante (grande, desde abajo a la izquierda) mientras la Tierra se encoge y se
+// queda al lado de la Tierra; desde «sol», pegada al mundo
+const T_LUNA = [SALTOS[7][0] - 0.05, m.sol + 0.12];
+let lunaFija = null;
+function lunaEn(ts, C) {
+  const tierra = aPant(C, [0, 0]);
+  if (ts < T_LUNA[0]) return [0, 0, 0, 0];
+  if (ts <= T_LUNA[1]) {
+    const u = prog(ts, T_LUNA[0], T_LUNA[1]), e = ss(0, 1, u);
+    const fin = [tierra[0] + 46, tierra[1] - 20];
+    const a = [-260, 760], b = [520, 600];
+    const x = (1 - e) * (1 - e) * a[0] + 2 * (1 - e) * e * b[0] + e * e * fin[0];
+    const y = (1 - e) * (1 - e) * a[1] + 2 * (1 - e) * e * b[1] + e * e * fin[1];
+    return [x, y, 3.4 + 250 * Math.pow(1 - u, 2.2), 1];
+  }
+  if (!lunaFija) {
+    const C1 = camara(T_LUNA[1]);
+    lunaFija = { off: [46 * C1.mpp, 20 * C1.mpp], r: 3.4 * C1.mpp };
+  }
+  const p = aPant(C, lunaFija.off), r = lunaFija.r / C.mpp;
+  return [p[0], p[1], r, ss(0.4, 1.2, r)];
+}
+function estadoMundo(ts, n) {
+  const C = camara(ts);
+  const { z, mpp } = C;
+  const nos = aPant(C, [0, 0]);
+  const Rpx = R_TIERRA / mpp;
+  // octavas de las huellas de la arcilla: pegadas al mundo, de unos 80 px
+  const L0 = Math.floor(z), f = z - L0;
+  const mundoEn = [C.centro[0] + (960 - C.ancla[0]) * mpp, C.centro[1] + (C.ancla[1] - 540) * mpp];
+  const lp = [0, 1].map((i) => {
+    const u = 0.148 * Math.pow(10, L0 + i);
+    return [fr(mundoEn[0] / u / 1000) * 1000, fr(mundoEn[1] / u / 1000) * 1000, mpp / u, i ? f : 1 - f];
+  });
+  const pesoCelda = (cpx) => ss(8, 30, cpx);
+  const estr = [0, 1, 2].map((i) => {
+    const L = L0 - 1 + i, Cl = 70 * Math.pow(10, L) / 540;
+    const w = pesoCelda(Cl / mpp) * ss(6.2, 6.8, z) * (1 - ss(18.6, 19.6, z));
+    return [fr(C.centro[0] / Cl / 1000) * 1000, fr(C.centro[1] / Cl / 1000) * 1000, mpp / Cl, w];
+  });
+  const estrG = [0, 1].map((i) => {
+    const L = L0 + i, Cl = 70 * Math.pow(10, L) / 540;
+    return [0, 0, mpp / Cl, pesoCelda(Cl / mpp) * ss(18.4, 19.4, z)];
+  });
+  const S = solMundo(z), sP = aPant(C, S);
+  const G = [S[0] + GAL_DESDE_SOL[0], S[1] + GAL_DESDE_SOL[1]], gP = aPant(C, G);
+  const variante = z < 3.55 ? 'cerca' : z < 7.6 ? 'lejos' : z < 11.6 ? 'sol' : z < 16.9 ? 'sistema' : 'espacio';
+  const kAqui = eoc(prog(ts, m.lactea - 0.3, m.lactea));
+  return {
+    n, z, mpp, variante, boil: [1.3 + (azar(n, 4) - 0.5) * 0.5, 0.7 + (azar(n, 5) - 0.5) * 0.5, 2.1 + (azar(n, 6) - 0.5) * 0.5],
+    flicker: 1 + (azar(n, 3) - 0.5) * 0.03,
+    suelo: [nos[0], nos[1], Rpx, 0], kh: Math.min(60, 0.55 * Math.pow(10, 0.42 * Math.max(z - 2.5, 0)) * (1 - 0.2 * Math.exp(-Math.pow((z - 5.2) / 0.7, 2)))), tablero: -Rpx, ancla: C.ancla,
+    luz: [-0.45, 0.55, 0.7], lp, estr, estrG,
+    capas: {
+      uLuna: lunaEn(ts, C),
+      uSol: [sP[0], sP[1], R_SOL / mpp, variante === 'espacio' ? 1 - 0.45 * ss(19.6, 20.4, z) : ss(7.9, 8.3, z)],
+      uSis: [sP[0], sP[1], aTierra(z) / mpp, ss(9.3, 10.0, z) * (1 - ss(15.6, 16.4, z))],
+      uVec: [sP[0], sP[1], AL / mpp, ss(15.8, 16.4, z) * (1 - ss(17.9, 18.5, z))],
+      uGal: [gP[0], gP[1], R_GAL / mpp, ss(19.55, 20.2, z)],
+      uAqui: [sP[0], sP[1], kAqui, ss(14.0, 14.8, z) * (1 - ss(16.2, 16.9, z))],
+    },
+    C, sP,
+    // maqueta de macro: nítido en la franja del zoom, borroso arriba y abajo (solo mirando al suelo)
+    tilt: [C.ancla[1], 150, 13, (1 - ss(5.3, 6.1, z)) * ss(0.25, 0.9, C.zr)],
+  };
+}
+
+// ---------------------------------------------------------------- fotograma
+const T_PLATO = SALTOS[0][0];        // hasta aquí, el plató; después, el mundo
+let fotoPlato = null;
+function hacerFotoPlato() {
+  const nf = Math.floor(T_PLATO * 12 + 1e-6);
+  P.fotograma(T_PLATO); P.limpiar();
+  persona(T_PLATO);
+  // sin viñeta ni grano: el mundo (pasada D) los pone sobre la foto
+  P.U.uPost.value = 0;
+  P.render(nf);
+  P.U.uPost.value = 1;
+  const c = document.createElement('canvas'); c.width = P.renderer.domElement.width; c.height = P.renderer.domElement.height;
+  c.getContext('2d').drawImage(P.renderer.domElement, 0, 0);
+  mundo.inserto(c);
+  fotoPlato = c;
+}
+function dibujar(t) {
+  const ts = Math.min(t, QUIETO);
+  const nf = Math.floor(ts * 12 + 1e-6);
+  const zr = zRegla(ts);
+  if (ts < T_PLATO) {
+    // el plató de la primera prueba
+    P.fotograma(ts); P.limpiar();
+    persona(ts); atomo(ts); regla(ts, zr);
+    P.render(nf);
+    return;
+  }
+  if (!fotoPlato) hacerFotoPlato();
+  const est = estadoMundo(ts, nf);
+  // primer salto: la foto del plató se encoge en una mirilla hacia la persona
+  const ki = est.C.zr;
+  if (ki < 1.05) {
+    const s = Math.pow(10, -0.85 * Math.max(ki, 0));
+    const per = [612, 585];
+    const nos = [est.suelo[0], est.suelo[1]];
+    // radio de la mirilla en px de la foto: toda la foto al empezar, luego un círculo que cabe dentro
+    const rImg = mix(470, 1500, ss(0.8, 1.0, s));
+    est.ins = { c: [nos[0] + (960 - per[0]) * s, nos[1] + (540 - per[1]) * s], s, a: 1 - ss(0.72, 1.0, ki), m: [nos[0], nos[1], rImg * s, 1] };
+  }
+  const S = estadoAtom(ts);
+  est.somA = [S.sx + 40, S.sy + 54, 105, 0.42 + 0.16 * sueloClaro(ts)];
+  est.somR = [1548, 240, 1840, 905, 0.38, 34];
+  mundo.dibujar(est);
+  P.fotograma(ts); P.limpiar();
+  atomo(ts); regla(ts, zr);
+  // la flecha que marca dónde estamos en la galaxia
+  const kA = eoc(prog(ts, m.lactea - 0.3, m.lactea));
+  if (kA > 0.01) {
+    const pA = [est.sP[0] + 50, est.sP[1] - 50];
+    P.pieza(I.AQUI, { pos: en(pA[0], pA[1], 1.2), escala: 0.5 * kA, rot: [0, 0, -2.356], toque: ts < m.lactea + 0.4 });
+  }
+  P.render(nf, { fondo: false });
+}
+hacerFotoPlato();
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

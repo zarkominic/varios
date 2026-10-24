@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dentro · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-DENTRO (frases 30–31). Una calabaza encendida en una ventana; la cámara se acerca hasta meterse dentro. Dentro, a la
+// luz naranja, aparecen uno a uno: una hoguera, una iglesia, un nabo, un barco, una calabaza y unos caramelos.
+import { preparar, rodar, noche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-dentro');
+const { PALA, PR, NARANJA, tramo, lerp, easeIO } = R;
+const m = { ven: M('ventana', 0.5), den: M('dentro', 7) };
+const Ld = E.duracion - m.den;
+const ventana = (t) => {
+  const u = t - m.ven, z = lerp(1, 3.4, easeIO(tramo(u, 1.2, m.den - m.ven)));
+  noche(R, t, { colinas: false, hor: 180 });
+  const w = Math.round(46 * z), h = Math.round(38 * z), cx = 160, cy = Math.round(104 - h + 11.2 * z);
+  R.rect(0, Math.round(cy - h * 2), R.W, R.H, PALA.AZUL[0]);
+  for (let y = Math.max(0, Math.round(cy - h * 2)); y < R.H; y += Math.max(2, Math.round(4 * z))) R.rect(0, y, R.W, y, PALA.CONTORNO);
+  R.rect(cx - w - 3, cy - h - 3, cx + w + 3, cy + h + 3, PR.MADERA[1]);
+  R.rect(cx - w, cy - h, cx + w, cy + h, PALA.ANTORCHA[1]);
+  R.halo(cx, cy, w, [PALA.ANTORCHA[1], PALA.ANTORCHA[2]], 0.7);
+  R.rect(cx - w - 6, cy + h, cx + w + 6, cy + h + Math.round(3 * z), PR.MADERA[2]);
+  R.calabaza(cx, cy + h, 1.6 * z, t);
+};
+const COSAS = [
+  (x, y, t) => R.hoguera(x, y, 1, t),
+  (x, y, t) => { R.rect(x - 12, y - 18, x + 12, y, PR.ROCA[2]); R.poligono([[x - 15, y - 18], [x, y - 30], [x + 15, y - 18]], PR.ROCA[1]); R.rect(x, y - 40, x + 1, y - 30, PALA.ORO[3]); R.rect(x - 3, y - 37, x + 4, y - 36, PALA.ORO[3]); R.rect(x - 3, y - 9, x + 3, y, PR.MADERA[0]); },
+  (x, y, t) => R.nabo(x, y, 1.5, t),
+  (x, y, t) => R.barco(x, y - 2, t, { tipo: 'galeon', esc: 0.4, dir: 1 }),
+  (x, y, t) => R.calabaza(x, y, 1.4, t),
+  (x, y, t) => { R.caramelos(x, y - 3, 8, t); R.caramelos(x, y - 11, 4, t); },
+];
+const dentro = (t) => {
+  const u = t - m.den;
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) { const d = Math.hypot(x - 160, (y - 96) * 1.4) / 180, cost = Math.abs(Math.sin(((x - 160) / 160) * Math.PI * 2.2)) < 0.06; R.pset(x, y, R.tone(NARANJA, 3.6 - d * 3 + (cost ? -1 : 0) + 0.3 * Math.sin(t * 9 + x * 0.01), x, y)); }
+  COSAS.forEach((f, k) => { if (u < 0.08 * Ld + k * 0.12 * Ld) return; f(64 + k * 42, k % 2 ? 108 : 140, t + k); });
+};
+rodar(E, R, [[0, ventana], [m.den - 0.2, dentro]], { año: 2026 });
+</script>
+</body>
+</html>

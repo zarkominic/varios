@@ -54,6 +54,7 @@ async function renderizar(esc) {
   if (faltan && Array.from({ length: f1 - f0 }, (_, k) => f0 + k).every((n) => fs.existsSync(nombre(n)))) return;
   const ESCENA = {
     id: esc.id, duracion: esc.duracion, fps, marcas: esc.marcas, voz: esc.voz ?? null,
+    cartela: esc.cartela ?? null, frases: esc.frases ?? null,
     energia: linea.energia.slice(f0, f1), n: esc.n ?? null, veredicto: esc.veredicto ?? null,
     resultados: veredictos,
   };
@@ -65,7 +66,9 @@ async function renderizar(esc) {
     ruta.fulfill({ status: 200, contentType: 'text/javascript', body: fs.readFileSync(f) });
   });
   await pag.addInitScript((e) => { window.ESCENA = e; }, ESCENA);
-  await pag.goto(`http://localhost:${servidor.address().port}/atomo/plato/escenas/${pagina}.html?captura`);
+  // Sin esperar a «load»: con varias escenas pesadas cargando a la vez (WebGL, fuentes) puede tardar
+  // más de 30 s; lo que cuenta es window.__listo.
+  await pag.goto(`http://localhost:${servidor.address().port}/atomo/plato/escenas/${pagina}.html?captura`, { waitUntil: 'domcontentloaded', timeout: 120000 });
   await pag.waitForFunction(() => window.__listo === true && typeof window.__frame === 'function', null, { timeout: 180000 });
   const paso = await pag.evaluate(() => window.__paso ?? 0);
   let previo = null, dibujados = 0;

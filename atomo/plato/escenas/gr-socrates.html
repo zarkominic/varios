@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Socrates · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-SOCRATES (frase 25). En el ágora, Sócrates para a un hombre rico (ropa morada con oro) y le pregunta; el rico se
+// rasca la cabeza; tres jóvenes escuchan encantados; al fondo, dos poderosos fruncen el ceño.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-socrates');
+const { PALA, PR, ELENCO, tramo } = R;
+const m0 = M('socrates2', 0.5);
+const agora = (t) => {
+  R.cieloR(t, 'dia', { hor: 120 }); acropolis(R, 250, 116, t, { esc: 0.9 });
+  R.suelo(120, PALA.MARMOL, { losas: true, luz: 2.2 });
+  R.puesto(20, 138, t);
+  const u = t - m0;
+  R.personaje(130, 166, 28, { ...ELENCO.socrates, t, pose: 'senala', habla: Math.sin(t * 2) > 0 ? 1 : 0, sonrisa: true });
+  R.personaje(170, 166, 28, { ...ELENCO.griego, chaqueta: PALA.MORADO, camisa: PALA.MORADO, falda: PALA.MORADO, banda: PALA.ORO, pelo: PALA.PELO_NEGRO, t, dir: -1, pose: u > 3 ? 'cara' : 'pie', ceño: u > 3 });
+  for (let k = 0; k < 3; k++) R.personaje(70 + k * 18, 172, 22, { ...ELENCO.griego, barba: 'no', pelo: [PALA.PELO_RUBIO, PALA.PELO_NEGRO, PALA.PELO_CASTANO][k], banda: [PALA.VERDE, PALA.AZUL, PALA.ROJO][k], t: t + k, sonrisa: true, pose: u > 6 && k === 1 ? 'arriba' : 'pie', brazoD: u > 6 && k === 1 ? 'arriba' : 'abajo' });
+  if (u > 7) for (let k = 0; k < 2; k++) R.personaje(240 + k * 26, 150, 24, { ...ELENCO.griego, chaqueta: PALA.NEGRO, camisa: PALA.NEGRO, falda: PALA.NEGRO, banda: PALA.ORO, t: t + k, dir: -1, pose: 'manos_cintura', ceño: true });
+};
+rodar(E, R, [[0, agora]], { año: -420, caja: (t, e) => R.caja(t, tramo(t, m0 + 1.5, m0 + 1.9), (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

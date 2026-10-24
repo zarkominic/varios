@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-medula · células, bacterias y la fábrica de glóbulos</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-medula (frases 22–24, sin cartela: sigue el capítulo «−4»). Plastilina adulta. Va en arcilla aunque el
+// Visual marca isométrico (cambio de estilo pendiente de firma del dueño, ver escenas.json). Piezas: el plató, la regla y
+// el «humano» del kit compartido; el corte del pelo, la fila, el glóbulo que envejece y la médula de kits/ep03-sangre.js
+// (de ep3-celulas); la silueta de puntitos de kits/ep03-balanza.js (de ep3-proton); el calendario de kits/ep03-tiempo.js
+// (de ep3-sol); la mota de kits/ep03-virus.js (de ep3-virus). Piezas propias de la página: la lupa, la tumbona, la barra
+// del reproductor (con su triángulo de «play») y las cifras del contador (glifos de churro del kit); y, para casar con el
+// fotograma 0 de ep3-virus, su vaso y su glóbulo (VASO_V y GLOBULO_V, copiados de esa página, que los tiene propios: se
+// hizo antes de que existiera ep03-sangre.js).
+//
+// Planos (todo sale de las marcas; las palabras sueltas no tienen marca: los golpes de dentro de una frase van a una
+// fracción fija de su intervalo, E.marca(x) … el final de su frase)
+//  0          GENERAL = el último fotograma de ep3-celulas: el corte del pelo con la fila de doce glóbulos y la cota encima;
+//             regla en 10⁻⁵ (la de ep3-celulas); Atom abajo a la izquierda.
+//  bacterias  «Tienes unos treinta billones de células…»: la cota se recoge, la fila se abre por el medio (cada mitad sale
+//             por su lado) y el pelo cae fuera del cuadro; desde arriba baja y se posa, en el centro, la silueta de un
+//             cuerpo, una losa de puntitos apagados. Los puntitos se encienden en rojo (células: la mitad), de los pies a la
+//             cabeza, y luego la otra mitad en verde (bacterias: «un número parecido»). Una lupa de latón y nogal la recorre
+//             fila a fila y, cuando salen las verdes, salta de un sitio a otro sin dar abasto.
+//  mitad      PLANO MEDIO (corte): la persona («humano», 'mirarse las manos'), en el sitio de la silueta, se mira las
+//             manos (cabeza inclinada 0,5, ojos entornados); a 0,62 de la frase, sorprendida, echa la cabeza atrás de golpe
+//             (con rebote) y abre los ojos (1). Desde aquí, la regla es la de ep3-virus (10⁻⁵ en la fila del medio).
+//  jubila     DETALLE (corte): un glóbulo rojo junto a un calendario de cuatro meses (las hojas pasan: 1, 2, 3, 4, con sus
+//             días); el glóbulo envejece (edad 0 → 1: pardo, arrugado, encoge). Con el mes 4 entra una tumbona desde la
+//             izquierda y el glóbulo viejo salta y se recuesta en ella.
+//  ½ jubila   PLANO MEDIO (corte, «a mitad de frase»): la médula de un hueso en corte, abajo a la izquierda, late con luz
+//             propia y lanza glóbulos nuevos (en arco) a la boca de un vaso sanguíneo, arriba a la derecha, por el que
+//             corren; debajo, un contador de diez cifras sube mientras avanza la barra de un reproductor de vídeo (de 0 a
+//             1200000000 con la barra llena). Al fondo del vaso pasa, desenfocada, una mota diminuta. Al final, empuje
+//             hacia el vaso hasta llenar el cuadro: la médula, el contador y la barra salen por los bordes, el flujo se
+//             calma y la mota se queda en el centro. Último fotograma (termina_con = fotograma 0 de ep3-virus), quieto
+//             0,6 s.
+//
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, desenfoque 44)
+//  · Fotograma 0 = el último de ep3-celulas (los números de su cabecera y de su window.__fin): cortePelo con la cara en
+//    P.punto(900, 470, 0), 540 px de radio, rot [0,45, 0, 0], largo 0,4 (foto con fondo, nf 6001); la fila de 12 (escala =
+//    la del pelo / 12, levantada 0,35 radios de glóbulo), con su sombra 2D (dx 7, dy 9, blur 6, alfa 0,5); la cota tendida
+//    a y = 190 px; regla e −1, ya 1,5, actual −5, marca −5, lupa 0,3; Atom en (230, 780) a z = 1, órbitas de 180 px, con
+//    el reloj donde lo dejó ep3-celulas (C0, calculado con su fórmula y las duraciones de marcas-ep03.json).
+//  · Último fotograma = el 0 de ep3-virus (su window.__inicio): su VASO (P.punto(960, 520, −1,2), 330 px, rot [−0,06, 0,
+//    0], sq [1,25, 1, 1], nf 900, con un círculo de blur(3,5 px) de 40 px de radio en el centro), sus siete CARRILES de
+//    glóbulos en sus x0 (las mismas fotos de glóbulo, desenfoques y sombras), la mota (el virus de ep03-virus.js a
+//    P.punto(960, 540, −2,6), 22 px, desenfocada) en el centro; regla e −5, ya 0,375, actual −5, marca −5, lupa 0,5; Atom
+//    con el reloj de ep3-virus en t = 0 (−calma(D_virus, D_virus) del kit), energía 0.
+// COSTE (medido con capturar en orden, fotograma a fotograma, en este servidor con carga 3–6): carga 20 s sola y 31 s con
+// ep3-virus cargando a la vez; fotogramas de 0,2 a 3,1 s de reloj (media 0,55 s), incluidos los que preparan fotos. Ver PREPARAR. Lo quieto es foto (el pelo, la fila, el plató vacío, las tres siluetas, la lupa, el cuerpo de la
+// persona, el vaso de lejos y de cerca, las fotos de los glóbulos, la mota, las cifras, la barra, la regla); en cada
+// fotograma se renderiza, sin fondo, solo lo que se mueve: Atom siempre, la cota al recogerse, la cabeza de la persona, el
+// glóbulo, el calendario y la tumbona, y la médula.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, calma as calmaKit, postura } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposSangre, fila, globulo, medula, cortePelo, geometriaFila, geometriaCortePelo, sombraSilueta, SANGRE } from '/atomo/plato/kits/ep03-sangre.js';
+import { tiposBalanza, silueta, COLORES_BALANZA } from '/atomo/plato/kits/ep03-balanza.js';
+import { tiposTiempo, uniformesTiempo, calendario, hojaEn } from '/atomo/plato/kits/ep03-tiempo.js';
+import { tiposVirus, uniformesVirus, virus, VIRUS_MEDIDAS } from '/atomo/plato/kits/ep03-virus.js';
+
+const T0 = performance.now();
+const tiempos = (window.__tiempos = {});
+const hito = (k) => { tiempos[k] = Math.round(performance.now() - T0); };
+const busq = new URLSearchParams(location.search);
+const E = await escena('ep3-medula', 'ep03');
+const M = (k) => E.marca(k);
+const m = { b: M('bacterias'), bF: M('bacterias_fin'), mi: M('mitad'), miF: M('mitad_fin'), j: M('jubila'), jF: M('jubila_fin') };
+const D = E.duracion, QUIETO = D - 0.6;
+// desde el fotograma NFIN la imagen es la misma: los últimos 0,6 s, quietos
+const NFIN = Math.floor(QUIETO * 12 + 1e-6);
+const W = 1920, H = 1080;
+const fr = (a, b, u) => a + (b - a) * u;
+// el final de cada frase (la voz española puede acabar después que la marca _fin, que es la inglesa)
+const f0Fin = E.frases?.[0]?.[1] ?? m.bF, f1Fin = E.frases?.[1]?.[1] ?? m.miF + 0.5, f2Fin = E.frases?.[2]?.[1] ?? m.jF;
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const T = {
+  // frase 22: «Tienes unos treinta billones de células, | y un número parecido de bacterias.»
+  cota: [m.b - 0.3, m.b - 0.05],                     // la cota se recoge
+  aparta: [m.b - 0.25, m.b + 0.35],                  // la fila se abre por el medio y sale por los lados
+  baja: [m.b - 0.15, m.b + 0.35],                    // el pelo cae fuera del cuadro
+  sil: [m.b + 0.22, m.b + 0.85],                     // después, la silueta baja desde arriba y se posa
+  rojo: [fr(m.b, f0Fin, 0.2), fr(m.b, f0Fin, 0.45)],   // los puntitos rojos (células) se encienden de abajo arriba
+  verde: [fr(m.b, f0Fin, 0.58), fr(m.b, f0Fin, 0.83)], // y los verdes (bacterias)
+  lupa: fr(m.b, f0Fin, 0.24),                        // entra la lupa
+  // frase 23: «Si cuentas una a una, | eres más o menos mitad bacteria.»
+  persona: m.mi - 0.2,                               // corte a la persona
+  sorpresa: fr(m.mi, f1Fin, 0.62),                   // echa la cabeza atrás
+  // frase 24: «Cada glóbulo rojo se jubila a los cuatro meses, | así que, durante este vídeo, fabricarás más de mil millones nuevos.»
+  viejo: m.j - 0.2,                                  // corte al glóbulo y el calendario
+  fab: fr(m.j, f2Fin, 0.48),                         // «a mitad de frase»: corte a la médula
+};
+T.meses = [[T.viejo, 1], [fr(m.j, f2Fin, 0.13), 2], [fr(m.j, f2Fin, 0.21), 3], [fr(m.j, f2Fin, 0.29), 4]];
+T.edad = [m.j + 0.1, T.meses[3][0]];
+T.tumbona = [T.meses[3][0] - 0.1, T.meses[3][0] + 0.3];   // la tumbona entra por la izquierda
+T.salto = [T.tumbona[1] + 0.02, T.tumbona[1] + 0.5];       // el glóbulo viejo salta y se recuesta
+T.cuenta = [T.fab + 0.15, fr(m.j, f2Fin, 0.86)];         // el contador sube y la barra avanza
+T.empuje = [T.cuenta[1] + 0.1, Math.min(QUIETO - 0.1, T.cuenta[1] + 1.0)];   // empuje hacia el vaso
+const plano = (ts) => (ts < T.sil[1] + 0.05 ? 'A' : ts < T.persona ? 'B' : ts < T.viejo ? 'C' : ts < T.fab ? 'D' : 'E');
+
+// ---------------------------------------------------------------- piezas propias
+// el vaso y el glóbulo de ep3-virus (copiados de esa página, con otro nombre): su fotograma 0 es nuestro último
+const GLOBULO_V = { radio: 1.04, glifos: [], glsl: /* glsl */`
+float pz_globuloV(vec3 q, vec4 T, out float m) {
+  m = 0.0;
+  float r = length(q.xy);
+  float toro = length(vec2(r - 0.68, q.z)) - 0.3;
+  float disco = length(vec2(max(r - 0.66, 0.0), q.z)) - 0.12;
+  return smin(toro, disco, 0.24) + 0.006 * sin(q.x * 11.0 + 1.0) * sin(q.y * 9.0);
+}
+float pzc_globuloV(vec3 q, vec4 T) { float r = length(q.xy); return min(length(vec2(r - 0.68, q.z)) - 0.26, length(vec2(max(r - 0.66, 0.0), q.z)) - 0.09); }
+vec3 pzcol_globuloV(vec3 q, vec4 T, float m) {
+  float r = length(q.xy);
+  float hoyo = 1.0 - smoothstep(0.25, 0.62, r);
+  gTr = 0.55;
+  gG = vec3(sin(q.y * 31.0), sin(q.x * 27.0 + 1.3), 0.0) * 0.02;
+  return mix(vec3(0.47, 0.075, 0.045), vec3(0.36, 0.05, 0.035), hoyo) * (0.92 + 0.14 * vnoise(q * 6.0));
+}
+` };
+const VASO_V = { radio: 3.4, glifos: [], glsl: /* glsl */`
+float pz_vasoV(vec3 q, vec4 T, out float m) {
+  float rr = length(q.yz);
+  float d = abs(rr - 1.0) - 0.09;
+  d = smax(d, q.z + 0.02, 0.03);
+  d = smax(d, abs(q.x) - 3.2, 0.05);
+  m = q.z > -0.07 ? 1.0 : (rr < 1.0 ? 0.0 : 2.0);
+  return d + 0.008 * sin(q.x * 7.0 + 2.0 * q.y) * sin(q.y * 5.0);
+}
+float pzc_vasoV(vec3 q, vec4 T) { float rr = length(q.yz); return max(max(abs(rr - 1.0) - 0.06, q.z + 0.05), abs(q.x) - 3.1); }
+vec3 pzcol_vasoV(vec3 q, vec4 T, float m) {
+  float v = 0.92 + 0.14 * vnoise(q * 5.0);
+  gTr = 0.12;
+  float rr = length(q.yz);
+  if (m > 1.5) return vec3(0.30, 0.075, 0.05) * v;
+  if (m > 0.5) {
+    if (rr < 0.95) return vec3(0.48, 0.28, 0.22) * v;
+    if (rr < 1.04) return vec3(0.40, 0.12, 0.08) * v;
+    return vec3(0.50, 0.40, 0.29) * v;
+  }
+  gG = vec3(0.0, sin(q.x * 9.0 + q.y * 3.0), cos(q.x * 6.0)) * 0.03;
+  return vec3(0.25, 0.085, 0.065) * v;
+}
+` };
+// la lupa: aro de latón (radio 1, cara a +z) con su virola y el mango de nogal hacia abajo a la derecha (el cristal va en 2D)
+const LUPA = { radio: 2.7, glifos: [], glsl: /* glsl */`
+float lupaD(vec3 q, float e, out float m) {
+  float aro = length(vec2(length(q.xy) - 1.0, q.z * 0.8)) - 0.085 + e;
+  float vir = sdCapsule(q, vec3(0.76, -0.76, 0.0), vec3(1.0, -1.0, 0.0), 0.085 - e);
+  float mango = sdCapsule(q, vec3(1.0, -1.0, 0.0), vec3(1.82, -1.82, 0.0), 0.13 - e) + 0.012 * sin(length(q.xy) * 28.0);
+  float dm = smin(aro, vir, 0.05);
+  m = mango < dm ? 1.0 : 0.0;
+  return smin(dm, mango, 0.02);
+}
+float pz_lupa(vec3 q, vec4 T, out float m) { return lupaD(q, 0.0, m); }
+float pzc_lupa(vec3 q, vec4 T) { float mm; return lupaD(q, 0.012, mm); }
+vec3 pzcol_lupa(vec3 q, vec4 T, float m) {
+  if (m > 0.5) return C_WOOD * 1.3 * (0.85 + 0.3 * vnoise(q * vec3(3.0, 3.0, 14.0)));
+  gBri = 3.0; return C_BRASS * (0.93 + 0.12 * vnoise(q * 12.0));
+}
+` };
+// la tumbona: de perfil en (z, y), el respaldo atrás (−z) y los pies delante; el suelo en y = 0; la lona a rayas de 0,88
+// de ancho entre dos largueros de haya (x = ±0,5)
+const TUMBONA = { radio: 1.25, glifos: [], glsl: /* glsl */`
+const vec2 TA = vec2(-0.56, 0.98), TB = vec2(0.0, 0.30), TC = vec2(0.46, 0.44);
+float tumbonaD(vec3 q, float e, out float m) {
+  vec2 p = q.zy;
+  // la lona: una tira que cuelga de A a B y sube a C
+  float dl = min(sdSeg(p, TA, TB), sdSeg(p, TB, TC));
+  vec2 w = vec2(dl - 0.02 + e, abs(q.x) - 0.44);
+  float lona = min(max(w.x, w.y), 0.0) + length(max(w, 0.0)) - 0.012;
+  // los largueros (a los dos lados) y las patas
+  vec3 s = vec3(abs(q.x) - 0.5, q.y, q.z);
+  float r = 0.036 - e;
+  float lar = min(sdCapsule(s, vec3(0.0, TA.y, TA.x), vec3(0.0, TB.y - 0.03, TB.x), r), sdCapsule(s, vec3(0.0, TB.y - 0.03, TB.x), vec3(0.0, TC.y, TC.x), r));
+  float patas = min(sdCapsule(s, vec3(0.0, TA.y, TA.x), vec3(0.0, 0.0, -0.72), r), sdCapsule(s, vec3(0.0, TC.y, TC.x), vec3(0.0, 0.0, 0.56), r));
+  patas = min(patas, sdCapsule(s, vec3(0.0, TB.y - 0.03, TB.x - 0.1), vec3(0.0, 0.0, -0.22), r));
+  // travesaños de lado a lado (arriba del respaldo, delante y en el suelo detrás)
+  float tr = min(sdCapsule(q, vec3(-0.5, TA.y, TA.x), vec3(0.5, TA.y, TA.x), r), sdCapsule(q, vec3(-0.5, TC.y, TC.x), vec3(0.5, TC.y, TC.x), r));
+  tr = min(tr, sdCapsule(q, vec3(-0.5, 0.03, -0.72), vec3(0.5, 0.03, -0.72), r));
+  float madera = min(min(lar, patas), tr);
+  m = madera < lona ? 1.0 : 0.0;
+  return min(lona, madera);
+}
+float pz_tumbona(vec3 q, vec4 T, out float m) { return tumbonaD(q, 0.0, m); }
+float pzc_tumbona(vec3 q, vec4 T) { float mm; return tumbonaD(q, 0.01, mm); }
+vec3 pzcol_tumbona(vec3 q, vec4 T, float m) {
+  float v = 0.9 + 0.2 * vnoise(q * 9.0);
+  if (m > 0.5) return vec3(0.34, 0.2, 0.1) * (0.85 + 0.3 * vnoise(q * vec3(4.0, 22.0, 4.0)));
+  float raya = step(0.5, fract(q.x * 4.5 + 0.25));
+  return mix(C_CREAM, mix(C_TERRA, C_AMBAR, 0.15), raya) * v;
+}
+` };
+// la barra del reproductor: variante 0, la ranura de nogal con el triángulo de «play» a la izquierda; 1, el relleno de
+// ámbar (se recorta en 2D); 2, el botón de latón. La ranura va de x −1 a 1
+const BARRA = { radio: 1.45, glifos: [], glsl: /* glsl */`
+float barraD(vec3 q, vec4 T, float e, out float m) {
+  m = 0.0;
+  if (T.y > 1.5) { m = 2.0; return length(q * vec3(1.0, 1.0, 1.3)) - 0.105 + e; }
+  if (T.y > 0.5) { m = 1.0; return sdRoundBox(q - vec3(0.0, 0.0, 0.012), vec3(1.0, 0.04, 0.035), 0.035 - e); }
+  float pista = sdRoundBox(q, vec3(1.0, 0.055, 0.025), 0.03 - e);
+  vec2 p = q.xy - vec2(-1.26, 0.0);
+  vec2 n1 = vec2(0.486, 0.874), n2 = vec2(0.486, -0.874), punta = vec2(0.1, 0.0);
+  float tri = max(-0.08 - p.x, max(dot(n1, p - punta), dot(n2, p - punta)));
+  float dt = max(tri + 0.02, abs(q.z) - 0.03) - 0.02 + e;
+  if (dt < pista) m = 3.0;
+  return min(pista, dt);
+}
+float pz_barra(vec3 q, vec4 T, out float m) { return barraD(q, T, 0.0, m); }
+float pzc_barra(vec3 q, vec4 T) { float mm; return barraD(q, T, 0.01, mm); }
+vec3 pzcol_barra(vec3 q, vec4 T, float m) {
+  if (m > 2.5) return vec3(0.54, 0.48, 0.38) * (0.95 + 0.1 * vnoise(q * 8.0));
+  if (m > 1.5) { gBri = 2.6; return C_BRASS * 1.1; }
+  if (m > 0.5) { gEm = C_AMBAR * 0.08; return mix(C_TERRA, C_AMBAR, 0.55) * (0.93 + 0.12 * vnoise(q * 10.0)); }
+  return C_WOOD * 0.8 * (0.85 + 0.3 * vnoise(q * vec3(2.0, 14.0, 8.0)));
+}
+` };
+// las cifras del contador: los glifos de churro del kit (variante = la cifra), de color crema
+const CIFRA = { radio: 0.66, glifos: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], glsl: /* glsl */`
+float cifraD(vec2 p, float k, out float dp) {
+  if (k < 0.5) return g0(p, dp); if (k < 1.5) return g1(p, dp); if (k < 2.5) return g2(p, dp); if (k < 3.5) return g3(p, dp);
+  if (k < 4.5) return g4(p, dp); if (k < 5.5) return g5(p, dp); if (k < 6.5) return g6(p, dp); if (k < 7.5) return g7(p, dp);
+  if (k < 8.5) return g8(p, dp); return g9(p, dp);
+}
+float pz_cifra(vec3 q, vec4 T, out float m) { m = 0.0; float dp; float d2 = cifraD(q.xy, T.y, dp); return min(churro(d2, q.z, 0.085), (length(vec2(dp, q.z * 1.1)) - 0.11) * 0.9); }
+float pzc_cifra(vec3 q, vec4 T) { float dp; float d2 = cifraD(q.xy, T.y, dp); return min(churro(d2, q.z, 0.075), (length(vec2(dp, q.z * 1.1)) - 0.1) * 0.9); }
+vec3 pzcol_cifra(vec3 q, vec4 T, float m) { return colorGlifo(T.z) * (0.94 + 0.12 * vnoise(q * 9.0)); }
+` };
+
+// ---------------------------------------------------------------- el plató
+const PIEZAS = ['reglaA', 'flecha', 'cortePelo', 'globulos', 'cota', 'silueta', 'lupa', 'humano', 'globulo', 'calendario',
+  'tumbona', 'medula', 'vasoV', 'globuloV', 'virus', 'cifra', 'barra'];
+const I = Object.fromEntries(['REG', 'FLE', 'CP', 'GLS', 'COTA', 'SIL', 'LUPA', 'HUM', 'GLO', 'CAL', 'TUM', 'MED', 'VASO', 'GLOV', 'VIR', 'CIF', 'BAR'].map((k, i) => [k, i]));
+const P = await crearPlato({
+  piezas: PIEZAS, alfa: true, post: false,
+  tiposExtra: {
+    ...tiposSangre(['cortePelo', 'globulos', 'globulo', 'medula']), ...tiposBalanza(['silueta']), ...tiposTiempo(['calendario']),
+    ...tiposVirus(['virus']), lupa: LUPA, tumbona: TUMBONA, vasoV: VASO_V, globuloV: GLOBULO_V, cifra: CIFRA, barra: BARRA,
+  },
+  uniformes: { ...uniformesTiempo(), ...uniformesVirus() },
+  sombraFondo: ['p2', 'p7', 'p12'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+hito('plato');
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const mundo = (pos, rot, esc, q) => {
+  const v = new THREE.Vector3(...q).multiplyScalar(esc).applyEuler(new THREE.Euler(rot[0], rot[1], rot[2], 'YXZ'));
+  return [pos[0] + v.x, pos[1] + v.y, pos[2] + v.z];
+};
+
+// lienzo 2D encima del de WebGL (se compone aquí; viñeta y grano al final)
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+const KK = () => lienzoGL.width / W;
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const lienzo = () => { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; return c; };
+function foto() { const c = lienzo(); c.getContext('2d').drawImage(lienzoGL, 0, 0); return c; }
+function pegar(src, gc = g) { gc.save(); gc.setTransform(1, 0, 0, 1, 0, 0); gc.drawImage(src, 0, 0); gc.restore(); }
+const pegarGL = () => pegar(lienzoGL);
+// un trozo (px de diseño) de un lienzo del tamaño del de WebGL
+function recorte(x, y, w, h, src = lienzoGL) {
+  const k = KK(), c = document.createElement('canvas');
+  c.width = Math.ceil(w * k); c.height = Math.ceil(h * k);
+  c.getContext('2d').drawImage(src, x * k, y * k, w * k, h * k, 0, 0, c.width, c.height);
+  return c;
+}
+// la misma foto con un círculo desenfocado (como ep3-virus)
+function desenfocar(f, cx, cy, r, b) {
+  const c = lienzo(), gc = c.getContext('2d'), k = KK();
+  gc.drawImage(f, 0, 0);
+  gc.save(); gc.beginPath(); gc.arc(cx * k, cy * k, r * k, 0, Math.PI * 2); gc.clip();
+  gc.filter = `blur(${b * k}px)`; gc.drawImage(f, 0, 0); gc.restore();
+  return c;
+}
+// el parpadeo de la luz del plató en lo que es foto (como ep3-celulas)
+function parpadeo(n) {
+  const f = azar(n, 3) - 0.5;
+  g.fillStyle = f > 0 ? `rgba(255,236,210,${f * 0.03})` : `rgba(0,0,6,${-f * 0.04})`; g.fillRect(0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- Atom y la regla
+const A_Z = 1.0, ATOMO_PRES = [230, 780], SITIO = en(...ATOMO_PRES, A_Z);
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(SITIO));
+const CAJA_ATOM = [90, 640, 380, 930];
+// los relojes de Atom: empieza donde lo dejó ep3-celulas (su fórmula, con su duración y la de ep3-pelo) y acaba donde
+// empieza ep3-virus (−calma(D, D) del kit, con su duración). El salto de uno a otro va en el corte a la médula.
+let DUR = { pelo: 13.888, celulas: 11.465, virus: 22.377 };
+try {
+  const todas = await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json();
+  DUR = { pelo: todas['ep3-pelo']?.duracion ?? DUR.pelo, celulas: todas['ep3-celulas']?.duracion ?? DUR.celulas, virus: todas['ep3-virus']?.duracion ?? DUR.virus };
+} catch { /* las de la entrega */ }
+const C0 = (() => {
+  // ep3-celulas: TZ0 (de ep3-pelo) + arranque(calma(NFIN / 12)) con su QUIETO = D − 0,6 y d = 0,9
+  const q = DUR.pelo - 0.6, t = Math.floor(q * 12 + 1e-6) / 12, a = q - 0.9, u = Math.min(t - a, 0.9);
+  const TZ0 = 16.436 + (a + u - (u * u) / 1.8) - 1.6;
+  const qc = DUR.celulas - 0.6, tc = Math.floor(qc * 12 + 1e-6) / 12, ac = qc - 0.9, uc = Math.min(Math.max(tc - ac, 0), 0.9);
+  const x = tc <= ac ? tc : ac + uc - (uc * uc) / 1.8;
+  return TZ0 + (x < 0.6 ? (x * x) / 1.2 : x - 0.3);
+})();
+const CV = -calmaKit(DUR.virus, DUR.virus);
+// calma de esta escena (los movimientos de reposo se frenan en los 0,9 s antes de QUIETO)
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+const tzAtomo = (ts) => (ts < T.fab ? C0 + ts : CV + calma(ts) - calma(QUIETO));
+function atomo(ts) {
+  const tz = tzAtomo(ts);
+  P.atomo({
+    pos: [SITIO[0], SITIO[1] + 0.006 * Math.sin(tz * 1.1), SITIO[2]], escala: A_ESC,
+    yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06, energia: ts < QUIETO ? E.energia(ts) : 0, ts: tz,
+  });
+}
+// la regla: la de ep3-celulas al principio (10⁻⁵ en la fila de abajo) y la de ep3-virus desde el corte a la persona
+const REG = en(1668, 528, 0.4), E_REG = 1.42, ROT_REG = [0, -0.12, 0];
+const REGLA_C = { e: -1, ya: 1.5, entera: 0, actual: -5, marca: -5, lupa: 0.3 };
+const REGLA_V = { e: -5, ya: 0.375, entera: 0, actual: -5, marca: -5, lupa: 0.5 };
+
+// ---------------------------------------------------------------- A: el final de ep3-celulas (sus números)
+const CP = { x: 900, y: 470, z: 0, radioPx: 540, rot: [0.45, 0, 0], largo: 0.4 };
+CP.pos = en(CP.x, CP.y, CP.z);
+CP.esc = CP.radioPx / pxU(CP.pos);
+const CPG = geometriaCortePelo({ pos: CP.pos, escala: CP.esc, rot: CP.rot });
+const FILA = { escala: CP.esc / SANGRE.PELO, rot: [CP.rot[0] - Math.PI / 2, 0, 0], n: SANGRE.PELO };
+FILA.pos = CPG.centro.map((v, i) => v + CPG.normal[i] * 0.35 * FILA.escala);
+const FILA_X = pant(FILA.pos)[0];   // donde se abre la fila
+const COTA = (() => {
+  const a = pant(CPG.diametro[0]), b = pant(CPG.diametro[1]), z = 0.6, y = 190;
+  const pa = en(a[0], y, z), pb = en(b[0], y, z);
+  return { pos: [(pa[0] + pb[0]) / 2, pa[1], z], medio: (pb[0] - pa[0]) / 2 };
+})();
+const SOMBRA_FILA = { dx: 7, dy: 9, blur: 6, alfa: 0.5 };
+function ponerCota(ts) {
+  const k = 1 - eio(prog(ts, T.cota[0], T.cota[1]));
+  if (k <= 0.01) return;
+  P.pieza(I.COTA, { pos: COTA.pos, escala: COTA.medio, variante: k, sq: [1, mix(0.2, 0.55, ss(0, 0.3, k)), 0.55], toque: k < 1 });
+}
+
+// ---------------------------------------------------------------- B: la silueta y la lupa
+const SIL = { x: 960, pie: 865, z: 1, alto: 735 };
+SIL.pos = en(SIL.x, SIL.pie, SIL.z);
+SIL.esc = SIL.alto / pxU(SIL.pos);
+const OSCURO = [0.022, 0.022, 0.024];
+const SILS = [
+  { colores: [OSCURO, OSCURO], brillo: 0 },
+  { colores: [COLORES_BALANZA.rojo, OSCURO], brillo: 0.45 },
+  { colores: [COLORES_BALANZA.rojo, COLORES_BALANZA.verde], brillo: 0.45 },
+];
+const SOMBRA_SIL = { dx: 16, dy: 20, blur: 14, alfa: 0.5 };
+// la caída (el pelo) y la bajada (la silueta), en px de pantalla
+const caePelo = (ts) => 1250 * eic(prog(ts, T.baja[0], T.baja[1]));
+const bajaSil = (ts) => -1150 * (1 - eob(prog(ts, T.sil[0], T.sil[1]), 1.1));
+const abreFila = (ts) => 1350 * eic(prog(ts, T.aparta[0], T.aparta[1]));
+// el borde del encendido (y en px: sube de los pies a la cabeza)
+const SIL_Y0 = SIL.pie + 30, SIL_Y1 = SIL.pie - SIL.alto - 40;
+const bordeEn = (ts, [a, b]) => mix(SIL_Y0, SIL_Y1, ss(0, 1, prog(ts, a, b)));
+// la lupa: radio del aro en px, a z = 2,6, delante de la silueta
+const LP = { r: 105, z: 2.6, aumento: 1.9 };
+LP.pos = en(960, 540, LP.z);
+LP.esc = LP.r / pxU(LP.pos);
+LP.caja = [960 - 135, 540 - 135, 360, 360];   // el recorte de su foto (px), con el mango hacia abajo a la derecha
+// el recorrido: entra por la derecha, barre la silueta fila a fila (de la cabeza a los pies) y, cuando salen las verdes,
+// salta de un sitio a otro cada vez más deprisa, sin dar abasto
+const SALTOS_LUPA = (() => {
+  let a = 91 >>> 0;
+  const r = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const L = []; let t = T.verde[0] - 0.05;
+  while (t < T.persona + 0.5) { const fx = r(), fy = r(); L.push({ t, x: 960 + (fx - 0.5) * 300, y: 230 + fy * 560 }); t += mix(0.42, 0.2, prog(t, T.verde[0], T.persona)); }
+  return L;
+})();
+function lupaEn(ts) {
+  const t0 = T.lupa, t1 = t0 + 0.4, t2 = T.verde[0] - 0.05;
+  const barrido = (t) => { const u = prog(t, t1, t2); return [960 + 170 * Math.sin(2 * Math.PI * 1.25 * (t - t1)), mix(240, 760, u)]; };
+  if (ts < t1) { const u = eoc(prog(ts, t0, t1)), b = barrido(t1); return { x: mix(1500, b[0], u), y: mix(330, b[1], u), rot: 0.1 * (1 - u), vis: ts >= t0 - 0.05 }; }
+  if (ts < t2) { const b = barrido(ts); return { x: b[0], y: b[1], rot: 0.06 * Math.cos(2 * Math.PI * 1.25 * (ts - t1)), vis: true }; }
+  let k = 0;
+  while (k + 1 < SALTOS_LUPA.length && SALTOS_LUPA[k + 1].t <= ts) k++;
+  const A = k === 0 ? (() => { const b = barrido(t2); return { x: b[0], y: b[1] }; })() : SALTOS_LUPA[k - 1], B = SALTOS_LUPA[k];
+  const dur = (SALTOS_LUPA[k + 1]?.t ?? B.t + 0.3) - B.t;
+  const u = eio(cl((ts - B.t) / (0.55 * dur)));
+  const tiembla = 4 * Math.sin(ts * 37) * prog(ts, T.verde[0], T.persona);
+  return { x: mix(A.x, B.x, u) + tiembla, y: mix(A.y, B.y, u) - 30 * Math.sin(Math.PI * u), rot: 0.12 * Math.sin(ts * 9), vis: true };
+}
+
+// ---------------------------------------------------------------- C: la persona
+const Z_P = 2.2, PERS_H = 2250, COR_P = 95;
+const PERS = (() => {
+  const esc = PERS_H / (1.765 * pxU(en(960, 540, Z_P)));
+  const x = en(960, 540, Z_P)[0];
+  const cor = (yy) => pant([x, yy + 0.765 * esc, Z_P])[1] - COR_P;
+  let a = 0, b = 4, fa = cor(a), fb = cor(b);
+  for (let i = 0; i < 14; i++) { const c = b - fb * (b - a) / (fb - fa); a = b; fa = fb; b = c; fb = cor(c); if (Math.abs(fb) < 0.3) break; }
+  return { pos: [x, b, Z_P], escala: esc, rot: [0, 0, 0] };
+})();
+const POSE_0 = postura('manos');
+function poseEn(ts) {
+  const p = JSON.parse(JSON.stringify(POSE_0));
+  const u = prog(ts, T.sorpresa - 0.12, T.sorpresa + 0.14);
+  const k = u <= 0 ? 0 : eob(u, 1.6);
+  const quieto = Math.min(ts, T.viejo);
+  // mirándose las manos: un balanceo leve de la cabeza (lee); de golpe, la cabeza atrás, los ojos abiertos y la mirada arriba
+  p.cabeza = [0.05 * Math.sin((quieto - T.persona) * 1.7) * (1 - cl(k)), mix(0.5, -0.08, k), 0.06 * cl(k)];
+  p.ojos = mix(0.7, 1, ss(0, 0.6, u));
+  p.mirada = [0, mix(-1, 0.25, cl(k))];
+  return p;
+}
+const HUM_OP = (ts, partes) => ({ ...PERS, postura: poseEn(ts), aspecto: 'adulto', t: ts, partes, huellaFija: [0.37, 0.21, 0] });
+
+// ---------------------------------------------------------------- D: el glóbulo que envejece, el calendario y la tumbona
+const GD = { x: 760, y: 395, z: 1.5, radioPx: 175 };
+GD.pos = en(GD.x, GD.y, GD.z);
+GD.esc = GD.radioPx / pxU(GD.pos);
+const CAL = { x: 1260, y: 455, z: 1.0, ancho: 330, rot: [0.02, -0.2, 0] };
+CAL.pos = en(CAL.x, CAL.y, CAL.z);
+CAL.esc = CAL.ancho / pxU(CAL.pos);
+const DIAS = [31, 31, 28, 31, 30];
+const TUM = { x: 800, pie: 872, z: 1.2, alto: 400, rot: [0.04, 0.9, 0] };
+TUM.pos = en(TUM.x, TUM.pie, TUM.z);
+TUM.esc = TUM.alto / pxU(TUM.pos);
+TUM.x0 = en(-420, TUM.pie, TUM.z)[0];
+// el glóbulo recostado: en el asiento, la cara hacia delante y arriba (perpendicular al respaldo)
+const RECOSTADO = (() => {
+  const pos = mundo(TUM.pos, TUM.rot, TUM.esc, [0, 0.62, -0.2]);
+  const n = new THREE.Vector3(0, 0.7, 0.71).normalize().applyEuler(new THREE.Euler(...TUM.rot, 'YXZ'));
+  const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), n);
+  const e = new THREE.Euler().setFromQuaternion(q, 'YXZ');
+  return { pos, rot: [e.x, e.y, e.z], esc: GD.esc * 0.93 };
+})();
+const GD_ROT = (ts) => [0.42, -0.3 + 0.18 * Math.sin((ts - T.viejo) * 0.9), 0.05];
+function ponerD(ts) {
+  // el calendario: las hojas de los meses 1 → 4 (con sus días)
+  const h = hojaEn(ts, T.meses);
+  calendario(P, I.CAL, { pos: CAL.pos, escala: CAL.esc, rot: CAL.rot, mes: h.numero, anterior: h.anterior, hoja: h.hoja, dias: DIAS[h.numero], diasAnterior: DIAS[h.anterior] });
+  // la tumbona entra por la izquierda (con un pequeño frenazo)
+  const ut = prog(ts, T.tumbona[0], T.tumbona[1]);
+  if (ut > 0) {
+    const x = mix(TUM.x0, TUM.pos[0], eob(ut, 1.2));
+    P.pieza(I.TUM, { pos: [x, TUM.pos[1], TUM.pos[2]], escala: TUM.esc, rot: TUM.rot });
+  }
+  // el glóbulo: envejece flotando (baja un poco, cansado) y salta a la tumbona
+  const edad = ss(0, 1, prog(ts, T.edad[0], T.edad[1]));
+  const us = prog(ts, T.salto[0], T.salto[1]);
+  const flota = [GD.pos[0], GD.pos[1] + 0.05 * Math.sin((ts - T.viejo) * 2.1) * (1 - edad) - 0.25 * edad * GD.esc, GD.pos[2]];
+  let pos = flota, rot = GD_ROT(ts), esc = GD.esc, sq = [1, 1, 1];
+  if (us > 0) {
+    const k = eio(us);
+    const r0 = GD_ROT(T.salto[0]);
+    pos = [mix(flota[0], RECOSTADO.pos[0], k), mix(flota[1], RECOSTADO.pos[1], k) + 0.9 * GD.esc * Math.sin(Math.PI * Math.min(1, us * 1.05)), mix(flota[2], RECOSTADO.pos[2], k)];
+    rot = r0.map((v, i) => mix(v, RECOSTADO.rot[i], k));
+    esc = mix(GD.esc, RECOSTADO.esc, k);
+    // al caer en la lona se aplasta y se asienta
+    const ch = muelle(ts - T.salto[1], 2.4, 5);
+    sq = us >= 1 ? [1 + 0.07 * ch, 1 + 0.07 * ch, 1 - 0.16 * ch] : [1, 1, 1];
+  }
+  // respira, ya jubilado
+  if (us >= 1) sq = sq.map((v, i) => v * (i === 2 ? 1 + 0.03 * Math.sin((ts - T.salto[1]) * 2.2) : 1));
+  globulo(P, I.GLO, { pos, escala: esc, rot, sq, edad });
+}
+
+// ---------------------------------------------------------------- E: la médula, el vaso, el contador y la barra
+// el vaso de ep3-virus (VASO_A) y, de lejos, el mismo a la mitad: el «vaso de cerca» (x, y) se ve en el de lejos en
+// (LJ.x + x/2, LJ.y + y/2); el empuje final lleva el de lejos a pantalla completa con centro fijo en (1520, 80)
+const VASO_A = (() => { const pos = en(960, 520, -1.2); return { pos, escala: 330 / pxU(pos), rot: [-0.06, 0, 0], sq: [1.25, 1, 1] }; })();
+const LJ = { x: 760, y: 40, s: 0.5 };
+const VASO_L = (() => { const pos = en(LJ.x + 0.5 * 960, LJ.y + 0.5 * 520, -1.2); return { pos, escala: 165 / pxU(pos), rot: [-0.06, 0, 0], sq: [1.25, 1, 1] }; })();
+const BOCA = -360;                     // la boca izquierda del vaso (x del vaso de cerca)
+const MOTA = { pos: en(960, 540, -2.6), rot: [0.3, 0.5, 0] };
+MOTA.escala = 22 / (2 * VIRUS_MEDIDAS.PUAS * pxU(MOTA.pos));
+const GLO_SPR = { pos: en(960, 540, 0), rot: [[0.95, 0.35, 0.1], [0.35, 1.15, 0.4], [0.25, -0.2, 0.05]] };
+GLO_SPR.escala = 120 / pxU(GLO_SPR.pos);
+const SPR_R = 150;
+// los carriles de ep3-virus (y, tamaño × 240 px, x en su t = 0, velocidad px/s, foto, desenfoque, oscuro) y, además,
+// glóbulos nuevos que pasan antes y salen por la derecha (x0 fuera del cuadro): t, cuando cruzan la boca
+const CARRILES = [
+  { y: 335, s: 0.72, x0: 1180, v: 120, k: 1, blur: 0, os: 0.3 },
+  { y: 640, s: 0.66, x0: 1400, v: 105, k: 0, blur: 0, os: 0.32 },
+  { y: 300, s: 0.98, x0: 330, v: 150, k: 0, blur: 0, os: 0 },
+  { y: 720, s: 1.04, x0: 600, v: 160, k: 2, blur: 0, os: 0 },
+  { y: 470, s: 0.58, x0: -150, v: 110, k: 1, blur: 0, os: 0.38 },
+  { y: 880, s: 1.6, x0: 1080, v: 230, k: 1, blur: 7, os: 0 },
+  { y: 150, s: 1.45, x0: -180, v: 210, k: 2, blur: 6, os: 0 },
+];
+// el tiempo del río: S = −STOT (1 − u)² (S = 0 en QUIETO, como el t = 0 de ep3-virus): deprisa al principio (la médula
+// bombea) y se calma hasta pararse
+const STOT = 16;
+const rioS = (ts) => -STOT * Math.pow(1 - prog(ts, T.fab, QUIETO), 2);
+const tDeS = (S) => T.fab + (1 - Math.sqrt(-S / STOT)) * (QUIETO - T.fab);
+const EXTRAS = [[0.07, 470, 0.8, 0, 0.12], [0.2, 600, 0.9, 2, 0.05], [0.3, 380, 0.75, 1, 0.2], [0.4, 760, 1.35, 1, 0, 6]].map(([fu, y, s, k, os, blur = 0]) => {
+  const tc = fr(T.fab, QUIETO, fu), Sc = rioS(tc);
+  const v = (2350 - BOCA) / -Sc;   // así acaban más allá del borde derecho
+  return { y, s, k, os, blur, v, x0: BOCA - v * Sc, extra: true };
+});
+const RIO = [...CARRILES, ...EXTRAS];
+const VUELO = 760;                     // lo que recorre un glóbulo nuevo (en x del vaso) de la médula a la boca
+const MED = { x: 520, y: 645, z: 0.8, r: 165, rot: [0.62, 0.35, 0], largo: 0.7 };
+MED.pos = en(MED.x, MED.y, MED.z);
+MED.esc = MED.r / pxU(MED.pos);
+const CONT = { x: 1130, y: 712, alto: 76, paso: 54, n: 10, fin: 1200000000 };
+const BAR = { x: 1165, y: 812, semi: 270 };
+// el empuje: escala del de lejos (1 → 2) alrededor de (1520, 80)
+const FIJO = [2 * LJ.x, 2 * LJ.y];
+const zoomEn = (ts) => Math.pow(2, eio(prog(ts, T.empuje[0], T.empuje[1])));
+// el vaso de cerca en coordenadas de pantalla: (x, y) → FIJO + z (LJ + s (x, y) − FIJO)
+function aPantalla(gc, z) { const k = KK(); gc.setTransform(k * z, 0, 0, k * z, k * (FIJO[0] - z * FIJO[0]), k * (FIJO[1] - z * FIJO[1])); }
+function aVaso(gc, z) { aPantalla(gc, z); gc.translate(LJ.x, LJ.y); gc.scale(LJ.s, LJ.s); }
+
+// ---------------------------------------------------------------- fotos y estrenos
+const FOTO = {};
+let tFot = null, hechasAhora = 0;
+const sinFondo = { fondo: false };
+const HACER = {
+  // A: el corte del pelo (con fondo, como ep3-celulas, nf 6001), el mismo sin fondo (para que caiga), la fila (sin fondo)
+  // y su sombra, el plató vacío
+  pelo: () => { P.fotograma(0); P.limpiar(); cortePelo(P, I.CP, { pos: CP.pos, escala: CP.esc, rot: CP.rot, largo: CP.largo }); P.render(6001); return foto(); },
+  fila: () => { P.fotograma(0); P.limpiar(); fila(P, I.GLS, { pos: FILA.pos, escala: FILA.escala, rot: FILA.rot, n: FILA.n, llegada: 1 }); P.render(6002, sinFondo); return foto(); },
+  plato: () => { P.fotograma(0); P.limpiar(); P.render(6003); return foto(); },
+  reglaC: () => { P.fotograma(0); P.limpiar(); P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: ROT_REG, ...REGLA_C }); P.render(2005, sinFondo); return foto(); },
+  reglaV: () => { P.fotograma(0); P.limpiar(); P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: ROT_REG, ...REGLA_V }); P.render(902, sinFondo); return foto(); },
+  // B: las tres siluetas (apagada, con las rojas, con las rojas y las verdes) y su sombra; la lupa
+  sil0: () => fotoSil(0), sil1: () => fotoSil(1), sil2: () => fotoSil(2),
+  silSombra: () => sombraSilueta(F('sil0'), SOMBRA_SIL),
+  lupa: () => { P.fotograma(0); P.limpiar(); P.pieza(I.LUPA, { pos: LP.pos, escala: LP.esc, rot: [0, 0, 0] }); P.render(6010, sinFondo); return recorte(...LP.caja); },
+  // C: el cuerpo de la persona (con las manos, quietas) con el plató; la cabeza va viva
+  // E: el vaso de lejos (con el plató), el de cerca (el de ep3-virus, nf 900, con su círculo desenfocado), las fotos de
+  // los glóbulos y la mota, las cifras y la barra; la médula quieta para el empuje
+  mota: () => { P.fotograma(0); P.limpiar(); virus(P, I.VIR, MOTA); P.render(6030, sinFondo); const c = recorte(920, 500, 80, 80), d = document.createElement('canvas'); d.width = c.width; d.height = c.height; const gd = d.getContext('2d'); gd.filter = `blur(${3.5 * KK()}px)`; gd.drawImage(c, 0, 0); return d; },
+  medulaF: () => { P.fotograma(T.empuje[0]); P.limpiar(); ponerMedula(T.empuje[0]); P.render(6040, sinFondo); return foto(); },
+};
+// (coste) las fotos grandes se pintan en FRANJAS horizontales (setScissor), una por fotograma barato, con su nf fijo
+// (como ep3-celulas): la persona con el plató (~8,5 s entera la primera vez, que compila las celdas del cuerpo) y el pelo
+// sin fondo. Los vasos van enteros (su coste es la pasada de sombra, que cada franja repetiría), en fotogramas baratos
+const FRANJAS = { peloSF: 2, persona: 4, vasoL: 1, vasoA: 1 };
+const PINTAR = {
+  peloSF: () => { P.fotograma(0); P.limpiar(); cortePelo(P, I.CP, { pos: CP.pos, escala: CP.esc, rot: CP.rot, largo: CP.largo }); P.render(6001, sinFondo); },
+  persona: () => { P.fotograma(T.persona); P.limpiar(); P.pieza(I.HUM, HUM_OP(T.persona, ['cuerpo', 'manos'])); P.render(6020); },
+  vasoL: () => { P.fotograma(0); P.limpiar(); P.pieza(I.VASO, VASO_L); P.render(900); },
+  vasoA: () => { P.fotograma(0); P.limpiar(); P.pieza(I.VASO, VASO_A); P.render(900); },
+};
+const DESPUES = { vasoA: (c) => desenfocar(c, 960, 540, 40, 3.5) };
+const PARCIAL = {};
+function pintarFranja(k, b) {
+  const N = FRANJAS[k];
+  const p = (PARCIAL[k] ??= { c: lienzo(), hechas: 0 });
+  if (p.hechas & (1 << b)) return true;
+  const y0 = Math.round((b * H) / N), y1 = Math.round(((b + 1) * H) / N);
+  const kk = P.renderer.getSize(new THREE.Vector2()).x / W;
+  P.renderer.setScissor(0, (H - y1) * kk, W * kk, (y1 - y0) * kk);
+  P.renderer.setScissorTest(true);
+  PINTAR[k]();
+  P.renderer.setScissorTest(false);
+  const d = lienzoGL.width / W, a = Math.round(y0 * d), h = Math.round(y1 * d) - a;
+  const gc = p.c.getContext('2d');
+  gc.clearRect(0, a, p.c.width, h);
+  gc.drawImage(lienzoGL, 0, a, p.c.width, h, 0, a, p.c.width, h);
+  p.hechas |= 1 << b;
+  return true;
+}
+for (const [k, N] of Object.entries(FRANJAS)) {
+  for (let b = 0; b < N; b++) HACER[`${k}#${b}`] = () => pintarFranja(k, b);
+  HACER[k] = () => { for (let b = 0; b < N; b++) pintarFranja(k, b); return DESPUES[k] ? DESPUES[k](PARCIAL[k].c) : PARCIAL[k].c; };
+}
+function fotoSil(k) {
+  P.fotograma(0); P.limpiar();
+  silueta(P, I.SIL, { pos: SIL.pos, escala: SIL.esc, rot: [0, 0, 0], colores: SILS[k].colores, mezcla: 0.5, brillo: SILS[k].brillo, peana: 0 });
+  P.render(6005, sinFondo);
+  return foto();
+}
+GLO_SPR.rot.forEach((rot, j) => {
+  HACER['spr' + j] = () => { P.fotograma(0); P.limpiar(); P.pieza(I.GLOV, { pos: GLO_SPR.pos, escala: GLO_SPR.escala, rot }); P.render(910 + j, sinFondo); return recorte(960 - SPR_R, 540 - SPR_R, 2 * SPR_R, 2 * SPR_R); };
+});
+for (let d = 0; d < 10; d++) {
+  HACER['c' + d] = () => { P.fotograma(0); P.limpiar(); P.pieza(I.CIF, { pos: en(960, 540, 2), escala: CONT.alto / pxU(en(960, 540, 2)), variante: d, color: 3 }); P.render(6050 + d, sinFondo); return recorte(960 - 50, 540 - 55, 100, 110); };
+}
+for (let v = 0; v < 3; v++) {
+  HACER['b' + v] = () => { P.fotograma(0); P.limpiar(); P.pieza(I.BAR, { pos: en(960, 540, 2), escala: BAR.semi / pxU(en(960, 540, 2)), variante: v }); P.render(6060 + v, sinFondo); return recorte(960 - 390, 540 - 45, 700, 90); };
+}
+// estrenos: el primer dibujo de cada pieza compila su programa (SwiftShader): un dibujo diminuto, fuera de la carga
+function estrenar(i, extra = {}) { P.limpiar(); P.pieza(i, { pos: en(960, 540, 0), escala: 0.012, ...extra }); P.render(3000 + i, sinFondo); return true; }
+HACER['e:humano'] = () => { P.limpiar(); P.pieza(I.HUM, { pos: [0, 0.2, -2], escala: 0.2, postura: POSE_0, aspecto: 'adulto', partes: 'cabeza' }); P.render(3000 + I.HUM, sinFondo); return true; };
+HACER['e:globulo'] = () => estrenar(I.GLO);
+HACER['e:calendario'] = () => { P.limpiar(); calendario(P, I.CAL, { pos: en(960, 540, 0), escala: 0.012, mes: 1 }); P.render(3000 + I.CAL, sinFondo); return true; };
+HACER['e:tumbona'] = () => estrenar(I.TUM);
+HACER['e:medula'] = () => { P.limpiar(); medula(P, I.MED, { pos: en(960, 540, 0), escala: 0.012 }); P.render(3000 + I.MED, sinFondo); return true; };
+function F(k) {
+  if (!FOTO[k]) {
+    const a = performance.now();
+    FOTO[k] = HACER[k]();
+    tiempos[k] = Math.round(performance.now() - a);
+    hechasAhora++;
+    // una foto mueve el reloj del plató (P.fotograma): vuelve al del fotograma que se está componiendo
+    if (tFot !== null) P.fotograma(tFot);
+  }
+  return FOTO[k];
+}
+// las fotos de los glóbulos con desenfoque y oscurecidas (como ep3-virus)
+const SPR_VAR = new Map();
+function sprite(k, blur, os) {
+  const key = `${k}|${blur}|${os}`;
+  if (SPR_VAR.has(key)) return SPR_VAR.get(key);
+  const s = F('spr' + k), c = document.createElement('canvas'); c.width = s.width; c.height = s.height;
+  const gc = c.getContext('2d'), kk = s.width / (2 * SPR_R);
+  gc.filter = `${blur ? `blur(${blur * kk}px) ` : ''}brightness(${1 - 0.55 * os}) saturate(${1 - 0.3 * os})`;
+  gc.drawImage(s, 0, 0);
+  SPR_VAR.set(key, c);
+  return c;
+}
+
+// ---------------------------------------------------------------- composición de cada plano
+let capaT = null, capaT2 = null;
+const tmp = () => { if (!capaT || capaT.width !== lienzoGL.width) capaT = lienzo(); const c = capaT.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.filter = 'none'; c.clearRect(0, 0, capaT.width, capaT.height); return capaT; };
+const tmp2 = () => { if (!capaT2 || capaT2.width !== lienzoGL.width) capaT2 = lienzo(); const c = capaT2.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.filter = 'none'; c.clearRect(0, 0, capaT2.width, capaT2.height); return capaT2; };
+// la sombra 2D de lo vivo del lienzo de WebGL, sin Atom (su caja se borra antes)
+function sombraVivo(o, extra = null) {
+  const c = tmp(), gc = c.getContext('2d'), k = c.width / W;
+  if (extra) gc.drawImage(extra, 0, 0);
+  gc.drawImage(lienzoGL, 0, 0);
+  gc.clearRect(CAJA_ATOM[0] * k, CAJA_ATOM[1] * k, (CAJA_ATOM[2] - CAJA_ATOM[0]) * k, (CAJA_ATOM[3] - CAJA_ATOM[1]) * k);
+  pegar(sombraSilueta(c, o));
+}
+// la silueta de un instante (con los encendidos de abajo arriba), en una capa del tamaño del lienzo, sin desplazar
+let capaS = null;
+function capaSilueta(ts) {
+  if (!capaS || capaS.width !== lienzoGL.width) capaS = lienzo();
+  const gc = capaS.getContext('2d'), k = capaS.width / W;
+  gc.setTransform(1, 0, 0, 1, 0, 0); gc.clearRect(0, 0, capaS.width, capaS.height);
+  const ur = prog(ts, T.rojo[0], T.rojo[1]), uv = prog(ts, T.verde[0], T.verde[1]);
+  const base = uv >= 1 ? 2 : ur >= 1 ? 1 : 0;
+  gc.drawImage(F('sil' + base), 0, 0);
+  const encender = (sig, y) => {
+    // la foto siguiente, solo por debajo del borde y (con un borde blando y un brillo)
+    const c = tmp2(), gt = c.getContext('2d');
+    gt.drawImage(F('sil' + sig), 0, 0);
+    gt.globalCompositeOperation = 'destination-in';
+    const gr = gt.createLinearGradient(0, (y - 45) * k, 0, (y + 45) * k);
+    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
+    gt.fillStyle = gr; gt.fillRect(0, 0, c.width, c.height);
+    gc.drawImage(c, 0, 0);
+  };
+  if (base === 0 && ur > 0) encender(1, bordeEn(ts, T.rojo));
+  else if (base === 1 && uv > 0) encender(2, bordeEn(ts, T.verde));
+  return capaS;
+}
+function planoAB(ts, n, pl) {
+  const reg = F('reglaC');
+  const dy = caePelo(ts), dx = abreFila(ts), sy = bajaSil(ts);
+  P.limpiar(); ponerCota(ts); atomo(ts);
+  P.render(n, sinFondo);
+  // el decorado: el pelo con su fondo (hasta que cae) o el plató vacío y, encima, el pelo que cae
+  if (dy <= 0) g.drawImage(F('pelo'), 0, 0, W, H);
+  else {
+    g.drawImage(F('plato'), 0, 0, W, H);
+    if (dy < 1200) {
+      const pe = F('peloSF');
+      g.save(); g.translate(0, dy); g.drawImage(sombraSilueta(pe, { dx: 18, dy: 24, blur: 16, alfa: 0.45 }), 0, 0, W, H); g.drawImage(pe, 0, 0, W, H); g.restore();
+    }
+  }
+  // la silueta (baja y se posa; luego se encienden sus puntitos)
+  if (pl === 'B' || ts >= T.sil[0]) {
+    g.save(); g.translate(0, sy);
+    g.drawImage(F('silSombra'), 0, 0, W, H);
+    g.drawImage(capaSilueta(ts), 0, 0, W, H);
+    g.restore();
+  }
+  // la fila, partida por el medio (cada mitad hacia su lado), con su sombra; la cota y Atom
+  if (dx < 1300) {
+    const fi = F('fila'), c = tmp(), gc = c.getContext('2d'), k = c.width / W;
+    for (const s of [-1, 1]) {
+      gc.save(); gc.beginPath();
+      if (s < 0) gc.rect(0, 0, FILA_X * k, c.height); else gc.rect(FILA_X * k, 0, c.width, c.height);
+      gc.clip(); gc.translate(s * dx * k, 0); gc.drawImage(fi, 0, 0); gc.restore();
+    }
+    const capaF = lienzo(); capaF.getContext('2d').drawImage(c, 0, 0);
+    sombraVivo(SOMBRA_FILA, capaF);
+    pegar(capaF);
+  } else sombraVivo(SOMBRA_FILA);
+  if (pl === 'B') lupa(ts);
+  pegarGL();
+  g.drawImage(reg, 0, 0, W, H);
+}
+// la lupa: el cristal aumenta lo que hay detrás (el plató y la silueta), el aro y el mango encima, con su sombra
+function lupa(ts) {
+  const L = lupaEn(ts);
+  if (!L.vis) return;
+  const sil = capaS, pla = F('plato'), spr = F('lupa');
+  g.save();
+  g.translate(L.x, L.y);
+  // el cristal: lo de detrás, aumentado
+  g.save(); g.beginPath(); g.arc(0, 0, LP.r * 0.93, 0, Math.PI * 2); g.clip();
+  g.save(); g.scale(LP.aumento, LP.aumento); g.translate(-L.x, -L.y);
+  g.drawImage(pla, 0, 0, W, H); g.drawImage(sil, 0, 0, W, H);
+  g.restore();
+  const gr = g.createRadialGradient(-LP.r * 0.35, -LP.r * 0.4, 4, 0, 0, LP.r);
+  gr.addColorStop(0, 'rgba(255,248,230,0.22)'); gr.addColorStop(0.45, 'rgba(255,248,230,0.04)'); gr.addColorStop(1, 'rgba(20,14,8,0.28)');
+  g.fillStyle = gr; g.fillRect(-LP.r, -LP.r, 2 * LP.r, 2 * LP.r);
+  g.restore();
+  // el aro y el mango, con su sombra en la silueta
+  g.rotate(L.rot);
+  g.shadowColor = 'rgba(10,5,3,0.45)'; g.shadowBlur = 16; g.shadowOffsetX = 20 * KK(); g.shadowOffsetY = 26 * KK();
+  g.drawImage(spr, -135, -135, 360, 360);
+  g.restore();
+}
+function planoC(ts, n) {
+  // la persona: el cuerpo y las manos, foto; la cabeza, viva; Atom vivo; la regla de ep3-virus
+  P.limpiar(); P.pieza(I.HUM, HUM_OP(ts, 'cabeza')); atomo(ts);
+  P.render(n, sinFondo);
+  g.drawImage(F('persona'), 0, 0, W, H);
+  pegarGL();
+  g.drawImage(F('reglaV'), 0, 0, W, H);
+}
+function planoD(ts, n) {
+  P.limpiar(); ponerD(ts); atomo(ts);
+  P.render(n, sinFondo);
+  g.drawImage(F('plato'), 0, 0, W, H);
+  sombraVivo({ dx: 22, dy: 28, blur: 18, alfa: 0.45 });
+  pegarGL();
+  g.drawImage(F('reglaV'), 0, 0, W, H);
+}
+function ponerMedula(ts) {
+  return medula(P, I.MED, { pos: MED.pos, escala: MED.esc, rot: MED.rot, largo: MED.largo, brillo: 0.55 + 0.45 * Math.sin(ts * 7.5) ** 2, brilloFase: ts });
+}
+// los glóbulos del río en el vaso de cerca (x, y) en el tiempo del río S; los que aún no han cruzado la boca vuelan desde
+// la médula (en px del de lejos)
+function rio(gx, S, ts, z, med) {
+  const vuelan = [];
+  for (const c of RIO) {
+    const x = c.x0 + c.v * S;
+    if (x < BOCA) { if (x > BOCA - VUELO && med) vuelan.push({ c, u: 1 - (BOCA - x) / VUELO, x }); continue; }
+    const y = c.y + 6 * Math.sin(S * 2.1 + c.x0), r = SPR_R * c.s;
+    if (x - r > 2400 || x + r < -40) continue;
+    gx.save(); gx.translate(x, y); gx.rotate(0.25 * Math.sin(c.x0) + 0.18 * S * (c.k - 1));
+    gx.drawImage(sprite(c.k, c.blur, c.os), -r, -r, 2 * r, 2 * r);
+    gx.restore();
+  }
+  return vuelan;
+}
+// la geometría de la médula (de dónde salen los glóbulos nuevos), sin dibujar
+const MEDG = (() => { P.limpiar(); const r = ponerMedula(0); P.limpiar(); return r; })();
+function planoE(ts, n) {
+  const z = zoomEn(ts), S = rioS(ts), push = ts >= T.empuje[0];
+  // lo vivo: la médula (antes del empuje) y Atom
+  P.limpiar();
+  if (!push) ponerMedula(ts);
+  atomo(ts);
+  P.render(n, sinFondo);
+  const k = KK();
+  // el decorado: el vaso de lejos con el plató y, al acercarse, el de cerca encima
+  g.save(); aPantalla(g, z); g.drawImage(F('vasoL'), 0, 0, W, H); g.restore();
+  const aA = ss(1.7, 1.99, z);
+  if (aA > 0) { g.save(); aVaso(g, z); g.globalAlpha = aA; g.drawImage(F('vasoA'), 0, 0, W, H); g.restore(); }
+  // la mota pasa despacio por el fondo del vaso y se para en el centro
+  const um = prog(ts, T.fab, QUIETO);
+  const mx = mix(540, 960, 1 - Math.pow(1 - um, 2.2)), my = 540 + 10 * Math.sin(ts * 1.7) * (1 - um);
+  g.save(); aVaso(g, z); g.drawImage(F('mota'), mx - 40, my - 40, 80, 80); g.restore();
+  // los glóbulos del vaso (con su sombra en la pared, como ep3-virus no la lleva: sin sombra) y los que vuelan
+  g.save(); aVaso(g, z);
+  const vuelan = rio(g, S, ts, z, true);
+  g.restore();
+  // la médula: viva (o su foto durante el empuje), con su sombra
+  if (!push) { sombraVivo({ dx: 20, dy: 26, blur: 16, alfa: 0.45 }); pegarGL(); }
+  else {
+    const mf = F('medulaF');
+    g.save(); aPantalla(g, z); g.drawImage(sombraSilueta(mf, { dx: 20, dy: 26, blur: 16, alfa: 0.45 }), 0, 0, W, H); g.drawImage(mf, 0, 0, W, H); g.restore();
+  }
+  // los glóbulos nuevos: salen de la médula (brotan) y vuelan en arco hasta la boca del vaso
+  if (vuelan.length) {
+    const pts = MEDG.puntos.map(pant);
+    g.save(); aPantalla(g, z);
+    for (const { c, u } of vuelan) {
+      const p0 = pts[1 + (Math.abs(Math.round(c.x0)) % 7)], p2 = [LJ.x + LJ.s * BOCA + 10, LJ.y + LJ.s * c.y];
+      const p1 = [mix(p0[0], p2[0], 0.2) - 30, Math.min(p0[1], p2[1]) - 170];
+      const e = eoc(u), x = (1 - e) * (1 - e) * p0[0] + 2 * (1 - e) * e * p1[0] + e * e * p2[0], y = (1 - e) * (1 - e) * p0[1] + 2 * (1 - e) * e * p1[1] + e * e * p2[1];
+      const pop = u < 0.18 ? eob(u / 0.18, 2) : 1, r = SPR_R * c.s * LJ.s * pop;
+      g.save(); g.translate(x, y); g.rotate(0.25 * Math.sin(c.x0) + 5 * u);
+      g.shadowColor = 'rgba(10,5,3,0.4)'; g.shadowBlur = 10; g.shadowOffsetX = 10 * k * z; g.shadowOffsetY = 14 * k * z;
+      g.drawImage(sprite(c.k, c.blur, c.os), -r, -r, 2 * r, 2 * r);
+      g.restore();
+      // el destello al brotar
+      if (u < 0.25) {
+        const a = 0.5 * (1 - u / 0.25), R = 60;
+        g.save(); g.globalCompositeOperation = 'lighter';
+        const gr = g.createRadialGradient(p0[0], p0[1], 0, p0[0], p0[1], R);
+        gr.addColorStop(0, `rgba(255,190,130,${a})`); gr.addColorStop(1, 'rgba(255,170,110,0)');
+        g.fillStyle = gr; g.fillRect(p0[0] - R, p0[1] - R, 2 * R, 2 * R); g.restore();
+      }
+    }
+    g.restore();
+  }
+  // el contador y la barra del reproductor (salen del cuadro con el empuje)
+  if (z < 1.9) {
+    const p = prog(ts, T.cuenta[0], T.cuenta[1]);
+    const N = p >= 1 ? CONT.fin : Math.floor(CONT.fin * p);
+    const cif = String(N).padStart(CONT.n, '0');
+    const lider = String(N).length;
+    g.save(); aPantalla(g, z);
+    g.shadowColor = 'rgba(10,5,3,0.5)'; g.shadowBlur = 8; g.shadowOffsetX = 7 * k * z; g.shadowOffsetY = 9 * k * z;
+    for (let i = 0; i < CONT.n; i++) {
+      const x = CONT.x + (i - (CONT.n - 1) / 2) * CONT.paso;
+      g.globalAlpha = i < CONT.n - lider || N === 0 && i < CONT.n - 1 ? 0.28 : 1;
+      g.drawImage(F('c' + cif[i]), x - 50, CONT.y - 55, 100, 110);
+    }
+    g.globalAlpha = 1;
+    // la barra: la ranura (con el «play»), el relleno recortado hasta p y el botón
+    const bx = BAR.x - 390, by = BAR.y - 45;
+    g.drawImage(F('b0'), bx, by, 700, 90);
+    g.shadowColor = 'rgba(0,0,0,0)';
+    const xr = BAR.x - BAR.semi + 2 * BAR.semi * p;
+    g.save(); g.beginPath(); g.rect(bx, by, xr - bx, 90); g.clip(); g.drawImage(F('b1'), bx, by, 700, 90); g.restore();
+    g.shadowColor = 'rgba(10,5,3,0.5)';
+    g.drawImage(F('b2'), xr - 390, by, 700, 90);
+    g.restore();
+  }
+  // Atom encima de todo (sin empuje)
+  if (push) pegarGL();
+  g.drawImage(F('reglaV'), 0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- fotograma
+function componer(t) {
+  ajustarCapa();
+  tFot = Math.min(t, NFIN / 12 + 1e-4);
+  const n = P.fotograma(tFot), ts = n / 12;
+  const pl = plano(ts);
+  tipoFot = pl;
+  pedirFotos(pl, ts);
+  if (pl === 'A' || pl === 'B') planoAB(ts, n, pl);
+  else if (pl === 'C') planoC(ts, n);
+  else if (pl === 'D') planoD(ts, n);
+  else planoE(ts, n);
+  parpadeo(n);
+  POST.aplicar(g, n);
+  if (n === NFIN) fin();
+}
+// (coste) las fotos se piden ANTES de renderizar lo vivo: si falta una, F() la pinta en el lienzo de WebGL y borraría lo vivo
+function pedirFotos(pl, ts) {
+  const k = [];
+  if (pl === 'A' || pl === 'B') {
+    k.push('reglaC', 'fila', caePelo(ts) > 0 ? 'plato' : 'pelo');
+    if (caePelo(ts) > 0 && caePelo(ts) < 1200) k.push('peloSF');
+    if (pl === 'B' || ts >= T.sil[0]) {
+      k.push('silSombra', 'sil0');
+      if (ts >= T.rojo[0]) k.push('sil1');
+      if (ts >= T.verde[0]) k.push('sil2');
+    }
+    if (pl === 'B') k.push('plato', 'lupa');
+  } else if (pl === 'C') k.push('persona', 'reglaV');
+  else if (pl === 'D') k.push('plato', 'reglaV');
+  else {
+    k.push('vasoL', 'mota', 'spr0', 'spr1', 'spr2', 'reglaV', 'b0', 'b1', 'b2', ...[...Array(10).keys()].map((d) => 'c' + d));
+    if (zoomEn(ts) > 1.65) k.push('vasoA');
+    if (ts >= T.empuje[0]) k.push('medulaF');
+  }
+  for (const x of k) F(x);
+}
+function dibujar(t) {
+  const a = performance.now();
+  hechasAhora = 0;
+  componer(t);
+  if (!hechasAhora) preparar(Math.min(t, NFIN / 12), performance.now() - a);
+}
+
+// ---------------------------------------------------------------- preparar: las fotos y los estrenos, fuera de la carga
+// En cada fotograma que no haya tenido que hacer nada al componerse, se hacen las primeras que quepan en lo que le queda
+// de su presupuesto (LIMITE, ms de reloj), en el orden en que se renderiza; [desde, nombre, hasta]. Si se pide un instante
+// suelto, F() hace allí lo que falte (ese fotograma tarda más, pero la imagen es la misma: cada foto tiene su nf fijo).
+let tipoFot = 'A';
+const LIMITE = 3600;
+const EST = { 'peloSF#': 2000, 'persona#': 3200, 'vasoL#': 2900, 'vasoA#': 3300, peloSF: 10, persona: 10, vasoL: 10, vasoA: 300, plato: 1200, sil0: 3000, sil1: 2000, sil2: 1700, silSombra: 100, lupa: 600, reglaV: 1500,
+  'e:humano': 800, 'e:globulo': 400, 'e:calendario': 600, 'e:tumbona': 400, 'e:medula': 400,
+  spr0: 500, spr1: 200, spr2: 200, mota: 400, medulaF: 500, c: 300, b: 800 };
+const est = (k) => EST[k] ?? (k.includes('#') ? EST[k.split('#')[0] + '#'] : k.length === 2 && 'cb'.includes(k[0]) ? EST[k[0]] : 1000);
+const franjas = (k, desde, hasta) => [...Array(FRANJAS[k]).keys()].map((b) => [desde, `${k}#${b}`, hasta]).concat([[desde, k, hasta]]);
+const PREPARAR = [
+  [0, 'plato', T.baja[0]], ...franjas('peloSF', 0, T.baja[0]), [0, 'sil0', T.sil[0]], [0, 'silSombra', T.sil[0]],
+  [0, 'sil1', T.rojo[0]], [0, 'lupa', T.lupa], [0, 'sil2', T.verde[0]],
+  [0, 'e:humano', T.persona], ...franjas('persona', 0, T.persona), [0, 'reglaV', T.persona],
+  [T.sil[1], 'e:globulo', T.viejo], [T.sil[1], 'e:calendario', T.viejo], [T.sil[1], 'e:tumbona', T.viejo],
+  [T.sil[1], 'e:medula', T.fab], ...franjas('vasoL', T.sil[1], T.fab), [T.sil[1], 'mota', T.fab],
+  ...[0, 1, 2].map((j) => [T.sil[1], 'spr' + j, T.fab]),
+  ...[...Array(10).keys()].map((d) => [T.sil[1], 'c' + d, T.fab]), ...[0, 1, 2].map((v) => [T.sil[1], 'b' + v, T.fab]),
+  ...franjas('vasoA', T.fab, T.empuje[0]), [T.fab, 'medulaF', T.empuje[0]],
+];
+// lo que tiene que estar hecho antes
+const ANTES = { 'persona#0': ['e:humano'], silSombra: ['sil0'] };
+for (const [k, N] of Object.entries(FRANJAS)) ANTES[k] = [...Array(N).keys()].map((b) => `${k}#${b}`);
+function preparar(ts, gastado) {
+  let queda = LIMITE - gastado;
+  const hechas = [];
+  for (const [desde, k, hasta] of PREPARAR) {
+    if (ts < desde || FOTO[k] || est(k) > queda) continue;
+    if ((ANTES[k] ?? []).some((a) => !FOTO[a])) continue;
+    const a = performance.now();
+    F(k); hechas.push(k);
+    queda -= performance.now() - a;
+  }
+  if (tFot !== null) P.fotograma(tFot);
+  window.__hechas = hechas;
+}
+
+// el último fotograma y el primero, en números (para ep3-virus y ep3-celulas)
+function fin() {
+  const r5 = (v) => +v.toFixed(5);
+  window.__fin = {
+    VASO: { pos: VASO_A.pos.map(r5), escala: r5(VASO_A.escala), rot: VASO_A.rot, sq: VASO_A.sq, nf: 900, blur: 3.5, radioBlur: 40 },
+    MOTA: { pos: MOTA.pos.map(r5), centro: [960, 540], px: 22 }, CARRILES: CARRILES.map((c) => ({ ...c })),
+    REGLA: { ...REGLA_V, pos: 'P.punto(1668, 528, 0.4)', escala: E_REG, rot: ROT_REG },
+    ATOMO: { centro: ATOMO_PRES, z: A_Z, reloj: +tzAtomo(NFIN / 12).toFixed(4), relojVirus: +CV.toFixed(4), energia: 0 },
+  };
+}
+window.__inicio = { reloj: +C0.toFixed(4), REGLA: REGLA_C };
+
+// ?guias: la persona de esta escena de pie y entera, para atomo/herramientas/guias-humano.py (centro, coronilla y suela, px)
+if (busq.has('guias')) {
+  const esc = 640 / (1.765 * pxU(en(960, 540, 0)));
+  const pos = [en(960, 540, 0)[0], esc, 0];
+  window.__frame = async () => {
+    ajustarCapa(); P.fotograma(0); P.limpiar();
+    P.pieza(I.HUM, { pos, escala: esc, rot: [0, 0, 0], postura: 'de pie', aspecto: 'adulto' });
+    P.render(1); pegarGL();
+    window.__medidas = { x: Math.round(pant(pos)[0]), coronilla: Math.round(pant([pos[0], pos[1] + 0.765 * esc, 0])[1]), suela: Math.round(pant([pos[0], pos[1] - esc, 0])[1]) };
+  };
+  window.__listo = true;
+} else {
+  // al cargar: lo del fotograma 0 (el pelo con su fondo, la fila, la regla de ep3-celulas) y los estrenos de la cota y Atom
+  F('pelo'); F('fila'); F('reglaC');
+  // la primera franja de la persona compila las celdas del cuerpo (~5 s, una sola vez): no cabe en ningún fotograma
+  F('persona#0');
+  P.limpiar(); ponerCota(0); atomo(0); P.render(0, sinFondo);
+  hito('fotos');
+  if (busq.has('prepararTodo')) for (const [, k] of PREPARAR) F(k);
+  window.__medidas = { T, PERS, C0, CV, EXTRAS };
+  window.__carga = Math.round(performance.now() - T0);
+  E.iniciar(dibujar, { paso: 1 / 12 });
+}
+</script>
+</body>
+</html>

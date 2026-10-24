@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cobre · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-COBRE (frase 41). El denario pierde la plata año a año hasta ser cobre con una cara bonita: la barra baja a «5%» y
+// la caja cuenta los años.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-cobre');
+const { PALA, PR, tramo, lerp } = R;
+const m0 = M('cobre', 0.5);
+const cobre = (t) => { R.cieloR(t, 'tarde', { sol: [60, 140, 12], nubes: { n: 3 } }); const plata = lerp(0.95, 0.04, tramo(t, m0 + 2, m0 + 7)); R.denario(140, 86, 44, plata, t); R.barra(266, 150, 86, plata); };
+rodar(E, R, [[0, cobre]], { año: (t) => Math.round(lerp(14, 270, tramo(t, m0 + 2, m0 + 7))) });
+</script>
+</body>
+</html>

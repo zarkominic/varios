@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adios · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-ADIOS (frase 35). La calle de las calabazas bajo la luna, con niebla y murciélagos; Atom en su caja con el «?» del
+// cierre.
+import { preparar, rodar, noche, casa, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-adios');
+const { PALA, tramo } = R;
+const calle = (t) => {
+  noche(R, t, { luna: [160, 40, 16], hor: 150, murcielagos: 5 });
+  casa(R, 70, 146, t, { w: 30, h: 30, pared: [PALA.CONTORNO, PALA.MORADO[0], PALA.MORADO[1], PALA.MORADO[2]] });
+  casa(R, 250, 146, t, { w: 34, h: 32 });
+  sueloNoche(R, 149);
+  for (const [x, s] of [[118, 0.8], [140, 0.5], [180, 0.6], [204, 0.9], [300, 0.6]]) R.calabaza(x, 150, s, t);
+  R.niebla(t, 138, 178, 1, 5);
+};
+rodar(E, R, [[0, calle]], { año: 2026, caja: (t, e) => R.caja(t, tramo(t, 0.3, 0.7), (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rubicon · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-RUBICON (frases 18–19). Un riachuelo en diagonal: César y sus legionarios lo cruzan chapoteando; la línea punteada
+// de la ley se rompe a su paso. Luego, dentro del Senado, sombras con puñales rodean a César; un fundido rojo tapa el
+// golpe (sin sangre) y en la caja salen los «13» años de guerra civil que vienen detrás.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-rubicon');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { rub: M('rubicon', 0.5), idu: M('idus', 9) };
+const cesar = { ...ELENCO.cesar, sombrero: 'laurel', capa: PALA.ROJO, chaqueta: PALA.BRONCE, camisa: PALA.BRONCE, falda: PALA.ROJO, banda: null, largoFalda: 0.2, pelo: PALA.PELO_NEGRO };
+const rio = (t) => {
+  R.cieloR(t, 'tarde', { sol: [60, 92, 9] });
+  R.colinas(100, { amp: 8, luz: 1.4 }); R.suelo(100, PR.HIERBA, { luz: 2 });
+  const orilla = (y) => 146 + (y - 100) * 0.4;
+  for (let y = 100; y < R.H; y++) for (let x = Math.round(orilla(y)); x < orilla(y) + 22; x++) R.pset(x, y, R.tone(PR.AGUA, 1.6 + (Math.sin(y * 0.4 + x * 0.2 - t * 4) > 0.8 ? 1.4 : 0), x, y));
+  const p = tramo(t, m.rub + 1, m.rub + 7), cx = lerp(-10, 330, p);
+  for (let y = 100; y < R.H; y += 3) { const x = Math.round(orilla(y)) - 3, roto = cx > x - 4, dx = roto ? Math.round(6 * Math.sin(y * 1.7) * Math.min(1, (cx - x) / 40)) : 0, dy = roto ? Math.round(Math.cos(y) * 3) : 0; R.rect(x + dx, y + dy, x + 1 + dx, y + 1 + dy, PALA.ROJO[3]); R.pset(x + dx, y + dy + 2, PALA.CONTORNO); }
+  for (let k = 0; k < 6; k++) {
+    const x = cx - k * 22, y = 162 + (k & 1) * 8;
+    R.personaje(x, y, 28, k === 0 ? { ...cesar, t, anda: t * 7, pose: 'senala' } : { ...ELENCO.legionario, t: t + k, anda: t * 7, objeto: 'gladio' });
+    const ox = orilla(y); if (x > ox && x < ox + 22) for (let s = 0; s < 4; s++) R.pset(Math.round(x - 6 + s * 4), Math.round(y - 2 - Math.abs(Math.sin(t * 9 + s)) * 4), PR.AGUA[4]);
+  }
+};
+const senado = (t) => {
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PALA.MARMOL, 0.8 + (y > 130 ? 0.6 : 0) + ((x % 50) < 3 && y < 130 ? -0.6 : 0), x, y));
+  for (let g = 0; g < 3; g++) { R.rect(0, 92 + g * 12, R.W, 103 + g * 12, PALA.MARMOL[1 + (g & 1)]); for (let k = 0; k < 14; k++) R.personaje(12 + k * 23 + (g & 1) * 11, 100 + g * 12, 14, { ...ELENCO.senador, t: t + k + g, pose: 'sentado', sombra: false, luz: undefined }); }
+  const u = t - m.idu, cerca = tramo(t, m.idu + 2.5, m.idu + 5);
+  R.personaje(160, 160, 30, { ...cesar, chaqueta: PALA.MARMOL, camisa: PALA.MARMOL, falda: PALA.MARMOL, largoFalda: 0.36, banda: PALA.PURPURA, capa: PALA.PURPURA, t, pose: u > 5.6 ? 'rodilla' : 'pie', ceño: u > 3 });
+  for (let k = 0; k < 6; k++) { const s = k < 3 ? -1 : 1, d = 24 + (k % 3) * 15; R.personaje(160 + s * lerp(140, d, cerca), 162 + (k % 3) * 4, 28, { ...ELENCO.senador, chaqueta: PALA.NEGRO, camisa: PALA.NEGRO, falda: PALA.NEGRO, banda: PALA.ROJO, piel: PALA.PIEL_OSCURA, t: t + k, dir: -s, objeto: 'gladio', pose: cerca > 0.9 ? 'senala' : 'pie', anda: cerca > 0 && cerca < 1 ? t * 6 : null, ceño: true }); }
+  const rojo = tramo(t, m.idu + 5.5, m.idu + 6.5);
+  if (rojo > 0) for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) if (R.b4(x, y) < rojo * 0.85) R.pset(x, y, (x + y) & 1 ? PALA.ROJO[0] : PALA.CONTORNO);
+};
+const año = (t) => (t < m.idu ? -49 : t < m.idu + 6.5 ? -44 : Math.round(lerp(-44, -31, tramo(t, m.idu + 6.5, m.idu + 9))));
+rodar(E, R, [[0, rio], [m.idu - 0.2, senado]], { año, caja: (t, e) => R.caja(t, t > m.idu + 6.8 ? tramo(t, m.idu + 6.8, m.idu + 7.2) : 0, (x, y) => { R.icono('espadas', x + 2, y + 4); R.numero('13', x + 14, y + 12); }, { energia: e }) });
+</script>
+</body>
+</html>

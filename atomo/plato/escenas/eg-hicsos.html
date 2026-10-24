@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hicsos · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-HICSOS (frases 21–22). Cartela «1650». En la orilla seca, unos invasores barbudos llegan en carros de guerra
+// tirados por caballos y los egipcios se asustan. Luego el mapa: el imperio se extiende de Nubia a Siria.
+import { preparar, rodar, nilo, mapaEg, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-hicsos');
+const m = { car: M('carros', 1.5), imp: M('imperio', 12) };
+const carros = (t) => {
+  const u = t - m.car, x = Math.round(R.lerp(-60, 120, R.tramo(u, 0, 0.6 * (m.imp - m.car))));
+  nilo(R, t, { desierto: true, barcas: false, nivel: 1 });
+  R.carro(x, 145, t, { galopa: x < 120, conductor: EL.barbudo });
+  R.carro(x - 70, 145, t + 0.3, { galopa: x < 120, conductor: EL.barbudo, conductorOpc: { pal: { A: R.hex('#46a04a'), Q: R.hex('#e8b830') } } });
+  R.actor(EL.campesino, 230, 145, t, { dir: -1, sorpresa: x > 40 }); R.actor(EL.egipcia, 256, 145, t, { dir: -1, sorpresa: x > 60 });
+};
+const imperio = (t) => mapaEg(R, t, { vista: R.VISTAS.egipto, verde: true, imperio: R.tramo(t - m.imp, 0.3, 3) });
+rodar(E, R, [[0, carros], [m.imp - 0.2, imperio]], { cartela: '1650', año: (t) => (t < m.imp ? -1650 : -1500) });
+</script>
+</body>
+</html>

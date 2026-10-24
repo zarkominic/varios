@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Termopilas · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-TERMOPILAS (frase 16). Cartela «480». Un paso estrecho entre una pared de montaña y el mar: una fila de espartanos
+// con capa roja y escudos cierra el hueco; enfrente, filas y filas persas que no caben. La caja cuenta los días: 1, 2,
+// 3. Al final cae la noche y los espartanos están rodeados.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-termopilas');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('termopilas', 1.5), dur = E.duracion ?? 16;
+const dia = (t) => Math.min(3, 1 + Math.floor((t - m0 - 3) / ((dur - m0 - 4) / 3)));
+const paso = (t) => {
+  const noche = tramo(t, dur - 3, dur - 1);
+  R.cieloR(t, noche > 0.5 ? 'tormenta' : 'tarde', { sol: [60, 90, 9] });
+  R.poligono([[0, 0], [130, 0], [110, 60], [90, 120], [0, 140]], (x, y) => R.tone(PR.ROCA, 1.6 + (x / 130) * 0.8 + (R.hash2(x >> 2, y >> 2) - 0.5) * 0.6, x, y));
+  R.mar(t, { hor: 150 });
+  R.poligono([[90, 120], [320, 112], [320, 150], [0, 150], [0, 140]], (x, y) => R.tone(PR.TIERRA, 2 + (y - 112) * 0.02, x, y));
+  for (let f = 0; f < 4; f++) for (let k = 0; k < 9; k++) R.personaje(170 + k * 17 + f * 5, 124 + f * 8, 16 + f * 1.5, { ...ELENCO.persa, t: t + k + f, dir: -1, sombra: false });
+  for (let k = 0; k < 5; k++) R.personaje(110 + k * 10, 142 + (k & 1) * 4, 22, { ...ELENCO.espartano, t: t + k, ceño: true, pose: Math.sin(t * 5 + k) > 0.7 ? 'senala' : 'pie' });
+  if (noche > 0) { for (let k = 0; k < 6; k++) R.personaje(lerp(-20, 70, noche) + k * 8, 136 + (k & 1) * 6, 16, { ...ELENCO.persa, t: t + k, sombra: false }); }
+};
+rodar(E, R, [[0, paso]], { cartela: '480', año: -480, caja: (t, e) => R.caja(t, t > m0 + 3 ? tramo(t, m0 + 3, m0 + 3.4) : 0, (x, y) => { R.icono('arena', x + 2, y + 4); R.numero(String(dia(t)), x + 16, y + 12); }, { energia: e }) });
+</script>
+</body>
+</html>

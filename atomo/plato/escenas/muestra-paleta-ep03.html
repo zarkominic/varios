@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Muestra de paleta · episodio 3</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// MUESTRA DE PALETA DEL EPISODIO 3 (no es una escena de producción). Para juzgar de un vistazo si la plastilina
+// adulta (la base) y los kits de comparación papel-adulta.js e isometrico-adulta.js comparten paleta, y si Atom
+// y la cartela de capítulo son el mismo personaje y la misma pieza en los tres materiales.
+//
+// El mismo contenido en los tres estilos y con la misma maqueta (en px de diseño, maqueta() abajo): el Sol en el
+// platillo izquierdo de una balanza de latón con peana de nogal, los planetas como migas en el derecho (como
+// ep3-balanza), Atom arriba a la izquierda y la cartela «+9» (la de ep3-sol) en el primer segundo. La balanza se
+// hunde del lado del Sol entre 1,6 y 2,5 s.
+//
+// Sin parámetros, la hoja (1920 × 1080, sin palabras): tres columnas (arcilla · papel · isométrico) y tres filas:
+//   1 · el fotograma en el instante t + 2,8 s (la balanza ya hundida), a un tercio;
+//   2 · el fotograma en el instante t (de 0 a 1,2 s se ve la cartela), a un tercio;
+//   3 · un recorte a tamaño real del fotograma de la fila 1 (Atom, el Sol y el latón).
+// Cada columna es esta misma página en un iframe a 1920 × 1080 con ?vista=arcilla|papel|iso, que también se puede
+// abrir o capturar sola (pantalla completa). ?cartela=… cambia el número (por defecto +9; '+' va como %2B).
+//
+// Carga: escena('muestra-paleta-ep03', 'cosmos'), con su propia window.ESCENA (no hay marcas: duración 4,4 s,
+// voz simulada de 1,5 a 3,8 s), así que no lee marcas-cosmos.json.
+import { escena } from '/atomo/plato/escena.js';
+
+const q = new URLSearchParams(location.search);
+const vista = q.get('vista');
+const TXT = q.get('cartela') ?? '+9';
+window.ESCENA ??= { id: 'muestra-paleta-ep03', duracion: 4.4, marcas: {}, voz: [1.5, 3.8], fps: 30, cartela: TXT };
+const E = await escena('muestra-paleta-ep03', 'cosmos');
+const W = 1920, H = 1080, TAU = Math.PI * 2;
+const cl = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const a12 = (t) => Math.floor(t * 12 + 1e-6) / 12;   // stop-motion a 12 fps (arcilla y papel)
+
+// ---------------------------------------------------------------- la maqueta común (px de diseño)
+// La balanza en unidades de su brazo (L = 400 px): pivote en PIV, platillos 0,66 por debajo de cada punta, pie
+// hasta 1,24 y peana de 0,38 × 0,06; el Sol (0,36) en el platillo izquierdo; las migas en el derecho.
+const PIV = [960, 330], L = 400, HILO = 0.66, R_SOL = 0.36, A_MAX = 0.17;
+// migas: x, z (unidades de brazo), radio, color sRGB (Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano, Neptuno)
+const MIGAS = [
+  [-0.24, 0.03, 0.011, '#8e8579'], [-0.19, -0.05, 0.018, '#cdb07f'], [-0.13, 0.05, 0.019, '#4f6b70'], [-0.075, -0.03, 0.014, '#b9593a'],
+  [0.0, 0.03, 0.05, '#c9a87a'], [0.11, -0.04, 0.043, '#d6bf8c'], [0.19, 0.05, 0.03, '#98aba8'], [0.26, -0.02, 0.029, '#4e6377'],
+];
+function maqueta(t) {
+  const a = A_MAX * eio(seg(t, 1.6, 2.5)), c = Math.cos(a), s = Math.sin(a);
+  const EL = [PIV[0] - L * c, PIV[1] + L * s], ER = [PIV[0] + L * c, PIV[1] - L * s];
+  const PL = [EL[0], EL[1] + HILO * L], PR = [ER[0], ER[1] + HILO * L];
+  const sol = [PL[0], PL[1] + 16 - R_SOL * 0.95 * L];
+  return { a, EL, ER, PL, PR, sol };
+}
+const ATOMO = { x: 250, y: 190, R: 70 };   // centro de Atom y radio de sus órbitas en pantalla
+
+if (!vista) await hoja();
+else if (vista === 'papel') await papel();
+else if (vista === 'iso') await iso();
+else await arcilla();
+
+// ================================================================ la hoja comparativa
+async function hoja() {
+  const st = document.createElement('style');
+  st.textContent = `html,body{margin:0;height:100%;background:#0b0a0b;overflow:hidden}
+    iframe{position:fixed;left:0;top:0;width:${W}px;height:${H}px;border:0;z-index:0}
+    #c{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;z-index:1;background:#0b0a0b}`;
+  document.head.appendChild(st);
+  const cv = document.createElement('canvas'); cv.id = 'c'; cv.width = W; cv.height = H; document.body.appendChild(cv);
+  const g = cv.getContext('2d');
+  const vistas = ['arcilla', 'papel', 'iso'];
+  const hijos = vistas.map((v) => {
+    const f = document.createElement('iframe');
+    f.src = `${location.pathname}?captura&vista=${v}&cartela=${encodeURIComponent(TXT)}`;
+    document.body.insertBefore(f, cv);
+    return f;
+  });
+  await Promise.all(hijos.map((f) => new Promise((ok, mal) => {
+    const t0 = performance.now();
+    const mira = () => {
+      const w = f.contentWindow;
+      if (w && w.__listo && typeof w.__frame === 'function' && w.__lienzo) return ok();
+      if (performance.now() - t0 > 85000) return mal(new Error('una vista no arrancó: ' + f.src));
+      setTimeout(mira, 100);
+    };
+    mira();
+  })));
+  const CW = W / 3, CH = H / 3, G = 3;   // celdas de 640 × 360 con una junta oscura
+  const RECORTE = [100, 60, CW, CH];       // fila 3: Atom, el Sol y el latón a tamaño real
+  window.__tiempos = {};
+  async function dibujar(t) {
+    g.fillStyle = '#0b0a0b'; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 3; i++) {
+      const w = hijos[i].contentWindow, x = i * CW;
+      let a = performance.now();
+      await w.__frame(t + 2.8);
+      window.__tiempos[vistas[i] + '-escena'] = Math.round(performance.now() - a);
+      g.drawImage(w.__lienzo, 0, 0, W, H, x + G, G, CW - 2 * G, CH - 2 * G);
+      g.drawImage(w.__lienzo, ...RECORTE, x + G, 2 * CH + G, CW - 2 * G, CH - 2 * G);
+      a = performance.now();
+      await w.__frame(t);
+      window.__tiempos[vistas[i] + '-cartela'] = Math.round(performance.now() - a);
+      g.drawImage(w.__lienzo, 0, 0, W, H, x + G, CH + G, CW - 2 * G, CH - 2 * G);
+    }
+  }
+  window.__lienzo = cv;
+  E.iniciar(dibujar, { paso: 1 / 12 });
+}
+
+// ================================================================ arcilla (plastilina-adulta.js)
+async function arcilla() {
+  const K = await import('/atomo/plato/kits/plastilina-adulta.js');
+  const THREE = await import('three');
+  // balanza de latón con peana de nogal, hilos y platillos; T.y = giro del brazo (positivo: baja la izquierda)
+  const balanza = { radio: 1.55, glifos: [], glsl: /* glsl */`
+const float BZ_H = ${HILO.toFixed(4)};
+float elipB(vec3 p, vec3 r) { float k0 = length(p / r), k1 = length(p / (r * r)); return k0 * (k0 - 1.0) / max(k1, 1e-5); }
+float platilloB(vec3 q, vec3 P) {
+  float d = elipB(q - P, vec3(0.36, 0.085, 0.2));
+  d = smax(d, q.y - P.y - 0.012, 0.01);
+  return smax(d, -elipB(q - P - vec3(0.0, 0.03, 0.0), vec3(0.325, 0.07, 0.17)), 0.008);
+}
+float hilosB(vec3 q, vec3 E, vec3 P) {
+  float d = sdCapsule(q, E, P + vec3(-0.33, 0.0, 0.0), 0.006);
+  d = min(d, sdCapsule(q, E, P + vec3(0.33, 0.0, 0.0), 0.006));
+  return min(d, sdCapsule(q, E, P + vec3(0.0, 0.0, -0.17), 0.006));
+}
+const vec4 MIGA[8] = vec4[8](${MIGAS.map(([x, z, r]) => `vec4(${x.toFixed(3)}, ${z.toFixed(3)}, ${r.toFixed(3)}, 0.0)`).join(', ')});
+const vec3 MIGA_C[8] = vec3[8](vec3(0.25, 0.23, 0.20), vec3(0.55, 0.42, 0.22), vec3(0.06, 0.10, 0.12), vec3(0.42, 0.12, 0.05),
+  vec3(0.50, 0.36, 0.20), vec3(0.58, 0.46, 0.26), vec3(0.30, 0.38, 0.37), vec3(0.07, 0.11, 0.17));
+float pz_balanza(vec3 q, vec4 T, out float m) {
+  float a = T.y, c = cos(a), s = sin(a);
+  vec3 EL = vec3(-c, -s, 0.0), ER = vec3(c, s, 0.0);
+  vec3 PL = EL - vec3(0.0, BZ_H, 0.0), PR = ER - vec3(0.0, BZ_H, 0.0);
+  vec2 qb = vec2(c * q.x + s * q.y, -s * q.x + c * q.y);
+  float lat = sdRoundBox(vec3(qb, q.z), vec3(1.0, 0.028, 0.028), 0.018);
+  lat = min(lat, min(length(q - EL), length(q - ER)) - 0.042);
+  lat = min(lat, length(q) - 0.075);
+  lat = min(lat, sdCapsule(q, vec3(0.0, -1.24, 0.0), vec3(0.0, -0.05, 0.0), 0.038));
+  lat = min(lat, sdCapsule(q, vec3(0.0), vec3(-s, c, 0.0) * 0.26, 0.016));
+  lat = min(lat, min(platilloB(q, PL), platilloB(q, PR)));
+  float peana = sdRoundBox(q - vec3(0.0, -1.3, 0.0), vec3(0.38, 0.06, 0.17), 0.035);
+  float hilo = min(hilosB(q, EL, PL), hilosB(q, ER, PR));
+  float migas = 1e5, im = 0.0;
+  for (int i = 0; i < 8; i++) {
+    vec4 g = MIGA[i];
+    float d = length(q - (PR + vec3(g.x, 0.008 + g.z, g.y))) - g.z;
+    if (d < migas) { migas = d; im = float(i); }
+  }
+  float d = smin(lat, peana, 0.02);
+  m = peana < lat ? 1.0 : 0.0;
+  if (hilo < d) m = 2.0;
+  d = min(d, hilo);
+  if (migas < d) m = 3.0 + im;
+  return min(d, migas) * 0.9;
+}
+float pzc_balanza(vec3 q, vec4 T) {
+  float a = T.y, c = cos(a), s = sin(a);
+  vec3 EL = vec3(-c, -s, 0.0), ER = vec3(c, s, 0.0);
+  vec2 qb = vec2(c * q.x + s * q.y, -s * q.x + c * q.y);
+  float d = sdRoundBox(vec3(qb, q.z), vec3(0.98, 0.022, 0.022), 0.015);
+  d = min(d, sdCapsule(q, vec3(0.0, -1.24, 0.0), vec3(0.0, -0.05, 0.0), 0.032));
+  d = min(d, sdRoundBox(q - vec3(0.0, -1.3, 0.0), vec3(0.37, 0.05, 0.16), 0.03));
+  d = min(d, max(elipB(q - EL + vec3(0.0, BZ_H, 0.0), vec3(0.34, 0.075, 0.18)), q.y - EL.y + BZ_H));
+  return min(d, max(elipB(q - ER + vec3(0.0, BZ_H, 0.0), vec3(0.34, 0.075, 0.18)), q.y - ER.y + BZ_H));
+}
+vec3 pzcol_balanza(vec3 q, vec4 T, float m) {
+  if (m > 2.5) { int i = int(m - 3.0 + 0.5); return MIGA_C[i] * (0.93 + 0.14 * vnoise(q * 40.0)); }
+  if (m > 1.5) return vec3(0.05, 0.04, 0.03);
+  if (m > 0.5) {
+    float n = vnoise(vec3(q.x * 5.0, q.y * 30.0, q.z * 5.0));
+    return C_WOOD * (0.9 + 0.08 * sin((q.y + 0.04 * n) * 260.0) + 0.2 * (n - 0.5));
+  }
+  gBri = 3.2;
+  return C_BRASS * 0.8 * (0.88 + 0.2 * vnoise(q * vec3(30.0, 3.0, 30.0)));
+}
+` };
+  // el Sol de plastilina ámbar: granulación en celdas, dos manchas, borde más oscuro, translucidez y luz propia
+  const sol = { radio: 1.03, glifos: [], glsl: /* glsl */`
+vec2 celdasSol(vec3 p) {
+  vec3 i = floor(p), f = fract(p);
+  float d1 = 8.0, d2 = 8.0;
+  for (int z = -1; z <= 1; z++) for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+    vec3 o = vec3(float(x), float(y), float(z));
+    vec3 h = vec3(hash13(i + o), hash13(i + o + 17.3), hash13(i + o + 41.7));
+    float d = length(o + h - f);
+    if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) d2 = d;
+  }
+  return vec2(d1, d2);
+}
+float pz_sol(vec3 q, vec4 T, out float m) { m = 0.0; return length(q) - 1.0 - 0.006 * bultos(q * 3.0); }
+float pzc_sol(vec3 q, vec4 T) { return length(q) - 0.985; }
+vec3 pzcol_sol(vec3 q, vec4 T, float m) {
+  vec3 n = normalize(q);
+  vec2 w = celdasSol(n * 11.0);
+  float borde = 1.0 - smoothstep(0.03, 0.14, w.y - w.x);
+  float mu = clamp(n.z, 0.0, 1.0);
+  float limbo = 0.45 + 0.55 * pow(mu, 0.55);
+  float manchas = clamp(smoothstep(0.075, 0.045, length(n - normalize(vec3(-0.33, 0.28, 0.9)))) + smoothstep(0.055, 0.03, length(n - normalize(vec3(0.24, -0.27, 0.93)))), 0.0, 1.0);
+  // ámbar oscuro y saturado: la luz propia y el revelado lo aclaran (como los electrones de Atom)
+  vec3 alb = mix(vec3(0.27, 0.10, 0.018), vec3(0.33, 0.14, 0.03), mu) * (1.0 - 0.25 * borde) * (1.0 - 0.8 * manchas);
+  gTr = 0.5;
+  gEm = alb * (0.05 + 0.17 * limbo);
+  return alb;
+}
+` };
+  const I = { BAL: 0, SOL: 1 };
+  const P = await K.crearPlato({
+    piezas: ['balanza', 'sol'], tiposExtra: { balanza, sol },
+    camara: { pos: [0, 3.15, 15.5], mira: [0, 2.2, 0], fov: 28, desenfoque: 40 },
+    sombraFondo: ['p0', 'p1', 'atomo'], sombras: { p0: ['p1'] },
+    cartela: TXT,
+  });
+  const Z0 = 0.3;
+  const piv = P.punto(PIV[0], PIV[1], Z0);
+  const pp = (x, y, z) => { const a = P.proyectar([x, y, z]), b = P.proyectar([x + 1, y, z]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+  const ESC = L / pp(piv[0], piv[1], Z0);                           // unidades del mundo por unidad de brazo
+  const AT = P.punto(ATOMO.x, ATOMO.y, 1.2);
+  const A_ESC = ATOMO.R / (1.68 * pp(AT[0], AT[1], AT[2]));
+  window.__lienzo = P.renderer.domElement;
+  function dibujar(t) {
+    const n = P.fotograma(t), ts = n / 12, M = maqueta(ts);
+    P.limpiar();
+    P.atomo({ pos: [AT[0], AT[1] + 0.04 * Math.sin(ts * 1.3), AT[2]], escala: A_ESC, yaw: -0.12 + 0.08 * Math.sin(ts * 0.5), pitch: 0.06, energia: E.energia(ts), ts });
+    P.pieza(I.BAL, { pos: piv, escala: ESC, variante: M.a });
+    const c = Math.cos(M.a), s = Math.sin(M.a);
+    const sc = [piv[0] - ESC * c, piv[1] - ESC * s - ESC * HILO + ESC * (-0.04 + R_SOL * 0.95), piv[2]];
+    P.pieza(I.SOL, { pos: sc, escala: ESC * R_SOL });
+    K.cartela(P, ts, E.cartela);
+    P.render(n);
+  }
+  E.iniciar(dibujar, { paso: 1 / 12 });
+}
+
+// ================================================================ papel (papel-adulta.js)
+async function papel() {
+  const K = await import('/atomo/plato/kits/papel-adulta.js');
+  await K.preparar();
+  window.__lienzo = document.getElementById('c');
+  const C = K.C;
+  const fondo = K.capa(() => {
+    K.fondoNoche({ luz: [640, 470], estrellas: 110, nubes: false, evitar: [{ x: ATOMO.x, y: ATOMO.y, r: 110 }] });
+    // el suelo: una tira de cartulina de carbón cálido bajo la peana
+    const p = K.poligono([[-40, 874], [W + 40, 868], [W + 40, H + 40], [-40, H + 40]]);
+    K.papel(p, '#2a2422', { d: 6, seed: 71, sa: 0.6, tb: 0.35, print: () => {
+      const gr = K.g.createLinearGradient(0, 870, 0, H); gr.addColorStop(0, 'rgba(255,230,200,0.06)'); gr.addColorStop(1, 'rgba(8,6,6,0.5)');
+      K.g.fillStyle = gr; K.g.fillRect(0, 860, W, H - 860);
+    } });
+  });
+  // el Sol: disco ámbar con granulación, borde más oscuro y dos manchas (en caché) y su corona recortada
+  const RS = R_SOL * L;
+  const disco = K.sprite(2 * RS, 2 * RS, () => {
+    const g = K.g, r = K.rng(503);
+    K.papel(K.circulo(RS, 502, 0.004), '#e6a656', { d: 0, seed: 504, tb: 0.4, print: () => {
+      for (let i = 0; i < 520; i++) {
+        const a = r() * TAU, rr = RS * Math.sqrt(r()), x = rr * Math.cos(a), y = rr * Math.sin(a), k = 5 + r() * 6;
+        g.strokeStyle = `rgba(150,72,22,${0.07 + 0.07 * r()})`; g.lineWidth = 1.1;
+        g.beginPath(); for (let j = 0; j < 6; j++) { const b = j / 6 * TAU + r() * 0.4; g.lineTo(x + k * Math.cos(b), y + k * Math.sin(b)); } g.closePath(); g.stroke();
+      }
+      const gr = g.createRadialGradient(-RS * 0.15, -RS * 0.2, RS * 0.1, 0, 0, RS);
+      gr.addColorStop(0, 'rgba(255,228,170,0.42)'); gr.addColorStop(0.55, 'rgba(255,205,130,0.08)'); gr.addColorStop(1, 'rgba(120,50,15,0.5)');
+      g.fillStyle = gr; g.fillRect(-RS, -RS, 2 * RS, 2 * RS);
+    } });
+    for (const [x, y, rr] of [[-0.33, -0.28, 9], [0.24, 0.27, 6.5]]) { g.save(); g.translate(x * RS, y * RS); K.papel(K.circulo(rr, 505 + rr, 0.05), '#5a2c12', { d: 0.6, seed: 506, edge: 0.5 }); g.restore(); }
+  }, 20);
+  const corona = K.estrella(RS * 1.16, RS * 0.97, 22, -Math.PI / 2, 507), corona2 = K.estrella(RS * 1.08, RS * 0.97, 22, -Math.PI / 2 + Math.PI / 22, 508);
+  const migas = MIGAS.map(([, , r], i) => K.circulo(Math.max(4, r * L), 520 + i, 0.03));
+  const bowl = (() => { const pts = []; for (let k = 0; k <= 24; k++) { const u = k / 24 * Math.PI; pts.push([-0.36 * L * Math.cos(u), 0.085 * L * Math.sin(u) * 1.3]); } return K.poligono([...pts, [0.36 * L, -4], [-0.36 * L, -4]]); })();
+  const borde = K.rectRecortado(-0.36 * L - 4, -7, 0.72 * L + 8, 10, 4, 530, 0.4);
+  const brazo = K.rectRecortado(-L - 6, -11, 2 * L + 12, 22, 9, 531, 0.5), aguja = K.rectRecortado(-8, -0.26 * L, 16, 0.26 * L, 6, 582, 0.3);
+  function escenaEn(t) {
+    const g = K.g, M = maqueta(t);
+    // la balanza: peana de nogal, pie de latón
+    K.papel(K.rectRecortado(PIV[0] - 0.38 * L, PIV[1] + 1.24 * L, 0.76 * L, 0.12 * L, 10, 540, 0.8), C.nogal, { d: 6, seed: 541 });
+    K.papel(K.rectRecortado(PIV[0] - 0.035 * L, PIV[1] - 10, 0.07 * L, 1.24 * L + 10, 6, 542, 0.4), C.laton, { d: 4, seed: 543 });
+    // hilos (detrás) y platillos
+    for (const [E0, P0] of [[M.EL, M.PL], [M.ER, M.PR]]) {
+      for (const dx of [-0.33, 0.33]) K.hilo(E0[0], E0[1], P0[0] + dx * L, P0[1] - 3, 0.8, 1.6);
+    }
+    // el Sol en el platillo izquierdo (su resplandor, la corona que gira despacio y el disco)
+    const [sx, sy] = M.sol, glow = g.createRadialGradient(sx, sy, RS * 0.8, sx, sy, RS * 2.0);
+    glow.addColorStop(0, 'rgba(230,150,70,0.28)'); glow.addColorStop(1, 'rgba(230,150,70,0)');
+    g.fillStyle = glow; g.fillRect(sx - RS * 2, sy - RS * 2, RS * 4, RS * 4);
+    g.save(); g.translate(sx, sy); K.temblor(510, 0.5, 0.003); g.rotate(t * 0.04);
+    K.papel(corona, '#a8622a', { d: 4, seed: 511, tb: 0.4 });
+    K.papel(corona2, '#c98a3e', { d: 3, seed: 512, tb: 0.4 });
+    g.restore();
+    K.pegar(disco, sx, sy, { d: 3 });
+    for (const [P0, id] of [[M.PL, 550], [M.PR, 560]]) {
+      g.save(); g.translate(P0[0], P0[1]); K.temblor(id, 0.4, 0.003);
+      K.papel(bowl, C.laton, { d: 4, seed: id + 1, print: () => {
+        const gr = g.createLinearGradient(0, 0, 0, 0.12 * L); gr.addColorStop(0, 'rgba(255,240,200,0.18)'); gr.addColorStop(1, 'rgba(60,30,10,0.3)');
+        g.fillStyle = gr; g.fillRect(-0.4 * L, -8, 0.8 * L, 0.14 * L);
+      } });
+      K.papel(borde, C.latonD, { d: 2, seed: id + 2 });
+      g.restore();
+    }
+    // las migas (planetas) en el platillo derecho
+    MIGAS.forEach(([x, , r, col], i) => {
+      g.save(); g.translate(M.PR[0] + x * L, M.PR[1] - 7 - Math.max(4, r * L)); K.temblor(570 + i, 0.3);
+      K.papel(migas[i], col, { d: 1.4, seed: 571 + i, edge: 0.6 });
+      g.restore();
+    });
+    // el brazo y el pivote
+    g.save(); g.translate(PIV[0], PIV[1]); K.temblor(580, 0.4, 0.002); g.rotate(-M.a);
+    K.papel(aguja, C.latonD, { d: 3, seed: 583 });
+    K.papel(brazo, C.laton, { d: 5, seed: 581 });
+    g.restore();
+    K.chincheta(PIV[0], PIV[1], 13);
+    K.chincheta(M.EL[0], M.EL[1], 8); K.chincheta(M.ER[0], M.ER[1], 8);
+    K.atomo(ATOMO.x, ATOMO.y, t, E.energia(t), { escala: ATOMO.R / 124 });
+    K.cartela(null, t, E.cartela);
+  }
+  E.iniciar((t) => K.fotograma(a12(t), escenaEn, { fondo }), { paso: 1 / 12 });
+}
+
+// ================================================================ isométrico (isometrico-adulta.js)
+async function iso() {
+  const K = await import('/atomo/plato/kits/isometrico-adulta.js');
+  const { THREE } = K;
+  const st = document.createElement('style');
+  st.textContent = 'html,body{margin:0;height:100%;background:#100e10;overflow:hidden} #c{display:block}';
+  document.head.appendChild(st);
+  await K.cargarFuentes();
+  const plato = K.crearPlato({ libre: [[ATOMO.x - 120, ATOMO.y - 120, ATOMO.x + 120, ATOMO.y + 120]] });
+  window.__lienzo = plato.renderer.domElement;
+  // un punto del mundo que se ve desplazado (dx, dy) px del pivote; z: hacia la cámara (horizontal)
+  const Y = new THREE.Vector3(0, 1, 0), ACH = 2 / Math.sqrt(6);
+  const PV = K.S(PIV[0], PIV[1]);
+  const M3 = (dx, dy, z = 0) => PV.clone().addScaledVector(K.vR, dx).addScaledVector(Y, -dy / ACH).addScaledVector(K.vF, z);
+  const suelo = K.crearSuelo(plato, { y: M3(0, 1.3 * L + 0.06 * L).y, centro: [960, 860], radio: 1300 });
+  const lat = K.lam(K.P.laton), nog = K.lam(K.P.nogal), latD = K.lam(K.P.latonD);
+  const raiz = new THREE.Group(); plato.scene.add(raiz);
+  // peana y pie
+  const peana = new THREE.Mesh(new THREE.BoxGeometry(0.76 * L, 0.12 * L / ACH, 0.34 * L), nog);
+  peana.position.copy(M3(0, 1.3 * L)); K.orient(peana, Y, K.vF); raiz.add(peana);
+  const pie = new THREE.Mesh(new THREE.CylinderGeometry(0.035 * L, 0.04 * L, 1.24 * L / ACH, 12), lat);
+  pie.position.copy(M3(0, 0.62 * L)); raiz.add(pie);
+  // brazo, pivote y aguja (giran en el plano de pantalla vertical: vR y Y)
+  const brazo = new THREE.Group(); brazo.position.copy(PV); raiz.add(brazo);
+  const barra = new THREE.Mesh(new THREE.BoxGeometry(2 * L, 18, 18), lat);
+  barra.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), K.vR); brazo.add(barra);
+  const aguja = new THREE.Mesh(new THREE.BoxGeometry(10, 0.26 * L / ACH, 10), latD); aguja.position.y = 0.13 * L / ACH; brazo.add(aguja);
+  const boton = new THREE.Mesh(new THREE.IcosahedronGeometry(26, 1), lat); raiz.add(boton); boton.position.copy(PV).addScaledVector(K.vW, 20);
+  const eje = new THREE.Vector3().crossVectors(K.vR, Y).normalize();
+  // platillos, hilos, el Sol y las migas
+  const platillo = () => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.36 * L, 0.24 * L, 0.085 * L / ACH, 28, 1, true), lat); m.material = m.material.clone(); m.material.side = THREE.DoubleSide; return m; };
+  const fondoPl = () => new THREE.Mesh(new THREE.CircleGeometry(0.24 * L, 28), latD);
+  const pl = [platillo(), platillo()], fp = [fondoPl(), fondoPl()];
+  pl.forEach((m) => raiz.add(m)); fp.forEach((m) => { m.rotation.x = -Math.PI / 2; raiz.add(m); });
+  const hilo = (n) => Array.from({ length: n }, () => { const m = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 1, 6), K.basic('#d8ccb4')); raiz.add(m); return m; });
+  const hilos = hilo(4);
+  const sol = K.crearSol({ radio: R_SOL * L * 0.94, rayos: 18 }); raiz.add(sol.g);
+  const migas = MIGAS.map(([, , r, c]) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(Math.max(5, r * L), 1), K.lam(c)); raiz.add(m); return m; });
+  const pres = K.presentador(plato, { x: ATOMO.x, y: ATOMO.y, escala: ATOMO.R / 150 });
+  const poner = (m, a, b) => { const d = b.clone().sub(a), l = d.length(); m.position.copy(a).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(Y, d.normalize()); m.scale.set(1, l, 1); };
+  function dibujar(t) {
+    const Mq = maqueta(t), dx = (p) => p[0] - PIV[0], dy = (p) => p[1] - PIV[1];
+    // el giro en el mundo se ve achatado en vertical: se corrige para que las puntas caigan en la maqueta
+    brazo.quaternion.setFromAxisAngle(eje, Math.atan(Math.tan(Mq.a) / ACH));
+    barra.scale.x = Math.hypot(L * Math.cos(Mq.a), L * Math.sin(Mq.a) / ACH) / L;
+    [[Mq.EL, Mq.PL], [Mq.ER, Mq.PR]].forEach(([E0, P0], i) => {
+      const c = M3(dx(P0), dy(P0)), e = M3(dx(E0), dy(E0));
+      pl[i].position.copy(c).addScaledVector(Y, -0.04 * L / ACH); fp[i].position.copy(c).addScaledVector(Y, -0.084 * L / ACH);
+      poner(hilos[2 * i], e, c.clone().addScaledVector(K.vR, -0.34 * L));
+      poner(hilos[2 * i + 1], e, c.clone().addScaledVector(K.vR, 0.34 * L));
+    });
+    sol.g.position.copy(M3(dx(Mq.sol), dy(Mq.sol))).addScaledVector(K.vW, 40);
+    sol.actualizar(t);
+    MIGAS.forEach(([x, z, r], i) => migas[i].position.copy(M3(dx(Mq.PR) + x * L, dy(Mq.PR) - Math.max(5, r * L) + 6, z * L)));
+    suelo.sombra(0, peana.position.x, peana.position.z, 0.5 * L, 0.5);
+    pres.actualizar(t, E.energia(t));
+    plato.titilar(t);
+    K.cartela(plato, t, E.cartela);
+    plato.render();
+  }
+  E.iniciar(dibujar, { paso: 0 });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Legado · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-LEGADO (frase 40). Un escriba con su papiro en la sala; en la caja, «365». Luego el rollo de papiro se convierte
+// en un montón de hojas de papel blanco.
+import { preparar, rodar, trono, EL, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-legado');
+const m0 = M('legado', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  const u = t - m0, papel = u > 0.55 * L;
+  trono(R, t, { trono: false });
+  R.actor(EL.escriba, 140, 145, t, { sonrisa: papel });
+  if (!papel) { R.rect(142, 137, 158, 141, C.calizaL); R.rect(142, 137, 142, 141, C.calizaS); R.rect(158, 137, 158, 141, C.calizaS); }
+  else for (let k = 0; k < 5; k++) { R.rect(164 + k, 140 - k * 2, 182 + k, 143 - k * 2, C.blanco); R.rect(164 + k, 143 - k * 2, 182 + k, 143 - k * 2, C.calizaS); }
+};
+rodar(E, R, [[0, plano]], {
+  año: 2026,
+  caja: (t, e) => R.caja(t, t > m0 + 0.3 ? R.tramo(t, m0 + 0.3, m0 + 0.7) : 0, (x, y) => { R.icono('reloj', x, y + 5, undefined, undefined, 1); R.numero('365', x + 12, y + 12); }, { energia: e }),
+});
+</script>
+</body>
+</html>

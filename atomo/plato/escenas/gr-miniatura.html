@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Miniatura · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-MINIATURA · la miniatura del episodio 6 (se captura en t = 1). La Acrópolis con el Partenón al atardecer (dice
+// «Grecia» sin palabras); delante, Sócrates con la copa de cicuta y, a la izquierda, la urna del juicio con el
+// resultado del voto: 280 contra 220. Sin palabras: solo números y símbolos.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const E = await escena('gr-miniatura', 'ep06');
+const R = await crearRoma(document.getElementById('lienzo'));
+const { PALA, PR, ELENCO } = R;
+const dibujar = (t) => {
+  R.cieloR(t, 'tarde', { sol: [170, 96, 16], nubes: { n: 4 } });
+  R.halo(170, 96, 70, [PALA.AMARILLO[1], PALA.AMARILLO[2]], 1);
+  acropolis(R, 170, 132, t, { esc: 1.9, roca: [PALA.PURPURA[0], PALA.PURPURA[1], PALA.PURPURA[2]], marmol: [PALA.PURPURA[1], PALA.PURPURA[2], R.hex('#b0506a'), R.hex('#d07080')] });
+  R.suelo(150, PR.TIERRA, { luz: 1.6 });
+  // la urna del juicio, con piedrecitas blancas y negras
+  const ux = 66, uy = 176;
+  R.poligono([[ux - 24, uy - 50], [ux - 34, uy - 26], [ux - 20, uy], [ux + 20, uy], [ux + 34, uy - 26], [ux + 24, uy - 50]], (x, y) => R.tone(PALA.TERRACOTA, 2.6 - (x - ux) * 0.03, x, y));
+  R.rect(ux - 14, uy - 58, ux + 14, uy - 50, PALA.TERRACOTA[2]); R.rect(ux - 30, uy - 30, ux + 30, uy - 26, PALA.NEGRO[1]);
+  for (let k = 0; k < 9; k++) R.disco(ux - 12 + (k % 5) * 6, uy - 62 - Math.floor(k / 5) * 5, 2, k % 3 ? PALA.NEGRO[2] : PALA.BLANCO[3]);
+  R.numero('280', 64, 26, { tam: 16, rampa: [PALA.ROJO[3], PALA.ROJO[3], PALA.ROJO[2], PALA.ROJO[1], PALA.ROJO[0]], centro: true });
+  R.numero('220', 256, 26, { tam: 16, rampa: [PALA.BLANCO[3], PALA.BLANCO[3], PALA.BLANCO[2], PALA.BLANCO[1], PALA.BLANCO[0]], centro: true });
+  R.numero('>', 160, 26, { tam: 16, centro: true });
+  // Sócrates con la copa
+  const so = R.personaje(250, 180, 88, { ...ELENCO.socrates, barba: 'perilla', pelo: PALA.PELO_BLANCO, t: 0.5, pose: 'ofrece', sonrisa: true, luz: { lado: -1, color: R.hex('#ffb060') }, sombra: false });
+  // la copa de cicuta, grande, en su mano (un cálix negro con borde terracota)
+  const [cx, cy] = so.mano.map(Math.round);
+  R.poligono([[cx - 12, cy - 14], [cx + 12, cy - 14], [cx + 8, cy - 6], [cx - 8, cy - 6]], PALA.NEGRO[1]);
+  R.rect(cx - 12, cy - 15, cx + 12, cy - 14, PALA.TERRACOTA[3]); R.rect(cx - 1, cy - 6, cx + 1, cy, PALA.NEGRO[1]); R.rect(cx - 5, cy, cx + 5, cy + 1, PALA.NEGRO[1]);
+  R.rect(cx - 8, cy - 11, cx + 8, cy - 10, PALA.TERRACOTA[2]);
+  for (let k = 0; k < 3; k++) R.pset(cx - 4 + k * 4, cy - 18 - (k & 1) * 2, PALA.VERDE[3]);
+  R.companero(t, 0.6, 26, 120);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

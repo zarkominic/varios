@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-HOLA (frase 1). Atenas al atardecer: el mar, la ciudad blanca y la Acrópolis con el Partenón recortada contra el
+// sol; unos barcos en el puerto. La caja baja y Atom saluda.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-hola');
+const { PALA, PR, tramo } = R;
+const vista = (t) => {
+  R.cieloR(t, 'tarde', { sol: [230, 92, 11] });
+  R.colinas(112, { amp: 10, luz: 1.2, rampa: [PALA.PURPURA[0], PALA.PURPURA[1], PALA.PURPURA[2]], semilla: 3 });
+  acropolis(R, 150, 128, t, { esc: 1.3 });
+  for (let k = 0; k < 26; k++) { const x = 10 + k * 12 + (k % 3) * 2, h = 5 + (k * 7) % 6; R.rect(x, 136 - h, x + 8, 136, PALA.MARMOL[(k % 2) + 2]); R.rect(x, 136 - h, x + 8, 136 - h, PALA.TERRACOTA[2]); }
+  R.mar(t, { hor: 136 });
+  for (const [x, d] of [[60, 1], [250, -1]]) R.trirreme(x + Math.sin(t * 0.3 + x) * 4, 152, t, { esc: 0.5, dir: d, vela: PALA.BLANCO });
+};
+rodar(E, R, [[0, vista]], { año: -399, barraDesde: 1, caja: (t, e) => R.caja(t, tramo(t, 0.4, 0.9), (x, y) => R.icono('mano', x + 6, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

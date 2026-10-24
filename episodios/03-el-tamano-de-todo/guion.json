@@ -1,0 +1,999 @@
+{
+ "serie": "ASK Atom",
+ "numero": 3,
+ "estado": "aprobado (v5)",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "From quarks to the edge of the universe: the size of EVERYTHING",
+  "es": "Del quark al borde del universo: el tamaño de TODO"
+ },
+ "principal": "en",
+ "voces": {
+  "en": {
+   "voz": "am_fenrir",
+   "lang": "en-us",
+   "velocidad": 0.85
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.92
+  }
+ },
+ "lotes": [
+  [
+   "ep3-hola",
+   "ep3-ojo",
+   "ep3-cajon",
+   "ep3-saltos",
+   "ep3-casa",
+   "ep3-proton",
+   "ep3-tierra",
+   "ep3-sol",
+   "ep3-universo",
+   "ep3-arena"
+  ],
+  [
+   "ep3-pelo",
+   "ep3-celulas",
+   "ep3-medula",
+   "ep3-virus",
+   "ep3-adn",
+   "ep3-lectura"
+  ],
+  [
+   "ep3-promesa",
+   "ep3-silla",
+   "ep3-gato",
+   "ep3-planck"
+  ],
+  [
+   "ep3-vuelta",
+   "ep3-neutrones",
+   "ep3-luz",
+   "ep3-mapa",
+   "ep3-andromeda"
+  ],
+  [
+   "ep3-borde",
+   "ep3-centro",
+   "ep3-despedida"
+  ]
+ ],
+ "escenas": [
+  {
+   "id": "ep3-hola",
+   "estilo": "plastilina",
+   "empieza_con": "Atom de cerca en el plató, centrado, sobre el telón oscuro; sin persona ni regla de potencias",
+   "termina_con": "el ojo enorme de frente, en el centro, con los párpados casi cerrados y solo la franja de luz horizontal entre ellos; Atom pequeño abajo a la izquierda; sin regla de potencias",
+   "produccion": "Adapta el arranque de prueba-plastilina-adulta.html (todo lo anterior a «saltos»): plató, luz, post y Atom con su saludo (el electrón sobre alambre de «hola» y el brillo de «atom»). Fuera la molécula, la pizarrita y la regla de potencias, que no están en el Visual. La cámara del plató es fija (crearPlato no la anima): «la cámara se abre» es Atom que encoge y baja a su sitio mientras entra el resto del plató, como hace la prueba con ATOMO0. La persona: tipo «humano» del lote 0 con la postura «sostener» (las manos en h.punto(...)). La regla corriente es una pieza propia sencilla (listón de boj con marcas, sin números) que se estira y se dobla con un uniforme. Tras la frase 3 hay 2 s de silencio (pausas): la regla doblada se queda quieta. Frase 4: la cara es una foto de la cabeza del «humano» hecha al cargar, con un empuje 2D que se funde con el ojo. Crea kits/ep03-ojo.js: el ojo exterior con sus dos párpados (un uniforme de cierre) y la franja de luz (losa emisiva que se estrecha); el ojo en corte con la rejilla de la retina (puntitos con repetición) y los dos puntos de luz que se funden; y un solo tipo con variante en T para lo que se apaga a los lados (célula, átomo, galaxia) y lo que pasa por la franja (pelo y luna del kit, estrella con repetición para el puñado, remolino para la galaxia tenue, una losa para el teléfono). Lo reutilizan ep3-ojo, ep3-pelo, ep3-celulas, ep3-andromeda y ep3-centro. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. Este plató es también el del cierre de ep3-despedida.",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "hola",
+     "es": "Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase.",
+     "en": "Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you.",
+     "visual": "Atom de cerca en el plató, centrado, saluda con un electrón que sale de su órbita sobre un alambre fino y late con su voz; a mitad de frase la cámara se abre y Atom, ya pequeño, queda abajo a la izquierda, su sitio de presentador."
+    },
+    {
+     "n": 2,
+     "marca": "crees",
+     "es": "Seguramente crees que sabes lo grande que es todo.",
+     "en": "You probably think you know how big things are.",
+     "visual": "Entra a la izquierda del plató, en el sitio de la persona de prueba-plastilina-adulta, una persona que sostiene una regla corriente de madera con aire seguro; Atom la mira desde abajo a la izquierda."
+    },
+    {
+     "n": 3,
+     "marca": "nolosabes",
+     "es": "No lo sabes.",
+     "en": "You don't.",
+     "visual": "La regla se estira como una goma y se dobla en sus manos; después de la frase, unos 2 s de silencio con la regla doblada quieta.",
+     "pausa": 2
+    },
+    {
+     "n": 4,
+     "marca": "ojos",
+     "es": "Casi todo es demasiado pequeño, o está demasiado lejos, para tus ojos.",
+     "en": "Almost everything is too small, or too far away, for your eyes.",
+     "visual": "La cámara se acerca a la cara de la persona hasta un ojo enorme con una franja de luz delante; a mitad de frase, a un lado se apagan una célula y un átomo y al otro el otro lado de la galaxia, cada uno tras uno de los párpados, que se cierran hasta dejar solo la franja."
+    }
+   ]
+  },
+  {
+   "id": "ep3-ojo",
+   "estilo": "plastilina",
+   "empieza_con": "el ojo enorme de frente, en el centro, con los párpados casi cerrados y solo la franja de luz horizontal entre ellos; Atom pequeño abajo a la izquierda; sin regla de potencias",
+   "termina_con": "el telescopio espacial flotando en el centro sobre un cielo estrellado; Atom pequeño abajo a la izquierda; sin regla de potencias",
+   "produccion": "Ojo, párpados, franja y las cosas de la franja, de kits/ep03-ojo.js (ep3-hola, antes en el mismo lote). Tres planos para no quedarse en el mismo encuadre: detalle dentro de la franja (frase 5, primera mitad), el ojo entero con el teléfono (segunda mitad) y primer plano del párpado (frase 6). Crea kits/ep03-instrumentos.js: microscopio, anillo y telescopio, un tipo con variante en T, más el microscopio de laboratorio de colegio como otra variante; lo reutilizan ep3-virus y ep3-borde. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. Cada composición quieta, una foto hecha al cargar, como cacheNivel de prueba-plastilina-adulta.",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "franja",
+     "es": "Ves una franja en el medio: un pelo, la Luna, unos miles de estrellas, una galaxia tenue y, sobre todo, tu teléfono.",
+     "en": "You see a slice in the middle: a hair, the Moon, a few thousand stars, one faint galaxy, and mostly your phone.",
+     "visual": "La cámara se mete en la franja: pasan de cerca, uno tras otro, un pelo, la Luna, un puñado de estrellas y una galaxia tenue; en la segunda mitad de la frase la cámara se abre al ojo entero y entra, enorme, un teléfono que tapa casi toda la franja."
+    },
+    {
+     "n": 6,
+     "marca": "serinden",
+     "es": "Más allá, tus ojos se rinden.",
+     "en": "Beyond that, your eyes give up.",
+     "visual": "Primer plano del párpado: la franja se estrecha hasta un borde fino y el ojo se cierra."
+    },
+    {
+     "n": 7,
+     "marca": "medir",
+     "es": "Pero con microscopios, aceleradores de partículas y telescopios espaciales, hoy podemos medir la mayor parte.",
+     "en": "But with microscopes, particle colliders and space telescopes, we can now measure most of it.",
+     "visual": "Sobre el ojo cerrado pasan, uno tras otro, un microscopio, el anillo de un acelerador y un telescopio flotando en el espacio, que se queda en el centro sobre un cielo estrellado."
+    }
+   ]
+  },
+  {
+   "id": "ep3-promesa",
+   "estilo": "plastilina",
+   "empieza_con": "el telescopio espacial flotando en el centro sobre un cielo estrellado; Atom pequeño abajo a la izquierda; sin regla de potencias",
+   "termina_con": "la persona («humano» de pie, aspecto «adulto», escala 2.4, en [P.punto(612, 600, 0.6)[0], 2.4, 0.6]) a la izquierda del plató y la regla entera en el borde derecho, de la niebla de abajo a la red de arriba, con el marcador en 10⁰ (P.regla con pos P.punto(1668, 528, 0.4), escala 1.42, rot [0, −0.12, 0], e 0, ya 1.5, entera 1, actual 0, marca 0, lupa 0.3, lupaEntera 1.3, sin rango); cámara del plató de la prueba (pos [0, 3.8, 15.5], mira [0, 2.3, 0], fov 28), sin recorte 2D; Atom pequeño abajo a la izquierda; el «?» ya se ha ido por arriba",
+   "produccion": "Va en arcilla aunque el Visual lo marca en papel (los destellos): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Destello 1: la mano del kit y la silla de kits/ep03-tocar.js (ep3-casa). Destello 2: la balanza de kits/ep03-balanza.js (ep3-proton) con la silueta de puntitos y el cielo estrellado en los platos, la misma composición que en ep3-gato. Cada destello es una foto hecha al cargar, con el fogonazo en 2D. Después, el plató de ep3-hola con el «humano» de pie y la regla del lote 0 pasando a modo entera (entera 0 → 1) con sus remates de niebla y red; el «?» es el glifo de la pizarra del kit. El último fotograma está fijado en números (termina_con) porque ep3-saltos, en otro lote, empieza en él: mismos valores de P.regla, misma persona, misma cámara.",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "destellos",
+     "es": "Por el camino vas a descubrir que nunca has tocado nada como te imaginas, y que tienes más átomos que estrellas tiene el universo observable.",
+     "en": "On the way, you'll learn you've never touched anything the way you imagine, and that you hold more atoms than the observable universe holds stars.",
+     "visual": "Dos destellos de lo que viene, cada uno tras un fogonazo blanco: una mano se acerca a una silla y se para sin llegar a tocarla; a mitad de frase, una balanza de latón con la silueta de un cuerpo humano en un plato y el cielo estrellado en el otro, en vilo."
+    },
+    {
+     "n": 9,
+     "marca": "centro",
+     "es": "Al final te diré dónde está el centro de todo esto.",
+     "en": "At the end, I'll show you where the middle of it all is.",
+     "visual": "Desde el cielo, la cámara baja hasta la persona, de pie a la izquierda del plató, y la regla de potencias de diez se despliega entera en el borde derecho, de la niebla de abajo a la red de arriba, con el marcador en 10⁰; un «?» empieza a recorrerla buscando su centro."
+    },
+    {
+     "n": 10,
+     "marca": "apuesto",
+     "es": "Apuesto a que no es donde crees.",
+     "en": "I bet it's not where you think.",
+     "visual": "El «?» pasa de largo de la persona y se pierde hacia arriba."
+    }
+   ]
+  },
+  {
+   "id": "ep3-cajon",
+   "estilo": "isometrico",
+   "empieza_con": "cartela 0 (0–1,2 s); detrás, un pasillo isométrico con la persona isométrica adulta de pie a la izquierda, en el sitio de la de plastilina, con una cinta métrica enrollada en la mano; Atom isométrico pequeño abajo a la izquierda",
+   "termina_con": "la pila altísima de calendarios en el borde derecho, en el sitio y con la altura de la regla de plastilina; la persona, ya adulta, de pie a la izquierda en el sitio de la de plastilina, con los dos montones de monedas a sus pies; Atom isométrico pequeño abajo a la izquierda",
+   "produccion": "Kit isometrico-adulta.js con la cartela «0» (cartela() del kit) y su Atom en el sitio fijo. La persona NO es crearObservador: lleva gorro con pompón y bufanda, cabeza de 0,27 H y piernas de 0,33 H, así que no cumple HUMANO.md ni se parece al «humano» de arcilla que enlaza los dos cortes. Es una persona isométrica propia de la escena (el kit es de solo lectura) con las proporciones de HUMANO.md (cabeza H/6, piernas 0,47 H, nunca menos de 0,45 H), jersey gris, pantalón caqui y sin gorro, como el aspecto «adulto» del «humano». De niña tiene proporciones de niña (cabeza de 1/4,7 de la altura y piernas de 0,45 H, como el aspecto «nino» del lote 0), con la misma ropa, y crece hasta la adulta interpolando proporciones y tamaño, no escalando a la adulta. Pásale guias-humano.py a la adulta y a la niña. Lo demás va en la propia escena, porque solo lo usa ella: pasillo y ventana, cinta métrica, monedas con repetición, cerebro y cajón, calendario de pared solo con números y pila de calendarios. Sin regla. El primer fotograma enlaza con el último de ep3-promesa y el último con el primero de ep3-saltos: la persona en el sitio de la de plastilina y la pila en el de la regla. No depende de ningún kit del episodio ni del lote 0: puede empezar ya.",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "cajon",
+     "es": "Pero antes necesitamos otra regla, porque tu cerebro mete un millón y mil millones en el mismo cajón: «muchísimo».",
+     "en": "But first, we need a new ruler, because your brain files a million and a billion under the same label: \"a lot.\"",
+     "visual": "Tras la cartela, una cinta métrica se estira por un pasillo, sale por la ventana, se enreda y se pierde; a mitad de frase, dos montones de monedas casi iguales y un cerebro que los mete a los dos en el mismo cajón."
+    },
+    {
+     "n": 12,
+     "marca": "millon",
+     "es": "Fíjate: un millón de segundos son once días y medio.",
+     "en": "Look: a million seconds is eleven and a half days.",
+     "visual": "La persona, ahora de niña, aparece junto a un calendario de pared, solo con números, que arranca hojas una tras otra durante once días y medio."
+    },
+    {
+     "n": 13,
+     "marca": "milmillones",
+     "es": "Mil millones de segundos son casi treinta y dos años.",
+     "en": "A billion seconds is almost thirty-two years.",
+     "visual": "Una pila de calendarios crece en el borde derecho junto a la niña, que crece con ella hasta la adulta del principio."
+    }
+   ],
+   "cartela": "0"
+  },
+  {
+   "id": "ep3-saltos",
+   "estilo": "plastilina",
+   "empieza_con": "la persona («humano» de pie, aspecto «adulto», escala 2.4, en [P.punto(612, 600, 0.6)[0], 2.4, 0.6]) a la izquierda del plató y la regla entera en el borde derecho, de la niebla de abajo a la red de arriba, con el marcador en 10⁰ (P.regla con pos P.punto(1668, 528, 0.4), escala 1.42, rot [0, −0.12, 0], e 0, ya 1.5, entera 1, actual 0, marca 0, lupa 0.3, lupaEntera 1.3, sin rango); cámara del plató de la prueba (pos [0, 3.8, 15.5], mira [0, 2.3, 0], fov 28), sin recorte 2D; Atom pequeño abajo a la izquierda; el «?» ya se ha ido por arriba",
+   "termina_con": "exactamente el encuadre del fotograma 0 de prueba-plastilina-adulta, sin pizarra ni moléculas: la persona («humano» de pie, aspecto «adulto», escala 2.4, en [P.punto(612, 600, 0.6)[0], 2.4, 0.6], en el sitio de la «persona» de la prueba) a la izquierda y la regla normal en el borde derecho con el marcador en 10⁰ (P.regla con pos P.punto(1668, 528, 0.4), escala 1.42, rot [0, −0.12, 0], e 0, ya 1.5, entera 0, lupa 0.3); cámara del plató de la prueba (pos [0, 3.8, 15.5], mira [0, 2.3, 0], fov 28), sin recorte 2D; la mano de la derecha de la pantalla (la manoIzq de la persona, FOCO[0] de la prueba), donde se abrirá la primera mirilla, ya sin brillo; Atom pequeño abajo a la izquierda",
+   "produccion": "El plató de ep3-promesa con la regla del lote 0: empieza en modo entera (los valores de empieza_con) y, tras señalar −4, +7 y +27 (rótulo actual con lupaEntera; miniaturas en R.punto(e): el pelo del kit, el globo del kit y la pieza «red»), vuelve a la escala normal (entera 1 → 0, con e 0 y ya 1.5) con el marcador en 10⁰. Las cajas, una sola pieza con repetición; el 1 y sus ceros, glifos con un contador. La cámara del plató es fija: «mira hacia abajo» es el brillo de la mano (FOCO[0] de la prueba, o h.punto('manoIzq') si el «humano» no la tiene en el mismo píxel), sin recorte 2D, y el brillo se apaga antes del final. El último fotograma es exactamente el encuadre del fotograma 0 de la prueba, en números en termina_con: es el primero de ep3-pelo. No usa ningún kit del episodio: va en el lote 1, en cuanto esté el lote 0.",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "saltos",
+     "es": "Así que contaremos en saltos: cada salto lo hace todo diez veces más grande, como añadir un cero.",
+     "en": "So we'll count in jumps: each jump makes everything ten times bigger, like adding a zero.",
+     "visual": "Las monedas ya no están y la pila es la regla: en el centro, una caja que contiene diez cajas, que contienen diez cajas; junto a la regla, un 1 que gana un 0 en cada salto."
+    },
+    {
+     "n": 15,
+     "marca": "cero",
+     "es": "Tú estás en el salto cero: un pelo está cuatro saltos más abajo; la Tierra, siete más arriba; y el borde del universo observable, veintisiete.",
+     "en": "You're at jump zero: a hair is four jumps down, the Earth seven up, and the edge of the observable universe twenty-seven.",
+     "visual": "La persona a la izquierda, con el marcador en 10⁰; la cámara señala en la regla entera −4 (un pelo), +7 (la Tierra) y +27 (la red de galaxias), cada uno con su rótulo agrandado y su miniatura junto a la marca."
+    },
+    {
+     "n": 16,
+     "marca": "abajo",
+     "es": "Empecemos bajando.",
+     "en": "Let's go down first.",
+     "visual": "La regla vuelve a su escala normal, con el marcador en 10⁰, y la cámara mira hacia abajo, a la mano de la derecha de la pantalla (la manoIzq de la persona, FOCO[0] de la prueba), que brilla un instante."
+    }
+   ]
+  },
+  {
+   "id": "ep3-pelo",
+   "estilo": "plastilina",
+   "empieza_con": "exactamente el encuadre del fotograma 0 de prueba-plastilina-adulta, sin pizarra ni moléculas: la persona («humano» de pie, aspecto «adulto», escala 2.4, en [P.punto(612, 600, 0.6)[0], 2.4, 0.6], en el sitio de la «persona» de la prueba) a la izquierda y la regla normal en el borde derecho con el marcador en 10⁰ (P.regla con pos P.punto(1668, 528, 0.4), escala 1.42, rot [0, −0.12, 0], e 0, ya 1.5, entera 0, lupa 0.3); cámara del plató de la prueba (pos [0, 3.8, 15.5], mira [0, 2.3, 0], fov 28), sin recorte 2D; la mano de la derecha de la pantalla (la manoIzq de la persona, FOCO[0] de la prueba), donde se abrirá la primera mirilla, ya sin brillo; Atom pequeño abajo a la izquierda",
+   "termina_con": "el ojo en corte, de perfil, con la luz cayendo sobre la rejilla de puntitos del fondo, en el centro; regla en 10⁻⁴; Atom pequeño abajo a la izquierda",
+   "produccion": "Adapta los saltos de prueba-plastilina-adulta.html («saltos → pelo» y «decima → milimetro»): los decorados de mano, piel, pelo y tronco como fotos con basculante, la mirilla de cada salto (la primera, en FOCO[0]), el marcador que baja de 10⁰ a 10⁻⁴ y la cota con su tarjeta, todo con E.marca('pelo') de este episodio; la «persona» pasa a ser el «humano» del lote 0. Cartela «−4» con cartela() del kit. La lectura: plano por encima del hombro con la cabeza del «humano» de perfil y una página de arcilla con el pelo del kit, sin la persona entera. El ojo en corte, de kits/ep03-ojo.js (ep3-hola).",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "pelo",
+     "es": "Salto menos cuatro: una décima de milímetro, el grosor de un pelo.",
+     "en": "Jump minus four: a tenth of a millimeter, the thickness of a hair.",
+     "visual": "Tras la cartela, la cámara baja a la mano de la derecha de la pantalla (la manoIzq de la persona, FOCO[0] de la prueba) y salta, como en prueba-plastilina-adulta, de la mano a la piel, a un pelo y al pelo como un tronco, con el marcador bajando a 10⁻⁴; en la segunda mitad de la frase, una cota de alambre se tiende de lado a lado del pelo con la tarjeta 10⁻⁴ m."
+    },
+    {
+     "n": 18,
+     "marca": "rejilla",
+     "es": "Es casi el detalle más fino que puedes distinguir, porque el fondo del ojo es una rejilla de células que captan la luz.",
+     "en": "It's about the finest detail you can make out, because the back of your eye is a grid of light-catching cells.",
+     "visual": "Plano por encima del hombro de la persona, que lee un libro a un palmo de la cara: sobre la página, el pelo es lo último que distingue; a mitad de frase, corte del ojo: la luz entra y cae sobre una rejilla de puntitos al fondo."
+    }
+   ],
+   "cartela": "−4"
+  },
+  {
+   "id": "ep3-celulas",
+   "estilo": "plastilina",
+   "empieza_con": "el ojo en corte, de perfil, con la luz cayendo sobre la rejilla de puntitos del fondo, en el centro; regla en 10⁻⁴; Atom pequeño abajo a la izquierda",
+   "termina_con": "doce glóbulos rojos en fila sobre el corte de un pelo, en horizontal por el centro; regla en 10⁻⁵; Atom pequeño abajo a la izquierda",
+   "produccion": "El ojo en corte, de ep03-ojo.js; el pelo-tronco es la foto del nivel 4 de prueba-plastilina-adulta, dentro de una mirilla como las de sus saltos. Crea kits/ep03-sangre.js (glóbulo rojo con repetición, vaso sanguíneo, corte de un pelo y médula de hueso en corte), que reutilizan ep3-medula y ep3-virus, en el mismo lote. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena.",
+   "frases": [
+    {
+     "n": 19,
+     "marca": "serinden",
+     "es": "Ahí es donde tus ojos se rinden.",
+     "en": "That's where your eyes give up.",
+     "visual": "Dos puntos de luz se acercan sobre la rejilla y, cuando ya no queda una célula a oscuras entre ellos, se funden en uno; el párpado se cierra justo ahí."
+    },
+    {
+     "n": 20,
+     "marca": "celulas",
+     "es": "Salto menos cinco: una centésima de milímetro, donde viven tus células.",
+     "en": "Jump minus five: a hundredth of a millimeter, where your cells live.",
+     "visual": "En el párpado cerrado se abre una mirilla sobre el canto del pelo-tronco; el marcador baja a 10⁻⁵ y la cámara se mete por el canto hasta un río rojo: dentro de un vaso sanguíneo pasan glóbulos rojos como discos hundidos por el centro."
+    },
+    {
+     "n": 21,
+     "marca": "docena",
+     "es": "Doce glóbulos rojos en fila cubren el grosor de un pelo.",
+     "en": "A dozen red blood cells in a row span a single hair.",
+     "visual": "Doce glóbulos se ponen en fila sobre el corte de un pelo y lo cubren justo."
+    }
+   ]
+  },
+  {
+   "id": "ep3-medula",
+   "estilo": "plastilina",
+   "empieza_con": "doce glóbulos rojos en fila sobre el corte de un pelo, en horizontal por el centro; regla en 10⁻⁵; Atom pequeño abajo a la izquierda",
+   "termina_con": "el vaso sanguíneo con glóbulos nuevos pasando y, al fondo, una mota diminuta desenfocada en el centro; regla en 10⁻⁵; Atom pequeño abajo a la izquierda",
+   "produccion": "Va en arcilla aunque el Visual lo marca en isométrico (las células y las bacterias): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Usa la silueta de puntitos de kits/ep03-balanza.js con dos colores y una lupa sencilla. La persona es el «humano» con la postura «manos» del lote 0. No tiene expresiones (boca neutra; solo ojos 0…1 y mirada), así que la sorpresa es un gesto: la cabeza pasa de mirar las manos (inclina 0.5) a echarse atrás de golpe, con ojos 1. Glóbulo, vaso y médula, de ep03-sangre.js (ep3-celulas); el calendario, de kits/ep03-tiempo.js (ep3-sol), solo con números. La tumbona y la barra del reproductor son dos piezas sencillas sin texto, y el contador, glifos de números. La frase 24 lleva dos composiciones, cada una una foto hecha al cargar con los glóbulos vivos encima.",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "bacterias",
+     "es": "Tienes unos treinta billones de células, y un número parecido de bacterias.",
+     "en": "You have about thirty trillion cells, plus roughly as many bacteria.",
+     "visual": "La fila de glóbulos se aparta: en el centro, la silueta de un cuerpo llena de puntitos rojos (células) y más o menos tantos verdes (bacterias), con una lupa que la recorre y no da abasto."
+    },
+    {
+     "n": 23,
+     "marca": "mitad",
+     "es": "Si cuentas una a una, eres más o menos mitad bacteria.",
+     "en": "By headcount, you're about half bacteria.",
+     "visual": "La persona, en el sitio de la silueta, se mira las manos y, sorprendida, echa la cabeza hacia atrás."
+    },
+    {
+     "n": 24,
+     "marca": "jubila",
+     "es": "Cada glóbulo rojo se jubila a los cuatro meses, así que, durante este vídeo, fabricarás más de mil millones nuevos.",
+     "en": "Each red blood cell retires after four months, so during this video, you'll make over a billion new ones.",
+     "visual": "Un glóbulo rojo envejece junto a un calendario de cuatro meses, solo con números, y acaba en una tumbona; a mitad de frase, la médula de un hueso en corte, como una fábrica, lanza glóbulos nuevos a un vaso, con un contador que sube mientras avanza la barra de un reproductor de vídeo; al fondo del vaso, desenfocada, pasa una mota diminuta."
+    }
+   ]
+  },
+  {
+   "id": "ep3-virus",
+   "estilo": "plastilina",
+   "empieza_con": "el vaso sanguíneo con glóbulos nuevos pasando y, al fondo, una mota diminuta desenfocada en el centro; regla en 10⁻⁵; Atom pequeño abajo a la izquierda",
+   "termina_con": "el virus diminuto en el centro, todavía sin forma, con la onda de luz ya apagada; regla en 10⁻⁷; Atom pequeño abajo a la izquierda",
+   "produccion": "Crea kits/ep03-virus.js: virus de la gripe, onda de luz de alambre, moneda de arcilla con relieve y guantes de cocina (solo lo usa ella). El glóbulo, de ep03-sangre.js (ep3-celulas); el microscopio de colegio, de ep03-instrumentos.js (ep3-ojo). Va en arcilla aunque el Visual lo marca en papel (los guantes): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Es un plano detalle con las manos del kit y los guantes encima. Cartela «−7».",
+   "frases": [
+    {
+     "n": 25,
+     "marca": "virus",
+     "es": "Salto menos siete: un virus de la gripe, setenta veces más pequeño que un glóbulo rojo.",
+     "en": "Jump minus seven: a flu virus, seventy times smaller than a red blood cell.",
+     "visual": "Tras la cartela, la mota del fondo se enfoca: un virus de la gripe junto a un glóbulo rojo enorme, setenta veces más pequeño; el marcador baja a 10⁻⁷."
+    },
+    {
+     "n": 26,
+     "marca": "onda",
+     "es": "Ningún microscopio normal puede mostrar su forma: la luz viaja en ondas, y no puede mostrar detalles más pequeños que más o menos media onda.",
+     "en": "No regular microscope can show its shape: light travels in waves, and can't show details smaller than about half a wave.",
+     "visual": "Un microscopio de laboratorio de colegio: la imagen del virus se queda borrosa por mucho que se gire la rueda; a mitad de frase, una onda de luz visible, larga y ondulante, pasa por encima del virus sin distinguir su forma."
+    },
+    {
+     "n": 27,
+     "marca": "guantes",
+     "es": "Es como notar la cara de una moneda con guantes de cocina.",
+     "en": "It's like feeling the face on a coin through oven mitts.",
+     "visual": "Unas manos con guantes de cocina tantean el relieve de una moneda y no notan nada."
+    },
+    {
+     "n": 28,
+     "marca": "luzserinde",
+     "es": "Aquí abajo, hasta la luz se rinde.",
+     "en": "Down here, even light gives up.",
+     "visual": "Vuelve el virus: la onda de luz se apaga al llegar al borde del plano y el virus sigue sin forma."
+    }
+   ],
+   "cartela": "−7"
+  },
+  {
+   "id": "ep3-adn",
+   "estilo": "plastilina",
+   "empieza_con": "el virus diminuto en el centro, todavía sin forma, con la onda de luz ya apagada; regla en 10⁻⁷; Atom pequeño abajo a la izquierda",
+   "termina_con": "la doble hélice en primer plano, con peldaños de cuatro colores, en vertical por el centro; regla en 10⁻⁹; Atom pequeño abajo a la izquierda",
+   "produccion": "Crea kits/ep03-adn.js: célula con núcleo translúcido, madeja, hilo que se estira y doble hélice con peldaños de cuatro colores con repetición. Lo reutiliza ep3-lectura, en el mismo lote. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. El muro del pelo es el tipo tronco del kit a escala grande; la persona, el «humano» de pie del lote 0.",
+   "frases": [
+    {
+     "n": 29,
+     "marca": "adn",
+     "es": "Salto menos nueve: la molécula de ADN, cincuenta mil veces más fina que un pelo.",
+     "en": "Jump minus nine: a DNA molecule, fifty thousand times thinner than a hair.",
+     "visual": "El marcador baja a 10⁻⁹ y la cámara deja el virus y entra en el núcleo de una célula: dentro, una madeja de hilo; al lado, el canto de un pelo como un muro inmenso.",
+     "es_voz": "Salto menos nueve: la molécula de a de ene, cincuenta mil veces más fina que un pelo."
+    },
+    {
+     "n": 30,
+     "marca": "dosmetros",
+     "es": "Estirado, el ADN de una de tus células mediría unos dos metros.",
+     "en": "Stretched out, the DNA in one of your cells would top six feet.",
+     "visual": "El hilo se estira y sale de la célula hasta medir 2 m junto a una persona de pie, más alto que ella.",
+     "es_voz": "Estirado, el a de ene de una de tus células mediría unos dos metros."
+    },
+    {
+     "n": 31,
+     "marca": "letras",
+     "es": "Está escrito con cuatro letras químicas, unos tres mil millones por copia.",
+     "en": "It's written in four chemical letters, about three billion of them per copy.",
+     "visual": "La cámara se acerca al hilo hasta la doble hélice: una escalera retorcida con peldaños de cuatro colores que corre sin fin."
+    }
+   ]
+  },
+  {
+   "id": "ep3-lectura",
+   "estilo": "plastilina",
+   "empieza_con": "la doble hélice en primer plano, con peldaños de cuatro colores, en vertical por el centro; regla en 10⁻⁹; Atom pequeño abajo a la izquierda",
+   "termina_con": "Atom saludando entre las bolitas de un peldaño, en el centro; regla en 10⁻⁹",
+   "produccion": "Va en arcilla aunque el Visual lo marca en isométrico (la lectura): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). La persona es el «humano» con la postura «sentada» del lote 0 y un aspecto propio que empieza joven: canas 0 y barba 0 (el aspecto «adulto» ya lleva canas 1, así que con él no se vería el cambio). Las canas suben de 0 a 1 mientras colorPelo va hacia el blanco, para que se lea «casi un siglo». El sillón es una pieza propia de la escena, porque solo lo usa ella. Peldaños, de ep03-adn.js (ep3-adn); calendario, de ep03-tiempo.js (ep3-sol). El bocadillo y el termo son dos piezas pequeñas, y la mano, el tipo mano del kit. El peldaño de bolitas, de kits/ep03-tocar.js (ep3-casa).",
+   "frases": [
+    {
+     "n": 32,
+     "marca": "leer",
+     "es": "Acuérdate: mil millones de segundos son cerca de treinta y dos años, así que leerlo en voz alta, a una letra por segundo, te llevaría casi un siglo.",
+     "en": "Remember: a billion seconds is nearly thirty-two years, so reading it aloud, a letter a second, would take almost a century.",
+     "visual": "La persona, sentada en un sillón, lee en voz alta los peldaños de colores, que pasan uno por segundo; a mitad de frase pasan las hojas de un calendario, solo con números, y a la persona le salen canas hasta tener el pelo blanco."
+    },
+    {
+     "n": 33,
+     "marca": "bocadillo",
+     "es": "Llévate algo de comer.",
+     "en": "Bring snacks.",
+     "visual": "Una mano le acerca un bocadillo y un termo."
+    },
+    {
+     "n": 34,
+     "marca": "demi",
+     "es": "Y cada letra está hecha de algo todavía más pequeño: de mí.",
+     "en": "And every letter is built from something even smaller: me.",
+     "visual": "La cámara vuelve a la hélice y se acerca a un solo peldaño, que resulta estar hecho de bolitas: Atom deja su sitio y aparece entre ellas, saludando."
+    }
+   ]
+  },
+  {
+   "id": "ep3-casa",
+   "estilo": "plastilina",
+   "empieza_con": "Atom saludando entre las bolitas de un peldaño, en el centro; regla en 10⁻⁹",
+   "termina_con": "la persona de pie en el centro con las manos casi transparentes y Atom a su lado, a la izquierda, dándole una palmadita; regla en 10⁻¹⁰",
+   "produccion": "Crea kits/ep03-tocar.js, el kit más usado del episodio: el peldaño de bolitas y la fila de átomos (una sola pieza con repetición y nivel de detalle: Atoms de cerca que se funden en una línea hasta la marca de 1 mm de una regla), el átomo-estadio (cuenco ovalado con gradas en relieve y césped, el guisante y la nube borrosa como cáscara translúcida; visto de lejos es el átomo del final de ep3-gato y del principio de ep3-proton), la silla, las chispitas, el terrón, la cucharilla y el cajón, la multitud de figuritas (una figura con repetición), el gato y el 7 con sus ceros (glifos con contador). Lo reutilizan ep3-lectura, ep3-promesa, ep3-silla, ep3-gato, ep3-proton, ep3-planck, ep3-vuelta, ep3-neutrones, ep3-andromeda y ep3-despedida. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. La persona es el «humano» con la postura «mirarse las manos»; las manos casi transparentes son postura.fantasma de 0 a 1 en la frase 38 (el lote 0 ya lo tiene, hecho para esto). Tras la frase 38 hay 2 s de silencio (pausas). Va en arcilla aunque el Visual lo marca en isométrico (el estadio): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Cartela «−10».",
+   "frases": [
+    {
+     "n": 35,
+     "marca": "casa",
+     "es": "Salto menos diez, mi casa: unos diez millones de átomos como yo en fila hacen un milímetro.",
+     "en": "Jump minus ten, my home: roughly ten million atoms like me in a row make one millimeter.",
+     "visual": "Tras la cartela, el marcador baja a 10⁻¹⁰ y Atom sale del peldaño hasta esa marca de la regla y saluda allí: es su casa; a mitad de frase, diez millones de átomos como él en fila se alejan hasta cubrir 1 mm de una regla, y Atom vuelve a su sitio, abajo a la izquierda."
+    },
+    {
+     "n": 36,
+     "marca": "estadio",
+     "es": "Si un átomo fuera un estadio de fútbol, el núcleo sería un guisante en el centro.",
+     "en": "If an atom were a football stadium, the nucleus would be a pea in the middle.",
+     "visual": "El átomo del centro de la fila crece hasta ser un estadio de fútbol vacío, con un guisante en el centro."
+    },
+    {
+     "n": 37,
+     "marca": "gradas",
+     "es": "Lo demás está casi vacío.",
+     "en": "The rest is almost empty.",
+     "visual": "Una nube borrosa se extiende por las gradas; el resto, vacío."
+    },
+    {
+     "n": 38,
+     "marca": "tutambien",
+     "es": "Tú también.",
+     "en": "So are you.",
+     "visual": "La cámara se aparta del estadio: en el centro, la persona se mira las manos, que se vuelven casi transparentes; después de la frase, unos 2 s de silencio con las manos así.",
+     "pausa": 2
+    },
+    {
+     "n": 39,
+     "marca": "personal",
+     "es": "No te lo tomes como algo personal.",
+     "en": "Don't take it personally.",
+     "visual": "Atom se acerca desde su sitio y le da una palmadita de consuelo."
+    }
+   ],
+   "cartela": "−10"
+  },
+  {
+   "id": "ep3-silla",
+   "estilo": "plastilina",
+   "empieza_con": "la persona de pie en el centro con las manos casi transparentes y Atom a su lado, a la izquierda, dándole una palmadita; regla en 10⁻¹⁰",
+   "termina_con": "el hueco finísimo entre los electrones de la persona y los de la silla, con chispitas, en horizontal por el centro; regla en 10⁻¹⁰; Atom pequeño abajo a la izquierda",
+   "produccion": "Terrón, cucharilla, cajón, multitud, silla y chispitas, de ep03-tocar.js (ep3-casa). El terrón es el mismo que vuelve en ep3-vuelta. Va en arcilla aunque el Visual lo marca en papel (el terrón): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). La persona es el «humano»: de pie con la postura «mirarse las manos» al empezar (fantasma de 1 a 0 mientras aparece la multitud) y «sentada» en la frase 41 (posturaEn). Los electrones de la frontera son bolitas ámbar como las de Atom, con repetición.",
+   "frases": [
+    {
+     "n": 40,
+     "marca": "humanidad",
+     "es": "Si quitaras el espacio vacío de los átomos de todos los seres humanos, la humanidad entera cabría en un terrón de azúcar.",
+     "en": "If you squeezed the empty space out of every human's atoms, all of humanity would fit in a sugar cube.",
+     "visual": "Alrededor de la persona aparece toda la humanidad, una multitud de figuritas, que se comprime en un terrón de azúcar sobre una cucharilla; a mitad de frase, el terrón se guarda en un cajón, y Atom vuelve a su sitio, abajo a la izquierda."
+    },
+    {
+     "n": 41,
+     "marca": "silla",
+     "es": "Entonces, ¿por qué no atraviesas la silla?",
+     "en": "So why don't you fall through your chair?",
+     "visual": "La persona se sienta en una silla; un «?» sobre el asiento."
+    },
+    {
+     "n": 42,
+     "marca": "repelen",
+     "es": "Porque tus electrones y los de la silla se repelen, ayudados por una regla cuántica que les impide amontonarse.",
+     "en": "Because your electrons and the chair's push each other away, helped by a quantum rule that won't let electrons crowd together.",
+     "visual": "Zoom a la frontera: entre sus electrones y los de la silla saltan chispitas y queda un hueco finísimo, como un cojín invisible; a mitad de frase, los electrones de cada lado se apartan para no amontonarse, como gente que no cabe en un ascensor lleno."
+    }
+   ]
+  },
+  {
+   "id": "ep3-gato",
+   "estilo": "plastilina",
+   "empieza_con": "el hueco finísimo entre los electrones de la persona y los de la silla, con chispitas, en horizontal por el centro; regla en 10⁻¹⁰; Atom pequeño abajo a la izquierda",
+   "termina_con": "un átomo del cuerpo llenando la imagen, con su nube de electrones borrosa y el núcleo-guisante en el centro, mientras la cámara se lanza hacia él; regla en 10⁻¹⁰; Atom pequeño abajo a la izquierda",
+   "produccion": "Gato, chispitas y el 7 con sus ceros, de ep03-tocar.js; la mano, del kit. La silueta de puntitos y la balanza, de kits/ep03-balanza.js, con la misma composición que el destello de ep3-promesa (para que se reconozca) y que ep3-borde. Va en arcilla aunque el Visual lo marca en papel (la balanza): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). El átomo final es el átomo-estadio de ep03-tocar.js visto de lejos.",
+   "frases": [
+    {
+     "n": 43,
+     "marca": "tocar",
+     "es": "A escala atómica, tocar es solo ese empujón: tus átomos nunca chocan con los de tu silla, ni siquiera con los de tu gato.",
+     "en": "At the atomic level, touching is just that push: your atoms never bump into your chair's, or even your cat's.",
+     "visual": "La cámara se aparta del hueco: una mano acaricia un gato, encantado; a mitad de frase, plano detalle del hueco finísimo con chispitas entre la palma y el pelo del gato."
+    },
+    {
+     "n": 44,
+     "marca": "siete",
+     "es": "Ahora cuenta tus átomos: para escribir el número necesitas un siete seguido de veintisiete ceros.",
+     "en": "Now count your atoms: writing the number takes a seven followed by twenty-seven zeros.",
+     "visual": "Un 7 al que se le van añadiendo ceros, uno a uno, hasta 27, que obligan a la cámara a desplazarse; debajo aparece la silueta de la persona llena de puntitos."
+    },
+    {
+     "n": 45,
+     "marca": "estrellas",
+     "es": "Son miles de veces más que todas las estrellas del universo observable.",
+     "en": "That's thousands of times more than all the stars in the observable universe.",
+     "visual": "La balanza de latón: en un plato, la silueta llena de puntitos; en el otro, el cielo entero lleno de estrellas; el plato del cuerpo cae de golpe y la cámara se lanza hacia uno de sus puntitos, un átomo con el guisante del núcleo en el centro."
+    }
+   ]
+  },
+  {
+   "id": "ep3-proton",
+   "estilo": "plastilina",
+   "empieza_con": "un átomo del cuerpo llenando la imagen, con su nube de electrones borrosa y el núcleo-guisante en el centro, mientras la cámara se lanza hacia él; regla en 10⁻¹⁰; Atom pequeño abajo a la izquierda",
+   "termina_con": "la persona en la báscula de baño, en el centro, inclinada hacia la aguja con los ojos entornados, y la aguja apuntando a un remolino de energía; regla en 10⁻¹⁵; Atom pequeño abajo a la izquierda",
+   "produccion": "Crea kits/ep03-balanza.js a partir de la balanza de arcilla de muestra-paleta-ep03.html (vista arcilla: latón con peana de nogal y su caída con peso): da el punto de cada plato y una caída con peso hasta el ángulo que se le pida (0, nivelada), y lleva como variantes lo que solo va en sus platos: la silueta de puntitos (color por uniforme, uno o dos colores), el cielo estrellado, la montaña de coches y el montón de arena. Lo demás (quarks, protón, cucharita, esfera) se pone encima desde su kit. La reutilizan ep3-promesa, ep3-medula, ep3-gato, ep3-neutrones y ep3-borde. Crea también kits/ep03-nucleo.js: núcleo de bolitas rojas y grises, protón entero y protón abierto con tres quarks y cintas elásticas. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. El primer fotograma es el átomo-estadio de ep03-tocar.js visto de lejos (ep3-casa, antes en el mismo lote). Planos: la balanza entera en la 47 y, en la 48, el detalle del plato que se llena y el general con la balanza que se nivela. La báscula de baño es el tipo «bascula» del kit, el remolino es el tipo «remolino» y la persona, el «humano» de pie; como no tiene expresiones, la desconfianza es un gesto (se inclina hacia la aguja, ojos 0.5, cabeza ladeada). Va en arcilla aunque el Visual lo marca en papel (la balanza y la báscula): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Cartela «−15».",
+   "frases": [
+    {
+     "n": 46,
+     "marca": "proton",
+     "es": "Salto menos quince: el protón, unas cien mil veces más pequeño que yo, y dentro, tres quarks.",
+     "en": "Jump minus fifteen: the proton, about a hundred thousand times smaller than me, with three quarks inside.",
+     "visual": "Tras la cartela, la cámara atraviesa la nube de electrones hasta el núcleo, un racimo de bolitas rojas y grises, con Atom enorme al fondo, a la izquierda, para comparar; a mitad de frase entra en un protón: tres quarks unidos por cintas elásticas que vibran y brillan; el marcador baja a 10⁻¹⁵ y Atom vuelve a ser el presentador pequeño, abajo a la izquierda."
+    },
+    {
+     "n": 47,
+     "marca": "quarks",
+     "es": "Los quarks, por sí solos, son más o menos un uno por ciento de la masa del protón.",
+     "en": "The quarks' own mass is only about one percent of the proton's.",
+     "visual": "Plano general de la balanza de latón: en un plato, los tres quarks; en el otro, un protón entero; el plato de los quarks apenas baja: pesan una pizca."
+    },
+    {
+     "n": 48,
+     "marca": "energia",
+     "es": "El resto es la energía con la que se mueven y se sujetan, así que tu peso es, sobre todo, energía atrapada.",
+     "en": "The rest is energy from their motion and grip, so your weight is mostly trapped energy.",
+     "visual": "Plano detalle del plato de los quarks, que se llena de destellos de energía en movimiento; a mitad de frase, plano general: el plato baja hasta que la balanza queda nivelada con el protón entero, sin pasarse."
+    },
+    {
+     "n": 49,
+     "marca": "bascula",
+     "es": "Díselo a la báscula del baño.",
+     "en": "Tell that to your bathroom scale.",
+     "visual": "Una persona en una báscula de baño se inclina hacia la aguja con los ojos entornados y la cabeza ladeada, desconfiada; la aguja apunta a un remolino de energía."
+    }
+   ],
+   "cartela": "−15"
+  },
+  {
+   "id": "ep3-planck",
+   "estilo": "plastilina",
+   "empieza_con": "la persona en la báscula de baño, en el centro, inclinada hacia la aguja con los ojos entornados, y la aguja apuntando a un remolino de energía; regla en 10⁻¹⁵; Atom pequeño abajo a la izquierda",
+   "termina_con": "el fotograma 0 de cosmos-plastilina-adulta: la persona de pie a la izquierda del plató y la regla de nogal en el borde derecho con el marcador en 10⁰; Atom pequeño abajo a la izquierda",
+   "produccion": "La regla del lote 0 hasta 10⁻³⁵ con el remate de niebla (colorNiebla), y la niebla horneada como fondo: un solo plató. El átomo inflado es el átomo-estadio de ep03-tocar.js. El árbol es una pieza sencilla, y el suelo, una losa con un uniforme que pasa de liso a baldosas; el «?» es un glifo. La subida es el zoom de la regla al revés (de −35 a 0 en ~1,5 s), con la niebla fundiéndose en el plató. El último fotograma es exactamente el fotograma 0 de cosmos-plastilina-adulta (mismo plató, misma regla, con la persona «humano»), que es donde empieza ep3-tierra.",
+   "frases": [
+    {
+     "n": 50,
+     "marca": "veinte",
+     "es": "Veinte saltos más abajo está la longitud de Planck.",
+     "en": "Twenty jumps further down is the Planck length.",
+     "visual": "La cámara se mete en el remolino de la aguja y la regla sigue bajando, salto a salto, veinte marcas, hasta hundirse en una niebla gris; el marcador llega a 10⁻³⁵."
+    },
+    {
+     "n": 51,
+     "marca": "arbol",
+     "es": "Si un átomo fuera tan grande como el universo observable, la longitud de Planck sería como un árbol alto.",
+     "en": "If an atom were the size of the observable universe, the Planck length would be a tall tree.",
+     "visual": "En la niebla, un átomo inflado hasta el tamaño del universo observable y, a su lado, un árbol alto."
+    },
+    {
+     "n": 52,
+     "marca": "liso",
+     "es": "¿El espacio es liso hasta el fondo, o está hecho de trocitos?",
+     "en": "Is space smooth all the way down, or made of tiny pieces?",
+     "visual": "Un suelo que podría ser liso o de baldosas diminutas, que parpadea entre las dos cosas."
+    },
+    {
+     "n": 53,
+     "marca": "nadie",
+     "es": "No lo sabe nadie.",
+     "en": "Nobody knows.",
+     "visual": "Un «?» enorme sobre el suelo."
+    },
+    {
+     "n": 54,
+     "marca": "arriba",
+     "es": "Volvamos a ti, y ahora, hacia arriba.",
+     "en": "Let's go back to you, and now, head up.",
+     "visual": "La cámara da la vuelta y sube disparada por la regla hasta la persona, de pie a la izquierda del plató; el marcador sube a 10⁰."
+    }
+   ]
+  },
+  {
+   "id": "ep3-tierra",
+   "estilo": "plastilina",
+   "empieza_con": "el fotograma 0 de cosmos-plastilina-adulta: la persona de pie a la izquierda del plató y la regla de nogal en el borde derecho con el marcador en 10⁰; Atom pequeño abajo a la izquierda",
+   "termina_con": "el Sol de crearMundo, enorme, en el centro, con las últimas Tierras ya fundidas en él y la Tierra como un punto a su lado; regla en 10⁹; Atom pequeño abajo a la izquierda",
+   "produccion": "Adapta cosmos-plastilina-adulta.html hasta «sol». Sus siete saltos «siete → tierra» van en la frase 55, y los dos de «dos → sol» se reparten: 10⁸ en la 56 y 10⁹ en la 57, con E.marca de este episodio. Crea kits/ep03-cosmos.js con la cámara del mundo por exponente (zRegla → zCam, anclaCam, centroCam y estadoMundo de cosmos-plastilina-adulta, en función de z), que reutilizan ep3-vuelta, ep3-neutrones, ep3-luz, ep3-mapa, ep3-andromeda, ep3-universo y ep3-despedida. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. Incluye el brillo de la ciudad a 10⁴: un halo cálido sobre la ciudad que se enciende con un parámetro. LA LUNA, OJO: en cosmos es de mentira (lunaEn la deja a 46 px de la Tierra al llegar a «sol» y su camino depende del tiempo, no de z), y a 10⁸ en la escala del mundo (540 px = 10^z m) el hueco real en el apogeo, unos 397.000 km de superficie a superficie, mide unos 2.150 px, más que la pantalla. Así que ep03-cosmos.js pone la Luna a su distancia real del apogeo (405.500 km de centro a centro) en función de z, también para ep3-vuelta y ep3-luz; en la frase 56 la cámara se queda en zCam ≈ 8,2–8,25 mientras el marcador marca 10⁸ (zCam ≠ zRegla), y el hueco mide unos 1.200–1.350 px a la izquierda de la regla; y los siete planetas van a escala real: suman unos 380.000 km de diámetro contra unos 397.000 km de hueco, así que sobra «un pelo». Los planetas son un tipo con variante de color; Saturno, con sus anillos como variante, muy inclinados para que no ensanchen la fila. Encima del mundo va también la señal «tú estás aquí» (la flecha del kit), que encoge hasta un punto, la cinta de costurera sobre el hueco y las Tierras que caen en el Sol (el globo con repetición). Va en arcilla aunque el Visual lo marca en papel (los planetas): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Cartela «+7»; persona «humano».",
+   "frases": [
+    {
+     "n": 55,
+     "marca": "tierra",
+     "es": "Salto siete: ya no se te ve, y la Tierra mide casi trece mil kilómetros.",
+     "en": "Jump seven: you've vanished, and the Earth is almost eight thousand miles across.",
+     "visual": "Tras la cartela, la cámara sube sin cortar desde la persona: el tejado, la ciudad entera vista desde arriba (al pasar, la marca 10⁴ de la regla brilla un instante y la ciudad queda marcada con un brillo), las nubes, el azul que se vuelve negro, hasta ver la Tierra entera; la señal de «tú estás aquí», sin texto, encoge hasta un punto y el marcador llega a 10⁷."
+    },
+    {
+     "n": 56,
+     "marca": "hueco",
+     "es": "Salto ocho: la Luna, tan lejos que, en su punto más lejano, todos los demás planetas caben justo en el hueco entre ella y nosotros.",
+     "en": "Jump eight: the Moon, so far that, at its farthest, every other planet just barely fits in the gap between us.",
+     "visual": "El marcador sube a 10⁸ y la Luna aparece, lejos, a su distancia real en el punto más lejano; en el hueco entre ella y la Tierra, los otros siete planetas se colocan en fila, ajustados, y una cinta de costurera mide el hueco: sobra apenas un pelo."
+    },
+    {
+     "n": 57,
+     "marca": "sol",
+     "es": "Salto nueve: el Sol, capaz de tragarse más de un millón de Tierras.",
+     "en": "Jump nine: the Sun, big enough to swallow over a million Earths.",
+     "visual": "El marcador sube a 10⁹ y entra el Sol, enorme; las Tierras caen en él una tras otra y se funden como gotas en una pecera."
+    }
+   ],
+   "cartela": "+7"
+  },
+  {
+   "id": "ep3-sol",
+   "estilo": "plastilina",
+   "empieza_con": "el Sol de crearMundo, enorme, en el centro, con las últimas Tierras ya fundidas en él y la Tierra como un punto a su lado; regla en 10⁹; Atom pequeño abajo a la izquierda",
+   "termina_con": "el Sol pequeño en el centro entre un montón de estrellas de arcilla y, al fondo, arriba a la derecha, una estrella mucho mayor y rojiza que empieza a apagarse; regla en 10⁹; Atom pequeño abajo a la izquierda",
+   "produccion": "Crea kits/ep03-estrellas.js. El Sol como pieza copia el aspecto del de crearMundo (arcilla ámbar granulada con limbo oscuro), para que el corte con ep3-tierra no se note; el primer fotograma se compone con crearMundo de plastilina-cosmos-adulta.js (kit compartido), sin esperar a ep03-cosmos.js. Además lleva su corte con el núcleo al rojo blanco, los núcleos de hidrógeno (el núcleo de Atom sin órbitas), el destello, el montón de estrellas (una pieza con repetición), la estrella grande y rojiza que se apaga, su corte con el centro que se hunde y las partículas del colapso (para ep3-vuelta), y la estrella de neutrones. Lo reutilizan ep3-vuelta, ep3-neutrones y ep3-despedida. Crea también kits/ep03-tiempo.js: calendario de arcilla y reloj (solo con números), reloj de arena y rayo de luz de alambre. Lo reutilizan ep3-medula, ep3-lectura, ep3-luz y ep3-mapa. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. Atom no tiene cara: la resignación es un gesto (se aplasta y se ladea). La persona de perfil es el «humano» con la postura «perfil», de cintura para arriba.",
+   "frases": [
+    {
+     "n": 58,
+     "marca": "fusion",
+     "es": "Brilla porque su propio peso aprieta y calienta tanto su centro que núcleos de hidrógeno como el mío se fusionan en helio.",
+     "en": "It shines because its weight squeezes and heats its core so much that hydrogen nuclei, like mine, fuse into helium.",
+     "visual": "Corte del Sol: el centro se aprieta y se pone al rojo blanco; a mitad de frase, núcleos de hidrógeno (pequeños Atoms sin su nube) se aprietan, chocan y se fusionan, con un destello por choque; uno de ellos se deja aplastar con resignación."
+    },
+    {
+     "n": 59,
+     "marca": "rebota",
+     "es": "La luz del sol que te da en la cara rebotó por dentro más de cien mil años, y tardó ocho minutos en llegarte.",
+     "en": "Sunlight on your face bounced around inside for over a hundred thousand years, then took eight minutes to reach you.",
+     "visual": "En el mismo corte, un rayo de luz rebota dentro como una bola de pinball mientras un calendario pasa más de cien milenios; a mitad de frase, la luz sale, viaja con un reloj de 8 minutos y llega a la cara de una persona de perfil con los ojos cerrados al sol."
+    },
+    {
+     "n": 60,
+     "marca": "pequeno",
+     "es": "Y cuando mueren estrellas mucho más grandes, dejan algo sorprendentemente pequeño.",
+     "en": "And when much bigger stars die, they leave something surprisingly small.",
+     "visual": "El Sol se encoge entre un montón de estrellas; al fondo, una mucho mayor empieza a apagarse."
+    }
+   ]
+  },
+  {
+   "id": "ep3-vuelta",
+   "estilo": "plastilina",
+   "empieza_con": "el Sol pequeño en el centro entre un montón de estrellas de arcilla y, al fondo, arriba a la derecha, una estrella mucho mayor y rojiza que empieza a apagarse; regla en 10⁹; Atom pequeño abajo a la izquierda",
+   "termina_con": "el corte de la estrella grande y rojiza, sin ciudad, con el centro ya hundido en una bola apretada, en el centro; regla en 10⁴; Atom pequeño abajo a la izquierda",
+   "produccion": "Con kits/ep03-cosmos.js: el Sol de ep03-estrellas.js vuelve a su sitio del mundo y la cámara de cosmos-plastilina-adulta baja al revés, de z≈9 a 4, con el brillo de la ciudad de ep3-tierra y la Luna a su distancia real según z. Terrón y cajón, de ep03-tocar.js. La frase 63 es un plano propio, sin ciudad: una estrella mucho mayor que el Sol dibujada del tamaño de una ciudad iría contra la escala de todo el episodio y le quitaría el golpe a la frase 64 (la bola del tamaño de una ciudad). El corte de la estrella grande y las partículas del colapso, de ep03-estrellas.js, con 6 partículas a la vez como mucho. La ciudad a 10⁴ es una foto del mundo hecha una vez al cargar. Cartela «+4».",
+   "frases": [
+    {
+     "n": 61,
+     "marca": "vuelta",
+     "es": "Ahora, de vuelta abajo, al salto cuatro.",
+     "en": "Now, back down to jump four.",
+     "visual": "Tras la cartela, marcha atrás: el montón de estrellas se aparta, el Sol vuelve a su sitio en el mundo y la regla baja deprisa de 10⁹ a 10⁴ mientras la cámara cae hasta la ciudad vista desde arriba, que vuelve a brillar."
+    },
+    {
+     "n": 62,
+     "marca": "terron",
+     "es": "Acuérdate del terrón de azúcar: hay estrellas que lo hacen de verdad.",
+     "en": "Remember the sugar cube: some stars actually do it.",
+     "visual": "El terrón de azúcar sale del cajón y se posa sobre la ciudad brillante."
+    },
+    {
+     "n": 63,
+     "marca": "colapso",
+     "es": "Cuando una estrella grande agota su combustible, su centro se hunde y aplasta los electrones contra los protones, que se vuelven neutrones.",
+     "en": "When a big star runs out of fuel, its core collapses, crushing electrons into protons to make neutrons.",
+     "visual": "Otro plano, sin ciudad: la estrella rojiza, mucho mayor que el Sol, en corte; se queda sin combustible y su centro se hunde de golpe; los electrones (puntitos azules) se meten dentro de los protones (rojos) y salen neutrones (grises), y el centro queda como una bola apretada."
+    }
+   ],
+   "cartela": "+4"
+  },
+  {
+   "id": "ep3-neutrones",
+   "estilo": "plastilina",
+   "empieza_con": "el corte de la estrella grande y rojiza, sin ciudad, con el centro ya hundido en una bola apretada, en el centro; regla en 10⁴; Atom pequeño abajo a la izquierda",
+   "termina_con": "la estrella de neutrones sobre la ciudad brillante vista desde arriba (el mundo de cosmos a 10⁴), en el centro; regla en 10⁴; Atom pequeño abajo a la izquierda",
+   "produccion": "La bola sale del corte de ep3-vuelta (ep03-estrellas.js) y sobre la ciudad es la estrella de neutrones, del mismo tamaño que la ciudad; la ciudad es la foto a 10⁴ de ep03-cosmos.js. Atom se estira y se aplasta con sq en P.atomo. La balanza de ep03-balanza.js lleva la cucharita de ep03-tocar.js en un plato y la variante de los coches en el otro; la mano del kit sostiene la cucharita. Va en arcilla aunque el Visual lo marca en papel (la balanza y la cucharita): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas).",
+   "frases": [
+    {
+     "n": 64,
+     "marca": "ciudad",
+     "es": "Los átomos pierden su espacio vacío, y queda una estrella de neutrones: más masa que el Sol, en una bola del tamaño de una ciudad.",
+     "en": "The atoms lose their empty space, leaving a neutron star: more mass than the Sun, in a ball the size of a city.",
+     "visual": "La bola apretada, que ya no tiene huecos entre sus átomos, sale del corte de la estrella y se posa sobre la ciudad vista desde arriba: es del mismo tamaño que la ciudad; a mitad de frase, Atom se acerca, se estira y se aplasta, agobiado, y vuelve a su sitio."
+    },
+    {
+     "n": 65,
+     "marca": "cucharita",
+     "es": "Una cucharadita pesaría tanto como todos los coches del mundo juntos.",
+     "en": "A teaspoon of it would weigh as much as every car on Earth put together.",
+     "visual": "La balanza de latón: una cucharita en un plato y, en el otro, una montaña inmensa de coches; la balanza se queda equilibrada."
+    },
+    {
+     "n": 66,
+     "marca": "derramar",
+     "es": "Mejor no derramarla.",
+     "en": "Don't spill it.",
+     "visual": "La cucharita tiembla en una mano sobre la ciudad; la mano se la lleva despacio y queda la estrella de neutrones sobre la ciudad."
+    }
+   ]
+  },
+  {
+   "id": "ep3-luz",
+   "estilo": "plastilina",
+   "empieza_con": "la estrella de neutrones sobre la ciudad brillante vista desde arriba (el mundo de cosmos a 10⁴), en el centro; regla en 10⁴; Atom pequeño abajo a la izquierda",
+   "termina_con": "la Vía Láctea de crearMundo, llena de puntitos, sin marco, en el centro; regla en 10²¹; Atom pequeño abajo a la izquierda",
+   "produccion": "Adapta cosmos-plastilina-adulta.html con kits/ep03-cosmos.js. En la frase 67, la subida de 10⁴ a 10⁷ (la Luna, a su distancia real según z). Después, la Tierra quieta para el rayo y la subida de 10⁷ a 10¹⁶ siguiendo la cinta. En la frase 69, los saltos «doce → lactea» (de 10¹⁶ a 10²¹). El rayo, el reloj de 1 s y el reloj de arena, de ep03-tiempo.js; la cinta de años luz es una pieza sencilla. La espiral con puntitos es la galaxia de crearMundo, que ya los dibuja. El marco dorado y el pincel van en ep3-mapa, con la frase que dice «ilustración». Cartela «+16».",
+   "frases": [
+    {
+     "n": 67,
+     "marca": "subir",
+     "es": "Volvemos a subir, al salto dieciséis.",
+     "en": "Back up to jump sixteen.",
+     "visual": "Tras la cartela, la regla vuelve a subir: la cámara sale de la ciudad hasta ver la Tierra entera."
+    },
+    {
+     "n": 68,
+     "marca": "anoluz",
+     "es": "La luz da siete vueltas y media a la Tierra en un segundo; un año luz es lo que recorre en un año.",
+     "en": "Light circles the Earth seven and a half times a second; a light-year is how far it goes in a year.",
+     "visual": "Un rayo de luz da siete vueltas y media a la Tierra mientras un reloj marca 1 s; a mitad de frase, una cinta con marcas de un año de luz arranca de la Tierra y se pierde a lo lejos, y la cámara la sigue hasta 10¹⁶: el Sol y sus órbitas se quedan atrás."
+    },
+    {
+     "n": 69,
+     "marca": "galaxia",
+     "es": "Salto veintiuno: la Vía Láctea, tan ancha que la luz tarda cien mil años en cruzarla.",
+     "en": "Jump twenty-one: the Milky Way, so wide that light takes a hundred thousand years to cross it.",
+     "visual": "El marcador sube a 10²¹: la Vía Láctea vista desde fuera; a mitad de frase, un rayo de luz la cruza junto a un reloj de arena enorme y la espiral se llena de puntitos sin fin."
+    }
+   ],
+   "cartela": "+16"
+  },
+  {
+   "id": "ep3-mapa",
+   "estilo": "plastilina",
+   "empieza_con": "la Vía Láctea de crearMundo, llena de puntitos, sin marco, en el centro; regla en 10²¹; Atom pequeño abajo a la izquierda",
+   "termina_con": "la persona sentada en el sofá, de espaldas a la izquierda, con su bol de palomitas, mirando por la ventana llena de estrellas en rayas, y el reloj en una hora; regla en 10²¹; Atom pequeño abajo a la izquierda",
+   "produccion": "El marco dorado y el pincel son dos piezas sencillas sobre la foto de la galaxia. Los puntos del satélite no son piezas: son una máscara que va descubriendo una foto de la galaxia de crearMundo a 10²¹ (ep03-cosmos.js) hecha al cargar. El satélite y la antena son dos piezas sencillas. Crea kits/ep03-sofa.js: sofá, bol de palomitas y una ventana con estrellas en rayas horneadas; lo reutiliza ep3-andromeda (la ventana), en el mismo lote. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. La persona es el «humano» con la postura «sentada». El reloj, de ep03-tiempo.js; la Tierra y la Luna, el globo y la luna del kit.",
+   "frases": [
+    {
+     "n": 70,
+     "marca": "ilustracion",
+     "es": "Nadie la ha visto nunca desde fuera: todas sus vistas desde arriba son ilustraciones, hechas con mapas que medimos desde dentro, estrella a estrella y nube a nube.",
+     "en": "No one has ever seen it from outside: every view from above is an illustration, mapped from inside, star by star and cloud by cloud.",
+     "visual": "Un marco dorado se cierra alrededor de la Vía Láctea y un pincel le da el último toque: es una ilustración; a mitad de frase, un satélite gira despacio y pone un punto en un mapa por cada estrella que mide, uno a uno, mientras una antena de radio va marcando nubes de gas, hasta que puntos y nubes dibujan la espiral."
+    },
+    {
+     "n": 71,
+     "marca": "sofa",
+     "es": "Tú le das vueltas con el Sol, recorriendo cada hora dos veces la distancia a la Luna, aunque estés en el sofá.",
+     "en": "You're circling it with the Sun, covering twice the distance to the Moon every hour, even on your couch.",
+     "visual": "Una persona sentada en un sofá, con un bol de palomitas; por la ventana, las estrellas pasan como rayas y un trazo de la Tierra a la Luna se recorre dos veces mientras un reloj da una hora."
+    }
+   ]
+  },
+  {
+   "id": "ep3-andromeda",
+   "estilo": "plastilina",
+   "empieza_con": "la persona sentada en el sofá, de espaldas a la izquierda, con su bol de palomitas, mirando por la ventana llena de estrellas en rayas, y el reloj en una hora; regla en 10²¹; Atom pequeño abajo a la izquierda",
+   "termina_con": "la Vía Láctea y Andrómeda de crearMundo, pequeñas y lejos, a la escala del mundo a 10²² (unos 1.300 px una de otra), unidas por la vara de alambre de la línea de tiempo, con la luz ya en el último tramo y las figuritas de los primeros humanos junto a él; regla en 10²²; Atom pequeño abajo a la izquierda",
+   "produccion": "La ventana de ep03-sofa.js (ep3-mapa) con Andrómeda (el remolino del kit, desenfocado) y el ojo exterior de ep03-ojo.js. La línea de tiempo es una vara de alambre con la luz que avanza y, al final, unas figuritas de la multitud de ep03-tocar.js. Las dos galaxias son la de crearMundo (ep03-cosmos.js) a 10²², Andrómeda con otro giro y algo mayor, a su distancia (unos 1.300 px a esta escala). La subida de cinco saltos hasta 10²⁷ va en ep3-universo, después de la cartela «+27», como en los demás capítulos.",
+   "frases": [
+    {
+     "n": 72,
+     "marca": "andromeda",
+     "es": "Salto veintidós: Andrómeda, la galaxia vecina, a dos millones y medio de años luz.",
+     "en": "Jump twenty-two: Andromeda, our neighbor galaxy, two and a half million light-years away.",
+     "visual": "El marcador sube a 10²²: por la ventana, Andrómeda a simple vista, una manchita borrosa entre estrellas."
+    },
+    {
+     "n": 73,
+     "marca": "serinden",
+     "es": "Es de lo más lejano que puedes ver sin telescopio: hacia arriba, aquí es donde tus ojos se rinden.",
+     "en": "It's one of the farthest things your naked eye can see: going up, this is where your eyes give up.",
+     "visual": "El ojo de la persona, en primer plano, entorna la mirada hacia la manchita; a mitad de frase llega a su límite y el párpado se cierra."
+    },
+    {
+     "n": 74,
+     "marca": "humanos",
+     "es": "Su luz salió antes de que existieran los humanos modernos.",
+     "en": "Its light left before modern humans existed.",
+     "visual": "Una línea de tiempo, una vara de alambre de Andrómeda a la Vía Láctea, las dos pequeñas y lejos: la luz sale de Andrómeda cuando en la Tierra no hay humanos, y los primeros humanos modernos aparecen cuando ya va por el último tramo."
+    }
+   ]
+  },
+  {
+   "id": "ep3-universo",
+   "estilo": "plastilina",
+   "empieza_con": "la Vía Láctea y Andrómeda de crearMundo, pequeñas y lejos, a la escala del mundo a 10²² (unos 1.300 px una de otra), unidas por la vara de alambre de la línea de tiempo, con la luz ya en el último tramo y las figuritas de los primeros humanos junto a él; regla en 10²²; Atom pequeño abajo a la izquierda",
+   "termina_con": "la esfera translúcida de lo observable, llena de puntitos-galaxia, en el centro, sobre la red; regla en 10²⁷; Atom pequeño abajo a la izquierda",
+   "produccion": "Crea kits/ep03-universo.js: la red de galaxias (la de colorRed del remate de la regla del lote 0, horneada en una losa grande que se escala), la esfera de lo observable (una cáscara translúcida), la goma con la hormiga y la meta, y la niebla brillante horneada. Lo reutilizan ep3-borde, ep3-centro y ep3-despedida. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. La subida de 10²² a 10²⁷ usa la cámara del mundo de ep03-cosmos.js (la galaxia de crearMundo encoge hasta un punto sobre la red), así que en el lote 1 va después de ep3-tierra. La mano de Atom es un electrón sobre alambre, como el saludo de prueba-plastilina-adulta; el «?» es un glifo. Tras la frase 76 hay 2 s de silencio (pausas). Cartela «+27».",
+   "frases": [
+    {
+     "n": 75,
+     "marca": "universo",
+     "es": "Salto veintisiete: el universo observable, de unos noventa y tres mil millones de años luz.",
+     "en": "Jump twenty-seven: the observable universe, about ninety-three billion light-years across.",
+     "visual": "Tras la cartela, la línea de tiempo se apaga y la cámara sube cinco saltos: la Vía Láctea y Andrómeda encogen hasta ser puntos sobre la red de filamentos de galaxias, que se acerca; el marcador llega a 10²⁷ y una esfera translúcida marca el límite de lo observable."
+    },
+    {
+     "n": 76,
+     "marca": "espera",
+     "es": "Espera.",
+     "en": "Wait.",
+     "visual": "Atom sale de su sitio hacia el centro y levanta una mano: espera; después de la frase, unos 2 s de silencio con la mano levantada.",
+     "pausa": 2
+    },
+    {
+     "n": 77,
+     "marca": "comopuede",
+     "es": "Si el universo tiene trece mil ochocientos millones de años, ¿cómo puede ser tan grande?",
+     "en": "If the universe is thirteen point eight billion years old, how can it be that big?",
+     "visual": "Atom, con la mano aún levantada, mira la esfera enorme; sobre ella aparece un «?»."
+    },
+    {
+     "n": 78,
+     "marca": "goma",
+     "es": "Porque mientras la luz viajaba, el espacio se iba estirando, como una goma elástica bajo una hormiga que camina.",
+     "en": "Because while the light traveled, space itself kept stretching, like a rubber band under a walking ant.",
+     "visual": "Una hormiga camina por una goma elástica que alguien va estirando, y la meta se aleja aunque la hormiga no pare; al final la cámara vuelve a la esfera y Atom, a su sitio, abajo a la izquierda."
+    }
+   ],
+   "cartela": "+27"
+  },
+  {
+   "id": "ep3-arena",
+   "estilo": "papel",
+   "empieza_con": "un cielo de papel con un disco de cielo estrellado en el centro, en el sitio de la esfera de arcilla, y un brazo estirado de papel con un grano de arena en la yema que tapa el centro del disco; Atom de papel pequeño abajo a la izquierda",
+   "termina_con": "un disco de cielo estrellado de papel en el centro, en el sitio y del tamaño de la esfera de arcilla, sobre la playa; Atom de papel pequeño abajo a la izquierda",
+   "produccion": "Kit papel-adulta.js. El brazo y el grano son recortes. En la imagen del Webb, espirales y puntitos con repetición, con el número 2022, que está permitido. El cielo, con fondoNoche. Sin balanza: la de la playa y el cielo (frase 81) pasa a ep3-borde y es la de latón, para que no salgan seguidas dos balanzas de distinto material. El primer fotograma enlaza con el último de ep3-universo (el disco en el sitio de la esfera) y el último con el primero de ep3-borde (el disco en ese mismo sitio, donde está la esfera). Sin regla. No depende de ningún kit del episodio ni del lote 0: puede empezar ya.",
+   "frases": [
+    {
+     "n": 79,
+     "marca": "arena",
+     "es": "Tapa un trocito de cielo con un grano de arena, con el brazo estirado: ahí, el telescopio Webb encontró miles de galaxias.",
+     "en": "Hold a grain of sand at arm's length: in that patch of sky, the Webb telescope found thousands of galaxies.",
+     "visual": "Papel a pantalla completa: un brazo estirado con un grano de arena en la yema del dedo tapa un trocito de cielo; a mitad de frase, la imagen del Webb (2022): miles de galaxias en ese trocito."
+    },
+    {
+     "n": 80,
+     "marca": "playas",
+     "es": "Se suele decir que hay más estrellas que granos de arena en todas las playas de la Tierra.",
+     "en": "People often say there are more stars than grains of sand on all of Earth's beaches.",
+     "visual": "Una playa infinita frente a un cielo lleno de estrellas; la cámara se acerca al cielo hasta un disco de cielo estrellado en el centro."
+    }
+   ]
+  },
+  {
+   "id": "ep3-borde",
+   "estilo": "plastilina",
+   "empieza_con": "la esfera translúcida de lo observable, llena de puntitos-galaxia, en el centro, sobre la red; regla en 10²⁷; Atom pequeño abajo a la izquierda",
+   "termina_con": "la imagen del telescopio fundida en la niebla opaca, que llena la pantalla; regla en 10²⁷; Atom pequeño abajo a la izquierda",
+   "produccion": "La esfera y la niebla, de ep03-universo.js; la balanza, el montón de arena y la silueta de puntitos, de ep03-balanza.js, con la misma composición que en ep3-gato; el telescopio, de ep03-instrumentos.js. Va en arcilla aunque el Visual lo marca en papel (las dos balanzas, 81–83): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Así las dos balanzas seguidas son la misma, de latón: en la 82 la arena se cambia por la silueta.",
+   "frases": [
+    {
+     "n": 81,
+     "marca": "nadie",
+     "es": "Muchas estimaciones dicen que sí, otras que no: nadie ha contado ninguna de las dos cosas.",
+     "en": "Many estimates say yes, some say no: nobody has counted either.",
+     "visual": "La balanza de latón: la esfera de lo observable baja a un plato y, en el otro, un montón de arena; la balanza oscila sin decidirse."
+    },
+    {
+     "n": 82,
+     "marca": "carrera",
+     "es": "Pero en otra carrera no hay ni comparación: tus átomos ganan a todas esas estrellas por goleada, miles a uno.",
+     "en": "But in one race, there's no contest: your atoms beat all those stars, thousands to one.",
+     "visual": "La arena deja su plato y en él cae la silueta de un cuerpo humano: el cuerpo gana sin esfuerzo y el plato de la esfera sube."
+    },
+    {
+     "n": 83,
+     "marca": "multitud",
+     "es": "Técnicamente, tú eres la multitud.",
+     "en": "Technically, you're the bigger crowd.",
+     "visual": "La cámara se acerca a la silueta: dentro, una multitud de puntitos."
+    },
+    {
+     "n": 84,
+     "marca": "telescopios",
+     "es": "Aquí, en el borde, todos los telescopios se rinden: antes, el universo era una niebla opaca.",
+     "en": "Here at the edge, every telescope gives up: before this, the universe was an opaque fog.",
+     "visual": "Al fondo de todo, una niebla brillante, como una pared; un telescopio enorme apunta al borde y, a mitad de frase, su imagen se funde en la niebla opaca: detrás no hay nada que ver."
+    }
+   ]
+  },
+  {
+   "id": "ep3-centro",
+   "estilo": "plastilina",
+   "empieza_con": "la imagen del telescopio fundida en la niebla opaca, que llena la pantalla; regla en 10²⁷; Atom pequeño abajo a la izquierda",
+   "termina_con": "el ojo del gancho cerrado sobre una franja reducida al pelo, en el centro; regla entera con el marcador en 10⁻⁴; Atom pequeño abajo a la izquierda",
+   "produccion": "La regla del lote 0 en modo entera. La coreografía de ep3-lote0-demo.html es la de las frases 86–88: las marcas se encienden una a una (rango) y la flecha busca, pasa por 0 y cae cuatro saltos a −4. Planos, para no quedarse 15 s en el general: en la 85, de la niebla (detalle) a la regla entera (general); en la 86, plano medio que sube por la regla (un recorte 2D del render) mientras se encienden las marcas; en la 87, otra vez el general con la flecha que cae; en la 88, la mirilla del pelo llena la pantalla durante el silencio. El pelo es la foto del nivel 4 de prueba-plastilina-adulta, en una mirilla junto a la marca −4. El ojo y la franja, de ep03-ojo.js; la niebla del principio, de ep03-universo.js. Tras la frase 88 hay 2 s de silencio (pausas). Cartela «½».",
+   "frases": [
+    {
+     "n": 85,
+     "marca": "pregunta",
+     "es": "Ahora, la pregunta del principio: ¿dónde está el centro de todo esto?",
+     "en": "Now, the question from the start: where's the middle of all this?",
+     "visual": "Tras la cartela, plano detalle de la niebla, que se abre; la cámara se aleja hasta la regla entera, de la niebla de Planck a la red de galaxias, con la persona de pie a la izquierda; una flecha aparece arriba, buscando."
+    },
+    {
+     "n": 86,
+     "marca": "sesenta",
+     "es": "De la longitud de Planck al borde del universo hay algo más de sesenta saltos.",
+     "en": "From the Planck length to the edge of the universe, there are just over sixty jumps.",
+     "visual": "Plano medio que sube por la regla mientras las unas sesenta marcas se encienden una a una, de la niebla a la red."
+    },
+    {
+     "n": 87,
+     "marca": "medio",
+     "es": "El punto medio no eres tú: está cuatro saltos por debajo.",
+     "en": "The midpoint isn't you: it's four jumps below you.",
+     "visual": "Plano general de la regla entera: la flecha busca el punto medio, pasa por la persona y cae cuatro saltos por debajo."
+    },
+    {
+     "n": 88,
+     "marca": "pelo",
+     "es": "El grosor de un pelo.",
+     "en": "The thickness of a hair.",
+     "visual": "Cae en el mismo pelo del principio, que brilla: su mirilla crece hasta llenar la pantalla y el marcador baja a 10⁻⁴; después de la frase, unos 2 s de silencio con la imagen quieta sobre el pelo.",
+     "pausa": 2
+    },
+    {
+     "n": 89,
+     "marca": "mismopelo",
+     "es": "El mismo pelo del primer salto: el centro de todo está casi justo donde tus ojos se rinden.",
+     "en": "The same hair from our first jump: the middle of everything sits right around where your eyes give up.",
+     "visual": "El ojo del gancho: la franja visible se estrecha casi hasta el pelo y ahí se cierra el párpado."
+    }
+   ],
+   "cartela": "½"
+  },
+  {
+   "id": "ep3-despedida",
+   "estilo": "plastilina",
+   "empieza_con": "el ojo del gancho cerrado sobre una franja reducida al pelo, en el centro; regla entera con el marcador en 10⁻⁴; Atom pequeño abajo a la izquierda",
+   "termina_con": "Atom de cerca en el plató del principio, centrado, con el bocadillo «?», quieto",
+   "produccion": "La persona es el «humano» de pie, grande, con la fila de átomos de ep03-tocar.js a los pies y remolinos del kit como galaxias arriba. La galaxia entre muchas es la de crearMundo (ep03-cosmos.js), encogida sobre la red de ep03-universo.js. Para los átomos que nacen: bolitas de colores con el aspecto de Atom, destellos y estrellas de ep03-estrellas.js, y la mano abierta del kit. El cierre es el plató de ep3-hola: Atom de cerca, señalándose con el electrón sobre alambre, y el bocadillo del kit con el glifo «?». La regla sale al volver al plató.",
+   "frases": [
+    {
+     "n": 90,
+     "marca": "gigante",
+     "es": "En tu propio universo, eres un gigante.",
+     "en": "In your own universe, you're a giant.",
+     "visual": "El párpado se abre sobre la persona, enorme, de pie entre átomos minúsculos a sus pies y galaxias lejanas sobre su cabeza; el marcador vuelve a 10⁰."
+    },
+    {
+     "n": 91,
+     "marca": "unagalaxia",
+     "es": "Un gigante hecho de átomos casi vacíos, en una galaxia que es una entre cientos de miles de millones.",
+     "en": "A giant made of almost-empty atoms, in a galaxy that's one among hundreds of billions.",
+     "visual": "La cámara se aleja hasta nuestra galaxia, una entre muchas."
+    },
+    {
+     "n": 92,
+     "marca": "nacieron",
+     "es": "Casi todos tus átomos nacieron con el universo, o dentro de estrellas que murieron antes de que existiera el Sol.",
+     "en": "Almost all your atoms were born with the universe, or inside stars that died before the Sun existed.",
+     "visual": "Átomos de hidrógeno salen del destello del principio; a mitad de frase, átomos de carbono, oxígeno y hierro salen de estrellas que mueren o explotan, mucho antes que el Sol; casi todos entran en una mano abierta."
+    },
+    {
+     "n": 93,
+     "marca": "vengo",
+     "es": "Yo vengo de ahí, y tú también.",
+     "en": "That's where I come from, and so do you.",
+     "visual": "Atom, de vuelta en el plató del principio, se señala a sí mismo y luego señala a cámara."
+    },
+    {
+     "n": 94,
+     "marca": "explico",
+     "es": "¿Qué quieres que te explique ahora?",
+     "en": "What should I explain next?",
+     "visual": "Atom de cerca con el bocadillo de la «?»."
+    },
+    {
+     "n": 95,
+     "marca": "comentarios",
+     "es": "Déjamelo en los comentarios.",
+     "en": "Tell me in the comments.",
+     "visual": "Atom se queda quieto con el bocadillo «?»; la imagen se asienta."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Keops · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-KEOPS (frase 16). Cartela «2560». La Gran Pirámide crece capa a capa con su rampa y los obreros que suben bloques;
+// al final se reviste de blanco y le ponen el remate de oro. En la caja, «2000000» bloques y luego «3800» años como el
+// edificio más alto del mundo.
+import { preparar, rodar, guiza, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-keops');
+const { tramo } = R;
+const m0 = M('keops', 1.5), L = E.duracion - m0;
+const plano = (t) => {
+  const p = tramo(t - m0, 0.2, 0.62 * L);
+  guiza(R, t, p < 1 ? { fase: 'obra', p: 0.12 + 0.88 * p } : { fase: 'terminada' });
+  R.actor(EL.faraon, 70, 145, t, { dedo: p < 1, sonrisa: p >= 1 });
+};
+rodar(E, R, [[0, plano]], {
+  cartela: '2560', año: -2560,
+  caja: (t, e) => R.caja(t, t > m0 + 0.25 * L ? tramo(t, m0 + 0.25 * L, m0 + 0.25 * L + 0.4) : 0, (x, y) => {
+    if (t < m0 + 0.7 * L) R.numero(String(Math.round(2000000 * Math.min(1, tramo(t, m0 + 0.3 * L, m0 + 0.6 * L)))), x + 2, y + 12);
+    else { R.icono('reloj', x, y + 5, undefined, undefined, 1); R.numero('3800', x + 12, y + 12); }
+  }, { energia: e, x0: 180 }),
+});
+</script>
+</body>
+</html>

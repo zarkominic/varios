@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La factura · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-FACTURA (frases 68–69).
+//  cobrar    Harrison, ya anciano y encorvado, ante el rey en una sala con velas; el rey le da un saco. «80» en la caja.
+//  facturas  en la caja, una factura con un reloj; de fondo, el pergamino del ancla se llena de costas nuevas.
+import { escena } from '/atomo/plato/escena.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
+const E = await escena('ep4-factura', 'ep04');
+const R = await crearAventura(document.getElementById('lienzo'));
+const { PAL, tramo } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { cobrar: M('cobrar', 0.5), facturas: M('facturas', 7) };
+
+const corte = (t) => {
+  R.interior(t, { luces: [[90, 50], [250, 50]], suelo: 140 });
+  R.estandarte(36, 16, 14, 44, PALA.MORADO, t); R.estandarte(270, 16, 14, 44, PALA.AZUL, t);
+  R.poligono([[130, 152], [190, 152], [230, 180], [90, 180]], (x, y) => R.tone(PALA.ROJO, 1.5 + (y - 152) / 30, x, y));
+  R.vela(90, 56, t); R.vela(250, 56, t);
+  const da = tramo(t, m.cobrar + 3, m.cobrar + 4);
+  R.personaje(112, 154, 44, { ...ELENCO.harrisonViejo, t, pose: 'ofrece', objeto: da >= 1 ? 'saco' : null, sonrisa: da >= 1 });
+  R.personaje(206, 154, 52, { ...ELENCO.rey, pelo: PALA.PELO_RUBIO, capa: PALA.AZUL, t, dir: -1, pose: 'ofrece', objeto: da < 1 ? 'saco' : null });
+};
+const llena = (t) => R.ancla(t, { tiembla: 0, clavada: 1, lineas: [1, 1] });
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, corte], [m.facturas - 0.2, llena]]);
+  const e = E.energia(t);
+  R.caja(t, tramo(t, m.cobrar + 1.2, m.cobrar + 1.6), (x, y) => {
+    if (t < m.facturas) R.numero('80', x + 6, y + 12);
+    else { R.icono('factura', x + 6, y + 4, PAL.UI[5]); R.icono('reloj', x + 18, y + 4, PAL.UI[7]); }
+  }, { energia: e });
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

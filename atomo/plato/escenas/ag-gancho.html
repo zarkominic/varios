@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-GANCHO (frases 2–3). A: un peregrino persigue a un pavo salvaje por el bosque de otoño y se le escapa (gag);
+// luego D: un policía de Filadelfia, harto, con el silbato en un atasco. Al final la mesa de 1621 y la cola de hoy, y «?».
+import { preparar, rodar, plymouth, ciudad, pavo, trote, humo, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-gancho');
+const { tramo, lerp } = R;
+const m = { pavo: M('pavo', 0.5), pre: M('pregunta', 9) }, L1 = m.pre - m.pavo;
+const corte = m.pavo + 0.45 * L1;
+const caza = (t) => {
+  const u = t - m.pavo, f = tramo(u, 0.3, 0.42 * L1);
+  plymouth(R, t, { estacion: 'otono', mayflower: false });
+  const xp = Math.round(lerp(60, 360, f)), xg = Math.round(lerp(10, 250, Math.min(1, f * 1.15)));
+  pavo(R, xp, 145, t, { corre: f > 0 && f < 1 });
+  R.actor(EL.peregrino, xg, 145, t, { anda: f > 0 && f < 0.85, salto: f > 0 && f < 0.85 ? trote(t) : 0, sorpresa: f > 0.85, enfado: f <= 0.85 });
+};
+const atasco = (t) => {
+  ciudad(R, t, { epoca: '1950', coches: 6, atasco: true });
+  R.actor(EL.policia, 150, 145, t, { enfado: true, dedo: Math.sin(t * 5) > 0 });
+  if (t > corte + 1.2) humo(R, 158, 112, t, R.hex('#f2f6fa'));
+};
+const pregunta = (t) => {
+  const u = t - m.pre;
+  if (u < 2.2) plymouth(R, t, { estacion: 'otono', mesa: 1, mayflower: false });
+  else ciudad(R, t, { epoca: 'hoy', madrugada: true });
+  if (u >= 2.2) for (let k = 0; k < 6; k++) { const e = tramo(u - 2.2 - k * 0.2, 0, 1.2); R.actor([EL.chico, EL.chica, EL.senor30][k % 3], Math.round(lerp(-30, 50 + k * 22, e)), 145, t + k, { anda: e < 1 }); }
+  else for (let k = 0; k < 3; k++) R.actor([EL.peregrino, EL.wampanoag, EL.peregrina][k], 100 + k * 50, 145, t + k, { sonrisa: true });
+  if (u > 3.4) R.icono('?', 154, 40, undefined, undefined, 4);
+};
+rodar(E, R, [[0, caza], [corte, atasco], [m.pre - 0.2, pregunta]], { año: (t) => (t < corte ? 1621 : t < m.pre ? 1955 : t - m.pre < 2.2 ? 1621 : 2026) });
+</script>
+</body>
+</html>

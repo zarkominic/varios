@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prueba · plastilina adulta</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Prueba de identidad visual · PLASTILINA ADULTA (versión B; prueba-identidad/ENCARGO-PLASTILINA-ADULTA.md).
+// El mismo guion, las mismas marcas y los mismos encuadres que prueba-plastilina.html (la versión A), con el
+// kit plastilina-adulta.js: paleta terrosa con un solo acento terracota/ámbar, luz de cine (principal cálida
+// y lateral, contraluz frío, sombras densas, viñeta, grano, fondo desenfocado de macro), una persona adulta
+// y serena, Atom refinado y una regla de boj con números grabados.
+// (B ajustada) más luz, Atom de latón claro con electrones de ámbar y halo (se lee en el móvil), una mano de
+// arcilla creíble y el pelo-tronco con escamas de cutícula solapadas (ver la cabecera del kit).
+// El movimiento tiene peso: sin rebotes ni muelles; los golpes de zoom son secos.
+//  0        persona a la izquierda, regla de potencias de diez a la derecha, Atom junto al hombro
+//  hola     Atom se eleva un poco y un electrón sale de su órbita con un alambre fino y saluda
+//  atom     Atom crece un poco, brilla (ámbar) y sus electrones aceleran
+//  bloques  tres átomos de un modelo molecular (bolas y varillas de latón) llegan y encajan
+//  explico  aparece una pizarrita de nogal con una «?» de tiza · escuela: gira y enseña «!»
+//  saltos → pelo  cuatro saltos ×10 (persona → mano → piel con vello → un pelo → el pelo como tronco);
+//           los decorados de mano, piel y pelo se fotografían una vez con desenfoque de basculante
+//           (maqueta de macro). El marcador baja 10⁰ → 10⁻⁴ m.
+//  decima → milimetro  cota de alambre de lado a lado del pelo y tarjeta «10⁻⁴ m» · después, quieto.
+// Todo se compone en un lienzo 2D y la viñeta y el grano se ponen al final (crearPost), iguales en todos
+// los fotogramas.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, azar, COLOR } from '/atomo/plato/kits/plastilina-adulta.js';
+
+const E = await escena('prueba-plastilina-adulta', 'prueba');
+const M = (k) => E.marca(k);
+const m = {
+  hola: M('hola'), atom: M('atom'), bloques: M('bloques'), explico: M('explico'), escuela: M('escuela'),
+  saltos: M('saltos'), pelo: M('pelo'), decima: M('decima'), milimetro: M('milimetro'),
+};
+const QUIETO = E.duracion - 0.6;
+const JS = (m.pelo - m.saltos) * 0.8 / 4;
+const SALTO = [0, 1, 2, 3].map((k) => { const a = m.saltos + k * (m.pelo - m.saltos - JS) / 3; return [a, a + JS]; });
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+// reloj de los electrones: corre más deprisa en «atom» y se para al final
+const DT = 1 / 240, TA = [0];
+const velA = (t) => (1 + 2.4 * eio(prog(t, m.atom - 0.25, m.atom)) * (1 - eio(prog(t, m.atom + 0.8, m.atom + 1.7)))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= E.duracion + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT);
+const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor(x)); return mix(TA[i], TA[i + 1], x - i); };
+
+// piezas: índices
+const I = { PER: 0, PIZ: 1, V0: 2, REG: 5, FLE: 6, MANO: 7, PIEL: 8, PELO: 9, TRO: 10, COTA: 11, ETQ: 12 };
+const P = await crearPlato({
+  piezas: ['persona', 'pizarra', 'vecino', 'vecino', 'vecino', 'reglaA', 'flecha', 'mano', 'piel', 'pelo', 'tronco', 'cota', 'etiqueta'],
+  mano: false, alfa: true, post: false,
+  sombraFondo: ['p0', 'p1', 'p5', 'p7', 'p8', 'p9', 'p10'],
+  sombras: { p10: ['p11', 'p12'], p0: ['atomo'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+// golpe seco: arranca con fuerza y frena en firme, sin pasarse
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+const W = 1920, H = 1080;
+
+// ---------------------------------------------------------------- puesta en escena (mundo)
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+// nivel 0
+const E_PER = 2.4, PER = (() => { const a = en(612, 600, 0.6); return [a[0], 1.0 * E_PER, 0.6]; })();
+const PIZ = en(1190, 345, 0.3), E_PIZ = 1.55;
+const ATOMO0 = [850, 330], A_ESC = 0.4, A_Z = 1.0;
+// regla y marcador (fijos)
+const E_REG = 1.42, REG = en(1668, 528, 0.4);
+const yMarca = (i) => REG[1] + E_REG * (1.5 - 0.75 * i);
+// nivel 1: la mano gigante
+// (B ajustada) más cerca de la cámara (y más pequeña, el mismo encuadre): así los dedos no se hunden bajo el
+// suelo del plató, que los oscurecía
+const E_MANO = 2.03, MANO = en(960, 600, 5.0);
+// nivel 2: bloque de piel con vello (inclinado hacia la cámara)
+const E_PIEL = 2.2, PIEL = en(960, 690, 0.2), ROT_PIEL = [0.42, -0.28, 0];
+// nivel 3: un pelo en su folículo
+const E_PELO = 1.75, PELO = en(1010, 800, 0.0), ROT_PELO = [0.32, -0.32, 0];
+// nivel 4: el pelo como tronco
+const E_TRO = 2.15, TRO = (() => { const a = en(900, 540, -0.4); return [a[0], 1.4 * E_TRO, -0.4]; })();
+// la cota va delante del tronco: su largo se ajusta para que, en pantalla, toque los dos bordes del pelo
+const COTA = (() => {
+  const zC = TRO[2] + E_TRO + 0.35, yC = en(900, 660, zC)[1];
+  const bL = pant([TRO[0] - E_TRO * 1.03, yC, TRO[2]]), bR = pant([TRO[0] + E_TRO * 1.03, yC, TRO[2]]);
+  const a = en(bL[0], 660, zC), b = en(bR[0], 660, zC);
+  return { pos: [(a[0] + b[0]) / 2, a[1], zC], medio: (b[0] - a[0]) / 2 };
+})();
+const ETQ = en(900, 570, TRO[2] + E_TRO + 0.45);
+
+// punto de un objeto girado (euler YXZ, como el kit) y escalado
+const mundo = (pos, rot, esc, q) => {
+  const v = new THREE.Vector3(...q).multiplyScalar(esc).applyEuler(new THREE.Euler(rot[0], rot[1], rot[2], 'YXZ'));
+  return [pos[0] + v.x, pos[1] + v.y, pos[2] + v.z];
+};
+// focos: dónde está el nivel siguiente dentro de cada nivel (píxel)
+const FOCO = [
+  pant([PER[0] + E_PER * 0.215, PER[1] - E_PER * 0.26, PER[2] + E_PER * 0.03]),
+  pant([MANO[0] + E_MANO * 0.04, MANO[1] + E_MANO * 0.12, MANO[2] + E_MANO * 0.17]),
+  pant(mundo(PIEL, ROT_PIEL, E_PIEL, [0, 0.12, 0.12])),
+  pant(mundo(PELO, ROT_PELO, E_PELO, [0, 1.9, 0.8])),
+];
+
+// ---------------------------------------------------------------- capa 2D encima (saltos, brillo)
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const CACHE = [];
+function foto() { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; c.getContext('2d').drawImage(lienzoGL, 0, 0); return c; }
+
+// ---------------------------------------------------------------- piezas de cada nivel
+function nivel0(ts) {
+  const tz = calma(ts);
+  // persona: respira, gira un poco la cabeza (todo el cuerpo) hacia lo que mira
+  const u1 = eio(prog(ts, m.explico - 0.4, m.explico)), u2 = eio(prog(ts, m.saltos - 0.8, m.saltos - 0.35));
+  const giro = mix(mix(0.2, 0.32, u1), 0.12, u2);
+  const resp = 0.008 * Math.sin(tz * 2.4);
+  P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + resp, 1], rot: [0.02, giro, 0], toque: false, huellaFija: [0.37, 0.21, 0.0] });
+  // pizarrita: brota en «explico» y gira en «escuela» (detrás: «!»)
+  // pizarrita: aparece en «explico» (crece y frena, sin rebote) y gira con peso en «escuela» (detrás: «!»)
+  const kb = eoc(prog(ts, m.explico - 0.3, m.explico));
+  if (kb > 0) {
+    const fl = eio(prog(ts, m.escuela - 0.3, m.escuela));
+    P.pieza(I.PIZ, {
+      pos: [PIZ[0], PIZ[1] + 0.02 * Math.sin(tz * 1.1) + 0.25 * (1 - kb), PIZ[2]], escala: E_PIZ * mix(0.35, 1, kb),
+      rot: [-0.05, -0.2 + Math.PI * fl - 0.25 * (1 - kb), 0.015 * Math.sin(tz * 0.9)], toque: ts < m.explico + 0.4 || Math.abs(ts - m.escuela) < 0.35,
+    });
+  }
+}
+// (B ajustada) la mano, de tres cuartos: se ven el dorso y el pulgar
+function nivel1() { P.pieza(I.MANO, { pos: MANO, escala: E_MANO, rot: [0.06, 0.2, -0.04] }); }
+function nivel2() { P.pieza(I.PIEL, { pos: PIEL, escala: E_PIEL, rot: ROT_PIEL }); }
+function nivel3() { P.pieza(I.PELO, { pos: PELO, escala: E_PELO, rot: ROT_PELO }); }
+function nivel4(ts) {
+  P.pieza(I.TRO, { pos: TRO, escala: E_TRO, rot: [0, 0.3, 0] });
+  // la cota se tiende de lado a lado (desde el centro) y la tarjeta baja a su sitio; nada rebota
+  const kC = eio(prog(ts, m.decima - 0.25, m.milimetro - 0.05)), kT = eoc(prog(ts, m.decima - 0.25, m.decima));
+  if (kT > 0) P.pieza(I.COTA, { pos: COTA.pos, escala: COTA.medio, variante: kC, sq: [1, mix(0.3, 1, kT), 1], toque: ts < m.milimetro + 0.2 });
+  const kE = eoc(prog(ts, m.milimetro - 0.3, m.milimetro));
+  if (kE > 0) P.pieza(I.ETQ, { pos: [ETQ[0], ETQ[1] + 0.35 * (1 - kE), ETQ[2]], escala: 1.15 * mix(0.5, 1, kE), variante: 4, rot: [-0.06 - 0.5 * (1 - kE), 0, 0.02], toque: ts < m.milimetro + 0.4 });
+}
+const NIVEL = [nivel0, nivel1, nivel2, nivel3, nivel4];
+
+// ---------------------------------------------------------------- Atom, molécula, regla y marcador
+function estadoAtom(ts) {
+  let P4 = 0;
+  for (const [a] of SALTO) P4 += eio(prog(ts, a + JS * 0.25, a + JS * 0.85));
+  const k1 = eio(prog(ts, SALTO[0][0], SALTO[0][0] + JS * 0.45));
+  const sx = mix(ATOMO0[0], 1390, k1) + mix(0, -50, eio(prog(P4, 1, 4))), sy = mix(ATOMO0[1], 292, k1);
+  // (B ajustada) Atom se encoge menos en los saltos (×0,72 en total, no ×0,4): sigue leyéndose en el móvil
+  let esc = A_ESC * Math.pow(0.72, P4 / 4);
+  // «atom»: crece un poco y brilla (llega a su tamaño en la marca, sin pasarse) y vuelve despacio
+  const up = eio(prog(ts, m.atom - 0.3, m.atom)), dn = eio(prog(ts, m.atom + 0.8, m.atom + 1.6));
+  const brillo = cl(up) * (1 - dn);
+  esc *= 1 + 0.2 * up * (1 - dn);
+  return { sx, sy, esc, brillo };
+}
+function atomo(ts) {
+  const S = estadoAtom(ts), tz = calma(ts), ta = tAtomo(ts);
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  // «hola»: Atom se eleva un poco (y baja despacio) y un electrón sale de su órbita sobre un alambre fino
+  // y hace dos vaivenes, como una mano que saluda; nada de botes ni de aplastarse
+  const bote = 0.14 * Math.sin(Math.PI * eio(prog(ts, m.hola - 0.3, m.hola + 0.55)));
+  const manoK = ss(m.hola - 0.35, m.hola - 0.05, ts) * (1 - ss(m.atom - 0.45, m.atom - 0.15, ts));
+  const fase = Math.max(0, ts - (m.hola - 0.15)) * 2 * Math.PI * 1.25;
+  const ang = 0.8 + 0.42 * Math.sin(fase + 0.4) * ss(m.hola - 0.15, m.hola + 0.1, ts);
+  const electrones = manoK > 0.001 ? [{
+    pos: [2.45 * Math.cos(ang), 2.45 * Math.sin(ang), 0.35], mezcla: eio(manoK),
+    brazo: ss(0.2, 0.7, manoK), grosor: 0.042,
+  }] : [];
+  const w = en(S.sx, S.sy, A_Z);
+  P.atomo({
+    pos: [w[0], w[1] + bote + 0.025 * Math.sin(tz * 1.1), w[2]], escala: S.esc, yaw: -0.15 + 0.08 * Math.sin(tz * 0.5), pitch: 0.06,
+    roll: -0.04 * Math.sin(fase) * manoK,
+    energia: Math.min(1, en0 + 0.6 * S.brillo), ts: ta, electrones, toque: manoK > 0.05 || S.brillo > 0.05,
+  });
+  // molécula: tres átomos con su varilla; llegan deslizándose y encajan en «bloques» (frenan en seco, sin
+  // rebote), y se retiran antes de «explico»
+  [-38, 24, 84].forEach((a, i) => {
+    const t0 = m.bloques - 0.42 + i * 0.05, t1 = m.bloques - 0.04 + i * 0.02;
+    const lleg = seco(prog(ts, t0, t1)), sale = eic(prog(ts, m.explico - 0.62 + i * 0.05, m.explico - 0.3 + i * 0.05));
+    if (ts < t0 || sale >= 1) return;
+    const ang2 = -a * Math.PI / 180 + 0.5 * sale;      // en el mundo (y hacia arriba)
+    const dist = (1.45 + 2.6 * (1 - lleg) + 8 * sale) * (S.esc / A_ESC);
+    const pv = [w[0] + Math.cos(ang2) * dist, w[1] + bote + Math.sin(ang2) * dist, w[2] - 0.05];
+    P.pieza(I.V0 + i, { pos: pv, escala: 0.66 * (S.esc / A_ESC), rot: [0, 0, ang2], variante: ta * 4 + i * 2, color: [COLOR.VERDE, COLOR.MOSTAZA, COLOR.CREMA][i], toque: lleg < 1 });
+  });
+  return S;
+}
+function regla(ts) {
+  // el marcador baja una fila en cada salto, con peso (arranca y frena suave); la fila a la que apunta
+  // se ve algo más grande y pintada de terracota
+  let y = yMarca(0), c = 0, mov = false;
+  for (let k = 0; k < 4; k++) {
+    const u = prog(ts, SALTO[k][0] + JS * 0.3, SALTO[k][1]);
+    y += (yMarca(k + 1) - yMarca(k)) * eio(u);
+    c += eio(u);
+    mov = mov || (u > 0 && u < 1);
+  }
+  P.U.uReglaA.value.set(0, 1.5, 0.3, -c);
+  P.pieza(I.REG, { pos: REG, escala: E_REG, rot: [0, -0.12, 0] });
+  P.pieza(I.FLE, { pos: [REG[0] - E_REG * 0.68 - 0.36, y, REG[2] + 0.1], escala: 0.8, rot: [0, -0.15, 0], toque: mov });
+}
+
+// ---------------------------------------------------------------- fotograma
+function brillo2D(S) {
+  if (S.brillo < 0.01) return;
+  const p = pant(en(S.sx, S.sy, A_Z)), R = 260 * S.esc / A_ESC;
+  g.save(); g.globalCompositeOperation = 'lighter';
+  const gr = g.createRadialGradient(p[0], p[1], 10, p[0], p[1], R);
+  gr.addColorStop(0, `rgba(255,170,90,${0.2 * S.brillo})`); gr.addColorStop(0.45, `rgba(230,130,60,${0.07 * S.brillo})`); gr.addColorStop(1, 'rgba(200,110,50,0)');
+  g.fillStyle = gr; g.fillRect(p[0] - R, p[1] - R, 2 * R, 2 * R);
+  g.restore();
+}
+// desenfoque de basculante (maqueta de macro): la foto, nítida en una franja horizontal y cada vez más
+// borrosa hacia arriba y hacia abajo
+const BASC = { 1: [600, 260, 10], 2: [700, 120, 16], 3: [640, 160, 14] };
+function basculante(src, [yF, ancho, radio]) {
+  const pad = 3 * radio, cw = src.width, ch = src.height, ks = cw / W;
+  const b = document.createElement('canvas'); b.width = cw + 2 * pad; b.height = ch + 2 * pad;
+  const gb = b.getContext('2d');
+  gb.drawImage(src, 0, 0, b.width, b.height); gb.drawImage(src, pad, pad);
+  const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+  const gc = c.getContext('2d');
+  gc.filter = `blur(${radio * ks}px)`; gc.drawImage(b, -pad, -pad); gc.filter = 'none';
+  gc.globalCompositeOperation = 'destination-in';
+  const gr = gc.createLinearGradient(0, 0, 0, ch);
+  const f = (y) => cl(y / H);
+  gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(f(yF - ancho - 260), 'rgba(0,0,0,0.85)');
+  gr.addColorStop(f(yF - ancho), 'rgba(0,0,0,0)'); gr.addColorStop(f(yF + ancho), 'rgba(0,0,0,0)');
+  gr.addColorStop(f(yF + ancho + 260), 'rgba(0,0,0,0.85)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
+  gc.fillStyle = gr; gc.fillRect(0, 0, cw, ch);
+  const o = document.createElement('canvas'); o.width = cw; o.height = ch;
+  const go = o.getContext('2d'); go.drawImage(src, 0, 0); go.drawImage(c, 0, 0);
+  return o;
+}
+function cacheNivel(k) {
+  if (CACHE[k]) return CACHE[k];
+  const tf = k === 0 ? SALTO[0][0] : SALTO[k - 1][1];
+  P.fotograma(tf); P.limpiar();
+  NIVEL[k](tf);
+  P.render(1000 + k);
+  const f = foto();
+  return (CACHE[k] = BASC[k] ? basculante(f, BASC[k]) : f);
+}
+function dibujar(t) {
+  const ts = Math.min(t, QUIETO);
+  let k = -1, u = 0, n = 0;
+  SALTO.forEach(([a, b], i) => { if (ts >= b) n = i + 1; if (ts >= a && ts < b) { k = i; u = (ts - a) / (b - a); } });
+  ajustarCapa();
+  const nf = Math.floor(ts * 12 + 1e-6);
+  if (k < 0 && (n === 0 || n === 4)) {
+    // persona y tronco: render completo (se mueven cosas en el decorado y proyectan sombra)
+    P.fotograma(ts); P.limpiar();
+    NIVEL[n](ts);
+    const S = atomo(ts); regla(ts);
+    P.render(nf);
+    g.drawImage(lienzoGL, 0, 0, W, H);
+    brillo2D(S);
+    POST.aplicar(g, nf);
+    return;
+  }
+  if (k < 0) {
+    // decorado quieto (mano, piel, pelo): su foto y, encima, Atom, la regla y el marcador
+    P.fotograma(ts); P.limpiar();
+    atomo(ts); regla(ts);
+    P.render(nf, { fondo: false });
+    g.drawImage(CACHE[n], 0, 0, W, H);
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lienzoGL, 0, 0); g.restore();
+    const fl = azar(nf, 3) - 0.5;      // parpadeo de la exposición, como el resto de fotogramas
+    g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
+    POST.aplicar(g, nf);
+    return;
+  }
+  // salto k: fotos de los dos decorados, compuestas en 2D; Atom, regla y marcador encima
+  const viejo = cacheNivel(k), nuevo = cacheNivel(k + 1);
+  P.fotograma(ts); P.limpiar();
+  atomo(ts); regla(ts);
+  P.render(Math.floor(ts * 12 + 1e-6), { fondo: false });
+  const F = FOCO[k];
+  const pu = eio(cl(u / 0.8)), px = mix(F[0], W / 2, pu), py = mix(F[1], H / 2, pu);
+  // golpe seco: la foto vieja se hunde hacia el punto del zoom y la nueva llega y frena en firme
+  const sO = Math.pow(10, 0.5 * eio(cl(u / 0.7))), sN = mix(0.8, 1, seco(prog(u, 0.05, 0.85)));
+  const r = 1500 * eio(prog(u, 0, 0.62));
+  const lejos = Math.max(Math.hypot(px, py), Math.hypot(W - px, py), Math.hypot(px, H - py), Math.hypot(W - px, H - py));
+  g.save();
+  if (r < lejos) {
+    g.save(); g.translate(px, py); g.scale(sO, sO); g.translate(-F[0], -F[1]); g.drawImage(viejo, 0, 0, W, H); g.restore();
+    if (r > 2) {
+      // mirilla: el círculo, recortado al marco de la foto nueva (que llega casi a tamaño real)
+      const rx0 = px - W / 2 * sN, ry0 = py - H / 2 * sN, rw = W * sN, rh = H * sN;
+      g.save(); g.beginPath(); g.rect(rx0, ry0, rw, rh); g.clip();
+      g.shadowColor = 'rgba(0,0,0,0.75)'; g.shadowBlur = 46; g.fillStyle = '#0b0c0f';
+      g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.fill(); g.restore();
+      g.save(); g.beginPath(); g.rect(rx0, ry0, rw, rh); g.clip();
+      g.save(); g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.clip();
+      g.translate(px, py); g.scale(sN, sN); g.translate(-W / 2, -H / 2); g.drawImage(nuevo, 0, 0, W, H);
+      g.restore();
+      // borde de lente: un filo oscuro y blando, sin aro de color
+      g.strokeStyle = 'rgba(0,0,0,0.45)'; g.lineWidth = 10; g.filter = 'blur(4px)'; g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.stroke(); g.filter = 'none';
+      g.restore();
+    }
+  } else {
+    g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+    g.translate(px, py); g.scale(sN, sN); g.translate(-W / 2, -H / 2); g.drawImage(nuevo, 0, 0, W, H);
+  }
+  g.restore();
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lienzoGL, 0, 0); g.restore();
+  POST.aplicar(g, nf);
+}
+// las fotos de los decorados se hacen al cargar (así ningún fotograma paga su render)
+for (let k = 0; k < 5; k++) cacheNivel(k);
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

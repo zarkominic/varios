@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ideas · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-IDEAS (frase 23). Hipócrates junto a un enfermo tumbado: le toma el pulso; en el cielo, un rayo de los dioses que se
+// tacha. Luego, bajo un pórtico de columnas, filósofos que discuten señalando al cielo y al suelo.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-ideas');
+const { PALA, PR, ELENCO, tramo } = R;
+const m0 = M('ideas', 0.5), dur = E.duracion ?? 10, t1 = m0 + (dur - m0) * 0.5;
+const medico = (t) => {
+  R.cieloR(t, 'dia', { hor: 130 }); R.suelo(130, PALA.MARMOL, { losas: true });
+  R.rect(80, 150, 170, 156, PR.MADERA[2]); R.rect(82, 156, 86, 166, PR.MADERA[1]); R.rect(164, 156, 168, 166, PR.MADERA[1]);
+  R.personaje(124, 150, 26, { ...ELENCO.griego, banda: null, t, pose: 'sentado', ceño: true, sombra: false });
+  R.personaje(196, 168, 28, { ...ELENCO.platon, chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, falda: PALA.BLANCO, banda: PALA.VERDE, pelo: PALA.PELO_BLANCO, t, dir: -1, pose: 'ofrece' });
+  const p = tramo(t, m0 + 2, m0 + 3);
+  R.icono('rayo', 220, 30, PALA.AMARILLO[3], PALA.CONTORNO, 2);
+  if (p > 0) for (let k = -1; k <= 1; k++) { R.linea(214 + k, 26, 214 + 22 * p + k, 26 + 20 * p, PALA.ROJO[2]); R.linea(236 + k, 26, 236 - 22 * p + k, 26 + 20 * p, PALA.ROJO[2]); }
+};
+const portico = (t) => {
+  R.cieloR(t, 'tarde', { hor: 150, sol: [280, 120, 10] });
+  R.rect(0, 30, R.W, 38, PALA.MARMOL[3]); R.rect(0, 38, R.W, 40, PALA.MARMOL[1]);
+  for (let k = 0; k < 9; k++) R.columna(18 + k * 36, 150, 112, { w: 4 });
+  R.suelo(150, PALA.MARMOL, { losas: true });
+  [[ELENCO.platon, 100, 'arriba'], [ELENCO.aristoteles, 150, 'senala'], [{ ...ELENCO.griego, pelo: PALA.PELO_BLANCO }, 210, 'brazos']].forEach(([g, x, p], k) => R.personaje(x, 174, 28, { ...g, t: t + k, dir: k === 2 ? -1 : 1, pose: Math.sin(t * 2 + k) > 0 ? p : 'pie', brazoD: p === 'arriba' && Math.sin(t * 2 + k) > 0 ? 'arriba' : 'abajo', habla: 1 }));
+};
+rodar(E, R, [[0, medico], [t1, portico]], { año: -430 });
+</script>
+</body>
+</html>

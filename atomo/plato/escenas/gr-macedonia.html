@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Macedonia · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-MACEDONIA (frases 33–34). Cartela «338». Mapa del Egeo: las ciudades griegas se apagan (agotadas) y Macedonia, al
+// norte, se colorea y crece. Luego la falange macedonia: filas de soldados con lanzas de seis metros que avanzan como un
+// erizo; «6» en la caja; los hoplitas griegos retroceden.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-macedonia');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { mac: M('macedonia', 1.5), fil: M('filipo', 10) };
+const mapa = (t) => {
+  const v = R.VISTAS.egeo, osc = tramo(t, m.mac + 1, m.mac + 3);
+  R.mapa(t, { vista: v, zonas: [{ pol: R.ZONAS_MAPA.macedonia, color: PALA.ROJO, p: tramo(t, m.mac + 3, m.mac + 6), centro: [22.5, 40.8], radio: 3 }] });
+  ['atenas', 'esparta', 'corinto', 'tebas', 'delos', 'olimpia'].forEach((c, k) => { const [x, y] = R.lugar(c, undefined, v); R.disco(x, y, 2, osc > 0.5 ? PALA.NEGRO[2] : PALA.AZUL[2]); });
+  R.punto(...R.lugar('pela', undefined, v), t, PALA.ROJO, 2);
+};
+const falange = (t) => {
+  R.cieloR(t, 'tarde', { hor: 120, sol: [280, 110, 10] }); R.colinas(120, { amp: 6, luz: 1.4 }); R.suelo(126, PR.TIERRA, { luz: 2 });
+  const av = tramo(t, m.fil + 1, m.fil + 7);
+  for (let f = 0; f < 4; f++) for (let k = 0; k < 7; k++) R.personaje(lerp(-60, 60, av) + k * 16 + f * 8, 140 + f * 10, 20, { ...ELENCO.macedonio, t: t + k + f, anda: av < 1 ? t * 6 : null, sombra: false });
+  for (let k = 0; k < 5; k++) R.personaje(lerp(210, 270, av) + k * 18, 150 + (k & 1) * 12, 22, { ...ELENCO.hoplita, t: t + k, dir: av > 0.5 ? 1 : -1, anda: av > 0.4 && av < 1 ? t * 7 : null, ceño: true });
+};
+rodar(E, R, [[0, mapa], [m.fil - 0.2, falange]], { cartela: '338', año: (t) => (t < m.fil ? -350 : -338), caja: (t, e) => R.caja(t, t > m.fil + 2 ? tramo(t, m.fil + 2, m.fil + 2.4) : 0, (x, y) => R.numero('6', x + 12, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

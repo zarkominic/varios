@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gana · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-GANA (frase 16). Sobre los escudos caídos, una fila nueva de reclutas se levanta y avanza. Luego el mapa: el rojo
+// se extiende alrededor del Mediterráneo (después de Cartago, nadie puede pararla).
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-gana');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('gana', 0.5), dur = E.duracion ?? 12, t1 = m0 + (dur - m0) * 0.5;
+const año = (t) => Math.round(t < t1 ? -216 : lerp(-216, -133, tramo(t, t1, dur - 0.5)));
+const reclutas = (t) => {
+  R.cieloR(t, 'tarde', { sol: [250, 100, 10] }); R.colinas(110, { amp: 6, luz: 1.4, rampa: PR.TIERRA }); R.suelo(110, PR.TIERRA, { luz: 1.8 });
+  for (let fila = 0; fila < 4; fila++) for (let k = 0; k < 12; k++) { const x = 26 + k * 24 + (fila & 1) * 12, y = 120 + fila * 10; R.disco(x, y, 2, PALA.ROJO[1]); R.rect(x - 4, y - 1, x + 4, y + 1, PALA.ROJO[2]); }
+  const p = tramo(t, m0 + 0.6, m0 + 2), av = tramo(t, m0 + 2.4, t1);
+  for (let k = 0; k < 9; k++) R.personaje(26 + k * 34 + av * 12, lerp(196, 174, p) - av * 6, 28, { ...ELENCO.legionario, t: t + k, objeto: 'gladio', anda: av > 0 && av < 1 ? t * 7 : null, ceño: true });
+};
+const mapa = (t) => R.mapaAño(t, año(t), { colorImperio: PALA.ROJO });
+rodar(E, R, [[0, reclutas], [t1, mapa, 'iris']], { año });
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nombre · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-NOMBRE (frases 31–33). D: los policías miran al cielo, que se cubre de nubes negras. Un tendero cuelga una estrella
+// dorada en el escaparate («el gran viernes»); el policía niega con la cabeza. E: un libro de cuentas pasa de números
+// rojos a negros; «1980».
+import { preparar, rodar, ciudad, C, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-nombre');
+const { tramo } = R;
+const m = { ne: M('negro', 0.5), gr: M('gran', 6), cu: M('cuentas', 11) };
+const negro = (t) => { const u = t - m.ne; ciudad(R, t, { epoca: '1950', coches: 4, atasco: true, nubesNegras: tramo(u, 0.3, 2.5) }); R.actor(EL.policia, 130, 145, t, { sorpresa: u > 1 }); R.actor(EL.policia, 170, 145, t + 1, { dir: -1, enfado: u > 1.5 }); };
+const gran = (t) => {
+  const u = t - m.gr;
+  ciudad(R, t, { epoca: '1950', estrella: u > 1 });
+  const et = tramo(u, 0, 0.5); R.actor(EL.senor30, Math.round(R.lerp(60, 126, et)), 145, t, { anda: et < 1, sonrisa: true, dedo: u > 0.5 && u < 2 });
+  R.actor(EL.policia, 200, 145, t, { dir: Math.sin(t * 8) > 0 && u > 2 ? 1 : -1, triste: u > 2 });
+};
+const cuentas = (t) => {
+  const u = t - m.cu, f = tramo(u, 0.8, 2.6);
+  R.rect(0, 0, 319, 179, R.hex('#3a2a24'));
+  R.rect(60, 30, 260, 150, C.k); R.rect(62, 32, 158, 148, C.papel); R.rect(162, 32, 258, 148, C.papel); R.rect(158, 32, 162, 148, C.papelS);
+  for (let y = 44; y < 146; y += 10) { R.rect(66, y, 154, y, C.papelS); R.rect(166, y, 254, y, C.papelS); }
+  const cifras = ['1200', '850', '2300', '475', '1960', '640', '3100', '980'];
+  cifras.forEach((n, k) => { const rojo = f * cifras.length <= k; R.numero(n, k < 4 ? 110 : 210, 54 + (k % 4) * 24, { centro: true, color: rojo ? C.rojo : C.k }); });
+  if (u > 2.8) R.numero('1980', 160, 170, { centro: true, color: C.oroL, tam: 16 });
+};
+rodar(E, R, [[0, negro], [m.gr - 0.2, gran], [m.cu - 0.2, cuentas]], { cartela: '1961', año: (t) => (t < m.cu ? 1961 : 1981) });
+</script>
+</body>
+</html>

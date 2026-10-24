@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Roma · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-ROMA (frase 39). Cartela «146». Legionarios romanos se llevan en carros estatuas griegas de mármol; luego, en Roma,
+// romanos con toga leen rollos griegos delante de un templo copiado de los griegos, con una estatua de Zeus/Júpiter.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-roma');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('roma', 1.5), dur = E.duracion ?? 16, t1 = m0 + (dur - m0) * 0.45;
+const marmol = { piel: PALA.MARMOL, pelo: PALA.MARMOL, chaqueta: PALA.MARMOL, camisa: PALA.MARMOL, falda: PALA.MARMOL, pantalon: PALA.MARMOL, botas: PALA.MARMOL, faja: PALA.MARMOL, banda: PALA.MARMOL, capa: PALA.MARMOL, antebrazo: PALA.MARMOL, colorLaurel: PALA.MARMOL, luz: undefined, sombra: false, escudo: null };
+const saqueo = (t) => {
+  R.cieloR(t, 'tarde', { hor: 130, sol: [60, 120, 10] }); R.suelo(130, PR.TIERRA, { luz: 2 });
+  for (let k = 0; k < 2; k++) {
+    const x = ((t - m0) * 18 + k * 160) % 420 - 60;
+    R.rect(x - 22, 160, x + 22, 166, PR.MADERA[2]); R.disco(x - 14, 168, 4, PR.MADERA[0]); R.disco(x + 14, 168, 4, PR.MADERA[0]);
+    R.personaje(x, 160, 28, { ...(k ? ELENCO.zeus : ELENCO.griego), ...marmol, t: 0, pose: k ? 'senala' : 'pie', objeto: undefined });
+    R.personaje(x + 32, 176, 26, { ...ELENCO.legionario, t: t + k, anda: t * 7, objeto: 'gladio' });
+  }
+};
+const copia = (t) => {
+  R.cieloR(t, 'dia', { hor: 140 }); R.templo(220, 140, 110, 54, { n: 8 }); R.suelo(140, PALA.MARMOL, { losas: true });
+  R.personaje(220, 136, 30, { ...ELENCO.zeus, ...marmol, t: 0 });
+  for (let k = 0; k < 3; k++) R.personaje(50 + k * 40, 172, 26, { ...ELENCO.senador, pelo: [PALA.PELO_NEGRO, PALA.PELO_CASTANO, PALA.PELO_BLANCO][k], t: t + k, objeto: 'pergamino', pose: 'ofrece', sonrisa: true });
+};
+rodar(E, R, [[0, saqueo], [t1, copia]], { cartela: '146', año: -146 });
+</script>
+</body>
+</html>

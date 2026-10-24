@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mundo · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-MUNDO (frase 36). Mapa del Atlántico: puntos de oferta que se encienden en EE. UU., luego en Europa y hacia el sur.
+import { preparar, rodar, mapaAg } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-mundo');
+const m0 = M('mundo', 0.5), L = E.duracion - m0;
+rodar(E, R, [[0, (t) => mapaAg(R, t, { ofertas: R.tramo(t - m0, 0.1 * L, 0.7 * L) })]], { año: 2015 });
+</script>
+</body>
+</html>

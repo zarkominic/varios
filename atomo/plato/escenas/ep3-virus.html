@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-virus · salto −7: el virus</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-virus (frases 25–28, cartela «−7»). Plastilina adulta + kits/ep03-virus.js (que crea esta escena:
+// virus, onda de luz, moneda y guante; hoja de prueba en escenas/ep03-virus-hoja.html) + el microscopio de colegio de
+// kits/ep03-instrumentos.js. El glóbulo rojo y el vaso son piezas propias de la página (GLOBULO, VASO): el kit del lote
+// que los tendría, ep03-sangre.js (de ep3-celulas), todavía no existe. Los guantes van en arcilla aunque el Visual los
+// marca en papel (cambio de estilo pendiente de firma del dueño, ver escenas.json).
+//  0          el vaso sanguíneo abierto a lo largo (un medio tubo de arcilla, de punta a punta del plano) con glóbulos
+//             rojos que pasan de izquierda a derecha y, al fondo del vaso, en el centro, una mota diminuta desenfocada;
+//             regla en 10⁻⁵; Atom abajo a la izquierda; la cartela «−7» encima (quieta hasta 0,75 s, fuera a 1,2 s)
+//  virus      MIRILLA (el salto): el vaso se hunde hacia la mota y se abre un círculo con el plano general nuevo: un
+//             glóbulo rojo enorme (~1.150 px) y, a su derecha, el virus setenta veces más pequeño (~16 px, con un halo
+//             suave), que se enfoca; la regla corre de 10⁻⁵ a 10⁻⁷ (completa a 0,9 s de la marca). Empuje lento y,
+//             pasada la mitad de la frase, un empuje corto y CORTE AL DETALLE: el virus de cerca (~240 px, nítido, con
+//             sus espículas), junto al borde del glóbulo, que llena la esquina de abajo a la izquierda como una pared roja
+//  onda       CORTE (0,3 s antes): el microscopio de colegio en el plató, de tres cuartos, con la rueda de enfoque girando
+//             sin parar; desde el ocular se abre un visor (aro de latón) con lo que se ve: el virus como una mancha
+//             borrosa que no se aclara por mucho que gire la rueda. A MITAD DE FRASE, corte al virus de cerca, nítido,
+//             en el centro del plató: una onda de luz de alambre (larga, ondulante, cinco veces más larga que el virus)
+//             entra por la izquierda y pasa por encima; al pasar, el virus se queda borroso, sin forma
+//  guantes    CORTE (0,3 s antes): plano detalle de una moneda de arcilla con el busto de perfil en relieve, tanteada por
+//             dos guantes de cocina acolchados (las manos de la persona, con las mangas de su jersey gris, que salen por
+//             abajo): el derecho frota la cara de la moneda, el izquierdo la sujeta por el canto y da toquecitos; un «?»
+//  luzserinde CORTE (0,3 s antes): vuelve el virus, pequeño y borroso en el centro (el fotograma 0 de ep3-adn); la cola de
+//             la onda pasa por encima y la luz se apaga al acercarse al borde derecho del plano; queda el virus sin forma
+// Todo se compone en 2D (crearPost al final). Las composiciones quietas son fotos (el vaso, los glóbulos que pasan, el
+// general y el detalle del virus, el fondo del microscopio, el plató vacío, el virus nítido y borroso, la onda); la
+// primera al cargar y las demás en fotogramas baratos poco antes de hacer falta (ver PREPARAR). En cada fotograma va vivo
+// solo lo que se mueve: Atom siempre; la cartela al principio; la regla mientras corre la escala (después, una capa fija
+// encima de todo); el microscopio (por la rueda); los dos guantes y el «?» (la moneda es una foto: los guantes le
+// dejan su sombra en 2D, sombraViva). La onda que viaja es su foto
+// desplazada en 2D (una onda que corre es la misma forma movida), con su brillo.
+//
+// COSTE (medido con la máquina a carga 27 en 4 núcleos, en s de CPU del navegador sumando sus procesos): carga 28,8
+// (56,7 s reales con esa carga); fotogramas: vaso con la cartela ~2,5 · la regla corriendo en la mirilla ~6,8 · general y
+// detalle ~1 · microscopio ~4,7 · onda ~2,2 · guantes ~5,3 · vuelta ~1,3–1,9. Los fotogramas que hacen una foto de
+// PREPARAR, uno cada vez, ~6–10.
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28, desenfoque 44, sin recorte)
+//  · Fotograma 0 (ep3-medula termina así; window.__inicio lo da en números): el plató con el VASO (medio tubo abierto
+//    hacia la cámara, eje en x, pos P.punto(960, 520, −1,2), radio ≈ 330 px, largo de borde a borde), siete glóbulos
+//    (GLOBULO, ~140–380 px; los de delante, desenfocados) en CARRILES que corren hacia la derecha, y la mota: este virus
+//    a P.punto(960, 540, −2,6), de ~22 px, con un círculo de blur(3,5 px) de 40 px de radio; regla: P.regla con e −5,
+//    ya 0,375, actual −5, marca −5, lupa 0,5, pos P.punto(1668, 528, 0,4), escala 1,42, rot [0, −0,12, 0]; Atom en
+//    P.punto(230, 780, 1) con la escala del presentador (órbitas de 180 px), yaw −0,15, pitch 0,06.
+//  · Último fotograma (= el 0 de ep3-adn): el plató vacío y, en el centro (960, 540), el virus de kits/ep03-virus.js
+//    (como la mota de ep3-adn: bolita de 0,4 con púas a 0,55, de 76 px de punta a punta, a z = 2, rot [0,3, 0,5, 0])
+//    desenfocado con un círculo de blur(5 px) de 120 px de radio; regla: e −7, ya 0,375, actual −7, marca −7, lupa 0,5;
+//    Atom quieto en su sitio de presentador con energía 0 y su reloj en 0 (yaw −0,15: el mismo Atom que ep3-adn en t = 0).
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cartela, cl, mix, prog, ss, eio, eoc, eic, eob, azar, calma, brote } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposVirus, uniformesVirus, virus, onda, moneda, guante, foto, VIRUS_MEDIDAS } from '/atomo/plato/kits/ep03-virus.js';
+import { tiposInstrumentos, uniformesInstrumentos, ponerInstrumentos, instrumento } from '/atomo/plato/kits/ep03-instrumentos.js';
+
+const E = await escena('ep3-virus', 'ep03');
+const D = E.duracion;
+const M = (k) => E.marca(k);
+const m = { v: M('virus'), vF: M('virus_fin'), o: M('onda'), oF: M('onda_fin'), g: M('guantes'), gF: M('guantes_fin'), l: M('luzserinde'), lF: M('luzserinde_fin') };
+window.__carga = [['inicio', Math.round(performance.now())]];
+const W = 1920, H = 1080;
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+const FIN = D - 0.45;              // todo quieto desde aquí (los últimos 0,3 s, además, repiten fotograma)
+
+// ---------------------------------------------------------------- tiempos (todos salen de las marcas)
+const T = {
+  s1: [m.v - 0.3, m.v + 0.9],                               // mirilla: del vaso al general (glóbulo y virus)
+  regla: [m.v - 0.2, m.v + 0.9],                            // la escala corre de 10⁻⁵ a 10⁻⁷
+  foco: [m.v + 0.2, m.v + 1.1],                             // el virus se enfoca
+  det: m.v + 0.56 * (m.vF - m.v),                           // corte al detalle del virus
+  micro: m.o - 0.3,                                         // corte al microscopio
+  visor: [m.o - 0.12, m.o + 0.38],                          // el visor se abre desde el ocular
+  mitad: m.o + 0.5 * (m.oF - m.o),                          // «a mitad de frase»: la onda
+  guantes: m.g - 0.3,                                       // corte a los guantes
+  pregunta: m.g + 0.62 * (m.gF - m.g),                      // el «?»
+  vuelta: m.l - 0.3,                                        // vuelve el virus
+};
+T.empuje = [T.det - 0.32, T.det];                           // empuje corto antes del corte al detalle
+T.ondaC = T.mitad - 0.25;                                   // corte al virus con la onda
+function plano(t) {
+  if (t < T.s1[0]) return 'A';
+  if (t < T.s1[1]) return 'S1';
+  if (t < T.empuje[0]) return 'B';
+  if (t < T.empuje[1]) return 'BP';
+  if (t < T.micro) return 'B2';
+  if (t < T.ondaC) return 'C';
+  if (t < T.guantes) return 'C2';
+  if (t < T.vuelta) return 'G';
+  return 'F';
+}
+
+// ---------------------------------------------------------------- piezas propias de la página
+// el glóbulo rojo (lo que daría ep03-sangre.js): disco bicóncavo de radio 1 con la cara hacia +z, de arcilla roja
+// translúcida, el borde grueso (0,6) y el centro hundido (~0,3)
+const GLOBULO = { radio: 1.04, glifos: [], glsl: /* glsl */`
+float pz_globulo(vec3 q, vec4 T, out float m) {
+  m = 0.0;
+  float r = length(q.xy);
+  float toro = length(vec2(r - 0.68, q.z)) - 0.3;
+  float disco = length(vec2(max(r - 0.66, 0.0), q.z)) - 0.12;
+  return smin(toro, disco, 0.24) + 0.006 * sin(q.x * 11.0 + 1.0) * sin(q.y * 9.0);
+}
+float pzc_globulo(vec3 q, vec4 T) { float r = length(q.xy); return min(length(vec2(r - 0.68, q.z)) - 0.26, length(vec2(max(r - 0.66, 0.0), q.z)) - 0.09); }
+vec3 pzcol_globulo(vec3 q, vec4 T, float m) {
+  float r = length(q.xy);
+  float hoyo = 1.0 - smoothstep(0.25, 0.62, r);
+  gTr = 0.55;
+  gG = vec3(sin(q.y * 31.0), sin(q.x * 27.0 + 1.3), 0.0) * 0.02;
+  return mix(vec3(0.47, 0.075, 0.045), vec3(0.36, 0.05, 0.035), hoyo) * (0.92 + 0.14 * vnoise(q * 6.0));
+}
+` };
+// el vaso sanguíneo abierto a lo largo: medio tubo (la mitad de atrás, z < 0) de radio 1 y pared de 0,18, eje en x,
+// de x −3,2 a 3,2; por dentro rosado, por fuera rojo oscuro y en el corte, las tres capas de la pared
+const VASO = { radio: 3.4, glifos: [], glsl: /* glsl */`
+float pz_vaso(vec3 q, vec4 T, out float m) {
+  float rr = length(q.yz);
+  float d = abs(rr - 1.0) - 0.09;
+  d = smax(d, q.z + 0.02, 0.03);
+  d = smax(d, abs(q.x) - 3.2, 0.05);
+  m = q.z > -0.07 ? 1.0 : (rr < 1.0 ? 0.0 : 2.0);
+  return d + 0.008 * sin(q.x * 7.0 + 2.0 * q.y) * sin(q.y * 5.0);
+}
+float pzc_vaso(vec3 q, vec4 T) { float rr = length(q.yz); return max(max(abs(rr - 1.0) - 0.06, q.z + 0.05), abs(q.x) - 3.1); }
+vec3 pzcol_vaso(vec3 q, vec4 T, float m) {
+  float v = 0.92 + 0.14 * vnoise(q * 5.0);
+  gTr = 0.12;
+  float rr = length(q.yz);
+  if (m > 1.5) return vec3(0.30, 0.075, 0.05) * v;
+  if (m > 0.5) {
+    // el corte: íntima clara, media muscular roja, adventicia crema
+    if (rr < 0.95) return vec3(0.48, 0.28, 0.22) * v;
+    if (rr < 1.04) return vec3(0.40, 0.12, 0.08) * v;
+    return vec3(0.50, 0.40, 0.29) * v;
+  }
+  gG = vec3(0.0, sin(q.x * 9.0 + q.y * 3.0), cos(q.x * 6.0)) * 0.03;
+  return vec3(0.25, 0.085, 0.065) * v;
+}
+` };
+// el aro de latón del visor del microscopio (radio 1, cara hacia +z)
+const ARO = { radio: 1.1, glifos: [], glsl: /* glsl */`
+float pz_aro(vec3 q, vec4 T, out float m) { m = 0.0; return length(vec2(length(q.xy) - 1.0, q.z)) - 0.075; }
+float pzc_aro(vec3 q, vec4 T) { return length(vec2(length(q.xy) - 1.0, q.z)) - 0.06; }
+vec3 pzcol_aro(vec3 q, vec4 T, float m) { gBri = 3.0; return C_BRASS * (0.93 + 0.12 * vnoise(q * 12.0)); }
+` };
+
+const PIEZAS = ['reglaA', 'flecha', 'vaso', 'globulo', 'virus', 'instrumento', 'aro', 'onda', 'moneda', 'guante', 'guante', 'glifo:?'];
+const I = { REG: 0, FLE: 1, VASO: 2, GLO: 3, VIR: 4, MIC: 5, ARO: 6, ONDA: 7, MON: 8, GD: 9, GI: 10, PREG: 11 };
+const UV = uniformesVirus(), UI = uniformesInstrumentos();
+const P = await crearPlato({
+  piezas: PIEZAS, mano: false, alfa: true, post: false, cartela: E.cartela,
+  sombraFondo: ['p2', 'p3', 'p4', 'p5', 'p8', 'p9', 'p10'],
+  sombras: { p8: ['p9', 'p10'] },
+  tiposExtra: { ...tiposVirus(), ...tiposInstrumentos({ variantes: ['colegio'] }), globulo: GLOBULO, vaso: VASO, aro: ARO },
+  uniformes: { ...UV, ...UI },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+window.__carga.push(['plato', Math.round(performance.now())]);
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const RP = VIRUS_MEDIDAS.PUAS;
+// escala del virus para que mida dpx de punta a punta en (sx, sy, z)
+const escVirus = (sx, sy, z, dpx) => dpx / (2 * RP * pxU(en(sx, sy, z)));
+
+// ---------------------------------------------------------------- puesta en escena (mundo)
+const REG = en(1668, 528, 0.4), E_REG = 1.42, YA = 0.375;
+const A_Z = 1.0, ATOMO_PRES = [230, 780], SITIO = en(...ATOMO_PRES, A_Z);
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(SITIO));
+// A: el vaso, la mota y los glóbulos que pasan
+const VASO_A = (() => { const pos = en(960, 520, -1.2); return { pos, escala: 330 / pxU(pos), rot: [-0.06, 0, 0], sq: [1.25, 1, 1] }; })();
+const MOTA = { pos: en(960, 540, -2.6), escala: escVirus(960, 540, -2.6, 22), rot: [0.3, 0.5, 0] };
+const SPR_R = 150;                                    // radio de cada recorte de glóbulo (px), con el glóbulo de 240 px
+const GLO_SPR = { pos: en(960, 540, 0), rot: [[0.95, 0.35, 0.1], [0.35, 1.15, 0.4], [0.25, -0.2, 0.05]] };
+GLO_SPR.escala = 120 / pxU(GLO_SPR.pos);
+// carriles: y, tamaño (× 240 px), x en t = 0, velocidad (px/s), recorte, desenfoque (px), oscuro (0…1: más al fondo)
+const CARRILES = [
+  { y: 335, s: 0.72, x0: 1180, v: 120, k: 1, blur: 0, os: 0.3 },
+  { y: 640, s: 0.66, x0: 1400, v: 105, k: 0, blur: 0, os: 0.32 },
+  { y: 300, s: 0.98, x0: 330, v: 150, k: 0, blur: 0, os: 0 },
+  { y: 720, s: 1.04, x0: 600, v: 160, k: 2, blur: 0, os: 0 },
+  { y: 470, s: 0.58, x0: -150, v: 110, k: 1, blur: 0, os: 0.38 },
+  { y: 880, s: 1.6, x0: 1080, v: 230, k: 1, blur: 7, os: 0 },
+  { y: 150, s: 1.45, x0: -180, v: 210, k: 2, blur: 6, os: 0 },
+];
+// B: el general (un glóbulo enorme y el virus 70 veces más pequeño, a su derecha)
+const GLO_B = (() => { const pos = en(680, 470, -0.6); return { pos, escala: 500 / pxU(pos), rot: [-0.95, 0.3, 0.1] }; })();
+const VIR_B_PX = [1252, 412];
+const VIR_B = { pos: en(...VIR_B_PX, 0.4), rot: [0.3, 0.5, 0] };
+VIR_B.escala = (2 * 500 / 70) / (2 * RP * pxU(VIR_B.pos));
+// B2: el detalle (el virus nítido de cerca y el borde del glóbulo, enorme, abajo a la izquierda)
+const VIR_B2_PX = [1010, 430];
+const VIR_B2 = { pos: en(...VIR_B2_PX, 2.0), rot: [0.3, 0.5, 0], escala: escVirus(...VIR_B2_PX, 2.0, 240) };
+const GLO_B2 = (() => { const pos = en(-520, 1130, -1.6); return { pos, escala: 1450 / pxU(pos) / 0.98, rot: [0.18, 0.22, 0] }; })();
+// C: el microscopio de colegio de tres cuartos, en el suelo del plató, y el visor
+const MIC = (() => {
+  const z = 1.0, alto = 700, p0 = en(640, 540, z);
+  const escala = alto / (1.93 * pxU(p0));
+  return { variante: 'colegio', pos: [p0[0], 0.99 * escala, z], escala, rot: [0.12, -0.6, 0] };
+})();
+const VISOR = { c: [1110, 400], r: 240 };
+const ARO_C = (() => { const pos = en(...VISOR.c, 2.5); return { pos, escala: VISOR.r / pxU(pos), rot: [0, 0, 0] }; })();
+VISOR.ri = VISOR.r * (1 - 0.075) - 2;
+// C2: el virus de cerca en el centro del plató; la onda de luz por delante
+const VIR_C2_PX = 150;
+const VIR_C2 = { pos: en(960, 540, 2.0), rot: [0.3, 0.5, 0], escala: escVirus(960, 540, 2.0, VIR_C2_PX) };
+const LAMBDA = 5 * VIR_C2_PX;                          // la onda de luz visible, ~5 veces el virus
+const ONDA_C2 = (() => { const pos = en(960, 540, 2.6); return { pos, escala: LAMBDA / (2 * pxU(pos)), rot: [0, 0, 0], lambda: 2, amplitud: 0.33, largo: 2.12, fase: 0 }; })();
+const ONDA_AMP = 0.33 * LAMBDA / 2;
+// F (= el 0 de ep3-adn): el virus pequeño y borroso en el centro
+const VIR_F = { pos: en(960, 540, 2), rot: [0.3, 0.5, 0], escala: 38 / (RP * pxU(en(960, 540, 2))) };
+// G: la moneda y los dos guantes
+const MON = (() => { const pos = en(930, 425, 3.0); return { pos, escala: 182 / pxU(pos), rot: [-0.06, 0.2, 0.04] }; })();
+const G_ESC = (() => 1.7 * 175 / pxU(en(1200, 800, 3.4)))();
+const PREG = { pos: en(1268, 236, 3.2), escala: 0, rot: [0, -0.15, 0.08] };
+PREG.escala = 120 / pxU(PREG.pos);
+
+// ---------------------------------------------------------------- relojes
+const tz = (ts) => calma(ts, D) - calma(D, D);          // el reloj de Atom: 0 en el último fotograma (como ep3-adn en t = 0)
+
+// ---------------------------------------------------------------- capa 2D
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const lienzo = () => { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; return c; };
+const KK = () => lienzoGL.width / W;
+// un trozo de lo que hay en el lienzo de WebGL (en px de diseño)
+function recorte(x, y, w, h, src = lienzoGL) {
+  const k = KK(), c = document.createElement('canvas');
+  c.width = Math.ceil(w * k); c.height = Math.ceil(h * k);
+  c.getContext('2d').drawImage(src, x * k, y * k, w * k, h * k, 0, 0, c.width, c.height);
+  return c;
+}
+// la misma foto con un círculo desenfocado
+function desenfocar(f, cx, cy, r, b) {
+  const c = lienzo(), gc = c.getContext('2d'), k = KK();
+  gc.drawImage(f, 0, 0);
+  gc.save(); gc.beginPath(); gc.arc(cx * k, cy * k, r * k, 0, Math.PI * 2); gc.clip();
+  gc.filter = `blur(${b * k}px)`; gc.drawImage(f, 0, 0); gc.restore();
+  return c;
+}
+
+// ---------------------------------------------------------------- Atom y la regla
+function atomo(ts) {
+  const z = tz(ts);
+  P.atomo({
+    pos: [SITIO[0], SITIO[1] + 0.006 * Math.sin(z * 1.1), SITIO[2]], escala: A_ESC,
+    yaw: -0.15 + 0.08 * Math.sin(z * 0.5), pitch: 0.06,
+    energia: ts < FIN ? E.energia(ts) : 0, ts: z,
+    // sobre el rojo del glóbulo (detalle), el velo oscuro de su halo algo más fuerte
+  });
+}
+const REGLA_QUIETA = T.regla[1] + 0.2;
+function reglaEn(e, toque = false) {
+  return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e, ya: YA, actual: Math.round(e), marca: e, lupa: 0.5, toque });
+}
+function reglaViva(ts) {
+  const u = eio(prog(ts, T.regla[0], T.regla[1]));
+  reglaEn(-5 - 2 * u, u > 0 && u < 1);
+}
+
+// ---------------------------------------------------------------- fotos
+const FOTO = {};
+// la regla quieta (en 10⁻⁵ y en 10⁻⁷), sobre transparente
+function capaRegla(e) {
+  const k = 'R' + e;
+  if (FOTO[k]) return FOTO[k];
+  P.fotograma(0); P.limpiar(); reglaEn(e); P.render(907 + e, { fondo: false });
+  return (FOTO[k] = foto(P));
+}
+// A: el vaso con la mota (desenfocada) y los recortes de los glóbulos
+{
+  P.fotograma(0); P.limpiar();
+  P.pieza(I.VASO, VASO_A);
+  virus(P, I.VIR, MOTA);
+  P.render(900);
+  FOTO.A = desenfocar(foto(P), 960, 540, 40, 3.5);
+}
+window.__carga.push(['vaso', Math.round(performance.now())]);
+FOTO.spr = GLO_SPR.rot.map((rot, j) => {
+  P.fotograma(0); P.limpiar();
+  P.pieza(I.GLO, { pos: GLO_SPR.pos, escala: GLO_SPR.escala, rot });
+  P.render(910 + j, { fondo: false });
+  return recorte(960 - SPR_R, 540 - SPR_R, 2 * SPR_R, 2 * SPR_R);
+});
+// los recortes desenfocados y oscurecidos (los de delante y los del fondo)
+const SPR_VAR = new Map();
+function sprite(k, blur, os) {
+  const key = `${k}|${blur}|${os}`;
+  if (SPR_VAR.has(key)) return SPR_VAR.get(key);
+  const s = FOTO.spr[k], c = document.createElement('canvas'); c.width = s.width; c.height = s.height;
+  const gc = c.getContext('2d'), kk = s.width / (2 * SPR_R);
+  gc.filter = `${blur ? `blur(${blur * kk}px) ` : ''}brightness(${1 - 0.55 * os}) saturate(${1 - 0.3 * os})`;
+  gc.drawImage(s, 0, 0);
+  SPR_VAR.set(key, c);
+  return c;
+}
+capaRegla(-5);
+window.__carga.push(['globulos', Math.round(performance.now())]);
+// B: el general (sin el virus: va aparte para enfocarlo) y el virus solo
+function fotoB() {
+  if (FOTO.B) return FOTO.B;
+  P.fotograma(T.s1[0]); P.limpiar();
+  P.pieza(I.GLO, GLO_B);
+  virus(P, I.VIR, VIR_B);
+  P.render(901);
+  const f = foto(P);
+  FOTO.Bb = desenfocar(f, ...VIR_B_PX, 34, 5);
+  return (FOTO.B = f);
+}
+// B2: el detalle; el glóbulo, algo desenfocado (macro), y el virus nítido encima
+function fotoB2() {
+  if (FOTO.B2) return FOTO.B2;
+  P.fotograma(T.det); P.limpiar();
+  P.pieza(I.GLO, GLO_B2);
+  P.render(902);
+  const f = desenfocar(foto(P), 0, 1080, 1500, 3);
+  P.limpiar(); virus(P, I.VIR, VIR_B2); P.render(903, { fondo: false });
+  const gf = f.getContext('2d');
+  gf.drawImage(lienzoGL, 0, 0);
+  FOTO.virusSpr = recorte(VIR_B2_PX[0] - 160, VIR_B2_PX[1] - 160, 320, 320);
+  return (FOTO.B2 = f);
+}
+// C: el plató con el microscopio (por su sombra; el microscopio va vivo encima) y el aro del visor solo
+function fotoC() {
+  if (FOTO.C) return FOTO.C;
+  fotoB2();
+  P.fotograma(T.micro); P.limpiar();
+  ponerInstrumentos(UI, { rueda: ruedaEn(T.micro) });
+  instrumento(P, I.MIC, MIC);
+  P.render(904);
+  FOTO.C = foto(P);
+  P.limpiar(); P.pieza(I.ARO, ARO_C); P.render(905, { fondo: false });
+  FOTO.aro = foto(P);
+  return FOTO.C;
+}
+// el plató vacío (C2, F y G)
+function fotoPlato() {
+  if (FOTO.P) return FOTO.P;
+  P.fotograma(T.ondaC); P.limpiar(); P.render(906);
+  return (FOTO.P = foto(P));
+}
+// C2: el virus de cerca, nítido y borroso; la onda: dos periodos recortados (se repiten sin costura)
+function fotoC2() {
+  if (FOTO.C2) return FOTO.C2;
+  fotoPlato();
+  P.fotograma(T.ondaC); P.limpiar(); virus(P, I.VIR, VIR_C2); P.render(908, { fondo: false });
+  const R = VIR_C2_PX;
+  FOTO.c2n = recorte(960 - R, 540 - R, 2 * R, 2 * R);
+  const b = document.createElement('canvas'); b.width = FOTO.c2n.width; b.height = FOTO.c2n.height;
+  const gb = b.getContext('2d'), kk = b.width / (2 * R);
+  gb.filter = `blur(${15 * kk}px)`; gb.drawImage(FOTO.c2n, 0, 0);
+  FOTO.c2b = b;
+  return (FOTO.C2 = true);
+}
+const OH = Math.ceil(ONDA_AMP + 40);                     // medio alto del recorte de la onda (px)
+function fotoOnda() {
+  if (FOTO.onda) return FOTO.onda;
+  P.fotograma(T.ondaC); P.limpiar();
+  onda(P, I.ONDA, UV, ONDA_C2);
+  P.render(909, { fondo: false });
+  const t = recorte(960 - LAMBDA, 540 - OH, 2 * LAMBDA, 2 * OH);
+  // su brillo: la misma onda, desenfocada (se suma con 'lighter')
+  // (se desenfoca la onda repetida tres veces y se recorta la del centro: el brillo empalma sin costura)
+  const a3 = document.createElement('canvas'); a3.width = 3 * t.width; a3.height = t.height;
+  const g3 = a3.getContext('2d'), kk = t.width / (2 * LAMBDA);
+  for (const f of [14, 5]) { g3.filter = `blur(${f * kk}px)`; for (let j = -1; j <= 3; j++) g3.drawImage(t, j * t.width, 0); }
+  const b = document.createElement('canvas'); b.width = t.width; b.height = t.height;
+  b.getContext('2d').drawImage(a3, t.width, 0, t.width, t.height, 0, 0, t.width, t.height);
+  FOTO.ondaBrillo = b;
+  return (FOTO.onda = t);
+}
+// G: la moneda (quieta, sujeta por los guantes), sobre transparente; los guantes le dejan su sombra en 2D
+function fotoMoneda() {
+  if (FOTO.mon) return FOTO.mon;
+  P.fotograma(T.guantes); P.limpiar(); moneda(P, I.MON, MON); P.render(912, { fondo: false });
+  return (FOTO.mon = foto(P));
+}
+// F: el plató vacío con el virus pequeño desenfocado (el fotograma 0 de ep3-adn)
+function fotoF() {
+  if (FOTO.F) return FOTO.F;
+  P.fotograma(T.vuelta); P.limpiar();
+  virus(P, I.VIR, VIR_F);
+  P.render(911);
+  return (FOTO.F = desenfocar(foto(P), 960, 540, 120, 5));
+}
+
+// ---------------------------------------------------------------- 2D: los glóbulos, la mirilla, el visor, la onda
+function globulosA(gx, ts) {
+  for (const c of CARRILES) {
+    const x = c.x0 + c.v * ts, y = c.y + 6 * Math.sin(ts * 2.1 + c.x0), s = c.s * (240 / (2 * 120));
+    const r = SPR_R * s;
+    gx.save(); gx.translate(x, y); gx.rotate(0.25 * Math.sin(c.x0) + 0.18 * ts * (c.k - 1));
+    gx.drawImage(sprite(c.k, c.blur, c.os), -r, -r, 2 * r, 2 * r);
+    gx.restore();
+  }
+}
+// el vaso de un instante, entero (para la mirilla)
+let VASO_T = null;
+function vasoEn(ts) {
+  if (!VASO_T) VASO_T = lienzo();
+  const gx = VASO_T.getContext('2d'), k = KK();
+  gx.setTransform(1, 0, 0, 1, 0, 0); gx.drawImage(FOTO.A, 0, 0);
+  gx.setTransform(k, 0, 0, k, 0, 0); globulosA(gx, ts);
+  return VASO_T;
+}
+// el general con el virus enfocándose (u: 0 borroso … 1 nítido) y su halo
+let B_T = null;
+function generalEn(u) {
+  fotoB();
+  if (!B_T) B_T = lienzo();
+  const gx = B_T.getContext('2d'), k = KK();
+  gx.setTransform(1, 0, 0, 1, 0, 0);
+  gx.globalAlpha = 1; gx.drawImage(FOTO.Bb, 0, 0);
+  if (u > 0) { gx.globalAlpha = u; gx.drawImage(FOTO.B, 0, 0); gx.globalAlpha = 1; }
+  gx.setTransform(k, 0, 0, k, 0, 0);
+  const [x, y] = VIR_B_PX;
+  gx.globalCompositeOperation = 'lighter';
+  const gr = gx.createRadialGradient(x, y, 6, x, y, 52);
+  gr.addColorStop(0, `rgba(255,226,180,${0.2 + 0.12 * u})`); gr.addColorStop(1, 'rgba(255,214,160,0)');
+  gx.fillStyle = gr; gx.fillRect(x - 60, y - 60, 120, 120);
+  gx.globalCompositeOperation = 'source-over';
+  return B_T;
+}
+// mirilla (como los saltos de prueba-plastilina-adulta y ep3-adn): la foto vieja se hunde hacia F y la nueva llega en
+// un círculo que se abre; A: el punto de la nueva que acaba en el centro del círculo (y en su sitio)
+function mirilla(u, viejo, nuevo, F, A = [W / 2, H / 2]) {
+  const pu = eio(cl(u / 0.8)), px = mix(F[0], A[0], pu), py = mix(F[1], A[1], pu);
+  const r = 1500 * eio(prog(u, 0, 0.62));
+  const lejos = Math.max(Math.hypot(px, py), Math.hypot(W - px, py), Math.hypot(px, H - py), Math.hypot(W - px, H - py));
+  const rr = Math.min(r, lejos + 60);
+  const cubre = Math.max(Math.min(px, rr) / A[0], Math.min(W - px, rr) / (W - A[0]), Math.min(py, rr) / A[1], Math.min(H - py, rr) / (H - A[1]));
+  const sO = Math.pow(10, 0.5 * eio(cl(u / 0.7))), sN = Math.max(mix(0.8, 1, seco(prog(u, 0.05, 0.85))), cubre);
+  g.save();
+  g.save(); g.translate(px, py); g.scale(sO, sO); g.translate(-F[0], -F[1]); g.drawImage(viejo, 0, 0, W, H); g.restore();
+  if (r > 2) {
+    g.save(); g.shadowColor = 'rgba(0,0,0,0.75)'; g.shadowBlur = 46; g.fillStyle = '#0b0c0f';
+    g.beginPath(); g.arc(px, py, rr, 0, Math.PI * 2); g.fill(); g.restore();
+    g.save(); g.beginPath(); g.arc(px, py, rr, 0, Math.PI * 2); g.clip();
+    g.translate(px, py); g.scale(sN, sN); g.translate(-A[0], -A[1]);
+    g.drawImage(nuevo, 0, 0, W, H);
+    g.restore();
+    if (r < lejos) { g.strokeStyle = 'rgba(0,0,0,0.45)'; g.lineWidth = 10; g.filter = 'blur(4px)'; g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.stroke(); g.filter = 'none'; }
+  }
+  g.restore();
+}
+// una foto con un empuje (zoom z alrededor de c)
+function empujar(f, z, c) {
+  g.save(); g.translate(c[0], c[1]); g.scale(z, z); g.translate(-c[0], -c[1]); g.drawImage(f, 0, 0, W, H); g.restore();
+}
+// el microscopio: la rueda gira sin parar (rad) y el visor no se aclara
+const ruedaEn = (ts) => 1.9 * (ts - T.micro) + 0.5 * Math.sin(2.3 * (ts - T.micro));
+function visor(ts, ocular) {
+  const u = prog(ts, T.visor[0], T.visor[1]);
+  if (u <= 0) return;
+  const s = eob(u, 1.6), [cx, cy] = VISOR.c, ri = VISOR.ri * s;
+  // el haz que sale del ocular hacia el visor
+  const ang = Math.atan2(cy - ocular[1], cx - ocular[0]), dd = Math.hypot(cx - ocular[0], cy - ocular[1]);
+  const ab = Math.asin(Math.min(0.99, VISOR.r * s / dd));
+  g.save();
+  g.globalAlpha = 0.1 * cl(u * 2);
+  g.fillStyle = 'rgb(255,232,190)';
+  g.beginPath(); g.moveTo(ocular[0], ocular[1]);
+  g.lineTo(ocular[0] + Math.cos(ang - ab) * dd, ocular[1] + Math.sin(ang - ab) * dd);
+  g.lineTo(ocular[0] + Math.cos(ang + ab) * dd, ocular[1] + Math.sin(ang + ab) * dd);
+  g.closePath(); g.fill();
+  g.restore();
+  // el campo claro y el virus borroso (una mancha oscura que respira con la rueda, nunca nítida)
+  g.save();
+  g.beginPath(); g.arc(cx, cy, ri, 0, Math.PI * 2); g.clip();
+  const gr = g.createRadialGradient(cx - 40, cy - 50, 10, cx, cy, ri);
+  gr.addColorStop(0, '#f2e3c4'); gr.addColorStop(0.7, '#d9c39c'); gr.addColorStop(1, '#8c7556');
+  g.fillStyle = gr; g.fillRect(cx - ri, cy - ri, 2 * ri, 2 * ri);
+  const bl = 15 + 6 * Math.sin(2.3 * (ts - T.micro) + 0.6), dv = 170 * s;
+  g.filter = `blur(${bl * KK()}px) grayscale(0.7) brightness(0.42) contrast(1.3)`;
+  g.globalAlpha = 0.85;
+  g.drawImage(FOTO.virusSpr, cx - dv / 2 + 4 * Math.sin(ts * 3.1), cy - dv / 2 + 3 * Math.cos(ts * 2.7), dv, dv);
+  g.filter = 'none'; g.globalAlpha = 1;
+  // viñeta del ocular
+  const vg = g.createRadialGradient(cx, cy, ri * 0.55, cx, cy, ri);
+  vg.addColorStop(0, 'rgba(20,14,8,0)'); vg.addColorStop(1, 'rgba(20,14,8,0.55)');
+  g.fillStyle = vg; g.fillRect(cx - ri, cy - ri, 2 * ri, 2 * ri);
+  g.restore();
+  // el aro de latón (su foto, del tamaño del visor)
+  g.save(); g.translate(cx, cy); g.scale(s, s); g.translate(-cx, -cy); g.drawImage(FOTO.aro, 0, 0, W, H); g.restore();
+}
+// la onda que viaja: la foto de dos periodos repetida desde la izquierda hasta el frente (xf), desplazada con él; esc:
+// su tamaño (1 en C2, ½ en F); alfa(x): cuánto se ve en cada x (px de pantalla); yc: su eje
+let ONDA_T = null;
+function ondaViaja(xf, esc, yc, alfa, cola = -1e9) {
+  fotoOnda();
+  if (!ONDA_T) ONDA_T = lienzo();
+  const gx = ONDA_T.getContext('2d'), k = KK();
+  gx.setTransform(1, 0, 0, 1, 0, 0); gx.clearRect(0, 0, ONDA_T.width, ONDA_T.height);
+  gx.setTransform(k, 0, 0, k, 0, 0);
+  const P2 = 2 * LAMBDA * esc, h = 2 * OH * esc;
+  for (let x = xf - P2; x > -P2 - 10; x -= P2) {
+    if (x + P2 < cola) break;
+    gx.drawImage(FOTO.ondaBrillo, x, yc - h / 2, P2, h);
+  }
+  // el brillo se suma; el alambre encima
+  gx.globalCompositeOperation = 'source-over';
+  for (let x = xf - P2; x > -P2 - 10; x -= P2) {
+    if (x + P2 < cola) break;
+    gx.drawImage(FOTO.onda, x, yc - h / 2, P2, h);
+  }
+  // el frente, la cola y lo que se apaga: una máscara horizontal
+  gx.globalCompositeOperation = 'destination-in';
+  const gr = gx.createLinearGradient(0, 0, W, 0);
+  for (let i = 0; i <= 48; i++) { const x = (i / 48) * W; gr.addColorStop(i / 48, `rgba(0,0,0,${cl(alfa(x))})`); }
+  gx.fillStyle = gr; gx.fillRect(0, 0, W, H);
+  gx.globalCompositeOperation = 'source-over';
+  g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.55; g.drawImage(ONDA_T, 0, 0, W, H); g.restore();
+  g.drawImage(ONDA_T, 0, 0, W, H);
+}
+const V_ONDA = 640;                                       // px/s
+const frenteC2 = (ts) => -60 + V_ONDA * (ts - T.ondaC);
+function planoC2(ts) {
+  fotoC2();
+  g.drawImage(FOTO.P, 0, 0, W, H);
+  // el virus: nítido hasta que la onda le pasa por encima; después, borroso (sin forma)
+  const xf = frenteC2(ts), R = VIR_C2_PX;
+  const u = ss(960 - R * 0.6, 960 + R * 1.6, xf);
+  g.drawImage(FOTO.c2n, 960 - R, 540 - R, 2 * R, 2 * R);
+  if (u > 0) { g.globalAlpha = u; g.drawImage(FOTO.c2b, 960 - R, 540 - R, 2 * R, 2 * R); g.globalAlpha = 1; }
+  ondaViaja(xf, 1, 540, (x) => 1 - ss(xf - 160, xf, x));
+}
+function planoF(ts) {
+  g.drawImage(fotoF(), 0, 0, W, H);
+  // la cola de la onda cruza y la luz se apaga al acercarse al borde derecho
+  const cola = 180 + 760 * (ts - T.vuelta);
+  const apaga = 1 - ss(m.lF - 0.5, m.lF + 0.1, ts);
+  if (apaga <= 0) return;
+  // (la onda corre con su cola: el frente queda siempre fuera, a la derecha)
+  ondaViaja(cola + 2 * W, 0.5, 540, (x) => apaga * ss(cola, cola + 90, x) * (1 - ss(1020, 1460, x)), cola);
+}
+// G: los guantes tantean la moneda (en vivo); el derecho frota en círculos y el izquierdo la sujeta y da toquecitos
+function planoG(ts) {
+  const u = ts - T.guantes;
+  const ent = 1 - seco(prog(ts, T.guantes - 0.05, T.guantes + 0.35));   // llegan un poco desde abajo
+  const mon = null;
+  // derecho: la muñeca abajo a la derecha, los dedos hacia la cara de la moneda
+  const fr = 1.4 * Math.PI * 2 * u / 1.6;
+  const pD = en(1195 + 26 * Math.cos(fr), 850 + 70 * ent + 20 * Math.sin(fr), 3.45);
+  guante(P, I.GD, { lado: 'der', pos: pD, escala: G_ESC, rot: [-0.22, -0.15, 0.5 + 0.07 * Math.sin(fr)] });
+  // izquierdo: abajo a la izquierda, sujeta el canto; toquecitos
+  const tq = Math.max(0, Math.sin(u * 2 * Math.PI * 1.6));
+  const pI = en(635 - 8 * tq, 915 + 90 * ent - 14 * tq, 3.4 + 0.1 * tq);
+  guante(P, I.GI, { lado: 'izq', pos: pI, escala: G_ESC, rot: [-0.16 - 0.06 * tq, 0.12, -0.45], sq: [1, 1 - 0.04 * tq, 1 + 0.03 * tq] });
+  // el «?»
+  const b = brote(ts, T.pregunta, 0.3, 0.12);
+  if (b > 0) P.pieza(I.PREG, { pos: PREG.pos, escala: PREG.escala * b, rot: [PREG.rot[0], PREG.rot[1] + 0.1 * Math.sin(ts * 2.4), PREG.rot[2]], color: 3 });
+  return mon;
+}
+// sombra 2D de lo vivo sobre el telón (sin la de Atom)
+let SOMBRA_T = null;
+function sombraViva(alfa = 0.36) {
+  if (!SOMBRA_T) SOMBRA_T = lienzo();
+  const gs = SOMBRA_T.getContext('2d'), k = KK();
+  gs.clearRect(0, 0, SOMBRA_T.width, SOMBRA_T.height);
+  gs.drawImage(lienzoGL, 0, 0);
+  gs.clearRect(0, 600 * k, 420 * k, 480 * k);                // sin Atom
+  g.save();
+  g.globalAlpha = alfa; g.filter = `blur(${22 * k}px) brightness(0)`;
+  g.drawImage(SOMBRA_T, 90, 46, W, H);
+  g.restore();
+}
+function exposicion(nf) {
+  const fl = azar(nf, 3) - 0.5;
+  g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- lo vivo de un instante (sobre transparente, en lienzoGL)
+function vivo(ts, mas = null) {
+  P.fotograma(ts); P.limpiar();
+  atomo(ts);
+  if (ts < REGLA_QUIETA && ts >= T.regla[0]) reglaViva(ts);
+  if (ts < 1.3) cartela(P, ts, E.cartela);
+  const r = mas ? mas(ts) : null;
+  P.render(Math.floor(ts * 12 + 1e-6), { fondo: false });
+  return r;
+}
+
+// ---------------------------------------------------------------- fotograma
+// las fotos se hacen en fotogramas baratos poco antes de hacer falta, una por fotograma (al renderizar en orden); si se
+// pide un instante posterior sin pasar por ellos, se hacen todas las pendientes
+const PREPARAR = [[0.25, fotoB], [0.6, () => capaRegla(-7)], [T.det - 1.8, fotoB2], [T.micro - 1.2, fotoC], [T.micro - 0.6, fotoPlato],
+  [T.ondaC - 2.0, fotoC2], [T.ondaC - 1.2, fotoOnda], [T.guantes - 0.8, fotoMoneda], [T.guantes + 1.2, fotoF]];
+function preparar(ts) { for (const [t0, f] of PREPARAR) if (ts >= t0) f(); }
+function dibujar(t) {
+  const ts = Math.min(t, D - 0.3);
+  preparar(ts);
+  ajustarCapa();
+  const nf = Math.floor(ts * 12 + 1e-6);
+  const pl = plano(ts);
+  if (pl === 'C') {
+    ponerInstrumentos(UI, { rueda: ruedaEn(ts) });
+    const mic = vivo(ts, () => instrumento(P, I.MIC, MIC));
+    g.drawImage(FOTO.C, 0, 0, W, H);
+    exposicion(nf);
+    visor(ts, pant(mic.punto('ocular')));
+    g.drawImage(lienzoGL, 0, 0, W, H);
+  } else if (pl === 'G') {
+    vivo(ts, planoG);
+    g.drawImage(fotoPlato(), 0, 0, W, H);
+    g.drawImage(fotoMoneda(), 0, 0, W, H);
+    sombraViva();
+    g.drawImage(lienzoGL, 0, 0, W, H);
+  } else {
+    vivo(ts);
+    if (pl === 'A') { g.drawImage(vasoEn(ts), 0, 0, W, H); exposicion(nf); }
+    else if (pl === 'S1') {
+      const u = prog(ts, T.s1[0], T.s1[1]);
+      mirilla(u, vasoEn(ts), generalEn(eio(prog(ts, T.foco[0], T.foco[1]))), [960, 540], VIR_B_PX);
+    } else if (pl === 'B') {
+      empujar(generalEn(eio(prog(ts, T.foco[0], T.foco[1]))), 1 + 0.045 * eio(prog(ts, T.s1[1], T.empuje[0])), VIR_B_PX);
+      exposicion(nf);
+    } else if (pl === 'BP') {
+      empujar(generalEn(1), 1.045 + 0.6 * eic(prog(ts, T.empuje[0], T.empuje[1])), VIR_B_PX);
+    } else if (pl === 'B2') {
+      empujar(fotoB2(), 1 + 0.035 * prog(ts, T.det, T.micro), VIR_B2_PX);
+      exposicion(nf);
+    } else if (pl === 'C2') planoC2(ts);
+    else if (pl === 'F') planoF(ts);
+    g.drawImage(lienzoGL, 0, 0, W, H);
+  }
+  // la regla quieta es una capa encima de todo; mientras corre la escala, va viva (en lo vivo)
+  if (ts < T.regla[0]) g.drawImage(capaRegla(-5), 0, 0, W, H);
+  else if (ts >= REGLA_QUIETA) g.drawImage(capaRegla(-7), 0, 0, W, H);
+  POST.aplicar(g, nf);
+}
+
+window.__inicio = {
+  VASO: VASO_A, MOTA: { ...MOTA, centro: [960, 540], px: 22, blur: 3.5, radioBlur: 40 }, CARRILES, GLOBULO_PX: 240,
+  REGLA: { e: -5, ya: YA, lupa: 0.5, pos: REG, escala: E_REG, rot: [0, -0.12, 0] }, ATOMO: { pos: SITIO, escala: A_ESC, yaw: -0.15, pitch: 0.06 },
+};
+window.__fin = {
+  VIRUS: { centro: [960, 540], z: 2, escala: VIR_F.escala, rot: VIR_F.rot, px: 76, blur: 5, radioBlur: 120 },
+  REGLA: { e: -7, ya: YA, lupa: 0.5 }, ATOMO: { pos: SITIO, escala: A_ESC, yaw: -0.15, pitch: 0.06, reloj: 0 }, T,
+};
+window.__carga.push(['listo', Math.round(performance.now())]);
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

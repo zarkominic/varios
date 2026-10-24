@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Muestra chibi · Pireo</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// MUESTRA CHIBI (5 s). El puerto del Pireo en la antigua Atenas, con el detalle del vídeo de referencia: colores planos
+// (un tono de luz y uno de sombra por pieza), contorno oscuro limpio y nada de ruido. Un trirreme atracado con su ojo
+// pintado, remos y público en cubierta; ánforas, cajas y norays en el muelle; una estoa pintada a la derecha y la
+// Acrópolis al fondo. Sócrates (cabezón, calvo y barbudo) explica algo con el dedo en alto; el ciudadano se sorprende
+// y da un salto («!»); el público del barco se ríe y saluda. Personajes dibujados píxel a píxel (no por código).
+// ESCENA CANÓNICA del estilo chibi: personajes, caras y público vienen del kit pixel-chibi.js; el fondo es de esta escena.
+// Guía: episodios/GUIA-ESTILO.md.
+import { crearChibi, ELENCO_CHIBI, COL, P, tela } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = await crearChibi(document.getElementById('lienzo'));
+const { pset, rect, linea, poligono, disco } = R;
+const DUR = 5;
+const C = COL;
+
+const PUBLICO = [
+  ['marinero', tela('#3e74d4', '#2a50a0', { H: '#5a3418', P: '#a8743c', p: '#7a5028' }), 48],
+  ['mujer', tela('#8050b8', '#52287e', { H: '#2c2232', V: '#f0e4c4' }), 68],
+  ['calvo', tela('#ece0bc', '#bfae80'), 88],
+  ['soldado', tela('#d24040', '#922828', { R: '#d24040', Z: '#d29a34', z: '#f0c868' }), 108],
+  ['rizos', tela('#46a04a', '#246a34', { H: '#a03a24', h: '#d86a3a' }), 128],
+  ['mujer', tela('#d27a30', '#a04a14', { H: '#c8a038', V: '#cfe8ff' }), 148],
+  ['rizos', tela('#ece0bc', '#bfae80', { H: '#2c2232', h: '#54466a' }), 168],
+];
+// ── fondo ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+const nube = R.nube;
+const cielo = (t) => {
+  for (let y = 0; y < 92; y++) rect(0, y, 319, y, y < 30 ? C.cielo1 : y < 62 ? C.cielo2 : C.cielo3);
+  for (const [x0, y, w, v] of [[30, 20, 46, 2], [150, 12, 60, 1.4], [270, 26, 40, 2.4], [210, 50, 30, 1.8], [80, 56, 26, 2.2]]) nube(((x0 + t * v) % 380) - 30, y, w);
+};
+const acropolis = () => {
+  poligono([[196, 92], [222, 74], [262, 70], [296, 76], [320, 86], [320, 92]], C.colina);
+  poligono([[262, 70], [296, 76], [320, 86], [320, 92], [276, 92]], C.colinaS);
+  linea(222, 74, 262, 70, C.colinaL);
+  rect(232, 63, 266, 70, C.marmol); rect(232, 63, 266, 63, C.marmolL); poligono([[230, 63], [249, 56], [268, 63]], C.marmolL);
+  for (let x = 234; x <= 264; x += 3) rect(x, 64, x, 70, C.marmolS);
+  for (let x = 0; x < 196; x++) { const y = 88 + Math.round(2 * Math.sin(x * 0.05)); rect(x, y, x, 91, x % 37 < 3 ? C.colinaL : C.colinaS); }
+};
+const mar = (t) => {
+  for (let y = 92; y < 132; y++) rect(0, y, 319, y, y < 100 ? C.mar3 : y < 114 ? C.mar2 : C.mar1);
+  for (let k = 0; k < 26; k++) { const y = 94 + (k * 7) % 36, x = ((k * 53 + t * (6 + (k % 3) * 3)) % 340) - 10, w = 3 + (k % 4); rect(Math.round(x), y, Math.round(x + w), y, C.marL); if (k % 2) rect(Math.round(x + 2), y + 1, Math.round(x + w + 2), y + 1, C.mar3); }
+};
+const trirreme = (t) => {
+  const b = Math.round(Math.sin(t * 1.6));
+  const yb = (y) => y + b;
+  // casco: popa curva a la izquierda, espolón de bronce a la derecha
+  const casco = [[18, yb(88)], [24, yb(96)], [34, yb(104)], [196, yb(104)], [208, yb(110)], [204, yb(124)], [40, yb(124)], [26, yb(114)]];
+  poligono(casco, C.casco1);
+  poligono([[34, yb(104)], [196, yb(104)], [204, yb(108)], [30, yb(108)]], C.casco2);
+  rect(30, yb(112), 204, yb(114), C.franja); rect(30, yb(114), 204, yb(114), C.franjaS);
+  for (let i = 0; i < casco.length; i++) linea(casco[i][0], casco[i][1], casco[(i + 1) % casco.length][0], casco[(i + 1) % casco.length][1], C.k);
+  for (let x = 40; x < 196; x += 6) pset(x, yb(106), C.casco0);
+  // popa en voluta
+  for (let k = 0; k < 6; k++) pset(18 - Math.round(Math.sin(k * 0.6) * 3), yb(88 - k), C.casco1);
+  disco(14, yb(82), 3, C.casco1); disco(14, yb(82), 1, C.casco0);
+  // espolón de bronce y ojo pintado
+  poligono([[204, yb(118)], [216, yb(120)], [204, yb(123)]], C.bronce); linea(204, yb(123), 216, yb(120), C.bronceS);
+  disco(194, yb(109), 3, C.k); disco(194, yb(109), 2, C.nube); disco(195, yb(109), 1, C.k); pset(192, yb(108), C.franja);
+  // portillas y remos (entran en el agua, que el muelle tapa)
+  for (let x = 46; x <= 186; x += 9) { rect(x, yb(117), x + 2, yb(119), C.k); linea(x + 1, yb(119), x - 6, yb(131), C.mad3); linea(x + 2, yb(119), x - 5, yb(131), C.mad2); }
+  // mástil, verga con la vela recogida y gallardete
+  rect(108, yb(36), 110, yb(104), C.mad2); rect(108, yb(36), 108, yb(104), C.mad3); rect(111, yb(36), 111, yb(104), C.k);
+  rect(76, yb(44), 144, yb(46), C.mad2); rect(76, yb(44), 144, yb(44), C.mad3);
+  for (let x = 78; x < 142; x++) { const h = 3 + Math.round(Math.sin(x * 0.5) * 1); rect(x, yb(47), x, yb(47 + h), (x % 6 < 3) ? C.vela : C.velaS); pset(x, yb(48 + h), C.k); }
+  linea(110, yb(36), 26, yb(90), C.cuerda); linea(110, yb(36), 200, yb(104), C.cuerda);
+  for (let i = 0; i < 16; i++) { const y = yb(34) + Math.round(Math.sin(t * 9 - i * 0.6) * 1.5) + (i > 8 ? 1 : 0); rect(111 + i, y, 111 + i, y + Math.max(1, 3 - Math.floor(i / 6)), C.franja); }
+  // borda y público en cubierta: bustos dibujados uno a uno, que parpadean, se ríen y saludan
+  PUBLICO.forEach(([tipo, pal, x], k) => {
+    const salto = t > 3 ? Math.round(Math.max(0, Math.sin(t * 8 + k * 1.3)) * 2) : 0;
+    R.busto(tipo, pal, x - 4, yb(92) - salto, t, { rie: t > 3.1, saluda: t > 2.7 && k % 2 === 0 });
+  });
+  rect(34, yb(104), 196, yb(104), C.k); rect(34, yb(103), 196, yb(103), C.mad3);
+};
+const velero = (x, y, t, s) => { const b = Math.round(Math.sin(t * 1.5 + x) * 0.6); poligono([[x - 6 * s, y + b], [x + 6 * s, y + b], [x + 4 * s, y + 2 * s + b], [x - 4 * s, y + 2 * s + b]], C.mad1); rect(x, y - 9 * s + b, x, y + b, C.mad1); poligono([[x + 1, y - 9 * s + b], [x + 5 * s, y - 1 + b], [x + 1, y - 1 + b]], C.vela); poligono([[x - 1, y - 7 * s + b], [x - 4 * s, y - 1 + b], [x - 1, y - 1 + b]], C.velaS); };
+const barcoMercante = (t) => {
+  const b = Math.round(Math.sin(t * 1.3 + 1));
+  poligono([[232, 96 + b], [300, 96 + b], [292, 106 + b], [240, 106 + b]], C.mad2); rect(240, 96 + b, 292, 97 + b, C.mad4);
+  linea(232, 96 + b, 240, 106 + b, C.k); linea(300, 96 + b, 292, 106 + b, C.k); linea(240, 106 + b, 292, 106 + b, C.k);
+  rect(265, 66 + b, 266, 96 + b, C.mad1);
+  poligono([[252, 70 + b], [280, 70 + b], [282, 92 + b], [250, 92 + b]], C.vela); poligono([[266, 70 + b], [280, 70 + b], [282, 92 + b], [266, 92 + b]], C.velaS);
+  for (let x = 254; x < 280; x += 6) rect(x, 72 + b, x, 90 + b, C.velaS);
+};
+const muelle = (t) => {
+  // tablas del suelo del muelle (el escenario)
+  for (let y = 132; y < 146; y++) rect(0, y, 319, y, (y - 132) % 4 === 0 ? C.mad1 : (y - 132) % 4 === 1 ? C.mad4 : C.mad3);
+  for (let f = 0; f < 4; f++) for (let x = (f * 23) % 40; x < 320; x += 40) { rect(x, 132 + f * 4 + 1, x, 132 + f * 4 + 3, C.mad1); pset(x + 2, 132 + f * 4 + 2, C.mad0); pset(x - 3, 132 + f * 4 + 2, C.mad0); }
+  rect(0, 131, 319, 131, C.k); rect(0, 146, 319, 147, C.mad0); rect(0, 148, 319, 151, C.mad1);
+  for (let x = 6; x < 320; x += 26) { rect(x, 148, x + 4, 158, C.mad1); rect(x, 148, x, 158, C.mad2); rect(x + 5, 148, x + 5, 158, C.k); }
+  // agua de delante
+  for (let y = 152; y < 180; y++) for (let x = 0; x < 320; x += 1) { if (y < 158 && ((x - 6) % 26 + 26) % 26 < 6) continue; pset(x, y, y < 164 ? C.marHondo2 : C.marHondo); }
+  for (let k = 0; k < 14; k++) { const y = 160 + (k * 5) % 18, x = ((k * 71 - t * 8) % 340 + 340) % 340 - 10; rect(Math.round(x), y, Math.round(x + 4), y, C.mar2); }
+  // norays de hierro
+  for (const x of [52, 168, 300]) { rect(x - 3, 140, x + 3, 141, C.hierroS); rect(x - 2, 136, x + 2, 140, C.hierro); rect(x - 4, 135, x + 4, 136, C.hierro); rect(x - 4, 135, x + 4, 135, C.hierroL); rect(x - 2, 137, x - 2, 140, C.hierroL); rect(x + 3, 136, x + 3, 140, C.k); }
+};
+const anfora = (x, y, pinta) => {
+  poligono([[x - 3, y - 14], [x + 3, y - 14], [x + 5, y - 9], [x + 4, y - 3], [x, y], [x - 4, y - 3], [x - 5, y - 9]], C.terra);
+  poligono([[x + 1, y - 14], [x + 3, y - 14], [x + 5, y - 9], [x + 4, y - 3], [x, y]], C.terraS);
+  rect(x - 4, y - 11, x - 3, y - 6, C.terraL);
+  if (pinta) { rect(x - 4, y - 8, x + 4, y - 8, C.negroFig); for (let i = -3; i <= 3; i += 2) pset(x + i, y - 7, C.negroFig); }
+  // asas
+  pset(x - 4, y - 13, C.k); pset(x - 5, y - 12, C.k); pset(x - 5, y - 11, C.k); pset(x + 4, y - 13, C.k); pset(x + 5, y - 12, C.k); pset(x + 5, y - 11, C.k);
+  rect(x - 2, y - 17, x + 2, y - 14, C.terra); rect(x - 3, y - 18, x + 3, y - 17, C.terraL);
+  pset(x - 4, y - 16, C.terraS); pset(x + 4, y - 16, C.terraS); pset(x - 4, y - 15, C.terraS); pset(x + 4, y - 15, C.terraS);
+  linea(x - 5, y - 9, x - 3, y - 14, C.k); linea(x + 5, y - 9, x + 3, y - 14, C.k); linea(x - 5, y - 9, x - 4, y - 3, C.k); linea(x + 5, y - 9, x + 4, y - 3, C.k); linea(x - 4, y - 3, x, y, C.k); linea(x + 4, y - 3, x, y, C.k);
+};
+const caja = (x, y, w, h) => { rect(x, y - h, x + w, y, C.mad3); rect(x, y - h, x + w, y - h, C.mad4); rect(x, y - h, x, y, C.k); rect(x + w, y - h, x + w, y, C.k); rect(x, y - h, x + w, y - h - 0, C.k); rect(x + 1, y - h / 2, x + w - 1, y - h / 2, C.mad1); linea(x + 1, y - h + 1, x + w - 1, y - 1, C.mad2); };
+const estoa = () => {
+  rect(250, 92, 320, 131, hex('#c9b99a'));
+  rect(246, 86, 320, 92, C.marmol); rect(246, 86, 320, 86, C.marmolL); rect(246, 92, 320, 92, C.k);
+  for (let x = 248; x < 320; x += 6) { rect(x, 88, x + 2, 90, (x / 6) % 2 ? C.azulPint : C.rojoPint); }
+  poligono([[244, 86], [282, 76], [320, 70], [320, 86]], C.terra); linea(244, 86, 320, 70, C.k); for (let x = 250; x < 320; x += 5) linea(x, 86, x, 86 - Math.round((x - 244) * 0.2), C.terraS);
+  for (const x of [254, 270, 286, 302, 318]) { rect(x - 3, 93, x + 3, 95, C.marmolL); rect(x - 2, 95, x + 2, 128, C.marmol); rect(x - 2, 95, x - 2, 128, C.marmolL); rect(x + 1, 95, x + 2, 128, C.marmolS); rect(x - 3, 128, x + 3, 131, C.marmolS); rect(x + 3, 95, x + 3, 128, C.k); }
+};
+const gaviota = R.gaviota;
+const dibujar = (t) => {
+  cielo(t); acropolis(); mar(t); velero(214, 96, t, 1); velero(150, 93, t, 0.7); estoa(); trirreme(t);
+  for (const [x, y] of [[ (t * 22) % 360 - 20, 30 ], [ (t * 16 + 120) % 360 - 20, 44 ], [ (t * 19 + 230) % 360 - 20, 22 ]]) gaviota(Math.round(x), y, t, x);
+  muelle(t);
+  // carga del muelle
+  caja(219, 131, 12, 9); caja(209, 131, 9, 6);
+  anfora(244, 131, true); anfora(236, 131, false);
+  for (let k = 0; k < 3; k++) { disco(80, 129 - k, 5 - k, k % 2 ? C.mad3 : C.cuerda); } disco(80, 127, 1, C.mad1);
+  // los personajes
+  const habla = t < 2.1 && Math.sin(t * 15) > 0;
+  R.actor(ELENCO_CHIBI.socrates, 126, 145, t, { dedo: t > 0.5 && t < 2.6, habla, sonrisa: t > 3.2 });
+  const s = t > 2.2 && t < 2.9 ? Math.round(Math.sin((t - 2.2) / 0.7 * Math.PI) * 9) : 0;
+  R.actor(ELENCO_CHIBI.ciudadano, 172, 145, t, { dir: -1, sorpresa: t > 2.15 && t < 3.4, salto: s, sonrisa: t > 3.4 });
+  if (t > 2.15 && t < 3.3) R.bocadillo(186, 112 - s);
+  R.companero(t, 0.4);
+};
+window.__frame = async (t) => { dibujar(t % DUR); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

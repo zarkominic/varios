@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-nucleo.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-nucleo.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por pieza y por variante, con el plató, la luz y la cámara de las escenas de plastilina
+// (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28).
+//   __frame(0)  → la hoja entera (4 × 3 celdas de 480 × 360, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+// ?celda=k abre la celda k en la vista previa. window.__tiempos[k] da lo que tardó cada celda (ms).
+import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposNucleo, nucleo, proton, quarks, resplandor, QUARKS } from '/atomo/plato/kits/ep03-nucleo.js';
+import { foto } from '/atomo/plato/kits/ep03-tocar.js';
+
+const W = 1920, H = 1080;
+const T = ['nucleo', 'proton', 'quarks'];
+const I = Object.fromEntries(T.map((t, i) => [t, i]));
+const P = await crearPlato({
+  piezas: T, tiposExtra: tiposNucleo(), atomo: false, alfa: true, post: false,
+  sombraFondo: ['p0', 'p1', 'p2'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+
+const C = [];
+const cel = (rot, poner, o = {}) => C.push({ rot, poner, ...o });
+const ROT_N = [0.2, -0.4, 0.05];
+cel('nucleo n 16 (oxígeno)', () => nucleo(P, I.nucleo, { pos: en(960, 520, 2), escala: 3.2, rot: ROT_N, n: 16 }));
+cel('nucleo n 12, brillo 0,5', () => nucleo(P, I.nucleo, { pos: en(960, 520, 2), escala: 3.2, rot: ROT_N, n: 12, brillo: 0.5 }));
+cel('nucleo n 4 (helio)', () => nucleo(P, I.nucleo, { pos: en(960, 520, 2), escala: 3.2, rot: ROT_N, n: 4 }));
+cel('nucleo n 40, tiembla 1', () => nucleo(P, I.nucleo, { pos: en(960, 520, 2), escala: 2.4, rot: ROT_N, n: 40, tiembla: 1, fase: 0.7 }));
+cel('proton entero', () => proton(P, I.proton, { pos: en(960, 520, 2), escala: 1.6 }));
+cel('proton entero, brillo 1', () => proton(P, I.proton, { pos: en(960, 520, 2), escala: 1.6, brillo: 1 }));
+cel('quarks sueltos (bandas 0)', () => quarks(P, I.quarks, { pos: en(960, 520, 2), escala: 2.6, bandas: 0, brillo: 0.3, fase: 0.3 }));
+cel('quarks, bandas 0,5 (crecen)', () => quarks(P, I.quarks, { pos: en(960, 520, 2), escala: 2.6, bandas: 0.5, brillo: 0.6, fase: 0.3 }));
+cel('quarks, bandas 1, vibra 1, brillo 1', () => quarks(P, I.quarks, { pos: en(960, 520, 2), escala: 2.6, bandas: 1, vibra: 1, brillo: 1, fase: 0.45 }), { brillo: true });
+cel('quarks con cascara 1 (dentro del protón)', () => quarks(P, I.quarks, { pos: en(960, 540, 1), escala: 2.3, bandas: 1, vibra: 1, brillo: 1, fase: 1.1, cascara: 1 }), { brillo: true });
+cel('quarks, cascara 0,5, separacion 0,8', () => quarks(P, I.quarks, { pos: en(960, 540, 1), escala: 2.3, rot: [0.15, 0.3, 0], bandas: 1, vibra: 0.5, brillo: 0.7, fase: 2.0, cascara: 0.5, separacion: 0.8 }), { brillo: true });
+cel('quarks tumbados (plato) + proton', () => {
+  const s = 1.1, y0 = 1.2;
+  quarks(P, I.quarks, { pos: [en(760, 600, 2)[0], y0 + QUARKS.RB * s, 2], escala: s, rot: [-Math.PI / 2 + 0.05, 0.4, 0], bandas: 0, brillo: 0.3, separacion: 0.7 });
+  proton(P, I.proton, { pos: [en(1160, 600, 2)[0], y0 + 0.55, 2], escala: 0.55 });
+});
+
+// ---------------------------------------------------------------- dibujo
+const lienzoGL = P.renderer.domElement;
+const cont = document.getElementById('escena');
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+const cache = [];
+window.__tiempos = [];
+function celda(k) {
+  if (cache[k]) return cache[k];
+  const c = C[k];
+  const a = performance.now();
+  P.fotograma(0); P.limpiar();
+  const info = c.poner(P);
+  P.render(k + 1);
+  const f = foto(P);
+  const gf = f.getContext('2d');
+  gf.setTransform(f.width / W, 0, 0, f.width / W, 0, 0);
+  if (c.brillo) resplandor(gf, 960, 520, 520, { fuerza: 0.45 });
+  window.__tiempos[k] = Math.round(performance.now() - a);
+  return (cache[k] = f);
+}
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+const COL = 4, FIL = 3;
+function dibujar(t) {
+  ajustarCapa();
+  const k = Math.round(t);
+  if (k >= 1 && k <= C.length) {
+    g.drawImage(celda(k - 1), 0, 0, W, H);
+    POST.aplicar(g, k);
+    return;
+  }
+  g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+  const cw = W / COL, ch = H / FIL;
+  C.forEach((c, j) => {
+    const x = (j % COL) * cw, y = Math.floor(j / COL) * ch;
+    g.drawImage(celda(j), x, y, cw, ch);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(x, y + ch - 26, cw, 26);
+    g.fillStyle = '#e8dcc0'; g.font = '17px sans-serif'; g.fillText(`${j + 1}. ${c.rot}`, x + 8, y + ch - 8);
+  });
+}
+const busq = new URLSearchParams(location.search);
+window.ESCENA ??= { id: 'ep03-nucleo-hoja', duracion: C.length + 1, marcas: {}, voz: [0, 0] };
+window.__celdas = C.map((c) => c.rot);
+window.__paso = 1;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>

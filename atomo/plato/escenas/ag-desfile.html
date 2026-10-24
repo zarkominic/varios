@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Desfile · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-DESFILE (frases 21–22). C en 1924: el desfile por la calle con un globo de pavo gigante, otro de estrella, la banda
+// y Santa Claus en su trineo, al final. Luego los escaparates esperan a oscuras y, cuando pasa Santa, se encienden las luces.
+import { preparar, rodar, ciudad } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-desfile');
+const { tramo } = R;
+const m = { de: M('desfile', 0.5), re: M('regla', 9) };
+const desfile = (t) => ciudad(R, t, { epoca: '1924', desfile: tramo(t - m.de, 0, (m.re - m.de) * 1.1) * 0.62, gente: { rie: true, saluda: true, saltan: true } });
+const regla = (t) => {
+  const u = t - m.re, L = E.duracion - m.re, p = 0.62 + tramo(u, 0, 0.6 * L) * 0.38;
+  ciudad(R, t, { epoca: '1924', desfile: p, luces: tramo(u, 0.55 * L, 0.75 * L), gente: { rie: p > 0.9, saluda: true } });
+};
+rodar(E, R, [[0, desfile], [m.re - 0.2, regla]], { cartela: '1924', año: 1924 });
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tiranos · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-TIRANOS (frases 30–31). Cartela «404». Los espartanos derriban las murallas de Atenas (los bloques caen); aparecen
+// treinta figuras oscuras en fila; «1500» en la caja. Luego la asamblea furiosa señala con el dedo; junto a Sócrates, dos
+// de sus alumnos se vuelven sombras.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-tiranos');
+const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
+const m = { rin: M('rinde', 1.5), cul: M('culpables', 12) };
+const sombra = { ...ELENCO.griego, chaqueta: PALA.NEGRO, camisa: PALA.NEGRO, falda: PALA.NEGRO, banda: PALA.ROJO, piel: PALA.PIEL_OSCURA, pelo: PALA.PELO_NEGRO };
+const murallas = (t) => {
+  R.cieloR(t, 'tormenta', { hor: 120 }); acropolis(R, 250, 110, t, { esc: 0.8 });
+  R.suelo(120, PR.TIERRA, { luz: 1.4 });
+  const cae = tramo(t, m.rin + 2, m.rin + 5);
+  for (let k = 0; k < 16; k++) { const x = 10 + k * 14, y0 = 92, caido = R.hash2(k, 2) < cae; const dy = caido ? 30 + (k % 3) * 4 : 0; R.rect(x, y0 + dy, x + 12, y0 + 28 + Math.min(0, -dy + 28) + (caido ? 0 : 0), PR.ROCA[2]); R.rect(x, y0 + dy, x + 12, y0 + dy, PR.ROCA[3]); }
+  for (let k = 0; k < 4; k++) R.personaje(40 + k * 50, 172, 26, { ...ELENCO.espartano, t: t + k, pose: Math.sin(t * 4 + k) > 0 ? 'arriba' : 'pie', brazoD: Math.sin(t * 4 + k) > 0 ? 'arriba' : 'abajo', objeto: 'pala' });
+  if (t > m.rin + 6) for (let k = 0; k < 30; k++) R.personaje(12 + k * 10, 140, 12, { ...sombra, t: t + k, sombra: false, luz: undefined });
+};
+const culpa = (t) => {
+  R.cieloR(t, 'tarde', { hor: 120, sol: [60, 110, 10] }); R.suelo(120, PALA.MARMOL, { losas: true });
+  for (let k = 0; k < 6; k++) R.personaje(180 + k * 22, 160 + (k & 1) * 8, 24, { ...ELENCO.griego, pelo: [PALA.PELO_NEGRO, PALA.PELO_BLANCO][k & 1], t: t + k, dir: -1, pose: 'senala', ceño: true, habla: 1 });
+  const osc = tramo(t, m.cul + 4, m.cul + 6);
+  R.personaje(90, 168, 28, { ...ELENCO.socrates, t, ceño: true });
+  for (const [x, p] of [[56, PALA.PELO_RUBIO], [124, PALA.PELO_CASTANO]]) R.personaje(x, 170, 26, osc > 0.5 ? { ...sombra, t } : { ...ELENCO.griego, barba: 'no', pelo: p, banda: PALA.VERDE, t });
+};
+rodar(E, R, [[0, murallas], [m.cul - 0.2, culpa]], { cartela: '404', año: (t) => (t < m.cul ? -404 : -403), caja: (t, e) => R.caja(t, t > m.rin + 7 && t < m.cul - 0.2 ? tramo(t, m.rin + 7, m.rin + 7.4) : 0, (x, y) => R.numero('1500', x + 4, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

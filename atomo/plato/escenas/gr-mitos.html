@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mitos · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-MITOS (frase 41). Los mitos: Zeus sobre una nube con su rayo; Hércules con la maza y la piel de león; el caballo de
+// Troya de madera sobre ruedas; el barco de Ulises perdido entre olas; y al final una zapatilla con un ala (Niké).
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-mitos');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('mitos', 0.5), dur = E.duracion ?? 14;
+const paso = (dur - m0) / 4;
+const olimpo = (t) => {
+  R.cieloR(t, 'tarde', { sol: [280, 120, 10] });
+  for (let k = 0; k < 5; k++) R.disco(70 + k * 14, 112 + (k % 2) * 3, 12, PR.NUBE[2 + (k & 1)]);
+  R.personaje(100, 108, 30, { ...ELENCO.zeus, t, pose: 'arriba', brazoD: 'arriba', sombra: false });
+  if (Math.sin(t * 4) > 0.5) { let x = 106, y = 66; for (let k = 0; k < 6; k++) { const nx = x + (k % 2 ? -5 : 6), ny = y + 14; R.linea(x, y, nx, ny, PALA.AMARILLO[3]); R.linea(x + 1, y, nx + 1, ny, PALA.AMARILLO[3]); x = nx; y = ny; } }
+  R.suelo(150, PR.HIERBA, { luz: 2 });
+  R.personaje(220, 172, 30, { ...ELENCO.hercules, t, dir: -1, pose: 'manos_cintura' });
+};
+const troya = (t) => {
+  R.cieloR(t, 'tarde', { hor: 140, sol: [60, 120, 10] }); R.muralla(200, 320, 140, 50, { luz: 1.6, rampa: PR.PAJA });
+  R.suelo(140, PR.TIERRA, { luz: 2 });
+  const x = lerp(60, 140, tramo(t, m0 + paso, m0 + paso * 2));
+  R.bicho(x, 160, 1, [['l', -14, -16, -14, -2, 4, PR.MADERA, 1.4], ['l', 14, -16, 14, -2, 4, PR.MADERA, 1.4], ['e', 0, -26, 22, 11, PR.MADERA, 2], ['l', 18, -30, 26, -48, 8, PR.MADERA, 2], ['e', 30, -50, 9, 6, PR.MADERA, 2.2], ['l', 24, -52, 26, -62, 3, PR.MADERA, 1.2], ['d', 32, -52, PALA.CONTORNO]], { r: 60 });
+  R.rect(x - 26, 160, x + 26, 164, PR.MADERA[1]); for (const dx of [-20, 20]) R.disco(x + dx, 168, 5, PR.MADERA[0]);
+};
+const ulises = (t) => {
+  R.cieloR(t, 'tormenta', { rayos: [250, 0] }); R.mar(t, { hor: 100 });
+  for (let k = 0; k < 6; k++) { const x = (k * 60 + t * 20) % 380 - 30; R.poligono([[x - 20, 100 + 30], [x, 100 + 6 + Math.sin(t * 3 + k) * 4], [x + 20, 100 + 30]], PR.MAR[3]); }
+  R.trirreme(160, 140 + Math.sin(t * 2) * 4, t, { esc: 1, vela: PALA.ROJO });
+};
+const nike = (t) => {
+  R.cieloR(t, 'dia', { hor: 180, nubes: { n: 3 } });
+  const cx = 160, cy = 110, s = R.sale(tramo(t, m0 + paso * 3, m0 + paso * 3 + 0.6));
+  R.poligono([[cx - 40 * s, cy], [cx - 36 * s, cy - 16 * s], [cx - 8 * s, cy - 22 * s], [cx + 10 * s, cy - 10 * s], [cx + 40 * s, cy - 6 * s], [cx + 42 * s, cy + 4 * s], [cx - 40 * s, cy + 4 * s]], (x, y) => R.tone(PALA.BLANCO, 3 - (y - cy + 20) * 0.04, x, y));
+  R.rect(cx - 40 * s, cy + 4 * s, cx + 42 * s, cy + 8 * s, PALA.ROJO[2]);
+  for (let k = 0; k < 5; k++) R.poligono([[cx - 30 * s, cy - 14 * s], [cx - 50 * s - k * 6 * s, cy - (30 + k * 6) * s + Math.sin(t * 8) * 2], [cx - 34 * s - k * 4 * s, cy - (10 + k * 2) * s]], PALA.BLANCO[2 + (k & 1)]);
+};
+rodar(E, R, [[0, olimpo], [m0 + paso, troya], [m0 + paso * 2, ulises], [m0 + paso * 3, nike]], { año: -146 });
+</script>
+</body>
+</html>

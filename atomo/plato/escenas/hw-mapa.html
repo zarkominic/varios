@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mapa · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-MAPA (frases 5–6). El mapa antes de la historia: de Europa, zoom al extremo noroeste (Irlanda, Escocia y Gales),
+// que se marcan; aparecen los celtas (granjeros, pastores, guerreros) y empieza a nevar. Luego el calendario: una rueda
+// del año partida en una mitad luminosa (sol) y otra oscura (luna); el marcador gira y entra en la oscura justo donde
+// hoy cae Halloween: se enciende una calabaza y «31/10» en la caja.
+import { preparar, rodar } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-mapa');
+const { PALA, NARANJA, tramo, lerp, easeIO } = R;
+const m = { map: M('mapa', 0.5), cal: M('calendario', 13) };
+const L = m.cal - m.map;
+const CERCA = [-17, 7, 48.6, 61.4];   // Irlanda, Gran Bretaña y la costa de Francia (más cerca, la costa se ve tosca)
+const SITIOS = [['tara', PALA.ANTORCHA], ['edimburgo', PALA.AZUL], [[-3.7, 52.3], PALA.VERDE]];
+const mapa = (t) => {
+  const u = t - m.map;
+  const v = u < 1.2 ? R.VISTAS.mundo : R.entre(R.VISTAS.mundo, CERCA, tramo(u, 1.2, 4));
+  R.mapa(t, { vista: v });
+  if (u > 4.2) SITIOS.forEach(([l, c], k) => { if (u < 4.3 + k * 0.6) return; const [x, y] = R.lugar(l, undefined, v); R.punto(x, y, t, c, 2); });
+  // los celtas: granjeros, pastores y guerreros
+  [['casa', PALA.AMARILLO], ['persona', PALA.BLANCO], ['espadas', PALA.ROJO]].forEach(([ic, c], k) => {
+    if (u < 0.5 * L + k * 0.7) return;
+    const [x, y] = R.lugar([-8.4, 53.2], undefined, v);
+    R.icono(ic, x - 16 + k * 11, y - 3, c[3], PALA.CONTORNO);
+  });
+  // el invierno: nieve que cae
+  const n = Math.round(160 * tramo(u, 0.78 * L, 0.9 * L));
+  for (let k = 0; k < n; k++) { const x = Math.round(R.hash2(k, 1) * R.W + Math.sin(t * 1.5 + k) * 3), y = Math.round((R.hash2(k, 2) * R.H + t * (10 + 10 * R.hash2(k, 3))) % R.H); R.pset(x, y, PALA.BLANCO[3]); }
+};
+const calendario = (t) => {
+  const u = t - m.cal, Lc = E.duracion - m.cal;
+  R.cielo(t, { hor: 180, semilla: 12, n: 160 });
+  const p = easeIO(tramo(u, 0.2 * Lc, 0.78 * Lc));
+  R.ruedaAño(160, 96, 54, lerp(0.3, Math.PI + 0.22, p));
+  if (p >= 1) { R.halo(160, 160, 16, [NARANJA[0], NARANJA[1]], 0.9); R.calabaza(160, 172, 0.7, t); }
+};
+rodar(E, R, [[0, mapa], [m.cal - 0.2, calendario]], {
+  año: 0, barraDesde: m.map + 4, barra: { numero: false },
+  caja: (t, e) => R.caja(t, t > E.duracion - 0.22 * (E.duracion - m.cal) ? tramo(t, E.duracion - 0.22 * (E.duracion - m.cal), E.duracion - 0.22 * (E.duracion - m.cal) + 0.4) : 0, (x, y) => R.numero('31/10', x + 2, y + 12), { energia: e }),
+});
+</script>
+</body>
+</html>

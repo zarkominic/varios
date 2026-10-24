@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rosetta · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-ROSETTA (frases 38–39). Cartela «1799». Una pared de jeroglíficos que se apaga y se va cubriendo de arena. Luego,
+// en la orilla, unos soldados franceses con bicornio desentierran una piedra oscura con tres franjas de escritura. Al
+// final, Champollion de noche en su mesa, a la luz de una vela, con la piedra y sus papeles; «1822» en la caja.
+import { preparar, rodar, tumba, nilo, EL, C, mareo, polvareda } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-rosetta');
+const { tramo } = R;
+const m = { olv: M('olvido', 1.5), ros: M('rosetta', 9) };
+const L2 = E.duracion - m.ros, T2 = (f) => m.ros + f * L2;
+const piedra = (x, y, s = 1) => {
+  R.poligono([[x, y], [x + 22 * s, y - 3 * s], [x + 24 * s, y + 26 * s], [x - 1, y + 26 * s]], C.negro); R.poligono([[x + 18 * s, y - 2 * s], [x + 22 * s, y - 3 * s], [x + 24 * s, y + 26 * s], [x + 20 * s, y + 26 * s]], C.k);
+  for (let j = 0; j < 3; j++) for (let k = 0; k < 7; k++) for (let i = 0; i < 6; i++) if ((i + k + j) % 3) R.pset(Math.round(x + 3 * s + i * 3 * s), Math.round(y + (2 + j * 8 + k) * s), [C.calizaS, C.gris, C.calizaL][j]);
+};
+const pared = (t) => { const u = t - m.olv; tumba(R, t, { modo: 'pared', apaga: tramo(u, 0.5, 3), arena: tramo(u, 2, m.ros - m.olv - 0.5) * 0.9 }); };
+const desierto = (t) => {
+  const u = t - m.ros;
+  nilo(R, t, { desierto: true, barcas: false });
+  piedra(150, 136 - Math.round(tramo(u, 0.5, 3) * 14));
+  R.actor(EL.europeo, 116, 145, t, { tocado: 'bicornio', pal: { C: R.hex('#2a4fa8'), F: R.hex('#f2eee2') }, brazos: Math.sin(t * 5) > 0 });
+  // gag: anda hacia atrás, tropieza con la piedra, sale volando y aterriza mareado
+  const atras = tramo(u, 0.2, 1.1), vuela = tramo(u, 1.1, 1.6), x = Math.round(R.lerp(214, 184, atras) + vuela * 22);
+  const alto = Math.round(Math.sin(vuela * Math.PI) * 14);
+  R.actor(EL.europeo, x, 145, t + 1, { tocado: 'bicornio', dir: -1, salto: alto, pal: { C: R.hex('#2a4fa8'), F: R.hex('#f2eee2') }, sorpresa: u > 1.05 && u < 3.2 ? true : u > 3, manos: false });
+  if (u > 1.6) polvareda(R, x + 7, 145, (u - 1.6) / 0.6);
+  if (u > 1.6 && u < 3.2) mareo(R, x + 7, 118, t);
+};
+const champollion = (t) => {
+  R.interior(t, { luces: [[176, 110]], suelo: 146, tipo: 'madera', radio: 160 });
+  R.rect(120, 128, 230, 132, C.madera); R.rect(124, 132, 127, 146, C.maderaS); R.rect(223, 132, 226, 146, C.maderaS);
+  piedra(186, 104, 0.9); R.rect(130, 124, 160, 127, C.calizaL); for (let k = 0; k < 20; k++) R.pset(132 + (k % 10) * 3, 125 + Math.floor(k / 10), C.k);
+  R.vela(170, 120, t, { r: 18 });
+  R.actor(EL.europeo, 100, 145, t, { sonrisa: t > T2(0.85), sorpresa: t > T2(0.75) && t < T2(0.85), pal: { H: R.hex('#2c2232'), h: R.hex('#54466a'), C: R.hex('#26305a') } });
+};
+rodar(E, R, [[0, pared], [m.ros - 0.2, desierto], [T2(0.5), champollion]], {
+  cartela: '1799', año: (t) => (t < m.ros ? 394 : t < T2(0.5) ? 1799 : 1822),
+  caja: (t, e) => R.caja(t, t > T2(0.55) ? tramo(t, T2(0.55), T2(0.55) + 0.4) : 0, (x, y) => R.numero('1822', x + 2, y + 12), { energia: e }),
+});
+</script>
+</body>
+</html>

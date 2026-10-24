@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rio · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-RIO (frase 37). La orilla del Nilo: el río crece y baja una y otra vez, los campesinos recogen y el escriba cuenta;
+// la barra de tiempo corre de 3100 a. C. hasta el 30 a. C.
+import { preparar, rodar, nilo, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-rio');
+const m0 = M('rio', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  const crece = Math.max(0, Math.sin((t - m0) * 2.4));
+  nilo(R, t, { nivel: 1 + crece * 0.9, silos: 1 });
+  R.actor(EL.escriba, 120, 145, t, { habla: Math.sin(t * 9) > 0.5 });
+  R.actor(EL.campesino, 160, 145, t, { brazos: crece < 0.2 && Math.sin(t * 6) > 0 });
+};
+rodar(E, R, [[0, plano]], { año: (t) => Math.round(R.lerp(-3100, -30, R.tramo(t, m0, m0 + 0.9 * L))) });
+</script>
+</body>
+</html>

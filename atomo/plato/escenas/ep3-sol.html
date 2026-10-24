@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El Sol por dentro</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EP3-SOL · episodio 3, frases 58–60 (sin cartela), plastilina adulta. Crea kits/ep03-estrellas.js y kits/ep03-tiempo.js.
+//  0       el último fotograma de ep3-tierra: el Sol de crearMundo, enorme (721, 470, 376 px), con la Tierra como un punto
+//          a su lado; la regla en 10⁹; Atom pequeño abajo a la izquierda (en el mismo estado en que lo deja ep3-tierra)
+//  fusion  (completo en la marca) el Sol del mundo pasa a la pieza de arcilla de ep03-estrellas.js, igual, y se abre en
+//          corte: se le quita un octante y gira para enseñarlo (núcleo, zona radiativa y de convección); flechas de arcilla
+//          aprietan desde fuera (su peso) y el núcleo se encoge y se pone al rojo blanco. A mitad de frase la cámara entra
+//          en el núcleo (detalle; la regla se apaga, es un inserto): núcleos de hidrógeno (el núcleo de Atom sin órbitas)
+//          se aprietan, chocan de dos en dos y se funden en helio, con un destello por choque; uno, abajo, se deja
+//          aplastar por otro que se le sienta encima: en 3D y en vivo, cede por arriba (sq [1,15, 0,7, 1,15]) y se ladea
+//          (rot z 0,35), aguanta así y se funde con él
+//  rebota  al acabar la frase 58 vuelve el corte, ahora en plano medio (completo en la marca): el Sol de 560 px llena el
+//          cuadro y el núcleo queda en el centro; un rayo de luz de alambre rebota dentro como una bola de pinball mientras
+//          un calendario de arcilla, en la esquina oscura de arriba a la izquierda, pasa hojas de 1 a 120000 (años); a mitad
+//          de frase la luz sale por el borde, la cámara la sigue (el Sol se aleja arriba a la izquierda y la persona entra
+//          por la derecha con el mismo movimiento) y viaja con un reloj que marca 8 minutos hasta la cara de una persona de
+//          perfil, con los ojos cerrados al sol: el alambre se para justo antes de la piel y su luz cae en el pómulo
+//  pequeno (completo en la marca) el Sol entero, otra vez en su sitio del mundo, se encoge entre un montón de estrellas de
+//          arcilla y, al fondo, arriba a la derecha, entra una estrella mucho mayor y rojiza que empieza a apagarse;
+//          quieto (termina_con: el cielo de ep03-estrellas.js con u = 1, CIELO)
+// CONTINUIDAD (cámara del plató de las pruebas: pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28)
+//  · Fotograma 0 = el último de ep3-tierra (comprobado: la misma media de color en el Sol, la regla y Atom): el mundo de
+//    ep03-cosmos.js con camara(9) y n = 931 (y su somA), la regla P.regla con e 9, ya 0, actual 9, lupa 0,5 en
+//    P.punto(1655, 528, 0,4), escala 1,42, rot [0, −0,12, 0]; Atom en (230, 780) con su vaivén y sus electrones donde los
+//    deja ep3-tierra (FIN_TIERRA, calculado con las marcas de ep3-tierra).
+//  · Último fotograma (ep3-vuelta empieza así; window.__fin.final lo da en números): fondoCielo(mundo, 932, { somA:
+//    [252, 810, 62, 0,42] }) sin viñeta; encima, el cielo de ep03-estrellas.js con u = 1 (cielo(g, fotosCielo(P, …), { u: 1,
+//    apaga: CIELO.apaga }): el Sol pequeño en (930, 470) con 62 px, la gigante en (1262, 236) con 150 px, los dos
+//    montones; aquí los montones se fotografían por bandas, idénticos píxel a píxel a los de fotosCielo); la misma regla;
+//    Atom en (230, 781,5) con tz 39,149 y electrones en ta 42,086 (escala 0,3326, yaw 0,182, pitch 0,256), sin energía;
+//    después la viñeta y el grano de crearPost.
+// LAS ESTRELLAS DE CERCA AL EMPEZAR A ENCOGER: cielo() del kit agranda la foto del montón de cerca 3,6 veces en u = 0
+// (CIELO.crece.cerca), y las cuentas grandes salían a escalones. El kit está congelado: aquí el cielo se compone igual que
+// cielo() (lejos, cerca, gigante y Sol, en ese orden), pero el montón de cerca sale de dos fotos más del mismo montón con
+// la cámara del plató acercada (uTanY/k; girada un poco hacia la ventana que hace falta): k 2,6 y 1,95. Cada una se usa
+// mientras la pantalla entera cae dentro de ella (se agranda como mucho 1,4 veces) y se funde con la siguiente; desde
+// u ≈ 0,5, la foto del kit (agrandada menos de 2 veces). En u = 1 es exactamente cielo() del kit.
+// COSTE: todo se compone en 2D (crearPost al final). Lo quieto son fotos: el mundo (con y sin Sol), la regla (quieta en
+// 10⁹: tres fotos que se alternan para el hervor), el corte del plano medio, la persona, los núcleos (sprites), el calor
+// del núcleo y el cielo. Las fotos caras se hacen POR BANDAS (la tijera de WebGL: cada banda solo paga sus píxeles; sin
+// ella, una pasada del montón de estrellas cuesta ~2,3 s de CPU aunque no dibuje nada), repartidas en fotogramas baratos
+// (PREPARAR: un paso por fotograma, en tres tramos: el primer plano, el detalle y el viaje de la luz; cada paso lee un
+// píxel de su lienzo para que el trabajo aplazado del lienzo 2D no caiga en el fotograma siguiente) para que ningún
+// fotograma pase de ~5 s de CPU en este servidor. Al cargar: las fotos del fotograma 0 (el mundo con y sin el Sol, la
+// regla), la del espacio sin Sol (otra foto del mundo, ~6 s de una vez), los estrenos de Atom y del Sol, y la
+// compilación de las variantes de la persona en
+// su encuadre, del calendario y del reloj (dibujándolos con una tijera de un píxel: solo compilan). En vivo: Atom siempre;
+// el Sol mientras se abre y se calienta; el núcleo que se deja aplastar; el calendario y el reloj mientras se mueven.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cargarFuenteCartela, cl, mix, prog, ss, eio, eoc, eic, eob, azar, mulberry32, brote } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo, camara, estadoMundo, fotoMundo, FINAL_TIERRA } from '/atomo/plato/kits/ep03-cosmos.js';
+import { tiposEstrellas, uniformesEstrellas, sol, nucleo, estrellas, halo, destello, brilloNucleo, solComoMundo,
+  fotoCielo, cielo, estadoCielo, fondoCielo, CIELO } from '/atomo/plato/kits/ep03-estrellas.js';
+import { tiposTiempo, uniformesTiempo, calendario, reloj, rayo, caminoRebotes, largoCamino, hojaEn } from '/atomo/plato/kits/ep03-tiempo.js';
+
+const T0 = performance.now();
+window.__carga = [];
+const marcaCarga = (k) => window.__carga.push([k, Math.round(performance.now() - T0)]);
+const E = await escena('ep3-sol', 'ep03');
+marcaCarga('escena');
+const M = (k) => E.marca(k);
+const m = { fusion: M('fusion'), fusionFin: M('fusion_fin'), rebota: M('rebota'), rebotaFin: M('rebota_fin'), pequeno: M('pequeno'), pequenoFin: M('pequeno_fin') };
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+const mitad = (a, b) => (a + b) / 2;
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const T = {
+  funde: [m.fusion - 0.42, m.fusion - 0.26],          // la foto del mundo da paso a la pieza (iguales)
+  corte: [m.fusion - 0.3, m.fusion],                  // el octante se abre (completo en la marca)
+  flechas: [m.fusion + 0.55, m.fusion + 1.0],         // llegan las flechas…
+  aprieta: [m.fusion + 1.0, m.fusion + 2.4],          // … y aprietan
+  calor: [m.fusion + 1.7, m.fusion + 3.4],            // el núcleo se pone al rojo blanco
+  entra: [mitad(m.fusion, m.fusionFin) - 0.3, mitad(m.fusion, m.fusionFin) + 0.05],   // la cámara entra en el núcleo
+  sale: [m.fusionFin - 0.05, m.rebota],               // al acabar la frase vuelve al corte, en plano medio (completo en la marca)
+  rayo: [m.rebota + 0.1, null],                        // el rayo rebota dentro…
+  fuera: mitad(m.rebota, m.rebotaFin) - 0.05,          // … y sale por el borde (a mitad de frase)
+  llega: m.rebotaFin - 0.7,                            // llega a la cara
+  s5: m.pequeno - 0.22,                                // corte al Sol entero
+  encoge: [m.pequeno - 0.1, m.pequeno + 1.8],          // el Sol se encoge entre las estrellas
+  apaga: [m.pequeno + 1.9, Math.min(m.pequenoFin + 0.2, QUIETO - 0.15)],   // la gigante empieza a apagarse
+};
+T.rayo[1] = T.fuera;
+T.pan = [T.fuera - 0.05, T.fuera + 0.7];               // la cámara sigue a la luz
+const T_DET = T.entra[1];                              // el detalle empieza
+// los choques del detalle (a partir de T_DET; acaban antes de volver)
+const LDET = T.sale[0] - T_DET;
+const CH = { a: T_DET + 0.20 * LDET, b: T_DET + 0.40 * LDET, aplasta: [T_DET + 0.50 * LDET, T_DET + 0.76 * LDET], c: T_DET + 0.84 * LDET };
+// el calendario salta al volver del núcleo cuando el detalle ya casi no se ve (opacidad < 0,1)
+T.calendario = [mix(T.sale[0], T.sale[1], 0.58), T.sale[1] + 0.06];
+
+// ---------------------------------------------------------------- el plató
+// una flecha gorda de arcilla (pieza propia de la escena: el peso que aprieta): asta y punta a lo largo de +x, de −1 a 1
+const FLECHA_GORDA = { radio: 1.05, glifos: [], glsl: /* glsl */`
+float pz_flechagorda(vec3 q, vec4 T, out float m) {
+  m = 0.0;
+  float asta = sdCapsule(q, vec3(-0.92, 0.0, 0.0), vec3(0.15, 0.0, 0.0), 0.15);
+  vec2 p = vec2(length(q.yz), q.x - 0.08);
+  float h = 0.86, r = 0.36 * (1.0 - clamp(p.y / h, 0.0, 1.0));
+  float punta = max(max(p.x - r, -p.y), p.y - h) * 0.82;
+  return smin(asta, punta, 0.07) - 0.004 * bultos(q * 3.0);
+}
+float pzc_flechagorda(vec3 q, vec4 T) { return sdCapsule(q, vec3(-0.85, 0.0, 0.0), vec3(0.3, 0.0, 0.0), 0.12); }
+vec3 pzcol_flechagorda(vec3 q, vec4 T, float m) { gEm = C_AMBAR * 0.04; return mix(C_TERRA, C_AMBAR, 0.35) * (0.94 + 0.12 * vnoise(q * 5.0)); }
+` };
+// (continuidad) la persona, la regla y su flecha en los mismos huecos que en ep3-tierra (0, 1 y 2): el hueco siembra las
+// huellas, los bultos y el grano de la arcilla de cada pieza, y la regla tiene que salir igual que allí
+const I = { PER: 0, REG: 1, FLE: 2, SOL: 3, NUC: 4, CAL: 5, REL: 6, EST: 7, GIG: 8, FG: 9 };
+// (continuidad) los rótulos de la regla, en Jost como en ep3-tierra: crearPlato los hornea con cargarFuenteRotulos(), que
+// pide la fuente en cuanto añade la hoja de estilos, antes de que llegue, y sin cartela se queda con la de respaldo (más
+// fina). ep3-tierra tiene cartela, y su cargarFuenteCartela() espera a la hoja: aquí se hace lo mismo antes del plató
+await cargarFuenteCartela();
+marcaCarga('fuente');
+const P = await crearPlato({
+  piezas: ['humano', 'reglaA', 'flecha', 'sol', 'nucleo', 'calendario', 'reloj', 'estrellas', 'gigante', 'flechagorda'],
+  tiposExtra: { ...tiposEstrellas(['sol', 'nucleo', 'estrellas', 'gigante']), ...tiposTiempo(['calendario', 'reloj']), flechagorda: FLECHA_GORDA },
+  uniformes: { ...uniformesEstrellas(), ...uniformesTiempo() },
+  alfa: true, post: false,
+  sombraFondo: ['p0', 'p1'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+marcaCarga('plató');
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+
+// ---------------------------------------------------------------- capas: el mundo (oculto) y el lienzo 2D encima
+const cont = document.getElementById('escena');
+const mundo = crearMundo(cont, { captura: P.captura });
+mundo.lienzo.style.visibility = 'hidden';
+marcaCarga('mundo');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:3';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const pegarGL = (alfa = 1) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = alfa; g.drawImage(lienzoGL, 0, 0); g.restore(); };
+const lienzo = (w = lienzoGL.width, h = lienzoGL.height) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+const copiaGL = () => { const c = lienzo(); c.getContext('2d').drawImage(lienzoGL, 0, 0); return c; };
+// una foto de 1920 × 1080 escalada s veces alrededor de (px, py), que queda en (qx, qy)
+function pegarEscalada(f, s, [px, py], [qx, qy] = [px, py], alfa = 1, gg = g) {
+  if (alfa <= 0.002) return;
+  gg.save(); gg.globalAlpha *= alfa;
+  gg.translate(qx, qy); gg.scale(s, s); gg.translate(-px, -py);
+  gg.drawImage(f, 0, 0, W, H);
+  gg.restore();
+}
+// el «parpadeo» de la luz del plató (como ep3-casa)
+function parpadeo(n) {
+  const fl = azar(n, 3) - 0.5;
+  g.fillStyle = fl > 0 ? `rgba(255,236,210,${fl * 0.03})` : `rgba(0,0,6,${-fl * 0.04})`; g.fillRect(0, 0, W, H);
+}
+// la viñeta del mundo, quitada (crearPost la vuelve a poner al final, igual)
+function sinVineta(c) {
+  const gc = c.getContext('2d'), im = gc.getImageData(0, 0, c.width, c.height), d = im.data, k = W / c.width;
+  for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) {
+    const v = 1 - 0.42 * ss(0.42, 1.12, Math.hypot(((x + 0.5) * k - 960) / 1080, ((y + 0.5) * k - 540) / 1080));
+    if (v > 0.999) continue;
+    const o = (y * c.width + x) * 4; d[o] = Math.min(255, d[o] / v); d[o + 1] = Math.min(255, d[o + 1] / v); d[o + 2] = Math.min(255, d[o + 2] / v);
+  }
+  gc.putImageData(im, 0, 0);
+  return c;
+}
+
+// ---------------------------------------------------------------- render por bandas (la tijera de WebGL)
+// (coste) P.render con la tijera puesta solo dibuja (y solo paga) los píxeles de ese rectángulo: el resultado de cada
+// banda es idéntico píxel a píxel al de la foto entera (comprobado). rect en px de diseño [x0, y0, x1, y1].
+function conTijera(rect, fn) {
+  const R = P.renderer, k = lienzoGL.width / W, pr = R.getPixelRatio(), Hd = lienzoGL.height;
+  // un píxel de más por cada lado (redondeos de la vista previa); se copia solo el rectángulo
+  const x0 = Math.max(0, Math.floor(rect[0] * k) - 1), x1 = Math.min(lienzoGL.width, Math.ceil(rect[2] * k) + 1);
+  const y0 = Math.max(0, Math.floor(rect[1] * k) - 1), y1 = Math.min(Hd, Math.ceil(rect[3] * k) + 1);
+  R.setScissorTest(true); R.setScissor(x0 / pr, (Hd - y1) / pr, (x1 - x0) / pr, (y1 - y0) / pr);
+  try { fn(); } finally { R.setScissorTest(false); }
+}
+// la cámara del plató acercada k veces (uTanY/k: un zoom exacto alrededor de su eje) y girada hacia el píxel `mira` de
+// la foto normal; fn dibuja con ella. Devuelve la función que lleva un píxel de la foto acercada a la foto normal.
+function camaraZoom(k, mira) {
+  const U = P.U, tan0 = U.uTanY.value, asp = U.uAsp.value;
+  const d = new THREE.Vector3((2 * mira[0] / W - 1) * tan0 * asp, (1 - 2 * mira[1] / H) * tan0, -1).normalize();
+  const f = d.clone().negate(), r = new THREE.Vector3(0, 1, 0).cross(f).normalize(), u = f.clone().cross(r);
+  const Rs = new THREE.Matrix3().set(r.x, u.x, f.x, r.y, u.y, f.y, r.z, u.z, f.z);
+  const aNormal = (hx, hy) => {
+    const l = new THREE.Vector3((2 * hx / W - 1) * tan0 / k * asp, (1 - 2 * hy / H) * tan0 / k, -1).applyMatrix3(Rs);
+    return [((l.x / -l.z) / (tan0 * asp) + 1) / 2 * W, (1 - (l.y / -l.z) / tan0) / 2 * H];
+  };
+  const usar = (fn) => {
+    const rot0 = U.uCamRot.value, pix0 = U.uPix.value;
+    U.uCamRot.value = rot0.clone().multiply(Rs); U.uTanY.value = tan0 / k; U.uPix.value = pix0 / k;
+    try { fn(); } finally { U.uCamRot.value = rot0; U.uTanY.value = tan0; U.uPix.value = pix0; }
+  };
+  // la misma relación, como afín (centro y escala): el error en las esquinas va en __fin (≤ 1 px)
+  const c0 = aNormal(960, 540), sx = (aNormal(1360, 540)[0] - aNormal(560, 540)[0]) / 800, sy = (aNormal(960, 840)[1] - aNormal(960, 240)[1]) / 600;
+  const afin = { x0: c0, s: [sx, sy] };
+  const err = Math.max(...[[0, 0], [W, 0], [0, H], [W, H]].map(([hx, hy]) => { const e = aNormal(hx, hy); return Math.hypot(e[0] - (c0[0] + sx * (hx - 960)), e[1] - (c0[1] + sy * (hy - 540))); }));
+  return { k, mira, usar, aNormal, afin, err };
+}
+// trabajos por pasos: cada foto cara es una lista de pasos (una banda cada uno) que se reparten en fotogramas baratos
+// (PREPARAR); F(clave) termina los que falten (si se pide un instante suelto, la foto sale igual)
+const TRABAJOS = {};
+function bandas(rect, nb) {
+  const out = [];
+  for (let b = 0; b < nb; b++) out.push([rect[0], Math.round(mix(rect[1], rect[3], b / nb)), rect[2], Math.round(mix(rect[1], rect[3], (b + 1) / nb))]);
+  return out;
+}
+// pasos: [{ rect, capa: índice del lienzo, poner(): coloca las piezas (entre P.limpiar y P.render), n, zoom }]; fin(capas)
+function trabajo(clave, pasos, fin) { TRABAJOS[clave] = { pasos, fin, capas: [], hechos: new Set() }; }
+function hacerPaso(clave, i) {
+  const t = TRABAJOS[clave];
+  if (FOTOS[clave] || t.hechos.has(i)) return;
+  const p = t.pasos[i], ci = p.capa ?? 0;
+  const c = t.capas[ci] ?? (t.capas[ci] = lienzo());
+  const dibujar = () => conTijera(p.rect, () => { P.limpiar(); p.poner(); P.render(p.n, { fondo: false }); });
+  if (p.zoom) p.zoom.usar(dibujar); else dibujar();
+  const k = lienzoGL.width / W, x0 = Math.floor(p.rect[0] * k), y0 = Math.floor(p.rect[1] * k), x1 = Math.ceil(p.rect[2] * k), y1 = Math.ceil(p.rect[3] * k);
+  c.getContext('2d').drawImage(lienzoGL, x0, y0, x1 - x0, y1 - y0, x0, y0, x1 - x0, y1 - y0);
+  c.getContext('2d').getImageData(x0, y0, 1, 1);      // (coste) hecho ya, en este fotograma (ver asentar)
+  t.hechos.add(i);
+}
+
+// ---------------------------------------------------------------- Atom: el de ep3-tierra, en el mismo estado
+const A_Z = 1.0, ATOMO = [230, 780];
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(en(...ATOMO, A_Z)));
+const CAM = [0, 3.8, 15.5];
+const gy = (p) => Math.atan2(CAM[0] - p[0], CAM[2] - p[2]), gp = (p) => Math.atan2(p[1] - CAM[1], Math.hypot(CAM[0] - p[0], CAM[2] - p[2]));
+const A_W = en(...ATOMO, A_Z), A_REF = en(850, 330, A_Z);
+const A_YAW = gy(A_W) - gy(A_REF), A_PITCH = gp(A_W) - gp(A_REF);
+// el reloj de Atom al acabar ep3-tierra (su vaivén, tz, y sus electrones, ta), con sus marcas
+const FIN_TIERRA = await (async () => {
+  let mt = { duracion: 19.751, marcas: { tierra: 1.5, sol: 15.019 } };
+  try { const j = await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json(); if (j['ep3-tierra']) mt = j['ep3-tierra']; } catch (e) { /* las de arriba */ }
+  const Qt = mt.duracion - 0.6, mT = mt.marcas.tierra, mS = mt.marcas.sol;
+  const vel = (t) => (1 + 1.1 * Math.exp(-Math.pow((t - mT) / 0.4, 2)) + 0.9 * Math.exp(-Math.pow((t - mS) / 0.4, 2))) * (1 - eio(prog(t, Qt - 0.9, Qt)));
+  const dt = 1 / 240; let ta = 0, t = 0;
+  for (; t + dt <= Qt + 1e-9; t += dt) ta += vel(t + dt / 2) * dt;
+  // n: el número de fotograma con que ep3-tierra dibuja su último fotograma (el hervor y el parpadeo de la luz del plató)
+  return { tz: Qt - 0.45, ta, n: Math.max(0, Math.floor(Qt * 12 + 1e-6)) };
+})();
+marcaCarga('fin tierra');
+// el mío arranca quieto (como lo dejó) y coge su ritmo en medio segundo; al final se calma igual
+const DT = 1 / 240, TA = [0], TZ = [0];
+const velA = (t) => ss(0, 0.7, t) * (1 + 0.8 * Math.exp(-Math.pow((t - m.fusion) / 0.4, 2)) + 0.8 * Math.exp(-Math.pow((t - m.rebota) / 0.4, 2)) + 0.8 * Math.exp(-Math.pow((t - m.pequeno) / 0.4, 2))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+const velZ = (t) => ss(0, 0.7, t) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= D + 0.2; i++) { TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT); TZ.push(TZ[i - 1] + velZ((i - 0.5) * DT) * DT); }
+const tabla = (Tb, t) => { const x = t / DT, i = Math.min(Tb.length - 2, Math.max(0, Math.floor(x))); return mix(Tb[i], Tb[i + 1], x - i); };
+function estadoAtom(ts) {
+  const tz = FIN_TIERRA.tz + tabla(TZ, ts);
+  const sx = ATOMO[0], sy = ATOMO[1] + 3 * Math.sin(tz * 1.3) + 2 * Math.sin(tz * 0.7 + 1.0);
+  // al empezar cada frase, un brillo; y otro cuando salen los núcleos de hidrógeno («como el mío»)
+  const brillo = Math.max(...[m.fusion, m.rebota, m.pequeno].map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))),
+    0.8 * Math.sin(Math.PI * prog(ts, T_DET + 0.1, T_DET + 1.0)));
+  return { sx, sy, tz, brillo };
+}
+function atomo(ts, { claro = 0 } = {}) {
+  const S = estadoAtom(ts);
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  P.atomo({
+    pos: en(S.sx, S.sy, A_Z), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH,
+    energia: Math.min(1, en0 + 0.45 * S.brillo), ts: FIN_TIERRA.ta + tabla(TA, ts), halo: 1 - 0.55 * claro, velo: 0.1,
+  });
+  return S;
+}
+// sobre el plasma claro del detalle, una sombra cálida y redonda detrás de Atom (en 2D, antes de pegarlo) para que se lea
+function sombraAtom(ts, k) {
+  if (k <= 0.01) return;
+  const S = estadoAtom(ts), R = 170;
+  const gr = g.createRadialGradient(S.sx, S.sy, 0, S.sx, S.sy, R);
+  gr.addColorStop(0, `rgba(70,30,10,${0.5 * k})`); gr.addColorStop(0.5, `rgba(70,30,10,${0.3 * k})`); gr.addColorStop(1, 'rgba(70,30,10,0)');
+  g.fillStyle = gr; g.fillRect(S.sx - R, S.sy - R, 2 * R, 2 * R);
+}
+
+// ---------------------------------------------------------------- la regla (quieta en 10⁹: la de ep3-tierra al acabar)
+const E_REG = 1.42, REG = en(1655, 528, 0.4);
+const reglaEn = () => P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: [0, -0.12, 0], e: 9, ya: 0, actual: 9, lupa: 0.5 });
+const RECT_REGLA = [1380, 100, 1860, 940];
+// cuánto se ve el detalle del núcleo (0…1): mientras dura, la regla se apaga (un inserto: allí no se mide en 10⁹)
+function kDetalle(ts) {
+  if (ts >= T.entra[0] && ts < T.sale[0]) return ss(0.3, 1, eio(prog(ts, T.entra[0], T.entra[1])));
+  if (ts >= T.sale[0] && ts < T.sale[1]) return 1 - ss(0, 0.7, prog(ts, T.sale[0], T.sale[1]));
+  return 0;
+}
+
+// ---------------------------------------------------------------- fotos
+// las del primer fotograma (el mundo con su Sol y sin él, la regla) se hacen al cargar; las demás, en PREPARAR o al pedirlas
+const S0 = estadoAtom(0);
+const SOM_A = [S0.sx + 22, S0.sy + 30, 62, 0.42];
+const FOTOS = {};
+const HACER = {
+  reg0: () => fotoRegla(FIN_TIERRA.n),
+  // la regla apagada del detalle (gris y oscura; se funde con la de verdad)
+  regTenue: () => { const c = F('reg0'), d = lienzo(c.width, c.height), gd = d.getContext('2d'); gd.filter = 'grayscale(0.8) brightness(0.7)'; gd.drawImage(c, 0, 0); return d; },
+  // el último fotograma de ep3-tierra: el mundo a 10⁹ (la misma foto, n = 931: la del último fotograma de ep3-tierra)
+  mundoSol: () => sinVineta(fotoMundo(mundo, estadoMundo(camara(9), 931, { somA: SOM_A }))),
+  // el mismo espacio sin el Sol (con la Tierra como un punto), para el corte
+  mundoSinSol: () => sinVineta(fotoMundo(mundo, estadoMundo(camara(9), 931, { somA: SOM_A, capas: { uSol: [0, 0, 1, 0] } }))),
+  // el espacio sin Sol ni Tierra (el viaje de la luz y el cielo)
+  espacio: () => sinVineta(fondoCielo(mundo, 932, { somA: SOM_A })),
+  nucBlur: () => desenfocar(F('nucH0'), 7, 0.75),
+  // la persona a la sombra, antes de que llegue la luz (horneada: un filtro de lienzo en cada fotograma cuesta)
+  personaSombra: () => { const c = F('persona0'), d = lienzo(c.width, c.height), gd = d.getContext('2d'); gd.filter = 'brightness(0.62) saturate(0.82)'; gd.drawImage(c, 0, 0); return d; },
+  // el Sol entero y la gigante del cielo (fotoCielo del kit: una pasada cada una)
+  'cielo/sol': () => (fotoCielo(P, IDX_CIELO, 'sol', CIELO_F), CIELO_F.sol),
+  'cielo/gigante': () => (fotoCielo(P, IDX_CIELO, 'gigante', CIELO_F), CIELO_F.gigante),
+  'cielo/giganteApagada': () => (fotoCielo(P, IDX_CIELO, 'giganteApagada', CIELO_F), CIELO_F.giganteApagada),
+};
+// (coste) el lienzo 2D aplaza su trabajo (los desenfoques, sobre todo) hasta que alguien lo lee: leer un píxel lo
+// obliga a hacerlo ya, en el fotograma del paso, y no en el siguiente, encima de otro paso
+const asentar = (c) => { if (c?.getContext) c.getContext('2d').getImageData(0, 0, 1, 1); return c; };
+function F(k) {
+  if (FOTOS[k]) return FOTOS[k];
+  const t = TRABAJOS[k];
+  if (t) { t.pasos.forEach((_, i) => hacerPaso(k, i)); return (FOTOS[k] = asentar(t.fin(t.capas))); }
+  return (FOTOS[k] = asentar(HACER[k]()));
+}
+function fotoRegla(n) { P.limpiar(); reglaEn(); P.render(n, { fondo: false }); return copiaGL(); }
+// la regla del corte con ep3-tierra (reg0) y dos más que se alternan con ella para el hervor (por bandas)
+for (const [k, n] of [['reg1', 7101], ['reg2', 7102]]) trabajo(k, bandas(RECT_REGLA, 2).map((rect) => ({ rect, poner: reglaEn, n })), (cs) => cs[0]);
+// la foto de la regla del fotograma n (las tres se alternan desde N_HERVOR, cuando PREPARAR ya ha hecho reg1 y reg2;
+// antes, la del corte con ep3-tierra: si se pidieran antes, un fotograma pagaría las cuatro bandas de golpe)
+let N_HERVOR = 4;
+const reglaDe = (n) => (n < N_HERVOR ? 'reg0' : ['reg0', 'reg1', 'reg2'][n % 3]);
+const CIELO_F = {}, IDX_CIELO = { sol: I.SOL, estrellas: I.EST, gigante: I.GIG };
+function recortar(c, [x0, y0, x1, y1]) {
+  const k = c.width / W, r = lienzo(Math.round((x1 - x0) * k), Math.round((y1 - y0) * k));
+  r.getContext('2d').drawImage(c, x0 * k, y0 * k, (x1 - x0) * k, (y1 - y0) * k, 0, 0, r.width, r.height);
+  r.ref = [x0, y0, x1, y1];
+  return r;
+}
+function desenfocar(c, px, brillo = 1) {
+  const d = lienzo(c.width, c.height), gd = d.getContext('2d');
+  gd.filter = `blur(${(px * c.width / W).toFixed(1)}px) brightness(${brillo})`;
+  gd.drawImage(c, 0, 0);
+  d.ref = c.ref;
+  return d;
+}
+
+// ---------------------------------------------------------------- el Sol: del mundo a la pieza, el corte y el plano medio
+const SOLM = solComoMundo(P, FINAL_TIERRA.sol, 0);                 // el Sol del mundo, en pieza (de frente: el mismo disco)
+const SOL1 = SOLM;                                                  // primer plano del corte: en el mismo sitio
+const [SX, SY, SR] = FINAL_TIERRA.sol;
+// plano medio (rebota): mucho más cerca (560 px de radio: el corte y el núcleo llenan el cuadro); deja la esquina de
+// arriba a la izquierda al calendario, el borde derecho a la regla y la de abajo a la izquierda a Atom
+const SOL3_PX = [860, 540, 560];
+const SOL3 = solComoMundo(P, SOL3_PX, 0);
+const ponerCorte3 = () => sol(P, I.SOL, { ...SOL3, corte: 1, calor: 1, aprieta: 1 });
+for (const [k, n] of [['corte0', 5101], ['corte1', 5102]]) trabajo(k, bandas([0, 0, W, H], 3).map((rect) => ({ rect, poner: ponerCorte3, n })), (cs) => cs[0]);
+// el corte del final del primer plano (el mismo que el vivo al acabar de calentarse): para entrar en el núcleo
+trabajo('corteS1', bandas([SX - SR - 20, SY - SR - 20, SX + SR + 20, SY + SR + 20], 2).map((rect) => ({ rect, poner: () => sol(P, I.SOL, { ...SOL1, corte: 1, calor: 1, aprieta: 1 }), n: 5103 })), (cs) => cs[0]);
+// geometría del corte del plano medio (sin dibujar): dónde caen sus caras y su núcleo en pantalla
+const GEO3 = (() => { P.limpiar(); const s = ponerCorte3(); P.limpiar(); return s; })();
+const GEO1 = (() => { P.limpiar(); const s = sol(P, I.SOL, { ...SOL1, corte: 1, calor: 1, aprieta: 1 }); P.limpiar(); return s; })();
+const NUC1 = pant(GEO1.local(0, 0, 0)), NUC3 = pant(GEO3.local(0, 0, 0));
+// la máscara de las tres caras del corte del plano medio (a un cuarto de resolución): por dentro de ella rebota la luz
+const MASCARA = (() => {
+  const k = 0.25, c = lienzo(W * k, H * k), gc = c.getContext('2d');
+  gc.fillStyle = '#fff';
+  for (const cara of [0, 1, 2]) {
+    gc.beginPath();
+    const o = pant(GEO3.local(0, 0, 0)); gc.moveTo(o[0] * k, o[1] * k);
+    for (let i = 0; i <= 24; i++) { const p = pant(GEO3.cara(cara, (i / 24) * Math.PI / 2, 0.9)); gc.lineTo(p[0] * k, p[1] * k); }
+    gc.closePath(); gc.fill();
+  }
+  const d = gc.getImageData(0, 0, c.width, c.height).data;
+  return (x, y) => { const i = Math.round(y * k), j = Math.round(x * k); return i >= 0 && j >= 0 && i < c.height && j < c.width && d[(i * c.width + j) * 4] > 128; };
+})();
+// la luz sale por el borde del corte, a la derecha (en la cara z = 0 del octante, a media altura)
+const SALIDA3 = pant(GEO3.local(0.94, 0.33, 0.0));
+const K3 = SOL3_PX[2] / 392;                       // (los pasos del pinball, a la escala del corte)
+const CAMINO3 = caminoRebotes({ desde: NUC3, n: 17, paso: [70 * K3, 150 * K3], dentro: MASCARA, salida: SALIDA3, semilla: 11, deriva: 0.5 });
+const L3 = largoCamino(CAMINO3);
+// los rebotes (para un destellito al pasar la punta)
+const REBOTES = (() => { const out = []; let s = 0; for (let k = 1; k < CAMINO3.length - 1; k++) { s += Math.hypot(CAMINO3[k][0] - CAMINO3[k - 1][0], CAMINO3[k][1] - CAMINO3[k - 1][1]); out.push([s, ...CAMINO3[k]]); } return out; })();
+
+// el plano del viaje (pan): el Sol se aleja arriba a la izquierda (acaba como antes: 392 px en (−40, 320)); la persona
+// entra por la derecha con el mismo movimiento
+const PAN = { s: 392 / SOL3_PX[2], de: [SOL3_PX[0], SOL3_PX[1]], a: [-40, 320] };     // el corte se escala s alrededor de su centro y va a `a`
+const panXY = (u, [x, y]) => [mix(x, PAN.a[0] + (x - PAN.de[0]) * PAN.s, u), mix(y, PAN.a[1] + (y - PAN.de[1]) * PAN.s, u)];
+const panS = (u) => mix(1, PAN.s, u);
+const DX_PER = 900;                                 // lo que entra la persona por la derecha
+
+// ---------------------------------------------------------------- la persona de perfil (cintura arriba), mirando al Sol
+const E_PER = 7.6, Z_PER = 2.0, GIRO_PER = -Math.PI / 2 + 0.4;
+const POSE_PER = { cabeza: [0, -0.3, 0], ojos: 0, mirada: [0, 0.4] };
+const PER = (() => {
+  // la coronilla en y ≈ 205 y la cabeza hacia x ≈ 1230 (la cara mira a la izquierda)
+  const x = en(1110, 540, Z_PER)[0];
+  let y = 0;
+  const cor = (yy) => { P.limpiar(); const h = P.pieza(I.PER, { pos: [x, yy, Z_PER], escala: E_PER, rot: [0, GIRO_PER, 0], postura: POSE_PER }); P.limpiar(); return pant(h.punto('coronilla'))[1]; };
+  let a = 0, b = 4, fa = cor(a) - 205, fb = cor(b) - 205;
+  for (let i = 0; i < 12; i++) { const c = b - fb * (b - a) / (fb - fa); a = b; fa = fb; b = c; fb = cor(c) - 205; if (Math.abs(fb) < 0.5) break; }
+  y = b;
+  return { pos: [x, y, Z_PER], escala: E_PER, rot: [0, GIRO_PER, 0] };
+})();
+const CARA = (() => { P.limpiar(); const h = P.pieza(I.PER, { ...PER, postura: POSE_PER }); P.limpiar(); return { ojos: pant(h.punto('ojos')), cabeza: pant(h.punto('cabeza')), barbilla: pant(h.punto('barbilla')), coronilla: pant(h.punto('coronilla')) }; })();
+// la luz cae en el pómulo, detrás de la nariz y bajo el ojo (la cara mira a la izquierda: detrás es +x)
+const DIANA = [CARA.ojos[0] + 55, CARA.ojos[1] + 30];
+const ponerPersona = () => P.pieza(I.PER, { ...PER, postura: POSE_PER, huellaFija: [0.37, 0.21, 0.0] });
+const RECT_PER = [880, Math.round(CARA.coronilla[1] - 40), 1420, H];
+for (const [k, n] of [['persona0', 5401], ['persona1', 5402]]) trabajo(k, bandas(RECT_PER, 5).map((rect) => ({ rect, poner: ponerPersona, n })), (cs) => cs[0]);
+// donde el alambre se para: justo antes de la piel, en la recta que va de la salida de la luz (con el pan acabado) al
+// pómulo (la primera opacidad de la foto de la persona en esa recta, 14 px antes)
+let CONTACTO = null;
+function contacto(salida) {
+  if (CONTACTO) return CONTACTO;
+  const c = F('persona0'), k = c.width / W, gc = c.getContext('2d');
+  const dx = DIANA[0] - salida[0], dy = DIANA[1] - salida[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
+  const x0 = Math.floor(Math.min(salida[0], DIANA[0]) * k), y0 = Math.floor(Math.min(salida[1], DIANA[1]) * k);
+  const x1 = Math.ceil(Math.max(salida[0], DIANA[0]) * k) + 1, y1 = Math.ceil(Math.max(salida[1], DIANA[1]) * k) + 1;
+  const d = gc.getImageData(x0, y0, x1 - x0, y1 - y0).data;
+  let s = L;
+  for (let t = 0; t <= L; t += 1) {
+    const px = Math.round((salida[0] + ux * t) * k) - x0, py = Math.round((salida[1] + uy * t) * k) - y0;
+    if (px < 0 || py < 0 || px >= x1 - x0 || py >= y1 - y0) continue;
+    if (d[(py * (x1 - x0) + px) * 4 + 3] > 128) { s = t; break; }
+  }
+  const t = Math.max(0, s - 14);
+  return (CONTACTO = { punto: [salida[0] + ux * t, salida[1] + uy * t], piel: [salida[0] + ux * s, salida[1] + uy * s] });
+}
+
+// ---------------------------------------------------------------- los núcleos del detalle (sprites; el aplastado, en vivo)
+const R_NUC = 150;                    // radio del racimo en la foto (px)
+const S_NUC = 0.72;                   // tamaño de los núcleos en pantalla (× la foto)
+const ROT_H = [0.15, -0.35, 0.05];
+function fotoNucleo(helio, n, rot) {
+  const pos = en(960, 540, 3), e = R_NUC / pxU(pos) / (helio ? 0.72 : 0.62);
+  P.limpiar();
+  nucleo(P, I.NUC, { pos, escala: e, rot, helio, calor: 0.55 });
+  P.render(n, { fondo: false });
+  const L = 1.3 * R_NUC * (helio ? 1.25 : 1);
+  return recortar(copiaGL(), [960 - L, 540 - L, 960 + L, 540 + L]);
+}
+Object.assign(HACER, {
+  nucH0: () => fotoNucleo(false, 5201, ROT_H), nucH1: () => fotoNucleo(false, 5202, ROT_H),
+  nucHe0: () => fotoNucleo(true, 5203, [0.1, 0.4, 0]), nucHe1: () => fotoNucleo(true, 5204, [0.1, 0.4, 0]),
+  // la flecha de arcilla (sprite)
+  flecha: () => { P.limpiar(); P.pieza(I.FG, { pos: en(960, 540, 2), escala: 120 / pxU(en(960, 540, 2)), rot: [0.5, 0, 0] }); P.render(5300, { fondo: false }); return recortar(copiaGL(), [820, 470, 1100, 610]); },
+});
+// el plasma: una foto del núcleo de arcilla muy de cerca (al rojo blanco), desenfocada y caldeada (en dos pasos: la base
+// con su desenfoque y, después, las bocanadas y el borde)
+trabajo('plasmaBase', bandas([0, 0, W, H], 3).map((rect) => ({ rect, poner: () => sol(P, I.SOL, { ...solComoMundo(P, [960 - 2600, 540 - 600, 9000], 0), corte: 1, calor: 0.85, aprieta: 1 }), n: 5500 })), ([base]) => {
+  const c = lienzo(), gc = c.getContext('2d'), k = c.width / W;
+  gc.setTransform(k, 0, 0, k, 0, 0);
+  const gr = gc.createRadialGradient(960, 520, 0, 960, 520, 1150);
+  gr.addColorStop(0, '#fff2d6'); gr.addColorStop(0.45, '#f2bf72'); gr.addColorStop(1, '#a8501c');
+  gc.fillStyle = gr; gc.fillRect(0, 0, W, H);
+  gc.setTransform(1, 0, 0, 1, 0, 0);
+  gc.globalAlpha = 0.55; gc.globalCompositeOperation = 'soft-light';
+  gc.filter = `blur(${(6 * k).toFixed(1)}px)`;
+  gc.drawImage(base, 0, 0);
+  return c;
+});
+HACER.plasma = () => {
+  const c = lienzo(), gc = c.getContext('2d'), k = c.width / W;
+  gc.drawImage(F('plasmaBase'), 0, 0);
+  // bocanadas de luz (desenfocadas)
+  const r = mulberry32(5);
+  gc.setTransform(k, 0, 0, k, 0, 0);
+  gc.globalCompositeOperation = 'screen';
+  for (let i = 0; i < 26; i++) {
+    const x = r() * W, y = r() * H, R = 60 + 220 * r();
+    const h = gc.createRadialGradient(x, y, 0, x, y, R);
+    h.addColorStop(0, `rgba(255,240,205,${0.12 + 0.18 * r()})`); h.addColorStop(1, 'rgba(255,200,120,0)');
+    gc.fillStyle = h; gc.beginPath(); gc.arc(x, y, R, 0, 2 * Math.PI); gc.fill();
+  }
+  // el borde, más naranja (viñeta cálida)
+  gc.globalCompositeOperation = 'multiply';
+  const v = gc.createRadialGradient(960, 520, 420, 960, 520, 1200);
+  v.addColorStop(0, 'rgba(255,255,255,1)'); v.addColorStop(1, 'rgba(200,110,60,1)');
+  gc.fillStyle = v; gc.fillRect(0, 0, W, H);
+  return c;
+};
+
+// ---------------------------------------------------------------- el cielo: los montones, por bandas, y los de cerca en alta
+// el montón como lo fotografía fotoCielo de ep03-estrellas.js (la misma losa, la misma semilla, el mismo fotograma, sus dos
+// mitades una encima de otra y acabarMonton), pero por bandas; con zoom, la losa entera con la cámara acercada
+const SITIO_ATOM = [230, 780, 150];
+function ponerMonton(nombre, trozo) {
+  const Mn = CIELO.monton[nombre];
+  return () => {
+    P.fotograma(0);
+    const centro = P.punto(960, 540, Mn.z), hs = P.punto(CIELO.sol[0], CIELO.sol[1], Mn.z);
+    estrellas(P, I.EST, { pos: centro, escala: Mn.escala, semilla: Mn.semilla, celda: Mn.celda, tamano: Mn.tamano, densidad: Mn.densidad,
+      profundidad: Mn.profundidad, hueco: { x: (hs[0] - centro[0]) / Mn.escala, y: (hs[1] - centro[1]) / Mn.escala, r: Mn.hueco }, trozo });
+  };
+}
+// acabarMonton del kit (resplandor de cada cuenta, las de lejos desenfocadas y más oscuras, y los claros), con zoom:
+// px de la foto acercada = centro + (px de la normal − x0) / s
+function acabarMonton(c, nombre, Z = null) {
+  const k = c.width / W, kz = Z ? 1 / Z.afin.s[0] : 1;
+  const d = lienzo(c.width, c.height), gd = d.getContext('2d');
+  gd.filter = nombre === 'lejos' ? `blur(${(2.2 * k * kz).toFixed(1)}px) brightness(0.62)` : 'none';
+  gd.drawImage(c, 0, 0);
+  gd.globalCompositeOperation = 'lighter';
+  gd.filter = `blur(${(7 * k * kz).toFixed(1)}px) brightness(${nombre === 'lejos' ? 0.35 : 0.55})`;
+  gd.drawImage(c, 0, 0);
+  gd.filter = 'none';
+  gd.globalCompositeOperation = 'destination-out';
+  gd.setTransform(k, 0, 0, k, 0, 0);
+  for (let [x, y, r] of [[CIELO.gigante[0], CIELO.gigante[1], CIELO.gigante[2] + 25], SITIO_ATOM]) {
+    if (Z) { x = 960 + (x - Z.afin.x0[0]) / Z.afin.s[0]; y = 540 + (y - Z.afin.x0[1]) / Z.afin.s[1]; r *= kz; }
+    const gr = gd.createRadialGradient(x, y, r * 0.7, x, y, r);
+    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    gd.fillStyle = gr; gd.beginPath(); gd.arc(x, y, r, 0, 2 * Math.PI); gd.fill();
+  }
+  return d;
+}
+const NB_MONTON = 5;                  // bandas por mitad (cada una, ~1–2,5 s de CPU)
+for (const nombre of ['lejos', 'cerca']) {
+  const Mn = CIELO.monton[nombre], n = 7000 + 3 + Mn.semilla;
+  // las dos mitades del kit (trozo x < 0 y x > 0: en pantalla, a cada lado de x = 960, con margen para las cuentas)
+  const pasos = [];
+  for (const [mitadK, trozo, x0, x1] of [[0, [-9, 0, -9, 9], 0, 1000], [1, [0, 9, -9, 9], 920, W]]) {
+    for (const rect of bandas([x0, 0, x1, H], NB_MONTON)) pasos.push({ rect, capa: mitadK, poner: ponerMonton(nombre, trozo), n });
+  }
+  trabajo('monton/' + nombre, pasos, ([a, b]) => { const crudo = lienzo(); const gc = crudo.getContext('2d'); gc.drawImage(a, 0, 0); gc.drawImage(b, 0, 0); return acabarMonton(crudo, nombre); });
+}
+// los de cerca en alta: la ventana de la foto normal que llena la pantalla cuando la capa va agrandada S veces está centrada
+// en CIELO.sol + (centro de la pantalla − el Sol en ese u) / S; cada nivel mira al centro de su tramo de S
+const S_CERCA = (u) => estadoCielo(u).cerca;
+const uDeS = (S) => 1 - Math.log(S) / Math.log(CIELO.crece.cerca);
+const ventana = (S) => { const st = estadoCielo(uDeS(S)); return [CIELO.sol[0] + (960 - st.sol[0]) / S, CIELO.sol[1] + (540 - st.sol[1]) / S]; };
+const ALTAS = [2.6, 1.95].map((k) => {
+  const Z = camaraZoom(k, ventana(k * 1.2));
+  const Mn = CIELO.monton.cerca;
+  trabajo('alta/' + k, bandas([0, 0, W, H], 10).map((rect) => ({ rect, poner: ponerMonton('cerca', [-9, 9, -9, 9]), n: 7000 + 3 + Mn.semilla, zoom: Z })), ([c]) => acabarMonton(c, 'cerca', Z));
+  return { k, Z, clave: 'alta/' + k };
+});
+const VACIO = lienzo(1, 1);
+let MEZCLA = null;
+// la capa de cerca, agrandada S veces alrededor del Sol pequeño y llevada a `donde` (como cielo()): de la foto más fina que
+// cubra la pantalla entera (con 60 px de margen se funde con la siguiente, sumando: un fundido exacto)
+function capaCerca(S, donde) {
+  const capas = [];
+  let resto = 1;
+  for (const A of ALTAS) {
+    const { x0, s } = A.Z.afin, e = S * s[0];
+    const tx = donde[0] + S * (x0[0] - CIELO.sol[0]), ty = donde[1] + S * (x0[1] - CIELO.sol[1]);
+    const margen = Math.min(-(tx - e * 960), tx + e * 960 - W, -(ty - S * s[1] * 540), ty + S * s[1] * 540 - H);
+    const w = ss(0, 60, margen) * ss(0.86, 0.95, e);     // y no si se encoge mucho (la del kit ya es nítida ahí)
+    if (w > 0.002) { capas.push({ f: F(A.clave), w: w * resto, tx, ty, e: [e, S * s[1]] }); resto *= 1 - w; }
+    if (resto < 0.002) break;
+  }
+  if (resto > 0.002) capas.push({ f: F('monton/cerca'), w: resto, kit: true });
+  const pintar = (gg, c, alfa) => {
+    if (c.kit) return pegarEscalada(c.f, S, CIELO.sol.slice(0, 2), donde, alfa, gg);
+    gg.save(); gg.globalAlpha = alfa; gg.translate(c.tx, c.ty); gg.scale(c.e[0], c.e[1]); gg.translate(-960, -540); gg.drawImage(c.f, 0, 0, W, H); gg.restore();
+  };
+  if (capas.length === 1) return pintar(g, capas[0], 1);
+  if (!MEZCLA || MEZCLA.width !== capa.width) MEZCLA = lienzo(capa.width, capa.height);
+  const gm = MEZCLA.getContext('2d');
+  gm.setTransform(1, 0, 0, 1, 0, 0); gm.clearRect(0, 0, MEZCLA.width, MEZCLA.height);
+  const kk = MEZCLA.width / W; gm.setTransform(kk, 0, 0, kk, 0, 0);
+  gm.globalCompositeOperation = 'lighter';
+  for (const c of capas) pintar(gm, c, c.w);
+  gm.globalCompositeOperation = 'source-over';
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(MEZCLA, 0, 0); g.restore();
+}
+// el cielo, compuesto como cielo() del kit (lejos, cerca, gigante y Sol), con la capa de cerca de capaCerca
+function cieloPagina(u, apaga, t) {
+  const S = estadoCielo(u);
+  // las tres fotos del cielo llenan CIELO_F al hacerse: si se salta hasta aquí sin pasar por sus fotogramas de
+  // PREPARAR (un instante suelto), se hacen ahora; en orden ya están hechas y F() las devuelve sin coste
+  F('cielo/sol'); F('cielo/gigante'); F('cielo/giganteApagada');
+  const FC = { ...CIELO_F, lejos: F('monton/lejos'), cerca: F('monton/cerca') };
+  if (u >= 0.999) return cielo(g, FC, { u, apaga, t });
+  pegarEscalada(FC.lejos, S.lejos, CIELO.sol.slice(0, 2), S.sol.slice(0, 2));
+  capaCerca(S.cerca, S.sol.slice(0, 2));
+  return cielo(g, { ...FC, lejos: VACIO, cerca: VACIO }, { u, apaga, t });
+}
+
+// ---------------------------------------------------------------- al cargar: lo del primer fotograma, los estrenos y las compilaciones
+F('mundoSol'); marcaCarga('foto mundo'); F('reg0'); F('mundoSinSol');
+marcaCarga('mundo y regla');
+// (coste) el espacio sin Sol ni Tierra es otra foto del mundo (~6 s de CPU de una vez: no cabe en ningún fotograma)
+F('espacio');
+marcaCarga('espacio');
+// (coste) se estrenan Atom y el Sol, que se dibujan desde el principio (su primer dibujo compila en SwiftShader)
+P.fotograma(0); P.limpiar();
+atomo(0); sol(P, I.SOL, { ...SOL1, escala: 0.05 * SOL1.escala, corte: 1 });
+P.render(0, { fondo: false });
+marcaCarga('estrenos');
+// (coste) las variantes del cuerpo de la persona que pide su encuadre (seis programas) y el calendario y el reloj se
+// compilan al cargar, dibujándolos con una tijera de un píxel: compilar no depende de lo que se dibuja, y así ningún
+// fotograma paga una compilación (antes, el estreno de la persona se llevaba 12,8 s de CPU en un fotograma)
+conTijera([0, 0, 1, 1], () => { P.limpiar(); ponerPersona(); P.render(1, { fondo: false }); });
+conTijera([0, 0, 1, 1], () => { P.limpiar(); calendario(P, I.CAL, { pos: en(1000, 200, 0), escala: 1 }); reloj(P, I.REL, { pos: en(1300, 200, 0), escala: 1 }); P.render(0, { fondo: false }); });
+marcaCarga('compilaciones');
+
+// ---------------------------------------------------------------- tramos
+// S1: el Sol del mundo → la pieza → el corte que se abre, las flechas que aprietan y el núcleo al rojo blanco
+const FLECHAS = 8;
+function flechas(ts) {
+  const ka = eoc(prog(ts, T.flechas[0], T.flechas[1]));
+  if (ka <= 0.001) return;
+  const kf = 1 - ss(T.calor[0] + 0.5, T.calor[1] - 0.3, ts);
+  if (kf <= 0.001) return;
+  const fl = F('flecha');
+  const up = prog(ts, T.aprieta[0], T.aprieta[1]), ap = eio(up);
+  for (let i = 0; i < FLECHAS; i++) {
+    const a = (i / FLECHAS) * 2 * Math.PI + 0.59;   // ninguna cae sobre Atom (abajo a la izquierda)
+    // empujan dos veces hacia dentro (golpes del stop-motion) y se quedan apretando
+    const golpe = up > 0 && up < 1 ? Math.max(0, Math.sin(Math.PI * 2 * up * 2)) : 0;
+    const rr = SR * (1.0 - 0.035 * ap) + mix(340, 125, ka) - 34 * golpe - 22 * ap;
+    const x = SX + Math.cos(a) * rr, y = SY + Math.sin(a) * rr;
+    const L = 210;
+    g.save(); g.globalAlpha = kf * ss(0, 0.35, ka);
+    g.translate(x, y); g.rotate(a + Math.PI);   // la punta hacia el centro
+    g.drawImage(fl, -L * 0.5, -L * 0.25, L, L * 0.5);
+    g.restore();
+  }
+}
+function tramo1(n, ts) {
+  g.drawImage(F('mundoSinSol'), 0, 0, W, H);
+  const uf = prog(ts, T.funde[0], T.funde[1]);
+  const corte = eob(prog(ts, T.corte[0], T.corte[1]), 1.2), calor = eio(prog(ts, T.calor[0], T.calor[1])), ap = eio(prog(ts, T.aprieta[0], T.aprieta[1]));
+  // el resplandor del Sol (el del mundo lo lleva su foto; el de la pieza, en 2D)
+  halo(g, SX, SY, SR, 1, 'sol');
+  P.limpiar();
+  const sq = 1 - 0.035 * ap;
+  sol(P, I.SOL, { ...SOL1, escala: SOL1.escala * sq, corte: cl(corte, 0, 1.06), calor, aprieta: ap, toque: corte > 0 && corte < 1 });
+  atomo(ts);
+  P.render(n, { fondo: false });
+  pegarGL();
+  // el calor del núcleo
+  if (calor > 0.01) brilloNucleo(g, NUC1[0], NUC1[1], 0.3 * SR * (1 - 0.16 * ap), 0.85 * calor);
+  flechas(ts);
+  return uf;
+}
+// S2: dentro del núcleo
+const NUC_ACTORES = { A: [440, 340], B: [800, 250], C: [1230, 650], D: [1150, 290], E: [790, 735], F: [720, 480] };
+const FONDO_NUC = (() => {
+  // los del fondo (desenfocados): pequeños, lejos de Atom (abajo a la izquierda) y de la regla
+  const r = mulberry32(31), out = [];
+  const sitios = [[300, 220], [700, 160], [1150, 130], [1380, 760], [640, 600], [1180, 860], [420, 520], [1000, 600]];
+  for (const [x, y] of sitios) out.push({ x: x + (r() - 0.5) * 60, y: y + (r() - 0.5) * 60, s: 0.26 + 0.14 * r(), ph: r() * 6.28, v: 8 + 10 * r(), rot: r() * 6.28 });
+  return out;
+})();
+function spriteNucleo(f, [x, y], { s = 1, rot = 0, sq = [1, 1], alfa = 1, brillo = 0 } = {}) {
+  const [x0, y0, x1, y1] = f.ref, w = x1 - x0, h = y1 - y0;
+  if (brillo > 0.01) halo(g, x, y, R_NUC * 0.62 * s, brillo, 'nucleo');
+  g.save(); g.globalAlpha *= alfa;
+  g.translate(x, y); g.rotate(rot); g.scale(s * sq[0], s * sq[1]);
+  g.drawImage(f, -w / 2, -h / 2, w, h);
+  g.restore();
+}
+// el núcleo que se deja aplastar, en 3D y en vivo: se aplasta de verdad (sq) y se ladea (rot z), como documenta el kit
+function nucleoVivo(n, [x, y], { sq = [1, 1, 1], rz = 0, brillo = 0 } = {}) {
+  const alfa = g.globalAlpha;
+  if (brillo > 0.01) halo(g, x, y, R_NUC * 0.62 * S_NUC, brillo, 'nucleo');
+  const pos = en(x, y, 3), e = (R_NUC * S_NUC) / pxU(pos) / 0.62;
+  P.limpiar();
+  nucleo(P, I.NUC, { pos, escala: e, rot: [ROT_H[0], ROT_H[1], ROT_H[2] + rz], sq, calor: 0.55 });
+  P.render(n, { fondo: false });
+  pegarGL(alfa);
+}
+const temblor = (ts, k, a = 6) => { const n = Math.floor(ts * 12); return [(azar(n, 200 + k) - 0.5) * a + a * 0.7 * Math.sin(ts * 2.1 + k), (azar(n, 300 + k) - 0.5) * a + a * 0.7 * Math.cos(ts * 1.7 + 2 * k)]; };
+// lo que se aplasta E (0…1) y su postura: cede por arriba (la base no se mueve), se ensancha y se ladea
+const R_E = S_NUC * R_NUC * 1.02;       // radio del racimo en pantalla, con las cuentas que asoman
+function aplastado(k) { return { sq: [1 + 0.15 * k, 1 - 0.3 * k, 1 + 0.15 * k], rz: 0.35 * k, alto: 1 - 0.3 * k }; }
+function tramo2(n, ts, { vivo = true } = {}) {
+  const b = n % 2;
+  g.drawImage(F('plasma'), 0, 0, W, H);
+  // se aprietan: todo se acerca al centro poco a poco
+  const ap = 1 - 0.12 * eio(prog(ts, T_DET, T.sale[0]));
+  const C0 = [920, 520];
+  const at = ([x, y]) => [C0[0] + (x - C0[0]) * ap, C0[1] + (y - C0[1]) * ap];
+  // los del fondo, desenfocados
+  const fb = F('nucBlur');
+  for (const [i, f] of FONDO_NUC.entries()) {
+    const [dx, dy] = [Math.sin(ts * 0.6 + f.ph) * f.v, Math.cos(ts * 0.5 + f.ph) * f.v];
+    spriteNucleo(fb, at([f.x + dx, f.y + dy]), { s: f.s, rot: f.rot + 0.1 * Math.sin(ts + i), alfa: 0.55 });
+  }
+  const H0 = F(b ? 'nucH1' : 'nucH0'), HE = F(b ? 'nucHe1' : 'nucHe0');
+  const S = S_NUC;
+  const pos = (k) => at(NUC_ACTORES[k]);
+  const choque = (tc, k1, k2, he) => {
+    // se acercan acelerando, chocan en tc (destello) y queda uno de helio que se aparta despacio
+    const pa = pos(k1), pb = pos(k2), mid = [(pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2];
+    const u = eic(prog(ts, tc - 0.75, tc));
+    if (ts < tc) {
+      const ra = 0.5 * S * R_NUC * 1.0;
+      const dir = [pb[0] - pa[0], pb[1] - pa[1]], dl = Math.hypot(...dir), ux = dir[0] / dl, uy = dir[1] / dl;
+      const ta = temblor(ts, k1.charCodeAt(0)), tb = temblor(ts, k2.charCodeAt(0));
+      const xa = [mix(pa[0], mid[0] - ux * ra, u) + ta[0], mix(pa[1], mid[1] - uy * ra, u) + ta[1]];
+      const xb = [mix(pb[0], mid[0] + ux * ra, u) + tb[0], mix(pb[1], mid[1] + uy * ra, u) + tb[1]];
+      // al tocarse, se aplastan un poco el uno contra el otro
+      const toca = ss(tc - 0.18, tc, ts);
+      spriteNucleo(H0, xa, { s: S, rot: 0.3 + 0.2 * Math.sin(ts * 1.3 + k1.charCodeAt(0)), sq: [1 - 0.12 * toca, 1 + 0.08 * toca], brillo: 0.25 + 0.6 * toca });
+      spriteNucleo(H0, xb, { s: S, rot: -0.6 + 0.2 * Math.sin(ts * 1.1 + k2.charCodeAt(0)), sq: [1 - 0.12 * toca, 1 + 0.08 * toca], brillo: 0.25 + 0.6 * toca });
+    } else {
+      const v = ts - tc;
+      const sh = brote(ts, tc + 0.12, 0.14, 0.18);
+      const p = [mid[0] + he[0] * eoc(cl(v / 2.2)), mid[1] + he[1] * eoc(cl(v / 2.2))];
+      const tm = temblor(ts, k1.charCodeAt(0) + 50, 4);
+      spriteNucleo(HE, [p[0] + tm[0], p[1] + tm[1]], { s: S * 1.2 * Math.max(sh, 0.4), rot: 0.2 * Math.sin(ts * 0.9), brillo: 0.4 + 0.8 * Math.exp(-v / 0.5) });
+    }
+    return mid;
+  };
+  const m1 = choque(CH.a, 'A', 'B', [-60, 40]);
+  const m2 = choque(CH.b, 'C', 'D', [-50, 30]);
+  // el que se deja aplastar: E, abajo; F baja y se le sienta encima; E cede despacio por arriba (más ancho y más bajo, la
+  // base quieta) y se ladea (sin cara: el gesto es todo), aguanta un momento así, con F encima, y se funden
+  const [a0, a1] = CH.aplasta;
+  const pe = pos('E'), pf = pos('F');
+  const k = eio(prog(ts, a0, a1));
+  const tc = CH.c;
+  const pFusion = [pe[0] - 6, pe[1] - R_E * 0.6];
+  if (ts < tc) {
+    const te = temblor(ts, 69, 4 * (1 - k)), tf = temblor(ts, 70);
+    const A = aplastado(k);
+    // la base de E no se mueve: su centro baja lo que pierde de alto
+    const xe = [pe[0] + te[0], pe[1] + te[1] + R_E * (1 - A.alto)];
+    // la coronilla de E (ladeada: un ángulo rz positivo la lleva a la izquierda en pantalla)
+    const cima = [xe[0] - Math.sin(A.rz) * R_E * A.alto, xe[1] - Math.cos(A.rz) * R_E * A.alto];
+    // F baja hasta posarse sobre ella (sentado encima, sin hundirse) y sigue apretando mientras E cede
+    const baja = eoc(prog(ts, a0 - 0.9, a0));
+    const asiento = [cima[0] + 4, cima[1] - R_E * 0.9];
+    const xf = [mix(pf[0] + tf[0], asiento[0], baja), mix(pf[1] + tf[1], asiento[1], baja)];
+    // al final se juntan en el punto de la fusión
+    const fin = eic(prog(ts, a1 + 0.15, tc));
+    const pE = [mix(xe[0], pFusion[0], fin * 0.6), mix(xe[1], pFusion[1] + R_E * 0.5, fin * 0.6)];
+    const pF = [mix(xf[0], pFusion[0], fin * 0.6), mix(xf[1], pFusion[1] - R_E * 0.5, fin * 0.6)];
+    if (vivo) nucleoVivo(n, pE, { sq: A.sq, rz: A.rz, brillo: 0.15 + 0.5 * fin });
+    else spriteNucleo(H0, pE, { s: S, rot: -A.rz, sq: [A.sq[0], A.sq[1]], brillo: 0.15 + 0.5 * fin });
+    spriteNucleo(H0, pF, { s: S, rot: 0.9 + 0.15 * Math.sin(ts * 1.2) - 0.3 * baja * k, brillo: 0.25 + 0.5 * fin });
+  } else {
+    const v = ts - tc;
+    const sh = brote(ts, tc + 0.12, 0.14, 0.18);
+    const p = [pFusion[0], pFusion[1] - 25 * eoc(cl(v / 1.5))];
+    spriteNucleo(HE, p, { s: S * 1.2 * Math.max(sh, 0.4), rot: -0.3, brillo: 0.4 + 0.8 * Math.exp(-v / 0.5) });
+  }
+  // los destellos de cada fusión
+  for (const [tcc, p] of [[CH.a, m1], [CH.b, m2], [CH.c, pFusion]]) {
+    const v = ts - tcc;
+    if (v < -0.05 || v > 0.7) continue;
+    const kk = v < 0 ? ss(-0.05, 0, v) : Math.exp(-v / 0.2);
+    destello(g, p[0], p[1], 300, kk, { rayos: 8, giro: tcc, anillo: cl(v / 0.6) });
+  }
+}
+// S3–S4: el corte en plano medio, el rayo que rebota, el calendario; la luz sale y viaja con el reloj hasta la cara
+const CAL_X = 222, CAL_Y = 232;
+const CAL3 = { pos: en(CAL_X, CAL_Y, 1.2), escala: 1.6, rot: [0.04, 0.3, 0] };
+const CLAVES_CAL = (() => {
+  const t0 = T.rayo[0], t1 = T.fuera - 0.6;
+  const nums = [1, 10, 100, 1000, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000];
+  // las primeras más despacio; después, cada vez más seguidas
+  return nums.map((v, i) => [t0 + 0.15 + (t1 - t0 - 0.15) * Math.pow(i / (nums.length - 1), 0.78), v]);
+})();
+function relojEn(ts) {
+  // el reloj llega con la luz que sale y marca 8 minutos mientras viaja
+  const u = prog(ts, T.pan[1] - 0.2, T.llega);   // de 0 (cuando aparece, tras el pan) a 8 al llegar a la cara
+  return { minutos: 8 * u, sector: [0, 8 * u] };
+}
+function tramo34(n, ts, { antesDeVivo = null, claro = 0 } = {}) {
+  const up = eio(prog(ts, T.pan[0], T.pan[1]));
+  // fondo: el espacio (sin la Tierra), que se desplaza un poco con el pan
+  g.drawImage(F('espacio'), -40 * up, 0, W + 80, H);
+  // entrada desde el detalle: la foto del corte se agranda alrededor del núcleo; aquí, al revés, desde el núcleo
+  const ue = eio(prog(ts, T.sale[0], T.sale[1]));
+  const sEnt = mix(3.2, 1, ue);
+  // el corte (foto) con su resplandor
+  const s = panS(up), c = panXY(up, SOL3_PX);
+  const sTot = s * sEnt;
+  // (la entrada desde el núcleo y el pan no se solapan: el centro de la entrada, desplazado lo que lleve el pan)
+  const cc = [NUC3[0] + (SOL3_PX[0] - NUC3[0]) * sEnt + c[0] - SOL3_PX[0], NUC3[1] + (SOL3_PX[1] - NUC3[1]) * sEnt + c[1] - SOL3_PX[1]];
+  halo(g, cc[0], cc[1], SOL3_PX[2] * sTot, 1, 'sol');
+  pegarEscalada(F(n % 2 ? 'corte1' : 'corte0'), sTot, SOL3_PX.slice(0, 2), cc);
+  // la transformación del plano medio → la pantalla (para el rayo y el núcleo)
+  const tr = ([x, y]) => [cc[0] + (x - SOL3_PX[0]) * sTot, cc[1] + (y - SOL3_PX[1]) * sTot];
+  const nc = tr(NUC3);
+  brilloNucleo(g, nc[0], nc[1], 0.3 * SOL3_PX[2] * 0.84 * sTot, 0.85);
+  const per = personaEn(ts, up);
+  const luz = ss(T.llega - 0.1, T.llega + 0.5, ts);
+  // la persona (foto), que entra por la derecha
+  if (per.k > 0.001) {
+    g.save(); g.globalAlpha = per.k;
+    // a la sombra hasta que llega la luz; entonces se ilumina (la foto a la sombra, una sola: al llegar se funde con la iluminada)
+    if (luz < 1) g.drawImage(F('personaSombra'), per.dx, 0, W, H);
+    if (luz > 0) { g.globalAlpha = per.k * luz; g.drawImage(F(n % 2 ? 'persona1' : 'persona0'), per.dx, 0, W, H); }
+    g.restore();
+    if (luz > 0.01) {
+      // la luz cae en el pómulo: un charco cálido ancho (soft-light) y un brillo en el pómulo (screen)
+      const p = [DIANA[0] + per.dx + 30, DIANA[1] - 20];
+      g.save(); g.globalCompositeOperation = 'soft-light';
+      const R = 520;
+      const gr = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], R);
+      gr.addColorStop(0, `rgba(255,190,110,${0.5 * luz})`); gr.addColorStop(1, 'rgba(255,170,90,0)');
+      g.fillStyle = gr; g.fillRect(p[0] - R, p[1] - R, 2 * R, 2 * R);
+      g.globalCompositeOperation = 'screen';
+      const R2 = 200, q = [DIANA[0] + per.dx, DIANA[1]];
+      const g2 = g.createRadialGradient(q[0], q[1], 0, q[0], q[1], R2);
+      g2.addColorStop(0, `rgba(255,214,150,${0.26 * luz * (0.6 + 0.4 * Math.exp(-(ts - T.llega) / 0.4))})`); g2.addColorStop(1, 'rgba(255,190,110,0)');
+      g.fillStyle = g2; g.fillRect(q[0] - R2, q[1] - R2, 2 * R2, 2 * R2);
+      g.restore();
+    }
+  }
+  // el rayo: dentro, rebotando (a velocidad constante), y fuera, hasta justo antes de la piel
+  const dentroU = prog(ts, T.rayo[0], T.fuera);
+  const camino = CAMINO3.map(tr);
+  let punta = null;
+  if (ts >= T.rayo[0]) {
+    const s1 = L3 * dentroU;
+    let pts = camino;
+    let hasta = s1;
+    let fin = null;
+    if (ts > T.fuera) {
+      // fuera: de la salida hasta la cara (el punto de contacto se calcula con el pan acabado; durante el pan se mueve
+      // con la persona)
+      const salida1 = (() => { const c1 = panXY(1, SOL3_PX), s1x = panS(1); return [c1[0] + (SALIDA3[0] - SOL3_PX[0]) * s1x, c1[1] + (SALIDA3[1] - SOL3_PX[1]) * s1x]; })();
+      const C = contacto(salida1);
+      fin = [C.punto[0] + per.dx, C.punto[1]];
+      const uo = 1 - Math.pow(1 - prog(ts, T.fuera, T.llega), 1.25);   // la luz va casi a velocidad constante (el reloj, igual)
+      const exterior = Math.hypot(fin[0] - camino[camino.length - 1][0], fin[1] - camino[camino.length - 1][1]);
+      pts = [...camino, fin];
+      hasta = L3 * sTot + exterior * uo;
+    }
+    // al llegar, la cuenta de la punta se apaga y su luz se abre sobre la cara: un final blando, no una aguja
+    const r = rayo(g, pts, { hasta, grosor: 6.5 * Math.min(1.25, sTot), brillo: 1, cabeza: 1 - ss(T.llega - 0.12, T.llega + 0.2, ts) });
+    punta = r?.punta;
+    if (fin && luz > 0.001) {
+      const q = fin, R = 90;
+      g.save(); g.globalCompositeOperation = 'screen';
+      const gq = g.createRadialGradient(q[0], q[1], 0, q[0], q[1], R);
+      gq.addColorStop(0, `rgba(255,236,190,${0.55 * luz * (0.55 + 0.45 * Math.exp(-(ts - T.llega) / 0.35))})`); gq.addColorStop(0.4, `rgba(255,200,120,${0.22 * luz})`); gq.addColorStop(1, 'rgba(255,180,100,0)');
+      g.fillStyle = gq; g.fillRect(q[0] - R, q[1] - R, 2 * R, 2 * R);
+      g.restore();
+    }
+    // un destellito en cada rebote, al pasar la punta
+    if (ts < T.fuera + 0.2) for (const [sr, x, y] of REBOTES) {
+      const v = s1 - sr;
+      const k = v >= 0 && v < 70 ? Math.exp(-v / 22) : 0;
+      if (k > 0.03) { const p = tr([x, y]); destello(g, p[0], p[1], 46 * sTot, 0.8 * k, { rayos: 4, giro: sr }); }
+    }
+  }
+  // (al volver del núcleo) el detalle que se va, debajo de lo vivo: el calendario y Atom quedan encima
+  if (antesDeVivo) antesDeVivo();
+  // el calendario (vivo mientras pasan las hojas); se queda atrás con el pan
+  const kc = (1 - ss(T.pan[0], T.pan[0] + 0.35, ts)) * ss(T.calendario[0], T.calendario[0] + 0.05, ts);
+  // lo vivo: Atom, el calendario y el reloj
+  P.limpiar();
+  atomo(ts, { claro });
+  if (kc > 0.01) {
+    const h = hojaEn(ts, CLAVES_CAL, 0.17);
+    // se queda atrás: se va hacia la izquierda con el pan, encogiendo
+    const ua = eic(prog(ts, T.pan[0], T.pan[0] + 0.35));
+    const pc = en(CAL_X - (PAN.de[0] - PAN.a[0]) * up, CAL_Y + 30 * (1 - ss(T.calendario[0], T.calendario[1], ts)) + 60 * ua, 1.2);
+    const kIn = eob(prog(ts, T.calendario[0], T.calendario[1]), 1.3);   // entra de un salto al volver del núcleo
+    calendario(P, I.CAL, { ...CAL3, escala: CAL3.escala * (1 - 0.85 * ua) * Math.max(0.02, kIn), pos: pc, ...h, toque: h.hoja > 0 || ua > 0 || kIn < 1 });
+  }
+  const kr = ss(T.pan[1] - 0.35, T.pan[1] + 0.1, ts);
+  if (kr > 0.01 && punta) {
+    // el reloj va con la luz, por encima, hasta que la luz se acerca a la cara (allí se queda)
+    const xr = Math.min(Math.max(punta[0] - 30, 430), DIANA[0] + per.dx - 300), yr = cl(punta[1] - 175, 140, 400);
+    const R = relojEn(ts);
+    reloj(P, I.REL, { pos: en(xr, yr, 1.6), escala: 0.62 * eob(kr, 1.4), rot: [0.05, 0.15, 0], minutos: R.minutos, sector: R.sector, toque: kr < 1 });
+  }
+  P.render(n, { fondo: false });
+  pegarGL();
+}
+function personaEn(ts, up) { return { k: ts >= T.pan[0] ? 1 : 0, dx: DX_PER * (1 - up) }; }
+// S5: el cielo
+function tramo5(n, ts) {
+  g.drawImage(F('espacio'), 0, 0, W, H);
+  const u = eio(prog(ts, T.encoge[0], T.encoge[1]));
+  // titileo: la gigante parpadea un poco al apagarse
+  const ua = eio(prog(ts, T.apaga[0], T.apaga[1]));
+  const titila = 0.03 * Math.sin(ts * 9.0) * ua * (ts < QUIETO ? 1 : 0);
+  cieloPagina(u, CIELO.apaga * ua + titila, Math.min(ts, QUIETO));
+  P.limpiar(); atomo(ts); P.render(n, { fondo: false }); pegarGL();
+}
+
+// ---------------------------------------------------------------- fotograma
+// (coste) cada foto cara se hace por pasos (bandas) en fotogramas baratos poco antes de hacer falta, en orden, como
+// renderiza render-escenas.mjs; si se pide un instante suelto, F() la hace al momento y el resultado es el mismo.
+// [instante, clave] hace la foto entera (o termina la de pasos); [instante, clave, paso] hace solo ese paso.
+// Cada paso va a un número de fotograma (entero: con instantes en coma flotante, alguno se saltaba y caía en otro).
+const PREPARAR = [];
+const prep = (t, ...a) => PREPARAR.push([Math.round(t * 12), ...a]);
+{
+  const pasosDe = (k) => TRABAJOS[k].pasos.map((_, i) => i);
+  let t;
+  const uno = (...a) => { prep(t, ...a); t += 1 / 12; };
+  const dos = (...a) => { prep(t, ...a); t += 2 / 12; };
+  const todo = (k, f = uno) => { for (const i of pasosDe(k)) f(k, i); f(k); };
+  // A · el primer plano (el Sol vivo, ~2,5 s de CPU por fotograma; sobra sitio): un paso cada dos fotogramas, después
+  // de que se abra el corte (esos fotogramas ya cuestan ~4 s); las regla del hervor, sin paso final (no hace nada)
+  t = T.corte[1];
+  dos('flecha');
+  for (const k of ['reg1', 'reg2']) for (const i of pasosDe(k)) dos(k, i);
+  N_HERVOR = PREPARAR[PREPARAR.length - 1][0] + 1;
+  todo('plasmaBase', dos); dos('plasma');
+  for (const k of ['nucH0', 'nucH1', 'nucHe0', 'nucHe1', 'nucBlur']) dos(k);
+  todo('corteS1', dos);
+  dos('regTenue');
+  if (t > T.entra[0]) console.warn('ep3-sol: PREPARAR no cabe en el primer plano', t);
+  // B · el detalle (sprites y un núcleo vivo, ~2,3 s): el plano medio, la persona y el montón de lejos
+  t = T_DET + 0.1;
+  for (const k of ['corte0', 'corte1', 'persona0', 'persona1']) todo(k);
+  uno('personaSombra');
+  todo('monton/lejos');
+  // al final del detalle ya no hay núcleo vivo (~1,8 s): el Sol y la gigante del cielo (~3 s cada una), con hueco
+  t += 1 / 12;
+  dos('cielo/gigante'); dos('cielo/giganteApagada'); dos('cielo/sol');
+  if (t > T.sale[0]) console.warn('ep3-sol: PREPARAR no cabe en el detalle', t);
+  // C · el viaje de la luz (~2–2,5 s): las estrellas de cerca en alta y el montón de cerca
+  t = T.fuera + 0.05;
+  for (const A of ALTAS) todo(A.clave);
+  todo('monton/cerca');
+  if (t > T.s5 - 0.05) console.warn('ep3-sol: PREPARAR no cabe en el viaje', t);
+}
+function dibujar(t) {
+  const ts = Math.min(t, QUIETO);
+  const n = Math.floor(ts * 12 + 1e-6);
+  ajustarCapa();
+  for (const [n0, k, i] of PREPARAR) if (n === n0) { if (i === undefined) F(k); else hacerPaso(k, i); }
+  // el fotograma 0 es el último de ep3-tierra: su plató (Atom y la regla) se dibuja con el número de fotograma de allí
+  const nP = ts < T.funde[0] ? FIN_TIERRA.n : n;
+  if (ts < T.funde[0]) {
+    // el último fotograma de ep3-tierra
+    g.drawImage(F('mundoSol'), 0, 0, W, H);
+    P.limpiar(); atomo(ts); P.render(nP, { fondo: false }); pegarGL();
+  } else if (ts < T.entra[0]) {
+    const uf = tramo1(n, ts);
+    // el fundido de la foto del mundo a la pieza
+    if (uf < 1) { g.save(); g.globalAlpha = 1 - uf; g.drawImage(F('mundoSol'), 0, 0, W, H); g.restore(); P.limpiar(); atomo(ts); P.render(n, { fondo: false }); pegarGL(); }
+  } else if (ts < T.sale[0]) {
+    // entrar en el núcleo: el corte caliente se agranda alrededor del núcleo mientras llega el detalle
+    const ue = eio(prog(ts, T.entra[0], T.entra[1]));
+    if (ue < 1) {
+      g.drawImage(F('mundoSinSol'), 0, 0, W, H);
+      const s = mix(1, 3.2, ue);
+      halo(g, NUC1[0] + (SX - NUC1[0]) * s, NUC1[1] + (SY - NUC1[1]) * s, SR * s, 1, 'sol');
+      pegarEscalada(F('corteS1'), s, NUC1, NUC1);
+      brilloNucleo(g, NUC1[0], NUC1[1], 0.3 * SR * 0.84 * s, 0.85);
+    }
+    if (ue > 0) { g.save(); g.globalAlpha = ss(0.35, 1, ue); tramo2(n, ts); g.restore(); }
+    sombraAtom(ts, ss(0.3, 1, ue));
+    P.limpiar(); atomo(ts, { claro: ss(0.3, 1, ue) }); P.render(n, { fondo: false }); pegarGL();
+  } else if (ts < T.s5) {
+    // volver: el detalle se funde en el corte que se aleja desde el núcleo, debajo de lo vivo (el calendario y Atom)
+    const us = prog(ts, T.sale[0], T.sale[1]);
+    const kd = 1 - ss(0, 0.7, us);
+    tramo34(n, ts, {
+      claro: kd,
+      antesDeVivo: kd > 0.002 ? () => {
+        g.save(); g.globalAlpha = kd;
+        g.translate(NUC3[0], NUC3[1]); g.scale(1 + 0.6 * us, 1 + 0.6 * us); g.translate(-NUC3[0], -NUC3[1]);
+        tramo2(n, ts, { vivo: false });
+        g.restore();
+        sombraAtom(ts, kd);
+      } : null,
+    });
+  } else tramo5(n, ts);
+  // encima de todo: la regla (su foto, con el hervor de tres fotos que se alternan; apagada durante el detalle); la
+  // viñeta y el grano
+  const kd = kDetalle(ts);
+  const reg = F(ts < T.funde[0] ? 'reg0' : reglaDe(n));
+  if (kd < 0.002) g.drawImage(reg, 0, 0, W, H);
+  else {
+    g.save(); g.globalAlpha = 1 - kd; g.drawImage(reg, 0, 0, W, H);
+    g.globalAlpha = 0.5 * kd; g.drawImage(F('regTenue'), 0, 0, W, H); g.restore();
+  }
+  if (ts >= T.funde[0]) parpadeo(n);
+  POST.aplicar(g, n);
+}
+// para atomo/herramientas/guias-humano.py: la persona del plano del viaje (centro, coronilla y suela en px; la suela queda
+// fuera de cuadro) y, con ?vista=guias, la misma persona y la misma postura entera, de pie en el plató
+const guiasDe = (o) => { P.limpiar(); const h = P.pieza(I.PER, { ...o, postura: POSE_PER }); P.limpiar();
+  const c = pant(h.mundo([0, 0.765, -0.01])), su = pant(h.mundo([0, -1, 0.05])), ce = pant(h.mundo([0, 0, 0]));
+  return { x: Math.round(ce[0]), coronilla: Math.round(c[1]), suela: Math.round(su[1]) }; };
+window.__guias = guiasDe(PER);
+// ?dbg: para medir el coste de cada parte desde fuera (no cambia nada del dibujo)
+if (new URLSearchParams(location.search).has('dbg')) window.__dbg = { P, g, F, atomo, reglaEn, pegarGL, POST, ajustarCapa, FIN_TIERRA, TRABAJOS, hacerPaso, PREPARAR, ALTAS, conTijera, capaCerca, cieloPagina };
+window.__fin = { CIELO, SOL3_PX, PER, DIANA, CARA, T, CH, NUC3, SALIDA3,
+  altas: ALTAS.map((A) => ({ k: A.k, mira: A.Z.mira, x0: A.Z.afin.x0, s: A.Z.afin.s, errorAfin: A.Z.err })),
+  preparar: PREPARAR.map(([n0, k, i]) => [n0, k, i]),
+  // el último fotograma (el primero de ep3-vuelta): el fondo, el cielo y el estado de Atom
+  final: { fondo: { n: 932, somA: SOM_A }, cielo: { u: 1, apaga: CIELO.apaga }, atomo: (() => { const S = estadoAtom(QUIETO); return { sx: S.sx, sy: S.sy, tz: S.tz, ta: FIN_TIERRA.ta + tabla(TA, QUIETO), escala: A_ESC, yaw: -0.15 + A_YAW + 0.08 * Math.sin(S.tz * 0.5), pitch: 0.06 - A_PITCH }; })() } };
+if (new URLSearchParams(location.search).get('vista') === 'guias') {
+  const o = { pos: [en(960, 600, 1)[0], 2.4, 1], escala: 2.4, rot: PER.rot };
+  window.__guias = guiasDe(o);
+  marcaCarga('listo');
+  E.iniciar(() => { ajustarCapa(); P.limpiar(); P.pieza(I.PER, { ...o, postura: POSE_PER, huellaFija: [0.37, 0.21, 0] }); P.render(1); g.drawImage(lienzoGL, 0, 0, W, H); POST.aplicar(g, 1); }, { paso: 1 / 12 });
+} else {
+marcaCarga('listo');
+E.iniciar(dibujar, { paso: 1 / 12 });
+}
+</script>
+</body>
+</html>

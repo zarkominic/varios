@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alejandro · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-ALEJANDRO (frases 35–36). Una cadena de maestros en fila, que se encienden de uno en uno con flechas entre ellos:
+// Sócrates, Platón, Aristóteles y un chico rubio, Alejandro. Luego el mapa ancho: la ruta de Alejandro sale de Macedonia,
+// baja a Egipto, cruza Persia y llega a la India mientras su imperio se colorea; «20» y luego «32» en la caja.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-alejandro');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { cad: M('cadena', 0.5), ale: M('alejandro', 9) };
+const cadena = (t) => {
+  R.cieloR(t, 'tarde', { hor: 140, sol: [160, 130, 10] }); R.suelo(140, PALA.MARMOL, { losas: true });
+  [ELENCO.socrates, ELENCO.platon, ELENCO.aristoteles, { ...ELENCO.alejandro, capa: null, chaqueta: PALA.BLANCO, camisa: PALA.BLANCO, falda: PALA.BLANCO, largoFalda: 0.24 }].forEach((g, k) => {
+    const on = t > m.cad + 1 + k * 1.3, x = 50 + k * 74;
+    if (!on) return;
+    R.personaje(x, 172, k === 3 ? 24 : 28, { ...g, t: t + k, sonrisa: k === 3 });
+    if (k > 0) R.icono('flecha', x - 44, 150, PALA.AMARILLO[3], PALA.CONTORNO, 2);
+  });
+};
+const ruta = (t) => {
+  const v = R.VISTAS.persia, u = t - m.ale, p = tramo(u, 1, 9);
+  R.mapa(t, { vista: v, zonas: [{ pol: R.ZONAS_MAPA.persia, color: PALA.MORADO, p: p * 1.2, centro: [27, 39], radio: 50 }, { pol: R.ZONAS_MAPA.grecia, color: PALA.MORADO }, { pol: R.ZONAS_MAPA.macedonia, color: PALA.MORADO }] });
+  const pts = ['pela', 'troya', 'alejandria', 'babilonia', 'persepolis', 'bactra', 'indo', 'babilonia'].map((c) => R.lugar(c, undefined, v));
+  R.ruta(pts, p, PALA.AMARILLO[3]);
+  if (u > 9.5) R.punto(...R.lugar('babilonia', undefined, v), t, PALA.ROJO, 3);
+};
+rodar(E, R, [[0, cadena], [m.ale - 0.2, ruta]], { año: (t) => (t < m.ale ? -343 : Math.round(lerp(-336, -323, tramo(t, m.ale + 1, m.ale + 9.5)))), caja: (t, e) => R.caja(t, t > m.ale + 1 ? tramo(t, m.ale + 1, m.ale + 1.4) : 0, (x, y) => R.numero(t < m.ale + 9.5 ? '20' : '32', x + 10, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

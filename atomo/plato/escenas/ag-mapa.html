@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mapa · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-MAPA (frase 4). Mapa: el Atlántico con la colonia marcada; luego Nueva Inglaterra dibujada a mano, con las aldeas
+// wampanoag que se encienden por toda la costa.
+import { preparar, rodar, mapaAg, NUEVA_INGLATERRA } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-mapa');
+const m0 = M('mapa', 1.4), L = E.duracion - m0;
+const lejos = (t) => mapaAg(R, t, { plymouth: true });
+const cerca = (t) => mapaAg(R, t, { vista: NUEVA_INGLATERRA, plymouth: t - m0 > 0.75 * L, aldeas: R.tramo(t - m0, 0.38 * L, 0.8 * L) });
+rodar(E, R, [[0, lejos], [m0 + 0.25 * L, cerca]], { año: 1620 });
+</script>
+</body>
+</html>

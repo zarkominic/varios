@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Escribas · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-ESCRIBAS (frases 9–11). Junto al río se apilan sacos de grano y se llenan los silos; un escriba sentado anota en
+// su papiro (la caja cuenta: 10, 20, 30…). Luego el nilómetro: un pozo con escalera y marcas en el que el agua sube, y
+// el escriba sube el impuesto («×2» en la caja).
+import { preparar, rodar, nilo, EL, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-escribas');
+const { tramo } = R;
+const m = { sob: M('sobra', 0.5), esc: M('escribas', 7), nil: M('nilometro', 15) };
+const saco = (x, y) => { R.disco(x, y, 4, C.k); R.disco(x, y, 3, C.trigoS); R.rect(x - 3, y - 2, x + 3, y, C.trigo); R.rect(x - 1, y - 5, x + 1, y - 4, C.trigoS); R.pset(x, y - 6, C.k); };
+const papiro = (x, y) => { R.rect(x, y, x + 9, y + 3, C.calizaL); R.rect(x, y, x, y + 3, C.calizaS); R.rect(x + 9, y, x + 9, y + 3, C.calizaS); };
+const granero = (t) => {
+  const u = t - m.sob, n = Math.floor(tramo(u, 0.3, (m.esc - m.sob) * 0.9) * 12);
+  nilo(R, t, { silos: tramo(u, 0.5, m.esc - m.sob) });
+  for (let k = 0; k < n; k++) saco(150 + (k % 5) * 8 + (Math.floor(k / 5) % 2) * 4, 143 - Math.floor(k / 5) * 6);
+  R.actor(EL.campesino, 108, 145, t, { brazos: (u * 2) % 2 < 1 && u > 1 });
+  R.actor(EL.campesino, 214, 145, t, { dir: -1, pal: { H: R.hex('#4a2a18') } });
+};
+const escriba = (t) => {
+  nilo(R, t, { silos: 1 });
+  for (let k = 0; k < 12; k++) saco(176 + (k % 5) * 8 + (Math.floor(k / 5) % 2) * 4, 143 - Math.floor(k / 5) * 6);
+  R.actor(EL.escriba, 120, 145, t, { habla: Math.sin(t * 9) > 0.5 });
+  papiro(122, 138); for (let k = 0; k < Math.floor((t * 4) % 8); k++) R.pset(123 + k, 139 + (k % 2), C.k);
+  R.actor(EL.campesino, 230, 145, t, { dir: -1, dedo: true });
+};
+const nilometro = (t) => {
+  const u = t - m.nil, sube = tramo(u, 0.6, 4);
+  nilo(R, t, { nilometro: 0.2 + 0.6 * sube });
+  R.actor(EL.escriba, 120, 145, t, { sonrisa: sube > 0.9 });
+  papiro(122, 138);
+  R.actor(EL.calvo, 160, 145, t, { dir: -1, dedo: sube > 0.5, pal: { T: C.blanco } });
+};
+rodar(E, R, [[0, granero], [m.esc - 0.2, escriba], [m.nil - 0.2, nilometro]], {
+  año: -3150,
+  caja: (t, e) => R.caja(t, t > m.esc + 1 && t < m.nil - 0.2 ? tramo(t, m.esc + 1, m.esc + 1.4) : t > m.nil + 4 ? tramo(t, m.nil + 4, m.nil + 4.4) : 0, (x, y) => {
+    if (t < m.nil) R.numero(String(10 * Math.min(30, 1 + Math.floor((t - m.esc - 1) * 3))), x + 2, y + 12);
+    else { saco(x + 6, y + 12); R.numero('x2', x + 16, y + 12); }
+  }, { energia: e }),
+});
+</script>
+</body>
+</html>

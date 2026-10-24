@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prueba de identidad · partículas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;800&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// Prueba de identidad · partículas: de la persona a un pelo en cuatro saltos ×10.
+// Todo es luz (kit atomo/plato/kits/particulas.js, el mismo de cosmos-particulas):
+//  · [hola]     Atom da un bote y uno de sus electrones sale de la órbita y saluda como una mano.
+//  · [atom]     Atom se presenta: crece, brilla y sus electrones aceleran.
+//  · [bloques]  seis átomos llegan girando y encajan a su alrededor; los enlaces se encienden al tocar.
+//  · [explico]  una pizarrita de luz se enciende con una «?» de partículas; en [escuela] las partículas
+//               fluyen y forman una «!».
+//  · [saltos]→[pelo] cuatro saltos con golpe de zoom: persona → mano → piel con vello → un pelo → el pelo
+//               como un tronco con las escamas de la cutícula; la regla baja de 10⁰ a 10⁻⁴ m.
+//  · [decima]→[milimetro] una cota de lado a lado del pelo con «10⁻⁴ m».
+//  · al final todo frena y queda quieto.
+import { escena } from '/atomo/plato/escena.js';
+import {
+  THREE, crearPlato, persona, materialPersona, regla, F_REGLA, geometria, Luces, GLSL_EMITIR, GLSL_PUNTO_FRAG,
+  azar, gauss, cl, lin, ss, mix, eio, eoc, eob, campana, suave, fbm3, ruido3, TAU, construirCalle,
+} from '/atomo/plato/kits/particulas.js';
+
+const E = await escena('prueba-particulas', 'prueba');
+const M = (k) => E.marca(k);
+const DUR = E.duracion;
+const P = await crearPlato({ fov: 30, fuentes: [[F_REGLA(62), '10⁰¹²³⁴⁵⁶⁷⁸⁹ m −'], [F_REGLA(30), '10 m −'], ['800 200px "Inter Tight"', '?!']] });
+const DEG = Math.PI / 180;
+
+// ── marcas y línea de tiempo ─────────────────────────────────────────────────
+const T_HOLA = M('hola'), T_ATOM = M('atom'), T_ATOMF = M('atom_fin'), T_BLOQ = M('bloques');
+const T_EXPL = M('explico'), T_ESC = M('escuela'), T_SALT = M('saltos'), T_PELO = M('pelo');
+const T_DEC = M('decima'), T_MILI = M('milimetro');
+const VOZ_FIN = (E.voz ?? [0.5, DUR - 0.6])[1];
+
+// cuatro saltos: el primero empieza en [saltos] y el cuarto termina justo en [pelo]
+const SALTOS = [];
+{
+  const A = T_SALT - 0.12, D = 0.4, Pd = (T_PELO - D - A) / 3;
+  for (let k = 0; k < 4; k++) SALTOS.push([A + k * Pd, D]);
+}
+function zDe(t) {
+  let z = 0;
+  for (const [s, d] of SALTOS) { if (t <= s) break; z -= eob((t - s) / d, 0.9); }
+  return z;
+}
+const golpe = (t) => { let g = 0; for (const [s] of SALTOS) if (t >= s) g = Math.max(g, Math.exp(-(t - s) / 0.13)); return g; };
+const Q0 = VOZ_FIN - 0.05, QL = 0.9;
+const tau = (t) => { const u = cl((t - Q0) / QL); return t <= Q0 ? t : Q0 + QL * (u - u ** 3 + u ** 4 / 2); };
+
+// ── cámara: la misma composición inicial que cosmos-particulas; luego se acerca a la mano ──
+const RHO0 = 4.826, H_CAM = 1.95;
+const FOCO_P = [600, 507 - (H_CAM - 0.85) * 540 / (Math.tan(15 * DEG) * RHO0)], FOCO_Z = [800, 540];
+// puntos de cada nivel (m): mano izquierda (a la derecha de la pantalla) → piel → folículo → el pelo
+const P_MANO = [0.212, 0.705, 0.03];
+const MANO_PIEL = [-14, 38];                 // mm, en el dorso de la mano, junto a la muñeca
+const P_PIEL = [P_MANO[0] + MANO_PIEL[0] * 1e-3, P_MANO[1] + MANO_PIEL[1] * 1e-3, P_MANO[2] + 0.001];
+const PIEL_FOL = [0, -40];                   // ×0,1 mm: el folículo del pelo al que vamos
+const P_PELO = [P_PIEL[0] + PIEL_FOL[0] * 1e-4, P_PIEL[1] + PIEL_FOL[1] * 1e-4, P_PIEL[2]];
+const PELO_TR = [0, 70];                     // ×10 µm: un punto del tallo, sobre el poro
+const POR_Y = -70;                           // ×10 µm: el poro
+const P_TRONCO = [P_PELO[0] + PELO_TR[0] * 1e-5, P_PELO[1] + PELO_TR[1] * 1e-5, P_PELO[2]];
+const FOCOS = [[0, H_CAM, 0], P_MANO, P_PIEL, P_PELO, P_TRONCO];
+function focoDe(z) {
+  const zz = cl(-z, 0, 4);
+  const k = Math.min(3, Math.floor(zz)), s = suave(zz - k);
+  const A = FOCOS[k], B = FOCOS[k + 1];
+  // el punto de llegada se acerca al centro de la pantalla en línea recta mientras todo crece ×10
+  const f = (1 - s) * 10 ** (z + k);
+  return [B[0] + (A[0] - B[0]) * f, B[1] + (A[1] - B[1]) * f, B[2] + (A[2] - B[2]) * f];
+}
+function camaraDe(z) {
+  const rho = RHO0 * 10 ** z;
+  const f = focoDe(z);
+  const k = ss(0, 0.95, -z);
+  return { C: [f[0], f[1], f[2] + rho], B: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], U: rho / RHO0, F: [mix(FOCO_P[0], FOCO_Z[0], k), mix(FOCO_P[1], FOCO_Z[1], k)] };
+}
+const vis = (z, a0, a1, b0, b1) => ss(a0, a1, -z) * (1 - ss(b0, b1, -z));
+
+// ── utilidades de forma (distancias con signo, en 2D) ─────────────────────────
+const smin = (a, b, k) => { const h = cl(0.5 + (0.5 * (b - a)) / k); return mix(b, a, h) - k * h * (1 - h); };
+function dCap(x, y, ax, ay, bx, by, ra, rb = ra) {
+  const vx = bx - ax, vy = by - ay;
+  const t = cl(((x - ax) * vx + (y - ay) * vy) / (vx * vx + vy * vy));
+  return Math.hypot(x - ax - vx * t, y - ay - vy * t) - mix(ra, rb, t);
+}
+function dCaja(x, y, cx, cy, hw, hh, r) {
+  const qx = Math.abs(x - cx) - hw + r, qy = Math.abs(y - cy) - hh + r;
+  return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
+}
+function voronoi(esp, semilla) {
+  const r = azar(semilla), sem = new Map();
+  const celda = (i, j) => { const k = i * 7919 + j; if (!sem.has(k)) sem.set(k, [(i + 0.15 + 0.7 * r()) * esp, (j + 0.15 + 0.7 * r()) * esp]); return sem.get(k); };
+  return (x, y) => {
+    const ci = Math.floor(x / esp), cj = Math.floor(y / esp);
+    let d1 = 1e9, d2 = 1e9, a = null, b = null;
+    for (let i = ci - 1; i <= ci + 1; i++) for (let j = cj - 1; j <= cj + 1; j++) {
+      const q = celda(i, j), d = (x - q[0]) ** 2 + (y - q[1]) ** 2;
+      if (d < d1) { d2 = d1; b = a; d1 = d; a = q; } else if (d < d2) { d2 = d; b = q; }
+    }
+    return (d2 - d1) / (2 * Math.hypot(a[0] - b[0], a[1] - b[1]));
+  };
+}
+const PIEL = [1.0, 0.7, 0.5], PIEL2 = [1.0, 0.8, 0.62], VELLO = [1.0, 0.58, 0.28], UNA = [1.0, 0.86, 0.76];
+
+// ── nivel 1: la mano (mm), el dorso mirando a la cámara, dedos hacia abajo ─────
+const DEDOS = [[-29, 64, 9.6], [-10, 73, 10], [9, 68, 9.6], [27, 54, 8.6]];   // x, largo, radio
+function sdfMano(x, y) {
+  let d = dCap(x, y, 2, 58, 9, 190, 31, 37);                         // antebrazo
+  d = smin(d, dCaja(x, y, 0, 2, 43, 52, 20), 14);                   // dorso
+  for (const [fx, L, fr] of DEDOS) d = smin(d, dCap(x, y, fx, -38, fx + fx * 0.06, -38 - L, fr, fr - 1.3), 6);
+  d = smin(d, dCap(x, y, -38, 6, -60, -40, 11.5, 9), 8);            // pulgar
+  return d;
+}
+function construirMano() {
+  const L = new Luces(70000);
+  const r = azar(1201);
+  const dDedo = (x, y, [fx, Lf, fr]) => dCap(x, y, fx, -38, fx + fx * 0.06, -38 - Lf, fr, fr - 1.3);
+  // piel de luz: contorno brillante, interior tenue, pliegues de los nudillos y entre los dedos más oscuros
+  for (let y = -150; y < 200; y += 1.05) for (let x = -95; x < 75; x += 1.05) {
+    const px = x + (r() - 0.5) * 0.9, py = y + (r() - 0.5) * 0.9;
+    const d = sdfMano(px, py);
+    if (d > 0) continue;
+    const borde = Math.pow(1 - ss(0, 8, -d), 1.6);
+    let k = 0.035 + 0.3 * borde + 0.03 * fbm3(px / 22, py / 22, 0.3, 4, 3);
+    // separación entre dedos
+    if (py < -40) {
+      const ds = DEDOS.map((f) => dDedo(px, py, f)).sort((a, b) => a - b);
+      if (ds[1] < 1.2) k *= 0.35 + 0.65 * ss(0, 1.2, ds[1]);
+      if (ds[0] > -2.2) k += 0.12 * (1 - ss(-2.2, 0, ds[0]));
+    }
+    for (const [fx, Lf] of DEDOS) {
+      if (Math.abs(px - fx) < 11) for (const f of [0.0, 0.42, 0.75]) { const yy = -38 - Lf * f; if (Math.abs(py - yy - 0.004 * (px - fx) ** 2) < 1.2) k *= 0.45; }
+      const yu = -38 - Lf + 9;
+      if (Math.hypot((px - fx - fx * 0.06) / 6.5, (py - yu) / 8) < 1) k += 0.08;
+    }
+    for (const [fx] of DEDOS) { const t = cl((py + 40) / 95); const tx = mix(fx, fx * 0.25, t); if (py > -40 && py < 55 && Math.abs(px - tx) < 2.2) k *= 1.2; }
+    L.add(px, py, 0, ...(r() < 0.5 ? PIEL : PIEL2), k * (0.8 + 0.4 * r()), 1.25, 0, 0.05, r());
+    if (r() < 0.22) L.add(px + (r() - 0.5), py + (r() - 0.5), 0.3, 1.0, 0.88, 0.76, (0.12 + 0.45 * borde) * (0.5 + r()), 0.45, 0, 0.3, r());
+  }
+  // resplandor interno
+  for (let q = 0; q < 1400; q++) {
+    const x = -90 + 160 * r(), y = -150 + 340 * r();
+    const d = sdfMano(x, y);
+    if (d > -6) { q--; continue; }
+    L.add(x, y, -2, 1.0, 0.72, 0.5, 0.011, 9, 0, 0, r());
+  }
+  // vello del dorso y del antebrazo: trazos cortos, inclinados hacia los dedos
+  const pelito = (x0, y0, ang, largo, int) => {
+    for (let s = 0; s < largo; s += 0.3) L.add(x0 + Math.cos(ang) * s + 0.02 * s * s * Math.cos(ang + 1.4), y0 + Math.sin(ang) * s, 0.6, ...VELLO, int, 0.5, 0, 0.1, r());
+  };
+  let n = 0;
+  while (n < 170) {
+    const x = -70 + 140 * r(), y = -10 + 200 * r();
+    if (sdfMano(x, y) > -6) continue;
+    pelito(x, y, -Math.PI / 2 - 0.35 + (r() - 0.5) * 0.5, 4 + 4 * r(), 0.35 + 0.2 * r());
+    n++;
+  }
+  // el pelo al que vamos: sale hacia arriba desde el punto de la piel
+  pelito(MANO_PIEL[0], MANO_PIEL[1] - 4, Math.PI / 2, 9, 0.5);
+  return L;
+}
+
+// ── nivel 2: la piel con vello (unidad 0,1 mm; el cuadro mide ~258 unidades) ─────
+const SURCO = voronoi(34, 43), SURCO2 = voronoi(12, 47);
+const FOLICULOS = [[PIEL_FOL[0], PIEL_FOL[1], Math.PI / 2, 150, 0]];
+{
+  const r = azar(41);
+  while (FOLICULOS.length < 14) {
+    const x = -260 + 520 * r(), y = -170 + 340 * r();
+    if (FOLICULOS.some(([fx, fy]) => Math.hypot(fx - x, fy - y) < 85)) continue;
+    FOLICULOS.push([x, y, -Math.PI / 2 - 0.4 + (r() - 0.5) * 0.9, 70 + 70 * r(), (r() - 0.5) * 0.8]);
+  }
+}
+function construirPiel() {
+  const L = new Luces(80000), S = new Luces(12000);
+  const r = azar(1301);
+  for (let y = -190; y < 190; y += 2.4) for (let x = -300; x < 300; x += 2.4) {
+    const px = x + (r() - 0.5) * 2, py = y + (r() - 0.5) * 2;
+    const w = 6 * (fbm3(px / 60, py / 60, 0.5, 3, 3) - 0.5);
+    const s1 = SURCO(px + w, py - w), s2 = SURCO2(px * 1.03 + 9, py);
+    let k = 0.012 + 0.07 * ss(0.8, 7, s1) * (0.7 + 0.3 * ss(0.3, 2.5, s2)) + 0.02 * fbm3(px / 90, py / 90, 0.2, 9, 3);
+    for (const [fx, fy] of FOLICULOS) { const dd = Math.hypot(px - fx, py - fy); if (dd < 10) k *= 0.2 + 0.8 * ss(3, 10, dd); }
+    L.add(px, py, 0, ...(r() < 0.5 ? PIEL : PIEL2), k * (0.85 + 0.3 * r()), 5.2, 0, 0.03, r());
+    if (r() < 0.22) L.add(px, py, 0.2, 1.0, 0.88, 0.76, (0.05 + 0.3 * ss(2, 8, s1)) * (0.5 + r()), 0.9, 0, 0.3, r());
+  }
+  // pelos: cadenas de luz ámbar con un brillo a lo largo, y su sombra sobre la piel
+  for (const [fx, fy, a, Lp, curva] of FOLICULOS) {
+    const N = Math.round(Lp / 0.45);
+    for (let i = 0; i <= N; i++) {
+      const u = i / N, b = a + curva * u;
+      const x = fx + Math.cos(a) * Lp * u + Math.cos(b + Math.PI / 2) * curva * 25 * u * u;
+      const y = fy + Math.sin(a) * Lp * u + Math.sin(b + Math.PI / 2) * curva * 25 * u * u;
+      const brillo = 0.7 + 0.3 * Math.sin(u * 9 + fx);
+      L.add(x, y, 1, ...VELLO, 0.55 * brillo, 2.2, 0, 0.05, r());
+      L.add(x - 0.3, y + 0.2, 1.1, 1.0, 0.92, 0.8, 0.5 * brillo, 0.7, 0, 0.1, r());
+      S.add(x + 3.5, y - 3.5, 0.5, 0, 0, 0, 0.4, 4.5, 0, 0, r());
+    }
+  }
+  return { L, S };
+}
+
+// ── nivel 3: un pelo que sale de su poro (unidad 10 µm) ───────────────────────
+const CELULA = voronoi(8.5, 63);
+function construirPelo() {
+  const L = new Luces(150000), S = new Luces(8000);
+  const r = azar(1401);
+  const HW = 4.2;                                     // medio ancho del pelo: 84 µm de grosor
+  for (let y = -150; y < 150; y += 1.25) for (let x = -255; x < 255; x += 1.25) {
+    const px = x + (r() - 0.5) * 1.1, py = y + (r() - 0.5) * 1.1;
+    if (Math.abs(px) < HW + 0.4 && py > POR_Y) continue;
+    const rp = Math.hypot(px, (py - POR_Y) * 1.5);
+    const borde = ss(0.25, 1.6, CELULA(px, py));
+    const crater = rp < 60 ? mix(0.1, 1, ss(12, 60, rp)) : 1;
+    const labio = campana(rp, 45, 60, 64, 85) * 0.09;
+    const k = (0.006 + 0.075 * borde + 0.02 * fbm3(px / 70, py / 70, 0.7, 17, 3) + labio) * crater;
+    L.add(px, py, 0, ...(r() < 0.5 ? PIEL : PIEL2), k * (0.85 + 0.3 * r()), 2.2, 0, 0.03, r());
+    if (r() < 0.15) L.add(px, py, 0.2, 1.0, 0.88, 0.76, (0.03 + 0.2 * borde) * (0.5 + r()) * crater, 0.5, 0, 0.3, r());
+  }
+  // el tallo del pelo, cilíndrico, con las líneas de la cutícula
+  for (let y = POR_Y - 6; y < 200; y += 0.36) for (let x = -HW; x <= HW; x += 0.36) {
+    const u = x / HW, cil = Math.pow(Math.max(0, 1 - u * u), 0.45);
+    const fila = 0.5 + 0.5 * Math.sin((y + 0.9 * Math.sin(x * 0.6)) * 2.3);
+    let k = 0.05 + 0.2 * cil * (0.8 + 0.2 * fila) + 0.28 * Math.exp(-(((u + 0.35) / 0.18) ** 2));
+    k *= ss(POR_Y - 6, POR_Y + 10, y);
+    const borde = ss(0.82, 1, Math.abs(u));
+    L.add(x + (r() - 0.5) * 0.2, y + (r() - 0.5) * 0.2, 2, ...(borde > 0.5 ? [0.55, 0.85, 1.0] : VELLO), k + 0.3 * borde, 0.65, 0, 0.03, r());
+  }
+  // sombra del pelo sobre la piel, hacia abajo a la derecha
+  for (let y = POR_Y; y < 200; y += 1.2) for (let x = -HW; x <= HW; x += 1.6) S.add(x + 9, y - 5, 0, 0, 0, 0, 0.32, 6, 0, 0, r());
+  return { L, S };
+}
+
+// ── nivel 4: el pelo como un tronco (unidad 1 µm): escamas de la cutícula como tejas ──
+const PELO_HW = 50;
+function filaCut(i) {
+  const h = (k) => ruido3(i * 1.7, k * 3.1, 0.5, 77);
+  return { y0: i * 8.2 + (h(1) - 0.5) * 2.4, pend: (h(2) - 0.5) * 0.06, curva: 1.2 + 1.6 * h(3), s: i * 13 + 5 };
+}
+const bordeCut = (f, x) => { const u = x / PELO_HW; return f.y0 + f.pend * x - f.curva * (1 - u * u) + 4.2 * (ruido3(x / 22, f.s + 0.5, 0.3, 8) - 0.5) + 1.6 * (ruido3(x / 3.5, f.s, 0.3, 5) - 0.5); };
+function construirTronco() {
+  const L = new Luces(110000);
+  const r = azar(1501);
+  for (let i = -20; i <= 20; i++) {
+    const f = filaCut(i), g = filaCut(i + 1);
+    for (let x = -PELO_HW; x <= PELO_HW; x += 0.48) {
+      const u = x / PELO_HW;
+      const cil = Math.pow(Math.max(0, 1 - u * u), 0.6) * (1 - 0.35 * cl(u));
+      const brillo = Math.exp(-(((u + 0.32) / 0.15) ** 2));
+      const borde = ss(0.86, 1, Math.abs(u));
+      const yb = bordeCut(f, x);
+      // el borde libre de la escama: una línea brillante
+      L.add(x + (r() - 0.5) * 0.3, yb + (r() - 0.5) * 0.3, 1, 1.0, 0.86, 0.66, (0.04 + 0.45 * cil + 0.45 * brillo) * (0.8 + 0.4 * r()), 0.8, 0, 0.05, r());
+      // la teja: de oscura (bajo la escama de arriba) a clara (hacia su borde libre)
+      const yt = bordeCut(g, x);
+      for (let t = 0.08; t < 1; t += 0.11) {
+        const y = mix(yt, yb, t) + (r() - 0.5) * 0.5;
+        const k = (0.008 + 0.16 * cil * t * t + 0.24 * brillo * t * t) * (0.8 + 0.4 * r());
+        L.add(x + (r() - 0.5) * 0.4, y, 0, ...(t > 0.7 ? [1.0, 0.72, 0.42] : VELLO), k, 1.3, 0, 0.03, r());
+      }
+      if (borde > 0.2 && r() < 0.8) L.add(x, yb + (r() - 0.5) * 8, 2, 0.55, 0.85, 1.0, 0.45 * borde, 0.9, 0, 0.1, r());
+    }
+  }
+  // fondo: piel desenfocada, en grandes manchas de luz
+  for (let q = 0; q < 60; q++) {
+    const x = (r() - 0.5) * 900, y = (r() - 0.5) * 520;
+    if (Math.abs(x) < PELO_HW + 40) continue;
+    L.add(x, y, -60, ...(r() < 0.8 ? PIEL : [0.55, 0.75, 1.0]), 0.05 + 0.07 * r(), 30 + 70 * r() ** 2, 0, 0.05, r());
+  }
+  return L;
+}
+
+// ── capas ────────────────────────────────────────────────────────────────────
+const calle = construirCalle();   // sin las luces de las casas ni el barrio: desenfocadas en el borde superior parecían un fallo
+const capaCalleE = P.capa(calle.estructura.geometria(), null, 1);
+const capaCalle = P.capa(calle.luces.geometria(), null, 1);
+const capaMano = P.capa(construirMano().geometria(), null, 3);
+const piel = construirPiel();
+const matSombra = () => new THREE.ShaderMaterial({
+  uniforms: { ...P.U, uAlpha: { value: 1 }, uEsc: { value: 1 }, uMinPx: { value: 1.2 } },
+  vertexShader: /* glsl */ `
+    ${GLSL_EMITIR}
+    uniform float uEsc, uMinPx; attribute vec4 aCol; attribute vec4 aTam;
+    void main() { emitir(modelViewMatrix * vec4(position, 1.0), aTam.x * uEsc, aCol.rgb, aCol.w, max(aTam.y, uMinPx)); }`,
+  fragmentShader: /* glsl */ `
+    varying vec3 vCol; varying float vAlpha; varying float vBokeh; varying vec2 vNdc;
+    void main() { vec2 pc = gl_PointCoord * 2.0 - 1.0; float r = length(pc); if (r > 1.0) discard; gl_FragColor = vec4(vCol, clamp(vAlpha * exp(-r * r * 3.0), 0.0, 1.0)); }`,
+  transparent: true, depthTest: false, depthWrite: false, blending: THREE.NormalBlending,
+});
+const capaPiel = P.capa(piel.L.geometria(), null, 4);
+const capaPielS = P.capa(piel.S.geometria(), matSombra(), 3);
+const pelo = construirPelo();
+const capaPelo = P.capa(pelo.L.geometria(), null, 6);
+const capaPeloS = P.capa(pelo.S.geometria(), matSombra(), 5);
+const capaTronco = P.capa(construirTronco().geometria(), null, 7);
+const per = persona();
+const capaPersona = P.capa(geometria({ position: [per.pos, 3], aNor: [per.nor, 3], aInfo: [per.info, 4] }), materialPersona(P), 8);
+const ponAlfa = (capa, a) => { capa.material.uniforms.uAlpha.value = a; capa.visible = a > 0.002; };
+
+// ── la molécula: seis átomos como Atom que encajan a su alrededor ─────────────
+const ATOMO0 = [800, 292], ATOMO_MOL = [905, 318], ATOMO_ZOOM = [1310, 318];
+const L_ENL = 112;
+const MOL = [0, 1, 2, 3, 4, 5].map((i) => {
+  const a = (i * Math.PI) / 3 + Math.PI / 6;
+  return { a, dx: Math.cos(a) * L_ENL, dy: Math.sin(a) * L_ENL, llega: T_BLOQ - 0.42 + [0.0, 0.07, 0.15, 0.22, 0.3, 0.42][[2, 4, 0, 5, 1, 3][i]], desde: (i * 1.9 + 0.7) % TAU, fase: i * 1.37 };
+});
+const atomosMol = MOL.map(() => P.crearAtomo(9));
+const enlaces = P.capaPantalla(1400, 12);
+
+// ── la pizarra de luz: «?» que se convierte en «!» ────────────────────────────
+const PIZ = { x: 1262, y: 322, w: 330, h: 262 };
+function glifo(txt, n, semilla) {
+  const c = document.createElement('canvas'); c.width = 260; c.height = 260;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.font = '800 200px "Inter Tight", "Helvetica Neue", Arial, sans-serif'; x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(txt, 130, 140);
+  const d = x.getImageData(0, 0, 260, 260).data, llenos = [];
+  for (let j = 0; j < 260; j++) for (let i = 0; i < 260; i++) if (d[(j * 260 + i) * 4 + 3] > 128) llenos.push([i, j]);
+  const r = azar(semilla), out = [];
+  for (let k = 0; k < n; k++) { const [i, j] = llenos[Math.floor(r() * llenos.length)]; out.push([(i - 130 + r() - 0.5) * 0.9, (j - 140 + r() - 0.5) * 0.9]); }
+  return out;
+}
+const N_G = 1300;
+const INTERROGANTE = glifo('?', N_G, 5), EXCLAMACION = glifo('!', N_G, 6);
+// a cada partícula de la «?» le toca la de la «!» más cercana en altura (así fluyen sin cruzarse demasiado)
+{
+  const ordQ = [...INTERROGANTE.keys()].sort((a, b) => INTERROGANTE[a][1] - INTERROGANTE[b][1]);
+  const ordE = [...EXCLAMACION.keys()].sort((a, b) => EXCLAMACION[a][1] - EXCLAMACION[b][1]);
+  const E2 = new Array(N_G);
+  ordQ.forEach((q, k) => { E2[q] = EXCLAMACION[ordE[k]]; });
+  for (let k = 0; k < N_G; k++) EXCLAMACION[k] = E2[k];
+}
+const pizarra = P.capaPantalla(N_G + 700, 16);
+const panel = P.panel(14);
+const cota = P.capaPantalla(1200, 18);
+
+// ── un instante ──────────────────────────────────────────────────────────────
+function dibujar(t) {
+  const tt = tau(t);
+  const z = zDe(t);
+  const v = (z - zDe(t - 1 / 60)) * 60;
+  const cam = camaraDe(z);
+  P.ponerVista(cam.C, cam.B, cam.U, cam.F);
+  P.U.uFocus.value = RHO0;
+  P.U.uAperture.value = 30 * (1 - ss(0.05, 0.45, -z));
+
+  // persona y calle (z = 0) → mano → piel → pelo → tronco
+  const mp = capaPersona.material.uniforms;
+  mp.uOla.value = mix(1.85, -0.2, lin(t, T_ATOM - 0.25, T_ATOM + 0.45));
+  P.colocar(capaPersona, [0, 0, 0], 1);
+  ponAlfa(capaPersona, vis(z, -1, -0.5, 0.45, 0.85));
+  for (const c of [capaCalle, capaCalleE]) P.colocar(c, [0, 0, 0], 1);
+  ponAlfa(capaCalle, 1 - ss(0.3, 0.7, -z));
+  ponAlfa(capaCalleE, 0);
+  P.colocar(capaMano, P_MANO, 1e-3);
+  ponAlfa(capaMano, vis(z, 0.35, 0.7, 1.6, 2.0));
+  P.colocar(capaPiel, P_PIEL, 1e-4); P.colocar(capaPielS, P_PIEL, 1e-4);
+  const aP = vis(z, 1.4, 1.75, 2.6, 2.95);
+  ponAlfa(capaPiel, aP); ponAlfa(capaPielS, aP);
+  P.colocar(capaPelo, P_PELO, 1e-5); P.colocar(capaPeloS, P_PELO, 1e-5);
+  const aPe = vis(z, 2.4, 2.75, 3.55, 3.85);
+  ponAlfa(capaPelo, aPe); ponAlfa(capaPeloS, aPe);
+  P.colocar(capaTronco, P_TRONCO, 1e-6);
+  ponAlfa(capaTronco, ss(3.35, 3.7, -z));
+
+  const f = P.fondo;
+  f.uCielo.value = 1 - ss(0.2, 0.8, -z);
+  f.uEspacio.value = 0;
+  f.uSuelo.value = ss(0.5, 1.0, -z) * 0.6;
+
+  // ── Atom ──
+  const salto = ss(T_SALT - 0.2, T_SALT + 0.5, t);
+  const bote = Math.exp(-(((t - (T_HOLA - 0.08)) / 0.12) ** 2)) * -16 + Math.exp(-(((t - (T_HOLA + 0.12)) / 0.1) ** 2)) * 5;
+  const pres = campana(t, T_ATOM - 0.26, T_ATOM - 0.02, T_ATOMF + 0.2, T_ATOMF + 0.75);
+  const aMol = ss(T_BLOQ - 0.55, T_BLOQ - 0.25, t);
+  const ax = mix(mix(ATOMO0[0], ATOMO_MOL[0], aMol), ATOMO_ZOOM[0], salto);
+  const ay = mix(mix(ATOMO0[1], ATOMO_MOL[1], aMol), ATOMO_ZOOM[1], salto) + bote;
+  const flota = 1 - 0.7 * ss(Q0, Q0 + QL, t);
+  // electrón-mano: sale de la órbita, saluda y vuelve
+  const mano = campana(t, T_HOLA - 0.32, T_HOLA - 0.06, T_HOLA + 0.55, T_HOLA + 0.85);
+  const ola = Math.sin((t - T_HOLA) * 15) * ss(T_HOLA - 0.15, T_HOLA + 0.05, t);
+  const vel = 2.2 + 9 * pres;
+  const fase = 2.2 * tt + 7.5 * cl((t - (T_ATOM - 0.26)) / 0.9) * 0.5 + 6 * ss(T_ATOM - 0.26, T_ATOMF + 0.75, t) + 0.8 * golpe(t);
+  P.atomo({
+    x: ax + 3 * Math.sin(tt * 0.9) * flota, y: ay + 4 * Math.sin(tt * 1.3 + 1) * flota,
+    radio: mix(80 * (1 + 0.33 * pres), 54, salto) * (1 + 0.05 * golpe(t)), energia: E.energia(t), fase,
+    rotX: 0.06 * Math.sin(tt * 0.5) * flota, rotY: 0.16 * Math.sin(tt * 0.35) * flota, rotZ: 0,
+    brillo: 1 + 0.55 * pres + 0.2 * golpe(t), sombra: 0.3 + 0.25 * ss(0.3, 1, -z),
+    mano: [-1.55 + 0.25 * ola, 1.05 + 0.15 * Math.abs(ola), 0.6, mano],
+  });
+  void vel;
+
+  // ── la molécula ──
+  enlaces.limpiar();
+  const dis = ss(T_SALT - 0.3, T_SALT + 0.25, t);   // en [saltos] la molécula se deshace en chispas
+  MOL.forEach((m, i) => {
+    const u = lin(t, m.llega - 0.55, m.llega);
+    const ponM = atomosMol[i];
+    if (u <= 0 || dis >= 1) { ponM({ x: 0, y: 0, radio: 1, visible: 0 }); return; }
+    // llega girando desde fuera del cuadro, con un rebote al encajar
+    const e = eob(u, 1.2);
+    const ang = m.a + (1 - eoc(u)) * 2.4;
+    const dist = mix(900, L_ENL, eoc(u)) * (1 + 0.04 * Math.sin((t - m.llega) * 20) * Math.exp(-Math.max(0, t - m.llega) / 0.12) * (t > m.llega ? 1 : 0));
+    const cx = ax + Math.cos(ang) * dist + 1.5 * Math.sin(tt * 1.1 + i), cy = ay + Math.sin(ang) * dist * 0.95 + 1.5 * Math.cos(tt * 0.9 + i);
+    ponM({ x: cx, y: cy, radio: 30 * (1 - 0.6 * dis), energia: 0, fase: 2.6 * tt + m.fase + 2 * (1 - e), rotX: 0.3 * Math.sin(i), rotY: 0.5 * Math.cos(i * 1.7), rotZ: i * 0.9, brillo: (0.85 + 0.6 * Math.exp(-Math.max(0, t - m.llega) / 0.15) * (t > m.llega ? 1 : 0)) * (1 - dis), visible: 1 });
+    m.cx = cx; m.cy = cy; m.ok = t >= m.llega;
+  });
+  // enlaces de luz: se encienden al tocar (destello) y quedan como una cadena de puntos
+  const enlace = (x0, y0, x1, y1, t0, r0, r1) => {
+    const d = Math.hypot(x1 - x0, y1 - y0);
+    if (d < r0 + r1 + 4) return;
+    const fl = Math.exp(-Math.max(0, t - t0) / 0.18);
+    const crece = eoc(lin(t, t0, t0 + 0.12));
+    const n = Math.floor(d / 5);
+    for (let k = 1; k < n; k++) {
+      const s = k / n; if (s > crece) break;
+      const x = mix(x0, x1, s), y = mix(y0, y1, s);
+      if (Math.hypot(x - x0, y - y0) < r0 || Math.hypot(x - x1, y - y1) < r1) continue;
+      const tw = 0.75 + 0.25 * Math.sin(k * 1.7 + tt * 3);
+      enlaces.add(x, y, 0.55 + 0.45 * fl, 0.85 + 0.15 * fl, 1.0, (0.5 + 0.8 * fl) * tw * (1 - dis), 4.2 + 3 * fl);
+    }
+  };
+  MOL.forEach((m, i) => {
+    if (!m.ok || dis >= 1) return;
+    enlace(ax, ay, m.cx, m.cy, m.llega, 52, 22);
+    const j = (i + 1) % 6, n = MOL[j];
+    if (n.ok) enlace(m.cx, m.cy, n.cx, n.cy, Math.max(m.llega, n.llega), 22, 22);
+  });
+  // chispas al deshacerse
+  if (dis > 0 && dis < 1) MOL.forEach((m, i) => {
+    if (!m.ok) return;
+    const rr = azar(900 + i);
+    for (let k = 0; k < 60; k++) {
+      const a = rr() * TAU, sp = 40 + 260 * rr();
+      enlaces.add(m.cx + Math.cos(a) * sp * dis, m.cy + Math.sin(a) * sp * dis + 60 * dis * dis, 0.6, 0.9, 1.0, 0.5 * (1 - dis) * rr(), 2.5);
+    }
+  });
+  enlaces.fin();
+
+  // ── la pizarra ──
+  pizarra.limpiar();
+  const aPiz = ss(T_EXPL - 0.38, T_EXPL - 0.12, t) * (1 - ss(T_SALT - 0.25, T_SALT + 0.15, t));
+  panel(PIZ.x, PIZ.y, PIZ.w * mix(0.85, 1, eoc(lin(t, T_EXPL - 0.38, T_EXPL - 0.1))), PIZ.h, 0.62 * aPiz);
+  if (aPiz > 0.002) {
+    // el marco: puntos que recorren el borde y lo dibujan
+    const per = 2 * (PIZ.w + PIZ.h), traz = eoc(lin(t, T_EXPL - 0.38, T_EXPL - 0.1));
+    for (let s = 0; s < per * traz; s += 6) {
+      let x, y;
+      if (s < PIZ.w) { x = PIZ.x - PIZ.w / 2 + s; y = PIZ.y - PIZ.h / 2; }
+      else if (s < PIZ.w + PIZ.h) { x = PIZ.x + PIZ.w / 2; y = PIZ.y - PIZ.h / 2 + (s - PIZ.w); }
+      else if (s < 2 * PIZ.w + PIZ.h) { x = PIZ.x + PIZ.w / 2 - (s - PIZ.w - PIZ.h); y = PIZ.y + PIZ.h / 2; }
+      else { x = PIZ.x - PIZ.w / 2; y = PIZ.y + PIZ.h / 2 - (s - 2 * PIZ.w - PIZ.h); }
+      pizarra.add(x, y, 0.55, 0.82, 1.0, 0.5 * aPiz * (0.8 + 0.2 * Math.sin(s * 0.3 + tt * 2)), 3);
+    }
+    // «?» → «!»
+    const rq = azar(77);
+    const nace = lin(t, T_EXPL - 0.3, T_EXPL);
+    const cambio = lin(t, T_ESC - 0.3, T_ESC);
+    for (let k = 0; k < N_G; k++) {
+      const qd = rq(), qa = rq() * TAU, qr = rq();
+      const nk = cl((nace - qd * 0.5) / 0.5);
+      if (nk <= 0) continue;
+      const [x0, y0] = INTERROGANTE[k], [x1, y1] = EXCLAMACION[k];
+      const ck = suave(cl((cambio - qr * 0.35) / 0.65));
+      const remolino = Math.sin(Math.PI * ck);
+      let x = mix(x0, x1, ck) + Math.cos(qa + ck * 5) * 28 * remolino;
+      let y = mix(y0, y1, ck) + Math.sin(qa + ck * 5) * 18 * remolino;
+      // al nacer, llegan desde el centro de la pizarra girando
+      const en = eoc(nk);
+      x = mix(Math.cos(qa) * 120 * (1 - en), x, en); y = mix(Math.sin(qa) * 80 * (1 - en), y, en);
+      const destello = Math.exp(-Math.max(0, t - T_ESC) / 0.25) * (t > T_ESC - 0.05 ? 1 : 0);
+      pizarra.add(PIZ.x + x, PIZ.y + y + 6, 1.0, 0.8 + 0.15 * destello, 0.5 + 0.4 * destello, (0.45 + 0.35 * remolino + 0.5 * destello) * aPiz * en, 3.4 + 1.5 * destello);
+    }
+  }
+  pizarra.fin();
+
+  // ── la cota del pelo: de lado a lado, completa en [milimetro] ──
+  cota.limpiar();
+  const ctx = P.ctx2d();
+  const pc = cl((t - (T_DEC - 0.22)) / 0.45);
+  if (pc > 0) {
+    const yW = P_TRONCO[1] - 12e-6;
+    const pi = P.aPantalla([P_TRONCO[0] - PELO_HW * 1e-6, yW, P_TRONCO[2]]), pd = P.aPantalla([P_TRONCO[0] + PELO_HW * 1e-6, yW, P_TRONCO[2]]);
+    const yC = pi[1], xm = (pi[0] + pd[0]) / 2, hl = ((pd[0] - pi[0]) / 2) * eoc(pc);
+    const ext = ss(0.55, 1, pc);
+    for (let x = xm - hl; x <= xm + hl; x += 3) cota.add(x, yC, 0.85, 0.95, 1.0, 0.85, 3.4);
+    for (const s of [-1, 1]) {
+      const xe = xm + s * (pd[0] - pi[0]) / 2;
+      for (let y = yC - 80; y < yC + 50; y += 7) cota.add(xe, y, 0.6, 0.85, 1.0, 0.55 * ext, 2.6);
+      for (let k = 0; k < 18; k++) { const u = k / 18; cota.add(xe - s * 20 * u, yC + (k % 2 ? 1 : -1) * 8 * u, 0.9, 0.97, 1.0, 0.9 * ext, 3); }
+    }
+    // el rótulo, sobre una placa oscura
+    const la = ss(T_MILI - 0.35, T_MILI - 0.05, t);
+    if (la > 0) {
+      ctx.save();
+      ctx.globalAlpha = la * 0.8; ctx.fillStyle = 'rgba(2,4,10,0.85)';
+      ctx.beginPath(); ctx.roundRect(xm - 130, yC - 112, 260, 84, 14); ctx.fill();
+      ctx.restore();
+      potenciaGrande(ctx, -4, xm, yC - 46 + 10 * (1 - eoc(la)), la);
+    }
+  }
+  cota.fin();
+
+  const K = Math.max(0.9, 10 ** (cl(v, -60, 60) / 90));
+  P.render(tt, { zoomK: K, zoomC: cam.F, bloom: [0.78, 0.48, 0.32] });
+  regla(ctx, { z, desliz: 0, golpe: golpe(t) });
+}
+// «10⁻⁴ m» grande para la cota (la misma letra que la regla)
+function potenciaGrande(ctx, n, x, y, alfa) {
+  const tam = 54, exp = '−' + Math.abs(n);
+  ctx.save();
+  ctx.globalAlpha = alfa; ctx.fillStyle = '#F4F8FF'; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+  ctx.shadowColor = 'rgba(140,200,255,0.6)'; ctx.shadowBlur = 14;
+  ctx.font = F_REGLA(tam); const w10 = ctx.measureText('10').width;
+  ctx.font = F_REGLA(Math.round(tam * 0.62)); const we = ctx.measureText(exp).width;
+  ctx.font = F_REGLA(Math.round(tam * 0.8), 500); const wm = ctx.measureText('m').width;
+  const total = w10 + 2 + we + tam * 0.26 + wm, x0 = x - total / 2;
+  ctx.font = F_REGLA(tam); ctx.fillText('10', x0, y);
+  ctx.font = F_REGLA(Math.round(tam * 0.62)); ctx.fillText(exp, x0 + w10 + 2, y - tam * 0.42);
+  ctx.font = F_REGLA(Math.round(tam * 0.8), 500); ctx.fillText('m', x0 + w10 + 2 + we + tam * 0.26, y);
+  ctx.restore();
+}
+
+// calentamiento: se compilan todos los programas al cargar (no en el primer fotograma que se mide)
+for (const t of [2.8, 5.5, 7.6, 8.4, 9.05, 11]) dibujar(t);
+dibujar(0);
+E.iniciar(dibujar);
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cumbre · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-CUMBRE (frase 22). El mapa: el imperio llega a su máximo (de Britania a Mesopotamia). Luego cinco personas de
+// pueblos distintos; una se ilumina y «1/5» en la caja.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-cumbre');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('cumbre', 0.5), dur = E.duracion ?? 12, t1 = m0 + (dur - m0) * 0.55;
+const año = (t) => Math.round(lerp(14, 117, tramo(t, m0 + 0.5, m0 + 4)));
+const mapa = (t) => R.mapaAño(t, año(t));
+const cinco = (t) => {
+  R.cieloR(t, 'tarde', { hor: 130, sol: [160, 120, 10] }); R.suelo(130, PALA.MARMOL, { losas: true });
+  const gente = [ELENCO.barbaro, { ...ELENCO.ciudadano, chaqueta: PALA.AZUL, camisa: PALA.AZUL, falda: PALA.AZUL, piel: PALA.PIEL_OSCURA, pelo: PALA.PELO_NEGRO }, ELENCO.senador, { ...ELENCO.ciudadano, chaqueta: PALA.VERDE, camisa: PALA.VERDE, falda: PALA.VERDE }, { ...ELENCO.polinesio, sombrero: 'no' }];
+  const luz = t > t1 + 0.8;
+  gente.forEach((g, i) => { const x = 70 + i * 45; if (i === 2 && luz) R.halo(x, 150, 22, [PALA.AMARILLO[1], PALA.AMARILLO[2]], 1); R.personaje(x, 166, 28, { ...g, t: t + i, sonrisa: i === 2 && luz }); });
+};
+rodar(E, R, [[0, mapa], [t1, cinco]], { año, caja: (t, e) => R.caja(t, t > t1 + 0.8 ? tramo(t, t1 + 0.8, t1 + 1.2) : 0, (x, y) => R.numero('1/5', x + 4, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

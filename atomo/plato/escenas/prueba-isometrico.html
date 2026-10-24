@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prueba · isométrico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Space+Grotesk:wght@500;700&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Prueba de identidad visual · ISOMÉTRICO (low-poly pastel sobre rejilla oscura, 30 fps).
+// Los mismos 12 s que el resto de estilos (atomo/plato/prueba-identidad/ENCARGO.md):
+//  0        persona low-poly sobre su peana, regla de potencias de diez a la derecha, Atom junto al hombro
+//  hola     Atom da un bote · atom: crece, se enciende (halo y onda) y sus electrones aceleran
+//  bloques  tres átomos llegan con su varilla y encajan: una molécula · explico: aparece una pizarrita «?»
+//  escuela  la pizarrita gira y enseña «!»
+//  saltos → pelo  cuatro saltos ×10 con visor: se abre un recuadro en el punto del zoom con el nivel
+//           siguiente (mano → bloque de piel con vello → un pelo saliendo de su folículo → el pelo
+//           como un tronco con su cutícula); el marcador de la regla baja 10⁰ → 10⁻⁴ m
+//  decima → milimetro  cota de lado a lado del pelo con «10⁻⁴ m» · después todo queda quieto
+// Cada nivel es su propia escena 3D (sin problemas de precisión); la cámara isométrica se encuadra en
+// cada una. El renderizado es propio (el del kit más una pasada recortada para el visor del salto).
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/isometrico.js';
+const { THREE, P, S, vR, vU, vW, vF, Y, seg, eio, eo, ei, eob, sstep, clamp01, lerp, lam, basic, prng } = K;
+const TAU = Math.PI * 2, PI = Math.PI;
+
+const E = await escena('prueba-isometrico', 'prueba');
+const M = (n) => E.marca(n);
+await K.cargarFuentes();
+
+// ---------------------------------------------------------------- tiempos
+const m = {
+  hola: M('hola'), atom: M('atom'), bloques: M('bloques'), explico: M('explico'), escuela: M('escuela'),
+  saltos: M('saltos'), pelo: M('pelo'), decima: M('decima'), milimetro: M('milimetro'),
+};
+const QUIETO = E.duracion - 0.6;
+const JS = (m.pelo - m.saltos) * 0.8 / 4;
+const SALTO = [0, 1, 2, 3].map((k) => { const a = m.saltos + k * (m.pelo - m.saltos - JS) / 3; return [a, a + JS]; });
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+// tiempo «del átomo»: corre más deprisa en «atom» (electrones acelerados) y se para al final
+const DT = 1 / 240, TA = [0];
+const velA = (t) => (1 + 2.6 * eio(seg(t, m.atom - 0.25, m.atom)) * (1 - eio(seg(t, m.atom + 0.8, m.atom + 1.7)))) * (1 - eio(seg(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= E.duracion + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT);
+const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor(x)); return lerp(TA[i], TA[i + 1], x - i); };
+
+// ---------------------------------------------------------------- plató y escenas por nivel
+const plato = K.crearPlato({ centro: [0.46, 0.5], estrellas: 90, libre: [[1540, 100, 1800, 940]] });
+const R = plato.renderer, cam = plato.camera;
+function nuevaEscena() {
+  const sc = new THREE.Scene();
+  sc.add(new THREE.HemisphereLight('#ece8ff', '#2d2b58', 2.25));
+  const sun = new THREE.DirectionalLight('#fff4e6', 2.45); sun.position.set(0.55, 1, 0.1).multiplyScalar(1000); sc.add(sun);
+  return sc;
+}
+const NIV = [0, 1, 2, 3, 4].map(() => ({ scene: nuevaEscena(), T: new THREE.Vector3(), F: new THREE.Vector3() }));
+const COL = {
+  jersey: '#ee8778', jerseyD: '#d9705f', jerseyDD: '#c25f58', pelo: '#9a6650', peloD: '#7c4e3d', peloL: '#b88468',
+  piel: P.skin, pielD: '#e8b9a0', una: '#fae6dc', epi: '#f7d3bd', dermis: '#f2aa98', grasa: '#f4d9a0',
+};
+
+// ---------------------------------------------------------------- utilidades 3D
+// tubo que se afina a lo largo de una polilínea (pelos)
+function tubo(pts, r0, r1, radial = 6) {
+  const n = pts.length, pos = [], idx = [];
+  const t = new THREE.Vector3(), nx = new THREE.Vector3(), ny = new THREE.Vector3(), aux = new THREE.Vector3();
+  for (let i = 0; i < n; i++) {
+    t.subVectors(pts[Math.min(n - 1, i + 1)], pts[Math.max(0, i - 1)]).normalize();
+    aux.set(0, 0, 1); if (Math.abs(t.z) > 0.9) aux.set(1, 0, 0);
+    nx.crossVectors(t, aux).normalize(); ny.crossVectors(t, nx).normalize();
+    const r = lerp(r0, r1, Math.pow(i / (n - 1), 0.85));
+    for (let j = 0; j < radial; j++) {
+      const a = j / radial * TAU, c = Math.cos(a) * r, s = Math.sin(a) * r;
+      pos.push(pts[i].x + nx.x * c + ny.x * s, pts[i].y + nx.y * c + ny.y * s, pts[i].z + nx.z * c + ny.z * s);
+    }
+  }
+  for (let i = 0; i < n - 1; i++) for (let j = 0; j < radial; j++) {
+    const a = i * radial + j, b = i * radial + (j + 1) % radial, c = a + radial, d = b + radial;
+    idx.push(a, b, c, b, d, c);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+const curva = (a, b, c, n = 10) => { const q = new THREE.QuadraticBezierCurve3(a, b, c); return q.getPoints(n); };
+function varilla(mat) {   // cilindro unitario que se coloca entre dos puntos
+  const geo = new THREE.CylinderGeometry(1, 1, 1, 7); geo.translate(0, 0.5, 0);
+  const m = new THREE.Mesh(geo, mat);
+  m.poner = (a, b, r) => {
+    const d = new THREE.Vector3().subVectors(b, a), L = d.length();
+    m.visible = L > 0.5 && r > 0.01; if (!m.visible) return;
+    m.position.copy(a); m.quaternion.setFromUnitVectors(Y, d.normalize()); m.scale.set(r, L, r);
+  };
+  return m;
+}
+function texturaLienzo(w, h, dibujar) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  dibujar(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+const marcarAO = (g, k, s) => K.bakeAO(g, k, s);
+
+// =====================================================================================
+// LA MANO (nivel 1 a tamaño real; en la persona, la misma a 1/10)
+// =====================================================================================
+function crearMano({ manga = true, vello = true } = {}) {
+  const g = new THREE.Group();
+  const mPiel = lam(COL.piel), mPielD = lam(COL.pielD), mUna = lam(COL.una);
+  // dorso: rectángulo redondeado extruido
+  const sh = new THREE.Shape(); const w = 330, h = 300, r = 80;
+  sh.moveTo(-w / 2 + r, -h / 2); sh.lineTo(w / 2 - r, -h / 2); sh.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+  sh.lineTo(w / 2 - 6, h / 2 - r); sh.quadraticCurveTo(w / 2 - 10, h / 2, w / 2 - r, h / 2); sh.lineTo(-w / 2 + r, h / 2);
+  sh.quadraticCurveTo(-w / 2 + 10, h / 2, -w / 2 + 6, h / 2 - r); sh.lineTo(-w / 2, -h / 2 + r); sh.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+  const palmaG = new THREE.ExtrudeGeometry(sh, { depth: 70, bevelEnabled: true, bevelThickness: 16, bevelSize: 16, bevelSegments: 2, curveSegments: 4 });
+  palmaG.translate(0, 20, -35);
+  g.add(new THREE.Mesh(palmaG, mPiel));
+  // dedos (cápsulas) con uña
+  const dedos = [[-118, 37, 262, 0.05], [-40, 39, 300, 0.015], [40, 37, 280, -0.02], [116, 32, 214, -0.07]];
+  for (const [x, rr, L, a] of dedos) {
+    const piv = new THREE.Group(); piv.position.set(x, -96, 0); piv.rotation.z = a; g.add(piv);
+    const d = new THREE.Mesh(new THREE.CapsuleGeometry(rr, L, 3, 7), x > 100 ? mPielD : mPiel); d.position.y = -L / 2 - 10; piv.add(d);
+    const una = new THREE.Mesh(new THREE.CapsuleGeometry(rr * 0.55, rr * 0.7, 2, 6), mUna); una.scale.z = 0.35;
+    una.position.set(0, -L - 10 - rr * 0.1, rr * 0.86); piv.add(una);
+    for (const k of [0.36, 0.66]) {   // pliegues de los nudillos
+      const p = new THREE.Mesh(new THREE.TorusGeometry(rr * 0.5, 2.2, 3, 8, PI * 0.8), basic('#d79e85'));
+      p.position.set(0, -10 - L * k, rr * 0.97); p.rotation.z = PI * 1.1; piv.add(p);
+    }
+    const nud = new THREE.Mesh(new THREE.IcosahedronGeometry(rr * 0.7, 1), mPiel); nud.position.set(0, -2, 34); nud.scale.set(1, 0.7, 0.6); piv.add(nud);
+  }
+  // pulgar
+  const pul = new THREE.Group(); pul.position.set(-150, 40, 0); pul.rotation.z = -0.68; g.add(pul);
+  const pd = new THREE.Mesh(new THREE.CapsuleGeometry(40, 190, 3, 7), mPielD); pd.position.y = -110; pul.add(pd);
+  const pu = new THREE.Mesh(new THREE.CapsuleGeometry(22, 26, 2, 6), mUna); pu.scale.z = 0.35; pu.position.set(0, -200, 34); pul.add(pu);
+  // muñeca y manga
+  const mun = new THREE.Mesh(new THREE.CylinderGeometry(138, 148, 120, 9), mPiel); mun.scale.z = 0.5; mun.position.y = 200; g.add(mun);
+  if (manga) {
+    const mg = new THREE.Mesh(new THREE.CylinderGeometry(178, 172, 1700, 10), lam(COL.jersey)); mg.scale.z = 0.72; mg.position.y = 1130; g.add(mg);
+    const pn = new THREE.Mesh(new THREE.CylinderGeometry(186, 186, 130, 26), lam(COL.jerseyD)); pn.scale.z = 0.76; pn.position.y = 300; g.add(pn);
+  }
+  if (vello) {
+    const rnd = prng(31), mPelo = lam(COL.pelo, { side: THREE.DoubleSide });
+    for (let i = 0; i < 26; i++) {
+      const x = -140 + rnd() * 280, y = -100 + rnd() * 250, L = 55 + rnd() * 45, a = -0.5 + rnd() * 0.5;
+      if (Math.hypot(x - 30, y - 40) < 34) continue;
+      const p0 = new THREE.Vector3(x, y, 52), p2 = new THREE.Vector3(x + Math.sin(a) * L, y - Math.cos(a) * L, 60 + rnd() * 10);
+      const p1 = p0.clone().lerp(p2, 0.5).add(new THREE.Vector3(0, 0, 12));
+      g.add(new THREE.Mesh(tubo(curva(p0, p1, p2, 6), 2.6, 0.6, 4), mPelo));
+    }
+    const p0 = new THREE.Vector3(30, 40, 52);
+    g.add(new THREE.Mesh(tubo(curva(p0, new THREE.Vector3(32, 10, 66), new THREE.Vector3(34, -26, 74), 6), 3, 1.2, 4), mPelo));
+  }
+  return g;
+}
+
+// =====================================================================================
+// NIVEL 0 · LA PERSONA (10⁰ m)
+// =====================================================================================
+const N0 = NIV[0];
+const suelo0 = K.crearSuelo({ scene: N0.scene }, { y: -300, centro: [940, 840], radio: 1350 });
+const PIE = K.enPlano(610, 878, -276);
+suelo0.peana(PIE.x, PIE.z, 150);
+const persona = (() => {
+  const u = 8.4, g = new THREE.Group(), cuerpo = new THREE.Group(); g.add(cuerpo);
+  const mP = lam(P.pants), mS = lam(P.shoe), mJ = lam(COL.jersey), mJD = lam(COL.jerseyD), mJDD = lam(COL.jerseyDD), mSk = lam(COL.piel, { emissive: '#3c2622' }), mH = lam(COL.pelo);
+  for (const s of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(6.6, 31, 7.4), mP); leg.position.set(s * 4.6, 19.5, 0); cuerpo.add(leg);
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(7.4, 4, 11), mS); shoe.position.set(s * 4.6, 2, 1.8); cuerpo.add(shoe);
+  }
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(10.4, 10.9, 29, 8), mJ); torso.position.y = 48.5; cuerpo.add(torso);
+  const bajo = new THREE.Mesh(new THREE.CylinderGeometry(11.2, 11.2, 3.4, 8), mJD); bajo.position.y = 35.6; cuerpo.add(bajo);
+  for (let i = -2; i <= 2; i++) {   // rombos del jersey
+    const r = new THREE.Mesh(new THREE.OctahedronGeometry(1.5, 0), basic('#f8c3b4')); r.scale.z = 0.25;
+    const a = i * 0.32; r.position.set(Math.sin(a) * 10.75, 50, Math.cos(a) * 10.75); r.rotation.y = a; cuerpo.add(r);
+  }
+  const collar = new THREE.Mesh(new THREE.CylinderGeometry(5.4, 6.8, 2.6, 8), mJD); collar.position.y = 63.4; cuerpo.add(collar);
+  const cuello = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.6, 4, 7), mSk); cuello.position.y = 65; cuerpo.add(cuello);
+  const cabeza = new THREE.Group(); cabeza.position.y = 66; cuerpo.add(cabeza);
+  const head = new THREE.Mesh(new THREE.IcosahedronGeometry(9.2, 1), mSk); head.position.y = 8.6; cabeza.add(head);
+  const pelo = new THREE.Mesh(new THREE.SphereGeometry(9.9, 9, 5, 0, TAU, 0, PI * 0.5), mH); pelo.position.y = 9.4; pelo.rotation.x = -0.2; cabeza.add(pelo);
+  const tupe = new THREE.Mesh(new THREE.IcosahedronGeometry(3.4, 0), mH); tupe.position.set(1.5, 18.4, 3.2); tupe.scale.set(1.3, 0.8, 1); cabeza.add(tupe);
+  for (const s of [-1, 1]) { const o = new THREE.Mesh(new THREE.IcosahedronGeometry(2.2, 0), mSk); o.position.set(s * 9.2, 8.4, 0); o.scale.set(0.6, 1, 1); cabeza.add(o); }
+  const ojos = [];
+  for (const s of [-1, 1]) {
+    const e = new THREE.Mesh(new THREE.IcosahedronGeometry(1.35, 1), basic('#2a2748')); e.position.set(s * 3.3, 10.2, 8.4); e.scale.set(1, 1.2, 0.7); cabeza.add(e); ojos.push(e);
+    const mj = new THREE.Mesh(new THREE.CircleGeometry(1.25, 10), basic('#f3a497', { transparent: true, opacity: 0.7 })); mj.position.set(s * 5.4, 7, 8.1); mj.rotation.y = s * 0.5; cabeza.add(mj);
+  }
+  const boca = new THREE.Mesh(new THREE.TorusGeometry(1.7, 0.36, 4, 10, PI * 0.9), basic('#8a4a52')); boca.position.set(0, 5.9, 8.85); boca.rotation.z = PI * 1.05; cabeza.add(boca);
+  // brazos: la mano es la del nivel 1 a 1/10
+  const brazos = [];
+  for (const s of [-1, 1]) {
+    const piv = new THREE.Group(); piv.position.set(s * 11.6, 61.2, 0); piv.rotation.z = s * 0.1; cuerpo.add(piv);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(5.8, 22, 6.8), mJD); arm.position.y = -11; piv.add(arm);
+    const hom = new THREE.Mesh(new THREE.IcosahedronGeometry(3.2, 1), mJD); hom.position.y = -1.6; hom.scale.set(1, 0.8, 1.05); piv.add(hom);
+    const pun = new THREE.Mesh(new THREE.BoxGeometry(6.4, 2.6, 7.4), mJDD); pun.position.y = -21.6; piv.add(pun);
+    const mano = crearMano({ manga: false, vello: false }); mano.scale.setScalar(0.1 / u); mano.position.set(0, -23 - 200 * 0.1 / u, 0);
+    if (s < 0) mano.scale.x *= -1;
+    piv.add(mano); brazos.push({ piv, mano });
+  }
+  marcarAO(cuerpo, 10, 0.3);
+  cuerpo.scale.setScalar(u);
+  g.position.copy(PIE); g.rotation.y = PI / 4 + 0.32;
+  return { g, cabeza, ojos, brazos, torso };
+})();
+N0.scene.add(persona.g);
+suelo0.sombra(0, PIE.x, PIE.z, 120, 0.35);
+N0.scene.updateMatrixWorld(true);
+N0.F.copy(persona.brazos[1].mano.localToWorld(new THREE.Vector3(0, 10, 0)));
+
+// pizarrita (dos placas espalda con espalda: «?» delante y «!» detrás)
+function caraPizarra(signo) {
+  return K.crearPlaca({ ancho: 300, alto: 214, radio: 22, grosor: 10, base: '#2e4b52', lado: '#8fdcc6', res: 768, dibujar(x, w, h) {
+    x.fillStyle = '#2b4750'; x.fillRect(0, 0, w, h);
+    x.strokeStyle = '#8fdcc6'; x.lineWidth = 10; x.beginPath(); K.roundRectPath(x, 9, 9, w - 18, h - 18, 16); x.stroke();
+    x.strokeStyle = 'rgba(245,239,227,0.07)'; x.lineWidth = 16;
+    for (let i = 0; i < 4; i++) { x.beginPath(); x.moveTo(30 + i * 60, 50 + i * 30); x.lineTo(110 + i * 50, 40 + i * 34); x.stroke(); }
+    x.fillStyle = P.cream; x.font = '700 150px "Space Grotesk"'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(signo, w / 2, h / 2 + 6);
+    x.fillStyle = '#f5efe3'; x.fillRect(w * 0.62, h - 30, 44, 9);
+  } });
+}
+const pizarra = (() => {
+  const g = new THREE.Group(), giro = new THREE.Group(); g.add(giro);
+  const a = caraPizarra('?'), b = caraPizarra('!');
+  a.g.position.z = 5.5; b.g.position.z = -5.5; b.g.rotation.y = PI;
+  giro.add(a.g, b.g);
+  const halo = K.brillo('#8fdcc6', 0, 520); halo.position.z = -40; g.add(halo);
+  K.orientPlaca(g, 0.18);
+  g.position.copy(S(1190, 330, 150));
+  N0.scene.add(g);
+  return { g, giro, halo, q0: g.quaternion.clone() };
+})();
+function nivel0(t) {
+  // cabeza: mira a Atom, luego a la pizarrita y, antes de saltar, a su mano
+  const u1 = eio(seg(t, m.explico - 0.4, m.explico)), u2 = eio(seg(t, m.saltos - 0.8, m.saltos - 0.35));
+  persona.cabeza.rotation.y = lerp(lerp(0.12, -0.18, u1), 0.05, u2);
+  persona.cabeza.rotation.x = lerp(-0.3, 0.18, u2);
+  const f = Math.round(t * 30), cierra = (f >= 62 && f <= 64) || (f >= 186 && f <= 188);
+  for (const o of persona.ojos) o.scale.y = cierra ? 0.15 : 1;
+  persona.torso.scale.set(1, 1 + 0.008 * Math.sin(calma(t) * 2.4), 1);
+  // pizarrita: aparece en «explico», gira en «escuela»
+  const k = eob(seg(t, m.explico - 0.32, m.explico + 0.08), 2.2);
+  pizarra.g.visible = k > 0.002;
+  pizarra.g.scale.setScalar(Math.max(0.001, k));
+  pizarra.g.position.copy(S(1190, 330 + 6 * Math.sin(calma(t) * 1.4), 150));
+  const fl = eio(seg(t, m.escuela - 0.26, m.escuela + 0.04)), reb = t > m.escuela + 0.04 ? 0.18 * Math.exp(-5 * (t - m.escuela - 0.04)) * Math.sin(12 * (t - m.escuela - 0.04)) : 0;
+  pizarra.giro.rotation.y = PI * fl + reb;
+  pizarra.halo.material.opacity = 0.25 * K.latido(t, m.explico, 0.9, 0.2) + 0.32 * K.latido(t, m.escuela, 0.9, 0.15);
+}
+
+// =====================================================================================
+// NIVEL 1 · LA MANO (10⁻¹ m)
+// =====================================================================================
+const N1 = NIV[1];
+const mano1 = crearMano();
+mano1.rotation.set(0, PI / 4 + 0.32, -0.06);
+N1.scene.add(mano1);
+const suelo1 = K.crearSuelo({ scene: N1.scene }, { y: -1000, centro: [960, 960], radio: 1250 });
+suelo1.sombra(0, 0, 0, 380, 0.3);
+N1.T.set(0, -30, 0);
+N1.scene.updateMatrixWorld(true);
+N1.F.copy(mano1.localToWorld(new THREE.Vector3(30, 40, 58)));
+
+// =====================================================================================
+// NIVEL 2 · PIEL CON VELLO (10⁻² m): bloque de piel cortado, con sus pelos
+// =====================================================================================
+const N2 = NIV[2];
+const B2 = { a: 330, alto: 250 };
+const pelos2 = (() => {
+  const rnd = prng(52), lista = [];
+  for (let i = 0; i < 26 && lista.length < 17; i++) {
+    const x = -290 + rnd() * 580, z = -290 + rnd() * 580;
+    if (Math.hypot(x, z) < 90 || lista.some((p) => Math.hypot(p.x - x, p.z - z) < 85)) continue;
+    lista.push({ x, z, L: 230 + rnd() * 200, ax: (rnd() - 0.5) * 0.9, az: (rnd() - 0.5) * 0.9, r: 3 + rnd() * 1.6 });
+  }
+  lista.push({ x: 0, z: 0, L: 470, ax: 0, az: 0, r: 3.2, foco: true });
+  return lista;
+})();
+{
+  const sc = N2.scene, A = B2.a, H = B2.alto;
+  // caras laterales: capas (epidermis, dermis, grasa) con folículos, glándulas y vasos
+  const lado = (seed, raices) => texturaLienzo(1024, 400, (x, w, h) => {
+    const ky = h / H;
+    const capas = [[0, 26, COL.epi], [26, 190, COL.dermis], [190, H, COL.grasa]];
+    for (const [a, b, c] of capas) { x.fillStyle = c; x.fillRect(0, a * ky, w, (b - a) * ky); }
+    x.fillStyle = 'rgba(255,255,255,0.18)'; x.fillRect(0, 26 * ky - 3, w, 3);
+    const rnd = prng(seed);
+    for (let i = 0; i < 9; i++) {   // grasa: celdas redondas
+      for (let j = 0; j < 2; j++) { x.strokeStyle = 'rgba(200,150,70,0.35)'; x.lineWidth = 3; x.beginPath(); x.arc(rnd() * w, (200 + rnd() * 40) * ky, 16 + rnd() * 10, 0, TAU); x.stroke(); }
+    }
+    x.strokeStyle = 'rgba(214,92,104,0.55)'; x.lineWidth = 5;   // vasos
+    x.beginPath(); x.moveTo(0, 150 * ky); for (let X = 0; X <= w; X += 40) x.lineTo(X, (150 + 10 * Math.sin(X * 0.02 + seed)) * ky); x.stroke();
+    for (const u of raices) {      // folículos con su pelo
+      const X = u * w, ang = (rnd() - 0.5) * 0.4;
+      x.save(); x.translate(X, 0); x.rotate(ang);
+      x.fillStyle = 'rgba(190,110,100,0.55)'; x.beginPath(); x.ellipse(0, 100 * ky, 15, 100 * ky, 0, 0, TAU); x.fill();
+      x.fillStyle = COL.peloD; x.fillRect(-4, 0, 8, 170 * ky);
+      x.fillStyle = COL.pelo; x.beginPath(); x.ellipse(0, 175 * ky, 15, 18, 0, 0, TAU); x.fill();
+      x.fillStyle = '#f5b3a6'; x.beginPath(); x.ellipse(0, 182 * ky, 6, 8, 0, 0, TAU); x.fill();
+      x.fillStyle = 'rgba(246,206,120,0.85)'; x.beginPath(); x.ellipse(18, 70 * ky, 13, 22, 0.3, 0, TAU); x.fill();
+      x.restore();
+    }
+  });
+  const tapa = texturaLienzo(1024, 1024, (x, w, h) => {
+    x.fillStyle = COL.epi; x.fillRect(0, 0, w, h);
+    const rnd = prng(7);
+    x.strokeStyle = 'rgba(200,130,110,0.45)'; x.lineWidth = 3;    // surcos de la piel en rombos
+    for (let i = -8; i < 16; i++) {
+      x.beginPath(); x.moveTo(i * 90 + rnd() * 20, 0); x.lineTo(i * 90 + 520 + rnd() * 20, h); x.stroke();
+      x.beginPath(); x.moveTo(i * 110 + rnd() * 20, h); x.lineTo(i * 110 + 640 + rnd() * 20, 0); x.stroke();
+    }
+    for (const p of pelos2) {       // poros
+      const X = (p.x + A) / (2 * A) * w, Z = (p.z + A) / (2 * A) * h;
+      x.fillStyle = 'rgba(150,80,70,0.55)'; x.beginPath(); x.ellipse(X, Z, 13, 13, 0, 0, TAU); x.fill();
+    }
+  });
+  const mLado = (t) => new THREE.MeshLambertMaterial({ map: t });
+  const caras = [mLado(lado(3, [0.2, 0.55, 0.83])), lam(COL.dermis), new THREE.MeshLambertMaterial({ map: tapa }), lam(COL.grasa), mLado(lado(4, [0.12, 0.47, 0.76])), lam(COL.dermis)];
+  const bloque = new THREE.Mesh(new THREE.BoxGeometry(2 * A, H, 2 * A), caras); bloque.position.y = -H / 2; sc.add(bloque);
+  const mPelo = lam(COL.pelo, { side: THREE.DoubleSide });
+  for (const p of pelos2) {
+    const a = new THREE.Vector3(p.x, -6, p.z), c = new THREE.Vector3(p.x + p.ax * p.L, p.L * (1 - 0.18 * (Math.abs(p.ax) + Math.abs(p.az))), p.z + p.az * p.L);
+    const b = new THREE.Vector3(p.x + p.ax * p.L * 0.25, p.L * 0.55, p.z + p.az * p.L * 0.25);
+    sc.add(new THREE.Mesh(tubo(curva(a, b, c, 10), p.r, p.foco ? 2.9 : 0.8, 6), mPelo));
+  }
+  const suelo2 = K.crearSuelo({ scene: sc }, { y: -H, centro: [960, 900], radio: 1300 });
+  suelo2.sombra(0, 0, 0, 520, 0.3);
+}
+N2.T.set(0, 70, 0);
+N2.F.set(0, 30, 0);
+
+// =====================================================================================
+// NIVEL 3 · UN PELO (10⁻³ m): sale de su folículo entre las células de la piel (cortadas)
+// =====================================================================================
+const N3 = NIV[3];
+const R3 = 32;
+{
+  const sc = N3.scene, x0 = -600, x1 = 380, z0 = -800, z1 = 46, H = 300;
+  // caras cortadas: frente (+Z) con el folículo entero; derecha (+X) con capas
+  const capas = (x, w, h, ky) => {
+    x.fillStyle = COL.epi; x.fillRect(0, 0, w, 60 * ky); x.fillStyle = COL.dermis; x.fillRect(0, 60 * ky, w, h);
+    x.fillStyle = 'rgba(255,255,255,0.2)'; x.fillRect(0, 60 * ky - 3, w, 3);
+    for (let i = 0; i < 40; i++) { x.strokeStyle = 'rgba(220,150,140,0.35)'; x.lineWidth = 2; x.beginPath(); x.moveTo(i * 37, 0); x.lineTo(i * 37 + 10, 60 * ky); x.stroke(); }
+  };
+  const frente = texturaLienzo(980, 300, (x, w, h) => {
+    const ky = h / H; capas(x, w, h, ky);
+    const X = (0 - x0) / (x1 - x0) * w;
+    x.fillStyle = '#e88f86'; x.beginPath(); x.moveTo(X - 62, 0); x.lineTo(X - 52, 250 * ky); x.quadraticCurveTo(X, 335 * ky, X + 52, 250 * ky); x.lineTo(X + 62, 0); x.fill();
+    x.fillStyle = '#f6c2b2'; x.beginPath(); x.moveTo(X - 46, 0); x.lineTo(X - 40, 240 * ky); x.quadraticCurveTo(X, 312 * ky, X + 40, 240 * ky); x.lineTo(X + 46, 0); x.fill();
+    x.fillStyle = COL.pelo; x.fillRect(X - R3 + 4, 0, 2 * R3 - 8, 250 * ky);
+    x.fillStyle = COL.peloD; x.beginPath(); x.ellipse(X, 262 * ky, 44, 40, 0, 0, TAU); x.fill();
+    x.fillStyle = '#f39b8e'; x.beginPath(); x.ellipse(X, 282 * ky, 18, 22, 0, 0, TAU); x.fill();
+    x.fillStyle = 'rgba(246,212,130,0.95)'; x.beginPath(); x.ellipse(X + 92, 130 * ky, 34, 52, 0.4, 0, TAU); x.fill();
+    x.strokeStyle = 'rgba(200,150,70,0.6)'; x.lineWidth = 3; x.stroke();
+    x.strokeStyle = 'rgba(214,92,104,0.6)'; x.lineWidth = 6; x.beginPath(); x.moveTo(0, 300 * ky); x.bezierCurveTo(w * 0.3, 270 * ky, w * 0.5, 330 * ky, w, 290 * ky); x.stroke();
+  });
+  const derecha = texturaLienzo(846, 300, (x, w, h) => { capas(x, w, h, h / H); });
+  const caras = [new THREE.MeshLambertMaterial({ map: derecha }), lam(COL.dermis), lam(COL.epi), lam(COL.dermis), new THREE.MeshLambertMaterial({ map: frente }), lam(COL.dermis)];
+  const bloque = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, H, z1 - z0), caras);
+  bloque.position.set((x0 + x1) / 2, -H / 2, (z0 + z1) / 2); sc.add(bloque);
+  // células de la superficie (prismas hexagonales)
+  const rnd = prng(73), celdas = [];
+  const rr = 62, dx = rr * 1.5, dz = rr * Math.sqrt(3);
+  for (let i = 0; x0 + i * dx < x1; i++) for (let j = 0; z0 + j * dz < z1 + dz; j++) {
+    const x = x0 + 40 + i * dx + (rnd() - 0.5) * 10, z = z0 + 30 + j * dz + (i % 2) * dz / 2 + (rnd() - 0.5) * 10;
+    if (x > x1 - 30 || z > z1 - 26 || Math.hypot(x, z) < 92) continue;
+    celdas.push([x, z, 10 + rnd() * 18, rnd()]);
+  }
+  const im = new THREE.InstancedMesh(new THREE.CylinderGeometry(rr * 0.93, rr * 0.97, 1, 6), lam('#ffffff'), celdas.length);
+  const tonos = ['#f6c7b0', '#f1b9a2', '#f8d0bc', '#eaae96'].map((c) => new THREE.Color(c));
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
+  celdas.forEach(([x, z, h, r], i) => {
+    q.setFromAxisAngle(Y, r * 0.5);
+    m4.compose(new THREE.Vector3(x, h / 2, z), q, new THREE.Vector3(1 + (r - 0.5) * 0.12, h, 1 + (r - 0.5) * 0.12));
+    im.setMatrixAt(i, m4); im.setColorAt(i, tonos[Math.floor(r * 4) % 4]);
+  });
+  sc.add(im);
+  // boca del folículo y el pelo
+  const boca = new THREE.Mesh(new THREE.TorusGeometry(58, 14, 5, 14), lam('#efb8a2')); boca.rotation.x = -PI / 2; boca.position.y = 6; sc.add(boca);
+  const hoyo = new THREE.Mesh(new THREE.CircleGeometry(52, 16), basic('#6b3f3a')); hoyo.rotation.x = -PI / 2; hoyo.position.y = 2; sc.add(hoyo);
+  const tex = texturaLienzo(64, 512, (x, w, h) => {
+    x.fillStyle = COL.pelo; x.fillRect(0, 0, w, h);
+    for (let y = 0; y < h; y += 9 + (y * 7 % 5)) { x.fillStyle = 'rgba(70,35,25,0.35)'; x.fillRect(0, y, w, 2); x.fillStyle = 'rgba(255,220,190,0.18)'; x.fillRect(0, y + 2, w, 2); }
+  });
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(3, 9);
+  const pelo = new THREE.Mesh(new THREE.CylinderGeometry(R3, R3 + 1.5, 3400, 12), new THREE.MeshLambertMaterial({ map: tex }));
+  pelo.position.y = 3400 / 2 - 120; sc.add(pelo);
+  const suelo3 = K.crearSuelo({ scene: sc }, { y: -H, centro: [960, 1000], radio: 1400 });
+  suelo3.sombra(0, -110, -380, 700, 0.25);
+}
+N3.T.set(0, 300, 0);
+N3.F.set(0, 760, 0).addScaledVector(vR, 6);
+
+// =====================================================================================
+// NIVEL 4 · EL PELO COMO UN TRONCO (10⁻⁴ m): cutícula de escamas
+// =====================================================================================
+const N4 = NIV[4];
+const R4 = 300;
+{
+  const sc = N4.scene, rnd = prng(91);
+  const nucleo = new THREE.Mesh(new THREE.CylinderGeometry(R4 - 10, R4 - 10, 4200, 18), lam('#a9775c')); sc.add(nucleo);
+  const tonos = ['#c9946f', '#c08a68', '#d39e78', '#bb8562', '#cf9a73'];
+  for (let y = -2000, i = 0; y < 2100; i++) {
+    const h = 96, geo = new THREE.CylinderGeometry(R4 + 13, R4 - 3, h, 18, 1, true);
+    const p = geo.attributes.position;
+    const fase = rnd() * TAU, inc = (rnd() - 0.5) * 0.12;
+    for (let k = 0; k < p.count; k++) {
+      const vy = p.getY(k), vx = p.getX(k), vz = p.getZ(k), a = Math.atan2(vz, vx);
+      if (vy > 0) {                          // borde libre (arriba): irregular (sin costura: solo depende del ángulo)
+        const j = 8 * Math.sin(a * 3 + fase) + 5 * Math.sin(a * 7 + fase * 2) + 3 * Math.sin(a * 13 + fase * 3) + inc * vx;
+        const rr = R4 + 10 + 4 * Math.sin(a * 5 + fase);
+        p.setXYZ(k, Math.cos(a) * rr, vy + j, Math.sin(a) * rr);
+      }
+    }
+    geo.computeVertexNormals();
+    const anillo = new THREE.Mesh(geo, lam(tonos[i % 5], { side: THREE.DoubleSide }));
+    anillo.position.y = y - h / 2; anillo.rotation.y = rnd() * TAU;
+    sc.add(anillo);
+    y += 62 + rnd() * 22;
+  }
+  // motas flotando (para dar profundidad)
+  for (let i = 0; i < 9; i++) {
+    const s = K.brillo(['#b6acf4', '#8fdcc6', '#f6ae92'][i % 3], 0.16, 40 + rnd() * 70);
+    s.position.copy(S(120 + rnd() * 1300, 80 + rnd() * 820, -600));
+    if (Math.abs(s.position.dot(vR) + 60) < 360) s.position.addScaledVector(vR, 720);
+    sc.add(s);
+  }
+}
+N4.T.copy(vR).multiplyScalar(60);
+const cota = K.crearCota(N4.scene, P.cream, { grosor: 3.4, tope: 22, punta: 20 });
+const rotCota = K.crearRotulo(plato, [{ t: '10' }, { t: '−4', sup: true }, { t: ' m' }], { tam: 46, fondo: P.navy, borde: P.lav });
+
+// =====================================================================================
+// FIJA · regla, Atom y molécula (no les afecta el zoom)
+// =====================================================================================
+const MARCAS = [0, 1, 2, 3, 4].map((i) => 205 + i * 160);
+const REGLA = { x: 1665, y: 525 };
+const regla = (() => {
+  const altoP = 760 / 0.816, k = altoP / 760;
+  const p = K.crearPlaca({ ancho: 176, alto: altoP, radio: 22, grosor: 16, base: P.cream, lado: '#d9cdbd', res: 512, dibujar(x, w, h) {
+    x.fillStyle = P.lav; x.fillRect(0, 0, 12, h);
+    const yy = (Y) => h / 2 + (Y - REGLA.y) * k;
+    x.fillStyle = P.ink;
+    MARCAS.forEach((Y, i) => {
+      x.fillRect(0, yy(Y) - 3, 46, 6);
+      x.font = '700 34px "Space Grotesk"'; x.textAlign = 'left'; x.textBaseline = 'middle';
+      const sup = i ? '−' + i : '0';
+      x.fillText('10', 66, yy(Y) + 2);
+      const w10 = x.measureText('10').width;
+      x.font = '700 21px "Space Grotesk"'; x.fillText(sup, 66 + w10 + 1, yy(Y) - 12);
+      const ws = x.measureText(sup).width;
+      x.font = '700 34px "Space Grotesk"'; x.fillText('m', 66 + w10 + ws + 9, yy(Y) + 2);
+      if (i < 4) for (let q = 9; q >= 2; q--) { const y = yy(Y) + (1 - Math.log10(q)) * 160 * k; x.fillRect(0, y - 1.5, q === 5 ? 30 : 20, 3); }
+    });
+  } });
+  K.orientPlaca(p.g, 0.12);
+  p.g.position.copy(S(REGLA.x, REGLA.y, 300));
+  plato.fija.add(p.g);
+  return p;
+})();
+const marcador = (() => {
+  const g = new THREE.Group();
+  const s = new THREE.Shape(); s.moveTo(-46, -22); s.lineTo(14, -22); s.lineTo(40, 0); s.lineTo(14, 22); s.lineTo(-46, 22); s.closePath();
+  const m = new THREE.Mesh(new THREE.ExtrudeGeometry(s, { depth: 12, bevelEnabled: true, bevelThickness: 3, bevelSize: 3, bevelSegments: 1 }), [basic(P.coral), lam('#c25f68')]);
+  m.position.z = -6; g.add(m);
+  const halo = K.brillo(P.coral, 0.35, 150); halo.position.z = -20; g.add(halo);
+  K.orientPlaca(g, 0.12);
+  plato.fija.add(g);
+  return { g, halo };
+})();
+const atomo = K.crearAtomo({ escala: 0.42 });
+plato.fija.add(atomo.g);
+const halo = K.brillo('#ffe2b8', 0, 300); plato.fija.add(halo);
+const onda = new THREE.Mesh(new THREE.TorusGeometry(1, 0.025, 4, 72), basic('#ffe9c8', { transparent: true, opacity: 0, depthWrite: false }));
+onda.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), vW); plato.fija.add(onda);
+const ATOMO0 = [865, 330];
+const VECINOS = [
+  { a: -38, c: P.mint, e: P.lav }, { a: 24, c: P.lav, e: P.gold }, { a: 84, c: P.gold, e: P.mint },
+].map((v, i) => {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(26, 1), lam(v.c)));
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(50, 2.6, 4, 48), lam(v.e, { transparent: true, opacity: 0.85 }));
+  ring.rotation.set(0.9 + i, 0.4 * i, 0.3); g.add(ring);
+  const el = new THREE.Mesh(new THREE.IcosahedronGeometry(7.5, 1), basic(v.e)); g.add(el);
+  const gl = K.brillo(v.c, 0.3, 120); g.add(gl);
+  const vara = varilla(lam(P.cream));
+  plato.fija.add(g, vara);
+  return { ...v, g, ring, el, vara, i };
+});
+function atomEstado(t) {
+  let P4 = 0;
+  for (const [a] of SALTO) P4 += eio(seg(t, a + JS * 0.25, a + JS * 0.85));
+  const k1 = eio(seg(t, SALTO[0][0], SALTO[0][0] + JS * 0.45));
+  const x = lerp(ATOMO0[0], 1385, k1) + lerp(0, -55, eio(seg(P4, 1, 4))), y = lerp(ATOMO0[1], 290, k1);
+  let esc = Math.pow(0.36, P4 / 4);
+  const up = eob(seg(t, m.atom - 0.25, m.atom), 2.2), dn = eio(seg(t, m.atom + 0.8, m.atom + 1.4));
+  const brillo = clamp01(up) * (1 - dn);
+  esc *= 1 + 0.3 * up * (1 - dn);
+  const b1 = seg(t, m.hola - 0.25, m.hola), b2 = seg(t, m.hola, m.hola + 0.24), b3 = seg(t, m.hola + 0.24, m.hola + 0.46);
+  const alto = 46 * eo(b1) * (1 - ei(b2)) + 10 * Math.sin(PI * b3);
+  const aplasta = b2 >= 1 ? Math.sin(PI * clamp01(b3 * 1.6)) : 0;
+  return { x, y: y - alto, esc, brillo, aplasta, ola: seg(t, m.atom - 0.12, m.atom + 0.55) };
+}
+function fija(t) {
+  const S0 = atomEstado(t), ta = tAtomo(t), tc = calma(t);
+  const e = t < QUIETO ? E.energia(t) : 0;
+  atomo.actualizar(ta, e);
+  const pos = S(S0.x, S0.y + 4 * Math.sin(tc * 1.3), 400);
+  atomo.g.position.copy(pos);
+  atomo.g.scale.set(S0.esc * (1 + 0.1 * S0.aplasta), S0.esc * (1 - 0.14 * S0.aplasta), S0.esc * (1 + 0.1 * S0.aplasta));
+  halo.position.copy(pos).addScaledVector(vW, -60); halo.material.opacity = 0.55 * S0.brillo; halo.scale.setScalar(260 + 200 * S0.brillo);
+  halo.visible = S0.brillo > 0.01;
+  onda.position.copy(pos); onda.material.opacity = 0.8 * Math.sin(PI * S0.ola) * (S0.ola > 0 && S0.ola < 1 ? 1 : 0);
+  onda.scale.setScalar(60 + 260 * eo(S0.ola)); onda.visible = onda.material.opacity > 0.01;
+  // molécula
+  for (const v of VECINOS) {
+    const a = m.bloques - 0.36 + v.i * 0.06, b = a + 0.32;
+    const lleg = eob(seg(t, a, b), 1.8), sale = ei(seg(t, m.explico - 0.62 + v.i * 0.05, m.explico - 0.3 + v.i * 0.05));
+    const vis = t >= a && sale < 1;
+    v.g.visible = vis; v.vara.visible = vis;
+    if (!vis) continue;
+    const ang = v.a * PI / 180 - 0.5 * sale, dist = 190 + 420 * (1 - lleg) + 1100 * sale;
+    const sx = S0.x + Math.cos(ang) * dist, sy = S0.y + Math.sin(ang) * dist;
+    const pv = S(sx, sy, 390);
+    v.g.position.copy(pv); v.g.scale.setScalar(Math.max(0.001, Math.min(1.15, 0.4 + 0.6 * lleg)));
+    v.ring.rotation.z = ta * 1.5 + v.i;
+    const th = ta * 3.2 + v.i * 2;
+    v.el.position.set(Math.cos(th) * 50, 0, Math.sin(th) * 50).applyEuler(v.ring.rotation);
+    const extremo = pv.clone().addScaledVector(new THREE.Vector3().subVectors(pos, pv).normalize(), Math.min(190, dist));
+    v.vara.poner(pv, extremo, 5.5);
+  }
+  // marcador de la regla
+  let yM = MARCAS[0];
+  for (let k = 0; k < 4; k++) yM += (MARCAS[k + 1] - MARCAS[k]) * eob(seg(t, SALTO[k][0] + JS * 0.3, SALTO[k][1]), 2.0);
+  marcador.g.position.copy(S(REGLA.x - 88 - 40, yM, 300));
+  const mov = SALTO.some(([a, b]) => t > a && t < b + 0.15);
+  marcador.halo.material.opacity = mov ? 0.6 : 0.3;
+}
+
+// =====================================================================================
+// VISOR del salto (esquinas en el HUD) y render propio
+// =====================================================================================
+const visor = (() => {
+  const mat = basic(P.lav, { transparent: true, opacity: 1, depthTest: false, depthWrite: false });
+  const lin = basic(P.lav, { transparent: true, opacity: 0.35, depthTest: false, depthWrite: false });
+  const piezas = [], marco = [];
+  for (let i = 0; i < 8; i++) { const q = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat); plato.hud.add(q); piezas.push(q); }
+  for (let i = 0; i < 4; i++) { const q = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), lin); plato.hud.add(q); marco.push(q); }
+  const rect = (q, x, y, w, h) => { q.position.set(x + w / 2, -(y + h / 2), 0); q.scale.set(Math.max(0.01, w), Math.max(0.01, h), 1); };
+  return {
+    poner(r, a) {
+      const vis = !!r && a > 0.01;
+      for (const q of [...piezas, ...marco]) q.visible = vis;
+      if (!vis) return;
+      mat.opacity = a; lin.opacity = 0.4 * a;
+      const [x0, y0, x1, y1] = r, L = Math.min(56, (x1 - x0) * 0.3), g = 5;
+      const esq = [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]];
+      esq.forEach(([x, y, sx, sy], i) => {
+        rect(piezas[2 * i], sx > 0 ? x - g / 2 : x - L + g / 2, sy > 0 ? y - g / 2 : y - g / 2, L, g);
+        rect(piezas[2 * i + 1], x - g / 2, sy > 0 ? y - g / 2 : y - L + g / 2, g, L);
+      });
+      rect(marco[0], x0, y0 - 1, x1 - x0, 2); rect(marco[1], x0, y1 - 1, x1 - x0, 2);
+      rect(marco[2], x0 - 1, y0, 2, y1 - y0); rect(marco[3], x1 - 1, y0, 2, y1 - y0);
+    },
+  };
+})();
+const W = K.W, H = K.H;
+// encuadre: el punto P del nivel queda en el píxel (px, py) con zoom z
+function encuadrar(P0, px, py, z) {
+  const tg = P0.clone().addScaledVector(vR, -(px - W / 2) / z).addScaledVector(vU, (py - H / 2) / z);
+  plato.encuadre(tg, z);
+}
+function pintar(capas, ventana) {
+  plato.resize();
+  const vw = window.innerWidth, vh = window.innerHeight, s = Math.min(vw / W, vh / H);
+  const vp = { x: (vw - W * s) / 2, y: (vh - H * s) / 2, w: W * s, h: H * s };
+  R.setScissorTest(false); R.setViewport(0, 0, vw, vh); R.clear(true, true, true);
+  R.setViewport(vp.x, vp.y, vp.w, vp.h); R.setScissor(vp.x, vp.y, vp.w, vp.h); R.setScissorTest(true);
+  R.render(plato.fondoScene, plato.hudCam); R.clearDepth();
+  if (capas[0]) { capas[0].enc(); R.render(capas[0].scene, cam); R.clearDepth(); }
+  if (capas[1]) {
+    const x0 = Math.max(0, ventana[0]), y0 = Math.max(0, ventana[1]), x1 = Math.min(W, ventana[2]), y1 = Math.min(H, ventana[3]);
+    if (x1 > x0 && y1 > y0) {
+      R.setScissor(vp.x + x0 * s, vp.y + (H - y1) * s, (x1 - x0) * s, (y1 - y0) * s);
+      R.render(plato.fondoScene, plato.hudCam); R.clearDepth();
+      capas[1].enc(); R.render(capas[1].scene, cam); R.clearDepth();
+      R.setScissor(vp.x, vp.y, vp.w, vp.h);
+    }
+  }
+  R.render(plato.fija, plato.camFija); R.clearDepth();
+  R.render(plato.hud, plato.hudCam);
+}
+const pantallaEstatica = (n, P0) => { const d = P0.clone().sub(NIV[n].T); return { x: W / 2 + d.dot(vR), y: H / 2 - d.dot(vU) }; };
+
+// =====================================================================================
+// FOTOGRAMA
+// =====================================================================================
+const animaNivel = [nivel0, () => {}, () => {}, () => {}, nivel4];
+function nivel4(t) {
+  const yC = 110, a = new THREE.Vector3(0, yC, 0).addScaledVector(vF, R4 + 40), r = R4 + 14;
+  const A = a.clone().addScaledVector(vR, -r), B = a.clone().addScaledVector(vR, r);
+  const kC = eio(seg(t, m.decima - 0.22, m.milimetro - 0.05)), kT = eob(seg(t, m.decima - 0.25, m.decima), 2);
+  cota.poner(A, B, kC, vU, kT);
+  const c = pantallaEstatica(4, a), kE = eob(seg(t, m.milimetro - 0.3, m.milimetro + 0.02), 2.2);
+  rotCota.poner(c.x, c.y - 70, clamp01(kE * 1.4), Math.max(0.001, kE));
+}
+function dibujar(t0) {
+  const t = Math.min(t0, QUIETO);
+  plato.titilar(calma(t));
+  fija(t);
+  let k = -1, u = 0, n = 0;
+  SALTO.forEach(([a, b], i) => { if (t >= b) n = i + 1; if (t >= a && t < b) { k = i; u = (t - a) / (b - a); } });
+  if (k < 0) {
+    animaNivel[n](t);
+    if (n !== 4) rotCota.poner(0, 0, 0, 0);
+    visor.poner(null, 0);
+    pintar([{ scene: NIV[n].scene, enc: () => plato.encuadre(NIV[n].T, 1) }]);
+    return;
+  }
+  // salto k: el nivel k se acerca a su foco; en el foco se abre un visor con el nivel k+1
+  animaNivel[k](t); animaNivel[k + 1](t); rotCota.poner(0, 0, 0, 0);
+  const F0 = pantallaEstatica(k, NIV[k].F);
+  const pu = eio(clamp01(u / 0.8)), px = lerp(F0.x, W / 2, pu), py = lerp(F0.y, H / 2, pu);
+  const w = eio(seg(u, 0.0, 0.62)), sO = Math.pow(10, 0.55 * eio(clamp01(u / 0.7)));
+  const sN = lerp(0.3, 1, eob(seg(u, 0.12, 1), 1.6));
+  const ancho = lerp(70, 2 * Math.max(px, W - px) + 40, w), alto = ancho * 9 / 16 + lerp(0, 2 * Math.abs(py - H / 2) + 40, w);
+  const ventana = [px - ancho / 2, py - alto / 2, px + ancho / 2, py + alto / 2];
+  const cubre = ventana[0] <= 0 && ventana[1] <= 0 && ventana[2] >= W && ventana[3] >= H;
+  visor.poner(cubre ? null : ventana, 1);
+  const viejo = { scene: NIV[k].scene, enc: () => encuadrar(NIV[k].F, px, py, sO) };
+  const nuevo = { scene: NIV[k + 1].scene, enc: () => encuadrar(NIV[k + 1].T, px, py, sN) };
+  if (cubre) pintar([nuevo]);
+  else pintar([viejo, nuevo], ventana);
+}
+// precalentado: compila los sombreadores de todas las escenas antes del primer fotograma
+for (const N of NIV) { plato.encuadre(N.T, 1); R.compile(N.scene, cam); }
+R.compile(plato.fija, plato.camFija); R.compile(plato.hud, plato.hudCam);
+for (const t of [SALTO[0][0] + JS * 0.4, SALTO[1][0] + JS * 0.4, SALTO[2][0] + JS * 0.4, SALTO[3][0] + JS * 0.4, m.milimetro, 0]) dibujar(t);
+{ const gl = R.getContext(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4)); }   // espera a la GPU
+E.iniciar(dibujar);
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-HOLA (frase 1). Una calle de noche bajo una luna enorme: casas de madera con las ventanas encendidas, calabazas
+// talladas en los porches, niebla baja y murciélagos. La caja baja y Atom saluda.
+import { preparar, rodar, noche, casa, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-hola');
+const { PALA, tramo } = R;
+const calle = (t) => {
+  noche(R, t, { hor: 150, murcielagos: 4 });
+  casa(R, 92, 146, t, { w: 30, h: 28 });
+  casa(R, 196, 146, t, { w: 26, h: 36, pared: [PALA.CONTORNO, PALA.VERDE[0], PALA.VERDE[1], PALA.VERDE[2]], colorPuerta: PALA.AZUL[1] });
+  casa(R, 288, 146, t, { w: 24, h: 26, pared: [PALA.CONTORNO, PALA.MORADO[0], PALA.MORADO[1], PALA.MORADO[2]], colorPuerta: PALA.VERDE[1] });
+  sueloNoche(R, 149);
+  for (const [x, s] of [[58, 0.7], [128, 0.5], [164, 0.8], [226, 0.55], [258, 0.7]]) R.calabaza(x, 148, s, t);
+  R.niebla(t, 140, 176, 0.9, 6);
+};
+rodar(E, R, [[0, calle]], { año: 2026, barraDesde: 1, caja: (t, e) => R.caja(t, tramo(t, 0.4, 0.9), (x, y) => R.icono('mano', x + 6, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

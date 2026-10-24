@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Caliza · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-CALIZA (frases 41–42). Un bloque de la Gran Pirámide de cerca: en la caliza se ven conchitas fósiles redondas con
+// su espiral. Luego, bajo el mar hace 50 millones de años: bichitos con concha que caen al fondo, se apilan en capas y
+// se hacen roca; al final, la roca sube y se recorta en forma de pirámide. «50000000» en la caja.
+import { preparar, rodar, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-caliza');
+const { tramo } = R;
+const m = { cal: M('caliza', 0.5), mar: M('mar', 9) };
+const L2 = E.duracion - m.mar;
+const concha = (x, y, r, c = C.calizaD) => { R.disco(x, y, r, C.calizaS); R.disco(x, y, r - 1, C.caliza); for (let a = 0; a < 6; a += 0.4) R.pset(Math.round(x + Math.cos(a * 2) * a * r / 7), Math.round(y + Math.sin(a * 2) * a * r / 7), c); };
+const bloque = (t) => {
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, (y % 44 === 0 || (x + Math.floor(y / 44) * 40) % 80 === 0) ? C.calizaD : C.caliza);
+  const n = Math.floor(tramo(t - m.cal, 0.5, 4) * 30);
+  for (let k = 0; k < n; k++) concha(Math.round(R.hash2(k, 1) * 300 + 10), Math.round(R.hash2(k, 2) * 160 + 10), 3 + Math.round(R.hash2(k, 3) * 4));
+};
+const mar = (t) => {
+  const u = t - m.mar;
+  for (let y = 0; y < 180; y++) R.rect(0, y, 319, y, y < 40 ? C.agua3 : y < 100 ? C.agua2 : C.agua1);
+  for (let k = 0; k < 6; k++) { const y = 10 + k * 14, x = ((k * 70 + t * 5) % 360) - 20; R.rect(Math.round(x), y, Math.round(x + 10), y, C.aguaL); }
+  const capas = tramo(u, 0.2 * L2, 0.6 * L2), suelo = Math.round(170 - capas * 50);
+  for (let y = suelo; y < 180; y++) R.rect(0, y, 319, y, (y - suelo) % 6 === 0 ? C.calizaS : C.caliza);
+  for (let k = 0; k < 24; k++) { const f = ((t * 0.12 + k / 24) % 1), x = Math.round(R.hash2(k, 4) * 300 + 10 + Math.sin(t + k) * 4), y = Math.round(f * (suelo - 6)); concha(x, y, 3); }
+  const corta = tramo(u, 0.7 * L2, 0.95 * L2);
+  if (corta > 0) for (let y = suelo; y < 180; y++) for (let x = 0; x < 320; x++) { const hw = (y - (suelo - 10)) * 0.82 * 1.4 + (1 - corta) * 200; if (Math.abs(x - 170) > hw) R.pset(x, y, y < 100 ? C.agua2 : C.agua1); }
+};
+rodar(E, R, [[0, bloque], [m.mar - 0.2, mar]], {
+  año: (t) => (t < m.mar ? -2560 : null),
+  caja: (t, e) => R.caja(t, t > m.mar + 0.6 ? tramo(t, m.mar + 0.6, m.mar + 1) : 0, (x, y) => R.numero('50000000', x + 2, y + 12), { energia: e, x0: 180 }),
+});
+</script>
+</body>
+</html>

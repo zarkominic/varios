@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Olvido · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-OLVIDO (frase 16). B en el siglo XIX: un calendario en la pared que cambia de fecha sin parar; cada estado da
+// gracias un día distinto (días marcados de colores que saltan).
+import { preparar, rodar, comedor, calendario, C } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-olvido');
+const plano = (t) => {
+  comedor(R, t, { epoca: 'xix', cal: () => {} });
+  const k = Math.floor(t * 2.5), marca = {};
+  [C.rojo, C.azulL, C.verdeL, C.morado, C.naranja].forEach((c, i) => { marca[1 + ((k * 7 + i * 11) % 30)] = c; });
+  calendario(R, 104, 46, t, { empieza: (k % 7), dias: 30, marca, color: C.verde });
+};
+rodar(E, R, [[0, plano]], { año: (t) => 1650 + Math.round(R.tramo(t, 0, E.duracion) * 190) });
+</script>
+</body>
+</html>

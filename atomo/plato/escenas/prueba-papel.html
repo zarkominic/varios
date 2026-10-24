@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prueba · papel</title>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Prueba de identidad visual · RECORTES DE PAPEL (stop-motion a 12 fps).
+// Los mismos 12 s que el resto de estilos (atomo/plato/prueba-identidad/ENCARGO.md):
+//  0        persona de papel a la izquierda, regla de potencias de diez a la derecha, Atom junto al hombro
+//  hola     Atom da un bote · atom: crece, se enciende un sol de papel detrás y sus electrones aceleran
+//  bloques  tres átomos encajan con varillas: una molécula · explico: baja una pizarrita con «?»
+//  escuela  la pizarrita gira sobre su hilo y enseña «!»
+//  saltos → pelo  cuatro saltos ×10: persona → mano → piel con vello → un pelo → el pelo como un tronco.
+//           Cada salto es un golpe de zoom: se abre un círculo de papel en el punto del zoom con el nivel
+//           siguiente, que llega con un pequeño rebote. El marcador baja 10⁰ → 10⁻⁴ m y Atom se encoge.
+//  decima → milimetro  cota de lado a lado del pelo con «10⁻⁴ m» · después todo se asienta y queda quieto
+// Cada nivel se dibuja en su propio marco 1920x1080. La mano de la persona (nivel 0) es la mano del
+// nivel 1 a escala 1/10, y el pelo del nivel 2/3 es el del nivel 3/4 a 1/10: el zoom casa.
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/papel-prueba.js';
+const { C, seg, eio, ein, eout, eback, eiob, lerp, cl, PI, TAU } = K;
+
+const E = await escena('prueba-papel', 'prueba');
+await K.preparar();
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const M = (n) => E.marca(n);
+const m = {
+  hola: M('hola'), atom: M('atom'), bloques: M('bloques'), explico: M('explico'), escuela: M('escuela'),
+  saltos: M('saltos'), pelo: M('pelo'), decima: M('decima'), milimetro: M('milimetro'),
+};
+const QUIETO = E.duracion - 0.6;            // fin de la voz: desde aquí, imagen fija
+const JS = (m.pelo - m.saltos) * 0.77 / 4;  // duración de cada salto
+const SALTO = [0, 1, 2, 3].map((k) => {     // el 1.º empieza en «saltos» y el 4.º acaba en «pelo»
+  const a = m.saltos + k * (m.pelo - m.saltos - JS) / 3;
+  return [a, a + JS];
+});
+// reposo que se frena antes del final (balanceos)
+function calma(t, t1 = QUIETO, d = 0.9) {
+  const a = t1 - d; if (t <= a) return t;
+  const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d);
+}
+// fase de los electrones: integral de su velocidad (aceleran en «atom», se paran al final)
+const VEL = 0.42, DT = 1 / 240, FASE = [0];
+function velE(t) {
+  const up = eio(seg(t, m.atom - 0.24, m.atom)), dn = eio(seg(t, m.atom + 0.75, m.atom + 1.6));
+  return (1 + 3.2 * up * (1 - dn)) * (1 - eio(seg(t, QUIETO - 0.9, QUIETO)));
+}
+for (let i = 1; i * DT <= E.duracion + 0.2; i++) FASE.push(FASE[i - 1] + TAU * VEL * velE((i - 0.5) * DT) * DT);
+const fase = (t) => { const x = t / DT, i = Math.min(FASE.length - 2, Math.floor(x)); return lerp(FASE[i], FASE[i + 1], x - i); };
+
+// ---------------------------------------------------------------- paleta propia
+const P = {
+  piel: C.skin, pielD: C.skinD, una: '#f7e0cf', pelo: '#6e4630', peloD: '#4e2f20', peloL: '#93613f',
+  jersey: C.coral, jerseyD: C.coralD, pantalon: C.blue,
+  pizarra: '#2b4a42', fuera: '#0b1024',
+};
+
+// ---------------------------------------------------------------- utilidades
+function trazoPts(pts) { const p = new Path2D(); pts.forEach(([x, y], i) => (i ? p.lineTo(x, y) : p.moveTo(x, y))); return p; }
+function rayita(pts, col, w) { const c = K.g; c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round'; c.lineJoin = 'round'; c.stroke(trazoPts(pts)); }
+const afilada = (pts, w0, w1) => K.tira(pts, (u) => lerp(w0, w1, Math.pow(u, 0.8)));   // tira que se afina
+const FONDO_GRANDE = (() => { const p = new Path2D(); p.rect(-40000, -40000, 80000, 80000); p.bb = [-40000, -40000, 40000, 40000]; return p; })();
+// cielo de cartulina en vectores (sirve a cualquier escala: no deja bordes al verse pequeño)
+function cielo(semilla, tono, estrellas = 0, motas = 0) {
+  const c = K.g;
+  K.papel(FONDO_GRANDE, C.sky, { d: 0, seed: semilla, tb: 0.34, edge: 0, print: () => {
+    const gr = c.createRadialGradient(960, 560, 60, 960, 600, 1500);
+    gr.addColorStop(0, tono); gr.addColorStop(0.5, 'rgba(30,40,90,0.10)'); gr.addColorStop(1, 'rgba(2,4,12,0.55)');
+    c.fillStyle = gr; c.fillRect(-6000, -6000, 14000, 14000);
+    const r = K.rng(semilla);
+    for (let i = 0; i < estrellas; i++) {
+      const x = -900 + r() * 3700, y = -500 + r() * 2100, s = 0.8 + Math.pow(r(), 3) * 2.4;
+      const R = 2 + s * 3.2, gg = c.createRadialGradient(x, y, 0, x, y, R);
+      gg.addColorStop(0, 'rgba(255,214,150,0.5)'); gg.addColorStop(1, 'rgba(255,200,130,0)');
+      c.fillStyle = gg; c.fillRect(x - R, y - R, 2 * R, 2 * R);
+      c.fillStyle = '#fbe7b6'; c.beginPath(); c.arc(x, y, s, 0, TAU); c.fill();
+    }
+    for (let i = 0; i < motas; i++) {      // motas desenfocadas (papel vegetal)
+      const x = -300 + r() * 2500, y = -200 + r() * 1100, R = 8 + Math.pow(r(), 2) * 50;
+      c.fillStyle = `rgba(205,195,245,${0.03 + r() * 0.05})`; c.beginPath(); c.arc(x, y, R, 0, TAU); c.fill();
+      c.strokeStyle = `rgba(235,225,255,${0.05 + r() * 0.06})`; c.lineWidth = 1.6; c.stroke();
+    }
+  } });
+}
+
+// =====================================================================================
+// NIVEL 1 · LA MANO (10⁻¹ m). También es la mano de la persona del nivel 0, a escala 1/10
+// (la mano y la persona están en el kit: K.manoPrueba, K.personaPrueba; siguen HUMANO.md).
+// =====================================================================================
+const FOCO = [];                                      // punto de cada nivel donde está el siguiente
+FOCO[1] = K.manoPruebaLocal([28, 160]);
+function nivel1() {
+  cielo(91, 'rgba(110,105,170,0.30)', 170, 0);
+  K.manoPrueba();
+}
+
+// =====================================================================================
+// NIVEL 0 · LA PERSONA (10⁰ m)
+// =====================================================================================
+const PX = 600, SUELO = 905;                          // centro de la persona y suela (mide 745: HUMANO.md)
+// FOCO[0]: dónde está el centro del nivel 1 dentro del nivel 0 (la mano derecha a 1/10)
+FOCO[0] = K.focoManoPersona(PX, SUELO);
+const ATOMO0 = [850, 330], PIZ0 = [1195, 345];
+// a dónde mira: a Atom, a la pizarrita y, antes de saltar, a su mano
+function mirada(t) {
+  const Mn = K.puntoPersona(PX, SUELO, 1, [112, -300]);
+  const u1 = eio(seg(t, m.explico - 0.35, m.explico)), u2 = eio(seg(t, m.saltos - 0.75, m.saltos - 0.4));
+  return [lerp(lerp(ATOMO0[0], PIZ0[0], u1), Mn[0], u2), lerp(lerp(ATOMO0[1], PIZ0[1], u1), Mn[1], u2)];
+}
+const parpadea = (t) => { const f = Math.round(t * 12); return f === 25 || f === 77; };
+function personaDibujo(t) {
+  K.personaPrueba(PX, SUELO, { mira: mirada(t), parpadeo: parpadea(t) });
+}
+// cielo, colinas y arbolitos (capa fija)
+const fondo0 = K.capa(() => {
+  const c = K.g, W = 1920;
+  K.fondoNoche({ luz: [760, 470], semilla: 61, estrellas: 210, nubes: false, vineta: 0.5,
+    evitar: [{ x0: 1560, y0: 120, x1: 1780, y1: 900 }] });
+  const colina = (y0, amp, fr, ph, col, d, seed) => {
+    const pts = [[-60, 1140]];
+    for (let x = -60; x <= W + 60; x += 24) pts.push([x, y0 + amp * Math.sin(x * fr + ph) + amp * 0.35 * Math.sin(x * fr * 2.3 + ph * 1.7)]);
+    pts.push([W + 60, 1140]);
+    K.papel(K.poligono(pts), col, { d, seed, sa: 0.6, print: () => {
+      const gr = c.createLinearGradient(0, y0 - amp, 0, y0 + 160);
+      gr.addColorStop(0, 'rgba(255,240,215,0.10)'); gr.addColorStop(1, 'rgba(0,0,12,0.38)');
+      c.fillStyle = gr; c.fillRect(0, y0 - amp - 10, W, 400);
+    } });
+  };
+  const arbol = (x, y, h, col, seed) => {
+    c.save(); c.translate(x, y);
+    K.papel(K.rect(-4, -h * 0.25, 8, h * 0.28, 2), C.maderaD, { d: 1.4, seed, edge: 0.5 });
+    for (let i = 0; i < 3; i++) {
+      const w = h * (0.42 - i * 0.09), y1 = -h * 0.18 - i * h * 0.24;
+      K.papel(K.poligono([[-w, y1], [w, y1], [w * 0.1, y1 - h * 0.42], [-w * 0.1, y1 - h * 0.42]]), col, { d: 2, seed: seed + i + 1, edge: 0.8 });
+    }
+    c.restore();
+  };
+  colina(820, 26, 0.0042, 0.8, C.hillA, 4, 301);
+  for (const [x, h] of [[150, 120], [212, 86], [305, 104], [1150, 92], [1232, 128], [1318, 84], [1450, 108]]) arbol(x, 832 + 26 * Math.sin(x * 0.0042 + 0.8), h, C.tree, 310 + x);
+  colina(866, 18, 0.0061, 2.1, C.hillB, 5, 302);
+  colina(905, 12, 0.0034, -0.6, C.hillC, 6, 303);
+});
+
+// ---------------------------------------------------------------- pizarrita (cuelga de un hilo)
+function tizaSigno(s) {
+  const cv = document.createElement('canvas'); cv.width = 220; cv.height = 190;
+  const c = cv.getContext('2d', { willReadFrequently: true });
+  c.fillStyle = '#eef0e6'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.font = '900 168px Fraunces, Georgia, serif'; c.fillText(s, 110, 104);
+  c.globalCompositeOperation = 'destination-out';
+  const r = K.rng(s === '?' ? 11 : 12);
+  for (let i = 0; i < 560; i++) {
+    c.fillStyle = `rgba(0,0,0,${0.25 + r() * 0.6})`;
+    c.fillRect(r() * 220, r() * 190, 2 + r() * 9, 1 + r() * 1.6);
+  }
+  return cv;
+}
+function caraPizarra(signo) {
+  return K.sprite(300, 260, () => {
+    const c = K.g;
+    K.papel(K.rectRecortado(-150, -112, 300, 224, 14, 230, 0.8), C.madera, { d: 3, seed: 231, print: () => {
+      for (let i = 0; i < 9; i++) rayita([[-150, -100 + i * 26], [150, -96 + i * 26 + (i % 2) * 4]], 'rgba(90,50,20,0.18)', 2);
+    } });
+    K.papel(K.rectRecortado(-128, -90, 256, 180, 8, 232, 0.6), P.pizarra, { d: 1.6, seed: 233, tb: 0.35, print: () => {
+      const r = K.rng(signo === '?' ? 5 : 6);
+      for (let i = 0; i < 7; i++) {        // restos de tiza borrada
+        c.fillStyle = `rgba(230,235,225,${0.04 + r() * 0.05})`;
+        c.beginPath(); c.ellipse(-110 + r() * 220, -70 + r() * 140, 30 + r() * 50, 8 + r() * 10, r() - 0.5, 0, TAU); c.fill();
+      }
+      const s = tizaSigno(signo);
+      c.drawImage(s, -s.width / 2, -s.height / 2 + 2);
+    } });
+    K.papel(K.rectRecortado(-120, 92, 240, 18, 5, 234, 0.5), C.maderaD, { d: 2.4, seed: 235 });
+    K.papel(K.rectRecortado(30, 84, 46, 11, 5, 236, 0.3), C.ivory, { d: 1.6, seed: 237, edge: 0.6 });
+  }, 24);
+}
+const PIZ = { q: caraPizarra('?'), e: caraPizarra('!') };
+function pizarrita(t) {
+  const c = K.g, u = seg(t, m.explico - 0.32, m.explico);
+  if (u <= 0) return;
+  const tc = calma(t);
+  const y = lerp(-280, PIZ0[1], eback(u, 1.5));
+  const sway = 0.035 * Math.sin(TAU * 0.33 * tc + 1) * (1 - 0.6 * seg(t, m.escuela, m.escuela + 1.5)) + 0.05 * Math.sin(TAU * 1.1 * (t - m.escuela)) * Math.exp(-3 * Math.max(0, t - m.escuela)) * (t > m.escuela ? 1 : 0);
+  const ph = PI * eiob(seg(t, m.escuela - 0.24, m.escuela + 0.05));   // de canto ~0,1 s antes de «escuela»
+  const sx = Math.cos(ph), x = PIZ0[0] + Math.sin(sway) * 60;
+  K.hilo(PIZ0[0], -20, x, y - 120, 0.8, 1.6);
+  c.save(); c.translate(x, y); c.rotate(-sway * 0.5); K.temblor(500, 0.5, 0.004);
+  c.save(); c.scale(Math.max(0.05, Math.abs(sx)), 1);
+  K.pegar(sx >= 0 ? PIZ.q : PIZ.e, 0, 0, { d: 5 + 9 * (1 - cl(u * 1.3)) });
+  if (Math.abs(sx) < 0.6) { c.fillStyle = `rgba(5,8,20,${0.45 * (1 - Math.abs(sx) / 0.6)})`; c.fillRect(-152, -114, 304, 228); }
+  c.restore();
+  K.chincheta(0, -118, 7);
+  c.restore();
+}
+function nivel0(t) {
+  K.g.drawImage(fondo0, 0, 0);
+  pizarrita(t);
+  personaDibujo(t);
+}
+
+// =====================================================================================
+// NIVEL 2 · PIEL CON VELLO (10⁻² m): un campo de pelitos visto a ras de piel
+// =====================================================================================
+FOCO[2] = [960, 667];
+const campo = (() => {
+  const filas = [
+    { y: 548, amp: 14, col: '#c4977a', seed: 401 }, { y: 604, amp: 16, col: '#d3a685', seed: 402 },
+    { y: 662, amp: 18, col: '#e0b692', seed: 403 }, { y: 764, amp: 22, col: '#eac39f', seed: 404 },
+    { y: 892, amp: 26, col: '#f2d2b1', seed: 405 },
+  ].map((f) => {
+    const r = K.rng(f.seed), pts = [[-3200, 7000], [-3200, f.y]];
+    let x = -3200;
+    while (x < 5200) {      // mesetas de piel: lomas redondeadas separadas por surcos
+      const w = 90 + r() * 170, h = f.amp * (0.6 + r() * 0.8);
+      for (let i = 1; i <= 6; i++) pts.push([x + w * i / 6, f.y - h * Math.sin(PI * i / 6)]);
+      x += w;
+    }
+    pts.push([5200, 7000]);
+    return { ...f, p: K.poligono(pts), r: K.rng(f.seed + 50) };
+  });
+  const r = K.rng(9), pelos = [];
+  const lista = [[0, 170, 280], [0, 520, 250], [0, 1420, 320], [0, 1770, 270], [1, 330, 400], [1, 760, 360], [1, 1240, 380], [1, 1640, 430],
+    [2, 120, 500], [2, 600, 470], [2, 1500, 540], [3, 300, 620], [3, 1190, 680], [3, 1800, 600], [4, 70, 760], [4, 810, 800], [4, 1580, 780]];
+  for (let i = 0; i < 26; i++) {     // más pelitos fuera del cuadro (se ven cuando el nivel llega pequeño)
+    const lado = i % 2 ? -1 : 1, x = lado < 0 ? -1400 + r() * 1340 : 1980 + r() * 1300;
+    lista.push([Math.floor(r() * 5), x, 260 + r() * 560]);
+  }
+  for (const [fi, x, L] of lista) {
+    const y0 = filas[fi].y + (filas[fi + 1] ? (filas[fi + 1].y - filas[fi].y) * 0.42 : 70);
+    pelos.push({ fi, x, y0, L, curva: (r() < 0.5 ? -1 : 1) * (0.25 + r() * 0.5), w: 3.2 + fi * 0.9 + r() * 1.2 });
+  }
+  // el pelo del foco: base en (959.4, 690), recto: es el pelo del nivel 3 a 1/10
+  pelos.push({ fi: 2, x: 959.4, y0: 690, L: 640, curva: 0, w: 3.2, foco: true });
+  for (const h of pelos) {
+    const pts = [];
+    for (let i = 0; i <= 14; i++) {
+      const u = i / 14;
+      pts.push([h.x + h.curva * h.L * 0.5 * (1 - Math.cos(u * 1.4)) + (h.foco ? (1 - u) * 0.7 : 0), h.y0 - u * h.L]);
+    }
+    h.p = afilada(pts, h.w, h.foco ? 2.9 : 0.7);
+    h.poro = K.elipse(h.w * 2.4, h.w * 0.9, 470, 0.05);
+  }
+  return { filas, pelos };
+})();
+function nivel2() {
+  const c = K.g;
+  cielo(71, 'rgba(150,110,150,0.30)', 0, 24);
+  campo.filas.forEach((f, i) => {
+    K.papel(f.p, f.col, { d: 4, seed: 410 + i, sa: 0.55, print: () => {
+      const gr = c.createLinearGradient(0, f.y - f.amp * 1.4, 0, f.y + 120);
+      gr.addColorStop(0, 'rgba(255,240,225,0.18)'); gr.addColorStop(0.35, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(90,40,30,0.22)');
+      c.fillStyle = gr; c.fillRect(-3200, f.y - 60, 8400, 400);
+    } });
+    for (const h of campo.pelos) {
+      if (h.fi !== i) continue;
+      c.save(); c.translate(h.x, h.y0 + h.w * 0.3); K.papel(h.poro, '#a8735a', { d: 0, seed: 471, edge: 0.6, ta: 0.6 }); c.restore();
+      K.papel(h.p, P.pelo, { d: 2.4, seed: 480 + (h.x | 0) % 7, tb: 0.4, edge: 0.8 });
+    }
+  });
+}
+
+// =====================================================================================
+// NIVEL 3 · UN PELO (10⁻³ m): sale de su folículo entre escamas de piel
+// =====================================================================================
+FOCO[3] = [960, 400];
+const xPelo3 = (y) => 954 - (y - 400) * 0.02;        // el pelo pasa por (954, 400): ahí está el nivel 4
+const suelo3 = (() => {
+  const base = (() => { const pts = [[-3000, 7000], [-3000, 712]]; for (let x = -3000; x <= 5000; x += 40) pts.push([x, 712 + 10 * Math.sin(x * 0.006) + 6 * Math.sin(x * 0.017)]); pts.push([5000, 7000]); return K.poligono(pts); })();
+  const r = K.rng(33), escamas = [];
+  const filas = [[724, 46, 0.86], [772, 58, 0.92], [838, 74, 1], [925, 92, 1.06], [1035, 110, 1.12],
+    [1160, 130, 1.2], [1310, 150, 1.28], [1480, 170, 1.36], [1670, 190, 1.44], [1880, 210, 1.5]];
+  filas.forEach(([y, h, k], fi) => {
+    let x = -1500 + r() * 80;
+    while (x < 3400) {
+      const w = (150 + r() * 130) * k, n = 6 + Math.floor(r() * 3), pts = [];
+      for (let i = 0; i < n; i++) {
+        const a = i / n * TAU + (r() - 0.5) * 0.5, rr = 0.82 + r() * 0.3;
+        pts.push([x + w / 2 + Math.cos(a) * w / 2 * rr, y + Math.sin(a) * h / 2 * rr]);
+      }
+      const tono = ['#e9c09c', '#efcaa7', '#e3b693', '#f3d4b5'][Math.floor(r() * 4)];
+      const fuera = x + w < -60 || x > 1980 || y > 1150;     // fuera del cuadro: versión barata
+      escamas.push({ fi, p: K.poligono(pts), col: K.mezcla(tono, '#c9977a', Math.max(0, 0.32 - fi * 0.07)), cx: x + w / 2, cy: y, fuera });
+      x += w * (0.7 + r() * 0.15);
+    }
+  });
+  const pelo = (() => {
+    const izq = [], der = [];
+    for (let y = 790; y >= -3200; y -= 40) {
+      const hw = 33 - Math.max(0, (790 - y)) * 0.0012;
+      izq.push([xPelo3(y) - hw, y]); der.push([xPelo3(y) + hw, y]);
+    }
+    return K.poligono([...izq, ...der.reverse()]);
+  })();
+  const cuticula = [];
+  { const rr = K.rng(44); for (let y = 760; y > -3200; y -= 13 + rr() * 9) {
+    const x = xPelo3(y), s = (rr() - 0.5) * 6, pts = [];
+    for (let i = 0; i <= 6; i++) pts.push([x - 34 + i * 11.3, y + s * (i / 6 - 0.5) + (rr() - 0.5) * 3]);
+    cuticula.push(pts);
+  } }
+  return { base, escamas, pelo, cuticula };
+})();
+function nivel3() {
+  const c = K.g, S = suelo3;
+  cielo(83, 'rgba(160,110,140,0.30)', 0, 22);
+  K.papel(S.base, '#d9a988', { d: 5, seed: 501, print: () => {
+    const gr = c.createLinearGradient(0, 700, 0, 1100);
+    gr.addColorStop(0, 'rgba(70,30,30,0.25)'); gr.addColorStop(1, 'rgba(255,235,215,0.12)');
+    c.fillStyle = gr; c.fillRect(-3000, 690, 8000, 600);
+  } });
+  const detras = S.escamas.filter((e) => e.fi < 2), delante = S.escamas.filter((e) => e.fi >= 2);
+  const barata = (e) => { c.fillStyle = e.col; c.fill(e.p); c.strokeStyle = 'rgba(255,240,225,0.35)'; c.lineWidth = 2; c.stroke(e.p); };
+  detras.forEach((e, i) => (e.fuera ? barata(e) : K.papel(e.p, e.col, { d: 2.6, seed: 510 + i, edge: 0.8 })));
+  // folículo: borde de piel y hoyo oscuro
+  c.save(); c.translate(xPelo3(778), 778);
+  K.papel(K.elipse(96, 30, 520, 0.03), '#efc9a6', { d: 3, seed: 521 });
+  K.papel(K.elipse(64, 18, 522, 0.04), '#5c3428', { d: 0, seed: 523, edge: 0.4, print: () => {
+    const gr = c.createRadialGradient(0, 4, 2, 0, 0, 64); gr.addColorStop(0, 'rgba(20,6,6,0.7)'); gr.addColorStop(1, 'rgba(20,6,6,0)');
+    c.fillStyle = gr; c.fillRect(-70, -24, 140, 48);
+  } });
+  c.restore();
+  // el pelo
+  K.papel(S.pelo, P.pelo, { d: 6, seed: 530, print: () => {
+    for (let y = 800; y > -3200; y -= 300) {
+      const x = xPelo3(y - 150), gr = c.createLinearGradient(x - 34, 0, x + 34, 0);
+      gr.addColorStop(0, 'rgba(255,225,190,0.10)'); gr.addColorStop(0.32, 'rgba(255,225,190,0.24)'); gr.addColorStop(0.5, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(25,10,5,0.42)');
+      c.fillStyle = gr; c.fillRect(x - 40, y - 300, 80, 302);
+    }
+    for (const pts of S.cuticula) rayita(pts, 'rgba(40,18,8,0.42)', 2.2);
+    for (const pts of S.cuticula) rayita(pts.map(([x, y]) => [x, y + 2.4]), 'rgba(255,215,180,0.16)', 1.6);
+  } });
+  delante.forEach((e, i) => (e.fuera ? barata(e) : K.papel(e.p, e.col, { d: 3, seed: 540 + i, edge: 0.85 })));
+  // gotita de sebo junto al pelo (papel vegetal)
+  c.save(); c.translate(1040, 790);
+  c.globalAlpha = 0.6; K.papel(K.circulo(24, 550, 0.01), '#f8ecd2', { d: 2, seed: 551, edge: 0.9 }); c.globalAlpha = 1;
+  c.fillStyle = 'rgba(255,255,255,0.8)'; c.beginPath(); c.ellipse(-8, -9, 7, 4.5, -0.6, 0, TAU); c.fill();
+  c.restore();
+}
+
+// =====================================================================================
+// NIVEL 4 · EL PELO COMO UN TRONCO (10⁻⁴ m), con su cutícula de escamas
+// =====================================================================================
+const xc4 = (y) => 900 + 16 * Math.sin((y + 200) / 650);
+const hw4 = (y) => 300 + 7 * Math.sin(y / 230 + 1);
+const tronco = (() => {
+  const r = K.rng(61), filas = [];
+  const cols = ['#88542f', '#925d37', '#7f4d2c', '#97623b', '#8b5733'];
+  // escamas de la cutícula, de la punta (arriba) a la raíz: el borde libre de cada una apunta a la punta
+  // y monta sobre la de arriba. Cada borde va a tramos (las células se solapan también de lado).
+  for (let y = -2000, i = 0; y < 3200; i++) {
+    const incl = (r() - 0.5) * 0.2, x0 = xc4(y) - hw4(y) - 18, x1 = xc4(y) + hw4(y) + 18, pts = [];
+    const cortes = [0]; let u = 0; while (u < 1) { u += 0.22 + r() * 0.3; cortes.push(Math.min(1, u)); }
+    const desv = cortes.map(() => (r() - 0.5) * 18), fases = [r() * TAU, r() * TAU];
+    for (let k = 0; k <= 60; k++) {
+      const v = k / 60; let tr = 0; while (tr < cortes.length - 2 && v > cortes[tr + 1]) tr++;
+      const dentro = (v - cortes[tr]) / ((cortes[tr + 1] - cortes[tr]) || 1);
+      const escalon = dentro < 0.12 ? lerp(desv[Math.max(0, tr - 1)], desv[tr], dentro / 0.12) : desv[tr];
+      const borde = escalon + 4 * Math.sin(v * 23 + fases[0]) + 2.2 * Math.sin(v * 61 + fases[1]) + (r() - 0.5) * 2.4;
+      const x = lerp(x0, x1, v);
+      pts.push([x, y + incl * (x - 900) + borde]);
+    }
+    const borde = pts.slice();
+    pts.push([x1, y + 260], [x0, y + 260]);
+    filas.push({ p: K.poligono(pts), col: cols[i % 5], borde, seed: 600 + i, yL: borde[0][1], yR: borde[60][1] });
+    y += 50 + r() * 24;
+  }
+  // silueta en dientes de sierra: cada escama sobresale un poco por arriba (su borde libre)
+  const izq = [], der = [], F = filas;
+  for (let y = -6000; y < F[0].yL; y += 400) izq.push([xc4(y) - hw4(y), y]);
+  F.forEach((f, i) => {
+    const yn = i < F.length - 1 ? F[i + 1].yL : f.yL + 70;
+    izq.push([xc4(f.yL) - hw4(f.yL) - 9, f.yL], [xc4(yn - 4) - hw4(yn - 4), yn - 4]);
+  });
+  for (let y = F[F.length - 1].yL + 80; y <= 6000; y += 400) izq.push([xc4(y) - hw4(y), y]);
+  for (let y = 6000; y > F[F.length - 1].yR + 80; y -= 400) der.push([xc4(y) + hw4(y), y]);
+  for (let i = F.length - 1; i >= 0; i--) {
+    const f = F[i], yn = i < F.length - 1 ? F[i + 1].yR : f.yR + 70;
+    der.push([xc4(yn - 4) + hw4(yn - 4), yn - 4], [xc4(f.yR) + hw4(f.yR) + 9, f.yR]);
+  }
+  for (let y = F[0].yR - 400; y >= -6000; y -= 400) der.push([xc4(y) + hw4(y), y]);
+  const contorno = K.poligono([...izq, ...der]);
+  return { contorno, filas };
+})();
+// pelos lejanos, desenfocados por la distancia: capa a media resolución con desenfoque, que cubre
+// también lo que se ve alrededor del cuadro cuando el nivel llega pequeño
+const LEJOS = { x0: -1500, y0: -1300 };
+const lejos4 = K.capa(() => {
+  const c = K.g;
+  c.scale(0.5, 0.5); c.translate(-LEJOS.x0, -LEJOS.y0);
+  c.filter = 'blur(5px)';
+  const pelo = (xa, xb, curva, w0, w1, col, seed) => {
+    const pts = []; for (let i = 0; i <= 30; i++) { const v = i / 30; pts.push([lerp(xa, xb, v) + curva * Math.sin(v * PI), lerp(2600, -1600, v)]); }
+    const p = afilada(pts, w0, w1);
+    K.papel(p, col, { d: 0, seed, ta: 0.5, tb: 0.15, edge: 0, print: () => {
+      for (let y = -1600; y < 2600; y += 120) {
+        const v = (2600 - y) / 4200, x = lerp(xa, xb, v) + curva * Math.sin(v * PI), w = lerp(w0, w1, Math.pow(v, 0.8));
+        const gr = c.createLinearGradient(x - w, 0, x + w, 0);
+        gr.addColorStop(0, 'rgba(255,215,180,0.10)'); gr.addColorStop(0.3, 'rgba(255,215,180,0.16)'); gr.addColorStop(1, 'rgba(0,0,12,0.45)');
+        c.fillStyle = gr; c.fillRect(x - w - 10, y, 2 * w + 20, 121);
+      }
+      for (let y = -1600; y < 2600; y += 44) rayita([[xa - 400, y], [xa + 400, y + 10]], 'rgba(20,8,6,0.22)', 4);
+    } });
+  };
+  pelo(-700, -260, 60, 70, 56, K.mezcla('#6a3f27', '#121a3e', 0.62), 640);
+  pelo(420, 170, -40, 100, 84, K.mezcla('#6a3f27', '#121a3e', 0.5), 641);
+  pelo(2350, 2620, 50, 120, 100, K.mezcla('#6a3f27', '#121a3e', 0.55), 642);
+  pelo(-1300, -1180, 0, 160, 140, K.mezcla('#6a3f27', '#121a3e', 0.45), 643);
+}, 2450, 2000);
+function nivel4(t) {
+  const c = K.g, T = tronco;
+  cielo(97, 'rgba(120,100,170,0.32)', 0, 30);
+  c.save(); c.translate(LEJOS.x0, LEJOS.y0); c.scale(2, 2); c.drawImage(lejos4, 0, 0); c.restore();
+  K.papel(T.contorno, '#7a4a2b', { d: 9, seed: 590, sa: 0.6, ta: 0.4, tb: 0.2, print: () => {
+    const mt = c.getTransform(), vis = (y0, y1) => mt.d * y1 + mt.f > -40 && mt.d * y0 + mt.f < 1120;
+    for (const f of T.filas) {
+      if (!vis(Math.min(f.yL, f.yR) - 40, Math.max(f.yL, f.yR) + 120)) continue;
+      c.save();
+      c.shadowColor = 'rgba(25,8,4,0.6)'; c.shadowBlur = 8; c.shadowOffsetX = 0; c.shadowOffsetY = -4;
+      c.fillStyle = f.col; c.fill(f.p);
+      c.restore();
+      K.textura(f.p, f.seed, 1, 0.45);
+      c.save(); c.clip(f.p);
+      rayita(f.borde.map(([x, y]) => [x, y + 2.5]), 'rgba(255,218,176,0.42)', 2.6);
+      rayita(f.borde.map(([x, y]) => [x, y + 8]), 'rgba(255,214,170,0.10)', 6);
+      c.restore();
+    }
+    // volumen de cilindro: luz arriba-izquierda, borde oscuro a la derecha
+    for (let y = -6000; y < 6000; y += 100) {
+      if (!vis(y, y + 101)) continue;
+      const x = xc4(y + 50), hw = hw4(y + 50) + 10, gr = c.createLinearGradient(x - hw, 0, x + hw, 0);
+      gr.addColorStop(0, 'rgba(20,8,4,0.30)'); gr.addColorStop(0.1, 'rgba(255,225,190,0.12)'); gr.addColorStop(0.28, 'rgba(255,228,195,0.24)');
+      gr.addColorStop(0.42, 'rgba(255,225,190,0.04)'); gr.addColorStop(0.7, 'rgba(0,0,0,0.04)'); gr.addColorStop(1, 'rgba(20,8,4,0.55)');
+      c.fillStyle = gr; c.fillRect(x - hw - 20, y, 2 * hw + 40, 101);
+    }
+  } });
+  cota(t);
+}
+// cota de lado a lado del pelo: «10⁻⁴ m», completa en «milimetro»
+function cota(t) {
+  const c = K.g, y = 640, x0 = xc4(y) - hw4(y), x1 = xc4(y) + hw4(y), xm = (x0 + x1) / 2;
+  const uT = seg(t, m.decima - 0.25, m.decima), uF = eout(seg(t, m.decima - 0.02, m.milimetro - 0.1)), uE = seg(t, m.milimetro - 0.3, m.milimetro);
+  if (uT <= 0) return;
+  for (const [x, i] of [[x0, 0], [x1, 1]]) {
+    const p = K.colocar(uT);
+    c.save(); c.translate(x + p.dx * 0.5, y + p.dy * 0.5); K.temblor(700 + i, 0.4, 0.004);
+    K.elevar(p.d, () => K.papel(K.rectRecortado(-4, -58, 8, 116, 3, 701 + i, 0.3), C.ivory, { d: 2.5, seed: 702 + i }));
+    c.restore();
+  }
+  if (uF > 0) {
+    const L = (x1 - x0) / 2 - 10;
+    K.flecha([[xm, y], [xm - L * uF, y]], { u: 1, ancho: 4.5, punta: 26, alas: 2.6, col: C.ivory, d: 2.6, seed: 711 });
+    K.flecha([[xm, y], [xm + L * uF, y]], { u: 1, ancho: 4.5, punta: 26, alas: 2.6, col: C.ivory, d: 2.6, seed: 712 });
+  }
+  K.etiqueta(xm, y - 74, '10^−4 m', { u: uE, size: 46, col: C.ivory, ink: C.ink, id: 720, d: 4 });
+}
+
+// =====================================================================================
+// HUD · regla de potencias de diez y Atom
+// =====================================================================================
+const REGLA = { x: 1670, y: 522, w: 180, h: 784 }, MARCAS = [0, 1, 2, 3, 4].map((i) => 205 + i * 160);
+const reglaSp = K.sprite(REGLA.w, REGLA.h, () => {
+  const c = K.g, x0 = -REGLA.w / 2, y0 = -REGLA.h / 2;
+  K.papel(K.rectRecortado(x0, y0, REGLA.w, REGLA.h, 12, 801, 1), C.ivory, { d: 0, seed: 802, tb: 0.45, print: () => {
+    c.fillStyle = 'rgba(214,98,74,0.85)'; c.fillRect(x0, y0, 10, REGLA.h);
+    const yy = (Y) => Y - REGLA.y;
+    MARCAS.forEach((Y, i) => {
+      c.fillStyle = C.ink; c.fillRect(x0, yy(Y) - 2.5, 46, 5);
+      K.escribir(`10^${i ? '−' + i : 0} m`, 26, yy(Y) + 1, { size: 33, col: C.ink, peso: 800 });
+      if (i < 4) for (let k = 9; k >= 2; k--) {      // marcas menores logarítmicas
+        const y = yy(Y) + (1 - Math.log10(k)) * 160;
+        c.fillRect(x0, y - 1.2, k === 5 ? 30 : 20, 2.4);
+      }
+    });
+  } });
+}, 8);
+const flechaReglaSp = K.sprite(110, 56, () => {
+  const p = K.poligono([[-55, -22], [22, -22], [52, 0], [22, 22], [-55, 22]]);
+  K.papel(p, C.coral, { d: 0, seed: 811, print: () => { K.g.fillStyle = 'rgba(255,240,220,0.25)'; K.g.fillRect(-55, -22, 110, 6); } });
+}, 10);
+function regla(t) {
+  const c = K.g;
+  c.save(); K.temblor(800, 0.3, 0.0008);
+  K.pegar(reglaSp, REGLA.x, REGLA.y, { d: 6 });
+  K.chincheta(REGLA.x, REGLA.y - REGLA.h / 2 + 22, 8);
+  K.chincheta(REGLA.x, REGLA.y + REGLA.h / 2 - 22, 8);
+  c.restore();
+  let y = MARCAS[0];
+  for (let k = 0; k < 4; k++) y += (MARCAS[k + 1] - MARCAS[k]) * eback(seg(t, SALTO[k][0] + JS * 0.3, SALTO[k][1]), 1.8);
+  const mov = SALTO.some(([a, b]) => t > a + JS * 0.3 && t < b + 0.05);
+  c.save(); c.translate(REGLA.x - REGLA.w / 2 - 50, y); K.temblor(810, 0.4, 0.004);
+  K.pegar(flechaReglaSp, 0, 0, { d: mov ? 9 : 4 });
+  K.chincheta(-38, 0, 6.5);
+  c.restore();
+}
+// estado de Atom: posición, escala y brillo
+function estadoAtom(t) {
+  let P4 = 0;
+  for (const [a] of SALTO) P4 += eio(seg(t, a + JS * 0.25, a + JS * 0.85));
+  const k = P4 / 4, k1 = eio(seg(t, SALTO[0][0], SALTO[0][0] + JS * 0.45));
+  let x = lerp(ATOMO0[0], 1372, k1), y = lerp(ATOMO0[1], 300, k1), esc = 0.55 * Math.pow(0.28 / 0.55, k);
+  const up = eback(seg(t, m.atom - 0.24, m.atom), 1.6), dn = eio(seg(t, m.atom + 0.75, m.atom + 1.3));
+  const brillo = Math.max(0, up) * (1 - dn);
+  esc *= 1 + 0.3 * brillo;
+  // «hola»: bote
+  const b1 = seg(t, m.hola - 0.25, m.hola), b2 = seg(t, m.hola, m.hola + 0.22), b3 = seg(t, m.hola + 0.22, m.hola + 0.42);
+  const alto = 52 * eout(b1) * (1 - ein(b2)) + 12 * Math.sin(PI * b3);
+  const aplasta = (b2 >= 1 && b3 < 0.35) ? 1 : 0;
+  return { x, y: y - alto, esc, brillo, up: seg(t, m.atom - 0.24, m.atom), aplasta };
+}
+const solSp = K.sprite(420, 420, () => {
+  K.papel(K.estrella(200, 128, 18, -PI / 2, 21), C.goldL, { d: 0, seed: 821, edge: 0.8 });
+  K.papel(K.estrella(150, 104, 18, -PI / 2 + PI / 18, 22), C.gold, { d: 0, seed: 822, edge: 0.8 });
+  K.papel(K.circulo(98, 23, 0.01), C.ivory, { d: 0, seed: 823, edge: 0.6 });
+}, 12);
+const VECINOS = [
+  { a: -38, nucA: C.teal2, nucB: C.ivory2, elec: C.goldL, id: 60 },
+  { a: 24, nucA: C.sage, nucB: C.ivory, elec: C.gold, id: 100 },
+  { a: 84, nucA: C.mustard, nucB: C.ivory, elec: C.coralL, id: 140 },
+];
+function atomHUD(t) {
+  const c = K.g, S = estadoAtom(t), e = t < QUIETO ? E.energia(t) : 0, tc = calma(t), ph = fase(t);
+  const sway = 0.025 * Math.sin(TAU * 0.23 * tc);
+  // sol de papel detrás («atom»)
+  if (S.brillo > 0.01) {
+    const gr = c.createRadialGradient(S.x, S.y, 10, S.x, S.y, 250 * S.esc / 0.55);
+    gr.addColorStop(0, `rgba(255,220,150,${0.42 * S.brillo})`); gr.addColorStop(1, 'rgba(255,220,150,0)');
+    c.fillStyle = gr; c.fillRect(S.x - 400, S.y - 400, 800, 800);
+    c.save(); c.translate(S.x, S.y); c.rotate(0.35 * t); K.temblor(830, 0.6, 0.006);
+    const k = S.brillo * S.esc / 0.55 * 0.64;
+    c.scale(k, k); K.pegar(solSp, 0, 0, { d: 3 });
+    c.restore();
+  }
+  // molécula («bloques»): tres átomos que llegan con su varilla y encajan
+  const ATX = S.x, ATY = S.y, D = 205;
+  const vec = VECINOS.map((v, i) => {
+    const a = m.bloques - 0.36 + i * 0.06, b = a + 0.3;
+    const lleg = eback(seg(t, a, b), 1.5), sale = ein(seg(t, m.explico - 0.62 + i * 0.05, m.explico - 0.3 + i * 0.05));
+    if (t < a || sale >= 1) return null;
+    const dist = D + 430 * (1 - lleg) + 1100 * sale, ang = v.a * PI / 180 - 0.5 * sale;
+    return { ...v, x: ATX + Math.cos(ang) * dist, y: ATY + Math.sin(ang) * dist, ang, alto: 12 * (1 - Math.min(1, lleg)) + 14 * sale };
+  }).filter(Boolean);
+  for (const v of vec) {   // varillas (detrás)
+    const ex = v.x - Math.cos(v.ang) * D, ey = v.y - Math.sin(v.ang) * D;
+    K.elevar(v.alto, () => K.papel(K.tira([[v.x, v.y], [ex, ey]], 6.5), C.ivory2, { d: 2.4, seed: v.id, edge: 0.7 }));
+  }
+  for (const v of vec) {
+    K.elevar(v.alto, () => K.atomo(v.x, v.y, t, 0, { escala: 0.3, hilo: false, id: v.id, fase: ph * 1.15 + v.id, balanceo: sway,
+      nucA: v.nucA, nucB: v.nucB, elec: v.elec, orb: C.ivory2 }));
+  }
+  // Atom (cuelga de su hilo)
+  const L = S.y + 20;
+  K.hilo(S.x, -20, S.x + Math.sin(sway) * L * 0.15, S.y - 40 * S.esc, 0.8, 1.4);
+  c.save(); c.translate(S.x + Math.sin(sway) * L * 0.15, S.y);
+  if (S.aplasta) c.scale(1.08, 0.9);
+  K.atomo(0, 0, t, e, { escala: S.esc, hilo: false, fase: ph, balanceo: sway, id: 10 });
+  c.restore();
+}
+
+// =====================================================================================
+// COMPOSICIÓN · niveles, saltos y fotograma
+// =====================================================================================
+const NIVEL = [nivel0, nivel1, nivel2, nivel3, nivel4];
+const dibujaNivel = (n, t) => K.zoomFisico(() => NIVEL[n](t));
+const CENTRO = [960, 540];
+function transicion(k, u, t) {
+  const c = K.g, w = eiob(u);                    // tirón atrás, golpe y rebote (en escala logarítmica)
+  const sO = Math.pow(10, 0.7 * Math.max(0, w)), sN = lerp(0.42, 1, w);
+  const pu = eio(cl(u / 0.82)), px = lerp(FOCO[k][0], CENTRO[0], pu), py = lerp(FOCO[k][1], CENTRO[1], pu);
+  const r = 1500 * eio(seg(u, 0.0, 0.62));
+  const lejos = Math.max(...[[0, 0], [1920, 0], [0, 1080], [1920, 1080]].map(([x, y]) => Math.hypot(x - px, y - py)));
+  const nuevo = () => { c.translate(px, py); c.scale(sN, sN); c.translate(-CENTRO[0], -CENTRO[1]); dibujaNivel(k + 1, t); };
+  if (r < lejos + 40) {
+    c.save(); c.translate(px, py); c.scale(sO, sO); c.translate(-FOCO[k][0], -FOCO[k][1]); dibujaNivel(k, t); c.restore();
+    if (r > 2) {
+      c.save(); c.translate(px, py);
+      const disco = K.circulo(r, 900 + k, 0.004);
+      K.papel(disco, P.fuera, { d: 12, sa: 0.7, ta: 0, tb: 0, edge: 1.2, print: () => { c.save(); c.translate(-px, -py); nuevo(); c.restore(); } });
+      K.papel(K.anillo(r - 1, r + 6, 910 + k), C.ivory, { d: 3, seed: 911 + k, rule: 'evenodd', edge: 0.8 });
+      c.restore();
+    }
+  } else { c.save(); nuevo(); c.restore(); }
+}
+function escenaEn(t) {
+  const c = K.g;
+  let k = -1, u = 0, n = 0;
+  SALTO.forEach(([a, b], i) => { if (t >= b) n = i + 1; if (t >= a && t < b) { k = i; u = (t - a) / (b - a); } });
+  c.fillStyle = P.fuera; c.fillRect(0, 0, 1920, 1080);
+  if (k >= 0) transicion(k, u, t);
+  else { c.save(); dibujaNivel(n, t); c.restore(); }
+  regla(t);
+  atomHUD(t);
+}
+E.iniciar((t) => K.fotograma(Math.min(t, QUIETO), escenaEn), { paso: 1 / 12 });
+</script>
+</body>
+</html>

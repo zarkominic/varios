@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Valle · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-VALLE (frases 30–31). Cartela «1157». Unos ladrones salen de una pirámide cargados con sacos de oro; luego el
+// Valle de los Reyes, con las entradas de las tumbas en la roca. Después los obreros de las tumbas se sientan y
+// dejan de trabajar: en la caja, un saco y «0».
+import { preparar, rodar, guiza, tumba, EL, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-valle');
+const { tramo, lerp } = R;
+const m = { val: M('valle', 1.5), hue: M('huelga', 12) };
+const L = m.hue - m.val;
+const saco = (x, y, c = C.oro) => { R.disco(x, y, 4, C.k); R.disco(x, y, 3, c); R.rect(x - 1, y - 5, x + 1, y - 4, c); R.pset(x, y - 6, C.k); };
+const ladrones = (t) => {
+  const u = t - m.val;
+  guiza(R, t, { fase: 'terminada', tarde: true });
+  for (let k = 0; k < 2; k++) { const x = Math.round(lerp(170 + k * 20, 330 + k * 20, tramo(u, 0.2, 0.45 * L))); R.actor(EL.campesino, x, 145, t + k, { anda: true, pal: { T: R.hex('#3a3a48'), t: R.hex('#26263a'), H: R.hex('#1c1424') } }); saco(x + 16, 131); }
+};
+const valle = (t) => { tumba(R, t, { modo: 'valle' }); R.actor(EL.calvo, 120, 145, t, { dedo: true }); R.actor(EL.campesino, 160, 145, t, { dir: -1, pal: { H: R.hex('#4a2a18') } }); };
+const huelga = (t) => {
+  tumba(R, t, { modo: 'valle' });
+  for (let k = 0; k < 4; k++) R.actor(EL.escriba, 70 + k * 30, 145, t + k, { enfado: true, pal: k % 2 ? { S: R.hex('#c07a4a') } : {} });
+  R.rect(200, 141, 214, 145, C.madera); R.rect(206, 128, 207, 141, C.maderaS);
+};
+rodar(E, R, [[0, ladrones], [m.val + 0.5 * L, valle], [m.hue - 0.2, huelga]], {
+  cartela: '1157', año: (t) => (t < m.val + 0.5 * L ? -1500 : t < m.hue ? -1400 : -1157),
+  caja: (t, e) => R.caja(t, t > m.hue + 3 ? tramo(t, m.hue + 3, m.hue + 3.4) : 0, (x, y) => { saco(x + 6, y + 12, C.trigo); R.numero('0', x + 16, y + 12); }, { energia: e }),
+});
+</script>
+</body>
+</html>

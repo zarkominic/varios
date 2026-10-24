@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cena · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-CENA (frases 10–11). A en otoño: la cosecha de maíz y calabazas; se va llenando una mesa larga al aire libre. Luego
+// llega Massasoit con su gente, que son más que los colonos, y traen ciervos.
+import { preparar, rodar, plymouth, ciervo, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-cena');
+const { tramo, lerp } = R;
+const m = { cos: M('cosecha', 0.5), mas: M('massasoit', 6) };
+const cosecha = (t) => {
+  const u = t - m.cos;
+  plymouth(R, t, { estacion: 'otono', maiz: 1, mesa: tramo(u, 0.5, m.mas - m.cos), mayflower: 62 });
+  R.actor(EL.peregrino, 60, 145, t, { sonrisa: true }); const xp = Math.round(120 + Math.sin(u * 0.8) * 40); R.actor(EL.peregrina, xp, 145, t + 1, { sonrisa: true, anda: Math.abs(Math.cos(u * 0.8)) > 0.25, dir: Math.cos(u * 0.8) > 0 ? 1 : -1 });
+};
+const llegan = (t) => {
+  const u = t - m.mas, L = E.duracion - m.mas;
+  plymouth(R, t, { estacion: 'otono', maiz: 1, mesa: 1, mayflower: 62 });
+  R.actor(EL.peregrino, 44, 145, t, { sorpresa: u > 0.3 * L && u < 0.6 * L, sonrisa: u >= 0.6 * L }); R.actor(EL.peregrina, 66, 145, t + 1, { sorpresa: u > 0.3 * L && u < 0.6 * L });
+  const g = tramo(u, 0, 0.35 * L);
+  const gente = [EL.massasoit, EL.wampanoag, EL.wampanoaga, EL.wampanoag, EL.wampanoaga, EL.wampanoag, EL.wampanoag];
+  gente.forEach((d, k) => R.actor(d, Math.round(lerp(340 + k * 24, 110 + k * 26, g)), 145, t + k, { dir: -1, anda: g < 1, sonrisa: g >= 1 }));
+  const c = tramo(u, 0.6 * L, 0.85 * L);
+  for (let k = 0; k < 5; k++) if (c * 5 > k) ciervo(R, 28 + k * 30, 176, t, { dir: k % 2 ? -1 : 1 });
+};
+rodar(E, R, [[0, cosecha], [m.mas - 0.2, llegan]], { cartela: '1621', año: 1621 });
+</script>
+</body>
+</html>

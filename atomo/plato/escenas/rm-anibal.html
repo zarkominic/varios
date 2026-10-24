@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Anibal · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-ANIBAL (frase 15). La ruta de Aníbal en el mapa (de Cartago por Hispania hasta los Alpes); los elefantes suben
+// los Alpes nevados; y en Cannas caen filas de legionarios (quedan los escudos en el suelo), «50000» en la caja.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-anibal');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('anibal', 0.5), dur = E.duracion ?? 14;
+const t1 = m0 + 2.6, t2 = m0 + (dur - m0) * 0.55;
+const ruta = (t) => { R.mapaAño(t, -218, { colorImperio: PALA.ROJO, cartago: 1 }); R.ruta([R.lugar('cartago'), R.lugar('cartagena'), R.lugar([2, 41.5]), R.lugar('alpes'), R.lugar('cannas')], tramo(t, m0, t1), PALA.AMARILLO[3]); };
+const alpes = (t) => {
+  R.ambiente({ luz: { lado: -1, color: PR.NIEVE[3] }, sombra: PR.NIEVE[0] });
+  R.cieloR(t, 'dia', { nubes: { n: 3 } });
+  const monte = (cx, h, w, l) => R.poligono([[cx - w, 150], [cx, 150 - h], [cx + w, 150]], (x, y) => { const nieve = y < 150 - h * 0.55 + 4 * Math.sin(x * 0.4); return R.tone(nieve ? PR.NIEVE : PR.ROCA, l + (x < cx ? 0.8 : -0.4), x, y); });
+  monte(60, 110, 90, 1.6); monte(220, 130, 110, 1.8); monte(320, 90, 80, 1.4);
+  R.poligono([[0, 180], [0, 150], [320, 96], [320, 180]], (x, y) => R.tone(PR.NIEVE, 2.4 - (y - 96) * 0.008, x, y));
+  const u = t - t1;
+  for (let k = 0; k < 7; k++) {
+    const p = ((u * 0.07 + k * 0.15) % 1.1) - 0.05, x = lerp(-30, 350, p), y = 150 - (x / 320) * 54 + 18;
+    if (k % 2 === 0) { R.elefante(x, y, t + k, { esc: 0.55, anda: true, manta: PALA.AMARILLO }); R.personaje(x - 1, y - 15, 16, { ...ELENCO.legionario, chaqueta: PALA.AMARILLO, camisa: PALA.AMARILLO, falda: PALA.AMARILLO, capa: null, sombrero: 'no', pelo: PALA.PELO_NEGRO, piel: PALA.PIEL_OSCURA, t, pose: 'sentado', sombra: false }); }
+    else R.personaje(x, y, 22, { ...ELENCO.legionario, chaqueta: PALA.AMARILLO, camisa: PALA.AMARILLO, falda: PALA.AMARILLO, capa: PALA.ROJO, piel: PALA.PIEL_OSCURA, t, anda: t * 6, objeto: 'gladio' });
+  }
+  for (let k = 0; k < 90; k++) { const x = (k * 37 + t * 8 + Math.sin(t + k) * 4) % R.W, y = (k * 53 + t * 22) % R.H; R.pset(Math.round(x), Math.round(y), PR.NIEVE[3]); }
+};
+const cannas = (t) => {
+  R.cieloR(t, 'tarde', { sol: [250, 100, 10] }); R.colinas(110, { amp: 6, luz: 1.4, rampa: PR.TIERRA }); R.suelo(110, PR.TIERRA, { luz: 1.8 });
+  const u = t - t2;
+  for (let fila = 0; fila < 5; fila++) for (let k = 0; k < 12; k++) {
+    const x = 26 + k * 24 + (fila & 1) * 12, y = 124 + fila * 11, cae = u > 0.6 + k * 0.18 + fila * 0.3;
+    if (cae) { R.disco(x, y - 2, 2, PALA.ROJO[1]); R.rect(x - 4, y - 3, x + 4, y - 1, PALA.ROJO[2]); R.pset(x, y - 2, PALA.ORO[2]); }
+    else R.personaje(x, y, 20, { ...ELENCO.legionario, t: t + k, objeto: 'gladio', capa: null, sombra: false });
+  }
+};
+rodar(E, R, [[0, ruta], [t1, alpes], [t2, cannas]], { año: -216, caja: (t, e) => R.caja(t, t > t2 + 2.5 ? tramo(t, t2 + 2.5, t2 + 2.9) : 0, (x, y) => R.numero('50000', x + 2, y + 12), { energia: e }) });
+</script>
+</body>
+</html>
