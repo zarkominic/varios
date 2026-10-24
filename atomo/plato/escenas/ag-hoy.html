@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hoy · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-HOY (frases 34–35). E de madrugada: la cola ante la tienda; uno se ha dormido de pie. Se abre la puerta, todos
+// entran corriendo en una polvareda y el dormido se despierta y sale disparado detrás (gag). Luego el sofá: alguien
+// compra con el móvil y le llueven cajas.
+import { preparar, rodar, ciudad, comedor, polvareda, trote, C, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-hoy');
+const { tramo, lerp } = R;
+const m = { cr: M('crece', 0.5), cy: M('cyber', 8) };
+const cola = (t) => {
+  const u = t - m.cr, L = m.cy - m.cr, abre = tramo(u, 0.5 * L, 0.55 * L), corre = tramo(u, 0.55 * L, 0.8 * L);
+  ciudad(R, t, { epoca: 'hoy', madrugada: true });
+  const quien = [EL.chico, EL.chica, EL.senor30, EL.senora30, EL.chico, EL.chica, EL.senor30];
+  quien.forEach((d, k) => {
+    const dormido = k === 6, x0 = 60 + k * 22, x = dormido ? (u > 0.85 * L ? Math.round(lerp(x0, 170, tramo(u, 0.88 * L, L))) : x0) : Math.round(lerp(x0, 168, corre));
+    if (!dormido && corre >= 1) return;
+    R.actor(d, x, 145, t + k, { parpadea: dormido && u < 0.82 * L, sorpresa: dormido && u >= 0.82 * L, sonrisa: !dormido && abre > 0, salto: (!dormido && corre > 0) || (dormido && u > 0.88 * L) ? trote(t + k) : 0 });
+  });
+  if (corre > 0 && corre < 1) polvareda(R, 160, 145, corre, C.grisL, 1.4);
+};
+const caja = (x, y, c) => { R.rect(x - 6, y - 5, x + 6, y + 5, C.k); R.rect(x - 5, y - 4, x + 5, y + 4, c); R.rect(x - 5, y - 1, x + 5, y, C.ocreS); };
+const sofa = (t) => {
+  const u = t - m.cy, L = E.duracion - m.cy;
+  comedor(R, t, { epoca: 'hoy', sofa: true });
+  R.actor(EL.chica, 60, 145, t, { sonrisa: true, dedo: Math.sin(t * 3) > 0 });
+  R.rect(76, 116, 79, 121, C.k); R.rect(77, 117, 78, 120, C.cristal);   // el móvil
+  const n = Math.floor(tramo(u, 0.4 * L, L) * 12);
+  for (let k = 0; k < n; k++) { const cae = Math.min(1, (u - 0.4 * L - k * (0.6 * L / 12)) * 3), x = 120 + (k % 4) * 14, yf = 140 - Math.floor(k / 4) * 10; caja(x, Math.round(lerp(-10, yf, cae)), [C.ocre, C.papelS, C.ocre][k % 3]); }
+};
+rodar(E, R, [[0, cola], [m.cy - 0.2, sofa]], { cartela: '2005', año: (t) => (t < m.cy ? 1995 : 2005) });
+</script>
+</body>
+</html>

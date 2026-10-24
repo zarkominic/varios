@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mayflower · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-MAYFLOWER (frases 5–6). A en invierno: el Mayflower entra en la bahía helada y los pasajeros bajan tiritando; luego
+// la nieve y, de las ventanas de las cabañas, la mitad se apagan.
+import { preparar, rodar, plymouth, trote, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-mayflower');
+const { tramo, lerp } = R;
+const m = { lle: M('mayflower', 0.5), inv: M('invierno', 9) };
+const llega = (t) => {
+  const u = t - m.lle, f = tramo(u, 0, 0.5 * (m.inv - m.lle));
+  plymouth(R, t, { estacion: 'invierno', mayflower: Math.round(lerp(-60, 62, R.easeIO(f))), wetu: false });
+  if (f >= 1) for (let k = 0; k < 4; k++) { const g = tramo(u - 0.5 * (m.inv - m.lle) - k * 0.5, 0, 2); if (g > 0) R.actor(k % 2 ? EL.peregrina : EL.peregrino, Math.round(lerp(130, 160 + k * 26, g)), 145, t + k, { triste: true, salto: Math.sin(t * 30 + k) > 0.6 ? 1 : 0 }); }
+};
+const invierno = (t) => {
+  const u = t - m.inv, apaga = tramo(u, 0.6, 2.4);
+  plymouth(R, t, { estacion: 'invierno', mayflower: 62, wetu: false, luces: (cx) => !(apaga > 0 && cx !== 222 && apaga * 3 > (cx === 176 ? 0.5 : 1.5)) });
+  R.actor(EL.peregrino, 150, 145, t, { triste: true, salto: Math.sin(t * 30) > 0.6 ? 1 : 0 }); R.actor(EL.peregrina, 168, 145, t + 1, { triste: true, dir: -1 });
+};
+rodar(E, R, [[0, llega], [m.inv - 0.2, invierno]], { cartela: '1620', año: 1620 });
+</script>
+</body>
+</html>

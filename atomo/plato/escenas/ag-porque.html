@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Porque · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-PORQUE (frase 20). Granja en primavera: la gallina con su huevo y la vaca con su cubo de leche, tan tranquilas; en
+// medio, el pavo, que mira a un lado y a otro y suda (gag).
+import { preparar, rodar, plymouth, gallina, huevo, vaca, cubo, pavo, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-porque');
+const m0 = M('porque', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  const u = t - m0;
+  plymouth(R, t, { estacion: 'primavera', mayflower: false, wetu: false });
+  gallina(R, 70, 145, t); if (u > 0.35 * L) huevo(R, 80, 145);
+  vaca(R, 250, 145, t); if (u > 0.5 * L) cubo(R, 236, 145);
+  pavo(R, 160, 145, t, { dir: Math.sin(t * 2) > 0 ? 1 : -1, suda: u > 0.6 * L });
+  R.actor(EL.peregrina, 112, 145, t, { sonrisa: u > 0.75 * L, dedo: u > 0.75 * L });
+};
+rodar(E, R, [[0, plano]], { año: 1863 });
+</script>
+</body>
+</html>

@@ -320,6 +320,55 @@ const CUERPO_EUROPEO = [
   '...kFFFkFFFk...',
   '..kkkkk.kkkkk..',
 ];
+// ── Episodio 9 (Acción de Gracias): peregrinos, wampanoag, gente del siglo XIX y XX ─────────────────────────────────
+// peregrino de 1620: jubón negro con cuello blanco ancho, cinturón, calzas y medias grises, zapatos con hebilla
+const CUERPO_PEREGRINO = [
+  '..kWWWWWWWWWk..',
+  '.kWWWWWWWWWWWk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkGGGoGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kwwwkwwwk...',
+  '...kwwwkwwwk...',
+  '...kkokkkkok...',
+  '..kkkkk.kkkkk..',
+];
+// vestido largo de manga larga con cuello y delantal (peregrina; con otros colores, Sarah Hale o una abuela)
+const CUERPO_VESTIDO = [
+  '....kkWWWkk....',
+  '..kkCWWWWWCkk..',
+  '.kCkCCWWWCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkWWWWWWWkCk.',
+  '.kSkWWWWWWWkSk.',
+  '..kkWWWWWWWkk..',
+  '...kWWWWWWWk...',
+  '...kCWWWWWCk...',
+  '...kCCCCCCCk...',
+  '...kCCCCCCck...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// wampanoag: manto de piel de ciervo sobre un hombro, collar de cuentas (wampum), taparrabos, polainas y mocasines
+const CUERPO_NATIVO = [
+  '...kkSSSSSkk...',
+  '..kBBSSSSSSSk..',
+  '.kBkBBSSSSSkSk.',
+  '.kBkSBBYWYSkSk.',
+  '.kBkSSBBSSSkSk.',
+  '.kSkSSSBBSSkSk.',
+  '..kkGGGGGGGkk..',
+  '...kBBBkBBBk...',
+  '...kbbbkbbbk...',
+  '...kbbbkbbbk...',
+  '...kbbbkbbbk...',
+  '...kLLLkLLLk...',
+  '..kkkkk.kkkkk..',
+];
 // tocados que se pintan encima de la cabeza: [rejilla, desplazamiento vertical]
 export const TOCADOS = {
   // la doble corona: la blanca del sur dentro de la roja del norte
@@ -380,6 +429,104 @@ export const TOCADOS = {
     '.kNNNNNNNWDNk..',
     '..kkkkkkkkkk...',
   ], -1],
+  // ── episodio 9 ──
+  // sombrero alto de peregrino (capotain) con cinta y hebilla
+  capotain: [[
+    '....kkkkkk.....',
+    '...kJJJJJJk....',
+    '...kJJJJJJk....',
+    '...kJJJJJJk....',
+    '...kjjojjjk....',
+    '.kkkkkkkkkkkk..',
+    'kJJJJJJJJJJJJk.',
+    '.kkkkkkkkkkkk..',
+  ], -5],
+  // cofia blanca de peregrina: tapa el pelo de arriba y de atrás, nunca la cara
+  cofia: [[
+    '...kkkkkkkk....',
+    '..kWWWWWWWWk...',
+    '.kWWWWWWWWWWk..',
+    'kWWwWWWWWWWWWk.',
+    'kWWWk..........',
+    'kWWWk..........',
+    'kWWwk..........',
+    'kWWWk..........',
+    '.kWWk..........',
+  ], -1],
+  // una pluma detrás de la cabeza (wampanoag)
+  pluma: [[
+    '.kk............',
+    'kWk............',
+    'kWk............',
+    'kwk............',
+    'kDk............',
+    '.kk............',
+  ], -4],
+  // tres plumas y una cinta de wampum (Massasoit)
+  plumas: [[
+    'kk.kk.kk.......',
+    'kWkkWkkWk......',
+    'kWkkWkkWk......',
+    'kwkkwkkwk......',
+    '.kkkkkkkkkkk...',
+    'kYWYWYWYWYWk...',
+    '.kkkkkkkkkkk...',
+  ], -4],
+  // chistera (Lincoln)
+  chistera: [[
+    '...kkkkkkkk....',
+    '...kJJJJJJk....',
+    '...kJJJJJJk....',
+    '...kJJJJJJk....',
+    '...kJJJJJJk....',
+    '...kJJJJJJk....',
+    '...kjjjjjjk....',
+    '.kkkkkkkkkkkk..',
+    'kJJJJJJJJJJJJk.',
+    '.kkkkkkkkkkkk..',
+  ], -8],
+  // gorra de plato de policía con placa y visera delante
+  gorra: [[
+    '...kkkkkkkk....',
+    '..kCCCCCCCCk...',
+    '.kCCCCCoCCCCk..',
+    '.kkkkkkkkkkkkkk',
+    '..........kkkk.',
+  ], -2],
+  // gorro de Santa Claus con borla
+  santa: [[
+    'kk.............',
+    'kWk.kkkkk......',
+    '.kkkQQQQQk.....',
+    '...kQQQQQQk....',
+    '..kQQQQQQQQk...',
+    '.kWWWWWWWWWWk..',
+    '.kkkkkkkkkkkk..',
+  ], -4],
+  // quepis de soldado de la guerra civil (azul o gris, según la ropa)
+  kepi: [[
+    '...kkkkkk......',
+    '...kCCCCCk.....',
+    '...kCCCCCCk....',
+    '..kCCCCCCCCk...',
+    '..kkkkkkkkkkkk.',
+  ], -2],
+  // fedora de los años 20–50
+  fedora: [[
+    '....kkkkkk.....',
+    '...kFFFFFFk....',
+    '...kFFFFFFk....',
+    '...kGGGGGGk....',
+    '.kkkkkkkkkkkk..',
+    'kFFFFFFFFFFFFk.',
+    '.kkkkkkkkkkkk..',
+  ], -4],
+  // quevedos (Roosevelt): dos aros a la altura de los ojos
+  gafas: [[
+    '......k..kk..k.',
+    '......k..kk..k.',
+    '.......kk..kk..',
+  ], 6],
 };
 export const PIEL_CLARA = { S: hex('#f6c290'), s: hex('#d48a5a') };
 const EG = { ...PIEL_EG, T: hex('#f4eedc'), t: hex('#c8bc9a') };
@@ -400,6 +547,28 @@ export const ELENCO_EG = {
 export const ELENCO_CHIBI = { socrates: SOCRATES, ciudadano: CIUDADANO };
 // todos los personajes juntos
 Object.assign(ELENCO_CHIBI, ELENCO_EG);
+const CLARA = (o) => ({ ...PIEL_CLARA, ...Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)])) });
+const NATIVA = (o) => ({ S: hex('#c88a5a'), s: hex('#9a5e36'), H: hex('#1c1424'), h: hex('#3a3046'), B: hex('#b8895a'), b: hex('#8a6038'), L: hex('#6a4a2a'), G: hex('#5a3a20'), ...Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)])) });
+export const ELENCO_AG = {
+  peregrino: { cab: CAB_CORTO, cuerpo: CUERPO_PEREGRINO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'capotain', pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#2a2430', F: '#3a3046', G: '#5a3a20' }) },
+  peregrina: { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#8a5428'), tocado: 'cofia', pal: CLARA({ H: '#8a5428', h: '#a8703a', C: '#4a3a5a', c: '#34283f', L: '#2a2430' }) },
+  wampanoag: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'pluma', pal: NATIVA({}) },
+  wampanoaga: { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), pal: NATIVA({ C: '#b8895a', c: '#8a6038', W: '#d8b07a', L: '#6a4a2a' }) },
+  massasoit: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'plumas', pal: NATIVA({ B: '#c83a3a', b: '#8e2424' }) },
+  squanto: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'pluma', pal: NATIVA({ B: '#3e74d4', b: '#2a50a0' }) },
+  hale: { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#6a3a8a', c: '#4a2864', W: '#f2eee2', L: '#2a2430' }) },
+  lincoln: { cab: CAB_BARBA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'chistera', pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#2a2430', c: '#1c1222', F: '#2a2430', W: '#f2eee2' }) },
+  roosevelt: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#6a6a7a'), pal: CLARA({ H: '#8c8ca0', h: '#b8bccc', C: '#5a5a6a', F: '#4a4a5a', W: '#f2eee2' }) },
+  policia: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#1e2c5a', c: '#141e40', F: '#1e2c5a', W: '#8ab0e0' }) },
+  santa: { cab: CAB_BARBA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#f6f6f6'), tocado: 'santa', pal: CLARA({ H: '#f6f6f6', h: '#d8dce8', C: '#d23a3a', c: '#a02828', F: '#d23a3a', W: '#f6f6f6', o: '#2a2430' }) },
+  soldadoAzul: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'kepi', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#2a4fa8', F: '#6a8ac8', W: '#2a4fa8' }) },
+  soldadoGris: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'kepi', pal: CLARA({ H: '#2c2232', h: '#54466a', C: '#8c8ca0', F: '#6a6a7a', W: '#8c8ca0' }) },
+  senor30: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'fedora', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#6a4a3a', F: '#5a4a5a', W: '#f2eee2', G: '#2a2430' }) },
+  senora30: { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#8a5428'), pal: CLARA({ H: '#a85a2a', h: '#c8783a', C: '#2a8a7a', c: '#1e6a5e', W: '#f2eee2', L: '#2a2430' }) },
+  chico: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#2c2232'), pal: CLARA({ H: '#2c2232', h: '#54466a', C: '#e86a3a', c: '#b84a2a', F: '#3e5a9a', W: '#e86a3a' }) },
+  chica: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), pal: { S: hex('#c88a5a'), s: hex('#9a5e36'), H: hex('#5a3418'), h: hex('#8a5428'), C: hex('#5a9a4a'), c: hex('#3e7a34'), F: hex('#3e5a9a'), W: hex('#5a9a4a') } },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_AG);
 
 // ── Público: bustos de frente (9 × 12) que se asoman por encima de una borda, un muro o una grada ─────────────────
 export const BUSTOS = {

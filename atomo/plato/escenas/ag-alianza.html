@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alianza · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-ALIANZA (frases 14–15). A: Massasoit y el gobernador se dan la mano; encima, lo que necesita cada uno (espadas:
+// aliados contra sus enemigos; un cuenco vacío: no morirse de hambre). Luego A al atardecer: la mesa vacía, hojas que
+// caen; «50».
+import { preparar, rodar, plymouth, C, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-alianza');
+const { tramo } = R;
+const m = { ali: M('alianza', 0.5), lu: M('luto', 8) };
+const alianza = (t) => {
+  const u = t - m.ali, L = m.lu - m.ali;
+  plymouth(R, t, { estacion: 'otono', mesa: 1, mayflower: false });
+  R.actor(EL.massasoit, 132, 145, t, { sonrisa: u > 0.2 * L }); R.actor(EL.peregrino, 160, 145, t + 1, { dir: -1, sonrisa: u > 0.2 * L });
+  R.rect(147, 130, 159, 132, R.hex('#c88a5a')); R.rect(153, 130, 159, 132, R.hex('#f6c290'));
+  if (u > 0.4 * L) { R.bocadillo(122, 104, { icono: 'espadas' }); }
+  if (u > 0.6 * L) { R.bocadillo(176, 104, {}); R.rect(172, 98, 180, 100, C.k); R.rect(173, 100, 179, 101, C.grisL); }
+};
+const luto = (t) => {
+  const u = t - m.lu;
+  plymouth(R, t, { estacion: 'otono', mesa: 0.001, tarde: true, mayflower: false });
+  if (u > 1.2) R.numero('50', 160, 60, { centro: true, tam: 16 });
+};
+rodar(E, R, [[0, alianza], [m.lu - 0.2, luto]], { año: (t) => (t < m.lu ? 1621 : 1675) });
+</script>
+</body>
+</html>

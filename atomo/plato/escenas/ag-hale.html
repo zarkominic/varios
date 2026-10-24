@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hale · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-HALE (frases 17–18). B en el siglo XIX: Sarah Josepha Hale en su escritorio, con el corderito de la canción.
+// Luego escribe carta tras carta: vuelan a un buzón que se desborda (gag), «17»; cuatro vuelven tachadas.
+import { preparar, rodar, comedor, cordero, C, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-hale');
+const { tramo, lerp } = R;
+const m = { ha: M('hale', 0.5), ca: M('cartas', 7) };
+const sobre = (x, y, tachado) => { R.rect(x - 4, y - 3, x + 4, y + 3, C.k); R.rect(x - 3, y - 2, x + 3, y + 2, C.papel); R.linea(x - 3, y - 2, x, y, C.papelS); R.linea(x + 3, y - 2, x, y, C.papelS); if (tachado) { R.linea(x - 4, y - 3, x + 4, y + 3, C.rojo); R.linea(x - 4, y + 3, x + 4, y - 3, C.rojo); } };
+const buzon = (x, suelo, lleno, t) => {
+  R.rect(x - 1, suelo - 18, x + 1, suelo, C.k); R.rect(x - 9, suelo - 34, x + 9, suelo - 18, C.k); R.rect(x - 8, suelo - 33, x + 8, suelo - 19, C.azul); R.rect(x - 6, suelo - 29, x + 6, suelo - 27, C.k);
+  for (let k = 0; k < Math.round(lleno * 9); k++) sobre(x - 6 + (k % 3) * 6 + Math.round(Math.sin(t * 9 + k)), suelo - 31 - Math.floor(k / 3) * 4, false);
+};
+const escribe = (t) => {
+  const u = t - m.ha;
+  comedor(R, t, { epoca: 'xix', escritorio: true });
+  R.actor(EL.hale, 64, 145, t, { habla: Math.sin(t * 6) > 0.4 && u > 0.3, sonrisa: u > 3 });
+  cordero(R, 132, 145, t);
+};
+const cartas = (t) => {
+  const u = t - m.ca, L = E.duracion - m.ca;
+  comedor(R, t, { epoca: 'xix', escritorio: true });
+  R.actor(EL.hale, 64, 145, t, { enfado: u > 0.5 * L, dedo: u > 0.5 * L });
+  cordero(R, 132, 145, t);
+  for (let k = 0; k < 8; k++) { const f = (t * 0.9 + k / 8) % 1; sobre(Math.round(lerp(96, 270, f)), Math.round(120 - Math.sin(f * Math.PI) * 40), false); }
+  buzon(270, 145, tramo(u, 0, 0.5 * L), t);
+  if (u > 0.2 * L) R.numero('17', 160, 40, { centro: true, tam: 16 });
+  for (let k = 0; k < 4; k++) { const f = tramo(u, 0.55 * L + k * 0.4, 0.55 * L + k * 0.4 + 0.8); if (f > 0) sobre(Math.round(lerp(270, 110 + k * 10, f)), Math.round(lerp(110, 96 - k * 7, f)), true); }
+};
+rodar(E, R, [[0, escribe], [m.ca - 0.2, cartas]], { año: (t) => 1846 + Math.round(R.tramo(t - m.ca, 0, E.duracion - m.ca) * 17) });
+</script>
+</body>
+</html>

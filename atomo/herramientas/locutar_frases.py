@@ -59,7 +59,18 @@ VOCES = g['voces']
 CLIPS = os.path.join(salida, 'clips')
 os.makedirs(CLIPS, exist_ok=True)
 
-_kokoro = _whisper = None
+_kokoro = _whisper = _chatterbox = None
+def chatterbox():
+    """Chatterbox multilingüe (Resemble AI, licencia MIT), en CPU. Desde el episodio 9 locuta el inglés: es más
+    expresivo que Kokoro. En español se inventa frases y coge acento (probado en el episodio 9), así que el español sigue con Kokoro."""
+    global _chatterbox
+    if _chatterbox is None:
+        import torch
+        _carga = torch.load
+        torch.load = lambda *a, **k: _carga(*a, **{**k, 'map_location': 'cpu'})   # los pesos vienen guardados para CUDA
+        from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+        _chatterbox = ChatterboxMultilingualTTS.from_pretrained(device=torch.device('cpu'))
+    return _chatterbox
 def kokoro():
     global _kokoro
     if _kokoro is None:
@@ -80,8 +91,43 @@ def recortar(a):
     i = np.where(e > 0.01 * e.max())[0]
     return a[max(0, i[0] - 240):i[-1] + 480] if len(i) else a
 
+def limpiar(a):
+    """Bordes de un clip de Chatterbox: un afftdn ligero contra el siseo, recorte por la envolvente (a 32 dB del pico; los
+    restos de menos de 40 ms, como chasquidos y respiraciones, no cuentan) y entrada y salida suaves. Sin esto, cada clip
+    acaba con una cola de siseo que corta en seco al silencio (se oía como ruido de fondo en las pausas)."""
+    with tempfile.TemporaryDirectory() as d:
+        sf.write(f'{d}/a.wav', a, SR)
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{d}/a.wav', '-af', 'afftdn=nf=-45:nr=12', f'{d}/b.wav'], check=True)
+        a, _ = sf.read(f'{d}/b.wav')
+    h = int(SR * 0.01); n = len(a) // h
+    env = np.array([np.sqrt(np.mean(a[i * h:(i + 1) * h] ** 2)) for i in range(n)])
+    voz = env > np.percentile(env, 95) * 10 ** (-32 / 20)
+    idx = np.flatnonzero(np.diff(np.r_[0, voz.astype(int), 0])); tr = [(i, j) for i, j in zip(idx[::2], idx[1::2]) if j - i >= 4]
+    if not tr:
+        return a
+    a = a[max(0, tr[0][0] * h - int(0.02 * SR)):min(len(a), tr[-1][1] * h + int(0.06 * SR))].copy()
+    fi, fo = int(0.012 * SR), int(0.05 * SR)
+    a[:fi] *= np.linspace(0, 1, fi); a[-fo:] *= np.linspace(1, 0, fo) ** 2
+    return a
+
 def sintetizar(texto, l, vel):
     v = VOCES[l]
+    if v.get('motor') == 'chatterbox':
+        # «vel» es aquí el número de intento: cada intento es otra toma (otra semilla), no otra velocidad
+        ref = os.path.join(os.path.dirname(os.path.abspath(__file__)), v['ref'])
+        clave = hashlib.sha1(f"cb|{v['ref']}|{v.get('exag', 0.6)}|{v.get('cfg', 0.4)}|{vel}|{texto}".encode()).hexdigest()[:16]
+        f = f'{CLIPS}/{l}-{clave}.wav'
+        if not os.path.exists(f):
+            import torch
+            torch.manual_seed(int(vel * 1000) + 7)
+            m = chatterbox()
+            w = m.generate(texto, language_id=l, audio_prompt_path=ref, exaggeration=v.get('exag', 0.6), cfg_weight=v.get('cfg', 0.4))
+            a = w.squeeze().numpy()
+            if m.sr != SR:
+                a = np.interp(np.linspace(0, len(a) - 1, int(len(a) * SR / m.sr)), np.arange(len(a)), a)
+            sf.write(f, limpiar(a), SR)
+        a, _ = sf.read(f)
+        return a, f
     clave = hashlib.sha1(f"{v['voz']}|{v['lang']}|{vel:.3f}|{texto}|{FONEMAS[l]}".encode()).hexdigest()[:16]
     f = f'{CLIPS}/{l}-{clave}.wav'
     if not os.path.exists(f):
@@ -208,10 +254,16 @@ def trozos_voz(texto):
             out[k - 1][0] += ' ' + out[k][0]; out[k - 1][1] = out[k][1]; out.pop(k)
     return [tuple(x) for x in out]
 
+def oraciones(texto):
+    """Para Chatterbox, que hace bien sus comas: solo se parte por oraciones (y dos puntos)."""
+    p = [x for x in re.split(r'(?<=[.?!:])\s+', texto) if x.strip()]
+    return [(x, x[-1] if k + 1 < len(p) else '') for k, x in enumerate(p)]
+
 def frase_voz(texto, l, velocidades):
     """La frase en trozos limpios unidos con su pausa: (audio, oídas, velocidad, fallos, avisos)."""
     partes, oidas, prob, av, vels, t = [], [], [], [], [], 0.0
-    for trozo, signo in trozos_voz(texto):
+    cb = VOCES[l].get('motor') == 'chatterbox'
+    for trozo, signo in (oraciones(texto) if cb else trozos_voz(texto)):
         a, f, vel, p, v = clip_limpio(trozo, l, velocidades)
         oidas += [(w, s + t, x + t) for w, s, x in oir(f, l)]
         prob += p; av += v; vels.append(vel)
@@ -242,7 +294,7 @@ pistas = {l: [] for l in IDIOMAS}
 palabras = {l: [] for l in IDIOMAS}
 subtitulos = {l: [] for l in IDIOMAS}
 lineas, informe, t_global = [], [], 0.0
-v0 = {l: VOCES[l]['velocidad'] for l in IDIOMAS}
+v0 = {l: VOCES[l].get('velocidad', 1.0) for l in IDIOMAS}
 for e in escenas:
     entrada = ENTRADA_CARTELA if e.get('cartela') else ENTRADA
     if e['frases'][0].get('acto'):
@@ -253,7 +305,8 @@ for e in escenas:
         if k and f.get('acto'):
             t += ENTRADA_ACTO - pausa_tras(e['frases'][k - 1])
         texto = {l: f.get(f'{l}_voz', f[l]) for l in IDIOMAS}
-        a_p, oid_p, vel_p, prob_p, av_p = frase_voz(texto[PRINCIPAL], PRINCIPAL, [v0[PRINCIPAL], v0[PRINCIPAL] - 0.03, v0[PRINCIPAL] + 0.03, v0[PRINCIPAL] + 0.05])
+        intentos_p = [0, 1, 2, 3] if VOCES[PRINCIPAL].get('motor') == 'chatterbox' else [v0[PRINCIPAL], v0[PRINCIPAL] - 0.03, v0[PRINCIPAL] + 0.03, v0[PRINCIPAL] + 0.05]
+        a_p, oid_p, vel_p, prob_p, av_p = frase_voz(texto[PRINCIPAL], PRINCIPAL, intentos_p)
         d_p = len(a_p) / SR
         # El otro idioma: primero a su velocidad; si queda lejos, a la que lo acerca.
         a_o = frase_voz(texto[OTRO], OTRO, [v0[OTRO]])[0]

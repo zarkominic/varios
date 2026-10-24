@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Filadelfia · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-FILADELFIA (frases 28–30). D, años cincuenta: un policía en un cruce con su silbato. Riadas de gente con paquetes
+// y aficionados del Ejército y la Marina. Atasco, un ladrón que escapa con un paquete y al policía le sale humo de la
+// gorra (gag).
+import { preparar, rodar, ciudad, humo, trote, C, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-filadelfia');
+const { tramo, lerp } = R;
+const m = { vi: M('viernes', 1.5), pa: M('partido', 9), at: M('atascos', 16) };
+const paquete = (x, y, c) => { R.rect(x - 3, y - 3, x + 3, y + 3, C.k); R.rect(x - 2, y - 2, x + 2, y + 2, c); R.rect(x, y - 2, x, y + 2, C.oro); };
+const cruce = (t) => { ciudad(R, t, { epoca: '1950', coches: 3 }); R.actor(EL.policia, 150, 145, t, { dedo: Math.sin(t * 4) > 0, habla: Math.sin(t * 9) > 0.5 }); };
+const gente = (t) => {
+  ciudad(R, t, { epoca: '1950', gente: { rie: true, saluda: true, saltan: true } });
+  const quien = [EL.senor30, EL.senora30, EL.chico, EL.chica, EL.senor30, EL.senora30];
+  quien.forEach((d, k) => { const x = Math.round(((k * 61 + t * (18 + k * 3)) % 380) - 30); R.actor(d, x, 145, t + k, { salto: trote(t + k) > 1 ? 1 : 0 }); paquete(x + 14, 132, [C.rojo, C.verde, C.azulL][k % 3]); });
+  R.actor(EL.policia, 150, 145, t, { sorpresa: true });
+};
+const atasco = (t) => {
+  const u = t - m.at, L = E.duracion - m.at, f = tramo(u, 0.25 * L, 0.6 * L);
+  ciudad(R, t, { epoca: '1950', coches: 7, atasco: true });
+  const xl = Math.round(lerp(60, 340, f)); R.actor(EL.chico, xl, 145, t, { salto: f > 0 && f < 1 ? trote(t) : 0, sonrisa: true, pal: { C: R.hex('#2a2430'), W: R.hex('#2a2430') } }); paquete(xl + 14, 132, C.rojo);
+  R.actor(EL.policia, 150, 145, t, { enfado: true, dedo: f > 0 });
+  if (u > 0.5 * L) { humo(R, 154, 116, t, C.blanco); humo(R, 160, 116, t + 0.5, C.blanco); }
+};
+rodar(E, R, [[0, cruce], [m.pa - 0.2, gente], [m.at - 0.2, atasco]], { año: 1955 });
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-HOLA (frase 1). B: el comedor con la cena de Acción de Gracias puesta; la familia saluda y Atom se presenta.
+import { preparar, rodar, comedor, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-hola');
+const m0 = M('hola', 0.5);
+const plano = (t) => {
+  comedor(R, t, { epoca: 'hoy', mesa: R.tramo(t, 0.2, 2.5) });
+  R.actor(EL.chico, 92, 145, t, { sonrisa: true, dedo: t > m0 + 1 && t < m0 + 2.5 });
+  R.actor(EL.senora30, 232, 145, t + 1, { dir: -1, sonrisa: true });
+  R.actor(EL.chica, 258, 145, t + 2, { dir: -1, sonrisa: true });
+};
+rodar(E, R, [[0, plano]], { año: 2026 });
+</script>
+</body>
+</html>

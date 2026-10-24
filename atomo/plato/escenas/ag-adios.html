@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adios · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-ADIOS (frase 42). B de noche: la mesa recogida, la ventana con nieve, el gato junto al fuego; solo Atom.
+import { preparar, rodar, comedor } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R } = await preparar('ag-adios');
+rodar(E, R, [[0, (t) => comedor(R, t, { epoca: 'hoy', mesa: 1, recogida: true, noche: true })]], { año: 2026 });
+</script>
+</body>
+</html>
