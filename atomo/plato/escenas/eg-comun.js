@@ -40,29 +40,17 @@ export async function preparar(id) {
   return { E, R, M: (k, d) => E.marca(k, d) };
 }
 
-// Desde el episodio 8 no hay caja arriba a la derecha (el público no la entendía): Atom, abajo a la izquierda, es un
-// 50 % más grande y lo que antes iba en la caja (números y símbolos) le sale en un bocadillo de cómic. Las escenas
-// siguen llamando a R.caja(t, p, contenido, o) igual que antes.
-const ATOM = [30, 120];
+// Desde el episodio 8, Atom va arriba a la derecha, un 50 % más grande y solo: sin caja ni bocadillo (el público no
+// entendía la caja y el bocadillo se veía mal). Las escenas pueden seguir llamando a R.caja(...): no dibuja nada.
+const ATOM = [297, 24];
 function conAtomGrande(R) {
-  const { rect, pset } = R, base = R.companero;
+  const { pset } = R;
   R.companero = (t, e = 0) => {
     const x = ATOM[0], y = ATOM[1] + Math.round(1.4 * Math.sin(2 * Math.PI * t / 2.6)), r = 13 + 2.4 * e;
     for (let j = -16; j <= 16; j++) for (let i = -16; i <= 16; i++) { const g = 1 - Math.hypot(i, j) / r; if (g > 0.35) pset(x + i, y + j, g > 0.75 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
     R.atomo(x, y, t, { r: 10, orbita: R.PAL.ATOM[7], energia: e });
   };
-  R.companeroPequeno = base;
-  R.caja = (t, p, contenido, o = {}) => {
-    if (p <= 0) return;
-    const w = Math.round(((o.x1 ?? 302) - (o.x0 ?? 196) - 22) * Math.min(1, 0.4 + p)), h = Math.round(26 * Math.min(1, 0.4 + p));
-    const x0 = 50, y1 = 104, y0 = y1 - h, x1 = x0 + w, fondo = R.PAL.UI[0], borde = C.blanco;
-    // cola que apunta a Atom
-    for (let k = 0; k <= 9; k++) { const cx = Math.round(x0 + 8 - k * 1.3), cy = y1 + k; rect(cx - Math.max(0, 3 - k / 3), cy, cx + Math.max(0, 3 - k / 3), cy, fondo); pset(cx - Math.max(0, 3 - k / 3) - 1, cy, borde); pset(cx + Math.max(0, 3 - k / 3) + 1, cy, borde); }
-    rect(x0 + 2, y0 - 1, x1 - 2, y0 - 1, C.k); rect(x0 + 2, y1 + 1, x1 - 2, y1 + 1, C.k); rect(x0 - 1, y0 + 2, x0 - 1, y1 - 2, C.k); rect(x1 + 1, y0 + 2, x1 + 1, y1 - 2, C.k);
-    rect(x0 + 1, y0, x1 - 1, y1, borde); rect(x0, y0 + 1, x1, y1 - 1, borde);
-    rect(x0 + 2, y0 + 1, x1 - 2, y1 - 1, fondo); rect(x0 + 1, y0 + 2, x1 - 1, y1 - 2, fondo);
-    if (p >= 1 && contenido) contenido(x0 + 5, y0 + 4, x1 - 4);
-  };
+  R.caja = () => {};
 }
 
 // igual que en los episodios 5–7: cartela, planos, caja, barra de tiempo arriba a la izquierda y Atom
@@ -90,10 +78,10 @@ export function cieloEg(R, t, o = {}) {
   if (o.noche) { R.cielo(t, { luna: o.luna ?? [250, 30, 10], hor, semilla: 8 }); if (o.aves !== false) fugaz(R, t); return; }
   const bandas = o.tarde ? [C.tarde1, C.tarde2, C.tarde3, C.tarde4] : [C.cielo1, C.cielo2, C.cielo3, C.bruma];
   for (let y = 0; y < hor; y++) R.rect(0, y, 319, y, bandas[Math.min(3, Math.floor((y / hor) * (y > hor - 8 ? 4 : 3.4)))]);
-  const sol = o.sol ?? (o.tarde ? [250, hor - 18, 12] : [270, 22, 9]);
+  const sol = o.sol ?? (o.tarde ? [250, hor - 18, 12] : [226, 26, 9]);
   if (sol) { R.disco(sol[0], sol[1], sol[2] + 2, o.tarde ? C.tarde4 : C.solL); R.disco(sol[0], sol[1], sol[2], C.sol); }
   if (!o.tarde && o.nubes !== false) for (const [x0, y, w, v] of [[40, 24, 34, 1.5], [170, 14, 44, 1], [120, 44, 22, 2]]) R.nube(((x0 + t * v) % 380) - 30, y, w);
-  if (o.aves !== false) { halcon(R, t, 200, Math.min(26, hor - 30)); bandada(R, t, { tipo: o.tarde ? 'ibis' : 'golondrina', n: o.tarde ? 3 : 4, y: Math.min(40, hor - 22), cada: 8 }); }
+  if (o.aves !== false) { halcon(R, t, 130, Math.min(28, hor - 30)); bandada(R, t, { tipo: o.tarde ? 'ibis' : 'golondrina', n: o.tarde ? 3 : 4, y: Math.min(40, hor - 22), cada: 8 }); }
 }
 
 // ── ambiente: que ningún decorado se quede quieto ni vacío ──────────────────────────────────────────────────────────

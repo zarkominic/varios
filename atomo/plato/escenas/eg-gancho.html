@@ -9,36 +9,74 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// EG-GANCHO (frases 2–4). Una línea de tiempo en el cielo del desierto: a la izquierda la pirámide (2560 a. C.), en
-// medio Cleopatra (69 a. C.) y a la derecha la Luna con un cohete (1969). El tramo de la pirámide a Cleopatra se
-// enciende en naranja («2500») y el de Cleopatra a la Luna en azul («2000»): ella queda más cerca de la Luna. Luego
-// Cleopatra, de turista, mira boquiabierta una pirámide vieja y gastada. Al final, el Nilo al amanecer y «?».
-import { preparar, rodar, guiza, nilo, cieloEg, EL, C } from '/atomo/plato/escenas/eg-comun.js';
+// EG-GANCHO (frases 2–4). Un tríptico sobre un cielo de templo (azul con estrellas de oro): tres viñetas con marco de
+// oro, cada una con su decorado de verdad, colocadas a escala sobre una cinta del tiempo. A la izquierda Guiza en obras
+// (2560 a. C.), en medio Cleopatra con su barco real en Alejandría (69 a. C.) y a la derecha el alunizaje (1969). La cinta
+// se llena en naranja de la pirámide a Cleopatra («2500») y en azul de Cleopatra a la Luna («2000»): ella queda más
+// cerca de la Luna. Luego Cleopatra, de turista, mira boquiabierta una pirámide vieja. Al final, el Nilo al amanecer.
+import { preparar, rodar, guiza, nilo, alejandria, piramide, mini, EL, C } from '/atomo/plato/escenas/eg-comun.js';
 const { E, R, M } = await preparar('eg-gancho');
 const { tramo, lerp } = R;
 const m = { cle: M('cleopatra', 0.5), pie: M('piensalo', 9), pre: M('pregunta', 17) };
 const L = m.pie - m.cle;
-const X0 = 46, X1 = 280, Y = 92;
-const X = (a) => Math.round(X0 + (a + 2560) / (1969 + 2560) * (X1 - X0));
+const X = (a) => Math.round(56 + (a + 2560) / (1969 + 2560) * (275 - 56));     // la cinta, a escala
+const XC = X(-69), YC = 138;
+const PANELES = [   // [x0, x1] en pantalla, recorte [sx, sy] del decorado, centro en la cinta
+  { x0: 8, x1: 104, sx: 148, sy: 66, c: X(-2560) },
+  { x0: XC - 50, x1: XC + 50, sx: 66, sy: 66, c: XC },
+  { x0: 236, x1: 314, sx: 112, sy: 40, c: X(1969) },
+];
+const Y0 = 42, Y1 = 124;
+const capas = [R.nuevo(), R.nuevo(), R.nuevo()];
+const luna = (t) => {
+  R.rect(0, 0, 319, 112, R.hex('#0e1230')); for (let k = 0; k < 40; k++) { const x = 100 + (k * 37) % 100, y = 40 + (k * 23) % 70; R.pset(x, y, Math.sin(t * 3 + k) > 0.6 ? C.blanco : C.gris); }
+  R.disco(150, 62, 9, C.k); R.disco(150, 62, 8, C.azulL); R.disco(147, 60, 3, C.verde); R.disco(153, 65, 2, C.verde); R.disco(149, 56, 2, C.blanco);   // la Tierra
+  for (let y = 112; y < 180; y++) R.rect(0, y, 319, y, y === 112 ? C.k : y < 116 ? C.calizaL : y % 7 === 0 ? C.gris : C.calizaS);
+  for (const [x, y, r] of [[124, 120, 4], [178, 124, 3], [140, 118, 2]]) { R.disco(x, y, r, C.gris); R.disco(x, y - 1, r - 1, C.calizaS); }
+  // el módulo lunar: patas, cuerpo dorado y cabina
+  R.linea(136, 112, 140, 104, C.k); R.linea(160, 112, 156, 104, C.k); R.rect(139, 100, 157, 106, C.oro); R.rect(139, 100, 157, 100, C.oroL); R.rect(156, 100, 157, 106, C.oroS);
+  R.rect(142, 91, 154, 99, C.calizaL); R.rect(150, 91, 154, 99, C.gris); R.rect(141, 90, 155, 90, C.k); R.rect(145, 93, 147, 95, C.k);
+  // la bandera y el astronauta que salta
+  R.rect(170, 92, 170, 112, C.calizaD); R.rect(171, 92, 181, 99, C.blanco); for (let y = 93; y < 100; y += 2) R.rect(171, y, 181, y, C.rojo); R.rect(171, 92, 175, 95, C.azul);
+  const sy = Math.round(Math.abs(Math.sin(t * 2.2)) * 5), ax = 126;
+  R.disco(ax, 101 - sy, 3, C.blanco); R.rect(ax - 1, 100 - sy, ax + 2, 102 - sy, C.oro); R.rect(ax - 3, 104 - sy, ax + 3, 110 - sy, C.blanco); R.rect(ax - 3, 104 - sy, ax - 3, 110 - sy, C.calizaS);
+  R.rect(ax - 2, 111 - sy, ax - 1, 112 - sy, C.calizaS); R.rect(ax + 1, 111 - sy, ax + 2, 112 - sy, C.calizaS);
+};
+const pegar = (capa, p) => {
+  const fuente = capa, B = R.buf;
+  for (let y = Y0; y <= Y1; y++) for (let x = p.x0; x <= p.x1; x++) { const sx = p.sx + (x - p.x0), sy = p.sy + (y - Y0); B[y * 320 + x] = fuente[sy * 320 + sx]; }
+};
+const marco = (p, color) => {
+  R.rect(p.x0 - 3, Y0 - 3, p.x1 + 3, Y0 - 3, C.k); R.rect(p.x0 - 3, Y1 + 3, p.x1 + 3, Y1 + 3, C.k); R.rect(p.x0 - 3, Y0 - 3, p.x0 - 3, Y1 + 3, C.k); R.rect(p.x1 + 3, Y0 - 3, p.x1 + 3, Y1 + 3, C.k);
+  R.rect(p.x0 - 2, Y0 - 2, p.x1 + 2, Y0 - 1, color); R.rect(p.x0 - 2, Y1 + 1, p.x1 + 2, Y1 + 2, color); R.rect(p.x0 - 2, Y0 - 2, p.x0 - 1, Y1 + 2, color); R.rect(p.x1 + 1, Y0 - 2, p.x1 + 2, Y1 + 2, color);
+  for (const [x, y] of [[p.x0 - 2, Y0 - 2], [p.x1 + 1, Y0 - 2], [p.x0 - 2, Y1 + 1], [p.x1 + 1, Y1 + 1]]) R.rect(x, y, x + 1, y + 1, C.oroL);
+  R.rect(p.c - 1, Y1 + 4, p.c + 1, YC - 2, color);   // el colgante que baja a la cinta
+};
 const linea = (t) => {
-  const u = t - m.cle;
-  cieloEg(R, t, { hor: 132, sol: null, nubes: false });
-  for (let y = 132; y < 180; y++) R.rect(0, y, 319, y, y === 132 ? C.k : y < 136 ? C.arenaL : y % 9 === 0 ? C.arenaS : C.arena);
-  // la barra
-  R.rect(X0 - 1, Y - 1, X1 + 1, Y + 3, C.k); R.rect(X0, Y, X1, Y + 2, C.blanco);
-  const a = tramo(u, 0.25 * L, 0.5 * L), b = tramo(u, 0.55 * L, 0.8 * L), xc = X(-69);
-  if (a > 0) R.rect(X0, Y, Math.round(lerp(X0, xc, a)), Y + 2, C.rocaS);
-  if (b > 0) R.rect(xc, Y, Math.round(lerp(xc, X1, b)), Y + 2, C.azul);
-  // pirámide, Cleopatra y la Luna con el cohete
-  const pir = (x, y) => { R.poligono([[x, y - 22], [x - 20, y], [x + 20, y]], C.calizaL); R.poligono([[x, y - 22], [x, y], [x + 20, y]], C.calizaS); R.linea(x, y - 22, x - 20, y, C.k); R.linea(x, y - 22, x + 20, y, C.k); R.poligono([[x, y - 23], [x - 3, y - 19], [x + 3, y - 19]], C.oro); };
-  pir(X0, Y - 4);
-  R.disco(X1, Y - 22, 15, C.k); R.disco(X1, Y - 22, 14, C.calizaL); R.disco(X1 + 4, Y - 26, 4, C.calizaS); R.disco(X1 - 5, Y - 18, 3, C.calizaS); R.disco(X1 + 6, Y - 14, 2, C.calizaS);
-  const rx = X1 - 26, ry = Y - 44 + Math.round(Math.sin(t * 3)); R.rect(rx - 3, ry, rx + 3, ry + 16, C.k); R.rect(rx - 2, ry + 1, rx + 2, ry + 15, C.blanco); R.rect(rx - 1, ry - 3, rx + 1, ry, C.rojo); R.pset(rx, ry - 4, C.rojo); R.rect(rx - 5, ry + 12, rx - 3, ry + 16, C.rojo); R.rect(rx + 3, ry + 12, rx + 5, ry + 16, C.rojo); R.disco(rx, ry + 6, 1, C.azul); R.rect(rx - 1, ry + 17, rx + 1, ry + 19 + Math.round(Math.abs(Math.sin(t * 20)) * 2), C.oro);
-  R.actor(EL.egipcia, xc - 7, Y - 4, t, { tocado: 'diadema', sonrisa: u > 0.8 * L });
-  for (const [xx, n] of [[X0, ''], [xc, ''], [X1, '']]) R.rect(xx, Y + 3, xx, Y + 6, C.k);
-  if (a >= 1) R.numero('2500', Math.round((X0 + xc) / 2), Y + 16, { centro: true, color: C.rocaS });
-  if (b >= 1) R.numero('2000', Math.round((xc + X1) / 2), Y + 16, { centro: true, color: C.azul });
-  R.numero('2560', X0, Y + 30, { centro: true }); R.numero('69', xc, Y + 30, { centro: true }); R.numero('1969', X1, Y + 30, { centro: true });
+  const u = t - m.cle, a = tramo(u, 0.25 * L, 0.5 * L), b = tramo(u, 0.55 * L, 0.8 * L);
+  // las tres viñetas, pintadas aparte con su decorado
+  let prev = R.usar(capas[0]); guiza(R, t, { fase: 'nada', aves: false, caravana: false, bloques: false }); piramide(R, 196, 132, 58, { fase: 'obra', p: 0.78 });
+  for (let k = 0; k < 3; k++) mini(R, 232 - k * 5, 144, t + k, { tira: true, anda: true }); R.rect(236, 137, 244, 143, C.caliza); R.rect(236, 137, 244, 137, C.calizaL); R.linea(222, 140, 236, 140, C.madera);
+  R.actor(EL.faraon, 152, 145, t, { dedo: true });
+  R.usar(capas[1]); alejandria(R, t, { barca: 120, bandera: 'griega', aves: false }); R.actor(EL.egipcia, 124, 145, t, { tocado: 'diadema', sonrisa: u > 0.8 * L, habla: u < 0.8 * L && Math.sin(t * 6) > 0.6 });
+  R.usar(capas[2]); luna(t);
+  R.usar(prev);
+  // fondo: techo de templo (azul con estrellas de oro) y arena abajo
+  R.rect(0, 0, 319, 128, R.hex('#1c2350'));
+  for (let k = 0; k < 60; k++) { const x = (k * 53) % 320, y = 8 + (k * 37) % 116, br = Math.sin(t * 2 + k) > 0.7; R.pset(x, y, br ? C.oroL : C.oro); if (br) { R.pset(x - 1, y, C.oroS); R.pset(x + 1, y, C.oroS); R.pset(x, y - 1, C.oroS); R.pset(x, y + 1, C.oroS); } }
+  for (let y = 128; y < 180; y++) R.rect(0, y, 319, y, y === 128 ? C.k : y < 131 ? C.arenaL : y % 8 === 0 ? C.arenaS : C.arena);
+  PANELES.forEach((p, i) => pegar(capas[i], p));
+  const col = [a > 0 ? C.ocre : C.oro, a > 0 ? (b > 0 ? C.azulL : C.ocre) : C.oro, b > 0 ? C.azulL : C.oro];
+  PANELES.forEach((p, i) => marco(p, col[i]));
+  // la cinta del tiempo
+  const x0 = PANELES[0].c, x1 = PANELES[2].c;
+  R.rect(x0 - 6, YC - 3, x1 + 6, YC + 3, C.k); R.rect(x0 - 5, YC - 2, x1 + 5, YC + 2, C.calizaL); R.rect(x0 - 5, YC + 2, x1 + 5, YC + 2, C.calizaS);
+  if (a > 0) { R.rect(x0, YC - 2, Math.round(lerp(x0, XC, a)), YC + 2, C.ocre); R.rect(x0, YC - 2, Math.round(lerp(x0, XC, a)), YC - 2, C.oroL); }
+  if (b > 0) { R.rect(XC, YC - 2, Math.round(lerp(XC, x1, b)), YC + 2, C.azulL); R.rect(XC, YC - 2, Math.round(lerp(XC, x1, b)), YC - 2, C.aguaL); }
+  for (const p of PANELES) { R.disco(p.c, YC, 4, C.k); R.disco(p.c, YC, 3, C.oro); R.pset(p.c - 1, YC - 1, C.oroL); }
+  R.numero('2560', x0, YC + 18, { centro: true }); R.numero('69', XC, YC + 18, { centro: true }); R.numero('1969', x1, YC + 18, { centro: true });
+  if (a >= 1) R.numero('2500', Math.round((x0 + XC) / 2), YC + 34, { centro: true, color: C.ocre });
+  if (b >= 1) R.numero('2000', Math.round((XC + x1) / 2), YC + 34, { centro: true, color: C.azulL });
 };
 const turista = (t) => {
   guiza(R, t, { fase: 'vieja', bloques: false });
@@ -48,7 +86,6 @@ const turista = (t) => {
 const amanecer = (t) => nilo(R, t, { tarde: true, barcas: true });
 rodar(E, R, [[0, linea], [m.pie - 0.2, turista], [m.pre - 0.2, amanecer]], {
   año: (t) => (t < m.pie ? null : t < m.pre ? -69 : null), barraDesde: m.pie,
-  caja: (t, e) => R.caja(t, t > m.pre + 1.2 ? tramo(t, m.pre + 1.2, m.pre + 1.6) : 0, (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }),
 });
 </script>
 </body>

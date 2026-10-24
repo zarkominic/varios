@@ -78,8 +78,7 @@ Piezas en `eg-comun.js`: `mareo`, `polvareda`, `trote`, `gotaSudor`, `pan`. Que 
 
 ## Lo que no cambia
 
-- **Atom** abajo a la izquierda, un 50 % más grande que en los episodios 1–7.
-- **Sin caja arriba a la derecha** (desde el episodio 8: el público no la entendía). Los números y símbolos que iban en ella le salen a Atom en un **bocadillo de cómic**. Las escenas siguen llamando a `R.caja(...)`.
+- **Atom arriba a la derecha**, un 50 % más grande que en los episodios 1–7, y **solo**: sin caja, sin bocadillo, sin mensajes (decidido en el episodio 8: la caja no se entendía y el bocadillo se veía mal). Lo que se dice con números ya lo dice la voz. El sol de los cielos va en x ≈ 226 para no chocar con él.
 - **El formato del episodio:** los mapas con zoom, la barra de tiempo arriba a la izquierda, las cartelas con el año, y el orden de primero el mapa y la historia como causa y efecto (ver `GUIA-NARRATIVA.md`).
 - **Sin palabras en pantalla:** solo números y símbolos («!», «?», «$»…).
 - **Personajes pequeños:** sin primeros planos.
