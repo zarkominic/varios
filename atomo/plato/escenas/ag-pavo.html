@@ -18,7 +18,7 @@ const m = { av: M('aves', 0.5), ta: M('tarta', 7) };
 const aves = (t) => {
   const u = t - m.av, L = m.ta - m.av, sale = tramo(u, 0.35 * L, 0.5 * L), va = tramo(u, 0.75 * L, L);
   plymouth(R, t, { estacion: 'otono', mesa: 1, mayflower: false, calabazas: false });
-  R.actor(EL.peregrino, 76, 145, t, { sonrisa: true }); R.actor(EL.wampanoag, 250, 145, t + 1, { dir: -1, sonrisa: true });
+  const ep = tramo(u, 0, 1.5); R.actor(EL.peregrino, Math.round(lerp(10, 76, ep)), 145, t, { sonrisa: true, anda: ep < 1 }); R.actor(EL.wampanoag, 250, 145, t + 1, { dir: -1, sonrisa: true });
   if (sale > 0) pavo(R, Math.round(lerp(330, 300, sale) + va * 60), 145, t, { dir: va > 0 ? 1 : -1, corre: va > 0 });
 };
 const tarta = (t) => {

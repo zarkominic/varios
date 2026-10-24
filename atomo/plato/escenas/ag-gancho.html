@@ -21,7 +21,7 @@ const caza = (t) => {
   plymouth(R, t, { estacion: 'otono', mayflower: false });
   const xp = Math.round(lerp(60, 360, f)), xg = Math.round(lerp(10, 250, Math.min(1, f * 1.15)));
   pavo(R, xp, 145, t, { corre: f > 0 && f < 1 });
-  R.actor(EL.peregrino, xg, 145, t, { salto: f > 0 && f < 0.85 ? trote(t) : 0, sorpresa: f > 0.85, enfado: f <= 0.85 });
+  R.actor(EL.peregrino, xg, 145, t, { anda: f > 0 && f < 0.85, salto: f > 0 && f < 0.85 ? trote(t) : 0, sorpresa: f > 0.85, enfado: f <= 0.85 });
 };
 const atasco = (t) => {
   ciudad(R, t, { epoca: '1950', coches: 6, atasco: true });
@@ -32,7 +32,7 @@ const pregunta = (t) => {
   const u = t - m.pre;
   if (u < 2.2) plymouth(R, t, { estacion: 'otono', mesa: 1, mayflower: false });
   else ciudad(R, t, { epoca: 'hoy', madrugada: true });
-  if (u >= 2.2) for (let k = 0; k < 6; k++) R.actor([EL.chico, EL.chica, EL.senor30][k % 3], 50 + k * 22, 145, t + k, {});
+  if (u >= 2.2) for (let k = 0; k < 6; k++) { const e = tramo(u - 2.2 - k * 0.2, 0, 1.2); R.actor([EL.chico, EL.chica, EL.senor30][k % 3], Math.round(lerp(-30, 50 + k * 22, e)), 145, t + k, { anda: e < 1 }); }
   else for (let k = 0; k < 3; k++) R.actor([EL.peregrino, EL.wampanoag, EL.peregrina][k], 100 + k * 50, 145, t + k, { sonrisa: true });
   if (u > 3.4) R.icono('?', 154, 40, undefined, undefined, 4);
 };

@@ -18,7 +18,7 @@ const m = { lle: M('mayflower', 0.5), inv: M('invierno', 9) };
 const llega = (t) => {
   const u = t - m.lle, f = tramo(u, 0, 0.5 * (m.inv - m.lle));
   plymouth(R, t, { estacion: 'invierno', mayflower: Math.round(lerp(-60, 62, R.easeIO(f))), wetu: false });
-  if (f >= 1) for (let k = 0; k < 4; k++) { const g = tramo(u - 0.5 * (m.inv - m.lle) - k * 0.5, 0, 2); if (g > 0) R.actor(k % 2 ? EL.peregrina : EL.peregrino, Math.round(lerp(130, 160 + k * 26, g)), 145, t + k, { triste: true, salto: Math.sin(t * 30 + k) > 0.6 ? 1 : 0 }); }
+  if (f >= 1) for (let k = 0; k < 4; k++) { const g = tramo(u - 0.5 * (m.inv - m.lle) - k * 0.5, 0, 2); if (g > 0) R.actor(k % 2 ? EL.peregrina : EL.peregrino, Math.round(lerp(130, 160 + k * 26, g)), 145, t + k, { triste: true, anda: g < 1, salto: g >= 1 && Math.sin(t * 30 + k) > 0.6 ? 1 : 0 }); }
 };
 const invierno = (t) => {
   const u = t - m.inv, apaga = tramo(u, 0.6, 2.4);

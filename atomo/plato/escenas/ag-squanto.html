@@ -19,7 +19,7 @@ const m = { sq: M('squanto', 0.5), via: M('viaje', 8), mai: M('maiz', 18) };
 const llega = (t) => {
   const u = t - m.sq, f = tramo(u, 0.2, 2.2);
   plymouth(R, t, { estacion: 'primavera', mayflower: false, maiz: 0.15 });
-  R.actor(EL.squanto, Math.round(lerp(340, 196, f)), 145, t, { dir: -1, dedo: f >= 1 && u < 4, habla: f >= 1 && Math.sin(t * 7) > 0.3, sonrisa: u > 4 });
+  R.actor(EL.squanto, Math.round(lerp(340, 196, f)), 145, t, { dir: -1, anda: f > 0 && f < 1, dedo: f >= 1 && u < 4, habla: f >= 1 && Math.sin(t * 7) > 0.3, sonrisa: u > 4 });
   R.actor(EL.peregrino, 120, 145, t, { sorpresa: f >= 1 }); R.actor(EL.peregrina, 96, 145, t + 1, { sorpresa: f >= 1 });
 };
 const viaje = (t) => {
@@ -29,11 +29,11 @@ const viaje = (t) => {
 const maiz = (t) => {
   const u = t - m.mai, L = E.duracion - m.mai, salta = tramo(u, 0.45 * L, 0.45 * L + 1.2);
   plymouth(R, t, { estacion: 'primavera', mayflower: false, maiz: 0.15 + 0.5 * tramo(u, 0, L) });
-  R.actor(EL.squanto, 150, 145, t, { dedo: u < 0.4 * L, habla: Math.sin(t * 7) > 0.4 && u < 0.4 * L });
+  const xs = Math.round(150 + Math.sin(u * 0.6) * 20); R.actor(EL.squanto, xs, 145, t, { anda: Math.abs(Math.cos(u * 0.6)) > 0.3, dir: Math.cos(u * 0.6) > 0 ? 1 : -1, dedo: u < 0.4 * L, habla: Math.sin(t * 7) > 0.4 && u < 0.4 * L });
   for (let k = 0; k < 4; k++) pescado(R, 40 + k * 22, 140);
   const px = Math.round(lerp(128, 300, salta)), py = Math.round(140 - Math.abs(Math.sin(salta * Math.PI * 4)) * 10);
   if (salta > 0) pescado(R, px, py);
-  R.actor(EL.peregrino, Math.round(lerp(110, 290, Math.max(0, salta - 0.08))), 145, t, { salto: salta > 0 && salta < 1 ? trote(t) : 0, sorpresa: salta > 0 && salta < 1 });
+  R.actor(EL.peregrino, Math.round(lerp(110, 290, Math.max(0, salta - 0.08))), 145, t, { anda: salta > 0 && salta < 1, salto: salta > 0 && salta < 1 ? trote(t) : 0, sorpresa: salta > 0 && salta < 1 });
 };
 rodar(E, R, [[0, llega], [m.via - 0.2, viaje], [m.mai - 0.2, maiz]], { año: (t) => (t < m.via ? 1621 : t < m.mai ? 1614 : 1621) });
 </script>

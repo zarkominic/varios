@@ -24,7 +24,7 @@ const escribe = (t) => {
   const u = t - m.ha;
   comedor(R, t, { epoca: 'xix', escritorio: true });
   R.actor(EL.hale, 64, 145, t, { habla: Math.sin(t * 6) > 0.4 && u > 0.3, sonrisa: u > 3 });
-  cordero(R, 132, 145, t);
+  cordero(R, Math.round(132 + Math.sin(t * 0.7) * 20), 145, t);
 };
 const cartas = (t) => {
   const u = t - m.ca, L = E.duracion - m.ca;

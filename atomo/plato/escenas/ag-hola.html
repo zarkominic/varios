@@ -15,8 +15,8 @@ const { E, R, M } = await preparar('ag-hola');
 const m0 = M('hola', 0.5);
 const plano = (t) => {
   comedor(R, t, { epoca: 'hoy', mesa: R.tramo(t, 0.2, 2.5) });
-  R.actor(EL.chico, 92, 145, t, { sonrisa: true, dedo: t > m0 + 1 && t < m0 + 2.5 });
-  R.actor(EL.senora30, 232, 145, t + 1, { dir: -1, sonrisa: true });
+  const e = R.tramo(t, 0, 1.6); R.actor(EL.chico, Math.round(R.lerp(-20, 92, e)), 145, t, { anda: e < 1, sonrisa: true, dedo: t > m0 + 1 && t < m0 + 2.5 });
+  R.actor(EL.senora30, 232, 145, t + 1, { dir: -1, sonrisa: true, habla: Math.sin(t * 5) > 0.5 && t > m0 + 3 });
   R.actor(EL.chica, 258, 145, t + 2, { dir: -1, sonrisa: true });
 };
 rodar(E, R, [[0, plano]], { año: 2026 });

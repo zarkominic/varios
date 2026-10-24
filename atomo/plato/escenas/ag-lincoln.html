@@ -18,8 +18,9 @@ const plano = (t) => {
   const u = t - m0;
   comedor(R, t, { epoca: 'xix', mesa: R.tramo(u, 0.35 * L, 0.6 * L) });
   R.actor(EL.lincoln, 60, 145, t, { dedo: u > 0.2 * L && u < 0.5 * L, habla: Math.sin(t * 6) > 0.4, sonrisa: u > 0.5 * L });
-  R.actor(EL.soldadoAzul, 104, 145, t + 1, { sonrisa: u > 0.6 * L, enfado: u <= 0.6 * L });
-  R.actor(EL.soldadoGris, 230, 145, t + 2, { dir: -1, sonrisa: u > 0.6 * L, enfado: u <= 0.6 * L });
+  const en = R.tramo(u, 0.15 * L, 0.45 * L);
+  R.actor(EL.soldadoAzul, Math.round(R.lerp(-20, 104, en)), 145, t + 1, { anda: en > 0 && en < 1, sonrisa: u > 0.6 * L, enfado: u <= 0.6 * L });
+  R.actor(EL.soldadoGris, Math.round(R.lerp(340, 230, en)), 145, t + 2, { dir: -1, anda: en > 0 && en < 1, sonrisa: u > 0.6 * L, enfado: u <= 0.6 * L });
 };
 rodar(E, R, [[0, plano]], { cartela: '1863', año: 1863 });
 </script>

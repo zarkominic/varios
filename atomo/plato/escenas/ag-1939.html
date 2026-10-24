@@ -21,7 +21,7 @@ const cinco = (t) => { comedor(R, t, { epoca: 'xix', cal: () => {} }); calendari
 const roosevelt = (t) => {
   const u = t - m.ro;
   comedor(R, t, { epoca: 'xix', cal: () => {} }); calendario(R, 104, 46, t, { empieza: 2, dias: 30, jueves: true, arrastra: [30, 23, tramo(u, 0.6, 2)] });
-  R.actor(EL.roosevelt, 250, 145, t, { dir: -1, dedo: u > 0.3 && u < 2, sonrisa: u >= 2 });
+  const er = tramo(u, 0, 0.6); R.actor(EL.roosevelt, Math.round(R.lerp(330, 250, er)), 145, t, { dir: -1, anda: er < 1, dedo: u > 0.6 && u < 2, sonrisa: u >= 2 });
 };
 const lio = (t) => {
   const u = t - m.li, L = m.co - m.li;

@@ -14,13 +14,13 @@
 // caen; «50».
 import { preparar, rodar, plymouth, C, EL } from '/atomo/plato/escenas/ag-comun.js';
 const { E, R, M } = await preparar('ag-alianza');
-const { tramo } = R;
+const { tramo, lerp } = R;
 const m = { ali: M('alianza', 0.5), lu: M('luto', 8) };
 const alianza = (t) => {
   const u = t - m.ali, L = m.lu - m.ali;
   plymouth(R, t, { estacion: 'otono', mesa: 1, mayflower: false });
-  R.actor(EL.massasoit, 132, 145, t, { sonrisa: u > 0.2 * L }); R.actor(EL.peregrino, 160, 145, t + 1, { dir: -1, sonrisa: u > 0.2 * L });
-  R.rect(147, 130, 159, 132, R.hex('#c88a5a')); R.rect(153, 130, 159, 132, R.hex('#f6c290'));
+  const ac = tramo(u, 0, 0.18 * L); R.actor(EL.massasoit, Math.round(lerp(90, 132, ac)), 145, t, { sonrisa: u > 0.2 * L, anda: ac < 1 }); R.actor(EL.peregrino, Math.round(lerp(200, 160, ac)), 145, t + 1, { dir: -1, sonrisa: u > 0.2 * L, anda: ac < 1 });
+  if (ac >= 1) { R.rect(147, 130, 159, 132, R.hex('#c88a5a')); R.rect(153, 130, 159, 132, R.hex('#f6c290')); }
   if (u > 0.4 * L) { R.bocadillo(122, 104, { icono: 'espadas' }); }
   if (u > 0.6 * L) { R.bocadillo(176, 104, {}); R.rect(172, 98, 180, 100, C.k); R.rect(173, 100, 179, 101, C.grisL); }
 };

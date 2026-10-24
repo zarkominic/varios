@@ -622,13 +622,27 @@ export function conChibi(R) {
   // un personaje del reparto. o: dir (1 mira a la derecha), dedo (explica con el índice), brazos (los dos arriba),
   // salto (px), habla, sonrisa, sorpresa, enfado, triste, pal (cambia letras: otro pelo, otra ropa)
   const sinBrazoCache = new Map();
+  // paso: en las cinco filas de abajo (las piernas), media rejilla sube un píxel, así un pie se levanta del suelo
+  const pasoCache = new Map();
+  const conPaso = (cuerpo, f) => {
+    if (!pasoCache.has(cuerpo)) {
+      const n = cuerpo.length, w = cuerpo[0].length, mitad = Math.floor(w / 2), vacia = '.'.repeat(w);
+      const una = (izq) => cuerpo.map((fila, j) => { if (j < n - 5) return fila; const a = fila.split(''), b = cuerpo[j + 1] ?? vacia; for (let i = izq ? 0 : mitad + 1; i < (izq ? mitad : w); i++) a[i] = b[i] ?? '.'; return a.join(''); });
+      pasoCache.set(cuerpo, [una(true), una(false)]);
+    }
+    return pasoCache.get(cuerpo)[f];
+  };
+  // o.anda: camina (piernas alternas y un rebote); quieto, cada personaje respira y de vez en cuando cambia el peso de
+  // pie, a su ritmo (o.quieto: nada de eso)
   const actor = (def, x, suelo, t, o = {}) => {
-    const dir = o.dir ?? 1, pal = { ...P, ...(def.pal || {}), ...(o.pal || {}) }, salto = o.salto ?? 0;
-    const resp = def.respira && Math.sin(t * 3) > 0.7 ? 1 : 0;
-    const yC = suelo - def.altoCuerpo - salto, yH = yC - def.altoCab + resp;
+    const dir = o.dir ?? 1, pal = { ...P, ...(def.pal || {}), ...(o.pal || {}) }, salto = o.salto ?? 0, fase = x * 0.37 + (def.altoCab || 0);
+    const vivo = !o.quieto && !o.anda && salto === 0, resp = (def.respira ?? vivo) && Math.sin(t * 2.6 + fase) > 0.75 ? 1 : 0;
+    const paso = o.anda ? Math.floor(t * 7 + fase) % 2 : vivo && (t * 0.35 + fase * 0.1) % 3 < 0.25 ? 0 : -1;
+    const yC = suelo - def.altoCuerpo - salto - (o.anda && paso === 1 ? 1 : 0), yH = yC - def.altoCab + resp;
     const manos = o.sorpresa && o.manos === true, levanta = o.dedo || o.brazos || manos;   // las manos arriba junto a la cabeza parecían orejas: la sorpresa va en la cara (o.manos: true para levantarlas)
     if (levanta && !sinBrazoCache.has(def)) sinBrazoCache.set(def, sinBrazo(def.cuerpo, def.brazoCol));
-    dibujo(levanta ? sinBrazoCache.get(def) : def.cuerpo, x, yC, dir, pal);
+    const base = levanta ? sinBrazoCache.get(def) : def.cuerpo;
+    dibujo(paso >= 0 ? conPaso(base, paso) : base, x, yC, dir, pal);
     if (o.dedo && !o.brazos && !manos) brazoArriba(dir > 0 ? x + 14 : x, yC + 3, yH - 3);
     if (o.brazos || manos) { brazoArriba(x + 1, yC + 3, yH + 1, true); brazoArriba(x + 12, yC + 3, yH + 1, true); }
     dibujo(def.cab, x, yH, dir, pal);

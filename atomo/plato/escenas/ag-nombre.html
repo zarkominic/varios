@@ -20,7 +20,7 @@ const negro = (t) => { const u = t - m.ne; ciudad(R, t, { epoca: '1950', coches:
 const gran = (t) => {
   const u = t - m.gr;
   ciudad(R, t, { epoca: '1950', estrella: u > 1 });
-  R.actor(EL.senor30, 126, 145, t, { sonrisa: true, dedo: u > 0.5 && u < 2 });
+  const et = tramo(u, 0, 0.5); R.actor(EL.senor30, Math.round(R.lerp(60, 126, et)), 145, t, { anda: et < 1, sonrisa: true, dedo: u > 0.5 && u < 2 });
   R.actor(EL.policia, 200, 145, t, { dir: Math.sin(t * 8) > 0 && u > 2 ? 1 : -1, triste: u > 2 });
 };
 const cuentas = (t) => {

@@ -23,7 +23,7 @@ const cola = (t) => {
   quien.forEach((d, k) => {
     const dormido = k === 6, x0 = 60 + k * 22, x = dormido ? (u > 0.85 * L ? Math.round(lerp(x0, 170, tramo(u, 0.88 * L, L))) : x0) : Math.round(lerp(x0, 168, corre));
     if (!dormido && corre >= 1) return;
-    R.actor(d, x, 145, t + k, { parpadea: dormido && u < 0.82 * L, sorpresa: dormido && u >= 0.82 * L, sonrisa: !dormido && abre > 0, salto: (!dormido && corre > 0) || (dormido && u > 0.88 * L) ? trote(t + k) : 0 });
+    R.actor(d, x, 145, t + k, { parpadea: dormido && u < 0.82 * L, sorpresa: dormido && u >= 0.82 * L, sonrisa: !dormido && abre > 0, anda: (!dormido && corre > 0) || (dormido && u > 0.88 * L), salto: (!dormido && corre > 0) || (dormido && u > 0.88 * L) ? trote(t + k) : 0 });
   });
   if (corre > 0 && corre < 1) polvareda(R, 160, 145, corre, C.grisL, 1.4);
 };

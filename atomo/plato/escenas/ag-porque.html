@@ -20,7 +20,7 @@ const plano = (t) => {
   gallina(R, 70, 145, t); if (u > 0.35 * L) huevo(R, 80, 145);
   vaca(R, 250, 145, t); if (u > 0.5 * L) cubo(R, 236, 145);
   pavo(R, 160, 145, t, { dir: Math.sin(t * 2) > 0 ? 1 : -1, suda: u > 0.6 * L });
-  R.actor(EL.peregrina, 112, 145, t, { sonrisa: u > 0.75 * L, dedo: u > 0.75 * L });
+  const xp = Math.round(112 + Math.sin(u * 0.7) * 26); R.actor(EL.peregrina, xp, 145, t, { anda: u < 0.75 * L, dir: Math.cos(u * 0.7) > 0 ? 1 : -1, sonrisa: u > 0.75 * L, dedo: u > 0.75 * L });
 };
 rodar(E, R, [[0, plano]], { año: 1863 });
 </script>

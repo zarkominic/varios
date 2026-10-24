@@ -21,13 +21,13 @@ const cruce = (t) => { ciudad(R, t, { epoca: '1950', coches: 3 }); R.actor(EL.po
 const gente = (t) => {
   ciudad(R, t, { epoca: '1950', gente: { rie: true, saluda: true, saltan: true } });
   const quien = [EL.senor30, EL.senora30, EL.chico, EL.chica, EL.senor30, EL.senora30];
-  quien.forEach((d, k) => { const x = Math.round(((k * 61 + t * (18 + k * 3)) % 380) - 30); R.actor(d, x, 145, t + k, { salto: trote(t + k) > 1 ? 1 : 0 }); paquete(x + 14, 132, [C.rojo, C.verde, C.azulL][k % 3]); });
+  quien.forEach((d, k) => { const x = Math.round(((k * 61 + t * (18 + k * 3)) % 380) - 30); R.actor(d, x, 145, t + k, { anda: true }); paquete(x + 14, 132, [C.rojo, C.verde, C.azulL][k % 3]); });
   R.actor(EL.policia, 150, 145, t, { sorpresa: true });
 };
 const atasco = (t) => {
   const u = t - m.at, L = E.duracion - m.at, f = tramo(u, 0.25 * L, 0.6 * L);
   ciudad(R, t, { epoca: '1950', coches: 7, atasco: true });
-  const xl = Math.round(lerp(60, 340, f)); R.actor(EL.chico, xl, 145, t, { salto: f > 0 && f < 1 ? trote(t) : 0, sonrisa: true, pal: { C: R.hex('#2a2430'), W: R.hex('#2a2430') } }); paquete(xl + 14, 132, C.rojo);
+  const xl = Math.round(lerp(60, 340, f)); R.actor(EL.chico, xl, 145, t, { anda: f > 0 && f < 1, salto: f > 0 && f < 1 ? trote(t) : 0, sonrisa: true, pal: { C: R.hex('#2a2430'), W: R.hex('#2a2430') } }); paquete(xl + 14, 132, C.rojo);
   R.actor(EL.policia, 150, 145, t, { enfado: true, dedo: f > 0 });
   if (u > 0.5 * L) { humo(R, 154, 116, t, C.blanco); humo(R, 160, 116, t + 0.5, C.blanco); }
 };
