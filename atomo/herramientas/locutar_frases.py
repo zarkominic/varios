@@ -196,14 +196,16 @@ def trozos_voz(texto):
             out.append([t, '—' if '—' in m.group() else t[-1]])
         i = m.end()
     out.append([texto[i:].strip(), ''])
-    # Un trozo de una sola palabra suelta («So,») se queda pegado al siguiente: suena mejor entero.
+    # Un trozo de una sola palabra suena cortado (y Whisper lo oye mal): se pega al siguiente si acaba en coma
+    # o dos puntos («So,», «Piénsalo:»), y al anterior si cierra la frase («persas.»).
     k = 0
-    while k < len(out) - 1:
-        if len(out[k][0].split()) < 2 and out[k][1] == ',':
-            out[k + 1][0] = out[k][0] + ' ' + out[k + 1][0]
-            out.pop(k)
-        else:
+    while len(out) > 1 and k < len(out):
+        if len(out[k][0].split()) >= 2:
             k += 1
+        elif k + 1 < len(out) and (out[k][1] in ',:' or k == 0):
+            out[k + 1][0] = out[k][0] + ' ' + out[k + 1][0]; out.pop(k)
+        else:
+            out[k - 1][0] += ' ' + out[k][0]; out[k - 1][1] = out[k][1]; out.pop(k)
     return [tuple(x) for x in out]
 
 def frase_voz(texto, l, velocidades):
