@@ -81,8 +81,9 @@ def hablado(texto, l):
     return t
 
 PRONUNCIA = {
-    # el inglés lo locuta Chatterbox, que lee bien los nombres; solo las décadas y los años que se dicen de otra forma
-    'en': [('the 1950s', 'the nineteen-fifties'), ('the 1980s', 'the nineteen-eighties'), ('the 2010s', 'the twenty-tens'),
+    # el inglés lo locuta Chatterbox, que lee bien los nombres; solo las décadas, los años que se dicen de otra forma y
+    # «Atom», que Chatterbox dice «Adam» (con «Ah-tom», Whisper oye «Atom» en las dos tomas probadas)
+    'en': [("I'm Atom", "I'm Ah-tom"), ('the 1950s', 'the nineteen-fifties'), ('the 1980s', 'the nineteen-eighties'), ('the 2010s', 'the twenty-tens'),
            ('twenty oh-five', 'two thousand five'), ('nineteen thirty-nine. November', 'Nineteen thirty-nine. November')],
     'es': [('Massachusetts', 'Masachúsets'), ('Mayflower', 'Méiflauer'), ('wampanoag', 'uampanóag'), ('Tisquantum', 'Tiskuántum'),
            ('Squanto', 'Skuánto'), ('Massasoit', 'Masasóit'), ('Sarah Josepha Hale', 'Sara Yoséfa Jéil'), ('Lincoln', 'Línkon'),
