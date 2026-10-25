@@ -1,5 +1,7 @@
 # Estilo canónico: pixel chibi
 
+> **Estándar mínimo:** desde el episodio 10, todo episodio cumple `ESTANDAR.md` (planos de 4–7 s con acción, detalle del gancho del 10, mapas reales, −14 LUFS, subtítulos limpios, entrega completa en el chat).
+
 **Aprobado el 23 de octubre de 2026** a partir de la muestra del puerto del Pireo. Es el estilo de los episodios a partir del 8.
 
 - **Escena de referencia:** `atomo/plato/escenas/px-chibi-muestra.html`. Vídeo: `atomo/build/salida/muestra-chibi-pireo.mp4`.

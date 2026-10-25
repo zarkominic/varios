@@ -1,5 +1,7 @@
 # Cómo explicar: lo que tomamos de Kurzgesagt
 
+> **Estándar mínimo:** desde el episodio 10, todo episodio cumple `ESTANDAR.md` (planos de 4–7 s con acción, detalle del gancho del 10, mapas reales, −14 LUFS, subtítulos limpios, entrega completa en el chat).
+
 **Referencia estudiada:** Kurzgesagt – In a Nutshell, «We Finally Know More About Humanity's First Civilization»: 17:30, 10,1 millones de visitas en 12 días. Se analizaron la transcripción completa (2.639 palabras, unas 150 por minuto) y una muestra de un fotograma cada ~8 s.
 
 ## Cómo lo hacen
