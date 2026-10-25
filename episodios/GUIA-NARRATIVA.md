@@ -44,7 +44,13 @@
 - **Reencuadre:** una «regla» nueva para mirar el tema (en el episodio 3, los saltos ×10 desde ti).
 - **Estructura:** un viaje con capítulos y la misma ancla visual en todos (regla, línea de tiempo o marcador). La cartela de capítulo no lleva palabras, solo un número o un símbolo.
 - **Cada cifra con una comparación**, y en cada bloque al menos un detalle humano.
-- **Golpes cortos:** uno o dos por bloque, con humor suave («Tú también. No te lo tomes como algo personal»).
+- **Prosa fluida, no telegráfica (desde el episodio 10):**
+  - Se cuenta como alguien que te narra una historia en voz alta, con frases enlazadas por conectores («pero», «así que», «hasta que», «mientras tanto», «porque») y subordinadas.
+  - Nada de cadenas de frases de tres palabras («Mandan cazas. Cuando llegan, los puntos desaparecen. Cuando se van, vuelven.»): el usuario dijo que sonaba a Tarzán.
+  - Nada de ficha de datos con preguntas y respuestas rápidas («¿Y el pavo? Tampoco.»).
+  - Las pausas de Kokoro por comas y puntos y comas (`VOZ.md`) ya dan aire a las frases largas.
+- **Golpes cortos:** uno por bloque como mucho, y al cerrar el bloque, con humor suave («Tú también. No te lo tomes como algo personal»).
+- **Temas abiertos (ovnis, misterios):** lo explicado se cuenta como parte de la historia, no como tesis para desmontar. Lo no explicado se deja abierto y con fuerza. Desmontar el tema espanta al público que viene a verlo.
 - **Lo que no se sabe:** decirlo cuando toque.
 - **Imagen:** composición nueva cada 4–6 s, con variedad de planos.
 - **Estilo: la plastilina es la base y otros estilos entran por bloques**, como en el episodio 2. Allí 9 de las 17 escenas eran de plastilina (gancho, marcadores entre mitos, recuento y despedida) y cada mito iba en papel o en isométrico.
