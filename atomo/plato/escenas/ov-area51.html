@@ -9,24 +9,52 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// OV-AREA51 (frases 21–22). E: el lago seco de Nevada con calima; se levantan hangares y una torre, y un cartel de prohibido el
-// paso. Luego el U-2 despega y sube muy alto; cuando aterriza, un coche corre detrás de él por la pista (gag real); «×3».
-import { preparar, rodar, primerT, area51, u2, cocheU2 } from '/atomo/plato/escenas/ov-comun.js';
+// OV-AREA51 (frases 21–22), 1955, cartela «1955». Cinco planos:
+// 1. el mapa de papel de Nevada de cerca: un lápiz rojo rodea un lago seco en medio de la nada;
+// 2. el lago seco desde el aire: se traza la pista, aparecen los hangares y los camiones levantan polvo;
+// 3. la verja de la base, hoy: la carretera que acaba en la barrera, los carteles, la cámara y, en la loma, los
+//    vigilantes junto a su camioneta blanca; unos turistas hacen fotos (la base que oficialmente no existe);
+// 4. la base en el lago seco: el U-2 despega y, al levantarse, suelta las dos ruedas de las alas, que botan por la pista;
+// 5. la escala de alturas: el avión de línea abajo y el U-2 sube hasta arriba, donde el cielo ya es casi negro; «×3».
+import { preparar, rodar, primerT, area51, lagoSecoAire, vallaArea51, alturas, u2, C } from '/atomo/plato/escenas/ov-comun.js';
+import { albersEEUU, mapaPapel } from '/atomo/plato/escenas/ov-mapas.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-area51');
 const { tramo, lerp } = R;
 const m = { b: M('base', 1.5), u: M('u2', 12.8) };
-const obra = (t) => tramo(t, m.b, m.u - 2);
-const despega = (t) => tramo(t, m.u + 0.3, m.u + 4.3), aterriza = (t) => tramo(t, m.u + 4.6, E.duracion - 0.6);
-const base = (t) => area51(R, t, { obra: obra(t) });
+const P2 = 4.6, P3 = 9.0, P4 = 12.6, P5 = 16.6, triple = 17.6;
+// 1 · el lápiz rodea el lago en el mapa
+const lago = [-115.81, 37.24];
+const mapa = (t) => {
+  const P = albersEEUU([30, 22, 290, 168], { zoom: 5, centro: [-116.2, 37.6] }); mapaPapel(R, t, P, { eeuu: true, reticula: 1 });
+  const [cx, cy] = P(lago).map(Math.round); for (let j = -3; j <= 3; j++) for (let i = -7; i <= 7; i++) if ((i / 7) ** 2 + (j / 3) ** 2 < 1) R.pset(cx + i, cy + j, C.blanco);
+  const u = tramo(t, 1.8, P2 - 0.4), n = Math.round(u * 80); let px = cx, py = cy;
+  for (let k = 0; k <= n; k++) { const a = -1.2 + k / 80 * 6.6, x = Math.round(cx + Math.cos(a) * 20), y = Math.round(cy + Math.sin(a) * 12); R.rect(x, y, x + 1, y, C.rojo); px = x; py = y; }
+  if (u > 0 && u < 1) { R.poligono([[px, py], [px + 4, py - 3], [px + 36, py - 34], [px + 32, py - 38], [px - 1, py - 4]], C.k); R.poligono([[px + 2, py - 3], [px + 33, py - 34], [px + 32, py - 36], [px + 1, py - 4]], C.rojo); }
+};
+// 2 · desde el aire
+const aire = (t) => lagoSecoAire(R, t, { obra: tramo(t, P2 + 0.2, P3 - 0.2) });
+// 3 · la verja
+const valla = (t) => {
+  vallaArea51(R, t);
+  // los vigilantes, pequeños por la distancia: ropa de camuflaje, gafas de sol y los prismáticos que destellan
+  for (const [x, f] of [[250, 0], [294, 1]]) { const y = 84; R.rect(x - 2, y - 9, x + 2, y, C.k); R.rect(x - 1, y - 8, x + 1, y - 1, R.hex('#8a8a5a')); R.pset(x, y - 5, R.hex('#6a6a3a')); R.disco(x, y - 11, 2, C.k); R.pset(x, y - 11, R.hex('#f6c290')); R.rect(x - 2, y - 13, x + 2, y - 13, R.hex('#8a8a5a'));
+    if (Math.sin(t * 0.8 + f) > 0.2) { R.rect(x - 3, y - 11, x - 2, y - 10, C.k); if (Math.sin(t * 5 + f) > 0.6) R.pset(x - 4, y - 11, C.blanco); } }
+  for (const [def, x, d] of [[EL.senora30, 118, 1], [EL.chico, 100, 1]]) { R.actor(def, x, 172, t + x, { dir: d, sonrisa: true, dedo: def === EL.chico }); }
+  const fx = 132; R.rect(fx, 154, fx + 5, 158, C.k); if (Math.floor(t * 1.2) % 3 === 0) R.disco(fx + 3, 156, 3, C.blanco);
+};
+// 4 · el despegue del U-2, con las ruedas de las alas que se sueltan
+const despega = (t) => tramo(t, P4 + 0.3, P5 - 0.2);
 const vuelo = (t) => {
   area51(R, t);
-  const d = despega(t), a = aterriza(t);
-  if (a <= 0) { const x = lerp(20, 360, d ** 1.5), y = 150 - Math.max(0, d - 0.35) * 140; u2(R, x, y, t); }
-  else { const x = lerp(-30, 250, a), y = Math.min(150, lerp(110, 150, a * 1.6)); u2(R, x, y, t); if (a > 0.25) cocheU2(R, x - 52 + Math.sin(t * 3) * 3, 160, t); }
-  if (d > 0.7 && a <= 0) R.numero('×3', 230, 50, { centro: true, tam: 16 });
+  const d = despega(t), x = lerp(30, 300, d ** 1.2), y = 150 - Math.max(0, d - 0.4) * 90; u2(R, x, y, t);
+  const suelta = 0.42; for (const dx of [-24, 22]) { if (d < suelta) { R.linea(Math.round(x + dx), Math.round(y), Math.round(x + dx), Math.round(y + 4), C.metalD); R.disco(Math.round(x + dx), Math.round(y + 5), 1, C.k); }
+    else { const e = (d - suelta) * 6, wx = Math.round(lerp(30, 300, suelta ** 1.2) + dx + e * 30), wy = Math.round(Math.min(152, 150 - 2 + e * 4) - Math.abs(Math.sin(e * 3)) * 6 / (1 + e)); R.disco(wx, wy, 2, C.k); R.pset(wx, wy, C.metal); } }
 };
-const efectos = [[primerT((t) => despega(t) > 0, m.u, E.duracion), 'jet', { dur: 4, pan: 0.6 }], [primerT((t) => aterriza(t) > 0.25, m.u, E.duracion), 'arranque'], [primerT((t) => despega(t) > 0.7, m.u, E.duracion), 'pop']];
-rodar(E, R, [[0, base], [m.u - 0.3, vuelo]], { efectos, cartela: '1955', año: 1955 });
+// 5 · la escala de alturas
+const escala = (t) => alturas(R, t, { u: tramo(t, P5 + 0.1, triple), triple: t > triple });
+const efectos = [[1.8, 'lapiz'], [P2 + 0.3, 'motor', { dur: 4 }], [P4 + 0.3, 'jet', { dur: 4, pan: 0.6 }], [primerT((t) => despega(t) >= 0.42, P4, P5), 'golpecito'], [triple, 'pop']];
+rodar(E, R, [[0, mapa], [P2, aire], [P3, valla], [P4, vuelo], [P5, escala]], { efectos, cartela: '1955', año: (t) => (t >= P3 && t < P4 ? 2026 : 1955) });
 </script>
 </body>
 </html>

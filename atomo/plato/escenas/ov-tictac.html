@@ -12,7 +12,7 @@
 // OV-TICTAC (frases 31–32). A: Fravor y Dietrich en sus cabinas; abajo el agua agitada y el Tic Tac; Fravor baja en espiral y
 // el objeto le copia. Luego el Tic Tac sale disparado y desaparece; Fravor gira la cabeza buscándolo y se rasca el casco (gag);
 // en el radar reaparece lejos, en el punto de reunión.
-import { preparar, rodar, primerT, pacifico, tictac, caza, cazaCerca, radar, C } from '/atomo/plato/escenas/ov-comun.js';
+import { preparar, rodar, primerT, tictacCerca, pantallaTactica, pacifico, tictac, caza, cazaCerca, radar, C } from '/atomo/plato/escenas/ov-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-tictac');
 const { tramo, lerp } = R;
@@ -38,8 +38,13 @@ const busca = fuga + 2.2;
 const buscando = (t) => { cazaCerca(R, t, { quien: EL.fravor, sorpresa: t < busca + 3, dirPiloto: Math.floor(t * 2.5) % 2 ? 1 : -1, rasca: t > busca + 3.5 }); };
 const PUNTO = [[-0.6, 0.55]];
 const radarFinal = (t) => { pacifico(R, t, { hor: 70, portaaviones: 220, crucero: 60 }); R.rect(120, 40, 200, 120, C.k); radar(R, 160, 80, 34, t, t > busca + 7.5 ? PUNTO : [], { marco: false }); };
-const efectos = [[0, 'jet', { dur: 4, pan: 0 }], [primerT((t) => t > c0, 0, E.duracion), 'jet', { dur: 5 }], [fuga, 'zumbido'], [fuga + 0.1, 'whoosh'], [busca + 7.5, 'bip']];
-rodar(E, R, [[0, pilotos], [c0, espiral], [m.d - 0.3, desaparece], [busca, buscando], [busca + 6, radarFinal]], { efectos, año: 2004 });
+const efectos = [[0, 'jet', { dur: 4, pan: 0 }], [primerT((t) => t > c0, 0, E.duracion), 'jet', { dur: 5 }], [fuga, 'zumbido'], [fuga + 0.1, 'whoosh'], [busca + 7.2, 'bip']];
+// el Tic Tac de cerca, con el caramelo al lado para comparar (gag), entre las dos vueltas de la espiral
+const cerca0 = c0 + 0.45 * (m.d - 0.3 - c0), cerca1 = cerca0 + 3.2;
+const deCerca = (t) => tictacCerca(R, t, { caramelo: tramo(t, cerca0 + 1.2, cerca0 + 1.8) });
+// la pantalla táctica: el blip aparece justo en el punto de reunión
+const tactica = (t) => pantallaTactica(R, t, { punto: tramo(t, busca + 7.2, busca + 8) });
+rodar(E, R, [[0, pilotos], [c0, espiral], [cerca0, deCerca], [cerca1, espiral], [m.d - 0.3, desaparece], [busca, buscando], [busca + 6, tactica]], { efectos: [...efectos, [cerca0 + 1.2, 'pop']], año: 2004 });
 </script>
 </body>
 </html>

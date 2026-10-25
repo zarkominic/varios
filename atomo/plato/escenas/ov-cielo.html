@@ -9,27 +9,37 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// OV-CIELO (frases 37–38). Un cielo al atardecer en el que aparecen, uno a uno y con su «✓», el globo Mogul, el U-2 y Venus.
-// Luego tres huecos con «?»: los nueve destellos, las carpetas del 701 y el Tic Tac.
-import { preparar, rodar, atardecer, mogul, u2, destellos, tictac, visto, C } from '/atomo/plato/escenas/ov-comun.js';
+// OV-CIELO (frases 37–38). Cinco planos:
+// 1. una colina al anochecer sobre un pueblo: alguien mira el cielo con un telescopio, y la barra del año corre de 1947
+//    a 2026 (casi ochenta años mirando arriba);
+// 2. el cielo del atardecer: aparecen, uno a uno y con su «✓», el globo espía, el avión secreto y Venus;
+// 3. el monte Rainier: los nueve destellos cruzan otra vez; «?»;
+// 4. el montón de los 701 expedientes del Libro Azul, con su «?» y su número;
+// 5. el Pacífico al anochecer: el objeto blanco flota sobre el agua que hierve; «?». Siguen ahí, esperando.
+import { preparar, rodar, colinaTelescopio, atardecer, mogul, u2, rainier, destellos, pacifico, tictac, visto, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-cielo');
-const { tramo } = R;
+const { tramo, lerp } = R;
 const m = { e: M('explicados', 1.4), p: M('pendientes', 10.9) };
+const P2 = 4.0, P3 = 10.6, P4 = 13.2, P5 = 15.7, vistos = [5.9, 6.8, 7.9];
+const colina = (t) => { colinaTelescopio(R, t); R.actor(EL.chica, 84, 140, t, { dir: 1, quieto: true }); };
 const explicados = (t) => {
   atardecer(R, t, { hor: 150, luces: 1 });
-  const a = (k) => t > m.e + 1 + k * 2.4;
-  if (a(0)) { mogul(R, 60, 140, t, 0.55); visto(R, 70, 50, 2); }
-  if (a(1)) { u2(R, 160, 46, t, { brasa: true }); visto(R, 172, 22, 2); }
-  if (a(2)) { R.disco(262, 70, 3, R.hex('#fff8e0')); R.disco(262, 70, 2, C.blanco); for (const [dx, dy] of [[-5, 0], [5, 0], [0, -5], [0, 5]]) R.pset(262 + dx, 70 + dy, R.hex('#fff8e0')); visto(R, 274, 50, 2); }
+  if (t > vistos[0]) { mogul(R, 60, 140, t, 0.55); visto(R, 70, 50, 2); }
+  if (t > vistos[1]) { u2(R, 160, 46, t, { brasa: true }); visto(R, 172, 22, 2); }
+  if (t > vistos[2]) { R.disco(262, 70, 3, R.hex('#fff8e0')); R.disco(262, 70, 2, C.blanco); for (const [dx, dy] of [[-5, 0], [5, 0], [0, -5], [0, 5]]) R.pset(262 + dx, 70 + dy, R.hex('#fff8e0')); visto(R, 274, 50, 2); }
 };
-const pendientes = (t) => {
-  R.rect(0, 0, 319, 179, C.noche2); for (let k = 0; k < 60; k++) R.pset((k * 53) % 320, (k * 31) % 180, C.grisL);
-  const caja = (cx, k, dibujo) => { if (t < m.p + 0.5 + k * 2.6) return; R.rect(cx - 44, 50, cx + 44, 130, C.k); R.rect(cx - 43, 51, cx + 43, 129, C.noche1); dibujo(cx); R.icono('?', cx - 6, 112, C.oroL, C.k, 2); };
-  caja(56, 0, (cx) => destellos(R, t, cx + 34, 80, { sep: 8 }));
-  caja(160, 1, (cx) => { for (let k = 0; k < 6; k++) { R.rect(cx - 16, 96 - k * 5, cx + 16, 99 - k * 5, C.k); R.rect(cx - 15, 97 - k * 5, cx + 15, 98 - k * 5, C.ocre); } R.numero('701', cx, 74, { centro: true }); });
-  caja(264, 2, (cx) => tictac(R, cx, 82, t));
+const interroga = (t, t0, x, y) => { if (t > t0) R.icono('?', x, y, C.oroL, C.k, 3); };
+const rainierQ = (t) => { rainier(R, t, { dx: 70 }); destellos(R, t, lerp(20, 420, tramo(t, P3, P4)), 70, { esc: 2 }); interroga(t, P3 + 1.0, 150, 120); };
+const pila = (t) => {
+  const { rect } = R; rect(0, 0, 319, 179, R.hex('#2a2e3a')); for (let y = 0; y < 180; y += 3) for (let x = 0; x < 320; x += 1) if ((x * 7 + y * 13) % 31 === 0) R.pset(x, y, R.hex('#343848'));
+  for (let k = 0; k < 18; k++) { const y = 160 - k * 6, dx = Math.round(Math.sin(k * 1.7) * 6); rect(100 + dx, y, 220 + dx, y + 5, C.k); rect(101 + dx, y + 1, 219 + dx, y + 4, k % 3 ? C.ocre : C.papel); rect(140 + dx, y + 2, 150 + dx, y + 3, C.ocreS); }
+  for (let y = 40; y < 170; y++) for (let x = 90; x < 230; x++) if ((x + y + Math.floor(t * 6)) % 7 === 0 && y < 160 - ((x * 3) % 20)) R.pset(x, y, R.hex('#3a3a2e'));
+  R.numero('701', 160, 40, { color: C.oroL, centro: true, tam: 16 }); interroga(t, P4 + 0.8, 236, 70);
 };
-rodar(E, R, [[0, explicados], [m.p - 0.3, pendientes]], { efectos: [0, 1, 2].map((k) => [m.e + 1 + k * 2.4, 'brillo']).concat([0, 1, 2].map((k) => [m.p + 0.5 + k * 2.6, 'pop'])), año: 2026 });
+const pacificoQ = (t) => { pacifico(R, t, { hor: 80, tarde: true, hierve: 1, centro: [160, 140], portaaviones: null, crucero: null, sol: [60, 70, 10] }); tictac(R, 160, 120 + Math.round(Math.sin(t) * 2), t, { sombra: 138 }); interroga(t, P5 + 2.4, 150, 40); };
+const efectos = [...vistos.map((v) => [v, 'brillo']), [P3 + 1.0, 'pop'], [P4 + 0.8, 'pop'], [P5 + 2.4, 'pop']];
+rodar(E, R, [[0, colina], [P2, explicados], [P3, rainierQ], [P4, pila], [P5, pacificoQ]], { efectos, año: (t) => (t < P2 ? Math.round(lerp(1947, 2026, Math.min(1, t / (P2 - 0.4)))) : 2026) });
 </script>
 </body>
 </html>
