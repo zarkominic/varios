@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Expedientes · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-EXPEDIENTES (frases 26–28). F: la oficina del Libro Azul se llena de carpetas; el contador sube hasta 12618. La montaña se
+// derrumba sobre el oficinista y asoma su mano con el café intacto (gag). Se separan las carpetas «?»: 701. Al final apagan la
+// luz y las carpetas «?» siguen brillando en la oscuridad.
+import { preparar, rodar, primerT, despacho, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-expedientes');
+const { tramo } = R;
+const m = { i: M('informes', 1.5), n: M('n701', 15.1), c: M('cierre', 25.3) };
+const llena = (t) => tramo(t, m.i, m.n - 4.5), derrumbe = m.n - 4;
+const pila701 = (t, x0, y0, brillo) => { for (let k = 0; k < 6; k++) { const x = x0 + (k % 3) * 2, y = y0 - k * 4; R.rect(x, y - 3, x + 18, y, C.k); R.rect(x + 1, y - 2, x + 17, y - 1, brillo ? C.oroL : C.ocre); } R.icono('?', x0 + 6, y0 - 34, brillo ? C.oroL : C.oro, C.k, 2); };
+const archivo = (t) => {
+  despacho(R, t, { mapa: true, carpetas: llena(t), reloj: false });
+  const enterrado = t > derrumbe;
+  if (!enterrado) R.actor(EL.oficinista, 150, 150, t, { dir: 1, sorpresa: t > derrumbe - 0.8, habla: false });
+  else {   // la avalancha de carpetas y la mano con el café
+    const caida = tramo(t, derrumbe, derrumbe + 0.6);
+    for (let k = 0; k < 16; k++) { const x = 136 + (k % 4) * 8, y = Math.round(100 + caida * (50 - Math.floor(k / 4) * 5)); R.rect(x, y - 3, x + 14, y, C.k); R.rect(x + 1, y - 2, x + 13, y - 1, k % 3 ? C.papel : C.ocre); }
+    if (t > derrumbe + 1.4) { const y = 118 - Math.round(tramo(t, derrumbe + 1.4, derrumbe + 2) * 6); R.rect(158, y, 160, 132, R.hex('#f6c290')); R.rect(156, y - 5, 162, y, C.k); R.rect(157, y - 4, 161, y - 1, C.blanco); if (Math.sin(t * 3) > 0) R.pset(159, y - 7, C.grisL); }
+  }
+  R.numero(String(Math.round(12618 * llena(t))), 160, 30, { centro: true, tam: 16 });
+  if (t > m.n) { pila701(t, 40, 136, false); R.numero('701', 50, 62, { centro: true, tam: 16 }); }
+};
+const apagado = (t) => { despacho(R, t, { apagado: true, carpetas: 1 }); pila701(t, 40, 136, Math.sin(t * 2) > -0.3); };
+const efectos = [[derrumbe, 'avalancha'], [derrumbe + 1.4, 'pop'], [m.n + 0.2, 'brillo'], [m.c, 'interruptor']];
+rodar(E, R, [[0, archivo], [m.c, apagado]], { efectos, cartela: '1969', año: 1969 });
+</script>
+</body>
+</html>

@@ -117,7 +117,16 @@ function masca() { const out = buf(1.2), w = rng(41); for (let k = 0; k < 6; k++
 // flash de cámara de los cuarenta: chasquido y el zumbido agudo que se carga
 function flash() { const out = buf(0.8), w = rng(42); let ph = 0; for (let i = 0; i < out.length; i++) { const t = i / SR; ph += (2000 + 3000 * t) / SR; out[i] = (t < 0.02 ? w() : 0) + Math.sin(TAU * ph) * 0.08 * Math.min(1, t / 0.1) * Math.exp(-t * 3); } return out; }
 
+// pitido de radar, teléfono de los cincuenta, golpecito en el cristal, cerrojo, avalancha de papel, interruptor de la luz
+const bip = () => { const out = buf(0.18); for (let i = 0; i < out.length; i++) { const t = i / SR; out[i] = Math.sin(TAU * 1320 * t) * Math.exp(-t * 18) * 0.6; } return out; };
+function ring() { const out = buf(0.9); for (let i = 0; i < out.length; i++) { const t = i / SR; out[i] = (Math.sin(TAU * 900 * t) + Math.sin(TAU * 1100 * t)) * (Math.sin(TAU * 22 * t) > 0 ? 0.4 : 0.1) * Math.min(1, (0.9 - t) / 0.05); } return out; }
+const toc = () => I.woodTick(2.2);
+function cerrojo() { const out = buf(0.4), a = I.thud(300, 0.03), b = I.woodTick(1.6); out.set(a.subarray(0, Math.min(a.length, out.length))); const i0 = Math.round(0.12 * SR); for (let i = 0; i < b.length && i0 + i < out.length; i++) out[i0 + i] += b[i]; return out; }
+function avalancha() { const out = buf(1.4), w = rng(43); for (let k = 0; k < 14; k++) { const f = I.paperFwip(0.6 + 0.4 * Math.abs(w()), 50 + k), i0 = Math.round(k * 0.06 * SR); for (let i = 0; i < f.length && i0 + i < out.length; i++) out[i0 + i] += f[i] * 0.7; } const d = I.thud(90, 0.12), i0 = Math.round(0.6 * SR); for (let i = 0; i < d.length && i0 + i < out.length; i++) out[i0 + i] += d[i]; return out; }
+const interruptor = () => I.tvClick();
+
 const RECETAS = {
+  bip, ring, toc, cerrojo, avalancha, interruptor,
   jet, burbujas, zumbido, motor, brillo, lapiz, palmada, arranque, masca, flash, papel: () => I.paperFwip(0.8), tic: () => I.woodTick(1.3),
   gluglu,
   boing: () => I.boing(),
@@ -132,7 +141,7 @@ const RECETAS = {
 // nivel (dB RMS) y posición (−1 izquierda, 1 derecha) de cada efecto; las aldeas se solapan, por eso van más bajas
 const NIVEL = { gluglu: [-30, 0.3], boing: [-29, -0.2], claxon: [-31, -0.5], silbato: [-32, 0.1], vapor: [-34, 0.1],
   pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0],
-  motor: [-36, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
+  motor: [-36, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
 const rms = (b) => {
   const n = Math.min(b.length, Math.round(0.4 * SR)), c = new Float64Array(b.length + 1);

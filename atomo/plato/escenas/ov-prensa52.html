@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prensa · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-PRENSA52 (frases 19–20). D: la rueda de prensa del general, con micrófonos y flashes; a un lado, el jefe de la oficina
+// de ovnis niega con la cabeza. Luego, F: la oficina del Libro Azul con el mapa de chinchetas y el teléfono que no para.
+import { preparar, rodar, despacho, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL, BUSTOS } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-prensa52');
+const m = { r: M('rueda', 0.5), l: M('libroazul', 15.6) };
+const flashes = [1.5, 3.2, 4.1, 6.5, 8.8, 10.2, 12.6].map((d) => m.r + d);
+const rueda = (t) => {
+  const { rect, pset, poligono } = R;
+  rect(0, 0, 319, 179, R.hex('#2a3a6a')); for (let x = 0; x < 320; x += 10) rect(x, 0, x + 4, 140, R.hex('#334680'));   // telón azul con pliegues
+  R.disco(160, 40, 16, C.oroS); R.disco(160, 40, 14, R.hex('#2a3a6a')); R.disco(160, 40, 9, C.oro); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; pset(Math.round(160 + Math.cos(a) * 12), Math.round(40 + Math.sin(a) * 12), C.oroL); }   // escudo
+  rect(0, 140, 319, 179, C.maderaS); for (let y = 146; y < 180; y += 6) rect(0, y, 319, y, C.maderaD);
+  // dos banderas a los lados del escudo, que se mueven con el aire del ventilador
+  for (const bx of [96, 206]) { rect(bx, 20, bx + 1, 140, C.oroS); const o = Math.round(Math.sin(t * 2 + bx) * 1); for (let j = 0; j < 13; j++) rect(bx + 2, 22 + j * 2 + (j % 2 ? o : 0), bx + 22, 23 + j * 2 + (j % 2 ? o : 0), j % 2 ? C.blanco : C.rojo); rect(bx + 2, 22, bx + 11, 35, C.azul); }
+  R.actor(EL.generalAzul, 160, 128, t, { habla: Math.sin(t * 6) > 0.2, dedo: Math.sin(t * 0.9) > 0.6 });
+  // el atril con su micrófono de rejilla
+  poligono([[146, 118], [174, 118], [178, 146], [142, 146]], C.madera); rect(146, 118, 174, 119, C.maderaL); R.disco(160, 130, 4, C.oroS); R.disco(160, 130, 3, C.oro);
+  for (const [x, a] of [[154, -1], [160, 0], [166, 1]]) { R.linea(x, 118, x + a * 2, 108, C.k); rect(x + a * 2 - 2, 104, x + a * 2 + 2, 108, C.metalD); }
+  // el jefe del Libro Azul, a un lado, niega con la cabeza
+  R.actor(EL.oficial, 240, 146, t, { dir: Math.floor(t * 3) % 2 ? -1 : 1, triste: true, quieto: true });
+  // los periodistas en filas, con sombreros y cámaras de flash
+  for (let k = 0; k < 14; k++) { const x = 6 + k * 22 + (k % 2) * 4, y = 160 + (k % 2) * 6; R.busto(['rizos', 'calvo', 'mujer', 'calvo'][k % 4], { C: R.hex(k % 3 ? '#5e5e70' : '#6a4a3a') }, x, y, t + k, {}); if (k % 3 === 1) { rect(x + 8, y - 4, x + 13, y, C.k); R.disco(x + 12, y - 6, 2, C.metalL); } }
+  for (const f of flashes) if (t > f && t < f + 0.12) for (let y = 0; y < 180; y += 2) rect(0, y, 319, y, C.blanco);
+};
+const tel = m.l + 2;
+const oficina = (t) => {
+  despacho(R, t, { mapa: true, bandera: false });
+  const suena = t > tel && Math.floor((t - tel) * 4) % 4 < 2 && t < tel + 6;
+  if (suena) { R.pset(118, 108, C.k); R.pset(124, 108, C.k); R.pset(116, 106, C.k); R.pset(126, 106, C.k); }
+  R.actor(EL.oficial, 100, 160, t, { dir: 1, sorpresa: suena, dedo: t > tel + 6 && Math.sin(t * 2) > 0 });
+};
+const efectos = [...flashes.map((f) => [f, 'flash']), ...[0, 1, 2, 3, 4, 5].map((k) => [tel + k, 'ring'])];
+rodar(E, R, [[0, rueda], [m.l - 0.3, oficina]], { efectos, año: 1952 });
+</script>
+</body>
+</html>

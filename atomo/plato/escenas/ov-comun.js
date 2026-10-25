@@ -524,7 +524,7 @@ export function despacho(R, t, o = {}) {
   else for (let k = 0; k < 8; k++) pset(24 + k * 9, 28 + (k * 7) % 30, C.blanco);
   for (let y = 26; y < 82; y += 5) rect(20, y, 94, y, oscuro ? hex('#3a3a50') : C.papelS);
   // reloj de pared y archivadores
-  R.disco(130, 30, 9, C.k); R.disco(130, 30, 8, C.papel); R.linea(130, 30, 130 + Math.round(Math.cos(t * 0.5) * 6), 30 + Math.round(Math.sin(t * 0.5) * 6), C.k); R.linea(130, 30, 133, 26, C.k);
+  if (o.reloj !== false) R.disco(130, 30, 9, C.k); if (o.reloj !== false) { R.disco(130, 30, 8, C.papel); R.linea(130, 30, 130 + Math.round(Math.cos(t * 0.5) * 6), 30 + Math.round(Math.sin(t * 0.5) * 6), C.k); R.linea(130, 30, 133, 26, C.k); }
   for (let k = 0; k < 3; k++) { const x = 250 + k * 22; rect(x, 80, x + 20, 140, C.k); rect(x + 1, 81, x + 19, 139, C.metalS); for (let j = 0; j < 4; j++) { rect(x + 3, 84 + j * 14, x + 17, 94 + j * 14, C.metal); rect(x + 8, 88 + j * 14, x + 12, 89 + j * 14, C.k); } }
   // la bandera de EE. UU. en su mástil
   if (o.bandera !== false) { rect(222, 30, 223, 140, C.oroS); const ondea = Math.round(Math.sin(t * 2) * 1); for (let j = 0; j < 13; j++) rect(224, 32 + j * 2 + (j % 2 ? ondea : 0), 246, 33 + j * 2 + (j % 2 ? ondea : 0), j % 2 ? C.blanco : C.rojo); rect(224, 32, 234, 45, C.azul); for (let k = 0; k < 6; k++) pset(226 + (k % 3) * 3, 34 + Math.floor(k / 3) * 5, C.blanco); }
@@ -539,4 +539,73 @@ export function despacho(R, t, o = {}) {
   rect(150, 110, 172, 118, C.k); rect(151, 111, 171, 117, C.metalD); rect(153, 106, 169, 110, C.papel);   // máquina de escribir
   // montañas de carpetas en el suelo y en la mesa
   if (o.carpetas) for (let k = 0; k < Math.round(60 * o.carpetas); k++) { const col = k % 6, fila = Math.floor(k / 6), x = 20 + col * 34 + (fila % 2) * 4, y = 172 - fila * 4; if (x > 100 && x < 214 && y > 120) continue; rect(x, y - 3, x + 18, y, C.k); rect(x + 1, y - 2, x + 17, y - 1, fila % 3 ? C.papel : C.ocre); }
+}
+
+// ── D · Washington de noche, 1952 ───────────────────────────────────────────────────────────────────────────────────
+// La ciudad con el Capitolio iluminado, el obelisco con su luz roja, la Casa Blanca, el Potomac con los reflejos y
+// ventanas que se encienden y apagan. o.hor: línea del río
+export function washington(R, t, o = {}) {
+  const { rect, pset, poligono, disco } = R, hor = o.hor ?? 120;
+  for (let y = 0; y < hor; y++) rect(0, y, 319, y, y < 50 ? C.noche1 : y < 95 ? C.noche2 : C.noche3);
+  for (let k = 0; k < 70; k++) { const x = Math.round(h(k, 1, 50) * 320), y = Math.round(h(k, 2, 50) * 80); pset(x, y, Math.sin(t * 2 + k) > 0.5 ? C.blanco : C.grisL); }
+  disco(60, 30, 7, hex('#e8e0c8')); disco(60, 30, 6, C.papel); disco(62, 28, 1, C.papelS);
+  // edificios del fondo, con ventanas encendidas que cambian
+  for (let k = 0; k < 22; k++) { const x = k * 15 - 4, w = 10 + Math.round(h(k, 3, 50) * 8), alto = 14 + Math.round(h(k, 4, 50) * 22); rect(x, hor - alto, x + w, hor, hex('#232a50'));
+    for (let j = hor - alto + 3; j < hor - 2; j += 4) for (let i = x + 2; i < x + w - 1; i += 3) if (h(i, j, Math.floor(t * 0.4 + k)) < 0.35) pset(i, j, h(i, j, 9) < 0.5 ? C.oroL : C.amarillo); }
+  // el obelisco con su luz roja que parpadea
+  poligono([[96, hor], [99, 52], [101, 50], [103, 52], [106, hor]], hex('#c8c8d8')); poligono([[101, 50], [103, 52], [106, hor], [102, hor]], hex('#9a9ab0')); if (Math.sin(t * 3) > 0) { pset(101, 48, C.rojo); pset(101, 47, C.rojo); }
+  // el Capitolio: cúpula blanca iluminada, columnas y alas
+  { const cx = 200, base = hor; rect(cx - 52, base - 16, cx + 52, base, hex('#d8dce8')); rect(cx - 52, base - 17, cx + 52, base - 17, C.blanco); for (let x = cx - 50; x < cx + 50; x += 4) rect(x, base - 14, x, base - 2, hex('#a8acc0'));
+    rect(cx - 18, base - 28, cx + 18, base - 16, hex('#e8ecf4')); for (let x = cx - 16; x < cx + 16; x += 3) rect(x, base - 26, x, base - 18, hex('#b8bccc'));
+    for (let j = 0; j < 14; j++) { const w = Math.round(15 * Math.sqrt(1 - (j / 14) ** 2)); rect(cx - w, base - 29 - j, cx + w, base - 29 - j, j % 3 === 0 ? hex('#c8ccdc') : C.blanco); }
+    rect(cx - 1, base - 50, cx + 1, base - 43, C.blanco); pset(cx, base - 51, C.oroL);
+    for (let j = -30; j < 0; j++) for (let i = -40; i <= 40; i++) if ((i * i) / 1600 + (j * j) / 900 < 1 && (i + j) % 2 === 0 && R.pget(cx + i, base - 30 + j) === C.noche3) pset(cx + i, base - 30 + j, hex('#343c74')); }   // el resplandor de los focos
+  // la Casa Blanca, pequeña a la izquierda
+  rect(20, hor - 10, 58, hor, C.blanco); rect(34, hor - 14, 44, hor - 10, C.blanco); poligono([[33, hor - 14], [39, hor - 18], [45, hor - 14]], C.blanco); for (let x = 22; x < 58; x += 4) pset(x, hor - 6, C.oroL);
+  // el Potomac: agua oscura con los reflejos de las luces temblando
+  for (let y = hor; y < 180; y++) rect(0, y, 319, y, y < hor + 3 ? hex('#1a2048') : hex('#121838'));
+  for (let y = hor + 1; y < 180; y += 2) for (let x = 0; x < 320; x++) { const c = R.pget(x, 2 * hor - y); if ((c === C.oroL || c === C.blanco || c === hex('#e8ecf4')) && h(x, y, Math.floor(t * 6)) < 0.5) pset(x + Math.round(Math.sin(t * 3 + y) * 1), y, c === C.oroL ? C.amarillo : hex('#8a90b8')); }
+}
+
+// los cazas de 1952 (ala recta, como el F-94), de lado; luz de navegación que parpadea
+const CAZA52 = [
+  '.kk...................',
+  '.kGk..................',
+  '.kGGk.......kkk.......',
+  'kkGGGkkkkkkkVVkk......',
+  'kFGGGGGGGGGGGGGGkkk...',
+  '.kgggggggggggggggggk..',
+  '..kkkkkkgggkkkkkkkk...',
+  '........kkk...........',
+];
+export function caza52(R, x, y, t, o = {}) {
+  const dir = o.dir ?? 1, w = CAZA52[0].length;
+  R.dibujo(CAZA52, Math.round(x - w / 2), Math.round(y - 4), dir, { k: C.k, g: C.metalS, G: C.metal, V: C.vidrioL, F: Math.sin(t * 40) > 0 ? C.fuegoL : C.fuego });
+  if (Math.sin(t * 6) > 0) R.pset(Math.round(x + dir * 2), Math.round(y - 1), C.rojo);
+}
+
+// la pantalla de radar verde: el haz que barre y deja estelas, los anillos y los puntos (pts: [[ángulo, radio 0–1], …])
+export function radar(R, cx, cy, r, t, pts = [], o = {}) {
+  const { pset, disco } = R, verde = hex('#3ae07a'), verdeS = hex('#1a6a3a'), fondo = hex('#0a2a18');
+  disco(cx, cy, r + 3, C.k); disco(cx, cy, r + 2, C.metalS); disco(cx, cy, r, fondo);
+  for (const f of [0.33, 0.66, 1]) for (let a = 0; a < Math.PI * 2; a += 0.03) pset(Math.round(cx + Math.cos(a) * r * f), Math.round(cy + Math.sin(a) * r * f), verdeS);
+  for (let i = -r; i <= r; i += 2) { pset(cx + i, cy, verdeS); pset(cx, cy + i, verdeS); }
+  const haz = (t * 1.3) % (Math.PI * 2);
+  for (let k = 0; k < 14; k++) { const a = haz - k * 0.05; for (let d = 0; d < r; d++) if ((d + k) % (k < 3 ? 1 : 2) === 0) pset(Math.round(cx + Math.cos(a) * d), Math.round(cy + Math.sin(a) * d), k < 2 ? verde : verdeS); }
+  for (const [a, d] of pts) { const x = Math.round(cx + Math.cos(a) * d * r), y = Math.round(cy + Math.sin(a) * d * r), edad = ((haz - a) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2); if (edad < 4) { disco(x, y, 1, edad < 1 ? hex('#c8ffd8') : verde); } }
+  if (o.marco !== false) for (const [dx, dy] of [[-r - 6, r + 2], [r + 6, r + 2]]) { R.disco(cx + dx, cy + dy, 2, C.k); R.pset(cx + dx, cy + dy, C.metal); }
+}
+
+// la torre de control de noche, por dentro: consola, la pantalla de radar grande y, por el cristal, la ciudad
+export function torre(R, t, pts, o = {}) {
+  const { rect } = R;
+  washington(R, t, { hor: 96 });
+  // el marco de los ventanales inclinados de la torre
+  for (const x of [0, 104, 214, 318]) rect(x, 0, x + 3, 120, C.k);
+  rect(0, 0, 319, 4, C.k);
+  rect(0, 118, 319, 179, hex('#3a3e4e')); rect(0, 118, 319, 120, hex('#5a5e72')); for (let x = 8; x < 320; x += 30) { rect(x, 128, x + 16, 134, hex('#2a2e3a')); for (let i = 0; i < 4; i++) R.pset(x + 2 + i * 4, 131, Math.sin(t * 3 + x + i) > 0 ? C.verdeL : C.rojo); }
+  radar(R, 210, 152, 24, t, pts);
+  // tazas, papeles y una lámpara de flexo
+  rect(260, 140, 266, 148, C.k); rect(261, 141, 265, 147, C.blanco); if (Math.sin(t * 2) > 0) R.pset(263, 137, C.grisL); R.pset(262, 135, C.grisL);
+  rect(140, 144, 160, 150, C.papel); rect(141, 146, 158, 146, C.grisL);
 }
