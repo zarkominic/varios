@@ -58,8 +58,10 @@ export function rodar(E, R, planos, o = {}) {
   const lista = o.cartela
     ? [[0, (t) => R.cartela(Math.min(1, t / dc), o.cartela)], ...planos.map(([a, f, modo], i) => [i === 0 ? dc : a, f, modo ?? (i === 0 ? 'corte' : undefined)])]
     : planos;
+  // lo que un decorado deja para delante (R.delante: coches, público) se pinta al acabar el plano, encima de los personajes
+  const conDelante = lista.map(([a, f, modo]) => [a, (t) => { R.delante = null; f(t); if (R.delante) { R.delante(); R.delante = null; } }, modo]);
   E.iniciar((t) => {
-    R.secuencia(t, lista, { fundido: o.fundido ?? 0.35 });
+    R.secuencia(t, conDelante, { fundido: o.fundido ?? 0.35 });
     const e = E.energia(t);
     const año = typeof o.año === 'function' ? o.año(t) : o.año;
     if (año != null && (!o.cartela || t > dc) && t >= (o.barraDesde ?? 0)) R.barraTiempo(t, año, { x0: 22, x1: 168, y: 5, alto: 2 });
@@ -445,15 +447,18 @@ export function ciudad(R, t, o = {}) {
   rect(0, 146, 319, 146, C.k);
   if (ep !== 'hoy') for (let x = 0; x < 320; x += 24) rect(x, 162, x + 12, 163, ep === '1950' ? C.linea : C.blanco);
   if (ep === '1924' || ep === '1939') { rect(0, 168, 319, 168, C.grisS); rect(0, 172, 319, 172, C.grisS); }
-  // coches y desfile
-  const n = o.coches ?? 0;
-  for (let k = 0; k < n; k++) {
-    const v = o.atasco ? 0 : 18 + (k % 3) * 6, base = o.atasco ? 8 + k * 46 : ((k * 97 + t * v) % 420) - 50;
-    coche(R, Math.round(base + (o.atasco ? Math.sin(t * 2 + k) : 0)), k % 2 ? 158 : 172, t, { epoca: ep, color: [C.rojo, C.azulL, C.verde, C.amarillo, C.morado, C.naranja][k % 6], dir: k % 2 ? -1 : 1, humo: o.atasco });
-  }
-  if (hoy && n === 0) for (const [x, c] of [[40, C.azulL], [282, C.rojo]]) coche(R, x, 160, 0, { epoca: 'hoy', color: c });
   if (o.desfile != null) desfile(R, t, o.desfile);
-  if (o.gente) publico(R, t, o.gente);
+  // los coches y el público están más cerca de la cámara que la acera: se dibujan después de los personajes
+  // (rodar llama a R.delante al acabar cada plano). Los carriles van abajo, para que ningún techo llegue a la acera.
+  R.delante = () => {
+    const n = o.coches ?? 0;
+    for (let k = 0; k < n; k++) {
+      const v = o.atasco ? 0 : 18 + (k % 3) * 6, base = o.atasco ? 8 + k * 46 : ((k * 97 + t * v) % 420) - 50;
+      coche(R, Math.round(base + (o.atasco ? Math.sin(t * 2 + k) : 0)), k % 2 ? 165 : 178, t, { epoca: ep, color: [C.rojo, C.azulL, C.verde, C.amarillo, C.morado, C.naranja][k % 6], dir: k % 2 ? -1 : 1, humo: o.atasco });
+    }
+    if (hoy && n === 0) for (const [x, c] of [[40, C.azulL], [282, C.rojo]]) coche(R, x, 168, 0, { epoca: 'hoy', color: c });
+    if (o.gente) publico(R, t, o.gente);
+  };
 }
 
 // el ayuntamiento de Filadelfia: cuerpo de piedra y torre con reloj y la estatua de William Penn arriba

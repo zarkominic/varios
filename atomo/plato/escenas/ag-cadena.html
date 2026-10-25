@@ -28,7 +28,7 @@ const REC = [[110, 82], [36, 82], [104, 82], [110, 40], [100, 34], [100, 82]];
 const W = 96, H = 60, X0 = [12, 112, 212], Y0 = [26, 104];
 const plano = (t) => {
   const u = t - m0;
-  VIN.forEach((f, i) => { const prev = R.usar(capas[i]); f(t); R.usar(prev); });
+  VIN.forEach((f, i) => { const prev = R.usar(capas[i]); R.delante = null; f(t); if (R.delante) { R.delante(); R.delante = null; } R.usar(prev); });
   R.rect(0, 0, 319, 179, R.hex('#1c2350'));
   for (let k = 0; k < 50; k++) { const x = (k * 53) % 320, y = (k * 37) % 180; R.pset(x, y, Math.sin(t * 2 + k) > 0.7 ? C.oroL : C.oro); }
   VIN.forEach((_, i) => {

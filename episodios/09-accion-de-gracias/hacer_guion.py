@@ -81,9 +81,8 @@ def hablado(texto, l):
     return t
 
 PRONUNCIA = {
-    # el inglés lo locuta Chatterbox, que lee bien los nombres; solo las décadas, los años que se dicen de otra forma y
-    # «Atom», que Chatterbox dice «Adam» (con «Ah-tom», Whisper oye «Atom» en las dos tomas probadas)
-    'en': [("I'm Atom", "I'm Ah-tom"), ('the 1950s', 'the nineteen-fifties'), ('the 1980s', 'the nineteen-eighties'), ('the 2010s', 'the twenty-tens'),
+    # en inglés, solo las décadas y los años que se dicen de otra forma («Atom» lo arregla locutar_frases en los fonemas)
+    'en': [('the 1950s', 'the nineteen-fifties'), ('the 1980s', 'the nineteen-eighties'), ('the 2010s', 'the twenty-tens'),
            ('twenty oh-five', 'two thousand five'), ('nineteen thirty-nine. November', 'Nineteen thirty-nine. November')],
     'es': [('Massachusetts', 'Masachúsets'), ('Mayflower', 'Méiflauer'), ('wampanoag', 'uampanóag'), ('Tisquantum', 'Tiskuántum'),
            ('Squanto', 'Skuánto'), ('Massasoit', 'Masasóit'), ('Sarah Josepha Hale', 'Sara Yoséfa Jéil'), ('Lincoln', 'Línkon'),
@@ -128,8 +127,8 @@ guion = {
     'titulo': {'en': "Thanksgiving & Black Friday in 8 Minutes: How a 1621 Harvest Dinner Became the Biggest Shopping Day",
                'es': 'Acción de Gracias y Black Friday en 8 minutos: cómo una cena de 1621 acabó en el mayor día de compras'},
     'principal': 'en',
-    # desde el episodio 9, el inglés con Chatterbox imitando la voz de Atom (am_fenrir); el español sigue con Kokoro
-    'voces': {'en': {'motor': 'chatterbox', 'ref': 'voces/atom-en.wav', 'exag': 0.6, 'cfg': 0.4},
+    # el inglés con Kokoro (am_fenrir): con Chatterbox el episodio entero no gustó (probado el 24/10/2026)
+    'voces': {'en': {'voz': 'am_fenrir', 'lang': 'en-us', 'velocidad': 0.85},
               'es': {'voz': 'em_santa', 'lang': 'es', 'velocidad': 0.92}},
     'lotes': plan.get('lotes', []),
     'escenas': escenas,
