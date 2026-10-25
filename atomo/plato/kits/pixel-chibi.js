@@ -613,20 +613,25 @@ export function conChibi(R) {
   };
 
   // brazo levantado: con el índice arriba (explica) o con la mano abierta (sorpresa, saludo)
-  // brazo levantado, corto como el de un cabezón (unos 8 px): el antebrazo sube con el codo un poco hacia fuera y la mano
-  // queda a la altura de la cara, con el índice arriba (o abierta). Antes subía recto por encima de la cabeza y parecía un
-  // palo del tamaño del cuerpo. pal: la del personaje (su piel); fuera: 1 si el brazo está a la derecha de la cabeza
-  const brazoArriba = (x, yHombro, yMano, abierta = false, pal = P, fuera = 1) => {
-    const S = pal.S ?? P.S, s = pal.s ?? P.s, codo = Math.round((yHombro + yMano) / 2);
-    for (let y = yMano; y <= yHombro; y++) {
-      const dx = y < codo ? fuera : 0;
-      pset(x - 1 + dx, y, P.k); pset(x + dx, y, S); pset(x + 1 + dx, y, y < yMano + 2 ? S : s); pset(x + 2 + dx, y, P.k);
-    }
-    const hx = x + fuera;
-    if (abierta) { rect(hx - 1, yMano - 3, hx + 2, yMano - 1, P.k); rect(hx, yMano - 2, hx + 1, yMano - 1, S); pset(hx - 1, yMano - 3, S); pset(hx + 2, yMano - 3, S); pset(hx - 2, yMano - 4, P.k); pset(hx + 3, yMano - 4, P.k); return; }
-    // puño con el índice levantado
-    rect(hx - 1, yMano - 2, hx + 2, yMano - 1, P.k); rect(hx, yMano - 1, hx + 1, yMano - 1, S);
-    pset(hx + 1, yMano - 3, S); pset(hx + 1, yMano - 4, S); pset(hx, yMano - 4, P.k); pset(hx + 2, yMano - 4, P.k); pset(hx + 1, yMano - 5, P.k); pset(hx, yMano - 3, P.k); pset(hx + 2, yMano - 3, P.k);
+  // brazo levantado, dibujado a mano (9 × 9, para el lado derecho; dir −1 lo voltea): sale del hombro con la manga del
+  // color de la ropa (letra M), el codo hacia fuera, un antebrazo corto de piel y una mano abierta redondeada a media
+  // altura de la cabeza. Antes era una línea recta que nacía en la cintura y acababa en punta: parecía un palo o una vela.
+  const BRAZO = [   // columnas x+10 … x+18: el hombro en x+12 y la mano junto a la cabeza (x+15 … x+17), nunca encima de la cara
+    '.....kkk.',
+    '....kSSSk',
+    '....kSSsk',
+    '.....kSk.',
+    '....kSSk.',
+    '...kMMk..',
+    '..kMMk...',
+    '.kMMk....',
+    '.kMk.....',
+  ];
+  const brazoCache = new Map();
+  const brazoArriba = (def, x, yC, dir, pal) => {
+    const fila = def.cuerpo[2] ?? '', manga = fila[12] && fila[12] !== '.' && fila[12] !== 'k' ? fila[12] : 'S';
+    if (!brazoCache.has(manga)) brazoCache.set(manga, BRAZO.map((f) => f.replace(/M/g, manga)));
+    dibujo(brazoCache.get(manga), dir > 0 ? x + 10 : x - 4, yC - 7, dir, pal);
   };
 
   // un personaje del reparto. o: dir (1 mira a la derecha), dedo (explica con el índice), brazos (los dos arriba),
@@ -653,8 +658,8 @@ export function conChibi(R) {
     if (levanta && !sinBrazoCache.has(def)) sinBrazoCache.set(def, sinBrazo(def.cuerpo, def.brazoCol));
     const base = levanta ? sinBrazoCache.get(def) : def.cuerpo;
     dibujo(paso >= 0 ? conPaso(base, paso) : base, x, yC, dir, pal);
-    if (o.dedo && !o.brazos && !manos) brazoArriba(dir > 0 ? x + 14 : x, yC + 4, yC - 4, false, pal, dir > 0 ? 1 : -1);
-    if (o.brazos || manos) { brazoArriba(x + 1, yC + 4, yC - 5, true, pal, -1); brazoArriba(x + 12, yC + 4, yC - 5, true, pal, 1); }
+    if (o.dedo && !o.brazos && !manos) brazoArriba(def, x, yC, dir, pal);
+    if (o.brazos || manos) { brazoArriba(def, x, yC, 1, pal); brazoArriba(def, x, yC, -1, pal); }
     dibujo(def.cab, x, yH, dir, pal);
     const px = (i, j, c) => pset(Math.round(x + (dir > 0 ? i : 14 - i)), Math.round(yH + j), c);
     if (!def.sinCara) {
