@@ -363,13 +363,7 @@ def hms(x):
     h, r = divmod(x, 3600); m, s = divmod(r, 60)
     return f"{int(h):02d}:{int(m):02d}:{int(s):02d},{int(round((s % 1) * 1000)):03d}"
 
-def trozos(texto, maximo=84):
-    """Parte una frase larga en trozos de subtítulo, por el signo más cercano a la mitad."""
-    if len(texto) <= maximo:
-        return [texto]
-    cortes = [m.end() for m in re.finditer(r'[,:;] ', texto)] or [m.end() for m in re.finditer(r' ', texto)]
-    c = min(cortes, key=lambda x: abs(x - len(texto) / 2))
-    return trozos(texto[:c].strip(), maximo) + trozos(texto[c:].strip(), maximo)
+from subtitulos import trozos   # cortes legibles: en un signo o antes de «que», «y»…, nunca tras «de», «la», «the»…
 
 for l in IDIOMAS:
     with open(f'{salida}/subtitulos-{l}.srt', 'w') as fsrt:
