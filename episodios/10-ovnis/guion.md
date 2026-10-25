@@ -6,7 +6,7 @@
 - El de los episodios 5–9: YouTube horizontal 16:9, un solo vídeo con dos pistas de audio, inglés (el original) y español (doblaje).
 - Estilo canónico pixel chibi (`GUIA-ESTILO.md`), con ambiente, gags y efectos de sonido sincronizados (`herramientas/efectos.cjs`).
 
-**Duración objetivo:** unos 7 minutos (41 frases, unas 1.200 palabras en inglés).
+**Duración objetivo:** unos 6 minutos (41 frases, unas 980 palabras en inglés; el ep9, con 1.150, dio 6:38).
 
 **Publicar:** finales de noviembre o principios de diciembre de 2026, cerca de la siguiente tanda de archivos del Pentágono.
 
