@@ -134,7 +134,11 @@ const golpecito = () => I.thud(160, 0.04);
 const sello = () => I.thud(110, 0.06);
 function miau() { const out = buf(0.7); let ph = 0; for (let i = 0; i < out.length; i++) { const t = i / SR, x = t / 0.7, f = 500 + 450 * Math.sin(Math.PI * Math.min(1, x * 1.3)); ph += f / SR; const e = Math.sin(Math.PI * x); out[i] = (Math.sin(TAU * ph) * 0.6 + Math.sin(TAU * ph * 2) * 0.25 + Math.sin(TAU * ph * 3) * 0.1) * e * 0.7; } return out; }
 
+// tecleo de máquina de escribir: golpes secos irregulares y una campanilla al final de línea
+function tecleo({ dur = 3 } = {}) { const out = buf(dur), w = rng(45); for (let t = 0.05; t < dur - 0.1; t += 0.07 + 0.08 * Math.abs(w())) { const b = I.woodTick(1.6 + 0.3 * w()), i0 = Math.round(t * SR); for (let i = 0; i < b.length && i0 + i < out.length; i++) out[i0 + i] += b[i] * 0.7; } const c = I.bell(2600, 0.3), i0 = Math.round((dur - 0.4) * SR); for (let i = 0; i < c.length && i0 + i < out.length; i++) out[i0 + i] += c[i] * 0.4; return out; }
+
 const RECETAS = {
+  tecleo,
   golpecito, sello, miau,
   boom: () => I.subBoom(1.6, 60, 28),
   chof, cuelga,
@@ -153,7 +157,7 @@ const RECETAS = {
 // nivel (dB RMS) y posición (−1 izquierda, 1 derecha) de cada efecto; las aldeas se solapan, por eso van más bajas
 const NIVEL = { gluglu: [-30, 0.3], boing: [-29, -0.2], claxon: [-31, -0.5], silbato: [-32, 0.1], vapor: [-34, 0.1],
   pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0],
-  motor: [-36, 0], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
+  motor: [-36, 0], tecleo: [-33, 0.2], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
 const rms = (b) => {
   const n = Math.min(b.length, Math.round(0.4 * SR)), c = new Float64Array(b.length + 1);

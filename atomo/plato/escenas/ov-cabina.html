@@ -12,7 +12,7 @@
 // OV-CABINA (frases 23–24). E: un avión de línea al atardecer; abajo los pueblos encienden sus luces; arriba, muy alto, un punto
 // brilla como una brasa. Dentro, un pasajero mira por la ventanilla, se le vuelca el café y la azafata lo esquiva (gag).
 // Luego, de lado: el sol bajo alcanza las alas del U-2 muy arriba; y el oficinista del Libro Azul cuelga el teléfono.
-import { preparar, rodar, primerT, atardecer, avionLinea, cabinaPasajeros, asientos, u2, despacho, C } from '/atomo/plato/escenas/ov-comun.js';
+import { preparar, rodar, primerT, atardecer, avionLinea, cabinaPasajeros, asientos, u2, despacho, mesaDespacho, insertoTelefono, C } from '/atomo/plato/escenas/ov-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-cabina');
 const { tramo, lerp } = R;
@@ -38,9 +38,10 @@ const sol = (t) => {
   u2(R, 110, 30, t, { brasa: true }); avionLinea(R, 210, 128, t);
 };
 const colgar = m.b + 0.55 * (E.duracion - m.b);
-const oficina = (t) => { despacho(R, t, { mapa: true }); R.actor(EL.oficinista, 124, 150, t, { dir: 1, triste: true, dedo: t < colgar + 1 }); };
-const efectos = [[cafe, 'chof'], [m.b + 1, 'brillo'], [colgar + 1, 'cuelga']];
-rodar(E, R, [[0, fuera], [dentro0, dentro], [m.b - 0.3, sol], [colgar, oficina]], { efectos, año: 1957 });
+const oficina = (t) => { despacho(R, t, { tono: 'verde', mapa: true, mesa: false }); R.actor(EL.oficinista, 140, 124, t, { dir: 1, triste: true, dedo: t < colgar + 1.6 }); mesaDespacho(R, t, {}); };
+const cuelga = colgar + 2.2, colgarCerca = (t) => insertoTelefono(R, t, { mano: 0.3 * (1 - tramo(t, cuelga + 0.4, cuelga + 1.2)) });
+const efectos = [[cafe, 'chof'], [m.b + 1, 'brillo'], [cuelga + 1.2, 'cuelga']];
+rodar(E, R, [[0, fuera], [dentro0, dentro], [m.b - 0.3, sol], [colgar, oficina], [cuelga, colgarCerca]], { efectos, año: 1957 });
 </script>
 </body>
 </html>

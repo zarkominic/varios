@@ -9,31 +9,37 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// OV-EXPEDIENTES (frases 26–28). F: la oficina del Libro Azul se llena de carpetas; el contador sube hasta 12618. La montaña se
-// derrumba sobre el oficinista y asoma su mano con el café intacto (gag). Se separan las carpetas «?»: 701. Al final apagan la
-// luz y las carpetas «?» siguen brillando en la oscuridad.
-import { preparar, rodar, primerT, despacho, C } from '/atomo/plato/escenas/ov-comun.js';
+// OV-EXPEDIENTES (frases 26–28), siete planos:
+// 1 llegan sacos de correo y se vacían en el despacho del Libro Azul; 2 la máquina de escribir cuenta los informes hasta 12618;
+// 3 las montañas de carpetas crecen y se derrumban sobre el oficinista: asoma su mano con el café (gag); 4 de cerca, una carpeta
+// recibe el sello «?»; 5 la pila de las 701 sin resolver, aparte, brilla; 6 el oficial apaga la luz y se va; 7 en la oscuridad,
+// las carpetas «?» siguen brillando.
+import { preparar, rodar, primerT, despacho, mesaDespacho, insertoMaquina, insertoCarpeta, sacos, C } from '/atomo/plato/escenas/ov-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-expedientes');
-const { tramo } = R;
+const { tramo, lerp } = R;
 const m = { i: M('informes', 1.5), n: M('n701', 15.1), c: M('cierre', 25.3) };
-const llena = (t) => tramo(t, m.i, m.n - 4.5), derrumbe = m.n - 4;
-const pila701 = (t, x0, y0, brillo) => { for (let k = 0; k < 6; k++) { const x = x0 + (k % 3) * 2, y = y0 - k * 4; R.rect(x, y - 3, x + 18, y, C.k); R.rect(x + 1, y - 2, x + 17, y - 1, brillo ? C.oroL : C.ocre); } R.icono('?', x0 + 6, y0 - 34, brillo ? C.oroL : C.oro, C.k, 2); };
-const archivo = (t) => {
-  despacho(R, t, { mapa: true, carpetas: llena(t), reloj: false });
-  const enterrado = t > derrumbe;
-  if (!enterrado) R.actor(EL.oficinista, 150, 150, t, { dir: 1, sorpresa: t > derrumbe - 0.8, habla: false });
-  else {   // la avalancha de carpetas y la mano con el café
-    const caida = tramo(t, derrumbe, derrumbe + 0.6);
-    for (let k = 0; k < 16; k++) { const x = 136 + (k % 4) * 8, y = Math.round(100 + caida * (50 - Math.floor(k / 4) * 5)); R.rect(x, y - 3, x + 14, y, C.k); R.rect(x + 1, y - 2, x + 13, y - 1, k % 3 ? C.papel : C.ocre); }
-    if (t > derrumbe + 1.4) { const y = 118 - Math.round(tramo(t, derrumbe + 1.4, derrumbe + 2) * 6); R.rect(158, y, 160, 132, R.hex('#f6c290')); R.rect(156, y - 5, 162, y, C.k); R.rect(157, y - 4, 161, y - 1, C.blanco); if (Math.sin(t * 3) > 0) R.pset(159, y - 7, C.grisL); }
-  }
-  R.numero(String(Math.round(12618 * llena(t))), 160, 30, { centro: true, tam: 16 });
-  if (t > m.n) { pila701(t, 40, 136, false); R.numero('701', 50, 62, { centro: true, tam: 16 }); }
+const P = [0, m.i + 4.5, m.i + 9, m.n, m.n + 5.4, m.c, m.c + 5.2];
+const pila701 = (t, x0, y0, brillo) => { for (let k = 0; k < 7; k++) { const x = x0 + (k % 3) * 2, y = y0 - k * 4; R.rect(x, y - 3, x + 18, y, C.k); R.rect(x + 1, y - 2, x + 17, y - 1, brillo ? C.oroL : C.ocre); } R.icono('?', x0 + 6, y0 - 38, brillo ? C.oroL : C.oro, C.k, 2); if (brillo) for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4 + t; R.pset(Math.round(x0 + 9 + Math.cos(a) * 16), Math.round(y0 - 14 + Math.sin(a) * 18), C.oroL); } };
+const llegan = (t) => { despacho(R, t, { tono: 'verde', mapa: true, carpetas: 0.1, mesa: false }); R.actor(EL.oficinista, 140, 124, t, { dir: -1, sorpresa: t > m.i + 1 }); mesaDespacho(R, t, { teclea: false }); sacos(R, t, 60, 158, tramo(t, m.i, P[1] - 0.5)); R.actor(EL.oficial, Math.round(lerp(330, 240, tramo(t, 0, 2))), 172, t, { dir: -1, anda: t < 2 }); };
+const cuenta = (t) => insertoMaquina(R, t, { cifra: String(Math.round(12618 * tramo(t, P[1] + 0.3, P[2] - 0.6))) });
+const derrumbe = P[2] + 2.4;
+const montanas = (t) => {
+  despacho(R, t, { tono: 'verde', mapa: true, carpetas: 0.4 + 0.6 * tramo(t, P[2], derrumbe), mesa: false });
+  if (t < derrumbe) R.actor(EL.oficinista, 140, 124, t, { dir: 1, sorpresa: t > derrumbe - 0.8 });
+  mesaDespacho(R, t, { teclea: t < derrumbe - 1 });
+  // pila sobre la mesa que crece y se derrumba
+  const caida = tramo(t, derrumbe, derrumbe + 0.6);
+  for (let k = 0; k < 18; k++) { const x = 140 + (k % 4) * 9, alto = Math.floor(k / 4), y = Math.round(lerp(120 - alto * 5, 136 + (k % 3) * 2, caida)); if (t < P[2] + k * 0.12) continue; R.rect(x, y - 3, x + 14, y, C.k); R.rect(x + 1, y - 2, x + 13, y - 1, k % 3 ? C.papel : C.ocre); }
+  if (t > derrumbe + 1.3) { const y = 128 - Math.round(tramo(t, derrumbe + 1.3, derrumbe + 1.8) * 6); R.rect(140, y, 142, 138, R.hex('#f6c290')); R.rect(138, y - 5, 144, y, C.k); R.rect(139, y - 4, 143, y - 1, C.blanco); if (Math.sin(t * 3) > 0) R.pset(141, y - 7, C.grisL); }
 };
-const apagado = (t) => { despacho(R, t, { apagado: true, carpetas: 1 }); pila701(t, 40, 136, Math.sin(t * 2) > -0.3); };
-const efectos = [[derrumbe, 'avalancha'], [derrumbe + 1.4, 'pop'], [m.n + 0.2, 'brillo'], [m.c, 'interruptor']];
-rodar(E, R, [[0, archivo], [m.c, apagado]], { efectos, cartela: '1969', año: 1969 });
+const sello = (t) => { insertoCarpeta(R, t, { sello: tramo(t, P[3] + 0.6, P[3] + 2.4), marca: '?' }); R.numero('701', 270, 40, { centro: true, tam: 16 }); };
+const aparte = (t) => { despacho(R, t, { tono: 'verde', mapa: true, carpetas: 1, mesa: false, companero: false }); R.actor(EL.oficial, 100, 172, t, { dir: 1, dedo: true }); mesaDespacho(R, t, {}); pila701(t, 40, 170, true); R.numero('701', 52, 112, { centro: true, tam: 16 }); };
+const apaga = P[5] + 2.2;
+const salir = (t) => { const off = t > apaga; despacho(R, t, { tono: 'verde', mapa: true, carpetas: 1, apagado: off, mesa: false, companero: false }); mesaDespacho(R, t, { apagado: off }); R.actor(EL.oficial, Math.round(lerp(150, 172, tramo(t, P[5], apaga - 0.4))), 172, t, { dir: 1, anda: t < apaga - 0.4 || t > apaga + 1, dedo: t > apaga - 0.6 && t < apaga + 0.4 }); pila701(t, 40, 170, off && Math.sin(t * 2) > -0.4); };
+const brillan = (t) => { insertoCarpeta(R, t, { apagado: true, sello: 1, marca: '?' }); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const c = R.pget(x, y); if (c !== C.rojo) { const r = c & 255, g = (c >> 8) & 255, b = (c >> 16) & 255; R.pset(x, y, (0xff000000 | (Math.round(b * 0.25 + 30) << 16) | (Math.round(g * 0.2 + 16) << 8) | Math.round(r * 0.2 + 14)) >>> 0); } } if (Math.sin(t * 2) > -0.4) R.icono('?', 200, 136, C.oroL, C.k, 3); };
+const efectos = [[m.i, 'avalancha'], [P[1] + 0.3, 'tecleo', { dur: P[2] - P[1] - 0.9 }], [derrumbe, 'avalancha'], [derrumbe + 1.3, 'pop'], [P[3] + 0.6 + 0.75 * 1.8, 'sello'], [P[4] + 0.3, 'brillo'], [apaga, 'interruptor'], [P[6] + 0.4, 'brillo']];
+rodar(E, R, [[0, llegan], [P[1], cuenta], [P[2], montanas], [P[3], sello], [P[4], aparte], [P[5], salir], [P[6], brillan]], { efectos, cartela: '1969', año: 1969 });
 </script>
 </body>
 </html>
