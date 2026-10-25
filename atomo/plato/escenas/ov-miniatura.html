@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Miniatura · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-MINIATURA · la miniatura del episodio 10 (se captura en t = 1, 1280 × 720). Fondos de verdad, partidos por una diagonal:
+// a la izquierda el rancho de Roswell de noche (1947), con la Vía Láctea y los restos brillantes; a la derecha el Pacífico
+// con el mar que hierve. Encima, al doble de tamaño, Brazel sorprendido con una tira brillante, el Tic Tac y el caza.
+// Arriba, «1947» y un «?» grande.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { C, rancho, pacifico, tictac, caza } from '/atomo/plato/escenas/ov-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), VACIO = 0x01020304;
+const corte = (y) => 150 - Math.round(y * 0.35);
+const dibujar = (t) => {
+  let prev = R.usar(izq); rancho(R, t, { noche: true, restos: 1 });
+  R.usar(der); pacifico(R, t, { hor: 56, cerca: true, portaaviones: null, crucero: 290, hierve: 1, centro: [236, 140], gaviotas: false });
+  R.usar(pj); pj.fill(VACIO);
+  R.actor(EL.brazel, 6, 60, 0.5, { sorpresa: true, bigote: true, quieto: true });
+  R.rect(22, 44, 27, 44, C.foil); R.pset(24, 43, C.blanco);   // la tira brillante en la mano
+  tictac(R, 70, 50, 0.2);
+  caza(R, 140, 40, 0.2, { dir: -1, picado: true });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x, y, C.k); R.pset(x - 1, y, C.blanco); R.pset(x - 2, y, C.blanco); R.pset(x + 1, y, C.k); }
+  const pon = (sx0, sx1, sy0, sy1, dx, dy) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = pj[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * 2, dy + (y - sy0) * 2, dx + (x - sx0) * 2 + 1, dy + (y - sy0) * 2 + 1, c); } };
+  pon(4, 28, 31, 61, 50, 114);            // Brazel
+  pon(60, 80, 44, 56, 200, 92);           // el Tic Tac, sobre el mar que hierve
+  pon(124, 156, 32, 48, 236, 40);         // el caza en picado
+  R.numero('1947', 58, 34, { tam: 16, centro: true, rampa: [C.oroL, C.oroL, C.amarillo, C.naranja, C.naranjaS] });
+  R.numero('?', 292, 150, { tam: 32, centro: true, rampa: [C.oroL, C.oroL, C.amarillo, C.naranja, C.naranjaS] });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
