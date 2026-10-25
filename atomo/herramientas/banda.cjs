@@ -20,7 +20,8 @@ const dir = path.resolve(process.argv[2]);
 const linea = JSON.parse(fs.readFileSync(path.join(dir, 'linea.json'), 'utf8'));
 const plan = Object.fromEntries(JSON.parse(fs.readFileSync(process.argv[3], 'utf8')).escenas.map((e) => [e.id, e]));
 const dur = linea.duracion, n = Math.ceil(dur * SR);
-const NIVEL = { suspense: -26, misterio: -28, intriga: -30, cierre: -26, golpe: -17 };
+// subido el 25/10/2026: a −26/−30 «casi no se escucha» (el usuario), sobre todo en altavoces de móvil, que no dan los graves
+const NIVEL = { suspense: -20, misterio: -21, intriga: -23, cierre: -20, golpe: -14 };
 const FUNDIDO = 1.5;   // s de fundido entre escenas
 
 const rms = (b, i0, i1) => { i1 = Math.min(i1, b.n); let s = 0; for (let i = i0; i < i1; i++) s += b.L[i] ** 2 + b.R[i] ** 2; return 10 * Math.log10(s / (2 * Math.max(1, i1 - i0)) + 1e-20); };
@@ -31,6 +32,8 @@ function capa(esc, animo) {
   const t0 = Math.max(0, esc.inicio - FUNDIDO / 2), d = esc.duracion + FUNDIDO, b = new Bus(n), r = rng(esc.inicio * 1000 | 0);
   if (animo === 'suspense') {
     pad(b, [[33, 1], [40, 0.6], [45, 0.35]], t0, d, { cutoff: 450, attack: Math.min(3, d / 3), release: 0.6 });
+    // registro medio (La3, Mi4, Si4 tenso), para que el suspense se oiga también en un móvil
+    pad(b, [[57, 0.32], [64, 0.22], [71, 0.12]], t0, d, { cutoff: 1500, attack: Math.min(3, d / 3), release: 0.6, seed: 4 });
     for (let i = Math.round(t0 * SR), i1 = Math.min(n, Math.round((t0 + d) * SR)); i < i1; i++) {   // crece hasta el final
       const k = 0.25 + 0.75 * ((i / SR - t0) / d) ** 1.6; b.L[i] *= k; b.R[i] *= k;
     }
@@ -45,7 +48,7 @@ function capa(esc, animo) {
       b.addMono(I.musicBox(motivo[k % 8] + 12), t, 0.5, k % 2 ? 0.3 : -0.3);
     }
   } else if (animo === 'intriga') {
-    pad(b, [[38, 0.5], [45, 0.3], [53, 0.2]], t0, d, { cutoff: 700, attack: 1.5, release: 1 });
+    pad(b, [[38, 0.5], [45, 0.3], [53, 0.25], [57, 0.2], [62, 0.12]], t0, d, { cutoff: 1100, attack: 1.5, release: 1 });
     for (let t = esc.inicio, k = 0; t < esc.inicio + esc.duracion; t += 60 / 92 / 2, k++) {
       b.addMono(I.pluck ? I.pluck(k % 8 < 6 ? 38 : 41, { decay: 0.18 }) : I.woodTick(0.5), t, 0.35, 0);
       if (k % 4 === 2) b.addMono(I.woodTick(1 + 0.05 * (k % 3)), t, 0.12, r() * 0.6 - 0.3);

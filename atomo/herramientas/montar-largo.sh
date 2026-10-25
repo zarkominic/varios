@@ -33,7 +33,7 @@ print(round(-19-np.median([x for x in r if x>-40]),2))" "$1"
 }
 # La música de banda.cjs (desde el episodio 10) ya sale a su nivel: entra sin el 0,2 y con un compresor más suave.
 MUS="volume=0.2[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=10:attack=20:release=400"
-[ -f "$D/musica-banda.json" ] && MUS="anull[mus];[mus][llave]sidechaincompress=threshold=0.05:ratio=3:attack=30:release=500"
+[ -f "$D/musica-banda.json" ] && MUS="anull[mus];[mus][llave]sidechaincompress=threshold=0.08:ratio=2:attack=40:release=600"
 EFX=()
 [ -f "$D/efectos.wav" ] && EFX=(-i "$D/efectos.wav")
 mezcla() { # $1: ganancia de la voz en dB. La entrada 1 es la voz: la música baja cuando habla; la 3, si está, son los efectos
