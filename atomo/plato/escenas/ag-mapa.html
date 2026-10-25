@@ -14,7 +14,7 @@
 import { preparar, rodar, mapaAg, NUEVA_INGLATERRA } from '/atomo/plato/escenas/ag-comun.js';
 const { E, R, M } = await preparar('ag-mapa');
 const m0 = M('mapa', 1.4), L = E.duracion - m0;
-const lejos = (t) => mapaAg(R, t, { plymouth: true });
+const lejos = (t) => mapaAg(R, t, { plymouth: true, barco: R.tramo(t, 0.2, m0 + 0.25 * L - 0.2) });
 const cerca = (t) => mapaAg(R, t, { vista: NUEVA_INGLATERRA, plymouth: t - m0 > 0.75 * L, aldeas: R.tramo(t - m0, 0.38 * L, 0.8 * L) });
 rodar(E, R, [[0, lejos], [m0 + 0.25 * L, cerca]], { año: 1620 });
 </script>

@@ -7,10 +7,12 @@ import json, os
 
 D = os.path.dirname(os.path.abspath(__file__))
 E = [
- ('ag-hola', None, 1, 1, ['hola'], ['B: el comedor con la cena de Acción de Gracias puesta; Atom saluda.']),
- ('ag-gancho', None, 2, 3, ['pavo', 'pregunta'],
+ ('ag-gancho', None, 1, 2, ['pavo', 'pregunta'],
   ['A: un peregrino persigue a un pavo salvaje por el bosque de otoño y se le escapa (gag); luego D: un policía con silbato en un atasco.',
    'La mesa de 1621 se transforma en una cola de compras: «?».']),
+ # desde el episodio 9, Atom se presenta después del gancho y en una línea: en el episodio 4 se fue el 60 % de la gente
+ # en los primeros 20 s, mientras Atom se presentaba
+ ('ag-hola', None, 3, 3, ['hola'], ['B: el comedor con la cena de Acción de Gracias puesta; la familia saluda y Atom se presenta.']),
  ('ag-mapa', None, 4, 4, ['mapa'], ['Mapa: zoom del Atlántico a la costa de Nueva Inglaterra; aldeas wampanoag que se encienden por la costa.']),
  ('ag-mayflower', '1620', 5, 6, ['mayflower', 'invierno'],
   ['A en invierno: el Mayflower llega a una bahía helada; los pasajeros bajan con frío, sin casas.',

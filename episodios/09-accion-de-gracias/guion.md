@@ -55,9 +55,9 @@
 
 | ES | EN |
 |---|---|
-| Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase. | Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you. |
 | En la primera Acción de Gracias, el pavo probablemente no fue el protagonista. Y el Black Friday no se llama así por los beneficios de las tiendas. Se lo pusieron unos policías hartos. | At the first Thanksgiving, turkey probably wasn't the star. And Black Friday isn't named after store profits. It was named by some very annoyed police officers. |
-| Así que, ¿cómo se convierte una cena de cosecha de 1621 en el mayor día de compras del año? Vamos a verlo. | So how does a harvest dinner from 1621 turn into the biggest shopping day of the year? Let's find out. |
+| Así que, ¿cómo se convierte una cena de cosecha de 1621 en el mayor día de compras del año? | So how does a harvest dinner from 1621 turn into the biggest shopping day of the year? |
+| Soy Atom, y te explico lo que no te contaron en clase. Vamos a verlo. | I'm Atom, and I explain what school didn't teach you. Let's find out. |
 
 ## 1 · El mapa
 
