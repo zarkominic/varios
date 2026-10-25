@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Miniatura · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-MINIATURA · la miniatura del episodio 9 (se captura en t = 1). Se compone a media resolución (160 × 90) y se amplía
+// ×2: a la izquierda el otoño de 1621, con un peregrino que persigue a un pavo que huye sudando; a la derecha la noche del
+// Black Friday, con un policía que pita y la cola ante la tienda. Arriba, «1621» y un «%» rojo. Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { C, pavo, arbol } from '/atomo/plato/escenas/ag-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const corte = (y) => 86 - Math.round(y * 0.25);   // la diagonal que separa las dos mitades
+  for (let y = 0; y < 90; y++) for (let x = 0; x < 160; x++) {
+    const izq = x < corte(y);
+    R.pset(x, y, izq ? (y < 30 ? C.cielo2 : y < 58 ? C.cielo3 : y < 64 ? C.hierbaL : C.hierba) : (y < 40 ? R.hex('#141a3e') : y < 66 ? R.hex('#1e2650') : y < 70 ? C.acera : C.asfalto));
+  }
+  // izquierda: árboles de otoño, el pavo que huye sudando y el peregrino detrás
+  for (const [x, s] of [[12, 0.8], [34, 0.7], [56, 0.75]]) arbol(R, x, 60, t, { s });
+  for (let k = 0; k < 6; k++) R.pset(8 + k * 11, 30 + (k * 13) % 30, [C.rojo, C.naranja, C.amarillo][k % 3]);
+  // derecha: escaparate iluminado, estrellas y el policía
+  for (let k = 0; k < 14; k++) R.pset(100 + (k * 23) % 60, 4 + (k * 11) % 30, C.blanco);
+  R.rect(110, 34, 158, 66, C.fachada); R.rect(114, 44, 154, 64, C.k); R.rect(115, 45, 153, 63, C.oroL);
+  for (let k = 0; k < 4; k++) { const x = 118 + k * 9; R.rect(x, 52, x + 4, 63, [C.rojo, C.azul, C.verde, C.morado][k]); R.disco(x + 2, 50, 2, R.hex('#2c2232')); }
+  R.actor(EL.policia, 118, 84, 0.5, { dedo: true, sorpresa: true });
+  R.rect(133, 64, 135, 66, C.grisL);
+  // la línea del corte
+  for (let y = 0; y < 90; y++) { const x = corte(y); R.pset(x, y, C.k); R.pset(x - 1, y, C.blanco); }
+  pavo(R, 66, 84, 0.37, { corre: true, suda: true, dir: 1 });
+  R.actor(EL.peregrino, 18, 84, 0.5, { enfado: true });
+  // ampliar ×2 (de abajo arriba y de derecha a izquierda para no pisar lo que falta por leer)
+  for (let y = 89; y >= 0; y--) for (let x = 159; x >= 0; x--) { const c = R.pget(x, y); R.rect(x * 2, y * 2, x * 2 + 1, y * 2 + 1, c); }
+  R.numero('1621', 72, 34, { tam: 16, centro: true, rampa: [C.oroL, C.oroL, C.amarillo, C.naranja, C.naranjaS] });
+  R.numero('%', 262, 48, { tam: 32, centro: true, rampa: [C.rosa, C.rosa, C.rojo, C.rojo, C.rojoS] });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
