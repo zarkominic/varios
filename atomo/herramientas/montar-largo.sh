@@ -6,6 +6,8 @@
 #   <salida>-<otro>.mp3   pista del otro idioma con la misma música, para añadirla en YouTube Studio
 #                         (MP3 a 320 kbps: YouTube admite MP3, WAV y FLAC como pista de audio)
 #   <salida>-es.srt / -en.srt   subtítulos
+# Si existe <carpeta_linea>/efectos.wav (herramientas/efectos.cjs), los efectos de sonido se suman a las dos pistas
+# sin pasar por el compresor: ya van por debajo de la voz.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 D=$1
@@ -21,14 +23,18 @@ iso() { [ "$1" = en ] && echo eng || echo spa; }
 FALTAN=$("${PYTHON:-python3}" -c "import json,os,sys; d=sys.argv[1]; n=json.load(open(d+'/linea.json'))['fotogramas']; print(sum(not os.path.exists(f'{d}/fotos/{i:05d}.jpg') for i in range(n)))" "$D")
 [ "$FALTAN" = 0 ] || { echo "Faltan $FALTAN fotogramas en $D/fotos: renderiza con --faltan" >&2; exit 1; }
 [ -f "$D/musica.wav" ] || "${PYTHON:-python3}" herramientas/musica.py "$D/linea.json" "$D/musica.wav"
-mezcla() { # la entrada 1 es la voz: la música baja cuando habla
-  echo "[1:a]aresample=48000,pan=stereo|c0=c0|c1=c0,asplit=2[voz][llave];[2:a]volume=0.2[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=10:attack=20:release=400[fondo];[voz][fondo]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]"
+EFX=()
+[ -f "$D/efectos.wav" ] && EFX=(-i "$D/efectos.wav")
+mezcla() { # la entrada 1 es la voz: la música baja cuando habla; la 3, si está, son los efectos
+  local suma="[voz][fondo]amix=inputs=2"
+  [ ${#EFX[@]} -gt 0 ] && suma="[3:a]aresample=48000[efx];[voz][fondo][efx]amix=inputs=3"
+  echo "[1:a]aresample=48000,pan=stereo|c0=c0|c1=c0,asplit=2[voz][llave];[2:a]volume=0.2[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=10:attack=20:release=400[fondo];$suma:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11[a]"
 }
-ffmpeg -y -loglevel error -framerate 30 -i "$D/fotos/%05d.jpg" -i "$D/voz-$PRINCIPAL.wav" -i "$D/musica.wav" \
+ffmpeg -y -loglevel error -framerate 30 -i "$D/fotos/%05d.jpg" -i "$D/voz-$PRINCIPAL.wav" -i "$D/musica.wav" ${EFX[@]+"${EFX[@]}"} \
   -filter_complex "$(mezcla)" -map 0:v -map "[a]" \
   -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p -profile:v high -r 30 \
   -c:a aac -b:a 192k -ar 48000 -metadata:s:a:0 language=$(iso $PRINCIPAL) -movflags +faststart -shortest "$SALIDA.mp4"
-ffmpeg -y -loglevel error -f lavfi -i anullsrc -i "$D/voz-$OTRO.wav" -i "$D/musica.wav" \
+ffmpeg -y -loglevel error -f lavfi -i anullsrc -i "$D/voz-$OTRO.wav" -i "$D/musica.wav" ${EFX[@]+"${EFX[@]}"} \
   -filter_complex "$(mezcla)" -map "[a]" -c:a libmp3lame -b:a 320k -ar 48000 -metadata language=$(iso $OTRO) "$SALIDA-$OTRO.mp3"
 cp "$D/subtitulos-es.srt" "$SALIDA-es.srt"
 cp "$D/subtitulos-en.srt" "$SALIDA-en.srt"

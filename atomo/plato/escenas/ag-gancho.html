@@ -11,13 +11,14 @@
 <script type="module">
 // AG-GANCHO (frases 2–3). A: un peregrino persigue a un pavo salvaje por el bosque de otoño y se le escapa (gag);
 // luego D: un policía de Filadelfia, harto, con el silbato en un atasco. Al final la mesa de 1621 y la cola de hoy, y «?».
-import { preparar, rodar, plymouth, ciudad, pavo, trote, humo, EL } from '/atomo/plato/escenas/ag-comun.js';
+import { preparar, rodar, primerT, plymouth, ciudad, pavo, trote, humo, EL } from '/atomo/plato/escenas/ag-comun.js';
 const { E, R, M } = await preparar('ag-gancho');
 const { tramo, lerp } = R;
 const m = { pavo: M('pavo', 0.5), pre: M('pregunta', 9) }, L1 = m.pre - m.pavo;
-const corte = m.pavo + 0.45 * L1;
+const corte = m.pavo + 0.45 * L1, vapor = corte + 1.2, duda = m.pre + 3.4;
+const fCaza = (t) => tramo(t - m.pavo, 0.3, 0.42 * L1);
 const caza = (t) => {
-  const u = t - m.pavo, f = tramo(u, 0.3, 0.42 * L1);
+  const f = fCaza(t);
   plymouth(R, t, { estacion: 'otono', mayflower: false });
   const xp = Math.round(lerp(60, 360, f)), xg = Math.round(lerp(10, 250, Math.min(1, f * 1.15)));
   pavo(R, xp, 145, t, { corre: f > 0 && f < 1 });
@@ -26,7 +27,7 @@ const caza = (t) => {
 const atasco = (t) => {
   ciudad(R, t, { epoca: '1950', coches: 6, atasco: true });
   R.actor(EL.policia, 150, 145, t, { enfado: true, dedo: Math.sin(t * 5) > 0 });
-  if (t > corte + 1.2) humo(R, 158, 112, t, R.hex('#f2f6fa'));
+  if (t > vapor) humo(R, 158, 112, t, R.hex('#f2f6fa'));
 };
 const pregunta = (t) => {
   const u = t - m.pre;
@@ -34,9 +35,17 @@ const pregunta = (t) => {
   else ciudad(R, t, { epoca: 'hoy', madrugada: true });
   if (u >= 2.2) for (let k = 0; k < 6; k++) { const e = tramo(u - 2.2 - k * 0.2, 0, 1.2); R.actor([EL.chico, EL.chica, EL.senor30][k % 3], Math.round(lerp(-30, 50 + k * 22, e)), 145, t + k, { anda: e < 1 }); }
   else for (let k = 0; k < 3; k++) R.actor([EL.peregrino, EL.wampanoag, EL.peregrina][k], 100 + k * 50, 145, t + k, { sonrisa: true });
-  if (u > 3.4) R.icono('?', 154, 40, undefined, undefined, 4);
+  if (t > duda) R.icono('?', 154, 40, undefined, undefined, 4);
 };
-rodar(E, R, [[0, caza], [corte, atasco], [m.pre - 0.2, pregunta]], { año: (t) => (t < corte ? 1621 : t < m.pre ? 1955 : t - m.pre < 2.2 ? 1621 : 2026) });
+const efectos = [
+  [primerT((t) => fCaza(t) > 0, 0, corte), 'gluglu'],          // el pavo echa a correr
+  [primerT((t) => fCaza(t) > 0.85, 0, corte), 'boing'],        // el peregrino se queda con las manos vacías
+  [corte + 0.15, 'claxon'], [corte + 0.55, 'claxon', { tono: 0.84 }],
+  [primerT((t) => Math.sin(t * 5) > 0, corte + 0.8, m.pre), 'silbato'],
+  [primerT((t) => t > vapor, vapor - 0.1, m.pre), 'vapor'],    // le sale humo de la gorra
+  [primerT((t) => t > duda, duda - 0.1, E.duracion), 'pop'],   // el «?»
+];
+rodar(E, R, [[0, caza], [corte, atasco], [m.pre - 0.2, pregunta]], { efectos, año: (t) => (t < corte ? 1621 : t < m.pre ? 1955 : t - m.pre < 2.2 ? 1621 : 2026) });
 </script>
 </body>
 </html>

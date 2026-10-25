@@ -53,7 +53,14 @@ export async function preparar(id) {
   return { E, R, M: (k, d) => E.marca(k, d) };
 }
 
+// Efectos de sonido: o.efectos = [[t, nombre, opciones], …], en tiempo de escena.
+// - Se calculan con las mismas variables que el dibujo, así imagen y sonido no pueden separarse.
+// - render-escenas.mjs los recoge en efectos.json y herramientas/efectos.cjs los sintetiza.
+// primerT da el primer instante del paso de dibujo (1/15 s) en que se cumple una condición del dibujo.
+export const primerT = (f, a, b, paso = 1 / 15) => { for (let k = Math.ceil(a / paso - 1e-6); k * paso <= b; k++) if (f(k * paso)) return k * paso; return null; };
+
 export function rodar(E, R, planos, o = {}) {
+  window.__efectos = (o.efectos ?? []).filter((e) => e[0] != null);
   const dc = o.durCartela ?? 1.3;
   const lista = o.cartela
     ? [[0, (t) => R.cartela(Math.min(1, t / dc), o.cartela)], ...planos.map(([a, f, modo], i) => [i === 0 ? dc : a, f, modo ?? (i === 0 ? 'corte' : undefined)])]
@@ -687,6 +694,7 @@ const NI_TIERRA = [[-73.9, 40.85], [-73.6, 40.95], [-73.0, 41.15], [-72.4, 41.27
   [-70.82, 42.85], [-70.73, 43.1], [-70.55, 43.25], [-70.2, 43.6], [-69.8, 43.75], [-69.4, 43.85], [-69.0, 43.95], [-73.95, 43.95]];
 const NI_ISLAS = [[[-73.9, 40.58], [-73.2, 40.62], [-72.4, 40.85], [-71.86, 41.07], [-72.3, 41.0], [-72.9, 40.95], [-73.9, 40.78]],
   [[-70.82, 41.43], [-70.6, 41.47], [-70.45, 41.36], [-70.75, 41.33]], [[-70.22, 41.3], [-69.96, 41.3], [-69.96, 41.24], [-70.2, 41.24]]];
+export const ALDEAS = [[-71.0, 42.9], [-70.9, 42.15], [-71.5, 41.75], [-70.3, 41.68], [-71.9, 41.45], [-70.8, 41.6], [-71.3, 42.45], [-70.05, 41.9], [-72.3, 41.8], [-71.1, 41.9], [-72.6, 42.3], [-70.6, 41.4]];
 // o.vista; o.aldeas (0–1: aldeas wampanoag que se encienden por la costa); o.ruta (0–1: el viaje de Tisquantum);
 // o.ofertas (0–1: puntos de oferta que se encienden en Europa y las Américas); o.plymouth (marca la colonia)
 export function mapaAg(R, t, o = {}) {
@@ -720,8 +728,7 @@ export function mapaAg(R, t, o = {}) {
     R.rect(x - 5, y, x + 5, y + 2, C.maderaS); R.rect(x - 6, y - 1, x + 6, y - 1, C.madera); R.rect(x, y - 9, x, y - 1, C.maderaD); R.rect(x - 4, y - 8, x + 4, y - 3, C.papel); R.rect(x - 4, y - 8, x + 4, y - 8, C.k); R.pset(x, y - 10, C.rojo);
   }
   if (o.aldeas) {
-    const ald = [[-71.0, 42.9], [-70.9, 42.15], [-71.5, 41.75], [-70.3, 41.68], [-71.9, 41.45], [-70.8, 41.6], [-71.3, 42.45], [-70.05, 41.9], [-72.3, 41.8], [-71.1, 41.9], [-72.6, 42.3], [-70.6, 41.4]];
-    ald.forEach((p, k) => { if (o.aldeas * ald.length < k + 0.5) return; const [x, y] = L(p); R.disco(x, y - 2, 3, C.k); R.disco(x, y - 2, 2, C.corteza); R.pset(x, y - 5 - (Math.floor(t * 3 + k) % 2), C.grisL); });
+    ALDEAS.forEach((p, k) => { if (o.aldeas * ALDEAS.length < k + 0.5) return; const [x, y] = L(p); R.disco(x, y - 2, 3, C.k); R.disco(x, y - 2, 2, C.corteza); R.pset(x, y - 5 - (Math.floor(t * 3 + k) % 2), C.grisL); });
   }
   if (o.plymouth) { const [x, y] = L(LUG.plymouth); R.disco(x, y, 3 + (Math.sin(t * 5) > 0 ? 1 : 0), C.k); R.disco(x, y, 2, C.oro); }
   if (o.ruta != null) {
