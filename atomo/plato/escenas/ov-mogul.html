@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mogul · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-MOGUL (frases 15–16). C de noche: el tren de globos del Proyecto Mogul sube hacia las estrellas con su micrófono; «1994».
+// Luego Brazel y su familia en el porche miran el cielo; pasa una estrella fugaz; «?».
+import { preparar, rodar, rancho, mogul, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-mogul');
+const { tramo } = R;
+const m = { g: M('mogul', 0.5), s: M('sospecha', 18.5) };
+const sube = (t) => tramo(t, m.g + 0.5, m.s - 2);
+const globos = (t) => { rancho(R, t, { noche: true }); mogul(R, 190, 170 - Math.round(sube(t) * 30), t, 0.25 + 0.75 * sube(t)); if (t > m.g + 0.55 * (m.s - m.g)) R.numero('1994', 90, 50, { centro: true, tam: 16 }); };
+const porche = (t) => {
+  rancho(R, t, { noche: true });
+  R.actor(EL.brazel, 46, 128, t, { bigote: true, dir: 1, sorpresa: t > m.s + 6 && t < m.s + 8 });
+  R.actor(EL.senora30, 66, 128, t + 1, { dir: 1 });
+  R.actor(EL.chico, 82, 128, t + 2, { dir: 1, dedo: t > m.s + 6 });
+  if (t > m.s + 8.5) R.icono('?', 160, 40, undefined, undefined, 4);
+};
+rodar(E, R, [[0, globos], [m.s - 0.3, porche]], { efectos: [[m.s + 8.5, 'pop']], año: 1947 });
+</script>
+</body>
+</html>

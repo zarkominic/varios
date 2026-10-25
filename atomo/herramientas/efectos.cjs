@@ -105,8 +105,20 @@ function brillo() {
 const lapiz = () => I.scribble(1.0);
 const palmada = () => I.thud(180, 0.04);
 
+// la camioneta que arranca: tres petardeos y el motor que se aleja
+function arranque() {
+  const out = buf(2.2), m = motor({ dur: 2.2 });
+  for (let i = 0; i < out.length; i++) out[i] = m[i] * Math.max(0, 1 - i / out.length) * 1.6;
+  [0.05, 0.18, 0.3].forEach((t0) => { const b = I.thud(70, 0.05), i0 = Math.round(t0 * SR); for (let i = 0; i < b.length && i0 + i < out.length; i++) out[i0 + i] += b[i]; });
+  return out;
+}
+// la oveja que mastica papel de aluminio: crujidos cortos
+function masca() { const out = buf(1.2), w = rng(41); for (let k = 0; k < 6; k++) { const i0 = Math.round(k * 0.18 * SR); for (let i = 0; i < 0.05 * SR; i++) out[i0 + i] += w() * Math.exp(-i / (0.012 * SR)) * 0.8; } return out; }
+// flash de cámara de los cuarenta: chasquido y el zumbido agudo que se carga
+function flash() { const out = buf(0.8), w = rng(42); let ph = 0; for (let i = 0; i < out.length; i++) { const t = i / SR; ph += (2000 + 3000 * t) / SR; out[i] = (t < 0.02 ? w() : 0) + Math.sin(TAU * ph) * 0.08 * Math.min(1, t / 0.1) * Math.exp(-t * 3); } return out; }
+
 const RECETAS = {
-  jet, burbujas, zumbido, motor, brillo, lapiz, palmada, tic: () => I.woodTick(1.3),
+  jet, burbujas, zumbido, motor, brillo, lapiz, palmada, arranque, masca, flash, papel: () => I.paperFwip(0.8), tic: () => I.woodTick(1.3),
   gluglu,
   boing: () => I.boing(),
   claxon,
@@ -120,7 +132,7 @@ const RECETAS = {
 // nivel (dB RMS) y posición (−1 izquierda, 1 derecha) de cada efecto; las aldeas se solapan, por eso van más bajas
 const NIVEL = { gluglu: [-30, 0.3], boing: [-29, -0.2], claxon: [-31, -0.5], silbato: [-32, 0.1], vapor: [-34, 0.1],
   pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0],
-  motor: [-36, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
+  motor: [-36, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
 const rms = (b) => {
   const n = Math.min(b.length, Math.round(0.4 * SR)), c = new Float64Array(b.length + 1);

@@ -22,6 +22,8 @@ export const C = {
     metal: '#9aa4b4', metalS: '#6c7688', metalL: '#c8d0dc', metalD: '#4a5262', vidrio: '#2e4a6a', vidrioL: '#8ac0e0', fuego: '#ffb040', fuegoL: '#fff0a0',
     tictac: '#f6f8fa', tictacS: '#c4cad4', tictacL: '#ffffff', sombraMar: '#1a3c6c',
     monte0: '#8a9ac0', monte1: '#6c7ca6', monte2: '#56648c', monte3: '#3e4a6e', nieveL: '#ffffff', nieveM: '#dfe8f4', nieveD: '#a8b8d4', roca: '#5e5a6e', rocaS: '#46425a',
+    arena: '#e0b47a', arenaS: '#c8945a', arenaL: '#f0cc94', meseta: '#c8704a', mesetaS: '#9a4e34', mesetaL: '#e08a5a', mesetaF: '#d89a7a', mesetaFS: '#b87a62',
+    matorral: '#7a8a4a', matorralS: '#56663a', yuca: '#6a8a5a', foil: '#e6ecf4', foilS: '#9aa8bc', noche1: '#141a3e', noche2: '#1e2650', noche3: '#2c3466',
     bosque0: '#4a7a6a', bosque1: '#2e5e4a', bosque2: '#1e4636', bosque3: '#163628', avion: '#d8c060', avionS: '#a88c30', avionR: '#c83a3a',
   }),
 };
@@ -410,4 +412,131 @@ export function rebote(R, x0, y0, t) {
   for (let k = 0; k < 3; k++) for (let i = 0; i <= 10; i++) { const x = x0 + k * 10 + i, y = Math.round(y0 - Math.sin((i / 10) * Math.PI) * (6 - k * 2)); if ((i + Math.floor(t * 8)) % 3) R.pset(x, y, C.blanco); }
   const u = (t * 0.8) % 1, k = Math.floor(u * 3), i = (u * 3 - k) * 10, x = Math.round(x0 + k * 10 + i), y = Math.round(y0 - Math.sin((i / 10) * Math.PI) * (6 - k * 2));
   R.rect(x - 2, y - 1, x + 2, y, C.metalL); R.rect(x - 4, y + 4, x + 34, y + 4, C.marP3);
+}
+
+// noche: oscurece y azulea todo lo que hay entre y0 e y1, salvo los colores de `deja` (ventanas encendidas, estrellas)
+export function nocturno(R, y0, y1, deja = []) {
+  const keep = new Set(deja);
+  for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = 0; x < 320; x++) {
+    const c = R.pget(x, y); if (keep.has(c)) continue;
+    const r = c & 255, g = (c >> 8) & 255, b = (c >> 16) & 255;
+    R.pset(x, y, (0xff000000 | (Math.min(255, Math.round(b * 0.5 + 46)) << 16) | (Math.min(255, Math.round(g * 0.36 + 22)) << 8) | Math.min(255, Math.round(r * 0.32 + 18))) >>> 0);
+  }
+}
+
+// ── C · el rancho de Nuevo México, 1947 ─────────────────────────────────────────────────────────────────────────────
+// Mesetas rojizas en capas, matorral, yucas, el molino que gira, la cerca de alambre, la casa con porche y el cobertizo.
+// o.noche (cielo estrellado, Vía Láctea y estrellas fugaces); o.tarde; o.restos (0–1: tiras brillantes por el suelo);
+// o.ovejas (lista de x); o.casa (false para quitarla)
+export function rancho(R, t, o = {}) {
+  const { rect, pset, poligono } = R, hor = 112;
+  if (o.noche) {
+    for (let y = 0; y < hor; y++) rect(0, y, 319, y, y < 40 ? C.noche1 : y < 80 ? C.noche2 : C.noche3);
+    // la Vía Láctea: una banda diagonal de polvo de estrellas
+    for (let k = 0; k < 420; k++) { const u = h(k, 1, 20), x = Math.round(u * 340 - 10), y = Math.round(10 + u * 70 + (h(k, 2, 20) - 0.5) * 26); if (y < hor - 6) pset(x, y, h(k, 3, 20) < 0.3 ? C.noche3 : hex('#3e4680')); }
+    for (let k = 0; k < 90; k++) { const x = Math.round(h(k, 4, 20) * 320), y = Math.round(h(k, 5, 20) * (hor - 8)); pset(x, y, Math.sin(t * 2 + k) > 0.6 ? C.blanco : C.grisL); if (k % 11 === 0 && Math.sin(t * 3 + k) > 0.8) { pset(x - 1, y, C.grisL); pset(x + 1, y, C.grisL); } }
+    fugaz(R, t, 6);
+    R.disco(210, 26, 8, hex('#e8e0c8')); R.disco(210, 26, 7, C.papel); R.disco(212, 24, 2, C.papelS); R.disco(207, 29, 1, C.papelS);   // la luna
+  } else cielo(R, t, { hor, aves: false, tarde: o.tarde, sol: o.tarde ? [60, hor - 22, 11] : [250, 22, 8] });
+  const sombra = (c) => c;   // de noche se oscurece todo al final (nocturno)
+  // mesetas lejanas (más claras) y cercanas, con su sombra y estratos
+  const meseta = (x0, x1, top, base, c, cs) => { poligono([[x0, base], [x0 + 8, top + 3], [x0 + 12, top], [x1 - 12, top], [x1 - 8, top + 3], [x1, base]], sombra(c)); poligono([[x1 - 12, top], [x1 - 8, top + 3], [x1, base], [x1 - 22, base]], sombra(cs)); for (let y = top + 6; y < base; y += 5) for (let x = x0 + 10; x < x1 - 10; x++) if ((x + y) % 13 < 8) pset(x, y, sombra(cs)); };
+  meseta(-20, 90, 82, hor, C.mesetaF, C.mesetaFS); meseta(150, 230, 88, hor, C.mesetaF, C.mesetaFS); meseta(250, 340, 78, hor, C.mesetaF, C.mesetaFS);
+  meseta(40, 130, 92, hor + 2, C.meseta, C.mesetaS); meseta(210, 290, 96, hor + 2, C.meseta, C.mesetaS);
+  // el llano: arena con vetas y piedras
+  for (let y = hor; y < 180; y++) rect(0, y, 319, y, sombra(y < hor + 10 ? C.arenaS : C.arena));
+  for (let k = 0; k < 120; k++) { const x = Math.round(h(k, 6, 21) * 320), y = hor + 4 + Math.round(h(k, 7, 21) * 66); pset(x, y, sombra(k % 3 ? C.arenaS : C.arenaL)); if (k % 9 === 0) { rect(x, y, x + 2, y + 1, sombra(C.piedraS)); pset(x + 1, y, sombra(C.piedra)); } }
+  // matorral y yucas
+  for (let k = 0; k < 28; k++) { const x = Math.round(h(k, 8, 21) * 330 - 5), y = hor + 6 + Math.round(h(k, 9, 21) ** 1.5 * 60), s = 0.6 + (y - hor) / 70, m = Math.round(Math.sin(t * 2 + k) * 0.6);
+    if (k % 6 === 0) { rect(x, y - 6 * s, x, y, sombra(C.matorralS)); for (let i = -3; i <= 3; i++) R.linea(x, Math.round(y - 6 * s), x + i * 2 + m, Math.round(y - 10 * s - Math.abs(i)), sombra(C.yuca)); }
+    else { R.disco(x + m, y - Math.round(2 * s), Math.round(3 * s), sombra(C.matorralS)); R.disco(x - 1 + m, y - Math.round(3 * s), Math.round(2 * s), sombra(C.matorral)); } }
+  // la cerca de alambre
+  for (let x = -4; x < 330; x += 22) { rect(x, 118, x + 1, 128, sombra(C.maderaS)); }
+  for (const y of [120, 124]) for (let x = 0; x < 320; x++) if ((x + y) % 3) pset(x, y + Math.round(Math.sin(x * 0.14) * 0.6), sombra(C.metalS));
+  // el molino que gira con el viento
+  { const mx = 262, my = 74; R.linea(mx - 6, 118, mx, my, sombra(C.metalD)); R.linea(mx + 6, 118, mx, my, sombra(C.metalD)); for (let y = 82; y < 118; y += 8) R.linea(mx - 6 + (y - 74) / 44 * 0 , y, mx + 6, y, sombra(C.metalS));
+    const a0 = t * 2.4; for (let k = 0; k < 8; k++) { const a = a0 + k * Math.PI / 4; R.linea(mx, my, Math.round(mx + Math.cos(a) * 10), Math.round(my + Math.sin(a) * 10), sombra(C.metal)); }
+    rect(mx + 1, my - 1, mx + 12, my, sombra(C.metalD)); poligono([[mx + 12, my - 4], [mx + 16, my - 4], [mx + 16, my + 3], [mx + 12, my + 3]], sombra(C.rojo)); R.disco(mx, my, 1, sombra(C.k));
+    rect(mx - 9, 112, mx + 9, 118, sombra(C.metalD)); rect(mx - 8, 113, mx + 8, 113, o.noche ? hex('#3e4680') : C.marP3); }   // el abrevadero
+  // la casa del rancho con porche y el cobertizo
+  if (o.casa !== false) {
+    const cx = 20; poligono([[cx, 100], [cx + 30, 88], [cx + 60, 100]], sombra(C.maderaS)); rect(cx + 2, 100, cx + 58, 128, sombra(C.madera)); for (let y = 102; y < 128; y += 3) rect(cx + 2, y, cx + 58, y, sombra(C.maderaS));
+    rect(cx + 8, 108, cx + 18, 116, sombra(C.k)); rect(cx + 9, 109, cx + 17, 115, o.noche ? C.oroL : C.cristal); rect(cx + 40, 110, cx + 48, 128, sombra(C.maderaD));
+    rect(cx - 4, 104, cx + 64, 105, sombra(C.maderaD)); for (const px of [cx - 3, cx + 30, cx + 63]) rect(px, 105, px, 128, sombra(C.maderaD));
+    R.linea(cx + 50, 88, cx + 50, 80, sombra(C.k)); if (!o.noche) { pset(cx + 50, 78 - Math.floor(t * 2) % 3, C.grisL); pset(cx + 51, 75 - Math.floor(t * 2) % 3, C.grisL); }   // humo de la chimenea
+    const sx = 96; rect(sx, 108, sx + 22, 128, sombra(C.maderaS)); poligono([[sx - 2, 108], [sx + 11, 102], [sx + 24, 108]], sombra(C.metalS)); rect(sx + 6, 114, sx + 16, 128, sombra(C.maderaD));
+  }
+  if (o.noche) { nocturno(R, hor - 50, 179, [C.oroL]); for (let y = 129; y < 142; y++) for (let x = 26 - (y - 129); x < 40 + (y - 129) * 0.6; x++) if ((x + y) % 2 === 0) pset(Math.round(x), y, hex('#6a5a5a')); }   // la luz de la ventana en el suelo
+  // los restos: tiras de papel de aluminio que destellan, palitos y trozos de goma
+  if (o.restos) for (let k = 0; k < Math.round(46 * o.restos); k++) { const x = 120 + Math.round(h(k, 10, 21) * 190), y = 132 + Math.round(h(k, 11, 21) * 40), tipo = k % 4;
+    if (tipo === 0) { rect(x, y, x + 3, y, C.foil); pset(x + 1, y - 1, C.foilS); if (Math.sin(t * 5 + k * 1.7) > 0.7) { pset(x + 1, y - 2, C.blanco); pset(x - 1, y, C.blanco); pset(x + 4, y, C.blanco); } }
+    else if (tipo === 1) R.linea(x, y, x + 5, y - 2, C.maderaL); else if (tipo === 2) { rect(x, y, x + 1, y + 1, C.k); } else { rect(x, y, x + 2, y, C.foilS); } }
+  // vida: un halcón, una planta rodadora que cruza, polvo en el viento
+  if (!o.noche) { halcon(R, t, 170, 40); const u = ((t * 0.12) % 1), rx = Math.round(-20 + u * 360), ry = 160 - Math.round(Math.abs(Math.sin(t * 3)) * 4); R.disco(rx, ry, 4, sombra(C.matorralS)); for (let a = 0; a < 6; a++) pset(rx + Math.round(Math.cos(a + t * 6) * 3), ry + Math.round(Math.sin(a + t * 6) * 3), sombra(C.tierraL)); viento(R, t, { y0: 130, y1: 170 }); }
+}
+
+// el tren de globos del Proyecto Mogul: globos blancos en fila por un cable, con reflectores de radar y el micrófono
+export function mogul(R, x, yBase, t, p = 1) {
+  const n = 12, alto = 150;
+  for (let k = 0; k < n; k++) {
+    const f = k / (n - 1), y = Math.round(yBase - f * alto * p), xx = Math.round(x + Math.sin(t * 0.8 + f * 3) * 4 * f);
+    if (k > 0) { const fp = (k - 1) / (n - 1), yp = Math.round(yBase - fp * alto * p), xp = Math.round(x + Math.sin(t * 0.8 + fp * 3) * 4 * fp); R.linea(xp, yp, xx, y, C.grisL); }
+    if (k === 0) { rect(xx - 2, y - 3, xx + 2, y, C.k); R.rect(xx - 1, y - 2, xx + 1, y - 1, C.metalS); continue; }   // el micrófono
+    if (k % 4 === 2) { poligono([[xx, y - 4], [xx - 4, y], [xx, y + 4], [xx + 4, y]], C.foil); pset(xx, y, C.blanco); continue; }   // reflector de radar
+    R.disco(xx, y - 3, 4, C.k); R.disco(xx, y - 3, 3, C.blanco); pset(xx - 1, y - 5, C.nieveM);
+  }
+  function rect(a, b, c, d, col) { R.rect(a, b, c, d, col); }
+  function poligono(p, c) { R.poligono(p, c); }
+  function pset(a, b, c) { R.pset(a, b, c); }
+}
+
+// la camioneta de los cuarenta, de lado (mirando a la derecha), con caja atrás; o.carga: restos en la caja
+export function camioneta(R, x, suelo, t, o = {}) {
+  const dir = o.dir ?? 1, X = (u) => Math.round(x + u * dir), b = o.anda ? Math.floor(t * 8) % 2 : 0, y = suelo - b;
+  const verde = hex('#4a6a8a'), verdeS = hex('#34506e');
+  R.poligono([[X(-22), y - 8], [X(2), y - 8], [X(4), y - 18], [X(14), y - 18], [X(18), y - 10], [X(26), y - 9], [X(26), y - 3], [X(-22), y - 3]], C.k);
+  R.poligono([[X(-21), y - 7], [X(3), y - 7], [X(5), y - 17], [X(13), y - 17], [X(17), y - 9], [X(25), y - 8], [X(25), y - 4], [X(-21), y - 4]], verde);
+  R.rect(Math.min(X(6), X(12)), y - 15, Math.max(X(6), X(12)), y - 11, C.vidrioL); R.rect(Math.min(X(-21), X(2)), y - 5, Math.max(X(-21), X(2)), y - 4, verdeS);
+  R.pset(X(25), y - 7, C.oroL);
+  if (o.carga) for (let k = 0; k < 6; k++) R.pset(X(-18 + k * 3), y - 9 - (k % 2), k % 2 ? C.foil : C.maderaL);
+  for (const u of [-14, 16]) { R.disco(X(u), y - 2, 4, C.k); R.disco(X(u), y - 2, 2, C.metalS); R.pset(X(u) + (Math.floor(t * 10) % 2 ? 1 : -1), y - 2, C.k); }
+  if (o.anda) for (let k = 0; k < 6; k++) { const px = X(-26 - k * 4) , py = suelo - 2 - Math.round(h(k, Math.floor(t * 8), 30) * 4); R.disco(px, py, 1 + (k > 2 ? 1 : 0), C.arenaL); }   // polvareda
+}
+
+// un periódico que vuela con el viento, con un platillo dibujado en primera página (sin palabras)
+export function periodico(R, x, y, t) {
+  const a = Math.sin(t * 5) > 0;
+  R.rect(x - 10, y - 7, x + 10, y + 7, C.k); R.rect(x - 9, y - 6, x + 9, y + 6, C.papel); R.rect(x - 9, y - 6, x + 9, y - 4, C.k);
+  R.rect(x - 6, y, x + 6, y + 1, C.metalS); R.rect(x - 3, y - 2, x + 3, y - 1, C.vidrioL);
+  for (let k = 0; k < 3; k++) R.rect(x - 8, y + 3 + k, x + (k === 2 ? 2 : 8), y + 3 + k, C.grisL);
+  if (a) R.rect(x + 9, y - 6, x + 10, y + 6, C.papelS);
+}
+
+// ── el despacho de los años cuarenta y cincuenta (el general en 1947, el Libro Azul después) ────────────────────────
+// o.mapa (mapa de EE. UU. con chinchetas); o.carpetas (0–1: montañas de carpetas); o.bandera; o.noche; o.luz (lámpara)
+export function despacho(R, t, o = {}) {
+  const { rect, pset, poligono } = R, oscuro = o.apagado;
+  const pared = oscuro ? hex('#2a2a3a') : C.pared, paredS = oscuro ? hex('#22222e') : C.paredS;
+  rect(0, 0, 319, 140, pared); for (let x = 0; x < 320; x += 16) rect(x, 0, x, 140, paredS); rect(0, 120, 319, 140, paredS); rect(0, 119, 319, 119, C.maderaD);
+  rect(0, 140, 319, 179, oscuro ? hex('#2a2224') : C.maderaS); for (let y = 144; y < 180; y += 6) rect(0, y, 319, y, oscuro ? hex('#221c1e') : C.maderaD);
+  // ventana con persianas: fuera, la base con un hangar y un avión que pasa
+  rect(18, 22, 96, 84, C.k); rect(20, 24, 94, 82, oscuro ? C.noche2 : C.cielo2); if (!oscuro) { rect(20, 66, 94, 82, C.arena); rect(40, 54, 80, 66, C.metal); poligono([[40, 54], [60, 46], [80, 54]], C.metalL); const ax = Math.round(((t * 18) % 140) - 20); if (ax > 20 && ax < 88) { rect(ax, 36, ax + 6, 37, C.metalS); pset(ax + 3, 35, C.metalS); } }
+  else for (let k = 0; k < 8; k++) pset(24 + k * 9, 28 + (k * 7) % 30, C.blanco);
+  for (let y = 26; y < 82; y += 5) rect(20, y, 94, y, oscuro ? hex('#3a3a50') : C.papelS);
+  // reloj de pared y archivadores
+  R.disco(130, 30, 9, C.k); R.disco(130, 30, 8, C.papel); R.linea(130, 30, 130 + Math.round(Math.cos(t * 0.5) * 6), 30 + Math.round(Math.sin(t * 0.5) * 6), C.k); R.linea(130, 30, 133, 26, C.k);
+  for (let k = 0; k < 3; k++) { const x = 250 + k * 22; rect(x, 80, x + 20, 140, C.k); rect(x + 1, 81, x + 19, 139, C.metalS); for (let j = 0; j < 4; j++) { rect(x + 3, 84 + j * 14, x + 17, 94 + j * 14, C.metal); rect(x + 8, 88 + j * 14, x + 12, 89 + j * 14, C.k); } }
+  // la bandera de EE. UU. en su mástil
+  if (o.bandera !== false) { rect(222, 30, 223, 140, C.oroS); const ondea = Math.round(Math.sin(t * 2) * 1); for (let j = 0; j < 13; j++) rect(224, 32 + j * 2 + (j % 2 ? ondea : 0), 246, 33 + j * 2 + (j % 2 ? ondea : 0), j % 2 ? C.blanco : C.rojo); rect(224, 32, 234, 45, C.azul); for (let k = 0; k < 6; k++) pset(226 + (k % 3) * 3, 34 + Math.floor(k / 3) * 5, C.blanco); }
+  // mapa de EE. UU. con chinchetas (Libro Azul)
+  if (o.mapa) { rect(140, 40, 210, 84, C.k); rect(141, 41, 209, 83, C.papel); poligono([[146, 52], [168, 46], [200, 50], [205, 60], [196, 76], [176, 78], [160, 72], [148, 64]], C.verdeL); for (let k = 0; k < 14; k++) { const x = 150 + Math.round(h(k, 1, 40) * 50), y = 50 + Math.round(h(k, 2, 40) * 26); pset(x, y, k % 3 ? C.rojo : C.azul); pset(x, y - 1, C.k); } }
+  // ventilador de techo
+  { rect(160, 0, 161, 8, C.k); const a = t * 9; for (let k = 0; k < 3; k++) { const ang = a + k * 2.09; R.linea(160, 9, Math.round(160 + Math.cos(ang) * 18), 9 + Math.round(Math.sin(ang) * 2), C.maderaD); } R.disco(160, 9, 2, C.k); }
+  // el escritorio con teléfono, lámpara, máquina de escribir y papeles
+  rect(110, 118, 210, 146, C.k); rect(111, 119, 209, 145, C.madera); rect(111, 119, 209, 121, C.maderaL); rect(120, 130, 140, 145, C.maderaS); rect(180, 130, 200, 145, C.maderaS);
+  rect(116, 112, 126, 118, C.k); rect(117, 113, 125, 117, hex('#2a2430')); R.linea(118, 112, 124, 110, C.k);   // teléfono
+  rect(190, 104, 191, 118, C.metalD); poligono([[184, 104], [197, 104], [194, 98], [187, 98]], C.verde); if (!oscuro || o.luz) for (let y = 105; y < 118; y++) for (let x = 182 + (y - 105) / 2; x < 200 - (y - 105) / 2; x++) if ((x + y) % 2 && R.pget(Math.round(x), y) !== C.k) pset(Math.round(x), y, C.oroL);
+  rect(150, 110, 172, 118, C.k); rect(151, 111, 171, 117, C.metalD); rect(153, 106, 169, 110, C.papel);   // máquina de escribir
+  // montañas de carpetas en el suelo y en la mesa
+  if (o.carpetas) for (let k = 0; k < Math.round(60 * o.carpetas); k++) { const col = k % 6, fila = Math.floor(k / 6), x = 20 + col * 34 + (fila % 2) * 4, y = 172 - fila * 4; if (x > 100 && x < 214 && y > 120) continue; rect(x, y - 3, x + 18, y, C.k); rect(x + 1, y - 2, x + 17, y - 1, fila % 3 ? C.papel : C.ocre); }
 }

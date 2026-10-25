@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rancho · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-RANCHO (frase 13). C: el rancho de Nuevo México. Brazel recorre el campo sembrado de tiras brillantes y las recoge; una
+// oveja se queda con una tira colgando de la boca (gag); al final, carga la camioneta y se va hacia Roswell.
+import { preparar, rodar, primerT, rancho, camioneta, C } from '/atomo/plato/escenas/ov-comun.js';
+import { cordero } from '/atomo/plato/escenas/ag-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-rancho');
+const { tramo, lerp } = R;
+const m0 = M('restos', 1.4), L = E.duracion - m0;
+const anda = (t) => tramo(t, m0, m0 + 0.35 * L), coge = (t) => t > m0 + 0.35 * L && t < m0 + 0.62 * L, oveja = m0 + 0.48 * L, carga = m0 + 0.7 * L, sale = (t) => tramo(t, m0 + 0.78 * L, E.duracion);
+const plano = (t) => {
+  rancho(R, t, { restos: 1 - tramo(t, m0 + 0.35 * L, m0 + 0.62 * L) * 0.7 });
+  // ovejas que pastan; la del centro mastica una tira brillante
+  for (const [x, k] of [[150, 0], [176, 1], [300, 2]]) { cordero(R, x + Math.round(Math.sin(t * 0.3 + k) * 3), 156 + k * 4, t + k); }
+  if (t > oveja) { const mx = 183, my = 151; R.rect(mx, my, mx + 4, my, C.foil); R.pset(mx + 4, my + 1, C.foil); if (Math.sin(t * 6) > 0.4) R.pset(mx + 2, my - 1, C.blanco); }
+  const s = sale(t);
+  camioneta(R, Math.round(lerp(96, 360, s ** 1.4)), 150, t, { carga: t > carga, anda: s > 0 });
+  if (s <= 0) R.actor(EL.brazel, Math.round(lerp(330, 220, anda(t))), 150, t, { dir: -1, anda: anda(t) > 0 && anda(t) < 1, dedo: coge(t) && Math.sin(t * 3) > 0, sorpresa: t > oveja && t < oveja + 1.8, bigote: true });
+};
+const efectos = [[oveja, 'masca'], [primerT((t) => sale(t) > 0, 0, E.duracion), 'arranque']];
+rodar(E, R, [[0, plano]], { efectos, año: 1947 });
+</script>
+</body>
+</html>

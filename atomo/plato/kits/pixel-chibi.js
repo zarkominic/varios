@@ -504,6 +504,24 @@ export const TOCADOS = {
     '.kkkkkkkkkkkk..',
   ], -4],
   // quepis de soldado de la guerra civil (azul o gris, según la ropa)
+  // sombrero vaquero (episodio 10): copa hundida y ala ancha que sube por los lados
+  vaquero: [[
+    '....kkkkkkk....',
+    '...kVVkVVVVk...',
+    '...kVVVVVVVk...',
+    '...kvvvvvvvk...',
+    'kk.kkkkkkkkk.kk',
+    'kVkVVVVVVVVVkVk',
+    '.kkkkkkkkkkkkk.',
+  ], -4],
+  // gorra de plato de general (episodio 10): visera negra y emblema dorado
+  general: [[
+    '..kkkkkkkkkk...',
+    '.kCCCCCCCCCCk..',
+    '.kCCCCOOCCCCk..',
+    '.kkkkkkkkkkkkk.',
+    '..........kkkk.',
+  ], -2],
   // casco de piloto de caza (episodio 10): blanco, con la visera oscura subida por delante
   casco: [[
     '....kkkkkkk....',
@@ -584,6 +602,10 @@ export const ELENCO_OV = {
   fravor: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'casco', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#6e7a52', c: '#525c3c', F: '#6e7a52', W: '#6e7a52', o: '#c8b040' }) },
   // Kenneth Arnold, 1947: cazadora de cuero marrón y gorra de aviador
   arnold: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#3a2418'), tocado: 'gorra', pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#7a4a2a', c: '#5a3418', F: '#4a4a5a', W: '#e8dcc0', o: '#c8b040' }) },
+  // Mac Brazel, capataz del rancho: camisa a cuadros (roja), vaqueros y sombrero
+  brazel: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'vaquero', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#b84a3a', c: '#8e3428', F: '#3e5a8a', W: '#b84a3a', o: '#e8d8b4', V: '#a8885a', v: '#6a4e30' }) },
+  // general de 1947: uniforme verde oliva con gorra de plato
+  general: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#8c8ca0'), tocado: 'general', pal: CLARA({ H: '#8c8ca0', h: '#b8bccc', C: '#5e6a44', c: '#46502e', F: '#5e6a44', W: '#d8c8a8', o: '#e8b830', O: '#e8b830' }) },
   // periodista de 1947: traje gris, sombrero, libreta
   periodista: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#2c2232'), tocado: 'fedora', pal: CLARA({ H: '#2c2232', h: '#54466a', C: '#8c8ca0', c: '#6a6a7a', F: '#5e5e70', W: '#f2eee2', G: '#3a3046', o: '#c83a3a' }) },
   dietrich: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#8a5428'), tocado: 'casco', pal: CLARA({ H: '#a87040', h: '#c89058', C: '#6e7a52', c: '#525c3c', F: '#6e7a52', W: '#6e7a52', o: '#c8b040' }) },

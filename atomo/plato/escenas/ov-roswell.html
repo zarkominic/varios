@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Roswell · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-ROSWELL (frase 14). C: la base de Roswell; un periódico con un platillo en portada vuela con el viento. Luego, el
+// despacho del general con los restos y un globo: los fotógrafos disparan sus flashes.
+import { preparar, rodar, primerT, rancho, periodico, despacho, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-roswell');
+const { tramo, lerp } = R;
+const m0 = M('disco', 0.5), L = E.duracion - m0, corte = m0 + 0.42 * L;
+const vuela = (t) => tramo(t, m0 + 0.3, corte - 0.2);
+const titular = (t) => { rancho(R, t, { casa: false }); const u = vuela(t); periodico(R, Math.round(lerp(-20, 340, u)), Math.round(110 - Math.sin(u * Math.PI) * 50 + Math.sin(t * 4) * 4), t); };
+const flashes = [0.15, 0.32, 0.5, 0.66, 0.8].map((f) => corte + f * (E.duracion - corte));
+const oficina = (t) => {
+  despacho(R, t, { bandera: true });
+  // el globo meteorológico desinflado y los restos en el suelo
+  R.disco(150, 168, 9, C.k); R.disco(150, 168, 8, hex2('#c8c0b0')); for (let k = 0; k < 10; k++) R.rect(118 + k * 7, 170 + (k % 3), 121 + k * 7, 170 + (k % 3), k % 2 ? C.foil : C.maderaL);
+  R.actor(EL.general, 196, 166, t, { dir: -1, dedo: t > corte + 1, habla: Math.sin(t * 5) > 0.3 });
+  R.actor(EL.periodista, 60, 168, t + 1, { sorpresa: flashes.some((f) => t > f && t < f + 0.4) });
+  R.actor(EL.periodista, 34, 170, t + 2, { pal: { C: hex2('#5a6a8a'), c: hex2('#46506a') } });
+  // cámaras con flash: un destello blanco que lo inunda todo un instante
+  for (const f of flashes) if (t > f && t < f + 0.12) { for (let y = 0; y < 180; y += 2) R.rect(0, y, 319, y, C.blanco); }
+};
+function hex2(c) { const n = parseInt(c.slice(1), 16); return R.hex ? R.hex(c) : n; }
+const efectos = [[m0 + 0.3, 'papel'], ...flashes.map((f) => [f, 'flash'])];
+rodar(E, R, [[0, titular], [corte, oficina]], { efectos, año: 1947 });
+</script>
+</body>
+</html>
