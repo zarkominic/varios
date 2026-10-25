@@ -609,3 +609,106 @@ export function torre(R, t, pts, o = {}) {
   rect(260, 140, 266, 148, C.k); rect(261, 141, 265, 147, C.blanco); if (Math.sin(t * 2) > 0) R.pset(263, 137, C.grisL); R.pset(262, 135, C.grisL);
   rect(140, 144, 160, 150, C.papel); rect(141, 146, 158, 146, C.grisL);
 }
+
+// ── E · Nevada (el Área 51) y el cielo del atardecer ─────────────────────────────────────────────────────────────────
+// El lago seco blanco y agrietado, la sierra parda, la calima que hace temblar el horizonte, hangares que se levantan
+// (o.obra 0–1), la torre, la pista y un cartel de prohibido el paso sin palabras.
+export function area51(R, t, o = {}) {
+  const { rect, pset, poligono } = R, hor = 104, obra = o.obra ?? 1;
+  cielo(R, t, { hor, aves: false, sol: [70, 26, 8], nubes: false });
+  R.poligono([[0, hor], [0, 92], [80, 90], [160, 94], [240, 90], [319, 93], [319, hor]], hex('#a88a84'));   // la sierra del fondo, sin huecos
+  for (const [x0, y0, k] of [[-20, 82, 0], [120, 76, 1], [230, 84, 2]]) { const pts = [[x0, hor]]; for (let i = 0; i <= 8; i++) pts.push([x0 + i * 16, y0 + Math.round(Math.sin(i * 1.7 + k) * 5 + (i === 0 || i === 8 ? 12 : 0))]); pts.push([x0 + 128, hor]); poligono(pts, k === 1 ? hex('#8a6a6a') : hex('#9a7a74')); }
+  for (let y = 86; y < hor; y += 3) for (let x = 0; x < 320; x++) if (R.pget(x, y) === hex('#8a6a6a') && (x + y) % 9 < 3) pset(x, y, hex('#76585a'));
+  // el lago seco: blanco con grietas hexagonales
+  for (let y = hor; y < 180; y++) rect(0, y, 319, y, y < hor + 3 ? hex('#e8e0d0') : hex('#f2ece0'));
+  for (let k = 0; k < 160; k++) { const x = Math.round(h(k, 1, 60) * 320), y = hor + 4 + Math.round(h(k, 2, 60) ** 1.3 * 72), l = 2 + Math.round((y - hor) / 12); for (let i = 0; i < l; i++) pset(x + i, y + (i % 2), hex('#d4cab4')); pset(x + l, y - 1, hex('#d4cab4')); }
+  // la calima: el aire caliente hace temblar el borde del horizonte
+  for (let y = hor - 4; y < hor + 2; y++) { const d = Math.round(Math.sin(t * 6 + y * 1.3) * 1.2); if (d) for (let x = 0; x < 320; x += 2) { const c = R.pget(x, y); pset(x + d, y, c); } }
+  // la pista
+  rect(0, 150, 319, 162, hex('#5a5a66')); rect(0, 150, 319, 150, hex('#7a7a86')); for (let x = 4; x < 320; x += 20) rect(x, 156, x + 10, 156, C.blanco);
+  // hangares que se levantan, la torre y el cartel
+  for (const [x, w] of [[150, 46], [202, 46], [254, 52]]) { const alto = Math.round(26 * Math.min(1, Math.max(0, obra * 3 - (x - 150) / 60))); if (alto < 2) { rect(x, 144, x + w, 146, C.maderaL); continue; }
+    poligono([[x, 146 - alto + 6], [x + w / 2, 146 - alto], [x + w, 146 - alto + 6], [x + w, 146], [x, 146]], C.metal); for (let xx = x + 2; xx < x + w; xx += 4) rect(xx, 146 - alto + 8, xx, 145, C.metalS); rect(x + 8, 146 - Math.round(alto * 0.6), x + w - 8, 146, hex('#2a2a36')); }
+  if (obra > 0.5) { rect(120, 112, 124, 146, C.metalD); rect(114, 104, 130, 112, C.k); rect(115, 105, 129, 111, C.vidrioL); if (Math.sin(t * 3) > 0) pset(122, 102, C.rojo); }
+  rect(26, 132, 27, 148, C.maderaS); rect(16, 120, 38, 133, C.k); rect(17, 121, 37, 132, C.blanco); R.icono('X', 24, 123, C.rojo, C.blanco);
+  // una grúa de la obra y polvo
+  if (obra < 1) { R.linea(280, 146, 280, 96, C.amarillo); R.linea(280, 96, 312, 96, C.amarillo); R.linea(306, 96, 306, 110 + Math.round(Math.sin(t) * 3), C.k); viento(R, t, { y0: 130, y1: 150 }); }
+  halcon(R, t, 200, 40);
+}
+
+// el U-2 de lado: fuselaje largo y fino, ala recta larguísima (de canto, una línea) y deriva alta; plateado
+const U2 = [
+  'kk..............................',
+  'kGk.............................',
+  'kGGk............................',
+  'kGGGkkkkkkkkkkkkkkkkkkkkkkVVkk..',
+  'kLLLLLLLLLLLLLLLLLLLLLLLLLLLLLkk',
+  '.kGGGGGGGGGGGGGGGGGGGGGGGGGGGGk.',
+  '..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..',
+];
+export function u2(R, x, y, t, o = {}) {
+  const dir = o.dir ?? 1, w = U2[0].length, brasa = o.brasa;
+  const pal = brasa ? { k: hex('#8a3a1a'), G: C.fuego, L: C.fuegoL, V: C.fuegoL } : { k: C.k, G: C.metal, L: C.metalL, V: C.vidrioL };
+  R.dibujo(U2, Math.round(x - w / 2), Math.round(y - 4), dir, pal);
+  // el ala de canto: una raya larga a media altura, que asoma por delante y por detrás
+  R.rect(Math.round(x - 30), Math.round(y), Math.round(x + 30), Math.round(y), brasa ? C.fuegoL : C.metalL);
+  if (brasa) for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + t; R.pset(Math.round(x + Math.cos(a) * 34), Math.round(y + Math.sin(a) * 6), C.oroL); }
+}
+
+// el coche perseguidor de los cincuenta (familiar), de lado, corriendo; mirando a la derecha
+export function cocheU2(R, x, suelo, t) {
+  const b = Math.floor(t * 12) % 2, y = suelo - b;
+  R.poligono([[x - 16, y - 4], [x - 12, y - 10], [x + 8, y - 10], [x + 12, y - 5], [x + 18, y - 4], [x + 18, y], [x - 16, y]], C.k);
+  R.poligono([[x - 15, y - 4], [x - 11, y - 9], [x + 7, y - 9], [x + 11, y - 4], [x + 17, y - 3], [x + 17, y - 1], [x - 15, y - 1]], C.rojo);
+  R.rect(x - 10, y - 8, x - 2, y - 5, C.vidrioL); R.rect(x, y - 8, x + 6, y - 5, C.vidrioL); R.pset(x + 17, y - 3, C.oroL);
+  for (const cx of [x - 9, x + 11]) { R.disco(cx, y, 3, C.k); R.pset(cx, y, C.metal); }
+  for (let k = 0; k < 6; k++) R.disco(x - 20 - k * 4, suelo - 1 - Math.round(h(k, Math.floor(t * 10), 61) * 3), 1 + (k > 2 ? 1 : 0), hex('#e8e0d0'));   // polvo del lago seco
+}
+
+// el cielo del atardecer visto desde un avión de línea: abajo ya es de noche, con las luces de los pueblos encendidas
+export function atardecer(R, t, o = {}) {
+  const { rect, pset } = R, hor = o.hor ?? 118;
+  const bandas = [hex('#2a2a6a'), hex('#4a3a7a'), hex('#8a4a7a'), hex('#d0684a'), hex('#f0a050'), hex('#f8d080')];
+  for (let y = 0; y < hor; y++) rect(0, y, 319, y, bandas[Math.min(5, Math.floor((y / hor) ** 1.4 * 6))]);
+  for (let k = 0; k < 20; k++) { const x = Math.round(h(k, 1, 70) * 320), y = Math.round(h(k, 2, 70) * 30); if (Math.sin(t + k) > 0.3) pset(x, y, C.blanco); }
+  R.disco(250, hor - 2, 10, hex('#ffd890')); R.disco(250, hor - 2, 8, hex('#fff0c0'));   // el sol que se pone
+  for (const [x, y, w] of [[40, hor - 20, 60], [180, hor - 36, 40], [270, hor - 14, 50]]) for (let i = 0; i < w; i++) { pset(Math.round(((x + i + t * 4) % 380) - 30), y, hex('#e8805a')); if (i % 3) pset(Math.round(((x + i + 2 + t * 4) % 380) - 30), y + 1, hex('#a85a6a')); }
+  // el suelo en sombra, con los pueblos que encienden sus luces
+  for (let y = hor; y < 180; y++) rect(0, y, 319, y, y < hor + 2 ? hex('#3a2a4a') : hex('#1e1a34'));
+  const luces = o.luces ?? 1;
+  for (let k = 0; k < 18; k++) { const cx = Math.round(((h(k, 3, 70) * 360 - t * (o.vel ?? 6)) % 360 + 360) % 360) - 20, cy = hor + 6 + Math.round(h(k, 4, 70) ** 1.5 * 56);
+    for (let j = 0; j < 5 + (k % 4) * 2; j++) if (h(k, j, 71) < luces) pset(cx + Math.round((h(k, j, 72) - 0.5) * 12), cy + Math.round((h(k, j, 73) - 0.5) * 5), h(k, j, 74) < 0.7 ? C.oroL : C.blanco); }
+  // carreteras que se adivinan por los faros
+  for (let k = 0; k < 4; k++) { const x = Math.round(((t * 20 + k * 90) % 360) - 20), y = hor + 22 + k * 12; pset(x, y, C.blanco); pset(x + 1, y, C.oroL); }
+}
+
+// el avión de línea de los cincuenta (cuatrimotor de hélice), de lado, con ventanillas encendidas
+export function avionLinea(R, x, y, t, o = {}) {
+  const { poligono, rect, pset } = R, X = (u) => Math.round(x + u), Y = (v) => Math.round(y + v);
+  poligono([[X(-70), Y(-2)], [X(50), Y(-6)], [X(70), Y(-2)], [X(76), Y(2)], [X(66), Y(6)], [X(-70), Y(6)]], C.k);
+  poligono([[X(-69), Y(-1)], [X(50), Y(-5)], [X(69), Y(-1)], [X(74), Y(2)], [X(65), Y(5)], [X(-69), Y(5)]], hex('#d8dce8'));
+  rect(X(-66), Y(2), X(64), Y(3), C.azul);
+  poligono([[X(-70), Y(-2)], [X(-58), Y(-2)], [X(-64), Y(-18)], [X(-72), Y(-18)]], hex('#c8ccd8')); rect(X(-71), Y(-16), X(-66), Y(-13), C.rojo);
+  poligono([[X(-14), Y(3)], [X(16), Y(3)], [X(4), Y(9)], [X(-26), Y(9)]], hex('#a8acbc'));
+  for (const u of [-18, 8]) { rect(X(u - 2), Y(4), X(u + 6), Y(7), C.metalS); const p = Math.floor(t * 30) % 2; R.linea(X(u + 7), Y(5 - 4 * p), X(u + 7), Y(7 + 3 * p), C.metalD); }
+  for (let u = -54; u < 46; u += 6) { rect(X(u), Y(-2), X(u + 2), Y(0), C.k); pset(X(u + 1), Y(-1), C.oroL); }   // ventanillas encendidas
+  rect(X(56), Y(-4), X(62), Y(-2), C.vidrio);
+  if (Math.sin(t * 5) > 0) pset(X(-72), Y(-18), C.rojo);
+}
+
+// los asientos de la cabina (se pintan después de los pasajeros, que quedan sentados detrás del respaldo)
+export function asientos(R) {
+  for (let k = 0; k < 6; k++) { const x = 6 + k * 52; R.rect(x, 128, x + 22, 148, C.k); R.rect(x + 1, 129, x + 21, 147, hex('#3a5a8a')); R.rect(x + 1, 129, x + 21, 131, hex('#4a6a9a')); R.rect(x + 5, 124, x + 17, 129, C.k); R.rect(x + 6, 125, x + 16, 128, C.blanco); }
+}
+// la cabina de pasajeros de los cincuenta: ventanillas redondas, asientos, la luz del atardecer entrando
+export function cabinaPasajeros(R, t) {
+  const { rect, pset, disco } = R;
+  rect(0, 0, 319, 179, hex('#c8bca8')); rect(0, 0, 319, 30, hex('#b0a490')); rect(0, 148, 319, 179, hex('#6a3a3a')); for (let x = 0; x < 320; x += 8) rect(x, 150, x + 3, 179, hex('#5a3030'));
+  for (let k = 0; k < 6; k++) { const cx = 30 + k * 52, cy = 66; disco(cx, cy, 12, C.k); disco(cx, cy, 11, hex('#e8e4dc')); disco(cx, cy, 9, k < 3 ? hex('#f0a050') : hex('#d0684a')); for (let j = -9; j < 9; j++) for (let i = -9; i < 9; i++) if (i * i + j * j < 81 && cy + j > 70) pset(cx + i, cy + j, hex('#2a2244')); if (k === 3) { pset(cx + 3, cy - 6, C.blanco); pset(cx + 4, cy - 6, C.oroL); } }
+  for (let y = 40; y < 100; y += 2) for (let x = 0; x < 320; x++) if (h(x >> 3, y, 75) < 0.04) pset(x, y, hex('#d8ccb0'));   // luz de atardecer en la pared
+  // luces del techo, portaequipajes con maletas y sombreros, cortinillas a medio bajar
+  for (let x = 12; x < 320; x += 26) { rect(x, 26, x + 10, 28, hex('#fff4d0')); rect(x - 1, 29, x + 11, 29, hex('#9a8e78')); }
+  rect(0, 88, 319, 90, C.metalS); rect(0, 91, 319, 91, C.k); for (let x = 0; x < 320; x += 6) pset(x, 92, C.metalS);
+  for (let k = 0; k < 9; k++) { const x = 8 + k * 36 + Math.round(h(k, 1, 76) * 8), w = 12 + Math.round(h(k, 2, 76) * 10), c = [C.maderaL, C.rojo, C.verde, C.ocre][k % 4]; rect(x, 80, x + w, 88, C.k); rect(x + 1, 81, x + w - 1, 87, c); rect(x + Math.round(w / 2) - 2, 78, x + Math.round(w / 2) + 2, 80, C.k); }
+  for (let k = 0; k < 6; k++) { const cx = 30 + k * 52; rect(cx - 11, 52, cx + 11, 54 + (k % 2) * 3, hex('#8a6a5a')); }
+}

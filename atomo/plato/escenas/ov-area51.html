@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Área 51 · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-AREA51 (frases 21–22). E: el lago seco de Nevada con calima; se levantan hangares y una torre, y un cartel de prohibido el
+// paso. Luego el U-2 despega y sube muy alto; cuando aterriza, un coche corre detrás de él por la pista (gag real); «×3».
+import { preparar, rodar, primerT, area51, u2, cocheU2 } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await preparar('ov-area51');
+const { tramo, lerp } = R;
+const m = { b: M('base', 1.5), u: M('u2', 12.8) };
+const obra = (t) => tramo(t, m.b, m.u - 2);
+const despega = (t) => tramo(t, m.u + 0.3, m.u + 4.3), aterriza = (t) => tramo(t, m.u + 4.6, E.duracion - 0.6);
+const base = (t) => area51(R, t, { obra: obra(t) });
+const vuelo = (t) => {
+  area51(R, t);
+  const d = despega(t), a = aterriza(t);
+  if (a <= 0) { const x = lerp(20, 360, d ** 1.5), y = 150 - Math.max(0, d - 0.35) * 140; u2(R, x, y, t); }
+  else { const x = lerp(-30, 250, a), y = Math.min(150, lerp(110, 150, a * 1.6)); u2(R, x, y, t); if (a > 0.25) cocheU2(R, x - 52 + Math.sin(t * 3) * 3, 160, t); }
+  if (d > 0.7 && a <= 0) R.numero('×3', 230, 50, { centro: true, tam: 16 });
+};
+const efectos = [[primerT((t) => despega(t) > 0, m.u, E.duracion), 'jet', { dur: 4, pan: 0.6 }], [primerT((t) => aterriza(t) > 0.25, m.u, E.duracion), 'arranque'], [primerT((t) => despega(t) > 0.7, m.u, E.duracion), 'pop']];
+rodar(E, R, [[0, base], [m.u - 0.3, vuelo]], { efectos, cartela: '1955', año: 1955 });
+</script>
+</body>
+</html>
