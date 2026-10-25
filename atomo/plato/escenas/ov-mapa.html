@@ -9,39 +9,125 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// OV-MAPA (frases 5–7). Mapa del mundo de 1947: EE. UU. y la URSS se miran; sobre la URSS, un hongo atómico pequeño con «?».
-// Mapa de EE. UU.: se encienden el Rainier, Roswell, Washington y Nevada y, aparte, el portaaviones frente a California.
-// La regla: dos cielos en pantalla partida, el de la gente (un ojo que mira) y el del gobierno (un despacho con candado).
-import { preparar, rodar, primerT, mapaEEUU, mapaMundo, LUGARES_OV, C } from '/atomo/plato/escenas/ov-comun.js';
+// OV-MAPA (frases 5–7), 1947, cartela «1947». Siete planos:
+// 1. la calle principal con banderitas y confeti: la guerra ha terminado; un soldado vuelve a casa y su hija corre a
+//    abrazarlo, y pasa un coche;
+// 2. el salón de noche: la radio suena, el padre baja el periódico con el hongo y la «?» en portada, y el niño se asoma a
+//    la ventana, donde un foco barre el cielo: nadie duerme tranquilo;
+// 3. el mapa del Pacífico: la URSS y EE. UU. se vigilan desde el cielo, con aviones de reconocimiento y radares; sobre la
+//    URSS, el hongo pequeño con «?»;
+// 4. el mapa de EE. UU. en la mesa de mando: una mano clava chinchetas en el monte Rainier y en el rancho de Nuevo México;
+// 5. el mapa de cerca, con la cámara que se mueve: Washington, el lago seco de Nevada y, mucho después, un portaaviones de
+//    juguete frente a California;
+// 6. la calle de noche: la gente señala una luz que cruza el cielo (lo que se vio);
+// 7. pantalla partida: el cielo con la luz y la carpeta del gobierno con su foto; primero coinciden («=») y luego no («≠»).
+import { preparar, rodar, calle1947, coche1947, salon1947, sillon1947, C } from '/atomo/plato/escenas/ov-comun.js';
+import { albersEEUU, equirect, mapaPapel, chincheta, avionMapa, rosa } from '/atomo/plato/escenas/ov-mapas.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-mapa');
-const { tramo } = R;
-const m = { g: M('guerra', 1.4), p: M('puntos', 17.5), r: M('regla', 32.8) };
-const mundo = (t) => {
-  const P = mapaMundo(R, t);
-  const [ux, uy] = P([-98, 39]), [sx, sy] = P([90, 60]);
-  R.punto(ux, uy, t, R.PALA.AZUL, 4); R.punto(sx, sy, t, R.PALA.ROJO, 4);
-  // las dos miradas: una línea punteada que va y viene entre los dos países
-  const u = (Math.sin(t * 1.2) + 1) / 2; for (let k = 0; k < 20; k++) { const f = k / 20; if ((k + Math.floor(t * 6)) % 3) R.pset(Math.round(ux + (sx - ux) * f), Math.round(uy + (sy - uy) * f - Math.sin(f * Math.PI) * 24), u > 0.5 ? C.azulL : C.rojo); }
-  if (t > m.g + 6) { const hx = sx, hy = sy - 22, e = tramo(t, m.g + 6, m.g + 8); const top = hy + Math.round(6 - e * 8), r = Math.round(3 + e * 4);   // el hongo: tallo, anillo y la copa de bolas
-  R.rect(hx - 1, top + r - 1, hx + 1, hy + 14, C.grisL); R.rect(hx - r + 1, hy + 9, hx + r - 1, hy + 10, C.grisL);
-  for (const [dx, dy, rr] of [[0, 0, r], [-r + 1, 1, r - 1], [r - 1, 1, r - 1]]) { R.disco(hx + dx, top + dy, rr + 1, C.k); }
-  for (const [dx, dy, rr] of [[0, 0, r], [-r + 1, 1, r - 1], [r - 1, 1, r - 1]]) { R.disco(hx + dx, top + dy, rr, C.grisL); R.disco(hx + dx - 1, top + dy - 1, Math.max(1, rr - 2), C.blanco); } if (t > m.g + 9) R.icono('?', hx + 9, hy - 6, C.oroL, C.k, 2); }
+const { tramo, lerp, hex } = R;
+const P2 = 5.8, P3 = 11.6, P4 = 17.2, P5 = 25.2, P6 = 32.4, P7 = 37.3;
+const pins = { rainier: 22.2, roswell: 24.3, washington: 25.9, area51: 27.4 }, barco = 29.9, igual = 38.8, distinto = 40.6;
+const L = { rainier: [-121.76, 46.85], roswell: [-104.52, 33.39], washington: [-77.04, 38.9], area51: [-115.81, 37.24], nimitz: [-118.6, 31.6] };
+
+// 1 · la calle
+const abrazo = 4.4;
+const calle = (t) => {
+  calle1947(R, t);
+  R.actor(EL.senora30, 40, 136, t, { dir: 1, sonrisa: true, dedo: Math.floor(t * 4) % 2 === 0 && t > 2 });
+  const xs = Math.round(lerp(-14, 118, tramo(t, 0.6, abrazo))), xc = Math.round(lerp(250, 134, tramo(t, 2.2, abrazo)));
+  R.actor(EL.oficial, xs, 138, t, { dir: 1, anda: t < abrazo, sonrisa: true, brazos: t > abrazo });
+  R.actor(EL.chica, xc, 138, t, { dir: -1, anda: t > 2.2 && t < abrazo, sonrisa: true, salto: t > abrazo && t < abrazo + 0.5 ? 2 : 0, brazos: t > abrazo });
+  coche1947(R, 214, 152, t, { color: hex('#8a3a3a'), sombra: hex('#6a2a2a') });
+  coche1947(R, Math.round(lerp(330, -70, tramo(t, 1.0, 5.6))), 172, t, { dir: -1 });
 };
-const eeuu = (t) => { const u = t - m.p; mapaEEUU(R, t, { n: Math.min(4, Math.max(0, Math.floor(u / 2.4) + 1)), barco: u > 10 }); };
-const regla = (t) => {
-  const { rect, pset, disco } = R;
-  // izquierda: el cielo de la gente, con un ojo enorme que mira hacia arriba y estrellas
-  rect(0, 0, 159, 179, C.noche2); for (let k = 0; k < 30; k++) pset((k * 47) % 158, (k * 29) % 120, C.blanco);
-  const ox = 80, oy = 110; for (let j = -14; j <= 14; j++) for (let i = -30; i <= 30; i++) if ((i / 30) ** 2 + (j / 14) ** 2 < 1) pset(ox + i, oy + j, C.blanco); disco(ox + Math.round(Math.sin(t) * 6), oy - 4, 9, C.azulL); disco(ox + Math.round(Math.sin(t) * 6), oy - 4, 5, C.k); pset(ox + Math.round(Math.sin(t) * 6) + 2, oy - 7, C.blanco);
-  if (Math.floor(t * 0.7) % 5 === 0 && (t * 0.7) % 1 < 0.15) rect(ox - 30, oy - 14, ox + 30, oy + 14, C.noche2);   // parpadeo
-  // derecha: el cielo del gobierno: un archivador con candado bajo una lámpara
-  rect(160, 0, 319, 179, C.pared); rect(160, 140, 319, 179, C.maderaS); rect(206, 70, 274, 150, C.k); rect(207, 71, 273, 149, C.metalS);
-  for (let j = 0; j < 3; j++) { rect(212, 78 + j * 24, 268, 96 + j * 24, C.metal); rect(236, 84 + j * 24, 244, 86 + j * 24, C.k); }
-  rect(232, 98, 248, 112, C.k); R.icono('candado', 237, 101, C.oro, C.k);
-  rect(159, 0, 160, 179, C.k);
+// 2 · el salón de noche
+const baja = 8.0, nino = 9.4;
+const salon = (t) => {
+  salon1947(R, t, { radio: true });
+  R.actor(EL.senora30, 54, 150, t, { dir: 1, quieto: true, sorpresa: t > baja + 0.4 }); sillon1947(R, 54, 154, { color: hex('#6a4a6a'), sombra: hex('#4a3048') });
+  R.actor(EL.senor30, 150, 150, t, { dir: 1, quieto: true, sorpresa: t > baja + 0.2, triste: t > baja + 1.6 }); sillon1947(R, 150, 154);
+  // el periódico: tapa al padre hasta que lo baja; en portada, el hongo con «?»
+  const y = Math.round(lerp(118, 134, tramo(t, baja, baja + 0.5))), px = 162;
+  R.rect(px, y, px + 26, y + 18, C.k); R.rect(px + 1, y + 1, px + 25, y + 17, hex('#ece4d0')); R.rect(px + 3, y + 3, px + 23, y + 4, C.k);
+  R.disco(px + 9, y + 9, 3, C.grisS); R.rect(px + 8, y + 11, px + 10, y + 15, C.grisS); R.icono('?', px + 15, y + 8, C.rojo, hex('#ece4d0'));
+  for (let k = 0; k < 3; k++) R.rect(px + 15, y + 15 - k * 0, px + 23, y + 15, C.grisL);
+  const kx = Math.round(lerp(196, 222, tramo(t, nino, nino + 1.2))), ky = Math.round(lerp(168, 146, tramo(t, nino, nino + 1.2)));
+  R.actor(EL.chico, kx, ky, t, { dir: 1, anda: t > nino && t < nino + 1.2, quieto: t < nino });
+  if (t < nino) { R.rect(214, 162, 224, 163, C.metalL); R.rect(218, 159, 219, 166, C.metalL); }   // el avión de juguete en la alfombra
 };
-const efectos = [[m.g + 6, 'boom'], ...[0, 1, 2, 3].map((k) => [m.p + k * 2.4 + 0.1, 'pop']), [m.p + 10, 'pop'], [m.r, 'whoosh']];
-rodar(E, R, [[0, mundo], [m.p - 0.3, eeuu], [m.r - 0.3, regla]], { efectos, año: 1947 });
+// 3 · el Pacífico
+const pacifico = (t) => {
+  const P = equirect([0, 0, 320, 180], [40, 320, -10, 80]);
+  mapaPapel(R, t, P, { mundo: true, rosa: [160, 148] });
+  // radares en Alaska y Chukotka: anillos que se abren
+  for (const ll of [[-165, 64.5], [177, 64.7]]) { const [x, y] = P(ll); for (let k = 0; k < 2; k++) { const r = ((t * 6 + k * 9) % 18) + 2; for (let a = 0; a < 6.28; a += 0.25) R.pset(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.7), C.k); } R.disco(Math.round(x), Math.round(y), 2, C.k); }
+  // los aviones de reconocimiento: van y vuelven por la frontera, dejando un rastro punteado
+  const ruta = (a, b, u) => { const x = lerp(a[0], b[0], u), y = lerp(a[1], b[1], u) - Math.sin(u * Math.PI) * 14; return [x, y]; };
+  for (const [a, b, fase, c] of [[P([-150, 66]), P([160, 58]), 0, R.PALA.AZUL[1]], [P([170, 62]), P([-160, 58]), 0.5, R.PALA.ROJO[1]]]) {
+    const u = ((t - P3) * 0.18 + fase) % 1; for (let k = 0; k < 24; k++) { const v = u - k * 0.012; if (v < 0) break; const [x, y] = ruta(a, b, v); if (k % 2) R.pset(Math.round(x), Math.round(y), c); }
+    const [x, y] = ruta(a, b, u), [x2, y2] = ruta(a, b, u + 0.01); avionMapa(R, Math.round(x), Math.round(y), Math.atan2(y2 - y, x2 - x), C.k); }
+  // el hongo sobre la URSS, pequeño, con su «?»
+  const [hx, hy] = P([75, 52]).map(Math.round), e = tramo(t, P3 + 1.6, P3 + 3);
+  if (e > 0) { const top = hy - 4 - Math.round(e * 6), r = 2 + Math.round(e * 3); R.rect(hx - 1, top + r, hx + 1, hy + 4, C.grisL); for (const [dx, rr] of [[0, r], [-r + 1, r - 1], [r - 1, r - 1]]) R.disco(hx + dx, top, rr + 1, C.k); for (const [dx, rr] of [[0, r], [-r + 1, r - 1], [r - 1, r - 1]]) R.disco(hx + dx, top, rr, C.blanco); if (e >= 1) R.icono('?', hx + 8, top - 6, C.rojo, C.k, 2); }
+};
+// 4 y 5 · el mapa de EE. UU. en la mesa: chinchetas que clava una mano y pegatinas con el dibujo de cada lugar
+const pegatina = (x, y, k, t) => {
+  const { rect, poligono, disco, pset, linea } = R; rect(x - 11, y - 8, x + 11, y + 8, C.k); rect(x - 10, y - 7, x + 10, y + 7, C.blanco); rect(x - 10, y + 6, x + 10, y + 7, C.grisL);
+  if (k === 'rainier') { poligono([[x - 9, y + 6], [x - 1, y - 6], [x + 9, y + 6]], hex('#6a7a9a')); poligono([[x - 4, y - 1], [x - 1, y - 6], [x + 3, y - 1]], C.blanco); poligono([[x + 2, y + 6], [x + 6, y], [x + 10, y + 6]], hex('#5a6a8a')); }
+  if (k === 'roswell') { rect(x - 1, y - 3, x + 1, y + 6, C.k); for (let a = 0; a < 4; a++) { const g = t * 3 + a * Math.PI / 2; linea(x, y - 3, Math.round(x + Math.cos(g) * 6), Math.round(y - 3 + Math.sin(g) * 6), C.k); } rect(x - 10, y + 5, x + 10, y + 6, C.ocre); }
+  if (k === 'washington') { disco(x, y - 1, 5, C.grisL); disco(x, y - 1, 4, C.blanco); rect(x - 8, y + 1, x + 8, y + 6, C.grisL); for (let i = -6; i <= 6; i += 3) rect(x + i, y + 2, x + i, y + 6, C.grisS); rect(x, y - 7, x, y - 5, C.grisS); }
+  if (k === 'area51') { for (let j = -3; j <= 3; j++) for (let i = -9; i <= 9; i++) if ((i / 9) ** 2 + (j / 3) ** 2 < 1) pset(x + i, y + 3 + j, hex('#e8d8b8')); linea(x - 7, y - 3, x + 7, y - 3, C.k); linea(x + 1, y - 7, x + 1, y + 1, C.k); linea(x - 3, y - 4, x - 3, y - 2, C.k); }
+};
+const mano = (t, x, y, t0) => { const u = tramo(t, t0 - 0.6, t0) - tramo(t, t0 + 0.2, t0 + 0.8); if (u <= 0) return; const hx = Math.round(lerp(360, x + 9, u)), hy = Math.round(lerp(210, y - 4, u)); R.rect(hx, hy - 2, hx + 60, hy + 2, hex('#4a5a3a')); R.rect(hx, hy - 3, hx + 60, hy - 3, C.k); R.rect(hx, hy + 3, hx + 60, hy + 3, C.k); R.disco(hx - 2, hy, 4, C.k); R.disco(hx - 2, hy, 3, hex('#f6c290')); R.rect(hx - 9, hy - 1, hx - 4, hy, hex('#f6c290')); R.pset(hx - 10, hy - 1, C.k); };
+const mesa = (t, P, quien) => {
+  for (const [k, t0] of Object.entries(pins)) if (quien.includes(k)) { const [x, y] = P(L[k]).map(Math.round), b = tramo(t, t0 - 0.25, t0); chincheta(R, x, y, t, C.rojo, { baja: b, pulso: b >= 1 && t < t0 + 3 });
+    if (t > t0 + 0.3) { const e = Math.min(1, (t - t0 - 0.3) * 4); if (e >= 1) pegatina(x + (k === 'washington' ? -20 : 18), y - 14, k, t); } }
+  for (const [k, t0] of Object.entries(pins)) if (quien.includes(k)) { const [x, y] = P(L[k]).map(Math.round); mano(t, x, y, t0); }
+};
+const eeuu = (t) => { const P = albersEEUU([30, 22, 290, 168]); mapaPapel(R, t, P, { eeuu: true, mesa: 8, rosa: [46, 150], reticula: 10 }); mesa(t, P, ['rainier', 'roswell']); };
+const cerca = (t) => {
+  const u = tramo(t, P5, P5 + 2.4), v = tramo(t, P5 + 2.8, barco - 0.4);
+  const centro = [lerp(lerp(-84, -112, u), -116, v), lerp(lerp(39, 38, u), 35, v)], P = albersEEUU([30, 22, 290, 168], { zoom: 1.6, centro });
+  mapaPapel(R, t, P, { eeuu: true, reticula: 5 }); mesa(t, P, ['rainier', 'roswell', 'washington', 'area51']);
+  // el portaaviones de juguete: la mano lo deja frente a California y se queda con su estela
+  const [bx, by] = P(L.nimitz).map(Math.round), b = tramo(t, barco - 0.5, barco), dy = Math.round((1 - b) * 30);
+  if (b > 0) { const x = bx + (b >= 1 ? Math.round(Math.sin(t) * 2) : 0), y = by - dy; R.rect(x - 11, y - 2, x + 11, y + 2, C.k); R.rect(x - 10, y - 1, x + 10, y + 1, C.metal); R.rect(x - 10, y, x + 10, y, C.metalS); R.rect(x + 3, y - 4, x + 6, y - 2, C.metalD); for (let i = -8; i < 8; i += 4) R.pset(x + i, y - 1, C.blanco);
+    if (b >= 1) for (let i = 0; i < 14; i++) if ((i + Math.floor(t * 4)) % 3) R.pset(x - 12 - i, y + 1 + (i % 2), C.blanco);
+    if (b < 1) { R.rect(x + 12, y - 2, x + 70, y + 2, hex('#4a5a3a')); R.disco(x + 10, y, 4, C.k); R.disco(x + 10, y, 3, hex('#f6c290')); } }
+};
+// 6 · la calle de noche: la luz que cruza y la gente que la señala
+const luz = (t, x0, x1, y) => { const u = tramo(t, P6 + 0.3, P6 + 4.6), x = Math.round(lerp(x0, x1, u)), yy = Math.round(y + Math.sin(u * 9) * 3); for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) { const d = Math.hypot(i, j); if (d < 6 && (i + j) % 2 === 0) R.pset(x + i, yy + j, hex('#f0e0a0')); } R.disco(x, yy, 3, C.oroL); R.disco(x, yy, 1, C.blanco); return [x, yy]; };
+const noche = (t) => {
+  calle1947(R, t, { noche: true }); luz(t, 30, 280, 34);
+  for (const [def, x, d] of [[EL.senor30, 90, 1], [EL.senora30, 108, 1], [EL.chico, 126, -1], [EL.periodista, 210, -1]]) R.actor(def, x, 138, t, { dir: d, dedo: t > P6 + 0.8, sorpresa: t > P6 + 0.5 });
+  coche1947(R, 230, 152, t, { noche: true, color: hex('#2a3a4a'), sombra: hex('#1a2a36') });
+};
+// 7 · pantalla partida: lo que vio la gente y lo que sabía el gobierno
+const dos = (t) => {
+  const { rect, pset, disco, poligono } = R, cambia = t > distinto - 0.3;
+  // izquierda: el cielo de noche sobre los tejados, con la luz
+  rect(0, 0, 159, 179, C.noche1); for (let k = 0; k < 30; k++) pset((k * 47) % 158, (k * 29) % 110, Math.sin(t * 2 + k) > 0 ? C.blanco : C.grisL);
+  for (let x = 0; x < 160; x += 18) { const a = 18 + (x * 7) % 14; rect(x, 179 - a - 30, x + 16, 179, hex('#1a1e34')); poligono([[x - 2, 179 - a - 30], [x + 8, 179 - a - 40], [x + 18, 179 - a - 30]], hex('#1a1e34')); if ((x / 18) % 2) rect(x + 6, 179 - a - 22, x + 9, 179 - a - 19, C.oroL); }
+  for (let j = -8; j <= 8; j++) for (let i = -8; i <= 8; i++) { const d = Math.hypot(i, j); if (d < 8 && (i + j) % 2 === 0) pset(80 + i, 60 + j + Math.round(Math.sin(t * 2) * 2), hex('#f0e0a0')); }
+  disco(80, 60 + Math.round(Math.sin(t * 2) * 2), 4, C.oroL); disco(80, 60 + Math.round(Math.sin(t * 2) * 2), 2, C.blanco);
+  // derecha: la mesa del gobierno con la carpeta abierta y su foto; al cambiar, entra otra carpeta con un globo
+  rect(160, 0, 319, 179, hex('#a8b494')); rect(160, 120, 319, 179, C.madera); for (let y = 126; y < 180; y += 7) rect(160, y, 319, y, C.maderaS);
+  const sx = Math.round(cambia ? lerp(330, 0, tramo(t, distinto - 0.3, distinto + 0.2)) : 0);
+  for (const [k, dx] of [[0, 0], [1, sx]]) { if (k === 1 && !cambia) continue; if (k === 0 && cambia && sx <= 0) continue;
+    const x0 = 190 + dx; rect(x0, 50, x0 + 100, 150, C.k); rect(x0 + 1, 51, x0 + 99, 149, C.ocre); rect(x0 + 6, 56, x0 + 94, 146, C.papel);
+    rect(x0 + 14, 62, x0 + 60, 100, C.blanco); rect(x0 + 16, 64, x0 + 58, 98, hex('#2a2e44'));
+    if (k === 0) { disco(x0 + 37, 81, 4, C.oroL); disco(x0 + 37, 81, 2, C.blanco); } else { disco(x0 + 37, 76, 6, hex('#d8dce4')); R.linea(x0 + 37, 82, x0 + 38, 94, hex('#d8dce4')); }
+    for (let i = 0; i < 6; i++) rect(x0 + 14, 108 + i * 6, x0 + 80 - (i * 7) % 20, 108 + i * 6, C.grisL); }
+  if (t > igual) R.icono('candado', 296, 136, C.oro, C.k, 1);
+  // en medio, el símbolo: «=» verde y luego «≠» rojo
+  rect(158, 0, 161, 179, C.k); disco(160, 90, 12, C.k); disco(160, 90, 11, C.blanco);
+  if (t > igual) { const c = cambia && sx <= 0 ? C.rojo : C.verde; rect(154, 86, 166, 88, c); rect(154, 92, 166, 94, c); if (c === C.rojo) R.linea(163, 82, 157, 98, c); }
+};
+rodar(E, R, [[0, calle], [P2, salon], [P3, pacifico], [P4, eeuu], [P5, cerca], [P6, noche], [P7, dos]], {
+  efectos: [[1.0, 'motor'], [P2 + 0.2, 'interruptor'], [baja, 'papel'], [P3 + 1.6, 'boom'], ...Object.values(pins).map((v) => [v, 'toc']), [barco, 'golpecito'], [P6 + 0.5, 'brillo'], [igual, 'bip'], [distinto, 'papel']],
+  cartela: '1947', año: 1947,
+});
 </script>
 </body>
 </html>

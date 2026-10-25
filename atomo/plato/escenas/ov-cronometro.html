@@ -9,14 +9,20 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// OV-CRONOMETRO (frase 10). B: el tablero de la avioneta; el reloj cuenta mientras los destellos van del Rainier al Adams; «×2».
-import { preparar, rodar, tablero } from '/atomo/plato/escenas/ov-comun.js';
+// OV-CRONOMETRO (frase 10). Tres planos:
+// 1. el reloj del tablero de cerca: el pulgar de Arnold aprieta la corona y el segundero empieza a saltar;
+// 2. el tablero: los destellos van del Rainier al Adams mientras el reloj cuenta;
+// 3. la libreta sobre la rodilla: el lápiz escribe «1:42» y dibuja dos barras, la de los aviones más rápidos de la época y
+//    la de los objetos, más del doble; un círculo rojo con «×2».
+import { preparar, rodar, tablero, relojCerca, libreta } from '/atomo/plato/escenas/ov-comun.js';
 const { E, R, M } = await preparar('ov-cronometro');
 const { tramo } = R;
-const m0 = M('reloj', 0.5), fin = E.duracion - 2.6;
-const plano = (t) => { tablero(R, t, tramo(t, m0 + 0.5, fin)); if (t > fin + 0.3) R.numero('×2', 160, 52, { centro: true, tam: 16 }); };
-const efectos = [[0, 'motor', { dur: E.duracion }], ...Array.from({ length: Math.floor(fin - m0) }, (_, k) => [m0 + 0.5 + k, 'tic']), [fin + 0.3, 'pop']];
-rodar(E, R, [[0, plano]], { efectos, año: 1947 });
+const m0 = M('reloj', 0.5), P2 = 5.4, P3 = 10.6, pulsa = 2.2, doble = E.duracion - 1.6;
+const reloj = (t) => relojCerca(R, t, { seg: Math.max(0, t - pulsa - 0.2) * 1, pulsa: Math.max(0, 1 - Math.abs(t - pulsa) * 3) });
+const ventana = (t) => tablero(R, t, tramo(t, P2 + 0.3, P3 - 0.2));
+const cuentas = (t) => libreta(R, t, { escribe: tramo(t, P3 + 0.3, P3 + 1.8), barras: tramo(t, P3 + 2.2, doble - 0.3), doble: t > doble });
+const efectos = [[0, 'motor', { dur: E.duracion }], [pulsa, 'cerrojo'], ...Array.from({ length: Math.floor(P3 - pulsa - 0.5) }, (_, k) => [pulsa + 0.2 + k, 'tic']), [P3 + 0.3, 'lapiz'], [P3 + 2.2, 'lapiz'], [doble, 'pop']];
+rodar(E, R, [[0, reloj], [P2, ventana], [P3, cuentas]], { efectos, año: 1947 });
 </script>
 </body>
 </html>

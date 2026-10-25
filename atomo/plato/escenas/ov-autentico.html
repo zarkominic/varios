@@ -44,7 +44,7 @@ const oficina = (t) => {
 const carpeta = (t) => insertoCarpeta(R, t, { sello: tramo(t, sello2 - 0.6, sello2 + 0.2), marca: '?', forma: Math.round(Math.sin(t * 0.5) * 3) });
 rodar(E, R, [[0, monitor], [P2, oficina], [P3, carpeta]], {
   efectos: [[sello, 'sello'], ...vistos.map((v) => [v, 'tic']), [caja, 'papel'], [sello2 - 0.1, 'sello']],
-  año: 2020,
+  año: (t) => (t < P2 ? 2020 : 2024),
 });
 </script>
 </body>

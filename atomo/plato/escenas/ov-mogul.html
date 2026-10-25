@@ -9,23 +9,59 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// OV-MOGUL (frases 15–16). C de noche: el tren de globos del Proyecto Mogul sube hacia las estrellas con su micrófono; «1994».
-// Luego Brazel y su familia en el porche miran el cielo; pasa una estrella fugaz; «?».
-import { preparar, rodar, rancho, mogul, C } from '/atomo/plato/escenas/ov-comun.js';
+// OV-MOGUL (frases 15–16). Siete planos:
+// 1. la carpeta de la versión oficial (el globo meteorológico, con su «✓») en un estante: el calendario corre de 1947 a
+//    1994 y la carpeta amarillea, se llena de polvo y de telarañas;
+// 2. 1994: el informe de la Fuerza Aérea cae sobre la mesa con un golpe; luego, la carpeta vieja se tacha con una «X»;
+// 3. de noche, en el desierto: los técnicos sueltan el tren de globos del Proyecto Mogul, que sube entre focos;
+// 4. la estratosfera: el micrófono cuelga sobre la curva de la Tierra y le llegan ondas de un hongo lejano;
+// 5. el Roswell de hoy, convertido en pueblo ovni: platillo colgado, cabezas verdes en los escaparates, turistas con
+//    cámaras;
+// 6. la sala de casa: en la pantalla, un portavoz explica un avistamiento con un globo y un «✓»; quien mira frunce el ceño;
+// 7. el porche del rancho de noche: la familia mira al cielo; pasa una estrella fugaz; «?».
+import { preparar, rodar, rancho, carpetaVieja, informe1994, lanzamientoMogul, estratosfera, calle1947, salaHoy, silla, C } from '/atomo/plato/escenas/ov-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-mogul');
-const { tramo } = R;
+const { tramo, lerp, hex } = R;
 const m = { g: M('mogul', 0.5), s: M('sospecha', 18.5) };
-const sube = (t) => tramo(t, m.g + 0.5, m.s - 2);
-const globos = (t) => { rancho(R, t, { noche: true }); mogul(R, 190, 170 - Math.round(sube(t) * 30), t, 0.25 + 0.75 * sube(t)); if (t > m.g + 0.55 * (m.s - m.g)) R.numero('1994', 90, 50, { centro: true, tam: 16 }); };
+const P2 = 4.2, P3 = 8.4, P4 = 14.4, P5 = m.s - 0.1, P6 = 24.3, P7 = 28.8, tacha = P2 + 2.2;
+// 1 · la versión oficial envejece
+const anios = (t) => Math.round(lerp(1947, 1994, tramo(t, 0.6, P2 - 0.2) ** 1.3));
+const vieja = (t) => carpetaVieja(R, t, { anio: anios(t), polvo: tramo(t, 0.6, P2), hoja: (t * 6) % 1 });
+// 2 · el informe de 1994 y la «X»
+const informe = (t) => t < tacha - 0.4 ? informe1994(R, t, { cae: tramo(t, P2 + 0.2, P2 + 0.9) }) : carpetaVieja(R, t, { anio: 1994, polvo: 1, tachada: tramo(t, tacha, tacha + 0.6) });
+// 3 · el lanzamiento
+const suelta = P3 + 1.2;
+const lanza = (t) => {
+  const p = tramo(t, suelta, P4 + 0.2); lanzamientoMogul(R, t, p);
+  for (const [def, x, d] of [[EL.oficial, 136, 1], [EL.controlador, 176, -1]]) R.actor(def, x, 152, t + x, { dir: d, brazos: t > suelta - 0.6 && t < suelta + 0.6, dedo: t > suelta + 1.2, sorpresa: t > suelta + 0.6 });
+};
+// 4 · la estratosfera
+const alto = (t) => estratosfera(R, t, { ondas: tramo(t, P4 + 1.0, P4 + 2.4) });
+// 5 · Roswell, pueblo ovni
+const pueblo = (t) => {
+  calle1947(R, t, { roswell: true });
+  [[EL.chica, 40, 1], [EL.senor30, 96, 1], [EL.sudadera, 150, -1], [EL.chico, 216, 1], [EL.senora30, 262, -1]].forEach(([def, x, d], k) => {
+    const xx = k % 2 ? Math.round(x + Math.sin(t * 0.6 + k) * 10) : x; R.actor(def, xx, 138, t + k, { dir: d, anda: k % 2 === 1, sonrisa: true, dedo: k === 0 || k === 4 });
+    if (k === 2 || k === 4) { const fx = xx + (d > 0 ? 14 : -2); R.rect(fx - 2, 120, fx + 2, 123, C.k); if (Math.floor(t * 1.3 + k) % 4 === 0) { R.disco(fx, 121, 2, C.blanco); } } });
+};
+// 6 · la explicación en la pantalla y el ceño fruncido
+const tele = (R, x0, y0, x1, y1, t) => {
+  R.rect(x0, y0, x1, y1, hex('#2a3a6a')); R.rect(x0, y1 - 8, x1, y1, hex('#8a2a2a'));
+  R.rect(x0 + 18, y0 + 14, x0 + 32, y1 - 8, hex('#5a4a3a')); R.disco(x0 + 25, y0 + 10, 3, hex('#f6c290')); R.rect(x0 + 21, y0 + 13, x0 + 29, y0 + 20, hex('#2a3a4a'));
+  R.disco(x1 - 14, y0 + 10, 5, C.blanco); R.linea(x1 - 14, y0 + 15, x1 - 13, y0 + 22, C.blanco); if (Math.floor(t * 2) % 2) R.icono('?', x1 - 26, y0 + 6, C.blanco, hex('#2a3a6a'));
+};
+const casa = (t) => { salaHoy(R, t, { pantalla: tele }); R.actor(EL.sudadera, 118, 128, t, { dir: 1, quieto: true, enfado: t > P6 + 1.5, dedo: t > P6 + 2.8 }); silla(R, 124, 124); };
+// 7 · el porche de noche
 const porche = (t) => {
   rancho(R, t, { noche: true });
-  R.actor(EL.brazel, 46, 128, t, { bigote: true, dir: 1, sorpresa: t > m.s + 6 && t < m.s + 8 });
+  R.actor(EL.brazel, 46, 128, t, { bigote: true, dir: 1, sorpresa: t > P7 + 1.4 && t < P7 + 3 });
   R.actor(EL.senora30, 66, 128, t + 1, { dir: 1 });
-  R.actor(EL.chico, 82, 128, t + 2, { dir: 1, dedo: t > m.s + 6 });
-  if (t > m.s + 8.5) R.icono('?', 160, 40, undefined, undefined, 4);
+  R.actor(EL.chico, 82, 128, t + 2, { dir: 1, dedo: t > P7 + 1.4 });
+  if (t > P7 + 2.6) R.icono('?', 160, 40, undefined, undefined, 4);
 };
-rodar(E, R, [[0, globos], [m.s - 0.3, porche]], { efectos: [[m.s + 8.5, 'pop']], año: 1947 });
+const efectos = [...Array.from({ length: 8 }, (_, k) => [0.8 + k * 0.42, 'papel']), [P2 + 0.9, 'boom'], [tacha, 'sello'], [suelta, 'whoosh'], [P4 + 1.0, 'zumbido'], [P6 + 0.2, 'interruptor'], [P7 + 2.6, 'pop']];
+rodar(E, R, [[0, vieja], [P2, informe], [P3, lanza], [P4, alto], [P5, pueblo], [P6, casa], [P7, porche]], { efectos, año: (t) => t < P2 ? anios(t) : t < P3 ? 1994 : t < P5 ? 1947 : t < P7 ? 2026 : 1947 });
 </script>
 </body>
 </html>

@@ -9,32 +9,44 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// OV-PLATILLOS (frases 11–12). B en tierra: Arnold explica con la mano un platillo que rebota; el periodista dibuja un
-// plato con cúpula y Arnold se tapa la cara (gag). Llega gente que mira al cielo. Luego, al atardecer, el cielo vacío y «?».
-import { preparar, rodar, primerT, aerodromo, rebote, bocadilloPlatillo, C } from '/atomo/plato/escenas/ov-comun.js';
+// OV-PLATILLOS (frases 11–12). Cinco planos:
+// 1. el aeródromo: Arnold, recién aterrizado, se lo cuenta a todo el que llega, explicando con la mano el rebote;
+// 2. el lago: un plato blanco rebota sobre el agua, salta cuatro veces y abre anillos (como se movían, dijo él);
+// 3. el aeródromo: el periodista dibuja un plato con cúpula y Arnold se tapa la cara (gag): los periódicos se quedan con
+//    la palabra;
+// 4. el mapa de EE. UU.: en pocos días salen periódicos con el platillo por todo el país, de Oregón hacia el este;
+// 5. el atardecer: Arnold, solo junto a su avioneta, mira al cielo vacío; «?».
+import { preparar, rodar, aerodromo, avioneta, rebote, bocadilloPlatillo, lagoRebote, periodicosPais, C } from '/atomo/plato/escenas/ov-comun.js';
+import { albersEEUU, mapaPapel } from '/atomo/plato/escenas/ov-mapas.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-platillos');
 const { tramo, lerp } = R;
 const m = { p: M('prensa', 0.5), n: M('nadie', 14.8) };
-const L = m.n - m.p, dibuja = m.p + 0.42 * L, tapa = m.p + 0.55 * L, gente = (t) => tramo(t, m.p + 0.62 * L, m.p + 0.85 * L);
-const tierra = (t) => {
+const P2 = 3.6, P3 = 7.4, P4 = 10.6, P5 = m.n - 0.3, dibuja = P3 + 0.9, tapa = P3 + 1.9;
+// 1 · Arnold lo cuenta y la gente se acerca
+const cuenta = (t) => {
   aerodromo(R, t);
-  const explica = t < dibuja;
-  if (explica && t > m.p + 0.6) rebote(R, 54, 112, t);
-  const palma = t > tapa && t < tapa + 2.4;   // se tapa la cara con la mano
-  R.actor(EL.arnold, 70, 145, t, { habla: explica && Math.sin(t * 6) > 0, dedo: (explica && Math.sin(t * 2) > 0) || palma, triste: palma, quieto: palma });
-  R.actor(EL.periodista, 108, 145, t, { dir: -1, sonrisa: t > dibuja, habla: t > dibuja && t < tapa });
-  if (t < dibuja) { R.rect(97, 131, 101, 136, C.k); R.rect(98, 132, 100, 135, C.papel); }   // la libreta
-  if (t > dibuja) bocadilloPlatillo(R, 112, 112);
-  // la gente que llega y señala al cielo
-  const g = gente(t);
-  if (g > 0) [[EL.chico, 0], [EL.chica, 0.2], [EL.senora30, 0.4]].forEach(([q, d], k) => {
-    const e = tramo(g, d, d + 0.5); R.actor(q, Math.round(lerp(340, 180 + k * 22, e)), 145, t + k, { dir: -1, anda: e < 1, dedo: e >= 1, sorpresa: e >= 1 && k === 1 });
-  });
+  if (t > 0.8) rebote(R, 54, 112, t);
+  R.actor(EL.arnold, 70, 145, t, { habla: Math.sin(t * 6) > 0, dedo: Math.sin(t * 2) > 0 });
+  [[EL.chico, 0.2], [EL.senora30, 0.6], [EL.senor30, 1.0], [EL.periodista, 0.4]].forEach(([q, d], k) => { const e = tramo(t, d, d + 2.2); R.actor(q, Math.round(lerp(340, 100 + k * 20, e)), 145, t + k, { dir: -1, anda: e < 1, sorpresa: e >= 1 && k === 1 }); });
 };
-const tarde = (t) => { aerodromo(R, t, { tarde: true }); if (t > m.n + 2) R.icono('?', 118, 44, undefined, undefined, 4); };
-const efectos = [[dibuja, 'lapiz'], [tapa, 'palmada'], [m.n + 2, 'pop']];
-rodar(E, R, [[0, tierra], [m.n - 0.3, tarde]], { efectos, año: 1947 });
+// 2 · el plato que rebota
+const lago = (t) => lagoRebote(R, t, { u: tramo(t, P2 + 0.3, P3 - 0.3) });
+// 3 · el dibujo del periodista (gag)
+const gag = (t) => {
+  aerodromo(R, t);
+  const palma = t > tapa && t < tapa + 1.4;
+  R.actor(EL.arnold, 70, 145, t, { habla: t < dibuja && Math.sin(t * 6) > 0, dedo: palma, triste: palma, quieto: palma });
+  R.actor(EL.periodista, 108, 145, t, { dir: -1, sonrisa: t > dibuja, habla: t > dibuja && t < tapa });
+  if (t < dibuja) { R.rect(97, 131, 101, 136, C.k); R.rect(98, 132, 100, 135, C.papel); } else bocadilloPlatillo(R, 112, 112);
+  for (const [q, x] of [[EL.senora30, 160], [EL.senor30, 180]]) R.actor(q, x, 145, t + x, { dir: -1, sonrisa: t > dibuja });
+};
+// 4 · el país entero habla de platillos
+const pais = (t) => { const P = albersEEUU([30, 22, 290, 168]); mapaPapel(R, t, P, { eeuu: true, mesa: 8, reticula: 10 }); periodicosPais(R, t, P, tramo(t, P4 + 0.2, P5 - 0.6)); };
+// 5 · el atardecer: el cielo vacío
+const tarde = (t) => { aerodromo(R, t, { tarde: true, avion: false }); avioneta(R, 178, 138, 0, { dir: -1 }); R.actor(EL.arnold, 140, 146, t, { dir: 1, quieto: true }); if (t > m.n + 2) R.icono('?', 118, 44, undefined, undefined, 4); };
+const efectos = [[P2 + 0.3 + (80 / 250) * (P3 - 0.6 - P2), 'chof'], [P2 + 0.3 + (150 / 250) * (P3 - 0.6 - P2), 'chof'], [dibuja, 'lapiz'], [tapa, 'palmada'], ...[0, 1, 2, 3, 4].map((k) => [P4 + 0.4 + k * 0.6, 'papel']), [m.n + 2, 'pop']];
+rodar(E, R, [[0, cuenta], [P2, lago], [P3, gag], [P4, pais], [P5, tarde]], { efectos, año: 1947 });
 </script>
 </body>
 </html>

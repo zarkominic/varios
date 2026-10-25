@@ -9,24 +9,52 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// OV-ARNOLD (frases 8–9). B: la avioneta de Arnold sobre los bosques, con el Rainier al fondo, buscando los restos del avión
-// militar; luego, nueve destellos que cruzan en fila delante de las montañas.
-import { preparar, rodar, primerT, rainier, avioneta, destellos } from '/atomo/plato/escenas/ov-comun.js';
+// OV-ARNOLD (frases 8–9), 24 de junio de 1947, cartela «1947». Seis planos:
+// 1. el aeródromo: Arnold va andando hasta su avioneta, sube, arranca la hélice y despega por la pista;
+// 2. de lejos: la avioneta sobre los bosques, con el Rainier al fondo;
+// 3. la cabina: el tablero, el Rainier delante y, sujeta al marco, la nota de la recompensa (el avión perdido y «5000 $»);
+// 4. la ladera nevada: los restos del avión militar medio enterrados; la sombra de la avioneta pasa por encima, buscando;
+// 5. la avioneta de cerca: un destello le da en la cara, luego otro; Arnold se gira a mirar;
+// 6. de lejos otra vez: nueve objetos brillantes cruzan en fila por delante de las montañas, ondulando como la cola de
+//    una cometa, y destellan al sol.
+import { preparar, rodar, primerT, cielo, rainier, aerodromo, avioneta, avionetaGrande, tablero, laderaNieve, destellos, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-arnold');
 const { tramo, lerp } = R;
 const m = { a: M('arnold', 1.5), d: M('destellos', 20) };
-const vuelo = (t) => tramo(t, 0.3, m.a + 9);
-const lejos = (t) => { rainier(R, t, { dx: t * 3 }); avioneta(R, lerp(-30, 230, vuelo(t)), 126 - Math.round(vuelo(t) * 10), t); };
-// plano medio: la avioneta en el centro y el paisaje que corre detrás (paralaje); el piloto mira abajo, buscando
-const medio = (t) => { rainier(R, t, { dx: 40 + t * 16, hor: 118 }); avioneta(R, 160, 92, t); };
-const cruce = (t) => tramo(t, m.d + 0.8, E.duracion - 0.6);
-const flash = (t) => { rainier(R, t, { dx: 70 }); avioneta(R, 52, 134, t); if (cruce(t) > 0) destellos(R, t, lerp(30, 360, cruce(t)), 70 + cruce(t) * 6); };
+const P2 = 6.4, P3 = 11.6, P4 = 16.0, P5 = m.d - 0.1, P6 = 25.2, sube = 3.0, arranca = 3.4, f1 = m.d + 0.4, f2 = m.d + 1.8;
+// 1 · el aeródromo
+const pista = (t) => {
+  aerodromo(R, t, { avion: false });
+  if (t < sube) R.actor(EL.arnold, Math.round(lerp(240, 186, tramo(t, 1.0, sube))), 146, t, { dir: -1, anda: t > 1.0 });
+  const u = tramo(t, arranca + 0.6, P2), x = Math.round(lerp(178, -40, u ** 1.6)), y = Math.round(138 - Math.max(0, u - 0.55) * 60);
+  avioneta(R, x, y, t > arranca ? t : 0, { dir: -1 });
+  if (u > 0 && u < 0.6) for (let k = 0; k < 6; k++) R.pset(x + 16 + k * 3 + Math.round(Math.sin(t * 9 + k) * 1), 145 - (k % 2), C.caminoS);   // el polvo de la pista
+};
+// 2 · de lejos
+const vuelo = (t) => tramo(t, P2, P3 + 0.4);
+const lejos = (t) => { rainier(R, t, { dx: t * 3 }); avioneta(R, lerp(-30, 250, vuelo(t)), 126 - Math.round(vuelo(t) * 18), t); };
+// 3 · la cabina con la nota
+const cabina = (t) => tablero(R, t, 0, { destellos: false, nota: true, dx: 30 + (t - P3) * 4 });
+// 4 · la ladera con los restos
+const ladera = (t) => laderaNieve(R, t, { sombra: lerp(-30, 350, tramo(t, P4 + 0.4, P5 - 0.2)) });
+// 5 · la avioneta de cerca, con los destellos
+const cerca = (t) => {
+  cielo(R, t, { hor: 180, aves: false });
+  for (let x = 0; x < 320; x++) { const u = x + t * 40, a = 150 + Math.round(Math.sin(u * 0.03) * 8 + Math.sin(u * 0.011) * 10); R.rect(x, a, x, 179, C.monte1); if (Math.sin(u * 0.03) > 0.7) R.rect(x, a, x, a + 3, C.nieveL); R.rect(x, a + 18, x, 179, C.bosque1); if (Math.floor(u) % 7 < 4) R.rect(x, a + 18 - (Math.floor(u) % 7 === 1 || Math.floor(u) % 7 === 2 ? 4 : 2), x, a + 18, C.bosque2); for (let y = a + 4; y < a + 16; y += 5) if ((Math.floor(u) + y) % 9 === 0) R.pset(x, y, C.monte2); }   // la cordillera abajo, que pasa
+  for (let k = 0; k < 5; k++) { const x = Math.round(((k * 97 - t * 120) % 440 + 440) % 440) - 60, y = 30 + k * 26; R.rect(x, y, x + 40 + k * 6, y + 3, C.blanco); R.rect(x + 6, y - 2, x + 30, y - 1, C.cielo3); }   // nubes que pasan rápido
+  for (const [tf, fx, fy] of [[f1, 40, 50], [f2, 70, 64]]) { const e = tramo(t, tf, tf + 0.5); if (e > 0 && e < 1) { const r = Math.round(Math.sin(e * Math.PI) * 14); for (let i = -r; i <= r; i++) { R.pset(fx + i, fy, C.blanco); R.pset(fx, fy + i, C.blanco); } for (let i = -r / 2; i <= r / 2; i++) { R.pset(Math.round(fx + i), Math.round(fy + i), C.oroL); R.pset(Math.round(fx + i), Math.round(fy - i), C.oroL); } R.disco(fx, fy, Math.round(r / 4), C.blanco); } }
+  avionetaGrande(R, 196, 104, t, { mira: t > f1 + 0.3 ? -1 : 1, reflejo: tramo(t, f1, f1 + 0.6) || tramo(t, f2, f2 + 0.6) });
+};
+// 6 · los nueve objetos
+const cruce = (t) => tramo(t, P6 + 0.2, E.duracion - 0.3);
+const fila = (t) => { rainier(R, t, { dx: 70 }); avioneta(R, 52, 140, t); destellos(R, t, lerp(10, 470, cruce(t)), 66 + cruce(t) * 8, { esc: 2 }); };
 const efectos = [
-  [0, 'motor', { dur: E.duracion }],
-  [primerT((t) => cruce(t) > 0, m.d, E.duracion), 'brillo'],
-  [primerT((t) => cruce(t) > 0.45, m.d, E.duracion), 'brillo', { pan: 0.4 }],
+  [arranca, 'arranque'], [arranca + 0.6, 'motor', { dur: E.duracion - arranca - 0.6 }],
+  [f1, 'brillo'], [f2, 'brillo', { pan: -0.3 }],
+  [primerT((t) => cruce(t) > 0.1, P6, E.duracion), 'brillo', { pan: -0.4 }], [primerT((t) => cruce(t) > 0.5, P6, E.duracion), 'brillo', { pan: 0.4 }],
 ];
-rodar(E, R, [[0, lejos], [m.a + 7.5, medio], [m.d - 0.3, flash]], { efectos, cartela: '1947', año: 1947 });
+rodar(E, R, [[0, pista], [P2, lejos], [P3, cabina], [P4, ladera], [P5, cerca], [P6, fila]], { efectos, cartela: '1947', año: 1947 });
 </script>
 </body>
 </html>
