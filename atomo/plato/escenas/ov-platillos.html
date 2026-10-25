@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Platillos · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-PLATILLOS (frases 11–12). B en tierra: Arnold explica con la mano un platillo que rebota; el periodista dibuja un
+// plato con cúpula y Arnold se tapa la cara (gag). Llega gente que mira al cielo. Luego, al atardecer, el cielo vacío y «?».
+import { preparar, rodar, primerT, aerodromo, rebote, bocadilloPlatillo, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-platillos');
+const { tramo, lerp } = R;
+const m = { p: M('prensa', 0.5), n: M('nadie', 14.8) };
+const L = m.n - m.p, dibuja = m.p + 0.42 * L, tapa = m.p + 0.55 * L, gente = (t) => tramo(t, m.p + 0.62 * L, m.p + 0.85 * L);
+const tierra = (t) => {
+  aerodromo(R, t);
+  const explica = t < dibuja;
+  if (explica && t > m.p + 0.6) rebote(R, 54, 112, t);
+  const palma = t > tapa && t < tapa + 2.4;   // se tapa la cara con la mano
+  R.actor(EL.arnold, 70, 145, t, { habla: explica && Math.sin(t * 6) > 0, dedo: (explica && Math.sin(t * 2) > 0) || palma, triste: palma, quieto: palma });
+  R.actor(EL.periodista, 108, 145, t, { dir: -1, sonrisa: t > dibuja, habla: t > dibuja && t < tapa });
+  if (t < dibuja) { R.rect(97, 131, 101, 136, C.k); R.rect(98, 132, 100, 135, C.papel); }   // la libreta
+  if (t > dibuja) bocadilloPlatillo(R, 112, 112);
+  // la gente que llega y señala al cielo
+  const g = gente(t);
+  if (g > 0) [[EL.chico, 0], [EL.chica, 0.2], [EL.senora30, 0.4]].forEach(([q, d], k) => {
+    const e = tramo(g, d, d + 0.5); R.actor(q, Math.round(lerp(340, 180 + k * 22, e)), 145, t + k, { dir: -1, anda: e < 1, dedo: e >= 1, sorpresa: e >= 1 && k === 1 });
+  });
+};
+const tarde = (t) => { aerodromo(R, t, { tarde: true }); if (t > m.n + 2) R.icono('?', 118, 44, undefined, undefined, 4); };
+const efectos = [[dibuja, 'lapiz'], [tapa, 'palmada'], [m.n + 2, 'pop']];
+rodar(E, R, [[0, tierra], [m.n - 0.3, tarde]], { efectos, año: 1947 });
+</script>
+</body>
+</html>

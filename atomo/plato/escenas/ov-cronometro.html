@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cronómetro · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-CRONOMETRO (frase 10). B: el tablero de la avioneta; el reloj cuenta mientras los destellos van del Rainier al Adams; «×2».
+import { preparar, rodar, tablero } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await preparar('ov-cronometro');
+const { tramo } = R;
+const m0 = M('reloj', 0.5), fin = E.duracion - 2.6;
+const plano = (t) => { tablero(R, t, tramo(t, m0 + 0.5, fin)); if (t > fin + 0.3) R.numero('×2', 160, 52, { centro: true, tam: 16 }); };
+const efectos = [[0, 'motor', { dur: E.duracion }], ...Array.from({ length: Math.floor(fin - m0) }, (_, k) => [m0 + 0.5 + k, 'tic']), [fin + 0.3, 'pop']];
+rodar(E, R, [[0, plano]], { efectos, año: 1947 });
+</script>
+</body>
+</html>

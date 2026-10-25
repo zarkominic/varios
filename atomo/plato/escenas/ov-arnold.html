@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Arnold · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-ARNOLD (frases 8–9). B: la avioneta de Arnold sobre los bosques, con el Rainier al fondo, buscando los restos del avión
+// militar; luego, nueve destellos que cruzan en fila delante de las montañas.
+import { preparar, rodar, primerT, rainier, avioneta, destellos } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await preparar('ov-arnold');
+const { tramo, lerp } = R;
+const m = { a: M('arnold', 1.5), d: M('destellos', 20) };
+const vuelo = (t) => tramo(t, 0.3, m.a + 9);
+const lejos = (t) => { rainier(R, t, { dx: t * 3 }); avioneta(R, lerp(-30, 230, vuelo(t)), 126 - Math.round(vuelo(t) * 10), t); };
+// plano medio: la avioneta en el centro y el paisaje que corre detrás (paralaje); el piloto mira abajo, buscando
+const medio = (t) => { rainier(R, t, { dx: 40 + t * 16, hor: 118 }); avioneta(R, 160, 92, t); };
+const cruce = (t) => tramo(t, m.d + 0.8, E.duracion - 0.6);
+const flash = (t) => { rainier(R, t, { dx: 70 }); avioneta(R, 52, 134, t); if (cruce(t) > 0) destellos(R, t, lerp(30, 360, cruce(t)), 70 + cruce(t) * 6); };
+const efectos = [
+  [0, 'motor', { dur: E.duracion }],
+  [primerT((t) => cruce(t) > 0, m.d, E.duracion), 'brillo'],
+  [primerT((t) => cruce(t) > 0.45, m.d, E.duracion), 'brillo', { pan: 0.4 }],
+];
+rodar(E, R, [[0, lejos], [m.a + 7.5, medio], [m.d - 0.3, flash]], { efectos, cartela: '1947', año: 1947 });
+</script>
+</body>
+</html>

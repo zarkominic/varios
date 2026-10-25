@@ -84,8 +84,29 @@ function zumbido() {
   return out;
 }
 
+// motor de avioneta de hélice: zumbido grave con el pulso de las palas, constante y muy bajo (ambiente)
+function motor({ dur = 10 } = {}) {
+  const out = buf(dur), w = rng(33), lp = new OnePole();
+  let ph = 0;
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR; ph += 38 / SR;
+    const pulso = 0.6 + 0.4 * Math.sin(TAU * ph * 2) ** 2;
+    out[i] = (lp.lp(w(), 220) * 2 + Math.sin(TAU * 76 * t) * 0.25) * pulso * Math.min(1, t / 1.5, (dur - t) / 1.5);
+  }
+  return out;
+}
+// destello al sol: tres campanitas agudas que se desvanecen
+function brillo() {
+  const out = buf(1.6);
+  [96, 100, 103].forEach((m, k) => { const b = I.bell(440 * 2 ** ((m - 69) / 12), 0.25), i0 = Math.round(k * 0.09 * SR); for (let i = 0; i < b.length && i0 + i < out.length; i++) out[i0 + i] += b[i] * 0.5; });
+  return out;
+}
+// lápiz que garabatea y palmada en la frente
+const lapiz = () => I.scribble(1.0);
+const palmada = () => I.thud(180, 0.04);
+
 const RECETAS = {
-  jet, burbujas, zumbido,
+  jet, burbujas, zumbido, motor, brillo, lapiz, palmada, tic: () => I.woodTick(1.3),
   gluglu,
   boing: () => I.boing(),
   claxon,
@@ -98,7 +119,8 @@ const RECETAS = {
 };
 // nivel (dB RMS) y posición (−1 izquierda, 1 derecha) de cada efecto; las aldeas se solapan, por eso van más bajas
 const NIVEL = { gluglu: [-30, 0.3], boing: [-29, -0.2], claxon: [-31, -0.5], silbato: [-32, 0.1], vapor: [-34, 0.1],
-  pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0] };
+  pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0],
+  motor: [-36, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
 const rms = (b) => {
   const n = Math.min(b.length, Math.round(0.4 * SR)), c = new Float64Array(b.length + 1);
