@@ -55,6 +55,15 @@ Piezas en `eg-comun.js`: `mareo`, `polvareda`, `trote`, `gotaSudor`, `pan`. Que 
 
 ## Fondos
 
+**Nivel de detalle de referencia (aprobado el 25/10/2026): el gancho del episodio 10** (`atomo/plato/escenas/ov-gancho.html`, decorado `pacifico` en `ov-comun.js`). Todo decorado nuevo tiene que llegar a ese nivel:
+- **Agua viva:**
+  - olas en perspectiva, cada cresta con su largo, su altura y su sitio (nunca papel pintado);
+  - borreguitos, vetas oscuras, sombras de nubes que pasan;
+  - el camino del sol, con destellos que bailan.
+- **Vida en el horizonte:** barcos con su estela y una luz que parpadea, delfines, gaviotas.
+- **Planos que cambian:** general, plano medio (el caza grande de perfil con el piloto pequeño dentro) y cercano. El personaje sigue siendo pequeño: el plano medio se hace con el vehículo o el decorado, nunca con un primer plano de la cara.
+- **Movimiento con intención:** lo que cruza la pantalla va a algún sitio (los cazas pasan, vuelven, bajan en espiral).
+
 - **Planos de color con bandas:**
   - el cielo, en tres bandas;
   - las nubes, de tres tonos (sombra abajo, cuerpo, luz arriba) y moviéndose despacio;
