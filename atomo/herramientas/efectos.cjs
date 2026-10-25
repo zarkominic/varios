@@ -137,7 +137,18 @@ function miau() { const out = buf(0.7); let ph = 0; for (let i = 0; i < out.leng
 // tecleo de máquina de escribir: golpes secos irregulares y una campanilla al final de línea
 function tecleo({ dur = 3 } = {}) { const out = buf(dur), w = rng(45); for (let t = 0.05; t < dur - 0.1; t += 0.07 + 0.08 * Math.abs(w())) { const b = I.woodTick(1.6 + 0.3 * w()), i0 = Math.round(t * SR); for (let i = 0; i < b.length && i0 + i < out.length; i++) out[i0 + i] += b[i] * 0.7; } const c = I.bell(2600, 0.3), i0 = Math.round((dur - 0.4) * SR); for (let i = 0; i < c.length && i0 + i < out.length; i++) out[i0 + i] += c[i] * 0.4; return out; }
 
+// timbre de bicicleta (dos toques), la puerta de casa que se abre (crujido grave y el pestillo), la firma con pluma y el
+// aviso de descarga del ordenador
+function timbre() { const out = buf(0.9); for (const t0 of [0, 0.16]) { const b = I.bell(2350, 0.12, 1.6, 1.5), i0 = Math.round(t0 * SR); for (let i = 0; i < b.length && i0 + i < out.length; i++) out[i0 + i] += b[i] * 0.7; } return out; }
+function puerta() { const out = buf(1.1), w = rng(46), lp = new OnePole(); let ph = 0; for (let i = 0; i < out.length; i++) { const t = i / SR; ph += (95 + 40 * Math.sin(t * 9) + 30 * t) / SR; out[i] = (Math.sin(TAU * ph) * 0.5 + lp.lp(w(), 700) * 0.4) * Math.sin(Math.PI * Math.min(1, t / 0.9)) * (Math.sin(TAU * 31 * t) > -0.2 ? 1 : 0.5); }
+  const c = I.woodTick(1.4); for (let i = 0; i < c.length && i < out.length; i++) out[i] += c[i] * 0.8; return out; }
+const firma = () => I.scribble(1.1, 47);
+// un ladrido corto y alegre: armónicos que caen de tono, con un soplo de ruido al principio
+function guau() { const out = buf(0.3), w = rng(48), lp = new OnePole(); let ph = 0; for (let i = 0; i < out.length; i++) { const t = i / SR, f = 560 - 900 * Math.min(0.25, t); ph += f / SR; let v = 0; for (let k = 1; k <= 6; k++) v += Math.sin(TAU * ph * k) / k * (k === 3 || k === 4 ? 1.6 : 1); out[i] = (v * 0.5 + lp.lp(w(), 2500) * (t < 0.03 ? 0.6 : 0.1)) * Math.min(1, t / 0.006) * Math.exp(-t * 14); } return out; }
+const aviso = () => I.ting(88);
+
 const RECETAS = {
+  timbre, puerta, firma, aviso, guau,
   tecleo,
   golpecito, sello, miau,
   boom: () => I.subBoom(1.6, 60, 28),
@@ -155,7 +166,7 @@ const RECETAS = {
   aldea: ({ k = 0 } = {}) => I.marimba(69 + [0, 2, 4, 7, 9][k % 5] + 12 * Math.floor(k / 5)),
 };
 // nivel (dB RMS) y posición (−1 izquierda, 1 derecha) de cada efecto; las aldeas se solapan, por eso van más bajas
-const NIVEL = { gluglu: [-30, 0.3], boing: [-29, -0.2], claxon: [-31, -0.5], silbato: [-32, 0.1], vapor: [-34, 0.1],
+const NIVEL = { guau: [-30, -0.1], timbre: [-31, -0.3], puerta: [-31, 0.2], firma: [-32, 0.1], aviso: [-33, 0.2], gluglu: [-30, 0.3], boing: [-29, -0.2], claxon: [-31, -0.5], silbato: [-32, 0.1], vapor: [-34, 0.1],
   pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0],
   motor: [-36, 0], tecleo: [-33, 0.2], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
@@ -167,7 +178,7 @@ const rms = (b) => {
 };
 
 const bus = new Bus(Math.ceil(dur * SR));
-for (const [t, nombre, o] of lista) {
+for (const [t, nombre, o = {}] of lista) {
   if (t >= dur) continue;
   if (!RECETAS[nombre]) throw new Error(`efecto desconocido: ${nombre}`);
   const [db, pan] = NIVEL[nombre], b = RECETAS[nombre](o);

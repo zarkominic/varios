@@ -9,13 +9,14 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// OV-HOLA (frase 4). F: la sala de hoy de noche, con el ordenador encendido y la carpeta abierta; la persona saluda y Atom
-// se presenta.
-import { preparar, rodar, salaHoy, visto, C } from '/atomo/plato/escenas/ov-comun.js';
+// OV-HOLA (frase 4). F: la sala de hoy de noche, con el ordenador encendido y la carpeta abierta; quien lee, sentado al
+// escritorio, se gira y saluda con la mano, y Atom se presenta.
+import { preparar, rodar, salaHoy, silla, C } from '/atomo/plato/escenas/ov-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await preparar('ov-hola');
 const pantalla = (R, x0, y0, x1, y1, t) => { R.rect(x0 + 4, y0 + 4, x0 + 24, y0 + 28, C.ocre); R.icono('?', x0 + 11, y0 + 12, C.k, C.ocre); R.rect(x0 + 30, y0 + 4, x1 - 4, y0 + 6, C.grisL); R.rect(x0 + 30, y0 + 10, x1 - 10, y0 + 12, C.grisL); R.rect(x0 + 30, y0 + 16, x1 - 6, y0 + 18, C.grisL); };
-const plano = (t) => { salaHoy(R, t, { pantalla }); R.actor(EL.sudadera, 130, 160, t, { dir: 1, saluda: t > M('hola', 0.5) + 0.3 && t < 4, sonrisa: true }); };
+const gira = M('hola', 0.5) + 0.2, saluda = (t) => t > gira + 0.3 && t < gira + 2.2 && Math.floor(t * 6) % 2 === 0;
+const plano = (t) => { salaHoy(R, t, { pantalla }); R.actor(EL.sudadera, 118, 128, t, { dir: t > gira ? -1 : 1, quieto: true, dedo: saluda(t), sonrisa: t > gira }); silla(R, 124, 124, t > gira ? -1 : 1); };
 rodar(E, R, [[0, plano]], { año: 2026 });
 </script>
 </body>
