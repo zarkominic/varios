@@ -220,22 +220,36 @@ export function plymouth(R, t, o = {}) {
   for (let k = 0; k < 10; k++) { const x = ((k * 37 + t * 4) % 150) - 5, y = 80 + (k * 7) % 16; rect(Math.round(x), y, Math.round(x) + 3, y, inv ? C.marIL : C.marL); }
   if (o.mayflower !== false) mayflower(R, o.mayflower ?? 62, 88, t, { s: 0.55, nieve: inv });
   // colinas con el bosque detrás
-  for (let x = 120; x < 320; x++) { const top = Math.round(74 + 6 * Math.sin(x * 0.03) + 3 * Math.sin(x * 0.11 + 2)); for (let y = top; y < 100; y++) pset(x, y, y === top ? C.k : inv ? (y < top + 2 ? C.nieve : C.nieveS) : y < top + 3 ? C.hierbaL : C.hierbaS); }
+  for (let x = 120; x < 320; x++) { const top = Math.round(74 + 6 * Math.sin(x * 0.03) + 3 * Math.sin(x * 0.11 + 2)); for (let y = top; y < 100; y++) pset(x, y, y === top ? C.k : inv ? (y < top + 4 ? C.nieve : C.nieveS) : y < top + 3 ? C.hierbaL : C.hierbaS); }
   for (let k = 0; k < 14; k++) { const x = 128 + k * 14 + (k % 3) * 3, s = 0.55 + (k % 3) * 0.1; arbol(R, x, 86 + (k % 2) * 4, t, { tipo: inv ? 'invierno' : k % 4 === 1 ? 'pino' : pri ? 'verde' : 'otono', s }); }
   // la orilla y el suelo
   for (let y = 96; y < 132; y++) rect(0, y, 319, y, inv ? (y < 98 ? C.nieveS : C.nieve) : y < 98 ? C.hierbaL : pri ? C.tierraL : C.hierba);
-  if (!inv) for (let x = 4; x < 320; x += 13) { pset(x, 104 + (x % 5) * 4, C.hierbaS); pset(x + 1, 103 + (x % 5) * 4, C.hierbaS); }
+  if (!inv) {   // prado con matas, flores y piedrecitas
+    for (let k = 0; k < 60; k++) { const x = (k * 53 + 7) % 320, y = 100 + (k * 29) % 30; pset(x, y, C.hierbaS); pset(x + 1, y - 1, C.hierbaS); pset(x + 2, y, C.hierbaS); if (k % 5 === 0) pset(x + 1, y - 2, [C.amarillo, C.blanco, C.rosa][k % 3]); }
+    for (const [x, y, r] of [[96, 112, 5], [140, 122, 4], [286, 104, 4], [60, 104, 3]]) { R.disco(x, y, r, C.k); R.disco(x, y, r - 1, C.hierbaS); R.disco(x - 1, y - 1, r - 2, C.hierba); }
+  } else {      // nieve con montículos y sombras azules al pie de las cosas
+    for (const [x, y, r] of [[96, 112, 6], [140, 122, 5], [286, 104, 5], [60, 106, 4], [30, 118, 5]]) { for (let j = -r; j <= 0; j++) { const w = Math.round(Math.sqrt(r * r - j * j) * 1.6); rect(x - w, y + j, x + w, y + j, C.nieve); pset(x - w - 1, y + j, C.nieveS); } rect(x - Math.round(r * 1.6), y + 1, x + Math.round(r * 1.6) + 2, y + 1, C.nieveS); }
+    rect(150, 112, 319, 114, C.nieveS); for (let x = 0; x < 150; x += 9) pset(x, 99 + (x % 4), C.nieveS);
+  }
   // empalizada y cabañas
-  for (let x = 150; x < 320; x += 4) { rect(x, 96, x + 2, 112, C.madera); pset(x + 1, 95, C.maderaS); rect(x + 3, 96, x + 3, 112, C.maderaS); if (inv) rect(x, 95, x + 2, 95, C.nieve); }
+  for (let x = 150; x < 320; x += 4) { rect(x, 96, x + 2, 112, C.madera); rect(x, 96, x, 112, C.maderaL); pset(x + 1, 94, C.maderaS); pset(x, 95, C.madera); pset(x + 2, 95, C.madera); rect(x + 3, 95, x + 3, 112, C.k); if ((x / 4) % 3 === 0) pset(x + 1, 104, C.maderaS); if (inv) { rect(x, 95, x + 2, 95, C.nieve); pset(x + 1, 94, C.nieve); } }
+  rect(150, 101, 319, 101, C.maderaS); rect(150, 108, 319, 108, C.maderaS);
   for (const [cx, w] of [[176, 30], [222, 34], [270, 30]]) cabana(R, cx, 124, w, t, { nieve: inv, luz: o.luces?.(cx) });
   if (o.wetu !== false) wetu(R, 120, 124, t, { nieve: inv });
   // campos de maíz y calabazas
   if (!inv && (o.maiz ?? 0) > 0) for (let k = 0; k < 18; k++) { const x = 10 + k * 7, h = Math.round(o.maiz * (10 + (k % 3) * 2)); if (h > 0) { rect(x, 128 - h, x, 128, C.hierbaS); pset(x + 1, 128 - h + 2, C.hierba); pset(x - 1, 128 - h + 4, C.hierba); if (o.maiz > 0.8 && !pri) { rect(x + 1, 128 - h + 5, x + 2, 128 - h + 7, C.maiz); } } }
   if (est === 'otono' && o.calabazas !== false) for (const [x, r] of [[26, 3], [44, 4], [70, 3], [300, 4]]) { R.disco(x, 129, r, C.k); R.disco(x, 129, r - 1, C.calabaza); pset(x - 1, 128, C.naranja); pset(x, 129 - r, C.hierbaS); }
   // el camino (el escenario)
-  for (let y = 132; y < 146; y++) rect(0, y, 319, y, y === 132 ? C.k : inv ? (y < 135 ? C.nieve : C.nieveS) : y < 135 ? C.caminoL : (y - 133) % 5 === 0 ? C.caminoS : C.camino);
+  for (let y = 132; y < 146; y++) rect(0, y, 319, y, y === 132 ? C.k : inv ? (y < 135 ? C.nieve : y > 142 ? C.nieveS : C.nieve) : y < 135 ? C.caminoL : C.camino);
+  if (inv) { for (let k = 0; k < 18; k++) { const x = 8 + k * 17 + (k % 2) * 4, y = 137 + (k % 2) * 3; rect(x, y, x + 1, y + 1, C.nieveS); } for (let x = 0; x < 320; x += 40) { R.disco(x + 20, 133, 3, C.nieve); R.disco(x + 22, 134, 2, C.nieveS); } }
+  else { rect(0, 138, 319, 138, C.caminoS); rect(0, 142, 319, 142, C.caminoS); for (let k = 0; k < 26; k++) { const x = (k * 37 + 5) % 318, y = 134 + (k * 7) % 11; rect(x, y, x + 1, y, k % 3 ? C.caminoS : C.piedra); if (k % 4 === 0) pset(x, y - 1, C.caminoL); } }
   for (let y = 146; y < 180; y++) rect(0, y, 319, y, inv ? (y % 6 === 0 ? C.nieveS : C.nieve) : y < 148 ? C.hierbaS : (y % 7 === 0 ? C.hierbaD : C.hierba));
   primerPlano(R, t, { invierno: inv, otono: est === 'otono' });
+  // atrezo en los extremos del escenario (donde no suele haber personajes)
+  for (let k = 0; k < 9; k++) { const x = 292 + (k % 4) * 6 + (Math.floor(k / 4) % 2) * 3, y = 130 - Math.floor(k / 4) * 5; R.disco(x, y, 3, C.k); R.disco(x, y, 2, C.madera); R.pset(x, y, C.maderaL); R.pset(x - 1, y - 1, C.maderaS); }
+  if (inv) rect(290, 119, 318, 120, C.nieve);
+  rect(6, 130, 15, 131, C.k); rect(5, 120, 16, 130, C.k); rect(6, 121, 15, 129, C.madera); rect(6, 123, 15, 123, C.grisS); rect(6, 127, 15, 127, C.grisS); rect(13, 121, 14, 129, C.maderaS); if (inv) rect(5, 119, 16, 120, C.nieve);
+  if (!inv) { rect(20, 126, 27, 131, C.k); rect(21, 127, 26, 131, C.madera); rect(21, 127, 26, 127, C.maderaL); R.linea(24, 126, 29, 121, C.maderaS); rect(27, 120, 30, 122, C.grisL); }
   if (o.mesa) mesaCosecha(R, 160, 145, o.mesa, t);
   if (est === 'otono') hojas(R, t, 12);
   if (inv) nevada(R, t, 60);
@@ -262,7 +276,10 @@ export function cabana(R, cx, suelo, w, t, o = {}) {
   if (!o.nieve) for (let k = 0; k < 4; k++) R.linea(cx - 2 + k * 3, suelo - h - 9 + k * 2, cx + 6 + k * 3, suelo - h - 1, C.pajaS);
   R.rect(x1 - 7, suelo - h - 14, x1 - 4, suelo - h - 4, C.piedraS); R.rect(x1 - 7, suelo - h - 14, x1 - 4, suelo - h - 14, C.piedra);
   humo(R, x1 - 5, suelo - h - 16, t + cx);
-  R.rect(x0 + 4, suelo - 9, x0 + 9, suelo, C.maderaD); R.rect(x1 - 11, suelo - 10, x1 - 6, suelo - 6, o.luz === false ? C.maderaD : C.oroL); R.rect(x1 - 9, suelo - 10, x1 - 9, suelo - 6, C.maderaS);
+  for (let y = suelo - h + 1; y <= suelo; y += 3) { R.disco(x0 - 1, y, 1, C.maderaL); R.pset(x0 - 1, y, C.maderaS); R.disco(x1 + 1, y, 1, C.maderaL); R.pset(x1 + 1, y, C.maderaS); }
+  R.rect(x0 + 3, suelo - 10, x0 + 10, suelo, C.k); R.rect(x0 + 4, suelo - 9, x0 + 9, suelo, C.maderaD); R.rect(x0 + 6, suelo - 9, x0 + 6, suelo, C.k); R.pset(x0 + 8, suelo - 5, C.oro);
+  R.rect(x1 - 12, suelo - 11, x1 - 5, suelo - 5, C.k); R.rect(x1 - 11, suelo - 10, x1 - 6, suelo - 6, o.luz === false ? C.maderaD : C.oroL); R.rect(x1 - 9, suelo - 10, x1 - 8, suelo - 6, C.k);
+  R.rect(x1 - 14, suelo - 11, x1 - 13, suelo - 5, C.maderaS); R.rect(x1 - 4, suelo - 11, x1 - 3, suelo - 5, C.maderaS); R.rect(x1 - 12, suelo - 4, x1 - 5, suelo - 4, C.maderaL);
 }
 
 // wetu: cabaña wampanoag en forma de cúpula, de corteza y esteras
@@ -355,8 +372,11 @@ export function comedor(R, t, o = {}) {
   if (o.cal) o.cal(110, 30);
   // suelo de tablas y alfombra
   for (let y = 121; y < 180; y++) rect(0, y, 319, y, (y - 121) % 7 === 0 ? C.maderaS : C.maderaL);
-  for (let x = 0; x < 320; x += 40) rect(x + ((Math.floor(x / 40) % 2) * 20), 121, x + ((Math.floor(x / 40) % 2) * 20), 180, C.maderaS);
-  rect(40, 150, 280, 176, C.alfombra); rect(44, 153, 276, 173, C.rojoS); rect(48, 156, 272, 170, C.alfombra);
+  for (let y = 121; y < 180; y += 7) for (let x = ((y / 7) % 2) * 20; x < 320; x += 40) { rect(x, y, x, y + 6, C.maderaS); pset(x + 9, y + 3, C.maderaS); pset(x + 10, y + 3, C.maderaS); pset(x + 24, y + 2, C.madera); }
+  rect(39, 149, 281, 177, C.k); rect(40, 150, 280, 176, C.alfombra); rect(44, 153, 276, 173, C.rojoS); rect(48, 156, 272, 170, C.alfombra);
+  for (let x = 46; x < 276; x += 6) { pset(x, 151, C.oro); pset(x + 3, 175, C.oro); }
+  for (let x = 60; x < 262; x += 20) { pset(x, 163, C.oro); pset(x - 1, 162, C.oroS); pset(x + 1, 164, C.oroS); }
+  for (let x = 40; x <= 280; x += 3) { pset(x, 148, C.papel); pset(x, 178, C.papel); }
   if (o.escritorio) escritorio(R, 92, 145, t);
   if (o.sofa) sofa(R, 70, 145, t);
   if (o.mesa) mesaCena(R, 168, 145, o.mesa, t, { recogida: o.recogida });
@@ -421,32 +441,83 @@ export function ciudad(R, t, o = {}) {
   // el fondo: rascacielos (Nueva York) o el ayuntamiento de Filadelfia
   if (ep === '1950') ayuntamiento(R, 236, 100, t);
   else for (const [x, w, h] of [[10, 26, 60], [44, 18, 74], [70, 30, 52], [238, 24, 70], [266, 34, 58], [300, 20, 80]]) { rect(x, 100 - h, x + w, 100, hex('#8a94b0')); rect(x + w - 4, 100 - h, x + w, 100, hex('#6e7896')); for (let y = 100 - h + 4; y < 98; y += 6) for (let xx = x + 3; xx < x + w - 4; xx += 5) rect(xx, y, xx + 1, y + 2, o.noche || o.madrugada ? C.oroL : hex('#b8c2dc')); }
-  // edificios de ladrillo de la calle
-  for (const [x0, x1, h, col] of [[0, 70, 66, C.ladrillo], [70, 110, 74, hex('#b8865a')], [216, 260, 70, hex('#b8865a')], [260, 320, 62, C.ladrillo]]) {
-    rect(x0, 128 - h, x1, 128, col); rect(x0, 128 - h, x1, 128 - h + 2, C.k); rect(x0, 128 - h + 3, x1, 128 - h + 4, C.fachada);
-    for (let y = 128 - h + 10; y < 112; y += 14) for (let x = x0 + 5; x < x1 - 8; x += 12) { rect(x, y, x + 6, y + 8, C.k); rect(x + 1, y + 1, x + 5, y + 7, o.noche || o.madrugada ? C.oroL : C.cristal); rect(x + 1, y + 4, x + 5, y + 4, C.k); }
+  // edificios de ladrillo de la calle: aparejo de ladrillo, cornisa con ménsulas, ventanas con dintel, alféizar, marco y
+  // cortinas, y escaleras de incendios de hierro en los de ladrillo rojo
+  const luz = o.noche || o.madrugada;
+  for (const [x0, x1, h, col, colS, esc] of [[0, 70, 66, C.ladrillo, C.ladrilloS, true], [70, 110, 74, hex('#b8865a'), hex('#94683e'), false], [216, 260, 70, hex('#b8865a'), hex('#94683e'), false], [260, 320, 62, C.ladrillo, C.ladrilloS, true]]) {
+    const y0 = 128 - h;
+    rect(x0, y0, x1, 128, col);
+    for (let y = y0 + 6; y < 128; y += 3) { rect(x0, y, x1, y, colS); for (let x = x0 + ((y / 3) % 2 ? 0 : 3); x < x1; x += 6) pset(x, y + 1, colS); pset(x0 + ((y * 7) % (x1 - x0)), y + 2, C.ladrilloL); }
+    rect(x0, y0, x1, y0 + 1, C.k); rect(x0, y0 + 2, x1, y0 + 4, C.fachada); rect(x0, y0 + 5, x1, y0 + 5, C.fachadaS);
+    for (let x = x0 + 2; x < x1; x += 5) rect(x, y0 + 6, x + 1, y0 + 7, C.fachadaS);
+    rect(x1 - 1, y0, x1, 128, C.k);
+    for (let y = y0 + 12; y < 110; y += 15) for (let x = x0 + 5; x < x1 - 9; x += 12) {
+      rect(x - 1, y - 2, x + 7, y - 1, C.fachada); rect(x, y, x + 6, y + 9, C.k); rect(x + 1, y + 1, x + 5, y + 8, luz ? C.oroL : C.cristal);
+      if (!luz) { pset(x + 1, y + 1, C.blanco); pset(x + 2, y + 2, C.blanco); }
+      rect(x + 3, y + 1, x + 3, y + 8, C.k); rect(x + 1, y + 4, x + 5, y + 4, C.k);
+      if ((x + y) % 3 === 0) { rect(x + 1, y + 1, x + 2, y + 6, luz ? C.naranja : C.rojoS); }
+      rect(x - 1, y + 10, x + 7, y + 11, C.fachada); rect(x - 1, y + 11, x + 7, y + 11, C.fachadaS);
+      if ((x * 3 + y) % 5 === 0 && !luz) { pset(x + 1, y + 9, C.hierba); pset(x + 3, y + 9, C.rojo); pset(x + 5, y + 9, C.hierbaL); }
+    }
+    if (esc) {   // escalera de incendios: rellanos y escalas de hierro
+      const ex = x0 + Math.round((x1 - x0) / 2) - 9;
+      for (let y = y0 + 22; y < 112; y += 15) { rect(ex, y, ex + 18, y, C.k); rect(ex, y - 4, ex, y, C.k); rect(ex + 18, y - 4, ex + 18, y, C.k); rect(ex, y - 4, ex + 18, y - 4, C.k); for (let k = 0; k < 5; k++) pset(ex + 4 + k * 2, y + 2 + k * 2, C.k); }
+    }
+    rect(x0, 112, x1, 128, colS); rect(x0, 112, x1, 112, C.k);   // zócalo con puerta
+    rect(x0 + 6, 114, x0 + 15, 128, C.maderaD); rect(x0 + 7, 115, x0 + 14, 128, C.madera); pset(x0 + 13, 121, C.oro);
   }
-  // los grandes almacenes en el centro, con toldos y escaparates
+  // los grandes almacenes en el centro: piedra con sillares, ventanas con arco, cornisa, toldos a rayas y escaparates
   const ax0 = 110, ax1 = 216;
-  rect(ax0, 40, ax1, 128, C.fachada); rect(ax0, 40, ax1, 43, C.fachadaS); rect(ax0 - 2, 38, ax1 + 2, 39, C.k);
-  for (let y = 50; y < 96; y += 14) for (let x = ax0 + 6; x < ax1 - 8; x += 14) { rect(x, y, x + 8, y + 9, C.k); rect(x + 1, y + 1, x + 7, y + 8, o.noche || o.madrugada ? C.oroL : C.cristal); }
-  rect(ax0, 98, ax1, 102, hoy ? C.rojo : C.verde); for (let x = ax0; x < ax1; x += 8) rect(x, 102, x + 3, 104, hoy ? C.rojo : C.verde);
-  for (const [x0, x1] of [[ax0 + 4, ax0 + 44], [ax1 - 44, ax1 - 4]]) {
-    rect(x0, 106, x1, 126, C.k); rect(x0 + 1, 107, x1 - 1, 125, hoy ? hex('#f2e2c0') : C.cristalS);
-    if (hoy) { R.numero('%', Math.round((x0 + x1) / 2), 121, { centro: true, color: C.rojo }); }
-    else { for (let k = 0; k < 3; k++) { const xx = x0 + 8 + k * 12; R.disco(xx, 120, 3, [C.rojo, C.verde, C.oro][k]); rect(xx - 3, 121, xx + 3, 125, [C.rojoS, C.verde, C.oroS][k]); } }
-    if (o.luces) for (let x = x0; x <= x1; x += 4) { const on = o.luces > (x - x0) / (x1 - x0) && Math.sin(t * 6 + x) > -0.3; pset(x, 106, on ? [C.rojo, C.oroL, C.verdeL, C.azulL][x % 4] : C.grisS); }
+  rect(ax0, 40, ax1, 128, C.fachada);
+  for (let y = 44; y < 100; y += 6) { rect(ax0, y, ax1, y, C.fachadaS); for (let x = ax0 + ((y / 6) % 2 ? 6 : 0); x < ax1; x += 12) rect(x, y, x, y + 5, C.fachadaS); }
+  rect(ax0 - 3, 36, ax1 + 3, 40, C.fachada); rect(ax0 - 3, 36, ax1 + 3, 36, C.k); rect(ax0 - 3, 40, ax1 + 3, 41, C.fachadaS);
+  for (let x = ax0; x < ax1; x += 6) rect(x, 41, x + 2, 43, C.fachadaS);
+  for (let y = 50; y < 96; y += 14) for (let x = ax0 + 6; x < ax1 - 8; x += 14) {
+    rect(x, y, x + 8, y + 9, C.k); rect(x + 1, y + 1, x + 7, y + 8, luz ? C.oroL : C.cristal); pset(x + 4, y - 1, C.k); rect(x + 2, y - 1, x + 6, y - 1, C.k);
+    if (!luz) { pset(x + 2, y + 2, C.blanco); pset(x + 3, y + 3, C.blanco); }
+    rect(x + 4, y + 1, x + 4, y + 8, C.k); rect(x - 1, y + 10, x + 9, y + 10, C.fachadaS);
   }
-  rect(ax0 + 48, 106, ax1 - 48, 128, C.maderaD); rect(ax0 + 50, 108, ax1 - 50, 128, hoy ? C.oroL : C.cristalS);
+  const toldo = hoy ? [C.rojo, C.blanco] : [C.verde, C.blanco];
+  for (let x = ax0; x < ax1; x++) { const c = Math.floor((x - ax0) / 5) % 2 ? toldo[1] : toldo[0]; rect(x, 98, x, 103, c); if ((x - ax0) % 10 < 5) pset(x, 104, c); }
+  rect(ax0, 97, ax1, 97, C.k);
+  for (const [x0, x1] of [[ax0 + 4, ax0 + 44], [ax1 - 44, ax1 - 4]]) {
+    rect(x0 - 1, 105, x1 + 1, 127, C.k); rect(x0, 106, x1, 126, hoy ? hex('#f2e2c0') : C.cristalS); rect(x0, 126, x1, 127, C.fachadaS);
+    if (!hoy) { R.linea(x0 + 2, 107, x0 + 10, 115, C.cristal); R.linea(x0 + 5, 107, x0 + 13, 115, C.cristal); }
+    if (hoy) { R.numero('%', Math.round((x0 + x1) / 2), 121, { centro: true, color: C.rojo }); }
+    else for (let k = 0; k < 3; k++) {   // maniquíes con vestido y sombrero
+      const xx = x0 + 9 + k * 11; R.disco(xx, 113, 2, C.k); R.disco(xx, 113, 1, C.papel); R.rect(xx - 3, 111, xx + 3, 111, C.k);
+      R.poligono([[xx - 1, 116], [xx + 1, 116], [xx + 4, 124], [xx - 4, 124]], [C.rojo, C.verde, C.oro][k]); R.rect(xx, 124, xx, 126, C.k);
+    }
+    if (o.luces) for (let x = x0; x <= x1; x += 4) { const on = o.luces > (x - x0) / (x1 - x0) && Math.sin(t * 6 + x) > -0.3; pset(x, 105, on ? [C.rojo, C.oroL, C.verdeL, C.azulL][x % 4] : C.grisS); }
+  }
+  rect(ax0 + 47, 105, ax1 - 47, 128, C.k); rect(ax0 + 48, 106, ax1 - 48, 128, C.maderaD); rect(ax0 + 50, 108, ax1 - 50, 128, hoy ? C.oroL : C.cristalS);
+  rect(ax0 + 52, 108, ax0 + 52, 128, C.k); pset(ax0 + 56, 118, C.oro); pset(ax1 - 56, 118, C.oro);
   if (o.estrella) { const cx = ax0 + 24, cy = 114; R.icono('estrella', cx - 3, cy - 3, C.oro, undefined, 1); }
-  // acera y calle
-  rect(0, 128, 319, 132, C.acera); rect(0, 128, 319, 128, C.k); rect(0, 132, 319, 133, C.aceraS);
-  for (const x of [40, 280]) { rect(x, 92, x + 1, 128, C.k); R.disco(x, 90, 3, C.k); R.disco(x, 90, 2, o.noche || o.madrugada ? C.oroL : C.grisL); }
-  for (let y = 134; y < 180; y++) rect(0, y, 319, y, y < 146 ? C.acera : C.asfalto);
-  for (let x = 0; x < 320; x += 16) rect(x, 134, x, 145, C.aceraS);
-  rect(0, 146, 319, 146, C.k);
+  // acera de baldosas con juntas, bordillo de piedra, farolas de hierro y mobiliario: boca de incendios, banco, papelera
+  rect(0, 128, 319, 128, C.k);
+  for (let y = 129; y < 146; y++) rect(0, y, 319, y, y > 141 ? C.aceraS : C.acera);
+  for (let y = 129; y < 142; y += 6) rect(0, y, 319, y, C.aceraS);
+  for (let y = 129; y < 142; y += 6) for (let x = (y / 6) % 2 ? 0 : 10; x < 320; x += 20) rect(x, y, x, y + 5, C.aceraS);
+  for (let k = 0; k < 14; k++) pset((k * 47) % 320, 131 + (k * 5) % 10, C.grisL);
+  rect(0, 142, 319, 142, C.grisL); rect(0, 146, 319, 146, C.k);
+  for (const x of [40, 280]) {
+    rect(x - 2, 126, x + 3, 128, C.k); rect(x, 92, x + 1, 126, C.k); rect(x - 1, 100, x + 2, 101, C.k);
+    R.poligono([[x - 4, 86], [x + 5, 86], [x + 3, 92], [x - 2, 92]], C.k); rect(x - 2, 87, x + 3, 91, luz ? C.oroL : C.grisL); rect(x - 1, 84, x + 2, 85, C.k);
+  }
+  if (!o.gente) {
+    // boca de incendios
+    rect(298, 135, 302, 142, C.k); rect(299, 136, 301, 142, C.rojo); rect(297, 138, 303, 139, C.k); pset(300, 134, C.k); pset(300, 137, C.rojoS);
+    // banco de madera y papelera
+    rect(14, 136, 34, 137, C.madera); rect(14, 133, 34, 134, C.madera); rect(14, 135, 34, 135, C.k); rect(15, 138, 16, 142, C.k); rect(32, 138, 33, 142, C.k);
+    rect(250, 134, 256, 142, C.k); rect(251, 135, 255, 141, C.grisS); for (let y = 136; y < 141; y += 2) rect(251, y, 255, y, C.gris);
+  }
+  // calzada: asfalto con parches, alcantarilla y marcas
+  for (let y = 147; y < 180; y++) rect(0, y, 319, y, C.asfalto);
+  for (let k = 0; k < 10; k++) { const x = (k * 71) % 310, y = 150 + (k * 13) % 26; rect(x, y, x + 6, y + 1, C.asfaltoS); }
+  R.disco(112, 172, 4, C.k); R.disco(112, 172, 3, C.asfaltoS); rect(110, 172, 114, 172, C.k);
   if (ep !== 'hoy') for (let x = 0; x < 320; x += 24) rect(x, 162, x + 12, 163, ep === '1950' ? C.linea : C.blanco);
-  if (ep === '1924' || ep === '1939') { rect(0, 168, 319, 168, C.grisS); rect(0, 172, 319, 172, C.grisS); }
+  if (ep === '1924' || ep === '1939') { rect(0, 168, 319, 168, C.grisS); rect(0, 172, 319, 172, C.grisS); for (let x = 4; x < 320; x += 8) rect(x, 169, x + 1, 171, C.maderaS); }
+  if (hoy) for (let x = 240; x < 300; x += 6) rect(x, 150, x + 3, 176, C.blanco);   // paso de cebra
   if (o.desfile != null) desfile(R, t, o.desfile);
   // los coches y el público están más cerca de la cámara que la acera: se dibujan después de los personajes
   // (rodar llama a R.delante al acabar cada plano). Los carriles van abajo, para que ningún techo llegue a la acera.

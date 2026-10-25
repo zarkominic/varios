@@ -29,8 +29,9 @@ const viaje = (t) => {
 const maiz = (t) => {
   const u = t - m.mai, L = E.duracion - m.mai, salta = tramo(u, 0.45 * L, 0.45 * L + 1.2);
   plymouth(R, t, { estacion: 'primavera', mayflower: false, maiz: 0.15 + 0.5 * tramo(u, 0, L) });
-  const xs = Math.round(150 + Math.sin(u * 0.6) * 20); R.actor(EL.squanto, xs, 145, t, { anda: Math.abs(Math.cos(u * 0.6)) > 0.3, dir: Math.cos(u * 0.6) > 0 ? 1 : -1, dedo: u < 0.4 * L, habla: Math.sin(t * 7) > 0.4 && u < 0.4 * L });
-  for (let k = 0; k < 4; k++) pescado(R, 40 + k * 22, 140);
+  const hoyo = Math.min(3, Math.floor(u / 1.6)), dentro = u - hoyo * 1.6, camina = dentro < 0.6 && u < 4 * 1.6;
+  R.actor(EL.squanto, Math.round(18 + hoyo * 22 + (camina ? dentro / 0.6 : 1) * 22), 145, t, { anda: camina, salto: !camina && dentro < 1.2 ? -1 : 0, dedo: u > 0.5 * L && u < 0.7 * L, habla: Math.sin(t * 7) > 0.4 && u < 0.4 * L });
+  for (let k = 0; k < 4; k++) if (u > k * 1.6 + 1.0) pescado(R, 56 + k * 22, 140);
   const px = Math.round(lerp(128, 300, salta)), py = Math.round(140 - Math.abs(Math.sin(salta * Math.PI * 4)) * 10);
   if (salta > 0) pescado(R, px, py);
   R.actor(EL.peregrino, Math.round(lerp(110, 290, Math.max(0, salta - 0.08))), 145, t, { anda: salta > 0 && salta < 1, salto: salta > 0 && salta < 1 ? trote(t) : 0, sorpresa: salta > 0 && salta < 1 });
