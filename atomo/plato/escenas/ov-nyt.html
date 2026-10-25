@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Periódico · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-NYT (frase 29). F hoy: una mañana; el periódico cae en el porche de una casa y se abre con la foto de un caza en portada.
+import { preparar, rodar, primerT, porche, caza, C } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await preparar('ov-nyt');
+const { tramo, lerp } = R;
+const m0 = M('nyt', 1.5), vuela = (t) => tramo(t, m0, m0 + 1.6), abre = (t) => tramo(t, m0 + 2.6, m0 + 3.6);
+const plano = (t) => {
+  porche(R, t);
+  const u = vuela(t);
+  if (u < 1) { const x = Math.round(lerp(-10, 210, u)), y = Math.round(lerp(150, 126, u) - Math.sin(u * Math.PI) * 50); R.rect(x - 4, y - 2, x + 4, y + 2, C.k); R.rect(x - 3, y - 1, x + 3, y + 1, C.papel); }
+  else { const a = abre(t), w = Math.round(6 + a * 40), hh = Math.round(3 + a * 26), x = 220, y = 128 - Math.round(a * 30);
+    R.rect(x - w, y - hh, x + w, y + hh, C.k); R.rect(x - w + 1, y - hh + 1, x + w - 1, y + hh - 1, C.papel);
+    if (a > 0.6) { R.rect(x - w + 3, y - hh + 3, x + w - 3, y - hh + 6, C.k); R.rect(x - 30, y - 12, x + 10, y + 16, R.hex('#8aa4c0')); caza(R, x - 10, y + 2, t, {}); for (let k = 0; k < 6; k++) R.rect(x + 14, y - 10 + k * 4, x + w - 4, y - 10 + k * 4, C.grisL); } }
+};
+rodar(E, R, [[0, plano]], { efectos: [[m0 + 1.6, 'golpecito'], [m0 + 2.6, 'papel']], cartela: '2017', año: 2017 });
+</script>
+</body>
+</html>

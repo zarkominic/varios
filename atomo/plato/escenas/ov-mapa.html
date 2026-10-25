@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mapa · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-MAPA (frases 5–7). Mapa del mundo de 1947: EE. UU. y la URSS se miran; sobre la URSS, un hongo atómico pequeño con «?».
+// Mapa de EE. UU.: se encienden el Rainier, Roswell, Washington y Nevada y, aparte, el portaaviones frente a California.
+// La regla: dos cielos en pantalla partida, el de la gente (un ojo que mira) y el del gobierno (un despacho con candado).
+import { preparar, rodar, primerT, mapaEEUU, mapaMundo, LUGARES_OV, C } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await preparar('ov-mapa');
+const { tramo } = R;
+const m = { g: M('guerra', 1.4), p: M('puntos', 17.5), r: M('regla', 32.8) };
+const mundo = (t) => {
+  const P = mapaMundo(R, t);
+  const [ux, uy] = P([-98, 39]), [sx, sy] = P([90, 60]);
+  R.punto(ux, uy, t, R.PALA.AZUL, 4); R.punto(sx, sy, t, R.PALA.ROJO, 4);
+  // las dos miradas: una línea punteada que va y viene entre los dos países
+  const u = (Math.sin(t * 1.2) + 1) / 2; for (let k = 0; k < 20; k++) { const f = k / 20; if ((k + Math.floor(t * 6)) % 3) R.pset(Math.round(ux + (sx - ux) * f), Math.round(uy + (sy - uy) * f - Math.sin(f * Math.PI) * 24), u > 0.5 ? C.azulL : C.rojo); }
+  if (t > m.g + 6) { const hx = sx, hy = sy - 22, e = tramo(t, m.g + 6, m.g + 8); const top = hy + Math.round(6 - e * 8), r = Math.round(3 + e * 4);   // el hongo: tallo, anillo y la copa de bolas
+  R.rect(hx - 1, top + r - 1, hx + 1, hy + 14, C.grisL); R.rect(hx - r + 1, hy + 9, hx + r - 1, hy + 10, C.grisL);
+  for (const [dx, dy, rr] of [[0, 0, r], [-r + 1, 1, r - 1], [r - 1, 1, r - 1]]) { R.disco(hx + dx, top + dy, rr + 1, C.k); }
+  for (const [dx, dy, rr] of [[0, 0, r], [-r + 1, 1, r - 1], [r - 1, 1, r - 1]]) { R.disco(hx + dx, top + dy, rr, C.grisL); R.disco(hx + dx - 1, top + dy - 1, Math.max(1, rr - 2), C.blanco); } if (t > m.g + 9) R.icono('?', hx + 9, hy - 6, C.oroL, C.k, 2); }
+};
+const eeuu = (t) => { const u = t - m.p; mapaEEUU(R, t, { n: Math.min(4, Math.max(0, Math.floor(u / 2.4) + 1)), barco: u > 10 }); };
+const regla = (t) => {
+  const { rect, pset, disco } = R;
+  // izquierda: el cielo de la gente, con un ojo enorme que mira hacia arriba y estrellas
+  rect(0, 0, 159, 179, C.noche2); for (let k = 0; k < 30; k++) pset((k * 47) % 158, (k * 29) % 120, C.blanco);
+  const ox = 80, oy = 110; for (let j = -14; j <= 14; j++) for (let i = -30; i <= 30; i++) if ((i / 30) ** 2 + (j / 14) ** 2 < 1) pset(ox + i, oy + j, C.blanco); disco(ox + Math.round(Math.sin(t) * 6), oy - 4, 9, C.azulL); disco(ox + Math.round(Math.sin(t) * 6), oy - 4, 5, C.k); pset(ox + Math.round(Math.sin(t) * 6) + 2, oy - 7, C.blanco);
+  if (Math.floor(t * 0.7) % 5 === 0 && (t * 0.7) % 1 < 0.15) rect(ox - 30, oy - 14, ox + 30, oy + 14, C.noche2);   // parpadeo
+  // derecha: el cielo del gobierno: un archivador con candado bajo una lámpara
+  rect(160, 0, 319, 179, C.pared); rect(160, 140, 319, 179, C.maderaS); rect(206, 70, 274, 150, C.k); rect(207, 71, 273, 149, C.metalS);
+  for (let j = 0; j < 3; j++) { rect(212, 78 + j * 24, 268, 96 + j * 24, C.metal); rect(236, 84 + j * 24, 244, 86 + j * 24, C.k); }
+  rect(232, 98, 248, 112, C.k); R.icono('candado', 237, 101, C.oro, C.k);
+  rect(159, 0, 160, 179, C.k);
+};
+const efectos = [[m.g + 6, 'boom'], ...[0, 1, 2, 3].map((k) => [m.p + k * 2.4 + 0.1, 'pop']), [m.p + 10, 'pop'], [m.r, 'whoosh']];
+rodar(E, R, [[0, mundo], [m.p - 0.3, eeuu], [m.r - 0.3, regla]], { efectos, año: 1947 });
+</script>
+</body>
+</html>

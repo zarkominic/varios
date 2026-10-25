@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Auténtico · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-AUTENTICO (frase 33). F hoy: en el monitor, el vídeo del Tic Tac en blanco y negro con su retícula y un sello verde
+// «✓» (auténtico); al lado, una carpeta con «?»: el vídeo es real, lo que sale en él no se sabe.
+import { preparar, rodar, salaHoy, visto, C } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await preparar('ov-autentico');
+const { tramo } = R;
+const m0 = M('autentico', 0.5), sello = m0 + 3, carpeta = m0 + 8;
+const pantalla = (R, x0, y0, x1, y1, t) => {
+  for (let y = y0; y <= y1; y++) R.rect(x0, y, x1, y, (y + Math.floor(t * 20)) % 7 ? R.hex('#3a3e44') : R.hex('#44484e'));
+  const ox = Math.round((x0 + x1) / 2 + Math.sin(t * 0.7) * 6), oy = Math.round((y0 + y1) / 2 + Math.sin(t * 1.1) * 2);
+  R.rect(ox - 5, oy - 2, ox + 5, oy + 2, R.hex('#e8eaee')); R.rect(ox - 3, oy - 3, ox + 3, oy + 3, R.hex('#e8eaee'));
+  for (const [dx, dy] of [[-9, -6], [9, -6], [-9, 6], [9, 6]]) { R.rect(ox + dx - (dx < 0 ? 0 : 3), oy + dy, ox + dx + (dx < 0 ? 3 : 0), oy + dy, C.blanco); R.rect(ox + dx, oy + dy - (dy < 0 ? 0 : 3), ox + dx, oy + dy + (dy < 0 ? 3 : 0), C.blanco); }
+  R.rect((x0 + x1) / 2, y0 + 2, (x0 + x1) / 2, y0 + 6, C.blanco); R.rect(x0 + 2, y1 - 4, x0 + 12, y1 - 4, C.blanco);
+  if (t > sello) visto(R, x1 - 16, y0 + 4, 1);
+};
+const plano = (t) => {
+  salaHoy(R, t, { pantalla });
+  if (t > carpeta) { const e = tramo(t, carpeta, carpeta + 0.8), y = Math.round(140 - e * 30); R.rect(76, y - 14, 104, y + 6, C.k); R.rect(77, y - 13, 103, y + 5, C.ocre); R.icono('?', 87, y - 9, C.k, C.ocre); }
+};
+rodar(E, R, [[0, plano]], { efectos: [[sello, 'sello'], [carpeta, 'papel']], año: 2020 });
+</script>
+</body>
+</html>

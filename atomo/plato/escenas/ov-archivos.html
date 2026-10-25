@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Archivos · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-ARCHIVOS (frase 3). F hoy: el archivo del Pentágono; un cajón se abre solo y deja salir luz; salen carpetas, unas con
+// «✓» (resueltas) y otras con «?» (sin resolver), que vuelan hacia la cámara.
+import { preparar, rodar, archivoPentagono, visto, C } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await preparar('ov-archivos');
+const { tramo, lerp } = R;
+const m0 = M('archivos', 0.5), abre = (t) => tramo(t, m0 + 0.5, m0 + 2.5);
+const plano = (t) => {
+  archivoPentagono(R, t, { abre: abre(t) });
+  for (let k = 0; k < 8; k++) { const u = tramo(t, m0 + 3 + k * 1.1, m0 + 5.5 + k * 1.1); if (u <= 0) continue;
+    const x = Math.round(lerp(160, 30 + (k % 4) * 80 + (k > 3 ? 30 : 0), u)), y = Math.round(lerp(108, 30 + Math.floor(k / 4) * 70, u) - Math.sin(u * Math.PI) * 20), w = Math.round(lerp(8, 22, u));
+    R.rect(x - w, y - w * 0.7, x + w, y + w * 0.7, C.k); R.rect(x - w + 1, y - w * 0.7 + 1, x + w - 1, y + w * 0.7 - 1, k % 3 ? C.ocre : C.papel);
+    if (u > 0.6) { if (k % 2) visto(R, x - 6, y - 4, 1); else R.icono('?', x - 3, y - 4, C.k, C.ocre); } }
+};
+rodar(E, R, [[0, plano]], { efectos: [[m0 + 0.5, 'cerrojo'], ...Array.from({ length: 8 }, (_, k) => [m0 + 3 + k * 1.1, 'papel'])], año: 2026 });
+</script>
+</body>
+</html>

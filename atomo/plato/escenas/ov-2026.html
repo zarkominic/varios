@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>2026 · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-2026 (frase 34). F: la sala de hoy; en el ordenador se descargan los archivos ovni y la barra se queda en el 99 %;
+// el gato se tumba sobre el teclado (gag).
+import { preparar, rodar, salaHoy, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-2026');
+const { tramo } = R;
+const m0 = M('orden', 1.5), L = E.duracion - m0, gatoSube = m0 + 0.62 * L;
+const barra = (t) => Math.min(0.99, tramo(t, m0 + 1, m0 + 0.55 * L) * 0.99);
+const pantalla = (R, x0, y0, x1, y1, t) => {
+  for (let k = 0; k < 6; k++) { const x = x0 + 4 + (k % 3) * 18, y = y0 + 4 + Math.floor(k / 3) * 12; R.rect(x, y, x + 12, y + 8, C.ocre); R.rect(x, y, x + 5, y + 1, C.oroS); }
+  const b = barra(t); R.rect(x0 + 4, y1 - 8, x1 - 4, y1 - 4, C.k); R.rect(x0 + 5, y1 - 7, x0 + 5 + Math.round((x1 - x0 - 10) * b), y1 - 5, C.verdeL);
+  if (b >= 0.99) R.numero('99', x1 - 14, y1 - 10, { color: C.blanco });
+};
+const plano = (t) => {
+  salaHoy(R, t, { pantalla, gato: t > gatoSube ? 'teclado' : 'cola' });
+  R.actor(EL.sudadera, 130, 160, t, { dir: 1, sorpresa: t > gatoSube && t < gatoSube + 2, triste: t > gatoSube + 2, dedo: barra(t) >= 0.99 && t < gatoSube && Math.floor(t * 3) % 2 === 0 });
+};
+rodar(E, R, [[0, plano]], { efectos: [[gatoSube, 'miau'], [m0 + 0.55 * L + 0.3, 'toc'], [m0 + 0.55 * L + 0.9, 'toc']], cartela: '2026', año: 2026 });
+</script>
+</body>
+</html>

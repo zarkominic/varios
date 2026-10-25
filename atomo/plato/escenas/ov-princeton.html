@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Princeton · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-PRINCETON (frase 30). A: el buque de guerra con su radar; en la pantalla, puntos que caen desde «24 km» hasta el mar.
+import { preparar, rodar, pacifico, radar, C } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await preparar('ov-princeton');
+const { tramo } = R;
+const m0 = M('radar04', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  pacifico(R, t, { hor: 70, cerca: true, portaaviones: 40, crucero: null, gaviotas: true });
+  // el crucero grande, en plano medio, con los paneles del radar
+  const x = 120, y = 104 + Math.round(Math.sin(t * 0.9) * 1);
+  R.poligono([[x - 70, y], [x + 80, y], [x + 70, y + 12], [x - 64, y + 12]], C.metalS); R.rect(x - 70, y - 1, x + 80, y, C.metal);
+  R.rect(x - 20, y - 22, x + 30, y - 1, C.metal); R.rect(x - 10, y - 34, x + 18, y - 22, C.metalL); R.rect(x + 2, y - 46, x + 4, y - 34, C.metalD);
+  R.rect(x - 6, y - 30, x + 2, y - 24, C.k); R.rect(x - 5, y - 29, x + 1, y - 25, R.hex('#4a5a7a')); R.rect(x + 8, y - 30, x + 14, y - 24, C.k); R.rect(x + 9, y - 29, x + 13, y - 25, R.hex('#4a5a7a'));
+  for (let i = 0; i < 40; i++) if ((i + Math.floor(t * 4)) % 3) R.pset(x - 72 - i, y + 10 + (i % 2), C.espuma);
+  if ((t % 2) < 0.3) R.pset(x + 3, y - 48, C.rojo);
+  // la pantalla del radar en un recuadro: puntos que caen de lo alto al mar
+  R.rect(212, 96, 314, 176, C.k); R.rect(214, 98, 312, 174, R.hex('#0a2a18'));
+  const verde = R.hex('#3ae07a'); for (let y = 102; y < 172; y += 10) R.rect(216, y, 310, y, R.hex('#1a6a3a')); R.rect(216, 168, 310, 170, R.hex('#2a8a4a'));
+  for (let k = 0; k < 4; k++) { const u = ((t - m0) * 0.35 + k * 0.27) % 1, yy = Math.round(104 + u ** 3 * 62), xx = 236 + k * 18; R.disco(xx, yy, 1, verde); if (u > 0.95) R.pset(xx, 167, R.hex('#c8ffd8')); }
+  R.numero('24', 236, 112, { color: verde }); R.numero('0', 300, 166, { color: verde });
+};
+rodar(E, R, [[0, plano]], { efectos: [[m0 + 1, 'bip'], [m0 + 4, 'bip'], [m0 + 7, 'bip'], [m0 + 10, 'bip']], año: 2004 });
+</script>
+</body>
+</html>

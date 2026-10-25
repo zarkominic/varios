@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cielo · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-CIELO (frases 37–38). Un cielo al atardecer en el que aparecen, uno a uno y con su «✓», el globo Mogul, el U-2 y Venus.
+// Luego tres huecos con «?»: los nueve destellos, las carpetas del 701 y el Tic Tac.
+import { preparar, rodar, atardecer, mogul, u2, destellos, tictac, visto, C } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await preparar('ov-cielo');
+const { tramo } = R;
+const m = { e: M('explicados', 1.4), p: M('pendientes', 10.9) };
+const explicados = (t) => {
+  atardecer(R, t, { hor: 150, luces: 1 });
+  const a = (k) => t > m.e + 1 + k * 2.4;
+  if (a(0)) { mogul(R, 60, 140, t, 0.55); visto(R, 70, 50, 2); }
+  if (a(1)) { u2(R, 160, 46, t, { brasa: true }); visto(R, 172, 22, 2); }
+  if (a(2)) { R.disco(262, 70, 3, R.hex('#fff8e0')); R.disco(262, 70, 2, C.blanco); for (const [dx, dy] of [[-5, 0], [5, 0], [0, -5], [0, 5]]) R.pset(262 + dx, 70 + dy, R.hex('#fff8e0')); visto(R, 274, 50, 2); }
+};
+const pendientes = (t) => {
+  R.rect(0, 0, 319, 179, C.noche2); for (let k = 0; k < 60; k++) R.pset((k * 53) % 320, (k * 31) % 180, C.grisL);
+  const caja = (cx, k, dibujo) => { if (t < m.p + 0.5 + k * 2.6) return; R.rect(cx - 44, 50, cx + 44, 130, C.k); R.rect(cx - 43, 51, cx + 43, 129, C.noche1); dibujo(cx); R.icono('?', cx - 6, 112, C.oroL, C.k, 2); };
+  caja(56, 0, (cx) => destellos(R, t, cx + 34, 80, { sep: 8 }));
+  caja(160, 1, (cx) => { for (let k = 0; k < 6; k++) { R.rect(cx - 16, 96 - k * 5, cx + 16, 99 - k * 5, C.k); R.rect(cx - 15, 97 - k * 5, cx + 15, 98 - k * 5, C.ocre); } R.numero('701', cx, 74, { centro: true }); });
+  caja(264, 2, (cx) => tictac(R, cx, 82, t));
+};
+rodar(E, R, [[0, explicados], [m.p - 0.3, pendientes]], { efectos: [0, 1, 2].map((k) => [m.e + 1 + k * 2.4, 'brillo']).concat([0, 1, 2].map((k) => [m.p + 0.5 + k * 2.6, 'pop'])), año: 2026 });
+</script>
+</body>
+</html>
