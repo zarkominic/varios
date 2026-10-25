@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-GANCHO (frases 1–2). A: el Pacífico a mediodía. Dos F/A-18 cruzan alto; el mar empieza a hervir en un círculo de espuma.
+// Plano cercano: sobre la espuma flota el Tic Tac; el caza baja en espiral y, al final, el objeto sube hacia él (golpe).
+import { preparar, rodar, primerT, pacifico, tictac, caza, cazaCerca } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-gancho');
+const { tramo, lerp } = R;
+const m = { mar: M('mar', 0.5), obj: M('objeto', 13), fin: M('objeto_fin', E.duracion - 1) };
+const L1 = m.obj - m.mar;
+const pasada = (t) => tramo(t - m.mar, 0.1, 0.3 * L1);                 // los cazas cruzan de izquierda a derecha
+const c0 = m.mar + 0.32 * L1, c1 = m.mar + 0.6 * L1;                     // primer plano del piloto en su cabina
+const hierve = (t) => tramo(t - m.mar, 0.45 * L1, 0.85 * L1);          // el mar empieza a hervir
+const asombro = m.mar + 0.5 * L1;                                       // el piloto lo ve
+const vuelta = (t) => tramo(t - m.mar, 0.55 * L1, L1);                 // un caza vuelve, más bajo, a mirar
+const sube = (t) => tramo(t, m.fin - 2.2, m.fin - 0.15);               // el objeto sube hacia el caza
+
+const lejos = (t) => {
+  pacifico(R, t, { hor: 74, portaaviones: 236, crucero: 38, delfines: [70, 112], hierve: hierve(t), centro: [168, 132] });
+  const p = pasada(t);
+  if (p > 0 && p < 1) { caza(R, lerp(-30, 350, p), 30 + p * 6, t); caza(R, lerp(-60, 320, p), 38 + p * 6, t); }
+  const v = vuelta(t);
+  if (v > 0) caza(R, lerp(350, 150, v), lerp(46, 64, v), t, { dir: -1 });
+};
+const piloto = (t) => cazaCerca(R, t, { quien: EL.fravor, sorpresa: t > asombro, hierve: hierve(t) });
+const cerca = (t) => {
+  pacifico(R, t, { hor: 52, cerca: true, portaaviones: null, crucero: 278, hierve: 1, centro: [160, 132], gaviotas: false });
+  // el caza baja en espiral alrededor del objeto
+  const u = tramo(t, m.obj, m.fin - 0.3), ang = 2.2 * Math.PI * u + Math.PI, s = sube(t);
+  const jx = 160 + Math.cos(ang) * lerp(130, 70, u), jy = lerp(26, 70, u) + Math.sin(ang) * 10, dir = -Math.sin(ang) >= 0 ? 1 : -1;
+  const ox = lerp(160, jx + 18 * dir, s * 0.85), oy = lerp(118, jy + 10, s * 0.85);
+  tictac(R, ox, oy, t, { sombra: s < 0.3 ? 128 : null });
+  caza(R, jx, jy, t, { dir, picado: u > 0.2 && u < 0.95 });
+};
+const efectos = [
+  [primerT((t) => pasada(t) > 0, 0, m.obj), 'jet', { pan: 1 }],
+  [primerT((t) => hierve(t) > 0, 0, m.obj), 'burbujas', { dur: 0.35 * L1 }],
+  [primerT((t) => vuelta(t) > 0, 0, m.obj), 'jet', { pan: -1 }],
+  [m.obj + 0.3, 'jet', { pan: 0, dur: 4 }],
+  [primerT((t) => sube(t) > 0, m.obj, E.duracion), 'zumbido'],
+];
+rodar(E, R, [[0, lejos], [c0, piloto], [c1, lejos], [m.obj - 0.2, cerca]], { efectos, año: 2004 });
+</script>
+</body>
+</html>

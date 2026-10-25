@@ -504,6 +504,15 @@ export const TOCADOS = {
     '.kkkkkkkkkkkk..',
   ], -4],
   // quepis de soldado de la guerra civil (azul o gris, según la ropa)
+  // casco de piloto de caza (episodio 10): blanco, con la visera oscura subida por delante
+  casco: [[
+    '....kkkkkkk....',
+    '..kkXXXXXXXkk..',
+    '.kXXXXXXXXXXXk.',
+    '.kXXXXXXXXkkkk.',
+    '.kXXXXXXXXkkkk.',
+    '.kXkkkkkkkkkk..',
+  ], -2],
   kepi: [[
     '...kkkkkk......',
     '...kCCCCCk.....',
@@ -569,6 +578,13 @@ export const ELENCO_AG = {
   chica: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), pal: { S: hex('#c88a5a'), s: hex('#9a5e36'), H: hex('#5a3418'), h: hex('#8a5428'), C: hex('#5a9a4a'), c: hex('#3e7a34'), F: hex('#3e5a9a'), W: hex('#5a9a4a') } },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_AG);
+
+// ── Episodio 10 (ovnis): pilotos de 2004 con mono de vuelo verde oliva y casco ─────────────────────────────────────
+export const ELENCO_OV = {
+  fravor: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'casco', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#6e7a52', c: '#525c3c', F: '#6e7a52', W: '#6e7a52', o: '#c8b040' }) },
+  dietrich: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#8a5428'), tocado: 'casco', pal: CLARA({ H: '#a87040', h: '#c89058', C: '#6e7a52', c: '#525c3c', F: '#6e7a52', W: '#6e7a52', o: '#c8b040' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_OV);
 
 // ── Público: bustos de frente (9 × 12) que se asoman por encima de una borda, un muro o una grada ─────────────────
 export const BUSTOS = {
