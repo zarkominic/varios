@@ -1,6 +1,6 @@
 # Episodio 10 · Ovnis: 80 años de archivos secretos, de Roswell al Tic Tac
 
-**Estado:** v3.
+**Estado:** v3, aprobada el 25 de octubre de 2026. Es el ejemplo canónico de narración (`GUIA-NARRATIVA.md`).
 - La v1 se rechazó por dos motivos.
   - Desmontaba los ovnis: la tesis era «no son extraterrestres», y eso no se sabe.
   - Sonaba a ficha de datos, con preguntas y respuestas rápidas.

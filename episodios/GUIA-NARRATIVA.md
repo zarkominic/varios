@@ -44,6 +44,10 @@
 - **Reencuadre:** una «regla» nueva para mirar el tema (en el episodio 3, los saltos ×10 desde ti).
 - **Estructura:** un viaje con capítulos y la misma ancla visual en todos (regla, línea de tiempo o marcador). La cartela de capítulo no lleva palabras, solo un número o un símbolo.
 - **Cada cifra con una comparación**, y en cada bloque al menos un detalle humano.
+- **Narración canónica: el guion del episodio 10 (`episodios/10-ovnis/guion.md`, v3), aprobado el 25 de octubre de 2026.** Todo guion nuevo se escribe como ese:
+  - una historia contada por escenas (lugar, hora, una persona y lo que ve), con el suspense antes del dato;
+  - abre en mitad de la escena más fuerte y vuelve a ella al final;
+  - el misterio abierto donde lo está.
 - **Prosa fluida, no telegráfica (desde el episodio 10):**
   - Se cuenta como alguien que te narra una historia en voz alta, con frases enlazadas por conectores («pero», «así que», «hasta que», «mientras tanto», «porque») y subordinadas.
   - Nada de cadenas de frases de tres palabras («Mandan cazas. Cuando llegan, los puntos desaparecen. Cuando se van, vuelven.»): el usuario dijo que sonaba a Tarzán.
