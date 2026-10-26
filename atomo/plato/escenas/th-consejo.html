@@ -9,36 +9,191 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-CONSEJO (frases 10–11). Seis planos: el dinero cae sobre la mesa de la sala del consejo, vacía; entran los
-// consejeros famosos, mayores, y se sientan; llega un general con su medalla; ella presenta con un tubito; el gag de la
-// pipeta: un consejero la mira por el lado equivocado y le cae una gota en la nariz; todos asienten, y la «?» que flota
-// sobre la mesa se apaga sin que nadie la pregunte.
+// TH-CONSEJO (frases 10–11). Seis planos:
+// 1. la sala del consejo, aún vacía: la ayudante entra por la puerta con una jarra de agua; los fajos de billetes empiezan
+//    a llover sobre la mesa («the money pours in»), ella se para y mira arriba, y la máquina de contar billetes del centro
+//    de la mesa no da abasto: zumba, los billetes vuelan por arriba y acaba echando vapor (gag);
+// 2. la calle de Palo Alto: llega un coche negro, el escolta abre la puerta y baja un consejero de pelo blanco que va hacia
+//    los fotógrafos; el coche se va, llega otro y baja el segundo (el calvo); con «Henry Kissinger» los flashes y él
+//    saluda; un vecino corre por la acera y pasan coches por delante;
+// 3. la sala: Kissinger y el profesor ya sentados; con «George Shultz» entra el calvo por la izquierda y se sienta; se abre
+//    la puerta y entra el secretario de Defensa, que se sienta; con «a general» entra el general, se cuadra en la puerta
+//    (la medalla brilla) y ocupa la última silla; los sentados se giran hacia cada uno que llega;
+// 4. Holmes, de pie en la cabecera, baja la pantalla y enciende el proyector (motas en el haz): una gota → muchas pruebas;
+//    levanta el tubito diminuto, los consejeros se asombran y asienten, y brillan las medallas («powerful men»);
+// 5. el gag de la pipeta: en la bandeja de laboratorio, el calvo agita un tubo de ensayo; el secretario de Defensa coge la
+//    pipeta y la mira por la punta, aprieta la pera y le salta una gota de agua a la nariz; los de al lado se sorprenden,
+//    él sonríe y la baja («none of them has ever worked in a lab»);
+// 6. la caja Edison en el centro de la mesa, con su luz: con «ask» aparece la «?» encima; el general empieza a levantar la
+//    mano, mira a los demás, que asienten sonrientes, y la baja; la «?» parpadea y se apaga («pop»); mientras, la ayudante
+//    entra, deja un café junto al general y se vuelve por la puerta.
 import * as T from '/atomo/plato/escenas/th-comun.js';
+import { coche } from '/atomo/plato/escenas/ag-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-consejo');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('consejo', f), b = (f) => en('pipeta', f);
 const P2 = a(0.2), P3 = a(0.55), P4 = a(0.917), P5 = b(0.22), P6 = b(0.63);
-const SILLAS = [56, 100, 144, 188, 232];
-const sentados = (t, quien, o = {}) => quien.forEach((d, k) => d && R.actor(d, SILLAS[k] + 1, 146, t, { dir: 1, quieto: true, ...(o[k] || {}) }));
-const p1 = (t) => { T.consejo(R, t); T.consejoMesa(R, t, { dinero: tramo(t, 0.3, P2 - 0.2) }); };
-const p2 = (t) => { T.consejo(R, t); const q = [EL.consejero, EL.consejeroCalvo, null, EL.consejero, EL.profesor];
-  q.forEach((d, k) => { if (!d) return; const u = tramo(t, P2 + 0.4 + k * 0.9, P2 + 1.8 + k * 0.9); if (u >= 1) R.actor(d, SILLAS[k] + 1, 146, t, { dir: 1, quieto: true, sonrisa: true }); else if (u > 0) R.actor(d, Math.round(lerp(-20, SILLAS[k] + 1, u)), 164, t, { dir: 1, anda: true }); });
-  T.consejoMesa(R, t, { dinero: 1 }); };
-const p3 = (t) => { T.consejo(R, t); sentados(t, [EL.consejero, EL.consejeroCalvo, null, EL.consejero, EL.profesor]); const u = tramo(t, a(0.7), a(0.86));
-  if (u < 1) R.actor(EL.general, Math.round(lerp(330, 145, u)), 164, t, { dir: -1, anda: true }); else R.actor(EL.general, 145, 146, t, { dir: 1, quieto: true }); T.consejoMesa(R, t, { dinero: 1 });
-  if (u >= 1 && Math.sin(t * 6) > 0) R.pset(152, 130, T.C.oroL); };
-const p4 = (t) => { T.consejo(R, t, { sillas: [56, 100, 188, 232] }); sentados(t, [EL.consejero, EL.consejeroCalvo, null, EL.general, EL.profesor]); T.consejoMesa(R, t, { dinero: 1 }); R.actor(EL.holmes, 278, 172, t, { dir: -1, dedo: true, habla: Math.sin(t * 6) > 0 }); T.tubito(R, 276, 150, 1, 1); };
-const p5 = (t) => { T.consejo(R, t); sentados(t, [EL.consejeroCalvo, EL.consejero, null, EL.general, null]);
-  const x = 145; R.actor(EL.consejero, x, 146, t, { dir: 1, quieto: true, sorpresa: t > b(0.45) });
-  // la pipeta al revés: la punta hacia el ojo y la pera hacia fuera; a la mitad, le cae la gota en la nariz
-  R.linea(x + 14, 127, x + 30, 115, T.C.k); R.linea(x + 15, 127, x + 31, 115, hex('#c8e8f8')); R.disco(x + 32, 113, 3, T.C.k); R.disco(x + 32, 113, 2, T.C.rojo); T.mano(R, x + 24, 121, 1, '#2a3460');
-  const g = tramo(t, b(0.4), b(0.46)); if (g > 0 && g < 1) R.disco(Math.round(lerp(x + 14, x + 12, g)), Math.round(lerp(127, 131, g)), 1, T.C.sangre); if (g >= 1) R.pset(x + 12, 131, T.C.sangre);
-  T.consejoMesa(R, t, { dinero: 1 }); };
-const p6 = (t) => { T.consejo(R, t); const s = Math.floor(t * 2) % 2; sentados(t, [EL.consejero, EL.consejeroCalvo, EL.general, EL.consejero, EL.profesor], { 0: { sonrisa: true }, 1: { sonrisa: true, salto: s }, 2: { sonrisa: true }, 3: { sonrisa: true, salto: 1 - s }, 4: { sonrisa: true } });
-  T.consejoMesa(R, t, { dinero: 1 }); const f = 1 - tramo(t, b(0.8), b(0.98)); if (f > 0.05 && Math.floor(t * 8) % (f < 0.4 ? 2 : 1) === 0) R.icono('?', 150, 86, T.C.rojo, T.C.k, 3); };
-const efectos = [[0.4, 'papel'], [P2 + 0.4, 'puerta'], [P3 + 0.3, 'puerta'], [b(0.46), 'chof'], [b(0.8), 'pop']];
+const LLUEVE = a(0.08), HENRY = a(0.5), GEORGE = a(0.57), DEFENSA = a(0.65), GENERAL = a(0.78), MATTIS = a(0.95), PODER = b(0.04), LAB = b(0.46), PREGUNTA = b(0.73), MAQUINA = b(0.86);
+const hsh = (k, s) => { const v = Math.sin(k * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
+const SILLAS = [56, 100, 144, 188, 232], ATRAS = 128, SENTADO = 146;
+const TODO = 1.25;   // con dinero 1 el último fajo de consejoMesa se queda en el aire; con 1,25 aterrizan todos
+const PERRY = { ...EL.consejero, pal: { ...EL.consejero.pal, H: hex('#b0b0bc'), h: hex('#d0d0da'), C: hex('#4a4a5a'), c: hex('#3a3a46') } };
+// el consejo: Kissinger, Shultz, el profesor, el secretario de Defensa y el general (Mattis)
+const CONSEJO = [EL.consejero, EL.consejeroCalvo, EL.profesor, PERRY, EL.general];
+// recorrido por fotogramas clave [t, x, suelo]: devuelve dónde está, si anda y hacia dónde mira (null antes de entrar)
+const ruta = (t, kf, desde = true) => { if (t < kf[0][0]) return desde ? null : { x: kf[0][1], s: kf[0][2], mv: false, d: 1 };
+  for (let i = 0; i + 1 < kf.length; i++) if (t < kf[i + 1][0]) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1], u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0, d: x1 < x0 ? -1 : 1 }; }
+  const [, x, s] = kf[kf.length - 1]; return { x, s, mv: false, d: 1 }; };
+const sienta = (t, x, t0) => ruta(t, [[t0, x, ATRAS], [t0 + 0.3, x, SENTADO]], false);   // de pie detrás de la silla a sentado
+
+// la puerta del fondo, a la derecha (lejos de Atom): marco de caoba, dos cuarterones y el pomo; ab 0–1 la abre
+const puerta = (ab) => { const { rect } = R; rect(283, 65, 315, 116, T.C.k); rect(284, 66, 314, 116, T.C.caobaS);
+  rect(287, 69, 311, 116, hex('#2a1810')); rect(287, 104, 311, 116, hex('#5a3a28')); for (let y = 71; y < 104; y += 6) rect(289, y, 309, y, hex('#3a2418'));   // el pasillo de detrás, con su luz
+  const w = Math.round(24 * (1 - ab)); if (w > 0) { rect(311 - w, 69, 311, 116, T.C.caobaL); rect(311 - w, 69, 311 - w, 116, T.C.k); if (w > 8) { rect(314 - w, 73, 308, 88, T.C.caoba); rect(314 - w, 93, 308, 112, T.C.caoba); R.disco(315 - w, 94, 1, T.C.oro); } } };
+const jarra = (x, y) => { R.rect(x, y, x + 4, y + 6, T.C.k); R.rect(x + 1, y + 1, x + 3, y + 5, hex('#c8e8f8')); R.rect(x + 1, y + 3, x + 3, y + 5, hex('#8ac0e0')); R.pset(x + 5, y + 2, T.C.k); R.pset(x + 5, y + 4, T.C.k); };
+const taza = (x, y) => { R.rect(x, y, x + 3, y + 3, T.C.k); R.rect(x + 1, y + 1, x + 2, y + 2, T.C.blanco); R.pset(x + 4, y + 1, T.C.k); };
+const vapor = (x, y, t, n = 3) => { for (let k = 0; k < n; k++) { const v = (t * 0.8 + k / n) % 1; R.pset(Math.round(x + Math.sin(v * 9 + k) * 1.5), Math.round(y - v * 8), hex('#e8e8ee')); } };
+const brillo = (x, y) => { R.pset(x, y, T.C.blanco); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(x + dx, y + dy, T.C.oroL); R.pset(x + 2, y, T.C.oroL); R.pset(x - 2, y, T.C.oroL); };
+// el consejo sentado: o[k] añade gestos a cada uno; quien[k] = false lo deja fuera
+const sentados = (t, quien, o = {}) => CONSEJO.forEach((d, k) => quien[k] && R.actor(d, SILLAS[k] + 1, SENTADO, t, { dir: 1, ...(o[k] || {}) }));
+
+// ── 1 · la sala vacía y el dinero ───────────────────────────────────────────────────────────────────────────────
+const contadora = (t, x, y, vap) => {   // la máquina de contar billetes, sobre la mesa (x centro, y apoyo)
+  const { rect, pset } = R, f = Math.floor(t * 14);
+  rect(x - 11, y - 12, x + 11, y, T.C.k); rect(x - 10, y - 11, x + 10, y - 1, hex('#8a909c')); rect(x - 10, y - 11, x + 10, y - 10, hex('#b8bcc8')); rect(x - 10, y - 2, x + 10, y - 1, hex('#6a707c'));
+  rect(x - 8, y - 8, x + 1, y - 4, T.C.k); for (let i = 0; i < 3; i++) { const v = (f + i * 3) % 7; rect(x - 7 + i * 3, y - 7, x - 6 + i * 3, y - 5, v < 4 ? T.C.verdeL : hex('#2a5a2a')); }
+  pset(x + 5, y - 6, f % 2 ? T.C.rojo : T.C.verdeL); rect(x + 3, y - 4, x + 8, y - 3, T.C.k);
+  rect(x - 7, y - 15, x + 7, y - 12, T.C.k); rect(x - 6, y - 14, x + 6, y - 13, hex('#5a606c'));
+  for (let k = 0; k < 3; k++) { const ph = (t * 6 + k / 3) % 1, by = Math.round(y - 15 - ph * 8), bx = x - 4 + Math.round(Math.sin(ph * 6 + k) * 3); rect(bx, by, bx + 7, by + 1, k % 2 ? hex('#7ab86a') : hex('#5a9a4a')); }
+  if (vap > 0) for (let k = 0; k < 6; k++) { const v = (t * 1.2 + k / 6) % 1; R.disco(Math.round(x - 2 + Math.sin(v * 7 + k) * 3 + k), Math.round(y - 16 - v * 18), Math.round(1 + v * 3 * vap), v > 0.6 ? T.C.grisL : T.C.blanco); }
+};
+const p1 = (t) => {
+  T.consejo(R, t); puerta(tramo(t, 0.1, 0.4) - tramo(t, 1.4, 1.8));
+  const q = ruta(t, [[0.35, 296, 117], [0.7, 284, ATRAS], [2.0, 214, ATRAS], [2.9, 214, ATRAS], [3.5, 180, ATRAS]]);
+  if (q) { const mira = t > 2.0 && t < 2.9, humo = t > 3.7; R.actor(EL.oficinista, q.x, q.s, t, { dir: mira ? 1 : -1, anda: q.mv, sorpresa: mira || humo, sonrisa: t > 2.9 && !humo }); jarra(mira ? q.x + 15 : q.x - 4, q.s - 12); if (humo && t < 4.3) R.bocadillo(q.x + 8, q.s - 27, { icono: '!' }); }
+  T.consejoMesa(R, t, { dinero: TODO * tramo(t, 0.3, P2 - 0.2) });
+  contadora(t, 160, 141, tramo(t, 3.6, 4.2));
+};
+
+// ── 2 · llegan los nombres ──────────────────────────────────────────────────────────────────────────────────────
+const camara = (x, y, fl) => { R.rect(x, y, x + 6, y + 4, T.C.k); R.rect(x + 1, y + 1, x + 5, y + 3, hex('#3a3a46')); R.disco(x + 3, y + 2, 1, hex('#8ab8d8')); R.rect(x + 1, y - 1, x + 3, y - 1, T.C.k);
+  if (fl) { for (let r = 2; r < 11; r++) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(x + 3 + dx * r, y + 2 + dy * r, T.C.blanco); R.disco(x + 3, y + 2, 3, T.C.blanco); } };
+const FLASH = [GEORGE - 3.4, GEORGE - 2.9, HENRY, HENRY + 0.35, HENRY + 0.7];
+const p2 = (t) => {
+  T.calle(R, t);
+  const c1 = t < P2 + 2.9 ? Math.round(lerp(-40, 186, tramo(t, P2 + 0.1, P2 + 1.4))) : Math.round(lerp(186, 400, tramo(t, P2 + 2.9, P2 + 3.9) ** 1.6));
+  const c2 = Math.round(lerp(-40, 186, tramo(t, P2 + 3.1, P2 + 4.2)));
+  const fl = FLASH.some((f) => t > f && t < f + 0.1);
+  // el vecino que corre por la acera, por detrás de todos (pasa antes de que bajen del coche)
+  { const x = Math.round(lerp(60, 340, (t - P2) / 2.8)); if (x < 340) R.actor(EL.chico, x, 119, t, { dir: 1, anda: true }); }
+  // los fotógrafos, con la cámara arriba desde que para el coche
+  for (const [d, x] of [[EL.sudadera, 270], [EL.chica, 294]]) { const arriba = t > P2 + 1.4; R.actor(d, x, 122, t, { dir: -1, dedo: arriba, sonrisa: t > HENRY }); if (arriba) camara(x - 8, 102, fl && x === 270 ? true : fl && Math.floor(t * 20) % 2 === 0); }
+  // los dos consejeros: suben del coche (detrás de él), van por la acera hacia los fotógrafos; con su nombre, saluda
+  const k1 = ruta(t, [[P2 + 1.7, 180, 146], [P2 + 2.2, 180, 124], [P2 + 2.4, 180, 124], [P2 + 3.6, 240, 124]]);
+  if (k1) R.actor(EL.consejero, k1.x, k1.s, t, { dir: 1, anda: k1.mv, sonrisa: t > P2 + 2.6, dedo: t > HENRY - 0.1 && t < HENRY + 0.9 });
+  const k2 = ruta(t, [[P2 + 4.35, 180, 146], [P2 + 4.75, 180, 124], [P2 + 4.85, 180, 124], [P3 - 0.1, 221, 124]]);
+  if (k2) R.actor(EL.consejeroCalvo, k2.x, k2.s, t, { dir: 1, anda: k2.mv, sonrisa: true });
+  // el escolta junto al bordillo: abre la puerta a cada uno
+  const abre = (t > P2 + 1.5 && t < P2 + 2.4) || (t > P2 + 4.2 && t < P2 + 4.9); R.actor(EL.agente, 204, 125, t, { dir: -1, dedo: abre });
+  // los coches negros, por delante de la gente; y otro coche que pasa por el carril de delante
+  if (c1 < 400) T.cocheOscuro(R, c1, 143, t);
+  if (t > P2 + 3.1) T.cocheOscuro(R, c2, 143, t);
+  coche(R, Math.round(lerp(380, -60, (t - P2 - 0.8) / 3.0)), 172, t, { epoca: 'hoy', color: hex('#c84a3a'), dir: -1 });
+  if (fl) T.tinte(R, 0, 179, [255, 255, 255], 0.18);
+};
+
+// ── 3 · se sientan ──────────────────────────────────────────────────────────────────────────────────────────────
+const p3 = (t) => {
+  T.consejo(R, t); puerta(tramo(t, DEFENSA - 0.9, DEFENSA - 0.6) - tramo(t, GENERAL + 1.1, GENERAL + 1.5));
+  // los que llegan: el calvo por la izquierda, el de Defensa y el general por la puerta
+  const shultz = t < GEORGE + 0.7 ? ruta(t, [[P3 - 0.4, 30, ATRAS], [GEORGE + 0.7, 101, ATRAS]], false) : sienta(t, 101, GEORGE + 0.7);
+  const perry = t < DEFENSA + 1.3 ? ruta(t, [[DEFENSA - 0.6, 296, 117], [DEFENSA - 0.3, 284, ATRAS], [DEFENSA + 1.3, 189, ATRAS]]) : sienta(t, 189, DEFENSA + 1.3);
+  const mattis = t < GENERAL + 1.3 ? ruta(t, [[GENERAL - 0.5, 296, 117], [GENERAL - 0.2, 280, ATRAS], [GENERAL + 0.6, 280, ATRAS], [GENERAL + 1.3, 233, ATRAS]]) : sienta(t, 233, GENERAL + 1.3);
+  const saluda = t > GENERAL && t < GENERAL + 0.6;
+  const mira = (k) => { const objetivos = [shultz && shultz.s === ATRAS ? shultz.x : null, perry && perry.s === ATRAS ? perry.x : null, mattis && mattis.s === ATRAS ? mattis.x : null].filter((v) => v != null);
+    if (!objetivos.length) return k % 2 ? -1 : 1; return objetivos[objetivos.length - 1] < SILLAS[k] ? -1 : 1; };
+  for (const [p, d, k] of [[shultz, CONSEJO[1], 1], [perry, CONSEJO[3], 3], [mattis, CONSEJO[4], 4]]) if (p && p.s < SENTADO) R.actor(d, p.x, p.s, t, { dir: p.mv ? p.d : k === 4 && saluda ? -1 : 1, anda: p.mv, dedo: k === 4 && saluda, sonrisa: !p.mv });
+  R.actor(CONSEJO[0], SILLAS[0] + 1, SENTADO, t, { dir: mira(0), habla: t > GEORGE + 0.8 && t < GEORGE + 1.6 && Math.sin(t * 8) > 0, sonrisa: t > GENERAL + 0.2 });
+  R.actor(CONSEJO[2], SILLAS[2] + 1, SENTADO, t, { dir: mira(2), sorpresa: t > GENERAL && t < GENERAL + 0.5, sonrisa: t > GENERAL + 0.5 });
+  for (const [p, d, k] of [[shultz, CONSEJO[1], 1], [perry, CONSEJO[3], 3], [mattis, CONSEJO[4], 4]]) if (p && p.s >= SENTADO) R.actor(d, p.x, p.s, t, { dir: mira(k), sonrisa: true });
+  if (saluda && Math.sin(t * 14) > 0) brillo(mattis.x + 5, mattis.s - 9);
+  // la ayudante, al fondo a la izquierda, rellena la jarra de la mesita
+  R.actor(EL.oficinista, 8, ATRAS, t, { dir: 1, dedo: Math.floor(t * 0.8) % 2 === 0 }); jarra(23, 112);
+  T.consejoMesa(R, t, { dinero: TODO });
+};
+
+// ── 4 · la presentación ─────────────────────────────────────────────────────────────────────────────────────────
+const pruebas = (x, y, n) => { const col = [T.C.rojo, T.C.tealT, T.C.verdeT, T.C.amarilloT, hex('#8a5ad8'), T.C.azul]; for (let k = 0; k < n; k++) { const i = k % 3, j = Math.floor(k / 3); R.rect(x + i * 6, y + j * 6, x + i * 6 + 4, y + j * 6 + 4, T.C.k); R.rect(x + i * 6 + 1, y + j * 6 + 1, x + i * 6 + 3, y + j * 6 + 3, col[k % 6]); } };
+const p4 = (t) => {
+  T.consejo(R, t);
+  // la pantalla baja del techo entre los ventanales y el proyector de la mesa la ilumina: gota → muchas pruebas
+  const baja = tramo(t, P4 + 0.1, P4 + 0.7), luz = t > P4 + 0.9, hy = Math.round(18 + baja * 62);
+  R.rect(137, 15, 199, 18, T.C.k); R.rect(138, 16, 198, 17, T.C.metalD); R.rect(140, 18, 196, hy, T.C.k); R.rect(141, 18, 195, hy - 1, luz ? hex('#f4f2ea') : hex('#d8d4cc')); R.rect(140, hy, 196, hy + 2, T.C.k); R.disco(168, hy + 4, 1, T.C.k);
+  if (luz && baja >= 1) { const e = tramo(t, P4 + 1.0, P4 + 2.2); R.icono('gota', 147, 36, T.C.sangre, T.C.k, 2);
+    if (e > 0.2) { R.linea(164, 43, 172, 43, T.C.k); R.linea(170, 41, 172, 43, T.C.k); R.linea(170, 45, 172, 43, T.C.k); } pruebas(176, 30, Math.floor(e * 9));
+    T.tubito(R, 160, 72, 1, 1); for (let y = hy + 3; y < 134; y++) { const w = Math.round((134 - y) * 0.45); for (let x = 168 - w; x <= 168 + w; x++) if ((x + y) % 4 === 0) { const c = R.pget(x, y); R.pset(x, y, ((((c & 0xfefefe) >>> 1) + 0x485050) | 0xff000000) >>> 0); } }
+    for (let k = 0; k < 10; k++) { const v = (t * 0.15 + hsh(k, 1)) % 1, y = Math.round(132 - v * 50), x = Math.round(168 + (hsh(k, 2) - 0.5) * (134 - y) * 0.8); R.pset(x, y, hex('#f0e8c8')); } }
+  const asombro = t > PODER - 1.1 && t < PODER - 0.4, asiente = t > PODER - 0.4;
+  sentados(t, [1, 1, 1, 1, 1], Object.fromEntries([0, 1, 2, 3, 4].map((k) => [k, { dir: k === 4 ? -1 : 1, sorpresa: asombro, sonrisa: asiente, salto: asiente && Math.floor(t * 2.5 + k) % 3 === 0 ? 1 : 0 }])));
+  // las medallas y los alfileres que brillan: «powerful men with a lot of experience»
+  for (const [k, dt] of [[4, 0.3], [0, 0.9], [3, 1.5]]) { const tt = PODER + dt; if (t > tt && t < tt + 0.35) brillo(SILLAS[k] + 1 + (k === 4 ? 9 : 5), SENTADO - 9); }
+  R.actor(EL.holmes, 268, 141, t, { dir: -1, habla: t > P4 + 0.3 && Math.sin(t * 7) > 0 && !(t > P4 + 1.2 && t < PODER - 0.3), dedo: t > P4 + 1.1 && t < PODER + 1.6, sonrisa: t > PODER });
+  if (t > P4 + 1.1 && t < PODER + 1.6) T.tubito(R, 265, 122, 1, 1);
+  T.consejoMesa(R, t, { dinero: TODO });
+  R.rect(162, 134, 174, 141, T.C.k); R.rect(163, 135, 173, 140, hex('#5a5e6a')); R.disco(168, 135, 2, T.C.k); R.pset(168, 135, luz ? hex('#f8f0c8') : hex('#3a3a46')); R.pset(171, 138, luz && Math.floor(t * 3) % 2 ? T.C.verdeL : T.C.k);   // el proyector
+};
+
+// ── 5 · la pipeta ───────────────────────────────────────────────────────────────────────────────────────────────
+const bandeja = (t, coge) => { R.rect(75, 137, 98, 141, T.C.k); R.rect(76, 138, 97, 140, hex('#d8dce4')); for (let k = 0; k < 4; k++) if (!(coge && k === 3)) { const x = 78 + k * 5; R.rect(x, 128, x + 2, 138, T.C.k); R.rect(x + 1, 129, x + 1, 137, T.C.blanco); R.rect(x + 1, 133, x + 1, 137, [T.C.rojo, T.C.amarilloT, T.C.tealT, hex('#8a5ad8')][k]); } };
+const pipeta = (x0, y0, x1, y1, pera) => { R.linea(x0, y0, x1, y1, T.C.k); R.linea(x0, y0 - 1, x1, y1 - 1, hex('#c8e8f8')); R.disco(x1 + 1, y1 - 1, pera + 1, T.C.k); R.disco(x1 + 1, y1 - 1, pera, T.C.rojo); };
+const p5 = (t) => {
+  T.consejo(R, t);
+  const coge = t > P5 + 0.4, mira = t > P5 + 0.9 && t < LAB + 0.9, gota = tramo(t, LAB - 0.08, LAB + 0.06), moja = t > LAB + 0.06 && t < LAB + 0.9, x = SILLAS[3] + 1;
+  sentados(t, [1, 1, 1, 0, 1], { 0: { dir: 1, habla: t > P5 + 1.0 && t < LAB - 0.5 && Math.sin(t * 8) > 0, sonrisa: t > LAB + 0.3 }, 1: { dir: t > LAB ? 1 : 1, dedo: coge && t < LAB + 1.6, sorpresa: t > LAB && t < LAB + 0.5 },
+    2: { dir: 1, sorpresa: t > LAB && t < LAB + 0.6, sonrisa: t > LAB + 0.6 }, 4: { dir: -1, sorpresa: t > LAB && t < LAB + 0.6, sonrisa: t > LAB + 0.6 } });
+  R.actor(PERRY, x, SENTADO, t, { dir: 1, dedo: t > P5 + 0.6 && t < LAB + 1.1, sorpresa: t > LAB && t < LAB + 0.9, sonrisa: t > LAB + 1.1 });
+  // el tubo de ensayo del calvo, que lo agita a contraluz
+  if (coge && t < LAB + 1.6) { const tx = SILLAS[1] + 1 + 16 + Math.round(Math.sin(t * 12) * 1), ty = SENTADO - 13 - 12; R.rect(tx, ty, tx + 2, ty + 9, T.C.k); R.rect(tx + 1, ty + 1, tx + 1, ty + 8, T.C.blanco); R.rect(tx + 1, ty + 5, tx + 1, ty + 8, hex('#8a5ad8')); if (Math.floor(t * 6) % 2) R.pset(tx + 1, ty + 3, T.C.blanco); }
+  R.actor(EL.holmes, 268, 141, t, { dir: -1, sonrisa: true });
+  T.consejoMesa(R, t, { dinero: TODO });
+  bandeja(t, coge);
+  // la pipeta: en la mesa; luego en su mano, con la punta hacia el ojo; la pera se aprieta y la gota le salta a la nariz
+  const pera = t > LAB - 0.1 && t < LAB + 0.1 ? 1 : 2;
+  if (t < P5 + 0.6) pipeta(x + 14, 140, x + 26, 139, 2);
+  else if (t < LAB + 1.1) pipeta(x + 15, SENTADO - 20, x + 26, SENTADO - 28, pera);
+  else pipeta(x + 14, 140, x + 26, 139, 2);
+  if (gota > 0 && gota < 1) R.disco(Math.round(lerp(x + 15, x + 13, gota)), Math.round(lerp(SENTADO - 20, SENTADO - 17, gota)), 1, hex('#5ab8e8'));
+  if (moja) { R.rect(x + 13, SENTADO - 17, x + 14, SENTADO - 16, hex('#5ab8e8')); R.pset(x + 13, SENTADO - 17, hex('#c8f0ff')); if (t < LAB + 0.3) for (const [dx, dy] of [[-1, -2], [3, -1], [1, -3], [-2, 0]]) R.pset(x + 13 + dx, SENTADO - 17 + dy, hex('#8ad0f0')); if (t < LAB + 0.7) R.bocadillo(x + 6, SENTADO - 30, { icono: '!' }); }
+};
+
+// ── 6 · nadie pregunta ──────────────────────────────────────────────────────────────────────────────────────────
+const p6 = (t) => {
+  T.consejo(R, t); puerta(tramo(t, P6 - 0.1, P6 + 0.25) - tramo(t, P6 + 0.8, P6 + 1.1) + tramo(t, P6 + 3.0, P6 + 3.3) - tramo(t, P6 + 3.7, P6 + 4.1));
+  // la ayudante trae un café para el general y se vuelve por la puerta
+  const q = ruta(t, [[P6 + 0.1, 296, 117], [P6 + 0.4, 284, ATRAS], [P6 + 1.5, 216, ATRAS], [P6 + 2.3, 216, ATRAS], [P6 + 3.4, 290, ATRAS], [P6 + 3.6, 296, 117]]);
+  if (q && t < P6 + 3.6) { const deja = t > P6 + 1.5 && t < P6 + 2.3; R.actor(EL.oficinista, q.x, q.s, t, { dir: deja ? 1 : q.d, anda: q.mv, dedo: deja, sonrisa: true }); if (t < P6 + 1.9) taza(deja ? q.x + 15 : q.x - 3, q.s - 12); }
+  const alza = t > PREGUNTA + 0.2 && t < MAQUINA + 0.1, asienten = t > PREGUNTA + 0.6, s = Math.floor(t * 2.5);
+  sentados(t, [1, 1, 1, 1, 0], { 0: { sonrisa: asienten, salto: asienten && s % 2 ? 1 : 0 }, 1: { sonrisa: asienten, salto: asienten && s % 2 === 0 ? 1 : 0 }, 2: { sonrisa: true }, 3: { dir: 1, sonrisa: asienten, salto: asienten && s % 2 ? 1 : 0 } });
+  R.actor(CONSEJO[4], SILLAS[4] + 1, SENTADO, t, { dir: alza && t > PREGUNTA + 0.8 ? -1 : 1, dedo: alza, habla: alza && t < PREGUNTA + 0.7, sonrisa: t > MAQUINA + 0.1 });
+  R.actor(EL.holmes, 268, 141, t, { dir: -1, sonrisa: true, habla: t > PREGUNTA + 0.4 && t < MAQUINA + 0.4 && Math.sin(t * 7) > 0 });
+  T.consejoMesa(R, t, { dinero: TODO });
+  if (t > P6 + 1.9) { taza(225, 137); vapor(226, 136, t, 2); }
+  // la caja Edison, en su carrito delante de la mesa, con la luz que parpadea
+  R.rect(134, 149, 186, 152, T.C.k); R.rect(135, 150, 185, 151, T.C.metalL); for (const lx of [138, 181]) { R.rect(lx, 152, lx + 1, 172, T.C.metalD); R.disco(lx + 1, 174, 2, T.C.k); } R.rect(138, 165, 182, 166, T.C.metalD);
+  T.edison(R, 160, 149, t, { s: 0.5 });
+  // la «?» en su globo sobre la máquina: aparece con «ask», flota, parpadea y se apaga
+  const sale = tramo(t, PREGUNTA - 0.3, PREGUNTA + 0.1), f = 1 - tramo(t, MAQUINA + 0.6, b(0.98)), y = 108 + Math.round(Math.sin(t * 3) * 1.5) + Math.round((1 - sale) * 8);
+  if (sale > 0 && f > 0.05 && Math.floor(t * 8) % (f < 0.5 ? 2 : 1) === 0) { const r = Math.round(9 * Math.min(1, sale * 1.2)), X = 173; R.disco(X, y, r + 1, T.C.k); R.disco(X, y, r, T.C.blanco); for (const [dx, dy, rr] of [[-2, 13, 2], [-4, 18, 1]]) if (sale >= 1) { R.disco(X + dx, y + dy, rr + 1, T.C.k); R.disco(X + dx, y + dy, rr, T.C.blanco); } if (sale >= 1) R.icono('?', X - 5, y - 7, T.C.rojo, T.C.blanco, 2); }
+};
+
+const efectos = [[0.15, 'puerta'], [LLUEVE - 0.6, 'papel'], [LLUEVE, 'zumbido'], [LLUEVE + 0.9, 'papel'], [3.7, 'vapor'],
+  [P2 + 0.2, 'motor'], [P2 + 1.6, 'puerta'], [FLASH[0], 'flash'], [P2 + 3.2, 'motor'], [P2 + 4.3, 'puerta'], [HENRY, 'flash'], [HENRY + 0.7, 'flash'],
+  [DEFENSA - 0.9, 'puerta'], [GENERAL + 0.05, 'brillo'],
+  [P4 + 0.1, 'whoosh'], [P4 + 0.9, 'interruptor'], [PODER + 0.3, 'brillo'],
+  [P5 + 0.45, 'golpecito'], [LAB, 'chof'],
+  [P6, 'puerta'], [P6 + 1.9, 'golpecito'], [PREGUNTA - 0.2, 'bip'], [b(0.98) - 0.1, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: (t) => (t < P4 ? 2011 : 2012) });
 </script>
 </body>

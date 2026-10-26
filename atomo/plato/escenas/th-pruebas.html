@@ -9,22 +9,164 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-PRUEBAS (frases 37–38). Cuatro planos: la balanza de la promesa y la prueba; una científica que comprueba los
-// controles y les pone un «✓»; las estrellas que forjan los átomos (de eso estamos hechos Atom y la sangre); y la gota
-// gigante, donde la «?» se vuelve «✓».
+// TH-PRUEBAS (frases 37–38). Cuatro planos:
+// 1 la balanza, en la mesa de un laboratorio (ventana con un árbol que se mece, estante de frascos, reloj que avanza,
+//   motas en la luz): una mano deja un resultado en cada platillo y la balanza se nivela; cuando la voz dice «the
+//   proof behind it», la mano pone detrás del de la derecha dos archivadores y un sello «✓»: ese platillo baja y el
+//   otro sube, y sobre el resultado solo, que se queda arriba, sale una «?»;
+// 2 el laboratorio: Erika entra con su lupa; un vendedor llega con una caja de regalo y la levanta entre destellos
+//   («what are you promising?»); ella la ignora, levanta la lupa hacia la pantalla de controles y, cuando la voz dice
+//   «checked», sale el «✓»; a la caja se le abre la tapa y salta un muelle con una «?» (gag); al fondo, un técnico
+//   trabaja junto a las cajas Edison;
+// 3 el espacio: una estrella forja átomos que vuelan en arco hasta una gota de sangre y la llenan de puntos de colores;
+//   al llegar, cada átomo enseña su número (26, 8, 6, 1, 7: «atoms you can measure»); la gota late cuando la voz dice
+//   «blood»; un cometa cruza el fondo;
+// 4 la gota gigante: baja una caja de regalo entre destellos («promises you a miracle») y le salta una «?»; una mano
+//   pasa una lupa por la gota, que deja ver las moléculas grandes, y cuando la voz dice «proof» sale el «✓».
 import * as T from '/atomo/plato/escenas/th-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
-import { balanza, forjaAtomos } from '/atomo/plato/escenas/ov-comun.js';
 const { E, R, M } = await T.preparar('th-pruebas');
 const { tramo, lerp, hex } = R;
+const C = T.C;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('prueba', f), b = (f) => en('milagro', f);
+const lin = (t, t0, t1) => Math.max(0, Math.min(1, (t - t0) / (t1 - t0)));   // a paso constante (para andar)
 const P2 = a(0.5), P3 = b(0), P4 = b(0.55);
-const p1 = (t) => balanza(R, t, { equilibrio: tramo(t, a(0.3), a(0.45)) });
-const p2 = (t) => { T.laboratorio(R, t); R.actor(EL.erika, 130, 160, t, { dir: 1, dedo: t > a(0.9) }); T.lupa(R, 154, 128, 6); if (t > a(0.92)) T.visto(R, 140, 26, 3); };
-const p3 = (t) => forjaAtomos(R, t, { u: tramo(t, P3, P4) });
-const p4 = (t) => { T.gotaGigante(R, t); const v = t > b(0.95); if (v) T.visto(R, 216, 60, 3); else R.icono('?', 222, 56, T.C.rojo, T.C.k, 4); };
-const efectos = [[0.4, 'toc'], [a(0.92), 'brillo'], [P3 + 0.2, 'zumbido'], [b(0.95), 'brillo']];
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+
+// ── piezas de esta escena ──────────────────────────────────────────────────────────────────────────────────────────
+// la mano canónica con la manga (bata blanca) que llega hasta el borde de la pantalla
+function manoLarga(x, y, dir, manga = '#f4f4f8') { T.mano(R, x, y, dir, manga); const m = hex(manga), x0 = dir > 0 ? 0 : x + 43, x1 = dir > 0 ? x - 43 : 319; if (x1 >= x0) { R.rect(x0, y - 2, x1, y + 2, m); R.rect(x0, y - 3, x1, y - 3, C.k); R.rect(x0, y + 3, x1, y + 3, C.k); } }
+// una hoja de resultados (x, y: centro de abajo)
+function hoja(x, y) { R.rect(x - 7, y - 16, x + 7, y, C.k); R.rect(x - 6, y - 15, x + 6, y - 1, C.blanco); for (let k = 0; k < 4; k++) R.rect(x - 4, y - 13 + k * 3, x + 4 - (k % 2) * 3, y - 13 + k * 3, k === 1 ? C.rojo : hex('#9aa0ac')); }
+// el archivador (x, y: centro de abajo)
+function archivador(x, y, col) { R.rect(x - 9, y - 8, x + 9, y, C.k); R.rect(x - 8, y - 7, x + 8, y - 1, col); R.rect(x - 8, y - 7, x - 6, y - 1, hex('#2a2a3a')); R.rect(x - 2, y - 5, x + 5, y - 3, C.blanco); }
+// el sello verde con el «✓» (x, y: centro de abajo)
+function sello(x, y) { R.disco(x, y - 7, 7, C.k); R.disco(x, y - 7, 6, hex('#3a8a4a')); T.visto(R, x - 5, y - 10, 1); }
+// la caja de regalo con lazo (x, y: centro de abajo); o.abre (0–1) levanta la tapa y saca el muelle con la «?»
+function regalo(x, y, t, s = 1, abre = 0) {
+  const { rect, disco, linea } = R, w = Math.round(12 * s), hgt = Math.round(16 * s), tapa = Math.round(abre * 10 * s);
+  rect(x - w, y - hgt, x + w, y, C.k); rect(x - w + 1, y - hgt + 1, x + w - 1, y - 1, hex('#e84a8a')); rect(x - 2, y - hgt + 1, x + 1, y - 1, C.oroL);
+  if (abre > 0) { const top = y - hgt - Math.round(abre * 34 * s), rr = Math.max(6, Math.round(7 * s)); for (let k = 0; k < 7; k++) { const yy = Math.round(lerp(y - hgt, top + rr, k / 6)); linea(x - 3, yy, x + 3, yy - 2, C.metalD); } }
+  rect(x - w - 2, y - hgt - 5 - tapa, x + w + 2, y - hgt - tapa, C.k); rect(x - w - 1, y - hgt - 4 - tapa, x + w + 1, y - hgt - 1 - tapa, hex('#f06aa0')); rect(x - 2, y - hgt - 4 - tapa, x + 1, y - hgt - 1 - tapa, C.oroL);
+  disco(x - 4, y - hgt - 8 - tapa, 3, C.oroL); disco(x + 3, y - hgt - 8 - tapa, 3, C.oroL); R.pset(x - 4, y - hgt - 8 - tapa, C.oro); R.pset(x + 3, y - hgt - 8 - tapa, C.oro);
+  if (abre > 0) { const top = y - hgt - Math.round(abre * 34 * s), rr = Math.max(6, Math.round(7 * s)), g = s > 1 ? 2 : 1; disco(x, top, rr + 1, C.k); disco(x, top, rr, C.blanco); R.icono('?', x - (g === 2 ? 5 : 2), top - (g === 2 ? 7 : 3), C.rojo, C.blanco, g); }
+}
+// destellos que salen alrededor de (x, y)
+function destellos(x, y, t, n = 6, r = 20) { for (let k = 0; k < n; k++) { if (Math.sin(t * 7 + k * 2.3) < 0.2) continue; const ang = k / n * Math.PI * 2 + t * 0.6, px = Math.round(x + Math.cos(ang) * r), py = Math.round(y + Math.sin(ang) * r * 0.8); R.pset(px, py, C.blanco); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(px + dx, py + dy, C.oroL); } }
+
+// ── 1 · la balanza: el resultado y la prueba ───────────────────────────────────────────────────────────────────────
+const DETRAS = a(0.37);   // «proof behind it»
+const VIAJES = [   // la mano: [sale, deja, vuelve, lado (−1 izquierda, 1 derecha)]
+  [0.15, 0.9, 1.4, -1], [1.2, 1.95, 2.45, 1], [DETRAS - 0.7, DETRAS, DETRAS + 0.35, 1], [DETRAS + 0.4, DETRAS + 0.85, DETRAS + 1.3, 1]];
+const Q = VIAJES[3][1] + 0.15;   // la «?» sobre el resultado que no tiene nada detrás
+const p1 = (t) => {
+  const { rect, pset, disco, linea, poligono } = R;
+  // la pared del laboratorio, la ventana con el árbol, el estante de frascos y el reloj
+  rect(0, 0, 319, 179, hex('#e4ece6')); for (let x = 0; x < 320; x += 32) rect(x, 0, x, 140, hex('#d8e2dc'));
+  rect(14, 22, 84, 92, C.k); rect(16, 24, 82, 90, C.cielo2); rect(16, 24, 82, 40, C.cielo1);
+  { const m = Math.round(Math.sin(t * 1.4) * 2); disco(30 + m, 60, 14, C.hierbaS); disco(44 + m, 54, 12, C.hierba); disco(66 + m, 66, 13, C.hierbaS); disco(58 + m, 52, 8, C.hierbaL); rect(46, 70, 49, 90, C.cortezaS); }
+  rect(48, 24, 49, 90, C.k); rect(16, 56, 82, 57, C.k); rect(12, 92, 86, 95, C.maderaL);
+  for (let k = 0; k < 10; k++) { const x = 18 + ((k * 23 + Math.round(t * 3)) % 64), y = 40 + ((k * 37 + Math.round(t * 5)) % 50); if (Math.sin(t * 2 + k) > 0) pset(x, y, C.blanco); }   // motas en la luz
+  rect(232, 74, 312, 76, C.maderaS); for (let k = 0; k < 6; k++) { const x = 238 + k * 12, c = [C.tealT, hex('#e8a8b8'), C.amarilloT, hex('#8ab0e8'), C.verdeT, hex('#c8a0e0')][k]; rect(x, 62, x + 6, 74, C.k); rect(x + 1, 66, x + 5, 73, c); rect(x + 2, 58, x + 4, 62, C.k); pset(x + 2, 67, C.blanco); }
+  { const cx = 272, cy = 104; disco(cx, cy, 12, C.k); disco(cx, cy, 11, C.blanco); for (let k = 0; k < 12; k++) pset(Math.round(cx + Math.cos(k / 12 * 6.28) * 9), Math.round(cy + Math.sin(k / 12 * 6.28) * 9), C.metalD); const s = t * 0.6; linea(cx, cy, Math.round(cx + Math.cos(s - 1.57) * 9), Math.round(cy + Math.sin(s - 1.57) * 9), C.rojo); linea(cx, cy, cx + 5, cy - 3, C.k); linea(cx, cy, cx, cy - 7, C.k); }
+  // la mesa de madera
+  rect(0, 140, 319, 179, C.madera); rect(0, 140, 319, 142, C.maderaL); for (let y = 150; y < 180; y += 9) rect(0, y, 319, y, C.maderaS);
+  rect(20, 128, 44, 140, C.k); rect(21, 129, 43, 139, hex('#3a5a8a')); rect(24, 120, 38, 129, C.k); rect(25, 121, 37, 128, C.papel);   // libreta y cuaderno
+  // la balanza: el brazo se inclina según lo que pesa cada platillo, con un rebote
+  const peso = (k) => tramo(t, VIAJES[k][1] - 0.02, VIAJES[k][1] + 0.35);
+  const golpe = VIAJES.reduce((s, v) => s + (t > v[1] ? Math.exp(-(t - v[1]) * 4) * Math.sin((t - v[1]) * 14) * 0.03 : 0), 0);
+  const ang = -0.12 * peso(0) + 0.12 * peso(1) + 0.14 * peso(2) + 0.08 * peso(3) + golpe;
+  const px = 160, py = 46, L = 70, dx = Math.round(Math.cos(ang) * L), dy = Math.round(Math.sin(ang) * L);
+  poligono([[134, 141], [186, 141], [176, 130], [144, 130]], C.k); poligono([[136, 140], [184, 140], [175, 131], [145, 131]], C.oro); rect(157, py, 163, 131, C.k); rect(158, py, 162, 131, C.oroS); rect(158, py, 159, 131, C.oro);
+  linea(px - dx, py - dy, px + dx, py + dy, C.k); linea(px - dx, py - dy - 1, px + dx, py + dy - 1, C.oro); disco(px, py, 4, C.k); disco(px, py, 3, C.oroL);
+  const plato = (x0, y0) => { const y = y0 + 44; linea(x0, y0, x0 - 18, y, C.oroS); linea(x0, y0, x0 + 18, y, C.oroS); poligono([[x0 - 22, y], [x0 + 22, y], [x0 + 16, y + 5], [x0 - 16, y + 5]], C.k); poligono([[x0 - 21, y], [x0 + 21, y], [x0 + 15, y + 4], [x0 - 15, y + 4]], C.oro); return [x0, y]; };
+  const [lx, ly] = plato(px - dx, py - dy), [rx, ry] = plato(px + dx, py + dy);
+  // lo que hay en cada platillo
+  if (t > VIAJES[0][1]) hoja(lx, ly);
+  if (t > VIAJES[2][1]) { archivador(rx + 6, ry, hex('#4a6aa8')); archivador(rx + 6, ry - 8, hex('#c84a4a')); }
+  if (t > VIAJES[1][1]) hoja(rx - 8, ry);
+  if (t > VIAJES[3][1]) sello(rx + 6, ry - 16);
+  if (t > Q) { const s = Math.round(Math.max(0, 1 - (t - Q) * 5) * 3); R.icono('?', lx - 3, ly - 32 - s, C.rojo, C.k, 2); }
+  // la mano que trae cada cosa y se va
+  for (const [k, [t0, t1, t2, lado]] of VIAJES.entries()) {
+    if (t < t0 || t > t2) continue; const ida = tramo(t, t0, t1), vu = tramo(t, t1 + 0.05, t2), [ox, oy] = lado < 0 ? [lx, ly] : [rx + (k === 1 ? -8 : 6), ry - (k === 3 ? 16 : k === 2 ? 0 : 0)];
+    const lejos = lado < 0 ? -70 : 390, hx = Math.round(lerp(lejos, ox + lado * 14, ida - vu)), hy = oy - 10;
+    const ix = hx - lado * 14; if (t < t1) { if (k <= 1) hoja(ix, hy + 10); else if (k === 2) { archivador(ix, hy + 10, hex('#4a6aa8')); archivador(ix, hy + 2, hex('#c84a4a')); } else sello(ix, hy + 10); }
+    manoLarga(hx, hy, -lado);
+  }
+};
+
+// ── 2 · el laboratorio: ¿quién lo ha comprobado? ──────────────────────────────────────────────────────────────────
+const PROMETE = a(0.69), PERO = a(0.85), COMPRUEBA = a(0.93);   // «what are you promising?»; «but who»; «checked»
+const p2 = (t) => {
+  const { disco, linea } = R;
+  T.laboratorio(R, t);
+  // al fondo, un técnico trabaja junto a las cajas Edison
+  R.actor(EL.tecnico, 56, 148, t, { dir: -1, dedo: Math.floor(t * 1.5) % 3 === 0 });
+  // el vendedor llega con la caja de regalo y la levanta entre destellos
+  const vx = Math.round(lerp(330, 226, lin(t, PROMETE - 1.0, PROMETE - 0.1))), alza = t > PROMETE && t < PERO + 0.4;
+  R.actor(EL.oficinista, vx, 164, t, { dir: -1, anda: t < PROMETE - 0.1, brazos: alza, sonrisa: t < COMPRUEBA + 0.5, sorpresa: t > COMPRUEBA + 0.5, habla: alza && Math.sin(t * 6) > 0 });
+  const abre = tramo(t, COMPRUEBA + 0.45, COMPRUEBA + 0.75);
+  if (alza) { regalo(vx + 7, 133, t, 0.8); destellos(vx + 7, 122, t, 7, 16); } else if (t > PROMETE - 1.0) regalo(vx - 3, 160, t, 0.6, abre);
+  // Erika entra con la lupa; cuando la voz dice «but who…», la levanta hacia la pantalla; sale el «✓»
+  const ex = Math.round(lerp(20, 112, lin(t, P2 + 0.1, P2 + 1.8))), mira = t > PERO;
+  R.actor(EL.erika, ex, 164, t, { dir: 1, anda: t < P2 + 1.8, dedo: mira, sonrisa: t > COMPRUEBA });
+  const [lx, ly] = mira ? [ex + 17, 130] : [ex + 15, 157]; linea(lx - 2, ly + 4, lx, ly + 1, C.maderaS); disco(lx + 1, ly - 2, 3, C.k); disco(lx + 1, ly - 2, 2, hex('#c8e8f8')); R.pset(lx, ly - 3, C.blanco);
+  if (t > COMPRUEBA) { const s = Math.round(Math.max(0, 1 - (t - COMPRUEBA) * 5) * 3); T.visto(R, 140, 36 - s, 2); }
+};
+
+// ── 3 · las estrellas forjan los átomos (de eso estamos hechos) ───────────────────────────────────────────────────
+const MIDE = b(0.21), SANGRE = b(0.36);   // «measure»; «blood»
+const NUMS = [['26', 176, 92], ['8', 248, 104], ['6', 182, 150], ['1', 256, 144], ['7', 214, 82]];
+const p3 = (t) => {
+  const { rect, pset, disco, linea } = R;
+  rect(0, 0, 319, 179, hex('#06081a'));
+  for (const [gx0, gy0] of [[120, 150], [290, 70]]) { for (let i = -6; i <= 6; i++) pset(gx0 + i, gy0 + Math.round(i * 0.3), Math.abs(i) < 3 ? hex('#8a7aa8') : hex('#3a3456')); pset(gx0, gy0, hex('#d8c8f0')); }   // dos galaxias lejanas
+  for (let k = 0; k < 110; k++) { const x = Math.round(h(k, 1, 7) * 320), y = Math.round(h(k, 2, 7) * 180); pset(x, y, Math.sin(t * 3 + k) > 0.6 ? C.blanco : hex('#6a6a8a')); }
+  { const u = lin(t, P3 + 0.4, P4 + 1.0), cx = Math.round(lerp(330, -20, u)), cy = Math.round(lerp(150, 120, u)); for (let i = 0; i < 14; i++) pset(cx + i, cy + Math.round(i * 0.1), i < 2 ? C.blanco : hex('#8ab0e0')); }   // el cometa
+  // la estrella que late, con su corona
+  const sx = 62, sy = 70, pul = Math.sin(t * 4) * 1.5;
+  for (const [r, c] of [[30, hex('#c83a2a')], [24, hex('#ff8a3a')], [17, hex('#ffd060')], [9, hex('#fff4c8')]]) disco(sx, sy, Math.round(r + pul), c);
+  for (let k = 0; k < 16; k++) { const an = k / 16 * 6.28 + t * 0.3, r = 33 + Math.sin(t * 5 + k * 1.7) * 3; pset(Math.round(sx + Math.cos(an) * r), Math.round(sy + Math.sin(an) * r), hex('#ff6a2a')); }
+  // la gota de sangre que se va llenando
+  const gx = 214, gy = 122, late = t > SANGRE && t < SANGRE + 0.8 ? Math.round(Math.sin((t - SANGRE) * 16) * 2) : 0, r = 26 + late;
+  for (let j = -Math.round(2.1 * r); j <= r; j++) { const w = j >= 0 ? Math.sqrt(Math.max(0, r * r - j * j)) : r * (1 + j / (2.1 * r)); const a0 = Math.round(w); rect(gx - a0 - 1, gy + j, gx + a0 + 1, gy + j, C.k); }
+  for (let j = -Math.round(2.1 * r) + 1; j < r; j++) { const w = j >= 0 ? Math.sqrt(Math.max(0, r * r - j * j)) : r * (1 + j / (2.1 * r)); const a0 = Math.round(w) - 1; for (let i = -a0; i <= a0; i++) { const sh = i + j * 0.6; pset(gx + i, gy + j, sh < -20 ? C.sangreL : sh > 16 ? C.sangreS : C.sangre); } }
+  disco(gx - 10, gy - 6, 4, hex('#f8b8c0')); pset(gx - 12, gy - 8, C.blanco);
+  // los átomos: salen de la estrella y caen en arco dentro de la gota, donde se quedan; unos pocos suben hacia Atom
+  const llenos = Math.floor(lin(t, P3 + 0.6, P4) * 18);
+  for (let k = 0; k < llenos; k++) disco(Math.round(gx - 14 + h(k, 3, 8) * 28), Math.round(gy - 8 + h(k, 4, 8) * 28), 1, [hex('#f0a0b0'), hex('#f8d8a0'), hex('#a8c8f0'), C.blanco][k % 4]);
+  for (let k = 0; k < 8; k++) { const f = ((t - P3) * 0.55 + k / 8) % 1; if (t < P3 + 0.2) continue; const sube = k % 4 === 3, [dx, dy] = sube ? [262, 50] : [gx - 8 + (k % 3) * 8, gy + 4], x = Math.round(lerp(sx + 20, dx, f)), y = Math.round(lerp(sy, dy, f) - Math.sin(f * Math.PI) * (sube ? 18 : 40));
+    if (f > 0.96 || (sube && x > 264)) continue; disco(x, y, 2, hex('#8ab0ff')); for (let q = 0; q < 6.28; q += 0.6) pset(Math.round(x + Math.cos(q + t * 6) * 5), Math.round(y + Math.sin(q + t * 6) * 2), hex('#c8d8ff')); }
+  // «átomos que se pueden medir»: cada uno enseña su número
+  NUMS.forEach(([n, x, y], k) => { const ap = MIDE - 0.4 + k * 0.3; if (t < ap) return; const s = Math.round(Math.max(0, 1 - (t - ap) * 6) * 2); rect(x - 2 - n.length * 4, y - 10 - s, x + 2 + n.length * 4, y - s, C.k); rect(x - 1 - n.length * 4, y - 9 - s, x + 1 + n.length * 4, y - 1 - s, hex('#1e2650')); R.numero(n, x, y - 2 - s, { color: C.blanco, centro: true, sombra: false }); linea(x, y - s, x + (x < gx ? 6 : -6), y + 6, hex('#8a8aa8')); });
+};
+
+// ── 4 · la gota gigante: el milagro y la prueba ────────────────────────────────────────────────────────────────────
+const MILAGRO = b(0.76), PIDE = b(0.83), PRUEBA = b(0.95);   // «miracle»; «ask to see»; «proof»
+const p4 = (t) => {
+  const { disco, rect, linea, pset } = R;
+  T.gotaGigante(R, t);
+  // la caja del milagro baja entre destellos; se le abre la tapa y sale la «?»
+  const by = Math.round(lerp(-30, 82, tramo(t, P4 + 0.15, P4 + 1.0))), abre = tramo(t, MILAGRO + 0.3, MILAGRO + 0.6);
+  regalo(242, by, t, 1.2, abre); if (t < MILAGRO + 0.4) destellos(242, by - 12, t, 8, 24 + Math.round(tramo(t, MILAGRO - 0.2, MILAGRO + 0.2) * 8));
+  // la mano pasa la lupa por la gota: dentro se ven las moléculas grandes
+  const ida = tramo(t, PIDE - 0.3, PIDE + 0.6), lx = Math.round(lerp(-40, 150, ida) + Math.sin(t * 1.6) * 6 * ida), ly = Math.round(108 + Math.cos(t * 1.3) * 5), r = 16;
+  if (ida > 0) {
+    disco(lx, ly, r + 2, C.k); disco(lx, ly, r + 1, C.metalL); disco(lx, ly, r, hex('#f4c8cc'));
+    for (let k = 0; k < 5; k++) { const mx = Math.round(lx + Math.sin(k * 2.1 + t * 0.8) * 9), my = Math.round(ly + Math.cos(k * 1.7 + t * 0.7) * 8), c = [hex('#f06070'), hex('#f8d8a0'), hex('#8ab0e8'), hex('#c8283a'), hex('#a8e0a8')][k]; disco(mx, my, 3, C.k); disco(mx, my, 2, c); pset(mx - 1, my - 1, C.blanco); }
+    pset(lx - 8, ly - 10, C.blanco); pset(lx - 9, ly - 9, C.blanco);
+    linea(lx - 12, ly + 12, lx - 24, ly + 24, C.k); linea(lx - 13, ly + 13, lx - 23, ly + 23, C.maderaS); linea(lx - 12, ly + 13, lx - 22, ly + 23, C.maderaS);
+    manoLarga(lx - 34, ly + 24, 1);
+  }
+  if (t > PRUEBA) { const s = Math.round(Math.max(0, 1 - (t - PRUEBA) * 5) * 4); T.visto(R, 96, 40 - s, 3); }
+};
+
+const efectos = [[VIAJES[0][1], 'papel'], [VIAJES[1][1], 'papel'], [VIAJES[2][1], 'toc'], [VIAJES[3][1], 'sello'],
+  [PROMETE + 0.1, 'brillo'], [COMPRUEBA, 'bip'], [COMPRUEBA + 0.5, 'boing'],
+  [P3 + 0.2, 'zumbido'], [MIDE - 0.4, 'tic'], [SANGRE, 'burbujas'],
+  [MILAGRO, 'brillo'], [MILAGRO + 0.35, 'boing'], [PRUEBA, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
 </script>
 </body>

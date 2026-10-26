@@ -9,27 +9,261 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-TYLER (frases 22–23). Ocho planos: Tyler y Erika en el laboratorio, ante la pantalla de controles que se pone en
-// rojo; los números que no cuadran; Tyler junto a su abuelo, el consejero; escribe el correo y lo envía; llega la
-// respuesta dura (el sobre rojo tiembla); Tyler sale de la sede con su caja bajo la mirada del guardia; su abuelo no le
-// cree; y por la calle, un coche oscuro le sigue despacio.
+// TH-TYLER (frases 22–23). Siete planos:
+// 1. el laboratorio: Tyler teclea en un analizador y Erika pipetea en el banco; con «two young employees» los dos van
+//    hasta la pantalla de controles con sus papeles y hablan (cada uno con su nombre); con «notice» los puntos se salen en
+//    rojo y se enciende la alarma: se asombran, Erika señala y a Tyler le sale un «!». Una técnica trabaja al fondo y un
+//    técnico empuja el carrito por delante;
+// 2. la sala del consejo, en plena reunión (el consejo sentado tras la mesa, charlando): se abre la puerta y entra Tyler,
+//    que va hasta su abuelo, el calvo; con «grandson» el abuelo se levanta, abre los brazos y sale un corazón;
+// 3. la mesa de Tyler y la pantalla: con «writes» las manos teclean el correo línea a línea; luego la derecha lleva el
+//    puntero al botón de enviar, hace clic y el sobre sale volando. Humea la taza;
+// 4. llega la respuesta (el sobre rojo con «!» que tiembla) y el móvil de la mesa vibra; el puntero lo abre y con «harsh
+//    reprimand» la taza da un salto y salpica, la nota amarilla se despega y las manos se apartan del teclado;
+// 5. la sede, al día siguiente: Tyler cruza la oficina con su caja (una planta y un marco asomando); los compañeros, tras
+//    el cristal, se vuelven a mirarlo; el guardia le coge la tarjeta de encima de la caja y lo sigue con la mirada;
+// 6. la sala del consejo, vacía: Tyler le enseña al abuelo la hoja de resultados en rojo; el abuelo niega con la cabeza, le
+//    sermonea con el dedo y se va a la ventana; con «secretly» Tyler se aparta a una esquina, mira atrás y llama por el
+//    móvil a escondidas. Por las ventanas pasan pájaros;
+// 7. la calle de Palo Alto: con «lawyers» un abogado de traje oscuro le sale al paso y le da un sobre con la balanza en
+//    rojo; Tyler sigue andando y un coche oscuro le sigue despacio; cuando él se para y mira atrás, el coche también se para
+//    («?»). Una vecina riega el jardín y pasan coches por delante.
 import * as T from '/atomo/plato/escenas/th-comun.js';
+import { coche } from '/atomo/plato/escenas/ag-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-tyler');
 const { tramo, lerp, hex } = R;
+const C = T.C;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('tyler', f), b = (f) => en('detectives', f);
-const P3 = a(0.4), P4 = a(0.72), P5 = b(0), P6 = b(0.24), P7 = b(0.46), P8 = b(0.7);
-const p1 = (t) => { T.laboratorio(R, t, { rojo: t > a(0.18) }); R.actor(EL.tyler, 120, 162, t, { dir: 1, sorpresa: t > a(0.2) }); R.actor(EL.erika, 150, 162, t, { dir: -1, dedo: t > a(0.22) }); };
-const p2 = (t) => T.pantalla(R, t, { modo: 'resultados', rojos: tramo(t, P2 + 0.2, P3 - 0.5) });
-const p3 = (t) => { T.consejo(R, t); R.actor(EL.consejero, 130, 164, t, { dir: 1, sonrisa: true }); R.actor(EL.tyler, 160, 164, t, { dir: -1, sonrisa: true }); if (Math.sin(t * 3) > 0) { R.disco(150, 128, 2, T.C.rojo); R.disco(153, 128, 2, T.C.rojo); R.pset(151, 131, T.C.rojo); R.rect(149, 129, 154, 130, T.C.rojo); } };
-const p4 = (t) => T.pantalla(R, t, { modo: 'correo', escribe: tramo(t, P4, P4 + 1.2), envia: tramo(t, P4 + 1.5, P5 - 0.2) });
-const p5 = (t) => T.pantalla(R, t, { modo: 'respuesta' });
-const p6 = (t) => { T.sede(R, t); const u = tramo(t, P6 + 0.2, P7 - 0.2), x = Math.round(lerp(150, 290, u)); R.actor(EL.tyler, x, 160, t, { dir: 1, anda: u > 0 && u < 1, triste: true }); R.rect(x + 10, 142, x + 24, 152, T.C.k); R.rect(x + 11, 143, x + 23, 151, T.C.ocre); R.actor(EL.guardia, 60, 156, t, { dir: 1, quieto: true }); };
-const p7 = (t) => { T.consejo(R, t); R.actor(EL.consejero, 130, 164, t, { dir: 1, enfado: t > P7 + 1, habla: t > P7 + 1 && Math.sin(t * 6) > 0 }); R.actor(EL.tyler, 160, 164, t, { dir: -1, habla: t < P7 + 1 && Math.sin(t * 6) > 0, triste: t > P7 + 1.5 }); };
-const p8 = (t) => { T.calle(R, t); const u = tramo(t, P8, E.duracion), x = Math.round(lerp(-10, 240, u)); R.actor(EL.tyler, x, 122, t, { dir: 1, anda: true }); T.cocheOscuro(R, Math.round(x - 70 + Math.sin(t) * 2), 160, t, { dir: 1 }); if (t > b(0.8)) R.icono('?', x + 3, 84, T.C.rojo, T.C.k); };
-const efectos = [[a(0.18), 'aviso'], [P4 + 0.1, 'tecleo'], [P4 + 1.5, 'whoosh'], [P5 + 0.2, 'aviso'], [P6 + 0.2, 'puerta'], [P8 + 0.2, 'motor']];
-T.rodar(E, R, [[0, p1], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { efectos, año: 2014 });
+const P2 = a(0.4), P3 = a(0.72), P4 = b(0), P5 = b(0.24), P6 = b(0.46), P7 = b(0.7);
+// las palabras de la voz inglesa
+const DOS = a(0.09), TYLER = a(0.18), ERIKA = a(0.26), NOTAN = a(0.32), NIETO = a(0.67), ESCRIBE = a(0.87);
+const RESPUESTA = b(0.01), DURA = b(0.18), DEJA = b(0.31), ABOGADOS = b(0.8), SIGUEN = b(0.88);
+
+// ── piezas locales ─────────────────────────────────────────────────────────────────────────────────────────────
+const ruta = (t, kf, desde = true) => {
+  if (t < kf[0][0]) return desde ? null : { x: kf[0][1], s: kf[0][2], mv: false, d: Math.sign(kf[1][1] - kf[0][1]) || 1 };
+  let d = 1; for (let i = 0; i + 1 < kf.length; i++) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1]; if (x1 !== x0) d = x1 < x0 ? -1 : 1;
+    if (t < t1) { const u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0 || s1 !== s0, d }; } }
+  const [, x, s] = kf[kf.length - 1]; return { x, s, mv: false, d };
+};
+const VACIO = 0x01020304; let CAPA = null;
+// dibuja fn en una capa aparte y copia lo que cae en los rectángulos; mezcla > 0 lo tiñe del color del cristal
+const recorte = (rects, fn, mezcla = 0, tono = [154, 200, 224]) => { const b = CAPA ?? (CAPA = R.nuevo()), prev = R.usar(b); b.fill(VACIO); fn(); R.usar(prev);
+  for (const [x0, y0, x1, y1] of rects) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const c = b[y * 320 + x]; if (c === VACIO) continue;
+    if (!mezcla) { R.pset(x, y, c); continue; } const r = c & 255, g = (c >> 8) & 255, bl = (c >> 16) & 255;
+    R.pset(x, y, (0xff000000 | (Math.round(bl + (tono[2] - bl) * mezcla) << 16) | (Math.round(g + (tono[1] - g) * mezcla) << 8) | Math.round(r + (tono[0] - r) * mezcla)) >>> 0); } };
+const brazo = (x, y, dir, manga = '#f4f4f8') => { x = Math.round(x); y = Math.round(y); T.mano(R, x, y, dir, manga); const fin = (dir > 0 ? x - 3 : x + 3) - dir * 40;
+  const [x0, x1] = dir > 0 ? [-1, fin] : [fin, 320]; if (x1 > x0) { R.rect(x0, y - 2, x1, y + 2, hex(manga)); R.rect(x0, y - 3, x1, y - 3, C.k); R.rect(x0, y + 3, x1, y + 3, C.k); } };
+// una hoja con renglones (x, y: esquina de arriba); rojo: con marcas rojas (los resultados que no cuadran)
+const hoja = (x, y, rojo = false) => { const { rect } = R; x = Math.round(x); y = Math.round(y); rect(x, y, x + 7, y + 9, C.k); rect(x + 1, y + 1, x + 6, y + 8, C.blanco);
+  for (let k = 0; k < 3; k++) rect(x + 2, y + 2 + k * 2, x + 5 - (k % 2), y + 2 + k * 2, rojo && k !== 1 ? C.rojo : C.metalS); };
+// la carpeta con pinza de Erika
+const carpeta = (x, y) => { const { rect } = R; rect(x, y, x + 7, y + 9, C.k); rect(x + 1, y + 1, x + 6, y + 8, C.madera); rect(x + 2, y + 2, x + 5, y + 8, C.blanco); rect(x + 3, y, x + 4, y + 1, C.metal); R.pset(x + 3, y + 4, C.metalS); R.pset(x + 3, y + 6, C.metalS); };
+// el móvil junto a la oreja (x, y: el centro del aparato)
+const movil = (x, y) => { R.rect(x - 1, y - 4, x + 1, y + 3, C.k); R.rect(x, y - 3, x, y + 1, hex('#8ad0f0')); R.pset(x, y + 2, C.metalS); };
+const corazon = (x, y) => { const { rect, pset } = R; rect(x, y, x + 1, y + 1, C.rojo); rect(x + 3, y, x + 4, y + 1, C.rojo); rect(x - 1, y + 1, x + 5, y + 2, C.rojo); rect(x, y + 3, x + 4, y + 3, C.rojo); rect(x + 1, y + 4, x + 3, y + 4, C.rojo); pset(x + 2, y + 5, C.rojo); pset(x, y, C.rosa); };
+
+// ── 1 · el laboratorio: los números no cuadran ─────────────────────────────────────────────────────────────────
+const gradilla = (x, y) => { const { rect, pset } = R; x = Math.round(x); y = Math.round(y); rect(x, y - 3, x + 12, y, C.k); rect(x + 1, y - 2, x + 11, y - 1, C.metalL);
+  for (let k = 0; k < 4; k++) { const tx = x + 1 + k * 3; rect(tx, y - 9, tx + 2, y - 3, C.k); pset(tx + 1, y - 8, [C.rojoW, C.tealT, C.amarilloT, hex('#8a5ad8')][k]); pset(tx + 1, y - 7, C.blanco); rect(tx + 1, y - 6, tx + 1, y - 4, C.sangre); } };
+const carrito = (x, suelo) => { const { rect, disco, pset } = R;
+  for (const y of [suelo - 17, suelo - 7]) { rect(x, y - 1, x + 24, y + 1, C.k); rect(x + 1, y, x + 23, y, C.metalL); }
+  rect(x + 1, suelo - 17, x + 2, suelo - 3, C.metalD); rect(x + 22, suelo - 22, x + 23, suelo - 3, C.metalD); rect(x + 22, suelo - 23, x + 27, suelo - 22, C.k);
+  gradilla(x + 3, suelo - 18); gradilla(x + 10, suelo - 8); for (const dx of [4, 20]) { disco(x + dx, suelo - 1, 2, C.k); pset(x + dx, suelo - 1, C.metal); } };
+const ALARMA = NOTAN;
+const p1 = (t) => {
+  T.laboratorio(R, t, { rojo: t > ALARMA });
+  // al fondo, una técnica en el segundo analizador; se vuelve con la alarma
+  R.actor(EL.tecnica, 266, 146, t, { dir: t > ALARMA + 0.4 ? -1 : 1, dedo: t < ALARMA && Math.floor(t * 2.2) % 3 === 0, sorpresa: t > ALARMA + 0.4 });
+  // Erika, del banco a la pantalla de controles con su carpeta; Tyler, del analizador a la pantalla con su tira
+  const e = ruta(t, [[DOS - 0.2, 48, 150], [TYLER + 0.2, 122, 149]], false), y = ruta(t, [[DOS, 214, 147], [TYLER + 0.4, 152, 149]], false);
+  const asombro = t > ALARMA + 0.15;
+  R.actor(EL.erika, e.x, e.s, t, { dir: 1, anda: e.mv, dedo: (t < DOS - 0.2 && Math.floor(t * 3) % 2 === 0) || t > ALARMA + 0.4, habla: t > ERIKA - 0.1 && t < ERIKA + 0.6 && Math.sin(t * 14) > 0, sorpresa: asombro && t < ALARMA + 0.4 });
+  carpeta(e.x + (t > ALARMA + 0.4 ? -6 : 12), e.s - 12);
+  R.actor(EL.tyler, y.x, y.s, t, { dir: y.mv || t > DOS ? -1 : 1, anda: y.mv, dedo: t < DOS && Math.floor(t * 2.6) % 3 === 0, habla: t > TYLER && t < TYLER + 0.7 && Math.sin(t * 14) > 0, sorpresa: asombro });
+  if (t > DOS) hoja(y.x - 6, y.s - 13, true);
+  if (t > ALARMA + 0.3 && t < P2 - 0.2) R.bocadillo(y.x + 8, y.s - 28, { icono: '!' });
+  // por delante, un técnico empuja el carrito de gradillas
+  const c = ruta(t, [[0.2, 334, 177], [ALARMA + 0.4, 96, 177]]);
+  if (c) { R.actor(EL.tecnico, c.x, c.s, t, { dir: -1, anda: c.mv, sorpresa: t > ALARMA + 0.4 }); carrito(c.x - 26, 177); }
+};
+
+// ── 2 · la reunión del consejo y el nieto ──────────────────────────────────────────────────────────────────────
+const SILLAS = [56, 100, 144, 188, 232], ATRAS = 128, SENTADO = 146;
+const puerta = (ab) => { const { rect } = R; rect(283, 65, 315, 116, C.k); rect(284, 66, 314, 116, C.caobaS);
+  rect(287, 69, 311, 116, hex('#2a1810')); rect(287, 104, 311, 116, hex('#5a3a28')); for (let y = 71; y < 104; y += 6) rect(289, y, 309, y, hex('#3a2418'));
+  const w = Math.round(24 * (1 - ab)); if (w > 0) { rect(311 - w, 69, 311, 116, C.caobaL); rect(311 - w, 69, 311 - w, 116, C.k); if (w > 8) { rect(314 - w, 73, 308, 88, C.caoba); rect(314 - w, 93, 308, 112, C.caoba); R.disco(315 - w, 94, 1, C.oro); } } };
+const ENTRA = P2 + 0.2, LLEGA = NIETO - 1.0, LEVANTA = NIETO - 0.6, ABRAZO = NIETO - 0.2, ABUELO = SILLAS[3] + 1;
+const p2 = (t) => {
+  T.consejo(R, t); puerta(tramo(t, ENTRA, ENTRA + 0.3) - tramo(t, ENTRA + 1.2, ENTRA + 1.6));
+  const q = ruta(t, [[ENTRA + 0.2, 296, 117], [ENTRA + 0.5, 284, ATRAS], [LLEGA, ABUELO + 17, ATRAS]]);
+  // Tyler, que entra por detrás de las sillas, va antes que los sentados
+  if (q) R.actor(EL.tyler, q.x, q.s, t, { dir: q.mv ? q.d : -1, anda: q.mv, sonrisa: t > LLEGA - 0.3, brazos: t > ABRAZO && t < ABRAZO + 0.9 });
+  // el consejo sentado charla (los dos de la izquierda, entre ellos); el general se vuelve hacia la puerta
+  const charla = Math.floor(t * 1.2) % 2;
+  R.actor(EL.consejero, SILLAS[0] + 1, SENTADO, t, { dir: 1, habla: charla === 0 && t < ABRAZO && Math.sin(t * 11) > 0, sonrisa: t > ABRAZO });
+  R.actor(EL.profesor, SILLAS[1] + 1, SENTADO, t, { dir: -1, habla: charla === 1 && t < ABRAZO && Math.sin(t * 11) > 0, dedo: charla === 1 && t < ENTRA, sonrisa: t > ABRAZO });
+  R.actor(EL.general, SILLAS[4] + 1, SENTADO, t, { dir: t > ENTRA - 0.1 && t < LLEGA ? (q && q.x > SILLAS[4] ? 1 : -1) : -1, sorpresa: t > ENTRA + 0.2 && t < ENTRA + 0.8, sonrisa: t > ABRAZO });
+  // el abuelo: sentado, se vuelve, se levanta y abre los brazos
+  const de_pie = t > LEVANTA, s = Math.round(lerp(SENTADO, ATRAS, tramo(t, LEVANTA, LEVANTA + 0.3)));
+  R.actor(EL.consejeroCalvo, ABUELO, s, t, { dir: t > LLEGA - 0.6 ? 1 : -1, brazos: t > ABRAZO && t < ABRAZO + 0.9, sonrisa: t > LLEGA - 0.4, habla: !de_pie && t < ENTRA && Math.sin(t * 8) > 0 });
+  if (t > ABRAZO) { const u = (t - ABRAZO) / 1.4; if (u < 1) corazon(ABUELO + 15, Math.round(96 - u * 14)); }
+  T.consejoMesa(R, t, { dinero: 0 });
+};
+
+// ── 3 y 4 · la mesa de Tyler y su pantalla ─────────────────────────────────────────────────────────────────────
+const FONDO = [hex('#2a2e3a'), hex('#262a36')];
+const FLECHA = ['k.......', 'kk......', 'kWk.....', 'kWWk....', 'kWWWk...', 'kWWWWk..', 'kWWkkk..', 'kkWk....', '...kWk..', '....kk..'];
+const mesa = (t, o = {}) => {
+  const { rect, pset, pget, linea, disco } = R, ox = o.ox ?? 0, der = o.lado === 'der';
+  for (let y = 150; y < 180; y++) for (let x = 0; x < 320; x++) { if (y < 174 && !FONDO.includes(pget(x, y))) continue;
+    pset(x, y, y >= 174 ? (y === 174 ? C.k : y === 175 ? C.maderaL : C.madera) : y === 150 ? C.maderaS : (x * 3 + y * 17) % 29 === 0 ? C.maderaS : C.maderaL); }
+  // la taza (o.salta: da un saltito y salpica)
+  const sj = o.salta ? Math.round(Math.abs(Math.sin(o.salta * Math.PI)) * 4) : 0, mx = der ? 230 : 14;
+  rect(mx, 148 - sj, mx + 12, 162 - sj, C.k); rect(mx + 1, 149 - sj, mx + 11, 161 - sj, C.rojo); rect(mx + 1, 149 - sj, mx + 11, 150 - sj, hex('#5a3a2a')); rect(mx + 12, 151 - sj, mx + 15, 158 - sj, C.k); rect(mx + 13, 152 - sj, mx + 14, 157 - sj, C.rojo); pset(mx + 2, 152 - sj, C.rosa);
+  if (o.salta > 0 && o.salta < 1) for (let k = 0; k < 5; k++) { const u = o.salta, dx = (k - 2) * 3, gy = Math.round(146 - sj - Math.sin(u * Math.PI) * (6 + (k % 2) * 3)); pset(mx + 6 + Math.round(dx * u * 2), gy, hex('#5a3a2a')); }
+  for (let k = 0; k < 4; k++) { const v = (t * 0.7 + k / 4) % 1; pset(Math.round(mx + 5 + Math.sin(v * 7 + k) * 2), Math.round(146 - sj - v * 16), v > 0.6 ? hex('#5a5e6a') : hex('#8a8e9a')); }
+  const vb = o.vibra ? Math.round(Math.sin(t * 60)) : 0;
+  if (!der) {   // el móvil plano junto a la taza y el bote de lápices
+    rect(32 + vb, 157, 48 + vb, 161, C.k); rect(33 + vb, 158, 47 + vb, 160, o.vibra ? hex('#8ad0f0') : hex('#2a3446'));
+    rect(292, 146, 302, 160, C.k); rect(293, 147, 301, 159, hex('#5a6aa8')); for (const [px, c] of [[294, C.rojo], [297, C.amarillo], [300, C.verdeL]]) { linea(px, 146, px - 1 + (px % 3), 138, C.k); pset(px - 1 + (px % 3), 139, c); }
+  } else {      // el flexo con su luz y el móvil de pie en su base, que vibra y enseña el sobre rojo
+    for (let y = 108; y < 162; y++) for (let x = 236; x < 300; x++) if ((x + y) % 3 === 0 && Math.abs(x - 270 + (y - 108) * 0.1) < (y - 104) * 0.55 && FONDO.includes(pget(x, y))) pset(x, y, hex('#4a4636'));
+    rect(292, 156, 312, 161, C.k); rect(293, 157, 311, 160, C.metalD); linea(302, 156, 296, 122, C.k); linea(303, 156, 297, 122, C.metalS); linea(296, 122, 280, 106, C.k); linea(297, 122, 281, 106, C.metalS);
+    R.poligono([[266, 108], [280, 100], [286, 106], [274, 114]], C.k); R.poligono([[268, 108], [280, 102], [284, 106], [274, 112]], C.verde); rect(269, 109, 273, 111, C.solL);
+    rect(250, 156, 266, 161, C.k); rect(251, 157, 265, 160, hex('#3a3e4a')); rect(252 + vb, 132, 264 + vb, 157, C.k); rect(253 + vb, 134, 263 + vb, 154, o.vibra ? hex('#eef2f6') : hex('#1a2030'));
+    if (o.vibra) { R.icono('sobre', 255 + vb, 140, C.rojo, hex('#eef2f6')); for (const d of [-4, 16]) { pset(252 + d, 136, C.blanco); pset(252 + d, 142, C.blanco); pset(253 + d, 139, C.blanco); } }
+  }
+  // la nota amarilla pegada al marco (o.cae 0–1: se despega y cae a la mesa)
+  const cae = o.cae ?? 0, dc = der ? -1 : 1, nx = Math.round(268 + ox + dc * cae * 14 + Math.sin(cae * 10) * 6 * (1 - cae)), ny = Math.round(lerp(126, 152, cae * cae)), nh = cae > 0.9 ? 3 : 10;
+  rect(nx, ny, nx + 11, ny + nh, C.k); rect(nx + 1, ny + 1, nx + 10, ny + nh - 1, hex('#f8e870')); if (nh > 4) { rect(nx + 3, ny + 4, nx + 8, ny + 4, hex('#c8b840')); rect(nx + 3, ny + 7, nx + 6, ny + 7, hex('#c8b840')); }
+  // el teclado y el ratón
+  rect(104 + ox, 163, 216 + ox, 172, C.k); rect(105 + ox, 164, 215 + ox, 171, hex('#3a3e4a')); rect(105 + ox, 164, 215 + ox, 164, hex('#5a5e6a'));
+  for (const y of [166, 168]) for (let x = 108; x < 212; x += 4) rect(x + ox, y, x + 2 + ox, y, hex('#8a8ea0')); rect(140 + ox, 170, 180 + ox, 170, hex('#8a8ea0'));
+  rect(234 + ox, 164, 246 + ox, 172, C.k); rect(235 + ox, 165, 245 + ox, 171, C.metalL); rect(240 + ox, 165, 240 + ox, 167, C.k);
+  if (o.boton) { const [bx, by] = [188 + ox, 118], p = o.boton > 1; rect(bx, by, bx + 26, by + 11, C.k); rect(bx + 1, by + 1, bx + 25, by + 10, p ? hex('#2a4a9a') : hex('#4a7ae0')); R.poligono([[bx + 9, by + 3], [bx + 18, by + 6], [bx + 9, by + 9]], C.blanco); }
+  if (o.cursor) R.dibujo(FLECHA, Math.round(o.cursor[0] + ox), Math.round(o.cursor[1]), 1, { k: C.k, W: C.blanco });
+};
+// las manos: m.teclea (las dos en el teclado, alternando), m.raton [0–1 de camino al ratón], m.clic, m.aparta (0–1); ox: encuadre
+const manos = (t, m = {}, ox = 0) => {
+  const ap = m.aparta ?? 0, dy = Math.round(ap * 8), dx = Math.round(ap * 26), f = Math.floor(t * 12) % 2;
+  const izq = m.teclea ? 166 - f : 167, rx = lerp(194, 252, m.raton ?? 0), ry = m.teclea && !(m.raton > 0) ? 166 - (1 - f) : 167 + (m.clic ? 1 : 0);
+  brazo(128 + ox - dx, izq + dy, 1); brazo(rx + ox + dx, ry + dy, -1);
+};
+const BOTON = [188, 118];
+const p3 = (t) => {
+  const escribe = tramo(t, ESCRIBE - 0.3, ESCRIBE + 1.1), env = tramo(t, ESCRIBE + 1.85, P4 - 0.25);
+  T.pantalla(R, t, { modo: 'correo', escribe, envia: env });
+  // el puntero: va al sobre, hace clic, espera; luego al botón de enviar y clic
+  const CLIC1 = P3 + 1.0, VA = ESCRIBE + 1.4, CLIC2 = ESCRIBE + 1.78;
+  const c1 = tramo(t, P3 + 0.2, CLIC1 - 0.1), c2 = tramo(t, VA, CLIC2 - 0.05);
+  const cx = t < VA ? lerp(236, 150, c1) : lerp(150, BOTON[0] + 14, c2), cy = t < VA ? lerp(130, 92, c1) : lerp(92, BOTON[1] + 5, c2);
+  const clic = (t > CLIC1 && t < CLIC1 + 0.12) || (t > CLIC2 && t < CLIC2 + 0.15), teclea = t > ESCRIBE - 0.35 && t < ESCRIBE + 1.1;
+  mesa(t, { cursor: env > 0 ? null : [cx, cy], boton: env > 0 ? 0 : t > CLIC2 && t < CLIC2 + 0.3 ? 2 : 1 });
+  const alRaton = teclea ? 0 : t < ESCRIBE - 0.35 ? 1 - tramo(t, ESCRIBE - 0.75, ESCRIBE - 0.35) : tramo(t, ESCRIBE + 1.1, ESCRIBE + 1.4);
+  manos(t, { teclea, raton: alRaton, clic });
+};
+// el encuadre de la respuesta: el monitor corrido a la izquierda, y a la derecha el flexo, el móvil en su base y la taza
+const OX = -56;
+const p4 = (t) => {
+  R.rect(0, 0, 319, 179, hex('#2a2e3a')); for (let y = 0; y < 180; y += 4) R.rect(0, y, 319, y, hex('#262a36'));
+  { const b = CAPA ?? (CAPA = R.nuevo()), prev = R.usar(b); T.pantalla(R, t, { modo: 'respuesta' }); R.usar(prev); for (let y = 0; y < 180; y++) for (let x = 0; x < 320 + OX; x++) R.pset(x, y, b[y * 320 + x - OX]); }
+  const ABRE = RESPUESTA + 0.6, golpe = tramo(t, DURA, DURA + 0.4);
+  const u = tramo(t, P4 + 0.3, ABRE - 0.1), cx = lerp(150, 206, u), cy = lerp(130, 60, u);
+  mesa(t, { ox: OX, lado: 'der', cursor: [cx, cy], vibra: t > P4 + 0.1 && t < RESPUESTA + 1.0, salta: golpe > 0 && golpe < 1 ? golpe : 0, cae: tramo(t, DURA + 0.2, DURA + 0.9) });
+  manos(t, { raton: 1, clic: t > ABRE && t < ABRE + 0.12, aparta: tramo(t, DURA + 0.1, DURA + 0.4) }, OX);
+};
+
+// ── 5 · la sede: Tyler se va con su caja ───────────────────────────────────────────────────────────────────────
+const caja = (x, suelo, tarjeta) => { const { rect, pset, disco } = R; const y = suelo - 18;
+  rect(x + 9, y - 6, x + 10, y, C.verde); disco(x + 9, y - 7, 2, C.verdeL); disco(x + 12, y - 5, 2, C.verde);   // la planta
+  rect(x + 15, y - 5, x + 20, y + 1, C.k); rect(x + 16, y - 4, x + 19, y, hex('#8ab0d8'));                      // el marco
+  rect(x + 7, y, x + 23, y + 10, C.k); rect(x + 8, y + 1, x + 22, y + 9, hex('#c89a5a')); rect(x + 8, y + 1, x + 22, y + 2, hex('#e0b878')); rect(x + 14, y + 4, x + 16, y + 9, hex('#a87a3a'));
+  if (tarjeta) { rect(x + 10, y - 2, x + 14, y + 1, C.k); rect(x + 11, y - 1, x + 13, y, C.blanco); pset(x + 11, y - 1, C.tealT); } };
+const SALE = P5, TARJETA = DEJA + 0.2, PARA = TARJETA - 0.3, SIGUE = TARJETA + 0.5;
+const p5 = (t) => {
+  T.sede(R, t);
+  const q = ruta(t, [[SALE, 136, 158], [PARA, 190, 160], [SIGUE, 190, 160], [P6 - 0.1, 300, 166]], false);
+  // los compañeros, tras el cristal de las salas, se vuelven a mirarlo
+  recorte([[11, 27, 79, 119], [89, 27, 157, 119], [167, 27, 235, 119]], () => {
+    R.actor(EL.chica, 36, 116, t, { dir: q.x > 50 ? 1 : -1, triste: q.x > 50 });
+    R.actor(EL.oficinista, Math.round(lerp(96, 120, tramo(t, SALE, SALE + 1.4))), 117, t, { dir: q.x > 130 ? 1 : -1, anda: t > SALE && t < SALE + 1.4, sorpresa: q.x > 110 && q.x < 170 });
+    R.actor(EL.sudadera, 200, 116, t, { dir: q.x > 200 ? 1 : -1, triste: q.x > 160 });
+  }, 0.3);
+  // el guardia: le coge la tarjeta de encima de la caja y lo sigue con la mirada
+  const coge = t > TARJETA + 0.15;
+  R.actor(EL.guardia, 224, 162, t, { dir: q.x > 228 ? 1 : -1, dedo: t > TARJETA - 0.2 && t < TARJETA + 0.6 });
+  if (coge && t < TARJETA + 0.6) { R.rect(222, 130, 226, 133, C.k); R.rect(223, 131, 225, 132, C.blanco); R.pset(223, 131, C.tealT); }
+  R.actor(EL.tyler, q.x, q.s, t, { dir: 1, anda: q.mv, triste: true });
+  caja(q.x, q.s, !coge);
+};
+
+// ── 6 · el abuelo no le cree; Tyler llama a escondidas ─────────────────────────────────────────────────────────
+const NIEGA = P6 + 0.7, SERMON = NIEGA + 0.6, VENTANA = SERMON + 0.6, APARTA = VENTANA, LLAMA = APARTA + 1.4;
+// la sala vacía, amueblada: la alfombra, el aparador con la jarra y los vasos, y la planta del rincón
+const salon = (t) => { const { rect, pset, disco } = R;
+  for (let j = -15; j <= 15; j++) for (let i = -96; i <= 96; i++) { const e = (i / 96) ** 2 + (j / 15) ** 2; if (e < 1) pset(150 + i, 160 + j, e > 0.9 ? C.k : e > 0.8 ? C.oroS : e > 0.55 ? hex('#7a2a2a') : (i + j * 3) % 12 === 0 ? C.oroS : hex('#8a3434')); }
+  rect(6, 92, 58, 118, C.k); rect(7, 93, 57, 117, C.caobaL); rect(7, 93, 57, 95, C.caoba); for (const x of [9, 33]) { rect(x, 98, x + 21, 115, C.caoba); disco(x + 18, 106, 1, C.oro); }
+  rect(12, 82, 18, 92, C.k); rect(13, 83, 17, 91, hex('#c8e8f8')); rect(13, 86, 17, 91, hex('#8ac0e0')); pset(19, 85, C.k); pset(19, 87, C.k);
+  for (const x of [24, 31, 38]) { rect(x, 86, x + 4, 92, C.k); rect(x + 1, 87, x + 3, 91, hex('#e8f4fa')); }
+  rect(292, 104, 308, 118, C.k); rect(293, 105, 307, 117, C.ocre); rect(293, 105, 307, 106, C.ocreS); const m = Math.round(Math.sin(t * 0.7)); disco(300 + m, 94, 9, C.verde); disco(296 + m, 88, 6, C.verdeL); disco(305, 96, 5, C.hierbaS); };
+const p6 = (t) => {
+  T.consejo(R, t, { sillas: [56, 232] }); salon(t);
+  // por las ventanas pasan pájaros
+  recorte([[72, 18, 138, 82], [198, 18, 264, 82]], () => { for (let k = 0; k < 4; k++) { const x = Math.round(((t - P6) * 34 + k * 9) - 20), y = 34 + (k % 2) * 4 + Math.round(Math.sin(t * 3 + k) * 2); const al = Math.sin(t * 14 + k) > 0;
+    R.pset(x, y, C.k); R.pset(x - 1, y - (al ? 1 : 0), C.k); R.pset(x + 1, y - (al ? 1 : 0), C.k); R.pset(x - 2, y - (al ? 2 : 0), C.k); R.pset(x + 2, y - (al ? 2 : 0), C.k); R.pset(x + 130, y + 6, C.k); R.pset(x + 129, y + 5 + (al ? 0 : 1), C.k); R.pset(x + 131, y + 5 + (al ? 0 : 1), C.k); } });
+  // el abuelo: niega con la cabeza, le sermonea con el dedo y se va a la ventana
+  const g = ruta(t, [[VENTANA, 102, 162], [VENTANA + 1.1, 74, 160]], false), niega = t > NIEGA && t < SERMON;
+  R.actor(EL.consejeroCalvo, g.x, g.s, t, { dir: g.mv || t > VENTANA ? -1 : niega ? (Math.floor(t * 5) % 2 ? -1 : 1) : 1, anda: g.mv, enfado: t > NIEGA && t < VENTANA, habla: t > SERMON && t < VENTANA && Math.sin(t * 12) > 0, dedo: t > SERMON && t < VENTANA });
+  // Tyler: le enseña la hoja; luego se aparta a la esquina, mira atrás y llama
+  const q = ruta(t, [[APARTA, 136, 162], [APARTA + 1.2, 206, 160]], false), atras = (t > LLAMA - 0.5 && t < LLAMA - 0.1) || (t > LLAMA + 1.0 && t < LLAMA + 1.4);
+  const llama = t > LLAMA;
+  R.actor(EL.tyler, q.x, q.s, t, { dir: q.mv ? 1 : t < APARTA ? -1 : atras ? -1 : 1, anda: q.mv, habla: (t < NIEGA && Math.sin(t * 12) > 0) || (llama && !atras && Math.sin(t * 9) > 0.3), dedo: t < NIEGA || llama, triste: t > NIEGA && t < APARTA });
+  if (t < NIEGA) hoja(q.x - 7, q.s - 33, true);
+  if (llama) movil(atras ? q.x + 1 : q.x + 14, q.s - 18);
+};
+
+// ── 7 · la calle: el abogado y el coche oscuro ─────────────────────────────────────────────────────────────────
+const sobre = (x, y) => { const { rect, linea } = R; x = Math.round(x); y = Math.round(y); rect(x, y, x + 10, y + 7, C.k); rect(x + 1, y + 1, x + 9, y + 6, C.blanco); linea(x + 1, y + 1, x + 5, y + 4, C.k); linea(x + 9, y + 1, x + 5, y + 4, C.k); R.icono('balanza', x + 2, y, C.rojo, C.blanco); };
+const ABOGADO = P7 + 0.3, DA = ABOGADOS - 0.1, VUELVE = DA + 0.7, COCHE = SIGUEN - 1.4, MIRA = SIGUEN + 0.6;
+// lo que el decorado de la calle deja sin pintar (los huecos entre casas) se rellena con el seto del fondo; si no, quedan
+// restos de los fotogramas anteriores
+const MARCA = hex('#010203');
+const calle = (t) => { R.rect(0, 0, 319, 179, MARCA); T.calle(R, t);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (R.pget(x, y) === MARCA) R.pset(x, y, (x * 5 + y * 3) % 7 === 0 ? C.hierba : C.hierbaS); };
+const regadera = (x, y) => { const { rect, linea } = R; rect(x, y, x + 6, y + 5, C.k); rect(x + 1, y + 1, x + 5, y + 4, C.verde); linea(x, y + 2, x - 4, y - 1, C.k); rect(x + 2, y - 2, x + 4, y - 1, C.k); };
+const p7 = (t) => {
+  calle(t);
+  // la vecina riega el jardín con su regadera
+  R.actor(EL.senora30, 290, 113, t, { dir: -1 }); regadera(282, 101); { const f = Math.floor(t * 20); for (let i = 0; i < 9; i++) { const s = i / 9; if ((i + f) % 3) R.pset(Math.round(277 - s * 6), Math.round(100 + s * 12), hex('#8ac8e8')); } }
+  // Tyler por la acera: se para con el abogado, coge el sobre, sigue y se para a mirar atrás
+  const q = ruta(t, [[P7, 10, 120], [DA - 0.2, 84, 120], [VUELVE, 84, 120], [MIRA, 158, 120], [MIRA + 0.9, 158, 120], [E.duracion, 214, 120]], false);
+  const atras = t > MIRA && t < MIRA + 0.9, tiene = t > DA + 0.25;
+  // el abogado: llega de la derecha, le da el sobre y se va por donde vino
+  const g = ruta(t, [[P7, 140, 121], [ABOGADO + 0.7, 140, 121], [DA - 0.2, 104, 121], [VUELVE, 104, 121], [VUELVE + 3.0, -24, 121]], false);
+  if (g.x > -20) { R.actor(EL.agente, g.x, g.s, t, { dir: g.mv ? g.d : -1, anda: g.mv, dedo: t > DA - 0.2 && t < DA + 0.3 }); if (!tiene && t > DA - 0.2) sobre(lerp(g.x - 8, q.x + 12, tramo(t, DA, DA + 0.25)), 101); }
+  R.actor(EL.tyler, q.x, q.s, t, { dir: atras ? -1 : 1, anda: q.mv, sorpresa: (t > DA && t < VUELVE + 0.4) || atras, dedo: tiene && !q.mv && !atras });
+  if (tiene) sobre(q.x + (atras ? -8 : 12), q.mv ? 106 : 100);
+  if (atras || (t > MIRA + 0.9 && t < MIRA + 1.8)) R.icono('?', q.x + 4, 86, C.rojo, C.k);
+  // el coche oscuro le sigue despacio por el carril de la acera; cuando él se para, se para
+  if (t > COCHE) { const cx = Math.round(Math.max(lerp(-40, q.x - 54, tramo(t, COCHE, COCHE + 1.2)), -40)); T.cocheOscuro(R, cx, 148, t, { dir: 1 }); }
+  // por el carril de delante pasan coches
+  coche(R, Math.round(lerp(380, -60, (t - P7 - 0.6) / 2.6)), 172, t, { epoca: 'hoy', color: hex('#c84a3a'), dir: -1 });
+  coche(R, Math.round(lerp(-60, 380, (t - VUELVE - 0.6) / 2.4)), 174, t, { epoca: 'hoy', color: hex('#4a7ad8'), dir: 1 });
+};
+
+const efectos = [
+  [0.6, 'bip'], [ALARMA, 'aviso'], [ALARMA + 0.3, 'pop'],
+  [ENTRA, 'puerta'], [ABRAZO, 'brillo'],
+  [P3 + 1.0, 'tic'], [ESCRIBE - 0.3, 'tecleo', { dur: 1.4 }], [ESCRIBE + 1.78, 'tic'], [ESCRIBE + 1.85, 'whoosh'],
+  [P4 + 0.1, 'aviso'], [P4 + 0.2, 'zumbido'], [RESPUESTA + 0.6, 'tic'], [DURA, 'chof'], [DURA + 0.25, 'papel'],
+  [TARJETA, 'tic'],
+  [LLAMA - 0.3, 'bip'], [LLAMA - 0.1, 'bip'],
+  [P7 + 0.6, 'motor', { dur: 2.4 }], [DA, 'papel'], [COCHE, 'motor', { dur: E.duracion - COCHE }],
+];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año: 2014 });
 </script>
 </body>
 </html>

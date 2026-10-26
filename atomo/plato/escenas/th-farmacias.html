@@ -9,21 +9,124 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-FARMACIAS (frase 12). Tres planos: en la farmacia de Palo Alto se descubre el rincón de Theranos (cae la tela) y la
-// gente aplaude; en el mapa de EE. UU. cae la chincheta de Palo Alto; el mapa se acerca a Arizona y caen unas cuarenta
-// chinchetas alrededor de Phoenix, una tras otra.
+// TH-FARMACIAS (frase 12), 2013. Tres planos:
+// 1. la farmacia de Palo Alto, llena: una chica entra por la puerta automática y coge una cesta, un dependiente repone la
+//    estantería, un señor y una señora se acercan al rincón tapado con una tela roja y globos (el señor señala con «?»);
+//    cuando la voz dice «opens», Holmes tira de la tela, que cae; confeti, aplausos, el flash de un fotógrafo, y la
+//    enfermera va a su puesto;
+// 2. el mapa de EE. UU. en la mesa: una mano clava la chincheta de Palo Alto cuando se oye «Palo Alto» y aparece la
+//    pegatina de la farmacia; con «soon after they arrive» una furgoneta blanca sale por una ruta a lápiz hasta Phoenix;
+// 3. la cámara baja hasta Arizona: el plano de las calles de Phoenix se dibuja a lápiz, la pegatina del sol y el cactus,
+//    y caen unas cuarenta chinchetas de dentro afuera mientras la furgoneta recorre las calles y la placa cuenta hasta 40.
 import * as T from '/atomo/plato/escenas/th-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-farmacias');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('farmacias', f);
-const P2 = a(0.33), P3 = a(0.62);
-const p1 = (t) => { T.farmacia(R, t); const cae = tramo(t, a(0.12), a(0.2)); if (cae < 1) { const y = Math.round(lerp(92, 140, cae)); R.rect(90, y, 230, 140, hex('#c83a4a')); for (let x = 96; x < 230; x += 10) R.rect(x, y, x + 1, 140, hex('#a82a3a')); }
-  [EL.holmes, EL.senor30, EL.clienta, EL.senora30, EL.chico].forEach((d, k) => R.actor(d, 70 + k * 40, 168, t, { dir: k ? -1 : 1, sonrisa: cae >= 1, brazos: cae >= 1 && Math.floor(t * 4 + k) % 2 === 0 })); };
-const p2 = (t) => { const P = T.mapa(R, t); const [x, y] = P(T.LUGARES.paloAlto).map(Math.round); T.chincheta(R, x, y, t, T.C.rojo, { baja: tramo(t, P2 + 0.3, P2 + 0.8), pulso: true }); };
-const p3 = (t) => { const P = T.mapa(R, t, { zoom: 1 }); T.FARMACIAS_AZ.forEach((ll, k) => { const [x, y] = P(ll).map(Math.round); T.chincheta(R, x, y, t, k % 3 ? T.C.tealT : T.C.verdeT, { baja: tramo(t, P3 + 0.5 + k * 0.08, P3 + 0.9 + k * 0.08) }); }); };
-const efectos = [[a(0.14), 'whoosh'], [a(0.22), 'palmada'], [P2 + 0.8, 'golpecito'], ...Array.from({ length: 8 }, (_, k) => [P3 + 0.9 + k * 0.4, 'golpecito'])];
+// los planos caen con la voz: «opens the first Theranos center» cierra la farmacia, «Phoenix» abre Arizona
+const P2 = a(0.40), P3 = a(0.69);
+const ABRE = a(0.325), PALO = a(0.49), RUTA = a(0.56), FENIX = a(0.69), DONDE = a(0.81), FIN = a(0.97);
+const hsh = (k, s) => { const v = Math.sin(k * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
+const anda = (t, x0, x1, t0, t1) => { const u = tramo(t, t0, t1); return [Math.round(lerp(x0, x1, u)), u > 0 && u < 1]; };
+
+// ── 1 · la farmacia ─────────────────────────────────────────────────────────────────────────────────────────────
+const globo = (x, y, c, cs, t, k) => { const sw = Math.round(Math.sin(t * 1.6 + k) * 1.5); R.linea(x + sw, y + 5, x, y + 16, T.C.grisS); R.disco(x + sw, y, 4, T.C.k); R.disco(x + sw, y, 3, c); R.pset(x + sw - 1, y - 2, T.C.blanco); R.pset(x + sw + 1, y + 2, cs); R.pset(x + sw, y + 4, T.C.k); };
+const tela = (t, cae) => {   // la tela roja que tapa el rincón: pliegues que se mecen; al caer, se arruga en el suelo
+  if (cae >= 1) { for (let x = 90; x <= 230; x += 2) { const alto = 2 + Math.round(Math.abs(Math.sin(x * 0.21)) * 3); R.rect(x, 140 - alto, x + 1, 140, x % 10 < 4 ? hex('#a82a3a') : hex('#c83a4a')); } R.rect(90, 140, 230, 140, T.C.k); return; }
+  const y0 = Math.round(lerp(92, 134, cae * cae));
+  R.rect(89, y0 - 1, 231, 141, T.C.k); R.rect(90, y0, 230, 140, hex('#c83a4a'));
+  for (let x = 94; x < 230; x += 9) { const sw = Math.round(Math.sin(t * 1.3 + x * 0.3) * 1); R.rect(x + sw, y0 + 2, x + sw + 1, 140, hex('#a82a3a')); R.pset(x + sw + 3, y0 + 4, hex('#e8606e')); }
+  R.rect(90, y0, 230, y0 + 2, hex('#e8606e')); R.rect(90, y0 + 3, 230, y0 + 3, hex('#a82a3a'));
+  if (cae === 0) { R.linea(212, y0 + 3, 212, 134, T.C.oro); R.disco(212, 136, 2, T.C.oroS); R.pset(212, 135, T.C.oroL); }   // el cordón dorado con su borla, junto a Holmes
+};
+const confeti = (t) => { const d = t - ABRE; if (d < 0 || d > 2.4) return; const col = [T.C.tealT, T.C.verdeT, T.C.amarilloT, T.C.rojoW, T.C.blanco];
+  for (let k = 0; k < 44; k++) { const x0 = 92 + hsh(k, 1) * 136, vx = (hsh(k, 2) - 0.5) * 70, vy = -40 - hsh(k, 3) * 50, dd = d - hsh(k, 4) * 0.2; if (dd < 0) continue;
+    const x = Math.round(x0 + vx * dd + Math.sin(dd * 8 + k) * 2), y = Math.round(96 + vy * dd + 60 * dd * dd); if (y > 176) continue; R.rect(x, y, x + (Math.floor(dd * 10 + k) % 2), y + 1 - (Math.floor(dd * 10 + k) % 2), col[k % 5]); } };
+const cesta = (x, y) => { R.rect(x, y, x + 7, y + 4, T.C.k); R.rect(x + 1, y + 1, x + 6, y + 3, T.C.rojoW); R.rect(x + 1, y - 2, x + 1, y, T.C.k); R.rect(x + 6, y - 2, x + 6, y, T.C.k); };
+const caja = (x, y, c) => { R.rect(x, y, x + 6, y + 5, T.C.k); R.rect(x + 1, y + 1, x + 5, y + 4, c); R.pset(x + 2, y + 2, T.C.blanco); };
+const camara = (x, y, fl) => { R.rect(x, y, x + 6, y + 4, T.C.k); R.rect(x + 1, y + 1, x + 5, y + 3, hex('#3a3a46')); R.disco(x + 3, y + 2, 1, hex('#8ab8d8')); R.rect(x + 4, y - 1, x + 6, y - 1, T.C.k);
+  if (fl) { for (let r = 1; r < 9; r++) { R.pset(x + 3 + r, y + 2, T.C.blanco); R.pset(x + 3 - r, y + 2, T.C.blanco); R.pset(x + 3, y + 2 + r, T.C.blanco); R.pset(x + 3, y + 2 - r, T.C.blanco); } R.disco(x + 3, y + 2, 3, T.C.blanco); } };
+const p1 = (t) => {
+  const cae = tramo(t, ABRE - 0.35, ABRE + 0.05), visto = cae >= 1;
+  T.farmacia(R, t, { puerta: tramo(t, 0.5, 1.0) - tramo(t, 2.6, 3.1) });
+  for (const [x, k] of [[86, 0], [94, 1], [226, 2], [234, 3]]) globo(x, 70 + (k % 2) * 6, k % 2 ? T.C.verdeT : T.C.tealT, k % 2 ? hex('#5a9a2a') : T.C.tealTS, t, k);
+  tela(t, cae);
+  const quien = [];
+  // el dependiente repone la estantería de la derecha: saca cajitas de la caja de cartón y las sube; con la tela, se gira y aplaude
+  quien.push([146, () => { const sube = !visto && (t % 1.4) < 0.7; R.rect(281, 150, 295, 158, T.C.k); R.rect(282, 151, 294, 157, hex('#c8a070')); R.rect(282, 151, 294, 152, hex('#a88050'));
+    R.actor(EL.chico, 264, 160, t, { dir: visto ? -1 : 1, dedo: sube, brazos: visto && Math.floor(t * 5) % 2 === 0, sonrisa: visto }); if (sube) caja(280, 124 + Math.round((t % 0.7) * 4), [T.C.azul, T.C.amarilloT, hex('#e87ab8')][Math.floor(t / 1.4) % 3]); }]);
+  // la chica entra por la puerta automática, coge una cesta y se acerca
+  quien.push([152, () => { let x, s, mv; if (t < 0.7) return; if (t < 2.0) { const u = tramo(t, 0.7, 2.0); x = Math.round(lerp(4, 30, u)); s = Math.round(lerp(141, 152, u)); mv = true; } else if (t < 2.5) { x = 30; s = 152; mv = false; } else { const u = tramo(t, 2.5, 3.9); x = Math.round(lerp(30, 50, u)); s = Math.round(lerp(152, 170, u)); mv = u < 1; }
+    R.actor(EL.chica, x, s, t, { dir: 1, anda: mv, dedo: t > 2.0 && t < 2.5, sonrisa: visto, brazos: visto && Math.floor(t * 5 + 1) % 2 === 0 }); if (t > 2.3) cesta(x + 12, s - 9); }]);
+  // la enfermera espera junto al rincón; al descubrirse, abre los brazos y va hacia el sillón
+  quien.push([158, () => { const [x, mv] = anda(t, 72, 110, ABRE + 0.35, ABRE + 1.0); R.actor(EL.enfermera, x, 158, t, { dir: 1, anda: mv, brazos: visto && t < ABRE + 0.35, sonrisa: visto }); }]);
+  // el señor del sombrero llega por la izquierda, mira la tela y señala con «?»
+  quien.push([166, () => { const [x, mv] = anda(t, -18, 96, 0.3, 2.6); const pregunta = t > 2.8 && t < ABRE - 0.4;
+    R.actor(EL.senor30, x, 166, t, { dir: 1, anda: mv, dedo: pregunta, sorpresa: visto && t < ABRE + 0.4, sonrisa: t > ABRE + 0.4, brazos: t > ABRE + 0.4 && Math.floor(t * 5) % 2 === 0 }); if (pregunta) R.bocadillo(x + 8, 136, { icono: '?' }); }]);
+  // la clienta ya espera delante; la señora llega por la derecha y le comenta algo
+  quien.push([167, () => R.actor(EL.clienta, 128, 167, t, { dir: t > 3.0 && !visto ? 1 : -1, habla: t > 3.6 && t < 4.4 && Math.sin(t * 9) > 0, sonrisa: visto, salto: visto && t < ABRE + 0.6 ? 1 : 0 })]);
+  quien.push([168, () => { const [x, mv] = anda(t, 330, 160, 1.2, 3.6); R.actor(EL.senora30, x, 168, t, { dir: -1, anda: mv, habla: t > 3.7 && t < 4.5 && Math.sin(t * 8) > 0, sorpresa: visto && t < ABRE + 0.5, brazos: t > ABRE + 0.5 && Math.floor(t * 5 + 2) % 2 === 0 }); }]);
+  // Holmes, junto al rincón: sube la mano al cordón, tira, y abre los brazos
+  quien.push([158, () => R.actor(EL.holmes, 214, 157, t, { dir: -1, dedo: t > ABRE - 0.7 && t < ABRE, brazos: visto && t < ABRE + 0.8, sonrisa: t > ABRE - 0.8, habla: t > ABRE + 0.9 && Math.sin(t * 7) > 0 })]);
+  // el fotógrafo del barrio: sube la cámara y dispara dos veces
+  quien.push([172, () => { const [x, mv] = anda(t, 334, 244, 2.4, 4.0), fl = (t > ABRE + 0.4 && t < ABRE + 0.5) || (t > ABRE + 0.85 && t < ABRE + 0.95);
+    R.actor(EL.sudadera, x, 172, t, { dir: -1, anda: mv, dedo: t > 4.1 }); if (t > 4.1) camara(x - 8, 149, fl); }]);
+  quien.sort((p, q) => p[0] - q[0]).forEach(([, f]) => f());
+  confeti(t);
+};
+
+// ── 2 · el mapa de EE. UU. ──────────────────────────────────────────────────────────────────────────────────────
+const MANGA = '#3a5a8a';
+const pegatina = (x, y, e, t, que) => { if (e <= 0) return; const s = e < 1 ? Math.round(e * 10) : 10; R.rect(x - s - 1, y - Math.round(s * 0.8) - 1, x + s + 1, y + Math.round(s * 0.8) + 1, T.C.k); R.rect(x - s, y - Math.round(s * 0.8), x + s, y + Math.round(s * 0.8), T.C.blanco); if (e < 1) return;
+  R.rect(x - 10, y + 6, x + 10, y + 7, T.C.grisL);
+  if (que === 'farmacia') { R.rect(x - 8, y - 6, x + 8, y - 4, T.C.rojoW); R.rect(x - 7, y - 3, x + 7, y + 5, hex('#e8e4dc')); R.rect(x - 2, y - 1, x + 2, y + 5, T.C.k); R.rect(x - 1, y, x + 1, y + 5, T.C.cristal); R.rect(x + 3, y - 2, x + 6, y + 1, T.C.rojoW); R.pset(x + 4, y - 1, T.C.blanco); R.pset(x + 5, y, T.C.blanco); T.logoTheranos(R, x - 5, y + 1, 0.3, t); }
+  if (que === 'sol') { R.disco(x - 3, y - 2, 3, T.C.amarilloT); for (let k = 0; k < 8; k++) { const g = k * Math.PI / 4 + t * 0.8; R.pset(Math.round(x - 3 + Math.cos(g) * 5), Math.round(y - 2 + Math.sin(g) * 5), T.C.naranja); }
+    R.rect(x + 4, y - 5, x + 5, y + 5, hex('#3a8a3a')); R.rect(x + 2, y - 2, x + 2, y + 1, hex('#3a8a3a')); R.rect(x + 2, y + 1, x + 3, y + 1, hex('#3a8a3a')); R.rect(x + 7, y - 3, x + 7, y, hex('#3a8a3a')); R.rect(x + 6, y, x + 7, y, hex('#3a8a3a')); R.rect(x - 9, y + 5, x + 9, y + 5, T.C.ocre); }
+};
+const furgoneta = (x, y, dir, t) => { const b = Math.floor(t * 8) % 2; x = Math.round(x); y = Math.round(y) - b; const f = (u) => x + u * dir;
+  R.rect(Math.min(f(-5), f(5)), y - 4, Math.max(f(-5), f(5)), y, T.C.k); R.rect(Math.min(f(-4), f(4)), y - 3, Math.max(f(-4), f(4)), y - 1, T.C.blanco); R.rect(Math.min(f(2), f(4)), y - 3, Math.max(f(2), f(4)), y - 2, T.C.cristal); R.rect(Math.min(f(-3), f(0)), y - 2, Math.max(f(-3), f(0)), y - 2, T.C.tealT); R.pset(f(-3), y + 1 + b, T.C.k); R.pset(f(3), y + 1 + b, T.C.k); };
+const ruta = (A, B, u) => [lerp(A[0], B[0], u), lerp(A[1], B[1], u) - Math.sin(u * Math.PI) * 10];
+const p2 = (t) => {
+  const P = T.mapa(R, t), [px, py] = P(T.LUGARES.paloAlto).map(Math.round), [fx, fy] = P(T.LUGARES.phoenix).map(Math.round);
+  // la ruta a lápiz, que se dibuja con la furgoneta
+  const u = tramo(t, RUTA, FENIX - 0.35); if (u > 0) { for (let k = 0; k <= Math.floor(u * 40); k++) if (k % 2 === 0) { const [x, y] = ruta([px, py], [fx, fy], k / 40); R.pset(Math.round(x), Math.round(y), hex('#5a5048')); } }
+  if (t > FENIX - 0.4) T.chincheta(R, fx, fy, t, T.C.tealT, { baja: tramo(t, FENIX - 0.4, FENIX - 0.2), pulso: true });
+  T.chincheta(R, px, py, t, T.C.rojo, { baja: tramo(t, PALO - 0.25, PALO), pulso: t > PALO });
+  pegatina(px + 16, py - 18, tramo(t, PALO + 0.3, PALO + 0.55), t, 'farmacia');
+  if (u > 0 && u < 1) { const [x, y] = ruta([px, py], [fx, fy], u), [x2] = ruta([px, py], [fx, fy], Math.min(1, u + 0.02)); furgoneta(x, y, x2 >= x ? 1 : -1, t); }
+  else if (u >= 1) furgoneta(fx + 8, fy + 3, 1, t);
+  // la mano trae la chincheta de Palo Alto desde la izquierda y se va
+  const m = tramo(t, PALO - 0.8, PALO - 0.25) - tramo(t, PALO + 0.15, PALO + 0.7); if (m > 0) { const hx = Math.round(lerp(-30, px - 12, m)), hy = Math.round(lerp(py + 10, py - 31, m));
+    if (t < PALO - 0.25) T.chincheta(R, hx + 12, hy + 31, t, T.C.rojo, { baja: 0.001 }); T.mano(R, hx, hy, 1, MANGA); }
+};
+
+// ── 3 · Arizona y las cuarenta farmacias ────────────────────────────────────────────────────────────────────────
+const p3 = (t) => {
+  const P = T.mapa(R, t, { zoom: tramo(t, P3 - 0.1, P3 + 1.6) }), [cx, cy] = P(T.LUGARES.phoenix).map(Math.round), z = tramo(t, P3 + 1.0, P3 + 2.0);
+  // el plano de las calles de Phoenix, a lápiz: la cuadrícula se dibuja de dentro afuera, con la autopista y el río
+  if (z > 0) { const r = Math.round(z * 64), A = 66, B = 42, gris = hex('#b0a088'), via = hex('#7a6a58');
+    for (let j = -B; j <= B; j += 6) for (let i = -A; i <= A; i++) if ((i / A) ** 2 + (j / B) ** 2 < 1 && Math.hypot(i, j * 1.5) < r && (i + j) % 2 === 0) R.pset(cx + i, cy + j, gris);
+    for (let i = -A; i <= A; i += 7) for (let j = -B; j <= B; j++) if ((i / A) ** 2 + (j / B) ** 2 < 1 && Math.hypot(i, j * 1.5) < r && j % 2 === 0) R.pset(cx + i, cy + j, gris);
+    for (let i = -72; i <= 72; i++) if (Math.abs(i) < r * 1.15) { const y = cy + 6 + Math.round(Math.sin(i * 0.05) * 4); R.pset(cx + i, y, via); R.pset(cx + i, y + 1, via); }
+    for (let j = -48; j <= 48; j++) if (Math.abs(j) < r * 0.8) { const x = cx - 8 + Math.round(j * 0.2); R.pset(x, cy + j, via); R.pset(x + 1, cy + j, via); }
+    for (let i = -70; i <= 70; i++) if (Math.abs(i) < r * 1.1) R.pset(cx + i, cy - 2 + Math.round(Math.sin(i * 0.09 + 1) * 3), hex('#6a9ac8')); }
+  pegatina(cx + 84, cy - 44, tramo(t, P3 + 1.4, P3 + 1.65), t, 'sol');
+  // la furgoneta recorre las calles: una vuelta por la cuadrícula
+  if (t > P3 + 1.6) { const per = 4.4, v = ((t - P3 - 1.6) % per) / per, lado = Math.floor(v * 4), w = (v * 4) % 1, pts = [[-48, -26], [48, -26], [48, 28], [-48, 28], [-48, -26]];
+    const [x0, y0] = pts[lado], [x1, y1] = pts[lado + 1]; furgoneta(cx + lerp(x0, x1, w), cy + lerp(y0, y1, w), x1 > x0 ? 1 : -1, t); }
+  // las cuarenta chinchetas: caen de dentro afuera, se pintan de atrás adelante para que no se emborronen
+  // (las de th-comun, abiertas 2,6 veces alrededor de Phoenix para que se lean una a una)
+  const [lo0, la0] = T.LUGARES.phoenix, pins = T.FARMACIAS_AZ.map((ll, k) => { const [x, y] = P([lo0 + (ll[0] - lo0) * 2.6, la0 + (ll[1] - la0) * 2.6]).map(Math.round); return { x, y, k, d: Math.hypot(x - cx, (y - cy) * 1.4) }; });
+  const orden = [...pins].sort((p, q) => p.d - q.d); orden.forEach((p, r) => { p.t0 = DONDE + r * (FIN - DONDE - 0.3) / pins.length; });
+  let n = 0; for (const p of pins.sort((p, q) => p.y - q.y)) { const b = tramo(t, p.t0, p.t0 + 0.22); if (b >= 1) n++; T.chincheta(R, p.x, p.y, t, p.k % 3 ? T.C.tealT : T.C.verdeT, { baja: b }); }
+  // la placa que cuenta las farmacias, abajo a la derecha (lejos de Atom)
+  if (t > DONDE - 0.2) { const x0 = 250, y0 = 146; R.rect(x0 - 1, y0 - 1, x0 + 47, y0 + 21, T.C.k); R.rect(x0, y0, x0 + 46, y0 + 20, T.C.papel); R.rect(x0, y0 + 18, x0 + 46, y0 + 20, T.C.papelS); R.disco(x0 + 6, y0 + 10, 3, T.C.tealT); R.pset(x0 + 5, y0 + 9, T.C.blanco);
+    R.numero(String(n), x0 + 30, y0 + 17, { tam: 16, centro: true, rampa: n >= 40 ? R.PALA.ORO : undefined }); }
+};
+const efectos = [[0.55, 'puerta'], [2.1, 'papel'], [ABRE - 0.3, 'whoosh'], [ABRE + 0.05, 'pop'], [ABRE + 0.25, 'palmada'], [ABRE + 0.42, 'flash'], [ABRE + 0.87, 'flash'],
+  [PALO, 'toc'], [PALO + 0.35, 'papel'], [RUTA, 'lapiz'], [RUTA + 0.2, 'motor'], [FENIX - 0.2, 'toc'], [P3 + 1.0, 'lapiz'], [P3 + 1.45, 'papel'],
+  ...Array.from({ length: 8 }, (_, k) => [DONDE + 0.1 + k * (FIN - DONDE - 0.4) / 8, 'golpecito']), [FIN - 0.25, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2013 });
 </script>
 </body>

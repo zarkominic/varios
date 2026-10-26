@@ -9,22 +9,117 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-JOBS (frase 8). Tres planos: el armario con diez jerséis negros iguales (gag: la percha que queda vacía); en el
-// escenario, presenta su máquina en una pantalla gigante como si fuera un teléfono, con los flashes del público; y una
-// caja Edison en el mostrador de una farmacia, con la gente que sonríe.
+// TH-JOBS (frase 8). Tres planos:
+// 1. el armario con diez jerséis negros de cuello alto iguales: las puertas se abren y una mano con manga negra duda
+//    entre jerséis idénticos (va y vuelve: gag), coge uno («dresses like him») y deja la percha vacía balanceándose; del
+//    hueco sale revoloteando una polilla;
+// 2. el escenario: Holmes entra hasta el foco y señala la pantalla gigante, que pasa del logotipo a la máquina («her
+//    machine»); pasea hablando y, en «iPhone», la pantalla muestra la máquina «=» un teléfono y ella abre los brazos;
+//    el público aplaude y saltan los flashes; los focos barren el escenario y el cámara sigue la escena;
+// 3. la farmacia: un técnico entra con la caja Edison en una carretilla y la sube a una mesa («fit in any pharmacy»);
+//    una clienta pulsa, sale el papel con el resultado y una marca verde, salta de alegría; los demás sonríen.
 import * as T from '/atomo/plato/escenas/th-comun.js';
-import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { ELENCO_CHIBI as EL, tela } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-jobs');
-const { tramo, lerp, hex } = R;
+const { tramo, lerp, hex, clamp } = R;
+const C = T.C;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('jobs', f);
 const P2 = a(0.33), P3 = a(0.72);
-const p1 = (t) => { T.armario(R, t, { abre: tramo(t, 0.4, 1.6) }); const saca = tramo(t, a(0.24), a(0.3)); if (saca > 0) { R.rect(46 + 9 * 24, 44, 62 + 9 * 24, 120, hex('#f4f2ee')); T.mano(R, 54 + 9 * 24, Math.round(lerp(80, 200, saca)), -1, '#1e1e28'); } };
-const p2 = (t) => { T.plato(R, t); R.actor(EL.holmes, 140, 140, t, { dir: 1, dedo: true, habla: Math.sin(t * 6) > 0 });
-  for (let k = 0; k < 4; k++) if (Math.sin(t * 3 + k * 1.7) > 0.93) { const x = 40 + k * 70; for (let r = 1; r < 5; r++) { R.pset(x + r, 160, T.C.blanco); R.pset(x - r, 160, T.C.blanco); R.pset(x, 160 + r, T.C.blanco); R.pset(x, 160 - r, T.C.blanco); } }
-  for (let k = 0; k < 12; k++) { const x = 10 + k * 27; R.disco(x, 176, 8, T.C.k); R.disco(x, 175, 7, ['#2a2430', '#4a3a2a', '#c8a060', '#1e1a24'].map(hex)[k % 4]); } T.platoCamaras(R, t); };
-const p3 = (t) => { T.farmacia(R, t); R.rect(176, 132, 212, 140, T.C.k); R.rect(177, 133, 211, 140, T.C.blanco); T.edison(R, 194, 132, t, { s: 0.5 }); R.actor(EL.clienta, 140, 158, t, { dir: 1, sonrisa: true, quieto: true }); R.actor(EL.senor30, 230, 160, t, { dir: -1, sonrisa: true }); R.actor(EL.chica, 110, 166, t, { dir: 1, anda: true }); };
-const efectos = [[0.4, 'puerta'], [P2 + 0.4, 'flash'], [P2 + 1.6, 'flash'], [P3 + 0.3, 'brillo']];
+const lin = (t, x, y) => clamp((t - x) / (y - x), 0, 1);
+const entre = (t, x, y) => t >= x && t < y;
+const brillo = (x, y, c = C.oroL) => { R.pset(x, y, c); R.pset(x + 1, y, c); R.pset(x - 1, y, c); R.pset(x, y + 1, c); R.pset(x, y - 1, c); };
+
+// ── 1 · el armario ──────────────────────────────────────────────────────────────────────────────────────────────
+const coge = a(0.18), tira = a(0.2), sale = a(0.26);
+const K = 4, JX = 46 + K * 24;   // el jersey que se lleva (el quinto de la barra)
+const jersey = (x, y) => { R.rect(x, y + 4, x + 16, y + 80, C.k); R.rect(x + 1, y + 5, x + 15, y + 79, hex('#1e1e28')); R.rect(x + 4, y, x + 12, y + 6, hex('#1e1e28')); R.rect(x + 4, y, x + 12, y + 1, C.k); for (let yy = y + 8; yy < y + 78; yy += 4) R.pset(x + 4 + (yy % 8), yy, hex('#2a2a36')); };
+const p1 = (t) => {
+  T.armario(R, t, { abre: tramo(t, 0.3, 1.4) });
+  // la mano con manga negra coge el jersey y se lo lleva; la percha vacía se balancea
+  if (t > tira) {
+    R.rect(JX - 1, 39, JX + 17, 121, hex('#f4f2ee'));
+    const sw = Math.sin((t - tira) * 9) * 4 * Math.exp(-(t - tira) * 1.2), m = (dx) => Math.round(JX + 8 + dx);
+    R.linea(m(0), 32, m(0), 38, C.metalD); R.linea(m(-8 + sw * 0.4), 46 + Math.round(sw * 0.5), m(0), 38, C.metalD); R.linea(m(0), 38, m(8 + sw * 0.4), 46 - Math.round(sw * 0.5), C.metalD); R.linea(m(-8 + sw * 0.4), 46 + Math.round(sw * 0.5), m(8 + sw * 0.4), 46 - Math.round(sw * 0.5), C.metalD);
+  }
+  // la mano duda entre jerséis idénticos (va, vuelve) antes de coger uno
+  const us = lin(t, tira, tira + 0.7), duda = [[1.5, 380], [1.95, 250], [2.25, 250], [2.45, 202], [2.6, 202], [2.75, 226], [coge - 0.1, JX + 20]];
+  if (t > duda[0][0] && us < 1) {
+    let hx0 = JX + 20; for (let k = 0; k + 1 < duda.length; k++) if (t >= duda[k][0] && t < duda[k + 1][0]) hx0 = lerp(duda[k][1], duda[k + 1][1], tramo(t, duda[k][0], duda[k + 1][0]));
+    const hx = Math.round(us > 0 ? lerp(JX + 20, 380, us) : hx0), hy = Math.round(us > 0 ? lerp(70, 60, us) : 70 + (t < coge ? Math.round(Math.sin(t * 6)) : 0));
+    if (t > tira) jersey(hx - 20, hy - 30 + Math.round(Math.sin(us * 6) * 2));
+    T.mano(R, hx, hy, -1, '#1e1e28');
+  }
+  // la polilla que sale de donde estaba el jersey y se va revoloteando
+  if (t > sale) { const u = lin(t, sale, P2 + 0.3), px = Math.round(JX + 8 + Math.sin(u * 9) * 22 + u * 60), py = Math.round(86 - u * 80 + Math.cos(u * 13) * 7), ala = Math.floor(t * 14) % 2, cs = hex('#d8ccb4'), cd = hex('#a89880');
+    R.rect(px - 1, py - 2, px + 1, py + 3, C.k); R.rect(px, py - 1, px, py + 2, cd);
+    for (const d of [-1, 1]) { if (ala) { R.rect(px + d * 2, py - 4, px + d * 5, py - 1, C.k); R.rect(px + d * 2 + (d > 0 ? 0 : 1), py - 3, px + d * 5 - (d > 0 ? 1 : 0), py - 2, cs); } else { R.rect(px + d * 2, py, px + d * 5, py + 3, C.k); R.rect(px + d * 2 + (d > 0 ? 0 : 1), py + 1, px + d * 5 - (d > 0 ? 1 : 0), py + 2, cs); } }
+    R.pset(px - 1, py - 3, C.k); R.pset(px + 1, py - 3, C.k); }
+};
+
+// ── 2 · el escenario ────────────────────────────────────────────────────────────────────────────────────────────
+const maquina = a(0.44), iphone = a(0.62), senala = a(0.66);
+const camaras = [a(0.47), iphone + 0.1, iphone + 0.6, a(0.7)];
+const telefono = (x, y) => { R.rect(x, y, x + 14, y + 26, C.k); R.rect(x + 1, y + 1, x + 13, y + 25, hex('#2a2a32')); R.rect(x + 2, y + 4, x + 12, y + 20, hex('#3a6a9a'));
+  for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) R.rect(x + 3 + i * 3, y + 6 + j * 4, x + 4 + i * 3, y + 7 + j * 4, [C.verdeT, C.amarilloT, C.rojoW, C.blanco][(i + j) % 4]); R.disco(x + 7, y + 22, 1, C.metalS); };
+const pantallaGrande = (t) => {
+  R.rect(186, 36, 274, 94, C.k); R.rect(188, 38, 272, 92, hex('#e8f4f4'));
+  if (t < maquina) T.logoTheranos(R, 230, 65, 1.2, t);
+  else if (t < iphone) T.edison(R, 230, 86, t, { s: 0.75 });
+  else { T.edison(R, 214, 84, t, { s: 0.5 }); R.rect(238, 64, 245, 65, C.k); R.rect(238, 69, 245, 70, C.k); telefono(250, 52); }
+  for (const tc of [maquina, iphone]) { const w = lin(t, tc - 0.05, tc + 0.2); if (w > 0 && w < 1) { const x = Math.round(188 + w * 84); R.rect(x, 38, Math.min(272, x + 4), 92, C.blanco); } }
+};
+const haz = (x0, x1, y1, t, k) => { const c = hex('#3a4a8a'); for (let y = 18; y < y1; y += 1) { const f = (y - 18) / (y1 - 18), xa = lerp(x0 - 3, x1 - 14, f), xb = lerp(x0 + 3, x1 + 14, f); for (let x = Math.round(xa); x <= xb; x++) if ((x + y * 2 + k) % 4 === 0) R.pset(x, y, c); } };
+const p2 = (t) => {
+  T.plato(R, t);
+  // los focos que barren el escenario
+  haz(76, 90 + Math.round(Math.sin(t * 0.9) * 40), 140, t, 0); haz(244, 230 + Math.round(Math.sin(t * 0.7 + 2) * 40), 140, t, 2);
+  pantallaGrande(t);
+  // Holmes entra hasta el foco, señala la pantalla, pasea hablando y abre los brazos
+  const u1 = lin(t, P2 + 0.05, P2 + 1.3), u2 = lin(t, a(0.49), a(0.57)), x = Math.round(u2 > 0 ? lerp(164, 120, u2) : lerp(30, 164, u1));
+  for (let j = -3; j <= 3; j++) for (let i = -16; i <= 16; i++) if ((i / 16) ** 2 + (j / 3.4) ** 2 < 1 && (i + j) % 2 === 0) R.pset(x + 7 + i, 156 + j, hex('#8a94b8'));
+  const anda = (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1), habla = !anda || u2 > 0 ? Math.sin(t * 7) > 0 : false;
+  R.actor(EL.holmes, x, 155, t, { dir: u2 > 0 && u2 < 1 ? -1 : 1, anda, habla: habla && t > P2 + 1.3 && t < senala + 0.6, dedo: entre(t, P2 + 1.35, a(0.49)) || t > senala, brazos: entre(t, iphone, senala), sonrisa: t > iphone });
+  // el cámara detrás de la cámara de la derecha
+  R.actor(EL.tecnico, 288 + (Math.sin(t * 0.8) > 0.6 ? 1 : 0), 150, t, { dir: -1 });
+  T.platoCamaras(R, t);
+  // el público: dos filas de bustos de colores; aplauden y se ríen cuando aparece el teléfono
+  const aplaude = t > iphone + 0.1, fl = camaras.some((c) => t > c && t < c + 0.12);
+  const tipos = ['rizos', 'calvo', 'mujer', 'peluca', 'rizos', 'mujer', 'calvo'], ropas = [['#5e5e70', '#44445a'], ['#8a4a3a', '#6a3428'], ['#3a6a8a', '#2a4e6a'], ['#c8a040', '#a07a28'], ['#4a7a4a', '#365a36'], ['#7a4a8a', '#5a346a']];
+  for (let f = 0; f < 2; f++) for (let k = 0; k < 14; k++) { const x = -2 + k * 23 + f * 11, y = 158 + f * 10, i = (k * 3 + f * 5) % 6;
+    R.busto(tipos[(k + f * 3) % 7], tela(ropas[i][0], ropas[i][1], { H: ['#2c2232', '#8a5428', '#d8b860', '#5a3418'][(k + f) % 4], V: ['#5a3418', '#2c2232', '#a85a2a'][k % 3] }), x, y - (aplaude && Math.sin(t * 9 + k) > 0.6 ? 1 : 0), t + k * 0.7 + f, { rie: aplaude && (k + f) % 3 === 0, saluda: aplaude && (k + f) % 2 === 1 });
+    if ((k * 7 + f) % 5 === 2) { const cx = x + 10, cy = y + 2; R.rect(cx, cy - 3, cx + 4, cy + 1, C.k); R.rect(cx + 1, cy - 2, cx + 3, cy, C.metalS); if (fl && (k + f) % 2 === Math.floor(t * 3) % 2) { R.disco(cx + 2, cy - 1, 3, C.blanco); for (let r = 4; r < 8; r++) { R.pset(cx + 2 + r, cy - 1, C.blanco); R.pset(cx + 2 - r, cy - 1, C.blanco); R.pset(cx + 2, cy - 1 - r, C.blanco); } } } }
+};
+
+// ── 3 · la farmacia ─────────────────────────────────────────────────────────────────────────────────────────────
+const sube = a(0.79), pulsa = a(0.89), bien = pulsa + 0.5;
+const MX = 128;   // la mesa donde se pone la máquina
+const mesa = () => { R.rect(MX - 22, 138, MX + 22, 141, C.k); R.rect(MX - 21, 139, MX + 21, 140, C.blanco); R.rect(MX - 20, 141, MX + 20, 146, hex('#e8e4f0')); for (let x = MX - 18; x < MX + 20; x += 6) R.rect(x, 141, x + 2, 146, hex('#d0ccd8')); R.rect(MX - 18, 146, MX - 16, 158, C.metalD); R.rect(MX + 16, 146, MX + 18, 158, C.metalD); };
+const carretilla = (x, s) => { R.linea(x, s - 2, x - 3, s - 22, C.k); R.linea(x + 1, s - 2, x - 2, s - 22, C.metalD); R.rect(x - 5, s - 23, x - 1, s - 22, C.k); R.rect(x, s - 3, x + 24, s - 2, C.metalD); R.disco(x + 3, s - 2, 2, C.k); R.disco(x + 3, s - 2, 1, C.metalS); };
+const p3 = (t) => {
+  const puerta = t < P3 + 0.6 ? 1 : 1 - lin(t, P3 + 0.6, P3 + 1.0);
+  T.farmacia(R, t, { rincon: false, puerta });
+  // al fondo, una señora busca algo en la estantería de la derecha
+  R.actor(EL.senora30, 262, 148, t, { dir: 1, dedo: Math.sin(t * 1.3) > 0.5 });
+  mesa();
+  // el técnico entra con la caja en la carretilla, la sube a la mesa y se aparta para presentarla
+  const ut = lin(t, P3 - 0.3, sube - 0.2), ua = lin(t, sube + 0.25, sube + 0.9), puesta = t > sube;
+  const tx = Math.round(ua > 0 ? lerp(76, 152, ua) : lerp(-10, 76, ut)), ty = Math.round(ua > 0 ? 160 : lerp(146, 160, ut));
+  if (!puesta) carretilla(tx + 16, ty);
+  R.actor(EL.tecnico, tx, ty, t, { dir: ua >= 1 ? -1 : 1, anda: (ut > 0 && ut < 1) || (ua > 0 && ua < 1), dedo: t > sube + 1 && t < pulsa, sonrisa: t > sube });
+  if (!puesta) { const v = lin(t, sube - 0.25, sube), bx = Math.round(lerp(tx + 30, MX, v)), by = Math.round(lerp(ty - 3, 138, v) - Math.sin(v * Math.PI) * 6); T.edison(R, bx, by, t, { s: 0.42 }); }
+  else T.edison(R, MX, 138, t, { s: 0.42, papel: lin(t, pulsa + 0.1, pulsa + 0.6) * 0.8 });
+  if (entre(t, sube, sube + 0.6)) for (let k = 0; k < 6; k++) { const g = k / 6 * Math.PI * 2 + t * 3, r = 18 + (t - sube) * 20; brillo(Math.round(MX + Math.cos(g) * r), Math.round(130 + Math.sin(g) * r * 0.5)); }
+  // la clienta se acerca, pulsa y sale el resultado; da un salto de alegría
+  const uc = lin(t, sube + 0.1, pulsa - 0.1), cx = Math.round(lerp(28, 90, uc));
+  R.actor(EL.clienta, cx, 160, t, { dir: 1, anda: uc > 0 && uc < 1, dedo: entre(t, pulsa - 0.1, pulsa + 0.3), sonrisa: t > bien, salto: entre(t, bien + 0.1, bien + 0.4) ? 3 : 0 });
+  if (t > bien) T.visto(R, MX - 12, Math.round(92 - Math.min(6, (t - bien) * 20)), 2);
+  // los que esperan su turno sonríen
+  const uq = lin(t, P3 + 0.4, sube + 0.6); R.actor(EL.chica, Math.round(lerp(330, 196, uq)), 164, t, { dir: -1, anda: uq > 0 && uq < 1, sonrisa: t > bien, sorpresa: entre(t, pulsa + 0.1, bien) });
+  R.actor(EL.oficinista, 222, 160, t, { dir: -1, sonrisa: t > bien, habla: entre(t, P3, sube) && Math.sin(t * 5) > 0.5 });
+};
+const efectos = [[0.3, 'puerta'], [tira, 'whoosh'], [maquina, 'bip'], ...camaras.map((c) => [c, 'flash']), [iphone, 'bip'], [iphone + 0.3, 'palmada'],
+  [P3 + 0.6, 'puerta'], [sube, 'toc'], [sube + 0.15, 'brillo'], [pulsa, 'bip'], [bien, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2004 });
 </script>
 </body>

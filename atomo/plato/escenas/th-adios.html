@@ -9,15 +9,51 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-ADIOS (frase 39). La farmacia de hoy, normal, con la gente que entra por la puerta automática y compra.
+// TH-ADIOS (frase 39). Un plano: la farmacia de hoy, normal. Se abre la puerta automática y entran una señora y un
+// chico; el chico mira los carteles de los pasillos y le sale una «?» cuando la voz dice «what should I explain next?»;
+// la enfermera los saluda con la mano y sonríe («tell me in the comments») y la señora le contesta; al fondo, un
+// reponedor coloca cajas en la estantería y, tras el cristal de la puerta, pasa un perro con su paseante.
 import * as T from '/atomo/plato/escenas/th-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-adios');
 const { tramo, lerp, hex } = R;
+const C = T.C;
 const en = (k, f) => T.momento(M, k, f);
-const p1 = (t) => { T.farmacia(R, t, { rincon: false, puerta: tramo(t, 0.2, 0.6) - tramo(t, 3.4, 3.8) }); const u = tramo(t, 0.6, 3.6); R.actor(EL.senora30, Math.round(lerp(4, 120, u)), 156, t, { dir: 1, anda: u > 0 && u < 1 }); R.actor(EL.chico, Math.round(lerp(-12, 104, u)), 160, t, { dir: 1, anda: u > 0 && u < 1 }); R.actor(EL.enfermera, 220, 150, t, { dir: -1, sonrisa: true }); };
-const efectos = [[0.2, 'puerta']];
-T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+const a = (f) => en('adios', f);
+const lin = (t, t0, t1) => Math.max(0, Math.min(1, (t - t0) / (t1 - t0)));   // a paso constante (para andar)
+const PREGUNTA = a(0.27), DIME = a(0.54);   // «explain next?»; «tell me»
+
+// el perro con su paseante, que pasan por la acera de fuera (solo se ven dentro del cristal de la puerta)
+function perroFuera(x, t) {
+  const { rect, pset } = R, dentro = (px) => px > 0 && px < 28, p = Math.floor(t * 6) % 2;
+  for (let i = 0; i < 7; i++) if (dentro(x + i)) { rect(x + i, 129, x + i, 132, hex('#a8743c')); }
+  if (dentro(x - 1)) rect(x - 1, 127, x - 1, 130, hex('#a8743c')); if (dentro(x - 2)) pset(x - 2, 129, C.k);
+  for (const dx of [1, 5]) if (dentro(x + dx)) pset(x + dx, 133 + (p && dx === 1 ? 0 : 0), C.k);
+  if (dentro(x + 8)) { pset(x + 8, 129 - p, hex('#a8743c')); pset(x + 9, 128 - p, hex('#a8743c')); }
+  // la correa y las piernas del paseante, que asoman por abajo del cristal
+  for (let k = 0; k < 6; k++) if (dentro(x + 14 + k)) pset(x + 14 - k, 124 + Math.round(k * 0.6), C.k);
+  for (const dx of [16, 19]) if (dentro(x + dx)) rect(x + dx, 120 + (p ? 0 : 1), x + dx + 1, 138, hex('#3e5a9a'));
+}
+const plano = (t) => {
+  const { rect } = R;
+  T.farmacia(R, t, { rincon: false, puerta: tramo(t, 0.2, 0.6) - tramo(t, 3.4, 3.8) });
+  perroFuera(Math.round(lerp(34, -24, lin(t, 0.8, 3.6))), t);
+  // el reponedor coloca cajas en la estantería de la derecha
+  const sube = (t * 0.9) % 1 < 0.5;
+  R.actor(EL.oficinista, 262, 152, t, { dir: 1, dedo: sube });
+  { const bx = sube ? 278 : 276, by = sube ? 120 : 140; rect(bx, by, bx + 6, by + 5, C.k); rect(bx + 1, by + 1, bx + 5, by + 4, hex('#f0c040')); }
+  rect(282, 140, 300, 152, C.k); rect(283, 141, 299, 151, hex('#c8a070')); rect(283, 145, 299, 145, hex('#a8804a'));   // la caja de cartón con más cajas
+  // entran la señora y el chico
+  const u = lin(t, 0.6, 3.0);
+  R.actor(EL.senora30, Math.round(lerp(4, 124, u)), 156, t, { dir: 1, anda: u > 0 && u < 1, habla: t > DIME + 0.4 && Math.sin(t * 6) > 0, sonrisa: t > DIME });
+  const cx = Math.round(lerp(-14, 100, u)), mira = t > PREGUNTA - 0.3 && t < DIME;
+  R.actor(EL.chico, cx, 160, t, { dir: mira && Math.floor(t * 2) % 2 === 0 ? -1 : 1, anda: u > 0 && u < 1, dedo: t > PREGUNTA && t < DIME });
+  if (t > PREGUNTA && t < DIME + 0.4) R.bocadillo(cx + 8, 128, { icono: '?' });
+  // la enfermera los recibe: saluda con la mano y sonríe
+  R.actor(EL.enfermera, 206, 152, t, { dir: -1, sonrisa: true, dedo: t > DIME - 0.2 && Math.floor(t * 5) % 2 === 0, habla: t > 0.8 && t < 1.6 && Math.sin(t * 6) > 0 });
+};
+const efectos = [[0.2, 'puerta'], [PREGUNTA, 'pop']];
+T.rodar(E, R, [[0, plano]], { efectos, año: 2026 });
 </script>
 </body>
 </html>

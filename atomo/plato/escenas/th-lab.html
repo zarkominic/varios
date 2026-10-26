@@ -9,26 +9,237 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-LAB (frases 19–20). Seis planos: el laboratorio por dentro, con técnicos trabajando; la Edison pita, echa humo y
-// escupe un papel en blanco, y un técnico corre a taparla con una sábana (gag); la rejilla de más de 200 pruebas, de
-// las que la Edison solo hace unas pocas; los analizadores grandes de otras marcas trabajando sin parar; el tubo enorme
-// que piden frente al tubito; y la gota que se diluye en agua.
+// TH-LAB (frases 19–20). Seis planos:
+// 1. el laboratorio por dentro, a pleno trabajo: un técnico cruza con una gradilla y la deja en la cinta de los
+//    analizadores, otro empuja un carrito por delante, Erika teclea en un analizador y la técnica maneja una Edison del
+//    banco; con «very different» esa Edison echa humo, la técnica da un respingo y todos se vuelven a mirarla;
+// 2. la Edison de cerca, en su banco (azulejos, la ventana al laboratorio por la que pasan técnicos, el reloj, el gráfico
+//    de controles): con «Edison» pita y tiembla, con «failing» echa humo, escupe un papel en blanco que cae revoloteando
+//    y dos manos llegan con una sábana tendida y la tapan (gag); la luz roja sigue parpadeando debajo y escapa un último
+//    soplo de humo;
+// 3. el panel de las más de 200 pruebas de la farmacia se va encendiendo; las pocas de la Edison laten en verde azulado;
+//    entra una clienta, mira el panel y señala una prueba, y llega un chico con su cesta que se asombra con el «200+»;
+// 4. el laboratorio con la Edison tapada (aún le sale humo): la técnica coge la gradilla del banco y la lleva a la cinta
+//    de los analizadores grandes; el técnico pulsa la pantalla del analizador, que imprime una tira de resultados y él
+//    la recoge; con «bought from other companies» entra un repartidor empujando una carretilla con una caja de otra marca;
+// 5. el tubo enorme frente al tubito: una regla roja sube por el tubo grande hasta arriba («far more blood») y otra,
+//    diminuta, mide el tubito («a few drops»); con «technicians» entra una mano con el frasco lavador de agua;
+// 6. la dilución: la mano echa un chorro de agua en el tubo, cae la gota de sangre, se mezcla en burbujas y una regla
+//    marca que ahora sí hay líquido de sobra.
 import * as T from '/atomo/plato/escenas/th-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-lab');
 const { tramo, lerp, hex } = R;
+const C = T.C;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('falla', f), b = (f) => en('diluye', f);
-const P2 = a(0.28), P3 = a(0.66), P4 = b(0), P5 = b(0.33), P6 = b(0.64);
-const p1 = (t) => { T.laboratorio(R, t); R.actor(EL.tecnica, 60, 162, t, { dir: 1, quieto: true }); const u = (t * 0.15) % 1; R.actor(EL.tecnico, Math.round(lerp(120, 240, u)), 166, t, { dir: 1, anda: true }); R.actor(EL.erika, 200, 160, t, { dir: -1, quieto: true }); };
-const p2 = (t) => { const hu = tramo(t, P2 + 0.3, P2 + 0.8), tapa = tramo(t, a(0.52), a(0.6));
-  R.rect(0, 0, 319, 179, hex('#dde8e2')); R.rect(0, 120, 319, 179, hex('#c8d0d8')); R.rect(0, 120, 319, 122, T.C.metalL); T.edison(R, 160, 120, t, { s: 1.5, humo: tapa < 1 ? hu : 0, papel: tapa < 1 ? tramo(t, P2 + 1, P2 + 2) : 0, sabana: tapa });
-  const x = Math.round(lerp(330, 210, tramo(t, a(0.44), a(0.52)))); R.actor(EL.tecnico, x, 168, t, { dir: -1, anda: tapa < 1 && x > 210, sorpresa: tapa < 1 }); if (tapa === 0 && x < 330) { R.rect(x - 14, 140, x + 2, 156, T.C.k); R.rect(x - 13, 141, x + 1, 155, hex('#f0f0f4')); } };
-const p3 = (t) => T.rejillaPruebas(R, t, { u: tramo(t, P3 + 0.2, a(0.78)), marca: t > a(0.66) });
-const p4 = (t) => { T.laboratorio(R, t, { sabanaEdison: 1 }); R.actor(EL.tecnica, 170, 164, t, { dir: 1, quieto: true }); const u = (t * 0.2) % 1; R.actor(EL.tecnico, Math.round(lerp(20, 180, u)), 168, t, { dir: 1, anda: true }); };
-const p5 = (t) => T.tuboContraTubito(R, t);
-const p6 = (t) => T.insertoDiluye(R, t, { u: tramo(t, P6 + 0.2, b(0.98)) });
-const efectos = [[P2 + 0.3, 'aviso'], [P2 + 0.6, 'vapor'], [P2 + 1, 'papel'], [a(0.56), 'whoosh'], [a(0.66), 'brillo'], [P4 + 0.3, 'zumbido'], [P5 + 0.3, 'pop'], [P6 + 0.6, 'gluglu']];
+// los cortes (los dos últimos se ajustan para que ningún plano baje de 4 s) y las palabras de la voz inglesa
+const P2 = a(0.28), P3 = a(0.66), P4 = b(0), P5 = b(0.345), P6 = b(0.68);
+const DIFERENTE = a(0.16), EDISON = a(0.3), FALLA = a(0.37), DOSCIENTAS = a(0.78), FARMACIAS = a(0.87);
+const ENORMES = b(0.1), OTRAS = b(0.26), SANGRE = b(0.45), GOTAS = b(0.54), TECNICOS = b(0.6), LIQUIDO = b(0.86);
+
+// ── piezas locales ─────────────────────────────────────────────────────────────────────────────────────────────
+// recorrido por fotogramas clave [t, x, suelo]: dónde está, si anda y hacia dónde mira (null antes de empezar)
+const ruta = (t, kf, desde = true) => {
+  if (t < kf[0][0]) return desde ? null : { x: kf[0][1], s: kf[0][2], mv: false, d: Math.sign(kf[1][1] - kf[0][1]) || 1 };
+  let d = 1; for (let i = 0; i + 1 < kf.length; i++) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1]; if (x1 !== x0) d = x1 < x0 ? -1 : 1;
+    if (t < t1) { const u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0 || s1 !== s0, d }; } }
+  const [, x, s] = kf[kf.length - 1]; return { x, s, mv: false, d };
+};
+// dibuja fn en una capa aparte y solo copia lo que cae dentro del rectángulo (lo que se ve por una ventana)
+const VACIO = 0x01020304; let CAPA = null;
+const recorte = (x0, y0, x1, y1, fn) => { const b = CAPA ?? (CAPA = R.nuevo()), prev = R.usar(b); b.fill(VACIO); fn(); R.usar(prev);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const c = b[y * 320 + x]; if (c !== VACIO) R.pset(x, y, c); } };
+// la mano canónica con la manga de la bata, que llega hasta el borde del cuadro
+const brazo = (x, y, dir, manga = '#f4f4f8') => { x = Math.round(x); y = Math.round(y); T.mano(R, x, y, dir, manga); const fin = (dir > 0 ? x - 3 : x + 3) - dir * 40;
+  const [x0, x1] = dir > 0 ? [-1, fin] : [fin, 320]; if (x1 > x0) { R.rect(x0, y - 2, x1, y + 2, hex(manga)); R.rect(x0, y - 3, x1, y - 3, C.k); R.rect(x0, y + 3, x1, y + 3, C.k); } };
+// una gradilla pequeña con cuatro tubos (x, y: esquina de abajo a la izquierda)
+const gradilla = (x, y) => { const { rect, pset } = R; x = Math.round(x); y = Math.round(y); rect(x, y - 3, x + 12, y, C.k); rect(x + 1, y - 2, x + 11, y - 1, C.metalL);
+  for (let k = 0; k < 4; k++) { const tx = x + 1 + k * 3; rect(tx, y - 9, tx + 2, y - 3, C.k); pset(tx + 1, y - 8, [C.rojoW, C.tealT, C.amarilloT, hex('#8a5ad8')][k]); pset(tx + 1, y - 7, C.blanco); rect(tx + 1, y - 6, tx + 1, y - 4, C.sangre); } };
+// el carrito de laboratorio con dos baldas de gradillas; el asa a la derecha (lo empujan hacia la izquierda)
+const carrito = (x, suelo) => { const { rect, disco, pset } = R;
+  for (const y of [suelo - 17, suelo - 7]) { rect(x, y - 1, x + 24, y + 1, C.k); rect(x + 1, y, x + 23, y, C.metalL); }
+  rect(x + 1, suelo - 17, x + 2, suelo - 3, C.metalD); rect(x + 22, suelo - 22, x + 23, suelo - 3, C.metalD); rect(x + 22, suelo - 23, x + 27, suelo - 22, C.k);
+  gradilla(x + 3, suelo - 18); gradilla(x + 10, suelo - 8); for (const dx of [4, 20]) { disco(x + dx, suelo - 1, 2, C.k); pset(x + dx, suelo - 1, C.metal); } };
+// un soplo de humo que sube (x, y: de donde sale; f: cuánto, 0–1)
+const soplo = (x, y, t, f = 1, n = 5) => { for (let k = 0; k < n; k++) { const u = (t * 0.9 + k / n) % 1, r = Math.round((1 + u * 3) * f);
+  if (r > 0) R.disco(Math.round(x + Math.sin(u * 6 + k) * 3 - u * 4), Math.round(y - u * 22), r, u > 0.55 ? C.grisL : C.gris); } };
+// la carretilla del repartidor con una caja de otra marca (triángulo azul y las flechas de «hacia arriba»)
+const carretilla = (x, suelo) => { const { rect, disco, pset, poligono } = R;
+  rect(x + 16, suelo - 26, x + 17, suelo - 2, C.k); rect(x + 2, suelo - 2, x + 19, suelo - 1, C.k);
+  rect(x, suelo - 20, x + 15, suelo - 3, C.k); rect(x + 1, suelo - 19, x + 14, suelo - 4, hex('#c89a5a')); rect(x + 1, suelo - 12, x + 14, suelo - 11, hex('#e0b878'));
+  poligono([[x + 3, suelo - 6], [x + 8, suelo - 16], [x + 13, suelo - 6]], hex('#2a5ab8'));
+  for (const fx of [x + 4, x + 10]) { pset(fx, suelo - 18, C.k); pset(fx - 1, suelo - 17, C.k); pset(fx + 1, suelo - 17, C.k); }
+  disco(x + 17, suelo - 2, 3, C.k); disco(x + 17, suelo - 2, 1, C.metal); };
+// la regla roja que mide una altura, de abajo (yb) hacia arriba (yt); f: cuánto ha subido (0–1)
+const regla = (x, yb, yt, f) => { if (f <= 0) return; const { rect, pset } = R, y = Math.round(lerp(yb, yt, f));
+  rect(x - 1, y, x + 1, yb, C.k); rect(x, y, x, yb, C.rojo); rect(x - 3, yb - 1, x + 3, yb + 1, C.k); rect(x - 2, yb, x + 2, yb, C.rojo);
+  for (let yy = yb - 8; yy > y; yy -= 8) { pset(x + 2, yy, C.rojo); pset(x + 3, yy, C.k); }
+  if (f < 1) { for (let i = 0; i < 4; i++) rect(x - i, y + i, x + i, y + i, C.rojo); } else { rect(x - 3, y - 1, x + 3, y + 1, C.k); rect(x - 2, y, x + 2, y, C.rojo); } };
+// el frasco lavador (agua) en una mano que llega desde la izquierda; ap: lo aprieta
+const frasco = (x, y, ap = 0) => { const { rect, pset, linea } = R; x = Math.round(x); y = Math.round(y); const w = ap ? 4 : 5;
+  rect(x + 8 - w, y - 12, x + 8 + w, y + 6, C.k); rect(x + 9 - w, y - 11, x + 7 + w, y + 5, hex('#e8f4fa')); rect(x + 9 - w, y - 4, x + 7 + w, y + 5, hex('#8ac8e8')); pset(x + 9 - w, y - 9, C.blanco);
+  rect(x + 6, y - 15, x + 10, y - 12, C.k); rect(x + 7, y - 14, x + 9, y - 13, C.rojo); linea(x + 8, y - 16, x + 8, y - 19, C.k); linea(x + 8, y - 19, x + 13, y - 22, C.k);
+  brazo(x + 4, y, 1); };
+
+// ── 1 · el laboratorio a pleno trabajo ─────────────────────────────────────────────────────────────────────────
+const SALTA = DIFERENTE + 0.25, MIRAN = DIFERENTE + 0.5;
+const TECNICO2 = { ...EL.tecnico, pal: { ...EL.tecnico.pal, H: hex('#6a3a1a'), h: hex('#8a5428'), S: hex('#f0c8a0'), s: hex('#d09870') } };
+const p1 = (t) => {
+  const humo = t > DIFERENTE;
+  T.laboratorio(R, t, humo ? { humoEdison: 1 } : {});
+  if (humo) soplo(56, 92, t, tramo(t, DIFERENTE, DIFERENTE + 0.8));
+  // la gradilla que el técnico deja en la cinta viaja hacia el analizador
+  const DEJA = 2.6; if (t > DEJA) gradilla(192 + (t - DEJA) * 10, 132);
+  // Erika, en la pantalla del segundo analizador
+  R.actor(EL.erika, 262, 146, t, { dir: t > MIRAN ? -1 : 1, dedo: t < MIRAN && Math.floor(t * 2.4) % 3 === 0, sorpresa: t > MIRAN });
+  // el técnico cruza con la gradilla hasta la cinta y la deja
+  const q = ruta(t, [[0, 66, 170], [2.4, 174, 148]], false);
+  R.actor(EL.tecnico, q.x, q.s, t, { dir: t > MIRAN + 0.2 ? -1 : 1, anda: q.mv, dedo: t > 2.35 && t < DEJA + 0.2, sorpresa: t > MIRAN + 0.2 });
+  if (t < 2.4) gradilla(q.x + 12, q.s - 6);
+  // la técnica, en el banco de las Edison: pulsa la pantalla, da un respingo con el humo y se aparta un paso
+  const s = ruta(t, [[SALTA + 0.3, 40, 150], [SALTA + 0.8, 26, 154]], false);
+  R.actor(EL.tecnica, s.x, s.s, t, { dir: 1, anda: s.mv, dedo: t < DIFERENTE && Math.floor(t * 3) % 2 === 0, sorpresa: t > SALTA, salto: t > SALTA && t < SALTA + 0.25 ? 2 : 0 });
+  // por delante, otro técnico empuja el carrito de gradillas hacia la izquierda y se para a mirar
+  const c = ruta(t, [[0, 334, 177], [MIRAN + 0.3, 150, 177]]);
+  R.actor(TECNICO2, c.x, c.s, t, { dir: -1, anda: c.mv, sorpresa: t > MIRAN + 0.3 }); carrito(c.x - 26, 177);
+};
+
+// ── 2 · la Edison de cerca ─────────────────────────────────────────────────────────────────────────────────────
+const EX = 160, EY = 116, ES = 1.5, EW = Math.round(40 * ES), EH = Math.round(34 * ES), TOPE = EY - EH - 4;
+const PITA = EDISON - 0.05, HUMO = FALLA - 0.2, PAPEL = HUMO + 0.45, SUELTA = PAPEL + 0.8, LLEGAN = SUELTA + 0.1, BAJAN = LLEGAN + 0.55, CAE = BAJAN + 0.3, SUELTAN = CAE + 0.45;
+const banco = (t) => {
+  const { rect, pset, disco, linea } = R;
+  // la pared de azulejos blancos
+  rect(0, 0, 319, 111, hex('#e4ece8')); for (let y = 4; y < 112; y += 8) { rect(0, y, 319, y, hex('#cfdcd5')); for (let x = (y / 8) % 2 ? 0 : 8; x < 320; x += 16) rect(x, y - 7, x, y - 1, hex('#cfdcd5')); }
+  // la ventana al laboratorio grande: la pared del fondo con estantes y los técnicos que pasan
+  rect(10, 22, 120, 70, C.metalD); rect(12, 24, 118, 68, hex('#cfe2e8')); rect(12, 24, 118, 30, hex('#e8f2f4')); for (const x of [30, 70, 100]) rect(x, 26, x + 12, 27, C.blanco);
+  for (const y of [40, 54]) { rect(14, y, 116, y + 1, hex('#9ab0b8')); for (let k = 0; k < 12; k++) rect(18 + k * 8, y - 5, 19 + k * 8, y - 1, [hex('#e8a8b0'), hex('#a8c8e8'), hex('#e8d8a0')][k % 3]); }
+  recorte(12, 24, 118, 68, () => {
+    const u1 = ((t - P2) / 3.6), u2 = ((t - P2 - 1.8) / 2.6);
+    if (u1 > 0 && u1 < 1) R.actor(EL.tecnica, Math.round(lerp(-16, 124, u1)), 79, t, { dir: 1, anda: true });
+    if (u2 > 0 && u2 < 1) R.actor(TECNICO2, Math.round(lerp(124, -16, u2)), 80, t, { dir: -1, anda: true });
+  });
+  for (let i = 0; i < 14; i++) { pset(40 + i, 30 + i * 2, hex('#f4fafc')); pset(86 + i, 34 + i * 2, hex('#f4fafc')); }   // reflejos del cristal
+  rect(56, 22, 57, 70, C.metalD); rect(8, 70, 122, 72, C.metalS);
+  // el gráfico de controles clavado en la pared: tres líneas y puntos que se salen, en rojo
+  rect(20, 78, 72, 104, C.k); rect(21, 79, 71, 103, C.blanco); disco(46, 79, 1, C.rojo);
+  for (let x = 24; x < 70; x += 2) { pset(x, 84, C.rojo); pset(x, 91, C.verdeL); pset(x, 98, C.rojo); }
+  for (let k = 0; k < 8; k++) { const x = 26 + k * 6, malo = k > 4, y = malo ? (k % 2 ? 81 : 101) : 91 + Math.round(Math.sin(k * 2.1) * 3); disco(x, y, 1, malo ? C.rojo : C.azulL); }
+  // el estante de reactivos (por debajo de Atom) y el reloj de pared, que corre
+  rect(232, 60, 306, 62, C.k); rect(233, 60, 305, 61, C.metalL);
+  for (let k = 0; k < 7; k++) { const x = 236 + k * 10, c = [hex('#c86a3a'), hex('#5a8ac8'), hex('#e8e8f0'), hex('#8a5ad8'), hex('#5aa86a'), hex('#c8a83a'), hex('#e8e8f0')][k]; rect(x, 49 + (k % 2) * 2, x + 6, 59, C.k); rect(x + 1, 50 + (k % 2) * 2, x + 5, 58, c); rect(x + 2, 47 + (k % 2) * 2, x + 4, 49 + (k % 2) * 2, C.k); pset(x + 1, 52 + (k % 2) * 2, C.blanco); }
+  { const cx = 258, cy = 86; disco(cx, cy, 10, C.k); disco(cx, cy, 9, C.blanco); for (let k = 0; k < 12; k++) { const g = k / 12 * Math.PI * 2; pset(Math.round(cx + Math.cos(g) * 7), Math.round(cy + Math.sin(g) * 7), C.metalD); }
+    const sg = Math.floor(t) / 60 * Math.PI * 2 - Math.PI / 2, mn = (10 + t / 60) / 60 * Math.PI * 2 - Math.PI / 2;
+    linea(cx, cy, Math.round(cx + Math.cos(mn) * 6), Math.round(cy + Math.sin(mn) * 6), C.k); linea(cx, cy, cx - 3, cy - 3, C.k); linea(cx, cy, Math.round(cx + Math.cos(sg) * 8), Math.round(cy + Math.sin(sg) * 8), C.rojo); }
+  // el banco de acero, con armarios debajo
+  rect(0, 110, 319, 121, C.metalL); rect(0, 110, 319, 110, C.k); rect(0, 112, 319, 112, C.blanco); rect(0, 121, 319, 125, C.metalS); rect(0, 125, 319, 125, C.k); rect(0, 126, 319, 179, hex('#c8d0d8'));
+  for (let x = 4; x < 320; x += 52) { rect(x, 130, x + 48, 176, hex('#b8c0c8')); rect(x + 1, 131, x + 47, 175, hex('#d0d6de')); rect(x + 40, 146, x + 42, 158, C.metalD); }
+  // en el banco: la gradilla con tubos, el vaso de precipitados, el soporte de pipetas y el contenedor amarillo de agujas
+  rect(26, 104, 64, 112, C.k); rect(27, 105, 63, 111, C.metal); for (let k = 0; k < 8; k++) { const x = 29 + k * 4; rect(x, 92, x + 2, 106, C.k); pset(x + 1, 93, [C.rojoW, C.tealT, C.amarilloT][k % 3]); rect(x + 1, 94, x + 1, 105, k % 3 ? C.blanco : C.sangre); }
+  rect(72, 98, 84, 112, C.k); rect(73, 99, 83, 111, hex('#eef6fa')); rect(73, 105, 83, 111, hex('#9ad0e8')); pset(74, 100, C.blanco);
+  rect(236, 108, 256, 112, C.k); rect(240, 82, 241, 108, C.metalD); for (const [px, c] of [[244, C.tealT], [250, C.amarilloT]]) { rect(px, 84, px + 3, 100, C.k); rect(px + 1, 85, px + 2, 96, c); rect(px + 1, 97, px + 2, 104, C.blanco); pset(px + 1, 105, C.k); }
+  // delante de los armarios: el taburete con ruedas y la papelera de pedal
+  rect(254, 140, 280, 144, C.k); rect(255, 141, 279, 143, hex('#3a4a6a')); rect(266, 144, 268, 168, C.metalD); rect(256, 168, 278, 170, C.k); for (const dx of [256, 267, 278]) disco(dx, 172, 2, C.k);
+  rect(20, 150, 40, 176, C.k); rect(21, 151, 39, 175, hex('#e8e8ee')); rect(19, 147, 41, 151, C.k); rect(20, 148, 40, 150, hex('#c8c8d0')); rect(26, 176, 34, 178, C.k);
+  rect(272, 96, 292, 112, C.k); rect(273, 97, 291, 111, C.amarilloT); rect(272, 94, 292, 97, C.k); rect(273, 95, 291, 96, C.rojo); R.icono('X', 280, 101, C.k, C.amarilloT);
+};
+// la sábana que cae sobre la Edison: los lados bajan hasta la mesa (u 0–1)
+const sin2 = (u) => Math.sin(u * Math.PI);
+const sabanaCae = (u) => { const yb = Math.round(lerp(TOPE + 14, EY + 2, u)), w = Math.round(sin2(u) * 2);
+  R.poligono([[EX - EW - 4 - w, yb], [EX - EW - 2, TOPE + 6], [EX, TOPE], [EX + EW + 2, TOPE + 6], [EX + EW + 4 + w, yb]], C.k);
+  R.poligono([[EX - EW - 3 - w, yb - 1], [EX - EW - 1, TOPE + 7], [EX, TOPE + 1], [EX + EW + 1, TOPE + 7], [EX + EW + 3 + w, yb - 1]], hex('#f0f0f4'));
+  for (let k = 0; k < 4; k++) R.linea(EX - EW + 10 + k * 18, TOPE + 8, EX - EW + 6 + k * 20, yb - 1, hex('#d8d8e0')); };
+// la sábana tendida entre dos manos (de xl a xr, colgando desde y)
+const sabanaTendida = (xl, xr, y, t, f = 1) => { const n = xr - xl; if (n < 4 || f <= 0) return;
+  for (let i = 0; i <= n; i++) { const x = xl + i, s = Math.sin(i / n * Math.PI), yb = Math.round(y + 2 + (10 + s * 3 + Math.sin(i * 0.3 + t * 9)) * f); R.rect(x, y - 1, x, yb, C.k); if (i > 0 && i < n) R.rect(x, y, x, yb - 1, i % 18 === 9 ? hex('#d8d8e0') : hex('#f0f0f4')); } };
+const p2 = (t) => {
+  banco(t);
+  const fallo = t > PITA, tapada = t > CAE + 0.4, hu = tramo(t, HUMO, HUMO + 0.6), tiembla = fallo && t < CAE ? Math.round(Math.sin(t * 47)) : 0;
+  const pp = t < SUELTA ? tramo(t, PAPEL, PAPEL + 0.6) : 0;
+  T.edison(R, EX + tiembla, EY, t, { s: ES, humo: fallo && !tapada ? Math.max(0.12, hu) : 0, papel: pp, sabana: tapada ? 1 : 0 });
+  let MANOS = null;
+  // las dos manos con la sábana tendida: llegan, la bajan sobre la máquina, la sueltan y se van
+  if (t > LLEGAN && t < SUELTAN + 0.6) {
+    const ent = tramo(t, LLEGAN + 0.2, LLEGAN + 0.6), entra = tramo(t, LLEGAN, LLEGAN + 0.2), baja = tramo(t, BAJAN, CAE), sale = tramo(t, SUELTAN, SUELTAN + 0.5);
+    const xl = Math.round(lerp(34, EX - EW - 2, ent) - sale * 150), xr = Math.round(lerp(286, EX + EW + 2, ent) + sale * 150), y = Math.round(t < CAE ? lerp(54, TOPE + 4, baja) : TOPE + 6);
+    if (t < CAE) sabanaTendida(xl - Math.round((1 - entra) * 80), xr + Math.round((1 - entra) * 80), y, t, tramo(t, LLEGAN + 0.15, LLEGAN + 0.4)); else if (!tapada) sabanaCae(tramo(t, CAE, CAE + 0.4));
+    MANOS = [xl - 10 - Math.round((1 - entra) * 80), xr + 10 + Math.round((1 - entra) * 80), y];
+  }
+  // el papel en blanco se suelta y cae revoloteando sobre el banco, a la derecha
+  if (t >= SUELTA) { const u = tramo(t, SUELTA, SUELTA + 0.9), cx = Math.round(lerp(193, 212, u) + Math.sin(u * 9) * 6 * (1 - u)), hh = Math.round(lerp(45, 3, u)), yb = Math.round(lerp(83, 113, u)), sk = Math.round(Math.sin(u * 9) * 5 * (1 - u));
+    R.poligono([[cx - 16, yb], [cx - 16 + sk, yb - hh], [cx + 16 + sk, yb - hh], [cx + 16, yb]], C.k); R.poligono([[cx - 15, yb - 1], [cx - 15 + sk, yb - hh + 1], [cx + 15 + sk, yb - hh + 1], [cx + 15, yb - 1]], C.blanco); }
+  if (tapada) {
+    // debajo, la luz roja sigue parpadeando, y se escapa un último soplo de humo por el borde (gag)
+    if (Math.sin(t * 12) > 0) { const lx = EX + Math.round(22 * ES), ly = EY - Math.round(8 * ES); R.disco(lx, ly, 3, hex('#f4c8cc')); R.disco(lx, ly, 1, hex('#f08890')); }
+    const f = tramo(t, SUELTAN + 0.2, SUELTAN + 0.5) - tramo(t, SUELTAN + 0.9, SUELTAN + 1.3); if (f > 0) soplo(EX + EW + 8, EY - 4, t, f * 1.6, 4);
+  }
+  if (MANOS) { brazo(MANOS[0], MANOS[2], 1); brazo(MANOS[1], MANOS[2], -1); }
+};
+
+// ── 3 · el panel de las más de 200 pruebas ─────────────────────────────────────────────────────────────────────
+const cesta = (x, y) => { const { rect, pset } = R; rect(x, y - 4, x + 8, y, C.k); rect(x + 1, y - 3, x + 7, y - 1, C.rojo); for (let i = 2; i < 8; i += 2) pset(x + i, y - 2, C.rojoS); pset(x + 2, y - 5, C.k); pset(x + 6, y - 5, C.k); rect(x + 3, y - 6, x + 5, y - 6, C.k); };
+const p3 = (t) => {
+  T.rejillaPruebas(R, t, { u: tramo(t, P3 + 0.15, DOSCIENTAS), marca: true });
+  const c = ruta(t, [[P3 + 0.3, -16, 178], [P3 + 2.0, 50, 178]], false);
+  R.actor(EL.clienta, c.x, c.s, t, { dir: 1, anda: c.mv, dedo: t > FARMACIAS - 0.3 && t < FARMACIAS + 1.3, sonrisa: t > FARMACIAS + 1.3 });
+  const s = ruta(t, [[DOSCIENTAS - 0.3, 334, 178], [DOSCIENTAS + 1.7, 246, 178]]);
+  if (s) { const asombro = t > DOSCIENTAS + 1.8; R.actor(EL.sudadera, s.x, s.s, t, { dir: -1, anda: s.mv, sorpresa: asombro && t < DOSCIENTAS + 2.8, sonrisa: t > DOSCIENTAS + 2.8, dedo: asombro && t < DOSCIENTAS + 2.8 }); cesta(s.x - 5, s.s - 5); }
+};
+
+// ── 4 · el laboratorio, con la Edison tapada ───────────────────────────────────────────────────────────────────
+const COGE = P4 + 0.4, DEJA4 = COGE + 2.25, PULSA = ENORMES - 0.1, IMPRIME = ENORMES + 0.25, RECOGE = OTRAS + 0.35;
+const p4 = (t) => {
+  T.laboratorio(R, t, { sabanaEdison: 1 });
+  for (const t0 of [P4 + 0.3, P4 + 2.6]) { const f = tramo(t, t0, t0 + 0.3) - tramo(t, t0 + 0.6, t0 + 1.0); if (f > 0) soplo(60, 90, t, f, 4); }   // le sigue saliendo humo
+  // la tira de resultados que imprime el analizador grande
+  const tira = t < RECOGE ? tramo(t, IMPRIME, IMPRIME + 1.4) : 0; if (tira > 0) { const yb = 108 + Math.round(tira * 22); R.rect(234, 106, 248, 108, C.k); R.rect(236, 108, 246, yb, C.k); R.rect(237, 108, 245, yb - 1, C.blanco); for (let y = 110; y < yb - 1; y += 3) R.rect(238, y, 238 + (y * 7) % 6 + 2, y, C.metalS); }
+  // la gradilla: en el banco, en manos de la técnica y luego en la cinta
+  if (t < COGE) gradilla(64, 108); else if (t > DEJA4) gradilla(192 + (t - DEJA4) * 10, 132);
+  const s = ruta(t, [[COGE + 0.15, 62, 147], [DEJA4 - 0.15, 172, 148]], false);
+  R.actor(EL.tecnica, s.x, s.s, t, { dir: 1, anda: s.mv, dedo: (t > COGE - 0.25 && t < COGE + 0.1) || (t > DEJA4 - 0.15 && t < DEJA4 + 0.2) });
+  if (t > COGE && t < DEJA4) gradilla(s.x + 12, s.s - 6);
+  // el técnico, ante el primer analizador: pulsa la pantalla, recoge la tira y la mira
+  const lee = t > RECOGE;
+  R.actor(EL.tecnico, 208, 147, t, { dir: 1, dedo: (t > PULSA && t < PULSA + 0.5) || lee, sonrisa: lee });
+  if (lee) { R.rect(222, 112, 232, 122, C.k); R.rect(223, 113, 231, 121, C.blanco); for (let y = 115; y < 121; y += 2) R.rect(224, y, 229, y, C.metalS); }
+  // por delante, el repartidor empuja la carretilla con la caja de otra marca
+  const d = ruta(t, [[OTRAS - 1.4, -46, 177], [P5 - 0.3, 70, 177]]);
+  if (d) { R.actor(EL.sudadera, d.x, d.s, t, { dir: 1, anda: d.mv, sonrisa: !d.mv }); carretilla(d.x + 13, 177); }
+};
+
+// ── 5 · el tubo enorme frente al tubito ─────────────────────────────────────────────────────────────────────────
+const p5 = (t) => {
+  T.tuboContraTubito(R, t);
+  regla(132, 150, 22, tramo(t, SANGRE - 0.7, SANGRE + 0.2));
+  regla(216, 131, 112, tramo(t, GOTAS - 0.3, GOTAS + 0.1));
+  const e = tramo(t, TECNICOS - 0.1, TECNICOS + 0.5); if (e > 0) frasco(lerp(-24, 30, e), 132);
+};
+
+// ── 6 · la gota se diluye en agua ──────────────────────────────────────────────────────────────────────────────
+const CHORRO = P6 + 0.1, GOTA = CHORRO + 0.85, MIDE = LIQUIDO + 0.1;
+const p6 = (t) => {
+  const u = Math.min(1, Math.max(0, (t - GOTA) / 2.6));
+  T.insertoDiluye(R, t, { u });
+  // el frasco lavador echa un chorro de agua dentro del tubo y la mano se va
+  const sale = tramo(t, CHORRO + 0.8, CHORRO + 1.2), hx = lerp(62, -40, sale), hy = 66, ch = t > CHORRO && t < CHORRO + 0.75;
+  if (sale < 1) frasco(hx, hy, ch);
+  if (ch) { const f = Math.floor(t * 30); for (let i = 0; i < 44; i++) { const s = i / 44, x = Math.round(hx + 13 + 66 * s), y = Math.round(hy - 22 - 26 * s + 18 * s * s); if ((i + f) % 4 < 3) { R.pset(x, y, hex('#8ac8e8')); R.pset(x, y + 1, C.blanco); } }
+    for (let y = 37; y < 52; y++) if ((y + f) % 4 < 3) R.pset(147 + (y % 2), y, hex('#8ac8e8')); for (let k = 0; k < 3; k++) R.pset(144 + k * 3, 51 - (f + k) % 3, C.blanco); }
+  // burbujas que suben mientras se mezcla
+  if (t > GOTA + 0.9) for (let k = 0; k < 7; k++) { const v = (t * 0.5 + k / 7) % 1, x = 146 + ((k * 11) % 28) + Math.round(Math.sin(t * 3 + k) * 1.5); R.pset(x, Math.round(lerp(142, 56, v)), C.blanco); }
+  // la regla: ahora sí hay líquido de sobra
+  regla(188, 146, 52, tramo(t, MIDE, MIDE + 0.7));
+};
+
+const efectos = [
+  [0.4, 'bip'], [2.6, 'golpecito'], [DIFERENTE + 0.05, 'vapor'],
+  [PITA, 'aviso'], [HUMO, 'vapor'], [PAPEL, 'papel'], [LLEGAN, 'whoosh'], [CAE, 'papel'], [SUELTAN + 0.25, 'pop'],
+  [P3 + 0.15, 'zumbido'], [DOSCIENTAS + 0.05, 'brillo'],
+  [COGE, 'tic'], [PULSA + 0.05, 'bip'], [IMPRIME, 'papel'], [DEJA4, 'golpecito'],
+  [SANGRE - 0.7, 'whoosh'], [GOTAS - 0.3, 'pop'], [TECNICOS, 'tic'],
+  [CHORRO, 'gluglu'], [GOTA + 1.0, 'pop'], [GOTA + 1.2, 'burbujas'], [MIDE, 'tic'],
+];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2014 });
 </script>
 </body>

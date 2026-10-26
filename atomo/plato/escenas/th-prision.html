@@ -9,15 +9,98 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-PRISION (frase 32). El campo federal de Texas al amanecer: un coche oscuro llega por el camino hasta la entrada.
+// TH-PRISION (frase 32), 2023. Dos planos:
+// 1. el calendario de pared al amanecer: las hojas pasan volando hasta el 30 con «May thirtieth» y una mano lo rodea con
+//    el rotulador rojo; por la ventana sale el sol sobre la llanura y cruza un pájaro; el reloj anda y el café humea;
+// 2. el campo federal de Texas al amanecer: el coche oscuro llega por el camino levantando polvo y se para; con
+//    «Elizabeth Holmes» se abre la puerta y ella baja con su abogado; caminan hacia la entrada, donde el guardia los
+//    espera y, con «camp», les indica el camino y va delante; por delante rueda una planta seca empujada por el viento
+//    (gag); la bandera ondea y una bandada cruza el cielo.
 import * as T from '/atomo/plato/escenas/th-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-prision');
 const { tramo, lerp, hex } = R;
+const C = T.C, K = C.k;
 const en = (k, f) => T.momento(M, k, f);
-const P2 = en('prision', 0.45);
-const efectos = [[0.3, 'papel'], [P2 + 0.2, 'motor'], [E.duracion - 1, 'puerta']];
-T.rodar(E, R, [[0, (t) => T.calendario(R, t, { u: tramo(t, 0.2, P2 - 0.8) })], [P2, (t) => T.prision(R, t, { coche: tramo(t, P2 + 0.2, E.duracion - 1.2) })]], { efectos, año: 2023 });
+const lin = (t, x0, x1) => Math.min(1, Math.max(0, (t - x0) / (x1 - x0)));
+const entre = (t, x0, x1) => t >= x0 && t < x1;
+
+// las palabras de la voz inglesa
+const TREINTA = en('prision', 0.14), HOLMES = en('prision', 0.45), CAMPO = en('prision', 0.84);
+const P2 = en('prision', 0.47);
+
+// ── piezas locales ─────────────────────────────────────────────────────────────────────────────────────────────
+const ruta = (t, kf) => {
+  if (t < kf[0][0]) return { x: kf[0][1], s: kf[0][2], mv: false, d: Math.sign(kf[1][1] - kf[0][1]) || 1 };
+  let d = 1; for (let i = 0; i + 1 < kf.length; i++) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1]; if (x1 !== x0) d = x1 < x0 ? -1 : 1;
+    if (t < t1) { const u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0 || s1 !== s0, d }; } }
+  const [, x, s] = kf[kf.length - 1]; return { x, s, mv: false, d };
+};
+const VACIO = 0x01020304; let CAPA = null;
+const recorte = (rects, fn) => { const b = CAPA ?? (CAPA = R.nuevo()), prev = R.usar(b); b.fill(VACIO); fn(); R.usar(prev);
+  for (const [x0, y0, x1, y1] of rects) for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const c = b[y * 320 + x]; if (c !== VACIO) R.pset(x, y, c); } };
+
+// ── 1 · el calendario al amanecer ──────────────────────────────────────────────────────────────────────────────
+const RODEA = [TREINTA + 0.25, TREINTA + 1.15];
+const ventana = (t) => { const { rect, disco, pset } = R, x0 = 16, x1 = 90, y0 = 22, y1 = 108;
+  rect(x0 - 3, y0 - 3, x1 + 3, y1 + 3, K); rect(x0 - 2, y0 - 2, x1 + 2, y1 + 2, hex('#f4ece0'));
+  recorte([[x0, y0, x1, y1]], () => {
+    for (let y = y0; y <= y1; y++) rect(x0, y, x1, y, y < 44 ? C.tarde1 : y < 66 ? C.tarde2 : y < 84 ? C.tarde3 : C.tarde4);
+    const sy = Math.round(lerp(100, 82, lin(t, 0, P2))); disco(56, sy, 10, C.solL); disco(56, sy, 7, C.sol);
+    for (let k = 0; k < 2; k++) { const cx = x0 + ((k * 41 + t * 3) % 90) - 10; rect(Math.round(cx), 40 + k * 14, Math.round(cx + 18), 41 + k * 14, hex('#d8708a')); }
+    rect(x0, 94, x1, y1, hex('#b8a870')); rect(x0, 94, x1, 94, hex('#8a7a50')); rect(70, 80, 71, 94, C.metalD); disco(70, 79, 4, C.metalL);   // la llanura y un depósito de agua a lo lejos
+    for (let k = 0; k < 6; k++) pset(x0 + 4 + k * 12, 98 + (k % 3) * 3, hex('#a08850'));
+    const u = lin(t, 0.4, 3.2), bx = Math.round(lerp(x1 + 4, x0 - 6, u)), by = Math.round(50 - Math.sin(u * 5) * 4), al = Math.floor(t * 8) % 2;
+    pset(bx, by, K); pset(bx - 1, by - al, K); pset(bx + 1, by - al, K); pset(bx - 2, by - 1 + al, K); pset(bx + 2, by - 1 + al, K);
+  });
+  rect(53, y0, 53, y1, hex('#f4ece0')); rect(x0, 64, x1, 64, hex('#f4ece0'));
+  rect(x0 - 6, y1 + 3, x1 + 6, y1 + 6, K); rect(x0 - 5, y1 + 4, x1 + 5, y1 + 5, hex('#f4ece0'));
+  // el cactus en su maceta, en el alféizar
+  rect(26, 100, 36, 110, K); rect(27, 101, 35, 109, C.tejaS); rect(29, 88, 33, 100, K); rect(30, 89, 32, 100, C.verde); rect(25, 92, 29, 94, K); rect(26, 93, 29, 93, C.verde); rect(25, 89, 27, 93, K); rect(26, 90, 26, 93, C.verde); for (let y = 90; y < 100; y += 3) pset(31, y, C.verdeL); };
+const taza = (t) => { const { rect, pset } = R; rect(40, 146, 56, 160, K); rect(41, 147, 55, 159, hex('#c84a4a')); rect(41, 147, 55, 148, hex('#5a3420')); rect(56, 150, 59, 156, K); rect(57, 151, 58, 155, hex('#c84a4a'));
+  for (let q = 0; q < 3; q++) { const v = (t * 7 + q * 4) % 12; pset(Math.round(44 + q * 4 + Math.sin(t * 2 + q) * 1.5), Math.round(144 - v), C.blanco); } };
+// el rotulador rojo rodea el 30: la punta recorre una elipse y deja el trazo
+const rodeo = (t) => { const u = lin(t, ...RODEA), n = Math.round(u * 160); if (u <= 0) return null;
+  const pt = (k) => { const g = -Math.PI / 2 - k / 160 * Math.PI * 2.1; return [Math.round(160 + Math.cos(g) * 36), Math.round(103 + Math.sin(g) * 24)]; };
+  for (let k = 0; k <= n; k++) { const [x, y] = pt(k); R.rect(x, y, x + 1, y + 1, C.rojo); }
+  return u < 1 ? pt(n) : null; };
+const calendario = (t) => {
+  T.calendario(R, t, { u: tramo(t, 0.15, TREINTA) });
+  ventana(t); taza(t);
+  const p = rodeo(t), entra = tramo(t, RODEA[0] - 0.35, RODEA[0]), sale = tramo(t, RODEA[1], RODEA[1] + 0.4);
+  let tip = p; if (!tip && t < RODEA[0]) tip = [lerp(340, 160, entra), lerp(130, 79, entra)]; if (!tip && t > RODEA[1]) tip = [lerp(150, 340, sale), lerp(80, 120, sale)];
+  if (tip && t > RODEA[0] - 0.35 && t < RODEA[1] + 0.4) { const [x, y] = tip.map(Math.round); for (let i = 0; i < 9; i++) R.rect(x + i, y - i - 2, x + i + 2, y - i, i < 2 ? C.rojo : i > 6 ? K : hex('#e8e4dc')); T.mano(R, x + 10, y - 9, -1, '#5a6a8a'); }
+};
+
+// ── 2 · el campo federal de Texas ──────────────────────────────────────────────────────────────────────────────
+const LLEGA = [P2 + 0.1, HOLMES + 1.2], PUERTA = LLEGA[1] + 0.15;
+const posCoche = (t) => { const u = tramo(t, ...LLEGA); return [Math.round(lerp(-40, 128, u)), Math.round(lerp(152, 144, u)), u]; };
+// la planta seca que rueda con el viento: una maraña de ramitas que gira y bota
+const rodador = (t) => { const u = lin(t, P2 + 0.2, E.duracion - 0.1); if (u <= 0 || u >= 1) return; const x = Math.round(lerp(340, -24, u)), y = Math.round(166 - Math.abs(Math.sin(u * 14)) * 7), g = -t * 7;
+  for (let k = 0; k < 11; k++) { const a = g + k * 0.57, r1 = 2 + ((k * 7) % 5), b = a + 2.1 + (k % 3) * 0.4;
+    R.linea(Math.round(x + Math.cos(a) * r1), Math.round(y + Math.sin(a) * r1 * 0.9), Math.round(x + Math.cos(b) * 7), Math.round(y + Math.sin(b) * 6), k % 2 ? hex('#8a6a3a') : hex('#b8945a')); }
+  for (let k = 0; k < 14; k++) { const a = g * 0.5 + k / 14 * Math.PI * 2, r = 7 + ((k * 5) % 3) - 1; R.pset(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.9), hex('#6a4a2a')); }
+  R.rect(x - 5, 172, x + 5, 172, hex('#a09060')); };
+const campo = (t) => {
+  T.prision(R, t);
+  const [cx, cs, cu] = posCoche(t);
+  // el polvo del camino detrás del coche, que se queda flotando
+  for (let k = 0; k < 18; k++) { const v = k / 18, px = Math.round(cx - 34 - v * 70), edad = (t - LLEGA[0]) - (1 - v) * (LLEGA[1] - LLEGA[0]); if (px < -6 || edad < 0 || cu <= 0) continue;
+    const r = Math.min(6, 2 + edad * 3), al = Math.max(0, 1 - edad * 0.6); if (al > 0.15) R.disco(px, Math.round(cs - 4 - edad * 4 - (k % 3)), Math.round(r * al), hex(al > 0.5 ? '#d8c8a0' : '#c8b890')); }
+  // el guardia de la entrada: espera, indica el camino con «camp» y va delante
+  const g = ruta(t, [[CAMPO + 0.2, 206, 122], [E.duracion, 234, 118]]); R.actor(EL.guardia, g.x, g.s, t, { dir: t < CAMPO + 0.2 ? -1 : 1, anda: g.mv, dedo: entre(t, CAMPO - 0.6, CAMPO + 0.2) });
+  // ella baja del coche y camina hacia la entrada con su abogado
+  const h = ruta(t, [[PUERTA + 0.05, 128, 146], [PUERTA + 0.35, 136, 140], [E.duracion - 0.2, 182, 124], [E.duracion, 184, 123]]); if (t > PUERTA) R.actor(EL.holmes, h.x, h.s, t, { dir: 1, anda: h.mv });
+  const ab = ruta(t, [[PUERTA + 0.3, 150, 142], [E.duracion, 204, 127]]); if (t > PUERTA + 0.3) R.actor(EL.oficinista, ab.x, ab.s, t, { dir: 1, anda: ab.mv, pal: { C: hex('#4a5268'), c: hex('#363c4e'), F: hex('#363c4e'), o: hex('#8a2a3a') } });
+  // el coche va por delante de la gente; con la puerta de atrás abierta cuando ya ha parado
+  if (cu > 0) { T.cocheOscuro(R, cx, cs, cx / 6, { dir: 1 });
+    if (cu < 1) for (let k = 0; k < 3; k++) R.pset(cx - 33 - k * 3, cs - 6 - k, C.grisL);
+    if (t > PUERTA) { const { rect } = R; rect(cx - 15, cs - 19, cx - 1, cs - 3, K); rect(cx - 14, cs - 18, cx - 2, cs - 4, hex('#1a1c24')); rect(cx - 29, cs - 21, cx - 16, cs - 2, K); rect(cx - 28, cs - 20, cx - 17, cs - 3, hex('#22242c')); rect(cx - 27, cs - 19, cx - 18, cs - 13, hex('#3a4050')); } }
+  rodador(t);
+};
+
+const efectos = [[0.3, 'papel'], [0.9, 'papel'], [RODEA[0], 'lapiz'], [LLEGA[0] + 0.05, 'motor', { dur: LLEGA[1] - LLEGA[0] }], [PUERTA, 'puerta'], [CAMPO - 0.5, 'whoosh']];
+T.rodar(E, R, [[0, calendario], [P2, campo]], { efectos, año: 2023 });
 </script>
 </body>
 </html>

@@ -9,27 +9,338 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-GOTA (frases 14–15). Seis planos: el brazo con la goma y la aguja; los tubos que se llenan y la cucharadita al lado;
-// en el laboratorio, la cinta lleva los tubos a las máquinas, que cuentan azúcar, colesterol, hierro y hormonas (iconos
-// que saltan de los analizadores); la máquina que cuenta moléculas de colores; la molécula rara que casi no se ve; y el
-// gag del pajar: un granjero diminuto busca la aguja con una lupa enorme.
+// TH-GOTA (frases 14–15). Siete planos, todos con acción y vida de fondo:
+// 1. la farmacia: la puerta automática se abre y entra un señor que se sienta en el sillón de extracción; la enfermera,
+//    que ordenaba su carrito, le saluda, le pone la goma en el brazo y le pincha la vena (a «Theranos»): él se sorprende,
+//    mira para otro lado y el tubito se llena; detrás del mostrador la farmacéutica coge una caja y se la da en una bolsa
+//    a una clienta; delante, una señora con su cesta se para a mirar y se va hacia la puerta;
+// 2. el inserto de los tubos: la mano de la enfermera trae el primer tubo; a «drop» cae una sola gota dentro; a «blood
+//    drawn» el tubo se llena, y a «one or more tubes» se llenan el segundo y el tercero, con la mano que los sostiene y se
+//    va; detrás pasan, desenfocados, dos clientes; el reloj de la pared corre;
+// 3. la mesa de la cocina: una mano baja y da un golpecito en el tapón de cada tubo («milliliters», «each»): bajo cada
+//    uno sale un «5»; luego señala la cucharadita («teaspoon»): «≈ 5»; el gato de la ventana mueve la cola, pasa una nube
+//    y un pájaro, y la taza humea;
+// 4. el laboratorio: el mensajero llega con la nevera («travels to a lab») y se la da a la técnica, que la lleva a la
+//    cinta y pone los tubos, que entran en el analizador; el técnico pulsa su tableta («machines count») y de las
+//    máquinas saltan los resultados: el azúcar (un terrón), el colesterol (una gotita amarilla), el hierro (un imán) y las
+//    hormonas (una molécula), cada uno cuando la voz lo dice; el técnico los apunta; al fondo, un ayudante saca una
+//    gradilla de la nevera y se la lleva;
+// 5. el banco, de cerca: la pipeta toma plasma del tubo centrifugado y deja una porción en cada uno de los cuatro
+//    pocillos, uno por prueba («its own portion»), con su icono encima; la bandeja entra en la máquina («the machine»),
+//    que parpadea; detrás pasa un compañero desenfocado y corre el reloj;
+// 6. la máquina por dentro: la mira del detector caza, una a una, las moléculas que busca y el contador sube («enough
+//    molecules»); a «accurately» sale el visto bueno; a «some of those molecules» pasa una molécula dorada, rarísima, la
+//    mira llega tarde y sale una «?»;
+// 7. el gag del pajar: un granjero diminuto llega con una lupa enorme, busca paso a paso al pie del montón de heno (la
+//    lupa enseña las pajas de cerca) y a «needle» la aguja brilla en la lente: salta y la levanta; una oveja mastica heno
+//    y dos gallinas picotean.
 import * as T from '/atomo/plato/escenas/th-comun.js';
+import { manoBaja } from '/atomo/plato/escenas/ov-comun.js';
+import { cordero, gallina } from '/atomo/plato/escenas/ag-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-gota');
 const { tramo, lerp, hex } = R;
+const C = T.C;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('tubos', f), b = (f) => en('moleculas', f);
-const P2 = a(0.2), P2b = a(0.48), P3 = a(0.72), P4 = b(0), P5 = b(0.33), P6 = b(0.72);
-const p1 = (t) => { T.farmacia(R, t, { rincon: false }); R.actor(EL.senor30, 150, 152, t, { dir: 1, quieto: true }); R.actor(EL.enfermera, 176, 152, t, { dir: -1, quieto: true }); T.mano(R, 166, 140, -1, '#4aa8a0'); R.rect(150, 140, 160, 141, T.C.k); R.actor(EL.chica, Math.round(lerp(-20, 330, (t * 0.06) % 1)), 172, t, { dir: 1, anda: true }); };
-const p2 = (t) => T.insertoTubos(R, t, { tubos: tramo(t, P2 + 0.5, P2b - 0.3) * 3 });
-const p2b = (t) => T.cucharaMesa(R, t);
-const p3 = (t) => { T.laboratorio(R, t); R.actor(EL.tecnica, 150, 164, t, { dir: 1, quieto: true }); R.actor(EL.tecnico, 100, 162, t, { dir: 1, anda: true });
-  const iconos = [['gota', T.C.sangre], ['pila', T.C.amarilloT], ['corona', T.C.oro], ['luna', T.C.tealT]]; iconos.forEach(([n, c], k) => { const u = tramo(t, a(0.82) + k * 0.6, a(0.82) + k * 0.6 + 1); if (u <= 0) return; const x = 210 + (k % 2) * 60, y = Math.round(lerp(40, 22, u)); R.rect(x - 6, y - 6, x + 8, y + 8, T.C.k); R.rect(x - 5, y - 5, x + 7, y + 7, T.C.blanco); R.icono(n, x - 2, y - 2, c, T.C.k); }); };
-const p4 = (t) => T.insertoMoleculas(R, t, {});
-const p5 = (t) => T.insertoMoleculas(R, t, { rara: true });
-const p6 = (t) => { T.pajar(R, t); const u = (t - P6) * 0.25 % 2, x = Math.round(u < 1 ? lerp(80, 220, u) : lerp(220, 80, u - 1)); R.actor(EL.brazel ?? EL.senor30, x, 168, t, { dir: u < 1 ? 1 : -1, anda: true }); T.lupa(R, x + (u < 1 ? 22 : -8), 150, 7); };
-const efectos = [[P2 + 0.5, 'gluglu'], [P2b + 0.2, 'golpecito'], [P3 + 0.3, 'zumbido'], [a(0.82), 'bip'], [a(0.88), 'bip'], [P4 + 0.2, 'burbujas'], [b(0.92), 'brillo']];
-T.rodar(E, R, [[0, p1], [P2, p2], [P2b, p2b], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2014 });
+const P2 = a(0.2), P3 = a(0.48), P4 = a(0.72), P5 = b(0), P6 = b(0.33), P7 = b(0.72);
+// lo que dice la voz inglesa, por la fracción de letras de cada frase
+const teranos = a(0.14), gota = a(0.27), saca = a(0.33), vena = a(0.39), tubos = a(0.47), ml = a(0.52), cada = a(0.56), cuchara = a(0.65);
+const lab = a(0.76), cuentan = a(0.82), analitos = [a(0.89), a(0.91), a(0.95), a(0.97)];
+const pruebas = b(0.05), porcion = b(0.13), muestra = b(0.19), maquina = b(0.26), bastantes = b(0.34), bien = b(0.57), algunas = b(0.63);
+const encontrar = b(0.79), aguja = b(0.92);
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+const parpadeo = (t, v = 6) => Math.sin(t * v) > 0;
+
+// ── piezas locales ──────────────────────────────────────────────────────────────────────────────────────────────
+// lo que va detrás de una pieza del decorado: guarda esos rectángulos, dibuja y los repone encima
+const detras = (rects, dibuja) => {
+  const g = rects.map(([x0, y0, x1, y1]) => { const v = []; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) v.push(R.pget(x, y)); return v; });
+  dibuja();
+  rects.forEach(([x0, y0, x1, y1], k) => { let i = 0; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, g[k][i++]); });
+};
+// los colores de un trozo de pared vacía (para dibujar luego solo sobre la pared: alFondo)
+const fondoDe = (x0, y0, x1, y1) => { const s = new Set(); for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) s.add(R.pget(x, y)); return s; };
+// (lo que se salga de la zona tampoco queda)
+const alFondo = (fondo, x0, y0, x1, y1, dibuja) => {
+  const v = new Array(320 * 180); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) v[y * 320 + x] = R.pget(x, y);
+  dibuja();
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const o = v[y * 320 + x]; if ((x < x0 || x > x1 || y < y0 || y > y1 || !fondo.has(o)) && R.pget(x, y) !== o) R.pset(x, y, o); }
+};
+// alguien que pasa por detrás, desenfocado (tramado): cabeza y hombros hasta el borde de abajo de la zona
+const desenfocado = (x, y0, y1, col) => {
+  for (let y = y0; y <= y1; y++) for (let xx = x - 16; xx <= x + 16; xx++) {
+    if ((xx + y) % 2) continue; const cab = Math.hypot(xx - x, y - (y0 + 10)) < 10, cuerpo = y > y0 + 21 && Math.abs(xx - x) < 15 - Math.max(0, y0 + 27 - y);
+    if (cab || cuerpo) R.pset(xx, y, col);
+  }
+};
+// la mano canónica con la manga hasta el borde del plano (dir −1: entra por la derecha)
+const brazo = (x, y, dir, manga) => {
+  T.mano(R, x, y, dir, manga); const m = hex(manga), [x0, x1] = dir < 0 ? [x + 43, 319] : [0, x - 43];
+  if (x1 >= x0) { R.rect(x0, y - 2, x1, y + 2, m); R.rect(x0, y - 3, x1, y - 3, C.k); R.rect(x0, y + 3, x1, y + 3, C.k); }
+};
+// dónde lleva algo un personaje en la mano que cuelga (x, suelo, dir)
+const enMano = (x, suelo, dir) => [dir > 0 ? x + 11 : x - 5, suelo - 9];
+// el reloj de pared, con el segundero que salta cada segundo
+const reloj = (cx, cy, r, t) => {
+  R.disco(cx, cy, r + 1, C.k); R.disco(cx, cy, r, C.blanco); for (let k = 0; k < 12; k++) { const an = k / 12 * Math.PI * 2; R.pset(Math.round(cx + Math.cos(an) * (r - 1)), Math.round(cy + Math.sin(an) * (r - 1)), C.grisL); }
+  R.linea(cx, cy, cx - 3, cy - 2, C.k); R.linea(cx, cy, cx + 1, cy - r + 3, C.k); const s = Math.floor(t) / 60 * Math.PI * 2 - Math.PI / 2;
+  R.linea(cx, cy, Math.round(cx + Math.cos(s) * (r - 2)), Math.round(cy + Math.sin(s) * (r - 2)), C.rojoW); R.pset(cx, cy, C.k);
+};
+// la cesta roja de la compra, con algún bote dentro (n)
+const cesta = (x, y, n = 1) => {
+  for (let k = 0; k < n; k++) { R.rect(x + 2 + k * 2, y - 3, x + 3 + k * 2, y, C.k); R.pset(x + 2 + k * 2, y - 2, [hex('#4a8ae8'), hex('#f0c040'), hex('#5ab85a')][k % 3]); }
+  R.rect(x + 1, y - 3, x + 1, y, C.k); R.rect(x + 7, y - 3, x + 7, y, C.k); R.rect(x + 1, y - 3, x + 7, y - 3, C.k);
+  R.rect(x, y, x + 8, y + 5, C.k); R.rect(x + 1, y + 1, x + 7, y + 4, C.rojoW); R.rect(x + 1, y + 3, x + 7, y + 3, hex('#a81e2c'));
+};
+// la nevera de transporte: blanca con la tapa azul y la cruz roja
+const nevera = (x, y) => {
+  R.rect(x, y, x + 12, y + 9, C.k); R.rect(x + 1, y + 1, x + 11, y + 8, C.blanco); R.rect(x + 1, y + 5, x + 11, y + 5, hex('#d8dce4'));
+  R.rect(x + 5, y + 3, x + 7, y + 3, C.rojoW); R.rect(x + 6, y + 2, x + 6, y + 4, C.rojoW); R.rect(x - 1, y - 2, x + 13, y, C.k); R.rect(x, y - 1, x + 12, y - 1, hex('#3a6ac8')); R.rect(x + 4, y - 4, x + 8, y - 2, C.k);
+};
+// destello de cuatro puntas
+const destello = (x, y, r = 3, col = C.blanco) => { R.pset(x, y, col); for (let i = 1; i <= r; i++) { R.pset(x + i, y, col); R.pset(x - i, y, col); R.pset(x, y + i, col); R.pset(x, y - i, col); } };
+// los iconos de las cuatro pruebas (9 × 9, sin letras): el terrón de azúcar, la gotita de colesterol, el imán del hierro
+// y la molécula de las hormonas; con marco blanco (x, y: centro)
+const COL_PRUEBA = [hex('#e8eef8'), C.amarilloT, C.rojoW, hex('#8a5ad8')];
+const iconoPrueba = (k, x, y, marco = true) => {
+  if (marco) { R.rect(x - 7, y - 7, x + 7, y + 7, C.k); R.rect(x - 6, y - 6, x + 6, y + 6, C.blanco); R.rect(x - 6, y + 5, x + 6, y + 6, COL_PRUEBA[k]); }
+  if (k === 0) { R.rect(x - 4, y - 3, x + 3, y + 4, C.k); R.rect(x - 3, y - 2, x + 2, y + 3, hex('#f8f8fc')); R.rect(x - 3, y - 2, x + 2, y - 1, hex('#ffffff')); R.rect(x + 1, y - 1, x + 2, y + 3, hex('#c8ccd8')); R.pset(x - 2, y + 1, hex('#dce0ea')); R.pset(x, y + 2, hex('#dce0ea')); }
+  else if (k === 1) { R.disco(x, y + 1, 3, C.k); R.disco(x, y + 1, 2, C.amarilloT); R.pset(x, y - 3, C.k); R.pset(x, y - 2, C.amarilloT); R.pset(x - 1, y - 1, C.k); R.pset(x + 1, y - 1, C.k); R.pset(x - 1, y, hex('#fff4c0')); }
+  else if (k === 2) { R.rect(x - 4, y - 3, x - 2, y + 3, C.k); R.rect(x + 2, y - 3, x + 4, y + 3, C.k); R.rect(x - 4, y + 2, x + 4, y + 4, C.k); R.rect(x - 3, y - 2, x - 3, y + 2, C.rojoW); R.rect(x + 3, y - 2, x + 3, y + 2, C.rojoW); R.rect(x - 3, y + 3, x + 3, y + 3, C.rojoW); R.pset(x - 3, y - 3, C.metalL); R.pset(x + 3, y - 3, C.metalL); }
+  else { const P = [[0, -4], [3, -2], [3, 2], [0, 4], [-3, 2], [-3, -2]]; for (let i = 0; i < 6; i++) { const [x0, y0] = P[i], [x1, y1] = P[(i + 1) % 6]; R.linea(x + x0, y + y0, x + x1, y + y1, hex('#8a5ad8')); R.disco(x + x0, y + y0, 1, hex('#5a3a9a')); } R.pset(x, y, hex('#c8a8f0')); }
+};
+
+// ── 1 · la extracción de siempre, en la farmacia ─────────────────────────────────────────────────────────────────
+const respaldo = (x, suelo) => { R.rect(x, suelo - 40, x + 7, suelo - 8, C.k); R.rect(x + 1, suelo - 39, x + 6, suelo - 9, C.tealT); R.rect(x + 1, suelo - 39, x + 2, suelo - 9, C.tealTS); R.rect(x + 3, suelo - 8, x + 5, suelo, C.metalD); };
+// el carrito de la enfermera: bandeja con los tubos de tapón de color (quedan), la goma azul y la caja de gasas
+const carrito = (x, suelo, quedan, goma) => {
+  const y = suelo - 20;
+  R.rect(x + 2, y + 2, x + 3, suelo - 3, C.metalD); R.rect(x + 19, y + 2, x + 20, suelo - 3, C.metalD); R.rect(x + 2, suelo - 10, x + 20, suelo - 9, C.metalD);
+  R.rect(x + 6, suelo - 15, x + 16, suelo - 11, C.k); R.rect(x + 7, suelo - 14, x + 15, suelo - 12, C.blanco); R.rect(x + 10, suelo - 14, x + 12, suelo - 12, C.tealT);
+  for (const dx of [3, 19]) { R.disco(x + dx, suelo - 1, 2, C.k); R.pset(x + dx, suelo - 1, C.metal); }
+  R.rect(x, y, x + 22, y + 2, C.k); R.rect(x + 1, y, x + 21, y + 1, C.metalL);
+  for (let k = 0; k < quedan; k++) { const tx = x + 3 + k * 4; R.rect(tx, y - 8, tx + 2, y - 1, C.k); R.pset(tx + 1, y - 7, C.blanco); R.rect(tx + 1, y - 6, tx + 1, y - 2, hex('#f4f8fc')); R.rect(tx, y - 10, tx + 2, y - 8, [C.rojoW, C.tealT, hex('#8a5ad8')][k]); }
+  if (goma) { R.rect(x + 15, y - 3, x + 20, y - 1, C.k); R.rect(x + 16, y - 2, x + 19, y - 2, hex('#3a6ac8')); }
+};
+const p1 = (t) => {
+  T.farmacia(R, t, { rincon: false, puerta: tramo(t, 0.1, 0.5) - tramo(t, 1.7, 2.1) });
+  // detrás del mostrador: la farmacéutica cobra, se gira a por una caja del estante y se la da a la clienta en una bolsa
+  const ida = tramo(t, 1.0, 1.7), vuelta = tramo(t, 2.4, 3.1), fx = lerp(158, 126, ida - vuelta), fanda = (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1);
+  detras([[110, 74, 214, 92], [139, 64, 149, 77], [175, 64, 185, 77]], () => R.actor(EL.tecnica, Math.round(fx), 82, t, { dir: t < 1.0 || t > 2.4 ? 1 : -1, anda: fanda, habla: t < 0.9 && parpadeo(t, 7), dedo: t > 1.75 && t < 2.3, sonrisa: t > 3.3 }));
+  if (t > 1.9 && t < 3.3) { const hx = Math.round(fx) + (t < 2.4 ? -4 : 13); R.rect(hx, 61, hx + 5, 65, C.k); R.rect(hx + 1, 62, hx + 4, 64, hex('#a8c8e8')); }
+  const bolsa = tramo(t, 3.3, 3.8); if (t > 3.3) { const bx = Math.round(lerp(172, 176, bolsa)), by = Math.round(lerp(64, 85, bolsa) - Math.sin(bolsa * Math.PI) * 6); R.rect(bx, by, bx + 6, by + 7, C.k); R.rect(bx + 1, by + 1, bx + 5, by + 6, C.blanco); R.rect(bx + 1, by + 1, bx + 5, by + 1, C.rojoW); }
+  detras([[90, 92, 230, 140]], () => R.actor(EL.chica, 186, 102, t, { dir: -1, habla: t > 0.3 && t < 0.9 && !parpadeo(t, 7), sonrisa: t > 3.6, dedo: t > 3.9 && t < 4.5 }));
+  // el sillón de extracción (el respaldo; el brazo y el asiento van por delante de quien se sienta)
+  respaldo(150, 140);
+  // el señor entra por la puerta, cruza la tienda y se sienta
+  const w = tramo(t, 0.2, 2.7), z = tramo(t, 2.7, 3.0), sentado = z > 0.5;
+  const px = Math.round(z > 0 ? lerp(140, 150, z) : lerp(-16, 140, w)), py = Math.round(z > 0 ? lerp(150, 134, z) : lerp(140, 150, w));
+  const pincha = teranos + 0.05, aparta = pincha + 0.4;
+  const señor = () => R.actor(EL.senor30, px, py, t, { dir: t > aparta && t < P2 - 0.2 ? -1 : 1, anda: w > 0 && w < 1 && z === 0, sonrisa: (t > 3.0 && t < 3.5) || t > P2 - 0.2, habla: t > 3.1 && t < 3.5 && parpadeo(t, 8), sorpresa: t > pincha && t < aparta });
+  if (sentado) { señor(); T.sillonDelante(R, 150, 140); } else { T.sillonDelante(R, 150, 140); señor(); }
+  // su brazo, apoyado: la goma («tourniquet») a 3,5 s, la aguja y el tubito que se llena
+  const goma = t > 3.55, aguja = t > pincha, lleno = lin(t, pincha + 0.2, P2 - 0.1);
+  if (sentado) {
+    R.rect(161, 117, 167, 124, C.k); R.rect(162, 118, 166, 123, hex('#6a4a3a'));
+    R.rect(166, 112, 184, 117, C.k); R.rect(167, 113, 170, 116, hex('#6a4a3a')); R.rect(171, 113, 183, 116, hex('#f6c290')); R.rect(171, 116, 183, 116, hex('#d48a5a'));
+    R.disco(186, 114, 3, C.k); R.disco(186, 114, 2, hex('#f6c290')); R.pset(187, 115, hex('#d48a5a'));
+    if (goma) { R.rect(172, 111, 174, 118, C.k); R.rect(173, 112, 173, 117, hex('#3a6ac8')); R.pset(174, 110, hex('#3a6ac8')); R.pset(175, 109, hex('#3a6ac8')); }
+    if (aguja) { R.rect(178, 112, 180, 112, C.metalL); R.rect(176, 111, 177, 113, C.k); T.tubito(R, 177, 110, 1, lleno, C.rojoW); }
+  }
+  // la enfermera ordena el carrito; se gira, saluda, pone la goma, coge la aguja y pincha
+  const deCara = t > 2.6;
+  R.actor(EL.enfermera, 196, 145, t, { dir: deCara ? -1 : 1, dedo: (!deCara && Math.sin(t * 5) > 0.3) || (t > 3.25 && t < 3.6) || (t > pincha - 0.35 && t < pincha + 0.1), habla: t > 2.7 && t < 3.2 && parpadeo(t, 7), sonrisa: t > pincha + 0.5 });
+  carrito(214, 146, t > pincha - 0.4 ? 2 : 3, t < 3.3);
+  if (t > 3.25 && t < 3.55) { R.rect(188, 118, 193, 119, hex('#3a6ac8')); }   // la goma, en su mano
+  // delante: una señora con su cesta se para a mirar y sigue hacia la puerta
+  const s = tramo(t, 0.9, 3.0), s2 = tramo(t, pincha + 0.6, P2 + 0.6), sx = Math.round(s2 > 0 ? lerp(112, -24, s2) : lerp(336, 112, s)), sdir = s2 > 0 || s < 1 ? -1 : 1;
+  R.actor(EL.senora30, sx, 174, t, { dir: sdir, anda: (s > 0 && s < 1) || (s2 > 0 && s2 < 1), sorpresa: t > pincha && t < pincha + 0.5, sonrisa: t > 3.1 && t < pincha });
+  { const [cx, cy] = enMano(sx, 174, sdir); cesta(cx, cy, 2); }
+};
+
+// ── 2 · los tubos de vena se llenan ──────────────────────────────────────────────────────────────────────────────
+const nTubos = (t) => tramo(t, saca, vena + 0.1) + tramo(t, vena + 0.25, tubos - 0.75) + tramo(t, tubos - 0.7, tubos);
+const p2 = (t) => {
+  const n = nTubos(t);
+  T.insertoTubos(R, t, { tubos: n });
+  const pared = fondoDe(100, 0, 175, 12);
+  // dos clientes desenfocados pasan por detrás, por la pared
+  alFondo(pared, 0, 0, 319, 129, () => { desenfocado(Math.round(lerp(-30, 350, lin(t, P2 - 0.3, P2 + 4.5))), 34, 129, hex('#d4dce6')); desenfocado(Math.round(lerp(360, -30, lin(t, P2 + 2.2, P3 + 0.4))), 40, 129, hex('#dcd4d8')); });
+  reloj(140, 32, 9, t);
+  // las rayitas de los mililitros en cada tubo
+  for (let k = 0; k < 3; k++) for (let j = 0; j < 4; j++) R.rect(200 + k * 26 + 3, 72 + j * 14, 200 + k * 26 + 5, 72 + j * 14, C.metalS);
+  // «drop»: una sola gota cae en el primer tubo y se queda en el fondo
+  const g = lin(t, gota - 0.1, gota + 0.3); if (g > 0 && g < 1) { const gy = Math.round(lerp(58, 122, g * g)); R.disco(200, gy, 2, C.sangreS); R.pset(200, gy, C.sangre); R.pset(199, gy - 1, C.sangreL); }
+  if (g >= 1 && n < 0.15) { R.rect(195, 123, 205, 124, C.sangre); if (t < gota + 0.6) for (const dx of [-4, -2, 2, 4]) R.pset(200 + dx, 120 - Math.abs(dx) / 2, C.sangreL); }
+  // la mano de la enfermera: trae el tubo, lo sostiene mientras se llena (la del decorado) y se va
+  if (n <= 0) brazo(Math.round(lerp(340, 218, tramo(t, P2 + 0.2, P2 + 1.0))), 92, -1, '#4aa8a0');
+  else if (n < 3) { const x = 200 + Math.floor(n) * 26 + 18 + 43; if (x < 320) { R.rect(x, 90, 319, 94, hex('#4aa8a0')); R.rect(x, 89, 319, 89, C.k); R.rect(x, 95, 319, 95, C.k); } }
+  else brazo(Math.round(lerp(274, 350, tramo(t, tubos + 0.05, tubos + 0.5))), 92, -1, '#4aa8a0');
+  // las burbujitas que suben por el tubo que se está llenando
+  if (n > 0 && n < 3) { const k = Math.floor(n), x = 200 + k * 26, top = Math.round(125 - 56 * (n - k)); for (let q = 0; q < 3; q++) { const y = top + 3 + Math.round(((t * 40 + q * 7) % 20)); if (y < 124) R.pset(x - 2 + q * 2, y, C.sangreL); } }
+};
+
+// ── 3 · la cucharadita ───────────────────────────────────────────────────────────────────────────────────────────
+const toques = [ml, ml + 0.4, cada];
+const p3 = (t) => {
+  T.cucharaMesa(R, t);
+  // por la ventana: una nube que pasa y un pájaro que cruza (solo sobre el cristal)
+  const cristal = fondoDe(60, 50, 86, 66);
+  alFondo(cristal, 20, 18, 90, 70, () => {
+    const nx = Math.round(lerp(0, 110, lin(t, P3 - 1, P4 + 1))); for (const [dx, dy, r] of [[0, 0, 7], [8, 2, 6], [-7, 3, 5]]) R.disco(nx + dx, 56 + dy, r, C.blanco);
+    const px = Math.round(lerp(96, 10, lin(t, P3 + 1.5, P3 + 3.2))), py = 30 + Math.round(Math.sin(t * 3) * 2), al = Math.sin(t * 14) > 0; R.pset(px, py, C.k); R.pset(px - 1, py - (al ? 1 : 0), C.k); R.pset(px + 1, py - (al ? 1 : 0), C.k); R.pset(px - 2, py - (al ? 2 : 0), C.k); R.pset(px + 2, py - (al ? 2 : 0), C.k);
+  });
+  R.rect(14, 70, 96, 73, C.k); R.rect(15, 71, 95, 72, C.blanco); T.gato(R, 32, 70, t, { dir: 1 });   // el gato, en el alféizar
+  // la mano baja, da un golpecito en el tapón de cada tubo y señala la cucharadita
+  const xs = [228, 246, 264];
+  let hx, hy;
+  if (t < toques[0]) { const u = tramo(t, P3 + 0.1, toques[0] - 0.1); hx = 228; hy = Math.round(lerp(-30, 47, u)); }
+  else if (t < toques[2] + 0.3) { const k = t < toques[1] ? 0 : t < toques[2] ? 1 : 2, t0 = toques[k], f = k < 2 ? lin(t, t0 + 0.15, toques[k + 1] - 0.05) : 0; hx = Math.round(lerp(xs[k], xs[Math.min(2, k + 1)], f)); hy = 47 - Math.round(Math.sin(f * Math.PI) * 6) + (t - t0 < 0.12 ? 2 : 0); }
+  else if (t < cuchara + 0.9) { const u = tramo(t, cada + 0.4, cuchara - 0.15); hx = Math.round(lerp(264, 160, u)); hy = Math.round(lerp(47, 116, u) - Math.sin(u * Math.PI) * 14); }
+  else { const u = tramo(t, cuchara + 0.9, P4 + 0.2); hx = Math.round(lerp(160, 200, u)); hy = Math.round(lerp(116, -40, u)); }
+  manoBaja(R, Math.max(180, Math.min(270, hx + 12)), -10, hx, hy, '#4aa8a0');
+  // un «5» bajo cada tubo a su golpecito, y «≈ 5» junto a la cucharadita
+  toques.forEach((t0, k) => { if (t > t0) { const y = 130 - Math.round(Math.max(0, 1 - (t - t0) * 6) * 3); R.numero('5', xs[k], y, { centro: true, color: C.k, sombra: false }); } });
+  if (t > cuchara) { const x = 194, y = 138; for (const dy of [0, 5]) for (let i = 0; i < 11; i++) R.rect(x + i, y + dy + (i % 6 < 3 ? 0 : 1), x + i, y + dy + 1 + (i % 6 < 3 ? 0 : 1), C.k); R.numero('5', 216, 146, { centro: true, color: C.k, sombra: false });
+    if (t < cuchara + 0.8) destello(176, 128, 3); }
+};
+
+// ── 4 · el laboratorio ───────────────────────────────────────────────────────────────────────────────────────────
+const entrega = lab + 0.1, pone = cuentan + 0.45;
+const p4 = (t) => {
+  T.laboratorio(R, t);
+  // los resultados saltan de las máquinas y se ordenan arriba, cada uno cuando la voz lo nombra
+  analitos.forEach((t0, k) => { const u = tramo(t, t0 - 0.25, t0 + 0.2); if (u <= 0) return; const [x0, y0] = k % 2 ? [284, 64] : [224, 64], [x1, y1] = [196 + k * 19, 26];
+    const x = Math.round(lerp(x0, x1, u)), y = Math.round(lerp(y0, y1, u) - Math.sin(u * Math.PI) * 14); iconoPrueba(k, x, y); if (u < 1) for (let q = 1; q < 4; q++) R.pset(Math.round(lerp(x0, x1, u * (1 - q * 0.1))), Math.round(lerp(y0, y1, u * (1 - q * 0.1)) - Math.sin(u * (1 - q * 0.1) * Math.PI) * 14), COL_PRUEBA[k]); });
+  // los tubos que la técnica pone en la cinta y entran en el analizador
+  const cinta = lin(t, pone, pone + 1.1); if (t > pone && cinta < 1) for (let k = 0; k < 3; k++) { const x = Math.round(lerp(186, 236, cinta) - k * 6); if (x > 214) continue; R.rect(x, 117, x + 2, 126, C.k); R.rect(x + 1, 119, x + 1, 125, C.sangre); R.rect(x, 115, x + 2, 117, [C.rojoW, C.tealT, hex('#8a5ad8')][k]); }
+  // al fondo, un ayudante saca una gradilla de la nevera y se la lleva hacia la centrífuga
+  const sacaG = analitos[0] - 0.3, va = tramo(t, sacaG + 0.4, P5 + 0.4), ax = Math.round(lerp(146, -24, va));
+  R.actor(EL.oficinista, ax, 150, t, { dir: va > 0 ? -1 : 1, anda: va > 0 && va < 1, dedo: va === 0 && ((t > sacaG - 1.6 && t < sacaG - 1.1) || (t > sacaG - 0.2 && t < sacaG + 0.3)) });
+  if (t > sacaG) { const [hx, hy] = enMano(ax, 150, va > 0 ? -1 : 1); R.rect(hx - 1, hy - 1, hx + 8, hy + 1, C.k); R.rect(hx, hy, hx + 7, hy, C.metalL); for (let k = 0; k < 3; k++) { R.rect(hx + k * 3, hy - 6, hx + 1 + k * 3, hy - 1, C.k); R.pset(hx + k * 3, hy - 2, C.sangre); R.pset(hx + k * 3, hy - 6, [C.rojoW, C.tealT, C.amarilloT][k]); } }
+  // el técnico, con su tableta: espera, la pulsa («count») y apunta los resultados
+  const tdir = t > cuentan - 0.6 ? 1 : -1;
+  R.actor(EL.tecnico, 236, 162, t, { dir: tdir, dedo: (t > cuentan - 0.1 && t < cuentan + 0.3) || (t > analitos[3] + 0.5 && parpadeo(t, 5)), sorpresa: t > analitos[0] - 0.1 && t < analitos[0] + 0.3, sonrisa: t > analitos[1], habla: t > lab - 0.3 && t < lab + 0.3 && parpadeo(t, 7) });
+  { const [hx, hy] = enMano(236, 162, tdir); R.rect(hx - 1, hy - 3, hx + 4, hy + 3, C.k); R.rect(hx, hy - 2, hx + 3, hy + 2, t > cuentan && Math.sin(t * 10) > -0.5 ? hex('#8ad0f0') : hex('#3a6a8a')); }
+  // el mensajero llega con la nevera, se la da a la técnica y se va saludando
+  const m1 = tramo(t, P4 + 0.05, entrega - 0.1), m2 = tramo(t, entrega + 0.5, entrega + 2.1), mx = Math.round(m2 > 0 ? lerp(70, -26, m2) : lerp(-26, 70, m1)), mdir = m2 > 0 ? -1 : 1;
+  R.actor(EL.chico, mx, 168, t, { dir: mdir, anda: (m1 > 0 && m1 < 1) || (m2 > 0 && m2 < 1), habla: t > entrega - 0.2 && t < entrega + 0.3 && parpadeo(t, 7), dedo: t > entrega + 0.25 && t < entrega + 0.6, sonrisa: t > entrega });
+  if (t < entrega) { const [cx, cy] = enMano(mx, 168, mdir); nevera(cx - 2, cy - 2); }
+  // la técnica la recoge, la lleva a la cinta y pone los tubos
+  const w = tramo(t, entrega + 0.3, pone - 0.15), tx = Math.round(lerp(92, 174, w)), tdir2 = t > entrega + 0.2 ? 1 : -1;
+  R.actor(EL.tecnica, tx, 162, t, { dir: tdir2, anda: w > 0 && w < 1, sonrisa: t > entrega - 0.3 && t < entrega + 0.5 || t > analitos[2], dedo: t > pone - 0.1 && t < pone + 0.4, habla: t > analitos[3] && parpadeo(t, 7) });
+  if (t > entrega && t < pone) { const [cx, cy] = enMano(tx, 162, tdir2); nevera(cx - 2, cy - 2); }
+  if (t >= pone) { R.rect(160, 152, 172, 161, C.k); R.rect(161, 153, 171, 160, C.blanco); R.rect(161, 152, 171, 153, hex('#3a6ac8')); R.rect(165, 155, 167, 155, C.rojoW); R.rect(166, 154, 166, 156, C.rojoW); }   // la nevera, en el suelo
+};
+
+// ── 5 · una porción para cada prueba ─────────────────────────────────────────────────────────────────────────────
+const dosis = [pruebas + 0.35, porcion, porcion + 0.5, muestra];
+const POCILLOS = [130, 166, 202, 238];
+const p5 = (t) => {
+  const { rect, pset, disco, linea } = R;
+  // la pared de azulejos del laboratorio, la balda de reactivos y el reloj
+  rect(0, 0, 319, 179, hex('#dde8e2')); for (let y = 0; y < 132; y += 12) rect(0, y, 319, y, hex('#d0dcd6')); for (let y = 0; y < 132; y += 12) for (let x = ((y / 12) % 2) * 8; x < 320; x += 16) rect(x, y, x, y + 11, hex('#d0dcd6'));
+  // un compañero desenfocado cruza por detrás
+  desenfocado(Math.round(lerp(-30, 350, lin(t, P5 - 0.5, P6 + 0.6))), 40, 131, hex('#c8d6ce'));
+  rect(100, 40, 190, 42, C.k); rect(101, 40, 189, 41, C.metalL); for (let k = 0; k < 7; k++) { const x = 106 + k * 12, hgt = 10 + (k % 3) * 3; rect(x, 39 - hgt, x + 8, 39, C.k); rect(x + 1, 40 - hgt, x + 7, 38, [hex('#c84a4a'), hex('#4a8ae8'), hex('#f0c040'), hex('#5ab85a'), hex('#8a5ad8'), hex('#e8a040'), hex('#f2f2f2')][k]); rect(x + 2, 36 - hgt + 4, x + 6, 36 - hgt + 6, C.blanco); }
+  for (let k = 0; k < 3; k++) { const y = 36 - Math.round(((t * 9 + k * 5) % 16)); pset(158 + (k % 2), y - 10, C.blanco); }   // una burbuja en el frasco verde
+  reloj(236, 28, 9, t);
+  // el banco
+  rect(0, 132, 319, 179, hex('#c8d0d8')); rect(0, 132, 319, 133, hex('#a8b0b8')); for (let k = 0; k < 6; k++) rect(10 + k * 54, 150, 40 + k * 54, 150, hex('#d4dce4'));
+  // el tubo centrifugado: plasma arriba, glóbulos rojos abajo; baja el plasma cuando la pipeta lo toma
+  const toma = tramo(t, pruebas - 0.1, pruebas + 0.3), x0 = 58, x1 = 78;
+  rect(48, 124, 88, 132, C.k); rect(49, 125, 87, 131, C.metalL);
+  rect(x0, 46, x1, 128, C.k); rect(x0 + 1, 47, x1 - 1, 127, hex('#f4f8fc')); const nivel = Math.round(66 + toma * 8);
+  rect(x0 + 1, nivel, x1 - 1, 98, C.plasma); rect(x0 + 1, 98, x1 - 1, 99, hex('#f8f0d8')); rect(x0 + 1, 100, x1 - 1, 127, C.sangre); rect(x0 + 1, 100, x0 + 2, 127, C.sangreL); pset(x0 + 3, 50, C.blanco);
+  rect(x0 - 2, 38, x1 + 2, 46, C.k); rect(x0 - 1, 39, x1 + 1, 45, C.rojoW);
+  // la bandeja con los cuatro pocillos, cada uno con su prueba encima; luego entra en la máquina
+  const entra = tramo(t, maquina - 0.6, maquina + 0.6), dx = Math.round(entra * 160);
+  rect(112 + dx, 128, 262 + dx, 132, C.k); rect(113 + dx, 129, 261 + dx, 131, C.metal);
+  POCILLOS.forEach((px, k) => { const x = px + dx, lleno = lin(t, dosis[k] + 0.1, dosis[k] + 0.35); if (x > 300) return;
+    rect(x - 7, 112, x + 7, 128, C.k); rect(x - 6, 113, x + 6, 127, hex('#f4f8fc')); rect(x - 6, 124, x + 6, 127, COL_PRUEBA[k]); if (lleno > 0) rect(x - 6, Math.round(123 - lleno * 6), x + 6, 123, C.plasma);
+    if (x < 268) { rect(x, 132, x, 138, C.metalD); iconoPrueba(k, x, 146); } });
+  // la máquina de la derecha, con su boca, las luces que se encienden al entrar cada pocillo y una pantalla
+  rect(276, 60, 319, 140, C.k); rect(277, 61, 319, 139, hex('#e4e8ee')); rect(277, 61, 319, 66, C.metalL); rect(276, 108, 284, 132, C.k); rect(277, 109, 283, 131, hex('#2a3a4a'));
+  rect(286, 72, 314, 92, C.k); rect(287, 73, 313, 91, hex('#0e1a24'));
+  for (let k = 0; k < 4; k++) { const dentro = POCILLOS[k] + dx > 276; disco(290 + k * 7, 100, 2, C.k); disco(290 + k * 7, 100, 1, dentro ? (Math.sin(t * 9 + k) > -0.4 ? C.verdeL : hex('#3a6a3a')) : hex('#3a4a3a'));
+    if (dentro) { const hb = Math.round(4 + 10 * Math.abs(Math.sin(t * 2 + k))); rect(289 + k * 6, 90 - hb, 292 + k * 6, 90, COL_PRUEBA[k]); } }
+  // la pipeta en la mano: toma del tubo y deja una porción en cada pocillo
+  let px, py;
+  if (t < pruebas - 0.15) { const u = tramo(t, P5, pruebas - 0.15); [px, py] = [Math.round(lerp(330, 68, u)), Math.round(lerp(40, 40, u))]; }
+  else if (t < pruebas + 0.3) { [px, py] = [68, Math.round(lerp(40, 58, Math.sin(lin(t, pruebas - 0.15, pruebas + 0.3) * Math.PI)))]; }
+  else if (t < dosis[0] + 0.1) { const u = tramo(t, pruebas + 0.3, dosis[0] - 0.05); [px, py] = [Math.round(lerp(68, POCILLOS[0], u)), Math.round(lerp(40, 74, u))]; }
+  else if (t < dosis[3] + 0.3) { let k = 0; while (k < 3 && t > dosis[k + 1] - 0.3) k++; const f = k < 3 ? lin(t, dosis[k] + 0.15, dosis[k + 1] - 0.05) : 0; [px, py] = [Math.round(lerp(POCILLOS[k], POCILLOS[Math.min(3, k + 1)], f)), 74 - Math.round(Math.sin(f * Math.PI) * 3)]; }
+  else { const u = tramo(t, dosis[3] + 0.3, dosis[3] + 1.1); [px, py] = [Math.round(lerp(POCILLOS[3], 330, u)), Math.round(lerp(74, 30, u))]; }
+  const carga = toma - dosis.filter((d) => t > d).length / 4;
+  rect(px - 1, py + 30, px + 1, py + 37, C.k); pset(px, py + 36, carga > 0.05 ? C.plasma : C.blanco);   // la punta
+  rect(px - 3, py, px + 3, py + 30, C.k); rect(px - 2, py + 1, px + 2, py + 29, hex('#e8f0f4')); if (carga > 0) rect(px - 2, Math.round(py + 29 - carga * 14), px + 2, py + 29, C.plasma);
+  rect(px - 4, py - 6, px + 4, py, C.k); rect(px - 3, py - 5, px + 3, py - 1, C.tealT); rect(px - 1, py - 9, px + 1, py - 6, C.k);
+  brazo(px + 12, py + 10, -1, '#f4f4f8');
+  dosis.forEach((d) => { const u = lin(t, d - 0.05, d + 0.15); if (u > 0 && u < 1) { disco(px, Math.round(lerp(py + 38, 118, u)), 1, C.plasma); } });
+};
+
+// ── 6 · la máquina busca sus moléculas ───────────────────────────────────────────────────────────────────────────
+const cazas = Array.from({ length: 9 }, (_, k) => bastantes - 0.4 + k * 0.42);
+const p6 = (t) => {
+  T.insertoMoleculas(R, t, {});
+  // las moléculas que busca (rosas, con su anillo): pasan por el haz y la mira las caza; el contador sube
+  let cuenta = 0;
+  cazas.forEach((tc, k) => { const x = Math.round(160 + (t - tc) * 46), y = 84 + (k * 7) % 18; if (t > tc + 0.12) cuenta++; if (x < -6 || x > 326) return;
+    R.disco(x, y, 3, C.k); R.disco(x, y, 2, hex('#e85aa8')); R.pset(x - 1, y - 1, hex('#f8b8d8'));
+    if (Math.abs(t - tc) < 0.15) { for (let yy = 66; yy < y - 3; yy++) R.pset(160 + (yy % 2), yy, hex('#9af0b0')); for (const [a1, b1] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { R.rect(x + a1 * 6, y + b1 * 6, x + a1 * 4, y + b1 * 6, C.blanco); R.rect(x + a1 * 6, y + b1 * 6, x + a1 * 6, y + b1 * 4, C.blanco); } } });
+  // la pantallita del contador, junto al detector
+  R.rect(188, 34, 228, 54, C.k); R.rect(190, 36, 226, 52, hex('#0a1a10')); R.numero(String(cuenta * 15), 208, 49, { color: hex('#5ae08a'), sombra: false, centro: true });
+  for (let k = 0; k < 3; k++) R.disco(198 + k * 6, 60, 1, cuenta > k * 3 ? hex('#5ae08a') : hex('#2a3a2a'));
+  if (t > bien) { const u = tramo(t, bien, bien + 0.3); T.visto(R, 234, Math.round(42 - u * 4), 1); }
+  if (t > bien && t < bien + 0.6) for (let x = 190; x < 227; x += 3) R.pset(x, 35, hex('#9af0b0'));
+  // la mira que espera bajo el detector
+  const libre = !cazas.some((tc) => Math.abs(t - tc) < 0.15), my = 92 + Math.round(Math.sin(t * 3) * 3);
+  if (libre && t < algunas + 0.3) for (const [a1, b1] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { R.rect(160 + a1 * 7, my + b1 * 7, 160 + a1 * 5, my + b1 * 7, hex('#9af0b0')); R.rect(160 + a1 * 7, my + b1 * 7, 160 + a1 * 7, my + b1 * 5, hex('#9af0b0')); }
+  // «some of those molecules»: una molécula dorada, rarísima, pasa rápida y en zigzag; la mira llega tarde
+  if (t > algunas - 0.3) { const u = t - (algunas - 0.3), x = Math.round(-10 + u * 120), y = 90 + Math.round(Math.sin(u * 9) * 9);
+    if (x < 330) { R.disco(x, y, 3, C.k); R.disco(x, y, 2, C.oro); R.pset(x - 1, y - 1, C.oroL); if (Math.sin(t * 12) > 0) destello(x, y - 6, 2, C.oroL); }
+    const tarde = algunas + 0.3; if (t > tarde) { const mx = Math.round(lerp(160, 176, tramo(t, tarde, tarde + 0.3))); for (const [a1, b1] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { R.rect(mx + a1 * 7, 90 + b1 * 7, mx + a1 * 5, 90 + b1 * 7, C.rojo); R.rect(mx + a1 * 7, 90 + b1 * 7, mx + a1 * 7, 90 + b1 * 5, C.rojo); } }
+    if (t > tarde + 0.25) { const s = Math.round(Math.abs(Math.sin((t - tarde) * 8)) * 2); R.icono('?', 184, 14 + 4 - s, C.rojo, C.k, 2); } }
+};
+
+// ── 7 · la aguja en el pajar ─────────────────────────────────────────────────────────────────────────────────────
+// la lupa que lleva el granjero: el mango hacia su mano y, dentro de la lente, las pajas de cerca (y la aguja, si toca)
+const lupaGranjero = (cx, cy, r, hx, hy, t, aguja) => {
+  R.linea(hx, hy, cx - Math.round(r * 0.7), cy + Math.round(r * 0.7), C.k); R.linea(hx + 1, hy, cx - Math.round(r * 0.7) + 1, cy + Math.round(r * 0.7), C.maderaS);
+  R.disco(cx, cy, r + 1, C.k); R.disco(cx, cy, r, hex('#f4e4a8'));
+  for (let k = 0; k < 4; k++) { const y0 = cy - r + 3 + k * 4 + Math.round(Math.sin(t * 2 + k) * 1); for (let i = -r; i <= r; i++) { const x = cx + i, y = y0 + Math.round(i * (k % 2 ? 0.35 : -0.3)); if (Math.hypot(x - cx, y - cy) < r - 1) { R.pset(x, y, C.paja); R.pset(x, y + 1, C.pajaS); if (Math.hypot(x - cx, y + 2 - cy) < r - 1) R.pset(x, y + 2, C.pajaS); } } }
+  for (let a = 0; a < 6.28; a += 0.3) R.pset(Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r), C.metalL);
+  if (aguja) { R.linea(cx - r + 3, cy + 2, cx + r - 3, cy - 2, C.metalD); R.linea(cx - r + 3, cy + 1, cx + r - 3, cy - 3, C.blanco); R.pset(cx + r - 4, cy - 2, C.k); destello(cx + 2, cy - 1, 3); }
+  R.pset(cx - Math.round(r / 2), cy - Math.round(r / 2), C.blanco); R.pset(cx - Math.round(r / 2) + 1, cy - Math.round(r / 2), C.blanco);
+};
+const paradas = [encontrar - 0.1, encontrar + 0.55, encontrar + 1.2, aguja - 0.6];
+const p7 = (t) => {
+  T.pajar(R, t);
+  // una oveja mastica heno al pie del montón y dos gallinas picotean
+  cordero(R, 246, 160, t); if (Math.floor(t * 3) % 2) { R.rect(253, 151, 256, 151, C.pajaL); R.pset(257, 152, C.paja); }
+  gallina(R, 40 + Math.round(Math.sin(t * 0.7) * 6), 166, t); gallina(R, 286, 170, t + 0.5);
+  // el granjero llega con su lupa enorme, busca paso a paso y a «needle» la encuentra: salta y la levanta
+  const llega = tramo(t, P7 + 0.05, paradas[0]);
+  let x = lerp(-18, 80, llega); for (let k = 1; k < 4; k++) x += 14 * tramo(t, paradas[k] - 0.35, paradas[k]);
+  x = Math.round(x);
+  const anda = (llega > 0 && llega < 1) || paradas.slice(1).some((p) => t > p - 0.35 && t < p), halla = t > aguja, alza = t > aguja + 0.45;
+  const salto = t > aguja + 0.2 && t < aguja + 0.55 ? Math.round(Math.sin(lin(t, aguja + 0.2, aguja + 0.55) * Math.PI) * 4) : 0;
+  const g = R.actor(EL.brazel ?? EL.senor30, x, 172, t, { dir: 1, anda, dedo: true, sorpresa: halla && !alza, sonrisa: alza, salto, bigote: true });
+  if (!alza) { const busca = Math.sin(t * 4) * 3, [hx, hy] = g.mano, cx = hx + 13, cy = Math.round(hy - 2 + (anda ? 0 : busca)); lupaGranjero(cx, cy, 9, hx + 1, hy + 2, t, halla); if (halla) R.bocadillo(x + 4, g.cabeza[1] - 3, {}); }
+  else { const [hx, hy] = g.mano; R.rect(hx, hy - 12, hx + 2, hy, C.k); R.rect(hx + 1, hy - 11, hx + 1, hy - 1, C.metalL); R.pset(hx + 1, hy - 10, C.k); if (Math.sin(t * 8) > -0.3) destello(hx + 1, hy - 15, 4); lupaGranjero(x - 2, 162, 6, x + 2, 166, t, false); }
+};
+
+const efectos = [
+  [0.15, 'whoosh'], [3.4, 'golpecito'], [teranos + 0.05, 'toc'], [3.5, 'papel'],
+  [gota + 0.25, 'pop'], [saca, 'burbujas', { dur: 1.2 }], [vena + 0.3, 'burbujas', { dur: 1.4 }],
+  ...[ml, ml + 0.4, cada].map((x) => [x, 'tic']), [cuchara, 'brillo'],
+  [entrega, 'cerrojo'], [cuentan, 'bip'], [pone + 0.1, 'zumbido'], ...analitos.map((x) => [x, 'pop']),
+  ...dosis.map((x) => [x, 'golpecito']), [maquina, 'bip'],
+  [bastantes, 'bip'], [bien, 'bip'], [algunas + 0.6, 'boing'],
+  [encontrar, 'masca'], [aguja, 'brillo'], [aguja + 0.25, 'boing'],
+];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año: 2014 });
 </script>
 </body>
 </html>

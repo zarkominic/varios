@@ -9,19 +9,130 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TH-DOCUMENTAL (frase 33), 2026, cartela «2026». Dos planos: la cola del cine con el cartel de la película (un coche pasa
-// por delante); y dentro, la pantalla con una cámara que la sigue a todas partes, y el público de espaldas.
+// TH-DOCUMENTAL (frase 33), 2026, cartela «2026». Tres planos después de la cartela:
+// 1 el cine por fuera, al anochecer: la cola mira a la puerta, donde el acomodador corta las entradas; los dos primeros
+//   entran (la puerta se entreabre y la luz de dentro cae en la acera) y los demás dan un paso; llega una pareja
+//   charlando y se pone al final; una paloma picotea junto a la taquilla; un taxi pasa por delante; el cartel destella
+//   cuando la voz dice «back in theaters»;
+// 2 dentro, la película en la pantalla: ella camina y el cámara la sigue; en la esquina de la pantalla aparece un
+//   calendario que pasa las hojas del 1 al 34 cuando la voz dice «thirty-four days»; por delante cruza, agachado, un
+//   rezagado con su cubo de palomitas, que salta unas cuantas por el aire;
+// 3 la calle a la caída de la tarde: ella camina por la acera; el cámara la espera y, cuando la voz dice «camera»,
+//   enciende la luz roja y echa a andar hacia atrás sin dejar de grabarla; detrás, la técnica de sonido con la pértiga;
+//   un coche pasa por delante.
 import * as T from '/atomo/plato/escenas/th-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-documental');
 const { tramo, lerp, hex } = R;
+const C = T.C;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('documental', f);
-const P2 = a(0.36), P3 = a(0.68);
-const p1 = (t) => { T.cine(R, t); [EL.senor30, EL.senora30, EL.chico, EL.sudadera, EL.chica, EL.oficinista].forEach((d, k) => { const avanza = tramo(t, 2 + k * 0.4, 3 + k * 0.4); R.actor(d, 120 + k * 17 - Math.round(avanza * 6), 146, t, { dir: -1, anda: avanza > 0 && avanza < 1, habla: k === 1 && Math.sin(t * 5) > 0 }); }); T.cocheOscuro(R, Math.round(lerp(-60, 360, tramo(t, 2.6, P2))), 172, t, { dir: 1 }); };
-const p2 = (t) => T.salaCine(R, t);
-const p3 = (t) => T.visor(R, t, { dia: Math.min(34, Math.max(1, Math.round(tramo(t, P3, E.duracion - 1) * 34))) });
-const efectos = [[2.6, 'motor'], [P2 + 0.2, 'whoosh'], [P3 + 0.2, 'bip']];
+const lin = (t, t0, t1) => Math.max(0, Math.min(1, (t - t0) / (t1 - t0)));   // a paso constante (para andar)
+const P2 = a(0.33), P3 = a(0.68);
+
+// ── piezas de esta escena ──────────────────────────────────────────────────────────────────────────────────────────
+// un coche de hoy que pasa (x: centro; dir: hacia dónde va); o.taxi: amarillo con el piloto en el techo
+function coche(x, suelo, t, dir, col, colS, o = {}) {
+  const { rect, disco, pset } = R, f = (u) => Math.round(x + u * dir), r = (p, q, y0, y1, c) => rect(Math.min(f(p), f(q)), y0, Math.max(f(p), f(q)), y1, c);
+  r(-25, 25, suelo - 12, suelo - 3, C.k); r(-24, 24, suelo - 11, suelo - 4, col); r(-24, 24, suelo - 5, suelo - 4, colS); r(-24, 24, suelo - 8, suelo - 8, colS);
+  r(-13, 11, suelo - 19, suelo - 11, C.k); r(-12, 10, suelo - 18, suelo - 12, hex('#5a7aa0')); r(-11, -6, suelo - 17, suelo - 16, hex('#9ac0e0')); r(-1, 0, suelo - 18, suelo - 12, C.k);
+  r(23, 24, suelo - 10, suelo - 8, C.oroL); r(-24, -23, suelo - 10, suelo - 8, C.rojo);
+  if (o.taxi) { r(-4, 4, suelo - 22, suelo - 19, C.k); r(-3, 3, suelo - 21, suelo - 20, C.oroL); for (let i = -20; i <= 20; i += 4) r(i, i + 1, suelo - 7, suelo - 7, C.k); }
+  for (const u of [-15, 15]) { disco(f(u), suelo - 2, 4, C.k); disco(f(u), suelo - 2, 2, C.metal); pset(f(u) + Math.round(Math.cos(t * 14 * dir) * 2), suelo - 2 + Math.round(Math.sin(t * 14 * dir) * 2), C.k); }
+}
+// la paloma que picotea en la acera y da saltitos
+function paloma(x, suelo, t) {
+  const { rect, pset } = R, pica = Math.sin(t * 4.2) > 0.55, salta = (t % 3.4) < 0.25 ? 1 : 0, y = suelo - salta;
+  rect(x, y - 4, x + 5, y - 2, hex('#7a7a8c')); rect(x + 1, y - 2, x + 4, y - 1, hex('#5e5e70')); pset(x - 1, y - 3, hex('#4a4a5a')); pset(x - 2, y - 3, hex('#4a4a5a'));
+  if (pica) { rect(x + 5, y - 2, x + 6, y - 1, hex('#5e8a7a')); pset(x + 7, y, C.naranja); } else { rect(x + 5, y - 6, x + 6, y - 4, hex('#5e8a7a')); pset(x + 6, y - 6, C.k); pset(x + 7, y - 5, C.naranja); }
+  pset(x + 2, y, C.rojo); pset(x + 4, y, C.rojo);
+}
+// un destello en cruz que late
+function destello(x, y, t, f) { const s = Math.sin(t * 9 + f) > 0 ? 2 : 1; for (let r = 0; r <= s; r++) { R.pset(x + r, y, C.oroL); R.pset(x - r, y, C.oroL); R.pset(x, y + r, C.oroL); R.pset(x, y - r, C.oroL); } R.pset(x, y, C.blanco); }
+
+// ── 1 · la cola del cine ───────────────────────────────────────────────────────────────────────────────────────────
+const COLA = [EL.senora30, EL.senor30, EL.oficinista, EL.chica, EL.agenta];
+const ENTRA = [2.15, 3.75];   // cuándo entra en la sala el primero de la cola
+const pasos = (t) => tramo(t, ENTRA[0] + 0.2, ENTRA[0] + 0.8) + tramo(t, ENTRA[1] + 0.2, ENTRA[1] + 0.8);
+const p1 = (t) => {
+  const { rect, pset } = R;
+  rect(0, 0, 319, 179, hex('#2e2638'));   // fondo de seguridad: el decorado deja sin pintar los lados de la fachada
+  T.cine(R, t);
+  // la puerta de la derecha se entreabre y la luz de dentro se derrama en la acera
+  const luz = Math.max(...ENTRA.map((e) => tramo(t, e - 0.25, e) - tramo(t, e + 0.35, e + 0.7)));
+  if (luz > 0) { const w = Math.round(luz * 7); rect(190 - w, 76, 191 + w, 131, hex('#fff6d8')); for (let y = 132; y < 147; y++) for (let x = 182 - w - (y - 132) / 2; x < 199 + w + (y - 132) / 2; x++) if ((Math.round(x) + y) % 2 === 0) pset(Math.round(x), y, hex('#e8dca8')); }
+  // el acomodador, junto a la puerta, corta las entradas
+  const corta = ENTRA.some((e) => t > e - 0.55 && t < e - 0.15);
+  R.actor(EL.guardia, 210, 146, t, { dir: -1, dedo: corta, sonrisa: corta });
+  // la cola: cada uno va un hueco hacia delante cuando entra el primero
+  const n = pasos(t);
+  COLA.forEach((d, k) => {
+    const hueco = k - n; if (k < 2 && t > ENTRA[k]) return;   // ya ha entrado
+    const x = Math.round(190 - 18 * hueco), anda = (n % 1) > 0.02 && (n % 1) < 0.98;
+    const saca = ENTRA.some((e, i) => k === i && t > e - 0.6 && t < e);   // enseña la entrada
+    const yIn = ENTRA.some((e, i) => k === i && t > e - 0.15) ? 1 : 0;   // da el paso hacia dentro
+    R.actor(d, x, 146 - yIn, t + k, { dir: 1, anda, habla: k === 3 && Math.sin(t * 5) > 0.3 && !anda });
+    if (saca) { rect(x + 15, 129, x + 20, 132, C.k); rect(x + 16, 130, x + 19, 131, C.oroL); }
+  });
+  // la pareja que llega charlando y se pone al final
+  const ll = lin(t, 1.4, 4.8);
+  for (const [d, dx, k] of [[EL.chico, 0, 0], [EL.sudadera, -18, 1]]) {
+    const x = Math.round(lerp(20, 136, ll)) + dx, para = ll >= 1;
+    R.actor(d, x, 146, t + k * 0.7, { dir: para && k === 0 && Math.sin(t * 0.9) > 0.4 ? -1 : 1, anda: !para, habla: (k === 0 ? Math.sin(t * 4) : -Math.sin(t * 4)) > 0.35, sonrisa: k === 1 && para });
+  }
+  // un trozo de entrada que cae al suelo
+  for (const e of ENTRA) { const u = lin(t, e - 0.3, e + 0.6); if (u > 0 && u < 1) pset(Math.round(206 + u * 3), Math.round(128 + u * 18), C.oroL); }
+  paloma(274 + Math.round(Math.floor(t / 3.4) * 2 % 14), 147, t);
+  // el cartel destella cuando la voz dice «back in theaters»
+  if (t > a(0.25) && t < a(0.25) + 1.2) for (const [x, y, f] of [[57, 72, 0], [107, 84, 2], [61, 122, 4], [104, 114, 1]]) destello(x, y, t, f);
+  // el taxi que pasa por delante
+  coche(Math.round(lerp(-40, 370, lin(t, 2.5, 5.5))), 177, t, 1, hex('#f0c030'), hex('#c89a18'), { taxi: true });
+};
+
+// ── 2 · la sala: la película y el rezagado de las palomitas ────────────────────────────────────────────────────────
+const D0 = a(0.505), D1 = a(0.59);   // «the thirty-four days»
+const p2 = (t) => {
+  const { rect, disco, pset } = R;
+  T.salaCine(R, t);
+  // el calendario en la esquina de la pantalla: pasa las hojas del 1 al 34
+  const ve = tramo(t, D0 - 0.5, D0 - 0.2);
+  if (ve > 0) { const x0 = 40, y0 = Math.round(lerp(34, 22, ve)), dia = 1 + Math.floor(lin(t, D0, D1) * 33);
+    rect(x0, y0, x0 + 26, y0 + 24, C.k); rect(x0 + 1, y0 + 1, x0 + 25, y0 + 23, C.blanco); rect(x0 + 1, y0 + 1, x0 + 25, y0 + 6, C.rojo); for (const dx of [6, 19]) rect(x0 + dx, y0 - 2, x0 + dx + 1, y0 + 2, C.metalD);
+    R.numero(String(dia), x0 + 13, y0 + 20, { color: C.k, centro: true, sombra: false });
+    if (t > D0 && t < D1) { const v = (t * 18) % 1, yy = Math.round(y0 + 7 + v * 14); rect(x0 + 1, y0 + 7, x0 + 25, yy, hex('#e8e4dc')); rect(x0 + 1, yy, x0 + 25, yy, C.grisL); } }
+  // el rezagado que cruza agachado por delante con su cubo de palomitas
+  const u = lin(t, P2 + 0.2, P3 - 0.2), x = Math.round(lerp(340, -30, u)), y = 150 + Math.round(Math.abs(Math.sin(t * 7)) * 2);
+  if (u > 0 && u < 1) {
+    disco(x, y, 10, hex('#08060a')); rect(x - 14, y + 6, x + 14, 179, hex('#08060a')); pset(x - 4, y - 9, hex('#3a3440')); pset(x - 3, y - 9, hex('#3a3440'));
+    const bx = x - 22; rect(bx - 6, y - 2, bx + 6, y + 12, C.k); for (let i = -5; i <= 5; i++) rect(bx + i, y - 1, bx + i, y + 11, (i + 6) % 4 < 2 ? C.rojo : C.blanco);
+    for (let k = 0; k < 6; k++) disco(bx - 4 + k * 2, y - 3 - (k % 2), 1, hex('#fff4c8'));
+    // unas cuantas palomitas saltan por el aire y caen sobre las cabezas
+    const s = lin(t, P2 + 1.6, P2 + 2.4); if (s > 0 && s < 1) for (let k = 0; k < 4; k++) { const px = Math.round(bx + (k - 1.5) * 6 * s * 3), py = Math.round(y - 4 - Math.sin(s * Math.PI) * (16 + k * 4) + s * 10); pset(px, py, hex('#fff4c8')); pset(px + 1, py, hex('#fff4c8')); }
+  }
+};
+
+// ── 3 · la cámara la sigue a todas partes ──────────────────────────────────────────────────────────────────────────
+const CAM = a(0.84);   // «camera»
+const p3 = (t) => {
+  const { rect, disco, linea, pset } = R;
+  rect(0, 0, 319, 179, C.hierbaS);   // fondo de seguridad: entre casa y casa el decorado deja huecos sin pintar
+  T.calle(R, t, { tarde: true });
+  const hx = Math.round(lerp(14, 184, lin(t, P3, E.duracion))), suelo = 122;
+  // la técnica de sonido, detrás, con la pértiga por encima de ella
+  const sx = hx - 42; R.actor(EL.chica, sx, suelo, t, { dir: 1, anda: true, dedo: true });
+  const mx = hx + 7, my = suelo - 34; linea(sx + 15, suelo - 30, mx - 3, my, C.metalD); linea(sx + 15, suelo - 31, mx - 3, my - 1, C.metalL); rect(mx - 4, my - 2, mx + 3, my + 2, C.k); rect(mx - 3, my - 1, mx + 2, my + 1, hex('#8a8a96'));
+  R.actor(EL.holmes, hx, suelo, t, { dir: 1, anda: true });
+  // el cámara: espera de cara a ella y, cuando la voz dice «camera», echa a andar hacia atrás grabando
+  const cx = Math.max(130, hx + 50), anda = hx + 50 > 130;
+  R.actor(EL.sudadera, cx, suelo, t + 1, { dir: -1, anda });
+  rect(cx - 8, suelo - 25, cx + 4, suelo - 17, C.k); rect(cx - 7, suelo - 24, cx + 3, suelo - 18, hex('#3a3e48')); rect(cx - 12, suelo - 23, cx - 8, suelo - 19, C.k); disco(cx - 12, suelo - 21, 1, hex('#4a6a9a'));
+  if (t > CAM && Math.floor(t * 3) % 2 === 0) disco(cx + 1, suelo - 26, 1, C.rojo); else pset(cx + 1, suelo - 26, hex('#5a1a1a'));
+  // un coche que pasa por delante, hacia la izquierda
+  coche(Math.round(lerp(380, -60, lin(t, CAM + 0.3, E.duracion - 0.2))), 172, t, -1, hex('#4a8ad0'), hex('#3a6aa8'));
+};
+
+const efectos = [[ENTRA[0] - 0.35, 'papel'], [ENTRA[0], 'puerta'], [ENTRA[1] - 0.35, 'papel'], [2.7, 'motor', { dur: 2.6 }], [a(0.25), 'brillo'],
+  [P2 + 1.6, 'pop'], [D0, 'tic'], [CAM, 'bip'], [CAM + 0.5, 'motor', { dur: 2.2 }]];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { cartela: '2026', efectos, año: 2026 });
 </script>
 </body>

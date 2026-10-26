@@ -10,32 +10,227 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TH-STANFORD (frases 6–7), 2003, cartela «2003». Seis planos:
-// 1. el patio de Stanford con sus arcos y palmeras; pasan bicis; la estudiante de diecinueve años cruza con sus libros;
-// 2. de noche, en su cuarto, dibuja un aparato que analiza una gota;  3. el gag del niño y la jeringa: en la consulta, el
-// niño se esconde detrás de su madre al ver la aguja; la enfermera la guarda y le enseña una gota; él sonríe;
-// 4. convence a su profesor en el camino; 5. sale de la facultad con una caja: lo deja;  6. el letrero nuevo de la
-// empresa: una gota y una lupa que se juntan en el logotipo de Theranos.
+// 1. el patio de Stanford: Holmes cruza el césped con sus libros y se para en el camino cuando la voz dice su nombre; al
+//    fondo pasan bicis y estudiantes bajo los arcos, y un chico lanza un disco volador que atrapa un perro en el aire
+//    (gag): la chica sale corriendo detrás;
+// 2. de noche, en su cuarto: dibuja el aparato, arruga la hoja y la encesta en la papelera; vuelve a empezar y, en «has
+//    an idea», se incorpora con un «!» y termina el dibujo; el reloj marca las dos, una polilla ronda el flexo y cruza
+//    una estrella fugaz por la ventana;
+// 3. el gag del niño y la jeringa: madre e hijo entran en la farmacia; la enfermera levanta una jeringa enorme y el niño
+//    se esconde temblando detrás de su madre; en «just a drop» la guarda y enseña una gota; el niño se asoma, salta de
+//    alegría y recibe una piruleta; al fondo una clienta coge un frasco de la estantería;
+// 4. al atardecer, camina con su profesor por el patio; él se sorprende, mira el dibujo que ella le da («starts a
+//    company»), sonríe y se dan la mano; detrás pasan dos estudiantes;
+// 5. la puerta de la facultad, más cerca: sale con una caja y la puerta se cierra detrás de ella en «drops out»; se
+//    vuelve un momento a mirar el edificio y se va; una estudiante saca su bici del aparcabicis;
+// 6. la sede nueva, en cajas: un técnico en una escalera clava el letrero; Holmes entra con la caja y la deja; una cruz
+//    («therapy») y una lupa («diagnosis») vuelan hasta el letrero y se funden en el logotipo; pasa un repartidor.
 import * as T from '/atomo/plato/escenas/th-comun.js';
+import { perro, carrito } from '/atomo/plato/escenas/ov-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-stanford');
-const { tramo, lerp, hex } = R;
+const { tramo, lerp, hex, clamp } = R;
+const C = T.C;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('idea', f), b = (f) => en('deja', f);
 const P2 = a(0.38), P3 = a(0.7), P4 = b(0), P5 = b(0.355), P6 = b(0.71);
-const p1 = (t) => { T.stanford(R, t); const u = tramo(t, 1.5, P2 - 0.3); R.actor(EL.holmes, Math.round(lerp(40, 180, u)), 150, t, { dir: 1, anda: u > 0 && u < 1 }); R.rect(Math.round(lerp(40, 180, u)) + 12, 136, Math.round(lerp(40, 180, u)) + 17, 140, hex('#3a5a8a'));
-  R.actor(EL.chico, 250, 160, t, { dir: -1, quieto: true }); R.actor(EL.chica, 266, 160, t, { dir: -1, habla: Math.sin(t * 5) > 0 }); };
-const p2 = (t) => { T.cuarto(R, t); R.actor(EL.holmes, 118, 132, t, { dir: 1, quieto: true, sonrisa: t > P2 + 2 }); T.cuartoMesa(R, t, { dibujo: tramo(t, P2 + 0.3, P3 - 0.4) }); };
-const p3 = (t) => { T.farmacia(R, t, { rincon: false }); const guarda = a(0.9);
-  R.actor(EL.senora30, 150, 158, t, { dir: 1, quieto: true }); const esc = t < guarda; R.actor(EL.chico, esc ? 136 : 168, 160, t, { dir: 1, sorpresa: esc, sonrisa: !esc, salto: !esc && t < guarda + 0.5 ? 2 : 0 });
-  R.actor(EL.enfermera, 200, 158, t, { dir: -1, dedo: true });
-  if (esc) { R.rect(176, 128, 196, 131, T.C.k); R.rect(177, 129, 195, 130, hex('#c8e8f8')); R.rect(170, 129, 176, 130, T.C.metalD); R.rect(196, 127, 199, 132, T.C.k); }   // la jeringa
-  else { R.disco(196, 130, 3, T.C.sangreS); R.disco(196, 130, 2, T.C.sangre); } };
-const p4 = (t) => { T.stanford(R, t, { tarde: true }); R.actor(EL.holmes, 140, 154, t, { dir: 1, habla: Math.sin(t * 6) > 0, dedo: t > P4 + 1.5 }); R.actor(EL.profesor, 164, 154, t, { dir: -1, quieto: true, sorpresa: t > P4 + 1 && t < P4 + 2.4, sonrisa: t > P4 + 2.4 }); };
-const p5 = (t) => { T.stanford(R, t, { tarde: true }); const u = tramo(t, P5 + 0.2, P6 - 0.3); const x = Math.round(lerp(150, 330, u)); R.actor(EL.holmes, x, 150, t, { dir: 1, anda: u > 0 && u < 1 }); R.rect(x + 10, 132, x + 22, 142, T.C.k); R.rect(x + 11, 133, x + 21, 141, T.C.ocre); R.rect(x + 13, 130, x + 15, 133, hex('#3a5a8a')); };
-const p6 = (t) => { T.sede(R, t, { descuelga: 0 }); const j = tramo(t, P6 + 0.6, b(0.86));
-  if (j < 1) { const x1 = Math.round(lerp(90, 160, j)), x2 = Math.round(lerp(230, 160, j)); R.disco(x1, 46, 6, T.C.sangreS); R.disco(x1, 46, 5, T.C.sangre); T.lupa(R, x2, 46, 6); }
-  R.actor(EL.holmes, 120, 158, t, { dir: 1, dedo: j >= 1, sonrisa: true }); R.actor(EL.tecnico, 200, 158, t, { dir: -1, quieto: true }); };
-const efectos = [[P2 + 0.3, 'lapiz'], [a(0.9), 'boing'], [P5 + 0.2, 'puerta'], [b(0.86), 'brillo']];
+const lin = (t, x, y) => clamp((t - x) / (y - x), 0, 1);
+const entre = (t, x, y) => t >= x && t < y;
+// ── accesorios ──────────────────────────────────────────────────────────────────────────────────────────────────
+// los libros que lleva contra el pecho
+const libros = (x, s, d = 1) => { const bx = d > 0 ? x + 11 : x - 3; R.rect(bx, s - 16, bx + 6, s - 9, C.k); R.rect(bx + 1, s - 15, bx + 5, s - 14, hex('#3a5a8a')); R.rect(bx + 1, s - 13, bx + 5, s - 13, C.papel); R.rect(bx + 1, s - 12, bx + 5, s - 10, C.rojo); };
+// la caja de cartón de la mudanza, con el flexo y el dibujo enrollado asomando
+const caja = (x, y) => { R.rect(x, y - 10, x + 13, y, C.k); R.rect(x + 1, y - 9, x + 12, y - 1, C.ocre); R.rect(x + 1, y - 9, x + 12, y - 8, C.ocreS); R.rect(x + 6, y - 9, x + 7, y - 1, hex('#e8c890'));
+  R.linea(x + 3, y - 10, x + 3, y - 15, C.metalD); R.rect(x + 1, y - 17, x + 5, y - 15, C.verde); R.rect(x + 9, y - 14, x + 11, y - 10, C.papel); R.pset(x + 10, y - 14, C.papelS); };
+// el disco volador
+const disco = (x, y) => { R.rect(x - 3, y, x + 3, y + 1, C.k); R.rect(x - 2, y, x + 2, y, C.rojo); };
+// la jeringa enorme (dir: hacia dónde apunta la aguja)
+const jeringa = (x, y, d = -1) => { const X = (i) => x + i * d, r = (i0, i1, y0, y1, c) => R.rect(Math.min(X(i0), X(i1)), y0, Math.max(X(i0), X(i1)), y1, c);
+  r(0, 1, y - 3, y + 3, C.k); r(1, 4, y - 1, y + 1, C.metalD); r(4, 15, y - 2, y + 2, C.k); r(5, 14, y - 1, y + 1, hex('#c8e8f8')); r(9, 14, y, y + 1, C.sangreL); r(15, 17, y, y, C.metalD); r(17, 22, y, y, C.metalL); };
+// la gota que enseña, con su brillo
+const gota = (x, y, t) => { R.disco(x, y + 1, 3, C.k); R.poligono([[x - 2, y], [x, y - 5], [x + 2, y]], C.k); R.disco(x, y + 1, 2, C.sangre); R.pset(x, y - 2, C.sangre); R.pset(x, y - 1, C.sangre); R.pset(x - 1, y, C.sangreL);
+  if (Math.sin(t * 7) > 0) for (const [dx, dy] of [[-6, -3], [6, -3], [0, -9]]) R.pset(x + dx, y + dy, C.oroL); };
+// la piruleta
+const piruleta = (x, y) => { R.linea(x, y, x, y + 6, C.blanco); R.disco(x, y - 2, 3, C.k); R.disco(x, y - 2, 2, C.rosa); R.pset(x - 1, y - 3, C.blanco); };
+// la hoja con el dibujo del aparato
+const hoja = (x, y) => { R.rect(x, y, x + 7, y + 8, C.k); R.rect(x + 1, y + 1, x + 6, y + 7, C.blanco); R.rect(x + 2, y + 2, x + 4, y + 3, hex('#3a3a6a')); R.pset(x + 5, y + 3, C.sangre); for (let k = 0; k < 3; k++) R.pset(x + 2 + k * 2, y + 5 + (k % 2), hex('#3a3a6a')); };
+// el letrero de «!» y otros símbolos en bocadillo
+const pide = (x, y, icono) => R.bocadillo(x, y, icono === '!' ? {} : { icono });
+
+// ── 1 · el patio de Stanford ────────────────────────────────────────────────────────────────────────────────────
+const lanza = 2.7, atrapa = 3.4;
+const p1 = (t) => {
+  T.stanford(R, t);
+  // bajo los arcos: un estudiante que lee mientras camina y una investigadora con bata
+  R.actor(EL.sudadera, Math.round(lerp(300, 120, lin(t, 1.3, P2))), 117, t, { dir: -1, anda: true }); { const x = Math.round(lerp(300, 120, lin(t, 1.3, P2))); R.rect(x - 2, 100, x + 2, 104, C.k); R.rect(x - 1, 101, x + 1, 103, C.papel); }
+  R.actor(EL.tecnica, Math.round(lerp(4, 112, lin(t, 2.0, P2))), 115, t, { dir: 1, anda: t > 2.0 });
+  // el disco volador: el chico lo lanza, el perro lo atrapa al vuelo y la chica sale detrás
+  const ch = 206, robado = t > atrapa;
+  R.actor(EL.chico, ch, 138, t, { dir: robado && t < 5 ? -1 : 1, dedo: entre(t, 2.3, lanza + 0.2) || entre(t, 3.7, 4.5), sonrisa: entre(t, 3.6, 5.6), habla: entre(t, 4.6, 5.4) && Math.sin(t * 9) > 0 });
+  const ux = Math.round(lerp(330, 300, lin(t, 2.85, atrapa))), dx = robado ? Math.round(lerp(300, -60, lin(t, 3.6, P2))) : ux, salto = Math.round(Math.sin(lin(t, 3.2, 3.6) * Math.PI) * 9);
+  if (t > 2.85) { perro(R, dx, 146 - salto, t, { dir: -1, anda: !entre(t, 3.2, 3.6) }); if (robado) disco(dx - 37, 146 - salto - 13); }
+  if (t <= lanza) disco(ch + 16, 124); else if (!robado) { const u = lin(t, lanza, 3.55); disco(Math.round(lerp(222, 278, u)), Math.round(124 - Math.sin(u * Math.PI) * 10)); }
+  const cx = Math.round(lerp(288, 156, lin(t, 4.3, P2)));
+  R.actor(EL.chica, cx, 142, t, { dir: -1, brazos: entre(t, 2.9, atrapa), sorpresa: entre(t, atrapa, 4.3), anda: t > 4.3, habla: t > 4.3 && Math.sin(t * 8) > 0 });
+  // Holmes cruza con sus libros y se para en el camino cuando la voz dice su nombre
+  const u = lin(t, 1.7, 5.9), x = Math.round(lerp(-16, 128, u)); R.actor(EL.holmes, x, 158, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: t > 6.1 }); libros(x, 158);
+};
+
+// ── 2 · la noche de la idea ─────────────────────────────────────────────────────────────────────────────────────
+const arruga = a(0.48), encesta = arruga + 0.65, idea = a(0.63), completa = a(0.67);
+const reloj = (x, y, t) => { R.disco(x, y, 11, C.k); R.disco(x, y, 10, C.blanco); for (let k = 0; k < 12; k++) { const g = k * Math.PI / 6; R.pset(Math.round(x + Math.cos(g) * 8), Math.round(y + Math.sin(g) * 8), k % 3 ? C.grisL : C.k); }
+  const ag = (g, l, c) => R.linea(x, y, Math.round(x + Math.sin(g) * l), Math.round(y - Math.cos(g) * l), c); ag(Math.PI * 2 / 12 * 2.1, 5, C.k); ag(t * 0.25, 7, C.k); ag(Math.floor(t) * Math.PI / 30, 8, C.rojo); R.pset(x, y, C.rojo); };
+const papelera = (x, y) => { R.rect(x, y, x + 18, y + 20, C.k); R.rect(x + 1, y + 1, x + 17, y + 19, C.metalS); for (let i = x + 3; i < x + 17; i += 3) R.rect(i, y + 2, i, y + 18, C.metalD); R.rect(x - 1, y - 1, x + 19, y, C.metalD);
+  for (const [bx, by] of [[x + 5, y - 2], [x + 12, y - 1]]) { R.disco(bx, by, 3, C.k); R.disco(bx, by, 2, C.blanco); R.pset(bx - 1, by, C.grisL); } };
+const bola = (x, y) => { R.disco(x, y, 3, C.k); R.disco(x, y, 2, C.blanco); R.pset(x + 1, y - 1, C.grisL); R.pset(x - 1, y + 1, C.grisL); };
+const p2 = (t) => {
+  T.cuarto(R, t); reloj(176, 42, t); papelera(30, 154);
+  // la estrella fugaz por la ventana y la polilla que ronda el flexo
+  { const u = lin(t, 7.8, 8.3); if (u > 0 && u < 1) for (let i = 0; i < 6; i++) R.pset(Math.round(282 - u * 34 + i * 2), Math.round(24 + u * 14 - i), i < 2 ? C.blanco : C.grisL); }
+  // Holmes, sentada a la mesa: dibuja con la cabeza gacha, se enfada, arruga la hoja, vuelve a dibujar y tiene la idea
+  const escribe = (entre(t, 7.0, arruga - 0.2) || entre(t, encesta + 0.2, idea - 0.1)) && Math.sin(t * 9) > 0.2, ya = t > idea + 0.25;
+  R.actor(EL.holmes, 118, ya ? 127 : 130 + (escribe ? 1 : 0), t, { dir: 1, quieto: escribe, enfado: entre(t, arruga - 0.3, arruga + 0.3), sorpresa: entre(t, idea, idea + 0.3), dedo: entre(t, idea + 0.25, P3), sonrisa: t > idea + 0.3 });
+  const dib = t < arruga ? 0.5 * lin(t, 7.0, arruga - 0.2) : t < encesta + 0.2 ? 0 : t < idea ? 0.6 * lin(t, encesta + 0.3, idea - 0.1) : 0.6 + 0.4 * lin(t, completa, completa + 0.4);
+  T.cuartoMesa(R, t, { dibujo: dib });
+  if (entre(t, idea + 0.1, P3)) pide(128, 96, '!');
+  if (t > completa + 0.4 && Math.sin(t * 9) > 0) for (const [dx, dy] of [[-3, -3], [3, -4], [0, -7]]) R.pset(186 + dx, 116 + dy, C.oroL);
+  // la bola de papel que vuela a la papelera
+  if (entre(t, arruga, encesta)) { const u = lin(t, arruga + 0.1, encesta); bola(Math.round(lerp(134, 39, u)), Math.round(lerp(116, 152, u) - Math.sin(u * Math.PI) * 26)); }
+  if (t >= encesta) bola(39, 150);
+  { const g = t * 5, ala = Math.floor(t * 16) % 2; const px = Math.round(226 + Math.cos(g) * 9), py = Math.round(86 + Math.sin(g * 1.3) * 5); R.pset(px, py, hex('#c8b8a0')); R.pset(px - 1, py - ala, hex('#e8dcc8')); R.pset(px + 1, py - ala, hex('#e8dcc8')); }
+};
+
+// ── 3 · el niño y la jeringa ────────────────────────────────────────────────────────────────────────────────────
+const susto = a(0.785), guarda = a(0.845), gotaT = a(0.87), alivio = a(0.925), regalo = alivio + 1.2;
+const bandeja = (x, y) => { R.rect(x, y, x + 22, y + 2, C.k); R.rect(x + 1, y + 1, x + 21, y + 1, C.metalL); R.rect(x + 2, y + 3, x + 3, y + 18, C.metalD); R.rect(x + 19, y + 3, x + 20, y + 18, C.metalD); R.rect(x + 1, y + 11, x + 21, y + 12, C.metalD);
+  for (const dx of [2, 20]) { R.disco(x + dx, y + 19, 1, C.k); } R.rect(x + 5, y - 3, x + 9, y, C.k); R.rect(x + 6, y - 2, x + 8, y - 1, C.blanco); R.rect(x + 12, y - 2, x + 18, y, C.k); R.rect(x + 13, y - 1, x + 17, y - 1, hex('#e8c8a0')); };
+const p3 = (t) => {
+  const puerta = t < P3 + 0.1 ? 0 : t < P3 + 0.5 ? lin(t, P3 + 0.1, P3 + 0.5) : t < P3 + 1.2 ? 1 : 1 - lin(t, P3 + 1.2, P3 + 1.6);
+  T.farmacia(R, t, { rincon: false, puerta });
+  bandeja(226, 140);
+  // al fondo, una clienta coge un frasco de la estantería y lo echa a la cesta
+  const coge = entre(t, susto + 0.1, susto + 0.6), tiene = t > susto + 0.6; R.actor(EL.clienta, 252, 150, t, { dir: 1, dedo: coge });
+  R.rect(264, 138, 272, 144, C.k); R.rect(265, 139, 271, 143, C.rojoW); if (tiene) { R.rect(266, 135, 269, 139, C.k); R.rect(267, 136, 268, 138, C.verdeT); }
+  // madre e hijo entran por la puerta
+  const um = lin(t, P3 + 0.2, P3 + 1.4), uh = lin(t, P3 + 0.3, P3 + 1.5), mx = Math.round(lerp(6, 128, um)), my = Math.round(lerp(146, 158, um));
+  const escondido = entre(t, susto + 0.05, alivio), tiembla = escondido && Math.floor(t * 14) % 2;
+  let hx = Math.round(lerp(-8, 110, uh)), hy = Math.round(lerp(148, 160, uh));
+  if (escondido) hx = Math.round(lerp(110, 120, lin(t, susto, susto + 0.15))) + (tiembla ? 1 : 0);
+  if (t >= alivio) hx = Math.round(lerp(120, 106, lin(t, alivio, alivio + 0.3)));
+  if (t >= regalo - 0.6) hx = Math.round(lerp(106, 166, lin(t, regalo - 0.6, regalo)));
+  const salta = entre(t, alivio + 0.3, alivio + 0.6) || entre(t, regalo + 0.3, regalo + 0.55) ? 2 : entre(t, susto, susto + 0.15) ? 3 : 0;
+  const nino = () => { const r = R.actor(EL.chico, hx, hy, t, { dir: 1, sorpresa: entre(t, susto, alivio), sonrisa: t >= alivio, salto: salta, anda: (uh > 0 && uh < 1) || entre(t, regalo - 0.6, regalo), dedo: t > regalo + 0.1 }); if (t > regalo + 0.1) piruleta(r.mano[0], r.mano[1] - 2); };
+  if (escondido) nino();
+  R.actor(EL.senora30, mx, my, t, { dir: 1, anda: um > 0 && um < 1, sonrisa: t > alivio + 0.2 });
+  if (!escondido) nino();
+  // la enfermera: la jeringa a la cintura, la levanta (susto), se vuelve a dejarla en la bandeja y enseña una gota
+  const vuelta = entre(t, guarda, guarda + 0.35), arriba = entre(t, susto - 0.05, guarda) || (t > gotaT && t < regalo - 0.1);
+  const r = R.actor(EL.enfermera, 196, 158, t, { dir: vuelta ? 1 : -1, dedo: arriba, sonrisa: t > alivio, habla: entre(t, gotaT, alivio) && Math.sin(t * 8) > 0 });
+  if (t < susto - 0.05) jeringa(194, 146, -1); else if (t < guarda) jeringa(r.mano[0] + 1, r.mano[1] + 1, -1);
+  if (t > gotaT && t < regalo - 0.1) gota(r.mano[0] - 1, r.mano[1] - 6, t);
+  if (entre(t, regalo - 0.1, regalo + 0.1)) piruleta(Math.round(lerp(194, 182, lin(t, regalo - 0.1, regalo + 0.1))), 144);
+  if (t > guarda + 0.2) jeringa(246, 138, -1);
+};
+
+// ── 4 · el profesor ─────────────────────────────────────────────────────────────────────────────────────────────
+const da = b(0.2), mira = b(0.25), mano = mira + 0.5;
+const p4 = (t) => {
+  T.stanford(R, t, { tarde: true });
+  const ue = lin(t, P4, P5); R.actor(EL.chica, Math.round(lerp(312, 150, ue)), 117, t, { dir: -1, anda: true, habla: Math.sin(t * 6) > 0.3 }); R.actor(EL.chico, Math.round(lerp(330, 168, ue)), 118, t, { dir: -1, anda: true, sonrisa: true });
+  const u = lin(t, P4, P4 + 1.1), hx = Math.round(lerp(50, 122, u)), px = Math.round(lerp(74, 150, u)), andan = u > 0 && u < 1;
+  const sorpresa = entre(t, b(0.13), b(0.17)), sonrie = t > b(0.17);
+  R.actor(EL.profesor, px, 154, t, { dir: andan ? 1 : -1, anda: andan, sorpresa: sorpresa || entre(t, mira, mira + 0.2), sonrisa: sonrie && !entre(t, mira, mira + 0.2), habla: entre(t, P4, P4 + 1) && Math.sin(t * 5) > 0.4 });
+  R.actor(EL.holmes, hx, 154, t, { dir: 1, anda: andan, habla: entre(t, P4 + 0.4, da) && Math.sin(t * 7) > 0, dedo: entre(t, P4 + 1.1, b(0.15)), sonrisa: t > b(0.16) });
+  // la hoja con el dibujo pasa de su mano a la del profesor, que la mira; luego se dan la mano
+  if (t > da - 0.2 && t < mano) { const v = lin(t, da - 0.2, da + 0.2); hoja(Math.round(lerp(138, 146, v)), Math.round(lerp(140, 138, v))); }
+  if (entre(t, mira, mano + 0.2)) pide(158, 124, '!');
+  if (t >= mano) { const y = 141 + (Math.floor(t * 8) % 2); R.rect(136, y, 141, y + 1, hex('#1e1e28')); R.rect(146, y, 151, y + 1, hex('#8a6a4a')); R.rect(141, y - 1, 146, y + 2, C.k); R.rect(142, y, 145, y + 1, hex('#f6c290')); R.pset(143, y, hex('#d48a5a')); }
+};
+
+// ── 5 · la puerta de la facultad ────────────────────────────────────────────────────────────────────────────────
+// Decorado propio, más cerca que el patio: muro de arenisca con el tejado de teja, la puerta en arco de dos hojas de
+// madera con clavos (ab: 0–1, abierta), dos farolas encendidas, ventanas con luz (alguien pasa por dentro), el tablón con
+// hojas de colores que se mueven, buganvillas, el aparcabicis y el suelo de losas
+const facultad = (t, ab) => {
+  const { rect, pset, disco, poligono, linea } = R;
+  T.cielo(R, t, { hor: 40, tarde: true, aves: false, sol: null });
+  rect(0, 26, 319, 140, C.piedraS2); for (let y = 34; y < 140; y += 8) { rect(0, y, 319, y, C.piedraSS); for (let x = ((y / 8) % 2) * 12; x < 320; x += 24) rect(x, y + 1, x, y + 7, C.piedraSS); }
+  rect(0, 22, 319, 30, C.tejaS); for (let x = 0; x < 320; x += 4) rect(x, 22, x + 1, 29, C.tejaSS); rect(0, 30, 319, 31, hex('#7a5a40')); for (let x = 2; x < 320; x += 10) rect(x, 31, x + 3, 33, hex('#7a5a40'));
+  // la puerta en arco con su moldura, el interior iluminado y las hojas
+  const cx = 100, r0 = 26; for (let y = 58; y <= 140; y++) for (let x = cx - r0 - 4; x <= cx + r0 + 4; x++) { const dy = Math.min(0, y - 84), d = Math.hypot(x - cx, dy); if (d <= r0 + 4 && d > r0) pset(x, y, d > r0 + 2 ? C.piedraSS : C.piedraS2); else if (d <= r0) pset(x, y, y > 120 ? hex('#4a3020') : hex('#5a3a24')); }
+  for (let y = 70; y < 140; y++) for (let x = cx - 10; x <= cx + 10; x++) if ((x + y) % 3 === 0 && Math.hypot(x - cx, Math.min(0, y - 84)) < r0) pset(x, y, hex('#a86a34'));
+  disco(cx, 76, 3, C.oroL); disco(cx, 76, 1, C.blanco);
+  const w = Math.round(r0 * (1 - 0.82 * ab));
+  for (const s of [-1, 1]) for (let y = 58; y <= 140; y++) for (let i = 0; i <= w; i++) { const x = s < 0 ? cx - r0 + i : cx + r0 - i; if (Math.hypot(x - cx, Math.min(0, y - 84)) > r0) continue; pset(x, y, i === w ? C.k : i % 6 === 0 ? C.maderaS : (y % 14 === 0 && i % 6 === 3) ? C.k : C.madera); }
+  if (ab < 0.2) rect(cx - 1, 60, cx, 140, C.k);
+  disco(cx - r0 + w - 3, 106, 1, C.oro); disco(cx + r0 - w + 3, 106, 1, C.oro);   // los tiradores
+  // las farolas a los lados de la puerta
+  for (const fx of [60, 140]) { rect(fx - 1, 66, fx + 1, 70, C.k); rect(fx - 4, 70, fx + 4, 82, C.k); const p = Math.sin(t * 9 + fx) > -0.7; rect(fx - 3, 71, fx + 3, 81, p ? C.oroL : C.oro); rect(fx - 5, 82, fx + 5, 83, C.k); rect(fx - 1, 70, fx + 1, 81, C.k); if (p) { pset(fx - 6, 76, C.oroL); pset(fx + 6, 76, C.oroL); } }
+  // las ventanas con luz, con alguien que pasa por dentro
+  for (const [vx, k] of [[176, 0], [236, 1]]) { rect(vx, 54, vx + 26, 98, C.k); rect(vx + 2, 56, vx + 24, 96, hex('#f0c870')); rect(vx + 2, 56, vx + 24, 62, hex('#f8dc90')); rect(vx + 12, 56, vx + 13, 96, C.k); rect(vx + 2, 76, vx + 24, 77, C.k); rect(vx - 2, 98, vx + 28, 101, C.piedraSS);
+    const sx = Math.round(((t * 9 + k * 40) % 60) - 10); if (sx > 0 && sx < 20) { rect(vx + 2 + sx, 70, vx + 8 + sx, 96, hex('#8a6a3a')); disco(vx + 5 + sx, 68, 3, hex('#8a6a3a')); }
+    for (let i = 0; i < 4; i++) disco(vx + 3 + i * 7, 101, 2, i % 2 ? C.rosa : C.hierbaS); }
+  // el tablón con hojas de colores (sin letras); la de abajo se mueve con el aire
+  rect(146, 100, 168, 124, C.maderaS); rect(147, 101, 167, 123, hex('#c8a070')); for (const [hx, hy, c] of [[149, 103, C.amarillo], [158, 104, hex('#a0e0f0')], [150, 113, hex('#f0a0c0')], [159, 114, C.blanco]]) { const fl = hy > 110 && Math.sin(t * 3 + hx) > 0.3 ? 1 : 0; rect(hx, hy, hx + 7, hy + 7 - fl, c); disco(hx + 3, hy, 1, C.rojo); }
+  // buganvillas a la derecha
+  for (let k = 0; k < 40; k++) { const x = 286 + Math.round(((k * 37) % 30)), y = 50 + Math.round(((k * 53) % 88)); disco(x, y, 2, k % 3 ? hex('#c83a8a') : C.hierbaS); if (k % 4 === 0) pset(x, y, hex('#f07ab8')); }
+  // el suelo de losas y el césped
+  rect(0, 140, 319, 160, C.camino); for (let x = 0; x < 320; x += 16) linea(x, 140, x - 4, 160, C.caminoS); rect(0, 150, 319, 150, C.caminoS);
+  rect(68, 140, 132, 143, C.k); rect(69, 141, 131, 143, C.piedra); rect(62, 144, 138, 147, C.k); rect(63, 145, 137, 147, C.piedra);
+  rect(0, 160, 319, 179, C.hierba); for (let k = 0; k < 40; k++) pset((k * 71) % 320, 162 + (k * 13) % 16, C.hierbaL);
+  // el aparcabicis
+  for (let k = 0; k < 4; k++) { const ax = 204 + k * 18; linea(ax, 140, ax, 132, C.metalD); linea(ax + 8, 140, ax + 8, 132, C.metalD); linea(ax, 132, ax + 8, 132, C.metalD); }
+  // pétalos que se lleva el aire
+  for (let k = 0; k < 5; k++) { const u = ((t * 0.12 + k * 0.21) % 1), x = Math.round(310 - u * 330 + Math.sin(t * 2 + k) * 4), y = Math.round(50 + u * 110 + Math.sin(t * 3 + k * 2) * 3); pset(x, y, hex('#e05aa0')); pset(x + 1, y, hex('#f07ab8')); }
+};
+const bici = (x, s, d = 1) => { const X = (i) => x + i * d; for (const i of [0, 14]) { R.disco(X(i), s - 4, 4, C.k); R.disco(X(i), s - 4, 3, hex('#8a8aa0')); R.disco(X(i), s - 4, 1, C.k); }
+  R.linea(X(0), s - 4, X(6), s - 10, C.azulL); R.linea(X(6), s - 10, X(14), s - 4, C.azulL); R.linea(X(6), s - 10, X(12), s - 10, C.azulL); R.linea(X(12), s - 10, X(14), s - 4, C.azulL); R.rect(Math.min(X(4), X(7)), s - 12, Math.max(X(4), X(7)), s - 11, C.k); R.linea(X(12), s - 10, X(13), s - 13, C.k); };
+const cierra = b(0.43), sale = P5 + 0.35;
+const p5 = (t) => {
+  const ab = t < P5 + 0.1 ? 0 : t < cierra - 0.05 ? lin(t, P5 + 0.1, P5 + 0.4) : 1 - lin(t, cierra - 0.05, cierra + 0.3);
+  facultad(t, ab);
+  bici(212, 141, 1);
+  // una estudiante saca su bici y se la lleva
+  const ub = lin(t, P5 + 1.1, P6), bx = Math.round(lerp(236, 360, ub)); R.actor(EL.chica, bx, 146, t, { dir: 1, anda: ub > 0, sonrisa: true }); bici(bx + 16, 146, 1);
+  // Holmes sale con la caja, se vuelve a mirar el edificio y se va
+  if (t > sale) {
+    const u1 = lin(t, sale, sale + 0.5), u2 = lin(t, sale + 0.5, b(0.505)), u3 = lin(t, b(0.6), P6 - 0.1);
+    const x = Math.round(u1 < 1 ? lerp(92, 110, u1) : u3 > 0 ? lerp(196, 340, u3) : lerp(110, 196, u2)), s = Math.round(lerp(140, 154, u1));
+    const mira = t > b(0.51) && t < b(0.6), d = mira ? -1 : 1;
+    R.actor(EL.holmes, x, s, t, { dir: d, anda: (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1) || (u3 > 0 && u3 < 1), sonrisa: t > b(0.56) });
+    caja(d > 0 ? x + 9 : x - 7, s - 7);
+  }
+};
+
+// ── 6 · el letrero de la empresa ───────────────────────────────────────────────────────────────────────────────
+const nombre = b(0.76), terapia = b(0.87), diag = b(0.94), funde = diag + 0.4;
+const cajas = (x, y, n) => { for (let k = 0; k < n; k++) { const bx = x + (k % 2) * 16, by = y - Math.floor(k / 2) * 11 - (k % 2) * 0; R.rect(bx, by - 11, bx + 15, by, C.k); R.rect(bx + 1, by - 10, bx + 14, by - 1, C.ocre); R.rect(bx + 1, by - 10, bx + 14, by - 9, C.ocreS); R.rect(bx + 7, by - 10, bx + 8, by - 1, hex('#e8c890')); } };
+const escalera = () => { R.linea(201, 62, 196, 164, C.k); R.linea(212, 62, 217, 164, C.k); R.linea(202, 62, 197, 164, C.metalL); R.linea(211, 62, 216, 164, C.metalL); for (let y = 70; y < 164; y += 10) { const i = (y - 62) / 102 * 5; R.rect(Math.round(201 - i), y, Math.round(212 + i), y + 1, C.metalD); } };
+const cruz = (x, y) => { R.disco(x, y, 6, C.k); R.disco(x, y, 5, C.blanco); R.rect(x - 1, y - 4, x + 1, y + 4, C.rojoW); R.rect(x - 4, y - 1, x + 4, y + 1, C.rojoW); };
+const p6 = (t) => {
+  T.sede(R, t, { descuelga: 0 });
+  cajas(26, 164, 3); cajas(256, 160, 4);
+  // el repartidor que trae más cajas en su carrito
+  const ur = lin(t, P6 + 0.1, E.duracion), rx = Math.round(lerp(-70, 150, ur)); R.actor(EL.sudadera, rx, 136, t, { dir: 1, anda: true }); carrito(R, rx + 16, 136, t);
+  // el técnico en la escalera clava el letrero y baja con la lupa
+  escalera();
+  const baja = lin(t, terapia, diag - 0.1), ty = Math.round(lerp(76, 164, baja)), tx = Math.round(lerp(196, 222, lin(t, diag - 0.4, diag - 0.1)));
+  const golpe = (entre(t, P6 + 0.2, P6 + 0.4) || entre(t, P6 + 0.6, P6 + 0.8));
+  const rt = R.actor(EL.tecnico, tx, ty, t, { dir: -1, dedo: ty < 90 || entre(t, diag - 0.1, funde), sonrisa: t > funde, anda: baja > 0 && baja < 1 });
+  if (ty < 90) { const [mx, my] = rt.mano; R.rect(mx - 1, my - (golpe ? 2 : 5), mx + 1, my + 1, C.maderaS); R.rect(mx - 3, my - (golpe ? 4 : 7), mx + 3, my - (golpe ? 2 : 5), C.metalD); }
+  // Holmes entra con la caja, la deja y señala el letrero cuando se funden la cruz y la lupa
+  const u = lin(t, P6 + 0.1, nombre + 0.5), x = Math.round(lerp(-16, 92, u)), deja = t > nombre + 0.7;
+  R.actor(EL.holmes, x, 162, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > funde, sonrisa: t > nombre + 0.8 });
+  if (deja) caja(x + 14, 162); else caja(x + 9, 155);
+  // «therapy» y «diagnosis»: la cruz sale de la caja, la lupa de la mano del técnico, y vuelan al letrero
+  if (t > terapia && t < funde) { const v = lin(t, terapia, funde); cruz(Math.round(lerp(x + 20, 148, v)), Math.round(lerp(146, 46, v) - Math.sin(v * Math.PI) * 10)); }
+  if (t > diag && t < funde) { const v = lin(t, diag, funde); T.lupa(R, Math.round(lerp(rt.mano[0], 168, v)), Math.round(lerp(rt.mano[1], 46, v)), 4); }
+  if (t > funde && t < funde + 1.1) { const r = 6 + (t - funde) * 34; for (let k = 0; k < 16; k++) { const g = k / 16 * Math.PI * 2, px = Math.round(160 + Math.cos(g) * r * 1.4), py = Math.round(46 + Math.sin(g) * r * 0.6); R.pset(px, py, k % 2 ? C.oroL : C.verdeT); if (k % 4 === 0) { R.pset(px + 1, py, C.oroL); R.pset(px - 1, py, C.oroL); R.pset(px, py + 1, C.oroL); R.pset(px, py - 1, C.oroL); } } }
+  if (t > funde && Math.sin(t * 6) > 0.2) for (const [sx, sy] of [[124, 36], [196, 40], [138, 64], [184, 62]]) { R.pset(sx, sy, C.oroL); R.pset(sx + 1, sy, C.oroL); R.pset(sx - 1, sy, C.oroL); R.pset(sx, sy + 1, C.oroL); R.pset(sx, sy - 1, C.oroL); }
+};
+const efectos = [[lanza, 'whoosh'], [atrapa, 'guau'], [7.1, 'lapiz'], [arruga, 'papel'], [encesta, 'golpecito'], [encesta + 0.4, 'lapiz'], [idea + 0.1, 'pop'], [completa + 0.4, 'brillo'],
+  [P3 + 0.1, 'puerta'], [susto, 'boing'], [guarda, 'whoosh'], [gotaT, 'pop'], [da, 'papel'], [mira, 'pop'], [mano, 'palmada'],
+  [P5 + 0.1, 'puerta'], [cierra + 0.3, 'cerrojo'], [P6 + 0.25, 'toc'], [P6 + 0.65, 'toc'], [nombre + 0.7, 'golpecito'], [terapia, 'pop'], [funde, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { cartela: '2003', efectos, año: (t) => (t < P5 ? 2003 : 2004) });
 </script>
 </body>
