@@ -1,6 +1,6 @@
 # Episodio 11 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:53.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`) y pista de audio en español (`em_santa`).
 - Subtítulos en inglés y en español.
 - **Estilo:** pixel chibi con ambiente, gags y efectos sincronizados, y banda sonora con emoción por escena (`herramientas/banda.cjs`).
@@ -38,7 +38,15 @@ Fair to everyone: she was convicted of defrauding investors and acquitted on the
 
 What should I explain next? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 A drop of blood
+1:09 The Stanford student
+2:11 Famous names and a lot of money
+3:10 What fits in a drop
+4:21 Inside the lab
+5:34 The reporter
+6:44 The trial
+7:33 Today
+8:01 Who has checked it?
 
 Sources: Business Wire (Sept 9, 2013) and BioSpace on the Walgreens centers · Fortune (June 2014) on the board · Forbes estimates via KFF Health News and NPR/WAMC (June 2016) · The Wall Street Journal (Oct 2015) via IndustryWeek and BioPharma Dive · TechCrunch (May 2016) and the Arizona Daily Star on voided tests · Boston Globe and NHPR on the verdict and sentence · John Carreyrou, "Bad Blood" (2018) · ABC30 and Fox 4 on her 2026 statement · HollywoodLife on "You Can See Everything"
 
@@ -63,7 +71,15 @@ Justos con todos: la condenaron por engañar a inversores, la absolvieron de los
 
 ¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 Una gota de sangre
+1:09 La estudiante de Stanford
+2:11 Nombres famosos y mucho dinero
+3:10 Lo que cabe en una gota
+4:21 Dentro del laboratorio
+5:34 El periodista
+6:44 El juicio
+7:33 Hoy
+8:01 ¿Quién lo ha comprobado?
 
 Fuentes: Business Wire (9 de septiembre de 2013) y BioSpace sobre los centros de Walgreens · Fortune (junio de 2014) sobre el consejo · estimaciones de Forbes recogidas por KFF Health News y NPR/WAMC (junio de 2016) · The Wall Street Journal (octubre de 2015), vía IndustryWeek y BioPharma Dive · TechCrunch (mayo de 2016) y Arizona Daily Star sobre los resultados anulados · Boston Globe y NHPR sobre el veredicto y la condena · John Carreyrou, «Bad Blood» (2018) · ABC30 y Fox 4 sobre su mensaje de 2026 · HollywoodLife sobre «You Can See Everything»
 
@@ -76,7 +92,11 @@ Fuentes: Business Wire (9 de septiembre de 2013) y BioSpace sobre los centros de
 
 ## Antes de publicar
 
-- **Miniatura:** `atomo/plato/escenas/th-miniatura.html`, capturada en t = 1 a 1280 × 720.
+- **Miniatura:** se genera con `atomo/plato/escenas/th-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas de audio extra, el español se sube como vídeo aparte.
 - **Comprobar un dato:** que Erika Cheung siga dando formación en ética a emprendedores (Ethics in Entrepreneurship, 2019). La frase 34 lo afirma en presente.
-{AVISOS}
+- **Escuchar antes de publicar** (el control automático las marcó; casi todas son nombres que el transcriptor lee en inglés, que es como deben sonar):
+  - EN, frase 18: «And that, exactly…» (marcó «and» como «in»).
+  - EN, frases 2 y 31: comprobar que se oye entero «nine billion dollars» y «Sunny Balwani».
+  - ES, nombres: «Uólgrins», «Yorch Shults», «Yon Carerú», «Uól Strit Yérnal», «Jóulms».
+- **Miniatura:** `atomo/build/salida/ep11-miniatura.jpg` (1280 × 720). A la izquierda, la farmacia; a la derecha, el laboratorio a oscuras con la Edison echando humo. En el centro, la gota gigante y ella señalándola; arriba, «$9,000,000,000» tachado, y debajo «$0».
