@@ -20,7 +20,7 @@ const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('tubos', f), b = (f) => en('moleculas', f);
 const P2 = a(0.38), P3 = a(0.7), P4 = b(0), P5 = b(0.33), P6 = b(0.72);
-const p1 = (t) => { T.insertoTubos(R, t, { tubos: 0 }); T.guante(R, 240, 96, -1); };
+const p1 = (t) => { T.insertoTubos(R, t, { tubos: tramo(t, 0.6, a(0.36)) * 0.4 }); };
 const p2 = (t) => T.insertoTubos(R, t, { tubos: tramo(t, P2 + 0.2, a(0.62)) * 3, cuchara: t > a(0.64) });
 const p3 = (t) => { T.laboratorio(R, t); R.actor(EL.tecnica, 150, 164, t, { dir: 1, quieto: true }); R.actor(EL.tecnico, 100, 162, t, { dir: 1, anda: true });
   const iconos = [['gota', T.C.sangre], ['pila', T.C.amarilloT], ['corona', T.C.oro], ['luna', T.C.tealT]]; iconos.forEach(([n, c], k) => { const u = tramo(t, a(0.82) + k * 0.6, a(0.82) + k * 0.6 + 1); if (u <= 0) return; const x = 210 + (k % 2) * 60, y = Math.round(lerp(40, 22, u)); R.rect(x - 6, y - 6, x + 8, y + 8, T.C.k); R.rect(x - 5, y - 5, x + 7, y + 7, T.C.blanco); R.icono(n, x - 2, y - 2, c, T.C.k); }); };

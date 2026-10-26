@@ -116,51 +116,53 @@ export function sillonDelante(R, x = 150, suelo = 140) {
   rect(x + 22, suelo - 24, x + 42, suelo - 20, C.k); rect(x + 23, suelo - 23, x + 41, suelo - 21, C.tealT); rect(x + 26, suelo - 20, x + 28, suelo - 16, C.metalD);
   rect(x + 13, suelo - 10, x + 16, suelo, C.metalD); rect(x + 6, suelo - 1, x + 24, suelo, C.metalD);
 }
-// una mano con guante de nitrilo que entra desde la derecha (para sostener tubitos o la lupa)
-export function guante(R, x, y, dir = -1) {
-  const { rect, poligono } = R, g = hex('#7a8ae0'), gS = hex('#5a68c0'), f = (u) => Math.round(x - dir * u);
-  poligono([[f(0), y - 6], [f(30), y - 8], [f(60), y - 10], [f(60), y + 10], [f(30), y + 8], [f(0), y + 7]].map(([a, b]) => [a, b]), C.k);
-  poligono([[f(1), y - 5], [f(30), y - 7], [f(59), y - 9], [f(59), y + 9], [f(30), y + 7], [f(1), y + 6]], g);
-  for (const dy of [-3, 1]) rect(Math.min(f(-8), f(2)), y + dy, Math.max(f(-8), f(2)), y + dy + 2, C.k), rect(Math.min(f(-7), f(2)), y + dy, Math.max(f(-7), f(2)), y + dy + 1, g);
-  rect(Math.min(f(4), f(24)), y + 4, Math.max(f(4), f(24)), y + 4, gS); rect(Math.min(f(60), f(70)), y - 11, Math.max(f(60), f(70)), y + 11, hex('#f4f4f8'));
-}
-// el inserto del pinchazo: una mano abierta con el dedo; la lanceta baja y pica (o.pica 0–1), brota la gota (o.gota 0–1)
-// y una mano con guante acerca el tubito y la recoge (o.recoge 0–1); al fondo, la farmacia desenfocada
+// la mano de la enfermera o del técnico: la mano canónica del episodio 10 (sprite de 14 px) con la manga verde azulada
+// del pijama sanitario; (x, y) es la muñeca y dir hacia dónde apunta
+export function guante(R, x, y, dir = -1, manga = '#4aa8a0') { mano(R, x, y, dir, manga); }
+// el inserto del pinchazo, de objetos sobre la mesita del rincón (los personajes siguen pequeños: las manos son las
+// canónicas de 14 px): la mano de la clienta apoyada en la almohadilla, la lanceta que baja y pica (o.pica 0–1, y vuelve
+// a subir), la gota que brota en la yema (o.gota 0–1) y la mano de la enfermera que acerca el tubito y la recoge
+// (o.recoge 0–1); alrededor, la bandeja con tubitos, la caja de cartuchos con el logotipo, la gasa y la tirita
 export function insertoDedo(R, t, o = {}) {
   const { rect, pset, disco, poligono, linea } = R;
-  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x += 4) rect(x, y, x + 3, y, ((x >> 4) + (y >> 4)) % 2 ? hex('#ece8e0') : hex('#e4e0d8'));
-  for (let k = 0; k < 6; k++) { const cx = 20 + k * 56, cy = 40 + (k % 2) * 30; for (let j = -10; j <= 10; j++) for (let i = -16; i <= 16; i++) if ((i / 16) ** 2 + (j / 10) ** 2 < 1 && (i + j) % 2) pset(cx + i, cy + j, [hex('#f0b0b0'), hex('#b0c8f0'), hex('#f0e0a0')][k % 3]); }
-  rect(0, 126, 319, 179, hex('#d8d8e0')); rect(0, 126, 319, 127, hex('#b8b8c4')); rect(20, 132, 120, 136, hex('#c8c8d4'));   // la mesita y el empapador
-  // la mano, grande, con el índice extendido hacia la derecha
-  const piel = hex('#f6c290'), pielS = hex('#d48a5a');
-  poligono([[0, 104], [90, 96], [120, 100], [124, 120], [90, 128], [0, 130]], C.k); poligono([[0, 106], [90, 98], [118, 102], [121, 118], [90, 126], [0, 128]], piel);
-  poligono([[116, 104], [196, 100], [206, 104], [206, 114], [196, 118], [116, 118]], C.k); poligono([[118, 106], [196, 102], [204, 105], [204, 113], [196, 116], [118, 116]], piel);
-  rect(184, 103, 200, 112, hex('#f8d8c0')); rect(140, 115, 196, 116, pielS); for (const x of [150, 172]) linea(x, 104, x + 2, 114, pielS);   // la uña y los pliegues
-  for (const [a, b] of [[96, 120], [100, 124]]) linea(a, b, a + 18, b + 2, pielS);
-  rect(0, 102, 20, 132, C.k); rect(0, 103, 19, 131, hex('#c84a4a')); for (let y = 105; y < 131; y += 3) rect(0, y, 18, y, hex('#a03434'));   // la manga de la rebeca roja
-  // la lanceta (un pequeño aparato con muelle) que baja, pica y vuelve a subir
-  const p = o.pica ?? 0, ly = Math.round(lerp(10, 98, Math.min(1, p)) - (p > 1 ? (p - 1) * 60 : 0));
-  if (p > 0 && p < 1.8) { rect(192, ly - 34, 206, ly - 4, C.k); rect(193, ly - 33, 205, ly - 5, C.tealT); rect(193, ly - 33, 205, ly - 26, C.verdeT); rect(196, ly - 4, 202, ly, C.k); rect(197, ly - 4, 201, ly - 1, C.metalL); if (p > 0.95 && p < 1.1) for (const [dx, dy] of [[-8, 2], [8, 2], [-6, -3], [6, -3]]) pset(199 + dx, ly + dy, C.k); }
+  for (let y = 0; y < 120; y++) for (let x = 0; x < 320; x += 4) rect(x, y, x + 3, y, ((x >> 4) + (y >> 4)) % 2 ? hex('#ece8e0') : hex('#e4e0d8'));
+  for (let k = 0; k < 6; k++) { const cx = 20 + k * 56, cy = 30 + (k % 2) * 30; for (let j = -10; j <= 10; j++) for (let i = -16; i <= 16; i++) if ((i / 16) ** 2 + (j / 10) ** 2 < 1 && (i + j) % 2) pset(cx + i, cy + j, [hex('#f0b0b0'), hex('#b0c8f0'), hex('#f0e0a0')][k % 3]); }
+  logoTheranos(R, 160, 46, 1.4, t);
+  // la mesita blanca con su borde y la luz del flexo
+  rect(0, 92, 319, 179, hex('#f4f4f8')); rect(0, 92, 319, 94, hex('#c8c8d4')); for (let y = 96; y < 180; y++) for (let x = 100; x < 230; x++) if ((x + y) % 4 === 0 && Math.hypot((x - 165) / 1.8, y - 112) < 34) pset(x, y, C.blanco);
+  // la almohadilla azul, con la mano de la clienta apoyada (manga de la rebeca roja)
+  rect(108, 108, 176, 122, C.k); rect(109, 109, 175, 121, hex('#8ab0d8')); rect(109, 109, 175, 110, hex('#a8c8e8'));
+  mano(R, 150, 108, 1, '#c84a4a');
+  // la lanceta: un cilindro pequeño con botón, que baja hasta la yema, pica y sube
+  const p = o.pica ?? 0, ly = Math.round(lerp(40, 101, Math.min(1, p)) - (p > 1 ? (p - 1) * 60 : 0));
+  if (p > 0 && p < 1.8) { rect(157, ly - 22, 165, ly - 2, C.k); rect(158, ly - 21, 164, ly - 3, C.tealT); rect(158, ly - 21, 164, ly - 17, C.verdeT); rect(159, ly - 24, 163, ly - 22, C.k); rect(160, ly - 2, 162, ly, C.metalD);
+    if (p > 0.95 && p < 1.1) for (const [dx, dy] of [[-6, 0], [6, 0], [-4, -4], [4, -4]]) pset(161 + dx, ly + dy, C.k); }
   // la gota que brota en la yema
-  const g = o.gota ?? 0; if (g > 0) { const r = Math.round(1 + g * 5); disco(198, 101 - r, r, C.sangreS); disco(198, 101 - r, r - 1, C.sangre); pset(197 - Math.round(r / 3), 100 - r - Math.round(r / 2), C.sangreL); }
-  // el tubito, del tamaño de una uña, que acerca una mano con guante y se llena
-  const rc = o.recoge ?? 0; if (rc > 0) { const tx = Math.round(lerp(330, 206, Math.min(1, rc * 1.6))), ll = Math.max(0, Math.min(1, rc * 1.6 - 0.6)); tubito(R, tx, 98, 2, ll, C.verdeT); guante(R, tx + 6, 94, -1); }
+  const g = o.gota ?? 0; if (g > 0) { const r = Math.round(1 + g * 2); disco(161, 104 - r, r, C.sangreS); disco(161, 104 - r, Math.max(1, r - 1), C.sangre); pset(160, 103 - r, C.sangreL); }
+  // la mano de la enfermera que acerca el tubito (del tamaño de una uña) y lo llena
+  const rc = o.recoge ?? 0; if (rc > 0) { const tx = Math.round(lerp(340, 186, Math.min(1, rc * 1.6))), ll = Math.max(0, Math.min(1, rc * 1.6 - 0.6)); tubito(R, tx - 12, 108, 1, ll, C.verdeT); mano(R, tx, 104, -1, '#4aa8a0'); }
+  // la bandeja con tubitos, la caja de cartuchos, la gasa y la tirita
+  rect(232, 128, 300, 150, C.k); rect(233, 129, 299, 149, C.metalL); for (let k = 0; k < 6; k++) tubito(R, 240 + k * 10, 146, 1, k < 2 ? 1 : 0, [C.verdeT, C.amarilloT, C.tealT, C.rojoW, C.verdeT, C.amarilloT][k]);
+  rect(30, 120, 80, 150, C.k); rect(31, 121, 79, 149, C.blanco); rect(31, 121, 79, 126, C.tealT); logoTheranos(R, 55, 138, 0.6, t);
+  rect(96, 140, 112, 150, C.k); rect(97, 141, 111, 149, hex('#f8f8fa')); for (let k = 0; k < 3; k++) rect(99, 143 + k * 2, 109, 143 + k * 2, hex('#e0e0e8'));
+  rect(196, 150, 222, 156, C.k); rect(197, 151, 221, 155, hex('#e8c8a0')); rect(205, 151, 213, 155, hex('#f4e0c8'));
 }
-// ── B · la ciencia de la gota (insertos) ──────────────────────────────────────────────────────────────────────────
-// el brazo con la aguja y los tubos (o.tubos: cuántos se llenan, 0–3), y la cucharadita al lado (o.cuchara)
+// el inserto del análisis de siempre, de objetos: el tubo de goma que llega de la aguja (fuera del plano, en el brazo de
+// la persona), la gradilla con los tubos de vena que se llenan (o.tubos: cuántos, 0–3), la mano canónica de la enfermera
+// que sujeta el que se llena, y la cucharadita al lado (o.cuchara), para comparar
 export function insertoTubos(R, t, o = {}) {
   const { rect, pset, disco, poligono, linea } = R;
   rect(0, 0, 319, 179, hex('#e8eef4')); for (let y = 0; y < 180; y += 3) for (let x = 0; x < 320; x++) if (h(x >> 2, y, 40) < 0.08) pset(x, y, hex('#dce4ec'));
+  rect(20, 20, 90, 70, C.k); rect(22, 22, 88, 68, hex('#f8f8fa')); for (let k = 0; k < 5; k++) rect(28, 30 + k * 8, 80 - (k * 9) % 24, 31 + k * 8, hex('#9aa0ac')); R.icono('gota', 72, 26, C.sangre, C.k);   // el cartel de la pared
   rect(0, 130, 319, 179, hex('#c8d4e0')); rect(0, 130, 319, 131, hex('#a8b4c4'));
-  // el brazo extendido sobre el apoyabrazos, con la goma y la aguja en la vena
-  const piel = hex('#f6c290'), pielS = hex('#d48a5a');
-  poligono([[0, 96], [180, 104], [184, 122], [0, 124]], C.k); poligono([[0, 98], [178, 106], [181, 120], [0, 122]], piel); rect(0, 106, 179, 107, pielS);
-  rect(40, 96, 50, 124, C.k); rect(41, 97, 49, 123, hex('#4a8ae8'));   // la goma
-  linea(80, 108, 150, 110, hex('#8a6ab8'));   // la vena
-  rect(118, 100, 140, 106, C.k); rect(119, 101, 139, 105, C.blanco); linea(116, 106, 110, 109, C.metalD);   // la aguja con su soporte
-  // los tubos de vena que se llenan y la cucharadita
-  const n = o.tubos ?? 0; for (let k = 0; k < 3; k++) { const x = 200 + k * 26, y0 = 60, y1 = 126; rect(x - 7, y0, x + 7, y1, C.k); rect(x - 6, y0 + 1, x + 6, y1 - 1, hex('#f4f8fc'));
+  // el tubo de goma que llega desde la izquierda, con la sangre que corre por él
+  const n = o.tubos ?? 0, x1 = 200 + Math.min(2, Math.floor(n)) * 26;
+  for (let x = 0; x <= x1; x++) { const y = Math.round(lerp(96, 44, Math.max(0, (x - x1 + 30) / 30)) + Math.sin(x * 0.05) * 3); pset(x, y, C.k); pset(x, y + 1, n > 0 && (x + Math.round(t * 30)) % 6 < 3 ? C.sangre : hex('#f0c8c8')); pset(x, y + 2, C.k); }
+  // la gradilla y los tres tubos
+  rect(180, 112, 270, 118, C.k); rect(181, 113, 269, 117, C.metalL);
+  for (let k = 0; k < 3; k++) { const x = 200 + k * 26, y0 = 56, y1 = 126; rect(x - 7, y0, x + 7, y1, C.k); rect(x - 6, y0 + 1, x + 6, y1 - 1, hex('#f4f8fc'));
     const f = Math.max(0, Math.min(1, n - k)); if (f > 0) rect(x - 6, Math.round(y1 - 1 - (y1 - y0 - 14) * f), x + 6, y1 - 1, C.sangre); rect(x - 8, y0 - 10, x + 8, y0, C.k); rect(x - 7, y0 - 9, x + 7, y0 - 1, [C.rojoW, C.tealT, hex('#8a5ad8')][k]); pset(x - 4, y0 + 6, C.blanco); }
+  if (n > 0 && n < 3) mano(R, 200 + Math.floor(n) * 26 + 18, 92, -1, '#4aa8a0');
   if (o.cuchara) { const x = 92, y = 152; poligono([[x - 50, y + 2], [x - 2, y - 2], [x - 2, y + 4], [x - 50, y + 6]], C.metalS); for (let j = -8; j <= 8; j++) for (let i = -14; i <= 14; i++) { const e = (i / 14) ** 2 + (j / 8) ** 2; if (e < 1) pset(x + 12 + i, y + j, e > 0.82 ? C.metalD : j < -3 ? C.metalL : C.metal); }
     for (let j = -5; j <= 5; j++) for (let i = -10; i <= 10; i++) if ((i / 10) ** 2 + (j / 5) ** 2 < 1) pset(x + 12 + i, y + j, j < -2 ? C.sangreL : C.sangre); }
 }
@@ -180,30 +182,26 @@ export function insertoMoleculas(R, t, o = {}) {
   const vals = o.rara ? [0.08, 0, 0.05, 0] : [0.8, 0.55, 0.42, 0.66]; vals.forEach((v, k) => { const a = Math.round(40 * Math.min(1, v * (0.6 + 0.4 * Math.abs(Math.sin(t + k))))), col = o.rara ? C.oro : tipos[k][0]; rect(214 + k * 24, 166 - a, 230 + k * 24, 166, col); });
   rect(6, 120, 120, 172, C.k); rect(8, 122, 118, 170, hex('#2a3a4a')); for (let k = 0; k < 4; k++) disco(30 + k * 24, 146, 6, k === Math.floor(t * 2) % 4 ? hex('#5ab0e8') : hex('#3a4a5a'));
 }
-// la gota frente a la cucharadita: «÷ 100» dibujado (la fuente no tiene el signo), y el líquido de los tejidos que se
-// cuela en la gota (o.tejido 0–1)
+// la gota frente a la cucharadita: a la izquierda la cucharadita llena; a la derecha, la mano canónica con la gota en la
+// yema; entre las dos, «÷ 100» (el signo dibujado: la fuente no lo tiene). o.tejido (0–1): gotitas transparentes del
+// líquido de los tejidos que se acercan y se mezclan con la gota
 export function gotaCuchara(R, t, o = {}) {
   const { rect, pset, disco, poligono, linea } = R;
   rect(0, 0, 319, 179, hex('#e8eef4')); for (let y = 0; y < 140; y += 3) for (let x = 0; x < 320; x++) if (h(x >> 2, y, 46) < 0.06) pset(x, y, hex('#dce4ec'));
   rect(0, 140, 319, 179, hex('#c8d4e0')); rect(0, 140, 319, 141, hex('#a8b4c4'));
-  // la cucharadita llena, a la izquierda, con su reflejo
   poligono([[6, 128], [72, 120], [72, 128], [6, 136]], C.k); poligono([[8, 129], [72, 121], [72, 127], [8, 134]], C.metal);
   for (let j = -17; j <= 17; j++) for (let i = -29; i <= 29; i++) { const e = (i / 29) ** 2 + (j / 17) ** 2; if (e < 1) pset(100 + i, 122 + j, e > 0.86 ? C.k : e > 0.7 ? C.metalD : C.metal); }
   for (let j = -12; j <= 12; j++) for (let i = -23; i <= 23; i++) if ((i / 23) ** 2 + (j / 12) ** 2 < 1) pset(100 + i, 120 + j, j < -7 ? C.sangreL : j > 6 ? C.sangreS : C.sangre);
   rect(88, 112, 96, 113, hex('#f8a0a8'));
-  // el signo «÷» y el 100, en el centro
   const sx = 160, sy = 64; rect(sx - 13, sy - 2, sx + 13, sy + 2, C.k); rect(sx - 12, sy - 1, sx + 12, sy + 1, C.sangreS); for (const dy of [-9, 9]) { disco(sx, sy + dy, 3, C.k); disco(sx, sy + dy, 2, C.sangreS); }
-  R.numero('100', sx + 50, sy + 8, { centro: true, tam: 16 });
-  // la mano a la derecha con el índice hacia arriba y la gota diminuta en la yema
-  const piel = hex('#f6c290'), pielS = hex('#d48a5a');
-  poligono([[232, 179], [234, 150], [252, 142], [290, 142], [300, 156], [300, 179]], C.k); poligono([[234, 179], [236, 151], [253, 144], [289, 144], [298, 157], [298, 179]], piel);
-  for (const x of [262, 274, 286]) { rect(x - 5, 140, x + 5, 150, C.k); rect(x - 4, 141, x + 4, 150, piel); rect(x - 4, 146, x + 4, 146, pielS); }   // los nudillos de los dedos doblados
-  rect(244, 112, 256, 150, C.k); rect(245, 113, 255, 150, piel); rect(247, 113, 253, 118, hex('#f8d8c0')); rect(245, 130, 255, 130, pielS); rect(245, 140, 255, 140, pielS);
-  disco(250, 109, 3, C.sangreS); disco(250, 109, 2, C.sangre); pset(249, 108, C.sangreL);
-  // el líquido de los tejidos: gotitas transparentes que se acercan y se mezclan con la gota
-  const e = o.tejido ?? 0; if (e > 0) for (let k = 0; k < 10; k++) { const a = k * 0.63 + t * 0.6, r = 16 - e * 12; disco(Math.round(250 + Math.cos(a) * r), Math.round(109 + Math.sin(a) * r * 0.7), 1, hex('#a8d8f0')); pset(Math.round(250 + Math.cos(a) * r), Math.round(108 + Math.sin(a) * r * 0.7), C.blanco); }
-  if (e > 0.6) { disco(250, 109, 3, hex('#e87888')); pset(249, 108, C.blanco); }
-  linea(132, 122, 226, 112, hex('#a8b4c4'));
+  R.numero('100', sx + 50, sy + 8, { tam: 16, centro: true });
+  // la mano canónica que entra por la derecha, con la gota en la yema del índice
+  mano(R, 262, 124, -1, '#c84a4a'); const gx = 251, gy = 121;
+  disco(gx, gy, 2, C.sangreS); pset(gx, gy, C.sangre); pset(gx - 1, gy - 1, C.sangreL);
+  for (let r = 0; r < 3; r++) for (let a = 0; a < 6.28; a += 0.4) if ((a * 10 | 0) % 2) pset(Math.round(gx + Math.cos(a) * (6 + r * 3 + (t * 4) % 3)), Math.round(gy + Math.sin(a) * (6 + r * 3 + (t * 4) % 3)), hex('#d8dce8'));   // ondas que señalan la gota diminuta
+  const e = o.tejido ?? 0; if (e > 0) for (let k = 0; k < 8; k++) { const a = k * 0.8 + t * 0.6, r = 12 - e * 9; pset(Math.round(gx + Math.cos(a) * r), Math.round(gy + Math.sin(a) * r * 0.7), hex('#7ab8e0')); }
+  if (e > 0.6) pset(gx + 1, gy, hex('#e87888'));
+  linea(132, 122, 236, 120, hex('#a8b4c4'));
 }
 // el medidor de azúcar de casa: el aparatito con su tira, la gota y el número en la pantalla
 export function medidorAzucar(R, t, o = {}) {
@@ -371,9 +369,10 @@ export function revista(R, t, o = {}) {
   rect(0, 80, 319, 86, C.maderaS); rect(0, 140, 319, 179, C.maderaS); rect(0, 140, 319, 142, C.maderaL);
   const x0 = 100, x1 = 220, y0 = 34, y1 = 170; rect(x0 - 2, y0 - 2, x1 + 2, y1 + 2, C.k); rect(x0, y0, x1, y1, hex('#f4f0e8'));
   rect(x0 + 6, y0 + 6, x1 - 6, y0 + 22, C.rojoW); for (let k = 0; k < 7; k++) rect(x0 + 12 + k * 14, y0 + 9, x0 + 20 + k * 14, y0 + 19, C.blanco);
-  // la silueta: melena rubia detrás de los hombros, cabeza sin rasgos, jersey negro de cuello alto
-  disco(160, 92, 24, hex('#d8b860')); rect(136, 92, 184, 128, hex('#d8b860')); disco(160, 86, 17, hex('#e8c8a0')); rect(150, 100, 170, 112, hex('#e8c8a0'));
-  poligono([[118, y1 - 2], [124, 128], [146, 114], [174, 114], [196, 128], [202, y1 - 2]], hex('#1e1e28')); rect(148, 106, 172, 118, hex('#1e1e28')); rect(150, 106, 170, 107, hex('#2a2a36'));
+  // la foto de portada: ella, con el sprite chibi canónico al doble de tamaño, sobre un fondo de estudio
+  rect(x0 + 8, y0 + 28, x1 - 8, y1 - 36, hex('#e8d8b8')); for (let y = y0 + 28; y < y1 - 36; y += 2) for (let x = x0 + 8; x < x1 - 8; x++) if (h(x >> 2, y, 75) < 0.06) pset(x, y, hex('#dccaa8'));
+  { const buf = R.nuevo(), VACIO = 0x01020304, prev = R.usar(buf); buf.fill(VACIO); R.actor(ELENCO_CHIBI.holmes, 2, 30, 0.5, { quieto: true, sonrisa: true }); R.usar(prev);
+    for (let y = 2; y <= 30; y++) for (let x = 0; x <= 20; x++) { const c = buf[y * 320 + x]; if (c === VACIO) continue; rect(140 + x * 2, 70 + y * 2, 141 + x * 2, 71 + y * 2, c); } }
   R.icono('corona', 196, y0 + 30, C.oro, C.k, 2); R.numero('$', 120, y0 + 50, { tam: 16 });
   for (let k = 0; k < 4; k++) rect(x0 + 8, y1 - 30 + k * 6, x0 + 40 - (k % 2) * 10, y1 - 28 + k * 6, hex('#8a8a9a'));
   if (o.tachada) { const u = Math.min(1, o.tachada); for (let i = 0; i < Math.round(110 * u); i++) { R.rect(x0 + 4 + i, y0 + 10 + i * 1.1, x0 + 8 + i, y0 + 13 + i * 1.1, C.rojo); R.rect(x1 - 8 - i, y0 + 10 + i * 1.1, x1 - 4 - i, y0 + 13 + i * 1.1, C.rojo); } }

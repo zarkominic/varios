@@ -20,8 +20,7 @@ const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('gota', f), b = (f) => en('azucar', f), c = (f) => en('resuelto', f);
 const P2 = a(0.48), P3 = b(0), P4 = b(0.4), P5 = c(0);
 const p1 = (t) => T.gotaCuchara(R, t, { tejido: 0 });
-const p2 = (t) => { T.insertoDedo(R, t, { gota: 1 }); const e = tramo(t, a(0.64), a(0.84)); for (let k = 0; k < 10; k++) { const ang = k * 0.63 + t * 0.6, r = 20 - e * 14; R.disco(Math.round(198 + Math.cos(ang) * r), Math.round(94 + Math.sin(ang) * r * 0.7), 1, hex('#a8d8f0')); } if (e > 0.8) { R.disco(198, 94, 5, hex('#e87888')); R.pset(196, 92, T.C.blanco); }
-  T.guante(R, 150, 128, -1); };
+const p2 = (t) => { T.insertoDedo(R, t, { gota: 1 }); const e = tramo(t, a(0.64), a(0.84)); for (let k = 0; k < 10; k++) { const ang = k * 0.63 + t * 0.6, r = 16 - e * 12; R.pset(Math.round(161 + Math.cos(ang) * r), Math.round(101 + Math.sin(ang) * r * 0.7), hex('#7ab8e0')); } if (e > 0.8) { R.disco(161, 101, 2, hex('#e87888')); R.pset(160, 100, T.C.blanco); } };
 const p3 = (t) => { T.medidorAzucar(R, t, { valor: t < b(0.24) ? Math.floor(t * 20) % 100 : 98 }); R.rect(230, 100, 252, 128, T.C.k); R.rect(231, 101, 251, 127, T.C.blanco); for (let k = 0; k < 3; k++) R.linea(236 + k * 6, 98 - Math.round(((t * 8 + k * 5) % 14)), 238 + k * 6, 92 - Math.round(((t * 8 + k * 5) % 14)), T.C.grisL); };
 const p4 = (t) => T.noCaben(R, t);
 const p5 = (t) => { R.rect(0, 0, 319, 179, hex('#f4f0e8')); R.rect(0, 140, 319, 179, T.C.maderaL); R.rect(0, 140, 319, 142, T.C.madera); T.edison(R, 160, 140, t, { s: 1.2 }); T.lazo(R, 160, 140, t, 1.2); };
