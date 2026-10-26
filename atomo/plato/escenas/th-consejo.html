@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El consejo · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-CONSEJO (frases 10–11). Seis planos: el dinero cae sobre la mesa de la sala del consejo, vacía; entran los
+// consejeros famosos, mayores, y se sientan; llega un general con su medalla; ella presenta con un tubito; el gag de la
+// pipeta: un consejero la mira por el lado equivocado y le cae una gota en la nariz; todos asienten, y la «?» que flota
+// sobre la mesa se apaga sin que nadie la pregunte.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-consejo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('consejo', f), b = (f) => en('pipeta', f);
+const P2 = a(0.22), P3 = a(0.7), P4 = b(0), P5 = b(0.27), P6 = b(0.55);
+const SILLAS = [56, 100, 144, 188, 232];
+const sentados = (t, quien, o = {}) => quien.forEach((d, k) => d && R.actor(d, SILLAS[k] + 1, 140, t, { dir: 1, quieto: true, ...(o[k] || {}) }));
+const p1 = (t) => { T.consejo(R, t); T.consejoMesa(R, t, { dinero: tramo(t, 0.3, P2 - 0.2) }); };
+const p2 = (t) => { T.consejo(R, t); const q = [EL.consejero, EL.consejeroCalvo, null, EL.consejero, EL.profesor];
+  q.forEach((d, k) => { if (!d) return; const u = tramo(t, P2 + 0.4 + k * 0.9, P2 + 1.8 + k * 0.9); if (u >= 1) R.actor(d, SILLAS[k] + 1, 140, t, { dir: 1, quieto: true, sonrisa: true }); else if (u > 0) R.actor(d, Math.round(lerp(-20, SILLAS[k] + 1, u)), 164, t, { dir: 1, anda: true }); });
+  T.consejoMesa(R, t, { dinero: 1 }); };
+const p3 = (t) => { T.consejo(R, t); sentados(t, [EL.consejero, EL.consejeroCalvo, null, EL.consejero, EL.profesor]); const u = tramo(t, P3 + 0.3, P3 + 2.4);
+  if (u < 1) R.actor(EL.general, Math.round(lerp(330, 145, u)), 164, t, { dir: -1, anda: true }); else R.actor(EL.general, 145, 140, t, { dir: 1, quieto: true }); T.consejoMesa(R, t, { dinero: 1 });
+  if (u >= 1 && Math.sin(t * 6) > 0) R.pset(152, 124, T.C.oroL); };
+const p4 = (t) => { T.consejo(R, t, { sillas: [56, 100, 188, 232] }); sentados(t, [EL.consejero, EL.consejeroCalvo, null, EL.general, EL.profesor]); R.actor(EL.holmes, 150, 150, t, { dir: 1, dedo: true, habla: Math.sin(t * 6) > 0 }); T.consejoMesa(R, t, { dinero: 1 }); T.tubito(R, 168, 124, 1, 1); };
+const p5 = (t) => { T.consejo(R, t); sentados(t, [EL.consejeroCalvo, EL.consejero, null, EL.general, null]);
+  const x = 145; R.actor(EL.consejero, x, 140, t, { dir: 1, quieto: true, sorpresa: t > b(0.45) });
+  // la pipeta al revés: la punta hacia el ojo y la pera hacia fuera; a la mitad, le cae la gota en la nariz
+  R.linea(x + 14, 116, x + 30, 104, T.C.k); R.linea(x + 15, 116, x + 31, 104, hex('#c8e8f8')); R.disco(x + 32, 102, 3, T.C.k); R.disco(x + 32, 102, 2, T.C.rojo);
+  const g = tramo(t, b(0.4), b(0.46)); if (g > 0 && g < 1) R.disco(Math.round(lerp(x + 14, x + 12, g)), Math.round(lerp(116, 124, g)), 1, T.C.sangre); if (g >= 1) R.pset(x + 12, 124, T.C.sangre);
+  T.consejoMesa(R, t, { dinero: 1 }); };
+const p6 = (t) => { T.consejo(R, t); const s = Math.floor(t * 2) % 2; sentados(t, [EL.consejero, EL.consejeroCalvo, EL.general, EL.consejero, EL.profesor], { 0: { sonrisa: true }, 1: { sonrisa: true, salto: s }, 2: { sonrisa: true }, 3: { sonrisa: true, salto: 1 - s }, 4: { sonrisa: true } });
+  T.consejoMesa(R, t, { dinero: 1 }); const f = 1 - tramo(t, b(0.8), b(0.98)); if (f > 0.05 && Math.floor(t * 8) % (f < 0.4 ? 2 : 1) === 0) R.icono('?', 150, 92, T.C.rojo, T.C.k, 3); };
+const efectos = [[0.4, 'papel'], [P2 + 0.4, 'puerta'], [P3 + 0.3, 'puerta'], [b(0.46), 'chof'], [b(0.8), 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: (t) => (t < P4 ? 2011 : 2012) });
+</script>
+</body>
+</html>

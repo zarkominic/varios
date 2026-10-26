@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La prisión · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-PRISION (frase 32). El campo federal de Texas al amanecer: un coche oscuro llega por el camino hasta la entrada.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-prision');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const efectos = [[0.3, 'motor'], [E.duracion - 1, 'puerta']];
+T.rodar(E, R, [[0, (t) => T.prision(R, t, { coche: tramo(t, 0.3, E.duracion - 1.2) })]], { efectos, año: 2023 });
+</script>
+</body>
+</html>

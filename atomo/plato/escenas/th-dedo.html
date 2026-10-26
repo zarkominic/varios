@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La gota del dedo · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-DEDO (frases 16–18). Cinco planos: la gota del dedo frente a la cucharadita, «÷100»; el dedo apretado, con el
+// líquido de los tejidos que se cuela en la gota; el medidor de azúcar de casa con su número; las decenas de pruebas que
+// hacen cola para entrar en una sola gota y rebotan (gag); y la caja Edison envuelta como un regalo.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-dedo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('gota', f), b = (f) => en('azucar', f), c = (f) => en('resuelto', f);
+const P2 = a(0.48), P3 = b(0), P4 = b(0.4), P5 = c(0);
+const p1 = (t) => T.gotaCuchara(R, t, { tejido: 0 });
+const p2 = (t) => { T.insertoDedo(R, t, { gota: 1 }); const e = tramo(t, a(0.64), a(0.84)); for (let k = 0; k < 10; k++) { const ang = k * 0.63 + t * 0.6, r = 20 - e * 14; R.disco(Math.round(198 + Math.cos(ang) * r), Math.round(94 + Math.sin(ang) * r * 0.7), 1, hex('#a8d8f0')); } if (e > 0.8) { R.disco(198, 94, 5, hex('#e87888')); R.pset(196, 92, T.C.blanco); }
+  T.guante(R, 150, 128, -1); };
+const p3 = (t) => { T.medidorAzucar(R, t, { valor: t < b(0.24) ? Math.floor(t * 20) % 100 : 98 }); R.rect(230, 100, 252, 128, T.C.k); R.rect(231, 101, 251, 127, T.C.blanco); for (let k = 0; k < 3; k++) R.linea(236 + k * 6, 98 - Math.round(((t * 8 + k * 5) % 14)), 238 + k * 6, 92 - Math.round(((t * 8 + k * 5) % 14)), T.C.grisL); };
+const p4 = (t) => T.noCaben(R, t);
+const p5 = (t) => { R.rect(0, 0, 319, 179, hex('#f4f0e8')); R.rect(0, 140, 319, 179, T.C.maderaL); R.rect(0, 140, 319, 142, T.C.madera); T.edison(R, 160, 140, t, { s: 1.2 }); T.lazo(R, 160, 140, t, 1.2); };
+const efectos = [[0.4, 'pop'], [a(0.52), 'masca'], [P3 + 0.3, 'bip'], [b(0.24), 'bip'], [P4 + 0.5, 'boing'], [P4 + 2.1, 'boing'], [P5 + 0.2, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 2014 });
+</script>
+</body>
+</html>

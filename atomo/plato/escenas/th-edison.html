@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Edison · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-EDISON (frase 9). Cuatro planos: la caja Edison en su mesa, con la bombilla del inventor que se enciende encima; la
+// sede de cristal con la máquina bajo una sábana y un guardia que pasea; la firma del acuerdo de confidencialidad (con
+// el candado); y dos empleados que quieren hablar entre departamentos y una puerta de cristal que se cierra entre ellos.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-edison');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('edison', f);
+const P2 = a(0.31), P3 = a(0.6), P4 = a(0.73);
+const p1 = (t) => { R.rect(0, 0, 319, 179, hex('#e8ecf0')); R.rect(0, 130, 319, 179, T.C.metalL); R.rect(0, 130, 319, 131, T.C.metal); T.edison(R, 160, 130, t, { s: 1.4 }); const l = t > a(0.18); T.bombilla(R, 160, 40, l ? 1 : 0); if (l) for (let k = 0; k < 8; k++) { const g = k * Math.PI / 4 + t; R.linea(Math.round(160 + Math.cos(g) * 24), Math.round(40 + Math.sin(g) * 24), Math.round(160 + Math.cos(g) * 30), Math.round(40 + Math.sin(g) * 30), T.C.oro); } };
+const p2 = (t) => { T.sede(R, t); T.edison(R, 120, 108, t, { s: 0.7, sabana: 1 }); const u = (t - P2) * 0.12 % 2, x = Math.round(u < 1 ? lerp(40, 270, u) : lerp(270, 40, u - 1)); R.actor(EL.guardia, x, 160, t, { dir: u < 1 ? 1 : -1, anda: true }); R.actor(EL.tecnica, 220, 150, t, { dir: -1, quieto: true }); };
+const p3 = (t) => T.firmaPapel(R, t, { firma: tramo(t, P3 + 0.4, P4 - 0.3) });
+const p4 = (t) => { T.sede(R, t); const c = tramo(t, P4 + 0.8, P4 + 1.6);
+  R.actor(EL.tecnico, 150, 156, t, { dir: 1, habla: c < 1 && Math.sin(t * 7) > 0, dedo: c < 1 }); R.actor(EL.tecnica, 184, 156, t, { dir: -1, quieto: true, sorpresa: c >= 1 });
+  const x = Math.round(lerp(220, 170, c)); R.rect(x, 120, x + 3, 160, T.C.metalL); R.rect(x + 3, 120, x + 30, 160, T.C.cristalO); for (let k = 0; k < 8; k++) R.pset(x + 8 + k, 126 + k * 2, T.C.blanco);
+  R.actor(EL.guardia, 270, 162, t, { dir: -1, quieto: true }); R.pset(293, 72, T.C.rojo); };
+const efectos = [[a(0.18), 'interruptor'], [P2 + 0.5, 'toc'], [P3 + 0.4, 'firma'], [P4 + 0.8, 'puerta'], [P4 + 1.6, 'cerrojo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2008 });
+</script>
+</body>
+</html>

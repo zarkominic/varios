@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La acusación · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-SEC (frase 29), 2018, cartela «2018». Dos planos: la carpeta de la acusación con el sello de la balanza y el sello
+// rojo que cae; y la sede vacía: se apagan las luces una a una y el letrero se descuelga.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-sec');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('sec', f);
+const P2 = a(0.6);
+const p1 = (t) => T.acusacion(R, t, { sello: tramo(t, a(0.52), a(0.58)) });
+const p2 = (t) => T.sede(R, t, { apaga: tramo(t, P2 + 0.2, E.duracion - 1.4), descuelga: tramo(t, E.duracion - 1.6, E.duracion - 0.3) });
+const efectos = [[a(0.56), 'sello'], [P2 + 0.6, 'interruptor'], [P2 + 1.4, 'interruptor'], [E.duracion - 0.5, 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { cartela: '2018', efectos, año: 2018 });
+</script>
+</body>
+</html>

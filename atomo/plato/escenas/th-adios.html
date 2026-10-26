@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adiós · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-ADIOS (frase 39). La farmacia de hoy, normal, con la gente que entra por la puerta automática y compra.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-adios');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const p1 = (t) => { T.farmacia(R, t, { rincon: false, puerta: tramo(t, 0.2, 0.6) - tramo(t, 3.4, 3.8) }); const u = tramo(t, 0.6, 3.6); R.actor(EL.senora30, Math.round(lerp(4, 120, u)), 156, t, { dir: 1, anda: u > 0 && u < 1 }); R.actor(EL.chico, Math.round(lerp(-12, 104, u)), 160, t, { dir: 1, anda: u > 0 && u < 1 }); R.actor(EL.enfermera, 220, 150, t, { dir: -1, sonrisa: true }); };
+const efectos = [[0.2, 'puerta']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

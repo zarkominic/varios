@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Stanford · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-STANFORD (frases 6–7), 2003, cartela «2003». Seis planos:
+// 1. el patio de Stanford con sus arcos y palmeras; pasan bicis; la estudiante de diecinueve años cruza con sus libros;
+// 2. de noche, en su cuarto, dibuja un aparato que analiza una gota;  3. el gag del niño y la jeringa: en la consulta, el
+// niño se esconde detrás de su madre al ver la aguja; la enfermera la guarda y le enseña una gota; él sonríe;
+// 4. convence a su profesor en el camino; 5. sale de la facultad con una caja: lo deja;  6. el letrero nuevo de la
+// empresa: una gota y una lupa que se juntan en el logotipo de Theranos.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-stanford');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('idea', f), b = (f) => en('deja', f);
+const P2 = a(0.55), P3 = a(0.84), P4 = b(0), P5 = b(0.4), P6 = b(0.66);
+const p1 = (t) => { T.stanford(R, t); const u = tramo(t, 1.5, P2 - 0.3); R.actor(EL.holmes, Math.round(lerp(40, 180, u)), 150, t, { dir: 1, anda: u > 0 && u < 1 }); R.rect(Math.round(lerp(40, 180, u)) + 12, 136, Math.round(lerp(40, 180, u)) + 17, 140, hex('#3a5a8a'));
+  R.actor(EL.chico, 250, 160, t, { dir: -1, quieto: true }); R.actor(EL.chica, 266, 160, t, { dir: -1, habla: Math.sin(t * 5) > 0 }); };
+const p2 = (t) => { T.cuarto(R, t); R.actor(EL.holmes, 118, 132, t, { dir: 1, quieto: true, sonrisa: t > P2 + 2 }); T.cuartoMesa(R, t, { dibujo: tramo(t, P2 + 0.3, P3 - 0.4) }); };
+const p3 = (t) => { T.farmacia(R, t, { rincon: false }); const guarda = a(0.9);
+  R.actor(EL.senora30, 150, 158, t, { dir: 1, quieto: true }); const esc = t < guarda; R.actor(EL.chico, esc ? 136 : 168, 160, t, { dir: 1, sorpresa: esc, sonrisa: !esc, salto: !esc && t < guarda + 0.5 ? 2 : 0 });
+  R.actor(EL.enfermera, 200, 158, t, { dir: -1, dedo: true });
+  if (esc) { R.rect(176, 128, 196, 131, T.C.k); R.rect(177, 129, 195, 130, hex('#c8e8f8')); R.rect(170, 129, 176, 130, T.C.metalD); R.rect(196, 127, 199, 132, T.C.k); }   // la jeringa
+  else { R.disco(196, 130, 3, T.C.sangreS); R.disco(196, 130, 2, T.C.sangre); } };
+const p4 = (t) => { T.stanford(R, t, { tarde: true }); R.actor(EL.holmes, 140, 154, t, { dir: 1, habla: Math.sin(t * 6) > 0, dedo: t > P4 + 1.5 }); R.actor(EL.profesor, 164, 154, t, { dir: -1, quieto: true, sorpresa: t > P4 + 1 && t < P4 + 2.4, sonrisa: t > P4 + 2.4 }); };
+const p5 = (t) => { T.stanford(R, t, { tarde: true }); const u = tramo(t, P5 + 0.2, P6 - 0.3); const x = Math.round(lerp(150, 330, u)); R.actor(EL.holmes, x, 150, t, { dir: 1, anda: u > 0 && u < 1 }); R.rect(x + 10, 132, x + 22, 142, T.C.k); R.rect(x + 11, 133, x + 21, 141, T.C.ocre); R.rect(x + 13, 130, x + 15, 133, hex('#3a5a8a')); };
+const p6 = (t) => { T.sede(R, t, { descuelga: 0 }); const j = tramo(t, P6 + 0.6, b(0.86));
+  if (j < 1) { const x1 = Math.round(lerp(90, 160, j)), x2 = Math.round(lerp(230, 160, j)); R.disco(x1, 46, 6, T.C.sangreS); R.disco(x1, 46, 5, T.C.sangre); T.lupa(R, x2, 46, 6); }
+  R.actor(EL.holmes, 120, 158, t, { dir: 1, dedo: j >= 1, sonrisa: true }); R.actor(EL.tecnico, 200, 158, t, { dir: -1, quieto: true }); };
+const efectos = [[P2 + 0.3, 'lapiz'], [a(0.9), 'boing'], [P5 + 0.2, 'puerta'], [b(0.86), 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { cartela: '2003', efectos, año: (t) => (t < P5 ? 2003 : 2004) });
+</script>
+</body>
+</html>

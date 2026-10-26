@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El periodista · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-PERIODISTA (frases 24–25), 2015, cartela «2015». Seis planos: en la redacción de Nueva York, el periodista escucha
+// al teléfono y llena su libreta; tres viñetas con antiguos empleados que le llaman, uno tras otro; el gag del teléfono
+// rojo de los abogados, que no para de sonar y que él tapa con una pila de periódicos (sigue dando saltitos); la
+// rotativa; la portada con la caja y la gota; y por la calle, de mañana, un repartidor en bici lanza los periódicos.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-periodista');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('carreyrou', f), b = (f) => en('portada', f);
+const P2 = a(0.5), P3 = a(0.76), P4 = b(0), P5 = b(0.24), P6 = b(0.6);
+const p1 = (t) => { T.redaccion(R, t); R.actor(EL.carreyrou, 120, 156, t, { dir: 1, quieto: true }); T.auricular(R, 133, 140, 1); T.redaccionMesa(R, t, { notas: tramo(t, 1.6, P2 - 0.4), cuelga: 1 }); };
+const p2 = (t) => { T.vinetas(R, t); [EL.tyler, EL.erika, EL.tecnico].forEach((d, k) => { const on = t > P2 + k * 1.2; R.actor(d, 30 + k * 104, 128, t, { dir: 1, habla: on && Math.sin(t * 7 + k) > 0, quieto: true }); if (on) T.auricular(R, 43 + k * 104, 112, 1); }); };
+const p3 = (t) => { T.redaccion(R, t); R.actor(EL.carreyrou, 120, 156, t, { dir: 1, quieto: true, enfado: t > P3 + 1.4 }); T.redaccionMesa(R, t, { notas: 1, abogados: true, tapa: tramo(t, P3 + 1.6, P3 + 2.4) }); };
+const p4 = (t) => { T.rotativa(R, t, { u: tramo(t, P4, P5) }); R.actor(EL.oficinista, 232, 162, t, { dir: -1, quieto: true }); };
+const p5 = (t) => T.portada(R, t, { abre: tramo(t, P5, P5 + 0.8) });
+const p6 = (t) => { T.calle(R, t); const u = tramo(t, P6, E.duracion), x = Math.round(lerp(-30, 330, u)); T.bici(R, x, 150, t, { fondo: T.C.asfalto }); R.actor(EL.chico, x + 4, 140, t, { dir: 1, quieto: true });
+  for (let k = 0; k < 3; k++) { const lanza = P6 + 1 + k * 1.6, v = tramo(t, lanza, lanza + 0.6); if (v <= 0) continue; const px = Math.round(lerp(-30, 330, tramo(lanza, P6, E.duracion)) + 10), qx = 60 + k * 86, yy = Math.round(lerp(130, 120, v) - Math.sin(v * Math.PI) * 14); R.rect(Math.round(lerp(px, qx, v)), yy, Math.round(lerp(px, qx, v)) + 6, yy + 3, T.C.k); R.rect(Math.round(lerp(px, qx, v)) + 1, yy + 1, Math.round(lerp(px, qx, v)) + 5, yy + 2, hex('#ece4d0')); } };
+const efectos = [[0.2, 'ring'], [1.6, 'lapiz'], [P2 + 0.1, 'ring'], [P2 + 1.3, 'ring'], [P3 + 0.3, 'ring'], [P3 + 2.3, 'papel'], [P4 + 0.2, 'motor'], [P5 + 0.1, 'papel'], [P6 + 1.6, 'golpecito'], [P6 + 3.2, 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { cartela: '2015', efectos, año: 2015 });
+</script>
+</body>
+</html>

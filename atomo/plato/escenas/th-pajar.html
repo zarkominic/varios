@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La aguja en el pajar · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-PAJAR (frase 21). Tres planos: vuelve el pajar, ahora más grande (el granjero se rasca la cabeza); en el tubo de
+// agua, un técnico busca la sangre con una lupa (gag); y los resultados en la pantalla, que salen en rojo.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-pajar');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('pajar', f);
+const P2 = a(0.3), P3 = a(0.68);
+const p1 = (t) => { T.pajar(R, t); R.actor(EL.brazel ?? EL.senor30, 200, 168, t, { dir: -1, dedo: true, sorpresa: true }); };
+const p2 = (t) => T.insertoDiluye(R, t, { u: 1, lupa: tramo(t, P2, P2 + 1) });
+const p3 = (t) => T.pantalla(R, t, { modo: 'resultados', rojos: tramo(t, P3 + 0.3, a(0.98)) });
+const efectos = [[P2 + 0.4, 'whoosh'], [P3 + 0.6, 'aviso'], [a(0.95), 'aviso']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2014 });
+</script>
+</body>
+</html>

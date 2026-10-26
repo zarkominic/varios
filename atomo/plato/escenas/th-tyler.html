@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tyler y Erika · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-TYLER (frases 22–23). Ocho planos: Tyler y Erika en el laboratorio, ante la pantalla de controles que se pone en
+// rojo; los números que no cuadran; Tyler junto a su abuelo, el consejero; escribe el correo y lo envía; llega la
+// respuesta dura (el sobre rojo tiembla); Tyler sale de la sede con su caja bajo la mirada del guardia; su abuelo no le
+// cree; y por la calle, un coche oscuro le sigue despacio.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-tyler');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('tyler', f), b = (f) => en('detectives', f);
+const P2 = a(0.34), P3 = a(0.62), P4 = a(0.84), P5 = b(0), P6 = b(0.25), P7 = b(0.37), P8 = b(0.58);
+const p1 = (t) => { T.laboratorio(R, t, { rojo: t > a(0.18) }); R.actor(EL.tyler, 120, 162, t, { dir: 1, sorpresa: t > a(0.2) }); R.actor(EL.erika, 150, 162, t, { dir: -1, dedo: t > a(0.22) }); };
+const p2 = (t) => T.pantalla(R, t, { modo: 'resultados', rojos: tramo(t, P2 + 0.2, P3 - 0.5) });
+const p3 = (t) => { T.consejo(R, t); R.actor(EL.consejero, 130, 164, t, { dir: 1, sonrisa: true }); R.actor(EL.tyler, 160, 164, t, { dir: -1, sonrisa: true }); if (Math.sin(t * 3) > 0) { R.disco(150, 128, 2, T.C.rojo); R.disco(153, 128, 2, T.C.rojo); R.pset(151, 131, T.C.rojo); R.rect(149, 129, 154, 130, T.C.rojo); } };
+const p4 = (t) => T.pantalla(R, t, { modo: 'correo', escribe: tramo(t, P4, P4 + 1.2), envia: tramo(t, P4 + 1.5, P5 - 0.2) });
+const p5 = (t) => T.pantalla(R, t, { modo: 'respuesta' });
+const p6 = (t) => { T.sede(R, t); const u = tramo(t, P6 + 0.2, P7 - 0.2), x = Math.round(lerp(150, 290, u)); R.actor(EL.tyler, x, 160, t, { dir: 1, anda: u > 0 && u < 1, triste: true }); R.rect(x + 10, 142, x + 24, 152, T.C.k); R.rect(x + 11, 143, x + 23, 151, T.C.ocre); R.actor(EL.guardia, 60, 156, t, { dir: 1, quieto: true }); };
+const p7 = (t) => { T.consejo(R, t); R.actor(EL.consejero, 130, 164, t, { dir: 1, enfado: t > P7 + 1, habla: t > P7 + 1 && Math.sin(t * 6) > 0 }); R.actor(EL.tyler, 160, 164, t, { dir: -1, habla: t < P7 + 1 && Math.sin(t * 6) > 0, triste: t > P7 + 1.5 }); };
+const p8 = (t) => { T.calle(R, t); const u = tramo(t, P8, E.duracion), x = Math.round(lerp(-10, 240, u)); R.actor(EL.tyler, x, 122, t, { dir: 1, anda: true }); T.cocheOscuro(R, Math.round(x - 70 + Math.sin(t) * 2), 160, t, { dir: 1 }); if (t > b(0.8)) R.icono('?', x + 3, 84, T.C.rojo, T.C.k); };
+const efectos = [[a(0.18), 'aviso'], [P4 + 0.1, 'tecleo'], [P4 + 1.5, 'whoosh'], [P5 + 0.2, 'aviso'], [P6 + 0.2, 'puerta'], [P8 + 0.2, 'motor']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { efectos, año: 2014 });
+</script>
+</body>
+</html>

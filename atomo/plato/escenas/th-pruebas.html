@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Las pruebas · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-PRUEBAS (frases 37–38). Cuatro planos: la balanza de la promesa y la prueba; una científica que comprueba los
+// controles y les pone un «✓»; las estrellas que forjan los átomos (de eso estamos hechos Atom y la sangre); y la gota
+// gigante, donde la «?» se vuelve «✓».
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { balanza, forjaAtomos } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R, M } = await T.preparar('th-pruebas');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('prueba', f), b = (f) => en('milagro', f);
+const P2 = a(0.5), P3 = b(0), P4 = b(0.55);
+const p1 = (t) => balanza(R, t, { equilibrio: tramo(t, a(0.3), a(0.45)) });
+const p2 = (t) => { T.laboratorio(R, t); R.actor(EL.erika, 130, 160, t, { dir: 1, dedo: t > a(0.9) }); T.lupa(R, 154, 128, 6); if (t > a(0.92)) T.visto(R, 140, 26, 3); };
+const p3 = (t) => forjaAtomos(R, t, { u: tramo(t, P3, P4) });
+const p4 = (t) => { T.gotaGigante(R, t); const v = t > b(0.95); if (v) T.visto(R, 216, 60, 3); else R.icono('?', 222, 56, T.C.rojo, T.C.k, 4); };
+const efectos = [[0.4, 'toc'], [a(0.92), 'brillo'], [P3 + 0.2, 'zumbido'], [b(0.95), 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Prueba de decorados · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Página de prueba: un decorado del episodio 11 por segundo (t = 0,5; 1,5; …), para capturarlos y revisarlos.
+window.ESCENA = { duracion: 40, marcas: {}, voz: [0, 0] };
+const T = await import('/atomo/plato/escenas/th-comun.js');
+const { ELENCO_CHIBI: EL } = await import('/atomo/plato/kits/pixel-chibi.js');
+const { E, R } = await T.preparar('prueba-th');
+const g = (f) => f;
+const lista = [
+  (t) => { T.farmacia(R, t, { puerta: 0.6 }); R.actor(EL.clienta, 150, 134, t, { dir: 1, quieto: true }); T.sillonDelante(R, 150, 140); R.actor(EL.enfermera, 196, 146, t, { dir: -1, quieto: true }); R.actor(EL.holmes, 60, 166, t, { dir: 1 }); R.actor(EL.senor30, 250, 170, t, { dir: -1, anda: true }); },
+  (t) => T.insertoDedo(R, t, { pica: 1, gota: 1, recoge: 0.7 }),
+  (t) => T.gotaCuchara(R, t, { tejido: 0.7 }),
+  (t) => { T.cuarto(R, t); R.actor(EL.holmes, 144, 140, t, { dir: 1, quieto: true }); T.cuartoMesa(R, t, { dibujo: 0.9 }); },
+  (t) => { T.sede(R, t, { descuelga: 0.3 }); R.actor(EL.guardia, 260, 150, t, { dir: -1, quieto: true }); T.edison(R, 160, 150, t, { sabana: 1 }); },
+  (t) => { T.sede(R, t, { apaga: 0.7, descuelga: 0.8 }); },
+  (t) => { T.consejo(R, t); [EL.consejero, EL.consejeroCalvo, EL.holmes, EL.consejero, EL.consejeroCalvo].forEach((d, k) => R.actor(d, 57 + k * 44, 142, t, { dir: 1, quieto: true })); T.consejoMesa(R, t, { dinero: 0.7 }); },
+  (t) => { R.rect(0, 0, 319, 179, T.C.caoba); T.contador(R, t, 9e9); },
+  (t) => { R.rect(0, 0, 319, 179, T.C.caoba); T.contador(R, t, 4.5e9, { rueda: 1 }); },
+  (t) => T.revista(R, t, { tachada: 0.6 }),
+  (t) => { T.laboratorio(R, t, { rojo: true, humoEdison: 1 }); R.actor(EL.tyler, 60, 160, t, { dir: 1, quieto: true }); R.actor(EL.erika, 90, 160, t, { dir: -1, quieto: true }); R.actor(EL.tecnico, 230, 160, t, { dir: 1, anda: true }); },
+  (t) => T.insertoDiluye(R, t, { u: 0.7, lupa: 1 }),
+  (t) => T.pantalla(R, t, { modo: 'correo', escribe: 0.7, envia: 0.3 }),
+  (t) => T.pantalla(R, t, { modo: 'respuesta' }),
+  (t) => { T.calle(R, t); R.actor(EL.tyler, 120, 130, t, { dir: 1, anda: true }); T.cocheOscuro(R, 60, 160, t); },
+  (t) => { T.redaccion(R, t); R.actor(EL.carreyrou, 150, 152, t, { dir: 1, quieto: true, habla: true }); T.redaccionMesa(R, t, { notas: 0.7, suena: true, abogados: true, tapa: 0.5 }); },
+  (t) => T.rotativa(R, t, { u: 0.5 }),
+  (t) => T.portada(R, t, { abre: 1 }),
+  (t) => { T.plato(R, t); R.actor(EL.holmes, 103, 140, t, { dir: 1, quieto: true, habla: true }); R.actor(EL.periodista, 183, 140, t, { dir: -1, quieto: true }); T.platoCamaras(R, t); },
+  (t) => { T.tribunal(R, t); R.actor(EL.juez, 152, 70, t, { dir: 1, quieto: true }); R.actor(EL.holmes, 80, 156, t, { dir: 1, quieto: true }); T.tribunalDelante(R, t); },
+  (t) => T.mazo(R, t, { golpe: 20.6 }),
+  (t) => T.veredicto(R, t, { u: 1 }),
+  (t) => T.condenas(R, t, { u: 1 }),
+  (t) => T.prision(R, t, { coche: 0.6, carta: 0.4 }),
+  (t) => { T.cine(R, t); [EL.senor30, EL.senora30, EL.chico, EL.sudadera, EL.chica].forEach((d, k) => R.actor(d, 120 + k * 18, 146, t, { dir: -1, quieto: true })); T.cocheOscuro(R, 260, 172, t); },
+  (t) => T.salaCine(R, t),
+  (t) => { T.charla(R, t, { visto: true }); R.actor(EL.erika, 196, 104, t, { dir: -1, habla: true, dedo: true }); },
+  (t) => { T.labHoy(R, t); R.actor(EL.tecnica, 90, 132, t, { dir: 1, quieto: true }); },
+  (t) => T.gotaGigante(R, t),
+  (t) => { T.cine(R, t); T.rebobinar(R, t, 1); },
+];
+const planos = lista.map((f, i) => [i, f]);
+T.rodar(E, R, planos, { año: 2013 });
+</script>
+</body>
+</html>

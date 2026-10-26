@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hoy · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-HOY (frase 34). Dos planos: desde la prisión sale una carta, que vuela como un pájaro; y Erika Cheung da una charla
+// ante gente que empieza empresas: en la pantalla, la «?» que se convierte en «✓».
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-hoy');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('inocencia', f);
+const P2 = a(0.34);
+const p1 = (t) => T.prision(R, t, { carta: tramo(t, a(0.1), P2) });
+const p2 = (t) => { T.charla(R, t, { visto: t > a(0.66) }); R.actor(EL.erika, 196, 104, t, { dir: -1, habla: Math.sin(t * 6) > 0, dedo: t > a(0.6) }); };
+const efectos = [[a(0.1), 'papel'], [P2 + 0.2, 'palmada'], [a(0.66), 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

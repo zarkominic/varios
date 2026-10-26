@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Steve Jobs · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-JOBS (frase 8). Tres planos: el armario con diez jerséis negros iguales (gag: la percha que queda vacía); en el
+// escenario, presenta su máquina en una pantalla gigante como si fuera un teléfono, con los flashes del público; y una
+// caja Edison en el mostrador de una farmacia, con la gente que sonríe.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-jobs');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('jobs', f);
+const P2 = a(0.36), P3 = a(0.78);
+const p1 = (t) => { T.armario(R, t, { abre: tramo(t, 0.4, 1.6) }); const saca = tramo(t, a(0.24), a(0.3)); if (saca > 0) { R.rect(46 + 9 * 24, 44, 62 + 9 * 24, 120, hex('#f4f2ee')); T.mano(R, 54 + 9 * 24, Math.round(lerp(80, 200, saca)), -1, '#1e1e28'); } };
+const p2 = (t) => { T.plato(R, t); R.actor(EL.holmes, 140, 140, t, { dir: 1, dedo: true, habla: Math.sin(t * 6) > 0 });
+  for (let k = 0; k < 4; k++) if (Math.sin(t * 3 + k * 1.7) > 0.93) { const x = 40 + k * 70; for (let r = 1; r < 5; r++) { R.pset(x + r, 160, T.C.blanco); R.pset(x - r, 160, T.C.blanco); R.pset(x, 160 + r, T.C.blanco); R.pset(x, 160 - r, T.C.blanco); } }
+  for (let k = 0; k < 12; k++) { const x = 10 + k * 27; R.disco(x, 176, 8, T.C.k); R.disco(x, 175, 7, ['#2a2430', '#4a3a2a', '#c8a060', '#1e1a24'].map(hex)[k % 4]); } T.platoCamaras(R, t); };
+const p3 = (t) => { T.farmacia(R, t); R.rect(176, 132, 212, 140, T.C.k); R.rect(177, 133, 211, 140, T.C.blanco); T.edison(R, 194, 132, t, { s: 0.5 }); R.actor(EL.clienta, 140, 158, t, { dir: 1, sonrisa: true, quieto: true }); R.actor(EL.senor30, 230, 160, t, { dir: -1, sonrisa: true }); R.actor(EL.chica, 110, 166, t, { dir: 1, anda: true }); };
+const efectos = [[0.4, 'puerta'], [P2 + 0.4, 'flash'], [P2 + 1.6, 'flash'], [P3 + 0.3, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2004 });
+</script>
+</body>
+</html>

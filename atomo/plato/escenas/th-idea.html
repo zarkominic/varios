@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La idea no era una locura · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-IDEA (frases 35–36). Cuatro planos: un laboratorio de hoy, luminoso, con pruebas de pocas gotas que sí existen para
+// algunas cosas; el chip de cerca, con las gotitas que corren y tres resultados comprobados; la sábana que se levanta
+// de la caja de la promesa y debajo solo hay una «?»; y la clienta del principio con su papel de resultados y una «?».
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-idea');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('idea2', f), b = (f) => en('problema', f);
+const P2 = a(0.5), P3 = b(0), P4 = b(0.55);
+const p1 = (t) => { T.labHoy(R, t); R.actor(EL.tecnica, 90, 132, t, { dir: 1, quieto: true }); const u = (t * 0.12) % 1; R.actor(EL.tecnico, Math.round(lerp(300, 180, u)), 160, t, { dir: -1, anda: true }); };
+const p2 = (t) => T.chipCerca(R, t, { u: tramo(t, P2 + 0.3, P3 - 0.5) });
+const p3 = (t) => { R.rect(0, 0, 319, 179, hex('#1e2430')); R.rect(0, 130, 319, 179, hex('#2a3040')); const l = tramo(t, b(0.28), b(0.38)); T.edison(R, 160, 130, t, { s: 1.2, sabana: 1 - l }); if (l >= 1) { R.rect(112, 90, 208, 130, hex('#1e2430')); R.icono('?', 150, 92, T.C.rojo, T.C.k, 4); }
+  R.actor(EL.holmes, 60, 160, t, { dir: 1, dedo: l < 1, habla: l < 1 && Math.sin(t * 6) > 0 }); };
+const p4 = (t) => { T.farmacia(R, t, { rincon: false }); R.actor(EL.clienta, 150, 158, t, { dir: 1, quieto: true, triste: t > b(0.8) }); R.rect(166, 138, 178, 152, T.C.k); R.rect(167, 139, 177, 151, T.C.blanco); for (let k = 0; k < 4; k++) R.rect(169, 141 + k * 3, 175, 141 + k * 3, k === 2 ? T.C.rojo : hex('#9aa0ac')); if (t > b(0.76)) R.icono('?', 154, 116, T.C.rojo, T.C.k, 2); };
+const efectos = [[P2 + 0.3, 'burbujas'], [b(0.3), 'whoosh'], [b(0.38), 'boing'], [b(0.76), 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-GANCHO (frases 1–3), 2013, cartela «2013». Ocho planos:
+// 1. la clienta entra por la puerta automática de la farmacia y va al rincón de Theranos; otros clientes compran;
+// 2. se sienta en el sillón; la enfermera prepara la lanceta;  3. el pinchazo en el dedo, la gota y el tubito;
+// 4. la promesa: de la gota salen decenas de pruebas;  5. la inventora del jersey negro junto a su máquina, «29»;
+// 6. el contador sube hasta $9,000,000,000;  7. la enfermera mete el tubito en la nevera de transporte y un mensajero se
+// lo lleva;  8. detrás de una puerta, en el laboratorio, el tubito acaba en las máquinas grandes de otras marcas (golpe).
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-gancho');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('farmacia', f), b = (f) => en('promesa', f), c = (f) => en('secreto', f);
+const P2 = a(0.27), P3 = a(0.6), P4 = b(0), P5 = b(0.34), P6 = b(0.76), P7 = c(0), P8 = c(0.42);
+const pica = a(0.69), recoge = a(0.78), veintinueve = b(0.47), jersey = b(0.64), otras = c(0.9);
+const p1 = (t) => {
+  const u = tramo(t, 1.7, P2 - 0.4);
+  T.farmacia(R, t, { puerta: tramo(t, 1.3, 1.8) - tramo(t, P2 - 2, P2 - 1.4) });
+  R.actor(EL.senora30, 252, 158, t, { dir: -1, quieto: true });
+  R.actor(EL.enfermera, 196, 146, t, { dir: -1, sonrisa: u > 0.6, dedo: u > 0.75 && u < 1 });
+  R.actor(EL.clienta, Math.round(lerp(4, 132, u)), 152, t, { dir: 1, anda: u > 0 && u < 1 });
+  const v = tramo(t, 2.4, P2); R.actor(EL.senor30, Math.round(lerp(330, 210, v)), 170, t, { dir: -1, anda: v > 0 && v < 1 });
+  if (v > 0) { const x = Math.round(lerp(330, 210, v)) - 8; R.rect(x, 162, x + 8, 167, T.C.k); R.rect(x + 1, 163, x + 7, 166, T.C.rojoW); }
+};
+const p2 = (t) => {
+  T.farmacia(R, t); const v = tramo(t, P2 + 0.5, P3);
+  R.actor(EL.clienta, 150, 134, t, { dir: 1, quieto: true, sonrisa: true }); T.sillonDelante(R, 150, 140);
+  R.actor(EL.enfermera, 182, 146, t, { dir: -1, habla: Math.sin(t * 7) > 0 && t < P2 + 2, dedo: t > P3 - 2 });
+  if (t > P3 - 2) { R.rect(179, 117, 183, 125, T.C.k); R.rect(180, 118, 182, 124, T.C.tealT); }   // la lanceta en la mano
+  R.actor(EL.senor30, Math.round(lerp(-20, 330, v)), 172, t, { dir: 1, anda: true });
+};
+const p3 = (t) => T.insertoDedo(R, t, { pica: t < pica ? tramo(t, pica - 0.7, pica) : 1 + tramo(t, pica, pica + 0.8) * 0.8, gota: tramo(t, pica + 0.15, pica + 1.1), recoge: tramo(t, recoge - 0.2, P4 - 0.3) });
+const p4 = (t) => T.promesa(R, t, { u: tramo(t, P4 + 0.2, b(0.32)) });
+const p5 = (t) => {
+  T.sede(R, t); R.rect(176, 132, 212, 158, T.C.k); R.rect(177, 133, 211, 158, T.C.blanco); T.edison(R, 194, 132, t, { s: 0.6 });
+  R.actor(EL.holmes, 140, 158, t, { dir: 1, dedo: t > P5 + 1, sonrisa: true, habla: Math.sin(t * 6) > 0.2 });
+  R.actor(EL.guardia, 266, 150, t, { dir: -1, quieto: true });
+  const e = tramo(t, veintinueve, veintinueve + 0.4); if (e > 0) R.numero('29', 148, Math.round(lerp(140, 118, e)), { tam: 16, centro: true });
+  if (t > jersey && t < jersey + 1.6 && Math.floor(t * 4) % 2) { R.rect(139, 130, 156, 159, T.C.amarilloT); R.actor(EL.holmes, 140, 158, t, { dir: 1, dedo: true, sonrisa: true }); }
+};
+const p6 = (t) => { T.sede(R, t); T.tinte(R, 0, 179, [20, 24, 40], 0.55); T.logoTheranos(R, 160, 48, 1.6, t); T.contador(R, t, 9e9 * tramo(t, P6 + 0.2, b(0.97)) ** 0.5, { y: 92 }); };
+const p7 = (t) => {
+  T.farmacia(R, t, { puerta: tramo(t, c(0.2), c(0.26)) });
+  const u = tramo(t, P7 + 0.3, c(0.2)), w = tramo(t, c(0.22), P8 - 0.2);
+  R.actor(EL.enfermera, 196, 146, t, { dir: 1, quieto: true });
+  const cx = 212; if (w === 0) { R.rect(cx, 134, cx + 14, 146, T.C.k); R.rect(cx + 1, 135, cx + 13, 145, T.C.blanco); R.rect(cx, 132, cx + 14, 135, T.C.k); R.rect(cx + 1, 133, cx + 13, 134, hex('#3a6ac8')); }
+  if (u < 1) T.tubito(R, Math.round(lerp(200, 218, u)), Math.round(lerp(124, 136, u)), 1, 1);
+  R.actor(EL.clienta, Math.round(lerp(150, 20, tramo(t, P7 + 0.6, c(0.3)))), 156, t, { dir: -1, anda: t > P7 + 0.6 && t < c(0.3), sonrisa: true, dedo: t < P7 + 0.6 });
+  const mx = Math.round(lerp(330, 220, tramo(t, P7 + 0.5, c(0.2))) - lerp(0, 230, w)); R.actor(EL.agente, mx, 160, t, { dir: w > 0 ? -1 : -1, anda: (t > P7 + 0.5 && t < c(0.2)) || (w > 0 && w < 1) });
+  if (w > 0) { R.rect(mx - 10, 144, mx + 2, 154, T.C.k); R.rect(mx - 9, 145, mx + 1, 153, T.C.blanco); R.rect(mx - 9, 145, mx + 1, 146, hex('#3a6ac8')); }
+};
+const p8 = (t) => {
+  T.laboratorio(R, t);
+  const u = tramo(t, P8 + 0.4, c(0.75)); R.actor(EL.tecnico, Math.round(lerp(10, 176, u)), 160, t, { dir: 1, anda: u > 0 && u < 1 });
+  if (u < 1) T.tubito(R, Math.round(lerp(10, 176, u)) + 14, 146, 1, 1);
+  R.actor(EL.tecnica, 236, 162, t, { dir: -1, quieto: true });
+  if (t > otras && Math.floor(t * 5) % 2) for (const x0 of [196, 256]) { R.rect(x0 - 2, 38, x0 + 58, 39, T.C.amarilloT); R.rect(x0 - 2, 141, x0 + 58, 142, T.C.amarilloT); R.rect(x0 - 2, 38, x0 - 1, 142, T.C.amarilloT); R.rect(x0 + 57, 38, x0 + 58, 142, T.C.amarilloT); }
+  // la puerta que se cierra por delante, dejando el laboratorio a escondidas
+  const cierra = tramo(t, E.duracion - 1.2, E.duracion - 0.3); if (cierra > 0) { const w = Math.round(cierra * 160); R.rect(0, 0, w, 179, T.C.metalS); R.rect(319 - w, 0, 319, 179, T.C.metalS); R.rect(w - 2, 0, w, 179, T.C.k); R.rect(319 - w, 0, 321 - w, 179, T.C.k); }
+};
+const efectos = [[1.35, 'puerta'], [pica, 'pop'], [recoge, 'gluglu'], [P4 + 0.3, 'brillo'], [veintinueve, 'pop'], [P6 + 0.3, 'tecleo'], [b(0.97), 'brillo'], [c(0.2), 'puerta'], [P8 + 0.2, 'zumbido'], [E.duracion - 0.4, 'cerrojo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { cartela: '2013', efectos, año: 2013 });
+</script>
+</body>
+</html>

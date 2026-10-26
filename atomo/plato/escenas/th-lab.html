@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dentro del laboratorio · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-LAB (frases 19–20). Seis planos: el laboratorio por dentro, con técnicos trabajando; la Edison pita, echa humo y
+// escupe un papel en blanco, y un técnico corre a taparla con una sábana (gag); la rejilla de más de 200 pruebas, de
+// las que la Edison solo hace unas pocas; los analizadores grandes de otras marcas trabajando sin parar; el tubo enorme
+// que piden frente al tubito; y la gota que se diluye en agua.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-lab');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('falla', f), b = (f) => en('diluye', f);
+const P2 = a(0.3), P3 = a(0.62), P4 = b(0), P5 = b(0.4), P6 = b(0.66);
+const p1 = (t) => { T.laboratorio(R, t); R.actor(EL.tecnica, 60, 162, t, { dir: 1, quieto: true }); const u = (t * 0.15) % 1; R.actor(EL.tecnico, Math.round(lerp(120, 240, u)), 166, t, { dir: 1, anda: true }); R.actor(EL.erika, 200, 160, t, { dir: -1, quieto: true }); };
+const p2 = (t) => { const hu = tramo(t, P2 + 0.3, P2 + 0.8), tapa = tramo(t, a(0.52), a(0.6));
+  R.rect(0, 0, 319, 179, hex('#dde8e2')); R.rect(0, 120, 319, 179, hex('#c8d0d8')); R.rect(0, 120, 319, 122, T.C.metalL); T.edison(R, 160, 120, t, { s: 1.5, humo: tapa < 1 ? hu : 0, papel: tapa < 1 ? tramo(t, P2 + 1, P2 + 2) : 0, sabana: tapa });
+  const x = Math.round(lerp(330, 210, tramo(t, a(0.44), a(0.52)))); R.actor(EL.tecnico, x, 168, t, { dir: -1, anda: tapa < 1 && x > 210, sorpresa: tapa < 1 }); if (tapa === 0 && x < 330) { R.rect(x - 14, 140, x + 2, 156, T.C.k); R.rect(x - 13, 141, x + 1, 155, hex('#f0f0f4')); } };
+const p3 = (t) => T.rejillaPruebas(R, t, { u: tramo(t, P3 + 0.2, a(0.78)), marca: t > a(0.66) });
+const p4 = (t) => { T.laboratorio(R, t, { sabanaEdison: 1 }); R.actor(EL.tecnica, 170, 164, t, { dir: 1, quieto: true }); const u = (t * 0.2) % 1; R.actor(EL.tecnico, Math.round(lerp(20, 180, u)), 168, t, { dir: 1, anda: true }); };
+const p5 = (t) => T.tuboContraTubito(R, t);
+const p6 = (t) => T.insertoDiluye(R, t, { u: tramo(t, P6 + 0.2, b(0.98)) });
+const efectos = [[P2 + 0.3, 'aviso'], [P2 + 0.6, 'vapor'], [P2 + 1, 'papel'], [a(0.56), 'whoosh'], [a(0.66), 'brillo'], [P4 + 0.3, 'zumbido'], [P5 + 0.3, 'pop'], [P6 + 0.6, 'gluglu']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2014 });
+</script>
+</body>
+</html>

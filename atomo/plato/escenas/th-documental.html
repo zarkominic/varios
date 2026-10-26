@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El documental · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-DOCUMENTAL (frase 33), 2026, cartela «2026». Dos planos: la cola del cine con el cartel de la película (un coche pasa
+// por delante); y dentro, la pantalla con una cámara que la sigue a todas partes, y el público de espaldas.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-documental');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('documental', f);
+const P2 = a(0.46);
+const p1 = (t) => { T.cine(R, t); [EL.senor30, EL.senora30, EL.chico, EL.sudadera, EL.chica, EL.oficinista].forEach((d, k) => { const avanza = tramo(t, 2 + k * 0.4, 3 + k * 0.4); R.actor(d, 120 + k * 17 - Math.round(avanza * 6), 146, t, { dir: -1, anda: avanza > 0 && avanza < 1, habla: k === 1 && Math.sin(t * 5) > 0 }); }); T.cocheOscuro(R, Math.round(lerp(-60, 360, tramo(t, 2.6, P2))), 172, t, { dir: 1 }); };
+const p2 = (t) => T.salaCine(R, t);
+const efectos = [[2.6, 'motor'], [P2 + 0.2, 'whoosh']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { cartela: '2026', efectos, año: 2026 });
+</script>
+</body>
+</html>

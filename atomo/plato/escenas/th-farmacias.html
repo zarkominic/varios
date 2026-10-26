@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Las farmacias · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-FARMACIAS (frase 12). Tres planos: en la farmacia de Palo Alto se descubre el rincón de Theranos (cae la tela) y la
+// gente aplaude; en el mapa de EE. UU. cae la chincheta de Palo Alto; el mapa se acerca a Arizona y caen unas cuarenta
+// chinchetas alrededor de Phoenix, una tras otra.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-farmacias');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('farmacias', f);
+const P2 = a(0.33), P3 = a(0.62);
+const p1 = (t) => { T.farmacia(R, t); const cae = tramo(t, a(0.12), a(0.2)); if (cae < 1) { const y = Math.round(lerp(92, 140, cae)); R.rect(90, y, 230, 140, hex('#c83a4a')); for (let x = 96; x < 230; x += 10) R.rect(x, y, x + 1, 140, hex('#a82a3a')); }
+  [EL.holmes, EL.senor30, EL.clienta, EL.senora30, EL.chico].forEach((d, k) => R.actor(d, 70 + k * 40, 168, t, { dir: k ? -1 : 1, sonrisa: cae >= 1, brazos: cae >= 1 && Math.floor(t * 4 + k) % 2 === 0 })); };
+const p2 = (t) => { const P = T.mapa(R, t); const [x, y] = P(T.LUGARES.paloAlto).map(Math.round); T.chincheta(R, x, y, t, T.C.rojo, { baja: tramo(t, P2 + 0.3, P2 + 0.8), pulso: true }); };
+const p3 = (t) => { const P = T.mapa(R, t, { zoom: 1 }); T.FARMACIAS_AZ.forEach((ll, k) => { const [x, y] = P(ll).map(Math.round); T.chincheta(R, x, y, t, k % 3 ? T.C.tealT : T.C.verdeT, { baja: tramo(t, P3 + 0.5 + k * 0.08, P3 + 0.9 + k * 0.08) }); }); };
+const efectos = [[a(0.14), 'whoosh'], [a(0.22), 'palmada'], [P2 + 0.8, 'golpecito'], ...Array.from({ length: 8 }, (_, k) => [P3 + 0.9 + k * 0.4, 'golpecito'])];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2013 });
+</script>
+</body>
+</html>
