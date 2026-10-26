@@ -21,7 +21,7 @@ const { E, R, M } = await T.preparar('th-gancho');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('farmacia', f), b = (f) => en('promesa', f), c = (f) => en('secreto', f);
-const P2 = a(0.27), P3 = a(0.6), P4 = b(0), P5 = b(0.34), P6 = b(0.76), P7 = c(0), P8 = c(0.42);
+const P2 = a(0.3), P3 = a(0.64), P4 = b(0), P5 = b(0.34), P6 = b(0.76), P7 = c(0), P8 = c(0.46);
 const pica = a(0.69), recoge = a(0.78), veintinueve = b(0.47), jersey = b(0.64), otras = c(0.9);
 const p1 = (t) => {
   const u = tramo(t, 1.7, P2 - 0.4);

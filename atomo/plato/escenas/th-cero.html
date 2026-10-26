@@ -19,8 +19,8 @@ const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('cero', f);
 const P2 = a(0.5);
 const p1 = (t) => { T.farmacia(R, t, { cerrado: t > 1.4 }); R.actor(EL.tecnico, 180, 160, t, { dir: -1, quieto: true }); R.actor(EL.clienta, 90, 162, t, { dir: 1, sorpresa: t > 1.6 }); };
-const p2 = (t) => { R.rect(0, 0, 319, 179, T.C.caoba); const gira = t < a(0.95), v = t < a(0.74) ? 4.5e9 : t < a(0.97) ? 4.5e9 * (1 - tramo(t, a(0.74), a(0.97))) : 0;
-  T.contador(R, t, gira ? Math.round(v / 1e8) * 1e8 : 0, { rueda: gira && t > a(0.76) ? 1 : 0, y: 70, rojo: !gira }); if (!gira) { for (let k = 0; k < 3; k++) R.disco(80 + k * 80, 150, 3, Math.floor(t * 6 + k) % 2 ? T.C.rojo : T.C.rojoS); } };
+const p2 = (t) => { T.consejo(R, t); T.consejoMesa(R, t, {}); T.tinte(R, 0, 179, [30, 20, 20], 0.35); const gira = t < a(0.95), v = t < a(0.74) ? 4.5e9 : t < a(0.97) ? 4.5e9 * (1 - tramo(t, a(0.74), a(0.97))) : 0;
+  T.contador(R, t, gira ? Math.round(v / 1e8) * 1e8 : 0, { rueda: gira && t > a(0.76) ? 1 : 0, y: 50, rojo: !gira }); if (!gira) { for (let k = 0; k < 3; k++) R.disco(80 + k * 80, 150, 3, Math.floor(t * 6 + k) % 2 ? T.C.rojo : T.C.rojoS); } };
 const efectos = [[1.4, 'sello'], [a(0.76), 'tic'], [a(0.82), 'tic'], [a(0.88), 'tic'], [a(0.97), 'boing']];
 T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2016 });
 </script>

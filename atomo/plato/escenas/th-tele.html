@@ -18,7 +18,7 @@ const { E, R, M } = await T.preparar('th-tele');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('tele', f);
-const P2 = a(0.32), P3 = a(0.78);
+const P2 = a(0.3), P3 = a(0.7);
 const p1 = (t) => { T.plato(R, t); R.actor(EL.holmes, 103, 140, t, { dir: 1, quieto: true, habla: Math.sin(t * 6) > 0, dedo: t > a(0.2) }); R.actor(EL.periodista, 183, 140, t, { dir: -1, quieto: true }); T.platoCamaras(R, t); };
 const p2 = (t) => { T.laboratorio(R, t); [EL.agente, EL.agenta].forEach((d, k) => { const u = tramo(t, P2 + 0.3 + k * 0.5, P2 + 2.4 + k * 0.5), x = Math.round(lerp(330, 150 + k * 30, u)); R.actor(d, x, 164, t, { dir: -1, anda: u < 1 }); R.rect(x - 4, 146, x + 2, 154, T.C.k); R.rect(x - 3, 147, x + 1, 153, T.C.ocre); });
   R.actor(EL.tecnico, Math.round(lerp(150, 60, tramo(t, P2 + 1.5, P2 + 3))), 160, t, { dir: -1, sorpresa: true }); R.actor(EL.erika, 40, 160, t, { dir: 1, quieto: true }); };

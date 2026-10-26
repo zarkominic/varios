@@ -18,7 +18,7 @@ const { E, R, M } = await T.preparar('th-jobs');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('jobs', f);
-const P2 = a(0.36), P3 = a(0.78);
+const P2 = a(0.33), P3 = a(0.72);
 const p1 = (t) => { T.armario(R, t, { abre: tramo(t, 0.4, 1.6) }); const saca = tramo(t, a(0.24), a(0.3)); if (saca > 0) { R.rect(46 + 9 * 24, 44, 62 + 9 * 24, 120, hex('#f4f2ee')); T.mano(R, 54 + 9 * 24, Math.round(lerp(80, 200, saca)), -1, '#1e1e28'); } };
 const p2 = (t) => { T.plato(R, t); R.actor(EL.holmes, 140, 140, t, { dir: 1, dedo: true, habla: Math.sin(t * 6) > 0 });
   for (let k = 0; k < 4; k++) if (Math.sin(t * 3 + k * 1.7) > 0.93) { const x = 40 + k * 70; for (let r = 1; r < 5; r++) { R.pset(x + r, 160, T.C.blanco); R.pset(x - r, 160, T.C.blanco); R.pset(x, 160 + r, T.C.blanco); R.pset(x, 160 - r, T.C.blanco); } }

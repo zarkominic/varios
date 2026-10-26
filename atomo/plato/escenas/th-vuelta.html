@@ -18,7 +18,7 @@ const { E, R, M } = await T.preparar('th-vuelta');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('vuelta', f);
-const P2 = a(0.24), P3 = a(0.6), P4 = a(0.8);
+const P2 = a(0.25), P3 = a(0.52), P4 = a(0.74);
 const p1 = (t) => { T.prision(R, t); };
 const p2 = (t) => { T.cine(R, t); [EL.senor30, EL.senora30, EL.chico, EL.sudadera, EL.chica, EL.oficinista].forEach((d, k) => R.actor(d, 112 + k * 17 + Math.round(tramo(t, P2 + 1 + k * 0.3, P2 + 2 + k * 0.3) * -4), 146, t, { dir: -1, quieto: k % 2 === 0 })); T.cocheOscuro(R, Math.round(lerp(360, -60, tramo(t, P2, P3))), 172, t, { dir: -1 }); };
 const p3 = (t) => { const u = tramo(t, P3, P4); const k = Math.floor(u * 4); [() => T.cine(R, t), () => T.sede(R, t), () => T.farmacia(R, t), () => T.stanford(R, t)][Math.min(3, k)](); T.rebobinar(R, t, 1); };

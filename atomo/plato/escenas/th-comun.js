@@ -339,26 +339,27 @@ export function consejo(R, t, o = {}) {
   // las lámparas colgantes
   for (const x of [60, 160, 260]) { linea(x, 0, x, 92, C.k); poligono([[x - 8, 100], [x - 4, 92], [x + 4, 92], [x + 8, 100]], C.oroS); rect(x - 7, 100, x + 7, 101, C.oroL); }
   // los respaldos altos de cuero de las sillas
-  for (const x of o.sillas ?? [56, 100, 144, 188, 232]) { rect(x - 1, 102, x + 17, 132, C.k); rect(x, 103, x + 16, 132, C.cuero); for (let y = 108; y < 130; y += 6) for (let i = 2; i < 16; i += 6) pset(x + i, y, hex('#5a3a30')); }
+  for (const x of o.sillas ?? [56, 100, 144, 188, 232]) { rect(x - 1, 112, x + 17, 142, C.k); rect(x, 113, x + 16, 142, C.cuero); for (let y = 118; y < 140; y += 6) for (let i = 2; i < 16; i += 6) pset(x + i, y, hex('#5a3a30')); }
   rect(0, 116, 319, 179, C.moqueta);
 }
 // la mesa larga de caoba vista de frente, con vasos de agua, carpetas, micrófonos y el dinero que entra (o.dinero 0–1:
 // fajos que caen sobre la mesa y se apilan)
 export function consejoMesa(R, t, o = {}) {
   const { rect, pset, disco, poligono, linea } = R;
-  poligono([[20, 128], [300, 128], [316, 138], [4, 138]], C.k); poligono([[22, 129], [298, 129], [313, 137], [7, 137]], C.caobaL); rect(4, 138, 316, 179, C.k); rect(6, 139, 314, 179, C.caoba); for (let x = 30; x < 300; x += 60) rect(x, 144, x + 40, 172, C.caobaS);
-  for (let k = 0; k < 5; k++) { const x = 60 + k * 44; rect(x, 124, x + 4, 131, C.k); rect(x + 1, 125, x + 3, 130, hex('#c8e8f8')); pset(x + 1, 126, C.blanco); rect(x + 8, 129, x + 22, 132, C.k); rect(x + 9, 129, x + 21, 131, k % 2 ? C.ocre : hex('#4a6aa8')); linea(x + 26, 130, x + 30, 120, C.k); disco(x + 30, 119, 1, C.k); }
-  const d = o.dinero ?? 0; if (d > 0) for (let k = 0; k < 14; k++) { const u = Math.min(1, Math.max(0, d * 1.6 - k * 0.05)), x = 40 + (k * 53) % 240, y0 = -10 - (k % 4) * 12, pila = Math.floor(k / 5), yF = 127 - pila * 3, y = Math.round(lerp(y0, yF, u * u)); if (u <= 0) continue;
+  poligono([[20, 140], [300, 140], [316, 150], [4, 150]], C.k); poligono([[22, 141], [298, 141], [313, 149], [7, 149]], C.caobaL); rect(4, 150, 316, 179, C.k); rect(6, 151, 314, 179, C.caoba); for (let x = 30; x < 300; x += 60) rect(x, 156, x + 40, 176, C.caobaS);
+  for (let k = 0; k < 5; k++) { const x = 52 + k * 44; rect(x, 136, x + 4, 143, C.k); rect(x + 1, 137, x + 3, 142, hex('#c8e8f8')); pset(x + 1, 138, C.blanco); rect(x + 8, 141, x + 22, 144, C.k); rect(x + 9, 141, x + 21, 143, k % 2 ? C.ocre : hex('#4a6aa8')); }
+  const d = o.dinero ?? 0; if (d > 0) for (let k = 0; k < 14; k++) { const u = Math.min(1, Math.max(0, d * 1.6 - k * 0.05)), xF = k % 2 ? 22 : 284, x = Math.round(lerp(40 + (k * 53) % 240, xF, u)), y0 = -10 - (k % 4) * 12, yF = 145 - Math.floor(k / 2) * 3, y = Math.round(lerp(y0, yF, u * u)); if (u <= 0) continue;
     rect(x, y - 3, x + 12, y, C.k); rect(x + 1, y - 2, x + 11, y - 1, hex('#7ab86a')); rect(x + 5, y - 2, x + 7, y - 1, hex('#4a8a4a')); if (u < 1) { pset(x - 2, y - 6, hex('#7ab86a')); } }
 }
 // el contador de la valoración: una placa con dígitos de 16 px y comas, como un marcador; v es el número (puede ser
 // fraccionario: o.rueda hace girar los dígitos como una tragaperras hacia ese valor)
 export function contador(R, t, v, o = {}) {
-  const { rect, disco } = R, s = '$' + Math.round(Math.max(0, v)).toLocaleString('en-US'), w = s.length * 16 + 20, x0 = Math.round(160 - w / 2), y0 = o.y ?? 72;
+  const { rect, disco, pset } = R, s = '$' + Math.round(Math.max(0, v)).toLocaleString('en-US'), w = s.length * 16 + 20, x0 = Math.round(160 - w / 2), y0 = o.y ?? 72;
   rect(x0 - 4, y0 - 4, x0 + w + 4, y0 + 34, C.k); rect(x0 - 3, y0 - 3, x0 + w + 3, y0 + 33, C.oroS); rect(x0, y0, x0 + w, y0 + 30, hex('#141a2a'));
   for (let k = 0; k < 12; k++) disco(x0 - 3 + Math.round(k * (w + 6) / 11), y0 - 3, 1, Math.floor(t * 6 + k) % 3 === 0 ? C.oroL : C.oro);
-  if (o.rueda) { let x = x0 + 10, i = 0; for (const ch of s) { if (/\d/.test(ch)) { const v0 = (+ch + Math.floor(t * 9 + i * 0.37)) % 10, p = (t * 9 + i * 0.37) % 1; R.numero(String(v0), x + 8, y0 + 24 + Math.round(p * 24), { tam: 16, centro: true }); R.numero(String((v0 + 1) % 10), x + 8, y0 + 24 + Math.round((p - 1) * 24), { tam: 16, centro: true }); } else R.numero(ch, x + 8, y0 + 24, { tam: 16, centro: true }); x += 16; i++; }
-    rect(x0 - 4, y0 - 30, x0 + w + 4, y0 - 4, o.fondo ?? C.caoba); rect(x0 - 4, y0 + 35, x0 + w + 4, y0 + 60, o.fondo ?? C.caoba); rect(x0 - 4, y0 - 4, x0 + w + 4, y0 - 3, C.k); rect(x0 - 3, y0 - 3, x0 + w + 3, y0 - 1, C.oroS); rect(x0 - 4, y0 + 33, x0 + w + 4, y0 + 34, C.k); rect(x0 - 3, y0 + 31, x0 + w + 3, y0 + 32, C.oroS); }
+  if (o.rueda) { const buf = contador.buf ?? (contador.buf = R.nuevo()), prev = R.usar(buf); rect(0, 0, 319, 179, hex('#141a2a')); let x = x0 + 10, i = 0;
+    for (const ch of s) { if (/\d/.test(ch)) { const v0 = (+ch + Math.floor(t * 9 + i * 0.37)) % 10, p = (t * 9 + i * 0.37) % 1; R.numero(String(v0), x + 8, y0 + 24 + Math.round(p * 24), { tam: 16, centro: true }); R.numero(String((v0 + 1) % 10), x + 8, y0 + 24 + Math.round((p - 1) * 24), { tam: 16, centro: true }); } else R.numero(ch, x + 8, y0 + 24, { tam: 16, centro: true }); x += 16; i++; }
+    R.usar(prev); for (let yy = y0; yy <= y0 + 30; yy++) for (let xx = x0; xx <= x0 + w; xx++) pset(xx, yy, buf[yy * 320 + xx]); }
   else R.numero(s, 160, y0 + 24, { tam: 16, centro: true, rampa: o.rojo ? R.PALA.ROJO : undefined });
 }
 // la portada de revista en un quiosco: cabecera en barras de color (sin letras), la silueta con jersey negro de cuello
@@ -593,12 +594,13 @@ export function veredicto(R, t, o = {}) {
   const marcas = [[80, 4, true], [240, 4, false]]; for (const [cx, n, culpa] of marcas) for (let k = 0; k < n; k++) { const vis = u * 8 > k + (culpa ? 0 : 4); if (!vis) continue; const x = cx - 36 + k * 20, y = 110;
     if (culpa) { R.icono('X', x, y, C.rojo, C.k, 3); } else { disco(x + 7, y + 7, 7, hex('#c8d4cc')); disco(x + 7, y + 7, 5, hex('#2a3a34')); } }
   if (u > 0.9) { R.numero('4', 80, 160, { tam: 16, centro: true }); R.numero('0', 240, 160, { tam: 16, centro: true }); }
+  for (let k = 0; k < 13; k++) { const x = 6 + k * 25, y = 176; disco(x, y, 8, C.k); disco(x, y - 1, 7, [hex('#3a2a20'), hex('#c8a060'), hex('#1e1a24'), hex('#6a4a2a')][k % 4]); }   // las cabezas del público, de espaldas
 }
 // las dos condenas como barras de calendario, en meses: Holmes 135, Balwani 155 (o.u 0–1 las hace crecer); los dos
 // personajes pequeños delante de cada barra los pone la escena
 export function condenas(R, t, o = {}) {
   const { rect, pset } = R, u = o.u ?? 1;
-  rect(0, 0, 319, 179, hex('#2a2e3a')); for (let y = 0; y < 180; y += 4) rect(0, y, 319, y, hex('#262a36'));
+  tribunal(R, t); tinte(R, 0, 179, [30, 30, 46], 0.72);
   for (const [y, meses, c] of [[60, 135, hex('#e8c040')], [116, 155, hex('#c84a4a')]]) { const w = Math.round(meses * 1.2 * Math.min(1, u)); rect(66, y, 66 + w, y + 22, C.k); rect(67, y + 1, 65 + w, y + 21, c); for (let m = 12; m < meses * Math.min(1, u); m += 12) rect(66 + Math.round(m * 1.2), y + 1, 66 + Math.round(m * 1.2), y + 21, C.k);
     if (u > 0.95) R.numero(String(meses), 76 + w, y + 18, { tam: 16 }); }
   for (const y of [60, 116]) { rect(40, y + 2, 58, y + 20, C.k); rect(41, y + 3, 57, y + 19, C.blanco); rect(41, y + 3, 57, y + 7, C.rojo); for (let j = 0; j < 3; j++) for (let i = 0; i < 4; i++) pset(44 + i * 4, y + 10 + j * 3, C.k); }
@@ -716,12 +718,13 @@ export function pajar(R, t, o = {}) {
 }
 // la lupa grande en la mano de alguien (x, y: centro del cristal)
 export function lupa(R, x, y, r = 8) { const { disco, linea, pset } = R; disco(x, y, r + 1, C.k); disco(x, y, r, hex('#c8e8f8')); pset(x - Math.round(r / 3), y - Math.round(r / 2), C.blanco); linea(x + r, y + r, x + r + 6, y + r + 6, C.k); linea(x + r + 1, y + r, x + r + 7, y + r + 6, C.maderaS); }
-// la rejilla de las más de 200 pruebas: 20 × 10 casillas grises; las pocas que hace la Edison, en verde azulado
+const disco_ = (R, x, y, c) => R.disco(x, y, 1, c);
+// la rejilla de las más de 200 pruebas, en el panel luminoso de la farmacia: 20 × 10 casillas grises; las pocas que hace la Edison, en verde azulado
 export function rejillaPruebas(R, t, o = {}) {
-  const { rect, pset } = R; rect(0, 0, 319, 179, hex('#1e2430')); const u = o.u ?? 1;
-  for (let j = 0; j < 10; j++) for (let i = 0; i < 20; i++) { const k = j * 20 + i, x = 40 + i * 12, y = 34 + j * 12; if (k / 200 > u) continue; const edison = [3, 27, 58, 91, 120, 166, 188, 141, 72, 13, 104, 152].includes(k);
+  const { rect, pset } = R; farmacia(R, t, { rincon: false }); rect(30, 26, 290, 176, C.k); rect(32, 28, 288, 174, hex('#1e2430')); const u = o.u ?? 1;
+  for (let j = 0; j < 10; j++) for (let i = 0; i < 20; i++) { const k = j * 20 + i, x = 42 + i * 12, y = 34 + j * 12; if (k / 200 > u) continue; const edison = [3, 27, 58, 91, 120, 166, 188, 141, 72, 13, 104, 152].includes(k);
     rect(x, y, x + 9, y + 9, C.k); rect(x + 1, y + 1, x + 8, y + 8, edison && o.marca ? (Math.sin(t * 4 + k) > -0.6 ? C.tealT : C.verdeT) : hex('#4a5262')); }
-  if (u >= 1) R.numero('200+', 160, 168, { tam: 16, centro: true });
+  if (u >= 1) R.numero('200+', 160, 168, { tam: 16, centro: true }); for (let k = 0; k < 6; k++) disco_(R, 36 + k * 50, 26, Math.floor(t * 4 + k) % 2 ? C.oroL : C.oro);
 }
 // el papel de la confidencialidad que se firma: la hoja con renglones, la línea de la firma y el bolígrafo que la hace
 // (o.firma 0–1); el candado arriba
@@ -761,7 +764,7 @@ export function promesa(R, t, o = {}) {
 }
 // las decenas de pruebas que intentan caber en una gota: los iconos hacen cola, chocan contra la gota y rebotan (gag)
 export function noCaben(R, t, o = {}) {
-  const { rect, pset, disco } = R; rect(0, 0, 319, 179, hex('#e8eef4')); rect(0, 140, 319, 179, hex('#c8d4e0'));
+  const { rect, pset, disco } = R; labHoy(R, t); tinte(R, 0, 179, [240, 244, 248], 0.55);
   disco(200, 100, 18, C.k); disco(200, 100, 17, C.sangre); disco(194, 94, 4, C.sangreL); for (let y = 70; y < 84; y++) { const w = Math.round((y - 70) / 2); rect(200 - w, y, 200 + w, y, C.sangre); }
   for (let k = 0; k < 14; k++) { const fase = (t * 0.8 + k * 0.29) % 2, x = fase < 1 ? Math.round(lerp(-20, 178, fase)) : Math.round(lerp(178, 120 - (k % 4) * 20, fase - 1)), y = Math.round(100 + (k % 3 - 1) * 10 - (fase > 1 ? Math.sin((fase - 1) * Math.PI) * 30 : 0));
     if (x < -10) continue; rect(x - 5, y - 5, x + 5, y + 5, C.k); rect(x - 4, y - 4, x + 4, y + 4, [C.tealT, C.verdeT, C.amarilloT, hex('#e8a8b8')][k % 4]); if (fase > 1 && fase < 1.25) R.icono('X', x - 2, y - 14, C.rojo, C.k); }
@@ -771,7 +774,8 @@ export function noCaben(R, t, o = {}) {
 export function tuboContraTubito(R, t) {
   const { rect, pset } = R; rect(0, 0, 319, 179, hex('#dde8e2')); rect(0, 150, 319, 179, hex('#c8d0d8')); rect(0, 150, 319, 151, hex('#a8b0b8'));
   rect(70, 20, 120, 150, C.k); rect(71, 21, 119, 149, hex('#f4f8fc')); rect(71, 50, 119, 149, C.sangre); rect(66, 8, 124, 20, C.k); rect(67, 9, 123, 19, C.rojoW); for (let y = 54; y < 148; y += 6) pset(75, y, C.sangreL);
-  tubito(R, 230, 150, 2, 1, C.verdeT); R.icono('?', 158, 70, C.rojo, C.k, 4); for (let k = 0; k < 3; k++) rect(150 + k * 8, 100, 154 + k * 8, 102, C.k);
+  tubito(R, 230, 130 + Math.round(Math.sin(t * 2) * 2), 2, 1, C.verdeT); mano(R, 246, 126 + Math.round(Math.sin(t * 2) * 2), -1, '#f4f4f8'); R.icono('?', 158, 70, C.rojo, C.k, 4);
+  for (let k = 0; k < 5; k++) { const y = 150 - ((t * 10 + k * 7) % 40); R.pset(96 + (k % 3) * 4, Math.round(y), hex('#f8c8d0')); } for (let k = 0; k < 3; k++) rect(150 + k * 8, 100, 154 + k * 8, 102, C.k);
 }
 // los tres antiguos empleados al teléfono, en tres viñetas (la escena pone a cada uno dentro de la suya)
 export function vinetas(R, t, n = 3) {
@@ -795,4 +799,35 @@ export function acusacion(R, t, o = {}) {
   rect(70, 20, 250, 170, C.k); rect(71, 21, 249, 169, C.ocre); rect(84, 30, 236, 166, C.blanco); disco(160, 56, 16, C.k); disco(160, 56, 15, hex('#2a3a7a')); R.icono('balanza', 157, 52, C.oroL, C.k, 1); for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; pset(Math.round(160 + Math.cos(a) * 13), Math.round(56 + Math.sin(a) * 13), C.oroL); }
   for (let k = 0; k < 8; k++) rect(96, 82 + k * 8, 224 - (k * 13) % 40, 83 + k * 8, hex('#9aa0ac'));
   const s = o.sello ?? 0; if (s > 0) { const sz = Math.round(lerp(60, 26, Math.min(1, s * 1.3))); rect(196 - sz, 128 - sz / 2, 196 + sz, 128 + sz / 2, C.rojo); rect(199 - sz, 131 - sz / 2, 193 + sz, 125 + sz / 2, C.blanco); R.icono('X', 190, 122, C.rojo, C.blanco, 2); }
+}
+
+// la mesa de la cocina con la cucharadita llena en el centro, los tres tubos en su gradilla al lado, el azucarero y una
+// taza humeante: cuánto es «una cucharadita» de sangre
+export function cucharaMesa(R, t, o = {}) {
+  const { rect, pset, disco, poligono } = R;
+  rect(0, 0, 319, 179, hex('#f0e8dc')); for (let y = 0; y < 180; y += 4) for (let x = 0; x < 320; x++) if (h(x >> 3, y, 76) < 0.08) pset(x, y, hex('#e8dccc'));
+  rect(20, 18, 90, 70, C.k); rect(22, 20, 88, 68, C.cielo2); rect(54, 20, 55, 68, C.k); rect(22, 44, 88, 45, C.k); disco(40, 34, 4, C.solL);
+  rect(0, 112, 319, 179, C.maderaL); rect(0, 112, 319, 114, C.madera); for (let y = 122; y < 180; y += 9) rect(0, y, 319, y, C.madera);
+  poligono([[60, 152], [136, 140], [136, 146], [60, 158]], C.k); poligono([[62, 152], [136, 141], [136, 145], [62, 156]], C.metal);
+  for (let j = -14; j <= 14; j++) for (let i = -24; i <= 24; i++) { const e = (i / 24) ** 2 + (j / 14) ** 2; if (e < 1) pset(160 + i, 142 + j, e > 0.86 ? C.k : e > 0.7 ? C.metalD : C.metal); }
+  for (let j = -10; j <= 10; j++) for (let i = -19; i <= 19; i++) if ((i / 19) ** 2 + (j / 10) ** 2 < 1) pset(160 + i, 140 + j, j < -5 ? C.sangreL : j > 5 ? C.sangreS : C.sangre);
+  rect(216, 112, 276, 116, C.k); rect(217, 113, 275, 115, C.metalL); for (let k = 0; k < 3; k++) { const x = 228 + k * 18; rect(x - 5, 66, x + 5, 120, C.k); rect(x - 4, 67, x + 4, 119, hex('#f4f8fc')); rect(x - 4, 80, x + 4, 119, C.sangre); rect(x - 6, 58, x + 6, 66, C.k); rect(x - 5, 59, x + 5, 65, [C.rojoW, C.tealT, hex('#8a5ad8')][k]); }
+  rect(286, 96, 312, 120, C.k); rect(287, 97, 311, 119, C.blanco); for (let q = 0; q < 3; q++) pset(292 + q * 6, 90 - Math.round((t * 8 + q * 4) % 12), C.grisL);
+  rect(20, 96, 44, 120, C.k); rect(21, 97, 43, 119, hex('#e8e0f0')); rect(18, 92, 46, 97, C.k); rect(19, 93, 45, 96, hex('#c8b8e0'));
+}
+// el calendario de pared con la hoja del 30 (y el año), que pasa las hojas hasta quedarse en ella (o.u 0–1)
+export function calendario(R, t, o = {}) {
+  const { rect, pset } = R, u = o.u ?? 1; rect(0, 0, 319, 179, hex('#d8c8a8')); for (let y = 0; y < 180; y += 4) for (let x = 0; x < 320; x++) if (h(x >> 3, y, 77) < 0.06) pset(x, y, hex('#cdbc9a'));
+  rect(110, 24, 210, 150, C.k); rect(112, 26, 208, 148, C.blanco); rect(112, 26, 208, 52, C.rojo); R.numero('2023', 160, 46, { tam: 16, centro: true, color: C.blanco });
+  const dia = u < 1 ? 1 + Math.floor(u * 29) : 30; R.numero(String(dia), 160, 116, { tam: 32, centro: true, color: C.k });
+  if (u < 1) { const y = Math.round(52 + ((t * 30) % 1) * 90); rect(112, 52, 208, y, hex('#f4f0e8')); rect(112, y, 208, y + 1, C.grisL); }
+  for (let k = 0; k < 2; k++) { R.disco(140 + k * 40, 24, 3, C.k); R.disco(140 + k * 40, 24, 2, C.metal); }
+  rect(240, 60, 290, 110, C.k); R.disco(265, 85, 22, C.k); R.disco(265, 85, 21, C.blanco); const a = t * 0.5; R.linea(265, 85, Math.round(265 + Math.cos(a) * 14), Math.round(85 + Math.sin(a) * 14), C.k); R.linea(265, 85, 265, 72, C.k); rect(0, 160, 319, 179, C.madera);
+}
+// el visor de la cámara del documental: la calle por dentro del encuadre, las esquinas, el punto rojo que parpadea y el
+// contador de días; ella camina y la cámara la sigue
+export function visor(R, t, o = {}) {
+  calle(R, t, { tarde: true }); const { rect, pset } = R; const x = Math.round(80 + ((t * 10) % 140)); R.actor(ELENCO_CHIBI.holmes, x, 122, t, { dir: 1, anda: true });
+  tinte(R, 0, 179, [40, 40, 50], 0.18); for (const [cx, cy, dx, dy] of [[20, 20, 1, 1], [300, 20, -1, 1], [20, 160, 1, -1], [300, 160, -1, -1]]) { rect(Math.min(cx, cx + dx * 16), cy, Math.max(cx, cx + dx * 16), cy + 1, C.blanco); rect(cx, Math.min(cy, cy + dy * 16), cx + 1, Math.max(cy, cy + dy * 16), C.blanco); }
+  if (Math.floor(t * 2) % 2) R.disco(36, 34, 4, C.rojo); R.numero(String(o.dia ?? 34), 284, 160, { color: C.blanco, centro: true }); rect(150, 86, 170, 87, C.blanco); rect(159, 77, 160, 96, C.blanco);
 }

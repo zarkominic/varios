@@ -18,14 +18,15 @@ const { E, R, M } = await T.preparar('th-idea');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('idea2', f), b = (f) => en('problema', f);
-const P2 = a(0.5), P3 = b(0), P4 = b(0.55);
+const P1b = a(0.3), P2 = a(0.62), P3 = b(0), P4 = b(0.5);
+const p0 = (t) => { T.cuarto(R, t); R.actor(EL.holmes, 118, 132, t, { dir: 1, quieto: true }); T.cuartoMesa(R, t, { dibujo: 1 }); };
 const p1 = (t) => { T.labHoy(R, t); R.actor(EL.tecnica, 90, 132, t, { dir: 1, quieto: true }); const u = (t * 0.12) % 1; R.actor(EL.tecnico, Math.round(lerp(300, 180, u)), 160, t, { dir: -1, anda: true }); };
 const p2 = (t) => T.chipCerca(R, t, { u: tramo(t, P2 + 0.3, P3 - 0.5) });
-const p3 = (t) => { R.rect(0, 0, 319, 179, hex('#1e2430')); R.rect(0, 130, 319, 179, hex('#2a3040')); const l = tramo(t, b(0.28), b(0.38)); T.edison(R, 160, 130, t, { s: 1.2, sabana: 1 - l }); if (l >= 1) { R.rect(112, 90, 208, 130, hex('#1e2430')); R.icono('?', 150, 92, T.C.rojo, T.C.k, 4); }
-  R.actor(EL.holmes, 60, 160, t, { dir: 1, dedo: l < 1, habla: l < 1 && Math.sin(t * 6) > 0 }); };
+const p3 = (t) => { T.plato(R, t); const l = tramo(t, b(0.28), b(0.38)); T.edison(R, 160, 130, t, { s: 1.2, sabana: 1 - l }); if (l >= 1) { R.rect(112, 90, 208, 130, hex('#3a4462')); R.icono('?', 150, 92, T.C.rojo, T.C.k, 4); }
+  R.actor(EL.holmes, 70, 168, t, { dir: 1, dedo: l < 1, habla: l < 1 && Math.sin(t * 6) > 0 }); T.platoCamaras(R, t); };
 const p4 = (t) => { T.farmacia(R, t, { rincon: false }); R.actor(EL.clienta, 150, 158, t, { dir: 1, quieto: true, triste: t > b(0.8) }); R.rect(166, 138, 178, 152, T.C.k); R.rect(167, 139, 177, 151, T.C.blanco); for (let k = 0; k < 4; k++) R.rect(169, 141 + k * 3, 175, 141 + k * 3, k === 2 ? T.C.rojo : hex('#9aa0ac')); if (t > b(0.76)) R.icono('?', 154, 116, T.C.rojo, T.C.k, 2); };
 const efectos = [[P2 + 0.3, 'burbujas'], [b(0.3), 'whoosh'], [b(0.38), 'boing'], [b(0.76), 'pop']];
-T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
+T.rodar(E, R, [[0, p0], [P1b, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P1b ? 2003 : 2026) });
 </script>
 </body>
 </html>

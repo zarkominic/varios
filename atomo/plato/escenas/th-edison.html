@@ -18,7 +18,7 @@ const { E, R, M } = await T.preparar('th-edison');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('edison', f);
-const P2 = a(0.31), P3 = a(0.6), P4 = a(0.73);
+const P2 = a(0.28), P3 = a(0.52), P4 = a(0.75);
 const p1 = (t) => { R.rect(0, 0, 319, 179, hex('#e8ecf0')); R.rect(0, 130, 319, 179, T.C.metalL); R.rect(0, 130, 319, 131, T.C.metal); T.edison(R, 160, 130, t, { s: 1.4 }); const l = t > a(0.18); T.bombilla(R, 160, 40, l ? 1 : 0); if (l) for (let k = 0; k < 8; k++) { const g = k * Math.PI / 4 + t; R.linea(Math.round(160 + Math.cos(g) * 24), Math.round(40 + Math.sin(g) * 24), Math.round(160 + Math.cos(g) * 30), Math.round(40 + Math.sin(g) * 30), T.C.oro); } };
 const p2 = (t) => { T.sede(R, t); T.edison(R, 120, 108, t, { s: 0.7, sabana: 1 }); const u = (t - P2) * 0.12 % 2, x = Math.round(u < 1 ? lerp(40, 270, u) : lerp(270, 40, u - 1)); R.actor(EL.guardia, x, 160, t, { dir: u < 1 ? 1 : -1, anda: true }); R.actor(EL.tecnica, 220, 150, t, { dir: -1, quieto: true }); };
 const p3 = (t) => T.firmaPapel(R, t, { firma: tramo(t, P3 + 0.4, P4 - 0.3) });

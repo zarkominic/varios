@@ -66,6 +66,7 @@ export function rodar(E, R, planos, o = {}) {
     ? [[0, (t) => R.cartela(Math.min(1, t / dc), o.cartela)], ...planos.map(([a, f, modo], i) => [i === 0 ? dc : a, f, modo ?? (i === 0 ? 'corte' : undefined)])]
     : planos;
   // lo que un decorado deja para delante (R.delante: coches, público) se pinta al acabar el plano, encima de los personajes
+  window.__planos = lista.map(([a]) => a);   // los inicios de plano, para medir su duración desde fuera
   const conDelante = lista.map(([a, f, modo]) => [a, (t) => { R.delante = null; f(t); if (R.delante) { R.delante(); R.delante = null; } }, modo]);
   E.iniciar((t) => {
     R.secuencia(t, conDelante, { fundido: o.fundido ?? 0.35 });

@@ -18,10 +18,10 @@ const { E, R, M } = await T.preparar('th-valor');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('valor', f);
-const P2 = a(0.46), P3 = a(0.6);
-const p1 = (t) => { T.consejo(R, t); T.contador(R, t, 9e9 * tramo(t, 1.5, a(0.32)) ** 0.6, { y: 36 }); [EL.consejero, EL.consejeroCalvo, EL.general, EL.consejero, EL.profesor].forEach((d, k) => R.actor(d, [56, 100, 144, 188, 232][k] + 1, 140, t, { dir: 1, quieto: true, sonrisa: true, brazos: t > a(0.3) && Math.floor(t * 4 + k) % 2 === 0 })); T.consejoMesa(R, t, { dinero: 1 }); };
-const p2 = (t) => { R.rect(0, 0, 319, 179, hex('#2a2e3a')); const u = tramo(t, P2 + 0.2, P2 + 1.2); for (let j = -50; j <= 50; j++) for (let i = -50; i <= 50; i++) { if (i * i + j * j > 2500) continue; const ang = Math.atan2(j, i); const mia = ang < -Math.PI / 2 + Math.PI * u && ang > -Math.PI / 2 - 0.0001 || (u >= 1 && i >= 0); R.pset(160 + i, 96 + j, i * i + j * j > 2350 ? T.C.k : mia ? T.C.oro : hex('#5a6270')); }
-  R.rect(160, 46, 160, 146, T.C.k); R.actor(EL.holmes, 240, 150, t, { dir: -1, quieto: true, sonrisa: true }); R.numero('50%', 120, 104, { tam: 16, centro: true }); };
+const P2 = a(0.37), P3 = a(0.72);
+const p1 = (t) => { T.consejo(R, t); T.contador(R, t, 9e9 * tramo(t, 1.5, a(0.32)) ** 0.6, { y: 36 }); [EL.consejero, EL.consejeroCalvo, EL.general, EL.consejero, EL.profesor].forEach((d, k) => R.actor(d, [56, 100, 144, 188, 232][k] + 1, 146, t, { dir: 1, quieto: true, sonrisa: true, brazos: t > a(0.3) && Math.floor(t * 4 + k) % 2 === 0 })); T.consejoMesa(R, t, { dinero: 1 }); };
+const p2 = (t) => { T.consejo(R, t); R.rect(98, 38, 222, 152, T.C.k); R.rect(100, 40, 220, 150, hex('#2a2e3a')); R.linea(110, 152, 100, 179, T.C.maderaS); R.linea(210, 152, 220, 179, T.C.maderaS); const u = tramo(t, P2 + 0.2, P2 + 1.2); for (let j = -44; j <= 44; j++) for (let i = -44; i <= 44; i++) { if (i * i + j * j > 1936) continue; const ang = Math.atan2(j, i); const mia = ang < -Math.PI / 2 + Math.PI * u && ang > -Math.PI / 2 - 0.0001 || (u >= 1 && i >= 0); R.pset(160 + i, 96 + j, i * i + j * j > 1820 ? T.C.k : mia ? T.C.oro : hex('#5a6270')); }
+  R.rect(160, 52, 160, 140, T.C.k); R.actor(EL.holmes, 236, 164, t, { dir: -1, dedo: true, sonrisa: true }); R.actor(EL.consejero, 60, 164, t, { dir: 1, sonrisa: true, brazos: Math.floor(t * 3) % 2 === 0 }); R.numero('50%', 128, 104, { tam: 16, centro: true }); };
 const p3 = (t) => { T.revista(R, t); };
 const efectos = [[1.6, 'tecleo'], [a(0.32), 'brillo'], [a(0.33), 'palmada'], [P2 + 0.3, 'whoosh'], [P3 + 0.2, 'flash']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { cartela: '2014', efectos, año: 2014 });

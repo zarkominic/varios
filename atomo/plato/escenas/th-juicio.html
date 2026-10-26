@@ -18,7 +18,7 @@ const { E, R, M } = await T.preparar('th-juicio');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('veredicto', f), b = (f) => en('condena', f);
-const P2 = a(0.4), P3 = a(0.56), P4 = b(0), P5 = b(0.44), P6 = b(0.68);
+const P2 = a(0.33), P3 = a(0.58), P4 = b(0), P5 = b(0.36), P6 = b(0.7);
 const sala = (t, o = {}) => { T.tribunal(R, t, { detras: (R, t) => R.actor(EL.juez, 152, 74, t, { dir: 1, quieto: true, habla: o.habla && Math.sin(t * 6) > 0 }) }); R.actor(EL.holmes, 70, 156, t, { dir: 1, quieto: true }); R.actor(EL.oficinista, 96, 156, t, { dir: 1, quieto: true }); if (o.balwani) R.actor(EL.balwani, 214, 158, t, { dir: -1, quieto: true }); T.tribunalDelante(R, t); };
 const p1 = (t) => sala(t);
 const p2 = (t) => T.mazo(R, t, { golpe: a(0.49) });

@@ -18,14 +18,15 @@ const { E, R, M } = await T.preparar('th-dedo');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('gota', f), b = (f) => en('azucar', f), c = (f) => en('resuelto', f);
-const P2 = a(0.48), P3 = b(0), P4 = b(0.4), P5 = c(0);
+const P2 = a(0.5), P3 = b(0), P4 = b(0.36), P4b = b(0.72), P5 = c(0);
 const p1 = (t) => T.gotaCuchara(R, t, { tejido: 0 });
 const p2 = (t) => { T.insertoDedo(R, t, { gota: 1 }); const e = tramo(t, a(0.64), a(0.84)); for (let k = 0; k < 10; k++) { const ang = k * 0.63 + t * 0.6, r = 16 - e * 12; R.pset(Math.round(161 + Math.cos(ang) * r), Math.round(101 + Math.sin(ang) * r * 0.7), hex('#7ab8e0')); } if (e > 0.8) { R.disco(161, 101, 2, hex('#e87888')); R.pset(160, 100, T.C.blanco); } };
 const p3 = (t) => { T.medidorAzucar(R, t, { valor: t < b(0.24) ? Math.floor(t * 20) % 100 : 98 }); R.rect(230, 100, 252, 128, T.C.k); R.rect(231, 101, 251, 127, T.C.blanco); for (let k = 0; k < 3; k++) R.linea(236 + k * 6, 98 - Math.round(((t * 8 + k * 5) % 14)), 238 + k * 6, 92 - Math.round(((t * 8 + k * 5) % 14)), T.C.grisL); };
 const p4 = (t) => T.noCaben(R, t);
+const p4b = (t) => { T.labHoy(R, t); [[EL.tecnica, 70], [EL.tecnico, 120], [EL.erika, 236]].forEach(([d, x], k) => { R.actor(d, x, 160, t, { dir: k === 2 ? -1 : 1, quieto: true }); if (Math.floor(t * 2 + k) % 3) R.icono('?', x + 4, 124, T.C.rojo, T.C.k); }); };
 const p5 = (t) => { R.rect(0, 0, 319, 179, hex('#f4f0e8')); R.rect(0, 140, 319, 179, T.C.maderaL); R.rect(0, 140, 319, 142, T.C.madera); T.edison(R, 160, 140, t, { s: 1.2 }); T.lazo(R, 160, 140, t, 1.2); };
 const efectos = [[0.4, 'pop'], [a(0.52), 'masca'], [P3 + 0.3, 'bip'], [b(0.24), 'bip'], [P4 + 0.5, 'boing'], [P4 + 2.1, 'boing'], [P5 + 0.2, 'brillo']];
-T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 2014 });
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P4b, p4b], [P5, p5]], { efectos, año: 2014 });
 </script>
 </body>
 </html>

@@ -15,8 +15,9 @@ import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-prision');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
-const efectos = [[0.3, 'motor'], [E.duracion - 1, 'puerta']];
-T.rodar(E, R, [[0, (t) => T.prision(R, t, { coche: tramo(t, 0.3, E.duracion - 1.2) })]], { efectos, año: 2023 });
+const P2 = en('prision', 0.45);
+const efectos = [[0.3, 'papel'], [P2 + 0.2, 'motor'], [E.duracion - 1, 'puerta']];
+T.rodar(E, R, [[0, (t) => T.calendario(R, t, { u: tramo(t, 0.2, P2 - 0.8) })], [P2, (t) => T.prision(R, t, { coche: tramo(t, P2 + 0.2, E.duracion - 1.2) })]], { efectos, año: 2023 });
 </script>
 </body>
 </html>

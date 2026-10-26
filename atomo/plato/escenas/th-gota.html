@@ -19,16 +19,17 @@ const { E, R, M } = await T.preparar('th-gota');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('tubos', f), b = (f) => en('moleculas', f);
-const P2 = a(0.38), P3 = a(0.7), P4 = b(0), P5 = b(0.33), P6 = b(0.72);
-const p1 = (t) => { T.insertoTubos(R, t, { tubos: tramo(t, 0.6, a(0.36)) * 0.4 }); };
-const p2 = (t) => T.insertoTubos(R, t, { tubos: tramo(t, P2 + 0.2, a(0.62)) * 3, cuchara: t > a(0.64) });
+const P2 = a(0.2), P2b = a(0.48), P3 = a(0.72), P4 = b(0), P5 = b(0.33), P6 = b(0.72);
+const p1 = (t) => { T.farmacia(R, t, { rincon: false }); R.actor(EL.senor30, 150, 152, t, { dir: 1, quieto: true }); R.actor(EL.enfermera, 176, 152, t, { dir: -1, quieto: true }); T.mano(R, 166, 140, -1, '#4aa8a0'); R.rect(150, 140, 160, 141, T.C.k); R.actor(EL.chica, Math.round(lerp(-20, 330, (t * 0.06) % 1)), 172, t, { dir: 1, anda: true }); };
+const p2 = (t) => T.insertoTubos(R, t, { tubos: tramo(t, P2 + 0.5, P2b - 0.3) * 3 });
+const p2b = (t) => T.cucharaMesa(R, t);
 const p3 = (t) => { T.laboratorio(R, t); R.actor(EL.tecnica, 150, 164, t, { dir: 1, quieto: true }); R.actor(EL.tecnico, 100, 162, t, { dir: 1, anda: true });
   const iconos = [['gota', T.C.sangre], ['pila', T.C.amarilloT], ['corona', T.C.oro], ['luna', T.C.tealT]]; iconos.forEach(([n, c], k) => { const u = tramo(t, a(0.82) + k * 0.6, a(0.82) + k * 0.6 + 1); if (u <= 0) return; const x = 210 + (k % 2) * 60, y = Math.round(lerp(40, 22, u)); R.rect(x - 6, y - 6, x + 8, y + 8, T.C.k); R.rect(x - 5, y - 5, x + 7, y + 7, T.C.blanco); R.icono(n, x - 2, y - 2, c, T.C.k); }); };
 const p4 = (t) => T.insertoMoleculas(R, t, {});
 const p5 = (t) => T.insertoMoleculas(R, t, { rara: true });
 const p6 = (t) => { T.pajar(R, t); const u = (t - P6) * 0.25 % 2, x = Math.round(u < 1 ? lerp(80, 220, u) : lerp(220, 80, u - 1)); R.actor(EL.brazel ?? EL.senor30, x, 168, t, { dir: u < 1 ? 1 : -1, anda: true }); T.lupa(R, x + (u < 1 ? 22 : -8), 150, 7); };
-const efectos = [[P2 + 0.3, 'gluglu'], [a(0.64), 'golpecito'], [P3 + 0.3, 'zumbido'], [a(0.82), 'bip'], [a(0.88), 'bip'], [P4 + 0.2, 'burbujas'], [b(0.92), 'brillo']];
-T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2014 });
+const efectos = [[P2 + 0.5, 'gluglu'], [P2b + 0.2, 'golpecito'], [P3 + 0.3, 'zumbido'], [a(0.82), 'bip'], [a(0.88), 'bip'], [P4 + 0.2, 'burbujas'], [b(0.92), 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P2b, p2b], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2014 });
 </script>
 </body>
 </html>

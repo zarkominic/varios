@@ -14,13 +14,13 @@
 // rojo de los abogados, que no para de sonar y que él tapa con una pila de periódicos (sigue dando saltitos); la
 // rotativa; la portada con la caja y la gota; y por la calle, de mañana, un repartidor en bici lanza los periódicos.
 import * as T from '/atomo/plato/escenas/th-comun.js';
-import { bici } from '/atomo/plato/escenas/ov-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { bici } from '/atomo/plato/escenas/ov-comun.js';
 const { E, R, M } = await T.preparar('th-periodista');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('carreyrou', f), b = (f) => en('portada', f);
-const P2 = a(0.5), P3 = a(0.76), P4 = b(0), P5 = b(0.24), P6 = b(0.6);
+const P2 = a(0.42), P3 = a(0.73), P4 = b(0.05), P5 = b(0.33), P6 = b(0.66);
 const p1 = (t) => { T.redaccion(R, t); R.actor(EL.carreyrou, 120, 156, t, { dir: 1, quieto: true }); T.auricular(R, 133, 140, 1); T.redaccionMesa(R, t, { notas: tramo(t, 1.6, P2 - 0.4), cuelga: 1 }); };
 const p2 = (t) => { T.vinetas(R, t); [EL.tyler, EL.erika, EL.tecnico].forEach((d, k) => { const on = t > P2 + k * 1.2; R.actor(d, 30 + k * 104, 128, t, { dir: 1, habla: on && Math.sin(t * 7 + k) > 0, quieto: true }); if (on) T.auricular(R, 43 + k * 104, 112, 1); }); };
 const p3 = (t) => { T.redaccion(R, t); R.actor(EL.carreyrou, 120, 156, t, { dir: 1, quieto: true, enfado: t > P3 + 1.4 }); T.redaccionMesa(R, t, { notas: 1, abogados: true, tapa: tramo(t, P3 + 1.6, P3 + 2.4) }); };

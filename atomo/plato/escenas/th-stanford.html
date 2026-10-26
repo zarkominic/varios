@@ -21,7 +21,7 @@ const { E, R, M } = await T.preparar('th-stanford');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('idea', f), b = (f) => en('deja', f);
-const P2 = a(0.55), P3 = a(0.84), P4 = b(0), P5 = b(0.4), P6 = b(0.66);
+const P2 = a(0.38), P3 = a(0.7), P4 = b(0), P5 = b(0.355), P6 = b(0.71);
 const p1 = (t) => { T.stanford(R, t); const u = tramo(t, 1.5, P2 - 0.3); R.actor(EL.holmes, Math.round(lerp(40, 180, u)), 150, t, { dir: 1, anda: u > 0 && u < 1 }); R.rect(Math.round(lerp(40, 180, u)) + 12, 136, Math.round(lerp(40, 180, u)) + 17, 140, hex('#3a5a8a'));
   R.actor(EL.chico, 250, 160, t, { dir: -1, quieto: true }); R.actor(EL.chica, 266, 160, t, { dir: -1, habla: Math.sin(t * 5) > 0 }); };
 const p2 = (t) => { T.cuarto(R, t); R.actor(EL.holmes, 118, 132, t, { dir: 1, quieto: true, sonrisa: t > P2 + 2 }); T.cuartoMesa(R, t, { dibujo: tramo(t, P2 + 0.3, P3 - 0.4) }); };

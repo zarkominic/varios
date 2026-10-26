@@ -17,11 +17,12 @@ const { E, R, M } = await T.preparar('th-hoy');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const a = (f) => en('inocencia', f);
-const P2 = a(0.34);
-const p1 = (t) => T.prision(R, t, { carta: tramo(t, a(0.1), P2) });
+const P1b = a(0.3), P2 = a(0.62);
+const p1 = (t) => T.prision(R, t, { carta: tramo(t, a(0.06), P1b) });
+const p1b = (t) => { T.laboratorio(R, t, { rojo: true }); R.actor(EL.erika, 120, 162, t, { dir: 1, dedo: true, habla: Math.sin(t * 6) > 0 }); R.actor(EL.tyler, 92, 162, t, { dir: 1, quieto: true }); };
 const p2 = (t) => { T.charla(R, t, { visto: t > a(0.66) }); R.actor(EL.erika, 196, 104, t, { dir: -1, habla: Math.sin(t * 6) > 0, dedo: t > a(0.6) }); };
-const efectos = [[a(0.1), 'papel'], [P2 + 0.2, 'palmada'], [a(0.66), 'brillo']];
-T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2026 });
+const efectos = [[a(0.06), 'papel'], [P1b + 0.3, 'aviso'], [P2 + 0.2, 'palmada'], [a(0.7), 'brillo']];
+T.rodar(E, R, [[0, p1], [P1b, p1b], [P2, p2]], { efectos, año: (t) => (t < P1b || t >= P2 ? 2026 : 2014) });
 </script>
 </body>
 </html>
