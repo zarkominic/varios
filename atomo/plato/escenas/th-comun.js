@@ -775,7 +775,19 @@ export function tuboContraTubito(R, t) {
   tubito(R, 230, 150, 2, 1, C.verdeT); R.icono('?', 158, 70, C.rojo, C.k, 4); for (let k = 0; k < 3; k++) rect(150 + k * 8, 100, 154 + k * 8, 102, C.k);
 }
 // los tres antiguos empleados al teléfono, en tres viñetas (la escena pone a cada uno dentro de la suya)
-export function vinetas(R, t, n = 3) { const { rect } = R; rect(0, 0, 319, 179, hex('#2a2e3a')); for (let k = 0; k < n; k++) { const x0 = 8 + k * 104; rect(x0, 30, x0 + 96, 150, C.k); rect(x0 + 2, 32, x0 + 94, 148, [hex('#e8e0d0'), hex('#d8e4ec'), hex('#ece0e8')][k]); rect(x0 + 2, 120, x0 + 94, 148, [hex('#c8b898'), hex('#a8b8c8'), hex('#c8a8b8')][k]); rect(x0 + 60, 50, x0 + 86, 74, C.k); rect(x0 + 61, 51, x0 + 85, 73, C.cristal); } }
+export function vinetas(R, t, n = 3) {
+  const { rect, disco, pset, linea } = R; rect(0, 0, 319, 179, hex('#2a2e3a')); for (let y = 0; y < 180; y += 4) rect(0, y, 319, y, hex('#262a36'));
+  for (let k = 0; k < n; k++) { const x0 = 8 + k * 104; rect(x0, 30, x0 + 96, 150, C.k); rect(x0 + 2, 32, x0 + 94, 148, [hex('#e8e0d0'), hex('#d8e4ec'), hex('#ece0e8')][k]); rect(x0 + 2, 120, x0 + 94, 148, [hex('#c8b898'), hex('#a8b8c8'), hex('#c8a8b8')][k]); rect(x0 + 2, 120, x0 + 94, 121, hex('#8a8a9a'));
+    // la ventana de cada casa: cielo de día, de tarde o de noche, con su árbol o su luna
+    rect(x0 + 60, 44, x0 + 86, 72, C.k); rect(x0 + 61, 45, x0 + 85, 71, [C.cielo2, C.tarde3, C.noche2][k]); rect(x0 + 73, 45, x0 + 73, 71, C.k);
+    if (k === 0) disco(x0 + 66, 66, 5, C.hierba); if (k === 1) disco(x0 + 80, 64, 3, C.solL); if (k === 2) { disco(x0 + 80, 52, 3, C.papel); pset(x0 + 64 + Math.round(t) % 8, 50, C.blanco); }
+    // la lámpara de pie, una planta, un cuadro y la mesita con la taza humeante
+    rect(x0 + 10, 60, x0 + 11, 120, C.metalD); rect(x0 + 5, 54, x0 + 16, 60, C.k); rect(x0 + 6, 55, x0 + 15, 59, C.amarilloT);
+    rect(x0 + 84, 108, x0 + 92, 120, C.k); rect(x0 + 85, 109, x0 + 91, 119, C.ocre); disco(x0 + 88, 103, 5, C.verde); disco(x0 + 86, 100, 3, C.verdeL);
+    rect(x0 + 24, 44, x0 + 42, 58, C.k); rect(x0 + 25, 45, x0 + 41, 57, [hex('#8ab0d8'), hex('#d8a888'), hex('#a8c890')][k]);
+    rect(x0 + 52, 112, x0 + 74, 114, C.maderaS); rect(x0 + 54, 114, x0 + 56, 122, C.maderaS); rect(x0 + 70, 114, x0 + 72, 122, C.maderaS); rect(x0 + 60, 107, x0 + 65, 112, C.blanco);
+    for (let q = 0; q < 2; q++) { const y = 104 - Math.round(((t * 6 + q * 4 + k * 3) % 8)); pset(x0 + 62 + q, y, C.grisL); } }
+}
 // el auricular en la mano de un personaje pequeño (junto a la cabeza)
 export function auricular(R, x, y, dir = 1) { const { rect } = R; rect(x, y - 6, x + 2 * dir, y + 6, C.k); rect(x - 1 * dir, y - 7, x + 3 * dir, y - 5, C.k); rect(x - 1 * dir, y + 5, x + 3 * dir, y + 7, C.k); }
 // la carpeta de la acusación: el sello de la balanza, hojas, y el sello rojo que cae (o.sello 0–1)

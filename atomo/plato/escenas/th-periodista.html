@@ -14,6 +14,7 @@
 // rojo de los abogados, que no para de sonar y que él tapa con una pila de periódicos (sigue dando saltitos); la
 // rotativa; la portada con la caja y la gota; y por la calle, de mañana, un repartidor en bici lanza los periódicos.
 import * as T from '/atomo/plato/escenas/th-comun.js';
+import { bici } from '/atomo/plato/escenas/ov-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('th-periodista');
 const { tramo, lerp, hex } = R;
@@ -25,7 +26,7 @@ const p2 = (t) => { T.vinetas(R, t); [EL.tyler, EL.erika, EL.tecnico].forEach((d
 const p3 = (t) => { T.redaccion(R, t); R.actor(EL.carreyrou, 120, 156, t, { dir: 1, quieto: true, enfado: t > P3 + 1.4 }); T.redaccionMesa(R, t, { notas: 1, abogados: true, tapa: tramo(t, P3 + 1.6, P3 + 2.4) }); };
 const p4 = (t) => { T.rotativa(R, t, { u: tramo(t, P4, P5) }); R.actor(EL.oficinista, 232, 162, t, { dir: -1, quieto: true }); };
 const p5 = (t) => T.portada(R, t, { abre: tramo(t, P5, P5 + 0.8) });
-const p6 = (t) => { T.calle(R, t); const u = tramo(t, P6, E.duracion), x = Math.round(lerp(-30, 330, u)); T.bici(R, x, 150, t, { fondo: T.C.asfalto }); R.actor(EL.chico, x + 4, 140, t, { dir: 1, quieto: true });
+const p6 = (t) => { T.calle(R, t); const u = tramo(t, P6, E.duracion), x = Math.round(lerp(-30, 330, u)); bici(R, x, 150, t, { fondo: T.C.asfalto }); R.actor(EL.chico, x + 4, 140, t, { dir: 1, quieto: true });
   for (let k = 0; k < 3; k++) { const lanza = P6 + 1 + k * 1.6, v = tramo(t, lanza, lanza + 0.6); if (v <= 0) continue; const px = Math.round(lerp(-30, 330, tramo(lanza, P6, E.duracion)) + 10), qx = 60 + k * 86, yy = Math.round(lerp(130, 120, v) - Math.sin(v * Math.PI) * 14); R.rect(Math.round(lerp(px, qx, v)), yy, Math.round(lerp(px, qx, v)) + 6, yy + 3, T.C.k); R.rect(Math.round(lerp(px, qx, v)) + 1, yy + 1, Math.round(lerp(px, qx, v)) + 5, yy + 2, hex('#ece4d0')); } };
 const efectos = [[0.2, 'ring'], [1.6, 'lapiz'], [P2 + 0.1, 'ring'], [P2 + 1.3, 'ring'], [P3 + 0.3, 'ring'], [P3 + 2.3, 'papel'], [P4 + 0.2, 'motor'], [P5 + 0.1, 'papel'], [P6 + 1.6, 'golpecito'], [P6 + 3.2, 'golpecito']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { cartela: '2015', efectos, año: 2015 });
