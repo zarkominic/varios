@@ -1,6 +1,6 @@
 # Episodio 11 · Theranos: la gota de sangre que engañó a Silicon Valley
 
-**Estado:** v1, 26 de octubre de 2026. Pendiente de aprobación.
+**Estado:** v2, 26 de octubre de 2026. Pendiente de aprobación. La v1 empezaba con la ciencia de la gota; el usuario prefirió empezar por Stanford.
 
 **Por qué este tema:** los datos de Google Trends de EE. UU. (90 días, `episodios/tendencias/`):
 - desde el 16 de octubre, «Theranos» supera a «Ozempic» en 8 de los últimos 10 días;
@@ -25,7 +25,8 @@ La gente busca más a la persona que a la empresa, así que el título lleva los
   - Cada acto es una escena con lugar, hora, una persona y lo que pasa, contada en presente.
   - Prosa enlazada, como el guion v3 del episodio 10.
 - **El hilo es la ciencia de una gota de sangre.**
-  - El acto 1 explica qué puede decir una gota y qué no. El resto del vídeo se entiende a partir de ahí: por qué la promesa era difícil, por qué diluir las muestras estropeaba los resultados y por qué los empleados se dieron cuenta.
+  - Tras el gancho, la historia arranca en Stanford (acto 1), como prefirió el usuario el 26 de octubre.
+  - La explicación de la gota (acto 3) va justo antes del laboratorio (acto 4), donde se usa: por qué la promesa era difícil, por qué diluir las muestras estropeaba los resultados y por qué los empleados se dieron cuenta.
   - Es el terreno de ASK Atom: no repetir el escándalo, sino explicar por qué no podía funcionar como lo vendían.
 - **Justo con las personas.**
   - Solo hechos probados: lo que dijeron los tribunales, los reguladores y la prensa que lo destapó.
@@ -37,16 +38,16 @@ La gente busca más a la persona que a la empresa, así que el título lleva los
 
 ## Decorados (ocho)
 
-| Decorado | Qué tiene | Frases |
+| Decorado | Qué tiene | Actos |
 |---|---|---|
-| **A · El centro de bienestar de Walgreens, 2013** | Farmacia con estanterías, el rincón de Theranos con su logotipo de colores (sin letras), sillón de extracción, el pinchazo en el dedo, el tubito diminuto | 1–3, 15 |
-| **B · El laboratorio de una gota** | Insertos científicos: un tubo de sangre de vena junto a una gota en un dedo, una cucharadita, las moléculas que cuenta una máquina, el agua de dilución, el contador que «no ve» | 5–8 |
-| **C · Stanford, 2003** | Campus con arcos, palmeras y bicicletas; la residencia; la puerta que se cierra al dejar la carrera | 9–10 |
-| **D · La sede de Theranos en Palo Alto** | Oficina de cristal, guardias de seguridad, puertas con tarjeta; el despacho de Holmes con jerséis negros iguales; la caja «Edison» | 11–12, 16–18 |
-| **E · La sala del consejo** | Mesa larga con hombres mayores y famosos, medallas y banderas, el gráfico que sube; el contador de la valoración | 13–14 |
-| **F · El laboratorio de verdad** | Las máquinas comerciales enormes, la gota diluida en un tubo grande, los controles de calidad en rojo, los dos empleados jóvenes, el correo electrónico | 19–23 |
-| **G · La redacción del Wall Street Journal, 2015** | Mesas con pantallas, teléfonos, el periodista, la rotativa y la portada con la gota | 24–27 |
-| **H · Hoy: tribunal, prisión y cine** | La sala del tribunal de San José, el exterior del campo federal de Texas, la cola del cine con el cartel del documental | 33–38 |
+| **A · El centro de bienestar de Walgreens, 2013** | Farmacia con estanterías, el rincón de Theranos con su logotipo de colores (sin letras), sillón de extracción, el pinchazo en el dedo, el tubito diminuto | 0, 4 |
+| **B · El laboratorio de una gota** | Insertos científicos: un tubo de sangre de vena junto a una gota en un dedo, una cucharadita, las moléculas que cuenta una máquina, el agua de dilución, el contador que «no ve» | 3 |
+| **C · Stanford, 2003** | Campus con arcos, palmeras y bicicletas; la residencia; la puerta que se cierra al dejar la carrera | 1 |
+| **D · La sede de Theranos en Palo Alto** | Oficina de cristal, guardias de seguridad, puertas con tarjeta; el despacho de Holmes con jerséis negros iguales; la caja «Edison» | 1, 4 |
+| **E · La sala del consejo** | Mesa larga con hombres mayores y famosos, medallas y banderas, el gráfico que sube; el contador de la valoración | 2 |
+| **F · El laboratorio de verdad** | Las máquinas comerciales enormes, la gota diluida en un tubo grande, los controles de calidad en rojo, los dos empleados jóvenes, el correo electrónico | 4 |
+| **G · La redacción del Wall Street Journal, 2015** | Mesas con pantallas, teléfonos, el periodista, la rotativa y la portada con la gota | 5 |
+| **H · Hoy: tribunal, prisión y cine** | La sala del tribunal de San José, el exterior del campo federal de Texas, la cola del cine con el cartel del documental | 6, 7 |
 
 - **Mapa:** EE. UU. de papel (`ov-mapas.js`) con Palo Alto, Phoenix y Scottsdale (Arizona), Nueva York (el regulador y el periódico), San José (el juicio) y Bryan, Texas.
 - **Barra de tiempo:** tres tramos.
@@ -62,13 +63,13 @@ La gente busca más a la persona que a la empresa, así que el título lleva los
 
 ## Gags
 
-1. Al ver la jeringa, un niño se esconde detrás de su madre; luego, con el pinchazo en el dedo, ni se entera (frase 2).
-2. El armario de Holmes: diez jerséis negros de cuello alto idénticos en fila (frase 11).
-3. La máquina Edison pita, echa humo y escupe un papel en blanco; un técnico la tapa con una sábana cuando pasa una visita (frase 18).
-4. En el consejo, un consejero famoso mira una pipeta por el lado equivocado (frase 14).
-5. La gota diluida: un técnico echa la gota en un tubo enorme de agua y busca la sangre con una lupa (frase 20).
-6. El teléfono del periodista suena sin parar con llamadas de abogados; él lo mete en un cajón y sigue escribiendo (frase 25).
-7. El contador de la fortuna gira como una tragaperras de 4.500 millones a 0 (frase 29).
+1. Al ver la jeringa, un niño se esconde detrás de su madre; luego, con el pinchazo en el dedo, ni se entera (acto 0).
+2. El armario de Holmes: diez jerséis negros de cuello alto idénticos en fila (acto 1).
+3. La máquina Edison pita, echa humo y escupe un papel en blanco; un técnico la tapa con una sábana cuando pasa una visita (acto 4).
+4. En el consejo, un consejero famoso mira una pipeta por el lado equivocado (acto 2).
+5. La gota diluida: un técnico echa la gota en un tubo enorme de agua y busca la sangre con una lupa (acto 4).
+6. El teléfono del periodista suena sin parar con llamadas de abogados; él lo mete en un cajón y sigue escribiendo (acto 5).
+7. El contador de la fortuna gira como una tragaperras de 4.500 millones a 0 (acto 5).
 
 ## 0 · El gancho
 
@@ -77,29 +78,19 @@ La gente busca más a la persona que a la empresa, así que el título lleva los
 | En septiembre de 2013, en una farmacia Walgreens de Palo Alto, en California, una clienta se sienta para un análisis de sangre, pero en lugar de la aguja y los tubos de siempre, la enfermera le da un pinchacito en el dedo y recoge unas gotas en un tubo del tamaño de una uña. | In September 2013, at a Walgreens pharmacy in Palo Alto, California, a customer sits down for a blood test, but instead of the usual needle and tubes, the nurse gives her a tiny prick on the finger and collects a few drops in a tube the size of a fingernail. |
 | Con esas gotas, le prometen decenas de pruebas, más baratas y en pocas horas, gracias a una máquina que ha inventado una joven de veintinueve años, vestida siempre con un jersey negro de cuello alto, cuya empresa, Theranos, pronto valdrá nueve mil millones de dólares. | From those drops, she's promised dozens of tests, cheaper and within hours, thanks to a machine invented by a twenty-nine-year-old woman who always wears a black turtleneck, and whose company, Theranos, will soon be worth nine billion dollars. |
 | Lo que la clienta no sabe es que esa máquina no funciona como dicen, y que en el laboratorio, a escondidas, la mayoría de sus análisis se hacen con aparatos comprados a otras empresas. | What the customer doesn't know is that the machine doesn't work the way they say, and that back in the lab, out of sight, most of her tests are being run on equipment bought from other companies. |
-| Hoy, trece años después, la fundadora está en la cárcel y un documental ha vuelto a poner su historia en boca de todos, pero para entender cómo llegó hasta ahí, primero hay que saber qué puede contar una sola gota de sangre. | Today, thirteen years later, the founder is in prison and a new documentary has put her story back on everyone's lips, but to understand how she got there, we first need to know what a single drop of blood can tell you. |
+| Hoy, trece años después, la fundadora está en la cárcel y un documental ha vuelto a poner su historia en boca de todos, pero para entender cómo llegó hasta ahí, hay que volver al principio, a una estudiante de diecinueve años a la que le daban miedo las agujas. | Today, thirteen years later, the founder is in prison and a new documentary has put her story back on everyone's lips, but to understand how she got there, we have to go back to the beginning, to a nineteen-year-old student who was afraid of needles. |
 | Soy Atom, y te explico lo que no te contaron en clase. Vamos a verlo. | I'm Atom, and I explain what school didn't teach you. Let's find out. |
 
-## 1 · Lo que cabe en una gota
+## 1 · La chica que dejó Stanford
 
 | ES | EN |
 |---|---|
-| Cuando te sacan sangre de la vena, llenan uno o varios tubos con unos mililitros cada uno, más o menos lo que cabe en una cucharadita, y esa sangre viaja a un laboratorio donde unas máquinas cuentan lo que lleva dentro: azúcar, colesterol, hierro, hormonas. | When you have blood drawn from a vein, they fill one or more tubes with a few milliliters each, roughly what fits in a teaspoon, and that blood travels to a lab where machines count what's inside it: sugar, cholesterol, iron, hormones. |
-| Cada una de esas pruebas necesita su propia porción de muestra, porque la máquina tiene que encontrar suficientes moléculas de lo que busca para medirlas bien, y algunas de esas moléculas son tan escasas que hay que buscarlas como una aguja en un pajar. | Each of those tests needs its own portion of the sample, because the machine has to find enough molecules of whatever it's looking for to measure them accurately, and some of those molecules are so rare that finding them is like looking for a needle in a haystack. |
-| Una gota del dedo tiene unas cien veces menos sangre que esa cucharadita, y además, al apretar el dedo, se mezcla con el líquido de los tejidos, que cambia algunos resultados. | A drop from your finger holds about a hundred times less blood than that teaspoon, and on top of that, when you squeeze the finger, it mixes with fluid from the surrounding tissue, which throws off some of the results. |
-| Una gota basta para unas pocas pruebas, como la del azúcar que se hacen los diabéticos en casa, pero sacar decenas de pruebas de una sola gota, y con la misma precisión que un laboratorio, era y sigue siendo uno de los problemas más difíciles de la medicina. | A drop is enough for a few tests, like the sugar test people with diabetes do at home, but getting dozens of tests out of a single drop, with the same accuracy as a lab, was, and still is, one of the hardest problems in medicine. |
-| Y esa fue exactamente la promesa de Theranos. | And that was exactly what Theranos promised. |
-
-## 2 · La chica que dejó Stanford
-
-| ES | EN |
-|---|---|
-| La historia empieza en 2003, en la Universidad de Stanford, donde Elizabeth Holmes, una estudiante de ingeniería química de diecinueve años, tiene una idea: un aparato que analice la sangre con solo una gota, sin agujas, que ella misma ha confesado que siempre le dieron miedo. | The story begins in 2003, at Stanford University, where Elizabeth Holmes, a nineteen-year-old chemical engineering student, has an idea: a device that can analyze blood from just a drop, without needles, which she has admitted always frightened her. |
+| Todo empieza en 2003, en la Universidad de Stanford, donde Elizabeth Holmes, una estudiante de ingeniería química de diecinueve años, tiene una idea: un aparato que analice la sangre con solo una gota, sin agujas. | It all begins in 2003, at Stanford University, where Elizabeth Holmes, a nineteen-year-old chemical engineering student, has an idea: a device that can analyze blood from just a drop, with no needles at all. |
 | Convence a uno de sus profesores, funda una empresa y, al año siguiente, deja la carrera para dedicarse a ella por completo; la llama Theranos, una mezcla de «terapia» y «diagnóstico». | She wins over one of her professors, starts a company, and the following year drops out to devote herself to it completely; she calls it Theranos, a blend of "therapy" and "diagnosis." |
 | Holmes admira a Steve Jobs, así que se viste como él, con su jersey negro de cuello alto, y habla de su máquina como él hablaba del iPhone: un aparato que cabría en cualquier farmacia y que cambiaría la vida de todo el mundo. | Holmes admires Steve Jobs, so she dresses like him, in a black turtleneck, and talks about her machine the way he talked about the iPhone: a device that could fit in any pharmacy and would change everyone's life. |
 | La máquina se llama Edison, como el inventor de la bombilla, y durante años casi nadie de fuera la ve funcionar, porque en Theranos todo es secreto: los empleados firman contratos de confidencialidad, los departamentos no hablan entre sí y hay guardias en los pasillos. | The machine is called the Edison, after the inventor of the light bulb, and for years almost nobody outside the company sees it work, because at Theranos everything is secret: employees sign confidentiality agreements, departments don't talk to each other, and there are guards in the hallways. |
 
-## 3 · Los nombres y el dinero
+## 2 · Los nombres y el dinero
 
 | ES | EN |
 |---|---|
@@ -107,6 +98,16 @@ La gente busca más a la persona que a la empresa, así que el título lleva los
 | Son hombres poderosos y con mucha experiencia, pero casi ninguno ha trabajado nunca en un laboratorio, así que nadie en esa mesa está preparado para preguntar si la máquina hace de verdad lo que dicen. | They're powerful men with a lot of experience, but almost none of them has ever worked in a lab, so nobody at that table is equipped to ask whether the machine really does what they say. |
 | En 2013, Walgreens, una de las mayores cadenas de farmacias del país, abre el primer centro de Theranos en Palo Alto, y poco después llegan a la zona de Phoenix, en Arizona, donde acaban abriendo unos cuarenta. | In 2013, Walgreens, one of the biggest pharmacy chains in the country, opens the first Theranos center in Palo Alto, and soon after they arrive in the Phoenix area, in Arizona, where some forty of them eventually open. |
 | En 2014, los inversores valoran la empresa en nueve mil millones de dólares, y como Holmes es dueña de la mitad, las revistas la llaman la multimillonaria más joven que se ha hecho a sí misma. | In 2014, investors value the company at nine billion dollars, and since Holmes owns half of it, magazines call her the youngest self-made billionaire woman in the world. |
+
+## 3 · Lo que cabe en una gota
+
+| ES | EN |
+|---|---|
+| Para entender lo que pasaba de verdad dentro de Theranos, hay que saber qué cabe en una gota: cuando te sacan sangre de la vena, llenan uno o varios tubos con unos mililitros cada uno, más o menos lo que cabe en una cucharadita, y esa sangre viaja a un laboratorio donde unas máquinas cuentan lo que lleva dentro: azúcar, colesterol, hierro, hormonas. | To understand what was really going on inside Theranos, you need to know what fits in a drop: when you have blood drawn from a vein, they fill one or more tubes with a few milliliters each, roughly what fits in a teaspoon, and that blood travels to a lab where machines count what's inside it: sugar, cholesterol, iron, hormones. |
+| Cada una de esas pruebas necesita su propia porción de muestra, porque la máquina tiene que encontrar suficientes moléculas de lo que busca para medirlas bien, y algunas de esas moléculas son tan escasas que hay que buscarlas como una aguja en un pajar. | Each of those tests needs its own portion of the sample, because the machine has to find enough molecules of whatever it's looking for to measure them accurately, and some of those molecules are so rare that finding them is like looking for a needle in a haystack. |
+| Una gota del dedo tiene unas cien veces menos sangre que esa cucharadita, y además, al apretar el dedo, se mezcla con el líquido de los tejidos, que cambia algunos resultados. | A drop from your finger holds about a hundred times less blood than that teaspoon, and on top of that, when you squeeze the finger, it mixes with fluid from the surrounding tissue, which throws off some of the results. |
+| Una gota basta para unas pocas pruebas, como la del azúcar que se hacen los diabéticos en casa, pero sacar decenas de pruebas de una sola gota, y con la misma precisión que un laboratorio, era y sigue siendo uno de los problemas más difíciles de la medicina. | A drop is enough for a few tests, like the sugar test people with diabetes do at home, but getting dozens of tests out of a single drop, with the same accuracy as a lab, was, and still is, one of the hardest problems in medicine. |
+| Y eso, exactamente, es lo que Theranos decía haber resuelto. | And that, exactly, is what Theranos claimed to have solved. |
 
 ## 4 · Dentro del laboratorio
 
