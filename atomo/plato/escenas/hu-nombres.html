@@ -133,15 +133,6 @@ const p1 = (t) => {
 const P53 = { C: '#f2eee2', c: '#c8c0b0', W: '#f2eee2', o: '#8a2a2a', F: '#4a4a5a' }, PA53 = { C: '#e8c8b8', c: '#c8a898', W: '#e8c8b8', o: '#f2eee2' };
 const conPal = (p) => Object.fromEntries(Object.entries(p).map(([k, v]) => [k, hex(v)]));
 const PAL53 = conPal(P53), PALA53 = conPal(PA53);
-// PARCHE DECORADO: e_ventana (salaPronostico 'general') pinta el coche de la calle con R.rect, que no respeta R.recorte,
-// y el coche asoma fuera del hueco de la ventana, por la pared de los dos lados y por encima del borde del mapa del tiempo;
-// se repone esa franja con una copia limpia del decorado (en t = 3 el coche va por dentro del hueco). Cuando se arregle
-// el decorado, este parche sobra
-let paredLimpia = null;
-const tapaCoche = () => {
-  if (!paredLimpia) { const b = R.nuevo(), prev = R.usar(b); T.salaPronostico(R, 3, { listas: false }); R.usar(prev); paredLimpia = b; }
-  const B = R.buf; for (let y = 76; y <= 84; y++) for (const [x0, x1] of [[0, 9], [65, 95]]) for (let x = x0; x <= x1; x++) B[y * 320 + x] = paredLimpia[y * 320 + x];
-};
 // la punta del puntero, que va tocando la ficha de abajo de cada lista: las recorre de la 1 a la 6 (1953, todas de
 // mujer), en «1979» sube hacia la placa del año y en «alternating» vuelve a recorrerlas mientras se dan la vuelta
 const col2 = (c) => 212 + 10 * c, ABAJO = 80;

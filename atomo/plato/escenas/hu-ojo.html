@@ -25,7 +25,11 @@
 // 4. (corta en «By the way») el baño de casa: el niño llega con su patito, se sube al taburete y en «sink» lo echa al
 //    agua; en «far too small» tira de la cadenilla del tapón (gluglú) y se asoma a mirar; el gato, que miraba el pájaro
 //    de la ventana desde el cesto, se vuelve con el chapoteo, salta al suelo, cruza y se sube de un salto a la encimera;
-// 5. (corta tras «spin») el lavabo de cerca: la mano del niño deja el tapón en la encimera; el gato llega por la
+// 5. (corta tras «spin») el lavabo de cerca, en el mismo baño del 4 (encima de la pared del decorado de cerca va la del
+//    plano 4 de cerca: papel de rayas, cenefa de olas, zócalo de azulejos verde menta, la cortina de la ducha y el estante
+//    de botes a la izquierda, la barra de tres luces sobre el espejo y la ventana a la DERECHA, con el toallero más allá;
+//    por la ventana, nubes, el tejado del vecino con su humito, la rama y un pájaro; su haz de luz cae en la encimera
+//    con motas): la mano canónica del niño (T.mano, manga naranja) deja el tapón en la encimera y se retira; el gato llega por la
 //    encimera y se sienta junto a la pila a mirar el patito, que da vueltas con el remolino a favor de las agujas del
 //    reloj; en «whichever way» el gato le da un zarpazo, el patito frena, se da la vuelta y gira al revés (gag), y el
 //    gato se sacude la pata mojada; en «don't blame the Earth» el agua se acaba, el patito se queda mareado en el desagüe
@@ -64,11 +68,6 @@ const POSADA = ['......kkk..', '.....kWWWk.', '.....kWkWAA', 'kk..kkWWWk.', 'kkk
 const ALAS = ['k.......k', 'kmk...kmk', '.kWk.kWk.', '..kWWWkkk', '...kkk.A.'];
 // las gotas que se sacude un animal mojado (u 0–1), alrededor de (x, y)
 const gotas = (x, y, u, n = 8, r0 = 4) => { for (let k = 0; k < n; k++) { const a = k / n * 6.283 + 0.4, r = r0 + u * 9, gx = Math.round(x + Math.cos(a) * r), gy = Math.round(y + Math.sin(a) * r * 0.7 + u * u * 6); if (u < 1) { R.pset(gx, gy, hex('#bfe6fb')); R.pset(gx, gy + 1, hex('#3a8ae8')); } } };
-// la mano canónica con la manga que llega hasta el borde del cuadro (dir −1: el brazo entra por la derecha)
-const manoLarga = (x, y, dir, manga) => { T.mano(R, x, y, dir, manga); x = Math.round(x); y = Math.round(y);
-  const x0 = dir < 0 ? x + 43 : 0, x1 = dir < 0 ? 319 : x - 43; if (x1 < x0) return;
-  R.rect(x0, y - 2, x1, y + 2, hex(manga)); R.rect(x0, y - 3, x1, y - 3, K); R.rect(x0, y + 3, x1, y + 3, K); R.rect(x0, y - 2, x1, y - 2, mezcla(hex(manga), C.blanco, 0.18)); };
-
 // ── el gato atigrado del baño ──────────────────────────────────────────────────────────────────────────────────────
 const GC = { c: hex('#e89a48'), s: hex('#b8682a'), l: hex('#f8c890'), d: hex('#7a4218'), ojo: hex('#6ab83a'), rosa: hex('#f0a0a0'), nariz: hex('#e87a8a'), bigote: hex('#f6f2ea') };
 const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) { const v = (y + 0.5 - cy) / ry; if (v * v > 1) continue; const w = rx * Math.sqrt(1 - v * v); R.rect(Math.round(cx - w), y, Math.round(cx + w) - 1, y, c); } };
@@ -254,13 +253,128 @@ const angulo = (t) => A0 + integra(O5, t);
 const aguaEn = (t) => 0.85 - 0.77 * suave(lin(t, vacia - 0.1, culpa + 0.25));
 const patitoEn = (t, ang, agua) => { const rx = 50 * (0.35 + 0.65 * agua), ry = 14.5 * (0.35 + 0.65 * agua), ra = 0.3 + 0.32 * agua; return [Math.round(160 + Math.cos(ang) * rx * ra), Math.round(112 - Math.sin(ang) * ry * ra)]; };
 const GX5 = 214, GY5 = 133, G5_LLEGA = [O5 + 0.46, O5 + 0.82];
+// la pared del baño del plano 4 vista de cerca (para que el inserto case con él): arriba el papel de rayas con
+// florecitas, la cenefa de olas y el zócalo de azulejos cuadrados verde menta; a la izquierda, el borde de la cortina de
+// rayas de la ducha y el estante de la bañera con sus botes; sobre el espejo, la barra de tres luces; a la DERECHA del
+// espejo, la ventana (clara arriba, esmerilada abajo, con la crasa en la repisa) y, más allá, el toallero con la toalla
+// grande de rayas. Lo fijo va en un búfer (con huecos vacíos en el espejo y en el cristal claro) y se copia encima de
+// la pared del lavabo de cerca; lo que vive va encima: la vista de la ventana y el haz de luz con sus motas.
+const PB = { pared: hex('#f4dcc0'), paredS: hex('#e4c6a6'), paredL: hex('#fbe8d2'), flor: hex('#e8a890'), hoja: hex('#9ac0a0'),
+  cen: hex('#4e9c98'), cenS: hex('#3a7c7a'), cenL: hex('#8acac4'), menta: hex('#bfe0d4'), mentaS: hex('#98c4b6'), mentaL: hex('#e0f2ec'), mentaD: hex('#86b4a6'),
+  blanco: hex('#f2eee6'), blancoS: hex('#d2ccc0'), cromo: hex('#d4dce4'), cromoS: hex('#8a98a8'), cromoL: hex('#ffffff'), cromoD: hex('#4e5a68'),
+  cort: hex('#f4f6f6'), cortR: hex('#4aa8b4'), cortS: hex('#c4d4d8'), cortRS: hex('#2e8090'), toalla: hex('#3a9a9a'), toallaS: hex('#2a7676'), luz: hex('#fff6dc'), bombilla: hex('#fff2c8') };
+const VENT = [234, 28, 268, 50];   // el cristal claro de la ventana (la vista)
+let PARED = null;
+const paredFija = () => {
+  const { rect, pset, disco, linea } = R, W = R.nuevo(), prev = R.usar(W);
+  // el papel pintado: rayas de dos tonos, florecitas al tresbolillo y la sombra del techo arriba
+  for (let y = 0; y <= 13; y++) for (let x = 0; x < 320; x++) { let c = x % 20 < 4 ? PB.paredS : x % 20 === 4 ? PB.paredL : PB.pared; if (y < 3 && umbral(x, y) < (3 - y) * 0.22) c = mezcla(c, hex('#a87a5a'), 0.3); pset(x, y, c); }
+  for (let y = 4; y <= 12; y += 8) for (let x = 12 + ((y >> 3) & 1) * 10; x < 320; x += 20) { if (tranquilo(x, y)) continue; rect(x, y, x + 1, y + 1, PB.flor); pset(x, y, hex('#f8c8b0')); pset(x - 1, y + 2, PB.hoja); pset(x + 2, y + 2, PB.hoja); }
+  // la cenefa de olas
+  rect(0, 14, 319, 19, PB.cen); rect(0, 14, 319, 14, PB.cenL);
+  for (let x = 0; x < 320; x++) { const w = 16 + Math.round(Math.sin(x * 0.26) * 2); for (let y = 15; y < w; y++) pset(x, y, PB.cenS); pset(x, w, PB.cenL); if (Math.sin(x * 0.26) > 0.85) pset(x, w + 1, C.blanco); }
+  rect(0, 19, 319, 19, PB.cenS);
+  // el remate del zócalo y los azulejos cuadrados de 16 px: la junta, el canto de luz, alguno más oscuro, el brillo en
+  // diagonal y la sombra de la esquina
+  rect(0, 20, 319, 22, PB.mentaS); rect(0, 20, 319, 20, PB.mentaL);
+  rect(0, 23, 319, 83, PB.mentaS);
+  for (let ty = 23; ty <= 83; ty += 16) for (let tx = 0; tx < 320; tx += 16) {
+    const xa = tx + 1, xb = tx + 15, ya = ty + 1, yb = Math.min(83, ty + 15), osc = ruido(tx, ty, 9) < 0.14, c = osc ? mezcla(PB.menta, PB.mentaD, 0.45) : PB.menta;
+    rect(xa, ya, xb, yb, c); rect(xa, ya, xb - 4, ya, PB.mentaL); rect(xa, ya, xa, yb - 4, PB.mentaL);
+    if (yb === ty + 15) { rect(xa + 1, yb, xb, yb, mezcla(c, PB.mentaD, 0.5)); rect(xb, ya + 1, xb, yb, mezcla(c, PB.mentaD, 0.5)); }
+    for (let i = 0; i < 5; i++) { const x = xa + 3 + i, y = ya + 9 - i; if (y <= yb && ruido(tx, ty, 4) < 0.6) pset(x, y, mezcla(c, C.blanco, 0.35)); }
+  }
+  // la luz cálida de las tres bombillas sobre los azulejos y el papel
+  for (const bx of [128, 160, 192]) for (let y = 4; y < 40; y++) for (let x = bx - 24; x <= bx + 24; x++) { const dd = Math.hypot(x - bx, (y - 22) * 1.3) / 26; if (dd < 1 && umbral(x, y) < (1 - dd) * 0.55) pset(x, y, mezcla(R.pget(x, y), hex('#fff0c8'), 0.38)); }
+  // el hueco del espejo (lo pinta el decorado de cerca)
+  rect(101, 22, 219, 81, 0);
+  // la barra de tres luces encima del espejo
+  rect(106, 16, 214, 21, K); rect(107, 17, 213, 20, PB.cromo); rect(107, 17, 213, 17, PB.cromoL); rect(107, 20, 213, 20, PB.cromoS);
+  for (const bx of [128, 160, 192]) { rect(bx - 2, 21, bx + 2, 22, PB.cromoD); disco(bx, 25, 4.5, K); disco(bx, 25, 3.6, PB.bombilla); rect(bx - 2, 23, bx - 1, 25, C.blanco); pset(bx + 2, 27, hex('#f0d8a0')); }
+  // el borde de la cortina de la ducha, recogida a la izquierda, con su barra, sus anillas y sus pliegues
+  rect(0, 15, 30, 16, PB.cromoS); rect(0, 15, 30, 15, PB.cromoL); disco(30, 16, 2, PB.cromoD);
+  for (let x = 2; x < 22; x += 6) { disco(x, 17, 1.6, PB.cromoS); pset(x, 16, PB.cromoL); }
+  for (let y = 18; y <= 83; y++) { const xr = 20 + Math.round((y - 18) * 0.05); for (let x = 0; x < xr; x++) { const pl = Math.sin(x * 0.6 + y * 0.01), raya = ((x + Math.round(Math.sin(y * 0.15))) % 14) < 4, onda = y % 24 === 12 && ((x + y) % 4) < 2;
+      let c = raya ? PB.cortR : PB.cort; if (pl < -0.4) c = raya ? PB.cortRS : PB.cortS; else if (pl > 0.85 && !raya) c = C.blanco; if (onda) c = PB.cortRS; pset(x, y, c); } pset(xr, y, K); pset(xr + 1, y, mezcla(PB.menta, PB.mentaD, 0.6)); }
+  // el estante de la bañera con sus botes (rosa, azul, amarillo y verde) y su sombra en los azulejos
+  for (const [x, hh, col] of [[36, 16, hex('#e87a8a')], [46, 12, hex('#6ab0d8')], [55, 19, hex('#f0c040')], [66, 10, hex('#8ac86a')]]) {
+    rect(x, 58 - hh, x + 7, 57, K); rect(x + 1, 59 - hh, x + 6, 57, col); rect(x + 5, 59 - hh, x + 6, 57, mezcla(col, K, 0.25)); pset(x + 1, 59 - hh, C.blanco); rect(x + 1, 60 - hh + 3, x + 2, 55, mezcla(col, C.blanco, 0.4));
+    rect(x + 2, 55 - hh, x + 5, 57 - hh, K); rect(x + 3, 55 - hh, x + 4, 56 - hh, hex('#f6f6f6')); rect(x + 2, 62 - hh + 4, x + 5, 62 - hh + 6, hex('#f6f2ea')); }
+  for (let x = 32; x <= 78; x++) for (let y = 61; y <= 63; y++) if (umbral(x, y) < 0.5 - (y - 61) * 0.15) pset(x, y, mezcla(R.pget(x, y), PB.mentaD, 0.5));
+  rect(32, 58, 78, 60, K); rect(33, 58, 77, 59, PB.cromo); rect(33, 58, 77, 58, PB.cromoL); for (const sx of [36, 74]) { rect(sx, 61, sx + 1, 63, PB.cromoS); }
+  // el interruptor de la luz
+  rect(84, 40, 93, 53, K); rect(85, 41, 92, 52, PB.blanco); rect(85, 41, 92, 41, C.blanco); rect(92, 42, 92, 52, PB.blancoS); rect(87, 44, 90, 49, PB.blancoS); rect(87, 44, 90, 46, C.blanco);
+  // la ventana a la derecha del espejo: el marco de madera pintada, la vista arriba (hueco), el travesaño, el cristal
+  // esmerilado abajo con su brillo, y la repisa con la crasa en su maceta
+  rect(230, 24, 272, 77, K); rect(231, 25, 271, 76, PB.blanco); rect(231, 25, 271, 25, C.blanco); rect(269, 26, 271, 76, PB.blancoS);
+  rect(VENT[0], VENT[1], VENT[2], VENT[3], 0); rect(250, VENT[1], 252, VENT[3], PB.blanco); pset(250, VENT[1], C.blanco);
+  rect(234, 51, 268, 53, PB.blanco); rect(234, 53, 268, 53, PB.blancoS);
+  for (let y = 54; y <= 74; y++) for (let x = 234; x <= 268; x++) { if (x >= 250 && x <= 252) { pset(x, y, PB.blanco); continue; } pset(x, y, ruido(x, y, 21) < 0.3 ? hex('#e2eef2') : hex('#cfe0e8')); if (((x + y) & 1) === 0 && x - 234 < 12 - (y - 54) * 0.4) pset(x, y, hex('#f6fbfc')); }
+  rect(234, 75, 268, 75, PB.blancoS);
+  rect(226, 77, 276, 81, K); rect(227, 77, 275, 80, PB.blanco); rect(227, 77, 275, 77, C.blanco); rect(227, 80, 275, 80, PB.blancoS);
+  rect(236, 68, 246, 76, K); rect(237, 69, 245, 76, hex('#c8704a')); rect(237, 69, 245, 69, hex('#e08a5a')); rect(243, 70, 245, 76, hex('#9a5232'));
+  for (const [dx, dy] of [[0, -3], [-3, -2], [3, -2], [-2, -6], [2, -6], [0, -8]]) { disco(241 + dx, 67 + dy, 1.7, hex('#5a9a6a')); pset(241 + dx, 66 + dy, hex('#9ad0a0')); }
+  // la sombra del marco en los azulejos
+  for (let y = 26; y <= 82; y++) for (let x = 273; x <= 275; x++) if (umbral(x, y) < 0.55 - (x - 273) * 0.18) pset(x, y, mezcla(R.pget(x, y), PB.mentaD, 0.55));
+  // el toallero con la toalla grande de rayas (horizontales, como en el plano 4), sus pliegues y sus flecos
+  rect(278, 50, 319, 52, K); rect(279, 50, 319, 51, PB.cromo); rect(279, 50, 319, 50, PB.cromoL); disco(279, 51, 2, PB.cromoD);
+  for (let y = 53; y <= 83; y++) for (let x = 283; x <= 317; x++) { const raya = ((y - 53) >> 3) % 3 === 1, f = Math.sin((x - 283) * 0.45); let c = raya ? PB.toalla : PB.blanco; if (f > 0.6) c = raya ? PB.cenL : C.blanco; else if (f < -0.55) c = raya ? PB.toallaS : PB.blancoS; if (x === 283 || x === 317) c = K; pset(x, y, c); }
+  for (let y = 53; y <= 83; y++) if (umbral(281, y) < 0.5) pset(281, y, mezcla(R.pget(281, y), PB.mentaD, 0.5));
+  rect(283, 52, 317, 53, PB.blancoS);
+  // la junta de abajo, contra la encimera, y los flecos de la toalla (con huecos donde asoman el grifo, las llaves y el
+  // dosificador del decorado de cerca)
+  rect(0, 84, 319, 84, PB.mentaD); for (let x = 284; x <= 316; x += 2) pset(x, 84, PB.blancoS);
+  for (const [a, b] of [[137, 143], [150, 170], [177, 183], [224, 237]]) rect(a, 84, b, 84, 0);
+  R.usar(prev); return W;
+};
+// la vista por la ventana (recortada a su hueco): el cielo de la mañana tramado, nubes de tres tonos que pasan a dos
+// velocidades, el tejado del vecino con su chimenea, la rama que se mece y un pájaro que cruza de vez en cuando
+const vistaBano = (t) => {
+  const [x0, y0, x1, y1] = VENT, cielo = [hex('#6ab4ea'), hex('#86c4ee'), hex('#a6d4f0'), hex('#c8e2ee'), hex('#ecead8')];
+  for (let y = y0; y <= y1; y++) { const f = (y - y0) / (y1 - y0) * (cielo.length - 1.01), k = Math.floor(f), r = f - k; for (let x = x0; x <= x1; x++) R.pset(x, y, umbral(x, y) < r ? cielo[k + 1] : cielo[k]); }
+  R.recorte([x0, y0, x1, y1]);
+  for (let k = 0; k < 3; k++) { const v = 1.2 + k * 0.8, x = x0 - 14 + ((ruido(k, 1, 33) * 60 + t * v) % 64), y = y0 + 5 + k * 6, w = 7 + k * 2;
+    R.disco(x, y + 1, w * 0.55, hex('#b8c8dc')); R.disco(x - w * 0.4, y + 2, w * 0.4, hex('#d8e2ee')); R.disco(x + w * 0.35, y + 1, w * 0.45, hex('#d8e2ee')); R.disco(x - 1, y, w * 0.4, C.blanco); }
+  // el tejado del vecino
+  for (let x = x0; x <= x1; x++) { const top = y1 - 7 + Math.round(Math.abs(x - 248) * 0.12); for (let y = top; y <= y1; y++) R.pset(x, y, (y - top) % 3 === 0 ? hex('#8a4a3a') : (x + ((y - top) / 3 | 0) * 2) % 5 === 0 ? hex('#9a5442') : hex('#b8644a')); R.pset(x, top, hex('#d88a6a')); }
+  for (let y = y1 - 13; y <= y1 - 5; y++) for (let x = 259; x <= 264; x++) R.pset(x, y, x === 259 ? hex('#7a5246') : hex('#9a6a5a'));
+  for (let x = 258; x <= 265; x++) R.pset(x, y1 - 14, hex('#7a5246'));
+  // el humito de la chimenea
+  for (let k = 0; k < 4; k++) { const u = (t * 0.35 + k / 4) % 1; R.disco(261 + u * 6 + Math.sin(t * 2 + k) * 1, y1 - 16 - u * 10, 1 + u * 1.5, mezcla(hex('#e8ecf2'), hex('#a6d4f0'), u)); }
+  // un pájaro que cruza
+  { const u = (t % 7) / 7, x = Math.round(x1 + 6 - u * (x1 - x0 + 14)), y = Math.round(y0 + 9 + Math.sin(u * 9) * 2), al = Math.sin(t * 10) > 0 ? 1 : 0, P = hex('#3a3040');
+    for (const [dx, dy] of [[0, 0], [-1, -al], [1, -al], [-2, -2 * al], [2, -2 * al]]) R.pset(x + dx, y + dy, P); }
+  // la rama que entra por arriba a la izquierda y se mece
+  const sw = Math.sin(t * 1.1) * 1.4;
+  R.linea(x0 - 2, y0 + 2, x0 + 16 + Math.round(sw), y0 + 10 + Math.round(sw * 0.5), hex('#5a3e2a')); R.linea(x0 - 2, y0 + 3, x0 + 16 + Math.round(sw), y0 + 11 + Math.round(sw * 0.5), hex('#4a3020'));
+  for (let k = 0; k < 10; k++) { const q = k / 10, bx = x0 - 2 + (18 + sw) * q, by = y0 + 2 + (8 + sw * 0.5) * q, dx = Math.round(bx + (k % 2 ? 2 : -2) + Math.sin(t * 2 + k) * 0.8), dy = Math.round(by + (k % 2 ? 2 : -2)); R.disco(dx, dy, 1.8, k % 3 ? hex('#4e8e3e') : hex('#6aae4a')); R.pset(dx - 1, dy - 1, hex('#9ad06a')); }
+  R.recorte(null);
+};
+const CENEFA_CERCA = [hex('#3a7c7a'), hex('#4e9c98'), hex('#8acac4')].map((v) => v >>> 0);
+const paredBano = (t) => {
+  if (!PARED) PARED = paredFija();
+  const B = R.buf;
+  // lo que asoma del decorado de cerca por debajo del espejo (el grifo y las llaves) se guarda para volver a ponerlo
+  const guarda = []; for (let y = 82; y <= 83; y++) for (let x = 101; x <= 219; x++) { const i = y * 320 + x; if (!CENEFA_CERCA.includes(B[i] >>> 0)) guarda.push([i, B[i]]); }
+  vistaBano(t);
+  for (let i = 0; i < 85 * 320; i++) { const c = PARED[i]; if (c !== 0) B[i] = c; }
+  // en el espejo, los azulejos reflejados de abajo toman el verde menta del zócalo
+  for (let y = 56; y <= 77; y++) for (let x = 105; x <= 215; x++) { const p = B[y * 320 + x], r = p & 255, g = (p >> 8) & 255, b = (p >> 16) & 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b); if (mn > 150 && mx - mn < 26) B[y * 320 + x] = mezcla(p, PB.menta, 0.6); }
+  for (const [i, c] of guarda) B[i] = c;
+  // los dos cepillos de dientes del vaso, que asoman por encima de la encimera
+  for (const [bx, col] of [[76, hex('#3a8ae8')], [80, hex('#e85a8a')]]) { R.linea(bx, 104, bx - 2 + (bx - 76), 78, col); R.rect(bx - 3 + (bx - 76), 76, bx - 1 + (bx - 76), 80, C.blanco); R.rect(bx - 3 + (bx - 76), 76, bx - 1 + (bx - 76), 76, col); }
+  // el haz de luz de la ventana, que cae hacia la izquierda sobre la encimera, con las motas que flotan
+  for (let y = 82; y <= 133; y++) { const d = (y - 82) * 0.9, xa = Math.round(232 - d * 1.15), xb = Math.round(268 - d * 0.6); for (let x = xa; x <= xb; x++) if (((x + y) & 1) === 0 && B[y * 320 + x] !== K) tine(x, y, PB.luz, 0.26); }
+  for (let k = 0; k < 12; k++) { const u = (t * 0.04 + ruido(k, 1, 51)) % 1, y = Math.round(84 + u * 40 - ((t * (2 + ruido(k, 2, 51) * 2)) % 14)), x = Math.round(lerp(250, 222, u) - (y - 84) * 0.6 + Math.sin(t * 0.6 + k) * 3 + ruido(k, 3, 51) * 14); if (Math.sin(t * 1.3 + k * 2) > -0.2) R.pset(x, y, hex('#fff8e8')); }
+};
 const p5 = (t) => {
   const flip = lin(t, TOQUE - 0.05, lado + 0.45), agua = aguaEn(t), ang = angulo(t);
   T.lavabo(R, t, { giro: flip < 0.5 ? -1 : 1, agua, angulo: ang, gato: false });
+  paredBano(t);
   // la mano del niño (el brazo entra por la derecha) deja el tapón con su cadenilla en la encimera y se va
   const deja = lin(t, O5, O5 + 0.25), va = lin(t, O5 + 0.3, O5 + 0.62);
   { const tx = 232, ty = 126; R.disco(tx, ty, 3, K); R.disco(tx, ty, 2, hex('#3a3a46')); R.pset(tx - 1, ty - 1, hex('#6a6a7a')); for (let i = 1; i < 9; i++) R.pset(tx - i * 2, ty + 1 + Math.round(Math.sin(i * 0.9) * 1), i % 2 ? hex('#c8d0dc') : hex('#8a94a6')); }
-  if (va < 1) manoLarga(Math.round(lerp(242, 346, suave(va))), 128 - Math.round((1 - deja) * 4), -1, '#e86a3a');
+  if (va < 1) T.mano(R, Math.round(lerp(242, 346, suave(va))), 128 - Math.round((1 - deja) * 4), -1, '#e86a3a');
   const [px, py] = patitoEn(t, ang, agua);
   // el gato: llega por la encimera y se sienta junto a la pila; en «whichever way» estira la pata y le da al patito, y
   // luego se sacude la pata mojada; en «Earth», el «?»

@@ -15,15 +15,27 @@
 //    perro se sienta muy digno delante. El destello cae en «storms»: la pareja se queda deslumbrada y se ríe, el perro
 //    salta y ladra («!») y corre a olisquear el trípode; el fotógrafo sale de la tela y enseña la placa, y ellos van a
 //    verla mientras el humo sube. Detrás pasa el heladero con su carrito, y están los bañistas, la cometa y la casa de baños;
-// 2. «September 1900, to Galveston, Texas»: la calle de las casas victorianas; el tranvía entra frenando y para en
-//    «Galveston»; baja una señora con su sombrerera y se va por la acera; el niño de los periódicos vocea («!»); un
-//    caballero de chistera llega, le lanza una moneda que brilla en «richest» (y un «$» que sube), el niño da un saltito,
-//    le da el periódico y el caballero se va leyéndolo; el tranvía arranca en «state»; una dama de sombrilla pasa por delante;
-// 3. «built on a sand island»: la isla vista desde el golfo; un destello recorre la franja de arena, la marca roja cae en
-//    «highest point», se trazan el nivel del mar y lo más alto de la isla y la cota «8.7» sale en «nine feet»; delante,
-//    un pescador rema hacia el puerto (se inclina con cada palada), descansa los remos y se vuelve a mirar la isla en
-//    «highest point», sigue remando; un pelícano llega, se tira en picado junto al bote en «the sea» y sale con un pez, y
-//    el pescador se ríe;
+// 2. «September 1900, to Galveston, Texas»: la calle de las casas victorianas. El tranvía y la calesa pasan POR DELANTE
+//    de la gente de la acera de enfrente (el decorado se pinta sin y con vehículos y sus píxeles se reponen encima de
+//    ella; por los costados abiertos del tranvía se ve lo de detrás); por allí pasea, hacia la izquierda, la dama de la
+//    sombrilla, que sale cuando el tranvía ya ha pasado y se queda siempre a la derecha de donde para. El tranvía entra
+//    frenando y para en «Galveston»; el niño de los periódicos está en la acera de ladrillo de delante (por delante del
+//    tranvía, con la cara entera) y vocea («!») con un ejemplar en alto; la viajera de la sombrerera baja por la
+//    plataforma de atrás, cruza la calle y se va por la acera de ladrillo hacia la izquierda; un caballero de chistera
+//    llega por la derecha por la misma acera, le lanza una moneda que brilla en «richest» (y un «$» que sube), el niño
+//    da un saltito, le da el periódico y el caballero se vuelve por donde vino leyéndolo; el tranvía arranca en
+//    «state». Delante de todos, en el ladrillo, picotean unas palomas que alzan el vuelo con cada campanazo;
+// 3. «built on a sand island»: la isla vista desde el golfo, a tres distancias. El cielo, tramado, con cirros lentos,
+//    cúmulos de tres tonos a tres velocidades, nubecillas bajas, una bandada en uve y gaviotas sobre el puerto; la
+//    ciudad, más alta: los bloques de ladrillo del Strand, campanarios, la nave de la prensa de algodón, tres chimeneas
+//    con su humo y banderas; en la orilla, los muelles con tinglados, fardos y un vapor atracado que echa humo, y por
+//    el paseo gente diminuta y carros de caballos. En el mar, velas lejanas, un vapor que entra al puerto, una boya roja,
+//    la boya de campana, gaviotas a ras de agua y, en primer plano, los pilotes viejos con una gaviota posada y la boya
+//    del canal. Un destello recorre la franja de arena, la marca roja cae en «highest point», el nivel del mar y lo más
+//    alto de la isla se trazan desde el centro hacia los lados y la cota «8.7» sale en «nine feet»; delante, un
+//    pescador rema hacia el puerto (se inclina con cada palada), descansa los remos y se vuelve a mirar la isla en
+//    «highest point», sigue remando; un pelícano llega, se tira en picado junto al bote en «the sea» y sale con un pez,
+//    y el pescador se ríe;
 // 4. la oficina del Weather Bureau: Cline apunta en su libreta y se toca el sombrero en «Isaac Cline»; dos bocadillos,
 //    un satélite y un radar, se tachan con una X roja en «satellites» y «radar»; se encoge de hombros, va deprisa hasta el
 //    barómetro y le da dos golpecitos con el lápiz en «barometer»: el mercurio baja (flecha roja) y se asusta; mientras,
@@ -198,30 +210,75 @@ const cartera = (x, y, hombro) => {
 };
 // la sombrerera de la viajera: una caja redonda a rayas con su lazo
 const sombrerera = (x, y) => { R.rect(x - 1, y - 1, x + 6, y + 5, C.k); R.rect(x, y, x + 5, y + 4, hex('#e8d0a8')); R.rect(x, y + 2, x + 5, y + 2, hex('#a83a5a')); R.rect(x, y, x + 5, y, hex('#f4e4c4')); R.pset(x + 2, y - 2, hex('#a83a5a')); R.pset(x + 3, y - 2, hex('#a83a5a')); };
+// el orden de la calle: la gente del plano va por la acera de enfrente (entre las vallas y las vías) y el tranvía y los
+// coches de caballos pasan POR DELANTE de ella. El decorado pinta los vehículos antes que nadie, así que se pinta dos
+// veces (sin vehículos y con ellos), se guardan los píxeles que cambian en la franja de la calzada (los del tranvía, la
+// calesa y el carro, con sus caballos) y se reponen encima de la gente. Lo que se ve por los costados abiertos del
+// tranvía (entre los pies derechos y los pasajeros) sigue dejando ver lo que hay detrás.
+const VY0 = 94, VY1 = 151, vFondo = new Uint32Array((VY1 - VY0 + 1) * 320), vIdx = new Int32Array(vFondo.length), vCol = new Uint32Array(vFondo.length);
+let vN = 0;
+const calleConVehiculos = (t, o) => {
+  T.galveston(R, t, { ...o, tranvia: false, coches: false });
+  const B = R.buf, a = VY0 * 320; vFondo.set(B.subarray(a, (VY1 + 1) * 320));
+  T.galveston(R, t, o);
+  const B2 = R.buf; vN = 0;
+  for (let i = 0; i < vFondo.length; i++) { const p = B2[a + i]; if (p !== vFondo[i]) { vIdx[vN] = a + i; vCol[vN++] = p; } }
+};
+const vehiculosDelante = () => { const B = R.buf; for (let k = 0; k < vN; k++) B[vIdx[k]] = vCol[k]; };
+// las palomas que picotean en la acera de ladrillo de delante: cabecean y, cuando suena la campana del tranvía, alzan
+// el vuelo un momento y vuelven a posarse un poco más allá
+const palomas = (t) => {
+  for (let k = 0; k < 4; k++) {
+    const sustos = [galv - 0.25, estado + 0.05], f = sustos.reduce((m, s0) => Math.max(m, t > s0 && t < s0 + 1.1 ? Math.sin((t - s0) / 1.1 * Math.PI) : 0), 0);
+    const ya = sustos.filter((s0) => t > s0 + 0.55).length, bx = 96 + k * 13 + (k % 2) * 3 + ya * (k % 2 ? 6 : -5) + Math.round(f * (k % 2 ? 6 : -6)), by = 170 + (k % 2) * 3 - Math.round(f * (9 + k * 2));
+    const pica = f === 0 && Math.sin(t * 3.1 + k * 1.7) > 0.55, d = (k + ya) % 2 ? -1 : 1, X = (i) => bx + i * d;
+    const gris = hex('#7a7a8a'), grisS = hex('#5a5a6a'), grisL = hex('#a8a8b8'), cuello = hex('#5a8a7a');
+    if (f === 0) { R.rect(bx - 3, by + 1, bx + 3, by + 1, hex('#8a3a2a')); R.pset(X(-4), by + 1, hex('#8a3a2a')); }   // la sombra en el ladrillo
+    R.rect(Math.min(X(-3), X(2)), by - 3, Math.max(X(-3), X(2)), by - 1, C.k); R.rect(Math.min(X(-2), X(1)), by - 3, Math.max(X(-2), X(1)), by - 2, gris); R.pset(X(-2), by - 2, grisS); R.pset(X(-3), by - 2, grisS);
+    const hy = pica ? by - 2 : by - 5; R.rect(Math.min(X(1), X(3)), hy, Math.max(X(1), X(3)), hy + 2, C.k); R.pset(X(2), hy + 1, grisL); R.pset(X(2), hy + 2, cuello); R.pset(X(4), hy + 1, hex('#e8a86a'));
+    if (f > 0) { const ala = Math.sin(t * 30 + k) > 0; R.rect(Math.min(X(-2), X(0)), ala ? by - 6 : by - 1, Math.max(X(-2), X(0)), ala ? by - 4 : by + 1, grisL); }
+    else { R.pset(X(-1), by, C.k); R.pset(X(1), by, C.k); }
+  }
+};
 const p2 = (t) => {
-  T.galveston(R, t, { encuadre: 'calle', tranvia: tranviaX(t), tranviaDir: -1 });
-  const s = 166, bx = 204, cobra = t > moneda + 0.4, voces = t < galv + 0.9 && Math.floor(t * 2.5) % 2 === 0;
-  // la viajera baja del tranvía parado con su sombrerera, cruza a la acera y se va calle abajo
-  { const q = ruta(t, [[baja[0], 198, 145], [baja[0] + 0.25, 200, 148], [baja[1], 232, 160], [P3 + 0.3, 340, 160]]);
-    if (q) { R.actor(EL.vecina, q.x, q.s, t, { dir: q.d, anda: q.mv, pal: VIAJERA, sonrisa: true }); const [hx, hy] = enMano(q.x, q.s, q.d); sombrerera(hx - 1, hy - 1); } }
-  // el niño de los periódicos vocea con un ejemplar en alto y la cartera al hombro; cobra, da un saltito y entrega
+  calleConVehiculos(t, { encuadre: 'calle', tranvia: tranviaX(t), tranviaDir: -1 });
+  const s = 165, bx = 230, cobra = t > moneda + 0.4, voces = t < galv + 0.9 && Math.floor(t * 2.5) % 2 === 0;
+  const detrasDe = [], delanteDe = [];
+  // la viajera baja por la plataforma de atrás del tranvía parado (sale de detrás de la cola), cruza la calle por detrás
+  // del tranvía, sube a la acera de ladrillo y se va calle abajo con su sombrerera
+  { const q = ruta(t, [[baja[0], 186, 137], [baja[0] + 0.55, 212, 140], [baja[1] + 0.1, 206, 159], [P3 + 0.3, -30, 161]]);
+    if (q) (q.s < 143 ? detrasDe : delanteDe).push([q.s, () => { R.actor(EL.vecina, q.x, q.s, t, { dir: q.d, anda: q.mv, pal: VIAJERA, sonrisa: true }); const [hx, hy] = enMano(q.x, q.s, q.d); sombrerera(hx - 1, hy - 1); }]); }
+  // el niño de los periódicos, en la esquina de la acera de enfrente, vocea con un ejemplar en alto y la cartera al
+  // hombro; cobra, da un saltito y entrega
   const salto = entre(t, moneda + 0.45, moneda + 0.75) ? 2 : 0;
-  R.actor(EL.chico, bx, s, t, { dir: -1, pal: CHICO, tocado: 'gorra', dedo: voces || entre(t, periodico - 0.3, periodico + 0.1), habla: t < galv + 0.9 && parpadeo(t, 9), sonrisa: cobra, salto });
-  { const [hx, hy] = manoAtras(bx, s - salto, -1); cartera(hx - 4, hy - 1, [bx + 9, s - salto - 12]); }
-  if (voces || entre(t, periodico - 0.3, periodico + 0.1)) { const [hx, hy] = manoArriba(bx, s - salto, -1); hojaPeriodico(hx - 3, hy - 7); }
-  if (entre(t, P2 + 0.2, galv + 0.7)) R.bocadillo(bx + 4, s - 31 - (parpadeo(t, 5) ? 1 : 0));
-  // el caballero de chistera llega, lanza la moneda (brilla en «richest»), coge el periódico y se va leyéndolo
-  const u1 = lin(t, P2 + 0.05, texas + 0.1), u2 = lin(t, periodico + 0.25, periodico + 4.2), gx = Math.round(lerp(36, 168, u1) + lerp(0, 140, u2));
-  R.actor(EL.vecino, gx, s, t, { dir: 1, pal: NOBLE, tocado: 'chistera', anda: (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1), dedo: entre(t, moneda - 0.35, moneda + 0.1), sonrisa: t > periodico });
-  if (t > periodico) hojaPeriodico(gx + 11, s - 20, 9, 7);
-  if (entre(t, moneda, moneda + 0.45)) { const qq = lin(t, moneda, moneda + 0.45), x = Math.round(lerp(gx + 16, bx - 3, qq)), y = Math.round(lerp(s - 21, s - 12, qq) - Math.sin(qq * Math.PI) * 11);
+  delanteDe.push([s, () => {
+    { const [hx, hy] = manoAtras(bx, s - salto, 1); cartera(hx - 4, hy - 1, [bx + 6, s - salto - 12]); }
+    R.actor(EL.chico, bx, s, t, { dir: 1, pal: CHICO, tocado: 'gorra', dedo: voces || entre(t, periodico - 0.3, periodico + 0.1), habla: t < galv + 0.9 && parpadeo(t, 9), sonrisa: cobra, salto });
+    if (voces || entre(t, periodico - 0.3, periodico + 0.1)) { const [hx, hy] = manoArriba(bx, s - salto, 1); hojaPeriodico(hx - 3, hy - 7); }
+  }]);
+  // el caballero de chistera llega por la derecha, lanza la moneda (brilla en «richest»), coge el periódico y se vuelve
+  // por donde ha venido leyéndolo
+  const u1 = lin(t, P2 + 0.05, texas + 0.1), u2 = lin(t, periodico + 0.25, periodico + 4.2), gx = Math.round(lerp(334, 252, u1) + lerp(0, 120, u2)), leyendo = t > periodico;
+  delanteDe.push([s + 1, () => {
+    R.actor(EL.vecino, gx, s + 1, t, { dir: leyendo ? 1 : -1, pal: NOBLE, tocado: 'chistera', anda: (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1), dedo: entre(t, moneda - 0.35, moneda + 0.1), sonrisa: leyendo });
+    if (leyendo) hojaPeriodico(gx + 11, s - 19, 9, 7);
+  }]);
+  // la dama de la sombrilla pasea hacia la izquierda por la acera de enfrente (sale cuando el tranvía ya ha pasado por
+  // allí y se queda siempre a la derecha de donde para, así que nunca se cruza con él ni con la calesa)
+  const dx = Math.round(lerp(380, 226, lin(t, P2, P3 + 0.3)));
+  detrasDe.push([129, () => { R.actor(EL.vecina, dx, 129, t, { dir: -1, pal: DAMA, anda: true }); const [hx, hy] = manoAtras(dx, 129, -1); sombrilla(hx, hy, hex('#f4f0e8'), hex('#5a7a4a')); }]);
+  detrasDe.sort((a, b) => a[0] - b[0]).forEach(([, f]) => f());
+  // el tranvía, la calesa y el carro, por delante de la gente de la acera de enfrente
+  vehiculosDelante();
+  // por la acera de ladrillo de delante (por delante del tranvía, así que nadie queda tapado por su techo): el niño de
+  // los periódicos, el caballero de chistera y la viajera cuando ya ha cruzado; luego las palomas, que están más cerca
+  delanteDe.sort((a, b) => a[0] - b[0]).forEach(([, f]) => f());
+  palomas(t);
+  if (entre(t, P2 + 0.2, galv + 0.7)) R.bocadillo(bx + 12, s - 31 - (parpadeo(t, 5) ? 1 : 0));
+  if (entre(t, moneda, moneda + 0.45)) { const qq = lin(t, moneda, moneda + 0.45), x = Math.round(lerp(gx - 3, bx + 17, qq)), y = Math.round(lerp(s - 20, s - 12, qq) - Math.sin(qq * Math.PI) * 11);
     R.rect(x - 1, y - 1, x + 2, y + 2, C.k); R.rect(x, y, x + 1, y + 1, C.oro); R.pset(x, y, C.oroL);
     if (qq > 0.3 && qq < 0.75) for (let r = 2; r < 5; r++) { R.pset(x + r, y, C.oroL); R.pset(x - r + 1, y, C.oroL); R.pset(x, y - r, C.oroL); R.pset(x, y + r + 1, C.oroL); } }
-  if (entre(t, moneda + 0.3, moneda + 1.3)) { const qq = lin(t, moneda + 0.3, moneda + 1.3); R.numero('$', bx + 2, Math.round(s - 30 - qq * 10), { color: C.oroL }); }
-  // la dama de la sombrilla pasea por delante
-  const dx = Math.round(lerp(336, 222, lin(t, P2, P3 + 0.3)));
-  R.actor(EL.vecina, dx, 174, t, { dir: -1, pal: DAMA, anda: true });
-  { const [hx, hy] = manoAtras(dx, 174, -1); sombrilla(hx, hy, hex('#f4f0e8'), hex('#5a7a4a')); }
+  if (entre(t, moneda + 0.3, moneda + 1.3)) { const qq = lin(t, moneda + 0.3, moneda + 1.3); R.numero('$', bx + 6, Math.round(s - 30 - qq * 10), { color: C.oroL }); }
 };
 
 // ── 3 · la isla baja, desde el golfo ─────────────────────────────────────────────────────────────────────────────
@@ -242,8 +299,130 @@ const pelicano = (x, y, t, pose) => {
   R.linea(x - 1, y - 1, x - 6, y + (a ? -4 : 2), S); R.linea(x + 1, y - 1, x - 3, y + (a ? -5 : 2), B); R.pset(x - 4, y, S);
 };
 const descansa = [alto - 0.15, alto + 1.1], pica = [mar - 0.55, mar], pez = mar + 0.12;
+// lo que el plano 3 añade al golfo del decorado (todo detrás del pescador, del pelícano y de las marcas):
+// · el cielo: sólo se pinta sobre los píxeles que siguen siendo cielo (los colores del degradado), así que las nubes y
+//   la ciudad de atrás quedan detrás de la ciudad, del faro y de las nubes del decorado. Cirros altos muy lentos,
+//   cúmulos de tres tonos con la base en sombra a tres velocidades, nubecillas bajas sobre el horizonte, una bandada en
+//   uve que cruza a lo lejos y gaviotas que planean sobre el puerto;
+// · la ciudad crece: detrás de las casas, los bloques de ladrillo del Strand con sus cornisas y ventanas, dos
+//   campanarios más, la nave de la prensa de algodón con su tejado de dientes de sierra, tres chimeneas de fábrica con
+//   el humo que sube y se tumba con la brisa y banderas en los tejados;
+// · la orilla: los muelles del puerto (tablazón, pilotes, tinglados y fardos de algodón, un vapor atracado que echa
+//   humo) y, por el paseo de la playa, gente diminuta y carros de caballos que van y vienen (se esconden detrás de las
+//   casas de baños);
+// · el mar, a tres distancias: velas diminutas y un vapor en el horizonte, una boya roja a media distancia, la boya de
+//   campana a la izquierda, gaviotas que rozan el agua y, en primer plano, los pilotes viejos de un muelle con una
+//   gaviota posada y la boya del canal que cabecea abajo a la derecha.
+const CIELO_ISLA = new Set(['#3a86d6', '#4a9ee6', '#6cb6ee', '#8ec8f0', '#b0daf2', '#d8eaee'].map(hex));
+const cieloM = new Uint8Array(104 * 320);
+const BRUMA = [200, 212, 220], lejos = (c, a = 0.4) => mezcla(hex(c), BRUMA, a);
+const tranquila = (x, y) => (x >= 276 && y <= 46) || (y <= 15 && x >= 18 && x <= 172);   // la zona de Atom y la barra
+const psC = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 103) return; const i = y * 320 + x; if (!cieloM[i] || tranquila(x, y)) return; R.buf[i] = c; };
+const psB = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 103) return; const i = y * 320 + x; if (!cieloM[i]) return; R.buf[i] = c; cieloM[i] = 0; };
+const NUBE = [hex('#ffffff'), hex('#eaf2f8'), hex('#c8d8e8'), hex('#a8bcd2')];
+// un cúmulo: discos achatados [dx, dy, r]; el tono va de la luz (arriba) a la sombra (abajo) y la base, plana, en gris
+const cumulo = (cx, cy, partes, base, tonos = NUBE) => {
+  let x0 = 999, x1 = -999, y0 = 999; for (const [dx, dy, r] of partes) { x0 = Math.min(x0, dx - r); x1 = Math.max(x1, dx + r); y0 = Math.min(y0, dy - r * 0.6); }
+  for (let y = Math.floor(cy + y0); y <= cy + base; y++) for (let x = Math.floor(cx + x0); x <= cx + x1; x++) {
+    let mej = 9, v = 0; for (const [dx, dy, r] of partes) { const ex = (x - cx - dx) / r, ey = (y - cy - dy) / (r * 0.6), d = ex * ex + ey * ey; if (d < mej) { mej = d; v = ey - ex * 0.25; } }
+    if (mej > 1 || (mej > 0.8 && (x + y) % 2)) continue;
+    const yb = y - cy; psC(x, y, yb >= base - 1 ? ((x + y) % 2 ? tonos[3] : tonos[2]) : v < -0.4 ? tonos[0] : v < 0.25 ? tonos[1] : v < 0.6 ? ((x + y) % 2 ? tonos[1] : tonos[2]) : tonos[2]);
+  }
+};
+const ladrillos = ['#b86a4a', '#c8a070', '#a85a4a', '#d8c4a0', '#9a7a6a'];
+const golfo = (t) => {
+  const B = R.buf;
+  for (let i = 0; i < 104 * 320; i++) cieloM[i] = CIELO_ISLA.has(B[i]) ? 1 : 0;
+  // la ciudad de atrás: los bloques del Strand (cornisa clara, ventanas en rejilla, la cara en sombra)
+  for (const [x, w, top, k] of [[6, 10, 90, 0], [22, 7, 93, 1], [46, 12, 88, 2], [74, 8, 92, 3], [110, 10, 90, 4], [124, 13, 87, 0], [160, 9, 92, 2], [204, 11, 89, 1], [226, 7, 93, 3], [282, 10, 91, 4]]) {
+    const c = lejos(ladrillos[k], 0.42), cs = lejos(ladrillos[k], 0.25), cv = lejos('#3a3644', 0.45), cl = lejos('#f0e8d8', 0.35);
+    for (let y = top; y < 104; y++) for (let xx = x; xx < x + w; xx++) psB(xx, y, y === top ? cl : xx >= x + w - 2 ? cs : (xx - x) % 2 === 1 && (y - top) % 3 === 2 && xx < x + w - 2 ? cv : c);
+    for (let xx = x - 1; xx <= x + w; xx++) psB(xx, top - 1, cl);
+  }
+  // dos campanarios más y la nave de la prensa de algodón (tejado en dientes de sierra)
+  for (const [x, top] of [[34, 76], [238, 79]]) { for (let y = top + 6; y < 104; y++) for (let xx = x - 2; xx <= x + 2; xx++) psB(xx, y, lejos(xx === x + 2 ? '#b8ac94' : '#e0d4bc', 0.4)); for (let j = 0; j < 7; j++) for (let xx = x - Math.floor(j / 2.5) - 1; xx <= x + Math.floor(j / 2.5) + 1; xx++) psB(xx, top + j, lejos('#5a5e6a', 0.35)); psB(x, top - 1, lejos('#e8c060', 0.2)); psB(x - 1, top + 9, lejos('#3a3040', 0.4)); psB(x + 1, top + 9, lejos('#3a3040', 0.4)); }
+  for (let xx = 164; xx < 190; xx++) { const d = (xx - 164) % 6; for (let y = 98 - d; y < 104; y++) psB(xx, y, d === 5 ? lejos('#d8e4ec', 0.3) : y < 99 - d + 1 ? lejos('#6a6e7a', 0.35) : lejos('#a89888', 0.4)); }
+  // las chimeneas de fábrica (ladrillo, con su anillo claro) y su humo, que sube y se tumba con la brisa
+  const chim = [[62, 70], [136, 72], [214, 68]];
+  for (const [x, top] of chim) for (let y = top; y < 104; y++) for (let xx = x - 1; xx <= x + 1; xx++) psB(xx, y, lejos(y === top + 1 ? '#e8dcc4' : xx === x + 1 ? '#7a4a3a' : '#a85a42', 0.3));
+  // las banderas de los tejados, que ondean
+  for (const [x, y] of [[51, 88], [130, 87], [209, 89]]) { for (let j = 1; j <= 5; j++) psB(x, y - j, lejos('#3a3a40', 0.3)); for (let i = 1; i <= 4; i++) for (let j = 0; j < 2; j++) psB(x + i, y - 5 + j + Math.round(Math.sin(t * 6 - i) * 0.6), i % 2 ? lejos('#c83a3a', 0.25) : lejos('#f4f0e8', 0.25)); }
+  // los cirros altos, casi quietos, y las nubecillas bajas sobre el horizonte (lejanas, lentas)
+  for (let k = 0; k < 5; k++) { const x = ((k * 83 + t * 1.2) % 400) - 60, y = 18 + (k * 7) % 16; for (let i = 0; i < 22 + k * 3; i++) if ((i * 7 + k) % 5) { psC(x + i, y + Math.round(i / 9), i % 4 ? NUBE[1] : NUBE[0]); if (i > 4 && i < 16) psC(x + i + 3, y + 2 + Math.round(i / 9), NUBE[2]); } }
+  for (let k = 0; k < 6; k++) { const x = ((k * 71 + t * 0.9) % 380) - 30, y = 80 + (k % 3) * 4; cumulo(x, y, [[0, 0, 7], [7, -1, 5], [-6, 1, 4], [12, 1, 3]], 2, [hex('#f4f8fa'), hex('#dfeaf2'), hex('#c4d4e0'), hex('#b0c4d4')]); }
+  // los cúmulos grandes, con su luz arriba y la base en sombra; los más altos van más deprisa
+  for (const [x0, y, v, partes, base] of [
+    [20, 34, 2.6, [[0, 0, 10], [11, -4, 9], [22, 0, 8], [-9, 3, 6], [30, 3, 5]], 6],
+    [160, 26, 2.2, [[0, 0, 8], [9, -3, 8], [19, 0, 7], [-8, 2, 5]], 5],
+    [300, 40, 2.0, [[0, 0, 7], [8, -2, 6], [15, 1, 5]], 4],
+    [190, 52, 1.8, [[0, 0, 8], [9, -3, 7], [17, 0, 6], [-7, 2, 5]], 4],
+    [120, 62, 1.4, [[0, 0, 6], [7, -2, 5], [13, 1, 4]], 3],
+  ]) { const x = ((x0 + t * v) % 420) - 50; cumulo(x, y, partes, base); }
+  // el humo de las chimeneas (delante del cielo y de las nubes): bocanadas que crecen, se tumban y se deshacen
+  for (const [x, top] of chim) for (let k = 0; k < 12; k++) { const u = ((t * 0.35 + k / 12 + x * 0.01) % 1), px = x + u * 22 + Math.sin(t + k) * 1.2, py = top - 2 - u * 26 + u * u * 8, r = 1 + u * 3.2;
+    for (let j = -Math.ceil(r); j <= Math.ceil(r); j++) for (let i = -Math.ceil(r); i <= Math.ceil(r); i++) { const d = (i * i + j * j) / (r * r); if (d > 1 || (u > 0.6 && (i + j + k) % 2) || (u > 0.8 && (i * 3 + j) % 3)) continue; psC(px + i, py + j, j < -r * 0.3 ? hex('#eeeef2') : d < 0.4 ? hex('#d0d0d8') : hex('#b4b4c0')); } }
+  // la bandada en uve que cruza a lo lejos y las gaviotas que planean sobre el puerto
+  { const x = ((t * 7) % 420) - 60, y = 46 + Math.round(Math.sin(t * 0.5) * 2); for (let k = 0; k < 7; k++) { const bx = x - Math.ceil(k / 2) * 5, by = y + Math.ceil(k / 2) * 3 * (k % 2 ? 1 : -1) * 0.6 + Math.ceil(k / 2) * 2, a = Math.sin(t * 8 + k) > 0; const ca = hex('#3a4050'); psC(bx, by, ca); psC(bx - 1, by - 1, ca); psC(bx + 1, by - 1, ca); psC(bx - 2, by - (a ? 2 : 1), ca); psC(bx + 2, by - (a ? 2 : 1), ca); } }
+  for (let k = 0; k < 4; k++) { const a = t * (0.5 + k * 0.12) + k * 1.7, x = Math.round(150 + k * 38 + Math.cos(a) * 26), y = Math.round(66 + k * 5 + Math.sin(a) * 7); if (!tranquila(x, y) && cieloM[y * 320 + x]) R.gaviota(x, y, t, k); }
+  // los muelles del puerto: tablazón sobre pilotes, tinglados, fardos de algodón y un vapor atracado
+  for (const [x0, x1] of [[204, 246], [256, 300]]) {
+    for (let x = x0; x <= x1; x += 4) { R.rect(x, 111, x, 116, hex('#4a3a2c')); R.pset(x, 116, hex('#2e5a6a')); }
+    R.rect(x0 - 1, 109, x1 + 1, 111, hex('#5a4434')); R.rect(x0, 109, x1, 109, hex('#a8885e')); R.rect(x0, 110, x1, 110, hex('#8a6a48'));
+    for (let x = x0 + 2; x < x1; x += 7) R.pset(x, 110, hex('#6a5038'));
+    for (let x = x0; x <= x1; x++) if ((x + Math.floor(t * 4)) % 6 < 3) R.pset(x, 117, hex('#d8ecf0'));
+  }
+  for (const [x, w] of [[208, 16], [262, 14]]) { R.rect(x, 104, x + w, 108, lejos('#9a8a74', 0.15)); R.rect(x + w - 1, 104, x + w, 108, lejos('#7a6a58', 0.15)); R.rect(x - 1, 103, x + w + 1, 103, lejos('#6a5e5a', 0.15)); for (let i = x + 2; i < x + w - 2; i += 4) R.rect(i, 106, i + 1, 108, lejos('#4a3a34', 0.15)); }
+  for (const [x, n] of [[228, 3], [236, 2], [282, 3]]) for (let i = 0; i < n; i++) for (let j = 0; j <= (i === 1 ? 1 : 0); j++) { R.rect(x + i * 3, 106 - j * 2, x + i * 3 + 2, 107 - j * 2, hex('#ece4cc')); R.pset(x + i * 3 + 1, 107 - j * 2, hex('#b8ac90')); }
+  { const vx = 271; R.poligono([[vx - 12, 104], [vx + 14, 104], [vx + 11, 109], [vx - 10, 109]], hex('#2a2a34')); R.rect(vx - 11, 104, vx + 13, 104, hex('#c8c0b0')); R.rect(vx - 6, 101, vx + 6, 103, hex('#e8e0cc')); for (let x = vx - 5; x <= vx + 5; x += 2) R.pset(x, 102, hex('#3a4a5a'));
+    R.rect(vx - 1, 94, vx + 1, 100, hex('#2a2a30')); R.rect(vx - 1, 96, vx + 1, 96, hex('#c83a3a')); R.linea(vx - 9, 104, vx - 9, 92, hex('#5a4a3a')); R.linea(vx + 10, 104, vx + 10, 93, hex('#5a4a3a'));
+    for (let k = 0; k < 6; k++) { const u = (t * 0.45 + k / 6) % 1, px = vx + u * 14, py = 92 - u * 16, r = 0.8 + u * 2.4; for (let j = -2; j <= 2; j++) for (let i = -3; i <= 3; i++) if (i * i + j * j <= r * r && !(u > 0.6 && (i + j) % 2)) { const X = Math.round(px + i), Y = Math.round(py + j); if (Y > 46 || X < 276) R.pset(X, Y, j < 0 ? hex('#b8b8c2') : hex('#8a8a96')); } } }
+  // el paseo de la playa: gente diminuta y carros de caballos que van y vienen (detrás de las casas de baños no se ven)
+  const libre = (x) => x > 1 && x < 318 && !(x > 90 && x < 118) && !(x > 168 && x < 196) && x < 202;
+  for (let k = 0; k < 9; k++) { const v = (k % 2 ? 1 : -1) * (2 + (k % 3) * 0.7), x = Math.round((((k * 47 + t * v) % 240) + 240) % 240 - 20), y = 107 + (k % 2), paso = Math.floor(t * 4 + k) % 2;
+    if (!libre(x)) continue; const ropa = hex(['#3a3a50', '#e8e0d0', '#8a3a4a', '#4a5a7a', '#f0e8f0'][k % 5]);
+    R.rect(x, y - 4, x, y - 2, ropa); R.pset(x, y - 5, hex('#e8b890')); R.pset(x, y - 6, k % 3 ? hex('#3a2a20') : hex('#f4f0e0')); R.pset(x + (paso ? 1 : -1), y - 1, hex('#2a2a30')); R.pset(x, y - 1, hex('#2a2a30'));
+    if (k % 4 === 1) { R.pset(x + 1, y - 7, hex('#f4f0e8')); R.pset(x, y - 7, hex('#f4f0e8')); R.pset(x - 1, y - 7, hex('#e87a9a')); R.pset(x + 1, y - 6, hex('#5a4a3a')); } }
+  for (let k = 0; k < 2; k++) { const d = k ? -1 : 1, x = Math.round(((((k * 130 + t * 4 * d) % 260) + 260) % 260) - 30); if (!libre(x - 6) || !libre(x + 6)) continue; const X = (i) => x + i * d, cab = hex('#6a4a2a');
+    R.rect(Math.min(X(2), X(5)), 103, Math.max(X(2), X(5)), 104, cab); R.pset(X(6), 102, cab); R.pset(X(6), 103, cab); R.pset(X(2), 105, cab); R.pset(X(5), 105 - Math.floor(t * 5) % 2, cab);
+    R.rect(Math.min(X(-5), X(0)), 101, Math.max(X(-5), X(0)), 104, hex(k ? '#5a6a7a' : '#8a6a3a')); R.rect(Math.min(X(-5), X(0)), 100, Math.max(X(-5), X(0)), 100, hex('#e8e0cc')); R.pset(X(-3), 105, hex('#2a2a30')); R.pset(X(-1), 105, hex('#2a2a30')); R.pset(X(-1), 99, hex('#2a2a30')); }
+  // el mar lejano: velas diminutas y un vapor con su penacho (las que caen detrás de la goleta no se pintan)
+  const gx = ((t * 6 + 40) % 400) - 40, tapa = (x) => x > gx - 30 && x < gx + 32;
+  for (let k = 0; k < 3; k++) { const x = Math.round(((k * 107 + t * (1 + k * 0.4)) % 340) - 10), y = 116 + k * 2; if (tapa(x)) continue;
+    R.rect(x - 2, y, x + 3, y, hex('#3a3a44')); for (let j = 1; j <= 4; j++) R.rect(x, y - j, x + Math.max(0, 2 - Math.floor(j / 2)), y - j, j % 2 ? hex('#f4f0e6') : hex('#d8d4ca')); R.pset(x, y - 5, hex('#5a4a3a')); }
+  { const x = Math.round(318 - t * 4.5), y = 123; if (!tapa(x)) { R.poligono([[x - 9, y - 3], [x + 9, y - 3], [x + 7, y], [x - 7, y]], hex('#2a2a34')); R.rect(x - 8, y - 3, x + 8, y - 3, hex('#c8c0b0')); R.rect(x - 4, y - 6, x + 5, y - 4, hex('#e8e0cc')); for (let i = x - 3; i <= x + 4; i += 2) R.pset(i, y - 5, hex('#3a4a5a')); R.rect(x, y - 10, x + 1, y - 7, hex('#2a2a30')); R.rect(x, y - 9, x + 1, y - 9, hex('#c83a3a'));
+    for (let i = 0; i < 9; i++) if ((i + Math.floor(t * 6)) % 3) R.pset(x + 9 + i, y + (i % 2), hex('#d8ecf0'));
+    for (let i = 0; i < 26; i++) { const yy = y - 12 - Math.round(Math.sqrt(i) * 1.1) + Math.round(Math.sin(t * 2 + i * 0.4) * 0.6); if ((i * 3 + Math.floor(t * 5)) % 4) R.pset(x + 2 + i, yy, i < 10 ? hex('#5a5a66') : hex('#8a8e9a')); } } }
+  // las gaviotas que rozan el agua
+  for (let k = 0; k < 2; k++) { const x = Math.round(((k * 160 + t * (11 + k * 4)) % 380) - 30), y = 128 + k * 9 + Math.round(Math.sin(t * 1.3 + k) * 2); if (x > 2 && x < 318 && !tapa(x)) R.gaviota(x, y, t * 0.8, k + 2); }
+  // la boya roja a media distancia y la boya de campana, que cabecean y suenan
+  { const x = 160, y = 127 + Math.round(Math.sin(t * 1.8) * 0.8); R.rect(x - 2, y - 5, x + 2, y, C.k); R.rect(x - 1, y - 4, x + 1, y - 1, C.rojo); R.pset(x - 1, y - 4, hex('#f07a6a')); R.rect(x - 3, y + 1, x + 3, y + 1, hex('#d8ecf0')); }
+  { const x = 40, y = 140 + Math.round(Math.sin(t * 1.5 + 1) * 1), ld = Math.round(Math.sin(t * 1.5) * 1.2), tan = Math.sin(t * 3) > 0.7;
+    R.poligono([[x - 5, y], [x + 5, y], [x + 4, y - 4], [x - 4, y - 4]], C.k); R.rect(x - 4, y - 3, x + 3, y - 1, hex('#2a2a30')); R.rect(x - 4, y - 3, x - 1, y - 1, hex('#e8e4dc'));
+    R.linea(x - 3 + ld, y - 11, x - 3, y - 4, C.k); R.linea(x + 3 + ld, y - 11, x + 3, y - 4, C.k); R.linea(x - 3 + ld, y - 11, x + 3 + ld, y - 11, C.k); R.rect(x - 1 + ld, y - 10, x + 1 + ld, y - 7, hex('#c8a040')); R.pset(x - 1 + ld, y - 10, hex('#f0d878'));
+    for (let i = -6; i <= 6; i++) if ((i + Math.floor(t * 5)) % 3) R.pset(x + i, y + 1, hex('#d8ecf0'));
+    if (tan) for (const [a, b] of [[-5, -10], [6, -10], [-6, -8], [7, -8]]) R.pset(x + a + ld, y + b, hex('#fff4c0')); }
+  // en primer plano, abajo a la izquierda: los pilotes viejos de un muelle (veta, percebes, la parte mojada) con una
+  // gaviota posada, que mira a un lado y a otro y abre las alas
+  for (const [x, top] of [[6, 146], [16, 152]]) {
+    R.rect(x - 4, top - 1, x + 4, 180, C.k); R.rect(x - 3, top, x + 3, 179, hex('#7a5e44')); R.rect(x + 2, top, x + 3, 179, hex('#5a4432')); R.rect(x - 3, top, x + 3, top, hex('#a8885e'));
+    for (let y = top + 3; y < 180; y += 5) R.pset(x - 1 + (y % 3), y, hex('#5a4432'));
+    R.rect(x - 3, 168, x + 3, 179, hex('#4a4a3a')); for (let i = -3; i <= 3; i += 2) R.pset(x + i, 168 + (i & 3), hex('#c8c4a8'));
+    for (let i = -6; i <= 6; i++) if ((i + Math.floor(t * 4) + x) % 4 < 2) R.pset(x + i, 167 + Math.round(Math.sin(t * 2 + i) * 0.6), hex('#e8f4f4'));
+  }
+  R.linea(9, 156, 13, 160, hex('#c8b080')); R.linea(13, 160, 16, 158, hex('#c8b080'));
+  { const x = 6, y = 145, mira = Math.sin(t * 0.9) > 0 ? 1 : -1, abre = Math.sin(t * 0.6) > 0.93;
+    R.rect(x - 3, y - 4, x + 2, y - 1, C.k); R.rect(x - 2, y - 3, x + 1, y - 2, hex('#ffffff')); R.rect(x - 2, y - 2, x, y - 2, hex('#b8c4d4')); R.rect(x - 1 + mira, y - 6, x + mira, y - 4, hex('#ffffff')); R.pset(x + mira * 2, y - 5, hex('#e8b040')); R.pset(x + (mira > 0 ? 1 : -1), y - 5, C.k); R.pset(x - 1, y, hex('#e8b040')); R.pset(x + 1, y, hex('#e8b040'));
+    if (abre) { R.linea(x - 2, y - 3, x - 6, y - 7, hex('#b8c4d4')); R.linea(x + 1, y - 3, x + 5, y - 7, hex('#b8c4d4')); } }
+  // abajo a la derecha, la boya del canal (cónica, roja, con su farol), que cabecea con la mar de fondo
+  { const x = 300, y = 176 + Math.round(Math.sin(t * 1.4) * 1.2), ld = Math.sin(t * 1.4 + 0.6) * 1.5;
+    R.poligono([[x - 8, y], [x + 8, y], [x + 6, y - 6], [x - 6, y - 6]], C.k); R.rect(x - 6, y - 5, x + 6, y - 1, hex('#b83030')); R.rect(x - 6, y - 5, x - 3, y - 1, hex('#e05a4a')); R.rect(x + 4, y - 5, x + 6, y - 1, hex('#8a2424'));
+    R.poligono([[x - 5 + ld, y - 6], [x + 5 + ld, y - 6], [x + 1 + ld, y - 14], [x - 1 + ld, y - 14]], C.k); R.poligono([[x - 4 + ld, y - 7], [x + 4 + ld, y - 7], [x + 0.5 + ld, y - 13]], hex('#c83a3a')); R.pset(Math.round(x - 1 + ld), y - 10, hex('#f07a6a'));
+    const lx = Math.round(x + ld * 1.3); R.rect(lx - 1, y - 17, lx + 1, y - 15, C.k); R.pset(lx, y - 16, Math.sin(t * 2.5) > 0 ? hex('#fff4c0') : hex('#8a7a40'));
+    for (let i = -10; i <= 10; i++) if ((i + Math.floor(t * 5)) % 4 < 2) R.pset(x + i, y + 1, hex('#e8f4f4')); }
+};
 const p3 = (t) => {
   T.galveston(R, t, { encuadre: 'isla' });
+  golfo(t);
   // en «sand island», un destello recorre la franja de arena de punta a punta
   const b = lin(t, arena - 0.1, arena + 0.65);
   if (b > 0 && b < 1) { const sx = Math.round(lerp(-30, 350, b)); for (let y = 105; y <= 111; y++) for (let x = Math.max(0, sx - 16); x <= Math.min(319, sx + 16); x++) R.pset(x, y, mezcla(R.pget(x, y), [255, 250, 220], 0.55 * (1 - Math.abs(x - sx) / 17))); }
@@ -253,8 +432,10 @@ const p3 = (t) => {
     R.poligono([[mx - 5, my - 1], [mx + 6, my - 1], [mx + 0.5, my + 6]], C.k); R.poligono([[mx - 4, my], [mx + 5, my], [mx + 0.5, my + 5]], C.rojo); R.pset(mx - 1, my + 1, hex('#f07a6a'));
     for (let y = my + 7; y < 105; y += 2) R.pset(mx, y, C.rojo); }
   // «less than nine feet»: el nivel del mar y lo más alto de la isla, trazados de lado a lado, y la cota «8.7»
-  const L = lin(t, menos - 0.05, menos + 0.5), xL = Math.round(L * 320);
-  for (let x = 0; x < xL; x++) if (x % 6 < 4) { R.pset(x, 103, C.k); R.pset(x, 104, C.oroL); R.pset(x, 105, C.oro); R.pset(x, 106, C.k); R.pset(x, 112, C.k); R.pset(x, 113, C.blanco); R.pset(x, 114, hex('#bfeaf4')); R.pset(x, 115, C.k); }
+  // se trazan desde el centro hacia los dos lados, con una punta brillante y un tope en cada extremo mientras crecen
+  const L = lin(t, menos - 0.05, menos + 0.5), mL = Math.round(L * 160);
+  if (L > 0) { for (let x = 160 - mL; x < 160 + mL; x++) if ((x + 2) % 6 < 4) { R.pset(x, 103, C.k); R.pset(x, 104, C.oroL); R.pset(x, 105, C.oro); R.pset(x, 106, C.k); R.pset(x, 112, C.k); R.pset(x, 113, C.blanco); R.pset(x, 114, hex('#bfeaf4')); R.pset(x, 115, C.k); }
+    if (L < 1) for (const x of [160 - mL, 160 + mL - 1]) for (const [y0, cc] of [[102, C.oroL], [111, C.blanco]]) { R.rect(x - 1, y0, x + 1, y0 + 5, C.k); R.rect(x, y0 + 1, x, y0 + 4, cc); R.pset(x + (x < 160 ? -2 : 2), y0 + 2, cc); R.pset(x + (x < 160 ? -2 : 2), y0 + 3, cc); } }
   if (t > nueve - 0.15) { const e = tramo(t, nueve - 0.15, nueve + 0.15), X = 240;
     R.rect(X, 106, X, 112, C.blanco); R.pset(X - 1, 107, C.blanco); R.pset(X + 1, 107, C.blanco); R.pset(X - 1, 111, C.blanco); R.pset(X + 1, 111, C.blanco);
     const ty = Math.round(lerp(96, 88, e)); R.linea(X + 1, 105, X + 7, ty + 11, C.k); R.rect(X + 5, ty, X + 33, ty + 11, C.k); R.rect(X + 6, ty + 1, X + 32, ty + 10, C.blanco); R.rect(X + 6, ty + 10, X + 32, ty + 10, hex('#c8c4bc'));

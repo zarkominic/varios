@@ -13,20 +13,27 @@
 // 1. «What Galveston does next»: el muro frente al mar se termina: la grúa de vapor avanza con su cubo, un ingeniero
 //    repasa el plano y señala el muro en «unbelievable», un obrero empuja su carretilla de arena y la vuelca en el
 //    montón, que crece, y otro echa la arena a paladas; en «seventeen feet» la cota sube por la cara del muro y sale el
-//    «17»; los tres paran, miran arriba y sonríen, el ingeniero vuelve a señalar y la pala sigue;
+//    «17»; los tres paran, miran arriba y sonríen, el ingeniero vuelve a señalar y la pala sigue (el grupo de la arena
+//    queda entre x 72 y 160, a la izquierda de la orilla por donde pasean la señora de la sombrilla y los demás);
 // 2. «house by house, it jacks up»: la casa de la pareja de la foto sube sobre sus gatos de tornillo; el gag del perro:
 //    dormía en el porche, se despierta («!») y sube sentado y muy tieso con la casa; sale la escalera nueva y baja por
-//    ella muy digno, con el hocico arriba; él se sujeta el sombrero y luego se ríe, ella se asombra, aplaude y señala al
-//    perro; «2,000» sale en «two thousand»;
+//    ella muy digno, peldaño a peldaño, con el hocico arriba (a la escala de la casa, unos 10 px, como los obreros de los
+//    gatos; el obrero del gato de la derecha se repinta delante de la escalera) y se sienta junto a la pasarela; él se
+//    sujeta el sombrero y luego se ríe, ella se asombra, aplaude y señala al perro; «2,000» sale en «two thousand»;
 // 3. «pumps sand from the harbor underneath»: la draga, delante de la isla ya con su muro: el capitán se asoma a la
 //    ventana de la caseta y tira del silbato, el marinero mueve la palanca de la bomba en «pumps» y levanta la mano al
-//    ver la arena, un marinero cruza la cubierta con un rollo de cabo; la escala del cortador remueve el fondo, la tubería
+//    ver la arena, un marinero cruza la cubierta con un rollo de cabo; la escala del cortador entra en el agua con su
+//    espuma (bajo la flotación, apagada y tapada por las crestas) y en la punta remueve el fango del fondo; la tubería
 //    flotante lleva la arena hasta la orilla y el chorro cae al otro lado del muro, donde dos obreros la extienden a
 //    paladas; las gaviotas siguen a la draga;
-// 4. «the city stands more than ten feet higher»: el muro terminado con gente paseando por arriba; la línea del suelo
-//    de antes y la flecha «+10»; la pareja de la foto llega por la playa con el perro digno delante y el mismo fotógrafo
-//    de 1900 los llama; posan, el perro se sienta, el fotógrafo se mete bajo la tela y el destello cae en «before»: esta
-//    vez nadie se asusta (el perro ni se inmuta) y sonríen; el humo sube.
+// 4. «the city stands more than ten feet higher»: la misma calle de 1900 (la de hu-galveston), once años después, con
+//    su tranvía y sus paseantes, y debajo de la acera el corte del terreno: el relleno de arena en tongadas con conchas,
+//    la tubería nueva, y diez pies más abajo la acera vieja de ladrillo con su boca de riego, el pie del poste alargado,
+//    el barro viejo y el agua del subsuelo, con un cangrejo en su galería y una lombriz; en «city» el lápiz marca el suelo
+//    de antes a lo largo del corte y en «ten» sube la flecha «+10» hasta la acera de ahora; la pareja de la foto llega
+//    por la acera con el perro digno delante y el mismo fotógrafo de 1900 los llama; posan, el perro se sienta, el
+//    fotógrafo se mete bajo la tela y el destello cae en «before»: esta vez nadie se asusta (el perro ni se inmuta) y
+//    sonríen; el humo sube.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-muro');
@@ -88,6 +95,35 @@ const perrito = (x, suelo, t, o = {}) => {
   fill(1, 8, -4, -4, s); fill(1, 7, -9, -9, l); fill(8, 10, -14 + cab, -10 + cab, s); px(12, -12 + cab, C.k); px(16, -11 + cab - alzo, C.k);
   fill(8, 9, -8 + Math.min(0, cab + 1), -7, C.rojo); px(9, -6, C.oroL);
 };
+// el mismo perro a la escala del término de la casa (unos 10 px, como los obreros de los gatos): mismas poses y opciones
+const perroChico = (x, suelo, t, o = {}) => {
+  const d = o.dir ?? 1, X = (i) => Math.round(x + i * d), q = (a, b, j0, j1, c) => [Math.min(X(a), X(b)), Math.round(suelo + j0), Math.max(X(a), X(b)), Math.round(suelo + j1), c];
+  const px = (i, j, c) => R.pset(X(i), Math.round(suelo + j), c), { D, s, l } = PERRO, pose = o.pose ?? 'pie', cab = o.digno ? -1 : (o.cabeza ?? 0);
+  if (pose === 'tumbado') {
+    const resp = Math.sin(t * 2.2) > 0 ? 0 : 1;
+    figura([q(-2, -1, -1, -1, D), q(0, 5, -3 + resp, -1, D), q(5, 7, -4, -1, D), q(8, 8, -2, -1, l)]);
+    px(1, -1, s); px(3, -1, s); px(5, -4, s); px(7, -3, C.k); px(8, -2, C.k); px(4, -2, C.rojo);
+    return;
+  }
+  if (pose === 'sentado') {
+    figura([q(-2, -1, -1, -1, D), q(0, 3, -4, -1, D), q(2, 4, -7, -3, D), q(3, 6, -10 + cab, -7 + cab, D), q(7, 7, -8 + cab, -7 + cab, l), q(4, 4, -2, -1, D)]);
+    px(0, -2, s); px(1, -2, s); px(3, -10 + cab, s); px(3, -9 + cab, s); px(5, -9 + cab, C.k); px(7, -8 + cab, C.k); px(3, -6, C.rojo); px(4, -6, C.rojo); px(4, -5, C.oroL);
+    return;
+  }
+  const paso = o.anda ? Math.floor(t * (o.digno ? 4 : 8)) % 2 : -1, pata = (a, alza) => q(a, a, -2, alza ? -2 : -1, D);
+  const cola = o.digno ? q(-1, -1, -8, -5, D) : (Math.sin(t * 14) > 0 ? q(-2, -1, -6, -5, D) : q(-2, -2, -6, -4, D));
+  figura([cola, q(0, 5, -5, -3, D), pata(0, paso === 0), pata(2, paso === 1), pata(4, paso === 1), pata(5, paso === 0), q(5, 7, -8 + cab, -5 + cab, D), q(8, 8, -6 + cab, -5 + cab, l)]);
+  px(1, -3, s); px(2, -3, s); px(3, -3, s); px(5, -8 + cab, s); px(7, -7 + cab, C.k); px(8, -6 + cab, C.k); px(5, -4, C.rojo);
+};
+// el obrero del gato de la derecha de la casa que sube (el de hu-comun, k = 3), repintado delante de la escalera nueva
+// para que ni la escalera ni el perro se le monten encima
+const obreroGato = (x, suelo, t) => {
+  const X = (i) => Math.round(x - i), f = Math.sin(t * 3 + 3 * 1.3), inc = Math.round(f * 1.2), ropa = hex('#3a4a6a'), piel = hex('#e8b48a'), r = (a, b, y0, y1, c) => R.rect(Math.min(X(a), X(b)), y0, Math.max(X(a), X(b)), y1, c);
+  r(0, 1, suelo - 4, suelo, ropa); R.pset(X(-1), suelo, C.k); R.pset(X(2), suelo, C.k);
+  r(inc, 2 + inc, suelo - 9, suelo - 5, ropa); R.pset(X(1 + inc), suelo - 8, hex('#e8e0d0'));
+  r(inc, 1 + inc, suelo - 11, suelo - 10, piel); r(-1 + inc, 2 + inc, suelo - 12, suelo - 12, hex('#4a4a52')); R.pset(X(2 + inc), suelo - 11, hex('#4a4a52'));
+  R.linea(X(2 + inc), suelo - 8, X(5 + inc), suelo - 7, piel);
+};
 // la pareja de la foto de la playa de hu-galveston: él de azul, ella de rosa; y su fotógrafo
 const SENOR = { C: hex('#3e4a6a'), c: hex('#2c3650'), F: hex('#4a4a56'), W: hex('#f2eee2'), o: hex('#a83a3a') };
 const SENORA = { C: hex('#b85a7a'), c: hex('#8e4060'), W: hex('#ecd0da'), L: hex('#2a2430') };
@@ -133,18 +169,18 @@ const p1 = (t) => {
     if (e >= 1) R.rect(X - 4, top - 1, X + 4, top - 1, C.k);
     if (t > diecisiete) R.numero('17', 38, Math.round(lerp(112, 106, tramo(t, diecisiete, diecisiete + 0.2))), { tam: 16 }); }
   // el ingeniero repasa el plano y señala el muro; luego mira la cota con orgullo
-  const s1 = 158, x1 = 92, senala = entre(t, increible - 0.1, increible + 0.9) || entre(t, alto, alto + 0.6);
+  const s1 = 158, x1 = 72, senala = entre(t, increible - 0.1, increible + 0.9) || entre(t, alto, alto + 0.6);
   R.actor(EL.vecino, x1, s1, t, { dir: senala || t > diecisiete - 0.1 ? -1 : 1, pal: INGENIERO, dedo: senala, sonrisa: t > alto, sorpresa: entre(t, diecisiete, diecisiete + 0.5), habla: entre(t, increible - 0.1, increible + 0.8) && parpadeo(t, 7) });
   if (!senala && t < diecisiete - 0.1) { const [hx, hy] = enMano(x1, s1, 1); plano(hx - 4, hy - 6); }
   // el obrero trae la carretilla de arena, la vuelca junto al encofrado y mira arriba en «seventeen»; el compañero la
   // echa a paladas
-  const u = lin(t, 0.2, vuelcaT[0]), xo = Math.round(lerp(-30, 112, u)), so = 170, mira = t > diecisiete - 0.1;
+  const u = lin(t, 0.2, vuelcaT[0]), xo = Math.round(lerp(-30, 96, u)), so = 170, mira = t > diecisiete - 0.1;
   // el montón de arena junto al encofrado: crece cuando vuelca la carretilla
-  { const cx = 150, alto0 = 7 + Math.round(3 * lin(t, vuelcaT[0] + 0.2, vuelcaT[1])), y0 = so;
+  { const cx = 134, alto0 = 7 + Math.round(3 * lin(t, vuelcaT[0] + 0.2, vuelcaT[1])), y0 = so;
     for (let i = -10; i <= 10; i++) { const hgt = Math.round(alto0 * (1 - (i / 10.5) ** 2)); if (hgt <= 0) continue; R.pset(cx + i, y0 - hgt - 1, C.k); R.rect(cx + i, y0 - hgt, cx + i, y0 - 1, i < -3 ? hex('#b89a68') : i > 4 ? hex('#a88a5a') : hex('#c8aa78')); if (hgt > 2 && (i + 11) % 4 === 0) R.pset(cx + i, y0 - hgt + 1, hex('#e0c890')); }
     R.rect(cx - 11, y0, cx + 11, y0, hex('#8a6e48')); }
   // el compañero echa la arena a paladas (para un momento para mirar la cota en «seventeen»)
-  { const x2 = 162, s2 = 168, pala = t > 0.4 && !entre(t, diecisiete - 0.15, alto + 0.7), f = pala ? Math.sin(t * 6.5) : -1, echa = f > 0.2;
+  { const x2 = 146, s2 = 168, pala = t > 0.4 && !entre(t, diecisiete - 0.15, alto + 0.7), f = pala ? Math.sin(t * 6.5) : -1, echa = f > 0.2;
     R.actor(EL.vecino, x2, s2, t, { dir: -1, pal: OBRERO2, tocado: 'gorra', dedo: echa || entre(t, alto + 0.15, alto + 0.6), sorpresa: entre(t, diecisiete, diecisiete + 0.6), sonrisa: t > alto });
     // la pala: hincada en el montón o en alto, echando la arena hacia el encofrado
     const [hx, hy] = echa ? [x2 - 2, s2 - 19] : [x2 + 1, s2 - 8], [bx, by] = echa ? [x2 - 9, s2 - 25] : [x2 - 7, s2 - 6];
@@ -161,16 +197,22 @@ const p2 = (t) => {
   const sb = tramo(t, subeT[0], subeT[1]);
   T.galveston(R, t, { despues: true, encuadre: 'casas', sube: sb, arena: 0, escalera: t > escaleraT });
   const P = T.d_galvestonPorche({ sube: sb, arena: 0 }), [ax, ay] = P.escalera.arriba, [bx, by] = P.escalera.abajo;
-  // el perro: dormía en el porche, se despierta al subir la casa, sube muy tieso y baja digno por la escalera nueva
+  // el perro, a la escala de la casa (unos 10 px): dormía en el porche, se despierta al subir la casa, sube muy tieso y
+  // baja digno por la escalera nueva, peldaño a peldaño; abajo se aparta del obrero del gato y se sienta junto a la pasarela
   const b = lin(t, bajaT[0], bajaT[1]);
   if (t < bajaT[0]) {
     const pose = t < subeT[0] + 0.2 ? 'tumbado' : 'sentado';
-    perrito(P.x0 + 1, P.y, t, { dir: 1, pose, cabeza: pose === 'sentado' && t < subeT[1] && Math.sin(t * 6) > 0 ? -1 : 0, digno: t > subeT[1] - 0.3 });
-    if (entre(t, subeT[0] + 0.25, subeT[0] + 0.95)) R.bocadillo(P.x0 + 9, P.y - 21);
+    perroChico(P.x0 + 3, P.y, t, { dir: 1, pose, cabeza: pose === 'sentado' && t < subeT[1] && Math.sin(t * 6) > 0 ? -1 : 0, digno: t > subeT[1] - 0.3 });
+    if (entre(t, subeT[0] + 0.25, subeT[0] + 0.95)) R.bocadillo(P.x0 + 7, P.y - 13);
   } else {
-    const paso = Math.min(1, Math.floor(b * 9) / 9 + (b >= 1 ? 1 : 0)), x = Math.round(lerp(ax - 6, bx - 4, b)), y = Math.round(lerp(ay, by, paso));
-    perrito(x, y, t, { dir: 1, pose: b < 1 ? 'pie' : 'sentado', anda: b > 0 && b < 1, digno: true });
+    const n = Math.max(3, Math.round((by - ay) / 3)), pX = (i) => lerp(ax, bx, i / n) - 1, pY = (i) => Math.round(lerp(ay, by, i / n));
+    let x, y;
+    if (b < 0.1) { x = lerp(P.x0 + 3, pX(0), b / 0.1); y = ay; }
+    else if (b < 0.8) { const pos = (b - 0.1) / 0.7 * n, i = Math.min(n - 1, Math.floor(pos)), fr = pos - i; x = lerp(pX(i), pX(i + 1), fr); y = fr > 0.55 ? pY(i + 1) : pY(i); }
+    else { x = lerp(pX(n), 184, (b - 0.8) / 0.2); y = by; }
+    perroChico(Math.round(x), y, t, { dir: 1, pose: b < 1 ? 'pie' : 'sentado', anda: b > 0 && b < 1, digno: true });
   }
+  if (Math.round(sb * 30) > 1) obreroGato(165, 152, t);
   // los dueños, la pareja de la foto: él se sujeta el sombrero mientras sube su casa y se ríe con el perro; ella se
   // asombra, aplaude y lo señala
   R.actor(EL.vecino, 198, 174, t, { dir: -1, pal: SENOR, sorpresa: entre(t, subeT[0] + 0.1, subeT[0] + 0.8), dedo: entre(t, subeT[0] + 0.8, subeT[1]), sonrisa: t > bajaT[0] + 0.3, habla: t > bajaT[0] + 0.5 && parpadeo(t, 9) });
@@ -187,8 +229,19 @@ const WL = 158, X0 = 184, X1 = 300;
 const draga = (t) => {
   const { rect, poligono, pset, disco, linea } = R, cab = Math.round(Math.sin(t * 1.6) * 0.7);
   // la escala del cortador entra en el agua por la proa y remueve el fondo
-  linea(X0 + 6, WL - 30 + cab, X0 - 20, WL + 12, C.k); linea(X0 + 7, WL - 30 + cab, X0 - 19, WL + 12, C.k); linea(X0 + 6, WL - 31 + cab, X0 - 19, WL + 11, hex('#7a7a84'));
-  for (let k = 0; k < 18; k++) { const ph = (t * 2.2 + hh(k, 1, 70)) % 1, x = Math.round(X0 - 12 + hh(k, 2, 70) * 12 + ph * 4), y = Math.round(WL + 2 - Math.sin(ph * Math.PI) * (2 + hh(k, 3, 70) * 4)); pset(x, y, ph < 0.5 ? C.blanco : hex('#c8b890')); }
+  // (por encima de la flotación, entera; por debajo, apagada, tramada y bajo la textura del agua: las crestas y la espuma
+  // la tapan; en la punta, el fango que levanta el cortador; donde entra, la espuma)
+  const flot = WL + 2, mezcla = (a, b2, k) => { let c = 0xff000000; for (const sh of [0, 8, 16]) c |= Math.round(((a >>> sh) & 255) * (1 - k) + ((b2 >>> sh) & 255) * k) << sh; return c >>> 0; };
+  const claro = (c) => (c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255) > 560;
+  const escala = (x0, y0, x1, y1, col) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)); for (let i = 0; i <= n; i++) { const x = Math.round(lerp(x0, x1, i / n)), y = Math.round(lerp(y0, y1, i / n));
+    if (y < flot) { pset(x, y, col); continue; } const bajo = R.pget(x, y); if (claro(bajo) || ((x + y) & 1)) continue; pset(x, y, mezcla(bajo, col === C.k ? hex('#10202a') : hex('#3a5664'), 0.3 + Math.min(0.25, (y - flot) * 0.02))); } };
+  escala(X0 + 6, WL - 30 + cab, X0 - 20, WL + 12, C.k); escala(X0 + 7, WL - 30 + cab, X0 - 19, WL + 12, C.k); escala(X0 + 6, WL - 31 + cab, X0 - 19, WL + 11, hex('#7a7a84'));
+  { const xe = Math.round(X0 + 6 - 26 * (flot - (WL - 30 + cab)) / (42 - cab));
+    for (let k = 0; k < 26; k++) { const a = hh(k, 4, 70) * Math.PI * 2, r = 1 + ((t * 1.6 + hh(k, 5, 70)) % 1) * 6, x = Math.round(xe + 1 + Math.cos(a) * r * 1.4), y = Math.round(flot - 1 + Math.sin(a) * r * 0.35); if (y >= flot - 3) pset(x, y, k % 3 ? C.blanco : hex('#d8e8ec')); }
+    for (let i = -6; i <= 7; i++) if ((i + Math.floor(t * 9)) % 3) pset(xe + i, flot + 1, hex('#e8f0f0'));
+    for (let k = 0; k < 10; k++) { const ph = (t * 2.2 + hh(k, 1, 70)) % 1, x = Math.round(xe + 2 + hh(k, 2, 70) * 6 + ph * 3), y = Math.round(flot - Math.sin(ph * Math.PI) * (2 + hh(k, 3, 70) * 3)); pset(x, y, ph < 0.5 ? C.blanco : hex('#c8b890')); }
+    // el fango que remueve el cortador, en la punta, bajo el agua
+    for (let k = 0; k < 16; k++) { const ph = (t * 0.5 + hh(k, 6, 70)) % 1, x = Math.round(X0 - 20 + (hh(k, 7, 70) - 0.5) * 12 + ph * 6), y = Math.round(WL + 12 - ph * 7 + (hh(k, 8, 70) - 0.5) * 4); if (y > flot + 2 && y < 180 && !claro(R.pget(x, y))) pset(x, y, mezcla(R.pget(x, y), hex('#a8905a'), 0.45 * (1 - ph))); } }
   // el pórtico de la proa con sus cables
   linea(X0 + 2, WL - 9, X0 + 12, WL - 46, C.k); linea(X0 + 22, WL - 9, X0 + 12, WL - 46, C.k); linea(X0 + 3, WL - 9, X0 + 13, WL - 46, hex('#6a6a74')); linea(X0 + 12, WL - 46, X0 + 6, WL - 30, hex('#3a3a42'));
   // el casco, la casa de máquinas con sus ventanas y la barandilla de popa
@@ -258,26 +311,85 @@ const telaFoto = (x, s, bajo) => {   // la tela negra: sobre la cabeza del fotó
   } else { R.rect(x + 5, s - 28, x + 8, s - 17, C.k); R.rect(x + 6, s - 27, x + 7, s - 18, hex('#2a2430')); }
 };
 const llega4 = [P4 - 0.25, diez - 0.25], tapa4 = [diez + 0.15, antes + 0.35], pan4 = diez + 0.6, flash4 = antes + 0.02;
+// la calle de 1900 de hu-galveston, once años después, subida DY px en el cuadro, y debajo de su acera el corte del
+// terreno: el relleno de arena de la draga en tongadas, con conchas y guijarros, la tubería nueva del agua con sus bridas
+// y lo que quedó enterrado diez pies más abajo: la acera vieja de ladrillo con su boca de riego vieja, el pie del poste
+// del telégrafo, alargado con sus abrazaderas; el barro viejo con raíces, una herradura y una botella, la arcilla y el
+// agua del subsuelo
+const DY = 40, SUP = 180 - DY, VIEJO = 167, bCalle = R.nuevo();
+let bCorte = null;
+const corteFijo = () => {
+  const b = R.nuevo(), prev = R.usar(b), { rect, pset, linea } = R;
+  const mix = (a, c, k) => { let r = 0xff000000; for (const sh of [0, 8, 16]) r |= Math.round(((a >>> sh) & 255) * (1 - k) + ((c >>> sh) & 255) * k) << sh; return r >>> 0; };
+  const arena = [hex('#dcc89c'), hex('#ccb486'), hex('#c0a674')], hondo = hex('#7a6a4a');
+  for (let y = SUP + 3; y < VIEJO - 1; y++) for (let x = 0; x < 320; x++) {
+    const band = ((Math.floor((y + Math.sin(x * 0.045 + y * 0.21) * 1.6) / 3) % 3) + 3) % 3, q = hh(x, y, 90), k = (y - SUP) / (VIEJO - SUP) * 0.28;
+    let c = mix(arena[band], hondo, k); if (q < 0.07) c = mix(c, hex('#8a7048'), 0.5); else if (q > 0.965) c = hex('#ecdcb4');
+    pset(x, y, c); }
+  // las tongadas: cada vertido de la draga deja su línea
+  for (const y0 of [SUP + 9, SUP + 16]) for (let x = 0; x < 320; x++) { const y = Math.round(y0 + Math.sin(x * 0.03 + y0) * 1.2); if (hh(x >> 2, y0, 92) < 0.85) pset(x, y, hex('#a88e5e')); if (hh(x, y0, 93) < 0.3) pset(x, y - 1, hex('#e4d4aa')); }
+  // conchas y guijarros que trajo la draga
+  for (let k = 0; k < 46; k++) { const x = Math.round(hh(k, 1, 91) * 318), y = Math.round(SUP + 5 + hh(k, 2, 91) * (VIEJO - SUP - 9)), tipo = k % 4;
+    if (tipo === 0) { pset(x, y, hex('#f4ece0')); pset(x + 1, y, hex('#e8c8c0')); pset(x, y + 1, hex('#c8b49c')); pset(x + 1, y + 1, hex('#f4ece0')); }
+    else if (tipo === 1) { pset(x, y, hex('#9a9aa0')); pset(x + 1, y, hex('#6a6a72')); }
+    else if (tipo === 2) { pset(x, y, hex('#f8f0e4')); pset(x + 1, y - 1, hex('#e8a8a0')); }
+    else pset(x, y, hex('#5a5048')); }
+  // el lecho de la acera de ahora: la cara inferior del ladrillo y la grava
+  for (let x = 0; x < 320; x++) { pset(x, SUP, hex('#4a2a24')); pset(x, SUP + 1, hh(x, 1, 94) < 0.5 ? hex('#8a847a') : hex('#a49c90')); pset(x, SUP + 2, hh(x, 2, 94) < 0.3 ? hex('#5a564e') : hex('#7a7468')); }
+  // la acera vieja de ladrillo, enterrada, con sus juntas
+  for (let y = VIEJO - 1; y <= VIEJO + 1; y++) for (let x = 0; x < 320; x++) { const o = (y - VIEJO + 1) % 2 ? 3 : 0, jun = (x + o) % 6 === 0, br = Math.floor((x + o) / 6);
+    pset(x, y, jun ? hex('#b8a888') : y === VIEJO - 1 ? hex('#b05a44') : hh(br, y, 95) < 0.4 ? hex('#8a3e30') : hex('#9a4a3a')); }
+  // el barro viejo, con raíces de la hierba de antes, y la arcilla
+  for (let y = VIEJO + 2; y < 180; y++) for (let x = 0; x < 320; x++) { const q = hh(x, y, 96);
+    if (y < VIEJO + 7) pset(x, y, q < 0.15 ? hex('#4a3826') : q > 0.9 ? hex('#6e5a42') : hex('#5a4632'));
+    else pset(x, y, mix(q < 0.12 ? hex('#5a5e64') : q > 0.92 ? hex('#868a8e') : hex('#6c7076'), hex('#3e5262'), Math.max(0, (y - 174) / 6) * 0.7)); }
+  for (let k = 0; k < 30; k++) { const x = Math.round(hh(k, 1, 97) * 318), L = 2 + Math.round(hh(k, 2, 97) * 5); for (let j = 0; j < L; j++) pset(x + Math.round(Math.sin(j + k) * 0.6), VIEJO + 2 + j, j < 2 ? hex('#2e2218') : hex('#7a6248')); }
+  // la herradura y la botella perdidas en el barro viejo
+  { const x = 160, y = VIEJO + 4; for (const [i, j] of [[0, 0], [0, 1], [1, 2], [2, 2], [3, 2], [4, 1], [4, 0]]) pset(x + i, y + j, hex('#6a6e74')); pset(x + 1, y + 1, hex('#9aa0a6')); }
+  { const x = 214, y = VIEJO + 3; rect(x, y, x + 5, y + 2, hex('#2e5a3a')); rect(x + 6, y + 1, x + 7, y + 1, hex('#2e5a3a')); pset(x + 1, y, hex('#6aa07a')); pset(x + 2, y, hex('#6aa07a')); }
+  // el poste del telégrafo, alargado: su pie viejo, negro de creosota, y el empalme con dos abrazaderas
+  for (let y = SUP + 1; y <= VIEJO + 9; y++) { const viejo = y > VIEJO - 8, c0 = viejo ? hex('#2e2620') : hex('#6a4a2a'); rect(13, y, 17, y, c0); pset(13, y, viejo ? hex('#1e1a16') : hex('#4a3220')); pset(16, y, viejo ? hex('#4a4038') : hex('#8a6a42')); if (!viejo && y % 5 === 0) pset(15, y, hex('#4a3220')); }
+  for (const yy of [VIEJO - 9, VIEJO - 6]) { rect(12, yy, 18, yy, hex('#4a4a52')); pset(17, yy, hex('#9a9aa2')); }
+  // la tubería nueva del agua, con sus bridas, y su codo que sube hacia la acera; la boca de riego vieja, enterrada en
+  // la acera de antes
+  const yt = SUP + 9;
+  for (let x = 196; x < 320; x++) { pset(x, yt - 1, C.k); pset(x, yt, hex('#7a7a84')); pset(x, yt + 1, hex('#4a4a54')); pset(x, yt + 2, hex('#2a2a32')); pset(x, yt + 3, C.k); }
+  for (let x = 236; x < 320; x += 40) { rect(x, yt - 2, x + 1, yt + 4, hex('#3a3a42')); pset(x, yt - 2, hex('#8a8a94')); }
+  rect(192, SUP + 1, 196, yt + 3, C.k); rect(193, SUP + 1, 195, yt + 2, hex('#4a4a54')); pset(193, SUP + 2, hex('#7a7a84')); pset(193, yt, hex('#7a7a84')); rect(191, SUP + 4, 197, SUP + 5, hex('#3a3a42'));
+  { const hx = 262, b0 = VIEJO - 2; rect(hx - 3, b0 - 7, hx + 3, b0, C.k); rect(hx - 2, b0 - 6, hx + 2, b0, hex('#7a3a30')); rect(hx + 1, b0 - 6, hx + 2, b0, hex('#5a2620')); rect(hx - 4, b0 - 4, hx + 4, b0 - 3, hex('#6a2e28')); pset(hx, b0 - 8, hex('#7a3a30')); pset(hx - 1, b0 - 5, hex('#a86050')); pset(hx - 4, b0 - 4, C.k); pset(hx + 4, b0 - 4, C.k); }
+  // la galería del cangrejo, del relleno al barro viejo
+  for (let i = 0; i <= 18; i++) { const x = 116 + i, y = Math.round(SUP + 12 + i * 0.75); rect(x, y, x, y + 1, hex('#5a4630')); pset(x, y - 1, hex('#8a7048')); }
+  R.usar(prev); return b;
+};
 const p4 = (t) => {
-  T.galveston(R, t, { despues: true, encuadre: 'muro' });
-  // el suelo de antes, marcado en la cara del muro, y la flecha «+10» hasta el de ahora
-  const top = (x) => 58 + 38 * x / 238, pie = (x) => 146 - 42 * x / 238, viejo = (x) => Math.round(top(x) + 0.49 * (pie(x) - top(x)));
+  { const prev = R.usar(bCalle); T.galveston(R, t, { encuadre: 'calle' }); R.usar(prev); }
+  if (!bCorte) bCorte = corteFijo();
+  const B = R.buf; B.set(bCalle.subarray(DY * 320), 0); B.set(bCorte.subarray(SUP * 320), SUP * 320);
+  // la vida del corte: el agua del subsuelo que brilla, el cangrejo que sale y entra en su galería, la lombriz y unos
+  // granos de arena que caen por la cara del corte bajo la acera
+  for (let x = (Math.floor(t * 3) % 3); x < 320; x += 3) if (hh(x, Math.floor(t * 2), 98) < 0.35) R.pset(x, 177 + (x % 2), hex('#7a9ab0'));
+  { const v = (Math.sin(t * 0.9) + 1) / 2, i = Math.round(v * 16), cx = 116 + i, cy = Math.round(SUP + 11 + i * 0.75), pata = Math.floor(t * 8) % 2;
+    R.rect(cx - 2, cy - 1, cx + 2, cy, hex('#c8642e')); R.pset(cx - 1, cy - 2, C.k); R.pset(cx + 1, cy - 2, C.k); R.pset(cx - 3, cy - 1 - pata, hex('#e07a3a')); R.pset(cx + 3, cy - pata, hex('#e07a3a')); R.pset(cx - 2, cy + 1, hex('#8a3e1e')); R.pset(cx + 2, cy + 1, hex('#8a3e1e')); }
+  for (let j = 0; j < 7; j++) R.pset(170 + j, SUP + 16 + Math.round(Math.sin(t * 4 + j * 0.9) * 1.2), j === 6 ? hex('#e8a0a0') : hex('#c87a7a'));
+  for (let k = 0; k < 3; k++) { const ph = (t * 0.7 + k / 3) % 1; R.pset(150 + k * 5, Math.round(SUP + 3 + ph * 10), hex('#e4d4aa')); }
+  // el suelo de antes, marcado en el corte con lápiz de cera, y la flecha «+10» hasta el de ahora
   const l = lin(t, ciudad + 0.2, diez - 0.1);
-  if (l > 0) for (let x = 0; x < Math.round(l * 200); x++) if (x % 6 < 4) { R.pset(x, viejo(x), C.oroL); R.pset(x, viejo(x) + 1, hex('#8a6a20')); }
+  if (l > 0) for (let x = 0; x < Math.round(l * 320); x++) if (x % 6 < 4) { R.pset(x, VIEJO - 2, C.oroL); R.pset(x, VIEJO - 3, hex('#8a6a20')); }
+  if (l > 0 && l < 1) { const xl = Math.round(l * 320); R.rect(xl, VIEJO - 6, xl + 1, VIEJO - 3, C.k); R.rect(xl, VIEJO - 6, xl, VIEJO - 4, C.oroL); }
   const e = tramo(t, diez - 0.1, diez + 0.3);
-  if (e > 0) { const X = 44, y0 = viejo(X), y1 = Math.round(lerp(y0, top(X) - 2, e));
+  if (e > 0) { const X = 44, y0 = VIEJO - 2, y1 = Math.round(lerp(y0, SUP - 1, e));
     R.rect(X - 1, y1, X + 1, y0, C.k); R.rect(X, y1 + 1, X, y0, C.oroL);
     R.poligono([[X - 4, y1 + 4], [X + 5, y1 + 4], [X + 0.5, y1 - 2]], C.k); R.poligono([[X - 3, y1 + 3], [X + 4, y1 + 3], [X + 0.5, y1 - 1]], C.oroL);
-    if (t > diez) R.numero('+10', 52, Math.round(lerp(98, 92, tramo(t, diez, diez + 0.2))), { tam: 16 }); }
-  // la pareja de la foto llega por la playa con el perro delante, muy digno; se paran a posar y el perro se sienta
-  const u = lin(t, llega4[0], llega4[1]), x = Math.round(lerp(18, 64, u)), para = u >= 1, posa = t > llega4[1] + 0.1 && t < flash4;
-  R.actor(EL.vecino, x, 166, t, { dir: 1, pal: SENOR, anda: !para, quieto: posa, dedo: entre(t, ciudad, ciudad + 0.8), sonrisa: true, habla: (entre(t, ciudad, ciudad + 0.8) || entre(t, flash4 + 0.3, flash4 + 1.0)) && parpadeo(t, 8) });
-  R.actor(EL.vecina, x + 16, 167, t, { dir: 1, pal: SENORA, anda: !para, quieto: posa, sonrisa: true });
-  { const [hx, hy] = manoAtras(x + 16, 167, 1); sombrilla(hx, hy); }
-  perrito(x + 34, 171, t, { dir: 1, pose: para ? 'sentado' : 'pie', anda: !para, digno: true });
+    if (t > diez) R.numero('+10', 52, Math.round(lerp(164, 160, tramo(t, diez, diez + 0.2))), { tam: 16 }); }
+  // la pareja de la foto llega por la acera con el perro delante, muy digno; se paran a posar y el perro se sienta
+  const u = lin(t, llega4[0], llega4[1]), x = Math.round(lerp(-14, 60, u)), para = u >= 1, posa = t > llega4[1] + 0.1 && t < flash4;
+  R.actor(EL.vecino, x, 134, t, { dir: 1, pal: SENOR, anda: !para, quieto: posa, dedo: entre(t, ciudad, ciudad + 0.8), sonrisa: true, habla: (entre(t, ciudad, ciudad + 0.8) || entre(t, flash4 + 0.3, flash4 + 1.0)) && parpadeo(t, 8) });
+  R.actor(EL.vecina, x + 16, 135, t, { dir: 1, pal: SENORA, anda: !para, quieto: posa, sonrisa: true });
+  { const [hx, hy] = manoAtras(x + 16, 135, 1); sombrilla(hx, hy); }
+  perrito(x + 34, 139, t, { dir: 1, pose: para ? 'sentado' : 'pie', anda: !para, digno: true });
   // el mismo fotógrafo de 1900 los llama, se mete bajo la tela, levanta el magnesio y el destello cae en «before»;
   // esta vez nadie se asusta: el perro ni se inmuta
-  const fx = 158, cx = fx - 4, s = 168, bajo = entre(t, tapa4[0], tapa4[1]), conPan = entre(t, pan4, tapa4[1]);
+  const fx = 158, cx = fx - 4, s = 136, bajo = entre(t, tapa4[0], tapa4[1]), conPan = entre(t, pan4, tapa4[1]);
   R.actor(EL.vecino, fx, s, t, { dir: -1, pal: FOTOGRAFO, dedo: conPan || entre(t, P4 + 0.3, P4 + 1.0), habla: entre(t, P4 + 0.3, P4 + 1.0) && parpadeo(t, 8), sonrisa: t > tapa4[1] || t < tapa4[0] });
   camaraFoto(cx, s); telaFoto(cx, s, bajo);
   if (conPan) { const [hx, hy] = manoArriba(fx, s, -1); R.rect(hx, hy - 5, hx, hy - 1, C.maderaS); R.rect(hx - 3, hy - 7, hx + 3, hy - 6, C.k); R.rect(hx - 2, hy - 7, hx + 2, hy - 7, C.metalL); if (t < flash4) { R.pset(hx - 1, hy - 8, C.blanco); R.pset(hx + 1, hy - 8, C.blanco); } }
@@ -288,7 +400,7 @@ const p4 = (t) => {
 const efectos = [[0.5, 'vapor'], [1.3, 'toc'], [1.9, 'toc'], [increible, 'whoosh'], [2.9, 'toc'], [vuelcaT[0] + 0.25, 'golpecito'], [diecisiete, 'pop'], [alto + 0.1, 'brillo'],
   [subeT[0] + 0.1, 'tic'], [subeT[0] + 0.55, 'tic'], [subeT[0] + 1.0, 'tic'], [subeT[0] + 1.45, 'tic'], [subeT[0] + 0.3, 'guau'], [dosmil, 'pop'], [bajaT[1] + 0.05, 'palmada'],
   [silbaT[0] + 0.1, 'silbato'], [bombea, 'vapor'], [arenaW + 0.05, 'burbujas'], [debajo, 'chof'], [debajo + 0.5, 'ola'],
-  [P4 + 0.3, 'ola'], [ciudad + 0.3, 'lapiz'], [diez, 'pop'], [tapa4[0] + 0.05, 'whoosh'], [flash4, 'flash']];
+  [ciudad + 0.3, 'lapiz'], [diez, 'pop'], [tapa4[0] + 0.05, 'whoosh'], [flash4, 'flash']];
 const año = (t) => t < P2 ? Math.round(lerp(1902, 1904, lin(t, 0.4, P2 - 0.6))) : t < P3 ? 1905 : t < P4 ? Math.round(lerp(1906, 1909, lin(t, P3, P4 - 0.4))) : 1911;
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>

@@ -18,7 +18,10 @@
 // vuelve por donde vino, dejando la estela en forma de gancho y su sombra en el suelo (gag). Por el mar, junto a la costa,
 // un mercante sale de debajo de las bandas y se aleja de la tormenta con su estela en V, y en las bandas saltan los fucilazos. En «school didn't teach you» sale
 // una «?» dorada sobre la tierra; en «Let's find out» la «?» se convierte en «!» y la cámara se lanza en picado hacia
-// el ojo.
+// el ojo. Encima del decorado, la escena rehace en una pasada la tierra (parcelas de seis cultivos con sus hileras,
+// caminos, lindes y granjas, bosques, lomas sombreadas, cuatro ríos con su arboleda, la marisma de la costa con sus caños,
+// autopistas y los pueblos con su retícula de calles y tejados) y las bandas exteriores: continuas, en la misma espiral
+// que giran las del decorado, en fibras que se deshilachan hacia fuera, con tres tonos tramados y su sombra en el suelo.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 const { E, R, M } = await T.preparar('hu-hola');
 const { lerp, hex } = R;
@@ -116,9 +119,142 @@ const mercante = (x, y, ang, t, e) => {
   for (let u = -1; u <= 2; u++) pon(u, 0, [hex('#c8503a'), hex('#3a6ab8'), hex('#d8a030'), hex('#3a8a5a')][u + 1]);   // contenedores
 };
 
+// ── retoque del decorado visto desde arriba (una sola pasada por fotograma, encima de T.ojo) ─────────────────────────
+// 1) la tierra: en vez del verde moteado, el terreno de la llanura costera visto desde el satélite, en las mismas
+// coordenadas que el huracán (crece con la cámara): parcelas en cuadrícula algo girada (seis cultivos, cada uno en tres
+// tonos, con sus hileras), caminos cada tres parcelas, lindes, granjas, manchas de bosque, el relieve sombreado de las
+// lomas de tierra adentro, los cuatro ríos con su arboleda, la marisma de la costa con sus caños, dos autopistas y los
+// pueblos (donde tienen sus luces) con su retícula de calles y tejados. Respeta la sombra que dan las torres de nubes.
+// 2) las bandas exteriores: un velo continuo que sigue la misma espiral que las bandas del decorado (gira con ellas),
+// en fibras paralelas que se deshilachan hacia fuera, con tres tonos tramados y su sombra sobre el suelo; y un ribete
+// tramado alrededor de los trozos de nube sueltos, para que no tengan el borde duro. La esquina de Atom queda tranquila.
+const NUBES = new Set(['#3e4866', '#56628a', '#7482a6', '#94a2c0', '#b4c0d6', '#d0d9e8', '#e6ecf4', '#f6f8fb', '#ffffff', '#8e9cb8'].map((s) => hex(s)));
+const MAR0 = hex('#0a1f45');
+const TR = (a) => a.map((s) => hex(s));
+const CULTIVOS = [TR(['#4e7a34', '#5e8a3e', '#6e9a48']), TR(['#6e8e40', '#86a052', '#98ae5e']), TR(['#a09a58', '#b0aa64', '#c4bc78']),
+  TR(['#76603e', '#8a6e4a', '#9e8058']), TR(['#5a7a3c', '#6a8846', '#7a9650']), TR(['#8c8456', '#a08a5c', '#b49c6a'])];
+const BOSQUE = TR(['#2a4424', '#36582e', '#466c36', '#5a823e']);
+const MARISMA = TR(['#62744a', '#728050', '#868c58']), CANO = hex('#4a7686');
+const AGUA = hex('#3e6a7c'), AGUA_L = hex('#6a9aa8'), ORILLA = hex('#8a8c5e');
+const CAMINO = hex('#c8b88e'), LINDE = hex('#4a6232'), AUTOPISTA = hex('#b8b4a8'), AUTOPISTA_S = hex('#8e8a80');
+const TEJADOS = TR(['#c8bca8', '#a89a88', '#8a8478', '#d8d0c0', '#a85a40', '#b8a890']), CALLE = hex('#6e6c66'), CESPED = hex('#7a9a52'), GRANJA = hex('#f0ece0');
+const VELO = TR(['#7482a6', '#94a2c0', '#b4c0d6', '#d0d9e8', '#e6ecf4']);
+const costaY = (wx) => 0.15 + 0.1 * wx + 0.03 * Math.sin(wx * 9 + 1) + 0.012 * Math.sin(wx * 31);
+const enBahia = (wx, wy) => ((wx - 0.13) / 0.06) ** 2 + ((wy - 0.115) / 0.035) ** 2 < 1;
+// ruido suave (de valor) y por capas
+const vr = (x, y, k = 0) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const a = ruido(xi, yi, k), b = ruido(xi + 1, yi, k), c = ruido(xi, yi + 1, k), d = ruido(xi + 1, yi + 1, k); return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy; };
+const fbm = (x, y, k) => 0.6 * vr(x, y, k) + 0.4 * vr(x * 2.3 + 7, y * 2.3, k + 1);
+const sm = (a, b, v) => suave((v - a) / (b - a));
+const tono = (pal, v, X, Y) => pal[Math.max(0, Math.min(pal.length - 1, Math.floor(v * pal.length + (umbral(X, Y) - 0.5) * 0.9)))];
+// los pueblos en coordenadas del huracán (la vista de partida mide 120 px por unidad), con su tamaño
+const PUEB = PUEBLOS.map(([x, y, n]) => [(x + 0.5 - 156) / 120, (y + 0.5 - 98) / 120, 0.014 + n * 0.0042]);
+const RIOS = [[-0.14, 21, 0.03], [0.13, 17, 0.025], [0.36, 26, 0.02], [-0.62, 12, 0.04]];
+const GIRO_C = Math.cos(0.12), GIRO_S = Math.sin(0.12);
+// el terreno en (wx, wy) (unidades del huracán, y hacia abajo); px: lo que mide un píxel; quieto 0–1: menos detalle
+const terreno = (wx, wy, X, Y, px, quieto) => {
+  const dc = costaY(wx) - wy;
+  // el relieve: lomas tierra adentro, iluminadas desde arriba a la izquierda
+  const e = 0.012, lomas = sm(0.15, 0.5, dc), rel = lomas * (fbm((wx - e) * 4, (wy - e) * 4, 40) - fbm((wx + e) * 4, (wy + e) * 4, 40)) * 9;
+  // los ríos, con su arboleda
+  for (const [r0, f, a] of RIOS) { const rx = r0 + a * Math.sin(wy * f + r0 * 9) + 0.008 * Math.sin(wy * 53 + r0 * 30), d = Math.abs(wx - rx), hw = 0.0028 + 0.6 * px * Math.min(1, dc * 12 + 0.4);
+    if (d < hw) return d > hw - px * 0.8 && hw > 2 * px ? ORILLA : umbral(X, Y) < 0.18 + 0.25 * Math.sin(wy * 400 + t0 * 3) ? AGUA_L : AGUA;
+    if (d < hw + 0.016 && vr(wx * 140, wy * 140, r0 * 10 + 5) > 0.38) return tono(BOSQUE, 0.35 + 0.5 * ruido(Math.floor(wx / 0.004), Math.floor(wy / 0.004), 61) + rel, X, Y); }
+  // la marisma de la costa con sus caños
+  const anchoM = 0.026 + 0.014 * vr(wx * 30, 3, 50);
+  if (dc < anchoM) { if (Math.abs(Math.sin(wx * 150 + 7 * vr(wx * 25, wy * 25, 51))) < 0.09 + 0.6 * px / 0.008 * 0.08) return CANO;
+    return tono(MARISMA, vr(wx * 90, wy * 90, 52) * 0.8 + 0.1, X, Y); }
+  // las autopistas: una paralela a la costa y otra tierra adentro; y una de norte a sur
+  const ancho = 0.0016 + 0.5 * px;
+  if (quieto < 0.5) for (const d of [wy - (costaY(wx) - 0.12 + 0.01 * Math.sin(wx * 7)), wy - (-0.47 + 0.05 * Math.sin(wx * 2.3)), wx - (-0.66 + 0.03 * Math.sin(wy * 4))]) if (Math.abs(d) < ancho) return Math.abs(d) < ancho * 0.5 ? AUTOPISTA : AUTOPISTA_S;
+  // los pueblos: la retícula de calles con sus tejados y unos jardines; alrededor, las casas sueltas
+  if (quieto < 0.5) for (const [tx, ty, rt] of PUEB) { const ax = wx - tx, ay = wy - ty; if (Math.abs(ax) > rt * 1.4 || Math.abs(ay) > rt * 1.4) continue;
+    const dd = Math.hypot(ax, ay) / rt + (vr(wx * 160, wy * 160, 70) - 0.5) * 0.5, cel = Math.max(0.0055, 2.6 * px), ux = ax / cel, uy = ay / cel, fx = ux - Math.floor(ux), fy = uy - Math.floor(uy), q = ruido(Math.floor(ux), Math.floor(uy), 71 + tx);
+    if (dd < 1) { if (fx < 0.26 || fy < 0.26) return CALLE; return q < 0.12 ? BOSQUE[2] : TEJADOS[Math.floor(q * 997) % TEJADOS.length]; }
+    if (dd < 1.35) { if (fy < 0.2) return CALLE; if (q < 0.4 && fx > 0.35) return TEJADOS[Math.floor(q * 991) % 4]; return CESPED; } }
+  // el bosque
+  const fo = fbm(wx * 6 + 11, wy * 6, 30);
+  if (fo > 0.6 + 0.08 * (1 - lomas)) return tono(BOSQUE, 0.3 + 0.55 * ruido(Math.floor(wx / 0.0035), Math.floor(wy / 0.0035), 62) + rel * 0.8 + (fo - 0.6) * 0.8, X, Y);
+  // las parcelas, en una cuadrícula algo girada, con los caminos cada tres
+  const P = 0.056, u = (wx * GIRO_C + wy * GIRO_S) / P, v = (wy * GIRO_C - wx * GIRO_S) / P, iu = Math.floor(u), iv = Math.floor(v), eu = u - iu, ev = v - iv;
+  const lw = Math.max(0.03, 0.42 * px / P);
+  if (quieto < 0.5 && ((((iu % 3) + 3) % 3 === 0 && eu < lw * 1.6) || (((iv % 3) + 3) % 3 === 0 && ev < lw * 1.6))) return CAMINO;
+  if (eu < lw || ev < lw) return quieto < 0.5 ? LINDE : CULTIVOS[4][0];
+  const q = ruido(iu, iv, 80);
+  if (quieto < 0.5 && q < 0.14 && eu > 0.66 && ev > 0.7) return ruido(iu, iv, 81) < 0.5 ? GRANJA : TEJADOS[4];   // una granja
+  if (quieto < 0.5 && q < 0.14 && eu > 0.5 && ev > 0.55) return BOSQUE[1];                                    // sus árboles
+  const pal = CULTIVOS[Math.floor(ruido(iu, iv, 82) * 6)], hilera = Math.floor((q < 0.5 ? u : v) * 9) & 1;
+  return tono(pal, 0.45 + hilera * 0.18 * (1 - quieto) + (vr(wx * 70, wy * 70, 83) - 0.5) * 0.5 + rel - quieto * 0.1, X, Y);
+};
+let t0 = 0;
+// las bandas exteriores, con la misma espiral que el decorado (el mismo ruido periódico, copiado aquí, y el mismo giro),
+// pero continuas: más anchas, que se apagan despacio hacia fuera y se deshilachan en fibras
+const az = (a, b) => { let k = (Math.imul(a | 0, 374761393) + Math.imul(b | 0, 668265263)) | 0; k = Math.imul(k ^ (k >>> 13), 1274126177); return ((k ^ (k >>> 16)) >>> 0) / 4294967296; };
+const TABLA = new Float32Array(65536); for (let i = 0; i < 65536; i++) TABLA[i] = az(i & 255, (i >> 8) + 917);
+const ruidoP = (x, y, P) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const x0 = ((xi % P) + P) % P, x1 = (x0 + 1) % P, y0 = yi & 255, y1 = (y0 + 1) & 255;
+  const a = TABLA[(y0 << 8) | (x0 & 255)], b = TABLA[(y0 << 8) | (x1 & 255)], c = TABLA[(y1 << 8) | (x0 & 255)], d = TABLA[(y1 << 8) | (x1 & 255)];
+  return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy; };
+const TAU = Math.PI * 2;
+const bandaFuera = (dx, dy, rho, t) => {
+  const th = Math.atan2(dy, dx), L = Math.log(rho), w = (0.24 * 1.3) / (1 + 3.2 * rho), thr = th - w * t, sg = thr + 1.9 * L, u = sg / TAU;
+  const n = 0.55 * ruidoP(u * 20, L * 3.2 + 40, 20) + 0.3 * ruidoP(u * 40, L * 6.4 + 90, 40) + 0.15 * ruidoP(u * 80, L * 12.8 + 140, 80);
+  const brazo = (0.5 + 0.5 * Math.cos(2 * sg + 2.6 * (n - 0.5))) ** 1.4 * sm(1.62, 0.5, rho);
+  let den = brazo * (0.42 + 0.62 * n);
+  // las fibras a lo largo de la banda, que deshilachan los bordes (más fuera, más sueltas)
+  const fib = ruidoP(u * 96, L * 1.6 + 7, 96), fib2 = ruidoP(u * 192, L * 3 + 30, 192);
+  den += ((fib - 0.5) * 0.3 + (fib2 - 0.5) * 0.14) * sm(0.62, 0.15, den) * (0.6 + 0.6 * sm(0.7, 1.4, rho));
+  // la textura de la cima: bultos pequeños que giran con la nube
+  const bul = ruidoP(u * 260, L * 26 + 60, 260);
+  return [den, bul];
+};
+// el mar del decorado (copiado de él), para lo que queda debajo de las bandas que se rehacen
+const MAR = TR(['#0a1f45', '#0f2a5a', '#15356e', '#1d4382', '#285394', '#3666a8']), ARENA = hex('#d8c89a'), COSTA_MAR = hex('#2e6a8a'), BAHIA = hex('#3e6a7c');
+const q4 = (v, x, y, w) => Math.floor(v + 0.5 + (umbral(x, y) - 0.5) * w);
+const marEn = (wx, wy, x, y) => {
+  const dc = wy - costaY(wx);
+  if (Math.abs(dc - 0.028) < 0.0045 && Math.abs(wx - 0.12) > 0.012 && wx > -0.25 && wx < 0.55) return ARENA;
+  if (q4(1 - dc / 0.06, x, y, 0.36) > 0) return COSTA_MAR;
+  const v = 2.4 + (vr(wx * 70 + 300, wy * 70 + 300, 90) - 0.5) * 1.4 - Math.hypot(x - 160, y - 90) / 200 + sm(120, 10, Math.hypot(x - 236, (y - 150) * 1.4)) * 2.2;
+  return MAR[Math.max(0, Math.min(5, q4(v, x, y, 0.22)))];
+};
+const DEN = new Float32Array(57600);
+const retocar = (t, zoom) => {
+  t0 = t;
+  const B = R.buf, RS = 150 * zoom, px = 1 / RS, cx = 156, cy = 98;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const i = y * 320 + x, c = B[i], nube = NUBES.has(c); DEN[i] = 0;
+    const wx = (x + 0.5 - cx) * px, wy = (y + 0.5 - cy) * px, rho = Math.hypot(wx, wy);
+    const quieto = Math.max(sm(30, 0, Math.hypot(Math.max(0, 266 - x), Math.max(0, y - 52))), sm(18, 0, Math.hypot(Math.max(0, 18 - x, x - 174), Math.max(0, y - 18))));
+    const tierra = wy < costaY(wx) - 0.0035 && !enBahia(wx, wy);
+    // de dentro (el núcleo y el arranque de las bandas) manda el decorado; de fuera, las bandas rehechas; en medio, tramado
+    const fuera = rho > 0.5 && (!nube || umbral(x, y) < sm(0.5, 0.68, rho));
+    if (!fuera) {
+      if (nube) continue;
+      if (tierra) { const sombra = !esTierra(c) && luz(c) < 85; let g = terreno(wx, wy, x, y, px, quieto); if (sombra) g = mezcla(g, MAR0, 0.5); B[i] = g; }
+      continue;
+    }
+    // el suelo de debajo (la tierra rehecha o el mar del decorado)
+    let g = tierra ? terreno(wx, wy, x, y, px, quieto) : wy < costaY(wx) ? (enBahia(wx, wy) ? BAHIA : ARENA) : marEn(wx, wy, x, y);
+    const [d0, bul] = bandaFuera(wx, -wy, rho, t), den = d0 * (1 - 0.9 * quieto); DEN[i] = den;
+    // en la franja de paso, si el decorado ya tiene nube y la banda rehecha no, se queda la del decorado
+    if (nube && rho < 0.7 && den < 0.3) { DEN[i] = 0.3; continue; }
+    const ul = x > 2 && y > 2 ? DEN[i - 963] : den, lev = den + (umbral(x, y) - 0.5) * 0.08;
+    if (lev < 0.17) { if (ul > 0.34) g = mezcla(g, MAR0, 0.42); }                                  // la sombra de la banda en el suelo
+    else if (lev < 0.27) { if (umbral(x, y) < (lev - 0.17) / 0.1 + 0.15) g = mezcla(g, VELO[0], 0.55); }   // el borde deshilachado, tramado
+    else {
+      // tres tonos con la luz de arriba a la izquierda: la cara que mira a la luz, el cuerpo y la sombra; y los bultos
+      const v = 1 + (den - 0.27) * 5.2 + (den - (x > 0 && y > 0 ? DEN[i - 321] : den)) * 22 + (bul - 0.5) * 1.3 - (ul > den + 0.12 ? 1 : 0);
+      g = v < 0.9 ? (umbral(x, y) < 0.5 ? VELO[0] : mezcla(g, VELO[0], 0.6)) : VELO[Math.max(0, Math.min(4, q4(v, x, y, 0.5)))];
+    }
+    B[i] = g;
+  }
+};
+
 const plano = (t) => {
   const zoom = ojoEn(t), o = { vista: 'arriba', zoom, suelo: 'texas', giro: 0.24 };
   T.ojo(R, t, o);
+  retocar(t, zoom);
   const { x: cx, y: cy, r } = T.b_ojoArribaGeo(o), esc = zoom / ZOOM0;
   // el mercante, que se aleja de la tormenta
   for (const [x0, y0, ang, v] of MERCANTES) { const [x, y] = mundo(x0 + Math.cos(ang) * v * t, y0 + Math.sin(ang) * v * t, zoom, cx, cy); mercante(x, y, ang, t, 1.6 * Math.min(2, esc)); }

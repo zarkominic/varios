@@ -26,15 +26,21 @@
 //    las banderas, la madre se lo explica y el chico les hace una foto con flash; en «1905» se enciende su placa, el niño
 //    da un saltito y todos sonríen; corta en el golpe («It grew»);
 // 3. el golpe, desde el espacio sobre el golfo: entra con un corte seco, un destello y un empujón de cámara sobre Isaías,
-//    que ya tiene el ojo formándose; la cámara lo sigue hacia el norte por su trayectoria mientras se organiza; un
+//    que ya tiene el ojo formándose (pintado en la escena: bandas en espiral de cuatro tonos con la luz arriba a la
+//    izquierda, coliflor, calles de cirros, bordes deshilachados, su sombra sobre el mar y el ojo con su pared, que gira y
+//    se va cerrando a lo largo del plano); la cámara lo sigue hacia el norte por su trayectoria mientras se organiza; un
 //    satélite meteorológico cruza por delante con sus paneles que destellan; en «category three» sale el «3»; en «warm
 //    waters» el agua del golfo se calienta y tiembla; la línea prevista va a Destin;
-// 4. la playa de Destin de noche: la patrulla de playa, en su quad con las luces de la barra, le indica a la última
+// 4. la playa de Destin de noche, que se lee: la luna asoma en un claro de las nubes (nubes deshilachadas con el canto de
+//    plata que pasan por delante y la van tapando al llegar el huracán), su luz fría aclara el cuadro y su camino de plata
+//    riela en el mar; las luces de la punta y del muelle se reflejan en el agua, la caseta del socorrista tiene luz (hasta
+//    el apagón) y la pareja y el quad llevan el canto de luz de luna; la patrulla de playa, en su quad con las luces de la barra, le indica a la última
 //    pareja (con chubasqueros y linterna) que se vaya; se van deprisa y el quad las sigue; en «came ashore» cae el rayo,
 //    las farolas del muelle parpadean y se apagan, el mar sube por la playa lleno de espuma y revienta contra el muelle;
 //    en «Destin» el viento se lleva una sombrilla que rueda y una silla que vuelca (sin víctimas); en «category two»,
 //    el «2»;
-// 5. el mapa de EE. UU.: una mano traza con el rotulador rojo la trayectoria de Isaías hasta Destin y clava la chincheta
+// 5. el mapa de EE. UU.: una mano (la canónica, con su brazo con volumen que entra en diagonal desde abajo a la derecha,
+//    puño de camisa, pliegues y su sombra sobre el mapa) traza con el rotulador rojo la trayectoria de Isaías hasta Destin y clava la chincheta
 //    roja en «hit»; en «United States» se clava su foto de la noche del huracán con el «2026»; en «since Milton» el mapa
 //    se acerca al golfo, la mano vuelve con el lápiz gris, traza la trayectoria de Milton y clava su chincheta en Siesta
 //    Key con su foto vieja del «2024»;
@@ -76,10 +82,28 @@ const taza = (x, y, t, humea = true, col = C.blanco) => { R.rect(x, y, x + 3, y 
   if (humea) for (let k = 0; k < 2; k++) { const u = (t * 0.8 + k * 0.5) % 1; R.pset(Math.round(x + 1 + k + Math.sin(u * 6 + k) * 1.2), Math.round(y - 1 - u * 6), u < 0.6 ? hex('#e8ecf0') : hex('#c4ccd4')); } };
 // dónde lleva algo en la mano un personaje que no levanta el brazo (x, suelo, dir)
 const enMano = (x, suelo, dir) => [dir > 0 ? x + 12 : x - 1, suelo - 10];
-// la mano canónica (T.mano, 14 px) con la manga que llega hasta el borde del cuadro, para que el brazo no acabe en el aire
-const manoBorde = (x, y, dir, manga) => { const m = hex(manga), e = dir > 0 ? x - 43 : x + 43; if (dir > 0 ? e > 0 : e < 319) { const a = dir > 0 ? 0 : e, b = dir > 0 ? e : 319;
-  R.rect(a, Math.round(y) - 2, b, Math.round(y) + 2, m); R.rect(a, Math.round(y) - 3, b, Math.round(y) - 3, C.k); R.rect(a, Math.round(y) + 3, b, Math.round(y) + 3, C.k); for (let i = a; i <= b; i += 9) R.pset(i, Math.round(y) + 1, mezcla(m, C.k, 0.3)); }
-  T.mano(R, Math.round(x), Math.round(y), dir, manga); };
+// la mano canónica (T.mano, 14 px) con su brazo, que no es un palo: sale en diagonal desde el hombro, fuera del cuadro
+// por abajo, con volumen (el puño blanco de la camisa, la manga de la chaqueta que se ensancha hacia el codo, con luz
+// arriba, sombra abajo y pliegues) y arroja su sombra sobre el mapa. La mano se pinta aparte y se copia sin su manguita
+const MANO_B = R.nuevo();
+const manoBorde = (x, y, dir, manga) => { const X = Math.round(x), Y = Math.round(y), m = hex(manga), mL = mezcla(m, hex('#9ab4dc'), 0.35), mS = mezcla(m, C.k, 0.4), D = R.buf;
+  // el eje del brazo: de la muñeca hacia el hombro (abajo y hacia fuera)
+  const wx = X - dir * 2, wy = Y, hx = X - dir * 100, hy = 250, L = Math.hypot(hx - wx, hy - wy), vx = (hx - wx) / L, vy = (hy - wy) / L, nx = -vy, ny = vx;
+  const an = (s) => s < 4 ? 4 : Math.min(7.5, 4.5 + s / 14), x0 = Math.max(0, Math.min(wx, hx) - 9), x1 = Math.min(319, Math.max(wx, hx) + 9), y0 = Math.max(0, wy - 9);
+  // la sombra sobre el mapa (desplazada abajo y a un lado), tramada
+  for (let py = y0; py < 180; py++) for (let px = x0; px <= x1; px++) { const ex = px + dir * 3 - wx, ey = py - 4 - wy, s = ex * vx + ey * vy, d = ex * nx + ey * ny;
+    if (s > 2 && Math.abs(d) <= an(s) && bay(px, py) < 0.7) D[py * 320 + px] = mezcla(D[py * 320 + px], hex('#1a140c'), 0.38); }
+  // el brazo
+  for (let py = y0; py < 180; py++) for (let px = x0; px <= x1; px++) { const ex = px - wx, ey = py - wy, s = ex * vx + ey * vy; if (s < 0) continue; const d = ex * nx + ey * ny, w = an(s), ad = Math.abs(d); if (ad > w + 1) continue;
+    const arriba = d * dir > 0, u = ad / w;
+    let c; if (ad > w) c = C.k; else if (s < 4) c = arriba && u > 0.55 ? C.blanco : !arriba && u > 0.55 ? hex('#b8c0cc') : hex('#e4e8ee');
+    else if (s < 5) c = C.k; else { const pl = Math.abs(((s + Math.sin(d * 0.6) * 2) % 12) - 6) < 0.6 && u < 0.8; c = arriba ? (u > 0.7 ? mL : pl ? mS : m) : (u > 0.6 ? mS : pl ? mL : mezcla(m, mS, 0.45)); }
+    D[py * 320 + px] = c; }
+  R.pset(wx - dir * 2, wy + (dir > 0 ? 2 : -2), hex('#c8ccd4'));   // el botón del puño
+  // la mano canónica, sin la manguita que trae: se pinta en un búfer aparte y se copia solo la mano
+  const prev = R.usar(MANO_B); MANO_B.fill(0); T.mano(R, X, Y, dir, manga); R.usar(prev);
+  const a = dir > 0 ? X - 2 : X - 10, b = dir > 0 ? X + 10 : X + 2;
+  for (let py = Y - 4; py <= Y + 3; py++) for (let px = a; px <= b; px++) { if (px < 0 || px > 319 || py < 0 || py > 179) continue; const c = MANO_B[py * 320 + px]; if (c !== 0 && c !== m) D[py * 320 + px] = c; } };
 
 // Los instantes salen de las letras de cada cláusula de la voz inglesa (las pausas de la voz marcan dónde empieza cada una)
 const a = (f) => en('isaias', f), b = (f) => en('destin', f);
@@ -269,17 +293,70 @@ const satelite = (x, y, t) => { const { rect, pset, disco } = R, X = Math.round(
     if (br) for (let i = a0 + 1; i < a1; i++) if ((i + Math.floor(t * 20)) % 5 === 0) pset(i, Y - 1, hex('#dfe8ff')); rect(s < 0 ? X - 5 : X + 4, Y, s < 0 ? X - 4 : X + 5, Y, hex('#8a8a96')); }
   rect(X - 3, Y - 5, X + 3, Y + 5, C.k); rect(X - 2, Y - 4, X + 2, Y + 4, hex('#d8a840')); for (let j = -3; j <= 3; j += 2) pset(X - 1 + (j & 2 ? 2 : 0), Y + j, hex('#f8d870')); rect(X + 2, Y - 4, X + 2, Y + 4, hex('#a87a20'));
   disco(X, Y + 8, 2, C.k); disco(X, Y + 8, 1, hex('#e8e8f0')); pset(X, Y + 6, hex('#8a8a96')); rect(X, Y - 9, X, Y - 6, hex('#8a8a96')); pset(X, Y - 10, Math.floor(t * 2) % 2 ? hex('#f04a4a') : hex('#6a2a2a')); };
+// Isaías visto desde arriba, pintado aquí encima del globo (el de T.orbita sale plano): (cx, cy) el ojo en pantalla, r
+// el radio del núcleo, ojo 0–1 lo que se ha cerrado el ojo. En el plano de la Tierra (escorzo de 'cerca': lo radial al
+// centro del globo, en (150, 404) con radio 324, se acorta) van el núcleo denso con su coliflor, dos bandas en espiral
+// antihoraria con huecos de mar entre ellas, calles finas de cirros en el borde y los bordes deshilachados; cuatro
+// tonos con la luz de arriba a la izquierda (las cimas brillan, el lado de abajo a la derecha de cada bulto y el filo
+// interior de cada banda quedan en sombra); la sombra de la nube sobre el mar, corrida abajo a la derecha; y el ojo, con
+// su pared (iluminada abajo a la derecha, en sombra arriba a la izquierda) y la sombra que esta echa dentro del ojo.
+const HU = [hex('#ffffff'), hex('#e8ecf4'), hex('#c4ccdc'), hex('#97a2ba'), hex('#6b7694')], HU_SOM = hex('#06122a');
+const huracan = (cx, cy, r, t, ojo) => {
+  const D = R.buf, gx = cx - 150, gy = cy - 404, gl = Math.hypot(gx, gy), nx = gx / gl, ny = gy / gl, k = Math.max(0.45, Math.sqrt(Math.max(0, 1 - (gl / 324) ** 2)));
+  const rot = t * 0.55, ext = 1.85, re = r * lerp(0.24, 0.1, ojo), deshecho = lerp(0.6, 0.12, ojo);
+  // la densidad en el plano de la Tierra (a: lo radial ya sin escorzo, b: lo tangencial)
+  const dens = (x, y) => { const ox = x + 0.5 - cx, oy = y + 0.5 - cy, a = (ox * nx + oy * ny) / k, b = -ox * ny + oy * nx, dd = Math.hypot(a, b), d = dd / r; if (d > ext) return [0, d, 9, 0, 0];
+    const th = Math.atan2(b, a), lg = Math.log(d + 0.06), br = Math.cos(2 * (th + rot) - 5.2 * lg + 0.5 * vruido(d * 3, th * 2, 3));
+    const banda = br > 0.4 ? 1 : br > 0.02 ? (br - 0.02) / 0.38 : 0, lejos = Math.max(0, 1 - Math.max(0, d - 0.5) / (ext - 0.5));
+    const nucleo = d < 0.45 ? 1 : Math.max(0, 1 - (d - 0.45) * 3.6);
+    // las calles de cirros que salen en espiral del borde (finas, a trozos)
+    const calle = d > 0.9 ? Math.max(0, Math.sin((th + rot * 0.6) * 9 - lg * 14) - 0.55) * 1.6 * Math.max(0, 1 - Math.abs(d - 1.3) * 1.9) : 0;
+    let q = Math.max(nucleo, banda * Math.min(1, lejos * 1.7), calle * 0.7) * (0.82 + 0.36 * vruido(x * 0.22 + t * 0.15, y * 0.3, 7));
+    // el ojo: el mar se ve por el hueco; su borde, mientras se cierra, todavía grumoso
+    const borde = re * (1 + deshecho * (vruido(th * 2.2 + t * 0.8, d * 4, 11) - 0.5));
+    if (dd < borde) q = 0;
+    return [q, d, dd / Math.max(1, borde), th, br]; };
+  const x0 = Math.max(0, Math.floor(cx - r * ext - 6)), x1 = Math.min(319, Math.ceil(cx + r * ext + 6)), y0 = Math.max(0, Math.floor(cy - r * ext - 6)), y1 = Math.min(179, Math.ceil(cy + r * ext + 6));
+  const enGlobo = (x, y) => (x - 150) ** 2 + (y - 404) ** 2 < 322 * 322;
+  const Q = new Float32Array((x1 - x0 + 1) * (y1 - y0 + 1)), W = x1 - x0 + 1;
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) Q[(y - y0) * W + x - x0] = dens(x, y)[0];
+  const q = (x, y) => (x < x0 || x > x1 || y < y0 || y > y1) ? 0 : Q[(y - y0) * W + x - x0];
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    if (!enGlobo(x, y)) continue; const i = y * 320 + x, [qq, d, de, th, br] = dens(x, y), u = bay(x, y);
+    // el borde deshilachado: lo poco denso se deshace en tramas
+    if (qq <= 0.22 || (qq < 0.62 && u > (qq - 0.22) / 0.4)) {
+      // la sombra de la nube sobre el mar y la tierra, corrida abajo a la derecha
+      const qs = q(x - 5, y - 4); if (qs > 0.45 && u < 0.85) D[i] = mezcla(D[i], HU_SOM, 0.5);
+      // dentro del ojo: el mar oscuro, con la sombra de la pared arriba a la izquierda
+      if (de < 1) { const ex = x - cx, ey = y - cy, som = (ex + ey) / Math.max(1, re) < 0.3; D[i] = mezcla(D[i], HU_SOM, som ? 0.55 : 0.25); }
+      continue; }
+    // la luz: de arriba a la izquierda en todo el disco, el relieve de la coliflor (el gradiente de la densidad y de un
+    // ruido que se mueve despacio), las cimas de la pared del ojo y el filo interior de cada banda en sombra
+    const bulto = vruido(x * 0.45 - t * 0.3, y * 0.6 + t * 0.12, 21), bL = vruido((x - 1) * 0.45 - t * 0.3, (y - 1) * 0.6 + t * 0.12, 21);
+    const rel = (bL - bulto) * 1.4 + (q(x - 1, y - 1) - qq) * -0.9;
+    let luz = 0.5 + (-(x - cx) - (y - cy)) / (r * 3.2) + rel + bulto * 0.18 + (d < 0.5 ? 0.22 : br * 0.16) - (qq < 0.75 ? 0.22 : 0);
+    // la pared del ojo: las torres altas que la rodean; brilla del lado de abajo a la derecha (mira a la luz desde dentro)
+    // y queda en sombra arriba a la izquierda
+    if (de < 1.9) { const ex = x - cx, ey = y - cy, lado = (ex + ey) / Math.max(1, Math.hypot(ex, ey)); luz += de < 1.35 ? lado * 0.55 : 0.25; }
+    D[i] = luz > 0.98 ? HU[0] : luz > 0.74 ? HU[1] : luz > 0.52 ? HU[2] : luz > 0.32 ? HU[3] : HU[4];
+  }
+  // destellos de rayos dentro de las bandas
+  for (let n = 0; n < 3; n++) { const s = Math.floor(t * 3 + n * 7.3); if (hh(s, n, 313) > 0.3) continue; const an = hh(s, 1, 314) * 6.28, dd = r * (0.7 + hh(s, 2, 315) * 0.6), ax = Math.cos(an) * dd, by = Math.sin(an) * dd;
+    const x = Math.round(cx + ax * nx * k - by * ny), y = Math.round(cy + ax * ny * k + by * nx); if (q(x, y) > 0.6) { R.pset(x, y, hex('#fff6c8')); R.pset(x + 1, y, hex('#d8e8ff')); R.pset(x, y + 1, hex('#d8e8ff')); } }
+};
 const p3 = (t) => {
   const v = lin(t, P3, P4), u = lerp(0.45, 0.66, v), [elat, elon] = enRastro(u);
   const esp = 0.62 + 0.38 * tramo(t, P3, tres + 0.2);
   // la cámara sigue al huracán hacia el norte, despacio
-  const { P } = T.orbita(R, t, { encuadre: 'cerca', mira: [lerp(21.4, 23.2, v), lerp(-89.2, -88.3, v)], espiral: esp, espiralEn: [elat, elon], tiros: false });
+  const { P } = T.orbita(R, t, { encuadre: 'cerca', mira: [lerp(21.4, 23.2, v), lerp(-89.2, -88.3, v)], espiral: 0, tiros: false });
   // el agua caliente del golfo: se enciende en naranja y tiembla
   const cal = lin(t, calidas - 0.1, golfo);
   const GC = P([24.5, -90.5]), golfoEn = (x, y) => ((x - GC[0]) / 92) ** 2 + ((y - GC[1]) / 40) ** 2 < 1;
   const marClaro = (c) => esMar(c) && ((c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255)) > 150;
   if (cal > 0) { const D = R.buf; for (let y = 84; y < 180; y++) for (let x = 0; x < 320; x++) { const c = D[y * 320 + x]; if (!marClaro(c) || !golfoEn(x, y)) continue; const w = 0.5 + 0.5 * Math.sin(x * 0.11 + y * 0.23 - t * 3), d2 = ((x - GC[0]) / 92) ** 2 + ((y - GC[1]) / 40) ** 2; if (bay(x, y) < cal * (0.42 + 0.25 * w) * (1 - d2)) D[y * 320 + x] = mezcla(c, hex('#f09048'), 0.5); }
     for (let k = 0; k < 14; k++) { const q = (t * 0.8 + k * 0.29) % 1, x = Math.round(GC[0] - 80 + hh(k, 1, 851) * 160), y = Math.round(GC[1] - 26 + hh(k, 2, 851) * 50 - q * 8); if (!golfoEn(x, y) || !marClaro(R.pget(x, y + 8))) continue; for (let i = 0; i < 5; i++) R.pset(x + i, y + Math.round(Math.sin(i * 1.5 + t * 6)), q < 0.5 ? hex('#ffc070') : hex('#f08a4a')); } }
+  // el huracán, que se organiza: crece, gira y el ojo se va cerrando a lo largo del plano
+  { const [hx, hy] = P([elat, elon]); huracan(hx, hy, lerp(24, 33, esp), t, tramo(t, P3, P4 - 0.3)); }
   // la trayectoria: lo recorrido en puntos blancos y lo previsto, en trazos, hasta Destin
   for (let k = 0; k <= 60; k++) { const q = k / 60; const [lat, lon] = enRastro(q), [x, y, vis] = P([lat, lon]); if (!vis) continue;
     if (q < u - 0.02) { if (k % 3 === 0) { R.disco(x, y, 1, C.k); R.pset(x, y, C.blanco); } }
@@ -322,10 +399,63 @@ const quad = (x, suelo, t, dir, rueda, faro, opc = {}) => { const X = Math.round
   R.linea(F(-9), Y - 13, F(-11), Y - 16, C.k); rect(Math.min(F(-12), F(-10)), Y - 17, Math.max(F(-12), F(-10)), Y - 16, C.k);
   rect(F(11), Y - 21, F(11), Y - 13, C.k); const on = Math.floor(t * 8) % 2; rect(Math.min(F(9), F(13)), Y - 23, Math.max(F(9), F(13)), Y - 21, C.k); pset(F(10), Y - 22, on ? hex('#ff3a3a') : hex('#6a1a1a')); pset(F(12), Y - 22, on ? hex('#2a4a6a') : hex('#3a8aff'));
   for (let k = 0; k < 2; k++) { const c = (on ^ k) ? hex('#ff4a4a') : hex('#4a8aff'); for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) if (i * i + j * j < 10 && bay(F(10 + k * 2) + i, Y - 22 + j) < 0.25) pset(F(10 + k * 2) + i, Y - 22 + j, mezcla(R.pget(F(10 + k * 2) + i, Y - 22 + j), c, 0.6)); } };
+// la noche de la playa, que se lea: la luna asoma entre las nubes, su luz fría aclara todo el cuadro (una sola pasada),
+// su camino de plata riela sobre el mar, las luces de la punta y del muelle se reflejan en el agua y la caseta del
+// socorrista tiene la luz encendida
+const LUNA = [124, 33];
+const lunaPlaya = (t, tapa) => {
+  const D = R.buf, [lx, ly] = LUNA, plata = hex('#e8eef8'), cielo = hex('#2c3a5e');
+  // el claro entre las nubes: el cielo más claro y azul alrededor de la luna, tramado hacia fuera
+  for (let y = 16; y < 58; y++) for (let x = 78; x < 172; x++) { const d = Math.hypot((x - lx) / 1.5, y - ly); if (d > 26) continue; const f = (1 - d / 26) * (1 - tapa * 0.5); if (bay(x, y) < f * 1.4) D[y * 320 + x] = mezcla(D[y * 320 + x], d < 12 ? hex('#4a5a84') : cielo, Math.min(0.85, f * 1.2)); }
+  // la luna: el disco con sus mares y el halo
+  R.disco(lx, ly, 6, hex('#c8d2e4')); R.disco(lx - 1, ly - 1, 5, plata);
+  for (const [i, j, r] of [[-2, -1, 1], [2, 1, 1], [0, 3, 0], [-3, 2, 0], [3, -3, 0]]) R.disco(lx + i, ly + j, r, hex('#b4bed2'));
+  for (let a = 0; a < 32; a++) { const g = a / 32 * Math.PI * 2, r = 8 + (a % 2); if (bay(a, Math.floor(t * 3)) < 0.5) R.pset(Math.round(lx + Math.cos(g) * r), Math.round(ly + Math.sin(g) * r), hex('#8a9ac0')); }
+  // las nubes deshilachadas que pasan por delante (tres tonos, dos alturas y dos velocidades): velan la luna sin taparla
+  // del todo y tienen el canto de plata del lado de la luna; con el huracán se espesan
+  for (let y = 16; y < 56; y++) for (let x = 64; x < 186; x++) { const k = y < 34 ? 0 : 1, fx = Math.min(1, (x - 64) / 26, (186 - x) / 26), fy = 1 - Math.abs(y - (k ? 44 : 26)) / 10;
+    if (fy <= 0) continue; const n = vruido(x * 0.05 - t * (0.4 + k * 0.3), y * 0.2 + k * 5, 891 + k) * fx * fy + tapa * 0.2, um = 0.42;
+    if (n < um) continue; const i = y * 320 + x, borde = n < um + 0.05, dl = Math.hypot(x - lx, y - ly), cerca = dl < 34, sobre = dl < 8;
+    D[i] = borde ? (cerca ? mezcla(D[i], plata, 0.7) : mezcla(D[i], hex('#5a6a90'), 0.6)) : mezcla(D[i], n > um + 0.14 ? hex('#1c2238') : hex('#2e3858'), sobre ? 0.55 : 0.9); }
+};
+// la pasada de luz de luna (la única que recorre la pantalla entera): aclara el cuadro con un azul frío, más cerca de la
+// luna, y en el mar pinta el camino de plata que riela con las olas
+const luzLuna = (t, fuerza) => {
+  const D = R.buf, [lx, ly] = LUNA;
+  for (let y = 0; y < 180; y++) { const fila = y * 320, agua = y > 86 && y < 138, an = agua ? 3 + (y - 86) * 0.42 : 0;
+    for (let x = 0; x < 320; x++) { const i = fila + x, c = D[i]; let r = c & 255, g = (c >>> 8) & 255, b = (c >>> 16) & 255;
+      const cerca = 26 * fuerza / (1 + Math.hypot(x - lx, (y - ly) * 1.4) / 45);
+      r = r * (1 + 0.2 * fuerza) + 4 * fuerza + cerca * 0.55; g = g * (1 + 0.24 * fuerza) + 7 * fuerza + cerca * 0.7; b = b * (1 + 0.26 * fuerza) + 13 * fuerza + cerca;
+      if (agua && Math.abs(x - lx) < an + 6) { const w = vruido(x * 0.22, y * 0.9 - t * 1.6, 892), borde = Math.abs(x - lx) / (an + 6);
+        if (w > 0.5 + borde * 0.35 && bay(x, y) < 0.8 - borde * 0.5) { r += (232 - r) * 0.75 * fuerza; g += (238 - g) * 0.75 * fuerza; b += (248 - b) * 0.75 * fuerza; } }
+      D[i] = (0xff000000 | (Math.min(255, b) << 16) | (Math.min(255, g) << 8) | Math.min(255, r)) >>> 0; } }
+};
+// los reflejos en el mar de las luces cálidas de la orilla (la punta de Okaloosa, las farolas del muelle): cada luz deja una
+// estela vertical rota que tiembla con las olas
+const reflejosLuces = (t) => {
+  const D = R.buf, L = [];
+  for (let y = 60; y < 104; y++) for (let x = 0; x < 320; x++) { const c = D[y * 320 + x], r = c & 255, g = (c >>> 8) & 255, b = (c >>> 16) & 255; if (r > 200 && g > 150 && b < 170 && r > b + 60) L.push([x, y, c]); }
+  for (const [x, y, c] of L) { const y0 = Math.max(y + 2, 87); for (let k = 0; k < 16; k++) { const yy = y0 + k * 2 + (k > 6 ? k - 6 : 0); if (yy > 136) break; const xx = x + Math.round(Math.sin(yy * 0.7 + t * 3 + x) * (1 + k * 0.15)), i = yy * 320 + xx;
+    if (xx < 0 || xx > 319 || hh(xx, yy, Math.floor(t * 6)) < 0.35 + k * 0.035) continue; if (esMar(D[i]) || ((D[i] >>> 16) & 255) > (D[i] & 255)) D[i] = mezcla(D[i], c, 0.6 - k * 0.03); } }
+};
+// el canto de luz de luna en las figuras: lo que se dibujó entre la foto (antes) y ahora, del lado de la luna
+const fotoFiguras = (y0) => R.buf.slice(y0 * 320);
+const cantoLuna = (antes, y0) => {
+  const D = R.buf, plata = hex('#c8d8f4'), cambio = (i) => D[i] !== antes[i - y0 * 320];
+  for (let y = y0 + 1; y < 180; y++) for (let x = 1; x < 319; x++) { const i = y * 320 + x; if (!cambio(i)) continue; const lado = x < LUNA[0] ? i + 1 : i - 1;
+    if (!cambio(i - 320) || !cambio(lado)) D[i] = mezcla(D[i], plata, (D[i] & 255) < 60 ? 0.45 : 0.3); }
+};
+// la caseta del socorrista con la luz encendida: el cálido de sus ventanas y el charco de luz en la arena
+const casetaLuz = (t, on) => { if (on <= 0) return; const D = R.buf, parpa = 0.85 + 0.15 * Math.sin(t * 13) * Math.sin(t * 5.3);
+  for (let y = 118; y < 150; y++) for (let x = 268; x < 320; x++) { const d = Math.hypot((x - 294) / 1.6, y - 130); if (d < 18 && bay(x, y) < (1 - d / 18) * 0.5 * on * parpa) D[y * 320 + x] = mezcla(D[y * 320 + x], hex('#ffcf78'), 0.35); }
+  for (const [x, y] of [[282, 122], [302, 122]]) for (let j = 0; j < 4; j++) for (let i = 0; i < 4; i++) { const k = (y + j) * 320 + x + i; if (((D[k] >>> 16) & 255) > (D[k] & 255) - 10) D[k] = mezcla(D[k], j === 0 ? hex('#ffe8a8') : hex('#f0b050'), 0.7 * on * parpa); } };
 const p4 = (t) => {
   const hur = 0.5 + 0.5 * tramo(t, noche, tierra + 0.3), o = { encuadre: 'playa', noche: 1, huracan: hur, apagon: 0.12 * tramo(t, tierra + 0.15, tierra + 0.9) };
   T.costa(R, t, o);
-  const D = R.buf;
+  const D = R.buf, tapa = tramo(t, tierra - 0.4, tierra + 0.8);
+  // la noche que se lee: la luna entre las nubes (que la van tapando cuando llega el huracán), la caseta encendida (hasta
+  // el apagón), los reflejos de las luces en el mar y, encima, la luz de luna con su camino de plata
+  lunaPlaya(t, tapa); casetaLuz(t, 1 - tramo(t, tierra + 0.2, tierra + 0.5)); reflejosLuces(t); luzLuna(t, 1 - 0.15 * tapa);
   // las rompientes grandes que llegan del golfo: crestas de espuma rotas que avanzan hacia la playa y revientan
   for (let k = 0; k < 3; k++) { const u = (((t - P4) * 0.55 + k / 3) % 1), y0 = 90 + Math.pow(u, 1.5) * 50, f = 0.3 + 0.6 * u;
     for (let x = 0; x < 320; x++) { const n = vruido(x * 0.06 + k * 17 + t * 0.4, k * 3 + u * 2, 871); if (n < 0.5 - u * 0.3) continue;
@@ -334,8 +464,8 @@ const p4 = (t) => {
       if (u > 0.8 && hh(x, Math.floor(t * 8), 872) < 0.25 * n) R.pset(x, yb - 2 - Math.round(hh(x, 3, 872) * 6 * Math.sin((u - 0.8) / 0.2 * Math.PI)), hex('#e8f0f8')); } }
   // la última pareja, con chubasqueros y la linterna, se va deprisa hacia la bajada de la duna (a la izquierda)
   const up = lin(t, P4, tierra + 0.35), xp = Math.round(lerp(118, -36, up));
-  if (up < 1) { R.actor(EL.chico, xp + 16, 166, t, { dir: -1, anda: true, pal: { C: hex('#e8c030'), c: hex('#b8901c'), W: hex('#e8c030') }, habla: entre(t, P4 + 0.3, P4 + 0.9) && Math.sin(t * 9) > 0 });
-    R.actor(EL.chica, xp, 167, t, { dir: -1, anda: true, pal: { C: hex('#d84a4a'), c: hex('#a83434'), W: hex('#d84a4a') }, sorpresa: t > noche });
+  if (up < 1) { const antes = fotoFiguras(130); R.actor(EL.chico, xp + 16, 166, t, { dir: -1, anda: true, pal: { C: hex('#e8c030'), c: hex('#b8901c'), W: hex('#e8c030') }, habla: entre(t, P4 + 0.3, P4 + 0.9) && Math.sin(t * 9) > 0 });
+    R.actor(EL.chica, xp, 167, t, { dir: -1, anda: true, pal: { C: hex('#d84a4a'), c: hex('#a83434'), W: hex('#d84a4a') }, sorpresa: t > noche }); cantoLuna(antes, 130);
     const lx = xp - 1, ly = 156, sw = Math.sin(t * 9) * 3; for (let i = 0; i < 26; i++) for (let j = -Math.round(i * 0.35); j <= Math.round(i * 0.35); j++) { const X = lx - i, Y = Math.round(ly + i * 0.45 + j + sw * i / 26); if (X >= 0 && bay(X, Y) < 0.45 - i / 70) R.pset(X, Y, mezcla(R.pget(X, Y), hex('#fff0a0'), 0.5)); } R.rect(lx - 1, ly - 1, lx + 1, ly + 1, hex('#fff8c8')); }
   // al tocar tierra: el mar sube por la playa (agua con vetas de espuma) y revienta contra los pilotes del muelle
   if (t > tierra - 0.15) { const q = tramo(t, tierra - 0.15, tierra + 0.7), w = tramo(t, tierra + 1.0, P5), frente = Math.round(140 + q * 26 - w * 14);
@@ -349,7 +479,7 @@ const p4 = (t) => {
   // la patrulla de playa (más cerca que todo lo demás): el quad parado con las luces, el agente le indica la salida a la
   // pareja, la sigue hasta la bajada de la duna, se para allí mientras el mar sube (el agente se sorprende) y se va
   { const s1 = tramo(t, P4 + 1.1, P4 + 1.9), s2 = tramo(t, tierra + 1.45, tierra + 2.25), xq = Math.round(lerp(156, 44, s1) - s2 * 90), rueda = -(156 - xq) * 0.25, quieto = s1 >= 1 && s2 <= 0;
-    if (xq > -36) quad(xq, 177, t, -1, rueda, true, { dedo: s1 <= 0, habla: s1 <= 0 && Math.sin(t * 8) > 0, sorpresa: entre(t, tierra, tierra + 1.3), quieto: !quieto && s1 > 0 }); }
+    if (xq > -36) { const antes = fotoFiguras(130); quad(xq, 177, t, -1, rueda, true, { dedo: s1 <= 0, habla: s1 <= 0 && Math.sin(t * 8) > 0, sorpresa: entre(t, tierra, tierra + 1.3), quieto: !quieto && s1 > 0 }); cantoLuna(antes, 130); } }
   // hojas de palmera y arena que vuelan
   for (let k = 0; k < 6; k++) { const q = (t * 0.9 + k * 0.17) % 1, fx = Math.round(330 - q * 360), fy = Math.round(60 + k * 12 + Math.sin(q * 12 + k) * 6); for (let i = 0; i < 6; i++) R.pset(fx + i, fy + Math.round(Math.sin(i + t * 8) * 1), i < 3 ? hex('#3a5a3a') : hex('#2a4a2e')); }
   // el relámpago grande al tocar tierra: todo se aclara un instante y el rayo cae sobre el mar
