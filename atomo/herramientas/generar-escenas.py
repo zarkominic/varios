@@ -1,14 +1,15 @@
 """Escribe el primer borrador de las escenas de un episodio (paso 6 de la skill hacer-video), con el andamiaje del 11.
 
-    python3 atomo/herramientas/generar-escenas.py <pref> <ep> episodios/<carpeta>/escenas_1.py [… más módulos] [--destino carpeta]
+    python3 atomo/herramientas/generar-escenas.py <pref> <ep> episodios/<carpeta>/borrador-escenas/*.py [--destino carpeta] [--pisar]
 
 Cada módulo define E = {id: (titulo, comentario, cuerpo)}:
 - comentario: el comentario de cabecera (/* … */ o // …) con lo que pasa en cada plano;
 - cuerpo: el código de la escena. Tiene a mano T (<pref>-comun.js), EL (ELENCO_CHIBI), E, R, M, tramo, lerp, hex y
   en(k, f) = T.momento(M, k, f). Sus líneas «import …» suben arriba. Acaba con T.rodar(E, R, [[0, p1], [en('x', .4), p2], …],
   { efectos, cartela, año }).
-Escribe atomo/plato/escenas/<id>.html (o en --destino). Es solo para el primer borrador: desde la pasada de movimiento las
-escenas se editan directamente en su .html y el generador ya no se vuelve a usar (si no, pisaría esos cambios).
+Escribe atomo/plato/escenas/<id>.html (o en --destino). No pisa una escena que ya existe salvo con --pisar (para volver a
+generar el borrador con la voz real, antes de las pasadas). Es solo para el primer borrador: desde la pasada de movimiento
+las escenas se editan directamente en su .html y el generador ya no se vuelve a usar.
 """
 import importlib.util
 import os
@@ -16,6 +17,8 @@ import sys
 
 args = sys.argv[1:]
 destino = None
+pisar = '--pisar' in args
+args = [a for a in args if a != '--pisar']
 if '--destino' in args:
     i = args.index('--destino')
     destino = args[i + 1]
@@ -32,6 +35,10 @@ for ruta in modulos:
     todas.update(m.E)
 
 os.makedirs(destino, exist_ok=True)
+ya = [i for i in todas if os.path.exists(os.path.join(destino, i + '.html'))]
+if ya and not pisar:
+    sys.exit(f'Ya existen {len(ya)} escenas ({", ".join(ya[:4])}{"…" if len(ya) > 4 else ""}) en {destino}: no las piso. '
+             'Para volver a generar el borrador, --pisar; si ya pasaron las pasadas, edita los .html.')
 for id_, (titulo, comentario, cuerpo) in todas.items():
     lineas = cuerpo.strip('\n').split('\n')
     imports_extra = ''.join(l + '\n' for l in lineas if l.startswith('import '))

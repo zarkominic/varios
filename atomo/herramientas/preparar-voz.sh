@@ -3,18 +3,25 @@
 # Hace falta en cada contenedor nuevo: el venv y los modelos no están en git.
 #
 #   VOZ=$(bash atomo/herramientas/preparar-voz.sh [carpeta])      # por defecto ~/.cache/ask-atom/voz
+#
+# Cada llamada Bash empieza sin las variables de la anterior: repite esta línea al principio de cada una. Cuando el entorno
+# ya está listo (marca .lista con el md5 de voz-requisitos.txt), responde al momento.
 #   cd atomo && $VOZ/venv/bin/python herramientas/locutar_frases.py … $VOZ/modelos …
 #   PYTHON=$VOZ/venv/bin/python bash herramientas/montar-largo.sh …
 #
 # - venv/: los mismos paquetes, versión a versión, que hicieron los episodios 8–11 (voz-requisitos.txt).
 # - modelos/: kokoro-v1.0.onnx y voices-v1.0.bin, de las versiones de kokoro-onnx (se comprueba el md5).
 # - Whisper «small» se baja a ~/.cache/huggingface la primera vez y se deja listo aquí.
-# Si ya está todo, no hace nada. Ocupa ~1 GB (venv ~670 MB, modelos ~340 MB, Whisper ~480 MB).
+# Si ya está todo, no hace nada. Ocupa ~1,5 GB (venv ~670 MB, modelos ~340 MB, Whisper ~480 MB).
 set -euo pipefail
 D=${1:-${VOZ:-$HOME/.cache/ask-atom/voz}}
 H=$(cd "$(dirname "$0")" && pwd)
 URL=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0
 declare -A MD5=([kokoro-v1.0.onnx]=9579b435abd94a5af3d00d3cd39df548 [voices-v1.0.bin]=29895103243c07818862043c051e1db0)
+req=$(md5sum < "$H/voz-requisitos.txt" | cut -d' ' -f1)
+if [ "$(cat "$D/.lista" 2>/dev/null)" = "$req" ] && [ -x "$D/venv/bin/python" ] && [ -f "$D/modelos/kokoro-v1.0.onnx" ] && [ -f "$D/modelos/voices-v1.0.bin" ]; then
+  echo "$D"; exit 0
+fi
 mkdir -p "$D/modelos"
 
 if ! "$D/venv/bin/python" -c 'import kokoro_onnx, faster_whisper, scipy, soundfile' 2>/dev/null; then
@@ -44,4 +51,5 @@ for voz, lengua in (('am_puck', 'en-us'), ('em_santa', 'es')):
     assert len(a) > sr * 0.2, voz
 print('· voz lista: Whisper small, am_puck y em_santa', file=sys.stderr)
 EOF
+echo "$req" > "$D/.lista"
 echo "$D"

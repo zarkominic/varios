@@ -48,7 +48,7 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
 | Variable | Qué es |
 |---|---|
 | `SC` | Tu carpeta temporal (scratchpad); si no tienes, `${TMPDIR:-/tmp}/ask-atom-<ep>` |
-| `VOZ` | La carpeta del entorno de voz (paso 0) |
+| `VOZ` | La carpeta del entorno de voz (paso 0). **Cada llamada Bash empieza sin las variables de la anterior:** empieza cada orden que la use con `VOZ=$(bash atomo/herramientas/preparar-voz.sh) && …`, que responde al momento si ya está lista |
 | `<ep>` | La clave del episodio (`ep12`) |
 | `<pref>` | Su prefijo de dos letras (`th` fue el 11) |
 | `<carpeta>` | Su carpeta en `episodios/` (`12-tema`) |
@@ -65,7 +65,8 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    - el disco: un episodio necesita unos 6 GB.
 
    Si falta algo, arréglalo antes de empezar o díselo al usuario.
-2. `VOZ=$(bash atomo/herramientas/preparar-voz.sh)`. Tarda unos 6 minutos en un contenedor nuevo y nada si ya está.
+2. `bash atomo/herramientas/preparar-voz.sh`. Tarda unos 6 minutos en un contenedor nuevo y nada si ya está; escribe la
+   carpeta (por defecto `~/.cache/ask-atom/voz`, que es donde la busca `producir.sh`).
 3. La rama de trabajo: la que diga la sesión. Commit y push al acabar cada bloque.
 
 ### 1. Tema
@@ -139,11 +140,11 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    los clips en caché. Mientras tanto, sigue con los pasos 4–6:
 
    ```
-   cd atomo && $VOZ/venv/bin/python herramientas/locutar_frases.py ../episodios/<carpeta>/guion.json build/largo/<ep> $VOZ/modelos --marcas plato/escenas/marcas-<ep>.json
+   VOZ=$(bash atomo/herramientas/preparar-voz.sh) && cd atomo && $VOZ/venv/bin/python herramientas/locutar_frases.py ../episodios/<carpeta>/guion.json build/largo/<ep> $VOZ/modelos --marcas plato/escenas/marcas-<ep>.json
    ```
 4. Hasta que llegue, las escenas usan unas marcas provisionales. Las escribe
    `python3 atomo/herramientas/marcas-provisionales.py episodios/<carpeta>/guion.json atomo/plato/escenas/marcas-<ep>.json`
-   (en el 11 se desvió un +4,6 % en total). No las subas: la locución las sustituye por las reales.
+   (en el 11 se desvió un +4,6 % en total). Se pueden subir con el resto: la locución las sustituye por las reales.
 5. Al terminar, la voz vale si el log acaba en «total … clips con fallos y N para escuchar». Lee
    `build/largo/<ep>/informe.json`: es una lista con `problemas` y `avisos` por clip. Que el control lea a la inglesa los
    nombres escritos a la española es normal. Apunta las frases dudosas para que el usuario las escuche.
@@ -181,8 +182,8 @@ fuera recortado a ventanas y puertas, y los fondos fijos con `const prev = R.usa
    - cartelas de año y la barra del año;
    - efectos `[t, 'receta']`, solo con recetas de `NIVEL`;
    - los gags.
-4. Con la voz real (paso 3), vuelve a generar y mide: `node atomo/herramientas/medir-planos.mjs <ep>` («!» si pasa de
-   7,2 s, «<» si baja de 3,5 s).
+4. Con la voz real (paso 3), vuelve a generar con `--pisar` y mide: `node atomo/herramientas/medir-planos.mjs <ep>` («!»
+   si pasa de 7,2 s, «<» si baja de 3,5 s). Sin `--pisar`, el generador no toca una escena que ya existe.
 5. Commit. **Desde aquí el generador ya no se usa:** las escenas se editan en su `.html`.
 
 ### 7–9. Las tres pasadas, con el workflow guardado
@@ -221,6 +222,14 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
    `node atomo/herramientas/medir-planos.mjs <ep> --hoja $SC/rev`. Cada escena tiene una fila por plano (inicio, centro
    y final, a 640 × 360) y salen como mucho 5 planos por imagen. Ninguna imagen de revisión pasa de 2000 px, porque Read
    las reduce. Míralas todas junto a la referencia, y primero los «fondo local».
+
+   Las hojas no ven los fundidos entre planos, así que compruébalos aparte con
+   `node atomo/herramientas/medir-planos.mjs <ep> --fundidos`:
+   - **ROTO** (el 10 % del cuadro o más, con negro o restos de otro plano): sale con 1 y hay que arreglarlo;
+   - **REVISAR** (3–10 %): suele ser algo que se anima durante el fundido, pero se mira a ojo (`capturar.mjs` en el corte
+     +0,17 s).
+
+   En el 11 entregado había fundidos ROTOS en {N_ESCENAS} escenas y nadie los vio.
 2. Por cada plano por debajo, apunta un fallo concreto, con el formato del workflow:
    `{ escena, plano, nota, fallos: [...], origen: 'escena' | 'decorado', funcion, encargo: 'qué hay hoy, qué debe haber y qué se mantiene' }`.
 3. Lanza `paso: 'calidad'`, con `lotes` de 4–6 escenas que cubran todas, `fallos` (tu lista) y `rondas: 3`. El workflow
@@ -255,14 +264,19 @@ Copia `episodios/11-theranos/publicacion.md` y rellénala con la misma estructur
 
 ### 12. Producción y control
 
-Lanza en UNA orden Bash con `run_in_background` y `timeout` 7200000 (el render del 11 tardó cerca de 1 h):
+Lanza en UNA orden Bash con `run_in_background` y `timeout` 3600000. En el 11, el render tardó 10–16 min y todo
+junto, unos 30:
 
 ```
-VOZ=$VOZ bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
+bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
 ```
 
 `producir.sh` hace esto, y se para con un error si algo falla:
-- **render**: con `--faltan`; antes comprueba que hay 6 GB libres, y después que están todos los fotogramas;
+- **fundidos**: con `medir-planos.mjs --fundidos`; con uno roto no se renderiza;
+- **render**: de TODO el episodio, para que no se cuele ningún fotograma ni efecto de una versión vieja de las escenas.
+  Antes comprueba el disco (6 GB libres, o 2 GB si ya hay fotogramas que sobrescribir) y después que están todos los
+  fotogramas. Con `--faltan` solo dibuja lo que falte: es para seguir un render que se cortó sin que nada cambiara
+  entre medias;
 - **efectos** y **banda**;
 - **montaje**: comprueba que el mp4 y el mp3 son de ahora;
 - **miniatura**;
@@ -272,7 +286,7 @@ VOZ=$VOZ bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
   - los subtítulos;
   - la tira de 20 fotogramas, en `build/salida/<ep>-tira.jpg`.
 
-Si falla a medias, sigue desde ese paso con `--desde efectos|banda|montar|miniatura|control`. **Mira la tira y la
+Si falla a medias, sigue desde ese paso con `--desde render|efectos|banda|montar|miniatura|control`. **Mira la tira y la
 miniatura.** Rellena los huecos de la ficha.
 
 ### 13. Commit y push
@@ -308,9 +322,9 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
 | Pasada de movimiento | ~2 h |
 | Pasada de decorados e integración | 1–1,5 h |
 | Calidad: tu revisión, revisor, escéptico y pulido | 3–4 h |
-| Producción y control (render ~1 h) | ~1,5 h |
+| Producción y control (render 10–16 min) | ~45 min |
 | Miniatura, ficha y entrega | ~1 h |
-| **Total** | **unas 11–13 h** |
+| **Total** | **unas 10–12 h** |
 
 ## Trampas conocidas
 
@@ -323,7 +337,9 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
   - Después de cualquier interrupción, mira `ls -la --time-style=+%H:%M <Transcript dir>/agent-*.jsonl; date +%H:%M`.
     Si no crecen desde hace más de 10 min, han muerto.
   - Nunca le digas al usuario que «siguen» sin comprobarlo (en el 11 costó 3 h).
-  - Relánzalos con `resumeFromRunId`: lo terminado sale de la caché y las copias `_tmp_` siguen ahí.
+  - Relánzalos con `resumeFromRunId`. Solo funciona en la misma sesión y con la ejecución anterior parada: lo terminado
+    sale de la caché. Tras un reinicio, o desde otra sesión, relanza solo los grupos que faltan; sus copias `_tmp_`
+    siguen ahí y los agentes parten de ellas.
 - **El disco lleno falla sin avisar.** La voz da «LibsndfileError: System error», node muere sin mensaje y una cadena con
   `;` termina con 0. Por eso `producir.sh` encadena con `set -e` y comprueba los fotogramas y las fechas. Para borrar:
   - solo lo que se puede regenerar (cachés de pip y npm, modelos que no usa el canon, tus capturas viejas);
@@ -335,8 +351,8 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
 - **Los fundidos entre planos:**
   - un decorado que deja de pintar un trozo, o que cambia de búfer con `R.usar()` a secas, deja negro o restos en el
     fundido;
-  - la columna de inicio de la hoja cae al final del fundido: míralo ahí;
-  - los kits ya tienen `R.buf` vivo desde `bf5a41a`.
+  - la hoja de revisión no los ve: los comprueba `medir-planos.mjs --fundidos` (y `producir.sh` antes de renderizar);
+  - los kits tienen `R.buf` vivo desde `bf5a41a`: antes, todo lo que se pintaba con `R.buf` caía fuera del fundido.
 - **Manos grandes y primeros planos rompen el canon.** Usa la mano de 14 px y los insertos de objetos.
 - **La música no se toca sin preguntar.** `banda.cjs` ya hace música continua; si algo suena raro, se mide con
   `medir-sonido.py` y se pregunta.

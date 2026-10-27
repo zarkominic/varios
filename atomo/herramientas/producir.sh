@@ -2,13 +2,15 @@
 # Produce un episodio de ASK Atom de las escenas al vídeo entregable, con un control en cada paso (paso 10 de la skill
 # hacer-video). Si un paso falla, se para con un error y código 1: nada sale «bien» con un vídeo viejo.
 #
-#   VOZ=$(bash atomo/herramientas/preparar-voz.sh)
-#   VOZ=$VOZ bash atomo/herramientas/producir.sh ep12 12-tema xx [--desde render|efectos|banda|montar|miniatura|control]
+#   bash atomo/herramientas/producir.sh ep12 12-tema xx [--desde fundidos|render|efectos|banda|montar|miniatura|control] [--faltan]
 #
-# Desde la raíz del repositorio, en UNA orden Bash con run_in_background (timeout 7200000): el render del 11 tardó
-# ~1 h con 4 trabajadores. Pasos:
-#   render     render-escenas.mjs --faltan (solo dibuja lo que falte; para rehacer, borra antes build/largo/<ep>/fotos)
-#              y comprueba que están todos los fotogramas de linea.json;
+# Desde la raíz del repositorio, en UNA orden Bash con run_in_background (timeout 3600000): el render del 11 tardó 10–16 min
+# con 4 trabajadores y todo junto, unos 30 min. VOZ es la carpeta del entorno de voz (por defecto la de preparar-voz.sh,
+# ~/.cache/ask-atom/voz). Pasos:
+#   fundidos   medir-planos.mjs --fundidos: ningún corte con negro ni restos en el fundido (si no, no se renderiza);
+#   render     render-escenas.mjs de TODO el episodio, para que no quede ningún fotograma ni efecto de una versión vieja
+#              de las escenas (con --faltan solo dibuja lo que falte: para seguir un render que se cortó, sin cambios entre
+#              medias), y comprueba que están todos los fotogramas de linea.json;
 #   efectos    efectos.cjs → efectos.wav;
 #   banda      banda.cjs → musica.wav y musica-banda.json (sin él, el montaje usaría la música vieja de musica.py);
 #   montar     montar-largo.sh → build/salida/<ep>.mp4, <ep>-es.mp3 y los dos .srt (los SRT los escribe la locución),
@@ -18,24 +20,29 @@
 #              y la tira de 20 fotogramas → build/salida/<ep>-tira.jpg (para mirarla).
 set -euo pipefail
 EP=${1:?episodio (ep12)}; CARPETA=${2:?carpeta de episodios/ (12-tema)}; PREF=${3:?prefijo de las escenas (xx)}
-DESDE=render; [ "${4:-}" = --desde ] && DESDE=${5:?paso}
-: "${VOZ:?falta VOZ: VOZ=\$(bash atomo/herramientas/preparar-voz.sh)}"
-PY=$VOZ/venv/bin/python
+DESDE=fundidos; FALTAN=
+shift 3; while [ $# -gt 0 ]; do case $1 in --desde) DESDE=${2:?paso}; shift 2;; --faltan) FALTAN=--faltan; shift;; *) echo "opción desconocida: $1" >&2; exit 1;; esac; done
+VOZ=${VOZ:-$HOME/.cache/ask-atom/voz}; PY=$VOZ/venv/bin/python
+[ -x "$PY" ] || { echo "ERROR: no hay entorno de voz en $VOZ: bash atomo/herramientas/preparar-voz.sh" >&2; exit 1; }
 R=$(cd "$(dirname "$0")/../.." && pwd); cd "$R"
 L=atomo/build/largo/$EP; S=atomo/build/salida/$EP; PLAN=episodios/$CARPETA/escenas.json
 INICIO=$(date +%s)
-pasos=(render efectos banda montar miniatura control)
+pasos=(fundidos render efectos banda montar miniatura control)
 toca() { local p; for p in "${pasos[@]}"; do [ "$p" = "$DESDE" ] && return 0; [ "$p" = "$1" ] && return 1; done; return 1; }
 paso() { echo "── $(date +%H:%M:%S) $1"; }
 falla() { echo "ERROR: $1" >&2; exit 1; }
 [ -f "$L/linea.json" ] || falla "no hay $L/linea.json: primero la locución (paso 3)"
 mkdir -p atomo/build/salida
 
+if toca fundidos; then
+  paso "fundidos"; node atomo/herramientas/medir-planos.mjs "$EP" --fundidos || falla "hay fundidos rotos: arréglalos antes de renderizar"
+fi
 if toca render; then
-  libre=$(df -Pk . | awk 'NR==2 {print int($4/1048576)}')
-  [ "$libre" -ge 6 ] || falla "solo hay $libre GB libres; el render necesita ~5 GB más margen (si se llena, falla sin avisar)"
-  paso "render ($L)"
-  (cd atomo && node herramientas/render-escenas.mjs "build/largo/$EP" --trabajadores 4 --faltan)
+  libre=$(df -Pk . | awk 'NR==2 {print int($4/1048576)}'); hace=6
+  [ -d "$L/fotos" ] && hace=2   # se sobrescriben, pero crecen con el detalle (en el 11, 1,5 GB al rehacerlos)
+  [ "$libre" -ge $hace ] || falla "solo hay $libre GB libres y el render necesita $hace (si se llena, falla sin avisar)"
+  paso "render ($L) ${FALTAN:-completo}"
+  (cd atomo && node herramientas/render-escenas.mjs "build/largo/$EP" --trabajadores 4 $FALTAN)
   faltan=$("$PY" -c "import json,os,sys; d=sys.argv[1]; n=json.load(open(d+'/linea.json'))['fotogramas']; print(sum(not os.path.exists(f'{d}/fotos/{i:05d}.jpg') for i in range(n)))" "$L")
   [ "$faltan" = 0 ] || falla "faltan $faltan fotogramas después del render (¿disco lleno?)"
 fi

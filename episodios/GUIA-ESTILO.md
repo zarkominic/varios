@@ -28,7 +28,7 @@
   - `sorpresa` va solo en la cara: con las manos junto a la cabeza parecían orejas. `manos: true` las levanta igualmente.
 - **El pelo nunca tapa la cara:** la regla de siempre.
 - **Variantes sin dibujar de nuevo:** `pal` cambia letras, por ejemplo otro color de pelo (`H`/`h`) u otra túnica (`A`/`a`).
-- **Personaje nuevo:** se dibuja una vez, con cabeza y cuerpo, y se añade a `ELENCO_CHIBI`. Calcular unos 20–30 min por personaje.
+- **Personaje nuevo:** se dibuja una vez, con cabeza y cuerpo, y se añade a `ELENCO_CHIBI`. Desde el 11 casi nunca hace falta: se reutilizan cabezas y cuerpos con otra paleta (los 15 personajes del 11 salieron en minutos). Uno dibujado de cero, unos 20–30 min.
 
 ## Público y multitudes
 
@@ -85,7 +85,7 @@ Piezas en `eg-comun.js`: `mareo`, `polvareda`, `trote`, `gotaSudor`, `pan`. Que 
   - un suelo horizontal claro (el muelle, de y 132 a 146) donde se plantan los personajes, con los pies en y ≈ 145;
   - el decorado detrás;
   - el agua o el suelo de delante, abajo.
-- **Decorados reutilizables:** el puerto, la plaza o un interior salen varias veces en un episodio, con cambios de luz, de gente o de objetos. Un decorado nuevo cuesta unas 1,5–2 h.
+- **Decorados reutilizables:** el puerto, la plaza o un interior salen varias veces en un episodio, con cambios de luz, de gente o de objetos. La primera versión de un decorado cuesta unos 15 min; el nivel del 11 lo da después la pasada de decorados con agentes (`hacer-video-pasadas`).
 
 ## Lo que no cambia
 

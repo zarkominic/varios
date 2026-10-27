@@ -22,7 +22,7 @@ La skill `.claude/skills/hacer-video/` lleva el proceso entero:
   subtítulos, miniatura y ficha de publicación;
 - lo entrega todo en el chat.
 
-El nivel mínimo es el del episodio 11. Está escrito en `episodios/ESTANDAR.md` y se ve en `episodios/referencia-ep11.jpg`.
+El nivel mínimo es el del episodio 11. Está escrito en `episodios/ESTANDAR.md` y se ve en `episodios/referencia-ep11-1.jpg` y `-2.jpg`.
 
 **Requisitos:**
 

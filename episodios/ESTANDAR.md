@@ -89,6 +89,9 @@ lista.
 - **Música continua:** nunca se corta ni vuelve a empezar en un cambio de escena ni en una cartela de año. Las escenas
   seguidas con el mismo ánimo suenan como un tramo, hay un lecho grave de principio a fin y cada cartela tiene su
   transición. Se mide: en los cambios de año la música baja como mucho unos 7 dB, nunca al silencio.
+  - La única excepción son los **golpes** (`golpes` en `plan.py`): la música se corta justo antes y entra un golpe grave
+    en el silencio. Es a propósito: la versión C del gancho del 10, que eligió el usuario. Cerca de una cartela (menos de
+    3 s), el golpe solo baja la música al 30 %.
 - **Efectos discretos y sincronizados** con lo que pasa en pantalla (`herramientas/efectos.cjs`). Cada efecto se normaliza
   entre 10 y 14 dB por debajo de la voz. Solo valen recetas que existen en `NIVEL`.
 - **La densidad, como en el 11:** algún efecto suena el 58 % del tiempo (entre 40 y 65), y cuando coincide con la voz queda
@@ -108,10 +111,12 @@ lista.
 
 ## Narración
 
-- **Narración canónica:** la del guion v3 del episodio 10 (`GUIA-NARRATIVA.md`).
+- **Narración canónica:** la de los guiones del 10 (v3) y del 11 (`GUIA-NARRATIVA.md`).
   - Prosa que fluye, una historia en escenas.
   - Ni telegráfica ni de preguntas y respuestas rápidas.
-  - El misterio queda abierto: sin descartar ni afirmar.
+  - En temas abiertos (ovnis, misterios), el misterio queda abierto: sin descartar ni afirmar. En casos juzgados o
+    comprobados (Theranos), solo hechos, con trato justo, y el ángulo de ASK Atom: explicar el porqué que otros no
+    explican.
 
 ## Entrega (en el chat, siempre)
 

@@ -25,6 +25,15 @@ const A = args || {}
 const { paso, ep, pref, carpeta, tema, sc } = A
 if (!paso || !ep || !pref || !carpeta || !sc) throw new Error('faltan args: paso, ep, pref, carpeta, sc (y tema)')
 const EP = `el episodio ${ep}${tema ? ` (${tema})` : ''}`
+const esId = (x) => typeof x === 'string' && x.startsWith(pref + '-')
+if (paso === 'decorados' && !(Array.isArray(A.grupos) && A.grupos.length && A.grupos.every((G) => G && G.g && Array.isArray(G.fns) && G.fns.length) && new Set(A.grupos.map((G) => G.g)).size === A.grupos.length))
+  throw new Error('decorados: grupos = [{ g: letra única, fns: [funciones…], indicaciones?, dependencias? }]')
+if (paso === 'movimiento' && !(Array.isArray(A.grupos) && A.grupos.length && A.grupos.every((G) => (Array.isArray(G) ? G : G && G.ids || []).length && (Array.isArray(G) ? G : G.ids).every(esId))))
+  throw new Error(`movimiento: grupos = [[ids ${pref}-…] | { ids: […], indicaciones? }]`)
+if (paso === 'calidad' && !(Array.isArray(A.lotes) && A.lotes.length && A.lotes.every((l) => Array.isArray(l) && l.length && l.every(esId))))
+  throw new Error(`calidad: lotes = [[ids ${pref}-…], …] que cubran todas las escenas`)
+if (paso === 'calidad' && A.fallos && !(Array.isArray(A.fallos) && A.fallos.every((f) => f && esId(f.escena) && f.plano != null && Array.isArray(f.fallos) && f.encargo)))
+  throw new Error('calidad: fallos = [{ escena, plano, nota, fallos: […], origen, funcion?, encargo }]')
 
 const CONTEXTO = `Trabajas en el repositorio de la serie (tu directorio de trabajo es su raíz): la serie de vídeos «ASK Atom» (pixel art en un lienzo de 320×180, escenas en atomo/plato/escenas/<id>.html que importan «* as T» de ${pref}-comun.js; el guion del episodio está en episodios/${carpeta}/guion.json, campo «en» = la voz inglesa, que manda; escenas.json tiene el guion visual).
 
@@ -43,11 +52,13 @@ const REGLAS = `REGLAS QUE NO SE PUEDEN ROMPER:
 - Paleta C y hex('#rrggbb') como el resto del código; comentarios en español, como el código de alrededor.
 - No hagas commits. No toques archivos fuera de los que te tocan.`
 
-const HERRAMIENTAS = () => `HERRAMIENTAS (desde la raíz del repositorio):
+const HERRAMIENTAS = (propia) => `HERRAMIENTAS (desde la raíz del repositorio):
 - Hoja de revisión de una o varias escenas (una fila por plano: inicio, centro y final, a 640×360 con etiqueta; dice si la página dio errores): node atomo/herramientas/medir-planos.mjs ${ep} <id> [<id> …] --hoja <carpeta>. Un id puede llevar carpeta (_tmp_A/${pref}-lab) para abrir una copia. Mira cada hoja con Read.
 - Duración de cada plano («!» más de 7,2 s, «<» menos de 3,5 s): node atomo/herramientas/medir-planos.mjs ${ep} <ids>. Con --centros da el centro de cada plano.
+- Fundidos rotos (negro o restos en la mitad del fundido entre dos planos; la hoja no los ve): node atomo/herramientas/medir-planos.mjs ${ep} <ids> --fundidos.
 - Capturas sueltas a 1920×1080 (para ver un detalle o un instante intermedio): node estilos/herramientas/capturar.mjs atomo/plato/escenas/<archivo>.html t1,t2,… --salida <carpeta> --formato 16:9 (dice «sin errores en la página»).
-- Sintaxis de un .js: cópialo a ${sc}/<algo>.mjs y node --check.`
+- Sintaxis de un .js: cópialo a ${propia}/chk.mjs (tu carpeta: otros agentes usan la suya) y node --check.
+- En las hojas, «cartela» es la cartela de año del principio y «plano N» es la entrada N de T.rodar.`
 
 const SALIDA_ESCENAS = {
   type: 'object',
@@ -82,7 +93,7 @@ TU ENCARGO: subir AL NIVEL DEL 11 FINAL estos decorados de ${EP}: ${G.fns.join('
 ${G.indicaciones ? `\nINDICACIONES PARA TU GRUPO: ${G.indicaciones}\n` : ''}${G.dependencias ? `\nDEPENDENCIAS QUE YA SE CONOCEN (no las rompas): ${G.dependencias}\n` : ''}
 CÓMO TRABAJAR (solo puedes escribir en ${dir}/ y en ${sc}/det_${g}/):
 1. Crea ${dir}/ y copia ahí ${pref}-comun.js dos veces: como ${pref}-comun.js (tu copia de trabajo) y como ${pref}-comun.base.js (intacta: el integrador la usa para saber qué has cambiado tú). Si ya existen de un intento anterior (te interrumpieron), NO las borres: lee tu copia, mira sus capturas en ${sc}/det_${g}/ y sigue desde ahí. Los imports son absolutos (/atomo/…), así que la copia funciona igual.
-2. Copia a ${dir}/ las escenas que usan tus funciones (grep -l "T\\.<función>(" atomo/plato/escenas/${pref}-*.html, para cada función) y también ${pref}-miniatura.html, que importa las funciones por su nombre (el grep no la encuentra). En cada copia cambia el import '/atomo/plato/escenas/${pref}-comun.js' por '/${dir}/${pref}-comun.js'. No cambies el id que pasan a T.preparar(). Captura la miniatura en t = 1 antes y después: no debe perder nada.
+2. Copia a ${dir}/ las escenas que usan tus funciones (grep -l "T\\.<función>(" atomo/plato/escenas/${pref}-*.html, para cada función) y las que las usan a través de otro decorado (busca quién llama a tu función dentro de ${pref}-comun.js con grep -nE "(^|[^.A-Za-z_])<función>\\(" y repite el grep de T\\.<quien la llama>( hasta que no salgan más). Si ya existe ${pref}-miniatura.html, cópiala también: importa las funciones por su nombre y el grep no la encuentra; captúrala en t = 1 antes y después, y no debe perder nada. En cada copia cambia el import '/atomo/plato/escenas/${pref}-comun.js' por '/${dir}/${pref}-comun.js'. No cambies el id que pasan a T.preparar().
 3. DEPENDENCIAS: lee esas escenas y apunta qué usan de tus decorados (dónde ponen personajes y objetos, líneas de suelo, rectángulos que tapan o repintan, colores que buscan, opciones que pasan). Eso no se mueve.
 4. ANTES: hojas de revisión de tus escenas copiadas (ids _tmp_${g}/<id>) en ${sc}/det_${g}/antes. Míralas junto a la referencia.
 5. Reescribe tus funciones en TU copia. Hoja «despues» en ${sc}/det_${g}/despues/<n> y compárala lado a lado con la referencia. Itera hasta que cada plano tenga detalle de superficie (texturas, vetas, juntas, zócalos, sombras, brillos, objetos), profundidad y vida de fondo animada con t (gente pequeña al fondo, luces que parpadean, pantallas que cambian, vapor, viento, nubes a distinta velocidad, pájaros, reflejos). Mira también instantes intermedios (capturar.mjs) para ver que la animación se mueve y que los personajes de las escenas se siguen viendo bien delante. Comprueba que pintas toda la pantalla llenándola antes con un color centinela.
@@ -93,7 +104,7 @@ ${REGLAS}
 - No toques funciones que no son de tu lista (por ejemplo cielo(), que es de todos): si necesitas otra cosa, haz una auxiliar nueva con el prefijo ${g.toLowerCase()}_ (sin exportar), con su comentario // encima. Cada función lleva una cabecera // que dice qué se ve y qué hacen sus opciones.
 - Un fondo fijo que se pinta una vez y se copia en cada fotograma se guarda en un búfer de R.nuevo() con const prev = R.usar(b); …; R.usar(prev) (nunca R.usar() sin nada: eso vuelve a la pantalla y rompe los fundidos entre planos).
 
-${HERRAMIENTAS()}
+${HERRAMIENTAS(`${sc}/det_${g}`)}
 
 ENTREGA (salida estructurada): cambiadas (las funciones de tu lista que has cambiado), capturas (las rutas de las hojas «despues» finales), notas (qué cambiaste en cada función) y geometria (cualquier posición de la que dependan las escenas que haya cambiado, o «ninguna»). El integrador toma el código de tu copia ${dir}/${pref}-comun.js: déjala terminada y con la sintaxis comprobada.`
   }
@@ -123,18 +134,18 @@ OJO: otros agentes mejoran los decorados (${pref}-comun.js) a la vez o después.
 CADA PLANO (cada entrada [inicio, función] de T.rodar) TIENE QUE TENER:
 - Una acción con propósito de los personajes que cuente lo que dice la voz en ese momento: entrar, sentarse, coger algo, señalar, hablar con otro, reaccionar (sorpresa, enfado, sonrisa), irse. Empieza y termina dentro del plano. Nadie está tieso todo el plano: los que esperan respiran (sin quieto) o hacen gestos (habla, dedo).
 - Vida de fondo: extras pequeños del reparto ELENCO_CHIBI que pasan o trabajan; objetos que se mueven (puertas, papeles, tubos en una cinta, coches que pasan por delante, pantallas).
-- Sincronía: lo importante cae cuando la voz inglesa lo dice, con en('marca', fracción) (la fracción sale de las letras de la frase; el texto está en guion.json, campo «en»). Cada acción con sonido lleva su efecto [tiempo, 'receta'] en la lista efectos, SOLO con recetas que existen en atomo/herramientas/efectos.cjs (objeto NIVEL; ojo: «gluglu» es el pavo, para líquidos usa «burbujas»). Densidad como en el 11: discreta, no un ruido continuo.
+- Sincronía: lo importante cae cuando la voz inglesa lo dice, con en('marca', fracción) (la fracción sale de las letras de la frase; el texto está en guion.json, campo «en»). Cada acción con sonido lleva su efecto [tiempo, 'receta'] en la lista efectos, SOLO con recetas que existen en atomo/herramientas/efectos.cjs (objeto NIVEL; ojo: «gluglu» es el pavo, para líquidos usa «burbujas»; th-gancho lo usa mal para la gota, no lo copies). Densidad como en el 11: discreta, no un ruido continuo.
 - Planos de 4–7 s. No cambies los inicios de plano salvo que haga falta; si los cambias, mídelos.
 
 ${REGLAS}
 - Actualiza el comentario de cabecera de cada escena con lo que pasa en cada plano.
 
-${HERRAMIENTAS()}
+${HERRAMIENTAS(`${sc}/mov_${G.ids[0]}`)}
 
 MÉTODO:
-1. Lee tus escenas y el texto de sus frases. Hoja ANTES: ${sc}/mov_${G.k}/antes.
+1. Lee tus escenas y el texto de sus frases. Hoja ANTES: ${sc}/mov_${G.ids[0]}/antes.
 2. Edita las escenas.
-3. Hoja DESPUÉS: ${sc}/mov_${G.k}/despues/<n>. Itera hasta que en cada plano la acción avance entre el inicio, el centro y el final, con vida de fondo, al nivel de la referencia, y que la hoja diga «sin errores en la página».
+3. Hoja DESPUÉS: ${sc}/mov_${G.ids[0]}/despues/<n>. Itera hasta que en cada plano la acción avance entre el inicio, el centro y el final, con vida de fondo, al nivel de la referencia, y que la hoja diga «sin errores en la página».
 
 ENTREGA (salida estructurada): escenas (los ids que has cambiado), resumen (una línea por plano: qué pasa), capturas (las hojas «despues» finales) y avisos (inicios de plano cambiados, efectos nuevos, LAS POSICIONES DE LOS DECORADOS DE LAS QUE DEPENDEN TUS ESCENAS y cualquier fallo de decorado que hayas visto).`
   const res = await parallel(grupos.map((G) => () =>
@@ -148,8 +159,11 @@ ENTREGA (salida estructurada): escenas (los ids que has cambiado), resumen (una 
 
 // ── calidad: revisar → escéptico → pulir → revisar lo pulido, hasta que nada desentone ──────────────────────────────────
 if (paso === 'calidad') {
-  const lotes = A.lotes || []
-  const rondas = A.rondas ?? 3
+  const lotes = A.lotes
+  const rondas = Math.max(0, Math.floor(Number(A.rondas ?? 3)) || 0)
+  const ids = new Set(lotes.flat())
+  // el nombre de escena que devuelven los agentes, como id: sin ruta, sin .html y sin el -N de la hoja
+  const norm = (e) => { const x = String(e || '').replace(/^.*\//, '').replace(/\.(html|jpg)$/, ''); return ids.has(x) ? x : ids.has(x.replace(/-\d+$/, '')) ? x.replace(/-\d+$/, '') : x }
   const VEREDICTO = {
     type: 'object',
     properties: {
@@ -169,14 +183,14 @@ if (paso === 'calidad') {
 - 4: al nivel del 11 final. Detalle de superficie en todo el cuadro, profundidad, vida de fondo animada, y una acción con propósito que avanza entre el inicio y el final y cuenta lo que dice la voz.
 - 3: por debajo. Zonas grandes lisas o vacías (pared, suelo, cielo o mueble sin textura), poca profundidad, plano casi estático (entre inicio y final solo cambian detalles mínimos), o una acción que no cuenta la voz.
 - 2 o 1: muy por debajo, o roto.
-Cualquier regla rota es un FALLO aunque la nota sea alta: letras o palabras; manos no canónicas o grandes; primeros planos; algo importante en la zona de Atom o en la barra del año; pelo que tapa la cara; coches o multitudes detrás de la gente; restos de fotogramas anteriores o zonas sin pintar (mira sobre todo la columna de inicio, que cae al final del fundido); errores en la página; objetos flotando, cortados o mal colocados; personajes tapados por el decorado o pintados encima de lo que tienen delante; lo de fuera que cruza por dentro de un local; un plano que repite la composición del anterior; gags que ridiculizan a una persona real.
+Cualquier regla rota es un FALLO aunque la nota sea alta: letras o palabras; manos no canónicas o grandes; primeros planos; algo importante en la zona de Atom o en la barra del año; pelo que tapa la cara; coches o multitudes detrás de la gente; restos de fotogramas anteriores o zonas sin pintar (en los fundidos lo dice --fundidos); errores en la página; objetos flotando, cortados o mal colocados; personajes tapados por el decorado o pintados encima de lo que tienen delante; lo de fuera que cruza por dentro de un local; un plano que repite la composición del anterior; gags que ridiculizan a una persona real.
 Un plano pasa si tiene nota 4 o 5 y no rompe ninguna regla.`
   const revisar = (ids, i, r) => `Eres el revisor de calidad de ${EP}. ${CONTEXTO}
 
 TU LOTE: ${ids.join(', ')}.
 
 1. Mira con Read episodios/referencia-ep11-1.jpg y referencia-ep11-2.jpg.
-2. Genera las hojas: node atomo/herramientas/medir-planos.mjs ${ep} ${ids.join(' ')} --hoja ${sc}/cal_r${r}_${i} (una escena con más de 5 planos sale en varias imágenes: <id>-1.jpg, <id>-2.jpg). Apunta si alguna escena da errores.
+2. Genera las hojas: node atomo/herramientas/medir-planos.mjs ${ep} ${ids.join(' ')} --hoja ${sc}/cal_r${r}_${i} (una escena con más de 5 planos sale en varias imágenes: <id>-1.jpg, <id>-2.jpg). Apunta si alguna escena da errores. Comprueba también los fundidos: node atomo/herramientas/medir-planos.mjs ${ep} ${ids.join(' ')} --fundidos. Cada fundido roto es un FALLO del plano que empieza en ese corte (origen «decorado» si el negro sale de un decorado de ${pref}-comun.js).
 3. Mira cada hoja con Read, plano por plano (fila = plano; columnas = inicio, centro, final). Para entender qué tiene que contar cada plano, lee el comentario de cabecera de la escena, su guion visual en episodios/${carpeta}/escenas.json y el texto inglés de sus frases en guion.json. Si una miniatura no te deja juzgar un detalle (manos, letras, pelo, una zona), haz una captura a 1920×1080 de ese instante con capturar.mjs en ${sc}/cal_r${r}_${i}/zoom.
 4. Puntúa TODOS los planos.
 
@@ -186,7 +200,7 @@ ${REGLAS}
 
 Sé exigente: el usuario no quiere tener que señalar lo que tú dejaste pasar. Pero no suspendas un plano por gusto: cada fallo tiene que ser concreto y visible.
 
-ENTREGA (salida estructurada): planos (todos; plano empieza en 1, como en las hojas; origen «decorado» si el fallo está en una función de ${pref}-comun.js, con su nombre en funcion; encargo: qué hay que hacer, concreto, para que pase), hojas (rutas) y errores_pagina (o «ninguno»). No edites ningún archivo.`
+ENTREGA (salida estructurada): planos (todos; escena = el id tal cual, sin ruta ni «.html»; plano = el número de la hoja, la cartela no se puntúa; origen «decorado» si el fallo está en una función de ${pref}-comun.js, con su nombre en funcion; encargo: qué hay que hacer, concreto, para que pase), hojas (rutas) y errores_pagina (o «ninguno»). No edites ningún archivo.`
   const esceptico = (ids, i, r, v) => `Eres el ESCÉPTICO de la revisión de calidad de ${EP}. ${CONTEXTO}
 
 Otro revisor ya ha puntuado estas escenas: ${ids.join(', ')}. Sus hojas están en ${sc}/cal_r${r}_${i}/ (míralas con Read, junto a episodios/referencia-ep11-1.jpg y -2.jpg). Su veredicto:
@@ -205,13 +219,13 @@ La revisión de calidad de ${EP} ha suspendido estos planos. Tu encargo es subir
 ${tarea.fallos.map((p) => `- ${p.escena}, plano ${p.plano} (nota ${p.nota}): ${p.fallos.join('; ')}${p.fallos.length ? '. ' : ''}Qué hacer: ${p.encargo}`).join('\n')}
 
 ${tarea.decorado
-    ? `Estos fallos están en los decorados: edita SOLO estas funciones de atomo/plato/escenas/${pref}-comun.js: ${[...new Set(tarea.fallos.map((p) => p.funcion).filter(Boolean))].join(', ') || '(las que tengan el fallo)'}. Mantén sus firmas, opciones y las posiciones de las que dependen las escenas (léelas: grep -l "T\\.<función>(" atomo/plato/escenas/${pref}-*.html). Trabajas solo: hasta que termines nadie más edita ni captura. No toques las escenas .html.`
+    ? `Estos fallos están en los decorados: edita SOLO estas funciones de atomo/plato/escenas/${pref}-comun.js: ${[...new Set(tarea.fallos.map((p) => p.funcion).filter(Boolean))].join(', ') || '(las que tengan el fallo)'}. Mantén sus firmas, opciones y las posiciones de las que dependen las escenas (léelas: grep -l "T\\.<función>(" atomo/plato/escenas/${pref}-*.html, y también las de los decorados que llaman a esa función dentro de ${pref}-comun.js). Al terminar, comprueba la sintaxis de ${pref}-comun.js y que todas esas escenas dicen «sin errores en la página». Trabajas solo: hasta que termines nadie más edita ni captura. No toques las escenas .html.`
     : `Edita SOLO atomo/plato/escenas/${tarea.escena}.html, y solo los planos suspendidos: los demás planos y los tiempos de corte se quedan igual. No toques ${pref}-comun.js (si el fallo es del decorado, dibuja encima desde la escena o dilo en avisos).`}
 Mantén la sincronía con la voz (en('marca', fracción)) y los efectos (solo recetas de NIVEL en atomo/herramientas/efectos.cjs). Actualiza el comentario de cabecera.
 
 ${REGLAS}
 
-${HERRAMIENTAS()}
+${HERRAMIENTAS(`${sc}/pul_r${r}_${j}`)}
 
 MÉTODO: hoja ANTES en ${sc}/pul_r${r}_${j}/antes; edita; hoja DESPUÉS en ${sc}/pul_r${r}_${j}/despues/<n>; compara lado a lado con la referencia. Itera hasta que cada plano tuyo pase la rúbrica (nota 4 o más, ninguna regla rota) y la hoja diga «sin errores en la página».
 
@@ -224,26 +238,42 @@ ENTREGA (salida estructurada): escenas (las que has cambiado; si has tocado deco
   const historial = []
   let quedan = []
   let dados = A.fallos && A.fallos.length ? A.fallos : null   // tu propia revisión: se pule primero, sin revisar antes
+  let todosLuego = false   // tras pulir la revisión propia, la primera revisión independiente cubre todos los lotes
   for (let r = 0; r <= rondas; r++) {
     let fallos
     if (dados) {
-      fallos = dados
+      fallos = dados.map((p) => ({ ...p, escena: norm(p.escena) }))
       dados = null
+      todosLuego = true
       historial.push({ ronda: r, planos: 0, suspensos: fallos.map((p) => `${p.escena} p${p.plano} (${p.nota}): ${p.fallos.join('; ') || p.encargo}`), errores: [], dados: true })
       log(`ronda ${r}: ${fallos.length} planos suspendidos por la revisión propia`)
     } else {
       phase('Revisar')
-      const revisiones = await pipeline(
-        pendientes,
-        (ids, _, i) => agent(revisar(ids, i, r), { label: `revisar r${r}: ${ids.join(', ')}`, phase: 'Revisar', schema: VEREDICTO }),
-        (v, ids, i) => (v ? agent(esceptico(ids, i, r, v), { label: `escéptico r${r}: ${ids.join(', ')}`, phase: 'Revisar', schema: VEREDICTO })
-          .then((e) => ({ ids, v, e })) : { ids, v: null, e: null }),
+      const revisa = (lista, intento) => pipeline(
+        lista,
+        (l, _, i) => agent(revisar(l, intento ? `${i}b` : i, r), { label: `revisar r${r}${intento ? ' (otra vez)' : ''}: ${l.join(', ')}`, phase: 'Revisar', schema: VEREDICTO }),
+        (v, l, i) => (v ? agent(esceptico(l, intento ? `${i}b` : i, r, v), { label: `escéptico r${r}${intento ? ' (otra vez)' : ''}: ${l.join(', ')}`, phase: 'Revisar', schema: VEREDICTO })
+          .then((e) => ({ ids: l, v, e })) : { ids: l, v: null, e: null }),
       )
-      const sinRevisar = revisiones.filter((x) => !x || !x.v).map((x, i) => (x ? x.ids : pendientes[i]).join(','))
-      if (sinRevisar.length) log(`AVISO: sin revisar (agente caído): ${sinRevisar.join(' | ')}`)
-      const todos = revisiones.filter((x) => x && x.v).flatMap((x) => x.v.planos)
-      fallos = revisiones.filter((x) => x && x.v).flatMap((x) => [...suspensos(x.v.planos), ...((x.e && x.e.planos) || [])])
-      const errores = revisiones.filter((x) => x && x.v && !/^ninguno/i.test(x.v.errores_pagina)).map((x) => x.v.errores_pagina)
+      let revisiones = await revisa(pendientes, false)
+      // un revisor o un escéptico caído no aprueba nada: se repite una vez y, si vuelve a caer, sus escenas quedan pendientes
+      const caidos = pendientes.filter((_, i) => !revisiones[i] || !revisiones[i].v || !revisiones[i].e)
+      if (caidos.length) {
+        log(`AVISO: revisión caída en ${caidos.map((l) => l.join(',')).join(' | ')}; se repite`)
+        const otra = await revisa(caidos, true)
+        revisiones = revisiones.filter((x) => x && x.v && x.e).concat(otra)
+      }
+      const buenas = revisiones.filter((x) => x && x.v && x.e)
+      const sinRevisar = pendientes.filter((l) => !buenas.some((x) => x.ids === l || x.ids.join() === l.join())).flat()
+      if (sinRevisar.length) log(`AVISO: sin revisar después de dos intentos: ${sinRevisar.join(', ')}`)
+      const todos = buenas.flatMap((x) => x.v.planos)
+      const errores = buenas.flatMap((x) => [x.v.errores_pagina, x.e.errores_pagina]).filter((t) => t && !/^ninguno/i.test(t.trim()))
+      fallos = [
+        ...buenas.flatMap((x) => [...suspensos(x.v.planos), ...x.e.planos]),
+        ...errores.map((t) => ({ escena: [...ids].find((e) => t.includes(e)) || pendientes[0][0], plano: 0, nota: 1, fallos: ['error en la página: ' + t], origen: 'escena', encargo: 'quitar el error de la página' })),
+      ].map((p) => ({ ...p, escena: norm(p.escena) }))
+      // las escenas que nadie pudo revisar no se dan por buenas
+      fallos.push(...sinRevisar.map((e) => ({ escena: e, plano: 0, nota: 0, fallos: ['sin revisar: el revisor o el escéptico cayó dos veces'], origen: 'escena', encargo: 'revisar a mano', sinRevisar: true })))
       historial.push({ ronda: r, planos: todos.length, suspensos: fallos.map((p) => `${p.escena} p${p.plano} (${p.nota}): ${p.fallos.join('; ') || p.encargo}`), errores, sinRevisar })
       log(`ronda ${r}: ${todos.length} planos revisados, ${fallos.length} suspendidos${errores.length ? `, errores de página: ${errores.length}` : ''}`)
     }
@@ -254,25 +284,39 @@ ENTREGA (salida estructurada): escenas (las que has cambiado; si has tocado deco
     // luego un agente por escena, a la vez (cada uno edita solo su .html)
     phase('Pulir')
     const porEscena = {}
-    for (const p of fallos.filter((p) => p.origen !== 'decorado')) (porEscena[p.escena] ||= []).push(p)
+    for (const p of fallos.filter((p) => p.origen !== 'decorado' && !p.sinRevisar)) (porEscena[p.escena] ||= []).push(p)
     const tareas = Object.entries(porEscena).map(([escena, fs]) => ({ escena, fallos: fs }))
     const deco = fallos.filter((p) => p.origen === 'decorado')
     const pulidos = []
     if (deco.length) {
       const t = { escena: `${pref}-comun.js`, decorado: true, fallos: deco }
-      pulidos.push(await agent(pulir(t, r, 'deco'), { label: `pulir r${r}: ${pref}-comun.js`, phase: 'Pulir', schema: SALIDA_ESCENAS }))
+      const hecho = await agent(pulir(t, r, 'deco'), { label: `pulir r${r}: ${pref}-comun.js`, phase: 'Pulir', schema: SALIDA_ESCENAS })
+      if (!hecho) {   // ${pref}-comun.js puede haber quedado a medio editar: no se pule nada encima
+        log(`AVISO: el pulido de ${pref}-comun.js no entregó; comprueba su sintaxis (node --check) antes de seguir`)
+        quedan = fallos
+        historial[historial.length - 1].decoCaido = true
+        break
+      }
+      pulidos.push(hecho)
       tareas.unshift(t)
     }
     pulidos.push(...await parallel(tareas.filter((t) => !t.decorado).map((t, j) => () =>
       agent(pulir(t, r, j), { label: `pulir r${r}: ${t.escena}`, phase: 'Pulir', schema: SALIDA_ESCENAS }))))
-    const tocadas = new Set(pulidos.filter(Boolean).flatMap((p) => p.escenas.map((e) => e.replace(/^.*\//, '').replace(/\.html$/, ''))))
+    const tocadas = new Set(pulidos.filter(Boolean).flatMap((p) => p.escenas.map(norm)))
     tareas.forEach((t, j) => {
       if (!pulidos[j]) log(`AVISO: el pulido de ${t.escena} no entregó`)
       t.fallos.forEach((p) => tocadas.add(p.escena))
     })
+    fallos.filter((p) => p.sinRevisar).forEach((p) => tocadas.add(p.escena))   // se vuelven a intentar revisar
     const lista = [...tocadas].filter((e) => e.startsWith(pref + '-') && !e.endsWith('.js'))
     pendientes = []
-    for (let k = 0; k < lista.length; k += 5) pendientes.push(lista.slice(k, k + 5))
+    if (todosLuego) {   // todas las escenas de los lotes, más las pulidas que no estuvieran en ninguno
+      todosLuego = false
+      const enLotes = new Set(lotes.flat())
+      pendientes = lotes.map((l) => [...l])
+      const sueltas = lista.filter((e) => !enLotes.has(e))
+      for (let k = 0; k < sueltas.length; k += 5) pendientes.push(sueltas.slice(k, k + 5))
+    } else for (let k = 0; k < lista.length; k += 5) pendientes.push(lista.slice(k, k + 5))
     historial[historial.length - 1].pulido = pulidos.filter(Boolean).map((p) => ({ escenas: p.escenas, resumen: p.resumen, avisos: p.avisos }))
   }
   if (quedan.length) log(`QUEDAN ${quedan.length} planos sin pasar después de ${rondas} rondas: díselo al usuario, no se entrega en silencio`)
