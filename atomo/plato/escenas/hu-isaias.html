@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Isaías · ep12</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HU-ISAIAS (frases 28–29), 2026; golpe de música en «destin» (frase 29). Seis planos:
+// 1. el centro de huracanes de noche: la pronosticadora trae dos cafés y le da uno al compañero; en la pantalla grande,
+//    Isaías es todavía una tormenta deshilachada; en «October» el calendario pasa al «7» y en «7th» la tormenta se hace
+//    huracán con su ojo y sale el cono: él señala y ella se sorprende; detrás, los del turno teclean;
+// 2. dos vitrinas de museo, con sus placas y el cordón de terciopelo: 2026 (la pantalla con Isaías y una pronosticadora)
+//    está encendida; en «the record» parpadea y se enciende la de 1905, la azotea del Weather Bureau en sepia, y sale el
+//    «=»; en «latest first hurricane» el meteorólogo de 1905 iza las dos banderas rojas de aviso de huracán (lo único en
+//    color de la foto vieja) y ella señala la pantalla; en «1905» se enciende su placa; corta en el golpe («It grew»);
+// 3. desde el espacio, sobre el golfo: Isaías avanza hacia el norte por su trayectoria y se organiza hasta tener ojo; en
+//    «category 3» sale el «3»; en «warm waters» el agua del golfo se calienta y tiembla; la línea prevista va a Destin;
+// 4. la playa de Destin de noche: llegan rompientes grandes y la última pareja se va con su linterna; en «came ashore»
+//    cae un rayo, el mar sube por la playa lleno de espuma y revienta contra el muelle; el viento se lleva una sombrilla
+//    que rueda y una silla que vuelca (sin víctimas); en «category 2» sale el «2»;
+// 5. el mapa de EE. UU.: la trayectoria de Isaías llega a Destin y la mano clava la chincheta roja («hit»); en «United
+//    States» se clava su foto de la noche del huracán con el «2026»; en «since Milton» el mapa se acerca al golfo, se dibuja
+//    la trayectoria gris de Milton y cae su chincheta en Siesta Key con su foto vieja y el «2024»;
+// 6. la costa de Destin de noche con el huracán: las luces se apagan barrio a barrio, de la playa hacia dentro
+//    («homes and businesses», «Florida and Alabama»), salta un transformador y el contador sube a «700,000»; al final
+//    («without power») solo quedan las luces rojas de las torres y alguna linterna.
+import * as T from '/atomo/plato/escenas/hu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hu-isaias');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C;
+const lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+const entre = (t, a, b) => t >= a && t < b;
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
+const bay = (x, y) => BAY[((y & 3) << 2) | (x & 3)];
+// ruido suave (interpolado) para agua, espuma y nubes
+const vruido = (x, y, k = 0) => { const x0 = Math.floor(x), y0 = Math.floor(y), fx = x - x0, fy = y - y0, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy), a = hh(x0, y0, k), b = hh(x0 + 1, y0, k), c = hh(x0, y0 + 1, k), d = hh(x0 + 1, y0 + 1, k); return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy; };
+// mezcla dos colores del lienzo (0xAABBGGRR) en la proporción a
+const mezcla = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const esMar = (c) => { const r = c & 255, g = (c >>> 8) & 255, b = (c >>> 16) & 255; return b > r + 22 && b >= g - 4; };
+// el símbolo de huracán (lleno) o de tormenta tropical (hueco) de 9 × 9, con su contorno; x, y: el centro
+const SIMB = ['.....##..', '......##.', '...###...', '..#####..', '..##o##..', '..#####..', '...###...', '.##......', '..##.....'];
+const simbolo = (x, y, col, lleno = true, contorno = C.k) => {
+  const en9 = (i, j) => i >= 0 && j >= 0 && i < 9 && j < 9 && SIMB[j][i] !== '.' && (lleno || SIMB[j][i] !== 'o');
+  for (let j = -1; j < 10; j++) for (let i = -1; i < 10; i++) { if (en9(i, j)) continue; if (en9(i - 1, j) || en9(i + 1, j) || en9(i, j - 1) || en9(i, j + 1)) R.pset(x - 4 + i, y - 4 + j, contorno); }
+  for (let j = 0; j < 9; j++) for (let i = 0; i < 9; i++) if (en9(i, j)) R.pset(x - 4 + i, y - 4 + j, col);
+};
+// cifras pequeñas de 3 × 5 (los días del calendario)
+const DIG = { 0: ['###', '#.#', '#.#', '#.#', '###'], 1: ['.#.', '##.', '.#.', '.#.', '###'], 2: ['###', '..#', '###', '#..', '###'], 3: ['###', '..#', '.##', '..#', '###'], 4: ['#.#', '#.#', '###', '..#', '..#'],
+  5: ['###', '#..', '###', '..#', '###'], 6: ['###', '#..', '###', '#.#', '###'], 7: ['###', '..#', '..#', '.#.', '.#.'], 8: ['###', '#.#', '###', '#.#', '###'], 9: ['###', '#.#', '###', '..#', '###'] };
+const cifras = (s, x, y, c) => { let cx = x; for (const ch of String(s)) { const g = DIG[ch]; if (g) for (let j = 0; j < 5; j++) for (let i = 0; i < 3; i++) if (g[j][i] === '#') R.pset(cx + i, y + j, c); cx += 4; } };
+// una taza pequeña con su asa (x, y: arriba a la izquierda), con vapor si humea
+const taza = (x, y, t, humea = true, col = C.blanco) => { R.rect(x, y, x + 3, y + 4, C.k); R.rect(x + 1, y + 1, x + 2, y + 3, col); R.pset(x + 1, y + 1, hex('#5a3418')); R.pset(x + 4, y + 1, C.k); R.pset(x + 5, y + 2, C.k); R.pset(x + 4, y + 3, C.k);
+  if (humea) for (let k = 0; k < 2; k++) { const u = (t * 0.8 + k * 0.5) % 1; R.pset(Math.round(x + 1 + k + Math.sin(u * 6 + k) * 1.2), Math.round(y - 1 - u * 6), u < 0.6 ? hex('#e8ecf0') : hex('#c4ccd4')); } };
+// dónde lleva algo en la mano un personaje que no levanta el brazo (x, suelo, dir)
+const enMano = (x, suelo, dir) => [dir > 0 ? x + 12 : x - 1, suelo - 10];
+// la mano canónica (T.mano, 14 px) con la manga que llega hasta el borde del cuadro, para que el brazo no acabe en el aire
+const manoBorde = (x, y, dir, manga) => { const m = hex(manga), e = dir > 0 ? x - 43 : x + 43; if (dir > 0 ? e > 0 : e < 319) { const a = dir > 0 ? 0 : e, b = dir > 0 ? e : 319;
+  R.rect(a, Math.round(y) - 2, b, Math.round(y) + 2, m); R.rect(a, Math.round(y) - 3, b, Math.round(y) - 3, C.k); R.rect(a, Math.round(y) + 3, b, Math.round(y) + 3, C.k); for (let i = a; i <= b; i += 9) R.pset(i, Math.round(y) + 1, mezcla(m, C.k, 0.3)); }
+  T.mano(R, Math.round(x), Math.round(y), dir, manga); };
+
+const a = (f) => en('isaias', f), b = (f) => en('destin', f);
+const P2 = a(0.569), P3 = b(0), P4 = b(0.186), P5 = b(0.46), P6 = b(0.688);
+const temporada = a(0.137), fuerza = a(0.289), octubre = a(0.458), siete = a(0.482), record = a(0.622), tardio = a(0.706), ano1905 = a(0.906);
+const tres = b(0.046), calidas = b(0.099), golfo = b(0.148), noche = b(0.202), tierra = b(0.284), destin = b(0.314), dos = b(0.411);
+const golpea = b(0.524), eeuu = b(0.541), milton = b(0.591), ano2024 = b(0.627), deja = b(0.697), miles = b(0.735), hogares = b(0.797), florida = b(0.881), sinLuz = b(0.931);
+
+// ── 1 · el centro de huracanes, la noche del 7 de octubre ─────────────────────────────────────────────────────
+const da = temporada + 0.7;
+const p1 = (t) => {
+  const crece = 0.2 + 0.14 * lin(t, 0.3, siete - 0.3) + 0.66 * tramo(t, siete, siete + 0.6);
+  T.centroHuracanes(R, t, { pantalla: 'isaias', crece, cono: tramo(t, siete + 0.4, P2 - 0.1), dia: t < octubre ? 6 : 7, cat: 1, hora: 22 * 60 + 46 + (t > 4 ? 1 : 0) });
+  // ella llega desde la derecha con dos cafés y le da uno; él lo bebe; cuando la tormenta se hace huracán, señala
+  const u = lin(t, 0.2, da - 0.3), sx = Math.round(lerp(246, 152, u)), ellaAnda = u > 0 && u < 1;
+  const yo = R.actor(EL.pronosticador, 126, 162, t, { dir: 1, dedo: entre(t, siete + 0.05, P2), habla: entre(t, 0.4, 1.6) && Math.sin(t * 8) > 0, sonrisa: entre(t, da, fuerza), sorpresa: entre(t, siete - 0.1, siete + 0.3) });
+  const ella = R.actor(EL.pronosticadora, sx, 164, t, { dir: -1, anda: ellaAnda, sorpresa: entre(t, siete + 0.1, P2), sonrisa: entre(t, da - 0.3, octubre) });
+  // las tazas
+  const [ex, ey] = enMano(sx, 164, -1); taza(ex - 3, ey - 1, t, true, hex('#e8e4dc'));
+  if (t < da) taza(ex - 7, ey, t, true, hex('#3a6ac8'));
+  else { const [hx, hy] = enMano(126, 162, 1), bebe = entre(t, fuerza - 0.2, fuerza + 0.6); if (!entre(t, siete + 0.05, P2)) taza(hx - 1, bebe ? hy - 6 : hy - 1, t, true, hex('#3a6ac8')); }
+  if (entre(t, siete + 0.15, P2)) R.bocadillo(sx + 8, 164 - 30, {});
+};
+
+// ── 2 · las dos vitrinas: 1905 = 2026 ───────────────────────────────────────────────────────────────────────────
+const VA = R.nuevo(), VB = R.nuevo();
+const iza = tardio - 0.1;
+const sepia = (c, k) => { const r = c & 255, g = (c >>> 8) & 255, b2 = (c >>> 16) & 255, l = r * 0.3 + g * 0.55 + b2 * 0.15;
+  const sr = Math.min(255, l * 1.06 + 22), sg = Math.min(255, l * 0.88 + 8), sb = Math.min(255, l * 0.62);
+  return (0xff000000 | (Math.round((sb * 0.86 + b2 * 0.14) * k) << 16) | (Math.round((sg * 0.86 + g * 0.14) * k) << 8) | Math.round((sr * 0.86 + r * 0.14) * k)) >>> 0; };
+// copia un trozo (sx, sy, w × h) de un búfer a la pantalla en (dx, dy); f: lo que se le hace a cada color
+const pega = (src, sx, sy, w, h, dx, dy, f) => { const D = R.buf; for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const X = dx + i, Y = dy + j; if (X < 0 || X > 319 || Y < 0 || Y > 179) continue; const c = src[(sy + j) * 320 + sx + i]; D[Y * 320 + X] = f ? f(c, X, Y) : c; } };
+const vitrina = (x0, y0, x1, y1, luz) => {
+  const { rect } = R, marco = (a, b, c, d, col) => { rect(a, b, c, b, col); rect(a, d, c, d, col); rect(a, b, a, d, col); rect(c, b, c, d, col); };
+  marco(x0 - 4, y0 - 4, x1 + 4, y1 + 4, C.k); for (let k = 1; k <= 2; k++) marco(x0 - 4 + k, y0 - 4 + k, x1 + 4 - k, y1 + 4 - k, k === 1 ? hex('#a8824a') : hex('#7a5a30'));
+  rect(x0 - 3, y0 - 3, x1 + 3, y0 - 3, hex('#d8b070')); rect(x0 - 3, y1 + 3, x1 + 3, y1 + 3, hex('#5a4024')); marco(x0 - 1, y0 - 1, x1 + 1, y1 + 1, C.k);
+  for (const [cx, cy] of [[x0 - 2, y0 - 2], [x1 + 2, y0 - 2], [x0 - 2, y1 + 2], [x1 + 2, y1 + 2]]) R.pset(cx, cy, hex('#f0d080'));
+  if (luz > 0) for (let i = 0; i < 40; i++) { const x = x0 + 6 + i, y = y0 + 34 - Math.round(i * 0.8); if (x < x1 && y > y0 && bay(x, y) < 0.25 * luz) R.pset(x, y, mezcla(R.pget(x, y), C.blanco, 0.4)); }
+};
+const placa = (x, y, texto, luz) => { R.rect(x - 40, y - 13, x + 40, y + 7, C.k); R.rect(x - 39, y - 12, x + 39, y + 6, luz > 0.5 ? hex('#3a2a1a') : hex('#241a12')); R.rect(x - 39, y - 12, x + 39, y - 12, luz > 0.5 ? hex('#c8a040') : hex('#5a4428')); R.rect(x - 39, y + 6, x + 39, y + 6, luz > 0.5 ? hex('#8a6a30') : hex('#3a2a1a'));
+  for (const dx of [-36, 36]) { R.pset(x + dx, y - 3, luz > 0.5 ? hex('#f0d080') : hex('#6a5228')); } R.numero(texto, x, y + 3, { tam: 16, centro: true, rampa: luz > 0.5 ? undefined : [hex('#3a2a18'), hex('#4a3820'), hex('#5a4428'), hex('#5a4428')] }); };
+const lampara = (x, t, luz) => { R.rect(x - 6, 15, x + 6, 19, C.k); R.rect(x - 5, 16, x + 5, 18, hex('#3a3a46')); R.rect(x - 1, 14, x + 1, 15, C.k); if (luz > 0) { R.rect(x - 4, 19, x + 4, 19, hex('#fff0b0'));
+  for (let y = 20; y < 152; y++) { const w = 6 + (y - 20) * 0.42; for (let i = -w; i <= w; i++) { const X = Math.round(x + i); if (X < 0 || X > 319 || (X > 277 && y < 45)) continue; if (bay(X, y) < 0.38 * luz * (1 - (y - 20) / 170)) R.pset(X, y, mezcla(R.pget(X, y), hex('#fff0c8'), 0.3)); } } } };
+// los postes de latón con el cordón de terciopelo, delante de las vitrinas
+const cordon = (t) => { for (const px of [16, 160, 304]) { R.rect(px - 1, 140, px + 1, 166, C.k); R.rect(px, 141, px, 165, hex('#e8c060')); R.disco(px, 139, 2, C.k); R.disco(px, 139, 1, hex('#f8e090')); R.rect(px - 4, 166, px + 4, 168, C.k); R.rect(px - 3, 166, px + 3, 167, hex('#c8a040')); }
+  for (const [a0, a1] of [[16, 160], [160, 304]]) for (let x = a0 + 2; x <= a1 - 2; x++) { const u = (x - a0) / (a1 - a0), y = Math.round(143 + Math.sin(u * Math.PI) * 9 + Math.sin(t * 1.5 + u * 3) * 0.6); R.pset(x, y - 1, C.k); R.pset(x, y, hex('#a8203a')); R.pset(x, y + 1, hex('#6a1024')); R.pset(x, y + 2, C.k); } };
+const p2 = (t) => {
+  // dentro de las vitrinas: 1905 (la azotea del Weather Bureau con su mástil) y 2026 (la pantalla del centro)
+  let prev = R.usar(VA);
+  const b1905 = 0.93 * tramo(t, iza, iza + 1.1);
+  T.galveston(R, t, { encuadre: 'tejado', bandera: b1905, banderas: 2, cielo: 'gris' });
+  const tira = entre(t, iza - 0.2, iza + 1.2);
+  R.actor(EL.vecino, 214, 150, t, { dir: 1, dedo: tira && Math.floor(t * 5) % 2 === 0, brazos: entre(t, ano1905, ano1905 + 0.7), sonrisa: t > iza + 1.2 });
+  if (R.delante) { R.delante(); R.delante = null; }
+  R.usar(VB);
+  T.centroHuracanes(R, t, { pantalla: 'isaias', crece: 1, cono: 1, dia: 7, cat: 1 });
+  R.actor(EL.pronosticadora, 168, 139, t, { dir: -1, dedo: entre(t, tardio, tardio + 1.4), sonrisa: t > tardio + 1.4 });
+  if (R.delante) { R.delante(); R.delante = null; }
+  R.usar(prev);
+  // la sala oscura: la pared de paneles con su trama y el zócalo
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const n = hh(x >> 1, y >> 1, 841); R.pset(x, y, y > 152 ? (y === 153 ? hex('#3a3046') : n < 0.15 ? hex('#16121e') : hex('#1e1a28')) : (x % 40 === 0 ? hex('#0c1020') : n < 0.12 ? hex('#121a30') : n > 0.94 ? hex('#22304e') : hex('#18213a'))); }
+  const enciende = record - 0.02, luzA = t < enciende ? 0 : t < enciende + 0.35 ? (Math.floor((t - enciende) * 18) % 2) : 1;
+  lampara(98, t, luzA); lampara(222, t, 1);
+  const LA = [47, 27, 149, 147], LB = [171, 27, 273, 147];
+  pega(VA, 182, 30, 103, 121, LA[0], LA[1], (c, X, Y) => { const r0 = c & 255, g0 = (c >>> 8) & 255, b0 = (c >>> 16) & 255; let s = r0 > 140 && r0 > g0 * 2 && b0 >= g0 - 2 ? mezcla(c, C.k, 0.82 - 0.82 * luzA) : sepia(c, 0.18 + 0.82 * luzA); if (luzA > 0 && hh(X, Y, Math.floor(t * 12)) < 0.012) s = mezcla(s, hex('#fff4d8'), 0.6); return s; });
+  pega(VB, 110, 20, 103, 121, LB[0], LB[1]);
+  // las rayas de la película vieja
+  if (luzA > 0) { const k = Math.floor(t * 6); for (let r = 0; r < 2; r++) { const x = LA[0] + Math.floor(hh(k, r, 842) * 100); if (hh(k, r + 5, 842) < 0.6) for (let y = LA[1]; y <= LA[3]; y++) if (bay(x, y) < 0.5) R.pset(x, y, hex('#f4e8c8')); } }
+  vitrina(...LA, luzA); vitrina(...LB, 1);
+  cordon(t);
+  placa(98, 166, '1905', lin(t, ano1905, ano1905 + 0.1)); placa(222, 166, '2026', 1);
+  if (t > record + 0.35) { const u = lin(t, record + 0.35, record + 0.6), y = 92 - Math.round((1 - u) * 6); R.numero('=', 161, y, { tam: 16, centro: true }); }
+};
+
+// ── 3 · Isaías sobre el golfo, desde el espacio: categoría 3 sobre el agua caliente ─────────────────────────────
+const RASTRO = [[19.6, -94.6], [20.6, -94.0], [21.6, -93.2], [22.6, -92.2], [23.6, -91.0], [24.6, -89.8], [25.6, -89.0], [26.6, -88.4], [27.6, -87.9], [28.6, -87.4], [29.5, -86.9], [30.4, -86.5]];
+const enRastro = (u) => { const f = u * (RASTRO.length - 1), i = Math.min(RASTRO.length - 2, Math.floor(f)), s = f - i; return [lerp(RASTRO[i][0], RASTRO[i + 1][0], s), lerp(RASTRO[i][1], RASTRO[i + 1][1], s)]; };
+const p3 = (t) => {
+  const u = lerp(0.45, 0.66, lin(t, P3, P4)), [elat, elon] = enRastro(u);
+  const esp = 0.5 + 0.5 * tramo(t, P3 + 0.1, tres + 0.25);
+  const { P } = T.orbita(R, t, { encuadre: 'cerca', mira: [22, -88.5], espiral: esp, espiralEn: [elat, elon], tiros: false });
+  // el agua caliente del golfo: se enciende en naranja y tiembla
+  const cal = lin(t, calidas - 0.1, golfo);
+  const golfoEn = (x, y) => { const [gx, gy] = GC; return ((x - gx) / 92) ** 2 + ((y - gy) / 40) ** 2 < 1; }, GC = P([24.5, -90.5]);
+  const marClaro = (c) => esMar(c) && ((c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255)) > 150;
+  if (cal > 0) { const D = R.buf; for (let y = 84; y < 180; y++) for (let x = 0; x < 320; x++) { const c = D[y * 320 + x]; if (!marClaro(c) || !golfoEn(x, y)) continue; const w = 0.5 + 0.5 * Math.sin(x * 0.11 + y * 0.23 - t * 3), d2 = ((x - GC[0]) / 92) ** 2 + ((y - GC[1]) / 40) ** 2; if (bay(x, y) < cal * (0.42 + 0.25 * w) * (1 - d2)) D[y * 320 + x] = mezcla(c, hex('#f09048'), 0.5); }
+    for (let k = 0; k < 14; k++) { const v = (t * 0.8 + k * 0.29) % 1, x = Math.round(GC[0] - 80 + hh(k, 1, 851) * 160), y = Math.round(GC[1] - 26 + hh(k, 2, 851) * 50 - v * 8); if (!golfoEn(x, y) || !marClaro(R.pget(x, y + 8))) continue; for (let i = 0; i < 5; i++) R.pset(x + i, y + Math.round(Math.sin(i * 1.5 + t * 6)), v < 0.5 ? hex('#ffc070') : hex('#f08a4a')); } }
+  // la trayectoria: lo recorrido en puntos blancos y lo previsto, en trazos, hasta Destin
+  for (let k = 0; k <= 60; k++) { const v = k / 60; const [lat, lon] = enRastro(v), [x, y, vis] = P([lat, lon]); if (!vis) continue;
+    if (v < u - 0.02) { if (k % 3 === 0) { R.disco(x, y, 1, C.k); R.pset(x, y, C.blanco); } }
+    else if (v > u + 0.03 && (k % 2) === 0 && t > P3 + 0.4) R.pset(x, y, hex('#f6f2ea')); }
+  { const [x, y, vis] = P([30.4, -86.5]); if (vis) { const r = 3 + Math.round(((t * 1.5) % 1) * 4); for (let a = 0; a < 6.28; a += 0.4) R.pset(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.7), hex('#f04a4a')); R.disco(x, y, 1, hex('#f04a4a')); } }
+  // el «3», unido a la tormenta por una raya fina
+  if (t > tres) { const [sx, sy] = P([elat, elon]), v = lin(t, tres, tres + 0.2), lx = 214, ly = 62;
+    R.linea(sx + 8, sy - 8, lx - 12, ly + 6, hex('#f6f2ea'), 2);
+    R.rect(lx - 16, ly - 14, lx + 22, ly + 8, C.k); R.rect(lx - 15, ly - 13, lx + 21, ly + 7, hex('#1a2238')); simbolo(lx - 6, ly - 3, hex('#e03a3a'));
+    R.numero('3', lx + 10, ly + 5 - Math.round((1 - v) * 4), { tam: 16, centro: true }); }
+};
+
+// ── 4 · la playa de Destin de noche: la última pareja se va y el huracán toca tierra ──────────────────────────
+const RAYO = (k) => k * 4.3 + hh(k, 1, 941) * 2.6;
+// la sombrilla roja y blanca que el viento se lleva dando vueltas por la arena (x, y: el centro, a: el giro)
+const sombrilla = (x, y, a) => { const c = Math.cos(a), s2 = Math.sin(a);
+  for (let i = -9; i <= 9; i++) for (let j = 0; j <= 4; j++) { if (j > 4 - Math.abs(i) * 0.3) continue; const X = Math.round(x + i * c - (-j) * s2), Y = Math.round(y + i * s2 + (-j) * c); R.pset(X, Y, (Math.floor((i + 9) / 3) % 2) ? hex('#d8d8e0') : hex('#b83040')); }
+  R.linea(Math.round(x), Math.round(y), Math.round(x + 9 * s2), Math.round(y + 9 * c), hex('#6a6070')); };
+// la silla de plástico blanca que resbala y vuelca
+const silla = (x, y, a) => { const c = Math.cos(a), s2 = Math.sin(a), P = (i, j) => [Math.round(x + i * c - j * s2), Math.round(y + i * s2 + j * c)];
+  for (const [i0, j0, i1, j1] of [[-4, 0, 4, 0], [-4, 0, -4, 6], [4, 0, 4, 6], [4, 0, 4, -7], [-1, -1, 3, -6]]) { const [ax, ay] = P(i0, j0), [bx, by] = P(i1, j1); R.linea(ax, ay, bx, by, hex('#c8ccd8')); } };
+const p4 = (t) => {
+  const hur = 0.5 + 0.5 * tramo(t, noche, tierra + 0.3), o = { encuadre: 'playa', noche: 1, huracan: hur };
+  T.costa(R, t, o);
+  const D = R.buf;
+  // las rompientes grandes que llegan del golfo: crestas de espuma rotas que avanzan hacia la playa y revientan
+  for (let k = 0; k < 3; k++) { const u = (((t - P4) * 0.55 + k / 3) % 1), y0 = 90 + Math.pow(u, 1.5) * 50, f = 0.3 + 0.6 * u;
+    for (let x = 0; x < 320; x++) { const n = vruido(x * 0.06 + k * 17 + t * 0.4, k * 3 + u * 2, 871); if (n < 0.5 - u * 0.3) continue;
+      const yb = Math.round(y0 + Math.sin(x * 0.05 + k * 2) * (1 + u * 2) + (n - 0.5) * 3), grosor = 1 + Math.round((n - 0.3) * 4 * u);
+      for (let j = 0; j < grosor; j++) { const y = yb - j; if (y < 85 || y > 179) continue; if (bay(x, y) < f - j * 0.12) D[y * 320 + x] = mezcla(D[y * 320 + x], j === 0 ? hex('#dfe8f2') : hex('#a4b6cc'), 0.8); }
+      if (u > 0.8 && hh(x, Math.floor(t * 8), 872) < 0.25 * n) R.pset(x, yb - 2 - Math.round(hh(x, 3, 872) * 6 * Math.sin((u - 0.8) / 0.2 * Math.PI)), hex('#e8f0f8')); } }
+  // la pareja que se va de la playa con la linterna (antes de que llegue)
+  const u = lin(t, P4 + 0.1, tierra - 0.2), x = Math.round(lerp(236, -34, u));
+  if (u < 1) { R.actor(EL.senor30, x, 166, t, { dir: -1, anda: true }); R.actor(EL.senora30, x + 16, 167, t, { dir: -1, anda: true, sorpresa: true });
+    const lx = x - 1, ly = 155, sw = Math.sin(t * 9) * 3; for (let i = 0; i < 26; i++) for (let j = -Math.round(i * 0.35); j <= Math.round(i * 0.35); j++) { const X = lx - i, Y = Math.round(ly + i * 0.45 + j + sw * i / 26); if (X >= 0 && bay(X, Y) < 0.45 - i / 70) R.pset(X, Y, mezcla(R.pget(X, Y), hex('#fff0a0'), 0.5)); } R.rect(lx - 1, ly - 1, lx + 1, ly + 1, hex('#fff8c8')); }
+  // al tocar tierra: el mar sube por la playa (agua con vetas de espuma) y revienta contra los pilotes del muelle
+  if (t > tierra - 0.15) { const v = tramo(t, tierra - 0.15, tierra + 0.7), w = tramo(t, tierra + 1.0, P5), frente = Math.round(140 + v * 26 - w * 14);
+    for (let y = 136; y <= Math.min(179, frente + 3); y++) for (let x = 0; x < 320; x++) { const yb = frente + Math.round((vruido(x * 0.07 + t * 0.6, 5, 873) - 0.5) * 6); if (y > yb) continue; const i = y * 320 + x;
+      if (y >= yb - 1) { if (bay(x, y) < 0.75) D[i] = hex('#e8f0f8'); continue; }
+      const fo = vruido(x * 0.055 - t * 1.2, y * 0.6 + t * 0.8, 874); D[i] = fo > 0.66 ? mezcla(D[i], hex('#d0dcea'), 0.7) : fo > 0.56 && bay(x, y) < 0.5 ? mezcla(D[i], hex('#9fb0c6'), 0.6) : mezcla(D[i], hex('#33425e'), 0.6); }
+    const sp = lin(t, tierra - 0.1, tierra + 0.9); if (sp > 0 && sp < 1) for (let k = 0; k < 7; k++) { const px = Math.round(lerp(312, 226, k / 6)), py = Math.round(lerp(116, 90, k / 6)); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (hh(i, k, 863) - 0.5) * 1.6, r = sp * (8 + hh(i, k + 3, 863) * 14); R.pset(Math.round(px + Math.cos(a) * r), Math.round(py + Math.sin(a) * r + sp * sp * 12), i % 3 ? hex('#e8f0f8') : hex('#a8c0d8')); } } }
+  // lo que se lleva el viento por la arena: la sombrilla que rueda y la silla que vuelca
+  if (entre(t, destin - 0.3, P5)) { const v = lin(t, destin - 0.3, destin + 1.9), bx = Math.round(lerp(345, -30, v)), by = Math.round(152 - Math.abs(Math.sin(v * 9)) * 7); sombrilla(bx, by, -t * 9); }
+  if (entre(t, destin + 0.4, P5)) { const v = lin(t, destin + 0.4, destin + 2.4), cx = Math.round(lerp(330, 60, v)), cy = 160 - Math.round(Math.abs(Math.sin(v * 6)) * 4); silla(cx, cy, -v * 7); }
+  // hojas de palmera y arena que vuelan
+  for (let k = 0; k < 6; k++) { const v = (t * 0.9 + k * 0.17) % 1, fx = Math.round(330 - v * 360), fy = Math.round(60 + k * 12 + Math.sin(v * 12 + k) * 6); for (let i = 0; i < 6; i++) R.pset(fx + i, fy + Math.round(Math.sin(i + t * 8) * 1), i < 3 ? hex('#3a5a3a') : hex('#2a4a2e')); }
+  // el relámpago grande al tocar tierra: todo se aclara un instante y el rayo cae sobre el mar
+  if (entre(t, tierra, tierra + 0.22)) { const f = entre(t, tierra + 0.06, tierra + 0.11) ? 0.2 : 0.5; for (let i = 0; i < 320 * 180; i++) D[i] = mezcla(D[i], hex('#dfe6ff'), f);
+    let bx = 196; for (let y = 22; y < 88; y++) { bx += (hh(y, 1, 864) - 0.5) * 4; R.pset(Math.round(bx), y, C.blanco); R.pset(Math.round(bx) + 1, y, hex('#c8d4ff')); if (y % 17 === 0) for (let i = 0; i < 9; i++) R.pset(Math.round(bx) - i, y + i, hex('#c8d4ff')); } }
+  // «category 2»
+  if (t > dos) { const v = lin(t, dos, dos + 0.2); R.rect(118, 32, 164, 56, C.k); R.rect(119, 33, 163, 55, hex('#1a2238')); simbolo(131, 44, hex('#e03a3a')); R.numero('2', 152, 53 - Math.round((1 - v) * 4), { tam: 16, centro: true }); }
+  T.i_costaDelante(R, t, o);
+};
+
+// ── 5 · el mapa: el primer huracán que golpea EE. UU. desde Milton, en 2024 ──────────────────────────────────
+const MILTON = [[-95.0, 22.3], [-93.4, 22.6], [-91.6, 22.4], [-89.8, 22.0], [-88.3, 22.4], [-86.8, 23.3], [-85.4, 24.6], [-84.0, 26.0], [-82.56, 27.27]];
+const ISAIAS = RASTRO.map(([la, lo]) => [lo, la]);
+const traza = (P, L, u, col, rayas) => { const n = Math.round((L.length - 1) * 20 * u); let last = null;
+  for (let k = 0; k <= n; k++) { const f = k / 20, i = Math.min(L.length - 2, Math.floor(f)), s = f - i, [x, y] = P([lerp(L[i][0], L[i + 1][0], s), lerp(L[i][1], L[i + 1][1], s)]); if (k % rayas < rayas - 1) { R.pset(x, y + 1, C.k); R.pset(x, y, col); R.pset(x + 1, y, col); } last = [x, y]; } return last; };
+// la foto clavada en el mapa (x, y: arriba a la izquierda), con su año: la noche del huracán en la costa (gris = 2024)
+const foto = (x, y, ano, gris, v, t) => { if (v <= 0) return; const dy = Math.round((1 - v) * -8), X = x, Y = y + dy, tono = (c) => gris ? mezcla(hex(c), hex('#9a9aa4'), 0.75) : hex(c);
+  R.rect(X + 2, Y + 2, X + 36, Y + 38, hex('#6a5a44')); R.rect(X, Y, X + 34, Y + 36, C.k); R.rect(X + 1, Y + 1, X + 33, Y + 35, hex('#f6f2ea'));
+  for (let j = 0; j < 22; j++) for (let i = 0; i < 29; i++) { const px = X + 3 + i, py = Y + 3 + j; R.pset(px, py, j < 12 ? (bay(px, py) < j / 14 ? tono('#3a4a6a') : tono('#1e2640')) : j < 15 ? tono('#2a3a5a') : tono('#4a5a7a')); }
+  for (let k = 0; k < 9; k++) { const u = (t * 2.2 + k * 0.17) % 1, lx = X + 4 + (k * 7) % 27, ly = Y + 3 + Math.round(u * 18); R.pset(lx, ly, tono('#a8b8d0')); R.pset(lx - 1, ly + 1, tono('#a8b8d0')); }
+  for (let i = 0; i < 29; i++) if (Math.sin(i * 0.7 + t * 4) > 0.3) R.pset(X + 3 + i, Y + 15, tono('#e8f0f8'));
+  { const px = X + 22, m = Math.sin(t * 5) * 1.5; for (let j = 0; j < 12; j++) R.pset(Math.round(px + j * j * 0.03 * (1 + m * 0.2)), Y + 21 - j, tono('#2a2018')); for (let k = 0; k < 5; k++) for (let i = 0; i < 7; i++) R.pset(Math.round(px + 4 + i * 0.9 + m), Y + 9 + Math.round(k * 0.8 + i * (k - 2) * 0.25), tono('#2a4a2a')); }
+  R.numero(ano, X + 17, Y + 34, { tam: 8, centro: true, color: gris ? hex('#6a6a7a') : hex('#c83a3a'), sombra: false });
+  R.disco(X + 17, Y, 2, C.k); R.disco(X + 17, Y, 1, gris ? hex('#9a9aa8') : hex('#e03a3a')); };
+const clava = golpea - 0.1;
+const p5 = (t) => {
+  const zoom = tramo(t, milton - 0.35, milton + 0.55);
+  const P = T.mapa(R, t, { desde: 'eeuu', zona: 'golfo', u: zoom });
+  // Milton, 2024: su trayectoria gris y su chincheta en Siesta Key
+  const um = lin(t, milton + 0.1, ano2024 - 0.05); if (um > 0) { const f = traza(P, MILTON, um, hex('#4a4a5c'), 3); if (f && um < 1) simbolo(f[0], f[1], hex('#8a8a9a'), true, hex('#3a3a46')); }
+  const [kx, ky] = P([-82.56, 27.27]); if (t > ano2024 - 0.3) { T.chincheta(R, kx, ky, t, hex('#8a8a9a'), { baja: lin(t, ano2024 - 0.3, ano2024) }); foto(kx + 10, ky - 34, '2024', true, lin(t, ano2024, ano2024 + 0.25), t); }
+  // Isaías, 2026: su trayectoria roja, el huracán que avanza y la chincheta que clava la mano en Destin
+  const ui = lin(t, P5 + 0.05, clava - 0.2), fin = traza(P, ISAIAS, ui, hex('#e03a3a'), 4);
+  if (fin && ui < 1) simbolo(fin[0], fin[1], hex('#e03a3a'));
+  const [dx, dy] = P([-86.5, 30.39]);
+  const baja = lin(t, clava - 0.45, clava), mano = entre(t, clava - 0.5, clava + 0.55);
+  if (t > clava - 0.45) T.chincheta(R, dx, dy, t, hex('#e03a3a'), { baja: Math.max(baja, 0.001), pulso: t > clava + 0.6 });
+  foto(dx - 50, dy - 44, '2026', false, lin(t, eeuu, eeuu + 0.25), t);
+  if (mano) { const v = tramo(t, clava - 0.5, clava - 0.05), w = tramo(t, clava + 0.15, clava + 0.55); manoBorde(dx + 12 + (1 - v) * 60 + w * 90, dy - 8 - (1 - baja) * 18, -1, '#2a4a7a'); }
+};
+
+// ── 6 · el apagón: las luces de la costa se apagan barrio a barrio y el contador llega a 700,000 ───────────────
+const salta = hogares + 0.1;
+const p6 = (t) => {
+  const ap = 0.34 * tramo(t, deja + 0.1, miles + 0.6) + 0.33 * tramo(t, hogares - 0.1, florida - 0.2) + 0.33 * tramo(t, florida - 0.1, sinLuz + 0.2);
+  const o = { noche: 1, huracan: 0.72, apagon: ap };
+  T.costa(R, t, o);
+  // el transformador que salta en la US-98: un fogonazo azul verdoso
+  if (entre(t, salta, salta + 0.35)) { const v = lin(t, salta, salta + 0.35), r = Math.round(2 + v * 14); for (let y = 66 - r; y <= 66 + r; y++) for (let x = 142 - r; x <= 142 + r; x++) { const d = Math.hypot(x - 142, y - 66); if (d < r && bay(x, y) < (1 - d / r) * (1 - v)) R.pset(x, y, d < r * 0.4 ? C.blanco : hex('#8af0e8')); } }
+  T.i_costaDelante(R, t, o);
+  // el contador: casas sin luz (la casita con la bombilla tachada) y la cifra que sube
+  const n = Math.round(700000 * tramo(t, miles - 0.05, hogares + 0.1) / 1000) * 1000, s = n.toLocaleString('en-US');
+  const sube = Math.round((1 - tramo(t, miles - 0.45, miles - 0.1)) * 34); if (sube >= 34) return;
+  R.rect(66, 148 + sube, 254, 176 + sube, C.k); R.rect(67, 149 + sube, 253, 175 + sube, hex('#141a2c')); R.rect(67, 149 + sube, 253, 149 + sube, hex('#3a4a6a'));
+  { const hx = 72, hy = 154 + sube, bomb = n > 0 ? hex('#6a6a5a') : hex('#f0d040'); R.poligono([[hx, hy + 6], [hx + 7, hy], [hx + 14, hy + 6]], hex('#c8ccd8')); R.rect(hx + 2, hy + 6, hx + 12, hy + 15, hex('#c8ccd8')); R.rect(hx + 6, hy + 10, hx + 8, hy + 15, hex('#141a2c'));
+    R.disco(hx + 21, hy + 7, 4, bomb); R.rect(hx + 20, hy + 11, hx + 22, hy + 14, hex('#8a8a96')); if (n > 0) { R.linea(hx + 16, hy + 2, hx + 26, hy + 13, hex('#e03a3a')); R.linea(hx + 16, hy + 3, hx + 26, hy + 14, hex('#e03a3a')); } }
+  R.numero(s, 178, 171 + sube, { tam: 16, centro: true });
+};
+// los efectos: el trueno de cada relámpago de la costa, sincronizado con el destello del decorado
+const truenos = (t0, t1, base) => { const L = []; for (let k = Math.floor(t0 / 4.3) - 1; k < t1 / 4.3 + 1; k++) { const tr = RAYO(k) + 0.25; if (tr > t0 && tr < t1) L.push([tr, 'trueno']); } return L; };
+const efectos = [[0.4, 'tecleo'], [da, 'golpecito'], [fuerza, 'gluglu'], [octubre, 'papel'], [siete + 0.05, 'aviso'],
+  [record - 0.02, 'interruptor'], [record + 0.35, 'pop'], [iza, 'tic'], [iza + 0.5, 'tic'], [iza + 1.0, 'rafaga'], [ano1905, 'sello'],
+  [P3 + 0.15, 'rafaga'], [tres, 'brillo'], [calidas, 'burbujas', { dur: 1.5 }],
+  [P4 + 0.05, 'lluvia'], [P4 + 0.6, 'rafaga'], [tierra - 0.05, 'ola'], [tierra + 0.05, 'trueno'], [destin, 'rafaga'], [destin + 0.5, 'golpecito'], [dos, 'pop'], ...truenos(P4 + 0.3, P5 - 0.1),
+  [P5 + 0.1, 'lapiz'], [clava, 'golpecito'], [milton - 0.3, 'whoosh'], [milton + 0.15, 'lapiz'], [ano2024, 'golpecito'],
+  [P6 + 0.05, 'lluvia'], [deja + 0.3, 'interruptor'], [salta, 'boom'], [hogares + 0.4, 'interruptor'], [florida, 'interruptor'], [sinLuz + 0.2, 'rafaga'], ...truenos(P6 + 0.5, 33.6)];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
