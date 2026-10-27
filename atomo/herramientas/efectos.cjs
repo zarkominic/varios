@@ -146,6 +146,16 @@ const firma = () => I.scribble(1.1, 47);
 // un ladrido corto y alegre: armónicos que caen de tono, con un soplo de ruido al principio
 function guau() { const out = buf(0.3), w = rng(48), lp = new OnePole(); let ph = 0; for (let i = 0; i < out.length; i++) { const t = i / SR, f = 560 - 900 * Math.min(0.25, t); ph += f / SR; let v = 0; for (let k = 1; k <= 6; k++) v += Math.sin(TAU * ph * k) / k * (k === 3 || k === 4 ? 1.6 : 1); out[i] = (v * 0.5 + lp.lp(w(), 2500) * (t < 0.03 ? 0.6 : 0.1)) * Math.min(1, t / 0.006) * Math.exp(-t * 14); } return out; }
 const aviso = () => I.ting(88);
+// desde el episodio 12 (huracanes): el trueno (un golpe grave con el chasquido de ruido que se apaga), la ráfaga de
+// viento, un golpe de lluvia y una ola que rompe
+function trueno() {
+  const out = buf(2.4), a = I.subBoom(2.4, 55, 24), b = I.noiseSweep(2.0, 1500, 250, { q: 0.6, pink: true, seed: 37, shape: (x) => Math.exp(-3 * x) * (1 - x) });
+  for (let i = 0; i < out.length; i++) out[i] = (a[i] ?? 0) + (b[i] ?? 0) * 0.8;
+  return out;
+}
+const rafaga = () => I.noiseSweep(1.8, 300, 900, { q: 0.6, pink: true, seed: 31, shape: (x) => Math.pow(Math.sin(Math.PI * x), 1.5) });
+const lluvia = () => I.noiseSweep(2.5, 4200, 3600, { q: 0.4, seed: 33, shape: (x) => Math.min(1, x * 4) * Math.min(1, (1 - x) * 4) });
+const ola = () => I.noiseSweep(1.6, 600, 2400, { q: 0.5, pink: true, seed: 35, shape: (x) => (x < 0.3 ? x / 0.3 : Math.exp(-(x - 0.3) * 4)) });
 
 const RECETAS = {
   timbre, puerta, firma, aviso, guau,
@@ -156,6 +166,7 @@ const RECETAS = {
   bip, ring, toc, cerrojo, avalancha, interruptor,
   jet, burbujas, zumbido, motor, brillo, lapiz, palmada, arranque, masca, flash, papel: () => I.paperFwip(0.8), tic: () => I.woodTick(1.3),
   gluglu,
+  trueno, rafaga, lluvia, ola,
   boing: () => I.boing(),
   claxon,
   silbato,
@@ -168,7 +179,8 @@ const RECETAS = {
 // nivel (dB RMS) y posición (−1 izquierda, 1 derecha) de cada efecto; las aldeas se solapan, por eso van más bajas
 const NIVEL = { guau: [-30, -0.1], timbre: [-31, -0.3], puerta: [-31, 0.2], firma: [-32, 0.1], aviso: [-33, 0.2], gluglu: [-30, 0.3], boing: [-29, -0.2], claxon: [-31, -0.5], silbato: [-32, 0.1], vapor: [-34, 0.1],
   pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0],
-  motor: [-36, 0], tecleo: [-33, 0.2], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
+  motor: [-36, 0], tecleo: [-33, 0.2], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0],
+  trueno: [-28, 0], rafaga: [-33, 0], lluvia: [-36, 0], ola: [-33, 0] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
 const rms = (b) => {
   const n = Math.min(b.length, Math.round(0.4 * SR)), c = new Float64Array(b.length + 1);
