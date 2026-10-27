@@ -1295,6 +1295,16 @@ export function p3Dentro(R, t, o = {}) {
   // lo de delante: los asientos (cojín, reposabrazos y pedestal) por delante de quien se sienta
   if (o.delante !== false || roja) { const antes = R.delante; R.delante = () => { antes?.(); if (o.delante !== false) h_p3DentroDelante(R, t, o); if (roja) h_luzRoja(R, dx, dy, typeof o.roja === 'number' ? o.roja : 1); }; }
 }
+// El aeropuerto de hoy de los cazahuracanes de la NOAA (Lakeland, Florida): la pista ancha con sus marcas y luces, el
+// hangar grande de la NOAA con la puerta abierta (otro P-3 dentro, mecánicos), la torre moderna, el depósito, la manga,
+// palmeras y robles con musgo, coches en el aparcamiento, el cielo de Florida con cúmulos y una banda de nubes del
+// huracán al horizonte. o.encuadre 'pista' (por defecto, la pista de lado para el despegue: el suelo de la pista en
+// y ≈ 150) | 'hangar'. El P-3 lo pone la escena con T.p3
+export function aeropuertoHoy(R, t, o = {}) { provisional(R, t, hex('#7ab8e0'), hex('#8a8a8a')); }
+// El cielo en vuelo, entre las bandas exteriores de un huracán: capas de nubes que pasan a distinta velocidad según
+// o.vel (la sensación de volar), jirones, sol que entra y sale, el mar abajo con espuma y una banda de lluvia al fondo.
+// Para poner encima un avión en vuelo (T.p3, T.at6). o.hora 'dia' | 'tarde'; o.lluvia 0–1
+export function cieloVuelo(R, t, o = {}) { provisional(R, t, hex('#8ab0d8'), hex('#2a6a9a')); }
 // La costa del golfo en Destin (Florida), la noche del 9 de octubre de 2026 y el día después. Dos encuadres (o.encuadre):
 // · 'general' (por defecto): la costa vista desde el mar, un poco en alto, en cuatro términos. Al fondo, la otra orilla
 //   de la bahía con su mástil de radio (luces rojas) y el puente Mid-Bay con su joroba y coches diminutos; tierra adentro,
