@@ -40,7 +40,14 @@ The bet itself is a legend: historians have found no record of it from 1943. The
 
 What should I explain next? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 The flight into the storm
+1:09 The heat engine
+2:47 Galveston, 1900
+3:56 Eyes in the sky
+4:58 Measuring the fury
+5:35 The little cousin: tornadoes
+6:49 2026, the quiet year
+8:12 Wrap-up
 
 Sources: NOAA AOML (N. Dorst, Weatherwise, 2024) and NWS Houston on the 1943 flight · D. Reade (2021) on the Duckworth story · NOAA Hurricane Research Division FAQ (energy, the eye) · Ember, Global Electricity Review 2026 · ASCE and NOAA on Galveston (1900) · NOAA NESDIS and NASA on TIROS-1 · NHC on storm names and the Saffir–Simpson scale · University of Chicago on Ted Fujita · NOAA SPC and NSSL on tornadoes; Schultz et al., BAMS (2014) · NHC report on Hurricane Ivan (2004) · NOAA CPC on El Niño · NHC advisories, AP and WRAL on Isaias and Josephine (2026) · NOAA OMAO and the 53rd Weather Reconnaissance Squadron on the hurricane hunters
 
@@ -67,7 +74,14 @@ La apuesta es una leyenda: los historiadores no han encontrado ningún registro 
 
 ¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 El vuelo dentro de la tormenta
+1:09 La máquina de calor
+2:47 Galveston, 1900
+3:56 Ojos en el cielo
+4:58 Medir la furia
+5:35 El primo pequeño: el tornado
+6:49 2026, el año del silencio
+8:12 El cierre
 
 Fuentes: NOAA AOML (N. Dorst, Weatherwise, 2024) y NWS Houston sobre el vuelo de 1943 · D. Reade (2021) sobre la historia de Duckworth · preguntas frecuentes de la División de Investigación de Huracanes de la NOAA (energía, el ojo) · Ember, Global Electricity Review 2026 · ASCE y NOAA sobre Galveston (1900) · NOAA NESDIS y NASA sobre el TIROS-1 · NHC sobre los nombres y la escala Saffir–Simpson · Universidad de Chicago sobre Ted Fujita · NOAA SPC y NSSL sobre los tornados; Schultz et al., BAMS (2014) · informe del NHC sobre el huracán Iván (2004) · NOAA CPC sobre El Niño · avisos del NHC, AP y WRAL sobre Isaías y Josephine (2026) · NOAA OMAO y el 53.º Escuadrón de Reconocimiento Meteorológico sobre los cazahuracanes
 
