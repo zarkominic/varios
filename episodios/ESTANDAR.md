@@ -6,11 +6,17 @@ detalles, sombreados, animaciones, sonidos, música, voz, todo excelente; pero s
 movimiento.» Sustituye y eleva el del 25 de octubre (episodio 10). Ningún episodio se entrega si no cumple todo lo de esta
 lista.
 
-- **Referencia de nivel:** el episodio 11 final. Es el vídeo `atomo/build/salida/ep11.mp4`, con los decorados de
-  `atomo/plato/escenas/th-comun.js` y las escenas `th-*.html` (commit `6455734`). Para la narración y el sonido, también el
-  episodio 10 (`ov-*.html`).
-- **Cómo se hace:** la skill del proyecto `.claude/skills/hacer-video/` (el proceso entero, con las tres pasadas de
-  calidad y las plantillas de los agentes). Se sigue siempre; el usuario no tiene que volver a explicarlo.
+- **Referencia de nivel:** el episodio 11 final.
+  - Sus decorados están en `atomo/plato/escenas/th-comun.js` y sus escenas en `th-*.html` (commit `6455734`, con la
+    corrección de los fundidos de `bf5a41a`).
+  - Quince planos suyos, a su tamaño, están en **`episodios/referencia-ep11-1.jpg` y `referencia-ep11-2.jpg`**: es lo
+    primero que se mira.
+  - El vídeo (`atomo/build/salida/ep11.mp4`) solo existe en el contenedor donde se hizo, porque `build/` no va a git. Las
+    escenas sí, y se capturan igual.
+  - Para la narración, también el episodio 10 (`ov-*.html`).
+- **Cómo se hace:** con la skill del proyecto `.claude/skills/hacer-video/` y el workflow
+  `.claude/workflows/hacer-video-pasadas.js`, que llevan el proceso entero y las tres pasadas de calidad. Se sigue siempre:
+  el usuario no tiene que volver a explicarlo.
 - **Guías que lo completan:** `GUIA-ESTILO.md` (cómo se dibuja) y `GUIA-NARRATIVA.md` (cómo se cuenta).
 
 ## Nunca se baja el nivel
@@ -24,6 +30,12 @@ lista.
 - **Etiquetas honestas:** solo se dice «Seguro» de lo comprobado con capturas o mediciones.
 - **Lo que pasó en el 11** y no debe repetirse: la primera versión salió con paredes lisas, cielos de franjas, insertos sin
   fondo, personajes quietos y manos grandes fuera del canon, porque se dio por buena una sola pasada. El usuario la rechazó.
+- **Y lo que se vio después** (revisión automática del 27/10): incluso el 11 final tenía fallos que nadie vio:
+  - cuatro fundidos con cielos o paredes negras (ya corregidos en los kits);
+  - en la sala del consejo, gente que pasa por detrás pintada encima de los respaldos;
+  - cuatro «planos» seguidos con la misma composición.
+
+  Por eso la revisión la hacen, además de quien produce, un revisor y un escéptico con la hoja de cada plano.
 
 ## Imagen
 
@@ -40,9 +52,17 @@ lista.
 - **Nada plano:** ni paredes lisas, ni cielos de franjas (degradado tramado, nubes de varios tamaños, pájaros, estelas),
   ni insertos sobre fondo liso (cada inserto va sobre su decorado o una mesa con objetos). Todo decorado pinta los
   320 × 180 píxeles en cada fotograma, porque si no quedan restos de fotogramas anteriores.
+- **El gancho (los primeros 20 s) es la escena más trabajada del vídeo:** en el 4 se fue el 60 % de la gente en ese tramo.
+- **Orden de dibujo:**
+  - quien pasa por detrás de un mueble queda tapado por él;
+  - lo que se ve por una ventana o una puerta (coches, gente, pájaros) se recorta a su hueco (`R.recorte`) en todas las
+    escenas que reutilizan el decorado. En el 11, el coche de la calle cruzaba por dentro de la farmacia y del laboratorio.
+- **Fundidos limpios:**
+  - un fondo fijo se guarda en un búfer con `const prev = R.usar(b); …; R.usar(prev)`, nunca con `R.usar()` a secas;
+  - la columna de inicio de la hoja de revisión cae al final del fundido: ahí no puede haber negro ni restos.
 - **Manos y cuerpos:** sin primeros planos. Una mano es siempre la canónica `mano(R, x, y, dir, manga)` de 14 px. El
   plano medio se hace con el decorado o con un vehículo; en una portada o una pantalla, el sprite chibi al doble.
-- **Al menos un gag por cada 2–3 minutos.** Ejemplos del 10: el perro que recoge el periódico, el palito que se lleva el viento, el caramelo junto al Tic Tac, el gato en el teclado.
+- **De 6 a 8 gags cortos por episodio** (el 11 llevó 7), con máquinas, animales y objetos, nunca contra personas reales. Ejemplos del 10: el perro que recoge el periódico, el palito que se lleva el viento, el caramelo junto al Tic Tac, el gato en el teclado.
 - **Mapas con costas reales:** `geo-ov.js`, generado desde Natural Earth con `herramientas/hacer_geo.py`, y `ov-mapas.js` (mapa de papel, Albers, relieve, chinchetas). Nunca polígonos a mano.
 - **La acción va con la voz:** cada sello, chincheta o aparición cae cuando la voz inglesa dice la palabra (reparto por letras dentro de la frase o marcas).
 - **La barra del año dice la verdad en cada plano:** `año` puede ser una función del tiempo.
@@ -55,9 +75,12 @@ lista.
   - la zona de Atom (x 278–318, y 4–44) y la barra del año (x 20–170, y 0–14) quedan como fondo tranquilo.
 - **Revisión antes de entregar:**
   - se miden todos los planos (`atomo/herramientas/medir-planos.mjs <ep>`);
-  - se captura cada plano en su centro (`medir-planos.mjs <ep> --centros` y `estilos/herramientas/capturar.mjs`);
-  - se mira cada captura al lado de las de referencia;
-  - al final, una tira de 20 fotogramas del montaje.
+  - se saca la hoja de cada escena: `medir-planos.mjs <ep> --hoja <carpeta>` da una fila por plano con el inicio, el
+    centro y el final, a 640 × 360, en imágenes de 5 planos como mucho. Ninguna imagen de revisión pasa de 2000 px,
+    porque Read las reduce y se juzgaría en miniatura, que es lo que pasó con la primera revisión del 11;
+  - se mira cada hoja al lado de la referencia, y además la revisan un revisor y un escéptico
+    (`hacer-video-pasadas`, `paso: calidad`) hasta que no quede ningún plano por debajo;
+  - al final, la tira de 20 fotogramas del montaje (`producir.sh` la deja en `build/salida/<ep>-tira.jpg`).
 
 ## Sonido
 
@@ -66,8 +89,15 @@ lista.
 - **Música continua:** nunca se corta ni vuelve a empezar en un cambio de escena ni en una cartela de año. Las escenas
   seguidas con el mismo ánimo suenan como un tramo, hay un lecho grave de principio a fin y cada cartela tiene su
   transición. Se mide: en los cambios de año la música baja como mucho unos 7 dB, nunca al silencio.
-- **Efectos discretos y sincronizados** con lo que pasa en pantalla (`herramientas/efectos.cjs`), entre 10 y 14 dB por debajo de la voz. Solo recetas que existen en `NIVEL`; la densidad, como en los episodios 10 y 11 (algún efecto en un 45–56 % del tiempo, mediana unos 16 dB por debajo de la voz).
-- **Nivel final de las dos pistas:** −14 LUFS (±0,5), con el pico por debajo de −0,5 dBFS. Se mide con `ffmpeg -i <archivo> -af ebur128=peak=true -f null -`.
+- **Efectos discretos y sincronizados** con lo que pasa en pantalla (`herramientas/efectos.cjs`). Cada efecto se normaliza
+  entre 10 y 14 dB por debajo de la voz. Solo valen recetas que existen en `NIVEL`.
+- **La densidad, como en el 11:** algún efecto suena el 58 % del tiempo (entre 40 y 65), y cuando coincide con la voz queda
+  por debajo una mediana de 15,6 dB en inglés y 15,3 en español (entre 13,5 y 19; p10 de 6 o más). Todo se mide en las dos
+  pistas, porque el usuario oyó efectos altos solo en el español del 10.
+- **Nivel final de las dos pistas:** −14 LUFS (±0,5), con el pico por debajo de −0,5 dBFS.
+- **Todo se mide con una orden,** que sale con 1 si algo no cumple:
+  `$VOZ/venv/bin/python atomo/herramientas/medir-sonido.py atomo/build/largo/<ep> episodios/<carpeta>/escenas.json --video … --pista …`.
+  `producir.sh` la ejecuta al final.
 
 ## Subtítulos
 

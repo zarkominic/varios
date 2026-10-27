@@ -12,7 +12,9 @@ Para cada copia:
 - añade al final las declaraciones nuevas de la copia (auxiliares <g>_…, con sus comentarios): se evalúan después de
   C, pal y hex, así que el final del archivo es un sitio seguro;
 - AVISA, sin tocarlas, de las funciones que la copia cambió y no son de su lista (por ejemplo cielo(), que es de
-  todos) y de los import nuevos: eso se mira a mano.
+  todos) y de los import nuevos: eso se mira a mano. Compara con _tmp_<G>/<pref>-comun.base.js, la copia intacta de la
+  que partió el agente, si existe (así se pueden integrar lotes uno detrás de otro sin avisos falsos); si no, con el
+  archivo tal como está.
 Después quita las cabeceras de sección repetidas. Al terminar hay que comprobar la sintaxis (copiar a .mjs y
 node --check) y capturar las escenas.
 
@@ -20,6 +22,7 @@ También acepta, como en el episodio 11, diarios de workflow (journal.jsonl) cuy
 {functions: [{name, code}], helpers}: python3 … th-comun.js <journal.jsonl> [<journal.jsonl> …]
 """
 import json
+import os
 import re
 import sys
 
@@ -67,6 +70,8 @@ while i < len(resto):
         copia, lista = resto[i + 1], [f for f in resto[i + 2].split(',') if f]
         i += 3
         c = open(copia, encoding='utf-8').read()
+        ruta_base = copia[:-3] + '.base.js'
+        base = open(ruta_base, encoding='utf-8').read() if os.path.exists(ruta_base) else original
         for f in lista:
             codigo = texto(c, f)
             nuevo = cambiar(s, f, codigo) if codigo else None
@@ -75,16 +80,16 @@ while i < len(resto):
                 continue
             s = nuevo
             hechas.append(f)
-        de_orig, de_copia = declaraciones(original), declaraciones(c)
+        de_orig, de_copia = declaraciones(base), declaraciones(c)
         nuevas = [n for n in de_copia if n not in de_orig and n not in declaraciones(s)]
         for n in nuevas:
             s = s.rstrip('\n') + '\n\n' + texto(c, n) + '\n'
         if nuevas:
             hechas.append(f'+{len(nuevas)} auxiliares de {copia}')
         for n in de_copia:
-            if n in de_orig and n not in lista and texto(c, n) != texto(original, n):
+            if n in de_orig and n not in lista and texto(c, n) != texto(base, n):
                 avisos.append(f'{copia} también cambia «{n}», que no es de su lista: no se ha integrado; míralo a mano')
-        imp_o = set(re.findall(r'^import .*$', original, re.M))
+        imp_o = set(re.findall(r'^import .*$', base, re.M))
         for l in re.findall(r'^import .*$', c, re.M):
             if l not in imp_o:
                 avisos.append(f'{copia} trae un import nuevo: {l}')

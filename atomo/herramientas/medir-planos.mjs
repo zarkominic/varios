@@ -4,16 +4,16 @@
 //   node atomo/herramientas/medir-planos.mjs ep11                 → duración de cada plano de todas las escenas
 //   node atomo/herramientas/medir-planos.mjs ep11 th-gancho th-lab
 //   node atomo/herramientas/medir-planos.mjs ep11 --centros > centros.txt   → «id t1,t2,…» con el centro de cada plano
-//   node atomo/herramientas/medir-planos.mjs ep11 th-lab --hoja <carpeta>   → <carpeta>/th-lab.jpg, la hoja de revisión
+//   node atomo/herramientas/medir-planos.mjs ep11 th-lab --hoja <carpeta>   → <carpeta>/th-lab-1.jpg, th-lab-2.jpg: la hoja de revisión
 //
 // La hoja tiene una fila por plano y tres columnas: inicio (+0,35 s), centro y final (−0,35 s), a 640×360 (2 px por píxel
-// del lienzo) y con su etiqueta. Es lo que se mira en la revisión y lo que leen los agentes de calidad. Con --hoja
+// del lienzo) y con su etiqueta; con más de 5 planos se parte en varias imágenes (-1, -2…) para que ninguna pase de 2000 px. Es lo que se mira en la revisión y lo que leen los agentes de calidad. Con --hoja
 // también dice si la página dio errores.
 //
 // Abre cada escena (?captura) en Chromium, lee los inicios de plano que deja rodar() en window.__planos y las duraciones de
 // plato/escenas/marcas-<episodio>.json. Marca «!» los planos de más de 7,2 s y «<» los de menos de 3,5 s (ESTANDAR.md
 // pide 4–7 s; la cartela de 1,3 s del principio sale siempre con «<» y no cuenta). Con --centros omite la cartela.
-// Varias copias a la vez necesitan --puerto distinto. Un id puede llevar carpeta (_tmp_A/th-lab): se abre esa copia de la
+// Cada copia usa un puerto libre (o --puerto N). Un id puede llevar carpeta (_tmp_A/th-lab): se abre esa copia de la
 // escena con las marcas de th-lab.
 import http from 'node:http';
 import fs from 'node:fs';
@@ -26,7 +26,7 @@ const raiz = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../.
 const { chromium } = createRequire(execSync('npm root -g').toString().trim() + '/')('playwright');
 const args = process.argv.slice(2);
 const centros = args.includes('--centros');
-const ip = args.indexOf('--puerto'), puerto = ip >= 0 ? Number(args[ip + 1]) : 8970 + Math.floor(Math.random() * 20);
+const ip = args.indexOf('--puerto'), fijo = ip >= 0 ? Number(args[ip + 1]) : 0;   // 0: uno libre
 const ih = args.indexOf('--hoja'), hoja = ih >= 0 ? path.resolve(args[ih + 1]) : null;
 const libres = args.filter((a, i) => !a.startsWith('--') && (ip < 0 || i !== ip + 1) && (ih < 0 || i !== ih + 1));
 const episodio = libres[0];
@@ -39,7 +39,9 @@ const tipos = { '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'a
 const srv = http.createServer((q, r) => {
   const f = path.join(raiz, decodeURIComponent(q.url.split('?')[0]));
   fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': tipos[path.extname(f)] ?? 'application/octet-stream' }); r.end(d); });
-}).listen(puerto);
+});
+await new Promise((r) => srv.listen(fijo, r));
+const puerto = srv.address().port;
 const nav = await chromium.launch();
 const pg = await nav.newPage(hoja ? { viewport: { width: 640, height: 360 } } : {});
 let errores = [];
@@ -55,22 +57,31 @@ for (const id of ids) {
   if (centros) console.log(id, p.map((a, i) => ((a + fin(i)) / 2).toFixed(2)).filter((x, i) => !(i === 0 && p.length > 1 && p[1] < 1.4)).join(','));
   else if (!hoja) console.log(id.padEnd(16), d.toFixed(1).padStart(5), p.map((a, i) => { const x = fin(i) - a; return x.toFixed(1) + (x > 7.2 ? '!' : x < 3.5 ? '<' : ''); }).join(' '));
   if (hoja) {
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hoja-')), ent = [], fil = [];
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hoja-')), celdas = [];
     for (let i = 0; i < p.length; i++) {
       const a = p[i], b = fin(i), m = (a + b) / 2;
       for (const [j, t] of [Math.min(a + 0.35, m), m, Math.max(b - 0.35, m)].entries()) {
         await pg.evaluate((t) => window.__frame(t), t);
         const f = path.join(tmp, `${i}-${j}.png`);
         await pg.screenshot({ path: f });
-        const k = ent.length / 2;
-        ent.push('-i', f);
-        fil.push(`[${k}:v]` + (letra ? `drawtext=fontfile=${letra}:text='plano ${i + 1}  t=${t.toFixed(2)}':x=6:y=342:fontsize=14:fontcolor=white:box=1:boxcolor=black@0.6` : 'null') + `[v${k}]`);
+        celdas.push({ f, txt: `plano ${i + 1}  t=${t.toFixed(2)}` });
       }
     }
-    const n = ent.length / 2, lay = Array.from({ length: n }, (_, k) => `${(k % 3) * 640}_${Math.floor(k / 3) * 360}`).join('|');
-    const sal = path.join(hoja, `${path.basename(id)}.jpg`);
-    execFileSync('ffmpeg', ['-v', 'error', '-y', ...ent, '-filter_complex', fil.join(';') + ';' + Array.from({ length: n }, (_, k) => `[v${k}]`).join('') + (n > 1 ? `xstack=inputs=${n}:layout=${lay}` : 'null'), '-q:v', '3', sal]);
+    // de 5 planos en 5 (1920×1800 como mucho): Read reduce lo que pasa de 2000 px y los planos se verían en miniatura
+    const salidas = [], grupos = Math.ceil(p.length / 5);
+    for (let g = 0; g < grupos; g++) {
+      const parte = celdas.slice(g * 15, g * 15 + 15), n = parte.length, ent = [], fil = [];
+      parte.forEach((c, k) => {
+        ent.push('-i', c.f);
+        fil.push(`[${k}:v]` + (letra ? `drawtext=fontfile=${letra}:text='${c.txt}':x=6:y=342:fontsize=14:fontcolor=white:box=1:boxcolor=black@0.6` : 'null') + `[v${k}]`);
+      });
+      const lay = parte.map((_, k) => `${(k % 3) * 640}_${Math.floor(k / 3) * 360}`).join('|');
+      const sal = path.join(hoja, `${path.basename(id)}${grupos > 1 ? '-' + (g + 1) : ''}.jpg`);
+      execFileSync('ffmpeg', ['-v', 'error', '-y', ...ent, '-filter_complex', fil.join(';') + ';' + parte.map((_, k) => `[v${k}]`).join('') + (n > 1 ? `xstack=inputs=${n}:layout=${lay}` : 'null'), '-q:v', '3', sal]);
+      salidas.push(sal);
+    }
     fs.rmSync(tmp, { recursive: true, force: true });
+    const sal = salidas.join(', ');
     console.log(`${id}: ${p.length} planos → ${sal}` + (errores.length ? `  ERRORES: ${errores.join(' | ')}` : '  sin errores en la página'));
   }
 }

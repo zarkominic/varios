@@ -61,8 +61,9 @@ os.makedirs(CLIPS, exist_ok=True)
 
 _kokoro = _whisper = _chatterbox = None
 def chatterbox():
-    """Chatterbox multilingüe (Resemble AI, licencia MIT), en CPU. Desde el episodio 9 locuta el inglés: es más
-    expresivo que Kokoro. En español se inventa frases y coge acento (probado en el episodio 9), así que el español sigue con Kokoro."""
+    """Chatterbox multilingüe (Resemble AI, licencia MIT), en CPU. Solo se usó en el inglés del episodio 9: era más
+    expresivo que Kokoro, pero el usuario oyó ruido de fondo en las pausas y desde el 10 se volvió a Kokoro (am_puck). En
+    español se inventa frases y coge acento. Se queda por si se vuelve a probar; el canon no lo usa ni lo instala."""
     global _chatterbox
     if _chatterbox is None:
         import torch

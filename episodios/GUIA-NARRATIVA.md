@@ -1,6 +1,6 @@
 # Cómo explicar: lo que tomamos de Kurzgesagt
 
-> **Estándar mínimo:** desde el episodio 10, todo episodio cumple `ESTANDAR.md` (planos de 4–7 s con acción, detalle del gancho del 10, mapas reales, −14 LUFS, subtítulos limpios, entrega completa en el chat).
+> **Estándar mínimo:** todo episodio cumple `ESTANDAR.md`, escrito en piedra con el episodio 11 final como referencia. El proceso, de la petición a la entrega, está en la skill `.claude/skills/hacer-video/`.
 
 **Referencia estudiada:** Kurzgesagt – In a Nutshell, «We Finally Know More About Humanity's First Civilization»: 17:30, 10,1 millones de visitas en 12 días. Se analizaron la transcripción completa (2.639 palabras, unas 150 por minuto) y una muestra de un fotograma cada ~8 s.
 
@@ -58,8 +58,9 @@
 - **Golpes cortos:** uno por bloque como mucho, y al cerrar el bloque, con humor suave («Tú también. No te lo tomes como algo personal»).
 - **Temas abiertos (ovnis, misterios):** lo explicado se cuenta como parte de la historia, no como tesis para desmontar. Lo no explicado se deja abierto y con fuerza. Desmontar el tema espanta al público que viene a verlo.
 - **Lo que no se sabe:** decirlo cuando toque.
-- **Imagen:** composición nueva cada 4–6 s, con variedad de planos.
-- **Estilo: la plastilina es la base y otros estilos entran por bloques**, como en el episodio 2. Allí 9 de las 17 escenas eran de plastilina (gancho, marcadores entre mitos, recuento y despedida) y cada mito iba en papel o en isométrico.
+- **Imagen:** composición nueva cada 4–7 s (`ESTANDAR.md`), con variedad de planos.
+- **Estilo (hoy):** pixel chibi canónico en todo el episodio, desde el 8 (`GUIA-ESTILO.md`). Lo que sigue sobre la plastilina es historia de los episodios 2–7.
+- **Estilo (episodios 2–7): la plastilina era la base y otros estilos entraban por bloques**, como en el episodio 2. Allí 9 de las 17 escenas eran de plastilina (gancho, marcadores entre mitos, recuento y despedida) y cada mito iba en papel o en isométrico.
   - **Siempre en plastilina:**
     - Atom;
     - la apertura y el cierre;
@@ -71,7 +72,27 @@
     - nunca a mitad de un zoom continuo.
   - **Lo que mantiene la unidad:** los tres estilos comparten paleta (la de la plastilina adulta) y Atom es siempre el mismo personaje.
 - **Cierre:** recuperar la imagen del principio y terminar con la pregunta de ASK Atom: «¿Qué quieres que te explique ahora?».
-- **Duración:** de 5 a 6 minutos mientras ajustamos la producción. Cuando sea barata, pasar de 8 minutos para tener anuncios a mitad del vídeo, que es donde Kurzgesagt gana.
+- **Duración: episodio completo, de unos 8:30 a 9:30** (el 10 duró 9:06 y el 11, 8:53). Pasar de 8 minutos permite anuncios a mitad del vídeo.
+  - Se estima con 150 palabras por minuto en inglés con `am_puck` a 0,85: 1.300–1.400 palabras.
+  - Nunca se propone acortar el episodio ni hacer una versión rápida para llegar antes. El usuario, el 26/10/2026: «Capitulo completo, siempre con el mismo detalle y calidad eso no se cuestiona por el largo del video».
+- **Público:** de 16 a 30 años, con un lenguaje muy humanizado (petición del 23/10). Técnicas aprobadas el 24/10: detalle humano en cada bloque, golpes cortos al cerrar y, cuando sirva, segunda persona y presente («imagina que estás…»). Nada de un personaje cómico que vuelva una y otra vez (el usuario rechazó «lo del pavo» del 9).
+- **Contexto para quien no sabe nada** (corrección del 23/10, en Roma: «alguien que no sabe nada… no sabe dónde empezó geográficamente»):
+  - se sitúa en el mapa antes de la primera fecha;
+  - los cambios de época se ven en el mapa o en la barra del año;
+  - se cuenta como una historia para alguien que quiere entenderla, no como datos sueltos uno tras otro.
+- **Nada morboso, tampoco en la narración.** El usuario rechazó el cierre del Halloween («lo de que debes tener átomos de muertos no me gusta»). Vale para el tema, el guion y la imagen.
+- **La forma de contar del 11 (Theranos), que es la de referencia:**
+  - **Ángulo ASK Atom:** si el tema ya está muy contado, el episodio explica la ciencia o el porqué que otros no explican (en el 11, qué cabe en una gota de sangre), en un acto propio, justo antes del acto donde se usa.
+  - Después del gancho, la historia empieza por la persona y en orden: la explicación no abre el vídeo.
+  - Personas reales: solo hechos comprobados, con trato justo. Los gags van con máquinas y objetos, nunca para ridiculizar a nadie real.
+- **Cifras en el guion:** los años van en cifras (`hacer_guion.py` los pasa a palabras para la voz). Cualquier otra cifra va en palabras en los dos idiomas («nine billion», «ciento setenta y cinco mil»), porque un número de tres cifras se leería como un año («175» → «one seventy-five»). Si tiene que ir en cifras, va en `PREVIO` de `hacer_guion.py`, como las fechas con día.
+
+## Títulos
+
+- **El tema, o la persona o el nombre más buscado, va delante, y el gancho detrás.** Correcciones del usuario: «el título debe ser más catchy, con de lo que va el canal» (22/10) y «deben ser muy claros de qué hablamos, debe decir Los Griegos o Grecia antigua dentro del título, no solo el catch» (23/10). En el 11: «Elizabeth Holmes and Theranos: The Drop of Blood That Fooled Silicon Valley».
+- **Sin minutos en el título ni en la descripción.** El Halloween prometía 10 minutos y duraba menos de 7 («mencionas que son 10 minutos y en verdad son menos de 7»).
+- Dos alternativas para la prueba A/B, con las mismas reglas.
+- El gancho del vídeo dice el tema en los primeros 20 s.
 
 ## Qué no copiamos
 

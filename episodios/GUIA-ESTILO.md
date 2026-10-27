@@ -57,7 +57,7 @@ Piezas en `eg-comun.js`: `mareo`, `polvareda`, `trote`, `gotaSudor`, `pan`. Que 
 
 ## Fondos
 
-**Nivel de detalle de referencia (aprobado el 25/10/2026): el gancho del episodio 10** (`atomo/plato/escenas/ov-gancho.html`, decorado `pacifico` en `ov-comun.js`). Todo decorado nuevo tiene que llegar a ese nivel:
+**Nivel de detalle de referencia: el episodio 11 final** (fijado el 27/10/2026; se ve en `episodios/referencia-ep11-1.jpg` y `-2.jpg`, y los decorados están en `th-comun.js`). Antes lo era el gancho del 10 (`ov-gancho.html`, decorado `pacifico`). Todo decorado nuevo tiene que llegar a ese nivel:
 - **Agua viva:**
   - olas en perspectiva, cada cresta con su largo, su altura y su sitio (nunca papel pintado);
   - borreguitos, vetas oscuras, sombras de nubes que pasan;

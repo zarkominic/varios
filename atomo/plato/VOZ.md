@@ -1,5 +1,16 @@
 # La voz de los vídeos largos: qué falló en el episodio 2 y cómo se hará desde el 3
 
+> **Canon desde el episodio 10 (lo que vale hoy):**
+> - Las dos voces son de Kokoro: en inglés `am_puck` a 0,85 y en español `em_santa` a 0,92. Se fijan en `voces` de
+>   `hacer_guion.py`, y el montaje las iguala a −19 dB RMS (`ESTANDAR.md`).
+> - El español se sintetiza entre 0,85 y 1,10 y se estira como mucho un 10 % (`locutar_frases.py`).
+> - Lo de `am_fenrir` a 0,95 de más abajo es historia de los episodios 3–9.
+> - Chatterbox se usó en el inglés del 9. El usuario oyó ruido de fondo en las pausas y las transiciones, y desde el 10
+>   se volvió a Kokoro. No se instala.
+> - Solo herramientas gratis («nada de pagadas», 23/10/2026): nada de ElevenLabs ni de servicios de pago.
+> - El entorno se monta con `bash atomo/herramientas/preparar-voz.sh`, con las versiones fijadas en
+>   `atomo/herramientas/voz-requisitos.txt`.
+
 ## Lo que falló, y por qué
 
 Para que la misma imagen sirva a las dos pistas, `preparar_largo.py` cortaba cada locución larga en tramos entre palabras clave y estiraba o metía silencio en cada tramo. Todos los fallos que se oyeron vienen de cortar audio ya sintetizado guiándose por tiempos que no son exactos:
@@ -36,7 +47,7 @@ Cada arreglo tapó un caso, pero el planteamiento (cortar una locución larga po
    - **Texto:** Whisper transcribe el clip y se compara con el guion. Se avisa si sobra, falta o se repite alguna palabra.
    - **Pronunciación:** se avisa de las palabras que duran el doble de lo esperado o tienen un hueco dentro, como «cen…ter».
    - **Resíntesis:** los clips señalados se vuelven a sintetizar con otra velocidad o redacción. Si siguen mal, quedan en una lista corta para escucharlos.
-5. **Voces fijas.** `am_fenrir` en inglés y `em_santa` en español. El inglés es el audio original del vídeo, así que manda:
+5. **Voces fijas** (hasta el 9; desde el 10, `am_puck` a 0,85: ver el canon de arriba). `am_fenrir` en inglés y `em_santa` en español. El inglés es el audio original del vídeo, así que manda:
    - El inglés se locuta a su velocidad natural y casi no se estira.
    - El español es el que se ajusta: velocidad, estiramiento de ±8 % y silencio entre frases.
    - En inglés no se dice «I'm Atom, an atom», que con esta voz suena «Adam, an Adam». La presentación fija está en `episodios/GUIA-NARRATIVA.md`.
@@ -51,9 +62,9 @@ Con esto, la única revisión manual será la lista de clips señalados, normalm
   - Whisper compara el texto y avisa si falta, sobra o se repite alguna palabra. Las cifras escritas con números y los cambios de una sola letra no cuentan.
   - También mide los huecos dentro de una palabra. Más de 0,2 s es un fallo y el clip se vuelve a sintetizar a otra velocidad. Entre 0,16 y 0,2 s es un aviso para escucharlo.
   - Las oclusiones normales de esta voz («exacto», «mercurio») llegan a 0,17 s.
-- **Ritmo:**
-  - El inglés va a 0,95.
-  - El español se sintetiza a la velocidad que lo acerque, entre 0,92 y 1,10, y se estira como mucho un 5 %.
+- **Ritmo** (hoy: inglés a 0,85; español entre 0,85 y 1,10, estirado como mucho un 10 %):
+  - Al principio, el inglés iba a 0,95.
+  - El español se sintetizaba a la velocidad que lo acercara, entre 0,92 y 1,10, y se estiraba como mucho un 5 %.
   - Si aun así es más largo, la frase dura lo que el español y el inglés deja silencio detrás. Una voz acelerada suena con prisa; un silencio tras la frase, no.
 - **Marcas:** cada frase tiene la suya, al inicio (y `_fin` al final de la frase en inglés). Así la imagen cae igual en los dos idiomas.
 - **Salida:** `informe.json` lista cada clip con su velocidad, tempo, fallos y avisos.
