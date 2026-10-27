@@ -395,11 +395,11 @@ const atardecer = () => { const B = R.buf;
     B[i] = (0xff000000 | (Math.round(b * q + ORO[2] * w + MORADO[2] * m) << 16) | (Math.round(g * q + ORO[1] * w + MORADO[1] * m) << 8) | Math.round(r * q + ORO[0] * w + MORADO[0] * m)) >>> 0; } };
 const p3 = (t) => {
   T.ojo(R, t, { vista: 'corte', corte: corteU(t) });
-  // la AT-6 de 1943 y el P-3 de hoy cruzan juntos el ojo, de pared a pared, sobre el mar en calma (como al principio de
-  // la escena); en «explain», la AT-6 alabea
-  { const u = lin(t, P3, P3 + 5.0), x = Math.round(lerp(106, 188, u)), y = 137 + Math.round(Math.sin(t * 1.4)), cl = [123, 0, 197, 179];
+  // la AT-6 de 1943 y el P-3 de hoy cruzan juntos el ojo, en fila y a ras del mar en calma, por debajo de las flechas del
+  // aire (como al principio de la escena); en «explain», la AT-6 alabea
+  { const u = lin(t, P3, P3 + 5.0), x = Math.round(lerp(98, 146, u)), y = 139 + Math.round(Math.sin(t * 1.4)), cl = [123, 0, 197, 179];
     R.recorte(cl); T.p3(R, x, y, t, { s: 0.5, dir: 1, vuelo: true });
-    T.at6(R, x + 17, y - 11 + Math.round(Math.sin(t * 1.9 + 1)), t, { s: 0.4, dir: 1, vuelo: true, helice: 1, recorte: cl, inclina: entre(t, explicar, explicar + 0.8) ? 0.12 * Math.sin((t - explicar) * 9) : 0 }); R.recorte(null); }
+    T.at6(R, x + 33, y + Math.round(Math.sin(t * 1.9 + 1)), t, { s: 0.4, dir: 1, vuelo: true, helice: 1, recorte: cl, inclina: entre(t, explicar, explicar + 0.8) ? 0.12 * Math.sin((t - explicar) * 9) : 0 }); R.recorte(null); }
   atardecer();
   // el «?» en la columna del ojo («mystery») que en «explain» se vuelve «!»
   if (t > misterio - 0.05) { const e = lin(t, misterio - 0.05, misterio + 0.2), y = Math.round(84 + Math.sin(t * 2.4) * 1.5 + (1 - e) * 6);
