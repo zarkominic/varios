@@ -18,21 +18,22 @@
 //    hasta que la caza al vuelo y sonríe;
 // 2. (corta en «The air») dentro de la estación, en la cúpula (fondo local: los armarios de los costados con sus paneles,
 //    asas, etiquetas sin letras y velcros, los mazos de cables con sus bridas, el techo con la tira de luz y el suelo en
-//    perspectiva, el aro de la escotilla en primer plano, el portátil en su brazo con la traza de la órbita, la rejilla de
-//    ventilación con su cinta que ondea y la gran ventana redonda con su marco atornillado y su acolchado): por la
+//    perspectiva, el aro de la escotilla en primer plano, el portátil en su brazo con la traza de la órbita, el huerto
+//    con sus lechugas bajo la luz rosa, la rejilla de ventilación con su cinta que ondea y la gran ventana redonda con su
+//    marco atornillado y su acolchado): por la
 //    ventana, el planeta entero; una astronauta flota ante la ventana con la cámara de teleobjetivo; en «rushing toward
 //    the center» las flechas de aire corren hacia una baja del Atlántico, ella baja la cámara y en «gets bent to one
 //    side» señala cómo se tuercen a su derecha (el camino recto queda punteado); en «which is why» hace la foto (destello);
 //    detrás, su compañero trabaja cabeza abajo en el portátil y se vuelve a mirar, y flotan un bolígrafo que gira y una
 //    bola de agua que tiembla;
-// 3. (corta en «hurricanes») un huracán desde arriba que gira despacio: por encima pasa la estación espacial diminuta,
-//    que destella al sol, y en el mar huyen dos mercantes con su estela; en «in the north» sale la rosa con la flecha del
+// 3. (corta en «hurricanes») un huracán desde arriba que gira despacio: por debajo del ojo pasa la estación espacial
+//    diminuta, con sus alas doradas que destellan al sol, y en el mar huyen dos mercantes con su estela; en «in the north» sale la rosa con la flecha del
 //    norte, y en «counterclockwise» una flecha dorada le da la vuelta al revés que las agujas del reloj y se queda
 //    girando con él, mientras sus bandas giran;
 // 4. (corta en «form») el planeta entero: la espiral en su sitio, y en «right on the equator» la franja del ecuador con
 //    los huracanes tachados; en «where that push disappears» aparecen las flechitas del empujón, largas lejos del ecuador
-//    y cada vez más cortas al acercarse, y la del ecuador se apaga; por delante del planeta cruza la estación espacial
-//    con su destello.
+//    y cada vez más cortas al acercarse, y la del ecuador se apaga; por encima, sobre el norte del planeta, cruza la
+//    estación espacial con su destello.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-giro');
@@ -69,17 +70,24 @@ const flechaCamino = (P, u, fase = 0) => {
   const pts = [[xb + Math.cos(a) * 6, yb + Math.sin(a) * 6], [xb + Math.cos(a + 2.3) * 6, yb + Math.sin(a + 2.3) * 6], [xb + Math.cos(a - 2.3) * 6, yb + Math.sin(a - 2.3) * 6]].map(([x, y]) => [Math.round(x), Math.round(y)]);
   R.poligono(pts.map(([x, y]) => [x + 1, y + 1]), OROS); R.poligono(pts, ORO); R.pset(pts[0][0] - Math.round(Math.cos(a) * 2), pts[0][1] - Math.round(Math.sin(a) * 2), OROL);
 };
-// la estación espacial vista desde lejos (por arriba o de frente): la viga larga, las cuatro parejas de alas de paneles
-// solares azul oscuro con su rejilla, los módulos blancos en cruz y el destello del sol en los paneles. x, y: el
-// centro; s: escala (1: unos 26 px de envergadura); a: el giro de la viga
+// la estación espacial vista desde lejos (por arriba): la viga larga gris, las cuatro parejas de alas de paneles solares
+// (doradas al sol, con su rejilla), los radiadores blancos y los módulos en cruz, todo con su contorno, y el destello del
+// sol en los paneles. x, y: el centro; s: escala (1: unos 32 px de envergadura); a: el giro de la viga
 const estacion = (x, y, s, a, t, brillo = 0) => {
-  const ca = Math.cos(a), sa = Math.sin(a), P = (u, v) => [Math.round(x + u * s * ca - v * s * sa), Math.round(y + u * s * sa + v * s * ca)];
-  const panel = (u0, v0, u1, v1) => { for (let u = u0; u <= u1; u += 0.5) for (let v = v0; v <= v1; v += 0.5) { const [px, py] = P(u, v); R.pset(px, py, (Math.round(u * 2) % 3 === 0) ? hex('#3a4a78') : hex('#1e2a52')); } };
-  for (const u of [-11, -7, 7, 11]) { panel(u - 1.5, -7, u + 1.5, -1.5); panel(u - 1.5, 1.5, u + 1.5, 7); }
-  for (let u = -13; u <= 13; u += 0.5) { const [px, py] = P(u, 0); R.pset(px, py, hex('#c8ccd4')); }
-  for (let v = -3; v <= 3; v += 0.5) { const [px, py] = P(0, v); R.pset(px, py, C.blanco); const [qx, qy] = P(v * 0.7, 0.5); R.pset(qx, qy, hex('#e8ecf2')); }
-  for (const [u, v] of [[-3, -1.5], [3, -1.5], [-3, 1.5], [3, 1.5]]) { const [px, py] = P(u, v); R.pset(px, py, hex('#f0f2f6')); }
-  if (brillo > 0) { const [px, py] = P(-9, -4); destello(px, py, Math.round(1 + brillo * 3), OROL); R.pset(px, py, C.blanco); }
+  const ca = Math.cos(a), sa = Math.sin(a), P = (u, v) => [Math.round(x + (u * ca - v * sa) * s), Math.round(y + (u * sa + v * ca) * s)];
+  const pinta = (u0, v0, u1, v1, f) => { const d = 0.45 / s; for (let u = u0; u <= u1; u += d) for (let v = v0; v <= v1; v += d) { const [px, py] = P(u, v); R.pset(px, py, f(u, v)); } };
+  const ALAS = [-14, -10, 10, 14], PAN = [hex('#e8b848'), hex('#b8842a'), hex('#7a4e18')];
+  // los contornos
+  for (const u of ALAS) for (const sg of [-1, 1]) pinta(u - 2, sg > 0 ? 1.0 : -8.4, u + 2, sg > 0 ? 8.4 : -1.0, () => K);
+  pinta(-16, -1.1, 16, 1.1, () => K); pinta(-4.4, -1.4, 4.4, 1.4, () => K); pinta(-1.4, -3.4, 1.4, 3.4, () => K);
+  pinta(-7.4, 1.2, -4.6, 5.4, () => K); pinta(4.6, -5.4, 7.4, -1.2, () => K);
+  // las alas de paneles: doradas con la rejilla y la luz que cambia de una a otra
+  ALAS.forEach((u, k) => { for (const sg of [-1, 1]) pinta(u - 1.5, sg > 0 ? 1.5 : -7.9, u + 1.5, sg > 0 ? 7.9 : -1.5, (uu, vv) => (Math.abs(Math.round(vv * 1.3)) % 3 === 0 ? PAN[2] : (uu - u > 0.6 ? PAN[1] : PAN[0]))); });
+  // la viga, los radiadores y los módulos
+  pinta(-15.6, -0.6, 15.6, 0.6, (u) => (Math.round(u * 2) % 4 === 0 ? hex('#8e94a0') : hex('#d4dae2')));
+  pinta(-7, 1.6, -5, 5, () => hex('#f2f4f6')); pinta(5, -5, 7, -1.6, () => hex('#f2f4f6'));
+  pinta(-3.8, -0.8, 3.8, 0.8, () => hex('#f6f6f2')); pinta(-0.8, -2.8, 0.8, 2.8, (u, v) => (v < 0 ? hex('#f6f6f2') : hex('#d8dce2')));
+  if (brillo > 0) { const [px, py] = P(-10, -4); destello(px, py, Math.round(1 + brillo * 3), OROL); R.pset(px, py, C.blanco); }
 };
 
 // ── 1 · el planeta gira (con el astronauta en la celosía) ──────────────────────────────────────────────────────────
@@ -119,9 +127,19 @@ const casco = (cx, cy) => {
   for (let a = 3.8; a < 4.6; a += 0.12) R.pset(Math.round(cx + Math.cos(a) * 6.5), Math.round(cy + Math.sin(a) * 6.5), C.blanco);
   R.rect(cx - 5, cy + 9, cx + 5, cy + 10, hex('#9aa0ac'));   // el aro del cuello
 };
-// la llave inglesa (s: giro) en la punta de su cordón
-const llave = (x, y, a) => { const ca = Math.cos(a), sa = Math.sin(a); for (let i = -4; i <= 4; i++) { const px = Math.round(x + ca * i), py = Math.round(y + sa * i); R.pset(px, py, MET[3]); R.pset(px - Math.round(sa), py + Math.round(ca), MET[1]); }
-  for (const s of [-1, 1]) { const ex = Math.round(x + ca * 5 * s), ey = Math.round(y + sa * 5 * s); R.disco(ex, ey, 1.6, MET[4]); R.pset(ex, ey, K); } };
+// la llave inglesa (a: su giro), con su contorno: el mango, la boca abierta y el ojo del otro extremo
+const llave = (x, y, a) => {
+  const ca = Math.cos(a), sa = Math.sin(a);
+  const forma = (u, v) => {
+    if (Math.abs(v) <= 1 && u >= -5 && u <= 3.5) return 1;
+    if (u > 3.5 && u <= 7 && Math.abs(v) <= 3 && !(u > 5 && Math.abs(v) < 1.3)) return 1;
+    const d = Math.hypot(u + 6.4, v); if (u < -4.5 && d <= 2.3 && d > 0.9) return 1;
+    return 0;
+  };
+  for (let j = -10; j <= 10; j++) for (let i = -10; i <= 10; i++) { const u = i * ca + j * sa, v = -i * sa + j * ca;
+    if (forma(u, v)) R.pset(x + i, y + j, v < -0.4 ? MET[5] : v > 0.6 ? MET[2] : MET[4]);
+    else if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([p, q]) => forma((i + p) * ca + (j + q) * sa, -(i + p) * sa + (j + q) * ca))) R.pset(x + i, y + j, K); }
+};
 const ESCAPA = porque - 0.1, CAZA = gira + 0.45;
 const p1 = (t) => {
   T.orbita(R, t, { encuadre: 'cerca', mira: [16, -50], vel: 3.2, t0: 0, tiros: false });
@@ -144,7 +162,7 @@ const p1 = (t) => {
   const [mx, my] = dir > 0 ? [ax + 14, pies - 7] : [ax, pies - 7];
   let lx = mx, ly = my, la = 0;
   if (aprieta) { la = 1.2 + Math.sin(t * 9) * 0.4; lx = mx - 4; ly = my + 2; }
-  else if (t > ESCAPA && t < CAZA) { const u = lin(t, ESCAPA, CAZA), an = -1.2 + u * 6.6, rr = 6 + Math.sin(u * Math.PI) * 18; lx = ax + 7 + Math.cos(an) * rr * 1.2; ly = pies - 16 - Math.sin(an) * rr * 0.75; la = t * 7; }
+  else if (t > ESCAPA && t < CAZA) { const u = lin(t, ESCAPA, CAZA), an = -1.2 + u * 6.6, rr = 8 + Math.sin(u * Math.PI) * 20; lx = ax + 7 + Math.cos(an) * rr * 1.3; ly = pies - 16 - Math.sin(an) * rr * 0.8; la = t * 6; }
   else if (t >= CAZA) { lx = r.mano[0]; ly = r.mano[1] + 1; la = -0.6; }
   else { la = 0.9; }
   // el cordón, de la cintura a la llave
@@ -231,7 +249,6 @@ const portatil = (t) => {
   for (let y = y0 + 2; y <= y1 - 2; y++) for (let x = x0 + 2; x <= x1 - 2; x++) { const u = (x - x0) / (x1 - x0), v = (y - y0) / (y1 - y0); if (Math.sin(u * 13 + 1) * Math.cos(v * 7) + Math.sin(u * 5 - v * 3) > 0.9) pset(x, y, hex('#3a7a4a')); }
   for (let x = x0 + 2; x <= x1 - 2; x++) { const u = (x - x0) / (x1 - x0), y = Math.round((y0 + y1) / 2 + Math.sin(u * 6.283 * 1.5 + 0.6) * 5); pset(x, y, ((x + Math.floor(t * 6)) % 3) ? hex('#e8c040') : hex('#8a6a10')); }
   { const u = ((t * 0.05 + 0.3) % 1), x = Math.round(x0 + 2 + u * (x1 - x0 - 4)), y = Math.round((y0 + y1) / 2 + Math.sin(u * 6.283 * 1.5 + 0.6) * 5); R.disco(x, y, 1.5, C.blanco); if (Math.floor(t * 4) % 2) pset(x, y, C.rojo); }
-  R.numero('28', x1 - 7, y1 - 2, { color: hex('#8ac8f0'), sombra: false, fina: true });
   R.poligono([[x0 - 2, y1 + 2], [x1 + 2, y1 + 2], [x1 + 5, y1 + 6], [x0 + 1, y1 + 6]], K); R.poligono([[x0 - 1, y1 + 2], [x1 + 1, y1 + 2], [x1 + 4, y1 + 5], [x0 + 2, y1 + 5]], hex('#3a3e48'));
   for (let x = x0 + 2; x < x1 + 2; x += 2) pset(x, y1 + 3 + (x % 4 ? 0 : 1), hex('#5a5e6a'));
 };
@@ -240,6 +257,22 @@ const INV = R.nuevo();
 const cabezaAbajo = (def, x, y, t, o) => {   // x, y: dónde queda la coronilla (abajo) en pantalla
   const prev = R.usar(INV); R.rect(0, 0, 40, 40, 0); R.actor(def, 12, 36, t, o); R.usar(prev);
   const B = R.buf; for (let j = 0; j <= 36; j++) for (let i = 0; i < 40; i++) { const c = INV[j * 320 + i]; if (!c) continue; const X = x - 19 + i, Y = y - 36 + (36 - j) - 0; if (X >= 0 && X < 320 && Y >= 0 && Y < 180) B[Y * 320 + X] = c; }
+};
+// el huerto de la estación en su armario: la cámara de cultivo con el fuelle transparente, la luz de leds rosa que baña
+// las lechugas en sus almohadillas, y las hojas que se mecen con el aire de la ventilación
+const PLANTA = [hex('#2a6a2e'), hex('#4a9a3a'), hex('#8ad05a'), hex('#c8f08a')];
+const huerto = (t) => {
+  const { rect, pset } = R, x0 = 123, y0 = 63, x1 = 158, y1 = 97;
+  rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, K);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) pset(x, y, rampa([hex('#2a1230'), hex('#5a1e52'), hex('#9a3a86'), hex('#e070c0')], 0.95 - (y - y0) / (y1 - y0) * 0.8 + Math.sin(t * 2) * 0.03, x, y));
+  rect(x0 + 1, y0 + 1, x1 - 1, y0 + 2, hex('#ffb8ea')); for (let x = x0 + 2; x < x1 - 1; x += 3) pset(x, y0 + 2, (Math.floor(t * 3 + x) % 7) ? hex('#ff70d0') : C.blanco);
+  for (const [px, k] of [[x0 + 7, 0], [x0 + 17, 1], [x0 + 27, 2]]) {
+    rect(px - 4, y1 - 6, px + 4, y1 - 2, K); rect(px - 3, y1 - 5, px + 3, y1 - 3, hex('#d8c8a0')); rect(px - 3, y1 - 5, px + 3, y1 - 5, hex('#f0e2bc'));
+    for (let h = 0; h < 7; h++) { const a = -Math.PI / 2 + (h - 3) * 0.42 + Math.sin(t * 1.3 + k * 2 + h) * 0.08, L = 7 + (h % 3) * 2 + k, ex = px + Math.cos(a) * L * 0.8, ey = y1 - 6 + Math.sin(a) * L;
+      for (let q = 0; q <= 1; q += 0.1) { const lx = Math.round(px + (ex - px) * q), ly = Math.round(y1 - 6 + (ey - y1 + 6) * q), w = Math.round(Math.sin(q * Math.PI) * 2); for (let d = -w; d <= w; d++) pset(lx + d, ly, d === -w ? PLANTA[0] : d === w ? PLANTA[2] : PLANTA[1]); }
+      pset(Math.round(ex), Math.round(ey), PLANTA[3]); } }
+  for (let x = x0 + 2; x < x1; x += 5) for (let y = y0 + 3; y < y1; y++) if (umbral(x, y) < 0.5) tine(x, y, C.blanco, 0.18);
+  rect(x0 - 1, y1 + 2, x1 + 1, y1 + 3, PANEL[1]); rect(x0 + 2, y1 + 2, x0 + 9, y1 + 3, ETIQ[2]);
 };
 // la cámara de fotos con el teleobjetivo delante de la cara (dir: hacia dónde apunta)
 const camara = (x, y, dir) => { const X = dir > 0 ? x + 9 : x - 4; R.rect(X, y - 1, X + 5, y + 3, K); R.rect(X + 1, y, X + 4, y + 2, hex('#3a3e48')); const L0 = dir > 0 ? X + 6 : X - 7; R.rect(L0, y, L0 + 6, y + 3, K); R.rect(L0 + 1, y + 1, L0 + 5, y + 2, hex('#2a2e36')); R.pset(dir > 0 ? L0 + 6 : L0, y + 1, hex('#8ac8f0')); R.pset(L0 + 3, y, hex('#c8a040')); };
@@ -257,6 +290,7 @@ const p2 = (t) => {
   // la luz azul del planeta que entra por la ventana y baña la pared y a la astronauta
   for (let y = 30; y < 158; y += 1) for (let x = 120; x < 176; x++) { if (VENT[y * 320 + x]) continue; const d = Math.hypot(x - WX, (y - WY) * 0.8); if (d < 110 && umbral(x, y) < (1 - d / 110) * 0.5) tine(x, y, hex('#6aa8f0'), 0.25); }
   portatil(t);
+  huerto(t);
   // la cinta de la rejilla de ventilación, que ondea con el aire
   for (let i = 0; i < 10; i++) { const x = 114 + Math.round(Math.sin(t * 7 + i * 0.6) * i * 0.35), y = 21 + i; R.pset(x, y, i % 3 === 0 ? hex('#e84a3a') : hex('#f07a5a')); }
   // los pilotos de los armarios
@@ -292,7 +326,7 @@ const p3 = (t) => {
   // «in the north»: el norte arriba, con su flechita (el símbolo, sin letras)
   { const k = lin(t, norte - 0.2, norte + 0.2); if (k > 0) { const x = 30, y = 150; R.disco(x, y, 9, K); R.disco(x, y, 8, hex('#1e2a48')); R.poligono([[x, y - 7], [x - 3, y + 1], [x + 3, y + 1]], ORO); R.poligono([[x, y + 7], [x - 3, y + 1], [x + 3, y + 1]], hex('#8a94b0')); R.pset(x, y + 1, C.blanco); if (k < 1) destello(x, y - 9, 3, OROL); } }
   // la estación espacial pasa por encima, diminuta, y destella al sol
-  { const q = lin(t, G3, G4 + 0.4), x = lerp(-20, 250, q), y = lerp(40, 168, q); estacion(Math.round(x), Math.round(y), 0.9, 0.55, t, Math.max(0, Math.sin(t * 2.2)) > 0.92 ? 1 : 0); }
+  { const q = lin(t, G3 - 0.3, G4 + 0.3), x = lerp(-24, 340, q), y = lerp(170, 120, q); estacion(Math.round(x), Math.round(y), 1.1, -0.14, t, Math.sin(t * 2.2) > 0.9 ? 1 : 0); }
 };
 
 // ── 4 · el ecuador, sin huracanes ─────────────────────────────────────────────────────────────────────────────────
@@ -305,7 +339,7 @@ const p4 = (t) => {
     if (lat === 0) { if (apaga < 1 && Math.floor(t * 10) % 2 === 0) { R.disco(x, y, 2, K); R.disco(x, y, 1, hex('#ff8a3a')); } continue; }
     R.rect(x - 1, y - 1, x + L + 1, y + 1, K); R.rect(x, y, x + L, y, hex('#ff9a3a')); R.poligono([[x + L + 4, y], [x + L, y - 3], [x + L, y + 3]], hex('#ff9a3a')); R.pset(x + L + 1, y, hex('#ffd0a0')); }
   // la estación espacial cruza por delante del planeta, con su destello
-  { const q = lin(t, G4 - 0.3, G4 + 4.6), x = lerp(28, 214, q), y = lerp(150, 36, q) + Math.sin(q * Math.PI) * 10; estacion(Math.round(x), Math.round(y), 0.7, -0.5, t, entre(t, ecuador + 0.4, ecuador + 0.7) ? 1 : 0); }
+  { const q = lin(t, G4 - 0.3, G4 + 4.6), x = lerp(22, 226, q), y = lerp(56, 26, q) - Math.sin(q * Math.PI) * 6; estacion(Math.round(x), Math.round(y), 0.8, -0.5, t, entre(t, ecuador + 0.4, ecuador + 0.7) ? 1 : 0); }
 };
 const efectos = [[0.3, 'zumbido'], [0.6, 'golpecito'], [tierraT, 'brillo'], [ESCAPA, 'tic'], [planetaT, 'whoosh'], [gira + 0.3, 'brillo'], [CAZA, 'golpecito'],
   [G2 + 0.1, 'zumbido'], [aire, 'rafaga'], [tuerce, 'whoosh'], [FOTO, 'flash'],
