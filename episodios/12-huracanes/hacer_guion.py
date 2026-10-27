@@ -92,7 +92,7 @@ PREVIO = {
            ('TIROS-1', 'Tíros uno')],
 }
 PRONUNCIA = {
-    'en': [('NOAA', 'Noah')],
+    'en': [('NOAA', 'Noah'), ('Isaias', 'Eesa-eeyus'), ('Josephine', 'Joseph-een'), ('eyewall', 'eye wall')],
     'es': [('Joe Duckworth', 'Yóu Dákuorz'), ('Duckworth', 'Dákuorz'), ('Bryan', 'Bráian'), ('Texas', 'Téjas'),
            ('Galveston', 'Gálveston'), ('Isaac Cline', 'Áisak Kláin'), ('Washington', 'Uáshinton'),
            ('Herbert Saffir', 'Jérbert Sáfir'), ('Robert Simpson', 'Róbert Símpson'), ('Ted Fujita', 'Ted Fuyíta'),
