@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hasta el borde de lo observable</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EP3-UNIVERSO · episodio 3, frases 75–78 (cartela «+27»), plastilina adulta. Crea kits/ep03-universo.js (hoja:
+// escenas/ep03-universo-hoja.html).
+//  0         ENLACE (el último fotograma de ep3-andromeda, en números en kits/ep03-universo.js): la Vía Láctea y Andrómeda de
+//            crearMundo con el mundo a 10²², pequeñas y lejos (1.296 px), unidas por la vara de alambre de la línea de tiempo
+//            con la luz en el último tramo y tres figuritas de los primeros humanos junto a la Vía Láctea; la regla en 10²²;
+//            Atom pequeño abajo a la izquierda; encima, la cartela «+27» (quieta hasta 0,75 s, se va hacia 1,2 s)
+//  universo  (plano general) tras la cartela la línea de tiempo se apaga y la cámara sube cinco saltos ×10 (el primero acaba
+//            en la marca): las dos galaxias encogen hasta ser un punto ámbar (nosotros) sobre la red de filamentos de
+//            galaxias, que aparece y se acerca (cada salto la aprieta); nosotros vamos al centro; la regla llega a 10²⁷ y una
+//            esfera de vidrio translúcida, llena de puntitos-galaxia y con la niebla brillante en el borde, se cierra alrededor:
+//            el límite de lo observable
+//  espera    Atom sale de su sitio hacia la esfera, crece un poco y levanta una mano (un electrón sobre alambre): espera;
+//            después de la frase, 2 s de silencio con la mano levantada
+//  comopuede (corte, plano de abajo) la esfera enorme llena la pantalla por arriba; Atom, delante y con la mano aún levantada,
+//            la mira; sobre ella brota un «?» de arcilla ámbar (completo en la marca); la cámara se acerca despacio
+//  goma      (corte, plató) la persona, de cintura para arriba, sostiene una goma elástica con los dos puños; una hormiga
+//            camina por ella hacia una banderita de meta; la persona estira la goma con la mano derecha de la pantalla (su
+//            izquierda): las marcas se separan y la meta se aleja aunque la hormiga no pare. Al final (corte) la cámara vuelve
+//            a la esfera, con Atom ya en su sitio, abajo a la izquierda, y se queda quieta (termina_con = FINAL_UNIVERSO)
+// CONTINUIDAD
+//  · Fotograma 0 = ENLACE de kits/ep03-universo.js (ep3-andromeda todavía no existe: este es el encuadre que su último
+//    fotograma tiene que dar). Último fotograma = FINAL_UNIVERSO (el primero de ep3-borde), con la esfera en el sitio y del
+//    tamaño del disco de ep3-arena: centro (960, 470), radio 300. window.__fin lo da en números.
+// Coste: todo se compone en 2D y la viñeta y el grano van al final (crearPost). Lo quieto son fotos: el fondo del mundo en
+// 10²² y la galaxia (al cargar), las figuritas (al cargar), la red en cada parada del viaje y la esfera (la primera vez que
+// hacen falta). En vivo: la red a media resolución mientras salta, la esfera mientras aparece (la vuelta final es la foto
+// del final ampliada en 2D), Atom y la regla siempre, el «?» y, en la goma, la persona, la goma, la hormiga y la meta.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cartela, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle, brote, COLOR, mezclarPosturas, esqueletoHumano } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo, estadoMundo, camaraPorTierra } from '/atomo/plato/kits/ep03-cosmos.js';
+import { rayo } from '/atomo/plato/kits/ep03-tiempo.js';
+import { tiposTocar, figurita } from '/atomo/plato/kits/ep03-tocar.js';
+import { crearCielo, celdaRed, veloRed, RED, ENLACE, FINAL_UNIVERSO, fotoEnlace, puntoNosotros, tiposUniverso, uniformesUniverso,
+  goma, hormiga, meta } from '/atomo/plato/kits/ep03-universo.js';
+
+const T0 = performance.now();
+window.__carga = [];
+const marcaCarga = (k) => window.__carga.push([k, Math.round(performance.now() - T0)]);
+const E = await escena('ep3-universo', 'ep03');
+const M = (k, d) => E.marca(k, d);
+const m = {
+  un: M('universo', 1.5), unFin: M('universo_fin', 7.601), es: M('espera', 8.151), esFin: M('espera_fin', 8.706),
+  co: M('comopuede', 10.716), coFin: M('comopuede_fin', 15.964), go: M('goma', 16.664), goFin: M('goma_fin', 22.925),
+};
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+const busq = new URLSearchParams(location.search);
+const GUIAS = busq.has('guias');
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const J = 0.32;
+const SALTOS = [];
+{
+  const a1 = m.un - J + 0.02, a5 = Math.max(a1 + 2.4, m.unFin - 2.15 - J);
+  for (let k = 0; k < 5; k++) { const a = a1 + k * (a5 - a1) / 4; SALTOS.push([a, a + J]); }
+}
+const zRegla = (t) => { let z = 22; for (const [a, b] of SALTOS) z += seco(prog(t, a, b)); return z; };
+const enSalto = (t) => SALTOS.some(([a, b]) => t > a - 0.02 && t < b + 0.08);
+const T = {
+  linea: [1.02, 1.42],                                  // la línea de tiempo se apaga (tras la cartela)
+  esfera: [SALTOS[4][1] + 0.08, SALTOS[4][1] + 0.85],   // la esfera se cierra alrededor
+  sale: [m.es - 0.62, m.es - 0.02],                     // Atom va hacia la esfera (llega en la marca)
+  mano: [m.es - 0.34, m.es - 0.02],                     // levanta la mano (arriba en la marca)
+  D: m.co - 0.28,                                       // corte: la esfera enorme
+  preg: m.co + 0.05,                                    // el «?» (brota justo tras el corte; completo en la marca)
+  E: m.go - 0.2,                                        // corte: la goma
+  tira: [m.go + 0.5, m.go + 3.9],                       // la persona estira la goma
+  F: Math.min(m.goFin - 1.6, m.go + 4.65),              // corte: vuelta a la esfera
+};
+T.vuelta = [T.F, T.F + 1.15];
+const tramo = (t) => (t < T.D ? 'A' : t < T.E ? 'D' : t < T.F ? 'E' : 'F');
+
+// ---------------------------------------------------------------- el plató (encima de todo, compuesto en 2D)
+const I = { REG: 0, FLE: 1, PREG: 2, PER: 3, GOMA: 4, HOR: 5, META: 6, FIG: 7 };
+const P = await crearPlato({
+  piezas: ['reglaA', 'flecha', 'glifo:?', 'humano', 'goma', 'hormiga', 'meta', 'figurita'],
+  tiposExtra: { ...tiposUniverso(), ...tiposTocar(['figurita']) }, uniformes: uniformesUniverso(),
+  alfa: true, post: false, cartela: E.cartela,
+  sombraFondo: ['p3', 'p4', 'p5', 'p6'],
+  sombras: { p4: ['p3'], p5: ['p4'], p6: ['p4'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+marcaCarga('plato');
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const REG = en(...ENLACE.regla.pos);
+
+// ---------------------------------------------------------------- capas: el mundo (oculto), el cielo (fuera) y un lienzo 2D
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+lienzoGL.style.visibility = 'hidden';
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:3';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+const pegar = (c, a = 1) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = a; g.drawImage(c, 0, 0, capa.width, capa.height); g.restore(); };
+const copia = (c) => { const k = document.createElement('canvas'); k.width = c.width; k.height = c.height; k.getContext('2d').drawImage(c, 0, 0); return k; };
+const cielo = crearCielo();
+marcaCarga('cielo');
+
+// el mundo en 10²² (ENLACE): el fondo sin galaxia y la galaxia sola (una foto cada uno, al cargar)
+const mundo = crearMundo(cont, { captura: P.captura });
+mundo.lienzo.style.visibility = 'hidden';
+marcaCarga('mundo');
+const { fondo: FONDO22, galaxia: GAL } = fotoEnlace(mundo, estadoMundo, camaraPorTierra, { n: 7 });
+marcaCarga('fondo y galaxia');
+
+// ---------------------------------------------------------------- Atom (presentador: pequeño, abajo a la izquierda)
+const A_Z = 1.0, ATOMO = ENLACE.atomo;
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(en(...ATOMO, A_Z)));
+const CAM = [0, 3.8, 15.5];
+const gy = (p) => Math.atan2(CAM[0] - p[0], CAM[2] - p[2]), gp = (p) => Math.atan2(p[1] - CAM[1], Math.hypot(CAM[0] - p[0], CAM[2] - p[2]));
+const A_REF = en(850, 330, A_Z);
+const giroHacia = (sx, sy) => { const w = en(sx, sy, A_Z); return [gy(w) - gy(A_REF), gp(w) - gp(A_REF)]; };
+const DT = 1 / 240, TA = [0];
+const velA = (t) => (1 + 0.9 * Math.exp(-Math.pow((t - m.es) / 0.4, 2)) + 0.6 * Math.exp(-Math.pow((t - m.co) / 0.5, 2))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= D + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT);
+const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor(x)); return mix(TA[i], TA[i + 1], x - i); };
+// dónde está y cómo está Atom en cada tramo: A (en casa; en «espera» va hacia la esfera, crece y levanta la mano), D (delante
+// de la esfera enorme, mirándola, con la mano levantada), E (en casa) y F (en casa, quieto)
+const A_ESFERA = [610, 705], A_D = [345, 700];
+function estadoAtom(ts) {
+  const tz = calma(ts);
+  let sx = ATOMO[0], sy = ATOMO[1], esc = A_ESC, mano = 0, mira = [0, 0], brillo = 0;
+  const tr = tramo(ts);
+  if (tr === 'A') {
+    const u = eio(prog(ts, T.sale[0], T.sale[1]));
+    sx = mix(ATOMO[0], A_ESFERA[0], u); sy = mix(ATOMO[1], A_ESFERA[1], u) - 40 * Math.sin(Math.PI * u);
+    esc = A_ESC * mix(1, 1.3, u);
+    mano = eoc(prog(ts, T.mano[0], T.mano[1]));
+    mira = [0.25 * u, -0.15 * u];
+  } else if (tr === 'D') {
+    [sx, sy] = A_D; esc = A_ESC * 1.6; mano = 1;
+    mira = [0.42, -0.42];
+  }
+  sy += 3 * Math.sin(tz * 1.3) + 2 * Math.sin(tz * 0.7 + 1.0);
+  brillo = Math.max(...[m.un, m.es, m.co, m.go].map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))));
+  return { sx, sy, esc, mano, mira, brillo, tz };
+}
+function atomo(ts, extra = {}) {
+  const S = estadoAtom(ts), ta = tAtomo(ts);
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  const [dy, dp] = giroHacia(S.sx, S.sy);
+  // la mano: un electrón que sale de su órbita sobre un alambre fino y se queda arriba, un poco a la derecha, con un
+  // temblor pequeño (espera)
+  const mk = S.mano;
+  const temb = 0.06 * Math.sin(ts * 7.1) * Math.sin(ts * 2.3);
+  const electrones = mk > 0.001 ? [{ pos: [0.55 + temb, 2.55, 0.3], mezcla: eio(mk), brazo: ss(0.15, 0.7, mk), grosor: 0.05 }] : [];
+  P.atomo({
+    pos: en(S.sx, S.sy, A_Z), escala: S.esc, yaw: -0.15 + dy + 0.08 * Math.sin(S.tz * 0.5) + S.mira[0], pitch: 0.06 - dp + S.mira[1],
+    roll: -0.05 * mk, energia: Math.min(1, en0 + 0.45 * S.brillo), ts: ta, electrones, toque: mk > 0.02 && mk < 0.98,
+    halo: extra.halo ?? 1, velo: extra.velo ?? 0.1,
+  });
+  return S;
+}
+
+// ---------------------------------------------------------------- la regla (de 10²² a 10²⁷, con los saltos)
+function regla(ts) {
+  const zr = zRegla(ts);
+  const R = ENLACE.regla;
+  return P.regla({ pieza: I.REG, flecha: I.FLE, pos: REG, escala: R.escala, rot: R.rot, e: zr, ya: 0, actual: Math.round(zr), lupa: R.lupa, toque: enSalto(ts) });
+}
+
+// ---------------------------------------------------------------- las figuritas (fotos al cargar)
+const RODV = (() => {
+  const [a, b] = ENLACE.vara;
+  return { a, b, L: Math.hypot(b[0] - a[0], b[1] - a[1]) };
+})();
+const FIGS = ENLACE.figuritas.map((f) => {
+  const R = 150;
+  const foto = (() => {
+    P.fotograma(0); P.limpiar();
+    const p = en(960, 540, 1.5), e = R / pxU(p);
+    figurita(P, I.FIG, { pos: p, escala: e, semilla: f.semilla, rot: [0, 0.35, 0] });
+    P.render(0, { fondo: false });
+    const c = document.createElement('canvas'); const k = lienzoGL.width / W;
+    c.width = Math.round(R * 1.2 * k); c.height = Math.round(R * 1.2 * k);
+    c.getContext('2d').drawImage(lienzoGL, (960 - R * 0.6) * k, (540 - R * 0.6) * k, R * 1.2 * k, R * 1.2 * k, 0, 0, c.width, c.height);
+    return c;
+  })();
+  return { ...f, foto, R };
+});
+marcaCarga('figuritas');
+
+// ---------------------------------------------------------------- el viaje: la cámara del mundo (de 10²² a 10²⁷)
+const FIN = FINAL_UNIVERSO;
+const ORIGEN = RED.NODO;
+// nosotros (la Vía Láctea) va de su sitio en ENLACE al centro de la esfera en los dos primeros saltos
+const nosEn = (zr) => { const u = eio(cl((zr - 22) / 2)); return [mix(ENLACE.via[0], FIN.esfera.c[0], u), mix(ENLACE.via[1], FIN.esfera.c[1], u)]; };
+const escMundo = (zr) => Math.pow(10, 22 - zr);
+const esferaK = (ts) => ss(T.esfera[0], T.esfera[1], ts);
+// las galaxias: la Vía Láctea en nosotros y Andrómeda a su distancia, las dos encogiendo con el mundo; de ~3 px para abajo,
+// un punto ámbar (nosotros) que se queda en el centro de la esfera
+function galaxias(zr, ts) {
+  const s = escMundo(zr), nos = nosEn(zr);
+  const rV = ENLACE.rVia * s, rA = ENLACE.rAnd * s;
+  const dA = [(ENLACE.andromeda[0] - ENLACE.via[0]) * s, (ENLACE.andromeda[1] - ENLACE.via[1]) * s];
+  const kSpr = ss(2.2, 6, rV);
+  const dibGal = (x, y, r, giro, aplasta, a) => {
+    if (a < 0.01 || r < 0.6) return;
+    const k = r / GAL.r, L = GAL.lienzo.width * k;
+    g.save(); g.globalAlpha = a; g.translate(x, y); g.rotate(giro); g.scale(1, aplasta);
+    g.drawImage(GAL.lienzo, -L / 2, -L / 2, L, L); g.restore();
+  };
+  dibGal(nos[0], nos[1], Math.max(rV, 1), 0, 1, kSpr);
+  dibGal(nos[0] + dA[0], nos[1] + dA[1], Math.max(rA, 1), ENLACE.giroAnd, ENLACE.aplastaAnd, ss(1.5, 6, rA));
+  // Andrómeda, de lejos, una cuenta tenue que se funde con nosotros
+  const kAp = (1 - ss(1.5, 6, rA)) * (1 - ss(4, 26, Math.hypot(...dA)));
+  if (kAp > 0.01 && Math.hypot(...dA) > 6) puntoNosotros(g, [nos[0] + dA[0], nos[1] + dA[1]], { r: 2.5, k: 0.6 * kAp });
+  const kP = (1 - kSpr) ;
+  puntoNosotros(g, nos, { r: mix(7, 4.5, esferaK(ts)), k: Math.max(kP, 0) });
+}
+// la línea de tiempo de ep3-andromeda (vara de alambre, luz en el último tramo y figuritas): se apaga tras la cartela
+function lineaTiempo(ts) {
+  const k = 1 - ss(T.linea[0], T.linea[1], ts);
+  if (k < 0.01) return;
+  const pts = [RODV.a, RODV.b];
+  g.save(); g.globalAlpha = k;
+  rayo(g, pts, { grosor: 4, brillo: 0.12, cabeza: 0, sombra: 0.6 });
+  rayo(g, pts, { hasta: ENLACE.luz * RODV.L, grosor: 6, brillo: k, cabeza: k });
+  for (const f of FIGS) {
+    const s = f.alto / (f.R * 0.98);
+    const w = f.foto.width * (W / lienzoGL.width) * s;
+    g.drawImage(f.foto, f.x - w / 2, f.y - w * 0.92, w, w);
+  }
+  g.restore();
+}
+
+// la red: en cada parada, una foto (a toda resolución, la primera vez que hace falta); mientras salta, en vivo a media
+// resolución. La esfera, en una foto (dos, para el hervor) cuando está entera; en vivo, mientras aparece y en la vuelta.
+const fotos = new Map();
+const foto = (clave, est) => { if (!fotos.has(clave)) { const a = performance.now(); fotos.set(clave, cielo.foto(est)); window.__carga.push(['foto ' + clave, Math.round(performance.now() - a)]); } return fotos.get(clave); };
+function estRed(zr, nf) { return { celda: celdaRed(zr), centro: nosEn(zr), origen: ORIGEN, velo: veloRed(zr), luz: 1 }; }
+function viaje(ts, nf) {
+  const zr = zRegla(ts);
+  // el fondo del mundo en 10²² se apaga mientras la red aparece
+  const vr = veloRed(zr);
+  if (vr < 0.999) pegar(FONDO22);
+  const k = esferaK(ts);
+  if (k <= 0) {
+    if (vr > 0.002) {
+      if (enSalto(ts)) pegar(cielo.dibujar({ red: estRed(zr, nf), n: nf, res: 0.5 }));
+      else pegar(foto('red' + Math.round(zr * 100) + '-' + (nf % 2), { red: estRed(zr, nf), n: nf % 2 }));
+    }
+  } else if (k < 1) {
+    // la esfera se cierra: crece un poco desde dentro mientras aparece
+    pegar(cielo.dibujar({ red: estRed(zr, nf), esfera: { ...FIN.esfera, r: FIN.esfera.r * mix(0.86, 1, eoc(k)), k: eio(k) }, n: nf }));
+  } else pegar(fotoEsfera(nf));
+  galaxias(zr, ts);
+  lineaTiempo(ts);
+  return zr;
+}
+const fotoEsfera = (nf) => foto('esfera-' + (nf % 2), { red: { ...FIN.red, origen: ORIGEN }, esfera: FIN.esfera, n: nf % 2 });
+
+// ---------------------------------------------------------------- D: la esfera enorme y el «?»
+const ESF_D = { c: [1080, 1130], r: 1000 };
+const RED_D = { celda: FIN.red.celda * ESF_D.r / FIN.esfera.r, centro: ESF_D.c, origen: ORIGEN, luz: 1, velo: 1 };
+const fotoD = (nf) => foto('D-' + (nf % 2), { red: RED_D, esfera: { ...FIN.esfera, ...ESF_D }, n: nf % 2 });
+const NOS_D = ESF_D.c;   // nosotros: el centro de la esfera (fuera del cuadro, abajo)
+const PREG = [1010, 400];
+function planoD(ts, nf) {
+  // la cámara se acerca despacio (un empuje 2D hacia el «?»)
+  const u = eio(prog(ts, T.D, T.E));
+  const s = mix(1, 1.07, u);
+  g.save();
+  g.translate(PREG[0], PREG[1]); g.scale(s, s); g.translate(-PREG[0], -PREG[1]);
+  g.drawImage(fotoD(nf), 0, 0, W, H);
+  g.restore();
+}
+function pregunta(ts) {
+  const k = brote(ts, T.preg, 0.27, 0.12);
+  if (k <= 0.01) { P.pieza(I.PREG, { escala: 0 }); return; }
+  const tz = calma(ts);
+  const p = en(PREG[0], PREG[1] + 6 * Math.sin(tz * 1.4), 1.6);
+  const e = 270 / pxU(p);
+  P.pieza(I.PREG, { pos: p, escala: e * k, rot: [0.05, -0.18 + 0.05 * Math.sin(tz * 0.9), 0.08 * Math.sin(tz * 1.1)], color: COLOR.MOSTAZA, toque: ts < T.preg + 0.3 });
+}
+
+// ---------------------------------------------------------------- E: la goma (plató)
+// la persona de cintura para arriba, algo a la izquierda; sostiene la goma con los dos puños y estira con el de la derecha de
+// la pantalla (su izquierda). Posturas: la de 'sostener' con los puños más separados, y la de estirar (el brazo izquierdo se
+// abre por el hombro, el codo sigue doblado y por encima de la cintura)
+const E_PER = 2.4, Z_PER = 8.6;
+const PER = (() => { const a = en(650, 1000, Z_PER); return [a[0], E_PER, Z_PER]; })();
+const SOST = { cabeza: [0, 0.32, 0], mirada: [0, -0.7], brazoIzq: [0.42, 0.16, 0.05, 1.42, 0.25, 0.05], manoIzq: 2, brazoDer: [0.42, 0.16, 0.05, 1.42, 0.25, 0.05], manoDer: 2 };
+const TIRA = { cabeza: [0.2, 0.3, 0], mirada: [0.5, -0.6], torso: [0, 0.05, 0], brazoIzq: [0.55, 0.9, -1.0, 0.8, 0.25, 0.05], manoIzq: 2, brazoDer: [0.42, 0.16, 0.05, 1.42, 0.25, 0.05], manoDer: 2 };
+const kTira = (ts) => eio(prog(ts, T.tira[0], T.tira[1]));
+function persona(ts) {
+  const tz = calma(ts);
+  const pose = mezclarPosturas(SOST, TIRA, kTira(ts));
+  const resp = 0.006 * Math.sin(tz * 2.4);
+  return P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + resp, 1], rot: [0, 0.04, 0], postura: pose, huellaFija: [0.37, 0.21, 0.0] });
+}
+// la hormiga anda a velocidad fija sobre la goma (en su propia goma: unidades de la goma sin estirar); la goma estira toda
+// por igual, así que la hormiga y la meta se alejan del puño fijo, la meta más deprisa
+const U_HOR0 = 0.12, U_META = 0.84, V_HOR = 0.085;   // V_HOR: fracción de la goma por segundo
+// el largo de la goma (entre los puños, en unidades de la persona) con la postura de estirar a k
+const LARGOS = Array.from({ length: 41 }, (_, i) => {
+  const p = esqueletoHumano(mezclarPosturas(SOST, TIRA, i / 40)).puntos;
+  return Math.hypot(p.manoIzq[0] - p.manoDer[0], p.manoIzq[1] - p.manoDer[1], p.manoIzq[2] - p.manoDer[2]);
+});
+const largoGoma = (t) => { const x = kTira(t) * 40, i = Math.min(39, Math.floor(x)); return mix(LARGOS[i], LARGOS[i + 1], x - i); };
+const uHormiga = (ts) => {
+  // du/dt = v · L0 / L(t): anda lo mismo sobre la goma, que es cada vez más larga
+  let u = U_HOR0, t = T.E;
+  const pasoT = 1 / 48;
+  while (t < ts) { u += V_HOR * (LARGOS[0] / largoGoma(t)) * pasoT; t += pasoT; }
+  return u;
+};
+function laGoma(ts, h) {
+  const a = h.punto('manoDer'), b = h.punto('manoIzq');
+  const pa = pant(a), pb = pant(b);
+  const z = (a[2] + b[2]) / 2 + 0.05;
+  const est = cl((largoGoma(ts) / LARGOS[0] - 1) / 1.3);
+  const gm = goma(P, I.GOMA, { desde: pa, hasta: pb, alto: 38, z, estira: est, marcas: 9, toque: ts < T.tira[1] + 0.1 && ts > T.tira[0] });
+  // la hormiga
+  const u = uHormiga(ts);
+  const top = gm.punto(u);
+  const wt = en(top[0], top[1], z);
+  const esc = 118 / pxU(wt);
+  const paso = (u - U_HOR0) * 9.0;
+  const ang = Math.atan2(-(pb[1] - pa[1]), pb[0] - pa[0]);
+  hormiga(P, I.HOR, { pos: [wt[0], wt[1] + 0.3 * esc, wt[2] + 0.02], escala: esc, paso, rot: [0, 0, ang] });
+  // la meta, clavada en la goma
+  const tm = gm.punto(U_META);
+  const wm = en(tm[0], tm[1] + 6, z);
+  meta(P, I.META, { pos: wm, escala: 168 / pxU(wm), ondea: ts * 0.9, rot: [0, -0.25, ang] });
+  return gm;
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  const ts = Math.min(t, QUIETO);
+  const nf = P.fotograma(ts);
+  ajustarCapa();
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  const tr = tramo(ts);
+  P.limpiar();
+  if (tr === 'A') {
+    viaje(ts, nf);
+    atomo(ts);
+    regla(ts);
+    if (!GUIAS) cartela(P, ts, E.cartela);
+    P.render(nf, { fondo: false });
+  } else if (tr === 'D') {
+    planoD(ts, nf);
+    atomo(ts);
+    regla(ts);
+    pregunta(ts);
+    P.render(nf, { fondo: false });
+  } else if (tr === 'E') {
+    const h = persona(ts);
+    laGoma(ts, h);
+    atomo(ts, { halo: 0.7, velo: 0.25 });
+    regla(ts);
+    P.render(nf);
+  } else {
+    // la vuelta: la cámara se aleja de la esfera hasta el encuadre del principio de ep3-borde
+    const u = eio(prog(ts, T.vuelta[0], T.vuelta[1]));
+    // (la foto quieta del final, ampliada en 2D alrededor del centro de la esfera: lo mismo que acercar la red y la esfera,
+    // y mucho más barato que pintarlas en vivo)
+    if (u < 1) {
+      const s = mix(1.3, 1, u), c = FIN.esfera.c;
+      g.save(); g.translate(c[0], c[1]); g.scale(s, s); g.translate(-c[0], -c[1]);
+      g.drawImage(fotoEsfera(nf), 0, 0, W, H); g.restore();
+    } else pegar(fotoEsfera(nf));
+    puntoNosotros(g, FIN.esfera.c, { r: 4.5, k: 1 });
+    atomo(ts);
+    regla(ts);
+    P.render(nf, { fondo: false });
+  }
+  g.drawImage(lienzoGL, 0, 0, W, H);
+  POST.aplicar(g, nf);
+}
+// estrena los programas que se dibujan en vivo (para que ningún fotograma pague su compilación)
+{
+  P.fotograma(0); P.limpiar();
+  atomo(0); regla(0);
+  P.pieza(I.PREG, { pos: en(900, 300, 1.6), escala: 0.3, color: COLOR.MOSTAZA });
+  P.render(0, { fondo: false });
+}
+marcaCarga('estreno');
+window.__fin = { ...FIN, atomo: ATOMO, aEscala: A_ESC };
+{
+  const a = pant([PER[0], PER[1] + 0.765 * E_PER, PER[2]]), b = pant([PER[0], PER[1] - E_PER, PER[2]]);
+  window.__guias = { x: Math.round(b[0]), coronilla: Math.round(a[1]), suela: Math.round(b[1]) };
+}
+marcaCarga('listo');
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Polinesios · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-POLINESIOS (frases 19–21), cartela 1000.
+//  algunos     el Pacífico de noche, inmenso; una canoa doble polinesia, diminuta, bajo la Vía Láctea.
+//  polinesios  vista desde arriba: el océano como un mapa de estrellas; islas como puntos y una línea de viaje que
+//              las une hasta Hawái (arriba) y Rapa Nui (a la derecha).
+//  leian       tres pistas, una tras otra: estrellas que salen por el mismo punto del horizonte, el oleaje cruzado bajo
+//              el casco (desde arriba) y aves que vuelven al atardecer hacia una isla que no se ve.
+import { escena } from '/atomo/plato/escena.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
+const E = await escena('ep4-polinesios', 'ep04');
+const R = await crearAventura(document.getElementById('lienzo'));
+const { PAL, tramo, lerp, clamp } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { algunos: M('algunos', 1.5), poli: M('polinesios', 4), leian: M('leian', 12) };
+const fin = E.marca('leian_fin', m.leian + 10), tercio = (fin - m.leian) / 3;
+
+// Vía Láctea tramada en diagonal
+const via = (t) => {
+  for (let y = 0; y < 118; y++) for (let x = 0; x < R.W; x++) {
+    const d = Math.abs((y - 10) - (x - 40) * 0.45) / 22;
+    const v = Math.exp(-d * d) * (0.6 + 0.6 * R.vnoise(x * 0.08, y * 0.12));
+    if (v > 0.66 + 0.3 * R.b4(x, y)) R.pset(x, y, v > 0.95 ? PAL.FARC[4] : R.hash2(x, y) > 0.5 ? PAL.FARC[3] : PAL.FARC[2]);
+  }
+};
+const oceano = (t) => {
+  R.cielo(t, { hor: 118, semilla: 101, n: 400 });
+  via(t);
+  R.mar(t, { hor: 118, oleaje: 0.7 });
+  R.barco(160 + (t - m.algunos) * 1.2, 136, t, { tipo: 'canoa', esc: 0.7 });
+};
+// islas del Pacífico en un «mapa de estrellas»: puntos y viaje
+const ISLAS = [[60, 140], [90, 120], [110, 132], [128, 110], [150, 118], [170, 98], [196, 112], [214, 92], [226, 120], [150, 40], [272, 128]];
+const mapaIslas = (t) => {
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PAL.WATER, 1.6 + 0.8 * R.vnoise(x * 0.04, y * 0.04) + (R.hash2(x, y) > 0.995 ? 3 : 0), x, y));
+  const p = tramo(t, m.poli + 0.2, m.poli + 3.6);
+  // la línea de viaje (dos ramas: hacia Hawái y hacia Rapa Nui)
+  for (const [ri, rama] of [[0, [0, 1, 3, 5, 7, 9]], [1, [3, 4, 6, 8, 10]]]) {
+    const q = clamp(p * 1.4 - ri * 0.3, 0, 1) * (rama.length - 1);
+    for (let k = 0; k < Math.floor(q); k++) { const [ax, ay] = ISLAS[rama[k]], [bx, by] = ISLAS[rama[k + 1]]; R.linea(ax, ay, bx, by, PAL.ORO[3], 3); }
+    const k = Math.floor(q);
+    if (k < rama.length - 1) { const [ax, ay] = ISLAS[rama[k]], [bx, by] = ISLAS[rama[k + 1]], f = q - k; R.linea(ax, ay, lerp(ax, bx, f), lerp(ay, by, f), PAL.ORO[3], 3); R.barco(lerp(ax, bx, f), lerp(ay, by, f) + 3, t, { tipo: 'canoa', esc: 0.25, espuma: false, bob: 0 }); }
+  }
+  for (const [i, [x, y]] of ISLAS.entries()) {
+    const grande = i === 9 || i === 10;
+    R.disco(x + 0.5, y + 0.5, grande ? 4.5 : 3, (xx, yy, d) => R.tone(PAL.PERG, 3.6 - d * 2, xx, yy));
+    R.pset(x, y, grande ? PAL.ORO[4] : PAL.STAR[3]);
+    if (grande) R.anillo(x + 0.5, y + 0.5, 5 + Math.sin(t * 4), PAL.ORO[3]);
+  }
+};
+const salenEstrellas = (t) => {
+  R.cielo(t, { hor: 120, semilla: 103 });
+  R.mar(t, { hor: 120 });
+  // una estrella sale una y otra vez por el mismo punto del horizonte
+  for (let k = 0; k < 3; k++) {
+    const f = ((t - m.leian) * 0.5 + k / 3) % 1;
+    const x = 220 + f * 30, y = 120 - f * 70;
+    R.pset(x, y, PAL.STAR[4]); R.pset(x - 1, y, PAL.STAR[2]); R.pset(x + 1, y, PAL.STAR[2]); R.pset(x, y + 1, PAL.STAR[2]); R.pset(x, y - 1, PAL.STAR[2]);
+    R.linea(220, 120, x, y, PAL.FARC[3], 2);
+  }
+  R.halo(220, 120, 8, [PAL.ORO[1], PAL.ORO[3]], 1);
+  R.barco(110, 140, t, { tipo: 'canoa', esc: 1.3 });
+  R.personaje(118, 130, 26, { ...ELENCO.polinesio, t, pose: 'senala' });
+};
+const oleaje = (t) => {
+  // desde arriba: dos trenes de olas que se cruzan y la canoa en medio
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) {
+    const a = Math.sin(x * 0.16 + y * 0.09 - t * 3), b = Math.sin(x * 0.05 - y * 0.2 - t * 2.2);
+    R.pset(x, y, R.tone(PAL.WATER, 2.6 + 1.2 * a + 1.0 * b, x, y));
+  }
+  // canoa vista desde arriba
+  const cx = 160, cy = 86;
+  for (const dy of [-6, 6]) for (let i = -22; i <= 22; i++) { const w = Math.round(2.5 * Math.sqrt(1 - (i / 23) ** 2)); for (let j = -w; j <= w; j++) R.pset(cx + i, cy + dy + j, R.tone(PAL.HULL, 3.4 - j * 0.3, cx + i, cy + dy + j)); }
+  for (const i of [-12, 0, 12]) R.rect(cx + i, cy - 6, cx + i + 1, cy + 6, PAL.HULL[4]);
+  R.poligono([[cx - 4, cy - 2], [cx + 14, cy - 12], [cx + 10, cy + 2]], (x, y) => R.tone(PAL.SAIL, 3.5, x, y));
+};
+const aves = (t) => {
+  R.cielo(t, { hor: 120, semilla: 104, brillo: 1.2 });
+  // atardecer muy bajo: franja ámbar en el horizonte
+  for (let y = 100; y < 120; y++) for (let x = 0; x < R.W; x++) if ((y - 100) / 20 > R.b4(x, y) + 0.2) R.pset(x, y, y > 114 ? PAL.FIRE[1] : PAL.FIRE[0]);
+  R.mar(t, { hor: 120, luzX: 250 });
+  // isla escondida tras el horizonte (no se ve); las aves vuelan hacia ella
+  for (let k = 0; k < 6; k++) {
+    const f = (((t - m.leian) * 0.12 + k * 0.13) % 1);
+    const x = 40 + f * 230 + k * 5, y = 90 - k * 6 + 6 * Math.sin(f * 7 + k);
+    const ala = Math.sin(t * 10 + k) > 0 ? -1 : 1;
+    R.pset(x, y, PAL.INK); R.pset(x - 1, y + ala, PAL.INK); R.pset(x + 1, y + ala, PAL.INK); R.pset(x - 2, y + ala * 2, PAL.INK); R.pset(x + 2, y + ala * 2, PAL.INK);
+  }
+  R.barco(90, 140, t, { tipo: 'canoa', esc: 1.1 });
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [
+    [0, (t) => R.cartela(t, '1000')], [1.2, oceano], [m.poli - 0.2, mapaIslas],
+    [m.leian - 0.2, salenEstrellas], [m.leian + tercio, oleaje], [m.leian + 2 * tercio, aves],
+  ]);
+  if (t > 1.3) R.companero(t, E.energia(t));
+  R.presentar();
+});
+</script>
+</body>
+</html>

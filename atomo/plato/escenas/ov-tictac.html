@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tic Tac · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-TICTAC (frases 31–32). A: Fravor y Dietrich en sus cabinas; abajo el agua agitada y el Tic Tac; Fravor baja en espiral y
+// el objeto le copia. Luego el Tic Tac sale disparado y desaparece; Fravor gira la cabeza buscándolo y se rasca el casco (gag);
+// en el radar reaparece lejos, en el punto de reunión.
+import { preparar, rodar, primerT, tictacCerca, pantallaTactica, pacifico, tictac, caza, cazaCerca, radar, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-tictac');
+const { tramo, lerp } = R;
+const m = { f: M('fravor', 0.5), d: M('desaparece', 18.2) };
+const L = m.d - m.f, c0 = m.f + 0.32 * L;
+const pilotos = (t) => { cazaCerca(R, t, { quien: t < m.f + 0.16 * L ? EL.dietrich : EL.fravor, sorpresa: t > m.f + 0.1 * L }); };
+const espiral = (t) => {
+  pacifico(R, t, { hor: 52, cerca: true, portaaviones: null, crucero: 278, hierve: 1, centro: [160, 132], gaviotas: false });
+  const u = tramo(t, c0, m.d - 0.3), ang = 3 * Math.PI * u, jx = 160 + Math.cos(ang) * lerp(120, 60, u), jy = lerp(30, 76, u) + Math.sin(ang) * 10, dir = -Math.sin(ang) >= 0 ? 1 : -1;
+  // el objeto copia: se mueve al lado contrario, como en un espejo
+  const ox = 160 - Math.cos(ang) * lerp(20, 30, u), oy = 118 - Math.sin(ang) * 3;
+  tictac(R, ox, oy, t, { sombra: 128 });
+  caza(R, jx, jy, t, { dir, picado: u > 0.15 });
+  caza(R, lerp(40, 280, (t * 0.05) % 1), 22, t, { dir: 1 });   // Dietrich, más alto, vigilando
+};
+const fuga = m.d + 0.6;
+const desaparece = (t) => {
+  pacifico(R, t, { hor: 52, cerca: true, portaaviones: null, crucero: 278, hierve: Math.max(0, 1 - tramo(t, fuga, fuga + 2)), centro: [160, 132], gaviotas: false });
+  const v = tramo(t, fuga, fuga + 0.5); if (v < 1) { tictac(R, lerp(160, 400, v ** 2), lerp(118, 60, v), t); for (let i = 0; i < 20; i++) R.pset(Math.round(lerp(160, 400, v ** 2)) - i * 4, Math.round(lerp(118, 60, v)) + Math.round(i * 0.8), C.blanco); }
+  caza(R, 170, 70, t, { dir: -1 });
+};
+const busca = fuga + 2.2;
+const buscando = (t) => { cazaCerca(R, t, { quien: EL.fravor, sorpresa: t < busca + 3, dirPiloto: Math.floor(t * 2.5) % 2 ? 1 : -1, rasca: t > busca + 3.5 }); };
+const PUNTO = [[-0.6, 0.55]];
+const radarFinal = (t) => { pacifico(R, t, { hor: 70, portaaviones: 220, crucero: 60 }); R.rect(120, 40, 200, 120, C.k); radar(R, 160, 80, 34, t, t > busca + 7.5 ? PUNTO : [], { marco: false }); };
+const efectos = [[0, 'jet', { dur: 4, pan: 0 }], [primerT((t) => t > c0, 0, E.duracion), 'jet', { dur: 5 }], [fuga, 'zumbido'], [fuga + 0.1, 'whoosh'], [busca + 7.2, 'bip']];
+// el Tic Tac de cerca, con el caramelo al lado para comparar (gag), entre las dos vueltas de la espiral
+const cerca0 = c0 + 0.45 * (m.d - 0.3 - c0), cerca1 = cerca0 + 3.2;
+const deCerca = (t) => tictacCerca(R, t, { caramelo: tramo(t, cerca0 + 1.2, cerca0 + 1.8) });
+// la pantalla táctica: el blip aparece justo en el punto de reunión
+const tactica = (t) => pantallaTactica(R, t, { punto: tramo(t, busca + 7.2, busca + 8) });
+rodar(E, R, [[0, pilotos], [c0, espiral], [cerca0, deCerca], [cerca1, espiral], [m.d - 0.3, desaparece], [busca, buscando], [busca + 6, tactica]], { efectos: [...efectos, [cerca0 + 1.2, 'pop']], año: 2004 });
+</script>
+</body>
+</html>

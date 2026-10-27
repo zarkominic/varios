@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Triángulo · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-TRIANGULO (frases 35–36), 2026. Cuatro planos:
+// 1. el informe de los agentes sobre la mesa: el sello, líneas tachadas en negro y el lápiz que dibuja el triángulo;
+// 2. de noche, la instalación vigilada: dos agentes de ronda junto a la valla se paran y miran arriba;
+// 3. desde abajo: el triángulo negro, enorme, cruza el cielo tapando las estrellas, sin llamas ni estela; silencio;
+// 4. la instalación otra vez, con el cielo estrellado y vacío; los agentes se miran; las estrellas forman una «?».
+import { preparar, rodar, instalacion, informeTriangulo, trianguloArriba, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-triangulo');
+const { tramo, lerp } = R;
+const m = { t: M('triangulo', 0.5), n: M('nadie2', 12.4) };
+const P2 = 4.0, P3 = 7.8, P4 = m.n - 0.6;
+const informe = (t) => informeTriangulo(R, t, { dibujo: tramo(t, 0.8, P2 - 0.6) });
+const ronda = (t) => {
+  const p = tramo(t, P2 + 1.6, P3 + 0.4); instalacion(R, t, { tri: p > 0 && p < 1 ? p * 0.35 : null });
+  const x = Math.round(lerp(120, 170, tramo(t, P2, P2 + 1.6)));
+  R.actor(EL.agente, x, 150, t, { dir: 1, anda: t < P2 + 1.6, sorpresa: t > P2 + 1.8, dedo: t > P2 + 2.4 });
+  R.actor(EL.agenta, x - 22, 150, t + 1, { dir: 1, anda: t < P2 + 1.6, sorpresa: t > P2 + 2.0 });
+  if (t > P2 + 0.3) { const fx = x + 16; for (let d = 2; d < 40; d++) for (let w = -Math.round(d / 6); w <= Math.round(d / 6); w++) if ((d + w) % 2) R.pset(fx + d, 142 + Math.round(d * 0.2) + w, R.hex('#5a5e78')); }   // la linterna
+};
+const arriba = (t) => trianguloArriba(R, t, { u: tramo(t, P3, P4) });
+const despues = (t) => {
+  instalacion(R, t, {});
+  R.actor(EL.agente, 170, 150, t, { dir: -1, quieto: true, sorpresa: true }); R.actor(EL.agenta, 148, 150, t + 1, { dir: 1, quieto: true, triste: t > P4 + 1.5 });
+  // las estrellas que forman la «?»: van de su sitio a la forma
+  const Q = [[0, 0], [1, -1], [2, -1], [3, -1], [4, 0], [4, 1], [3, 2], [2, 3], [2, 4], [2, 6]], e = tramo(t, m.n + 0.6, m.n + 2.4);
+  Q.forEach(([qx, qy], k) => { const x0 = 40 + k * 24, y0 = 20 + (k * 17) % 50, x = Math.round(lerp(x0, 148 + qx * 7, e)), y = Math.round(lerp(y0, 46 + qy * 7, e)); R.rect(x, y, x + 1, y + 1, C.blanco); if (e >= 1 && Math.sin(t * 4 + k) > 0) { R.pset(x - 1, y, C.grisL); R.pset(x + 2, y + 1, C.grisL); } });
+};
+rodar(E, R, [[0, informe], [P2, ronda], [P3, arriba], [P4, despues]], { efectos: [[0.8, 'lapiz'], [m.n + 2.4, 'brillo']], año: 2026 });
+</script>
+</body>
+</html>

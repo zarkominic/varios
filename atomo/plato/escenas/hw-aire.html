@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Aire · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-AIRE (frases 39–40). Un campo de calabazas en verano, a pleno sol: átomos que flotan en el aire bajan hasta las
+// hojas y la calabaza crece; «90%» en la caja (casi toda es agua). Luego, de noche, un chico ha tallado su calabaza;
+// dentro arde la vela y del humo salen átomos que vuelven a subir al aire.
+import { preparar, rodar, noche, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-aire');
+const { PALA, PR, NARANJA, tramo, lerp } = R;
+const m = { air: M('aire', 0.5), tal: M('tallar', 12) };
+const La = m.tal - m.air;
+const HOJAS = [[96, 150], [124, 146], [204, 147], [232, 150], [258, 148], [74, 153], [282, 152]];
+const verano = (t) => {
+  const u = t - m.air;
+  R.ambiente({ luz: { lado: 1, color: PALA.AMARILLO[3] }, sombra: PALA.CONTORNO });
+  R.cieloR(t, 'dia', { hor: 130, sol: [262, 30, 12] });
+  R.suelo(130, PR.HIERBA, { luz: 2.4 });
+  R.linea(60, 156, 290, 150, PR.HIERBA[0]); R.linea(60, 157, 290, 151, PR.HIERBA[1]);
+  for (const [x, y] of HOJAS) { R.disco(x, y, 8, PR.HIERBA[0]); R.disco(x - 1, y - 2, 6, PR.HIERBA[1]); R.disco(x - 3, y - 3, 3, PR.HIERBA[2]); }
+  R.calabaza(166, 166, lerp(0.8, 2.6, tramo(u, 0.1 * La, 0.95 * La)), t, { tallada: false });
+  for (let k = 0; k < 10; k++) {
+    const f = ((u * 0.22 + k / 10) % 1), [hx, hy] = HOJAS[k % HOJAS.length], sx = 30 + R.hash2(k, 3) * 260;
+    if (u < 0.3 * La && f > u / (0.3 * La)) continue;
+    R.atomo(Math.round(lerp(sx, hx, f) + Math.sin(t * 2 + k) * 4), Math.round(lerp(14, hy - 4, f)), t + k, { r: 3 });
+  }
+};
+const vela = (t) => {
+  const u = t - m.tal;
+  noche(R, t, { luna: [60, 30, 11], hor: 140 });
+  sueloNoche(R, 140);
+  R.rect(100, 150, 230, 156, PR.MADERA[2]); R.rect(108, 156, 112, 176, PR.MADERA[1]); R.rect(218, 156, 222, 176, PR.MADERA[1]);
+  R.calabaza(166, 150, 2, t);
+  R.personaje(250, 176, 26, { peinado: 'corto', pelo: PALA.PELO_NEGRO, chaqueta: PALA.ROJO, camisa: PALA.BLANCO, pantalon: PALA.AZUL, botas: PALA.BLANCO, chaqueta_larga: false, t, dir: -1, sonrisa: true, luz: { lado: -1, color: PALA.ANTORCHA[3] } });
+  for (let k = 0; k < 6; k++) { const f = ((u * 0.18 + k / 6) % 1); if (u < 1 + k * 0.5) continue; R.atomo(Math.round(166 + Math.sin(t * 1.5 + k * 2) * (6 + f * 30)), Math.round(lerp(118, 10, f)), t + k, { r: 3 }); }
+};
+rodar(E, R, [[0, verano], [m.tal - 0.2, vela]], {
+  año: 2026,
+  caja: (t, e) => R.caja(t, t > m.air + 0.2 * La && t < m.air + 0.55 * La ? tramo(t, m.air + 0.2 * La, m.air + 0.2 * La + 0.4) : 0, (x, y) => R.numero('90%', x + 2, y + 12, { color: PALA.AZUL[3] }), { energia: e }),
+});
+</script>
+</body>
+</html>

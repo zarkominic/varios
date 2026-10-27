@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Arena</title>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// Escena «ep3-arena» (episodio 3, frases 79–80). PAPEL a pantalla completa (kits/papel-adulta.js), stop-motion
+// a 12 fps. Es una comparación que se cierra en sí misma, entre dos escenas de plastilina: entra y sale por
+// corte, con el primer y el último fotograma compuestos para enlazar con ellas.
+//
+//  0            (enlace con ep3-universo) cielo de papel con el DISCO de cielo estrellado en el sitio de la
+//               esfera de arcilla; un brazo estirado de papel (el del espectador, desde abajo a la derecha)
+//               con un grano de arena en la yema del índice, que tapa el centro del disco. Atom abajo a la
+//               izquierda.
+//  arena        (plano medio) el grano destella y la cámara se acerca al dedo; una costura de ámbar rodea el
+//               trocito de cielo que tapa el grano.
+//  ½ de arena   (detalle) «a mitad de frase» el brazo se retira y el trocito se levanta hacia la cámara y crece
+//               hasta ser una tarjeta redonda: la imagen del Webb. Al principio está casi vacía, como se ve a
+//               simple vista; en cinco tandas, del centro afuera, aparecen las galaxias (espirales, elípticas,
+//               puntitos rojos, arcos de lente gravitatoria y estrellas con las seis puntas del Webb), y se
+//               posa la etiqueta 2022 con el espejo de 18 hexágonos dorados.
+//  playas       (plano general, corte) una playa infinita de noche: la orilla y las dunas se juntan en el
+//               horizonte, olas de espuma que van y vienen, granos y pisadas en la arena, y un cielo lleno de
+//               estrellas con la Vía Láctea. Algunas estrellas y algunos granos destellan.
+//  final        (plano medio) la cámara sube y se acerca al cielo; una costura de ámbar marca un círculo en el
+//               centro y el DISCO de cielo estrellado se posa ahí, sobre la playa (enlace con ep3-borde: el
+//               disco está donde está la esfera). Desde duración − 0,6 s, quieto.
+//
+// ENLACES (en píxeles de diseño; la esfera de lo observable de ep03-universo.js tiene que ir aquí):
+//   DISCO = centro (960, 470), radio 300 px, igual en el primer y en el último fotograma.
+//   Atom: centro (230, 780), órbitas de 82 px de radio (unos 180 px), en todos los planos.
+// Sin regla (es papel) y sin cartela (la escena no abre capítulo). Sin palabras: solo el número 2022.
+//
+// Coste: todo lo que no se mueve se hornea al cargar (cielos, disco, imagen del Webb en tandas, playa) a la
+// resolución del mayor acercamiento; en cada fotograma solo se pega eso y se dibujan el brazo, las olas,
+// los destellos y Atom.
+import { escena } from '/atomo/plato/escena.js';
+import * as K from '/atomo/plato/kits/papel-adulta.js';
+const { C, seg, eio, ein, eout, lerp, cl, PI, TAU } = K;
+
+const E = await escena('ep3-arena', 'ep03');
+await K.preparar();
+const W = 1920, H = 1080;
+const a12 = (t) => Math.floor(t * 12 + 1e-6) / 12;
+
+// ---------------------------------------------------------------- marcas y tiempos
+const m = {
+  arena: E.marca('arena', 0.5), arenaFin: E.marca('arena_fin', 8.055),
+  playas: E.marca('playas', 8.605), playasFin: E.marca('playas_fin', 14.073),
+};
+const QUIETO = E.duracion - 0.6;
+// «a mitad de frase»: las marcas son por frase, así que va a una fracción fija de la frase 79
+const TW = m.arena + 0.45 * (m.arenaFin - m.arena);
+// corte a la playa: completa un poco antes de que empiece la frase 80
+const TC = a12(m.playas - 0.18);
+const T = {
+  brillo: [m.arena - 0.1, m.arena + 0.55],     // el grano destella
+  empuje: [m.arena + 0.25, TW - 0.55],         // la cámara se acerca al dedo
+  aro: [m.arena + 1.3, m.arena + 2.3],         // costura del trocito de cielo
+  retira: [TW - 0.5, TW - 0.05],               // el brazo sale por abajo a la derecha
+  sube: [TW - 0.1, TW + 0.5],                  // el trocito sube hacia la cámara y crece
+  halla: [TW + 0.3, TW + 1.45],                // las galaxias, en cinco tandas
+  sello: [TW + 1.75, TW + 2.15],               // la etiqueta 2022 con el espejo del Webb
+  empujeB: [TW + 0.6, TC],                     // empuje lento sobre la imagen
+  cam: [m.playas + 0.5, m.playas + 4.3],       // la cámara sube y se acerca al cielo
+  costura: [m.playas + 3.3, m.playas + 4.2],   // costura del disco
+  disco: [m.playas + 4.25, m.playas + 4.75],   // el disco se posa
+};
+
+// ---------------------------------------------------------------- maqueta (px de diseño)
+const DISCO = { x: 960, y: 470, R: 300 };
+const ATOMO = { x: 230, y: 780, esc: 82 / 124 };
+const ZA = 1.3;                  // acercamiento del plano del brazo (y resolución de su cielo y del disco)
+const RW = 400, ZW = 1.18;       // radio de la imagen del Webb y resolución a la que se hornea
+const ZD = 1.25;                 // acercamiento final al cielo de la playa (y resolución de la playa)
+const CAMD = { y0: 470, y1: 386 };   // punto del mundo de la playa que acaba en el centro de la pantalla
+const GRANO = [960, 470];        // centro del grano = centro del disco
+
+// ---------------------------------------------------------------- utilidades de dibujo
+function hazBrillo(c0, c1, c2) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+  const c = cv.getContext('2d', { willReadFrequently: true }), gr = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, c0); gr.addColorStop(0.2, c1); gr.addColorStop(0.55, c2); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = gr; c.fillRect(0, 0, 64, 64); return cv;
+}
+const BR = hazBrillo('rgba(255,240,212,0.95)', 'rgba(246,222,180,0.4)', 'rgba(236,200,150,0.08)');
+const BR_AMBAR = hazBrillo('rgba(255,214,150,0.95)', 'rgba(240,172,96,0.42)', 'rgba(222,140,72,0.09)');
+const BR_ROJO = hazBrillo('rgba(240,150,110,0.9)', 'rgba(200,100,70,0.4)', 'rgba(170,80,55,0.08)');
+const BR_FRIO = hazBrillo('rgba(240,244,238,0.95)', 'rgba(205,215,210,0.38)', 'rgba(170,190,190,0.08)');
+function brillo(c, x, y, r, a = 1, spr = BR) {
+  if (r < 0.4 || a <= 0) return;
+  c.globalAlpha = a; c.drawImage(spr, x - r, y - r, 2 * r, 2 * r); c.globalAlpha = 1;
+}
+function punto(c, x, y, r, col) { c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+/** estrella de cuatro puntas finas (destello) */
+function chispa(c, x, y, R, rot, col, a = 1) {
+  if (R < 0.5) return;
+  c.save(); c.translate(x, y); c.rotate(rot); c.globalAlpha = a; c.fillStyle = col; c.beginPath();
+  for (let i = 0; i < 8; i++) { const an = i / 8 * TAU, rr = i % 2 ? R * 0.16 : R; c.lineTo(rr * Math.cos(an), rr * Math.sin(an)); }
+  c.closePath(); c.fill(); c.restore();
+}
+/** puntos de un círculo (para costuras) */
+const circPts = (x, y, r, a0 = -PI / 2, n = 90) => Array.from({ length: n + 1 }, (_, i) => [x + r * Math.cos(a0 + i / n * TAU), y + r * Math.sin(a0 + i / n * TAU)]);
+/** sombra barata de un disco: un degradado oscuro desplazado hacia abajo a la derecha (altura d) */
+function sombraDisco(c, x, y, R, d, a = 0.6) {
+  const b = 2 + d * 2.4, gr = c.createRadialGradient(x + d * 0.6, y + d * 1.05, Math.max(0, R - b), x + d * 0.6, y + d * 1.05, R + b);
+  gr.addColorStop(0, `rgba(10,7,6,${a})`); gr.addColorStop(1, 'rgba(10,7,6,0)');
+  c.fillStyle = gr; c.fillRect(x - R - b + d * 0.6, y - R - b + d * 1.05, 2 * (R + b), 2 * (R + b));
+}
+
+// =====================================================================================
+// PLANO A · el cielo con el disco (horneado a ZA) y el brazo
+// =====================================================================================
+const cieloA = K.capa(() => {
+  K.g.scale(ZA, ZA);
+  K.fondoNoche({ luz: [960, 430], estrellas: 210, nubes: false, vineta: 0, semilla: 83,
+    evitar: [{ x: DISCO.x, y: DISCO.y, r: DISCO.R + 12 }, { x: ATOMO.x, y: ATOMO.y, r: 115 }] });
+}, W * ZA, H * ZA);
+
+/** el disco de cielo estrellado (la esfera de lo observable, en papel), horneado a k px por px */
+function hazDisco(k) {
+  const R = DISCO.R * k;
+  return K.sprite(2 * R, 2 * R, () => {
+    const c = K.g, r = K.rng(611);
+    // halo cálido alrededor (la esfera es translúcida y brilla un poco)
+    const h = c.createRadialGradient(0, 0, R * 0.96, 0, 0, R * 1.12);
+    h.addColorStop(0, 'rgba(214,170,116,0.16)'); h.addColorStop(1, 'rgba(214,170,116,0)');
+    c.fillStyle = h; c.fillRect(-R * 1.15, -R * 1.15, 2.3 * R, 2.3 * R);
+    K.papel(K.circulo(R, 612, 0.003), '#191517', { d: 6 * k, sa: 0.7, seed: 613, tb: 0.3, edge: 0.9, print: () => {
+      // luz de dentro: más clara hacia arriba a la izquierda y un velo claro junto al borde (la cáscara)
+      const gr = c.createRadialGradient(-R * 0.22, -R * 0.26, R * 0.05, 0, 0, R);
+      gr.addColorStop(0, 'rgba(126,98,76,0.30)'); gr.addColorStop(0.55, 'rgba(70,55,48,0.12)');
+      gr.addColorStop(0.8, 'rgba(60,48,44,0.08)'); gr.addColorStop(0.95, 'rgba(196,158,112,0.20)'); gr.addColorStop(1, 'rgba(226,190,140,0.42)');
+      c.fillStyle = gr; c.fillRect(-R, -R, 2 * R, 2 * R);
+      // puntitos-galaxia
+      for (let i = 0; i < 560; i++) {
+        const a = r() * TAU, d = R * 0.97 * Math.sqrt(r()), x = d * Math.cos(a), y = d * Math.sin(a);
+        const s = (0.55 + Math.pow(r(), 3) * 2.1) * k, am = r() < 0.22;
+        brillo(c, x, y, s * 3.4, 0.45 + 0.4 * r(), am ? BR_AMBAR : BR);
+        punto(c, x, y, s * 0.72, am ? '#f2c98c' : '#efe3c8');
+      }
+      for (let i = 0; i < 46; i++) {
+        const a = r() * TAU, d = R * 0.9 * Math.sqrt(r()), x = d * Math.cos(a), y = d * Math.sin(a), rx = (2.6 + r() * 4.5) * k;
+        brillo(c, x, y, rx * 2.4, 0.5, BR);
+        c.save(); c.translate(x, y); c.rotate(r() * PI); c.fillStyle = `rgba(236,220,190,${0.55 + 0.3 * r()})`;
+        c.beginPath(); c.ellipse(0, 0, rx, rx * (0.35 + 0.4 * r()), 0, 0, TAU); c.fill(); c.restore();
+      }
+      // reflejo de la cáscara: una media luna de luz arriba a la izquierda
+      const m = new Path2D(); m.arc(0, 0, R * 0.93, PI * 0.95, PI * 1.6); m.arc(R * 0.05, R * 0.07, R * 0.9, PI * 1.6, PI * 0.95, true); m.closePath();
+      c.fillStyle = 'rgba(255,236,205,0.07)'; c.fill(m);
+    } });
+    // el canto: una tira fina de papel vegetal ámbar (translúcida)
+    K.papel(K.anillo(R - 5 * k, R + 1, 614), 'rgba(222,178,118,0.45)', { d: 0, seed: 615, tb: 0.3, edge: 0.6, rule: 'evenodd' });
+  }, 48 * k);
+}
+const DISCO_SP = hazDisco(ZA);
+function pegarDisco(x, y, s, extra = {}) { K.pegar(DISCO_SP, x, y, { esc: s / ZA, ...extra }); }
+
+// ---- el brazo: la mano derecha del espectador, vista por el dorso, que sujeta el grano entre las yemas del índice
+// y del pulgar (entre los dos dedos se ve el cielo). Coordenadas locales: origen en el grano, y hacia abajo; después
+// se escala HS, se gira ROT_MANO y se lleva a MANO0.
+const ROT_MANO = 0, HS = 1.1, MANO0 = GRANO;
+/** dedo de papel: contorno de un tubo que se afila por una curva de Bézier y acaba en una yema redonda */
+function dedoPath(p0, p1, p2, p3, w0, w1) {
+  const pts = K.bezierPts(p0, p1, p2, p3, 32), izq = [], der = [], n = pts.length;
+  for (let i = 0; i < n; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+    const w = lerp(w0, w1, i / (n - 1)) * (1 + 0.06 * Math.sin(i / (n - 1) * PI * 2.2)), nx = -dy / l, ny = dx / l;
+    izq.push([pts[i][0] + nx * w, pts[i][1] + ny * w]); der.push([pts[i][0] - nx * w, pts[i][1] - ny * w]);
+  }
+  const [ex, ey] = pts[n - 1], [qx, qy] = pts[n - 2], th = Math.atan2(ey - qy, ex - qx), cap = [];
+  for (let k = 1; k < 12; k++) { const a = th + PI / 2 - k / 12 * PI; cap.push([ex + w1 * Math.cos(a), ey + w1 * Math.sin(a)]); }
+  return { path: K.poligono([...izq, ...cap, ...der.reverse()]), pts };
+}
+/** punto k de un dedo desplazado d px hacia el lado sgn (+1 / −1) de su eje, y el ángulo del eje */
+function enDedo(D, k, d, sgn) {
+  const P = D.pts, a = P[Math.max(0, k - 1)], b = P[Math.min(P.length - 1, k + 1)], th = Math.atan2(b[1] - a[1], b[0] - a[0]);
+  return [P[k][0] - Math.sin(th) * d * sgn, P[k][1] + Math.cos(th) * d * sgn, th];
+}
+const MANO = (() => {
+  const indice = dedoPath([64, 112], [58, 14], [30, -46], [4, -25], 22, 15.5);
+  const pulgar = dedoPath([44, 214], [-34, 170], [-50, 66], [-17, 19], 31, 18);
+  const dorso = K.suave([[28, 86], [72, 70], [120, 78], [162, 96], [190, 128], [188, 196], [176, 252], [146, 292], [82, 300], [30, 284], [-6, 246], [-10, 196], [4, 142]]);
+  // corazón, anular y meñique, doblados: de ellos se ven los nudillos y el dorso de la primera falange
+  const dedos = [[104, 84, 46, 58, 0.3], [145, 100, 43, 55, 0.42], [180, 126, 37, 48, 0.58]]
+    .map(([x, y, w, h, rot], i) => ({ x, y, rot, p: K.rectRecortado(-w / 2, -h / 2, w, h, w * 0.46, 621 + i, 0.5) }));
+  const unaIndice = K.elipse(11, 7, 624, 0.02), unaPulgar = K.elipse(12.5, 8.5, 627, 0.02);
+  // el grano: un cristal de arena facetado
+  const r = K.rng(631), gp = [];
+  for (let i = 0; i < 7; i++) { const a = i / 7 * TAU + (r() - 0.5) * 0.5, rr = 17 * (0.8 + r() * 0.35); gp.push([rr * Math.cos(a), rr * Math.sin(a) * 0.9]); }
+  const grano = K.poligono(gp);
+  const caraClara = K.poligono([gp[3], gp[4], gp[5], [0, -1]]), caraOscura = K.poligono([gp[0], gp[1], [2, 2]]);
+  return { indice, pulgar, dorso, dedos, unaIndice, unaPulgar, grano, caraClara, caraOscura };
+})();
+// la manga: de la muñeca hacia la esquina de abajo a la derecha (más ancha cerca de la cámara)
+const local2mundo = ([x, y]) => {
+  const c = Math.cos(ROT_MANO), s = Math.sin(ROT_MANO);
+  return [MANO0[0] + HS * (x * c - y * s), MANO0[1] + HS * (x * s + y * c)];
+};
+const MUNECA = local2mundo([112, 290]);
+const HOMBRO = [1600, 1360];
+const DIR = (() => { const dx = HOMBRO[0] - MUNECA[0], dy = HOMBRO[1] - MUNECA[1], l = Math.hypot(dx, dy); return [dx / l, dy / l, l]; })();
+const NRM = [-DIR[1], DIR[0]];
+const MANGA = (() => {
+  const L = DIR[2] + 220, pts = [], izq = [], der = [];
+  const ancho = (s) => lerp(80, 310, Math.pow(s, 0.85)) * (1 + 0.05 * Math.sin(PI * s));
+  for (let i = 0; i <= 24; i++) {
+    const s = i / 24, d = lerp(40, L, s), x = MUNECA[0] + DIR[0] * d, y = MUNECA[1] + DIR[1] * d, w = ancho(s);
+    izq.push([x + NRM[0] * w, y + NRM[1] * w]); der.push([x - NRM[0] * w, y - NRM[1] * w]); pts.push([x, y, w]);
+  }
+  const cuerpo = K.poligono([...izq, ...der.reverse()]);
+  // puño de punto elástico: una banda en la boca de la manga
+  const p0 = [MUNECA[0] - DIR[0] * 8, MUNECA[1] - DIR[1] * 8], p1 = [MUNECA[0] + DIR[0] * 66, MUNECA[1] + DIR[1] * 66];
+  const w0 = 72, w1 = 80;
+  const puno = K.poligono([[p0[0] + NRM[0] * w0, p0[1] + NRM[1] * w0], [p1[0] + NRM[0] * w1, p1[1] + NRM[1] * w1],
+    [p1[0] - NRM[0] * w1, p1[1] - NRM[1] * w1], [p0[0] - NRM[0] * w0, p0[1] - NRM[1] * w0]]);
+  // dos pliegues del punto, de través
+  const pliegues = [0.3, 0.55].map((s, i) => {
+    const d = lerp(40, L, s), x = MUNECA[0] + DIR[0] * d, y = MUNECA[1] + DIR[1] * d, w = ancho(s) * 0.98;
+    return K.bezierPts([x + NRM[0] * w, y + NRM[1] * w], [x + NRM[0] * w * 0.3 + DIR[0] * 30, y + NRM[1] * w * 0.3 + DIR[1] * 30],
+      [x - NRM[0] * w * 0.3 + DIR[0] * (10 + 20 * i), y - NRM[1] * w * 0.3 + DIR[1] * (10 + 20 * i)], [x - NRM[0] * w, y - NRM[1] * w], 24);
+  });
+  return { cuerpo, puno, pts, p0, p1, w0, w1, pliegues };
+})();
+
+function piel(path, col, o = {}) {
+  const c = K.g;
+  K.papel(path, col, { d: o.d ?? 2, seed: o.seed ?? 640, tb: 0.42, edge: 0.75, print: () => {
+    const bb = path.bb, gr = c.createLinearGradient(bb[0], bb[1], bb[2], bb[3]);
+    gr.addColorStop(0, 'rgba(255,236,214,0.20)'); gr.addColorStop(0.6, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(90,50,35,0.22)');
+    c.fillStyle = gr; c.fillRect(bb[0] - 5, bb[1] - 5, bb[2] - bb[0] + 10, bb[3] - bb[1] + 10);
+    if (o.print) o.print(c);
+  } });
+}
+const pliegue = (c, pts, a = 0.34, w = 1.7) => {
+  c.save(); c.strokeStyle = `rgba(120,72,52,${a})`; c.lineWidth = w; c.lineCap = 'round'; c.beginPath();
+  pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.stroke(); c.restore();
+};
+/** el brazo entero en coordenadas del mundo del plano A; off = cuánto se ha retirado (px a lo largo del brazo) */
+function brazo(t, off) {
+  const c = K.g;
+  c.save(); c.translate(DIR[0] * off, DIR[1] * off);
+  K.temblor(650, 0.5, 0.0015);
+  // la mano
+  c.save(); c.translate(MANO0[0], MANO0[1]); c.rotate(ROT_MANO); c.scale(HS, HS);
+  // el pulgar sale de detrás del borde de la mano
+  piel(MANO.pulgar.path, K.mezcla(C.skin, C.skinD, 0.12), { d: 2.6, seed: 650, print: (c) => {
+    const [x, y, th] = enDedo(MANO.pulgar, 17, 0, 1);
+    pliegue(c, [[x - 18 * Math.sin(th), y + 18 * Math.cos(th)], [x + 3 * Math.cos(th), y + 3 * Math.sin(th)], [x + 18 * Math.sin(th), y - 18 * Math.cos(th)]], 0.3, 1.8);
+  } });
+  { const [x, y, th] = enDedo(MANO.pulgar, 27, 7, -1); c.save(); c.translate(x, y); c.rotate(th); K.papel(MANO.unaPulgar, '#f0d8c6', { d: 0.6, seed: 652, edge: 0.6 }); c.restore(); }
+  piel(MANO.dorso, C.skin, { d: 3, seed: 641, print: (c) => {
+    for (const [x0, x1] of [[66, 88], [104, 120], [142, 150]]) pliegue(c, K.bezierPts([x0, 104], [x0 + 2, 150], [x1 - 6, 210], [x1 - 10, 272], 10), 0.13, 6);   // tendones
+  } });
+  piel(MANO.indice.path, C.skin, { d: 2.6, seed: 649, print: (c) => {
+    for (const k of [12, 22]) {   // arrugas de los nudillos del índice
+      const [x, y, th] = enDedo(MANO.indice, k, 0, 1);
+      for (const dd of [-3, 3]) pliegue(c, [[x - 12 * Math.sin(th) + dd * Math.cos(th), y + 12 * Math.cos(th) + dd * Math.sin(th)], [x + dd * Math.cos(th) - 2 * Math.sin(th), y + dd * Math.sin(th) + 2 * Math.cos(th)], [x + 12 * Math.sin(th) + dd * Math.cos(th), y - 12 * Math.cos(th) + dd * Math.sin(th)]], 0.26, 1.5);
+    }
+  } });
+  { const [x, y, th] = enDedo(MANO.indice, 28, 6, 1); c.save(); c.translate(x, y); c.rotate(th); K.papel(MANO.unaIndice, '#f0d8c6', { d: 0.6, seed: 651, edge: 0.6 }); c.restore(); }
+  MANO.dedos.forEach((D, i) => { c.save(); c.translate(D.x, D.y); c.rotate(D.rot);
+    piel(D.p, K.mezcla(C.skin, C.skinD, 0.06 + 0.06 * i), { d: 2, seed: 642 + i, print: (c) => {
+      const b = D.p.bb, w = (b[2] - b[0]) * 0.3; pliegue(c, [[-w, b[1] + 14], [0, b[1] + 11], [w, b[1] + 14]], 0.26, 1.5); pliegue(c, [[-w * 0.8, b[1] + 19], [0, b[1] + 17], [w * 0.8, b[1] + 19]], 0.2, 1.3);
+    } });
+    c.restore(); });
+  // el grano, entre las yemas (con un brillo cálido para que se vea en el móvil)
+  c.save(); K.temblor(652, 0.35, 0.01);
+  brillo(c, 0, 0, 44, 0.55, BR_AMBAR);
+  K.papel(MANO.grano, '#d0a96c', { d: 2.2, seed: 653, edge: 1 });
+  K.papel(MANO.caraClara, '#e9cf9c', { d: 0, seed: 654, edge: 0.4 });
+  K.papel(MANO.caraOscura, '#94703f', { d: 0, seed: 655, edge: 0.3 });
+  c.restore();
+  c.restore();
+  // la manga (más cerca de la cámara que la mano: tapa la muñeca)
+  K.papel(MANGA.cuerpo, C.jersey, { d: 5, seed: 656, sa: 0.6, tb: 0.5, print: () => {
+    c.save(); c.strokeStyle = 'rgba(60,52,46,0.10)'; c.lineWidth = 3;
+    for (let j = -14; j <= 14; j++) {
+      c.beginPath();
+      MANGA.pts.forEach(([x, y, w], i) => { const k = j / 14 * w * 0.98; (i ? c.lineTo : c.moveTo).call(c, x + NRM[0] * k, y + NRM[1] * k); });
+      c.stroke();
+    }
+    c.restore();
+    const a = MANGA.pts[0], b = MANGA.pts[MANGA.pts.length - 1], gr = c.createLinearGradient(a[0], a[1], b[0], b[1]);
+    gr.addColorStop(0, 'rgba(255,240,220,0.10)'); gr.addColorStop(0.35, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(10,7,6,0.5)');
+    c.fillStyle = gr; c.fillRect(0, 0, W, H + 400);
+    for (const pl of MANGA.pliegues) { c.save(); c.strokeStyle = 'rgba(30,24,20,0.22)'; c.lineWidth = 9; c.lineCap = 'round'; c.beginPath(); pl.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.stroke(); c.strokeStyle = 'rgba(255,240,220,0.10)'; c.lineWidth = 4; c.translate(-5, -6); c.stroke(); c.restore(); }
+  } });
+  K.papel(MANGA.puno, K.mezcla(C.jersey, C.jerseyD, 0.35), { d: 2.2, seed: 657, tb: 0.5, print: () => {
+    c.save(); c.strokeStyle = 'rgba(40,34,30,0.22)'; c.lineWidth = 2.2;
+    for (let j = -10; j <= 10; j++) {
+      const k0 = j / 10 * MANGA.w0, k1 = j / 10 * MANGA.w1;
+      c.beginPath(); c.moveTo(MANGA.p0[0] + NRM[0] * k0, MANGA.p0[1] + NRM[1] * k0); c.lineTo(MANGA.p1[0] + NRM[0] * k1, MANGA.p1[1] + NRM[1] * k1); c.stroke();
+    }
+    c.restore();
+  } });
+  c.restore();
+}
+
+// =====================================================================================
+// PLANO B · la imagen del Webb (horneada a ZW, en una base y cinco tandas que aparecen del centro afuera)
+// =====================================================================================
+const WEBB = (() => {
+  const k = ZW, R = RW * k, PAD = 12;
+  const base = K.sprite(2 * R, 2 * R, () => {
+    const c = K.g, r = K.rng(902);
+    K.papel(K.circulo(R, 903, 0.003), '#1a1517', { d: 0, seed: 904, tb: 0.3, edge: 0.8, print: () => {
+      const gr = c.createRadialGradient(0.02 * R, -0.02 * R, 0, 0, 0, R);
+      gr.addColorStop(0, 'rgba(150,108,70,0.16)'); gr.addColorStop(0.4, 'rgba(70,52,42,0.08)'); gr.addColorStop(1, 'rgba(0,0,0,0.25)');
+      c.fillStyle = gr; c.fillRect(-R, -R, 2 * R, 2 * R);
+      for (let i = 0; i < 70; i++) { const a = r() * TAU, d = R * Math.sqrt(r()); punto(c, d * Math.cos(a), d * Math.sin(a), (0.5 + r() * 0.7) * k, `rgba(230,214,186,${0.25 + 0.35 * r()})`); }
+      for (let i = 0; i < 12; i++) { const a = r() * TAU, d = R * 0.9 * Math.sqrt(r()), x = d * Math.cos(a), y = d * Math.sin(a); brillo(c, x, y, 10 * k, 0.8, BR); punto(c, x, y, 1.8 * k, '#efe3c8'); }
+    } });
+  }, PAD);
+  // ---- piezas que se repiten: espirales (tres formas) y elípticas, recortadas una vez
+  const espiral = (seed, col, colN, vuelta) => K.sprite(110, 110, () => {
+    const c = K.g;
+    brillo(c, 0, 0, 56, 0.4, BR);
+    const gr = c.createRadialGradient(0, 0, 2, 0, 0, 46);
+    gr.addColorStop(0, 'rgba(240,222,190,0.38)'); gr.addColorStop(0.6, 'rgba(240,222,190,0.12)'); gr.addColorStop(1, 'rgba(240,222,190,0)');
+    c.fillStyle = gr; c.beginPath(); c.arc(0, 0, 46, 0, TAU); c.fill();
+    for (let i = 0; i < 2; i++) K.papel(K.espiralPath(6, 47, i * PI + seed, vuelta, 5.2), col, { d: 0.5, seed: seed * 7 + i, edge: 0.4, tb: 0.35 });
+    K.papel(K.elipse(9.5, 8, seed + 3, 0.03), colN, { d: 0.5, seed: seed + 4, edge: 0.5 });
+    brillo(c, 0, 0, 20, 0.85, BR);
+  }, 4);
+  const ESP = [espiral(1, '#d9c6a4', '#f6e8c8', 4.3), espiral(2, '#c9a675', '#f3d9a6', 4.7), espiral(3, '#aab6ae', '#eef0e6', 4.0), espiral(4, '#d49a6a', '#f6dcb0', 4.5)];
+  const eliptica = (col) => K.sprite(60, 60, () => {
+    const c = K.g; brillo(c, 0, 0, 30, 0.75, BR);
+    K.papel(K.elipse(13, 9.5, 711, 0.02), col, { d: 0.6, seed: 712, edge: 0.5, tb: 0.35 });
+    brillo(c, 0, 0, 10, 0.6, BR);
+  }, 4);
+  const ELI = [eliptica('#efdcb1'), eliptica('#e9c48c'), eliptica('#dde0d6')];
+  // ---- el catálogo de objetos (unidades de la tarjeta, radio RW), cada uno con su tanda
+  const r = K.rng(905), obj = [];
+  const LIM = [0, 125, 205, 275, 340, RW];
+  const tanda = (x, y) => { const d = Math.hypot(x, y); let i = 0; while (i < 4 && d >= LIM[i + 1]) i++; return i; };
+  const dentro = (x, y, m = 0) => Math.hypot(x, y) < RW - 10 - m;
+  const azarEn = (m = 0) => { for (;;) { const x = (r() * 2 - 1) * RW, y = (r() * 2 - 1) * RW; if (dentro(x, y, m)) return [x, y]; } };
+  const CL = [10, -8];                  // el cúmulo que hace de lente
+  // fondo de puntitos (galaxias lejanísimas): crema, ámbar y rojizos
+  for (let i = 0; i < 1500; i++) {
+    const [x, y] = azarEn(), h = r();
+    obj.push({ t: 'p', x, y, s: 0.5 + Math.pow(r(), 2.2) * 1.9, col: h < 0.5 ? 0 : h < 0.8 ? 1 : 2, g: r() < 0.3 });
+  }
+  // pequeñas elípticas y manchitas
+  for (let i = 0; i < 300; i++) { const [x, y] = azarEn(4); obj.push({ t: 'e', x, y, s: 0.18 + Math.pow(r(), 2.5) * 0.42, v: Math.floor(r() * 3), rot: r() * PI, q: 0.45 + r() * 0.55 }); }
+  // espirales (algunas grandes) inclinadas al azar
+  for (let i = 0; i < 48; i++) {
+    const [x, y] = azarEn(16), big = i < 5;
+    obj.push({ t: 's', x, y, s: big ? 0.6 + r() * 0.35 : 0.14 + Math.pow(r(), 2) * 0.3, v: Math.floor(r() * 4), rot: r() * TAU, q: 0.3 + r() * 0.7, f: r() < 0.5 });
+  }
+  // el cúmulo: elípticas grandes y doradas
+  obj.push({ t: 'e', x: CL[0], y: CL[1], s: 1.25, v: 1, rot: 0.4, q: 0.8, halo: 70 });
+  for (let i = 0; i < 16; i++) {
+    const a = r() * TAU, d = 18 + Math.pow(r(), 0.9) * 80;
+    obj.push({ t: 'e', x: CL[0] + d * Math.cos(a), y: CL[1] + d * Math.sin(a) * 0.8, s: 0.4 + r() * 0.5, v: r() < 0.6 ? 1 : 0, rot: r() * PI, q: 0.6 + r() * 0.4, halo: 22, tanda: 0 });
+  }
+  // arcos de la lente gravitatoria alrededor del cúmulo
+  const arcos = [];
+  for (let i = 0; i < 8; i++) {
+    const rad = 118 + r() * 80, a0 = i / 8 * TAU + r() * 0.5, span = 0.22 + r() * 0.3;
+    arcos.push({ pts: K.arcoPts(CL[0], CL[1], rad, rad * 0.93, a0, a0 + span, 20), w: 2.2 + r() * 2, col: r() < 0.6 ? '#e0a465' : '#cf7f58', seed: 760 + i });
+  }
+  // estrellas de delante, con las seis puntas largas y las dos cortas del Webb
+  const estrellas = [[-205, -178, 1], [212, 148, 0.72], [-128, 236, 0.5], [262, -150, 0.42]].map(([x, y, s]) => ({ x, y, s }));
+  for (const o of obj) if (o.tanda == null) o.tanda = tanda(o.x, o.y);
+  // ---- hornear las cinco tandas
+  const tandas = [0, 1, 2, 3, 4].map((ti) => K.sprite(2 * R, 2 * R, () => {
+    const c = K.g;
+    c.save(); c.beginPath(); c.arc(0, 0, R - 9 * k, 0, TAU); c.clip();
+    c.scale(k, k);
+    const cols = ['rgba(238,226,204,0.85)', 'rgba(236,190,120,0.85)', 'rgba(214,122,86,0.9)'];
+    const sprCol = [BR, BR_AMBAR, BR_ROJO];
+    for (const o of obj) {
+      if (o.tanda !== ti) continue;
+      if (o.t === 'p') { if (o.g) brillo(c, o.x, o.y, o.s * 3.2, 0.5, sprCol[o.col]); punto(c, o.x, o.y, o.s * 0.6, cols[o.col]); }
+    }
+    for (const o of obj) {
+      if (o.tanda !== ti || o.t === 'p') continue;
+      if (o.halo) brillo(c, o.x, o.y, o.halo * o.s, 0.55, BR_AMBAR);
+      const sp = o.t === 's' ? ESP[o.v] : ELI[o.v];
+      c.save(); c.translate(o.x, o.y); c.rotate(o.rot); c.scale(o.s * (o.f ? -1 : 1), o.s * o.q);
+      c.drawImage(sp.c, -sp.ox, -sp.oy); c.restore();
+    }
+    if (ti === 0) {
+      for (const a of arcos) K.papel(K.tira(a.pts, (s) => a.w * Math.pow(Math.sin(PI * s), 0.6) + 0.4), a.col, { d: 0.6, seed: a.seed, edge: 0.5, tb: 0.35 });
+    }
+    // las estrellas brillantes van en la tanda de su sitio
+    for (const e of estrellas) {
+      if (tanda(e.x, e.y) !== ti) continue;
+      const s = e.s;
+      brillo(c, e.x, e.y, 46 * s, 0.85, BR_FRIO);
+      const punta = (an, L, w) => { const ca = Math.cos(an), sa = Math.sin(an); return K.poligono([[e.x + ca * L, e.y + sa * L], [e.x - sa * w, e.y + ca * w], [e.x - ca * L, e.y - sa * L], [e.x + sa * w, e.y - ca * w]]); };
+      for (let i = 0; i < 3; i++) K.papel(punta(PI / 2 + i * PI / 3, 104 * s, 3.2 * s), '#f1e6cf', { d: 0.8, seed: 790 + i, edge: 0.4, tb: 0.3 });
+      K.papel(punta(0, 46 * s, 2.2 * s), '#e9dcc2', { d: 0.6, seed: 794, edge: 0.3, tb: 0.3 });
+      K.papel(K.circulo(8.5 * s, 795, 0.03), '#fbf4e4', { d: 1, seed: 796, edge: 0.4 });
+    }
+    c.restore();
+  }, PAD));
+  // ---- el espejo del Webb (18 hexágonos dorados) y la etiqueta 2022 van fuera, en la tarjeta
+  const espejo = K.sprite(92, 92, () => {
+    const c = K.g, s = 8.6;
+    K.papel(K.circulo(44, 951, 0.01), C.ink2, { d: 0, seed: 952, tb: 0.4 });
+    let i = 0;
+    for (let q = -2; q <= 2; q++) for (let rr = -2; rr <= 2; rr++) {
+      const ss = -q - rr; if (Math.max(Math.abs(q), Math.abs(rr), Math.abs(ss)) > 2 || (q === 0 && rr === 0)) continue;
+      const x = 1.5 * s * q, y = Math.sqrt(3) * s * (rr + q / 2), hx = [];
+      for (let j = 0; j < 6; j++) hx.push([x + s * 0.9 * Math.cos(j * PI / 3), y + s * 0.9 * Math.sin(j * PI / 3)]);
+      K.papel(K.poligono(hx), i % 3 === 1 ? C.goldL : i % 3 === 2 ? C.goldD : C.gold, { d: 0.6, seed: 953 + i, edge: 0.6, tb: 0.4 });
+      i++;
+    }
+  }, 6);
+  return { base, tandas, espejo, k, R };
+})();
+/** la tarjeta del Webb: u = cuánto ha subido (0 = el trocito en el cielo, 1 = arriba); n = tandas visibles */
+function tarjetaWebb(t, u, n, R0, sAct) {
+  const c = K.g;
+  const push = 1 + 0.08 * eio(seg(t, ...T.empujeB));
+  const ue = eout(u), R = lerp(R0, RW, ue) * push;
+  const alza = Math.sin(PI * Math.min(1, u * 1.05));      // mientras sube, se acerca a la lámpara (arriba a la izquierda)
+  const cx = 960 - 22 * (push - 1) / 0.08 - 46 * alza, cy = lerp(GRANO[1], 482, ue) - 14 * (push - 1) / 0.08 - 58 * alza;
+  const d = lerp(1.5, 9, ue) + 16 * alza;
+  sombraDisco(c, cx, cy, R, d, 0.7);
+  c.save(); c.translate(cx, cy); K.temblor(700, 0.6, 0.002); c.rotate(lerp(-0.7, 0, ue));
+  const e = R / (RW * WEBB.k);
+  c.scale(e, e);
+  c.drawImage(WEBB.base.c, -WEBB.base.ox, -WEBB.base.oy);
+  for (let i = 0; i < n; i++) c.drawImage(WEBB.tandas[i].c, -WEBB.tandas[i].ox, -WEBB.tandas[i].oy);
+  c.restore();
+  // filo de papel y costura de ámbar en el borde (el corte del trocito)
+  c.save(); c.translate(cx, cy);
+  const sc = R / RW;
+  c.strokeStyle = 'rgba(255,240,215,0.22)'; c.lineWidth = 2; c.beginPath(); c.arc(-0.8, -1.2, R - 1, PI * 0.75, PI * 1.75); c.stroke();
+  K.puntadas(circPts(0, 0, R - 10 * sc, -PI / 2 + lerp(-0.7, 0, ue), 120), { col: C.ambar, ancho: Math.max(1.6, 2.8 * sc), guion: [9 * sc + 3, 8 * sc + 3], d: 1.2, nudos: false });
+  c.restore();
+  return { cx, cy, R, push };
+}
+
+// =====================================================================================
+// PLANOS C y D · la playa infinita y su cielo (horneados a ZD; el mundo va de y = −80 a 1080)
+// =====================================================================================
+const HZ = 690, VP = [300, 692];
+const ORILLA = K.bezierPts([VP[0], VP[1] + 1], [820, 724], [1420, 832], [2080, 1050], 80);
+const PIE_DUNA = K.bezierPts([VP[0], VP[1] + 1], [230, 716], [90, 762], [-90, 832], 30);
+const prof = (y) => cl((y - HZ) / (H - HZ));          // 0 en el horizonte, 1 abajo del todo
+const Y0D = -80;                                      // el mundo de la playa empieza más arriba que la pantalla
+// normal de la orilla hacia el mar (arriba a la derecha) en el punto i
+const normalOrilla = (i) => {
+  const a = ORILLA[Math.max(0, i - 1)], b = ORILLA[Math.min(ORILLA.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+  return [dy / l, -dx / l];
+};
+const CIELO_D = K.capa(() => {
+  const c = K.g; c.scale(ZD, ZD); c.translate(0, -Y0D);
+  const r = K.rng(1201);
+  // la cartulina del cielo, más clara junto al horizonte
+  const full = K.rect(-10, Y0D - 10, W + 20, HZ + 40 - Y0D);
+  K.papel(full, '#211c1e', { d: 0, seed: 1202, tb: 0.34, edge: 0, print: () => {
+    const gr = c.createLinearGradient(0, Y0D, 0, HZ + 20);
+    gr.addColorStop(0, 'rgba(0,0,0,0.18)'); gr.addColorStop(0.62, 'rgba(60,48,44,0.06)'); gr.addColorStop(1, 'rgba(150,118,90,0.30)');
+    c.fillStyle = gr; c.fillRect(-10, Y0D - 10, W + 20, HZ + 40 - Y0D);
+  } });
+  // la Vía Láctea: un resplandor difuso, dos tiras de papel de seda de bordes suaves y estrellas muy juntas
+  const via = K.bezierPts([-160, 690], [520, 400], [1150, 170], [2100, -50], 90);
+  const enVia = (s, g1) => {
+    const k = Math.min(via.length - 2, Math.floor(s * (via.length - 1))), p = via[k], q = via[k + 1];
+    const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1;
+    return [p[0] + dx * r() + (-dy / l) * g1, p[1] + dy * r() + (dx / l) * g1];
+  };
+  for (let i = 0; i < 260; i++) { const [x, y] = enVia(r(), (r() + r() - 1) * 150); brillo(c, x, y, 60 + r() * 100, 0.05 + 0.045 * r(), BR); }
+  const tiraSuave = (w0, seed, desv) => {
+    const rr = K.rng(seed), f1 = rr() * 6, f2 = rr() * 6, izq = [], der = [];
+    via.forEach(([x, y], i) => {
+      const s = i / (via.length - 1), a = via[Math.max(0, i - 1)], b = via[Math.min(via.length - 1, i + 1)];
+      const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
+      const w = w0 * (0.72 + 0.22 * Math.sin(s * 9 + f1) + 0.12 * Math.sin(s * 23 + f2) + 0.06 * Math.sin(s * 51 + f1)), sh = desv * Math.sin(s * 6 + f2);
+      izq.push([x + nx * (w + sh), y + ny * (w + sh)]); der.push([x - nx * (w - sh), y - ny * (w - sh)]);
+    });
+    return K.suave([...izq.filter((_, i) => i % 3 === 0), ...der.reverse().filter((_, i) => i % 3 === 0)]);
+  };
+  K.papel(tiraSuave(150, 1210, 34), 'rgba(200,176,142,0.05)', { d: 0, seed: 1211, tb: 0.25, ta: 0.6, edge: 0.08 });
+  K.papel(tiraSuave(78, 1212, 26), 'rgba(226,200,160,0.06)', { d: 0, seed: 1213, tb: 0.25, ta: 0.6, edge: 0.08 });
+  for (let i = 0; i < 2800; i++) {
+    const g1 = (r() + r() + r() - 1.5) * 1.1 * 120, [x, y] = enVia(r(), g1);
+    if (y > HZ - 4) continue;
+    const z = 0.35 + Math.pow(r(), 3) * 1.1;
+    if (r() < 0.12) brillo(c, x, y, z * 3.5, 0.5, r() < 0.3 ? BR_AMBAR : BR);
+    punto(c, x, y, z * 0.55, `rgba(238,226,204,${0.35 + 0.5 * r()})`);
+  }
+  // las nubes de polvo oscuro: hilachas finas a lo largo del centro
+  for (let j = 0; j < 6; j++) {
+    const u0 = 0.06 + j * 0.15 + r() * 0.05, u1 = u0 + 0.07 + r() * 0.06, lado = (r() - 0.5) * 30;
+    const tr = K.trozo(via, u0, u1).map(([x, y], i, arr) => [x + lado * 0.3, y + lado + 8 * Math.sin(i / arr.length * 6 + j)]);
+    const wd = 4 + 6 * r();
+    K.papel(K.tira(tr, (s) => wd * Math.pow(Math.sin(PI * s), 1.4) * (0.7 + 0.3 * Math.sin(s * 17 + j)) + 0.5), 'rgba(18,13,12,0.24)', { d: 0, seed: 1220 + j, tb: 0.2, edge: 0 });
+  }
+  // el resto del cielo: muchas estrellas
+  for (let i = 0; i < 1300; i++) {
+    const x = r() * W, y = Y0D + Math.pow(r(), 1.15) * (HZ - Y0D - 6);
+    const z = 0.45 + Math.pow(r(), 3.2) * 2.2, am = r() < 0.18;
+    brillo(c, x, y, z * 3.6, 0.55 + 0.35 * r(), am ? BR_AMBAR : BR);
+    punto(c, x, y, z * 0.62, am ? '#f2cb8f' : '#efe4cc');
+  }
+  for (let i = 0; i < 26; i++) {
+    const x = 60 + r() * (W - 120), y = Y0D + 40 + r() * (HZ - Y0D - 120), R = 6 + r() * 7;
+    brillo(c, x, y, R * 2.2, 0.8, BR);
+    chispa(c, x, y, R, r() * 0.3, '#f4e8cf', 0.9);
+  }
+  // resplandor del horizonte
+  const gr = c.createLinearGradient(0, HZ - 130, 0, HZ + 4);
+  gr.addColorStop(0, 'rgba(170,130,95,0)'); gr.addColorStop(1, 'rgba(170,130,95,0.18)');
+  c.fillStyle = gr; c.fillRect(0, HZ - 130, W, 134);
+}, W * ZD, (H - Y0D) * ZD);
+
+/** curva paralela a la orilla, a d px (en primer plano) hacia el mar (d > 0) o hacia la arena (d < 0) */
+const paralela = (d, extra = () => 0) => ORILLA.map((p, i) => { const [nx, ny] = normalOrilla(i), f = Math.pow(prof(p[1]), 1.05), e = d + extra(i); return [p[0] + nx * e * f, p[1] + ny * e * f]; });
+const PLAYA_D = K.capa(() => {
+  const c = K.g; c.scale(ZD, ZD); c.translate(0, -Y0D);
+  const r = K.rng(1301);
+  // el mar: del horizonte a la orilla
+  const mar = K.poligono([[VP[0] - 4, HZ], [W + 60, HZ], [W + 60, 1200], ...ORILLA.slice().reverse()]);
+  K.papel(mar, '#26353a', { d: 2, seed: 1302, tb: 0.36, edge: 0.6, print: () => {
+    const gr = c.createLinearGradient(0, HZ, 0, H);
+    gr.addColorStop(0, 'rgba(150,140,124,0.30)'); gr.addColorStop(0.16, 'rgba(70,90,92,0.12)'); gr.addColorStop(1, 'rgba(8,10,10,0.35)');
+    c.fillStyle = gr; c.fillRect(0, HZ, W + 60, H - HZ + 200);
+    // reflejos de las estrellas: rayitas horizontales
+    for (let i = 0; i < 300; i++) {
+      const y = HZ + 3 + Math.pow(r(), 1.6) * (H - HZ), x = VP[0] + r() * (W - VP[0] + 60), p = prof(y), L = 3 + p * 22 * r();
+      c.fillStyle = `rgba(236,224,200,${0.07 + 0.22 * r() * (1 - p * 0.5)})`; c.fillRect(x, y, L, 0.8 + p * 1.6);
+    }
+  } });
+  // líneas de oleaje lejanas (quietas)
+  for (let j = 0; j < 6; j++) {
+    const pts = paralela(70 + j * j * 16, (i) => 6 * Math.sin(i * 0.3 + j)).filter(([x, y]) => y >= HZ + 2 && x < W + 60);
+    if (pts.length < 3) continue;
+    K.papel(K.tira(pts, (s) => 0.3 + 2.4 * Math.pow(s, 1.3) * (0.6 + 0.4 * Math.sin(s * 23 + j))), 'rgba(196,204,192,0.22)', { d: 0.3, seed: 1310 + j, edge: 0.3, tb: 0.4 });
+  }
+  // la arena: de la orilla al pie de las dunas, más oscura a lo lejos
+  const arena = K.poligono([...ORILLA, [2080, 1200], [-120, 1200], ...PIE_DUNA.slice().reverse()]);
+  K.papel(arena, '#7d684c', { d: 3, seed: 1320, tb: 0.5, edge: 0.7, print: () => {
+    const gr = c.createLinearGradient(0, HZ, 0, H);
+    gr.addColorStop(0, 'rgba(25,20,18,0.62)'); gr.addColorStop(0.35, 'rgba(25,20,18,0.22)'); gr.addColorStop(1, 'rgba(255,236,205,0.07)');
+    c.fillStyle = gr; c.fillRect(-120, HZ, W + 240, H - HZ + 200);
+    // ondulaciones del viento: líneas que se juntan en el horizonte
+    for (let j = 1; j < 34; j++) {
+      const d = -(36 + Math.pow(j, 1.45) * 14), pts = paralela(d, (i) => 7 * Math.sin(i * 0.45 + j * 1.7)).filter(([x, y]) => y >= HZ + 2);
+      if (pts.length < 3) continue;
+      c.save(); c.lineCap = 'round';
+      c.strokeStyle = 'rgba(28,22,16,0.16)'; c.lineWidth = 2.2; c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y + 1.6) : c.moveTo(x, y + 1.6))); c.stroke();
+      c.strokeStyle = 'rgba(236,214,172,0.10)'; c.lineWidth = 1.6; c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.stroke();
+      c.restore();
+    }
+    // la franja mojada junto al agua, con reflejos
+    const moj = K.tira(paralela(-30), (s) => 1 + 34 * Math.pow(s, 1.2));
+    c.fillStyle = 'rgba(52,44,34,0.55)'; c.fill(moj);
+    for (let i = 0; i < 90; i++) {
+      const k = 10 + Math.floor(r() * (ORILLA.length - 11)), p = ORILLA[k], [nx, ny] = normalOrilla(k), f = prof(p[1]), dd = -(8 + r() * 40) * f;
+      c.fillStyle = `rgba(236,226,206,${0.15 + 0.3 * r()})`; c.fillRect(p[0] + nx * dd, p[1] + ny * dd, 2 + 10 * f * r(), 0.8 + f);
+    }
+    // granos: puntitos claros y oscuros, más grandes cerca
+    for (let i = 0; i < 11000; i++) {
+      const y = HZ + Math.pow(r(), 0.7) * (H - HZ + 40), x = -120 + r() * (W + 240), p = prof(y);
+      const s = 0.4 + p * p * (0.8 + r() * 2.6);
+      c.fillStyle = r() < 0.55 ? `rgba(232,210,166,${0.2 + 0.45 * r()})` : `rgba(44,34,24,${0.22 + 0.4 * r()})`;
+      c.fillRect(x, y, s, s * (0.75 + 0.4 * r()));
+    }
+    // pisadas que se alejan por la arena hacia el horizonte (alguien paseó por la orilla)
+    for (let n = 0; n < 44; n++) {
+      const z = 1 + n * 0.17, s = 1 / z, i = Math.round((ORILLA.length - 1) * 0.86 * s);
+      if (i < 2) break;
+      const [px, py] = ORILLA[i], [nx, ny] = normalOrilla(i), f = prof(py), lado = n % 2 ? 1 : -1;
+      const dd = -(190 + lado * 16), x = px + nx * dd * f, y = py + ny * dd * f;
+      if (y < HZ + 3) break;
+      const q = ORILLA[Math.min(ORILLA.length - 1, i + 1)], th = Math.atan2(q[1] - py, q[0] - px);
+      c.save(); c.translate(x, y); c.rotate(th); c.scale(f * 1.9, f * 1.9);
+      c.fillStyle = 'rgba(240,220,182,0.22)'; c.beginPath(); c.ellipse(0.5, 1.6, 15, 6.4, 0, 0, TAU); c.fill();
+      c.fillStyle = 'rgba(30,23,16,0.66)'; c.beginPath(); c.ellipse(2, 0, 11, 5.2, 0, 0, TAU); c.fill();
+      c.beginPath(); c.ellipse(-11, 0, 5.5, 4.4, 0, 0, TAU); c.fill();
+      c.restore();
+    }
+  } });
+  // las dunas a la izquierda: cartulina oscura con hierba recortada
+  const d1 = K.poligono([...PIE_DUNA, [-120, 840], [-120, 650], [40, 638], [150, 660], [235, 676], [VP[0], VP[1]]]);
+  K.papel(d1, '#34352c', { d: 4, seed: 1330, tb: 0.45, edge: 0.9, print: () => {
+    const gr = c.createLinearGradient(0, 636, 0, 840); gr.addColorStop(0, 'rgba(170,150,116,0.16)'); gr.addColorStop(1, 'rgba(8,6,6,0.32)');
+    c.fillStyle = gr; c.fillRect(-120, 630, 520, 240);
+  } });
+  for (let i = 0; i < 30; i++) {
+    const x = -100 + r() * 390, y0 = x < 40 ? 644 : x < 150 ? 646 + (x - 40) * 0.13 : 660 + (x - 150) * 0.19, h = 14 + r() * 30 * (1 - x / 420);
+    const hoja = K.tira([[x, y0 + 6], [x + (r() - 0.5) * 10, y0 - h * 0.5], [x + (r() - 0.3) * 16, y0 - h]], (s) => 2.4 * (1 - s) + 0.3);
+    K.papel(hoja, r() < 0.5 ? '#40422f' : '#4c4b37', { d: 1, seed: 1340 + i, edge: 0.5, tb: 0.3 });
+  }
+}, W * ZD, (H - Y0D) * ZD);
+
+// olas de espuma que van y vienen (stop-motion), en coordenadas del mundo de la playa
+const PERIODO_OLA = 2.8;
+function olas(t) {
+  const c = K.g, F = Math.round(t * 12), tt = F / 12;
+  for (let j = 1; j >= 0; j--) {
+    const u = ((tt + j * PERIODO_OLA * 0.5) / PERIODO_OLA) % 1;
+    // la espuma sube por la arena (0 → 0,6) y luego se retira adelgazándose (0,6 → 1)
+    const off = j === 0 ? (u < 0.6 ? lerp(95, -26, eout(u / 0.6)) : lerp(-26, 40, eio((u - 0.6) / 0.4))) : lerp(150, 70, u);
+    const grosor = j === 0 ? (u < 0.6 ? lerp(0.7, 1.15, u / 0.6) : lerp(1.15, 0.25, (u - 0.6) / 0.4)) : 0.55 + 0.25 * Math.sin(PI * u);
+    const pts = paralela(off, (i) => 5 * Math.sin(i * 0.37 + j * 2 + tt * 0.6)).filter(([x, y]) => y >= HZ + 4);
+    if (pts.length < 4) continue;
+    // la lámina de agua detrás de la espuma
+    if (j === 0) {
+      const atras = paralela(off + 44 + 20 * u).filter(([x, y]) => y >= HZ + 4);
+      if (atras.length > 3) { const lam = K.poligono([...pts, ...atras.slice(0, pts.length).reverse()]); c.fillStyle = 'rgba(150,170,166,0.20)'; c.fill(lam); }
+    }
+    // espuma de encaje: ancho que cambia a saltos (en cada fotograma, otra semilla)
+    const sem = (F % 4) * 7 + j * 3;
+    K.papel(K.tira(pts, (s) => (0.6 + (j ? 7 : 12) * Math.pow(s, 1.2)) * grosor * (0.6 + 0.25 * Math.sin(s * 41 + sem) + 0.15 * Math.sin(s * 97 + j))), '#d9d0b9', { d: 1.4, seed: 1350 + sem, edge: 0.6, tb: 0.5 });
+    K.papel(K.tira(pts.map(([x, y], i) => [x + 3 * prof(y), y + 5 * prof(y)]), (s) => (0.3 + 2.5 * Math.pow(s, 1.25)) * grosor), 'rgba(226,220,204,0.6)', { d: 0.6, seed: 1370 + sem, edge: 0.3, tb: 0.4 });
+  }
+}
+// destellos: algunas estrellas y algunos granos parpadean (cambian de fotograma en fotograma)
+const DESTELLOS = (() => {
+  const r = K.rng(1401), est = [], gra = [];
+  for (let i = 0; i < 22; i++) est.push([80 + r() * (W - 160), 20 + r() * (HZ - 120), 5 + r() * 6, r()]);
+  for (let i = 0; i < 18; i++) { const y = 840 + r() * 230, x = 380 + r() * 1100; gra.push([x, y, 3 + r() * 4, r()]); }
+  return { est, gra };
+})();
+function destellos(t) {
+  const c = K.g, F = Math.round(t * 12);
+  for (const [x, y, R, h] of DESTELLOS.est) {
+    const v = K.hsh(Math.floor(F / 2) + Math.floor(h * 50), 77);
+    if (v < 0.55) continue;
+    brillo(c, x, y, R * 2.4, 0.7, BR); chispa(c, x, y, R * (0.7 + 0.5 * v), h, '#f6ead2', 0.9);
+  }
+  for (const [x, y, R, h] of DESTELLOS.gra) {
+    const v = K.hsh(Math.floor(F / 2) + Math.floor(h * 50), 91);
+    if (v < 0.7) continue;
+    brillo(c, x, y, R * 2.2, 0.55, BR_AMBAR); chispa(c, x, y, R, h * 2, '#f3dcae', 0.85);
+  }
+}
+
+// ---------------------------------------------------------------- comunes: viñeta y Atom
+const VINETA = K.capa(() => {
+  const c = K.g, vg = c.createRadialGradient(W / 2, H * 0.47, 520, W / 2, H * 0.5, 1240);
+  vg.addColorStop(0, 'rgba(8,6,6,0)'); vg.addColorStop(1, 'rgba(8,6,6,0.6)');
+  c.fillStyle = vg; c.fillRect(0, 0, W, H);
+});
+function atom(t, mira = 0) {
+  const c = K.g, e = t < QUIETO ? E.energia(t) : 0;
+  const gr = c.createRadialGradient(ATOMO.x, ATOMO.y, 40, ATOMO.x, ATOMO.y, 150);
+  gr.addColorStop(0, 'rgba(10,8,8,0.42)'); gr.addColorStop(1, 'rgba(10,8,8,0)');
+  c.fillStyle = gr; c.fillRect(ATOMO.x - 150, ATOMO.y - 150, 300, 300);
+  K.atomo(ATOMO.x, ATOMO.y, t, e, { escala: ATOMO.esc, yaw: -0.12 + 0.35 * mira });
+}
+
+// =====================================================================================
+// COMPOSICIÓN
+// =====================================================================================
+function escenaEn(t) {
+  const c = K.g;
+  if (t < TC) {
+    // ---------- planos A y B: el brazo con el grano y la imagen del Webb
+    const sA = lerp(1, ZA, eio(seg(t, ...T.empuje)));
+    const tx = GRANO[0] * (1 - sA), ty = GRANO[1] * (1 - sA);
+    c.drawImage(cieloA, tx, ty, W * sA, H * sA);
+    pegarDisco(GRANO[0] + (DISCO.x - GRANO[0]) * sA, GRANO[1] + (DISCO.y - GRANO[1]) * sA, sA);
+    // mundo del plano A (cámara que se acerca al grano)
+    c.save(); c.translate(tx, ty); c.scale(sA, sA);
+    const uAro = eio(seg(t, ...T.aro));
+    const subiendo = t >= T.sube[0];
+    if (uAro > 0 && !subiendo) K.puntadas(circPts(GRANO[0], GRANO[1], 46, -PI / 2, 80), { u1: uAro, col: C.ambar, ancho: 2.6, guion: [8, 7], d: 1.2 });
+    const off = 1250 * ein(seg(t, ...T.retira));
+    if (t < T.retira[1]) brazo(t, off);
+    c.restore();
+    // destello del grano
+    const ub = seg(t, ...T.brillo);
+    if (ub > 0 && ub < 1) {
+      const R = 42 * Math.sin(PI * ub), gx = GRANO[0] + (-8) * sA, gy = GRANO[1] + (-14) * sA;
+      brillo(c, gx, gy, R * 1.6, 0.8, BR); chispa(c, gx, gy, R, 0.2 + ub * 0.6, '#f7e6bd', 0.95);
+    }
+    // el trocito sube y es la imagen del Webb
+    if (subiendo) {
+      const u = seg(t, ...T.sube), n = t < T.halla[0] ? 0 : Math.min(5, 1 + Math.floor(5 * seg(t, ...T.halla) + 1e-6));
+      const tj = tarjetaWebb(t, u, n, 46 * ZA, sA);
+      const us = seg(t, ...T.sello);
+      if (us > 0) {
+        const p = K.colocar(us), ex = tj.cx + 0.6 * tj.R, ey = tj.cy + 0.78 * tj.R;
+        c.save(); c.translate(ex + p.dx, ey + p.dy); c.scale(p.s * tj.push, p.s * tj.push); K.temblor(960, 0.4, 0.003);
+        K.sombra(3 + p.d, 0.55); c.drawImage(WEBB.espejo.c, -WEBB.espejo.ox, -WEBB.espejo.oy); K.sinSombra();
+        c.restore();
+        K.etiqueta(ex + 108 * tj.push, ey + 4, '2022', { size: 40, col: C.ivory, ink: C.ink, u: us, rot: -0.05, d: 4, id: 961 });
+      }
+    }
+    c.drawImage(VINETA, 0, 0);
+    atom(t, subiendo ? 0.6 * eio(seg(t, T.sube[1], T.sube[1] + 0.8)) : 0);
+  } else {
+    // ---------- planos C y D: la playa y el acercamiento al cielo
+    const u = eio(seg(t, ...T.cam)), s = lerp(1, ZD, u), fy = lerp(CAMD.y0, CAMD.y1, u);
+    const ox = 960 - 960 * s, oy = 470 - fy * s;               // pantalla = mundo · s + (ox, oy)
+    c.drawImage(CIELO_D, ox, oy + Y0D * s, W * s, (H - Y0D) * s);
+    c.save(); c.translate(ox, oy); c.scale(s, s);
+    destellos(t);
+    c.restore();
+    c.drawImage(PLAYA_D, ox, oy + Y0D * s, W * s, (H - Y0D) * s);
+    c.save(); c.translate(ox, oy); c.scale(s, s);
+    olas(t);
+    // costura del disco, en el sitio del mundo que acaba en el centro de la pantalla
+    const uc = eio(seg(t, ...T.costura));
+    if (uc > 0 && t < T.disco[1]) K.puntadas(circPts(960, CAMD.y1, DISCO.R / ZD - 4, -PI / 2, 120), { u1: uc, col: C.ambar, ancho: 2.6, guion: [10, 8], d: 1.4 });
+    c.restore();
+    const ud = seg(t, ...T.disco);
+    if (ud > 0) {
+      const p = K.colocar(ud);
+      c.save(); c.translate(p.dx, p.dy);
+      pegarDisco(DISCO.x, DISCO.y, p.s * s / ZD, { d: p.d > 0.3 ? p.d : 0 });
+      c.restore();
+    }
+    c.drawImage(VINETA, 0, 0);
+    atom(t);
+  }
+  K.cartela(null, t, E.cartela);
+}
+
+E.iniciar((t) => K.fotograma(a12(Math.min(t, QUIETO)), escenaEn, { fondo: C.bg }), { paso: 1 / 12 });
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Roswell · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-ROSWELL (frase 14), cinco planos:
+// 1 la base de Roswell (hangares, el B-29, la entrada) y un periódico que el viento arrastra; 2 el periódico de cerca, con el
+// platillo en portada; 3 el despacho del general con los periodistas y los flashes; 4 de cerca, los restos sobre la mesa y el
+// globo desinflado; 5 el general señala el globo: «es un globo meteorológico».
+import { preparar, rodar, primerT, baseRoswell, periodico, periodicoGrande, despacho, mesaDespacho, fondoDesenfocado, aluminio, mano, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-roswell');
+const { tramo, lerp } = R;
+const m0 = M('disco', 0.5), D = E.duracion, P = [0, 0.23, 0.42, 0.67, 0.83].map((f) => m0 + f * (D - m0));
+P[0] = 0;
+const flashes = [P[2] + 0.8, P[2] + 2.4, P[2] + 3.6, P[3] + 0.5, P[3] + 1.8, P[4] + 1.2];
+const fogonazo = (t) => { for (const f of flashes) if (t > f && t < f + 0.1) for (let y = 0; y < 180; y += 2) R.rect(0, y, 319, y, C.blanco); };
+const base = (t) => { baseRoswell(R, t); const u = tramo(t, m0 + 0.3, P[1]); periodico(R, Math.round(lerp(-20, 340, u)), Math.round(150 - Math.sin(u * Math.PI) * 40 + Math.sin(t * 4) * 3), t); };
+const portada = (t) => periodicoGrande(R, t);
+const restos = (R2, t) => { R.disco(150, 166, 9, C.k); R.disco(150, 166, 8, R.hex('#c8c0b0')); R.disco(147, 163, 3, R.hex('#d8d2c4')); for (let k = 0; k < 12; k++) R.rect(112 + k * 7, 170 + (k % 3), 116 + k * 7, 170 + (k % 3), k % 2 ? C.foil : C.maderaL); };
+const despachoGeneral = (t, señala) => {
+  despacho(R, t, { tono: 'madera', mesa: false, companero: false });
+  R.actor(EL.general, 140, 124, t, { dir: 1, habla: Math.sin(t * 5) > 0.3, dedo: señala });
+  mesaDespacho(R, t, {});
+  restos(R, t);
+  R.actor(EL.periodista, 50, 172, t + 1, { dir: 1, sorpresa: flashes.some((f) => t > f && t < f + 0.4) });
+  R.actor(EL.periodista, 26, 174, t + 2, { dir: 1, pal: { C: R.hex('#5a6a8a'), c: R.hex('#46506a') } });
+  R.actor(EL.periodista, 260, 172, t + 3, { dir: -1, pal: { C: R.hex('#6a4a3a') }, habla: Math.sin(t * 4) > 0.6 });
+  fogonazo(t);
+};
+const mesaCerca = (t) => {
+  fondoDesenfocado(R, t, false, 'madera');
+  for (let y = 100; y < 180; y++) R.rect(0, y, 319, y, C.madera); for (let k = 0; k < 20; k++) { const y = 104 + Math.round(((k * 37) % 70)); for (let x = 0; x < 320; x++) if ((x + k * 13) % 41 < 28) R.pset(x, y, C.maderaS); } R.rect(0, 100, 319, 102, C.maderaL);
+  // la goma del globo, arrugada y gris, con sus pliegues
+  const LOB = [[-30, 2, 13], [-12, -4, 15], [8, 3, 14], [26, -2, 12], [40, 5, 9], [-42, 6, 8], [0, 10, 11]];
+  for (const [dx, dy, r] of LOB) R.disco(150 + dx, 136 + dy, r + 1, C.k);
+  for (const [dx, dy, r] of LOB) R.disco(150 + dx, 136 + dy, r, R.hex('#b8b0a0'));
+  for (const [dx, dy, r] of LOB) { R.disco(150 + dx - 3, 136 + dy - 3, Math.round(r * 0.55), R.hex('#cec6b6')); R.linea(150 + dx - r + 3, 136 + dy + 2, 150 + dx + 2, 136 + dy + r - 3, R.hex('#948c7c')); }
+  // varillas de balsa con cinta adhesiva estampada de flores
+  for (let k = 0; k < 4; k++) { const x = 40 + k * 18, y = 112 + k * 9; R.linea(x, y, x + 46, y + 10, C.k); R.linea(x, y - 1, x + 46, y + 9, C.maderaL); R.rect(x + 18, y + 2, x + 26, y + 6, R.hex('#e8d8a8')); R.pset(x + 21, y + 4, C.rosa); R.pset(x + 24, y + 4, C.rosa); }
+  [[230, 120, 14], [270, 150, 10], [80, 160, 12], [200, 162, 9]].forEach(([x, y, s], k) => aluminio(R, x, y, s, t, k));
+  // las manos del general levantan una lámina de aluminio para enseñarla a las cámaras
+  const u = tramo(t, P[3] + 0.3, P[3] + 1.4), hy = Math.round(150 - u * 54);
+  aluminio(R, 160, hy - 6, 18, t, 9); mano(R, 128, hy, 1); mano(R, 192, hy, -1);
+  fogonazo(t);
+};
+const efectos = [[m0 + 0.3, 'papel'], [P[1] + 0.3, 'papel'], ...flashes.map((f) => [f, 'flash'])];
+rodar(E, R, [[0, base], [P[1], portada], [P[2], (t) => despachoGeneral(t, false)], [P[3], mesaCerca], [P[4], (t) => despachoGeneral(t, true)]], { efectos, año: 1947 });
+</script>
+</body>
+</html>

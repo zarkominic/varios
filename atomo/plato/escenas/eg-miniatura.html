@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Miniatura · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-MINIATURA · la miniatura del episodio 8 (se captura en t = 1). Se compone a media resolución (160 × 90) y se
+// amplía ×2 para que los personajes chibi se vean grandes sin perder el pixelado: a la izquierda la Gran Pirámide al
+// atardecer, en medio Cleopatra y a la derecha la Luna con un cohete. Arriba, «2500» (en naranja, hacia la pirámide) y
+// «2000» (en azul, hacia la Luna): ella está más cerca de la Luna. Sin palabras: solo números.
+import { escena } from '/atomo/plato/escena.js';
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { C, piramide } from '/atomo/plato/escenas/eg-comun.js';
+const E = await escena('eg-miniatura', 'ep08');
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  // composición a 160 × 90
+  const bandas = [C.tarde1, C.tarde2, C.tarde3, C.tarde4];
+  for (let y = 0; y < 90; y++) R.rect(0, y, 159, y, bandas[Math.min(3, Math.floor(y / 17))]);
+  R.disco(66, 58, 9, C.tarde4); R.disco(66, 58, 7, C.sol);
+  for (let x = 0; x < 160; x++) { const top = Math.round(66 + 2 * Math.sin(x * 0.07)); for (let y = top; y < 90; y++) R.pset(x, y, y === top ? C.arenaL : y < 74 ? C.arena : C.arenaS); }
+  piramide(R, 34, 74, 46, { fase: 'terminada' });
+  R.disco(140, 34, 13, C.k); R.disco(140, 34, 12, C.calizaL); R.disco(144, 30, 3, C.calizaS); R.disco(135, 38, 2, C.calizaS);
+  const rx = 114, ry = 40; R.rect(rx - 3, ry, rx + 3, ry + 15, C.k); R.rect(rx - 2, ry + 1, rx + 2, ry + 14, C.blanco); R.rect(rx - 1, ry - 3, rx + 1, ry, C.rojo); R.rect(rx - 5, ry + 11, rx - 3, ry + 15, C.rojo); R.rect(rx + 3, ry + 11, rx + 5, ry + 15, C.rojo); R.disco(rx, ry + 6, 1, C.azul); R.rect(rx - 1, ry + 16, rx + 1, ry + 20, C.oro);
+  R.actor(EL.egipcia, 76, 82, 0.5, { tocado: 'diadema', habla: 1 });
+  // ampliar ×2 (de abajo arriba y de derecha a izquierda para no pisar lo que falta por leer)
+  for (let y = 89; y >= 0; y--) for (let x = 159; x >= 0; x--) { const c = R.pget(x, y); R.rect(x * 2, y * 2, x * 2 + 1, y * 2 + 1, c); }
+  // números grandes
+  R.numero('2500', 70, 30, { tam: 16, centro: true, rampa: [C.oroL, C.oroL, C.tarde4, C.tarde3, C.rocaS] });
+  R.numero('2000', 214, 30, { tam: 16, centro: true, rampa: [C.aguaL, C.aguaL, C.agua3, C.agua2, C.agua1] });
+  R.companero(t, 0.6, 22, 150);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

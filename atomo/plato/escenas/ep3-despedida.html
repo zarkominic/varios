@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-despedida · eres un gigante</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-despedida (frases 90–95, sin cartela). Plastilina adulta. La última escena del episodio.
+//  0            (= último fotograma de ep3-centro, window.__fin de ep3-centro) el ojo del gancho cerrado sobre la franja
+//               reducida al pelo, con la cuenta del pelo en el centro; la regla entera con la flecha en −4; Atom en
+//               (230, 780), quieto, con la sombra cálida del ojo
+//  gigante      GENERAL. Los párpados se abren (en vivo, solo la banda que se mueve): por la rendija, en vez del globo, la
+//               persona; la franja y la cuenta del pelo se apagan. La cámara atraviesa el ojo (la foto de los párpados
+//               abiertos crece en 2D hasta salir del cuadro) y queda el plano entero: el «humano» de pie, enorme, visto
+//               desde abajo, con la fila de átomos (ep03-tocar.js) a los pies y remolinos del kit como galaxias lejanas
+//               sobre la cabeza. La flecha sube cuatro saltos, de −4 a 0
+//  unagalaxia   GENERAL → DETALLE DE LA GALAXIA. La persona se queda en una mirilla redonda que encoge hasta un punto en
+//               su sitio de la galaxia mientras, detrás, el mundo de crearMundo (ep03-cosmos.js) se aleja de 10^17,4 a
+//               10²¹ hasta la galaxia entera. A mitad de frase (corte de composición: la galaxia, foto) la galaxia encoge
+//               sobre la red de ep03-universo.js, entre otras galaxias que también encogen, hasta ser un punto ámbar
+//               (puntoNosotros) entre muchos. La flecha va de 0 a 21 y de 21 a 26
+//  nacieron     PLANO DEL DESTELLO: el destello del principio (destello de ep03-estrellas.js) y átomos de hidrógeno (bolitas
+//               «como Atom»: el átomo de la fila de ep03-tocar.js, en foto, teñido) que salen de él. A mitad de frase,
+//               corte: dos estrellas (la gigante de ep03-estrellas.js y otra menor) que mueren y explotan; de ellas salen
+//               átomos de carbono, oxígeno y hierro (y llega hidrógeno por la izquierda); casi todos caen en una mano
+//               abierta (la pieza 'mano' del kit, en foto) y unos pocos pasan de largo. La flecha baja de 26 a 0
+//  vengo        PLANO MEDIO en el plató del principio (el de ep3-hola, con su telón oscuro): Atom, centrado, se señala a sí
+//               mismo con el electrón sobre alambre y luego señala a cámara. La regla sale por la derecha al volver al plató
+//  explico      PRIMER PLANO: Atom de cerca, como al empezar ep3-hola; brota el bocadillo del kit con la «?»
+//  comentarios  la «?» da un bote y la imagen se asienta; quieta desde D − 0,6 s (termina_con)
+// Las palabras sueltas no tienen marca: lo que pasa dentro de una frase va a una fracción fija de su intervalo.
+// Coste (≤ 5 s por fotograma dibujado): lo quieto son fotos (el ojo cerrado, los párpados abiertos, la persona con la fila,
+// el plató, la mano, la gigante, el átomo de la fila, el remolino, la galaxia, la red final); en vivo: Atom, la regla
+// mientras se mueve, los párpados mientras se abren (solo su banda), el mundo de 10^17,4 a 10²¹ y la red al alejarse (a
+// media resolución), y el bocadillo y la «?» mientras se mueven.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eob, brote, muelle, azar, mulberry32, HUMANO, COLOR } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearCielo, celdaRed, veloRed, puntoNosotros, fotoGalaxia, FINAL_UNIVERSO } from '/atomo/plato/kits/ep03-universo.js';
+import { crearMundo, estadoMundo, camaraPorTierra } from '/atomo/plato/kits/ep03-cosmos.js';
+import { tiposOjo, uniformesOjo, ponerOjo, CAPA, OJO, HOLA, encuadreHola, resplandorFranja, sombraParpados, vinetaOjo } from '/atomo/plato/kits/ep03-ojo.js';
+import { tiposTocar, fila } from '/atomo/plato/kits/ep03-tocar.js';
+import { tiposEstrellas, uniformesEstrellas, gigante, halo, destello } from '/atomo/plato/kits/ep03-estrellas.js';
+
+const T0 = performance.now();
+window.__carga = [];
+const marcaCarga = (k) => window.__carga.push([k, Math.round(performance.now() - T0)]);
+const E = await escena('ep3-despedida', 'ep03');
+const M = (k, d) => E.marca(k, d);
+const m = {
+  gi: M('gigante', 0.5), giF: M('gigante_fin', 2.364), ga: M('unagalaxia', 3.208), gaF: M('unagalaxia_fin', 9.635),
+  na: M('nacieron', 10.185), naF: M('nacieron_fin', 16.982), ve: M('vengo', 17.532), veF: M('vengo_fin', 19.636),
+  ex: M('explico', 20.186), exF: M('explico_fin', 21.717), co: M('comentarios', 22.517), coF: M('comentarios_fin', 23.647),
+};
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+const fr = (a, b, u) => a + (b - a) * u;
+const seco = (u) => 1 - Math.pow(1 - cl(u), 4);
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const T = {
+  // frase 90: los párpados se abren, la franja y el pelo se apagan, la cámara atraviesa el ojo; la flecha sube a 0
+  abre: [0.1, 0.78], apaga: [0.06, 0.5], cruza: [0.55, 1.6], sube0: 1.0, paso: 0.3,
+  // frase 91: la mirilla encoge (el mundo se aleja hasta la galaxia); a mitad de frase, la galaxia encoge sobre la red
+  B: m.ga - 0.2, B2: fr(m.ga, m.gaF, 0.5),
+  // frase 92: el destello; a mitad de frase, las estrellas que mueren y la mano
+  C: m.na - 0.25, C2: fr(m.na, m.naF, 0.47),
+  // frase 93: el plató; Atom se señala y señala a cámara
+  Dp: m.ve - 0.2,
+  // frases 94–95: primer plano con el bocadillo
+  Ep: m.ex - 0.2,
+};
+T.mir = [T.B, T.B + 2.1];                         // la mirilla de la persona encoge hasta el punto (zum de ritmo constante)
+T.zB = [T.B, T.B2 - 0.1];                         // el mundo: de 10^17,4 a 10²¹
+T.zB2 = [T.B2, T.C - 0.45];                       // la galaxia sobre la red: de 10²¹ a 10²⁶
+T.flash = [T.C, m.na + 0.12];                     // el destello llega a su máximo al decirse la frase
+T.exp1 = T.C2 + 0.85; T.exp2 = T.C2 + 1.6;        // las dos estrellas explotan
+T.llega = fr(m.na, m.naF, 0.93);                  // los últimos átomos entran en la mano
+T.bajaR = [T.C2 + 0.5, m.naF - 0.25];             // la flecha de 26 a 0
+T.sale = [T.Dp, T.Dp + 0.6];                      // la regla sale por la derecha
+T.yo = [m.ve - 0.3, m.ve + 0.05];                 // se señala a sí mismo (completo al decir «yo»)
+T.tu = [fr(m.ve, m.veF, 0.55) - 0.3, fr(m.ve, m.veF, 0.55)];   // y señala a cámara («y tú también»)
+T.suelta = [m.veF - 0.1, m.veF + 0.25];
+const plano = (ts) => (ts < T.B ? 'A' : ts < T.B2 ? 'B' : ts < T.C ? 'B2' : ts < T.C2 ? 'C' : ts < T.Dp ? 'C2' : ts < T.Ep ? 'D' : 'E');
+
+// ---------------------------------------------------------------- el plató
+const I = { REG: 0, FLE: 1, OJO: 2, FR: 3, TRO: 4, HUM: 5, FILA: 6, REM: 7, MANO: 8, GIG: 9, BOC: 10, Q: 11 };
+const UO = uniformesOjo();
+const P = await crearPlato({
+  piezas: ['reglaA', 'flecha', 'ojo', 'franja', 'tronco', 'humano', 'fila', 'remolino', 'mano', 'gigante', 'bocadillo', 'glifo:?'],
+  tiposExtra: { ...tiposOjo({ cosas: ['galaxia'] }), ...tiposTocar(['fila']), ...tiposEstrellas(['gigante']) },
+  uniformes: { ...UO, ...uniformesEstrellas() },
+  alfa: true, post: false, mano: true,
+  sombraFondo: ['p5', 'p6'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+marcaCarga('plato');
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (p) => { const a = pant(p), b = pant([p[0] + 1, p[1], p[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+
+// ---------------------------------------------------------------- capas: el mundo (oculto), WebGL (oculto) y un lienzo 2D encima
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+lienzoGL.style.visibility = 'hidden';
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:3';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+let KD = 1;
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  KD = capa.width / W; g.setTransform(KD, 0, 0, KD, 0, 0);
+}
+function lienzo2D() {
+  const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height;
+  const x = c.getContext('2d'); x.setTransform(c.width / W, 0, 0, c.width / W, 0, 0);
+  return [c, x];
+}
+const copiaGL = () => { const [c, x] = lienzo2D(); x.drawImage(lienzoGL, 0, 0, W, H); return c; };
+function pegarGL(alfa = 1) { g.save(); g.globalAlpha = alfa; g.drawImage(lienzoGL, 0, 0, W, H); g.restore(); }
+function fotoEscalada(gx, f, s, p, q = p, alfa = 1) {
+  if (!f || alfa <= 0.001) return;
+  gx.save(); gx.globalAlpha *= alfa; gx.translate(q[0], q[1]); gx.scale(s, s); gx.translate(-p[0], -p[1]);
+  gx.drawImage(f, 0, 0, W, H); gx.restore();
+}
+// un recorte (sprite) de un lienzo a tamaño de diseño: rect [x0, y0, x1, y1] px de diseño
+function recorte(src, [x0, y0, x1, y1]) {
+  const k = src.width / W, c = document.createElement('canvas');
+  c.width = Math.round((x1 - x0) * k); c.height = Math.round((y1 - y0) * k);
+  c.getContext('2d').drawImage(src, x0 * k, y0 * k, c.width, c.height, 0, 0, c.width, c.height);
+  return { lienzo: c, w: x1 - x0, h: y1 - y0 };
+}
+// un sprite centrado en (x, y), de ancho w px, girado a, con alfa
+function sprite(gx, s, x, y, w, { a = 0, alfa = 1, sy = 1 } = {}) {
+  if (alfa <= 0.003 || w <= 0.2) return;
+  const h = (w * s.h) / s.w;
+  gx.save(); gx.globalAlpha *= alfa; gx.translate(x, y); if (a) gx.rotate(a); if (sy !== 1) gx.scale(1, sy);
+  gx.drawImage(s.lienzo, -w / 2, -h / 2, w, h); gx.restore();
+}
+const cielo = crearCielo();
+const mundo = crearMundo(cont, { captura: P.captura });
+mundo.lienzo.style.visibility = 'hidden';
+marcaCarga('cielo y mundo');
+
+// ---------------------------------------------------------------- Atom (presentador: pequeño, abajo a la izquierda)
+// el mismo cálculo que ep3-centro; empieza con el giro y la fase de los electrones con que acaba ep3-centro (que a su vez
+// empezó donde acabaron ep3-borde y ep3-universo): se calculan con sus marcas
+const A_Z = 1.0, ATOMO = FINAL_UNIVERSO.atomo;
+const escAtomo = (sx, sy, d) => d / (2 * (1.68 + 0.16) * pxU(en(sx, sy, A_Z)));
+const A_ESC = escAtomo(...ATOMO, 180);
+const CAM = [0, 3.8, 15.5];
+const gy = (p) => Math.atan2(CAM[0] - p[0], CAM[2] - p[2]), gp = (p) => Math.atan2(p[1] - CAM[1], Math.hypot(CAM[0] - p[0], CAM[2] - p[2]));
+const A_REF = en(850, 330, A_Z);
+const giroHacia = (sx, sy) => { const w = en(sx, sy, A_Z); return [gy(w) - gy(A_REF), gp(w) - gp(A_REF)]; };
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+const DT = 1 / 240;
+function integra(vel, hasta) {
+  const A = [0];
+  for (let i = 1; i * DT <= hasta + 0.2; i++) A.push(A[i - 1] + vel((i - 0.5) * DT) * DT);
+  return (t) => { const x = t / DT, j = Math.min(A.length - 2, Math.floor(x)); return mix(A[j], A[j + 1], x - j); };
+}
+// el reloj de Atom al final de ep3-centro (su window.__fin.reloj), con las marcas de ep3-universo, ep3-borde y ep3-centro
+const RELOJ = await (async () => {
+  try {
+    const j = await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json();
+    const u = j['ep3-universo'], b = j['ep3-borde'], c = j['ep3-centro'];
+    const Qu = u.duracion - 0.6, es = u.marcas.espera, co = u.marcas.comopuede;
+    const vu = (t) => (1 + 0.9 * Math.exp(-Math.pow((t - es) / 0.4, 2)) + 0.6 * Math.exp(-Math.pow((t - co) / 0.5, 2))) * (1 - eio(prog(t, Qu - 0.9, Qu)));
+    const previo = { tz: Qu - 0.45, ta: integra(vu, u.duracion)(Qu) };
+    const Qb = b.duracion - 0.6, cb = b.marcas.carrera, cbF = b.marcas.carrera_fin, golpe = cb + 0.42 * (cbF - cb);
+    const vb = (t) => ss(0, 0.45, t) * (1 + 0.5 * Math.exp(-Math.pow((t - golpe) / 0.4, 2))) * (1 - eio(prog(t, Qb - 0.9, Qb)));
+    const borde = { tz: previo.tz + (Qb - 0.45), ta: previo.ta + integra(vb, b.duracion)(Qb) };
+    const Qc = c.duracion - 0.6;
+    const vc = (t) => ss(0, 0.45, t) * (1 - eio(prog(t, Qc - 0.9, Qc)));
+    return { tz: borde.tz + (Qc - 0.45), ta: borde.ta + integra(vc, c.duracion)(Qc) };
+  } catch { return { tz: 67.0, ta: 66.0 }; }
+})();
+// el reloj de los electrones: arranca suave (como venía quieto), algo más deprisa al nacer los átomos, quieto al final
+const velA = (t) => ss(0, 0.45, t) * (1 + 0.5 * Math.exp(-Math.pow((t - m.na) / 0.5, 2))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+const tAtomo = integra(velA, D);
+const MARCAS = [m.gi, m.ga, m.na];
+// Atom presentador (planos A, B y C): en su sitio, como en ep3-centro
+function atomoPres(ts) {
+  const tz = RELOJ.tz + calma(ts), ta = RELOJ.ta + tAtomo(ts);
+  const sx = ATOMO[0], sy = ATOMO[1] + 3 * Math.sin(tz * 1.3) + 2 * Math.sin(tz * 0.7 + 1.0);
+  const brillo = Math.max(0, ...MARCAS.map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))));
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  const [dy, dp] = giroHacia(sx, sy);
+  P.atomo({
+    pos: en(sx, sy, A_Z), escala: A_ESC, yaw: -0.15 + dy + 0.08 * Math.sin(tz * 0.5), pitch: 0.06 - dp,
+    energia: Math.min(1, en0 + 0.45 * brillo), ts: ta, halo: 1, velo: 0.1,
+  });
+}
+// Atom en el plató (planos D y E): centrado, como al empezar ep3-hola
+const A_D = { c: [940, 560], d: 500 }, A_E = { c: [800, 560], d: 610 };
+const A_ESC_D = escAtomo(...A_D.c, A_D.d), A_ESC_E = escAtomo(...A_E.c, A_E.d);
+function atomoPlato(ts) {
+  const cerca = ts >= T.Ep;
+  const S = cerca ? A_E : A_D, esc = cerca ? A_ESC_E : A_ESC_D;
+  const tz = RELOJ.tz + calma(ts), ta = RELOJ.ta + tAtomo(ts);
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  // el electrón sobre alambre: primero se toca el pecho (se señala) y luego sale hacia la cámara (señala a cámara)
+  let aplasta = 0, electrones = [], toque = false, pitch = 0.06, yaw = -0.15 + 0.08 * Math.sin(tz * 0.5), roll = 0, bote = 0;
+  if (!cerca) {
+    // «yo»: el electrón sale de su órbita sobre su alambre, se vuelve una manita (la del kit, { mano: true }) y da dos toques
+    // en su propio núcleo (completo al decir «yo»);
+    // «y tú»: sale hacia la cámara, abajo a la derecha, y se queda señalando; al acabar la frase vuelve a su órbita
+    const kSale = ss(T.yo[0] - 0.25, T.yo[0] + 0.05, ts), kFin = 1 - ss(T.suelta[0], T.suelta[1], ts);
+    const kTu = ss(T.tu[0], T.tu[1], ts);
+    const toques = Math.max(0, Math.sin(Math.PI * prog(ts, T.yo[1] - 0.2, T.yo[1] + 0.06)), Math.sin(Math.PI * prog(ts, T.yo[1] + 0.12, T.yo[1] + 0.38)));
+    const llega = ss(T.yo[0] - 0.05, T.yo[1] - 0.15, ts);
+    const fuera = [2.4, 1.35, 0.6], pecho = [0.55, 0.3, 1.05], tu = [2.0, -0.3, 2.1];
+    let p = [0, 1, 2].map((i) => mix(fuera[i], pecho[i], eio(llega)));
+    p = [p[0] + 0.25 * (1 - toques) * llega, p[1] + 0.12 * (1 - toques) * llega, p[2] + 0.1 * (1 - toques) * llega];
+    p = [0, 1, 2].map((i) => mix(p[i], tu[i], eio(kTu)));
+    const sale = kSale * kFin;
+    if (sale > 0.001) { electrones = [{ pos: p, mezcla: eio(sale), brazo: ss(0.15, 0.7, sale), grosor: 0.05, mano: ss(0.3, 0.9, sale), tamMano: 0.42 }]; toque = true; }
+    // al tocarse se recoge un poco; al señalar a cámara da un bote hacia ella
+    pitch = 0.06 + 0.08 * llega * (1 - kTu);
+    yaw += 0.12 * llega * (1 - kTu);
+    bote = 0.04 * toques + 0.06 * Math.sin(Math.PI * prog(ts, T.tu[0], T.tu[1] + 0.3));
+    aplasta = 0.07 * toques * llega;
+  }
+  const w = en(S.c[0], S.c[1], A_Z);
+  const kB = ss(m.ex - 0.3, m.ex + 0.1, ts);                // con el bocadillo, mira un poco hacia él
+  P.atomo({
+    pos: [w[0], w[1] + bote + 0.012 * Math.sin(tz * 1.1), w[2]], escala: esc, sq: [1 + 0.6 * aplasta, 1 - aplasta, 1 + 0.6 * aplasta],
+    yaw: yaw + 0.22 * kB, pitch: pitch - 0.05 * kB, roll,
+    energia: en0, ts: ta, electrones, toque, halo: 1, velo: 0.1,
+  });
+  return { sx: S.c[0], sy: S.c[1], esc };
+}
+// la sombra blanda detrás de Atom (que se lea en el móvil sobre fondos claros)
+function sombraAtom(gx, s, k) {
+  if (k <= 0.002) return;
+  const gr = gx.createRadialGradient(s.x, s.y, s.r0, s.x, s.y, s.r1);
+  gr.addColorStop(0, `rgba(${s.color},${s.alfa * k})`); gr.addColorStop(1, `rgba(${s.color},0)`);
+  gx.fillStyle = gr; gx.fillRect(s.x - s.r1 - 10, s.y - s.r1 - 10, 2 * s.r1 + 20, 2 * s.r1 + 20);
+}
+
+// ---------------------------------------------------------------- la regla (la del final de ep3-centro: entera, en −4)
+const FIN_U = FINAL_UNIVERSO;
+const REG_POS = en(...FIN_U.regla.pos), REG_ESC = FIN_U.regla.escala, REG_ROT = FIN_U.regla.rot;
+const BASE_R = { pieza: I.REG, flecha: I.FLE, rot: REG_ROT, e: 27, ya: 0, lupaEntera: 1.3, escala: REG_ESC, entera: 1, lupa: 0.3 };
+const opRegla = (v, dx = 0) => ({ ...BASE_R, pos: dx ? en(FIN_U.regla.pos[0] + dx, FIN_U.regla.pos[1], FIN_U.regla.pos[2]) : REG_POS,
+  actual: v, marca: v });
+// dónde está la flecha (exponente) en cada instante
+function marcaRegla(ts) {
+  if (ts < T.B) {
+    // cuatro saltos secos de −4 a 0
+    let v = -4;
+    for (let k = 0; k < 4; k++) v += seco(prog(ts, T.sube0 + k * T.paso, T.sube0 + k * T.paso + 0.24));
+    return v;
+  }
+  if (ts < T.B2) return 21 * eio(prog(ts, T.zB[0], T.zB[1]));
+  if (ts < T.C2) return mix(21, 26, eio(prog(ts, T.zB2[0], T.zB2[1])));
+  return mix(26, 0, eio(prog(ts, T.bajaR[0], T.bajaR[1])));
+}
+// la regla quieta en un valor entero es una foto (sin fondo, para ir encima); se mueve, en vivo
+const FOTOS_REGLA = {};
+function fotoRegla(v) {
+  if (!FOTOS_REGLA[v]) { P.limpiar(); P.regla(opRegla(v)); P.render(v === -4 ? 7003 : 7300 + v, { fondo: false }); FOTOS_REGLA[v] = copiaGL(); }
+  return FOTOS_REGLA[v];
+}
+// una pasada viva sobre transparente: la regla (si se mueve) y Atom, encima de lo que haya en g
+function pasadaViva(n, ts, { conRegla = true } = {}) {
+  const v = marcaRegla(ts), entera = Math.abs(v - Math.round(v)) < 1e-6;
+  if (conRegla && entera) g.drawImage(fotoRegla(Math.round(v)), 0, 0, W, H);
+  P.limpiar();
+  if (conRegla && !entera) P.regla({ ...opRegla(v), actual: Math.round(v), toque: true });
+  atomoPres(ts);
+  P.render(n, { fondo: false });
+  pegarGL();
+}
+
+// ---------------------------------------------------------------- el ojo del gancho (el final de ep3-centro)
+const E_TRO = 2.15, TRO = (() => { const a = en(900, 540, -0.4); return [a[0], 1.4 * E_TRO, -0.4]; })();
+const HC = [pant([TRO[0], 0, TRO[2]])[0], 540];
+const R_PEL = E_TRO * pxU([TRO[0], 2.3, TRO[2]]);
+const SRC0 = [HC[0], 400];
+const TIRA = { y0: 140, y1: 700 };
+const scFoto = (r) => Math.min(1, 1.35 * r / 540);
+const scPelo = (r) => (r >= 200 ? scFoto(r) : mix(0.075, 0.5, cl((r - 50) / 150)));
+const kTira = (r) => 1 - ss(200, 400, r);
+const EH = encuadreHola(P);
+const CF = [960, Math.round(EH.franja.y)];
+const R_PELO = 50;
+const SC_FIN = scPelo(R_PELO);
+const SX_FIN = (1.9 * R_PELO) / (2 * HOLA.FRANJA.largoPx);
+const CERRADO = { arriba: 1, abajo: 1 };
+const BRILLO_PELO = 0.85 * 0.85;                  // el de ep3-centro al final (mix(0,6, 0,85, 1) · (1 − 0,15))
+const ABIERTO = HOLA.ABRE;
+// la cuenta del pelo (la mirilla de ep3-centro, en su tamaño final: la tira del pelo repetida en vertical)
+function cuentaPelo(gx, c, r, sc, src, brillo, alfa) {
+  if (alfa <= 0.003) return;
+  gx.save(); gx.globalAlpha = alfa;
+  gx.save(); gx.shadowColor = `rgba(0,0,0,${0.7 * 0.6})`; gx.shadowBlur = 40; gx.fillStyle = '#0b0c0f';
+  gx.beginPath(); gx.arc(c[0], c[1] + 6, r, 0, 6.2832); gx.fill(); gx.restore();
+  gx.save(); gx.beginPath(); gx.arc(c[0], c[1], r, 0, 6.2832); gx.clip();
+  gx.fillStyle = '#0b0c0f'; gx.fillRect(c[0] - r, c[1] - r, 2 * r, 2 * r);
+  const kt = kTira(r);
+  if (kt < 1) fotoEscalada(gx, F('tronco'), sc, src, c);
+  if (kt > 0) {
+    const t = F('tira');
+    gx.save(); gx.globalAlpha *= kt;
+    gx.fillStyle = t.fondo; gx.fillRect(c[0] - r, c[1] - r, 2 * r, 2 * r);
+    gx.translate(c[0], c[1]); gx.scale(sc, sc); gx.translate(-src[0], -src[1]);
+    const alto = TIRA.y1 - TIRA.y0, k0 = Math.floor((src[1] - r / sc - TIRA.y0) / alto) - 1, k1 = Math.ceil((src[1] + r / sc - TIRA.y0) / alto) + 1;
+    for (let k = k0; k <= k1; k++) gx.drawImage(t.lienzo, t.x0, TIRA.y0 + k * alto, t.x1 - t.x0, alto + 1);
+    gx.restore();
+  }
+  if (brillo > 0.005) {
+    gx.save(); gx.globalCompositeOperation = 'lighter';
+    gx.translate(c[0], c[1]); gx.scale(sc, sc); gx.translate(-src[0], -src[1]);
+    const lg = gx.createLinearGradient(HC[0] - 1.6 * R_PEL, 0, HC[0] + 1.6 * R_PEL, 0);
+    const a = brillo;
+    lg.addColorStop(0, 'rgba(255,170,90,0)'); lg.addColorStop(0.24, `rgba(255,170,90,${0.16 * a})`);
+    lg.addColorStop(0.36, `rgba(255,196,120,${0.34 * a})`); lg.addColorStop(0.5, `rgba(255,214,150,${0.2 * a})`);
+    lg.addColorStop(0.64, `rgba(255,196,120,${0.34 * a})`); lg.addColorStop(0.76, `rgba(255,170,90,${0.16 * a})`);
+    lg.addColorStop(1, 'rgba(255,170,90,0)');
+    gx.fillStyle = lg; gx.fillRect(HC[0] - 1.6 * R_PEL, -200, 3.2 * R_PEL, H + 400);
+    gx.restore();
+  }
+  gx.strokeStyle = 'rgba(0,0,0,0.5)'; gx.lineWidth = Math.max(4, 0.08 * r); gx.filter = `blur(${(Math.max(2, 0.03 * r) * KD).toFixed(1)}px)`;
+  gx.beginPath(); gx.arc(c[0], c[1], r, 0, 6.2832); gx.stroke(); gx.filter = 'none';
+  gx.restore();
+  gx.save(); gx.globalCompositeOperation = 'lighter';
+  gx.strokeStyle = `rgba(255,206,140,${0.35 + 0.45 * brillo})`; gx.lineWidth = Math.max(2, 0.025 * r);
+  gx.beginPath(); gx.arc(c[0], c[1], r, 0, 6.2832); gx.stroke();
+  const R2 = r * 1.5, gr = gx.createRadialGradient(c[0], c[1], r * 0.92, c[0], c[1], R2);
+  gr.addColorStop(0, `rgba(255,190,120,${0.22 * brillo})`); gr.addColorStop(1, 'rgba(255,190,120,0)');
+  gx.fillStyle = gr; gx.fillRect(c[0] - R2, c[1] - R2, 2 * R2, 2 * R2);
+  gx.restore();
+  gx.restore();
+}
+const R_OJO = new THREE.Euler(...EH.rot, 'YXZ');
+function bordesPx(estado) {
+  const ang = (c, a0) => mix(a0, OJO.CIERRE, c);
+  const au = ang(estado.arriba, OJO.ARRIBA), al = Math.min(ang(estado.abajo, OJO.ABAJO), au - 0.004);
+  const y = (a) => {
+    const s = Math.sin(a), c = Math.cos(a), rho = Math.sqrt(OJO.RL * OJO.RL - OJO.H * OJO.H * s * s);
+    const q = new THREE.Vector3(0, (rho - OJO.H * c) * s, OJO.H + (rho - OJO.H * c) * c - OJO.BZ).multiplyScalar(EH.escala).applyEuler(R_OJO);
+    return pant([EH.pos[0] + q.x, EH.pos[1] + q.y, EH.pos[2] + q.z])[1];
+  };
+  return [y(au), y(al)];
+}
+// la banda de los párpados que se mueve: la de ep3-centro (cierre) y la de la apertura (de cerrados a ABIERTO)
+const B1 = bordesPx(EH.fin), BA = bordesPx(ABIERTO);
+const BANDA_C = [Math.max(0, Math.round(B1[0] - 150)), Math.min(H, Math.round(B1[1] + 70))];
+const BANDA_A = [Math.max(0, Math.round(BA[0] - 150)), Math.min(H, Math.round(BA[1] + 70))], PLUMA = 26;
+const YC = (BA[0] + BA[1]) / 2;                    // el centro de la rendija abierta (px)
+const REM = lienzo2D()[0], PARCHE = lienzo2D()[0];
+function bandaParpados(estado, nf, BANDA) {
+  ponerOjo(UO, { ...estado, pupila: HOLA.PUPILA, sombra: false });
+  P.limpiar(); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala, rot: EH.rot, variante: CAPA.PARPADOS });
+  const k = lienzoGL.width / W;
+  P.renderer.setScissor(0, (H - BANDA[1]) * k, W * k, (BANDA[1] - BANDA[0]) * k);
+  P.renderer.setScissorTest(true);
+  P.render(nf, { fondo: false });
+  P.renderer.setScissorTest(false);
+  const pc = PARCHE.getContext('2d');
+  pc.setTransform(1, 0, 0, 1, 0, 0); pc.globalCompositeOperation = 'source-over';
+  pc.clearRect(0, 0, PARCHE.width, PARCHE.height); pc.drawImage(lienzoGL, 0, 0);
+  pc.globalCompositeOperation = 'destination-in'; pc.setTransform(k, 0, 0, k, 0, 0);
+  const [y0, y1] = BANDA, gr = pc.createLinearGradient(0, y0, 0, y1), p = PLUMA / (y1 - y0);
+  gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(p, 'rgba(0,0,0,1)'); gr.addColorStop(1 - p, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  pc.fillStyle = gr; pc.fillRect(0, y0, W, y1 - y0);
+  // fuera de la banda, la foto de los párpados casi cerrados (allí no cambia nada); dentro, lo pintado ahora
+  const rc = REM.getContext('2d');
+  rc.setTransform(1, 0, 0, 1, 0, 0); rc.globalCompositeOperation = 'source-over';
+  rc.clearRect(0, 0, REM.width, REM.height); rc.drawImage(F('cerrado'), 0, 0);
+  if (BANDA !== BANDA_C) {
+    // en la apertura la banda es más alta: lo de dentro se borra antes de pegar (la rendija abierta es transparente)
+    // (solo por dentro de la pluma: en la pluma quedan la foto entera y el parche encima, sin costura)
+    rc.globalCompositeOperation = 'destination-out'; rc.setTransform(k, 0, 0, k, 0, 0);
+    rc.fillStyle = '#000'; rc.fillRect(0, y0 + PLUMA, W, y1 - y0 - 2 * PLUMA);
+    rc.globalCompositeOperation = 'source-over'; rc.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  rc.drawImage(PARCHE, 0, 0);
+  return REM;
+}
+// el ojo compuesto como en ep3-centro (fondo, globo, sombra, párpados, viñeta, franja estirada sx y su halo, sombra de
+// Atom); detras: null (el globo, como en ep3-centro) o un lienzo (lo que se ve por la rendija: la persona)
+const OJO_C = lienzo2D();
+function componerOjo(gx, { parp, sombraP, sx = SX_FIN, kFranja = 1, detras = null, sDetras = 1 }) {
+  gx.save(); gx.setTransform(1, 0, 0, 1, 0, 0);
+  gx.fillStyle = '#0b0807'; gx.fillRect(0, 0, gx.canvas.width, gx.canvas.height);
+  if (detras) {
+    const k = gx.canvas.width / W;
+    gx.setTransform(k, 0, 0, k, 0, 0); fotoEscalada(gx, detras, sDetras, [960, YC]); gx.setTransform(1, 0, 0, 1, 0, 0);
+  } else gx.drawImage(F('globo'), 0, 0);
+  gx.drawImage(sombraP, 0, 0);
+  gx.drawImage(parp, 0, 0);
+  vinetaOjo(gx, 1);
+  gx.restore();
+  if (kFranja > 0.003) {
+    gx.save(); gx.globalAlpha = kFranja;
+    gx.translate(960, 0); gx.scale(sx, 1); gx.translate(-960, 0); gx.drawImage(F('franja'), 0, 0, W, H); gx.restore();
+    const h = HOLA.HALO, mx = (h.x1 - h.x0) / 2 * sx;
+    resplandorFranja(gx, 960 - mx, 960 + mx, EH.franja.y, h.alto, h.fuerza * mix(0.75, 1, sx) * kFranja);
+  }
+  sombraAtom(gx, HOLA.SOMBRA_ATOM, 1);
+}
+
+// ---------------------------------------------------------------- la persona, enorme (plano A)
+// de pie en el centro, vista desde abajo (la coronilla muy por encima de la cámara); la fila de átomos a los pies y los
+// remolinos, como galaxias, sobre la cabeza
+const Z_PER = 1.2;
+const X_PER = en(960, 540, Z_PER)[0];
+const E_PER = (() => {
+  // la escala que pone la coronilla en y ≈ 140 px (la persona llena el alto: se ve desde abajo)
+  let a = 1, b = 6;
+  for (let i = 0; i < 40; i++) { const c = (a + b) / 2; if (pant([X_PER, c * (1 + HUMANO.CORONILLA), Z_PER])[1] < 140) b = c; else a = c; }
+  return (a + b) / 2;
+})();
+const PER = [X_PER, E_PER, Z_PER];
+const SUELA_Y = pant([X_PER, 0, Z_PER])[1];
+// la fila: átomos «como Atom» de ~30 px, en el suelo delante de los pies
+const FILA = (() => {
+  const z = Z_PER + 0.9, x = en(960, 540, z)[0];
+  const esc = 30 / pxU([x, 0.2, z]);
+  return { pos: [x, 0.5 * esc, z], escala: esc, n: 31 };
+})();
+function persona(n) {
+  P.limpiar();
+  P.pieza(I.HUM, { pos: PER, escala: E_PER, postura: { cabeza: [0, -0.06, 0], mirada: [0, 0.1] }, huellaFija: [0.3, 0.2, 0] });
+  fila(P, I.FILA, { ...FILA, fase: 3.1 + (n % 2) * 0.13 });
+  P.render(n);
+}
+// los remolinos (galaxias lejanas) sobre la cabeza: [x, y, ancho px, giro, aplasta]
+const GALAXIAS_A = [[560, 150, 92, 0.4, 0.62], [1330, 120, 74, -0.6, 0.55], [790, 76, 46, 1.1, 0.7], [1180, 250, 40, 2.2, 0.5], [380, 300, 38, -1.2, 0.66], [1440, 330, 30, 0.2, 0.6]];
+function cieloA(gx, t) {
+  // arriba, la noche: el telón se oscurece hacia arriba (las galaxias, lejos)
+  const gr = gx.createLinearGradient(0, 0, 0, 640);
+  gr.addColorStop(0, 'rgba(6,6,12,0.86)'); gr.addColorStop(0.55, 'rgba(8,8,14,0.45)'); gr.addColorStop(1, 'rgba(8,8,14,0)');
+  gx.fillStyle = gr; gx.fillRect(0, 0, W, 640);
+  const s = F('remolino');
+  for (const [x, y, w, a, sy] of GALAXIAS_A) {
+    gx.save(); gx.globalCompositeOperation = 'lighter';
+    const R = w * 0.9, h = gx.createRadialGradient(x, y, 0, x, y, R);
+    h.addColorStop(0, 'rgba(150,170,220,0.22)'); h.addColorStop(1, 'rgba(120,140,200,0)');
+    gx.fillStyle = h; gx.fillRect(x - R, y - R, 2 * R, 2 * R); gx.restore();
+    sprite(gx, s, x, y, w, { a: a + 0.05 * t, sy });
+  }
+}
+
+// ---------------------------------------------------------------- la galaxia y la red (plano B)
+const NOS = [960, 470];                                    // «nosotros»: dónde queda la persona en la galaxia (px)
+const R_GAL = 5e20;
+// la cámara del mundo: nosotros en NOS; con el mundo en 10^z
+const zMundo = (ts) => mix(17.4, 21, eio(prog(ts, T.zB[0], T.zB[1])));
+const zRed = (ts) => mix(21, 26, eio(prog(ts, T.zB2[0], T.zB2[1])));
+// en 10²¹ la galaxia entera mide RG21 px de radio y su centro (la Tierra va a ~2/3 del radio) queda en GC21
+let GC21 = null, RG21 = null;
+function camB(z) { return camaraPorTierra(z, NOS, z); }
+// otras galaxias (unidades: radios de galaxia, alrededor de la nuestra), para «una entre muchas»
+const OTRAS = (() => {
+  const r = mulberry32(91), o = [];
+  for (let i = 0; i < 70; i++) {
+    const a = r() * 6.283, d = 6 + Math.pow(r(), 0.8) * 90;
+    o.push({ x: d * Math.cos(a), y: d * Math.sin(a) * 0.62, s: 0.35 + r() * 0.9, giro: r() * 6.283, sy: 0.35 + r() * 0.6, luz: 0.5 + 0.5 * r() });
+  }
+  return o;
+})();
+
+// ---------------------------------------------------------------- los átomos que nacen (plano C)
+// el átomo de la fila de ep03-tocar.js (núcleo de terracota y crema, órbitas de latón): una foto, teñida por elemento
+const ELEMENTOS = {
+  H: { tinte: 'rgba(230,236,255,0.55)', modo: 'source-atop' },
+  C: { tinte: 'rgba(30,28,30,0.62)', modo: 'source-atop' },
+  O: { tinte: 'rgba(90,150,215,0.55)', modo: 'source-atop' },
+  Fe: { tinte: 'rgba(160,70,40,0.6)', modo: 'source-atop' },
+};
+const DESTELLO0 = [960, 470];
+// el hidrógeno del destello: sale en todas direcciones, frena y deriva
+const HIDROGENO = (() => {
+  const r = mulberry32(17), o = [];
+  for (let i = 0; i < 46; i++) {
+    const a = (i / 46) * 6.283 + (r() - 0.5) * 0.5, v = 330 + r() * 600;
+    o.push({ a, v, t0: m.na - 0.05 + r() * 1.6, w: 44 + r() * 40, giro: r() * 6.283, deriva: (r() - 0.5) * 0.3 });
+  }
+  return o;
+})();
+// el plano de las estrellas: las dos que mueren, la mano, y los átomos que vuelan hacia ella
+const ESTRELLA1 = { c: [430, 300], r: 165 };       // la gigante roja (la pieza de ep03-estrellas.js)
+const ESTRELLA2 = { c: [930, 165], r: 46 };        // otra menor, blanca, que explota después
+const MANO_C = [1100, 650];                        // el centro de la palma (px)
+const PALMA = { rx: 105, ry: 40 };                 // donde se posan (elipse sobre la palma, px)
+const VUELAN = (() => {
+  const r = mulberry32(5), o = [];
+  const tipos = ['C', 'O', 'Fe', 'C', 'O', 'C', 'O', 'Fe'];
+  for (let i = 0; i < 34; i++) {
+    const de = i < 15 ? 1 : i < 26 ? 2 : 0;      // 1: la gigante · 2: la otra · 0: hidrógeno que llega por la izquierda
+    const t0 = de === 1 ? T.exp1 + 0.05 + r() * 0.5 : de === 2 ? T.exp2 + 0.05 + r() * 0.45 : T.C2 + r() * 1.6;
+    const pasa = r() < 0.13;                       // unos pocos pasan de largo (casi todos entran)
+    const dest = pasa ? [MANO_C[0] + 320 + r() * 300, MANO_C[1] + (r() - 0.5) * 700] : [MANO_C[0] + (r() - 0.5) * 2 * PALMA.rx * 0.8, MANO_C[1] - 10 + (r() - 0.5) * 2 * PALMA.ry * 0.7];
+    const dur = Math.min(T.llega - t0, 1.3 + r() * 0.8);
+    o.push({ de, el: de === 0 ? 'H' : tipos[i % tipos.length], t0, t1: t0 + dur, pasa, dest, w: 46 + r() * 22, curva: (r() - 0.5) * 380, giro: r() * 6.283,
+      y0: 120 + r() * 600 });
+  }
+  return o;
+})();
+
+// ---------------------------------------------------------------- el plató del principio (planos D y E)
+const BOCA = { c: [1380, 330], ancho: 560, z: 1.6 };   // el bocadillo (px del centro, ancho px)
+const BOCA_POS = en(BOCA.c[0], BOCA.c[1], BOCA.z), BOCA_ESC = BOCA.ancho / (1.9 * pxU(BOCA_POS));
+const Q_ESC = 230 / pxU([BOCA_POS[0], BOCA_POS[1], BOCA_POS[2] + 0.55 * BOCA_ESC]);
+function bocadillo(ts) {
+  const kb = brote(ts, m.ex, 0.3, 0.14);
+  if (kb <= 0) return;
+  const tz = calma(ts);
+  const u = prog(ts, m.ex - 0.3, m.ex);
+  const st = 0.2 * Math.sin(Math.PI * u) - 0.1 * muelle(ts - m.ex, 2.4, 6);
+  const rot = [-0.08, -0.22, 0.05 * Math.sin(tz * 1.1)];
+  P.pieza(I.BOC, {
+    pos: [mix(BOCA_POS[0] - 0.8, BOCA_POS[0], eoc(u)), mix(BOCA_POS[1] - 0.6, BOCA_POS[1], eoc(u)) + 0.03 * Math.sin(tz * 1.4), BOCA_POS[2]],
+    escala: BOCA_ESC * kb, sq: [1 - 0.3 * st, 1 + st, 1], rot, puntos: 0, toque: ts < m.ex + 0.45,
+  });
+  const kq = brote(ts, m.ex + 0.25, 0.25, 0.18);
+  if (kq > 0) {
+    const tc = m.co;
+    const bote = ss(tc - 0.25, tc, ts) * (1 - ss(tc, tc + 0.35, ts));
+    const sq = 0.25 * Math.sin(Math.PI * prog(ts, tc - 0.25, tc + 0.35)) - 0.1 * muelle(ts - (tc + 0.35), 2.4, 6) * ss(tc, tc + 0.35, ts);
+    P.pieza(I.Q, {
+      pos: [BOCA_POS[0] + 0.04 * BOCA_ESC, BOCA_POS[1] + 0.06 * BOCA_ESC + 0.22 * BOCA_ESC * bote + 0.03 * Math.sin(tz * 1.4), BOCA_POS[2] + 0.42 * BOCA_ESC],
+      escala: Q_ESC * kq, sq: [1 - 0.4 * sq, 1 + sq, 1], rot,
+      color: COLOR.TERRACOTA, toque: ts < m.ex + 0.6 || (ts > tc - 0.3 && ts < tc + 0.5),
+    });
+  }
+}
+
+// ---------------------------------------------------------------- fotos (se hacen la primera vez que hacen falta)
+const FOTOS = {};
+let hechas = 0;
+function F(k) {
+  if (!FOTOS[k]) {
+    const a = performance.now();
+    FOTOS[k] = HACER[k]();
+    hechas++;
+    window.__carga.push(['foto ' + k, Math.round(performance.now() - a)]);
+  }
+  return FOTOS[k];
+}
+const BANDAS_OJO = [[0, 270], [270, 540], [540, 810], [810, 1080]];
+const LOJO = {}, CAPAS_OJO = { globo: [HOLA.ABRE, CAPA.GLOBO, HOLA.NF.globo], cerrado: [EH.fin, CAPA.PARPADOS, HOLA.NF.cerrado] };
+function bandaOjo(nombre, k) {
+  const [estado, capaO, nf] = CAPAS_OJO[nombre], [y0, y1] = BANDAS_OJO[k], kk = lienzoGL.width / W;
+  LOJO[nombre] ??= lienzo2D()[0];
+  ponerOjo(UO, { ...estado, pupila: HOLA.PUPILA, sombra: false });
+  P.limpiar(); P.pieza(I.OJO, { pos: EH.pos, escala: EH.escala, rot: EH.rot, variante: capaO });
+  P.renderer.setScissor(0, (H - y1) * kk, W * kk, (y1 - y0) * kk);
+  P.renderer.setScissorTest(true);
+  P.render(nf, { fondo: false });
+  P.renderer.setScissorTest(false);
+  const x = LOJO[nombre].getContext('2d');
+  x.setTransform(1, 0, 0, 1, 0, 0);
+  x.drawImage(lienzoGL, 0, y0 * kk, W * kk, (y1 - y0) * kk, 0, y0 * kk, W * kk, (y1 - y0) * kk);
+  return true;
+}
+const HACER = {
+  // el pelo-tronco del nivel 4 de prueba-plastilina-adulta (como ep3-centro)
+  tronco() { P.limpiar(); P.pieza(I.TRO, { pos: TRO, escala: E_TRO, rot: [0, 0.3, 0] }); P.render(1004); return copiaGL(); },
+  tira() {
+    const f = F('tronco'), kk = f.width / W, x0 = Math.round(HC[0] - R_PEL - 50), x1 = Math.round(HC[0] + R_PEL + 50);
+    const c = document.createElement('canvas'); c.width = Math.round((x1 - x0) * kk); c.height = Math.round((TIRA.y1 - TIRA.y0) * kk);
+    const xc = c.getContext('2d');
+    xc.drawImage(f, x0 * kk, TIRA.y0 * kk, c.width, c.height, 0, 0, c.width, c.height);
+    xc.globalCompositeOperation = 'destination-in';
+    const lg = xc.createLinearGradient(0, 0, c.width, 0), fe = 45 / (x1 - x0);
+    lg.addColorStop(0, 'rgba(0,0,0,0)'); lg.addColorStop(fe, 'rgba(0,0,0,1)'); lg.addColorStop(1 - fe, 'rgba(0,0,0,1)'); lg.addColorStop(1, 'rgba(0,0,0,0)');
+    xc.fillStyle = lg; xc.fillRect(0, 0, c.width, c.height);
+    const mm = document.createElement('canvas'); mm.width = mm.height = 1;
+    const mx = mm.getContext('2d'); mx.drawImage(f, 60 * kk, 150 * kk, 420 * kk, 500 * kk, 0, 0, 1, 1);
+    const [r, gg, b] = mx.getImageData(0, 0, 1, 1).data;
+    return { lienzo: c, x0, x1, fondo: `rgb(${r},${gg},${b})` };
+  },
+  globo() { for (let k = 0; k < BANDAS_OJO.length; k++) bandaOjo('globo', k); return LOJO.globo; },
+  cerrado() { for (let k = 0; k < BANDAS_OJO.length; k++) bandaOjo('cerrado', k); return LOJO.cerrado; },
+  franja() { P.limpiar(); P.pieza(I.FR, { pos: EH.franja.pos, escala: EH.franja.escala, rot: EH.franja.rot, variante: EH.franja.alto }); P.render(HOLA.NF.franja, { fondo: false }); return copiaGL(); },
+  cerr1() { const [c, x] = lienzo2D(); x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(bandaParpados(CERRADO, 9105, BANDA_C), 0, 0); return c; },
+  sombraC: () => sombraParpados(F('cerr1'), HOLA.SOMBRA),
+  // los párpados abiertos (al acabar de abrirse) y su sombra
+  abierto() { const [c, x] = lienzo2D(); x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(bandaParpados(ABIERTO, 9120, BANDA_A), 0, 0); return c; },
+  sombraA: () => sombraParpados(F('abierto'), HOLA.SOMBRA),
+  // la persona enorme con la fila (dos fotos: hierve alternando)
+  per0() { persona(7400); return copiaGL(); },
+  per1() { persona(7401); return copiaGL(); },
+  // un remolino del kit (galaxia lejana), como sprite
+  remolino() {
+    P.limpiar(); const p = en(960, 540, 2); P.pieza(I.REM, { pos: p, escala: 150 / (0.5 * pxU(p)), rot: [0, 0, 0] }); P.render(7410, { fondo: false });
+    return recorte(copiaGL(), [960 - 200, 540 - 200, 960 + 200, 540 + 200]);
+  },
+  // la galaxia de crearMundo, sola (radio 300 px) y el mundo en 10²¹ con ella (para el corte de B a B2)
+  galaxia() { const f = fotoGalaxia(mundo, estadoMundo, camaraPorTierra, { radio: 300, n: 7 }); return { lienzo: f.lienzo, w: f.lienzo.width, h: f.lienzo.height, r: f.r }; },
+  // la red del final de la frase 91 (quieta) en 10²⁶
+  red26: () => cielo.foto({ red: { celda: celdaRed(26), centro: NOS, origen: null, luz: 1, velo: veloRed(26) }, n: 7 }),
+  // el átomo de la fila (uno, con órbitas), como sprite, y teñido por elemento
+  atomoFila() {
+    P.limpiar(); const p = en(960, 540, 2), esc = 330 / pxU(p);
+    fila(P, I.FILA, { pos: p, escala: esc, n: 1, fase: 1.3 }); P.render(7420, { fondo: false });
+    return recorte(copiaGL(), [960 - 90, 540 - 90, 960 + 90, 540 + 90]);
+  },
+  ...Object.fromEntries(Object.entries(ELEMENTOS).map(([k, e]) => [`at${k}`, () => {
+    const s = F('atomoFila'), c = document.createElement('canvas'); c.width = s.lienzo.width; c.height = s.lienzo.height;
+    const x = c.getContext('2d'); x.drawImage(s.lienzo, 0, 0);
+    x.globalCompositeOperation = e.modo; x.fillStyle = e.tinte; x.fillRect(0, 0, c.width, c.height);
+    return { lienzo: c, w: s.w, h: s.h };
+  }])),
+  // la gigante roja (ep03-estrellas.js), sin fondo
+  gigante() {
+    P.limpiar(); const p = en(...ESTRELLA1.c, 0.5);
+    const e = ESTRELLA1.r / pxU(p);
+    gigante(P, I.GIG, { pos: p, escala: e, apaga: 0.15 });
+    P.render(7430, { fondo: false });
+    return copiaGL();
+  },
+  // la mano abierta (la pieza 'mano' del kit), con la palma hacia arriba y hacia la cámara
+  mano() {
+    P.limpiar(); const p = en(MANO_C[0] + 10, MANO_C[1] + 70, 3.0);
+    P.pieza(I.MANO, { pos: p, escala: 330 / pxU(p), rot: MANO_ROT });
+    P.render(7440, { fondo: false });
+    return copiaGL();
+  },
+  // el plató vacío (el del principio de ep3-hola)
+  plato() { P.limpiar(); P.render(7450); return copiaGL(); },
+};
+const MANO_ROT = [2.05, -1.15, 0.2];
+
+// ---------------------------------------------------------------- al cargar
+P.fotograma(0);
+for (const k of ['tronco', 'tira', 'globo', 'cerrado', 'franja', 'cerr1', 'sombraC']) F(k);
+marcaCarga('ojo cerrado');
+F('per0');
+marcaCarga('persona');
+// estreno: la regla, Atom, los párpados en vivo (con la pieza diminuta lejos), para que no los pague un fotograma
+{ P.limpiar(); P.regla(opRegla(-3.5)); atomoPres(0); P.render(1, { fondo: false }); }
+marcaCarga('estreno');
+
+// ---------------------------------------------------------------- los planos
+function planoA(n, ts) {
+  const ua = eio(prog(ts, T.abre[0], T.abre[1]));
+  const kF = 1 - ss(T.apaga[0], T.apaga[1], ts);
+  const uc = prog(ts, T.cruza[0], T.cruza[1]);
+  const per = F('per' + (n % 2));
+  // la persona: por la rendija (algo pequeña) y, al atravesar el ojo, a su tamaño; sigue acercándose despacio
+  const sPer = mix(0.8, 1, eoc(uc)) * (1 + 0.025 * eio(prog(ts, T.cruza[1], T.B)));
+  const fondoPer = (gx) => {
+    gx.fillStyle = '#0b0807'; gx.fillRect(0, 0, W, H);
+    fotoEscalada(gx, per, sPer, [960, YC]);
+    cieloA(gx, ts);
+  };
+  if (ts < T.abre[0]) {
+    // quieto, como acaba ep3-centro
+    const [c, x] = OJO_C;
+    componerOjo(x, { parp: F('cerr1'), sombraP: F('sombraC'), kFranja: 1 });
+    g.drawImage(c, 0, 0, W, H);
+    cuentaPelo(g, CF, R_PELO, SC_FIN, SRC0, BRILLO_PELO, 1);
+  } else if (uc <= 0) {
+    // los párpados se abren (en vivo); por la rendija, la persona
+    const [pc, px] = lienzo2D(); fondoPer(px);
+    const estado = { arriba: mix(1, ABIERTO.arriba, ua), abajo: mix(1, ABIERTO.abajo, ua) };
+    const parp = ua >= 1 ? F('abierto') : bandaParpados(estado, n, BANDA_A);
+    const [c, x] = OJO_C;
+    componerOjo(x, { parp, sombraP: ua >= 1 ? F('sombraA') : sombraParpados(parp, HOLA.SOMBRA), kFranja: kF, detras: pc });
+    g.drawImage(c, 0, 0, W, H);
+    cuentaPelo(g, CF, R_PELO * (1 - 0.5 * (1 - kF)), SC_FIN, SRC0, BRILLO_PELO, kF);
+  } else {
+    // la cámara atraviesa el ojo: la foto de los párpados abiertos crece alrededor del centro de la rendija y se va
+    fondoPer(g);
+    const z = Math.pow(7, eio(uc));
+    const alfa = 1 - ss(0.7, 1, uc);
+    if (alfa > 0.003) {
+      g.save(); g.globalAlpha = alfa;
+      g.translate(960, YC); g.scale(z, z); g.translate(-960, -YC);
+      g.drawImage(F('sombraA'), 0, 0, W, H); g.drawImage(F('abierto'), 0, 0, W, H);
+      g.restore();
+    }
+    sombraAtom(g, HOLA.SOMBRA_ATOM, 0.7);
+  }
+  pasadaViva(n, ts);
+}
+// B: la persona en una mirilla que encoge hasta su sitio, sobre el mundo que se aleja hasta la galaxia
+function planoB(n, ts) {
+  const z = zMundo(ts), C = camB(z);
+  mundo.dibujar(estadoMundo(C, n, { luna: 0, capas: { uSol: [0, 0, 1, 0], uSis: [0, 0, 1, 0], uVec: [0, 0, 1, 0], uAqui: [0, 0, 0, 0] } }));
+  g.drawImage(mundo.lienzo, 0, 0, W, H);
+  // nosotros: un punto ámbar (se enciende cuando la mirilla se cierra)
+  const um = prog(ts, T.mir[0], T.mir[1]);
+  puntoNosotros(g, NOS, { r: 5, k: ss(0.75, 1, um) });
+  if (um < 1) {
+    // corte a la mirilla (la persona entera dentro) y encoge a ritmo constante
+    const r = 600 * Math.pow(0.008, um);
+    const c = [mix(960, NOS[0], eio(um)), mix(540, NOS[1], eio(um))];
+    g.save();
+    g.beginPath(); g.arc(c[0], c[1], r, 0, 6.2832); g.clip();
+    fotoEscalada(g, F('per' + (n % 2)), r / 500, [960, 560], c);
+    cieloA(g, ts);
+    g.restore();
+    if (r < 1100) {
+      g.save(); g.strokeStyle = 'rgba(255,206,140,0.55)'; g.lineWidth = Math.max(1.5, 0.02 * r);
+      g.beginPath(); g.arc(c[0], c[1], r, 0, 6.2832); g.stroke(); g.restore();
+    }
+  }
+  pasadaViva(n, ts);
+}
+// B2: la galaxia encoge sobre la red, entre otras galaxias
+function planoB2(n, ts) {
+  const z = zRed(ts), gal = F('galaxia');
+  g.fillStyle = '#07070b'; g.fillRect(0, 0, W, H);
+  const vr = veloRed(z);
+  if (vr > 0.003) {
+    const quieta = ts >= T.zB2[1];
+    if (quieta) g.drawImage(F('red26'), 0, 0, W, H);
+    else { cielo.dibujar({ red: { celda: celdaRed(z), centro: NOS, origen: null, luz: 1, velo: vr }, n, res: 0.5 }); g.drawImage(cielo.lienzo, 0, 0, W, H); }
+  }
+  // la galaxia (y las otras): radio en px con el mundo en 10^z
+  const rg = (R_GAL / (Math.pow(10, z) / 540));
+  const gc = galaxiaEn(z);
+  const kO = ss(21.15, 21.6, z) * (1 - ss(23.0, 23.6, z));
+  if (kO > 0.003) for (const o of OTRAS) {
+    const x = gc[0] + o.x * rg, y = gc[1] + o.y * rg, w = 2 * rg * o.s * (gal.w / (2 * gal.r));
+    if (x < -w || x > W + w || y < -w || y > H + w) continue;
+    sprite(g, gal, x, y, w, { a: o.giro, sy: o.sy, alfa: kO * o.luz * 0.85 });
+  }
+  const kG = 1 - ss(23.3, 23.9, z);
+  if (kG > 0.003) sprite(g, gal, gc[0], gc[1], 2 * rg * (gal.w / (2 * gal.r)), { alfa: kG });
+  puntoNosotros(g, NOS, { r: 5, k: 1 });
+  pasadaViva(n, ts);
+}
+// el centro de la galaxia en px con el mundo en 10^z (nosotros fijos en NOS)
+function galaxiaEn(z) { const s = Math.pow(10, 21 - z); return [NOS[0] + (GC21[0] - NOS[0]) * s, NOS[1] + (GC21[1] - NOS[1]) * s]; }
+// C: el destello y el hidrógeno
+function planoC(n, ts) {
+  g.fillStyle = '#0a0708'; g.fillRect(0, 0, W, H);
+  const uf = prog(ts, T.flash[0], T.flash[1]);
+  const kf = eoc(uf) * (1 - 0.45 * ss(m.na + 0.3, T.C2, ts));
+  const r = mix(120, 720, eoc(uf)) * (1 + 0.04 * Math.sin(ts * 9));
+  destello(g, ...DESTELLO0, r, kf, { rayos: 10, giro: 0.2 + 0.05 * ts, anillo: prog(ts, m.na - 0.05, m.na + 1.4) });
+  const s = F('atH');
+  for (const a of HIDROGENO) {
+    const u = ts - a.t0;
+    if (u <= 0) continue;
+    const d = a.v * (1 - Math.exp(-u * 1.6)) / 1.6;
+    const ang = a.a + a.deriva * u;
+    const x = DESTELLO0[0] + Math.cos(ang) * d, y = DESTELLO0[1] + Math.sin(ang) * d * 0.8;
+    const k = ss(0, 0.25, u);
+    sprite(g, s, x, y, a.w * mix(0.3, 1, k), { a: a.giro + 0.5 * u, alfa: k });
+  }
+  pasadaViva(n, ts);
+}
+// C2: las estrellas que mueren y la mano
+function planoC2(n, ts) {
+  g.fillStyle = '#0a0708'; g.fillRect(0, 0, W, H);
+  // la gigante: tiembla, se hincha un poco y explota (destello con anillo); después queda un anillo de gas
+  const u1 = prog(ts, T.exp1 - 0.6, T.exp1), k1 = 1 - ss(T.exp1 - 0.05, T.exp1 + 0.25, ts);
+  if (k1 > 0.003) {
+    const s = 1 + 0.06 * u1 + 0.01 * Math.sin(ts * 40) * u1;
+    halo(g, ...ESTRELLA1.c, ESTRELLA1.r * s, k1, 'gigante');
+    fotoEscalada(g, F('gigante'), s, ESTRELLA1.c, ESTRELLA1.c, k1);
+  }
+  const ue1 = prog(ts, T.exp1 - 0.08, T.exp1 + 1.6);
+  if (ue1 > 0) destello(g, ...ESTRELLA1.c, mix(200, 520, eoc(ue1)), 1 - 0.6 * ue1, { rayos: 8, giro: 0.4, anillo: ue1 });
+  // la otra: una estrella blanca que también explota
+  const k2 = 1 - ss(T.exp2 - 0.05, T.exp2 + 0.2, ts);
+  if (k2 > 0.003) {
+    halo(g, ...ESTRELLA2.c, ESTRELLA2.r, k2 * (1 + 0.3 * prog(ts, T.exp2 - 0.5, T.exp2)), 'sol');
+    g.save(); g.globalAlpha = k2; g.fillStyle = '#fff2d8'; g.beginPath(); g.arc(...ESTRELLA2.c, ESTRELLA2.r * 0.55, 0, 6.2832); g.fill(); g.restore();
+  }
+  const ue2 = prog(ts, T.exp2 - 0.08, T.exp2 + 1.4);
+  if (ue2 > 0) destello(g, ...ESTRELLA2.c, mix(120, 360, eoc(ue2)), 1 - 0.6 * ue2, { rayos: 6, giro: 1.1, anillo: ue2, color: 'frio' });
+  // la mano
+  g.drawImage(F('mano'), 0, 0, W, H);
+  // los átomos: vuelan en curva desde su estrella (o desde la izquierda) hasta la palma; los que llegan se quedan
+  for (const a of VUELAN) {
+    if (ts < a.t0) continue;
+    const u = cl((ts - a.t0) / (a.t1 - a.t0));
+    const o = a.de === 1 ? ESTRELLA1.c : a.de === 2 ? ESTRELLA2.c : [-40, a.y0];
+    const e = eio(u);
+    const x = mix(o[0], a.dest[0], e) + a.curva * Math.sin(Math.PI * e) * 0.6;
+    const y = mix(o[1], a.dest[1], e) - Math.abs(a.curva) * Math.sin(Math.PI * e) * 0.5;
+    if (a.pasa && u >= 1) continue;
+    const alfa = a.pasa ? 1 - ss(0.8, 1, u) : 1;
+    const asentado = !a.pasa && u >= 1 ? muelle(ts - a.t1, 2.5, 7) : 0;
+    sprite(g, F('at' + a.el), x, y - 6 * asentado, a.w * mix(0.6, 1, ss(0, 0.2, u)), { a: a.giro + (1 - e) * 2, alfa });
+  }
+  pasadaViva(n, ts);
+}
+// D y E: el plató del principio (el de ep3-hola, con su telón oscuro); D algo más abierto que E
+function planoPlato(n, ts) {
+  const cerca = ts >= T.Ep;
+  const z = cerca ? 1.5 : 1.3, osc = cerca ? 1 : 0.8;
+  const S = cerca ? A_E : A_D;
+  g.save(); g.translate(230, 780); g.scale(z, z); g.translate(-230, -780); g.drawImage(F('plato'), 0, 0, W, H); g.restore();
+  const gr = g.createRadialGradient(S.c[0], S.c[1], 60, S.c[0], S.c[1], 1400);
+  gr.addColorStop(0, `rgba(10,7,5,${0.35 * osc})`); gr.addColorStop(1, `rgba(6,4,3,${0.72 * osc})`);
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  P.limpiar();
+  // la regla sale por la derecha al volver al plató
+  const us = eio(prog(ts, T.sale[0], T.sale[1]));
+  if (!cerca && us < 1) P.regla({ ...opRegla(0, 700 * us), toque: us > 0 && us < 1 });
+  atomoPlato(ts);
+  if (cerca) bocadillo(ts);
+  P.render(n, { fondo: false });
+  pegarGL();
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  const n = P.fotograma(Math.min(t, QUIETO)), ts = n / 12;
+  ajustarCapa();
+  hechas = 0;
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  const pl = plano(ts);
+  if (pl === 'A') planoA(n, ts);
+  else if (pl === 'B') planoB(n, ts);
+  else if (pl === 'B2') planoB2(n, ts);
+  else if (pl === 'C') planoC(n, ts);
+  else if (pl === 'C2') planoC2(n, ts);
+  else planoPlato(n, ts);
+  POST.aplicar(g, n);
+  if (!hechas) {
+    const pendiente = PREPARAR.find(([t0, nombre, t1]) => ts >= t0 && ts < t1 && !FOTOS[nombre]);
+    if (pendiente) F(pendiente[1]);
+  }
+}
+// (coste) las fotos, en fotogramas baratos poco antes de hacer falta: [desde, foto, hasta]
+const PREPARAR = [
+  [T.cruza[1] + 0.1, 'per1', T.B], [T.cruza[1] + 0.2, 'remolino', T.B], [T.cruza[1] + 0.3, 'galaxia', T.B],
+  [T.mir[1], 'red26', T.C], [T.mir[1] + 0.1, 'atomoFila', T.C], [T.mir[1] + 0.2, 'atH', T.C],
+  [T.flash[1] + 0.2, 'gigante', T.C2], [T.flash[1] + 0.3, 'mano', T.C2], [T.flash[1] + 0.4, 'atC', T.C2], [T.flash[1] + 0.5, 'atO', T.C2],
+  [T.flash[1] + 0.6, 'atFe', T.C2], [T.llega + 0.05, 'plato', T.Dp],
+];
+// el centro de la galaxia en 10²¹ (una foto del mundo leída: dónde cae la galaxia con nosotros en NOS)
+{
+  const C = camB(21), est = estadoMundo(C, 0, { luna: 0 });
+  GC21 = est.capas.uGal.slice(0, 2); RG21 = est.capas.uGal[2];
+}
+F('remolino');
+window.__T = T;
+window.__info = { E_PER, SUELA_Y, FILA, GC21, RG21, YC, BANDA_A, BOCA_ESC, Q_ESC };
+window.__inicio = { reloj: RELOJ, atomo: ATOMO, aEscala: A_ESC };
+{
+  // para atomo/herramientas/guias-humano.py: la persona de pie del plano A (t = 2,5; foto sin escalar en 2D a t ≈ 1,6)
+  P.limpiar(); const h = P.pieza(I.HUM, { pos: PER, escala: E_PER, postura: { cabeza: [0, -0.06, 0], mirada: [0, 0.1] } }); P.limpiar();
+  const coro = pant(h.mundo([0, HUMANO.CORONILLA, -0.01])), suela = pant(h.mundo([0, HUMANO.SUELO, 0.05])), c = pant(h.mundo([0, 0, 0]));
+  window.__guias = { t: T.cruza[1], x: Math.round(c[0]), coronilla: Math.round(coro[1]), suela: Math.round(suela[1]) };
+}
+marcaCarga('listo');
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

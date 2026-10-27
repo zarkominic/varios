@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hambruna · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-HAMBRUNA (frase 19). Cartela «1845». Un campo de patatas bajo un cielo de tormenta se ennegrece planta a planta;
+// un campesino de rodillas. En la caja, una calavera y «1000000». Luego familias con hatillos suben a un barco en el
+// puerto, y el mapa del Atlántico con la ruta de Irlanda a Nueva York; en la caja, un barco y «1000000».
+import { preparar, rodar, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-hambruna');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('hambruna', 1.5), L = E.duracion - m0, T = (f) => m0 + f * L;
+const campo = (t) => {
+  const u = t - m0;
+  R.cieloR(t, 'tormenta', { hor: 110 });
+  R.suelo(110, PR.TIERRA, { luz: 1.4 });
+  const plaga = tramo(u, 0.08 * L, 0.34 * L);
+  for (let f = 0; f < 5; f++) for (let k = 0; k < 14; k++) {
+    const x = 16 + k * 22 + (f & 1) * 11, y = 118 + f * 12, negra = R.hash2(k, f) < plaga;
+    R.rect(x - 6, y + 2, x + 6, y + 3, PR.TIERRA[0]);
+    for (let j = 0; j < 9; j++) { const a = j / 8 * Math.PI, rr = 5 + (j % 2); R.linea(x, y + 2, Math.round(x + Math.cos(a) * rr), Math.round(y + 2 - Math.sin(a) * rr), negra ? (j % 2 ? PALA.NEGRO[1] : PALA.CONTORNO) : (j % 2 ? PR.HIERBA[2] : PR.HIERBA[1])); }
+  }
+  R.personaje(196, 172, 26, { ...ELENCO.pobre, t, pose: 'rodilla', brazoD: 'cara' });
+};
+const puerto = (t) => {
+  const u = t - T(0.36);
+  R.cieloR(t, 'tormenta', { hor: 130 });
+  R.mar(t, { hor: 130 });
+  R.barco(220, 150, t, { tipo: 'galeon', esc: 0.8, dir: 1 });
+  R.rect(0, 150, 150, 156, PR.MADERA[2]); R.rect(0, 156, 150, 180, PR.MADERA[0]); R.linea(150, 152, 196, 144, PR.MADERA[3]);
+  for (let k = 0; k < 5; k++) { const x = Math.round(lerp(-10 - k * 22, 136 - k * 22, tramo(u, 0, 0.3 * L))); R.personaje(x, 152, k % 2 ? 18 : 24, { ...(k % 2 ? ELENCO.celta2 : ELENCO.pobre), capa: undefined, sombrero: k % 2 ? undefined : 'capucha', t: t + k, anda: t * 7 + k, objeto: k % 2 ? undefined : 'saco', sombra: false }); }
+};
+const atlantico = (t) => {
+  const u = t - T(0.66), v = R.VISTAS.atlantico;
+  R.mapa(t, { vista: v });
+  const a = R.lugar('dublin', undefined, v), b = R.lugar('nuevayork', undefined, v);
+  const pts = [a, [Math.round((a[0] + b[0]) / 2), Math.round(Math.min(a[1], b[1]) - 10)], b];
+  R.ruta(pts, tramo(u, 0.2, 0.25 * L), PALA.BLANCO[3]);
+  R.punto(a[0], a[1], t, PALA.VERDE, 2); R.punto(b[0], b[1], t, PALA.AMARILLO, 2);
+};
+rodar(E, R, [[0, campo], [T(0.36), puerto], [T(0.66), atlantico]], {
+  cartela: '1845', año: (t) => Math.round(lerp(1845, 1852, tramo(t, T(0.1), T(0.9)))),
+  caja: (t, e) => R.caja(t, t > T(0.34) ? tramo(t, T(0.34), T(0.34) + 0.4) : 0, (x, y) => { R.icono(t < T(0.64) ? 'calavera' : 'barco', x, y + 5, t < T(0.64) ? PALA.BLANCO[3] : PALA.AMARILLO[3], PALA.CONTORNO); R.numero('1000000', x + 12, y + 12); }, { energia: e }),
+});
+</script>
+</body>
+</html>

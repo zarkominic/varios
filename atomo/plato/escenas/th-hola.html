@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-HOLA (frase 5): una gota de sangre enorme sobre fondo oscuro, que late; Atom se presenta. Por detrás flotan
+// glóbulos rojos y, con cada latido, sale una onda; a «didn't teach you» aparece una «?» junto a la gota; a «Let's find
+// out» entra una lupa que se posa sobre la gota y deja ver un glóbulo rojo enorme, y la «?» se convierte en «!».
+import * as T from '/atomo/plato/escenas/th-comun.js';
+const { E, R, M } = await T.preparar('th-hola');
+const { tramo, lerp, hex } = R;
+const C = T.C;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('hola', f);
+const pregunta = a(0.53), lupaVa = a(0.78), descubre = a(0.9);
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// pinta solo donde el fondo es oscuro: lo que queda detrás de la gota
+const detras = (x, y, c) => { const p = R.pget(x, y); if ((p & 255) + ((p >> 8) & 255) + ((p >> 16) & 255) < 130) R.pset(x, y, c); };
+// un glóbulo rojo de canto (un disco con el centro hundido), apagado porque está lejos
+const globulo = (cx, cy, r, cols, fondo = true) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j * 1.15); if (d > r) continue; const c = d > r - 1.2 ? cols[0] : d < r * 0.45 ? cols[2] : cols[1]; fondo ? detras(cx + i, cy + j, c) : R.pset(cx + i, cy + j, c); } };
+const LEJOS = [hex('#42101c'), hex('#6a1e2c'), hex('#521624')];
+const plano = (t) => {
+  T.gotaGigante(R, t);
+  // los glóbulos que flotan despacio por detrás
+  for (let k = 0; k < 11; k++) { const x = Math.round(((h(k, 1) * 360 - t * (4 + k % 3 * 2)) % 360 + 360) % 360 - 20), y = Math.round(((h(k, 2) * 200 - t * (3 + k % 4)) % 200 + 200) % 200 - 10); globulo(x, y, 3 + (k % 3), LEJOS); }
+  // la onda de cada latido
+  for (let b = 0; b < 6; b++) { const tb = 0.314 + b * 1.2566, u = (t - tb) / 1.1; if (u < 0 || u > 1) continue; const r = 56 + u * 60;
+    for (let an = 0; an < Math.PI * 2; an += 1 / r) { const x = Math.round(150 + Math.cos(an) * r), y = Math.round(98 + Math.sin(an) * r * 0.95); if ((x + y) % (u < 0.5 ? 2 : 3) === 0) detras(x, y, u < 0.5 ? hex('#7a2234') : hex('#4a1626')); } }
+  // «didn't teach you»: la «?», que a «find out» se vuelve «!»
+  const q = tramo(t, pregunta, pregunta + 0.3); if (q > 0) { const y = Math.round(lerp(84, 64, q) + (q >= 1 ? Math.sin((t - pregunta) * 4) * 2 : 0)), ex = t > descubre;
+    R.icono(ex ? '!' : '?', ex ? 222 : 216, y, ex ? C.oroL : hex('#f0d8e0'), C.k, 3); }
+  // «Let's find out»: la lupa entra y se posa sobre la gota
+  const l = tramo(t, lupaVa, lupaVa + 0.6); if (l > 0) {
+    const lx = Math.round(lerp(-30, 136, l) + (l >= 1 ? Math.sin((t - lupaVa) * 2.4) * 3 : 0)), ly = Math.round(lerp(190, 112, l) + (l >= 1 ? Math.cos((t - lupaVa) * 2) * 2 : 0)), r = 18;
+    for (let k = 0; k < 14; k++) { R.linea(lx + 13 + k, ly + 13 + k, lx + 13 + k, ly + 15 + k, C.k); R.pset(lx + 14 + k, ly + 14 + k, C.maderaS); }
+    R.disco(lx, ly, r + 3, C.k); R.disco(lx, ly, r + 2, C.metalD); R.disco(lx, ly, r + 1, C.metalL); R.disco(lx, ly, r, hex('#e86a7a'));
+    for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) if (i * i + j * j < r * r && (i + j + 40) % 5 === 0) R.pset(lx + i, ly + j, hex('#f08898'));
+    globulo(lx + 1, ly + 1, 11, [C.sangreS, C.sangre, hex('#a01c30')], false); R.rect(lx - 5, ly - 6, lx - 2, ly - 5, C.sangreL);
+    globulo(lx - 11, ly + 9, 3, [C.sangreS, C.sangre, hex('#a01c30')], false); R.disco(lx + 12, ly - 8, 1, hex('#f8d8a0'));
+    R.rect(lx - 12, ly - 13, lx - 8, ly - 12, C.blanco); R.pset(lx - 13, ly - 11, C.blanco);
+  }
+};
+const efectos = [[0.3, 'brillo'], [pregunta, 'pop'], [lupaVa, 'whoosh'], [descubre, 'brillo']];
+T.rodar(E, R, [[0, plano]], { efectos });
+</script>
+</body>
+</html>

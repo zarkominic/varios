@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Santos · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-SANTOS (frases 11–12). Cartela «835». Junto a la colina de las hogueras (con un fuego que se apaga) se levanta una
+// iglesia de piedra; un monje mira. Luego, dentro, el altar y muchas velas; gente arrodillada. En la caja, «1/11» y
+// después «2/11».
+import { preparar, rodar, noche, iglesia, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-santos');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { igl: M('iglesia', 1.5), san: M('santos', 9) };
+const Ls = E.duracion - m.san;
+const cerro = (x) => Math.round(132 - 30 * Math.exp(-(((x - 70) / 60) ** 2)));
+const fuera = (t) => {
+  const u = t - m.igl;
+  noche(R, t, { luna: [150, 30, 11], hor: 150 });
+  for (let x = 0; x < R.W; x++) { const top = Math.min(cerro(x), 148); for (let y = top; y < R.H; y++) R.pset(x, y, R.tone([PALA.CONTORNO, PALA.PURPURA[0], PALA.PURPURA[1], PALA.MORADO[1]], 1.8 - (y - top) * 0.03 + (y === top ? 0.8 : 0), x, y)); }
+  R.hoguera(70, cerro(70) + 1, lerp(0.8, 0.35, tramo(u, 1, 6)), t);
+  iglesia(R, 230, 148, t, { esc: 1.1, p: tramo(u, 0.8, 0.6 * (m.san - m.igl)) });
+  sueloNoche(R, 148);
+  R.personaje(176, 160, 24, { ...ELENCO.monje, t, dir: 1 });
+};
+const dentro = (t) => {
+  R.ambiente({ luz: { lado: 1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[160, 90]], suelo: 140, radio: 170 });
+  R.rect(126, 104, 194, 140, PR.ROCA[2]); R.rect(124, 102, 196, 106, PALA.BLANCO[3]);
+  R.rect(159, 66, 161, 98, PALA.ORO[3]); R.rect(151, 74, 169, 76, PALA.ORO[3]);
+  for (let k = 0; k < 7; k++) R.vela(132 + k * 9, 96, t + k, { r: 10, alto: 5 });
+  for (let k = 0; k < 10; k++) { const x = 20 + k * 30; if (x > 108 && x < 212) continue; R.vela(x, 120 + (k % 2) * 6, t + k, { r: 14 }); }
+  for (let k = 0; k < 5; k++) { const x = 70 + k * 45; R.personaje(x, 172, 22, { ...(k % 2 ? ELENCO.pobre : ELENCO.monje), t: t + k, pose: 'rodilla', dir: x < 160 ? 1 : -1 }); }
+};
+rodar(E, R, [[0, fuera], [m.san - 0.2, dentro]], {
+  cartela: '835', año: (t) => (t < m.san + 0.55 * Ls ? 835 : 1000),
+  caja: (t, e) => R.caja(t, t > m.san + 0.15 * Ls ? tramo(t, m.san + 0.15 * Ls, m.san + 0.15 * Ls + 0.4) : 0, (x, y) => { R.numero('1/11', x + 2, y + 12, { color: PALA.AMARILLO[3] }); if (t > m.san + 0.55 * Ls) R.numero('2/11', x + 40, y + 12, { color: PALA.BLANCO[3] }); }, { energia: e }),
+});
+</script>
+</body>
+</html>

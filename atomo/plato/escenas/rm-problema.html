@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Problema · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-PROBLEMA (frase 17). El Senado, un templo para una ciudad pequeña; delante, un general de capa roja crece y su
+// sombra tapa el edificio. Sus soldados, que miraban al templo, se dan la vuelta hacia él y lo aclaman.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-problema');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('problema', 0.5), dur = E.duracion ?? 14;
+const general = (t) => {
+  R.cieloR(t, 'dia', { hor: 132 }); R.templo(160, 132, 130, 52, { n: 8 }); R.suelo(132, PALA.MARMOL, { losas: true });
+  const u = t - m0, g = tramo(t, m0 + 3.5, m0 + 7.5), giro = u > 9;
+  for (let y = 40; y < 132; y++) for (let x = 70; x < 250; x++) if (R.b4(x, y) < g * 0.6 * (1 - Math.abs(x - 160) / 110)) R.pset(x, y, PALA.CONTORNO);
+  R.personaje(160, 158, lerp(28, 58, g), { ...ELENCO.legionario, sombrero: 'no', peinado: 'corto', pelo: PALA.PELO_NEGRO, capa: PALA.ROJO, t, pose: 'manos_cintura', ceño: true });
+  for (let k = 0; k < 8; k++) { const x = 24 + k * 38 + (k >= 4 ? 20 : 0) - 10; if (Math.abs(x - 160) < 26) continue; R.personaje(x, 176, 24, { ...ELENCO.legionario, t: t + k, dir: giro ? (x < 160 ? 1 : -1) : (k % 2 ? 1 : -1), pose: giro && Math.sin(t * 3 + k) > 0 ? 'arriba' : 'pie', brazoD: giro && Math.sin(t * 3 + k) > 0 ? 'arriba' : 'abajo', objeto: 'gladio' }); }
+};
+rodar(E, R, [[0, general]], { año: -60, caja: (t, e) => R.caja(t, t > m0 + 1.5 && t < m0 + 4 ? tramo(t, m0 + 1.5, m0 + 1.9) : 0, (x, y) => R.icono('casa', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

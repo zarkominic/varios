@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Narmer · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-NARMER (frases 12–13). Cartela «3100». En la sala del trono, Narmer con la corona blanca del sur; le traen la roja
+// del norte y se le junta en la doble corona. Luego el plano general: el faraón en su estrado y una fila de escribas
+// sentados con sus papiros, mientras unos campesinos traen sacos.
+import { preparar, rodar, trono, EL, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-narmer');
+const { tramo } = R;
+const m = { nar: M('narmer', 1.5), for: M('formula', 10) };
+const L = m.for - m.nar;
+const corona = (t) => {
+  const u = t - m.nar, junta = u > 0.6 * L;
+  trono(R, t, { abanicos: true });
+  R.actor(EL.rey, 166, 117, t, { tocado: junta ? 'doble' : 'blanca', sonrisa: junta, dir: -1 });
+  if (!junta) { const f = tramo(u, 0.3 * L, 0.6 * L), x = Math.round(R.lerp(250, 168, f)), y = Math.round(R.lerp(140, 100, f)); R.dibujo(['kkk.......', 'kDk.......', 'kDkkkkkkk.', 'kDDDDDDDk.', 'kDDDDDDdk.', '.kkkkkkk..'], x, y - 6, 1); }
+  R.actor(EL.campesino, 236, 145, t, { dir: -1, brazos: u > 0.6 * L });
+};
+const sala = (t) => {
+  trono(R, t, { abanicos: true });
+  R.actor(EL.rey, 166, 117, t, { tocado: 'doble', dir: -1 });
+  for (let k = 0; k < 4; k++) R.actor(EL.escriba, 44 + k * 24, 145, t + k, { habla: Math.sin(t * 7 + k) > 0.6 });
+  R.actor(EL.campesino, 236, 145, t, { dir: -1 }); R.actor(EL.campesino, 262, 145, t + 1, { dir: -1, pal: { H: R.hex('#4a2a18') } });
+};
+rodar(E, R, [[0, corona], [m.for - 0.2, sala]], { cartela: '3100', año: -3100 });
+</script>
+</body>
+</html>

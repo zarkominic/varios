@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Auténtico · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-AUTENTICO (frase 33). Tres planos:
+// 1. 2020: el monitor de cerca con el vídeo del Tic Tac en gris, su retícula y sus cifras; cae un sello verde «✓»: el
+//    vídeo es auténtico;
+// 2. 2024: la oficina de análisis, con la pared de pantallas y el calendario en «2024»; la analista recorre con la lupa
+//    las fotos de la mesa y cada una se gana su «✓» (globo, dron, pájaro, satélite, Venus); abre la caja del platillo y
+//    está vacía: no han encontrado ninguna prueba; se encoge de hombros;
+// 3. la carpeta del Tic Tac abierta, con su foto: cae el sello «?». Sigue sin explicación.
+import { preparar, rodar, monitorGrande, oficinaAnalisis, mesaAnalisis, insertoCarpeta, visto, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-autentico');
+const { tramo, lerp } = R;
+const P2 = 5.6, P3 = 11.4, sello = 2.9, vistos = [6.4, 7.1, 7.8, 8.5, 9.2], caja = 9.8, sello2 = P3 + 1.2;
+const video = (R, x0, y0, x1, y1, t) => {
+  for (let y = y0; y <= y1; y++) R.rect(x0, y, x1, y, (y + Math.floor(t * 20)) % 7 ? R.hex('#3a3e44') : R.hex('#44484e'));
+  for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 3) if (R.hash2 ? R.hash2(x + Math.floor(t * 9), y) < 0.05 : (x * 7 + y * 13 + Math.floor(t * 9)) % 23 === 0) R.pset(x, y, R.hex('#55595f'));
+  const cx = (x0 + x1) >> 1, cy = (y0 + y1) >> 1, ox = Math.round(cx + Math.sin(t * 0.7) * 14), oy = Math.round(cy + Math.sin(t * 1.1) * 5);
+  R.rect(ox - 14, oy - 4, ox + 14, oy + 4, R.hex('#e8eaee')); R.rect(ox - 11, oy - 6, ox + 11, oy + 6, R.hex('#e8eaee')); R.rect(ox - 9, oy - 7, ox + 9, oy + 7, R.hex('#f4f6f8'));
+  for (const [dx, dy] of [[-24, -14], [24, -14], [-24, 14], [24, 14]]) { R.rect(ox + dx - (dx < 0 ? 0 : 7), oy + dy, ox + dx + (dx < 0 ? 7 : 0), oy + dy, C.blanco); R.rect(ox + dx, oy + dy - (dy < 0 ? 0 : 7), ox + dx, oy + dy + (dy < 0 ? 7 : 0), C.blanco); }
+  R.rect(cx, y0 + 4, cx, y0 + 14, C.blanco); R.rect(cx - 10, y0 + 9, cx + 10, y0 + 9, C.blanco); R.rect(x0 + 6, y1 - 10, x0 + 40, y1 - 10, C.blanco); R.rect(x1 - 40, y1 - 10, x1 - 6, y1 - 10, C.blanco);
+  R.numero('22', x0 + 22, y0 + 18, { color: C.blanco, sombra: false }); R.numero(String(250 + Math.floor(t * 3) % 9), x1 - 26, y0 + 18, { color: C.blanco, sombra: false });
+  if (t > sello) { const e = Math.min(1, (t - sello) * 5), s = Math.round(5 - e * 2); R.disco(x1 - 34, y0 + 40, 22, C.verdeL); R.disco(x1 - 34, y0 + 40, 19, R.hex('#2a4a3a')); visto(R, x1 - 34 - 6 * s / 2, y0 + 36 - 2 * s / 2, s); }
+  R.numero('2020', x0 + 30, y1 - 14, { color: C.blanco, sombra: false });
+};
+const monitor = (t) => monitorGrande(R, t, video);
+const oficina = (t) => {
+  oficinaAnalisis(R, t);
+  R.rect(14, 40, 40, 70, C.k); R.rect(15, 41, 39, 69, C.blanco); R.rect(15, 41, 39, 47, C.rojo); R.numero('2024', 27, 58, { color: C.k, sombra: false, centro: true, tam: 7 });   // el calendario
+  const n = vistos.filter((v) => t >= v).length, x = Math.round(t < caja ? lerp(56, 156, tramo(t, P2 + 0.4, vistos[4])) : lerp(156, 196, tramo(t, caja - 0.5, caja)));
+  R.actor(EL.agenta, x, 132, t, { dir: 1, anda: (t > P2 + 0.4 && t < vistos[4] && (t * 2) % 1.4 < 0.7) || (t > caja - 0.5 && t < caja), dedo: t > vistos[0] - 0.2 && t < vistos[4] + 0.2, brazos: t > caja + 0.8 && t < caja + 1.4, sorpresa: t > caja + 0.4 && t < caja + 0.8 });
+  mesaAnalisis(R, t, { vistos: n, caja: tramo(t, caja, caja + 0.5) });
+  if (t > vistos[0] - 0.2 && t < vistos[4] + 0.3) { const lx = x + 18, ly = 112; R.disco(lx, ly, 4, C.k); R.disco(lx, ly, 3, R.hex('#a8d8f0')); R.pset(lx - 1, ly - 1, C.blanco); R.linea(lx + 3, ly + 3, lx + 6, ly + 6, C.maderaS); }   // la lupa
+};
+const carpeta = (t) => insertoCarpeta(R, t, { sello: tramo(t, sello2 - 0.6, sello2 + 0.2), marca: '?', forma: Math.round(Math.sin(t * 0.5) * 3) });
+rodar(E, R, [[0, monitor], [P2, oficina], [P3, carpeta]], {
+  efectos: [[sello, 'sello'], ...vistos.map((v) => [v, 'tic']), [caja, 'papel'], [sello2 - 0.1, 'sello']],
+  año: (t) => (t < P2 ? 2020 : 2024),
+});
+</script>
+</body>
+</html>

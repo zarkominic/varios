@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-instrumentos.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-instrumentos.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por variante y por uniforme, también las que ep3-ojo no usa (el microscopio de colegio), con el plató, la
+// luz y la cámara de las escenas de plastilina (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28).
+//   __frame(0)  → la hoja entera (4 × 4 celdas de 480 × 270, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+// ?celda=k abre la celda k en la vista previa. window.__tiempos[k − 1]: lo que tardó la celda k (ms).
+import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposInstrumentos, uniformesInstrumentos, ponerInstrumentos, instrumento, apuntarTelescopio, encuadreFinOjo, pintarFinOjo, cieloOjo, INSTR } from '/atomo/plato/kits/ep03-instrumentos.js';
+
+const W = 1920, H = 1080;
+const UI = uniformesInstrumentos();
+const P = await crearPlato({
+  piezas: ['instrumento', 'instrumento', 'instrumento', 'instrumento'], tiposExtra: tiposInstrumentos(), uniformes: UI,
+  atomo: false, alfa: true, post: false, sombraFondo: ['p0', 'p1', 'p2', 'p3'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pxU = (p) => { const a = P.proyectar(p), b = P.proyectar([p[0] + 1, p[1], p[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+// escala para que la pieza mida alto px (en unidades locales: alto local lu) en (sx, sy, z)
+const esc = (sx, sy, z, px, lu) => px / (lu * pxU(en(sx, sy, z)));
+
+// las celdas: [rótulo, poner() , { fondo: true (con el plató) | 'cielo' }]
+const C = [];
+const cel = (rot, poner, o = {}) => C.push({ rot, poner, ...o });
+const MIC = (rot, extra = {}) => ({ pos: en(960, 560, 2), escala: esc(960, 560, 2, 820, 1.93), rot, ...extra });
+cel('microscopio de perfil (luz 0)', () => { ponerInstrumentos(UI, { luz: 0 }); instrumento(P, 0, { variante: 'microscopio', ...MIC([0, 0, 0]) }); });
+cel('microscopio de tres cuartos (luz 1)', () => { ponerInstrumentos(UI, { luz: 1 }); instrumento(P, 0, { variante: 'microscopio', ...MIC([0.12, -0.6, 0]) }); });
+cel('microscopio desde el otro lado', () => { ponerInstrumentos(UI, { luz: 1 }); instrumento(P, 0, { variante: 'microscopio', ...MIC([0.1, 2.5, 0]) }); });
+cel('microscopio de cerca (objetivos y platina)', () => { ponerInstrumentos(UI, { luz: 1 }); instrumento(P, 0, { variante: 'microscopio', pos: en(700, 980, 6), escala: esc(960, 540, 6, 2000, 1.93), rot: [0.18, -0.5, 0] }); });
+cel('colegio de perfil (rueda 0)', () => { ponerInstrumentos(UI, { rueda: 0 }); instrumento(P, 0, { variante: 'colegio', ...MIC([0, 0, 0]) }); });
+cel('colegio de tres cuartos (rueda 2)', () => { ponerInstrumentos(UI, { rueda: 2 }); instrumento(P, 0, { variante: 'colegio', ...MIC([0.12, -0.6, 0]) }); });
+cel('colegio: la rueda de cerca (rueda 4)', () => { ponerInstrumentos(UI, { rueda: 4 }); instrumento(P, 0, { variante: 'colegio', pos: en(1250, 640, 6), escala: esc(960, 540, 6, 2400, 1.93), rot: [0.1, 0.55, 0] }); });
+cel('colegio desde atrás a la izquierda', () => { ponerInstrumentos(UI, { rueda: 1 }); instrumento(P, 0, { variante: 'colegio', ...MIC([0.15, 2.4, 0]) }); });
+const ANI = (rot, extra = {}) => ({ pos: en(960, 560, 1.5), escala: esc(960, 560, 1.5, 1500, 2.2), rot, ...extra });
+cel('anillo desde arriba (haz 0)', () => { ponerInstrumentos(UI, { haz: 0 }); instrumento(P, 0, { variante: 'anillo', ...ANI([0.75, 0.3, 0]) }); });
+cel('anillo haz 1, fase 0,15', () => { ponerInstrumentos(UI, { haz: 1, fase: 0.15 }); instrumento(P, 0, { variante: 'anillo', ...ANI([0.6, 0.3, 0]) }); });
+cel('anillo haz 1, fase 0,5 (chocan)', () => { ponerInstrumentos(UI, { haz: 1, fase: 0.5 }); instrumento(P, 0, { variante: 'anillo', ...ANI([0.6, 0.3, 0]) }); });
+cel('anillo de cerca (un detector)', () => { ponerInstrumentos(UI, { haz: 1, fase: 0.03 }); instrumento(P, 0, { variante: 'anillo', pos: en(660, 700, 5), escala: esc(960, 540, 5, 3200, 2.2), rot: [0.45, 1.2, 0] }); });
+const TEL = (rot, extra = {}) => ({ pos: en(960, 540, 2), escala: esc(960, 540, 2, 900, 1.96), rot, ...extra });
+cel('telescopio de frente', () => { ponerInstrumentos(UI, {}); instrumento(P, 0, { variante: 'telescopio', ...TEL([0.12, 0, 0]) }); }, { fondo: 'cielo' });
+cel('telescopio de perfil, apuntando a la derecha', () => {
+  ponerInstrumentos(UI, {});
+  const pos = en(900, 560, 2);
+  instrumento(P, 0, { variante: 'telescopio', ...TEL(apuntarTelescopio(pos, en(1900, 300, 2))), pos });
+}, { fondo: 'cielo' });
+cel('telescopio desde abajo y atrás (parasol)', () => { ponerInstrumentos(UI, {}); instrumento(P, 0, { variante: 'telescopio', ...TEL([-0.5, 2.6, 0]) }); }, { fondo: 'cielo' });
+cel('pintarFinOjo: el final de ep3-ojo (sin Atom)', null, { fin: true });
+cel('los cuatro en el plató', () => {
+  ponerInstrumentos(UI, { luz: 1, rueda: 1, haz: 1, fase: 0.2 });
+  instrumento(P, 0, { variante: 'microscopio', pos: [-3.3, 1.1, 0.5], escala: 1.1, rot: [0, -0.45, 0] });
+  instrumento(P, 1, { variante: 'colegio', pos: [-1.0, 1.0, 0.8], escala: 1.05, rot: [0, -0.45, 0] });
+  instrumento(P, 2, { variante: 'anillo', pos: [1.4, 1.0, 0.6], escala: 1.0, rot: [0.75, 0.2, 0] });
+  instrumento(P, 3, { variante: 'telescopio', pos: [3.6, 1.7, 0.2], escala: 1.05, rot: [0.25, -0.6, 0] });
+}, { fondo: true });
+
+// ---------------------------------------------------------------- dibujo
+const lienzoGL = P.renderer.domElement;
+const cont = document.getElementById('escena');
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+const nuevo = () => { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; return c; };
+let CIELO = null;
+const cache = [];
+window.__tiempos = [];
+function celda(k) {
+  if (cache[k]) return cache[k];
+  const c = C[k];
+  const a = performance.now();
+  let f;
+  if (c.fin) f = pintarFinOjo(P, UI, 0);
+  else {
+    P.fotograma(0); P.limpiar(); c.poner(); P.render(k + 1, { fondo: c.fondo === true });
+    f = nuevo();
+    const gf = f.getContext('2d');
+    if (c.fondo === 'cielo') gf.drawImage(CIELO ?? (CIELO = cieloOjo(nuevo())), 0, 0);
+    else if (!c.fondo) { gf.fillStyle = '#26211d'; gf.fillRect(0, 0, f.width, f.height); }
+    gf.drawImage(lienzoGL, 0, 0);
+  }
+  window.__tiempos[k] = Math.round(performance.now() - a);
+  return (cache[k] = f);
+}
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+function dibujar(t) {
+  ajustarCapa();
+  const k = Math.round(t);
+  if (k >= 1 && k <= C.length) {
+    g.drawImage(celda(k - 1), 0, 0, W, H);
+    POST.aplicar(g, k);
+    return;
+  }
+  g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+  const cw = W / 4, ch = H / 4;
+  C.forEach((c, j) => {
+    const x = (j % 4) * cw, y = Math.floor(j / 4) * ch;
+    g.drawImage(celda(j), x, y, cw, ch);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(x, y + ch - 24, cw, 24);
+    g.fillStyle = '#e8dcc0'; g.font = '16px sans-serif'; g.fillText(`${j + 1}. ${c.rot}`, x + 6, y + ch - 7);
+  });
+}
+const busq = new URLSearchParams(location.search);
+window.ESCENA ??= { id: 'ep03-instrumentos-hoja', duracion: C.length + 1, marcas: {}, voz: [0, 0] };
+window.__celdas = C.map((c) => c.rot);
+window.__fin = { encuadre: encuadreFinOjo(P), INSTR };
+window.__paso = 1;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>

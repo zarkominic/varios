@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Miniatura · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-MINIATURA · la miniatura del episodio 9 (se captura en t = 1, 1280 × 720). Los fondos son los decorados de verdad, con
+// todo su detalle: a la izquierda Plymouth en otoño (la bahía con el Mayflower, el bosque, las cabañas), a la derecha la
+// calle de hoy de madrugada con la cola ante la tienda; los separa una diagonal. Encima, al doble de tamaño para que se
+// lean en pequeño, un peregrino que persigue a un pavo que huye sudando y un policía que pita. Arriba, «1621» y «%».
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { C, pavo, plymouth, ciudad } from '/atomo/plato/escenas/ag-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), VACIO = 0x01020304;
+const corte = (y) => 196 - Math.round(y * 0.45);   // la diagonal
+const dibujar = (t) => {
+  let prev = R.usar(izq); plymouth(R, t, { estacion: 'otono', mayflower: 58, maiz: 1, aves: true });
+  R.usar(der); ciudad(R, t, { epoca: 'hoy', madrugada: true }); for (let k = 0; k < 6; k++) R.actor([EL.chico, EL.chica, EL.senor30][k % 3], 196 + k * 18, 145, t + k, { quieto: true }); if (R.delante) { R.delante(); R.delante = null; }
+  // personajes en una capa aparte, para ampliarlos ×2
+  R.usar(pj); pj.fill(VACIO);
+  R.actor(EL.peregrino, 6, 60, 0.5, { enfado: true, anda: true, quieto: false });
+  pavo(R, 58, 60, 0.37, { corre: true, suda: true });
+  R.actor(EL.policia, 100, 60, 0.5, { dedo: true, sorpresa: true });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x, y, C.k); R.pset(x - 1, y, C.blanco); R.pset(x - 2, y, C.blanco); R.pset(x + 1, y, C.k); }
+  // pegar los personajes ×2 (con su contorno) sobre el fondo; la fila de abajo de la capa toca el suelo en y 176
+  const pon = (sx0, sx1, dx, dy) => { for (let y = 0; y < 62; y++) for (let x = sx0; x <= sx1; x++) { const c = pj[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * 2, dy + y * 2, dx + (x - sx0) * 2 + 1, dy + y * 2 + 1, c); } };
+  pon(4, 24, 14, 54); pon(46, 76, 96, 54); pon(98, 118, 250, 54);
+  R.rect(126, 172, 160, 173, C.k);   // sombra del pavo
+  R.numero('1621', 66, 34, { tam: 16, centro: true, rampa: [C.oroL, C.oroL, C.amarillo, C.naranja, C.naranjaS] });
+  R.numero('%', 290, 64, { tam: 32, centro: true, rampa: [C.rosa, C.rosa, C.rojo, C.rojo, C.rojoS] });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

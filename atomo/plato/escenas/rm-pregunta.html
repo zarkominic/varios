@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pregunta · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-PREGUNTA (frase 4). El chaval, ya sin corona, se encoge de hombros ante el trono vacío («?» en la caja). Al final
+// el salón se funde en el mapa (la historia entera empieza ahí).
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-pregunta');
+const { ELENCO, tramo } = R;
+const m0 = M('pregunta', 0.5), dur = E.duracion ?? 8;
+const S = R.SUELO_SALON;
+const encoge = (t) => {
+  R.salon(t);
+  const hombros = Math.sin((t - m0) * 2.2) > -0.2;
+  R.personaje(126, S + 22, 30, { ...ELENCO.emperadorNino, sombrero: 'no', t, brazoD: hombros ? 'ofrece' : 'abajo', brazoI: hombros ? 'ofrece' : 'abajo', ceño: true });
+};
+const mapa = (t) => R.mapaAño(t, 476);
+rodar(E, R, [[0, encoge], [dur - 1.6, mapa, 'iris']], { año: 476, caja: (t, e) => R.caja(t, t < dur - 1.6 ? tramo(t, m0 + 0.8, m0 + 1.2) : 0, (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

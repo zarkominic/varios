@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adiós · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-ADIOS (frase 41). A al atardecer: el mar tranquilo, el portaaviones a lo lejos; Atom pregunta qué explicamos ahora.
+import { preparar, rodar, pacifico, tinte } from '/atomo/plato/escenas/ov-comun.js';
+const { E, R } = await preparar('ov-adios');
+rodar(E, R, [[0, (t) => { pacifico(R, t, { hor: 80, tarde: true, portaaviones: 200, crucero: 60, delfines: [120, 120], sol: [250, 66, 11] }); tinte(R, 80, 179, [240, 130, 90], 0.22); }]], { año: 2026 });
+</script>
+</body>
+</html>

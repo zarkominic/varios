@@ -1,0 +1,863 @@
+{
+ "serie": "ASK Atom",
+ "numero": 4,
+ "estado": "aprobado (v1)",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "The Pirate Treasure Worth More Than GOLD (and It's in Your Pocket)",
+  "es": "El tesoro pirata que valía más que el ORO (y lo llevas en el bolsillo)"
+ },
+ "principal": "en",
+ "voces": {
+  "en": {
+   "voz": "am_fenrir",
+   "lang": "en-us",
+   "velocidad": 0.85
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.92
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "ep4-hola",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "hola",
+     "es": "Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase.",
+     "en": "Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you.",
+     "visual": "Mar de noche con Luna; la caja de diálogo baja y Atom saluda en su retrato."
+    }
+   ]
+  },
+  {
+   "id": "ep4-sharp",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1681",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 2,
+     "marca": "sharp",
+     "es": "En 1681, un pirata inglés llamado Bartholomew Sharp volvió del Pacífico con un libro español robado.",
+     "en": "In 1681, an English pirate named Bartholomew Sharp came home from the Pacific with a stolen Spanish book.",
+     "visual": "Un barco pirata pequeño aborda un galeón; desde la borda alguien lanza un libro grueso al agua y un pirata lo atrapa.",
+     "es_voz": "En mil seiscientos ochenta y uno, un pirata inglés llamado Bártolomiu Sharp volvió del Pacífico con un libro español robado.",
+     "en_voz": "In sixteen eighty-one, an English pirate named Bartholomew Sharp came home from the Pacific with a stolen Spanish book."
+    },
+    {
+     "n": 3,
+     "marca": "espana",
+     "es": "España quería que lo juzgaran por pirata.",
+     "en": "Spain wanted him tried as a pirate.",
+     "visual": "Londres de noche con niebla: una horca vacía recortada contra la Luna."
+    },
+    {
+     "n": 4,
+     "marca": "rey",
+     "es": "Él le regaló el libro al rey, y salió libre.",
+     "en": "He handed the book to the king, and walked free.",
+     "visual": "Sala con velas: el pirata se arrodilla ante el rey y le da el libro; la horca se desvanece."
+    }
+   ],
+   "cartela": "1681"
+  },
+  {
+   "id": "ep4-libro",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "oro",
+     "es": "No era oro, ni un mapa del tesoro con una X.",
+     "en": "It wasn't gold, or a treasure map with an X.",
+     "visual": "Un cofre de oro y un mapa con una X roja se tachan (X en la caja).",
+     "es_voz": "No era oro, ni un mapa del tesoro con una equis."
+    },
+    {
+     "n": 6,
+     "marca": "cartas",
+     "es": "Era un libro de cartas de navegar: costas, puertos, profundidades y dónde se esconden las rocas.",
+     "en": "It was a book of sea charts: coastlines, harbors, depths, and where the rocks hide.",
+     "visual": "El libro se abre en la mesa: costas, puertos, sondas y rocas en pixel fino."
+    },
+    {
+     "n": 7,
+     "marca": "porque",
+     "es": "¿Por qué valía un mapa más que un barco lleno de plata?",
+     "en": "Why was a map worth more than a ship full of silver?",
+     "visual": "Balanza: cofre de plata contra el libro; se inclina hacia el libro. «?» en la caja."
+    }
+   ]
+  },
+  {
+   "id": "ep4-donde",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "donde",
+     "es": "Porque durante casi toda la historia, la pregunta más difícil del mar fue la más sencilla: ¿dónde estoy?",
+     "en": "Because for most of history, the hardest question at sea was the simplest one: where am I?",
+     "visual": "Un barco solo en un mar sin nada alrededor; una X baila sobre el agua."
+    },
+    {
+     "n": 9,
+     "marca": "bolsillo",
+     "es": "Hoy la respondes sin pensar, con algo que llevas en el bolsillo.",
+     "en": "Today you answer it without thinking, with something in your pocket.",
+     "visual": "Un teléfono asoma de un bolsillo con un punto azul que late."
+    },
+    {
+     "n": 10,
+     "marca": "gracias",
+     "es": "Al final te enseño a quién tienes que darle las gracias. Pista: no es a un marinero.",
+     "en": "At the end, I'll show you who you have to thank for it. Hint: it's not a sailor.",
+     "visual": "Atom en la caja con «?» y un marinero que niega con la cabeza."
+    }
+   ]
+  },
+  {
+   "id": "ep4-numeros",
+   "estilo": "pixel",
+   "empieza_con": "cartela 0°",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "numeros",
+     "es": "Para decir dónde estás en la Tierra, necesitas dos números.",
+     "en": "To say where you are on Earth, you need two numbers.",
+     "visual": "Mesa del cartógrafo: pergamino en blanco con una cuadrícula que se dibuja sola."
+    },
+    {
+     "n": 12,
+     "marca": "latitud",
+     "es": "La latitud: cuánto al norte o al sur. La longitud: cuánto al este o al oeste.",
+     "en": "Latitude: how far north or south. Longitude: how far east or west.",
+     "visual": "Una línea horizontal firme y una vertical punteada que tiembla; la X donde se cruzan."
+    },
+    {
+     "n": 13,
+     "marca": "polar",
+     "es": "La latitud es fácil: cuanto más alta ves la estrella Polar, más al norte estás.",
+     "en": "Latitude is easy: the higher the North Star sits in your sky, the farther north you are.",
+     "visual": "Un marinero mide la estrella Polar con un instrumento; el barco baja al sur y la Polar baja con él."
+    }
+   ],
+   "cartela": "0°"
+  },
+  {
+   "id": "ep4-hora",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "pesadilla",
+     "es": "La longitud es una pesadilla: si vas hacia el este o el oeste, el cielo es el mismo, solo que antes o después.",
+     "en": "Longitude is a nightmare: head east or west, and the sky looks the same, only earlier or later.",
+     "visual": "Un barco navega al este bajo el mismo cielo que gira; la línea de longitud tiembla."
+    },
+    {
+     "n": 15,
+     "marca": "lugar",
+     "es": "Así que la longitud no es un lugar. Es una hora.",
+     "en": "So longitude isn't really a place. It's a time.",
+     "visual": "La X se convierte en un reloj (en la caja, un reloj)."
+    },
+    {
+     "n": 16,
+     "marca": "quince",
+     "es": "La Tierra gira quince grados cada hora: si sabes la hora de tu puerto y la hora donde estás, la diferencia es tu longitud.",
+     "en": "The Earth turns fifteen degrees every hour: know the time back home and the time where you are, and the difference is your longitude.",
+     "visual": "Globo pixelado que gira; «15°» en la caja; dos relojes, casa y aquí, y su diferencia."
+    }
+   ]
+  },
+  {
+   "id": "ep4-reloj",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "reloj",
+     "es": "Fácil. Salvo que, durante miles de años, ningún reloj aguantaba un barco.",
+     "en": "Simple. Except that, for thousands of years, no clock could survive a ship.",
+     "visual": "Un reloj de péndulo en un barco que se balancea: el péndulo enloquece y el reloj se para."
+    },
+    {
+     "n": 18,
+     "marca": "ojo",
+     "es": "Así que los marinos calculaban a ojo. Y el mar castigaba los errores.",
+     "en": "So sailors guessed. And the sea punished bad guesses.",
+     "visual": "La X salta por el mapa y un barco choca con una roca en sombra."
+    }
+   ]
+  },
+  {
+   "id": "ep4-polinesios",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1000",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 19,
+     "marca": "algunos",
+     "es": "Algunos no necesitaban ni relojes ni mapas.",
+     "en": "Some didn't need clocks or maps at all.",
+     "visual": "El Pacífico de noche, inmenso; una canoa doble polinesia, diminuta."
+    },
+    {
+     "n": 20,
+     "marca": "polinesios",
+     "es": "Hace unos mil años, navegantes polinesios cruzaron miles de kilómetros de Pacífico abierto hasta islas como Hawái y Rapa Nui.",
+     "en": "About a thousand years ago, Polynesian navigators crossed thousands of miles of open Pacific to reach islands like Hawaii and Rapa Nui.",
+     "visual": "Mapa de estrellas: islas como puntos y una línea de viaje hasta Hawái y Rapa Nui."
+    },
+    {
+     "n": 21,
+     "marca": "leian",
+     "es": "Leían las estrellas que salían por el horizonte, la forma del oleaje bajo el casco y las aves que salen a pescar y vuelven a tierra cada tarde.",
+     "en": "They read the stars rising on the horizon, the shape of the swells under the hull, and the birds that fly out to fish and head back to land each evening.",
+     "visual": "Estrellas que salen por el horizonte, oleaje cruzado bajo el casco y aves que vuelven a una isla."
+    }
+   ],
+   "cartela": "1000"
+  },
+  {
+   "id": "ep4-cantos",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "cantos",
+     "es": "El mapa lo llevaban en la cabeza, y se heredaba en cantos.",
+     "en": "The map lived in their heads, passed down in chants.",
+     "visual": "Un anciano canta junto al fuego y las estrellas se unen formando un mapa."
+    },
+    {
+     "n": 23,
+     "marca": "bateria",
+     "es": "Sin batería.",
+     "en": "No battery required.",
+     "visual": "En la caja, una pila tachada."
+    }
+   ]
+  },
+  {
+   "id": "ep4-brujula",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1275",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "brujula",
+     "es": "En el Mediterráneo, hace más de setecientos años, los marinos tenían un truco nuevo: la brújula, una aguja imantada descrita primero en China.",
+     "en": "In the Mediterranean, over seven hundred years ago, sailors had a new trick: the compass, a magnetized needle first described in China.",
+     "visual": "Puerto mediterráneo con farolillos; una aguja flota en un cuenco y gira al norte."
+    },
+    {
+     "n": 25,
+     "marca": "portulanos",
+     "es": "Con ella llegaron los portulanos: costas dibujadas con una precisión sorprendente, cubiertas por una red de líneas rectas para guiar el rumbo.",
+     "en": "With it came portolan charts: coastlines drawn with surprising accuracy, covered in a web of straight lines to steer by.",
+     "visual": "Portulano en la mesa: costas precisas y una red de líneas desde rosas de los vientos; una galera la sigue.",
+     "en_voz": "With it came portolahn charts: coastlines drawn with surprising accuracy, covered in a web of straight lines to steer by."
+    }
+   ],
+   "cartela": "1275"
+  },
+  {
+   "id": "ep4-dragones",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "dragones",
+     "es": "¿Y los dragones? Los mapas medievales dibujaban serpientes marinas, pero la famosa frase «aquí hay dragones», en latín, solo aparece en dos mapas antiguos conocidos, y los dos son globos pequeños.",
+     "en": "And the dragons? Medieval maps did draw sea serpents, but the famous phrase \"here be dragons\" appears, in Latin, on only two known old maps, and both are small globes.",
+     "visual": "Mapa medieval con serpientes marinas que se mueven; un globo pequeño de cobre gira."
+    },
+    {
+     "n": 27,
+     "marca": "vacios",
+     "es": "Los bordes del mapa no estaban llenos de dragones. Casi siempre, estaban vacíos.",
+     "en": "The edges of the map weren't full of dragons. Mostly, they were just empty.",
+     "visual": "Los bichos se van y los bordes quedan vacíos."
+    }
+   ]
+  },
+  {
+   "id": "ep4-colon",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1492",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "colon",
+     "es": "En 1492, Colón navegó hacia el oeste para llegar a Asia.",
+     "en": "In 1492, Columbus sailed west to reach Asia.",
+     "visual": "Tres carabelas de noche rumbo oeste bajo la Luna.",
+     "es_voz": "En mil cuatrocientos noventa y dos, Colón navegó hacia el oeste para llegar a Asia.",
+     "en_voz": "In fourteen ninety-two, Columbus sailed west to reach Asia."
+    },
+    {
+     "n": 29,
+     "marca": "plana",
+     "es": "Esto suele contarse mal: los europeos cultos no creían que la Tierra fuera plana. Sabían que era redonda desde hacía casi dos mil años.",
+     "en": "Here's what school often gets wrong: educated Europeans didn't think the Earth was flat. They'd known it was round for nearly two thousand years.",
+     "visual": "Una Tierra plana tachada; sabios con un globo redondo y un sabio griego antiguo."
+    }
+   ],
+   "cartela": "1492"
+  },
+  {
+   "id": "ep4-tamano",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 30,
+     "marca": "pequena",
+     "es": "Los expertos dudaban de Colón porque hacía la Tierra demasiado pequeña.",
+     "en": "The experts doubted Columbus because he made the Earth too small.",
+     "visual": "Colón encoge el globo con las manos; los sabios niegan."
+    },
+    {
+     "n": 31,
+     "marca": "japon",
+     "es": "Él esperaba encontrar Japón a unos cuatro mil kilómetros al oeste de Canarias. La distancia real es más de cuatro veces mayor.",
+     "en": "He expected Japan less than three thousand miles west of the Canary Islands. The real distance is over four times that.",
+     "visual": "Mapa: Canarias y Japón cerca; el mapa real se estira y Japón se aleja; «×4» en la caja."
+    },
+    {
+     "n": 32,
+     "marca": "suerte",
+     "es": "Los expertos tenían razón. Colón se equivocó, y tuvo suerte: había un continente en medio.",
+     "en": "The experts were right. Columbus was wrong, and lucky: there was a continent in the way.",
+     "visual": "Un continente sale de la niebla y las carabelas casi chocan."
+    }
+   ]
+  },
+  {
+   "id": "ep4-linea",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1494",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 33,
+     "marca": "reparto",
+     "es": "Dos años después, España y Portugal se repartieron el mundo recién alcanzado con una línea de polo a polo.",
+     "en": "Two years later, Spain and Portugal split the newly reached world in two, with a line from pole to pole.",
+     "visual": "Una pluma traza una línea de polo a polo; banderas de España y Portugal a cada lado."
+    },
+    {
+     "n": 34,
+     "marca": "nadie",
+     "es": "El problema: era una línea de longitud, y nadie sabía encontrarla.",
+     "en": "The problem: it was a line of longitude, and nobody could find it.",
+     "visual": "La línea tiembla y se desplaza, como la longitud punteada."
+    }
+   ],
+   "cartela": "1494"
+  },
+  {
+   "id": "ep4-sevilla",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 35,
+     "marca": "secretos",
+     "es": "Así, los mapas se volvieron secretos de Estado.",
+     "en": "So maps became state secrets.",
+     "visual": "Un cofre de mapas se cierra con una llave enorme; candado en la caja."
+    },
+    {
+     "n": 36,
+     "marca": "sevilla",
+     "es": "En Sevilla, España guardaba un mapa maestro, el Padrón Real, que se corregía con lo que contaba cada piloto.",
+     "en": "In Seville, Spain kept a master map, the Padrón Real, updated with what every pilot reported.",
+     "visual": "Sevilla de noche: dentro, a la luz de las velas, un mapa enorme en la pared y pilotos que añaden trazos."
+    },
+    {
+     "n": 37,
+     "marca": "fortuna",
+     "es": "Una buena carta valía una fortuna. Y donde hay fortunas en el mar, hay piratas.",
+     "en": "A good chart was worth a fortune. And where there's a fortune at sea, there are pirates.",
+     "visual": "El cofre de mapas reluce más que uno de oro; en el horizonte, una vela negra."
+    }
+   ]
+  },
+  {
+   "id": "ep4-drake",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1579",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 38,
+     "marca": "drake",
+     "es": "Aquí entra Francis Drake.",
+     "en": "Enter Francis Drake.",
+     "visual": "Un galeón inglés con farol de popa aparece en el mar de noche."
+    },
+    {
+     "n": 39,
+     "marca": "vuelta",
+     "es": "Entre 1577 y 1580 dio la vuelta al mundo, asaltando barcos y puertos españoles por el camino.",
+     "en": "Between 1577 and 1580, he sailed around the world, raiding Spanish ships and ports on the way.",
+     "visual": "El galeón rodea un mapamundi de pergamino dejando una estela punteada.",
+     "es_voz": "Entre mil quinientos setenta y siete y mil quinientos ochenta dio la vuelta al mundo, asaltando barcos y puertos españoles por el camino.",
+     "en_voz": "Between fifteen seventy-seven and fifteen eighty, he sailed around the world, raiding Spanish ships and ports on the way."
+    },
+    {
+     "n": 40,
+     "marca": "peru",
+     "es": "Frente a Perú, su tripulación capturó un barco tan cargado de plata que tardaron días en vaciarlo.",
+     "en": "Off Peru, his crew caught a ship so loaded with silver that it took days to empty it.",
+     "visual": "Aborda un barco español muy cargado; cofres de plata pasan de uno a otro mientras corre un contador de días."
+    },
+    {
+     "n": 41,
+     "marca": "cartas",
+     "es": "Y se llevó algo más: cartas españolas, y pilotos que sabían leerlas.",
+     "en": "And he took something else: Spanish charts, and pilots who could read them.",
+     "visual": "Un pirata se lleva un rollo de cartas y a un piloto del brazo."
+    }
+   ],
+   "cartela": "1579"
+  },
+  {
+   "id": "ep4-papel",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 42,
+     "marca": "heroe",
+     "es": "Para los españoles era un pirata. Para la reina de Inglaterra, un héroe, y lo nombró caballero en su propio barco.",
+     "en": "To the Spanish, he was a pirate. To the English queen, he was a hero, and she knighted him on his own ship.",
+     "visual": "Pantalla partida: Drake en sombra con calavera / Drake de rodillas ante la reina con espada."
+    },
+    {
+     "n": 43,
+     "marca": "papel",
+     "es": "La diferencia era un papel.",
+     "en": "The difference was a piece of paper.",
+     "visual": "Un papel con sello de lacre rojo cae entre los dos lados."
+    },
+    {
+     "n": 44,
+     "marca": "corsario",
+     "es": "Un pirata roba barcos para él. Un corsario hace lo mismo con una licencia de su gobierno, una patente de corso, y reparte el botín con la Corona.",
+     "en": "A pirate robs ships for himself. A privateer, or corsair, does the same with a government license, a letter of marque, and shares the loot with the crown.",
+     "visual": "Dos barcos idénticos; a uno le cae el papel y su bandera cambia de calavera a estandarte; corona y monedas."
+    },
+    {
+     "n": 45,
+     "marca": "papeleo",
+     "es": "Mismo barco, mismos cañones. Solo cambia el papeleo.",
+     "en": "Same ship, same cannons. Only the paperwork changes.",
+     "visual": "Los dos barcos lado a lado, mismos cañones; el papel vuela de uno a otro."
+    }
+   ]
+  },
+  {
+   "id": "ep4-oro",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1700",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 46,
+     "marca": "acabo",
+     "es": "Un siglo después, se acabó el papeleo.",
+     "en": "About a century later, the paperwork ran out.",
+     "visual": "El papel con sello se quema en una vela."
+    },
+    {
+     "n": 47,
+     "marca": "guerras",
+     "es": "Cuando terminaban las guerras, miles de marineros entrenados para asaltar se quedaban sin trabajo, y muchos siguieron asaltando sin licencia.",
+     "en": "When wars ended, thousands of sailors trained to raid were suddenly out of work, and many kept raiding without a license.",
+     "visual": "Puerto caribeño de noche con marineros sin trabajo; varios izan una bandera negra."
+    },
+    {
+     "n": 48,
+     "marca": "edad",
+     "es": "Es la edad de oro de la piratería, más o menos de 1650 a 1730, con el Caribe en el centro.",
+     "en": "That's the golden age of piracy, roughly from 1650 to 1730, centered on the Caribbean.",
+     "visual": "Mapa del Caribe en pergamino con decenas de velitas negras moviéndose.",
+     "es_voz": "Es la edad de oro de la piratería, más o menos de mil seiscientos cincuenta a mil setecientos treinta, con el Caribe en el centro.",
+     "en_voz": "That's the golden age of piracy, roughly from sixteen fifty to seventeen thirty, centered on the Caribbean."
+    }
+   ],
+   "cartela": "1700"
+  },
+  {
+   "id": "ep4-votos",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 49,
+     "marca": "capitan",
+     "es": "Muchas tripulaciones elegían a su capitán, y podían echarlo votando.",
+     "en": "Many crews elected their captain, and could vote him out.",
+     "visual": "Cubierta con farolillos: la tripulación vota a mano alzada; un capitán sube a un barril y otro baja."
+    },
+    {
+     "n": 50,
+     "marca": "normas",
+     "es": "Firmaban normas por escrito: cómo repartir el botín, y cuánto cobrabas si perdías un brazo o una pierna.",
+     "en": "They signed written articles: how to split the loot, and how much you got for losing an arm or a leg.",
+     "visual": "Un papel con iconos (monedas, brazo, pierna) que firman con una X uno tras otro."
+    },
+    {
+     "n": 51,
+     "marca": "seguro",
+     "es": "En cierto modo, era un seguro. Con más cañones.",
+     "en": "In a way, it was an early form of insurance. With more cannons.",
+     "visual": "Un pirata con pata de palo recibe una bolsa de monedas; cañones detrás."
+    }
+   ]
+  },
+  {
+   "id": "ep4-tesoro",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 52,
+     "marca": "enterrados",
+     "es": "¿Y los tesoros enterrados? Casi nunca. El botín se gastaba rápido.",
+     "en": "And buried treasure? Almost never. The loot was spent fast.",
+     "visual": "Una pala y un cofre que se desvanece; las monedas se gastan en una taberna."
+    },
+    {
+     "n": 53,
+     "marca": "novela",
+     "es": "El mapa con una X que marca el sitio sale sobre todo de una novela, La isla del tesoro, publicada en 1883.",
+     "en": "The map where X marks the spot mostly comes from a novel, Treasure Island, published in 1883.",
+     "visual": "Un libro abierto con un mapa y una X roja grande; «1883» en la caja.",
+     "es_voz": "El mapa con una equis que marca el sitio sale sobre todo de una novela, La isla del tesoro, publicada en mil ochocientos ochenta y tres.",
+     "en_voz": "The map where X marks the spot mostly comes from a novel, Treasure Island, published in eighteen eighty-three."
+    },
+    {
+     "n": 54,
+     "marca": "arrecifes",
+     "es": "Lo que los piratas sí valoraban eran cartas de verdad: el Caribe está lleno de arrecifes y bajíos, y conocerlos era la forma de escapar.",
+     "en": "What pirates really prized were real charts: the Caribbean is full of reefs and shallows, and knowing them was how you escaped.",
+     "visual": "Un balandro pirata se cuela entre arrecifes que brillan bajo el agua; un barco de guerra encalla detrás."
+    },
+    {
+     "n": 55,
+     "marca": "cuello",
+     "es": "Por eso un libro de cartas le salvó el cuello a Sharp.",
+     "en": "That's why a book of charts saved Sharp's neck.",
+     "visual": "Vuelve Sharp con su libro; la horca se desvanece."
+    }
+   ]
+  },
+  {
+   "id": "ep4-niebla",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1707",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 56,
+     "marca": "niebla",
+     "es": "Pero ni las mejores cartas resolvían la longitud.",
+     "en": "But even the best charts didn't solve longitude.",
+     "visual": "El mapa del ancla: la X de la flota en mar abierto; la de verdad, encima de unas islas."
+    },
+    {
+     "n": 57,
+     "marca": "flota",
+     "es": "En 1707, una flota británica que volvía a casa se equivocó de posición en la niebla.",
+     "en": "In 1707, a British fleet sailing home misjudged its position in the fog.",
+     "visual": "Flota británica de noche en la niebla; los faroles apenas se ven.",
+     "es_voz": "En mil setecientos siete, una flota británica que volvía a casa se equivocó de posición en la niebla.",
+     "en_voz": "In seventeen oh-seven, a British fleet sailing home misjudged its position in the fog."
+    },
+    {
+     "n": 58,
+     "marca": "rocas",
+     "es": "Cuatro barcos de guerra chocaron contra las rocas de las islas Sorlingas, y se ahogaron más de mil marineros.",
+     "en": "Four warships struck the rocks of the Isles of Scilly, and more than a thousand sailors drowned.",
+     "visual": "Rocas negras salen de la niebla; un barco grande golpea y otros tres detrás; los faroles se apagan; «4» en la caja."
+    }
+   ],
+   "cartela": "1707"
+  },
+  {
+   "id": "ep4-premio",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 59,
+     "marca": "historiadores",
+     "es": "Los historiadores aún discuten por qué, pero la flota estaba perdida.",
+     "en": "Historians still debate why, but the fleet was lost.",
+     "visual": "Restos flotando en silencio; «?» en la caja."
+    },
+    {
+     "n": 60,
+     "marca": "premio",
+     "es": "Siete años después, Gran Bretaña ofreció un premio de veinte mil libras, millones de hoy, a quien supiera medir la longitud en el mar.",
+     "en": "Seven years later, Britain offered a prize of twenty thousand pounds, millions today, to anyone who could measure longitude at sea.",
+     "visual": "Parlamento a la luz de las velas; un saco de monedas enorme; «20000 £» en la caja."
+    }
+   ]
+  },
+  {
+   "id": "ep4-luna",
+   "estilo": "pixel",
+   "empieza_con": "cartela 1764",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 61,
+     "marca": "astronomos",
+     "es": "Los astrónomos apostaban por el cielo: usar la Luna, moviéndose entre las estrellas, como un reloj gigante.",
+     "en": "Astronomers bet on the sky: using the Moon, moving against the stars, as a giant clock.",
+     "visual": "Observatorio de noche: telescopios hacia la Luna, que avanza entre estrellas como una aguja."
+    },
+    {
+     "n": 62,
+     "marca": "harrison",
+     "es": "Ganó un carpintero que aprendió solo, John Harrison.",
+     "en": "The winner was a self-taught carpenter, John Harrison.",
+     "visual": "Taller con una vela: un carpintero con delantal entre engranajes de madera.",
+     "es_voz": "Ganó un carpintero que aprendió solo, Yon Hárrison."
+    }
+   ],
+   "cartela": "1764"
+  },
+  {
+   "id": "ep4-h4",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 63,
+     "marca": "decadas",
+     "es": "Pasó décadas construyendo relojes que aguantaran olas, calor, frío y humedad.",
+     "en": "He spent decades building clocks that could survive waves, heat, cold and damp.",
+     "visual": "Relojes cada vez más pequeños (1, 2, 3, 4 en la caja) con olas, calor, frío y humedad."
+    },
+    {
+     "n": 64,
+     "marca": "h4",
+     "es": "El cuarto, el H4, era un reloj de bolsillo grande.",
+     "en": "His fourth one, H4, was just a big pocket watch.",
+     "visual": "Un reloj de bolsillo grande abre su tapa: mecanismo dorado latiendo.",
+     "es_voz": "El cuarto, el hache cuatro, era un reloj de bolsillo grande."
+    },
+    {
+     "n": 65,
+     "marca": "viaje",
+     "es": "En un viaje de casi siete semanas, se desvió menos de cuarenta segundos.",
+     "en": "On a voyage of almost seven weeks, it drifted less than forty seconds.",
+     "visual": "Un barco cruza el Atlántico de noche; corren los días; «−39» en la caja."
+    }
+   ]
+  },
+  {
+   "id": "ep4-millas",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 66,
+     "marca": "minuto",
+     "es": "¿Por qué importa? Cada minuto de error en tu reloj te desvía unos veintiocho kilómetros en el ecuador.",
+     "en": "Why does that matter? Every minute your clock is off puts you about seventeen miles off at the equator.",
+     "visual": "Mapa del ancla: un minuto de error es una franja ancha que tapa una isla."
+    },
+    {
+     "n": 67,
+     "marca": "isla",
+     "es": "Cuarenta segundos son unos dieciocho kilómetros. En un océano, basta para encontrar una isla.",
+     "en": "Forty seconds is about eleven miles. On an ocean, that's close enough to find an island.",
+     "visual": "Cuarenta segundos: franja estrecha y la isla aparece; la longitud deja de temblar, «clic», la X se clava."
+    }
+   ]
+  },
+  {
+   "id": "ep4-factura",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 68,
+     "marca": "cobrar",
+     "es": "Aun así, le costó cobrar: recibió casi todo el dinero con ochenta años, después de pedírselo al rey.",
+     "en": "Even so, he struggled to get paid: he got most of the money at eighty, after appealing to the king.",
+     "visual": "Harrison anciano frente a un rey; recibe un saco."
+    },
+    {
+     "n": 69,
+     "marca": "facturas",
+     "es": "Hasta los genios tienen que reclamar facturas.",
+     "en": "Even geniuses have to chase their invoices.",
+     "visual": "En la caja, una factura con un reloj de arena; el pergamino se llena de costas."
+    }
+   ]
+  },
+  {
+   "id": "ep4-gps",
+   "estilo": "pixel",
+   "empieza_con": "cartela GPS",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 70,
+     "marca": "hoy",
+     "es": "Hoy, tu teléfono sabe su longitud con un error de pocos metros.",
+     "en": "Today, your phone knows its longitude to within a few meters.",
+     "visual": "Del pergamino a la pantalla de un teléfono: el mismo mapa con el punto azul."
+    },
+    {
+     "n": 71,
+     "marca": "relojes",
+     "es": "Y lo hace igual que Harrison: con relojes.",
+     "en": "And it does it just like Harrison: with clocks.",
+     "visual": "La cámara sube al espacio: la Tierra y satélites con un reloj que late.",
+     "es_voz": "Y lo hace igual que Hárrison: con relojes."
+    },
+    {
+     "n": 72,
+     "marca": "satelites",
+     "es": "Los satélites del GPS llevan relojes atómicos, y tu teléfono mide cuánto ha tardado en llegar la señal de cada uno.",
+     "en": "GPS satellites carry atomic clocks, and your phone measures how long each satellite's signal took to arrive.",
+     "visual": "Ondas de varios satélites que llegan al teléfono a destiempo.",
+     "es_voz": "Los satélites del ge pe ese llevan relojes atómicos, y tu teléfono mide cuánto ha tardado en llegar la señal de cada uno."
+    }
+   ],
+   "cartela": "GPS"
+  },
+  {
+   "id": "ep4-atomos",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 73,
+     "marca": "luz",
+     "es": "La luz recorre treinta centímetros en una milmillonésima de segundo, así que esos relojes tienen que ser precisos hasta lo absurdo.",
+     "en": "Light travels about a foot in a billionth of a second, so those clocks have to be absurdly precise.",
+     "visual": "Un rayo de luz recorre una regla pequeña; «30 cm» y un tic diminuto en la caja."
+    },
+    {
+     "n": 74,
+     "marca": "atomos",
+     "es": "¿Y lo que hace tic dentro de ellos? Átomos, de cesio y de rubidio, que vibran miles de millones de veces por segundo.",
+     "en": "And the ticking inside them? Atoms, cesium and rubidium, vibrating billions of times a second.",
+     "visual": "Zoom dentro de un satélite hasta un reloj y, dentro, átomos que vibran como Atom."
+    },
+    {
+     "n": 75,
+     "marca": "gracias2",
+     "es": "Así que, ¿a quién tienes que darle las gracias? No a un marinero. A átomos como yo.",
+     "en": "So, who do you have to thank? Not a sailor. Atoms like me.",
+     "visual": "Atom en su caja con la mano en el pecho."
+    }
+   ]
+  },
+  {
+   "id": "ep4-final",
+   "estilo": "pixel",
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 76,
+     "marca": "libro",
+     "es": "El libro robado de Sharp valía la vida de un pirata. El mapa de tu bolsillo es mejor, y es gratis.",
+     "en": "Sharp's stolen book was worth a pirate's life. The map in your pocket is better, and it's free.",
+     "visual": "El libro de Sharp, el cofre de plata y el teléfono uno junto a otro; el teléfono brilla."
+    },
+    {
+     "n": 77,
+     "marca": "hora",
+     "es": "La pregunta más difícil del mar era «¿dónde estoy?». La respuesta siempre fue «¿qué hora es?».",
+     "en": "The hardest question at sea was \"where am I?\". The answer was always \"what time is it?\".",
+     "visual": "El barco solo de la primera escena; ahora la X está clavada y un reloj late."
+    },
+    {
+     "n": 78,
+     "marca": "final",
+     "es": "¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios.",
+     "en": "What should I explain next? Tell me in the comments.",
+     "visual": "Atom con el «?» del cierre."
+    }
+   ]
+  }
+ ]
+}

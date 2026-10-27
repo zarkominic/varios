@@ -1,0 +1,682 @@
+{
+ "escenas": [
+  {
+   "id": "ep3-hola",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 1,
+   "frase_fin": 4,
+   "marcas": [
+    "hola",
+    "crees",
+    "nolosabes",
+    "ojos"
+   ],
+   "pausas": {
+    "3": 2
+   },
+   "duracion_est": 21.6,
+   "empieza_con": "Atom de cerca en el plató, centrado, sobre el telón oscuro; sin persona ni regla de potencias",
+   "termina_con": "el ojo enorme de frente, en el centro, con los párpados casi cerrados y solo la franja de luz horizontal entre ellos; Atom pequeño abajo a la izquierda; sin regla de potencias",
+   "guion_visual": [
+    "Atom de cerca en el plató, centrado, saluda con un electrón que sale de su órbita sobre un alambre fino y late con su voz; a mitad de frase la cámara se abre y Atom, ya pequeño, queda abajo a la izquierda, su sitio de presentador.",
+    "Entra a la izquierda del plató, en el sitio de la persona de prueba-plastilina-adulta, una persona que sostiene una regla corriente de madera con aire seguro; Atom la mira desde abajo a la izquierda.",
+    "La regla se estira como una goma y se dobla en sus manos; después de la frase, unos 2 s de silencio con la regla doblada quieta.",
+    "La cámara se acerca a la cara de la persona hasta un ojo enorme con una franja de luz delante; a mitad de frase, a un lado se apagan una célula y un átomo y al otro el otro lado de la galaxia, cada uno tras uno de los párpados, que se cierran hasta dejar solo la franja."
+   ],
+   "produccion": "Adapta el arranque de prueba-plastilina-adulta.html (todo lo anterior a «saltos»): plató, luz, post y Atom con su saludo (el electrón sobre alambre de «hola» y el brillo de «atom»). Fuera la molécula, la pizarrita y la regla de potencias, que no están en el Visual. La cámara del plató es fija (crearPlato no la anima): «la cámara se abre» es Atom que encoge y baja a su sitio mientras entra el resto del plató, como hace la prueba con ATOMO0. La persona: tipo «humano» del lote 0 con la postura «sostener» (las manos en h.punto(...)). La regla corriente es una pieza propia sencilla (listón de boj con marcas, sin números) que se estira y se dobla con un uniforme. Tras la frase 3 hay 2 s de silencio (pausas): la regla doblada se queda quieta. Frase 4: la cara es una foto de la cabeza del «humano» hecha al cargar, con un empuje 2D que se funde con el ojo. Crea kits/ep03-ojo.js: el ojo exterior con sus dos párpados (un uniforme de cierre) y la franja de luz (losa emisiva que se estrecha); el ojo en corte con la rejilla de la retina (puntitos con repetición) y los dos puntos de luz que se funden; y un solo tipo con variante en T para lo que se apaga a los lados (célula, átomo, galaxia) y lo que pasa por la franja (pelo y luna del kit, estrella con repetición para el puñado, remolino para la galaxia tenue, una losa para el teléfono). Lo reutilizan ep3-ojo, ep3-pelo, ep3-celulas, ep3-andromeda y ep3-centro. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. Este plató es también el del cierre de ep3-despedida.",
+   "reutiliza": "atomo/plato/escenas/prueba-plastilina-adulta.html"
+  },
+  {
+   "id": "ep3-ojo",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 5,
+   "frase_fin": 7,
+   "marcas": [
+    "franja",
+    "serinden",
+    "medir"
+   ],
+   "duracion_est": 19.2,
+   "empieza_con": "el ojo enorme de frente, en el centro, con los párpados casi cerrados y solo la franja de luz horizontal entre ellos; Atom pequeño abajo a la izquierda; sin regla de potencias",
+   "termina_con": "el telescopio espacial flotando en el centro sobre un cielo estrellado; Atom pequeño abajo a la izquierda; sin regla de potencias",
+   "guion_visual": [
+    "La cámara se mete en la franja: pasan de cerca, uno tras otro, un pelo, la Luna, un puñado de estrellas y una galaxia tenue; en la segunda mitad de la frase la cámara se abre al ojo entero y entra, enorme, un teléfono que tapa casi toda la franja.",
+    "Primer plano del párpado: la franja se estrecha hasta un borde fino y el ojo se cierra.",
+    "Sobre el ojo cerrado pasan, uno tras otro, un microscopio, el anillo de un acelerador y un telescopio flotando en el espacio, que se queda en el centro sobre un cielo estrellado."
+   ],
+   "produccion": "Ojo, párpados, franja y las cosas de la franja, de kits/ep03-ojo.js (ep3-hola, antes en el mismo lote). Tres planos para no quedarse en el mismo encuadre: detalle dentro de la franja (frase 5, primera mitad), el ojo entero con el teléfono (segunda mitad) y primer plano del párpado (frase 6). Crea kits/ep03-instrumentos.js: microscopio, anillo y telescopio, un tipo con variante en T, más el microscopio de laboratorio de colegio como otra variante; lo reutilizan ep3-virus y ep3-borde. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. Cada composición quieta, una foto hecha al cargar, como cacheNivel de prueba-plastilina-adulta."
+  },
+  {
+   "id": "ep3-promesa",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 8,
+   "frase_fin": 10,
+   "marcas": [
+    "destellos",
+    "centro",
+    "apuesto"
+   ],
+   "duracion_est": 20.0,
+   "empieza_con": "el telescopio espacial flotando en el centro sobre un cielo estrellado; Atom pequeño abajo a la izquierda; sin regla de potencias",
+   "termina_con": "la persona («humano» de pie, aspecto «adulto», escala 2.4, en [P.punto(612, 600, 0.6)[0], 2.4, 0.6]) a la izquierda del plató y la regla entera en el borde derecho, de la niebla de abajo a la red de arriba, con el marcador en 10⁰ (P.regla con pos P.punto(1668, 528, 0.4), escala 1.42, rot [0, −0.12, 0], e 0, ya 1.5, entera 1, actual 0, marca 0, lupa 0.3, lupaEntera 1.3, sin rango); cámara del plató de la prueba (pos [0, 3.8, 15.5], mira [0, 2.3, 0], fov 28), sin recorte 2D; Atom pequeño abajo a la izquierda; el «?» ya se ha ido por arriba",
+   "guion_visual": [
+    "Dos destellos de lo que viene, cada uno tras un fogonazo blanco: una mano se acerca a una silla y se para sin llegar a tocarla; a mitad de frase, una balanza de latón con la silueta de un cuerpo humano en un plato y el cielo estrellado en el otro, en vilo.",
+    "Desde el cielo, la cámara baja hasta la persona, de pie a la izquierda del plató, y la regla de potencias de diez se despliega entera en el borde derecho, de la niebla de abajo a la red de arriba, con el marcador en 10⁰; un «?» empieza a recorrerla buscando su centro.",
+    "El «?» pasa de largo de la persona y se pierde hacia arriba."
+   ],
+   "produccion": "Va en arcilla aunque el Visual lo marca en papel (los destellos): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Destello 1: la mano del kit y la silla de kits/ep03-tocar.js (ep3-casa). Destello 2: la balanza de kits/ep03-balanza.js (ep3-proton) con la silueta de puntitos y el cielo estrellado en los platos, la misma composición que en ep3-gato. Cada destello es una foto hecha al cargar, con el fogonazo en 2D. Después, el plató de ep3-hola con el «humano» de pie y la regla del lote 0 pasando a modo entera (entera 0 → 1) con sus remates de niebla y red; el «?» es el glifo de la pizarra del kit. El último fotograma está fijado en números (termina_con) porque ep3-saltos, en otro lote, empieza en él: mismos valores de P.regla, misma persona, misma cámara.",
+   "reutiliza": "atomo/plato/escenas/ep3-lote0-demo.html (regla entera); atomo/plato/escenas/muestra-paleta-ep03.html (balanza de arcilla)"
+  },
+  {
+   "id": "ep3-cajon",
+   "estilo": "isometrico",
+   "cartela": "0",
+   "frase_ini": 11,
+   "frase_fin": 13,
+   "marcas": [
+    "cajon",
+    "millon",
+    "milmillones"
+   ],
+   "duracion_est": 18.5,
+   "empieza_con": "cartela 0 (0–1,2 s); detrás, un pasillo isométrico con la persona isométrica adulta de pie a la izquierda, en el sitio de la de plastilina, con una cinta métrica enrollada en la mano; Atom isométrico pequeño abajo a la izquierda",
+   "termina_con": "la pila altísima de calendarios en el borde derecho, en el sitio y con la altura de la regla de plastilina; la persona, ya adulta, de pie a la izquierda en el sitio de la de plastilina, con los dos montones de monedas a sus pies; Atom isométrico pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Tras la cartela, una cinta métrica se estira por un pasillo, sale por la ventana, se enreda y se pierde; a mitad de frase, dos montones de monedas casi iguales y un cerebro que los mete a los dos en el mismo cajón.",
+    "La persona, ahora de niña, aparece junto a un calendario de pared, solo con números, que arranca hojas una tras otra durante once días y medio.",
+    "Una pila de calendarios crece en el borde derecho junto a la niña, que crece con ella hasta la adulta del principio."
+   ],
+   "produccion": "Kit isometrico-adulta.js con la cartela «0» (cartela() del kit) y su Atom en el sitio fijo. La persona NO es crearObservador: lleva gorro con pompón y bufanda, cabeza de 0,27 H y piernas de 0,33 H, así que no cumple HUMANO.md ni se parece al «humano» de arcilla que enlaza los dos cortes. Es una persona isométrica propia de la escena (el kit es de solo lectura) con las proporciones de HUMANO.md (cabeza H/6, piernas 0,47 H, nunca menos de 0,45 H), jersey gris, pantalón caqui y sin gorro, como el aspecto «adulto» del «humano». De niña tiene proporciones de niña (cabeza de 1/4,7 de la altura y piernas de 0,45 H, como el aspecto «nino» del lote 0), con la misma ropa, y crece hasta la adulta interpolando proporciones y tamaño, no escalando a la adulta. Pásale guias-humano.py a la adulta y a la niña. Lo demás va en la propia escena, porque solo lo usa ella: pasillo y ventana, cinta métrica, monedas con repetición, cerebro y cajón, calendario de pared solo con números y pila de calendarios. Sin regla. El primer fotograma enlaza con el último de ep3-promesa y el último con el primero de ep3-saltos: la persona en el sitio de la de plastilina y la pila en el de la regla. No depende de ningún kit del episodio ni del lote 0: puede empezar ya."
+  },
+  {
+   "id": "ep3-saltos",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 14,
+   "frase_fin": 16,
+   "marcas": [
+    "saltos",
+    "cero",
+    "abajo"
+   ],
+   "duracion_est": 18.8,
+   "empieza_con": "la persona («humano» de pie, aspecto «adulto», escala 2.4, en [P.punto(612, 600, 0.6)[0], 2.4, 0.6]) a la izquierda del plató y la regla entera en el borde derecho, de la niebla de abajo a la red de arriba, con el marcador en 10⁰ (P.regla con pos P.punto(1668, 528, 0.4), escala 1.42, rot [0, −0.12, 0], e 0, ya 1.5, entera 1, actual 0, marca 0, lupa 0.3, lupaEntera 1.3, sin rango); cámara del plató de la prueba (pos [0, 3.8, 15.5], mira [0, 2.3, 0], fov 28), sin recorte 2D; Atom pequeño abajo a la izquierda; el «?» ya se ha ido por arriba",
+   "termina_con": "exactamente el encuadre del fotograma 0 de prueba-plastilina-adulta, sin pizarra ni moléculas: la persona («humano» de pie, aspecto «adulto», escala 2.4, en [P.punto(612, 600, 0.6)[0], 2.4, 0.6], en el sitio de la «persona» de la prueba) a la izquierda y la regla normal en el borde derecho con el marcador en 10⁰ (P.regla con pos P.punto(1668, 528, 0.4), escala 1.42, rot [0, −0.12, 0], e 0, ya 1.5, entera 0, lupa 0.3); cámara del plató de la prueba (pos [0, 3.8, 15.5], mira [0, 2.3, 0], fov 28), sin recorte 2D; la mano de la derecha de la pantalla (la manoIzq de la persona, FOCO[0] de la prueba), donde se abrirá la primera mirilla, ya sin brillo; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Las monedas ya no están y la pila es la regla: en el centro, una caja que contiene diez cajas, que contienen diez cajas; junto a la regla, un 1 que gana un 0 en cada salto.",
+    "La persona a la izquierda, con el marcador en 10⁰; la cámara señala en la regla entera −4 (un pelo), +7 (la Tierra) y +27 (la red de galaxias), cada uno con su rótulo agrandado y su miniatura junto a la marca.",
+    "La regla vuelve a su escala normal, con el marcador en 10⁰, y la cámara mira hacia abajo, a la mano de la derecha de la pantalla (la manoIzq de la persona, FOCO[0] de la prueba), que brilla un instante."
+   ],
+   "produccion": "El plató de ep3-promesa con la regla del lote 0: empieza en modo entera (los valores de empieza_con) y, tras señalar −4, +7 y +27 (rótulo actual con lupaEntera; miniaturas en R.punto(e): el pelo del kit, el globo del kit y la pieza «red»), vuelve a la escala normal (entera 1 → 0, con e 0 y ya 1.5) con el marcador en 10⁰. Las cajas, una sola pieza con repetición; el 1 y sus ceros, glifos con un contador. La cámara del plató es fija: «mira hacia abajo» es el brillo de la mano (FOCO[0] de la prueba, o h.punto('manoIzq') si el «humano» no la tiene en el mismo píxel), sin recorte 2D, y el brillo se apaga antes del final. El último fotograma es exactamente el encuadre del fotograma 0 de la prueba, en números en termina_con: es el primero de ep3-pelo. No usa ningún kit del episodio: va en el lote 1, en cuanto esté el lote 0.",
+   "reutiliza": "atomo/plato/escenas/ep3-lote0-demo.html (regla entera y remates); atomo/plato/escenas/prueba-plastilina-adulta.html (encuadre final)"
+  },
+  {
+   "id": "ep3-pelo",
+   "estilo": "plastilina",
+   "cartela": "−4",
+   "frase_ini": 17,
+   "frase_fin": 18,
+   "marcas": [
+    "pelo",
+    "rejilla"
+   ],
+   "duracion_est": 16.4,
+   "empieza_con": "exactamente el encuadre del fotograma 0 de prueba-plastilina-adulta, sin pizarra ni moléculas: la persona («humano» de pie, aspecto «adulto», escala 2.4, en [P.punto(612, 600, 0.6)[0], 2.4, 0.6], en el sitio de la «persona» de la prueba) a la izquierda y la regla normal en el borde derecho con el marcador en 10⁰ (P.regla con pos P.punto(1668, 528, 0.4), escala 1.42, rot [0, −0.12, 0], e 0, ya 1.5, entera 0, lupa 0.3); cámara del plató de la prueba (pos [0, 3.8, 15.5], mira [0, 2.3, 0], fov 28), sin recorte 2D; la mano de la derecha de la pantalla (la manoIzq de la persona, FOCO[0] de la prueba), donde se abrirá la primera mirilla, ya sin brillo; Atom pequeño abajo a la izquierda",
+   "termina_con": "el ojo en corte, de perfil, con la luz cayendo sobre la rejilla de puntitos del fondo, en el centro; regla en 10⁻⁴; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Tras la cartela, la cámara baja a la mano de la derecha de la pantalla (la manoIzq de la persona, FOCO[0] de la prueba) y salta, como en prueba-plastilina-adulta, de la mano a la piel, a un pelo y al pelo como un tronco, con el marcador bajando a 10⁻⁴; en la segunda mitad de la frase, una cota de alambre se tiende de lado a lado del pelo con la tarjeta 10⁻⁴ m.",
+    "Plano por encima del hombro de la persona, que lee un libro a un palmo de la cara: sobre la página, el pelo es lo último que distingue; a mitad de frase, corte del ojo: la luz entra y cae sobre una rejilla de puntitos al fondo."
+   ],
+   "produccion": "Adapta los saltos de prueba-plastilina-adulta.html («saltos → pelo» y «decima → milimetro»): los decorados de mano, piel, pelo y tronco como fotos con basculante, la mirilla de cada salto (la primera, en FOCO[0]), el marcador que baja de 10⁰ a 10⁻⁴ y la cota con su tarjeta, todo con E.marca('pelo') de este episodio; la «persona» pasa a ser el «humano» del lote 0. Cartela «−4» con cartela() del kit. La lectura: plano por encima del hombro con la cabeza del «humano» de perfil y una página de arcilla con el pelo del kit, sin la persona entera. El ojo en corte, de kits/ep03-ojo.js (ep3-hola).",
+   "reutiliza": "atomo/plato/escenas/prueba-plastilina-adulta.html"
+  },
+  {
+   "id": "ep3-celulas",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 19,
+   "frase_fin": 21,
+   "marcas": [
+    "serinden",
+    "celulas",
+    "docena"
+   ],
+   "duracion_est": 13.8,
+   "empieza_con": "el ojo en corte, de perfil, con la luz cayendo sobre la rejilla de puntitos del fondo, en el centro; regla en 10⁻⁴; Atom pequeño abajo a la izquierda",
+   "termina_con": "doce glóbulos rojos en fila sobre el corte de un pelo, en horizontal por el centro; regla en 10⁻⁵; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Dos puntos de luz se acercan sobre la rejilla y, cuando ya no queda una célula a oscuras entre ellos, se funden en uno; el párpado se cierra justo ahí.",
+    "En el párpado cerrado se abre una mirilla sobre el canto del pelo-tronco; el marcador baja a 10⁻⁵ y la cámara se mete por el canto hasta un río rojo: dentro de un vaso sanguíneo pasan glóbulos rojos como discos hundidos por el centro.",
+    "Doce glóbulos se ponen en fila sobre el corte de un pelo y lo cubren justo."
+   ],
+   "produccion": "El ojo en corte, de ep03-ojo.js; el pelo-tronco es la foto del nivel 4 de prueba-plastilina-adulta, dentro de una mirilla como las de sus saltos. Crea kits/ep03-sangre.js (glóbulo rojo con repetición, vaso sanguíneo, corte de un pelo y médula de hueso en corte), que reutilizan ep3-medula y ep3-virus, en el mismo lote. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena.",
+   "reutiliza": "atomo/plato/escenas/prueba-plastilina-adulta.html (la foto del pelo-tronco y la mirilla)"
+  },
+  {
+   "id": "ep3-medula",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 22,
+   "frase_fin": 24,
+   "marcas": [
+    "bacterias",
+    "mitad",
+    "jubila"
+   ],
+   "duracion_est": 16.3,
+   "empieza_con": "doce glóbulos rojos en fila sobre el corte de un pelo, en horizontal por el centro; regla en 10⁻⁵; Atom pequeño abajo a la izquierda",
+   "termina_con": "el vaso sanguíneo con glóbulos nuevos pasando y, al fondo, una mota diminuta desenfocada en el centro; regla en 10⁻⁵; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "La fila de glóbulos se aparta: en el centro, la silueta de un cuerpo llena de puntitos rojos (células) y más o menos tantos verdes (bacterias), con una lupa que la recorre y no da abasto.",
+    "La persona, en el sitio de la silueta, se mira las manos y, sorprendida, echa la cabeza hacia atrás.",
+    "Un glóbulo rojo envejece junto a un calendario de cuatro meses, solo con números, y acaba en una tumbona; a mitad de frase, la médula de un hueso en corte, como una fábrica, lanza glóbulos nuevos a un vaso, con un contador que sube mientras avanza la barra de un reproductor de vídeo; al fondo del vaso, desenfocada, pasa una mota diminuta."
+   ],
+   "produccion": "Va en arcilla aunque el Visual lo marca en isométrico (las células y las bacterias): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Usa la silueta de puntitos de kits/ep03-balanza.js con dos colores y una lupa sencilla. La persona es el «humano» con la postura «manos» del lote 0. No tiene expresiones (boca neutra; solo ojos 0…1 y mirada), así que la sorpresa es un gesto: la cabeza pasa de mirar las manos (inclina 0.5) a echarse atrás de golpe, con ojos 1. Glóbulo, vaso y médula, de ep03-sangre.js (ep3-celulas); el calendario, de kits/ep03-tiempo.js (ep3-sol), solo con números. La tumbona y la barra del reproductor son dos piezas sencillas sin texto, y el contador, glifos de números. La frase 24 lleva dos composiciones, cada una una foto hecha al cargar con los glóbulos vivos encima."
+  },
+  {
+   "id": "ep3-virus",
+   "estilo": "plastilina",
+   "cartela": "−7",
+   "frase_ini": 25,
+   "frase_fin": 28,
+   "marcas": [
+    "virus",
+    "onda",
+    "guantes",
+    "luzserinde"
+   ],
+   "duracion_est": 24.0,
+   "empieza_con": "el vaso sanguíneo con glóbulos nuevos pasando y, al fondo, una mota diminuta desenfocada en el centro; regla en 10⁻⁵; Atom pequeño abajo a la izquierda",
+   "termina_con": "el virus diminuto en el centro, todavía sin forma, con la onda de luz ya apagada; regla en 10⁻⁷; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Tras la cartela, la mota del fondo se enfoca: un virus de la gripe junto a un glóbulo rojo enorme, setenta veces más pequeño; el marcador baja a 10⁻⁷.",
+    "Un microscopio de laboratorio de colegio: la imagen del virus se queda borrosa por mucho que se gire la rueda; a mitad de frase, una onda de luz visible, larga y ondulante, pasa por encima del virus sin distinguir su forma.",
+    "Unas manos con guantes de cocina tantean el relieve de una moneda y no notan nada.",
+    "Vuelve el virus: la onda de luz se apaga al llegar al borde del plano y el virus sigue sin forma."
+   ],
+   "produccion": "Crea kits/ep03-virus.js: virus de la gripe, onda de luz de alambre, moneda de arcilla con relieve y guantes de cocina (solo lo usa ella). El glóbulo, de ep03-sangre.js (ep3-celulas); el microscopio de colegio, de ep03-instrumentos.js (ep3-ojo). Va en arcilla aunque el Visual lo marca en papel (los guantes): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Es un plano detalle con las manos del kit y los guantes encima. Cartela «−7»."
+  },
+  {
+   "id": "ep3-adn",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 29,
+   "frase_fin": 31,
+   "marcas": [
+    "adn",
+    "dosmetros",
+    "letras"
+   ],
+   "duracion_est": 17.5,
+   "empieza_con": "el virus diminuto en el centro, todavía sin forma, con la onda de luz ya apagada; regla en 10⁻⁷; Atom pequeño abajo a la izquierda",
+   "termina_con": "la doble hélice en primer plano, con peldaños de cuatro colores, en vertical por el centro; regla en 10⁻⁹; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "El marcador baja a 10⁻⁹ y la cámara deja el virus y entra en el núcleo de una célula: dentro, una madeja de hilo; al lado, el canto de un pelo como un muro inmenso.",
+    "El hilo se estira y sale de la célula hasta medir 2 m junto a una persona de pie, más alto que ella.",
+    "La cámara se acerca al hilo hasta la doble hélice: una escalera retorcida con peldaños de cuatro colores que corre sin fin."
+   ],
+   "produccion": "Crea kits/ep03-adn.js: célula con núcleo translúcido, madeja, hilo que se estira y doble hélice con peldaños de cuatro colores con repetición. Lo reutiliza ep3-lectura, en el mismo lote. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. El muro del pelo es el tipo tronco del kit a escala grande; la persona, el «humano» de pie del lote 0."
+  },
+  {
+   "id": "ep3-lectura",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 32,
+   "frase_fin": 34,
+   "marcas": [
+    "leer",
+    "bocadillo",
+    "demi"
+   ],
+   "duracion_est": 15.0,
+   "empieza_con": "la doble hélice en primer plano, con peldaños de cuatro colores, en vertical por el centro; regla en 10⁻⁹; Atom pequeño abajo a la izquierda",
+   "termina_con": "Atom saludando entre las bolitas de un peldaño, en el centro; regla en 10⁻⁹",
+   "guion_visual": [
+    "La persona, sentada en un sillón, lee en voz alta los peldaños de colores, que pasan uno por segundo; a mitad de frase pasan las hojas de un calendario, solo con números, y a la persona le salen canas hasta tener el pelo blanco.",
+    "Una mano le acerca un bocadillo y un termo.",
+    "La cámara vuelve a la hélice y se acerca a un solo peldaño, que resulta estar hecho de bolitas: Atom deja su sitio y aparece entre ellas, saludando."
+   ],
+   "produccion": "Va en arcilla aunque el Visual lo marca en isométrico (la lectura): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). La persona es el «humano» con la postura «sentada» del lote 0 y un aspecto propio que empieza joven: canas 0 y barba 0 (el aspecto «adulto» ya lleva canas 1, así que con él no se vería el cambio). Las canas suben de 0 a 1 mientras colorPelo va hacia el blanco, para que se lea «casi un siglo». El sillón es una pieza propia de la escena, porque solo lo usa ella. Peldaños, de ep03-adn.js (ep3-adn); calendario, de ep03-tiempo.js (ep3-sol). El bocadillo y el termo son dos piezas pequeñas, y la mano, el tipo mano del kit. El peldaño de bolitas, de kits/ep03-tocar.js (ep3-casa)."
+  },
+  {
+   "id": "ep3-casa",
+   "estilo": "plastilina",
+   "cartela": "−10",
+   "frase_ini": 35,
+   "frase_fin": 39,
+   "marcas": [
+    "casa",
+    "estadio",
+    "gradas",
+    "tutambien",
+    "personal"
+   ],
+   "pausas": {
+    "38": 2
+   },
+   "duracion_est": 23.0,
+   "empieza_con": "Atom saludando entre las bolitas de un peldaño, en el centro; regla en 10⁻⁹",
+   "termina_con": "la persona de pie en el centro con las manos casi transparentes y Atom a su lado, a la izquierda, dándole una palmadita; regla en 10⁻¹⁰",
+   "guion_visual": [
+    "Tras la cartela, el marcador baja a 10⁻¹⁰ y Atom sale del peldaño hasta esa marca de la regla y saluda allí: es su casa; a mitad de frase, diez millones de átomos como él en fila se alejan hasta cubrir 1 mm de una regla, y Atom vuelve a su sitio, abajo a la izquierda.",
+    "El átomo del centro de la fila crece hasta ser un estadio de fútbol vacío, con un guisante en el centro.",
+    "Una nube borrosa se extiende por las gradas; el resto, vacío.",
+    "La cámara se aparta del estadio: en el centro, la persona se mira las manos, que se vuelven casi transparentes; después de la frase, unos 2 s de silencio con las manos así.",
+    "Atom se acerca desde su sitio y le da una palmadita de consuelo."
+   ],
+   "produccion": "Crea kits/ep03-tocar.js, el kit más usado del episodio: el peldaño de bolitas y la fila de átomos (una sola pieza con repetición y nivel de detalle: Atoms de cerca que se funden en una línea hasta la marca de 1 mm de una regla), el átomo-estadio (cuenco ovalado con gradas en relieve y césped, el guisante y la nube borrosa como cáscara translúcida; visto de lejos es el átomo del final de ep3-gato y del principio de ep3-proton), la silla, las chispitas, el terrón, la cucharilla y el cajón, la multitud de figuritas (una figura con repetición), el gato y el 7 con sus ceros (glifos con contador). Lo reutilizan ep3-lectura, ep3-promesa, ep3-silla, ep3-gato, ep3-proton, ep3-planck, ep3-vuelta, ep3-neutrones, ep3-andromeda y ep3-despedida. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. La persona es el «humano» con la postura «mirarse las manos»; las manos casi transparentes son postura.fantasma de 0 a 1 en la frase 38 (el lote 0 ya lo tiene, hecho para esto). Tras la frase 38 hay 2 s de silencio (pausas). Va en arcilla aunque el Visual lo marca en isométrico (el estadio): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Cartela «−10»."
+  },
+  {
+   "id": "ep3-silla",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 40,
+   "frase_fin": 42,
+   "marcas": [
+    "humanidad",
+    "silla",
+    "repelen"
+   ],
+   "duracion_est": 21.7,
+   "empieza_con": "la persona de pie en el centro con las manos casi transparentes y Atom a su lado, a la izquierda, dándole una palmadita; regla en 10⁻¹⁰",
+   "termina_con": "el hueco finísimo entre los electrones de la persona y los de la silla, con chispitas, en horizontal por el centro; regla en 10⁻¹⁰; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Alrededor de la persona aparece toda la humanidad, una multitud de figuritas, que se comprime en un terrón de azúcar sobre una cucharilla; a mitad de frase, el terrón se guarda en un cajón, y Atom vuelve a su sitio, abajo a la izquierda.",
+    "La persona se sienta en una silla; un «?» sobre el asiento.",
+    "Zoom a la frontera: entre sus electrones y los de la silla saltan chispitas y queda un hueco finísimo, como un cojín invisible; a mitad de frase, los electrones de cada lado se apartan para no amontonarse, como gente que no cabe en un ascensor lleno."
+   ],
+   "produccion": "Terrón, cucharilla, cajón, multitud, silla y chispitas, de ep03-tocar.js (ep3-casa). El terrón es el mismo que vuelve en ep3-vuelta. Va en arcilla aunque el Visual lo marca en papel (el terrón): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). La persona es el «humano»: de pie con la postura «mirarse las manos» al empezar (fantasma de 1 a 0 mientras aparece la multitud) y «sentada» en la frase 41 (posturaEn). Los electrones de la frontera son bolitas ámbar como las de Atom, con repetición."
+  },
+  {
+   "id": "ep3-gato",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 43,
+   "frase_fin": 45,
+   "marcas": [
+    "tocar",
+    "siete",
+    "estrellas"
+   ],
+   "duracion_est": 20.9,
+   "empieza_con": "el hueco finísimo entre los electrones de la persona y los de la silla, con chispitas, en horizontal por el centro; regla en 10⁻¹⁰; Atom pequeño abajo a la izquierda",
+   "termina_con": "un átomo del cuerpo llenando la imagen, con su nube de electrones borrosa y el núcleo-guisante en el centro, mientras la cámara se lanza hacia él; regla en 10⁻¹⁰; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "La cámara se aparta del hueco: una mano acaricia un gato, encantado; a mitad de frase, plano detalle del hueco finísimo con chispitas entre la palma y el pelo del gato.",
+    "Un 7 al que se le van añadiendo ceros, uno a uno, hasta 27, que obligan a la cámara a desplazarse; debajo aparece la silueta de la persona llena de puntitos.",
+    "La balanza de latón: en un plato, la silueta llena de puntitos; en el otro, el cielo entero lleno de estrellas; el plato del cuerpo cae de golpe y la cámara se lanza hacia uno de sus puntitos, un átomo con el guisante del núcleo en el centro."
+   ],
+   "produccion": "Gato, chispitas y el 7 con sus ceros, de ep03-tocar.js; la mano, del kit. La silueta de puntitos y la balanza, de kits/ep03-balanza.js, con la misma composición que el destello de ep3-promesa (para que se reconozca) y que ep3-borde. Va en arcilla aunque el Visual lo marca en papel (la balanza): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). El átomo final es el átomo-estadio de ep03-tocar.js visto de lejos."
+  },
+  {
+   "id": "ep3-proton",
+   "estilo": "plastilina",
+   "cartela": "−15",
+   "frase_ini": 46,
+   "frase_fin": 49,
+   "marcas": [
+    "proton",
+    "quarks",
+    "energia",
+    "bascula"
+   ],
+   "duracion_est": 23.5,
+   "empieza_con": "un átomo del cuerpo llenando la imagen, con su nube de electrones borrosa y el núcleo-guisante en el centro, mientras la cámara se lanza hacia él; regla en 10⁻¹⁰; Atom pequeño abajo a la izquierda",
+   "termina_con": "la persona en la báscula de baño, en el centro, inclinada hacia la aguja con los ojos entornados, y la aguja apuntando a un remolino de energía; regla en 10⁻¹⁵; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Tras la cartela, la cámara atraviesa la nube de electrones hasta el núcleo, un racimo de bolitas rojas y grises, con Atom enorme al fondo, a la izquierda, para comparar; a mitad de frase entra en un protón: tres quarks unidos por cintas elásticas que vibran y brillan; el marcador baja a 10⁻¹⁵ y Atom vuelve a ser el presentador pequeño, abajo a la izquierda.",
+    "Plano general de la balanza de latón: en un plato, los tres quarks; en el otro, un protón entero; el plato de los quarks apenas baja: pesan una pizca.",
+    "Plano detalle del plato de los quarks, que se llena de destellos de energía en movimiento; a mitad de frase, plano general: el plato baja hasta que la balanza queda nivelada con el protón entero, sin pasarse.",
+    "Una persona en una báscula de baño se inclina hacia la aguja con los ojos entornados y la cabeza ladeada, desconfiada; la aguja apunta a un remolino de energía."
+   ],
+   "produccion": "Crea kits/ep03-balanza.js a partir de la balanza de arcilla de muestra-paleta-ep03.html (vista arcilla: latón con peana de nogal y su caída con peso): da el punto de cada plato y una caída con peso hasta el ángulo que se le pida (0, nivelada), y lleva como variantes lo que solo va en sus platos: la silueta de puntitos (color por uniforme, uno o dos colores), el cielo estrellado, la montaña de coches y el montón de arena. Lo demás (quarks, protón, cucharita, esfera) se pone encima desde su kit. La reutilizan ep3-promesa, ep3-medula, ep3-gato, ep3-neutrones y ep3-borde. Crea también kits/ep03-nucleo.js: núcleo de bolitas rojas y grises, protón entero y protón abierto con tres quarks y cintas elásticas. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. El primer fotograma es el átomo-estadio de ep03-tocar.js visto de lejos (ep3-casa, antes en el mismo lote). Planos: la balanza entera en la 47 y, en la 48, el detalle del plato que se llena y el general con la balanza que se nivela. La báscula de baño es el tipo «bascula» del kit, el remolino es el tipo «remolino» y la persona, el «humano» de pie; como no tiene expresiones, la desconfianza es un gesto (se inclina hacia la aguja, ojos 0.5, cabeza ladeada). Va en arcilla aunque el Visual lo marca en papel (la balanza y la báscula): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Cartela «−15».",
+   "reutiliza": "atomo/plato/escenas/muestra-paleta-ep03.html (la balanza de arcilla)"
+  },
+  {
+   "id": "ep3-planck",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 50,
+   "frase_fin": 54,
+   "marcas": [
+    "veinte",
+    "arbol",
+    "liso",
+    "nadie",
+    "arriba"
+   ],
+   "duracion_est": 21.7,
+   "empieza_con": "la persona en la báscula de baño, en el centro, inclinada hacia la aguja con los ojos entornados, y la aguja apuntando a un remolino de energía; regla en 10⁻¹⁵; Atom pequeño abajo a la izquierda",
+   "termina_con": "el fotograma 0 de cosmos-plastilina-adulta: la persona de pie a la izquierda del plató y la regla de nogal en el borde derecho con el marcador en 10⁰; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "La cámara se mete en el remolino de la aguja y la regla sigue bajando, salto a salto, veinte marcas, hasta hundirse en una niebla gris; el marcador llega a 10⁻³⁵.",
+    "En la niebla, un átomo inflado hasta el tamaño del universo observable y, a su lado, un árbol alto.",
+    "Un suelo que podría ser liso o de baldosas diminutas, que parpadea entre las dos cosas.",
+    "Un «?» enorme sobre el suelo.",
+    "La cámara da la vuelta y sube disparada por la regla hasta la persona, de pie a la izquierda del plató; el marcador sube a 10⁰."
+   ],
+   "produccion": "La regla del lote 0 hasta 10⁻³⁵ con el remate de niebla (colorNiebla), y la niebla horneada como fondo: un solo plató. El átomo inflado es el átomo-estadio de ep03-tocar.js. El árbol es una pieza sencilla, y el suelo, una losa con un uniforme que pasa de liso a baldosas; el «?» es un glifo. La subida es el zoom de la regla al revés (de −35 a 0 en ~1,5 s), con la niebla fundiéndose en el plató. El último fotograma es exactamente el fotograma 0 de cosmos-plastilina-adulta (mismo plató, misma regla, con la persona «humano»), que es donde empieza ep3-tierra.",
+   "reutiliza": "atomo/plato/escenas/cosmos-plastilina-adulta.html (encuadre final); atomo/plato/escenas/ep3-lote0-demo.html (regla larga con la niebla)"
+  },
+  {
+   "id": "ep3-tierra",
+   "estilo": "plastilina",
+   "cartela": "+7",
+   "frase_ini": 55,
+   "frase_fin": 57,
+   "marcas": [
+    "tierra",
+    "hueco",
+    "sol"
+   ],
+   "duracion_est": 21.4,
+   "empieza_con": "el fotograma 0 de cosmos-plastilina-adulta: la persona de pie a la izquierda del plató y la regla de nogal en el borde derecho con el marcador en 10⁰; Atom pequeño abajo a la izquierda",
+   "termina_con": "el Sol de crearMundo, enorme, en el centro, con las últimas Tierras ya fundidas en él y la Tierra como un punto a su lado; regla en 10⁹; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Tras la cartela, la cámara sube sin cortar desde la persona: el tejado, la ciudad entera vista desde arriba (al pasar, la marca 10⁴ de la regla brilla un instante y la ciudad queda marcada con un brillo), las nubes, el azul que se vuelve negro, hasta ver la Tierra entera; la señal de «tú estás aquí», sin texto, encoge hasta un punto y el marcador llega a 10⁷.",
+    "El marcador sube a 10⁸ y la Luna aparece, lejos, a su distancia real en el punto más lejano; en el hueco entre ella y la Tierra, los otros siete planetas se colocan en fila, ajustados, y una cinta de costurera mide el hueco: sobra apenas un pelo.",
+    "El marcador sube a 10⁹ y entra el Sol, enorme; las Tierras caen en él una tras otra y se funden como gotas en una pecera."
+   ],
+   "produccion": "Adapta cosmos-plastilina-adulta.html hasta «sol». Sus siete saltos «siete → tierra» van en la frase 55, y los dos de «dos → sol» se reparten: 10⁸ en la 56 y 10⁹ en la 57, con E.marca de este episodio. Crea kits/ep03-cosmos.js con la cámara del mundo por exponente (zRegla → zCam, anclaCam, centroCam y estadoMundo de cosmos-plastilina-adulta, en función de z), que reutilizan ep3-vuelta, ep3-neutrones, ep3-luz, ep3-mapa, ep3-andromeda, ep3-universo y ep3-despedida. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. Incluye el brillo de la ciudad a 10⁴: un halo cálido sobre la ciudad que se enciende con un parámetro. LA LUNA, OJO: en cosmos es de mentira (lunaEn la deja a 46 px de la Tierra al llegar a «sol» y su camino depende del tiempo, no de z), y a 10⁸ en la escala del mundo (540 px = 10^z m) el hueco real en el apogeo, unos 397.000 km de superficie a superficie, mide unos 2.150 px, más que la pantalla. Así que ep03-cosmos.js pone la Luna a su distancia real del apogeo (405.500 km de centro a centro) en función de z, también para ep3-vuelta y ep3-luz; en la frase 56 la cámara se queda en zCam ≈ 8,2–8,25 mientras el marcador marca 10⁸ (zCam ≠ zRegla), y el hueco mide unos 1.200–1.350 px a la izquierda de la regla; y los siete planetas van a escala real: suman unos 380.000 km de diámetro contra unos 397.000 km de hueco, así que sobra «un pelo». Los planetas son un tipo con variante de color; Saturno, con sus anillos como variante, muy inclinados para que no ensanchen la fila. Encima del mundo va también la señal «tú estás aquí» (la flecha del kit), que encoge hasta un punto, la cinta de costurera sobre el hueco y las Tierras que caen en el Sol (el globo con repetición). Va en arcilla aunque el Visual lo marca en papel (los planetas): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Cartela «+7»; persona «humano».",
+   "reutiliza": "atomo/plato/escenas/cosmos-plastilina-adulta.html"
+  },
+  {
+   "id": "ep3-sol",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 58,
+   "frase_fin": 60,
+   "marcas": [
+    "fusion",
+    "rebota",
+    "pequeno"
+   ],
+   "duracion_est": 22.5,
+   "empieza_con": "el Sol de crearMundo, enorme, en el centro, con las últimas Tierras ya fundidas en él y la Tierra como un punto a su lado; regla en 10⁹; Atom pequeño abajo a la izquierda",
+   "termina_con": "el Sol pequeño en el centro entre un montón de estrellas de arcilla y, al fondo, arriba a la derecha, una estrella mucho mayor y rojiza que empieza a apagarse; regla en 10⁹; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Corte del Sol: el centro se aprieta y se pone al rojo blanco; a mitad de frase, núcleos de hidrógeno (pequeños Atoms sin su nube) se aprietan, chocan y se fusionan, con un destello por choque; uno de ellos se deja aplastar con resignación.",
+    "En el mismo corte, un rayo de luz rebota dentro como una bola de pinball mientras un calendario pasa más de cien milenios; a mitad de frase, la luz sale, viaja con un reloj de 8 minutos y llega a la cara de una persona de perfil con los ojos cerrados al sol.",
+    "El Sol se encoge entre un montón de estrellas; al fondo, una mucho mayor empieza a apagarse."
+   ],
+   "produccion": "Crea kits/ep03-estrellas.js. El Sol como pieza copia el aspecto del de crearMundo (arcilla ámbar granulada con limbo oscuro), para que el corte con ep3-tierra no se note; el primer fotograma se compone con crearMundo de plastilina-cosmos-adulta.js (kit compartido), sin esperar a ep03-cosmos.js. Además lleva su corte con el núcleo al rojo blanco, los núcleos de hidrógeno (el núcleo de Atom sin órbitas), el destello, el montón de estrellas (una pieza con repetición), la estrella grande y rojiza que se apaga, su corte con el centro que se hunde y las partículas del colapso (para ep3-vuelta), y la estrella de neutrones. Lo reutilizan ep3-vuelta, ep3-neutrones y ep3-despedida. Crea también kits/ep03-tiempo.js: calendario de arcilla y reloj (solo con números), reloj de arena y rayo de luz de alambre. Lo reutilizan ep3-medula, ep3-lectura, ep3-luz y ep3-mapa. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. Atom no tiene cara: la resignación es un gesto (se aplasta y se ladea). La persona de perfil es el «humano» con la postura «perfil», de cintura para arriba."
+  },
+  {
+   "id": "ep3-vuelta",
+   "estilo": "plastilina",
+   "cartela": "+4",
+   "frase_ini": 61,
+   "frase_fin": 63,
+   "marcas": [
+    "vuelta",
+    "terron",
+    "colapso"
+   ],
+   "duracion_est": 16.0,
+   "empieza_con": "el Sol pequeño en el centro entre un montón de estrellas de arcilla y, al fondo, arriba a la derecha, una estrella mucho mayor y rojiza que empieza a apagarse; regla en 10⁹; Atom pequeño abajo a la izquierda",
+   "termina_con": "el corte de la estrella grande y rojiza, sin ciudad, con el centro ya hundido en una bola apretada, en el centro; regla en 10⁴; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Tras la cartela, marcha atrás: el montón de estrellas se aparta, el Sol vuelve a su sitio en el mundo y la regla baja deprisa de 10⁹ a 10⁴ mientras la cámara cae hasta la ciudad vista desde arriba, que vuelve a brillar.",
+    "El terrón de azúcar sale del cajón y se posa sobre la ciudad brillante.",
+    "Otro plano, sin ciudad: la estrella rojiza, mucho mayor que el Sol, en corte; se queda sin combustible y su centro se hunde de golpe; los electrones (puntitos azules) se meten dentro de los protones (rojos) y salen neutrones (grises), y el centro queda como una bola apretada."
+   ],
+   "produccion": "Con kits/ep03-cosmos.js: el Sol de ep03-estrellas.js vuelve a su sitio del mundo y la cámara de cosmos-plastilina-adulta baja al revés, de z≈9 a 4, con el brillo de la ciudad de ep3-tierra y la Luna a su distancia real según z. Terrón y cajón, de ep03-tocar.js. La frase 63 es un plano propio, sin ciudad: una estrella mucho mayor que el Sol dibujada del tamaño de una ciudad iría contra la escala de todo el episodio y le quitaría el golpe a la frase 64 (la bola del tamaño de una ciudad). El corte de la estrella grande y las partículas del colapso, de ep03-estrellas.js, con 6 partículas a la vez como mucho. La ciudad a 10⁴ es una foto del mundo hecha una vez al cargar. Cartela «+4».",
+   "reutiliza": "atomo/plato/escenas/cosmos-plastilina-adulta.html (el zoom al revés, de 10⁹ a 10⁴)"
+  },
+  {
+   "id": "ep3-neutrones",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 64,
+   "frase_fin": 66,
+   "marcas": [
+    "ciudad",
+    "cucharita",
+    "derramar"
+   ],
+   "duracion_est": 18.4,
+   "empieza_con": "el corte de la estrella grande y rojiza, sin ciudad, con el centro ya hundido en una bola apretada, en el centro; regla en 10⁴; Atom pequeño abajo a la izquierda",
+   "termina_con": "la estrella de neutrones sobre la ciudad brillante vista desde arriba (el mundo de cosmos a 10⁴), en el centro; regla en 10⁴; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "La bola apretada, que ya no tiene huecos entre sus átomos, sale del corte de la estrella y se posa sobre la ciudad vista desde arriba: es del mismo tamaño que la ciudad; a mitad de frase, Atom se acerca, se estira y se aplasta, agobiado, y vuelve a su sitio.",
+    "La balanza de latón: una cucharita en un plato y, en el otro, una montaña inmensa de coches; la balanza se queda equilibrada.",
+    "La cucharita tiembla en una mano sobre la ciudad; la mano se la lleva despacio y queda la estrella de neutrones sobre la ciudad."
+   ],
+   "produccion": "La bola sale del corte de ep3-vuelta (ep03-estrellas.js) y sobre la ciudad es la estrella de neutrones, del mismo tamaño que la ciudad; la ciudad es la foto a 10⁴ de ep03-cosmos.js. Atom se estira y se aplasta con sq en P.atomo. La balanza de ep03-balanza.js lleva la cucharita de ep03-tocar.js en un plato y la variante de los coches en el otro; la mano del kit sostiene la cucharita. Va en arcilla aunque el Visual lo marca en papel (la balanza y la cucharita): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas).",
+   "reutiliza": "atomo/plato/escenas/cosmos-plastilina-adulta.html (la ciudad a 10⁴)"
+  },
+  {
+   "id": "ep3-luz",
+   "estilo": "plastilina",
+   "cartela": "+16",
+   "frase_ini": 67,
+   "frase_fin": 69,
+   "marcas": [
+    "subir",
+    "anoluz",
+    "galaxia"
+   ],
+   "duracion_est": 20.2,
+   "empieza_con": "la estrella de neutrones sobre la ciudad brillante vista desde arriba (el mundo de cosmos a 10⁴), en el centro; regla en 10⁴; Atom pequeño abajo a la izquierda",
+   "termina_con": "la Vía Láctea de crearMundo, llena de puntitos, sin marco, en el centro; regla en 10²¹; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Tras la cartela, la regla vuelve a subir: la cámara sale de la ciudad hasta ver la Tierra entera.",
+    "Un rayo de luz da siete vueltas y media a la Tierra mientras un reloj marca 1 s; a mitad de frase, una cinta con marcas de un año de luz arranca de la Tierra y se pierde a lo lejos, y la cámara la sigue hasta 10¹⁶: el Sol y sus órbitas se quedan atrás.",
+    "El marcador sube a 10²¹: la Vía Láctea vista desde fuera; a mitad de frase, un rayo de luz la cruza junto a un reloj de arena enorme y la espiral se llena de puntitos sin fin."
+   ],
+   "produccion": "Adapta cosmos-plastilina-adulta.html con kits/ep03-cosmos.js. En la frase 67, la subida de 10⁴ a 10⁷ (la Luna, a su distancia real según z). Después, la Tierra quieta para el rayo y la subida de 10⁷ a 10¹⁶ siguiendo la cinta. En la frase 69, los saltos «doce → lactea» (de 10¹⁶ a 10²¹). El rayo, el reloj de 1 s y el reloj de arena, de ep03-tiempo.js; la cinta de años luz es una pieza sencilla. La espiral con puntitos es la galaxia de crearMundo, que ya los dibuja. El marco dorado y el pincel van en ep3-mapa, con la frase que dice «ilustración». Cartela «+16».",
+   "reutiliza": "atomo/plato/escenas/cosmos-plastilina-adulta.html"
+  },
+  {
+   "id": "ep3-mapa",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 70,
+   "frase_fin": 71,
+   "marcas": [
+    "ilustracion",
+    "sofa"
+   ],
+   "duracion_est": 19.6,
+   "empieza_con": "la Vía Láctea de crearMundo, llena de puntitos, sin marco, en el centro; regla en 10²¹; Atom pequeño abajo a la izquierda",
+   "termina_con": "la persona sentada en el sofá, de espaldas a la izquierda, con su bol de palomitas, mirando por la ventana llena de estrellas en rayas, y el reloj en una hora; regla en 10²¹; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Un marco dorado se cierra alrededor de la Vía Láctea y un pincel le da el último toque: es una ilustración; a mitad de frase, un satélite gira despacio y pone un punto en un mapa por cada estrella que mide, uno a uno, mientras una antena de radio va marcando nubes de gas, hasta que puntos y nubes dibujan la espiral.",
+    "Una persona sentada en un sofá, con un bol de palomitas; por la ventana, las estrellas pasan como rayas y un trazo de la Tierra a la Luna se recorre dos veces mientras un reloj da una hora."
+   ],
+   "produccion": "El marco dorado y el pincel son dos piezas sencillas sobre la foto de la galaxia. Los puntos del satélite no son piezas: son una máscara que va descubriendo una foto de la galaxia de crearMundo a 10²¹ (ep03-cosmos.js) hecha al cargar. El satélite y la antena son dos piezas sencillas. Crea kits/ep03-sofa.js: sofá, bol de palomitas y una ventana con estrellas en rayas horneadas; lo reutiliza ep3-andromeda (la ventana), en el mismo lote. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. La persona es el «humano» con la postura «sentada». El reloj, de ep03-tiempo.js; la Tierra y la Luna, el globo y la luna del kit.",
+   "reutiliza": "atomo/plato/escenas/cosmos-plastilina-adulta.html (la galaxia a 10²¹)"
+  },
+  {
+   "id": "ep3-andromeda",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 72,
+   "frase_fin": 74,
+   "marcas": [
+    "andromeda",
+    "serinden",
+    "humanos"
+   ],
+   "duracion_est": 17.9,
+   "empieza_con": "la persona sentada en el sofá, de espaldas a la izquierda, con su bol de palomitas, mirando por la ventana llena de estrellas en rayas, y el reloj en una hora; regla en 10²¹; Atom pequeño abajo a la izquierda",
+   "termina_con": "la Vía Láctea y Andrómeda de crearMundo, pequeñas y lejos, a la escala del mundo a 10²² (unos 1.300 px una de otra), unidas por la vara de alambre de la línea de tiempo, con la luz ya en el último tramo y las figuritas de los primeros humanos junto a él; regla en 10²²; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "El marcador sube a 10²²: por la ventana, Andrómeda a simple vista, una manchita borrosa entre estrellas.",
+    "El ojo de la persona, en primer plano, entorna la mirada hacia la manchita; a mitad de frase llega a su límite y el párpado se cierra.",
+    "Una línea de tiempo, una vara de alambre de Andrómeda a la Vía Láctea, las dos pequeñas y lejos: la luz sale de Andrómeda cuando en la Tierra no hay humanos, y los primeros humanos modernos aparecen cuando ya va por el último tramo."
+   ],
+   "produccion": "La ventana de ep03-sofa.js (ep3-mapa) con Andrómeda (el remolino del kit, desenfocado) y el ojo exterior de ep03-ojo.js. La línea de tiempo es una vara de alambre con la luz que avanza y, al final, unas figuritas de la multitud de ep03-tocar.js. Las dos galaxias son la de crearMundo (ep03-cosmos.js) a 10²², Andrómeda con otro giro y algo mayor, a su distancia (unos 1.300 px a esta escala). La subida de cinco saltos hasta 10²⁷ va en ep3-universo, después de la cartela «+27», como en los demás capítulos."
+  },
+  {
+   "id": "ep3-universo",
+   "estilo": "plastilina",
+   "cartela": "+27",
+   "frase_ini": 75,
+   "frase_fin": 78,
+   "marcas": [
+    "universo",
+    "espera",
+    "comopuede",
+    "goma"
+   ],
+   "pausas": {
+    "76": 2
+   },
+   "duracion_est": 22.6,
+   "empieza_con": "la Vía Láctea y Andrómeda de crearMundo, pequeñas y lejos, a la escala del mundo a 10²² (unos 1.300 px una de otra), unidas por la vara de alambre de la línea de tiempo, con la luz ya en el último tramo y las figuritas de los primeros humanos junto a él; regla en 10²²; Atom pequeño abajo a la izquierda",
+   "termina_con": "la esfera translúcida de lo observable, llena de puntitos-galaxia, en el centro, sobre la red; regla en 10²⁷; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Tras la cartela, la línea de tiempo se apaga y la cámara sube cinco saltos: la Vía Láctea y Andrómeda encogen hasta ser puntos sobre la red de filamentos de galaxias, que se acerca; el marcador llega a 10²⁷ y una esfera translúcida marca el límite de lo observable.",
+    "Atom sale de su sitio hacia el centro y levanta una mano: espera; después de la frase, unos 2 s de silencio con la mano levantada.",
+    "Atom, con la mano aún levantada, mira la esfera enorme; sobre ella aparece un «?».",
+    "Una hormiga camina por una goma elástica que alguien va estirando, y la meta se aleja aunque la hormiga no pare; al final la cámara vuelve a la esfera y Atom, a su sitio, abajo a la izquierda."
+   ],
+   "produccion": "Crea kits/ep03-universo.js: la red de galaxias (la de colorRed del remate de la regla del lote 0, horneada en una losa grande que se escala), la esfera de lo observable (una cáscara translúcida), la goma con la hormiga y la meta, y la niebla brillante horneada. Lo reutilizan ep3-borde, ep3-centro y ep3-despedida. Como crea un kit, lo entrega primero, con una hoja de prueba de un fotograma por pieza y por variante (también las que ella no usa), y lo congela; después hace la escena. La subida de 10²² a 10²⁷ usa la cámara del mundo de ep03-cosmos.js (la galaxia de crearMundo encoge hasta un punto sobre la red), así que en el lote 1 va después de ep3-tierra. La mano de Atom es un electrón sobre alambre, como el saludo de prueba-plastilina-adulta; el «?» es un glifo. Tras la frase 76 hay 2 s de silencio (pausas). Cartela «+27»."
+  },
+  {
+   "id": "ep3-arena",
+   "estilo": "papel",
+   "cartela": "",
+   "frase_ini": 79,
+   "frase_fin": 80,
+   "marcas": [
+    "arena",
+    "playas"
+   ],
+   "duracion_est": 16.3,
+   "empieza_con": "un cielo de papel con un disco de cielo estrellado en el centro, en el sitio de la esfera de arcilla, y un brazo estirado de papel con un grano de arena en la yema que tapa el centro del disco; Atom de papel pequeño abajo a la izquierda",
+   "termina_con": "un disco de cielo estrellado de papel en el centro, en el sitio y del tamaño de la esfera de arcilla, sobre la playa; Atom de papel pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Papel a pantalla completa: un brazo estirado con un grano de arena en la yema del dedo tapa un trocito de cielo; a mitad de frase, la imagen del Webb (2022): miles de galaxias en ese trocito.",
+    "Una playa infinita frente a un cielo lleno de estrellas; la cámara se acerca al cielo hasta un disco de cielo estrellado en el centro."
+   ],
+   "produccion": "Kit papel-adulta.js. El brazo y el grano son recortes. En la imagen del Webb, espirales y puntitos con repetición, con el número 2022, que está permitido. El cielo, con fondoNoche. Sin balanza: la de la playa y el cielo (frase 81) pasa a ep3-borde y es la de latón, para que no salgan seguidas dos balanzas de distinto material. El primer fotograma enlaza con el último de ep3-universo (el disco en el sitio de la esfera) y el último con el primero de ep3-borde (el disco en ese mismo sitio, donde está la esfera). Sin regla. No depende de ningún kit del episodio ni del lote 0: puede empezar ya."
+  },
+  {
+   "id": "ep3-borde",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 81,
+   "frase_fin": 84,
+   "marcas": [
+    "nadie",
+    "carrera",
+    "multitud",
+    "telescopios"
+   ],
+   "duracion_est": 21.3,
+   "empieza_con": "la esfera translúcida de lo observable, llena de puntitos-galaxia, en el centro, sobre la red; regla en 10²⁷; Atom pequeño abajo a la izquierda",
+   "termina_con": "la imagen del telescopio fundida en la niebla opaca, que llena la pantalla; regla en 10²⁷; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "La balanza de latón: la esfera de lo observable baja a un plato y, en el otro, un montón de arena; la balanza oscila sin decidirse.",
+    "La arena deja su plato y en él cae la silueta de un cuerpo humano: el cuerpo gana sin esfuerzo y el plato de la esfera sube.",
+    "La cámara se acerca a la silueta: dentro, una multitud de puntitos.",
+    "Al fondo de todo, una niebla brillante, como una pared; un telescopio enorme apunta al borde y, a mitad de frase, su imagen se funde en la niebla opaca: detrás no hay nada que ver."
+   ],
+   "produccion": "La esfera y la niebla, de ep03-universo.js; la balanza, el montón de arena y la silueta de puntitos, de ep03-balanza.js, con la misma composición que en ep3-gato; el telescopio, de ep03-instrumentos.js. Va en arcilla aunque el Visual lo marca en papel (las dos balanzas, 81–83): es uno de los cambios de estilo que tiene que firmar el dueño (ver notas). Así las dos balanzas seguidas son la misma, de latón: en la 82 la arena se cambia por la silueta."
+  },
+  {
+   "id": "ep3-centro",
+   "estilo": "plastilina",
+   "cartela": "½",
+   "frase_ini": 85,
+   "frase_fin": 89,
+   "marcas": [
+    "pregunta",
+    "sesenta",
+    "medio",
+    "pelo",
+    "mismopelo"
+   ],
+   "pausas": {
+    "88": 2
+   },
+   "duracion_est": 29.7,
+   "empieza_con": "la imagen del telescopio fundida en la niebla opaca, que llena la pantalla; regla en 10²⁷; Atom pequeño abajo a la izquierda",
+   "termina_con": "el ojo del gancho cerrado sobre una franja reducida al pelo, en el centro; regla entera con el marcador en 10⁻⁴; Atom pequeño abajo a la izquierda",
+   "guion_visual": [
+    "Tras la cartela, plano detalle de la niebla, que se abre; la cámara se aleja hasta la regla entera, de la niebla de Planck a la red de galaxias, con la persona de pie a la izquierda; una flecha aparece arriba, buscando.",
+    "Plano medio que sube por la regla mientras las unas sesenta marcas se encienden una a una, de la niebla a la red.",
+    "Plano general de la regla entera: la flecha busca el punto medio, pasa por la persona y cae cuatro saltos por debajo.",
+    "Cae en el mismo pelo del principio, que brilla: su mirilla crece hasta llenar la pantalla y el marcador baja a 10⁻⁴; después de la frase, unos 2 s de silencio con la imagen quieta sobre el pelo.",
+    "El ojo del gancho: la franja visible se estrecha casi hasta el pelo y ahí se cierra el párpado."
+   ],
+   "produccion": "La regla del lote 0 en modo entera. La coreografía de ep3-lote0-demo.html es la de las frases 86–88: las marcas se encienden una a una (rango) y la flecha busca, pasa por 0 y cae cuatro saltos a −4. Planos, para no quedarse 15 s en el general: en la 85, de la niebla (detalle) a la regla entera (general); en la 86, plano medio que sube por la regla (un recorte 2D del render) mientras se encienden las marcas; en la 87, otra vez el general con la flecha que cae; en la 88, la mirilla del pelo llena la pantalla durante el silencio. El pelo es la foto del nivel 4 de prueba-plastilina-adulta, en una mirilla junto a la marca −4. El ojo y la franja, de ep03-ojo.js; la niebla del principio, de ep03-universo.js. Tras la frase 88 hay 2 s de silencio (pausas). Cartela «½».",
+   "reutiliza": "atomo/plato/escenas/ep3-lote0-demo.html (regla entera, rango y flecha que cae a −4); atomo/plato/escenas/prueba-plastilina-adulta.html (la foto del pelo)"
+  },
+  {
+   "id": "ep3-despedida",
+   "estilo": "plastilina",
+   "cartela": "",
+   "frase_ini": 90,
+   "frase_fin": 95,
+   "marcas": [
+    "gigante",
+    "unagalaxia",
+    "nacieron",
+    "vengo",
+    "explico",
+    "comentarios"
+   ],
+   "duracion_est": 25.9,
+   "empieza_con": "el ojo del gancho cerrado sobre una franja reducida al pelo, en el centro; regla entera con el marcador en 10⁻⁴; Atom pequeño abajo a la izquierda",
+   "termina_con": "Atom de cerca en el plató del principio, centrado, con el bocadillo «?», quieto",
+   "guion_visual": [
+    "El párpado se abre sobre la persona, enorme, de pie entre átomos minúsculos a sus pies y galaxias lejanas sobre su cabeza; el marcador vuelve a 10⁰.",
+    "La cámara se aleja hasta nuestra galaxia, una entre muchas.",
+    "Átomos de hidrógeno salen del destello del principio; a mitad de frase, átomos de carbono, oxígeno y hierro salen de estrellas que mueren o explotan, mucho antes que el Sol; casi todos entran en una mano abierta.",
+    "Atom, de vuelta en el plató del principio, se señala a sí mismo y luego señala a cámara.",
+    "Atom de cerca con el bocadillo de la «?».",
+    "Atom se queda quieto con el bocadillo «?»; la imagen se asienta."
+   ],
+   "produccion": "La persona es el «humano» de pie, grande, con la fila de átomos de ep03-tocar.js a los pies y remolinos del kit como galaxias arriba. La galaxia entre muchas es la de crearMundo (ep03-cosmos.js), encogida sobre la red de ep03-universo.js. Para los átomos que nacen: bolitas de colores con el aspecto de Atom, destellos y estrellas de ep03-estrellas.js, y la mano abierta del kit. El cierre es el plató de ep3-hola: Atom de cerca, señalándose con el electrón sobre alambre, y el bocadillo del kit con el glifo «?». La regla sale al volver al plató.",
+   "reutiliza": "atomo/plato/escenas/prueba-plastilina-adulta.html (el plató y Atom de cerca, vía ep3-hola)"
+  }
+ ],
+ "lotes": [
+  [
+   "ep3-hola",
+   "ep3-ojo",
+   "ep3-cajon",
+   "ep3-saltos",
+   "ep3-casa",
+   "ep3-proton",
+   "ep3-tierra",
+   "ep3-sol",
+   "ep3-universo",
+   "ep3-arena"
+  ],
+  [
+   "ep3-pelo",
+   "ep3-celulas",
+   "ep3-medula",
+   "ep3-virus",
+   "ep3-adn",
+   "ep3-lectura"
+  ],
+  [
+   "ep3-promesa",
+   "ep3-silla",
+   "ep3-gato",
+   "ep3-planck"
+  ],
+  [
+   "ep3-vuelta",
+   "ep3-neutrones",
+   "ep3-luz",
+   "ep3-mapa",
+   "ep3-andromeda"
+  ],
+  [
+   "ep3-borde",
+   "ep3-centro",
+   "ep3-despedida"
+  ]
+ ],
+ "lote_0": "Kit compartido, un agente, antes de cualquier escena. Es la única vez que se tocan los kits compartidos; después vuelven a ser de solo lectura. (1) Regla reglaA de plastilina-adulta.js con rótulos de 10⁻³⁵ a 10²⁷ (ROT.E_MIN = −35, E_MAX = 27: 63 filas de 118 px, unos 7.400 px; si pasa de MAX_TEXTURE_SIZE, en dos columnas). (2) Modo «regla entera»: RS como uniforme, rótulos solo en −35, −4, 0, +7 y +27, la niebla de Planck como remate de abajo y la red de galaxias como remate de arriba (sirven de miniaturas en ep3-saltos). (3) Persona del kit con posturas por T o por uniformes (hombro, codo, cadera y rodilla, con los tramos de HUMANO.md): sostener, señalar, saludar, sentada, brazos cruzados, mirarse las manos y de perfil con los ojos cerrados; y 2–3 variantes (un niño, otro pelo, otro jersey), comprobadas con guias-humano.py. (4) Volver a capturar prueba-plastilina-adulta y cosmos-plastilina-adulta para comprobar que no cambian.\n\nESTADO (21-10-2026, plan v5). Se está haciendo ahora. plastilina-adulta.js y ep3-lote0-demo.html están en el commit d9bfd9d, con cambios sin commit encima (los de ahora). Según la cabecera del kit en el árbol de trabajo ya están: (1) la regla de 10⁻³⁵ a 10²⁷, con los rótulos nuevos en un atlas de dos columnas; (2) la regla entera: P.regla con entera, rango y marca, reglaEstado y REGLA, los remates de niebla y red y las miniaturas «red», «niebla» y «etiqueta»; (3) el «humano» con las posturas de pie, sostener, señalar, saludar, sentada, brazos cruzados, mirarse las manos, perfil y mirar arriba, posturaEn y mezclarPosturas, postura.fantasma 0…1 (las manos casi transparentes de ep3-casa) y los aspectos adulto, nino, melena y mono, con barba, canas y colorPelo. Falta: (4) comprobar con capturas que prueba-plastilina-adulta sale igual y que cosmos-plastilina-adulta solo gana los rótulos 10²² y 10²³ (la cabecera dice que sí), pasar guias-humano.py a cada postura y aspecto, y hacer commit. El plan v5 da además por hecho, y conviene comprobarlo al cerrar, que canas, barba y colorPelo se pueden animar fotograma a fotograma (ep3-lectura) y que fantasma se lee en primer plano (ep3-casa). Si algo no se puede, que se diga: la escena lo resuelve sin tocar el kit. El «humano» no tiene expresiones (boca neutra; solo ojos y mirada), y el plan no se las pide: las emociones son gestos.",
+ "notas": "ANTES DEL LOTE 1 va el lote 0 (campo lote_0), que se está haciendo ahora: regla de −35 a +27 con modo «regla entera» y la persona «humano» con posturas y aspectos. ep3-cajon y ep3-arena no lo necesitan: pueden empezar ya.\n\nPLAN (guion v5 corto aprobado)\n- 95 frases en 28 escenas: 26 de plastilina, 1 isométrica (ep3-cajon) y 1 de papel (ep3-arena). Cada escena tiene entre 12,6 y 25,5 s de voz.\n- 10 cartelas: 0, −4, −7, −10, −15, +7, +4, +16, +27 y ½. El gancho no lleva cartela.\n- 4 pausas de revelación de 2 s, en los datos (campo `pausas`): tras la frase 3 («You don't.», ep3-hola), la 38 («So are you.», ep3-casa), la 76 («Wait.», ep3-universo) y la 88 («The thickness of a hair.», ep3-centro). Las cuatro quedan entre dos frases de su escena, que es donde locutar_frases.py mete las pausas, y el guion_visual dice qué se ve durante el silencio.\n- 5 lotes después del lote 0.\n- Voz: 1.224 palabras a 2,39 palabras por segundo dan 512 s. Duración estimada: 564 s (9:24), con 1,2 s por escena, 1 s más por cartela y 8 s de pausas. Pasa del objetivo del guion (8:15–8:35) en unos 49 s; la diferencia la ponen las colas de escena, las cartelas y las pausas, no el texto.\n\nCOMPROBADO CON SCRIPT\nEl script es /tmp/claude-0/-home-user-varios/c3095c2f-34d0-5875-aebf-f88dc0595efb/scratchpad/plan_v5r.py. Lee guion.md igual que hacer_guion.py, toma el lote_0 de escenas-v4-largo.json y escribe plan_v5r.json en la misma carpeta, que es este escenas.json. Comprueba:\n- las frases van de la 1 a la 95 en orden, sin huecos ni repeticiones;\n- cada escena pertenece a un solo capítulo, y la primera de cada capítulo lleva su cartela, salvo la del gancho;\n- hay una marca ASCII por frase, sin repetir dentro de la escena, y una línea de guion_visual por frase;\n- todas las escenas tienen entre 10 y 35 s de voz, y hay entre 28 y 36 escenas;\n- cada escena de plastilina empieza exactamente donde termina la anterior escena de plastilina;\n- Atom aparece en todos los empieza_con y termina_con, y las escenas de papel e isométrico no llevan regla;\n- las pausas son exactamente las cuatro de revelación, cada una entre dos frases de su escena y en la frase que dice el guion;\n- los lotes cubren las 28 escenas una sola vez y en el orden del guion;\n- cada kit del episodio lo crea una sola escena; cada escena que lo usa lo nombra en produccion y va en un lote posterior o en el mismo lote después de la que lo crea, y como los lotes 2–5 van a la vez, entre ellos no hay dependencias; la lista «lo reutilizan» de cada kit coincide con las escenas que lo usan;\n- las rutas de «reutiliza» existen.\nDespués, hacer_guion.py con este escenas.json da 28 escenas y 95 frases, y guion.json lleva `pausa` solo en las frases 3, 38, 76 y 88.\n\nCAMBIOS EN LAS HERRAMIENTAS\n- hacer_guion.py: REVELACIONES queda vacío. Estaba numerado según la v4 ({3, 58, 142}) y, con este reparto, metía una pausa falsa de 1,5 s tras la frase 58 (la fusión del Sol). Las pausas salen solo del campo `pausas` de escenas.json. El estado pasa a «aprobado (v5)».\n- locutar_frases.py no se toca: la pausa tras la frase 3 se resuelve pasando la frase 4 a ep3-hola (opción B de la revisión), así que la 3 ya no es la última de su escena.\n\nCAMBIOS DE ESTILO: DECISIÓN DEL DUEÑO\nEsto da la vuelta a lo que se decidió en la v4. Allí se rechazó pasar a arcilla partes que el Visual aprobado marca en papel o isométrico, porque ninguna regla fijaba una duración mínima. Ahora sí la hay: el encargo pide escenas de 10 a 35 s de voz para producir rápido, y ningún inserto corto de papel o isométrico tiene al lado otro del mismo estilo con el que juntarse. La plastilina es la base y admite comparaciones; al revés no. Por eso estas 12 partes van en la arcilla de su escena vecina, y hay que firmarlas:\n1. Los destellos del gancho (frase 8, ep3-promesa), en papel en el Visual.\n2. Las células y las bacterias (22–23, ep3-medula), en isométrico.\n3. Los guantes de cocina (27, ep3-virus), en papel.\n4. La lectura del ADN (32–33, ep3-lectura), en isométrico.\n5. El estadio (36–37, ep3-casa), en isométrico.\n6. El terrón (40, ep3-silla), en papel.\n7. La balanza del cuerpo contra el cielo (45, ep3-gato), en papel.\n8. La balanza de los quarks y la báscula (47–49, ep3-proton), en papel.\n9. Los planetas en el hueco de la Luna (56, ep3-tierra), en papel.\n10. La cucharita y su balanza (65–66, ep3-neutrones), en papel.\n11. La balanza de la playa y el cielo (81, ep3-borde), en papel.\n12. La balanza del cuerpo contra todo el cielo y la multitud (82–83, ep3-borde), en papel.\nSe quedan como estaban ep3-cajon (isométrico, 16,3 s de voz) y ep3-arena (papel, 15,1 s). Ventaja: la misma balanza de latón sale en ep3-promesa, ep3-gato, ep3-proton, ep3-neutrones y ep3-borde y se reconoce de una a otra.\nSe pueden recuperar en papel, si el dueño acepta escenas de menos de 10 s de voz:\n- la balanza de los quarks y la báscula (47–49), dejando ep3-proton con la frase 46 sola (7,1 s);\n- los destellos del gancho (8), dejando las frases 9–10 en una escena de 8,4 s.\n\nREVISIÓN DEL PLAN v5: QUÉ SE HA APLICADO\n1. Pausas: las cuatro revelaciones van en `pausas` y en duracion_est (ep3-hola, ep3-casa, ep3-universo y ep3-centro llevan 2 s más). REVELACIONES vacío en hacer_guion.py. La frase 4 pasa a ep3-hola (1–4, 18,4 s) y ep3-ojo queda con 5–7 (18,0 s).\n2. ep3-tierra: la Luna, a su distancia real del apogeo en función de z, en ep03-cosmos.js (en cosmos es de mentira: lunaEn la deja a 46 px de la Tierra y depende del tiempo). En la frase 56 la cámara se queda en zCam ≈ 8,2–8,25 con el marcador en 10⁸; el hueco mide unos 1.200–1.350 px a la izquierda de la regla, y los siete planetas van a escala (unos 380.000 km contra unos 397.000 km de hueco). La Luna de ep3-vuelta y ep3-luz también depende de z.\n3. Corte ep3-saltos → ep3-pelo: la mano es la de la derecha de la pantalla (la manoIzq de la persona, FOCO[0] de la prueba). El encuadre es exactamente el del fotograma 0 de la prueba, sin recorte 2D (la cámara del plató es fija), escrito en números en termina_con/empieza_con; «la cámara mira hacia abajo» es un brillo en esa mano.\n4. La subida de cinco saltos (10²² → 10²⁷) pasa de la frase 74 a la 75, después de la cartela «+27», como en los demás capítulos. ep3-andromeda termina en la línea de tiempo con las dos galaxias a 10²²; ep3-universo sube desde ahí con ep03-cosmos.js.\n5. La estrella grande ya no se dibuja sobre la ciudad: la frase 63 es un plano propio con el corte de la estrella, que acaba en una bola apretada, y en la 64 la bola sale del corte y se posa sobre la ciudad, del mismo tamaño.\n6. Lotes: ep3-mapa crea ep03-sofa.js y ep3-lectura hace su propio sillón, así que el lote 4 ya no espera al 2. ep3-saltos, ep3-cajon y ep3-arena van en el lote 1. Orden: 0 → 1 → 2, 3, 4 y 5 en paralelo, con las cadenas internas escritas abajo. El fotograma de ep3-promesa/ep3-saltos queda fijado en números (P.regla con entera 1, e 0, ya 1.5, pos, escala, rot y lupa; persona y cámara). Cada escena que crea un kit entrega una hoja de prueba con un fotograma por pieza y variante antes de congelarlo.\n7. Planos que se alargaban: ep3-ojo (detalle dentro de la franja, el ojo entero con el teléfono y primer plano del párpado), ep3-centro (detalle de la niebla y general en la 85, plano medio que sube en la 86, general en la 87 y la mirilla del pelo a pantalla completa en la 88) y ep3-proton (la balanza entera en la 47; detalle del plato y general en la 48).\n8. ep3-cajon: persona isométrica propia con las proporciones de HUMANO.md, jersey gris y pantalón caqui, sin crearObservador; aparece de niña junto al calendario en la 12 y crece hasta la adulta del principio en la 13.\n9. Los cambios de estilo, como decisión del dueño (arriba).\n10. ep3-arena se queda con 79–80 y ep3-borde con 81–84 (20,1 s): las dos balanzas seguidas son la misma, de latón; en la 82 la arena se cambia por la silueta.\n11. Persona: fantasma 0 → 1 en la frase 38 (ep3-casa). En ep3-lectura, un aspecto que empieza con canas 0 y barba 0 y sube a canas 1, con colorPelo hacia el blanco. La sorpresa (23) y la desconfianza (49) son gestos, porque el «humano» no tiene expresiones.\n12. ep3-proton: en el otro plato, un protón entero; con los destellos la balanza queda nivelada, sin pasarse.\n13. El marco dorado y el pincel pasan de la frase 69 a la 70, que es la que dice «ilustración». ep3-luz termina en la Vía Láctea sin marco.\n14. escenas.json lleva lote_0 (el de la v4, con su estado al día), notas y las pausas en los datos. El lote 0 no es nuevo: plastilina-adulta.js y ep3-lote0-demo.html están en el commit d9bfd9d y tienen cambios sin commit encima.\n\nRECHAZADOS\n- Ninguno. Donde la revisión daba dos opciones, se eligió: la frase 4 en ep3-hola para la pausa de la 3, porque no toca locutar_frases.py y equilibra las dos escenas; el fotograma 0 exacto de la prueba para el corte de la mano, porque ya existe y no hace falta inventar un recorte; y ep3-mapa como creador de ep03-sofa.js, porque es la primera que lo usa en su lote.\n\nREUTILIZACIÓN\nprueba-plastilina-adulta:\n- ep3-hola: el plató, Atom y su saludo.\n- ep3-pelo: sus cuatro saltos de la persona al pelo-tronco, con el marcador de 10⁰ a 10⁻⁴ y la cota 10⁻⁴ m. Es la misma frase de la prueba.\n- ep3-celulas y ep3-centro: la foto del pelo-tronco.\n- ep3-despedida: el plató.\n- ep3-saltos termina en su fotograma 0.\ncosmos-plastilina-adulta:\n- ep3-tierra: de 10⁰ a 10⁹, con sus saltos «siete → tierra» y «dos → sol».\n- ep3-vuelta: el zoom al revés, de 10⁹ a 10⁴.\n- ep3-luz: de 10⁴ a 10²¹, con «doce → lactea».\n- ep3-neutrones y ep3-mapa: fotos de la ciudad y de la galaxia.\n- ep3-andromeda y ep3-universo: la galaxia a 10²² y su subida hasta un punto.\n- ep3-planck termina en su fotograma 0.\nLos cortes del viaje caen en fotogramas fijados (el 0 de cosmos, el 0 de la prueba y el de la regla entera, este en números), así que las escenas a cada lado del corte se pueden hacer a la vez.\nep3-lote0-demo (regla entera, rango y flecha que cae a −4): ep3-promesa, ep3-saltos, ep3-planck y ep3-centro.\nmuestra-paleta-ep03: la balanza de arcilla (kits/ep03-balanza.js).\n\nLOTES Y ORDEN\nOrden: lote 0 → lote 1 → lotes 2, 3, 4 y 5 a la vez. ep3-cajon y ep3-arena pueden empezar ya, a la par que el lote 0.\n- Lote 1: las escenas que crean los 9 kits compartidos del episodio y tres que no dependen de ningún kit del episodio (ep3-saltos, ep3-cajon y ep3-arena). Entre paréntesis, cuántas escenas usan cada kit, contando la que lo crea: ep3-hola: ep03-ojo.js (6); ep3-ojo: ep03-instrumentos.js (3); ep3-casa: ep03-tocar.js (11); ep3-proton: ep03-balanza.js (6); ep3-proton: ep03-nucleo.js (1); ep3-tierra: ep03-cosmos.js (8); ep3-sol: ep03-estrellas.js (4); ep3-sol: ep03-tiempo.js (5); ep3-universo: ep03-universo.js (4).\n  Cadenas dentro del lote: ep3-hola → ep3-ojo (ep03-ojo.js); ep3-casa → ep3-proton (ep03-tocar.js); ep3-tierra → ep3-universo (ep03-cosmos.js). ep3-proton solo necesita de ep03-tocar.js su primer fotograma (el átomo-estadio), así que puede ir haciendo su balanza mientras tanto.\n  Cada escena que crea un kit lo entrega primero, con su hoja de prueba, y lo congela. Los lotes 2–5 arrancan cuando estén esos kits, sin esperar a que acaben las escenas del lote 1 ni a ep3-saltos, ep3-cajon o ep3-arena.\n- Lote 2: la bajada de −4 a −9. Cadenas: ep3-celulas → ep3-medula (ep03-sangre.js); ep3-celulas → ep3-virus (ep03-sangre.js); ep3-adn → ep3-lectura (ep03-adn.js). ep3-pelo no depende de nadie del lote; ep3-virus crea ep03-virus.js, que solo usa ella.\n- Lote 3: gancho, −10 y −15 (ep3-promesa, ep3-silla, ep3-gato y ep3-planck), sin cadenas internas.\n- Lote 4: +4, +16 y +22. Cadena: ep3-mapa → ep3-andromeda (ep03-sofa.js).\n- Lote 5: +27 y ½ (ep3-borde, ep3-centro y ep3-despedida), sin cadenas internas.\nDentro de cada lote se trabaja en el orden del guion, y la escena que crea un kit va antes que las que lo usan.\n\nREGLAS PARA TODOS LOS ENCARGOS\n- Atom presentador:\n  - pequeño (unos 180 px), abajo a la izquierda, con el centro hacia x≈230, y≈780, por encima de los subtítulos;\n  - en las escenas que adaptan prueba o cosmos, se cambian ATOMO0 y ATOMO1 a ese sitio;\n  - las escenas de papel e isométrico lo ponen ahí en su primer y su último fotograma.\n- Persona: el tipo «humano» del lote 0 (mismas medidas que la «persona» de las pruebas), a la izquierda del plató (x≈612), como en las dos escenas de referencia. No tiene expresiones: las emociones son gestos (postura, cabeza, ojos y mirada).\n- Sin palabras en pantalla: calendarios, relojes y contadores solo con números; los mapas sin rótulos.\n- Escenas ricas pero baratas:\n  - la cámara del plató es fija (crearPlato no la anima): los acercamientos son fotos con empuje 2D, mirillas o cortes, como en la prueba;\n  - cada composición quieta es una foto hecha al cargar (como cacheNivel de la prueba);\n  - en cada fotograma se dibujan solo Atom, la regla y lo que se mueve, con 8 piezas vivas como mucho;\n  - lo que se repite es una sola pieza con repetición;\n  - nieblas y cielos van horneados;\n  - la composición cambia cada 4–6 s, alternando plano general, plano medio y detalle;\n  - hay que medir la carga: menos de 60 s con otra escena cargando a la vez.\n- Kits:\n  - cada kit del episodio lo crea una sola vez la escena que lo dice en «produccion»; lo entrega con una hoja de prueba (un fotograma por pieza y por variante, también las que ella no usa) y después queda congelado;\n  - los kits nuevos del episodio son kits/ep03-<tema>.js;\n  - los compartidos (plastilina-adulta, plastilina-cosmos-adulta, papel-adulta e isometrico-adulta) son de solo lectura.\n- Continuidad: al cerrar cada lote, una hoja con el último fotograma de cada escena de plastilina junto al primero de la siguiente. Las escenas de papel e isométrico enlazan con sus dos vecinas de plastilina.\n\nPARA LA SIGUIENTE ETAPA\n- marcas-ep03.json tiene los ids del reparto v4. Hay que volver a locutar con este guion.json y exportar las marcas con estos 28 ids.\n- ENCARGO-EP03.md todavía dice «guion v4» en el título; sus reglas valen igual.\n- Render: unos 6.347 fotogramas de plastilina (529 s a 12 fps), 555 isométricos (30 fps) y 196 de papel (12 fps)."
+}

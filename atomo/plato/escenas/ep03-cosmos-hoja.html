@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-cosmos.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-cosmos.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por pieza, por variante y por encuadre de la cámara del mundo, con el plató, la luz y la cámara de las
+// escenas de plastilina (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28) encima del mundo de crearMundo.
+//   __frame(0)  → la hoja entera (7 × 6 celdas de 274 × 154, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+// ?celda=k abre la celda k en la vista previa.
+import { crearPlato } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo, camara, camaraPorTierra, estadoMundo, fotoMundo, aPant, tierraPx, brilloCiudad, brilloLuna, gotasTierras, tierrasQueCaen,
+  fotoTierra, tiposCosmos, planeta, saturno, cinta, enPlato, fotoPieza, aqui, largoAqui, rotAnillos, filaPlanetas, PLANETAS, MUNDO,
+  FINAL_TIERRA, HUECO } from '/atomo/plato/kits/ep03-cosmos.js';
+
+const W = 1920, H = 1080;
+const T = ['planeta', 'saturno', 'cinta', 'flecha'];
+const I = Object.fromEntries(T.map((t, i) => [t, i]));
+const P = await crearPlato({
+  piezas: T, tiposExtra: tiposCosmos(['planeta', 'saturno', 'cinta']), atomo: false, alfa: true,
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const cont = document.getElementById('escena');
+const mundo = crearMundo(cont, { captura: P.captura });
+mundo.lienzo.style.visibility = 'hidden';
+P.renderer.domElement.style.visibility = 'hidden';
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:3';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustar() {
+  const lz = P.renderer.domElement;
+  if (capa.width !== lz.width || capa.height !== lz.height) { capa.width = lz.width; capa.height = lz.height; }
+  const k = capa.width / W; g.setTransform(k, 0, 0, k, 0, 0);
+}
+const pegar = (lz) => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lz, 0, 0, capa.width, capa.height); g.restore(); };
+
+// el sprite de la Tierra y las fotos de los planetas (una vez)
+const SPRITE_T = fotoTierra(mundo, 3);
+function fotosPlanetas(C) {
+  const fila = filaPlanetas(C);
+  return fila.planetas.map((p) => {
+    const R = 150, ext = p.anillos ? 2.35 : 1.06;
+    const sp = fotoPieza(P, () => {
+      const e = enPlato(P, 960, 540, R, 1.5);
+      if (p.anillos) saturno(P, I.saturno, { pos: e.pos, escala: e.escala, rot: rotAnillos(P) });
+      else planeta(P, I.planeta, { pos: e.pos, escala: e.escala, cual: p.cual });
+    }, { rect: [960 - R * ext, 540 - R * ext, 960 + R * ext, 540 + R * ext] });
+    return { sp, R, ext };
+  });
+}
+let FOTOS = null;
+function filaSprites(C, cuantos = 7) {
+  FOTOS ??= fotosPlanetas(C);
+  const fila = filaPlanetas(C);
+  fila.planetas.slice(0, cuantos).forEach((p, j) => {
+    const f = FOTOS[j], s = p.r / f.R;
+    g.drawImage(f.sp, p.x - f.R * f.ext * s, p.y - f.R * f.ext * s, 2 * f.R * f.ext * s, 2 * f.R * f.ext * s);
+  });
+  return fila;
+}
+
+// ---------------------------------------------------------------- las celdas
+const C_ = [];
+const cel = (rot, dibujar) => C_.push({ rot, dibujar });
+// el mundo con la cámara del kit (y lo que se ponga encima en 2D y en el plató)
+function vista(C, n, { opciones = {}, d2 = null, plato = null } = {}) {
+  ajustar();
+  mundo.dibujar(estadoMundo(C, n, { somR: null, ...opciones }));
+  pegar(mundo.lienzo);
+  if (d2) d2(C);
+  P.fotograma(n / 12); P.limpiar();
+  if (plato) { plato(C); P.render(n, { fondo: false }); pegar(P.renderer.domElement); }
+}
+const conAqui = (zr) => (C) => aqui(P, I.flecha, C, { largo: largoAqui(zr) });
+cel('camara(1,5) + aqui', () => vista(camara(1.5), 18, { plato: conAqui(1.5) }));
+cel('camara(3) + aqui', () => vista(camara(3), 36, { plato: conAqui(3) }));
+cel('camara(4) brilloCiudad 0', () => vista(camara(4), 48, { plato: conAqui(4) }));
+cel('camara(4) brilloCiudad 1', () => vista(camara(4), 48, { d2: (C) => brilloCiudad(g, C, 1), plato: conAqui(4) }));
+cel('camara(5,5) brilloCiudad 1', () => vista(camara(5.5), 66, { d2: (C) => brilloCiudad(g, C, 1), plato: conAqui(5.5) }));
+cel('camara(7) brillo + aqui (un punto)', () => vista(camara(7), 84, { d2: (C) => brilloCiudad(g, C, 1), plato: conAqui(7) }));
+cel('camara(7,5, hueco) (salto 8)', () => vista(camara(7.5, { hueco: true }), 90));
+cel('camara(8, hueco): la Luna de verdad', () => vista(camara(8, { hueco: true }), 96));
+cel('camara(8, hueco) + brilloLuna', () => vista(camara(8, { hueco: true }), 96, { d2: (C) => brilloLuna(g, C, 1) }));
+cel('hueco + planetas (fotos) + cinta', () => vista(camara(8, { hueco: true }), 96, {
+  d2: (C) => { filaSprites(C); brilloLuna(g, C, 1); },
+  plato: (C) => { const f = filaPlanetas(C); cinta(P, I.cinta, { desde: [f.desde[0], f.desde[1] - 33], hasta: [f.hasta[0], f.hasta[1] - 33], alto: 11, marcas: 40 }); },
+}));
+cel('camara(8,5, hueco) (salto 9)', () => vista(camara(8.5, { hueco: true }), 102));
+cel('camara(9) = FINAL_TIERRA', () => vista(camara(9), 108));
+cel('camara(9) + tierrasQueCaen', () => {
+  const gotas = gotasTierras({ t0: 0, t1: 2.8, n: 36 });
+  vista(camara(9), 108, { d2: (C) => tierrasQueCaen(g, SPRITE_T, { t: 2.1, gotas, sol: FINAL_TIERRA.sol, rTierra: 4.5 }) });
+});
+cel('tierrasQueCaen: las primeras (t 0,9)', () => {
+  const gotas = gotasTierras({ t0: 0, t1: 2.8, n: 36 });
+  vista(camara(9), 108, { d2: (C) => tierrasQueCaen(g, SPRITE_T, { t: 0.9, gotas, sol: FINAL_TIERRA.sol, rTierra: 4.5 }) });
+});
+cel('camara(8) sin hueco (cosmos)', () => vista(camara(8), 96));
+cel('camara(8,6) sin hueco: la Luna a 549 px', () => vista(camara(8.6), 103));
+cel('camara(10)', () => vista(camara(10), 120));
+cel('camara(13)', () => vista(camara(13), 156));
+cel('camara(16)', () => vista(camara(16), 192));
+cel('camara(21)', () => vista(camara(21), 252));
+cel('camara(22)', () => vista(camara(22), 264));
+cel('camara(24)', () => vista(camara(24), 288));
+cel('camara(27)', () => vista(camara(27), 324));
+// las piezas, sobre el plató
+function pieza(poner) { ajustar(); P.fotograma(0); P.limpiar(); poner(); P.render(0); pegar(P.renderer.domElement); }
+const NOMBRES = ['mercurio', 'venus', 'tierra', 'marte', 'jupiter', 'saturno (sin anillos)', 'urano', 'neptuno'];
+NOMBRES.forEach((nm, k) => cel(`planeta ${k} ${nm}`, () => pieza(() => { const e = enPlato(P, 960, 520, 300, 1.5); planeta(P, I.planeta, { pos: e.pos, escala: e.escala, cual: k }); })));
+cel('saturno anillos rotAnillos(70°, 0,22)', () => pieza(() => { const e = enPlato(P, 960, 540, 200, 1.5); saturno(P, I.saturno, { pos: e.pos, escala: e.escala, rot: rotAnillos(P) }); }));
+cel('saturno anillos rotAnillos(20°, 0,45)', () => pieza(() => { const e = enPlato(P, 960, 540, 190, 1.5); saturno(P, I.saturno, { pos: e.pos, escala: e.escala, rot: rotAnillos(P, 20 * Math.PI / 180, 0.45) }); }));
+cel('saturno anillos 0', () => pieza(() => { const e = enPlato(P, 960, 520, 300, 1.5); saturno(P, I.saturno, { pos: e.pos, escala: e.escala, anillos: 0 }); }));
+cel('cinta extension 0,35', () => pieza(() => cinta(P, I.cinta, { desde: [260, 540], hasta: [1660, 540], alto: 60, marcas: 12, extension: 0.35 })));
+cel('cinta extension 1 (de cerca)', () => pieza(() => cinta(P, I.cinta, { desde: [260, 540], hasta: [1660, 540], alto: 60, marcas: 12, extension: 1 })));
+cel('cinta 1.200 px, 11 de alto, 40 marcas', () => pieza(() => cinta(P, I.cinta, { desde: [200, 540], hasta: [1410, 540], alto: 11, marcas: 40, extension: 1 })));
+cel('fotoTierra (sprite) 2D', () => { ajustar(); g.fillStyle = '#0b0d12'; g.fillRect(0, 0, W, H); const r = 300; g.drawImage(SPRITE_T, 960 - r, 540 - r, 2 * r, 2 * r); });
+cel('aqui largo 120 (z 1,5)', () => vista(camara(1.5), 18, { plato: (C) => aqui(P, I.flecha, C, { largo: 120 }) }));
+
+window.__celdas = C_.map((c) => c.rot);
+const busq = new URLSearchParams(location.search);
+async function dibujar(t) {
+  const k = Math.round(t);
+  if (k >= 1 && k <= C_.length) { C_[k - 1].dibujar(); return; }
+  // la hoja entera
+  const hoja = document.createElement('canvas'); hoja.width = W; hoja.height = H;
+  const h = hoja.getContext('2d');
+  h.fillStyle = '#111'; h.fillRect(0, 0, W, H);
+  for (let i = 0; i < C_.length; i++) {
+    C_[i].dibujar();
+    const cw = 1920 / 7, ch = cw * 9 / 16;
+    const x = (i % 7) * cw, y = Math.floor(i / 7) * (ch + 2);
+    h.drawImage(capa, x, y, cw, ch);
+    h.fillStyle = 'rgba(0,0,0,0.6)'; h.fillRect(x, y + ch - 18, cw, 18);
+    h.fillStyle = '#eee'; h.font = '12px sans-serif'; h.fillText(`${i + 1} · ${C_[i].rot}`, x + 4, y + ch - 5);
+  }
+  ajustar();
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(hoja, 0, 0, capa.width, capa.height); g.restore();
+}
+window.__paso = 0;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>

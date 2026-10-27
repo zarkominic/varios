@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prensa · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-PRENSA52 (frases 19–20), seis planos:
+// 1 la sala de prensa: el general y otro oficial sentados tras la mesa de micrófonos, fotógrafos y público; 2 de cerca, los
+// micrófonos de radio con los flashes; 3 en el pasillo, el jefe de la oficina de ovnis lee el periódico y niega con la cabeza;
+// 4 la oficina del Libro Azul, con el mapa de chinchetas y el corcho; 5 de cerca, el teléfono que suena; 6 el oficial, sentado,
+// lo descuelga.
+import { preparar, rodar, salaPrensa, mesaPrensa, publicoPrensa, pasillo, despacho, mesaDespacho, insertoTelefono, fondoDesenfocado, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-prensa52');
+const { tramo, lerp } = R;
+const m = { r: M('rueda', 0.5), l: M('libroazul', 15.6) };
+const P = [0, m.r + 4.5, m.r + 9, m.l - 0.3, m.l + 3.9, m.l + 6.9];
+const flashes = [1.6, 3.1, 5.4, 6.2, 7.6, 8.4].map((d) => m.r + d);
+const hay = (t) => flashes.some((f) => t > f && t < f + 0.12);
+const sala = (t) => { salaPrensa(R, t); R.actor(EL.generalAzul, 140, 124, t, { dir: 1, habla: Math.sin(t * 6) > 0.2, dedo: Math.sin(t * 0.9) > 0.6 }); R.actor(EL.oficial, 180, 124, t + 1, { dir: -1, quieto: true }); mesaPrensa(R, t); publicoPrensa(R, t, hay(t)); if (hay(t)) for (let y = 0; y < 180; y += 2) R.rect(0, y, 319, y, C.blanco); };
+const micros = (t) => {
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x += 6) R.rect(x, y, x + 5, y, (x % 12) < 6 ? R.hex('#2a3a6a') : R.hex('#334680'));
+  R.disco(70, 40, 20, R.hex('#4a5a8a')); R.disco(250, 50, 14, R.hex('#4a5a8a'));
+  for (let y = 120; y < 180; y++) R.rect(0, y, 319, y, y % 6 ? C.madera : C.maderaS);
+  for (let k = 0; k < 5; k++) { const x = 70 + k * 45, y = 120, inc = (k - 2) * 6; R.rect(x - 1, y - 40, x + 1, y, C.k); R.rect(x - 10, y - 2, x + 10, y, C.k);
+    R.rect(x - 9 + inc, y - 70, x + 9 + inc, y - 40, C.k); R.rect(x - 8 + inc, y - 69, x + 8 + inc, y - 41, C.metal); for (let j = y - 66; j < y - 44; j += 3) R.rect(x - 6 + inc, j, x + 6 + inc, j, C.metalD); R.rect(x - 8 + inc, y - 69, x + 8 + inc, y - 67, C.metalL);
+    R.rect(x - 4 + inc, y - 56, x + 4 + inc, y - 52, [C.rojo, C.azulL, C.oro, C.verde, C.blanco][k]); }
+  for (let k = 0; k < 6; k++) R.linea(60 + k * 40, 120, 40 + k * 50, 179, C.k);
+  if (hay(t)) for (let y = 0; y < 180; y += 2) R.rect(0, y, 319, y, C.blanco);
+};
+const pasilloRuppelt = (t) => {
+  pasillo(R, t);
+  R.actor(EL.oficial, Math.round(lerp(140, 196, tramo(t, P[2], P[2] + 2))), 168, t, { dir: Math.floor(t * 3) % 2 ? -1 : 1, triste: true, anda: t < P[2] + 2 });
+  const px = Math.round(lerp(140, 196, tramo(t, P[2], P[2] + 2))); R.rect(px + 6, 150, px + 18, 158, C.k); R.rect(px + 7, 151, px + 17, 157, C.papel); R.rect(px + 9, 153, px + 15, 155, C.metalS);
+  R.actor(EL.oficinista, Math.round(lerp(330, 220, tramo(t, P[2] + 1.5, P[3]))), 176, t + 2, { dir: -1, anda: true });
+};
+const oficina = (t) => { despacho(R, t, { tono: 'verde', mapa: true, mesa: false }); R.actor(EL.oficial, 140, 124, t, { dir: 1, sorpresa: t > P[3] + 1.4 }); mesaDespacho(R, t, { suena: t > P[3] + 1.2 }); };
+const telefono = (t) => insertoTelefono(R, t, { suena: t < P[5] - 0.6, mano: tramo(t, P[5] - 0.5, P[5]) * 0.3 });
+const contesta = (t) => { despacho(R, t, { tono: 'verde', mapa: true, mesa: false }); R.actor(EL.oficial, 140, 124, t, { dir: 1, dedo: true, habla: Math.sin(t * 6) > 0 }); mesaDespacho(R, t, { colgado: false }); };
+const efectos = [...flashes.map((f) => [f, 'flash']), ...[0, 1, 2, 3].map((k) => [P[3] + 1.2 + k * 1.4, 'ring']), [P[5] - 0.4, 'cuelga']];
+rodar(E, R, [[0, sala], [P[1], micros], [P[2], pasilloRuppelt], [P[3], oficina], [P[4], telefono], [P[5], contesta]], { efectos, año: 1952 });
+</script>
+</body>
+</html>

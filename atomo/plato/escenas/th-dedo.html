@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La gota del dedo · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-DEDO (frases 16–18). Seis planos, todos con acción y vida de fondo:
+// 1. la gota del dedo frente a la cucharadita, «÷100»: a «a hundred times» salen de la gota cien gotitas que forman una
+//    rejilla de 10 × 10 encima de la cuchara, y a «teaspoon» caen todas dentro de ella; a «on top of that» baja la mano
+//    de la enfermera hacia el dedo; detrás pasan, desenfocados, dos clientes y corre el reloj;
+// 2. el dedo, de cerca: la mano de la enfermera baja y aprieta («squeeze»), la gota crece; a «mixes with fluid» unas
+//    gotitas azuladas del líquido de los tejidos se meten en ella y la aclaran; en el analizador de la mesa salen los
+//    números y a «throws off» dos se ponen en rojo con «!»; la otra mano trae el tubito; detrás pasan clientes;
+// 3. en casa: una mano acerca el dedo con su gota a la tira del medidor («sugar test»), el medidor cuenta 5-4-3-2-1 y
+//    da «98»; la mano vuelve con un lápiz y lo apunta en la libreta («at home»); antes brillan las tres tiras («a few
+//    tests»); el gato sentado mueve la cola, por la ventana se mece un árbol y cruza un pájaro, y la taza humea;
+// 4. las pruebas que no caben en una gota (gag): rebotan contra ella y algunas caen al suelo; el técnico, con su
+//    carpeta, se asombra a «dozens»; la técnica entra, señala la gota a «single drop» (la gota late), coge una prueba
+//    del suelo, la lanza, rebota («accuracy») y se encoge de hombros;
+// 5. el laboratorio de hoy (la barra del año pasa a 2026): tras el banco, la técnica pone muestras en el chip con la
+//    pipeta y el técnico mira la pantalla; a «still is» él niega con la cabeza; a «hardest problems» a los dos les sale
+//    una «?»; a «medicine» sonríen y siguen; delante pasa una estudiante con una gradilla de tubos;
+// 6. la presentación: la caja Edison en un escenario, con un foco; a «exactly» la cinta roja la envuelve y salta el
+//    lazo; a «Theranos» brilla; a «claimed» cuelga una etiqueta con el visto bueno y el fotógrafo dispara el flash; a
+//    «solved», confeti y el público aplaude.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { manoBaja } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-dedo');
+const { tramo, lerp, hex } = R;
+const C = T.C;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('gota', f), b = (f) => en('azucar', f), c = (f) => en('resuelto', f);
+const P2 = a(0.508), P3 = b(0), P4 = b(0.36), P5 = b(0.72), P6 = c(0);
+// lo que dice la voz inglesa, por la fracción de letras de cada frase
+const cien = a(0.17), cuchara = a(0.33), aprieta = a(0.51), dedo = a(0.57), mezcla = a(0.62), tejido = a(0.79), altera = a(0.86), fuera = a(0.89);
+const pocas = b(0.10), azucar = b(0.19), casa = b(0.35), decenas = b(0.43), sola = b(0.54), precision = b(0.66), sigue = b(0.78), dificil = b(0.87), medicina = b(0.96);
+const exacto = c(0.17), teranos = c(0.46), decia = c(0.61), resuelto = c(0.88);
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+const parpadeo = (t, v = 6) => Math.sin(t * v) > 0;
+
+// ── piezas locales ──────────────────────────────────────────────────────────────────────────────────────────────
+const detras = (rects, dibuja) => {
+  const g = rects.map(([x0, y0, x1, y1]) => { const v = []; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) v.push(R.pget(x, y)); return v; });
+  dibuja();
+  rects.forEach(([x0, y0, x1, y1], k) => { let i = 0; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, g[k][i++]); });
+};
+// los colores de un trozo de pared vacía, para dibujar luego solo sobre la pared (alFondo)
+const fondoDe = (x0, y0, x1, y1) => { const s = new Set(); for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) s.add(R.pget(x, y)); return s; };
+// (lo que se salga de la zona tampoco queda)
+const alFondo = (fondo, x0, y0, x1, y1, dibuja) => {
+  const v = new Array(320 * 180); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) v[y * 320 + x] = R.pget(x, y);
+  dibuja();
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const o = v[y * 320 + x]; if ((x < x0 || x > x1 || y < y0 || y > y1 || !fondo.has(o)) && R.pget(x, y) !== o) R.pset(x, y, o); }
+};
+const desenfocado = (x, y0, y1, col) => {
+  for (let y = y0; y <= y1; y++) for (let xx = x - 16; xx <= x + 16; xx++) {
+    if ((xx + y) % 2) continue; const cab = Math.hypot(xx - x, y - (y0 + 10)) < 10, cuerpo = y > y0 + 21 && Math.abs(xx - x) < 15 - Math.max(0, y0 + 27 - y);
+    if (cab || cuerpo) R.pset(xx, y, col);
+  }
+};
+const brazo = (x, y, dir, manga) => {
+  T.mano(R, x, y, dir, manga); const m = hex(manga), [x0, x1] = dir < 0 ? [x + 43, 319] : [0, x - 43];
+  if (x1 >= x0) { R.rect(x0, y - 2, x1, y + 2, m); R.rect(x0, y - 3, x1, y - 3, C.k); R.rect(x0, y + 3, x1, y + 3, C.k); }
+};
+const enMano = (x, suelo, dir) => [dir > 0 ? x + 11 : x - 5, suelo - 9];
+const reloj = (cx, cy, r, t) => {
+  R.disco(cx, cy, r + 1, C.k); R.disco(cx, cy, r, C.blanco); for (let k = 0; k < 12; k++) { const an = k / 12 * Math.PI * 2; R.pset(Math.round(cx + Math.cos(an) * (r - 1)), Math.round(cy + Math.sin(an) * (r - 1)), C.grisL); }
+  R.linea(cx, cy, cx - 3, cy - 2, C.k); R.linea(cx, cy, cx + 1, cy - r + 3, C.k); const s = Math.floor(t) / 60 * Math.PI * 2 - Math.PI / 2;
+  R.linea(cx, cy, Math.round(cx + Math.cos(s) * (r - 2)), Math.round(cy + Math.sin(s) * (r - 2)), C.rojoW); R.pset(cx, cy, C.k);
+};
+const destello = (x, y, r = 3, col = C.blanco) => { R.pset(x, y, col); for (let i = 1; i <= r; i++) { R.pset(x + i, y, col); R.pset(x - i, y, col); R.pset(x, y + i, col); R.pset(x, y - i, col); } };
+const gotita = (x, y, col = C.sangre) => { R.rect(x - 1, y - 1, x + 1, y + 1, col); R.pset(x, y - 2, col); R.pset(x - 1, y - 1, C.sangreL); };
+// una prueba (casilla de color con su icono), como las del decorado de las que no caben
+const COLS = [C.tealT, C.verdeT, C.amarilloT, hex('#e8a8b8')], ICON = ['gota', 'reloj', 'balanza', 'corona'];
+const prueba = (x, y, k) => { R.rect(x - 5, y - 5, x + 5, y + 5, C.k); R.rect(x - 4, y - 4, x + 4, y + 4, COLS[k % 4]); if (ICON[k % 4] === 'gota') R.disco(x, y, 2, C.sangre); else R.icono(ICON[k % 4], x - 3, y - 3, C.k, COLS[k % 4]); };
+
+// ── 1 · cien gotas caben en la cucharadita ───────────────────────────────────────────────────────────────────────
+const GX = 54, GY = 28, NACE = cien - 0.15, CAE = cuchara - 0.2;
+const p1 = (t) => {
+  T.gotaCuchara(R, t, { tejido: 0 });
+  const pared = fondoDe(10, 16, 300, 20);
+  alFondo(pared, 0, 0, 319, 139, () => { desenfocado(Math.round(lerp(360, -30, lin(t, -0.5, 4.2))), 40, 139, hex('#d4dce6')); desenfocado(Math.round(lerp(-40, 350, lin(t, 2.6, P2 + 1.2))), 34, 139, hex('#dcd6dc')); });
+  reloj(282, 76, 9, t);
+  // las cien gotitas: salen de la yema una tras otra, forman la rejilla y, a «teaspoon», caen en la cuchara
+  for (let k = 0; k < 100; k++) {
+    const t0 = NACE + k * 0.009, f = lin(t, t0, t0 + 0.32); if (f <= 0) break;
+    const i = k % 10, j = Math.floor(k / 10), gx = GX + i * 5, gy = GY + j * 5;
+    const cae = lin(t, CAE + (9 - j) * 0.05 + i * 0.006, CAE + (9 - j) * 0.05 + i * 0.006 + 0.35);
+    if (cae >= 1) continue;
+    let x, y; if (cae > 0) { x = lerp(gx, 100 + (i - 4.5) * 3, cae); y = lerp(gy, 118, cae * cae); } else { x = lerp(251, gx, f); y = lerp(121, gy, f) - Math.sin(f * Math.PI) * 26; }
+    gotita(Math.round(x), Math.round(y));
+  }
+  if (t > CAE + 0.6 && t < CAE + 1.4) { destello(84, 108, 3); destello(118, 112, 2); }
+  if (t > CAE + 0.45 && t < CAE + 0.7) for (const dx of [-8, -3, 4, 9]) R.pset(100 + dx, 104 - Math.abs(dx) / 3, C.sangreL);   // salpica
+  if (Math.sin(t * 5) > 0.6) destello(251, 116, 2);   // la gota de la yema brilla
+  // «and on top of that»: la mano de la enfermera baja hacia el dedo para apretarlo
+  const baja = tramo(t, a(0.4) - 0.1, P2); if (baja > 0) manoBaja(R, 258, -10, 262, Math.round(lerp(-30, 110, baja)), '#4aa8a0');
+};
+
+// ── 2 · apretar el dedo: el líquido de los tejidos se mezcla ─────────────────────────────────────────────────────
+const p2 = (t) => {
+  const crece = 0.35 + 0.65 * tramo(t, aprieta, dedo + 0.2), rc = tramo(t, fuera + 0.6, P3 - 0.1) * 0.62;
+  T.insertoDedo(R, t, { pica: 0, gota: crece, recoge: rc });
+  if (rc > 0) { const tx = Math.round(lerp(340, 186, Math.min(1, rc * 1.6))); if (tx + 43 < 320) { R.rect(tx + 43, 102, 319, 106, hex('#4aa8a0')); R.rect(tx + 43, 101, 319, 101, C.k); R.rect(tx + 43, 107, 319, 107, C.k); } }
+  const pared = fondoDe(0, 0, 60, 16);
+  alFondo(pared, 0, 0, 319, 91, () => { desenfocado(Math.round(lerp(-30, 350, lin(t, P2 - 0.4, P2 + 5))), 30, 91, hex('#d8d2ca')); desenfocado(Math.round(lerp(360, -30, lin(t, P2 + 3, P3 + 1))), 26, 91, hex('#d0d4da')); });
+  // el analizador pequeño de la mesa: primero rayas; a «throws off» salen los números y dos se ponen en rojo
+  const ax = 200, ay = 50; R.rect(ax, ay, ax + 62, ay + 50, C.k); R.rect(ax + 1, ay + 1, ax + 61, ay + 49, hex('#f4f6f8')); R.rect(ax + 1, ay + 1, ax + 61, ay + 4, hex('#e0e4ea'));
+  R.rect(ax + 6, ay + 8, ax + 56, ay + 40, C.k); R.rect(ax + 7, ay + 9, ax + 55, ay + 39, hex('#0e1a24')); T.logoTheranos(R, ax + 52, ay + 45, 0.3, t);
+  const vals = [98, 142, 7], malo = [false, true, true];
+  for (let k = 0; k < 3; k++) { const y = ay + 18 + k * 10, sale = t > altera - 0.3 + k * 0.12, roto = t > fuera && malo[k];
+    R.rect(ax + 10, y - 5, ax + 22, y - 3, hex('#3a5a7a'));
+    if (!sale) { if (parpadeo(t + k, 6)) R.rect(ax + 30, y - 4, ax + 44, y - 4, hex('#5ab0e8')); continue; }
+    const v = roto ? vals[k] + Math.round(Math.sin(t * 23 + k) * 40) : vals[k], dx = roto ? Math.round(Math.sin(t * 40 + k) * 1) : 0;
+    R.numero(String(Math.abs(v)), ax + 38 + dx, y, { centro: true, color: roto ? C.rojo : hex('#8ad0f0'), sombra: false });
+    if (roto && parpadeo(t, 9)) R.icono('!', ax + 50, y - 6, C.rojo, C.k); }
+  // la mano de la enfermera baja y aprieta el dedo
+  const baja = tramo(t, P2 - 0.6, aprieta), sube = tramo(t, mezcla + 0.6, mezcla + 1.3), apr = t > aprieta && t < mezcla + 0.6;
+  const hy = Math.round(lerp(-30, 94, baja) - lerp(0, 140, sube)) + (apr ? Math.round(Math.abs(Math.sin((t - aprieta) * 6)) * 2) : 0);
+  if (sube < 1) manoBaja(R, 186, -10, 150, hy, '#4aa8a0');
+  if (apr && Math.sin((t - aprieta) * 6) > 0) for (const [x, y] of [[143, 104], [143, 110], [158, 99], [160, 112]]) R.pset(x, y, C.blanco);
+  // el líquido de los tejidos: gotitas azuladas que se meten en la gota y la aclaran
+  const e = tramo(t, mezcla, tejido + 0.3), gy = 104 - Math.round(1 + crece * 2);
+  if (e > 0 && e < 1) for (let k = 0; k < 10; k++) { const an = k * 0.63 + t * 0.9, r = 18 - e * 15; R.disco(Math.round(161 + Math.cos(an) * r), Math.round(gy + Math.sin(an) * r * 0.7), 1, hex('#7ab8e0')); }
+  if (e > 0) { const col = e > 0.66 ? hex('#e87888') : e > 0.33 ? hex('#d8505e') : C.sangre; R.disco(161, gy, 2, col); R.pset(160, gy - 1, hex('#f8c8d0')); if (e > 0.5) R.pset(162, gy + 1, hex('#9ac8e8')); }
+};
+
+// ── 3 · el medidor de azúcar, en casa ────────────────────────────────────────────────────────────────────────────
+const toca = azucar - 0.05, numero = toca + 1.4, escribe = [casa - 0.55, casa + 0.05];
+const p3 = (t) => {
+  const listo = t < toca, cuenta = t < numero ? String(Math.max(1, 5 - Math.floor((t - toca) / 0.27))) : '98';
+  T.medidorAzucar(R, t, { valor: listo ? '' : cuenta });
+  const pared = fondoDe(220, 6, 300, 40);
+  // la ventana: un árbol que se mece, una nube y un pájaro que cruza (dibujados solo sobre la pared, por si acaso)
+  alFondo(pared, 12, 24, 100, 96, () => {
+    R.rect(18, 26, 94, 90, C.k); R.rect(20, 28, 92, 88, C.cielo3); R.rect(20, 76, 92, 88, C.hierba);
+    alFondo(new Set([C.cielo3]), 20, 28, 92, 75, () => {
+      const nx = Math.round(lerp(10, 110, lin(t, P3 - 2, P4 + 2))); for (const [dx, dy, r] of [[0, 0, 6], [7, 2, 5], [-6, 2, 4]]) R.disco(nx + dx, 40 + dy, r, C.blanco);
+      const px = Math.round(lerp(98, 14, lin(t, P3 + 2.2, P3 + 3.6))), py = 46 + Math.round(Math.sin(t * 3) * 2), al = Math.sin(t * 14) > 0; for (const [dx, dy] of [[0, 0], [-1, al ? -1 : 0], [1, al ? -1 : 0], [-2, al ? -2 : 0], [2, al ? -2 : 0]]) R.pset(px + dx, py + dy, C.k);
+    });
+    const sw = Math.round(Math.sin(t * 1.6) * 2); R.rect(70, 60, 72, 78, C.cortezaS); R.disco(71 + sw, 56, 10, C.hierbaS); R.disco(71 + sw, 54, 8, C.hierba); R.disco(67 + sw, 52, 3, C.hierbaL);
+    R.rect(55, 28, 56, 88, C.k); R.rect(20, 58, 92, 59, C.k); R.rect(14, 90, 98, 93, C.k); R.rect(15, 91, 97, 92, C.blanco);
+  });
+  // en la pantalla, antes de la gota, el dibujito de la gota que parpadea
+  if (listo && parpadeo(t, 4)) R.icono('gota', 147, 70, hex('#1a2a1a'), hex('#a8c8a0'));
+  if (t > numero && t < numero + 0.5) for (let x = 124; x < 178; x += 3) R.pset(x, 63, C.blanco);
+  // la taza que humea y el gato sentado en la mesa, que mueve la cola
+  R.rect(40, 100, 62, 128, C.k); R.rect(41, 101, 61, 127, C.blanco); R.rect(62, 106, 66, 118, C.k); R.rect(62, 108, 64, 116, C.blanco); for (let k = 0; k < 3; k++) R.linea(45 + k * 6, 98 - Math.round(((t * 8 + k * 5) % 14)), 47 + k * 6, 92 - Math.round(((t * 8 + k * 5) % 14)), C.grisL);
+  T.gato(R, 282, 128, t, { dir: -1 });
+  // las tres tiras sueltas («a few tests»), que brillan una tras otra, y la libreta con los números de otros días
+  for (let k = 0; k < 3; k++) { const x = 30 + k * 16, y = 150 + (k % 2) * 4; R.rect(x, y, x + 12, y + 3, C.k); R.rect(x + 1, y + 1, x + 11, y + 2, C.blanco); R.rect(x + 8, y + 1, x + 10, y + 2, [C.amarilloT, C.tealT, C.rojoW][k]); if (t > pocas - 0.2 + k * 0.15 && t < pocas + 0.3 + k * 0.15) destello(x + 9, y - 2, 2); }
+  R.rect(196, 136, 268, 174, C.k); R.rect(197, 137, 267, 173, hex('#f8f4e8')); R.rect(231, 137, 232, 173, hex('#d8d0c0')); for (let y = 146; y < 173; y += 10) { R.rect(199, y, 229, y, hex('#a8c0e0')); R.rect(234, y, 265, y, hex('#a8c0e0')); }
+  R.numero('110', 214, 145, { centro: true, color: hex('#3a4a8a'), sombra: false, fina: true }); R.numero('95', 214, 155, { centro: true, color: hex('#3a4a8a'), sombra: false, fina: true });
+  const n = Math.round(lin(t, escribe[0], escribe[1]) * 10); if (n > 0) R.numero('98', 214, 165, { centro: true, color: hex('#3a4a8a'), sombra: false, fina: true, n });
+  // la mano: acerca el dedo con la gota a la tira («sugar test»), se aparta y vuelve con el lápiz a apuntarlo
+  let hx, hy, lapiz = false;
+  if (t < toca + 0.5) { const u = tramo(t, P3 + 0.6, toca); hx = Math.round(lerp(345, 166, u)); hy = 146; }
+  else if (t < escribe[0] - 0.4) { const u = tramo(t, toca + 0.5, toca + 1.2); hx = Math.round(lerp(166, 300, u)); hy = Math.round(lerp(146, 150, u)); lapiz = t > toca + 1.3; }
+  else { const u = tramo(t, escribe[0] - 0.4, escribe[0]); hx = Math.round(lerp(300, 232, u) + (t > escribe[0] && t < escribe[1] ? Math.sin(t * 30) * 1.5 + lin(t, escribe[0], escribe[1]) * 6 : 0)); hy = Math.round(lerp(150, 158, u)); lapiz = true; }
+  if (lapiz) { R.linea(hx - 9, hy - 2, hx - 17, hy + 6, C.k); R.linea(hx - 8, hy - 2, hx - 16, hy + 6, C.amarilloT); R.pset(hx - 17, hy + 7, C.k); }
+  brazo(hx, hy, -1, '#5a7ab8');
+  if (t < toca + 0.2) { R.disco(hx - 11, hy - 1, 1, C.sangre); R.pset(hx - 12, hy - 2, C.sangreL); }
+};
+
+// ── 4 · las pruebas no caben en una sola gota ────────────────────────────────────────────────────────────────────
+const caidas = [[decenas + 0.05, 150, 0], [decenas + 0.65, 168, 1], [sola - 0.2, 136, 2], [sola + 0.45, 160, 3]];
+const coge = precision - 0.75, lanza = precision - 0.45;
+const p4 = (t) => {
+  T.noCaben(R, t);
+  // «single drop»: la gota late con un anillo
+  if (t > sola - 0.1 && t < sola + 0.7) { const r = 21 + Math.round(lin(t, sola - 0.1, sola + 0.7) * 6); for (let a = 0; a < 6.28; a += 0.12) R.pset(Math.round(200 + Math.cos(a) * r), Math.round(100 + Math.sin(a) * r), C.sangreL); }
+  // algunas pruebas rebotan y caen al suelo, donde se quedan
+  caidas.forEach(([t0, x1, k]) => { const u = lin(t, t0, t0 + 0.55); if (u <= 0) return; if (k === 2 && t > coge) return;
+    const x = Math.round(lerp(182, x1, u)), y = Math.round(lerp(100, 168, u * u) - Math.sin(u * Math.PI) * 10 + (u >= 1 ? -Math.round(Math.abs(Math.sin((t - t0 - 0.55) * 9)) * 3 * Math.max(0, 1 - (t - t0 - 0.55) * 2)) : 0)); prueba(x, y, k); });
+  // la técnica entra, señala la gota, coge una prueba del suelo y la lanza: rebota
+  const w = tramo(t, P4 + 0.1, decenas + 0.8), tx = Math.round(lerp(-18, 104, w)), dirT = 1;
+  const encoge = t > precision + 0.15;
+  const g = R.actor(EL.tecnica, tx, 174, t, { dir: dirT, anda: w > 0 && w < 1, sorpresa: t > decenas && t < decenas + 0.5, dedo: (t > sola - 0.1 && t < sola + 0.7) || (t > lanza - 0.15 && t < lanza + 0.2), brazos: encoge && t < precision + 0.8, sonrisa: t > precision + 0.8 });
+  if (t > coge && t < lanza) { const [hx, hy] = enMano(tx, 174, dirT); prueba(hx + 2, hy, 2); }
+  if (t >= lanza) { const u = lin(t, lanza, precision), v = lin(t, precision, precision + 0.6); const [hx, hy] = g.mano;
+    const x = v > 0 ? Math.round(lerp(180, 122, v)) : Math.round(lerp(hx, 180, u)), y = v > 0 ? Math.round(lerp(100, 168, v * v) - Math.sin(v * Math.PI) * 18) : Math.round(lerp(hy, 100, u) - Math.sin(u * Math.PI) * 24); prueba(x, y, 2);
+    if (v > 0 && v < 0.3) R.icono('X', 184, 82, C.rojo, C.k); }
+  // el técnico, con su carpeta, cuenta las pruebas y se asombra
+  R.actor(EL.tecnico, 262, 174, t, { dir: -1, habla: t < decenas - 0.1 && parpadeo(t, 7), sorpresa: (t > decenas - 0.05 && t < decenas + 0.8) || (t > precision && t < precision + 0.4), dedo: t > sola + 0.8 && t < sola + 1.4, sonrisa: t > precision + 0.9 });
+  { const [hx, hy] = enMano(262, 174, -1); R.rect(hx - 2, hy - 6, hx + 5, hy + 3, C.k); R.rect(hx - 1, hy - 5, hx + 4, hy + 2, C.blanco); R.rect(hx - 1, hy - 6, hx + 4, hy - 6, C.maderaS); for (let k = 0; k < 3; k++) R.pset(hx, hy - 3 + k * 2, C.grisL); }
+};
+
+// ── 5 · el laboratorio de hoy: sigue siendo dificilísimo ─────────────────────────────────────────────────────────
+const p5 = (t) => {
+  T.labHoy(R, t);
+  // por la ventana de la izquierda cruza un pájaro (solo sobre el cielo)
+  const cielo = fondoDe(14, 20, 20, 26); alFondo(cielo, 12, 18, 88, 74, () => { const px = Math.round(lerp(92, 8, lin(t, P5 + 0.8, P5 + 2.6))), py = 30 + Math.round(Math.sin(t * 3) * 2), al = Math.sin(t * 14) > 0; for (const [dx, dy] of [[0, 0], [-1, al ? -1 : 0], [1, al ? -1 : 0], [-2, al ? -2 : 0], [2, al ? -2 : 0]]) R.pset(px + dx, py + dy, C.k); });
+  // tras el banco: la técnica pipetea en el chip; el técnico mira la pantalla, niega, y a los dos les sale una «?»
+  const pip = (t > P5 + 0.2 && t < P5 + 0.9) || (t > sigue + 0.9 && t < dificil - 0.2) || t > medicina + 0.3, aprieta = pip && Math.sin(t * 7) > 0;
+  const niega = t > sigue && t < sigue + 0.9, duda = t > dificil && t < medicina, sostiene = !(duda && t < dificil + 0.7);
+  detras([[0, 108, 319, 179]], () => {
+    R.actor(EL.tecnica, 100, 112, t, { dir: 1, dedo: sostiene, sorpresa: duda && t < dificil + 0.4, sonrisa: t > medicina, habla: t > sigue + 0.2 && t < sigue + 0.8 && parpadeo(t, 7) });
+    R.actor(EL.tecnico, 199, 112, t, { dir: niega ? (Math.floor((t - sigue) * 6) % 2 ? 1 : -1) : -1, habla: niega && parpadeo(t, 8), sonrisa: t > medicina, dedo: t > medicina + 0.4 && t < medicina + 1.0 });
+  });
+  // la pipeta en la mano de la técnica, que baja hasta la entrada del chip
+  const py = aprieta ? 2 : 0; if (sostiene) { R.linea(116, 86 + py, 121, 98 + py, C.k); R.linea(117, 86 + py, 122, 98 + py, C.k); R.linea(116, 87 + py, 120, 96 + py, C.blanco); R.rect(114, 82 + py, 118, 86 + py, C.k); R.rect(115, 83 + py, 117, 85 + py, C.tealT); } if (aprieta) R.pset(123, 101, C.sangre);
+  if (duda) { R.bocadillo(108, 80, { icono: '?' }); if (t > dificil + 0.25) R.bocadillo(206, 80, { icono: '?' }); }
+  // delante pasa una estudiante con una gradilla de tubos
+  const w = lin(t, P5 - 0.2, P6 + 0.2), sx = Math.round(lerp(-18, 228, w)); R.actor(EL.chica, sx, 177, t, { dir: 1, anda: w > 0 && w < 1 });
+  { const [hx, hy] = enMano(sx, 177, 1); R.rect(hx - 1, hy - 1, hx + 9, hy + 2, C.k); R.rect(hx, hy, hx + 8, hy + 1, C.metalL); for (let k = 0; k < 3; k++) { R.rect(hx + 1 + k * 3, hy - 7, hx + 2 + k * 3, hy - 1, C.k); R.pset(hx + 1 + k * 3, hy - 3, C.sangre); R.pset(hx + 1 + k * 3, hy - 7, [C.rojoW, C.tealT, C.amarilloT][k]); } }
+};
+
+// ── 6 · la promesa, envuelta para regalo ─────────────────────────────────────────────────────────────────────────
+const confeti = Array.from({ length: 46 }, (_, k) => [((k * 73) % 300) + 10, (k * 37) % 40, [C.rojo, C.oroL, C.tealT, C.verdeT, hex('#e8a8b8'), C.blanco][k % 6], 0.7 + (k % 5) * 0.12]);
+const flashes = [decia + 0.1, decia + 0.55];
+const p6 = (t) => {
+  const { rect, pset, disco } = R;
+  // el escenario: pared en tres bandas, el círculo de luz del foco, las cortinas y la tarima
+  rect(0, 0, 319, 60, hex('#1e2440')); rect(0, 60, 319, 110, hex('#262c4c')); rect(0, 110, 319, 179, hex('#2e3458'));
+  for (let y = 40; y < 140; y++) for (let x = 90; x < 230; x++) if (((x - 160) / 70) ** 2 + ((y - 100) / 46) ** 2 < 1 && (x + y) % 2 === 0) pset(x, y, hex('#3e4672'));
+  for (let y = 14; y < 140; y++) { const w = 4 + (y - 14) * 0.38; for (let x = Math.round(160 - w); x <= Math.round(160 + w); x++) if ((x + y) % 3 === 0) pset(x, y, hex('#545c88')); }
+  rect(154, 8, 166, 14, C.k); rect(155, 9, 165, 13, C.metalD); rect(157, 13, 163, 14, hex('#fff6d0'));
+  for (const [x0, x1] of [[0, 28], [292, 319]]) { rect(x0, 0, x1, 179, hex('#8a1e2a')); for (let x = x0 + 3; x < x1; x += 6) { rect(x, 0, x + 1, 179, hex('#6a1420')); rect(x + 3, 0, x + 3, 179, hex('#b0303e')); } }
+  rect(0, 0, 319, 6, hex('#8a1e2a')); for (let x = 0; x < 320; x += 10) disco(x + 5, 6, 4, hex('#8a1e2a'));
+  rect(0, 140, 319, 152, C.maderaL); for (let x = 0; x < 320; x += 24) rect(x, 141, x, 152, C.madera); rect(0, 140, 319, 140, C.madera); rect(0, 152, 319, 156, C.k); rect(0, 156, 319, 179, hex('#14182a'));
+  // a «Theranos» la caja brilla
+  const luz = tramo(t, teranos - 0.15, teranos + 0.3); if (luz > 0) for (let y = 86; y < 146; y++) for (let x = 100; x < 220; x++) if (((x - 160) / 60) ** 2 + ((y - 120) / 30) ** 2 < 1 && (x * 3 + y) % 4 === 0) pset(x, y, hex('#fff0b0'));
+  T.edison(R, 160, 140, t, { s: 1.2 });
+  // la cinta envuelve la caja y, a «exactly», salta el lazo
+  const u1 = tramo(t, P6 + 0.05, exacto - 0.2), u2 = tramo(t, P6 + 0.25, exacto - 0.05);
+  if (t < exacto) { if (u1 > 0) rect(157, 99, 163, 99 + Math.round(41 * u1), C.rojo); if (u2 > 0) { const hw = Math.round(48 * u2); rect(160 - hw, 116, 160 + hw, 122, C.rojo); } }
+  else { const pop = Math.max(0, 1 - (t - exacto) * 5); T.lazo(R, 160, 140 - Math.round(pop * 4), t, 1.2); if (pop > 0) { rect(157, 99, 163, 140, C.rojo); for (let k = 0; k < 8; k++) { const an = k / 8 * Math.PI * 2; pset(Math.round(160 + Math.cos(an) * (16 - pop * 8)), Math.round(84 + Math.sin(an) * (10 - pop * 4)), C.oroL); } } }
+  // a «claimed» cuelga la etiqueta con el visto bueno
+  if (t > decia - 0.1) { const sw = Math.sin((t - decia) * 5) * Math.max(0.2, 1 - (t - decia)) * 4, tx = Math.round(186 + sw), ty = 100; R.linea(170, 90, tx, ty - 1, C.oroL); rect(tx - 2, ty, tx + 14, ty + 10, C.k); rect(tx - 1, ty + 1, tx + 13, ty + 9, C.blanco); pset(tx, ty + 2, C.k);
+    for (let i = 0; i < 3; i++) pset(tx + 3 + i, ty + 5 + i, C.verdeL); for (let i = 0; i < 6; i++) pset(tx + 5 + i, ty + 7 - i, C.verdeL); }
+  // el público, abajo: miran, se sorprenden con el lazo y aplauden a «solved»; el fotógrafo dispara
+  const aplaude = t > resuelto, palmas = aplaude && Math.floor(t * 8) % 2 === 0;
+  R.actor(EL.periodista, 36, 178, t, { dir: 1, dedo: flashes.some((f) => t > f - 0.25 && t < f + 0.1), sorpresa: t > exacto && t < exacto + 0.5 });
+  { const cx = 50, cy = 151; rect(cx, cy, cx + 7, cy + 5, C.k); rect(cx + 1, cy + 1, cx + 6, cy + 4, C.metalD); disco(cx + 4, cy + 3, 1, C.metalL); rect(cx + 5, cy - 2, cx + 7, cy, C.k); }
+  R.actor(EL.senor30, 78, 179, t, { dir: 1, sorpresa: t > exacto && t < exacto + 0.6, brazos: palmas, sonrisa: aplaude });
+  R.actor(EL.senora30, 232, 179, t, { dir: -1, sorpresa: t > exacto && t < exacto + 0.6, brazos: aplaude && !palmas, sonrisa: aplaude || (t > teranos && t < decia) });
+  R.actor(EL.chico, 260, 177, t, { dir: -1, sorpresa: t > exacto + 0.1 && t < exacto + 0.7, brazos: palmas, sonrisa: aplaude, habla: t > teranos && t < decia && parpadeo(t, 7) });
+  // los flashes y el confeti
+  flashes.forEach((f) => { if (t > f && t < f + 0.1) { for (let y = 0; y < 180; y += 2) for (let x = (y / 2) % 2; x < 320; x += 2) pset(x, y, C.blanco); } else if (t > f && t < f + 0.25) destello(54, 148, 5); });
+  if (aplaude) confeti.forEach(([x0, y0, col, v], k) => { const dt = t - resuelto, y = Math.round(-10 - y0 + dt * 60 * v), x = Math.round(x0 + Math.sin(dt * 4 + k) * 5); if (y > 150) return; R.rect(x, y, x + (k % 2), y + 1, col); });
+};
+
+const año = (t) => t < P5 ? 2014 : t < P6 ? Math.round(lerp(2014, 2026, tramo(t, P5, P5 + 0.9))) : Math.round(lerp(2026, 2014, tramo(t, P6, P6 + 0.6)));
+const efectos = [
+  [NACE, 'burbujas', { dur: 1.1 }], [CAE + 0.2, 'whoosh'], [CAE + 0.6, 'brillo'],
+  [aprieta, 'golpecito'], [dedo, 'pop'], [mezcla + 0.1, 'burbujas', { dur: 1.8 }], [fuera, 'aviso'], [fuera + 1.0, 'papel'],
+  [pocas, 'brillo'], [toca, 'golpecito'], [numero, 'bip'], [escribe[0], 'lapiz'],
+  [decenas + 0.6, 'boing'], [sola + 1.0, 'toc'], [precision, 'boing'],
+  [P5 + 0.5, 'golpecito'], [dificil, 'pop'], [medicina, 'tic'],
+  [P6 + 0.1, 'papel'], [exacto, 'pop'], [teranos, 'brillo'], ...flashes.map((f) => [f, 'flash']), [resuelto + 0.05, 'palmada'], [resuelto + 0.5, 'palmada'],
+];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año });
+</script>
+</body>
+</html>

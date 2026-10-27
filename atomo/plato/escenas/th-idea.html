@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La idea no era una locura · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-IDEA (frases 35–36). Cinco planos:
+// 1 2003, el cuarto de la residencia de noche: ella dibuja en la libreta (la cabeza baja al ritmo del lápiz y el dibujo
+//   crece); cuando la voz dice «idea» se enciende una bombillita sobre su cabeza, se endereza y sonríe con el dedo en
+//   alto; luego sigue dibujando más deprisa; por la ventana cruza una estrella fugaz y el gato de la estantería bosteza;
+// 2 hoy, un laboratorio luminoso: la técnica, detrás de la mesa, levanta la pipeta y deja caer una gota en el chip
+//   («a few drops»), y del chip sube un «✓» («for some things»); el técnico llega con una bandeja de tubitos, la deja y
+//   señala la pantalla sonriendo; un pájaro cruza la ventana;
+// 3 el chip de cerca: una mano con pipeta deja una gota en la entrada; las gotitas corren y los tres resultados se
+//   marcan uno a uno; abajo crecen cuatro barras («more and more information») y aparecen cuatro gotas cada vez más
+//   pequeñas («less and less blood»);
+// 4 el plató de televisión: el regidor cuenta con los dedos; ella entra y presenta la caja tapada con una sábana
+//   (bocadillo con la luna: «dreaming»); cuando la voz dice «claiming it had already done it», tira de la sábana… y
+//   debajo solo hay una «?» (boing); el regidor se queda de piedra; el cámara mueve su cámara;
+// 5 la farmacia de hoy: la enfermera le trae a la clienta el papel de resultados y se lo da; ella lo lee, piensa en su
+//   salud (bocadillo con la gota) y le sale la «?» cuando la voz dice «based on those results»; al fondo, un cliente
+//   entra por la puerta automática con su cesta y coge algo de la estantería, y un chico mira una caja.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-idea');
+const { tramo, lerp, hex } = R;
+const C = T.C;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('idea2', f), b = (f) => en('problema', f);
+const lin = (t, t0, t1) => Math.max(0, Math.min(1, (t - t0) / (t1 - t0)));   // a paso constante (para andar)
+const P1b = a(0.3), P2 = a(0.62), P3 = b(0), P4 = b(0.5);
+
+// ── piezas de esta escena ──────────────────────────────────────────────────────────────────────────────────────────
+// dibujar a alguien «detrás» de una mesa: solo se copia lo que queda por encima de la línea yCorte
+const capa = R.nuevo(), VACIO = 0x01020304;
+function detras(yCorte, dibuja) { const prev = R.usar(capa); capa.fill(VACIO); dibuja(); R.usar(prev); for (let y = 0; y < yCorte; y++) for (let x = 0; x < 320; x++) { const c = capa[y * 320 + x]; if (c !== VACIO) R.pset(x, y, c); } }
+// la mano canónica con la manga que llega hasta el borde de la pantalla
+function manoLarga(x, y, dir, manga) { T.mano(R, x, y, dir, manga); const m = hex(manga), x0 = dir > 0 ? 0 : x + 43, x1 = dir > 0 ? x - 43 : 319; if (x1 >= x0) { R.rect(x0, y - 2, x1, y + 2, m); R.rect(x0, y - 3, x1, y - 3, C.k); R.rect(x0, y + 3, x1, y + 3, C.k); } }
+// una bombillita (luz 0–1) con sus rayos
+function bombillita(x, y, luz, t) {
+  const { disco, rect, linea } = R;
+  if (luz > 0) for (let k = 0; k < 8; k++) { const ang = k * Math.PI / 4 + 0.2, r0 = 7, r1 = 9 + Math.round(luz * 3 + Math.sin(t * 10 + k)); linea(Math.round(x + Math.cos(ang) * r0), Math.round(y + Math.sin(ang) * r0), Math.round(x + Math.cos(ang) * r1), Math.round(y + Math.sin(ang) * r1), C.oroL); }
+  disco(x, y, 5, C.k); disco(x, y, 4, luz > 0 ? C.solL : hex('#d8dce4')); R.pset(x - 2, y - 2, C.blanco); rect(x - 2, y + 5, x + 2, y + 8, C.k); rect(x - 1, y + 5, x + 1, y + 7, C.metal);
+}
+// una gota de sangre de radio r con la punta hacia arriba (x, y: centro de la parte redonda)
+function gota(x, y, r) {
+  const w = (j) => (j >= 0 ? Math.sqrt(Math.max(0, r * r - j * j)) : r * (1 + j / (2.2 * r)));
+  for (let j = -Math.round(2.2 * r); j <= r; j++) { const a = Math.round(w(j)); R.rect(x - a - 1, y + j, x + a + 1, y + j, C.k); }
+  for (let j = -Math.round(2.2 * r) + 1; j < r; j++) { const a = Math.round(w(j)) - 1; if (a >= 0) R.rect(x - a, y + j, x + a, y + j, C.sangre); }
+  if (r > 2) R.pset(x - Math.round(r / 2), y - 1, C.sangreL);
+}
+// el pájaro que cruza (solo se ve dentro del rectángulo de la ventana)
+function pajaro(x, y, t, [x0, y0, x1, y1]) { if (x < x0 || x > x1 || y < y0 || y > y1) return; const al = Math.floor(t * 8) % 2; R.pset(x, y, C.k); R.pset(x - 1, y - al, C.k); R.pset(x - 2, y - 1 + al, C.k); R.pset(x + 1, y - al, C.k); R.pset(x + 2, y - 1 + al, C.k); }
+
+// ── 1 · 2003: el cuarto de la residencia ───────────────────────────────────────────────────────────────────────────
+const IDEA = a(0.13), SIGUE = IDEA + 1.0;   // «idea»
+const p0 = (t) => {
+  T.cuarto(R, t);
+  T.gato(R, 44, 77, t + 5, { dir: 1 });   // en lo alto de la estantería; bosteza hacia el final
+  // la estrella fugaz por la ventana
+  const f = lin(t, 1.5, 2.0); if (f > 0 && f < 1) for (let i = 0; i < 6; i++) { const x = Math.round(lerp(266, 222, f) + i * 3), y = Math.round(lerp(24, 44, f) - i * 1.4); if (x > 203 && x < 287) R.pset(x, y, i < 2 ? C.blanco : C.grisL); }
+  const escribe = t < IDEA || t > SIGUE, baja = escribe && Math.floor(t * (t > SIGUE ? 6 : 4)) % 2 === 0 ? 1 : 0;
+  R.actor(EL.holmes, 118, 132 + baja, t, { dir: 1, sonrisa: t > IDEA && t < SIGUE + 0.6, dedo: t > IDEA + 0.15 && t < SIGUE });
+  T.cuartoMesa(R, t, { dibujo: 0.55 * lin(t, 0.4, IDEA - 0.1) + 0.45 * lin(t, SIGUE, P1b - 0.2) });
+  if (t > IDEA - 0.05 && t < SIGUE + 0.5) bombillita(126, 80, tramo(t, IDEA, IDEA + 0.15), t);
+};
+
+// ── 2 · hoy: el laboratorio luminoso ───────────────────────────────────────────────────────────────────────────────
+const GOTA = a(0.47), VISTO1 = a(0.53);   // «drops»; «for some things»
+const p1 = (t) => {
+  const { rect, pset, disco } = R;
+  T.labHoy(R, t);
+  pajaro(Math.round(lerp(4, 96, lin(t, P1b + 0.3, P1b + 2.6))), 46 + Math.round(Math.sin(t * 3) * 2), t, [12, 18, 88, 74]);
+  // la técnica, detrás de la mesa: levanta la pipeta sobre el chip y deja caer la gota
+  const sube = t > GOTA - 1.2 && t < GOTA + 0.9;
+  detras(108, () => R.actor(EL.tecnica, 100, 113, t, { dir: 1, dedo: sube, sonrisa: t > VISTO1 }));
+  if (sube) { const pr = t > GOTA - 0.15 ? 2 : 0; rect(117, 78, 119, 94, C.k); rect(118, 79, 118, 93, C.blanco); rect(116, 74 + pr, 120, 78, C.k); rect(117, 75 + pr, 119, 77, C.tealT); pset(118, 95, C.metalD); pset(118, 96, C.metalD); }
+  const g = lin(t, GOTA - 0.1, GOTA + 0.15); if (g > 0 && g < 1) disco(118, Math.round(lerp(97, 101, g)), 1, C.sangre);
+  // del chip sube un «✓»
+  const v = lin(t, VISTO1, VISTO1 + 1.0); if (v > 0 && v < 1) T.visto(R, 154, Math.round(90 - v * 14), 1);
+  // el técnico llega con la bandeja de tubitos, la deja en la mesa y señala la pantalla
+  const tx = Math.round(lerp(334, 272, lin(t, P1b + 0.1, P1b + 1.9))), lleva = t < P1b + 2.2;
+  detras(108, () => R.actor(EL.tecnico, tx, 113, t + 1, { dir: -1, anda: t < P1b + 1.9, dedo: t > VISTO1 + 0.2, sonrisa: t > VISTO1 + 0.2 }));
+  const bx = lleva ? tx - 12 : 258; rect(bx, lleva ? 103 : 105, bx + 14, lleva ? 105 : 107, C.k); rect(bx + 1, lleva ? 103 : 105, bx + 13, lleva ? 104 : 106, C.blanco); for (let k = 0; k < 4; k++) { const y = lleva ? 99 : 101; rect(bx + 2 + k * 3, y, bx + 3 + k * 3, y + 3, C.blanco); pset(bx + 2 + k * 3, y, [C.tealT, C.rojoW, C.amarilloT, C.tealT][k]); }
+};
+
+// ── 3 · el chip de cerca ───────────────────────────────────────────────────────────────────────────────────────────
+const MAS = a(0.76), MENOS = a(0.91);   // «more and more»; «less and less»
+const p2 = (t) => {
+  const { rect, disco, pset, linea } = R;
+  T.chipCerca(R, t, { u: lin(t, MAS - 1.5, MAS + 1.5) });
+  // la mano con la pipeta entra, deja la gota en la entrada y se va
+  const en1 = tramo(t, P2 + 0.1, P2 + 0.8), sal = tramo(t, P2 + 1.6, P2 + 2.2), hx = Math.round(lerp(-40, 48, en1 - sal)), hy = 54;
+  if (en1 - sal > 0) {
+    const pr = t > P2 + 0.95 && t < P2 + 1.5 ? 2 : 0; rect(hx + 5, hy - 22 + pr, hx + 9, hy - 18, C.k); rect(hx + 6, hy - 21 + pr, hx + 8, hy - 19, C.tealT);
+    rect(hx + 5, hy - 18, hx + 9, hy + 14, C.k); rect(hx + 6, hy - 17, hx + 8, hy + 13, C.blanco); rect(hx + 6, hy + 14, hx + 8, hy + 20, C.metalD); pset(hx + 7, hy + 21, C.metalD);
+    manoLarga(hx, hy, 1, '#f4f4f8');
+  }
+  const g = lin(t, P2 + 1.0, P2 + 1.3); if (g > 0 && g < 1) disco(55, Math.round(lerp(76, 86, g)), 2, C.sangre);
+  // abajo, «más y más información»: cuatro barras que crecen; «menos y menos sangre»: cuatro gotas cada vez más pequeñas
+  for (let k = 0; k < 4; k++) { const u = tramo(t, MAS + k * 0.3, MAS + k * 0.3 + 0.25); if (u <= 0) continue; const x = 196 + k * 16, hgt = Math.round((8 + k * 5) * u); rect(x, 172 - hgt, x + 10, 172, C.k); rect(x + 1, 173 - hgt, x + 9, 171, C.tealT); rect(x + 1, 173 - hgt, x + 2, 171, C.verdeT); }
+  if (t > MAS) { rect(192, 173, 264, 173, C.metalD); }
+  for (let k = 0; k < 4; k++) { if (t < MENOS - 0.6 + k * 0.25) continue; gota(70 + k * 22, 168, [6, 4, 3, 2][k]); }
+  if (t > MENOS - 0.6) { linea(66, 176, 140, 176, C.metalD); linea(136, 174, 140, 176, C.metalD); linea(136, 178, 140, 176, C.metalD); }
+};
+
+// ── 4 · el plató: la sábana y la «?» ──────────────────────────────────────────────────────────────────────────────
+const SUENA = b(0.13), TIRA = b(0.28), DESTAPA = b(0.38);   // «dreaming»; «claiming it had already done it»
+const p3 = (t) => {
+  const { rect } = R;
+  T.plato(R, t);
+  // el cámara, detrás de la cámara de la izquierda, la mueve un poco
+  R.actor(EL.sudadera, 4, 160, t, { dir: 1, dedo: Math.sin(t * 1.3) > 0.5 });
+  // la caja tapada con la sábana; cuando la sábana sube, debajo solo hay una «?»
+  const l = tramo(t, TIRA, DESTAPA);
+  if (l < 1) T.edison(R, 160, 130, t, { s: 1.2, sabana: 1 - l });
+  else { rect(111, 89, 209, 131, C.k); rect(112, 90, 208, 130, hex('#3a4462')); const s = Math.round(Math.max(0, 1 - (t - DESTAPA) * 4) * 4); R.icono('?', 150, 92 - s, T.C.rojo, T.C.k, 4); }
+  // ella entra, presenta la caja y tira de la sábana
+  const hx = Math.round(lerp(28, 84, lin(t, P3 + 0.05, P3 + 1.2)));
+  R.actor(EL.holmes, hx, 150, t, { dir: 1, anda: t < P3 + 1.2, dedo: t > P3 + 1.3 && t < TIRA - 0.2, habla: t > P3 + 1.3 && t < TIRA && Math.sin(t * 6) > 0, brazos: t > TIRA - 0.1 && t < DESTAPA + 0.2 });
+  if (t > SUENA && t < SUENA + 1.1) R.bocadillo(hx + 10, 118, { icono: 'luna' });
+  // el regidor, con los auriculares: cuenta con los dedos al empezar y se queda de piedra al ver la «?»
+  R.actor(EL.controlador, 238, 158, t, { dir: -1, dedo: t < P3 + 0.9 && Math.floor(t * 3) % 2 === 0, sorpresa: t > DESTAPA + 0.2 });
+  T.platoCamaras(R, t);
+};
+
+// ── 5 · la farmacia: el papel de resultados ────────────────────────────────────────────────────────────────────────
+const DA = b(0.6), PIENSA = b(0.74), DUDA = b(0.88);   // «selling it to people»; «decisions about their health»; «based on those results»
+const papel = (x, y) => { R.rect(x, y, x + 12, y + 14, C.k); R.rect(x + 1, y + 1, x + 11, y + 13, C.blanco); for (let k = 0; k < 4; k++) R.rect(x + 3, y + 3 + k * 3, x + 9, y + 3 + k * 3, k === 2 ? T.C.rojo : hex('#9aa0ac')); };
+const p4 = (t) => {
+  const { rect, pset } = R;
+  const puerta = tramo(t, P4 + 0.1, P4 + 0.5) - tramo(t, P4 + 1.6, P4 + 2.0);
+  T.farmacia(R, t, { rincon: false, puerta });
+  // un cliente entra por la puerta automática con su cesta, va a la estantería y coge algo
+  const cx = Math.round(lerp(2, 62, lin(t, P4 + 0.4, P4 + 2.2))), coge = t > P4 + 2.6 && t < P4 + 3.4;
+  if (t > P4 + 0.35) R.actor(EL.senor30, cx, 154, t, { dir: t > P4 + 2.4 && t < P4 + 3.6 ? -1 : 1, anda: t < P4 + 2.2, dedo: coge });
+  if (t > P4 + 0.35) { const bx = t > P4 + 2.4 && t < P4 + 3.6 ? cx - 6 : cx + 13; rect(bx, 145, bx + 8, 150, C.k); rect(bx + 1, 146, bx + 7, 149, C.rojoW); rect(bx + 2, 143, bx + 6, 143, C.k); if (t > P4 + 3.2) rect(bx + 2, 144, bx + 5, 146, hex('#4a8ae8')); }
+  // el chico, en la estantería de la derecha, mira una caja y le da la vuelta
+  R.actor(EL.chico, 252, 158, t + 2, { dir: 1, dedo: Math.sin(t * 0.8) > 0.6 });
+  { const g = Math.floor(t * 1.2) % 2; rect(266, 144 - g, 272, 150 - g, C.k); rect(267, 145 - g, 271, 149 - g, g ? hex('#e84a4a') : hex('#f0c040')); }
+  // la enfermera trae el papel, se lo da a la clienta y vuelve a su sitio
+  const ida = lin(t, P4 - 0.6, DA - 0.3), vuelta = lin(t, DA + 0.9, DA + 2.2), ex = Math.round(lerp(236, 184, ida) + vuelta * 40);
+  R.actor(EL.enfermera, ex, 156, t, { dir: vuelta > 0 && vuelta < 1 ? 1 : -1, anda: (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), sonrisa: true, habla: t > DA - 0.5 && t < DA + 0.6 && Math.sin(t * 6) > 0 });
+  // la clienta: espera, coge el papel, lo lee, piensa y duda
+  R.actor(EL.clienta, 150, 158, t, { dir: 1, triste: t > DUDA - 0.2, sonrisa: t > DA && t < DA + 0.7 });
+  const pasa = lin(t, DA, DA + 0.5); if (t < DA + 0.5) papel(Math.round(lerp(ex - 10, 166, pasa)), Math.round(lerp(141, 138, pasa))); else papel(166, 138 - (Math.sin(t * 2) > 0.7 ? 1 : 0));
+  if (t > PIENSA && t < DUDA - 0.1) R.bocadillo(160, 122, { icono: 'gota' });
+  if (t > DUDA) { const s = Math.round(Math.max(0, 1 - (t - DUDA) * 5) * 3); R.disco(158, 118 - s, 10, C.k); R.disco(158, 118 - s, 9, C.blanco); R.pset(156, 129 - s, C.k); R.pset(157, 129 - s, C.k); R.icono('?', 154, 111 - s, T.C.rojo, C.blanco, 2); }
+};
+
+const efectos = [[0.5, 'lapiz'], [IDEA, 'brillo'], [SIGUE + 0.1, 'lapiz'], [GOTA, 'pop'], [VISTO1, 'bip'],
+  [P2 + 1.1, 'burbujas'], [MAS, 'bip'], [MENOS - 0.6, 'pop'],
+  [TIRA, 'whoosh'], [DESTAPA, 'boing'], [P4 + 0.1, 'puerta'], [DA, 'papel'], [DUDA, 'pop']];
+T.rodar(E, R, [[0, p0], [P1b, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P1b ? 2003 : 2026) });
+</script>
+</body>
+</html>

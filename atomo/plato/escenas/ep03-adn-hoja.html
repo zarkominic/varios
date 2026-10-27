@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-adn.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-adn.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por pieza y por variante, con el plató, la luz y la cámara de las escenas de plastilina
+// (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28).
+//   __frame(0)  → la hoja entera (6 × 4 celdas de 320 × 180, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+// ?celda=k abre la celda k en la vista previa. window.__tiempos[k − 1]: lo que tardó la celda k (ms).
+import * as THREE from 'three';
+import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposAdn, celula, madeja, hilo, helice, foto, velarNucleo, ADN_MEDIDAS } from '/atomo/plato/kits/ep03-adn.js';
+
+const W = 1920, H = 1080;
+const T = ['celula', 'madeja', 'hilo', 'helice', 'humano'];
+const I = Object.fromEntries(T.map((t, i) => [t, i]));
+const P = await crearPlato({
+  piezas: T, tiposExtra: tiposAdn(['celula', 'madeja', 'hilo', 'helice']), atomo: false, alfa: true, post: false,
+  sombraFondo: ['p0', 'p1', 'p3', 'p4'],
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+
+// las celdas: [rótulo, poner(P) → info, { velo: opacidad (dos fotos: nucleo 0 y nucleo 1), d2(g, info) }]
+const C = [];
+const cel = (rot, poner, o = {}) => C.push({ rot, poner, ...o });
+const CEL = { pos: en(960, 560, 1), escala: 2.6, rot: [0.12, -0.38, 0] };
+cel('celula cerrada (corte 0)', () => celula(P, I.celula, { ...CEL, corte: 0 }));
+cel('celula corte 0,5, nucleo 1', () => celula(P, I.celula, { ...CEL, corte: 0.5, nucleo: 1 }));
+cel('celula corte 1, nucleo 1', () => celula(P, I.celula, { ...CEL, corte: 1, nucleo: 1 }));
+cel('celula corte 1, nucleo 0 (madeja)', () => celula(P, I.celula, { ...CEL, corte: 1, nucleo: 0 }));
+cel('celula: núcleo translúcido 0,5 (2D)', (nu) => celula(P, I.celula, { ...CEL, corte: 1, nucleo: nu }), { velo: 0.5 });
+cel('celula semilla 2, translúcido 0,3', (nu) => celula(P, I.celula, { ...CEL, corte: 1, nucleo: nu, semilla: 2 }), { velo: 0.3 });
+cel('celula de cerca, translúcido 0,45', (nu) => celula(P, I.celula, { pos: en(1010, 610, 5.5), escala: 3.4, rot: [0.18, -0.3, 0], corte: 1, nucleo: nu }), { velo: 0.45 });
+cel('celula nucleo 0 sin madeja', () => celula(P, I.celula, { ...CEL, corte: 1, nucleo: 0, madeja: false }));
+// madeja
+const MAD = { pos: en(960, 540, 2), escala: 2.2, rot: [0, 0, 0] };
+cel('madeja semilla 0', () => madeja(P, I.madeja, { ...MAD }));
+cel('madeja semilla 1', () => madeja(P, I.madeja, { ...MAD, semilla: 1 }));
+cel('madeja semilla 2, suelto 1', () => madeja(P, I.madeja, { ...MAD, semilla: 2, suelto: 1 }));
+cel('madeja de cerca', () => madeja(P, I.madeja, { pos: en(960, 560, 7), escala: 2.4, rot: [0.3, 0.5, 0] }));
+// hilo
+cel('hilo tension 0', () => hilo(P, I.hilo, { pos: en(960, 980, 3), escala: 1.2, rot: [0, 0, 0], largo: 6, tension: 0 }));
+cel('hilo tension 0,5, fase 2', () => hilo(P, I.hilo, { pos: en(960, 980, 3), escala: 1.2, rot: [0, 0, 0.3], largo: 6, tension: 0.5, fase: 2 }));
+cel('hilo de 2 m junto a la persona', () => {
+  const pos = [en(612, 600, 0.6)[0], 2.4, 0.6];
+  P.pieza(I.humano, { pos, escala: 2.4, rot: [0, 0.2, 0], postura: 'mirar arriba', huellaFija: [0.37, 0.21, 0] });
+  const R = 0.022, base = [en(880, 600, 0.9)[0], 0, 0.9];
+  hilo(P, I.hilo, { pos: base, escala: R / ADN_MEDIDAS.HILO, largo: 2 / 1.75 * 1.765 * 2.4 / (R / ADN_MEDIDAS.HILO), tension: 0.9, fase: 1 });
+});
+cel('madeja suelta + hilo que sale', () => {
+  const mj = madeja(P, I.madeja, { ...MAD, pos: en(820, 700, 2), escala: 1.6, semilla: 1, suelto: 1 });
+  hilo(P, I.hilo, { pos: mj.punta, escala: 1.6, rot: [0.0, 0, -0.3], largo: 4, tension: 0.3, fase: 0.5 });
+});
+// hélice
+const HX = { pos: en(960, 540, 3), escala: 1.0, rot: [0, 0, 0] };
+cel('helice semilla 0', () => helice(P, I.helice, { ...HX }));
+cel('helice semilla 1, giro 1', () => helice(P, I.helice, { ...HX, semilla: 1, giro: 1 }));
+cel('helice avance 0,5', () => helice(P, I.helice, { ...HX, avance: 0.5 }));
+cel('helice resalta 1', () => helice(P, I.helice, { ...HX, resalta: 1 }));
+cel('helice de lejos (largo 12)', () => helice(P, I.helice, { pos: en(960, 540, -2), escala: 0.4, rot: [0, 0, 0], largo: 14 }));
+cel('helice inclinada (rot x 0,5)', () => helice(P, I.helice, { ...HX, rot: [0.5, 0, 0.2] }));
+cel('helice de cerca', () => helice(P, I.helice, { pos: en(960, 540, 8), escala: 1.1, rot: [0, 0, 0], largo: 3, giro: 0.4 }));
+cel('helice tumbada (eje x)', () => helice(P, I.helice, { pos: en(960, 560, 2), escala: 0.8, rot: [0, 0, Math.PI / 2], largo: 8, semilla: 3 }));
+
+// ---------------------------------------------------------------- dibujo
+const lienzoGL = P.renderer.domElement;
+const cont = document.getElementById('escena');
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+const cache = [];
+window.__tiempos = [];
+function celda(k) {
+  if (cache[k]) return cache[k];
+  const c = C[k];
+  const a = performance.now();
+  let f, info;
+  if (c.velo != null) {
+    P.fotograma(0); P.limpiar(); c.poner(0); P.render(k + 1);
+    const abierta = foto(P);
+    P.fotograma(0); P.limpiar(); info = c.poner(1); P.render(k + 1);
+    f = foto(P);
+    const gf = f.getContext('2d');
+    gf.setTransform(f.width / W, 0, 0, f.width / W, 0, 0);
+    velarNucleo(gf, abierta, info.elipse, { opacidad: c.velo });
+  } else {
+    P.fotograma(0); P.limpiar(); info = c.poner(1); P.render(k + 1);
+    f = foto(P);
+  }
+  window.__tiempos[k] = Math.round(performance.now() - a);
+  return (cache[k] = f);
+}
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+function dibujar(t) {
+  ajustarCapa();
+  const k = Math.round(t);
+  if (k >= 1 && k <= C.length) {
+    g.drawImage(celda(k - 1), 0, 0, W, H);
+    POST.aplicar(g, k);
+    return;
+  }
+  g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+  const cw = W / 6, ch = H / 6;
+  C.forEach((c, j) => {
+    const x = (j % 6) * cw, y = Math.floor(j / 6) * ch;
+    g.drawImage(celda(j), x, y, cw, ch);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(x, y + ch - 22, cw, 22);
+    g.fillStyle = '#e8dcc0'; g.font = '15px sans-serif'; g.fillText(`${j + 1}. ${c.rot}`, x + 6, y + ch - 6);
+  });
+}
+const busq = new URLSearchParams(location.search);
+window.ESCENA ??= { id: 'ep03-adn-hoja', duracion: C.length + 1, marcas: {}, voz: [0, 0] };
+window.__celdas = C.map((c) => c.rot);
+window.__paso = 1;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>

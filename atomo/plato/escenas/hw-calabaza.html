@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Calabaza · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-CALABAZA (frase 20). Una granja americana al anochecer: una familia de emigrantes irlandeses junto a un barril con
+// un nabo pequeñito («?» en la caja: escasean). Entra rodando una calabaza enorme; al final la tallan y se enciende.
+import { preparar, rodar, noche, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-calabaza');
+const { PALA, PR, ELENCO, tramo, lerp, sale } = R;
+const m0 = M('calabaza', 0.5), L = E.duracion - m0, T = (f) => m0 + f * L;
+const granja = (t) => {
+  const u = t - m0;
+  noche(R, t, { luna: [70, 30, 12], hor: 140 });
+  for (let x = 0; x < R.W; x += 12) { R.rect(x, 128, x + 1, 140, PR.MADERA[1]); }
+  R.rect(0, 131, R.W, 132, PR.MADERA[2]); R.rect(0, 136, R.W, 137, PR.MADERA[2]);
+  sueloNoche(R, 140, { rampa: [PALA.CONTORNO, PALA.VERDE[0], PALA.MORADO[1], PALA.VERDE[1]] });
+  for (let k = 0; k < 9; k++) R.calabaza(20 + k * 34 + (k % 2) * 8, 146 + (k % 3) * 2, 0.45, t, { tallada: false });
+  R.rect(140, 150, 160, 172, PR.MADERA[1]); R.rect(140, 155, 160, 156, PALA.CONTORNO); R.rect(140, 166, 160, 167, PALA.CONTORNO);
+  R.nabo(150, 150, 0.7, t, { luz: false });
+  R.personaje(96, 176, 28, { ...ELENCO.pobre, sombrero: undefined, t, brazoD: u > 0.3 * L ? 'cara' : undefined });
+  R.personaje(118, 176, 18, { ...ELENCO.celta2, capa: undefined, sombrero: undefined, t: t + 1 });
+  const x = lerp(360, 214, sale(tramo(u, 0.5 * L, 0.68 * L)));
+  R.calabaza(Math.round(x), 174, 2.6, t, { tallada: u > 0.86 * L });
+};
+rodar(E, R, [[0, granja]], {
+  año: 1850,
+  caja: (t, e) => R.caja(t, t > T(0.3) && t < T(0.5) ? tramo(t, T(0.3), T(0.3) + 0.4) : 0, (x, y) => R.icono('?', x + 8, y, undefined, undefined, 2), { energia: e }),
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Galaxia · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-GALAXIA (frases 39–40). Cinco planos:
+// 1. zoom fuera desde la Tierra hasta la galaxia: más de cien mil millones de estrellas;
+// 2. una estrella de cerca con sus planetas girando (uno azul con nubes y luna, otro con anillos); al fondo, otras
+//    estrellas con el suyo: casi todas tienen;
+// 3. la forja: una estrella abierta por la mitad suelta átomos que viajan a dos planetas, el nuestro, con quien mira, y
+//    uno lejano con una silueta que no se distingue y una «?»;
+// 4. la sala de casa: se abre un archivo nuevo en el ordenador y quien lo lee coge la lupa;
+// 5. la balanza: el «✓» de creérselo todo y la «X» de descartarlo todo oscilan y la balanza se queda en medio, con la
+//    carpeta de la «?» bajo la lupa.
+import { preparar, rodar, galaxia, sistemaPlanetario, forjaAtomos, balanza, salaHoy, silla, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-galaxia');
+const { tramo } = R;
+const m = { g: M('galaxia', 0.5), i: M('investigador', 14.8) };
+const P2 = 5.0, P3 = 9.1, P4 = 14.4, P5 = 19.6, abre = P4 + 1.2, quieta = 21.7;
+const espacio = (t) => galaxia(R, t, tramo(t, m.g, P2 - 0.4));
+const planetas = (t) => sistemaPlanetario(R, t);
+const forja = (t) => { forjaAtomos(R, t, { u: tramo(t, P3 + 0.3, P4 - 0.3) }); R.actor(EL.sudadera, 62, 134, t, { dir: 1, quieto: true, sonrisa: true }); };
+const pantalla = (R, x0, y0, x1, y1, t) => { const a = Math.min(1, Math.max(0, (t - abre) * 2)); R.rect(x0 + 6, y0 + 4, x0 + 30, y0 + 28, C.ocre); if (a > 0) R.rect(x0 + 18, y0 + 4, x0 + 18 + Math.round(a * 12), y0 + 28, C.papel); R.icono('?', x0 + 15, y0 + 12, C.k, C.ocre); for (let k = 0; k < Math.round(a * 4); k++) R.rect(x0 + 34, y0 + 6 + k * 6, x1 - 6 - (k % 2) * 8, y0 + 7 + k * 6, C.grisL); };
+const lupa = (t) => {
+  salaHoy(R, t, { pantalla });
+  R.actor(EL.sudadera, 118, 128, t, { dir: 1, quieto: true, dedo: t > abre + 0.6, sonrisa: t > abre + 2.4 }); silla(R, 124, 124);
+  if (t > abre + 0.6) { const lx = 156 + Math.round(Math.sin(t * 1.5) * 10), ly = 86 + Math.round(Math.cos(t * 1.2) * 5); R.disco(lx, ly, 7, C.k); R.disco(lx, ly, 6, R.hex('#a8d8f0')); R.pset(lx - 2, ly - 3, C.blanco); R.linea(lx + 5, ly + 5, lx + 11, ly + 11, C.maderaS); }
+};
+const duda = (t) => balanza(R, t, { equilibrio: tramo(t, P5 + 0.6, quieta) });
+rodar(E, R, [[0, espacio], [P2, planetas], [P3, forja], [P4, lupa], [P5, duda]], { efectos: [[m.g + 2, 'whoosh'], [P3 + 0.3, 'brillo'], [abre, 'interruptor'], [quieta, 'tic']], año: 2026 });
+</script>
+</body>
+</html>

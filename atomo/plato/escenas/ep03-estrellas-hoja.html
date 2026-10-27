@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoja de prueba · kits/ep03-estrellas.js</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// HOJA DE PRUEBA del kit del episodio 3 kits/ep03-estrellas.js (no es una escena del vídeo: lleva rótulos).
+// Un fotograma por pieza y por variante, con el plató, la luz y la cámara de las escenas de plastilina
+// (pos [0, 3,8, 15,5], mira [0, 2,3, 0], fov 28); las piezas del espacio, sobre la foto del espacio de crearMundo a 10⁹.
+//   __frame(0)  → la hoja entera (6 × 5 celdas de 320 × 180, con su rótulo)
+//   __frame(k)  → la celda k (1…N) a tamaño completo, sin rótulo
+// ?celda=k abre la celda k en la vista previa.
+import * as THREE from 'three';
+import { crearPlato, crearPost } from '/atomo/plato/kits/plastilina-adulta.js';
+import { crearMundo, FINAL_TIERRA, camara, estadoMundo, fotoMundo } from '/atomo/plato/kits/ep03-cosmos.js';
+import { tiposEstrellas, uniformesEstrellas, sol, nucleo, estrellas, gigante, particula, neutrones, halo, destello, brilloNucleo,
+  solComoMundo, fotosCielo, cielo, fondoCielo, CIELO } from '/atomo/plato/kits/ep03-estrellas.js';
+
+const W = 1920, H = 1080;
+const T = ['sol', 'nucleo', 'nucleo', 'nucleo', 'estrellas', 'gigante', 'particula', 'particula', 'particula', 'particula', 'neutrones'];
+const I = { sol: 0, n0: 1, n1: 2, n2: 3, est: 4, gig: 5, p0: 6, p1: 7, p2: 8, p3: 9, neu: 10 };
+const P = await crearPlato({
+  piezas: T, tiposExtra: tiposEstrellas(), uniformes: uniformesEstrellas(), atomo: false, alfa: true, post: false,
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const cont = document.getElementById('escena');
+const mundo = crearMundo(cont, { captura: P.captura });
+mundo.lienzo.style.visibility = 'hidden';
+const lienzoGL = P.renderer.domElement;
+// el espacio a 10⁹ sin Sol (fondo de las celdas) y el mundo con su Sol (para comparar)
+const FONDO = fondoCielo(mundo, 931);
+const MUNDO_SOL = fotoMundo(mundo, estadoMundo(camara(9), 931, {}));
+// la viñeta y el grano del mundo, quitados (la hoja los vuelve a poner con crearPost)
+function sinVineta(c) {
+  const g = c.getContext('2d'), im = g.getImageData(0, 0, c.width, c.height), d = im.data, k = W / c.width;
+  const s = (a, b, x) => { x = Math.min(1, Math.max(0, (x - a) / (b - a))); return x * x * (3 - 2 * x); };
+  for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) {
+    const v = 1 - 0.42 * s(0.42, 1.12, Math.hypot(((x + 0.5) * k - 960) / 1080, ((y + 0.5) * k - 540) / 1080));
+    const o = (y * c.width + x) * 4; d[o] = Math.min(255, d[o] / v); d[o + 1] = Math.min(255, d[o + 1] / v); d[o + 2] = Math.min(255, d[o + 2] / v);
+  }
+  g.putImageData(im, 0, 0);
+  return c;
+}
+sinVineta(FONDO); sinVineta(MUNDO_SOL);
+const SOLM = solComoMundo(P, FINAL_TIERRA.sol, 0);
+let FC = null;
+
+// las celdas: [rótulo, poner(P), { fondo, d2 }]
+const C = [];
+const cel = (rot, poner, o = {}) => C.push({ rot, poner, fondo: 'espacio', ...o });
+cel('sol de frente / mundo (izq.)', () => sol(P, I.sol, { ...SOLM }), {
+  d2: (g) => { g.save(); g.beginPath(); g.rect(0, 0, 721, H); g.clip(); g.drawImage(MUNDO_SOL, 0, 0, W, H); g.restore(); },
+  debajo: (g) => halo(g, ...FINAL_TIERRA.sol, 1, 'sol') });
+cel('sol corte 0,5', () => sol(P, I.sol, { ...SOLM, corte: 0.5 }), { debajo: (g) => halo(g, ...FINAL_TIERRA.sol, 1, 'sol') });
+cel('sol corte 1, calor 0', () => sol(P, I.sol, { ...SOLM, corte: 1 }), { debajo: (g) => halo(g, ...FINAL_TIERRA.sol, 1, 'sol') });
+cel('sol corte 1, calor 1 (+ brilloNucleo)', () => sol(P, I.sol, { ...SOLM, corte: 1, calor: 1 }), {
+  debajo: (g) => halo(g, ...FINAL_TIERRA.sol, 1, 'sol'), d2: (g, s) => { const c = P.proyectar(s.centro); brilloNucleo(g, c[0], c[1], 0.27 * FINAL_TIERRA.sol[2], 0.8); } });
+cel('sol corte 1, calor 1, aprieta 1', () => sol(P, I.sol, { ...SOLM, corte: 1, calor: 1, aprieta: 1 }), { debajo: (g) => halo(g, ...FINAL_TIERRA.sol, 1, 'sol') });
+cel('sol corte 1 de cerca (núcleo)', () => sol(P, I.sol, { ...solComoMundo(P, [700, 900, 1500], 0), corte: 1, calor: 0.6 }));
+cel('nucleo hidrógeno', () => nucleo(P, I.n0, { pos: en(960, 540, 3), escala: 4.5, rot: [0.1, -0.3, 0] }), { fondo: 'plato' });
+cel('nucleo hidrógeno, calor 1', () => nucleo(P, I.n0, { pos: en(960, 540, 3), escala: 4.5, rot: [0.1, -0.3, 0], calor: 1 }), { fondo: 'plato' });
+cel('nucleo helio', () => nucleo(P, I.n0, { pos: en(960, 540, 3), escala: 4.5, rot: [0.1, -0.3, 0], helio: true, calor: 0.4 }), { fondo: 'plato' });
+cel('nucleo aplastado y ladeado (resignación)', () => nucleo(P, I.n0, { pos: en(960, 560, 3), escala: 4.5, rot: [0.1, -0.3, 0.35], sq: [1.18, 0.66, 1.18] }), { fondo: 'plato' });
+cel('tres núcleos + destello (2D)', () => {
+  nucleo(P, I.n0, { pos: en(600, 540, 3), escala: 2.6, rot: [0.1, -0.3, 0], calor: 0.5 });
+  nucleo(P, I.n1, { pos: en(900, 540, 3), escala: 2.6, rot: [0.3, 0.8, 0.2], calor: 0.5 });
+  nucleo(P, I.n2, { pos: en(1320, 540, 3), escala: 3.2, rot: [0.1, 0.2, 0], helio: true, calor: 0.6 });
+}, { fondo: 'calor', d2: (g) => destello(g, 750, 540, 260, 1, { rayos: 8, anillo: 0.4 }) });
+cel('estrellas (montón de cerca)', () => { const M = CIELO.monton.cerca; estrellas(P, I.est, { pos: en(960, 540, M.z), escala: M.escala, ...M }); });
+cel('estrellas (montón de lejos, sin desenfoque)', () => { const M = CIELO.monton.lejos; estrellas(P, I.est, { pos: en(960, 540, M.z), escala: M.escala, ...M }); });
+cel('estrellas celda 0,2, tamaño 0,24, hueco', () => estrellas(P, I.est, { pos: en(960, 540, 0), escala: 6, semilla: 5, celda: 0.2, tamano: 0.24, densidad: 0.7, hueco: { x: 0, y: 0, r: 0.25 } }));
+const GIG = () => solComoMundo(P, [960, 540, 380], -1);
+cel('gigante apaga 0 (+ halo)', () => gigante(P, I.gig, { ...GIG() }), { debajo: (g) => halo(g, 960, 540, 380, 1, 'gigante') });
+cel('gigante apaga 0,5', () => gigante(P, I.gig, { ...GIG(), apaga: 0.5 }), { debajo: (g) => halo(g, 960, 540, 380, 0.64, 'gigante') });
+cel('gigante apaga 1', () => gigante(P, I.gig, { ...GIG(), apaga: 1 }), { debajo: (g) => halo(g, 960, 540, 380, 0.28, 'gigante') });
+cel('gigante corte 1, hunde 0', () => gigante(P, I.gig, { ...GIG(), corte: 1 }));
+cel('gigante corte 1, hunde 0,5', () => gigante(P, I.gig, { ...GIG(), corte: 1, hunde: 0.5 }));
+cel('gigante corte 1, hunde 1', () => gigante(P, I.gig, { ...GIG(), corte: 1, hunde: 1 }));
+cel('gigante corte 1, hunde 1, de cerca', () => gigante(P, I.gig, { ...solComoMundo(P, [760, 860, 1900], -1), corte: 1, hunde: 1 }));
+cel('particulas: electrón, protón, protón→neutrón ½, neutrón', () => {
+  particula(P, I.p0, { pos: en(420, 540, 3), escala: 0.9, tipo: 'electron' });
+  particula(P, I.p1, { pos: en(760, 540, 3), escala: 0.9, tipo: 'proton' });
+  particula(P, I.p2, { pos: en(1140, 540, 3), escala: 0.9, tipo: 'proton', mezcla: 0.5 });
+  particula(P, I.p3, { pos: en(1500, 540, 3), escala: 0.9, tipo: 'neutron' });
+}, { fondo: 'plato' });
+cel('neutrones brillo 0,2', () => neutrones(P, I.neu, { pos: en(960, 540, 2), escala: 2.6, brillo: 0.2 }));
+cel('neutrones brillo 1 (+ halo)', () => neutrones(P, I.neu, { pos: en(960, 540, 2), escala: 2.6, rot: [0.4, 0.6, 0], brillo: 1 }), { debajo: (g) => halo(g, 960, 540, 390, 1, 'neutrones') });
+cel('halo nucleo, destello cálido y frío (2D)', () => {}, { d2: (g) => {
+  halo(g, 420, 540, 120, 1, 'nucleo');
+  destello(g, 960, 540, 240, 1, { rayos: 6 });
+  destello(g, 1500, 540, 240, 1, { rayos: 8, giro: 0.3, color: 'frio', anillo: 0.5 });
+} });
+cel('cielo u = 0', () => {}, { cielo: 0 });
+cel('cielo u = 0,5', () => {}, { cielo: 0.5 });
+cel('cielo u = 1 (final de ep3-sol)', () => {}, { cielo: 1 });
+
+// ---------------------------------------------------------------- dibujo
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+const cache = [];
+window.__tiempos = [];
+let FPLATO = null;
+function celda(k) {
+  if (cache[k]) return cache[k];
+  const c = C[k];
+  const a = performance.now();
+  const f = document.createElement('canvas'); f.width = lienzoGL.width; f.height = lienzoGL.height;
+  const gf = f.getContext('2d');
+  gf.setTransform(f.width / W, 0, 0, f.width / W, 0, 0);
+  if (c.fondo === 'plato') {
+    if (!FPLATO) { P.fotograma(0); P.limpiar(); P.render(1); FPLATO = document.createElement('canvas'); FPLATO.width = f.width; FPLATO.height = f.height; FPLATO.getContext('2d').drawImage(lienzoGL, 0, 0); }
+  }
+  if (c.fondo === 'plato') gf.drawImage(FPLATO, 0, 0, W, H);
+  else if (c.fondo === 'calor') {
+    const gr = gf.createRadialGradient(960, 540, 0, 960, 540, 1100);
+    gr.addColorStop(0, '#f6dcaa'); gr.addColorStop(0.5, '#e09a4a'); gr.addColorStop(1, '#8a3c14');
+    gf.fillStyle = gr; gf.fillRect(0, 0, W, H);
+  } else gf.drawImage(FONDO, 0, 0, W, H);
+  if (c.cielo != null) {
+    if (!FC) FC = fotosCielo(P, { sol: I.sol, estrellas: I.est, gigante: I.gig });
+    cielo(gf, FC, { u: c.cielo });
+  } else {
+    if (c.debajo) c.debajo(gf);
+    P.fotograma(0); P.limpiar();
+    const info = c.poner(P);
+    P.render(k + 1, { fondo: c.fondo === 'plato' ? undefined : false });
+    gf.save(); gf.setTransform(1, 0, 0, 1, 0, 0); gf.drawImage(lienzoGL, 0, 0); gf.restore();
+    if (c.d2) c.d2(gf, info);
+  }
+  window.__tiempos[k] = Math.round(performance.now() - a);
+  return (cache[k] = f);
+}
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+function dibujar(t) {
+  ajustarCapa();
+  const k = Math.round(t);
+  if (k >= 1 && k <= C.length) {
+    g.drawImage(celda(k - 1), 0, 0, W, H);
+    POST.aplicar(g, k);
+    return;
+  }
+  g.fillStyle = '#0b0c0f'; g.fillRect(0, 0, W, H);
+  const cw = W / 6, ch = H / 6;
+  C.forEach((c, j) => {
+    const x = (j % 6) * cw, y = Math.floor(j / 6) * ch;
+    g.drawImage(celda(j), x, y, cw, ch);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.fillRect(x, y + ch - 22, cw, 22);
+    g.fillStyle = '#e8dcc0'; g.font = '15px sans-serif'; g.fillText(`${j + 1}. ${c.rot}`, x + 6, y + ch - 6);
+  });
+}
+const busq = new URLSearchParams(location.search);
+window.ESCENA ??= { id: 'ep03-estrellas-hoja', duracion: C.length + 1, marcas: {}, voz: [0, 0] };
+window.__celdas = C.map((c) => c.rot);
+window.__paso = 1;
+window.__frame = async (t) => dibujar(t);
+window.__listo = true;
+if (!busq.has('captura')) dibujar(Number(busq.get('celda') ?? 0));
+</script>
+</body>
+</html>

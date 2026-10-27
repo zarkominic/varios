@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La franja de los ojos · pixel</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #04030a; overflow: hidden; }
+  canvas { display: block; position: fixed; inset: 0; }
+</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PX-EP3-OJO · muestra de pixel art del episodio 3, escena 2 (frases 5–7). Mismos golpes que ep3-ojo (plastilina), en el
+// lienzo de 480 × 270 de kits/pixel-ep03.js (escalado ×4), con el ojo de kits/pixel-ep03-ojo.js y los instrumentos de
+// kits/pixel-ep03-instrumentos.js (lo crea esta escena; px-ep3-promesa lo usa para su primer fotograma).
+//  0        el último fotograma de px-ep3-hola, igual: OJO.pintarFinalHola() y Atom en su sitio con t = 0.
+//  franja   (DETALLE) la cámara se mete en la franja: el ojo se vuelve a pintar a cada escala (nunca se amplía: la rejilla
+//           de píxeles es siempre la misma) y la franja, que está delante, crece y se enciende hasta un fogonazo cálido.
+//           Dentro, entre los párpados enormes y a contraluz (pestañas desenfocadas delante), un espacio oscuro con una
+//           bruma cálida a lo largo y motas que corren. Pasan de cerca, de derecha a izquierda (despacio por el centro y
+//           deprisa al entrar y salir), un pelo con su cutícula, la Luna, un puñado de estrellas y una galaxia tenue.
+//           En la segunda mitad de la frase, (PLANO GENERAL) la cámara se abre de golpe al ojo entero, cerrado sobre la
+//           franja, y sube desde abajo, enorme, un teléfono tumbado con la pantalla encendida que tapa casi toda la
+//           franja (solo asoman sus puntas).
+//  serinden (PRIMER PLANO del párpado, por corte) la franja se estrecha hasta un borde fino delante de la rendija oscura y
+//           los párpados se cierran.
+//  medir    (PLANO GENERAL, por corte) el ojo cerrado, que se oscurece hacia el frío; pasan uno tras otro un microscopio
+//           (con la lámpara encendida), el anillo de un acelerador (dos paquetes de luz que dan media vuelta cada uno y
+//           chocan en el detector de delante) y un telescopio espacial que llega, se para en el centro y flota, mientras el
+//           ojo se funde (tramado) en un cielo estrellado. termina_con: INS.FIN (pintarFinOjo) y Atom quieto.
+// Atom: reloj t hasta el corte de «medir» y t − duración después (en el último fotograma, el Atom de t = 0 que espera
+// px-ep3-promesa); energía 0 en los últimos 0,6 s.
+// Coste: lo quieto (el ojo del principio, el ojo cerrado, el interior de la franja, sus párpados, los sprites y el final)
+// se pinta al cargar; en cada fotograma, como mucho un ojo del kit en vivo (empuje, apertura y primer plano) o pegar capas
+// y sprites, Atom y el post.
+import { escena } from '/atomo/plato/escena.js';
+import { crearPixel } from '/atomo/plato/kits/pixel-ep03.js';
+import * as OJO from '/atomo/plato/kits/pixel-ep03-ojo.js';
+import * as INS from '/atomo/plato/kits/pixel-ep03-instrumentos.js';
+
+const E = await escena('px-ep3-ojo', 'ep03px');
+const c0 = performance.now();
+const PX = crearPixel(document.getElementById('lienzo'));
+const { PAL, W, H, clamp, mezcla, suave, sale, entra, entraSale, paso, fot, tono, vnoise, fbm, hash2, b4, b8, mulberry32, rgb, color, hex } = PX;
+const CX = W / 2;
+const M = (k) => E.marca(k);
+const m = {
+  franja: M('franja'), franjaFin: M('franja_fin'), rinden: M('serinden'), rindenFin: M('serinden_fin'),
+  medir: M('medir'), medirFin: M('medir_fin'),
+};
+const D = E.duracion, QUIETO = D - 0.6;
+const prog = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+const energia = (t) => (t >= QUIETO ? 0 : E.energia(t));
+
+// ───────────────────────────────────────────────────────────── tiempos (todo sale de las marcas)
+// (las palabras sueltas no tienen marca: lo que pasa dentro de una frase va en fracciones de la frase, las mismas que la
+// plastilina)
+const enF = (u) => mezcla(m.franja, m.franjaFin, u), enM = (u) => mezcla(m.medir, m.medirFin, u);
+const T = {
+  // frase 5: el empuje (arranca 0,2 s antes de la marca), el fogonazo y el desfile dentro de la franja
+  entra0: m.franja - 0.2, flash: m.franja + 0.55, dentro: m.franja + 0.95,
+  pelo: enF(0.26), luna: enF(0.35), estrellas: enF(0.455), galaxia: enF(0.585),
+  // segunda mitad: la cámara se abre de golpe al ojo entero y sube el teléfono
+  abre0: enF(0.665), abre1: enF(0.665) + 0.42, tel0: enF(0.72), tel1: enF(0.84),
+  // frase 6: corte al párpado; la franja se estrecha (el golpe, completo poco después de la marca) y el ojo se cierra
+  cerca: m.rinden - 0.22, estrecha0: m.rinden - 0.15, estrecha1: m.rinden + 0.5, cierra0: m.rinden + 0.5, cierra1: m.rinden + 1.1,
+  // frase 7: corte al ojo cerrado, que se oscurece; pasan los instrumentos; el ojo se funde en el cielo
+  general: m.medir - 0.25, oscuro1: m.medir + 0.25,
+  micro: enM(0.075), anillo: enM(0.27), tele0: enM(0.40), tele1: enM(0.58), cielo0: enM(0.36), cielo1: enM(0.53),
+};
+T.choque = T.anillo + 0.25;
+
+// ───────────────────────────────────────────────────────────── el ojo del kit, con la rendija a escala
+// El hueco entre los párpados cerrados es FRANJA.alto + 1 (kit del ojo): al acercarse, el hueco crece con la cámara.
+const FIN = OJO.FIN;
+function ojoEsc(o, hueco) {
+  const a0 = OJO.FRANJA.alto;
+  OJO.FRANJA.alto = hueco - 1;
+  try { return OJO.ojo(o); } finally { OJO.FRANJA.alto = a0; }
+}
+const OJO_FIN = PX.nuevaCapa(W, H);
+PX.en(OJO_FIN, () => OJO.pintarFinalHola());
+const OJO_CERRADO = PX.nuevaCapa(W, H);
+PX.en(OJO_CERRADO, () => ojoEsc({ ...FIN, t: 0, franja: null }, 0));
+
+// el empuje: escala del ojo (z) y el fogonazo
+function empuje(t) {
+  const p = prog(t, T.entra0, T.flash), z = Math.exp(Math.log(4.6) * p * p);
+  const g = entra(p);
+  ojoEsc({ ...FIN, a: FIN.a * z, t: 0, franja: { ancho: 1, alto: 3 * z * (1 + 0.5 * g), brillo: 1 } }, 3 * z + 1);
+  PX.luz(FIN.cx, FIN.cy, 80 + 260 * g, rgb(PAL.AMBAR[4]), 0.55 * g, 4);
+  PX.velo(PAL.AMBAR[5], suave(T.flash - 0.28, T.flash, t));
+}
+
+// ───────────────────────────────────────────────────────────── dentro de la franja
+const YC = 134;
+const yArr = (x) => 63 + 11 * ((x + 0.5 - CX) / CX) ** 2;     // el borde del párpado de arriba
+const yAba = (x) => 204 - 9 * ((x + 0.5 - CX) / CX) ** 2;     // el del de abajo
+const FONDO = PX.nuevaCapa(W, H), PARPADOS = PX.nuevaCapa(W, H);
+{
+  const AM = rgb(PAL.AMBAR[3]), fb = FONDO.buf;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const yu = yArr(x), yl = yAba(x);
+    const dv = (y + 0.5 - YC) / ((yl - yu) / 2);
+    let v = 1.0 + 1.6 * (1 - Math.min(1, dv * dv)) + 0.7 * (fbm(x * 0.012 + 3, y * 0.035, 3) - 0.5);
+    v -= 1.3 * Math.exp(-Math.max(0, y - yu) / 7) + 1.1 * Math.exp(-Math.max(0, yl - y) / 7);
+    let c = tono(PAL.NOCHE, v, x, y, 1);
+    // la bruma cálida a lo largo, con jirones
+    const I = (0.46 * Math.exp(-(((y + 0.5 - YC) / 15) ** 2)) + 0.13 * Math.exp(-(((y + 0.5 - YC) / 42) ** 2))) * (0.6 + 0.6 * fbm(x * 0.009 + 9, y * 0.06, 3));
+    const q = Math.floor(I * 5 + b4(x, y)) / 5;
+    if (q > 0) c = color((c & 255) + AM[0] * q, ((c >>> 8) & 255) + AM[1] * q, ((c >>> 16) & 255) + AM[2] * q);
+    fb[y * W + x] = c;
+  }
+}
+{
+  // los párpados a contraluz: el canto húmedo coge la luz de la franja; la línea de las pestañas; la piel, en sombra
+  const PI = PAL.PIEL, CA = OJO.PALO.CARUNCULA, pb = PARPADOS.buf;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const yu = yArr(x), yl = yAba(x), tex = 0.35 * (fbm(x * 0.05, y * 0.05, 2) - 0.5);
+    let c = 0;
+    if (y + 0.5 < yu) {
+      const e = yu - (y + 0.5);
+      if (e < 1.6) c = tono(PI, 3.3 + tex, x, y, 0.5);
+      else if (e < 4.2) c = e < 3 ? PAL.TINTA : PAL.PELO[0];
+      else c = tono(PI, 0.15 + 2.5 * Math.exp(-(e - 4.2) / 8) + tex - 0.6 * suave(0, 60, -(y - 20)), x, y, 0.6);
+    } else if (y + 0.5 > yl) {
+      const e = (y + 0.5) - yl;
+      if (e < 2.4) c = (hash2(x >> 1, 7) > 0.8 && e < 1.2) ? CA[4] : tono(CA, 2.6 + tex + (e < 1.2 ? 0.6 : 0), x, y, 0.5);   // la línea de agua
+      else if (e < 4.4) c = e < 3.4 ? PAL.TINTA : PAL.PELO[0];
+      else c = tono(PI, 0.2 + 2.6 * Math.exp(-(e - 4.4) / 9) + tex, x, y, 0.6);
+    }
+    pb[y * W + x] = c;
+  }
+  // pestañas: trazos que se afinan, con el borde tramado (desenfocadas); unas sobre la piel y otras, más cerca, delante
+  // de la franja
+  const rnd = mulberry32(31);
+  const pestana = (x0, y0, ang, L, g0, curva) => {
+    let x = x0, y = y0, a = ang;
+    const n = Math.ceil(L * 2);
+    for (let i = 0; i <= n; i++) {
+      const f = i / n, r = mezcla(g0, 0.6, f);
+      for (let yy = Math.floor(y - r - 1); yy <= Math.ceil(y + r + 1); yy++) for (let xx = Math.floor(x - r - 1); xx <= Math.ceil(x + r + 1); xx++) {
+        if (xx < 0 || yy < 0 || xx >= W || yy >= H) continue;
+        const d = Math.hypot(xx + 0.5 - x, yy + 0.5 - y);
+        if (d <= r) pb[yy * W + xx] = PAL.TINTA;
+        else if (d <= r + 1 && b4(xx, yy) < 0.5 && pb[yy * W + xx] !== PAL.TINTA) pb[yy * W + xx] = PI[0];
+      }
+      a += curva / n; x += Math.cos(a) * 0.5; y += Math.sin(a) * 0.5;
+    }
+  };
+  for (let i = 0; i < 12; i++) {
+    const x0 = 8 + i * 42 + rnd() * 18, s = Math.sign(x0 - CX) || 1, k = Math.abs(x0 - CX) / CX;
+    pestana(x0, yArr(x0) - 3, -Math.PI / 2 + s * (0.35 + 0.55 * k), 22 + rnd() * 20, 1.6 + rnd() * 0.8, s * (0.5 + 0.4 * rnd()));
+  }
+  for (let i = 0; i < 9; i++) {
+    const x0 = 30 + i * 52 + rnd() * 20, s = Math.sign(x0 - CX) || 1, k = Math.abs(x0 - CX) / CX;
+    pestana(x0, yAba(x0) + 3, Math.PI / 2 - s * (0.3 + 0.5 * k), 10 + rnd() * 8, 1.1 + rnd() * 0.5, -s * 0.3);
+  }
+  // las de delante (más cerca de la cámara: más gruesas y más borrosas), colgando sobre la franja
+  pestana(70, yArr(70) - 1, Math.PI / 2 + 0.75, 26, 3.2, -1.3);
+  pestana(392, yArr(392) - 1, Math.PI / 2 - 0.6, 30, 3.6, 1.4);
+  pestana(212, yArr(212) - 1, Math.PI / 2 + 0.35, 16, 2.6, -1.0);
+  pestana(150, yAba(150) + 1, -Math.PI / 2 - 0.5, 13, 2.4, 0.9);
+  pestana(338, yAba(338) + 1, -Math.PI / 2 + 0.45, 15, 2.6, -0.9);
+}
+// motas que corren por la franja (de derecha a izquierda, con paralaje)
+const MOTAS = (() => { const r = mulberry32(57); return Array.from({ length: 26 }, () => [r() * (W + 60), YC + (r() - 0.5) * 120, 18 + r() * 70, r()]); })();
+function motas(t) {
+  const tq = paso(t, 15);
+  for (const [x0, y0, v, k] of MOTAS) {
+    const x = ((x0 - v * tq) % (W + 60) + W + 60) % (W + 60) - 30, y = y0 + Math.sin(tq * 0.8 + k * 9) * 3;
+    if (v > 65) PX.luz(x, y, 3.2, rgb(PAL.AMBAR[4]), 0.5, 3);
+    else PX.pset(Math.round(x), Math.round(y), k > 0.5 ? PAL.CREMA[4] : PAL.AMBAR[3]);
+  }
+}
+// lo que pasa: x = centro − A·g(p), p = (t − tc)/DH; g lento en el centro y rápido en los bordes
+const DH = 0.9;
+const pasa = (t, tc, A) => { const p = (t - tc) / DH; if (Math.abs(p) > 1) return null; return Math.round(CX - A * (0.3 * p + 0.7 * p * p * p)); };
+
+// el pelo (de cerca: un tubo con las escamas de la cutícula)
+const RAMPA_PELO = PAL.PELO.concat([hex('#b07a4c'), hex('#d6a571')]);
+const PELO = PX.nuevaCapa(64, 220); PELO.ox = 32; PELO.oy = 110;
+for (let y = 0; y < PELO.h; y++) for (let x = 0; x < PELO.w; x++) {
+  const xc = 32 + (y - 110) * 0.14 + 2.5 * Math.sin(y * 0.025), d = (x + 0.5 - xc) / 12.5;
+  if (Math.abs(d) > 1) continue;
+  const nz = Math.sqrt(1 - d * d);
+  let v = 0.9 + 4.2 * clamp(-d * 0.5 + nz * 0.62 + 0.05, 0, 1);
+  const fila = (y + 6 * (1 - nz) + 2.5 * vnoise(d * 3 + 7, Math.floor(y / 9))) / 9, f = fila - Math.floor(fila);
+  if (f < 0.13) v -= 1.7; else if (f < 0.32) v += 0.8;
+  if (d > 0.7) v += 2.2 * (d - 0.7) / 0.3;                      // contraluz cálido de la bruma
+  PELO.buf[y * PELO.w + x] = Math.abs(d) > 0.92 && d < 0 ? RAMPA_PELO[0] : tono(RAMPA_PELO, v, x, y, 0.35);
+}
+// la Luna (casi llena, con la luz de la izquierda; mares, cráteres y Tycho con sus rayos)
+const RAMPA_LUNA = ['#0d0f17', '#1f2230', '#3a3c4a', '#5b5c66', '#807f86', '#a7a5a7', '#cfccc6', '#efebe2'].map(hex);
+const RL = 52, LUNA = PX.nuevaCapa(2 * RL + 4, 2 * RL + 4); LUNA.ox = LUNA.oy = RL + 2;
+{
+  const L = (() => { const v = [-0.62, -0.3, 0.72], l = Math.hypot(...v); return v.map((x) => x / l); })();
+  const r = mulberry32(9), CR = Array.from({ length: 22 }, () => { const a = r() * Math.PI * 2, d = Math.sqrt(r()) * 0.88; return [Math.cos(a) * d, Math.sin(a) * d, 0.04 + r() * r() * 0.13]; });
+  CR.push([0.08, 0.62, 0.07]);                                   // Tycho
+  for (let y = 0; y < LUNA.h; y++) for (let x = 0; x < LUNA.w; x++) {
+    const nx = (x + 0.5 - LUNA.ox) / RL, ny = (y + 0.5 - LUNA.oy) / RL, q = 1 - nx * nx - ny * ny;
+    if (q < 0) continue;
+    const nz = Math.sqrt(q);
+    let lam = Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]);
+    const mar = suave(0.5, 0.6, fbm(nx * 1.7 + 4.1, ny * 1.7 + 2.3, 4) - 0.1 * ny - 0.06 * nx);
+    let al = 1 - 0.36 * mar;
+    for (const [cu, cv, cr] of CR) {
+      const dx = nx - cu, dy = ny - cv, dd = Math.hypot(dx, dy) / cr;
+      if (dd > 1.25) continue;
+      const lado = (dx * L[0] + dy * L[1]) / (cr * Math.hypot(L[0], L[1]));
+      if (dd < 0.92) lam *= 1 + 0.55 * lado;                       // la pared que da a la luz, en sombra
+      else if (dd < 1.25) lam *= 1 - 0.3 * lado;                   // el borde de enfrente, iluminado
+    }
+    const tyc = Math.hypot(nx - 0.08, ny - 0.62), ang = Math.atan2(ny - 0.62, nx - 0.08);
+    if (tyc > 0.08 && tyc < 0.6 && Math.sin(ang * 7 + 1.3) > 0.86) al += 0.18 * (1 - tyc / 0.6);
+    const v = lam > 0.02 ? 0.6 + 6.6 * lam * al : 0.55 + 0.35 * (1 - mar);   // la cara oscura, con la luz de la Tierra
+    LUNA.buf[y * LUNA.w + x] = tono(RAMPA_LUNA, v, x, y, 0.8);
+  }
+}
+// un puñado de estrellas (unos miles: cientos de puntos, las brillantes con sus cuatro puntas)
+const ESTR = (() => {
+  const r = mulberry32(73), out = [];
+  const gauss = () => (r() + r() + r() + r() - 2) / 2;
+  for (let i = 0; i < 380; i++) {
+    const x = gauss() * 190, y = gauss() * 92;
+    const q = r(), tipo = q < 0.74 ? 0 : q < 0.95 ? 1 : 2;
+    out.push({ x, y, tipo, tinte: r() < 0.25 ? 1 : r() < 0.2 ? 2 : 0, k: 3 + Math.floor(r() * 5), ph: Math.floor(r() * 9) });
+  }
+  return out;
+})();
+const CALIDA = ['#7a5a6a', '#e0a77c', '#ffe0b0'].map(hex), FRIA = ['#4a6aa8', '#9cc4ff', '#eaf4ff'].map(hex);
+function estrellas(cx, cy, t) {
+  PX.luz(cx, cy, 95, rgb(hex('#5a4a8a')), 0.34, 4);
+  PX.luz(cx, cy, 45, rgb(hex('#c8b0e0')), 0.22, 3);
+  const f = fot(t, 8);
+  for (const s of ESTR) {
+    const x = Math.round(cx + s.x), y = Math.round(cy + s.y), tw = ((f + s.ph) % s.k) === 0 ? 0 : 1;
+    const R = s.tinte === 1 ? CALIDA : s.tinte === 2 ? FRIA : null;
+    if (s.tipo === 0) PX.pset(x, y, tw ? PAL.ESTRELLA[1 + (s.ph % 2)] : PAL.ESTRELLA[0]);
+    else if (s.tipo === 1) PX.pset(x, y, R ? R[1 + tw] : PAL.ESTRELLA[2 + tw]);
+    else {
+      PX.luz(x, y, 6, rgb(R ? R[1] : PAL.ESTRELLA[2]), 0.4, 3);
+      const l = 2 + tw * 2, g = R ? R[0] : PAL.ESTRELLA[1];
+      for (let k = 1; k <= l; k++) { const c = k < l ? (R ? R[1] : PAL.ESTRELLA[2]) : g; PX.pset(x - k, y, c); PX.pset(x + k, y, c); PX.pset(x, y - k, c); PX.pset(x, y + k, c); }
+      PX.pset(x, y, PAL.BLANCO);
+    }
+  }
+}
+function interior(t) {
+  PX.pegar(FONDO, 0, 0, { opaco: true });
+  motas(t);
+  let x;
+  if ((x = pasa(t, T.galaxia, 330)) != null) OJO.cosa('galaxia', x, YC + 2, 72, { apagado: 0.42, giro: -0.42 });
+  if ((x = pasa(t, T.estrellas, 345)) != null) estrellas(x, YC, t);
+  if ((x = pasa(t, T.luna, 300)) != null) { PX.luz(x, YC, 76, rgb(PAL.CREMA[3]), 0.16, 3); INS.pegarSprite(LUNA, x, YC); }
+  if ((x = pasa(t, T.pelo, 280)) != null) INS.pegarSprite(PELO, x, YC);
+  PX.pegar(PARPADOS);
+  PX.velo(PAL.AMBAR[5], 1 - suave(T.flash, T.dentro, t));
+}
+
+// ───────────────────────────────────────────────────────────── el ojo entero y el teléfono
+const RAMPA_PANT = ['#0e0822', '#1d0f40', '#2f165c', '#47206f', '#682a7c', '#8f3680', '#b8477c', '#dc6474', '#f38c6c', '#fdb87c', '#ffdca0'].map(hex);
+const ICONOS = ['#f2b84a', '#5aa6e0', '#6cc58a', '#ec6f58', '#a885e8', '#f4ede0', '#3fc0c0', '#f08cb0', '#8fb1ff', '#e8d070', '#ff9a52', '#b8e070'].map(hex);
+const TEL = { hx: 150, hy: 72, r: 17, bisel: 3, marco: 7 };
+const sdCaja = (x, y, hw, hh, r) => { const qx = Math.abs(x) - hw + r, qy = Math.abs(y) - hh + r; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r; };
+function telefono(cx, cy, rot) {
+  const buf = PX.destino().buf, ca = Math.cos(rot), sa = Math.sin(rot);
+  const R = Math.hypot(TEL.hx, TEL.hy) + 2;
+  // sombra sobre la piel (la luz principal viene de arriba a la izquierda)
+  PX.sombraRect(cx - TEL.hx + 12, cy - TEL.hy + 14, cx + TEL.hx + 12, cy + TEL.hy + 14, 0.55, 14);
+  for (let y = Math.max(0, Math.floor(cy - R)); y <= Math.min(H - 1, Math.ceil(cy + R)); y++) for (let x = Math.max(0, Math.floor(cx - R)); x <= Math.min(W - 1, Math.ceil(cx + R)); x++) {
+    const dx = x + 0.5 - cx, dy = y + 0.5 - cy, lx = dx * ca + dy * sa, ly = -dx * sa + dy * ca;
+    const d = sdCaja(lx, ly, TEL.hx, TEL.hy, TEL.r);
+    if (d > 1) continue;
+    let c;
+    if (d > 0) c = PAL.TINTA;
+    else if (d > -TEL.bisel) {
+      // el canto de metal: luz arriba a la izquierda, contraluz a la derecha
+      const gx = sdCaja(lx + 0.5, ly, TEL.hx, TEL.hy, TEL.r) - sdCaja(lx - 0.5, ly, TEL.hx, TEL.hy, TEL.r);
+      const gy = sdCaja(lx, ly + 0.5, TEL.hx, TEL.hy, TEL.r) - sdCaja(lx, ly - 0.5, TEL.hx, TEL.hy, TEL.r);
+      const lam = clamp(-(gx * 0.6 + gy * 0.8), 0, 1), rim = clamp(gx * 0.9 - gy * 0.2, 0, 1);
+      c = tono(PAL.NIEBLA, 1.0 + 3.6 * lam + 1.4 * rim + (d > -1 ? -0.8 : 0), x, y, 0.4);
+    } else if (d > -TEL.marco) c = tono(INS.PALI.NEGRO, 1.1 + 0.5 * (-(lx / TEL.hx) - ly / TEL.hy) * 0.5, x, y, 0.5);
+    else {
+      // la pantalla: fondo de colores, una rejilla de iconos sin letras, la cámara y el reflejo del cristal
+      const sx = lx / (TEL.hx - TEL.marco), sy = ly / (TEL.hy - TEL.marco);
+      let v = 1.2 + 5.6 * clamp(0.5 + 0.42 * sx + 0.3 * sy, 0, 1) + 0.9 * Math.sin(sx * 3.1 - sy * 2.2 + 0.6) * 0.5 + 0.7 * Math.exp(-((sy + 0.35 + 0.25 * Math.sin(sx * 2.6)) ** 2) / 0.02);
+      c = tono(RAMPA_PANT, v, x, y, 1);
+      // iconos: 6 × 2 y el muelle de 4
+      const col = Math.round((lx + 100) / 40), fila = ly < 24 ? Math.round((ly + 36) / 36) : 2;
+      if (fila < 2 && col >= 0 && col <= 5) {
+        const ix = -100 + col * 40, iy = -36 + fila * 36, ux = lx - ix, uy = ly - iy, di = sdCaja(ux, uy, 11, 11, 5);
+        if (di <= 0) {
+          const k = col + fila * 6, base = ICONOS[k];
+          const lv = uy < -6 ? 1.12 : uy > 7 ? 0.82 : 1;
+          c = PX.mezclaColor(0xff000000, base, clamp(lv, 0, 1.2) > 1 ? 1 : lv);
+          if (lv > 1) c = PX.mezclaColor(base, PAL.BLANCO, 0.22);
+          // el glifo (formas, no letras)
+          const gk = k % 6, gx2 = ux, gy2 = uy;
+          const g = gk === 0 ? Math.abs(Math.hypot(gx2, gy2) - 4.5) < 1.1 : gk === 1 ? Math.hypot(gx2 + 1, gy2 - 1) < 4 && !(gx2 > 1 && gy2 < 0) : gk === 2 ? Math.abs(gx2) < 5 && Math.abs(gy2) < 4 && (Math.abs(gy2) > 2.5 || Math.abs(gx2) > 3.5) : gk === 3 ? gy2 > -4 && gy2 < 5 && Math.abs(gx2) < (gy2 + 5) * 0.6 : gk === 4 ? (Math.abs(gx2 + 3) < 1.1 || Math.abs(gx2) < 1.1 || Math.abs(gx2 - 3) < 1.1) && gy2 > -4 + Math.abs(gx2) && gy2 < 5 : Math.hypot(gx2, gy2) < 2.2;
+          if (g) c = gk === 5 ? PAL.TINTA : PAL.BLANCO;
+        } else if (di < 1.2) c = tono(RAMPA_PANT, v - 1.4, x, y, 0.5);
+      } else if (fila === 2) {
+        if (Math.abs(ly - 46) < 13 && Math.abs(lx) < 92) c = tono(RAMPA_PANT, v + 1.6, x, y, 1);       // la barra del muelle
+        const dc = Math.round((lx + 60) / 40);
+        if (dc >= 0 && dc <= 3) { const di = sdCaja(lx - (-60 + dc * 40), ly - 46, 9.5, 9.5, 4.5); if (di <= 0) c = ICONOS[6 + dc * 2 - (dc > 2 ? 1 : 0)]; }
+      }
+      // la cámara (a la izquierda, tumbado) y el reflejo del cristal
+      if (Math.hypot(lx + TEL.hx - TEL.marco - 9, ly) < 3.2) c = Math.hypot(lx + TEL.hx - TEL.marco - 8, ly + 1) < 1 ? hex('#4a6aa8') : PAL.TINTA;
+      const ref = lx * 0.42 + ly + 30;
+      if (ref > -8 && ref < 8 && b4(x, y) < 0.45 * (1 - Math.abs(ref) / 8)) c = PX.mezclaColor(c, PAL.BLANCO, 0.35);
+    }
+    buf[y * W + x] = c;
+  }
+}
+function ojoTelefono(t) {
+  if (t < T.abre1) {
+    // la cámara se abre de golpe (el ojo se vuelve a pintar a cada escala)
+    const z = mezcla(3.1, 1, sale(prog(t, T.abre0, T.abre1)));
+    ojoEsc({ ...FIN, a: FIN.a * z, t: 0, franja: { ancho: 1, alto: 3 * z, brillo: 1 } }, 3 * z + 1);
+    PX.velo(PAL.AMBAR[5], 0.55 * (1 - suave(T.abre0, T.abre0 + 0.14, t)));
+  } else PX.pegar(OJO_FIN, 0, 0, { opaco: true });
+  if (t >= T.tel0 - 0.1) {
+    const tq = paso(t, 15), u = sale(prog(tq, T.tel0, T.tel1)), asienta = suave(T.tel1 - 0.1, T.tel1 + 0.5, tq);
+    const y = mezcla(H + TEL.hy + 30, 132, u) + 2.2 * Math.sin((tq - T.tel1) * 2.4) * asienta;
+    const rot = 0.16 * (1 - u) * (1 - u) + 0.01 * Math.sin(tq * 1.7) * asienta;
+    telefono(CX + 6 * (1 - u), Math.round(y), rot);
+  }
+}
+
+// ───────────────────────────────────────────────────────────── primer plano del párpado
+// de muy cerca, solo el tramo del párpado hacia el rabillo (u de 0,1 a 0,85), con las pestañas grandes; un empuje lento que
+// deja quieto el punto u = 0,45
+const CU = { a0: 600, a1: 680, cy: 146, x45: 196 };
+function primerPlano(t) {
+  const a = mezcla(CU.a0, CU.a1, entraSale(prog(t, T.cerca, T.general))), s = a / FIN.a;
+  const O = { a, cx: CU.x45 - 0.45 * a, cy: CU.cy };
+  const fino = entraSale(prog(t, T.estrecha0, T.estrecha1)), cierra = entraSale(prog(t, T.cierra0, T.cierra1));
+  const hueco = (3 * s + 1) * (1 - cierra);
+  const alto = mezcla(3 * s, 0.6, fino), brillo = 1 - suave(0.45, 0.85, cierra);
+  ojoEsc({ ...O, arriba: 1, abajo: 1, t: 0, franja: brillo > 0 ? { ancho: 1, alto: Math.min(alto, Math.max(0.6, hueco - 1)), brillo } : null }, hueco);
+}
+
+// ───────────────────────────────────────────────────────────── el ojo cerrado, los instrumentos y el cielo
+const MIC = INS.microscopio(), ANI = INS.anillo(), TELE = INS.telescopio();
+const cielo = PX.crearCielo(INS.FIN.cielo);
+const CAPA_CIELO = PX.nuevaCapa(W, H);
+const FINAL = PX.nuevaCapa(W, H);
+PX.en(FINAL, () => INS.pintarFinOjo());
+// oscurecer hacia el frío, con escalones tramados
+function oscurecerFrio(u) {
+  const buf = PX.destino().buf;
+  for (let i = 0; i < W * H; i++) {
+    const x = i % W, y = (i / W) | 0, q = Math.floor(u * 6 + b4(x, y)) / 6;
+    if (q <= 0) continue;
+    const p = buf[i], f = 1 - q * 0.85;
+    buf[i] = color((p & 255) * f * 0.9, ((p >>> 8) & 255) * f * 0.97, ((p >>> 16) & 255) * f + 10 * q);
+  }
+}
+const camCielo = (t) => INS.FIN.camX * sale(prog(t, T.cielo0, QUIETO));
+const yTele = (t) => {
+  const amp = 1 - suave(QUIETO - 1.1, QUIETO, t);
+  return INS.FIN.y + Math.round(1.6 * Math.sin((t - T.tele1) * 2.4) * suave(T.tele1 - 0.3, T.tele1 + 0.3, t) * amp);
+};
+function paquetes(t, ax, ay) {
+  // dos paquetes de luz salen del detector de detrás, dan media vuelta cada uno y chocan en el de delante
+  const p = prog(t, T.choque - 0.95, T.choque);
+  if (t > T.choque - 0.95 && t < T.choque) {
+    for (const sg of [1, -1]) {
+      for (let k = 6; k >= 0; k--) {
+        const th = -Math.PI / 2 + sg * Math.PI * Math.max(0, p - k * 0.018);
+        const [dx, dy] = ANI.haz(th);
+        if (k === 0) { PX.luz(ax + dx, ay + dy, 9, rgb(PAL.AMBAR[4]), 0.9, 4); PX.pset(Math.round(ax + dx), Math.round(ay + dy), PAL.BLANCO); }
+        else PX.pset(Math.round(ax + dx), Math.round(ay + dy), k < 3 ? PAL.AMBAR[5] : PAL.AMBAR[3]);
+      }
+    }
+  }
+  const q = prog(t, T.choque, T.choque + 0.45);
+  if (q > 0 && q < 1) {
+    const [dx, dy] = ANI.haz(INS.DETECTOR_CHOQUE), x = ax + dx, y = ay + dy;
+    PX.luz(x, y, 18 + 46 * sale(q), rgb(PAL.AMBAR[5]), 1.1 * (1 - q), 4);
+    for (let i = 0; i < 10; i++) {
+      const a = i * 0.628 + 0.3, r0 = 6 + 34 * sale(q), r1 = r0 + 6 + 8 * (1 - q);
+      PX.linea(x + Math.cos(a) * r0, y + Math.sin(a) * r0 * 0.75, x + Math.cos(a) * r1, y + Math.sin(a) * r1 * 0.75, q < 0.5 ? PAL.BLANCO : PAL.AMBAR[4]);
+    }
+    if (q < 0.12) PX.velo(PAL.AMBAR[5], 0.25 * (1 - q / 0.12));
+  }
+}
+function brillosTele(t, x, y) {
+  // destellos del Sol en el espejo (se apagan antes del final)
+  for (const [tg, k] of [[T.tele1 + 0.5, 4], [T.tele1 + 1.6, 12], [T.tele1 + 2.4, 7]]) {
+    const q = prog(t, tg, tg + 0.35);
+    if (q <= 0 || q >= 1 || t >= QUIETO) continue;
+    const [ex, ey] = TELE.espejos[k], l = Math.round(1 + 4 * Math.sin(Math.PI * q));
+    const X = x + ex, Y = y + ey;
+    for (let i = 1; i <= l; i++) { const c = i < l ? PAL.BLANCO : PAL.AMBAR[5]; PX.pset(X - i, Y, c); PX.pset(X + i, Y, c); PX.pset(X, Y - i, c); PX.pset(X, Y + i, c); }
+    PX.pset(X, Y, PAL.BLANCO);
+  }
+}
+function instrumentos(t) {
+  const kc = suave(T.cielo0, T.cielo1, t);
+  if (kc < 1) {
+    PX.pegar(OJO_CERRADO, 0, 0, { opaco: true });
+    oscurecerFrio(mezcla(0.3, 0.62, sale(prog(t, T.general, T.oscuro1))));
+  }
+  if (kc > 0) {
+    PX.en(CAPA_CIELO, () => cielo.dibujar({ camX: camCielo(t), t }));
+    const buf = PX.destino().buf, cb = CAPA_CIELO.buf;
+    for (let i = 0; i < W * H; i++) if (kc >= 1 || b8(i % W, (i / W) | 0) < kc) buf[i] = cb[i];
+  }
+  let x;
+  if ((x = pasa(t, T.micro, 330)) != null) {
+    INS.pegarSprite(MIC, x, 126);
+    PX.luz(x + MIC.puntos.lampara[0], 126 + MIC.puntos.lampara[1], 14, rgb(PAL.AMBAR[4]), 0.7, 4);
+    PX.luz(x + MIC.puntos.platina[0], 126 + MIC.puntos.platina[1], 8, rgb(PAL.AMBAR[5]), 0.5, 3);
+  }
+  if ((x = pasa(t, T.anillo, 440)) != null) { INS.pegarSprite(ANI, x, 128); paquetes(t, x, 128); }
+  if (t > T.tele0 - 0.3) {
+    const u = sale(prog(t, T.tele0 - 0.3, T.tele1));
+    const tx = Math.round(mezcla(W + 140, INS.FIN.x, u)), ty = yTele(t) + Math.round(10 * (1 - u));
+    INS.pegarSprite(TELE, tx, ty);
+    brillosTele(t, tx, ty);
+  }
+}
+
+// ───────────────────────────────────────────────────────────── Atom
+function dibAtom(t) {
+  PX.atom({ ...PX.ATOM_SITIO, t: t < T.general ? t : t - D, energia: energia(t) });
+}
+
+// ───────────────────────────────────────────────────────────── dibujar(t)
+// un ensayo de cada plano en vivo (en frío, la primera vez cuesta más: compilación)
+{ const ens = PX.nuevaCapa(W, H); PX.en(ens, () => { empuje(T.flash - 0.1); primerPlano(T.estrecha1); interior(T.luna); ojoTelefono(T.tel1); instrumentos(T.choque); }); }
+function dibujar(t) {
+  if (t < T.entra0) PX.pegar(OJO_FIN, 0, 0, { opaco: true });
+  else if (t < T.flash) empuje(t);
+  else if (t < T.abre0) interior(t);
+  else if (t < T.cerca) ojoTelefono(t);
+  else if (t < T.general) primerPlano(t);
+  else if (t < QUIETO) instrumentos(t);
+  else PX.pegar(FINAL, 0, 0, { opaco: true });
+  dibAtom(t);
+  PX.presentar(t);
+}
+window.__tiempos = { ...T, D, QUIETO };
+window.__fin = { fin: INS.FIN, atom: { ...PX.ATOM_SITIO, t: 0, energia: 0 }, desde: QUIETO };
+window.__carga = Math.round(performance.now() - c0);
+E.iniciar(dibujar);
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Imhotep · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-IMHOTEP (frase 15). Cartela «2650». En el desierto de Saqqara, Imhotep (calvo, con su papiro) señala y se apilan
+// seis tumbas, una encima de otra: la pirámide escalonada.
+import { preparar, rodar, guiza, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-imhotep');
+const m0 = M('imhotep', 1.5), L = E.duracion - m0;
+const plano = (t) => {
+  const p = R.tramo(t - m0, 0.4, 0.85 * L);
+  guiza(R, t, { fase: 'escalonada', p });
+  R.actor(EL.calvo, 96, 145, t, { dedo: true, sonrisa: p >= 1, pal: { T: R.hex('#f4eedc') } });
+};
+rodar(E, R, [[0, plano]], { cartela: '2650', año: -2650 });
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Este · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-ESTE (frases 39–40). Cartela «1453». El mapa: el oeste se apaga y el este sigue encendido; el contador de la caja
+// corre de 476 a 1453. Luego cuatro empujan a la vez una columna (un legionario, un mercader, un enfermo y un senador)
+// y la columna cae.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-este');
+const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
+const m = { est: M('este', 1.5), raz: M('razones', 9) };
+const tc = m.raz + 4;
+const mapa = (t) => { R.mapaAño(t, 476, { oeste: lerp(0.6, 0.8, tramo(t, m.est, m.est + 3)) }); };
+const columna = (t) => {
+  R.cieloR(t, 'tarde', { hor: 130, sol: [270, 120, 10] }); R.suelo(130, PALA.MARMOL, { losas: true });
+  const u = t - tc, cae = clamp((u - 6) / 1.6, 0, 1) ** 2, ang = cae * Math.PI / 2 * 0.98;
+  const bx = 176, by = 162, L = 90, w = 7;
+  const P = (s, d) => [bx + Math.sin(ang) * s + Math.cos(ang) * d, by - Math.cos(ang) * s + Math.sin(ang) * d];
+  R.poligono([P(0, -w), P(L, -w), P(L, w), P(0, w)], (x, y) => R.tone(PALA.MARMOL, 3 - ((x - bx) * Math.cos(ang) + (y - by) * Math.sin(ang) + w) / (2 * w) * 2, x, y));
+  R.poligono([P(L, -w - 3), P(L + 5, -w - 3), P(L + 5, w + 3), P(L, w + 3)], PALA.MARMOL[3]);
+  const empuja = (x, g, o) => R.personaje(x, 172, 26, { ...g, t, pose: u > 0.5 ? 'ofrece' : 'pie', anda: u > 0.5 && cae < 1 ? t * 5 : null, ceño: true, ...o });
+  if (u > 0.6) empuja(152, ELENCO.legionario, { objeto: 'gladio' });   // guerras
+  if (u > 1.4) empuja(134, ELENCO.ciudadano, { objeto: 'bolsa', chaqueta: PALA.AMARILLO, camisa: PALA.AMARILLO, falda: PALA.AMARILLO });   // dinero
+  if (u > 2.2) empuja(116, ELENCO.ciudadano, { piel: PALA.PIEL_OSCURA, chaqueta: PALA.NEGRO, camisa: PALA.NEGRO, falda: PALA.NEGRO, pelo: PALA.PELO_BLANCO });   // epidemias
+  if (u > 3) empuja(98, ELENCO.senador, {});   // política
+  if (cae >= 1) for (let k = 0; k < 20; k++) { const f = ((u - 7.6) * 2 + k / 20) % 1; if (u < 9) R.pset(Math.round(bx + 20 + k * 5 + f * 6), Math.round(160 - Math.sin(f * Math.PI) * 10), PR.GRIS[3]); }
+};
+rodar(E, R, [[0, mapa], [tc, columna]], { cartela: '1453', año: 476, caja: (t, e) => R.caja(t, t < tc ? tramo(t, m.est + 0.6, m.est + 1) : 0, (x, y) => R.numero(t < m.raz ? String(Math.round(lerp(476, 1453, tramo(t, m.est + 1, m.est + 5)))) : '200+', x + 4, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

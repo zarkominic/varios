@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Akenaton · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-AKENATON (frase 24). Akenatón con la corona azul bajo el disco del sol, cuyos rayos acaban en manitas; luego un
+// cincel borra su nombre del cartucho de la pared.
+import { preparar, rodar, trono, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-akenaton');
+const m0 = M('akenaton', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  const u = t - m0, borra = R.tramo(u, 0.65 * L, 0.95 * L);
+  trono(R, t, { sol: R.tramo(u, 0.15 * L, 0.45 * L), borrar: borra });
+  if (borra <= 0) R.actor(EL.rey, 166, 117, t, { tocado: 'azul', dir: -1, sonrisa: true });
+  else { R.actor(EL.calvo, 140, 145, t, { dedo: true }); R.linea(154, 40, 162, 32, R.hex('#8c8ca0')); }
+};
+rodar(E, R, [[0, plano]], { año: -1350 });
+</script>
+</body>
+</html>

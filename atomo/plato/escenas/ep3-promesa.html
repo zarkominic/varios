@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-promesa · la promesa del viaje</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-promesa (frases 8–10, sin cartela). Plastilina adulta (los destellos van en arcilla aunque el Visual los
+// marca en papel: cambio de estilo n.º 1 de las notas de escenas.json, pendiente de la firma del dueño). Usa, sin tocarlos:
+// kits/ep03-instrumentos.js (el final de ep3-ojo), kits/ep03-tocar.js (la silla), kits/ep03-balanza.js (balanza, silueta
+// y cielo) y del kit adulto la mano, el «humano», la regla del lote 0 y el glifo «?» de la pizarra. No crea ningún kit.
+//  0         (= último fotograma de ep3-ojo) el telescopio espacial en el centro sobre el cielo estrellado, Atom abajo a la
+//            izquierda, sin regla: pintarFinOjo(...) del kit de instrumentos y Atom con el reloj donde lo dejó ep3-ojo.
+//  destellos DESTELLO 1 (tras un fogonazo blanco, en la marca): DETALLE del respaldo de una silla de haya contra el telón;
+//            una mano de arcilla baja desde arriba hacia el larguero y frena hasta quedarse quieta a un dedo de él, sin
+//            tocarlo; luego un empuje lento (2D) hacia el hueco entre las yemas y la madera.
+//  ½         DESTELLO 2 (fogonazo a mitad de frase): PLANO MEDIO de la balanza de latón con la silueta de puntitos ámbar en
+//            el plato izquierdo y el cielo estrellado en el derecho, en vilo (oscila sin decidirse), con un empuje lento.
+//  fin d.    («…holds stars») corte al cielo estrellado (el de ep3-ojo); la cámara baja de golpe (2D) hasta el plató y
+//            llega en la marca de la frase 9.
+//  centro    GENERAL del plató de las pruebas: la persona de pie a la izquierda; la regla del borde derecho se despliega
+//            entera (entera 0 → 1), de la niebla de abajo a la red de arriba, con el marcador en 10⁰; un «?» de arcilla
+//            ámbar sale de la niebla y sube junto a la regla a tirones, buscando (se para tres veces), hasta el marcador.
+//  apuesto   el «?» deja la regla, va hacia la persona, pasa de largo junto a su cabeza (ella lo sigue con la mirada) y
+//            se pierde hacia arriba, fuera de cuadro; ella vuelve a mirar al frente y todo queda quieto.
+// Las palabras sueltas no tienen marca: los golpes de dentro de una frase van a una fracción fija de su intervalo.
+//
+// CONTINUIDAD
+//  · Fotograma 0 = último de ep3-ojo: F.fin = pintarFinOjo(P, UI, I.INS) (FIN_OJO, cielo con semilla, nf del kit) y Atom en
+//    FIN_OJO.ATOM ((230, 780), órbitas de 180 px, yaw −0,15 + 0,08 sen(tz/2), pitch 0,06) con su reloj: ts y tz se
+//    calculan como en ep3-ojo (el de ep3-hola en su QUIETO más lo que avanzó en ep3-ojo), con las marcas de
+//    marcas-ep03.json.
+//  · Último fotograma (= fotograma 0 de ep3-saltos, termina_con): cámara de las pruebas (pos [0, 3,8, 15,5], mira
+//    [0, 2,3, 0], fov 28, desenfoque 44); «humano» 'adulto' de pie, escala 2,4, pos [P.punto(612, 600, 0,6)[0], 2,4, 0,6],
+//    rot [0, 0,2, 0], huellaFija [0,37, 0,21, 0], sin respiración; P.regla con pos P.punto(1668, 528, 0,4), escala 1,42,
+//    rot [0, −0,12, 0], e 0, ya 1,5, entera 1, actual 0, marca 0, lupa 0,3, lupaEntera 1,3, sin rango; Atom en (230, 780)
+//    con yaw −0,15, pitch 0,06, sin balanceo, energía 0 y el reloj de los electrones en un múltiplo de 10/3 s (sus
+//    electrones giran a ±3 vueltas cada 10 s): quedan donde los pone ts = 0 en ep3-saltos. El «?» ya se fue.
+// Coste: el telescopio y el cielo del principio, la silla y la mano son fotos hechas al cargar (una de cada: con dos que
+// «hirvieran», la carga pasaba de 35 s con el servidor tranquilo); la mano baja en 2D. En vivo: la balanza con lo de sus platos (destello 2) y el
+// plató con la persona, la regla, Atom y el «?». Atom va en su propia pasada encima de las fotos y del paneo.
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, postura, COLOR } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposTocar, silla } from '/atomo/plato/kits/ep03-tocar.js';
+import { tiposBalanza, balanza, silueta, cielo, BALANZA } from '/atomo/plato/kits/ep03-balanza.js';
+import { tiposInstrumentos, uniformesInstrumentos, ponerInstrumentos, instrumento, FIN_OJO, cieloOjo, pintarFinOjo } from '/atomo/plato/kits/ep03-instrumentos.js';
+
+const T0 = performance.now();
+window.__carga = {};
+const cargaT = (k) => { window.__carga[k] = Math.round(performance.now() - T0); };
+const E = await escena('ep3-promesa', 'ep03');
+const M = (k) => E.marca(k);
+const m = {
+  d: M('destellos'), dFin: M('destellos_fin'), c: M('centro'), cFin: M('centro_fin'), a: M('apuesto'), aFin: M('apuesto_fin'),
+};
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+const fr = (a, b, u) => a + (b - a) * u;
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const T = {
+  // frase 8: «… nunca has tocado nada como te imaginas, | y que tienes más átomos que estrellas tiene el universo»
+  f1: m.d - 0.12,                       // fogonazo 1 (en su punto): corte a la silla
+  mano1: fr(m.d, m.dFin, 0.27),         // la mano ya está quieta, a un dedo del larguero
+  f2: fr(m.d, m.dFin, 0.5) - 0.12,      // fogonazo 2, a mitad de frase: corte a la balanza
+  cielo: m.dFin - 0.34,                 // «…stars»: corte al cielo
+  // frase 9: «Al final te diré dónde está el centro de todo esto.»
+  baja1: m.c + 0.02,                    // la cámara ya ha bajado al plató (en la marca)
+  desp0: m.c + 0.12, desp1: m.c + 1.2,  // la regla se despliega entera
+  // frase 10: «Apuesto a que no es donde crees.»
+  pasa0: m.a - 0.22,                    // el «?» deja el marcador
+  pasa1: fr(m.a, m.aFin, 0.82),         // ya se ha ido por arriba
+};
+T.mano0 = T.f1;
+T.empuje0 = T.mano1 + 0.25; T.empuje1 = T.f2;
+T.baja0 = T.cielo + 0.2;
+T.q0 = T.desp1 - 0.15;                  // el «?» brota en la niebla
+T.q1 = m.cFin - 0.05;                   // ya está junto al marcador
+T.vuelve0 = T.pasa1 - 0.1; T.vuelve1 = QUIETO - 0.1;   // la persona vuelve a mirar al frente
+const plano = (ts) => (ts < T.f1 ? 'TEL' : ts < T.f2 ? 'SILLA' : ts < T.cielo ? 'BAL' : ts < T.baja1 ? 'BAJA' : 'G');
+
+// ---------------------------------------------------------------- el plató
+const UI = uniformesInstrumentos();
+const I = { PER: 0, REG: 1, FLE: 2, INT: 3, MANO: 4, SIL: 5, BAL: 6, SILU: 7, CIE: 8, INS: 9 };
+const P = await crearPlato({
+  piezas: ['humano', 'reglaA', 'flecha', 'glifo:?', 'mano', 'silla', 'balanza', 'silueta', 'cielo', 'instrumento'],
+  alfa: true, post: false,
+  tiposExtra: { ...tiposTocar(['silla']), ...tiposBalanza(['balanza', 'silueta', 'cielo']), ...tiposInstrumentos({ variantes: ['telescopio'] }) },
+  uniformes: { ...UI },
+  sombraFondo: ['p0', 'p1', 'p5', 'p6', 'p7', 'p8'],
+  sombras: { p0: ['atomo'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+cargaT('plato');
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (pos) => { const a = pant(pos), b = pant([pos[0] + 1, pos[1], pos[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const mundoDe = (o, l) => {
+  const v = new THREE.Vector3(...l).multiplyScalar(o.escala).applyEuler(new THREE.Euler(...o.rot, 'YXZ'));
+  return [o.pos[0] + v.x, o.pos[1] + v.y, o.pos[2] + v.z];
+};
+
+// lienzo 2D encima del de WebGL (se compone aquí; viñeta y grano al final)
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+let KD = 1;
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  KD = capa.width / W; g.setTransform(KD, 0, 0, KD, 0, 0);
+}
+const lienzo = () => { const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height; return c; };
+function foto() { const c = lienzo(); c.getContext('2d').drawImage(lienzoGL, 0, 0); c.getContext('2d').getImageData(0, 0, 1, 1); return c; }
+function pegarGL() { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lienzoGL, 0, 0); g.restore(); }
+// pega una foto del tamaño del lienzo: escalada z veces alrededor de c (px de diseño) y desplazada (dx, dy)
+function pegar(f, { z = 1, c = [960, 540], dx = 0, dy = 0, alfa = 1 } = {}) {
+  if (!f || alfa <= 0.002) return;
+  g.save(); g.globalAlpha *= alfa;
+  g.translate(c[0] + dx, c[1] + dy); g.scale(z, z); g.translate(-c[0], -c[1]);
+  g.drawImage(f, 0, 0, W, H);
+  g.restore();
+}
+
+// ---------------------------------------------------------------- Atom: el presentador, quieto en su sitio
+// Reloj: empieza donde lo dejó ep3-ojo (el de ep3-hola en su QUIETO + lo que avanzó en ep3-ojo, como allí) y acaba en un
+// múltiplo de 10/3 s, que deja los electrones como ts = 0 (el principio de ep3-saltos). El balanceo se apaga al final.
+const A_Z = 1.0, ATOM = [FIN_OJO.ATOM.x, FIN_OJO.ATOM.y];
+const A_ESC = FIN_OJO.ATOM.d / (2 * (1.68 + 0.16) * pxU(en(ATOM[0], ATOM[1], A_Z)));
+const DT = 1 / 240;
+function tabla(v, hasta) { const A = [0]; for (let i = 1; i * DT <= hasta + 0.2; i++) A.push(A[i - 1] + v((i - 0.5) * DT) * DT); return A; }
+const enTabla = (A, t) => { const x = Math.max(0, t) / DT, i = Math.min(A.length - 2, Math.floor(x)); return mix(A[i], A[i + 1], x - i); };
+const RELOJ = await (async () => {
+  let hola = { duracion: 19.153, marcas: { hola: 0.5 } }, ojo = { duracion: 17.962 };
+  try { const j = await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json(); hola = j['ep3-hola']; ojo = j['ep3-ojo']; } catch { /* los de la locución actual */ }
+  // ep3-hola (como lo calcula ep3-ojo)
+  const QH = hola.duracion - 0.6, hm = hola.marcas.hola;
+  const vH = (t) => (1 + 1.4 * ss(hm - 0.2, hm + 0.3, t) * (1 - ss(hm + 1.6, hm + 2.6, t))) * (1 - eio(prog(t, QH - 0.9, QH)));
+  let ta = 0;
+  for (let i = 1; i * DT <= QH + 1e-9; i++) ta += vH((i - 0.5) * DT) * DT;
+  // ep3-ojo: su tAvance en su QUIETO
+  const QO = ojo.duracion - 0.6;
+  const vO = (t) => ss(0, 0.8, t) * (1 - eio(prog(t, QO - 0.9, QO)));
+  const avO = enTabla(tabla(vO, ojo.duracion), QO);
+  return { ts0: ta + avO, tz0: QH - 0.45 + avO };
+})();
+const velA = (t) => ss(0, 0.8, t) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+const TA = tabla(velA, D);
+const S_A = enTabla(TA, QUIETO), PERIODO = 10 / 3;
+const K_A = (() => {
+  let k = Math.round((RELOJ.ts0 + S_A) / PERIODO);
+  let c = (k * PERIODO - RELOJ.ts0) / S_A;
+  if (c < 0.8) { k += 1; c = (k * PERIODO - RELOJ.ts0) / S_A; }
+  return c;
+})();
+const calmaA = (ts) => 1 - eio(prog(ts, T.baja1, QUIETO - 0.1));   // el balanceo se apaga en el plató
+function atomo(ts) {
+  const av = enTabla(TA, ts), tz = RELOJ.tz0 + av, k = calmaA(ts);
+  const w = en(ATOM[0], ATOM[1], A_Z);
+  P.atomo({
+    pos: [w[0], w[1] + 0.006 * Math.sin(tz * 1.1) * k, w[2]], escala: A_ESC,
+    yaw: -0.15 + 0.08 * Math.sin(tz * 0.5) * k, pitch: 0.06, roll: 0,
+    energia: ts < QUIETO ? E.energia(ts) : 0, ts: RELOJ.ts0 + K_A * av, velo: 0.1,
+  });
+}
+function pasadaAtomo(ts, n) { P.limpiar(); atomo(ts); P.render(n, { fondo: false }); pegarGL(); }
+
+// ---------------------------------------------------------------- destello 1: la silla y la mano
+// DETALLE del respaldo: la silla de pie en el suelo, cerca de la cámara (el asiento queda justo por debajo del cuadro) y
+// algo girada; la mano baja desde arriba (el antebrazo sale por el borde de arriba) hasta un dedo por encima del larguero.
+const E_SIL = 4, Z_SIL = 9.5;
+const SILLA = { pos: [en(1060, 540, Z_SIL)[0], 0.427 * E_SIL, Z_SIL], escala: E_SIL, rot: [0, 0.3, 0] };
+const LARGUERO = mundoDe(SILLA, [-0.04, 0.462, -0.226]);           // el canto de arriba del larguero, algo a la izquierda
+const PX_SIL = pxU(LARGUERO);
+const HUECO_PX = 26;                                                 // las yemas, a un dedo del larguero
+const E_MANO = 0.1765 * E_SIL / 1.42;                                // la mano de una persona de la escala de la silla
+const ROT_MANO = [0.3, 0.22, -0.08];
+const YEMA = [-0.09, -1.06, -0.07];                                  // la punta del corazón (local)
+const MANO = (() => {
+  const obj = [LARGUERO[0] - 0.02, LARGUERO[1] + HUECO_PX / PX_SIL, LARGUERO[2]];
+  const v = mundoDe({ pos: [0, 0, 0], escala: E_MANO, rot: ROT_MANO }, YEMA);
+  return [obj[0] - v[0], obj[1] - v[1], obj[2] - v[2]];
+})();
+const HUECO = (() => { const a = pant(LARGUERO); return [a[0] - 4, a[1] - HUECO_PX / 2]; })();   // el centro del hueco (px)
+const SUBE_PX = 760;                                                 // de dónde baja la mano (px por encima)
+
+// ---------------------------------------------------------------- destello 2: la balanza
+const EB = 2.3, ZB = 2.4;
+const BAL = (angulo) => ({ pos: [en(960, 540, ZB)[0], -BALANZA.SUELO * EB, ZB], escala: EB, rot: [0, -0.12, 0], angulo });
+// en vilo: oscila sin decidirse (arranca ya inclinada hacia la silueta y no se asienta)
+const anguloBal = (ts) => {
+  const v = ts - T.f2;
+  return 0.055 * Math.cos(2 * Math.PI * 0.42 * v) * (0.75 + 0.25 * Math.exp(-0.6 * v)) + 0.012 * Math.sin(2 * Math.PI * 1.1 * v);
+};
+function ponerBalanza(ts) {
+  const b = balanza(P, I.BAL, BAL(anguloBal(ts)));
+  silueta(P, I.SILU, { pos: b.platoIzq, escala: 0.62 * EB, rot: [0, -0.12, 0], brillo: 0.5 });
+  cielo(P, I.CIE, { pos: b.platoDer, escala: 0.62 * EB, rot: [0, -0.4, 0] });
+}
+
+// ---------------------------------------------------------------- el plató del final: persona, regla y «?»
+const E_PER = 2.4, PER = [en(612, 600, 0.6)[0], E_PER, 0.6], ROT_PER = 0.2;
+const REG = en(1668, 528, 0.4), E_REG = 1.42, ROT_REG = [0, -0.12, 0];
+const enteraEn = (ts) => eio(prog(ts, T.desp0, T.desp1));
+function regla(ts) {
+  return P.regla({
+    pieza: I.REG, flecha: I.FLE, pos: REG, escala: E_REG, rot: ROT_REG, e: 0, ya: 1.5, entera: enteraEn(ts), actual: 0, marca: 0,
+    lupa: 0.3, lupaEntera: 1.3, escalaFlecha: 0.8, separacion: 0.36, toque: ts > T.desp0 - 0.1 && ts < T.desp1 + 0.1,
+  });
+}
+// la regla entera, sin plató (para el camino del «?»): la y de pantalla de cada exponente y el marcador
+const REGLA_FIN = (() => { P.limpiar(); const R = regla(QUIETO); P.limpiar(); return R; })();
+const yE = (e) => pant(REGLA_FIN.punto(e))[1];
+const FLECHA = pant(REGLA_FIN.flecha);
+// la persona (de pie; la cabeza sigue al «?»)
+const CABEZA = (() => {
+  P.limpiar();
+  const h = P.pieza(I.PER, { pos: PER, escala: E_PER, rot: [0, ROT_PER, 0], postura: 'depie', t: 0 });
+  P.limpiar();
+  return { ojos: h.punto('ojos'), coronilla: pant(h.punto('coronilla')), cabeza: pant(h.punto('cabeza')), suela: pant(h.mundo([0, -1, 0.05])), centro: pant(h.mundo([0, 0, 0])) };
+})();
+const respira = (ts) => 0.008 * Math.sin(ts * 2.4) * (1 - ss(QUIETO - 0.9, QUIETO, ts));
+function cabezaHacia(w) {
+  const dx = w[0] - PER[0], dy = w[1] - (PER[1] + E_PER * 0.611), dz = w[2] - PER[2];
+  const c = Math.cos(ROT_PER), s = Math.sin(ROT_PER);
+  const lx = c * dx - s * dz, lz = s * dx + c * dz;
+  return [Math.atan2(lx, lz), -Math.atan2(dy, Math.hypot(lx, lz))];
+}
+
+// EL «?»: glifo de la pizarra del kit, en ámbar (mostaza), de ~105 px, delante de todo (z = 1,3).
+// Sube junto a la regla, por fuera del marcador, a tirones (se para tres veces: busca), de la niebla al marcador (frase 9);
+// luego (frase 10) deja la regla, pasa junto a la cabeza de la persona y sale por arriba.
+const Z_Q = 1.3, Q_PX = 105;
+const X_QR = FLECHA[0] - 150;                                         // su carril junto a la regla
+const Q_E0 = -31;                                                     // brota en la niebla
+// camino de salida (px): del marcador a la derecha de la cabeza, por encima de ella y fuera
+const SALIDA = [
+  [X_QR, FLECHA[1]], [X_QR - 230, FLECHA[1] - 50], [CABEZA.cabeza[0] + 215, CABEZA.cabeza[1] - 10],
+  [CABEZA.coronilla[0] + 40, CABEZA.coronilla[1] - 120], [CABEZA.coronilla[0] - 150, -260],
+];
+function catmull(pts, u) {
+  const n = pts.length - 1, x = cl(u) * n, i = Math.min(n - 1, Math.floor(x)), t = x - i;
+  const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(n, i + 2)];
+  return [0, 1].map((k) => 0.5 * ((2 * p1[k]) + (-p0[k] + p2[k]) * t + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t * t + (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * t * t * t));
+}
+// a tirones: avanza y se para en 1/3 y 2/3 (velocidad 1 − cos)
+const tirones = (u) => u - Math.sin(2 * Math.PI * 3 * u) / (2 * Math.PI * 3);
+function estadoQ(ts) {
+  if (ts < T.q0 || ts >= T.pasa1) return null;
+  const brote = eoc(prog(ts, T.q0, T.q0 + 0.35));
+  if (ts < T.pasa0) {
+    const u = tirones(prog(ts, T.q0 + 0.1, T.q1));
+    const e = mix(Q_E0, 0, u);
+    // en cada parada se ladea, como quien busca
+    const ph = 2 * Math.PI * 3 * prog(ts, T.q0 + 0.1, T.q1);
+    const busca = (1 + Math.cos(ph)) / 2;
+    return { px: [X_QR, mix(yE(e), FLECHA[1], ss(-1.5, 0, e))], k: brote, ladeo: 0.22 * busca * Math.sin(ts * 5.3), dy: 0 };
+  }
+  const u = prog(ts, T.pasa0, T.pasa1);
+  const v = 0.55 * u * u + 0.45 * eio(u);                             // arranca despacio y se va deprisa
+  return { px: catmull(SALIDA, v), k: 1, ladeo: -0.25 * Math.sin(Math.PI * u), dy: 0 };
+}
+function interrogacion(ts) {
+  const q = estadoQ(ts);
+  if (!q) return null;
+  const w = en(q.px[0], q.px[1], Z_Q);
+  const esc = Q_PX / pxU(w);
+  const bob = 0.012 * Math.sin(ts * 3.1);
+  P.pieza(I.INT, { pos: [w[0], w[1] + bob - 0.15 * (1 - q.k), w[2]], escala: esc * mix(0.25, 1, q.k), rot: [0, 0.25 + 0.15 * Math.sin(ts * 1.3), q.ladeo], color: COLOR.MOSTAZA, toque: q.k < 1 });
+  return { ...q, w };
+}
+function persona(ts, q, sinCabeza = false) {
+  const p = postura('depie');
+  // mira al «?» desde que llega al marcador; lo sigue al pasar y vuelve al frente cuando se ha ido
+  const kIn = eio(prog(ts, T.q1 - 0.7, T.q1 + 0.1)), kOut = 1 - eio(prog(ts, T.vuelve0, T.vuelve1));
+  const k = sinCabeza ? 0 : kIn * kOut;
+  if (k > 0) {
+    const objetivo = q ? q.w : en(...SALIDA[SALIDA.length - 1], Z_Q);
+    let [gi, inc] = cabezaHacia(objetivo);
+    gi = cl(gi, -0.9, 0.9); inc = cl(inc, -0.55, 0.35);
+    p.cabeza = [0.75 * gi * k, 0.7 * inc * k, 0.03 * k];
+    p.mirada = [cl(0.8 * gi, -0.8, 0.8) * k, cl(-1.1 * inc, -0.6, 0.8) * k];
+  }
+  return P.pieza(I.PER, { pos: PER, escala: E_PER, sq: [1, 1 + respira(ts), 1], rot: [0, ROT_PER, 0], postura: p, t: ts, huellaFija: [0.37, 0.21, 0.0] });
+}
+function brilloQ(q) {
+  if (!q) return;
+  const p = pant(q.w), R = 95, k = 0.16 * q.k;
+  g.save(); g.globalCompositeOperation = 'lighter';
+  const gr = g.createRadialGradient(p[0], p[1], 3, p[0], p[1], R);
+  gr.addColorStop(0, `rgba(255,190,110,${k})`); gr.addColorStop(1, 'rgba(255,160,80,0)');
+  g.fillStyle = gr; g.fillRect(p[0] - R, p[1] - R, 2 * R, 2 * R);
+  g.restore();
+}
+
+// ---------------------------------------------------------------- fotos al cargar
+const F = {};
+// estreno: cada pieza, diminuta y fuera de cuadro, para que su sombreador no se compile en un fotograma
+{
+  const lejos = (sx, sy) => en(sx, sy, 0);
+  P.limpiar();
+  ponerInstrumentos(UI, {});
+  P.pieza(I.INT, { pos: lejos(-60, -60), escala: 0.02, color: COLOR.MOSTAZA });
+  P.pieza(I.MANO, { pos: lejos(1980, -60), escala: 0.01 });
+  silla(P, I.SIL, { pos: lejos(-60, 1140), escala: 0.02 });
+  balanza(P, I.BAL, { pos: lejos(1980, 1140), escala: 0.01 });
+  silueta(P, I.SILU, { pos: lejos(-80, 540), escala: 0.02 });
+  cielo(P, I.CIE, { pos: lejos(2000, 540), escala: 0.02 });
+  atomo(0);
+  P.render(9400, { fondo: false });
+  cargaT('estreno');
+}
+// el final de ep3-ojo (= nuestro fotograma 0) y su cielo
+F.cielo = cieloOjo(lienzo());
+F.fin = pintarFinOjo(P, UI, I.INS, { fotos: { cielo: F.cielo } });
+P.limpiar();
+cargaT('fin ojo');
+// la silla contra el telón (con su sombra) y la mano sola
+F.silla = [9411].map((nf) => { P.limpiar(); silla(P, I.SIL, SILLA); P.render(nf); return foto(); });
+F.mano = [9421].map((nf) => { P.limpiar(); P.pieza(I.MANO, { pos: MANO, escala: E_MANO, rot: ROT_MANO }); P.render(nf, { fondo: false }); return foto(); });
+P.limpiar();
+cargaT('silla y mano');
+// el plató con la persona y la regla (estreno de la persona y de sus variantes de pie)
+{ P.limpiar(); persona(T.baja1, null, true); regla(T.baja1); P.render(9431, { fondo: false }); P.limpiar(); }
+cargaT('persona');
+
+// ---------------------------------------------------------------- fogonazos
+function fogonazo(ts, tc) {
+  const a = ts < tc ? ss(tc - 0.17, tc, ts) * 0.85 : 0.97 * Math.exp(-(ts - tc) / 0.17);
+  if (a < 0.01) return;
+  g.save(); g.globalCompositeOperation = 'source-over';
+  g.fillStyle = `rgba(255,251,242,${Math.min(1, a)})`; g.fillRect(0, 0, W, H);
+  g.restore();
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  ajustarCapa();
+  const ts = Math.min(t, QUIETO);
+  const n = P.fotograma(ts);
+  const pl = plano(ts);
+  g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.filter = 'none';
+  g.clearRect(0, 0, W, H);
+  let q = null;
+
+  if (pl === 'TEL') {
+    // ---- el final de ep3-ojo, quieto
+    g.drawImage(F.fin, 0, 0, W, H);
+    pasadaAtomo(ts, n);
+  } else if (pl === 'SILLA') {
+    // ---- destello 1: la silla (foto) y la mano que baja (foto en 2D); al final, empuje hacia el hueco
+    const v = 0;
+    const z = mix(1, 1.2, eio(prog(ts, T.empuje0, T.empuje1)));
+    pegar(F.silla[v], { z, c: HUECO });
+    const u = prog(ts, T.mano0 - 0.05, T.mano1);
+    const baja = 1 - (1 - u) * (1 - u) * (1 - u) * (1 - u);
+    pegar(F.mano[v], { z, c: HUECO, dy: -SUBE_PX * (1 - baja) * z });
+    pasadaAtomo(ts, n);
+  } else if (pl === 'BAL') {
+    // ---- destello 2: la balanza en vilo, en vivo, con un empuje lento
+    // (la balanza se amplía; Atom, en su pasada, se queda en su sitio)
+    P.limpiar();
+    ponerBalanza(ts);
+    P.render(n);
+    const z = mix(1, 1.07, eio(prog(ts, T.f2, T.cielo)));
+    g.save(); g.translate(960, 470); g.scale(z, z); g.translate(-960, -470); g.drawImage(lienzoGL, 0, 0, W, H); g.restore();
+    pasadaAtomo(ts, n);
+  } else if (pl === 'BAJA') {
+    // ---- del cielo al plató: la cámara baja (2D); el plató en vivo, sin Atom ni «?»; Atom en su pasada
+    const s = eio(prog(ts, T.baja0, T.baja1));
+    const o = s * H;
+    g.fillStyle = '#07080c'; g.fillRect(0, 0, W, H);
+    if (s > 0.001) {
+      P.limpiar(); regla(ts); persona(ts, null); P.render(n);
+      g.save(); g.setTransform(KD, 0, 0, KD, 0, KD * (H - o)); g.drawImage(lienzoGL, 0, 0, W, H); g.restore();
+      // la costura: lo alto del telón se oscurece hacia el cielo (se apaga al llegar)
+      const y0 = H - o, k = cl(y0 / 160);
+      const gr = g.createLinearGradient(0, y0, 0, y0 + 360);
+      gr.addColorStop(0, `rgba(7,8,12,${0.95 * k})`); gr.addColorStop(1, 'rgba(7,8,12,0)');
+      g.fillStyle = gr; g.fillRect(0, y0, W, 360);
+    }
+    g.save(); g.setTransform(KD, 0, 0, KD, 0, -KD * o); g.drawImage(F.cieloFundido, 0, 0, W, H); g.restore();
+    pasadaAtomo(ts, n);
+  } else {
+    // ---- el plató: todo en una pasada (como ep3-saltos)
+    P.limpiar();
+    regla(ts);
+    atomo(ts);
+    q = interrogacion(ts);
+    persona(ts, q);
+    P.render(n);
+    pegarGL();
+    brilloQ(q);
+  }
+  if (pl === 'SILLA' || pl === 'TEL') fogonazo(ts, T.f1);
+  if (pl === 'SILLA' || pl === 'BAL') fogonazo(ts, T.f2);
+  POST.aplicar(g, n);
+}
+// el cielo con el borde de abajo fundido (se junta con el telón al bajar)
+F.cieloFundido = (() => {
+  const c = lienzo(), gc = c.getContext('2d');
+  gc.drawImage(F.cielo, 0, 0);
+  gc.globalCompositeOperation = 'destination-out';
+  const k = c.width / W;
+  const gr = gc.createLinearGradient(0, k * (H - 320), 0, k * H);
+  gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
+  gc.fillStyle = gr; gc.fillRect(0, k * (H - 320), c.width, k * 320);
+  return c;
+})();
+cargaT('listo');
+window.__info = {
+  T, m, RELOJ, K_A, S_A, finA: RELOJ.ts0 + K_A * S_A, CABEZA, FLECHA, X_QR, yE: [-31, -4, 0, 7, 27].map((e) => [e, Math.round(yE(e))]),
+  hueco: HUECO, larguero: pant(LARGUERO), pxSil: PX_SIL, mano: MANO, eMano: E_MANO,
+};
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

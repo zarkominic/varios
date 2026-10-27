@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Maraton · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-MARATON (frase 15). La playa de Maratón: barcos persas varados y filas persas; los hoplitas atenienses, menos,
+// cargan desde la izquierda con los escudos por delante. Luego un corredor cruza colinas a toda prisa y cae al llegar;
+// «40» en la caja (kilómetros).
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-maraton');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('maraton', 0.5), dur = E.duracion ?? 16, t1 = m0 + (dur - m0) * 0.55;
+const playa = (t) => {
+  R.cieloR(t, 'dia', { hor: 110 }); R.mar(t, { hor: 110, y1: 130 });
+  for (const x of [220, 270, 310]) R.trirreme(x, 126, t, { esc: 0.6, vela: PALA.MORADO, dir: -1 });
+  R.suelo(130, PR.PAJA, { luz: 2.6 });
+  const carga = tramo(t, m0 + 4, m0 + 7.5);
+  for (let f = 0; f < 3; f++) for (let k = 0; k < 6; k++) R.personaje(200 + k * 20 + f * 6, 146 + f * 10, 20, { ...ELENCO.persa, t: t + k + f, dir: -1, sombra: false });
+  for (let k = 0; k < 6; k++) R.personaje(lerp(20, 130, carga) + k * 16, 154 + (k & 1) * 10, 22, { ...ELENCO.hoplita, t: t + k, anda: carga > 0 && carga < 1 ? t * 9 : null, ceño: true });
+};
+const corredor = (t) => {
+  const u = t - t1, x = lerp(-20, 260, Math.min(1, u / 5));
+  R.cieloR(t, 'tarde', { sol: [280, 100, 10] }); R.colinas(120, { amp: 12, luz: 1.4, semilla: (u * 2) | 0 }); R.suelo(150, PR.TIERRA, { luz: 2 });
+  for (let k = 0; k < 6; k++) R.pset(Math.round(x - 10 - k * 3), 166 - (k & 1), PR.TIERRA[1]);
+  R.personaje(x, 168, 26, { ...ELENCO.griego, banda: null, largoFalda: 0.16, t, anda: u < 5 ? t * 12 : null, pose: u >= 5 ? 'rodilla' : 'pie', ceño: u >= 5 });
+};
+rodar(E, R, [[0, playa], [t1, corredor]], { año: -490, caja: (t, e) => R.caja(t, t > t1 + 1 ? tramo(t, t1 + 1, t1 + 1.4) : 0, (x, y) => R.numero('40', x + 10, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

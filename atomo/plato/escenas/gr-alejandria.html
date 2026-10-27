@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alejandria · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-ALEJANDRIA (frases 37–38). Mapa ancho: el imperio se parte en trozos de colores (los generales) y, por encima, una
+// mancha dorada (el griego) cubre de Egipto a Afganistán. Luego la biblioteca de Alejandría (estantes de rollos y
+// columnas) y Eratóstenes en un patio con un palo clavado: el sol pasa, la sombra gira, y en la caja la Tierra con un
+// ángulo.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-alejandria');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { len: M('lengua', 0.5), bib: M('biblioteca', 8) };
+const t2 = m.bib + 5.5;
+const mapa = (t) => {
+  const v = R.VISTAS.persia, u = t - m.len;
+  R.mapa(t, { vista: v, zonas: [{ pol: R.ZONAS_MAPA.persia, color: u < 2 ? PALA.MORADO : PALA.AMARILLO, p: u < 2 ? 1 : tramo(u, 2, 5) * 1.2, centro: [29.9, 31.2], radio: 50 }, { pol: R.ZONAS_MAPA.grecia, color: PALA.AMARILLO }, { pol: R.ZONAS_MAPA.macedonia, color: PALA.AMARILLO }] });
+  if (u < 2.2) for (const [a, b] of [[[34, 41], [34, 28]], [[45, 41], [47, 27]], [[60, 40], [60, 26]]]) R.ruta([R.lugar(a, undefined, v), R.lugar(b, undefined, v)], 1, PALA.CONTORNO, { flecha: false, continua: true });
+  R.punto(...R.lugar('alejandria', undefined, v), t, PALA.ORO, 2);
+};
+const biblioteca = (t) => {
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PALA.MARMOL, 1.4 + (y > 140 ? 0.5 : 0), x, y));
+  for (let s = 0; s < 4; s++) for (let k = 0; k < 4; k++) { const x0 = 20 + k * 76, y0 = 30 + s * 26; R.rect(x0, y0 + 20, x0 + 60, y0 + 22, PR.MADERA[1]); for (let r = 0; r < 12; r++) { const rx = x0 + 3 + r * 5; R.rect(rx, y0 + 8, rx + 3, y0 + 20, PR.PAJA[2 + (r & 1)]); R.pset(rx + 1, y0 + 8, PR.PAJA[0]); } }
+  R.suelo(140, PALA.MARMOL, { losas: true });
+  R.personaje(140, 172, 26, { ...ELENCO.aristoteles, t, pose: 'ofrece', objeto: 'pergamino' }); R.personaje(190, 172, 26, { ...ELENCO.griega, t, dir: -1, objeto: 'pergamino' });
+};
+const palo = (t) => {
+  const u = t - t2, sol = lerp(-0.8, 0.8, (u * 0.15) % 1);
+  R.cieloR(t, 'dia', { hor: 140, sol: [Math.round(160 + sol * 120), Math.round(40 + Math.abs(sol) * 40), 9] });
+  R.suelo(140, PR.PAJA, { luz: 2.6 });
+  R.rect(158, 104, 160, 150, PR.MADERA[1]);
+  const L = 12 + Math.abs(sol) * 50; R.linea(160, 150, Math.round(160 - Math.sign(sol) * L), 150, PR.TIERRA[0]); R.linea(160, 151, Math.round(160 - Math.sign(sol) * L), 151, PR.TIERRA[0]);
+  R.personaje(110, 172, 26, { ...ELENCO.platon, chaqueta: PALA.VERDE, camisa: PALA.VERDE, falda: PALA.VERDE, pelo: PALA.PELO_BLANCO, t, pose: 'senala' });
+};
+const tierra = (x, y, t) => { R.disco(x + 10, y + 10, 9, PR.MAR[2]); R.disco(x + 8, y + 8, 3, PR.HIERBA[2]); R.linea(x + 10, y + 10, x + 10, y + 1, PALA.BLANCO[3]); R.linea(x + 10, y + 10, x + 15, y + 2, PALA.BLANCO[3]); };
+rodar(E, R, [[0, mapa], [m.bib - 0.2, biblioteca], [t2, palo]], { año: (t) => (t < m.bib ? -300 : -240), caja: (t, e) => R.caja(t, t > t2 + 1 ? tramo(t, t2 + 1, t2 + 1.4) : 0, (x, y) => tierra(x + 4, y - 2, t), { energia: e }) });
+</script>
+</body>
+</html>

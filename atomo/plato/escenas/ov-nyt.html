@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Periódico · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-NYT (frase 29), diciembre de 2017, cartela «2017». Tres planos:
+// 1. la calle nevada al amanecer: el repartidor llega en bici, toca el timbre y lanza el periódico, que cae en el porche;
+// 2. la puerta de cerca: se abre, sale la luz cálida del recibidor y el perro de la casa trota hasta el felpudo, coge el
+//    periódico con la boca y vuelve a entrar moviendo la cola (gag);
+// 3. la portada en las manos: se desenrolla y aparece la foto gris del vídeo de la Marina, con la mancha blanca y la
+//    retícula, y el caza; caen copos sobre el papel.
+import { preparar, rodar, primerT, porche, copos, bici, cocheNevado, puertaCerca, portadaMano, perro, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-nyt');
+const { tramo, lerp } = R;
+const m0 = M('nyt', 1.5), P2 = 5.2, P3 = 9.2;
+const repartidor = { ...EL.sudadera, tocado: 'gorra', pal: { ...EL.sudadera.pal, C: R.hex('#c83a3a'), W: R.hex('#c83a3a'), c: R.hex('#8e2424'), G: R.hex('#2a4fa8') } };
+// el repartidor: x de la rueda de atrás; lanza en «lanza» y el periódico vuela en arco hasta el porche
+const bx = (t) => Math.round(lerp(-40, 330, tramo(t, 0.3, 4.9))), lanza = 2.0, vuela = (t) => tramo(t, lanza, lanza + 1.1);
+const cae = primerT((t) => vuela(t) >= 1, lanza, lanza + 2);
+const calle = (t) => {
+  porche(R, t, { invierno: true });
+  const u = vuela(t);
+  if (t > lanza && u < 1) { const x = Math.round(lerp(bx(lanza) + 24, 232, u)), y = Math.round(lerp(150, 136, u) - Math.sin(u * Math.PI) * 34); R.rect(x - 4, y - 2, x + 4, y + 1, C.k); R.rect(x - 3, y - 1, x + 3, y, C.papel); R.pset(x, y - 1, C.rojo); }
+  else if (u >= 1) { R.rect(226, 134, 238, 138, C.k); R.rect(227, 135, 237, 137, C.papel); R.rect(231, 135, 232, 137, C.rojo); }
+  const x = bx(t); R.actor(repartidor, x + 4, 152, t, { dir: 1, quieto: true, dedo: t > lanza - 0.3 && t < lanza + 0.4, sonrisa: true }); bici(R, x, 160, t, { cesta: t > lanza ? 2 : 3, fondo: C.nieveS });
+  cocheNevado(R, 236, 178, t);
+  copos(R, t, 70);
+};
+// el perro sale por la puerta, trota hasta el felpudo, coge el periódico con la boca y vuelve a casa moviendo la cola
+const sale = (t) => tramo(t, P2 + 1.2, P2 + 2.2), coge = P2 + 2.6, vuelve = (t) => tramo(t, P2 + 3.0, P2 + 3.9);
+const puerta = (t) => {
+  const lleva = t >= coge, v = vuelve(t);
+  puertaCerca(R, t, { abre: tramo(t, P2 + 0.4, P2 + 1.2), diario: lleva ? null : 122 });
+  // sale mirando a la izquierda hacia el periódico; con él en la boca se da la vuelta y entra mirando a la derecha
+  if (t > P2 + 1.2 && v < 1) {
+    if (!lleva) { const u = sale(t); perro(R, Math.round(lerp(184, 162, u)), Math.round(lerp(146, 168, u)), t, { dir: -1, anda: u > 0 && u < 1, baja: tramo(t, P2 + 2.2, coge) }); }
+    else perro(R, Math.round(lerp(130, 142, v)), Math.round(lerp(168, 146, v)), t, { dir: 1, anda: v > 0, baja: Math.max(0, 1 - tramo(t, coge, coge + 0.4)), lleva: true }); }
+  copos(R, t, 40);
+};
+const portada = (t) => portadaMano(R, t, { abre: tramo(t, P3 + 0.3, P3 + 1.2) });
+rodar(E, R, [[0, calle], [P2, puerta], [P3, portada]], {
+  efectos: [[0.9, 'timbre'], [lanza, 'whoosh'], [cae, 'golpecito'], [P2 + 0.4, 'puerta'], [P2 + 2.6, 'papel'], [P2 + 2.8, 'guau'], [P3 + 0.3, 'papel']],
+  cartela: '2017', año: 2017,
+});
+</script>
+</body>
+</html>

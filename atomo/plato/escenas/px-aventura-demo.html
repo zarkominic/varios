@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kit pixel aventura · prueba</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Prueba de personajes del kit pixel-aventura.js: t < 1 elenco de cuerpo entero; t ≥ 1 primeros planos.
+import { crearAventura, PALA } from '/atomo/plato/kits/pixel-aventura.js';
+const R = await crearAventura(document.getElementById('lienzo'));
+const ELENCO = [
+  { sombrero: 'tricornio', barba: 'poblada', pelo: PALA.PELO_NEGRO, chaqueta: PALA.AZUL, faja: PALA.ROJO, pose: 'manos_cintura', loro: true },
+  { sombrero: 'corona', peinado: 'peluca', pelo: PALA.PELO_BLANCO, chaqueta: PALA.MORADO, capa: PALA.ROJO, armiño: true, pantalon: PALA.BLANCO, pose: 'ofrece', objeto: 'libro', dir: -1 },
+  { sombrero: 'pañuelo', barba: 'perilla', pelo: PALA.PELO_ROJO, piel: PALA.PIEL_OSCURA, chaqueta: PALA.VERDE, pata: true, parche: true, pose: 'senala' },
+  { sombrero: 'capitan', peinado: 'coleta', pelo: PALA.PELO_RUBIO, chaqueta: PALA.ROJO, colorSombrero: PALA.NEGRO, objeto: 'espada', pose: 'saluda', dir: -1 },
+  { peinado: 'moño', pelo: PALA.PELO_CASTANO, chaqueta: PALA.AMARILLO, camisa: PALA.BLANCO, pose: 'pie', habla: 1 },
+];
+window.__frame = async (t) => {
+  R.interior(t, { luces: [[80, 40], [240, 40]], tipo: 'piedra', suelo: 150 });
+  R.antorcha(80, 40, t); R.antorcha(240, 40, t);
+  if (t < 1) ELENCO.forEach((o, i) => R.personaje(40 + i * 60, 160, 64, { ...o, t, anda: i === 4 ? t * 8 : undefined }));
+  else {
+    R.personaje(90, 300, 220, { ...ELENCO[0], t, habla: 1 });
+    R.personaje(240, 300, 220, { ...ELENCO[1], t, pose: 'pie' });
+  }
+  R.presentar();
+};
+window.__listo = true;
+</script>
+</body>
+</html>

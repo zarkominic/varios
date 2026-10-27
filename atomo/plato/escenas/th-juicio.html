@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El juicio · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-JUICIO (frases 30–31), cartela «2022»; la barra dice 2021 en el primer plano (el juicio) y 2022 desde el segundo. Seis planos:
+// 1. la sala del tribunal de San José (2021): Holmes y su abogado entran por la izquierda, pasan tras la mesa de la
+//    defensa y se sientan; el alguacil los sigue con la mirada; la estenotipista teclea y la cinta de papel le sale de
+//    la máquina; la dibujante del público los apunta en su cuaderno; con «San Jose» la fiscal se levanta, va al pasillo
+//    y empieza su alegato ante el jurado, con el dedo en alto;
+// 2. el estrado de cerca (3 de enero de 2022): el calendario de mesa pasa del 1 al 3 con «January third»; el alguacil
+//    deja el veredicto doblado, la mano del juez lo despliega (cuatro cruces rojas) y, con «guilty», cae el mazo: el
+//    calendario salta y el vaso de agua salpica (gag); en el rayo de luz flotan motas de polvo;
+// 3. la pizarra del veredicto: una mano con tiza dibuja las cuatro «X» de los inversores con «investors» y escribe el
+//    «4»; con «acquits» dos del público cuchichean; un periodista se levanta y sale corriendo con la noticia (los demás se
+//    vuelven a mirarlo); la mano dibuja los cuatro círculos de los pacientes y, con «patients», aparece el «0»;
+// 4. la sentencia: la sala en penumbra, el juez habla; Holmes y su abogado se ponen de pie con «sentences her» y la
+//    barra de meses crece año a año con «eleven years and three months» hasta el 135; ella baja la mirada y el abogado
+//    se vuelve hacia ella;
+// 5. otro día, la sentencia de Balwani: entra por la derecha y llega a la mesa con «Sunny Balwani»; su abogado se
+//    levanta; el juez lo señala; los fiscales lo miran; la dibujante lo apunta; con «gets nearly thirteen years» baja la
+//    cabeza;
+// 6. las dos condenas: la de ella ya entera (135, la bolsa del dinero); él llega y su barra crece hasta 155 con
+//    «thirteen years»; con «investors» y «patients» le salen la bolsa y la gota; al fondo, en penumbra, pasa el alguacil.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-juicio');
+const { tramo, lerp, hex } = R;
+const C = T.C, K = C.k;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('veredicto', f), b = (f) => en('condena', f);
+const lin = (t, x0, x1) => Math.min(1, Math.max(0, (t - x0) / (x1 - x0)));
+const entre = (t, x0, x1) => t >= x0 && t < x1;
+
+// las palabras de la voz inglesa
+const SANJOSE = a(0.23), TERCERO = a(0.35), Y2022 = a(0.37), CULPABLE = a(0.55), INVERSORES = a(0.65), ABSUELVE = a(0.76), PACIENTES = a(0.95);
+const SENTENCIA = b(0.05), ONCE = b(0.13), MESES = b(0.24), PRISION = b(0.28), SUNNY = b(0.47), CASI = b(0.66), TRECE = b(0.72), INV2 = b(0.88), PAC2 = b(0.95);
+const P2 = a(0.315), P3 = a(0.6), P4 = b(0), P5 = b(0.33), P6 = b(0.7);
+
+// ── piezas locales ─────────────────────────────────────────────────────────────────────────────────────────────
+const ruta = (t, kf) => {
+  if (t < kf[0][0]) return { x: kf[0][1], s: kf[0][2], mv: false, d: Math.sign(kf[1][1] - kf[0][1]) || 1 };
+  let d = 1; for (let i = 0; i + 1 < kf.length; i++) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1]; if (x1 !== x0) d = x1 < x0 ? -1 : 1;
+    if (t < t1) { const u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0, d }; } }
+  const [, x, s] = kf[kf.length - 1]; return { x, s, mv: false, d };
+};
+const VACIO = 0x01020304; let CAPA = null;
+const mezclar = (c, [cr, cg, cb], m) => { const r = c & 255, g = (c >> 8) & 255, bl = (c >> 16) & 255; return (0xff000000 | (Math.round(bl + (cb - bl) * m) << 16) | (Math.round(g + (cg - g) * m) << 8) | Math.round(r + (cr - r) * m)) >>> 0; };
+// dibuja fn en una capa aparte y copia lo que cae en los rectángulos (mezcla > 0: teñido del color tono)
+const recorte = (rects, fn, mezcla = 0, tono = [30, 30, 46]) => { const bf = CAPA ?? (CAPA = R.nuevo()), prev = R.usar(bf); bf.fill(VACIO); fn(); R.usar(prev);
+  for (const [x0, y0, x1, y1] of rects) for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const c = bf[y * 320 + x]; if (c === VACIO) continue; R.pset(x, y, mezcla ? mezclar(c, tono, mezcla) : c); } };
+const aclara = (x, y, m, tono = [255, 240, 200]) => { if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mezclar(R.pget(x, y), tono, m)); };
+const brazo = (x, y, dir, manga) => T.mano(R, Math.round(x), Math.round(y), dir, manga);
+const PENUMBRA = [30, 30, 46];
+// los abogados de la defensa: el oficinista con traje (gris azulado el de ella, marrón el de él)
+const TRAJE_H = { C: hex('#4a5268'), c: hex('#363c4e'), F: hex('#363c4e'), o: hex('#8a2a3a') }, TRAJE_B = { C: hex('#6a5444'), c: hex('#4e3c30'), F: hex('#4e3c30'), o: hex('#2a4a6a') };
+
+// la estenotipista en su mesita, delante del estrado: teclea y la cinta de papel sale de la máquina
+const estenotipista = (t) => { const { rect, pset } = R;
+  R.actor(EL.senora30, 140, 133, t, { dir: 1 });
+  rect(146, 118, 158, 123, K); rect(147, 119, 157, 122, hex('#4a4e5a')); rect(147, 119, 157, 119, hex('#6a6e7a'));
+  const L = 2 + Math.floor((t * 3) % 9); for (let j = 0; j < L; j++) pset(159 + (Math.floor(j / 3) % 2), 118 - j, C.blanco); rect(158, 118, 159, 118, C.grisL);
+  for (let k = 0; k < 2; k++) { const up = Math.floor(t * 9 + k * 1.5) % 2; rect(149 + k * 4, 117 - up, 150 + k * 4, 118 - up, hex('#f6c290')); }
+  rect(132, 123, 170, 126, K); rect(133, 124, 169, 125, C.maderaL); rect(135, 126, 137, 134, C.maderaS); rect(165, 126, 167, 134, C.maderaS); };
+// la dibujante del público con su cuaderno: el dibujo se va completando (quien: 'holmes' o 'balwani')
+const dibujante = (t, t0, quien) => { const { rect, pset } = R, p = lin(t, t0, t0 + 3.6);
+  R.actor(EL.sudadera, 4, 142, t, { dir: 1, sonrisa: p > 0.95 });
+  rect(16, 120, 30, 134, K); rect(17, 121, 29, 133, C.blanco);
+  if (p > 0.15) rect(18, 129, 28, 129, C.madera);
+  if (p > 0.35) { rect(19, 124, 20, 125, hex('#8c8ca0')); rect(19, 126, 20, 128, K); }
+  if (p > 0.6) { const pelo = quien === 'holmes' ? hex('#d8b860') : K; rect(24, 123, 26, 124, pelo); pset(25, 125, hex('#f6c290')); rect(24, 126, 26, 128, quien === 'holmes' ? K : hex('#3a3a4a')); }
+  if (p < 1) { const lx = Math.round(23 + Math.sin(t * 9) * 4), ly = Math.round(127 + Math.cos(t * 7) * 3); R.linea(lx, ly, lx + 4, ly - 4, C.amarillo); rect(lx + 4, ly - 6, lx + 6, ly - 4, hex('#f6c290')); } };
+// la sala: el juez (lo que asoma por encima del estrado), el alguacil, la estenotipista, la dibujante y lo de detrás de las mesas
+const sala = (t, o) => {
+  T.tribunal(R, t, { detras: (R, t) => R.actor(EL.juez, 152, 74, t, { dir: o.juezDir ?? 1, habla: o.juezHabla?.(t) && Math.sin(t * 6) > 0, dedo: o.juezDedo?.(t) }) });
+  R.actor(EL.guardia, 206, 134, t, { dir: o.alguacil?.(t) ?? 1 });
+  estenotipista(t); dibujante(t, o.dibujo[0], o.dibujo[1]);
+  o.gente(t);
+  T.tribunalDelante(R, t);
+};
+
+// ── 1 · la sala, 2021 ──────────────────────────────────────────────────────────────────────────────────────────
+const LLEGA = [3.1, 3.4], LEVANTA = SANJOSE - 0.5, ALEGATO = SANJOSE + 0.45;
+const p1 = (t) => sala(t, {
+  juezHabla: (t) => entre(t, 1.5, 2.6), dibujo: [1.6, 'holmes'],
+  alguacil: (t) => (t < LLEGA[1] + 0.3 ? -1 : 1),
+  gente: (t) => {
+    const h = ruta(t, [[1.3, -16, 158], [LLEGA[0], 70, 158], [LLEGA[0] + 0.25, 70, 162]]), ab = ruta(t, [[1.5, -60, 158], [LLEGA[1], 96, 158], [LLEGA[1] + 0.25, 96, 162]]);
+    R.actor(EL.holmes, h.x, h.s, t, { dir: 1, anda: h.mv });
+    R.actor(EL.oficinista, ab.x, ab.s, t, { pal: TRAJE_H, dir: entre(t, LLEGA[1] + 0.4, LLEGA[1] + 1.4) ? -1 : 1, anda: ab.mv, habla: entre(t, LLEGA[1] + 0.5, LLEGA[1] + 1.3) && Math.sin(t * 7) > 0 });
+    R.actor(EL.agente, 206, 162, t, { dir: -1 });
+    const f = ruta(t, [[LEVANTA, 238, 162], [LEVANTA + 0.2, 238, 158], [ALEGATO, 166, 160]]);
+    R.actor(EL.agenta, f.x, f.s, t, { dir: t > ALEGATO ? 1 : -1, anda: f.mv, dedo: t > ALEGATO + 0.1, habla: t > ALEGATO && Math.sin(t * 6) > 0 });
+  },
+});
+
+// ── 2 · el estrado de cerca: el calendario, el veredicto y el mazo ─────────────────────────────────────────────
+const HOJA = [TERCERO - 0.35, TERCERO - 0.05], ENTREGA = [Y2022, Y2022 + 0.5], ABRE = [CULPABLE - 1.1, CULPABLE - 0.8];
+const calendarioMesa = (t, dy) => { const { rect } = R, x = 14, y = 90 - dy;
+  R.poligono([[x + 3, y + 36], [x + 19, y + 4], [x + 35, y + 36]], K); R.poligono([[x + 5, y + 35], [x + 19, y + 7], [x + 33, y + 35]], C.maderaS);
+  rect(x, y + 2, x + 38, y + 32, K); rect(x + 1, y + 3, x + 37, y + 31, C.blanco); rect(x + 1, y + 3, x + 37, y + 11, C.rojo);
+  for (let k = 0; k < 4; k++) rect(x + 6 + k * 9, y, x + 7 + k * 9, y + 4, C.metalD);
+  R.numero('2022', x + 20, y + 11, { centro: true, color: C.blanco, sombra: false });
+  const dia = t < HOJA[0] ? 1 : t < HOJA[1] ? 2 : 3; R.numero(String(dia), x + 20, y + 29, { tam: 16, centro: true, color: hex('#3a3e4a'), contorno: false, sombra: false });
+  for (const h of HOJA) { const u = lin(t, h - 0.15, h); if (u > 0 && u < 1) { const yb = Math.round(lerp(y + 31, y + 12, u)); rect(x + 1, y + 12, x + 37, yb, hex('#f4f0e8')); rect(x + 1, yb, x + 37, yb, C.grisL); } } };
+const papel = (x, y, abre) => { const { rect, pset } = R, w = Math.round(lerp(26, 58, abre)), h = Math.round(lerp(10, 30, abre));
+  rect(x, y - h, x + w, y, K); rect(x + 1, y - h + 1, x + w - 1, y - 1, hex('#f4f0e4')); rect(x + 1, y - 1, x + w - 1, y - 1, hex('#d8d0bc'));
+  if (abre < 0.6) { rect(x + Math.round(w / 2), y - h + 1, x + Math.round(w / 2), y - 1, hex('#d8d0bc')); return; }
+  for (let k = 0; k < 4; k++) { const ly = y - h + 6 + k * 6; rect(x + 5, ly, x + w - 16, ly, hex('#9aa0ac')); rect(x + w - 11, ly - 2, x + w - 6, ly + 2, K); rect(x + w - 10, ly - 1, x + w - 7, ly + 1, C.blanco); pset(x + w - 10, ly - 1, C.rojo); pset(x + w - 7, ly - 1, C.rojo); pset(x + w - 9, ly, C.rojo); pset(x + w - 8, ly, C.rojo); pset(x + w - 10, ly + 1, C.rojo); pset(x + w - 7, ly + 1, C.rojo); }
+  rect(x + 5, y - 3, x + 20, y - 3, hex('#3a4a8a')); };
+const vaso = (t, dy) => { const { rect, pset } = R, x = 288, y = 128 - dy, g = t - CULPABLE, ola = g > 0 && g < 1.2 ? Math.round(Math.sin(g * 18) * 1.5 * (1 - g / 1.2)) : 0;
+  rect(x, y - 20, x + 12, y, hex('#c8d8e4')); rect(x + 1, y - 19, x + 11, y - 1, hex('#e8f0f4')); rect(x + 1, y - 13, x + 11, y - 1, hex('#9ac8e0')); rect(x + 1, y - 13 + ola, x + 11, y - 13 + ola, hex('#c8e8f8')); rect(x + 2, y - 18, x + 2, y - 3, C.blanco);
+  if (g > 0 && g < 0.6) for (let k = 0; k < 3; k++) { const u = g / 0.6, dx = (k - 1) * 9 * u, dyy = -Math.sin(u * Math.PI) * (8 + k * 3); pset(Math.round(x + 6 + dx), Math.round(y - 20 + dyy + u * 14), hex('#9ac8e0')); }
+  if (g > 0.4) { R.rect(x + 16, 130, x + 22, 130, hex('#9ac8e0')); } };   // el charquito que queda en la madera
+const estrado = (t) => {
+  const { rect } = R;
+  T.mazo(R, t, { golpe: CULPABLE });
+  // el rayo de luz con sus motas de polvo
+  for (let y = 0; y < 124; y += 1) { const x0 = Math.round(30 + y * 0.9); for (let x = x0; x < x0 + 46; x++) if ((x + y) % 2 === 0) aclara(x, y, 0.07); }
+  for (let k = 0; k < 14; k++) { const fy = ((k * 37 + t * (3 + (k % 3))) % 120), fx = 30 + fy * 0.9 + ((k * 13) % 44) + Math.sin(t + k) * 2; if (Math.sin(t * 2 + k) > -0.3) R.pset(Math.round(fx), Math.round(fy), hex('#e8d8b0')); }
+  const g = t - CULPABLE, salto = g > 0 && g < 0.22 ? Math.round(Math.sin(g / 0.22 * Math.PI) * 4) : 0;
+  calendarioMesa(t, salto); vaso(t, salto);
+  // el veredicto: lo trae la mano del alguacil, doblado; la mano del juez lo despliega y se va a por el mazo
+  const llega = tramo(t, ...ENTREGA), sale = tramo(t, ENTREGA[1] + 0.05, ENTREGA[1] + 0.45), px = Math.round(lerp(-70, 60, llega)), py = 160 - (salto ? 1 : 0), abre = tramo(t, ...ABRE);
+  if (t > ENTREGA[0]) papel(px, py, abre);
+  if (t > ENTREGA[0] && t < ENTREGA[1] + 0.45) brazo(lerp(px + 4, -50, sale), py - 6, 1, '#34405a');
+  const vj = tramo(t, ABRE[0] - 0.3, ABRE[0]), sj = tramo(t, ABRE[1] + 0.1, ABRE[1] + 0.45);
+  if (vj > 0 && sj < 1) brazo(lerp(-50, px + 30, vj) - sj * 110, py - 12 - sj * 20, 1, '#1c1c24');
+};
+
+// ── 3 · la pizarra del veredicto ───────────────────────────────────────────────────────────────────────────────
+const XT = [P3 + 0.35, P3 + 0.65, P3 + 0.95, P3 + 1.25], CUATRO = P3 + 1.55, OT = [ABSUELVE + 1.0, ABSUELVE + 1.35, ABSUELVE + 1.7, ABSUELVE + 2.05], CERO = PACIENTES;
+const marcas = (t) => XT.filter((x) => t >= x).length + OT.filter((x) => t >= x).length;
+const sitio = (k) => k < 4 ? [51 + k * 20, 117] : k === 4 ? [80, 152] : k < 9 ? [211 + (k - 5) * 20, 117] : [240, 152];
+const TIEMPOS = [...XT, CUATRO, ...OT, CERO];
+// la punta de la tiza: escribe en cada sitio en los 0,25 s antes de su marca y viaja entre ellas
+const tiza = (t) => {
+  if (t < P3 + 0.05 || t > CERO + 0.6) return null;
+  if (t > CERO) { const u = tramo(t, CERO, CERO + 0.6); return [lerp(240, 360, u), lerp(152, 120, u), false]; }
+  if (t > CUATRO && t < OT[0] - 0.55) { const u = tramo(t, CUATRO, CUATRO + 0.5), v = tramo(t, OT[0] - 1.0, OT[0] - 0.55); if (v <= 0) return u < 1 ? [lerp(80, 360, u), lerp(152, 110, u), false] : null; return [lerp(360, 211, v), lerp(100, 117, v), false]; }
+  for (let i = 0; i < TIEMPOS.length; i++) { const tk = TIEMPOS[i], [x, y] = sitio(i);
+    if (t < tk - 0.25) { const prev = i === 0 ? [360, 100] : i === 5 ? [211, 117] : sitio(i - 1), t0 = i === 0 ? P3 + 0.05 : i === 5 ? OT[0] - 0.55 : TIEMPOS[i - 1]; const u = tramo(t, t0, tk - 0.25); return [lerp(prev[0], x, u), lerp(prev[1], y, u), false]; }
+    if (t < tk) return [x + Math.sin(t * 40) * 5, y + Math.cos(t * 31) * 5, true]; }
+  return null;
+};
+const cabezas = (t) => { const cols = [hex('#3a2a20'), hex('#c8a060'), hex('#1e1a24'), hex('#6a4a2a')], vuelve = t > P3 + 1.6 && t < P3 + 3.4;
+  for (let k = 0; k < 13; k++) { const x = 6 + k * 25, c = cols[k % 4];
+    const bob = [2, 5, 8, 11].includes(k) ? Math.round(Math.max(0, Math.sin(t * 1.7 + k)) * 2) : 0, lado = entre(t, ABSUELVE - 0.1, ABSUELVE + 0.9) && (k === 3 || k === 4) ? (k === 3 ? 2 : -2) : 0;
+    if (bob || lado) { R.disco(x + lado, 176 - bob, 8, K); R.disco(x + lado, 175 - bob, 7, c); }
+    if (vuelve && k >= 6) { R.rect(x + 6, 171 - bob, x + 7, 174 - bob, hex('#f6c290')); R.pset(x + 7, 172 - bob, hex('#d48a5a')); }
+    if (lado) { R.rect(x + lado + (lado > 0 ? 6 : -7), 172, x + lado + (lado > 0 ? 7 : -6), 174, hex('#f6c290')); } } };
+const pizarra = (t) => {
+  const n = marcas(t), u = n >= 8 ? (t >= CERO - 0.05 ? 1 : 0.88) : n / 8 - 0.001;
+  T.veredicto(R, t, { u });
+  if (t >= CUATRO) R.numero('4', 80, 160, { tam: 16, centro: true });
+  // el polvo de tiza que cae bajo cada marca recién hecha
+  TIEMPOS.forEach((tk, i) => { const g = t - tk; if (g < 0 || g > 0.7) return; const [x, y] = sitio(i); for (let k = 0; k < 4; k++) R.pset(Math.round(x - 6 + k * 4), Math.round(y + 9 + g * 22 + (k % 2) * 3), hex('#c8d4cc')); });
+  cabezas(t);
+  // el periodista de la primera fila se levanta y sale corriendo con la noticia
+  { const q = ruta(t, [[P3 + 0.5, 238, 216], [P3 + 0.9, 238, 192], [P3 + 2.4, 340, 192]]); if (q.x < 336) R.actor(EL.chico, q.x, q.s, t, { dir: 1, anda: q.mv && q.s <= 192, sorpresa: t < P3 + 1 }); }
+  const p = tiza(t); if (p) { const [x, y] = p.map(Math.round); R.rect(x, y - 2, x + 2, y + 2, C.blanco); brazo(x + 12, y - 2, -1, '#5a5e6a'); }
+};
+
+// ── 4 · la sentencia de Holmes ─────────────────────────────────────────────────────────────────────────────────
+const calendarito = (y) => { const { rect, pset } = R; rect(40, y + 2, 58, y + 20, K); rect(41, y + 3, 57, y + 19, C.blanco); rect(41, y + 3, 57, y + 7, C.rojo); for (let j = 0; j < 3; j++) for (let i = 0; i < 4; i++) pset(44 + i * 4, y + 10 + j * 3, K); };
+// una barra de condena en meses (como las de T.condenas): crece con u y lleva su contador
+const barra = (y, meses, c, u) => { const { rect } = R, m = meses * u, w = Math.round(m * 1.2); if (w < 1) return;
+  rect(66, y, 66 + w, y + 22, K); rect(67, y + 1, 65 + w, y + 21, c); rect(67, y + 1, 65 + w, y + 2, mezclar(c, [255, 255, 255], 0.35));
+  for (let mm = 12; mm < m; mm += 12) rect(66 + Math.round(mm * 1.2), y + 1, 66 + Math.round(mm * 1.2), y + 21, K);
+  R.numero(String(Math.round(m)), 76 + w, y + 18, { tam: 16 }); };
+const HB = [ONCE - 0.1, PRISION - 0.15], hU = (t) => tramo(t, ...HB);
+const sentencia = (t) => {
+  T.tribunal(R, t, { detras: (R, t) => R.actor(EL.juez, 152, 74, t, { dir: 1 }) });
+  estenotipista(t); R.actor(EL.guardia, 206, 134, t, { dir: -1 });
+  T.tinte(R, 0, 179, PENUMBRA, 0.6);
+  // el juez, con luz: habla y, con «sentences her», levanta el dedo
+  recorte([[134, 36, 186, 59]], () => R.actor(EL.juez, 152, 74, t, { dir: 1, habla: t < PRISION + 0.3 && Math.sin(t * 6) > 0, dedo: entre(t, SENTENCIA - 0.1, SENTENCIA + 0.7) }));
+  calendarito(60); barra(60, 135, hex('#e8c040'), hU(t));
+  // de pie ante el juez: se levantan con «sentences her»; ella baja la mirada y el abogado se vuelve hacia ella
+  const sube = (t0) => Math.round(lerp(162, 156, tramo(t, t0, t0 + 0.3)));
+  R.actor(EL.holmes, 70, sube(SENTENCIA - 0.1), t, { dir: 1, triste: t > PRISION + 0.1 });
+  R.actor(EL.oficinista, 96, sube(SENTENCIA + 0.15), t, { pal: TRAJE_H, dir: t > PRISION + 0.3 ? -1 : 1 });
+  R.actor(EL.agente, 206, 162, t, { dir: -1 }); R.actor(EL.agenta, 232, 162, t, { dir: -1, dedo: entre(t, P4 + 0.3, P4 + 0.8) });
+  T.tribunalDelante(R, t);
+};
+
+// ── 5 · la sentencia de Balwani ────────────────────────────────────────────────────────────────────────────────
+const BLLEGA = SUNNY - 0.15;
+const p5 = (t) => sala(t, {
+  juezHabla: (t) => t > SUNNY - 0.3, juezDedo: (t) => entre(t, SUNNY, SUNNY + 0.8), dibujo: [P5 + 0.6, 'balwani'],
+  alguacil: (t) => (t < BLLEGA ? 1 : -1),
+  gente: (t) => {
+    R.actor(EL.agente, 70, 162, t, { dir: t > BLLEGA ? 1 : -1 }); R.actor(EL.agenta, 96, 162, t, { dir: t > BLLEGA + 0.3 ? 1 : -1 });
+    const q = ruta(t, [[P5 + 0.1, 334, 158], [BLLEGA, 226, 158]]);
+    R.actor(EL.balwani, q.x, q.s, t, { dir: -1, anda: q.mv, triste: t > CASI });
+    R.actor(EL.oficinista, 198, Math.round(lerp(162, 158, tramo(t, BLLEGA - 0.2, BLLEGA + 0.1))), t, { pal: TRAJE_B, dir: t > BLLEGA - 0.6 && t < BLLEGA + 1.1 ? 1 : -1, habla: entre(t, BLLEGA + 1.2, BLLEGA + 2) && Math.sin(t * 7) > 0 });
+  },
+});
+
+// ── 6 · las dos condenas ───────────────────────────────────────────────────────────────────────────────────────
+const BB = [TRECE - 0.1, TRECE + 0.75];
+// una insignia redonda que salta al aparecer: la bolsa del dinero (inversores) o la gota (pacientes)
+const insignia = (icono, x, y, t0, t) => { const g = t - t0; if (g < 0) return; const r = g < 0.12 ? 13 : 11, cx = x + 6, cy = y + 6;
+  R.disco(cx, cy, r, K); R.disco(cx, cy, r - 1, hex('#e8e4dc'));
+  if (icono === 'bolsa') { R.disco(cx, cy + 2, 7, K); R.disco(cx, cy + 2, 6, hex('#c8a860')); R.rect(cx - 3, cy - 7, cx + 3, cy - 5, K); R.rect(cx - 2, cy - 6, cx + 2, cy - 6, hex('#c8a860')); R.numero('$', cx + 1, cy + 6, { centro: true, color: hex('#5a3a10'), sombra: false }); }
+  else R.icono('gota', cx - 7, cy - 7, C.sangre, K, 2); };
+const condenas = (t) => {
+  T.condenas(R, t, { u: 0 });
+  // al fondo, en penumbra, el alguacil cruza la sala con un archivador
+  recorte([[0, 0, 319, 179]], () => { const x = Math.round(lerp(330, -20, lin(t, P6, E.duracion))); R.actor(EL.guardia, x, 176, t, { dir: -1, anda: true }); R.rect(x - 4, 158, x + 2, 166, K); R.rect(x - 3, 159, x + 1, 165, C.ocre); }, 0.62, PENUMBRA);
+  barra(60, 135, hex('#e8c040'), 1); barra(116, 155, hex('#c84a4a'), tramo(t, ...BB));
+  insignia('bolsa', 200, 88, P6, t);
+  insignia('bolsa', 200, 144, INV2, t); insignia('gota', 226, 144, PAC2, t);
+  R.actor(EL.holmes, 20, 84, t, { dir: entre(t, P6 + 0.85, P6 + 1.6) ? -1 : 1, triste: true });
+  const q = ruta(t, [[P6, -18, 140], [P6 + 0.8, 20, 140]]);
+  R.actor(EL.balwani, q.x, q.s, t, { dir: 1, anda: q.mv, sorpresa: entre(t, BB[0] + 0.3, BB[1] + 0.2), triste: t > BB[1] + 0.2 });
+};
+
+const añosH = Array.from({ length: 11 }, (_, k) => T.primerT((t) => hU(t) * 135 >= 12 * (k + 1), P4, P5)).filter((v) => v != null).map((v) => [v, 'tic']);
+const añosB = Array.from({ length: 12 }, (_, k) => T.primerT((t) => tramo(t, ...BB) * 155 >= 12 * (k + 1), P6, E.duracion)).filter((v) => v != null).map((v) => [v, 'tic']);
+const efectos = [[1.35, 'puerta'], [1.8, 'tecleo', { dur: 3.4 }],
+  [HOJA[0] - 0.1, 'papel'], [HOJA[1] - 0.1, 'papel'], [ENTREGA[1] - 0.1, 'papel'], [ABRE[0] + 0.05, 'papel'], [CULPABLE, 'sello'], [CULPABLE + 0.12, 'chof'],
+  ...XT.map((x) => [x - 0.2, 'lapiz']), [CUATRO - 0.2, 'lapiz'], ...OT.map((x) => [x - 0.2, 'lapiz']), [CERO - 0.2, 'lapiz'], [P3 + 0.9, 'whoosh'],
+  ...añosH, [HB[1] + 0.05, 'pop'], [P5 + 0.15, 'puerta'], [P5 + 1.2, 'tecleo', { dur: 2.6 }],
+  ...añosB, [BB[1] + 0.05, 'pop'], [INV2, 'pop'], [PAC2, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, estrado], [P3, pizarra], [P4, sentencia], [P5, p5], [P6, condenas]], { cartela: '2022', efectos, año: (t) => (t < P2 ? 2021 : 2022) });
+</script>
+</body>
+</html>

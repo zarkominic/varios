@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Prueba de decorados · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Página de prueba: un decorado del episodio 11 por segundo (t = 0,5; 1,5; …), para capturarlos y revisarlos.
+window.ESCENA = { duracion: 40, marcas: {}, voz: [0, 0] };
+const T = await import('/atomo/plato/escenas/th-comun.js');
+const { ELENCO_CHIBI: EL } = await import('/atomo/plato/kits/pixel-chibi.js');
+const { E, R } = await T.preparar('prueba-th');
+const g = (f) => f;
+const lista = [
+  (t) => T.insertoDedo(R, t, { pica: 1, gota: 0.3, recoge: 0 }),
+  (t) => T.insertoDedo(R, t, { pica: 1.5, gota: 1, recoge: 0.8 }),
+  (t) => T.insertoTubos(R, t, { tubos: 1.6, cuchara: true }),
+  (t) => T.gotaCuchara(R, t, { tejido: 0.7 }),
+  (t) => T.revista(R, t),
+  (t) => T.insertoDiluye(R, t, { u: 1, lupa: 1 }),
+];
+const planos = lista.map((f, i) => [i, f]);
+T.rodar(E, R, planos, { año: 2013 });
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alfabeto · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-ALFABETO (frase 9). Cartela «800». Un puerto griego: llega un barco fenicio de vela morada y un mercader enseña una
+// tablilla con signos; al copiarla, el griego añade las vocales, que se encienden una a una (A, E, I, O).
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-alfabeto');
+// las letras griegas están en otro subconjunto de la fuente: se cargan antes de dibujar
+await Promise.race([document.fonts.load("16px 'Press Start 2P'", 'ΑΒΓΔΕΖΗΘΙΚΛΜΟΠΡΣ'), new Promise((r) => setTimeout(r, 8000))]);
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('alfabeto', 1.5), dur = E.duracion ?? 16, t1 = m0 + (dur - m0) * 0.45;
+const fenicio = { ...ELENCO.persa, sombrero: 'gorro', colorSombrero: PALA.MORADO, chaqueta: PALA.MORADO, camisa: PALA.BLANCO, pantalon: PALA.BLANCO, escudo: null, objeto: 'pergamino' };
+const puerto = (t) => {
+  R.cieloR(t, 'tarde', { hor: 118, sol: [270, 100, 10] });
+  R.mar(t, { hor: 118 });
+  R.trirreme(lerp(360, 200, tramo(t, m0, m0 + 4)), 130, t, { esc: 1, vela: PALA.MORADO, dir: -1, carga: true });
+  R.suelo(146, PALA.MARMOL, { losas: true });
+  for (let k = 0; k < 3; k++) { R.rect(20 + k * 22, 130, 36 + k * 22, 146, PR.MADERA[2]); R.rect(20 + k * 22, 130, 36 + k * 22, 131, PR.MADERA[3]); }
+  R.personaje(150, 172, 28, { ...fenicio, t, dir: -1, pose: 'ofrece' });
+  R.personaje(110, 172, 28, { ...ELENCO.griego, t, pose: t > m0 + 5 ? 'senala' : 'pie' });
+};
+const tablilla = (t) => {
+  R.cieloR(t, 'tarde', { hor: 180, sol: [270, 150, 12] });
+  R.rect(70, 40, 250, 140, PR.TIERRA[3]); R.rect(72, 42, 248, 138, PR.TIERRA[4]); R.rect(70, 40, 250, 41, PR.TIERRA[1]);
+  const signos = ['ΑΒΓΔ', 'ΕΖΗΘ', 'ΙΚΛΜ', 'ΟΠΡΣ'];
+  const u = t - t1;
+  signos.forEach((fila, j) => [...fila].forEach((ch, i) => {
+    const vocal = i === 0, x = 96 + i * 38, y = 66 + j * 20, enc = vocal && u > 1 + j * 0.8;
+    if (!vocal || enc) R.numero(ch, x, y, { tam: 16, rampa: enc ? [PALA.AMARILLO[3], PALA.AMARILLO[3], PALA.AMARILLO[2], PALA.ORO[2], PALA.ORO[1]] : [PR.TIERRA[0], PR.TIERRA[0], PR.TIERRA[1], PR.TIERRA[1], PR.TIERRA[0]], contorno: enc, sombra: false });
+    else R.rect(x - 2, y - 12, x + 10, y, PR.TIERRA[2]);
+    if (enc && u < 1.4 + j * 0.8) R.halo(x + 4, y - 6, 12, [PALA.AMARILLO[1], PALA.AMARILLO[2]], 0.8);
+  }));
+};
+rodar(E, R, [[0, puerto], [t1, tablilla]], { cartela: '800', año: -800 });
+</script>
+</body>
+</html>

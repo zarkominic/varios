@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Obras · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-OBRAS (frase 23). Tres planos seguidos: una calzada que se traza sola entre colinas, con un carro que la recorre;
+// un acueducto que se levanta arco a arco con el agua corriendo por arriba; el Panteón por dentro, con el rayo de sol
+// del óculo moviéndose por el suelo.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-obras');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('obras', 0.5), dur = E.duracion ?? 14;
+const t1 = m0 + (dur - m0) * 0.3, t2 = m0 + (dur - m0) * 0.62;
+const calzada = (t) => {
+  R.cieloR(t, 'dia', { hor: 100 }); R.colinas(100, { amp: 10, luz: 1.8 }); R.suelo(110, PR.HIERBA, { luz: 2.2 });
+  const p = R.clamp(t / (t1 - 0.4), 0, 1);
+  for (let y = 110; y < R.H; y++) {
+    const f = (y - 110) / 70, cx = 160 + Math.sin(f * 2.5) * 30 * (1 - f), w = 4 + f * 40;
+    if (1 - f > p * 1.05) continue;
+    for (let x = Math.round(cx - w); x <= cx + w; x++) { const fila = Math.floor((y - 110) / (2 + f * 6)), bx = Math.floor((x - cx + w) / (3 + f * 8) + (fila & 1) * 0.5); R.pset(x, y, R.tone(PR.ROCA, 2.4 + (R.hash2(bx, fila) - 0.5) * 1.2 + ((x - cx + w) % Math.round(3 + f * 8) === 0 ? -1 : 0), x, y)); }
+    R.pset(Math.round(cx - w - 1), y, PR.TIERRA[1]); R.pset(Math.round(cx + w + 1), y, PR.TIERRA[1]);
+  }
+};
+const acued = (t) => {
+  R.cieloR(t, 'tarde', { hor: 150, sol: [270, 60, 9] });
+  R.colinas(120, { amp: 30, luz: 1.4, frec: 0.02, semilla: 3 });
+  for (let y = 120; y < R.H; y++) for (let x = 0; x < R.W; x++) { const valle = 120 + 50 * Math.sin(Math.PI * x / R.W); if (y > valle) R.pset(x, y, R.tone(PR.HIERBA, 1.6 + (y - valle) * 0.02, x, y)); }
+  R.acueducto(10, 310, 175, 80, t, { p: tramo(t, t1, t1 + (t2 - t1) * 0.7), vano: 24 });
+};
+const pant = (t) => { R.panteon(t, { fase: -2 }); R.personaje(130, 172, 24, { ...ELENCO.ciudadano, t, dir: 1, pose: 'senala', luz: undefined }); R.personaje(190, 172, 24, { ...ELENCO.senador, t, dir: -1, sonrisa: true, luz: undefined }); };
+rodar(E, R, [[0, calzada], [t1, acued], [t2, pant]], { año: 117 });
+</script>
+</body>
+</html>

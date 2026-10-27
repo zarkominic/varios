@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dias · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-DIAS (frase 23). Un calendario de noviembre: cuanto antes cae el jueves de Acción de Gracias, más casillas de
+// compras quedan hasta Navidad (de «25» a «32»).
+import { preparar, rodar, comedor, calendario, C } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-dias');
+const m0 = M('dias', 0.5), L = E.duracion - m0;
+const plano = (t) => {
+  const u = t - m0, p = R.tramo(u, 0.2 * L, 0.6 * L), dia = p < 0.5 ? 30 : 23;
+  comedor(R, t, { epoca: 'hoy', cal: () => {} });
+  const marca = {}; for (let d = dia + 1; d <= 30; d++) marca[d] = C.verdeL;
+  calendario(R, 104, 46, t, { empieza: 2, dias: 30, marca, arrastra: [30, 23, p] });
+  R.numero(String(dia === 30 ? 25 : 32), 270, 40, { centro: true, tam: 16 });
+};
+rodar(E, R, [[0, plano]], { año: 1939 });
+</script>
+</body>
+</html>

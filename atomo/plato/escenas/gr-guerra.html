@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Guerra · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-GUERRA (frases 26–27). Cartela «431». Mapa del Egeo: las ciudades se tiñen por bandos, Esparta y los suyos en rojo,
+// Atenas y los suyos en azul; espadas en la caja. Luego, un león (el ejército espartano en tierra) y un tiburón (la flota
+// ateniense en el mar): los espartanos queman campos fuera de los muros largos, que van de Atenas al puerto, mientras
+// los barcos traen comida.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-guerra');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { gue: M('guerra', 1.5), leo: M('leon', 9) };
+const ROJO = ['esparta', 'corinto', 'tebas', 'olimpia', [22.0, 37.6], [22.7, 37.3]], AZUL = ['atenas', 'delos', 'mileto', 'efeso', [25.4, 37.1], [26.5, 39.2], [24.7, 40.7], [27.9, 36.3]];
+const mapa = (t) => {
+  const v = R.VISTAS.egeo, p = tramo(t, m.gue + 1, m.gue + 4);
+  R.mapa(t, { vista: v });
+  [[ROJO, PALA.ROJO], [AZUL, PALA.AZUL]].forEach(([L, c]) => L.forEach((ci, k) => { if (k / L.length > p) return; const [x, y] = R.lugar(ci, undefined, v); R.disco(x, y, 4, c[1]); R.disco(x, y, 3, c[2]); R.pset(x, y, c[3]); }));
+};
+const muros = (t) => {
+  R.cieloR(t, 'dia', { hor: 110 }); R.mar(t, { hor: 110, y1: 130 });
+  R.suelo(130, PR.HIERBA, { luz: 2 });
+  acropolis(R, 60, 128, t, { esc: 0.6 });
+  for (const y of [126, 140]) { R.rect(40, y, 300, y + 3, PR.ROCA[2]); R.rect(40, y, 300, y, PR.ROCA[3]); }
+  for (let k = 0; k < 4; k++) R.trirreme(240 + k * 22 - ((t * 6) % 30), 118, t, { esc: 0.35, vela: PALA.BLANCO, dir: -1, carga: true });
+  for (let k = 0; k < 6; k++) R.personaje(80 + k * 30, 140, 12, { ...ELENCO.griego, t: t + k, anda: t * 5, dir: k % 2 ? 1 : -1, sombra: false, luz: undefined });
+  for (let k = 0; k < 5; k++) R.personaje(60 + k * 34, 176, 24, { ...ELENCO.espartano, t: t + k, anda: t * 6 });
+  for (let k = 0; k < 6; k++) { const x = 20 + k * 50, hh = 3 + 4 * R.hash2(k, Math.floor(t * 10)); R.linea(x, 160, x, 160 - hh, PALA.ANTORCHA[2 + (k & 1)]); }
+};
+rodar(E, R, [[0, mapa], [m.leo - 0.2, muros]], { cartela: '431', año: -431, caja: (t, e) => R.caja(t, t > m.gue + 4 ? tramo(t, m.gue + 4, m.gue + 4.4) : 0, (x, y) => R.icono('espadas', x + 8, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

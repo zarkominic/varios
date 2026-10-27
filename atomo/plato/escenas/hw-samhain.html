@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Samhain · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-SAMHAIN (frases 7–8). De noche, una colina: los celtas terminan la cosecha (gavillas), el ganado baja del monte y
+// se enciende una gran hoguera en la cima (otra lejos). Luego, junto a la colina, un túmulo se abre con luz verde y
+// salen figuras fantasmales que pasean entre la gente.
+import { preparar, rodar, noche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-samhain');
+const { PALA, ELENCO, VERDEF, tramo, lerp } = R;
+const m = { sam: M('samhain', 0.5), pue: M('puerta', 8) };
+const L = m.pue - m.sam;
+const cerro = (x) => Math.round(122 - 36 * Math.exp(-(((x - 196) / 78) ** 2)));
+const TIERRA_N = [PALA.CONTORNO, PALA.PURPURA[0], PALA.PURPURA[1], PALA.MORADO[1]];
+const GENTE = [[150, ELENCO.celta, 1], [166, ELENCO.celta2, 1], [226, ELENCO.celta2, -1], [242, ELENCO.celta, -1]];
+const paisaje = (t, fuego) => {
+  noche(R, t, { luna: [52, 30, 12], hor: 150 });
+  for (let x = 0; x < R.W; x++) { const top = cerro(x); for (let y = top; y < R.H; y++) R.pset(x, y, R.tone(TIERRA_N, 1.9 - (y - top) * 0.03 + (y === top ? 0.8 : 0) - (x - 196) * 0.003, x, y)); }
+  if (fuego) { R.hoguera(196, cerro(196) + 1, 1.1, t); R.hoguera(40, cerro(40) + 1, 0.4, t + 3); }
+  for (const [x, el, d] of GENTE) R.personaje(x, cerro(x) + 2, 20, { ...el, t: t + x, dir: d, pelo: x > 200 ? PALA.PELO_NEGRO : el.pelo, luz: fuego ? { lado: d, color: PALA.ANTORCHA[3] } : undefined });
+};
+const samhain = (t) => {
+  const u = t - m.sam;
+  paisaje(t, u > 0.62 * L);
+  for (let k = 0; k < 4; k++) { const x = 92 + k * 9; R.rect(x - 2, cerro(x) - 7, x + 2, cerro(x), PALA.AMARILLO[2]); R.rect(x - 3, cerro(x) - 4, x + 3, cerro(x) - 4, PALA.ORO[1]); }
+  const baja = tramo(u, 0.3 * L, 0.66 * L);
+  for (let k = 0; k < 4; k++) { const x = Math.round(lerp(330 + k * 14, 266 + k * 12, baja)); R.oveja(x, cerro(x) + 2, t + k, { dir: -1 }); }
+};
+const puerta = (t) => {
+  const u = t - m.pue, ab = tramo(u, 0.6, 2);
+  paisaje(t, true);
+  const tx = 92, ty = cerro(tx) + 2;
+  for (let y = -16; y <= 0; y++) for (let x = -26; x <= 26; x++) if ((x / 26) ** 2 + (y / 16) ** 2 <= 1) R.pset(tx + x, ty + y, R.tone([PALA.CONTORNO, PALA.VERDE[0], PALA.PURPURA[1], PALA.VERDE[1]], 1.6 - x / 26 * 0.6 - y / 16 * 0.4, tx + x, ty + y));
+  R.rect(tx - 4, ty - 9, tx + 4, ty, ab > 0 ? VERDEF[Math.min(3, 1 + Math.round(ab * 2))] : PALA.CONTORNO);
+  if (ab > 0) R.halo(tx, ty - 5, 30, [VERDEF[0], VERDEF[1]], 0.9 * ab);
+  for (let k = 0; k < 4; k++) {
+    const a = u - 1.6 - k * 1.1; if (a < 0) continue;
+    const x = Math.round(Math.min(tx + a * 14, [138, 184, 212, 262][k])) , y = cerro(x) + 2;
+    R.fantasma(x, y - 4, 0.7, t + k, { rampa: VERDEF });
+  }
+};
+rodar(E, R, [[0, samhain], [m.pue - 0.2, puerta]], { año: 0, barra: { numero: false } });
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-MINIATURA · la miniatura del episodio 11 (se captura en t = 1, 1280 × 720). Partida por una diagonal: a la izquierda
+// la farmacia con la promesa (el tubito y la gota); a la derecha el laboratorio a oscuras, con la caja Edison echando humo.
+// Encima, al doble de tamaño, ella con su jersey negro señalando la gota gigante; arriba, «$9,000,000,000» tachado y,
+// debajo, «$0»; a la derecha, un «?» grande.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { C, farmacia, laboratorio, edison, tinte } from '/atomo/plato/escenas/th-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), VACIO = 0x01020304;
+const corte = (y) => 176 - Math.round(y * 0.3);
+const dibujar = (t) => {
+  let prev = R.usar(izq); farmacia(R, t);
+  R.usar(der); laboratorio(R, t, { rojo: true }); tinte(R, 0, 179, [20, 16, 30], 0.55); edison(R, 250, 150, t, { s: 0.9, humo: 1 });
+  R.usar(pj); pj.fill(VACIO);
+  R.actor(EL.holmes, 6, 60, 0.5, { dedo: true, quieto: true, sonrisa: true });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x, y, C.k); R.pset(x - 1, y, C.blanco); R.pset(x - 2, y, C.blanco); R.pset(x + 1, y, C.k); }
+  const pon = (sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = pj[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+  pon(2, 24, 30, 61, 40, 108, 2);   // ella, al doble
+  // la gota gigante en el centro, con brillo
+  const cx = 150, cy = 118; for (let y = -46; y <= 30; y++) for (let x = -32; x <= 32; x++) { const dentro = y > -6 ? x * x + y * y * 1.1 < 30 * 30 : Math.abs(x) < (y + 46) * 0.78; if (!dentro) continue; const sh = x + y * 0.6; R.pset(cx + x, cy + y, Math.abs(x) > 29 || (y > -6 && x * x + y * y * 1.1 > 28.5 * 28.5) ? C.k : sh < -26 ? C.sangreL : sh > 20 ? C.sangreS : C.sangre); }
+  R.disco(cx - 14, cy - 4, 4, R.hex ? R.hex('#f8b8c0') : C.sangreL); R.pset(cx - 16, cy - 6, C.blanco);
+  // la cifra tachada y el cero
+  R.rect(36, 10, 284, 40, C.k); R.rect(38, 12, 282, 38, 0xff2a1a14 >>> 0); R.numero('$9,000,000,000', 160, 33, { tam: 16, centro: true });
+  for (let i = 0; i < 246; i++) R.rect(38 + i, 30 - Math.round(i * 0.06), 39 + i, 33 - Math.round(i * 0.06), C.rojo);
+  R.numero('$0', 236, 72, { tam: 32, centro: true, rampa: [C.sangreL, C.sangreL, C.rojo, C.sangre, C.sangreS] });
+  R.numero('?', 296, 166, { tam: 32, centro: true, rampa: [C.oroL, C.oroL, C.amarillo, C.naranja, C.naranjaS] });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

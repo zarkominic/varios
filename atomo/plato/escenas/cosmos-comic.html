@@ -1,0 +1,2148 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>De ti a la galaxia · cómic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="fuentes" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@700&display=block">
+<style>
+  html, body { margin: 0; height: 100%; background: #efe3c8; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+// De ti a la Vía Láctea · cómic (a partir de estilos/12-comic.html y de prueba-comic.html).
+// Página impresa con dos viñetas: la grande cuenta el viaje y una estrecha a la derecha lleva la
+// regla de potencias de diez. Tinta gruesa, tramas Ben-Day, planchas fuera de registro y papel.
+// [tu] Atom señala a la persona con un electrón. [arriba] Atom sube, la persona mira arriba y
+// señala; la regla se desliza y enseña las potencias positivas. [siete]→[tierra] siete saltos ×10
+// hacia fuera: cada plano se encoge hasta quedar como una viñeta incrustada en el siguiente
+// (persona → casa y calle → manzanas → barrio → ciudad → costa → continente → la Tierra), con
+// líneas cinéticas y un golpe en cada llegada. [dos]→[sol] la Tierra se encoge, pasa la Luna y
+// entra el Sol, enorme. [doce]→[galaxia] doce saltos cada vez más seguidos (órbitas, nube de
+// cometas, estrellas vecinas, campo de estrellas), con las viñetas de cada salto metidas unas en
+// otras; llegada con viñeta de impacto. [lactea] una flecha marca dónde estamos. Después todo se
+// asienta y queda quieto.
+// Los planos de la Tierra son dibujos vectoriales con su propia transformación: al ampliarse se
+// redibujan nítidos y, al encogerse, se usan rasterizados. La costa, el continente y el globo
+// salen de los mismos contornos (latitud y longitud) con un detalle fractal determinista.
+import { escena } from '/atomo/plato/escena.js';
+
+const E = await escena('cosmos-comic', 'cosmos');
+const M = (k) => E.marca(k);
+const DUR = E.duracion;
+const W = 1920, H = 1080, TAU = Math.PI * 2, PI = Math.PI;
+const cv = document.getElementById('c');
+// Lienzos en memoria de CPU: en el servidor sin GPU, miles de puntos de trama por fotograma van
+// mucho más rápido así que en el lienzo acelerado (que aquí emula la GPU por software).
+const CTX2D = { willReadFrequently: true };
+const ctx = cv.getContext('2d', CTX2D);
+let S = 1, OX = 0, OY = 0, builtS = 0;
+
+// Paleta de imprenta (la del demo) y tintas de esta historia.
+const C = {
+  paper: '#f1e5c9', white: '#fffaee', ink: '#17151b',
+  yellow: '#f6cd2a', yellowL: '#fbe48c', orange: '#ef8f2c', red: '#de3a2e', redDk: '#9e1f2c',
+  magenta: '#d8337f', cyan: '#1ea2d6', cyanL: '#9fd8ef', cyanP: '#cdebf5', blue: '#2b55a6',
+  navy: '#1c2654', navyDk: '#0f1534', space: '#141b40',
+  skin: '#f6c49b', skinL: '#fbdcc0', skinDk: '#e0754e', hair: '#8a4a22', hairDk: '#43200c', hairL: '#d48a45',
+  wood: '#c97f38', woodDk: '#7d4519', stone: '#e7d3a8', stoneDk: '#b8915a',
+  green: '#6fb043', greenL: '#b5d97a', greenDk: '#2f6a35', olive: '#9a9a3c',
+  sand: '#f3d98e', roof: '#d9643a', roofL: '#ee9a62', grey: '#c9c4bb', greyDk: '#7d7a86',
+  asphalt: '#5d6478', asphaltDk: '#363c52', sea: '#2f6fc0', seaDk: '#1d3f8a', ice: '#f4f7fb',
+  moon: '#e6dfcc', moonDk: '#8f8a7a', sun: '#ffd23a',
+};
+const FT = "'Bangers', Impact, sans-serif";
+const FM = "'Comic Neue', 'Comic Sans MS', sans-serif";      // la «m» (Bangers solo tiene mayúsculas)
+const MIS = { x: 2.4, y: 1.6 };            // fuera de registro de las planchas de color
+
+// ---------- página ----------
+const PP = { x0: 40, y0: 40, x1: 1652, y1: 1040 };   // viñeta grande
+const PR = { x0: 1676, y0: 40, x1: 1880, y1: 1040 }; // viñeta de la regla (estrecha)
+const PC = { x: (PP.x0 + PP.x1) / 2, y: (PP.y0 + PP.y1) / 2 };
+const PWd = PP.x1 - PP.x0, PHt = PP.y1 - PP.y0;
+
+// ---------- tiempos (todo sale de las marcas) ----------
+const T = {
+  tu: M('tu'), tuF: M('tu_fin'), arriba: M('arriba'), arribaF: M('arriba_fin'),
+  siete: M('siete'), desap: M('desaparecido'), tierra: M('tierra'), dos: M('dos'), sol: M('sol'),
+  doce: M('doce'), galaxia: M('galaxia'), galaxiaF: M('galaxia_fin'), lactea: M('lactea'), lacteaF: M('lactea_fin'),
+};
+T.quieto = DUR - 0.6;                                 // a partir de aquí, nada se mueve
+T.calma0 = T.quieto - 0.85;
+// Los 21 saltos ×10. El salto j lleva del plano j al j+1.
+//   1–7:  de [siete] a [tierra], repartidos por igual.
+//   8–9:  empiezan un poco antes de [dos] y acaban en [sol].
+//   10–21: empiezan un poco antes de [doce] y acaban en [galaxia], cada uno más corto que el anterior.
+const SALTOS = [];
+{
+  const d = (T.tierra - T.siete) / 7;
+  for (let j = 0; j < 7; j++) SALTOS.push({ t0: T.siete + j * d, t1: T.siete + (j + 1) * d });
+  const a = T.dos - 0.2, d2 = (T.sol - a) / 2;
+  for (let j = 0; j < 2; j++) SALTOS.push({ t0: a + j * d2, t1: a + (j + 1) * d2 });
+  const b0 = T.doce - 0.15, r = 0.84, n = 12, d0 = (T.galaxia - b0) * (1 - r) / (1 - Math.pow(r, n));
+  let t = b0;
+  for (let j = 0; j < n; j++) { const dj = d0 * Math.pow(r, j); SALTOS.push({ t0: t, t1: j === n - 1 ? T.galaxia : t + dj }); t += dj; }
+  // tras estos saltos la cámara descansa (y la viñeta incrustada se funde con el plano nuevo)
+  for (const j of [6, 8, 20]) SALTOS[j].descanso = true;
+}
+// ---------- utilidades ----------
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hsh(a, b) { let h = Math.imul((a | 0) + 0x9e3779b9 | 0, 0x85ebca6b) ^ Math.imul((b | 0) + 0x7f4a7c15 | 0, 0xc2b2ae35); h = Math.imul(h ^ h >>> 15, 0x2c1b3c6d); h = Math.imul(h ^ h >>> 12, 0x297a2d39); h ^= h >>> 15; return (h >>> 0) / 4294967296; }
+const cl = (x) => x < 0 ? 0 : x > 1 ? 1 : x;
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const lerp = (a, b, u) => a + (b - a) * u;
+const eio = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const eout = (x) => 1 - Math.pow(1 - x, 3);
+const ein = (x) => x * x * x;
+const eback = (x, s = 1.70158) => { const c3 = s + 1; return 1 + c3 * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2); };
+const einb = (x, s = 0.6) => (s + 1) * x * x * x - s * x * x;       // anticipación y arranque
+const sstep = (a, b, x) => { const u = cl((x - a) / (b - a)); return u * u * (3 - 2 * u); };
+const muelle = (tau, w = 16, k = 7) => tau < 0 ? 0 : Math.sin(tau * w) * Math.exp(-tau * k);
+function mk(w, h) { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; }
+// Reloj que frena hasta pararse al final (todo lo que se mueve «solo» va con él).
+function calma(t) { const a = T.calma0, b = T.quieto; if (t <= a) return t; const u = Math.min(1, (t - a) / (b - a)); return a + (b - a) * (u - u * u / 2); }
+
+// Vista: escala (px de pantalla por unidad del nivel) y caja visible en unidades del nivel.
+const VISTA0 = { s: 1, x0: -1e4, y0: -1e4, x1: 1e4, y1: 1e4 };
+// Trama: puntos sobre una rejilla girada, recortada a lo visible. Si los puntos quedan por
+// debajo de ~3 px en pantalla, la rejilla se hace más gruesa conservando la cobertura.
+function dots(g, V, x0, y0, x1, y1, sp, ang, rf) {
+  x0 = Math.max(x0, V.x0); y0 = Math.max(y0, V.y0); x1 = Math.min(x1, V.x1); y1 = Math.min(y1, V.y1);
+  if (x1 <= x0 || y1 <= y0) return;
+  const px = sp * V.s * S, k = px < 3.2 ? Math.ceil(3.2 / px) : 1, s2 = sp * k, rmin = 0.3 / (V.s * S);
+  const c = Math.cos(ang), s = Math.sin(ang);
+  let umin = Infinity, umax = -Infinity, vmin = Infinity, vmax = -Infinity;
+  for (const [x, y] of [[x0, y0], [x1, y0], [x0, y1], [x1, y1]]) {
+    const u = x * c + y * s, v = -x * s + y * c;
+    umin = Math.min(umin, u); umax = Math.max(umax, u); vmin = Math.min(vmin, v); vmax = Math.max(vmax, v);
+  }
+  g.beginPath();
+  for (let j = Math.floor(vmin / s2) - 1; j <= Math.ceil(vmax / s2) + 1; j++) {
+    const v = j * s2;
+    for (let i = Math.floor(umin / s2) - 1; i <= Math.ceil(umax / s2) + 1; i++) {
+      const u = i * s2, x = u * c - v * s, y = u * s + v * c;
+      if (x < x0 - s2 || x > x1 + s2 || y < y0 - s2 || y > y1 + s2) continue;
+      const r = rf(x, y) * k;
+      if (r < rmin) continue;
+      g.moveTo(x + r, y); g.arc(x, y, r, 0, TAU);
+    }
+  }
+  g.fill();
+}
+// Gradiente lineal de radio de punto: 0 en A, rmax en B.
+const lin = (ax, ay, bx, by, rmax, pw = 1) => { const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy; return (x, y) => rmax * Math.pow(cl(((x - ax) * dx + (y - ay) * dy) / L2), pw); };
+
+// Trazo de pincel: cinta de anchura variable a lo largo de una polilínea.
+function ribbon(g, P, wf) {
+  const n = P.length, L = [], R = [];
+  for (let i = 0; i < n; i++) {
+    const a = P[Math.max(0, i - 1)], b = P[Math.min(n - 1, i + 1)];
+    let dx = b[0] - a[0], dy = b[1] - a[1]; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+    const w = wf(n > 1 ? i / (n - 1) : 0, P[i]);
+    L.push([P[i][0] - dy * w, P[i][1] + dx * w]); R.push([P[i][0] + dy * w, P[i][1] - dx * w]);
+  }
+  g.beginPath(); g.moveTo(L[0][0], L[0][1]);
+  for (let i = 1; i < n; i++) g.lineTo(L[i][0], L[i][1]);
+  for (let i = n - 1; i >= 0; i--) g.lineTo(R[i][0], R[i][1]);
+  g.closePath(); g.fill();
+}
+function ellPts(x, y, a, b, phi, th0, th1, n) {
+  const c = Math.cos(phi), s = Math.sin(phi), P = [];
+  for (let i = 0; i <= n; i++) { const th = th0 + (th1 - th0) * i / n, u = a * Math.cos(th), v = b * Math.sin(th); P.push([x + u * c - v * s, y + u * s + v * c, th]); }
+  return P;
+}
+function quadPts(x0, y0, x1, y1, x2, y2, n = 16) {
+  const P = [];
+  for (let i = 0; i <= n; i++) { const u = i / n, a = (1 - u) * (1 - u), b = 2 * u * (1 - u), c = u * u; P.push([a * x0 + b * x1 + c * x2, a * y0 + b * y1 + c * y2]); }
+  return P;
+}
+function poly(g, pts) { g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]); g.closePath(); }
+function rectP(r) { const p = new Path2D(); p.rect(r.x0, r.y0, r.x1 - r.x0, r.y1 - r.y0); return p; }
+// Pieza de cómic: color plano, trama de sombra recortada y tinta.
+function pieza(g, V, path, base, bb, sombra, lw = 5) {
+  if (base) { g.fillStyle = base; g.fill(path); }
+  if (sombra) {
+    g.save(); g.clip(path);
+    for (const s of sombra) { g.fillStyle = s.col; g.globalAlpha = s.a ?? 1; dots(g, V, bb[0], bb[1], bb[2], bb[3], s.sp, s.ang ?? PI / 4, s.rf); }
+    g.restore();
+  }
+  if (lw) { g.lineWidth = lw; g.strokeStyle = C.ink; g.lineJoin = 'round'; g.lineCap = 'round'; g.stroke(path); }
+}
+function trazo(g, pts, w, col = C.ink) { g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]); g.stroke(); }
+// Sprite pre-renderizado a la resolución del dispositivo.
+function sprite(x0, y0, w, h, draw, q = 1) {
+  const k = Math.min(S * q, 3), c = mk(w * k, h * k), g = c.getContext('2d', CTX2D);
+  g.setTransform(k, 0, 0, k, -x0 * k, -y0 * k); draw(g);
+  return { c, x0, y0, w, h };
+}
+function blit(g, sp, x, y, sc = 1) { g.drawImage(sp.c, x + sp.x0 * sc, y + sp.y0 * sc, sp.w * sc, sp.h * sc); }
+
+// Esfera de cómic (del demo): color plano, trama de sombra, negro macizo y brillo duro.
+const LIGHT = (() => { const v = [-0.52, -0.62, 0.59], n = Math.hypot(...v); return v.map((a) => a / n); })();
+function sphere(g, x, y, r, base, sp) {
+  const disk = new Path2D(); disk.arc(x, y, r, 0, TAU);
+  g.save(); g.translate(MIS.x * 0.6, MIS.y * 0.6);
+  g.fillStyle = base; g.fill(disk);
+  g.save(); g.clip(disk); g.fillStyle = C.ink; g.globalAlpha = 0.85;
+  dots(g, VISTA0, x - r, y - r, x + r, y + r, sp, PI / 4, (px, py) => {
+    const dx = (px - x) / r, dy = (py - y) / r, nz = Math.sqrt(Math.max(0, 1 - dx * dx - dy * dy));
+    const l = dx * LIGHT[0] + dy * LIGHT[1] + nz * LIGHT[2];
+    return sp * 0.6 * Math.pow(cl((0.7 - l) / 0.75), 1.1);
+  });
+  g.restore(); g.restore();
+  g.save(); g.clip(disk);
+  g.beginPath(); g.rect(x - r - 4, y - r - 4, 2 * r + 8, 2 * r + 8); g.arc(x - 0.17 * r, y - 0.22 * r, r * 1.05, 0, TAU);
+  g.fillStyle = C.ink; g.fill('evenodd');
+  g.restore();
+  g.save(); g.translate(x - 0.36 * r, y - 0.4 * r); g.rotate(-0.7);
+  g.beginPath(); g.ellipse(0, 0, 0.25 * r, 0.12 * r, 0, 0, TAU); g.fillStyle = C.white; g.fill();
+  g.restore();
+  g.beginPath(); g.arc(x + 0.38 * r, y - 0.47 * r, 0.06 * r, 0, TAU); g.fillStyle = C.white; g.fill();
+  g.lineWidth = Math.max(2.4, r * 0.1); g.strokeStyle = C.ink; g.stroke(disk);
+}
+// Estrella de impacto (polígono dentado) en coordenadas unitarias.
+const estrella = (seed, n, kin) => { const r = rng(seed), P = []; for (let i = 0; i < n; i++) { const a = i / n * TAU + (r() - 0.5) * 0.1; const k = i % 2 ? kin + r() * 0.08 : 1 + r() * 0.28; P.push([Math.cos(a) * k, Math.sin(a) * k]); } return P; };
+const STAR_A = estrella(4, 26, 0.62), STAR_B = estrella(9, 18, 0.55), STAR_C = estrella(21, 22, 0.66);
+function impacto(g, V, x, y, rx, ry, P, fondo, trama) {
+  if (rx <= 1) return;
+  const Q = P.map(([a, b]) => [x + a * rx, y + b * ry]);
+  poly(g, Q); g.fillStyle = fondo; g.fill();
+  if (trama) { g.save(); g.clip(); g.fillStyle = trama; dots(g, V, x - rx * 1.4, y - ry * 1.4, x + rx * 1.4, y + ry * 1.4, 12, PI / 4, (xx, yy) => 4.8 * cl((Math.hypot((xx - x) / rx, (yy - y) / ry) - 0.5) / 0.6)); g.restore(); }
+  poly(g, Q); g.lineJoin = 'miter'; g.miterLimit = 6; g.lineWidth = 5; g.strokeStyle = C.ink; g.stroke();
+}
+// Número con potencia de diez dibujado a mano (sin depender de los superíndices de la fuente).
+// Devuelve el ancho. al = 'left' | 'center'.
+function potencia(g, x, y, exp, size, conM, col, al = 'left', borde = 0) {
+  g.save(); g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+  const fb = `${size}px ${FT}`, fe = `${Math.round(size * 0.6)}px ${FT}`, fm = `italic 700 ${Math.round(size * 0.92)}px ${FM}`;
+  g.font = fb; const w10 = g.measureText('10').width;
+  g.font = fe; const sE = String(Math.abs(exp)), wE = g.measureText(sE).width;
+  const wMin = exp < 0 ? size * 0.34 : 0, gap = size * 0.04;
+  g.font = fm; const gapM = size * 0.16, wM = conM ? gapM + g.measureText('m').width : 0;
+  const total = w10 + gap + wMin + wE + wM;
+  let xx = al === 'center' ? x - total / 2 : x;
+  const piezas = [];
+  piezas.push(['10', fb, xx, y]); xx += w10 + gap;
+  const ye = y - size * 0.42;
+  if (exp < 0) { piezas.push(['-', null, xx, ye]); xx += wMin; }
+  piezas.push([sE, fe, xx, ye]); xx += wE;
+  if (conM) piezas.push(['m', fm, xx + gapM, y]);
+  for (const pass of borde ? [0, 1] : [1]) {
+    for (const [s, f, px, py] of piezas) {
+      if (f === null) {   // signo menos: barra inclinada como el resto de la letra
+        g.save(); g.translate(px + wMin * 0.5, py - size * 0.2); g.transform(1, 0, -0.18, 1, 0, 0);
+        g.beginPath(); g.rect(-wMin * 0.42, -size * 0.06, wMin * 0.84, size * 0.12);
+        if (pass === 0) { g.lineWidth = borde; g.strokeStyle = C.ink; g.lineJoin = 'round'; g.stroke(); } else { g.fillStyle = col; g.fill(); }
+        g.restore(); continue;
+      }
+      g.font = f;
+      if (pass === 0) { g.lineWidth = borde; g.strokeStyle = C.ink; g.lineJoin = 'round'; g.strokeText(s, px, py); } else { g.fillStyle = col; g.fillText(s, px, py); }
+    }
+  }
+  g.restore();
+  return total;
+}
+// A = { x, y, sc, en, mano (0..1), manoAng, vel (multiplicador de estelas) }
+function atomo(g, t, A) {
+  const sc = A.sc * (1 + 0.05 * A.en), a = 330 * sc, b = 104 * sc;
+  const wk = Math.pow(A.sc, 0.55), mis = Math.max(0.45, wk);
+  const fase = FASE(t);
+  const els = ORB.map((o, i) => ({ o, i, th: o.th0 + TAU * o.dir * o.k * fase }));
+  const orbitHalf = (o, front) => {
+    const P = ellPts(A.x, A.y, a, b, o.phi, front ? -0.03 : PI - 0.03, front ? PI + 0.03 : TAU + 0.03, 60);
+    const wf = (u, p) => wk * (1.6 + 3.4 * Math.pow((1 + Math.sin(p[2])) / 2, 1.5));
+    // sobre fondos oscuros, un filo blanco para que se lea
+    if (A.osc > 0.01) { g.save(); g.globalAlpha = A.osc; g.fillStyle = C.white; ribbon(g, P, (u, p) => wf(u, p) + 3.2); g.restore(); }
+    g.save(); g.translate(MIS.x * mis, MIS.y * mis); g.fillStyle = C.cyan; ribbon(g, P, (u, p) => wf(u, p) + 1.5 * mis); g.restore();
+    g.fillStyle = C.ink; ribbon(g, P, wf);
+  };
+  const posOrb = (e) => {
+    const o = e.o, c = Math.cos(o.phi), s = Math.sin(o.phi), u = a * Math.cos(e.th), v = b * Math.sin(e.th);
+    return [A.x + u * c - v * s, A.y + u * s + v * c];
+  };
+  const er = 23 * Math.pow(A.sc, 0.8) / 24;                // escala del sprite del electrón
+  const electron = (e) => {
+    const o = e.o, dir = o.dir;
+    let [x, y] = posOrb(e);
+    let es = er * (1 + 0.12 * Math.sin(e.th));
+    const m = e.i === 2 ? A.mano : 0;
+    if (m > 0.001) {
+      // el electrón sale de su órbita y hace de mano: brazo de tinta, se balancea con líneas de movimiento
+      const R = a * (A.alcance ?? 1.02), ang = A.manoAng;
+      const hx = A.x + Math.cos(ang) * R, hy = A.y + Math.sin(ang) * R;
+      x = lerp(x, hx, m); y = lerp(y, hy, m);
+      const arm = [], u0 = 0.3; for (let i = 0; i <= 12; i++) { const u = u0 + (1 - u0) * i / 12; arm.push([lerp(A.x, x, u) - Math.sin(u * PI) * 10 * wk * Math.sin(ang), lerp(A.y, y, u) + Math.sin(u * PI) * 10 * wk * Math.cos(ang)]); }
+      g.save(); g.globalAlpha = cl(m * 1.5);
+      g.fillStyle = C.ink; ribbon(g, arm, (u) => wk * (6.5 - 2.5 * u));
+      g.fillStyle = C.cyan; ribbon(g, arm.slice(2), (u) => wk * (2.6 - 1.2 * u));
+      g.restore();
+      if (m > 0.5 && A.ondas) {
+        g.save(); g.globalAlpha = cl((m - 0.5) / 0.3); g.fillStyle = C.ink;
+        for (const sd of [-1, 1]) for (const [dr, w] of [[0.0, 5], [0.17, 3.6]]) {
+          const rr = R * (1.0 + dr), a0 = ang + sd * (0.3 + dr * 0.4), a1 = ang + sd * (0.75 + dr * 0.6);
+          const P = []; for (let i = 0; i <= 12; i++) { const aa = lerp(a0, a1, i / 12); P.push([A.x + Math.cos(aa) * rr, A.y + Math.sin(aa) * rr]); }
+          ribbon(g, P, (u) => w * wk * Math.sin(PI * u));
+        }
+        g.restore();
+      }
+      if (!A.ondas && m > 0.6) {
+        // señala: tres trazos cortos que salen de la punta, en la dirección del gesto
+        g.save(); g.globalAlpha = cl((m - 0.6) / 0.3); g.fillStyle = C.ink;
+        for (const k of [-0.42, 0, 0.42]) {
+          const aa = ang + k, r0 = R + 34 * wk, r1 = r0 + (k ? 26 : 36) * wk;
+          ribbon(g, [[A.x + Math.cos(aa) * r0, A.y + Math.sin(aa) * r0], [A.x + Math.cos(aa) * r1, A.y + Math.sin(aa) * r1]], (u) => 4.2 * wk * (1 - u * 0.7));
+        }
+        g.restore();
+      }
+      es *= 1 + 0.45 * m;
+    } else {
+      // estela: tres líneas de velocidad que siguen la órbita (más largas cuanto más rápido)
+      const lar = cl(0.35 + 0.3 * (A.vel - 1));
+      g.fillStyle = C.ink;
+      for (const k of [-0.12, 0, 0.12]) {
+        const P = ellPts(A.x, A.y, a * (1 + k * 0.55), b * (1 + k * 1.7), o.phi, e.th - dir * 0.2, e.th - dir * (0.2 + lar * (1.4 - Math.abs(k) * 3)), 20);
+        ribbon(g, P, (uu) => wk * (k === 0 ? 3.4 : 2.4) * Math.pow(1 - uu, 1.2));
+      }
+    }
+    blit(g, ELEC, x, y, es);
+  };
+  for (const o of ORB) orbitHalf(o, false);
+  for (const e of els) if (Math.sin(e.th) < 0 && !(e.i === 2 && A.mano > 0.001)) electron(e);
+  if (A.osc > 0.01) { g.save(); g.globalAlpha = A.osc; g.beginPath(); g.arc(A.x, A.y, 80 * sc * 1.2 * (1 + 0.07 * A.en) + 3, 0, TAU); g.fillStyle = C.white; g.fill(); g.restore(); }
+  blit(g, NUC, A.x, A.y, sc * 1.2 * (1 + 0.07 * A.en));
+  for (const o of ORB) orbitHalf(o, true);
+  for (const e of els) if (Math.sin(e.th) >= 0 || (e.i === 2 && A.mano > 0.001)) electron(e);
+}
+// Brillo de presentación: aro de trama, destellos de cuatro puntas.
+const DESTELLOS = [[-1.05, -0.55, 1.0, 0], [1.1, -0.35, 0.8, 0.08], [0.75, 0.85, 0.7, 0.15], [-0.85, 0.75, 0.9, 0.05], [0.05, -1.15, 0.75, 0.12], [1.35, 0.4, 0.55, 0.2]];
+function destello(g, x, y, s) {
+  g.beginPath();
+  for (let j = 0; j < 8; j++) { const a = j / 8 * TAU, rr = j % 2 ? s * 0.18 : s * (j % 4 === 0 ? 1.25 : 0.8); g.lineTo(x + Math.sin(a) * rr, y - Math.cos(a) * rr); }
+  g.closePath();
+}
+// =====================================================================================
+// Nivel 0: la persona, con las proporciones de atomo/plato/HUMANO.md
+// =====================================================================================
+// H = 697 px, de la coronilla (y 214) a la suela (y 911), con el eje en x ≈ 471. Líneas:
+// barbilla 330 · hombros 360 · codos y cintura 493 · muñecas y entrepierna 583 · dedos 653 ·
+// rodillas 723 · suelo 911. Hombros 0,25 H y caderas 0,19 H de ancho. Tramos que no cambian
+// en ninguna postura: brazo 126, antebrazo 98 y mano 70 px (0,18 · 0,14 · 0,10 H).
+// La cabeza es la del dibujo original, reducida a H/6 alrededor de la barbilla.
+const CAB = { k: 0.763, ox: 471, oy: 362, x: 471, y: 330 };
+const P0 = {
+  cara: new Path2D('M 414 292 C 414 248 444 236 470 236 C 502 236 524 256 523 294 C 522 332 503 361 471 362 C 437 363 414 334 414 292 Z'),
+  pelo: new Path2D('M 405 306 C 396 266 410 230 446 218 C 482 206 526 214 546 234 C 557 245 558 258 549 266 C 539 258 526 258 517 265 C 505 255 486 258 474 268 C 462 259 444 263 433 276 C 426 285 424 298 423 310 Z'),
+  oreja: (() => { const p = new Path2D(); p.ellipse(420, 308, 10, 16, 0.1, 0, TAU); return p; })(),
+  cuello: new Path2D('M 459 306 L 458 358 L 486 358 L 485 306 Z'),
+  camiseta: new Path2D('M 452 350 C 440 356 418 360 400 366 C 392 370 390 384 392 400 C 396 440 404 470 408 500 C 410 520 408 540 406 556 C 440 562 500 562 536 556 C 534 540 532 520 534 500 C 538 470 546 440 550 400 C 552 384 550 370 542 366 C 524 360 502 356 490 350 C 482 361 462 361 452 350 Z'),
+  pantalon: new Path2D('M 406 546 L 536 546 C 539 600 537 660 534 722 C 532 780 530 840 530 884 L 480 884 C 480 840 479 780 478 722 C 477 660 475 612 471 586 C 467 612 465 660 464 722 C 463 780 462 840 462 884 L 412 884 C 412 840 410 780 408 722 C 405 660 403 600 406 546 Z'),
+  zapI: new Path2D('M 410 878 L 462 878 C 474 880 485 890 485 899 C 485 907 477 911 462 911 L 404 911 C 400 900 402 886 410 878 Z'),
+  zapD: new Path2D('M 480 878 L 530 878 C 546 880 562 890 564 899 C 564 907 554 911 540 911 L 476 911 C 472 900 474 886 480 878 Z'),
+};
+// Cápsula con los dos extremos redondos (radios ra y rb).
+function capsulaP(ax, ay, bx, by, ra, rb) {
+  const f = Math.atan2(by - ay, bx - ax), p = new Path2D();
+  p.arc(ax, ay, ra, f + PI / 2, f + 3 * PI / 2);
+  p.arc(bx, by, rb, f - PI / 2, f + PI / 2);
+  p.closePath();
+  return p;
+}
+// Miembro de anchura variable (semiancho wf(u), u de 0 a 1) con extremos redondos o rectos.
+function miembroP(ax, ay, bx, by, wf, capA = true, capB = true, n = 12) {
+  const f = Math.atan2(by - ay, bx - ax), nx = -Math.sin(f), ny = Math.cos(f), p = new Path2D();
+  for (let i = 0; i <= n; i++) { const u = i / n, w = wf(u), x = lerp(ax, bx, u), y = lerp(ay, by, u); if (i) p.lineTo(x + nx * w, y + ny * w); else p.moveTo(x + nx * w, y + ny * w); }
+  if (capB) p.arc(bx, by, wf(1), f + PI / 2, f - PI / 2, true);
+  for (let i = n; i >= 0; i--) { const u = i / n, w = wf(u); p.lineTo(lerp(ax, bx, u) - nx * w, lerp(ay, by, u) - ny * w); }
+  if (capA) p.arc(ax, ay, wf(0), f - PI / 2, f - 3 * PI / 2, true);
+  p.closePath();
+  return p;
+}
+// Manos en coordenadas locales: la muñeca en el origen y el eje +x hacia la punta de los dedos.
+const MANO = {
+  // abierta y plana, vista por el dorso, con el pulgar por debajo (+y): la del brazo que presenta
+  plana: { p: new Path2D('M -4 -14 C 10 -17 26 -17 38 -14 C 50 -12 61 -11 67 -7 C 73 -3 72 3 66 5 C 56 8 46 10 38 12 C 28 15 12 16 -4 14 Z'),
+    pulgar: capsulaP(8, 9, 31, 21, 7.5, 6), pulgarDetras: true,
+    lineas: [[[44, -7], [54, -6.5], [63, -5]], [[44, -1.5], [55, -1], [65, 0]], [[43, 4], [52, 4.5], [60, 5]]] },
+  // colgando, relajada, con el pulgar delante (hacia el cuerpo, −y)
+  caida: { p: new Path2D('M -3 -14 C 14 -17 36 -17 52 -12 C 64 -8 69 4 62 11 C 52 17 26 17 -3 15 Z'),
+    pulgar: capsulaP(8, -6, 29, -9, 6.5, 5), pulgarDetras: false,
+    lineas: [[[44, -8], [50, 0], [46, 9]], [[53, -6], [59, 2], [55, 10]]] },
+  // puño con el índice extendido
+  indice: { p: new Path2D('M -3 -15 C 10 -18 24 -18 33 -13 C 41 -8 41 9 34 14 C 25 19 10 18 -3 15 Z'),
+    dedo: capsulaP(27, -8, 64, -8, 6.5, 5.5),
+    pulgar: capsulaP(13, 9, 32, 2, 6, 5), pulgarDetras: false,
+    lineas: [[[33, -1], [38, 3], [35, 8]], [[27, 4], [31, 8], [28, 13]]] },
+};
+const BRAZO = { L1: 126, L2: 98, LM: 70 };
+const HOMBRO_I = [402, 362], HOMBRO_D = [540, 362];
+// Brazo derecho (a la derecha de la pantalla). u = 0: presenta, con el codo a la altura de la
+// cintura y el antebrazo horizontal; u = 1: señala arriba, con el codo por encima del hombro.
+function poseBrazoD(u) {
+  const a1 = lerp(1.25, -0.524, u), a2 = lerp(0, -1.396, u);
+  const [sx, sy] = HOMBRO_D, ex = sx + BRAZO.L1 * Math.cos(a1), ey = sy + BRAZO.L1 * Math.sin(a1);
+  return { S: HOMBRO_D, E: [ex, ey], W: [ex + BRAZO.L2 * Math.cos(a2), ey + BRAZO.L2 * Math.sin(a2)], a1, a2, mano: u < 0.5 ? 'plana' : 'indice' };
+}
+function poseBrazoI() {
+  const a1 = 1.618, a2 = 1.592;              // cuelga, un poco abierto
+  const [sx, sy] = HOMBRO_I, ex = sx + BRAZO.L1 * Math.cos(a1), ey = sy + BRAZO.L1 * Math.sin(a1);
+  return { S: HOMBRO_I, E: [ex, ey], W: [ex + BRAZO.L2 * Math.cos(a2), ey + BRAZO.L2 * Math.sin(a2)], a1, a2, mano: 'caida' };
+}
+const LUZ2 = (() => { const n = Math.hypot(LIGHT[0], LIGHT[1]); return [LIGHT[0] / n, LIGHT[1] / n]; })();
+// Trama de sombra de un miembro: crece hacia el lado contrario a la luz del tramo más cercano.
+function sombraMiembro(segs, rmax) {
+  return (x, y) => {
+    let best = Infinity, val = 0;
+    for (const [ax, ay, bx, by, r] of segs) {
+      const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1, u = cl(((x - ax) * dx + (y - ay) * dy) / L2);
+      const cx = ax + dx * u, cy = ay + dy * u, d = Math.hypot(x - cx, y - cy);
+      if (d < best) {
+        best = d;
+        const L = Math.sqrt(L2); let nx = -dy / L, ny = dx / L;
+        if (nx * LUZ2[0] + ny * LUZ2[1] > 0) { nx = -nx; ny = -ny; }
+        val = rmax * cl(((x - cx) * nx + (y - cy) * ny) / r * 1.15 + 0.05);
+      }
+    }
+    return val;
+  };
+}
+// Brazo completo: brazo, antebrazo y mano con una sola silueta de tinta (sin costuras), la
+// manga encima y los detalles de la mano.
+function brazo(g, V, P, lw = 4.5) {
+  const [sx, sy] = P.S, [ex, ey] = P.E, [wx, wy] = P.W;
+  const dx = (ex - sx) / BRAZO.L1, dy = (ey - sy) / BRAZO.L1;
+  const sup = miembroP(sx + dx * 18, sy + dy * 18, ex, ey, (u) => lerp(16.5, 14, u) + 1.4 * Math.sin(PI * u));
+  const ant = miembroP(ex, ey, wx, wy, (u) => lerp(14.2, 11.5, u) + 1.5 * Math.sin(PI * Math.min(1, u * 1.7)));
+  const M = MANO[P.mano], mt = new DOMMatrix().translateSelf(wx, wy).rotateSelf(P.a2 * 180 / PI);
+  const tr = (p) => { const q = new Path2D(); q.addPath(p, mt); return q; };
+  const mano = tr(M.p), pulgar = tr(M.pulgar), dedo = M.dedo ? tr(M.dedo) : null;
+  const piezas = [sup, ant, mano, pulgar, ...(dedo ? [dedo] : [])];
+  const tip = mt.transformPoint(new DOMPoint(BRAZO.LM, 0));
+  const segs = [[sx, sy, ex, ey, 16], [ex, ey, wx, wy, 14], [wx, wy, tip.x, tip.y, 14]];
+  const xs = [sx, ex, wx, tip.x], ys = [sy, ey, wy, tip.y];
+  const bb = [Math.min(...xs) - 30, Math.min(...ys) - 30, Math.max(...xs) + 30, Math.max(...ys) + 30];
+  g.save(); g.lineJoin = 'round'; g.strokeStyle = C.ink; g.lineWidth = 2 * lw;
+  for (const p of piezas) g.stroke(p);
+  g.fillStyle = C.skin; for (const p of piezas) g.fill(p);
+  const union = new Path2D(); for (const p of piezas) union.addPath(p);
+  g.save(); g.clip(union); g.fillStyle = C.skinDk; dots(g, V, bb[0], bb[1], bb[2], bb[3], 6, PI / 4, sombraMiembro(segs, 2.6)); g.restore();
+  // separación del pulgar o de la mano, y los dedos
+  g.lineWidth = 2.6; g.strokeStyle = C.ink;
+  if (M.pulgarDetras) g.stroke(mano); else g.stroke(pulgar);
+  if (dedo) g.stroke(dedo);
+  g.save(); g.setTransform(g.getTransform().multiply(mt));
+  g.lineCap = 'round'; g.lineWidth = 2.1; g.strokeStyle = C.ink;
+  for (const L of M.lineas) { g.beginPath(); g.moveTo(L[0][0], L[0][1]); g.quadraticCurveTo(L[1][0], L[1][1], L[2][0], L[2][1]); g.stroke(); }
+  g.fillStyle = C.white; g.globalAlpha = 0.9;
+  ribbon(g, quadPts(4, -11, 20, -14.5, 36, -12, 8), (u) => 1.8 * Math.sin(PI * u));
+  g.restore();
+  // brillo a lo largo del brazo, del lado de la luz
+  const brilloTramo = (ax, ay, bx, by, r) => {
+    const L = Math.hypot(bx - ax, by - ay) || 1; let nx = -(by - ay) / L, ny = (bx - ax) / L;
+    if (nx * LUZ2[0] + ny * LUZ2[1] < 0) { nx = -nx; ny = -ny; }
+    ribbon(g, quadPts(lerp(ax, bx, 0.18) + nx * r * 0.55, lerp(ay, by, 0.18) + ny * r * 0.55, lerp(ax, bx, 0.5) + nx * r * 0.62, lerp(ay, by, 0.5) + ny * r * 0.62, lerp(ax, bx, 0.8) + nx * r * 0.55, lerp(ay, by, 0.8) + ny * r * 0.55, 10), (u) => 1.9 * Math.sin(PI * u));
+  };
+  g.fillStyle = C.skinL; g.globalAlpha = 0.95; brilloTramo(ex, ey, wx, wy, 13); brilloTramo(sx, sy, ex, ey, 15); g.globalAlpha = 1;
+  g.restore();
+}
+// Manga corta: sale del hombro (redonda, se funde con la camiseta) y acaba recta.
+function manga(P) {
+  const [sx, sy] = P.S, dx = Math.cos(P.a1), dy = Math.sin(P.a1);
+  const a = [sx + dx * 16, sy + dy * 16], b = [sx + dx * 52, sy + dy * 52];
+  return { p: miembroP(a[0], a[1], b[0], b[1], (u) => 17.5 + 3 * sstep(0, 0.5, u), true, false), seg: [a[0], a[1], b[0], b[1], 21], b, n: [-dy, dx] };
+}
+// Camiseta: torso y mangas con una sola silueta de tinta; trama del torso y de cada manga.
+function camiseta(g, V, PI_, PD) {
+  const mI = manga(PI_), mD = manga(PD), piezas = [P0.camiseta, mI.p, mD.p];
+  g.save(); g.lineJoin = 'round'; g.strokeStyle = C.ink; g.lineWidth = 11;
+  for (const p of piezas) g.stroke(p);
+  g.fillStyle = C.red; for (const p of piezas) g.fill(p);
+  const union = new Path2D(); for (const p of piezas) union.addPath(p);
+  const sI = sombraMiembro([mI.seg], 3.3), sD = sombraMiembro([mD.seg], 3.3);
+  const dSeg = (x, y, [ax, ay, bx, by]) => { const ddx = bx - ax, ddy = by - ay, L2 = ddx * ddx + ddy * ddy, u = cl(((x - ax) * ddx + (y - ay) * ddy) / L2); return Math.hypot(x - ax - ddx * u, y - ay - ddy * u); };
+  const torso = (x, y) => 3.4 * cl((x - 478) / 62) + 2.6 * cl((y - 500) / 56);
+  g.save(); g.clip(union); g.fillStyle = C.redDk;
+  dots(g, V, 330, 290, 720, 570, 7, PI / 4, (x, y) => dSeg(x, y, mI.seg) < 22 ? sI(x, y) : dSeg(x, y, mD.seg) < 22 ? sD(x, y) : torso(x, y));
+  g.restore();
+  // dobladillo de las mangas y costura del hombro, cuello y pliegue
+  g.lineCap = 'round';
+  for (const m of [mI, mD]) {
+    const [bx, by] = m.b, [nx, ny] = m.n, [ax, ay] = [m.seg[0], m.seg[1]];
+    g.lineWidth = 2.4; g.strokeStyle = C.ink; g.beginPath(); g.moveTo(bx - (bx - ax) * 0.16 + nx * 19, by - (by - ay) * 0.16 + ny * 19); g.lineTo(bx - (bx - ax) * 0.16 - nx * 19, by - (by - ay) * 0.16 - ny * 19); g.stroke();
+  }
+  trazo(g, [[452, 350], [462, 360], [482, 360], [490, 350]], 3);
+  trazo(g, [[476, 420], [481, 470], [479, 530]], 2.2, 'rgba(23,21,27,0.55)');
+  g.restore();
+}
+// Vista (caja visible y escala) en las coordenadas de la cabeza original.
+function vistaCabeza(V, rot) {
+  const c = Math.cos(rot), s = Math.sin(rot), P = [];
+  for (const [x, y] of [[V.x0, V.y0], [V.x1, V.y0], [V.x0, V.y1], [V.x1, V.y1]]) {
+    const dx = x - CAB.x, dy = y - CAB.y;
+    P.push([CAB.ox + (dx * c + dy * s) / CAB.k, CAB.oy + (-dx * s + dy * c) / CAB.k]);
+  }
+  return { s: V.s * CAB.k, x0: Math.min(...P.map((p) => p[0])), y0: Math.min(...P.map((p) => p[1])), x1: Math.max(...P.map((p) => p[0])), y1: Math.max(...P.map((p) => p[1])) };
+}
+// pose = { brazo: 0 presenta … 1 señala arriba, mira: 0 al frente … 1 hacia arriba }
+function personaPose(g, V, pose = {}) {
+  const ub = pose.brazo ?? 0, mira = pose.mira ?? 0;
+  // sombra en el suelo
+  g.save(); const sh = new Path2D(); sh.ellipse(482, 912, 122, 14, 0, 0, TAU); g.clip(sh);
+  g.fillStyle = C.ink; dots(g, V, 340, 890, 620, 930, 7, PI / 4, (x, y) => 2.9 * cl(1.25 - Math.hypot((x - 482) / 122, (y - 912) / 14))); g.restore();
+  // pantalón y zapatos
+  pieza(g, V, P0.pantalon, C.blue, [400, 540, 545, 890], [{ col: C.navyDk, sp: 7, rf: (x, y) => x < 471 ? 3.2 * cl((x - 432) / 30) : 3.3 * cl((x - 508) / 26) }], 5);
+  trazo(g, [[471, 586], [471, 556]], 3);
+  trazo(g, [[418, 726], [430, 730], [440, 727]], 2.2, 'rgba(23,21,27,0.6)'); trazo(g, [[492, 727], [504, 731], [516, 728]], 2.2, 'rgba(23,21,27,0.6)');
+  g.fillStyle = C.cyanL; g.globalAlpha = 0.55; ribbon(g, quadPts(418, 600, 416, 720, 420, 860, 12), (u) => 2.4 * Math.sin(PI * u)); g.globalAlpha = 1;
+  pieza(g, V, P0.zapI, C.ink, null, null, 4);
+  pieza(g, V, P0.zapD, C.ink, null, null, 4);
+  g.fillStyle = C.white; for (const [x0, x1] of [[418, 456], [490, 530]]) ribbon(g, quadPts(x0, 887, (x0 + x1) / 2, 883, x1, 887, 8), (u) => 2.2 * Math.sin(PI * u));
+  // cuello
+  pieza(g, V, P0.cuello, C.skin, [450, 300, 495, 362], [{ col: C.skinDk, sp: 6, rf: (x, y) => 3 * cl(1 - (y - 330) / 26) }], 4.5);
+  // brazos (el izquierdo cuelga; el derecho presenta o señala arriba) y, encima, la camiseta
+  const bI = poseBrazoI(), bD = poseBrazoD(ub);
+  brazo(g, V, bI);
+  brazo(g, V, bD);
+  camiseta(g, V, bI, bD);
+  // cabeza (inclinada hacia atrás cuando mira arriba)
+  const rot = -0.17 * mira;
+  g.save(); g.translate(CAB.x, CAB.y); g.rotate(rot); g.scale(CAB.k, CAB.k); g.translate(-CAB.ox, -CAB.oy);
+  const Vh = vistaCabeza(V, rot), lk = 1 / CAB.k * 0.86;
+  pieza(g, Vh, P0.cara, C.skin, [410, 230, 528, 368], [{ col: C.skinDk, sp: 6.5, rf: (x, y) => 2.9 * cl((Math.hypot(x - 440, y - 270) - 70) / 50) }], 5.5 * lk);
+  pieza(g, Vh, P0.oreja, C.skin, [408, 290, 432, 326], [{ col: C.skinDk, sp: 5, rf: () => 1.6 }], 3.5 * lk);
+  pieza(g, Vh, P0.pelo, C.hair, [395, 200, 562, 316], [{ col: C.hairDk, sp: 6, rf: (x, y) => 2.9 * cl((y - 240) / 50) + 1.6 * cl((440 - x) / 30) }], 5 * lk);
+  g.fillStyle = C.hairL; for (const [x0, y0, x1, y1, x2, y2] of [[438, 232, 472, 218, 512, 224], [452, 246, 486, 234, 524, 238]]) ribbon(g, quadPts(x0, y0, x1, y1, x2, y2, 10), (u) => 3 * Math.sin(PI * u));
+  // cara: mira a Atom (arriba a la derecha) o al cielo
+  const oy = -4 * mira, ox = 1.5 * mira;
+  g.fillStyle = C.ink;
+  for (const [x, y] of [[481, 298], [512, 296]]) { g.beginPath(); g.ellipse(x + ox, y + oy, 6.2, 9, 0.1, 0, TAU); g.fill(); }
+  g.fillStyle = C.white; for (const [x, y] of [[483.5, 293.5], [514.5, 291.5]]) { g.beginPath(); g.arc(x + ox, y + oy - 0.5 * mira, 2.4, 0, TAU); g.fill(); }
+  g.fillStyle = C.ink;
+  const cej = -5 * mira;
+  ribbon(g, quadPts(470, 281 + cej, 481, 272 + cej, 494, 276 + cej, 8), (u) => 2.6 * Math.sin(PI * (0.1 + 0.85 * u)) * lk);
+  ribbon(g, quadPts(504, 276 + cej, 515, 269 + cej, 527, 274 + cej, 8), (u) => 2.4 * Math.sin(PI * (0.1 + 0.85 * u)) * lk);
+  trazo(g, [[522, 304], [529, 320], [520, 323]], 2.8 * lk);
+  if (mira < 0.5) ribbon(g, quadPts(487, 336, 503, 346, 519, 333, 10), (u) => (2.4 * Math.sin(PI * u) + 0.4) * lk);
+  else {   // boca abierta de asombro
+    const bo = new Path2D(); bo.ellipse(505, 338, 9, 11, 0.1, 0, TAU);
+    g.fillStyle = C.redDk; g.fill(bo); g.lineWidth = 3 * lk; g.strokeStyle = C.ink; g.stroke(bo);
+  }
+  g.fillStyle = C.magenta; g.globalAlpha = 0.55; dots(g, Vh, 486, 312, 524, 334, 5, PI / 4, (x, y) => 1.7 * cl(1 - Math.hypot((x - 504) / 18, (y - 323) / 10))); g.globalAlpha = 1;
+  g.restore();
+}
+function persona(g, V) { personaPose(g, V, { brazo: 0, mira: 0 }); }
+
+// =====================================================================================
+// Plano 0 (10⁰ m): la persona delante de la fachada, en la acera
+// =====================================================================================
+// La pared y la acera repiten la composición de la primera prueba (pared cian, suelo amarillo).
+// A la derecha, la jamba de piedra y el portal de madera que se verán en el plano 1.
+const VP0 = { x: 520, y: 481 };                       // punto de fuga de la acera
+function filasPanot() { const F = [838]; while (F[F.length - 1] < PP.y1 + 80) { const y = F[F.length - 1]; F.push(y + 0.36 * 82 * (y - VP0.y) / (838 - VP0.y)); } return F; }
+const FILAS0 = filasPanot();
+function fondo0(g, V) {
+  // pared de estuco
+  g.fillStyle = C.cyanP; g.fillRect(PP.x0 - 60, PP.y0 - 60, PWd + 120, 900);
+  g.fillStyle = C.cyan;
+  dots(g, V, PP.x0 - 60, PP.y0 - 60, 1110, 760, 13, PI / 12, (x, y) => 5.6 * Math.pow(cl((Math.hypot(x - 520, (y - 460) * 1.2) - 200) / 820), 0.85));
+  g.fillStyle = C.blue; g.globalAlpha = 0.85;
+  dots(g, V, PP.x0 - 60, PP.y0 - 60, 1110, 760, 17, PI * 5 / 12, (x, y) => 5 * Math.pow(cl((Math.hypot(x - 520, (y - 460) * 1.2) - 760) / 600), 1.2));
+  g.globalAlpha = 1;
+  // hiladas del estuco: línea de tinta fina con su labio de luz
+  for (let y = 116; y < 760; y += 128) {
+    g.fillStyle = 'rgba(255,250,238,0.7)'; g.fillRect(PP.x0 - 60, y + 3, 1110 - PP.x0 + 60, 4);
+    g.fillStyle = 'rgba(23,21,27,0.45)'; g.fillRect(PP.x0 - 60, y, 1110 - PP.x0 + 60, 2.5);
+  }
+  // zócalo de piedra
+  const zoc = rectP({ x0: PP.x0 - 60, y0: 752, x1: 1110, y1: 838 });
+  pieza(g, V, zoc, C.stone, [PP.x0 - 60, 752, 1110, 838], [{ col: C.stoneDk, sp: 8, rf: (x, y) => 3.2 * cl((y - 770) / 60) + 0.8 }], 5);
+  g.fillStyle = C.white; g.fillRect(PP.x0 - 60, 758, 1110 - PP.x0 + 60, 4);
+  for (const x of [180, 470, 760, 1050]) trazo(g, [[x, 755], [x, 836]], 2.5, 'rgba(23,21,27,0.55)');
+  // jamba de piedra (sillares) y portal de madera
+  const jam = rectP({ x0: 1110, y0: PP.y0 - 60, x1: 1170, y1: 838 });
+  pieza(g, V, jam, C.stone, [1110, PP.y0 - 60, 1170, 838], [{ col: C.stoneDk, sp: 8, rf: (x) => 3.4 * cl((x - 1140) / 30) }], 5);
+  for (let y = 60; y < 838; y += 96) trazo(g, [[1110, y], [1170, y]], 3);
+  const pta = rectP({ x0: 1170, y0: PP.y0 - 60, x1: PP.x1 + 60, y1: 838 });
+  pieza(g, V, pta, C.wood, [1170, PP.y0 - 60, PP.x1 + 60, 838], [{ col: C.woodDk, sp: 8, rf: (x, y) => 2.2 + 2.4 * cl((x - 1500) / 200) }], 5);
+  // tablas, cuarterones y clavos
+  for (let x = 1230; x < PP.x1 + 60; x += 62) trazo(g, [[x, PP.y0 - 60], [x, 838]], 2.2, 'rgba(23,21,27,0.5)');
+  for (const [x0, y0, x1, y1] of [[1210, 70, 1470, 380], [1210, 430, 1470, 780], [1510, 70, 1770, 380], [1510, 430, 1770, 780]]) {
+    const pa = new Path2D(); pa.rect(x0, y0, x1 - x0, y1 - y0);
+    g.fillStyle = 'rgba(125,69,25,0.35)'; g.fill(pa);
+    g.lineWidth = 5; g.strokeStyle = C.ink; g.stroke(pa);
+    g.fillStyle = 'rgba(255,240,200,0.55)'; g.fillRect(x0 + 6, y0 + 6, x1 - x0 - 12, 5); g.fillRect(x0 + 6, y0 + 6, 5, y1 - y0 - 12);
+    for (const [cx, cy] of [[x0 + 22, y0 + 22], [x1 - 22, y0 + 22], [x0 + 22, y1 - 22], [x1 - 22, y1 - 22]]) sphere(g, cx, cy, 9, C.greyDk, 3);
+  }
+  // aldaba
+  const placa = new Path2D(); placa.ellipse(1400, 508, 26, 30, 0, 0, TAU);
+  pieza(g, V, placa, C.yellow, [1370, 474, 1430, 540], [{ col: C.orange, sp: 5, rf: (x, y) => 2.2 * cl((x - 1392) / 30 + (y - 500) / 60) }], 4.5);
+  g.lineWidth = 15; g.strokeStyle = C.ink; g.beginPath(); g.arc(1400, 566, 40, 0, TAU); g.stroke();
+  g.lineWidth = 8; g.strokeStyle = C.yellow; g.beginPath(); g.arc(1400, 566, 40, 0, TAU); g.stroke();
+  g.lineWidth = 2.5; g.strokeStyle = C.yellowL; g.beginPath(); g.arc(1400, 566, 41, PI * 1.05, PI * 1.45); g.stroke();
+  sphere(g, 1400, 522, 11, C.yellow, 3);
+  // acera de panot en perspectiva
+  const ac = rectP({ x0: PP.x0 - 60, y0: 838, x1: PP.x1 + 60, y1: PP.y1 + 80 });
+  g.fillStyle = C.yellowL; g.fill(ac);
+  g.save(); g.clip(ac);
+  g.fillStyle = C.orange; dots(g, V, PP.x0 - 60, 838, PP.x1 + 60, PP.y1 + 80, 11, PI / 4, (x, y) => 4.2 * cl((y - 850) / 220));
+  const colX = (i, y) => VP0.x + i * 82 * (y - VP0.y) / (838 - VP0.y);
+  // flor del panot: cuatro pétalos por baldosa
+  g.fillStyle = 'rgba(158,31,44,0.45)';
+  for (let r = 0; r < FILAS0.length - 1; r++) {
+    const ya = FILAS0[r], yb = FILAS0[r + 1], ym = (ya + yb) / 2, hh = (yb - ya) / 2;
+    for (let i = -16; i <= 24; i++) {
+      const xm = (colX(i, ym) + colX(i + 1, ym)) / 2, ww = (colX(i + 1, ym) - colX(i, ym)) / 2;
+      if (xm < V.x0 - 60 || xm > V.x1 + 60) continue;
+      for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) { g.beginPath(); g.ellipse(xm + dx * ww * 0.36, ym + dy * hh * 0.36, ww * 0.2, hh * 0.2, 0, 0, TAU); g.fill(); }
+    }
+  }
+  g.strokeStyle = C.ink; g.lineCap = 'butt';
+  for (let i = -16; i <= 24; i++) { g.lineWidth = 2.2; g.beginPath(); g.moveTo(colX(i, 838), 838); g.lineTo(colX(i, PP.y1 + 80), PP.y1 + 80); g.stroke(); }
+  for (const y of FILAS0) { g.lineWidth = 2.2; g.beginPath(); g.moveTo(PP.x0 - 60, y); g.lineTo(PP.x1 + 60, y); g.stroke(); }
+  g.restore();
+  g.fillStyle = C.ink; g.fillRect(PP.x0 - 60, 833, PWd + 120, 6);
+}
+
+// =====================================================================================
+// Plano 1 (10¹ m): la casa y la calle. 1 m = 41,2 px; la base de la fachada en y = 624.
+// =====================================================================================
+const Y1 = { base: 624, acera: 668, bord: 676, pisos: [439, 307, 175, 43] };
+const VERDE_PERS = '#3f8f5a';
+function cielo1(g, V) {
+  g.fillStyle = C.cyanP; g.fillRect(PP.x0 - 60, PP.y0 - 60, PWd + 120, 700);
+  g.fillStyle = C.cyan; dots(g, V, PP.x0 - 60, PP.y0 - 60, PP.x1 + 60, 640, 12, PI / 12, (x, y) => 5.2 * Math.pow(cl((260 - y) / 300), 0.8));
+  // nubes de cómic
+  for (const [cx, cy, s] of [[1250, 95, 1], [1520, 70, 0.7]]) {
+    const nb = new Path2D();
+    for (const [dx, dy, r] of [[-60, 8, 30], [-20, -10, 40], [30, -4, 34], [66, 10, 24], [0, 16, 30]]) nb.arc(cx + dx * s, cy + dy * s, r * s, 0, TAU);
+    g.save(); g.lineWidth = 9; g.strokeStyle = C.ink; g.stroke(nb); g.fillStyle = C.white; g.fill(nb);
+    g.clip(nb); g.fillStyle = C.cyanL; dots(g, V, cx - 110, cy - 60, cx + 110, cy + 60, 6, PI / 4, (x, y) => 2.4 * cl((y - cy) / 28)); g.restore();
+  }
+}
+// Ventana balconera con persianas, losa y barandilla de hierro.
+function ventana(g, V, x, yp, flores) {
+  const w = 54, h = 103, y0 = yp - 8 - h;
+  // persianas abiertas
+  for (const sd of [-1, 1]) {
+    const px = sd < 0 ? x - w / 2 - 28 : x + w / 2 + 2, pr = rectP({ x0: px, y0, x1: px + 26, y1: y0 + h });
+    pieza(g, V, pr, VERDE_PERS, [px, y0, px + 26, y0 + h], [{ col: C.greenDk, sp: 5, rf: () => 1.4 }], 3.5);
+    g.strokeStyle = 'rgba(23,21,27,0.6)'; g.lineWidth = 1.6; for (let yy = y0 + 8; yy < y0 + h - 4; yy += 8) { g.beginPath(); g.moveTo(px + 3, yy); g.lineTo(px + 23, yy); g.stroke(); }
+  }
+  const vi = rectP({ x0: x - w / 2, y0, x1: x + w / 2, y1: y0 + h });
+  pieza(g, V, vi, C.navy, [x - w / 2, y0, x + w / 2, y0 + h], [{ col: C.blue, sp: 6, rf: (xx, yy) => 2.6 * cl(1 - (yy - y0) / h) }], 4);
+  g.save(); g.clip(vi); g.fillStyle = 'rgba(205,235,245,0.75)';
+  for (const k of [0.25, 0.55]) { g.beginPath(); g.moveTo(x - w / 2 + k * w, y0); g.lineTo(x - w / 2 + k * w + 14, y0); g.lineTo(x - w / 2 + k * w - 16, y0 + h); g.lineTo(x - w / 2 + k * w - 30, y0 + h); g.closePath(); g.fill(); }
+  g.restore();
+  trazo(g, [[x, y0], [x, y0 + h]], 3);
+  // losa del balcón y su sombra
+  const lo = rectP({ x0: x - 52, y0: yp - 9, x1: x + 52, y1: yp - 1 });
+  pieza(g, V, lo, C.stone, null, null, 3.5);
+  g.fillStyle = 'rgba(23,21,27,0.35)'; g.fillRect(x - 48, yp - 1, 96, 5);
+  // macetas
+  if (flores) {
+    for (const dx of [-34, 30]) {
+      const m = new Path2D(); m.moveTo(x + dx - 9, yp - 22); m.lineTo(x + dx + 9, yp - 22); m.lineTo(x + dx + 6, yp - 9); m.lineTo(x + dx - 6, yp - 9); m.closePath();
+      pieza(g, V, m, C.roof, null, null, 2.5);
+      for (const [fx, fy, c] of [[-7, -30, C.greenDk], [6, -31, C.greenDk], [0, -36, C.green], [-5, -38, C.red], [5, -40, C.magenta], [0, -44, C.red]]) { g.beginPath(); g.arc(x + dx + fx, yp + fy, 5, 0, TAU); g.fillStyle = c; g.fill(); g.lineWidth = 1.8; g.strokeStyle = C.ink; g.stroke(); }
+    }
+  }
+  // barandilla
+  g.strokeStyle = C.ink; g.lineCap = 'round';
+  g.lineWidth = 3.4; g.beginPath(); g.moveTo(x - 50, yp - 48); g.lineTo(x + 50, yp - 48); g.stroke();
+  g.lineWidth = 2; for (let xx = x - 46; xx <= x + 46; xx += 7) { g.beginPath(); g.moveTo(xx, yp - 48); g.lineTo(xx, yp - 10); g.stroke(); }
+  g.lineWidth = 2.2; for (const dx of [-24, 24]) { g.beginPath(); g.arc(x + dx, yp - 30, 8, 0, TAU * 0.8); g.stroke(); }
+}
+function toldo(g, V, x0, x1, y, col) {
+  const p = new Path2D(); p.moveTo(x0 - 8, y - 22); p.lineTo(x1 + 8, y - 22); p.lineTo(x1 + 14, y + 16); p.lineTo(x0 - 14, y + 16); p.closePath();
+  g.save(); g.lineWidth = 4.5; g.strokeStyle = C.ink; g.lineJoin = 'round'; g.fillStyle = C.white; g.fill(p);
+  g.clip(p); g.fillStyle = col; for (let x = x0 - 20; x < x1 + 20; x += 32) { g.beginPath(); g.moveTo(x, y - 22); g.lineTo(x + 16, y - 22); g.lineTo(x + 19, y + 16); g.lineTo(x + 3, y + 16); g.closePath(); g.fill(); }
+  g.fillStyle = C.ink; g.globalAlpha = 0.5; dots(g, V, x0 - 16, y - 22, x1 + 16, y + 16, 5, PI / 4, (xx, yy) => 1.8 * cl((yy - y + 10) / 26)); g.globalAlpha = 1;
+  g.restore(); g.lineWidth = 4.5; g.strokeStyle = C.ink; g.stroke(p);
+  // faldón ondulado
+  const f = new Path2D(); f.moveTo(x0 - 14, y + 16); for (let x = x0 - 14; x <= x1 + 14; x += 16) f.quadraticCurveTo(x + 8, y + 30, x + 16, y + 16); f.lineTo(x0 - 14, y + 16);
+  g.fillStyle = col; g.fill(f); g.lineWidth = 3; g.stroke(f);
+}
+function escaparate(g, V, x0, x1, y0, y1) {
+  const r = rectP({ x0, y0, x1, y1 });
+  pieza(g, V, r, C.cyanL, [x0, y0, x1, y1], [{ col: C.blue, sp: 6, rf: (x, y) => 2.4 * cl((y - y0) / (y1 - y0)) + 0.4 }], 4.5);
+  g.save(); g.clip(r); g.fillStyle = 'rgba(255,250,238,0.8)';
+  for (const k of [0.2, 0.6]) { const xa = x0 + k * (x1 - x0); g.beginPath(); g.moveTo(xa, y0); g.lineTo(xa + 24, y0); g.lineTo(xa - 20, y1); g.lineTo(xa - 44, y1); g.closePath(); g.fill(); }
+  g.restore();
+  trazo(g, [[(x0 + x1) / 2, y0], [(x0 + x1) / 2, y1]], 3);
+}
+function fachada(g, V, x0, x1, top, col, colDk, bahias, opts = {}) {
+  const r = rectP({ x0, y0: top, x1, y1: Y1.base });
+  pieza(g, V, r, col, [x0, top, x1, Y1.base], [{ col: colDk, sp: 9, rf: (x, y) => 1.2 + 2.6 * cl((y - 420) / 300) + 1.6 * cl((x - x1 + 120) / 120) }], 5);
+  // cornisas de piso
+  for (const y of Y1.pisos) if (y > top + 10) { g.fillStyle = 'rgba(255,250,238,0.75)'; g.fillRect(x0 + 3, y - 1, x1 - x0 - 6, 4); g.fillStyle = 'rgba(23,21,27,0.5)'; g.fillRect(x0 + 3, y + 3, x1 - x0 - 6, 2.5); }
+  let k = 0;
+  for (const y of Y1.pisos.slice(0, 3)) for (const x of bahias) { if (y - 120 > top) ventana(g, V, x, y, hsh(x | 0, y | 0) < (opts.flores ?? 0.4)); k++; }
+  // zócalo
+  const zo = rectP({ x0, y0: Y1.base - 9, x1, y1: Y1.base });
+  pieza(g, V, zo, C.stone, null, null, 3);
+}
+const ARBOL1 = (() => { const r = rng(17), L = []; for (let i = 0; i < 9; i++) L.push([(r() - 0.5) * 230, (r() - 0.5) * 150 - 10, 52 + r() * 40]); return L; })();
+function arbol1(g, V, x, base, sc = 1) {
+  // tronco de plátano con la corteza a manchas
+  const tr = new Path2D(); tr.moveTo(x - 15 * sc, base); tr.quadraticCurveTo(x - 9 * sc, base - 150 * sc, x - 6 * sc, base - 280 * sc); tr.lineTo(x + 8 * sc, base - 280 * sc); tr.quadraticCurveTo(x + 11 * sc, base - 150 * sc, x + 16 * sc, base); tr.closePath();
+  pieza(g, V, tr, C.stone, null, null, 4);
+  g.save(); g.clip(tr); for (let i = 0; i < 12; i++) { g.fillStyle = [C.olive, C.greyDk, C.sand][i % 3]; g.beginPath(); g.ellipse(x + (hsh(i, 3) - 0.5) * 24 * sc, base - hsh(i, 4) * 270 * sc, 7 * sc, 12 * sc, 0, 0, TAU); g.fill(); } g.restore();
+  // ramas y copa
+  trazo(g, [[x - 2 * sc, base - 250 * sc], [x - 50 * sc, base - 330 * sc]], 9 * sc); trazo(g, [[x, base - 260 * sc], [x + 46 * sc, base - 340 * sc]], 8 * sc);
+  const cy = base - 380 * sc, copa = new Path2D();
+  for (const [dx, dy, rr] of ARBOL1) copa.arc(x + dx * sc, cy + dy * sc, rr * sc, 0, TAU);
+  g.save(); g.lineWidth = 10 * sc; g.strokeStyle = C.ink; g.stroke(copa); g.fillStyle = C.green; g.fill(copa);
+  g.clip(copa); g.fillStyle = C.greenDk; dots(g, V, x - 220 * sc, cy - 170 * sc, x + 220 * sc, cy + 160 * sc, 7 * sc, PI / 4, (xx, yy) => 3.2 * sc * cl((yy - cy + 30 * sc) / (110 * sc)) + 1.2 * sc * cl((xx - x) / (150 * sc)));
+  g.fillStyle = C.greenL; for (const [dx, dy, rr] of ARBOL1) { g.beginPath(); g.arc(x + (dx - rr * 0.3) * sc, cy + (dy - rr * 0.35) * sc, rr * 0.38 * sc, 0, TAU); g.fill(); }
+  g.strokeStyle = 'rgba(23,21,27,0.6)'; g.lineWidth = 2 * sc;
+  for (let i = 0; i < 26; i++) { const ax = x + (hsh(i, 21) - 0.5) * 300 * sc, ay = cy + (hsh(i, 22) - 0.5) * 200 * sc; g.beginPath(); g.arc(ax, ay, 7 * sc, 0.2, PI - 0.2); g.stroke(); }
+  g.restore();
+}
+function farola1(g, x) {
+  g.lineCap = 'round';
+  for (const [w, col] of [[13, C.ink], [7, '#2f4a3a']]) {
+    g.lineWidth = w; g.strokeStyle = col; g.beginPath(); g.moveTo(x, Y1.acera); g.lineTo(x, 400); g.quadraticCurveTo(x, 360, x - 40, 362); g.stroke();
+  }
+  const lt = new Path2D(); lt.moveTo(x - 58, 372); lt.lineTo(x - 22, 372); lt.lineTo(x - 28, 408); lt.lineTo(x - 52, 408); lt.closePath();
+  pieza(g, V_DUMMY, lt, C.yellowL, null, null, 4);
+  sphere(g, x, Y1.acera - 6, 9, '#2f4a3a', 3);
+}
+const V_DUMMY = { s: 1, x0: -1e5, y0: -1e5, x1: 1e5, y1: 1e5 };
+function taxi1(g, V, x0, yb) {
+  // taxi negro y amarillo aparcado junto al bordillo (de perfil, morro a la derecha)
+  const cu = new Path2D('M 0 -20 C 0 -40 6 -48 30 -50 L 70 -54 C 86 -80 104 -92 140 -94 L 200 -94 C 226 -94 240 -80 256 -58 L 300 -52 C 318 -48 324 -38 324 -22 L 324 -10 L 0 -10 Z');
+  const m = new DOMMatrix().translateSelf(x0, yb), P = new Path2D(); P.addPath(cu, m);
+  pieza(g, V, P, C.ink, null, null, 4);
+  // puertas amarillas
+  const pu = new Path2D('M 78 -52 L 250 -56 L 252 -16 L 80 -14 Z'), Pu = new Path2D(); Pu.addPath(pu, m);
+  pieza(g, V, Pu, C.yellow, [x0 + 70, yb - 60, x0 + 260, yb - 10], [{ col: C.orange, sp: 6, rf: (x, y) => 2.4 * cl((y - yb + 34) / 20) }], 3);
+  trazo(g, [[x0 + 165, yb - 54], [x0 + 166, yb - 15]], 2.5);
+  // ventanillas
+  const ve = new Path2D('M 92 -58 C 104 -80 118 -86 140 -87 L 162 -87 L 162 -58 Z M 172 -87 L 200 -87 C 220 -87 232 -76 244 -60 L 172 -58 Z'), Ve = new Path2D(); Ve.addPath(ve, m);
+  g.fillStyle = C.cyanL; g.fill(Ve); g.lineWidth = 3; g.strokeStyle = C.ink; g.stroke(Ve);
+  g.fillStyle = C.white; g.globalAlpha = 0.8; g.beginPath(); g.moveTo(x0 + 120, yb - 84); g.lineTo(x0 + 132, yb - 84); g.lineTo(x0 + 116, yb - 60); g.lineTo(x0 + 104, yb - 60); g.closePath(); g.fill(); g.globalAlpha = 1;
+  // luz verde de libre y ruedas
+  g.fillStyle = C.green; g.fillRect(x0 + 150, yb - 104, 22, 10); g.lineWidth = 2.5; g.strokeRect(x0 + 150, yb - 104, 22, 10);
+  for (const wx of [64, 262]) { g.beginPath(); g.arc(x0 + wx, yb - 10, 26, 0, TAU); g.fillStyle = C.ink; g.fill(); sphere(g, x0 + wx, yb - 10, 12, C.grey, 4); }
+  g.fillStyle = C.yellowL; g.fillRect(x0 + 314, yb - 44, 10, 10);
+}
+function paloma(g, x, y, s, d) {
+  g.save(); g.translate(x, y); g.scale(d * s, s);
+  const b = new Path2D(); b.ellipse(0, -10, 16, 10, -0.15, 0, TAU);
+  pieza(g, V_DUMMY, b, C.grey, null, null, 3);
+  const h = new Path2D(); h.arc(14, -22, 7, 0, TAU); pieza(g, V_DUMMY, h, C.greyDk, null, null, 3);
+  g.fillStyle = C.orange; g.beginPath(); g.moveTo(20, -23); g.lineTo(27, -21); g.lineTo(20, -19); g.fill();
+  trazo(g, [[-2, 0], [-3, 6]], 2.5); trazo(g, [[5, 0], [5, 6]], 2.5);
+  g.restore();
+}
+const Q1 = { x: (9 * 471 + PC.x) / 10, y: (9 * 600 + PC.y) / 10 };     // la persona no se mueve en el salto 1
+function nivel1(g, V) {
+  cielo1(g, V);
+  // edificios
+  fachada(g, V, 1380, PP.x1 + 60, PP.y0 - 60, C.yellowL, C.orange, [1450, 1590]);
+  fachada(g, V, 1010, 1380, 150, '#f4bccb', C.magenta, [1090, 1195, 1300], { flores: 0.7 });
+  // azotea del edificio rosa: pretil, depósito y antena
+  const pr = rectP({ x0: 1000, y0: 136, x1: 1390, y1: 152 }); pieza(g, V, pr, C.stone, null, null, 4);
+  const dep = rectP({ x0: 1260, y0: 92, x1: 1320, y1: 136 }); pieza(g, V, dep, C.grey, [1260, 92, 1320, 136], [{ col: C.greyDk, sp: 5, rf: (x) => 2.2 * cl((x - 1285) / 30) }], 3.5);
+  trazo(g, [[1120, 136], [1120, 70]], 3); trazo(g, [[1100, 84], [1140, 84]], 3); trazo(g, [[1106, 74], [1134, 74]], 3);
+  fachada(g, V, 230, 1010, PP.y0 - 60, C.cyanP, C.cyan, [330, 470, 610, 750, 890], { flores: 0.45 });
+  fachada(g, V, PP.x0 - 60, 230, PP.y0 - 60, '#f3c27a', C.orange, [70, 170]);
+  // bajos: portal, escaparates y toldos
+  const arco = new Path2D(); arco.moveTo(530, Y1.base); arco.lineTo(530, 492); arco.arc(590, 492, 60, PI, 0); arco.lineTo(650, Y1.base); arco.closePath();
+  pieza(g, V, arco, C.stone, null, null, 4.5);
+  const pta = new Path2D(); pta.moveTo(540, Y1.base); pta.lineTo(540, 494); pta.arc(590, 494, 50, PI, 0); pta.lineTo(640, Y1.base); pta.closePath();
+  pieza(g, V, pta, C.wood, [540, 440, 640, 624], [{ col: C.woodDk, sp: 5, rf: (x) => 1.6 + 1.6 * cl((x - 600) / 40) }], 3.5);
+  trazo(g, [[590, 446], [590, 624]], 2.5); sphere(g, 614, 560, 4, C.yellow, 2);
+  escaparate(g, V, 270, 440, 500, 612); toldo(g, V, 270, 440, 484, C.red);
+  escaparate(g, V, 700, 960, 500, 612); toldo(g, V, 700, 960, 484, C.green);
+  escaparate(g, V, 1050, 1340, 500, 612); toldo(g, V, 1050, 1340, 484, C.orange);
+  escaparate(g, V, 70, 200, 500, 612); toldo(g, V, 70, 200, 484, C.blue);
+  const pd = rectP({ x0: 1440, y0: 470, x1: 1540, y1: 624 }); pieza(g, V, pd, C.woodDk, null, null, 4);
+  // acera, bordillo y calzada
+  const ac = rectP({ x0: PP.x0 - 60, y0: Y1.base, x1: PP.x1 + 60, y1: Y1.acera });
+  pieza(g, V, ac, C.yellowL, [PP.x0 - 60, Y1.base, PP.x1 + 60, Y1.acera], [{ col: C.orange, sp: 6, rf: (x, y) => 1 + 1.6 * cl((y - Y1.base) / 40) }], 0);
+  g.strokeStyle = 'rgba(23,21,27,0.35)'; g.lineWidth = 1.5;
+  for (let x = PP.x0 - 60; x < PP.x1 + 60; x += 22) { g.beginPath(); g.moveTo(x, Y1.base); g.lineTo(x + (x - 846) * 0.05, Y1.acera); g.stroke(); }
+  for (const y of [638, 653]) { g.beginPath(); g.moveTo(PP.x0 - 60, y); g.lineTo(PP.x1 + 60, y); g.stroke(); }
+  const bo = rectP({ x0: PP.x0 - 60, y0: Y1.acera, x1: PP.x1 + 60, y1: Y1.bord });
+  pieza(g, V, bo, C.stone, null, null, 3.5);
+  const ca = rectP({ x0: PP.x0 - 60, y0: Y1.bord, x1: PP.x1 + 60, y1: PP.y1 + 80 });
+  pieza(g, V, ca, C.asphalt, [PP.x0 - 60, Y1.bord, PP.x1 + 60, PP.y1 + 80], [{ col: C.asphaltDk, sp: 9, rf: (x, y) => 1.5 + 3 * cl((y - 700) / 300) }], 0);
+  // líneas de la calzada y paso de cebra en perspectiva
+  g.fillStyle = C.white;
+  for (let x = -200; x < 2000; x += 210) { g.beginPath(); g.moveTo(x, 842); g.lineTo(x + 120, 842); g.lineTo(x + 126, 856); g.lineTo(x - 6, 856); g.closePath(); g.fill(); }
+  for (let k = 0; k < 7; k++) {
+    const xa = 1210 + k * 56, xb = 1160 + k * 80;
+    g.beginPath(); g.moveTo(xa, Y1.bord + 4); g.lineTo(xa + 30, Y1.bord + 4); g.lineTo(xb + 44, PP.y1 + 80); g.lineTo(xb, PP.y1 + 80); g.closePath(); g.fill();
+  }
+  g.fillStyle = C.ink; g.fillRect(PP.x0 - 60, Y1.base - 2, PWd + 120, 4);
+  // árboles, farola, taxi, palomas
+  arbol1(g, V, 300, Y1.acera - 4);
+  arbol1(g, V, 1590, Y1.acera - 4, 0.9);
+  farola1(g, 862);
+  taxi1(g, V, 905, 712);
+  paloma(g, 690, 652, 0.9, -1); paloma(g, 732, 656, 0.8, 1);
+  // la persona, diminuta, señalando arriba
+  g.save(); g.translate(Q1.x, Q1.y); g.scale(0.1, 0.1); g.translate(-PC.x, -PC.y);
+  personaPose(g, { s: V.s * 0.1, x0: -1e4, y0: -1e4, x1: 1e4, y1: 1e4 }, { brazo: 1, mira: 1 });
+  g.restore();
+}
+
+// =====================================================================================
+// Geografía: contornos en latitud y longitud, proyección del globo y detalle fractal
+// =====================================================================================
+// Las coordenadas «g» son las del plano 7 (el globo de radio 262,5 px centrado en PC). El plano k
+// (3 ≤ k ≤ 6) es el mismo dibujo ampliado 10^(7−k) alrededor de su centro: así la costa, el
+// continente y el globo coinciden en todos los saltos.
+const RAD = PI / 180, GLOBO = { lat0: 22, lon0: -5, R: 262.5 };
+function geoG(lat, lon) {
+  const f = lat * RAD, l = (lon - GLOBO.lon0) * RAD, f0 = GLOBO.lat0 * RAD;
+  const cosc = Math.sin(f0) * Math.sin(f) + Math.cos(f0) * Math.cos(f) * Math.cos(l);
+  let x = Math.cos(f) * Math.sin(l), y = Math.cos(f0) * Math.sin(f) - Math.sin(f0) * Math.cos(f) * Math.cos(l);
+  if (cosc < 0) { const n = Math.hypot(x, y) || 1; x /= n; y /= n; }     // detrás del globo: al borde
+  return [PC.x + GLOBO.R * x, PC.y - GLOBO.R * y];
+}
+function gGeo(gx, gy) {        // inversa (solo para el hemisferio visible)
+  const x = (gx - PC.x) / GLOBO.R, y = -(gy - PC.y) / GLOBO.R, r = Math.min(1, Math.hypot(x, y));
+  const c = Math.asin(r), f0 = GLOBO.lat0 * RAD, sc = Math.sin(c), cc = Math.cos(c);
+  const lat = r < 1e-9 ? GLOBO.lat0 : Math.asin(cc * Math.sin(f0) + y * sc * Math.cos(f0) / r) / RAD;
+  const lon = GLOBO.lon0 + Math.atan2(x * sc, r * Math.cos(f0) * cc - y * Math.sin(f0) * sc) / RAD;
+  return [lat, lon];
+}
+// Contornos (lat, lon, lat, lon, …). Precisión de cómic: de medio grado a un par de kilómetros
+// alrededor de Barcelona, donde vive la persona.
+const TIERRAS = {
+  eurasia: [36.14,-5.35, 36.01,-5.6, 36.53,-6.3, 36.8,-6.38, 37.2,-6.95, 37.0,-7.93, 37.1,-8.67, 37.02,-8.99, 37.95,-8.87, 38.48,-8.9, 38.42,-9.21, 38.69,-9.25, 38.78,-9.5, 39.36,-9.4, 39.6,-9.07, 40.19,-8.9, 40.64,-8.75, 41.15,-8.68, 41.87,-8.87, 42.24,-8.8, 42.88,-9.27, 43.37,-8.4, 43.77,-7.87, 43.54,-7.04, 43.66,-5.85, 43.55,-5.66, 43.46,-3.8, 43.38,-3.0, 43.32,-1.98, 43.48,-1.56, 44.65,-1.25, 45.58,-1.07, 46.16,-1.15, 47.27,-2.2, 47.48,-3.12, 48.03,-4.73, 48.38,-4.77, 48.72,-3.98, 48.65,-2.03, 48.85,-1.58, 49.72,-1.94, 49.65,-1.62, 49.4,-1.1, 49.49,0.11, 49.93,1.08, 50.73,1.6, 50.95,1.85, 51.05,2.37, 51.23,2.92, 51.43,3.55, 51.95,4.1, 52.96,4.76, 53.45,6.9, 53.3,7.2, 53.87,8.7, 54.4,8.6, 55.5,8.1, 57.12,8.6, 57.73,10.59, 56.7,10.3, 56.15,10.22, 55.5,9.75, 54.8,9.43, 54.4,10.2, 53.95,10.9, 54.18,12.1, 54.6,13.4, 53.92,14.25, 54.18,15.57, 54.77,17.56, 54.4,18.7, 54.7,20.0, 55.7,21.1, 56.5,21.0, 57.4,21.6, 57.75,22.6, 57.0,24.1, 58.38,24.5, 59.45,24.75, 59.95,30.3, 60.15,24.95, 59.83,22.95, 60.45,22.25, 63.1,21.6, 65.0,25.4, 65.85,24.15, 65.58,22.15, 63.82,20.26, 62.4,17.4, 60.67,17.15, 59.33,18.5, 58.5,16.8, 56.66,16.36, 56.16,15.6, 55.43,13.82, 55.6,13.0, 56.05,12.7, 57.7,11.9, 58.94,11.17, 59.4,10.5, 58.1,8.0, 57.98,7.05, 58.97,5.7, 60.39,5.3, 61.5,4.9, 62.47,6.15, 63.11,7.73, 63.7,8.8, 65.0,11.5, 67.28,14.4, 68.2,13.5, 69.65,18.96, 70.66,23.68, 71.17,25.78, 69.73,30.05, 69.0,33.1, 68.5,40.5, 66.5,41.0, 64.55,40.5, 66.0,44.0, 68.65,43.3, 67.7,53.0, 68.5,54.5, 69.8,60.0, 72.5,70.0, 73.5,80.0, 76.0,100.0, 50.0,112.0, 21.0,108.0, 10.0,104.0, 1.3,103.8, 8.0,98.0, 16.0,95.0, 22.0,90.0, 20.0,86.5, 16.0,81.5, 13.0,80.3, 10.0,79.8, 8.08,77.55, 10.0,76.2, 15.5,73.8, 19.0,72.8, 21.0,72.6, 22.3,69.0, 24.8,67.0, 25.3,63.0, 25.1,62.3, 25.6,58.0, 27.0,56.3, 28.9,50.8, 29.4,48.0, 27.0,49.6, 25.0,51.6, 24.2,54.0, 25.6,56.3, 23.6,58.6, 22.5,59.8, 19.0,57.7, 17.0,54.5, 15.0,50.0, 12.8,45.0, 12.6,43.4, 15.0,42.8, 16.9,42.5, 21.5,39.1, 24.1,38.0, 27.5,35.5, 29.5,35.0, 28.0,34.4, 27.73,34.25, 29.97,32.55, 31.26,32.3, 31.13,33.8, 31.5,34.45, 32.08,34.77, 32.82,34.98, 33.9,35.48, 34.44,35.82, 35.52,35.78, 36.6,36.15, 36.75,35.3, 36.8,34.6, 36.1,33.4, 36.54,32.0, 36.88,30.7, 36.2,29.6, 36.85,28.27, 37.03,27.42, 38.42,27.14, 39.4,26.7, 40.1,26.4, 40.85,25.87, 40.94,24.41, 40.0,23.8, 40.63,22.95, 39.36,22.95, 38.4,23.7, 37.95,23.65, 37.65,24.02, 37.57,22.8, 36.44,23.2, 36.39,22.48, 37.03,22.11, 36.91,21.7, 38.25,21.73, 38.6,21.0, 38.95,20.75, 39.6,20.15, 40.45,19.49, 41.32,19.45, 42.09,19.1, 42.65,18.09, 43.51,16.44, 44.12,15.23, 45.33,14.44, 44.87,13.85, 45.65,13.77, 45.43,12.33, 44.95,12.5, 44.06,12.57, 43.62,13.52, 42.46,14.21, 41.92,16.18, 41.12,16.87, 40.64,17.94, 40.15,18.49, 39.8,18.36, 40.05,17.98, 40.47,17.24, 39.4,17.15, 39.08,17.13, 38.45,16.58, 38.11,15.65, 38.7,15.9, 39.6,15.8, 40.1,15.5, 40.68,14.77, 40.84,14.25, 41.21,13.57, 41.45,12.62, 41.73,12.28, 42.09,11.8, 42.44,11.21, 42.93,10.5, 43.55,10.31, 44.1,9.82, 44.41,8.93, 44.31,8.48, 43.88,8.03, 43.7,7.27, 43.55,7.02, 43.1,5.93, 43.3,5.37, 43.4,4.6, 43.4,3.7, 43.15,3.15, 42.7,3.04, 42.32,3.32, 42.2,3.15, 41.95,3.22, 41.67,2.79, 41.54,2.44, 41.445,2.265, 41.38,2.19, 41.352,2.165, 41.3,2.14, 41.27,1.98, 41.23,1.81, 41.11,1.25, 41.06,1.06, 40.88,0.82, 40.75,0.92, 40.62,0.75, 40.57,0.6, 40.47,0.48, 40.36,0.4, 39.98,0.02, 39.66,-0.22, 39.45,-0.32, 39.17,-0.24, 38.97,-0.16, 38.84,0.11, 38.73,0.23, 38.53,-0.13, 38.35,-0.48, 38.19,-0.56, 37.98,-0.68, 37.63,-0.69, 37.6,-0.98, 37.56,-1.25, 37.4,-1.58, 37.1,-1.85, 36.72,-2.19, 36.83,-2.46, 36.75,-3.02, 36.72,-3.52, 36.75,-3.88, 36.72,-4.42, 36.5,-4.88, 36.42,-5.15],
+  africa: [31.26,32.3, 31.5,31.8, 31.2,29.9, 30.83,28.95, 31.35,27.23, 31.57,25.15, 32.08,23.97, 32.77,22.64, 32.9,21.7, 32.12,20.07, 30.75,20.05, 30.25,19.2, 31.2,16.6, 32.38,15.1, 32.9,13.18, 32.93,12.08, 33.8,10.9, 33.88,10.1, 34.74,10.76, 35.5,11.05, 35.83,10.64, 36.4,10.6, 37.08,11.05, 36.8,10.3, 37.27,9.87, 36.95,8.75, 36.9,7.77, 36.88,6.9, 36.82,5.77, 36.75,5.08, 36.77,3.06, 36.51,1.3, 35.7,-0.64, 35.3,-1.4, 35.29,-2.94, 35.25,-3.93, 35.4,-4.9, 35.89,-5.31, 35.78,-5.81, 35.79,-5.92, 35.2,-6.16, 34.26,-6.58, 34.02,-6.84, 33.6,-7.62, 33.25,-8.5, 32.3,-9.24, 31.51,-9.77, 30.63,-9.89, 30.42,-9.6, 29.38,-10.17, 28.44,-11.1, 27.94,-12.92, 27.1,-13.4, 26.13,-14.48, 23.7,-15.93, 21.3,-16.95, 20.77,-17.05, 18.08,-16.02, 16.03,-16.5, 14.72,-17.5, 13.45,-16.7, 11.86,-15.6, 9.51,-13.71, 8.48,-13.23, 6.3,-10.8, 4.37,-7.72, 5.3,-4.01, 4.74,-2.09, 5.55,-0.2, 6.13,1.22, 6.45,3.4, 4.3,6.0, 4.5,8.3, 4.05,9.7, 1.86,9.77, 0.39,9.45, -0.63,8.7, -3.0,10.5, -4.78,11.85, -6.0,12.3, -8.84,13.23, -12.58,13.4, -15.2,12.15, -17.3,11.7, -22.95,14.5, -26.65,15.15, -28.6,16.45, -31.5,18.0, -33.92,18.42, -34.36,18.47, -34.83,20.0, -34.18,22.15, -33.96,25.6, -33.02,27.91, -29.86,31.03, -27.0,32.85, -25.97,32.57, -24.5,35.3, -21.0,35.1, -19.83,34.85, -17.88,36.89, -15.0,40.7, -11.5,40.5, -6.8,39.29, -4.05,39.67, -2.27,40.9, -0.36,42.54, 2.04,45.34, 5.35,48.53, 8.0,50.0, 10.42,51.4, 11.83,51.28, 11.28,49.18, 10.44,45.01, 11.59,43.15, 13.0,42.74, 15.61,39.45, 19.62,37.22, 22.0,36.8, 23.9,35.5, 27.26,33.81, 29.97,32.55],
+  madagascar: [-12.0,49.3, -15.5,50.2, -18.0,49.4, -22.0,48.0, -25.6,45.2, -25.0,44.0, -21.5,43.5, -17.0,44.0, -15.5,46.5, -13.5,48.2],
+  britania: [51.13,1.32, 51.38,1.45, 51.5,0.7, 51.8,1.2, 52.48,1.75, 52.95,1.3, 52.85,0.3, 53.6,0.1, 54.1,-0.1, 54.48,-0.6, 54.7,-1.2, 55.0,-1.45, 55.77,-2.0, 56.0,-2.5, 56.3,-2.6, 57.15,-2.08, 57.5,-1.78, 57.7,-3.1, 57.5,-4.2, 58.0,-3.8, 58.44,-3.09, 58.67,-3.37, 58.62,-5.0, 57.8,-5.8, 57.0,-5.8, 56.4,-6.2, 55.3,-5.8, 54.9,-5.1, 54.8,-4.4, 54.3,-3.4, 54.1,-2.9, 53.4,-3.0, 53.3,-4.5, 52.8,-4.7, 52.4,-4.1, 51.88,-5.3, 51.6,-3.95, 51.48,-3.18, 51.45,-2.7, 51.2,-3.4, 51.1,-4.2, 50.07,-5.71, 49.96,-5.2, 50.37,-4.14, 50.22,-3.64, 50.52,-2.45, 50.7,-1.3, 50.82,-0.14, 50.73,0.24, 50.91,0.98],
+  irlanda: [55.38,-7.37, 55.22,-6.15, 54.65,-5.8, 54.0,-6.2, 53.35,-6.2, 52.98,-6.03, 52.17,-6.36, 51.85,-8.3, 51.45,-9.82, 52.1,-10.45, 52.6,-9.7, 53.25,-9.1, 53.5,-10.2, 54.1,-10.0, 54.3,-8.6, 54.65,-8.7, 55.15,-8.28],
+  islandia: [63.4,-18.8, 63.8,-22.7, 64.8,-24.0, 65.5,-22.0, 66.4,-23.0, 66.5,-16.0, 66.2,-14.5, 65.2,-13.6, 64.2,-15.0],
+  mallorca: [39.95,3.1, 39.8,3.45, 39.4,3.3, 39.35,2.98, 39.55,2.35, 39.85,2.75],
+  menorca: [40.05,3.8, 40.0,4.3, 39.85,4.3, 39.92,3.82],
+  ibiza: [39.1,1.2, 39.05,1.62, 38.85,1.5, 38.95,1.22],
+  corcega: [43.0,9.4, 42.55,9.53, 41.95,9.4, 41.38,9.2, 41.6,8.8, 42.2,8.6, 42.65,8.75],
+  cerdena: [41.25,9.2, 40.95,9.7, 40.35,9.8, 39.65,9.7, 39.1,9.5, 38.88,8.6, 39.3,8.4, 40.0,8.45, 40.6,8.15, 40.95,8.2],
+  sicilia: [38.27,15.65, 37.5,15.1, 36.7,15.1, 37.05,14.2, 37.55,12.65, 38.1,12.5, 38.2,13.35, 38.1,14.2],
+  creta: [35.3,23.55, 35.55,24.2, 35.3,25.8, 35.1,26.3, 35.0,24.7, 35.2,23.55],
+  chipre: [35.65,34.55, 35.1,34.05, 34.6,33.0, 34.9,32.3, 35.35,32.95, 35.35,34.0],
+  selandia: [56.1,12.6, 55.6,12.6, 55.0,12.2, 55.4,11.1, 55.9,11.4],
+  groenlandia: [60.0,-43.5, 61.0,-48.0, 64.2,-51.7, 68.7,-53.0, 70.5,-54.5, 72.8,-56.0, 76.5,-68.0, 78.0,-72.0, 82.0,-60.0, 83.5,-35.0, 81.5,-17.0, 77.0,-18.5, 74.0,-20.5, 70.5,-22.0, 68.3,-29.0, 65.6,-37.5, 62.0,-42.0],
+  norteamerica: [60.0,-64.5, 55.0,-59.5, 52.0,-55.8, 50.2,-60.0, 49.2,-64.5, 48.8,-64.2, 47.0,-64.8, 46.0,-61.0, 45.6,-61.5, 44.6,-63.5, 43.5,-65.7, 45.0,-67.0, 44.0,-69.0, 42.4,-71.0, 41.7,-70.0, 41.3,-71.8, 40.6,-74.0, 38.9,-74.9, 37.0,-76.0, 35.2,-75.5, 34.2,-77.9, 32.8,-79.9, 32.0,-80.9, 30.3,-81.4, 28.4,-80.6, 25.8,-80.2, 25.1,-81.1, 27.9,-82.7, 29.9,-84.0, 30.4,-87.2, 29.2,-89.3, 29.7,-93.8, 29.3,-94.8, 27.8,-97.4, 22.2,-97.8, 19.2,-96.1, 18.5,-94.5, 19.8,-90.5, 21.3,-89.5, 21.2,-86.8, 17.5,-88.2, 15.9,-86.0, 15.0,-83.3, 12.0,-83.7, 10.0,-83.0, 9.3,-79.9, 8.6,-77.4, 8.0,-80.5, 9.0,-84.0, 11.5,-86.5, 13.3,-89.0, 14.0,-91.5, 16.0,-95.0, 16.8,-99.9, 19.0,-105.0, 20.4,-105.7, 23.0,-106.5, 31.0,-113.0, 50.0,-125.0, 60.0,-140.0, 70.0,-140.0, 72.0,-95.0, 66.0,-86.0, 60.0,-94.0, 55.0,-88.0, 51.5,-80.0, 55.0,-77.0, 60.5,-77.5, 62.5,-72.0],
+  terranova: [51.6,-55.4, 49.5,-53.5, 46.7,-53.0, 47.6,-59.3, 49.5,-58.0],
+  cuba: [23.1,-82.4, 23.2,-80.0, 22.0,-77.5, 20.2,-74.2, 19.9,-77.7, 21.6,-78.5, 21.9,-84.9],
+  espanola: [19.9,-72.8, 19.8,-70.0, 18.4,-68.4, 18.2,-71.0, 18.4,-74.4],
+  sudamerica: [8.6,-77.4, 10.4,-75.5, 11.3,-74.2, 12.4,-71.7, 11.0,-71.6, 10.5,-68.0, 10.6,-66.9, 10.7,-62.5, 8.6,-60.5, 6.8,-58.2, 5.9,-55.2, 4.9,-52.3, 2.0,-50.0, 0.0,-50.0, -1.4,-48.5, -2.5,-44.3, -3.7,-38.5, -5.8,-35.2, -8.0,-34.9, -13.0,-38.5, -18.0,-39.5, -20.3,-40.3, -23.0,-42.0, -23.0,-43.2, -24.0,-46.3, -27.6,-48.5, -30.5,-50.3, -32.1,-52.1, -34.9,-56.2, -34.6,-58.4, -36.3,-56.8, -38.0,-57.5, -38.9,-62.2, -42.5,-63.6, -46.0,-67.5, -50.0,-68.5, -52.4,-68.4, -55.0,-66.5, -55.9,-67.3, -53.0,-74.5, -48.0,-75.5, -42.0,-74.0, -39.8,-73.4, -36.8,-73.1, -33.0,-71.6, -27.0,-70.8, -23.6,-70.4, -18.5,-70.3, -15.5,-75.0, -12.0,-77.1, -6.0,-81.1, -2.2,-79.9, -1.0,-80.5, 1.0,-79.7, 3.9,-77.1, 7.0,-77.8],
+};
+const AGUAS = {    // mares interiores (se pintan encima de la tierra)
+  negro: [41.2,29.1, 42.0,35.1, 41.3,36.3, 41.0,39.7, 41.6,41.6, 43.6,39.7, 44.7,37.8, 45.3,36.5, 45.0,35.4, 44.5,34.2, 44.6,33.5, 45.3,32.5, 46.0,33.6, 46.5,30.7, 45.2,29.7, 43.2,27.9, 42.5,27.5, 41.6,28.1],
+  caspio: [46.8,49.0, 47.1,51.9, 45.0,53.0, 42.0,52.7, 40.0,53.0, 37.5,54.0, 36.8,53.0, 37.4,50.0, 40.4,49.9, 42.0,48.0, 43.0,47.5, 44.5,47.0, 45.8,47.5],
+};
+const DESIERTO = [33.5,-12, 31.5,-6, 32.8,0, 33.5,6, 32.2,10, 31.0,14, 30.5,20, 30.8,25, 30.5,30, 31.0,34, 32.5,38, 33,45, 30,50, 25,56, 19,57, 16,52, 15,44, 17,38, 14,33, 15,25, 16,15, 16,5, 17,-5, 18,-15, 22,-16.5, 27,-13.5, 30,-10.5];
+const SELVA = [8,-12, 10,0, 8,10, 5,20, 4,30, -2,30, -8,25, -10,15, -5,10, 2,8, 5,-5];
+const SELVA_SA = [8,-72, 5,-60, 2,-52, -3,-45, -8,-40, -12,-48, -14,-60, -12,-70, -5,-76, 2,-77];
+// Cordilleras: [anchura en km, lat, lon, …]; nieve en las más altas.
+const CORDILLERAS = [
+  { km: 90, nieve: 1, p: [43.0,-1.7, 42.8,-0.5, 42.65,0.7, 42.5,1.8, 42.42,2.8] },                 // Pirineos
+  { km: 150, nieve: 1, p: [44.1,7.0, 45.0,6.8, 45.9,7.2, 46.4,8.2, 46.5,9.5, 46.6,10.8, 47.0,12.0, 47.2,13.5, 47.4,15.0] },   // Alpes
+  { km: 70, nieve: 0, p: [44.4,9.5, 44.0,11.0, 43.3,12.5, 42.5,13.5, 41.6,14.6, 40.6,15.8, 39.8,16.2, 38.6,16.3] },          // Apeninos
+  { km: 130, nieve: 1, p: [30.8,-9.0, 31.5,-7.5, 32.5,-5.0, 33.8,-2.5, 34.8,0.0, 35.8,3.0, 36.2,5.0, 36.5,7.5] },            // Atlas
+  { km: 60, nieve: 1, p: [36.9,-4.5, 37.1,-3.3, 37.6,-2.0] },                                       // Sierra Nevada
+  { km: 55, nieve: 0, p: [40.4,-5.6, 40.8,-4.0, 41.1,-3.3] },                                       // Sistema Central
+  { km: 70, nieve: 0, p: [42.0,-3.0, 41.6,-2.3, 40.8,-1.6, 40.3,-0.8] },                            // Sistema Ibérico
+  { km: 60, nieve: 0, p: [43.0,-6.8, 43.1,-5.0, 43.1,-4.0] },                                       // Cantábrica
+  { km: 110, nieve: 0, p: [45.6,2.7, 44.9,3.4, 44.3,3.7] },                                         // Macizo Central
+  { km: 90, nieve: 0, p: [45.0,15.5, 44.0,17.0, 43.0,18.5, 42.0,20.0, 40.5,20.8, 39.0,21.6] },      // Dináricos
+  { km: 100, nieve: 0, p: [48.5,22.5, 47.8,25.0, 46.5,26.0, 45.5,25.0, 45.3,23.0] },                // Cárpatos
+  { km: 110, nieve: 1, p: [59.0,7.0, 61.5,8.5, 63.5,12.0, 66.0,14.5, 68.5,18.5] },                  // Escandinavos
+  { km: 120, nieve: 1, p: [41.5,41.0, 42.7,44.0, 42.0,47.0] },                                      // Cáucaso
+];
+const RIOS = [
+  [42.95,-4.1, 42.5,-2.9, 42.1,-1.9, 41.65,-0.9, 41.3,0.2, 40.9,0.6, 40.72,0.86],    // Ebro
+  [40.3,-1.9, 40.0,-3.0, 39.85,-4.0, 39.7,-5.5, 39.4,-7.0, 38.95,-8.9],                // Tajo
+  [41.8,-2.8, 41.6,-4.7, 41.1,-6.5, 41.15,-8.6],                                       // Duero
+  [38.0,-3.4, 37.9,-4.8, 37.4,-6.0, 36.8,-6.38],                                       // Guadalquivir
+  [46.4,6.4, 45.8,5.0, 45.7,4.8, 44.9,4.85, 43.6,4.6, 43.4,4.7],                       // Ródano
+  [45.0,4.0, 46.5,3.4, 47.4,2.9, 47.8,1.9, 47.4,0.7, 47.2,-1.5, 47.27,-2.2],           // Loira
+  [47.9,4.5, 48.4,3.0, 48.85,2.35, 49.2,1.2, 49.45,0.2],                               // Sena
+  [46.6,9.4, 47.6,8.5, 47.6,7.6, 48.6,7.8, 49.5,8.4, 50.0,8.2, 50.9,6.9, 51.8,6.1, 51.9,4.3],   // Rin
+  [44.8,7.3, 45.1,8.5, 45.0,10.0, 45.0,11.5, 44.95,12.45],                              // Po
+  [48.0,8.5, 48.4,10.5, 48.7,12.5, 48.3,14.5, 48.2,16.4, 47.8,18.5, 47.5,19.0, 46.0,18.9, 45.2,19.5, 44.8,20.5, 44.6,22.5, 43.7,24.5, 44.1,26.5, 44.7,28.0, 45.2,29.6],  // Danubio
+  [42.05,1.85, 41.75,1.85, 41.55,1.88, 41.42,1.98, 41.3,2.13],                          // Llobregat
+  [42.2,2.25, 42.0,2.8, 42.05,3.18],                                                    // Ter
+  [30.1,31.2, 31.4,31.0],                                                               // Nilo (delta)
+  [27.0,31.0, 24.0,32.9, 20.0,33.0, 16.0,32.5, 15.6,32.5],                              // Nilo
+];
+// Ciudades y pueblos del plano 5 (lat, lon, radio en km).
+const PUEBLOS = [[41.12,1.25,3.2], [41.155,1.11,2.4], [41.98,2.82,2.8], [41.62,0.62,3.2], [41.73,1.83,2.2], [41.93,2.25,1.8], [41.55,2.1,3.0], [41.565,2.01,2.8], [41.54,2.44,2.2], [41.72,2.93,1.6], [42.27,2.96,1.8], [41.04,0.93,1.5], [40.81,0.52,1.6], [42.27,3.17,1.2], [41.25,1.8,1.7]];
+const AUTOPISTA = [40.6,0.5, 40.9,0.75, 41.15,1.15, 41.35,1.6, 41.45,1.95, 41.55,2.2, 41.7,2.5, 41.95,2.8, 42.25,2.95, 42.6,2.88, 42.9,2.88];
+
+const aG = (A) => { const P = []; for (let i = 0; i < A.length; i += 2) P.push(geoG(A[i], A[i + 1])); return P; };
+const bbox = (P) => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; for (const [x, y] of P) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); } return [x0, y0, x1, y1]; };
+const POL = Object.fromEntries(Object.entries(TIERRAS).map(([k, A]) => { const P = aG(A); return [k, { P, bb: bbox(P) }]; }));
+const POLA = Object.fromEntries(Object.entries(AGUAS).map(([k, A]) => { const P = aG(A); return [k, { P, bb: bbox(P) }]; }));
+const POL_DES = { P: aG(DESIERTO) }, POL_SEL = { P: aG(SELVA) }, POL_SELSA = { P: aG(SELVA_SA) };
+const CORD = CORDILLERAS.map((c) => ({ ...c, P: aG(c.p) }));
+const RIOSG = RIOS.map(aG);
+
+// Subdivisión fractal determinista de un tramo (en coordenadas g): el desplazamiento del punto
+// medio solo depende de los extremos, así que cada plano ve la misma costa con más detalle.
+function refinar(P, cerrado, k, vb, px = 6) {
+  const out = [];
+  const rec = (ax, ay, bx, by, d) => {
+    const dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy);
+    if (L * k < px || d > 26) { out.push([bx, by]); return; }
+    const mg = L * 0.45;
+    if (Math.max(ax, bx) + mg < vb[0] || Math.min(ax, bx) - mg > vb[2] || Math.max(ay, by) + mg < vb[1] || Math.min(ay, by) - mg > vb[3]) { out.push([bx, by]); return; }
+    const h = hsh(Math.round(ax * 4e5) ^ Math.round(by * 7e5), Math.round(ay * 6e5) ^ Math.round(bx * 3e5));
+    const amp = (L > 0.3 ? 0.3 : L > 0.05 ? 0.2 : 0.09) * (h - 0.5);
+    const mx = (ax + bx) / 2 - dy * amp, my = (ay + by) / 2 + dx * amp;
+    rec(ax, ay, mx, my, d + 1); rec(mx, my, bx, by, d + 1);
+  };
+  out.push(P[0]);
+  const n = P.length;
+  for (let i = 0; i < (cerrado ? n : n - 1); i++) { const a = P[i], b = P[(i + 1) % n]; rec(a[0], a[1], b[0], b[1], 0); }
+  return out;
+}
+// Vista del plano geográfico: centro cG (en g), escala L (px del plano por unidad g).
+function geoVista(V, cG, L) {
+  const tx = (x) => cG[0] + (x - PC.x) / L, ty = (y) => cG[1] + (y - PC.y) / L;
+  return { vb: [tx(V.x0), ty(V.y0), tx(V.x1), ty(V.y1)], k: L * V.s, n: (p) => [PC.x + (p[0] - cG[0]) * L, PC.y + (p[1] - cG[1]) * L] };
+}
+function trazado(G, P, cerrado = true, px = 6) {
+  const R = refinar(P, cerrado, G.k, G.vb, px), p = new Path2D();
+  R.forEach((q, i) => { const [x, y] = G.n(q); if (i) p.lineTo(x, y); else p.moveTo(x, y); });
+  if (cerrado) p.closePath();
+  return p;
+}
+const visible = (G, bb, m = 0) => !(bb[2] + m < G.vb[0] || bb[0] - m > G.vb[2] || bb[3] + m < G.vb[1] || bb[1] - m > G.vb[3]);
+function tierraPath(G) {
+  const p = new Path2D();
+  for (const k in POL) if (visible(G, POL[k].bb, 2)) p.addPath(trazado(G, POL[k].P));
+  return p;
+}
+function aguaPath(G) {
+  const p = new Path2D();
+  for (const k in POLA) if (visible(G, POLA[k].bb, 2)) p.addPath(trazado(G, POLA[k].P));
+  return p;
+}
+
+// --- marco local alrededor de la persona: u a lo largo de la costa (hacia el NE), v tierra adentro (m)
+const BCN = geoG(41.38, 2.19);
+const LOC = (() => {
+  const a = geoG(41.445, 2.265), b = geoG(41.352, 2.165);
+  const dx = a[0] - b[0], dy = a[1] - b[1], L = Math.hypot(dx, dy), U = [dx / L, dy / L], Vv = [U[1], -U[0]];
+  const mpg = 412 / 1e7;                      // unidades g por metro
+  const Ug = [U[0] * mpg, U[1] * mpg], Vg = [Vv[0] * mpg, Vv[1] * mpg];
+  const B = [BCN[0] + Vg[0] * 1400, BCN[1] + Vg[1] * 1400];
+  return { U, V: Vv, Ug, Vg, B };
+})();
+const uvG = (u, v) => [LOC.B[0] + u * LOC.Ug[0] + v * LOC.Vg[0], LOC.B[1] + u * LOC.Ug[1] + v * LOC.Vg[1]];
+
+// --- cadena de planos: Q[k] es dónde queda el plano k−1 dentro del plano k (a 1/10)
+const QS = [null, Q1];
+for (const F of [[560, 590], [650, 570], [740, 550], [800, 545], [830, 542]]) QS.push({ x: (9 * F[0] + PC.x) / 10, y: (9 * F[1] + PC.y) / 10 });
+const PERS = [{ x: 471, y: 560 }];                     // dónde está la persona en cada plano
+for (let k = 1; k <= 6; k++) PERS.push({ x: QS[k].x + (PERS[k - 1].x - PC.x) / 10, y: QS[k].y + (PERS[k - 1].y - PC.y) / 10 });
+// Planos geográficos: centro en g para que la persona caiga en PERS[k].
+const CG = [];
+for (let k = 2; k <= 6; k++) { const L = Math.pow(10, 7 - k); CG[k] = [LOC.B[0] - (PERS[k].x - PC.x) / L, LOC.B[1] - (PERS[k].y - PC.y) / L]; }
+QS[7] = { x: PC.x + (CG[6][0] - PC.x), y: PC.y + (CG[6][1] - PC.y) };
+for (let k = 1; k <= 7; k++) QS[k].F = { x: (10 * QS[k].x - PC.x) / 9, y: (10 * QS[k].y - PC.y) / 9 };
+
+// Transformación del marco local (u, v en metros) al plano k: x = P + (u·U + v·V)·px/m.
+function aLocal(g, k) {
+  const L = Math.pow(10, 7 - k), P = PERS[k];
+  g.transform(LOC.Ug[0] * L, LOC.Ug[1] * L, LOC.Vg[0] * L, LOC.Vg[1] * L, P.x, P.y);
+}
+function vistaLocal(V, k) {
+  const L = Math.pow(10, 7 - k), P = PERS[k], a = LOC.Ug[0] * L, b = LOC.Ug[1] * L, c = LOC.Vg[0] * L, d = LOC.Vg[1] * L, det = a * d - b * c;
+  const inv = (x, y) => { const X = x - P.x, Y = y - P.y; return [(d * X - c * Y) / det, (-b * X + a * Y) / det]; };
+  const Q = [inv(V.x0, V.y0), inv(V.x1, V.y0), inv(V.x0, V.y1), inv(V.x1, V.y1)];
+  return { s: V.s * Math.hypot(a, b), x0: Math.min(...Q.map((q) => q[0])), y0: Math.min(...Q.map((q) => q[1])), x1: Math.max(...Q.map((q) => q[0])), y1: Math.max(...Q.map((q) => q[1])) };
+}
+
+// =====================================================================================
+// La rejilla de manzanas (chaflanes), común a los planos 2 y 3. Coordenadas de la rejilla:
+// las calles van por múltiplos de 133,3 m; la persona está en (60, 7,5), en la acera.
+// =====================================================================================
+const RJ = { paso: 400 / 3, calle: 20, acera: 5, ch: 14.14, fondo: 25, ox: 60, oy: 7.5 };
+function manzanaPts(i, j, inset = 0) {
+  const x0 = i * RJ.paso + RJ.calle / 2 + inset - RJ.ox, y0 = j * RJ.paso + RJ.calle / 2 + inset - RJ.oy;
+  const x1 = x0 + RJ.paso - RJ.calle - 2 * inset, y1 = y0 + RJ.paso - RJ.calle - 2 * inset, c = Math.max(2, RJ.ch - inset * 0.41);
+  return [[x0 + c, y0], [x1 - c, y0], [x1, y0 + c], [x1, y1 - c], [x1 - c, y1], [x0 + c, y1], [x0, y1 - c], [x0, y0 + c]];
+}
+const ptsPath = (P) => { const p = new Path2D(); P.forEach(([x, y], i) => (i ? p.lineTo(x, y) : p.moveTo(x, y))); p.closePath(); return p; };
+// Avenidas que sustituyen manzanas o calles (en coordenadas locales u, v).
+const PARQUE = { u0: 700, u1: 1500, v0: -1260, v1: -700 };
+const enParque = (u, v) => u > PARQUE.u0 - 60 && u < PARQUE.u1 + 60 && v > PARQUE.v0 - 60 && v < PARQUE.v1 + 60;
+const COLORES_TEJADO = [C.roof, C.roofL, C.grey, C.stone, '#e2876a', C.roof, '#d7b38c'];
+
+// ---------- plano 2 (10² m): manzanas vistas desde arriba ----------
+function parcelas(i, j) {
+  // Anillo de casas: franjas rectangulares a lo largo de cada lado (cortadas en solares de 12 a
+  // 24 m) y un edificio de esquina en cada chaflán; el patio de manzana queda en medio.
+  const O = manzanaPts(i, j), I = manzanaPts(i, j, RJ.fondo), per = [], f = RJ.fondo;
+  const x0 = O[7][0], y0 = O[0][1], x1 = O[2][0], y1 = O[4][1], c = RJ.ch;
+  const r = rng(i * 7919 + j * 104729 + 13);
+  const nuevo = (P) => per.push({ P, col: COLORES_TEJADO[Math.floor(r() * COLORES_TEJADO.length)], h: r(), h2: r(), h3: r() });
+  // lados: [inicio, fin, eje] recorridos de esquina a esquina sin los chaflanes
+  const lados = [
+    (a, b) => [[a, y0], [b, y0], [b, y0 + f], [a, y0 + f]],
+    (a, b) => [[x1, a], [x1, b], [x1 - f, b], [x1 - f, a]],
+    (a, b) => [[a, y1], [b, y1], [b, y1 - f], [a, y1 - f]],
+    (a, b) => [[x0, a], [x0, b], [x0 + f, b], [x0 + f, a]],
+  ];
+  const tramos = [[x0 + f, x1 - f], [y0 + f, y1 - f], [x0 + f, x1 - f], [y0 + f, y1 - f]];
+  lados.forEach((fn, k) => {
+    const [a, b] = tramos[k]; let s = a;
+    while (s < b - 1) { const e = Math.min(b, s + 12 + r() * 12); nuevo(fn(s, b - e < 9 ? b : e)); if (b - e < 9) break; s = e; }
+  });
+  // esquinas (chaflanes)
+  nuevo([[x1 - f, y0], [x1 - c, y0], [x1, y0 + c], [x1, y0 + f], [x1 - f, y0 + f]]);
+  nuevo([[x1, y1 - f], [x1, y1 - c], [x1 - c, y1], [x1 - f, y1], [x1 - f, y1 - f]]);
+  nuevo([[x0 + f, y1], [x0 + c, y1], [x0, y1 - c], [x0, y1 - f], [x0 + f, y1 - f]]);
+  nuevo([[x0, y0 + f], [x0, y0 + c], [x0 + c, y0], [x0 + f, y0], [x0 + f, y0 + f]]);
+  return { O, I: [[x0 + f, y0 + f], [x1 - f, y0 + f], [x1 - f, y1 - f], [x0 + f, y1 - f]], per };
+}
+const PARC = new Map();
+const parcelasDe = (i, j) => { const k = i + ',' + j; if (!PARC.has(k)) PARC.set(k, parcelas(i, j)); return PARC.get(k); };
+function nivel2(g, V) {
+  g.fillStyle = C.asphalt; g.fillRect(PP.x0 - 60, PP.y0 - 60, PWd + 120, PHt + 120);
+  g.save(); aLocal(g, 2);
+  const VL = vistaLocal(V, 2), pm = 4.12, I0 = Math.floor((VL.x0 + RJ.ox) / RJ.paso) - 1, I1 = Math.ceil((VL.x1 + RJ.ox) / RJ.paso), J0 = Math.floor((VL.y0 + RJ.oy) / RJ.paso) - 1, J1 = Math.ceil((VL.y1 + RJ.oy) / RJ.paso);
+  g.fillStyle = C.asphaltDk; dots(g, VL, VL.x0, VL.y0, VL.x1, VL.y1, 2.4, PI / 4, (x, y) => 0.55);
+  // marcas viales: líneas discontinuas en el eje de cada calle
+  g.fillStyle = 'rgba(255,250,238,0.85)';
+  for (let i = I0; i <= I1 + 1; i++) { const x = i * RJ.paso - RJ.ox; for (let y = J0 * RJ.paso; y < (J1 + 1) * RJ.paso; y += 9) g.fillRect(x - 0.25, y - RJ.oy, 0.5, 4.5); }
+  for (let j = J0; j <= J1 + 1; j++) { const y = j * RJ.paso - RJ.oy; for (let x = I0 * RJ.paso; x < (I1 + 1) * RJ.paso; x += 9) g.fillRect(x - RJ.ox, y - 0.25, 4.5, 0.5); }
+  for (let i = I0; i <= I1; i++) for (let j = J0; j <= J1; j++) {
+    const O = manzanaPts(i, j), A = manzanaPts(i, j, -RJ.acera);
+    // acera
+    const ac = ptsPath(A); g.fillStyle = C.stone; g.fill(ac); g.lineWidth = 2.6 / pm; g.strokeStyle = C.ink; g.stroke(ac);
+    const { I, per } = parcelasDe(i, j);
+    // patio interior con jardín
+    const pa = ptsPath(I);
+    g.save(); g.fillStyle = C.greenL; g.fill(pa); g.clip(pa);
+    g.fillStyle = C.green; dots(g, VL, I[0][0], I[0][1], I[2][0], I[2][1], 2.2, PI / 4, () => 0.55);
+    const r = rng(i * 31 + j * 17 + 5);
+    for (let n = 0; n < 5; n++) { const x = lerp(I[0][0], I[2][0], 0.1 + 0.65 * r()), y = lerp(I[0][1], I[2][1], 0.1 + 0.65 * r()), w = 6 + r() * 10, h = 5 + r() * 8; const b = rectP({ x0: x, y0: y, x1: x + w, y1: y + h }); g.fillStyle = C.grey; g.fill(b); g.lineWidth = 1.6 / pm; g.strokeStyle = C.ink; g.stroke(b); }
+    for (let n = 0; n < 7; n++) { const x = lerp(I[0][0], I[2][0], 0.12 + 0.76 * r()), y = lerp(I[0][1], I[2][1], 0.12 + 0.76 * r()), rr = 2.6 + r() * 2.4; g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fillStyle = C.green; g.fill(); g.lineWidth = 1.4 / pm; g.strokeStyle = C.ink; g.stroke(); g.beginPath(); g.arc(x - rr * 0.3, y - rr * 0.3, rr * 0.35, 0, TAU); g.fillStyle = C.greenL; g.fill(); }
+    g.restore();
+    // tejados por parcelas
+    for (const p of per) {
+      const pp = ptsPath(p.P);
+      g.fillStyle = p.col; g.fill(pp);
+      g.save(); g.clip(pp); g.fillStyle = 'rgba(23,21,27,0.55)'; dots(g, VL, Math.min(...p.P.map((q) => q[0])), Math.min(...p.P.map((q) => q[1])), Math.max(...p.P.map((q) => q[0])), Math.max(...p.P.map((q) => q[1])), 1.7, PI / 4, (x, y) => 0.35 + 0.35 * p.h); g.restore();
+      g.lineWidth = 1.6 / pm; g.strokeStyle = C.ink; g.stroke(pp);
+      // detalles de azotea: casetas, depósitos y patios de luces
+      const [cx, cy] = [p.P.reduce((a, q) => a + q[0], 0) / p.P.length, p.P.reduce((a, q) => a + q[1], 0) / p.P.length];
+      const dx = (p.h3 - 0.5) * 4, dy = (p.h - 0.5) * 4;
+      if (p.h2 < 0.3) { const b = rectP({ x0: cx + dx - 1.8, y0: cy + dy - 1.4, x1: cx + dx + 1.8, y1: cy + dy + 1.4 }); g.fillStyle = C.grey; g.fill(b); g.lineWidth = 1.1 / pm; g.stroke(b); }
+      else if (p.h2 < 0.55) { g.beginPath(); g.arc(cx + dx, cy + dy, 1.2, 0, TAU); g.fillStyle = C.cyanL; g.fill(); g.lineWidth = 1.1 / pm; g.stroke(); }
+      else if (p.h2 < 0.75) { const b = rectP({ x0: cx + dx - 1, y0: cy + dy - 1, x1: cx + dx + 1, y1: cy + dy + 1 }); g.fillStyle = C.ink; g.fill(b); }
+      else { g.strokeStyle = 'rgba(23,21,27,0.5)'; g.lineWidth = 1 / pm; for (let q = -2; q <= 2; q += 1.3) { g.beginPath(); g.moveTo(cx + q - 1, cy - 2); g.lineTo(cx + q + 1, cy + 2); g.stroke(); } g.strokeStyle = C.ink; }
+    }
+    g.lineWidth = 3.2 / pm; g.strokeStyle = C.ink; g.stroke(ptsPath(O));
+    // árboles de la acera
+    for (const e of [0, 2, 4, 6]) {
+      const p = A[e], q = A[e + 1], dx = q[0] - p[0], dy = q[1] - p[1], LL = Math.hypot(dx, dy), nx = -dy / LL, ny = dx / LL;
+      for (let s = 5; s < LL - 4; s += 8.5) {
+        const x = p[0] + dx / LL * s + nx * 1.8, y = p[1] + dy / LL * s + ny * 1.8;
+        g.beginPath(); g.arc(x, y, 3.1, 0, TAU); g.fillStyle = C.green; g.fill(); g.lineWidth = 1.6 / pm; g.strokeStyle = C.ink; g.stroke();
+        g.beginPath(); g.arc(x - 0.9, y - 0.9, 1.1, 0, TAU); g.fillStyle = C.greenL; g.fill();
+      }
+    }
+  }
+  // pasos de cebra en cada cruce
+  g.fillStyle = C.white;
+  for (let i = I0; i <= I1 + 1; i++) for (let j = J0; j <= J1 + 1; j++) {
+    const X = i * RJ.paso - RJ.ox, Y = j * RJ.paso - RJ.oy;
+    for (const sd of [-1, 1]) for (let s = -8; s <= 8; s += 2.2) { g.fillRect(X + s - 0.6, Y + sd * 17 - 2.5, 1.2, 5); g.fillRect(X + sd * 17 - 2.5, Y + s - 0.6, 5, 1.2); }
+  }
+  // coches por los carriles
+  const coche = (x, y, ang, col, n) => {
+    g.save(); g.translate(x, y); g.rotate(ang);
+    const b = new Path2D(); b.roundRect(-2.2, -0.9, 4.4, 1.8, 0.6);
+    g.fillStyle = col; g.fill(b); g.lineWidth = 1.5 / pm; g.strokeStyle = C.ink; g.stroke(b);
+    g.fillStyle = C.navy; g.fillRect(0.6, -0.75, 0.9, 1.5); g.fillRect(-1.6, -0.7, 0.6, 1.4);
+    if (n === 0) { g.fillStyle = C.yellow; g.fillRect(-0.9, -0.9, 1.3, 1.8); }
+    g.restore();
+  };
+  const COLS = [C.ink, C.red, C.white, C.cyan, C.yellow, C.greyDk];
+  for (let i = I0; i <= I1 + 1; i++) for (let j = J0; j <= J1; j++) {
+    const r = rng(i * 991 + j * 37 + 3), x = i * RJ.paso - RJ.ox, y0 = j * RJ.paso - RJ.oy + 20;
+    for (let n = 0; n < 4; n++) { if (r() < 0.45) continue; const k = Math.floor(r() * COLS.length); coche(x + (r() < 0.5 ? -2.6 : 2.6), y0 + r() * 90, PI / 2, COLS[k], k); }
+  }
+  for (let j = J0; j <= J1 + 1; j++) for (let i = I0; i <= I1; i++) {
+    const r = rng(i * 577 + j * 1213 + 9), y = j * RJ.paso - RJ.oy, x0 = i * RJ.paso - RJ.ox + 20;
+    for (let n = 0; n < 4; n++) { if (r() < 0.45) continue; const k = Math.floor(r() * COLS.length); coche(x0 + r() * 90, y + (r() < 0.5 ? -2.6 : 2.6), 0, COLS[k], k); }
+  }
+  g.restore();
+}
+
+// ---------- capas geográficas comunes (planos 3 a 6) ----------
+function marGeo(g, V, k) {
+  g.fillStyle = C.sea; g.fillRect(PP.x0 - 60, PP.y0 - 60, PWd + 120, PHt + 120);
+  g.fillStyle = C.seaDk; dots(g, V, PP.x0 - 60, PP.y0 - 60, PP.x1 + 60, PP.y1 + 60, 11, PI / 4, (x, y) => 2.4 + 2.2 * cl((y - 300) / 900));
+}
+// Costa: halo blanco y cian en el mar, tierra encima y tinta.
+function costa(g, V, Tp, lw, fillLand) {
+  g.save(); g.lineJoin = 'round';
+  g.strokeStyle = C.cyanL; g.lineWidth = lw * 7; g.globalAlpha = 0.55; g.stroke(Tp);
+  g.strokeStyle = C.white; g.lineWidth = lw * 3.2; g.globalAlpha = 0.9; g.stroke(Tp);
+  g.globalAlpha = 1;
+  fillLand();
+  g.lineWidth = lw; g.strokeStyle = C.ink; g.stroke(Tp);
+  g.restore();
+}
+function cordilleras(g, V, G, L, nieve = true) {
+  for (const c of CORD) {
+    const bb = bbox(c.P); if (!visible(G, bb, 6)) continue;
+    const w = c.km * 1000 * 412 / 1e7 * L / 2;     // semiancho en px del plano
+    const R = c.P.map(G.n);
+    const spine = []; for (let i = 0; i < R.length - 1; i++) for (let s = 0; s < 8; s++) spine.push([lerp(R[i][0], R[i + 1][0], s / 8), lerp(R[i][1], R[i + 1][1], s / 8)]);
+    spine.push(R[R.length - 1]);
+    const wf = (u) => w * Math.pow(Math.sin(PI * (0.04 + 0.92 * u)), 0.5);
+    g.save(); g.globalAlpha = 0.95; g.fillStyle = '#b89a5c'; ribbon(g, spine, wf); g.restore();
+    // trama de relieve y crestas
+    const rib = new Path2D(); { const n = spine.length, Lf = [], Rt = []; for (let i = 0; i < n; i++) { const a = spine[Math.max(0, i - 1)], b = spine[Math.min(n - 1, i + 1)]; let dx = b[0] - a[0], dy = b[1] - a[1]; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d; const ww = wf(i / (n - 1)); Lf.push([spine[i][0] - dy * ww, spine[i][1] + dx * ww]); Rt.push([spine[i][0] + dy * ww, spine[i][1] - dx * ww]); } Lf.forEach((q, i) => (i ? rib.lineTo(q[0], q[1]) : rib.moveTo(q[0], q[1]))); for (let i = n - 1; i >= 0; i--) rib.lineTo(Rt[i][0], Rt[i][1]); rib.closePath(); }
+    const bx = bbox(spine);
+    g.save(); g.clip(rib); g.fillStyle = '#6f5126'; dots(g, V, bx[0] - w, bx[1] - w, bx[2] + w, bx[3] + w, 7, PI / 4, (x, y) => 2.6 * cl(0.3 + 0.5 * Math.sin(x * 0.05 + y * 0.03))); g.restore();
+    g.strokeStyle = C.ink; g.lineJoin = 'round'; g.lineCap = 'round';
+    const n = spine.length; let acc = 0, sig = 0;
+    for (let i = 1; i < n - 1; i++) {
+      acc += Math.hypot(spine[i][0] - spine[i - 1][0], spine[i][1] - spine[i - 1][1]);
+      const a = spine[i - 1], b = spine[i + 1]; let dx = b[0] - a[0], dy = b[1] - a[1]; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+      const ww = wf(i / (n - 1)), filas = ww > 60 ? [-0.55, 0, 0.55] : ww > 22 ? [-0.3, 0.3] : [0];
+      if (acc < sig) continue;
+      sig = acc + Math.max(16, Math.min(ww * 0.9, 64));
+      for (const f of filas) {
+        const x = spine[i][0] - dy * ww * f + dx * ww * 0.2 * (hsh(i, 3) - 0.5), y = spine[i][1] + dx * ww * f;
+        const hh = Math.min(ww * 0.42, 40) * (0.7 + 0.5 * hsh(i, c.km + (f * 10 | 0)));
+        g.lineWidth = Math.max(1.4, hh * 0.13);
+        g.beginPath(); g.moveTo(x - hh * 0.75, y + hh * 0.35); g.lineTo(x, y - hh * 0.5); g.lineTo(x + hh * 0.75, y + hh * 0.35); g.stroke();
+        if (nieve && c.nieve) { g.fillStyle = C.white; g.beginPath(); g.moveTo(x - hh * 0.28, y - hh * 0.16); g.lineTo(x, y - hh * 0.5); g.lineTo(x + hh * 0.28, y - hh * 0.16); g.closePath(); g.fill(); }
+      }
+    }
+  }
+}
+function rios(g, G, lw) {
+  for (const P of RIOSG) {
+    if (!visible(G, bbox(P), 4)) continue;
+    const R = refinar(P, false, G.k, G.vb, 8).map(G.n);
+    g.lineJoin = 'round'; g.lineCap = 'round';
+    g.strokeStyle = C.ink; g.lineWidth = lw + 2.6; g.beginPath(); R.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke();
+    g.strokeStyle = C.cyan; g.lineWidth = lw; g.stroke();
+  }
+}
+// Tierra con su color: verde, más seca hacia el sur, desierto y selva.
+function tierraColor(g, V, G, Tp, L) {
+  g.save(); g.fillStyle = C.green; g.fill(Tp); g.clip(Tp);
+  const inv = (x, y) => gGeo(G.vb[0] + (x - V.x0) / (V.x1 - V.x0) * (G.vb[2] - G.vb[0]), G.vb[1] + (y - V.y0) / (V.y1 - V.y0) * (G.vb[3] - G.vb[1]));
+  g.fillStyle = C.greenL; dots(g, V, V.x0, V.y0, V.x1, V.y1, 10, PI / 4, (x, y) => { const [lat] = inv(x, y); return 4.6 * cl((46 - lat) / 9); });
+  g.fillStyle = C.greenDk; dots(g, V, V.x0, V.y0, V.x1, V.y1, 10, PI * 5 / 12, (x, y) => { const [lat] = inv(x, y); return 2.6 * cl((lat - 44) / 8) + 1.2; });
+  const des = trazado(G, POL_DES.P, true, 30);
+  g.save(); g.fillStyle = C.sand; g.fill(des); g.clip(des); g.fillStyle = C.orange; dots(g, V, V.x0, V.y0, V.x1, V.y1, 9, PI / 4, () => 2.3); g.restore();
+  for (const P of [POL_SEL.P, POL_SELSA.P]) { const s = trazado(G, P, true, 30); g.save(); g.clip(s); g.fillStyle = C.greenDk; dots(g, V, V.x0, V.y0, V.x1, V.y1, 8, PI / 4, () => 2.8); g.restore(); }
+  const gr = trazado(G, POL.groenlandia.P), is = trazado(G, POL.islandia.P);
+  g.fillStyle = C.ice; g.fill(gr); g.fill(is);
+  g.restore();
+  void L;
+}
+function geoBase(g, V, k, extra) {
+  const L = Math.pow(10, 7 - k), G = geoVista(V, CG[k], L);
+  marGeo(g, V, k);
+  const Tp = tierraPath(G), Ap = aguaPath(G);
+  const lw = k >= 5 ? 4 : 3.4;
+  costa(g, V, Tp, lw, () => { tierraColor(g, V, G, Tp, L); if (extra) extra(G, Tp, L); });
+  g.save(); g.fillStyle = C.sea; g.fill(Ap); g.lineWidth = lw; g.strokeStyle = C.ink; g.stroke(Ap); g.restore();
+  return { G, Tp, L };
+}
+
+// ---------- plano 6 (10⁶ m): el continente ----------
+function nivel6(g, V) {
+  geoBase(g, V, 6, (G, Tp, L) => {
+    g.save(); g.clip(Tp); cordilleras(g, V, G, L); rios(g, G, 2.6); g.restore();
+  });
+}
+// ---------- plano 5 (10⁵ m): la costa y el Pirineo ----------
+function nivel5(g, V) {
+  geoBase(g, V, 5, (G, Tp, L) => {
+    g.save(); g.clip(Tp);
+    cordilleras(g, V, G, L);
+    // sierras litoral y prelitoral
+    for (const [P, km] of [[[41.25,1.7, 41.4,2.05, 41.48,2.25, 41.6,2.55, 41.75,2.85], 9], [[41.0,0.8, 41.35,1.4, 41.6,1.85, 41.85,2.3, 42.05,2.6], 16], [[40.75,0.15, 40.85,0.35], 22], [[41.3,0.9, 41.36,1.1], 14], [[41.75,2.3, 41.8,2.48], 14]]) {
+      const R = aG(P).map(G.n), w = km * 1000 * 412 / 1e7 * L / 2;
+      g.fillStyle = C.greenDk; g.globalAlpha = 0.55; ribbon(g, R, (u) => w * Math.pow(Math.sin(PI * (0.05 + 0.9 * u)), 0.6)); g.globalAlpha = 1;
+      g.strokeStyle = C.ink; g.lineWidth = 2.2; for (let i = 0; i < R.length - 1; i++) for (let s = 0.2; s < 1; s += 0.3) { const x = lerp(R[i][0], R[i + 1][0], s), y = lerp(R[i][1], R[i + 1][1], s), hh = w * 0.6; g.beginPath(); g.moveTo(x - hh, y + hh * 0.4); g.lineTo(x, y - hh * 0.4); g.lineTo(x + hh, y + hh * 0.4); g.stroke(); }
+    }
+    rios(g, G, 3.4);
+    // autopista
+    { const R = refinar(aG(AUTOPISTA), false, G.k, G.vb, 10).map(G.n); g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = C.ink; g.lineWidth = 7; g.beginPath(); R.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke(); g.strokeStyle = C.yellow; g.lineWidth = 3.5; g.stroke(); }
+    // pueblos y ciudades
+    for (const [la, lo, km] of PUEBLOS) { const [x, y] = G.n(geoG(la, lo)), r = km * 1000 * 412 / 1e7 * L; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fillStyle = C.roofL; g.fill(); g.lineWidth = 2.6; g.strokeStyle = C.ink; g.stroke(); }
+    g.restore();
+    // la gran ciudad: mancha urbana a lo largo de la costa
+    g.save(); g.clip(Tp); urbe(g, V, G, L, 5); g.restore();
+  });
+}
+// Mancha urbana en el marco local, recortada por la tierra.
+const URBE = [[-16500, -6000], [12500, -6000], [13200, 900], [11000, 2600], [8200, 3300], [6500, 4700], [3200, 4900], [0, 5400], [-2600, 5000], [-5200, 5300], [-7600, 4300], [-9800, 4600], [-11800, 3200], [-14000, 2900], [-16800, 1200]];
+const urbePath = (G) => ptsPath(refinar(URBE.map(([u, v]) => uvG(u, v)), true, G.k, G.vb, 5).map(G.n));
+function urbe(g, V, G, L, k) {
+  const p = urbePath(G);
+  g.save(); g.fillStyle = k >= 5 ? C.roofL : C.stone; g.fill(p); g.clip(p);
+  g.fillStyle = C.roof; dots(g, V, V.x0, V.y0, V.x1, V.y1, k >= 5 ? 5 : 6, PI / 4, (x, y) => (k >= 5 ? 1.8 : 1.9 + 0.5 * Math.sin(x * 0.05) * Math.sin(y * 0.043)));
+  if (k < 5) { g.fillStyle = C.greyDk; g.globalAlpha = 0.6; dots(g, V, V.x0, V.y0, V.x1, V.y1, 9, PI / 12, (x, y) => 1.4 * cl(Math.sin(x * 0.021 + 1) * Math.cos(y * 0.027))); g.globalAlpha = 1; }
+  g.restore();
+  g.lineWidth = k >= 5 ? 2.6 : 3; g.strokeStyle = C.ink; g.stroke(p);
+}
+
+// ---------- plano 4 (10⁴ m): la ciudad ----------
+function lineaLocal(g, G, P, w, col, borde = 2.4) {
+  const R = P.map(([u, v]) => G.n(uvG(u, v)));
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  g.beginPath(); R.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+  g.strokeStyle = C.ink; g.lineWidth = w + 2 * borde; g.stroke(); g.strokeStyle = col; g.lineWidth = w; g.stroke();
+}
+function nivel4(g, V) {
+  geoBase(g, V, 4, (G, Tp, L) => {
+    const pm = 412 / 1e4;                         // px por metro en este plano
+    g.save(); g.clip(Tp);
+    // la sierra detrás de la ciudad: lomas con curvas de nivel y picos pequeños
+    for (const [P, wd] of [[[[-17000, 7600], [-11000, 7700], [-6000, 7300], [-1500, 7000], [3000, 7100], [7500, 7600], [13000, 8600]], 2900], [[[-17000, 13800], [-8000, 13200], [1000, 13700], [9000, 13000], [16000, 14200]], 3200]]) {
+      const R = P.map(([u, v]) => G.n(uvG(u, v))), w = wd * pm;
+      g.fillStyle = C.greenDk; g.globalAlpha = 0.45; ribbon(g, R, () => w); g.globalAlpha = 1;
+      g.strokeStyle = 'rgba(23,21,27,0.55)'; g.lineWidth = 1.8;
+      for (const f of [-0.55, -0.15, 0.25, 0.6]) { g.beginPath(); R.forEach(([x, y], i) => { const a = R[Math.max(0, i - 1)], b = R[Math.min(R.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1, nx = -dy / d * w * f, ny = dx / d * w * f; if (i) g.lineTo(x + nx, y + ny); else g.moveTo(x + nx, y + ny); }); g.stroke(); }
+      g.strokeStyle = C.ink; g.lineWidth = 2.2;
+      for (let i = 0; i < R.length - 1; i++) for (let s2 = 0.1; s2 < 1; s2 += 0.16) { const x = lerp(R[i][0], R[i + 1][0], s2) + (hsh(i, s2 * 100 | 0) - 0.5) * w * 0.6, y = lerp(R[i][1], R[i + 1][1], s2) + (hsh(s2 * 100 | 0, i) - 0.5) * w * 0.6, hh = 9 + 6 * hsh(i * 7, s2 * 50 | 0); g.beginPath(); g.moveTo(x - hh, y + hh * 0.45); g.lineTo(x, y - hh * 0.5); g.lineTo(x + hh, y + hh * 0.45); g.stroke(); }
+    }
+    urbe(g, V, G, L, 4);
+    // otra ciudad, detrás de la sierra
+    { const P = refinar([[-3600, 9400], [2600, 9100], [4600, 10600], [3000, 12000], [-2200, 11800], [-4600, 10600]].map(([u, v]) => uvG(u, v)), true, G.k, G.vb, 5).map(G.n), p = ptsPath(P); g.fillStyle = C.stone; g.fill(p); g.save(); g.clip(p); g.fillStyle = C.roof; dots(g, V, V.x0, V.y0, V.x1, V.y1, 6, PI / 4, () => 1.8); g.restore(); g.lineWidth = 2.6; g.strokeStyle = C.ink; g.stroke(p); }
+    // calles: rejilla irregular en la ciudad y, en el ensanche, las manzanas una a una
+    g.save(); g.clip(urbePath(G));
+    g.strokeStyle = 'rgba(23,21,27,0.25)'; g.lineWidth = 1;
+    for (let u = -16000; u <= 13000; u += 520) lineaLocalFina(g, G, [[u + 300 * Math.sin(u * 0.001), -6000], [u - 200, 6000]]);
+    for (let v = -6000; v <= 6000; v += 480) lineaLocalFina(g, G, [[-16500, v], [13000, v + 400 * Math.sin(v * 0.0013)]]);
+    g.save(); aLocal(g, 4);
+    const VL = vistaLocal(V, 4), pmL = 0.0412;
+    for (let i = -26; i <= 26; i++) for (let j = -9; j <= 28; j++) {
+      const cx = (i + 0.5) * RJ.paso - RJ.ox, cy = (j + 0.5) * RJ.paso - RJ.oy;
+      if (Math.abs(cx) > 3600 - Math.max(0, cy - 2600) * 0.7 || cy < -1050 || cy > 3700 || enParque(cx, cy)) continue;
+      if (cx < VL.x0 - 200 || cx > VL.x1 + 200 || cy < VL.y0 - 200 || cy > VL.y1 + 200) continue;
+      const O = ptsPath(manzanaPts(i, j));
+      g.fillStyle = hsh(i + 50, j + 50) < 0.6 ? C.roofL : C.roof; g.fill(O);
+      g.lineWidth = 0.7 / pmL; g.strokeStyle = 'rgba(23,21,27,0.4)'; g.stroke(O);
+      const I = manzanaPts(i, j, RJ.fondo); g.fillStyle = C.greenL; g.fillRect(I[7][0], I[0][1], I[3][0] - I[7][0], I[4][1] - I[0][1]);
+    }
+    g.restore();
+    // avenidas
+    lineaLocal(g, G, [[-7000, 5200], [-2500, 3000], [1500, 1200], [5600, -700], [7400, -1600]], 3.5, C.white, 2);
+    lineaLocal(g, G, [[-12000, 1190], [12000, 1190]], 3, C.white, 2);
+    lineaLocal(g, G, [[340, -1200], [340, 3900], [600, 6000]], 3, C.white, 2);
+    lineaLocal(g, G, [[2600, 400], [6000, 3200], [9500, 5600]], 3, C.white, 2);
+    g.restore();
+    // montaña junto al puerto y parques, con curvas de nivel
+    for (const [u, v, r] of [[-2700, -1350, 850], [1100, -950, 380], [-500, 3900, 330], [-6800, 2600, 300]]) {
+      const [x, y] = G.n(uvG(u, v)), rr = r * pm; const p = new Path2D(); p.arc(x, y, rr, 0, TAU);
+      pieza(g, V, p, C.green, [x - rr, y - rr, x + rr, y + rr], [{ col: C.greenDk, sp: 5, rf: (xx, yy) => 2 * cl((xx - x + yy - y) / rr * 0.7 + 0.3) }], 2.6);
+      if (r > 500) { g.strokeStyle = 'rgba(23,21,27,0.5)'; g.lineWidth = 1.6; for (const k2 of [0.62, 0.3]) { g.beginPath(); g.ellipse(x - rr * 0.08, y - rr * 0.08, rr * k2, rr * k2 * 0.9, 0.4, 0, TAU); g.stroke(); } }
+    }
+    // ríos y rondas
+    lineaLocal(g, G, [[-15500, 11000], [-13500, 7000], [-12300, 3500], [-11000, 600], [-10200, -1500], [-9600, -3200]], 4.5, C.cyan);
+    lineaLocal(g, G, [[10500, 10000], [8600, 6000], [7400, 2600], [6800, 0], [6500, -1600]], 3.5, C.cyan);
+    lineaLocal(g, G, [[-10500, 4300], [-7600, 4700], [-5000, 4900], [-2500, 4700], [0, 5000], [3200, 4600], [6200, 4300], [8800, 3000], [11500, 1400]], 4, C.yellow);
+    lineaLocal(g, G, [[-8800, -2200], [-6500, -1900], [-4500, -1700], [-2000, -1500], [0, -1180], [3000, -1050], [6200, -1150]], 4, C.yellow);
+    // aeropuerto en el delta
+    { const [x, y] = G.n(uvG(-12300, -1500)); g.save(); g.translate(x, y); g.rotate(Math.atan2(LOC.U[1], LOC.U[0])); const b = new Path2D(); b.roundRect(-80, -24, 160, 48, 6); pieza(g, V_DUMMY, b, C.grey, null, null, 2.6); g.fillStyle = C.asphaltDk; g.fillRect(-70, -14, 140, 7); g.fillRect(-60, 6, 120, 7); g.fillStyle = C.white; for (let q = -60; q < 60; q += 16) g.fillRect(q, -11, 8, 1.5); g.restore(); }
+    g.restore();
+    // el puerto: dique de abrigo y muelles
+    lineaLocal(g, G, [[-2300, -2050], [-3600, -2700], [-5600, -3350], [-7400, -3800]], 6, C.grey, 2.6);
+    for (const [u0, v0, u1, v1] of [[-3300, -1850, -3700, -2450], [-4300, -2050, -4700, -2800], [-5400, -2300, -5800, -3100], [-6400, -2600, -6700, -3400]]) lineaLocal(g, G, [[u0, v0], [u1, v1]], 7, C.stone, 2.2);
+    // playas
+    g.save(); g.clip(Tp); g.strokeStyle = C.sand; g.lineWidth = 10; g.lineJoin = 'round'; g.beginPath();
+    { const R = refinar(POL.eurasia.P, true, G.k, G.vb, 6).map(G.n); R.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); }
+    g.stroke(); g.restore();
+  });
+}
+function lineaLocalFina(g, G, P) { const R = P.map(([u, v]) => G.n(uvG(u, v))); g.beginPath(); R.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke(); }
+
+// ---------- plano 3 (10³ m): el barrio, la playa y el mar ----------
+function nivel3(g, V) {
+  geoBase(g, V, 3, (G, Tp, L) => {
+    g.save(); g.clip(Tp);
+    g.fillStyle = C.grey; g.fill(Tp);
+    g.save(); aLocal(g, 3);
+    const VL = vistaLocal(V, 3), pm = 0.412;
+    const I0 = Math.floor((VL.x0 + RJ.ox) / RJ.paso) - 1, I1 = Math.ceil((VL.x1 + RJ.ox) / RJ.paso), J0 = Math.floor((VL.y0 + RJ.oy) / RJ.paso) - 1, J1 = Math.ceil((VL.y1 + RJ.oy) / RJ.paso);
+    g.fillStyle = C.greyDk; dots(g, VL, VL.x0, VL.y0, VL.x1, VL.y1, 20, PI / 4, () => 3.6);
+    for (let i = I0; i <= I1; i++) for (let j = J0; j <= J1; j++) {
+      const cx = (i + 0.5) * RJ.paso - RJ.ox, cy = (j + 0.5) * RJ.paso - RJ.oy;
+      if (enParque(cx, cy)) continue;
+      const O = ptsPath(manzanaPts(i, j)), I = ptsPath(manzanaPts(i, j, RJ.fondo));
+      const h = hsh(i + 50, j + 50);
+      g.fillStyle = h < 0.55 ? C.roof : h < 0.8 ? C.roofL : '#d7b38c'; g.fill(O);
+      g.fillStyle = C.greenL; g.fill(I);
+      g.lineWidth = 1.5 / pm; g.strokeStyle = C.ink; g.stroke(O);
+      g.lineWidth = 1 / pm; g.stroke(I);
+    }
+    // sombra de trama en los tejados
+    g.fillStyle = 'rgba(23,21,27,0.45)'; dots(g, VL, VL.x0, VL.y0, VL.x1, VL.y1, 9, PI / 4, () => 1.2);
+    // avenidas anchas con árboles
+    const av = (P, w) => { g.lineCap = 'butt'; g.beginPath(); P.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.strokeStyle = C.ink; g.lineWidth = w + 4 / pm; g.stroke(); g.strokeStyle = C.grey; g.lineWidth = w; g.stroke(); g.setLineDash([3 / pm, 4 / pm]); g.strokeStyle = C.green; g.lineWidth = w * 0.7; g.stroke(); g.setLineDash([]); };
+    av([[-2600, 1190], [2600, 1190]], 50);
+    av([[-2900, 2600], [-600, 1300], [2900, -700]], 50);
+    av([[340, -1500], [340, 2600]], 60);
+    // parque con lago y caminos
+    const pq = rectP({ x0: PARQUE.u0, y0: PARQUE.v0, x1: PARQUE.u1, y1: PARQUE.v1 });
+    pieza(g, VL, pq, C.green, [PARQUE.u0, PARQUE.v0, PARQUE.u1, PARQUE.v1], [{ col: C.greenDk, sp: 16, rf: () => 4 }], 2 / pm);
+    const lago = new Path2D(); lago.ellipse(1250, -980, 120, 70, 0.3, 0, TAU); g.fillStyle = C.cyan; g.fill(lago); g.lineWidth = 1.6 / pm; g.strokeStyle = C.ink; g.stroke(lago);
+    g.strokeStyle = C.stone; g.lineWidth = 12; g.beginPath(); g.moveTo(PARQUE.u0, -1000); g.quadraticCurveTo(1000, -760, 1100, -900); g.moveTo(800, PARQUE.v0); g.lineTo(950, PARQUE.v1); g.stroke();
+    for (let n = 0; n < 40; n++) { const x = lerp(PARQUE.u0 + 30, PARQUE.u1 - 30, hsh(n, 1)), y = lerp(PARQUE.v0 + 30, PARQUE.v1 - 30, hsh(n, 2)); g.beginPath(); g.arc(x, y, 16, 0, TAU); g.fillStyle = C.greenDk; g.fill(); g.lineWidth = 1.2 / pm; g.strokeStyle = C.ink; g.stroke(); }
+    g.restore();
+    // la playa: franja de arena a lo largo de la costa
+    g.strokeStyle = C.sand; g.lineWidth = 2 * 70 * pm * Math.pow(10, 0); g.lineJoin = 'round';
+    { const R = refinar(POL.eurasia.P, true, G.k, G.vb, 6).map(G.n); g.beginPath(); R.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke(); }
+    g.restore();
+    // espigones y muelles en el mar
+    g.save(); aLocal(g, 3);
+    const pm2 = 0.412;
+    for (let u = 0; u < 3000; u += 450) { const p = new Path2D(); p.moveTo(u, -1500); p.lineTo(u + 40, -1680); g.lineCap = 'round'; g.strokeStyle = C.ink; g.lineWidth = 7 / pm2; g.stroke(p); g.strokeStyle = C.grey; g.lineWidth = 3.4 / pm2; g.stroke(p); }
+    for (const [x0, y0, x1, y1] of [[-2600, -2000, -1900, -1700], [-2700, -2600, -2050, -2250], [-2900, -1600, -2500, -1350]]) { const b = rectP({ x0, y0, x1, y1 }); g.fillStyle = C.grey; g.fill(b); g.lineWidth = 2.4 / pm2; g.strokeStyle = C.ink; g.stroke(b); }
+    g.restore();
+    // olas
+    g.save(); const mar = new Path2D(); mar.rect(PP.x0 - 100, PP.y0 - 100, PWd + 200, PHt + 200); mar.addPath(Tp); g.clip(mar, 'evenodd');
+    g.strokeStyle = 'rgba(255,250,238,0.85)'; g.lineWidth = 2.6; g.lineCap = 'round';
+    for (let n = 0; n < 90; n++) { const x = PP.x0 + hsh(n, 7) * PWd, y = PP.y0 + hsh(n, 8) * PHt; g.beginPath(); g.arc(x, y, 10, PI * 1.15, PI * 1.85); g.arc(x + 17, y, 10, PI * 1.15, PI * 1.85); g.stroke(); }
+    g.restore();
+    void L;
+  });
+}
+
+// =====================================================================================
+// El espacio (planos 7 a 21). Unidades del mundo: px del plano 7 (1 u = 24,3 km); la Tierra
+// en el origen. En el instante de cámara z, 1 u mide 10^(7−z) px.
+// =====================================================================================
+const UMET = 412 / 1e7;                        // unidades por metro
+const UA = 1.496e11 * UMET, R_SOL = 6.96e8 * UMET, R_TIERRA = GLOBO.R, R_LUNA = 1.737e6 * UMET, D_LUNA = 3.844e8 * UMET;
+const TIERRA9 = { x: 420, y: 604 }, SOL9 = { x: 1150, y: 566 };   // composición en [sol]
+const C9 = [(PC.x - TIERRA9.x) * 100, (PC.y - TIERRA9.y) * 100];   // centro de cámara en z = 9
+const SOLW = [(SOL9.x - TIERRA9.x) * 100, (SOL9.y - TIERRA9.y) * 100];
+const LUNA_ANG = -0.62;
+const RG = 380e14;                              // radio de la galaxia (380 px en z = 21)
+const SOL_GAL = { r: 0.56 * RG, a: 0.66 };      // el Sol, visto desde el centro de la galaxia
+const GALW = [SOLW[0] - SOL_GAL.r * Math.cos(SOL_GAL.a), SOLW[1] - SOL_GAL.r * Math.sin(SOL_GAL.a)];
+const F9 = { x: PC.x - C9[0] / 90, y: PC.y - C9[1] / 90 };
+
+// Cámara del espacio: devuelve la posición en pantalla del origen (ax, ay) y la escala s.
+function camEsp(z, pan = 0) {
+  const s = Math.pow(10, 7 - z);
+  if (z < 7) { const F = QS[7].F; return { ax: F.x + (PC.x - F.x) * s, ay: F.y + (PC.y - F.y) * s, s, c: [0, 0] }; }
+  if (z <= 8) return { ax: PC.x, ay: PC.y, s, c: [0, 0] };
+  if (z < 9) { const m = Math.pow(10, 9 - z); const ax = F9.x + (PC.x - C9[0] * 0.01 - F9.x) * m, ay = F9.y + (PC.y - C9[1] * 0.01 - F9.y) * m; return { ax, ay, s, c: [(PC.x - ax) / s, (PC.y - ay) / s] }; }
+  const k = sstep(9.15, 10.6, z);
+  let cx = lerp(C9[0], SOLW[0], k), cy = lerp(C9[1], SOLW[1], k);
+  cx += (GALW[0] - SOLW[0]) * pan; cy += (GALW[1] - SOLW[1] + 20 / s) * pan;
+  return { ax: PC.x - cx * s, ay: PC.y - cy * s, s, c: [cx, cy] };
+}
+// Dónde está la Tierra: junto al Sol hasta z ≈ 9,6 (licencia de cómic) y en su órbita real desde 10,6.
+function posTierra(z) {
+  if (z <= 10.1) return [0, 0];
+  const d = Math.hypot(SOLW[0], SOLW[1]), ux = -SOLW[0] / d, uy = -SOLW[1] / d;
+  return [SOLW[0] + ux * UA, SOLW[1] + uy * UA];
+}
+const alfaTierraDot = (z) => 1 - sstep(9.55, 9.8, z) + sstep(10.6, 10.9, z);
+
+// ---------- fondo del espacio ----------
+let FONDO_ESP = null;
+function construirFondoEsp() {
+  FONDO_ESP = sprite(PP.x0 - 60, PP.y0 - 60, PWd + 120, PHt + 120, (g) => {
+    g.fillStyle = C.space; g.fillRect(PP.x0 - 60, PP.y0 - 60, PWd + 120, PHt + 120);
+    g.fillStyle = C.navyDk; dots(g, VISTA0, PP.x0 - 60, PP.y0 - 60, PP.x1 + 60, PP.y1 + 60, 11, PI / 4, (x, y) => 4.6 * Math.pow(cl(Math.hypot(x - PC.x, (y - PC.y) * 1.5) / 1000), 0.8));
+    g.fillStyle = C.blue; g.globalAlpha = 0.55; dots(g, VISTA0, PP.x0 - 60, PP.y0 - 60, PP.x1 + 60, PP.y1 + 60, 15, PI / 12, (x, y) => 3.4 * Math.pow(cl(1 - Math.hypot(x - PC.x, (y - PC.y) * 1.5) / 900), 1.4)); g.globalAlpha = 1;
+    const r = rng(404);
+    for (let i = 0; i < 260; i++) { const x = PP.x0 + r() * PWd, y = PP.y0 + r() * PHt, s = r(); g.beginPath(); g.arc(x, y, 0.8 + s * 1.5, 0, TAU); g.fillStyle = s > 0.85 ? C.yellowL : 'rgba(205,235,245,0.75)'; g.fill(); }
+    for (let i = 0; i < 18; i++) { const x = PP.x0 + r() * PWd, y = PP.y0 + r() * PHt; destello(g, x, y, 5 + r() * 5); g.fillStyle = C.yellowL; g.fill(); }
+  }, 1);
+}
+
+// ---------- el globo ----------
+// Nubes: bandas de cúmulos (lat, lon de inicio y de fin, tamaño en grados) y un ciclón.
+const NUBES = (() => {
+  const B = [[60,-40, 47,-14, 3.2], [54,-48, 40,-30, 2.4], [8,-35, 7,-5, 2.0], [6,8, 4,32, 2.2], [-8,-30, -2,-12, 1.8], [-32,-30, -44,12, 3.0], [35,-62, 26,-40, 2.0], [64,-5, 66,25, 2.6], [-12,52, -24,72, 2.6], [20,-58, 14,-42, 1.6], [48,10, 52,24, 1.6]];
+  const r = rng(71), L = [];
+  for (const [a0, b0, a1, b1, sz] of B) { const n = 9; for (let i = 0; i < n; i++) { const u = i / (n - 1); L.push([lerp(a0, a1, u) + (r() - 0.5) * sz * 0.9, lerp(b0, b1, u) + (r() - 0.5) * sz * 1.2, sz * (0.45 + 0.75 * Math.sin(PI * u) * (0.6 + 0.4 * r()))]); } }
+  // ciclón en el Atlántico norte: espiral de cúmulos que se achican hacia el ojo
+  for (let i = 0; i < 16; i++) { const u = i / 15, a = 0.6 + u * 5.2, d = 8.5 * (1 - u * 0.85); L.push([55 + Math.sin(a) * d * 0.75, -26 + Math.cos(a) * d, 2.6 * (1 - u * 0.6)]); }
+  return L;
+})();
+// Dibuja el globo de radio R con centro (cx, cy). V: caja visible en pantalla.
+function globo(g, cx, cy, R, V) {
+  const k = R / GLOBO.R;
+  const G = { k: k, vb: [PC.x + (V.x0 - cx) / k, PC.y + (V.y0 - cy) / k, PC.x + (V.x1 - cx) / k, PC.y + (V.y1 - cy) / k], n: (p) => [cx + (p[0] - PC.x) * k, cy + (p[1] - PC.y) * k] };
+  const disco = new Path2D(); disco.arc(cx, cy, R, 0, TAU);
+  // atmósfera
+  g.save(); g.beginPath(); g.arc(cx, cy, R + Math.max(3, R * 0.045), 0, TAU); g.fillStyle = C.cyan; g.fill();
+  g.beginPath(); g.arc(cx, cy, R + Math.max(1.5, R * 0.02), 0, TAU); g.fillStyle = C.cyanL; g.fill(); g.restore();
+  g.save(); g.clip(disco);
+  g.fillStyle = C.sea; g.fill(disco);
+  g.fillStyle = C.seaDk; dots(g, V, cx - R, cy - R, cx + R, cy + R, Math.max(4, 9 * Math.min(1, k)), PI / 4, (x, y) => { const d = Math.hypot(x - cx, y - cy) / R; return 1.2 + 2.2 * Math.pow(d, 3); });
+  const Tp = tierraPath(G), Ap = aguaPath(G);
+  g.lineJoin = 'round';
+  g.strokeStyle = C.white; g.lineWidth = Math.max(1.5, 3 * k); g.globalAlpha = 0.8; g.stroke(Tp); g.globalAlpha = 1;
+  tierraColor(g, V, G, Tp, k);
+  g.save(); g.clip(Tp); cordilleras(g, V, G, k * 0.8, false); g.restore();
+  g.fillStyle = C.sea; g.fill(Ap);
+  g.lineWidth = Math.max(1.6, 2.6 * Math.min(1.4, k)); g.strokeStyle = C.ink; g.stroke(Tp); g.stroke(Ap);
+  // nubes de cómic
+  const nb = new Path2D(), cosOf = (la, lo) => { const f = la * RAD, l = (lo - GLOBO.lon0) * RAD, f0 = GLOBO.lat0 * RAD; return Math.sin(f0) * Math.sin(f) + Math.cos(f0) * Math.cos(f) * Math.cos(l); };
+  for (const [la, lo, sz] of NUBES) {
+    const cosc = cosOf(la, lo); if (cosc < 0.1) continue;
+    const [x, y] = G.n(geoG(la, lo)), r = sz * 1.15 * 4.58 * k * Math.sqrt(cosc);
+    nb.moveTo(x + r, y); nb.arc(x, y, r, 0, TAU);
+  }
+  g.lineWidth = Math.max(2, 5 * k); g.strokeStyle = C.ink; g.stroke(nb);
+  g.fillStyle = C.white; g.fill(nb);
+  g.save(); g.clip(nb); g.fillStyle = C.cyanL; dots(g, V, cx - R, cy - R, cx + R, cy + R, Math.max(3.5, 6 * Math.min(1, k)), PI / 4, (x, y) => 1.8 * cl(((x - cx) * 0.5 + (y - cy) * 0.6) / R + 0.3)); g.restore();
+  // sombra: trama de tinta hacia el lado oscuro, negro macizo y brillo
+  g.fillStyle = C.ink; g.globalAlpha = 0.8;
+  dots(g, V, cx - R, cy - R, cx + R, cy + R, Math.max(4, 8 * Math.min(1, k)), PI / 4, (px, py) => {
+    const dx = (px - cx) / R, dy = (py - cy) / R, nz = Math.sqrt(Math.max(0, 1 - dx * dx - dy * dy));
+    const l = dx * LIGHT[0] + dy * LIGHT[1] + nz * LIGHT[2];
+    return Math.max(4, 8 * Math.min(1, k)) * 0.58 * Math.pow(cl((0.55 - l) / 0.7), 1.2);
+  });
+  g.globalAlpha = 1;
+  g.beginPath(); g.rect(cx - R - 4, cy - R - 4, 2 * R + 8, 2 * R + 8); g.arc(cx - 0.12 * R, cy - 0.16 * R, R * 1.06, 0, TAU);
+  g.fillStyle = C.ink; g.fill('evenodd');
+  g.restore();
+  g.beginPath(); g.arc(cx, cy, R * 0.9, PI * 1.08, PI * 1.38); g.lineWidth = Math.max(1.5, R * 0.022); g.lineCap = 'round'; g.strokeStyle = 'rgba(255,250,238,0.9)'; g.stroke();
+  g.beginPath(); g.arc(cx, cy, R * 0.9, PI * 1.43, PI * 1.47); g.stroke();
+  g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.lineWidth = Math.max(2.4, 6 * Math.min(1.5, k)); g.strokeStyle = C.ink; g.stroke();
+}
+let GLOBO_SP = null;
+function construirGlobo() { const r = GLOBO.R + 16; GLOBO_SP = sprite(-r, -r, 2 * r, 2 * r, (g) => globo(g, 0, 0, GLOBO.R, { s: 1, x0: -r, y0: -r, x1: r, y1: r }), 1.2); }
+function globoEn(g, cx, cy, R, V) {
+  if (R < 1.2) return;
+  if (R <= GLOBO.R * 1.03) { blit(g, GLOBO_SP, cx, cy, R / GLOBO.R); return; }
+  globo(g, cx, cy, R, V);
+}
+
+// ---------- el Sol ----------
+function solDisco(g, x, y, r, V) {
+  const disk = new Path2D(); disk.arc(x, y, r, 0, TAU);
+  g.save(); g.fillStyle = C.sun; g.fill(disk); g.clip(disk);
+  const sp = Math.max(5, Math.min(12, r * 0.035));
+  g.fillStyle = C.orange; dots(g, V, x - r, y - r, x + r, y + r, sp, PI / 4, (px, py) => sp * 0.62 * Math.pow(cl(Math.hypot(px - x, py - y) / r), 2.6) + sp * 0.1);
+  g.fillStyle = C.red; dots(g, V, x - r, y - r, x + r, y + r, sp * 1.3, PI / 12, (px, py) => sp * 0.7 * Math.pow(cl((Math.hypot(px - x, py - y) / r - 0.78) / 0.22), 1.3));
+  // granulación: manchitas de trama más clara y manchas solares
+  g.fillStyle = C.yellowL; for (let i = 0; i < 26; i++) { const a = hsh(i, 1) * TAU, d = Math.sqrt(hsh(i, 2)) * 0.8 * r; g.beginPath(); g.ellipse(x + Math.cos(a) * d, y + Math.sin(a) * d, r * 0.05, r * 0.035, a, 0, TAU); g.fill(); }
+  for (const [dx, dy, s] of [[0.28, 0.18, 0.06], [0.36, 0.26, 0.035], [-0.3, 0.38, 0.045]]) {
+    g.beginPath(); g.ellipse(x + dx * r, y + dy * r, s * r * 1.6, s * r * 1.2, 0.4, 0, TAU); g.fillStyle = C.orange; g.fill();
+    g.beginPath(); g.ellipse(x + dx * r, y + dy * r, s * r * 0.8, s * r * 0.6, 0.4, 0, TAU); g.fillStyle = C.ink; g.fill();
+  }
+  g.restore();
+  g.save(); g.translate(x - 0.4 * r, y - 0.44 * r); g.rotate(-0.7); g.beginPath(); g.ellipse(0, 0, 0.22 * r, 0.09 * r, 0, 0, TAU); g.fillStyle = 'rgba(255,250,238,0.9)'; g.fill(); g.restore();
+  g.lineWidth = Math.max(3, Math.min(9, r * 0.025)); g.strokeStyle = C.ink; g.stroke(disk);
+}
+let SOL_SP = null, R_SOL9 = 0;
+function construirSol() { R_SOL9 = R_SOL * 0.01; const r = R_SOL9 + 8; SOL_SP = sprite(-r, -r, 2 * r, 2 * r, (g) => solDisco(g, 0, 0, R_SOL9, { s: 1, x0: -r, y0: -r, x1: r, y1: r }), 1.1); }
+const CORONA = (() => { const r = rng(77), L = []; for (let i = 0; i < 34; i++) L.push({ a: (i + (r() - 0.5) * 0.4) / 34 * TAU, k: 1.18 + r() * 0.3, w: r() }); return L; })();
+function corona(g, x, y, r, t) {
+  const st = Math.floor(calma(t) * 10 + 1e-6);
+  const P = [];
+  CORONA.forEach((c, i) => {
+    const fl = 1 + 0.06 * (hsh(st, i) - 0.5);
+    P.push([x + Math.cos(c.a) * r * c.k * fl, y + Math.sin(c.a) * r * c.k * fl]);
+    const a2 = c.a + TAU / 68; P.push([x + Math.cos(a2) * r * 1.04, y + Math.sin(a2) * r * 1.04]);
+  });
+  poly(g, P); g.fillStyle = C.orange; g.fill();
+  g.save(); g.clip(); g.fillStyle = C.red; dots(g, VISTA_PANTALLA, x - r * 1.5, y - r * 1.5, x + r * 1.5, y + r * 1.5, Math.max(6, r * 0.03), PI / 4, (px, py) => Math.max(6, r * 0.03) * 0.5 * cl((Math.hypot(px - x, py - y) / r - 1.05) / 0.3)); g.restore();
+  poly(g, P); g.lineJoin = 'miter'; g.miterLimit = 8; g.lineWidth = Math.max(3, Math.min(7, r * 0.02)); g.strokeStyle = C.ink; g.stroke();
+  // protuberancias
+  for (const [a, s] of [[-2.5, 1], [0.9, 0.8], [2.2, 0.6]]) {
+    const P2 = []; for (let i = 0; i <= 16; i++) { const u = i / 16, aa = a + (u - 0.5) * 0.34 * s, rr = r * (1 + 0.24 * s * Math.sin(PI * u)); P2.push([x + Math.cos(aa) * rr, y + Math.sin(aa) * rr]); }
+    g.fillStyle = C.ink; ribbon(g, P2, (u) => r * 0.028 * s * Math.sin(PI * u) + 2.5);
+    g.fillStyle = C.red; ribbon(g, P2, (u) => r * 0.02 * s * Math.sin(PI * u));
+  }
+}
+const VISTA_PANTALLA = { s: 1, x0: PP.x0 - 40, y0: PP.y0 - 40, x1: PP.x1 + 40, y1: PP.y1 + 40 };
+function solEn(g, x, y, r, t) {
+  if (r < 7) {   // estrella brillante
+    const s = 15;
+    g.beginPath(); g.arc(x, y, s * 1.3, 0, TAU); g.fillStyle = 'rgba(246,205,42,0.3)'; g.fill();
+    destello(g, x, y, s * 1.4); g.fillStyle = C.yellow; g.fill(); g.lineWidth = 2.5; g.strokeStyle = C.ink; g.stroke();
+    g.beginPath(); g.arc(x, y, Math.max(5.5, r), 0, TAU); g.fillStyle = C.yellowL; g.fill(); g.lineWidth = 2; g.stroke();
+    g.beginPath(); g.arc(x - 1.5, y - 1.5, 2, 0, TAU); g.fillStyle = C.white; g.fill();
+    return;
+  }
+  // halo de trama amarilla: llega antes que el Sol
+  const rh = r * 2.6;
+  if (!(x + rh < PP.x0 || x - rh > PP.x1 || y + rh < PP.y0 || y - rh > PP.y1)) {
+    const x0 = Math.max(PP.x0 - 20, x - rh), x1 = Math.min(PP.x1 + 20, x + rh), y0 = Math.max(PP.y0 - 20, y - rh), y1 = Math.min(PP.y1 + 20, y + rh);
+    g.fillStyle = C.orange; g.globalAlpha = 0.85;
+    dots(g, VISTA0, x0, y0, x1, y1, 10, PI / 4, (px, py) => 4.6 * Math.pow(cl(1 - (Math.hypot(px - x, py - y) / r - 1) / 1.6), 1.6));
+    g.fillStyle = C.yellow; g.globalAlpha = 1;
+    dots(g, VISTA0, x0, y0, x1, y1, 10, PI / 12, (px, py) => 3.6 * Math.pow(cl(1 - (Math.hypot(px - x, py - y) / r - 1) / 1.1), 1.8));
+  }
+  if (x + r * 1.6 < PP.x0 || x - r * 1.6 > PP.x1 || y + r * 1.6 < PP.y0 || y - r * 1.6 > PP.y1) return;
+  corona(g, x, y, r, t);
+  if (Math.abs(r - R_SOL9) / R_SOL9 < 0.04) blit(g, SOL_SP, x, y, r / R_SOL9);
+  else solDisco(g, x, y, r, VISTA_PANTALLA);
+}
+
+// ---------- planetas, cinturones y estrellas ----------
+const PLANETAS = [
+  { d: 0.387, col: C.grey, r: 5, a: 2.2 }, { d: 0.723, col: C.yellowL, r: 6, a: 4.0 },
+  { d: 1.524, col: C.red, r: 5.5, a: 5.3 }, { d: 5.2, col: C.orange, r: 11, a: 0.9 }, { d: 9.58, col: C.sand, r: 9, a: 3.3, anillo: true },
+  { d: 19.2, col: C.cyanL, r: 7, a: 1.7 }, { d: 30.1, col: C.cyan, r: 7, a: 4.6 },
+];
+const CINTO = (() => { const r = rng(9), L = []; for (let i = 0; i < 160; i++) L.push([2.2 + r(), r() * TAU]); for (let i = 0; i < 240; i++) L.push([30 + 20 * r(), r() * TAU]); return L; })();
+const OORT = (() => { const r = rng(12), L = []; for (let i = 0; i < 520; i++) { const d = UA * Math.pow(10, 3.3 + 1.5 * r()); L.push([d * Math.cos(r() * TAU), d * Math.sin(r() * TAU) * (0.6 + 0.4 * r())]); } return L; })();
+const ESTRELLAS = (() => {
+  const r = rng(2024), L = [];
+  for (let i = 0; i < 520; i++) {
+    const d = Math.pow(10, 12.2 + r() * 4.7), a = r() * TAU, m = r();
+    L.push({ x: SOLW[0] + d * Math.cos(a), y: SOLW[1] + d * Math.sin(a), m, col: [C.white, C.yellowL, C.yellow, C.orange, C.cyanL, C.red][Math.floor(r() * 6)] });
+  }
+  return L;
+})();
+const NEBULOSAS = (() => { const r = rng(55), L = []; for (let i = 0; i < 7; i++) { const d = Math.pow(10, 14.6 + r() * 1.2), a = r() * TAU; L.push({ x: SOLW[0] + d * Math.cos(a), y: SOLW[1] + d * Math.sin(a), R: d * (0.18 + r() * 0.2), col: [C.magenta, C.cyan, C.red, C.magenta][i % 4], f: r() }); } return L; })();
+
+function orbita(g, x, y, R, alfa) {
+  if (alfa <= 0.01 || R < 4) return;
+  g.save(); g.globalAlpha = alfa;
+  g.beginPath(); g.arc(x, y, R, 0, TAU); g.lineWidth = 5; g.strokeStyle = C.navyDk; g.stroke();
+  g.lineWidth = 2.6; g.strokeStyle = C.cyanL; g.stroke();
+  g.restore();
+}
+function planeta(g, x, y, r, col, anillo) {
+  if (anillo) { g.save(); g.translate(x, y); g.rotate(-0.4); g.beginPath(); g.ellipse(0, 0, r * 2.2, r * 0.7, 0, 0, TAU); g.lineWidth = 5; g.strokeStyle = C.ink; g.stroke(); g.lineWidth = 2.4; g.strokeStyle = C.sand; g.stroke(); g.restore(); }
+  sphere(g, x, y, r, col, Math.max(2.5, r * 0.5));
+}
+function espacio(g, z, t, cam) {
+  const { ax, ay, s } = cam, X = (w) => ax + w * s, Y = (w) => ay + w * s;
+  blit(g, FONDO_ESP, 0, 0);
+  const sx = X(SOLW[0]), sy = Y(SOLW[1]);
+  // nebulosas (campo de estrellas)
+  for (const nb of NEBULOSAS) {
+    const R = nb.R * s, x = X(nb.x), y = Y(nb.y), al = sstep(14, 60, R) * (1 - sstep(700, 1600, R)) * (1 - sstep(19.6, 20.4, z));
+    if (al < 0.02 || x + R < PP.x0 || x - R > PP.x1 || y + R < PP.y0 || y - R > PP.y1) continue;
+    g.save(); g.globalAlpha = al; g.fillStyle = nb.col;
+    dots(g, VISTA_PANTALLA, x - R, y - R, x + R, y + R, Math.max(5, R * 0.05), PI / 4, (px, py) => { const d = Math.hypot((px - x) / R, (py - y) / (R * 0.7)); return Math.max(5, R * 0.05) * 0.55 * Math.pow(cl(1 - d), 0.9) * (0.7 + 0.3 * Math.sin(px * 0.02 + nb.f * 9) * Math.cos(py * 0.017)); });
+    g.restore();
+  }
+  // estrellas: se acercan al centro al alejarse la cámara
+  for (const e of ESTRELLAS) {
+    const x = X(e.x), y = Y(e.y), d = Math.hypot(x - sx, y - sy);
+    const al = sstep(10, 40, d) * (1 - sstep(19.5, 20.3, z)) * sstep(14.8, 15.6, z);
+    if (al < 0.03 || x < PP.x0 - 20 || x > PP.x1 + 20 || y < PP.y0 - 20 || y > PP.y1 + 20) continue;
+    g.save(); g.globalAlpha = al;
+    if (e.m > 0.9) { destello(g, x, y, 7 + 9 * (e.m - 0.9) / 0.1); g.fillStyle = e.col; g.fill(); g.lineWidth = 2; g.strokeStyle = C.ink; g.stroke(); }
+    else { g.beginPath(); g.arc(x, y, 1.4 + e.m * 2.6, 0, TAU); g.fillStyle = e.col; g.fill(); }
+    g.restore();
+  }
+  // nube de cometas
+  { const al = sstep(14.0, 14.6, z) * (1 - sstep(16.6, 17.4, z));
+    if (al > 0.02) { g.save(); g.globalAlpha = al; g.fillStyle = C.cyanL; for (const [wx, wy] of OORT) { const x = sx + wx * s, y = sy + wy * s; if (x < PP.x0 || x > PP.x1 || y < PP.y0 || y > PP.y1 || Math.hypot(x - sx, y - sy) < 8) continue; g.beginPath(); g.arc(x, y, 2.4, 0, TAU); g.fill(); } g.restore(); } }
+  // burbuja del viento solar (heliosfera)
+  { const R = 120 * UA * s, al = sstep(12.5, 12.9, z) * (1 - sstep(14.6, 15.3, z));
+    if (al > 0.02 && R > 12) {
+      g.save(); g.globalAlpha = al;
+      const x0 = Math.max(PP.x0, sx - R * 1.4), x1 = Math.min(PP.x1, sx + R * 1.4), y0 = Math.max(PP.y0, sy - R * 1.2), y1 = Math.min(PP.y1, sy + R * 1.2);
+      g.fillStyle = C.cyan; dots(g, VISTA0, x0, y0, x1, y1, 8, PI / 4, (px, py) => { const d = Math.hypot((px - sx) / (R * 1.25), (py - sy) / R); return 3.4 * Math.pow(cl((d - 0.55) / 0.45), 2) * (d < 1 ? 1 : 0); });
+      g.beginPath(); g.ellipse(sx, sy, R * 1.25, R, 0, 0, TAU); g.setLineDash([12, 10]); g.lineWidth = 3; g.strokeStyle = C.cyanL; g.stroke(); g.setLineDash([]);
+      g.restore();
+    } }
+  // cometas con su cola, siempre del lado contrario al Sol
+  { const al = sstep(10.8, 11.3, z) * (1 - sstep(13.8, 14.4, z));
+    if (al > 0.02) for (const [d, a, l] of [[3.6, 3.9, 1], [12, 0.5, 0.8], [26, 2.4, 0.9]]) {
+      const R = d * UA * s, x = sx + Math.cos(a) * R, y = sy + Math.sin(a) * R; if (R < 30 || x < PP.x0 || x > PP.x1 || y < PP.y0 || y > PP.y1) continue;
+      const ux = Math.cos(a), uy = Math.sin(a), L = 90 * l;
+      g.save(); g.globalAlpha = al;
+      const P = [[x, y], [x + ux * L * 0.5 - uy * 6, y + uy * L * 0.5 + ux * 6], [x + ux * L - uy * 14, y + uy * L + ux * 14]];
+      g.fillStyle = C.cyanL; ribbon(g, P, (u) => 7 * (1 - u) + 0.5);
+      g.fillStyle = C.white; ribbon(g, P.map(([px, py]) => [px, py]), (u) => 3.2 * (1 - u));
+      sphere(g, x, y, 5, C.white, 2.5);
+      g.restore();
+    } }
+  // cinturones de asteroides y de Kuiper
+  { const al = sstep(10.3, 10.8, z) * (1 - sstep(14.2, 15, z));
+    if (al > 0.02) { g.save(); g.globalAlpha = al; g.fillStyle = C.sand; for (const [d, a] of CINTO) { const R = d * UA * s; if (R < 6 || R > 2000) continue; g.beginPath(); g.arc(sx + Math.cos(a) * R, sy + Math.sin(a) * R, 1.6, 0, TAU); g.fill(); } g.restore(); } }
+  // órbitas y planetas
+  const alOrb = (R) => sstep(9, 26, R) * (1 - sstep(1300, 2600, R)) * sstep(10.2, 10.6, z);
+  for (const p of PLANETAS) {
+    const R = p.d * UA * s, al = alOrb(R);
+    if (al <= 0.01) continue;
+    orbita(g, sx, sy, R, al);
+    const x = sx + Math.cos(p.a) * R, y = sy + Math.sin(p.a) * R;
+    if (x > PP.x0 - 20 && x < PP.x1 + 20 && y > PP.y0 - 20 && y < PP.y1 + 20) { g.save(); g.globalAlpha = al; planeta(g, x, y, p.r, p.col, p.anillo); g.restore(); }
+  }
+  // la Tierra y la Luna
+  const [ex, ey] = posTierra(z), tx = X(ex), ty = Y(ey);
+  if (z > 10.5) orbita(g, sx, sy, Math.hypot(tx - sx, ty - sy), alOrb(Math.hypot(tx - sx, ty - sy)));
+  const lx = tx + Math.cos(LUNA_ANG) * D_LUNA * s, ly = ty + Math.sin(LUNA_ANG) * D_LUNA * s;
+  const alLuna = sstep(7.6, 8.1, z) * (1 - sstep(9.5, 9.75, z));
+  if (alLuna > 0.01) {
+    g.save(); g.globalAlpha = alLuna;
+    g.setLineDash([10, 9]); g.beginPath(); g.arc(tx, ty, D_LUNA * s, 0, TAU); g.lineWidth = 3.2; g.strokeStyle = C.cyanL; g.stroke(); g.setLineDash([]);
+    const rl = Math.max(9, R_LUNA * s);
+    if (lx + rl > PP.x0 - 40 && lx - rl < PP.x1 + 40 && ly + rl > PP.y0 - 40 && ly - rl < PP.y1 + 40) sphere(g, lx, ly, rl, C.moon, Math.max(3, Math.min(7, rl * 0.25)));
+    g.restore();
+  }
+  const RT = R_TIERRA * s, alT = alfaTierraDot(z);
+  if (RT > 5) globoEn(g, tx, ty, RT, VISTA_PANTALLA);
+  else if (alT > 0.01 && z < 13.2) {
+    g.save(); g.globalAlpha = alT * (1 - sstep(12.2, 13, z));
+    g.beginPath(); g.arc(tx, ty, 12, 0, TAU); g.lineWidth = 2.5; g.strokeStyle = C.cyanL; g.stroke();
+    sphere(g, tx, ty, Math.max(7, RT), C.sea, 3); g.restore();
+  }
+  // el Sol
+  if (z > 7.6) solEn(g, sx, sy, R_SOL * s, t);
+  // la galaxia
+  const RGs = RG * s;
+  if (z > 19) galaxiaEn(g, X(GALW[0]), Y(GALW[1]), RGs, sstep(19.2, 20.3, z), t);
+  return { sx, sy };
+}
+
+// ---------- la Vía Láctea ----------
+// Espiral barrada vista desde fuera: dos brazos mayores que salen de la barra y dos menores; el
+// Sol cae sobre uno menor. Todo se dibuja con trama sobre una función de densidad.
+const GAL = { b: 0.3, r0: 0.16, brazos: [{ f: 0, w: 1, r1: 1.0 }, { f: PI, w: 1, r1: 1.0 }, { f: PI / 2, w: 0.55, r1: 0.86 }, { f: 3 * PI / 2, w: 0.55, r1: 0.86 }] };
+GAL.rot = SOL_GAL.a - (Math.log(SOL_GAL.r / RG / GAL.r0) / GAL.b + PI / 2);
+const GAL_CB = Math.cos(GAL.rot), GAL_SB = Math.sin(GAL.rot);
+function densGal(x, y) {     // x, y en unidades del radio de la galaxia, centrada en el origen
+  const r = Math.hypot(x, y), th = Math.atan2(y, x);
+  const xb = x * GAL_CB + y * GAL_SB, yb = -x * GAL_SB + y * GAL_CB;
+  const barra = Math.exp(-((xb / 0.19) * (xb / 0.19) + (yb / 0.065) * (yb / 0.065)));
+  const bulbo = Math.max(Math.exp(-(r / 0.09) * (r / 0.09)), barra * 0.85);
+  const disco = Math.exp(-r / 0.34) * sstep(1.06, 0.7, r);
+  let br = 0, polvo = 0;
+  if (r > 0.07) {
+    const lr = Math.log(r / GAL.r0) / GAL.b;
+    for (const a of GAL.brazos) {
+      let d = th - (lr + a.f + GAL.rot); d = ((d % TAU) + TAU + PI) % TAU - PI;
+      const w = 0.07 + 0.11 * r, q = d * r / w;
+      const fin = sstep(a.r1 + 0.06, a.r1 - 0.22, r) * sstep(0.1, 0.19, r);
+      br = Math.max(br, a.w * Math.exp(-q * q) * fin);
+      if (a.w > 0.8) polvo = Math.max(polvo, Math.exp(-(q + 1.05) * (q + 1.05) * 5) * fin * sstep(0.9, 0.35, r));
+    }
+  }
+  return { disco, bulbo, br, polvo, r };
+}
+const GAL_HII = (() => { const r = rng(808), L = []; let n = 0; while (L.length < 110 && n++ < 20000) { const x = (r() * 2 - 1), y = (r() * 2 - 1); const D = densGal(x, y); if (D.br > 0.55 && D.r > 0.2 && r() < 0.6) L.push([x, y, 0.6 + r()]); } return L; })();
+const GAL_CUM = (() => { const r = rng(909), L = []; let n = 0; while (L.length < 30 && n++ < 20000) { const x = (r() * 2 - 1), y = (r() * 2 - 1); const D = densGal(x, y); if (D.br > 0.7 && D.r > 0.25 && r() < 0.3) L.push([x, y, 0.5 + r()]); } return L; })();
+const GAL_EST = (() => { const r = rng(919), L = []; let n = 0; while (L.length < 420 && n++ < 40000) { const x = (r() * 2 - 1), y = (r() * 2 - 1); const D = densGal(x, y); if (r() < D.disco * 0.8 + D.br * 0.5) L.push([x, y, 0.6 + r() * 1.2]); } return L; })();
+function brazoPts(a, cx, cy, R, r0 = 0.16) {
+  const P = []; for (let i = 0; i <= 70; i++) { const r = lerp(r0, a.r1, i / 70), th = Math.log(r / GAL.r0) / GAL.b + a.f + GAL.rot; P.push([cx + Math.cos(th) * r * R, cy + Math.sin(th) * r * R]); }
+  return P;
+}
+function galaxia(g, cx, cy, R, V, alfa) {
+  if (alfa <= 0.01) return;
+  const x0 = Math.max(V.x0, cx - R * 1.08), x1 = Math.min(V.x1, cx + R * 1.08), y0 = Math.max(V.y0, cy - R * 1.08), y1 = Math.min(V.y1, cy + R * 1.08);
+  if (x1 <= x0 || y1 <= y0) return;
+  const cache = new Map();
+  const D = (px, py) => { const k = (px * 8 | 0) * 100003 + (py * 8 | 0); let d = cache.get(k); if (!d) { d = densGal((px - cx) / R, (py - cy) / R); cache.set(k, d); } return d; };
+  g.save(); g.globalAlpha = alfa;
+  g.fillStyle = C.navy; dots(g, VISTA0, x0, y0, x1, y1, 11, PI / 4, (px, py) => { const d = D(px, py); return 6.2 * Math.pow(cl(d.disco * 2.2), 0.5); });
+  g.fillStyle = C.blue; dots(g, VISTA0, x0, y0, x1, y1, 9, PI / 12, (px, py) => { const d = D(px, py); return 5.0 * Math.pow(cl(d.disco * 1.5 + d.br * 0.6), 0.7); });
+  g.fillStyle = C.cyan; dots(g, VISTA0, x0, y0, x1, y1, 7, PI * 5 / 12, (px, py) => { const d = D(px, py); return 3.9 * Math.pow(cl(d.br * (0.55 + d.disco * 1.7) + d.disco * 0.25), 0.65); });
+  g.fillStyle = C.cyanL; dots(g, VISTA0, x0, y0, x1, y1, 6, PI / 4, (px, py) => { const d = D(px, py); return 3.2 * cl(d.br * (0.35 + d.disco * 2.4) - 0.15); });
+  g.fillStyle = C.navyDk; dots(g, VISTA0, x0, y0, x1, y1, 5, PI / 12, (px, py) => { const d = D(px, py); return 2.6 * cl(d.polvo * 1.3 - 0.15) * cl(d.disco * 3); });
+  g.fillStyle = C.orange; dots(g, VISTA0, x0, y0, x1, y1, 7, PI / 4, (px, py) => { const d = D(px, py); return 3.8 * Math.pow(d.bulbo, 0.45); });
+  g.fillStyle = C.yellow; dots(g, VISTA0, x0, y0, x1, y1, 6, PI / 12, (px, py) => { const d = D(px, py); return 3.2 * Math.pow(d.bulbo, 0.8); });
+  g.fillStyle = C.white; dots(g, VISTA0, x0, y0, x1, y1, 5, PI * 5 / 12, (px, py) => { const d = D(px, py); return 2.5 * cl(d.bulbo * 1.7 - 0.55) + 1.9 * cl(d.br * d.disco * 3.2 - 0.45); });
+  // trazos de luz a lo largo de los brazos mayores
+  for (const a of GAL.brazos) {
+    if (a.w < 0.8) continue;
+    const P = brazoPts(a, cx, cy, R, 0.17).slice(0, 52);
+    g.fillStyle = 'rgba(255,250,238,0.8)'; ribbon(g, P, (u) => (R * 0.0055) * Math.sin(PI * u) + 0.2);
+  }
+  // estrellas sueltas por el disco
+  g.fillStyle = 'rgba(255,250,238,0.9)';
+  for (const [x, y, s] of GAL_EST) { const px = cx + x * R, py = cy + y * R; if (px < x0 || px > x1 || py < y0 || py > y1) continue; g.beginPath(); g.arc(px, py, Math.max(0.9, R * 0.0028 * s), 0, TAU); g.fill(); }
+  // nudos de formación de estrellas y cúmulos jóvenes
+  for (const [x, y, s] of GAL_HII) { const px = cx + x * R, py = cy + y * R, rr = Math.max(1.6, R * 0.0065 * s); g.beginPath(); g.arc(px, py, rr, 0, TAU); g.fillStyle = C.magenta; g.fill(); g.beginPath(); g.arc(px - rr * 0.3, py - rr * 0.3, rr * 0.35, 0, TAU); g.fillStyle = '#f4a3c9'; g.fill(); }
+  for (const [x, y, s] of GAL_CUM) { destello(g, cx + x * R, cy + y * R, Math.max(3, R * 0.016 * s)); g.fillStyle = C.white; g.fill(); }
+  // núcleo
+  g.save(); g.translate(cx, cy); g.rotate(GAL.rot); g.beginPath(); g.ellipse(0, 0, R * 0.075, R * 0.04, 0, 0, TAU); g.fillStyle = C.white; g.fill(); g.restore();
+  g.restore();
+}
+// Silueta de tinta de la galaxia (para la viñeta de impacto, en negativo).
+function siluetaGal(g, cx, cy, R) {
+  g.fillStyle = C.ink;
+  for (const a of GAL.brazos) ribbon(g, brazoPts(a, cx, cy, R, 0.12), (u) => R * (a.w > 0.8 ? 0.06 : 0.035) * Math.pow(Math.sin(PI * (0.06 + 0.94 * u)), 0.8) * (1.2 - 0.6 * u));
+  g.save(); g.translate(cx, cy); g.rotate(GAL.rot); g.beginPath(); g.ellipse(0, 0, R * 0.24, R * 0.11, 0, 0, TAU); g.fill(); g.restore();
+  g.beginPath(); g.arc(cx, cy, R * 0.14, 0, TAU); g.fill();
+}
+let GAL_SP = null;
+function construirGalaxia() { const r = 380 * 1.1; GAL_SP = sprite(-r, -r, 2 * r, 2 * r, (g) => galaxia(g, 0, 0, 380, { x0: -r, y0: -r, x1: r, y1: r }, 1), 1.2); }
+function galaxiaEn(g, cx, cy, R, alfa, t) {
+  if (alfa <= 0.01 || R < 6) return;
+  if (Math.abs(R - 380) / 380 < 0.12) { g.save(); g.globalAlpha = alfa; blit(g, GAL_SP, cx, cy, R / 380); g.restore(); }
+  else galaxia(g, cx, cy, R, VISTA_PANTALLA, alfa);
+}
+
+// =====================================================================================
+// Cámara: z(t) es el exponente del plano (0 = persona … 21 = galaxia)
+// =====================================================================================
+SALTOS.forEach((s, j) => {
+  const d = s.t1 - s.t0, k = cl((0.24 - d) / 0.16);       // los saltos cortos, casi lineales
+  if (j === 7 || j === 8) s.ease = (u) => lerp(einb(u), u * u * (3 - 2 * u), 0.6);   // la Luna y el Sol se ven pasar
+  else s.ease = (u) => lerp(einb(u), u, k);
+});
+function zCam(t) {
+  for (let j = 0; j < SALTOS.length; j++) {
+    const s = SALTOS[j];
+    if (t < s.t0) return j;
+    if (t < s.t1) return j + s.ease((t - s.t0) / (s.t1 - s.t0));
+  }
+  return SALTOS.length;
+}
+function saltoEn(t) { for (let j = 0; j < SALTOS.length; j++) if (t >= SALTOS[j].t0 && t < SALTOS[j].t1) return j; return -1; }
+function ultimaLlegada(t) { let L = null; for (let j = 0; j < SALTOS.length; j++) if (t >= SALTOS[j].t1) L = { j, tau: t - SALTOS[j].t1 }; return L; }
+const velZ = (t) => (zCam(t + 0.012) - zCam(t - 0.012)) / 0.024;
+// Fuerza del golpe de cada llegada.
+const golpeAmp = (j) => j === 20 ? 1.6 : j === 8 ? 1.25 : j === 6 ? 1.1 : j < 7 ? 1 : j < 9 ? 0.9 : 0.35;
+// Cuándo se funde la viñeta incrustada del plano j (al descansar la cámara después).
+function tFundido(j) { for (let i = j; i < SALTOS.length; i++) if (SALTOS[i].descanso) return SALTOS[i].t1; return Infinity; }
+const panGal = (t) => eio(seg(t, T.galaxia + 0.08, T.lactea - 0.12));
+
+// =====================================================================================
+// Planos discretos (0 a 6): dibujo, raster y transformaciones
+// =====================================================================================
+const NIVEL = [null, nivel1, nivel2, nivel3, nivel4, nivel5, nivel6];
+const MARG = 44;
+let RAST = [];
+function construirRasters() {
+  RAST = [];
+  for (let k = 0; k <= 6; k++) {
+    const R = { x0: PP.x0 - MARG, y0: PP.y0 - MARG, x1: PP.x1 + MARG, y1: PP.y1 + MARG };
+    const c = mk((R.x1 - R.x0) * S, (R.y1 - R.y0) * S), g = c.getContext('2d', CTX2D);
+    g.setTransform(S, 0, 0, S, -R.x0 * S, -R.y0 * S);
+    const V = { s: 1, ...R };
+    if (k === 0) fondo0(g, V); else NIVEL[k](g, V);
+    RAST.push({ c, x0: R.x0, y0: R.y0, w: R.x1 - R.x0, h: R.y1 - R.y0 });
+  }
+}
+const pinta = (g, im) => {
+  const red = Math.abs(g.getTransform().a) * im.w / im.c.width;
+  if (red < 0.7) { g.imageSmoothingQuality = 'high'; g.drawImage(im.c, im.x0, im.y0, im.w, im.h); g.imageSmoothingQuality = 'low'; }
+  else g.drawImage(im.c, im.x0, im.y0, im.w, im.h);
+};
+// Postura de la persona en cada instante.
+function posePersona(t) {
+  const sube = eback(seg(t, T.arriba - 0.3, T.arriba - 0.02), 1.3);
+  return { brazo: cl(sube), mira: sstep(T.arriba - 0.36, T.arriba - 0.08, t), salto: muelle(t - T.tu - 0.05, 18, 9) };
+}
+// Dibuja el plano k con la transformación A = {a, x, y} (pantalla = a·p + (x, y)), recortado a R.
+function pintaPlano(g, k, A, R, t) {
+  g.save();
+  g.beginPath(); g.rect(R.x0, R.y0, R.x1 - R.x0, R.y1 - R.y0); g.clip();
+  g.transform(A.a, 0, 0, A.a, A.x, A.y);
+  const V = { s: A.a, x0: (R.x0 - A.x) / A.a, y0: (R.y0 - A.y) / A.a, x1: (R.x1 - A.x) / A.a, y1: (R.y1 - A.y) / A.a };
+  if (k === 0) {
+    if (A.a <= 1.06) pinta(g, RAST[0]); else fondo0(g, V);
+    const P = posePersona(t);
+    g.save(); if (P.salto) { g.translate(471, 911); g.scale(1 - P.salto * 0.04, 1 + P.salto * 0.04); g.translate(-471, -911); }
+    personaPose(g, V, P); g.restore();
+    gestoPersona(g, t);
+  } else if (A.a <= 1.06) pinta(g, RAST[k]);
+  else NIVEL[k](g, V);
+  g.restore();
+}
+// Líneas de sorpresa junto a la cabeza cuando Atom la señala.
+function gestoPersona(g, t) {
+  const p = seg(t, T.tu - 0.04, T.tu + 0.2), al = 1 - seg(t, T.tu + 0.55, T.tu + 0.85);
+  if (p <= 0 || al <= 0) return;
+  g.save(); g.globalAlpha = al; g.fillStyle = C.ink;
+  for (const [a, l] of [[-2.1, 1], [-1.6, 1.15], [-1.1, 1]]) {
+    const r0 = 78 + 10 * eout(p), r1 = r0 + 34 * eout(p) * l;
+    ribbon(g, [[470 + Math.cos(a) * r0, 272 + Math.sin(a) * r0], [470 + Math.cos(a) * r1, 272 + Math.sin(a) * r1]], (u) => 4.6 * (1 - u * 0.6));
+  }
+  g.restore();
+}
+const compone = (A, Q) => ({ a: A.a / 10, x: A.a * (Q.x - PC.x / 10) + A.x, y: A.a * (Q.y - PC.y / 10) + A.y });
+const rectDe = (A) => ({ x0: A.a * PP.x0 + A.x, y0: A.a * PP.y0 + A.y, x1: A.a * PP.x1 + A.x, y1: A.a * PP.y1 + A.y });
+const corta = (a, b) => ({ x0: Math.max(a.x0, b.x0), y0: Math.max(a.y0, b.y0), x1: Math.min(a.x1, b.x1), y1: Math.min(a.y1, b.y1) });
+const tamFundido = (rel) => sstep(0.018, 0.06, rel);
+
+// Viñeta incrustada: marco blanco y tinta.
+function marco(g, r, al, rel) {
+  const w = r.x1 - r.x0, k = Math.min(1, w / 260), a2 = al * (1 - sstep(0.94, 0.995, rel));
+  if (a2 <= 0.01) return;
+  g.save(); g.globalAlpha = a2; g.lineJoin = 'miter';
+  g.strokeStyle = C.white; g.lineWidth = 11 * k + 2; g.strokeRect(r.x0, r.y0, w, r.y1 - r.y0);
+  g.strokeStyle = C.ink; g.lineWidth = 5.5 * k + 1; g.strokeRect(r.x0, r.y0, w, r.y1 - r.y0);
+  g.restore();
+}
+const ZL = (() => { const r = rng(8), L = []; for (let i = 0; i < 84; i++) L.push({ a: (i + r() * 0.8) / 84 * TAU, r: r(), w: 2 + r() * 10, k: i }); return L; })();
+function lineasZoom(g, cx, cy, rx, ry, amt, t, col) {
+  if (amt <= 0.02) return;
+  const step = Math.floor(t * 24 + 1e-6);
+  g.save(); g.globalAlpha = cl(amt * 1.2); g.fillStyle = col; g.beginPath();
+  for (const l of ZL) {
+    const a = l.a + (hsh(step, l.k) - 0.5) * 0.03, ca = Math.cos(a), sa = Math.sin(a);
+    const kk = 1 / Math.max(Math.abs(ca) / rx, Math.abs(sa) / ry);
+    const rin = kk * (1.15 + l.r * 1.4 * (1.2 - amt)) + (hsh(l.k, step + 7) - 0.5) * 30;
+    const ro = 2600, w = l.w * (0.35 + 0.65 * amt);
+    g.moveTo(cx + ca * rin, cy + sa * rin); g.lineTo(cx + ca * ro - sa * w, cy + sa * ro + ca * w); g.lineTo(cx + ca * ro + sa * w, cy + sa * ro - ca * w); g.closePath();
+  }
+  g.fill(); g.restore();
+}
+const FOC = (() => { const r = rng(31), L = []; const N = 70; for (let i = 0; i < N; i++) L.push({ a: (i + r() * 0.7) / N * TAU, rin: 0.9 + r() * 0.5, w: 3 + r() * 9, k: i }); return L; })();
+function lineasFoco(g, x, y, r0, amt, t, col) {
+  if (amt <= 0.01) return;
+  const step = Math.floor(calma(t) * 12 + 1e-6);
+  g.save(); g.globalAlpha = cl(amt); g.fillStyle = col; g.beginPath();
+  for (const l of FOC) {
+    const a = l.a + (hsh(step, l.k) - 0.5) * 0.02, rin = r0 * (l.rin + (hsh(l.k, step + 99) - 0.5) * 0.12) + (1 - amt) * 300, ro = 2400;
+    const ca = Math.cos(a), sa = Math.sin(a), w = l.w * (0.4 + 0.6 * amt);
+    g.moveTo(x + ca * rin, y + sa * rin); g.lineTo(x + ca * ro - sa * w, y + sa * ro + ca * w); g.lineTo(x + ca * ro + sa * w, y + sa * ro - ca * w); g.closePath();
+  }
+  g.fill(); g.restore();
+}
+
+// Dibuja el mundo en el instante de cámara z. Devuelve dónde quedan cosas útiles (el Sol).
+function mundo(g, z, t) {
+  const panel = { x0: PP.x0 - 30, y0: PP.y0 - 30, x1: PP.x1 + 30, y1: PP.y1 + 30 };
+  const j = saltoEn(t), vz = velZ(t), amt = cl(vz / 7);
+  let A, info = null, K;
+  if (z < 6 || (z <= 6 + 1e-9)) {
+    // plano exterior discreto, ampliado alrededor del punto fijo de su salto
+    K = z <= 0 ? 0 : Math.ceil(z - 1e-9);
+    const m = Math.pow(10, K - z), F = z <= 0 ? QS[1].F : QS[K].F;
+    A = { a: m, x: F.x * (1 - m), y: F.y * (1 - m) };
+    pintaPlano(g, K, A, panel, t);
+  } else {
+    const cam = camEsp(z, panGal(t));
+    info = espacio(g, z, t, cam);
+    K = 7;
+    A = { a: cam.s, x: cam.ax - PC.x * cam.s, y: cam.ay - PC.y * cam.s };
+    // marcos de los saltos del espacio, unos dentro de otros
+    for (let jj = Math.min(20, Math.floor(z)); jj >= 7 && jj > z - 2.2; jj--) {
+      const rel = Math.pow(10, jj - z); if (rel > 0.995) continue;
+      const cj = jj <= 8 ? [0, 0] : camEsp(jj, 0).c;
+      const hw = PWd / 2 * Math.pow(10, jj - 7), hh = PHt / 2 * Math.pow(10, jj - 7);
+      const r = { x0: cam.ax + (cj[0] - hw) * cam.s, y0: cam.ay + (cj[1] - hh) * cam.s, x1: cam.ax + (cj[0] + hw) * cam.s, y1: cam.ay + (cj[1] + hh) * cam.s };
+      const al = tamFundido(rel) * (1 - seg(t, tFundido(jj) + 0.06, tFundido(jj) + 0.36));
+      if (al <= 0.01) continue;
+      if (jj === Math.floor(z) && j >= 0) lineasZoom(g, (r.x0 + r.x1) / 2, (r.y0 + r.y1) / 2, (r.x1 - r.x0) / 2, (r.y1 - r.y0) / 2, amt * al, t, C.white);
+      marco(g, r, al, rel);
+    }
+  }
+  // viñetas incrustadas de los planos discretos, cada una dentro de la anterior
+  let Aj = A, k = K - 1;
+  if (K === 7) { k = 6; }
+  for (; k >= 0; k--) {
+    Aj = compone(Aj, QS[k + 1]);
+    const rel = Aj.a, r = rectDe(Aj);
+    if ((r.x1 - r.x0) < 7) break;
+    const al = tamFundido(rel) * (1 - seg(t, tFundido(k) + 0.08, tFundido(k) + 0.4));
+    if (al <= 0.01) continue;
+    if (k === K - 1 || (K === 7 && k === 6 && z < 7.5)) {
+      const col = K >= 4 ? C.white : C.ink;
+      if (j >= 0 && j <= 6) lineasZoom(g, (r.x0 + r.x1) / 2, (r.y0 + r.y1) / 2, (r.x1 - r.x0) / 2, (r.y1 - r.y0) / 2, amt * al, t, col);
+    }
+    g.save(); g.globalAlpha = al;
+    pintaPlano(g, k, Aj, corta(r, panel), t);
+    g.restore();
+    marco(g, r, al, rel);
+  }
+  return info;
+}
+
+// =====================================================================================
+// Átomo: dónde está y cómo está en cada instante (tamaño constante en pantalla)
+// =====================================================================================
+const A_REPOSO = { x: 694, y: 296 }, A_ALTO = { x: 1010, y: 170 }, A_NARR = { x: 1452, y: 200 }, A_SC = 0.3;
+function velAtomo(t) {
+  let v = 0.36;
+  v *= 1 + 1.6 * sstep(T.arriba - 0.3, T.arriba, t) * (1 - sstep(T.arriba + 0.2, T.siete - 0.1, t));
+  for (const [a, b] of [[T.siete, T.tierra], [T.dos - 0.2, T.sol], [T.doce - 0.15, T.galaxia]]) v *= 1 + 1.4 * sstep(a - 0.15, a + 0.15, t) * (1 - sstep(b, b + 0.5, t));
+  return v * (1 - cl((t - T.calma0) / (T.quieto - T.calma0)));
+}
+const FASE = (() => {
+  const dt = 1 / 240, n = Math.ceil(DUR / dt) + 2, A = new Float64Array(n);
+  let ph = 0; for (let i = 0; i < n; i++) { A[i] = ph; ph += dt * velAtomo(i * dt); }
+  return (t) => { const f = Math.max(0, t) / dt, i = Math.min(n - 2, Math.floor(f)); return A[i] + (A[i + 1] - A[i]) * (f - i); };
+})();
+function posAtom(t) {
+  const tz = calma(t), bob = 7 * Math.sin(tz * 1.9);
+  let x = A_REPOSO.x, y = A_REPOSO.y + bob;
+  // [arriba]: se agacha un poco y sube de un salto
+  y += 16 * Math.sin(PI * seg(t, T.arriba - 0.5, T.arriba - 0.28));
+  const u1 = eback(seg(t, T.arriba - 0.3, T.arriba - 0.02), 1.5);
+  x = lerp(x, A_ALTO.x, u1); y = lerp(y, A_ALTO.y + bob, u1);
+  // al empezar el viaje se aparta a su esquina de narrador
+  const u2 = eio(seg(t, T.siete - 0.05, T.siete + 0.6));
+  x = lerp(x, A_NARR.x, u2); y = lerp(y, A_NARR.y + bob, u2) - 18 * Math.sin(PI * u2);
+  return { x, y };
+}
+let MARCA_AQUI = { x: 0, y: 0 };
+function estadoAtom(t) {
+  const P = posAtom(t);
+  const L = ultimaLlegada(t), sq = (L ? muelle(L.tau, 22, 8) * 0.1 * golpeAmp(L.j) : 0) + muelle(t - T.arriba + 0.02, 20, 7) * 0.12;
+  // señala a la persona en [tu] y dónde estamos en [lactea]
+  let mano = 0, manoAng = 0, alcance = 1.02;
+  const m1 = sstep(T.tu - 0.24, T.tu - 0.03, t) * (1 - sstep(T.tu + 0.3, T.arriba - 0.3, t));
+  const m2 = sstep(T.lactea - 0.26, T.lactea - 0.04, t);
+  if (m1 > 0.001) { mano = m1; manoAng = Math.atan2(282 - P.y, 520 - P.x); alcance = 1.02 + 0.1 * Math.sin(PI * seg(t, T.tu - 0.03, T.tu + 0.25)); }
+  else if (m2 > 0.001) { mano = m2; manoAng = Math.atan2(MARCA_AQUI.y - P.y, MARCA_AQUI.x - P.x); alcance = 1.05; }
+  const enViaje = [[T.siete, T.tierra], [T.dos - 0.2, T.sol], [T.doce - 0.15, T.galaxia]].some(([a, b]) => t > a && t < b + 0.1);
+  return { x: P.x, y: P.y, sc: A_SC, sq, en: E.energia(t), mano, manoAng, alcance, ondas: false, vel: enViaje ? 2.2 : 1, osc: sstep(T.siete - 0.1, T.siete + 0.4, t) };
+}
+function dibujarAtom(g, t) {
+  const A = estadoAtom(t);
+  // estela de velocidad al subir y al ir a su esquina
+  for (const [a, b] of [[T.arriba - 0.3, T.arriba + 0.05], [T.siete - 0.05, T.siete + 0.6]]) {
+    if (t < a || t > b) continue;
+    const p0 = posAtom(t - 0.03), p1 = posAtom(t + 0.03), vx = p1.x - p0.x, vy = p1.y - p0.y, v = Math.hypot(vx, vy) / 0.06;
+    if (v < 160) continue;
+    const ux = vx / Math.hypot(vx, vy), uy = vy / Math.hypot(vx, vy), r = 330 * A.sc * 0.6;
+    g.save(); g.globalAlpha = cl((v - 160) / 700); g.fillStyle = A.osc > 0.5 ? C.white : C.ink;
+    for (const k of [-0.7, -0.2, 0.3, 0.75]) { const ox = -uy * k * r, oy = ux * k * r, Lr = Math.min(280, v * 0.25) * (1 - Math.abs(k) * 0.4); ribbon(g, [[A.x + ox - ux * r * 0.6, A.y + oy - uy * r * 0.6], [A.x + ox - ux * (r * 0.6 + Lr), A.y + oy - uy * (r * 0.6 + Lr)]], (u) => 5 * (1 - u)); }
+    g.restore();
+  }
+  g.save(); g.translate(A.x, A.y); g.scale(1 + A.sq, 1 - A.sq); g.translate(-A.x, -A.y);
+  atomo(g, t, A);
+  g.restore();
+}
+
+// =====================================================================================
+// Efectos de llegada: golpe, estallidos y viñeta de impacto
+// =====================================================================================
+const STAR_SOL = estrella(61, 30, 0.7);
+function efectos(g, t, info) {
+  // [tierra]: aro de líneas blancas alrededor del globo
+  { const p = seg(t, T.tierra - 0.04, T.tierra + 0.5); if (p > 0 && p < 1) lineasFoco(g, PC.x, PC.y, 300 + 60 * p, (1 - p) * 0.9, t, C.white); }
+  // [sol]: estallido detrás del Sol (se dibuja antes que el Sol, ver frame)
+  // [galaxia]: viñeta de impacto (dos fotogramas en negativo) y estallido
+  const tg = T.galaxia;
+  if (t >= tg - 0.035 && t < tg + 0.05) {
+    g.save(); g.fillStyle = C.white; g.fillRect(PP.x0, PP.y0, PWd, PHt);
+    lineasFoco(g, PC.x, PC.y - 20, 300, 1, t, C.ink);
+    siluetaGal(g, PC.x, PC.y - 20, 380 * (1.12 - 0.08 * seg(t, tg - 0.035, tg + 0.05)));
+    g.restore();
+    return;
+  }
+  { const p = seg(t, tg + 0.05, tg + 0.6); if (p > 0 && p < 1) lineasFoco(g, PC.x, PC.y, 380 + 80 * p, (1 - p) * 0.8, t, C.white); }
+  void info;
+}
+function estallidoSol(g, t, info) {
+  const p = eback(seg(t, T.sol - 0.12, T.sol + 0.02), 1.6) * (1 - ein(seg(t, T.sol + 0.25, T.sol + 0.7)));
+  if (p <= 0.01 || !info) return;
+  g.save(); g.translate(info.sx, info.sy); g.rotate(0.15 + 0.3 * (t - T.sol));
+  impacto(g, VISTA0, 0, 0, 470 * p, 430 * p, STAR_SOL, C.yellowL, C.orange);
+  g.restore();
+}
+
+// =====================================================================================
+// La regla de potencias de diez (viñeta estrecha)
+// =====================================================================================
+const RGL = { bx0: 1690, bx1: 1716, top: 62, bot: 1018 };
+function escalaRegla(t) {
+  // 0: 10⁰ arriba (como en la primera prueba); [arriba]: se desliza y enseña 0…7;
+  // antes de [dos], 0…9; antes de [doce], toda la escala hasta 10²¹.
+  const a = eback(seg(t, T.arriba - 0.24, T.arriba), 1.2), b = eio(seg(t, T.dos - 0.45, T.dos - 0.15)), c = eio(seg(t, T.doce - 0.45, T.doce - 0.12));
+  let y0 = lerp(186, 830, a), d = lerp(150, 101, a);
+  d = lerp(d, 80, b); d = lerp(d, 34.8, c);
+  return { y0, d };
+}
+let REGLA_FONDO;
+function construirRegla() {
+  REGLA_FONDO = sprite(PR.x0 - 10, PR.y0 - 10, PR.x1 - PR.x0 + 20, PR.y1 - PR.y0 + 20, (g) => {
+    g.fillStyle = C.yellow; g.fillRect(PR.x0, PR.y0, PR.x1 - PR.x0, PR.y1 - PR.y0);
+    g.fillStyle = C.orange; dots(g, VISTA0, PR.x0, PR.y0, PR.x1, PR.y1, 12, PI / 4, (x, y) => 4.2 * Math.pow(cl((y - 300) / 760), 0.9) + 1.2);
+    g.fillStyle = C.red; dots(g, VISTA0, PR.x0, PR.y0, PR.x1, PR.y1, 17, PI * 5 / 12, (x, y) => 6.5 * Math.pow(cl((y - 760) / 300), 1.2));
+    const cinta = new Path2D(); cinta.rect(RGL.bx0, RGL.top, RGL.bx1 - RGL.bx0, RGL.bot - RGL.top);
+    g.save(); g.translate(5, 5); g.fillStyle = C.ink; g.fill(cinta); g.restore();
+    pieza(g, VISTA0, cinta, C.white, [RGL.bx0, RGL.top, RGL.bx1, RGL.bot], [{ col: C.cyan, sp: 7, rf: (x) => 2.4 * cl((x - RGL.bx0 - 14) / 12) }], 5);
+  }, 1);
+}
+function regla(g, t, z) {
+  blit(g, REGLA_FONDO, 0, 0);
+  const { y0, d } = escalaRegla(t), yDe = (m) => y0 - m * d;
+  g.save(); g.beginPath(); g.rect(RGL.bx0, RGL.top + 3, RGL.bx1 - RGL.bx0 + 40, RGL.bot - RGL.top - 6); g.clip();
+  g.fillStyle = C.ink;
+  for (let m = -5; m <= 22; m++) {
+    for (let k = 1; k <= 9; k++) {
+      const yy = yDe(m + Math.log10(k)); if (yy < RGL.top + 4 || yy > RGL.bot - 4) continue;
+      if (k > 1 && d < 60 && k !== 5) continue;
+      const len = k === 1 ? 24 : k === 5 ? 13 : 8;
+      g.fillRect(RGL.bx1 - len, yy - (k === 1 ? 2.5 : 1.2), len, k === 1 ? 5 : 2.4);
+    }
+  }
+  g.restore();
+  // marcador: valor continuo con rebote en cada llegada
+  const L = ultimaLlegada(t), reb = L ? muelle(L.tau, 20, 8) * 0.12 * golpeAmp(L.j) : 0;
+  const m = Math.max(0, z) + reb, y = yDe(m), cur = Math.max(0, Math.min(21, Math.round(z)));
+  const vz = velZ(t);
+  // etiquetas de la escala (las que no tapa la cartela)
+  const cada = d >= 70 ? 1 : 3;
+  for (let k = t > T.arriba ? 0 : -4; k <= 21; k++) {
+    if (k % cada) continue;
+    const yy = yDe(k); if (yy < RGL.top + 14 || yy > RGL.bot - 6 || Math.abs(yy - y) < 62) continue;
+    g.globalAlpha = 0.8; potencia(g, 1728, yy + 13, k, 34, false, C.ink); g.globalAlpha = 1;
+  }
+  // líneas de velocidad bajo la cartela cuando sube
+  const v = cl(vz / 8);
+  if (v > 0.05) {
+    g.save(); g.globalAlpha = cl(v * 1.4); g.fillStyle = C.ink;
+    g.strokeStyle = C.ink; g.lineCap = 'round'; g.lineWidth = 3;
+    for (const [x, l] of [[1754, 0.7], [1794, 1], [1834, 0.6]]) { g.beginPath(); g.moveTo(x, y + 54); g.lineTo(x, y + 54 + 56 * v * l); g.stroke(); }
+    g.restore();
+  }
+  // estrella de impacto al llegar
+  if (L && L.tau < 0.22) {
+    const k = golpeAmp(L.j);
+    g.save(); g.translate(1794, y); g.rotate(-0.15);
+    impacto(g, VISTA0, 0, 0, 104 * k * eout(L.tau / 0.12) * (1 - seg(L.tau, 0.12, 0.22)), 64 * k * eout(L.tau / 0.12) * (1 - seg(L.tau, 0.12, 0.22)), STAR_B, C.white, null);
+    g.restore();
+  }
+  // cartela con la potencia actual (grande, para leerse en el móvil)
+  const st = 1 + 0.1 * v;
+  g.save(); g.translate(1794, y); g.scale(1 / st, st); g.rotate(-0.025);
+  const bw = 156, bh = 84;
+  g.fillStyle = C.ink; g.fillRect(-bw / 2 + 6, -bh / 2 + 6, bw, bh);
+  g.fillStyle = C.white; g.fillRect(-bw / 2, -bh / 2, bw, bh);
+  g.lineWidth = 5; g.strokeStyle = C.ink; g.strokeRect(-bw / 2, -bh / 2, bw, bh);
+  // muesca que señala la cinta
+  g.beginPath(); g.moveTo(-bw / 2 - 2, -14); g.lineTo(-bw / 2 - 26, 0); g.lineTo(-bw / 2 - 2, 14); g.closePath(); g.fillStyle = C.red; g.fill(); g.lineWidth = 4; g.lineJoin = 'round'; g.stroke();
+  g.font = `64px ${FT}`; const w10 = g.measureText('10').width;
+  g.font = `${Math.round(64 * 0.6)}px ${FT}`; const wE = g.measureText(String(cur)).width;
+  g.font = `italic 700 ${Math.round(64 * 0.92)}px ${FM}`; const wM = g.measureText('m').width;
+  const ancho = w10 + 64 * 0.04 + wE + 64 * 0.16 + wM, tam = Math.min(64, 64 * 136 / ancho);
+  potencia(g, 0, tam * 0.36, cur, tam, true, C.red, 'center', 7);
+  g.restore();
+  g.fillStyle = C.red; g.fillRect(RGL.bx0 + 3, y - 3, RGL.bx1 - RGL.bx0 - 6, 6);
+}
+
+// =====================================================================================
+// Fotograma
+// =====================================================================================
+function marcaAqui(g, t, info) {
+  const p = eback(seg(t, T.lactea - 0.26, T.lactea - 0.02), 2.0);
+  if (p <= 0.01 || !info) return;
+  const x = info.sx, y = info.sy;
+  MARCA_AQUI = { x, y };
+  // anillo que late dos veces y se queda quieto
+  const pul = seg(t, T.lactea, T.lactea + 1.1), rr = 12 + 26 * ((pul * 2) % 1) * (pul < 1 ? 1 : 0);
+  if (pul > 0 && pul < 1) { g.save(); g.globalAlpha = 1 - ((pul * 2) % 1); g.beginPath(); g.arc(x, y, rr, 0, TAU); g.lineWidth = 3; g.strokeStyle = C.white; g.stroke(); g.restore(); }
+  g.beginPath(); g.arc(x, y, 7 * p, 0, TAU); g.fillStyle = C.yellow; g.fill(); g.lineWidth = 3; g.strokeStyle = C.ink; g.stroke();
+  g.beginPath(); g.arc(x, y, 14 * p, 0, TAU); g.lineWidth = 3; g.strokeStyle = C.white; g.stroke();
+  // flecha roja que llega desde abajo a la derecha
+  const ang = Math.atan2(-0.55, -1), L = 120 * p, gap = 22;
+  g.save(); g.translate(x - Math.cos(ang) * (gap + L), y - Math.sin(ang) * (gap + L)); g.rotate(ang);
+  const fl = new Path2D(); fl.moveTo(0, -11); fl.lineTo(L - 34, -11); fl.lineTo(L - 34, -26); fl.lineTo(L, 0); fl.lineTo(L - 34, 26); fl.lineTo(L - 34, 11); fl.lineTo(0, 11); fl.closePath();
+  g.save(); g.translate(5, 5); g.fillStyle = C.ink; g.fill(fl); g.restore();
+  g.fillStyle = C.red; g.fill(fl);
+  g.save(); g.clip(fl); g.fillStyle = C.redDk; dots(g, VISTA0, -10, -30, L + 10, 30, 6, PI / 4, (xx, yy) => 2.2 * cl((yy + 4) / 20)); g.restore();
+  g.lineWidth = 5; g.lineJoin = 'round'; g.strokeStyle = C.ink; g.stroke(fl);
+  g.restore();
+}
+function vinetaPrincipal(g, t) {
+  g.save(); g.beginPath(); g.rect(PP.x0, PP.y0, PWd, PHt); g.clip();
+  const z = zCam(t);
+  // golpe en cada llegada: sacudida y rebote
+  const L = ultimaLlegada(t);
+  let sx = 0, sy = 0, pk = 1;
+  if (L && L.tau < 0.8) {
+    const k = golpeAmp(L.j), a = 13 * k * Math.exp(-L.tau * 9);
+    sx = a * Math.sin(L.tau * 83); sy = a * 0.7 * Math.cos(L.tau * 67);
+    pk = 1 + 0.045 * k * muelle(L.tau, 15, 7);
+  }
+  g.translate(sx, sy);
+  g.save(); g.translate(PC.x, PC.y); g.scale(pk, pk); g.translate(-PC.x, -PC.y);
+  // el estallido del Sol va detrás del Sol: se dibuja el mundo, el estallido y el Sol otra vez
+  const info = mundo(g, z, t);
+  if (info && t > T.sol - 0.15 && t < T.sol + 0.75) { estallidoSol(g, t, info); solEn(g, info.sx, info.sy, R_SOL * Math.pow(10, 7 - z), t); }
+  marcaAqui(g, t, info);
+  g.restore();
+  efectos(g, t, info);
+  dibujarAtom(g, t);
+  g.restore();
+}
+function frame(t) {
+  const g = ctx;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'low';
+  g.fillStyle = C.paper; g.fillRect(0, 0, cv.width, cv.height);
+  g.setTransform(S, 0, 0, S, OX, OY);
+  g.save(); g.beginPath(); g.rect(0, 0, W, H); g.clip();
+  g.fillStyle = C.paper; g.fillRect(0, 0, W, H);
+  vinetaPrincipal(g, t);
+  g.lineJoin = 'miter'; g.lineWidth = 7; g.strokeStyle = C.ink; g.strokeRect(PP.x0, PP.y0, PWd, PHt);
+  g.save(); g.beginPath(); g.rect(PR.x0, PR.y0, PR.x1 - PR.x0, PR.y1 - PR.y0); g.clip(); regla(g, t, zCam(t)); g.restore();
+  g.lineWidth = 7; g.strokeStyle = C.ink; g.strokeRect(PR.x0, PR.y0, PR.x1 - PR.x0, PR.y1 - PR.y0);
+  g.restore();
+  g.setTransform(S, 0, 0, S, OX, OY);
+  g.globalCompositeOperation = 'multiply'; g.drawImage(PAPER, 0, 0, W, H);
+  g.globalCompositeOperation = 'source-over';
+}
+function buildPaper() {
+  const w = 960, h = 540, c = mk(w, h), g = c.getContext('2d', CTX2D), id = g.createImageData(w, h), d = id.data, r = rng(5);
+  const gw = 33, gh = 19, L = new Float32Array(gw * gh); for (let i = 0; i < L.length; i++) L[i] = r();
+  const vn = (x, y) => { const fx = x / w * (gw - 1), fy = y / h * (gh - 1), x0 = fx | 0, y0 = fy | 0, tx = fx - x0, ty = fy - y0;
+    const a = L[y0 * gw + x0], b = L[y0 * gw + x0 + 1], c2 = L[(y0 + 1) * gw + x0], e = L[(y0 + 1) * gw + x0 + 1];
+    const sx = tx * tx * (3 - 2 * tx), sy = ty * ty * (3 - 2 * ty); return lerp(lerp(a, b, sx), lerp(c2, e, sx), sy); };
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4, n = r(), lo = vn(x, y);
+    const v = 255 - n * n * 16 - lo * 9;
+    d[i] = v; d[i + 1] = v - 1.5; d[i + 2] = v - 5; d[i + 3] = 255;
+  }
+  g.putImageData(id, 0, 0);
+  g.lineCap = 'round';
+  for (let i = 0; i < 900; i++) {
+    const x = r() * w, y = r() * h, a = r() * TAU, l = 2 + r() * 7;
+    g.strokeStyle = `rgba(120,95,60,${0.05 + r() * 0.09})`; g.lineWidth = 0.6 + r() * 0.6;
+    g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a + 0.5) * l * 0.6, y + Math.sin(a + 0.5) * l * 0.6, x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
+  }
+  return c;
+}
+
+// ---------- sprites, capas y arranque ----------
+let NUC, ELEC, PAPER;
+const ORB = [{ phi: -PI / 6, dir: 1, k: 1.0, th0: 0.4 }, { phi: PI / 6, dir: -1, k: 1.0, th0: 2.5 }, { phi: PI / 2, dir: 1, k: 1.3, th0: 4.6 }];
+function buildSprites() {
+  builtS = S;
+  NUC = sprite(-110, -110, 220, 220, (g) => {
+    const B = [[-36, -22, 'n'], [36, -24, 'p'], [2, 40, 'p'], [-2, -44, 'n'], [-40, 22, 'p'], [40, 20, 'n'], [0, -2, 'p']];
+    for (const [x, y, ty] of B) sphere(g, x, y, 33, ty === 'p' ? C.red : C.blue, 6);
+  }, 1.3);
+  ELEC = sprite(-34, -34, 68, 68, (g) => sphere(g, 0, 0, 24, C.cyan, 5), 1.4);
+  construirRegla();
+  construirFondoEsp();
+  construirGlobo();
+  construirSol();
+  construirGalaxia();
+  construirRasters();
+}
+function layout() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cw = Math.round(window.innerWidth * dpr), ch = Math.round(window.innerHeight * dpr);
+  if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; }
+  S = Math.min(cw / W, ch / H); OX = (cw - W * S) / 2; OY = (ch - H * S) / 2;
+}
+
+layout();
+const link = document.getElementById('fuentes');
+if (!link.sheet) await new Promise((r) => { link.addEventListener('load', r, { once: true }); link.addEventListener('error', r, { once: true }); setTimeout(r, 8000); });
+try { await document.fonts.load(`96px ${FT}`, '10 m-0123456789'); await document.fonts.load(`italic 700 60px ${FM}`, 'm'); await document.fonts.ready; } catch (e) { /* fuentes de reserva */ }
+PAPER = buildPaper();
+buildSprites();
+let rt = 0;
+window.addEventListener('resize', () => { layout(); clearTimeout(rt); rt = setTimeout(() => { if (Math.abs(S - builtS) / builtS > 0.04) buildSprites(); }, 180); });
+// calentamiento: se dibujan instantes representativos para que todo se rasterice en la carga
+const raf = () => new Promise((r) => requestAnimationFrame(() => r()));
+for (const t of [0.3, T.tu, T.arriba, ...SALTOS.slice(0, 9).map((s) => (s.t0 + s.t1) / 2), T.tierra + 0.3, T.sol + 0.3, T.galaxia + 0.4, T.lactea + 0.5]) { frame(t); await raf(); }
+E.iniciar((t) => frame(t));
+</script>
+</body>
+</html>

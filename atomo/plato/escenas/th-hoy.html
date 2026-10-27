@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hoy · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-HOY (frase 34). Tres planos:
+// 1 la prisión de Texas al atardecer (2026): de una ventana sale una carta que echa a volar como un pájaro hacia el sol
+//   (cuando la voz dice «from prison… still says»); el guardia que hace la ronda se para a mirarla; llega un coche oscuro
+//   por delante (el abogado: «fight to prove her innocence») y una liebre cruza el campo a saltos;
+// 2 el laboratorio de 2014: una caja Edison echa humo y un técnico la abanica (gag); Erika Cheung entra, ve la pantalla
+//   de controles en rojo («!») y se gira hacia Tyler, que trabaja de espaldas, para decírselo con el dedo en alto («who
+//   dared to speak up»); Tyler se vuelve, se acerca y también lo ve («!»);
+// 3 su charla de hoy: aplausos al empezar; Erika deja el atril y va hasta la pantalla de la balanza («ethics»), alguien
+//   del público levanta la mano y otro hace una foto con flash; cuando la voz dice «so it doesn't happen again», la
+//   pantalla pasa de «?» a «✓» y el público aplaude.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-hoy');
+const { tramo, lerp, hex } = R;
+const C = T.C;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('inocencia', f);
+const lin = (t, t0, t1) => Math.max(0, Math.min(1, (t - t0) / (t1 - t0)));   // a paso constante (para andar)
+const P1b = a(0.3), P2 = a(0.635);
+
+// ── 1 · la carta que sale de la prisión ────────────────────────────────────────────────────────────────────────────
+const CARTA = [a(0.06), P1b + 0.2];
+// el sobre con alas que vuela (x, y: centro)
+function sobreVolador(x, y, t) {
+  const { rect, linea } = R, al = Math.floor(t * 8) % 2;
+  linea(x - 6, y - 3, x - 13, y - 9 + al * 9, C.blanco); linea(x - 6, y - 2, x - 12, y - 8 + al * 9, C.grisL);
+  linea(x + 6, y - 3, x + 13, y - 9 + al * 9, C.blanco); linea(x + 6, y - 2, x + 12, y - 8 + al * 9, C.grisL);
+  rect(x - 6, y - 4, x + 6, y + 4, C.k); rect(x - 5, y - 3, x + 5, y + 3, C.blanco); linea(x - 5, y - 3, x, y + 1, C.k); linea(x + 5, y - 3, x, y + 1, C.k); R.pset(x, y + 2, C.rojo);
+}
+// la liebre que cruza el campo a saltos
+function liebre(x, suelo, t) {
+  const { rect, pset } = R, f = (t * 3) % 1, y = Math.round(suelo - Math.sin(f * Math.PI) * 6), estira = f > 0.15 && f < 0.75;
+  rect(x, y - 4, x + (estira ? 8 : 6), y - 1, hex('#a8885a')); rect(x + 1, y - 2, x + (estira ? 7 : 5), y - 1, hex('#8a6a44')); pset(x + (estira ? 9 : 7), y - 2, hex('#f0e8d8'));
+  rect(x - 2, y - 5, x, y - 2, hex('#a8885a')); pset(x - 2, y - 4, C.k); rect(x, y - 9, x, y - 5, hex('#8a6a44')); rect(x + 1, y - 8, x + 1, y - 5, hex('#a8885a')); pset(x - 3, y - 3, hex('#6a4e30'));
+}
+const p1 = (t) => {
+  T.prision(R, t);
+  // el guardia hace la ronda junto a la valla; se para a mirar la carta que pasa volando y luego sigue
+  const g1 = lin(t, 0.2, 2.2), g2 = lin(t, 3.4, P1b + 0.4), gx = Math.round(lerp(14, 74, g1) + g2 * 26), para = g1 >= 1 && g2 <= 0;
+  R.actor(EL.guardia, gx, 124, t, { dir: para && t > 2.4 ? -1 : 1, anda: !para, sorpresa: t > 2.4 && t < 3.3 });
+  // la carta sale de una ventana y vuela hacia el sol
+  const u = lin(t, CARTA[0], CARTA[1]);
+  if (u > 0 && u < 1) sobreVolador(Math.round(lerp(152, -20, u)), Math.round(lerp(92, 40, u) - Math.sin(u * Math.PI) * 26 + Math.sin(u * 14) * 3), t);
+  // la liebre cruza el campo
+  const lv = lin(t, 0.4, 3.9); if (lv > 0 && lv < 1) liebre(Math.round(lerp(330, -20, lv)), 152, t);
+  // el coche oscuro del abogado llega por delante y frena junto al camino de entrada
+  T.cocheOscuro(R, Math.round(lerp(-50, 118, tramo(t, 0.8, 3.9))), 172, t, { dir: 1 });
+};
+
+// ── 2 · el laboratorio de 2014: Erika se atreve a decirlo ──────────────────────────────────────────────────────────
+const VE = P1b + 1.3, GIRA = a(0.46), HABLA = a(0.54);   // ve la pantalla en rojo; se gira («employees»); «dared to speak up»
+const p1b = (t) => {
+  T.laboratorio(R, t, { rojo: true, humoEdison: 1 });
+  // el técnico abanica la caja Edison que echa humo
+  R.actor(EL.tecnico, 30, 150, t, { dir: 1, dedo: Math.floor(t * 6) % 2 === 0, sorpresa: true });
+  // Tyler, de espaldas a ella, trabaja en la mesa; se gira y se acerca cuando Erika le habla
+  const tx = Math.round(lerp(82, 100, tramo(t, GIRA + 0.3, GIRA + 0.9)));
+  R.actor(EL.tyler, tx, 158, t, { dir: t > GIRA + 0.2 ? 1 : -1, anda: t > GIRA + 0.3 && t < GIRA + 0.9, dedo: t < GIRA && Math.floor(t * 2) % 2 === 0, sorpresa: t > HABLA + 0.5 });
+  if (t > HABLA + 0.6 && t < HABLA + 1.6) R.bocadillo(tx + 7, 126, { icono: '!' });
+  // Erika entra, mira la pantalla, se gira hacia Tyler y se lo dice
+  const ex = Math.round(lerp(30, 130, lin(t, P1b, VE - 0.2)));
+  R.actor(EL.erika, ex, 162, t, { dir: t > GIRA ? -1 : 1, anda: t < VE - 0.2, sorpresa: t > VE && t < GIRA, dedo: t > GIRA, habla: t > GIRA && Math.sin(t * 7) > 0 });
+  if (t > VE && t < GIRA) R.bocadillo(ex + 7, 130, {});
+};
+
+// ── 3 · la charla ──────────────────────────────────────────────────────────────────────────────────────────────────
+const VISTO = a(0.87);   // «so it doesn't happen again»
+const FILAS = (k, fila) => [4 + k * 25 + (fila % 2) * 12, 134 + fila * 16];   // dónde está cada cabeza del público
+const APLAUDEN = [[1, 0], [4, 1], [6, 0], [9, 2], [11, 1], [2, 2], [8, 1], [12, 0]];
+function aplauso(x, y, t, k) { const j = Math.floor(t * 9 + k) % 2, s = hex('#f0c8a0'); R.rect(x - 4 + j, y, x - 2 + j, y + 3, s); R.rect(x + 2 - j, y, x + 4 - j, y + 3, s); R.pset(x - 4 + j, y, C.k); R.pset(x + 4 - j, y, C.k); }
+const p2 = (t) => {
+  const { rect, disco, pset } = R;
+  T.charla(R, t, { visto: t > VISTO });
+  // Erika deja el atril y va hasta la pantalla; explica con el dedo; cuando sale el «✓» se vuelve al público sonriendo
+  const ex = Math.round(lerp(204, 150, tramo(t, P2 + 0.4, P2 + 1.5)));
+  R.actor(EL.erika, ex, 104, t, { dir: t > VISTO + 0.3 ? 1 : -1, anda: t > P2 + 0.4 && t < P2 + 1.5, dedo: t > P2 + 1.6 && t < VISTO + 0.3, habla: t > P2 + 1.6 && Math.sin(t * 6) > 0, sonrisa: t > VISTO + 0.3 });
+  // el público: aplaude al empezar y al acabar; uno levanta la mano; otro hace una foto con flash
+  const aplaude = t < P2 + 0.9 || t > VISTO + 0.9;
+  if (aplaude) APLAUDEN.forEach(([k, f], i) => { const [x, y] = FILAS(k, f); aplauso(x, y - 12, t, i); });
+  const [mx, my] = FILAS(7, 1), mano = tramo(t, P2 + 2.0, P2 + 2.4) - tramo(t, VISTO - 0.4, VISTO);
+  if (mano > 0) { const top = Math.round(my - 6 - mano * 16); rect(mx + 5, top, mx + 7, my - 4, hex('#3a5a8a')); rect(mx + 4, top - 4, mx + 8, top, hex('#f0c8a0')); pset(mx + 4, top - 4, C.k); pset(mx + 8, top - 4, C.k); }
+  const FL = P2 + 1.2; if (t > FL && t < FL + 0.15) { const [fx, fy] = FILAS(3, 2); for (let r = 6; r > 0; r -= 2) disco(fx, fy - 10, r, r > 3 ? hex('#e8e8f0') : C.blanco); }
+  else { const [fx, fy] = FILAS(3, 2); rect(fx - 2, fy - 12, fx + 2, fy - 8, C.k); rect(fx - 1, fy - 11, fx + 1, fy - 9, hex('#3a4a6a')); }
+};
+
+const efectos = [[CARTA[0], 'papel'], [0.9, 'motor', { dur: 3.0 }], [P1b + 0.4, 'vapor'], [VE, 'aviso'],
+  [P2 + 0.15, 'palmada'], [P2 + 1.2, 'flash'], [VISTO, 'brillo'], [VISTO + 0.9, 'palmada']];
+T.rodar(E, R, [[0, p1], [P1b, p1b], [P2, p2]], { efectos, año: (t) => (t < P1b || t >= P2 ? 2026 : 2014) });
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Plata · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-PLATA (frases 17–18). De noche, la Acrópolis arde; en el mar, los atenienses miran desde sus barcos. Luego, unos años
+// antes: la mina de plata del Laurión (mineros con picos, vetas que brillan), monedas que saltan y se convierten en
+// barcos en un astillero; «200» en la caja.
+import { preparar, rodar, acropolis } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-plata');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { que: M('quema', 0.5), pla: M('plata', 6) };
+const t2 = m.pla + 5;
+const fuego = (t) => {
+  R.ambiente({ luz: { lado: -1, color: PALA.ANTORCHA[2] }, sombra: false });
+  R.cielo(t, { hor: 130, semilla: 33 });
+  R.halo(130, 80, 70, [PALA.ANTORCHA[0], PALA.ANTORCHA[1]], 0.8);
+  acropolis(R, 130, 118, t, { esc: 1.1, fuego: true });
+  for (let y = 0; y < 90; y++) { const f = y / 90, cx = 130 + 20 * f + 4 * Math.sin(y * 0.2 - t); for (let x = Math.round(cx - 6 - f * 18); x < cx + 6 + f * 18; x++) if (R.b4(x, 100 - y) < 0.5 - f * 0.3) R.pset(x, 100 - y, PR.GRIS[1]); }
+  R.mar(t, { hor: 130 });
+  for (const [x, s] of [[230, 0.7], [280, 0.6], [190, 0.5]]) { R.trirreme(x, 150 + s * 10, t, { esc: s, dir: -1, vela: PALA.BLANCO }); for (let k = -2; k <= 2; k++) { R.pset(x + k * 4, Math.round(144 + s * 10), PALA.PIEL[2]); R.pset(x + k * 4, Math.round(145 + s * 10), PALA.BLANCO[2]); } }
+};
+const mina = (t) => {
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PR.ROCA, 0.8 + (R.vnoise(x * 0.06, y * 0.06) - 0.5) * 1.2 + (y > 150 ? 0.4 : 0), x, y));
+  for (let k = 0; k < 40; k++) { const x = (k * 53) % 320, y = 20 + (k * 29) % 120, br = Math.sin(t * 3 + k) > 0.6; R.pset(x, y, br ? PR.PLATA[4] : PR.PLATA[2]); R.pset(x + 1, y, PR.PLATA[1]); }
+  R.antorcha(40, 60, t); R.antorcha(280, 60, t);
+  for (let k = 0; k < 3; k++) { const golpe = Math.sin(t * 6 + k * 2) > 0; R.personaje(90 + k * 60, 170, 26, { ...ELENCO.ciudadano, chaqueta: PALA.MARRON, camisa: PALA.MARRON, falda: PALA.MARRON, t: t + k, objeto: 'pala', pose: golpe ? 'senala' : 'pie' }); }
+};
+const astillero = (t) => {
+  R.cieloR(t, 'dia', { hor: 120 }); R.mar(t, { hor: 120 });
+  const n = Math.round(tramo(t, t2 + 0.5, t2 + 4) * 5);
+  for (let k = 0; k < 5; k++) { const x = 40 + k * 58; if (k < n) R.trirreme(x, 134, t, { esc: 0.6, vela: PALA.BLANCO }); else { R.linea(x - 16, 134, x + 16, 132, PR.MADERA[2]); for (let j = 0; j < 4; j++) R.linea(x - 12 + j * 8, 134, x - 12 + j * 8, 126, PR.MADERA[1]); } }
+  R.suelo(146, PR.MADERA, { luz: 2.4 });
+  for (let k = 0; k < 6; k++) { const f = ((t - t2) * 0.8 + k / 6) % 1; R.disco(lerp(20, 300, f), 160 - Math.sin(f * Math.PI) * 20, 2, PR.PLATA[3]); }
+  R.personaje(80, 176, 28, { ...ELENCO.griego, sombrero: 'no', banda: PALA.ROJO, t, pose: 'senala' });
+};
+rodar(E, R, [[0, fuego], [m.pla - 0.2, mina], [t2, astillero]], { año: (t) => (t < m.pla ? -480 : -483), caja: (t, e) => R.caja(t, t > t2 + 1 ? tramo(t, t2 + 1, t2 + 1.4) : 0, (x, y) => R.numero('200', x + 6, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

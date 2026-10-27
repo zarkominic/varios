@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Plan · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-PLAN (frase 8). La orilla del Nilo: el río sube y baja una y otra vez, como un reloj; en la caja, la rueda del año
+// con su marcador, y cada vuelta se enciende la crecida en el mismo punto.
+import { preparar, rodar, nilo, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-plan');
+const m0 = M('plan', 0.5);
+const ang = (t) => ((t - m0) * 1.6) % (Math.PI * 2);
+const plano = (t) => { const a = ang(t); const crece = Math.max(0, Math.cos(a - Math.PI * 0.8)); nilo(R, t, { nivel: 1 + crece * 0.9 }); };
+rodar(E, R, [[0, plano]], {
+  año: -3200,
+  caja: (t, e) => R.caja(t, R.tramo(t, m0 + 0.3, m0 + 0.7), (x, y) => {
+    R.ruedaAño(x + 12, y + 10, 9, ang(t));
+    const crece = Math.cos(ang(t) - Math.PI * 0.8) > 0.6;
+    R.icono('reloj', x + 30, y + 4, C.blanco, undefined, 1);
+    if (crece) R.icono('flecha', x + 44, y + 5, C.agua3, undefined, 1);
+  }, { energia: e }),
+});
+</script>
+</body>
+</html>

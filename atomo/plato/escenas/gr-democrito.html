@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Democrito · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-DEMOCRITO (frase 24). Demócrito, sentado ante una piedra, la corta por la mitad con un cuchillo; los trozos se
+// separan y se vuelven a cortar, cada vez más pequeños (la cámara se acerca); al final queda una bolita que ya no se
+// corta… y es Atom, que saluda a lo grande.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-democrito');
+const { PALA, PR, ELENCO, tramo, lerp, clamp } = R;
+const m0 = M('democrito', 0.5), dur = E.duracion ?? 18, t1 = m0 + (dur - m0) * 0.45, t2 = m0 + (dur - m0) * 0.8;
+const demo = { ...ELENCO.griego, pelo: PALA.PELO_BLANCO, barba: 'poblada', banda: PALA.MORADO, sonrisa: true };
+const mesa = (t) => {
+  R.cieloR(t, 'tarde', { hor: 140, sol: [60, 120, 10] }); R.suelo(140, PALA.MARMOL, { losas: true });
+  R.rect(140, 140, 230, 146, PR.MADERA[3]); R.rect(144, 146, 148, 170, PR.MADERA[1]); R.rect(222, 146, 226, 170, PR.MADERA[1]);
+  const cortes = Math.floor(clamp((t - m0 - 2) / 1.4, 0, 3)), n = 1 << cortes, w = Math.max(2, Math.round(24 / n));
+  for (let k = 0; k < n; k++) { const x = 160 + k * (w + 3) * (cortes ? 1 : 0) + (cortes ? 0 : 10); R.rect(x, 140 - Math.max(2, w * 0.6), x + w, 140, PR.ROCA[2]); R.rect(x, 140 - Math.max(2, w * 0.6), x + w, 140 - Math.max(2, w * 0.6), PR.ROCA[3]); }
+  R.personaje(120, 168, 30, { ...demo, t, pose: Math.sin(t * 5) > 0 ? 'ofrece' : 'pie', objeto: 'gladio' });
+};
+const zoom = (t) => {
+  // corte infinito: una piedra de ancho fijo; el cuchillo baja por el medio, las mitades se separan y la cámara se mete
+  // en la de la derecha, que vuelve a ocupar todo. Cada vez el grano se ve más grueso (estamos más cerca).
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PR.TORMENTA, 0.6 + Math.hypot(x - 160, y - 90) / 200, x, y));
+  const etapas = 5, u = clamp((t - t1) / (t2 - t1), 0, 0.999) * etapas, k = Math.floor(u), f = u - k;
+  const corte = clamp(f / 0.45, 0, 1), abre = clamp((f - 0.45) / 0.55, 0, 1);
+  const w = 120, h = 70, grano = 1 + k * 1.5;
+  const piedra = (x0, x1, esc) => { for (let y = Math.round(90 - h / 2 * esc); y < 90 + h / 2 * esc; y++) for (let x = Math.round(x0); x < x1; x++) { const gx = Math.floor((x - x0) / (grano * esc)), gy = Math.floor(y / (grano * esc)); R.pset(x, y, R.tone(PR.ROCA, 2.2 + (R.hash2(gx + k * 31, gy) - 0.5) * 1.4 - (x - x0) / (x1 - x0) * 0.6, x, y)); } };
+  if (abre <= 0) { piedra(160 - w / 2, 160 + w / 2, 1); R.linea(160, Math.round(90 - h / 2 - 10), 160, Math.round(90 - h / 2 + (h + 10) * corte), PR.PLATA[4]); R.linea(161, Math.round(90 - h / 2 - 10), 161, Math.round(90 - h / 2 + (h + 10) * corte), PR.PLATA[2]); }
+  else { const esc = 1 + abre; piedra(160 - w / 2 - abre * 120, 158 - abre * 120, 1); piedra(162 - abre * (w / 2), 162 - abre * (w / 2) + (w / 2) * esc, esc); }
+};
+const atom = (t) => {
+  for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) R.pset(x, y, R.tone(PR.TORMENTA, 0.6 + Math.hypot(x - 160, y - 90) / 200, x, y));
+  const s = R.sale(tramo(t, t2, t2 + 1));
+  R.halo(160, 90, 30 + 20 * s, [R.PAL.GLOW[0], R.PAL.GLOW[1]], 1);
+  R.atomo(160, 90, t, { r: 4 + 22 * s, energia: E.energia(t) });
+};
+rodar(E, R, [[0, mesa], [t1, zoom, 'iris'], [t2, atom]], { año: -420, caja: (t, e) => R.caja(t, t > t2 + 1 ? tramo(t, t2 + 1, t2 + 1.4) : 0, (x, y) => R.icono('mano', x + 6, y, undefined, undefined, 2), { energia: e }) });
+</script>
+</body>
+</html>

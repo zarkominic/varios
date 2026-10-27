@@ -8,6 +8,8 @@
 // ese paso y los fotogramas repetidos se copian en vez de volver a dibujarse.
 // Cada escena empieza en el fotograma donde acaba la anterior, para que no queden huecos al
 // redondear. Con --faltan solo se dibujan los fotogramas que aún no existen.
+// Los efectos de sonido que declara cada página (window.__efectos) se guardan, en tiempo global, en
+// <carpeta_linea>/efectos.json, para herramientas/efectos.cjs. Con --efectos solo se recogen, sin dibujar.
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,6 +24,9 @@ const linea = JSON.parse(fs.readFileSync(path.join(dirLinea, 'linea.json'), 'utf
 const W = Number(opcion('--trabajadores', 3));
 const solo = opcion('--solo', null)?.split(',');
 const faltan = args.includes('--faltan');
+const soloEfectos = args.includes('--efectos');
+const archEfectos = path.join(dirLinea, 'efectos.json');
+const efectos = fs.existsSync(archEfectos) ? JSON.parse(fs.readFileSync(archEfectos, 'utf8')) : {};
 const fotos = path.join(dirLinea, 'fotos');
 fs.mkdirSync(fotos, { recursive: true });
 
@@ -51,9 +56,10 @@ const t0 = Date.now();
 async function renderizar(esc) {
   const pagina = esc.id.startsWith('marcador') ? 'marcador' : esc.id;
   const { f0, f1 } = esc;
-  if (faltan && Array.from({ length: f1 - f0 }, (_, k) => f0 + k).every((n) => fs.existsSync(nombre(n)))) return;
+  if (faltan && !soloEfectos && Array.from({ length: f1 - f0 }, (_, k) => f0 + k).every((n) => fs.existsSync(nombre(n)))) return;
   const ESCENA = {
     id: esc.id, duracion: esc.duracion, fps, marcas: esc.marcas, voz: esc.voz ?? null,
+    cartela: esc.cartela ?? null, frases: esc.frases ?? null,
     energia: linea.energia.slice(f0, f1), n: esc.n ?? null, veredicto: esc.veredicto ?? null,
     resultados: veredictos,
   };
@@ -65,8 +71,16 @@ async function renderizar(esc) {
     ruta.fulfill({ status: 200, contentType: 'text/javascript', body: fs.readFileSync(f) });
   });
   await pag.addInitScript((e) => { window.ESCENA = e; }, ESCENA);
-  await pag.goto(`http://localhost:${servidor.address().port}/atomo/plato/escenas/${pagina}.html?captura`);
+  // Sin esperar a «load»: con varias escenas pesadas cargando a la vez (WebGL, fuentes) puede tardar
+  // más de 30 s; lo que cuenta es window.__listo.
+  await pag.goto(`http://localhost:${servidor.address().port}/atomo/plato/escenas/${pagina}.html?captura`, { waitUntil: 'domcontentloaded', timeout: 120000 });
   await pag.waitForFunction(() => window.__listo === true && typeof window.__frame === 'function', null, { timeout: 180000 });
+  efectos[esc.id] = (await pag.evaluate(() => window.__efectos ?? [])).map(([t, nombre, o]) => [+(esc.inicio + t).toFixed(3), nombre, o ?? {}]);
+  if (soloEfectos) {
+    await pag.close();
+    console.log(`${esc.id}: ${efectos[esc.id].length} efectos`);
+    return;
+  }
   const paso = await pag.evaluate(() => window.__paso ?? 0);
   let previo = null, dibujados = 0;
   for (let n = f0; n < f1; n++) {
@@ -93,6 +107,7 @@ const pendientes = cola.slice();
 await Promise.all(Array.from({ length: W }, async () => {
   while (pendientes.length) await renderizar(pendientes.shift());
 }));
+fs.writeFileSync(archEfectos, JSON.stringify(efectos, null, 1));
 console.log(`Hecho en ${((Date.now() - t0) / 60000).toFixed(1)} min`);
 await nav.close();
 servidor.close();

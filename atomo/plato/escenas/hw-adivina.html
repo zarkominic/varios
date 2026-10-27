@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adivina · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-ADIVINA (frases 17–18). Cartela «1785». Una casa escocesa a la luz del fuego: unas nueces saltan en las brasas y
+// una chica se come una manzana ante un espejo, donde poco a poco aparece una silueta. Luego, unos niños pescan
+// manzanas con la boca en un cubo de agua.
+import { preparar, rodar } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-adivina');
+const { PALA, PR, tramo, lerp } = R;
+const m = { adi: M('adivina', 1.5), man: M('manzanas', 12) };
+const La = m.man - m.adi;
+const hogar = (t) => {
+  R.ambiente({ luz: { lado: -1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[80, 120]], suelo: 150, radio: 210 });
+  R.rect(46, 96, 114, 150, PR.ROCA[1]); R.rect(56, 110, 104, 150, PALA.CONTORNO); R.rect(42, 92, 118, 96, PR.MADERA[2]);
+  R.hoguera(80, 150, 0.9, t);
+  for (let k = 0; k < 3; k++) { const f = ((t - m.adi) * 0.7 + k / 3) % 1, x = Math.round(72 + k * 8 + f * (k - 1) * 14), y = Math.round(146 - Math.sin(f * Math.PI) * 22); R.disco(x, y, 2, PALA.MARRON[2]); R.pset(x - 1, y - 1, PALA.MARRON[3]); }
+};
+const espejo = (t) => {
+  const u = t - m.adi, ve = tramo(u, 0.55 * La, 0.85 * La);
+  hogar(t);
+  const ex = 238, ey = 92;
+  for (let y = -26; y <= 26; y++) for (let x = -18; x <= 18; x++) { const d = (x / 18) ** 2 + (y / 26) ** 2; if (d > 1) continue; R.pset(ex + x, ey + y, d > 0.8 ? PALA.ORO[2] : R.tone([PALA.CONTORNO, PALA.AZUL[0], PALA.MORADO[0], PALA.AZUL[1]], 1 + (x - y) * 0.02, ex + x, ey + y)); }
+  if (ve > 0) { R.halo(ex, ey, 18, [PALA.AZUL[0], PALA.AZUL[1]], ve * 0.7); R.disco(ex, ey - 6, 6, ve > 0.5 ? PR.NIEVE[2] : PALA.AZUL[1]); R.poligono([[ex - 12, ey + 18], [ex - 8, ey + 4], [ex + 8, ey + 4], [ex + 12, ey + 18]], ve > 0.5 ? PR.NIEVE[1] : PALA.AZUL[1]); }
+  const r = R.personaje(200, 166, 26, { peinado: 'coleta', pelo: PALA.PELO_ROJO, chaqueta: PALA.VERDE, camisa: PALA.BLANCO, falda: PALA.VERDE, largoFalda: 0.42, pantalon: PALA.VERDE, chaqueta_larga: false, t, dir: 1, brazoD: 'cara' });
+  R.disco(Math.round(r.mano[0]) + 1, Math.round(r.mano[1]) - 1, 2, PALA.ROJO[2]); R.pset(Math.round(r.mano[0]), Math.round(r.mano[1]) - 2, PALA.ROJO[3]);
+};
+const manzanas = (t) => {
+  const u = t - m.man;
+  R.ambiente({ luz: { lado: -1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[160, 100]], suelo: 150, radio: 200, tipo: 'madera' });
+  const cx = 160, top = 138;
+  R.rect(cx - 30, top, cx + 30, 170, PR.MADERA[1]); for (let x = cx - 30; x <= cx + 30; x += 6) R.rect(x, top, x, 170, PR.MADERA[0]); R.rect(cx - 31, 150, cx + 31, 151, PR.ROCA[1]);
+  for (let x = -28; x <= 28; x++) for (let y = -4; y <= 4; y++) if ((x / 28) ** 2 + (y / 4) ** 2 <= 1) R.pset(cx + x, top + y, R.tone(R.PR.AGUA, 2 + Math.sin(x * 0.4 + t * 4) * 0.6, cx + x, top + y));
+  for (let k = 0; k < 5; k++) { const salto = k === 2 && (u % 3) > 2.4 ? Math.round(Math.sin(((u % 3) - 2.4) / 0.6 * Math.PI) * 10) : 0, x = cx - 20 + k * 10, y = top - 1 + Math.round(Math.sin(t * 2 + k)) - salto; R.disco(x, y, 3, PALA.ROJO[2]); R.pset(x - 1, y - 1, PALA.ROJO[3]); R.pset(x, y - 4, R.PR.HIERBA[2]); }
+  R.personaje(118, 168, 22, { peinado: 'corto', pelo: PALA.PELO_ROJO, chaqueta: PALA.AZUL, camisa: PALA.BLANCO, pantalon: PALA.MARRON, chaqueta_larga: false, t, pose: 'rodilla', dir: 1, sonrisa: true });
+  R.personaje(204, 168, 22, { peinado: 'coleta', pelo: PALA.PELO_RUBIO, chaqueta: PALA.ROJO, camisa: PALA.BLANCO, pantalon: PALA.MARRON, chaqueta_larga: false, t: t + 1, pose: 'rodilla', dir: -1, sonrisa: true });
+};
+rodar(E, R, [[0, espejo], [m.man - 0.2, manzanas]], { cartela: '1785', año: 1785 });
+</script>
+</body>
+</html>

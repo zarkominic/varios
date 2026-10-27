@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ofrendas · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-OFRENDAS (frases 9–10). Ante una cabaña celta, platos de comida en la puerta; aldeanos con máscaras caminan y los
+// fantasmas pasan entre ellos sin reconocerlos («?» sobre un fantasma). Luego, siglos después, un monje escribe a la luz
+// de una vela; «?» en la caja (los detalles son discutidos) y, al final, la idea de fondo: luna, fuego y calavera.
+import { preparar, rodar, noche, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-ofrendas');
+const { PALA, PR, ELENCO, VERDEF, tramo, lerp } = R;
+const m = { com: M('comida', 0.5), avi: M('aviso', 9) };
+const La = E.duracion - m.avi;
+const mascara = (r) => { const [x, y] = r.cabeza; R.rect(x - 2, y - 2, x + 3, y + 1, PALA.BLANCO[3]); R.pset(x - 1, y - 1, PALA.CONTORNO); R.pset(x + 2, y - 1, PALA.CONTORNO); R.pset(x + 1, y + 1, PALA.ROJO[2]); };
+const comida = (t) => {
+  const u = t - m.com;
+  noche(R, t, { luna: [70, 28, 11] });
+  R.cabana(118, 150, 1.8, t, { humo: true });
+  sueloNoche(R, 151);
+  for (const [x, c] of [[104, PALA.ORO], [124, PALA.ROJO], [140, PALA.ORO]]) { R.rect(x - 5, 152, x + 5, 153, PALA.BLANCO[2]); R.disco(x, 150, 2, c[2]); R.pset(x - 1, 149, c[3]); }
+  for (let k = 0; k < 3; k++) { const x = Math.round(lerp(330 + k * 26, 170 + k * 26, tramo(u, 0, 4))); mascara(R.personaje(x, 166, 21, { ...(k % 2 ? ELENCO.celta2 : ELENCO.celta), t: t + k, dir: -1, anda: u < 4 ? t * 8 + k : undefined })); }
+  for (let k = 0; k < 2; k++) { const x = Math.round(lerp(40 + k * 30, 250 + k * 30, tramo(u, 1 + k, 9 + k))); R.fantasma(x, 160 - 6, 0.7, t + k, { rampa: VERDEF }); if (Math.abs(x - 200) < 40) R.icono('?', x - 2, 128 + Math.round(Math.sin(t * 4)), VERDEF[3], PALA.CONTORNO); }
+};
+const aviso = (t) => {
+  const u = t - m.avi;
+  R.ambiente({ luz: { lado: 1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[196, 112]], suelo: 150 });
+  R.rect(150, 132, 232, 137, PR.MADERA[2]); R.rect(156, 137, 159, 150, PR.MADERA[1]); R.rect(224, 137, 227, 150, PR.MADERA[1]);
+  R.rect(168, 128, 202, 131, PR.PAJA[3]);
+  const n = Math.floor(u * 6) % 40;
+  for (let k = 0; k < n; k++) R.pset(170 + (k % 15) * 2, 129 + Math.floor(k / 15), PALA.CONTORNO);
+  R.vela(214, 124, t, { r: 22 });
+  R.personaje(146, 158, 28, { ...ELENCO.monje, t, pose: 'sentado', objeto: 'pluma', brazoD: 'ofrece', sombra: false });
+};
+const icCaja = (t) => (x, y) => {
+  if (t < m.avi + 0.68 * La) return R.icono('?', x + 8, y, undefined, undefined, 2);
+  R.icono('luna', x + 2, y + 2, PR.NIEVE[3], PALA.CONTORNO, 2); R.icono('fuego', x + 18, y + 2, PALA.ANTORCHA[3], PALA.CONTORNO, 2); R.icono('calavera', x + 38, y + 2, PALA.BLANCO[3], PALA.CONTORNO, 2);
+};
+rodar(E, R, [[0, comida], [m.avi - 0.2, aviso]], {
+  año: (t) => (t < m.avi ? 0 : 1100), barra: (t) => ({ numero: t >= m.avi }),
+  caja: (t, e) => R.caja(t, t > m.avi + 0.36 * La ? tramo(t, m.avi + 0.36 * La, m.avi + 0.36 * La + 0.4) : 0, icCaja(t), { energia: e }),
+});
+</script>
+</body>
+</html>

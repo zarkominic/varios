@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El premio · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-PREMIO (frases 59–60).
+//  historiadores  restos flotando en silencio en el agua quieta, al amanecer gris; «?» en la caja.
+//  premio         un parlamento a la luz de las velas: bancos llenos y, en la mesa, un saco de monedas enorme;
+//                 «20000 £» en la caja.
+import { escena } from '/atomo/plato/escena.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
+const E = await escena('ep4-premio', 'ep04');
+const R = await crearAventura(document.getElementById('lienzo'));
+const { PAL, tramo, sale } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { hist: M('historiadores', 0.5), premio: M('premio', 4.5) };
+
+const restos = (t) => {
+  R.cielo(t, { hor: 110, semilla: 65, brillo: 0.6, nubes: { bandas: [[40, 20, 1.3]], densidad: 0.2 } });
+  R.mar(t, { hor: 110, oleaje: 0.4 });
+  for (const [x, y, w, a] of [[80, 130, 30, 0.1], [170, 140, 22, -0.2], [240, 126, 16, 0.3], [130, 156, 12, 0]]) {
+    const b = Math.round(Math.sin(t * 1.4 + x) * 1.2);
+    for (let i = 0; i < w; i++) { const yy = y + b + Math.round(i * a); R.pset(x + i, yy, PAL.HULL[3]); R.pset(x + i, yy + 1, PAL.HULL[1]); }
+  }
+  R.rect(200, 118, 201, 136 + Math.round(Math.sin(t) * 1), PAL.HULL[2]);  // un mástil roto
+  R.niebla(t, 100, 150, 1.0, 3);
+};
+const parlamento = (t) => {
+  R.interior(t, { luces: [[160, 40], [40, 60], [280, 60]], tipo: 'madera', suelo: 120, radio: 160 });
+  R.estandarte(100, 12, 12, 34, PALA.ROJO, t); R.estandarte(208, 12, 12, 34, PALA.AZUL, t);
+  for (const x of [40, 160, 280]) R.vela(x, 50, t);
+  // bancos llenos a los lados
+  for (const [x0, dir] of [[10, 1], [230, -1]]) for (let fila = 0; fila < 2; fila++) {
+    R.rect(x0, 128 + fila * 18, x0 + 80, 134 + fila * 18, PAL.HULL[3]);
+    for (let k = 0; k < 4; k++) R.personaje(x0 + 10 + k * 19, 129 + fila * 18, 26, { ...((k + fila) % 2 ? ELENCO.lord1 : ELENCO.lord2), t: t + k + fila * 3, pose: Math.sin(t * 2 + k * 2 + fila) > 0.8 ? 'brazos' : 'sentado', dir });
+  }
+  // la mesa y el saco
+  R.rect(120, 124, 200, 130, PAL.HULL[4]); R.rect(124, 130, 196, 150, PAL.HULL[2]);
+  const s = sale(tramo(t, m.premio + 0.8, m.premio + 1.6));
+  if (s > 0) {
+    R.disco(160, 112 - 2 * s, 18 * s, (x, y, d) => R.tone(PAL.PERG, 3.6 - d * 2 - (x - 160) / 30, x, y));
+    R.rect(156, 92 - 18 * s, 164, 96 - 16 * s, PAL.PERG[2]);
+    R.numero('£', 160, 118, { centro: true, tam: 16 });
+    for (let k = 0; k < 5; k++) { R.disco(140 + k * 10, 124, 2.5, PAL.ORO[4]); R.pset(140 + k * 10, 123, PAL.ORO[5]); }
+  }
+};
+
+E.iniciar((t) => {
+  R.secuencia(t, [[0, restos], [m.premio - 0.2, parlamento]]);
+  const e = E.energia(t);
+  const enCaja = t < m.premio - 0.2 ? tramo(t, m.hist + 0.8, m.hist + 1.2) : tramo(t, m.premio + 1.6, m.premio + 2);
+  R.caja(t, enCaja, (x, y) => { if (t < m.premio) R.icono('?', x + 6, y, undefined, undefined, 2); else R.numero('20000 £', x + 2, y + 12); }, { energia: e });
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

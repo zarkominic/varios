@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Extranjeros · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-EXTRANJEROS (frase 34). Cartela «332». En el trono se suceden reyes de fuera: uno libio con una pluma, uno nubio
+// con la corona y piel oscura, un persa con barba. Llega Alejandro (un griego con el pelo rizado) y la escena pasa al
+// puerto de Alejandría, con su faro.
+import { preparar, rodar, trono, alejandria, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-extranjeros');
+const m0 = M('extranjeros', 1.5), L = E.duracion - m0, T = (f) => m0 + f * L;
+const reyes = (t) => {
+  const u = (t - m0) / L;
+  trono(R, t, { abanicos: true });
+  if (u < 0.12) R.actor(EL.rey, 166, 117, t, { dir: -1, tocado: 'azul', pal: { H: R.hex('#4a2a18') } });
+  else if (u < 0.24) R.actor(EL.rey, 166, 117, t, { dir: -1, tocado: 'doble', pal: { S: R.hex('#8a5030'), s: R.hex('#5e3018') } });
+  else if (u < 0.36) R.actor(EL.barbudo, 166, 117, t, { dir: -1, pal: { A: R.hex('#8050b8'), Q: R.hex('#e8b830') } });
+  else R.actor(EL.ciudadano, 166, 117, t, { dir: -1, sonrisa: true, pal: { H: R.hex('#c8a038'), h: R.hex('#f0d878') } });
+};
+const puerto = (t) => { alejandria(R, t, { trirreme: 110, bandera: 'griega' }); R.actor(EL.ciudadano, 160, 145, t, { pal: { H: R.hex('#c8a038'), h: R.hex('#f0d878') }, dedo: true }); };
+rodar(E, R, [[0, reyes], [T(0.55), puerto]], { cartela: '332', año: (t) => (t < T(0.4) ? Math.round(R.lerp(-945, -400, R.tramo(t, m0, T(0.36)))) : -332) });
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Princeton · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-PRINCETON (frase 30), 2004. Tres planos:
+// 1. el Pacífico: el grupo del portaaviones navega con el crucero de escolta; gaviotas, delfines;
+// 2. la sala de combate del crucero, en penumbra azul: los operadores vigilan sus pantallas; en la pantalla grande hay
+//    rastros que van y vienen, y el contador de días corre (llevaban días siguiéndolos);
+// 3. el perfil de altura del radar: los puntos caen en picado desde lo alto hasta quedarse rozando el mar.
+import { preparar, rodar, pacifico, cic, perfilAltura, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-princeton');
+const { tramo } = R;
+const P2 = 4.2, P3 = 9.4;
+const mar = (t) => pacifico(R, t, { hor: 74, portaaviones: 120 + Math.round(t * 2), crucero: 220 + Math.round(t * 2), delfines: [80, 140], gaviotas: true });
+const sala = (t) => {
+  cic(R, t, { dias: 1 + Math.min(5, Math.floor((t - P2) * 1.3)) });
+  [[26, 0], [104, 1], [182, 2], [260, 3]].forEach(([x, k]) => R.actor(EL.controlador, x + 34, 150, t + k, { dir: -1, quieto: true, tocado: 'auriculares', dedo: k === 2 && t > P2 + 2.6, sorpresa: k === 2 && t > P2 + 2.4 }));
+};
+const perfil = (t) => perfilAltura(R, t, { u: tramo(t, P3 + 0.2, E.duracion - 0.4) });
+rodar(E, R, [[0, mar], [P2, sala], [P3, perfil]], { efectos: [[P2 + 0.4, 'bip'], [P2 + 2.4, 'bip'], [P3 + 0.6, 'bip'], [P3 + 2.2, 'bip'], [P3 + 3.8, 'bip']], año: 2004 });
+</script>
+</body>
+</html>

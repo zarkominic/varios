@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cabina · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-CABINA (frases 23–24). E: un avión de línea al atardecer; abajo los pueblos encienden sus luces; arriba, muy alto, un punto
+// brilla como una brasa. Dentro, un pasajero mira por la ventanilla, se le vuelca el café y la azafata lo esquiva (gag).
+// Luego, de lado: el sol bajo alcanza las alas del U-2 muy arriba; y el oficinista del Libro Azul cuelga el teléfono.
+import { preparar, rodar, primerT, atardecer, avionLinea, cabinaPasajeros, asientos, u2, despacho, mesaDespacho, insertoTelefono, C } from '/atomo/plato/escenas/ov-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-cabina');
+const { tramo, lerp } = R;
+const m = { a: M('atardecer', 0.5), b: M('brillo', 14.8) };
+const L = m.b - m.a, dentro0 = m.a + 0.5 * L, cafe = dentro0 + 1.6;
+const brasa = (t, x, y) => { const r = 1 + (Math.sin(t * 7) > 0 ? 1 : 0); R.disco(x, y, r + 1, C.fuego); R.disco(x, y, r, C.fuegoL); R.pset(x, y, C.blanco); };
+const fuera = (t) => { atardecer(R, t, { luces: tramo(t, m.a, m.a + 5) }); avionLinea(R, 150, 100, t); if (t > m.a + 3) brasa(t, 214, 24); };
+const dentro = (t) => {
+  cabinaPasajeros(R, t);
+  R.actor(EL.senor30, 172, 138, t, { dir: -1, sorpresa: t > dentro0 + 0.8, dedo: t > dentro0 + 0.8 && t < cafe });
+  R.actor(EL.senora30, 68, 138, t + 1, { dir: 1 });
+  asientos(R);
+  // el café que vuela y la azafata que lo esquiva
+  const u = tramo(t, cafe, cafe + 0.7); if (u > 0 && u < 1) { const x = Math.round(lerp(176, 226, u)), y = Math.round(118 - Math.sin(u * Math.PI) * 16); R.rect(x - 2, y - 2, x + 2, y + 2, C.k); R.rect(x - 1, y - 1, x + 1, y + 1, C.blanco); R.pset(x - 4, y + 2, C.maderaS); R.pset(x - 6, y + 4, C.maderaS); }
+  const esquiva = t > cafe + 0.3 && t < cafe + 1.2;
+  R.actor(EL.azafata, Math.round(lerp(330, 236, tramo(t, dentro0, dentro0 + 1.4))), 146, t, { dir: -1, anda: t < dentro0 + 1.4, salto: esquiva ? 6 : 0, sorpresa: esquiva, sonrisa: t > cafe + 1.4 });
+  if (t > cafe + 0.7) { R.rect(222, 150, 234, 151, C.maderaS); }
+};
+const sol = (t) => {
+  atardecer(R, t, { luces: 1, hor: 150 });
+  // los rayos del sol que se pone llegan por encima de la sombra de la Tierra hasta el U-2
+  for (let k = 0; k < 40; k++) { const u = k / 40, x = Math.round(lerp(250, 110, u)), y = Math.round(lerp(148, 30, u)); if ((k + Math.floor(t * 8)) % 3) R.pset(x, y, C.oroL); }
+  u2(R, 110, 30, t, { brasa: true }); avionLinea(R, 210, 128, t);
+};
+const colgar = m.b + 0.55 * (E.duracion - m.b);
+const oficina = (t) => { despacho(R, t, { tono: 'verde', mapa: true, mesa: false }); R.actor(EL.oficinista, 140, 124, t, { dir: 1, triste: true, dedo: t < colgar + 1.6 }); mesaDespacho(R, t, {}); };
+const cuelga = colgar + 2.2, colgarCerca = (t) => insertoTelefono(R, t, { mano: 0.3 * (1 - tramo(t, cuelga + 0.4, cuelga + 1.2)) });
+const efectos = [[cafe, 'chof'], [m.b + 1, 'brillo'], [cuelga + 1.2, 'cuelga']];
+rodar(E, R, [[0, fuera], [dentro0, dentro], [m.b - 0.3, sol], [colgar, oficina], [cuelga, colgarCerca]], { efectos, año: 1957 });
+</script>
+</body>
+</html>

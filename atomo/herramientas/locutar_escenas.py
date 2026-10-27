@@ -7,7 +7,7 @@ Fenrir en inglés: primero a la misma velocidad y, si su escena dura bastante me
 española, se repite con la velocidad que la acerca (entre 0,80 y 1,00), para que luego haya que
 estirar poco al alinear las dos pistas. Escribe <salida>/es-<id>.wav y en-<id>.wav.
 """
-import json, sys, soundfile as sf
+import json, sys, numpy as np, soundfile as sf
 from kokoro_onnx import Kokoro
 
 guion, salida, modelos = sys.argv[1:4]
@@ -24,16 +24,29 @@ def decir(texto, l):
         texto = texto.replace(a, d)
     return texto
 
+VOZ = {'es': ('em_santa', 'es'), 'en': ('am_fenrir', 'en-us')}
+
+def locutar(e, l, vel):
+    """Voz de la escena. Con "pausa_tras_primera", la primera palabra («Uno.», «One.») se dice aparte
+    y se deja ese silencio detrás: el sintetizador no hace pausa de verdad tras ella."""
+    texto = decir(e[l], l)
+    if e.get('pausa_tras_primera'):
+        primera, resto = texto.split(' ', 1)
+        a, sr = k.create(primera, voice=VOZ[l][0], speed=vel, lang=VOZ[l][1])
+        b, _ = k.create(resto, voice=VOZ[l][0], speed=vel, lang=VOZ[l][1])
+        return np.concatenate([a, np.zeros(int(e['pausa_tras_primera'] * sr)), b]), sr
+    return k.create(texto, voice=VOZ[l][0], speed=vel, lang=VOZ[l][1])
+
 for e in json.load(open(guion))['escenas']:
     if e.get('muda'):
         continue
-    a, sr = k.create(decir(e['es'], 'es'), voice='em_santa', speed=vel_es, lang='es')
+    a, sr = locutar(e, 'es', vel_es)
     sf.write(f"{salida}/es-{e['id']}.wav", a, sr)
     d_es = len(a) / sr
     vel = vel_es
-    b, _ = k.create(decir(e['en'], 'en'), voice='am_fenrir', speed=vel, lang='en-us')
+    b, _ = locutar(e, 'en', vel)
     if not 0.92 < (len(b) / sr) / d_es < 1.08:
         vel = min(1.0, max(0.80, vel * (len(b) / sr) / d_es))
-        b, _ = k.create(decir(e['en'], 'en'), voice='am_fenrir', speed=vel, lang='en-us')
+        b, _ = locutar(e, 'en', vel)
     sf.write(f"{salida}/en-{e['id']}.wav", b, sr)
     print(f"{e['id']:12s} es {d_es:5.1f} s · en {len(b)/sr:5.1f} s (velocidad {vel:.2f})", flush=True)

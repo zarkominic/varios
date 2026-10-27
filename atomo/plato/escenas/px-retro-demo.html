@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kit pixel retro · prueba</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Prueba del kit pixel-retro.js: cada segundo entero muestra una pieza (t = 0, 1, 2, …).
+import { crearRetro } from '/atomo/plato/kits/pixel-retro.js';
+const R = await crearRetro(document.getElementById('lienzo'));
+const { PAL } = R;
+const P = [
+  (t) => { R.cielo(t, { luna: [70, 40, 14], nubes: true }); R.mar(t, { luzX: 70 });
+    R.barco(110, 132, t, { tipo: 'galeon', bandera: 'pirata', farol: true });
+    R.barco(230, 130, t, { tipo: 'guerra', bandera: 'ingles', farol: true, dir: -1, esc: 0.8 });
+    R.barco(290, 124, t, { tipo: 'balandro', bandera: 'negra', esc: 0.7, velaNegra: true });
+    R.companero(t, 0.4); R.caja(t, 1, (x, y) => { R.numero('1681', x, y + 12); R.icono('calavera', x + 40, y + 4); }, { energia: 0.5 }); },
+  (t) => { R.cielo(t, { luna: [250, 40, 10] }); R.mar(t, { luzX: 250 });
+    R.barco(80, 130, t, { tipo: 'carabela', esc: 1.2 }); R.barco(150, 128, t, { tipo: 'carabela', esc: 0.9, fase: 1 });
+    R.barco(230, 136, t, { tipo: 'canoa', esc: 1.2 }); R.companero(t, 0); },
+  (t) => { R.mesa(t, { luz: [60, 30] }); R.pergamino(40, 20, 290, 150, { luz: [60, 20] });
+    const pj = R.proyector(50, 28, 280, 140); R.mundo(pj);
+    for (let k = -150; k <= 180; k += 30) { const [x] = pj(k, 0); R.linea(x, 28, x, 140, PAL.TINTA, 4); }
+    for (let k = -60; k <= 80; k += 20) { const [, y] = pj(0, k); R.linea(50, y, 280, y, PAL.TINTA, 4); }
+    R.equis(...pj(-40, 30), 3); R.rosa(80, 120, 10); R.vela(25, 40, t); R.companero(t, 0); },
+  (t) => { R.interior(t, { luces: [[100, 60], [240, 60]], suelo: 130 }); R.vela(100, 70, t); R.vela(240, 70, t);
+    R.figura(70, 150, 40, { sombrero: 'tricornio', faja: 2, pose: 'rodilla', objeto: 'libro' });
+    R.figura(150, 150, 44, { sombrero: 'corona', capa: true, dir: -1 });
+    R.figura(200, 150, 40, { sombrero: 'pañuelo', faja: 2, pose: 'senala', pata: true });
+    R.figura(250, 150, 40, { sombrero: 'sombrero', pose: 'mide', objeto: 'sextante' });
+    R.figura(290, 150, 36, { pose: 'brazos', sombrero: 'gorro', delantal: true }); R.companero(t, 0); },
+  (t) => { R.cielo(t, {}); R.globo(90, 80, 40, t * 30, {}); R.globo(220, 80, 30, t * 30 + 120, { pergamino: true, meridianos: true });
+    R.esfera(150, 140, 10, t); R.telefono(290, 110, 50, t, {}); R.companero(t, 0.6); },
+  (t) => { R.mesa(t, {}); R.libro(160, 80, 160, t, { p: (t % 1) * 1.4 + 0.2 }); R.cofre(60, 150, t, { w: 30 }); R.cofre(260, 150, t, { w: 26, metal: 'plata' }); R.companero(t, 0); },
+  (t) => { R.cartela(t % 1 * 1.2, '1707'); },
+];
+window.__frame = async (t) => { const i = Math.min(P.length - 1, Math.floor(t)); P[i](t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

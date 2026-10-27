@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Un minuto · ep4</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EP4-MILLAS (frases 66–67).
+//  minuto  el mapa del ancla de cerca: una islita en el océano; la incertidumbre de un minuto de error es una franja
+//          roja ancha (≈ 28 km) que tapa la isla. «1» y un reloj en la caja.
+//  isla    con 40 s la franja se estrecha (≈ 18 km) y la isla asoma; la longitud deja de temblar, «clic», y la X se
+//          clava en la isla.
+import { escena } from '/atomo/plato/escena.js';
+import { crearAventura, PALA, ELENCO } from '/atomo/plato/kits/pixel-aventura.js';
+const E = await escena('ep4-millas', 'ep04');
+const R = await crearAventura(document.getElementById('lienzo'));
+const { PAL, tramo, lerp, clamp, sale } = R;
+const M = (k, d) => E.marca(k, d);
+const m = { minuto: M('minuto', 0.5), isla: M('isla', 6) };
+const clic = (m.isla + E.marca('isla_fin', m.isla + 5)) / 2;
+
+E.iniciar((t) => {
+  R.mesa(t, { luz: [60, 20] });
+  R.pergamino(20, 12, 300, 148, { luz: [60, 20], semilla: 47 });
+  // océano con ondas de tinta y una isla pequeña en el centro
+  for (let y = 24; y < 140; y += 12) for (let x = 30; x < 290; x += 3) if (Math.sin(x * 0.3 + y) > 0.6) R.pset(x, y + Math.round(Math.sin(x * 0.2) * 1.5), PAL.PERG[2]);
+  const ix = 160, iy = 80;
+  R.costa([[ix - 8, iy], [ix - 4, iy - 6], [ix + 4, iy - 7], [ix + 9, iy - 2], [ix + 6, iy + 5], [ix - 3, iy + 6]], { tierra: 2.2 });
+  R.pset(ix, iy - 2, PAL.HULL[3]); R.pset(ix + 1, iy - 3, PAL.HULL[3]);
+  // franja de incertidumbre: anchura según el error (1 min → 40 s)
+  const estrecha = tramo(t, m.isla + 0.3, m.isla + 1.4);
+  const ancho = lerp(46, 30, estrecha) * (1 - tramo(t, clic, clic + 0.5) * 0.9);
+  const tiembla = 1 - tramo(t, clic - 0.2, clic);
+  const cx = ix + Math.round(tiembla * 6 * Math.sin(t * 3));
+  const tapa = 1 - tramo(t, m.isla + 0.6, m.isla + 1.4);
+  for (let y = 20; y < 142; y++) for (let x = Math.round(cx - ancho / 2); x <= cx + ancho / 2; x++) {
+    const sobreIsla = Math.abs(x - ix) < 10 && Math.abs(y - iy) < 8;
+    if ((x + y) % 3 === 0 && (!sobreIsla || R.hash2(x, y) < tapa)) R.pset(x, y, PAL.ROJO);
+  }
+  R.linea(cx - ancho / 2, 20, cx - ancho / 2, 141, PAL.OBS[3]); R.linea(cx + ancho / 2, 20, cx + ancho / 2, 141, PAL.OBS[3]);
+  // el clic: la X se clava
+  if (t > clic) { const c = sale(tramo(t, clic, clic + 0.3)); R.equis(ix, iy - 10, 4); R.anillo(ix + 0.5, iy - 9.5, lerp(14, 7, c), PAL.ROJO); }
+  const e = E.energia(t);
+  R.caja(t, tramo(t, m.minuto + 0.4, m.minuto + 0.8), (x, y) => {
+    if (t < m.isla) { R.numero('60', x + 4, y + 12); R.icono('reloj', x + 24, y + 4, PAL.UI[5]); }
+    else { R.numero('40', x + 4, y + 12); R.icono('reloj', x + 24, y + 4, PAL.UI[5]); }
+  }, { energia: e });
+  R.companero(t, e);
+  R.presentar();
+});
+</script>
+</body>
+</html>

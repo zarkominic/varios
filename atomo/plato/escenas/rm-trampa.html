@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trampa · ep5</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RM-TRAMPA (frases 25–26). Cartela «180». El mapa del imperio quieto: la frontera brilla y ya no avanza. Legionarios en
+// fila cobran de un cofre que se vacía. Luego el denario: unas tijeras le recortan plata (la barra baja a «50%») y
+// entra un chorro de cobre.
+import { preparar, rodar } from '/atomo/plato/escenas/rm-comun.js';
+const { E, R, M } = await preparar('rm-trampa');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { cat: M('catch', 1.5), tra: M('trampa', 12) };
+const t1 = m.cat + 3.2;
+const mapa = (t) => R.mapaAño(t, 180);
+const paga = (t) => {
+  R.cieloR(t, 'tarde', { hor: 124, sol: [50, 112, 9] }); R.suelo(124, PR.TIERRA, { luz: 1.8 });
+  const vacio = tramo(t, t1, m.tra - 0.5);
+  R.cofre(70, 158, t, { w: 22, abierto: true, metal: vacio > 0.7 ? 'plata' : 'oro' });
+  R.personaje(40, 166, 28, { ...ELENCO.senador, banda: PALA.ORO, t, pose: 'ofrece', objeto: 'bolsa' });
+  for (let k = 0; k < 8; k++) { const x = 104 + k * 26; R.personaje(x, 166 + (k & 1) * 4, 26, { ...ELENCO.legionario, t: t + k, dir: -1, pose: k === 0 && Math.sin(t * 3) > 0 ? 'ofrece' : 'pie', objeto: k ? 'gladio' : undefined }); }
+  for (let k = 0; k < 4; k++) { const f = ((t - t1) * 0.8 + k / 4) % 1, x = lerp(70, 104, f), y = 140 - 16 * Math.sin(Math.PI * f); R.disco(x, y, 1.5, PALA.ORO[3]); }
+};
+const tijera = (t) => {
+  R.cieloR(t, 'tarde', { sol: [60, 150, 12], nubes: { n: 3 } });
+  const u = t - m.tra, plata = lerp(0.95, 0.5, tramo(u, 1.5, 6));
+  R.denario(140, 86, 44, plata, t);
+  if (u > 1.2 && u < 6.4) R.tijeras(Math.round(lerp(196, 170, (u * 0.6) % 1)), Math.round(lerp(40, 70, (u * 0.6) % 1)), Math.abs(Math.sin(u * 5)), { ang: 2.4 });
+  if (u > 2.4) for (let k = 0; k < 14; k++) { const y = 10 + ((k * 7 + u * 60) % 60); R.pset(140 + Math.round(Math.sin(k) * 2), Math.round(y), PR.COBRE[3 - (k & 1)]); }
+  R.barra(262, 150, 90, plata);
+};
+rodar(E, R, [[0, mapa], [t1, paga], [m.tra - 0.2, tijera]], { cartela: '180', año: (t) => (t < m.tra ? 180 : Math.round(lerp(180, 200, tramo(t, m.tra, m.tra + 6)))) });
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Crisis · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-CRISIS (frase 33). Cartela «1177». El mapa del Mediterráneo oriental: se encienden fuegos en Troya, Micenas,
+// Hattusa, Ugarit, Chipre y Creta, y unos barcos bajan hacia Egipto; Egipto (el Nilo) aguanta.
+import { preparar, rodar, mapaEg, C } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-crisis');
+const m0 = M('crisis', 1.5), L = E.duracion - m0;
+const SITIOS = [[26.24, 39.96], [22.75, 37.73], [34.6, 40.0], [35.78, 35.6], [33.4, 35.1], [24.9, 35.2], [36.2, 33.5]];
+const v = [18, 42, 22, 42.5];
+const plano = (t) => {
+  const u = t - m0, L2 = mapaEg(R, t, { vista: v, verde: true });
+  SITIOS.forEach((p, k) => { if (u < 0.1 * L + k * 0.5) return; const [x, y] = L2(p); const f = Math.sin(t * 9 + k) > 0 ? 1 : 0; R.icono('fuego', x - 3, y - 6 - f, k % 2 ? C.rojo : C.oro, C.k); });
+  for (let k = 0; k < 3; k++) { const f = R.tramo(u, 0.3 * L + k * 0.4, 0.9 * L), [x0, y0] = L2([28 + k * 2, 36]), [x1, y1] = L2([31, 31.6]); if (f > 0) R.icono('barco', Math.round(R.lerp(x0, x1, f)) - 3, Math.round(R.lerp(y0, y1, f)) - 6, C.negro, undefined, 1); }
+  const [ex, ey] = L2([31.2, 30]); R.punto(ex, ey, t, R.PALA.ORO, 2);
+};
+rodar(E, R, [[0, plano]], { cartela: '1177', año: -1177 });
+</script>
+</body>
+</html>

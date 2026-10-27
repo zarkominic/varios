@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Final · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-FINAL (frases 42–44). Platón escribe en un rollo a la luz de una lámpara; corte a un aula de hoy con pizarra y
+// alumnos que levantan la mano. Luego Demócrito bajo las estrellas, pensando, y alrededor átomos pequeños que bailan;
+// «2000+» en la caja. Al final, el mapa con ranitas alrededor del Mediterráneo que croan.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-final');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m = { pla: M('platon', 0.5), dem: M('demo2', 8), ran: M('ranas', 14) };
+const t1 = m.pla + 4;
+const escribe = (t) => {
+  R.ambiente({ luz: { lado: 1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.interior(t, { luces: [[180, 120]], suelo: 150 });
+  R.rect(150, 140, 220, 146, PR.MADERA[2]); R.rect(160, 136, 200, 140, PR.PAJA[3]); R.vela(208, 134, t, { r: 18 });
+  R.personaje(140, 160, 28, { ...ELENCO.platon, t, pose: 'sentado', objeto: 'pluma', sombra: false });
+};
+const aula = (t) => {
+  R.rect(0, 0, R.W, 150, PALA.AMARILLO[3]); R.rect(60, 30, 260, 90, PR.SELVA ? PALA.VERDE[0] : PALA.VERDE[0]); R.rect(58, 28, 262, 30, PR.MADERA[2]);
+  R.numero('?', 160, 70, { tam: 16, centro: true });
+  R.suelo(150, PR.MADERA, { luz: 2.4 });
+  for (let k = 0; k < 5; k++) { const x = 40 + k * 60, mano = Math.sin(t * 2 + k) > 0.2; R.personaje(x, 176, 24, { peinado: k % 2 ? 'coleta' : 'corto', pelo: [PALA.PELO_NEGRO, PALA.PELO_RUBIO, PALA.PELO_CASTANO, PALA.PELO_ROJO, PALA.PELO_NEGRO][k], piel: k === 2 ? PALA.PIEL_OSCURA : PALA.PIEL, chaqueta: [PALA.AZUL, PALA.ROJO, PALA.VERDE, PALA.MORADO, PALA.AMARILLO][k], camisa: PALA.BLANCO, pantalon: PALA.AZUL, botas: PALA.BLANCO, chaqueta_larga: false, t: t + k, brazoD: mano ? 'arriba' : 'abajo', sonrisa: true }); }
+};
+const piensa = (t) => {
+  R.ambiente({ luz: { lado: 1, color: PR.NIEVE[2] }, sombra: PALA.CONTORNO });
+  R.cielo(t, { luna: [260, 30, 9], hor: 150, semilla: 7 }); R.colinas(150, { amp: 4, luz: 0.6 });
+  R.personaje(110, 170, 28, { ...ELENCO.griego, pelo: PALA.PELO_BLANCO, barba: 'poblada', banda: PALA.MORADO, t, pose: 'cara' });
+  for (let k = 0; k < 7; k++) { const a = t * 0.8 + k * 0.9, r = 30 + (k % 3) * 12; R.atomo(Math.round(170 + Math.cos(a) * r * 1.4), Math.round(100 + Math.sin(a) * r * 0.6), t + k, { r: 4 }); }
+};
+const ranas = (t) => {
+  R.mapa(t, {});
+  ['massalia', 'emporion', 'napoles', 'siracusa', 'cirene', 'bizancio', 'olbia', 'sinope', 'mileto', 'atenas', 'alejandria', 'cartago', 'troya', 'esparta'].forEach((c, k) => { const [x, y] = R.lugar(c); const salta = Math.sin(t * 3 + k * 1.7) > 0.8 ? 2 : 0; R.icono('rana', x - 3, y - 6 - salta, PALA.VERDE[3], PALA.CONTORNO); });
+};
+rodar(E, R, [[0, escribe], [t1, aula], [m.dem - 0.2, piensa], [m.ran - 0.2, ranas, 'iris']], { año: (t) => (t < t1 ? -380 : t < m.dem ? null : -400), caja: (t, e) => R.caja(t, t > m.dem + 3 && t < m.ran - 0.2 ? tramo(t, m.dem + 3, m.dem + 3.4) : 0, (x, y) => R.numero('2000+', x + 2, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

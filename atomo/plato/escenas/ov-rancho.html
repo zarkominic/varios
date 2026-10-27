@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rancho · ep10</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OV-RANCHO (frase 13), verano de 1947. Cinco planos:
+// 1. el rancho de Nuevo México por la mañana: Brazel sale de casa hacia los pastos con las ovejas; a lo lejos algo
+//    destella y se para a mirar;
+// 2. el campo a ras de suelo: sembrado de tiras de aluminio que brillan con el viento, goma y palitos; Brazel camina
+//    entre los restos;
+// 3. los restos de cerca: una mano coge un palito con cinta de flores; pesa tan poco que el viento se lo lleva (gag);
+// 4. el cobertizo: Brazel entra con los brazos llenos y el montón crece dentro; una oveja mastica una tira (gag);
+// 5. la carretera hacia Roswell: la camioneta cargada pasa junto a la señal con la flecha y el «75», levantando polvo.
+import { preparar, rodar, rancho, campoRestos, insertoRestos, cobertizo, carreteraRoswell, camioneta, C } from '/atomo/plato/escenas/ov-comun.js';
+import { cordero } from '/atomo/plato/escenas/ag-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await preparar('ov-rancho');
+const { tramo, lerp } = R;
+const P2 = 6.4, P3 = 10.2, P4 = 13.8, P5 = 17.2, mira = 4.4, coge = P3 + 0.9, vuela = P3 + 2.2, oveja = P4 + 1.6;
+const ovejas = (t, xs) => xs.forEach(([x, y], k) => cordero(R, x + Math.round(Math.sin(t * 0.3 + k) * 3), y, t + k));
+// 1 · la mañana en el rancho
+const manana = (t) => {
+  rancho(R, t, { restos: 0.35 });
+  ovejas(t, [[150, 156], [176, 160], [300, 164]]);
+  if (t > mira) { const g = Math.sin(t * 6) > 0 ? 3 : 1; for (let r = 1; r <= g; r++) { R.pset(286, 142 - r, C.blanco); R.pset(286 + r, 142, C.blanco); R.pset(286 - r, 142, C.blanco); } }
+  R.actor(EL.brazel, Math.round(lerp(64, 200, tramo(t, 0.8, mira))), 150, t, { dir: 1, anda: t > 0.8 && t < mira, sorpresa: t > mira + 0.2, dedo: t > mira + 0.8, bigote: true });
+};
+// 2 · el campo de los restos
+const campo = (t) => { campoRestos(R, t); R.actor(EL.brazel, Math.round(lerp(40, 150, tramo(t, P2 + 0.2, P3 - 0.6))), 120, t, { dir: 1, anda: t < P3 - 0.6, sorpresa: t > P3 - 1.2, bigote: true }); };
+// 3 · los restos de cerca
+const cerca = (t) => insertoRestos(R, t, { t0: P3 + 0.2, coge: tramo(t, coge, coge + 0.5), vuela: tramo(t, vuela, vuela + 1.4) });
+// 4 · el cobertizo
+const guarda = (t) => {
+  cobertizo(R, t, { monton: tramo(t, P4 + 0.8, P5 - 0.4) });
+  const x = Math.round(lerp(10, 132, tramo(t, P4 + 0.1, P4 + 1.6)));
+  if (t < P4 + 2.4) { R.actor(EL.brazel, x, 152, t, { dir: 1, anda: t < P4 + 1.6, bigote: true }); for (let k = 0; k < 4; k++) { R.rect(x + 9 + k * 2, 132 - k, x + 13 + k * 2, 132 - k, C.foil); } R.linea(x + 8, 134, x + 18, 130, C.maderaL); }
+  else R.actor(EL.brazel, Math.round(lerp(132, 80, tramo(t, P4 + 2.4, P5))), 152, t, { dir: -1, anda: true, triste: t > oveja + 0.4, bigote: true });
+  cordero(R, 236, 160, t); if (t > oveja) { R.rect(244, 154, 249, 154, C.foil); if (Math.sin(t * 6) > 0.4) R.pset(247, 153, C.blanco); }
+};
+// 5 · hacia Roswell
+const carretera = (t) => { const x = Math.round(lerp(-30, 360, tramo(t, P5 + 0.2, E.duracion))); carreteraRoswell(R, t, { polvo: x }); camioneta(R, x, Math.round(152 - x * 0.14), t, { carga: true, anda: true }); };
+const efectos = [[mira, 'brillo'], [coge, 'papel'], [vuela, 'whoosh'], [P4 + 0.9, 'papel'], [oveja, 'masca'], [P5 + 0.1, 'arranque'], [P5 + 0.6, 'motor', { dur: E.duracion - P5 - 0.6 }]];
+rodar(E, R, [[0, manana], [P2, campo], [P3, cerca], [P4, guarda], [P5, carretera]], { efectos, año: 1947 });
+</script>
+</body>
+</html>

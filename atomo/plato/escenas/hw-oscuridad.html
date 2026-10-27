@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Oscuridad · ep7</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HW-OSCURIDAD (frases 28–29). Un campo cosechado con gavillas: el sol baja y la noche llega antes; en la caja, un reloj
+// con las horas de luz que bajan de 17 a 7. Luego pantalla partida: a la izquierda (el norte) un árbol que pierde las
+// hojas naranjas de noche; a la derecha (el sur) un árbol en flor al sol; «31/10» en la caja.
+import { preparar, rodar, noche, arbolSeco, sueloNoche } from '/atomo/plato/escenas/hw-comun.js';
+const { E, R, M } = await preparar('hw-oscuridad');
+const { PALA, PR, NARANJA, tramo, lerp } = R;
+const m = { osc: M('oscuridad', 0.5), sur: M('sur', 10) };
+const Lo = m.sur - m.osc;
+const gavillas = () => { for (let k = 0; k < 8; k++) { const x = 30 + k * 38, y = 150 + (k % 2) * 8; R.poligono([[x - 5, y], [x, y - 14], [x + 5, y]], PALA.AMARILLO[2]); R.rect(x - 3, y - 6, x + 3, y - 6, PALA.ORO[1]); R.linea(x, y - 14, x, y, PALA.ORO[2]); } };
+const tarde = (t) => {
+  const u = t - m.osc, f = tramo(u, 0, 0.5 * Lo);
+  R.ambiente({ luz: { lado: 1, color: PALA.ANTORCHA[3] }, sombra: PALA.CONTORNO });
+  R.cieloR(t, 'tarde', { hor: 132, sol: [250, Math.round(lerp(60, 136, f)), 10] });
+  R.suelo(132, PR.PAJA, { luz: lerp(2, 0.8, f) });
+  gavillas();
+};
+const nocheCampo = (t) => {
+  noche(R, t, { luna: [80, 30, 11], hor: 132, colinas: false });
+  R.suelo(132, [PALA.CONTORNO, PALA.MORADO[0], PALA.PURPURA[0], PALA.PURPURA[1]], { luz: 1.4 });
+  gavillas();
+  R.niebla(t, 130, 170, 1, 4);
+};
+const partida = (t) => {
+  const u = t - m.sur;
+  R.recorte([0, 0, 159, R.H - 1]);
+  noche(R, t, { luna: [40, 30, 9], hor: 140, colinas: false });
+  sueloNoche(R, 140, { rampa: [PALA.CONTORNO, PALA.MARRON[0], PALA.MARRON[1], PALA.MARRON[2]] });
+  arbolSeco(R, 90, 142, 1.6);
+  for (let k = 0; k < 14; k++) { const fy = (t * 0.25 + k / 14) % 1, x = Math.round(60 + R.hash2(k, 1) * 80 + Math.sin(t * 2 + k) * 6), y = Math.round(60 + fy * 84); R.rect(x, y, x + 1, y, NARANJA[2 + (k % 2)]); }
+  R.recorte([160, 0, R.W - 1, R.H - 1]);
+  R.cieloR(t, 'dia', { hor: 140 });
+  R.suelo(140, PR.HIERBA, { luz: 2.4 });
+  R.rect(228, 96, 233, 142, PR.MADERA[1]);
+  for (let k = 0; k < 60; k++) { const a = R.hash2(k, 4) * Math.PI * 2, r = R.hash2(k, 5) * 30; R.disco(Math.round(230 + Math.cos(a) * r * 1.2), Math.round(86 + Math.sin(a) * r * 0.7), 3, k % 3 ? PR.HIERBA[2] : PALA.ROJO[3]); }
+  for (let k = 0; k < 16; k++) { const x = 168 + k * 9, y = 150 + (k % 3) * 6, b = tramo(u, 0.5 + k * 0.1, 1 + k * 0.1); R.linea(x, y, x, y - 4, PR.HIERBA[1]); if (b > 0) R.disco(x, y - 5, b > 0.5 ? 2 : 1, [PALA.AMARILLO, PALA.MORADO, PALA.ROJO][k % 3][3]); }
+  R.recorte(null);
+  R.rect(159, 0, 160, R.H - 1, PALA.CONTORNO);
+};
+rodar(E, R, [[0, tarde], [m.osc + 0.5 * Lo, nocheCampo], [m.sur - 0.2, partida]], {
+  año: 2026,
+  caja: (t, e) => R.caja(t, t > m.osc + 0.8 ? tramo(t, m.osc + 0.8, m.osc + 1.2) : 0, (x, y) => {
+    if (t < m.sur) { R.icono('reloj', x, y + 5, PALA.AMARILLO[3], PALA.CONTORNO); R.numero(String(Math.round(lerp(17, 7, tramo(t, m.osc + 1.2, m.sur - 1)))), x + 12, y + 12); }
+    else R.numero('31/10', x + 2, y + 12);
+  }, { energia: e }),
+});
+</script>
+</body>
+</html>

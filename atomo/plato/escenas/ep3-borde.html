@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ep3-borde · la balanza del cielo y el borde</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<script type="module">
+// EPISODIO 3 · ep3-borde (frases 81–84, sin cartela). Plastilina adulta + kits/ep03-balanza.js (la balanza de latón, el
+// montón de arena y la silueta de puntitos), kits/ep03-universo.js (la esfera de lo observable, la red y la niebla) y
+// kits/ep03-instrumentos.js (el telescopio). Las dos balanzas (81–83) van en arcilla aunque el Visual las marca en papel
+// (cambios de estilo n.º 11 y 12 de las notas: los tiene que firmar el dueño); es la misma balanza en las dos frases.
+//  0          (= último de ep3-universo, FINAL_UNIVERSO) la esfera translúcida de lo observable, llena de puntitos-galaxia,
+//             en el centro sobre la red; regla en 10²⁷; Atom pequeño abajo a la izquierda
+//  nadie      GENERAL. La cámara se aleja: la red se apaga y aparece el plató con la balanza de latón; la esfera encoge y
+//             cae en el plato derecho (llega con la marca); en el izquierdo, un montón de arena. La balanza oscila sin
+//             decidirse durante toda la frase
+//  carrera    PLANO MEDIO (corte; la balanza de tres cuartos, más cerca, con el plato de la arena delante). La arena deja
+//             su plato (sube y se va, soltando granos) y el plato de la esfera baja; a mitad de frase cae la silueta de un
+//             cuerpo humano llena de puntitos en el plato vacío: lo hunde de golpe (sin esfuerzo) y la esfera sube; los
+//             puntitos se encienden. Al final, la cámara empieza a acercarse a la silueta
+//  multitud   DETALLE: la cámara se acerca a la silueta (empuje 2D hasta una foto de cerca) y sigue acercándose despacio:
+//             dentro, una multitud de puntitos que chispean
+//  telescopios GENERAL (corte). Al fondo de todo, a la derecha, la pared de niebla brillante; delante, sobre la red
+//             oscura, un telescopio enorme (el de ep03-instrumentos.js) flota apuntando al borde, con un haz de luz tenue.
+//             A mitad de frase, su imagen aparece en una mirilla de latón (galaxias y puntitos) y se funde en la niebla
+//             opaca desde el borde hacia dentro; la mirilla crece hasta llenar la pantalla: solo niebla, detrás no hay
+//             nada que ver. Se asienta y queda quieta
+// CONTINUIDAD
+//  · Fotograma 0 = FINAL_UNIVERSO de kits/ep03-universo.js, como lo pinta ep3-universo en su último fotograma (la foto de
+//    la red con la esfera, n 0, y puntoNosotros r 4,5 en el centro; la regla en 10²⁷; Atom en (230, 780) con su escala,
+//    su giro y la fase de los electrones con que acaba ep3-universo: se leen de marcas-ep03.json). window.__inicio.
+//  · Último fotograma (ep3-centro empieza así; window.__fin lo da en números): la niebla brillante de ep03-universo.js a
+//    pantalla completa, NIEBLA_FIN = { escala 260, centro (960, 540), luz 1 } (foto n 0 o 1: hierve alternando), con la
+//    sombra blanda detrás de Atom (SOMBRA_ATOM); la regla en 10²⁷ (como en FINAL_UNIVERSO); Atom en (230, 780) con el
+//    velo 0,3. La «imagen del telescopio» ya se ha fundido del todo en la niebla.
+// Coste: todo se compone en 2D (crearPost al final). Lo quieto son fotos (la red con la esfera, la regla, la balanza
+// asentada, el detalle de la silueta, el telescopio, la pared de niebla, el campo de galaxias y la niebla final); en vivo
+// va la balanza mientras se mueve (con su arena o su silueta, y Atom en la misma pasada); el borde de delante del plato
+// de la esfera se vuelve a pegar de esa misma pasada encima de la esfera 2D. En lo demás, una pasada pequeña con Atom.
+// Las fotos pesadas se hacen en fotogramas baratos poco antes de hacer falta (PREPARAR).
+import * as THREE from 'three';
+import { escena } from '/atomo/plato/escena.js';
+import { crearPlato, crearPost, cl, mix, prog, ss, eio, eoc, eic, eob, azar, muelle } from '/atomo/plato/kits/plastilina-adulta.js';
+import { tiposBalanza, balanza, geometriaBalanza, platillo, caida, silueta, arena, mundoPieza, BALANZA, SILUETA } from '/atomo/plato/kits/ep03-balanza.js';
+import { crearCielo, RED, FINAL_UNIVERSO, puntoNosotros } from '/atomo/plato/kits/ep03-universo.js';
+import { tiposInstrumentos, uniformesInstrumentos, ponerInstrumentos, instrumento } from '/atomo/plato/kits/ep03-instrumentos.js';
+
+const T0 = performance.now();
+window.__carga = [];
+const marcaCarga = (k) => window.__carga.push([k, Math.round(performance.now() - T0)]);
+const E = await escena('ep3-borde', 'ep03');
+const M = (k, d) => E.marca(k, d);
+const m = {
+  n: M('nadie', 0.5), nF: M('nadie_fin', 4.607), c: M('carrera', 5.793), cF: M('carrera_fin', 11.822),
+  mu: M('multitud', 12.372), muF: M('multitud_fin', 13.971), te: M('telescopios', 14.842), teF: M('telescopios_fin', 20.664),
+};
+const D = E.duracion, QUIETO = D - 0.6;
+const W = 1920, H = 1080;
+const FIN = FINAL_UNIVERSO;
+
+// ---------------------------------------------------------------- tiempos (todo sale de las marcas)
+const T = {
+  rojo: [0.08, m.n - 0.04],                       // la red de alrededor se apaga: aparece el plató con la balanza
+  baja: [0.08, m.n + 0.04],                       // la esfera encoge y cae en el plato derecho (llega con la marca)
+  B: m.c - 0.22,                                  // corte: plano medio (la balanza de tres cuartos)
+  sale: [m.c - 0.1, m.c + 0.42],                  // la arena deja su plato
+  golpe: m.c + 0.42 * (m.cF - m.c),               // a mitad de frase, la silueta cae en el plato vacío
+  C: m.mu - 0.22,                                 // la cámara se acerca a la silueta
+  Dd: m.te - 0.22,                                // corte: el telescopio y la pared de niebla
+  Ee: m.te + 0.5 * (m.teF - m.te),                // a mitad de frase: la imagen del telescopio
+};
+T.aterriza = T.baja[1];
+T.inclina = T.sale[0] + 0.18;                     // sin la arena, el plato de la esfera baja
+T.cae = [T.golpe - 0.4, T.golpe];
+T.quietaB = T.golpe + 1.45;                       // la balanza asentada (desde aquí, foto)
+T.empujeB = [T.quietaB + 0.25, T.C];              // la cámara empieza a acercarse, despacio
+T.acerca = [T.C, T.C + 0.75];                     // … y se acerca a la silueta (fundido a la foto de cerca)
+T.haz = [T.Dd + 0.3, T.Dd + 1.2];                 // el telescopio apunta al borde: su haz de luz
+T.mirilla = [T.Ee - 0.3, T.Ee + 0.05];            // la mirilla con su imagen (completa a mitad de frase)
+T.funde = [T.Ee + 0.05, T.Ee + 1.2];              // la imagen se funde en la niebla, del borde hacia dentro
+T.crece = [T.Ee + 0.95, T.Ee + 2.05];             // la mirilla crece hasta llenar la pantalla
+const plano = (ts) => (ts < T.B ? 'A' : ts < T.C ? 'B' : ts < T.Dd ? 'C' : 'D');
+
+// ---------------------------------------------------------------- el plató
+const I = { REG: 0, FLE: 1, BAL: 2, PLA: 3, ARE: 4, SIL: 5, TEL: 6 };
+const UI = uniformesInstrumentos();
+const P = await crearPlato({
+  piezas: ['reglaA', 'flecha', 'balanza', 'platillo', 'arena', 'silueta', 'instrumento'],
+  tiposExtra: { ...tiposBalanza(['balanza', 'platillo', 'arena', 'silueta']), ...tiposInstrumentos({ variantes: ['telescopio'] }) },
+  uniformes: { ...UI },
+  alfa: true, post: false,
+  sombraFondo: ['p2', 'p4', 'p5'],
+  sombras: { p2: ['p4', 'p5'] },
+  camara: { pos: [0, 3.8, 15.5], mira: [0, 2.3, 0], fov: 28, desenfoque: 44 },
+});
+marcaCarga('plato');
+ponerInstrumentos(UI, {});
+const POST = crearPost();
+const en = (sx, sy, z) => P.punto(sx, sy, z);
+const pant = (p) => P.proyectar(p);
+const pxU = (p) => { const a = pant(p), b = pant([p[0] + 1, p[1], p[2]]); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
+const suma = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+
+// ---------------------------------------------------------------- capas: el lienzo de WebGL (oculto) y uno 2D encima
+const cont = document.getElementById('escena');
+const lienzoGL = P.renderer.domElement;
+lienzoGL.style.visibility = 'hidden';
+const capa = document.createElement('canvas');
+capa.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:3';
+cont.appendChild(capa);
+const g = capa.getContext('2d');
+function ajustarCapa() {
+  if (capa.width !== lienzoGL.width || capa.height !== lienzoGL.height) { capa.width = lienzoGL.width; capa.height = lienzoGL.height; }
+  g.setTransform(capa.width / W, 0, 0, capa.width / W, 0, 0);
+}
+// un lienzo 2D del tamaño del de WebGL, en px de diseño
+function lienzo2D() {
+  const c = document.createElement('canvas'); c.width = lienzoGL.width; c.height = lienzoGL.height;
+  const x = c.getContext('2d'); x.setTransform(c.width / W, 0, 0, c.width / W, 0, 0);
+  return [c, x];
+}
+const copiaGL = () => { const [c, x] = lienzo2D(); x.drawImage(lienzoGL, 0, 0, W, H); return c; };
+const cielo = crearCielo();
+marcaCarga('cielo');
+
+// ---------------------------------------------------------------- fotos (se hacen la primera vez que hacen falta)
+const FOTOS = {};
+let hechas = 0;
+function F(k) {
+  if (!FOTOS[k]) {
+    const a = performance.now();
+    FOTOS[k] = HACER[k]();
+    hechas++;
+    window.__carga.push(['foto ' + k, Math.round(performance.now() - a)]);
+  }
+  return FOTOS[k];
+}
+const R0 = FIN.esfera.r, C0 = FIN.esfera.c, PAD = 26;
+// la esfera recortada en redondo (con la Vía Láctea en el centro): se pone en 2D a cualquier tamaño
+function hacerDisco(f) {
+  const k = f.width / W, L = Math.round(2 * (R0 + PAD) * k);
+  const c = document.createElement('canvas'); c.width = L; c.height = L;
+  const gc = c.getContext('2d');
+  gc.drawImage(f, (C0[0] - R0 - PAD) * k, (C0[1] - R0 - PAD) * k, L, L, 0, 0, L, L);
+  gc.setTransform(k, 0, 0, k, 0, 0);
+  puntoNosotros(gc, [R0 + PAD, R0 + PAD], { r: 4.5, k: 1 });
+  gc.setTransform(1, 0, 0, 1, 0, 0);
+  gc.globalCompositeOperation = 'destination-in';
+  const gr = gc.createRadialGradient(L / 2, L / 2, (R0 - 1) * k, L / 2, L / 2, (R0 + 7) * k);
+  gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  gc.fillStyle = gr; gc.fillRect(0, 0, L, L);
+  return c;
+}
+
+// ---------------------------------------------------------------- la regla (quieta en 10²⁷, como en FINAL_UNIVERSO)
+// la red de alrededor SIN la esfera (para que al apagarse no deje un fantasma de la esfera grande): el hueco se rellena
+// con red de más a la izquierda de la misma foto (fuera de la esfera, igual de oscura), con el borde fundido
+function hacerRojoSin(f) {
+  const k = f.width / W, L = Math.round(2 * (R0 + PAD) * k), dx = 620;
+  const [c, x] = lienzo2D();
+  x.drawImage(f, 0, 0, W, H);
+  const p = document.createElement('canvas'); p.width = L; p.height = L;
+  const gp = p.getContext('2d');
+  gp.drawImage(f, (C0[0] - R0 - PAD - dx) * k, (C0[1] - R0 - PAD) * k, L, L, 0, 0, L, L);
+  gp.globalCompositeOperation = 'destination-in';
+  const gr = gp.createRadialGradient(L / 2, L / 2, (R0 + 10) * k, L / 2, L / 2, (R0 + PAD) * k);
+  gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  gp.fillStyle = gr; gp.fillRect(0, 0, L, L);
+  x.drawImage(p, C0[0] - R0 - PAD, C0[1] - R0 - PAD, 2 * (R0 + PAD), 2 * (R0 + PAD));
+  return c;
+}
+// el volumen de la esfera cuando ya es pequeña (en el plato): sombra abajo a la derecha y un brillo del foco arriba a la
+// izquierda, para que se lea como una bola de vidrio y no como un disco
+function volumenEsfera(gc, c, r, k) {
+  if (k <= 0.01) return;
+  gc.save(); gc.beginPath(); gc.arc(c[0], c[1], r * 0.995, 0, 6.283); gc.clip();
+  const gs = gc.createRadialGradient(c[0] - 0.32 * r, c[1] - 0.38 * r, 0.35 * r, c[0] - 0.2 * r, c[1] - 0.25 * r, 1.25 * r);
+  gs.addColorStop(0, 'rgba(0,0,0,0)'); gs.addColorStop(0.6, `rgba(6,4,10,${0.18 * k})`); gs.addColorStop(1, `rgba(6,4,10,${0.62 * k})`);
+  gc.fillStyle = gs; gc.fillRect(c[0] - r, c[1] - r, 2 * r, 2 * r);
+  gc.globalCompositeOperation = 'lighter';
+  const hx = c[0] - 0.4 * r, hy = c[1] - 0.44 * r, hr = 0.3 * r;
+  const gh = gc.createRadialGradient(hx, hy, 0, hx, hy, hr);
+  gh.addColorStop(0, `rgba(255,250,236,${0.55 * k})`); gh.addColorStop(0.45, `rgba(255,236,210,${0.18 * k})`); gh.addColorStop(1, 'rgba(255,236,210,0)');
+  gc.fillStyle = gh; gc.fillRect(hx - hr, hy - hr, 2 * hr, 2 * hr);
+  gc.restore();
+}
+
+const REG_OP = { pieza: I.REG, flecha: I.FLE, pos: en(...FIN.regla.pos), escala: FIN.regla.escala, rot: FIN.regla.rot, e: 27, ya: 0, actual: 27, lupa: FIN.regla.lupa };
+
+// ---------------------------------------------------------------- Atom (presentador: pequeño, abajo a la izquierda)
+// el mismo cálculo que ep3-universo, y empieza con su giro y la fase de sus electrones del último fotograma
+const A_Z = 1.0, ATOMO = FIN.atomo;
+const A_ESC = 180 / (2 * (1.68 + 0.16) * pxU(en(...ATOMO, A_Z)));
+const CAM = [0, 3.8, 15.5];
+const gy = (p) => Math.atan2(CAM[0] - p[0], CAM[2] - p[2]), gp = (p) => Math.atan2(p[1] - CAM[1], Math.hypot(CAM[0] - p[0], CAM[2] - p[2]));
+const A_REF = en(850, 330, A_Z);
+const giroHacia = (sx, sy) => { const w = en(sx, sy, A_Z); return [gy(w) - gy(A_REF), gp(w) - gp(A_REF)]; };
+const PREVIO = await (async () => {
+  try {
+    const u = (await (await fetch('/atomo/plato/escenas/marcas-ep03.json')).json())['ep3-universo'];
+    const Du = u.duracion, Qu = Du - 0.6, es = u.marcas.espera, co = u.marcas.comopuede;
+    const vel = (t) => (1 + 0.9 * Math.exp(-Math.pow((t - es) / 0.4, 2)) + 0.6 * Math.exp(-Math.pow((t - co) / 0.5, 2))) * (1 - eio(prog(t, Qu - 0.9, Qu)));
+    const dt = 1 / 240, A = [0];
+    for (let i = 1; i * dt <= Du + 0.2; i++) A.push(A[i - 1] + vel((i - 0.5) * dt) * dt);
+    const x = Qu / dt, j = Math.min(A.length - 2, Math.floor(x));
+    return { tz: Qu - 0.45, ta: mix(A[j], A[j + 1], x - j) };
+  } catch { return { tz: 22.575, ta: 23.7448 }; }
+})();
+function calma(t, t1 = QUIETO, d = 0.9) { const a = t1 - d; if (t <= a) return t; const u = Math.min(t - a, d); return a + u - (u * u) / (2 * d); }
+const DT = 1 / 240, TA = [0];
+const velA = (t) => ss(0, 0.45, t) * (1 + 0.5 * Math.exp(-Math.pow((t - T.golpe) / 0.4, 2))) * (1 - eio(prog(t, QUIETO - 0.9, QUIETO)));
+for (let i = 1; i * DT <= D + 0.2; i++) TA.push(TA[i - 1] + velA((i - 0.5) * DT) * DT);
+const tAtomo = (t) => { const x = t / DT, i = Math.min(TA.length - 2, Math.floor(x)); return mix(TA[i], TA[i + 1], x - i); };
+const MARCAS = [m.n, m.c, m.mu, m.te];
+function atomo(ts, { velo = 0.1 } = {}) {
+  const tz = PREVIO.tz + calma(ts), ta = PREVIO.ta + tAtomo(ts);
+  const sx = ATOMO[0], sy = ATOMO[1] + 3 * Math.sin(tz * 1.3) + 2 * Math.sin(tz * 0.7 + 1.0);
+  const brillo = Math.max(...MARCAS.map((t0) => Math.sin(Math.PI * prog(ts, t0 - 0.15, t0 + 0.6))));
+  const en0 = ts < QUIETO ? E.energia(ts) : 0;
+  const [dy, dp] = giroHacia(sx, sy);
+  P.atomo({
+    pos: en(sx, sy, A_Z), escala: A_ESC, yaw: -0.15 + dy + 0.08 * Math.sin(tz * 0.5), pitch: 0.06 - dp,
+    energia: Math.min(1, en0 + 0.45 * brillo), ts: ta, halo: 1, velo,
+  });
+}
+// la sombra blanda detrás de Atom, sobre la niebla clara (para que se lea en el móvil)
+const SOMBRA_ATOM = { x: 230, y: 780, r0: 40, r1: 200, color: '10,7,8', alfa: 0.72 };
+function sombraAtom(k) {
+  if (k <= 0.002) return;
+  const s = SOMBRA_ATOM, gr = g.createRadialGradient(s.x, s.y, s.r0, s.x, s.y, s.r1);
+  gr.addColorStop(0, `rgba(${s.color},${s.alfa * k})`); gr.addColorStop(1, `rgba(${s.color},0)`);
+  g.fillStyle = gr; g.fillRect(s.x - s.r1, s.y - s.r1, 2 * s.r1, 2 * s.r1);
+}
+
+// ---------------------------------------------------------------- la balanza: general (A) y plano medio de tres cuartos (B)
+const A_MAX = BALANZA.A_MAX, A_PRE = 0.1;
+const E_ARENA = 0.72, E_SIL = 0.55, R_ESF = 0.19;   // el montón, la silueta y la esfera, en unidades de la balanza
+const BAL_A = (() => { const e = 2.8; return { pos: [en(820, 500, 0)[0], -BALANZA.SUELO * e, 0], escala: e, rot: [0, -0.1, 0] }; })();
+const BAL_B = (() => { const e = 3.2; return { pos: [en(850, 500, 0)[0], -BALANZA.SUELO * e, 0], escala: e, rot: [0, 0.5, 0] }; })();
+// el ángulo (positivo baja el plato izquierdo, el de la arena y la silueta)
+function aOsc(t) {
+  if (t < T.aterriza) return A_PRE;
+  const v = t - T.aterriza;
+  return (0.035 + 0.065 * Math.exp(-v / 1.6)) * Math.cos(2 * Math.PI * 0.42 * v);
+}
+function angulo(t) {
+  if (t < T.inclina) return aOsc(t);
+  if (t < T.golpe) return caida(t, { t0: T.inclina, dur: 0.55, de: aOsc(T.inclina), a: -A_MAX, rebote: 0.15, peso: 1.8 });
+  return caida(t, { t0: T.golpe, dur: 0.42, de: -A_MAX, a: A_MAX, rebote: 0.2, peso: 2.4 });
+}
+const balEn = (ts) => (ts < T.B ? BAL_A : BAL_B);
+// la silueta, de cara a la cámara (un poco de tres cuartos)
+const rotSil = (geo) => [0, gy(geo.platoIzq) - 0.12, 0];
+// el montón de arena: sube y se va (con un pellizco al arrancar)
+function estadoArena(ts) {
+  if (ts >= T.sale[1]) return null;
+  const u = prog(ts, T.sale[0], T.sale[1]);
+  const pre = Math.sin(Math.PI * prog(ts, T.sale[0] - 0.16, T.sale[0] + 0.06));
+  return { alto: 6.2 * u * u * (ts < T.B ? BAL_A.escala : BAL_B.escala) / 3.4, rot: [0.5 * u, 1.2 * u, -0.3 * u], sq: [1 + 0.1 * pre, 1 - 0.14 * pre + 0.25 * u, 1 + 0.1 * pre] };
+}
+function estadoSilueta(ts) {
+  if (ts < T.cae[0]) return null;
+  const u = prog(ts, T.cae[0], T.cae[1]);
+  const q = ts >= T.golpe ? muelle(ts - T.golpe, 2.4, 6) : 0;
+  return {
+    alto: 4.6 * (1 - u * u) * BAL_B.escala / 3.4,
+    sq: [1 + 0.06 * q, 1 - 0.09 * q, 1 + 0.06 * q],
+    brillo: 0.45 + 0.3 * ss(T.golpe + 0.15, T.golpe + 1.1, ts),
+  };
+}
+// la esfera: radio en px en su plato, y su centro (posada en el fondo del plato)
+const rEsfera = (geo, bal) => R_ESF * bal.escala * pxU(geo.platoDer);
+const enSuPlato = (geo, r) => { const f = pant(geo.platoDer); return [f[0], f[1] - 0.97 * r]; };
+function estadoEsfera(ts, geo, bal) {
+  const r1 = rEsfera(geo, bal), c1 = enSuPlato(geo, r1);
+  if (ts >= T.baja[1]) return { c: c1, r: r1, k: 1 };
+  const u = prog(ts, T.baja[0], T.baja[1]);
+  const es = eoc(u), ep = u * u * (1.6 - 0.6 * u);
+  const r = R0 * Math.pow(r1 / R0, es);
+  return { c: [mix(C0[0], c1[0], ep), mix(C0[1], c1[1], ep)], r, k: u };
+}
+// el borde de delante del platillo (pantalla): la mitad baja del aro, algo por dentro, cerrada hacia abajo
+function frentePlato(geo, lado) {
+  const o = geo._o, a = o.angulo, c = Math.cos(a), s = Math.sin(a);
+  const Ex = lado === 'izq' ? -c : c, Ey = lado === 'izq' ? -s : s;
+  const pts = [];
+  for (let i = 0; i < 48; i++) {
+    const th = (2 * Math.PI * i) / 48;
+    pts.push(pant(mundoPieza(o, [Ex + 0.31 * Math.cos(th), Ey - BALANZA.HILO + 0.016, 0.185 * Math.sin(th)])));
+  }
+  let iMin = 0, iMax = 0;
+  pts.forEach((p, i) => { if (p[0] < pts[iMin][0]) iMin = i; if (p[0] > pts[iMax][0]) iMax = i; });
+  // los dos arcos entre el punto de más a la izquierda y el de más a la derecha: el de delante es el de abajo
+  const arco = (a0, a1) => { const r = []; for (let i = a0; ; i = (i + 1) % 48) { r.push(pts[i]); if (i === a1) break; } return r; };
+  const A1 = arco(iMin, iMax), A2 = arco(iMax, iMin);
+  const media = (l) => l.reduce((x, p) => x + p[1], 0) / l.length;
+  const fr = media(A1) > media(A2) ? A1 : A2.reverse();
+  const yb = Math.max(...fr.map((p) => p[1])) + 400;
+  return [...fr, [fr[fr.length - 1][0], yb], [fr[0][0], yb]];
+}
+// pinta en gc la balanza (con lo que lleve) y la esfera en su plato; devuelve la geometría y la silueta
+function componer(gc, n, { bal, ang, conArena, arenaE, silE, esfera, rojo = 0, nFoto = n, tsAtomo = null }) {
+  P.limpiar();
+  ponerInstrumentos(UI, {});
+  if (tsAtomo !== null) atomo(tsAtomo);
+  const b = balanza(P, I.BAL, { ...bal, angulo: ang });
+  if (conArena && arenaE) arena(P, I.ARE, { pos: suma(b.platoIzq, [0, arenaE.alto, 0]), escala: E_ARENA * bal.escala, rot: arenaE.rot, sq: arenaE.sq });
+  let s = null;
+  if (silE) s = silueta(P, I.SIL, { pos: suma(b.platoIzq, [0, silE.alto, 0]), escala: E_SIL * bal.escala, rot: silE.rot ?? rotSil(b), sq: silE.sq, brillo: silE.brillo });
+  if (rojo < 0.999) { P.render(nFoto); gc.drawImage(lienzoGL, 0, 0, W, H); }
+  if (rojo > 0.001) {
+    // en el fotograma 0, la foto de ep3-universo tal cual; después, sin la esfera grande (que ya se mueve)
+    const f = esfera && esfera.k <= 0 ? F('esfera') : F('rojoSin');
+    gc.save(); gc.globalAlpha = rojo; gc.drawImage(f, 0, 0, W, H); gc.restore();
+  }
+  if (esfera) {
+    const { c, r, k } = esfera, f = pant(b.platoDer);
+    const enPlato = k > 0.75;
+    // la sombra de la esfera en el fondo del plato y su halo cálido (los dos, a medida que llega)
+    const ks = ss(0.75, 1, k);
+    if (ks > 0) {
+      gc.save(); gc.fillStyle = `rgba(14,8,4,${0.5 * ks})`;
+      gc.beginPath(); gc.ellipse(f[0], f[1] - 0.04 * r, 0.82 * r, 0.24 * r, 0, 0, 2 * Math.PI); gc.fill(); gc.restore();
+    }
+    const kh = k > 0 ? 1 : 0;
+    if (kh > 0) {
+      gc.save(); gc.globalCompositeOperation = 'lighter';
+      const gr = gc.createRadialGradient(c[0], c[1], r * 0.8, c[0], c[1], r * 1.45);
+      gr.addColorStop(0, `rgba(255,190,120,${0.22 * kh})`); gr.addColorStop(1, 'rgba(255,190,120,0)');
+      gc.fillStyle = gr; gc.fillRect(c[0] - 1.5 * r, c[1] - 1.5 * r, 3 * r, 3 * r); gc.restore();
+    }
+    const d = F('disco'), L = (R0 + PAD) * (r / R0);
+    gc.drawImage(d, c[0] - L, c[1] - L, 2 * L, 2 * L);
+    volumenEsfera(gc, c, r, 1 - ss(0.3, 0.75, r / R0));
+    if (enPlato) {
+      // el borde de delante del platillo tapa la parte de abajo de la esfera: es el de la misma pasada de la balanza, que
+      // sigue en el lienzo de WebGL (no hace falta volver a dibujarlo)
+      const poly = frentePlato(b, 'der');
+      gc.save(); gc.beginPath(); gc.moveTo(...poly[0]); for (const p of poly.slice(1)) gc.lineTo(...p); gc.closePath(); gc.clip();
+      gc.drawImage(lienzoGL, 0, 0, W, H); gc.restore();
+    }
+  }
+  return { b, s };
+}
+function estadoBalanza(ts) {
+  const bal = balEn(ts), ang = angulo(ts), geo = geometriaBalanza({ ...bal, angulo: ang });
+  return {
+    bal, ang, conArena: true, arenaE: estadoArena(ts) ?? null, silE: estadoSilueta(ts),
+    esfera: estadoEsfera(ts, geo, bal), rojo: ts < T.B ? 1 - ss(T.rojo[0], T.rojo[1], ts) : 0,
+  };
+}
+// el estado de las fotos: la balanza asentada (B) y el detalle de la silueta (C)
+const EST_FIN = () => ({ ...estadoBalanza(T.quietaB + 2), silE: { alto: 0, sq: [1, 1, 1], brillo: 0.75 } });
+const GEO_FIN = geometriaBalanza({ ...BAL_B, angulo: A_MAX });
+const SIL_FIN = { pos: GEO_FIN.platoIzq, escala: E_SIL * BAL_B.escala, rot: rotSil(GEO_FIN) };
+const PECHO_B = mundoPieza(SIL_FIN, [0, 0.62, 0.04]);
+const QB = pant(PECHO_B);                         // el pecho de la silueta en el plano medio (px)
+const S_C = 2.3, QC = [880, 470];                  // el detalle: la misma escena ×2,3, con el pecho en QC
+const BAL_C = (() => {
+  const c = en(QC[0], QC[1], PECHO_B[2]);
+  return { pos: [c[0] + (BAL_B.pos[0] - PECHO_B[0]) * S_C, c[1] + (BAL_B.pos[1] - PECHO_B[1]) * S_C, c[2] + (BAL_B.pos[2] - PECHO_B[2]) * S_C], escala: BAL_B.escala * S_C, rot: BAL_B.rot };
+})();
+const EMP_B = 1.06;                                // lo que se acerca el plano medio antes del detalle
+
+// ---------------------------------------------------------------- la multitud: puntitos de la silueta que chispean
+function siCap(px, py, ax, ay, bx, by, ra, rb) {
+  const pax = px - ax, pay = py - ay, bax = bx - ax, bay = by - ay, h = cl((pax * bax + pay * bay) / (bax * bax + bay * bay));
+  return Math.hypot(pax - bax * h, pay - bay * h) - mix(ra, rb, h);
+}
+function siForma(x, y) {
+  const s = Math.abs(x);
+  let d = (Math.hypot(x / 0.064, (y - 0.913) / 0.084) - 1) * 0.064;
+  d = Math.min(d, siCap(s, y, 0, 0.8, 0, 0.85, 0.03, 0.028), siCap(s, y, 0.082, 0.765, 0.06, 0.62, 0.048, 0.04));
+  d = Math.min(d, siCap(s, y, 0, 0.76, 0, 0.5, 0.075, 0.09), siCap(s, y, 0.05, 0.53, 0.06, 0.49, 0.05, 0.045));
+  d = Math.min(d, siCap(s, y, 0.12, 0.765, 0.142, 0.6, 0.032, 0.026), siCap(s, y, 0.142, 0.6, 0.15, 0.47, 0.026, 0.021));
+  d = Math.min(d, siCap(s, y, 0.15, 0.47, 0.152, 0.38, 0.024, 0.016), siCap(s, y, 0.052, 0.48, 0.055, 0.27, 0.05, 0.036));
+  return Math.min(d, siCap(s, y, 0.055, 0.27, 0.05, 0.045, 0.036, 0.026));
+}
+// cuentas de la red hexagonal de la silueta (locales) que caen dentro de la forma
+const CUENTAS = (() => {
+  const r = [], vistas = new Set(), rx = SILUETA.PASO, ry = SILUETA.PASO * 0.8660254;
+  for (let i = 0; r.length < 90 && i < 4000; i++) {
+    const x = -0.17 + 0.34 * azar(i, 701), y = 0.04 + 0.94 * azar(i, 702);
+    const gyy = Math.round(y / ry), off = 0.5 * (((gyy % 2) + 2) % 2), gx = Math.floor(x / rx - off + 0.5) + off;
+    const lx = gx * rx, ly = gyy * ry, clave = gx + ',' + gyy;
+    if (vistas.has(clave) || siForma(lx, ly) > -0.012) continue;
+    vistas.add(clave);
+    r.push({ l: [lx, ly, 0.04], f: 2.2 + 3.5 * azar(i, 703), fase: 6.283 * azar(i, 704) });
+  }
+  return r;
+})();
+// sus píxeles en el detalle (en la foto, sin empuje)
+const GEO_C = geometriaBalanza({ ...BAL_C, angulo: A_MAX });
+const SIL_C = { pos: GEO_C.platoIzq, escala: E_SIL * BAL_C.escala, rot: rotSil(GEO_FIN) };
+const CUENTAS_C = CUENTAS.map((q) => ({ ...q, p: pant(mundoPieza(SIL_C, q.l)) }));
+const PASO_C = SILUETA.PASO * SIL_C.escala * pxU(SIL_C.pos);
+// los dos hilos de los lados del plato de la silueta en el detalle (2D; el de atrás queda tapado por la silueta)
+function hilosDetalle(x) {
+  const o = GEO_C._o, a = o.angulo, ca = Math.cos(a), sa = Math.sin(a);
+  const punta = pant(mundoPieza(o, [-ca, -sa, 0]));
+  const grueso = Math.max(3, 0.012 * o.escala * pxU(GEO_C.platoIzq));
+  for (const lado of [-1, 1]) {
+    const pie = pant(mundoPieza(o, [-ca + lado * (BALANZA.PLATO[0] - 0.03), -sa - BALANZA.HILO + 0.01, 0]));
+    x.save(); x.lineCap = 'round';
+    x.strokeStyle = 'rgba(52,38,22,0.95)'; x.lineWidth = grueso;
+    x.beginPath(); x.moveTo(...pie); x.lineTo(...punta); x.stroke();
+    x.strokeStyle = 'rgba(190,150,90,0.35)'; x.lineWidth = Math.max(1, grueso * 0.3);
+    x.beginPath(); x.moveTo(pie[0] - grueso * 0.2, pie[1]); x.lineTo(punta[0] - grueso * 0.2, punta[1]); x.stroke();
+    x.restore();
+  }
+}
+function chispean(ts, k, tr) {
+  if (k <= 0.01) return;
+  g.save(); g.globalCompositeOperation = 'lighter';
+  const t = Math.min(ts, QUIETO);
+  for (const q of CUENTAS_C) {
+    const v = Math.pow(Math.max(0, Math.sin(q.f * t + q.fase)), 3) * k;
+    if (v < 0.03) continue;
+    const x = tr.x(q.p[0]), y = tr.y(q.p[1]), R = PASO_C * 0.75 * tr.s;
+    const gr = g.createRadialGradient(x, y, 0, x, y, R);
+    gr.addColorStop(0, `rgba(255,226,170,${0.8 * v})`); gr.addColorStop(0.35, `rgba(255,170,80,${0.4 * v})`); gr.addColorStop(1, 'rgba(255,150,60,0)');
+    g.fillStyle = gr; g.fillRect(x - R, y - R, 2 * R, 2 * R);
+  }
+  g.restore();
+}
+
+// ---------------------------------------------------------------- el telescopio y la pared de niebla (D y E)
+const TEL_C = [700, 380], TEL_Z = 2.0;
+const TEL_POS = en(TEL_C[0], TEL_C[1], TEL_Z);
+const TEL_ESC = 720 / (1.96 * pxU(TEL_POS));
+const TEL_ROT = [-0.16, 1.0, 0.02];                // el espejo hacia la pared (a la derecha), de tres cuartos
+const telRot = () => TEL_ROT;
+const ponerTelescopio = () => instrumento(P, I.TEL, { variante: 'telescopio', pos: TEL_POS, escala: TEL_ESC, rot: TEL_ROT });
+const MIR = { c: [1150, 360], r: 205 };
+const NIEBLA_FIN = { escala: 260, centro: [960, 540], luz: 1, velo: 1 };
+
+const HACER = {
+  // la red con la esfera, como la pinta ep3-universo en su último fotograma (n 0): una sola foto (desde el fotograma 1
+  // la esfera ya se mueve y encoge, y no hace falta que hierva)
+  esfera: () => cielo.foto({ red: { ...FIN.red, origen: RED.NODO }, esfera: FIN.esfera, n: 0 }),
+  disco: () => hacerDisco(F('esfera')),
+  rojoSin: () => hacerRojoSin(F('esfera')),
+  regla() { P.limpiar(); P.regla(REG_OP); P.render(3027, { fondo: false }); return copiaGL(); },
+  // la balanza asentada con la silueta (plano medio)
+  balFin() { const [c, x] = lienzo2D(); componer(x, 2101, { ...EST_FIN(), nFoto: 2101 }); return c; },
+  // el detalle: la misma escena, ×2,3 alrededor del pecho de la silueta. Solo el plato (el platillo suelto del kit) y la
+  // silueta, con los hilos en 2D: el brazo, el pie y el otro plato quedan fuera del cuadro o tras la regla (y así la foto
+  // cuesta una fracción)
+  detalle() {
+    const [c, x] = lienzo2D();
+    P.limpiar();
+    platillo(P, I.PLA, { geo: GEO_C, lado: 'izq' });
+    silueta(P, I.SIL, { ...SIL_C, brillo: 0.75 });
+    P.render(2102);
+    x.drawImage(lienzoGL, 0, 0, W, H);
+    hilosDetalle(x);
+    return c;
+  },
+  redD: () => cielo.foto({ red: { celda: 50, centro: [640, 470], origen: RED.NODO, luz: 1, velo: 1 }, n: 4 }),
+  nieblaD: () => cielo.foto({ niebla: { escala: 170, centro: [1420, 380], luz: 1 }, n: 3 }),
+  // la red oscura a la izquierda y, al fondo de todo, la pared de niebla a la derecha, con el borde deshilachado
+  fondoD() {
+    const [c, x] = lienzo2D();
+    x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
+    x.drawImage(F('nieblaD'), 0, 0, W, H);
+    const [cr, xr] = lienzo2D();
+    xr.drawImage(F('redD'), 0, 0, W, H);
+    xr.globalCompositeOperation = 'destination-in';
+    const lg = xr.createLinearGradient(860, 0, 1290, 0);
+    lg.addColorStop(0, 'rgba(0,0,0,1)'); lg.addColorStop(0.55, 'rgba(0,0,0,0.75)'); lg.addColorStop(1, 'rgba(0,0,0,0)');
+    xr.fillStyle = lg; xr.fillRect(0, 0, W, H);
+    xr.globalCompositeOperation = 'destination-out';
+    for (let i = 0; i < 26; i++) {
+      const y = -40 + 1160 * azar(i, 801), xx = 930 + 260 * azar(i, 802), R = 70 + 140 * azar(i, 803);
+      const gr = xr.createRadialGradient(xx, y, 0, xx, y, R);
+      gr.addColorStop(0, `rgba(0,0,0,${0.55 + 0.4 * azar(i, 804)})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      xr.fillStyle = gr; xr.fillRect(xx - R, y - R, 2 * R, 2 * R);
+    }
+    x.drawImage(cr, 0, 0, W, H);
+    // la luz de la pared que se derrama sobre la red
+    x.save(); x.globalCompositeOperation = 'lighter';
+    const lz = x.createLinearGradient(700, 0, 1300, 0);
+    lz.addColorStop(0, 'rgba(255,190,130,0)'); lz.addColorStop(1, 'rgba(255,190,130,0.10)');
+    x.fillStyle = lz; x.fillRect(0, 0, W, H); x.restore();
+    return c;
+  },
+  // el telescopio apuntando (quieto), sin fondo
+  telD() { P.limpiar(); ponerInstrumentos(UI, {}); ponerTelescopio(); P.render(2103, { fondo: false }); return copiaGL(); },
+  // la imagen del telescopio: galaxias de todas las formas sobre la red, apretadas (un campo profundo)
+  campo() {
+    const [c, x] = lienzo2D();
+    x.fillStyle = '#05050a'; x.fillRect(0, 0, W, H);
+    x.drawImage(cielo.foto({ red: { celda: 130, centro: MIR.c, origen: [0.31, 0.77], luz: 1.15, velo: 0.85 }, n: 5 }), 0, 0, W, H);
+    galaxias(x, MIR.c, MIR.r);
+    return c;
+  },
+  niebla0: () => cielo.foto({ niebla: NIEBLA_FIN, n: 0 }),
+  niebla1: () => cielo.foto({ niebla: NIEBLA_FIN, n: 1 }),
+};
+// pequeñas galaxias de luz (elipses con su núcleo, algunas con brazos), con semilla
+function galaxias(x, c, R) {
+  x.save(); x.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 120; i++) {
+    const a = 6.283 * azar(i, 501), rr = R * 1.05 * Math.sqrt(azar(i, 502));
+    const px = c[0] + Math.cos(a) * rr, py = c[1] + Math.sin(a) * rr;
+    const grande = azar(i, 503) < 0.1, s = grande ? 9 + 7 * azar(i, 504) : 2 + 4.5 * azar(i, 504);
+    const tono = azar(i, 505), col = tono < 0.5 ? '255,218,170' : tono < 0.82 ? '255,165,95' : '185,195,255';
+    x.save(); x.translate(px, py); x.rotate(azar(i, 506) * Math.PI); x.scale(1, 0.32 + 0.6 * azar(i, 507));
+    const gr = x.createRadialGradient(0, 0, 0, 0, 0, s * 2.4);
+    gr.addColorStop(0, `rgba(${col},0.95)`); gr.addColorStop(0.22, `rgba(${col},0.45)`); gr.addColorStop(1, `rgba(${col},0)`);
+    x.fillStyle = gr; x.beginPath(); x.arc(0, 0, s * 2.4, 0, 6.283); x.fill();
+    if (grande) {
+      x.strokeStyle = `rgba(${col},0.35)`; x.lineWidth = s * 0.3; x.lineCap = 'round';
+      for (const b of [0, Math.PI]) {
+        x.beginPath();
+        for (let j = 0; j <= 14; j++) { const th = (j / 14) * 3.2, q = s * 0.35 * Math.exp(0.42 * th); const X = Math.cos(th + b) * q, Y = Math.sin(th + b) * q; j ? x.lineTo(X, Y) : x.moveTo(X, Y); }
+        x.stroke();
+      }
+    }
+    x.restore();
+  }
+  x.restore();
+}
+
+// ---------------------------------------------------------------- al cargar
+P.fotograma(0);
+F('esfera'); F('disco'); F('rojoSin'); F('regla');
+marcaCarga('esfera y regla');
+// estreno: Atom y lo que va vivo (para que ningún fotograma pague la compilación)
+{
+  P.limpiar(); atomo(0);
+  const b = balanza(P, I.BAL, { ...BAL_A, pos: [BAL_A.pos[0], BAL_A.pos[1], -3], escala: 0.4 });
+  arena(P, I.ARE, { pos: b.platoIzq, escala: 0.2 }); silueta(P, I.SIL, { pos: b.platoDer, escala: 0.2 });
+  platillo(P, I.PLA, { geo: b, lado: 'der' });
+  P.render(1, { fondo: false });
+}
+marcaCarga('estreno');
+
+// ---------------------------------------------------------------- los planos
+function pegarGL(alfa = 1) { g.save(); g.globalAlpha = alfa; g.drawImage(lienzoGL, 0, 0, W, H); g.restore(); }
+// dibuja la foto f escalada s veces alrededor de p, que va a parar a q
+function fotoEscalada(f, s, p, q = p, alfa = 1) {
+  if (alfa <= 0.001) return;
+  g.save(); g.globalAlpha = alfa; g.translate(q[0], q[1]); g.scale(s, s); g.translate(-p[0], -p[1]);
+  g.drawImage(f, 0, 0, W, H); g.restore();
+}
+// los granos que caen del montón mientras sube (2D, con semilla; caen en su plato)
+function granos(ts) {
+  if (ts < T.sale[0] || ts > T.sale[1] + 0.9) return;
+  g.save();
+  for (let i = 0; i < 60; i++) {
+    const te = T.sale[0] + 0.05 + 0.4 * azar(i, 901);
+    const v = ts - te;
+    if (v < 0) continue;
+    const geo = geometriaBalanza({ ...BAL_B, angulo: angulo(te) }), ae = estadoArena(te);
+    if (!ae) continue;
+    const base = pant(suma(geo.platoIzq, [0, ae.alto, 0]));
+    const ancho = 0.26 * E_ARENA / 0.72 * BAL_B.escala * pxU(geo.platoIzq) * 0.9;
+    const x = base[0] + (azar(i, 902) - 0.5) * 2 * ancho + (azar(i, 903) - 0.5) * 60 * v;
+    const y = base[1] + 2200 * 0.5 * v * v;
+    const suelo = pant(geometriaBalanza({ ...BAL_B, angulo: angulo(ts) }).platoIzq)[1] - 8;
+    if (y > suelo) continue;
+    const r = 1.6 + 1.8 * azar(i, 904);
+    g.fillStyle = azar(i, 905) < 0.3 ? 'rgba(250,236,200,0.95)' : 'rgba(214,188,140,0.95)';
+    g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
+  }
+  g.restore();
+}
+// el polvo del golpe de la silueta
+function polvo(ts) {
+  const v = ts - T.golpe;
+  if (v < 0 || v > 0.8) return;
+  const geo = geometriaBalanza({ ...BAL_B, angulo: angulo(ts) }), f = pant(geo.platoIzq), s = pxU(geo.platoIzq) * BAL_B.escala;
+  g.save();
+  for (let i = 0; i < 9; i++) {
+    const a = Math.PI * (0.1 + 0.8 * azar(i, 911)), d = (0.12 + 0.28 * azar(i, 912)) * s * eoc(v / 0.8);
+    const x = f[0] + Math.cos(a) * d * (azar(i, 913) < 0.5 ? -1 : 1) * 1.6, y = f[1] - Math.sin(a) * d * 0.5;
+    const R = (0.05 + 0.06 * azar(i, 914)) * s * (0.6 + v), al = 0.22 * (1 - v / 0.8);
+    const gr = g.createRadialGradient(x, y, 0, x, y, R);
+    gr.addColorStop(0, `rgba(226,210,178,${al})`); gr.addColorStop(1, 'rgba(226,210,178,0)');
+    g.fillStyle = gr; g.fillRect(x - R, y - R, 2 * R, 2 * R);
+  }
+  g.restore();
+}
+function planoAB(n, ts) {
+  if (ts >= T.quietaB) {
+    // la balanza asentada (foto) y la cámara que empieza a acercarse a la silueta
+    const s = mix(1, EMP_B, eio(prog(ts, T.empujeB[0], T.empujeB[1])));
+    fotoEscalada(F('balFin'), s, QB);
+    return false;
+  }
+  const e = estadoBalanza(ts), conAtomo = e.rojo <= 0.001;
+  componer(g, n, { ...e, tsAtomo: conAtomo ? ts : null });
+  granos(ts);
+  polvo(ts);
+  return conAtomo;
+}
+function planoC(n, ts) {
+  const u = prog(ts, T.acerca[0], T.acerca[1]);
+  if (u < 1) {
+    // empuje: el plano medio crece alrededor del pecho, que va a QC; fundido a la foto de cerca
+    const e = eio(u), s = EMP_B * Math.pow(S_C / EMP_B, e), q = [mix(QB[0], QC[0], e), mix(QB[1], QC[1], e)];
+    fotoEscalada(F('balFin'), s, QB, q);
+    const kf = ss(0.5, 0.95, u);
+    if (kf > 0) fotoEscalada(F('detalle'), s / S_C, QC, q, kf);
+    chispean(ts, kf, { s: s / S_C, x: (x) => q[0] + (x - QC[0]) * s / S_C, y: (y) => q[1] + (y - QC[1]) * s / S_C });
+    return;
+  }
+  // de cerca: sigue acercándose despacio hacia el pecho; los puntitos chispean
+  const s = mix(1, 1.22, eio(prog(ts, T.acerca[1], T.Dd + 0.2)));
+  const q = [QC[0], QC[1] - 10 * (s - 1)];
+  fotoEscalada(F('detalle'), s, QC, q);
+  chispean(ts, 1, { s, x: (x) => q[0] + (x - QC[0]) * s, y: (y) => q[1] + (y - QC[1]) * s });
+}
+// la mirilla: un aro de latón con la imagen del telescopio, que se funde en la niebla
+function mirilla(n, ts, c, r, kAro, desdeTel) {
+  if (r <= 1) return;
+  // el cono que une el telescopio con su imagen
+  if (desdeTel > 0.01) {
+    const d = desdeTel, o = bocaTel(ts);
+    const fi = Math.atan2(o[1] - c[1], o[0] - c[0]), dl = Math.hypot(c[0] - o[0], c[1] - o[1]);
+    const al = Math.acos(Math.min(0.99, r / dl));
+    const pA = [c[0] + r * Math.cos(fi + al), c[1] + r * Math.sin(fi + al)];
+    const pB = [c[0] + r * Math.cos(fi - al), c[1] + r * Math.sin(fi - al)];
+    g.save(); g.globalAlpha = 0.5 * d;
+    g.fillStyle = 'rgba(255,236,200,0.10)'; g.strokeStyle = 'rgba(232,210,170,0.55)'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(...o); g.lineTo(...pA); g.lineTo(...pB); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(...o); g.lineTo(...pA); g.moveTo(...o); g.lineTo(...pB); g.stroke();
+    g.restore();
+  }
+  // la sombra del aro
+  if (kAro > 0.01) { g.save(); g.fillStyle = `rgba(0,0,0,${0.35 * kAro})`; g.beginPath(); g.arc(c[0] + 8, c[1] + 12, r + 14, 0, 6.283); g.fill(); g.restore(); }
+  // dentro: el campo de galaxias y la niebla que lo invade desde el borde
+  const uf = eio(prog(ts, T.funde[0], T.funde[1]));
+  g.save(); g.beginPath(); g.arc(c[0], c[1], r, 0, 6.283); g.clip();
+  if (uf < 1) g.drawImage(F('campo'), 0, 0, W, H);
+  if (uf > 0) {
+    const nb = F('niebla' + (n % 2));
+    if (uf >= 1) g.drawImage(nb, 0, 0, W, H);
+    else {
+      const [cc, xx] = lienzoTmp();
+      xx.clearRect(0, 0, W, H); xx.globalCompositeOperation = 'source-over'; xx.drawImage(nb, 0, 0, W, H);
+      xx.globalCompositeOperation = 'destination-in';
+      const fr = MIR.r * (1.08 - 1.3 * uf), a = Math.max(0, fr - 90), b = Math.max(a + 1, fr + 30);
+      const gr = xx.createRadialGradient(MIR.c[0], MIR.c[1], a, MIR.c[0], MIR.c[1], b);
+      gr.addColorStop(0, `rgba(0,0,0,${0.85 * ss(0.55, 1, uf)})`); gr.addColorStop(1, 'rgba(0,0,0,1)');
+      xx.fillStyle = gr; xx.fillRect(0, 0, W, H);
+      xx.globalCompositeOperation = 'source-over';
+      g.drawImage(cc, 0, 0, W, H);
+    }
+  }
+  g.restore();
+  // el aro de latón
+  if (kAro > 0.01) {
+    const gr = g.createLinearGradient(c[0] - r, c[1] - r, c[0] + r, c[1] + r);
+    gr.addColorStop(0, '#e2c27c'); gr.addColorStop(0.45, '#a77d35'); gr.addColorStop(1, '#5e4218');
+    g.save(); g.globalAlpha = kAro; g.strokeStyle = gr; g.lineWidth = 16 + 0.02 * r;
+    g.beginPath(); g.arc(c[0], c[1], r + 6 + 0.01 * r, 0, 6.283); g.stroke();
+    g.strokeStyle = 'rgba(255,240,200,0.35)'; g.lineWidth = 2;
+    g.beginPath(); g.arc(c[0], c[1], r - 1, Math.PI * 1.05, Math.PI * 1.6); g.stroke();
+    g.restore();
+  }
+}
+let TMP = null;
+function lienzoTmp() { if (!TMP || TMP[0].width !== lienzoGL.width) TMP = lienzo2D(); return TMP; }
+// el haz de luz del telescopio hacia la pared
+function haz(ts) {
+  const k = ss(T.haz[0], T.haz[1], ts) * (1 - ss(T.crece[0], T.crece[0] + 0.5, ts));
+  if (k < 0.01) return;
+  const o = bocaTel(ts);
+  const lejos = [1340, 330];
+  const fi = Math.atan2(lejos[1] - o[1], lejos[0] - o[0]), L = Math.hypot(lejos[0] - o[0], lejos[1] - o[1]);
+  g.save(); g.translate(o[0], o[1]); g.rotate(fi); g.globalCompositeOperation = 'lighter';
+  const lg = g.createLinearGradient(0, 0, L, 0);
+  lg.addColorStop(0, `rgba(255,226,180,${0.16 * k})`); lg.addColorStop(1, 'rgba(255,226,180,0)');
+  g.fillStyle = lg; g.beginPath(); g.moveTo(0, -30); g.lineTo(L, -170); g.lineTo(L, 170); g.lineTo(0, 30); g.closePath(); g.fill();
+  g.restore();
+}
+// el empuje muy lento del plano D hacia la pared, la deriva del telescopio y su boca (el secundario) en pantalla
+const empujeD = (ts) => mix(1, 1.04, prog(ts, T.Dd, T.crece[1]));
+function flotaTel(ts) {
+  const u = Math.min(ts, QUIETO) - T.Dd;
+  return { dx: -26 * (1 - eoc(cl(u / 2.5))) + 3 * Math.sin(u * 0.9), dy: 4 * Math.sin(u * 0.7 + 0.5), giro: 0.012 * Math.sin(u * 0.6) - 0.01 * (1 - eoc(cl(u / 2.5))) };
+}
+const BOCA = pant(mundoPieza({ pos: TEL_POS, escala: TEL_ESC, rot: TEL_ROT }, [0, 0.17, 0.62]));
+function bocaTel(ts) {
+  const fl = flotaTel(ts), c = Math.cos(fl.giro), sn = Math.sin(fl.giro);
+  const x0 = BOCA[0] - TEL_C[0], y0 = BOCA[1] - TEL_C[1];
+  const p = [TEL_C[0] + fl.dx + c * x0 - sn * y0, TEL_C[1] + fl.dy + sn * x0 + c * y0], s = empujeD(ts);
+  return [1300 + (p[0] - 1300) * s, 380 + (p[1] - 380) * s];
+}
+function planoD(n, ts) {
+  const uc = eio(prog(ts, T.crece[0], T.crece[1]));
+  const lleno = uc >= 1;
+  if (!lleno) {
+    // la red, la pared y el telescopio (con un empuje muy lento hacia la pared)
+    const s = empujeD(ts);
+    fotoEscalada(F('fondoD'), s, [1300, 380]);
+    // el telescopio flota: deriva y cabeceo muy lentos (2D, sobre su foto)
+    const fl = flotaTel(ts);
+    g.save(); g.translate(1300, 380); g.scale(s, s); g.translate(-1300, -380);
+    g.translate(TEL_C[0] + fl.dx, TEL_C[1] + fl.dy); g.rotate(fl.giro); g.translate(-TEL_C[0], -TEL_C[1]);
+    g.drawImage(F('telD'), 0, 0, W, H); g.restore();
+    haz(ts);
+    const km = prog(ts, T.mirilla[0], T.mirilla[1]);
+    if (km > 0) {
+      const sb = eob(km, 2.0);
+      const c = [mix(MIR.c[0], 960, uc), mix(MIR.c[1], 540, uc)], r = MIR.r * sb * Math.pow(1180 / MIR.r, uc);
+      mirilla(n, ts, c, r, 1 - ss(0.7, 1, uc), (1 - ss(0, 0.4, uc)) * ss(0.3, 1, km));
+    }
+  } else g.drawImage(F('niebla' + (n % 2)), 0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- fotograma
+function dibujar(t) {
+  const n = P.fotograma(Math.min(t, QUIETO)), ts = n / 12;
+  ajustarCapa();
+  hechas = 0;
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  const pl = plano(ts);
+  let atomoHecho = false;
+  if (pl === 'A' || pl === 'B') atomoHecho = planoAB(n, ts);
+  else if (pl === 'C') planoC(n, ts);
+  else planoD(n, ts);
+  // la niebla clara: la sombra blanda detrás de Atom
+  const kNiebla = pl === 'D' ? ss(T.crece[0] + 0.45, T.crece[1], ts) : 0;
+  sombraAtom(kNiebla);
+  g.drawImage(F('regla'), 0, 0, W, H);
+  if (!atomoHecho) { P.limpiar(); atomo(ts); P.render(n, { fondo: false }); pegarGL(); }
+  POST.aplicar(g, n);
+  if (!hechas) {
+    const pendiente = PREPARAR.find(([t0, nombre, t1]) => ts >= t0 && ts < t1 && !FOTOS[nombre]);
+    if (pendiente) F(pendiente[1]);
+  }
+}
+// (coste) las fotos pesadas, en fotogramas baratos poco antes de hacer falta: [desde, foto, hasta]
+const PREPARAR = [
+  [T.quietaB + 0.05, 'detalle', T.C + 1], [T.quietaB + 0.3, 'redD', T.Dd], [T.quietaB + 0.55, 'nieblaD', T.Dd],
+  [T.quietaB + 0.8, 'fondoD', T.Dd], [T.C + 0.8, 'campo', T.Ee], [T.C + 1.0, 'niebla0', T.Ee], [T.C + 1.2, 'niebla1', T.Ee],
+  [T.C + 1.4, 'telD', D + 1],
+];
+window.__inicio = { ...FIN, atomo: ATOMO, aEscala: A_ESC, atomoPrevio: PREVIO, regla: REG_OP };
+window.__fin = { niebla: NIEBLA_FIN, sombraAtom: SOMBRA_ATOM, atomo: ATOMO, aEscala: A_ESC, regla: FIN.regla };
+{
+  // para atomo/herramientas/guias-humano.py: la silueta en el detalle (sin empuje: t = T.acerca[1])
+  const pies = pant(mundoPieza(SIL_C, [0, 0, 0])), coro = pant(mundoPieza(SIL_C, [0, 1, 0]));
+  window.__guias = { t: T.acerca[1], x: Math.round(pies[0]), coronilla: Math.round(coro[1]), suela: Math.round(pies[1]) };
+}
+window.__T = T;
+marcaCarga('listo');
+E.iniciar(dibujar, { paso: 1 / 12 });
+</script>
+</body>
+</html>

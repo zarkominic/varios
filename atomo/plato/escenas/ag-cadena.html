@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cadena · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-CADENA (frase 37). Seis viñetas con marco de oro sobre el cielo de templo, que se encienden en orden: la cena de
+// 1621, Sarah Hale escribiendo, la guerra (soldados azul y gris), el desfile, el calendario de Roosevelt y el policía.
+import { preparar, rodar, plymouth, comedor, ciudad, calendario, C, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-cadena');
+const m0 = M('cadena', 0.5), L = E.duracion - m0;
+const capas = Array.from({ length: 6 }, () => R.nuevo());
+const VIN = [
+  (t) => { plymouth(R, t, { estacion: 'otono', mesa: 1, mayflower: false }); R.actor(EL.peregrino, 140, 145, t, { sonrisa: true }); R.actor(EL.massasoit, 170, 145, t, { dir: -1, sonrisa: true }); },
+  (t) => { comedor(R, t, { epoca: 'xix', escritorio: true }); R.actor(EL.hale, 64, 145, t, { habla: true }); },
+  (t) => { plymouth(R, t, { estacion: 'invierno', mayflower: false, wetu: false }); R.actor(EL.soldadoAzul, 140, 145, t, { enfado: true }); R.actor(EL.soldadoGris, 170, 145, t, { dir: -1, enfado: true }); },
+  (t) => ciudad(R, t, { epoca: '1924', desfile: 0.42 }),
+  (t) => { comedor(R, t, { epoca: 'xix', cal: () => {} }); calendario(R, 104, 46, t, { empieza: 2, dias: 30, jueves: true, pavo: 23 }); R.actor(EL.roosevelt, 250, 145, t, { dir: -1, dedo: true }); },
+  (t) => { ciudad(R, t, { epoca: '1950', coches: 5, atasco: true }); R.actor(EL.policia, 150, 145, t, { enfado: true }); },
+];
+// recorte de cada decorado (100 × 64 a partir de [sx, sy]) y su sitio en pantalla
+const REC = [[110, 82], [36, 82], [104, 82], [110, 40], [100, 34], [100, 82]];
+const W = 96, H = 60, X0 = [12, 112, 212], Y0 = [26, 104];
+const plano = (t) => {
+  const u = t - m0;
+  VIN.forEach((f, i) => { const prev = R.usar(capas[i]); R.delante = null; f(t); if (R.delante) { R.delante(); R.delante = null; } R.usar(prev); });
+  R.rect(0, 0, 319, 179, R.hex('#1c2350'));
+  for (let k = 0; k < 50; k++) { const x = (k * 53) % 320, y = (k * 37) % 180; R.pset(x, y, Math.sin(t * 2 + k) > 0.7 ? C.oroL : C.oro); }
+  VIN.forEach((_, i) => {
+    const x0 = X0[i % 3], y0 = Y0[Math.floor(i / 3)], [sx, sy] = REC[i], on = u > (i + 0.3) * L / 6.5, B = R.buf, src = capas[i];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) B[(y0 + y) * 320 + x0 + x] = on ? src[(sy + y) * 320 + sx + x] : C.k;
+    const col = on ? C.oro : C.grisS;
+    R.rect(x0 - 2, y0 - 2, x0 + W + 1, y0 - 1, col); R.rect(x0 - 2, y0 + H, x0 + W + 1, y0 + H + 1, col); R.rect(x0 - 2, y0, x0 - 1, y0 + H - 1, col); R.rect(x0 + W, y0, x0 + W + 1, y0 + H - 1, col);
+    if (i < 5 && on) { const xa = x0 + W + 3, ya = y0 + H / 2; if (i % 3 !== 2) { R.rect(xa, ya, xa + 9, ya + 1, C.oroL); R.pset(xa + 8, ya - 1, C.oroL); R.pset(xa + 8, ya + 2, C.oroL); } }
+  });
+};
+rodar(E, R, [[0, plano]], { año: 2026 });
+</script>
+</body>
+</html>

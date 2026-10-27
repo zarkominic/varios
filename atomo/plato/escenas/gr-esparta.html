@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Esparta · ep6</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GR-ESPARTA (frase 11). Esparta: una casa sencilla; un niño se despide de su madre («7» en la caja) y se une a una fila
+// de chicos con escudos que entrenan delante de un instructor con capa roja.
+import { preparar, rodar } from '/atomo/plato/escenas/gr-comun.js';
+const { E, R, M } = await preparar('gr-esparta');
+const { PALA, PR, ELENCO, tramo, lerp } = R;
+const m0 = M('esparta', 0.5);
+const chico = { ...ELENCO.espartano, sombrero: 'no', capa: null, barba: 'no', peinado: 'corto', falda: PALA.ROJO };
+const campo = (t) => {
+  R.cieloR(t, 'tarde', { hor: 110, sol: [60, 100, 9] });
+  R.colinas(104, { amp: 18, luz: 1.2, rampa: PR.ROCA, frec: 0.02 }); R.colinas(118, { amp: 6, luz: 1.8 });
+  R.suelo(124, PR.TIERRA, { luz: 2 });
+  R.rect(14, 104, 54, 128, PALA.MARMOL[2]); R.poligono([[10, 104], [34, 92], [58, 104]], PALA.TERRACOTA[2]); R.rect(30, 116, 38, 128, PALA.CONTORNO);
+  const p = tramo(t, m0 + 1.5, m0 + 5);
+  R.personaje(44, 150, 26, { ...ELENCO.griega, t, dir: 1, pose: p < 0.3 ? 'ofrece' : 'saluda' });
+  R.personaje(lerp(60, 150, p), 154, 18, { ...chico, escudo: null, objeto: undefined, t, anda: p > 0 && p < 1 ? t * 8 : null });
+  for (let k = 0; k < 6; k++) { const x = 170 + k * 22, golpe = Math.sin(t * 4 + k) > 0.3; R.personaje(x, 160 + (k & 1) * 6, 20, { ...chico, t: t + k, dir: -1, objeto: golpe ? 'lanza' : undefined, pose: golpe ? 'senala' : 'pie' }); }
+  R.personaje(250, 140, 30, { ...ELENCO.espartano, t, dir: -1, pose: 'manos_cintura', objeto: undefined, ceño: true });
+};
+rodar(E, R, [[0, campo]], { año: -700, caja: (t, e) => R.caja(t, t > m0 + 1 ? tramo(t, m0 + 1, m0 + 1.4) : 0, (x, y) => R.numero('7', x + 12, y + 12), { energia: e }) });
+</script>
+</body>
+</html>

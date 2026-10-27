@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dios · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-DIOS (frase 14). El faraón con el nemes ante su trono y, detrás, rayos de sol dorados; la gente levanta los
+// brazos ante él.
+import { preparar, rodar, trono, EL } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-dios');
+const m0 = M('dios', 0.5);
+const plano = (t) => {
+  trono(R, t, { abanicos: true, sol: R.tramo(t - m0, 0.3, 2) });
+  R.actor(EL.faraon, 166, 117, t, { dir: -1 });
+  R.actor(EL.campesino, 70, 145, t, { brazos: true }); R.actor(EL.egipcia, 96, 145, t + 1, { brazos: true }); R.actor(EL.calvo, 240, 145, t + 2, { brazos: true, dir: -1 });
+};
+rodar(E, R, [[0, plano]], { año: -2700 });
+</script>
+</body>
+</html>

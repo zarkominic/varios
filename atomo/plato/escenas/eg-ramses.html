@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ramses · ep8</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// EG-RAMSES (frase 26). Cartela «1259». Ramsés con la corona azul y una fila de hijos que no acaba («100+» en la caja);
+// luego un carro contra otro (una batalla que no gana nadie) y al final un egipcio y un hitita se dan la mano.
+import { preparar, rodar, trono, nilo, EL, gotaSudor } from '/atomo/plato/escenas/eg-comun.js';
+const { E, R, M } = await preparar('eg-ramses');
+const { tramo } = R;
+const m0 = M('ramses', 1.5), L = E.duracion - m0, T = (f) => m0 + f * L;
+const hijos = (t) => {
+  trono(R, t, { abanicos: true });
+  const n = Math.floor(tramo(t, T(0.05), T(0.3)) * 10), agobio = n >= 7;
+  R.actor(EL.rey, 166, 117, t, { tocado: 'azul', dir: -1, sonrisa: !agobio, sorpresa: agobio, manos: false });
+  if (agobio) gotaSudor(R, 168, 96, t);
+  // los hijos corretean de un lado a otro, saltando
+  for (let k = 0; k < n; k++) {
+    const v = 30 + (k % 3) * 12, ida = ((t * v + k * 47) % 300), x = Math.round(ida < 150 ? 20 + ida * 1.6 : 20 + (300 - ida) * 1.6);
+    R.actor(k % 2 ? EL.egipcia : EL.campesino, x, 145, t + k, { dir: ida < 150 ? 1 : -1, salto: Math.round(Math.abs(Math.sin(t * 9 + k)) * 3) });
+  }
+};
+const batalla = (t) => {
+  nilo(R, t, { desierto: true, barcas: false });
+  const f = tramo(t, T(0.4), T(0.6)), x = Math.round(R.lerp(40, 110, f));
+  R.carro(x, 145, t, { galopa: f < 1, conductor: EL.rey, conductorOpc: { tocado: 'azul' } });
+  R.carro(330 - x, 145, t + 0.2, { dir: -1, galopa: f < 1, conductor: EL.barbudo });
+};
+const paz = (t) => {
+  trono(R, t, {});
+  R.actor(EL.rey, 140, 145, t, { tocado: 'azul', sonrisa: true }); R.actor(EL.barbudo, 166, 145, t, { dir: -1, sonrisa: true, pal: { A: R.hex('#46a04a'), Q: R.hex('#e8b830') } });
+  R.rect(154, 128, 156, 131, R.hex('#d0905e'));
+};
+rodar(E, R, [[0, hijos], [T(0.38), batalla], [T(0.7), paz]], {
+  cartela: '1259', año: (t) => (t < T(0.7) ? -1274 : -1259),
+  caja: (t, e) => R.caja(t, t > T(0.15) && t < T(0.38) ? tramo(t, T(0.15), T(0.15) + 0.4) : 0, (x, y) => R.numero('100+', x + 2, y + 12), { energia: e }),
+});
+</script>
+</body>
+</html>

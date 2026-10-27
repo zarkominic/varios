@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La aguja en el pajar · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-PAJAR (frase 21). Tres planos:
+// 1. vuelve el pajar, al atardecer: el granjero llega con una lupa enorme y busca por un lado del montón mientras, a su
+//    espalda, la aguja destella; con «comes back» se rasca la cabeza («?») (gag). Una gallina picotea, una vaca pasta
+//    detrás de la valla y el viento se lleva briznas;
+// 2. el tubo de agua: con «diluting» la gota se reparte y las moléculas doradas se quedan en tres; con «molecules» entra
+//    la mano con la lupa a buscarlas y apenas encuentra una (gag); suben burbujas;
+// 3. la pantalla de resultados en la mesa del laboratorio (teclado, taza humeante, lápices, la nota amarilla del marco):
+//    la mano mueve el ratón y, con «results», cada clic deja un número en rojo; con «wrong» se despega la nota y cae.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-pajar');
+const { tramo, lerp, hex } = R;
+const C = T.C;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('pajar', f);
+// los cortes (ajustados para que los tres planos duren 4 s) y las palabras de la voz inglesa
+const P2 = a(0.322), P3 = a(0.6935);
+const PAJAR = a(0.19), VUELVE = a(0.23), MOLECULAS = a(0.49), ENCUENTRA = a(0.74), RESULTADOS = a(0.84), MAL = a(0.97);
+
+// ── piezas locales ─────────────────────────────────────────────────────────────────────────────────────────────
+const ruta = (t, kf, desde = true) => {
+  if (t < kf[0][0]) return desde ? null : { x: kf[0][1], s: kf[0][2], mv: false, d: Math.sign(kf[1][1] - kf[0][1]) || 1 };
+  let d = 1; for (let i = 0; i + 1 < kf.length; i++) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1]; if (x1 !== x0) d = x1 < x0 ? -1 : 1;
+    if (t < t1) { const u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0 || s1 !== s0, d }; } }
+  const [, x, s] = kf[kf.length - 1]; return { x, s, mv: false, d };
+};
+const brazo = (x, y, dir, manga = '#f4f4f8') => { x = Math.round(x); y = Math.round(y); T.mano(R, x, y, dir, manga); const fin = (dir > 0 ? x - 3 : x + 3) - dir * 40;
+  const [x0, x1] = dir > 0 ? [-1, fin] : [fin, 320]; if (x1 > x0) { R.rect(x0, y - 2, x1, y + 2, hex(manga)); R.rect(x0, y - 3, x1, y - 3, C.k); R.rect(x0, y + 3, x1, y + 3, C.k); } };
+// la lupa enorme en la mano del granjero: el cristal en (cx, cy) y el mango hasta la mano (hx, hy)
+const lupaMano = (cx, cy, r, hx, hy) => { const { disco, linea, pset } = R; linea(cx, cy, hx, hy, C.k); linea(cx + 1, cy, hx + 1, hy, C.maderaS); linea(cx, cy + 1, hx, hy + 1, C.maderaS);
+  disco(cx, cy, r + 1, C.k); disco(cx, cy, r, hex('#c8e8f8')); disco(cx + 1, cy + 1, r - 2, hex('#e4f4fc')); pset(cx - 2, cy - 3, C.blanco); pset(cx - 3, cy - 2, C.blanco); };
+// una gallina blanca de cresta roja que anda y picotea (x, suelo); pica 0–1 baja la cabeza
+const gallina = (x, suelo, d, pica, t) => { const { rect, pset } = R, X = (i) => Math.round(x + i * d), py = Math.round(pica * 3);
+  for (const [i0, i1, y0, y1, c] of [[-4, 3, suelo - 7, suelo - 3, C.k], [-3, 2, suelo - 6, suelo - 4, C.blanco], [-5, -4, suelo - 9, suelo - 6, C.k], [-4, -4, suelo - 8, suelo - 7, C.grisL]]) rect(Math.min(X(i0), X(i1)), y0, Math.max(X(i0), X(i1)), y1, c);
+  rect(Math.min(X(2), X(5)), suelo - 10 + py, Math.max(X(2), X(5)), suelo - 6 + py, C.k); rect(Math.min(X(3), X(4)), suelo - 9 + py, Math.max(X(3), X(4)), suelo - 7 + py, C.blanco);
+  pset(X(3), suelo - 11 + py, C.rojo); pset(X(4), suelo - 11 + py, C.rojo); pset(X(6), suelo - 8 + py, C.amarillo); pset(X(4), suelo - 8 + py, C.k); pset(X(4), suelo - 6 + py, C.rojo);
+  const p = Math.floor(t * 6) % 2; pset(X(-1), suelo - 2, C.naranja); pset(X(-1), suelo - 1, C.naranja); pset(X(1 + p), suelo - 2, C.naranja); pset(X(1 + p), suelo - 1, C.naranja); };
+// una vaca a lo lejos, detrás de la valla, que pasta (baja y sube la cabeza)
+const vaca = (x, suelo, t) => { const { rect, pset } = R, baja = Math.sin(t * 0.9) > -0.2 ? 2 : 0;
+  rect(x, suelo - 8, x + 12, suelo - 3, C.k); rect(x + 1, suelo - 7, x + 11, suelo - 4, C.blanco); rect(x + 3, suelo - 7, x + 5, suelo - 5, C.k); rect(x + 8, suelo - 6, x + 9, suelo - 4, C.k);
+  for (const i of [1, 3, 9, 11]) rect(x + i, suelo - 3, x + i, suelo, C.k); rect(x + 12, suelo - 9 + baja, x + 15, suelo - 5 + baja, C.k); rect(x + 13, suelo - 8 + baja, x + 14, suelo - 6 + baja, C.blanco); pset(x + 15, suelo - 5 + baja, hex('#e8a8a8'));
+  pset(Math.round(x - 1 + Math.sin(t * 3)), suelo - 6, C.k); };
+
+// ── 1 · el pajar ───────────────────────────────────────────────────────────────────────────────────────────────
+const BUSCA = 1.9, RASCA = VUELVE + 0.15;
+const p1 = (t) => {
+  T.pajar(R, t);
+  vaca(258, 101, t);
+  // la gallina: anda un poco, se para y picotea
+  const g = ruta(t, [[0, 28, 170], [1.2, 46, 170], [2.4, 46, 170], [3.3, 62, 172]], false), pica = !g.mv ? Math.max(0, Math.sin(t * 9)) : 0; gallina(g.x, g.s, 1, pica, t);
+  // el granjero llega con la lupa, busca por el lado derecho del montón y se rasca la cabeza
+  const q = ruta(t, [[0, 304, 168], [BUSCA - 0.1, 216, 168]], false), busca = t > BUSCA && t < RASCA, rasca = t > RASCA;
+  R.actor(EL.brazel, q.x, q.s, t, { dir: -1, anda: q.mv, dedo: rasca ? Math.floor(t * 5) % 2 === 0 : !q.mv, triste: rasca, bigote: true });
+  const w = busca ? Math.sin((t - BUSCA) * 4) : 0;
+  if (q.mv) lupaMano(q.x - 6, q.s - 13, 5, q.x + 2, q.s - 8);                                                   // la lleva abajo, al andar
+  else if (!rasca) lupaMano(Math.round(q.x - 14 + w * 5), Math.round(q.s - 39 - Math.abs(w) * 4), 7, q.x, q.s - 29);   // la levanta y la pasea por el montón
+  else { lupaMano(q.x + 18, q.s - 10, 5, q.x + 13, q.s - 6); R.icono('?', q.x + 4, q.s - 40, C.rojo, C.k); }           // la baja y se rasca la cabeza
+};
+
+// ── 2 · las moléculas, repartidas en el agua ───────────────────────────────────────────────────────────────────
+const p2 = (t) => {
+  T.insertoDiluye(R, t, { u: lerp(0.42, 1, tramo(t, P2 + 0.1, MOLECULAS + 0.4)), lupa: tramo(t, MOLECULAS + 0.2, MOLECULAS + 1.2) });
+  for (let k = 0; k < 6; k++) { const v = (t * 0.45 + k / 6) % 1, x = 146 + ((k * 13) % 28) + Math.round(Math.sin(t * 2.5 + k) * 1.5); R.pset(x, Math.round(lerp(142, 56, v)), C.blanco); }
+};
+
+// ── 3 · los resultados en la pantalla, sobre la mesa ───────────────────────────────────────────────────────────
+const FONDO = [hex('#2a2e3a'), hex('#262a36')];
+const FLECHA = ['k.......', 'kk......', 'kWk.....', 'kWWk....', 'kWWWk...', 'kWWWWk..', 'kWWkkk..', 'kkWk....', '...kWk..', '....kk..'];
+const mesa = (t, o = {}) => {
+  const { rect, pset, pget, disco, linea } = R;
+  // el tablero de la mesa, que se pinta solo donde se ve la pared (por detrás del monitor y su pie), y el canto de delante
+  for (let y = 150; y < 180; y++) for (let x = 0; x < 320; x++) { if (y < 174 && !FONDO.includes(pget(x, y))) continue;
+    pset(x, y, y >= 174 ? (y === 174 ? C.k : y === 175 ? C.maderaL : C.madera) : y === 150 ? C.maderaS : (x * 3 + y * 17) % 29 === 0 ? C.maderaS : C.maderaL); }
+  // la taza humeante, el bote de lápices y la nota amarilla pegada al marco (o.cae 0–1: se despega y cae)
+  rect(14, 148, 26, 162, C.k); rect(15, 149, 25, 161, C.tealT); rect(15, 149, 25, 150, hex('#5a3a2a')); rect(26, 151, 29, 158, C.k); rect(27, 152, 28, 157, C.tealT); pset(16, 152, hex('#8ad0c8'));
+  for (let k = 0; k < 4; k++) { const v = (t * 0.7 + k / 4) % 1; pset(Math.round(19 + Math.sin(v * 7 + k) * 2), Math.round(146 - v * 16), v > 0.6 ? hex('#5a5e6a') : hex('#8a8e9a')); }
+  rect(292, 146, 302, 160, C.k); rect(293, 147, 301, 159, hex('#5a6aa8')); for (const [px, c] of [[294, C.rojo], [297, C.amarillo], [300, C.verdeL]]) { linea(px, 146, px - 1 + (px % 3), 138, C.k); pset(px - 1 + (px % 3), 139, c); }
+  const cae = o.cae ?? 0, nx = Math.round(268 + cae * 14 + Math.sin(cae * 10) * 6 * (1 - cae)), ny = Math.round(lerp(126, 152, cae * cae)), nh = cae > 0.9 ? 3 : 10;
+  rect(nx, ny, nx + 11, ny + nh, C.k); rect(nx + 1, ny + 1, nx + 10, ny + nh - 1, hex('#f8e870')); if (nh > 4) { rect(nx + 3, ny + 4, nx + 8, ny + 4, hex('#c8b840')); rect(nx + 3, ny + 7, nx + 6, ny + 7, hex('#c8b840')); }
+  // el teclado y el ratón
+  rect(104, 163, 216, 172, C.k); rect(105, 164, 215, 171, hex('#3a3e4a')); rect(105, 164, 215, 164, hex('#5a5e6a'));
+  for (const y of [166, 168]) for (let x = 108; x < 212; x += 4) rect(x, y, x + 2, y, hex('#8a8ea0')); rect(140, 170, 180, 170, hex('#8a8ea0'));
+  rect(234, 164, 246, 172, C.k); rect(235, 165, 245, 171, C.metalL); rect(240, 165, 240, 167, C.k);
+  // el puntero en la pantalla
+  if (o.cursor) R.dibujo(FLECHA, Math.round(o.cursor[0]), Math.round(o.cursor[1]), 1, { k: C.k, W: C.blanco });
+};
+// los cuatro números que se ponen en rojo (filas 1, 3, 5 y 7 de la pantalla) y cuándo lo hace cada uno
+const ROJOS0 = RESULTADOS - 0.25, ROJOS1 = MAL + 0.1, CLICS = [1, 3, 5, 7].map((k) => ROJOS0 + (k / 9 + 0.005) * (ROJOS1 - ROJOS0));
+const p3 = (t) => {
+  const rojos = Math.min(1, Math.max(0, (t - ROJOS0) / (ROJOS1 - ROJOS0)));
+  T.pantalla(R, t, { modo: 'resultados', rojos });
+  // el puntero baja de fila en fila hasta cada número que se pone en rojo; la mano mueve el ratón y hace clic
+  const i = CLICS.filter((c) => t > c - 0.35).length, k = [1, 1, 3, 5, 7][i], y0 = 36 + k * 12 + 2, previo = 36 + [1, 1, 1, 3, 5][i] * 12 + 2;
+  const u = i === 0 ? 1 : tramo(t, CLICS[i - 1] - 0.35, CLICS[i - 1] - 0.05), cy = i === 0 ? lerp(120, 50, tramo(t, P3 + 0.3, ROJOS0 - 0.2)) : lerp(previo, y0, u), cx = i === 0 ? lerp(120, 214, tramo(t, P3 + 0.3, ROJOS0 - 0.2)) : 214;
+  const clic = CLICS.some((c) => t > c && t < c + 0.12);
+  mesa(t, { cursor: [cx, cy], cae: tramo(t, MAL + 0.2, MAL + 0.85) });
+  brazo(252 + Math.round((cx - 214) * 0.08), 167 + Math.round((cy - 80) * 0.03) + (clic ? 1 : 0), -1);
+};
+
+const efectos = [[0.45, 'brillo'], [RASCA, 'tic'], [3.25, 'brillo'],
+  [P2 + 0.2, 'burbujas'], [MOLECULAS + 0.2, 'whoosh'], [ENCUENTRA, 'pop'],
+  ...CLICS.map((c) => [c, 'tic']), [CLICS[1] + 0.1, 'aviso'], [MAL + 0.1, 'aviso'], [MAL + 0.25, 'papel']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2014 });
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pavo · ep9</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AG-PAVO (frases 12–13). A: la mesa con patos y gansos; un pavo asoma detrás de un árbol, mira a todos y se va
+// tranquilamente. Luego una tarta de calabaza enorme que se tacha: no hay horno.
+import { preparar, rodar, plymouth, pavo, C, EL } from '/atomo/plato/escenas/ag-comun.js';
+const { E, R, M } = await preparar('ag-pavo');
+const { tramo, lerp } = R;
+const m = { av: M('aves', 0.5), ta: M('tarta', 7) };
+const aves = (t) => {
+  const u = t - m.av, L = m.ta - m.av, sale = tramo(u, 0.35 * L, 0.5 * L), va = tramo(u, 0.75 * L, L);
+  plymouth(R, t, { estacion: 'otono', mesa: 1, mayflower: false, calabazas: false });
+  const ep = tramo(u, 0, 1.5); R.actor(EL.peregrino, Math.round(lerp(10, 76, ep)), 145, t, { sonrisa: true, anda: ep < 1 }); R.actor(EL.wampanoag, 250, 145, t + 1, { dir: -1, sonrisa: true });
+  if (sale > 0) pavo(R, Math.round(lerp(330, 300, sale) + va * 60), 145, t, { dir: va > 0 ? 1 : -1, corre: va > 0 });
+};
+const tarta = (t) => {
+  const u = t - m.ta, tacha = tramo(u, 1.2, 1.8);
+  plymouth(R, t, { estacion: 'otono', mesa: 1, mayflower: false });
+  const cx = 160, cy = 70;
+  R.rect(cx - 50, cy - 30, cx + 50, cy + 30, C.k); R.rect(cx - 49, cy - 29, cx + 49, cy + 29, C.blanco);
+  R.poligono([[cx - 34, cy + 14], [cx + 34, cy + 14], [cx + 28, cy - 6], [cx - 28, cy - 6]], C.calabaza); R.rect(cx - 30, cy - 10, cx + 30, cy - 6, C.ocre); R.rect(cx - 30, cy - 10, cx + 30, cy - 10, C.k); R.rect(cx - 34, cy + 14, cx + 34, cy + 15, C.ocreS);
+  for (let k = -2; k <= 2; k++) R.pset(cx + k * 10, cy - 8, C.oroL);
+  if (tacha > 0) for (const s of [-1, 1]) for (let i = 0; i < Math.round(tacha * 60); i++) { const x = cx - 30 + i, y = cy - 24 + Math.round(i * 0.8 * s) + (s < 0 ? 48 : 0); R.rect(x, y, x + 2, y + 2, C.rojo); }
+};
+rodar(E, R, [[0, aves], [m.ta - 0.2, tarta]], { año: 1621 });
+</script>
+</body>
+</html>

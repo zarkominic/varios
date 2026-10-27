@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>De cuatro mil quinientos millones a cero · ep11</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TH-CERO (frase 28), 2016. Dos planos:
+// 1. la farmacia Walgreens: la técnica de Theranos recoge la bandeja de tubitos en una caja y se va por la puerta;
+//    con «shuts down» un empleado de la farmacia empuja un panel con ruedas que tapa el rincón y, con «the centers», le pega
+//    la «X» roja; la clienta, que entraba a hacerse el análisis, se encuentra el panel, se sorprende, se encoge de hombros
+//    y se va a los estantes; al fondo, un cliente con su cesta elige productos y pasa un coche por la calle;
+// 2. la sala del consejo, con los globos de la fiesta de 2014 todavía atados a una silla: la ayudante entra con la revista
+//    y la deja en la mesa; con «recalculates» el marcador gira un momento y calcula; con «four and a half
+//    billion» se queda en $4,500,000,000 y, con «to zero», gira como una tragaperras y cae en $0 (golpe): las cifras se
+//    despegan y caen rebotando sobre la mesa, el último globo explota y la sala se oscurece; los consejeros pasan de la
+//    sorpresa a la tristeza y uno se levanta y se va.
+import * as T from '/atomo/plato/escenas/th-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('th-cero');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('cero', f);
+const P2 = a(0.5);
+const K = T.C.k;
+const lin = (t, x0, x1) => Math.min(1, Math.max(0, (t - x0) / (x1 - x0)));
+const hsh = (k, s) => { const v = Math.sin(k * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
+const ruta = (t, kf, d0 = 1) => { let d = d0; if (t < kf[0][0]) return { x: kf[0][1], mv: false, d };
+  for (let i = 0; i + 1 < kf.length; i++) { const [t0, x0] = kf[i], [t1, x1] = kf[i + 1]; if (x1 !== x0) d = x1 < x0 ? -1 : 1; if (t < t1) return { x: Math.round(lerp(x0, x1, (t - t0) / (t1 - t0))), mv: x1 !== x0, d }; }
+  return { x: kf[kf.length - 1][1], mv: false, d }; };
+
+// ── 1 · Walgreens cierra el rincón ────────────────────────────────────────────────────────────────────────────────
+const CIERRA = a(0.064), LLEGA = a(0.135) - 0.15, PEGA = a(0.135) + 0.1, SALE = 2.6;
+const ROJO = { C: hex('#d8283a'), c: hex('#a81e2c') };
+const panel = (x, t, cruz) => {   // el panel gris con ruedas (x: izquierda) que tapa el rincón
+  R.rect(x, 96, x + 82, 137, K); R.rect(x + 1, 97, x + 81, 136, hex('#d8d8dc')); for (let k = 0; k < 6; k++) R.rect(x + 1, 100 + k * 6, x + 81, 100 + k * 6, hex('#c8c8cc')); R.rect(x + 1, 97, x + 2, 136, hex('#e8e8ec'));
+  R.rect(x + 78, 108, x + 80, 124, T.C.metalD); for (const wx of [x + 6, x + 76]) { R.disco(wx, 138, 2, K); R.pset(wx + Math.round(Math.cos(x * 0.3)), 138 + Math.round(Math.sin(x * 0.3)), T.C.metal); }
+  if (cruz > 0) { const s = cruz < 1 ? 3 : 2; R.icono('X', x + 34, 110, T.C.rojoW, hex('#d8d8dc'), s); } };
+const p1 = (t) => {
+  T.farmacia(R, t, { puerta: Math.max(tramo(t, 0.15, 0.5) * (1 - tramo(t, 1.4, 1.8)), tramo(t, SALE - 0.5, SALE - 0.1) * (1 - tramo(t, SALE + 0.4, SALE + 0.8))) });
+  T.sillonDelante(R, 150, 140);   // el sillón del rincón, que el panel tapará
+  // al fondo, un cliente con su cesta elige productos en el pasillo 4
+  { const q = ruta(t, [[0, 262], [2.6, 262], [3.6, 282]]), coge = t > 1.0 && t < 1.4 || t > 4.0 && t < 4.4; R.actor(EL.profesor, q.x, 146, t, { dir: coge ? 1 : -1, anda: q.mv, dedo: coge });
+    R.rect(q.x - 6, 134, q.x + 1, 139, K); R.rect(q.x - 5, 135, q.x, 138, T.C.rojoW); if (t > 1.4) R.rect(q.x - 4, 132, q.x - 2, 135, hex('#4a8ae8')); if (t > 4.4) R.rect(q.x - 2, 131, q.x, 135, hex('#f0c040')); }
+  // el panel: entra empujado por el empleado de la farmacia y tapa el rincón
+  const px = Math.round(lerp(238, 146, tramo(t, 0.4, LLEGA))), pega = t > PEGA;
+  panel(px, t, pega ? Math.min(1, (t - PEGA) * 6) : 0);
+  { const q = ruta(t, [[0.3, 330], [0.4, px + 80], [LLEGA, 226], [PEGA + 0.5, 226], [PEGA + 2.4, 334]]), x = t < LLEGA + 0.01 ? px + 80 : q.x;
+    R.actor(EL.oficinista, x, 142, t, { dir: t < PEGA + 0.5 ? -1 : 1, anda: t > 0.4 && t < LLEGA || q.mv && t > PEGA + 0.5, pal: ROJO, dedo: t > PEGA - 0.15 && t < PEGA + 0.3, sonrisa: t > PEGA + 0.3 }); }
+  // la técnica de Theranos se lleva la bandeja de tubitos en una caja y sale por la puerta
+  { const q = ruta(t, [[0.5, 184], [SALE, -16]]); if (t < SALE + 0.05) { R.actor(EL.tecnica, q.x, 156, t, { dir: -1, anda: q.mv, triste: true }); const bx = q.x - 9; R.rect(bx, 141, bx + 10, 148, K); R.rect(bx + 1, 142, bx + 9, 147, T.C.ocre); for (let k = 0; k < 3; k++) { R.rect(bx + 2 + k * 3, 138, bx + 3 + k * 3, 141, T.C.blanco); R.pset(bx + 2 + k * 3, 138, [T.C.verdeT, T.C.amarilloT, T.C.tealT][k]); } } }
+  // la clienta entra a hacerse el análisis, se encuentra el panel, se encoge de hombros y se va a los estantes
+  { const q = ruta(t, [[0.4, -14], [2.1, 112], [4.1, 112], [5.8, 240]]), ve = t > 2.15;
+    R.actor(EL.clienta, q.x, 162, t, { dir: q.mv ? q.d : t > 3.2 ? 1 : 1, anda: q.mv, sorpresa: ve && t < 3.1, brazos: t > 3.3 && t < 3.8, triste: t > 3.8 && t < 4.6, sonrisa: t > 4.8 });
+    if (ve && t < 3.1 && Math.floor(t * 4) % 2) R.bocadillo(q.x + 8, 132, { icono: '?' }); }
+};
+
+// ── 2 · el marcador vuelve a cero ─────────────────────────────────────────────────────────────────────────────────
+const REVISTA = a(0.538) - 0.1, CALCULA = a(0.538), CUATRO = a(0.737), GIRA = a(0.9), CERO = a(0.968);
+const SILLAS = [56, 100, 144, 188, 232];
+const PERRY = { ...EL.consejero, pal: { ...EL.consejero.pal, H: hex('#b0b0bc'), h: hex('#d0d0da'), C: hex('#4a4a5a'), c: hex('#3a3a46') } };
+const CONSEJO = [EL.consejero, EL.consejeroCalvo, EL.profesor, PERRY, EL.general];
+const CIFRAS = '$4,500,000,000';
+const globos = (t) => {   // los globos de la fiesta, atados a la silla de la izquierda: se desinflan y el último explota
+  const des = lin(t, CALCULA, CERO);
+  [[T.C.oro, T.C.oroL], [T.C.tealT, hex('#8ad8d0')], [T.C.verdeT, hex('#c8f08a')]].forEach(([c, cl], k) => {
+    if (k === 2 && t > CERO + 0.1) { if (t < CERO + 0.35) for (let g = 0; g < 8; g++) { const r = 4 + (t - CERO - 0.1) * 40; R.pset(Math.round(44 + Math.cos(g * 0.8) * r), Math.round(62 + Math.sin(g * 0.8) * r), cl); } return; }
+    const r = Math.round(lerp(7, k === 2 ? 6 : 4, des)), x = 24 + k * 10 + Math.round(Math.sin(t * 1.1 + k) * 2), y = Math.round(lerp(58 + k * 4, 84 + k * 6, des * des)) + Math.round(Math.sin(t * 1.6 + k * 2));
+    R.linea(x, y + r, 52, 116, hex('#e8e0d0')); R.disco(x, y, r + 1, K); R.disco(x, y, r, c); R.pset(x - Math.round(r / 2), y - Math.round(r / 2), cl); R.pset(x, y + r + 1, K); });
+};
+const p2 = (t) => {
+  T.consejo(R, t);
+  globos(t);
+  // el marcador: calcula con «recalculates», enseña los 4.500 millones y, con «to zero», gira y cae en $0
+  const calcula = t > CALCULA && t < CALCULA + 0.8, gira = t > GIRA && t < CERO, cero = t >= CERO;
+  if (!cero) T.contador(R, t, 4.5e9, { y: 48, rueda: calcula || gira ? 1 : 0 }); else T.contador(R, t, 0, { y: 48, rojo: true });
+  if (t > CUATRO && t < GIRA && Math.floor(t * 4) % 2) { R.rect(32, 42, 288, 43, T.C.oroL); R.rect(32, 85, 288, 86, T.C.oroL); }
+  // los consejeros: miran el marcador, se sorprenden y se entristecen; uno se levanta y se va
+  CONSEJO.forEach((d, k) => { const sale = k === 3 && t > CERO + 0.6, q = sale ? ruta(t, [[CERO + 0.6, SILLAS[k] + 1], [CERO + 2.0, 330]]) : { x: SILLAS[k] + 1, mv: false };
+    const mira = k < 2 ? 1 : k > 2 ? -1 : 1, charla = (k === 0 || k === 1) && t > CALCULA + 0.9 && t < CUATRO && Math.sin(t * 8) > 0;
+    R.actor(d, q.x, 146, t + k, { dir: sale ? 1 : charla ? (k === 0 ? 1 : -1) : mira, anda: q.mv, habla: charla, sorpresa: gira || cero && t < CERO + 0.6, triste: cero && t > CERO + 0.6 && !sale, dedo: k === 4 && t > CUATRO && t < CUATRO + 0.5 }); });
+  // la ayudante trae la revista y la deja en la mesa
+  { const q = ruta(t, [[P2 - 0.3, 64], [REVISTA - 0.1, 124], [CALCULA + 1.3, 124], [CALCULA + 2.6, 30]]), deja = t > REVISTA;
+    R.actor(EL.oficinista, q.x, 146, t, { dir: q.mv ? q.d : 1, anda: q.mv, sorpresa: cero && t < CERO + 0.6, triste: cero && t > CERO + 0.6 });
+    if (!deja) { const rx = q.x + 13, ry = 128; R.rect(rx, ry - 9, rx + 7, ry, K); R.rect(rx + 1, ry - 8, rx + 6, ry - 1, hex('#f4f0e8')); R.rect(rx + 1, ry - 8, rx + 6, ry - 7, T.C.rojoW); R.rect(rx + 3, ry - 5, rx + 4, ry - 2, K); R.pset(rx + 3, ry - 6, T.C.oro); } }
+  T.consejoMesa(R, t, {});
+  // la revista, ya sobre la mesa (por delante del borde)
+  if (t > REVISTA) { const rx = 130, ry = 144; R.rect(rx, ry - 4, rx + 12, ry, K); R.rect(rx + 1, ry - 3, rx + 11, ry - 1, hex('#f4f0e8')); R.rect(rx + 1, ry - 3, rx + 3, ry - 1, T.C.rojoW); R.pset(rx + 7, ry - 2, K); R.pset(rx + 8, ry - 2, K); }
+  // el golpe: las cifras se despegan del marcador y caen rebotando sobre la mesa
+  if (cero) { const d0 = t - CERO, g = 520, suelo = 158;
+    for (let i = 1; i < CIFRAS.length; i++) { const d = d0 - hsh(i, 1) * 0.25; if (d < 0) { R.numero(CIFRAS[i], 56 + i * 16, 72, { tam: 16, centro: true }); continue; }
+      const t1 = Math.sqrt(2 * (suelo - 72) / g), vx = (hsh(i, 2) - 0.5) * 30; let y;
+      if (d < t1) y = 72 + g * d * d / 2; else { const dd = d - t1, v0 = g * t1 * 0.35; y = Math.min(suelo, suelo - (v0 * dd - g * dd * dd / 2)); if (dd > 2 * v0 / g) y = suelo; }
+      R.numero(CIFRAS[i], Math.round(56 + i * 16 + vx * Math.min(d, 0.8)), Math.round(y), { tam: 16, centro: true }); }
+    T.tinte(R, 0, 179, [26, 16, 22], 0.32 * lin(t, CERO + 0.2, CERO + 0.9));
+    for (let k = 0; k < 3; k++) R.disco(80 + k * 80, 160, 2, Math.floor(t * 6 + k) % 2 ? T.C.rojo : T.C.rojoS); }
+};
+
+const efectos = [[0.2, 'puerta'], [0.5, 'whoosh'], [LLEGA, 'golpecito'], [PEGA, 'sello'], [SALE - 0.4, 'puerta'],
+  [REVISTA, 'papel'], [CALCULA + 0.05, 'tic'], [CALCULA + 0.3, 'tic'], [CALCULA + 0.55, 'tic'], [CUATRO, 'brillo'],
+  [GIRA, 'tic'], [GIRA + 0.15, 'tic'], [GIRA + 0.3, 'tic'], [GIRA + 0.45, 'tic'], [CERO, 'boing'], [CERO + 0.12, 'pop'], [CERO + 0.45, 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2016 });
+</script>
+</body>
+</html>
