@@ -1,6 +1,6 @@
 # Estilo canónico: pixel chibi
 
-> **Estándar mínimo:** desde el episodio 10, todo episodio cumple `ESTANDAR.md` (planos de 4–7 s con acción, detalle del gancho del 10, mapas reales, −14 LUFS, subtítulos limpios, entrega completa en el chat).
+> **Estándar mínimo:** todo episodio cumple `ESTANDAR.md`, escrito en piedra con el episodio 11 final como referencia (decorados con textura, sombreado y vida animada, movimiento con propósito en cada plano de 4–7 s, música continua, −14 LUFS, subtítulos limpios, entrega completa en el chat). El proceso está en la skill `.claude/skills/episodio-ask-atom/`.
 
 **Aprobado el 23 de octubre de 2026** a partir de la muestra del puerto del Pireo. Es el estilo de los episodios a partir del 8.
 
