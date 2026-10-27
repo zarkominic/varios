@@ -421,7 +421,7 @@ const p4 = (t) => {
   rayo(196, 60, 96, 3, tiempo, t, [140, 46, 262, 104]);
   // detrás, en la plataforma (y desenfocados con todo el fondo): un jeep que pasa con dos mecánicos y uno que cruza con
   // la caja de herramientas
-  { const u = lin(t, P4 - 0.2, P5 + 0.2); jeep(Math.round(lerp(360, -50, u)), 146, t, { dir: -1, conductor: MECANICO, conductorOpc: { quieto: true }, giro: t * 9 }); }
+  { const u = lin(t, P4 - 0.2, P5 + 0.2); jeep(Math.round(lerp(360, -50, u)), 146, t, { dir: -1, conductor: MECANICO, giro: t * 9 }); }
   { const u = lin(t, P4, P5), x = Math.round(lerp(-14, 120, u)); R.actor(MECANICO2, x, 141, t, { dir: 1, anda: true }); R.rect(x + 12, 128, x + 16, 131, K); R.rect(x + 13, 129, x + 15, 130, C.rojo); }
   // el fondo, desenfocado por la bruma: así el morro de cerca se despega
   T.tinte(R, 0, 179, [206, 216, 228], 0.36);

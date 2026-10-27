@@ -176,7 +176,6 @@ const p2 = (t) => {
   R.actor(EL.vecino, 198, 174, t, { dir: -1, pal: SENOR, sorpresa: entre(t, subeT[0] + 0.1, subeT[0] + 0.8), dedo: entre(t, subeT[0] + 0.8, subeT[1]), sonrisa: t > bajaT[0] + 0.3, habla: t > bajaT[0] + 0.5 && parpadeo(t, 9) });
   const aplaude = entre(t, subeT[1] - 0.6, subeT[1] + 0.1) || entre(t, bajaT[1] - 0.1, bajaT[1] + 0.5);
   R.actor(EL.vecina, 222, 176, t, { dir: -1, pal: SENORA, brazos: aplaude && Math.floor(t * 8) % 2 === 0, dedo: entre(t, bajaT[0] + 0.3, bajaT[1] - 0.1), sorpresa: entre(t, subeT[0] + 0.2, subeT[0] + 0.9), sonrisa: t > subeT[1] - 0.6 });
-  if (!(aplaude && Math.floor(t * 8) % 2 === 0) && !entre(t, bajaT[0] + 0.3, bajaT[1] - 0.1)) { const [hx, hy] = manoAtras(222, 176, -1); sombrilla(hx, hy); }
   // «two thousand»
   if (t > dosmil - 0.05) { const e = tramo(t, dosmil - 0.05, dosmil + 0.2); R.numero('2,000', 254, Math.round(lerp(76, 70, e)), { tam: 8, centro: true, contorno: true }); }
 };

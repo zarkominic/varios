@@ -232,7 +232,7 @@ const puertaFlota = (x, y) => { R.rect(x - 14, y - 4, x + 14, y, C.k); R.rect(x 
 // la ventana de Cline: el hueco (x 40–74, y 26–62), la hoja de abajo que sube y baja, y él asomado
 const VC = { x0: 40, y0: 26, x1: 74, y1: 62 };
 const subeHoja = [P2 + 0.05, P2 + 0.4], asoma = [P2 + 0.3, P2 + 0.65], dejaFarol = [pies + 0.65, pies + 0.85], escribe = [pies + 0.85, barre + 0.55];
-const salpica = barre + 0.6, mira2 = [salpica + 0.6, otro + 0.15], recoge = [otro + 0.2, otro + 0.55], bajaHoja = [otro + 0.6, P3 - 0.05];
+const salpica = barre + 0.6, mira2 = [salpica + 0.6, otro - 0.15], recoge = [otro - 0.1, otro + 0.25], bajaHoja = [otro + 0.3, P3 - 0.05];
 const libreta = (x, y, escr) => { R.rect(x - 1, y - 2, x + 5, y + 2, C.k); R.rect(x, y - 1, x + 4, y + 1, hex('#e8e0c8')); R.rect(x, y - 1, x, y + 1, hex('#3a5a3a')); if (escr) R.pset(x + 2 + (escr % 2), y, C.k); };
 const p2 = (t) => {
   const ft = piesAgua(t), wy = nivelY(ft);
@@ -240,7 +240,7 @@ const p2 = (t) => {
   // detrás, en las ventanas encendidas de arriba, la gente a salvo mira el agua; una silueta pasa con una vela
   [[111, 69], [133, 69], [242, 69], [265, 69]].forEach(([cx, cy], k) => silueta(cx + Math.round(Math.sin(t * 0.9 + k * 2) * 1.5), cy));
   { const u = (t * 0.3 + 0.4) % 1; silueta(Math.round(lerp(236, 272, u)), 68, hex('#3a2a30'), true, t); }
-  T.tinte(R, 0, 179, [6, 8, 20], 0.5);
+  T.tinte(R, 0, Math.min(179, Math.ceil(wy) + 3), [6, 8, 20], 0.5);   // lo de debajo lo tapa el agua de delante
   // la casa de Cline, de cerca: tablas verdes, el alero con ménsulas, la ventana con su cornisa y las contraventanas
   fachada(0, 0, 96, 179, CASA2, 91);
   R.rect(93, 0, 97, 179, MOLD[2]); R.rect(93, 0, 94, 179, MOLD[0]); R.rect(97, 0, 97, 179, C.k);
@@ -286,11 +286,12 @@ const p2 = (t) => {
   R.rect(116, 3, 212, 10, C.k); R.rect(117, 4, 211, 9, hex('#5a4030')); R.rect(117, 4, 211, 4, hex('#7a5a3a'));
   for (const ix of [124, 138, 192, 206]) { R.rect(ix - 1, 0, ix + 1, 3, hex('#3a3a42')); R.rect(ix - 2, -1, ix + 2, 0, hex('#5a9a7a')); }
   for (const [ix, d] of [[124, -1], [138, -1], [192, 1], [206, 1]]) { const sw = Math.round(Math.sin(t * 3 + ix) * 2); R.linea(ix, 0, d < 0 ? 97 : 319, 4 + sw, hex('#2a2a32')); }
-  // la luz del farol de Cline llega, floja, a la escala
   // la escala de mareas: esmalte con una marca por pie y los números cada cinco
   R.rect(ESC.x0 - 1, 8, ESC.x1 + 1, 179, C.k); R.rect(ESC.x0, 9, ESC.x1, 179, hex('#d8d2c4')); R.rect(ESC.x0, 9, ESC.x0, 179, hex('#ece6da')); R.rect(ESC.x1, 9, ESC.x1, 179, hex('#a8a296'));
   for (let f = 0; f <= 26; f++) { const y = Math.round(nivelY(f)); if (y < 10) continue; R.rect(ESC.x0 + 1, y, ESC.x0 + (f % 5 === 0 ? 13 : 6), y, f % 5 === 0 ? C.rojo : C.k); if (f % 5 === 0 && f > 0) R.numero(String(f), f >= 10 ? ESC.x0 + 7 : ESC.x0 + 14, y + 9, { color: C.rojo, sombra: false }); }
   for (const by of [12, 176]) { R.disco(ESC.x1 - 3, by, 1.5, hex('#8a8e9a')); }
+  // la luz del farol que Cline levanta llega, floja, a la escala que lee
+  if (conFarol) luzCalida(ESC.x0 + 8, Math.round(wy) - 14, 26, 0.2);
   // el agua delante de todo: sube por la escala y por la pared de la casa, con su línea de espuma, crestas y la lluvia que salpica
   const AGUA = [[48, 64, 104], [34, 46, 82], [26, 36, 66], [18, 26, 50]];
   for (let x = 0; x < 320; x++) { const yw = Math.round(wy + Math.sin(x * 0.12 + t * 4) * 1.5 + Math.sin(x * 0.05 - t * 2.5)); for (let y = Math.max(0, yw); y < 180; y++) { const d = y - yw; if (d === 0) { R.pset(x, y, (x + Math.floor(t * 12)) % 5 ? C.blanco : hex('#a8b8d4')); continue; } if (d < 3) { R.pset(x, y, mezcla(R.pget(x, y), [80, 100, 140], 0.85)); continue; } const f = Math.min(1, d / 70) + (umbral(x, y) - 0.5) * 0.22; R.pset(x, y, mezcla(R.pget(x, y), AGUA[f < 0.18 ? 0 : f < 0.42 ? 1 : f < 0.7 ? 2 : 3], 0.84)); } }
@@ -414,8 +415,8 @@ const p3 = (t) => {
 };
 // el golpe de música entra solo: el primer efecto, el agua que entra en la calle, llega después
 const efectos = [[1.35, 'ola'], [llama[0] + 0.1, 'rafaga'], [esaNoche - 0.02, 'trueno'], [cuelga[1], 'toc'],
-  [subeHoja[0] + 0.05, 'toc'], [pies, 'pop'], [escribe[0] + 0.1, 'lapiz'], [barre - 0.05, 'rafaga'], [barre + 0.15, 'chof'], [salpica, 'chof'], [bajaHoja[0] + 0.3, 'toc'],
-  [P3 + 0.3, 'toc'], [9.68, 'golpecito'], [mortal + 0.05, 'vapor'], [desastre + 0.15, 'trueno'], [historia - 0.5, 'toc']];
+  [subeHoja[0] + 0.05, 'toc'], [pies, 'pop'], [barre - 0.05, 'rafaga'], [salpica, 'chof'], [bajaHoja[1] - 0.05, 'toc'],
+  [Math.ceil((P3 + 0.3) * 0.62) / 0.62, 'golpecito'], [mortal + 0.05, 'vapor'], [desastre + 0.15, 'trueno'], [historia - 0.5, 'toc']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1900 });
 </script>
 </body>
