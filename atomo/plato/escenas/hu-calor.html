@@ -14,17 +14,19 @@
 //    escapa una gota de sudor) y se abanica con la mano; su compañero, con su gorra roja, bebe a morro de la botella y
 //    suspira; a «warm ocean» al sol le sale un anillo de calor; el aire tiembla sobre el agua (calima);
 // 2. (corta en «when») el inserto de la boya, de cerca, con el mar desenfocado detrás: el termómetro grande y el panel de
-//    cristal líquido; la mano de la científica da dos golpecitos al cristal en «heats», el número sube a «79°» y en «80»
-//    se clava en «80°» y parpadea mientras el líquido rojo llega a la marca; una gaviota se posa en el panel, mira la
-//    cifra y da un respingo con el parpadeo; las olas salpican el casco;
+//    cristal líquido; la mano de la científica (el brazo entra desde fuera del cuadro) da dos golpecitos al cristal en
+//    «heats», el número sube a «79°» y en «80» se clava en «80°» y parpadea mientras el líquido rojo llega a la marca; una
+//    gaviota se posa en el panel, mira la cifra y da un respingo con el parpadeo; las olas salpican el casco;
 // 3. (corta en «The water») a ras de agua, de cerca: la lancha de perfil con los dos científicos y, delante, el mar con
-//    sus crestas, una tortuga que asoma a respirar y un pez volador; del agua sube el vapor (hebras que suben hasta el
-//    cielo y la calima que hace temblar el horizonte), más fuerte a «fills»; a «invisible» las hebras se desvanecen y
-//    solo queda el temblor del aire; la científica señala el agua a «evaporates» y luego sigue el vapor hacia arriba; el
-//    científico tantea el aire con la mano a «invisible» y no encuentra nada: «?»;
+//    sus crestas, una tortuga que asoma a respirar y un pez volador; una gaviota pesca: planea en círculos, se lanza en
+//    picado al agua en «so fast» (salpicadura y anillos), sale a flote con un pez en el pico y se lo lleva volando hacia
+//    la izquierda; del agua sube el vapor (hebras que suben hasta el cielo y la calima que hace temblar el horizonte), más
+//    fuerte a «fills»; a «invisible» las hebras se desvanecen y solo queda el temblor del aire; la científica señala el
+//    agua a «evaporates» y luego sigue el vapor hacia arriba; el científico tantea el aire con la mano a «invisible» y no
+//    encuentra nada: «?»;
 // 4. (corta en «The same») el baño de casa: el grifo de agua caliente echa vapor y el espejo se empaña de abajo arriba
-//    hasta «mirror»; la mano entra y limpia una franja (se ve el baño reflejado), que se vuelve a empañar mientras el
-//    vapor sigue subiendo («That warm, wet air rises»); el gato mira el chorro;
+//    hasta «mirror»; la mano entra (con el brazo desde fuera del cuadro) y limpia una franja (se ve el baño reflejado),
+//    que se vuelve a empañar mientras el vapor sigue subiendo («That warm, wet air rises»); el gato mira el chorro;
 // 5. (corta en «and as it climbs») la lancha: la nube crece de cúmulo a torre mientras sube el aire («climbs», «cools») y
 //    nacen las gotas («drops of water»); la científica la señala y luego la mira con los prismáticos; el científico se
 //    hace visera con la mano;
@@ -88,9 +90,15 @@ const gaviotaVuela = (x, y, t, dir = 1) => {
 const a = (f) => en('oceano', f), b = (f) => en('secreto', f);
 // los cortes: «when», «The water», «The same», «and (as it climbs)», «And (here is the secret)», «So»
 const P2 = a(0.171), P3 = a(0.519), P4 = a(0.846), P5 = b(0.129), P6 = b(0.382), P7 = b(0.710);
+const PICA = a(0.585);   // la gaviota entra en el agua (plano 3)
 const calido = a(0.091), calienta = a(0.302), sobre = a(0.373), ochenta = a(0.394), evapora = a(0.544), llena = a(0.713), invisible = a(0.754), vaporT = a(0.783), empana = a(0.901), espejo = a(0.961);
 const sube = b(0.076), trepa = b(0.154), enfria = b(0.180), vuelve = b(0.255), gotasT = b(0.307), gotaT = b(0.483), forma = b(0.515), devuelve = b(0.537), solT = b(0.612), evaporar = b(0.638), caliente = b(0.743), deprisa = b(0.815), aspiraT = b(0.873), masAire = b(0.926);
 const AZUL = '#2a4a7a';   // la manga del polo azul marino de los científicos (la mano canónica)
+// la mano canónica con la manga que llega hasta el borde del cuadro (dir −1: el brazo entra por la derecha), para que no
+// quede un brazo cortado en el aire
+const manoLarga = (x, y, dir, manga) => { T.mano(R, x, y, dir, manga); x = Math.round(x); y = Math.round(y);
+  const x0 = dir < 0 ? x + 43 : 0, x1 = dir < 0 ? 319 : x - 43; if (x1 < x0) return;
+  R.rect(x0, y - 2, x1, y + 2, hex(manga)); R.rect(x0, y - 3, x1, y - 3, C.k); R.rect(x0, y + 3, x1, y + 3, C.k); R.rect(x0, y - 2, x1, y - 2, mezcla(hex(manga), C.blanco, 0.18)); };
 // la gorra roja del científico (el kit no la tiene en rojo: la misma gorra con su color)
 TOCADOS.gorraRoja = [['...kkkkkkkk....', '..kXXXXXXXXk...', '.kXXXXXwXXXXk..', '.kkkkkkkkkkkkkk', '..........kkkk.'], -2];
 const PALG = { X: hex('#d8463a'), w: hex('#f6f2ea') };
@@ -192,7 +200,7 @@ const p2 = (t) => {
     if (brinco) for (const [fx, fy] of [[206, 36], [222, 34]]) pset(fx, fy + dy - brinco, C.blanco); }
   // la mano de la científica entra, da dos golpecitos al cristal y se queda señalando; luego se va
   const entra = lin(t, P2 + 1.0, toques[0] - 0.05), sale = lin(t, ochenta + 0.9, P3 + 0.4);
-  if (entra > 0 && sale < 1) { const golpe = toques.some((k) => entre(t, k, k + 0.12)) ? 4 : 0; T.mano(R, Math.round(lerp(352, 266, suave(entra)) + lerp(0, 90, suave(sale))) - golpe, 76 + dy, -1, AZUL); }
+  if (entra > 0 && sale < 1) { const golpe = toques.some((k) => entre(t, k, k + 0.12)) ? 4 : 0; manoLarga(Math.round(lerp(352, 266, suave(entra)) + lerp(0, 90, suave(sale))) - golpe, 76 + dy, -1, AZUL); }
 };
 
 // ── 3 · a ras de agua: el vapor invisible ─────────────────────────────────────────────────────────────────────────
@@ -257,6 +265,27 @@ const p3 = (t) => {
       for (let yy = -4; yy <= 0; yy++) for (let xx = -9; xx <= 9; xx++) { const d = (xx / 9) ** 2 + (yy / 4.2) ** 2; if (d <= 1 && ty + yy < 147) pset(tx + xx, ty + yy, d > 0.75 ? hex('#3a3a1e') : (Math.abs(xx) % 5 === 2 || yy === -2) ? hex('#5a6a2a') : hex('#8a8a3a')); }
       if (sal > 0.45) { rect(tx + 9, ty - 3, tx + 13, ty - 1, hex('#3a3a1e')); rect(tx + 10, ty - 3, tx + 12, ty - 2, hex('#9aa04a')); pset(tx + 12, ty - 3, C.k); if (sal > 0.8) for (let i = 0; i < 3; i++) pset(tx + 15 + i, ty - 5 - i, hex('#e8f4fc')); }
       for (let i = -12; i <= 12; i += 2) if (Math.sin(t * 6 + i) > 0) pset(tx + i, 147, C.blanco); } }
+  // una gaviota pesca: planea en círculos, pliega las alas, se lanza en picado al agua (salpicadura y anillos), sale a
+  // flote con un pez en el pico y se va volando con él hacia la izquierda
+  { const T0 = P3 + 0.05, TD = PICA - 0.35, cxg = 92, cyg = 40, [px, py] = [104, 134];
+    const gira = (tt) => { const g = 2.4 - (tt - T0) * 2.6; return [cxg + Math.cos(g) * 22, cyg + Math.sin(g) * 8, -Math.sin(g) >= 0 ? 1 : -1]; };
+    if (t < TD) { const [x, y, d] = gira(t); gaviotaVuela(x, y, t, d); }
+    else if (t < PICA) { const [x0, y0] = gira(TD), u = lin(t, TD, PICA) ** 1.6, x = lerp(x0, px, u), y = lerp(y0, py, u), ang = Math.atan2(py - y0, px - x0), ca = Math.cos(ang), sa = Math.sin(ang);
+      // en picado: la flecha blanca con las alas plegadas, el pico amarillo delante y la cola oscura
+      for (let i = -1; i <= 7; i++) for (let j = -2; j <= 2; j++) { const X = Math.round(x - ca * i - sa * j), Y = Math.round(y - sa * i + ca * j), w = i < 1 ? 0 : i < 5 ? 1 : 0.5;
+        if (Math.abs(j) <= w + 1 && Math.abs(j) > w) pset(X, Y, C.k); }
+      for (let i = 0; i <= 6; i++) for (let j = -1; j <= 1; j++) { if (Math.abs(j) > (i < 1 ? 0 : i < 5 ? 1 : 0)) continue; const X = Math.round(x - ca * i - sa * j), Y = Math.round(y - sa * i + ca * j); pset(X, Y, i === 0 ? PAL_GAV.Y : i > 4 ? PAL_GAV.D : j ? PAL_GAV.G : PAL_GAV.W); } }
+    else if (t < PICA + 0.75) { const u = lin(t, PICA, PICA + 0.5);
+      // la salpicadura: una columna de agua que sube y cae en gotas, y la espuma
+      for (let k = 0; k < 14; k++) { const a = -Math.PI / 2 + (ruido(k, 1, 77) - 0.5) * 1.3, vv = 10 + ruido(k, 2, 77) * 10, x = Math.round(px + Math.cos(a) * vv * u * 0.8), y = Math.round(py + Math.sin(a) * vv * u + u * u * 14); if (u < 1) pset(x, y, k % 3 ? C.blanco : hex('#bfe6fb')); }
+      for (let i = -4; i <= 4; i++) if (u < 1 && Math.abs(i) < 2 + u * 4) pset(px + i, py - Math.round((1 - Math.abs(i) / 5) * 3 * Math.sin(u * Math.PI)), C.blanco); }
+    if (t > PICA && t < PICA + 2.2) { const q = lin(t, PICA, PICA + 2.2); for (let a = 0; a < 6.28; a += 0.2) { const X = Math.round(px + Math.cos(a) * (3 + q * 13)), Y = Math.round(py + 1 + Math.sin(a) * (1 + q * 3.5)); if (umbral(X, Y) < 1 - q) pset(X, Y, hex('#d8f4f6')); } }
+    if (t > PICA + 0.75 && t < PICA + 1.35) { const bob = Math.round(Math.sin(t * 9) * 0.6), x = px + 1, y = py + bob;
+      // a flote, con el pez de plata en el pico
+      R.rect(x - 3, y - 3, x + 3, y, C.k); R.rect(x - 2, y - 2, x + 2, y - 1, PAL_GAV.W); R.rect(x - 2, y - 1, x - 1, y - 1, PAL_GAV.G); R.rect(x + 2, y - 5, x + 4, y - 3, C.k); pset(x + 3, y - 4, PAL_GAV.W); pset(x + 5, y - 4, PAL_GAV.Y);
+      R.rect(x + 5, y - 3, x + 8, y - 3, hex('#c8d8e8')); pset(x + 8, y - 4, hex('#8aa8c8')); pset(x + 8, y - 2, hex('#8aa8c8')); }
+    if (t >= PICA + 1.35 && t < PICA + 3.2) { const u = lin(t, PICA + 1.35, PICA + 3.2), x = lerp(px, -14, u), y = lerp(py - 3, 26, Math.sqrt(u)); gaviotaVuela(x, y, t, -1);
+      R.rect(Math.round(x) - 6, Math.round(y) + 2, Math.round(x) - 4, Math.round(y) + 2, hex('#c8d8e8')); } }
   // el aire caliente tiembla: el horizonte y el mar ondulan, más cuanto más vapor
   calima(0, H - 16, 319, 179, t, 1 + v + fuerte, 5);
   // la lancha cerca con los dos científicos: ella señala el agua a «evaporates» y sigue el vapor hacia arriba; él tantea
@@ -288,7 +317,7 @@ const p4 = (t) => {
   if (pasa > 0) for (let y = 44; y <= 60; y++) { const borde = Math.round(ruido(y, 3, 41) * 4); for (let x = x0 + borde; x <= 213; x++) { const i = y * 320 + x, e = y < 46 || y > 58 ? 0.6 : 1; B[i] = mezcla(B[i], LIMPIO[i], claro * e); } }
   // la mano: entra por la derecha, pasa por el espejo haciendo eses y se va
   const entra = lin(t, limpia[0] - 0.45, limpia[0]), vuelve = lin(t, limpia[1] + 0.05, limpia[1] + 0.7);
-  if (entra > 0 && vuelve < 1) { const hx = Math.round(pasa > 0 && vuelve === 0 ? x0 + 10 : lerp(330, 214, suave(entra)) + lerp(0, 120, suave(vuelve))), hy = Math.round(52 + (pasa > 0 && pasa < 1 ? Math.sin(pasa * 18) * 5 : 0)); T.mano(R, hx, hy, -1, '#5a8ac8'); }
+  if (entra > 0 && vuelve < 1) { const hx = Math.round(pasa > 0 && vuelve === 0 ? x0 + 10 : lerp(330, 214, suave(entra)) + lerp(0, 120, suave(vuelve))), hy = Math.round(52 + (pasa > 0 && pasa < 1 ? Math.sin(pasa * 18) * 5 : 0)); manoLarga(hx, hy, -1, '#5a8ac8'); }
 };
 
 // ── 5 · la nube que crece y las gotas ─────────────────────────────────────────────────────────────────────────────
@@ -397,10 +426,10 @@ const p7 = (t) => {
   const r = R.actor(EL.pronosticador, XB - Math.round(4 * lin(t, vuela[0] + 0.1, vuela[0] + 0.6)), y, t, { dir: -1, brazos: entre(t, vuela[0] + 0.1, vuela[0] + 1.3), sorpresa: t > vuela[0], tocado: sinGorra ? undefined : 'gorraRoja', pal: PALG, anda: entre(t, vuela[0] + 0.1, vuela[0] + 0.6) });
   if (sinGorra) { const u = lin(t, vuela[0], vuela[1]); if (u < 1) { const gx = lerp(XB - 2, 104, suave(u)), gy = lerp(r.cabeza[1] - 4, 98, u) - Math.sin(u * Math.PI) * 26; gorra(gx, gy, Math.floor(t * 6) % 2 ? 1 : -1); } }
 };
-const efectos = [[0.25, 'ola'], [calido, 'brillo'], [2.1, 'gluglu'], [3.5, 'ola'],
+const efectos = [[0.25, 'ola'], [calido, 'brillo'], [2.0, 'burbujas', { dur: 1.1 }], [3.5, 'ola'],
   [P2 + 0.3, 'whoosh'], [P2 + 1.05, 'golpecito'], [toques[0], 'golpecito'], [toques[1], 'golpecito'], [toques[1] + 0.3, 'bip'], [ochenta, 'bip'], [ochenta + 0.05, 'brillo'],
-  [P3 + 0.2, 'ola'], [evapora, 'vapor'], [invisible + 0.3, 'pop'], [vaporT + 0.3, 'ola'],
-  [P4 + 0.05, 'vapor'], [empana, 'gluglu'], [limpia[0], 'papel'], [limpia[0] + 0.5, 'papel'], [sube, 'vapor'],
+  [P3 + 0.2, 'ola'], [evapora, 'vapor'], [PICA, 'chof'], [invisible + 0.3, 'pop'], [vaporT + 0.3, 'ola'],
+  [P4 + 0.05, 'vapor'], [P4 + 0.35, 'burbujas', { dur: 1.4 }], [limpia[0], 'papel'], [limpia[0] + 0.5, 'papel'], [sube, 'vapor'],
   [P5 + 0.15, 'ola'], [trepa, 'whoosh'], [vuelve - 0.1, 'golpecito'], [gotasT, 'burbujas'],
   [P6 + 0.1, 'whoosh'], [forma, 'burbujas'], [devuelve, 'brillo'], [solT, 'brillo'], [evaporar - 0.1, 'pop'], [evaporar + 0.35, 'pop'], [evaporar + 0.7, 'pop'],
   [caliente, 'whoosh'], [deprisa, 'whoosh'], [aspiraT, 'rafaga'], [vuela[0] + 0.15, 'boing'], [35.15, 'trueno'], [masAire, 'rafaga']];

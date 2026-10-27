@@ -9,9 +9,10 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// HU-ADIOS (frase 33), 2026. Un plano: el huracán desde arriba al atardecer, en calma, que gira despacio mientras la cámara
-// se acerca un poco; un avioncito (el P-3, visto desde arriba) llega volando hacia el ojo para entrar otra vez y, en
-// «explain next?», sube del ojo un «?» suave que late. Atom, arriba a la derecha.
+// HU-ADIOS (frase 33), 2026. Un plano (3 s): el huracán desde arriba al atardecer, que gira despacio mientras la cámara se
+// acerca un poco; el avioncito (el P-3, visto desde arriba, con su sombra en las nubes) llega desde abajo a la izquierda y
+// entra en el ojo en una curva, girando con el huracán; la gaviota de toda la escena le sigue un poco por detrás, batiendo
+// las alas; en «explain next?» sube del ojo un «?» suave que late. Atom, arriba a la derecha.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-adios');
@@ -81,12 +82,20 @@ const destello = (x, y, r, c = C.blanco) => { for (let i = 1; i <= r; i++) { for
 
 const a = (f) => en('adios', f);
 const explica = a(0.417), siguiente = a(0.592);
+// el avioncito entra en el ojo en una curva: gira alrededor del centro mientras se acerca (u 0–1 del camino)
+const camino = (G, u) => { const th = 2.4 - 1.05 * u, r = G.r * (6.2 - 4.7 * u); return [G.x + Math.cos(th) * r, G.y + Math.sin(th) * r]; };
+// la gaviota de toda la escena, vista desde arriba: una uve blanca que bate las alas, con su sombra en las nubes
+const gaviotaArriba = (x, y, t) => { const X = Math.round(x), Y = Math.round(y), ala = Math.sin(t * 13) > 0 ? 1 : 0;
+  for (const [dx, dy, c] of [[2, 2, hex('#2a2030')], [0, 0, null]]) { const col = c ?? C.blanco; R.pset(X + dx, Y + dy, col); R.pset(X - 1 + dx, Y - 1 + ala + dy, col); R.pset(X + 1 + dx, Y - 1 + ala + dy, col); R.pset(X - 2 + dx, Y - ala + dy, c ?? hex('#c8ccd8')); R.pset(X + 2 + dx, Y - ala + dy, c ?? hex('#c8ccd8')); } };
 const plano = (t) => {
   const zoom = 1.35 + 0.3 * suave(lin(t, 0, E.duracion)), o = { vista: 'arriba', tarde: true, zoom };
   T.ojo(R, t, o);
   const G = T.b_ojoArribaGeo(o);
-  // el avioncito: llega desde abajo a la izquierda y vira hacia el ojo
-  { const u = lin(t, 0, E.duracion + 0.4), x = lerp(70, G.x - G.r * 1.25, suave(u)), y = lerp(166, G.y + G.r * 0.9, suave(u)), an = Math.atan2(G.y - y, G.x - x); avionArriba(Math.round(x), Math.round(y), an, t); }
+  // el avioncito: llega desde abajo a la izquierda y entra en el ojo girando con el huracán, con el morro hacia donde va;
+  // la gaviota le sigue un poco por detrás y por fuera
+  { const u = suave(lin(t, 0, E.duracion + 0.5)), [x, y] = camino(G, u), [x2, y2] = camino(G, Math.min(1, u + 0.02)), an = Math.atan2(y2 - y, x2 - x);
+    avionArriba(Math.round(x), Math.round(y), an, t);
+    const ug = suave(lin(t - 0.4, 0, E.duracion + 0.5)), [gx, gy] = camino(G, ug); gaviotaArriba(gx - Math.sin(an) * 7 + Math.sin(t * 2.3) * 1.5, gy + Math.cos(an) * 7, t); }
   // el «?» que sube del ojo, suave (tramado al aparecer), y late
   if (t > siguiente - 0.15) { const e = lin(t, siguiente - 0.15, siguiente + 0.45), y = Math.round(G.y - 10 - e * 4 + Math.sin(t * 3) * 1), x = Math.round(G.x - 5);
     const antes = []; for (let j = 0; j < 24; j++) for (let i = 0; i < 22; i++) antes.push(R.pget(x - 6 + i, y - 4 + j));

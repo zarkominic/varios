@@ -9,23 +9,27 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// HU-NOMBRES (frase 18), sin cartela, 1953 → 1979 → 1985. Cuatro planos, cada uno con su composición:
+// HU-NOMBRES (frase 18), sin cartela, 1953 → 1979 → 1985. Cuatro planos (4,4, 6,5, 4,2 y 4,6 s), cada uno con su
+// composición:
 // 1. el mapa de papel del sureste en la mesa de los pronosticadores («so many storms»): cuatro tormentas aparecen una tras
 //    otra (golfo, Bahamas, Carolina, Atlántico) y giran con su estela de puntos; una mano coge el lápiz graso y traza a
 //    puntos la trayectoria de la del golfo («keep track»); la sombra del ventilador del techo barre el mapa, humea un café
 //    en la esquina y una mosca pasea por Kentucky; en «names» la mano de otro pronosticador clava una ficha con el
 //    pictograma de mujer junto a una tormenta y las otras tres reciben la suya (barra en 1953);
-// 2. la sala de pronóstico entera, en 1953 («only women's names»): el pronosticador recorre con el puntero el tablero de
-//    las listas, todas de mujer; el de la mesa teclea y la pronosticadora lee el teletipo; en «1979» se enciende la placa
-//    del año (la barra salta a 1979) y en «alternating men and women» las fichas de hombre se dan la vuelta una a una
-//    mientras el puntero las sigue; la pronosticadora se vuelve y sonríe;
+// 2. la sala de pronóstico entera, en 1953 («only women's names»): el pronosticador llega por detrás de la mesa de trazar
+//    (la mesa y el flexo le tapan de cintura abajo) y con el puntero va tocando la ficha de abajo de cada lista, todas de
+//    mujer; el de la mesa de roble teclea y la pronosticadora lee la tira del teletipo; en «1979» se enciende la placa
+//    del año (la barra salta a 1979), el puntero sube hacia ella, el de la mesa deja de teclear, sorprendido, y ella se
+//    vuelve y cruza la sala con la tira en la mano por delante de la mesa de roble; en «alternating men and women» las
+//    fichas de hombre se dan la vuelta una a una mientras el puntero las sigue, ella señala el tablero y todos sonríen;
+//    por la ventana pasan las nubes, los pelícanos y un coche;
 // 3. el tablero de cerca («six lists that repeat every six years»): el marco amarillo recorre las seis listas, la placa y la
 //    barra cuentan de 1979 a 1984 y en «years» vuelven a la lista 1 con 1985 (el marco parpadea); el meteorólogo señala
 //    cada lista; en «except» la pronosticadora va al archivador y abre el cajón de los retirados; por el cristal
 //    esmerilado pasa una sombra;
-// 4. el archivador de cerca (gag): la mano trae una ficha tachada y la deja caer en el cajón en «its name»; en «retired»
-//    lo empuja y el cajón se cierra de golpe: el archivador tiembla, sale polvo por las rendijas, saltan la cafetera y las
-//    tazas, y una ficha se escapa y cae revoloteando al suelo en «forever».
+// 4. el archivador de cerca (gag): la mano trae una ficha tachada y la deja caer dentro del cajón en «its name»; en
+//    «retired» lo empuja y el cajón se cierra de golpe: el archivador tiembla, sale polvo por las rendijas, saltan la
+//    cafetera y las tazas, y una ficha se escapa y cae revoloteando al suelo en «forever».
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-nombres');
@@ -68,11 +72,15 @@ const su = a(0.883), nombre = a(0.893), retira = a(0.930), siempre = a(0.958);
 const ROSA = hex('#c8466a'), ROSAS = hex('#8a2a48'), AZUL = hex('#2e5aa8'), AZULS = hex('#1e3a70'), FICHA = hex('#f4f0e2'), FICHAS = hex('#d4ccb4');
 const MUJER = ['.###.', '.###.', '..#..', '.###.', '.###.', '#####', '.#.#.'];
 // la ficha con el pictograma de mujer (7 × 9 por k), con su sombra; tacha: el aspa roja de los nombres retirados
-const ficha = (x, y, k = 1, tacha = false, sombra = true) => {
-  if (sombra) R.rect(x + 1, y + 1, x + 7 * k + 1, y + 9 * k + 1, hex('#5a5048'));
-  R.rect(x - 1, y - 1, x + 7 * k, y + 9 * k, C.k); R.rect(x, y, x + 7 * k - 1, y + 9 * k - 1, FICHA); R.rect(x, y + 9 * k - 1, x + 7 * k - 1, y + 9 * k - 1, FICHAS);
-  MUJER.forEach((f, j) => { for (let i = 0; i < 5; i++) if (f[i] === '#') R.rect(x + (1 + i) * k, y + (1 + j) * k, x + (2 + i) * k - 1, y + (2 + j) * k - 1, i > 2 && j > 2 ? ROSAS : ROSA); });
+// (R.rect no respeta R.recorte: con hasta, la ficha se corta por debajo de esa y, pintada píxel a píxel)
+const ficha = (x, y, k = 1, tacha = false, sombra = true, hasta = null) => {
+  const rr = hasta == null ? R.rect : (x0, y0, x1, y1, c) => { for (let yy = y0; yy <= Math.min(y1, hasta); yy++) for (let xx = x0; xx <= x1; xx++) R.pset(xx, yy, c); };
+  if (sombra) rr(x + 1, y + 1, x + 7 * k + 1, y + 9 * k + 1, hex('#5a5048'));
+  rr(x - 1, y - 1, x + 7 * k, y + 9 * k, C.k); rr(x, y, x + 7 * k - 1, y + 9 * k - 1, FICHA); rr(x, y + 9 * k - 1, x + 7 * k - 1, y + 9 * k - 1, FICHAS);
+  MUJER.forEach((f, j) => { for (let i = 0; i < 5; i++) if (f[i] === '#') rr(x + (1 + i) * k, y + (1 + j) * k, x + (2 + i) * k - 1, y + (2 + j) * k - 1, i > 2 && j > 2 ? ROSAS : ROSA); });
+  if (hasta != null) R.recorte([0, 0, 319, hasta]);
   if (tacha) for (let d = -Math.floor(k / 2); d <= Math.floor(k / 2); d++) { R.linea(x + d, y, x + 7 * k - 1 + d, y + 9 * k - 1, C.rojo); R.linea(x + 7 * k - 1 + d, y, x + d, y + 9 * k - 1, C.rojo); }
+  if (hasta != null) R.recorte(null);
 };
 // el símbolo del huracán de los mapas del tiempo: el ojo y dos brazos que giran al revés que las agujas del reloj
 const simbolo = (x, y, t, s = 1, c = hex('#c83a3a')) => {
@@ -125,29 +133,47 @@ const p1 = (t) => {
 const P53 = { C: '#f2eee2', c: '#c8c0b0', W: '#f2eee2', o: '#8a2a2a', F: '#4a4a5a' }, PA53 = { C: '#e8c8b8', c: '#c8a898', W: '#e8c8b8', o: '#f2eee2' };
 const conPal = (p) => Object.fromEntries(Object.entries(p).map(([k, v]) => [k, hex(v)]));
 const PAL53 = conPal(P53), PALA53 = conPal(PA53);
-// la punta del puntero: recorre la lista 1–6 (1953), sube a la placa (1979) y sigue las fichas que se dan la vuelta
+// PARCHE DECORADO: e_ventana (salaPronostico 'general') pinta el coche de la calle con R.rect, que no respeta R.recorte,
+// y el coche asoma fuera del hueco de la ventana, por la pared de los dos lados y por encima del borde del mapa del tiempo;
+// se repone esa franja con una copia limpia del decorado (en t = 3 el coche va por dentro del hueco). Cuando se arregle
+// el decorado, este parche sobra
+let paredLimpia = null;
+const tapaCoche = () => {
+  if (!paredLimpia) { const b = R.nuevo(), prev = R.usar(b); T.salaPronostico(R, 3, { listas: false }); R.usar(prev); paredLimpia = b; }
+  const B = R.buf; for (let y = 76; y <= 84; y++) for (const [x0, x1] of [[0, 9], [65, 95]]) for (let x = x0; x <= x1; x++) B[y * 320 + x] = paredLimpia[y * 320 + x];
+};
+// la punta del puntero, que va tocando la ficha de abajo de cada lista: las recorre de la 1 a la 6 (1953, todas de
+// mujer), en «1979» sube hacia la placa del año y en «alternating» vuelve a recorrerlas mientras se dan la vuelta
+const col2 = (c) => 212 + 10 * c, ABAJO = 80;
+const toque = (c) => Math.round(Math.abs(Math.sin(c * Math.PI)) * 3);   // se levanta entre lista y lista y toca en cada una
 const punta = (t) => {
-  const col = (c, r) => [212 + 10 * c, 45 + 9 * r];
-  if (t < a1979 - 0.3) { const u = lin(t, P2 + 0.3, a1953 + 0.6), c = Math.min(5, u * 5.99), r = 2 + Math.sin(t * 5) * 0.4; const [x, y] = col(c, r); return [x, y + (entre(t, mujeres, mujeres + 0.15) ? 2 : 0)]; }
-  if (t < alternan - 0.1) return [lerp(254, 238, lin(t, a1979 - 0.3, a1979)), lerp(64, 30, lin(t, a1979 - 0.3, a1979))];
-  const u = lin(t, alternan, yMujeres + 0.2); const [x, y] = col(u * 5.5, 1.5 + Math.sin(u * 9) * 1.2); return [x, y];
+  if (t < a1979 - 0.3) { const u = lin(t, P2 + 0.9, a1953 + 0.5), c = Math.min(5, u * 5.99); return [col2(c), ABAJO - toque(c) + (entre(t, mujeres, mujeres + 0.15) ? 1 : 0)]; }
+  if (t < alternan - 0.1) { const u = suave(lin(t, a1979 - 0.3, a1979)), v = suave(lin(t, a1979 + 0.6, alternan - 0.1)); return [lerp(lerp(262, 238, u), col2(0), v), lerp(lerp(ABAJO, 66, u), ABAJO, v)]; }
+  const u = lin(t, alternan, yMujeres + 0.2), c = Math.min(5, u * 5.99); return [col2(c), ABAJO - toque(c)];
 };
 const p2 = (t) => {
   const alt = lin(t, alternan - 0.05, yMujeres + 0.25);
   T.salaPronostico(R, t, { listas: t < a1979 ? false : 0.3, alternos: alt, año0: 1979 });
-  // el de la mesa teclea (se para y mira en «1979»)
+  tapaCoche();
+  // el pronosticador, de pie detrás de la mesa de trazar (la mesa, el flexo y lo de encima le tapan de cintura abajo):
+  // llega junto al tablero y va tocando con el puntero cada lista; en «1979» lo levanta hacia la placa, que se enciende,
+  // y en «alternating men and women» sigue las fichas de hombre que se dan la vuelta
+  detras([[156, 126, 262, 141], [238, 103, 257, 126]], () => {
+    const anda = lin(t, P2 + 0.05, P2 + 0.8), px = Math.round(lerp(186, 214, anda));
+    const r = R.actor(EL.pronosticador, px, 131, t, { dir: 1, anda: anda > 0 && anda < 1, dedo: anda >= 1, habla: (entre(t, P2 + 0.9, a1953 + 0.4) || entre(t, a1979 + 0.1, a1979 + 0.9)) && parp(t, 9), sonrisa: t > yMujeres, pal: PAL53 });
+    if (anda >= 1) { const [mx, my] = r.mano, [tx, ty] = punta(t), X = Math.round(tx), Y = Math.round(ty);
+      R.linea(mx, my, X + 1, Y + 1, C.k); R.linea(mx - 1, my, X, Y, hex('#b8844a')); R.linea(mx - 1, my - 1, X, Y - 1, hex('#d8a46a')); R.rect(X - 1, Y - 1, X + 1, Y + 1, C.k); R.pset(X, Y, hex('#f4ecd8')); }
+  });
+  // el de la mesa de roble teclea; en «1979» se para y mira, sorprendido, y en «alternating» sonríe
   const teclea = !entre(t, a1979 - 0.1, alternan + 0.4);
   R.actor(EL.meteorologo, 74, 131 + (teclea && Math.sin(t * 18) > 0.3 ? 1 : 0), t, { dir: 1, quieto: teclea, sorpresa: entre(t, a1979, a1979 + 0.5), sonrisa: t > alternan + 0.4, pal: PAL53 });
   T.salaPronosticoDelante(R, t, {});
-  // la pronosticadora lee la tira del teletipo; en «1979» se vuelve, y en «men and women» señala el tablero y sonríe
-  const vuelta = t > a1979 + 0.2;
-  R.actor(EL.pronosticadora, 47, 153, t, { dir: vuelta ? 1 : -1, sorpresa: entre(t, a1979 + 0.2, a1979 + 0.8), dedo: entre(t, alternan + 0.6, yMujeres + 0.4), sonrisa: t > yMujeres - 0.3, pal: PALA53 });
+  // la pronosticadora lee la tira del teletipo; en «1979» se vuelve, sorprendida, cruza por delante de la mesa de roble con
+  // la tira en la mano hasta la mesa de trazar y, en «men and women», señala el tablero y sonríe
+  const vuelta = t > a1979 + 0.2, va = lin(t, a1979 + 0.45, alternan + 0.35), fx = Math.round(lerp(47, 134, suave(va))), fy = Math.round(lerp(153, 162, suave(va)));
+  const rf = R.actor(EL.pronosticadora, fx, fy, t, { dir: vuelta ? 1 : -1, anda: va > 0 && va < 1, sorpresa: entre(t, a1979 + 0.2, a1979 + 0.6), dedo: entre(t, alternan + 0.45, yMujeres + 0.5), sonrisa: t > yMujeres - 0.3, pal: PALA53 });
   if (!vuelta) { R.rect(38, 128, 44, 134, C.k); R.rect(39, 129, 43, 133, hex('#f6f2e4')); R.rect(40, 130, 42, 130, hex('#6a6458')); R.rect(40, 132, 41, 132, hex('#6a6458')); }   // la tira que lee
-  // el pronosticador del puntero, delante de la mesa de trazar
-  const anda = lin(t, P2, P2 + 0.9), px = Math.round(lerp(190, 214, anda));
-  const r = R.actor(EL.pronosticador, px, 172, t, { dir: 1, anda: anda > 0 && anda < 1, dedo: anda >= 1, habla: entre(t, a1979 + 0.1, a1979 + 0.9) && parp(t, 9), sonrisa: t > yMujeres, pal: PAL53 });
-  if (anda >= 1) { const [mx, my] = r.mano, [tx, ty] = punta(t), X = Math.round(tx), Y = Math.round(ty);
-    R.linea(mx, my - 1, X + 1, Y, C.k); R.linea(mx - 2, my - 1, X - 1, Y, C.k); R.linea(mx - 1, my - 1, X, Y, hex('#b8844a')); R.linea(mx - 1, my - 2, X, Y - 1, hex('#d8a46a')); R.rect(X - 1, Y - 1, X + 1, Y + 1, C.k); R.pset(X, Y, hex('#f4ecd8')); }
+  else if (!entre(t, alternan + 0.45, yMujeres + 0.5)) { const [hx, hy] = [fx + 12, fy - 9]; R.rect(hx, hy - 6, hx + 3, hy, C.k); R.rect(hx + 1, hy - 5, hx + 2, hy - 1, hex('#f6f2e4')); R.pset(hx + 1, hy - 3, hex('#6a6458')); }   // la lleva en la mano
 };
 
 // ── 3 · el tablero: seis listas que se repiten cada seis años ─────────────────────────────────────────────────────────
@@ -174,7 +200,7 @@ const p4 = (t) => {
   const op = caj < 0.55 ? 1 - (caj / 0.55) ** 2 : 0, fa = 104 + Math.round(op * 18);
   // la ficha tachada: la trae la mano, cae entre las demás y se queda dentro del cajón
   const cae = lin(t, suelta, suelta + 0.22), fx = 150, fy = Math.round(lerp(70, fa - 16, cae * cae));
-  if (t >= suelta && op > 0) { R.recorte([0, 0, 319, fa - 1]); ficha(fx, t < suelta + 0.22 ? fy : fa - Math.round(16 * op), 2, true, false); R.recorte(null); }
+  if (t >= suelta && op > 0) ficha(fx, t < suelta + 0.22 ? fy : fa - Math.round(16 * op), 2, true, false, fa - 1);
   // la mano: entra con la ficha, la suelta en «its name», va al frente del cajón y en «retired» lo empuja de golpe
   const entra = lin(t, P4 + 0.15, su - 0.05), alFrente = lin(t, suelta + 0.15, empuja - 0.05), sale = lin(t, golpe + 0.35, golpe + 0.95);
   let hx, hy;

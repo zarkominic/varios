@@ -9,28 +9,36 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// HU-HOLA (frase 5): Atom se presenta. Un solo plano, sin barra del año: el huracán entero desde lo alto, girando junto
-// a la costa de Texas (la bahía, la isla, los ríos), con los cirros que se escapan y los fucilazos en las bandas; en
-// «school didn't teach you» sale una «?» dorada sobre la tierra; en «Let's find out» la «?» se convierte en «!» y la
-// cámara se lanza en picado hacia el ojo.
+// HU-HOLA (frase 5): Atom se presenta. Un solo plano de 6 s, sin barra del año: el huracán entero desde lo alto, junto
+// a la costa de Texas (la bahía, la isla, los ríos), en cámara rápida, como las imágenes de satélite: la espiral gira a
+// ojos vista y el día avanza. Empieza de madrugada: la noche cubre casi todo y los pueblos de la costa brillan con sus
+// luces; la línea del amanecer barre la imagen de derecha a izquierda (las cimas de las nubes se tiñen de rosa antes que
+// el suelo) y los pueblos apagan sus luces uno a uno al llegarles el sol. Por la izquierda cruza un avión de línea
+// diminuto con su estela (de noche solo se ven sus luces de posición y el destello): ve el huracán, da media vuelta y se
+// vuelve por donde vino, dejando la estela en forma de gancho y su sombra en el suelo (gag). Por el mar, junto a la costa,
+// un mercante sale de debajo de las bandas y se aleja de la tormenta con su estela en V, y en las bandas saltan los fucilazos. En «school didn't teach you» sale
+// una «?» dorada sobre la tierra; en «Let's find out» la «?» se convierte en «!» y la cámara se lanza en picado hacia
+// el ojo.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
-import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-hola');
-const { tramo, lerp, hex } = R;
+const { lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const C = T.C, K = C.k;
 const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
 const suave = (u) => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
 const entre = (t, a0, a1) => t >= a0 && t < a1;
-const parp = (t, v = 6) => Math.sin(t * v) > 0;
 const ruido = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const umbral = (x, y) => (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
 const rgb = (c) => [c & 255, (c >>> 8) & 255, (c >>> 16) & 255];
 const mezcla = (a, b, f) => { const [ar, ag, ab] = rgb(a), [br, bg, bb] = rgb(b); return (0xff000000 | (Math.round(ab + (bb - ab) * f) << 16) | (Math.round(ag + (bg - ag) * f) << 8) | Math.round(ar + (br - ar) * f)) >>> 0; };
 const luz = (c) => { const [r, g, b] = rgb(c); return 0.3 * r + 0.59 * g + 0.11 * b; };
-// la zona de Atom y la de la barra del año, que quedan tranquilas
+const dentro = (x, y) => x >= 0 && x < 320 && y >= 0 && y < 180;
+// la zona de Atom queda tranquila
 const enAtom = (x, y) => x >= 276 && y <= 46;
+// qué hay debajo: tierra (más verde que azul) o mar abierto (azul saturado)
+const esTierra = (c) => ((c >>> 8) & 255) > ((c >>> 16) & 255) + 3;
+const esMar = (c) => ((c >>> 16) & 255) > ((c >>> 8) & 255) * 1.55 && luz(c) < 130;
 
 // los relámpagos vistos desde arriba: sobre la nube blanca solo se ven si llevan su halo morado y su contorno oscuro.
 // Un rayo quebrado (x, y: donde nace; ang: hacia dónde; len: largo; k: su semilla) con sus ramas, que dura lo que f > 0
@@ -41,29 +49,101 @@ const rayo = (x, y, ang, len, k, f) => {
   const rama = pts[2], ar = ang + (ruido(k, 9, 91) > 0.5 ? 0.9 : -0.9), r2 = [rama, [rama[0] + Math.cos(ar) * len * 0.3, rama[1] + Math.sin(ar) * len * 0.3]];
   // el halo morado tramado alrededor
   const cx = (x + px) / 2, cy = (y + py) / 2, rh = len * 0.75;
-  for (let j = -rh; j <= rh; j++) for (let i = -rh; i <= rh; i++) { const X = Math.round(cx + i), Y = Math.round(cy + j), d = Math.hypot(i, j) / rh; if (d > 1 || enAtom(X, Y) || (Y < 22 && X < 176)) continue; if (umbral(X, Y) < (1 - d) * 0.7 * f) R.pset(X, Y, mezcla(R.pget(X, Y), hex('#b8a8f8'), 0.55)); }
+  for (let j = -rh; j <= rh; j++) for (let i = -rh; i <= rh; i++) { const X = Math.round(cx + i), Y = Math.round(cy + j), d = Math.hypot(i, j) / rh; if (d > 1 || enAtom(X, Y) || !dentro(X, Y)) continue; if (umbral(X, Y) < (1 - d) * 0.7 * f) R.pset(X, Y, mezcla(R.pget(X, Y), hex('#b8a8f8'), 0.55)); }
   const traza = (q, c, g) => { for (let i = 1; i < q.length; i++) { const [a0, b0] = q[i - 1], [a1, b1] = q[i], n = Math.ceil(Math.hypot(a1 - a0, b1 - b0)); for (let s = 0; s <= n; s++) { const X = Math.round(a0 + (a1 - a0) * s / n), Y = Math.round(b0 + (b1 - b0) * s / n); if (g) { for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(X + dx, Y + dy, c); } else R.pset(X, Y, c); } } };
   traza(pts, hex('#3a2a6a'), true); traza(r2, hex('#3a2a6a'), true); traza(pts, C.blanco, false); traza(r2, hex('#e8e0ff'), false);
 };
 
+// los instantes, por las letras de «I'm Atom, and I explain what school didn't teach you. Let's find out.»
 const a = (f) => en('hola', f);
-const escuela = a(0.42), vamos = a(0.797), fuera = a(0.895);
+const escuela = a(0.41), vamos = a(0.78), fuera = a(0.86);
 const signo = (s, x, y, esc, c) => { for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [1, 1]]) R.icono(s, x + dx, y + dy, K, K, esc); R.icono(s, x, y, c, hex('#a87a18'), esc); };
+
+// ── el amanecer: la línea del día barre de derecha a izquierda ──────────────────────────────────────────────────────
+const AMANECE = [0, 2.5];
+const lineaDia = (t, y) => lerp(262, -64, lin(t, AMANECE[0], AMANECE[1])) + 9 * Math.sin(y * 0.031 + 0.8) + (y - 90) * 0.18;
+const NOCHE = hex('#0a1236'), ROSA = hex('#ffa890'), NARANJA = hex('#e08a60');
+// la noche (más honda a la izquierda de la línea), el crepúsculo y la franja del alba, que tiñe de rosa las cimas de las
+// nubes y de naranja el suelo y el mar
+const amanecer = (t) => {
+  const B = R.buf, x1 = Math.min(319, Math.ceil(lineaDia(t, 0) + 60));
+  if (x1 < 0) return;
+  for (let y = 0; y < 180; y++) { const xl = lineaDia(t, y);
+    for (let x = 0; x <= Math.min(319, Math.ceil(xl + 28)); x++) { const i = y * 320 + x, c = B[i], d = x - xl, nube = luz(c) > 150;
+      if (d < 0) { const f = Math.min(1, -d / 16) * (nube ? 0.5 : 0.64); B[i] = mezcla(c, NOCHE, f); if (d > -12 && nube && umbral(x, y) < 0.5 * (1 + d / 12)) B[i] = mezcla(B[i], ROSA, 0.35); }
+      else { const f = (1 - d / 28); if (f > 0) B[i] = mezcla(c, nube ? ROSA : NARANJA, f * (nube ? 0.42 : 0.24)); } } }
+};
+// los pueblos de la costa, con sus luces (en la vista de partida; se mueven con la cámara): [x, y, cuántas luces]
+const PUEBLOS = [[18, 62, 6], [44, 86, 5], [70, 42, 4], [92, 94, 6], [30, 30, 3], [104, 66, 5], [60, 72, 4], [12, 96, 4], [84, 18, 3], [42, 50, 3], [118, 88, 3], [250, 78, 5], [292, 100, 4], [270, 60, 3], [236, 104, 4]];
+const LUCES = PUEBLOS.map(([x, y, n], k) => Array.from({ length: n }, (_, i) => [x + Math.round((ruido(k, i, 3) - 0.5) * 7), y + Math.round((ruido(k, i, 4) - 0.5) * 5)]));
+
+// la cámara: la vista de partida (zoom 0,8) se acerca al ojo; un punto de esa vista, en la de ahora
+const ZOOM0 = 0.8;
+const ojoEn = (t) => { const pica = suave(lin(t, vamos, E.duracion + 0.2)); return lerp(ZOOM0 + 0.05 * t / vamos, 3.6, pica * pica); };
+const mundo = (x, y, zoom, cx, cy) => [cx + (x - cx) * zoom / ZOOM0, cy + (y - cy) * zoom / ZOOM0];
+
+// el avión de línea visto desde arriba, diminuto: fuselaje, alas en flecha y cola, blanco con el contorno oscuro; de
+// noche solo sus luces (roja a babor, verde a estribor y el destello blanco)
+const jet = (x, y, ang, t, deNoche) => {
+  const ca = Math.cos(ang), sa = Math.sin(ang);
+  const forma = (u, v) => { const w = Math.abs(v); if (w <= 0.7 && u >= -3.6 && u <= 3.6) return 'f'; if (u <= 0.9 - w * 0.55 && u >= -0.6 - w * 0.55 && w <= 3.6) return 'a'; if (u <= -2.4 - w * 0.4 && u >= -3.6 && w <= 1.8) return 'c'; return null; };
+  if (!deNoche) for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) { const X = Math.round(x + i), Y = Math.round(y + j); if (!dentro(X, Y)) continue; const u = i * ca + j * sa, v = -i * sa + j * ca, f = forma(u, v);
+    if (f) R.pset(X, Y, f === 'a' && v * 1 > 0 ? hex('#c8ccd8') : C.blanco);
+    else if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([p, q]) => forma((i + p) * ca + (j + q) * sa, -(i + p) * sa + (j + q) * ca))) R.pset(X, Y, mezcla(R.pget(X, Y), K, 0.7)); }
+  const punta = (sg) => [Math.round(x - sa * sg * 3.6 - ca * 1.2), Math.round(y + ca * sg * 3.6 - sa * 1.2)];
+  const [lx, ly] = punta(-1), [rx, ry] = punta(1); R.pset(lx, ly, C.rojo); R.pset(rx, ry, hex('#3ae86a'));
+  if ((t * 1.6) % 1 < 0.12) { R.pset(Math.round(x), Math.round(y), C.blanco); for (const [p, q] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(Math.round(x) + p, Math.round(y) + q, hex('#e8f0ff')); }
+};
+// su camino (en la vista de partida): entra por la izquierda hacia el huracán, lo ve, da media vuelta por el norte y se
+// vuelve por donde vino
+const VUELO = [0.15, 2.55, 3.45, 5.6];
+const vuelo = (t) => {
+  if (t < VUELO[1]) { const u = lin(t, VUELO[0], VUELO[1]); return [lerp(-10, 112, u), lerp(52, 45, u), -0.06]; }
+  if (t < VUELO[2]) { const u = lin(t, VUELO[1], VUELO[2]), g = Math.PI / 2 - u * Math.PI; return [112 + Math.cos(g) * 9, 36 + Math.sin(g) * 9, g - Math.PI / 2]; }
+  const u = lin(t, VUELO[2], VUELO[3]); return [lerp(112, -14, u), lerp(27, 22, u), Math.PI + 0.04];
+};
+
+// el mercante que se aleja de la tormenta por el mar, junto a la costa (en la vista de partida): [x, y, rumbo, velocidad]
+const MERCANTES = [[204, 141, 0.16, 5]];
+// por debajo de las nubes: solo se pinta donde no hay nube (lo oscuro del mar)
+const bajoNube = (c) => luz(c) < 140;
+const mercante = (x, y, ang, t, e) => {
+  const ca = Math.cos(ang), sa = Math.sin(ang), pon = (u, v, c) => { for (const [p, q] of e > 1.2 ? [[0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5]] : [[0, 0]]) { const X = Math.round(x + (ca * (u + p) - sa * (v + q)) * e), Y = Math.round(y + (sa * (u + p) + ca * (v + q)) * e); if (dentro(X, Y) && bajoNube(R.pget(X, Y))) R.pset(X, Y, c); } };
+  for (let d = 2; d < 18; d++) { const f = 1 - d / 18; for (const sg of [-1, 1]) { const u = -d - 3, v = sg * (0.7 + d * 0.32); if (umbral(Math.round(x + ca * u * e), Math.round(y + sa * u * e)) < f * 1.3) pon(u, v, d < 7 ? hex('#e8eef8') : hex('#9ab0d0')); } }
+  for (let d = 4; d < 9; d++) if (umbral(Math.round(x - ca * d), Math.round(y - sa * d)) < 1 - d / 9 + Math.sin(t * 9 + d) * 0.2) pon(-d, 0, C.blanco);
+  for (let u = -4; u <= 4; u++) for (const v of [-0.5, 0.5]) pon(u, v, u >= 3 ? hex('#6a6e78') : v < 0 ? hex('#c4c8d0') : hex('#80848e'));
+  pon(5, 0, hex('#6a6e78')); pon(-2, -0.5, C.blanco); pon(-2, 0.5, hex('#d8dce4')); pon(-3, 0, hex('#1c1c24'));
+  for (let u = -1; u <= 2; u++) pon(u, 0, [hex('#c8503a'), hex('#3a6ab8'), hex('#d8a030'), hex('#3a8a5a')][u + 1]);   // contenedores
+};
+
 const plano = (t) => {
-  const pica = suave(lin(t, vamos, E.duracion + 0.2)), zoom = lerp(0.8 + 0.05 * t / vamos, 3.6, pica * pica);
-  const o = { vista: 'arriba', zoom, suelo: 'texas' };
+  const zoom = ojoEn(t), o = { vista: 'arriba', zoom, suelo: 'texas', giro: 0.24 };
   T.ojo(R, t, o);
-  const { x: cx, y: cy, r } = T.b_ojoArribaGeo(o);
+  const { x: cx, y: cy, r } = T.b_ojoArribaGeo(o), esc = zoom / ZOOM0;
+  // el mercante, que se aleja de la tormenta
+  for (const [x0, y0, ang, v] of MERCANTES) { const [x, y] = mundo(x0 + Math.cos(ang) * v * t, y0 + Math.sin(ang) * v * t, zoom, cx, cy); mercante(x, y, ang, t, 1.6 * Math.min(2, esc)); }
+  // la estela del avión y su sombra en el suelo (lo que ha volado en los últimos 2,4 s)
+  for (let k = 3; k < 170; k++) { const te = t - k * 0.014; if (te < VUELO[0] || te > VUELO[3]) continue; const [x0, y0] = vuelo(te), [x, y] = mundo(x0, y0, zoom, cx, cy), f = 1 - k / 170;
+    for (const [dx, dy, c, ff] of [[3 * esc, 4 * esc, hex('#1e2c1a'), 0.4], [0, 0, hex('#f4f6fa'), 0.9]]) { const X = Math.round(x + dx), Y = Math.round(y + dy); if (!dentro(X, Y) || umbral(X, Y) > f * ff * 1.7 + 0.05) continue; const fondo = R.pget(X, Y); if (dx && !esTierra(fondo)) continue; R.pset(X, Y, mezcla(fondo, c, dx ? 0.45 : 0.75)); } }
   // relámpagos en las bandas, de vez en cuando
-  rayo(cx - 70, cy - 30, 0.5, 18, 2, entre(t, 1.05, 1.2) ? 1 : 0); rayo(cx + 40, cy + 34, 2.4, 16, 6, entre(t, 3.0, 3.14) ? 1 : 0);
+  rayo(cx - 70 * esc, cy - 30 * esc, 0.5, 18, 2, entre(t, 1.05, 1.2) ? 1 : 0); rayo(cx + 40 * esc, cy + 34 * esc, 2.4, 16, 6, entre(t, 3.0, 3.14) ? 1 : 0);
+  // el amanecer, que barre de derecha a izquierda; detrás, las luces de los pueblos que aún están de noche
+  amanecer(t);
+  LUCES.forEach((luces, k) => luces.forEach(([x0, y0], i) => { const [x, y] = mundo(x0, y0, zoom, cx, cy), X = Math.round(x), Y = Math.round(y), d = x0 - lineaDia(t, y0) + ruido(k, i, 5) * 9;
+    if (d > 0 || !dentro(X, Y)) return; const fondo = R.pget(X, Y); if (luz(fondo) > 70) return;
+    const parpa = Math.sin(t * (3 + ruido(k, i, 6) * 5) + i) > -0.6;
+    if (i === 0) for (const [p, q] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (dentro(X + p, Y + q)) R.pset(X + p, Y + q, mezcla(R.pget(X + p, Y + q), hex('#c87a2a'), 0.6));
+    if (parpa) R.pset(X, Y, i === 0 ? hex('#fff2b0') : hex('#ffc860')); }));
+  // el avión: de noche, sus luces; con el sol, entero
+  if (t > VUELO[0] && t < VUELO[3]) { const [x0, y0, ang] = vuelo(t), [x, y] = mundo(x0, y0, zoom, cx, cy); jet(x, y, ang, t, x0 < lineaDia(t, y0)); }
   // «school didn't teach you»: la «?» dorada sobre la tierra; en «find out» se vuelve «!» y se lanza hacia el ojo
   const q = lin(t, escuela, escuela + 0.25), va = suave(lin(t, fuera + 0.05, fuera + 0.6));
   if (q > 0 && va < 1) { const ex = t > fuera, x0 = ex ? 64 : 60, y0 = lerp(78, 60, suave(q)) + Math.sin((t - escuela) * 3.2) * 1.5;
-    const esc = va < 0.55 ? 3 : va < 0.85 ? 2 : 1, x = Math.round(lerp(x0, cx - 1.5 * esc, va)), y = Math.round(lerp(y0, cy - 3.5 * esc, va));
-    signo(ex ? '!' : '?', x, y, esc, ex ? C.oroL : hex('#f8e8b0')); }
+    const esc2 = va < 0.55 ? 3 : va < 0.85 ? 2 : 1, x = Math.round(lerp(x0, cx - 1.5 * esc2, va)), y = Math.round(lerp(y0, cy - 3.5 * esc2, va));
+    signo(ex ? '!' : '?', x, y, esc2, ex ? C.oroL : hex('#f8e8b0')); }
   if (entre(t, fuera + 0.55, fuera + 0.75)) for (let k = 1; k < 7; k++) { R.pset(cx + k, cy, C.oroL); R.pset(cx - k, cy, C.oroL); R.pset(cx, cy + k, C.oroL); R.pset(cx, cy - k, C.oroL); }
 };
-const efectos = [[0.35, 'brillo'], [1.05, 'trueno'], [escuela + 0.05, 'pop'], [vamos, 'whoosh'], [fuera + 0.55, 'brillo']];
+const efectos = [[0.35, 'brillo'], [1.05, 'trueno'], [VUELO[1] + 0.1, 'whoosh'], [escuela + 0.05, 'pop'], [vamos, 'whoosh'], [fuera + 0.55, 'brillo']];
 T.rodar(E, R, [[0, plano]], { efectos });
 </script>
 </body>

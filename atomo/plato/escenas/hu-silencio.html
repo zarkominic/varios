@@ -14,16 +14,20 @@
 //    preparado por si llega un huracán, lo deja, mira el cielo limpio y en «strangest seasons» le sale un «?»; en «on
 //    record» se encoge de hombros; una vecina corre por el arcén, pasan coches, vuela una cometa y cruzan gaviotas; corta
 //    en «because»;
-// 2. la Tierra desde el espacio, girando del Pacífico al Atlántico: en «El Niño» nace junto a Perú la lengua de agua
-//    caliente que se estira hacia el oeste por el ecuador (en rojo) y sube el termómetro («warmed the Pacific»); en
-//    «changes the winds» salen las flechas de los vientos de altura, que cruzan Centroamérica y el Caribe hasta el
-//    Atlántico («high above the Atlantic»); corta en «Those»;
+// 2. la Tierra desde el espacio, girando del Pacífico al Atlántico: por delante deriva un satélite meteorológico de hoy
+//    (cuerpo dorado, ala de paneles azules); en «El Niño» nace junto a Perú la lengua de agua caliente que se estira hacia
+//    el oeste por el ecuador (en rojo) y el satélite la fotografía (destello, haz punteado y visor); sube el termómetro
+//    («warmed the Pacific»); en «changes the winds» salen las flechas de los vientos de altura, que cruzan Centroamérica
+//    y el Caribe hasta el Atlántico («high above the Atlantic»), y el satélite les hace otra foto; corta en «Those»;
 // 3. la playa de Destin: la pronosticadora suelta un globo sonda («Those winds»); abajo el viento lo lleva despacio a la
 //    izquierda y, cuando llega arriba («up high»), lo arrastra deprisa a la derecha («blow differently»); el compañero
-//    mira la tableta, se sorprende, y ella señala el viento de abajo («near the sea»); corta en «and they tilt»;
+//    mira la tableta, se sorprende, y ella señala el viento de abajo («near the sea»); mientras, un niño va con su cubo
+//    del castillo a la orilla, lo llena, vuelve y lo vuelca sobre el castillo; en el agua, un bañista nada a crol y una
+//    niña se mece en su flotador; corta en «and they tilt»;
 // 4. la tormenta joven en el mar: el viento de arriba le tuerce la cima («tilt»), se la arranca en jirones («tear
 //    apart») y la deja en cúmulos rotos («young storms»); en «build their engine» le salen tres piezas de motor que el
-//    viento se lleva y caen al mar con un chof (gag); desde la lancha, el pronosticador la señala y la tripulante se ríe;
+//    viento se lleva y caen al mar con un chof (gag); desde la lancha, el pronosticador la señala, la tripulante la graba
+//    con el móvil (se sorprende al verla romperse) y, con el chof, se ríe con los brazos arriba;
 // 5. la oficina del centro, el calendario de pared: la mano arranca junio, julio y agosto («for months»); en cada hoja
 //    salen tormentas tropicales que se apagan sin hacerse huracán («never became hurricanes»); la mano da un golpecito a
 //    la tarjeta del recuento de huracanes, que marca «0».
@@ -350,12 +354,42 @@ const vientosAltos = (P, t, w, fuerte) => {
     if (pts[n - 1][2]) { R.poligono(tri(1.2), borde); R.poligono(tri(0), hex('#ffffff')); }
   }
 };
+// el satélite meteorológico de hoy (un GOES, unos 30 × 14 px): el cuerpo forrado de papel dorado con sus pliegues, el
+// ala de paneles solares azules con sus celdas y el brillo que pasa, el generador de imágenes que mira a la Tierra, la
+// antena de plato y el magnetómetro en su pértiga, y la luz que parpadea. x, y: el centro del cuerpo
+const satelite = (x, y, t) => {
+  const { rect, pset } = R, oro = hex('#e8b830'), oroS = hex('#a87a1c'), oroL = hex('#fff0a0');
+  // el ala de paneles, a la derecha, con su brazo
+  rect(x + 4, y - 1, x + 7, y, hex('#8a8e9a'));
+  rect(x + 7, y - 4, x + 26, y + 3, C.k); for (let i = 0; i < 18; i++) for (let j = 0; j < 6; j++) pset(x + 8 + i, y - 3 + j, (i % 6 === 5 || j === 2) ? hex('#1a2a5a') : ((i + j + Math.floor(t * 3)) % 9 === 0 ? hex('#8ab8f0') : hex('#2a5ab8')));
+  // el cuerpo dorado con pliegues
+  rect(x - 5, y - 5, x + 4, y + 4, C.k); for (let i = -4; i <= 3; i++) for (let j = -4; j <= 3; j++) pset(x + i, y + j, (i + j * 2) % 5 === 0 ? oroL : (i - j) % 4 === 0 ? oroS : oro);
+  // el generador de imágenes (mira a la izquierda, a la Tierra), el plato y la pértiga
+  rect(x - 9, y - 2, x - 5, y + 2, C.k); rect(x - 8, y - 1, x - 5, y + 1, hex('#f2f2ee')); pset(x - 9, y, hex('#3a3a46'));
+  rect(x - 2, y - 8, x + 1, y - 5, C.k); rect(x - 1, y - 7, x, y - 6, hex('#e8ecf0'));
+  for (let k = 0; k < 8; k++) pset(x - 3 - k, y + 5 + Math.floor(k / 2), hex('#c8ccd4')); pset(x - 11, y + 9, hex('#e8ecf0'));
+  if (Math.sin(t * 5) > 0.6) pset(x + 3, y - 5, hex('#ff4a3a'));
+};
+// la foto del satélite: un destello en el generador, el haz punteado hasta el objetivo y el visor de cuatro esquinas que
+// lo enmarca (u 0–1)
+const fotoSat = (sx, sy, tx, ty, u) => {
+  if (u <= 0 || u >= 1) return; const n = Math.round(Math.hypot(tx - sx, ty - sy));
+  for (let i = 0; i < n * Math.min(1, u * 3); i += 3) { const x = Math.round(lerp(sx, tx, i / n)), y = Math.round(lerp(sy, ty, i / n)); R.pset(x, y, hex('#fff2b0')); }
+  if (u < 0.35) { const r = Math.round(u * 20); for (let a = 0; a < 6.28; a += 0.4) R.pset(Math.round(sx + Math.cos(a) * r), Math.round(sy + Math.sin(a) * r), C.blanco); R.rect(sx - 1, sy - 1, sx + 1, sy + 1, C.blanco); }
+  if (u > 0.25) { const e = 9 - Math.round(Math.min(1, (u - 0.25) * 4) * 3); for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const cx = tx + dx * e, cy = ty + dy * e; R.rect(Math.min(cx, cx - dx * 3), cy, Math.max(cx, cx - dx * 3), cy, C.blanco); R.rect(cx, Math.min(cy, cy - dy * 3), cx, Math.max(cy, cy - dy * 3), C.blanco); }
+    if (Math.floor(u * 12) % 2) R.pset(tx + e - 2, ty - e + 2, hex('#ff4a3a')); }
+};
 const p2 = (t) => {
   const lon = lerp(-120, -80, tramo(t, P2 - 0.3, P3 + 0.3));
   const { P } = T.orbita(R, t, { lat: 2, lon, tiros: false });
   const g = lin(t, nino - 0.25, pacifico + 0.5); if (g > 0) lengua(P, t, g);
   termometro(226, 74, t, lin(t, calienta - 0.2, pacifico + 0.4));
   const w = lin(t, cambia - 0.1, atlantico + 0.2); if (w > 0) vientosAltos(P, t, w, lin(t, alto, atlantico + 0.6));
+  // el satélite deriva por delante, abajo a la derecha; en «El Niño» fotografía el agua caliente del Pacífico y en
+  // «changes the winds», los vientos de altura sobre el Caribe
+  const sx = Math.round(lerp(300, 236, lin(t, P2, P3))), sy = Math.round(150 + Math.sin(t * 0.9) * 2);
+  satelite(sx, sy, t);
+  for (const [t0, lat, lo] of [[nino, -1, -112], [cambia + 0.2, 17, -72]]) { const [x, y, vis] = P([lat, lo]); if (vis) fotoSat(sx - 9, sy, Math.round(x), Math.round(y), lin(t, t0, t0 + 1.1)); }
 };
 
 // ── 3 · la playa de Destin: el globo sonda y los dos vientos ────────────────────────────────────────────────────
@@ -377,6 +411,17 @@ const p3 = (t) => {
   T.costa(R, t, { encuadre: 'playa' });
   rachas(t, 92, 132, -1, 16, lin(t, P3, esos + 0.6), 10);
   rachas(t, 48, 72, 1, 95, lin(t, arriba - 0.3, distinto), 14);
+  // un día de verano normal: en el agua, un bañista nada a crol hacia la derecha (los brazos que salen, las salpicaduras y
+  // la estela) y una niña se mece en su flotador de rayas
+  { const x = Math.round(lerp(88, 150, lin(t, P3, P4))), y = 106 + Math.round(Math.sin(t * 3) * 0.5), br = Math.floor(t * 3) % 2, f = (t * 3) % 1;
+    for (let i = 2; i < 18; i++) if (bay(x - i, y + 1) < 0.9 - i / 20) R.pset(x - i, y + 1 + (i % 5 === 0 ? 1 : 0), hex('#e8f8ff'));
+    R.rect(x - 1, y - 2, x + 2, y + 1, C.k); R.rect(x, y - 1, x + 1, y, hex('#f0c8a0')); R.rect(x, y - 2, x + 1, y - 2, hex('#2a2a32'));
+    const ax = x + (br ? 4 : -3), ay = y - Math.round(Math.sin(f * Math.PI) * 4); R.linea(x + (br ? 2 : -1), y, ax, ay, hex('#f0c8a0')); if (f < 0.25) { R.pset(ax + 1, y - 1, C.blanco); R.pset(ax - 1, y - 2, hex('#c8ecf8')); R.pset(ax + 2, y + 1, C.blanco); } }
+  { const x = 52, y = 120 + Math.round(Math.sin(t * 1.7) * 1.2);
+    for (let i = -6; i <= 6; i++) for (let j = -2; j <= 2; j++) { if ((i / 6.5) ** 2 + (j / 2.6) ** 2 > 1) continue; R.pset(x + i, y + j, (i / 6.5) ** 2 + (j / 2.6) ** 2 > 0.75 ? C.k : (Math.floor((i + 7) / 3) % 2 ? hex('#e83a3a') : C.blanco)); }
+    R.rect(x - 3, y - 2, x + 3, y, hex('#5ac8e8')); R.rect(x - 2, y - 7, x + 2, y - 3, C.k); R.rect(x - 1, y - 6, x + 1, y - 4, hex('#c88a5a')); R.rect(x - 2, y - 7, x + 2, y - 7, hex('#5a3418')); R.pset(x + 1, y - 5, C.k);
+    R.rect(x - 2, y - 2, x + 2, y - 1, hex('#f0a0c0'));
+    if (Math.sin(t * 1.7) > 0.8) { R.pset(x - 8, y + 1, C.blanco); R.pset(x + 8, y + 1, C.blanco); } }
   // los dos pronosticadores: él con la tableta, ella suelta el globo, lo sigue con el dedo y señala el viento de abajo
   const tab = R.actor(EL.pronosticador, 112, 166, t, { dir: 1, sorpresa: entre(t, distinto + 0.1, distinto + 0.8), sonrisa: t > cerca + 0.3, habla: entre(t, P3 + 0.3, suelta - 0.2) && Math.sin(t * 8) > 0 });
   { const [hx, hy] = enMano(112, 166, 1); R.rect(hx - 1, hy - 7, hx + 6, hy - 1, C.k); R.rect(hx, hy - 6, hx + 5, hy - 2, hex('#1a2a44'));
@@ -388,6 +433,13 @@ const p3 = (t) => {
   if (s < 0) { const [mx, my] = ella.mano; R.linea(mx + 1, my + 1, gx, gy + rr, hex('#e8e8ee')); }
   else { R.linea(gx, gy + rr, gx - vx, gy + rr + 7, hex('#e8e8ee')); R.rect(gx - vx - 1, gy + rr + 7, gx - vx + 1, gy + rr + 10, C.k); R.pset(gx - vx, gy + rr + 8, hex('#f08a3a')); }
   R.disco(gx, gy, rr + 1, C.k); R.disco(gx, gy, rr, hex('#f2f2f6')); R.disco(gx + 1, gy + 1, rr - 2, hex('#d8dce6')); R.disco(gx - 2, gy - 2, 1, C.blanco); R.pset(gx, gy + rr + 1, C.k);
+  // un niño va corriendo con su cubo del castillo a la orilla, lo llena de agua, vuelve y lo vuelca sobre el castillo
+  { const ida = lin(t, P3 + 0.1, P3 + 1.1), llena = entre(t, P3 + 1.1, P3 + 1.7), vuelta = lin(t, P3 + 1.7, P3 + 2.8), vuelca = t > P3 + 2.9;
+    const x = Math.round(vuelta > 0 ? lerp(92, 74, vuelta) : lerp(76, 92, ida)), y = Math.round(vuelta > 0 ? lerp(148, 166, vuelta) : lerp(166, 148, ida)), d = vuelta > 0 ? -1 : 1, corre = (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1);
+    R.actor(EL.chico, x, y, t, { dir: d, anda: corre, brazos: vuelca && t < P3 + 3.6, sonrisa: vuelca || llena, salto: corre && Math.floor(t * 10) % 2 ? 1 : 0, pal: { C: hex('#f0c040'), c: hex('#c89a2a'), F: hex('#3a8ad8'), W: hex('#f0c040') } });
+    const [cx, cy] = vuelca && t < P3 + 3.6 ? [x + (d > 0 ? 14 : -4), y - 27] : enMano(x, y, d), lleno = t > P3 + 1.3 && t < P3 + 3.1;
+    R.rect(cx - 1, cy - 1 + (llena ? 2 : 0), cx + 5, cy + 5 + (llena ? 2 : 0), C.k); R.rect(cx, cy + (llena ? 2 : 0), cx + 4, cy + 4 + (llena ? 2 : 0), hex('#e8402a')); R.rect(cx, cy + (llena ? 2 : 0), cx + 4, cy + (llena ? 2 : 0), lleno ? hex('#5ac8e8') : hex('#f06a4a'));
+    if (vuelca && t < P3 + 3.4) for (let k = 0; k < 6; k++) { const u = ((t - P3 - 2.9) * 3 + k / 6) % 1; R.pset(cx + 2 + Math.round(Math.sin(k) * 2), Math.round(cy + 5 + u * 16), u < 0.5 ? hex('#8ad8f0') : hex('#c8ecf8')); } }
 };
 
 // ── 4 · la tormenta joven que el viento de arriba tuerce y deshace; las piezas del motor caen al mar ────────────
@@ -412,7 +464,9 @@ const p4 = (t) => {
     R.rect(x - 5 - Math.round(vv * 4), y0 + 1, x + 5 + Math.round(vv * 4), y0 + 1, hex('#e8f6ff')); }); }
   const y = T.c_cubiertaY(t);
   R.actor(EL.pronosticador, 224, y, t, { dir: -1, dedo: entre(t, tuercen - 0.3, rompen + 0.5), sorpresa: entre(t, rompen + 0.1, jovenes + 0.7) || entre(t, piezas + 0.1, chof), sonrisa: t > chof + 0.1 });
-  R.actor(EL.tripulanta, 242, y, t, { dir: -1, brazos: entre(t, chof + 0.05, chof + 0.6), sonrisa: t > chof, habla: entre(t, P4 + 0.3, tuercen - 0.3) && Math.sin(t * 7) > 0 });
+  // la tripulante graba la tormenta con el móvil (el piloto rojo de grabar parpadea) y, con el chof, se ríe con los brazos arriba
+  { const graba = entre(t, P4 + 0.35, chof - 0.1), tr = R.actor(EL.tripulanta, 242, y, t, { dir: -1, dedo: graba, brazos: entre(t, chof + 0.05, chof + 0.6), sonrisa: t > chof, habla: entre(t, P4 + 0.3, P4 + 0.8) && Math.sin(t * 7) > 0, sorpresa: entre(t, rompen + 0.1, jovenes + 0.4) });
+    if (graba) { const [mx, my] = tr.mano; R.rect(mx - 3, my - 4, mx + 1, my + 3, C.k); R.rect(mx - 2, my - 3, mx, my + 2, hex('#5ac8e8')); R.pset(mx - 2, my - 3, hex('#c8ecf8')); if (Math.sin(t * 8) > 0) R.pset(mx, my + 2, hex('#ff3a3a')); } }
 };
 
 // ── 5 · el calendario de pared: los meses pasan y ninguna tormenta llega a huracán ──────────────────────────────
@@ -442,8 +496,8 @@ const p5 = (t) => {
   if (mx != null) manoBorde(mx, my, -1, manga);
 };
 const efectos = [[1.6, 'ola'], [deja, 'golpecito'], [raro, 'pop'], [record + 0.1, 'boing'],
-  [nino, 'brillo'], [calienta, 'burbujas', { dur: 1.6 }], [cambia + 0.1, 'whoosh'], [alto, 'rafaga'],
-  [P3 + 0.1, 'ola'], [suelta, 'whoosh'], [arriba + 0.2, 'rafaga'], [distinto + 0.2, 'bip'], [cerca, 'ola'],
+  [nino, 'flash'], [calienta, 'burbujas', { dur: 1.6 }], [cambia - 0.05, 'whoosh'], [cambia + 0.25, 'flash'], [alto, 'rafaga'],
+  [P3 + 0.1, 'ola'], [suelta, 'whoosh'], [arriba + 0.2, 'rafaga'], [distinto + 0.2, 'bip'], [P3 + 2.95, 'burbujas', { dur: 0.5 }], [cerca, 'ola'],
   [P4 + 0.1, 'rafaga'], [tuercen, 'whoosh'], [rompen + 0.1, 'rafaga'], [piezas, 'pop'], [chof, 'chof'],
   ...pasa.map((q) => [q.a, 'papel']), [pasa[2].b + 0.3, 'pop'], [nunca + 0.1, 'tic'], [golpe, 'golpecito']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { cartela: '2026', efectos, año: 2026 });

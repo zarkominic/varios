@@ -10,19 +10,26 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // HU-LLANURAS (frase 23). La ciencia de hoy, sin barra del año. Cuatro planos:
-// 1. el gag de la vaca, en el prado al atardecer: a lo lejos, un tornado toca tierra y cruza la llanura; la vaca lo mira
-//    de perfil sin dejar de mascar y, en «favorite place on Earth», se vuelve hacia nosotros, impasible, masticando; una
-//    mosca le ronda la cabeza; corta en «About»;
+// 1. el gag de la vaca, en el prado al atardecer: a lo lejos, un tornado toca tierra y cruza la llanura. El granjero
+//    llega corriendo por delante de la cerca con su perro a buscar a la vaca para meterla en el establo: se para, la
+//    llama con los brazos (silbido) y el perro le ladra al tornado; en «favorite place on Earth» la vaca, que lo miraba
+//    de perfil sin dejar de mascar, se vuelve hacia nosotros, impasible, masticando; el granjero se queda de piedra, se
+//    rinde y se vuelve corriendo hacia la granja con el perro detrás; una mosca le ronda la cabeza a la vaca; corta en
+//    «About»;
 // 2. el mapa del mundo: en «1,200 tornadoes» EE. UU. se llena de puntos (sobre todo en las llanuras y el sureste) y el
-//    contador sube hasta «1,200»; en «more than in any other country», unos pocos puntos en Canadá, México y Europa, y la
-//    medalla del «1» sobre EE. UU.; pasan un barco y un avión; corta en «because»;
-// 3. el mapa de las llanuras: en «Great Plains» se tiñen de trigo; en «warm, wet air from the Gulf» crece la flecha verde
-//    desde el golfo hacia el norte, con gotas que corren; en «slips under dry air» la flecha marrón llega desde las
-//    Rocosas por encima, con su sombra (la verde pasa por debajo); donde se cruzan, las nubes crecen y asoma un
-//    tornadito; corta en «Rockies»;
-// 4. la granja bajo la supercelda: el aire seco de las Rocosas cruza alto (flecha marrón) y el húmedo entra bajo (verde);
-//    en «the winds speed up» una ráfaga le quita el sombrero al granjero, que lo ve volar; en «twist with height» las
-//    flechas del viento se tuercen con la altura y un anillo gira alrededor de la base de la nube; él señala arriba.
+//    contador sube hasta «1,200»; en «more than in any other country», unos pocos puntos en Canadá, México y Europa,
+//    y una mano entra por la izquierda con la medalla del «1» y la clava sobre el oeste de EE. UU. («country»), la suelta
+//    y se va; la medalla brilla; pasan un barco por el Atlántico y un avión hacia Europa; corta en «because»;
+// 3. el mapa de las llanuras: en «Great Plains» se tiñen de trigo; en «warm, wet air from the Gulf» una mano entra por
+//    la izquierda con un rotulador verde y dibuja la flecha del aire húmedo desde el golfo hacia el norte, con gotas que
+//    corren, y se va; en «slips under dry air» la flecha marrón llega desde las Rocosas por encima, con su sombra (la
+//    verde pasa por debajo); donde se cruzan, las nubes crecen y asoma un tornadito; un barco cruza el golfo y una nube
+//    de papel deriva con su sombra; corta en «off the Rockies»;
+// 4. la granja bajo la supercelda: el granjero vuelve a casa por el camino con el cubo y el perro al lado; pasa la
+//    camioneta de un vecino, que se aleja levantando polvo, y él lo saluda con la mano; el aire seco de las Rocosas cruza
+//    alto (flecha marrón) y el húmedo entra bajo (verde); en «the winds speed up» una ráfaga le quita el sombrero, se
+//    para sorprendido y el perro sale detrás del sombrero dando saltos; en «twist with height» las flechas del viento se
+//    tuercen con la altura y un anillo gira alrededor de la base de la nube; él se vuelve y lo señala, hablando.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { equirect, pintar, PAPEL, rosa, avionMapa } from '/atomo/plato/escenas/ov-mapas.js';
@@ -47,6 +54,28 @@ const cifras = (s, x, y, c) => { for (const ch of String(s)) { const d = DIG[+ch
 // un destello en cruz que late
 const destello = (x, y, r, c = C.blanco) => { R.pset(x, y, c); for (let k = 1; k <= r; k++) { R.pset(x + k, y, c); R.pset(x - k, y, c); R.pset(x, y + k, c); R.pset(x, y - k, c); } };
 
+// la mano canónica (T.mano, 14 px) con la manga que llega hasta el borde del cuadro, para que el brazo no acabe en el aire
+const manoBorde = (x, y, dir, manga) => { const m = hex(manga), e = dir > 0 ? x - 43 : x + 43; if (dir > 0 ? e > 0 : e < 319) { const a = dir > 0 ? 0 : e, b = dir > 0 ? e : 319;
+  R.rect(a, Math.round(y) - 2, b, Math.round(y) + 2, m); R.rect(a, Math.round(y) - 3, b, Math.round(y) - 3, C.k); R.rect(a, Math.round(y) + 3, b, Math.round(y) + 3, C.k); for (let i = a; i <= b; i += 9) R.pset(i, Math.round(y) + 1, mezcla(m, C.k, 0.3)); }
+  T.mano(R, Math.round(x), Math.round(y), dir, manga); };
+const MANGA = '#2a4a7a';
+// el perro de la granja (unos 17 × 12 px), de perfil: x el centro del cuerpo, suelo las patas, d ±1 hacia dónde mira.
+// o.corre (las patas se abren y se cierran y las orejas botan), o.ladra (la boca abierta y las ondas del ladrido), o.salto (px)
+const perro = (x, suelo, t, d, o = {}) => {
+  const B = hex('#c8884a'), Bs = hex('#8e5a2a'), Bl = hex('#ecb878'), K = C.k, y0 = suelo - Math.round(o.salto ?? 0), P = (i, j, c) => R.pset(Math.round(x + i * d), y0 - j, c);
+  // las patas: al correr, las de delante y las de detrás se abren y se cierran
+  const f = o.corre ? (Math.floor(t * 12) % 2 ? 1 : -1) : 0;
+  for (const [i, s] of [[-4, 1], [-2, -1], [3, 1], [5, -1]]) { const ii = i + f * s; for (let j = 1; j <= 3; j++) { P(ii - 1, j, K); P(ii, j, j === 1 ? Bs : B); P(ii + 1, j, K); } P(ii - 1, 0, K); P(ii, 0, K); P(ii + 1, 0, K); }
+  // la cola, que se menea (deprisa si corre o ladra)
+  { const w = Math.sin(t * (o.corre || o.ladra ? 24 : 9)); for (let k = 0; k < 4; k++) { const tx = -6 - Math.round(k * 0.6) + Math.round(w * k * 0.4); P(tx, 6 + k, K); P(tx + 1, 6 + k, k < 3 ? Bs : K); } }
+  // el cuerpo, la cabeza y el hocico: primero los contornos, luego el relleno con la luz arriba y la tripa en sombra
+  const oreja = o.corre ? Math.floor(t * 12) % 2 : 0, PARTES = [[-5, 5, 4, 6], [4, 8, 7, 10], [9, 10, 7, 8]];
+  for (const [i0, i1, j0, j1] of PARTES) for (let i = i0 - 1; i <= i1 + 1; i++) for (let j = j0 - 1; j <= j1 + 1; j++) P(i, j, K);
+  for (const [i0, i1, j0, j1] of PARTES) for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) P(i, j, j === j1 ? Bl : j === j0 ? Bs : B);
+  P(7, 9, K); P(7, 10, Bl); P(11, 8, K);   // el ojo y la trufa
+  for (const [i, j] of [[4, 10], [4, 9], [5, 10], [4, 8 - oreja]]) P(i, j, Bs);   // la oreja, que bota al correr
+  if (o.ladra) { P(9, 7, K); P(10, 7, hex('#e86a6a')); P(10, 6, K); P(11, 6, K); for (let k = 0; k < 3; k++) { P(13, 8 + k - 1, k === 1 ? C.blanco : hex('#f0e8d8')); P(15, 8 + k * 2 - 2, hex('#f0e8d8')); } }
+};
 const tornadito = (x, y, t, k = 0, o = {}) => {
   const col = o.col ?? hex('#5a5e72'), luz = o.luz ?? hex('#a8aec0'), s = o.s ?? 1, alto = Math.round(10 * s);
   for (let j = 0; j < alto; j++) { const f = j / alto, w = Math.max(1, Math.round((5 - 4 * f) * s)), dx = Math.round(Math.sin(t * 7 + k + j * 0.6) * f * 1.4 * s), x0 = x - Math.floor(w / 2) + dx, yy = y - alto + j;
@@ -56,17 +85,30 @@ const tornadito = (x, y, t, k = 0, o = {}) => {
 };
 
 const a = (f) => en('llanuras', f);
-const P2 = a(0.2123), P3 = a(0.5328), P4 = a(0.8059);
+// P4 adelantado a «the» (antes de «Rockies») para que el último plano dure 4,1 s
+const P2 = a(0.2123), P3 = a(0.5328), P4 = a(0.793);
 // ── 1 · la vaca ─────────────────────────────────────────────────────────────────────────────────────────────────
-const vuelve = a(0.111);
+// el granjero llega corriendo por delante de la cerca (pies en y 158) con el perro, llama a la vaca, ella se vuelve
+// impasible hacia nosotros y él se rinde y se vuelve a la granja
+const vuelve = a(0.111), llega = 1.45, silba = 1.55, ladra = 1.95, rinde = 3.0;
+const granjeroX1 = (t) => t < llega ? lerp(-18, 150, suave(lin(t, 0.05, llega)) * 0.25 + lin(t, 0.05, llega) * 0.75) : t < rinde ? 150 : lerp(150, 70, lin(t, rinde, rinde + 1.1));
 const p1 = (t) => {
   T.llanuras(R, t, { encuadre: 'pasto', luz: 'tarde', tornado: lerp(0.28, 0.78, lin(t, 0, P2 + 0.4)) });
+  // el perro va delante, se planta y le ladra al tornado; cuando el amo se rinde, sale detrás de él
+  { const x = t < llega ? lerp(-4, 176, lin(t, 0.0, llega - 0.15)) : t < rinde + 0.2 ? 176 : lerp(176, 104, lin(t, rinde + 0.2, rinde + 1.0)), corre = t < llega - 0.15 || t > rinde + 0.2;
+    perro(Math.round(x), 160, t, t > rinde + 0.2 ? -1 : t < llega - 0.15 ? 1 : -1, { corre, ladra: entre(t, ladra, ladra + 0.7) && Math.floor(t * 7) % 2 === 0, salto: corre ? Math.abs(Math.sin(t * 12)) * 1.5 : 0 }); }
+  { const x = Math.round(granjeroX1(t)), anda = t < llega || t > rinde;
+    R.actor(EL.granjero, x, 158, t, { dir: t > rinde ? -1 : 1, anda, brazos: entre(t, silba - 0.05, vuelve - 0.1) && Math.floor(t * 4) % 2 === 0, dedo: entre(t, silba - 0.05, vuelve - 0.1) && Math.floor(t * 4) % 2 === 1,
+      habla: entre(t, silba + 0.2, vuelve - 0.15) && parpadeo(t, 9), sorpresa: entre(t, vuelve + 0.05, rinde), salto: anda && Math.floor(t * 10) % 2 ? 1 : 0 });
+    if (entre(t, vuelve + 0.2, rinde - 0.05)) R.bocadillo(x + 8, 128, { icono: '?' }); }
   T.g_vaca(R, 246, 174, t, { dir: -1, s: 2, luz: 'tarde', mira: t > vuelve ? 1 : 0 });
   // la mosca que le ronda la cabeza
   { const g = t * 5.3, x = Math.round(214 + Math.cos(g) * 9 + Math.sin(g * 2.3) * 3), y = Math.round(128 + Math.sin(g * 1.4) * 6); R.pset(x, y, C.k); if (Math.floor(t * 20) % 2) { R.pset(x - 1, y - 1, hex('#c8d4e0')); R.pset(x + 1, y - 1, hex('#c8d4e0')); } }
 };
 // ── 2 · el mapa del mundo ───────────────────────────────────────────────────────────────────────────────────────
 const cuenta = [a(0.2232), a(0.39)], otros = [a(0.4264), a(0.47)], medalla = a(0.4702);
+// dónde queda clavada la medalla: sobre la Gran Cuenca ([−114, 40]), en P_MUNDO
+const MEDALLA = [39, 84];
 const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
 const dentro = (pols, lon, lat) => { for (const p of pols) { let c = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++) { const [xi, yi] = p[i], [xj, yj] = p[j]; if ((yi > lat) !== (yj > lat) && lon < (xj - xi) * (lat - yi) / (yj - yi) + xi) c = !c; } if (c) return true; } return false; };
 // los puntos de los tornados: la densidad de verdad (las llanuras y el sureste, mucho; el oeste, casi nada)
@@ -105,12 +147,20 @@ const p2 = (t) => {
   const fr = lin(t, cuenta[0], cuenta[1]); PUNTOS.forEach(([lon, lat, q]) => { const [x, y] = P([lon, lat]); punto(x, y, t, cuenta[0] + q * (cuenta[1] - cuenta[0])); });
   FUERA.forEach(([lon, lat, q]) => { const [x, y] = P([lon, lat]); punto(x, y, t, otros[0] + q * (otros[1] - otros[0])); });
   if (t > cuenta[0] - 0.1) { const n = Math.round(1200 * suave(fr) ** 0.9); tornadito(30, 66, t, 0, { s: 1.4, polvo: false }); miles(n, 44, 66); }
-  // la medalla del «1» sobre EE. UU.
-  const e = lin(t, medalla, medalla + 0.3); if (e > 0) { const x = 136, y = Math.round(60 - (1 - e) * 8); R.poligono([[x - 4, y + 3], [x - 1, y + 3], [x - 3, y + 12], [x - 6, y + 10]], hex('#c8282a')); R.poligono([[x + 1, y + 3], [x + 4, y + 3], [x + 6, y + 10], [x + 3, y + 12]], hex('#2a4a9a'));
-    R.disco(x, y, 7, C.k); R.disco(x, y, 6, hex('#c8941c')); R.disco(x - 1, y - 1, 5, hex('#f0c030')); R.numero('1', x + 1, y + 4, { centro: true, color: hex('#7a5a10'), sombra: false }); if (parpadeo(t, 6)) destello(x + 5, y - 5, 2); }
+  // la medalla del «1»: una mano entra por la izquierda con ella, la clava sobre el oeste de EE. UU. (donde casi no hay
+  // puntos) en «country», la suelta y se va; luego la medalla brilla
+  const [mx0, my0] = MEDALLA, e = lin(t, medalla - 0.75, medalla - 0.1), aprieta = entre(t, medalla - 0.08, medalla + 0.12), sale = lin(t, medalla + 0.25, medalla + 0.85);
+  const hx = sale > 0 ? lerp(mx0 - 14, -30, suave(sale)) : lerp(-30, mx0 - 14, suave(e)), hy = sale > 0 ? my0 - 6 - sale * 6 : my0 - 6 - Math.round((1 - e) * 10) + (aprieta ? 1 : 0);
+  if (e > 0) { const suelta = t > medalla + 0.15, x = suelta ? mx0 : Math.round(hx + 14), y = suelta ? my0 : Math.round(hy + 6);
+    // la sombra que hace en el papel mientras la lleva (más corrida cuanto más alta) y la medalla
+    if (!suelta) { const sx = x + 2 + Math.round((1 - e) * 5), sy = y + 3 + Math.round((1 - e) * 5); for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) if (i * i + j * j <= 36 && umbral(sx + i, sy + j) < 0.6) velo(sx + i, sy + j, C.k, 0.3); }
+    R.poligono([[x - 4, y + 3], [x - 1, y + 3], [x - 3, y + 12], [x - 6, y + 10]], hex('#c8282a')); R.poligono([[x + 1, y + 3], [x + 4, y + 3], [x + 6, y + 10], [x + 3, y + 12]], hex('#2a4a9a'));
+    R.disco(x, y, 7, C.k); R.disco(x, y, 6, hex('#c8941c')); R.disco(x - 1, y - 1, 5, hex('#f0c030')); R.numero('1', x + 1, y + 4, { centro: true, color: hex('#7a5a10'), sombra: false });
+    if (suelta && t > medalla + 0.5 && parpadeo(t, 6)) destello(x + 5, y - 5, 2);
+    if (sale < 1) manoBorde(Math.round(hx), Math.round(hy), 1, MANGA); }
 };
 // ── 3 · el mapa de las llanuras, con las dos masas de aire ──────────────────────────────────────────────────────
-const llanos = a(0.5644), verde = [a(0.6022), a(0.6989)], marron = [a(0.7135), a(0.765)], nubes = a(0.765);
+const llanos = a(0.5644), verde = [a(0.6022), a(0.6989)], marron = [a(0.7135), a(0.765)], nubes = a(0.745);
 const LLANOS = [[-104.5, 49], [-97, 49], [-96.5, 44], [-95.5, 39], [-96, 33], [-97.5, 29], [-101.5, 29.6], [-104.5, 32], [-105.2, 38], [-104.8, 44]];
 const V_RUTA = [[-94.6, 26.6], [-96.2, 29.6], [-97.5, 33.0], [-97.9, 36.5], [-97.6, 39.6], [-96.6, 41.8]], M_RUTA = [[-108.6, 35.2], [-105.0, 36.1], [-101.0, 36.9], [-97.0, 37.3], [-93.4, 37.5]];
 // una flecha gruesa que crece (p 0–1) por una ruta: contorno, cuerpo con su luz y su punta
@@ -137,7 +187,17 @@ const p3 = (t) => {
   for (const [lon, lat, s] of [[-106.2, 39.6, 1.2], [-105.6, 37.6, 1], [-106.6, 35.6, 0.9], [-105.2, 41.4, 0.9], [-107.6, 38.4, 1.1], [-108.2, 36.4, 0.8], [-107.2, 40.6, 0.9]]) { const [x, y] = P([lon, lat]).map(Math.round), w = Math.round(6 * s), hgt = Math.round(7 * s);
     R.poligono([[x - w - 1, y + 1], [x, y - hgt - 1], [x + w + 1, y + 1]], C.k); R.poligono([[x - w, y], [x, y - hgt], [x + w, y]], hex('#9a8466')); R.poligono([[x, y - hgt], [x + w, y], [x + 1, y]], hex('#7a6448')); R.poligono([[x - 2, y - hgt + 3], [x, y - hgt], [x + 2, y - hgt + 3]], C.blanco); }
   for (const [lon, lat] of [[-93.0, 27.6], [-90.4, 27.2], [-91.8, 26.4], [-88.6, 26.6]]) { const [x, y] = P([lon, lat]).map(Math.round), d = Math.round(Math.sin(t * 2 + lon) * 1.5); for (let i = -4; i <= 4; i++) R.pset(x + i + d, y + Math.round(Math.sin((i + d) * 0.9) * 1), hex('#d8e8f0')); }
-  // la flecha verde del aire cálido y húmedo, con sus gotas
+  // un barco que cruza el golfo hacia el oeste, con su estela, y una nube de papel que deriva sobre el valle del
+  // Misisipi con su sombra en el mapa
+  { const u = lin(t, P3 - 0.4, P4 + 0.4), [x, y] = P([lerp(-84.6, -88.1, u), 29.15 - Math.sin(u * 3) * 0.1]).map(Math.round);
+    for (let k = 1; k < 6; k++) { R.pset(x + 4 + k * 3, y + 6 + (k % 2), hex('#d8e8f0')); if (k < 4) R.pset(x + 5 + k * 3, y + 7, hex('#b8d0e0')); }
+    R.icono('barco', x, y + Math.round(Math.sin(t * 2.4)), hex('#3a3a46'), hex('#c84a3a')); }
+  { const cx = Math.round(lerp(212, 246, lin(t, P3 - 0.3, P4 + 0.3))), cy = 66 + Math.round(Math.sin(t * 0.8) * 1.5), BOLAS = [[0, 0, 5], [-6, 2, 4], [6, 2, 4], [-2, -3, 4], [3, -2, 3]];
+    for (let j = -8; j <= 9; j++) for (let i = -12; i <= 12; i++) { const X = cx + 4 + i, Y = cy + 9 + j; if (BOLAS.some(([dx, dy, r]) => (i - dx) ** 2 + (j - dy) ** 2 <= r * r) && umbral(X, Y) < 0.55) velo(X, Y, hex('#4a4a5a'), 0.32); }
+    for (const [dx, dy, r] of BOLAS) R.disco(cx + dx, cy + dy, r + 1, C.k); for (const [dx, dy, r] of BOLAS) R.disco(cx + dx, cy + dy, r, hex('#f4f2ec'));
+    for (const [dx, dy, r] of BOLAS.slice(0, 3)) R.disco(cx + dx + 1, cy + dy + 2, r * 0.55, hex('#c8ccd8')); R.pset(cx - 3, cy - 5, C.blanco); R.pset(cx - 2, cy - 5, C.blanco); }
+  // la flecha verde del aire cálido y húmedo, con sus gotas (las flechas, recortadas al papel: no pisan la mesa)
+  R.recorte([6, 6, 313, 173]);
   const vg = flecha(V_RUTA.map(P), suave(lin(t, verde[0], verde[1])), 9, hex('#3aa860'), hex('#7ad890'), hex('#24804a'));
   if (vg) for (let k = 0; k < 6; k++) { const i = Math.floor(((t * 0.35 + k / 6) % 1) * (vg.length - 8)); if (i < 0) continue; const [x, y] = vg[i].map(Math.round); R.pset(x, y - 1, hex('#e8f8ff')); R.pset(x, y, hex('#8ad0f0')); R.pset(x - 1, y + 1, hex('#5ab0e0')); R.pset(x + 1, y + 1, hex('#5ab0e0')); }
   // la flecha marrón del aire seco, por encima: primero su sombra sobre la verde
@@ -147,6 +207,16 @@ const p3 = (t) => {
     if (mg) for (let k = 0; k < 5; k++) { const i = Math.floor(((t * 0.5 + k / 5) % 1) * (mg.length - 8)); if (i < 0) continue; const [x, y] = mg[i].map(Math.round); R.pset(x, y, hex('#f0d8a8')); R.pset(x + 1, y, hex('#d8b880')); } }
   // donde se cruzan, las nubes de tormenta que crecen y un tornadito
   const nu = lin(t, nubes, nubes + 0.5); if (nu > 0) { const [x, y] = P([-98.4, 38.6]).map(Math.round); for (const [dx, dy, r] of [[0, 0, 5], [-5, 2, 4], [5, 1, 4], [-2, -4, 4], [3, -3, 3]]) R.disco(x + dx, y + dy + 1, r * nu + 1, C.k); for (const [dx, dy, r] of [[0, 0, 5], [-5, 2, 4], [5, 1, 4], [-2, -4, 4], [3, -3, 3]]) R.disco(x + dx, y + dy, r * nu, hex('#eef0f6')); for (const [dx, dy, r] of [[0, 0, 5], [-5, 2, 4]]) R.disco(x + dx + 1, y + dy + 2, r * nu * 0.6, hex('#b8c0d0')); if (nu >= 1) tornadito(x + 1, y + 16, t, 1, { polvoC: hex('#a89070') }); }
+  R.recorte(null);
+  // la mano que dibuja la flecha verde con el rotulador: entra por la izquierda al golfo, sigue la punta mientras la
+  // flecha crece hacia el norte, levanta el rotulador y se va
+  { const entra = lin(t, verde[0] - 0.5, verde[0] - 0.02), vete = lin(t, verde[1] + 0.08, verde[1] + 0.6); if (entra > 0 && vete < 1) {
+      let tx, ty; if (vg) { const fin = vg[vg.length - 1], pre = vg[Math.max(0, vg.length - 6)], an = Math.atan2(fin[1] - pre[1], fin[0] - pre[0]); tx = fin[0] + Math.cos(an) * 5; ty = fin[1] + Math.sin(an) * 5; }
+      else { [tx, ty] = P(V_RUTA[0]); ty = Math.min(ty, 170); }
+      const lev = Math.round(vete * 10), hx = Math.round(lerp(-44, tx - 12, suave(entra)) - suave(vete) * (tx + 40)), hy = Math.round(Math.min(ty, 172) - 6 - lev - (1 - entra) * 6);
+      const px = hx + 12, py = hy + 6;   // la punta del rotulador
+      R.linea(hx + 7, hy - 1, px, py, (x, y) => (R.rect(x - 1, y - 1, x + 1, y + 1, C.k), null)); R.linea(hx + 7, hy - 1, px, py, hex('#e8ecf0')); R.pset(px, py, hex('#24804a')); R.pset(px - 1, py, hex('#3aa860')); R.pset(hx + 7, hy - 1, hex('#3aa860'));
+      manoBorde(hx, hy, 1, MANGA); } }
 };
 // ── 4 · la granja bajo la supercelda ────────────────────────────────────────────────────────────────────────────
 const vientos = [a(0.8838), a(0.92)], tuerce = a(0.9361), vuela = a(0.8947);
@@ -159,8 +229,26 @@ const flechaGorda = (x0, y0, x1, y1, p, col, osc) => { const x = lerp(x0, x1, p)
   if (p > 0.3) R.poligono(pt.map(([a, b]) => [Math.round(a + Math.cos(Math.atan2(b - y, a - x)) * 1.5), Math.round(b + Math.sin(Math.atan2(b - y, a - x)) * 1.5)]), C.k);
   for (let i = 0; i <= n; i++) { const px = Math.round(lerp(x0, x, i / n)), py = Math.round(lerp(y0, y, i / n)); R.rect(px - 1, py - 1, px + 1, py + 1, col); R.pset(px + 1, py + 1, osc); }
   if (p > 0.3) R.poligono(pt.map(([a, b]) => [Math.round(a), Math.round(b)]), col); };
+// el sombrero vaquero que se lleva el viento (del color del que lleva en la cabeza), con su contorno, que gira en el aire
 const sombrero = (x, y, g) => { const c = Math.cos(g), s = Math.sin(g), q = (u, v) => [Math.round(x + u * c - v * s), Math.round(y + u * s + v * c)];
-  for (let u = -4; u <= 4; u++) { const [px, py] = q(u, 0); R.pset(px, py, hex('#7a5430')); R.pset(px, py + 1, C.k); } for (let u = -2; u <= 2; u++) for (let v = -3; v <= -1; v++) { const [px, py] = q(u, v); R.pset(px, py, v === -1 ? hex('#5a3a20') : hex('#a8743c')); } };
+  const pinta = (f) => { for (let u = -5; u <= 5; u++) f(u, 0, Math.abs(u) === 5 ? hex('#8a6e42') : hex('#c8a46a')); for (let u = -3; u <= 3; u++) for (let v = -4; v <= -1; v++) f(u, v, v === -1 ? hex('#5a3a20') : u === -3 ? hex('#e0c48a') : u === 3 ? hex('#8a6e42') : hex('#c8a46a')); };
+  pinta((u, v) => { const [px, py] = q(u, v); R.rect(px - 1, py - 1, px + 1, py + 1, C.k); }); pinta((u, v, col) => { const [px, py] = q(u, v); R.pset(px, py, col); }); };
+// la camioneta de un vecino (unos 38 × 18 px), de perfil: la caja con una paca de heno, la cabina con el conductor, el
+// capó, los faros, las ruedas con sus radios que giran y el polvo del camino que levanta detrás. x el centro, d ±1
+const camioneta = (x, suelo, t, d) => {
+  const X = (i) => Math.round(x + i * d), caja = (i0, i1, j0, j1, c) => R.rect(Math.min(X(i0), X(i1)), suelo - j1, Math.max(X(i0), X(i1)), suelo - j0, c);
+  const ROJO = hex('#b83a2a'), ROJOS = hex('#7e2418'), ROJOL = hex('#e0644a');
+  // el polvo que levanta, tramado y cada vez más ralo
+  for (let i = 0; i < 40; i++) { const e = 1 - i / 40; for (let j = 0; j < 6; j++) { const px = X(-20 - i), py = suelo - j - Math.round(i * 0.12); if (umbral(px, py) < e * (0.75 - j * 0.11) + Math.sin(i * 0.5 + t * 6) * 0.08) velo(px, py, hex('#e0cca0'), 0.75); } }
+  caja(-19, 17, 4, 12, C.k); caja(-1, 9, 9, 19, C.k); caja(-16, -5, 11, 16, C.k);
+  caja(-18, 16, 5, 8, ROJO); caja(-18, 16, 5, 5, ROJOS); caja(-18, -2, 9, 11, ROJO); caja(-18, -2, 11, 11, ROJOL); caja(9, 16, 9, 11, ROJO); caja(9, 16, 11, 11, ROJOL);
+  caja(-15, -6, 12, 15, hex('#e0bc5c')); caja(-15, -6, 15, 15, hex('#f0d888')); for (let i = -14; i <= -7; i += 2) R.pset(X(i), suelo - 13, hex('#b8923a'));   // la paca
+  caja(0, 8, 10, 18, ROJO); caja(0, 8, 18, 18, ROJOL); caja(2, 7, 12, 16, hex('#a8d0e8')); caja(2, 3, 15, 16, C.blanco);   // la cabina y el cristal
+  caja(4, 6, 12, 15, hex('#2c2232')); caja(5, 6, 12, 13, hex('#f0c8a0'));   // el conductor, de espaldas al sol
+  R.pset(X(16), suelo - 8, hex('#fff2b0')); R.pset(X(16), suelo - 7, hex('#f0c040')); R.pset(X(-18), suelo - 8, hex('#ff5a4a'));   // faro y piloto
+  caja(-19, 17, 4, 4, hex('#3a3a46'));   // el parachoques y los bajos
+  for (const i of [-11, 10]) { const cx = X(i), cy = suelo - 3; R.disco(cx, cy, 4, C.k); R.disco(cx, cy, 2, hex('#8a8e9a')); const g = -t * 14 * d; for (let k = 0; k < 3; k++) R.pset(Math.round(cx + Math.cos(g + k * 2.1) * 1.6), Math.round(cy + Math.sin(g + k * 2.1) * 1.6), C.k); R.pset(cx, cy, hex('#d8dce4')); }
+};
 const p4 = (t) => {
   T.llanuras(R, t, { luz: 'tarde' });
   // el aire seco de las Rocosas cruza alto y el húmedo del golfo entra bajo, por la derecha
@@ -173,15 +261,28 @@ const p4 = (t) => {
     flechaGorda(x0 - Math.cos(g) * l / 2, y - Math.sin(g) * l * 0.4, x0 + Math.cos(g) * l / 2, y + Math.sin(g) * l * 0.4, e, hex('#fff2b0'), hex('#c8a040')); }
   // y un anillo que gira alrededor de la base de la nube (la mesociclón): la mitad de atrás queda tapada por la nube
   if (tw > 0) for (let k = 0; k < 64; k++) { if (k / 64 > tw || k % 8 > 5) continue; const g = k / 64 * Math.PI * 2 - t * 3, x = Math.round(198 + Math.cos(g) * 48), y = Math.round(70 + Math.sin(g) * 9); if (Math.sin(g) < 0 && x > 156 && x < 240) continue; R.rect(x - 1, y - 1, x + 1, y + 1, C.k); R.pset(x, y, hex('#fff2b0')); R.pset(x + (Math.sin(g) > 0 ? 1 : -1), y, hex('#fff2b0')); }
-  // el granjero: se sujeta el sombrero con la ráfaga, se le vuela y señala arriba cuando el viento se tuerce
-  const sinSombrero = t > vuela;
-  R.actor(EL.granjero, 104, 146, t, { dir: 1, dedo: entre(t, P4 + 0.4, vuela) || t > tuerce, sorpresa: entre(t, vuela, vuela + 0.6), sonrisa: false, tocado: sinSombrero ? false : undefined, habla: t > tuerce + 0.3 && parpadeo(t, 8) });
-  if (sinSombrero) { const u = t - vuela; sombrero(Math.round(117 - u * 52 + Math.sin(u * 5) * 4), Math.round(120 - u * 30 + Math.sin(u * 7) * 3 + u * u * 4), u * 8); }
+  // la camioneta del vecino, que se aleja de la tormenta por el carril de allá del camino (por detrás del granjero)
+  const cam = lin(t, P4 + 0.05, P4 + 1.45), camX = Math.round(lerp(372, -60, cam));
+  if (cam > 0 && cam < 1) camioneta(camX, 142, t, -1);
+  // el granjero vuelve a casa por el camino con el cubo; se para a saludar a la camioneta; sigue; la ráfaga le quita el
+  // sombrero (se para sorprendido y lo mira irse) y, cuando el viento se tuerce, se vuelve y lo señala hablando
+  const saluda = [P4 + 0.35, P4 + 1.05], para = vuela - 0.05, gira = tuerce - 0.05;
+  const fx = Math.round(t < saluda[0] ? lerp(158, 150, lin(t, P4, saluda[0])) : t < saluda[1] ? 150 : lerp(150, 128, lin(t, saluda[1], para)));
+  const anda = (t < saluda[0] || entre(t, saluda[1], para)), sinSombrero = t > vuela, fdir = entre(t, saluda[0], saluda[1]) || t > gira ? 1 : -1;
+  // el perro trota detrás de él, le ladra a la camioneta y, con la ráfaga, sale detrás del sombrero dando saltos
+  { const persigue = lin(t, vuela + 0.1, vuela + 1.3), x = persigue > 0 ? lerp(fx + 24, 58, suave(persigue)) : fx + 24, salta = persigue > 0 && persigue < 1 ? Math.abs(Math.sin(persigue * Math.PI * 3)) * 5 : 0;
+    perro(Math.round(x), 145, t, entre(t, saluda[0] - 0.1, saluda[1]) ? 1 : -1, { corre: anda || (persigue > 0 && persigue < 1), ladra: (entre(t, saluda[0] + 0.1, saluda[1] - 0.1) || t > vuela + 1.45) && Math.floor(t * 7) % 2 === 0, salto: salta }); }
+  R.actor(EL.granjero, fx, 147, t, { dir: fdir, anda, dedo: (entre(t, saluda[0] + 0.1, saluda[1]) && Math.floor(t * 6) % 2 === 0) || t > gira, sonrisa: entre(t, saluda[0], saluda[1]), sorpresa: entre(t, vuela, vuela + 0.65),
+    tocado: sinSombrero ? false : undefined, habla: t > tuerce + 0.25 && parpadeo(t, 8) });
+  // el cubo de leche en la mano, que se balancea al andar
+  { const [cx, cy] = enMano(fx, 147, fdir), b = anda ? Math.round(Math.sin(t * 10)) : 0; R.linea(cx + 1, cy - 1, cx + 3 + b, cy + 1, C.k); R.rect(cx + b, cy + 1, cx + 5 + b, cy + 6, C.k); R.rect(cx + 1 + b, cy + 2, cx + 4 + b, cy + 5, hex('#a8b0bc')); R.rect(cx + 1 + b, cy + 2, cx + 4 + b, cy + 2, hex('#f6f6f0')); R.pset(cx + 1 + b, cy + 3, hex('#d8dce4')); }
+  if (sinSombrero) { const u = t - vuela; sombrero(Math.round(fx + 13 - u * 52 + Math.sin(u * 5) * 4), Math.round(121 - u * 30 + Math.sin(u * 7) * 3 + u * u * 4), u * 8); }
+
 };
-const efectos = [[0.35, 'masca'], [vuelve, 'masca'], [vuelve + 1.0, 'masca'],
-  ...[0, 1, 2, 3, 4, 5].map((k) => [cuenta[0] + k * (cuenta[1] - cuenta[0]) / 6, 'aldea', { k }]), [otros[0], 'pop'], [otros[0] + 0.4, 'pop'], [medalla, 'brillo'],
-  [llanos, 'whoosh'], [verde[0] + 0.2, 'burbujas', { dur: 1.0 }], [marron[0], 'rafaga'], [nubes + 0.3, 'pop'],
-  [vuela, 'rafaga'], [tuerce, 'trueno']];
+const efectos = [[0.35, 'masca'], [silba, 'silbato'], [ladra, 'guau'], [vuelve, 'masca'], [vuelve + 1.0, 'masca'],
+  ...[0, 1, 2, 3, 4, 5].map((k) => [cuenta[0] + k * (cuenta[1] - cuenta[0]) / 6, 'aldea', { k }]), [otros[0], 'pop'], [otros[0] + 0.4, 'pop'], [medalla - 0.06, 'golpecito'], [medalla + 0.55, 'brillo'],
+  [llanos, 'whoosh'], [verde[0], 'lapiz'], [verde[0] + 0.8, 'burbujas', { dur: 0.8 }], [marron[0], 'rafaga'], [nubes + 0.5, 'pop'],
+  [P4 + 0.15, 'motor'], [P4 + 0.75, 'guau'], [vuela, 'rafaga'], [tuerce, 'trueno'], [vuela + 1.5, 'guau']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos });
 </script>
 </body>

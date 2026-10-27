@@ -11,16 +11,22 @@
 <script type="module">
 // HU-MURO (frase 15), 1902–1911. Cuatro planos:
 // 1. «What Galveston does next»: el muro frente al mar se termina: la grúa de vapor avanza con su cubo, un ingeniero
-//    repasa el plano y señala el muro en «unbelievable», un obrero empuja su carretilla y la vuelca; en «seventeen feet»
-//    la cota sube por la cara del muro y sale el «17»; los dos miran arriba;
-// 2. «house by house, it jacks up»: la casa sube sobre sus gatos de tornillo; el gag del perro: dormía en el porche, se
-//    despierta («!») y sube sentado y muy tieso con la casa; sale la escalera nueva y baja por ella muy digno, con el
-//    hocico arriba; el dueño se sujeta el sombrero y luego se ríe; «2,000» sale en «two thousand»;
-// 3. «pumps sand from the harbor underneath»: la draga, delante de la isla ya con su muro: la escala del cortador
-//    remueve el fondo, la tubería flotante lleva la arena hasta la orilla y el chorro de arena y agua cae en la isla; el
-//    silbato, el humo y el marinero que mueve la palanca de la bomba;
+//    repasa el plano y señala el muro en «unbelievable», un obrero empuja su carretilla de arena y la vuelca en el
+//    montón, que crece, y otro echa la arena a paladas; en «seventeen feet» la cota sube por la cara del muro y sale el
+//    «17»; los tres paran, miran arriba y sonríen, el ingeniero vuelve a señalar y la pala sigue;
+// 2. «house by house, it jacks up»: la casa de la pareja de la foto sube sobre sus gatos de tornillo; el gag del perro:
+//    dormía en el porche, se despierta («!») y sube sentado y muy tieso con la casa; sale la escalera nueva y baja por
+//    ella muy digno, con el hocico arriba; él se sujeta el sombrero y luego se ríe, ella se asombra, aplaude y señala al
+//    perro; «2,000» sale en «two thousand»;
+// 3. «pumps sand from the harbor underneath»: la draga, delante de la isla ya con su muro: el capitán se asoma a la
+//    ventana de la caseta y tira del silbato, el marinero mueve la palanca de la bomba en «pumps» y levanta la mano al
+//    ver la arena, un marinero cruza la cubierta con un rollo de cabo; la escala del cortador remueve el fondo, la tubería
+//    flotante lleva la arena hasta la orilla y el chorro cae al otro lado del muro, donde dos obreros la extienden a
+//    paladas; las gaviotas siguen a la draga;
 // 4. «the city stands more than ten feet higher»: el muro terminado con gente paseando por arriba; la línea del suelo
-//    de antes y la flecha «+10»; la pareja de la foto pasea por la playa con el perro digno delante, que se sienta.
+//    de antes y la flecha «+10»; la pareja de la foto llega por la playa con el perro digno delante y el mismo fotógrafo
+//    de 1900 los llama; posan, el perro se sienta, el fotógrafo se mete bajo la tela y el destello cae en «before»: esta
+//    vez nadie se asusta (el perro ni se inmuta) y sonríen; el humo sube.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-muro');
@@ -31,22 +37,17 @@ const lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
 const entre = (t, a, b) => t >= a && t < b;
 const parpadeo = (t, v = 6) => Math.sin(t * v) > 0;
 const hh = (a, b, k = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
-const frena = (u) => 1 - (1 - u) ** 3;
-// el tramado ordenado 4 × 4 (para degradados sin rayas)
-const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], umbral = (x, y) => (B4[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
 // dónde lleva algo un personaje: la mano que cuelga (delante), la de atrás y la levantada (con dedo)
 const enMano = (x, suelo, dir) => [dir > 0 ? x + 11 : x - 5, suelo - 9];
 const manoAtras = (x, suelo, dir) => [dir > 0 ? x + 1 : x + 13, suelo - 8];
 const manoArriba = (x, suelo, dir) => [dir > 0 ? x + 16 : x - 2, suelo - 19];
-// lo que va detrás de una pieza del decorado: guarda esos rectángulos, dibuja y los repone encima
-const detras = (rects, dibuja) => {
-  const g = rects.map(([x0, y0, x1, y1]) => { const v = []; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) v.push(R.pget(x, y)); return v; });
-  dibuja();
-  rects.forEach(([x0, y0, x1, y1], k) => { let i = 0; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, g[k][i++]); });
+// recorrido por fotogramas clave [t, x, suelo]: dónde está, si anda y hacia dónde mira (null antes de empezar)
+const ruta = (t, kf, desde = true) => {
+  if (t < kf[0][0]) return desde ? null : { x: kf[0][1], s: kf[0][2], mv: false, d: Math.sign(kf[1][1] - kf[0][1]) || 1 };
+  let d = 1; for (let i = 0; i + 1 < kf.length; i++) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1]; if (x1 !== x0) d = x1 < x0 ? -1 : 1;
+    if (t < t1) { const u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0 || s1 !== s0, d }; } }
+  const [, x, s] = kf[kf.length - 1]; return { x, s, mv: false, d };
 };
-const mezcla = (p, [cr, cg, cb], a) => { const r = p & 255, g = (p >> 8) & 255, b = (p >> 16) & 255; return (0xff000000 | (Math.round(b + (cb - b) * a) << 16) | (Math.round(g + (cg - g) * a) << 8) | Math.round(r + (cr - r) * a)) >>> 0; };
-// tiñe solo lo que pinta dibuja (de noche, los personajes toman la luz del decorado)
-const tenido = (col, a, dibuja) => { const B = R.buf, antes = B.slice(); dibuja(); for (let i = 0; i < B.length; i++) if (B[i] !== antes[i]) B[i] = mezcla(B[i], col, a); };
 // figura con contorno de 1 px: rectángulos [x0, y0, x1, y1, color]; el contorno envuelve a todos juntos
 const figura = (rs) => {
   for (const [x0, y0, x1, y1] of rs) R.rect(Math.min(x0, x1) - 1, Math.min(y0, y1) - 1, Math.max(x0, x1) + 1, Math.max(y0, y1) + 1, C.k);
@@ -87,21 +88,30 @@ const perrito = (x, suelo, t, o = {}) => {
   fill(1, 8, -4, -4, s); fill(1, 7, -9, -9, l); fill(8, 10, -14 + cab, -10 + cab, s); px(12, -12 + cab, C.k); px(16, -11 + cab - alzo, C.k);
   fill(8, 9, -8 + Math.min(0, cab + 1), -7, C.rojo); px(9, -6, C.oroL);
 };
-// la pareja de la foto de la playa (vuelve en hu-muro, paseando con el perro): él de azul, ella de rosa
+// la pareja de la foto de la playa de hu-galveston: él de azul, ella de rosa; y su fotógrafo
 const SENOR = { C: hex('#3e4a6a'), c: hex('#2c3650'), F: hex('#4a4a56'), W: hex('#f2eee2'), o: hex('#a83a3a') };
 const SENORA = { C: hex('#b85a7a'), c: hex('#8e4060'), W: hex('#ecd0da'), L: hex('#2a2430') };
+const FOTOGRAFO = { C: hex('#5a4a3a'), c: hex('#443828'), F: hex('#3a3a46'), W: hex('#f2eee2'), o: hex('#2a2430') };
+// un obrero pequeño a lo lejos (unos 9 px) que echa arena con la pala: fase de la palada
+const obreroLejos = (x, y, t, k, dir = 1) => {
+  const f = Math.sin(t * 4 + k * 1.7), X = (i) => Math.round(x + i * dir), ropa = [hex('#3a5a8a'), hex('#6a5a3a')][k % 2];
+  R.rect(Math.min(X(0), X(1)), y - 3, Math.max(X(0), X(1)), y, hex('#3a3a46')); R.rect(Math.min(X(0), X(2)), y - 7, Math.max(X(0), X(2)), y - 4, ropa); R.rect(Math.min(X(0), X(1)), y - 9, Math.max(X(0), X(1)), y - 8, hex('#e0a878')); R.rect(Math.min(X(-1), X(2)), y - 10, Math.max(X(-1), X(2)), y - 10, hex('#4a4a52'));
+  const px = X(4 + Math.round(f)), py = y - 2 - Math.round(Math.max(0, f) * 3); R.linea(X(2), y - 6, px, py, hex('#8a6a3a')); R.rect(px - 1, py, px + 1, py + 1, hex('#6a6a72'));
+  if (f > 0.7) { R.pset(px + dir * 2, py - 2, hex('#d8c49a')); R.pset(px + dir * 3, py - 3, hex('#e8d8b0')); }
+};
 
 const w = (f) => en('muro', f);
 // los cortes: «And then», «and pumps», y la pausa antes de «the city»
 const P2 = w(0.329), P3 = w(0.584), P4 = w(0.811);
-const increible = w(0.108), muroW = w(0.220), diecisiete = w(0.243), alto = w(0.285);
-const casa = w(0.386), gatos = w(0.466), dosmil = w(0.524);
-const bombea = w(0.615), arenaW = w(0.631), puerto = w(0.675), debajo = w(0.688);
-const ciudad = w(0.840), diez = w(0.899), antes = w(0.962);
+const increible = w(0.127), muroW = w(0.221), diecisiete = w(0.25), alto = w(0.30);
+const casa = w(0.362), gatos = w(0.431), dosmil = w(0.505);
+const bombea = w(0.605), arenaW = w(0.622), puerto = w(0.67), debajo = w(0.70);
+const ciudad = w(0.819), diez = w(0.899), antes = w(0.975);
 
 // ── 1 · el muro de diecisiete pies ──────────────────────────────────────────────────────────────────────────────
 const INGENIERO = { C: hex('#5a5a6a'), c: hex('#44444f'), F: hex('#4a4a52'), W: hex('#f2eee2'), o: hex('#3a5a8a') };
 const OBRERO = { C: hex('#3e5a8a'), c: hex('#2c4468'), F: hex('#3e5a8a'), W: hex('#c84a3a'), o: hex('#3e5a8a'), H: hex('#2c2232'), h: hex('#54466a') };
+const OBRERO2 = { C: hex('#7a5a3a'), c: hex('#5a4028'), F: hex('#4a4a5a'), W: hex('#e8dcc0'), o: hex('#7a5a3a'), H: hex('#8a5428'), h: hex('#a8703a') };
 const obra = (t) => lerp(0.5, 0.97, tramo(t, 0.3, muroW + 0.55));
 const gira = (px, py, cx, cy, a) => [cx + (px - cx) * Math.cos(a) - (py - cy) * Math.sin(a), cy + (px - cx) * Math.sin(a) + (py - cy) * Math.cos(a)];
 const carretilla = (x, s, vuelca, carga) => {   // delante del obrero (mirando a la derecha); vuelca 0–1 la inclina sobre la rueda
@@ -126,17 +136,26 @@ const p1 = (t) => {
   const s1 = 158, x1 = 92, senala = entre(t, increible - 0.1, increible + 0.9) || entre(t, alto, alto + 0.6);
   R.actor(EL.vecino, x1, s1, t, { dir: senala || t > diecisiete - 0.1 ? -1 : 1, pal: INGENIERO, dedo: senala, sonrisa: t > alto, sorpresa: entre(t, diecisiete, diecisiete + 0.5), habla: entre(t, increible - 0.1, increible + 0.8) && parpadeo(t, 7) });
   if (!senala && t < diecisiete - 0.1) { const [hx, hy] = enMano(x1, s1, 1); plano(hx - 4, hy - 6); }
-  // el obrero trae la carretilla de arena, la vuelca junto al encofrado y mira arriba en «seventeen»
-  const u = lin(t, 0.2, vuelcaT[0]), xo = Math.round(lerp(-30, 128, u)), so = 170, mira = t > diecisiete - 0.1;
-  if (t > vuelcaT[0] + 0.25) { const mon = Math.min(1, (t - vuelcaT[0] - 0.25) / 0.4); for (let i = -6; i <= 6; i++) { const hgt = Math.round((5 - Math.abs(i) * 0.7) * mon); if (hgt > 0) R.rect(xo + 36 + i, so - hgt, xo + 36 + i, so - 1, Math.abs(i) < 2 ? hex('#d8c49a') : hex('#c8b48a')); } }
+  // el obrero trae la carretilla de arena, la vuelca junto al encofrado y mira arriba en «seventeen»; el compañero la
+  // echa a paladas
+  const u = lin(t, 0.2, vuelcaT[0]), xo = Math.round(lerp(-30, 112, u)), so = 170, mira = t > diecisiete - 0.1;
+  // el montón de arena junto al encofrado: crece cuando vuelca la carretilla
+  { const cx = 150, alto0 = 7 + Math.round(3 * lin(t, vuelcaT[0] + 0.2, vuelcaT[1])), y0 = so;
+    for (let i = -10; i <= 10; i++) { const hgt = Math.round(alto0 * (1 - (i / 10.5) ** 2)); if (hgt <= 0) continue; R.pset(cx + i, y0 - hgt - 1, C.k); R.rect(cx + i, y0 - hgt, cx + i, y0 - 1, i < -3 ? hex('#b89a68') : i > 4 ? hex('#a88a5a') : hex('#c8aa78')); if (hgt > 2 && (i + 11) % 4 === 0) R.pset(cx + i, y0 - hgt + 1, hex('#e0c890')); }
+    R.rect(cx - 11, y0, cx + 11, y0, hex('#8a6e48')); }
+  // el compañero echa la arena a paladas (para un momento para mirar la cota en «seventeen»)
+  { const x2 = 162, s2 = 168, pala = t > 0.4 && !entre(t, diecisiete - 0.15, alto + 0.7), f = pala ? Math.sin(t * 6.5) : -1, echa = f > 0.2;
+    R.actor(EL.vecino, x2, s2, t, { dir: -1, pal: OBRERO2, tocado: 'gorra', dedo: echa || entre(t, alto + 0.15, alto + 0.6), sorpresa: entre(t, diecisiete, diecisiete + 0.6), sonrisa: t > alto });
+    // la pala: hincada en el montón o en alto, echando la arena hacia el encofrado
+    const [hx, hy] = echa ? [x2 - 2, s2 - 19] : [x2 + 1, s2 - 8], [bx, by] = echa ? [x2 - 9, s2 - 25] : [x2 - 7, s2 - 6];
+    R.linea(hx, hy, bx + 1, by, hex('#8a6a3a')); R.rect(bx - 2, by - 1, bx + 1, by + 1, C.k); R.rect(bx - 1, by, bx, by, hex('#9a9aa2'));
+    if (echa) for (let k = 0; k < 5; k++) { const ph = (t * 2.2 + k * 0.2) % 1; R.pset(Math.round(bx - 3 - ph * 14), Math.round(by - 2 - Math.sin(ph * Math.PI) * 6 + ph * 4), k % 2 ? hex('#d8c49a') : hex('#c8aa78')); } }
   R.actor(EL.vecino, xo, so, t, { dir: mira ? -1 : 1, pal: OBRERO, tocado: 'gorra', anda: u > 0 && u < 1, sorpresa: entre(t, diecisiete, diecisiete + 0.6), sonrisa: t > alto, dedo: entre(t, alto + 0.1, alto + 0.7) });
   if (!mira) carretilla(xo, so, tramo(t, vuelcaT[0], vuelcaT[1]) - tramo(t, vuelcaT[1] + 0.2, vuelcaT[1] + 0.5), t < vuelcaT[0] + 0.2 ? 1 : 0);
   else carretilla(xo + 4, so, 0, 0);
 };
 
 // ── 2 · la casa sube: el perro digno ────────────────────────────────────────────────────────────────────────────
-const DUENO = { C: hex('#e8e4dc'), c: hex('#c0bcb4'), F: hex('#5a4a3a'), W: hex('#e8e4dc'), o: hex('#6a4a2a') };
-const VECINA2 = { C: hex('#8a5a9a'), c: hex('#6a4278'), W: hex('#ece4f0'), L: hex('#2a2430') };
 const subeT = [casa - 0.05, gatos + 0.55], escaleraT = subeT[1] + 0.08, bajaT = [escaleraT + 0.12, P3 - 0.2];
 const p2 = (t) => {
   const sb = tramo(t, subeT[0], subeT[1]);
@@ -152,15 +171,19 @@ const p2 = (t) => {
     const paso = Math.min(1, Math.floor(b * 9) / 9 + (b >= 1 ? 1 : 0)), x = Math.round(lerp(ax - 6, bx - 4, b)), y = Math.round(lerp(ay, by, paso));
     perrito(x, y, t, { dir: 1, pose: b < 1 ? 'pie' : 'sentado', anda: b > 0 && b < 1, digno: true });
   }
-  // el dueño se sujeta el sombrero mientras sube su casa y se ríe con el perro; la vecina se asombra y aplaude
-  R.actor(EL.vecino, 198, 174, t, { dir: -1, pal: DUENO, sorpresa: entre(t, subeT[0] + 0.1, subeT[0] + 0.8), dedo: entre(t, subeT[0] + 0.8, subeT[1]), sonrisa: t > bajaT[0] + 0.3, habla: t > bajaT[0] + 0.5 && parpadeo(t, 9) });
-  R.actor(EL.vecina, 222, 176, t, { dir: -1, pal: VECINA2, brazos: entre(t, subeT[1] - 0.6, subeT[1] + 0.1) || entre(t, b > 0.6 ? bajaT[0] + 0.7 : 99, bajaT[0] + 1.1), sonrisa: t > subeT[1] - 0.6 });
+  // los dueños, la pareja de la foto: él se sujeta el sombrero mientras sube su casa y se ríe con el perro; ella se
+  // asombra, aplaude y lo señala
+  R.actor(EL.vecino, 198, 174, t, { dir: -1, pal: SENOR, sorpresa: entre(t, subeT[0] + 0.1, subeT[0] + 0.8), dedo: entre(t, subeT[0] + 0.8, subeT[1]), sonrisa: t > bajaT[0] + 0.3, habla: t > bajaT[0] + 0.5 && parpadeo(t, 9) });
+  const aplaude = entre(t, subeT[1] - 0.6, subeT[1] + 0.1) || entre(t, bajaT[1] - 0.1, bajaT[1] + 0.5);
+  R.actor(EL.vecina, 222, 176, t, { dir: -1, pal: SENORA, brazos: aplaude && Math.floor(t * 8) % 2 === 0, dedo: entre(t, bajaT[0] + 0.3, bajaT[1] - 0.1), sorpresa: entre(t, subeT[0] + 0.2, subeT[0] + 0.9), sonrisa: t > subeT[1] - 0.6 });
+  if (!(aplaude && Math.floor(t * 8) % 2 === 0) && !entre(t, bajaT[0] + 0.3, bajaT[1] - 0.1)) { const [hx, hy] = manoAtras(222, 176, -1); sombrilla(hx, hy); }
   // «two thousand»
   if (t > dosmil - 0.05) { const e = tramo(t, dosmil - 0.05, dosmil + 0.2); R.numero('2,000', 254, Math.round(lerp(76, 70, e)), { tam: 8, centro: true, contorno: true }); }
 };
 
 // ── 3 · la draga ────────────────────────────────────────────────────────────────────────────────────────────────
 const MARINERO = { C: hex('#2a3a5a'), c: hex('#1e2a44'), F: hex('#2a3a5a'), W: hex('#e8e4dc'), o: hex('#2a3a5a') };
+const MARINERO2 = { C: hex('#e8e4dc'), c: hex('#c0bcb4'), F: hex('#2a3a5a'), W: hex('#2a3a5a'), o: hex('#2a3a5a'), H: hex('#c8904c'), h: hex('#e0ac64') };
 const WL = 158, X0 = 184, X1 = 300;
 const draga = (t) => {
   const { rect, poligono, pset, disco, linea } = R, cab = Math.round(Math.sin(t * 1.6) * 0.7);
@@ -184,6 +207,7 @@ const draga = (t) => {
   for (let x = X0 - 2; x < X1 + 6; x++) if ((x + Math.floor(t * 8)) % 4) pset(x, WL + 3 + ((x >> 2) % 2), hex('#e8f0f0'));
   return cx;
 };
+const silbaT = [P3 + 0.05, P3 + 0.75], rollo = [P3 + 0.4, P4 - 0.1];
 const p3 = (t) => {
   T.galveston(R, t, { encuadre: 'isla' });
   // el muro nuevo a lo largo de la orilla (las casas de baños quedan delante, sobre sus pilotes)
@@ -194,22 +218,47 @@ const p3 = (t) => {
   for (let k = 0; k < 12; k++) { const [x0, y0] = pts[k], [x1, y1] = pts[k + 1], gr = k < 6 ? 3 : 2;
     R.linea(x0, y0 - gr - 1, x1, y1 - gr - 1, C.k); R.linea(x0, y0, x1, y1, C.k); for (let j = 1; j <= gr; j++) R.linea(x0, y0 - j, x1, y1 - j, j === gr ? hex('#8a8a94') : hex('#4a4a54')); }
   for (let k = 0; k < 12; k += 2) { const [x, y] = pts[k], wd = k < 6 ? 3 : 2; R.rect(x - wd - 1, y - 1, x + wd + 1, y + 2, C.k); R.rect(x - wd, y, x + wd, y + 1, hex('#a84a2a')); R.rect(x - wd, y, x - wd + 1, y, hex('#d86a4a')); for (let i = -wd - 2; i <= wd + 2; i++) if ((i + Math.floor(t * 6)) % 3) R.pset(x + i, y + 3, hex('#e8f0f0')); }
-  // la boca, al otro lado del muro: el chorro de arena y agua y el abanico de arena nueva que va creciendo
+  // la boca, al otro lado del muro: el chorro de arena y agua, el abanico de arena nueva que crece y dos obreros que la
+  // extienden a paladas
   { const bx = 128, by = 104, n = Math.round(14 + fuerte * 40), abanico = Math.round(4 + lin(t, bombea, P4) * 10);
     for (let i = -abanico; i <= 2; i++) for (let j = 0; j < 3; j++) R.pset(bx + i, by - j + Math.round(Math.abs(i) / 6), j === 0 ? hex('#d8c49a') : hex('#e8d8b0'));
     R.rect(bx, by - 3, bx + 4, by, C.k); R.rect(bx + 1, by - 2, bx + 3, by - 1, hex('#5a5a62'));
-    for (let k = 0; k < n; k++) { const ph = (t * (1.4 + fuerte * 1.2) + k / n) % 1, x = Math.round(bx - ph * (6 + fuerte * 12) + (hh(k, 1, 71) - 0.5) * 2), y = Math.round(by - 2 - Math.sin(ph * Math.PI) * (3 + fuerte * 9) + ph * 3); R.pset(x, y, k % 4 === 0 ? hex('#e8eef0') : k % 2 ? hex('#c8a870') : hex('#a88a5a')); } }
+    for (let k = 0; k < n; k++) { const ph = (t * (1.4 + fuerte * 1.2) + k / n) % 1, x = Math.round(bx - ph * (6 + fuerte * 12) + (hh(k, 1, 71) - 0.5) * 2), y = Math.round(by - 2 - Math.sin(ph * Math.PI) * (3 + fuerte * 9) + ph * 3); R.pset(x, y, k % 4 === 0 ? hex('#e8eef0') : k % 2 ? hex('#c8a870') : hex('#a88a5a')); }
+    obreroLejos(bx - 18 - abanico, by + 1, t, 0, 1); obreroLejos(bx - 30 - abanico, by + 2, t, 1, 1); }
   // las gaviotas que siguen a la draga
   for (let k = 0; k < 3; k++) R.gaviota(Math.round(236 + Math.sin(t * 0.7 + k * 2) * 26 + k * 10), Math.round(78 + Math.cos(t * 0.9 + k) * 6 + k * 4), t, k);
   const cx = draga(t);
-  // el silbato al empezar, la bomba que arranca en «pumps» y el marinero en la palanca
-  { const u = t - (P3 + 0.15); if (u > 0 && u < 0.9) for (let k = 0; k < 6; k++) { const r = 1 + u * 4 + k * 0.4; R.disco(Math.round(cx + 5 + u * 8 + k), Math.round(WL - 66 - u * 6 - k), Math.round(r), k % 2 ? C.blanco : hex('#e8ecf0')); } }
+  // el capitán se asoma a la primera ventana de la caseta y tira del cordón del silbato
+  { const wx = X0 + 29, asoma = entre(t, silbaT[0] - 0.2, silbaT[1] + 0.6), tira = entre(t, silbaT[0], silbaT[1]);
+    if (asoma) { R.rect(wx + 1, WL - 23, wx + 4, WL - 20, hex('#e0a878')); R.rect(wx + 1, WL - 24, wx + 4, WL - 24, hex('#2a3a5a')); R.pset(wx + 3, WL - 22, C.k); R.pset(wx + 1, WL - 21, hex('#c88a5a')); }
+    const yc = tira ? WL - 33 + (Math.floor(t * 6) % 2) : WL - 35; R.linea(cx + 5, WL - 64, wx + 4, yc, hex('#6a6a72')); }
+  // el silbato al empezar, la bomba que arranca en «pumps» y el marinero en la palanca, que saluda al ver la arena
+  { const u = t - (silbaT[0] + 0.1); if (u > 0 && u < 0.9) for (let k = 0; k < 6; k++) { const r = 1 + u * 4 + k * 0.4; R.disco(Math.round(cx + 5 + u * 8 + k), Math.round(WL - 66 - u * 6 - k), Math.round(r), k % 2 ? C.blanco : hex('#e8ecf0')); } }
+  // un marinero sale por la puerta de la caseta y cruza la cubierta hasta la proa con un rollo de cabo (por delante)
+  { const q = ruta(t, [[rollo[0], 252, WL - 10], [rollo[0] + 1.5, 198, WL - 10], [rollo[1], 198, WL - 10]], false);
+    if (t > rollo[0]) { R.actor(EL.vecino, q.x, q.s, t, { dir: q.mv ? q.d : 1, anda: q.mv, pal: MARINERO2, tocado: 'gorra', dedo: !q.mv && t > rollo[0] + 1.7 && Math.sin(t * 5) > 0 });
+      const [hx, hy] = manoAtras(q.x, q.s, q.mv ? q.d : 1); for (const [r, c] of [[4, C.k], [3, hex('#c8a870')], [2, hex('#a88a50')]]) R.anillo(hx + 0.5, hy - 2.5, r, c); } }
   const tira = t > bombea - 0.2 && t < puerto, lv = tira ? (Math.floor(t * 4) % 2 ? 3 : -2) : 0, mx = 274;
   R.linea(mx - 4, WL - 10, mx - 6 + lv, WL - 20, C.k); R.pset(mx - 6 + lv, WL - 21, C.rojo);
-  R.actor(EL.vecino, mx, WL - 10, t, { dir: -1, pal: MARINERO, tocado: 'gorra', dedo: tira || entre(t, puerto, puerto + 0.9), sonrisa: t > debajo });
+  R.actor(EL.vecino, mx, WL - 10, t, { dir: -1, pal: MARINERO, tocado: 'gorra', dedo: tira || entre(t, puerto, puerto + 0.9), sonrisa: t > debajo, habla: entre(t, puerto + 0.1, puerto + 0.8) && parpadeo(t, 8) });
 };
 
-// ── 4 · la ciudad, más alta ─────────────────────────────────────────────────────────────────────────────────────
+// ── 4 · la ciudad, más alta: la foto de la pareja, once años después ───────────────────────────────────────────
+const camaraFoto = (x, s) => {   // el trípode y la cámara de fuelle; la lente mira a la izquierda
+  for (const [dx, col] of [[-7, C.maderaS], [5, C.maderaS], [-1, C.madera]]) R.linea(x, s - 19, x + dx, s - 1, col);
+  figura([[x - 5, s - 28, x + 5, s - 20, C.madera], [x - 10, s - 27, x - 6, s - 21, hex('#2e2a30')], [x - 13, s - 26, x - 11, s - 22, C.oro]]);
+  R.rect(x - 4, s - 28, x + 4, s - 28, C.maderaL); R.rect(x - 4, s - 21, x + 4, s - 20, C.maderaS);
+  for (let i = x - 9; i <= x - 7; i += 2) R.rect(i, s - 27, i, s - 21, hex('#4a4450'));
+  R.pset(x - 13, s - 24, hex('#8ac0e0')); R.pset(x + 4, s - 27, C.oroL); R.pset(x - 4, s - 27, C.oroL);
+};
+const telaFoto = (x, s, bajo) => {   // la tela negra: sobre la cabeza del fotógrafo o colgando detrás de la cámara
+  if (bajo) {
+    R.poligono([[x + 3, s - 30], [x + 18, s - 31], [x + 21, s - 13], [x + 15, s - 11], [x + 4, s - 16]], C.k);
+    R.poligono([[x + 4, s - 29], [x + 17, s - 30], [x + 20, s - 14], [x + 15, s - 12], [x + 5, s - 17]], hex('#2a2430'));
+    for (const fx of [x + 9, x + 14]) R.linea(fx, s - 29, fx + 1, s - 14, hex('#4a4050'));
+  } else { R.rect(x + 5, s - 28, x + 8, s - 17, C.k); R.rect(x + 6, s - 27, x + 7, s - 18, hex('#2a2430')); }
+};
+const llega4 = [P4 - 0.25, diez - 0.25], tapa4 = [diez + 0.15, antes + 0.35], pan4 = diez + 0.6, flash4 = antes + 0.02;
 const p4 = (t) => {
   T.galveston(R, t, { despues: true, encuadre: 'muro' });
   // el suelo de antes, marcado en la cara del muro, y la flecha «+10» hasta el de ahora
@@ -221,17 +270,26 @@ const p4 = (t) => {
     R.rect(X - 1, y1, X + 1, y0, C.k); R.rect(X, y1 + 1, X, y0, C.oroL);
     R.poligono([[X - 4, y1 + 4], [X + 5, y1 + 4], [X + 0.5, y1 - 2]], C.k); R.poligono([[X - 3, y1 + 3], [X + 4, y1 + 3], [X + 0.5, y1 - 1]], C.oroL);
     if (t > diez) R.numero('+10', 52, Math.round(lerp(98, 92, tramo(t, diez, diez + 0.2))), { tam: 16 }); }
-  // la pareja de la foto pasea por la playa; el perro va delante, muy digno, y se sienta cuando paran
-  const u = lin(t, P4 - 0.2, diez + 0.3), x = Math.round(lerp(72, 118, u)), para = u >= 1;
-  R.actor(EL.vecino, x, 166, t, { dir: 1, pal: SENOR, anda: !para, dedo: entre(t, ciudad, ciudad + 0.8) || entre(t, diez + 0.4, diez + 1.2), sonrisa: true, habla: entre(t, diez + 0.4, diez + 1.2) && parpadeo(t, 8) });
-  R.actor(EL.vecina, x + 16, 167, t, { dir: 1, pal: SENORA, anda: !para, sonrisa: true });
+  // la pareja de la foto llega por la playa con el perro delante, muy digno; se paran a posar y el perro se sienta
+  const u = lin(t, llega4[0], llega4[1]), x = Math.round(lerp(18, 64, u)), para = u >= 1, posa = t > llega4[1] + 0.1 && t < flash4;
+  R.actor(EL.vecino, x, 166, t, { dir: 1, pal: SENOR, anda: !para, quieto: posa, dedo: entre(t, ciudad, ciudad + 0.8), sonrisa: true, habla: (entre(t, ciudad, ciudad + 0.8) || entre(t, flash4 + 0.3, flash4 + 1.0)) && parpadeo(t, 8) });
+  R.actor(EL.vecina, x + 16, 167, t, { dir: 1, pal: SENORA, anda: !para, quieto: posa, sonrisa: true });
   { const [hx, hy] = manoAtras(x + 16, 167, 1); sombrilla(hx, hy); }
-  perrito(x + 36, 170, t, { dir: 1, pose: para ? 'sentado' : 'pie', anda: !para, digno: true });
+  perrito(x + 34, 171, t, { dir: 1, pose: para ? 'sentado' : 'pie', anda: !para, digno: true });
+  // el mismo fotógrafo de 1900 los llama, se mete bajo la tela, levanta el magnesio y el destello cae en «before»;
+  // esta vez nadie se asusta: el perro ni se inmuta
+  const fx = 158, cx = fx - 4, s = 168, bajo = entre(t, tapa4[0], tapa4[1]), conPan = entre(t, pan4, tapa4[1]);
+  R.actor(EL.vecino, fx, s, t, { dir: -1, pal: FOTOGRAFO, dedo: conPan || entre(t, P4 + 0.3, P4 + 1.0), habla: entre(t, P4 + 0.3, P4 + 1.0) && parpadeo(t, 8), sonrisa: t > tapa4[1] || t < tapa4[0] });
+  camaraFoto(cx, s); telaFoto(cx, s, bajo);
+  if (conPan) { const [hx, hy] = manoArriba(fx, s, -1); R.rect(hx, hy - 5, hx, hy - 1, C.maderaS); R.rect(hx - 3, hy - 7, hx + 3, hy - 6, C.k); R.rect(hx - 2, hy - 7, hx + 2, hy - 7, C.metalL); if (t < flash4) { R.pset(hx - 1, hy - 8, C.blanco); R.pset(hx + 1, hy - 8, C.blanco); } }
+  const ft = t - flash4, [px, py] = manoArriba(fx, s, -1);
+  if (ft > 0 && ft < 1.6) for (let k = 0; k < 5; k++) { const qq = ft - k * 0.08; if (qq < 0) continue; const r = Math.round(1 + qq * 2.2), xx = Math.round(px + qq * 10 + Math.sin(qq * 3 + k) * 2), yy = Math.round(py - 9 - qq * 14 - k * 3); if (r < 8) { R.disco(xx, yy, r + 1, hex('#a8a8b0')); R.disco(xx - 1, yy - 1, r, qq > 1.2 ? hex('#ececf0') : hex('#d4d4dc')); } }
+  if (ft >= 0 && ft < 0.14) { R.disco(px, py - 8, 6, C.blanco); for (let r = 7; r < 15; r++) { R.pset(px + r, py - 8, C.blanco); R.pset(px - r, py - 8, C.blanco); R.pset(px, py - 8 - r, C.blanco); R.pset(px, py - 8 + r, C.blanco); } T.tinte(R, 0, 179, [255, 255, 250], 0.3 * (1 - ft / 0.14)); }
 };
 const efectos = [[0.5, 'vapor'], [1.3, 'toc'], [1.9, 'toc'], [increible, 'whoosh'], [2.9, 'toc'], [vuelcaT[0] + 0.25, 'golpecito'], [diecisiete, 'pop'], [alto + 0.1, 'brillo'],
-  [subeT[0] + 0.1, 'tic'], [subeT[0] + 0.55, 'tic'], [subeT[0] + 1.0, 'tic'], [subeT[0] + 1.45, 'tic'], [subeT[0] + 0.3, 'guau'], [dosmil, 'pop'], [bajaT[1] + 0.05, 'golpecito'],
-  [P3 + 0.15, 'silbato'], [bombea, 'vapor'], [arenaW + 0.05, 'gluglu'], [debajo, 'chof'], [debajo + 0.5, 'ola'],
-  [P4 + 0.2, 'ola'], [ciudad + 0.3, 'lapiz'], [diez, 'pop'], [diez + 0.6, 'ola'], [antes + 0.1, 'brillo']];
+  [subeT[0] + 0.1, 'tic'], [subeT[0] + 0.55, 'tic'], [subeT[0] + 1.0, 'tic'], [subeT[0] + 1.45, 'tic'], [subeT[0] + 0.3, 'guau'], [dosmil, 'pop'], [bajaT[1] + 0.05, 'palmada'],
+  [silbaT[0] + 0.1, 'silbato'], [bombea, 'vapor'], [arenaW + 0.05, 'burbujas'], [debajo, 'chof'], [debajo + 0.5, 'ola'],
+  [P4 + 0.3, 'ola'], [ciudad + 0.3, 'lapiz'], [diez, 'pop'], [tapa4[0] + 0.05, 'whoosh'], [flash4, 'flash']];
 const año = (t) => t < P2 ? Math.round(lerp(1902, 1904, lin(t, 0.4, P2 - 0.6))) : t < P3 ? 1905 : t < P4 ? Math.round(lerp(1906, 1909, lin(t, P3, P4 - 0.4))) : 1911;
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>

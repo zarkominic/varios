@@ -9,7 +9,7 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// HU-TIROS (frase 17), 1960 → 1961, cartela «1960». Cuatro planos:
+// HU-TIROS (frase 17), 1960 → 1961, cartela «1960». Cuatro planos (4,0, 5,6, 4,1 y 5,0 s):
 // 1. Cabo Cañaveral al amanecer del 1 de abril de 1960 (decorado propio): el cielo del alba tramado con nubes lilas que se
 //    encienden por debajo, el sol que asoma en el mar, la torre de servicio roja retirada, el mástil umbilical, los focos,
 //    el búnker, el depósito de agua, el faro de bandas y palmitos; el Thor-Able humea en la rampa y en «Then» se enciende,
@@ -21,14 +21,16 @@
 //    planeta y en «successful» lo suelta con un muelle (se aleja dando vueltas); el tambor gira, destella al sol en
 //    «TIROS-1», en «pictures» hace la foto (fogonazo y visor sobre el golfo) y en «clouds from orbit» manda las ondas a
 //    Fort Monmouth, donde aparece la foto de nubes;
-// 3. la órbita baja en 1961 («the very next year»): un sucesor cruza grande sobre el Atlántico; frente a África crece un
-//    remolino con relámpagos; en «spots» el fogonazo y el visor lo fotografían y en «brewing hurricane» queda marcado con
-//    un aro rojo que late y un «!»;
+// 3. la órbita baja («the very next year»: la barra pasa a 1961 en «year»): un sucesor cruza grande sobre el Atlántico;
+//    frente a África crece un remolino con relámpagos; en «spots» el fogonazo y el visor lo fotografían y en «brewing
+//    hurricane» queda marcado con un aro rojo que late y un «!»;
 // 4. en alta mar (decorado C sin boya ni lancha): bajo un sol tranquilo, un pesquero avanza hacia la derecha con su
 //    estela, la ropa tendida, el humo de la chimenea y el perro en la proa; el marinero remienda la red silbando (notas) y
 //    el patrón toma café en la puerta de la caseta; detrás, en el horizonte, la torre de nubes del huracán que se está
-//    formando crece y relampaguea sin que nadie la mire; en «before anyone» el patrón mira con los prismáticos hacia
-//    delante, no ve nada, y en «knows it exists» se encoge de hombros y vuelve a su café.
+//    formando crece sin que nadie la mire; en «before anyone» el patrón mira con los prismáticos hacia delante, no ve nada,
+//    y el perro (gag) se da la vuelta con las orejas tiesas y ladra hacia la tormenta en «anyone» (con su «!») y otra vez
+//    en «on the ground», sin que nadie le haga caso; en «knows it exists» el patrón se encoge de hombros y vuelve a su
+//    café, y el perro baja las orejas y lo mira; una gaviota da vueltas y se posa en la cruceta.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-tiros');
@@ -64,7 +66,7 @@ const a = (f) => en('tiros', f);
 const P2 = a(0.213), P3 = a(0.529), P4 = a(0.760);
 const enciende = a(0.0), despega = a(0.029), cieloW = a(0.060), a1960 = a(0.129);
 const suelta = a(0.232), tirosW = a(0.337), fotos = a(0.427), nubesW = a(0.460), orbitaW = a(0.494);
-const siguiente = a(0.573), sucesor = a(0.629), ve = a(0.668), gesta = a(0.707), huracan = a(0.724);
+const siguiente = a(0.573), anioW = a(0.5874), sucesor = a(0.629), ve = a(0.668), gesta = a(0.707), huracan = a(0.724);
 const antes = a(0.829), nadie = a(0.849), sabe = a(0.919), existe = a(0.958);
 
 // ── 1 · el despegue del TIROS-1 (Cabo Cañaveral, al amanecer) ────────────────────────────────────────────────────────
@@ -285,13 +287,28 @@ const casco = (W) => {
   for (const px of [292, 300]) { R.disco(px, borda(px) + 8, 1.5, hex('#c8d0d8')); R.pset(px, borda(px) + 8, hex('#3a4a5a')); }
   R.rect(303, borda(303) + 3, 306, borda(303) + 5, hex('#2a2a30'));
 };
+const ladrido1 = nadie + 0.05, ladrido2 = a(0.8801) + 0.05;   // «anyone» y «on the ground»
 const p4 = (t) => {
   T.maquinaCalor(R, t, { crece: lerp(0.8, 0.97, lin(t, P4, P4 + 4.6)), boya: false, barco: false });
   const W = 164 + Math.round(Math.sin(t * 1.7) * 1);
   barca(t, W);
-  // el perro de la proa, con las patas en la borda, las orejas al viento y la lengua fuera
-  { const oreja = Math.floor(t * 6) % 2, F = oreja ? ['..kk........', '.kOOk.......', 'kOOOkkkkk...'] : ['............', 'kkk..kk.....', 'kOOOkkkkk...'];
-    pinta([...F, '.kkHHHHHHkk.', '..kHHeHHHHHk', '..kHHHHHHHHk', '..kHHHHHkkkk', '..kHHHHHkR..', '...kHHHHkR..', '..kHk.kHk...'], 282, W - 39, { k: hex('#2a1e18'), O: hex('#8a5a2a'), H: hex('#d8a05a'), e: C.k, R: hex('#e87a8a') }); }
+  // el perro de la proa, con las patas en la borda, las orejas al viento y la lengua fuera. El gag: en «before anyone» se
+  // da la vuelta, pone las orejas tiesas y ladra dos veces hacia la tormenta del horizonte (el único que se entera); nadie
+  // le hace caso, y en «knows it exists» baja las orejas y mira al patrón, que se encoge de hombros
+  { const alerta = entre(t, antes, sabe + 0.2), ladra = entre(t, ladrido1, ladrido1 + 0.22) || entre(t, ladrido2, ladrido2 + 0.22), triste = t > sabe + 0.2;
+    const oreja = Math.floor(t * 6) % 2;
+    const F = alerta ? ['..k..k......', '.kOkkOk.....', 'kOOOOOkkk...'] : triste ? ['............', '............', 'kOOOkkkkk...'] : oreja ? ['..kk........', '.kOOk.......', 'kOOOkkkkk...'] : ['............', 'kkk..kk.....', 'kOOOkkkkk...'];
+    const B = triste ? ['.kkHHHHHHkk.', 'kOkHHeHHHHHk', 'kOkHHHHHHHHk', '..kHHHHHkkkk', '..kHHHHHk...', '...kHHHHk...', '..kHk.kHk...']
+      : ladra ? ['.kkHHHHHHkk.', '..kHHeHHHHHk', '..kHHHHHHHHk', '..kHHHHHkmmk', '..kHHHHHkkkk', '...kHHHHk...', '..kHk.kHk...']
+      : ['.kkHHHHHHkk.', '..kHHeHHHHHk', '..kHHHHHHHHk', '..kHHHHHkkkk', '..kHHHHHkR..', '...kHHHHkR..', '..kHk.kHk...'];
+    // mira a la derecha (la proa) salvo cuando ladra a la tormenta, que queda a la izquierda; triste, mira al patrón
+    const filas = [...F, ...B].map((f) => (alerta || triste ? [...f].reverse().join('') : f));
+    pinta(filas, 282, W - 39, { k: hex('#2a1e18'), O: hex('#8a5a2a'), H: hex('#d8a05a'), e: C.k, R: hex('#e87a8a'), m: hex('#7a2a2a') });
+    // la cola, que menea por detrás de la cabeza (más deprisa cuando ladra)
+    { const m = Math.sin(t * (alerta ? 22 : 9)) > 0 ? 1 : 0, cx = alerta || triste ? 295 : 280; if (!triste) { R.pset(cx, W - 34 - m, hex('#2a1e18')); R.pset(cx + (alerta ? 1 : -1), W - 35 - m, hex('#8a5a2a')); } }
+    // los ladridos: rayitas que salen de la boca hacia la tormenta, y el «!» del primero
+    if (ladra) for (let k = 0; k < 3; k++) { const y = W - 33 + (k - 1) * 3, x0 = 279 - k % 2; R.linea(x0 - 3, y + (k - 1), x0 - 1, y, hex('#4a3828')); }
+    if (entre(t, ladrido1, ladrido1 + 0.7)) R.bocadillo(287, W - 44 - Math.round(Math.sin(lin(t, ladrido1, ladrido1 + 0.2) * Math.PI) * 2), {}); }
   // el marinero remienda la red silbando (las notas suben); el patrón toma café en la puerta y mira con los prismáticos
   R.actor(EL.navegante, 190, W - 15, t, { dir: 1, dedo: Math.sin(t * 5) > 0, sonrisa: true, pal: { C: hex('#3a5a8a'), c: hex('#2a4468'), W: hex('#3a5a8a') }, tocado: 'gorra' });
   for (let k = 0; k < 3; k++) { const u = ((t * 0.5 + k / 3) % 1), x = Math.round(206 + u * 12 + Math.sin(u * 8 + k) * 2), y = Math.round(W - 44 - u * 18); if (u > 0.85) continue; R.rect(x, y - 3, x, y, hex('#1e2a3a')); R.pset(x - 1, y, hex('#1e2a3a')); R.pset(x + 1, y - 3, hex('#1e2a3a')); R.pset(x + 2, y - 2, hex('#1e2a3a')); }
@@ -308,8 +325,9 @@ const p4 = (t) => {
 const efectos = [[enciende, 'boom'], [despega - 0.1, 'jet', { dur: 2.8 }], [despega + 0.55, 'flash'],
   [suelta, 'pop'], [tirosW, 'brillo'], [fotos, 'flash'], [nubesW, 'bip'], [nubesW + 0.35, 'bip'], [orbitaW, 'papel'],
   [P3 + 0.4, 'whoosh'], [ve, 'flash'], [ve + 0.85, 'bip'], [gesta, 'pop'],
-  [P4 + 0.1, 'ola'], [P4 + 0.3, 'motor', { dur: 3.2 }], [antes, 'tic'], [sabe + 0.2, 'ola'], [existe + 0.4, 'tic']];
-T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1960', efectos, año: (t) => (t < P3 ? 1960 : 1961) });
+  [P4 + 0.1, 'ola'], [P4 + 0.3, 'motor', { dur: 3.2 }], [ladrido1, 'guau'], [ladrido2, 'guau'], [sabe + 0.2, 'ola'], [existe + 0.4, 'tic']];
+// la barra pasa a 1961 cuando la voz dice «the very next year»
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1960', efectos, año: (t) => (t < anioW ? 1960 : 1961) });
 </script>
 </body>
 </html>
