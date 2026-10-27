@@ -1,5 +1,5 @@
 ---
-name: episodio-ask-atom
+name: hacer-video
 description: Hacer (o rehacer) un episodio completo de ASK Atom al nivel canónico del episodio 11 final, desde el tema hasta la entrega en el chat. Úsala siempre que el usuario pida un vídeo o episodio nuevo, un capítulo, rehacer o mejorar uno ya hecho, o cualquier parte del proceso (guion, voz, decorados, escenas, render, música, publicación). El usuario no tiene que volver a explicar el nivel ni el proceso.
 ---
 
@@ -52,20 +52,20 @@ su clave (ep11…).
 6. **Escenas** `<pref>-*.html`: un plano cada 4–7 s, con el corte en la palabra que toca (`en('marca', fracción)`),
    cartelas de año, barra del año (que puede ser una función), efectos sincronizados y gags. Mide con
    `node atomo/herramientas/medir-planos.mjs <ep>`.
-7. **Pasada de decorados con agentes** (`plantillas/agente-decorados.md`).
+7. **Pasada de decorados con agentes** (workflow `.claude/workflows/hacer-video-pasadas.js`, `paso: decorados`).
    - Reparte los decorados en unos 9 grupos.
    - Con 4 núcleos cada workflow ejecuta 2 agentes a la vez, así que lanza 3 workflows de 3 agentes en paralelo.
    - Cada agente trabaja sobre su copia (`atomo/plato/escenas/_tmp_<G>/`, ya en .gitignore) y devuelve el código.
    - Integra con `python3 atomo/herramientas/integrar-decorados.py atomo/plato/escenas/<pref>-comun.js <journal.jsonl>…`.
    - Comprueba la sintaxis (`cp … x.mjs && node --check x.mjs`).
    - Pasa a cada agente la lista de posiciones de las que dependen las escenas, porque si no, las rompe.
-8. **Pasada de movimiento con agentes** (`plantillas/agente-movimiento.md`). Son unos 8 grupos de escenas; cada agente
+8. **Pasada de movimiento con agentes** (mismo workflow, `paso: movimiento`). Son unos 8 grupos de escenas; cada agente
    edita solo sus `.html`. Se puede lanzar a la vez que la de decorados.
 9. **Revisión completa.**
    - `node atomo/herramientas/medir-planos.mjs <ep> --centros > $SC/centros.txt`.
    - Captura cada plano con `node estilos/herramientas/capturar.mjs atomo/plato/escenas/<id>.html <t1,t2…> --salida $SC/rev/<id> --formato 16:9`
      y haz hojas de contacto con etiquetas (ffmpeg xstack + drawtext).
-   - Mira todas las hojas. Lo que quede por debajo va a la **pasada de pulido** (`plantillas/agente-pulido.md`).
+   - Mira todas las hojas. Lo que quede por debajo va a la **pasada de pulido** (mismo workflow, `paso: calidad`).
    - Repite hasta que nada desentone.
 10. **Render y sonido** (desde `atomo/`):
     - `node herramientas/render-escenas.mjs build/largo/<ep> --trabajadores 4`;

@@ -9,7 +9,7 @@ lista.
 - **Referencia de nivel:** el episodio 11 final. Es el vídeo `atomo/build/salida/ep11.mp4`, con los decorados de
   `atomo/plato/escenas/th-comun.js` y las escenas `th-*.html` (commit `6455734`). Para la narración y el sonido, también el
   episodio 10 (`ov-*.html`).
-- **Cómo se hace:** la skill del proyecto `.claude/skills/episodio-ask-atom/` (el proceso entero, con las tres pasadas de
+- **Cómo se hace:** la skill del proyecto `.claude/skills/hacer-video/` (el proceso entero, con las tres pasadas de
   calidad y las plantillas de los agentes). Se sigue siempre; el usuario no tiene que volver a explicarlo.
 - **Guías que lo completan:** `GUIA-ESTILO.md` (cómo se dibuja) y `GUIA-NARRATIVA.md` (cómo se cuenta).
 

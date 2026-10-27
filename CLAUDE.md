@@ -9,7 +9,7 @@ y el español como pista extra. El código de producción está en `atomo/`; cad
   Palabras del usuario: «todo excelente; pero sobre todo el detalle de las escenas y movimiento», y «no por ahorrar tiempo
   bajarlo por ninguna circunstancia».
 - **Cualquier petición de vídeo o episodio** (nuevo, rehacer, mejorar, o una parte: guion, voz, escenas, render, música,
-  publicación) se hace con la skill **`.claude/skills/episodio-ask-atom/`**. El usuario no tiene que volver a explicar
+  publicación) se hace con la skill **`.claude/skills/hacer-video/`**. El usuario no tiene que volver a explicar
   el nivel ni el proceso.
 - **Nunca se baja la calidad para ganar tiempo.** Si algo no cabe, se pregunta antes; nada de recortes en silencio.
 - **Las tres pasadas con agentes son obligatorias:** decorados, movimiento y pulido. También la comparación lado a lado de
