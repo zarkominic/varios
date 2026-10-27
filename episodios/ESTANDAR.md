@@ -41,6 +41,8 @@ lista.
 ## Imagen
 
 - **Un plano nuevo cada 4–7 s,** con su propia composición: otro decorado, otro encuadre o un inserto de objeto.
+  `medir-planos.mjs` avisa por debajo de 3,5 s y por encima de 7,2 s; un plano de 3,5–4 s solo vale como transición
+  rápida (el 11 tiene alguno).
   - Un cambio de cámara sobre el mismo dibujo no cuenta como plano nuevo.
   - Solo puede tener un único plano una escena de menos de 7 s.
 - **Cada plano tiene las tres cosas:**
@@ -60,7 +62,9 @@ lista.
     escenas que reutilizan el decorado. En el 11, el coche de la calle cruzaba por dentro de la farmacia y del laboratorio.
 - **Fundidos limpios:**
   - un fondo fijo se guarda en un búfer con `const prev = R.usar(b); …; R.usar(prev)`, nunca con `R.usar()` a secas;
-  - la columna de inicio de la hoja de revisión cae al final del fundido: ahí no puede haber negro ni restos.
+  - la hoja de revisión no ve los fundidos (su columna de inicio es +0,4 s, ya fuera del fundido de 0,35 s). Se
+    comprueban con `medir-planos.mjs <ep> --fundidos`: ROTO (el 10 % del cuadro o más) sale con 1 y se arregla;
+    REVISAR (3–10 %) se mira a ojo en el corte +0,17 s.
 - **Manos y cuerpos:** sin primeros planos. Una mano es siempre la canónica `mano(R, x, y, dir, manga)` de 14 px. El
   plano medio se hace con el decorado o con un vehículo; en una portada o una pantalla, el sprite chibi al doble.
 - **De 6 a 8 gags cortos por episodio** (el 11 llevó 7), con máquinas, animales y objetos, nunca contra personas reales. Ejemplos del 10: el perro que recoge el periódico, el palito que se lleva el viento, el caramelo junto al Tic Tac, el gato en el teclado.
@@ -81,7 +85,8 @@ lista.
     porque Read las reduce y se juzgaría en miniatura, que es lo que pasó con la primera revisión del 11;
   - se mira cada hoja al lado de la referencia, y además la revisan un revisor y un escéptico
     (`hacer-video-pasadas`, `paso: calidad`) hasta que no quede ningún plano por debajo;
-  - al final, la tira de 20 fotogramas del montaje (`producir.sh` la deja en `build/salida/<ep>-tira.jpg`).
+  - los fundidos, con `medir-planos.mjs <ep> --fundidos` (`producir.sh` no renderiza si hay alguno ROTO);
+  - al final, la tira de 20 fotogramas del montaje (`producir.sh` la deja en `atomo/build/salida/<ep>-tira.jpg`).
 
 ## Sonido
 
@@ -89,14 +94,15 @@ lista.
 - **Música con emoción en cada escena** (`herramientas/banda.cjs`): suspense, misterio, intriga o cierre, con golpes en los momentos clave. Tiene que oírse, también en el altavoz de un móvil.
 - **Música continua:** nunca se corta ni vuelve a empezar en un cambio de escena ni en una cartela de año. Las escenas
   seguidas con el mismo ánimo suenan como un tramo, hay un lecho grave de principio a fin y cada cartela tiene su
-  transición. Se mide: en los cambios de año la música baja como mucho unos 7 dB, nunca al silencio.
+  transición. Se mide: en los cambios de año la música baja como mucho 7,5 dB (el 11: 2,0–6,7), nunca al silencio.
   - La única excepción son los **golpes** (`golpes` en `plan.py`): la música se corta justo antes y entra un golpe grave
     en el silencio. Es a propósito: la versión C del gancho del 10, que eligió el usuario. Cerca de una cartela (menos de
     3 s), el golpe solo baja la música al 30 %.
-- **Efectos discretos y sincronizados** con lo que pasa en pantalla (`herramientas/efectos.cjs`). Cada efecto se normaliza
-  entre 10 y 14 dB por debajo de la voz. Solo valen recetas que existen en `NIVEL`.
+- **Efectos discretos y sincronizados** con lo que pasa en pantalla (`herramientas/efectos.cjs`). Cada receta tiene su nivel
+  en `NIVEL`, entre 5 y 17 dB por debajo de la voz según el sonido. Solo valen recetas que existen ahí.
 - **La densidad, como en el 11:** algún efecto suena el 58 % del tiempo (entre 40 y 65), y cuando coincide con la voz queda
-  por debajo una mediana de 15,6 dB en inglés y 15,3 en español (entre 13,5 y 19; p10 de 6 o más). Todo se mide en las dos
+  por debajo una mediana de 15,6 dB en inglés y 14,9 en español, con un p10 de 8,3 y 8,5 (vale entre 13,5 y 19, con un
+  p10 de 6 o más). Todo se mide en las dos
   pistas, porque el usuario oyó efectos altos solo en el español del 10.
 - **Nivel final de las dos pistas:** −14 LUFS (±0,5), con el pico por debajo de −0,5 dBFS.
 - **Todo se mide con una orden,** que sale con 1 si algo no cumple:

@@ -4,7 +4,7 @@
 
 **Aprobado el 23 de octubre de 2026** a partir de la muestra del puerto del Pireo. Es el estilo de los episodios a partir del 8.
 
-- **Escena de referencia:** `atomo/plato/escenas/px-chibi-muestra.html`. Vídeo: `atomo/build/salida/muestra-chibi-pireo.mp4`.
+- **Escena de referencia:** `atomo/plato/escenas/px-chibi-muestra.html`. Vídeo: `atomo/build/salida/muestra-chibi-pireo.mp4` (solo existe en el contenedor donde se hizo: `build/` no va a git).
 - **Kit:** `atomo/plato/kits/pixel-chibi.js`. Incluye el reparto, las caras, los gestos, los bustos del público, las nubes, las gaviotas y los bocadillos.
 - **Inspiración:** pixel art de lucha arcade redibujado en cabezón (el vídeo de referencia que trajo el usuario). Se toma el aspecto, no los personajes.
 

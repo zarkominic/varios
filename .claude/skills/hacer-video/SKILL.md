@@ -62,7 +62,7 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
 1. `bash atomo/herramientas/comprobar-entorno.sh`. Comprueba:
    - node, Playwright con Chromium, ffmpeg completo, Python, Pillow y las fuentes;
    - la red hasta GitHub, Hugging Face y Google Fonts (de ahí salen las fuentes de los números del canon);
-   - el disco: un episodio necesita unos 6 GB.
+   - el disco: unos 8 GB libres (6 para el episodio y 1,5 para la voz, si aún no está instalada).
 
    Si falta algo, arréglalo antes de empezar o díselo al usuario.
 2. `bash atomo/herramientas/preparar-voz.sh`. Tarda unos 6 minutos en un contenedor nuevo y nada si ya está; escribe la
@@ -288,7 +288,7 @@ bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
   fotogramas. Con `--faltan` solo dibuja lo que falte: es para seguir un render que se cortó sin que nada cambiara
   entre medias;
 - **efectos** y **banda**;
-- **montaje**: comprueba que el mp4 y el mp3 son de ahora;
+- **montar**: monta con `montar-largo.sh` y comprueba que el mp4 y el mp3 son de ahora;
 - **miniatura**;
 - **control**:
   - el sonido, con `medir-sonido.py`: −14 LUFS, el pico, la densidad de efectos en las dos pistas y la música en cada
@@ -296,7 +296,7 @@ bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
   - los subtítulos;
   - la tira de 20 fotogramas, en `atomo/build/salida/<ep>-tira.jpg`.
 
-Si falla a medias, sigue desde ese paso con `--desde render|efectos|banda|montar|miniatura|control`. **Mira la tira y la
+Si falla a medias, sigue desde ese paso con `--desde fundidos|render|efectos|banda|montar|miniatura|control` (un nombre mal escrito es un error). **Mira la tira y la
 miniatura.** Rellena los huecos de la ficha.
 
 ### 13. Commit y push

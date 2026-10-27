@@ -41,7 +41,7 @@ Cada arreglo tapó un caso, pero el planteamiento (cortar una locución larga po
    - Así Whisper y el guion casan palabra a palabra.
 3. **Alineación por frases.**
    - Cada pareja de frases ocupa el mismo hueco en las dos pistas. Manda la más larga.
-   - La más corta se estira entera, como mucho un 8 %, sin cortes (rubberband), y el resto es silencio después de la frase, donde la pausa es natural.
+   - La más corta se estira entera, como mucho un 8 % (hoy, un 10 %: ver el canon de arriba), sin cortes (rubberband), y el resto es silencio después de la frase, donde la pausa es natural.
    - Las marcas para la imagen se toman de Whisper dentro de cada clip corto, donde se equivoca mucho menos, y siempre caen en su frase.
 4. **Control automático de cada clip antes de montar**, para no tener que escuchar el vídeo entero:
    - **Texto:** Whisper transcribe el clip y se compara con el guion. Se avisa si sobra, falta o se repite alguna palabra.
@@ -49,7 +49,7 @@ Cada arreglo tapó un caso, pero el planteamiento (cortar una locución larga po
    - **Resíntesis:** los clips señalados se vuelven a sintetizar con otra velocidad o redacción. Si siguen mal, quedan en una lista corta para escucharlos.
 5. **Voces fijas** (hasta el 9; desde el 10, `am_puck` a 0,85: ver el canon de arriba). `am_fenrir` en inglés y `em_santa` en español. El inglés es el audio original del vídeo, así que manda:
    - El inglés se locuta a su velocidad natural y casi no se estira.
-   - El español es el que se ajusta: velocidad, estiramiento de ±8 % y silencio entre frases.
+   - El español es el que se ajusta: velocidad, estiramiento (hoy ±10 %) y silencio entre frases.
    - En inglés no se dice «I'm Atom, an atom», que con esta voz suena «Adam, an Adam». La presentación fija está en `episodios/GUIA-NARRATIVA.md`.
 
 Con esto, la única revisión manual será la lista de clips señalados, normalmente vacía o de dos o tres frases.

@@ -27,7 +27,8 @@ El nivel mínimo es el del episodio 11. Está escrito en `episodios/ESTANDAR.md`
 **Requisitos:**
 
 - Node 20+, Playwright con Chromium instalado de forma global, ffmpeg completo (rubberband, libx264, libmp3lame), Python
-  3.10+ con venv y Pillow, unos 6 GB libres y red hasta GitHub y Hugging Face. Compruébalo con
+  3.12 o 3.13 con venv (la voz se probó con 3.13), Pillow en el python3 del sistema, unos 8 GB libres (6 para el episodio
+  y 1,5 para la voz) y red hasta GitHub, Hugging Face, PyPI y Google Fonts. Compruébalo con
   `bash atomo/herramientas/comprobar-entorno.sh`.
 - La voz (Kokoro y Whisper, con las versiones fijadas en `atomo/herramientas/voz-requisitos.txt`) se instala con
   `bash atomo/herramientas/preparar-voz.sh`.

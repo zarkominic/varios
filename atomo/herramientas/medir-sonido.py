@@ -9,7 +9,7 @@
   −19 dB RMS, como hace montar-largo.sh al mezclar (Kokoro en español sale unos 5 dB más bajo): así se mide lo que se oye
   en cada pista.
 - Música continua (musica.wav, ventanas de 0,1 s): en cada cartela de año, el nivel antes (−1,5…−0,5 s), el mínimo en
-  ±2,5 s y el nivel después. La caída no pasa de ~7 dB y nunca llega al silencio.
+  ±2,5 s y el nivel después. La caída no pasa de 7,5 dB (el 11: 2,0–6,7) y nunca llega al silencio.
 Necesita numpy y soundfile: el python del entorno de voz ($VOZ/venv/bin/python).
 """
 import json
@@ -62,17 +62,18 @@ activo = 100 * np.mean(ed > -45)
 nota(40 <= activo <= 65, f'algún efecto sonando el {activo:.0f} % del tiempo (el 11: 58 %; entre 40 y 65)')
 for l in ('en', 'es'):
     try:
-        v, _ = mono(f'{D}/voz-{l}.wav')
+        v, srv = mono(f'{D}/voz-{l}.wav')   # la voz va a 24 kHz y los efectos a 48 kHz: cada una con su frecuencia
     except Exception:
+        nota(False, f'falta {D}/voz-{l}.wav: las dos pistas se miden siempre')
         continue
-    r = ventanas(v, sr, 0.4)
-    vd = ventanas(v, sr, 0.5) + (-19 - np.median(r[r > -40]))   # la ganancia que le da montar-largo.sh
+    r = ventanas(v, srv, 0.4)
+    vd = ventanas(v, srv, 0.5) + (-19 - np.median(r[r > -40]))   # la ganancia que le da montar-largo.sh
     m = min(len(vd), len(ed))
     juntos = (vd[:m] > -35) & (ed[:m] > -45)
     d = vd[:m][juntos] - ed[:m][juntos]
     nota(13.5 <= np.median(d) <= 19 and np.percentile(d, 10) >= 6,
          f'voz {l} − efectos cuando suenan a la vez: mediana {np.median(d):.1f} dB, p10 {np.percentile(d, 10):.1f} dB '
-         f'(el 11: 15,6 en inglés y 15,3 en español; mediana 13,5–19 y p10 de 6 o más)')
+         f'(el 11: 15,6 en inglés y 14,9 en español, p10 8,3 y 8,5; mediana 13,5–19 y p10 de 6 o más)')
 
 print('Música en los cambios de año:')
 m, sr = mono(f'{D}/musica.wav')
@@ -88,9 +89,9 @@ for e in linea['escenas']:
     antes, minimo, despues = md[i - 15:i - 5].mean(), md[max(0, i - 25):i + 25].min(), md[i + 5:i + 15].mean()
     caida = antes - minimo
     peor = max(peor, caida)
-    nota(caida <= 8 and minimo > -60, f'{cartela[e["id"]]} {e["id"]:16} antes {antes:6.1f}  mínimo {minimo:6.1f}  '
+    nota(caida <= 7.5 and minimo > -60, f'{cartela[e["id"]]} {e["id"]:16} antes {antes:6.1f}  mínimo {minimo:6.1f}  '
                                      f'después {despues:6.1f} dB (cae {caida:.1f} dB)')
-print(f'Peor caída de la música en una cartela: {peor:.1f} dB (el 11: 3–7 dB).')
+print(f'Peor caída de la música en una cartela: {peor:.1f} dB (el 11: 2,0–6,7 dB; como mucho 7,5).')
 if mal:
     print(f'{len(mal)} cosas no cumplen ESTANDAR.md: corrígelas antes de entregar.')
 sys.exit(1 if mal else 0)

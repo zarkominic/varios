@@ -31,6 +31,7 @@ pasos=(fundidos render efectos banda montar miniatura control)
 toca() { local p; for p in "${pasos[@]}"; do [ "$p" = "$DESDE" ] && return 0; [ "$p" = "$1" ] && return 1; done; return 1; }
 paso() { echo "── $(date +%H:%M:%S) $1"; }
 falla() { echo "ERROR: $1" >&2; exit 1; }
+[[ " ${pasos[*]} " == *" $DESDE "* ]] || falla "paso desconocido: $DESDE (${pasos[*]})"
 [ -f "$L/linea.json" ] || falla "no hay $L/linea.json: primero la locución (paso 3)"
 mkdir -p atomo/build/salida
 

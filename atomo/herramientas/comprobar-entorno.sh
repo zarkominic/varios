@@ -32,12 +32,13 @@ python3 -c 'import PIL' 2>/dev/null && ok "Pillow (tiras de capturar.mjs)" || ma
 { [ -f /usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf ] || [ -f /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf ]; } \
   && ok "fuente para las etiquetas de las hojas" || aviso "no hay Liberation ni DejaVu: las hojas saldrán sin etiquetas" "apt-get install fonts-liberation"
 
-for h in https://github.com https://huggingface.co https://fonts.googleapis.com https://fonts.gstatic.com; do
+for h in https://github.com https://huggingface.co https://pypi.org https://files.pythonhosted.org https://fonts.googleapis.com https://fonts.gstatic.com; do
   curl -sS -o /dev/null -m 15 -I "$h" 2>/dev/null && ok "red: $h" || mal "red hasta $h (modelos de voz y Whisper; las fuentes de los números del canon)" "permite ese dominio en la red de la sesión o descarga los modelos a mano"
 done
 
-libre=$(df -Pk . | awk 'NR==2 {print int($4/1048576)}')
-[ "$libre" -ge 6 ] && ok "disco libre: ${libre} GB" || mal "disco: hay ${libre} GB libres y un episodio necesita ~6 GB (fotogramas, pistas y voz)" "borra cachés que se puedan volver a bajar; no borres fotogramas de otros episodios sin preguntar"
+libre=$(df -Pk . | awk 'NR==2 {print int($4/1048576)}'); hace=8
+[ -f "${VOZ:-$HOME/.cache/ask-atom/voz}/.lista" ] && hace=6   # con la voz ya instalada (~1,5 GB) bastan los 6 del episodio
+[ "$libre" -ge $hace ] && ok "disco libre: ${libre} GB" || mal "disco: hay ${libre} GB libres y hacen falta ~${hace} GB (6 de fotogramas y pistas; 1,5 más si aún no está la voz)" "borra cachés que se puedan volver a bajar; no borres fotogramas de otros episodios sin preguntar"
 n=$(nproc 2>/dev/null || echo 1)
 [ "$n" -ge 4 ] && ok "$n núcleos" || aviso "$n núcleos: el render y los agentes irán lentos" "con 4 o más, render-escenas usa --trabajadores 4"
 
