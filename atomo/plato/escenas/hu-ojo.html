@@ -168,7 +168,7 @@ const tramos = (t, P) => { if (t <= P[0][0]) return P[0][1]; for (let i = 1; i <
 // ── 1 · la calma que encontró Duckworth ───────────────────────────────────────────────────────────────────────────
 const VUELA = tambien;
 const p1 = (t) => {
-  T.ojo(R, t + 2.6, { vista: 'dentro', suelo: 'texas' });   // (+2,6 s: el fucilazo del decorado, un rectángulo claro, cae fuera del plano)
+  T.ojo(R, t, { vista: 'dentro', suelo: 'texas' });
   const x = Math.round(lerp(70, 206, t / O2)), y = 96 + Math.round(Math.sin(t * 1.3) * 2);
   // en «Duckworth» la avioneta alabea para saludar
   const sal = lin(t, duckT, duckT + 0.8), inclina = sal > 0 && sal < 1 ? Math.sin(sal * Math.PI * 3) * 0.08 * (1 - sal) : 0;

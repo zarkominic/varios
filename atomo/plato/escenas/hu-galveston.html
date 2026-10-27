@@ -199,7 +199,7 @@ const cartera = (x, y, hombro) => {
 // la sombrerera de la viajera: una caja redonda a rayas con su lazo
 const sombrerera = (x, y) => { R.rect(x - 1, y - 1, x + 6, y + 5, C.k); R.rect(x, y, x + 5, y + 4, hex('#e8d0a8')); R.rect(x, y + 2, x + 5, y + 2, hex('#a83a5a')); R.rect(x, y, x + 5, y, hex('#f4e4c4')); R.pset(x + 2, y - 2, hex('#a83a5a')); R.pset(x + 3, y - 2, hex('#a83a5a')); };
 const p2 = (t) => {
-  T.galveston(R, t, { encuadre: 'calle', tranvia: tranviaX(t) });
+  T.galveston(R, t, { encuadre: 'calle', tranvia: tranviaX(t), tranviaDir: -1 });
   const s = 166, bx = 204, cobra = t > moneda + 0.4, voces = t < galv + 0.9 && Math.floor(t * 2.5) % 2 === 0;
   // la viajera baja del tranvía parado con su sombrerera, cruza a la acera y se va calle abajo
   { const q = ruta(t, [[baja[0], 198, 145], [baja[0] + 0.25, 200, 148], [baja[1], 232, 160], [P3 + 0.3, 340, 160]]);
@@ -367,7 +367,7 @@ const castillo = (x, s, t) => {   // el castillo de arena con su banderita y el 
 const cubo = (x, y) => { R.rect(x - 1, y - 4, x + 4, y, C.k); R.rect(x, y - 3, x + 3, y - 1, hex('#3a8ac8')); R.rect(x, y - 3, x + 3, y - 3, hex('#6ab0e8')); R.linea(x, y - 5, x + 3, y - 5, C.k); };
 const t1 = va - 0.45, clineR6 = [[P6, 8, 162], [t1, 70, 162], [t1 + 0.85, 70, 162], [avisa - 0.35, 148, 176], [mueve + 0.85, 148, 176], [E.duracion + 0.1, 330, 176]];
 const p6 = (t) => {
-  T.galveston(R, t, { encuadre: 'playa', cielo: 'gris', oleaje: 1, agua: lerp(0.3, 0.75, lin(t, P6, E.duracion)) });
+  T.galveston(R, t, { encuadre: 'playa', cielo: 'gris', gente: false, oleaje: 1, agua: lerp(0.3, 0.75, lin(t, P6, E.duracion)) });
   // «by his own account»: su recorrido playa arriba y abajo, en huellas, y un «?» discreto encima
   const hu = lin(t, cuenta - 0.05, cuenta + 0.8), apaga = lin(t, va + 0.1, va + 0.7);
   if (hu > 0 && apaga < 1) {
