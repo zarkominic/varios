@@ -147,15 +147,16 @@ const firma = () => I.scribble(1.1, 47);
 function guau() { const out = buf(0.3), w = rng(48), lp = new OnePole(); let ph = 0; for (let i = 0; i < out.length; i++) { const t = i / SR, f = 560 - 900 * Math.min(0.25, t); ph += f / SR; let v = 0; for (let k = 1; k <= 6; k++) v += Math.sin(TAU * ph * k) / k * (k === 3 || k === 4 ? 1.6 : 1); out[i] = (v * 0.5 + lp.lp(w(), 2500) * (t < 0.03 ? 0.6 : 0.1)) * Math.min(1, t / 0.006) * Math.exp(-t * 14); } return out; }
 const aviso = () => I.ting(88);
 // desde el episodio 12 (huracanes): el trueno (un golpe grave con el chasquido de ruido que se apaga), la ráfaga de
-// viento, un golpe de lluvia y una ola que rompe
+// viento, un golpe de lluvia y una ola que rompe (cortos: con colas largas el episodio pasaba del 65 % de tiempo con
+// efectos)
 function trueno() {
-  const out = buf(2.4), a = I.subBoom(2.4, 55, 24), b = I.noiseSweep(2.0, 1500, 250, { q: 0.6, pink: true, seed: 37, shape: (x) => Math.exp(-3 * x) * (1 - x) });
+  const out = buf(1.5), a = I.subBoom(1.5, 55, 24), b = I.noiseSweep(1.3, 1500, 250, { q: 0.6, pink: true, seed: 37, shape: (x) => Math.exp(-3 * x) * (1 - x) });
   for (let i = 0; i < out.length; i++) out[i] = (a[i] ?? 0) + (b[i] ?? 0) * 0.8;
   return out;
 }
-const rafaga = () => I.noiseSweep(1.8, 300, 900, { q: 0.6, pink: true, seed: 31, shape: (x) => Math.pow(Math.sin(Math.PI * x), 1.5) });
-const lluvia = () => I.noiseSweep(2.5, 4200, 3600, { q: 0.4, seed: 33, shape: (x) => Math.min(1, x * 4) * Math.min(1, (1 - x) * 4) });
-const ola = () => I.noiseSweep(1.6, 600, 2400, { q: 0.5, pink: true, seed: 35, shape: (x) => (x < 0.3 ? x / 0.3 : Math.exp(-(x - 0.3) * 4)) });
+const rafaga = () => I.noiseSweep(1.1, 300, 900, { q: 0.6, pink: true, seed: 31, shape: (x) => Math.pow(Math.sin(Math.PI * x), 1.5) });
+const lluvia = () => I.noiseSweep(1.5, 4200, 3600, { q: 0.4, seed: 33, shape: (x) => Math.min(1, x * 4) * Math.min(1, (1 - x) * 4) });
+const ola = () => I.noiseSweep(1.1, 600, 2400, { q: 0.5, pink: true, seed: 35, shape: (x) => (x < 0.3 ? x / 0.3 : Math.exp(-(x - 0.3) * 4)) });
 
 const RECETAS = {
   timbre, puerta, firma, aviso, guau,
