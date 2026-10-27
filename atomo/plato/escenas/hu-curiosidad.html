@@ -391,7 +391,7 @@ const corteU = (t) => tramos(t, [[P3, 0.42], [calma, 0.46], [ojoT + 0.3, 0.56], 
 const ORO = [255, 178, 98], MORADO = [74, 46, 110];
 const atardecer = () => { const B = R.buf;
   for (let i = 0; i < B.length; i++) { const p = B[i], r = p & 255, g = (p >> 8) & 255, b = (p >> 16) & 255, L = (r * 0.3 + g * 0.59 + b * 0.11) / 255, y = (i / 320) | 0;
-    const w = 0.34 * L * (1 - y / 300), m = 0.26 * (1 - L), q = 1 - w - m;
+    const w = 0.4 * L * (1 - y / 320), m = 0.28 * (1 - L), q = 1 - w - m;
     B[i] = (0xff000000 | (Math.round(b * q + ORO[2] * w + MORADO[2] * m) << 16) | (Math.round(g * q + ORO[1] * w + MORADO[1] * m) << 8) | Math.round(r * q + ORO[0] * w + MORADO[0] * m)) >>> 0; } };
 const p3 = (t) => {
   T.ojo(R, t, { vista: 'corte', corte: corteU(t) });

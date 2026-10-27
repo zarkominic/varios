@@ -178,7 +178,7 @@ const bocanada = (x, y, u) => {
   for (let k = 0; k < 4; k++) { const v = Math.min(1, u * 1.3 - k * 0.08); if (v <= 0) continue; const px = x - v * (10 + k * 4), py = y - v * (6 + k * 2) - Math.sin(v * 3 + k) * 1.5, r = 1.5 + v * (3 + k * 0.6);
     for (let j = Math.floor(-r); j <= r; j++) for (let i = Math.floor(-r); i <= r; i++) { const X = Math.round(px + i), Y = Math.round(py + j); if (i * i + j * j <= r * r && umbral(X, Y) < (1 - u) * 0.85) R.pset(X, Y, mezcla(R.pget(X, Y), j < 0 ? hex('#b8b8c0') : hex('#7a7a84'), 0.6)); } }
 };
-const TA = { x0: 16, t0: 0.15, t1: 1.9, t2: viene + 0.6, t3: viene + 1.25, te: vuela + 0.02 };   // la tripulanta
+const TA = { x0: 16, t0: 0.15, t1: 1.9, t2: viene + 0.5, t3: viene + 0.95, te: vuela + 0.02 };   // la tripulanta
 const TB = { x0: -18, t0: 0.9, t1: 3.68, t2: 3.75, t3: 4.45, te: hizo - 0.02 };                  // el tripulante
 const cierra = (t) => lin(t, hizo + 0.32, hizo + 0.52);
 const escapes = [kp(0.405, -0.039), kp(0.46, -0.055)];
@@ -200,11 +200,11 @@ const p1 = (t) => {
   escalerilla(false);
   const a = camino(t, TA), b = camino(t, TB);
   // la tripulanta: cruza el charco con la caja de las sondas; en «comes», al pie de la escalerilla, señala la tormenta que
-  // se oscurece; sube, arriba se vuelve un momento hacia el mecánico y en «fly into it» entra
+  // se oscurece; sube, arriba se vuelve hacia su compañero para animarle y en «fly into it» entra
   if (a.fase !== 'dentro') fundido([a.x - 8, a.s - 30, a.x + 22, a.s + 1], a.f ?? 0, () => {
-    const mira = a.fase === 'arriba' && t < TA.te - 0.12;
-    R.actor(EL.tripulanta, a.x, a.s, t, { dir: mira ? -1 : 1, anda: a.anda, dedo: entre(t, viene - 0.1, viene + 0.55) || (mira && t > TA.t3 + 0.05), sonrisa: t > viene + 0.6, sorpresa: entre(t, viene - 0.05, viene + 0.25) });
-    if (!entre(t, viene - 0.1, viene + 0.55)) caja(a.x, a.s, mira ? -1 : 1); });
+    const mira = a.fase === 'arriba' && t < TA.te - 0.1;
+    R.actor(EL.tripulanta, a.x, a.s, t, { dir: mira ? -1 : 1, anda: a.anda, dedo: entre(t, viene - 0.1, viene + 0.45) || mira, sonrisa: t > viene + 0.5, sorpresa: entre(t, viene - 0.05, viene + 0.25) });
+    if (!entre(t, viene - 0.1, viene + 0.45)) caja(a.x, a.s, mira ? -1 : 1); });
   chapoteo(a.x + 7, a.s, t, a.anda && a.fase === 'suelo');
   // el tripulante: le habla mientras cruzan; sube detrás y arriba, en «Duckworth», ve la AT-6 que pasa, se cuadra y la
   // saluda con una sonrisa; entra en «did»

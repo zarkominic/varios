@@ -616,7 +616,8 @@ const p8 = (t) => {
   { const huye = lin(t, P9 - 0.75, P9 + 0.2), x = Math.round(lerp(50, 42, lin(t, P8 - 0.2, P8 + 0.5)) - 70 * huye), ms = 173;
     const corre = huye > 0, adios = entre(t, P8 + 0.3, airea - 0.1), viva = entre(t, airea, airea + 0.9), gorra = entre(t, racha, racha + 0.8);
     R.actor(MECANICO, x, ms, t, { dir: corre ? -1 : 1, anda: corre || entre(t, P8 - 0.2, P8 + 0.5), dedo: (adios && parp(t, 4)) || gorra, brazos: viva && parp(t, 6), sonrisa: viva || adios, sorpresa: gorra || corre });
-    if (!viva) { const [hx, hy] = enMano(x, ms, corre ? -1 : 1); calzos(hx - 5 + Math.round(Math.sin(t * 6) * 1), hy + 9, [hx, hy]); } }
+    // (los calzos se pintan por delante de la hierba alta, que si no los taparía)
+    if (!viva) { const [hx, hy] = enMano(x, ms, corre ? -1 : 1), cx = hx - 5 + Math.round(Math.sin(t * 6) * 1), antes = R.delante; R.delante = () => { antes?.(); calzos(cx, hy + 6, [hx, hy]); }; } }
   // los británicos (a la derecha, en el margen) se despiden riéndose, se asustan cuando despega de verdad, la miran irse
   // hacia la tormenta y la racha le arranca la gorra a uno
   R.actor(EL.britanico, 270, 169, t, { dir: mira ? 1 : -1, tocado: sinGorra ? '' : undefined, brazos: (t < airea && parp(t, 5)) || entre(t, racha + 0.05, racha + 0.7), sorpresa: entre(t, airea, airea + 0.8) || entre(t, racha, racha + 0.9), ...(t < airea ? rie(t, 0) : {}) });
@@ -635,7 +636,7 @@ const p9 = (t) => {
   const s = 1.5, inc = 0.04 * Math.sin(t * 2.3) + e * 0.42 * Math.sin(t * Math.PI * 2 * f);
   T.at6(R, Math.round(x), Math.round(y), t, { s, dir: 1, vuelo: true, helice: 1, piloto: EL.duckworth, copiloto: EL.navegante, inclina: inc, sacude: 1 });
   // una gaviota a la que el viento lleva dando vueltas de campana (es la que luego descansará en el ojo)
-  { const u = lin(t, P9 + 0.3, P9 + 1.7); if (u > 0 && u < 1) gaviotaGira(lerp(338, -24, u), 46 + 16 * Math.sin(u * Math.PI * 1.3) + 6 * Math.sin(t * 9), u * 15, parp(t, 13) ? 0 : 1); }
+  { const u = lin(t, P9 + 0.3, P9 + 1.7); if (u > 0 && u < 1) gaviotaGira(lerp(338, -24, u), 54 - 14 * Math.sin(u * Math.PI) + 3 * Math.sin(t * 9), u * 15, parp(t, 13) ? 0 : 1); }
   T.b_lluviaDelante(R, t, { ...o, velo: 0.7, sobre: [Math.round(x - 8 * s), Math.round(x + 6 * s), Math.round(y - 6 * s)] });
 };
 
