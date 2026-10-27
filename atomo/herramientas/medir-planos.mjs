@@ -43,7 +43,8 @@ const episodio = libres[0];
 if (!episodio) { console.error('uso: medir-planos.mjs <episodio> [id …] [--centros] [--fundidos] [--puerto N] [--hoja carpeta]'); process.exit(1); }
 const letra = ['liberation/LiberationSans-Bold.ttf', 'dejavu/DejaVuSans-Bold.ttf'].map((f) => '/usr/share/fonts/truetype/' + f).find((f) => fs.existsSync(f));
 const marcas = JSON.parse(fs.readFileSync(path.join(raiz, `atomo/plato/escenas/marcas-${episodio}.json`), 'utf8'));
-const ids = libres.length > 1 ? libres.slice(1) : Object.keys(marcas);
+const pedidos = libres.length > 1 ? libres.slice(1) : Object.keys(marcas);
+const ids = pedidos.filter((id) => marcas[path.basename(id)] || console.error(`AVISO: ${id} no está en marcas-${episodio}.json (¿la miniatura?): se salta`));
 
 const tipos = { '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.html': 'text/html', '.css': 'text/css', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.png': 'image/png' };
 const srv = http.createServer((q, r) => {

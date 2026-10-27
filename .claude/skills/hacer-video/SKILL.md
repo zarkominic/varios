@@ -47,7 +47,7 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
 
 | Variable | Qué es |
 |---|---|
-| `SC` | Tu carpeta temporal (scratchpad); si no tienes, `${TMPDIR:-/tmp}/ask-atom-<ep>` |
+| `<SC>` | Tu carpeta temporal (scratchpad); si no tienes, `${TMPDIR:-/tmp}/ask-atom-<ep>`. Es un marcador, como `<ep>`: escribe la ruta entera en cada orden |
 | `VOZ` | La carpeta del entorno de voz (paso 0). **Cada llamada Bash empieza sin las variables de la anterior:** empieza cada orden que la use con `VOZ=$(bash atomo/herramientas/preparar-voz.sh) && …`, que responde al momento si ya está lista |
 | `<ep>` | La clave del episodio (`ep12`) |
 | `<pref>` | Su prefijo de dos letras (`th` fue el 11) |
@@ -67,11 +67,13 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    Si falta algo, arréglalo antes de empezar o díselo al usuario.
 2. `bash atomo/herramientas/preparar-voz.sh`. Tarda unos 6 minutos en un contenedor nuevo y nada si ya está; escribe la
    carpeta (por defecto `~/.cache/ask-atom/voz`, que es donde la busca `producir.sh`).
-3. La rama de trabajo: la que diga la sesión. Commit y push al acabar cada bloque.
+3. La rama de trabajo: la que diga la sesión; si no dice ninguna, crea `episodio-<ep>`. Commit al acabar cada bloque, y
+   push si hay remoto con permiso (si no, sigue con commits locales y díselo al usuario en una línea).
 
 ### 1. Tema
 
-1. Busca con WebSearch noticias de EE. UU. de las últimas semanas: ciencia, salud, historia, tecnología, misterios,
+1. Mira `episodios/tendencias/resumen.md` (lo actualiza `python3 atomo/herramientas/tendencias.py`, con el RSS de Google
+   Trends de EE. UU.): da ideas, pero en el 11 no decidió nada. Después, busca con WebSearch noticias de EE. UU. de las últimas semanas: ciencia, salud, historia, tecnología, misterios,
    actualidad. El mercado es EE. UU., pero el tema tiene que interesar fuera.
 2. Propón de 3 a 5 candidatos, ordenados por encaje con ASK Atom. Cada uno con:
    - una historia con personas, lugares y giros;
@@ -98,8 +100,10 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
      - **Formato**;
      - **Duración objetivo**: frases, palabras en inglés y minutos (palabras ÷ 150);
      - **Publicar**.
-   - `## Cómo se cuenta` y `## Decorados (N)`. Las tablas que no son frases llevan la primera celda en **negrita** o
-     empiezan por «Decorado».
+   - `## Cómo se cuenta` y `## Decorados (N)`. `hacer_guion.py` toma como frase toda fila de tabla de antes de `## Datos`,
+     salvo las cabeceras `| ES | EN |`, los separadores `| --- |`, las filas cuya primera celda es exactamente `Decorado`
+     y las que empiezan por `**`. Así que cualquier otra tabla (gags, presupuesto, decorados) lleva la primera celda en
+     **negrita**. Comprueba después que `guion.json` tiene el número de frases que esperas.
    - Los actos, como `## N · Título`. Cada frase es una fila `| ES | EN |`, en orden.
    - `## Datos`, con las fuentes. Todo lo que va detrás de esta línea no se locuta.
 2. Reglas del texto (`GUIA-NARRATIVA.md`):
@@ -118,7 +122,8 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    3. el título de trabajo y la alternativa A/B;
    4. **el texto en español entero**, acto por acto (**0 · El gancho**…), con una frase por línea;
    5. los gags;
-   6. la tabla del presupuesto de horas (abajo);
+   6. la tabla del presupuesto de horas, sacada de la de esta skill (abajo), no de la del guion del 11, que se hizo sin
+      las pasadas;
    7. lo que has cuidado y lo que hay que decidir.
 5. **Espera la aprobación.** Lo normal es una o dos rondas.
 
@@ -136,17 +141,18 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
      - `numero`, `estado` y `titulo`.
 2. Genera, en este orden (`hacer_guion.py` lee `escenas.json`):
    `python3 episodios/<carpeta>/plan.py && python3 episodios/<carpeta>/hacer_guion.py`.
-3. Lanza la locución con Bash en segundo plano (`run_in_background`, `timeout` 3600000). Tarda unos 40 minutos y deja
+3. Escribe unas marcas provisionales, para escribir y probar las escenas mientras se locuta:
+   `python3 atomo/herramientas/marcas-provisionales.py episodios/<carpeta>/guion.json atomo/plato/escenas/marcas-<ep>.json`
+   (en el 11 se desvió un +4,6 % en total). Se pueden subir con el resto. Hazlo ANTES de lanzar la voz: la locución las
+   sustituye por las reales al acabar, y la herramienta no pisa unas marcas reales.
+4. Lanza la locución con Bash en segundo plano (`run_in_background`, `timeout` 3600000). Tarda unos 40 minutos y deja
    los clips en caché. Mientras tanto, sigue con los pasos 4–6:
 
    ```
    VOZ=$(bash atomo/herramientas/preparar-voz.sh) && cd atomo && $VOZ/venv/bin/python herramientas/locutar_frases.py ../episodios/<carpeta>/guion.json build/largo/<ep> $VOZ/modelos --marcas plato/escenas/marcas-<ep>.json
    ```
-4. Hasta que llegue, las escenas usan unas marcas provisionales. Las escribe
-   `python3 atomo/herramientas/marcas-provisionales.py episodios/<carpeta>/guion.json atomo/plato/escenas/marcas-<ep>.json`
-   (en el 11 se desvió un +4,6 % en total). Se pueden subir con el resto: la locución las sustituye por las reales.
 5. Al terminar, la voz vale si el log acaba en «total … clips con fallos y N para escuchar». Lee
-   `build/largo/<ep>/informe.json`: es una lista con `problemas` y `avisos` por clip. Que el control lea a la inglesa los
+   `atomo/build/largo/<ep>/informe.json`: es una lista con `problemas` y `avisos` por clip. Que el control lea a la inglesa los
    nombres escritos a la española es normal. Apunta las frases dudosas para que el usuario las escuche.
 
 ### 4. Reparto
@@ -162,8 +168,11 @@ El pelo nunca tapa la cara.
 ### 5. Decorados: la primera versión, tuya
 
 En `atomo/plato/escenas/<pref>-comun.js`:
-- copia la fontanería de las primeras ~60 líneas de `th-comun.js`: imports, paleta `C`, `preparar(id)`, `rodar`,
-  `momento`, `conAtomGrande`;
+- copia la fontanería de `th-comun.js`:
+  - las primeras ~60 líneas: imports, paleta `C`, `conAtomGrande`, `preparar(id)`, `rodar`, `h` y `lerp`;
+  - `momento`, que está más abajo (`grep -n "export const momento" atomo/plato/escenas/th-comun.js`);
+  - en `preparar()`, cambia `escena(id, 'ep11')` por `escena(id, '<ep>')` y los `tramosTiempo` de la barra del año por
+    los de tu episodio (un tramo por época, con su color y su icono). Si no, las escenas cargan las marcas del 11;
 - escribe todos los decorados de la tabla del guion, con una función por decorado y sus opciones `o.*` para luz, estado y
   variantes;
 - los insertos de objetos van siempre sobre su decorado o sobre una mesa con cosas;
@@ -210,7 +219,7 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
 - **integra cada workflow en cuanto termine**:
   1. ejecuta la orden `integrar` que devuelve;
   2. lee sus `AVISO` y `NO ENCONTRADAS`, y las notas de `geometria`;
-  3. `cp atomo/plato/escenas/<pref>-comun.js $SC/chk.mjs && node --check $SC/chk.mjs`;
+  3. `cp atomo/plato/escenas/<pref>-comun.js <SC>/chk.mjs && node --check <SC>/chk.mjs`;
   4. saca las hojas de las escenas afectadas y míralas;
   5. haz commit («<Ep>: decorados al nivel del 11 (lote N): …»);
 - cuando estén los tres, `grep -n 'PARCHE DECORADO' atomo/plato/escenas/<pref>-*.html` y quita los parches que ya no
@@ -219,7 +228,7 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
 
 **9. Calidad** (unas 3–4 h):
 1. **Tu revisión primero.** Saca las hojas de todas las escenas:
-   `node atomo/herramientas/medir-planos.mjs <ep> --hoja $SC/rev`. Cada escena tiene una fila por plano (inicio, centro
+   `node atomo/herramientas/medir-planos.mjs <ep> --hoja <SC>/rev`. Cada escena tiene una fila por plano (inicio, centro
    y final, a 640 × 360) y salen como mucho 5 planos por imagen. Ninguna imagen de revisión pasa de 2000 px, porque Read
    las reduce. Míralas todas junto a la referencia, y primero los «fondo local».
 
@@ -229,7 +238,7 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
    - **REVISAR** (3–10 %): suele ser algo que se anima durante el fundido, pero se mira a ojo (`capturar.mjs` en el corte
      +0,17 s).
 
-   En el 11 entregado había fundidos ROTOS en {N_ESCENAS} escenas y nadie los vio.
+   En el 11 entregado había 9 fundidos ROTOS (18–48 % del cuadro) en 7 escenas, y nadie los vio.
 2. Por cada plano por debajo, apunta un fallo concreto, con el formato del workflow:
    `{ escena, plano, nota, fallos: [...], origen: 'escena' | 'decorado', funcion, encargo: 'qué hay hoy, qué debe haber y qué se mantiene' }`.
 3. Lanza `paso: 'calidad'`, con `lotes` de 4–6 escenas que cubran todas, `fallos` (tu lista) y `rondas: 3`. El workflow
@@ -256,8 +265,9 @@ La captura y el escalado los hace `producir.sh`. **Mírala** antes de enviarla.
 
 Copia `episodios/11-theranos/publicacion.md` y rellénala con la misma estructura mientras se renderiza. Deja los huecos
 `{DURACION}`, `{CAPITULOS_EN}`, `{CAPITULOS_ES}` y `{AVISOS}`:
-- **Capítulos:** el `inicio` en `atomo/build/largo/<ep>/linea.json` de la primera escena de cada acto, en m:ss, desde
-  0:00, con títulos cortos en los dos idiomas.
+- **Capítulos:** `python3 atomo/herramientas/capitulos.py <ep> episodios/<carpeta>` da el minuto de cada acto, sacado
+  del montaje (en el 11 coincide con los publicados), y su título del guion. Escribe a partir de ahí títulos cortos en
+  los dos idiomas.
 - **Títulos:** el tema o la persona delante, sin minutos, con la alternativa A/B.
 - **Lo demás:** las descripciones completas en los dos idiomas con las fuentes, las etiquetas, los pasos para subirlo y lo
   que hay que revisar antes de publicar (las frases dudosas de `informe.json`).
@@ -284,14 +294,14 @@ bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
   - el sonido, con `medir-sonido.py`: −14 LUFS, el pico, la densidad de efectos en las dos pistas y la música en cada
     cartela;
   - los subtítulos;
-  - la tira de 20 fotogramas, en `build/salida/<ep>-tira.jpg`.
+  - la tira de 20 fotogramas, en `atomo/build/salida/<ep>-tira.jpg`.
 
 Si falla a medias, sigue desde ese paso con `--desde render|efectos|banda|montar|miniatura|control`. **Mira la tira y la
 miniatura.** Rellena los huecos de la ficha.
 
 ### 13. Commit y push
 
-Todo lo del repositorio. `build/` no va a git.
+Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git.
 
 ### 14. Entrega en el chat
 
@@ -334,7 +344,9 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
     70 min).
   - Ni `pkill -f` (mata su propia shell) ni `sleep N; …` (el arnés lo bloquea).
 - **Una interrupción del usuario mata los workflows en marcha, sin aviso.**
-  - Después de cualquier interrupción, mira `ls -la --time-style=+%H:%M <Transcript dir>/agent-*.jsonl; date +%H:%M`.
+  - Al lanzar cada workflow, apunta su «Transcript dir» (lo da el resultado de la herramienta Workflow: ahí están su
+    `journal.jsonl` y los `agent-*.jsonl`). Después de cualquier interrupción, mira
+    `ls -la --time-style=+%H:%M <Transcript dir>/agent-*.jsonl; date +%H:%M`.
     Si no crecen desde hace más de 10 min, han muerto.
   - Nunca le digas al usuario que «siguen» sin comprobarlo (en el 11 costó 3 h).
   - Relánzalos con `resumeFromRunId`. Solo funciona en la misma sesión y con la ejecución anterior parada: lo terminado

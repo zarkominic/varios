@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Produce un episodio de ASK Atom de las escenas al vídeo entregable, con un control en cada paso (paso 10 de la skill
+# Produce un episodio de ASK Atom de las escenas al vídeo entregable, con un control en cada paso (paso 12 de la skill
 # hacer-video). Si un paso falla, se para con un error y código 1: nada sale «bien» con un vídeo viejo.
 #
 #   bash atomo/herramientas/producir.sh ep12 12-tema xx [--desde fundidos|render|efectos|banda|montar|miniatura|control] [--faltan]

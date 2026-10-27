@@ -66,10 +66,10 @@ Piezas en `eg-comun.js`: `mareo`, `polvareda`, `trote`, `gotaSudor`, `pan`. Que 
 - **Planos que cambian:** general, plano medio (el caza grande de perfil con el piloto pequeño dentro) y cercano. El personaje sigue siendo pequeño: el plano medio se hace con el vehículo o el decorado, nunca con un primer plano de la cara.
 - **Movimiento con intención:** lo que cruza la pantalla va a algún sitio (los cazas pasan, vuelven, bajan en espiral).
 
-- **Planos de color con bandas:**
-  - el cielo, en tres bandas;
+- **Cielo y mar con transiciones tramadas** (desde el 11; las franjas planas de los episodios 8 y 9 ya no valen, ver `ESTANDAR.md`):
+  - el cielo, en degradado tramado, con nubes de varios tamaños a distinta velocidad, estelas, pájaros y bruma en el horizonte;
   - las nubes, de tres tonos (sombra abajo, cuerpo, luz arriba) y moviéndose despacio;
-  - el mar, en bandas con destellos que se desplazan.
+  - el mar, en bandas con transición tramada y destellos que se desplazan.
 - **Mucho detalle de objetos reales del lugar.** El Pireo lleva:
   - el trirreme con su ojo pintado, el espolón de bronce, las portillas, los remos, la vela recogida y el gallardete;
   - la estoa con el friso pintado de rojo y azul y el tejado de terracota;

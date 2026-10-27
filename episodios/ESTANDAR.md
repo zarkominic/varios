@@ -31,7 +31,8 @@ lista.
 - **Lo que pasó en el 11** y no debe repetirse: la primera versión salió con paredes lisas, cielos de franjas, insertos sin
   fondo, personajes quietos y manos grandes fuera del canon, porque se dio por buena una sola pasada. El usuario la rechazó.
 - **Y lo que se vio después** (revisión automática del 27/10): incluso el 11 final tenía fallos que nadie vio:
-  - cuatro fundidos con cielos o paredes negras (ya corregidos en los kits);
+  - 9 fundidos rotos (cielos o paredes negras, restos de otro plano) en 7 escenas: 0:59, 1:17, 1:21, 1:30, 2:16, 4:52,
+    5:28, 7:43 y 8:06. Los corrigen los kits desde `bf5a41a` y los detecta `medir-planos.mjs --fundidos`;
   - en la sala del consejo, gente que pasa por detrás pintada encima de los respaldos;
   - cuatro «planos» seguidos con la misma composición.
 

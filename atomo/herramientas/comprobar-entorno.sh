@@ -24,8 +24,9 @@ if command -v ffmpeg >/dev/null; then
   [ $antes = 1 ] && falta=1
 else mal "ffmpeg" "apt-get install ffmpeg"; fi
 
-python3 -c 'import sys; assert sys.version_info >= (3, 10)' 2>/dev/null && ok "python3 $(python3 -V | cut -d' ' -f2)" || mal "python3 3.10 o más" "instala Python 3.10+"
-python3 -c 'import venv' 2>/dev/null || mal "el módulo venv de python3" "apt-get install python3-venv"
+PYV=$(for p in python3.13 python3.12 python3; do command -v $p >/dev/null && $p -c 'import sys; assert (3, 12) <= sys.version_info[:2] < (3, 14)' 2>/dev/null && { echo $p; break; }; done)
+[ -n "$PYV" ] && ok "$PYV $($PYV -V | cut -d' ' -f2) (la voz se probó con 3.13)" || mal "Python 3.12 o 3.13 (las versiones fijadas de la voz las piden)" "instala python3.13 (o 3.12) con venv"
+${PYV:-python3} -c 'import venv' 2>/dev/null || mal "el módulo venv de python3" "apt-get install python3-venv"
 python3 -c 'import PIL' 2>/dev/null && ok "Pillow (tiras de capturar.mjs)" || mal "Pillow en el python3 del sistema" "pip install pillow (o apt-get install python3-pil)"
 
 { [ -f /usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf ] || [ -f /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf ]; } \

@@ -26,7 +26,9 @@ mkdir -p "$D/modelos"
 
 if ! "$D/venv/bin/python" -c 'import kokoro_onnx, faster_whisper, scipy, soundfile' 2>/dev/null; then
   echo "· creando el venv en $D/venv" >&2
-  python3 -m venv "$D/venv"
+  PY=$(for p in python3.13 python3.12 python3; do command -v $p >/dev/null && $p -c 'import sys; assert (3, 12) <= sys.version_info[:2] < (3, 14)' 2>/dev/null && { echo $p; break; }; done)
+  [ -n "$PY" ] || { echo "hace falta Python 3.12 o 3.13 (las versiones de voz-requisitos.txt se probaron con 3.13)" >&2; exit 1; }
+  "$PY" -m venv "$D/venv"
   "$D/venv/bin/pip" install -q --no-cache-dir --disable-pip-version-check -r "$H/voz-requisitos.txt" >&2
 fi
 

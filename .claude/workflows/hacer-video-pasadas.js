@@ -308,7 +308,7 @@ ENTREGA (salida estructurada): escenas (las que has cambiado; si has tocado deco
       t.fallos.forEach((p) => tocadas.add(p.escena))
     })
     fallos.filter((p) => p.sinRevisar).forEach((p) => tocadas.add(p.escena))   // se vuelven a intentar revisar
-    const lista = [...tocadas].filter((e) => e.startsWith(pref + '-') && !e.endsWith('.js'))
+    const lista = [...tocadas].filter((e) => e.startsWith(pref + '-') && !e.endsWith('.js') && !e.endsWith('-miniatura'))
     pendientes = []
     if (todosLuego) {   // todas las escenas de los lotes, más las pulidas que no estuvieran en ninguno
       todosLuego = false
