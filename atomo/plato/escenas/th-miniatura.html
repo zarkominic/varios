@@ -34,7 +34,7 @@ const dibujar = (t) => {
   R.disco(cx - 14, cy - 4, 4, R.hex ? R.hex('#f8b8c0') : C.sangreL); R.pset(cx - 16, cy - 6, C.blanco);
   // la cifra tachada y el cero
   R.rect(36, 10, 284, 40, C.k); R.rect(38, 12, 282, 38, 0xff2a1a14 >>> 0); R.numero('$9,000,000,000', 160, 33, { tam: 16, centro: true });
-  for (let i = 0; i < 246; i++) R.rect(38 + i, 30 - Math.round(i * 0.06), 37 + i, 33 - Math.round(i * 0.06), C.rojo);
+  for (let i = 0; i < 246; i++) R.rect(38 + i, 30 - Math.round(i * 0.06), 39 + i, 33 - Math.round(i * 0.06), C.rojo);
   R.numero('$0', 236, 72, { tam: 32, centro: true, rampa: [C.sangreL, C.sangreL, C.rojo, C.sangre, C.sangreS] });
   R.numero('?', 296, 166, { tam: 32, centro: true, rampa: [C.oroL, C.oroL, C.amarillo, C.naranja, C.naranjaS] });
 };
