@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep12</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HU-MINIATURA · la miniatura del episodio 12 (se captura en t = 1, 1280 × 720). Partida por una diagonal: a la
+// izquierda, el huracán visto desde arriba con su ojo en calma; a la derecha, las Grandes Llanuras a la luz de la tarde
+// con un tornado que baja. Encima: la AT-6 amarilla de 1943 que vuela hacia el ojo, Duckworth al doble señalando
+// el ojo, la vaca del gag al doble que mira el tornado sin dejar de masticar, un «?» grande en el ojo y el «1943» arriba.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { C, ojo, llanuras, at6, g_vaca } from '/atomo/plato/escenas/hu-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), VACIO = 0x01020304;
+// la diagonal: a la izquierda de corte(y) va el huracán; las llanuras van volteadas, para que el tornado quede a la derecha
+const corte = (y) => 196 - Math.round(y * 0.42);
+const dibujar = (t) => {
+  let prev = R.usar(izq); ojo(R, t, { vista: 'arriba', suelo: 'texas', zoom: 1.25, centro: [96, 96] });
+  R.usar(der); llanuras(R, t, { encuadre: 'pasto', luz: 'tarde', tornado: 0.6 });
+  R.usar(pj); pj.fill(VACIO);
+  R.actor(EL.duckworth, 6, 60, 0.5, { dedo: true, quieto: true, sonrisa: true });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + 319 - x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x, y, C.k); R.pset(x - 1, y, C.blanco); R.pset(x - 2, y, C.blanco); R.pset(x + 1, y, C.k); }
+  // la vaca del gag, al doble, en el lado de las llanuras
+  g_vaca(R, 268, 178, t, { dir: -1, mira: 0.8, s: 2, luz: 'tarde' });
+  // la AT-6 de 1943 que vuela hacia el ojo
+  at6(R, 150, 70, t, { dir: -1, s: 2, vuelo: true, inclina: -0.12, helice: 1 });
+  // Duckworth al doble, señalando el ojo
+  const pon = (sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = pj[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+  pon(2, 24, 30, 61, 120, 112, 2);
+  // el «?» grande dentro del ojo y el año arriba
+  R.numero('?', 96, 108, { tam: 32, centro: true, rampa: [C.oroL, C.oroL, C.amarillo, C.naranja, C.naranjaS] });
+  R.numero('1943', 70, 30, { tam: 16, centro: true });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
