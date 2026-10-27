@@ -10,91 +10,188 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // HU-OJO (frases 10–11): por qué el ojo está en calma, y el gag del lavabo. Cinco planos:
-// 1. 1943, dentro del ojo sobre Texas: la avioneta de Duckworth cruza en calma; en «calm» corre la cubierta de la cabina
-//    para ver el cielo y en «explanation» al navegante le sale un «?»; abajo pasa el tren y los pájaros dan vueltas;
+// 1. 1943, dentro del ojo sobre Texas: la avioneta de Duckworth cruza en calma con la gaviota del gancho en la cola; en
+//    «calm» corre la cubierta de la cabina, en «Duckworth» alabea para saludar, en «explanation» al navegante le sale un
+//    «?» y la gaviota ahueca las alas, y en «too» echa a volar y se queda dando vueltas en el ojo; abajo pasa el tren y
+//    los pájaros dan vueltas;
 // 2. (corta en «racing») el corte del huracán, sin año: el aire del mar entra por abajo, sube en espiral por las paredes
-//    («racing up the walls»), sale por arriba y una parte se desvía hacia dentro («turns inward»); en «sinks down the
-//    middle» baja por el centro, y en «warming and drying» pasa del azul al naranja y al rojo mientras sube el termómetro
-//    y se secan las nubecillas; abajo, en la calma, la avioneta pequeña vuela tranquila;
+//    («racing up the walls»), sale por arriba y una parte se desvía hacia dentro («turns inward»); la gaviota entra por
+//    arriba y baja planeando con el aire que se hunde por el centro («sinks down the middle»); en «warming and drying»
+//    el aire pasa del azul al naranja y al rojo, sube el termómetro, se secan las nubecillas y la gaviota se sacude las
+//    gotas (gag); abajo, en la calma, la avioneta pequeña vuela tranquila;
 // 3. (corta en «So») el ojo desde arriba, de cerca: el pozo de calma y, alrededor, los vientos más fuertes, rayas que
-//    corren en círculo cada vez más deprisa («strongest winds»); dentro, una gaviota da vueltas y en «quiet» planea sin
-//    batir las alas;
-// 4. (corta en «By the way») el baño de casa: el niño llega al lavabo, se sube al taburete y en «sink» echa su patito al
-//    agua; en «far too small» tira de la cadenilla del tapón (gluglú) y se asoma a mirar; el gato lo mira desde el cesto;
-// 5. (corta en «So whichever way») el lavabo de cerca, el gag: la mano deja el tapón en la encimera; el patito da vueltas
-//    con el remolino a favor de las agujas del reloj y en «whichever way» frena, se da la vuelta y gira al revés; en «Don't
-//    blame the Earth» el agua se acaba, el patito se queda mareado en el desagüe con sus estrellitas y al gato le sale un
-//    «?». Atom no se mueve de su sitio.
+//    corren en círculo cada vez más deprisa («strongest winds»); dentro, la AT-6 da vueltas con su sombra en el mar y
+//    la gaviota también, y en «quiet» planea sin batir las alas;
+// 4. (corta en «By the way») el baño de casa: el niño llega con su patito, se sube al taburete y en «sink» lo echa al
+//    agua; en «far too small» tira de la cadenilla del tapón (gluglú) y se asoma a mirar; el gato, que miraba el pájaro
+//    de la ventana desde el cesto, se vuelve con el chapoteo, salta al suelo, cruza y se sube de un salto a la encimera;
+// 5. (corta tras «spin») el lavabo de cerca: la mano del niño deja el tapón en la encimera; el gato llega por la
+//    encimera y se sienta junto a la pila a mirar el patito, que da vueltas con el remolino a favor de las agujas del
+//    reloj; en «whichever way» el gato le da un zarpazo, el patito frena, se da la vuelta y gira al revés (gag), y el
+//    gato se sacude la pata mojada; en «don't blame the Earth» el agua se acaba, el patito se queda mareado en el desagüe
+//    con sus estrellitas y al gato le sale un «?». Atom no se mueve de su sitio.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-ojo');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
-const C = T.C;
+const C = T.C, K = C.k;
 const lin = (t, x, y) => Math.max(0, Math.min(1, (t - x) / (y - x)));
 const entre = (t, x, y) => t >= x && t < y;
 const suave = (u) => u * u * (3 - 2 * u);
 const ruido = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const umbral = (x, y) => (B4[((y & 3) << 2) + (x & 3)] + 0.5) / 16;
+const dentro = (x, y) => x >= 0 && x < 320 && y >= 0 && y < 180;
 // mezcla dos colores del lienzo (ABGR) y tiñe un píxel
 const mezcla = (p, c, a) => { const r = p & 255, g = (p >> 8) & 255, b = (p >> 16) & 255; return (0xff000000 | (Math.round(b + (((c >> 16) & 255) - b) * a) << 16) | (Math.round(g + (((c >> 8) & 255) - g) * a) << 8) | Math.round(r + ((c & 255) - r) * a)) >>> 0; };
 const tine = (x, y, c, a) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 179) return; const B = R.buf, i = y * 320 + x; B[i] = mezcla(B[i], c, a); };
 // la zona de Atom y la de la barra del año quedan como fondo tranquilo
 const tranquilo = (x, y) => (x >= 274 && y <= 47) || (x <= 172 && y <= 15);
 const destello = (x, y, r, c = C.blanco) => { for (let i = 0; i <= r; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
-// la calima: las filas de la caja tiemblan de lado, como el aire caliente que sube del mar
-const FILA = new Uint32Array(320);
-const calima = (x0, y0, x1, y1, t, a = 1, k = 0) => { const B = R.buf; for (let y = y0; y <= y1; y++) { const d = Math.round(Math.sin(y * 0.8 + t * 6 + k) * a * (0.55 + 0.45 * Math.sin(t * 1.7 + y * 0.21))); if (!d) continue; for (let x = x0; x <= x1; x++) FILA[x] = B[y * 320 + x]; for (let x = x0; x <= x1; x++) B[y * 320 + x] = FILA[Math.min(x1, Math.max(x0, x - d))]; } };
-// el desenfoque del fondo de un inserto (caja de 3 × 3, n pasadas): da profundidad al objeto que va delante
-const TMP = new Uint32Array(320 * 180);
-const desenfoca = (n = 2, x0 = 0, y0 = 0, x1 = 319, y1 = 179) => {
-  const B = R.buf;
-  for (let p = 0; p < n; p++) for (const hor of [1, 0]) {
-    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-      const a = hor ? B[y * 320 + Math.max(x0, x - 1)] : B[Math.max(y0, y - 1) * 320 + x], m = B[y * 320 + x], b = hor ? B[y * 320 + Math.min(x1, x + 1)] : B[Math.min(y1, y + 1) * 320 + x];
-      const r = ((a & 255) + 2 * (m & 255) + (b & 255)) >> 2, g = (((a >> 8) & 255) + 2 * ((m >> 8) & 255) + ((b >> 8) & 255)) >> 2, bb = (((a >> 16) & 255) + 2 * ((m >> 16) & 255) + ((b >> 16) & 255)) >> 2;
-      TMP[y * 320 + x] = (0xff000000 | (bb << 16) | (g << 8) | r) >>> 0;
-    }
-    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) B[y * 320 + x] = TMP[y * 320 + x];
-  }
-};
-// el cuadro entero que tiembla (dx, dy px)
-const sacude = (dx, dy) => { if (!dx && !dy) return; const B = R.buf; TMP.set(B); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = TMP[Math.min(179, Math.max(0, y - dy)) * 320 + Math.min(319, Math.max(0, x - dx))]; };
-// la gaviota de cerca: de pie (x, y: entre las patas) o volando, con su contorno para que se lea sobre el cielo
-const PAL_GAV = { k: C.k, W: hex('#f8f6f0'), w: hex('#d8dce4'), G: hex('#a8b0bc'), D: hex('#3a3e48'), Y: hex('#f0b030') };
-const GAV_PIE = ['.......kkk..', '......kWWWk.', '......kWkWYY', '.....kWWWWk.', '.kkkkWWWWk..', 'kDGGGGWWWk..', '.kDGGGGwWk..', '..kkkkkkk...', '....Y..Y....', '....Y..Y....'];
-const gaviotaPie = (x, y, dir = 1, salto = 0) => R.dibujo(GAV_PIE, Math.round(x - 6), Math.round(y - 10 - salto), dir, PAL_GAV);
+// la gaviota de cerca volando, con su contorno para que se lea sobre las nubes
+const PAL_GAV = { k: K, W: hex('#f8f6f0'), w: hex('#d8dce4'), G: hex('#a8b0bc'), D: hex('#3a3e48'), Y: hex('#f0b030') };
 const gaviotaVuela = (x, y, t, dir = 1) => {
   x = Math.round(x); y = Math.round(y); const al = Math.sin(t * 13) > 0 ? -1 : 1, P = [[-7, al * 3 - 1], [-3, -1], [0, 0], [3, -1], [7, al * 3 - 1]];
-  for (let i = 1; i < P.length; i++) { R.linea(x + P[i - 1][0], y + P[i - 1][1] + 1, x + P[i][0], y + P[i][1] + 1, C.k); R.linea(x + P[i - 1][0], y + P[i - 1][1] - 1, x + P[i][0], y + P[i][1] - 1, C.k); }
+  for (let i = 1; i < P.length; i++) { R.linea(x + P[i - 1][0], y + P[i - 1][1] + 1, x + P[i][0], y + P[i][1] + 1, K); R.linea(x + P[i - 1][0], y + P[i - 1][1] - 1, x + P[i][0], y + P[i][1] - 1, K); }
   for (let i = 1; i < P.length; i++) R.linea(x + P[i - 1][0], y + P[i - 1][1], x + P[i][0], y + P[i][1], i === 1 || i === 4 ? PAL_GAV.G : PAL_GAV.W);
   R.pset(x - 7, y + al * 3 - 1, PAL_GAV.D); R.pset(x + 7, y + al * 3 - 1, PAL_GAV.D);
-  R.rect(x - 2, y, x + 2, y + 2, C.k); R.rect(x - 1, y + 1, x + 1, y + 1, PAL_GAV.W); R.pset(x + dir * 3, y + 1, PAL_GAV.Y);
+  R.rect(x - 2, y, x + 2, y + 2, K); R.rect(x - 1, y + 1, x + 1, y + 1, PAL_GAV.W); R.pset(x + dir * 3, y + 1, PAL_GAV.Y);
+};
+// la gaviota del gancho posada (mirando a la derecha) y con las alas arriba (la misma de hu-gancho)
+const PAL_G = { k: K, W: hex('#f4f4f0'), m: hex('#9aa4b4'), A: hex('#f4cc60') };
+const POSADA = ['......kkk..', '.....kWWWk.', '.....kWkWAA', 'kk..kkWWWk.', 'kkkkmmmWWk.', '.kmmmmmWWk.', '..kkkkkkk..', '....A..A...'];
+const ALAS = ['k.......k', 'kmk...kmk', '.kWk.kWk.', '..kWWWkkk', '...kkk.A.'];
+// las gotas que se sacude un animal mojado (u 0–1), alrededor de (x, y)
+const gotas = (x, y, u, n = 8, r0 = 4) => { for (let k = 0; k < n; k++) { const a = k / n * 6.283 + 0.4, r = r0 + u * 9, gx = Math.round(x + Math.cos(a) * r), gy = Math.round(y + Math.sin(a) * r * 0.7 + u * u * 6); if (u < 1) { R.pset(gx, gy, hex('#bfe6fb')); R.pset(gx, gy + 1, hex('#3a8ae8')); } } };
+// la mano canónica con la manga que llega hasta el borde del cuadro (dir −1: el brazo entra por la derecha)
+const manoLarga = (x, y, dir, manga) => { T.mano(R, x, y, dir, manga); x = Math.round(x); y = Math.round(y);
+  const x0 = dir < 0 ? x + 43 : 0, x1 = dir < 0 ? 319 : x - 43; if (x1 < x0) return;
+  R.rect(x0, y - 2, x1, y + 2, hex(manga)); R.rect(x0, y - 3, x1, y - 3, K); R.rect(x0, y + 3, x1, y + 3, K); R.rect(x0, y - 2, x1, y - 2, mezcla(hex(manga), C.blanco, 0.18)); };
+
+// ── el gato atigrado del baño ──────────────────────────────────────────────────────────────────────────────────────
+const GC = { c: hex('#e89a48'), s: hex('#b8682a'), l: hex('#f8c890'), d: hex('#7a4218'), ojo: hex('#6ab83a'), rosa: hex('#f0a0a0'), nariz: hex('#e87a8a'), bigote: hex('#f6f2ea') };
+const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) { const v = (y + 0.5 - cy) / ry; if (v * v > 1) continue; const w = rx * Math.sqrt(1 - v * v); R.rect(Math.round(cx - w), y, Math.round(cx + w) - 1, y, c); } };
+// sentado de frente (el mismo dibujo que el gato del decorado): la cabeza mira hacia «mira» (x); o.pata [x, y]: estira
+// una pata delantera hasta ese punto; o.sacude: sacude la pata mojada
+const gatoSentado = (x, suelo, t, mira, o = {}) => {
+  const { rect, pset, disco } = R, d = Math.max(-1, Math.min(1, Math.round((mira - x) / 30))), parpa = (t % 4.1) < 0.12, cab = Math.round(Math.sin(t * 2.2) * 0.6);
+  for (let i = 0; i < 14; i++) { const q = i / 13, a = Math.PI * (0.95 - q * 1.15) + (q > 0.6 ? Math.sin(t * 2.6) * 0.5 * (q - 0.6) / 0.4 : 0), xx = Math.round(x + 9 + Math.cos(a) * 6 * q + q * 4), yy = Math.round(suelo - 1 - Math.sin(a) * 6 * q * q); pset(xx, yy, i % 4 === 3 ? GC.d : GC.c); pset(xx, yy + 1, K); }
+  elipse(x, suelo - 7, 9, 8, K); elipse(x, suelo - 7, 8, 7, GC.c); elipse(x + 3, suelo - 6, 4, 6, GC.s); elipse(x - 1, suelo - 8, 3, 5, GC.l);
+  for (let j = 0; j < 3; j++) rect(x + 4, suelo - 12 + j * 3, x + 6, suelo - 12 + j * 3, GC.d);
+  // las patas delanteras; la que se estira va con su contorno hasta la punta, con la almohadilla clara
+  const pata = o.pata;
+  for (const dx of [-3, 1]) { if (pata && dx === -3) continue; rect(x + dx, suelo - 4, x + dx + 2, suelo, K); rect(x + dx, suelo - 4, x + dx + 1, suelo - 1, GC.l); }
+  if (pata) { const x0 = x - 3, y0 = suelo - 10, [x1, y1] = pata, ex = Math.round((x0 + x1) / 2), ey = Math.round(Math.min(y0, y1) - 3);   // el codo un poco arriba: se lee como una pata y no como un palo
+    for (const [a, b, c2, d2] of [[x0, y0, ex, ey], [ex, ey, x1, y1]]) for (const [ox, oy] of [[0, -1], [0, 2], [-1, 0], [1, 0], [-1, 1], [1, 1]]) R.linea(a + ox, b + oy, c2 + ox, d2 + oy, K);
+    for (const [a, b, c2, d2] of [[x0, y0, ex, ey], [ex, ey, x1, y1]]) { R.linea(a, b, c2, d2, GC.c); R.linea(a, b + 1, c2, d2 + 1, GC.s); }
+    disco(x1, y1, 2.6, K); disco(x1, y1, 1.8, GC.l); pset(x1 - 1, y1 - 2, GC.c); pset(x1 + 1, y1 - 2, GC.c); }
+  const hy = suelo - 19 + cab, hx = x + d;
+  disco(hx, hy, 6.5, K); disco(hx, hy, 5.5, GC.c); disco(hx - 1, hy + 2, 3, GC.l);
+  for (const s of [-1, 1]) { R.poligono([[hx + s * 6, hy - 2], [hx + s * 5, hy - 9], [hx + s * 1, hy - 5]], K); R.poligono([[hx + s * 5, hy - 3], [hx + s * 5, hy - 7], [hx + s * 2, hy - 5]], GC.c); pset(hx + s * 4, hy - 5, GC.rosa); }
+  rect(hx - 1, hy - 5, hx + 1, hy - 5, GC.d); pset(hx, hy - 4, GC.d);
+  for (const s of [-1, 1]) { if (parpa && !o.ojazos) rect(hx + s * 3 - 1, hy, hx + s * 3 + 1, hy, K); else { rect(hx + s * 3 - 1, hy - 1, hx + s * 3 + 1, hy + 1, GC.ojo); if (o.ojazos) { pset(hx + s * 3, hy, K); } else { pset(hx + s * 3 + d, hy, K); pset(hx + s * 3 + d, hy - 1, K); } pset(hx + s * 3 - 1, hy - 1, C.blanco); } }
+  pset(hx, hy + 2, GC.nariz); pset(hx - 1, hy + 3, K); pset(hx + 1, hy + 3, K);
+  for (const s of [-1, 1]) { R.linea(hx + s * 3, hy + 3, hx + s * 9, hy + 2, GC.bigote); R.linea(hx + s * 3, hy + 4, hx + s * 9, hy + 5, GC.bigote); }
+  return { cabeza: [hx, hy] };
+};
+// de perfil, andando o en el aire de un salto (dir 1 mira a la derecha); x: el centro del cuerpo, suelo: donde pisa
+const gatoPerfil = (x, suelo, t, dir, pose = 'anda') => {
+  const { rect, pset, disco } = R, salta = pose === 'salta', paso = pose === 'anda' ? Math.floor(t * 9) % 2 : 0;
+  const by = suelo - (salta ? 11 : 10), rx = salta ? 11 : 9, ry = salta ? 3.6 : 4.6, X = (dx) => Math.round(x + dir * dx);
+  const hx = X(rx + 2), hy = Math.round(by - (salta ? 3 : 4) + (pose === 'anda' && paso ? 1 : 0));
+  // las patas: andando, de dos en dos alternas; en el salto, las de delante estiradas hacia delante y las de atrás hacia atrás
+  const patas = salta ? [[6, 11, 3], [4, 9, 4], [-6, -12, 2], [-8, -13, 4]] : [[6, paso ? 7 : 5, 0], [4, paso ? 3 : 5, 0], [-5, paso ? -6 : -4, 0], [-7, paso ? -6 : -8, 0]];
+  const pataXY = ([a, b, c]) => [X(a), by + 2, X(b), salta ? by + 2 + c : suelo];
+  for (const p of patas) { const [x0, y0, x1, y1] = pataXY(p); for (const [ox, oy] of [[-1, 0], [1, 0], [0, 1], [-1, 1], [1, 1]]) R.linea(x0 + ox, y0 + oy, x1 + ox, y1 + oy, K); }
+  // la cola, que se enrosca hacia arriba y se mueve
+  const cola = []; for (let i = 0; i < 12; i++) { const q = i / 11; cola.push([X(-rx + 1 - q * 6 + (salta ? -q * 4 : 0)), Math.round(by - 1 - q * (salta ? 3 : 9) + Math.sin(t * 3 + q * 3) * q * 2)]); }
+  for (const [cx, cy] of cola) disco(cx, cy, 1.6, K);
+  elipse(x, by, rx + 1, ry + 1, K); disco(hx, hy, 6, K);
+  for (const s of [-1, 1]) { const ex = hx + dir * (s < 0 ? -3 : 2); R.poligono([[ex - 2, hy - 3], [ex, hy - 9], [ex + 2, hy - 3]], K); }
+  for (const p of patas) { const [x0, y0, x1, y1] = pataXY(p); R.linea(x0, y0, x1, y1, GC.c); pset(x1, y1, GC.l); }
+  cola.forEach(([cx, cy], i) => disco(cx, cy, 0.8, i % 4 === 3 ? GC.d : GC.c));
+  elipse(x, by, rx, ry, GC.c); elipse(x, by + 2, rx - 2, ry - 2.5, GC.l); elipse(x - dir, by - 2, rx - 3, 1.2, GC.s);
+  for (let j = -1; j <= 2; j++) rect(X(j * 4 - 1), by - Math.round(ry) + 1, X(j * 4 - 1), by - Math.round(ry) + 3, GC.d);
+  disco(hx, hy, 5, GC.c); disco(hx + dir * 2, hy + 2, 2.4, GC.l);
+  for (const s of [-1, 1]) { const ex = hx + dir * (s < 0 ? -3 : 2); R.poligono([[ex - 1, hy - 3], [ex, hy - 7], [ex + 1, hy - 3]], GC.c); pset(ex, hy - 4, GC.rosa); }
+  rect(hx - 1, hy - 4, hx + 1, hy - 4, GC.d);
+  rect(hx + dir * 2, hy - 1, hx + dir * 3, hy, GC.ojo); pset(hx + dir * 3, hy - 1, K); pset(hx + dir * 3, hy, K);
+  pset(hx + dir * 5, hy + 1, GC.nariz); R.linea(hx + dir * 4, hy + 3, hx + dir * 9, hy + 2, GC.bigote); R.linea(hx + dir * 4, hy + 4, hx + dir * 9, hy + 5, GC.bigote);
+};
+
+// ── la AT-6 vista desde arriba (la misma de hu-pregunta) ───────────────────────────────────────────────────────────
+// fuselaje y ala baja amarillos con la luz por la izquierda, el capó y la cola azules, la cubierta de cristal con su
+// brillo y las dos cabezas de los pilotos, las luces de las puntas y la hélice que parpadea. a: el rumbo (radianes, 0
+// hacia la derecha); s: escala (1: 13 px de envergadura); o.sombra [dx, dy]: su sombra en el mar, desplazada
+const avionArriba = (x, y, a, s, t, o = {}) => {
+  const ca = Math.cos(a), sa = Math.sin(a), R0 = Math.ceil(7 * s) + 2;
+  const forma = (u, v) => {
+    const au = u / s, av = v / s, w = Math.abs(av);
+    if (au > 4.1 && au < 5.5 && w < 1.15) return 'capo';
+    if (w <= 1.2 && au >= -5.3 && au <= 4.1) return au > 0.3 && au < 2.9 && w < 0.8 ? 'cristal' : au < -3.9 ? 'cola' : 'fus';
+    if (au >= -1.0 && au <= 1.8 - w * 0.1 && w <= 6.3) return w > 5.5 ? (av < 0 ? 'puntaI' : 'puntaD') : au < -0.2 ? 'alaS' : 'ala';
+    if (au >= -5.4 && au <= -4.0 && w <= 2.9) return 'cola';
+    return null;
+  };
+  const col = { fus: C.at6, ala: C.at6, alaS: C.at6S, capo: C.at6A, cola: C.at6A, cristal: hex('#2a3c62'), puntaI: C.rojo, puntaD: hex('#3ab85a') };
+  const pinta = (dx, dy, sombra) => {
+    for (let j = -R0; j <= R0; j++) for (let i = -R0; i <= R0; i++) {
+      const X = Math.round(x + i + dx), Y = Math.round(y + j + dy);
+      if (!dentro(X, Y)) continue;
+      const u = i * ca + j * sa, v = -i * sa + j * ca, f = forma(u, v);
+      let borde = false;
+      if (!f) { if (sombra) continue; for (const [p, q] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (forma((i + p) * ca + (j + q) * sa, -(i + p) * sa + (j + q) * ca)) { borde = true; break; } if (!borde) continue; }
+      if (sombra) { if (umbral(X, Y) < 0.8) R.pset(X, Y, mezcla(R.pget(X, Y), hex('#0e1a2c'), 0.38)); continue; }
+      if (borde) { R.pset(X, Y, K); continue; }
+      let c = col[f];
+      if (f === 'fus' || f === 'ala') { const lado = (-i * 0.7 - j * 0.7) / R0; if (lado > 0.25) c = C.at6L; else if (lado < -0.35) c = C.at6S; }
+      if (f === 'cristal') { const au = u / s; if (Math.abs(v / s) < 0.55 && (Math.abs(au - 0.9) < 0.42 || Math.abs(au - 2.25) < 0.42)) c = hex('#6a4a2e'); else if (Math.abs(au - 1.6) < 0.4 && v < 0) c = hex('#8ac0e8'); }
+      R.pset(X, Y, c);
+    }
+  };
+  if (o.sombra) pinta(o.sombra[0], o.sombra[1], true);
+  pinta(0, 0, false);
+  const hx = x + ca * 5.9 * s, hy = y + sa * 5.9 * s, g = t * 40;
+  for (let k = -3; k <= 3; k++) { if (k === 0) continue; const e = Math.abs(k) / 3, X = Math.round(hx - sa * k * s * Math.cos(g) * 0.95), Y = Math.round(hy + ca * k * s * Math.cos(g) * 0.95);
+    if (!dentro(X, Y)) continue; if (umbral(X, Y) < 0.75 - e * 0.3) R.pset(X, Y, mezcla(R.pget(X, Y), hex('#d8dce4'), 0.6)); }
 };
 
 const c = (f) => en('calma', f), l = (f) => en('lavabo', f);
-// los cortes: «racing», «So (the eye)», «By (the way)», «So (whichever)»
+// los cortes: «racing», «So (the eye)», «By (the way)», el final de «spin» (fracciones medidas con las pausas de la voz)
 const O2 = c(0.263), O3 = c(0.699), O4 = l(0) - 0.15, O5 = l(0.555);
-const calmaT = c(0.013), explica = c(0.107), sube = c(0.293), paredes = c(0.320), tormenta = c(0.365), giraT = c(0.385), dentro = c(0.410), baja = c(0.473), medio = c(0.526), calienta = c(0.570), seca = c(0.602), cae = c(0.642), ojoT = c(0.716), columna = c(0.762), quieto = c(0.816), rodeado = c(0.841), fuertes = c(0.908), vientos = c(0.938);
-const banoT = l(0.158), pila = l(0.208), pequeno = l(0.358), sentir = l(0.433), giroT = l(0.494), cualquier = l(0.627), lado = l(0.662), vacia = l(0.726), culpa = l(0.855), tierra = l(0.938);
+const calmaT = c(0.025), duckT = c(0.042), explica = c(0.121), tambien = c(0.167), sube = c(0.300), paredes = c(0.323), tormenta = c(0.370), giraT = c(0.394), dentroT = c(0.417), baja = c(0.459), medio = c(0.516), calienta = c(0.571), seca = c(0.612), cae = c(0.652), ojoT = c(0.726), columna = c(0.756), quieto = c(0.797), rodeado = c(0.822), fuertes = c(0.898), vientos = c(0.944);
+const banoT = l(0.182), pila = l(0.259), pequeno = l(0.374), sentir = l(0.441), giroT = l(0.518), cualquier = l(0.628), lado = l(0.706), vacia = l(0.749), culpa = l(0.854), tierra = l(0.954);
 // a ritmo lineal entre puntos [t, valor]
 const tramos = (t, P) => { if (t <= P[0][0]) return P[0][1]; for (let i = 1; i < P.length; i++) if (t <= P[i][0]) return lerp(P[i - 1][1], P[i][1], (t - P[i - 1][0]) / (P[i][0] - P[i - 1][0])); return P[P.length - 1][1]; };
 
 // ── 1 · la calma que encontró Duckworth ───────────────────────────────────────────────────────────────────────────
+const VUELA = tambien;
 const p1 = (t) => {
   T.ojo(R, t + 2.6, { vista: 'dentro', suelo: 'texas' });   // (+2,6 s: el fucilazo del decorado, un rectángulo claro, cae fuera del plano)
   const x = Math.round(lerp(70, 206, t / O2)), y = 96 + Math.round(Math.sin(t * 1.3) * 2);
-  const r = T.at6(R, x, y, t, { s: 1.6, dir: 1, vuelo: true, helice: 1, piloto: EL.duckworth, copiloto: EL.navegante, abierta: t > calmaT + 0.3, sacude: 0.05 });
+  // en «Duckworth» la avioneta alabea para saludar
+  const sal = lin(t, duckT, duckT + 0.8), inclina = sal > 0 && sal < 1 ? Math.sin(sal * Math.PI * 3) * 0.08 * (1 - sal) : 0;
+  const r = T.at6(R, x, y, t, { s: 1.6, dir: 1, vuelo: true, helice: 1, piloto: EL.duckworth, copiloto: EL.navegante, abierta: t > calmaT + 0.3, sacude: 0.05, inclina });
   if (t > explica && t < O2) R.bocadillo(r.cabina[0] - 12, r.cabina[1] - 13, { icono: '?' });
+  // la gaviota del gancho, posada en lo alto de la deriva (gira con el alabeo); ahueca las alas con el «?» y en
+  // «too» echa a volar y se queda dando vueltas dentro del ojo
+  const cs = Math.cos(-inclina), sn = Math.sin(-inclina), ox = -44, oy = -34, wx = Math.round(x + ox * cs - oy * sn), wy = Math.round(y + ox * sn + oy * cs);
+  if (t < VUELA) { if (entre(t, explica + 0.15, explica + 0.55)) R.dibujo(ALAS, wx - 4, wy - 6, 1, PAL_G); else R.dibujo(POSADA, wx - 5, wy - 7, 1, PAL_G); }
+  else { const u = lin(t, VUELA, VUELA + 1.6), a = u * 4.2, gx = lerp(wx, 112, suave(u)) + Math.sin(a) * 26 * u, gy = lerp(wy - 4, 58, suave(u)) - Math.cos(a) * 10 * u; gaviotaVuela(gx, gy, t, Math.cos(a) > 0 ? -1 : 1); }
 };
 
 // ── 2 · el corte: por dónde sube y por dónde baja el aire ─────────────────────────────────────────────────────────
-const corteU = (t) => tramos(t, [[O2 - 0.3, 0], [sube, 0.16], [tormenta, 0.4], [dentro + 0.25, 0.6], [baja, 0.64], [medio + 0.15, 0.76], [cae + 0.25, 0.9], [O3, 0.97]]);
+const corteU = (t) => tramos(t, [[O2 - 0.3, 0], [sube, 0.16], [tormenta, 0.4], [dentroT + 0.25, 0.6], [baja, 0.64], [medio + 0.15, 0.76], [cae + 0.25, 0.9], [O3, 0.97]]);
 const p2 = (t) => {
   T.ojo(R, t, { vista: 'corte', corte: corteU(t) });
   const u = lin(t, O2, O3), x = Math.round(lerp(124, 143, u)), y = 140 + Math.round(Math.sin(t * 1.6) * 1 + (t > medio && t < cae ? Math.sin(t * 9) * 0.6 : 0));
   T.at6(R, x, y, t, { s: 0.5, dir: 1, vuelo: true, helice: 1 });
+  // la gaviota baja con el aire que se hunde por el centro, planeando en eses; en «drying» se sacude las gotas
+  const g = lin(t, dentroT - 0.1, O3 + 0.3);
+  if (g > 0 && g < 1) { const gx = 159 + Math.sin(g * 9) * 7, gy = lerp(46, 128, suave(g)), sacude = entre(t, seca - 0.05, seca + 0.45), planea = !sacude && g > 0.12;
+    gaviotaVuela(gx, gy, planea ? 0.06 : t * (sacude ? 2.2 : 1), Math.cos(g * 9) > 0 ? 1 : -1);
+    if (sacude) gotas(gx, gy, lin(t, seca - 0.05, seca + 0.45), 9, 6); }
 };
 
 // ── 3 · una columna de calma rodeada de los vientos más fuertes ───────────────────────────────────────────────────
@@ -106,54 +203,87 @@ const p3 = (t) => {
   const k = 0.3 + 0.7 * suave(lin(t, rodeado - 0.2, vientos + 0.2));
   for (let i = 0; i < Math.round(14 + 30 * k); i++) { const rr = G.r * (1.2 + ruido(i, 1, 63) * 1.1), w = (1.4 + ruido(i, 2, 63) * 1.2) * (0.6 + 1.2 * k), th0 = ruido(i, 3, 63) * 6.283 + t * w, L = 0.25 + ruido(i, 4, 63) * 0.35;
     for (let q = 0; q <= 1; q += 0.025) { const th = th0 - q * L, x = Math.round(G.x + Math.cos(th) * rr), y = Math.round(G.y - Math.sin(th) * rr * 0.92); if (tranquilo(x, y) || umbral(x, y) > (1 - q * 0.8) * (0.6 + 0.4 * k)) continue; tine(x, y, q < 0.12 ? C.blanco : hex('#4a64a8'), q < 0.12 ? 0.9 : 0.55); tine(x, y + 1, hex('#2a3a78'), 0.3 * (1 - q)); } }
+  // la AT-6 da vueltas dentro del ojo con su sombra en el mar del fondo
+  { const ap = t * 0.62 + 2.2, ax = G.x + Math.cos(ap) * G.r * 0.6, ay = G.y - Math.sin(ap) * G.r * 0.54, rumbo = Math.atan2(-Math.cos(ap) * 0.54, -Math.sin(ap) * 0.6);
+    avionArriba(Math.round(ax), Math.round(ay), rumbo, 1.25, t, { sombra: [6, 5] }); }
   // la gaviota que da vueltas dentro del ojo; en «quiet», planea
-  const a = t * 0.55 + 1, gx = G.x + Math.cos(a) * G.r * 0.42, gy = G.y - Math.sin(a) * G.r * 0.38, planea = t > quieto - 0.1;
+  const a = t * 0.55 + 1, gx = G.x + Math.cos(a) * G.r * 0.34, gy = G.y - Math.sin(a) * G.r * 0.3, planea = t > quieto - 0.1;
   gaviotaVuela(gx, gy, planea ? 0.06 : t, Math.sin(a) > 0 ? -1 : 1);
 };
 
-// ── 4 · el baño: el niño, su patito y el tapón ────────────────────────────────────────────────────────────────────
-const taburete = (x, y) => { const { rect } = R, M = hex('#c8864a'), MS = hex('#8a5a2a'), ML = hex('#e8a868'); rect(x, y, x + 22, y + 3, C.k); rect(x + 1, y + 1, x + 21, y + 2, M); rect(x + 1, y + 1, x + 21, y + 1, ML); for (const lx of [x + 2, x + 17]) { rect(lx, y + 4, lx + 3, y + 14, C.k); rect(lx + 1, y + 4, lx + 2, y + 13, MS); } rect(x + 5, y + 9, x + 17, y + 10, C.k); rect(x + 5, y + 9, x + 17, y + 9, MS); };
-const patito = (x, y, dir = 1) => { const { rect, pset } = R, A = hex('#f8d030'), AS = hex('#c89a18'), N = hex('#f07a2a'); rect(x - 4, y - 3, x + 3, y, C.k); rect(x - 3, y - 2, x + 2, y - 1, A); rect(x - 3, y - 1, x + 2, y - 1, AS); rect(x - 1 + dir, y - 6, x + 2 * dir + (dir > 0 ? 0 : 1), y - 3, C.k); rect(x + dir, y - 5, x + dir + (dir > 0 ? 1 : 0), y - 4, A); pset(x + dir * 2, y - 5, C.k); pset(x + dir * 3, y - 4, N); pset(x + dir * 4, y - 4, N); };
-const PX = 150, SUB = [O4 + 0.75, O4 + 1.05];
+// ── 4 · el baño: el niño, su patito, el tapón y el gato ───────────────────────────────────────────────────────────
+const taburete = (x, y) => { const { rect } = R, Mm = hex('#c8864a'), MS = hex('#8a5a2a'), ML = hex('#e8a868'); rect(x, y, x + 22, y + 3, K); rect(x + 1, y + 1, x + 21, y + 2, Mm); rect(x + 1, y + 1, x + 21, y + 1, ML); for (const lx of [x + 2, x + 17]) { rect(lx, y + 4, lx + 3, y + 14, K); rect(lx + 1, y + 4, lx + 2, y + 13, MS); } rect(x + 5, y + 9, x + 17, y + 10, K); rect(x + 5, y + 9, x + 17, y + 9, MS); };
+const patito = (x, y, dir = 1) => { const { rect, pset } = R, A = hex('#f8d030'), AS = hex('#c89a18'), N = hex('#f07a2a'); rect(x - 4, y - 3, x + 3, y, K); rect(x - 3, y - 2, x + 2, y - 1, A); rect(x - 3, y - 1, x + 2, y - 1, AS); rect(x - 1 + dir, y - 6, x + 2 * dir + (dir > 0 ? 0 : 1), y - 3, K); rect(x + dir, y - 5, x + dir + (dir > 0 ? 1 : 0), y - 4, A); pset(x + dir * 2, y - 5, K); pset(x + dir * 3, y - 4, N); pset(x + dir * 4, y - 4, N); };
+const PX = 150, ANDA = [O4 + 0.1, O4 + 1.05], SUB = [O4 + 1.05, O4 + 1.35];
+// el gato: en el cesto (297, 133) mirando el pájaro de la ventana; se vuelve con el chapoteo, salta al suelo, cruza y
+// se sube a la encimera (en 194, 127)
+const G_BAJA = [pila + 0.35, pila + 0.65], G_ANDA = [pila + 0.65, pequeno + 0.65], G_SUBE = [pequeno + 0.65, pequeno + 1.0];
+const gatoBano = (t) => {
+  if (t < G_BAJA[0]) { const mira = t < pila + 0.05 ? 266 - ((t % 9) / 9) * 54 : 166; gatoSentado(297, 133, t, mira); return; }
+  if (t < G_BAJA[1]) { const u = lin(t, G_BAJA[0], G_BAJA[1]); gatoPerfil(lerp(296, 276, u), Math.round(lerp(133, 163, u * u) - Math.sin(u * Math.PI) * 8), t, -1, 'salta'); return; }
+  if (t < G_ANDA[1]) { const u = lin(t, G_ANDA[0], G_ANDA[1]); gatoPerfil(Math.round(lerp(276, 228, u)), 163, t, -1, 'anda'); return; }
+  if (t < G_SUBE[1]) { const u = lin(t, G_SUBE[0], G_SUBE[1]); gatoPerfil(lerp(228, 197, u), Math.round(lerp(163, 127, u) - Math.sin(u * Math.PI) * 12), t, -1, 'salta'); return; }
+  gatoSentado(194, 127, t, 172);
+};
 const p4 = (t) => {
-  T.lavabo(R, t, { encuadre: 'bano' });
+  T.lavabo(R, t, { encuadre: 'bano', gato: false });
   taburete(146, 148);
-  // el niño llega, se sube al taburete, echa el patito, tira de la cadenilla y se asoma a mirar
-  const anda = lin(t, O4, SUB[0]), sube = lin(t, SUB[0], SUB[1]), x = Math.round(lerp(96, PX, anda)), suelo = Math.round(sube > 0 ? lerp(160, 148, suave(sube)) - Math.sin(sube * Math.PI) * 4 : 160);
-  const echa = entre(t, pila - 0.3, pila + 0.35), tira = entre(t, pequeno - 0.1, pequeno + 0.45), mira = t > sentir;
-  const r = R.actor(EL.chico, x, suelo + (tira && Math.floor(t * 8) % 2 ? 1 : 0), t, { dir: 1, anda: anda > 0 && anda < 1, dedo: echa || tira || (!mira && t < pila - 0.3), sonrisa: t < pila || mira, sorpresa: entre(t, pequeno + 0.45, sentir) });
-  // el patito: en la mano hasta «sink», luego cae al lavabo con su salpicadura
-  if (t < pila) { const [hx, hy] = t < pila - 0.3 && anda < 1 ? [x + 15, suelo - 13] : r.mano; patito(hx + 1, hy + (t < pila - 0.3 && anda < 1 ? 4 : 0), 1); }
-  else if (t < pila + 0.3) { const u = lin(t, pila, pila + 0.3); patito(Math.round(lerp(r.mano[0] + 1, 168, u)), Math.round(lerp(r.mano[1], 127, u) - Math.sin(u * Math.PI) * 4), 1); }
-  else if (t < pila + 0.8) for (let i = 0; i < 6; i++) { const u = lin(t, pila + 0.3, pila + 0.8), an = -Math.PI / 2 + (i - 2.5) * 0.4; R.pset(Math.round(168 + Math.cos(an) * u * 9), Math.round(125 + Math.sin(an) * u * 8 + u * u * 8), hex('#bfe6fb')); }
+  // el niño llega con el patito, se sube al taburete, lo enseña, lo echa al agua, tira de la cadenilla y se asoma a mirar
+  const anda = lin(t, ANDA[0], ANDA[1]), sube = lin(t, SUB[0], SUB[1]), x = Math.round(lerp(96, PX, anda)), suelo = Math.round(sube > 0 ? lerp(160, 148, suave(sube)) - Math.sin(sube * Math.PI) * 4 : 160);
+  const ensena = entre(t, banoT - 0.15, pila - 0.3), echa = entre(t, pila - 0.3, pila + 0.35), tira = entre(t, pequeno - 0.1, pequeno + 0.45), mira = t > sentir;
+  const r = R.actor(EL.chico, x, suelo + (tira && Math.floor(t * 8) % 2 ? 1 : 0) + (mira ? 1 : 0), t, { dir: 1, anda: anda > 0 && anda < 1, dedo: ensena || echa || tira, sonrisa: t < pila || t > giroT, sorpresa: entre(t, pequeno + 0.45, giroT), habla: entre(t, banoT, banoT + 0.4) && Math.floor(t * 8) % 2 === 0 });
+  // el patito: en la mano hasta «sink», luego cae al lavabo con su salpicadura y flota
+  if (t < pila) { const enMano = !(ensena || echa); const [hx, hy] = enMano ? [x + 13, suelo - 12] : r.mano; patito(hx + 1, hy + (enMano ? 3 : 0), 1); }
+  else if (t < pila + 0.3) { const u = lin(t, pila, pila + 0.3); patito(Math.round(lerp(r.mano[0] + 1, 173, u)), Math.round(lerp(r.mano[1], 128, u) - Math.sin(u * Math.PI) * 4), 1); }
+  else { if (t < pila + 0.8) for (let i = 0; i < 6; i++) { const u = lin(t, pila + 0.3, pila + 0.8), an = -Math.PI / 2 + (i - 2.5) * 0.4; R.pset(Math.round(173 + Math.cos(an) * u * 9), Math.round(126 + Math.sin(an) * u * 8 + u * u * 8), hex('#bfe6fb')); }
+    const gira = t > giroT - 0.2 ? (t - giroT) * 3 : 0; patito(Math.round(173 + Math.sin(gira) * 3 * Math.min(1, Math.max(0, gira))), 128 + Math.round(Math.sin(t * 3) * 0.5), Math.cos(gira) > 0 ? 1 : -1); }
   // la cadenilla del tapón y las burbujas del desagüe
   if (t > pequeno - 0.1) { const u = lin(t, pequeno - 0.1, pequeno + 0.4); for (let i = 0; i < 6; i++) R.pset(Math.round(lerp(r.mano[0], 170, i / 5)), Math.round(lerp(r.mano[1] + 2, 128, i / 5) + Math.sin(i + u * 6)), (i % 2) ? hex('#c8d0dc') : hex('#8a94a6')); }
   if (t > pequeno + 0.3) for (let k = 0; k < 6; k++) { const u = (t * 1.4 + k / 6) % 1, bx = 160 + Math.round(Math.sin(k * 2.3 + t * 2) * 7), by = Math.round(126 - u * 12); if (u < 0.8) { R.pset(bx, by, C.blanco); if (k % 2) R.pset(bx + 1, by, hex('#bfe6fb')); } }
+  gatoBano(t);
 };
 
-// ── 5 · el lavabo de cerca: el patito y el remolino ───────────────────────────────────────────────────────────────
-// el patito gira con el remolino: a favor de las agujas del reloj, frena en «whichever way», se da la vuelta y gira al revés;
-// al final del agua se para en el desagüe
-const vel = (t) => { const f = suave(lin(t, lado - 0.2, lado + 0.45)), para = 1 - suave(lin(t, culpa, tierra + 0.2)); return (-1.65 + 3.3 * f) * para * (1 + 0.8 * lin(t, vacia, culpa)); };
-const angulo = (t) => { let a = 1.2 - 1.65 * O5 * 2.2 * 0.75 / 2.2 / 0.75 * 0; for (let s = O5; s < t; s += 1 / 60) a += vel(s) / 60; return a + 2.4; };
+// ── 5 · el lavabo de cerca: el patito, el remolino y el zarpazo del gato ──────────────────────────────────────────
+// el patito gira con el remolino: a favor de las agujas del reloj; el gato le da un zarpazo en «whichever way», frena,
+// se da la vuelta y gira al revés; al final del agua se para en el desagüe
+const TOQUE = lado;
+const vel = (t) => { const f = suave(lin(t, TOQUE - 0.05, lado + 0.45)), para = 1 - suave(lin(t, culpa, tierra + 0.2)); return (-1.65 + 3.3 * f) * para * (1 + 0.8 * lin(t, vacia, culpa)); };
+const integra = (t0, t1) => { let a = 0; for (let s = t0; s < t1; s += 1 / 60) a += vel(s) / 60; return a; };
+const A0 = -0.3 - integra(O5, TOQUE);   // así, en el zarpazo el patito pasa por delante a la derecha, junto al gato
+const angulo = (t) => A0 + integra(O5, t);
+const aguaEn = (t) => 0.85 - 0.77 * suave(lin(t, vacia - 0.1, culpa + 0.25));
+const patitoEn = (t, ang, agua) => { const rx = 50 * (0.35 + 0.65 * agua), ry = 14.5 * (0.35 + 0.65 * agua), ra = 0.3 + 0.32 * agua; return [Math.round(160 + Math.cos(ang) * rx * ra), Math.round(112 - Math.sin(ang) * ry * ra)]; };
+const GX5 = 214, GY5 = 133, G5_LLEGA = [O5 + 0.46, O5 + 0.82];
 const p5 = (t) => {
-  const flip = lin(t, lado - 0.2, lado + 0.45), agua = 0.85 - 0.77 * suave(lin(t, vacia - 0.1, culpa + 0.25)), ang = angulo(t);
-  T.lavabo(R, t, { giro: flip < 0.5 ? -1 : 1, agua, angulo: ang });
-  // la mano deja el tapón con su cadenilla en la encimera y se va
-  const deja = lin(t, O5, O5 + 0.35), va = lin(t, O5 + 0.45, O5 + 1.0);
-  { const tx = 232, ty = 126; R.disco(tx, ty, 3, C.k); R.disco(tx, ty, 2, hex('#3a3a46')); R.pset(tx - 1, ty - 1, hex('#6a6a7a')); for (let i = 1; i < 9; i++) R.pset(tx - i * 2, ty + 1 + Math.round(Math.sin(i * 0.9) * 1), i % 2 ? hex('#c8d0dc') : hex('#8a94a6')); }
-  if (va < 1) T.mano(R, Math.round(lerp(240, 344, suave(va))), 130 - Math.round((1 - deja) * 4), -1, '#e86a3a');
+  const flip = lin(t, TOQUE - 0.05, lado + 0.45), agua = aguaEn(t), ang = angulo(t);
+  T.lavabo(R, t, { giro: flip < 0.5 ? -1 : 1, agua, angulo: ang, gato: false });
+  // la mano del niño (el brazo entra por la derecha) deja el tapón con su cadenilla en la encimera y se va
+  const deja = lin(t, O5, O5 + 0.25), va = lin(t, O5 + 0.3, O5 + 0.62);
+  { const tx = 232, ty = 126; R.disco(tx, ty, 3, K); R.disco(tx, ty, 2, hex('#3a3a46')); R.pset(tx - 1, ty - 1, hex('#6a6a7a')); for (let i = 1; i < 9; i++) R.pset(tx - i * 2, ty + 1 + Math.round(Math.sin(i * 0.9) * 1), i % 2 ? hex('#c8d0dc') : hex('#8a94a6')); }
+  if (va < 1) manoLarga(Math.round(lerp(242, 346, suave(va))), 128 - Math.round((1 - deja) * 4), -1, '#e86a3a');
+  const [px, py] = patitoEn(t, ang, agua);
+  // el gato: llega por la encimera y se sienta junto a la pila; en «whichever way» estira la pata y le da al patito, y
+  // luego se sacude la pata mojada; en «Earth», el «?»
+  if (t < G5_LLEGA[1]) { const u = lin(t, G5_LLEGA[0], G5_LLEGA[1]); if (u > 0) gatoPerfil(Math.round(lerp(338, GX5 + 2, u)), GY5 + 1, t, -1, 'anda'); }
+  else {
+    const estira = lin(t, TOQUE - 0.35, TOQUE), recoge = lin(t, TOQUE + 0.08, TOQUE + 0.3), sacude = entre(t, TOQUE + 0.35, TOQUE + 0.85);
+    let pata = null;
+    if (estira > 0 && recoge < 1) { const k = suave(estira) * (1 - suave(recoge)), [tx, ty] = [px + 4, py - 1]; pata = [Math.round(lerp(GX5 - 5, tx, k)), Math.round(lerp(GY5 - 9, ty, k))]; }
+    else if (sacude) pata = [GX5 - 12 + Math.round(Math.sin(t * 40) * 2), GY5 - 13];
+    gatoSentado(GX5, GY5, t, px, { pata, ojazos: entre(t, TOQUE - 0.35, TOQUE + 0.3) || t > tierra - 0.1 });
+    if (sacude) gotas(GX5 - 12, GY5 - 13, lin(t, TOQUE + 0.35, TOQUE + 0.85), 6, 3);
+    if (entre(t, TOQUE, TOQUE + 0.4)) gotas(px + 2, py - 3, lin(t, TOQUE, TOQUE + 0.4), 7, 3);
+  }
   // el patito mareado en el desagüe, con sus estrellitas, y el «?» del gato
-  const rx = 50 * (0.35 + 0.65 * agua), ry = 14.5 * (0.35 + 0.65 * agua), ra = 0.3 + 0.32 * agua, px = Math.round(160 + Math.cos(ang) * rx * ra), py = Math.round(112 - Math.sin(ang) * ry * ra);
   if (t > culpa) for (let k = 0; k < 3; k++) { const a = t * 5 + k * 2.094, sx = Math.round(px + Math.cos(a) * 8), sy = Math.round(py - 17 + Math.sin(a) * 2.5); destello(sx, sy, 1, hex('#ffd040')); R.pset(sx, sy, C.blanco); }
   if (entre(t, lado, lado + 0.5)) for (let i = 0; i < 3; i++) R.pset(px - 6 + i * 6, py - 18 - (i % 2) * 2, C.blanco);
-  if (t > tierra - 0.1) R.bocadillo(291, 92, { icono: '?' });
+  if (t > tierra - 0.1) R.bocadillo(GX5 + 1, GY5 - 30, { icono: '?' });
 };
-const efectos = [[0.15, 'motor'], [calmaT + 0.3, 'cerrojo'], [explica + 0.05, 'pop'], [2.9, 'whoosh'],
-  [O2 + 0.1, 'rafaga'], [paredes, 'whoosh'], [dentro, 'whoosh'], [baja, 'whoosh'], [calienta, 'brillo'], [cae, 'vapor'],
-  [O3 + 0.1, 'rafaga'], [quieto, 'brillo'], [fuertes, 'rafaga'], [vientos + 0.3, 'rafaga'],
-  [O4 + 0.3, 'golpecito'], [SUB[1], 'golpecito'], [pila + 0.3, 'chof'], [pequeno, 'cerrojo'], [pequeno + 0.35, 'gluglu'], [sentir + 0.3, 'burbujas'],
-  [O5 + 0.3, 'toc'], [O5 + 0.55, 'gluglu'], [lado, 'boing'], [vacia, 'gluglu'], [culpa, 'gluglu'], [culpa + 0.4, 'boing'], [tierra, 'miau']];
+const efectos = [[0.15, 'motor'], [calmaT + 0.3, 'cerrojo'], [duckT + 0.1, 'whoosh'], [explica + 0.05, 'pop'], [VUELA + 0.05, 'whoosh'],
+  [O2 + 0.1, 'rafaga'], [paredes, 'whoosh'], [dentroT, 'whoosh'], [baja, 'whoosh'], [calienta, 'brillo'], [seca, 'burbujas'], [cae, 'vapor'],
+  [O3 + 0.1, 'rafaga'], [O3 + 1.2, 'motor'], [quieto, 'brillo'], [fuertes, 'rafaga'], [vientos + 0.3, 'rafaga'],
+  [ANDA[0] + 0.3, 'golpecito'], [SUB[1], 'golpecito'], [pila + 0.3, 'chof'], [G_BAJA[1], 'golpecito'], [pequeno, 'cerrojo'], [pequeno + 0.35, 'burbujas'], [G_SUBE[1], 'golpecito'], [sentir + 0.3, 'burbujas'],
+  [O5 + 0.3, 'toc'], [O5 + 0.55, 'burbujas'], [TOQUE, 'chof'], [lado, 'boing'], [TOQUE + 0.45, 'miau'], [vacia, 'burbujas'], [culpa, 'burbujas'], [culpa + 0.4, 'boing'], [tierra, 'miau']];
 const año = (t) => (t < O2 ? 1943 : null);
 T.rodar(E, R, [[0, p1], [O2, p2], [O3, p3], [O4, p4], [O5, p5]], { efectos, año });
 </script>

@@ -9,26 +9,38 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// HU-SAFFIR (frases 19–20), 1971, cartela «1971». Siete planos en el taller de Saffir (Coral Gables, Florida):
-// 1. el taller entero: Saffir llega con la caja de herramientas, la deja junto a la mesa de prueba y ajusta la casita con
-//    el destornillador; tras el mostrador, la ayudante lee un papel de la bandeja; en «Herbert Saffir» él se vuelve, sonríe
-//    y se sube las gafas; fuera pasan coches y nubes, el gato del alféizar mueve la cola y un fluorescente parpadea;
-// 2. el banco de viento de cerca («studying how houses fail»): la mano gira el mando, las aspas arrancan, la cinta se
-//    estira y en «fail» las primeras tejas aletean y salen volando; la otra mano apunta en la libreta;
-// 3. el taller («and Robert Simpson»): la puerta de la calle se abre y entra Simpson con el mapa doblado; Saffir se vuelve
-//    sorprendido y lo saluda; la ayudante le saluda al pasar; se dan la mano y en «Center» Simpson despliega el mapa del
-//    Atlántico con la espiral (Saffir, «!»);
-// 4. el panel de la escala («a simple scale from one to five»): Saffir tira del interruptor y en «one to five» se encienden
-//    las cinco ventanillas una tras otra, con su icono de daños y su umbral; en «what to expect» Saffir abre los brazos y
-//    Simpson asiente y señala;
-// 5. el mostrador (gag), categoría 1: en «74» salta el número sobre el banco del fondo; en «peels shingles» las tejas de la
-//    casita se levantan y una cruza el taller y golpea la campanita en «roofs»: Simpson da un brinco y Saffir se ríe;
-// 6. el banco de cerca, categoría 5: la mano gira el mando a tope en «blows», el contador y el «157» suben, se van las tejas,
-//    los tableros y la armadura, y en «flatten» la casita se desmonta como una maqueta;
+// HU-SAFFIR (frases 19–20), 1971, cartela «1971». Siete planos en el taller de Saffir (Coral Gables, Florida); las marcas
+// de la voz inglesa salen de las palabras medidas en la pista (linea.json):
+// 1. el taller entero: Saffir llega con la caja de herramientas, la deja a sus pies junto a la mesa de prueba y ajusta la
+//    casita con el destornillador; delante del banco, el aprendiz barre a pasitos las virutas de teja de la última prueba;
+//    tras el mostrador, la ayudante lee un papel de la bandeja; en «Herbert Saffir» él se vuelve, sonríe y se sube las
+//    gafas, y el aprendiz se para, lo mira y lo saluda; fuera pasan coches y nubes, el gato del alféizar mueve la cola y un
+//    fluorescente parpadea;
+// 2. el banco de viento de cerca («studying how houses fail»): una mano llega desde la derecha, gira el mando (las aspas
+//    arrancan, la cinta se estira) y va a la libreta a apuntar; en «fail» las primeras tejas aletean y salen volando, la
+//    mano se para un instante y vuelve a escribir, y se va;
+// 3. el taller («and Robert Simpson»): la puerta de la calle se abre y entra Simpson con el mapa doblado; Saffir y el
+//    aprendiz se vuelven sorprendidos; la ayudante y el aprendiz le saludan al pasar; se dan la mano y en «Center» Simpson
+//    despliega el mapa del Atlántico con la espiral (Saffir, «!»); el aprendiz vuelve a barrer;
+// 4. el panel de la escala («a simple scale from one to five»): a la izquierda, el aprendiz vacía el recogedor en la
+//    papelera; Saffir va al interruptor y Simpson da dos pasos hacia el panel; Saffir tira y en «one to five» se encienden
+//    las cinco ventanillas una tras otra, con su icono de daños y su umbral (el aprendiz y Simpson se asombran); en «what to
+//    expect» Saffir abre los brazos y Simpson asiente y señala; el aprendiz se va con el recogedor;
+// 5. el mostrador (gag), categoría 1: Simpson se acerca al mostrador para ver el banco del fondo por el arco; allí, el
+//    aprendiz enciende el ventilador en «category one» y las aspas arrancan; en «74» salta el número y Saffir y Simpson lo
+//    señalan; en «peels shingles» las tejas de la casita se levantan, el aprendiz señala la que sale y cruza el taller, y
+//    en «roofs» golpea la campanita junto a Simpson: da un brinco, se ríe y la señala, y Saffir se ríe;
+// 6. el banco de cerca, categoría 5: la mano llega, gira el mando a tope en «blows», el contador y el «157» suben y ella va
+//    a la libreta a apuntar; se van las tejas, los tableros y la armadura, y en «flatten» la casita se desmonta como una
+//    maqueta (la mano da un respingo); en «neighborhoods» vuelve al mando y lo apaga: las aspas se paran y se va;
 // 7. la mesa de dibujo (la explicación): en «each step up» la mano marca las cinco categorías y salen cinco casitas cada vez
 //    más rotas; en «multiplies» saltan los «×» entre ellas; en «the force of the wind grows much faster» la mano traza la
 //    curva roja de la fuerza, que se dispara, y en «than its speed» la recta azul de la velocidad, mucho más tendida; la
 //    flecha marca la diferencia.
+// Posiciones del decorado de las que depende: f_TALLER (general: Saffir en x 176, suelo 150; el mostrador x 220–280 con la
+// bandeja de papeles en x 239–251, y 96–101; banco: el mando en (100, 109), la libreta en x 295–319, y 121–127; escala: el
+// interruptor en x 262–274, y 98–112, la papelera en x 26–40, y 123–139; mostrador: el arco x 0–101, y 26–151, la campanita
+// en (176, 111), lo de encima del mostrador entre y 103 y 111).
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-saffir');
@@ -75,21 +87,45 @@ const giroDe = (vf, t0, t) => { let g = 0.35; for (let x = t0; x < t; x += 1 / 3
 // el número grande que salta (el umbral en mph) y se queda temblando un poco
 const numeroSalta = (txt, x, base, t, t0, t1) => { if (t < t0 || t > t1) return; const u = lin(t, t0, t0 + 0.3), b = Math.round(Math.sin(u * Math.PI) * -6 + (u < 1 ? (1 - u) * 6 : 0));
   R.numero(txt, x, base + b, { tam: 16, centro: true }); if (u >= 1 && Math.sin(t * 9) > 0.6) for (const [dx, dy] of [[-22, -16], [22, -14], [0, -22]]) { R.pset(x + dx, base + dy, C.oroL); R.pset(x + dx + 1, base + dy, C.oroL); R.pset(x + dx, base + dy - 1, C.oroL); } };
-// la ayudante tras el mostrador del taller (asoman la cabeza y los hombros)
-const ayudante = (t, o) => detras([[219, 102, 281, 137], [239, 96, 251, 101]], () => R.actor(EL.senora30, 240, 114, t, o));
+// la ayudante tras el mostrador del taller (asoman la cabeza y los hombros; la bandeja de papeles le queda a la altura del
+// cuello, nunca delante de la boca)
+const ayudante = (t, o) => detras([[219, 102, 281, 137], [239, 96, 251, 101]], () => R.actor(EL.senora30, 240, 110, t, o));
+// el aprendiz del taller: camisa de faena azul y pantalón marrón (barre, vacía el recogedor, enciende el banco del fondo)
+const APRENDIZ = { ...EL.tecnico, pal: { ...EL.tecnico.pal, C: hex('#6a8ab0'), c: hex('#4e6a8e'), W: hex('#6a8ab0'), o: hex('#4e6a8e'), F: hex('#5a4a3a') } };
+// el cepillo de nudo: el palo sale de la mano, por delante del cuerpo, y la cabeza va y viene por el suelo (barre 0–1);
+// delante, el montoncito de virutas de teja que empuja
+const cepillo = (x, suelo, t, dir, barre = 1) => {
+  const v = Math.round(Math.sin(t * 11) * 2 * barre), hx = x + 7 + dir * 4, hy = suelo - 10, bx = x + 7 + dir * (15 + v), by = suelo;
+  R.linea(hx, hy, bx, by - 2, C.k); R.linea(hx, hy + 1, bx - dir, by - 2, hex('#c8944a'));
+  R.rect(bx - 4, by - 3, bx + 4, by - 1, C.k); R.rect(bx - 3, by - 3, bx + 3, by - 2, hex('#a8483a')); R.rect(bx - 3, by - 3, bx + 3, by - 3, hex('#c8684a'));
+  for (let i = -3; i <= 3; i += 2) R.pset(bx + i, by, hex('#3a2a20'));
+  for (let k = 0; k < 7; k++) R.pset(bx + dir * (6 + k * 2) + (k % 3) - 1, by - (k % 2), k % 3 ? hex('#6a5e56') : hex('#3a322c'));
+};
+// barre a pasitos: avanza 5 px en 0,35 s y barre el resto del segundo (desde x0 en t0, hacia dir)
+const barriendo = (t, t0, x0, dir) => { const k = Math.max(0, t - t0), n = Math.floor(k), f = k - n; return { x: Math.round(x0 + dir * 5 * (n + suave(Math.min(1, f / 0.35)))), anda: t > t0 && f < 0.35, barre: f >= 0.35 ? 1 : 0 }; };
+// el recogedor de chapa, de tres cuartos (la mano en x, y; dir: hacia dónde apunta la pala): el mango rojo y la pala gris
+// con su hueco claro
+const RECOGEDOR = ['kkk.........', 'kHHkkkkkkkk.', '.kkGGGGGGGGk', '...kGgggggGk', '....kGGGGGGk', '.....kkkkkkk'];
+const recogedor = (x, y, dir) => { const pal = { k: C.k, H: hex('#c83a3a'), G: hex('#8a949e'), g: hex('#c8d0d8') };
+  RECOGEDOR.forEach((fila, j) => { for (let i = 0; i < fila.length; i++) { const c = pal[fila[i]]; if (c != null) R.pset(x + dir * i, y - 2 + j, c); } }); };
 
 // ── 1 · el taller y su ingeniero ─────────────────────────────────────────────────────────────────────────────────────
 const p1 = (t) => {
   T.tallerSaffir(R, t, { categoria: 0, viento: 0, marca: 0 });
   const lee = entre(t, s(0.024), s(0.12));
   ayudante(t, { dir: t > s(0.132) ? -1 : 1, dedo: lee, habla: entre(t, s(0.138), s(0.186)) && parp(t, 8), sonrisa: t > s(0.132) });
-  if (lee) { R.rect(256, 87, 263, 95, C.k); R.rect(257, 88, 262, 94, C.blanco); R.rect(258, 90, 261, 90, hex('#8a8a98')); R.rect(258, 92, 260, 92, hex('#8a8a98')); }
-  // Saffir llega desde su mesa de dibujo con la caja de herramientas, la deja, ajusta la casita con el destornillador y en
-  // «Herbert Saffir» se vuelve, sonríe y se sube las gafas
+  if (lee) { R.rect(256, 83, 263, 91, C.k); R.rect(257, 84, 262, 90, C.blanco); R.rect(258, 86, 261, 86, hex('#8a8a98')); R.rect(258, 88, 260, 88, hex('#8a8a98')); }
+  // el aprendiz barre a pasitos las virutas de teja de la última prueba, delante del banco; en «Herbert Saffir» se para,
+  // mira al jefe y le saluda
+  { const mira = t > saffirW - 0.25, b = barriendo(Math.min(t, saffirW - 0.25), 1.2, 100, 1);
+    R.actor(APRENDIZ, b.x, 147, t, { dir: 1, anda: !mira && b.anda, sonrisa: mira, habla: entre(t, saffirW, saffirW + 0.55) && parp(t, 8) });
+    cepillo(b.x, 147, t, 1, mira ? 0 : b.barre); }
+  // Saffir llega desde su mesa de dibujo con la caja de herramientas, la deja a sus pies, ajusta la casita con el
+  // destornillador y en «Herbert Saffir» se vuelve, sonríe y se sube las gafas
   const llega = lin(t, s(0) - 0.15, s(0.084)), x = Math.round(lerp(212, 176, suave(llega))), suelo = Math.round(lerp(158, 150, suave(llega))), deja = t > s(0.093);
   const vuelve = t > herbert, ajusta = !vuelve && t > s(0.108) && Math.sin(t * 7) > -0.2;
   const caja = (cx, cy) => { R.rect(cx - 1, cy - 6, cx + 9, cy, C.k); R.rect(cx, cy - 5, cx + 8, cy - 1, hex('#c83a3a')); R.rect(cx, cy - 5, cx + 8, cy - 5, hex('#e86a5a')); R.rect(cx + 3, cy - 8, cx + 5, cy - 6, C.k); R.pset(cx + 4, cy - 3, hex('#e8e4d8')); };
-  if (deja) caja(194, 152);
+  if (deja) { const u = suave(lin(t, s(0.093), s(0.093) + 0.18)); caja(Math.round(lerp(170, 163, u)), Math.round(lerp(143, 152, u))); }
   const r = R.actor(EL.saffir, x, suelo, t, { dir: vuelve || llega < 1 ? (llega < 1 ? -1 : 1) : -1, anda: llega > 0 && llega < 1, dedo: ajusta || entre(t, saffirW, saffirW + 0.5), sonrisa: t > saffirW - 0.1 || llega < 1, habla: entre(t, s(0.114), s(0.156)) && parp(t, 7) });
   if (!deja && llega > 0) caja(x - 6, suelo - 7);
   if (ajusta) { const [mx, my] = r.mano; R.linea(mx - 1, my, mx - 5, my - 2, C.k); R.pset(mx - 6, my - 2, hex('#c8ccd4')); R.rect(mx, my - 1, mx + 1, my + 1, hex('#c83a3a')); }
@@ -97,17 +133,30 @@ const p1 = (t) => {
 
 // ── 2 · el banco de viento: cómo fallan las casas ─────────────────────────────────────────────────────────────────────
 const v2 = (t) => 0.6 * suave(lin(t, P2 + 0.7, fallan)) + 0.12 * lin(t, fallan, P3);
+// la libreta del banco: el garabato de lo apuntado (n px, en cuatro renglones de 9 px de las dos páginas) y dónde va la punta
+const RENGLON = [[297, 123], [297, 125], [309, 123], [309, 125]];
+const garabato = (n) => { for (let i = 0; i < Math.min(36, Math.floor(n)); i++) { const [x0, y0] = RENGLON[Math.floor(i / 9)]; R.pset(x0 + (i % 9), y0 - ((i * 7) % 3 === 0 ? 1 : 0), hex('#3a3a4a')); } };
+const puntaEn = (n) => { const i = Math.min(35, Math.max(0, Math.floor(n))), [x0, y0] = RENGLON[Math.floor(i / 9)]; return [x0 + (i % 9), y0]; };
+// lo que se escribe a 7 px/s entre a y b, menos lo que dura la pausa [p0, p1]
+const escrito = (t, a, b, p0 = 0, p1 = 0) => 7 * Math.max(0, Math.min(t, b) - a - Math.max(0, Math.min(t, p1) - Math.max(a, p0)));
+const n2 = (t) => escrito(t, P2 + 1.5, P3 - 0.55, fallan, fallan + 0.45);
+// el lápiz amarillo en la mano canónica: la mano en (hx, hy), la punta 14 px a la izquierda y 8 más abajo
+const lapizMano = (hx, hy) => { const px = hx - 14, py = hy + 8; R.linea(px, py, px + 5, py - 6, C.k); R.linea(px + 1, py, px + 6, py - 6, hex('#f0c040')); R.pset(px, py, hex('#3a3a46')); T.mano(R, hx, hy, -1, CAMISA); };
 const p2 = (t) => {
   T.tallerSaffir(R, t, { encuadre: 'banco', categoria: 1.3 * lin(t, estudia + 0.7, fuertes + 0.6), viento: v2(t), giro: giroDe(v2, P2, t) });
-  // la mano gira el mando y se va
-  const llega = lin(t, P2 + 0.1, P2 + 0.55), gira = lin(t, P2 + 0.55, P2 + 1.0), sale = lin(t, P2 + 1.1, P2 + 1.7);
-  if (sale < 1) { const hx = Math.round(lerp(lerp(160, 111, suave(llega)), 345, suave(sale))), hy = 109 + (gira > 0 && gira < 1 ? Math.round(Math.sin(gira * Math.PI * 2) * 2) : 0); T.mano(R, hx, hy, -1, CAMISA); }
-  // la otra mano apunta en la libreta con el lápiz mientras las tejas empiezan a fallar
-  const escribe = lin(t, estudia - 0.3, estudia + 0.2), deja = lin(t, P3 - 0.6, P3 - 0.1);
-  if (escribe > 0 && deja < 1) { const z = entre(t, estudia + 0.2, P3 - 0.6), px = Math.round(298 + (z ? ((t * 7) % 1) * 12 : 0)), py = 124 + (z ? Math.round(Math.sin(t * 31) * 1) : 0), hx = Math.round(lerp(lerp(345, px + 14, suave(escribe)), 345, suave(deja)));
-    const ox = hx - (px + 14); R.linea(px + ox, py, px + 5 + ox, py - 6, C.k); R.linea(px + 1 + ox, py, px + 6 + ox, py - 6, hex('#f0c040')); R.pset(px + ox, py, hex('#3a3a46'));
-    if (z) for (let i = 0; i < Math.floor(((t - estudia) * 7) % 12); i++) R.pset(296 + i, 124 + (i % 3 === 1 ? -1 : 0), hex('#4a4a5a'));
-    T.mano(R, hx, py - 8, -1, CAMISA); }
+  garabato(n2(t));
+  // una sola mano (con su lápiz): llega desde la derecha al mando, lo gira, va a la libreta y apunta; en «fail» se para y
+  // se levanta un poco, vuelve a escribir y se va
+  const M2 = [P2 + 0.05, P2 + 0.55, P2 + 1.0, P2 + 1.5, P3 - 0.55, P3 - 0.05];
+  if (t < M2[0] || t > M2[5]) return;
+  const [qx, qy] = puntaEn(n2(t)), z = t > M2[3] && t < M2[4] && !entre(t, fallan, fallan + 0.45);
+  let hx, hy;
+  if (t < M2[1]) { const u = suave(lin(t, M2[0], M2[1])); hx = lerp(340, 111, u); hy = lerp(134, 109, u); }
+  else if (t < M2[2]) { hx = 111; hy = 109 + Math.round(Math.sin(lin(t, M2[1], M2[2]) * Math.PI * 2) * 2); }
+  else if (t < M2[3]) { const u = suave(lin(t, M2[2], M2[3])); hx = lerp(111, qx + 14, u); hy = lerp(109, qy - 8, u) - Math.sin(u * Math.PI) * 10; }
+  else if (t < M2[4]) { hx = qx + 14; hy = qy - 8 + (z ? Math.round(Math.sin(t * 31)) : -3); }
+  else { const u = suave(lin(t, M2[4], M2[5])); hx = lerp(qx + 14, 345, u); hy = qy - 8 - u * 4; }
+  lapizMano(Math.round(hx), Math.round(hy));
 };
 
 // ── 3 · llega Simpson con su mapa ────────────────────────────────────────────────────────────────────────────────────
@@ -116,6 +165,12 @@ const p3 = (t) => {
   T.tallerSaffir(R, t, { categoria: 1.3, viento: 0.12, marca: 0, puerta: lin(t, P3 + 0.02, P3 + 1.0) });
   // la ayudante saluda a Simpson cuando pasa por delante del mostrador
   ayudante(t, { dir: 1, dedo: entre(t, entraS + 0.5, entraS + 1.3), sonrisa: t > entraS + 0.4 });
+  // el aprendiz sigue barriendo; al abrirse la puerta se para y mira, saluda a Simpson cuando pasa, vuelve a barrer y en
+  // «Center» se para a mirar el mapa
+  { const sigue = entraS + 1.6, te = Math.max(0, Math.min(t, P3 + 0.25) - P3) + Math.max(0, Math.min(t, despliega) - sigue), barre = t < P3 + 0.25 || entre(t, sigue, despliega);
+    const b = barriendo(P3 + te, P3, 118, 1);
+    R.actor(APRENDIZ, b.x, 147, t, { dir: 1, anda: barre && b.anda, sorpresa: entre(t, P3 + 0.3, P3 + 0.8), dedo: entre(t, entraS + 0.6, entraS + 1.4), sonrisa: entre(t, entraS + 0.5, sigue) || t > despliega + 0.2 });
+    cepillo(b.x, 147, t, 1, barre ? b.barre : 0); }
   // Simpson entra por la puerta y cruza el taller en diagonal hasta Saffir; en «Center» despliega el mapa
   const u = lin(t, entraS, llegaS), x = Math.round(lerp(293, 204, u)), suelo = Math.round(lerp(138, 152, u)), anda = u > 0 && u < 1;
   const abre = lin(t, despliega, despliega + 0.5), ensena = lin(t, despliega + 0.5, despliega + 0.8);
@@ -137,33 +192,70 @@ const p4 = (t) => {
   const baja = lin(t, tira - 0.12, tira + 0.08), ty = Math.round(118 + baja * 6);
   R.rect(267, 112, 268, ty, C.k); R.rect(266, ty, 269, ty + 2, C.k); R.rect(267, ty + 1, 268, ty + 1, hex('#c83a3a'));
   R.rect(264, 100, 266, 102, C.k); R.pset(265, 101, t > tira ? hex('#6af06a') : hex('#c83a3a'));
+  // el aprendiz, junto a la papelera (al fondo, contra la pared): alza el recogedor y lo vacía a golpecitos (caen las virutas), se vuelve al
+  // encenderse el panel, se asombra y sonríe, y se va por la izquierda con el recogedor
+  { const vuelca = entre(t, P4 + 0.35, P4 + 1.15), mira = t > P4 + 1.25, va = lin(t, espera - 0.2, espera + 1.1), ax = Math.round(lerp(42, -22, va)), d = mira && va <= 0 ? 1 : -1;
+    R.actor(APRENDIZ, ax, 141, t, { dir: d, anda: va > 0 && va < 1, dedo: t < P4 + 1.25, sorpresa: entre(t, uno, uno + 0.6), sonrisa: t > uno + 0.6 && va <= 0, habla: entre(t, cinco + 0.2, cinco + 0.7) && parp(t, 8) });
+    // sobre la boca de la papelera da golpecitos con el recogedor y las virutas caen dentro (se pierden al pasar el borde)
+    if (t < P4 + 1.25) { const mx = ax - 3, my = 120, tap = vuelca && Math.floor((t - P4) * 7) % 2 ? 1 : 0; recogedor(mx, my - tap, -1);
+      if (vuelca) for (let k = 0; k < 5; k++) { const u = ((t - P4) * 2.6 + k / 5) % 1, y = my + 2 + Math.round(u * 3); if (y < 123) R.pset(mx - 9 - (k % 3), y, k % 2 ? hex('#6a5e56') : hex('#3a322c')); } }
+    else { const [cx, cy] = d > 0 ? [ax + 11, 132] : [ax - 5, 132]; recogedor(cx, cy, d); } }
   // Saffir va al interruptor, tira, y en «what to expect» se vuelve con los brazos abiertos
   const va = lin(t, P4 + 0.2, tira - 0.3), x = Math.round(lerp(200, 252, suave(va)));
   R.actor(EL.saffir, x, 153, t, { dir: t > uno + 0.6 ? -1 : 1, anda: va > 0 && va < 1, dedo: entre(t, tira - 0.25, tira + 0.25), brazos: entre(t, gente - 0.2, espera + 0.7), sonrisa: t > cinco, habla: entre(t, gente, espera + 0.6) && parp(t, 8) });
-  // Simpson mira el panel apagado, se asombra al encenderse y asiente y señala en «what to expect»
-  R.actor(EL.simpson, 112, 162, t, { dir: 1, sorpresa: entre(t, uno, cinco + 0.5), sonrisa: t > cinco + 0.5, dedo: entre(t, espera - 0.1, espera + 1.2), habla: entre(t, P4 + 0.6, P4 + 1.6) && parp(t, 7) });
+  // Simpson da dos pasos hacia el panel apagado, se asombra al encenderse y en «what to expect» asiente y señala
+  const sx = Math.round(lerp(98, 112, suave(lin(t, P4 + 0.3, P4 + 0.9)))), asiente = entre(t, espera, espera + 0.5) && Math.floor((t - espera) * 8) % 2 === 0;
+  R.actor(EL.simpson, sx, 162 + (asiente ? 1 : 0), t, { dir: 1, anda: entre(t, P4 + 0.3, P4 + 0.9), sorpresa: entre(t, uno, cinco + 0.5), sonrisa: t > cinco + 0.5, dedo: entre(t, espera - 0.1, espera + 1.2), habla: entre(t, P4 + 0.6, P4 + 1.6) && parp(t, 7) });
 };
 
 // ── 5 · categoría 1 en el mostrador: el gag de la teja y la campanita ────────────────────────────────────────────────
 const gag0 = arranca - 0.1, gag1 = gag0 + 1.9, golpeT = gag0 + 0.7 * 1.9;
+// el ventilador del fondo lo enciende el aprendiz en «category one»
+const enciende = c(0.03), v5 = (t) => 0.44 * suave(lin(t, enciende - 0.05, enciende + 0.75));
 const p5 = (t) => {
-  T.tallerSaffir(R, t, { encuadre: 'mostrador', categoria: 1, detras: true, gag: lin(t, gag0, gag1) });
-  // Saffir, detrás del mostrador: señala el banco del fondo y se ríe con el golpe
-  R.actor(EL.saffir, 150, 118, t, { dir: -1, dedo: entre(t, cat1, n74 + 0.4), sonrisa: t > n74 || t > golpeT + 0.1, habla: entre(t, P5 + 0.2, cat1 + 0.6) && parp(t, 7), salto: entre(t, golpeT + 0.2, golpeT + 0.45) ? 1 : 0 });
+  T.tallerSaffir(R, t, { encuadre: 'mostrador', categoria: 1, detras: true, gag: lin(t, gag0, gag1), viento: v5(t), giro: giroDe(v5, P5, t) });
+  // al fondo, por el arco (recortado a su hueco): el aprendiz, junto al ventilador, lo enciende en «category one», se vuelve
+  // a mirar la casita, se asombra cuando se levantan las tejas, señala la que sale volando y se ríe con el golpe
+  R.recorte([0, 26, 101, 151]);
+  R.actor(APRENDIZ, 20, 148, t, { dir: t < enciende + 0.25 ? -1 : 1, dedo: entre(t, enciende - 0.3, enciende + 0.15) || entre(t, arranca + 0.35, golpeT), sorpresa: entre(t, arranca - 0.05, arranca + 0.35), sonrisa: entre(t, enciende + 0.4, arranca - 0.1) || t > golpeT + 0.1, habla: entre(t, golpeT + 0.2, golpeT + 0.8) && parp(t, 8) });
+  R.recorte(null);
+  // Saffir, detrás del mostrador (la cara por encima de lo que hay encima): señala el banco del fondo y se ríe con el golpe
+  R.actor(EL.saffir, 150, 114, t, { dir: -1, dedo: entre(t, cat1, n74 + 0.4), sonrisa: t > n74 || t > golpeT + 0.1, habla: (entre(t, P5 + 0.2, cat1 + 0.6) || entre(t, golpeT + 0.5, golpeT + 1.1)) && parp(t, 7), salto: entre(t, golpeT + 0.2, golpeT + 0.45) ? 1 : 0 });
   numeroSalta('74', 70, 84, t, n74 - 0.05, arranca - 0.2);
-  // Simpson, delante del mostrador (va después de lo que repinta el decorado delante)
+  // Simpson, delante del mostrador (va después de lo que repinta el decorado delante, y por delante de la palmera): se
+  // acerca para ver el banco por el arco, señala el «74», mira la teja, da un brinco con el golpe de la campanita, que le
+  // pilla al lado, se ríe y la señala
+  const sx = Math.round(lerp(240, 198, suave(lin(t, P5 + 0.05, P5 + 1.15))));
   const antes = R.delante;
-  R.delante = () => { antes?.(); R.actor(EL.simpson, 212, 170, t, { dir: -1, sorpresa: entre(t, golpeT, golpeT + 0.6), salto: entre(t, golpeT, golpeT + 0.3) ? 3 : 0, sonrisa: t > golpeT + 0.6 || entre(t, n74, arranca), dedo: entre(t, arranca, golpeT - 0.1) }); };
+  R.delante = () => { antes?.(); R.actor(EL.simpson, sx, 170, t, { dir: -1, anda: entre(t, P5 + 0.05, P5 + 1.15), sorpresa: entre(t, golpeT, golpeT + 0.6), salto: entre(t, golpeT, golpeT + 0.3) ? 3 : 0, sonrisa: t > golpeT + 0.6 || entre(t, n74, arranca), dedo: entre(t, n74 + 0.05, n74 + 0.7) || entre(t, arranca + 0.2, golpeT - 0.1) || entre(t, golpeT + 0.7, golpeT + 1.4), habla: entre(t, golpeT + 0.65, golpeT + 1.2) && parp(t, 8) }); };
 };
 
 // ── 6 · categoría 5 en el banco: la casita se desmonta ───────────────────────────────────────────────────────────────
 const cat6 = (t) => (t < n157 ? lerp(1.6, 3.6, lin(t, P6, n157)) : t < arrasa - 0.05 ? lerp(3.6, 4.4, lin(t, n157, arrasa - 0.05)) : lerp(4.4, 5, lin(t, arrasa - 0.05, barrios + 0.25)));
-const v6 = (t) => lerp(0.62, 1, suave(lin(t, sopla - 0.1, sopla + 0.5)));
+// en «neighborhoods» la mano vuelve al mando y apaga: el viento y el contador caen y las aspas se paran
+const apaga = barrios + 0.62;
+const v6 = (t) => lerp(0.62, 1, suave(lin(t, sopla - 0.1, sopla + 0.5))) * (1 - suave(lin(t, apaga, apaga + 0.55)));
+// la libreta sigue donde la dejó el plano 2; la mano apunta desde que deja el mando hasta «neighborhoods» (en «flatten», el respingo)
+const n6 = (t) => n2(P3) + escrito(t, sopla + 0.6, barrios, arrasa - 0.05, arrasa + 0.5);
 const p6 = (t) => {
-  T.tallerSaffir(R, t, { encuadre: 'banco', categoria: cat6(t), viento: v6(t), giro: giroDe(v6, P6, t) + 2, mph: Math.round(t < n157 ? lerp(96, 157, lin(t, P6, n157)) : 157 + 3 * lin(t, n157, n157 + 1.2)) });
-  const llega = lin(t, P6 + 0.25, sopla - 0.35), gira = lin(t, sopla - 0.3, sopla + 0.1), sale = lin(t, sopla + 0.25, sopla + 0.8);
-  if (sale < 1) { const hx = Math.round(lerp(lerp(160, 111, suave(llega)), 345, suave(sale))), hy = 109 + (gira > 0 && gira < 1 ? Math.round(Math.sin(gira * Math.PI * 3) * 2) : 0); T.mano(R, hx, hy, -1, CAMISA); }
+  const mph = (t < n157 ? lerp(96, 157, lin(t, P6, n157)) : 157 + 3 * lin(t, n157, n157 + 1.2)) * (1 - suave(lin(t, apaga, apaga + 0.7)));
+  T.tallerSaffir(R, t, { encuadre: 'banco', categoria: cat6(t), viento: v6(t), giro: giroDe(v6, P6, t) + 2, mph: Math.round(mph) });
+  garabato(n6(t));
   numeroSalta('157', 194, 40, t, n157 - 0.05, arrasa - 0.2);
+  // la mano: llega al mando, lo gira a tope en «blows», va a la libreta y apunta; en «flatten» da un respingo; vuelve al
+  // mando, lo apaga y se va
+  const M6 = [P6 + 0.12, sopla - 0.35, sopla + 0.12, sopla + 0.6, barrios, apaga - 0.08, apaga + 0.32, P7 - 0.05];
+  if (t < M6[0] || t > M6[7]) return;
+  const [qx, qy] = puntaEn(n6(t)), respingo = entre(t, arrasa - 0.05, arrasa + 0.5), z = t > M6[3] && t < M6[4] && !respingo;
+  let hx, hy;
+  if (t < M6[1]) { const u = suave(lin(t, M6[0], M6[1])); hx = lerp(340, 111, u); hy = lerp(134, 109, u); }
+  else if (t < M6[2]) { hx = 111; hy = 109 + Math.round(Math.sin(lin(t, M6[1], M6[2]) * Math.PI * 3) * 2); }
+  else if (t < M6[3]) { const u = suave(lin(t, M6[2], M6[3])); hx = lerp(111, qx + 14, u); hy = lerp(109, qy - 8, u) - Math.sin(u * Math.PI) * 10; }
+  else if (t < M6[4]) { const r = respingo ? Math.sin(lin(t, arrasa - 0.05, arrasa + 0.5) * Math.PI) : 0; hx = qx + 14 + r * 5; hy = qy - 8 - r * 6 + (z ? Math.round(Math.sin(t * 31)) : 0); }
+  else if (t < M6[5]) { const u = suave(lin(t, M6[4], M6[5])); hx = lerp(qx + 14, 111, u); hy = lerp(qy - 8, 109, u) - Math.sin(u * Math.PI) * 10; }
+  else if (t < M6[6]) { hx = 111; hy = 109 + Math.round(Math.sin(lin(t, M6[5], M6[6]) * Math.PI * 2) * 2); }
+  else { const u = suave(lin(t, M6[6], M6[7])); hx = lerp(111, 340, u); hy = lerp(109, 134, u); }
+  lapizMano(Math.round(hx), Math.round(hy));
 };
 
 // ── 7 · la mesa de dibujo: la fuerza crece mucho más deprisa que la velocidad ────────────────────────────────────────
@@ -252,12 +344,12 @@ const p7 = (t) => {
     for (let d = 16; d < 140; d++) for (let w = -6; w <= 6; w++) { const x = Math.round(170 + ca * d - sa * w * (0.6 + d / 140)), y = Math.round(80 + (sa * d + ca * w) * 0.5); if (x < 0 || x > 319 || y < 16 || y > 165 || (x + y) % 2 || (x > 270 && y < 50)) continue; aclara(x, y, hex('#24301e'), 0.07); } }
 };
 
-const efectos = [[s(0.027), 'papel'], [s(0.093), 'golpecito'], [s(0.114), 'tic'], [saffirW, 'brillo'],
-  [P2 + 0.6, 'interruptor'], [P2 + 0.75, 'zumbido'], [estudia, 'lapiz'], [fallan, 'rafaga'], [fuertes + 0.2, 'golpecito'],
+const efectos = [[s(0.027), 'papel'], [s(0.093) + 0.18, 'golpecito'], [s(0.114), 'tic'], [saffirW, 'brillo'],
+  [P2 + 0.58, 'interruptor'], [P2 + 0.75, 'zumbido'], [P2 + 1.5, 'lapiz'], [fallan, 'rafaga'], [fuertes + 0.2, 'golpecito'],
   [P3 + 0.05, 'puerta'], [llegaS + 0.05, 'palmada'], [despliega, 'papel'], [despliega + 0.6, 'pop'],
-  [tira, 'interruptor'], ...[0, 1, 2, 3, 4].map((k) => [uno + 0.12 + k * 0.6 * (cinco + 0.36 - uno - 0.12) / 2.4, k < 4 ? 'tic' : 'brillo']), [espera, 'palmada'],
-  [cat1 + 0.1, 'rafaga'], [n74, 'pop'], [arranca, 'rafaga'], [golpeT, 'aviso'], [golpeT + 0.35, 'golpecito'],
-  [sopla - 0.3, 'interruptor'], [sopla, 'rafaga'], [n157, 'pop'], [n157 + 0.9, 'rafaga'], [arrasa, 'avalancha'], [barrios + 0.4, 'golpecito'],
+  [P4 + 0.5, 'golpecito'], [tira, 'interruptor'], ...[0, 1, 2, 3, 4].map((k) => [uno + 0.12 + k * 0.6 * (cinco + 0.36 - uno - 0.12) / 2.4, k < 4 ? 'tic' : 'brillo']), [espera, 'palmada'],
+  [enciende, 'interruptor'], [enciende + 0.2, 'rafaga'], [n74, 'pop'], [arranca, 'rafaga'], [golpeT, 'aviso'], [golpeT + 0.35, 'golpecito'],
+  [sopla - 0.3, 'interruptor'], [sopla, 'rafaga'], [n157, 'pop'], [n157 + 0.9, 'rafaga'], [arrasa, 'avalancha'], [sopla + 0.6, 'lapiz'], [apaga - 0.05, 'interruptor'],
   ...[1, 2, 3, 4, 5].map((k) => [escalon + 0.18 * (k - 1), 'tic']), [multiplica + 0.22, 'pop'], [fuerza, 'lapiz'], [fuerza + 1.0, 'lapiz'], [suVel - 0.05, 'lapiz'], [suVel + 1.1, 'golpecito']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { cartela: '1971', efectos, año: 1971 });
 </script>

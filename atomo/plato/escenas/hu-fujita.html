@@ -9,18 +9,27 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// HU-FUJITA (frase 21), 1971. Tres planos:
+// HU-FUJITA (frase 21), 1971. Tres planos (las marcas de la voz inglesa salen de las palabras medidas en la pista):
 // 1. el laboratorio de Fujita en Chicago («That same year, in Chicago»; por el ventanal, el Hancock y la Sears a medio
-//    hacer con su grúa): Fujita repasa las fotos aéreas en la mesa de luz; la becaria entra por la derecha con un sobre
-//    de fotos nuevas y se lo da («A Japanese-born»); él saca una y la pone en la mesa de luz («scientist»); en «Ted
-//    Fujita» descubre las marcas en espiral: «!», se vuelve sonriendo con el dedo arriba y ella toma nota; corta en «who»;
+//    hacer con su grúa): Fujita repasa las fotos aéreas de la mesa de luz y las comenta; al fondo a la izquierda, el
+//    ayudante trae una caja de fotos de la estantería, la deja en la mesa de luz y vuelve por otra; la becaria entra por
+//    la derecha con un sobre de fotos nuevas; Fujita va a su encuentro, coge el sobre («A Japanese-born»), vuelve a la
+//    mesa y saca una foto que pone en la mesa de luz («scientist»); en «Ted Fujita» descubre las marcas en espiral: «!»,
+//    se vuelve sonriendo con el dedo arriba y ella toma nota; corta al acabar «Fujita» (6,5 s);
 // 2. desde su avioneta («who studies storms by flying over the damage»): la Cessna cruza el camino de daños del tornado
-//    sobre las llanuras; su sombra pasa por la granja alcanzada (los vecinos recogen) y la cámara dispara dos veces
+//    sobre las llanuras; su sombra pasa por la granja alcanzada, donde los vecinos que recogen alzan la vista y la saludan
+//    con los brazos, y el perro de la granja corre un trecho detrás de la sombra; la cámara dispara dos veces
 //    («photographing», «above»); corta en «creates»;
-// 3. la mesa de luz de cerca: la mano de Fujita acaba de trazar con el lápiz graso los bucles de la espiral y apunta los
-//    números («creates a scale»); otra vez la mano trae la tarjeta de su escala (seis barras del 0 al 5, cada una se
-//    enciende al caer: «hurricane's smaller»); y en «fiercer cousin» desliza sobre la mesa la foto de un embudo; en «the
-//    tornado» la toca con el dedo y la foto destella.
+// 3. la mesa de luz de cerca: la mano derecha de Fujita acaba de trazar con el lápiz graso los bucles de la espiral y se va
+//    («creates a scale»); la izquierda entra con la lupa y la pasea por los bucles (dentro, aumentados al doble) y se la
+//    lleva al final; la derecha trae la tarjeta de su escala (seis barras del 0 al 5, cada una se enciende al caer:
+//    «hurricane's smaller»); y en «fiercer cousin» desliza sobre la mesa la foto de un embudo; en «the tornado» la toca
+//    con el dedo y la foto destella.
+// Posiciones del decorado de las que depende: labFujita (la mesa de luz x 70–176, su cara iluminada y 92–121; el suelo de
+// los pies y 150–166; la estantería y el carrito de la maqueta a la izquierda); danosDesdeArriba (la sombra de la avioneta
+// en x = −6 + 332·u por el centro del camino de daños, y = 34 + (x + 20)·0,356; la granja alcanzada en x 170–250, y 76–110;
+// la casa en x 184–203, y 90–103); el inserto 'mesa' (el trazo g_TRAZO, la lupa con o.lupa [x, y] y su mango hacia abajo a
+// la derecha, de r + 2 a r + 10 px con r = 15).
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-fujita');
@@ -44,7 +53,8 @@ const cifras = (s, x, y, c) => { for (const ch of String(s)) { const d = DIG[+ch
 const destello = (x, y, r, c = C.blanco) => { R.pset(x, y, c); for (let k = 1; k <= r; k++) { R.pset(x + k, y, c); R.pset(x - k, y, c); R.pset(x, y + k, c); R.pset(x, y - k, c); } };
 
 const a = (f) => en('fujita', f);
-const P2 = a(0.364), P3 = a(0.6913);
+// cortes: al acabar «Fujita» (6,52 s: el primer plano queda en 6,5 s) y en «creates»
+const P2 = a(0.3336), P3 = a(0.6913);
 // ── 1 · el laboratorio ──────────────────────────────────────────────────────────────────────────────────────────
 const entrega = a(0.156), ponFoto = [a(0.198), a(0.226)], ted = a(0.2756), anota = a(0.318);
 const sobre = (x, y) => { R.rect(x, y, x + 7, y + 5, C.k); R.rect(x + 1, y + 1, x + 6, y + 4, hex('#d8b878')); R.linea(x + 1, y + 1, x + 3, y + 3, hex('#a8844a')); R.linea(x + 6, y + 1, x + 4, y + 3, hex('#a8844a')); R.pset(x + 1, y + 4, hex('#f0d8a0')); };
@@ -63,18 +73,20 @@ const p1 = (t) => {
     R.actor(EL.tecnico, x, 164, t, { dir: d, anda, dedo: entre(t, 2.75, 3.2), sonrisa: t > ted + 0.2, habla: entre(t, ted + 0.4, ted + 1.0) && parpadeo(t, 7) });
     if (t < 2.85) { const [cx, cy] = enMano(x, 164, d); cajaFotos(cx - 4, cy - 5); } else cajaFotos(76, 114);
     if (t > 5.0) { const [cx, cy] = enMano(x, 164, d); cajaFotos(cx - 4, cy - 5); } }
-  // Fujita junto a la mesa de luz: repasa las fotos, se vuelve a coger el sobre, pone la foto nueva y descubre las marcas
-  const haciaElla = entre(t, entrega - 0.45, ponFoto[0]), deVuelta = t >= ted - 0.05;
+  // Fujita junto a la mesa de luz: repasa las fotos y las comenta; va al encuentro de la becaria, coge el sobre, vuelve a
+  // la mesa, pone la foto nueva y descubre las marcas
+  const va = suave(lin(t, entrega - 0.65, entrega - 0.1)), vuelve = suave(lin(t, entrega + 0.15, ponFoto[0] - 0.05)), fxP = Math.round(182 + 12 * va - 18 * vuelve);
+  const andaF = (va > 0 && va < 1) || (vuelve > 0 && vuelve < 1), haciaElla = entre(t, entrega - 0.8, entrega + 0.15), deVuelta = t >= ted - 0.05;
   const fd = haciaElla || deVuelta ? 1 : -1;
-  R.actor(EL.fujita, 182, 160, t, { dir: fd, dedo: entre(t, 0.4, 1.0) || entre(t, 1.7, 2.3) || entre(t, entrega - 0.15, entrega + 0.2) || entre(t, ponFoto[0], ponFoto[1]) || t > ted + 0.2,
-    habla: (entre(t, 0.4, 1.3) || entre(t, ted + 0.4, ted + 1.0)) && parpadeo(t, 8), sorpresa: entre(t, ted - 0.1, ted + 0.25), sonrisa: t > ted + 0.25 || entre(t, entrega, ponFoto[0]) });
-  // el sobre: en la mano de ella, pasa a la de él, y de él sale la foto que va a la mesa
+  R.actor(EL.fujita, fxP, 160, t, { dir: fd, anda: andaF, dedo: !andaF && (entre(t, 0.4, 1.0) || entre(t, 1.7, 2.3) || entre(t, ponFoto[0], ponFoto[1]) || t > ted + 0.2),
+    habla: (entre(t, 0.4, 1.3) || entre(t, 1.9, 2.6) || entre(t, ted + 0.4, ted + 1.0)) && parpadeo(t, 8), sorpresa: entre(t, ted - 0.1, ted + 0.25), sonrisa: t > ted + 0.25 || entre(t, entrega - 0.3, ponFoto[0]) });
+  // el sobre: en la mano de ella, pasa a la de él, que se lo lleva a la mesa, y de él sale la foto que va a la mesa de luz
   const b = lin(t, 0.6, 3.15), bx = Math.round(lerp(338, 216, suave(b)));
-  const [ex, ey] = enMano(bx, 170, -1), [fx, fy] = enMano(182, 160, 1);
+  const [ex, ey] = enMano(bx, 170, -1), [fx, fy] = enMano(fxP, 160, fd);
   if (t < entrega - 0.1) sobre(ex - 3, ey - 2);
   else if (t < entrega + 0.2) { const v = lin(t, entrega - 0.1, entrega + 0.2); sobre(Math.round(lerp(ex - 3, fx - 2, v)), Math.round(lerp(ey - 2, fy - 3, v))); }
-  else if (t < ponFoto[0]) sobre(fx - 2, fy - 3);
-  const v = lin(t, ponFoto[0], ponFoto[1]); if (t >= ponFoto[0]) fotito(Math.round(lerp(170, 140, suave(v))), Math.round(lerp(150, 96, suave(v)) - Math.sin(v * Math.PI) * 6), t > ted - 0.1);
+  else if (t < ponFoto[0]) sobre(fx - (fd > 0 ? 2 : 4), fy - 3);
+  const v = lin(t, ponFoto[0], ponFoto[1]); if (t >= ponFoto[0]) fotito(Math.round(lerp(fx - 4, 140, suave(v))), Math.round(lerp(150, 96, suave(v)) - Math.sin(v * Math.PI) * 6), t > ted - 0.1);
   if (t > ted - 0.1 && t < ted + 0.6 && parpadeo(t, 14)) destello(146, 99, 3, hex('#ffd0c0'));
   if (entre(t, ted - 0.05, ted + 0.95)) R.bocadillo(189, 128, {});
   // la becaria: entra por la derecha (por delante de la silla), le da el sobre y luego toma nota
@@ -87,10 +99,27 @@ const p2 = (t) => {
   const u = lerp(0.2, 0.62, lin(t, P2, fotos[0])) + Math.max(0, t - fotos[0]) * 0.125;
   let foto = 0; for (const f of fotos) if (t >= f && t < f + 0.3) foto = 1 - (t - f) / 0.3;
   T.danosDesdeArriba(R, t, { u, avioneta: true, foto });
+  // la sombra de la avioneta (la misma cuenta que el decorado): cuándo pasa por encima de la granja alcanzada
+  const sx = -6 + u * 332, cerca = Math.max(0, 1 - Math.abs(sx - 205) / 70);
+  // tres vecinos (vistos desde arriba: la cabeza, los hombros y su sombra) alzan la vista y saludan con los brazos al
+  // pasar la avioneta; luego vuelven a recoger
+  for (const [vx, vy, ropa, k] of [[178, 106, '#3a7a5a', 0], [212, 99, '#c87a2a', 1], [243, 112, '#5a5aa8', 2]]) {
+    const sal = cerca > 0.25, b = sal ? (Math.floor(t * 8 + k) % 2) : -1, x = vx + (sal ? 0 : Math.round(Math.sin(t * 0.7 + k * 2) * 2));
+    R.pset(x + 1, vy + 1, hex('#2e3a24')); R.pset(x, vy, hex(ropa)); R.pset(x + 1, vy, hex(ropa)); R.pset(x, vy - 1, hex('#e8b890'));
+    if (b >= 0) { R.pset(x - 1, vy - 1 - b, hex('#e8b890')); R.pset(x + 2, vy - 2 + b, hex('#e8b890')); } }
+  // el perro de la granja corre un trecho detrás de la sombra y se queda moviendo el rabo
+  { const c = lin(t, fotos[0] - 0.9, fotos[0] + 0.5), x = Math.round(lerp(186, 226, suave(c))), y = Math.round(lerp(109, 116, suave(c))), cola = Math.floor(t * (c < 1 ? 14 : 9)) % 2;
+    R.pset(x + 2, y + 1, hex('#2e3a24')); R.pset(x, y, hex('#a8743c')); R.pset(x + 1, y, hex('#a8743c')); R.pset(x + 2, y - (c < 1 && Math.floor(t * 12) % 2 ? 1 : 0), hex('#c8945a')); R.pset(x - 1, y - cola, hex('#7a5028')); }
 };
 // ── 3 · la mesa de luz de cerca ─────────────────────────────────────────────────────────────────────────────────
 // el trazo del lápiz graso (el mismo que pinta el decorado), para poner la punta del lápiz donde va
 const TRAZO = (() => { const pts = []; let px = -1, py = -1; for (let tau = 0; tau < 120; tau += 0.05) { const x = Math.round(58 + tau * 0.75 - 7 * Math.sin(tau * 0.5)), y = Math.round(40 + tau * 0.48 + 7 * Math.cos(tau * 0.5) * 0.8 - 5); if (x > 150 || y > 118) break; if (x !== px || y !== py) { pts.push([x, y]); px = x; py = y; } } return pts; })();
+// la lupa: entra (12,2–12,85 s), sigue el eje de la espiral con un vaivén de quien mira de cerca y sale (15,3–15,9 s)
+const LUPA = [P3 + 0.2, P3 + 0.84, P3 + 3.2, P3 + 3.9];
+const lupaEn = (t) => { if (t < LUPA[0] || t > LUPA[3]) return null;
+  if (t < LUPA[1]) { const u = suave(lin(t, LUPA[0], LUPA[1])); return [Math.round(lerp(-30, 62, u)), Math.round(lerp(70, 40, u))]; }
+  if (t < LUPA[2]) { const u = suave(lin(t, LUPA[1], LUPA[2])), w = Math.sin((t - LUPA[1]) * 4.2); return [Math.round(lerp(62, 128, u) + w * 3), Math.round(lerp(40, 86, u) - w * 2)]; }
+  const u = suave(lin(t, LUPA[2], LUPA[3])); return [Math.round(lerp(128, -40, u)), Math.round(lerp(86, 104, u))]; };
 const finTrazo = a(0.735), tarjetaIn = [a(0.745), a(0.8034)], fotoIn = [a(0.818), a(0.872)], toca = a(0.9441);
 const COLS = ['#8ab0d8', '#7ac08a', '#e8d050', '#f0a040', '#e0603a', '#b02a3a'].map(hex);
 // la tarjeta de la escala: seis barras del 0 al 5, cada una más alta y con su casita cada vez más rota encima
@@ -116,7 +145,10 @@ const fotoTornado = (x, y) => {
 const lapiz = (px, py) => { R.linea(px, py, px + 10, py + 3, C.k); R.linea(px + 1, py - 1, px + 10, py + 2, hex('#d8282a')); R.pset(px, py, hex('#9a1a1e')); };
 const p3 = (t) => {
   const mk = lerp(0.56, 1, lin(t, P3 - 0.3, finTrazo));
-  T.labFujita(R, t, { encuadre: 'mesa', marca: mk, lupa: false });
+  // la lupa, en la mano izquierda: entra por la izquierda, recorre los bucles de la espiral (el decorado la pinta con lo de
+  // debajo aumentado al doble) y se va por donde vino
+  const L = lupaEn(t);
+  T.labFujita(R, t, { encuadre: 'mesa', marca: mk, lupa: L ?? false });
   // la tarjeta de la escala entra por la derecha y cae; la foto del embudo entra desde abajo a la derecha
   const vt = suave(lin(t, tarjetaIn[0], tarjetaIn[1])), kx = Math.round(lerp(330, 166, vt));
   if (t > tarjetaIn[0]) tarjeta(kx, 28, t, tarjetaIn[1] - 0.05);
@@ -130,6 +162,8 @@ const p3 = (t) => {
     lapiz(hx - 13, hy - 4); T.mano(R, hx, hy, -1, manga); }
   if (t > tarjetaIn[0] && t < tarjetaIn[1] + 0.5) { const sale = lin(t, tarjetaIn[1] + 0.05, tarjetaIn[1] + 0.5); T.mano(R, kx + 64 + Math.round(sale * 120), 44 + Math.round(sale * 10), -1, manga); }
   if (t > fotoIn[0] && t < E.duracion) { const tap = t > toca - 0.08 && t < toca + 0.18 ? 2 : 0, sale = lin(t, toca + 0.6, toca + 1.1); T.mano(R, fx + 40 + Math.round(sale * 120), fy + 30 + tap + Math.round(sale * 20), -1, manga); }
+  // la mano izquierda coge la lupa por el extremo del mango, desde abajo (la manga no tapa el cristal)
+  if (L) T.mano(R, L[0] + 15, L[1] + 22, 1, manga);
 };
 const efectos = [[0.45, 'papel'], [entrega, 'papel'], [ponFoto[1], 'golpecito'], [ted, 'pop'],
   [P2 + 0.05, 'motor', { dur: P3 - P2 + 0.2 }], [fotos[0], 'flash'], [fotos[1], 'flash'],

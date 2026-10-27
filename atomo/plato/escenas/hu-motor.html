@@ -10,18 +10,27 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // HU-MOTOR (frase 8), sin año: el huracán como motor. Cuatro planos:
-// 1. la lancha frente a la torre de nubes: en «engine» se abre en la nube la ventana de chapa remachada y en «runs on that
-//    heat» arrancan los pistones de nube, el cigüeñal y el volante, con el mar encendido debajo; los científicos se
-//    asombran (él con los brazos en alto) y en «by one NOAA estimate» ella saca la calculadora y teclea;
+// 1. la lancha frente a la torre de nubes: una gaviota llega planeando y se posa en el techo de lona; el científico, sin
+//    la gorra que se le voló en hu-calor, mira la nube con pena; en «engine» se abre en la nube la ventana de chapa
+//    remachada y los dos se asombran (él con los brazos en alto); en «runs» arrancan los pistones de nube, el cigüeñal y el
+//    volante y la gaviota se espanta y se va; en «heat» el mar se enciende debajo y sale su gorra roja montada en el pistón
+//    del medio, subiendo y bajando (gag): él la señala, ella se ríe; en «NOAA» ella saca la calculadora y teclea, y él se
+//    asoma a mirar;
 // 2. (corta en «An average one») el manómetro del motor de cerca, en su chapa remachada, con el ojo de buey que deja ver la
-//    tormenta fuera: la aguja sube en «releases»; en «rain» la lluvia corre por la chapa y la mano limpia el cristal; en
-//    «150» la aguja se clava en el tope, salta un remache (gag), todo tiembla, la válvula escupe vapor y aparece «×150»;
-// 3. (corta en «times») la lancha y el motor otra vez, con el «×150» en el cielo: en «all the power plants» salen una a una
-//    las centrales eléctricas de la costa, cada una con su saltito; ella las cuenta con el dedo y en «planet» los dos se
-//    quedan boquiabiertos; del volante empieza a salir un hilito de viento;
+//    tormenta de fuera (una gaviota lucha contra el viento y relampaguea): el brazo de la científica entra por la derecha y
+//    da dos golpecitos al cristal en «releases» (la aguja salta y sube); en «rain» la lluvia corre por la chapa y la mano
+//    limpia el cristal; en «one hundred fifty» la aguja se clava en el tope, la mano se aparta de golpe, salta un remache
+//    (gag), todo tiembla, la válvula escupe vapor y aparece «×150»;
+// 3. (corta en «fifty times») la lancha y el motor otra vez, con el «×150» en el cielo y la gorra que sigue en su pistón:
+//    ella se lo cuenta a él; en «all the power plants» salen una a una las centrales eléctricas de la costa, cada una con su
+//    saltito, ella las cuenta tecleando en la calculadora y él las mira con los prismáticos; un velero cruza despacio por
+//    delante de la costa; en «planet» los dos se quedan boquiabiertos y por los cables corre la electricidad, y en «produce»
+//    la calculadora se recalienta y echa humo (gag): ella la abanica y él se ríe;
 // 4. (corta en «although») de cerca, el costado del motor que ruge (el volante enorme, chispas, vapor, todo vibra) y su
-//    tobera de latón; en «tiny fraction» sale un rizo de aire diminuto que cruza despacio y en «wind» llega al molinillo de
-//    papel que la científica ha acercado a la tobera: da un cuarto de vuelta y se para, y ella lo sacude (gag).
+//    tobera de latón; una gaviota baja y se posa en la tobera, que la hace temblar; el brazo de la científica (entra por la
+//    derecha) acerca un molinillo de papel; en «tiny fraction» sale un rizo de aire diminuto que la gaviota sigue con la
+//    mirada, cruza despacio y en «wind» llega al molinillo: da un cuarto de vuelta y se para; ella lo sacude y la gaviota
+//    se encoge de alas (gag).
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { TOCADOS } from '/atomo/plato/kits/pixel-chibi.js';
@@ -41,28 +50,30 @@ const tine = (x, y, c, a) => { x = Math.round(x); y = Math.round(y); if (x < 0 |
 // la zona de Atom y la de la barra del año quedan como fondo tranquilo
 const tranquilo = (x, y) => (x >= 274 && y <= 47) || (x <= 172 && y <= 15);
 const destello = (x, y, r, c = C.blanco) => { for (let i = 0; i <= r; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
-// la calima: las filas de la caja tiemblan de lado, como el aire caliente que sube del mar
-const FILA = new Uint32Array(320);
-const calima = (x0, y0, x1, y1, t, a = 1, k = 0) => { const B = R.buf; for (let y = y0; y <= y1; y++) { const d = Math.round(Math.sin(y * 0.8 + t * 6 + k) * a * (0.55 + 0.45 * Math.sin(t * 1.7 + y * 0.21))); if (!d) continue; for (let x = x0; x <= x1; x++) FILA[x] = B[y * 320 + x]; for (let x = x0; x <= x1; x++) B[y * 320 + x] = FILA[Math.min(x1, Math.max(x0, x - d))]; } };
-// el desenfoque del fondo de un inserto (caja de 3 × 3, n pasadas): da profundidad al objeto que va delante
 const TMP = new Uint32Array(320 * 180);
-const desenfoca = (n = 2, x0 = 0, y0 = 0, x1 = 319, y1 = 179) => {
-  const B = R.buf;
-  for (let p = 0; p < n; p++) for (const hor of [1, 0]) {
-    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-      const a = hor ? B[y * 320 + Math.max(x0, x - 1)] : B[Math.max(y0, y - 1) * 320 + x], m = B[y * 320 + x], b = hor ? B[y * 320 + Math.min(x1, x + 1)] : B[Math.min(y1, y + 1) * 320 + x];
-      const r = ((a & 255) + 2 * (m & 255) + (b & 255)) >> 2, g = (((a >> 8) & 255) + 2 * ((m >> 8) & 255) + ((b >> 8) & 255)) >> 2, bb = (((a >> 16) & 255) + 2 * ((m >> 16) & 255) + ((b >> 16) & 255)) >> 2;
-      TMP[y * 320 + x] = (0xff000000 | (bb << 16) | (g << 8) | r) >>> 0;
+// el desenfoque del fondo de un inserto, solo en la franja [x0, 319] (lo de la izquierda lo tapa el costado del motor):
+// una pasada horizontal y otra vertical de cinco tomas (1 2 2 2 1)
+const desenfoca = (x0 = 0) => {
+  const B = R.buf, ch = (p, s) => (p >> s) & 255;
+  const pasa = (hor) => {
+    for (let y = 0; y < 180; y++) for (let x = x0; x < 320; x++) {
+      const at = (d) => (hor ? B[y * 320 + Math.max(x0, Math.min(319, x + d))] : B[Math.max(0, Math.min(179, y + d)) * 320 + x]);
+      const a = at(-2), b = at(-1), m = B[y * 320 + x], c = at(1), d = at(2);
+      const mix = (s) => (ch(a, s) + 2 * ch(b, s) + 2 * ch(m, s) + 2 * ch(c, s) + ch(d, s)) >> 3;
+      TMP[y * 320 + x] = (0xff000000 | (mix(16) << 16) | (mix(8) << 8) | mix(0)) >>> 0;
     }
-    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) B[y * 320 + x] = TMP[y * 320 + x];
-  }
+    for (let y = 0; y < 180; y++) for (let x = x0; x < 320; x++) B[y * 320 + x] = TMP[y * 320 + x];
+  };
+  pasa(true); pasa(false);
 };
 // el cuadro entero que tiembla (dx, dy px)
 const sacude = (dx, dy) => { if (!dx && !dy) return; const B = R.buf; TMP.set(B); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = TMP[Math.min(179, Math.max(0, y - dy)) * 320 + Math.min(319, Math.max(0, x - dx))]; };
 // la gaviota de cerca: de pie (x, y: entre las patas) o volando, con su contorno para que se lea sobre el cielo
 const PAL_GAV = { k: C.k, W: hex('#f8f6f0'), w: hex('#d8dce4'), G: hex('#a8b0bc'), D: hex('#3a3e48'), Y: hex('#f0b030') };
 const GAV_PIE = ['.......kkk..', '......kWWWk.', '......kWkWYY', '.....kWWWWk.', '.kkkkWWWWk..', 'kDGGGGWWWk..', '.kDGGGGwWk..', '..kkkkkkk...', '....Y..Y....', '....Y..Y....'];
-const gaviotaPie = (x, y, dir = 1, salto = 0) => R.dibujo(GAV_PIE, Math.round(x - 6), Math.round(y - 10 - salto), dir, PAL_GAV);
+// la misma, con las alas abiertas hacia arriba (se encoge de alas o va a echar a volar)
+const GAV_ALAS = ['.k.........k', 'kGk.kkk..kGk', '.kGkWWWkkGk.', '..kGWkWYYk..', '...kWWWWk...', '..kWWWWk....', '..kWWwWk....', '...kkkkk....', '....Y..Y....', '....Y..Y....'];
+const gaviotaPie = (x, y, dir = 1, salto = 0, alas = false) => R.dibujo(alas ? GAV_ALAS : GAV_PIE, Math.round(x - 6), Math.round(y - 10 - salto), dir, PAL_GAV);
 const gaviotaVuela = (x, y, t, dir = 1) => {
   x = Math.round(x); y = Math.round(y); const al = Math.sin(t * 13) > 0 ? -1 : 1, P = [[-7, al * 3 - 1], [-3, -1], [0, 0], [3, -1], [7, al * 3 - 1]];
   for (let i = 1; i < P.length; i++) { R.linea(x + P[i - 1][0], y + P[i - 1][1] + 1, x + P[i][0], y + P[i][1] + 1, C.k); R.linea(x + P[i - 1][0], y + P[i - 1][1] - 1, x + P[i][0], y + P[i][1] - 1, C.k); }
@@ -72,29 +83,57 @@ const gaviotaVuela = (x, y, t, dir = 1) => {
 };
 
 const m = (f) => en('motor', f);
-// los cortes: «An (average one)», «times», «although»
+// los cortes: «An (average one)», «fifty (times)», «although» (fracciones medidas con las pausas de la voz inglesa)
 const M2 = m(0.267), M3 = m(0.521), M4 = m(0.799);
-const motorT = m(0.052), corre = m(0.086), calorT = m(0.123), noaa = m(0.199), estima = m(0.212), libera = m(0.306), lluviaT = m(0.399), c150 = m(0.477), todas = m(0.639), centrales = m(0.663), planeta = m(0.724), diminuta = m(0.850), fraccion = m(0.867), convierte = m(0.933), viento = m(0.966);
-const AZUL = '#2a4a7a';
+const motorT = m(0.054), corre = m(0.093), calorT = m(0.131), noaa = m(0.197), estima = m(0.211), libera = m(0.313), lluviaT = m(0.403), c150 = m(0.479);
+const todas = m(0.625), centrales = m(0.651), planeta = m(0.719), produce = m(0.745), diminuta = m(0.855), fraccion = m(0.872), convierte = m(0.940), viento = m(0.979);
+const AZUL = '#2a4a7a';   // la manga del polo azul marino de los científicos
 const XA = 220, XB = 238;
 const PALG = { X: hex('#d8463a'), w: hex('#f6f2ea') };
+// la gorra roja del científico (la misma de hu-calor), aquí en pequeño: se le voló dentro de la nube y va montada en un pistón
 TOCADOS.gorraRoja = [['...kkkkkkkk....', '..kXXXXXXXXk...', '.kXXXXXwXXXXk..', '.kkkkkkkkkkkkkk', '..........kkkk.'], -2];
+const GORRITA = ['..kkkkk...', '.kXXXXXk..', 'kXXXwXXXk.', 'kkkkkkkkkk'];
+const PAL_GORRA = { k: C.k, X: PALG.X, w: PALG.w };
+// la gorra en el pistón del medio del motor (x 118): sube y baja con él, y de vez en cuando da media vuelta
+const gorraPiston = (t) => {
+  const ph = t * 3.4 + 2.094, yp = Math.round(73 + Math.sin(ph) * 8), dir = Math.sin(t * 1.7) > 0 ? 1 : -1;
+  R.recorte([90, 57, 146, 95]); R.dibujo(GORRITA, 118 - 5, yp - 6, dir, PAL_GORRA); R.recorte(null);
+};
+// la mano canónica con la manga que llega hasta el borde del cuadro (dir −1: el brazo entra por la derecha), para que no
+// quede un brazo cortado en el aire
+const manoLarga = (x, y, dir, manga) => { T.mano(R, x, y, dir, manga); x = Math.round(x); y = Math.round(y);
+  const x0 = dir < 0 ? x + 43 : 0, x1 = dir < 0 ? 319 : x - 43; if (x1 < x0) return;
+  R.rect(x0, y - 2, x1, y + 2, hex(manga)); R.rect(x0, y - 3, x1, y - 3, C.k); R.rect(x0, y + 3, x1, y + 3, C.k); R.rect(x0, y - 2, x1, y - 2, mezcla(hex(manga), C.blanco, 0.18)); };
 // el mismo mar sin las centrales: tapa la costa de la derecha mientras no tocan (el modo motor las saca desde 0,4)
 const SIN = R.nuevo();
 const tapaCentrales = (t, o) => { const prev = R.usar(SIN); T.maquinaCalor(R, t, { ...o, motor: 0.001, barco: false }); R.usar(prev); const B = R.buf; for (let y = 36; y <= 128; y++) for (let x = 204; x < (y > 120 ? 247 : 320); x++) if (!(x >= 273 && x <= 283 && y >= 100)) B[y * 320 + x] = SIN[y * 320 + x]; };
-// la calculadora en las manos (delante del pecho)
-const calculadora = (x, y, t) => { R.rect(x, y, x + 5, y + 6, C.k); R.rect(x + 1, y + 1, x + 4, y + 5, hex('#3a3e48')); R.rect(x + 1, y + 1, x + 4, y + 2, hex('#7ac88a')); if (Math.floor(t * 9) % 2) R.pset(x + 2 + Math.floor(t * 5) % 2, y + 1, hex('#1a3a22')); R.pset(x + 2, y + 4, hex('#c8ccd4')); R.pset(x + 3, y + 4, hex('#d84a3a')); };
+// la calculadora en las manos (delante del pecho): la pantalla verde con las cifras que cambian al teclear
+const calculadora = (x, y, t, teclea = true) => { R.rect(x, y, x + 5, y + 6, C.k); R.rect(x + 1, y + 1, x + 4, y + 5, hex('#3a3e48')); R.rect(x + 1, y + 1, x + 4, y + 2, hex('#7ac88a')); if (teclea && Math.floor(t * 9) % 2) R.pset(x + 2 + Math.floor(t * 5) % 2, y + 1, hex('#1a3a22')); R.pset(x + 2, y + 4, hex('#c8ccd4')); R.pset(x + 3, y + 4, hex('#d84a3a')); };
+// los prismáticos delante de los ojos (dir: hacia dónde mira)
+const prismaticos = (x, y, dir) => { const X = dir > 0 ? x + 9 : x - 1; R.rect(X, y, X + 6, y + 3, C.k); R.pset(dir > 0 ? X + 6 : X, y + 1, hex('#8ac8f0')); R.pset(dir > 0 ? X + 6 : X, y + 2, hex('#4a8ac0')); R.pset(X + 3, y + 1, hex('#5a5e6a')); };
+// una bocanada de humo gris que sube y se deshace (u 0–1)
+const bocanada = (x, y, u, r0 = 1, c = hex('#8a8e98')) => { const r = r0 + u * 3, px = x + u * 3 + Math.sin(u * 7) * 1.5, py = y - u * 12; for (let yy = Math.round(py - r); yy <= py + r; yy++) for (let xx = Math.round(px - r); xx <= px + r; xx++) if (Math.hypot(xx - px, yy - py) <= r && umbral(xx, yy) < (1 - u) * 0.95) tine(xx, yy, c, 0.75); };
 
 // ── 1 · la nube se abre y es un motor ─────────────────────────────────────────────────────────────────────────────
+const P1_POSA = 0.95, P1_VA = corre + 0.12;
 const p1 = (t) => {
   const u = 0.001 + 0.319 * suave(lin(t, motorT - 0.1, motorT + 0.5)) + 0.18 * lin(t, corre - 0.1, calorT + 0.15), o = { motor: u, barco: true };
   T.maquinaCalor(R, t, o); tapaCentrales(t, o);
   if (entre(t, motorT - 0.05, motorT + 0.5)) { const k = lin(t, motorT - 0.05, motorT + 0.5); for (let i = 0; i < 14; i++) { const an = i / 14 * 6.283, r = 10 + k * 40; tine(118 + Math.cos(an) * r * 1.3, 76 + Math.sin(an) * r, C.blanco, 0.8 * (1 - k)); } }
+  // la gorra roja del científico, montada en el pistón del medio (los pistones salen en «heat»)
+  if (u >= 0.5) gorraPiston(t);
+  // la gaviota: llega planeando por la derecha, se posa en el techo de lona, da un respingo con la ventana y se va al arrancar
+  { const dy = Math.round(Math.sin(t * 1.6) * 1.2);
+    if (t < P1_POSA) { const s = suave(lin(t, 0, P1_POSA)); gaviotaVuela(lerp(338, 254, s), lerp(72, 117, s) - Math.sin(s * Math.PI) * 8, t, -1); }
+    else if (t < P1_VA) gaviotaPie(254, 125 + dy, -1, entre(t, P1_POSA, P1_POSA + 0.12) || entre(t, motorT + 0.05, motorT + 0.25) ? 1 : 0, entre(t, motorT + 0.05, motorT + 0.4));
+    else { const s = lin(t, P1_VA, P1_VA + 1.1); if (s < 1) gaviotaVuela(lerp(254, 346, s), lerp(118, 62, s) + Math.sin(s * 9) * 2, t, 1); } }
   const y = T.c_cubiertaY(t);
-  const teclea = entre(t, noaa - 0.4, M2);
-  const r = R.actor(EL.pronosticadora, XA, y, t, { dir: -1, sorpresa: entre(t, motorT + 0.1, corre + 0.2), dedo: entre(t, corre, calorT + 0.6), habla: teclea && Math.floor(t * 6) % 2 === 0 });
+  const teclea = entre(t, noaa - 0.35, M2 + 0.3), veGorra = calorT + 0.25;
+  // ella: se asombra con la ventana, señala el motor, se ríe de la gorra y saca la calculadora
+  R.actor(EL.pronosticadora, XA, y, t, { dir: -1, sorpresa: entre(t, motorT + 0.1, corre + 0.2), dedo: entre(t, corre, veGorra), sonrisa: entre(t, veGorra + 0.25, noaa - 0.3), habla: teclea && entre(t, estima - 0.1, estima + 0.6) && Math.floor(t * 7) % 2 === 0 });
   if (teclea) calculadora(XA - 2, y - 11, t);
-  R.actor(EL.pronosticador, XB, y, t, { dir: -1, brazos: entre(t, motorT + 0.15, corre + 0.5), sorpresa: entre(t, motorT + 0.1, calorT), sonrisa: t > calorT + 0.3, tocado: 'gorraRoja', pal: PALG });
+  // él, sin gorra: mira la nube con pena, levanta los brazos con la ventana y señala su gorra en el pistón
+  R.actor(EL.pronosticador, XB, y, t, { dir: -1, triste: t < motorT, brazos: entre(t, motorT + 0.15, corre + 0.5), sorpresa: entre(t, motorT + 0.1, calorT) || entre(t, veGorra, veGorra + 0.5), dedo: entre(t, veGorra, noaa - 0.2), enfado: entre(t, veGorra + 0.5, noaa - 0.2), sonrisa: t > estima + 0.2, pal: PALG });
 };
 
 // ── 2 · el manómetro: ×150 ────────────────────────────────────────────────────────────────────────────────────────
@@ -102,8 +141,22 @@ const CH = [hex('#262c40'), hex('#323a52'), hex('#3e4760'), hex('#4c566f'), hex(
 const LAT = hex('#d8a83a'), LATS = hex('#9a6a1a'), LATL = hex('#f8d878'), COB = hex('#c87a4a'), COBS = hex('#8a4a2a'), COBL = hex('#f0a878');
 const remache = (x, y) => { R.pset(x, y, CH[5]); R.pset(x + 1, y, CH[3]); R.pset(x, y + 1, CH[3]); R.pset(x + 1, y + 1, CH[0]); };
 const angAguja = (v) => (225 - v / 160 * 270) * Math.PI / 180;
-const aguja = (t) => { if (t > c150 + 0.06) return 163 + Math.sin(t * 38) * 2.5 * Math.max(0, 1 - (t - c150) / 1.4); return 10 + Math.sin(t * 9) * 1.5 + 48 * suave(lin(t, libera - 0.1, libera + 0.5)) + 46 * suave(lin(t, lluviaT, lluviaT + 0.7)) + 58 * lin(t, c150 - 0.12, c150 + 0.06); };
-const GCX = 122, GCY = 90, GR = 54;
+// los dos golpecitos al cristal en «releases»
+const TOQUES = [libera - 0.05, libera + 0.22];
+const aguja = (t) => {
+  if (t > c150 + 0.06) return 163 + Math.sin(t * 38) * 2.5 * Math.max(0, 1 - (t - c150) / 1.4);
+  const salto = TOQUES.reduce((s, k) => s + 7 * Math.max(0, 1 - Math.abs(t - k - 0.06) / 0.12), 0);
+  return 10 + Math.sin(t * 9) * 1.5 + salto + 48 * suave(lin(t, libera + 0.1, libera + 0.7)) + 46 * suave(lin(t, lluviaT, lluviaT + 0.7)) + 58 * lin(t, c150 - 0.12, c150 + 0.06);
+};
+const GCX = 122, GCY = 90, GR = 54, OX = 256, OY = 116, ORR = 26;
+// la gaviota que se ve por el ojo de buey, luchando contra el viento: aletea hacia la izquierda y la racha la devuelve
+const gaviotaFuera = (t) => {
+  const u = lin(t, M2 + 0.6, c150 + 0.3); if (u <= 0 || u >= 1) return;
+  const x = OX + 26 - u * 34 + Math.sin(u * 11) * 6 + (u > 0.75 ? (u - 0.75) * 120 : 0), y = OY - 6 + Math.sin(t * 5) * 3 + Math.sin(u * 7) * 4, al = Math.sin(t * 16) > 0 ? -1 : 1;
+  const P = [[-4, al * 2], [-3, al], [-2, 0], [-1, 0], [0, 1], [1, 0], [2, 0], [3, al], [4, al * 2]];
+  for (const [dx, dy] of P) { const X = Math.round(x + dx), Y = Math.round(y + dy); if (Math.hypot(X - OX, Y - OY) < ORR - 6) tine(X, Y, hex('#e8ecf4'), 0.85); }
+  if (Math.hypot(x - OX, y + 2 - OY) < ORR - 6) tine(x, y + 2, hex('#3a3e48'), 0.7);
+};
 const p2 = (t) => {
   const { rect, pset, disco, linea } = R, BF = R.buf;
   // la chapa: degradado tramado con la luz arriba a la izquierda, juntas con remaches, arañazos y manchas de grasa
@@ -121,15 +174,18 @@ const p2 = (t) => {
   // la tubería de cobre que baja del manómetro, con su llave roja que gira, y la válvula de vapor de arriba a la izquierda
   rect(GCX - 5, GCY + GR, GCX + 5, 179, C.k); rect(GCX - 4, GCY + GR, GCX + 4, 179, COB); rect(GCX - 4, GCY + GR, GCX - 3, 179, COBL); rect(GCX + 3, GCY + GR, GCX + 4, 179, COBS); for (const yy of [GCY + GR + 6, 176]) { rect(GCX - 6, yy, GCX + 6, yy + 2, C.k); rect(GCX - 5, yy, GCX + 5, yy + 1, LAT); }
   { const wx = GCX + 18, wy = 166; linea(GCX + 4, wy, wx, wy, C.k); disco(wx, wy, 9, C.k); disco(wx, wy, 8, hex('#c83a2a')); disco(wx, wy, 6, C.k); disco(wx, wy, 5, CH[2]); const g = t * 2 + (t > c150 ? (t - c150) * 6 : 0); for (let k = 0; k < 4; k++) { const a = g + k * 1.571; linea(wx, wy, Math.round(wx + Math.cos(a) * 7), Math.round(wy + Math.sin(a) * 7), hex('#c83a2a')); } disco(wx, wy, 2, LAT); }
+  // (el vapor de la válvula se queda por debajo de la franja de la barra del año: y > 16)
   { const vx = 24, vy = 40; rect(vx - 2, vy, vx + 2, 64, C.k); rect(vx - 1, vy, vx + 1, 64, COB); rect(vx - 6, vy - 6, vx + 6, vy, C.k); rect(vx - 5, vy - 5, vx + 5, vy - 1, LAT); rect(vx - 5, vy - 5, vx + 5, vy - 5, LATL); rect(vx + 6, vy - 4, vx + 10, vy - 2, C.k); rect(vx + 7, vy - 4, vx + 9, vy - 3, LATS);
-    const fuerte = t > c150 && t < c150 + 1.6 ? 1 : 0; for (let k = 0; k < 8; k++) { const u = (t * (0.9 + fuerte) + k / 8) % 1, on = fuerte || ((t + k * 0.1) % 1.8) < 0.7; if (!on) continue; const px = vx + 12 + u * (24 + fuerte * 30), py = vy - 3 - u * (14 + fuerte * 10) + Math.sin(u * 6 + k) * 2, rr = 1 + u * (4 + fuerte * 3); for (let yy = Math.round(py - rr); yy <= py + rr; yy++) for (let xx = Math.round(px - rr); xx <= px + rr; xx++) if (Math.hypot(xx - px, yy - py) <= rr && umbral(xx, yy) < (1 - u) * 0.9) tine(xx, yy, C.blanco, 0.6); } }
-  // el ojo de buey: el aro de latón con sus tornillos y, detrás del cristal, la tormenta de fuera con su lluvia y algún rayo
-  { const ox = 256, oy = 116, orr = 26, rayo = (t % 2.9) < 0.12;
-    for (let y = oy - orr; y <= oy + orr; y++) for (let x = ox - orr; x <= ox + orr; x++) { const d = Math.hypot(x - ox, y - oy); if (d > orr) continue; let c = d > orr - 5 ? (d > orr - 1 ? C.k : -Math.cos(Math.atan2(y - oy, x - ox) + 0.8) > 0.3 ? LATL : LAT) : null;
-      if (c == null) { const v = 1 + (y - oy + orr) / (2 * orr) * 2.2 + Math.sin((x + t * 30) * 0.12 + y * 0.05) * 0.5, l = Math.floor(v) + (v - Math.floor(v) > umbral(x, y) ? 1 : 0); c = [hex('#5a6278'), hex('#454c66'), hex('#353b52'), hex('#262b3e')][Math.max(0, Math.min(3, l))]; if (rayo) c = mezcla(c, hex('#e8e8ff'), 0.5); if (((x * 2 + y + Math.floor(t * 40)) % 9) === 0) c = hex('#8a94b0'); }
+    const fuerte = t > c150 && t < c150 + 1.6 ? 1 : 0; for (let k = 0; k < 8; k++) { const u = (t * (0.9 + fuerte) + k / 8) % 1, on = fuerte || ((t + k * 0.1) % 1.8) < 0.7; if (!on) continue; const px = vx + 12 + u * (24 + fuerte * 34), py = vy - 3 - u * (10 + fuerte * 6) + Math.sin(u * 6 + k) * 2, rr = 1 + u * (4 + fuerte * 3); for (let yy = Math.max(17, Math.round(py - rr)); yy <= py + rr; yy++) for (let xx = Math.round(px - rr); xx <= px + rr; xx++) if (Math.hypot(xx - px, yy - py) <= rr && umbral(xx, yy) < (1 - u) * 0.9) tine(xx, yy, C.blanco, 0.6); } }
+  // el ojo de buey: el aro de latón con sus tornillos y, detrás del cristal, la tormenta de fuera con su lluvia, algún
+  // rayo y la gaviota que lucha contra el viento
+  { const rayo = (t % 2.9) < 0.12 || entre(t, c150 + 0.05, c150 + 0.15);
+    for (let y = OY - ORR; y <= OY + ORR; y++) for (let x = OX - ORR; x <= OX + ORR; x++) { const d = Math.hypot(x - OX, y - OY); if (d > ORR) continue; let c = d > ORR - 5 ? (d > ORR - 1 ? C.k : -Math.cos(Math.atan2(y - OY, x - OX) + 0.8) > 0.3 ? LATL : LAT) : null;
+      if (c == null) { const v = 1 + (y - OY + ORR) / (2 * ORR) * 2.2 + Math.sin((x + t * 30) * 0.12 + y * 0.05) * 0.5, l = Math.floor(v) + (v - Math.floor(v) > umbral(x, y) ? 1 : 0); c = [hex('#5a6278'), hex('#454c66'), hex('#353b52'), hex('#262b3e')][Math.max(0, Math.min(3, l))]; if (rayo) c = mezcla(c, hex('#e8e8ff'), 0.5); if (((x * 2 + y + Math.floor(t * 40)) % 9) === 0) c = hex('#8a94b0'); }
       pset(x, y, c); }
-    for (let k = 0; k < 8; k++) { const a = k * 0.785; pset(Math.round(ox + Math.cos(a) * (orr - 3)), Math.round(oy + Math.sin(a) * (orr - 3)), LATS); }
-    for (let a = 2.4; a < 3.3; a += 0.05) pset(Math.round(ox + Math.cos(a) * (orr - 9)), Math.round(oy - Math.sin(a) * (orr - 9)), hex('#a8b0c8')); }
+    gaviotaFuera(t);
+    for (let k = 0; k < 8; k++) { const a = k * 0.785; pset(Math.round(OX + Math.cos(a) * (ORR - 3)), Math.round(OY + Math.sin(a) * (ORR - 3)), LATS); }
+    for (let a = 2.4; a < 3.3; a += 0.05) pset(Math.round(OX + Math.cos(a) * (ORR - 9)), Math.round(OY - Math.sin(a) * (ORR - 9)), hex('#a8b0c8')); }
   // el manómetro: el bisel de latón, la esfera crema, la zona roja, las marcas y los números, el tope y la aguja
   disco(GCX + 3, GCY + 4, GR + 2, hex('#141826'));
   disco(GCX, GCY, GR + 1, C.k);
@@ -146,10 +202,19 @@ const p2 = (t) => {
   for (let a = 5.2; a < 5.6; a += 0.03) pset(Math.round(GCX + Math.cos(a) * (GR - 12)), Math.round(GCY - Math.sin(a) * (GR - 12)), hex('#fffaf0'));
   // la lluvia que corre por la chapa y por el cristal, desde «rain»
   { const ll = lin(t, lluviaT - 0.25, lluviaT + 0.3); if (ll > 0) for (let k = 0; k < Math.round(70 * ll); k++) { const x = Math.round(ruido(k, 1, 62) * 320), v = 50 + ruido(k, 2, 62) * 70, y = Math.round((ruido(k, 3, 62) * 200 + (t - lluviaT + 2) * v) % 200) - 10, L = 4 + Math.round(ruido(k, 4, 62) * 5); if (tranquilo(x, y)) continue; for (let i = 0; i < L; i++) tine(x, y - i, hex('#c8dcf0'), 0.55 - i * 0.05); tine(x, y + 1, hex('#ffffff'), 0.6); } }
-  // la mano limpia el cristal del manómetro
-  { const e = lin(t, lluviaT + 0.1, lluviaT + 0.45), s = lin(t, lluviaT + 1.05, c150 - 0.15); if (e > 0 && s < 1) { const pasa = lin(t, lluviaT + 0.45, lluviaT + 1.05); T.mano(R, Math.round(lerp(340, 168, suave(e)) - Math.sin(pasa * Math.PI * 2) * 52 + lerp(0, 190, suave(s))), Math.round(GCY - 6 + Math.sin(pasa * Math.PI * 4) * 4), -1, AZUL); } }
-  // «150»: el remache que salta, el «×150» que aparece con su destello
-  { const u = lin(t, c150 + 0.03, c150 + 0.9); if (u > 0 && u < 1) { const x = Math.round(lerp(208, 330, u)), y = Math.round(lerp(60, 20, u) - Math.sin(u * Math.PI) * 30), s = 1 + Math.round(u * 3); R.disco(x, y, s + 1, C.k); R.disco(x, y, s, CH[5]); if (Math.floor(t * 20) % 2) pset(x - 1, y - 1, C.blanco); } if (t < c150 + 0.03) remache(208, 60); else { disco(208, 60, 2, C.k); pset(208, 60, hex('#0a0c14')); } }
+  // la mano de la científica: entra, da dos golpecitos al cristal en «releases», espera; en «rain» limpia el cristal, y en
+  // «one hundred fifty» se aparta de golpe
+  { const entra = lin(t, M2 + 0.2, libera - 0.25), espera = lin(t, TOQUES[1] + 0.15, TOQUES[1] + 0.55), limpia = lin(t, lluviaT + 0.1, lluviaT + 0.9), aparta = lin(t, c150 - 0.02, c150 + 0.22);
+    if (entra > 0 && aparta < 1) {
+      const golpe = TOQUES.some((k) => entre(t, k, k + 0.1)) ? 4 : 0;
+      let x = lerp(352, 174, suave(entra)) - golpe + 22 * suave(espera), y = GCY - 4;
+      if (limpia > 0) { x += -Math.sin(limpia * Math.PI) * 74 - 22 * suave(Math.min(1, limpia * 4)) * (1 - limpia); y += Math.sin(limpia * Math.PI * 4) * 5; }
+      x += 190 * aparta * aparta; y -= 10 * aparta;
+      manoLarga(Math.round(x), Math.round(y), -1, AZUL);
+      if (golpe) for (const [dx, dy] of [[-6, -5], [-7, 0], [-6, 5]]) pset(Math.round(x) - 10 + dx, Math.round(y) + dy, C.blanco);
+    } }
+  // «150»: el remache que salta por arriba y cae dando vueltas, y el «×150» que aparece con su destello
+  { const u = lin(t, c150 + 0.03, c150 + 1.0); if (u > 0 && u < 1) { const x = Math.round(lerp(208, 168, u)), y = Math.round(60 - Math.sin(u * Math.PI) * 34 + u * u * 120), s = 1 + Math.round(u * 2); R.disco(x, y, s + 1, C.k); R.disco(x, y, s, CH[5]); if (Math.floor(t * 20) % 2) pset(x - 1, y - 1, C.blanco); } if (t < c150 + 0.03) remache(208, 60); else { disco(208, 60, 2, C.k); pset(208, 60, hex('#0a0c14')); } }
   if (t > c150) { const k = lin(t, c150, c150 + 0.25); if (k < 1) for (let i = 0; i < 16; i++) { const an = i / 16 * 6.283, r = 8 + k * 46; tine(230 + Math.cos(an) * r * 1.4, 56 + Math.sin(an) * r * 0.6, hex('#fff2a0'), 0.9 * (1 - k)); } R.numero('×150', 230, 64, { tam: 16, centro: true }); }
   // todo tiembla con el golpe
   if (t > c150 && t < c150 + 0.7) sacude(Math.round(Math.sin(t * 70) * 2 * (1 - (t - c150) / 0.7)), Math.round(Math.cos(t * 55) * 1.2 * (1 - (t - c150) / 0.7)));
@@ -157,15 +222,44 @@ const p2 = (t) => {
 
 // ── 3 · las centrales eléctricas, una a una ───────────────────────────────────────────────────────────────────────
 const sale = [0, 0, 0.137, 0.33, 0.52, 0.71].map((L) => todas - 0.1 + L * (planeta + 0.2 - todas));
+const CALIENTA = produce - 0.05;
+// el velero que cruza despacio por delante de la costa, de derecha a izquierda (casco, vela con su sombra y su estela)
+const velero = (t) => {
+  const x = Math.round(318 - (t - M3) * 9), y = 116 + Math.round(Math.sin(t * 1.4) * 0.6); if (x < 150 || x > 330) return;
+  R.rect(x - 5, y, x + 5, y + 1, C.k); R.rect(x - 4, y, x + 4, y, hex('#f4f0e6')); R.pset(x - 5, y, C.k);
+  R.linea(x, y - 1, x, y - 11, hex('#5a5048')); R.poligono([[x + 1, y - 11], [x + 1, y - 2], [x + 6, y - 2]], hex('#f8f6f0')); R.poligono([[x - 1, y - 9], [x - 1, y - 2], [x - 4, y - 2]], hex('#d8dce4'));
+  R.pset(x + 2, y - 4, hex('#c8ccd4')); R.pset(x, y - 12, C.rojo);
+  for (let i = 0; i < 6; i++) if (Math.sin(t * 5 + i) > -0.3) R.pset(x + 6 + i * 2, y + 1 + (i % 2), hex('#e8f4f8'));
+};
+// la electricidad que corre por los cables de alta tensión cuando ya están todas las centrales (torres en x 213, 261, 297 y
+// 318; los cables en y ≈ 98 y 95, con su comba)
+const corriente = (t, k) => {
+  if (k <= 0) return; const tors = [213, 261, 297, 318];
+  for (let i = 1; i < tors.length; i++) { const a = tors[i - 1], b = tors[i];
+    for (let q = 0; q < 2; q++) { const f = ((t * 0.9 + i * 0.37 + q * 0.5) % 1), x = a + (b - a) * f, s = Math.sin(f * Math.PI) * 2.5, y = Math.round(108 - 10 - q * 3 + s);
+      if (umbral(Math.round(x), y) < k) { R.pset(Math.round(x), y, hex('#fff2a0')); R.pset(Math.round(x) - 1, y, hex('#f8c040')); } } }
+};
 const p3 = (t) => {
   const u = 0.5 + 0.41 * lin(t, todas - 0.1, planeta + 0.1), o = { motor: u, barco: true };
   T.maquinaCalor(R, t, o);
   if (t < todas - 0.1) tapaCentrales(t, o);
+  gorraPiston(t);
+  velero(t);
+  corriente(t, lin(t, planeta, planeta + 0.4));
   { const k = lin(t, M3, M3 + 0.3); R.numero('×150', 262, 74 - Math.round((1 - suave(k)) * 6), { tam: 16, centro: true }); if (k < 1) for (let i = 0; i < 12; i++) { const an = i / 12 * 6.283, r = 6 + k * 30; tine(262 + Math.cos(an) * r * 1.5, 66 + Math.sin(an) * r * 0.6, hex('#fff2a0'), 0.9 * (1 - k)); } }
   const y = T.c_cubiertaY(t);
-  const cuenta = sale.slice(2).some((s) => entre(t, s, s + 0.2));
-  R.actor(EL.pronosticadora, XA, y, t, { dir: -1, dedo: cuenta || entre(t, M3 + 0.1, M3 + 0.9), sorpresa: t > planeta, habla: entre(t, M3 + 0.9, todas - 0.2) && Math.floor(t * 7) % 2 === 0 });
-  R.actor(EL.pronosticador, XB, y, t, { dir: 1, sorpresa: t > planeta + 0.15, sonrisa: entre(t, M3, todas), tocado: 'gorraRoja', pal: PALG, brazos: entre(t, planeta + 0.3, planeta + 1.0) });
+  // ella: se lo cuenta a él, teclea una vez por cada central que sale y se sorprende en «planet»; la calculadora se
+  // recalienta en «produce» y la abanica
+  const cuenta = [todas - 0.1, ...sale.slice(2)].some((s) => entre(t, s, s + 0.22)), humea = t > CALIENTA, abanica = entre(t, CALIENTA + 0.3, M4 + 0.3) && Math.floor(t * 8) % 2 === 0;
+  R.actor(EL.pronosticadora, XA, y + (cuenta ? 1 : 0), t, { dir: -1, dedo: entre(t, M3 + 0.1, M3 + 0.8) || abanica, sorpresa: entre(t, planeta, CALIENTA + 0.5), habla: entre(t, M3 + 0.8, todas - 0.2) && Math.floor(t * 7) % 2 === 0, sonrisa: t > CALIENTA + 0.9 });
+  calculadora(XA - 4, y - 11 + (cuenta ? 1 : 0), t, !humea);
+  // (el humo sale hacia delante, lejos de la cara)
+  if (humea) { for (let k = 0; k < 4; k++) { const q = ((t - CALIENTA) * 1.3 + k / 4) % 1; bocanada(XA - 4 - q * 8, y - 12, q, 1); } if (entre(t, CALIENTA, CALIENTA + 0.25)) destello(XA - 2, y - 12, 2, hex('#fff2a0')); }
+  // él: escucha, mira la costa con los prismáticos mientras salen las centrales, los baja asombrado en «planet» y se ríe
+  // de la calculadora
+  const mira = entre(t, todas - 0.3, planeta - 0.05);
+  const r = R.actor(EL.pronosticador, XB, y, t, { dir: mira || entre(t, planeta, CALIENTA) ? 1 : -1, sorpresa: entre(t, planeta, CALIENTA + 0.2), sonrisa: entre(t, M3, todas - 0.3) || t > CALIENTA + 0.25, habla: entre(t, CALIENTA + 0.3, CALIENTA + 0.9) && Math.floor(t * 9) % 2 === 0, pal: PALG, brazos: entre(t, planeta + 0.15, CALIENTA - 0.05), dedo: mira });
+  if (mira) prismaticos(XB, r.cabeza[1] + 4, 1);
 };
 
 // ── 4 · una pizca de viento ───────────────────────────────────────────────────────────────────────────────────────
@@ -176,9 +270,10 @@ const molinillo = (x, y, ang) => {
     R.poligono(P.map(([px, py]) => [px + 1, py + 1]), C.k); R.poligono(P, COL[k]); R.linea(x, y, P[2][0], P[2][1], COLS[k]); }
   R.disco(x, y, 2, C.k); R.pset(x, y, hex('#f6f2ea'));
 };
+const P4_BAJA = M4 + 0.25, P4_POSA = M4 + 1.05;
 const p4 = (t) => {
-  const { rect, pset, disco, linea, poligono } = R;
-  T.maquinaCalor(R, t, { boya: false, barco: false, crece: 0.35 }); desenfoca(2);
+  const { rect, pset, disco } = R;
+  T.maquinaCalor(R, t, { boya: false, barco: false, crece: 0.35 }); desenfoca(133);
   const vib = Math.round(Math.sin(t * 47)), vy = Math.round(Math.cos(t * 39) * 0.6);
   // el costado del motor: la chapa remachada que ocupa la izquierda, con su canto iluminado
   for (let y = 0; y < 180; y++) { const xb = 132 + Math.round(Math.sin(y * 0.05) * 2) + vib; for (let x = 0; x <= xb; x++) { const v = 3.0 - x / 140 * 1.2 - y / 180 * 1.2, l = Math.floor(v) + (v - Math.floor(v) > umbral(x, y) ? 1 : 0); R.pset(x, y, x > xb - 2 ? (x === xb ? C.k : CH[5]) : CH[Math.max(0, Math.min(5, l))]); } }
@@ -189,26 +284,34 @@ const p4 = (t) => {
   { const gx = 112 + vib, gy = 130 + vy; disco(gx, gy, 8, C.k); disco(gx, gy, 7, LAT); disco(gx, gy, 5, hex('#f4efe2')); const a = -2.6 + 0.9 + Math.sin(t * 30) * 0.12; R.linea(gx, gy, Math.round(gx + Math.cos(a + 3.5) * 4), Math.round(gy + Math.sin(a + 3.5) * 4), hex('#d8402c')); for (let k = 0; k < 6; k++) { const aa = 2.4 + k * 0.45; pset(Math.round(gx + Math.cos(aa) * 4), Math.round(gy - Math.sin(aa) * 4), C.k); } }
   // el volante enorme que gira deprisa, con sus radios borrosos
   { const fx = 46 + vib, fy = 90 + vy, rr = 50, g = t * 9; for (let y = fy - rr; y <= fy + rr; y++) for (let x = fx - rr; x <= fx + rr; x++) { const d = Math.hypot(x - fx, y - fy); if (d > rr) continue; if (d > rr - 7) pset(x, y, d > rr - 1 ? C.k : Math.sin(Math.atan2(y - fy, x - fx) * 1 + 2.4) > 0.5 ? CH[5] : CH[3]); else if (d < 9) pset(x, y, d < 7 ? (d < 3 ? LAT : CH[4]) : C.k); else { const a = Math.atan2(y - fy, x - fx); for (let k = 0; k < 6; k++) { const da = Math.abs(((a - g - k * 1.047) % 6.283 + 6.283) % 6.283); if (da < 0.16 || (da > 6.1)) pset(x, y, CH[4]); else if (da < 0.5 && umbral(x, y) < 0.35) pset(x, y, CH[3]); } } } }
-  // las chispas del calor y el vapor que escapa por las juntas
+  // las chispas del calor y el vapor que escapa por las juntas (el vapor se queda por debajo de la franja de la barra)
   for (let k = 0; k < 6; k++) { const u = (t * 2 + k / 6) % 1, x = Math.round(100 + vib + Math.sin(k * 3) * 14 + u * 10), y = Math.round(150 - u * 30); if (u < 0.6) pset(x, y, u < 0.3 ? hex('#fff2a0') : hex('#f8a040')); }
-  for (let k = 0; k < 6; k++) { const u = (t * 0.7 + k / 6) % 1, px = 112 + vib + u * 18, py = 30 - u * 22 + Math.sin(u * 7 + k) * 2, r = 1 + u * 5; for (let yy = Math.round(py - r); yy <= py + r; yy++) for (let xx = Math.round(px - r); xx <= px + r; xx++) if (Math.hypot(xx - px, yy - py) <= r && umbral(xx, yy) < (1 - u) * 0.85) tine(xx, yy, C.blanco, 0.6); }
+  for (let k = 0; k < 6; k++) { const u = (t * 0.7 + k / 6) % 1, px = 112 + vib + u * 18, py = 34 - u * 14 + Math.sin(u * 7 + k) * 2, r = 1 + u * 4; for (let yy = Math.max(17, Math.round(py - r)); yy <= py + r; yy++) for (let xx = Math.round(px - r); xx <= px + r; xx++) if (Math.hypot(xx - px, yy - py) <= r && umbral(xx, yy) < (1 - u) * 0.85) tine(xx, yy, C.blanco, 0.6); }
   // la tobera de latón que sale del costado y apunta a la derecha, con sus aros
-  { const x0 = 128 + vib, x1 = 166 + vib, cy = 98 + vy; for (let x = x0; x <= x1; x++) { const q = (x - x0) / (x1 - x0), hw = Math.round(5 + q * q * 8); for (let y = cy - hw; y <= cy + hw; y++) { const v = (y - cy) / hw; pset(x, y, Math.abs(v) > 0.85 ? C.k : v < -0.4 ? LATL : v > 0.45 ? LATS : LAT); } if ((x - x0) % 12 === 0) for (let y = cy - hw; y <= cy + hw; y++) pset(x, y, LATS); }
+  const x0 = 128 + vib, x1 = 166 + vib, cy = 98 + vy;
+  { for (let x = x0; x <= x1; x++) { const q = (x - x0) / (x1 - x0), hw = Math.round(5 + q * q * 8); for (let y = cy - hw; y <= cy + hw; y++) { const v = (y - cy) / hw; pset(x, y, Math.abs(v) > 0.85 ? C.k : v < -0.4 ? LATL : v > 0.45 ? LATS : LAT); } if ((x - x0) % 12 === 0) for (let y = cy - hw; y <= cy + hw; y++) pset(x, y, LATS); }
     for (let y = cy - 12; y <= cy + 12; y++) { pset(x1, y, C.k); pset(x1 + 1, y, Math.abs(y - cy) < 11 ? hex('#1a1e2a') : C.k); } }
+  // la gaviota: baja desde arriba, se posa encima de la tobera (tiembla con ella), sigue el rizo con la mirada y, cuando
+  // el molinillo se para, se encoge de alas
+  { const gxp = 146 + vib, gyp = cy - 7;
+    if (t < P4_POSA) { const s = lin(t, P4_BAJA, P4_POSA); if (s > 0) gaviotaVuela(lerp(188, gxp, suave(s)), lerp(-8, gyp - 6, suave(s)) - Math.sin(s * Math.PI) * 4, t, -1); }
+    else { const encoge = entre(t, viento + 0.75, viento + 1.15), salto = entre(t, P4_POSA, P4_POSA + 0.12) || entre(t, viento + 0.7, viento + 0.82) ? 1 : 0; gaviotaPie(gxp, gyp, 1, salto, encoge); } }
   // el rizo de viento: diminuto, sale a «tiny fraction», cruza despacio y llega al molinillo en «wind»
-  const ri = lin(t, diminuta - 0.1, convierte + 0.35), rx = lerp(170, 214, suave(ri)) + vib * 0, ry = 98 + Math.sin(ri * 9) * 3 - ri * 18;
+  const ri = lin(t, diminuta - 0.1, viento - 0.05), rx = lerp(170, 220, suave(ri)), ry = 98 + Math.sin(ri * 9) * 3 - ri * 20;
   if (ri > 0 && ri < 1) { for (let k = 0; k < 9; k++) { const a = -t * 9 + k * 0.6, r2 = 3.2 - k * 0.3; pset(Math.round(rx + Math.cos(a) * r2), Math.round(ry + Math.sin(a) * r2), C.blanco); } for (let i = 1; i < 6; i++) { tine(rx - i * 2, ry + Math.sin(t * 10 - i) * 1.2, C.blanco, 0.7 - i * 0.12); tine(rx - i * 2, ry + 1 + Math.sin(t * 10 - i) * 1.2, hex('#6a8ab8'), 0.5 - i * 0.08); } }
-  // el molinillo en la mano de la científica: da un cuarto de vuelta en «wind» y se para
-  const gira = suave(lin(t, viento - 0.15, viento + 0.6)) * Math.PI / 2 + Math.sin(t * 1.5) * 0.04;
-  const acerca = suave(lin(t, M4 + 0.4, fraccion)), sacudo = t > viento + 0.7 ? Math.round(Math.sin(t * 22) * 1.5 * (1 - lin(t, viento + 0.7, viento + 1.3))) : 0, mx = Math.round(lerp(250, 232, acerca)) + sacudo;
-  molinillo(mx - 11, 76, gira + 0.3);
-  T.mano(R, mx, 106, -1, AZUL);
-  if (t > viento + 0.1 && t < viento + 0.6) for (const [dx, dy] of [[-16, -8], [14, -12], [16, 6]]) pset(mx - 11 + dx, 76 + dy, C.blanco);
+  // el molinillo en la mano de la científica (el brazo entra por la derecha): da un cuarto de vuelta en «wind» y se para;
+  // ella lo sacude
+  const gira = suave(lin(t, viento - 0.1, viento + 0.6)) * Math.PI / 2 + Math.sin(t * 1.5) * 0.04;
+  const acerca = suave(lin(t, M4 + 0.4, fraccion)), sacudo = t > viento + 0.7 ? Math.round(Math.sin(t * 22) * 1.5 * (1 - lin(t, viento + 0.7, viento + 1.3))) : 0, mx = Math.round(lerp(262, 232, acerca)) + sacudo;
+  // (el palo pasa por detrás de los dedos: la mano lo agarra)
+  molinillo(mx - 5, 74, gira + 0.3);
+  manoLarga(mx, 106, -1, AZUL);
+  if (t > viento + 0.1 && t < viento + 0.6) for (const [dx, dy] of [[-16, -8], [14, -12], [16, 6]]) pset(mx - 5 + dx, 74 + dy, C.blanco);
 };
-const efectos = [[motorT, 'cerrojo'], [corre, 'motor'], [calorT, 'vapor'], [noaa - 0.3, 'tecleo'], [estima + 0.2, 'bip'],
-  [M2 + 0.1, 'zumbido'], [libera, 'tic'], [libera + 0.3, 'tic'], [lluviaT - 0.2, 'lluvia'], [lluviaT + 0.5, 'papel'], [c150, 'pop'], [c150 + 0.08, 'boing'], [c150 + 0.1, 'vapor'],
-  [M3 + 0.05, 'brillo'], ...sale.slice(2).map((s) => [s + 0.05, 'pop']), [planeta + 0.2, 'motor'],
-  [M4 + 0.05, 'motor'], [M4 + 0.6, 'vapor'], [diminuta, 'whoosh'], [viento, 'tic'], [viento + 0.25, 'tic']];
+const efectos = [[0.4, 'whoosh'], [P1_POSA, 'golpecito'], [motorT, 'cerrojo'], [corre, 'motor'], [P1_VA + 0.05, 'whoosh'], [calorT + 0.3, 'boing'], [noaa - 0.3, 'tecleo'], [estima + 0.2, 'bip'],
+  [M2 + 0.1, 'zumbido'], [TOQUES[0], 'toc'], [TOQUES[1], 'toc'], [lluviaT - 0.2, 'lluvia'], [lluviaT + 0.5, 'papel'], [c150, 'pop'], [c150 + 0.08, 'boing'], [c150 + 0.1, 'vapor'],
+  [M3 + 0.05, 'brillo'], ...[todas - 0.1, ...sale.slice(2)].map((s) => [s + 0.05, 'pop']), [planeta + 0.2, 'zumbido'], [CALIENTA, 'pop'], [CALIENTA + 0.1, 'vapor'],
+  [M4 + 0.05, 'motor'], [P4_POSA, 'golpecito'], [diminuta, 'whoosh'], [viento, 'tic'], [viento + 0.25, 'tic'], [viento + 0.75, 'papel']];
 T.rodar(E, R, [[0, p1], [M2, p2], [M3, p3], [M4, p4]], { efectos });
 </script>
 </body>

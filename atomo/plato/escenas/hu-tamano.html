@@ -9,18 +9,26 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// HU-TAMANO (frase 22), 1971 (la ciencia, con el año del relato). Tres planos:
-// 1. el mapa del golfo: un huracán enorme avanza por su trayectoria punteada desde el sur, girando; en «300 miles
-//    wide» se tiende la regla de lado a lado de la espiral y sale «300»; en «last two weeks», el calendario de dos
-//    semanas tacha sus catorce días; dos barcos se apartan y un avión de reconocimiento le da vueltas; corta en «While»;
-// 2. las llanuras con la luz verde de la tormenta: el granjero va al establo con su cubo; en «tornado» el embudo toca
-//    tierra, como un hilo bajo la nube; se vuelve, deja el cubo y lo mira con los prismáticos; en «a few hundred yards across» la
-//    horquilla marca lo estrecho que es; en «lives for minutes» saca el reloj de bolsillo (el cronómetro corre en su
-//    bocadillo) y el embudo se recoge hacia la nube; él respira; corta en «But»;
-// 3. el laboratorio de Fujita: gira el mando de la maqueta y el humo se retuerce en un embudo estrecho («inside that
-//    narrow funnel»); aparece el anemómetro: la aguja sube, deja atrás la marca del huracán más fuerte y se clava en
-//    «300» («even faster»); Fujita se sorprende y, en «strongest hurricane», señala la marca del huracán, que parpadea;
-//    la becaria lo anota.
+// HU-TAMANO (frase 22), 1971 (la ciencia, con el año del relato). Tres planos (las marcas de la voz inglesa salen de las
+// palabras medidas en la pista):
+// 1. el mapa del golfo: un huracán enorme avanza por su trayectoria punteada desde el sur, girando; en «300 miles wide» una
+//    mano entra por la derecha con la regla, la desliza hasta el ojo, de lado a lado de la espiral, y sale «300»; la mano
+//    suelta la regla (que sigue al huracán), coge el rotulador rojo y en «last two weeks» tacha los catorce días del
+//    calendario, uno tras otro; dos barcos se apartan y un avión de reconocimiento le da vueltas; corta en «While»;
+// 2. las llanuras con la luz verde de la tormenta: el granjero va al establo con su cubo y el perro trota delante; en el
+//    camino picotean tres gallinas; en «tornado» el embudo toca tierra, como un hilo bajo la nube: las gallinas huyen
+//    aleteando, el perro se para y corre a esconderse detrás de las piernas del amo (asoma la cabeza); el granjero se
+//    vuelve, deja el cubo y lo mira con los prismáticos; en «a few hundred yards across» la horquilla marca lo estrecho
+//    que es; en «lives for minutes» saca el reloj de bolsillo (el cronómetro corre en su bocadillo) y el embudo se recoge
+//    hacia la nube; él respira y sonríe, y el perro sale moviendo el rabo; corta en «But»;
+// 3. el laboratorio de Fujita: junto a la maqueta, gira el mando y el humo se retuerce en un embudo estrecho («inside that
+//    narrow funnel»); la becaria entra por la derecha con su tablilla; en «the wind» aparece el anemómetro y Fujita va
+//    hacia él; la aguja sube, deja atrás la marca del huracán más fuerte y se clava en «300» («even faster»): los dos se
+//    sorprenden; en «strongest hurricane» Fujita señala la marca del huracán, que parpadea, y la becaria señala la aguja
+//    y lo anota.
+// Posiciones del decorado de las que depende: mapa 'golfo' (la proyección P_GOLFO); llanuras 'general' (el camino de y 137
+// a 147, los pies en 144; la granja a la izquierda, x 0–160; el embudo baja en x ≈ 214); labFujita (la maqueta en x 12–54,
+// el suelo de los pies y 150–166, la mesa de trabajo de x 234 a 318 y la papelera en x 222–232).
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { avionMapa } from '/atomo/plato/escenas/ov-mapas.js';
@@ -81,6 +89,8 @@ const RUTA = [[-83.4, 22.2], [-84.6, 23.6], [-85.8, 25.0], [-87.0, 26.4], [-88.0
 const enRuta = (P, u) => { const pts = RUTA.map((p) => P(p)); const L = []; let tot = 0; for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); L.push(d); tot += d; }
   let q = tot * u; for (let i = 1; i < pts.length; i++) { if (q <= L[i - 1]) { const f = q / L[i - 1]; return [lerp(pts[i - 1][0], pts[i][0], f), lerp(pts[i - 1][1], pts[i][1], f), pts.slice(0, i)]; } q -= L[i - 1]; } const z = pts[pts.length - 1]; return [z[0], z[1], pts]; };
 // el calendario de dos semanas, sobre el papel: catorce casillas que se tachan
+// el calendario va abajo a la derecha, en (268, 134): así la regla y la manga de la mano no lo pisan; el centro de su casilla k
+const CAL = [268, 134], celda = (k) => [CAL[0] + 3 + (k % 7) * 6 + 2, CAL[1] + 9 + Math.floor(k / 7) * 9 + 3];
 const calendario = (x, y, t, u) => {
   R.rect(x + 2, y + 2, x + 46, y + 30, hex('#5a6a7e')); R.rect(x, y, x + 44, y + 28, C.k); R.rect(x + 1, y + 1, x + 43, y + 27, hex('#f8f4e8')); R.rect(x + 1, y + 1, x + 43, y + 6, hex('#c8463a')); R.rect(x + 1, y + 1, x + 43, y + 1, hex('#e8705a'));
   for (const rx of [x + 10, x + 34]) { R.rect(rx, y - 2, rx + 1, y + 2, C.k); R.pset(rx, y - 1, hex('#c8ccd4')); }
@@ -103,20 +113,71 @@ const p1 = (t) => {
   espiral(Math.round(hx), Math.round(hy), r, t, { alfa: lin(t, 0, 0.6) * 0.5 + 0.5 });
   // un avión de reconocimiento que le da vueltas
   { const g = t * 0.9, ax = hx + Math.cos(g) * (r * 1.5 + 8), ay = hy + Math.sin(g) * (r * 1.5 + 6) * 0.8; avionMapa(R, Math.round(ax), Math.round(ay), g + Math.PI / 2, hex('#2a2a36')); }
-  // «300 miles wide»: la regla que cruza la espiral de lado a lado por el ojo, con sus topes, y la cifra encima
-  const ru = suave(lin(t, regla[0], regla[1])); if (ru > 0) { const y = Math.round(hy), w = Math.round(r * 1.3 * ru), x = Math.round(hx);
-    R.rect(x - w - 1, y - 2, x + w + 1, y + 1, C.k); R.rect(x - w, y - 1, x + w, y, C.blanco); R.rect(x - w, y, x + w, y, hex('#c8d0dc'));
-    if (ru >= 1) for (const s of [-1, 1]) { R.rect(x + s * w - 1, y - 6, x + s * w + 1, y + 5, C.k); R.rect(x + s * w, y - 5, x + s * w, y + 4, C.blanco); for (const dy of [-1, 0]) { R.pset(x + s * (w - 2), y + dy - 2, C.k); R.pset(x + s * (w - 2), y + dy + 2, C.k); } } }
+  // «300 miles wide»: la mano trae la regla desde arriba a la derecha (por encima del calendario) y la deja de lado a lado
+  // de la espiral por el ojo (con sus topes); la regla sigue luego al huracán; la cifra sale encima
+  const ru = suave(lin(t, regla[0] - 0.4, regla[1])), w = Math.round(r * 1.3), y = Math.round(hy - 40 * (1 - ru)), x = Math.round(lerp(352 + w, hx, ru));
+  if (ru > 0) { R.rect(x - w - 1, y - 2, x + w + 1, y + 1, C.k); R.rect(x - w, y - 1, x + w, y, C.blanco); R.rect(x - w, y, x + w, y, hex('#c8d0dc'));
+    for (let k = -w + 4; k < w; k += 4) R.pset(x + k, y - 1, hex('#8a94a8'));
+    for (const s of [-1, 1]) { R.rect(x + s * w - 1, y - 6, x + s * w + 1, y + 5, C.k); R.rect(x + s * w, y - 5, x + s * w, y + 4, C.blanco); for (const dy of [-1, 0]) { R.pset(x + s * (w - 2), y + dy - 2, C.k); R.pset(x + s * (w - 2), y + dy + 2, C.k); } } }
   const e = lin(t, cifra, cifra + 0.3); if (e > 0) R.numero('300', Math.round(hx), Math.round(hy - r * 1.5 - 3 + (1 - e) * 6), { tam: 16, centro: true });
   // «two weeks»: el calendario se tacha día a día
-  calendario(254, 128, t, lin(t, dosSemanas[0], dosSemanas[1] + 0.25));
+  const uc = lin(t, dosSemanas[0], dosSemanas[1] + 0.25);
+  calendario(CAL[0], CAL[1], t, uc);
+  // la mano: lleva la regla por su tope derecho; la suelta, coge el rotulador rojo y va al calendario; tacha la casilla
+  // que toca en cada momento (la punta hace la cruz) y se va
+  let mx, my, rotu = false;
+  if (t < regla[1] + 0.1) { mx = x + w + 7; my = y + 3; }
+  else if (t < dosSemanas[0]) { const u = suave(lin(t, regla[1] + 0.1, dosSemanas[0] - 0.05)), [cx, cy] = celda(0); mx = lerp(x + w + 7, cx + 14, u); my = lerp(y + 3, cy - 10, u) - Math.sin(u * Math.PI) * 10; rotu = u > 0.4; }
+  else if (t < dosSemanas[1] + 0.3) { const k = Math.min(13, Math.floor(uc * 14 - 0.5) + 1), f = (uc * 14 - 0.5) % 1, [cx, cy] = celda(k); mx = cx + 14 + Math.round(Math.sin(f * Math.PI * 2) * 2); my = cy - 10 + Math.round(f * 4); rotu = true; }
+  else { const u = suave(lin(t, dosSemanas[1] + 0.3, P2 - 0.02)), [cx, cy] = celda(13); mx = lerp(cx + 14, 350, u); my = lerp(cy - 10, 170, u); rotu = true; }
+  if (rotu) { const px = Math.round(mx) - 14, py = Math.round(my) + 8; R.linea(px, py, px + 5, py - 6, C.k); R.linea(px + 1, py, px + 6, py - 6, hex('#c8282a')); R.linea(px + 2, py - 1, px + 6, py - 5, hex('#e84a3a')); R.pset(px, py, hex('#8a1a1e')); }
+  T.mano(R, Math.round(mx), Math.round(my), -1, '#2a4a7a');
 };
 // ── 2 · el tornado como un hilo ─────────────────────────────────────────────────────────────────────────────────
 const toca = a(0.299), ancho = [a(0.394), a(0.47)], reloj = [a(0.508), a(0.585)], seRecoge = [a(0.555), a(0.6)];
 const cubo = (x, y) => { R.rect(x, y, x + 4, y + 4, C.k); R.rect(x + 1, y + 1, x + 3, y + 3, hex('#9aa4b4')); R.pset(x + 1, y + 1, hex('#c8d0dc')); R.linea(x, y - 1, x + 4, y - 1, hex('#5a5e68')); R.pset(x + 2, y - 2, hex('#5a5e68')); };
+// el perro de la granja (el mismo de hu-llanuras, unos 17 × 12 px), de perfil: x el centro del cuerpo, suelo las patas,
+// d ±1 hacia dónde mira; o.corre (las patas se abren y se cierran y las orejas botan), o.salto (px), o.rabo (deprisa)
+const perro = (x, suelo, t, d, o = {}) => {
+  const B = hex('#a8784a'), Bs = hex('#7a5230'), Bl = hex('#c89a64'), K = C.k, y0 = suelo - Math.round(o.salto ?? 0), P = (i, j, c) => R.pset(Math.round(x + i * d), y0 - j, c);
+  const f = o.corre ? (Math.floor(t * 12) % 2 ? 1 : -1) : 0;
+  for (const [i, s] of [[-4, 1], [-2, -1], [3, 1], [5, -1]]) { const ii = i + f * s; for (let j = 1; j <= 3; j++) { P(ii - 1, j, K); P(ii, j, j === 1 ? Bs : B); P(ii + 1, j, K); } P(ii - 1, 0, K); P(ii, 0, K); P(ii + 1, 0, K); }
+  { const w = Math.sin(t * (o.corre || o.rabo ? 24 : 9)); for (let k = 0; k < 4; k++) { const tx = -6 - Math.round(k * 0.6) + Math.round(w * k * 0.4); P(tx, 6 + k, K); P(tx + 1, 6 + k, k < 3 ? Bs : K); } }
+  const oreja = o.corre ? Math.floor(t * 12) % 2 : 0, PARTES = [[-5, 5, 4, 6], [4, 8, 7, 10], [9, 10, 7, 8]];
+  for (const [i0, i1, j0, j1] of PARTES) for (let i = i0 - 1; i <= i1 + 1; i++) for (let j = j0 - 1; j <= j1 + 1; j++) P(i, j, K);
+  for (const [i0, i1, j0, j1] of PARTES) for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) P(i, j, j === j1 ? Bl : j === j0 ? Bs : B);
+  P(7, 9, K); P(7, 10, Bl); P(11, 8, K);
+  for (const [i, j] of [[4, 10], [4, 9], [5, 10], [4, 8 - oreja]]) P(i, j, Bs);
+};
+// una gallina (unos 7 × 6 px), de perfil: x el centro, suelo las patas, d ±1; o.pica (la cabeza abajo), o.corre (patas y
+// alas que baten)
+const GALLINA = { de: ['....rr.', '...WWkY', 'w..WWW.', 'wWWWWWs', '.WsWWs.', '..y.y..'], pica: ['.......', 'w......', 'wWWW...', 'wWWWWWr', '.WsWWkY', '..y.y..'] };
+const gallina = (x, suelo, t, d, o = {}) => {
+  const pal = { W: hex('#f2eee6'), s: hex('#c8c0b4'), w: hex('#d8d2c8'), r: hex('#d83a2a'), k: C.k, Y: hex('#e8a830'), y: hex('#d8902a') };
+  const f = o.pica ? GALLINA.pica : GALLINA.de, paso = o.corre && Math.floor(t * 14) % 2;
+  f.forEach((fila, j) => { for (let i = 0; i < 7; i++) { const c = pal[fila[i]]; if (c == null) continue; const yy = suelo - 5 + j, xx = Math.round(x - 3 * d + i * d) + (paso && j === 5 ? d : 0); R.pset(xx, yy, c); } });
+  R.rect(Math.round(x) - 2, suelo + 1, Math.round(x) + 2, suelo + 1, hex('#3a4430'));
+  if (o.corre) { const a = Math.floor(t * 16) % 2; R.pset(Math.round(x - d), suelo - 4 - a * 2, pal.W); R.pset(Math.round(x), suelo - 4 - a * 2, pal.s); R.pset(Math.round(x + d), suelo - 4 - a, pal.W); }
+};
 const p2 = (t) => {
   const tor = t < seRecoge[0] ? 0.35 * suave(lin(t, P2 + 0.05, toca)) : 0.35 * (1 - suave(lin(t, seRecoge[0], seRecoge[1] + 0.2)));
   T.llanuras(R, t, { luz: 'verde', tornado: tor, cosechadora: false });
+  // tres gallinas picotean en el camino, delante del establo; cuando el embudo toca tierra huyen aleteando hacia la izquierda
+  for (const [x0, y0, d0, k] of [[66, 146, 1, 0], [80, 145, -1, 1], [93, 147, 1, 2]]) {
+    const huye = toca + 0.15 + k * 0.1, c = Math.max(0, t - huye), x = x0 - c * 70 - c * c * 20;
+    if (x < -8) continue;
+    gallina(x, y0, t, c > 0 ? -1 : d0, { pica: c <= 0 && Math.sin(t * 5 + k * 2.1) > 0.2, corre: c > 0 });
+  }
+  // el perro: trota delante del granjero; en «tornado» se para en seco y mira, corre a esconderse detrás de sus piernas
+  // (asoma la cabeza, temblando) y, cuando el embudo se recoge, sale moviendo el rabo
+  { const gx = Math.round(lerp(146, 116, suave(lin(t, P2 - 0.3, toca + 0.1))));
+    let x, d = -1, o = {};
+    if (t < toca) { x = gx - 15; o = { corre: true }; }
+    else if (t < toca + 0.35) { x = 101; d = 1; o = { salto: entre(t, toca, toca + 0.15) ? 2 : 0 }; }
+    else if (t < toca + 0.75) { x = Math.round(lerp(101, 124, suave(lin(t, toca + 0.35, toca + 0.75)))); d = 1; o = { corre: true }; }
+    else if (t < seRecoge[0] + 0.3) { x = 124 + (Math.floor(t * 10) % 2); d = 1; }
+    else { x = Math.round(lerp(124, 142, suave(lin(t, seRecoge[0] + 0.3, seRecoge[1] + 0.05)))); d = 1; o = { corre: t < seRecoge[1] + 0.05, rabo: true }; }
+    perro(x, 142, t, d, o); }
   // «a few hundred yards across»: la horquilla bajo el embudo
   const h = lin(t, ancho[0], ancho[0] + 0.25); if (h > 0 && t < ancho[1] + 0.6) { const x = 214, y = 103, w = Math.round(3 * h); R.rect(x - w - 1, y, x + w + 1, y + 2, C.k); R.rect(x - w, y + 1, x + w, y + 1, C.blanco); for (const s of [-1, 1]) { R.rect(x + s * (w + 1), y - 3, x + s * (w + 1), y + 3, C.k); R.pset(x + s * w, y - 2, C.blanco); R.pset(x + s * w, y - 1, C.blanco); } if (parpadeo(t, 10)) destello(x, y - 7, 1, hex('#fff2b0')); }
   // el granjero llega con el cubo, se para al ver el embudo, lo mira con los prismáticos y saca el reloj
@@ -160,13 +221,18 @@ const anemometro = (cx, cy, s, v, t) => {
 };
 const p3 = (t) => {
   T.labFujita(R, t, { maqueta: suave(lin(t, embudo[0], embudo[1])) });
-  // Fujita gira el mando de la maqueta, se vuelve hacia el anemómetro, se asombra y señala la marca del huracán
-  const vuelve = t > sale + 0.3;
-  R.actor(EL.fujita, 62, 160, t, { dir: vuelve ? 1 : -1, dedo: entre(t, mando - 0.1, embudo[0] + 0.3) || entre(t, fuerte - 0.1, fuerte + 1.0), sorpresa: entre(t, sube[1] - 0.1, sube[1] + 0.6), sonrisa: t > fuerte + 1.0 || entre(t, embudo[1], sale), habla: entre(t, fuerte, fuerte + 0.9) && parpadeo(t, 8) });
+  // Fujita, junto a la maqueta: gira el mando, mira cómo se forma el embudo y lo comenta; en «the wind» va hacia el
+  // anemómetro que aparece, se asombra cuando la aguja se clava en 300 y en «strongest hurricane» señala la marca del huracán
+  const va = suave(lin(t, sale + 0.05, sale + 0.6)), fx = Math.round(lerp(62, 96, va)), andaF = va > 0 && va < 1;
+  R.actor(EL.fujita, fx, 160, t, { dir: t > sale ? 1 : -1, anda: andaF, dedo: !andaF && (entre(t, mando - 0.1, embudo[0] + 0.3) || entre(t, fuerte - 0.1, fuerte + 1.0)),
+    sorpresa: entre(t, sube[1] - 0.1, sube[1] + 0.6), sonrisa: t > fuerte + 1.0 || entre(t, embudo[1], sale), habla: (entre(t, embudo[0] + 0.4, embudo[0] + 1.0) || entre(t, fuerte, fuerte + 0.9)) && parpadeo(t, 8) });
   if (entre(t, mando - 0.1, embudo[0] + 0.3) && parpadeo(t, 12)) destello(36, 118, 2, hex('#fff2b0'));
-  // la becaria, a la derecha de la mesa de luz, con su tablilla
-  R.actor(EL.tecnica, 204, 162, t, { dir: -1, sorpresa: entre(t, sube[1], sube[1] + 0.7), dedo: entre(t, fuerte + 0.6, fuerte + 1.3), sonrisa: t > fuerte + 1.3 });
-  { const [tx, ty] = enMano(204, 162, -1); R.rect(tx - 4, ty - 6, tx + 2, ty + 2, C.k); R.rect(tx - 3, ty - 5, tx + 1, ty + 1, hex('#f6f2e2')); for (let k = 0; k < 3; k++) R.rect(tx - 2, ty - 4 + k * 2, tx, ty - 4 + k * 2, hex('#3a4a7a')); }
+  // la becaria, delante de la mesa de trabajo, apunta en su tablilla; en «the wind» se acerca a ver el anemómetro, se
+  // asombra con el 300, señala la aguja y lo anota
+  const vb = suave(lin(t, sale + 0.1, sale + 0.8)), bx = Math.round(lerp(246, 200, vb)), andaB = vb > 0 && vb < 1, escribe = (t < sale + 0.1 || t > fuerte + 1.3) && !andaB;
+  R.actor(EL.tecnica, bx, 164, t, { dir: -1, anda: andaB, sorpresa: entre(t, sube[1], sube[1] + 0.7), dedo: entre(t, fuerte + 0.6, fuerte + 1.3), sonrisa: t > fuerte + 1.3 || entre(t, embudo[1], sale), habla: entre(t, sube[1] + 0.7, sube[1] + 1.2) && parpadeo(t, 8) });
+  { const [tx, ty] = enMano(bx, 164, -1); R.rect(tx - 4, ty - 6, tx + 2, ty + 2, C.k); R.rect(tx - 3, ty - 5, tx + 1, ty + 1, hex('#f6f2e2')); R.rect(tx - 2, ty - 7, tx, ty - 6, hex('#8a8e96'));
+    for (let k = 0; k < 3; k++) R.rect(tx - 2, ty - 4 + k * 2, tx - 2 + (escribe && k === 2 ? Math.floor(t * 6) % 3 : 2), ty - 4 + k * 2, hex('#3a4a7a')); }
   // el anemómetro aparece y su aguja se dispara
   const s = suave(lin(t, sale - 0.05, sale + 0.25)), q = t < sube[0] ? 0 : t < sube[1] ? TOR * suave(lin(t, sube[0], sube[1])) ** 0.8 : TOR;
   anemometro(118, 60, s, q, t);
