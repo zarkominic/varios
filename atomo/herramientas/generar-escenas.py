@@ -15,6 +15,8 @@ import importlib.util
 import os
 import sys
 
+sys.dont_write_bytecode = True   # los módulos del borrador no dejan __pycache__ en episodios/
+
 args = sys.argv[1:]
 destino = None
 pisar = '--pisar' in args
