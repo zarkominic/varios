@@ -17,7 +17,9 @@
 // que giran, cola en T, franja azul, cabina, luces de punta de ala, destello del sol y su sombra en las nubes) llega desde
 // abajo a la izquierda, entra en el ojo en una curva girando con el huracán y acaba dentro, abajo; la gaviota (9 px con
 // contorno, bate las alas) le sigue por fuera y se queda dando vueltas sobre la pared. En «explain next?» sube del ojo un
-// «?» suave que late. Atom, arriba a la derecha.
+// «?» suave que late, con aire (unos 7–8 px) sobre el avión. El ojo es el remate en calma: el reloj del decorado va desfasado
+// para que los fucilazos de la pared caigan al principio y, en el último segundo y medio, solo relampaguee en las bandas
+// exteriores, lejos del avión. Atom, arriba a la derecha.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-adios');
@@ -132,6 +134,7 @@ const destello = (x, y, r, c = C.blanco) => { for (let i = 1; i <= r; i++) { for
 
 const a = (f) => en('adios', f);
 const explica = a(0.417), siguiente = a(0.592);
+const DESFASE = -1.85;                                                    // el reloj del decorado (ver plano)
 // el avioncito entra en el ojo en una curva: gira alrededor del centro mientras se acerca (u 0–1 del camino); al final
 // cruza la pared y queda dentro del ojo, abajo (el «?» sale arriba)
 const camino = (G, u, rmin = 0) => { const th = 2.5 - 1.25 * u, r = Math.max(rmin, G.r * (6.0 - 5.6 * u)); return [G.x + Math.cos(th) * r, G.y + Math.sin(th) * r]; };
@@ -203,7 +206,9 @@ const bandas = (t, G, RS) => {
 };
 const plano = (t) => {
   const zoom = 1.35 + 0.3 * suave(lin(t, 0, E.duracion)), o = { vista: 'arriba', tarde: true, zoom };
-  T.ojo(R, t, o);
+  // el decorado va 1,85 s por detrás: así sus fucilazos de la pared del ojo caen al principio, con el avión aún fuera, y
+  // en el último segundo y medio la pared y el ojo quedan en calma (solo relampaguea en las bandas, lejos del avión)
+  T.ojo(R, t + DESFASE, o);
   const G = T.b_ojoArribaGeo(o);
   bandas(t, G, 150 * zoom);
   // el avioncito: llega desde abajo a la izquierda y entra en el ojo girando con el huracán, con el morro hacia donde va;
@@ -217,7 +222,7 @@ const plano = (t) => {
     avionArriba(x, y, an, t, e);
     gaviotaArriba(gx, gy, ag, t); }
   // el «?» que sube del ojo, suave (tramado al aparecer), y late
-  if (t > siguiente - 0.15) { const e = lin(t, siguiente - 0.15, siguiente + 0.45), y = Math.round(G.y - 10 - e * 4 + Math.sin(t * 3) * 1), x = Math.round(G.x - 5);
+  if (t > siguiente - 0.15) { const e = lin(t, siguiente - 0.15, siguiente + 0.45), y = Math.round(G.y - 20 - e * 4 + Math.sin(t * 3) * 1), x = Math.round(G.x - 5);
     const antes = []; for (let j = 0; j < 24; j++) for (let i = 0; i < 22; i++) antes.push(R.pget(x - 6 + i, y - 4 + j));
     R.numero('?', x + 5, y + 16, { tam: 16, centro: true, color: hex('#fff2d0') });
     let n = 0; for (let j = 0; j < 24; j++) for (let i = 0; i < 22; i++) { const X = x - 6 + i, Y = y - 4 + j, v = antes[n++]; if (umbral(X, Y) > e) R.pset(X, Y, v); } }

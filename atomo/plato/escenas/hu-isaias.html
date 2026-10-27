@@ -19,7 +19,8 @@
 // 2. la sala del museo (fondo local: techo con el raíl de los focos, pared de tela con su trama, zócalo de nogal con
 //    paneles, tarima encerada con los reflejos de las vitrinas, la vitrina del barómetro aneroide con su aguja que
 //    tiembla, el estandarte con el símbolo del huracán y la salida): dos vitrinas con sus placas y el cordón de
-//    terciopelo. La de 2026 (la pantalla con Isaías y una pronosticadora) está encendida y un chico la graba con el móvil;
+//    terciopelo. La de 2026 (la pantalla con Isaías y una pronosticadora, de pie
+//    a la izquierda del operador sentado, sin tocarse) está encendida y un chico la graba con el móvil;
 //    entran una madre y su hijo; en «the record» parpadea y se enciende la de 1905, la azotea del Weather Bureau en sepia,
 //    y sale el «=»: los tres se sorprenden; en «latest first hurricane» el meteorólogo de 1905 iza a tirones las dos
 //    banderas rojas de aviso (lo único en color de la foto vieja), la pronosticadora señala su pantalla, el niño señala
@@ -44,11 +45,15 @@
 //    roja en «hit»; en «United States» se clava su foto de la noche del huracán con el «2026»; en «since Milton» el mapa
 //    se acerca al golfo, la mano vuelve con el lápiz gris, traza la trayectoria de Milton y clava su chincheta en Siesta
 //    Key con su foto vieja del «2024»;
-// 6. la costa de Destin de noche con el huracán: sube el contador y las luces se apagan barrio a barrio, de la playa
-//    hacia dentro («seven hundred thousand», «homes and businesses», «Florida and Alabama»); salta el transformador de la
-//    US-98 con su lluvia de chispas; por la US-98, ya a oscuras, pasan un coche de policía y luego un camión de
-//    bomberos (sus barras de luces se reflejan en las fachadas); en «without power» un último relámpago enseña el pueblo
-//    entero a oscuras: solo quedan las luces rojas de las torres y alguna linterna.
+// 6. la costa de Destin de noche con el huracán: las luces se apagan barrio a barrio, de la playa hacia dentro («seven
+//    hundred thousand», «homes and businesses», «Florida and Alabama»), y el contador (pequeño, en el agua de la
+//    derecha) sube a la vez, hasta 700,000 en «without power»; salta el transformador de la US-98 con su lluvia de
+//    chispas; las torres se quedan del todo a oscuras (sin la columna de emergencia de la escalera); por la US-98 llega
+//    de derecha a izquierda un coche de policía con la barra encendida (su luz roja y azul lava las fachadas de la US-98,
+//    dentro de cada una), frena y se queda parado en el trozo de calle que se ve a la izquierda, junto al chiringuito;
+//    luego entra un camión de bomberos por la izquierda, pasa por detrás del coche y del letrero del pez y sigue hacia el
+//    pueblo (su barra roja y blanca, en las fachadas); en «without power» un último relámpago cae en dos golpes sobre la
+//    otra orilla y enseña el pueblo entero a oscuras: solo quedan las luces rojas de las torres y alguna linterna.
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hu-isaias');
@@ -247,7 +252,7 @@ const p2 = (t) => {
   if (R.delante) { R.delante(); R.delante = null; }
   R.usar(VB);
   T.centroHuracanes(R, t, { pantalla: 'isaias', crece: 1, cono: 1, dia: 7, cat: 1 });
-  R.actor(EL.pronosticadora, 168, 139, t, { dir: -1, dedo: entre(t, tardio, tardio + 1.4), sonrisa: entre(t, record + 0.3, tardio) || t > tardio + 1.4, habla: entre(t, P2 + 0.2, record - 0.1) && Math.sin(t * 8) > 0 });
+  R.actor(EL.pronosticadora, 150, 139, t, { dir: -1, dedo: entre(t, tardio, tardio + 1.4), sonrisa: entre(t, record + 0.3, tardio) || t > tardio + 1.4, habla: entre(t, P2 + 0.2, record - 0.1) && Math.sin(t * 8) > 0 });
   if (R.delante) { R.delante(); R.delante = null; }
   R.usar(prev);
   // la sala
@@ -541,30 +546,87 @@ const p5 = (t) => {
 
 // ── 6 · el apagón: las luces de la costa se apagan barrio a barrio y el contador llega a 700,000 ───────────────
 const salta = hogares + 0.1;
+// el trozo de la US-98 que se ve: a la izquierda, entre las casas de la US-98 (base y 80) y el tejado del chiringuito
+// (y 88), por detrás del letrero del pez (x 15–35, y 80 abajo) y antes del tronco de la palmera de la duna (x 46)
+const VEH = R.nuevo();
+const enCalle = (x, y) => x >= 0 && x <= 45 && y >= 74 && y <= 87 && !(x >= 15 && x <= 35 && y >= 80);
+// las fachadas de la fila de la US-98 donde se reflejan las barras de luces (x0, x1, arriba, abajo: lo que asoma por
+// encima de la primera línea); la gasolinera, la marquesina y los surtidores
+const FACH = [[1, 17, 67, 80], [27, 47, 65, 80], [53, 67, 66, 74], [77, 93, 68, 72], [111, 135, 68, 76], [141, 155, 67, 77], [239, 255, 67, 72], [267, 275, 66, 72]];
+const EMERG = hex('#b8e8d0');
+// el coche de policía (dir -1: hacia la izquierda), blanco y negro, con la barra roja y azul en el techo; x el centro, y
+// la rueda; fase: qué mitad de la barra luce
+const patrulla = (x, y, t, fase) => { const { rect, pset, disco } = R;
+  rect(x - 8, y - 5, x + 8, y - 1, C.k); rect(x - 7, y - 4, x + 7, y - 2, hex('#1c2030')); rect(x - 3, y - 4, x + 3, y - 2, hex('#dfe4ec')); rect(x - 3, y - 4, x + 3, y - 4, hex('#f4f6fa'));
+  rect(x - 4, y - 8, x + 4, y - 5, C.k); rect(x - 3, y - 7, x + 3, y - 5, hex('#dfe4ec')); rect(x - 3, y - 7, x - 1, y - 6, hex('#4a5a7a')); rect(x + 1, y - 7, x + 3, y - 6, hex('#4a5a7a')); pset(x - 3, y - 7, hex('#8aa0c8'));
+  rect(x - 3, y - 9, x - 1, y - 9, fase ? hex('#ff4a4a') : hex('#5a1a1a')); rect(x + 1, y - 9, x + 3, y - 9, fase ? hex('#2a3a7a') : hex('#4a8aff')); pset(x, y - 9, C.k);
+  pset(x - 8, y - 3, hex('#fff6c8')); pset(x + 8, y - 3, hex('#e03a3a')); rect(x - 7, y - 1, x + 7, y - 1, hex('#0e1018'));
+  for (const wx of [x - 5, x + 5]) { disco(wx, y, 2, C.k); pset(wx, y, hex('#6a6e7a')); } };
+// el camión de bomberos (hacia la derecha): rojo, la cabina delante con su cristal, la escalera encima, la barra roja y
+// blanca y los cofres de los lados
+const camion = (x, y, t, fase) => { const { rect, pset, disco } = R;
+  rect(x - 13, y - 8, x + 13, y - 1, C.k); rect(x - 12, y - 7, x + 12, y - 2, hex('#b8241e')); rect(x - 12, y - 7, x + 12, y - 7, hex('#e85a4a')); rect(x - 12, y - 2, x + 12, y - 2, hex('#7a140e'));
+  for (let i = x - 10; i < x + 4; i += 4) { rect(i, y - 6, i + 2, y - 3, hex('#9a1a14')); pset(i, y - 6, hex('#d8a8a0')); }
+  rect(x + 5, y - 11, x + 13, y - 1, C.k); rect(x + 6, y - 10, x + 12, y - 2, hex('#c82a22')); rect(x + 8, y - 9, x + 12, y - 7, hex('#4a5a7a')); pset(x + 12, y - 9, hex('#8aa0c8')); rect(x + 6, y - 4, x + 12, y - 4, hex('#e8e0d0'));
+  rect(x - 13, y - 10, x + 4, y - 10, hex('#a8acb8')); rect(x - 13, y - 9, x + 4, y - 9, hex('#6a6e7a')); for (let i = x - 12; i <= x + 3; i += 3) pset(i, y - 10, hex('#e8ecf0'));
+  rect(x + 7, y - 12, x + 9, y - 12, fase ? hex('#ff3a2a') : hex('#5a1a14')); rect(x + 10, y - 12, x + 12, y - 12, fase ? hex('#4a4a44') : hex('#fff4d8'));
+  pset(x + 13, y - 3, hex('#fff6c8')); pset(x - 13, y - 3, hex('#e03a3a'));
+  for (const wx of [x - 9, x - 3, x + 9]) { disco(wx, y, 2, C.k); pset(wx, y, hex('#6a6e7a')); } };
 const p6 = (t) => {
   const ap = 0.34 * tramo(t, miles - 0.2, miles + 0.7) + 0.33 * tramo(t, hogares - 0.1, florida - 0.3) + 0.33 * tramo(t, florida - 0.1, sinLuz + 0.1);
   const o = { noche: 1, huracan: 0.72, apagon: ap };
   T.costa(R, t, o);
+  const D = R.buf;
+  // sin luces de emergencia en las escaleras de las torres: con el apagón se quedan a oscuras (la columna tenue que pinta
+  // el decorado se tapa con el cristal apagado de la ventana, la fila de encima)
+  for (let y = 24; y < 112; y++) for (let x = 158; x < 240; x++) if (D[y * 320 + x] === EMERG) D[y * 320 + x] = D[(y - 1) * 320 + x];
   // el transformador que salta en la US-98: un fogonazo azul verdoso y una lluvia de chispas que caen y se apagan
   if (entre(t, salta, salta + 0.35)) { const q = lin(t, salta, salta + 0.35), r = Math.round(2 + q * 14); for (let y = 66 - r; y <= 66 + r; y++) for (let x = 142 - r; x <= 142 + r; x++) { const d = Math.hypot(x - 142, y - 66); if (d < r && bay(x, y) < (1 - d / r) * (1 - q)) R.pset(x, y, d < r * 0.4 ? C.blanco : hex('#8af0e8')); } }
   if (entre(t, salta, salta + 1.1)) { const q = t - salta; for (let k = 0; k < 16; k++) { const vx = (hh(k, 1, 881) - 0.5) * 40, vy = -10 - hh(k, 2, 881) * 26, x = Math.round(142 + vx * q), y = Math.round(66 + vy * q + 60 * q * q); if (q < 0.4 + hh(k, 3, 881) * 0.7) R.pset(x, y, q < 0.35 ? hex('#fff8c0') : hex('#f0a040')); } }
-  // con el pueblo ya a oscuras, pasan por la US-98, por detrás de la primera línea, un coche de policía (de derecha a
-  // izquierda) y luego un camión de bomberos (al revés): solo se ve el reflejo de sus barras de luces en las fachadas
-  // mojadas, rojo y azul el uno y rojo y blanco el otro
-  for (const [t0, t1, x0, x1, c1, c2] of [[hogares + 0.2, sinLuz - 0.2, 340, -24, '#4a8aff', '#ff4a4a'], [florida + 0.5, P6 + 7.2, -24, 340, '#ff3a2a', '#fff0d0']]) {
-    const q = lin(t, t0, t1); if (q <= 0 || q >= 1) continue; const lx = Math.round(lerp(x0, x1, q)), col = Math.floor(t * 7) % 2 ? hex(c1) : hex(c2), D = R.buf;
-    for (let y = 80; y < 114; y++) for (let x = lx - 22; x <= lx + 22; x++) { if (x < 0 || x > 319) continue; const d = Math.hypot((x - lx) / 22, (y - 94) / 14); if (d < 1 && bay(x, y) < (1 - d) * 0.55) D[y * 320 + x] = mezcla(D[y * 320 + x], col, 0.45); } }
-  // en «without power», un último relámpago enseña el pueblo entero a oscuras
-  if (entre(t, sinLuz, sinLuz + 0.2)) { const f = entre(t, sinLuz + 0.05, sinLuz + 0.1) ? 0.15 : 0.38, D = R.buf; for (let i = 0; i < 320 * 180; i++) D[i] = mezcla(D[i], hex('#dfe6ff'), f);
-    let bx = 232; for (let y = 16; y < 58; y++) { bx += (hh(y, 2, 865) - 0.5) * 4; R.pset(Math.round(bx), y, C.blanco); R.pset(Math.round(bx) + 1, y, hex('#c8d4ff')); if (y % 13 === 0) for (let i = 0; i < 7; i++) R.pset(Math.round(bx) + i, y + i, hex('#c8d4ff')); } }
+  // el trozo de la US-98 que se ve a la izquierda: el asfalto mojado con su raya amarilla discontinua y el bordillo
+  for (let y = 81; y <= 87; y++) for (let x = 0; x <= 45; x++) { if (!enCalle(x, y)) continue; let c = y === 81 ? hex('#4a4e5e') : hh(x, y, 871) < 0.08 ? hex('#262a3a') : hex('#1e2232');
+    if (y === 84 && x % 6 < 3) c = hex('#8a7a3a'); if (y > 84 && bay(x, y) < 0.18 + 0.1 * Math.sin(x * 0.7 + t * 2)) c = hex('#3a4258'); D[y * 320 + x] = c; }
+  // con el pueblo ya a oscuras llega por la US-98, de derecha a izquierda, un coche de policía con la barra encendida
+  // (por detrás de la primera línea solo se ve su reflejo, que barre las fachadas de la US-98); frena y se queda parado
+  // en el trozo de la izquierda, junto al chiringuito, cortando la calle, con las luces dando vueltas. Luego el camión de
+  // bomberos entra por la izquierda, pasa por detrás del coche parado y del letrero y sigue hacia el pueblo (su barra
+  // roja y blanca se ve después en las fachadas). El reflejo va dentro de cada fachada, como un lavado de luz que late
+  const VS = [];
+  { const q = lin(t, hogares + 0.1, florida + 0.25); if (q > 0) VS.push({ cual: 0, lx: Math.round(lerp(340, 8, 1 - (1 - q) * (1 - q))), y: 87, c1: '#ff4a4a', c2: '#4a8aff' }); }
+  { const u = t - (florida + 0.55); if (u > 0) VS.push({ cual: 1, lx: Math.round(-30 + u * 58), y: 85, c1: '#ff3a2a', c2: '#fff0d0' }); }
+  for (const v of VS.reverse()) {   // el camión (carril de atrás) primero, el coche (carril de delante) después
+    const { lx, cual } = v; if (lx > 360) continue; const fase = (Math.floor(t * 7) + cual) % 2, col = hex(fase ? v.c1 : v.c2);
+    for (const [a, z, y0, y1] of FACH) { if (z < lx - 44 || a > lx + 44) continue;
+      // (solo en la pared: ni el contorno negro, ni las ventanas encendidas, ni las palmas de delante, que son verdosas)
+      for (let y = y0; y <= y1; y++) for (let x = a; x <= z; x++) { const d = Math.abs(x - lx) / 44, k = (1 - d * d) * (0.06 + 0.26 * ((y - y0) / Math.max(1, y1 - y0)) ** 1.5), i = y * 320 + x, c = D[i], g = (c >>> 8) & 255, b2 = (c >>> 16) & 255;
+        if (k > 0 && (c & 255) + g + b2 > 70 && b2 - g > 21) D[i] = mezcla(c, col, k); } }
+    // el vehículo, en su búfer, y se copia solo lo que cae en el trozo de calle que se ve; debajo, el brillo en el asfalto
+    if (lx > -24 && lx < 64) {
+      const prev = R.usar(VEH); VEH.fill(0); if (cual === 0) patrulla(lx, v.y, t, fase); else camion(lx, v.y, t, fase); R.usar(prev);
+      for (let y = 70; y <= 87; y++) for (let x = Math.max(0, lx - 24); x <= Math.min(45, lx + 24); x++) { if (!enCalle(x, y)) continue; const i = y * 320 + x;
+        if (VEH[i]) D[i] = VEH[i]; else if (y >= 82 && Math.abs(x - lx) < 20) D[i] = mezcla(D[i], col, 0.3 * (1 - Math.abs(x - lx) / 20)); }
+      // el haz de los faros sobre el asfalto mojado, por delante
+      const dir = cual === 0 ? -1 : 1, fx = lx + dir * (cual === 0 ? 9 : 14);
+      for (let s = 1; s < 18; s++) for (let y = 84; y <= 87; y++) { const x = fx + dir * s; if (enCalle(x, y)) D[y * 320 + x] = mezcla(D[y * 320 + x], hex('#fff0c0'), 0.32 * (1 - s / 18)); }
+    }
+  }
+  // en «without power», el último relámpago: cae en dos golpes sobre la otra orilla de la bahía (por el cielo libre de la
+  // izquierda, sin cruzar por delante de nada) y enseña el pueblo entero a oscuras; luego se apaga
+  const fl = sinLuz + 0.02;
+  if (entre(t, fl, fl + 0.75)) { const u = t - fl, f = u < 0.1 ? 0.5 : u < 0.16 ? 0.12 : u < 0.3 ? 0.42 : 0.42 * (1 - (u - 0.3) / 0.45);
+    if (f > 0.03) for (let i = 0; i < 320 * 180; i++) D[i] = mezcla(D[i], hex('#dfe6ff'), f);
+    if (u < 0.5) { let bx = 64; for (let y = 16; y < 47; y++) { bx += (hh(y, 2, 865) - 0.45) * 3; const X = Math.round(bx); R.pset(X, y, C.blanco); R.pset(X + 1, y, hex('#c8d4ff')); R.pset(X - 1, y, hex('#8a9ae8'));
+      if (y % 11 === 0) { let rx = X; for (let i = 0; i < 9; i++) { rx += hh(y, i, 866) < 0.5 ? 1 : 2; if (y + i < 47) R.pset(rx, y + i, hex('#c8d4ff')); } } } } }
   T.i_costaDelante(R, t, o);
-  // el contador: casas sin luz (la casita con la bombilla tachada) y la cifra que sube
-  const n = Math.round(700000 * tramo(t, miles - 0.05, hogares + 0.1) / 1000) * 1000, s = n.toLocaleString('en-US');
-  const sube = Math.round((1 - tramo(t, miles - 0.45, miles - 0.1)) * 34); if (sube >= 34) return;
-  R.rect(66, 148 + sube, 254, 176 + sube, C.k); R.rect(67, 149 + sube, 253, 175 + sube, hex('#141a2c')); R.rect(67, 149 + sube, 253, 149 + sube, hex('#3a4a6a'));
-  { const hx = 72, hy = 154 + sube, bomb = n > 0 ? hex('#6a6a5a') : (Math.floor(t * 12) % 4 ? hex('#f0d040') : hex('#a89030')); R.poligono([[hx, hy + 6], [hx + 7, hy], [hx + 14, hy + 6]], hex('#c8ccd8')); R.rect(hx + 2, hy + 6, hx + 12, hy + 15, hex('#c8ccd8')); R.rect(hx + 6, hy + 10, hx + 8, hy + 15, hex('#141a2c'));
-    R.disco(hx + 21, hy + 7, 4, bomb); R.rect(hx + 20, hy + 11, hx + 22, hy + 14, hex('#8a8a96')); if (n > 0) { R.linea(hx + 16, hy + 2, hx + 26, hy + 13, hex('#e03a3a')); R.linea(hx + 16, hy + 3, hx + 26, hy + 14, hex('#e03a3a')); } }
-  R.numero(s, 178, 171 + sube, { tam: 16, centro: true });
+  // el contador, pequeño, en el agua de la derecha: casas sin luz (la casita con la bombilla tachada) y la cifra, que sube
+  // a la vez que se apagan los barrios y llega a 700,000 con el último relámpago
+  const n = Math.min(700000, Math.round(700000 * Math.min(1, ap * 1.02) / 1000) * 1000), s = n.toLocaleString('en-US');
+  const sube = Math.round((1 - tramo(t, miles - 0.45, miles - 0.1)) * 30); if (sube >= 30) return;
+  const x0 = 214, y0 = 152 + sube, x1 = 314, y1 = 170 + sube, lleno = n >= 700000;
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { if (y > 179) continue; const i = y * 320 + x; D[i] = (x === x0 || x === x1 || y === y0 || y === y1) ? C.k : y === y0 + 1 ? hex('#3a4a6a') : mezcla(D[i], hex('#0e1222'), 0.78); }
+  { const hx = x0 + 4, hy = y0 + 4, bomb = lleno && Math.floor(t * 4) % 2 ? hex('#4a4a40') : hex('#7a7a6a'); R.poligono([[hx, hy + 4], [hx + 5, hy], [hx + 10, hy + 4]], hex('#c8ccd8')); R.rect(hx + 1, hy + 4, hx + 9, hy + 10, hex('#c8ccd8')); R.rect(hx + 4, hy + 7, hx + 6, hy + 10, hex('#141a2c'));
+    R.disco(hx + 16, hy + 4, 3, bomb); R.rect(hx + 15, hy + 7, hx + 17, hy + 9, hex('#8a8a96')); R.linea(hx + 12, hy, hx + 20, hy + 9, hex('#e03a3a')); }
+  R.numero(s, 284, y0 + 13, { tam: 8, centro: true });
 };
 // los efectos: el trueno de cada relámpago de la costa, sincronizado con el destello del decorado
 const truenos = (t0, t1) => { const L = []; for (let k = Math.floor(t0 / 4.3) - 1; k < t1 / 4.3 + 1; k++) { const tr = RAYO(k) + 0.25; if (tr > t0 && tr < t1) L.push([tr, 'trueno']); } return L; };
