@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El giro · ep12</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HU-GIRO (frase 9), sin año: de dónde sale el giro. Cuatro planos:
+// 1. la Tierra desde la órbita baja, con el borde curvo sobre el Atlántico tropical, que gira: en «the Earth itself» la
+//    atmósfera se enciende a lo largo del borde y en «our planet turns» una flecha dorada recorre el borde hacia el este
+//    y se queda corriendo; pasan un satélite y una estrella fugaz;
+// 2. (corta en «The air») el planeta entero: en «rushing toward the center» cuatro flechas de aire corren hacia una baja del
+//    Atlántico y en «gets bent to one side» se tuercen a su derecha (el camino recto queda punteado);
+// 3. (corta en «hurricanes») un huracán desde arriba que gira despacio: en «counterclockwise» una flecha dorada le da la
+//    vuelta al revés que las agujas del reloj y se queda girando con él, mientras sus bandas giran;
+// 4. (corta en «form») el planeta otra vez: la espiral en su sitio, y en «right on the equator» la franja del ecuador con
+//    los huracanes tachados; en «where that push disappears» aparecen las flechitas del empujón, largas lejos del ecuador
+//    y cada vez más cortas al acercarse, y la del ecuador se apaga.
+import * as T from '/atomo/plato/escenas/hu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hu-giro');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C;
+const lin = (t, x, y) => Math.max(0, Math.min(1, (t - x) / (y - x)));
+const entre = (t, x, y) => t >= x && t < y;
+const suave = (u) => u * u * (3 - 2 * u);
+const ruido = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const umbral = (x, y) => (B4[((y & 3) << 2) + (x & 3)] + 0.5) / 16;
+// mezcla dos colores del lienzo (ABGR) y tiñe un píxel
+const mezcla = (p, c, a) => { const r = p & 255, g = (p >> 8) & 255, b = (p >> 16) & 255; return (0xff000000 | (Math.round(b + (((c >> 16) & 255) - b) * a) << 16) | (Math.round(g + (((c >> 8) & 255) - g) * a) << 8) | Math.round(r + ((c & 255) - r) * a)) >>> 0; };
+const tine = (x, y, c, a) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 179) return; const B = R.buf, i = y * 320 + x; B[i] = mezcla(B[i], c, a); };
+// la zona de Atom y la de la barra del año quedan como fondo tranquilo
+const tranquilo = (x, y) => (x >= 274 && y <= 47) || (x <= 172 && y <= 15);
+const destello = (x, y, r, c = C.blanco) => { for (let i = 0; i <= r; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
+// la calima: las filas de la caja tiemblan de lado, como el aire caliente que sube del mar
+const FILA = new Uint32Array(320);
+const calima = (x0, y0, x1, y1, t, a = 1, k = 0) => { const B = R.buf; for (let y = y0; y <= y1; y++) { const d = Math.round(Math.sin(y * 0.8 + t * 6 + k) * a * (0.55 + 0.45 * Math.sin(t * 1.7 + y * 0.21))); if (!d) continue; for (let x = x0; x <= x1; x++) FILA[x] = B[y * 320 + x]; for (let x = x0; x <= x1; x++) B[y * 320 + x] = FILA[Math.min(x1, Math.max(x0, x - d))]; } };
+// el desenfoque del fondo de un inserto (caja de 3 × 3, n pasadas): da profundidad al objeto que va delante
+const TMP = new Uint32Array(320 * 180);
+const desenfoca = (n = 2, x0 = 0, y0 = 0, x1 = 319, y1 = 179) => {
+  const B = R.buf;
+  for (let p = 0; p < n; p++) for (const hor of [1, 0]) {
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const a = hor ? B[y * 320 + Math.max(x0, x - 1)] : B[Math.max(y0, y - 1) * 320 + x], m = B[y * 320 + x], b = hor ? B[y * 320 + Math.min(x1, x + 1)] : B[Math.min(y1, y + 1) * 320 + x];
+      const r = ((a & 255) + 2 * (m & 255) + (b & 255)) >> 2, g = (((a >> 8) & 255) + 2 * ((m >> 8) & 255) + ((b >> 8) & 255)) >> 2, bb = (((a >> 16) & 255) + 2 * ((m >> 16) & 255) + ((b >> 16) & 255)) >> 2;
+      TMP[y * 320 + x] = (0xff000000 | (bb << 16) | (g << 8) | r) >>> 0;
+    }
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) B[y * 320 + x] = TMP[y * 320 + x];
+  }
+};
+// el cuadro entero que tiembla (dx, dy px)
+const sacude = (dx, dy) => { if (!dx && !dy) return; const B = R.buf; TMP.set(B); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = TMP[Math.min(179, Math.max(0, y - dy)) * 320 + Math.min(319, Math.max(0, x - dx))]; };
+// la gaviota de cerca: de pie (x, y: entre las patas) o volando, con su contorno para que se lea sobre el cielo
+const PAL_GAV = { k: C.k, W: hex('#f8f6f0'), w: hex('#d8dce4'), G: hex('#a8b0bc'), D: hex('#3a3e48'), Y: hex('#f0b030') };
+const GAV_PIE = ['.......kkk..', '......kWWWk.', '......kWkWYY', '.....kWWWWk.', '.kkkkWWWWk..', 'kDGGGGWWWk..', '.kDGGGGwWk..', '..kkkkkkk...', '....Y..Y....', '....Y..Y....'];
+const gaviotaPie = (x, y, dir = 1, salto = 0) => R.dibujo(GAV_PIE, Math.round(x - 6), Math.round(y - 10 - salto), dir, PAL_GAV);
+const gaviotaVuela = (x, y, t, dir = 1) => {
+  x = Math.round(x); y = Math.round(y); const al = Math.sin(t * 13) > 0 ? -1 : 1, P = [[-7, al * 3 - 1], [-3, -1], [0, 0], [3, -1], [7, al * 3 - 1]];
+  for (let i = 1; i < P.length; i++) { R.linea(x + P[i - 1][0], y + P[i - 1][1] + 1, x + P[i][0], y + P[i][1] + 1, C.k); R.linea(x + P[i - 1][0], y + P[i - 1][1] - 1, x + P[i][0], y + P[i][1] - 1, C.k); }
+  for (let i = 1; i < P.length; i++) R.linea(x + P[i - 1][0], y + P[i - 1][1], x + P[i][0], y + P[i][1], i === 1 || i === 4 ? PAL_GAV.G : PAL_GAV.W);
+  R.pset(x - 7, y + al * 3 - 1, PAL_GAV.D); R.pset(x + 7, y + al * 3 - 1, PAL_GAV.D);
+  R.rect(x - 2, y, x + 2, y + 2, C.k); R.rect(x - 1, y + 1, x + 1, y + 1, PAL_GAV.W); R.pset(x + dir * 3, y + 1, PAL_GAV.Y);
+};
+
+const g = (f) => en('giro', f);
+// los cortes: «The air», «hurricanes», «form»
+const G2 = g(0.249), G3 = g(0.504), G4 = g(0.795);
+const tierraT = g(0.059), propia = g(0.074), planetaT = g(0.166), gira = g(0.185), aire = g(0.256), centro = g(0.329), tuerce = g(0.371), lado = g(0.415), norte = g(0.561), antih = g(0.628), antihFin = g(0.680), ecuador = g(0.858), empuje = g(0.915), desaparece = g(0.946);
+const ORO = hex('#ffd040'), OROS = hex('#a8700a'), OROL = hex('#fff2a0');
+// una flecha gruesa dorada a lo largo de un camino de puntos [[x, y], …] (u: cuánto se ha dibujado), con su punta
+const flechaCamino = (P, u, fase = 0) => {
+  const n = Math.max(2, Math.round(P.length * u)); if (u <= 0) return;
+  for (let i = 1; i < n; i++) { const [x0, y0] = P[i - 1], [x1, y1] = P[i]; for (const [ox, oy] of [[0, 1], [1, 0], [0, -1], [-1, 0], [1, 1]]) R.linea(Math.round(x0) + ox, Math.round(y0) + oy, Math.round(x1) + ox, Math.round(y1) + oy, OROS); }
+  for (let i = 1; i < n; i++) { const [x0, y0] = P[i - 1], [x1, y1] = P[i]; R.linea(Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1), ((i + Math.floor(fase)) % 6) < 2 ? OROL : ORO); }
+  const [xa, ya] = P[n - 2], [xb, yb] = P[n - 1], a = Math.atan2(yb - ya, xb - xa);
+  const pts = [[xb + Math.cos(a) * 6, yb + Math.sin(a) * 6], [xb + Math.cos(a + 2.3) * 6, yb + Math.sin(a + 2.3) * 6], [xb + Math.cos(a - 2.3) * 6, yb + Math.sin(a - 2.3) * 6]].map(([x, y]) => [Math.round(x), Math.round(y)]);
+  R.poligono(pts.map(([x, y]) => [x + 1, y + 1]), OROS); R.poligono(pts, ORO); R.pset(pts[0][0] - Math.round(Math.cos(a) * 2), pts[0][1] - Math.round(Math.sin(a) * 2), OROL);
+};
+
+// ── 1 · el planeta gira ───────────────────────────────────────────────────────────────────────────────────────────
+const BORDE = Array.from({ length: 60 }, (_, i) => { const th = -0.4 + i / 59 * 0.8; return [150 + 340 * Math.sin(th), 404 - 340 * Math.cos(th)]; });
+const p1 = (t) => {
+  T.orbita(R, t, { encuadre: 'cerca', mira: [16, -50], vel: 3.2, t0: 0, tiros: false });
+  // «the Earth itself»: la atmósfera se enciende a lo largo del borde
+  { const k = lin(t, tierraT - 0.25, tierraT + 0.25) * (1 - lin(t, propia + 0.4, gira + 0.3)); if (k > 0) for (let x = 0; x < 320; x++) { const yb = 404 - Math.sqrt(324 * 324 - (x - 150) ** 2); for (let d = -2; d <= 9; d++) { const y = Math.round(yb - d); if (!tranquilo(x, y) && umbral(x, y) < k * (1 - Math.abs(d - 2) / 8)) tine(x, y, hex('#a8e0ff'), 0.7); } } }
+  // «our planet turns»: la flecha dorada recorre el borde hacia el este y se queda corriendo
+  flechaCamino(BORDE, suave(lin(t, planetaT - 0.2, gira + 0.3)), t * 8);
+  if (entre(t, gira + 0.2, gira + 0.7)) { const [x, y] = BORDE[59]; destello(Math.round(x) + 4, Math.round(y) + 2, 4, OROL); }
+};
+
+// ── 2 · el aire se tuerce ─────────────────────────────────────────────────────────────────────────────────────────
+const p2 = (t) => {
+  const gg = 0.17 + 0.46 * suave(lin(t, aire - 0.15, lado + 0.1)) + 0.03 * lin(t, lado, G3);
+  T.orbita(R, t, { lat: 12, lon: -62, giro: gg, tiros: false });
+};
+
+// ── 3 · al revés que las agujas del reloj ─────────────────────────────────────────────────────────────────────────
+const p3 = (t) => {
+  T.ojo(R, t, { vista: 'arriba', zoom: 1.35, centro: [150, 96], giro: 0.24 });
+  const u = suave(lin(t, antih - 0.35, antihFin + 0.15)), giroF = (t - antihFin) * 0.24 * Math.max(0, Math.sign(t - antihFin));
+  const P = Array.from({ length: 70 }, (_, i) => { const th = 0.25 + i / 69 * 5.0 + giroF; return [150 + Math.cos(th) * 74, 96 - Math.sin(th) * 56]; });
+  flechaCamino(P, u, t * 8);
+  // «in the North»: el norte arriba, con su flechita (el símbolo, sin letras)
+  { const k = lin(t, norte - 0.2, norte + 0.2); if (k > 0) { const x = 30, y = 150; R.disco(x, y, 9, C.k); R.disco(x, y, 8, hex('#1e2a48')); R.poligono([[x, y - 7], [x - 3, y + 1], [x + 3, y + 1]], ORO); R.poligono([[x, y + 7], [x - 3, y + 1], [x + 3, y + 1]], hex('#8a94b0')); R.pset(x, y + 1, C.blanco); if (k < 1) destello(x, y - 9, 3, OROL); } }
+};
+
+// ── 4 · el ecuador, sin huracanes ─────────────────────────────────────────────────────────────────────────────────
+const p4 = (t) => {
+  const gg = 0.72 + 0.12 * lin(t, G4, ecuador + 0.1) + 0.16 * lin(t, ecuador + 0.1, desaparece + 0.4);
+  const { P } = T.orbita(R, t, { lat: 12, lon: -62, giro: gg, tiros: false });
+  // «where that push disappears»: las flechitas del empujón, más cortas cuanto más cerca del ecuador; la del ecuador se apaga
+  const k = lin(t, empuje - 0.3, empuje + 0.2), apaga = lin(t, desaparece, desaparece + 0.5);
+  if (k > 0) for (const lat of [32, 22, 13, 6, 0]) { const p = P([lat, -27]); if (!p[2]) continue; const L = Math.round(14 * Math.sin(lat * Math.PI / 180) / Math.sin(32 * Math.PI / 180) * suave(k)), x = Math.round(p[0]), y = Math.round(p[1]);
+    if (lat === 0) { if (apaga < 1 && Math.floor(t * 10) % 2 === 0) { R.disco(x, y, 2, C.k); R.disco(x, y, 1, hex('#ff8a3a')); } continue; }
+    R.rect(x - 1, y - 1, x + L + 1, y + 1, C.k); R.rect(x, y, x + L, y, hex('#ff9a3a')); R.poligono([[x + L + 4, y], [x + L, y - 3], [x + L, y + 3]], hex('#ff9a3a')); R.pset(x + L + 1, y, hex('#ffd0a0')); }
+};
+const efectos = [[0.3, 'zumbido'], [tierraT, 'brillo'], [planetaT, 'whoosh'], [gira + 0.3, 'brillo'],
+  [aire, 'rafaga'], [tuerce, 'whoosh'], [lado, 'whoosh'],
+  [G3 + 0.05, 'rafaga'], [norte, 'tic'], [antih - 0.3, 'whoosh'], [antihFin, 'brillo'], [antihFin + 0.8, 'rafaga'],
+  [G4 + 0.1, 'zumbido'], [ecuador, 'pop'], [ecuador + 0.4, 'pop'], [empuje, 'tic'], [desaparece + 0.1, 'pop']];
+T.rodar(E, R, [[0, p1], [G2, p2], [G3, p3], [G4, p4]], { efectos });
+</script>
+</body>
+</html>

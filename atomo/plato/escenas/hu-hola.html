@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep12</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HU-HOLA (frase 5): Atom se presenta. Un solo plano, sin barra del año: el huracán entero desde lo alto, girando junto
+// a la costa de Texas (la bahía, la isla, los ríos), con los cirros que se escapan y los fucilazos en las bandas; en
+// «school didn't teach you» sale una «?» dorada sobre la tierra; en «Let's find out» la «?» se convierte en «!» y la
+// cámara se lanza en picado hacia el ojo.
+import * as T from '/atomo/plato/escenas/hu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hu-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C, K = C.k;
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+const suave = (u) => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+const entre = (t, a0, a1) => t >= a0 && t < a1;
+const parp = (t, v = 6) => Math.sin(t * v) > 0;
+const ruido = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const umbral = (x, y) => (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const rgb = (c) => [c & 255, (c >>> 8) & 255, (c >>> 16) & 255];
+const mezcla = (a, b, f) => { const [ar, ag, ab] = rgb(a), [br, bg, bb] = rgb(b); return (0xff000000 | (Math.round(ab + (bb - ab) * f) << 16) | (Math.round(ag + (bg - ag) * f) << 8) | Math.round(ar + (br - ar) * f)) >>> 0; };
+const luz = (c) => { const [r, g, b] = rgb(c); return 0.3 * r + 0.59 * g + 0.11 * b; };
+// la zona de Atom y la de la barra del año, que quedan tranquilas
+const enAtom = (x, y) => x >= 276 && y <= 46;
+
+// los relámpagos vistos desde arriba: sobre la nube blanca solo se ven si llevan su halo morado y su contorno oscuro.
+// Un rayo quebrado (x, y: donde nace; ang: hacia dónde; len: largo; k: su semilla) con sus ramas, que dura lo que f > 0
+const rayo = (x, y, ang, len, k, f) => {
+  if (f <= 0) return;
+  const pts = [[x, y]]; let px = x, py = y;
+  for (let i = 1; i <= 5; i++) { const a2 = ang + (ruido(k, i, 91) - 0.5) * 1.6; px += Math.cos(a2) * len / 5; py += Math.sin(a2) * len / 5; pts.push([px, py]); }
+  const rama = pts[2], ar = ang + (ruido(k, 9, 91) > 0.5 ? 0.9 : -0.9), r2 = [rama, [rama[0] + Math.cos(ar) * len * 0.3, rama[1] + Math.sin(ar) * len * 0.3]];
+  // el halo morado tramado alrededor
+  const cx = (x + px) / 2, cy = (y + py) / 2, rh = len * 0.75;
+  for (let j = -rh; j <= rh; j++) for (let i = -rh; i <= rh; i++) { const X = Math.round(cx + i), Y = Math.round(cy + j), d = Math.hypot(i, j) / rh; if (d > 1 || enAtom(X, Y) || (Y < 22 && X < 176)) continue; if (umbral(X, Y) < (1 - d) * 0.7 * f) R.pset(X, Y, mezcla(R.pget(X, Y), hex('#b8a8f8'), 0.55)); }
+  const traza = (q, c, g) => { for (let i = 1; i < q.length; i++) { const [a0, b0] = q[i - 1], [a1, b1] = q[i], n = Math.ceil(Math.hypot(a1 - a0, b1 - b0)); for (let s = 0; s <= n; s++) { const X = Math.round(a0 + (a1 - a0) * s / n), Y = Math.round(b0 + (b1 - b0) * s / n); if (g) { for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(X + dx, Y + dy, c); } else R.pset(X, Y, c); } } };
+  traza(pts, hex('#3a2a6a'), true); traza(r2, hex('#3a2a6a'), true); traza(pts, C.blanco, false); traza(r2, hex('#e8e0ff'), false);
+};
+
+const a = (f) => en('hola', f);
+const escuela = a(0.42), vamos = a(0.797), fuera = a(0.895);
+const signo = (s, x, y, esc, c) => { for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [1, 1]]) R.icono(s, x + dx, y + dy, K, K, esc); R.icono(s, x, y, c, hex('#a87a18'), esc); };
+const plano = (t) => {
+  const pica = suave(lin(t, vamos, E.duracion + 0.2)), zoom = lerp(0.8 + 0.05 * t / vamos, 3.6, pica * pica);
+  const o = { vista: 'arriba', zoom, suelo: 'texas' };
+  T.ojo(R, t, o);
+  const { x: cx, y: cy, r } = T.b_ojoArribaGeo(o);
+  // relámpagos en las bandas, de vez en cuando
+  rayo(cx - 70, cy - 30, 0.5, 18, 2, entre(t, 1.05, 1.2) ? 1 : 0); rayo(cx + 40, cy + 34, 2.4, 16, 6, entre(t, 3.0, 3.14) ? 1 : 0);
+  // «school didn't teach you»: la «?» dorada sobre la tierra; en «find out» se vuelve «!» y se lanza hacia el ojo
+  const q = lin(t, escuela, escuela + 0.25), va = suave(lin(t, fuera + 0.05, fuera + 0.6));
+  if (q > 0 && va < 1) { const ex = t > fuera, x0 = ex ? 64 : 60, y0 = lerp(78, 60, suave(q)) + Math.sin((t - escuela) * 3.2) * 1.5;
+    const esc = va < 0.55 ? 3 : va < 0.85 ? 2 : 1, x = Math.round(lerp(x0, cx - 1.5 * esc, va)), y = Math.round(lerp(y0, cy - 3.5 * esc, va));
+    signo(ex ? '!' : '?', x, y, esc, ex ? C.oroL : hex('#f8e8b0')); }
+  if (entre(t, fuera + 0.55, fuera + 0.75)) for (let k = 1; k < 7; k++) { R.pset(cx + k, cy, C.oroL); R.pset(cx - k, cy, C.oroL); R.pset(cx, cy + k, C.oroL); R.pset(cx, cy - k, C.oroL); }
+};
+const efectos = [[0.35, 'brillo'], [1.05, 'trueno'], [escuela + 0.05, 'pop'], [vamos, 'whoosh'], [fuera + 0.55, 'brillo']];
+T.rodar(E, R, [[0, plano]], { efectos });
+</script>
+</body>
+</html>
