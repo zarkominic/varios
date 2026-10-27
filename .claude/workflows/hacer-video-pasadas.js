@@ -37,7 +37,7 @@ if (paso === 'calidad' && A.fallos && !(Array.isArray(A.fallos) && A.fallos.ever
 
 const CONTEXTO = `Trabajas en el repositorio de la serie (tu directorio de trabajo es su raíz): la serie de vídeos «ASK Atom» (pixel art en un lienzo de 320×180, escenas en atomo/plato/escenas/<id>.html que importan «* as T» de ${pref}-comun.js; el guion del episodio está en episodios/${carpeta}/guion.json, campo «en» = la voz inglesa, que manda; escenas.json tiene el guion visual).
 
-EL NIVEL ESTÁ ESCRITO EN PIEDRA: episodios/ESTANDAR.md (léelo entero) y episodios/GUIA-ESTILO.md. El usuario lo dijo así: «todo excelente; pero sobre todo el detalle de las escenas y movimiento», y «no por ahorrar tiempo bajarlo por ninguna circunstancia». Rechazó una primera versión del 11 por «escenas muy simples, sin detalles, con paredes vacías, cielos sin detalle». LA REFERENCIA es el episodio 11 final: mira con Read episodios/referencia-ep11-1.jpg y referencia-ep11-2.jpg (15 planos a 640×360) antes de empezar, y si necesitas más, sus escenas th-*.html y decorados th-comun.js (farmacia, laboratorio, tribunal, consejo, prision, cine, stanford). Ninguna imagen que mires con Read debe pasar de 2000 px de lado: si pasa, Read la reduce y juzgarías los planos en miniatura.`
+EL NIVEL ESTÁ ESCRITO EN PIEDRA: lee episodios/NIVEL-RESUMEN.md (una página; ESTANDAR.md y GUIA-ESTILO.md solo si dudas de algo concreto). El usuario lo dijo así: «todo excelente; pero sobre todo el detalle de las escenas y movimiento», y «no por ahorrar tiempo bajarlo por ninguna circunstancia». Rechazó una primera versión del 11 por «escenas muy simples, sin detalles, con paredes vacías, cielos sin detalle». LA REFERENCIA es el episodio 11 final: mira con Read episodios/referencia-ep11-1.jpg y referencia-ep11-2.jpg (15 planos a 640×360) antes de empezar, y si necesitas un modelo de código, lee SOLO la función o la escena del 11 que te sirva (grep -n en th-comun.js y sed -n de ese trozo: farmacia, laboratorio, tribunal, consejo, prision, cine, stanford), nunca el archivo entero. Ninguna imagen que mires con Read debe pasar de 2000 px de lado: si pasa, Read la reduce y juzgarías los planos en miniatura.`
 
 const REGLAS = `REGLAS QUE NO SE PUEDEN ROMPER:
 - Sin palabras ni letras en pantalla: solo números y símbolos (R.numero, R.icono). Carteles, logos y periódicos se insinúan con barras, pictogramas o trazos.
@@ -56,7 +56,7 @@ const HERRAMIENTAS = (propia) => `HERRAMIENTAS (desde la raíz del repositorio):
 - Hoja de revisión de una o varias escenas (una fila por plano: inicio, centro y final, a 640×360 con etiqueta; dice si la página dio errores): node atomo/herramientas/medir-planos.mjs ${ep} <id> [<id> …] --hoja <carpeta>. Un id puede llevar carpeta (_tmp_A/${pref}-lab) para abrir una copia. Mira cada hoja con Read.
 - Duración de cada plano («!» más de 7,2 s, «<» menos de 3,5 s): node atomo/herramientas/medir-planos.mjs ${ep} <ids>. Con --centros da el centro de cada plano.
 - Fundidos rotos (negro o restos en la mitad del fundido entre dos planos; la hoja no los ve): node atomo/herramientas/medir-planos.mjs ${ep} <ids> --fundidos.
-- Capturas sueltas a 1920×1080 (para ver un detalle o un instante intermedio): node estilos/herramientas/capturar.mjs atomo/plato/escenas/<archivo>.html t1,t2,… --salida <carpeta> --formato 16:9 (dice «sin errores en la página»).
+- Capturas sueltas a 1920×1080 (SOLO para un detalle concreto o un instante intermedio que la hoja no deja juzgar; para todo lo demás, las hojas): node estilos/herramientas/capturar.mjs atomo/plato/escenas/<archivo>.html t1,t2,… --salida <carpeta> --formato 16:9 (dice «sin errores en la página»).
 - Sintaxis de un .js: cópialo a ${propia}/chk.mjs (tu carpeta: otros agentes usan la suya) y node --check.
 - En las hojas, «cartela» es la cartela de año del principio y «plano N» es la entrada N de T.rodar.`
 
@@ -106,7 +106,7 @@ ${REGLAS}
 
 ${HERRAMIENTAS(`${sc}/det_${g}`)}
 
-ENTREGA (salida estructurada): cambiadas (las funciones de tu lista que has cambiado), capturas (las rutas de las hojas «despues» finales), notas (qué cambiaste en cada función) y geometria (cualquier posición de la que dependan las escenas que haya cambiado, o «ninguna»). El integrador toma el código de tu copia ${dir}/${pref}-comun.js: déjala terminada y con la sintaxis comprobada.`
+ENTREGA (salida estructurada, CORTA: listas y frases breves, sin redacción; cada campo de texto en menos de ~1.500 caracteres salvo las posiciones de las que dependen las escenas): cambiadas (las funciones de tu lista que has cambiado), capturas (las rutas de las hojas «despues» finales), notas (qué cambiaste en cada función) y geometria (cualquier posición de la que dependan las escenas que haya cambiado, o «ninguna»). El integrador toma el código de tu copia ${dir}/${pref}-comun.js: déjala terminada y con la sintaxis comprobada.`
   }
   const res = await parallel(grupos.map((G) => () =>
     agent(prompt(G), { label: `decorados ${G.g}: ${G.fns.slice(0, 3).join(', ')}${G.fns.length > 3 ? '…' : ''}`, phase: 'Decorados', schema: SALIDA })
@@ -147,7 +147,7 @@ MÉTODO:
 2. Edita las escenas.
 3. Hoja DESPUÉS: ${sc}/mov_${G.ids[0]}/despues/<n>. Itera hasta que en cada plano la acción avance entre el inicio, el centro y el final, con vida de fondo, al nivel de la referencia, y que la hoja diga «sin errores en la página».
 
-ENTREGA (salida estructurada): escenas (los ids que has cambiado), resumen (una línea por plano: qué pasa), capturas (las hojas «despues» finales) y avisos (inicios de plano cambiados, efectos nuevos, LAS POSICIONES DE LOS DECORADOS DE LAS QUE DEPENDEN TUS ESCENAS y cualquier fallo de decorado que hayas visto).`
+ENTREGA (salida estructurada, CORTA: listas y frases breves, sin redacción; cada campo de texto en menos de ~1.500 caracteres salvo las posiciones de las que dependen las escenas): escenas (los ids que has cambiado), resumen (una línea por plano: qué pasa), capturas (las hojas «despues» finales) y avisos (inicios de plano cambiados, efectos nuevos, LAS POSICIONES DE LOS DECORADOS DE LAS QUE DEPENDEN TUS ESCENAS y cualquier fallo de decorado que hayas visto).`
   const res = await parallel(grupos.map((G) => () =>
     agent(prompt(G), { label: `movimiento: ${G.ids.join(', ')}`, phase: 'Movimiento', schema: SALIDA_ESCENAS })
       .then((r) => r && { grupo: G.k, ids: G.ids, ...r })))
@@ -200,7 +200,7 @@ ${REGLAS}
 
 Sé exigente: el usuario no quiere tener que señalar lo que tú dejaste pasar. Pero no suspendas un plano por gusto: cada fallo tiene que ser concreto y visible.
 
-ENTREGA (salida estructurada): planos (todos; escena = el id tal cual, sin ruta ni «.html»; plano = el número de la hoja, la cartela no se puntúa; origen «decorado» si el fallo está en una función de ${pref}-comun.js, con su nombre en funcion; encargo: qué hay que hacer, concreto, para que pase), hojas (rutas) y errores_pagina (o «ninguno»). No edites ningún archivo.`
+ENTREGA (salida estructurada, CORTA: listas y frases breves, sin redacción; cada campo de texto en menos de ~1.500 caracteres salvo las posiciones de las que dependen las escenas): planos (todos; escena = el id tal cual, sin ruta ni «.html»; plano = el número de la hoja, la cartela no se puntúa; origen «decorado» si el fallo está en una función de ${pref}-comun.js, con su nombre en funcion; encargo: qué hay que hacer, concreto, para que pase), hojas (rutas) y errores_pagina (o «ninguno»). No edites ningún archivo.`
   const esceptico = (ids, i, r, v) => `Eres el ESCÉPTICO de la revisión de calidad de ${EP}. ${CONTEXTO}
 
 Otro revisor ya ha puntuado estas escenas: ${ids.join(', ')}. Sus hojas están en ${sc}/cal_r${r}_${i}/ (míralas con Read, junto a episodios/referencia-ep11-1.jpg y -2.jpg). Su veredicto:
@@ -212,7 +212,7 @@ ${RUBRICA}
 
 ${REGLAS}
 
-ENTREGA (salida estructurada): planos = SOLO los planos que suspendes y el revisor aprobó (lista vacía si no hay ninguno), con el mismo formato; hojas = las que has mirado; errores_pagina = «ninguno» o lo que hayas visto. No edites ningún archivo.`
+ENTREGA (salida estructurada, CORTA: listas y frases breves, sin redacción; cada campo de texto en menos de ~1.500 caracteres salvo las posiciones de las que dependen las escenas): planos = SOLO los planos que suspendes y el revisor aprobó (lista vacía si no hay ninguno), con el mismo formato; hojas = las que has mirado; errores_pagina = «ninguno» o lo que hayas visto. No edites ningún archivo.`
   const pulir = (tarea, r, j) => `Eres un artista de pixel art y animador. ${CONTEXTO}
 
 La revisión de calidad de ${EP} ha suspendido estos planos. Tu encargo es subirlos al nivel de la referencia:
@@ -231,7 +231,7 @@ MÉTODO: hoja ANTES en ${sc}/pul_r${r}_${j}/antes; edita; hoja DESPUÉS en ${sc}
 
 ${RUBRICA}
 
-ENTREGA (salida estructurada): escenas (las que has cambiado; si has tocado decorados, TODAS las escenas que usan esas funciones, para revisarlas otra vez), resumen (qué se ve ahora en cada plano), capturas (hojas finales) y avisos.`
+ENTREGA (salida estructurada, CORTA: listas y frases breves, sin redacción; cada campo de texto en menos de ~1.500 caracteres salvo las posiciones de las que dependen las escenas): escenas (las que has cambiado; si has tocado decorados, TODAS las escenas que usan esas funciones, para revisarlas otra vez), resumen (qué se ve ahora en cada plano), capturas (hojas finales) y avisos.`
 
   const suspensos = (planos) => planos.filter((p) => p.nota < 4 || p.fallos.length)
   let pendientes = lotes.map((l) => [...l])

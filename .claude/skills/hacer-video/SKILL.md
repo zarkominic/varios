@@ -115,7 +115,11 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    - los años en cifras y las demás cifras en palabras;
    - el título con el tema o la persona delante.
 3. Cada dato dudoso, márcalo «[comprobar antes de locutar]» y resuélvelo con WebSearch antes del paso 3. Si no se
-   confirma, reescribe la frase con lo comprobado.
+   confirma, reescribe la frase con lo comprobado. Antes de presentarlo, verifica el guion con **3 agentes escépticos,
+   no más** (en el 12, ocho gastaron 1,2 M de tokens y casi todo lo útil salió de tres bloques): uno para la historia y
+   las personas (anécdotas, leyendas, citas: lo que más falla), uno para la ciencia y las cifras, y uno para la actualidad
+   y las fechas. Cada uno intenta tumbar los datos con fuentes primarias y devuelve solo lo que falla, con la frase
+   corregida en los dos idiomas.
 4. **Preséntalo en el chat**, en este orden:
    1. lo incómodo, primero;
    2. el commit, las frases, las palabras en inglés y la duración estimada [Probable];
@@ -318,6 +322,22 @@ Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git
    8. los pasos para subirlo;
    9. lo que hay que revisar antes de publicar;
    10. las horas reales frente a las del presupuesto.
+
+## Gastar pocos tokens sin bajar el nivel (aprobado por el usuario el 27/10/2026)
+
+- **Los agentes leen `episodios/NIVEL-RESUMEN.md`**, una página, y no `ESTANDAR.md`, las guías ni `th-comun.js` enteros. Como
+  modelo de código se les nombran 2–3 funciones o escenas concretas, que leen con `grep -n` y `sed -n`. Las dos imágenes de
+  referencia sí las miran siempre.
+- **Respuestas cortas:** fallos, posiciones de las que dependen y rutas de las hojas. Sin notas largas (en el 12 llegaban
+  a 40.000 caracteres).
+- **Imágenes:** las hojas de revisión a 640 × 360. La captura a 1920 × 1080 solo para un detalle concreto.
+- **Verificación de datos:** 3 agentes (paso 2.3).
+- **A prueba en el episodio 13** (si sale peor que el 12, se vuelve atrás y se le dice al usuario):
+  - borrador de escenas y pasada de movimiento en un solo paso, con el encargo de movimiento del workflow desde el
+    principio. Después, solo las escenas que no aguanten tu revisión contra el 11 pasan otra vez por movimiento;
+  - pasada de decorados solo con la lista de fallos concretos de cada decorado, no «súbelo todo», cuando la primera
+    versión ya aguanta la comparación;
+  - la pasada de calidad (revisor, escéptico y pulido) no cambia: es la red que lo detecta.
 
 ## Presupuesto de horas
 
