@@ -14,23 +14,32 @@
 // 1. el mapa del golfo: un huracán enorme avanza por su trayectoria punteada desde el sur, girando; en «300 miles wide» una
 //    mano entra por la derecha con la regla, la desliza hasta el ojo, de lado a lado de la espiral, y sale «300»; la mano
 //    suelta la regla (que sigue al huracán), coge el rotulador rojo y en «last two weeks» tacha los catorce días del
-//    calendario, uno tras otro (la manga llega hasta el borde derecho y pasa por encima de la tarjeta del calendario,
-//    que está pegada al papel); dos barcos se apartan y un avión de reconocimiento le da vueltas (la trayectoria, el
+//    calendario, uno tras otro (el antebrazo sube hacia el hombro, fuera de cuadro a la derecha: manga azul marino con
+//    pliegues, luz arriba, sombra abajo y el puño blanco, y su sombra corrida sobre el papel; pasa por encima de la
+//    tarjeta del calendario, que está pegada al papel); dos barcos se apartan y un avión de reconocimiento le da vueltas (la trayectoria, el
 //    huracán y el avión se recortan al papel, sin cruzar el marco de madera); corta en «While»;
 // 2. las llanuras con la luz verde de la tormenta: el granjero va al establo con su cubo y el perro trota delante; en el
-//    camino picotean tres gallinas; en «tornado» el embudo toca tierra, como un hilo bajo la nube: las gallinas huyen
-//    aleteando, el perro se para y corre a esconderse detrás de las piernas del amo (asoma la cabeza); el granjero se
-//    vuelve, deja el cubo y lo mira con los prismáticos; en «a few hundred yards across» la horquilla marca lo estrecho
-//    que es; en «lives for minutes» saca el reloj de bolsillo (el cronómetro corre en su bocadillo) y el embudo se recoge
+//    camino picotean tres gallinas; en «tornado» el embudo toca tierra, como un hilo bajo la nube (la escena lo repinta
+//    encima del de llanuras con bandas de giro en cuatro tonos que suben, el filo de luz y la sombra, y una nube de polvo
+//    y escombros que gira en su base, con terrones que dan vueltas y polvo que entra a ras de suelo): las gallinas huyen
+//    aleteando, el perro se para y corre a esconderse POR DETRÁS del amo (se recorta a los dos lados de su silueta: solo
+//    asoma la cabeza por su derecha, temblando); el granjero, del susto, suelta el cubo de zinc (cae junto a su pie, rebota
+//    y salpica; queda en el camino con su asa y su sombra), se vuelve y lo mira con los prismáticos; en «a few hundred
+//    yards across» la cota se abre a ras de suelo, gruesa y con un halo oscuro para leerse contra el embudo y los cables,
+//    con sus topes tocando los dos bordes del embudo y siguiendo su vaivén; en «lives for minutes» saca el reloj de bolsillo (el cronómetro corre en su bocadillo) y el embudo se recoge
 //    hacia la nube; él respira y sonríe, y el perro sale moviendo el rabo; corta en «But»;
 // 3. el laboratorio de Fujita: junto a la maqueta, gira el mando y el humo se retuerce en un embudo estrecho («inside that
-//    narrow funnel»); la becaria entra por la derecha con su tablilla; en «the wind» aparece el anemómetro y Fujita va
-//    hacia él; la aguja sube, deja atrás la marca del huracán más fuerte y se clava en «300» («even faster»): los dos se
+//    narrow funnel»); el anemómetro está montado en la horquilla del soporte, tapado con una funda de lona; Fujita va
+//    hasta él, coge el cordón y en «the wind» tira: la funda resbala y cae hecha un montón al pie del trípode, el
+//    contador se enciende y el rotor de cazoletas gira con el viento de la maqueta; la becaria se acerca con su
+//    tablilla; la aguja sube (el rotor gira cada vez más deprisa), deja atrás la marca del huracán más fuerte y se clava en «300» («even faster»): los dos se
 //    sorprenden; en «strongest hurricane» Fujita señala la marca del huracán, que parpadea, y la becaria señala la aguja
 //    y lo anota.
 // Posiciones del decorado de las que depende: mapa 'golfo' (la proyección P_GOLFO); llanuras 'general' (el camino de y 137
-// a 147, los pies en 144; la granja a la izquierda, x 0–160; el embudo baja en x ≈ 214); labFujita (la maqueta en x 12–54,
-// el suelo de los pies y 150–166, la mesa de trabajo de x 234 a 318 y la papelera en x 222–232).
+// a 147, los pies en 144; la granja a la izquierda, x 0–160; el embudo de g_tornadoLl, de (214, 76) al horizonte y 99, y
+// los tonos de su embudo, sus cables y sus pájaros con la luz verde; el granjero ocupa de gx+1 a gx+12); labFujita (la maqueta en x 12–54,
+// el suelo de los pies y 150–166, la mesa de trabajo de x 234 a 318, la papelera en x 222–232 y el soporte del
+// anemómetro en x 118: la horquilla con los brazos en x 104 y 132 y el travesaño en y 91; la esfera va centrada en (118, 77)).
 import * as T from '/atomo/plato/escenas/hu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { avionMapa } from '/atomo/plato/escenas/ov-mapas.js';
@@ -137,14 +146,70 @@ const p1 = (t) => {
   else if (t < dosSemanas[1] + 0.3) { const k = Math.min(13, Math.floor(uc * 14 - 0.5) + 1), f = (uc * 14 - 0.5) % 1, [cx, cy] = celda(k); mx = cx + 14 + Math.round(Math.sin(f * Math.PI * 2) * 2); my = cy - 10 + Math.round(f * 4); rotu = true; }
   else { const u = suave(lin(t, dosSemanas[1] + 0.3, P2 - 0.02)), [cx, cy] = celda(13); mx = lerp(cx + 14, 350, u); my = lerp(cy - 10, 170, u); rotu = true; }
   if (rotu) { const px = Math.round(mx) - 14, py = Math.round(my) + 8; R.linea(px, py, px + 5, py - 6, C.k); R.linea(px + 1, py, px + 6, py - 6, hex('#c8282a')); R.linea(px + 2, py - 1, px + 6, py - 5, hex('#e84a3a')); R.pset(px, py, hex('#8a1a1e')); }
-  // la manga de T.mano mide 40 px: aquí el brazo viene de fuera del cuadro, así que se alarga hasta el borde derecho (con
-  // sus filos negros); va después del calendario, así que el brazo pasa POR ENCIMA de la tarjeta, que es papel pegado
-  { const bx = Math.round(mx) + 43, by = Math.round(my); if (bx < 320) { R.rect(bx, by - 2, 319, by + 2, hex('#2a4a7a')); R.rect(bx, by - 3, 319, by - 3, C.k); R.rect(bx, by + 3, 319, by + 3, C.k); R.rect(bx, by - 1, 319, by - 1, hex('#3a5c90')); } }
-  T.mano(R, Math.round(mx), Math.round(my), -1, '#2a4a7a');
+  // el brazo viene de fuera del cuadro (el hombro, abajo a la derecha y fuera): va después del calendario, así que pasa
+  // POR ENCIMA de la tarjeta, que es papel pegado; con su sombra corrida sobre el papel, como el de hu-ojo
+  brazoMapa(Math.round(mx), Math.round(my), t);
+};
+// el antebrazo que entra por la derecha (como manoTapon de hu-ojo): la mano canónica (T.mano, copiada de un búfer sin su
+// manga recta) con el puño blanco de la camisa; la manga azul marino se ensancha hacia el hombro, con la luz arriba, la
+// sombra abajo, tres pliegues que se mueven un poco y la trama de la tela; antes, su sombra corrida abajo a la derecha
+// sobre el papel (y sobre la tarjeta), como la de la espiral. Solo se recorre la caja del brazo
+const HOMBRO_M = [384, 108];
+let MANO_M = null;
+const brazoMapa = (hx, hy, t) => {
+  if (hx > 334) return;
+  const W = [hx + 2, hy], dx = HOMBRO_M[0] - W[0], dy = HOMBRO_M[1] - W[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, nx = uy, ny = -ux;
+  const ancho = (s) => 2.6 + Math.min(1, s / 40) * 1.4;
+  const MG = hex('#2a4a7a'), MG_L = hex('#4a6ea8'), MG_LL = hex('#6a8cc4'), MG_S = hex('#1e3660'), MG_D = hex('#142644'), TRAMA = hex('#32558a'), PUNO = hex('#f6f2ea'), PUNO_S = hex('#c8c4bc'), SOMB = hex('#3a4458');
+  const x0 = Math.max(0, Math.min(W[0], 320) - 8), y0 = Math.max(0, Math.min(W[1], HOMBRO_M[1]) - 8), y1 = Math.min(179, Math.max(W[1], HOMBRO_M[1]) + 10);
+  const dentroBrazo = (x, y) => { const px = x + 0.5 - W[0], py = y + 0.5 - W[1], s = px * ux + py * uy, d = px * nx + py * ny; return s >= -0.5 && s <= L && Math.abs(d) <= ancho(s) + 1 ? [s, d] : null; };
+  // 1) la sombra: el brazo corrido 3 a la derecha y 4 abajo, tramada, más la de la mano
+  for (let y = y0; y <= Math.min(179, y1 + 4); y++) for (let x = x0; x <= 319; x++) { if (!dentroBrazo(x - 3, y - 4) || dentroBrazo(x, y)) continue; if (umbral(x, y) < 0.8) velo(x, y, SOMB, 0.32); }
+  for (let j = -2; j <= 2; j++) for (let i = -6; i <= 4; i++) if ((i / 6.5) ** 2 + (j / 2.6) ** 2 <= 1 && umbral(hx + i, hy + 6 + j) < 0.8) velo(hx - 3 + i, hy + 6 + j, SOMB, 0.3);
+  // 2) el antebrazo
+  const PL = [12, 22, 33].map((f, k) => f + Math.sin(t * 2 + k * 1.7) * 0.6);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= 319; x++) {
+    const q = dentroBrazo(x, y); if (!q) continue; const [s, d] = q, h = ancho(s), ad = Math.abs(d); let c;
+    if (ad > h) c = C.k;                                                      // el contorno
+    else if (s < 3) c = d < -h + 1.6 ? PUNO_S : PUNO;                         // el puño blanco de la camisa
+    else if (s < 4) c = MG_D;                                                 // el borde de la manga sobre el puño
+    else {
+      c = d > h - 1.2 ? MG_LL : d > h - 2.4 ? MG_L : d < -h + 1.2 ? MG_D : d < -h + 2.4 ? MG_S : MG;
+      for (const f of PL) { const w = s - f + d * 0.4; if (w > -0.6 && w < 0.6 && d < h - 1) c = MG_D; else if (w >= 0.6 && w < 1.6 && d < h - 1 && d > -h + 1) c = MG_L; }
+      if (c === MG && ((x * 3 + y * 5) % 9) === 0) c = TRAMA;                 // la trama de la tela
+    }
+    R.pset(x, y, c);
+  }
+  // 3) la mano canónica en la punta, sin su manga recta
+  if (!MANO_M) MANO_M = R.nuevo();
+  const prev = R.usar(MANO_M), MB = R.buf;
+  for (let y = hy - 6; y <= hy + 6; y++) for (let x = hx - 12; x <= hx + 46; x++) if (x >= 0 && x < 320 && y >= 0 && y < 180) MB[y * 320 + x] = 0;
+  T.mano(R, hx, hy, -1, '#f6f2ea');
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = hy - 5; y <= hy + 4; y++) for (let x = hx - 11; x <= hx + 2; x++) if (x >= 0 && x < 320 && y >= 0 && y < 180) { const c = MB[y * 320 + x]; if (c) B[y * 320 + x] = c; }
 };
 // ── 2 · el tornado como un hilo ─────────────────────────────────────────────────────────────────────────────────
 const toca = a(0.299), ancho = [a(0.394), a(0.47)], reloj = [a(0.508), a(0.585)], seRecoge = [a(0.555), a(0.6)];
-const cubo = (x, y) => { R.rect(x, y, x + 4, y + 4, C.k); R.rect(x + 1, y + 1, x + 3, y + 3, hex('#9aa4b4')); R.pset(x + 1, y + 1, hex('#c8d0dc')); R.linea(x, y - 1, x + 4, y - 1, hex('#5a5e68')); R.pset(x + 2, y - 2, hex('#5a5e68')); };
+// el cubo de zinc (unos 9 × 9 px con el asa): cx el centro, base la fila del fondo; cuerpo cónico (más ancho arriba) en
+// dos tonos con la luz a la izquierda y el aro del medio, el borde con su brillo y el hueco oscuro, el asa de alambre
+// (o.asa: 'arriba' si cuelga de la mano, 'caida' si está en el suelo, tumbada a un lado) y, en el suelo, su sombra
+const cubo = (cx, base, o = {}) => {
+  const Z = hex('#9aa4b4'), ZL = hex('#c8d0dc'), ZB = hex('#e8eef6'), ZS = hex('#6a7484'), ZD = hex('#4a5260'), HU = hex('#2a3036'), AL = hex('#3a3e46');
+  if (o.suelo) for (let i = -5; i <= 6; i++) for (let j = 0; j <= 1; j++) if ((i / 6) ** 2 + (j / 1.6) ** 2 <= 1) velo(cx + i + 1, base + 1 + j, hex('#1a2014'), 0.55);
+  // el cuerpo: de 5 px de ancho abajo a 7 arriba, con el contorno
+  for (let j = 0; j <= 4; j++) { const y = base - j, hw = j < 2 ? 2 : 3;
+    R.rect(cx - hw - 1, y, cx + hw + 1, y, C.k);
+    for (let i = -hw; i <= hw; i++) R.pset(cx + i, y, j === 2 ? (i < 0 ? ZS : ZD) : i <= -hw + 1 ? ZL : i >= hw ? ZD : i >= hw - 1 ? ZS : Z); }
+  R.rect(cx - 3, base + 1, cx + 3, base + 1, C.k);
+  // el borde: el aro claro con su brillo y el hueco oscuro por dentro
+  const yb = base - 5; R.rect(cx - 4, yb - 1, cx + 4, yb - 1, C.k); R.rect(cx - 4, yb, cx + 4, yb, C.k); R.rect(cx - 3, yb, cx + 3, yb, ZL); R.rect(cx - 2, yb, cx + 2, yb, HU); R.pset(cx - 3, yb, ZB);
+  if (o.brillo) R.pset(cx - 2, base - 3, ZB);
+  // el asa de alambre, con sus dos orejetas
+  R.pset(cx - 4, yb + 1, AL); R.pset(cx + 4, yb + 1, AL);
+  if (o.asa === 'caida') { R.linea(cx + 4, yb + 1, cx + 6, yb + 3, AL); R.linea(cx + 6, yb + 3, cx + 6, base - 1, AL); R.pset(cx + 7, yb + 3, hex('#7a808a')); }
+  else { R.linea(cx - 4, yb, cx - 3, yb - 3, AL); R.linea(cx + 4, yb, cx + 3, yb - 3, AL); R.linea(cx - 2, yb - 4, cx + 2, yb - 4, AL); R.pset(cx - 1, yb - 4, hex('#7a808a')); }
+};
 // el perro de la granja (el mismo de hu-llanuras, unos 17 × 12 px), de perfil: x el centro del cuerpo, suelo las patas,
 // d ±1 hacia dónde mira; o.corre (las patas se abren y se cierran y las orejas botan), o.salto (px), o.rabo (deprisa)
 const perro = (x, suelo, t, d, o = {}) => {
@@ -168,9 +233,69 @@ const gallina = (x, suelo, t, d, o = {}) => {
   R.rect(Math.round(x) - 2, suelo + 1, Math.round(x) + 2, suelo + 1, hex('#3a4430'));
   if (o.corre) { const a = Math.floor(t * 16) % 2; R.pset(Math.round(x - d), suelo - 4 - a * 2, pal.W); R.pset(Math.round(x), suelo - 4 - a * 2, pal.s); R.pset(Math.round(x + d), suelo - 4 - a, pal.W); }
 };
+// el embudo con la luz verde, pintado encima del de llanuras() (que con esta luz queda casi liso): misma geometría que
+// g_tornadoLl en el encuadre general (arriba en (214, 76), abajo en el horizonte y 99), y solo se repintan sus píxeles
+// (los tonos de su embudo), así que respeta lo que tiene delante. Bandas de giro en cuatro tonos que suben y se desplazan,
+// el filo de luz a la izquierda y la sombra a la derecha; luego la nube de polvo y escombros que gira en la base, el polvo
+// que entra a ras de suelo y los terrones y tablas que dan vueltas (por detrás y por delante del embudo). Los cables de la
+// luz y los pájaros posados (van delante) no se pisan
+const EMB_V = new Set(['#080c0c', '#101614', '#18201e', '#222c28', '#303c36', '#40503f', '#5a6c50'].map(hex)), DELANTE_V = new Set([hex('#101616'), hex('#121818')]);
+const TE = ['#141a16', '#222c26', '#34403a', '#4c5a4c', '#6a7860', '#8e9a7a'].map(hex), PO = ['#363628', '#56543f', '#78735a', '#9c9676', '#c2ba96'].map(hex), ESCO = hex('#16140e');
+const YT = 76, YB = 99, XT = 214;
+const filaT = (y, t) => { const v = (y - YT) / (YB - YT), cx = XT + Math.sin(v * 3.3 + t * 1.2) * 2.4 * v + Math.sin(t * 0.8) * 1.2 * v * (1 - v) * 4; return [cx, 2.6 + 8.6 * Math.pow(1 - v, 1.35) + (v > 0.84 ? (v - 0.84) * 10 : 0), v]; };
+const psT = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 179 || DELANTE_V.has(R.pget(x, y) >>> 0)) return; R.pset(x, y, c); };
+const embudoVerde = (t, tor) => {
+  if (tor <= 0) return;
+  for (let y = YT; y < YB; y++) { const [cx, w, v] = filaT(y, t), xl = Math.round(cx - w), xr = Math.round(cx + w);
+    for (let x = xl - 1; x <= xr + 1; x++) { if (!EMB_V.has(R.pget(x, y) >>> 0)) continue;
+      const s = Math.max(-1, Math.min(1, (x + 0.5 - cx) / Math.max(0.6, w))), th = Math.asin(s);
+      const b1 = Math.sin(th * 2.4 + y * 0.55 - t * 7.5), b2 = Math.sin(th * 1.2 - y * 0.22 + t * 2.6);
+      let l = 0.54 - s * 0.34 + b1 * 0.22 + b2 * 0.12 - Math.max(0, 0.2 - v) * 2.2 + (umbral(x, y) - 0.5) * 0.16;
+      if (x <= xl) l = Math.max(l, 0.86); else if (x >= xr) l = 0; else if (x === xr - 1) l = Math.min(l, 0.2);
+      R.pset(x, y, TE[Math.max(0, Math.min(5, Math.floor(l * 6)))]); } }
+  const pol = lin(tor, 0.2, 0.35); if (pol <= 0) return;
+  const [bx] = filaT(YB - 1, t), rx = 3 + pol * 8, ry = 1.5 + pol * 3.5;
+  // lo que da vueltas alrededor de la base: detrás del embudo (z < 0, sin pisarlo) o delante
+  const vuela = (detras) => { for (let k = 0; k < 14; k++) { const a = t * (2.4 + (k % 3) * 0.8) + k * 0.45, z = Math.sin(a); if ((z < 0) !== detras) continue;
+      const alto = 2 + pol * 12 + (k % 4) * 2, y = YB - 1 - ((k * 2.3 + t * (3 + (k % 3))) % alto), r = rx * 0.6 + 1 + (k % 4) * 1.2 + (YB - y) * 0.3, x = bx + Math.cos(a) * r;
+      if (detras) { const [fx, fw] = filaT(Math.max(YT, Math.round(y)), t); if (Math.abs(x - fx) <= fw + 0.5) continue; }
+      psT(x, y, k % 3 ? ESCO : PO[3]); if (k % 4 === 0) psT(x + (Math.cos(a + t * 3) > 0 ? 1 : 0), y - (Math.cos(a + t * 3) > 0 ? 0 : 1), ESCO); } };
+  vuela(true);
+  // la nube de polvo y escombros: un cuenco que gira, la luz arriba a la izquierda, el borde que hierve
+  for (let j = -1; j <= Math.ceil(ry) + 1; j++) for (let i = -Math.ceil(rx) - 1; i <= Math.ceil(rx) + 1; i++) { const x = Math.round(bx + i), y = YB - j, ej = j < 0 ? 0.5 : j / (ry + 0.6);
+    const e = (i * i) / (rx * rx) + ej * ej + Math.sin(i * 1.7 + t * 9 + j * 2.1) * 0.12; if (e > 1) continue;
+    if (umbral(x, y) > (1 - e) * 3 + 0.2) continue;
+    const g = Math.sin(Math.atan2(j + 0.5, i) * 3 - t * 6 + j * 0.6), l = 0.5 - i / rx * 0.3 + j / (ry + 1) * 0.3 + g * 0.22;
+    psT(x, y, PO[Math.max(0, Math.min(4, Math.floor(l * 5)))]); if (g > 0.85 && (i + j) % 3 === 0) psT(x, y, ESCO); }
+  // el polvo que entra hacia la base a ras de suelo, por los dos lados
+  for (let k = 0; k < 6; k++) { const lado = k % 2 ? 1 : -1, u = (t * 0.9 + k * 0.37) % 1, d = (1 - u) * (rx + 12) + rx * 0.7, y = YB - (k % 3 === 0 ? 1 : 0);
+    for (let i = 0; i < 4; i++) if (umbral(Math.round(bx + lado * (d + i)), y) < (0.8 - i * 0.18) * pol) psT(bx + lado * (d + i), y, PO[i ? 2 : 3]); }
+  vuela(false);
+};
+// «a few hundred yards across»: la cota de la anchura atada al embudo, a ras de suelo (justo encima de la nube de
+// polvo de la base): una barra blanca que cruza el embudo y dos topes que tocan sus dos bordes y siguen su vaivén; se
+// abre desde el centro
+// La cota es gruesa para que se lea contra el embudo y los cables: un halo oscuro alrededor (vela el fondo), la barra
+// blanca de 2 px con su contorno negro y su sombra, las puntas de flecha que tocan los bordes y los topes altos con su
+// brillo; no cambia la escala del embudo
+const horquilla = (t, h) => {
+  const yH = YB - 7, [cx, w] = filaT(yH, t), xl = Math.round(cx - (w + 1) * h), xr = Math.round(cx + (w + 1) * h), BL = hex('#fffbe8'), SO = hex('#c8c8b0');
+  for (let y = yH - 8; y <= yH + 8; y++) for (let x = xl - 4; x <= xr + 4; x++) { const e = Math.max(0, Math.abs(y - yH) - 5) / 3 + Math.max(0, Math.max(xl - 2 - x, x - xr - 2)) / 3; if (e < 1 && umbral(x, y) < 0.9 - e * 0.5) velo(x, y, hex('#0a0e0c'), 0.55 * (1 - e)); }
+  // la sombra corrida abajo a la derecha
+  R.rect(xl, yH + 3, xr + 2, yH + 3, hex('#0a0e0c'));
+  for (const x of [xl, xr]) R.rect(x + 2, yH - 4, x + 2, yH + 6, hex('#0a0e0c'));
+  // la barra
+  R.rect(xl, yH - 2, xr, yH + 2, C.k); R.rect(xl + 1, yH - 1, xr - 1, yH - 1, BL); R.rect(xl + 1, yH, xr - 1, yH, h >= 1 ? SO : BL); R.pset(Math.round(cx), yH - 1, C.blanco);
+  // las puntas de flecha, apoyadas en los dos topes
+  for (const [x, s] of [[xl + 2, 1], [xr - 2, -1]]) if (xr - xl > 8) { R.pset(x, yH - 2, BL); R.pset(x, yH + 1, SO); R.pset(x + s, yH - 2, C.k); R.pset(x + s, yH + 1, C.k); R.pset(x, yH - 3, C.k); R.pset(x, yH + 2, C.k); }
+  // los topes: altos, con contorno de 1 px a cada lado, la luz arriba y la sombra abajo
+  for (const x of [xl, xr]) { R.rect(x - 1, yH - 6, x + 1, yH + 6, C.k); R.linea(x, yH - 5, x, yH + 5, BL); R.linea(x, yH + 2, x, yH + 5, SO); R.pset(x, yH - 5, C.blanco); }
+  if (parpadeo(t, 10) && h >= 1) destello(xr + 4, yH - 7, 1, hex('#fff2b0'));
+};
 const p2 = (t) => {
   const tor = t < seRecoge[0] ? 0.35 * suave(lin(t, P2 + 0.05, toca)) : 0.35 * (1 - suave(lin(t, seRecoge[0], seRecoge[1] + 0.2)));
   T.llanuras(R, t, { luz: 'verde', tornado: tor, cosechadora: false });
+  embudoVerde(t, tor);
   // tres gallinas picotean en el camino, delante del establo; cuando el embudo toca tierra huyen aleteando hacia la izquierda
   for (const [x0, y0, d0, k] of [[66, 146, 1, 0], [80, 145, -1, 1], [93, 147, 1, 2]]) {
     const huye = toca + 0.15 + k * 0.1, c = Math.max(0, t - huye), x = x0 - c * 70 - c * c * 20;
@@ -183,16 +308,27 @@ const p2 = (t) => {
     let x, d = -1, o = {};
     if (t < toca) { x = gx - 15; o = { corre: true }; }
     else if (t < toca + 0.35) { x = 101; d = 1; o = { salto: entre(t, toca, toca + 0.15) ? 2 : 0 }; }
-    else if (t < toca + 0.75) { x = Math.round(lerp(101, 124, suave(lin(t, toca + 0.35, toca + 0.75)))); d = 1; o = { corre: true }; }
-    else if (t < seRecoge[0] + 0.3) { x = 124 + (Math.floor(t * 10) % 2); d = 1; }
-    else { x = Math.round(lerp(124, 142, suave(lin(t, seRecoge[0] + 0.3, seRecoge[1] + 0.05)))); d = 1; o = { corre: t < seRecoge[1] + 0.05, rabo: true }; }
-    perro(x, 142, t, d, o); }
-  // «a few hundred yards across»: la horquilla bajo el embudo
-  const h = lin(t, ancho[0], ancho[0] + 0.25); if (h > 0 && t < ancho[1] + 0.6) { const x = 214, y = 103, w = Math.round(3 * h); R.rect(x - w - 1, y, x + w + 1, y + 2, C.k); R.rect(x - w, y + 1, x + w, y + 1, C.blanco); for (const s of [-1, 1]) { R.rect(x + s * (w + 1), y - 3, x + s * (w + 1), y + 3, C.k); R.pset(x + s * w, y - 2, C.blanco); R.pset(x + s * w, y - 1, C.blanco); } if (parpadeo(t, 10)) destello(x, y - 7, 1, hex('#fff2b0')); }
+    else if (t < toca + 0.75) { x = Math.round(lerp(101, 123, suave(lin(t, toca + 0.35, toca + 0.75)))); d = 1; o = { corre: true }; }
+    else if (t < seRecoge[0] + 0.3) { x = 123 + (Math.floor(t * 10) % 2); d = 1; }
+    else { x = Math.round(lerp(123, 142, suave(lin(t, seRecoge[0] + 0.3, seRecoge[1] + 0.05)))); d = 1; o = { corre: t < seRecoge[1] + 0.05, rabo: true }; }
+    // desde que corre hacia el amo hasta que sale, pasa POR DETRÁS de él: se pinta antes que el granjero y además se
+    // recorta a los dos lados de su silueta (x gx+1 a gx+12), así no asoma entre sus piernas; escondido solo saca la
+    // cabeza por su derecha, temblando
+    if (t >= toca + 0.35) { for (const c of [[0, 0, gx, 179], [gx + 13, 0, 319, 179]]) { R.recorte(c); perro(x, 142, t, d, o); } R.recorte(null); }
+    else perro(x, 142, t, d, o); }
+  // «a few hundred yards across»: la horquilla atada al embudo
+  { const h = suave(lin(t, ancho[0], ancho[0] + 0.3)); if (h > 0 && t < ancho[1] + 0.6) horquilla(t, h); }
   // el granjero llega con el cubo, se para al ver el embudo, lo mira con los prismáticos y saca el reloj
   const u = lin(t, P2 - 0.3, toca + 0.1), gx = Math.round(lerp(146, 116, suave(u))), sorp = entre(t, toca + 0.1, toca + 0.7), prism = entre(t, toca + 0.7, ancho[1] + 0.3), saca = t > reloj[0], alivio = t > seRecoge[1], gd = t < toca + 0.1 ? -1 : 1;
   R.actor(EL.granjero, gx, 144, t, { dir: gd, anda: u > 0 && u < 1, sorpresa: sorp || entre(t, ancho[0], ancho[0] + 0.3), dedo: prism || (saca && !alivio), sonrisa: alivio, habla: entre(t, reloj[0] + 0.2, reloj[0] + 0.8) && parpadeo(t, 8) });
-  if (!prism && !saca) { const [cx, cy] = enMano(gx, 144, gd); cubo(cx - 2, cy - 2); } else { R.rect(gx - 8, 139, gx - 4, 143, C.k); R.rect(gx - 7, 140, gx - 5, 142, hex('#9aa4b4')); R.pset(gx - 7, 140, hex('#c8d0dc')); }
+  // el cubo: cuelga de su mano mientras anda; en «tornado», del susto, lo suelta: cae junto a su pie izquierdo, rebota
+  // un poco, salta un poco de agua y se queda en el camino, con su sombra, el asa caída y el brillo que late
+  { const suelta = toca + 0.1, cae = lin(t, suelta, suelta + 0.18);
+    if (t < suelta) { const [cx, cy] = enMano(gx, 144, gd); cubo(cx, cy + 8, { asa: 'arriba' }); }
+    else { const xs = gx - 4, bote = cae < 1 ? Math.round(-3 * (1 - cae)) : entre(t, suelta + 0.18, suelta + 0.3) ? -1 : 0;
+      cubo(xs, 145 + bote, { suelo: bote === 0, asa: cae < 1 ? 'arriba' : 'caida', brillo: parpadeo(t, 3) });
+      const ag = lin(t, suelta + 0.15, suelta + 0.6); if (ag > 0 && ag < 1) for (let k = 0; k < 4; k++) { const d = k < 2 ? -1 : 1, vx = (1 + (k % 2)) * d * 5, x = Math.round(xs + d * 2 + vx * ag), y = Math.round(139 - 7 * ag * (1 - ag) * 4 + ag * 6); R.pset(x, y, k % 2 ? hex('#a8c8e0') : hex('#d8ecf8')); }
+      if (entre(t, suelta + 0.6, suelta + 4)) R.pset(xs - 5, 146, hex('#5a7a8a')); } }
   if (prism) { const yH = 144 - 13 - 12; R.rect(gx + 11, yH + 4, gx + 16, yH + 7, C.k); R.rect(gx + 12, yH + 5, gx + 13, yH + 6, hex('#3a4a5a')); R.rect(gx + 15, yH + 5, gx + 16, yH + 6, hex('#3a4a5a')); if (parpadeo(t, 5)) R.pset(gx + 16, yH + 5, C.blanco); }
   // el reloj de bolsillo y su bocadillo: el cronómetro que corre unos minutos
   if (saca) { const [mx, my] = [gx + 15, 144 - 13 - 12 - 4]; R.disco(mx, my + 1, 2, C.k); R.disco(mx, my + 1, 1, hex('#e8c040'));
@@ -206,35 +342,94 @@ const p2 = (t) => {
 // ── 3 · el anemómetro que se dispara ────────────────────────────────────────────────────────────────────────────
 const mando = a(0.618), embudo = [a(0.635), a(0.705)], sale = a(0.748), sube = [a(0.785), a(0.835)], fuerte = a(0.9114);
 const ESC = 320, HUR = 200, TOR = 300;
-// el anemómetro: esfera blanca con su bisel, el arco de colores, las marcas, la del huracán más fuerte (su espiral) y la del
-// tornado (su embudo), la aguja y el contador
-const anemometro = (cx, cy, s, v, t) => {
-  if (s <= 0) return; const r = Math.round(25 * s);
-  R.disco(cx + 2, cy + 3, r + 5, hex('#8a8478')); R.disco(cx, cy, r + 5, C.k); R.disco(cx, cy, r + 4, hex('#5a5e68')); R.disco(cx, cy, r + 3, hex('#9aa2ae')); R.disco(cx - 1, cy - 1, r + 2, hex('#c8d0dc')); R.disco(cx, cy, r + 1, C.k); R.disco(cx, cy, r, hex('#f8f6ee'));
-  if (s < 1) return;
-  const ang = (q) => Math.PI * (0.85 + 1.3 * q / ESC);   // de abajo a la izquierda, por arriba, a abajo a la derecha
-  for (let q = 0; q <= ESC; q += 2) { const g = ang(q), col = q < 74 ? hex('#5ab85a') : q < 157 ? hex('#e8c040') : q < 250 ? hex('#f08a3a') : hex('#d83a3a'); for (let rr = r - 5; rr <= r - 2; rr++) R.pset(Math.round(cx + Math.cos(g) * rr), Math.round(cy + Math.sin(g) * rr), col); }
-  for (let q = 0; q <= ESC; q += 20) { const g = ang(q), l = q % 100 === 0 ? 4 : 2; R.linea(Math.round(cx + Math.cos(g) * (r - 6)), Math.round(cy + Math.sin(g) * (r - 6)), Math.round(cx + Math.cos(g) * (r - 6 - l)), Math.round(cy + Math.sin(g) * (r - 6 - l)), C.k); }
-  // la marca del huracán más fuerte (fuera del arco) y la del tornado
-  { const g = ang(HUR), x = Math.round(cx + Math.cos(g) * (r + 13)), y = Math.round(cy + Math.sin(g) * (r + 13)), late = t > fuerte && t < fuerte + 1.4 && parpadeo(t, 12);
-    R.disco(x, y, 9, C.k); R.disco(x, y, 8, late ? hex('#f0c040') : hex('#5a86b0')); espiral(x, y, 5, t, { giro: 2.2 });
-    R.linea(Math.round(cx + Math.cos(g) * (r + 4)), Math.round(cy + Math.sin(g) * (r + 4)), Math.round(cx + Math.cos(g) * (r - 7)), Math.round(cy + Math.sin(g) * (r - 7)), C.k);
-    R.linea(Math.round(cx + Math.cos(g) * (r - 1)) + 1, Math.round(cy + Math.sin(g) * (r - 1)), Math.round(cx + Math.cos(g) * (r - 7)) + 1, Math.round(cy + Math.sin(g) * (r - 7)), late ? hex('#f0c040') : hex('#2a4a8a')); }
-  { const g = ang(TOR), x = Math.round(cx + Math.cos(g) * (r + 13)), y = Math.round(cy + Math.sin(g) * (r + 13)); R.disco(x, y, 9, C.k); R.disco(x, y, 8, hex('#c8b896')); tornadito(x, y + 6, t, 3, { polvo: false, s: 1.1 }); }
-  // la aguja con su sombra y el eje
-  const g = ang(v), tb = v >= TOR - 1 ? Math.sin(t * 40) * 0.015 : 0;
-  R.linea(cx + 1, cy + 1, Math.round(cx + 1 + Math.cos(g + tb) * (r - 3)), Math.round(cy + 1 + Math.sin(g + tb) * (r - 3)), hex('#b8b4a8'));
-  R.linea(cx, cy, Math.round(cx + Math.cos(g + tb) * (r - 3)), Math.round(cy + Math.sin(g + tb) * (r - 3)), hex('#c8282a')); R.disco(cx, cy, 2.5, C.k); R.disco(cx, cy, 1.5, hex('#9aa2ae'));
-  // el contador
-  R.rect(cx - 13, cy + 8, cx + 13, cy + 18, C.k); R.rect(cx - 12, cy + 9, cx + 12, cy + 17, hex('#1e2a1e')); R.numero(String(Math.round(v)), cx, cy + 17, { centro: true, color: v >= TOR - 1 && parpadeo(t, 10) ? hex('#fff2b0') : hex('#7aff8a'), sombra: false });
+// el anemómetro del laboratorio, montado en la horquilla del soporte (los brazos en x 104 y 132, el travesaño en y 91):
+// una esfera de unos 26 px con su bisel cromado y su sombra en la pared, el arco de colores, las marcas, la marca del
+// huracán más fuerte (la chapa con su espiral, en el borde) y la del tornado (la chapa con su embudo), la aguja con su
+// sombra y el reflejo del cristal; encima, a la izquierda, el rotor de cazoletas que gira con el viento de la maqueta
+// (más deprisa cuanto más sube la aguja); en la varilla, la caja del contador con su cable (o.luz: encendido)
+const AX = 118, AY = 77, AR = 9;
+const angA = (q) => Math.PI * (0.85 + 1.3 * q / ESC);   // de abajo a la izquierda, por arriba, a abajo a la derecha
+const SWIRL = ['.##..', '#..#.', '#.#.#', '.#..#', '..##.'], EMBU = ['#####', '.###.', '..##.', '..#..', '.#...'];
+const chapa = (q, fondo, glifo, cg) => { const g = angA(q), x = Math.round(AX + Math.cos(g) * 16), y = Math.round(AY + Math.sin(g) * 16);
+  R.disco(x + 1, y + 1, 4, hex('#a89e84')); R.disco(x, y, 4, C.k); R.disco(x, y, 3, fondo); R.pset(x - 2, y - 2, hex('#ffffff'));
+  glifo.forEach((f, j) => { for (let i = 0; i < 5; i++) if (f[i] === '#') R.pset(x - 2 + i, y - 2 + j, cg); }); };
+const rotorFase = (t) => { const D = sube[1] - sube[0], k = t < sube[0] ? 0 : t < sube[1] ? (t - sube[0]) ** 2 / (2 * D) : D / 2 + (t - sube[1]); return t * 4 + k * 26; };
+const anemometro = (v, t, luz) => {
+  const cx = AX, cy = AY, r = AR;
+  // la sombra en la pared, corrida abajo a la derecha
+  for (let j = -14; j <= 14; j++) for (let i = -14; i <= 14; i++) if (i * i + j * j <= 196 && umbral(cx + i + 2, cy + j + 2) < 0.85) velo(cx + i + 2, cy + j + 2, hex('#6a6252'), 0.35);
+  // el rotor de cazoletas: su mástil sale del bisel arriba a la izquierda
+  { const rx = 109, ry = 60, fa = rotorFase(t); R.rect(rx - 1, ry, rx + 1, 68, C.k); R.linea(rx, ry + 1, rx, 67, hex('#b0b6be'));
+    const cs = [0, 1, 2].map((k) => fa + k * 2.094).sort((p, q) => Math.sin(p) - Math.sin(q));
+    for (const an of cs) { const ex = Math.round(rx + Math.cos(an) * 5), ey = Math.round(ry + Math.sin(an) * 1.2); R.linea(rx, ry, ex, ey, hex('#3a3e46'));
+      const fr = Math.sin(an) > 0; R.rect(ex - 1, ey - 1, ex + 1, ey + 1, C.k); R.pset(ex, ey, fr ? hex('#e8e4d8') : hex('#8a8a92')); R.pset(ex - 1, ey - 1, fr ? hex('#ffffff') : hex('#a8a8b0')); }
+    R.disco(rx, ry, 1.5, C.k); R.pset(rx, ry, hex('#c8ccd2')); }
+  // el bisel cromado, con la luz arriba a la izquierda, y la esfera
+  R.disco(cx, cy, r + 4, C.k); R.disco(cx, cy, r + 3, hex('#5a5e68')); R.disco(cx - 1, cy - 1, r + 2, hex('#c8d0dc')); R.disco(cx, cy, r + 2, hex('#9aa2ae'));
+  for (let k = 0; k < 8; k++) { const g = Math.PI * (1.05 + k * 0.06); R.pset(Math.round(cx + Math.cos(g) * (r + 2)), Math.round(cy + Math.sin(g) * (r + 2)), hex('#eef2f8')); }
+  R.disco(cx, cy, r + 1, C.k); R.disco(cx, cy, r, hex('#f8f6ee'));
+  // el arco de colores y las marcas
+  for (let q = 0; q <= ESC; q += 2) { const g = angA(q), col = q < 74 ? hex('#5ab85a') : q < 157 ? hex('#e8c040') : q < 250 ? hex('#f08a3a') : hex('#d83a3a'); for (let rr = r - 3; rr <= r - 1; rr++) R.pset(Math.round(cx + Math.cos(g) * rr), Math.round(cy + Math.sin(g) * rr), col); }
+  for (let q = 0; q <= ESC; q += 50) { const g = angA(q); R.linea(Math.round(cx + Math.cos(g) * (r - 4)), Math.round(cy + Math.sin(g) * (r - 4)), Math.round(cx + Math.cos(g) * (r - 5)), Math.round(cy + Math.sin(g) * (r - 5)), C.k); }
+  // la marca del huracán más fuerte: la raya azul que cruza el arco y su chapa con la espiral (late en «strongest hurricane»)
+  const late = t > fuerte && t < fuerte + 1.4 && parpadeo(t, 12);
+  { const g = angA(HUR); R.linea(Math.round(cx + Math.cos(g) * (r + 3)), Math.round(cy + Math.sin(g) * (r + 3)), Math.round(cx + Math.cos(g) * (r - 5)), Math.round(cy + Math.sin(g) * (r - 5)), late ? hex('#f0c040') : hex('#2a4a8a')); }
+  chapa(HUR, late ? hex('#f0c040') : hex('#5a86b0'), SWIRL, late ? hex('#5a3a10') : hex('#f2f6fa'));
+  chapa(TOR, hex('#c8b896'), EMBU, hex('#4a4a52'));
+  // la aguja con su sombra y el eje (tiembla clavada en 300)
+  const g = angA(v), tb = v >= TOR - 1 ? Math.sin(t * 40) * 0.03 : Math.sin(t * 3) * 0.01;
+  R.linea(cx + 1, cy + 1, Math.round(cx + 1 + Math.cos(g + tb) * (r - 2)), Math.round(cy + 1 + Math.sin(g + tb) * (r - 2)), hex('#b8b4a8'));
+  R.linea(cx, cy, Math.round(cx + Math.cos(g + tb) * (r - 2)), Math.round(cy + Math.sin(g + tb) * (r - 2)), hex('#c8282a')); R.disco(cx, cy, 1.5, C.k); R.pset(cx, cy, hex('#9aa2ae'));
+  // el reflejo del cristal
+  R.pset(cx - 5, cy - 3, hex('#ffffff')); R.pset(cx - 4, cy - 4, hex('#ffffff')); if (parpadeo(t, 2)) R.pset(cx - 3, cy - 5, hex('#eef4ff'));
+  // la caja del contador en la varilla, con su cable que baja por ella
+  R.linea(126, 101, 121, 108, C.k); R.linea(121, 108, 121, 146, hex('#2a2a32')); R.linea(121, 146, 128, 152, hex('#2a2a32'));
+  R.rect(109, 96, 127, 105, C.k); R.rect(110, 97, 126, 104, hex('#4a4e56')); R.rect(110, 97, 126, 97, hex('#7a808a')); R.rect(111, 98, 125, 103, hex('#142014'));
+  const s = String(Math.round(v)).padStart(3, '0'); cifras(s, 113, 98, !luz ? hex('#24382a') : v >= TOR - 1 && parpadeo(t, 10) ? hex('#fff2b0') : hex('#7aff8a'));
+  if (luz) R.pset(126, 105, parpadeo(t, 4) ? hex('#e83a2a') : hex('#6a1a1a'));
+};
+// la funda de lona que tapa el anemómetro (y el rotor) hasta «the wind»: un polígono con el bajo que ondea con el aire de
+// la maqueta, sombreado con la luz arriba a la izquierda y pliegues que bajan; u 0–1: Fujita tira del cordón, la funda
+// resbala hacia abajo a la izquierda, se arruga y queda hecha un montón al pie del trípode
+const FUNDA = [[104, 61], [106, 56], [109, 54], [112, 56], [114, 61], [119, 60], [124, 57], [129, 58], [132, 62], [135, 70], [139, 75], [140, 82], [139, 88], [138, 94], [136, 98], [130, 96], [126, 99], [121, 97], [116, 99], [111, 97], [106, 99], [101, 97], [100, 92], [101, 84], [102, 76], [103, 68]];
+const LONA = [hex('#f4f0e2'), hex('#dcd6c2'), hex('#bcb5a0'), hex('#948c78')], LONA_ID = hex('#fe01fe');
+const funda = (t, u) => {
+  const pie = 156, sq = 1 - 0.7 * u, dy = 58 * u * u, dxx = -2 * u;
+  const P = FUNDA.map(([x, y], i) => { const bajo = y > 90 ? Math.sin(t * 3 + i * 1.3) * 0.7 * (1 - u) : 0; const arruga = u > 0 ? Math.sin(i * 2.7) * 2.5 * u : 0; return [Math.round(118 + (x - 118) * (1 - 0.3 * u) + dxx + bajo), Math.round(98 + (y - 98) * sq + dy + (y < 90 ? arruga : 0))]; });
+  if (u >= 1) for (const p of P) p[1] = Math.min(p[1], pie);
+  const x0 = Math.min(...P.map((p) => p[0])) - 1, x1 = Math.max(...P.map((p) => p[0])) + 1, y0 = Math.min(...P.map((p) => p[1])) - 1, y1 = Math.max(...P.map((p) => p[1])) + 1;
+  // si está en el suelo, su sombra
+  if (u >= 0.9) for (let x = x0; x <= x1 + 2; x++) for (let j = 0; j <= 1; j++) velo(x, pie + 1 + j, hex('#4a4232'), 0.4);
+  // se pinta la silueta con un color marcador y se sombrea píxel a píxel (el filo, en negro)
+  R.poligono(P, LONA_ID);
+  const es = (x, y) => x >= 0 && x < 320 && y >= 0 && y < 180 && (R.pget(x, y) >>> 0) === (LONA_ID >>> 0);
+  const marca = []; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (es(x, y)) marca.push([x, y, !es(x - 1, y) || !es(x + 1, y) || !es(x, y - 1) || !es(x, y + 1)]);
+  const cy0 = y0 + 2, alto = Math.max(4, y1 - y0);
+  for (const [x, y, borde] of marca) { if (borde) { R.pset(x, y, C.k); continue; }
+    const fy = (y - cy0) / alto, pl = Math.sin((x - 118 - dxx) * 0.85 + fy * 1.5) * Math.min(1, Math.max(0, fy - 0.35) * 2.5);
+    const l = 0.72 - (x - 118 - dxx) / 34 - fy * 0.35 + pl * 0.28 + (u > 0 ? Math.sin(x * 1.3 + y * 0.9) * 0.18 * u : 0) + (umbral(x, y) - 0.5) * 0.18;
+    R.pset(x, y, LONA[Math.max(0, Math.min(3, 3 - Math.floor(l * 4)))]); }
+  return [P[21][0], P[21][1]];   // la esquina de abajo a la izquierda, donde va atado el cordón
 };
 const p3 = (t) => {
   T.labFujita(R, t, { maqueta: suave(lin(t, embudo[0], embudo[1])) });
-  // Fujita, junto a la maqueta: gira el mando, mira cómo se forma el embudo y lo comenta; en «the wind» va hacia el
-  // anemómetro que aparece, se asombra cuando la aguja se clava en 300 y en «strongest hurricane» señala la marca del huracán
-  const va = suave(lin(t, sale + 0.05, sale + 0.6)), fx = Math.round(lerp(62, 96, va)), andaF = va > 0 && va < 1;
-  R.actor(EL.fujita, fx, 160, t, { dir: t > sale ? 1 : -1, anda: andaF, dedo: !andaF && (entre(t, mando - 0.1, embudo[0] + 0.3) || entre(t, fuerte - 0.1, fuerte + 1.0)),
-    sorpresa: entre(t, sube[1] - 0.1, sube[1] + 0.6), sonrisa: t > fuerte + 1.0 || entre(t, embudo[1], sale), habla: (entre(t, embudo[0] + 0.4, embudo[0] + 1.0) || entre(t, fuerte, fuerte + 0.9)) && parpadeo(t, 8) });
+  // el anemómetro y su funda: tapado hasta «the wind», cuando Fujita tira del cordón; la aguja se dispara después
+  const q = t < sube[0] ? 0 : t < sube[1] ? TOR * suave(lin(t, sube[0], sube[1])) ** 0.8 : TOR, uF = suave(lin(t, sale + 0.06, sale + 0.5));
+  anemometro(q, t, t > sale + 0.3);
+  // Fujita, junto a la maqueta: gira el mando, mira cómo se forma el embudo y lo comenta; luego va al soporte, y en «the
+  // wind» tira del cordón y destapa el anemómetro; se asombra cuando la aguja se clava en 300 y en «strongest hurricane»
+  // señala la marca del huracán
+  const va = suave(lin(t, embudo[1] - 0.1, sale - 0.12)), fx = Math.round(lerp(62, 94, va)), andaF = va > 0 && va < 1, tira = entre(t, sale - 0.1, sale + 0.25);
+  // el cordón: cuelga de la esquina de la funda junto a la varilla; Fujita lo coge al llegar y tira de él hacia abajo
+  if (uF < 1) { const [ex, ey] = funda(t, uF), mano = va >= 1, tx = mano ? fx + 11 : 100 + Math.round(Math.sin(t * 2) * 0.6), ty = mano ? 146 + (tira ? Math.round(lin(t, sale - 0.1, sale + 0.05) * 4) : 0) : 138;
+    const n = Math.max(1, Math.ceil(Math.hypot(tx - ex, ty - ey))), comba = mano && !tira ? 2 : mano ? 0 : 1;
+    for (let i = 0; i <= n; i++) { const f = i / n; R.pset(Math.round(lerp(ex, tx, f) + Math.sin(f * Math.PI) * comba), Math.round(lerp(ey, ty, f)), hex('#c8a86a')); }
+    if (!mano) { R.rect(tx - 1, ty, tx + 1, ty + 2, hex('#a8824a')); R.pset(tx, ty + 3, hex('#c8a86a')); } }
+  else funda(t, 1);
+  // el polvo que levanta la funda al caer
+  { const p = lin(t, sale + 0.48, sale + 0.9); if (p > 0 && p < 1) for (let k = 0; k < 6; k++) { const d = k % 2 ? 1 : -1, x = Math.round(112 + d * (6 + (k >> 1) * 4) * (0.4 + p)), y = Math.round(155 - p * 3 - (k >> 1)); velo(x, y, hex('#e8e0c8'), 0.6 * (1 - p)); } }
+  R.actor(EL.fujita, fx, 160, t, { dir: t > embudo[1] - 0.1 ? 1 : -1, anda: andaF, dedo: !andaF && (entre(t, mando - 0.1, embudo[0] + 0.3) || tira || entre(t, fuerte - 0.1, fuerte + 1.0)),
+    sorpresa: entre(t, sube[1] - 0.1, sube[1] + 0.6), sonrisa: t > fuerte + 1.0 || entre(t, embudo[1] - 0.6, embudo[1] - 0.1) || entre(t, sale + 0.5, sube[0]), habla: (entre(t, embudo[0] + 0.4, embudo[0] + 1.0) || entre(t, fuerte, fuerte + 0.9)) && parpadeo(t, 8) });
   if (entre(t, mando - 0.1, embudo[0] + 0.3) && parpadeo(t, 12)) destello(36, 118, 2, hex('#fff2b0'));
   // la becaria, delante de la mesa de trabajo, apunta en su tablilla; en «the wind» se acerca a ver el anemómetro, se
   // asombra con el 300, señala la aguja y lo anota
@@ -242,13 +437,12 @@ const p3 = (t) => {
   R.actor(EL.tecnica, bx, 164, t, { dir: -1, anda: andaB, sorpresa: entre(t, sube[1], sube[1] + 0.7), dedo: entre(t, fuerte + 0.6, fuerte + 1.3), sonrisa: t > fuerte + 1.3 || entre(t, embudo[1], sale), habla: entre(t, sube[1] + 0.7, sube[1] + 1.2) && parpadeo(t, 8) });
   { const [tx, ty] = enMano(bx, 164, -1); R.rect(tx - 4, ty - 6, tx + 2, ty + 2, C.k); R.rect(tx - 3, ty - 5, tx + 1, ty + 1, hex('#f6f2e2')); R.rect(tx - 2, ty - 7, tx, ty - 6, hex('#8a8e96'));
     for (let k = 0; k < 3; k++) R.rect(tx - 2, ty - 4 + k * 2, tx - 2 + (escribe && k === 2 ? Math.floor(t * 6) % 3 : 2), ty - 4 + k * 2, hex('#3a4a7a')); }
-  // el anemómetro aparece y su aguja se dispara
-  const s = suave(lin(t, sale - 0.05, sale + 0.25)), q = t < sube[0] ? 0 : t < sube[1] ? TOR * suave(lin(t, sube[0], sube[1])) ** 0.8 : TOR;
-  anemometro(118, 60, s, q, t);
+  // el brillo del cristal recién destapado
+  if (entre(t, sale + 0.35, sale + 0.75) && parpadeo(t, 14)) destello(AX - 4, AY - 4, 2);
 };
 const efectos = [[regla[0], 'whoosh'], [cifra, 'pop'], [dosSemanas[0], 'lapiz'], [dosSemanas[0] + 0.5, 'lapiz'],
   [toca - 0.3, 'rafaga'], [ancho[0], 'pop'], [reloj[0], 'tic'], [reloj[0] + 0.3, 'tic'], [reloj[0] + 0.6, 'tic'], [reloj[0] + 0.9, 'tic'], [seRecoge[0] + 0.1, 'whoosh'],
-  [mando, 'interruptor'], [embudo[0], 'zumbido'], [sale, 'pop'], [sube[0], 'tecleo', { dur: sube[1] - sube[0] }], [sube[1], 'boing'], [fuerte, 'aviso'], [fuerte + 1.2, 'lapiz']];
+  [mando, 'interruptor'], [embudo[0], 'zumbido'], [sale + 0.08, 'whoosh'], [sale + 0.5, 'pop'], [sube[0], 'tecleo', { dur: sube[1] - sube[0] }], [sube[1], 'boing'], [fuerte, 'aviso'], [fuerte + 1.2, 'lapiz']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1971 });
 </script>
 </body>
