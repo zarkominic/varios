@@ -30,8 +30,10 @@
 //    que ya tiene el ojo formándose (pintado en la escena: bandas en espiral de cuatro tonos con la luz arriba a la
 //    izquierda, coliflor, calles de cirros, bordes deshilachados, su sombra sobre el mar y el ojo con su pared, que gira y
 //    se va cerrando a lo largo del plano); la cámara lo sigue hacia el norte por su trayectoria mientras se organiza; un
-//    satélite meteorológico cruza por delante con sus paneles que destellan; en «category three» sale el «3»; en «warm
-//    waters» el agua del golfo se calienta y tiembla; la línea prevista va a Destin;
+//    satélite meteorológico cruza por delante con sus paneles que destellan; en «category three» sale el «3» (su tarjeta,
+//    en el cielo vacío de la derecha, bajo Atom, lejos de la luna y del satélite); en «warm waters» el agua del golfo se
+//    calienta y tiembla (solo en el océano hondo: la máscara tierra/mar deja limpias Florida, Cuba y sus plataformas);
+//    la línea prevista va a Destin;
 // 4. la playa de Destin de noche, que se lee: la luna asoma en un claro de las nubes (nubes deshilachadas con el canto de
 //    plata que pasan por delante y la van tapando al llegar el huracán), su luz fría aclara el cuadro y su camino de plata
 //    riela en el mar; las luces de la punta y del muelle se reflejan en el agua, la caseta del socorrista tiene luz (hasta
@@ -44,7 +46,8 @@
 //    puño de camisa, pliegues y su sombra sobre el mapa) traza con el rotulador rojo la trayectoria de Isaías hasta Destin y clava la chincheta
 //    roja en «hit»; en «United States» se clava su foto de la noche del huracán con el «2026»; en «since Milton» el mapa
 //    se acerca al golfo, la mano vuelve con el lápiz gris, traza la trayectoria de Milton y clava su chincheta en Siesta
-//    Key con su foto vieja del «2024»;
+//    Key con su foto vieja del «2024»; las trayectorias se recortan al papel del mapa (no pisan el marco de madera), y
+//    solo el brazo va por delante del marco;
 // 6. la costa de Destin de noche con el huracán: las luces se apagan barrio a barrio, de la playa hacia dentro («seven
 //    hundred thousand», «homes and businesses», «Florida and Alabama»), y el contador (pequeño, en el agua de la
 //    derecha) sube a la vez, hasta 700,000 en «without power»; salta el transformador de la US-98 con su lluvia de
@@ -357,9 +360,13 @@ const p3 = (t) => {
   // el agua caliente del golfo: se enciende en naranja y tiembla
   const cal = lin(t, calidas - 0.1, golfo);
   const GC = P([24.5, -90.5]), golfoEn = (x, y) => ((x - GC[0]) / 92) ** 2 + ((y - GC[1]) / 40) ** 2 < 1;
-  const marClaro = (c) => esMar(c) && ((c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255)) > 150;
-  if (cal > 0) { const D = R.buf; for (let y = 84; y < 180; y++) for (let x = 0; x < 320; x++) { const c = D[y * 320 + x]; if (!marClaro(c) || !golfoEn(x, y)) continue; const w = 0.5 + 0.5 * Math.sin(x * 0.11 + y * 0.23 - t * 3), d2 = ((x - GC[0]) / 92) ** 2 + ((y - GC[1]) / 40) ** 2; if (bay(x, y) < cal * (0.42 + 0.25 * w) * (1 - d2)) D[y * 320 + x] = mezcla(c, hex('#f09048'), 0.5); }
-    for (let k = 0; k < 14; k++) { const q = (t * 0.8 + k * 0.29) % 1, x = Math.round(GC[0] - 80 + hh(k, 1, 851) * 160), y = Math.round(GC[1] - 26 + hh(k, 2, 851) * 50 - q * 8); if (!golfoEn(x, y) || !marClaro(R.pget(x, y + 8))) continue; for (let i = 0; i < 5; i++) R.pset(x + i, y + Math.round(Math.sin(i * 1.5 + t * 6)), q < 0.5 ? hex('#ffc070') : hex('#f08a4a')); } }
+  // la máscara tierra/mar: solo el océano hondo del globo (azul puro, ni la plataforma turquesa de las costas, ni la
+  // tierra, ni las nubes grises), mirada en una copia del globo y con un margen de 2 px para no manchar Florida ni Cuba
+  const oceano = (c) => { const r = c & 255, g = (c >>> 8) & 255, b = (c >>> 16) & 255; return b > r + 60 && b > g + 45 && r + g + b > 150; };
+  const D0 = MAR0; D0.set(R.buf);
+  const marEn = (x, y) => x >= 2 && x < 318 && y >= 2 && y < 178 && oceano(D0[y * 320 + x]) && oceano(D0[y * 320 + x - 2]) && oceano(D0[y * 320 + x + 2]) && oceano(D0[(y - 2) * 320 + x]) && oceano(D0[(y + 2) * 320 + x]);
+  if (cal > 0) { const D = R.buf; for (let y = 84; y < 178; y++) for (let x = 2; x < 318; x++) { const c = D[y * 320 + x]; if (!golfoEn(x, y) || !marEn(x, y)) continue; const w = 0.5 + 0.5 * Math.sin(x * 0.11 + y * 0.23 - t * 3), d2 = ((x - GC[0]) / 92) ** 2 + ((y - GC[1]) / 40) ** 2; if (bay(x, y) < cal * (0.42 + 0.25 * w) * (1 - d2)) D[y * 320 + x] = mezcla(c, hex('#f08040'), 0.62); }
+    for (let k = 0; k < 14; k++) { const q = (t * 0.8 + k * 0.29) % 1, x = Math.round(GC[0] - 80 + hh(k, 1, 851) * 160), y = Math.round(GC[1] - 26 + hh(k, 2, 851) * 50 - q * 8); if (!golfoEn(x, y)) continue; for (let i = 0; i < 5; i++) { const yy = y + Math.round(Math.sin(i * 1.5 + t * 6)); if (marEn(x + i, yy)) R.pset(x + i, yy, q < 0.5 ? hex('#ffc070') : hex('#f08a4a')); } } }
   // el huracán, que se organiza: crece, gira y el ojo se va cerrando a lo largo del plano
   { const [hx, hy] = P([elat, elon]); huracan(hx, hy, lerp(24, 33, esp), t, tramo(t, P3, P4 - 0.3)); }
   // la trayectoria: lo recorrido en puntos blancos y lo previsto, en trazos, hasta Destin
@@ -369,8 +376,9 @@ const p3 = (t) => {
   { const [x, y, vis] = P([30.4, -86.5]); if (vis) { const r = 3 + Math.round(((t * 1.5) % 1) * 4); for (let g = 0; g < 6.28; g += 0.4) R.pset(Math.round(x + Math.cos(g) * r), Math.round(y + Math.sin(g) * r * 0.7), hex('#f04a4a')); R.disco(x, y, 1, hex('#f04a4a')); } }
   // el satélite meteorológico que cruza por delante, en la órbita baja
   { const s = lin(t, P3 - 0.2, P4 + 0.3); satelite(lerp(-24, 236, s), lerp(64, 40, s) + Math.sin(s * 3) * 3, t); }
-  // el «3», unido a la tormenta por una raya fina
-  if (t > tres) { const [sx, sy] = P([elat, elon]), q = lin(t, tres, tres + 0.2), lx = 214, ly = 62;
+  // el «3», unido a la tormenta por una raya fina, en el cielo vacío de la derecha: bajo Atom, lejos de la luna y del
+  // camino del satélite, y por encima del borde del globo
+  if (t > tres) { const [sx, sy] = P([elat, elon]), q = lin(t, tres, tres + 0.2), lx = 284, ly = 74;
     R.linea(sx + 8, sy - 8, lx - 12, ly + 6, hex('#f6f2ea'), 2);
     R.rect(lx - 16, ly - 14, lx + 22, ly + 8, C.k); R.rect(lx - 15, ly - 13, lx + 21, ly + 7, hex('#1a2238')); simbolo(lx - 6, ly - 3, hex('#e03a3a'));
     R.numero('3', lx + 10, ly + 5 - Math.round((1 - q) * 4), { tam: 16, centro: true }); }
@@ -380,7 +388,7 @@ const p3 = (t) => {
     for (let y = 0; y < 180; y++) { const sy = Math.max(0, Math.min(179, Math.round(cy + (y - cy) / k))) * 320; for (let x = 0; x < 320; x++) D[y * 320 + x] = ZOOM[sy + Math.max(0, Math.min(319, Math.round(cx + (x - cx) / k)))]; }
     if (t < P3 + 0.12) { const f = 0.4 * (1 - (t - P3) / 0.12); for (let i = 0; i < 320 * 180; i++) D[i] = mezcla(D[i], hex('#eef4ff'), f); } }
 };
-const ZOOM = R.nuevo();
+const ZOOM = R.nuevo(), MAR0 = R.nuevo();
 
 // ── 4 · la playa de Destin de noche: la patrulla despeja la playa y el huracán toca tierra ─────────────────────────────
 const RAYO = (k) => k * 4.3 + hh(k, 1, 941) * 2.6;
@@ -498,8 +506,10 @@ const p4 = (t) => {
 // ── 5 · el mapa: el primer huracán que golpea EE. UU. desde Milton, en 2024 ──────────────────────────────────────
 const MILTON = [[-95.0, 22.3], [-93.4, 22.6], [-91.6, 22.4], [-89.8, 22.0], [-88.3, 22.4], [-86.8, 23.3], [-85.4, 24.6], [-84.0, 26.0], [-82.56, 27.27]];
 const ISAIAS = RASTRO.map(([la, lo]) => [lo, la]);
-const traza = (P, L, u, col, rayas) => { const n = Math.round((L.length - 1) * 20 * u); let last = null;
-  for (let k = 0; k <= n; k++) { const f = k / 20, i = Math.min(L.length - 2, Math.floor(f)), s = f - i, [x, y] = P([lerp(L[i][0], L[i + 1][0], s), lerp(L[i][1], L[i + 1][1], s)]); if (k % rayas < rayas - 1) { R.pset(x, y + 1, C.k); R.pset(x, y, col); R.pset(x + 1, y, col); } last = [x, y]; } return last; };
+// la trayectoria se pinta solo dentro del papel del mapa (la mesa de madera va de 0 a 5 px del borde): R.recorte, que
+// pset respeta; lo que sale del papel no se ve, pero la punta (last) sigue siendo la de verdad para que la mano la siga
+const traza = (P, L, u, col, rayas) => { const n = Math.round((L.length - 1) * 20 * u); let last = null; R.recorte([6, 6, 313, 173]);
+  for (let k = 0; k <= n; k++) { const f = k / 20, i = Math.min(L.length - 2, Math.floor(f)), s = f - i, [x, y] = P([lerp(L[i][0], L[i + 1][0], s), lerp(L[i][1], L[i + 1][1], s)]); if (k % rayas < rayas - 1) { R.pset(x, y + 1, C.k); R.pset(x, y, col); R.pset(x + 1, y, col); } last = [x, y]; } R.recorte(null); return last; };
 // la foto clavada en el mapa (x, y: arriba a la izquierda), con su año: la noche del huracán en la costa (gris = 2024)
 const fotoMapa = (x, y, ano, gris, v, t) => { if (v <= 0) return; const dy = Math.round((1 - v) * -8), X = x, Y = y + dy, tono = (c) => gris ? mezcla(hex(c), hex('#9a9aa4'), 0.75) : hex(c);
   R.rect(X + 2, Y + 2, X + 36, Y + 38, hex('#6a5a44')); R.rect(X, Y, X + 34, Y + 36, C.k); R.rect(X + 1, Y + 1, X + 33, Y + 35, hex('#f6f2ea'));

@@ -22,8 +22,9 @@
 // 2. «the sea rises about fifteen feet»: la escala de mareas del poste, de cerca, con la calle en penumbra detrás; a la
 //    izquierda, la casa de Isaac Cline: sube la hoja de su ventana, se asoma con un farol y lee la escala mientras el agua
 //    sube; en «feet» el 15 parpadea y sale el «15» grande (se asusta); deja el farol en el alféizar y lo apunta en su
-//    libreta; la escala va de 5 en 5 px por pie y los quince pies quedan en y 110, así que la calle de enfrente se sigue
-//    viendo, con las casas medio hundidas. El agua tiene fondo: clara junto a la superficie, con los reflejos rotos del
+//    libreta; la escala va de 5 en 5 px por pie (cada número encima de su raya) y los quince pies quedan en y 110: el
+//    agua se para justo en esa raya, que queda a la vista encima de la espuma, y la flecha y el «15» grande salen a su
+//    misma altura; la calle de enfrente se sigue viendo, con las casas medio hundidas. El agua tiene fondo: clara junto a la superficie, con los reflejos rotos del
 //    farol de Cline y de las ventanas, y oscura abajo, con la corriente en vetas a dos velocidades; lejos, despacio, pasan
 //    tablas y un cajón. En «sweeps across the city» la corriente arrastra, cada vez más cerca, un tramo de valla, una
 //    puerta y un barril grandes, medio hundidos y con su estela; una ola llega por la calle, revienta contra el poste
@@ -245,7 +246,9 @@ const p1 = (t) => {
 // ── 2 · el inserto: la escala de mareas sube hasta quince pies; Cline la lee desde su ventana ─────────────────────
 // Delante, el poste del telégrafo con su escala, de cerca; a la izquierda, la casa de Cline; detrás, la calle en penumbra
 const ESC = { x0: 178, x1: 202, cero: 185, px: 5 };   // quince pies quedan en y 110: se sigue viendo la calle
-const piesAgua = (t) => lerp(7.8, 15.3, tramo(t, P2 - 0.05, pies + 0.25)) + 0.5 * lin(t, pies + 0.3, P3);   // y luego sigue subiendo, despacio
+// el agua sube hasta la raya del 15 y se para ahí: 14,4 pies dejan la superficie en y 113, y como las olas suben
+// 2,5 px como mucho, la cresta se queda en y 111 y la raya roja del 15 (y 110) se ve siempre justo encima del agua
+const piesAgua = (t) => lerp(7.8, 14.4, tramo(t, P2 - 0.05, pies + 0.25));
 const nivelY = (ft) => ESC.cero - ft * ESC.px;
 // lo que flota medio hundido: dibuja dentro de la caja y lo que queda bajo la línea de agua yl se hunde en el azul
 const flota = ([x0, y0, x1, y1], yl, dibuja) => {
@@ -351,7 +354,7 @@ const p2 = (t) => {
   for (const [ix, d] of [[124, -1], [138, -1], [192, 1], [206, 1]]) { const sw = Math.round(Math.sin(t * 3 + ix) * 2); R.linea(ix, 0, d < 0 ? 97 : 319, 4 + sw, hex('#2a2a32')); }
   // la escala de mareas: esmalte con una marca por pie y los números cada cinco
   R.rect(ESC.x0 - 1, 8, ESC.x1 + 1, 179, C.k); R.rect(ESC.x0, 9, ESC.x1, 179, hex('#d8d2c4')); R.rect(ESC.x0, 9, ESC.x0, 179, hex('#ece6da')); R.rect(ESC.x1, 9, ESC.x1, 179, hex('#a8a296'));
-  for (let f = 0; f <= 34; f++) { const y = Math.round(nivelY(f)); if (y < 10) continue; R.rect(ESC.x0 + 1, y, ESC.x0 + (f % 5 === 0 ? 13 : 6), y, f % 5 === 0 ? C.rojo : C.k); if (f % 5 === 0 && f > 0) R.numero(String(f), f >= 10 ? ESC.x0 + 7 : ESC.x0 + 14, y + 9, { color: C.rojo, sombra: false }); }
+  for (let f = 0; f <= 34; f++) { const y = Math.round(nivelY(f)); if (y < 10) continue; R.rect(ESC.x0 + 1, y, ESC.x0 + (f % 5 === 0 ? 13 : 6), y, f % 5 === 0 ? C.rojo : C.k); if (f % 5 === 0 && f > 0) R.numero(String(f), f >= 10 ? ESC.x0 + 7 : ESC.x0 + 14, y - 1, { color: C.rojo, sombra: false }); }   // cada número, encima de su raya
   for (const by of [12, 176]) { R.disco(ESC.x1 - 3, by, 1.5, hex('#8a8e9a')); }
   // la luz del farol que Cline levanta llega, floja, a la escala que lee
   if (conFarol) luzCalida(ESC.x0 + 8, Math.round(wy) - 14, 26, 0.2);
@@ -382,9 +385,6 @@ const p2 = (t) => {
       for (let y = base - h; y < base; y++) R.pset(x, y, y - (base - h) < 2 ? C.blanco : mezcla(hex('#3a4c7a'), [120, 140, 180], Math.max(0, 1 - (y - base + h) / 6) * 0.5));
       if (x < cxo && x > cxo - 6) R.pset(x - 2, base - h - 1, hex('#d8e2f4')); }
     for (let k = 0; k < 10; k++) { const ph = (t * 4 + hh(k, 1, 74)) % 1; R.pset(Math.round(cxo - 3 + hh(k, 2, 74) * 10 - ph * 6), Math.round(ondaY(cxo) - hO - ph * 5), C.blanco); } } }
-  // «fifteen feet»: el 15 de la escala parpadea y sale el número grande con su flecha
-  const e = tramo(t, pies - 0.15, pies + 0.15), y15 = Math.round(nivelY(15));
-  if (e > 0) { if (parpadeo(t, 10)) R.rect(ESC.x0 + 1, y15 - 1, ESC.x0 + 13, y15 + 1, C.oroL); R.numero('15', 216, Math.round(lerp(y15 - 2, y15 - 8, e)), { tam: 16 }); R.poligono([[205, y15 - 14], [212, y15 - 19], [212, y15 - 9]], C.k); R.poligono([[206, y15 - 14], [211, y15 - 17], [211, y15 - 11]], C.oroL); }
   // detrás, lejos y despacio, la corriente se lleva tablas y un cajón por la calle de enfrente (todo el plano)
   for (const [k, l] of [[0, 9], [1, 6], [2, 0]]) { const x = Math.round(330 - ((t - P2) * (11 + k * 3) + k * 120) % 380), y = Math.round(wy + 3 + k); if (x >= 149 && x <= 204) continue;
     if (l) tabla(x, y, t, l, k + 7); else { R.rect(x - 4, y - 5, x + 4, y, C.k); R.rect(x - 3, y - 4, x + 3, y - 1, hex('#7a5a36')); R.rect(x - 3, y - 4, x + 3, y - 4, hex('#a8804a')); R.pset(x, y - 2, hex('#4a3420')); for (let i = -6; i <= 6; i += 2) R.pset(x + i, y + 1, hex('#a8b8d0')); } }
@@ -396,6 +396,10 @@ const p2 = (t) => {
     { const x = Math.round(lerp(390, -60, lin(b, 0.22, 0.85))), yl = Math.round(wy + 24); flota([x - 22, yl - 12, x + 22, yl + 6], yl, () => puertaG(x, yl, t)); estela(x - 22, x + 22, yl, t); }
     { const x = Math.round(lerp(380, -40, lin(b, 0.42, 1))), yl = Math.round(wy + 40); flota([x - 12, yl - 18, x + 12, yl + 6], yl, () => barrilG(x, yl, t)); estela(x - 11, x + 11, yl, t); }
   }
+  // «fifteen feet»: la raya del 15 parpadea y sale, a su misma altura (y 110), la flecha que la señala y el 15 grande,
+  // centrado en la raya; se pinta después de lo que arrastra la corriente para que nada lo tape
+  const e = tramo(t, pies - 0.15, pies + 0.15), y15 = Math.round(nivelY(15));
+  if (e > 0) { if (parpadeo(t, 10)) R.rect(ESC.x0 + 1, y15 - 1, ESC.x0 + 13, y15 + 1, C.oroL); R.numero('15', 216, Math.round(lerp(y15 + 12, y15 + 7, e)), { tam: 16 }); R.poligono([[204, y15], [211, y15 - 5], [211, y15 + 5]], C.k); R.poligono([[206, y15], [210, y15 - 3], [210, y15 + 3]], C.oroL); }
   // la ola revienta contra el poste: un penacho de espuma que trepa por la escala y se deshace
   { const u = lin(t, salpica - 0.25, salpica + 0.55); if (u > 0 && u < 1) { const h = Math.round(46 * Math.sin(Math.min(1, u * 1.6) * Math.PI / 2) * (1 - Math.max(0, u - 0.6) / 0.4 * 0.7));
     for (let y = Math.round(wy) - h; y <= Math.round(wy) + 2; y++) { const a = (y - (wy - h)) / Math.max(1, h), w = Math.round(4 + 12 * a); for (let x = 165 - w; x <= 192 + w * 0.6; x++) { const n = hh(x >> 1, y >> 1, 75 + Math.floor(t * 10)); if (n < 0.55 - (1 - a) * 0.25 - u * 0.2) R.pset(x, y, n < 0.2 ? hex('#a8b8d4') : C.blanco); } }

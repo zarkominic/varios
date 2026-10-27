@@ -37,10 +37,13 @@
 //    torre. En «climbs» sube del mar una burbuja de aire que en «cools» pasa de cálida a azul; en «drops of water» nacen
 //    las gotas con sus chispas y empieza a llover; la gaviota del pasamanos se espanta; la científica señala y luego mira
 //    con los prismáticos; el científico se hace visera;
-// 6. (corta en «And here is the secret») dentro de la nube, de cerca: el fondo de volutas en tres capas a velocidades
-//    distintas, la cortina de gotitas a lo lejos, racimos lejanos, medios y cercanos (los cercanos con la luz del claro),
-//    y hebras de vapor que convergen desde el principio hacia donde nace la gota en «forms»; en «gives back the heat»
-//    suelta una chispa con su anillo; en «the sun» se enciende el camino de puntos desde el sol del claro; en «evaporating
+// 6. (corta en «And here is the secret») dentro de la nube, de cerca: el fondo en nueve tonos, hondo y gris pizarra
+//    abajo y en los lados, con volutas en tres capas que suben a tres velocidades (cada una con su filo de luz y su
+//    sombra); la cortina de lluvia a lo lejos; cinco corrientes que trepan desde abajo con sus flechas y se tuercen hacia
+//    el centro; racimos lejanos, medios y cercanos (los cercanos con la luz del claro); desde el principio, doce gotitas
+//    que flotan y van en espiral hacia el centro y hebras de vapor que convergen donde nace la gota en «forms» (las
+//    gotitas se funden en ella); en «gives back the heat» suelta una chispa con su anillo; en «the sun» se enciende el
+//    camino de puntos desde el sol del claro (el claro, más a la izquierda, no llega a la zona de Atom); en «evaporating
 //    it» nacen más gotas en cadena; pasa un vencejo por el claro;
 // 7. (corta en «So») el plano más abierto y bajo: la torre enorme ocupa el cielo, que se oscurece a su alrededor; en
 //    «warmer» se dispara hacia arriba con su yunque («rises faster»); en «pulls in» el mar entra en la base por tres
@@ -584,7 +587,7 @@ const racimo = (k, t) => {
     const i = ZB[y * 320 + x]; if (i < 0 || tranquilo(x, y)) continue; const [bx, by, r] = B[i], nx = (x + 0.5 - bx) / r, ny = (y + 0.5 - by) / r, nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
     let v = 0.15 + 0.8 * Math.max(0, -nx * 0.5 - ny * 0.62 + nz * 0.6);
     const j = id(x - 1, y - 1); if (j >= 0 && j !== i && B[j][1] < by) v -= 0.16; if (j < 0) v += 0.2; if (id(x + 1, y + 1) < 0) v -= 0.1;
-    v += 0.3 * Math.max(0, 1 - Math.hypot(x - 222, (y - 14) * 1.2) / 150) * (0.4 + 0.6 * cerca);   // la luz del claro
+    v += 0.3 * Math.max(0, 1 - Math.hypot(x - CLX, (y - CLY) * 1.2) / 150) * (0.4 + 0.6 * cerca);   // la luz del claro
     v = (1 - Math.max(0, Math.min(1, v))) * (0.4 + 0.6 * cerca) + (1 - cerca) * 0.1;
     const f = v * 5.4, l = Math.floor(f) + (f - Math.floor(f) > umbral(x, y) ? 1 : 0); BF[y * 320 + x] = NB[Math.max(0, Math.min(5, l))];
   }
@@ -609,21 +612,44 @@ const calorSube = (x, y, c) => { for (let j = 0; j <= 4; j++) { R.pset(x + j, y 
 const resplandor = (x, y, r, a) => { for (let yy = Math.max(0, Math.round(y - r)); yy <= Math.min(179, y + r); yy++) for (let xx = Math.max(0, Math.round(x - r)); xx <= Math.min(319, x + r); xx++) { const d = Math.hypot(xx - x, yy - y) / r; if (d < 1 && !tranquilo(xx, yy) && umbral(xx, yy) < (1 - d) * a) tine(xx, yy, hex('#ffa452'), 0.42); } };
 const GX = 152, GY = 98;
 const SEGUNDAS = [[72, 64], [240, 116], [98, 138], [206, 62], [40, 112], [268, 156], [128, 52]].map(([x, y], i) => [x, y, evaporar - 0.3 + i * 0.17]);
+// el fondo de la nube por dentro: nueve tonos, del gris pizarra de la hondura al blanco del claro
+const NF = ['#ffffff', '#eef2f8', '#d9e0ec', '#bdc8da', '#9eabc4', '#808ead', '#667495', '#505d7e', '#3e4968'].map(hex);
+// el claro de arriba (fuera de la zona de Atom: no pasa de x 268) y su sol
+const CLX = 204, CLY = 14, SOLX = 210, SOLY = 18;
+// las corrientes que suben: columnas de aire que trepan desde abajo y se doblan hacia donde nace la gota
+const CORR = [[30, 0.9, 0], [96, 1.2, 1], [GX, 1.5, 2], [214, 1.1, 3], [292, 0.8, 4]];
+// las gotitas que ya flotan desde el principio y se juntan, en espiral, en la gota grande de «forms»
+const GOTITAS = Array.from({ length: 12 }, (_, k) => [ruido(k, 1, 61) * 6.283, 46 + ruido(k, 2, 61) * 60, 1.6 + ruido(k, 3, 61) * 1.2, ruido(k, 4, 61)]);
 const p6 = (t) => {
-  const { pset, disco } = R, BF = R.buf;
-  // el fondo de la nube: volutas tramadas en tres capas que se mueven a velocidades distintas (las lejanas despacio, las
-  // de delante deprisa), más claras hacia el claro de arriba y más oscuras abajo, para que haya hondura desde el principio
+  const { pset, disco } = R, BF = R.buf, dt = t - P6;
+  // el fondo de la nube: volutas en tres capas que suben a velocidades distintas (las lejanas, oscuras y lentas; las del
+  // medio; las de delante, claras y deprisa), cada una con su filo de luz arriba y su sombra debajo; hondo y oscuro
+  // abajo y en los lados, claro hacia el claro de arriba (un solo recorrido por píxel)
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
-    const w1 = Math.sin(x * 0.031 + y * 0.022 + t * 0.22 + Math.sin(y * 0.05 + t * 0.1) * 1.4), w2 = Math.sin(x * 0.071 - y * 0.058 - t * 0.55 + Math.sin(x * 0.04) * 1.2), w3 = Math.sin(x * 0.14 + y * 0.12 + t * 1.1);
-    const luz = Math.max(0, 1 - Math.hypot(x - 222, (y - 14) * 1.3) / 170);
-    const v = 1.25 + (y / 180) * 1.5 + (x / 320) * 0.35 - luz * 1.1 + w1 * 0.42 + (w2 > 0.55 ? -0.35 : w2 < -0.6 ? 0.3 : 0) + w3 * 0.12, l = Math.floor(v) + (v - Math.floor(v) > umbral(x, y) ? 1 : 0); BF[y * 320 + x] = NB[Math.max(0, Math.min(5, l))]; }
+    const luz = Math.max(0, 1 - Math.hypot(x - CLX, (y - CLY) * 1.4) / 125), lado = Math.abs(x - 160) / 160;
+    let v = 3.6 + (y / 180) * 2.4 + lado * 0.9 - luz * 3.4;
+    const vol = (yy, a, b, c) => (Math.sin(x * a + Math.sin(yy * b) * 0.9) + Math.sin(x * a * 0.5 - yy * c * 0.87 + 1.3) + Math.sin(-x * a * 0.5 - yy * c * 0.87 + Math.sin(x * b) * 0.8 + 2.1)) / 2.2;
+    const y1 = y + t * 2.5, y2 = y + t * 7, y3 = y + t * 15;
+    const f1 = vol(y1, 0.034, 0.041, 0.052), f2 = vol(y2 + 37, 0.058, 0.063, 0.083), f3 = vol(y3 + 91, 0.093, 0.071, 0.12);
+    if (f1 > 0.25) v -= 0.9 + (vol(y1 + 2, 0.034, 0.041, 0.052) <= 0.25 ? -0.5 : 0) + (vol(y1 - 2, 0.034, 0.041, 0.052) <= 0.25 ? 0.5 : 0);
+    if (f2 > 0.35) v -= 1.0 + (vol(y2 + 39, 0.058, 0.063, 0.083) <= 0.35 ? -0.6 : 0) + (vol(y2 + 35, 0.058, 0.063, 0.083) <= 0.35 ? 0.6 : 0);
+    if (f3 > 0.5) v -= 1.1 + (vol(y3 + 93, 0.093, 0.071, 0.12) <= 0.5 ? -0.7 : 0) + (vol(y3 + 89, 0.093, 0.071, 0.12) <= 0.5 ? 0.7 : 0);
+    const l = Math.floor(v) + (v - Math.floor(v) > umbral(x, y) ? 1 : 0); BF[y * 320 + x] = NF[Math.max(0, Math.min(8, l))]; }
   // la cortina de gotitas del fondo: la nube ya llueve a lo lejos (rayitas que caen, en franjas que se mueven)
-  for (let k = 0; k < 70; k++) { const x = Math.round(ruido(k, 1, 95) * 320), f = Math.sin(x * 0.05 + t * 0.4); if (f < 0.1) continue; const y = Math.round(((ruido(k, 2, 95) * 180 + t * (40 + ruido(k, 3, 95) * 30)) % 200) - 10); for (let i = 0; i < 3; i++) if (!tranquilo(x, y + i)) tine(x, y + i, hex('#7e8aa6'), 0.35 * f * (1 - i / 3)); }
+  for (let k = 0; k < 90; k++) { const x = Math.round(ruido(k, 1, 95) * 320), f = Math.sin(x * 0.05 + t * 0.4); if (f < 0.1) continue; const y = Math.round(((ruido(k, 2, 95) * 180 + t * (40 + ruido(k, 3, 95) * 30)) % 200) - 10); for (let i = 0; i < 4; i++) if (!tranquilo(x, y + i)) tine(x, y + i, hex('#33405e'), 0.5 * f * (1 - i / 4)); }
   // el claro de arriba: el cielo azul con el sol que asoma, y un vencejo que cruza
-  const claro = (x, y) => ((x - 220) / 66) ** 2 + ((y - 14) / 24) ** 2 < 1 - 0.12 * Math.sin(x * 0.25 + t * 0.7) - 0.08 * Math.sin(x * 0.11);
-  for (let y = 0; y < 42; y++) for (let x = 150; x < 292; x++) if (claro(x, y)) { const f = y / 40 * 2.2, l = Math.floor(f) + (f - Math.floor(f) > umbral(x, y) ? 1 : 0); pset(x, y, [hex('#4aa6ea'), hex('#74bef2'), hex('#a8daf4')][Math.min(2, l)]); if (!claro(x, y + 1)) pset(x, y, C.blanco); }
-  { const sx = 228, sy = 18; for (let k = 0; k < 12; k++) { const an = k * 0.524 + t * 0.3; for (let r = 12; r < 15 + (k % 2) * 5; r++) { const x = Math.round(sx + Math.cos(an) * r), y = Math.round(sy + Math.sin(an) * r); if (claro(x, y) && !tranquilo(x, y)) pset(x, y, hex('#fff0a8')); } } disco(sx, sy, 10, hex('#ffe28a')); disco(sx, sy, 9, hex('#fff4c8')); disco(sx - 2, sy - 2, 4, C.blanco); }
-  { const u = lin(t, P6 + 0.3, P6 + 2.3); if (u > 0 && u < 1) { const x = Math.round(lerp(158, 282, u)), y = Math.round(26 - Math.sin(u * 6) * 4); if (claro(x, y) && !tranquilo(x, y)) { const al = Math.sin(t * 18) > 0 ? -1 : 1; pset(x, y, C.k); pset(x + 1, y, C.k); pset(x - 1, y + al, C.k); pset(x - 2, y + al * 2, C.k); pset(x + 2, y + al, C.k); pset(x + 3, y + al * 2, C.k); } } }
+  const claro = (x, y) => ((x - CLX) / 58) ** 2 + ((y - CLY) / 24) ** 2 < 1 - 0.12 * Math.sin(x * 0.25 + t * 0.7) - 0.08 * Math.sin(x * 0.11);
+  for (let y = 0; y < 42; y++) for (let x = 140; x < 272; x++) if (claro(x, y)) { const f = y / 40 * 2.2, l = Math.floor(f) + (f - Math.floor(f) > umbral(x, y) ? 1 : 0); pset(x, y, [hex('#3a98e2'), hex('#68b6ee'), hex('#a8daf4')][Math.min(2, l)]); if (!claro(x, y + 1)) pset(x, y, C.blanco); else if (!claro(x, y + 2)) pset(x, y, hex('#d8eefa')); }
+  { for (let k = 0; k < 12; k++) { const an = k * 0.524 + t * 0.3; for (let r = 12; r < 15 + (k % 2) * 5; r++) { const x = Math.round(SOLX + Math.cos(an) * r), y = Math.round(SOLY + Math.sin(an) * r); if (claro(x, y) && !tranquilo(x, y)) pset(x, y, hex('#fff0a8')); } } disco(SOLX, SOLY, 10, hex('#ffe28a')); disco(SOLX, SOLY, 9, hex('#fff4c8')); disco(SOLX - 2, SOLY - 2, 4, C.blanco); }
+  { const u = lin(t, P6 + 0.3, P6 + 2.3); if (u > 0 && u < 1) { const x = Math.round(lerp(150, 268, u)), y = Math.round(26 - Math.sin(u * 6) * 4); if (claro(x, y) && !tranquilo(x, y)) { const al = Math.sin(t * 18) > 0 ? -1 : 1; pset(x, y, C.k); pset(x + 1, y, C.k); pset(x - 1, y + al, C.k); pset(x - 2, y + al * 2, C.k); pset(x + 2, y + al, C.k); pset(x + 3, y + al * 2, C.k); } } }
+  // las corrientes que suben, por detrás de los racimos: hebras claras que trepan desde abajo, ondulan y se tuercen
+  // hacia la gota; cada una con su sombra, para que se lean sobre el gris
+  CORR.forEach(([cx, vel, k]) => {
+    const xc = (y) => Math.round(cx + (GX - cx) * 0.55 * suave(Math.max(0, Math.min(1, (179 - y) / (179 - GY)))) + Math.sin(y * 0.05 + t * 1.3 + k * 2) * 4);
+    // lo que sube por él: trazos brillantes con su punta de flecha «^», que trepan a su velocidad
+    for (let j = 0; j < 5; j++) { const y0 = Math.round(190 - ((dt * 34 * vel + j * 42 + k * 13) % 200)); if (y0 < GY - 34) continue; const fu = Math.min(1, (y0 - GY + 34) / 30); for (let i = 0; i < 15; i++) { const y = y0 + i, x = xc(y); if (y < 0 || y > 179 || tranquilo(x, y)) continue; const a = (1 - i / 15) * fu; tine(x - 1, y, hex('#e4f2fc'), 0.8 * a); tine(x, y, C.blanco, 0.95 * a); tine(x + 1, y, hex('#e4f2fc'), 0.7 * a); tine(x + 2, y + 1, hex('#3e4968'), 0.4 * a); }
+      const x = xc(y0); for (let q = 1; q <= 3; q++) { if (y0 + q > 179 || y0 + q < 0 || fu < 0.5) continue; if (!tranquilo(x - q, y0 + q)) R.pset(x - q, y0 + q, C.blanco); if (!tranquilo(x + q, y0 + q)) R.pset(x + q, y0 + q, C.blanco); } }
+  });
   // los racimos de nube, de lejos a cerca
   for (let k = 0; k < RAC.length; k++) racimo(k, t);
   // «here is the secret»: donde va a nacer la gota, un brillo suave
@@ -632,13 +658,22 @@ const p6 = (t) => {
   // que corren hacia el centro (después de «gives back the heat» se apagan)
   { const k0 = 1 - lin(t, devuelve, devuelve + 1.2); if (k0 > 0) for (let k = 0; k < 14; k++) { const a0 = k / 14 * 6.283 + 0.3, R0 = 150;
       for (let i = 0; i < 46; i++) { const q = i / 46, rr = R0 * (1 - q) + 12, an = a0 + q * 2.4, x = Math.round(GX + Math.cos(an) * rr * 1.25), y = Math.round(GY + Math.sin(an) * rr * 0.75); if (x < 0 || x > 319 || y < 0 || y > 179 || tranquilo(x, y)) continue;
-        const ph = (q * 9 - t * 1.6 + k * 0.37) % 1, on = ((ph + 1) % 1) < 0.35; if (on && umbral(x, y) < k0 * (0.35 + 0.5 * q)) { tine(x, y, hex('#9ad4f4'), 0.75); tine(x, y - 1, C.blanco, 0.5); } } } }
+        const ph = (q * 9 - t * 1.6 + k * 0.37) % 1, on = ((ph + 1) % 1) < 0.35; if (on && umbral(x, y) < k0 * (0.6 + 0.4 * q)) { tine(x, y + 1, hex('#3e4968'), 0.35); tine(x, y, hex('#8ccaf2'), 0.9); tine(x, y - 1, C.blanco, 0.75); } } } }
   // el vapor: motas que suben con el aire y luego se juntan en espiral donde nace la gota
   for (let k = 0; k < 64; k++) {
     const a0 = ruido(k, 1, 51) * 6.283, R0 = 40 + ruido(k, 2, 51) * 80, t0 = gotaT - 0.7 + ruido(k, 3, 51) * 0.45, u = lin(t, t0, forma - 0.05), deriva = (Math.min(t, t0) - P6) * (5 + ruido(k, 4, 51) * 4);
     if (u >= 1) continue; const rr = R0 * (1 - suave(u)), an = a0 + u * 2.2, x = Math.round(GX + Math.cos(an) * rr * 1.45 + Math.sin(t * 2 + k) * (1 - u)), y = Math.round(GY + Math.sin(an) * rr * 0.85 - deriva * (1 - u));
     if (tranquilo(x, y)) continue; pset(x, y, hex('#6ab8ec')); tine(x - 1, y - 1, C.blanco, 0.9); if (u > 0) { const px = Math.round(GX + Math.cos(an - 0.15) * (rr + 4) * 1.45), py = Math.round(GY + Math.sin(an - 0.15) * (rr + 4) * 0.85 - deriva * (1 - u)); tine(px, py, hex('#8ad0f0'), 0.7); tine(Math.round((x + px) / 2), Math.round((y + py) / 2), hex('#cfeefc'), 0.8); } else tine(x, y + 1, hex('#8ad0f0'), 0.6);
   }
+  // las gotitas que ya flotan desde el principio: suben con el aire, se mecen y van en espiral hacia el centro; al
+  // juntarse en «forms» se funden en la gota grande (cada una deja su estela de vapor)
+  GOTITAS.forEach(([a0, R0, r, s], k) => {
+    const u = suave(lin(t, P6 + s * 0.3, forma - 0.08 + s * 0.12)); if (u >= 1) return; const an = a0 + u * 2.6 + dt * 0.25, rr = R0 * (1 - u) + 4;
+    const x = GX + Math.cos(an) * rr * 1.5, y = GY + Math.sin(an) * rr * 0.8 + Math.sin(t * 2.2 + k) * 2 * (1 - u);
+    if (tranquilo(Math.round(x), Math.round(y))) return;
+    for (let i = 1; i <= 4; i++) { const ap = an - i * 0.07, rp = R0 * (1 - u) + 4 + i * 1.5; tine(GX + Math.cos(ap) * rp * 1.5, GY + Math.sin(ap) * rp * 0.8, hex('#cfeefc'), 0.7 * (1 - i / 5)); }
+    gotaGrande(x, y, Math.max(1.4, r * (1 - u * 0.4)));
+  });
   // la gota que nace en «forms» y, en «gives back the heat», suelta la chispa con su anillo, su resplandor y el calor que sube
   const nace = lin(t, forma - 0.25, forma + 0.25), fc = t - devuelve;
   if (fc > 0 && fc < 2.6) resplandor(GX, GY, 46 + fc * 26, 0.85 * (1 - fc / 2.6));
@@ -646,7 +681,7 @@ const p6 = (t) => {
   if (fc > 0 && fc < 1.1) { const q = lin(fc, 0, 1.1); chispa(GX, GY - 4, Math.round(22 * Math.sin(q * Math.PI))); for (let i = 0; i < 40; i++) { const an = i / 40 * 6.283, rr = 12 + q * 52; if (umbral(Math.round(an * 9), i) < 1 - q) tine(GX + Math.cos(an) * rr * 1.2, GY + Math.sin(an) * rr * 0.8, hex('#ffc04a'), 0.85); } }
   for (let i = 0; i < 3; i++) { const q = lin(fc, 0.15 + i * 0.3, 1.6 + i * 0.3); if (q > 0 && q < 1) calorSube(GX + (i - 1) * 9, Math.round(GY - 16 - q * 46), q < 0.6 ? hex('#ffb060') : hex('#e8803a')); }
   // «the sun»: el camino de puntos dorados que baja del sol a la gota (el calor que el sol gastó en evaporarla)
-  { const u = lin(t, solT - 0.2, solT + 0.55), f = 1 - lin(t, evaporar + 0.9, P7 - 0.1), n = 30; if (u > 0 && f > 0) { for (let i = 0; i <= n * u; i++) { const q = i / n, x = Math.round(lerp(220, GX + 6, q)), y = Math.round(lerp(28, GY - 22, q) - Math.sin(q * Math.PI) * 16); if (((i + Math.floor(t * 12)) % 3) && !tranquilo(x, y) && umbral(x, y) < f) { pset(x, y, hex('#ffe060')); pset(x + 1, y, hex('#ffd040')); pset(x, y + 1, hex('#b8780a')); } } if (u >= 1 && t < solT + 0.85) chispa(GX, GY - 4, 9); } }
+  { const u = lin(t, solT - 0.2, solT + 0.55), f = 1 - lin(t, evaporar + 0.9, P7 - 0.1), n = 30; if (u > 0 && f > 0) { for (let i = 0; i <= n * u; i++) { const q = i / n, x = Math.round(lerp(SOLX, GX + 6, q)), y = Math.round(lerp(SOLY + 10, GY - 22, q) - Math.sin(q * Math.PI) * 16); if (((i + Math.floor(t * 12)) % 3) && !tranquilo(x, y) && umbral(x, y) < f) { pset(x, y, hex('#ffe060')); pset(x + 1, y, hex('#ffd040')); pset(x, y + 1, hex('#b8780a')); } } if (u >= 1 && t < solT + 0.85) chispa(GX, GY - 4, 9); } }
   // «evaporating it»: nacen más gotas alrededor, en cadena, cada una con su chispa
   SEGUNDAS.forEach(([x, y, t0], i) => {
     const u = lin(t, t0, t0 + 0.3), q = lin(t, t0 + 0.3, t0 + 1.0); if (u <= 0) { if (t > t0 - 0.5) for (let k = 0; k < 8; k++) { const a = k * 0.785 + t * 3, rr = 18 * (1 - lin(t, t0 - 0.5, t0)); pset(Math.round(x + Math.cos(a) * rr), Math.round(y + Math.sin(a) * rr * 0.7), C.blanco); } return; }

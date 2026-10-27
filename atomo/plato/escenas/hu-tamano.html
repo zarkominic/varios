@@ -14,7 +14,9 @@
 // 1. el mapa del golfo: un huracán enorme avanza por su trayectoria punteada desde el sur, girando; en «300 miles wide» una
 //    mano entra por la derecha con la regla, la desliza hasta el ojo, de lado a lado de la espiral, y sale «300»; la mano
 //    suelta la regla (que sigue al huracán), coge el rotulador rojo y en «last two weeks» tacha los catorce días del
-//    calendario, uno tras otro; dos barcos se apartan y un avión de reconocimiento le da vueltas; corta en «While»;
+//    calendario, uno tras otro (la manga llega hasta el borde derecho y pasa por encima de la tarjeta del calendario,
+//    que está pegada al papel); dos barcos se apartan y un avión de reconocimiento le da vueltas (la trayectoria, el
+//    huracán y el avión se recortan al papel, sin cruzar el marco de madera); corta en «While»;
 // 2. las llanuras con la luz verde de la tormenta: el granjero va al establo con su cubo y el perro trota delante; en el
 //    camino picotean tres gallinas; en «tornado» el embudo toca tierra, como un hilo bajo la nube: las gallinas huyen
 //    aleteando, el perro se para y corre a esconderse detrás de las piernas del amo (asoma la cabeza); el granjero se
@@ -108,11 +110,15 @@ const p1 = (t) => {
   barco(lerp(124, 92, lin(t, 0, P2)), lerp(128, 120, lin(t, 0, P2)), t, -1); barco(lerp(206, 236, lin(t, 0, P2)), lerp(96, 88, lin(t, 0, P2)), t, 1);
   // la trayectoria punteada que deja atrás y el huracán que avanza por ella, girando
   const u = lerp(0.42, 1, lin(t, 0, P2 + 0.3)), [hx, hy, pasados] = enRuta(P, u), r = 24 * lerp(0.8, 1, suave(lin(t, 0.2, 1.4)));
+  // lo que va sobre el papel se recorta a él (el marco de madera mide 6 px): la trayectoria, el huracán y el avión
+  // no cruzan nunca el marco
+  R.recorte([6, 6, 313, 173]);
   const ruta = [...pasados, [hx, hy]]; for (let i = 1; i < ruta.length; i++) { const [ax, ay] = ruta[i - 1], [bx, by] = ruta[i], n = Math.ceil(Math.hypot(bx - ax, by - ay)); for (let k = 0; k <= n; k += 3) { const x = Math.round(lerp(ax, bx, k / n)), y = Math.round(lerp(ay, by, k / n)); R.pset(x, y + 1, hex('#5a6a7e')); R.pset(x, y, hex('#c8463a')); } }
   for (let i = 0; i < ruta.length - 1; i++) { const [x, y] = ruta[i].map(Math.round); R.disco(x, y, 2, C.k); R.disco(x, y, 1, hex('#f8f4e8')); }
   espiral(Math.round(hx), Math.round(hy), r, t, { alfa: lin(t, 0, 0.6) * 0.5 + 0.5 });
   // un avión de reconocimiento que le da vueltas
   { const g = t * 0.9, ax = hx + Math.cos(g) * (r * 1.5 + 8), ay = hy + Math.sin(g) * (r * 1.5 + 6) * 0.8; avionMapa(R, Math.round(ax), Math.round(ay), g + Math.PI / 2, hex('#2a2a36')); }
+  R.recorte(null);
   // «300 miles wide»: la mano trae la regla desde arriba a la derecha (por encima del calendario) y la deja de lado a lado
   // de la espiral por el ojo (con sus topes); la regla sigue luego al huracán; la cifra sale encima
   const ru = suave(lin(t, regla[0] - 0.4, regla[1])), w = Math.round(r * 1.3), y = Math.round(hy - 40 * (1 - ru)), x = Math.round(lerp(352 + w, hx, ru));
@@ -131,6 +137,9 @@ const p1 = (t) => {
   else if (t < dosSemanas[1] + 0.3) { const k = Math.min(13, Math.floor(uc * 14 - 0.5) + 1), f = (uc * 14 - 0.5) % 1, [cx, cy] = celda(k); mx = cx + 14 + Math.round(Math.sin(f * Math.PI * 2) * 2); my = cy - 10 + Math.round(f * 4); rotu = true; }
   else { const u = suave(lin(t, dosSemanas[1] + 0.3, P2 - 0.02)), [cx, cy] = celda(13); mx = lerp(cx + 14, 350, u); my = lerp(cy - 10, 170, u); rotu = true; }
   if (rotu) { const px = Math.round(mx) - 14, py = Math.round(my) + 8; R.linea(px, py, px + 5, py - 6, C.k); R.linea(px + 1, py, px + 6, py - 6, hex('#c8282a')); R.linea(px + 2, py - 1, px + 6, py - 5, hex('#e84a3a')); R.pset(px, py, hex('#8a1a1e')); }
+  // la manga de T.mano mide 40 px: aquí el brazo viene de fuera del cuadro, así que se alarga hasta el borde derecho (con
+  // sus filos negros); va después del calendario, así que el brazo pasa POR ENCIMA de la tarjeta, que es papel pegado
+  { const bx = Math.round(mx) + 43, by = Math.round(my); if (bx < 320) { R.rect(bx, by - 2, 319, by + 2, hex('#2a4a7a')); R.rect(bx, by - 3, 319, by - 3, C.k); R.rect(bx, by + 3, 319, by + 3, C.k); R.rect(bx, by - 1, 319, by - 1, hex('#3a5c90')); } }
   T.mano(R, Math.round(mx), Math.round(my), -1, '#2a4a7a');
 };
 // ── 2 · el tornado como un hilo ─────────────────────────────────────────────────────────────────────────────────

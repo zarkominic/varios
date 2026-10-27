@@ -29,7 +29,8 @@
 //    plano 4 de cerca: papel de rayas, cenefa de olas, zócalo de azulejos verde menta, la cortina de la ducha y el estante
 //    de botes a la izquierda, la barra de tres luces sobre el espejo y la ventana a la DERECHA, con el toallero más allá;
 //    por la ventana, nubes, el tejado del vecino con su humito, la rama y un pájaro; su haz de luz cae en la encimera
-//    con motas): la mano canónica del niño (T.mano, manga naranja) deja el tapón en la encimera y se retira; el gato llega por la
+//    con motas): la mano canónica del niño (T.mano, la manga naranja sale del borde derecho) baja el tapón colgando de
+//    la cadenilla, lo posa en la encimera en el «toc», lo suelta y se retira; el gato llega por la
 //    encimera y se sienta junto a la pila a mirar el patito, que da vueltas con el remolino a favor de las agujas del
 //    reloj; en «whichever way» el gato le da un zarpazo, el patito frena, se da la vuelta y gira al revés (gag), y el
 //    gato se sacude la pata mojada; en «don't blame the Earth» el agua se acaba, el patito se queda mareado en el desagüe
@@ -252,7 +253,7 @@ const A0 = -0.3 - integra(O5, TOQUE);   // así, en el zarpazo el patito pasa po
 const angulo = (t) => A0 + integra(O5, t);
 const aguaEn = (t) => 0.85 - 0.77 * suave(lin(t, vacia - 0.1, culpa + 0.25));
 const patitoEn = (t, ang, agua) => { const rx = 50 * (0.35 + 0.65 * agua), ry = 14.5 * (0.35 + 0.65 * agua), ra = 0.3 + 0.32 * agua; return [Math.round(160 + Math.cos(ang) * rx * ra), Math.round(112 - Math.sin(ang) * ry * ra)]; };
-const GX5 = 214, GY5 = 133, G5_LLEGA = [O5 + 0.46, O5 + 0.82];
+const GX5 = 214, GY5 = 133, G5_LLEGA = [O5 + 0.66, O5 + 1.0];
 // la pared del baño del plano 4 vista de cerca (para que el inserto case con él): arriba el papel de rayas con
 // florecitas, la cenefa de olas y el zócalo de azulejos cuadrados verde menta; a la izquierda, el borde de la cortina de
 // rayas de la ducha y el estante de la bañera con sus botes; sobre el espejo, la barra de tres luces; a la DERECHA del
@@ -371,10 +372,26 @@ const p5 = (t) => {
   const flip = lin(t, TOQUE - 0.05, lado + 0.45), agua = aguaEn(t), ang = angulo(t);
   T.lavabo(R, t, { giro: flip < 0.5 ? -1 : 1, agua, angulo: ang, gato: false });
   paredBano(t);
-  // la mano del niño (el brazo entra por la derecha) deja el tapón con su cadenilla en la encimera y se va
-  const deja = lin(t, O5, O5 + 0.25), va = lin(t, O5 + 0.3, O5 + 0.62);
-  { const tx = 232, ty = 126; R.disco(tx, ty, 3, K); R.disco(tx, ty, 2, hex('#3a3a46')); R.pset(tx - 1, ty - 1, hex('#6a6a7a')); for (let i = 1; i < 9; i++) R.pset(tx - i * 2, ty + 1 + Math.round(Math.sin(i * 0.9) * 1), i % 2 ? hex('#c8d0dc') : hex('#8a94a6')); }
-  if (va < 1) T.mano(R, Math.round(lerp(242, 346, suave(va))), 128 - Math.round((1 - deja) * 4), -1, '#e86a3a');
+  // la mano del niño (el brazo entra por el borde derecho) baja el tapón colgando de la cadenilla, entre la punta de
+  // los dedos; el tapón se balancea, toca la encimera en el «toc» (deja = 1), los dedos lo sueltan y la mano se va
+  const deja = lin(t, O5, O5 + 0.55), va = lin(t, O5 + 0.6, O5 + 0.9);
+  const hx = Math.round(lerp(lerp(247, 241, suave(deja)), 346, suave(va))), hy = Math.round(lerp(113, 119, suave(deja)) - suave(va) * 2);
+  const fx = hx - 9, fy = hy + 1;                     // la pinza de los dedos
+  const tapon = (tx, ty) => { R.disco(tx, ty, 3, K); R.disco(tx, ty, 2, hex('#3a3a46')); R.pset(tx - 1, ty - 1, hex('#6a6a7a')); };
+  const eslabon = (i) => (i % 2 ? hex('#c8d0dc') : hex('#8a94a6'));
+  if (deja >= 1) { const tx = 232, ty = 126; tapon(tx, ty); for (let i = 1; i < 9; i++) R.pset(tx - i * 2, ty + 1 + Math.round(Math.sin(i * 0.9) * 1), eslabon(i)); }
+  if (va < 1) {
+    // la manga sigue hasta el borde del cuadro: el brazo nunca se queda suelto en la encimera
+    const manga = hex('#e86a3a'); R.rect(hx + 3, hy - 2, 320, hy + 2, manga); R.rect(hx + 3, hy - 3, 320, hy - 3, K); R.rect(hx + 3, hy + 3, 320, hy + 3, K);
+    for (let x = hx + 8; x < 320; x += 9) R.pset(x, hy + 1, hex('#c8542a'));   // los pliegues de la manga
+    T.mano(R, hx, hy, -1, '#e86a3a');
+  }
+  if (deja < 1) {
+    // colgando: la cadenilla baja de los dedos y el tapón se mece
+    const bal = Math.sin(t * 9) * 1.6 * (1 - suave(deja)), tx = Math.round(fx + bal), ty = fy + 6;
+    for (let i = 1; i <= 3; i++) R.pset(Math.round(fx + bal * i / 4), fy + i, eslabon(i));
+    tapon(tx, ty);
+  }
   const [px, py] = patitoEn(t, ang, agua);
   // el gato: llega por la encimera y se sienta junto a la pila; en «whichever way» estira la pata y le da al patito, y
   // luego se sacude la pata mojada; en «Earth», el «?»
@@ -397,7 +414,7 @@ const efectos = [[0.15, 'motor'], [calmaT + 0.3, 'cerrojo'], [duckT + 0.1, 'whoo
   [O2 + 0.1, 'rafaga'], [paredes, 'whoosh'], [dentroT, 'whoosh'], [baja, 'whoosh'], [calienta, 'brillo'], [seca, 'burbujas'], [cae, 'vapor'],
   [O3 + 0.1, 'rafaga'], [O3 + 1.2, 'motor'], [quieto, 'brillo'], [fuertes, 'rafaga'], [vientos + 0.3, 'rafaga'],
   [ANDA[0] + 0.3, 'golpecito'], [SUB[1], 'golpecito'], [pila + 0.3, 'chof'], [G_BAJA[1], 'golpecito'], [pequeno, 'cerrojo'], [pequeno + 0.35, 'burbujas'], [G_SUBE[1], 'golpecito'], [sentir + 0.3, 'burbujas'],
-  [O5 + 0.3, 'toc'], [O5 + 0.55, 'burbujas'], [TOQUE, 'chof'], [TOQUE + 0.2, 'boing'], [TOQUE + 0.5, 'miau'], [vacia, 'burbujas'], [culpa, 'burbujas'], [culpa + 0.4, 'boing'], [tierra, 'miau']];
+  [O5 + 0.55, 'toc'], [O5 + 0.6, 'burbujas'], [TOQUE, 'chof'], [TOQUE + 0.2, 'boing'], [TOQUE + 0.5, 'miau'], [vacia, 'burbujas'], [culpa, 'burbujas'], [culpa + 0.4, 'boing'], [tierra, 'miau']];
 const año = (t) => (t < O2 ? 1943 : null);
 T.rodar(E, R, [[0, p1], [O2, p2], [O3, p3], [O4, p4], [O5, p5]], { efectos, año });
 </script>
