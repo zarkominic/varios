@@ -752,11 +752,12 @@ export async function crearRoma(lienzo) {
     linea(cx, cy, Math.round(cx + Math.sin(ang) * (r - 2)), Math.round(cy - Math.cos(ang) * (r - 2)), PALA.ROJO[3]); R.disco(cx, cy, 2, PALA.ROJO[3]);
   };
 
-  return {
+  // R.buf es un getter (el búfer en uso); el «...R» lo congelaría en la pantalla y los fundidos saldrían negros
+  return Object.defineProperty({
     ...R, PALA, PR, ELENCO, LUGARES, ZONAS, personaje, ambiente, mapaAño, estadoAño, flechaMapa,
     NARANJA, NABO, VERDEF, calabaza, nabo, hoguera, murcielagos, lapida, caramelos, fantasma, altar, farolChino, ruedaAño,
     nubesR, cieloR, colinas, skyline, columna, templo, insula, puesto, trono, salon, SUELO_SALON, mosaico, suelo, acueducto,
     panteon, muralla, empalizada, cabana, bicho, loba, perro, oveja, elefante, caballo, cesta, trirreme,
     mapa, proyMapa, lugar, VISTAS, entre, barraTiempo, tramosTiempo, ZONAS_MAPA: ZONAS, punto, ruta, denario, barra, tijeras,
-  };
+  }, 'buf', { get: () => R.buf, enumerable: true });
 }

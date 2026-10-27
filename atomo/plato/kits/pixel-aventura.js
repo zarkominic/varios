@@ -369,7 +369,8 @@ export async function crearAventura(lienzo) {
     R.rect(x + w * 0.3 + s, y + h * 0.3, x + w * 0.7 + s, y + h * 0.45, PALA.ORO[2]);
   };
 
-  return { ...R, PALA, personaje, antorcha, cielo, mar, estandarte, ELENCO };
+  // R.buf es un getter (el búfer en uso); el «...R» lo congelaría en la pantalla y los fundidos saldrían negros
+  return Object.defineProperty({ ...R, PALA, personaje, antorcha, cielo, mar, estandarte, ELENCO }, 'buf', { get: () => R.buf, enumerable: true });
 }
 
 // ── El elenco del episodio (para que cada personaje sea siempre el mismo)
