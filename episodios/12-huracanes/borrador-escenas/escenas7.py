@@ -1,7 +1,7 @@
 E = {}
 
-# Lo común a las tres escenas del cierre (acto 7): utilidades, la gaviota del gancho, el WC-130J de la Fuerza Aérea, la
-# escalerilla del P-3 y el avioncito visto desde arriba.
+# Lo común a las tres escenas del cierre (acto 7): utilidades, la gaviota del gancho, el WC-130J de la Fuerza Aérea, el
+# avioncito visto desde arriba, el personal de tierra de la NOAA y el destello. La escalerilla del P-3 va en hu-kermit.
 COMUN = r'''
 const C = T.C, K = C.k;
 const lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
@@ -70,13 +70,14 @@ const destello = (x, y, r, c = C.blanco) => { for (let i = 1; i <= r; i++) { for
 E['hu-kermit'] = ('Kermit', '''// HU-KERMIT (frase 31), 2026. Cuatro planos:
 // 1. el hangar de la NOAA en Lakeland: el P-3 «Kermit» espera en la plataforma con la escalerilla puesta; la tripulación
 //    cruza con sus bolsas; en «the next one comes» la banda del huracán del fondo se oscurece y la tripulanta la señala;
-//    sube la escalerilla y entra en «fly into it»; el tripulante sube detrás, en «Duckworth» una AT-6 amarilla pasa a lo
-//    lejos hacia la tormenta y él se para a saludarla, y entra en «did»; las hélices empiezan a girar; dentro del hangar,
-//    Miss Piggy en revisión con sus mecánicos;
+//    sube la escalerilla y entra en «fly into it»; el tripulante sube detrás y, en «Duckworth», una AT-6 amarilla sale de
+//    detrás del hangar y se va hacia la tormenta por encima de la torre: él se para arriba a saludarla y entra en «did»;
+//    el mecánico del morro repasa la lista en su tableta, levanta el pulgar a la cabina y se aparta; las hélices empiezan
+//    a girar; dentro del hangar, Miss Piggy en revisión con sus mecánicos;
 // 2. (corta en «Because») la pista: Kermit corre por la pista a plano medio, levanta el morro y en «Kermit» despega
-//    mientras la rana de la cola da su saltito (gag); el señalero de chaleco naranja le hace señas con las balizas y el
-//    mecánico se tapa los oídos al paso de los motores; en «Miss Piggy», en el hangar del fondo, a la cara rosa de la cola
-//    del otro P-3 le sale un corazoncito;
+//    mientras la rana de la cola da su saltito (gag); el señalero de chaleco naranja le hace señas con las balizas, le
+//    levanta el pulgar y lo despide con los brazos; el mecánico de la derecha se tapa los oídos al paso de los motores y
+//    luego saluda; en «Miss Piggy», en el hangar del fondo, a la cara rosa de la cola del otro P-3 le sale un corazoncito;
 // 3. (corta en «along») dentro de Kermit, en la tormenta: sacudidas, relámpagos y lluvia en las ventanillas; la
 //    tripulanta habla por el intercomunicador con los de la Fuerza Aérea y en «Air Force» el tripulante señala la
 //    ventanilla, por la que pasa un WC-130J gris de lejos; en «Cross the eyewall again and again» las ventanillas pasan

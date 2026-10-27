@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adiós · ep12</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HU-ADIOS (frase 33), 2026. Un plano: el huracán desde arriba al atardecer, en calma, que gira despacio mientras la cámara
+// se acerca un poco; un avioncito (el P-3, visto desde arriba) llega volando hacia el ojo para entrar otra vez y, en
+// «explain next?», sube del ojo un «?» suave que late. Atom, arriba a la derecha.
+import * as T from '/atomo/plato/escenas/hu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hu-adios');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C, K = C.k;
+const lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+const suave = (u) => u * u * (3 - 2 * u);
+const entre = (t, a, b) => t >= a && t < b;
+const parp = (t, v = 7) => Math.sin(t * v) > 0;
+const mezcla = (p, q, f) => { const r = p & 255, g = (p >> 8) & 255, bb = (p >> 16) & 255, r2 = q & 255, g2 = (q >> 8) & 255, b2 = (q >> 16) & 255;
+  return (0xff000000 | (Math.round(bb + (b2 - bb) * f) << 16) | (Math.round(g + (g2 - g) * f) << 8) | Math.round(r + (r2 - r) * f)) >>> 0; };
+const ruido = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const umbral = (x, y) => (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+// a ritmo lineal entre puntos [t, valor]
+const tramos = (t, P) => { if (t <= P[0][0]) return P[0][1]; for (let i = 1; i < P.length; i++) if (t <= P[i][0]) return lerp(P[i - 1][1], P[i][1], (t - P[i - 1][0]) / (P[i][0] - P[i - 1][0])); return P[P.length - 1][1]; };
+// tiñe un píxel hacia un color, con trama (a: cuánto)
+const tine = (x, y, c, a) => { if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mezcla(R.pget(x, y), c, a)); };
+// la zona de Atom y la de la barra del año quedan tranquilas
+const tranquilo = (x, y) => (x >= 276 && y <= 46) || (x >= 18 && x <= 172 && y <= 15);
+const PAL = {
+  k: K, W: hex('#f4f4f0'), S: hex('#c4c8d2'), m: hex('#9aa4b4'), M: hex('#d8dee8'), A: hex('#f4cc60'), a: hex('#e0a030'), v: hex('#d8ecf6'),
+  G: hex('#a2aab6'), L: hex('#cdd3dc'), g: hex('#6f7785'), w: hex('#2f3d58'), N: hex('#555d6b'), p: hex('#e2e6ec'), R: hex('#e83a3a'),
+  P: hex('#f29ab8'), Q: hex('#d8628a'), Y: hex('#f6d860'), B: hex('#2a4a8a'),
+};
+// la gaviota del gancho, con contorno para que se vea contra las nubes: alas arriba, alas abajo; y posada (mira a la derecha)
+const GAVIOTA = [
+  ['k.......k', 'kmk...kmk', '.kWk.kWk.', '..kWWWkkk', '...kkk.A.'],
+  ['...kkkkk.', '..kWWWkkk', '.kmWk.kA.', 'kmk......', 'k........'],
+];
+const POSADA = ['......kkk..', '.....kWWWk.', '.....kWkWAA', 'kk..kkWWWk.', 'kkkkmmmWWk.', '.kmmmmmWWk.', '..kkkkkkk..', '....A..A...'];
+const gaviota = (x, y, pose, dir = 1) => R.dibujo(GAVIOTA[pose], Math.round(x) - 4, Math.round(y) - 2, dir, PAL);
+// el WC-130J gris de los cazahuracanes de la Fuerza Aérea, de lejos (24 × 8, el morro a la derecha): ala alta, dos motores
+// de este lado con su hélice borrosa, la deriva alta con la rampa que sube y la baliza roja; dir −1 lo voltea
+const C130 = [
+  '.kk.....................',
+  '.kLk.......kkkkkkkk.....',
+  '.kGLk..kkkkLLLLLLLLkk...',
+  '.kGGLkkGGGGkNNkpkNNkpk..',
+  'kkGGGGGGGGGGGGGGGGGGGwwk',
+  '.kgGGGGGGGGGGGGGGGGGGGGk',
+  '..kkgggggggGGGGgggggggk.',
+  '....kkkkkkkkkkkkkkkkkk..',
+];
+const c130 = (x, y, dir, t, cl = null) => {
+  const px = (X, Y, c) => { if (!cl || cl(X, Y)) R.pset(X, Y, c); };
+  C130.forEach((f, j) => { for (let i = 0; i < f.length; i++) { const c = PAL[f[i]]; if (c == null) continue; px(Math.round(x + (dir > 0 ? i : f.length - 1 - i)), Math.round(y + j), c); } });
+  if ((t * 1.2) % 1 < 0.15) px(Math.round(x + (dir > 0 ? 12 : 11)), Math.round(y), PAL.R);   // la baliza
+};
+// el avioncito visto desde arriba (para el satélite): fuselaje, alas y cola, con su sombra; a: ángulo del morro
+const avionArriba = (x, y, a, t) => {
+  const ca = Math.cos(a), sa = Math.sin(a), q = (u, v) => [Math.round(x + u * ca - v * sa), Math.round(y + u * sa + v * ca)];
+  for (const [dx, dy, c] of [[3, 3, hex('#2a2030')], [0, 0, null]]) {
+    const col = c ?? C.blanco, P = (u, v, cc = col) => { const [X, Y] = q(u, v); R.pset(X + dx, Y + dy, c ?? cc); };
+    for (let u = -4; u <= 4; u++) P(u, 0); for (let v = -5; v <= 5; v++) P(1, v, c ?? (Math.abs(v) > 3 ? hex('#c8ccd8') : C.blanco)); for (let v = -2; v <= 2; v++) P(-4, v);
+    if (!c) { P(4, 0, hex('#2a4a8a')); P(0, 0, hex('#2a4a8a')); P(-1, 0, hex('#2a4a8a')); if ((t * 1.3) % 1 < 0.15) P(1, -5, hex('#e83a3a')); }
+  }
+};
+// el personal de tierra de la NOAA: mono azul o chaleco naranja, con los cascos de protección de los oídos
+const MONO = { C: hex('#3a5a8a'), c: hex('#2a4468'), W: hex('#3a5a8a'), F: hex('#2e4a74'), M: hex('#3a3e4a'), o: hex('#e8e4dc') };
+const CHALECO = { C: hex('#f08a2a'), c: hex('#c8641a'), W: hex('#f08a2a'), F: hex('#3a3e4a'), M: hex('#3a3e4a'), o: hex('#f6d860') };
+// la tableta en la mano (x, s: el suelo del personaje)
+const tableta = (x, s, dir) => { const bx = dir > 0 ? x + 11 : x - 5; R.rect(bx, s - 13, bx + 5, s - 8, K); R.rect(bx + 1, s - 12, bx + 4, s - 9, hex('#4ab8e8')); R.pset(bx + 1, s - 12, C.blanco); };
+// un destello de cuatro puntas (r: largo)
+const destello = (x, y, r, c = C.blanco) => { for (let i = 1; i <= r; i++) { for (const [dx, dy] of [[i, 0], [-i, 0], [0, i], [0, -i]]) R.pset(x + dx, y + dy, i === r ? mezcla(c, C.blanco, 0.5) : c); } R.pset(x, y, C.blanco); };
+
+const a = (f) => en('adios', f);
+const explica = a(0.417), siguiente = a(0.592);
+const plano = (t) => {
+  const zoom = 1.35 + 0.3 * suave(lin(t, 0, E.duracion)), o = { vista: 'arriba', tarde: true, zoom };
+  T.ojo(R, t, o);
+  const G = T.b_ojoArribaGeo(o);
+  // el avioncito: llega desde abajo a la izquierda y vira hacia el ojo
+  { const u = lin(t, 0, E.duracion + 0.4), x = lerp(70, G.x - G.r * 1.25, suave(u)), y = lerp(166, G.y + G.r * 0.9, suave(u)), an = Math.atan2(G.y - y, G.x - x); avionArriba(Math.round(x), Math.round(y), an, t); }
+  // el «?» que sube del ojo, suave (tramado al aparecer), y late
+  if (t > siguiente - 0.15) { const e = lin(t, siguiente - 0.15, siguiente + 0.45), y = Math.round(G.y - 10 - e * 4 + Math.sin(t * 3) * 1), x = Math.round(G.x - 5);
+    const antes = []; for (let j = 0; j < 24; j++) for (let i = 0; i < 22; i++) antes.push(R.pget(x - 6 + i, y - 4 + j));
+    R.numero('?', x + 5, y + 16, { tam: 16, centro: true, color: hex('#fff2d0') });
+    let n = 0; for (let j = 0; j < 24; j++) for (let i = 0; i < 22; i++) { const X = x - 6 + i, Y = y - 4 + j, v = antes[n++]; if (umbral(X, Y) > e) R.pset(X, Y, v); } }
+};
+const efectos = [[0.3, 'whoosh'], [siguiente, 'brillo']];
+T.rodar(E, R, [[0, plano]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
