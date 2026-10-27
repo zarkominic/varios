@@ -250,7 +250,7 @@ const embudoVerde = (t, tor) => {
     for (let x = xl - 1; x <= xr + 1; x++) { if (!EMB_V.has(R.pget(x, y) >>> 0)) continue;
       const s = Math.max(-1, Math.min(1, (x + 0.5 - cx) / Math.max(0.6, w))), th = Math.asin(s);
       const b1 = Math.sin(th * 2.4 + y * 0.55 - t * 7.5), b2 = Math.sin(th * 1.2 - y * 0.22 + t * 2.6);
-      let l = 0.54 - s * 0.34 + b1 * 0.22 + b2 * 0.12 - Math.max(0, 0.2 - v) * 2.2 + (umbral(x, y) - 0.5) * 0.16;
+      let l = 0.7 - s * 0.34 + b1 * 0.22 + b2 * 0.12 - Math.max(0, 0.2 - v) * 2.2 + (umbral(x, y) - 0.5) * 0.16;
       if (x <= xl) l = Math.max(l, 0.86); else if (x >= xr) l = 0; else if (x === xr - 1) l = Math.min(l, 0.2);
       R.pset(x, y, TE[Math.max(0, Math.min(5, Math.floor(l * 6)))]); } }
   const pol = lin(tor, 0.2, 0.35); if (pol <= 0) return;
@@ -280,16 +280,12 @@ const embudoVerde = (t, tor) => {
 // brillo; no cambia la escala del embudo
 const horquilla = (t, h) => {
   const yH = YB - 7, [cx, w] = filaT(yH, t), xl = Math.round(cx - (w + 1) * h), xr = Math.round(cx + (w + 1) * h), BL = hex('#fffbe8'), SO = hex('#c8c8b0');
-  for (let y = yH - 8; y <= yH + 8; y++) for (let x = xl - 4; x <= xr + 4; x++) { const e = Math.max(0, Math.abs(y - yH) - 5) / 3 + Math.max(0, Math.max(xl - 2 - x, x - xr - 2)) / 3; if (e < 1 && umbral(x, y) < 0.9 - e * 0.5) velo(x, y, hex('#0a0e0c'), 0.55 * (1 - e)); }
-  // la sombra corrida abajo a la derecha
-  R.rect(xl, yH + 3, xr + 2, yH + 3, hex('#0a0e0c'));
-  for (const x of [xl, xr]) R.rect(x + 2, yH - 4, x + 2, yH + 6, hex('#0a0e0c'));
   // la barra
-  R.rect(xl, yH - 2, xr, yH + 2, C.k); R.rect(xl + 1, yH - 1, xr - 1, yH - 1, BL); R.rect(xl + 1, yH, xr - 1, yH, h >= 1 ? SO : BL); R.pset(Math.round(cx), yH - 1, C.blanco);
+  R.rect(xl, yH - 1, xr, yH + 1, C.k); R.rect(xl + 1, yH, xr - 1, yH, BL); R.pset(Math.round(cx), yH - 1, C.blanco);
   // las puntas de flecha, apoyadas en los dos topes
-  for (const [x, s] of [[xl + 2, 1], [xr - 2, -1]]) if (xr - xl > 8) { R.pset(x, yH - 2, BL); R.pset(x, yH + 1, SO); R.pset(x + s, yH - 2, C.k); R.pset(x + s, yH + 1, C.k); R.pset(x, yH - 3, C.k); R.pset(x, yH + 2, C.k); }
+  for (const [x, sg] of [[xl + 2, 1], [xr - 2, -1]]) if (xr - xl > 8) { R.pset(x, yH - 1, BL); R.pset(x, yH + 1, BL); R.pset(x - sg, yH - 2, C.k); R.pset(x - sg, yH + 2, C.k); }
   // los topes: altos, con contorno de 1 px a cada lado, la luz arriba y la sombra abajo
-  for (const x of [xl, xr]) { R.rect(x - 1, yH - 6, x + 1, yH + 6, C.k); R.linea(x, yH - 5, x, yH + 5, BL); R.linea(x, yH + 2, x, yH + 5, SO); R.pset(x, yH - 5, C.blanco); }
+  for (const x of [xl, xr]) { R.rect(x - 1, yH - 4, x + 1, yH + 4, C.k); R.linea(x, yH - 3, x, yH + 3, BL); R.linea(x, yH + 2, x, yH + 3, SO); R.pset(x, yH - 3, C.blanco); }
   if (parpadeo(t, 10) && h >= 1) destello(xr + 4, yH - 7, 1, hex('#fff2b0'));
 };
 const p2 = (t) => {
