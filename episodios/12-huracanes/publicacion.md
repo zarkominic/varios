@@ -1,6 +1,6 @@
 # Episodio 12 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:52.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`) y pista de audio en español (`em_santa`).
 - Subtítulos en inglés y en español.
 - **Estilo:** pixel chibi con ambiente, gags y efectos sincronizados, y banda sonora con emoción por escena (`herramientas/banda.cjs`).
@@ -97,4 +97,5 @@ Fuentes: NOAA AOML (N. Dorst, Weatherwise, 2024) y NWS Houston sobre el vuelo de
 - **El pronóstico del NHC:** el día que se suba, mira https://www.nhc.noaa.gov/gtwo.php?basin=atlc&fdays=7. Si hay una tormenta nueva, la frase 30 hay que cambiarla antes de publicar.
 - **Miniatura:** se genera con `atomo/plato/escenas/hu-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas de audio extra, el español se sube como vídeo aparte.
-{AVISOS}
+- **Comprobado el 27/10/2026, a las 20:00 EDT:** el Atlántico, sin ciclones y sin formación prevista en 7 días. La frase 30 sigue siendo cierta.
+- **Para escuchar antes de subir:** EN 28 «Isaias»; EN 7 «wet»; ES 24 y 28 «hasta»; ES 11 «el lavabo»; ES 16 y 31 «Duckworth»; ES 31 «Miss Piggy».
