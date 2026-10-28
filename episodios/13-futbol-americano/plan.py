@@ -49,7 +49,7 @@ E = [
   ['E: el balón girando en el túnel de viento con un contador «600»; la peonza de la mesa girando a su lado; flecha del eje.'], 'curiosidad', []),
  ('fa-enigma', '2020', 17, 18, ['enigma', 'cabeceo'],
   ['E: la pizarra con la trayectoria y el balón con la punta arriba; «?»; el físico con dos colegas lo resuelven: «✓».',
-   'E: el aire empuja la punta; el balón cabecea despacio alrededor de su trayectoria y la punta baja; la peonza cabecea al mismo ritmo (gag).'],
+   'E: el aire empuja la punta; el eje del balón da vueltas despacio en un círculo pequeño alrededor de la trayectoria y la punta va bajando; el eje de la peonza de la mesa traza los mismos círculos (gag).'],
   'asombro', []),
  ('fa-deriva', None, 19, 19, ['deriva'],
   ['E/H: vista desde arriba de un pase largo: el de un diestro se curva un poco a la derecha, el de un zurdo a la izquierda; la Tierra girando: «4″».'], 'asombro', []),
