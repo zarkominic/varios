@@ -34,14 +34,15 @@ const dibujar = (t) => {
   pon(pj, 0, 24, 30, 61, 14, 116, 2);
   pon(pj2, 0, 24, 30, 61, 250, 116, 2);
   // el arco punteado del pase, de la mano de Dorais al receptor, y el balón grande en lo alto, girando y con estela
-  for (let k = 0; k <= 48; k++) { const u = k / 48, x = Math.round(46 + 214 * u), y = Math.round(116 - 88 * Math.sin(Math.PI * u)); if (k % 2 === 0 && Math.abs(x - 176) > 22) { R.rect(x - 1, y - 1, x + 2, y + 2, C.k); R.rect(x, y, x + 1, y + 1, C.blanco); } }
+  for (let k = 0; k <= 30; k++) { const u = k / 30, x = Math.round(46 + 214 * u), y = Math.round(116 - 88 * Math.sin(Math.PI * u)); if (Math.abs(x - 176) > 24) { R.rect(x - 2, y - 2, x + 2, y + 2, C.k); R.rect(x - 1, y - 1, x + 1, y + 1, C.blanco); } }
   balon(R, 176, 34, t, { epoca: 'hoy', s: 4.2, ang: 0.32, giro: t * 10, estela: 1.6 });
   // las vueltas por minuto y la pregunta
   R.numero('600', 118, 62, { tam: 16, centro: true });
   // las flechas de giro alrededor del balón
-  for (let k = 0; k < 14; k++) { const a = -2.2 + k * 0.16, x = Math.round(176 + Math.cos(a) * 30), y = Math.round(34 + Math.sin(a) * 14); R.rect(x, y, x + 1, y + 1, C.blanco); }
+  for (let k = 0; k < 22; k++) { const a = -2.4 + k * 0.12, x = Math.round(176 + Math.cos(a) * 32), y = Math.round(34 + Math.sin(a) * 16); R.rect(x - 1, y - 1, x + 1, y + 1, C.k); R.pset(x, y, C.blanco); }
+  { const a = -2.4 + 21 * 0.12, x = Math.round(176 + Math.cos(a) * 32), y = Math.round(34 + Math.sin(a) * 16); R.rect(x - 3, y - 1, x + 1, y + 3, C.k); R.rect(x - 2, y, x, y + 2, C.blanco); }
   R.numero('?', 236, 72, { tam: 32, centro: true, rampa: [C.oroL, C.oroL, C.amarillo, C.naranja, C.naranjaS] });
-  R.numero('1913', 52, 26, { tam: 12, centro: true });
+  R.numero('1913', 54, 24, { tam: 16, centro: true });
 };
 window.__frame = async (t) => { dibujar(t); R.presentar(); };
 window.__listo = true;
