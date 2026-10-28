@@ -143,7 +143,7 @@ const p2 = (t) => {
 const PATEA = en('record', 0.725), S68 = en('record', 0.757), TERCIOS = en('record', 0.904);
 const top = (x, y, c, cs, t, bob = 0) => { const X = Math.round(x), Y = Math.round(y - bob); R.disco(X + 1, Y + 2, 3, hex('#2e5a26')); R.disco(X, Y, 3, K); R.disco(X, Y, 2, cs); R.rect(X - 1, Y - 2, X + 1, Y + 2, c); R.pset(X - 1, Y - 1, BL); };
 const p3 = (t) => {
-  const g = T.labGiro(R, t, { encuadre: 'arriba' }) || { yarda: 3.6, x50: 120 };
+  const g = T.labGiro(R, t, { encuadre: 'arriba', cubierto: true, skycam: false }) || { yarda: 3.6, x50: 120 };
   const yd = (y) => g.x50 + (y - 50) * g.yarda, LOS = yd(49.5), HOLD = yd(42), cy = 110;
   // la sombra de la cúpula y los cables de la cámara aérea, que se pasea
   const sx = Math.round(150 + Math.sin(t * 0.3) * 30), sy = Math.round(96 + Math.cos(t * 0.24) * 10);
