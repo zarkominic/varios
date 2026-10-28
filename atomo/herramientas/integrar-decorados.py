@@ -83,6 +83,11 @@ while i < len(resto):
             hechas.append(f)
         de_orig, de_copia = declaraciones(base), declaraciones(c)
         nuevas = [n for n in de_copia if n not in de_orig and n not in declaraciones(s)]
+        # dos lotes que crean una auxiliar con el mismo nombre y distinto código: la segunda no entra y su decorado usaría
+        # la del otro sin avisar
+        for n in de_copia:
+            if n not in de_orig and n in declaraciones(s) and texto(c, n) != texto(s, n):
+                avisos.append(f'CONFLICTO: {copia} crea «{n}», que otro lote ya creó con otro código: no se ha integrado; renómbrala en una de las copias')
         for n in nuevas:
             s = s.rstrip('\n') + '\n\n' + texto(c, n) + '\n'
         if nuevas:
