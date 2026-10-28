@@ -76,6 +76,9 @@ async function renderizar(esc) {
   await pag.goto(`http://localhost:${servidor.address().port}/atomo/plato/escenas/${pagina}.html?captura`, { waitUntil: 'domcontentloaded', timeout: 120000 });
   await pag.waitForFunction(() => window.__listo === true && typeof window.__frame === 'function', null, { timeout: 180000 });
   efectos[esc.id] = (await pag.evaluate(() => window.__efectos ?? [])).map(([t, nombre, o]) => [+(esc.inicio + t).toFixed(3), nombre, o ?? {}]);
+  // se guarda en cuanto se recoge: si el render se corta en otra escena, un --faltan posterior salta las ya dibujadas y
+  // sin esto sus efectos se perdían (en el 13 el control dio un 21 % de tiempo con efectos por eso)
+  fs.writeFileSync(archEfectos, JSON.stringify(efectos, null, 1));
   if (soloEfectos) {
     await pag.close();
     console.log(`${esc.id}: ${efectos[esc.id].length} efectos`);

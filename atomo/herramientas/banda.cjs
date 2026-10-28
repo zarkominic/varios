@@ -13,7 +13,7 @@
 //   - un lecho grave continuo (La y Mi) suena de principio a fin, así que la música nunca se queda en silencio;
 //   - los tramos se cruzan con fundidos de igual potencia de 3 s;
 //   - en cada cartela de año, una transición: un soplo que crece hasta el cambio y una nota de caja de música;
-//   - un golpe a menos de 3 s de una cartela no deja silencio: baja la música (al 30 %) y vuelve.
+//   - un golpe a menos de 3 s de una cartela no deja silencio: baja la música (a la mitad) y vuelve.
 // - Desde el episodio 13 (28/10/2026), porque «la música de fondo se está repitiendo de capítulo a capítulo… no todo es
 //   suspenso» (el usuario), cada episodio define su banda en escenas.json («banda», que escribe plan.py y se aprueba con el
 //   guion): tono y modo, tempo, su motivo propio y una paleta de ánimos que incluye los nuevos:
@@ -37,6 +37,9 @@ const dir = path.resolve(process.argv[2]);
 const linea = JSON.parse(fs.readFileSync(path.join(dir, 'linea.json'), 'utf8'));
 const planJson = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
 const plan = Object.fromEntries(planJson.escenas.map((e) => [e.id, e]));
+// los cambios de año (cartelas): antes de uno la música no deja huecos (el control mide ±2,5 s y pide caer como mucho 7,5 dB)
+const CARTELAS = linea.escenas.filter((e) => (plan[e.id] || {}).cartela && e.inicio > 1).map((e) => e.inicio);
+const antesDeCartela = (t) => CARTELAS.some((c) => t > c - 3 && t < c + 0.5);
 // la banda del episodio: tono (nota, en español), modo, tempo y motivo (8 notas, en semitonos sobre la tónica)
 const BANDA = planJson.banda || {};
 const NOTAS = { do: 0, re: 2, mi: 4, fa: 5, sol: 7, la: 9, si: 11 };
@@ -93,7 +96,7 @@ const NUEVOS = {
       const k = prog[c % 4];
       b.addMono(I.pizz(grado(k, 0), { seed: 3 }), t, 0.45, -0.1); b.addMono(I.pizz(grado(k + 4, 0), { seed: 4 }), t + 2 * NEGRA, 0.38, -0.1);
       // el motivo del episodio en la marimba, en corcheas con huecos (un compás sí y uno a medias)
-      MOTIVO.forEach((x, j) => { if (c % 2 && j > 3) return; b.addMono(I.marimba(TONICA + 24 + x + (c % 4 === 2 ? MODO[2] : 0), { decay: 0.3 }), t + j * NEGRA / 2, 0.3, j % 2 ? 0.3 : -0.3); });
+      MOTIVO.forEach((x, j) => { if (c % 2 && j > 3 && !antesDeCartela(t + j * NEGRA / 2)) return; b.addMono(I.marimba(TONICA + 24 + x + (c % 4 === 2 ? MODO[2] : 0), { decay: 0.3 }), t + j * NEGRA / 2, 0.3, j % 2 ? 0.3 : -0.3); });
       for (let j = 1; j < 8; j += 2) b.addMono(I.woodTick(1.2 + 0.1 * (j % 3)), t + j * NEGRA / 2, 0.08, r() * 0.6 - 0.3);
     });
   },
@@ -188,7 +191,7 @@ for (const tr of tramos) { const b = tr.animo && capa(tr, tr.animo); if (b) b.mi
   const g = 10 ** ((NIVEL.lecho - rms(lecho, 0, n)) / 20); lecho.mixInto(musica, g);
 }
 // las transiciones de las cartelas de año: un soplo que crece hasta el cambio y una nota de caja de música al llegar
-const cartelas = linea.escenas.filter((e) => (plan[e.id] || {}).cartela && e.inicio > 1).map((e) => e.inicio);
+const cartelas = CARTELAS;
 {
   const tr = new Bus(n);
   cartelas.forEach((t, k) => {
@@ -212,7 +215,7 @@ const eco = reverb(musica, { room: 0.88 }), ecoG = reverb(golpes, { room: 0.7 })
 eco.mixInto(musica, 0.35);
 for (const t of cortes) {   // silencio antes del golpe y vuelta suave
   const g = 10 ** ((NIVEL.golpe - rms(golpes, Math.round((t + 0.1) * SR), Math.round((t + 1.1) * SR))) / 20);
-  const suelo = cartelas.some((c) => Math.abs(c - t) < CERCA_CARTELA) ? 0.3 : 0;   // junto a una cartela, baja pero no calla
+  const suelo = cartelas.some((c) => Math.abs(c - t) < CERCA_CARTELA) ? 0.5 : 0;   // junto a una cartela, baja pero no calla (al 30 % caía 13 dB en el 13: el control pide 7,5 como mucho)
   for (let i = Math.round((t - 0.6) * SR); i < Math.min(n, Math.round((t + 3) * SR)); i++) {
     const x = i / SR - t, k0 = x < -0.35 ? Math.max(0, (-0.35 - x) / 0.25) : x < 1.2 ? 0 : Math.min(1, (x - 1.2) / 1.8), k = suelo + (1 - suelo) * k0;
     if (i >= 0) { musica.L[i] *= k; musica.R[i] *= k; }
