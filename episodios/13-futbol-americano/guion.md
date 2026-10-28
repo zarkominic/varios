@@ -13,7 +13,7 @@
 - Voces: inglés `am_puck` 0,85 y español `em_santa` 0,92.
 - **Banda propia del episodio** (la primera desde el cambio): Re mayor, marcha de estadio, más aventura y asombro que suspense.
 
-**Duración objetivo:** unos 9:00. Son 37 frases y unas 1.310 palabras en inglés (÷ 150 por minuto).
+**Duración objetivo:** unos 9:00. Son 37 frases y unas 1.340 palabras en inglés (÷ 150 por minuto).
 
 **Publicar:** cuanto antes, con la temporada en marcha; aguanta hasta la Super Bowl de febrero.
 
