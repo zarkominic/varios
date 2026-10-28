@@ -45,6 +45,7 @@ const R2 = r(0.258), R3 = r(0.583), R4 = c(-0.1), R5 = c(0.317), R6 = c(0.728);
 const Y1906 = r(0.205), ENTRA = r(0.16), FLECHA0 = r(0.419), FORWARD = r(0.525);
 const MISSED = r(0.693), COST = r(0.741), BALL = r(0.773), COULDNT = r(0.819), MIDDLE = r(0.937);
 const TIMID = c(0.13), EDDIE = c(0.481), MADE = c(0.586), WEAPON = c(0.647), PRACT = c(0.805);
+const PILLA5 = WEAPON + 0.42, CAE6 = R6 + 2.75;
 const ABRIGO = { ...EL.rector, tocado: 'chistera', pal: { ...EL.rector.pal, ...pal({ C: '#2a2a34', c: '#1c1c24' }) } };
 
 // 1 · la noche de invierno: el comité escribe las reglas (fondo local)
@@ -145,6 +146,27 @@ const p1 = (t) => {
 // 2 · el libro de reglas: la flecha hacia delante, por primera vez
 const p2 = (t) => {
   T.casaBlanca(R, t, { encuadre: 'reglas', flecha: tramo(t, FLECHA0, FORWARD), zona: 0 });
+  // la mano del redactor con la pluma: llega por la derecha, traza la flecha (la plumilla va siempre en la punta que se
+  // dibuja), da dos toquecitos en la punta en «forward» y se retira; su sombra cae sobre la página
+  { const A0 = [188, 76], B0 = [252, 52], C0 = [214, 34], qb = (u) => [(1 - u) ** 2 * A0[0] + 2 * (1 - u) * u * C0[0] + u * u * B0[0], (1 - u) ** 2 * A0[1] + 2 * (1 - u) * u * C0[1] + u * u * B0[1]];
+    const sv = (u) => u * u * (3 - 2 * u), llega = sv(tramo(t, R2 + 0.2, FLECHA0 - 0.05)), vete = sv(tramo(t, FORWARD + 0.8, FORWARD + 1.6));
+    let px, py;
+    if (t < FLECHA0) { px = lerp(336, A0[0], llega); py = lerp(128, A0[1], llega) - Math.sin(Math.PI * llega) * 10; }
+    else if (t < FORWARD) [px, py] = qb(tramo(t, FLECHA0, FORWARD));
+    else { px = B0[0]; py = B0[1] - Math.abs(Math.sin(tramo(t, FORWARD, FORWARD + 0.6) * Math.PI * 2)) * 3; }
+    px = Math.round(px + vete * 110); py = Math.round(py + vete * 70);
+    if (px < 340) {
+      const hx = px + 12, hy = py - 3, sombra = hex('#b4a484');
+      // la sombra suave de la mano y de la manga, corrida hacia abajo
+      for (let j = 0; j < 2; j++) for (let i = -9; i < 46; i++) { const x = hx + i - 2, y = hy + 5 + j; if (x >= 0 && x < 320 && y < 180 && (x + y) % 2 === 0) R.pset(x, y, sombra); }
+      // la pluma: el cañón de ave sale por encima de la mano, y la plumilla de metal toca el papel
+      for (let k = 0; k < 9; k++) { const x = px + 9 + k, y = py - 8 - k; R.pset(x, y, hex('#f2eee2')); R.pset(x + 1, y, k % 2 ? hex('#c8c0b0') : hex('#e2dccc')); R.pset(x - 1, y + 1, hex('#a89e8a')); }
+      T.mano(R, hx, hy, -1, '#2a2a34');
+      R.linea(px, py, px + 5, py - 3, hex('#2a2a30')); R.pset(px + 1, py - 1, hex('#c8ccd4')); R.pset(px, py, hex('#7a1a1e'));
+      // un brillo de tinta fresca en la plumilla mientras escribe
+      if (t > FLECHA0 && t < FORWARD && Math.floor(t * 10) % 2) R.pset(px + 2, py - 2, T.C.blanco);
+    }
+  }
   // la taza de té que humea en la esquina de la mesa
   R.disco(16, 112, 9, hex('#2a1c14')); R.disco(16, 112, 8, hex('#e8e4d8')); R.disco(16, 112, 6, hex('#d0ccc0')); R.disco(16, 112, 5, hex('#8a4a24')); R.pset(14, 110, hex('#b8743c')); R.rect(25, 108, 28, 114, hex('#e8e4d8')); R.rect(26, 109, 27, 113, hex('#2a1c14'));
   for (let k = 0; k < 7; k++) { const u = (t * 0.45 + k / 7) % 1; R.pset(Math.round(16 + Math.sin(u * 6 + k) * 2.5), Math.round(104 - u * 26), u < 0.4 ? hex('#e8e4dc') : hex('#b8a890')); }
@@ -274,21 +296,31 @@ const p4 = (t) => {
 // 5 · Saint Louis: Cochems y el pase de verdad (campo1906 'entreno')
 const SLU = pal({ C: '#2a4a8a', c: '#f2eee2', W: '#2a4a8a' });
 const p5 = (t) => {
-  T.campo1906(R, t, { encuadre: 'entreno', vecino: 0.3 * tramo(t, R6 - 0.9, R6 - 0.1) });
-  const PITO = R5 + 0.35, LANZA = MADE + 0.15, ATRAPA = WEAPON + 0.35;
+  const PITO = R5 + 0.35, LANZA = MADE + 0.15, ATRAPA = WEAPON + 0.35, PILLA = PILLA5;
+  // el vecino curioso: la tabla suelta se aparta y asoma mientras explican el pase; cuando Cochems se vuelve hacia la
+  // valla, se esconde de golpe y la tabla queda entornada (en el plano siguiente lo vemos desde su patio)
+  const asoma = Math.min(lerp(0, 1, tramo(t, R5 + 0.7, R5 + 1.7)), lerp(1, 0.22, tramo(t, PILLA, PILLA + 0.25)));
+  T.campo1906(R, t, { encuadre: 'entreno', vecino: asoma });
   // al fondo, uno placa al muñeco una y otra vez
   const pl = (t * 0.8) % 1, px = Math.round(66 - (pl > 0.7 ? (pl - 0.7) / 0.3 * 10 : 0));
   R.actor(EL.robinson, px, 150, t, { dir: -1, pal: SLU, anda: pl < 0.7 });
-  // Cochems pita, se presenta y señala al receptor
-  R.actor(EL.cochems, 148, 168, t, { dir: t < EDDIE ? -1 : 1, dedo: (t > PITO && t < PITO + 0.6) || (t > EDDIE && t < EDDIE + 0.8) || (t > MADE - 0.1 && t < ATRAPA), habla: t > PITO && t < PITO + 0.6 || (t > EDDIE && Math.sin(t * 6) > 0 && t < MADE), sonrisa: t > ATRAPA });
-  if (t > PITO && t < PITO + 0.6) { R.rect(147, 154, 149, 155, hex('#c8c8d0')); }
+  // detrás, otros dos se pasan un balón corto, de mano a mano, para calentar el brazo
+  { const per = 1.5, f = ((t - R5) / per) % 1, ida = Math.floor((t - R5) / per) % 2 === 0, xa = 184, xb = 222, y0 = 140;
+    R.actor(EL.jugador1905, xa, y0, t, { dir: 1, pal: SLU, brazos: ida ? f < 0.15 : f > 0.85, sonrisa: !ida && f > 0.6 });
+    R.actor(EL.jugador1905, xb, y0 + 2, t, { dir: -1, pal: { ...SLU, ...pal({ H: '#2a1c14', h: '#4a3020' }) }, brazos: ida ? f > 0.85 : f < 0.15, habla: ida && f < 0.4 });
+    const u = Math.min(1, f / 0.85), bx = ida ? lerp(xa + 8, xb - 8, u) : lerp(xb - 8, xa + 8, u);
+    T.balon(R, Math.round(bx), Math.round(y0 - 16 - Math.sin(Math.PI * u) * 10), t, { epoca: '1906', ang: ida ? 0.3 : -0.3, gira: 2 }); }
+  // Cochems pita; en el pase mira a un lado y a otro (que nadie lo vea); al final se vuelve hacia la valla, sorprendido
+  const vigila = t > EDDIE + 0.9 && t < LANZA - 0.1, dirC = t > PILLA ? 1 : vigila ? (Math.floor(t * 3) % 2 ? 1 : -1) : t < EDDIE ? -1 : 1;
+  R.actor(EL.cochems, 148, 168, t, { dir: dirC, dedo: (t > PITO && t < PITO + 0.6) || (t > EDDIE && t < EDDIE + 0.8) || (t > LANZA - 0.1 && t < ATRAPA) || t > PILLA + 0.3, habla: (t > PITO && t < PITO + 0.6) || (t > EDDIE && t < EDDIE + 0.8 && Math.sin(t * 6) > 0), sorpresa: t > PILLA && t < PILLA + 0.5, sonrisa: t > ATRAPA && t < PILLA });
+  if (t > PITO && t < PITO + 0.6) { R.rect(147, 154, 149, 155, hex('#c8c8d0')); for (let k = 0; k < 3; k++) { const q = ((t - PITO) * 3 + k / 3) % 1; R.pset(Math.round(144 - q * 8), Math.round(152 - q * 6 - k * 2), T.C.blanco); } }
   // Robinson lanza en espiral y Schneider la atrapa en carrera
-  const corre = tramo(t, EDDIE - 0.3, ATRAPA), sx = Math.round(lerp(130, 236, corre)), sy = Math.round(lerp(158, 152, corre));
-  R.actor(EL.robinson, 92, 160, t, { dir: 1, dedo: t > LANZA - 0.4 && t < LANZA + 0.3, sonrisa: t > ATRAPA });
+  const corre = tramo(t, EDDIE - 0.3, ATRAPA), sx = Math.round(lerp(120, 236, corre)), sy = Math.round(lerp(162, 152, corre));
+  R.actor(EL.robinson, 92, 160, t, { dir: 1, dedo: t > LANZA - 0.4 && t < LANZA + 0.3, brazos: t > LANZA - 0.5 && t < LANZA - 0.1, sonrisa: t > ATRAPA, habla: t > ATRAPA + 0.2 && t < ATRAPA + 0.8 && Math.sin(t * 8) > 0 });
   R.actor(EL.schneider, sx, sy, t, { dir: 1, anda: corre > 0 && corre < 1, brazos: t > ATRAPA - 0.3 && t < ATRAPA + 0.4, salto: t > ATRAPA + 0.3 && t < ATRAPA + 0.8 ? 3 : 0, sonrisa: t > ATRAPA });
   const vu = tramo(t, LANZA, ATRAPA);
-  if (t < LANZA) T.balon(R, 105, 150, t, { epoca: '1906', ang: -0.4 });
-  else if (vu < 1) T.balon(R, Math.round(lerp(106, 248, vu)), Math.round(lerp(140, 136, vu) - Math.sin(Math.PI * vu) * 34), t, { epoca: '1906', ang: -0.5 + vu * 1.0, gira: 3, estela: 0.6 });
+  if (t < LANZA) T.balon(R, t > LANZA - 0.5 ? 100 : 105, t > LANZA - 0.5 ? 142 : 150, t, { epoca: '1906', ang: -0.4 });
+  else if (vu < 1) T.balon(R, Math.round(lerp(104, 248, vu)), Math.round(lerp(140, 136, vu) - Math.sin(Math.PI * vu) * 44), t, { epoca: '1906', ang: -0.5 + vu * 1.0, gira: 3, estela: 0.6 });
   else T.balon(R, sx + 14, sy - 12, t, { epoca: '1906', ang: 0.2 });
 };
 
@@ -342,22 +374,28 @@ const p6 = (t) => {
   // los girasoles junto a la valla, que crecen con el verano y se mecen
   const crece = tramo(t, R6, R6 + 3.2);
   for (const [x, k] of [[196, 0], [212, 1], [226, 2]]) { const top = Math.round(lerp(112, 82 - k * 4, crece)), m = Math.round(Math.sin(t * 1.5 + k) * 1); R.linea(x, 128, x + m, top, hex('#3a7a2a')); R.disco(x - 3 + m, Math.round((top + 128) / 2), 2, hex('#4a8a32')); R.disco(x + m, top, 4, hex('#e8b830')); R.disco(x + m, top, 2, hex('#5a3a1a')); }
-  // las gallinas que picotean
-  gallina(Math.round(40 + Math.sin(t * 0.7) * 6), 136, t, 0); gallina(Math.round(214 + Math.sin(t * 0.5 + 1) * 8), 166, t, 1); gallina(96, 176, t, 2);
-  // los balones pasan por encima de la valla, uno tras otro
-  const tiros = [R6 + 0.2, R6 + 1.25, R6 + 2.3];
+  // las gallinas que picotean; la de delante sale corriendo cuando le cae el balón al lado
+  const huye = tramo(t, CAE6, CAE6 + 0.6);
+  gallina(Math.round(40 + Math.sin(t * 0.7) * 6), 136, t, 0); gallina(Math.round(214 + Math.sin(t * 0.5 + 1) * 8), 166, t, 1); gallina(Math.round(96 + huye * 40), 176 - Math.round(Math.sin(Math.PI * huye) * 5), t, 2);
+  if (huye > 0 && huye < 1) for (let k = 0; k < 3; k++) R.pset(Math.round(92 + huye * 40 - k * 4), 168 - k * 2 - Math.round(huye * 6), T.C.blanco);
+  // los balones pasan por encima de la valla, uno tras otro; el tercero se queda corto y cae en el patio
+  const tiros = [R6 + 0.2, R6 + 1.25];
   let alto = false;
   for (const t0 of tiros) { const u = (t - t0) / 1.0; if (u < 0 || u > 1) continue; alto = true; const x = lerp(-12, 332, u), y = 34 + 0.0013 * (x - 150) ** 2; T.balon(R, Math.round(x), Math.round(y), t, { epoca: '1906', ang: 0.2 + (u - 0.5), gira: 3 }); }
-  // el vecino, subido al cajón, espía por el hueco; con cada balón se agacha y mira arriba
-  const agacha = alto && Math.floor(t * 4) % 2 === 0;
-  R.actor(EL.granjero, 152, 140 + (agacha ? 1 : 0), t, { dir: alto ? 1 : -1, sorpresa: alto, quieto: false });
-  // la vecina tiende la ropa y mira los balones con la boca abierta
-  R.actor(EL.vecina, 200, 150, t, { dir: -1, dedo: !alto, sorpresa: alto });
-  R.rect(194, 129, 200, 131, hex('#f2eee2'));
+  { const t0 = R6 + 2.05; if (t > t0) { const u = tramo(t, t0, CAE6); if (u < 1) { alto = true; T.balon(R, Math.round(lerp(-12, 84, u)), Math.round(lerp(40, 170, u) - Math.sin(Math.PI * u) * 40), t, { epoca: '1906', ang: u * 2, gira: 3 }); }
+      else { const r = tramo(t, CAE6, CAE6 + 0.8), bote = Math.round(Math.abs(Math.sin(r * Math.PI * 2)) * (1 - r) * 6); T.balon(R, Math.round(84 + r * 14), 170 - bote, t, { epoca: '1906', ang: r * 3 });
+        if (r < 0.35) for (let k = 0; k < 5; k++) R.pset(80 + k * 3, 174 - (k % 2) * 2 - Math.round(r * 8), hex('#c8b890')); } } }
+  // el vecino, subido al cajón, espía por el hueco; con cada balón se agacha y mira arriba; al final señala el que ha caído
+  const agacha = alto && Math.floor(t * 4) % 2 === 0, cayo = t > CAE6;
+  R.actor(EL.granjero, 152, 140 + (agacha ? 1 : 0), t, { dir: alto || cayo ? (cayo ? -1 : 1) : -1, sorpresa: alto && !cayo, dedo: cayo, habla: cayo && Math.sin(t * 8) > 0 });
+  // la vecina tiende la ropa: cuelga la camisa con la pinza, mira los balones y se ríe cuando cae el último
+  const tiende = Math.sin(t * 2.4) > 0;
+  R.actor(EL.vecina, 200, 150, t, { dir: -1, dedo: !alto && !cayo && tiende, sorpresa: alto && !cayo, sonrisa: cayo });
+  R.rect(194, tiende ? 128 : 130, 200, tiende ? 130 : 132, hex('#f2eee2')); R.pset(197, tiende ? 127 : 129, hex('#8a6a3a'));
 };
 
 const año = (t) => (t < Y1906 ? 1905 : 1906);
-const efectos = [[ENTRA - 0.4, 'puerta'], [FORWARD, 'brillo'], [R3 + 0.6, 'lapiz'], [MISSED + 0.35, 'golpecito'], [COULDNT + 0.4, 'lapiz'], [R4 + 0.6, 'silbato'], [TIMID + 0.45, 'golpecito'], [R5 + 0.35, 'silbato'], [MADE + 0.15, 'whoosh'], [WEAPON + 0.35, 'palmada'], [R6 + 0.6, 'whoosh'], [R6 + 2.6, 'whoosh']];
+const efectos = [[ENTRA - 0.4, 'puerta'], [FLECHA0 + 0.1, 'lapiz'], [FORWARD, 'brillo'], [R3 + 0.6, 'lapiz'], [MISSED + 0.35, 'golpecito'], [COULDNT + 0.4, 'lapiz'], [R4 + 0.6, 'silbato'], [TIMID + 0.45, 'golpecito'], [R5 + 0.35, 'silbato'], [MADE + 0.15, 'whoosh'], [WEAPON + 0.35, 'palmada'], [PILLA5, 'golpecito'], [R6 + 0.6, 'whoosh'], [CAE6, 'golpecito']];
 T.rodar(E, R, [[0, p1], [R2, p2], [R3, p3], [R4, p4], [R5, p5], [R6, p6]], { efectos, año });
 </script>
 </body>

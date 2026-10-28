@@ -10,8 +10,9 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // FA-CHIPS (frases 32–33), 2026, cartela «2026». Cinco planos:
-// 1. el cuarto de material: unas hombreras en corte sobre el banco, con un chip en cada hombro; la técnica pulsa su
-//    tableta en «chips» y los chips se encienden y emiten;
+// 1. el cuarto de material: unas hombreras en corte sobre el banco; una mano con pinzas coge un chip de la bandeja, lo
+//    lleva a la hombrera izquierda y lo encaja justo antes de «chips»; la técnica llega por detrás del banco, pulsa su
+//    tableta en «chips» y los chips se encienden y emiten; el segundero del reloj de pared salta;
 // 2. la fábrica de Ada: el brazo de la máquina mete el chip en el balón abierto en «inside each ball» (el balón deja ver el
 //    chip que parpadea) y la báscula de precisión marca «3» en «3 grams»; la operaria lo vigila y lo señala;
 // 3. la pasarela bajo el techo: las antenas emiten; el técnico llega y señala el campo en «where everyone is»; «10» y el
@@ -113,6 +114,7 @@ const CUARTO = () => {
   for (let y = 132; y < 160; y++) for (let x = 14; x < 64; x++) { const u = (x - 39) / 25, v = (y - 160) / 26; const dd = u * u + v * v; if (dd > 1) continue; R.pset(x, y, dd > 0.9 ? K : y < 146 ? (Math.floor(Math.atan2(v, u) * 7) % 2 ? FU[0] : FU[2]) : x < 24 && y > 150 ? hex('#c8ccd4') : hex('#8a2a3a')); }
   R.rect(240, 98, 300, 122, K); R.rect(241, 99, 299, 121, hex('#3a3e4a')); R.rect(244, 102, 296, 119, hex('#0e1622')); R.poligono([[234, 122], [306, 122], [312, 130], [228, 130]], K); R.poligono([[235, 123], [305, 123], [310, 129], [230, 129]], hex('#c8ccd4'));
 };
+let chipIzq = true;   // el chip del hombro izquierdo ya está puesto (en el plano 1 lo pone la mano)
 const hombreras = (t) => { // en un maniquí: el peto, las dos hombreras (la derecha cortada: se ven las capas) y un chip en cada hombro
   R.rect(157, 116, 163, 140, K); R.rect(158, 116, 162, 140, hex('#5c6676')); R.rect(140, 137, 180, 142, K); R.rect(141, 138, 179, 141, hex('#3c4452')); R.rect(141, 138, 179, 138, hex('#6c7686'));
   // el maniquí (torso de espuma gris)
@@ -131,17 +133,40 @@ const hombreras = (t) => { // en un maniquí: el peto, las dos hombreras (la der
       R.pset(x, y, col); }
     if (s > 0) { R.linea(cx + 2, cy - 13, cx + 2, cy + 10, K); }
     R.linea(cx - 26, cy + 5, cx + 26, cy + 5, hex('#1e8a8a')); R.linea(cx - 24, cy + 7, cx + 24, cy + 7, hex('#1e8a8a')); R.disco(cx - s * 20, cy - 2, 1.5, hex('#8c96a4'));
-    const on = t > CHIPS, chx = cx + s * 20, chy = cy - 2; chip(chx, chy, on, t, 1); if (on) ondas(chx, chy - 6, t, CHIPS); }
+    const on = t > CHIPS, chx = cx + s * 20, chy = cy - 2; if (s > 0 || chipIzq) chip(chx, chy, on, t, 1); if (on) ondas(chx, chy - 6, t, CHIPS); }
   if (t > PADS && t < PADS + 1 && Math.floor(t * 8) % 2) for (const s of [-1, 1]) { R.disco(160 + s * 60, 88, 1.5, hex('#fff6c0')); R.pset(160 + s * 60, 84, hex('#fff6c0')); R.pset(160 + s * 60, 92, hex('#fff6c0')); }
 };
 const p1 = (t) => {
   fijo('cuarto', CUARTO);
   // la técnica, detrás del banco, con su tableta; el portátil muestra los puntos
   const wt = tramo(t, 1.3, CHIPS - 0.5), xtc = Math.round(lerp(300, 212, wt));
-  const pt = R.actor(EL.tecnica, xtc, 132, t, { dir: -1, anda: wt > 0 && wt < 1, dedo: t > CHIPS - 0.3 && t < CHIPS + 0.4, sonrisa: t > CHIPS + 0.4, habla: t > PADS && t < PADS + 1 && Math.sin(t * 8) > 0 });
+  const pt = R.actor(EL.tecnica, xtc, 127, t, { dir: -1, anda: wt > 0 && wt < 1, dedo: t > CHIPS - 0.3 && t < CHIPS + 0.4, sonrisa: t > CHIPS + 0.4, habla: t > PADS && t < PADS + 1 && Math.sin(t * 8) > 0 });
   for (let y = 120; y < 140; y++) for (let x = 196; x < 320; x++) R.pset(x, y, y < 124 ? (y === 120 ? hex('#e0b880') : hex('#8a5a2a')) : ((y + Math.round(Math.sin(x * 0.05 + y) * 1.2)) % 7 === 0 || (hh(x >> 4, y, 41) < 0.04) ? hex('#a8743c') : (y - 124) % 7 === 1 ? hex('#cc9a5e') : hex('#c08a50')));
   R.rect(200, 112, 214, 121, K); R.rect(201, 113, 213, 120, hex('#2a2e36')); R.rect(202, 114, 212, 119, t > CHIPS ? hex('#3ac8e8') : hex('#1a3a4a'));
+  // la mano con las pinzas: coge un chip de la bandeja, lo lleva a la hombrera izquierda y lo encaja justo antes de
+  // «chips»; luego se retira por la izquierda
+  const T0 = 1.45, COGE = 2.15, SUBE = 2.45, PONE = CHIPS - 0.2, VA = PONE + 0.25, FUERA = CHIPS + 0.9;
+  let tx, ty; const sv = (u) => u * u * (3 - 2 * u);
+  if (t < COGE) { const u = sv(tramo(t, T0, COGE)); tx = lerp(-34, 92, u); ty = lerp(168, 156, u) - Math.sin(Math.PI * u) * 8; }
+  else if (t < SUBE) { tx = 92; ty = 156 - Math.round(tramo(t, COGE + 0.1, SUBE) * 3); }
+  else if (t < PONE) { const u = sv(tramo(t, SUBE, PONE)); tx = lerp(92, 100, u); ty = lerp(153, 89, u) - Math.sin(Math.PI * u) * 10; }
+  else if (t < VA) { tx = 100; ty = 89 + (t > PONE + 0.08 ? 1 : 0); }
+  else { const u = sv(tramo(t, VA, FUERA)); tx = lerp(100, -40, u); ty = lerp(89, 130, u); }
+  const lleva = t > COGE + 0.1 && t < PONE + 0.08;
+  chipIzq = t > PONE + 0.08;
+  if (t > COGE + 0.1) { R.rect(90, 154, 95, 158, hex('#23262e')); R.pset(91, 155, hex('#3a3e4a')); }   // el hueco de la bandeja
   hombreras(t);
+  // al encajarlo, un destello pequeño
+  if (t > PONE + 0.08 && t < PONE + 0.4) { const r = Math.round(2 + (t - PONE) * 10); for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [0, -r]]) R.pset(100 + dx, 88 + dy, hex('#fff6c0')); }
+  if (tx > -50) {
+    tx = Math.round(tx); ty = Math.round(ty); const hxm = tx - 15, hym = ty - 5;
+    // las pinzas de acero, que se cierran sobre el chip
+    const ab = lleva ? 0 : 1; R.linea(hxm + 7, hym + 1, tx, ty - 1 - ab, hex('#c8ccd4')); R.linea(hxm + 7, hym + 2, tx, ty + ab, hex('#8c96a4')); R.pset(tx, ty - 1 - ab, BL);
+    if (lleva) chip(tx + 1, ty, false, t, 1);
+    T.mano(R, hxm, hym, 1, '#3a5a7a');
+  }
+  // el segundero del reloj de pared, que salta cada segundo
+  { const a = Math.floor(t) * Math.PI / 30 - Math.PI / 2; R.linea(116, 34, Math.round(116 + Math.cos(a) * 6), Math.round(34 + Math.sin(a) * 6), hex('#c83a3a')); R.linea(116, 34, 116, 29, K); R.linea(116, 34, 120, 34, K); R.pset(116, 34, K); }
   R.recorte([244, 102, 296, 119]); for (let k = 0; k < 10; k++) { const x = 248 + (k * 13 + Math.floor(t * 10) * (k % 3)) % 44, y = 104 + (k * 7) % 13; R.pset(x, y, k < 5 ? hex('#3ac8b0') : hex('#e8504a')); R.pset(x + 1, y, k < 5 ? hex('#3ac8b0') : hex('#e8504a')); } R.recorte(null);
   for (let k = 0; k < 3; k++) { const q = (t * 0.6 + k / 3) % 1; R.pset(Math.round(270 + Math.sin(q * 9 + k) * 2), Math.round(150 - q * 18), hex('#f2f6fa')); }
 };
@@ -217,7 +242,7 @@ const p5 = (t) => {
   if (!señala) { const tx = 68, ty = 154; R.rect(tx, ty, tx + 10, ty + 7, K); R.rect(tx + 1, ty + 1, tx + 9, ty + 6, hex('#0e1a2e')); for (let k = 0; k < 4; k++) R.pset(tx + 2 + ((k * 3 + Math.floor(t * 10)) % 7), ty + 2 + (k % 3), k < 2 ? hex('#3ac8b0') : hex('#e8504a')); if (mira) R.rect(tx + 1, ty + 1, tx + 9, ty + 1, hex('#3ac8e8')); }
   T.h_estadioDelante(R, t, { encuadre: 'noche' });
 };
-T.rodar(E, R, [[0, p1], [H2, p2], [H3, p3], [H4, p4], [H5, p5]], { cartela: '2026', año: 2026, efectos: [[CHIPS, 'bip'], [INSIDE + 0.25, 'interruptor'], [CHIP2, 'bip'], [GR3, 'tic'], [ANT, 'zumbido'], [DIEZ, 'bip'], [FAST, 'tecleo'], [FAR, 'brillo'], [TEAMS, 'tecleo'], [TRAIN + 0.6, 'whoosh'], [SMART + 0.5, 'palmada']] });
+T.rodar(E, R, [[0, p1], [H2, p2], [H3, p3], [H4, p4], [H5, p5]], { cartela: '2026', año: 2026, efectos: [[CHIPS - 0.12, 'tic'], [CHIPS + 0.1, 'bip'], [INSIDE + 0.25, 'interruptor'], [CHIP2, 'bip'], [GR3, 'tic'], [ANT, 'zumbido'], [DIEZ, 'bip'], [FAST, 'tecleo'], [FAR, 'brillo'], [TEAMS, 'tecleo'], [TRAIN + 0.6, 'whoosh'], [SMART + 0.5, 'palmada']] });
 </script>
 </body>
 </html>

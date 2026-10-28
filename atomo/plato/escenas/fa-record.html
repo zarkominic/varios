@@ -16,8 +16,10 @@
 //    la hoja del calendario del día 2 del mes 11; corta en «Cam»;
 // 3. el campo visto desde arriba: la formación, la patada en «made», la trayectoria con «68» y la barra de los dos
 //    tercios («two-thirds»); corta en «That»;
-// 4. el vestuario: el pateador entra; la ayudante saca un balón numerado de la caja, lo infla y lo deja en el carrito;
-//    él lo cepilla («prepare») y lo ablanda entre las manos («break in»); corta en «their»;
+// 4. el vestuario: el pateador entra y se planta ante el carrito; la ayudante rebusca en la caja, saca el balón 7, lo
+//    infla con el inflador de pie (crece) y se lo entrega; él lo examina, lo cepilla («prepare») y lo ablanda entre las
+//    manos («break in»); ella vuelve a por otro; un compañero estira, otro cruza delante con la toalla y el utillero
+//    empuja el carro de la lavandería; la cámara baja hacia la moqueta (el decorado se copia 26 px más arriba); corta en «their»;
 // 5. inserto del carrito: la mano cepilla el balón gastado; desliza una caja con un balón nuevo y brillante («brand new»),
 //    el cronómetro corre hasta el saque («kickoff») y la caja nueva se tacha; corta en «And»;
 // 6. inserto de la tableta en el banquillo: las barras de las patadas de más de 60 yardas crecen y la última se dispara
@@ -167,20 +169,71 @@ const p3 = (t) => {
 };
 // ── 4 · el vestuario: preparar y domar los balones propios
 const DESDE = en('kballs', 0.076), PREPARA = en('kballs', 0.205), DOMA = en('kballs', 0.238);
+const CASA = hx({ X: '#1e8a8a', x: '#e8783a', w: '#7ad8d8', C: '#1e8a8a', c: '#e8783a', W: '#1e8a8a', o: '#e8783a' });
+// el inflador de pie: cilindro de acero con su manómetro, el mango en T que sube y baja (b 0–1) y la manguera
+const inflador = (x, yS, b) => {
+  R.rect(x - 5, yS - 1, x + 5, yS, K); R.rect(x - 4, yS - 1, x + 4, yS - 1, hex('#3a3e4a'));
+  R.rect(x - 2, yS - 15, x + 2, yS - 1, K); R.rect(x - 1, yS - 14, x + 1, yS - 2, hex('#c83a3a')); R.pset(x - 1, yS - 13, hex('#f4866c'));
+  R.disco(x + 4, yS - 6, 2, K); R.pset(x + 4, yS - 6, BL);
+  const hy = Math.round(yS - 22 + b * 6); R.rect(x, hy, x, yS - 15, hex('#c8ccd4')); R.rect(x - 5, hy - 1, x + 5, hy + 1, K); R.rect(x - 4, hy, x + 4, hy, hex('#2a2e36'));
+};
+// la bolsa de deporte del primer término (con su cremallera, el asa y la toalla que asoma) y unas botas de tacos
+const bolsa = (x, y) => {
+  R.disco(x + 4, y + 13, 3, K); R.disco(x + 30, y + 13, 3, K); R.rect(x + 3, y, x + 31, y + 16, K);
+  for (let j = 1; j < 16; j++) for (let i = 4; i < 31; i++) R.pset(x + i, y + j, j < 4 ? hex('#3ac8c8') : j > 12 ? hex('#146464') : (i + j) % 9 === 0 ? hex('#178080') : hex('#1e8a8a'));
+  R.rect(x + 4, y + 7, x + 30, y + 8, hex('#e8783a')); R.linea(x + 6, y + 2, x + 28, y + 2, hex('#c8ccd4')); R.pset(x + 27, y + 3, BL);
+  R.linea(x + 10, y, x + 12, y - 5, K); R.linea(x + 12, y - 5, x + 22, y - 5, K); R.linea(x + 22, y - 5, x + 24, y, K);
+  R.rect(x + 20, y - 2, x + 28, y + 1, K); R.rect(x + 21, y - 1, x + 27, y, BL); R.pset(x + 23, y, hex('#e8783a'));
+  R.rect(x - 4, y + 16, x + 34, y + 17, hex('#0e4a4a'));
+};
+const botas = (x, y) => { for (const dx of [0, 11]) { R.rect(x + dx, y, x + dx + 9, y + 4, K); R.rect(x + dx + 1, y + 1, x + dx + 8, y + 3, hex('#2a2430')); R.rect(x + dx + 1, y + 1, x + dx + 4, y + 1, BL); for (let i = 1; i < 9; i += 3) R.pset(x + dx + i, y + 5, hex('#c8ccd4')); R.pset(x + dx + 7, y + 2, hex('#e8783a')); } };
+// la cámara se acerca al suelo: el vestuario se pinta en un búfer y se copia 26 px más arriba (las taquillas quedan
+// arriba y la moqueta, donde está la acción, gana sitio); la franja de abajo se completa con la moqueta de su izquierda
+const DY4 = 26;
+let VB = null;
 const p4 = (t) => {
-  T.estadioPatada(R, t, { lugar: 'vegas', encuadre: 'vestuario' });
-  // la ayudante saca un balón de la caja, lo infla (el silbido) y lo deja en el carrito
-  const a = tramo(t, DESDE - 0.6, DESDE + 0.4), b = tramo(t, DESDE + 1.6, DESDE + 2.4);
-  const ax = Math.round(lerp(292, 256, a) - lerp(0, 22, b)), sube = a >= 1 && b < 1;
-  const ay = R.actor(EL.tecnica, ax, 172, t, { dir: -1, anda: (a > 0 && a < 1) || (b > 0 && b < 1), dedo: sube && t > DESDE + 0.6, sonrisa: b >= 1 });
-  if (t > DESDE + 0.4 && b < 1) { const bx = Math.round(lerp(ax - 4, ax - 2, tramo(t, DESDE + 0.4, DESDE + 0.7))), by = t < DESDE + 0.6 ? 140 : 148; balonK(bx, by, t, 7); }
-  if (t > DESDE + 0.7 && t < DESDE + 1.6) for (let k = 0; k < 4; k++) { const ph = (t * 3 + k / 4) % 1; R.pset(ax - 8 - Math.round(ph * 4), 142 - Math.round(ph * 8), mezcla(BL, hex('#8a9aa0'), ph)); }
-  if (b >= 1) balonK(206, 125, t, 7);
-  // el pateador entra, coge el balón y lo cepilla; luego lo ablanda entre las manos
-  const e = tramo(t, P4 + 0.05, P4 + 1.6), kx = Math.round(lerp(30, 128, ease(e)));
-  const k = R.actor(EL.pateador, kx, 160, t, { dir: 1, anda: e > 0 && e < 1, dedo: t > PREPARA - 0.4 && t < DOMA, sonrisa: t > DOMA + 0.5, habla: t > P4 + 1.6 && t < P4 + 2.4 && Math.sin(t * 8) > 0 });
-  if (t > PREPARA - 0.4) { const bot = t > DOMA ? Math.round(Math.abs(Math.sin(t * 9)) * 2) : 0, bx = kx + 20, by = 142 - bot; balonK(bx, by, t, 3, { ang: t > DOMA ? Math.sin(t * 9) * 0.3 : 0 });
-    if (t < DOMA) { const c = Math.round(Math.sin(t * 14) * 4); R.rect(bx - 3 + c, by - 7, bx + 4 + c, by - 5, hex('#8a5a2a')); R.rect(bx - 3 + c, by - 4, bx + 4 + c, by - 4, hex('#e8d8a8')); for (let q = 0; q < 3; q++) R.pset(bx + c + (q - 1) * 5, by + 4 + q, hex('#a8743c')); } }
+  if (!VB) VB = R.nuevo();
+  { const prev = R.usar(VB); T.estadioPatada(R, t, { lugar: 'vegas', encuadre: 'vestuario' }); R.usar(prev);
+    prev.set(VB.subarray(DY4 * 320, 180 * 320), 0);
+    for (let y = 180 - DY4; y < 180; y++) { const fy = 150 + ((y - (180 - DY4)) % 26); for (let x = 0; x < 320; x++) prev[y * 320 + x] = VB[fy * 320 + 40 + ((x + (y >> 3) * 7) % 44)]; } }
+  // en primer término, en la moqueta: la bolsa de un jugador y unas botas de tacos
+  bolsa(262, 160); botas(196, 170);
+  const ENTREGA = DESDE + 2.4, VUELVE = ENTREGA + 0.3;
+  // al fondo a la izquierda, un compañero estira los brazos junto a su taquilla
+  { const f = (t * 0.7) % 1; R.actor(EL.receptor, 22, 114, t, { dir: 1, brazos: f < 0.45, salto: f > 0.45 && f < 0.55 ? 1 : 0, habla: t > P4 + 3 && t < P4 + 3.6 && Math.sin(t * 8) > 0 }); }
+  // el pateador entra por la izquierda y se planta delante del carrito
+  const e = tramo(t, P4 + 0.05, P4 + 1.8), kx = Math.round(lerp(-12, 150, ease(e))), ky = 130;
+  R.actor(EL.pateador, kx, ky, t, { dir: 1, anda: e > 0 && e < 1, dedo: t > ENTREGA + 0.4 && t < ENTREGA + 0.9, sonrisa: t > DOMA + 0.2 || (t > ENTREGA && t < ENTREGA + 0.4), habla: t > ENTREGA + 0.4 && t < ENTREGA + 1.0 && Math.sin(t * 8) > 0 });
+  // la ayudante, delante de la caja de balones: rebusca, saca el número 7, lo infla con el inflador de pie, se lo lleva
+  // al pateador y vuelve a por otro
+  const va = tramo(t, DESDE + 1.6, ENTREGA), vuelve = tramo(t, VUELVE, VUELVE + 1.1);
+  const ax = Math.round(lerp(262, 174, ease(va)) + lerp(0, 88, ease(vuelve))), ay = 140;
+  const infla = t > DESDE + 0.45 && t < DESDE + 1.5, bomba = infla ? (Math.sin((t - DESDE) * 14) + 1) / 2 : 0;
+  inflador(246, 142, bomba);
+  R.actor(EL.tecnica, ax, ay, t, { dir: t < DESDE + 0.1 ? 1 : vuelve > 0 && vuelve < 1 ? 1 : -1, anda: (va > 0 && va < 1) || (vuelve > 0 && vuelve < 1), dedo: (t < DESDE && Math.sin(t * 5) > 0) || (t > VUELVE + 1.1), habla: t > ENTREGA - 0.2 && t < ENTREGA + 0.3, sonrisa: t > ENTREGA && t < VUELVE + 1 });
+  if (t < DESDE && Math.floor(t * 6) % 2) R.pset(266, 104, BL);   // un balón que asoma de la caja al rebuscar
+  // el balón número 7: sube de la caja, se infla (crece) en sus manos y pasa a las del pateador en la entrega
+  const tam = 0.8 + 0.35 * tramo(t, DESDE + 0.45, DESDE + 1.5);
+  if (t > DESDE && t < ENTREGA) { const sube = tramo(t, DESDE, DESDE + 0.4), bx = Math.round(lerp(262, ax - 9, sube)), by = Math.round(lerp(108, ay - 10, sube) - Math.sin(Math.PI * sube) * 6);
+    balonK(bx, by, t, 7, { s: tam });
+    if (infla) { R.linea(246, 140, Math.round((246 + bx) / 2), 144, hex('#2a2e36')); R.linea(Math.round((246 + bx) / 2), 144, bx, by + 3, hex('#2a2e36'));
+      for (let k = 0; k < 3; k++) { const ph = ((t - DESDE) * 3 + k / 3) % 1; R.pset(bx + 6 + Math.round(ph * 5), by - 4 - Math.round(ph * 6), mezcla(BL, hex('#8a9aa0'), ph)); } } }
+  if (t >= ENTREGA) {
+    // lo examina girándolo; en «prepare» lo cepilla; en «break in» lo ablanda entre las manos
+    const gira = t < PREPARA - 0.3 ? Math.sin((t - ENTREGA) * 4) * 0.5 : 0, bot = t > DOMA ? Math.round(Math.abs(Math.sin(t * 10)) * 2) : 0;
+    const bx = kx + 12, by = ky - 9 - bot; balonK(bx, by, t, 7, { s: 1.15, ang: t > DOMA ? Math.sin(t * 10) * 0.35 : gira });
+    if (t > DOMA) for (const sx of [-1, 1]) { const q = Math.round(Math.abs(Math.sin(t * 10)) * 2); R.pset(bx + sx * (8 + q), by - 1, hex('#f6c290')); R.pset(bx + sx * (8 + q), by, hex('#f6c290')); R.pset(bx + sx * (8 + q), by + 1, hex('#d48a5a')); }
+    if (t > PREPARA - 0.1 && t < DOMA) { const c = Math.round(Math.sin(t * 14) * 5); R.rect(bx - 4 + c, by - 9, bx + 4 + c, by - 7, hex('#8a5a2a')); R.rect(bx - 4 + c, by - 6, bx + 4 + c, by - 6, hex('#e8d8a8'));
+      for (let q = 0; q < 5; q++) { const ph = (t * 3 + q / 5) % 1; R.pset(bx + c + (q - 2) * 4, Math.round(by - 4 + ph * 12), mezcla(hex('#c8945a'), hex('#f2e8c8'), ph)); } } }
+  // en primer término cruza un compañero con la toalla al hombro, camino de las duchas
+  { const u = tramo(t, P4 + 0.3, P4 + 2.9); if (u > 0 && u < 1) { const cx = Math.round(lerp(-14, 334, u)); R.actor(EL.liniero, cx, 179, t, { dir: 1, anda: true, pal: CASA }); R.rect(cx - 5, 165, cx - 2, 173, BL); R.rect(cx - 5, 173, cx - 2, 173, BLS); R.pset(cx - 4, 168, hex('#e8783a')); } }
+  // luego, el utillero empuja por delante el carro de la lavandería, lleno de toallas, hacia la otra punta
+  { const u = tramo(t, P4 + 3.3, P4 + 6.9); if (u > 0 && u < 1) { const cx = Math.round(lerp(352, -60, u)), cy = 178;
+    R.actor(EL.obrero, cx + 22, cy, t, { dir: -1, anda: true, habla: u > 0.4 && u < 0.5 });
+    R.rect(cx - 16, cy - 18, cx + 14, cy - 3, K); for (let j = cy - 17; j < cy - 3; j++) for (let i = cx - 15; i < cx + 14; i++) R.pset(i, j, (i + j) % 4 === 0 ? hex('#8a94a0') : j === cy - 17 ? hex('#e8eef4') : hex('#b8c0cc'));
+    for (let k = 0; k < 5; k++) { const tx = cx - 13 + k * 6, ty = cy - 21 + (k % 2); R.rect(tx, ty, tx + 5, ty + 4, K); R.rect(tx + 1, ty + 1, tx + 4, ty + 3, k % 3 === 1 ? hex('#e8783a') : BL); R.rect(tx + 1, ty + 3, tx + 4, ty + 3, BLS); }
+    R.linea(cx + 14, cy - 14, cx + 19, cy - 16, K);
+    for (const wx of [cx - 12, cx + 10]) { R.disco(wx, cy - 1, 2, K); R.pset(wx, cy - 1, hex('#8a94a0')); } } }
 };
 // ── 5 · el inserto del carrito: el balón gastado y el nuevo
 const NUEVO = en('kballs', 0.396), SAQUE = en('kballs', 0.450);
@@ -389,7 +442,7 @@ const p8 = (t) => {
   R.linea(0, 62, cx, cy, hex('#4a4e58')); R.linea(319, 70, cx, cy, hex('#4a4e58')); R.rect(cx - 5, cy - 3, cx + 5, cy + 4, K); R.rect(cx - 4, cy - 2, cx + 4, cy + 3, hex('#4a4a5a')); R.rect(cx - 2, cy + 4, cx + 2, cy + 6, K); R.pset(cx + 3, cy - 1, Math.floor(t * 4) % 2 ? hex('#e83a3a') : hex('#4a4a5a'));
 };
 const efectos = [[GOLPE + 0.3, 'silbato'], [GOLPE + 2.7, 'boing'], [P2 + 0.1, 'whoosh'], [VEGAS, 'pop'], [DIA, 'papel'], [PATEA, 'toc'], [S68, 'brillo'], [TERCIOS, 'pop'],
-  [DESDE + 0.7, 'vapor'], [PREPARA, 'lapiz'], [P5 + 0.2, 'lapiz'], [NUEVO, 'brillo'], [SAQUE, 'tic'], [SAQUE + 0.5, 'aviso'],
+  [DESDE + 0.7, 'vapor'], [DESDE + 2.4, 'toc'], [PREPARA, 'lapiz'], [P5 + 0.2, 'lapiz'], [NUEVO, 'brillo'], [SAQUE, 'tic'], [SAQUE + 0.5, 'aviso'],
   [P6 + 0.2, 'bip'], [COMUNES, 'golpecito'], [AGOSTO, 'silbato'], [PATADA2, 'toc'], [P8 + 0.05, 'pop'], [RECORD, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { cartela: '2025', efectos, año: (t) => (t < P6 ? 2025 : 2026) });
 </script>
