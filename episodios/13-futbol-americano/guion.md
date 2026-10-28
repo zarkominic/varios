@@ -147,7 +147,7 @@ Suspense e intriga juntos: menos de un minuto y medio, muy por debajo del tercio
 
 | ES | EN |
 |---|---|
-| Hoy, cada jugador de la NFL lleva chips en las hombreras, y dentro de cada balón viaja otro de apenas tres gramos, así que unas antenas repartidas por el estadio saben dónde está cada uno diez veces por segundo. | Today, every NFL player wears chips in his shoulder pads, and inside each ball rides another chip weighing just three grams, so antennas around the stadium know where everyone is ten times a second. |
+| Hoy, cada jugador de la NFL lleva chips en las hombreras, y dentro de cada balón viaja otro de unos tres gramos, así que unas antenas repartidas por el estadio saben dónde está cada uno diez veces por segundo. | Today, every NFL player wears chips in his shoulder pads, and inside each ball rides another chip weighing about three grams, so antennas around the stadium know where everyone is ten times a second. |
 | Con esos datos se mide lo rápido que corre cada jugador y lo lejos que vuela cada pase, y los equipos los usan para entrenar y para jugar mejor. | That data measures how fast every player runs and how far every pass travels, and teams use it to train and to play smarter. |
 | Ahora mismo la temporada de 2026 va camino de la Super Bowl número sesenta y uno, que se jugará el 14 de febrero de 2027 en el SoFi Stadium, cerca de Los Ángeles. | Right now, the 2026 season is on the road to Super Bowl sixty-one, which will be played on February 14, 2027, at SoFi Stadium, near Los Angeles. |
 
