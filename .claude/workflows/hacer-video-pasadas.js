@@ -46,7 +46,7 @@ GASTA POCO SIN MIRAR MENOS: cada turno tuyo reenvía todo lo que ya has leído, 
 
 const REGLAS = `REGLAS QUE NO SE PUEDEN ROMPER:
 - Sin palabras ni letras en pantalla: solo números y símbolos (R.numero, R.icono). Carteles, logos y periódicos se insinúan con barras, pictogramas o trazos.
-- Personajes pequeños (sprite chibi de ~25 px: R.actor; R.busto para el público), sin primeros planos de cuerpos ni de caras. Si sale una mano, es la canónica de 14 px: mano(R, x, y, dir, manga) en ${pref}-comun.js, T.mano en las escenas. Nada de manos o dedos grandes.
+- Personajes pequeños (sprite chibi de ~25 px: R.actor; R.busto para el público), sin primeros planos de cuerpos ni de caras. Si sale una mano, es la canónica de 14 px: mano(R, x, y, dir, manga) en ${pref}-comun.js, T.mano en las escenas; si sale un brazo, el canónico T.brazo(R, x0, y0, x1, y1, manga, dir, { codo: [x, y] }) (hombro → muñeca, con la mano al final; T.mano(…, { sinManga: true }) para la mano sola). Nada de manos o dedos grandes ni brazos propios en la escena.
 - La zona de Atom (x 278–318, y 4–44) y la barra del año (x 20–170, y 0–14) quedan como fondo tranquilo, sin nada importante. El pelo nunca tapa la cara.
 - Los coches y las multitudes van POR DELANTE de la gente (se dibujan después). Se camina solo con propósito.
 - Orden de dibujo: quien pasa por detrás de un mueble (sillas, mesa, mostrador) queda tapado por él; lo que se ve por una ventana o una puerta (coches, gente, pájaros) se recorta a su hueco (R.recorte), también en cada escena que reutiliza el decorado.
@@ -106,6 +106,7 @@ CÓMO TRABAJAR (solo puedes escribir en ${dir}/ y en ${sc}/det_${g}/):
 4. ANTES: hojas de revisión de tus escenas copiadas (ids _tmp_${g}/<id>) en ${sc}/det_${g}/antes. Míralas junto a la referencia.
 5. Reescribe tus funciones en TU copia. Hoja «despues» en ${sc}/det_${g}/despues/<n> y compárala lado a lado con la referencia. Itera hasta que cada plano tenga detalle de superficie (texturas, vetas, juntas, zócalos, sombras, brillos, objetos), profundidad y vida de fondo animada con t (gente pequeña al fondo, luces que parpadean, pantallas que cambian, vapor, viento, nubes a distinta velocidad, pájaros, reflejos). Mira también instantes intermedios (capturar.mjs) para ver que la animación se mueve y que los personajes de las escenas se siguen viendo bien delante. Comprueba que pintas toda la pantalla llenándola antes con un color centinela.
 6. Antes de la hoja final, vuelve a copiar las escenas (paso 2): otra pasada puede haberlas cambiado mientras trabajabas. La hoja final debe decir «sin errores en la página» en todas.
+7. Un ENCUADRE NUEVO (o una variante con otra escala) solo vale si su hoja de prueba lleva un personaje chibi de pie, a la escala de las escenas, en su línea de suelo, y se le ve llegar a lo que tiene que tocar (en el 13 se añadió un encuadre de escritorio que luego no sirvió: los personajes no encajaban a esa escala). Apunta en geometria la línea de suelo y dónde quedan sus manos.
 
 ${REGLAS}
 - La firma y las opciones (o.*) de cada función se mantienen con el mismo significado; puedes añadir opciones nuevas, siempre opcionales.
@@ -253,7 +254,7 @@ ${REGLAS}
 
 ${HERRAMIENTAS(`${sc}/pul_r${r}_${j}`)}
 
-MÉTODO: hoja ANTES en ${sc}/pul_r${r}_${j}/antes, solo de tus planos (--planos ${[...new Set(tarea.fallos.map((p) => p.plano))].join(',')}; si son de decorados, la de cada escena afectada); edita; hoja DESPUÉS en ${sc}/pul_r${r}_${j}/despues/<n>, también solo de tus planos, y al final una hoja --ligera de cada escena que has tocado para ver que no has roto nada; compara lado a lado con la referencia. Itera hasta que cada plano tuyo pase la rúbrica (nota 4 o más, ninguna regla rota) y la hoja diga «sin errores en la página».
+MÉTODO: hoja ANTES en ${sc}/pul_r${r}_${j}/antes, solo de tus planos (--planos ${[...new Set(tarea.fallos.map((p) => p.plano))].join(',')}; si son de decorados, la de cada escena afectada); edita; hoja DESPUÉS en ${sc}/pul_r${r}_${j}/despues/<n>, también solo de tus planos, y al final una hoja --ligera de cada escena que has tocado para ver que no has roto nada; compara lado a lado con la referencia. Itera hasta que cada plano tuyo pase la rúbrica (nota 4 o más, ninguna regla rota) y la hoja diga «sin errores en la página». Al final, el barrido de todos los instantes de las escenas que has tocado (las hojas solo miran inicio, centro y final; en el 13 un error a mitad de plano rompió el render): cd atomo && node herramientas/render-escenas.mjs build/largo/${ep} --barrer --solo <ids separados por comas> (tiene que decir «barrido sin errores»).
 
 ${RUBRICA}
 

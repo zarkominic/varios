@@ -206,12 +206,17 @@ En `atomo/plato/escenas/<pref>-comun.js`:
 - copia la fontanería de `th-comun.js`:
   - las primeras ~60 líneas: imports, paleta `C`, `conAtomGrande`, `preparar(id)`, `rodar`, `h` y `lerp`;
   - `momento`, que está más abajo (`grep -n "export const momento" atomo/plato/escenas/th-comun.js`);
+  - de `ov-comun.js`, importa y vuelve a exportar `mano` y `brazo` (el brazo canónico, desde el 13), como hace
+    `fa-comun.js`, para que las escenas los tengan como `T.mano` y `T.brazo`;
   - en `preparar()`, cambia `escena(id, 'ep11')` por `escena(id, '<ep>')` y los `tramosTiempo` de la barra del año por
     los de tu episodio (un tramo por época, con su color y su icono). Si no, las escenas cargan las marcas del 11;
 - escribe todos los decorados de la tabla del guion, con una función por decorado y sus opciones `o.*` para luz, estado y
   variantes;
 - los insertos de objetos van siempre sobre su decorado o sobre una mesa con cosas;
 - las piezas pequeñas.
+
+Cada encuadre se prueba con un personaje chibi de pie, a la escala de las escenas, junto a lo que tendrá que tocar: en el
+13 se añadió un escritorio en el que los personajes no encajaban y no sirvió.
 
 Captúralos en una página de prueba y arregla lo evidente. Ya en esta versión: nada liso, todo el lienzo pintado, lo de
 fuera recortado a ventanas y puertas, y los fondos fijos con `const prev = R.usar(b); …; R.usar(prev)`. Repasa «Los
@@ -222,22 +227,35 @@ pagarlos en la pasada de calidad (en el 12, tres rondas y dos pasadas extra, una
 `<pref>-miniatura.html` y mírala también reducida a 320 × 180, que es como la ve el público en la lista de YouTube. En el
 12, el tornado pálido se vio al final y hubo que rehacerlo.
 
-### 6. Escenas: el primer borrador
+### 6. Escenas: el primer borrador, ya con el movimiento
 
-1. Escribe los módulos `episodios/<carpeta>/borrador-escenas/escenas1.py`… con `E[id] = (título, cabecera, cuerpo)`. El
-   ejemplo es `episodios/11-theranos/borrador-escenas/`.
-2. Genéralas con `python3 atomo/herramientas/generar-escenas.py <pref> <ep> episodios/<carpeta>/borrador-escenas/*.py`.
-3. Reglas de las escenas:
-   - un plano cada 4–7 s, con su propia composición, cortado en la palabra que toca (`en('marca', fracción)`);
-   - cartelas de año y la barra del año;
-   - efectos `[t, 'receta']`, solo con recetas de `NIVEL`, **como mucho uno por segundo** y pocos rellenos (pop, brillo,
-     whoosh): el 12 llevaba 595 en 532 s y no pasó el control hasta que `efectos.cjs` quitó 58. Ese recorte automático
-     (si un episodio pasa del 62 % del tiempo con efectos, quita rellenos cortos, nunca gags) es la red, no el método;
-   - los gags;
-   - los siete fallos de `NIVEL-RESUMEN.md`, desde el borrador.
-4. Con la voz real (paso 3), vuelve a generar con `--pisar` y mide: `node atomo/herramientas/medir-planos.mjs <ep>` («!»
-   si pasa de 7,2 s, «<» si baja de 3,5 s). Sin `--pisar`, el generador no toca una escena que ya existe.
-5. Commit. **Desde aquí el generador ya no se usa:** las escenas se editan en su `.html`.
+Desde el 13 lo hacen los agentes, con el workflow `hacer-video-escenas` (`scriptPath:
+'<raíz>/.claude/workflows/hacer-video-escenas.js'`), en unos 9 grupos de 2–3 escenas repartidos en 3 llamadas a la vez:
+`{ ep, pref, carpeta, tema, elenco, geo: '<SC>/geo<N>', sc, grupos: [{ k, ids, archivo: 'escenas<k>.py', indicaciones }] }`.
+Cada agente escribe su módulo `episodios/<carpeta>/borrador-escenas/escenas<k>.py`, lo genera en `_tmp_S<k>/` y lo
+revisa con las hojas. El encargo ya lleva:
+- el movimiento de la antigua pasada (acción con propósito, vida de fondo, sincronía);
+- la lista de los ocho fallos de `NIVEL-RESUMEN.md`, que el agente pasa como si fuera el revisor antes de entregar (en
+  el 13 la calidad suspendió 47 de 102 planos del borrador);
+- el registro común de encuadres (`<SC>/encuadres-<ep>.md`), para no repetir el de otro grupo;
+- el barrido de errores de sus escenas (`render-escenas.mjs --barrer --carpeta _tmp_S<k>`).
+
+Guarda los `avisos` de cada grupo en `<SC>/avisos<N>.md`, haz commit de los módulos y, con todos:
+1. `python3 atomo/herramientas/generar-escenas.py <pref> <ep> episodios/<carpeta>/borrador-escenas/escenas1.py … --pisar`
+   (con la voz real, paso 3).
+2. Mide: `node atomo/herramientas/medir-planos.mjs <ep>` («!» si pasa de 7,2 s, «<» si baja de 3,5 s), `--fundidos` y
+   `--comprobar`.
+3. **El control del sonido, ya aquí:** `bash atomo/herramientas/control-sonido.sh <ep> <carpeta>` (unos minutos, sin
+   render ni agentes): % del tiempo con efectos, también por escena, voz − efectos y la música en cada cartela. Cada
+   escena entre el 40 y el 60 %; las que marque «← poco» llevan efectos sincronizados con lo que se ve. En el 13 esto
+   salió en la producción y costó dos vueltas y un agente.
+4. Borra las `_tmp_S*` con su ruta literal, una a una, y haz commit. **Desde aquí el generador ya no se usa:** las
+   escenas se editan en su `.html`.
+
+Reglas de las escenas, para cuando las toques tú: un plano cada 4–7 s con su propia composición, cortado en la palabra
+(`en('marca', fracción)`); cartelas y barra del año; efectos `[t, 'receta']` solo de `NIVEL` en `efectos.cjs`, como
+mucho uno por segundo (el recorte automático de `efectos.cjs` por encima del 62 % es la red, no el método); los gags;
+brazos con `T.brazo` y manos con `T.mano`, nunca uno propio.
 
 ### 7–9. Las tres pasadas, con el workflow guardado
 
@@ -247,15 +265,16 @@ sesión, usa `scriptPath: '<raíz del repo>/.claude/workflows/hacer-video-pasada
 Todos los `args` llevan `paso`, `ep`, `pref`, `carpeta`, `tema` y `sc`. Cada workflow ejecuta 2 agentes a la vez. Para
 ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos.
 
-**7. Movimiento** (unas 2 h):
-- `paso: 'movimiento'`, con `grupos: [{ ids: ['xx-gancho', 'xx-vuelta', 'xx-hola'] }, …]`: unos 8 grupos de 2–5
-  escenas;
+**7. Movimiento, solo lo que no aguante** (en el 13, 15 min y 0,2 M de tokens; antes, 2 h y 4,6 M):
+- el movimiento ya viene del borrador. Pasan por aquí las escenas con un QUIETO de `--comprobar` o con un aviso de
+  acción pequeña o floja, en un grupo (`indicaciones` con el plano y lo que falla);
+- `paso: 'movimiento'`, con `grupos: [{ ids: ['xx-reglas', 'xx-chips'], indicaciones: '…' }]`;
 - cada agente da a cada plano una acción con propósito, vida de fondo, sincronía y efectos;
 - **guarda sus `avisos`**: las posiciones de los decorados de las que dependen las escenas, los fallos de decorado que
   vieron y los «fondo local»;
 - haz commit al acabar.
 
-**8. Decorados** (1–1,5 h con 3 workflows):
+**8. Decorados, con fallos concretos** (1–1,5 h con 2–3 workflows; en el 13, 1,7 M de tokens frente a 3,5 M):
 - reparte las funciones de `<pref>-comun.js` en unos 9 grupos (A, B, C…) de 4–7;
 - `paso: 'decorados'`, con
   `grupos: [{ g: 'A', fns: [...], indicaciones: 'FALLO: … (de los avisos y de lo que has visto)', dependencias: 'posiciones que usan las escenas (de los avisos)' }]`;
@@ -315,7 +334,7 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
 4. Si devuelve `aprobado: false`, lo que queda en `quedan` se arregla tú o se le dice al usuario. Para arreglarlo tú,
    mira solo esos planos (`--planos`, o `capturar.mjs` en un instante). Nunca se entrega en
    silencio.
-5. Commit.
+5. Vuelve a pasar `control-sonido.sh` (el pulido toca efectos) y haz commit.
 
 ### 10. Miniatura
 
@@ -352,6 +371,8 @@ bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
 
 `producir.sh` hace esto, y se para con un error si algo falla:
 - **fundidos**: con `medir-planos.mjs --fundidos`; con uno roto no se renderiza;
+- **barrido**: `render-escenas.mjs --barrer` llama a cada instante que se va a dibujar, sin capturar (unos minutos), y
+  para si alguna escena da error a mitad de plano (en el 13 un error que las hojas no veían rompió el render);
 - **render**: de TODO el episodio, para que no se cuele ningún fotograma ni efecto de una versión vieja de las escenas.
   Antes comprueba el disco (6 GB libres, o 2 GB si ya hay fotogramas que sobrescribir) y después que están todos los
   fotogramas. Con `--faltan` solo dibuja lo que falte: es para seguir un render que se cortó sin que nada cambiara
@@ -413,13 +434,15 @@ Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git
     por fotograma y el modelo de los agentes.
   - Al entregar el 13, compara los tokens de cada fase con los del 12 (los da el resultado de cada workflow) y díselo
     al usuario con cifras.
-- **A prueba en el episodio 13** (si sale peor que el 12, se vuelve atrás y se le dice al usuario):
-  - borrador de escenas y pasada de movimiento en un solo paso, con el encargo de movimiento del workflow desde el
-    principio. Después, solo las escenas que no aguanten tu revisión contra el 11 pasan otra vez por movimiento;
-  - pasada de decorados solo con la lista de fallos concretos de cada decorado, no «súbelo todo», cuando la primera
-    versión ya aguanta la comparación;
+- **Probado en el 13 y aprobado por el usuario el 28/10/2026** («quedó perfecto»; 13,6 M de tokens frente a 35 M):
+  - borrador de escenas con el movimiento dentro (paso 6), y la pasada de movimiento solo para lo que no aguante;
+  - pasada de decorados con la lista de fallos concretos de cada decorado;
   - la pasada de calidad sigue entera (revisor y escéptico en todos los planos una vez, pulido y verificador hasta que
-    no quede nada): es la red que lo detecta.
+    no quede nada): es la red;
+  - y, con lo aprendido en el 13: el autorrevisor en el borrador con los fallos que más suspendieron, el registro común
+    de encuadres, el brazo canónico (`T.brazo`, y `T.mano` con `sinManga`), el barrido de errores antes del render y en
+    los agentes, el control del sonido en los pasos 6 y 9 (`control-sonido.sh`), los encuadres nuevos probados con un
+    personaje y cuatro recetas de ambiente (`publico`, `maquina`, `coche`, `viento`).
 - **Aprobado el 28/10/2026** (lo aprendido en el 12): los siete fallos en `NIVEL-RESUMEN.md` desde el primer borrador;
   el verificador en lugar del escéptico desde la segunda revisión; los fallos que vuelven solos a su escena; la miniatura
   con los decorados; el presupuesto de efectos; 10 GB libres al empezar; el integrador que coge las auxiliares cambiadas;
@@ -434,13 +457,13 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
 |---|---|
 | Tema y guion | 1–2 h, más las rondas del usuario |
 | Voz | ~40 min, en segundo plano |
-| Reparto, decorados y escenas, primer borrador | ~1 h |
-| Pasada de movimiento | ~2 h |
-| Pasada de decorados e integración | 1–1,5 h |
+| Reparto, decorados y escenas, primer borrador (con el movimiento) | ~1,5 h |
+| Pasada de movimiento (solo lo que no aguante) | ~15–30 min |
+| Pasada de decorados (fallos concretos) e integración | ~1 h |
 | Calidad: tu revisión, revisor y escéptico una vez, pulido y verificador | 3–4 h (el 12, con el método anterior: ~6 h) |
 | Producción y control (render 10–16 min) | ~45 min |
 | Miniatura, ficha y entrega | ~1 h |
-| **Total** | **unas 10–12 h** (el 12 real: ~15 h) |
+| **Total** | **unas 8–10 h** (el 12 real: ~15 h; el 13, ~6,5 h desde el guion) |
 
 ## Trampas conocidas
 

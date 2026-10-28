@@ -1,7 +1,7 @@
 export const meta = {
   name: 'hacer-video-escenas',
   description: 'Primer borrador de las escenas de un episodio de ASK Atom, ya con el movimiento de la pasada: un agente por grupo escribe su módulo de borrador, lo genera en su carpeta _tmp_S<k> y lo revisa con las hojas',
-  whenToUse: 'Desde la skill hacer-video, paso 6, con los decorados integrados y la voz real. Desde el 13 sustituye a «borrador + pasada de movimiento» (a prueba).',
+  whenToUse: 'Desde la skill hacer-video, paso 6, con los decorados integrados y la voz real. Desde el 13 sustituye a «borrador + pasada de movimiento» (probado en el 13 y aprobado).',
   phases: [
     { title: 'Escenas', detail: 'un agente por grupo de escenas; cada uno escribe su módulo borrador-escenas/<archivo>.py' },
   ],
@@ -14,6 +14,7 @@ const grupos = A.grupos || []
 const { sc, ep, pref, carpeta, tema, elenco, geo } = A
 if (!sc || !ep || !pref || !carpeta || !geo || !grupos.length) throw new Error('args: { ep, pref, carpeta, tema, elenco, geo, sc, grupos: [{ k, ids, archivo, indicaciones }] }')
 
+const ENCUADRES = `${sc}/encuadres-${ep}.md`
 const CONTEXTO = `Trabajas en el repositorio de la serie (tu directorio de trabajo es su raíz): la serie de vídeos «ASK Atom» (pixel art en un lienzo de 320×180; escenas en atomo/plato/escenas/<id>.html que importan «* as T» de ${pref}-comun.js). Es el ${ep}, «${tema}», para público de EE. UU.
 
 EL NIVEL ESTÁ ESCRITO EN PIEDRA: lee episodios/NIVEL-RESUMEN.md (una página, con «Los siete fallos que más suspendieron en el 12»: no los cometas). El usuario: «todo excelente; pero sobre todo el detalle de las escenas y movimiento», y «no por ahorrar tiempo bajarlo por ninguna circunstancia». LA REFERENCIA es el episodio 11 final: mira con Read episodios/referencia-ep11-1.jpg y referencia-ep11-2.jpg (15 planos a 640×360) ANTES de empezar, y lee una escena del 11 para ver cómo se escriben (atomo/plato/escenas/th-gancho.html) y su borrador (episodios/11-theranos/borrador-escenas/escenas1.py, solo la primera escena). Mira cómo se mueven los personajes en th-gancho y th-consejo (grep y sed del trozo, no enteras). Ninguna imagen que mires con Read debe pasar de 2000 px de lado.
@@ -33,15 +34,16 @@ const REGLAS = `REGLAS DE LAS ESCENAS:
 - Un plano nuevo cada 4–7 s, cada uno con su propia composición (otro decorado, otro encuadre u otro inserto de objeto); un cambio de cámara sobre el mismo dibujo no cuenta, ni repetir el encuadre de un plano de la escena de antes o de después. Corta en la palabra que toca.
 - Cartela de año en las escenas que la tienen en escenas.json (opción cartela: 'AAAA' de T.rodar) y la barra del año (opción año, puede ser una función del tiempo) que dice la verdad en cada plano.
 - Los gags del guion (guion.md, sección Gags) en su escena: cortos (1–3 s), con objetos y animales, nunca contra personas reales.
-- Sin palabras ni letras en pantalla: solo números y símbolos (R.numero, R.icono: '?', '!', 'X'…). Personajes pequeños, sin primeros planos; si sale una mano, la canónica T.mano(R, x, y, dir, manga) de 14 px, con el brazo bien resuelto (NIVEL-RESUMEN.md, fallo 1). La zona de Atom (x 278–318, y 4–44) y la barra del año (x 20–170, y 0–14) quedan como fondo tranquilo.
+- Sin palabras ni letras en pantalla: solo números y símbolos (R.numero, R.icono: '?', '!', 'X'…). Personajes pequeños, sin primeros planos; si sale un brazo, el canónico T.brazo(R, x0, y0, x1, y1, manga, dir, { codo: [x, y] }) (hombro → muñeca, con la mano de 14 px al final; mira su cabecera en ov-comun.js); la mano sola, T.mano(R, x, y, dir, manga, { sinManga: true }). No escribas un brazo propio (NIVEL-RESUMEN.md, fallo 1). La zona de Atom (x 278–318, y 4–44) y la barra del año (x 20–170, y 0–14) quedan como fondo tranquilo.
 - Lo que pasa por detrás de un mueble queda tapado por él; lo que se ve por una ventana, un mapa o una pantalla se recorta a su hueco (R.recorte con linea/pset/poligono/disco: R.rect no lo respeta). Los coches y las multitudes van por delante de la gente.
 - Sin marcas reales: ni logotipos ni escudos de una liga o de un equipo de hoy (los equipos de hoy son los inventados del reparto).
 - Nada morboso.
 - Todo plano pinta los 320×180 píxeles en cada fotograma (el decorado lo hace; si haces un inserto propio, píntalo entero y con detalle, sobre su decorado o una mesa con cosas).
 - No cambies ${pref}-comun.js (otros agentes trabajan a la vez): si te falta una pieza pequeña, dibújala en la escena. Si un decorado tiene un fallo, apúntalo en avisos («FALLO DECORADO: <función> <encuadre>: …»).
-- No hagas commits.`
+- No hagas commits.
+- ENCUADRES: antes de componer cada plano, mira ${ENCUADRES} (lo escriben a la vez todos los agentes) y apunta el tuyo con una línea al final: echo "<id> p<n>: <función> '<encuadre>' (<qué se ve>)" >> ${ENCUADRES}. Ningún plano repite el decorado y encuadre de otro plano de su escena ni de la escena de antes o de después, y el mismo encuadre no sale más de dos veces en el episodio (en el 13, 13 fallos de composición repetida venían de que cada grupo no veía a los demás).`
 
-// el encargo de la pasada de movimiento, desde el borrador (a prueba en el 13)
+// el encargo de la pasada de movimiento, desde el borrador (probado en el 13: la pasada aparte bajó de 4,6 M a 0,2 M)
 const MOVIMIENTO = `CADA PLANO (cada entrada [inicio, función] de T.rodar) TIENE QUE TENER, YA EN ESTE BORRADOR, LO QUE PEDÍA LA PASADA DE MOVIMIENTO:
 - Una acción con propósito de los personajes que cuente lo que dice la voz en ese momento: entrar, sentarse, coger algo, señalar, hablar con otro, reaccionar (sorpresa, enfado, sonrisa), lanzar, atrapar, irse. Empieza y termina dentro del plano. Nadie está tieso todo el plano: los que esperan respiran (sin quieto) o hacen gestos (habla, dedo).
 - Vida de fondo: extras pequeños que pasan o trabajan; objetos que se mueven (puertas, papeles, banderas, coches que pasan por delante, pantallas, el balón).
@@ -73,6 +75,9 @@ CÓMO TRABAJAR (solo puedes escribir en episodios/${carpeta}/borrador-escenas/${
 4. Itera hasta que cada plano aguante la comparación con la referencia: composición, detalle, vida de fondo y una acción con propósito sincronizada con la voz, y repasa plano a plano los siete fallos de NIVEL-RESUMEN.md. No te quedes en la primera versión que «funciona».
 
 ${MOVIMIENTO}
+
+ANTES DE ENTREGAR, haz de revisor de la pasada de calidad, con su mismo listón: en el 13 suspendió 47 de los 102 planos del borrador (algo que no se lee 21, quieto 15, composición repetida 13, zonas casi lisas 13, brazos 11, orden de dibujo 6, letras 4), y cada plano suspendido cuesta luego una ronda de revisor, escéptico y pulido. Mira tus hojas finales plano a plano con los ocho fallos de NIVEL-RESUMEN.md delante y arregla lo que veas, sobre todo: ¿lo que cuenta la frase se lee a 640 px sin buscarlo? ¿se mueve algo con propósito del principio al final? ¿el encuadre es distinto de los que ya hay en ${ENCUADRES}?
+Comprueba también que ningún instante da error (las hojas solo miran inicio, centro y final; en el 13 un error a mitad de plano rompió el render): cd atomo && node herramientas/render-escenas.mjs build/largo/${ep} --barrer --carpeta _tmp_S${G.k} --solo ${G.ids.join(',')} (tiene que decir «barrido sin errores»).
 
 ${REGLAS}
 

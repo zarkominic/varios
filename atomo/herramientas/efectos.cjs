@@ -95,6 +95,50 @@ function motor({ dur = 10 } = {}) {
   }
   return out;
 }
+// ambientes con duración (desde el 13: «motor», que es una avioneta, hacía de cortacésped, coche y sopladora). Todos con
+// entrada y salida suaves de 0,4 s y { dur } en segundos.
+const suave = (t, dur, f = 0.4) => Math.min(1, t / f, (dur - t) / f);
+// público de estadio: murmullo de muchas voces (ruido en la banda de la voz, con vaivén lento) y algún «¡oh!» que crece
+function publico({ dur = 3, ola = 0 } = {}) {
+  const out = buf(dur), w = rng(41), bp1 = new SVF(), bp2 = new SVF(), lp = new OnePole();
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR, n = w(), vaiven = 0.75 + 0.25 * Math.sin(TAU * 0.7 * t) * Math.sin(TAU * 1.9 * t + 1);
+    const oh = ola ? Math.exp(-((t - dur * 0.55) ** 2) / 0.18) * ola : 0;
+    out[i] = (bp1.bp(n, 520, 1.2) * 0.9 + bp2.bp(n, 1400 + 300 * oh, 1.6) * (0.4 + oh) + lp.lp(n, 180) * 0.3) * (vaiven + oh) * suave(t, dur);
+  }
+  return out;
+}
+// máquina de taller (coser, cortar, cinta): traqueteo regular de golpecitos metálicos sobre un zumbido de motor eléctrico
+function maquina({ dur = 3, ritmo = 9 } = {}) {
+  const out = buf(dur), w = rng(43), bp = new SVF();
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR, f = (t * ritmo) % 1, golpe = Math.exp(-f * 38);
+    out[i] = (bp.bp(w(), 2400, 3) * golpe * 1.4 + Math.sin(TAU * 100 * t) * 0.12 + Math.sin(TAU * 200 * t) * 0.05) * suave(t, dur, 0.15);
+  }
+  return out;
+}
+// coche que pasa o avanza: motor de explosión grave (diente de sierra filtrado) con el ralentí que tiembla
+function coche({ dur = 3, rpm = 1 } = {}) {
+  const out = buf(dur), w = rng(45), lp = new OnePole(), lp2 = new OnePole();
+  let ph = 0;
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR; ph += (34 * rpm + 3 * Math.sin(TAU * 2.3 * t)) / SR;
+    const saw = 2 * (ph % 1) - 1;
+    out[i] = (lp.lp(saw, 260) * 1.2 + lp2.lp(w(), 400) * 0.5) * suave(t, dur, 0.6);
+  }
+  return out;
+}
+// viento continuo en exteriores: ruido rosa que silba entre 300 y 800 Hz con rachas lentas (no es la «rafaga» corta)
+function viento({ dur = 4 } = {}) {
+  const out = buf(dur), w = rng(47), bp = new SVF();
+  let rosa = 0;
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR; rosa = rosa * 0.97 + w() * 0.03;
+    const racha = 0.6 + 0.4 * Math.sin(TAU * 0.31 * t) * Math.sin(TAU * 0.17 * t + 2);
+    out[i] = bp.bp(rosa, 380 + 300 * racha, 1.4) * racha * 4 * suave(t, dur, 0.8);
+  }
+  return out;
+}
 // destello al sol: tres campanitas agudas que se desvanecen
 function brillo() {
   const out = buf(1.6);
@@ -168,6 +212,7 @@ const RECETAS = {
   jet, burbujas, zumbido, motor, brillo, lapiz, palmada, arranque, masca, flash, papel: () => I.paperFwip(0.8), tic: () => I.woodTick(1.3),
   gluglu,
   trueno, rafaga, lluvia, ola,
+  publico, maquina, coche, viento,
   boing: () => I.boing(),
   claxon,
   silbato,
@@ -181,7 +226,8 @@ const RECETAS = {
 const NIVEL = { guau: [-30, -0.1], timbre: [-31, -0.3], puerta: [-31, 0.2], firma: [-32, 0.1], aviso: [-33, 0.2], gluglu: [-30, 0.3], boing: [-29, -0.2], claxon: [-31, -0.5], silbato: [-32, 0.1], vapor: [-34, 0.1],
   pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0],
   motor: [-36, 0], tecleo: [-33, 0.2], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0],
-  trueno: [-28, 0], rafaga: [-33, 0], lluvia: [-36, 0], ola: [-33, 0] };
+  trueno: [-28, 0], rafaga: [-33, 0], lluvia: [-36, 0], ola: [-33, 0],
+  publico: [-37, 0], maquina: [-35, 0.2], coche: [-35, 0], viento: [-37, 0] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
 const rms = (b) => {
   const n = Math.min(b.length, Math.round(0.4 * SR)), c = new Float64Array(b.length + 1);
@@ -196,7 +242,7 @@ const rms = (b) => {
 // ventanas deja en silencio. Se avisa de cada uno.
 const OCUPADO = Number(arg('--ocupado', 62)) / 100, VENT = 0.5, UMBRAL = 10 ** (-45 / 10);
 const QUITABLES = [['pop', 'tic', 'golpecito', 'brillo', 'papel', 'lapiz', 'whoosh', 'toc', 'bip'],
-  ['rafaga', 'ola', 'lluvia', 'vapor', 'burbujas', 'interruptor', 'flash', 'zumbido', 'tecleo'], ['trueno', 'motor']];
+  ['rafaga', 'ola', 'lluvia', 'vapor', 'burbujas', 'interruptor', 'flash', 'zumbido', 'tecleo', 'viento', 'publico', 'maquina'], ['trueno', 'motor', 'coche']];
 const eventos = lista.filter((e) => e[0] < dur).map(([t, nombre, o = {}]) => {
   if (!RECETAS[nombre]) throw new Error(`efecto desconocido: ${nombre}`);
   const [db, pan] = NIVEL[nombre], b = RECETAS[nombre](o), g = 10 ** ((db - rms(b)) / 20);

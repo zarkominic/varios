@@ -8,7 +8,7 @@
 # con 4 trabajadores y todo junto, unos 30 min. VOZ es la carpeta del entorno de voz (por defecto la de preparar-voz.sh,
 # ~/.cache/ask-atom/voz). Pasos:
 #   fundidos   medir-planos.mjs --fundidos: ningún corte con negro ni restos en el fundido (si no, no se renderiza);
-#   render     render-escenas.mjs de TODO el episodio, para que no quede ningún fotograma ni efecto de una versión vieja
+#   render     render-escenas.mjs --barrer (ningún error en ningún instante que se va a dibujar) y luego de TODO el episodio, para que no quede ningún fotograma ni efecto de una versión vieja
 #              de las escenas (con --faltan solo dibuja lo que falte: para seguir un render que se cortó, sin cambios entre
 #              medias), y comprueba que están todos los fotogramas de linea.json;
 #   efectos    efectos.cjs → efectos.wav;
@@ -42,6 +42,8 @@ if toca render; then
   libre=$(df -Pk . | awk 'NR==2 {print int($4/1048576)}'); hace=6
   [ -d "$L/fotos" ] && hace=2   # se sobrescriben, pero crecen con el detalle (en el 11, 1,5 GB al rehacerlos)
   [ "$libre" -ge $hace ] || falla "solo hay $libre GB libres y el render necesita $hace (si se llena, falla sin avisar)"
+  paso "barrido de errores (cada instante que se dibujará, sin capturar)"
+  (cd atomo && node herramientas/render-escenas.mjs "build/largo/$EP" --trabajadores 4 --barrer) || falla "alguna escena da error a mitad de plano: arréglala antes de renderizar"
   paso "render ($L) ${FALTAN:-completo}"
   (cd atomo && node herramientas/render-escenas.mjs "build/largo/$EP" --trabajadores 4 $FALTAN)
   faltan=$("$PY" -c "import json,os,sys; d=sys.argv[1]; n=json.load(open(d+'/linea.json'))['fotogramas']; print(sum(not os.path.exists(f'{d}/fotos/{i:05d}.jpg') for i in range(n)))" "$L")

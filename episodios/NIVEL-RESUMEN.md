@@ -19,6 +19,8 @@ cuesta después una ronda de revisor, escéptico y pulido:
 1. **Brazo «palo»:** una manga recta y lisa que entra desde el borde (en el 12, de hasta 85 × 4 px). Un brazo entra en
    diagonal, se ven como mucho 30–45 px, tiene 6–7 px de grosor que se estrecha hacia el puño, luz y sombra, dos pliegues,
    puño y su sombra; y no cruza por encima de lo que tiene delante. Si no cabe así, solo la mano cerca del borde.
+   Desde el 13 está hecho: `T.brazo(R, x0, y0, x1, y1, manga, dir, { codo: [x, y] })` (con la mano canónica al final) y,
+   para la mano sola, `T.mano(R, x, y, dir, manga, { sinManga: true })`. No se escribe un brazo propio en la escena.
 2. **Composición repetida:** el mismo encuadre que otro plano de la escena o de la escena de al lado (boya y barco en el
    mar tres veces; la misma granja con otra luz). Cada plano: otro decorado, otro encuadre de verdad o un inserto.
 3. **Zonas «casi lisas»:** no basta con no ser de un color. Un cielo en degradado con dos nubes, un mueble con cuatro
@@ -35,13 +37,21 @@ cuesta después una ronda de revisor, escéptico y pulido:
 7. **Algo que flota o está quieto:** un patito por encima del puño, una horquilla sin anclar, testigos tiesos todo el
    plano, un tornado que se lee como un triángulo liso. Lo que se coge va en la mano; lo que se ve, se mueve.
 
+8. **Algo que no se lee:** el objeto que cuenta la frase (un chip, un cartel, una cifra, un balón lejos) se pierde en
+   la hoja a 640 px. Es el fallo que más salió en el 13 (21 de 96). Lo importante del plano se ve sin buscarlo: más
+   grande, más cerca, con contraste o con un filo claro.
+
+En el 13, la calidad suspendió 47 de los 102 planos del borrador, con 96 fallos: algo que no se lee 21, quieto 15,
+composición repetida 13, zonas casi lisas 13, brazos 11, orden de dibujo 6, letras 4. Son los que hay que mirar antes de
+entregar un borrador.
+
 Además: **efectos** con un presupuesto de un efecto por segundo como mucho y pocos rellenos (pop, brillo, whoosh); el 12
 llevaba 595 en 532 s y sonaban el 75 % del tiempo.
 
 ## Reglas que no se rompen
 
 - **Sin letras en pantalla:** solo números y símbolos (`R.numero`, `R.icono`).
-- **Personajes pequeños:** el chibi de ~25 px, sin primeros planos. Una mano es siempre la canónica de 14 px (`T.mano`). El plano medio se hace con un vehículo o con el decorado. El pelo nunca tapa la cara.
+- **Personajes pequeños:** el chibi de ~25 px, sin primeros planos. Una mano es siempre la canónica de 14 px (`T.mano`, o al final de `T.brazo`). El plano medio se hace con un vehículo o con el decorado. El pelo nunca tapa la cara.
 - **Zonas tranquilas:** la de Atom (x 278–318, y 4–44) y la barra del año (x 20–170, y 0–14).
 - **Orden de dibujo:**
   - lo que pasa por detrás de un mueble queda tapado por él;
