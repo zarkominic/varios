@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep13</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// FA-MINIATURA · la miniatura del episodio 13 (se captura en t = 1, 1280 × 720). Partida por una diagonal: a la izquierda,
+// West Point en 1913 con su grada de cadetes; a la derecha, el estadio de hoy de noche con sus focos. Encima, el gran pase
+// en espiral que cruza de un lado al otro: el balón de hoy, grande, girando, con su estela y el arco de su trayectoria que
+// baja la punta; Dorais al doble lanzando desde 1913 y el receptor de hoy al doble esperándolo; el «600» de las vueltas
+// por minuto y un «?» grande. Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { C, westPoint, estadioHoy, balon } from '/atomo/plato/escenas/fa-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), pj2 = R.nuevo(), VACIO = 0x01020304;
+// la diagonal: a la izquierda de corte(y), 1913
+const corte = (y) => 178 - Math.round(y * 0.5);
+const dibujar = (t) => {
+  let prev = R.usar(izq); westPoint(R, t, { encuadre: 'grada', equipos: false, mula: false });
+  R.usar(der); estadioHoy(R, t, { encuadre: 'noche' });
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.dorais, 12, 60, 0.5, { dir: 1, dedo: true, quieto: true, sonrisa: true });
+  R.usar(pj2); pj2.fill(VACIO); R.actor(EL.receptor, 12, 60, 0.5, { dir: -1, brazos: true, quieto: true, sorpresa: true });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x, y, C.k); R.pset(x + 1, y, C.blanco); R.pset(x + 2, y, C.blanco); R.pset(x + 3, y, C.k); }
+  // los personajes al doble: Dorais abajo a la izquierda, el receptor abajo a la derecha
+  const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+  pon(pj, 0, 24, 30, 61, 14, 116, 2);
+  pon(pj2, 0, 24, 30, 61, 250, 116, 2);
+  // el arco punteado del pase, de la mano de Dorais al receptor, y el balón grande en lo alto, girando y con estela
+  for (let k = 0; k <= 48; k++) { const u = k / 48, x = Math.round(46 + 214 * u), y = Math.round(116 - 88 * Math.sin(Math.PI * u)); if (k % 2 === 0 && Math.abs(x - 176) > 22) { R.rect(x - 1, y - 1, x + 2, y + 2, C.k); R.rect(x, y, x + 1, y + 1, C.blanco); } }
+  balon(R, 176, 34, t, { epoca: 'hoy', s: 4.2, ang: 0.32, giro: t * 10, estela: 1.6 });
+  // las vueltas por minuto y la pregunta
+  R.numero('600', 118, 62, { tam: 16, centro: true });
+  // las flechas de giro alrededor del balón
+  for (let k = 0; k < 14; k++) { const a = -2.2 + k * 0.16, x = Math.round(176 + Math.cos(a) * 30), y = Math.round(34 + Math.sin(a) * 14); R.rect(x, y, x + 1, y + 1, C.blanco); }
+  R.numero('?', 236, 72, { tam: 32, centro: true, rampa: [C.oroL, C.oroL, C.amarillo, C.naranja, C.naranjaS] });
+  R.numero('1913', 52, 26, { tam: 12, centro: true });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
