@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ada · ep13</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// FA-ADA (frases «ada» y «cordones»), hoy (2026). Seis planos, con calma y oficio:
+// 1. la sala de corte: un operario entra con una piel enrollada al hombro; la operaria señala el cartel: el cerdo se
+//    tacha en «pig» y aparece la vaca (corta en «even»);
+// 2. inserto de la mesa de corte: la mano marca con tiza el contorno de un panel sobre la piel de vaca, coge la cuchilla,
+//    corta el primero en «handmade», salen los números 1–4 en «four» y levanta el panel en «cowhide» (corta en «at»);
+// 3. el mapa: del Medio Oeste a Ohio, la pluma roja repasa la frontera de Ohio y la mano clava la chincheta en Ada
+//    («Ada»); salen el pueblo, el maizal y la vaca en «small Ohio town» (corta en «about»);
+// 4. la calle de Ada de día: «5,000» sube en el cielo en «5,000»; el tendero barre; los operarios llegan por la acera y
+//    entran por la puerta de la fábrica en «a hundred workers» (corta en «Stamps»);
+// 5. la sala de costura: las máquinas cosen, la operaria da la vuelta al balón en la barra en «stitch and lace», un
+//    operario cruza con el cajón vacío (corta en «laces»);
+// 6. la sala de los cordones: el gato juega con el cordón suelto («aren't decoration»), se enreda y se queda sentado,
+//    muy digno (gag); se infla un balón; el operario coge un balón de la cinta en «grip» y se lo lanza en espiral a la
+//    operaria en «spin», que lo atrapa.
+import * as T from '/atomo/plato/escenas/fa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('fa-ada');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#1c1222');
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const cl = (v) => Math.max(0, Math.min(255, v | 0));
+const rgb = (r, g, b) => (0xff000000 | (cl(b) << 16) | (cl(g) << 8) | cl(r)) >>> 0;
+const mezcla = (c1, c2, a) => rgb((c1 & 255) + ((c2 & 255) - (c1 & 255)) * a, ((c1 >>> 8) & 255) + (((c2 >>> 8) & 255) - ((c1 >>> 8) & 255)) * a, ((c1 >>> 16) & 255) + (((c2 >>> 16) & 255) - ((c1 >>> 16) & 255)) * a);
+// recorrido por fotogramas clave [t, x, suelo]: dónde está, si anda y hacia dónde mira (null antes de entrar)
+const ruta = (t, kf, desde = true) => { if (t < kf[0][0]) return desde ? null : { x: kf[0][1], s: kf[0][2], mv: false, d: 1 };
+  for (let i = 0; i + 1 < kf.length; i++) if (t < kf[i + 1][0]) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1], u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0, d: x1 < x0 ? -1 : 1 }; }
+  const [, x, s] = kf[kf.length - 1]; return { x, s, mv: false, d: 1 }; };
+const suave = (u) => u * u * (3 - 2 * u);
+// un fondo fijo en su búfer (se pinta una vez y se copia en cada fotograma)
+const FIJOS = new Map();
+const fijo = (k, f) => { let b = FIJOS.get(k); if (!b) { b = R.nuevo(); const prev = R.usar(b); f(); R.usar(prev); FIJOS.set(k, b); } R.copiar(b); };
+// la mano canónica de 14 px (la de T.mano) con un brazo de verdad: entra en diagonal desde fuera del cuadro, 7 px de grueso
+// que se estrecha hacia el puño, luz arriba y sombra abajo, dos pliegues, el puño claro con su sombra. (hx, hy): el centro
+// de la mano; dir 1: los dedos a la derecha; (sx, sy): el hombro, fuera del cuadro
+const MANO = ['.....kkkkkk...', '....kSSSSSSkk.', 'kkkkSSSSSSSSSk', 'MMMkSSSSSSSSSk', 'MMMkSSSSSSSssk', 'MMMkSSSSSSssk.', 'kkkkkSSSSskk..', '.....kkkkk....'];
+const brazo = (x0, y0, x1, y1, cM, cS, cL) => {
+  const L = Math.hypot(x1 - x0, y1 - y0) || 1, ux = (x1 - x0) / L, uy = (y1 - y0) / L; let nx = -uy, ny = ux; if (ny > 0) { nx = -nx; ny = -ny; }
+  const Q = (s, w) => [Math.round(x0 + ux * s + nx * w), Math.round(y0 + uy * s + ny * w)], w0 = 3.6, w1 = 2.6;
+  R.poligono([Q(0, w0 + 1), Q(L + 1, w1 + 1), Q(L + 1, -w1 - 1), Q(0, -w0 - 1)], K);
+  R.poligono([Q(0, w0), Q(L, w1), Q(L, -w1), Q(0, -w0)], cM);
+  for (let s = 0; s < L; s += 0.6) { const w = w0 + (w1 - w0) * s / L; R.pset(...Q(s, w - 0.8), cL); R.pset(...Q(s, -w + 0.8), cS); }
+  for (const f of [0.5, 0.68]) { const s = L * f; for (let w = -2; w <= 1; w++) R.pset(...Q(s + w * 0.7, w), cS); R.pset(...Q(s + 1.2, 1), cL); }
+  for (let w = -w1; w <= w1; w += 0.5) { R.pset(...Q(L - 2, w), cL); R.pset(...Q(L - 3, w), cL); R.pset(...Q(L - 4, w), K); R.pset(...Q(L - 5, w), cS); }
+};
+const manoBrazo = (hx, hy, dir, sx, sy, manga = ['#3e5a8a', '#2c4468', '#5a7aaa']) => {
+  const [cM, cS, cL] = manga.map(hex), wx = hx - dir * 5;
+  brazo(sx, sy, wx, hy, cM, cS, cL);
+  R.dibujo(MANO, Math.round(hx - 7), Math.round(hy - 4), dir, { k: K, S: hex('#f6c290'), s: hex('#d48a5a'), M: cM });
+};
+// una caja de cartón con los dos escudos inventados (verde azulado y granate), cerrada con cinta
+const caja2 = (x, y) => { const { rect, pset } = R;
+  rect(x, y, x + 10, y + 8, K); rect(x + 1, y + 1, x + 9, y + 7, hex('#c89a5a')); rect(x + 1, y + 1, x + 9, y + 2, hex('#dcb070')); rect(x + 5, y + 1, x + 5, y + 7, hex('#e8d8b0'));
+  rect(x + 2, y + 3, x + 4, y + 6, T.C.equipoA); pset(x + 3, y + 6, T.C.equipoAS); rect(x + 6, y + 3, x + 8, y + 6, T.C.equipoB); pset(x + 7, y + 6, T.C.equipoBS); };
+
+const a = (f) => en('ada', f), c = (f) => en('cordones', f);
+const P2 = a(0.2328), P3 = a(0.6566), P4 = a(0.9002), P5 = c(0.191), P6 = c(0.5258);
+
+// ── 1 · la sala de corte y el cartel del cerdo ────────────────────────────────────────────────────────────────────
+const PIG = a(0.166), VACA = a(0.195);
+const rollo = (x, y) => { const { rect, pset } = R;   // la piel enrollada al hombro (x: el centro, y: arriba)
+  rect(x - 10, y, x + 10, y + 5, K); rect(x - 9, y + 1, x + 9, y + 4, T.C.cueroL); rect(x - 9, y + 3, x + 9, y + 4, T.C.cuero);
+  for (let i = -8; i < 9; i += 3) pset(x + i, y + 2, T.C.cueroS); rect(x + 8, y + 1, x + 10, y + 4, hex('#d89a64')); pset(x + 9, y + 2, T.C.cueroS); };
+const p1 = (t) => {
+  const cartel = t < PIG ? 0 : t < VACA ? 0.5 * tramo(t, PIG, PIG + 0.3) : 0.5 + 0.5 * tramo(t, VACA, VACA + 0.35);
+  T.fabricaAda(R, t, { encuadre: 'corte', cartel });
+  // el técnico de la estampadora, que aprieta el pedal y coge los paneles
+  R.actor(EL.tecnico, 50, 160, t, { dir: -1, dedo: Math.sin(t * 2.2) > 0.4 });
+  // la operaria bajo el cartel: habla con él, señala el cartel en «pig» y sonríe con la vaca
+  const señala = t > PIG - 0.3 && t < VACA + 0.9;
+  R.actor(EL.obrera, 236, 161, t, { dir: señala ? 1 : -1, habla: t > 1.2 && t < PIG - 0.4 && Math.sin(t * 9) > 0, dedo: señala, sonrisa: t > VACA, sorpresa: t > PIG && t < VACA });
+  // el operario entra con la piel al hombro, se para junto a la mesa y mira el cartel
+  const q = ruta(t, [[0.1, -18, 159], [2.9, 168, 159]]);
+  if (q) { const mira = t > 2.9; R.actor(EL.obrero, q.x, q.s, t, { dir: 1, anda: q.mv, sorpresa: t > PIG && t < VACA, sonrisa: t > VACA + 0.2 });
+    if (t < 4.2) rollo(q.x + 6, q.s - 16 - (q.mv && Math.floor(t * 5 + q.x * 0.37) % 2 ? 1 : 0));
+    else { const u = tramo(t, 4.2, 4.6); rollo(q.x + 6 + Math.round(u * 26), Math.round(lerp(q.s - 16, 126, u))); }
+    if (mira && t > VACA + 0.2 && Math.floor(t * 3) % 2) R.icono('!', q.x + 5, q.s - 38, K, hex('#f6f2ea')); }
+};
+
+// ── 2 · inserto: la mesa de corte, la piel, la tiza, la cuchilla y los cuatro paneles ───────────────────────────────
+const gajo = (cx, cy, L, W, n = 28) => { const p = []; for (let i = 0; i <= n; i++) { const u = -1 + 2 * i / n; p.push([cx + u * L, cy - W * Math.pow(1 - u * u, 0.75)]); } for (let i = n - 1; i > 0; i--) { const u = -1 + 2 * i / n; p.push([cx + u * L, cy + W * Math.pow(1 - u * u, 0.75)]); } return p; };
+const enGajo = (p, u) => { const n = p.length, f = u * n, i = Math.min(n - 1, Math.floor(f)), j = (i + 1) % n, r = f - i; return [p[i][0] + (p[j][0] - p[i][0]) * r, p[i][1] + (p[j][1] - p[i][1]) * r]; };
+const PANELES = [gajo(232, 156, 34, 10), gajo(140, 157, 34, 10), gajo(150, 114, 34, 10), gajo(234, 112, 34, 10)];
+const HUECOS = [gajo(78, 62, 30, 9), gajo(150, 48, 32, 9)];
+const PIEL = (() => { const p = []; for (let k = 0; k < 40; k++) { const ang = k / 40 * Math.PI * 2, pata = Math.max(0, Math.cos(ang * 2 + 0.5)) ** 6 * 0.18;
+  const rx = 118 * (1 + pata + (hh(k, 1, 30) - 0.5) * 0.08), ry = 72 * (1 + pata + (hh(k, 2, 30) - 0.5) * 0.1); p.push([Math.round(150 + Math.cos(ang) * rx), Math.round(95 + Math.sin(ang) * ry)]); } return p.map(([x, y]) => [Math.min(270, Math.max(18, x)), Math.max(22, Math.min(170, y))]); })();
+const mesaPiel = () => { const { rect, pset, linea, disco, poligono } = R;
+  // la mesa de madera: tablones con sus juntas, vetas y nudos
+  rect(0, 0, 319, 179, hex('#8a5a34'));
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const v = hh(x >> 3, y, 31), tab = Math.floor(y / 30);
+    const veta = Math.sin(x * 0.06 + tab * 2 + Math.sin(x * 0.013 + tab) * 3 + y * 0.35) > 0.86; if (veta) pset(x, y, hex('#74482a')); else if (v < 0.08) pset(x, y, hex('#9a6a40')); }
+  for (let tab = 1; tab < 6; tab++) { rect(0, tab * 30, 319, tab * 30, hex('#4a2c18')); rect(0, tab * 30 + 1, 319, tab * 30 + 1, hex('#a87448')); }
+  for (const [x, y] of [[46, 14], [262, 76], [300, 136], [20, 104]]) { disco(x, y, 3, hex('#5a361e')); disco(x, y, 1, hex('#3e2414')); }
+  // la piel de vaca extendida: borde oscuro, cuerpo con su grano, zonas de luz y sombra, y los huecos ya cortados
+  poligono(PIEL.map(([x, y]) => [x + 2, y + 3]), hex('#5a3a22'));
+  poligono(PIEL, hex('#6a3a20')); poligono(PIEL.map(([x, y]) => [Math.round(150 + (x - 150) * 0.97), Math.round(95 + (y - 95) * 0.96)]), hex('#a0643a'));
+  for (let y = 20; y < 172; y++) for (let x = 16; x < 272; x++) { const c = R.pget(x, y); if (c !== hex('#a0643a')) continue;
+    const g = hh(x, y, 32), luz = Math.sin(x * 0.02 + y * 0.03) + Math.sin(x * 0.05 - y * 0.02) * 0.5;
+    if (luz > 1.0 && g < 0.45) pset(x, y, hex('#b0703f')); else if (luz < -0.9 && g < 0.45) pset(x, y, hex('#8e5532'));
+    else if (g < 0.07) pset(x, y, hex('#8a5230')); else if (g > 0.95) pset(x, y, hex('#b87a4a')); }
+  // la línea del lomo y las arrugas del cuero
+  for (let x = 44; x < 258; x++) { const y = Math.round(92 + Math.sin(x * 0.04) * 3); if (hh(x, 1, 33) < 0.7) pset(x, y, hex('#8a5230')); if (hh(x, 2, 33) < 0.3) pset(x, y - 1, hex('#b87a4a')); }
+  for (let k = 0; k < 14; k++) { const x = 50 + Math.round(hh(k, 1, 34) * 190), y = 40 + Math.round(hh(k, 2, 34) * 110); R.linea(x, y, x + 5 + (k % 4), y + (k % 3) - 1, hex('#8a5230')); R.linea(x, y - 1, x + 4 + (k % 4), y + (k % 3) - 2, hex('#b87a4a')); }
+  for (const H of HUECOS) { const G = H.map(([x, y]) => [Math.round(x), Math.round(y)]); poligono(G, hex('#3e2414')); poligono(G.map(([x, y]) => [x, y + 2]), hex('#7a4c2c'));
+    for (let y = 0; y < 180; y++) for (let x = 40; x < 190; x++) if (R.pget(x, y) === hex('#7a4c2c') && Math.sin(x * 0.06 + y * 0.35) > 0.86) pset(x, y, hex('#64402a'));
+    for (let k = 0; k < 40; k++) { const [x, y] = enGajo(G, k / 40); if (k > 20) pset(Math.round(x), Math.round(y) + 1, hex('#c08050')); } }
+  // la plantilla de acero de un panel, con su asa y dos agujeros, apoyada sobre la piel
+  { const G = gajo(212, 64, 30, 9).map(([x, y]) => [Math.round(x), Math.round(y)]); poligono(G.map(([x, y]) => [x + 2, y + 3]), hex('#5a3a22')); poligono(G, K);
+    poligono(gajo(212, 64, 29, 8).map(([x, y]) => [Math.round(x), Math.round(y)]), hex('#a8b0bc')); poligono(gajo(212, 62, 24, 4).map(([x, y]) => [Math.round(x), Math.round(y)]), hex('#c8d0dc'));
+    disco(196, 64, 2, K); disco(228, 64, 2, K); rect(206, 60, 218, 62, K); rect(207, 60, 217, 61, hex('#e0e6ee')); }
+  // el flexómetro amarillo con la cinta sacada
+  { disco(78, 112, 8, K); disco(78, 112, 7, hex('#e8c040')); disco(78, 112, 3, hex('#4a4a5a')); rect(84, 110, 132, 114, K); rect(85, 111, 131, 113, hex('#f0d860')); for (let x = 88; x < 131; x += 3) pset(x, 111, K); rect(130, 109, 133, 115, K); }
+  // las marcas de tiza de los paneles 1, 3 y 4 (el 2 se marca en el plano)
+  for (const k of [0, 2, 3]) for (let i = 0; i < 90; i++) if (i % 3 !== 2) { const [x, y] = enGajo(PANELES[k], i / 90); pset(Math.round(x), Math.round(y), hex('#f2eee2')); }
+  // la regla de acero con sus marcas
+  rect(10, 168, 120, 175, K); rect(11, 169, 119, 174, hex('#b8c0cc')); rect(11, 169, 119, 169, hex('#e0e6ee'));
+  for (let x = 14; x < 118; x += 4) rect(x, 170, x, x % 20 === 14 ? 173 : 171, hex('#4a5262'));
+  // el mazo, la lezna, las tijeras y el bote de tiza (a la izquierda)
+  rect(6, 70, 34, 77, K); rect(7, 71, 33, 76, hex('#c89a5a')); rect(7, 71, 33, 72, hex('#e0b878')); rect(30, 60, 42, 88, K); rect(31, 61, 41, 87, hex('#d8c8a0')); rect(31, 61, 33, 87, hex('#f0e4c4'));
+  rect(4, 112, 20, 115, K); rect(5, 113, 12, 114, hex('#c8784a')); linea(13, 114, 24, 114, hex('#c8d0dc'));
+  linea(4, 136, 18, 128, hex('#c8d0dc')); linea(4, 128, 18, 136, hex('#c8d0dc')); disco(3, 128, 2, hex('#c83a3a')); disco(3, 136, 2, hex('#c83a3a'));
+  rect(288, 52, 304, 66, K); rect(289, 53, 303, 65, hex('#3e7ab8')); rect(289, 53, 303, 55, hex('#6a9ad0')); for (let i = 0; i < 4; i++) rect(291 + i * 3, 49, 292 + i * 3, 53, hex('#f6f2ea'));
+  // la pila de paneles ya cortados (a la derecha) y el carrete de hilo
+  for (let k = 0; k < 6; k++) { const G = gajo(296, 120 - k * 3, 20, 6, 16).map(([x, y]) => [Math.round(x), Math.round(y)]); poligono(G.map(([x, y]) => [x, y + 1]), hex('#4a2c18')); poligono(G, k % 2 ? hex('#a86a3c') : hex('#b8784a')); }
+  disco(296, 160, 9, K); disco(296, 160, 8, hex('#e8e0d0')); disco(296, 160, 3, hex('#8a5a34')); for (let r = 4; r < 8; r += 2) for (let k = 0; k < 24; k++) pset(Math.round(296 + Math.cos(k / 4) * r), Math.round(160 + Math.sin(k / 4) * r), hex('#c8c0b0'));
+  // la taza de café (el vapor se mueve encima)
+  rect(18, 140, 32, 158, K); rect(19, 141, 31, 157, hex('#f6f2ea')); rect(19, 141, 31, 143, hex('#5a3418')); rect(19, 150, 31, 152, hex('#c83a3a')); rect(32, 145, 35, 153, K); rect(33, 146, 34, 152, hex('#f6f2ea'));
+  // recortes de cuero sueltos
+  for (const [x, y, w] of [[60, 168, 8], [180, 172, 6], [250, 20, 7], [12, 30, 9]]) { rect(x, y, x + w, y + 3, hex('#4a2c18')); rect(x, y, x + w - 1, y + 2, hex('#b0703f')); }
+};
+const TIZA0 = P2 + 0.25, TIZA1 = a(0.355), COGE = a(0.44), CORTA0 = a(0.4963), CORTA1 = a(0.545), NUM = a(0.5489), LEVANTA = a(0.613);
+const p2 = (t) => { const { rect, pset, linea, disco } = R;
+  fijo('mesaPiel', mesaPiel);
+  // la tiza del panel 2, que sale detrás de la mano
+  const ut = tramo(t, TIZA0, TIZA1);
+  for (let i = 0; i < 90 * ut; i++) if (i % 3 !== 2) { const [x, y] = enGajo(PANELES[1], i / 90); pset(Math.round(x), Math.round(y), hex('#f2eee2')); }
+  // el corte del panel 1: una ranura oscura con su canto claro
+  const uc = tramo(t, CORTA0, CORTA1);
+  for (let i = 0; i < 120 * uc; i++) { const [x, y] = enGajo(PANELES[0], i / 120); pset(Math.round(x), Math.round(y), hex('#3e2414')); pset(Math.round(x), Math.round(y) + 1, hex('#c08050')); }
+  // el panel 1 se levanta y se desliza hacia la pila
+  const ul = suave(tramo(t, LEVANTA, LEVANTA + 0.55));
+  if (ul > 0) { const G = PANELES[0].map(([x, y]) => [Math.round(x + ul * 20), Math.round(y - ul * 4)]);
+    R.poligono(PANELES[0].map(([x, y]) => [Math.round(x), Math.round(y)]), hex('#8a5a34')); R.poligono(G.map(([x, y]) => [x + 2, y + 3]), hex('#5a3a22')); R.poligono(G, hex('#b0703f'));
+    for (let i = 0; i < 40; i++) { const [x, y] = enGajo(G, i / 40); pset(Math.round(x), Math.round(y), hex('#6a3a20')); } }
+  // los números de los cuatro paneles, uno tras otro desde «four»
+  for (let k = 0; k < 4; k++) { const s = NUM + k * 0.14; if (t > s) { const [cx, cy] = [PANELES[k][14][0], (PANELES[k][14][1] + PANELES[k][42][1]) / 2]; const sube = Math.round((1 - tramo(t, s, s + 0.2)) * 3);
+    R.numero(String(k + 1), Math.round(cx + (k === 0 ? ul * 20 : 0)), Math.round(cy + 4 - sube - (k === 0 ? ul * 4 : 0)), { centro: true }); } }
+  // la cuchilla de media luna: en la mesa hasta que la coge, luego en la mano; la deja al acabar el corte
+  let hx, hy, conTiza = false, conCuchilla = false;
+  if (t < TIZA0) { const u = suave(tramo(t, P2, TIZA0)); const [x, y] = enGajo(PANELES[1], 0); hx = lerp(150, x + 2, u); hy = lerp(190, y, u); conTiza = true; }
+  else if (t < TIZA1) { const [x, y] = enGajo(PANELES[1], ut); hx = x + 2; hy = y; conTiza = true; }
+  else if (t < COGE) { const u = suave(tramo(t, TIZA1 + 0.1, COGE)); const [x, y] = enGajo(PANELES[1], 1); hx = lerp(x + 2, 272, u); hy = lerp(y, 170, u); conTiza = u < 0.5; }
+  else if (t < CORTA0) { const u = suave(tramo(t, COGE + 0.15, CORTA0)); const [x, y] = enGajo(PANELES[0], 0); hx = lerp(272, x + 3, u); hy = lerp(170, y - 2, u); conCuchilla = true; }
+  else if (t < CORTA1 + 0.1) { const [x, y] = enGajo(PANELES[0], uc); hx = x + 3; hy = y - 2; conCuchilla = true; }
+  else if (t < LEVANTA) { const u = suave(tramo(t, CORTA1 + 0.1, LEVANTA)); const [x, y] = enGajo(PANELES[0], 0.25); hx = lerp(232, x + 22, u); hy = lerp(150, y + 2, u); }
+  else { hx = 222 + ul * 20 + 32; hy = 156 - ul * 4; }
+  const cuchilla = (x, y) => { disco(x, y, 5, K); disco(x, y, 4, hex('#c8d0dc')); R.rect(x - 4, y, x + 4, y + 4, hex('#8a5a34')); disco(x - 1, y - 2, 1, hex('#f6f8fa')); rect(x - 2, y + 1, x + 2, y + 6, K); rect(x - 1, y + 2, x + 1, y + 5, hex('#7a4a24')); };
+  if (!conCuchilla && t < CORTA0) cuchilla(272, 166);
+  if (!conCuchilla && t > CORTA1) cuchilla(206, 170);
+  if (conCuchilla) cuchilla(Math.round(hx - 4), Math.round(hy + 1));
+  if (conTiza) { rect(Math.round(hx - 8), Math.round(hy - 1), Math.round(hx - 3), Math.round(hy + 1), K); rect(Math.round(hx - 7), Math.round(hy), Math.round(hx - 4), Math.round(hy), hex('#f6f2ea')); }
+  manoBrazo(hx + 4, hy, -1, hx + 52, 214, ['#3e5a8a', '#2c4468', '#5a7aaa']);
+  // el vapor de la taza y una sombra que pasa por la mesa (alguien que cruza bajo los fluorescentes)
+  for (let k = 0; k < 4; k++) { const v = (t * 0.7 + k / 4) % 1; disco(Math.round(25 + Math.sin(v * 8 + k) * 2), Math.round(136 - v * 18), v < 0.5 ? 1 : 2, v > 0.7 ? hex('#d8c8b0') : hex('#f2eee2')); }
+  const sx = Math.round(lerp(-60, 380, tramo(t, P2 + 0.4, P2 + 3.4)));
+  if (sx > -60 && sx < 380) for (let y = 0; y < 180; y += 1) for (let x = Math.max(0, sx - 20 + (y >> 3)); x < Math.min(320, sx + 20 + (y >> 3)); x++) if (!(x > 276 && y < 46) && !(y < 16 && x < 172)) pset(x, y, mezcla(R.pget(x, y), hex('#2a1810'), 0.12));
+};
+
+// ── 3 · el mapa: de Medio Oeste a Ohio, la frontera repasada y la chincheta en Ada ──────────────────────────────────
+const OHIO = [[-84.82, 41.70], [-83.45, 41.73], [-83.1, 41.6], [-82.7, 41.45], [-82.0, 41.48], [-81.4, 41.55], [-80.52, 41.98], [-80.52, 40.64], [-80.66, 40.28], [-80.85, 39.70], [-81.4, 39.35], [-81.75, 39.15], [-82.2, 38.6], [-82.6, 38.62], [-83.0, 38.73], [-83.65, 38.63], [-84.3, 39.03], [-84.82, 39.1]];
+const PIN = a(0.7553), PUEBLO = a(0.8105);
+const p3 = (t) => { const { rect, pset, linea, disco } = R;
+  const u = tramo(t, P3, P3 + 1.1), P = T.mapa(R, t, { desde: 'medioeste', zoom: 4.6, centro: [-83.1, 41.25], u, rosa: false });
+  const [ax, ay] = P(T.LUGARES.ada).map(Math.round);
+  R.recorte([7, 7, 312, 172]);
+  // la frontera de Ohio repasada a pluma roja (raya y punto), que se traza en «a Wilson factory»
+  const ub = tramo(t, P3 + 0.5, PIN - 0.15), pts = [...OHIO, OHIO[0]].map((p) => P(p));
+  let tot = 0; const seg = []; for (let i = 0; i + 1 < pts.length; i++) { const l = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]); seg.push(l); tot += l; }
+  let hecho = tot * ub, acum = 0;
+  for (let i = 0; i + 1 < pts.length && hecho > 0; i++) { const l = seg[i], n = Math.ceil(l); for (let s = 0; s <= n && acum + s < hecho; s++) { if ((acum + s) % 7 > 4) continue; const x = Math.round(lerp(pts[i][0], pts[i + 1][0], s / n)), y = Math.round(lerp(pts[i][1], pts[i + 1][1], s / n)); pset(x, y, hex('#b83a2a')); pset(x + 1, y + 1, hex('#7a2418')); } acum += l; }
+  // el camino de Ada al este, con un camión que se aleja (los balones que salen)
+  const L1 = P([-83.82, 40.77]), L2 = P([-82.3, 40.9]), L3 = P([-81.0, 41.1]);
+  for (let s = 0; s < 1; s += 0.02) { if (Math.floor(s * 50) % 2) continue; const [x, y] = s < 0.5 ? [lerp(L1[0], L2[0], s * 2), lerp(L1[1], L2[1], s * 2)] : [lerp(L2[0], L3[0], s * 2 - 1), lerp(L2[1], L3[1], s * 2 - 1)]; pset(Math.round(x), Math.round(y), hex('#8a6a4a')); }
+  if (t > PIN) { const s = ((t - PIN) * 0.18) % 1, [x, y] = s < 0.5 ? [lerp(L1[0], L2[0], s * 2), lerp(L1[1], L2[1], s * 2)] : [lerp(L2[0], L3[0], s * 2 - 1), lerp(L2[1], L3[1], s * 2 - 1)];
+    rect(Math.round(x) - 2, Math.round(y) - 2, Math.round(x) + 2, Math.round(y), K); rect(Math.round(x) - 1, Math.round(y) - 1, Math.round(x) + 1, Math.round(y) - 1, hex('#f6f2ea')); }
+  // las otras ciudades del noroeste de Ohio (puntos de tinta)
+  for (const p of [[-83.55, 41.65], [-84.1, 40.74], [-83.65, 41.04], [-82.99, 39.96], [-81.69, 41.5], [-84.51, 39.1]]) { const [x, y] = P(p).map(Math.round); disco(x, y, 1, hex('#4a3e34')); pset(x, y, hex('#e8dcbc')); }
+  // el pueblo pequeño junto a la chincheta: casitas, el depósito de agua, el maizal y una vaca (dibujos de tinta)
+  const v = tramo(t, PUEBLO, PUEBLO + 0.6);
+  if (v > 0) { const tinta = hex('#4a3e34'), n = Math.ceil(v * 4);
+    if (n > 0) for (let k = 0; k < 3; k++) { const x = ax - 22 + k * 7, y = ay + 4; linea(x, y - 3, x + 2, y - 5, tinta); linea(x + 2, y - 5, x + 4, y - 3, tinta); rect(x, y - 3, x + 4, y, tinta); rect(x + 1, y - 2, x + 3, y - 1, hex('#e8c890')); }
+    if (n > 1) { rect(ax + 12, ay - 14, ax + 18, ay - 10, tinta); rect(ax + 13, ay - 13, ax + 17, ay - 11, hex('#c8d0dc')); linea(ax + 13, ay - 10, ax + 12, ay - 4, tinta); linea(ax + 17, ay - 10, ax + 18, ay - 4, tinta); }
+    if (n > 2) for (let j = 0; j < 3; j++) for (let i = 0; i < 5; i++) { const x = ax + 14 + i * 3, y = ay + 6 + j * 3; pset(x, y, hex('#6a8a3a')); pset(x, y - 1, hex('#8aa84a')); }
+    if (n > 3) { const x = ax - 26, y = ay - 12, mov = Math.sin(t * 2) > 0.6 ? 1 : 0; rect(x, y, x + 7, y + 3, tinta); rect(x + 1, y + 1, x + 6, y + 2, hex('#f6f2ea')); pset(x + 3, y + 1, tinta); rect(x + 7, y - 1 + mov, x + 9, y + 1 + mov, tinta); pset(x + 1, y + 4, tinta); pset(x + 6, y + 4, tinta); } }
+  R.recorte(null);
+  // la chincheta cae y se clava en Ada en «Ada», con su pulso
+  const baja = tramo(t, PIN - 0.35, PIN);
+  if (baja > 0) T.chincheta(R, ax, ay, t, hex('#c83a3a'), { baja, pulso: t > PIN + 0.1 });
+};
+
+// ── 4 · la calle de Ada de día: «5,000» y los operarios que entran a trabajar ─────────────────────────────────────
+const CINCO = a(0.913), CIEN = c(0.057);
+const p4 = (t) => { const { rect } = R;
+  T.fabricaAda(R, t, { encuadre: 'calle' });
+  // el tendero de la tienda de deportes barre la acera (la escoba va y viene)
+  { const x = 40, b = Math.sin(t * 5) * 3; R.actor(EL.tecnica, x, 141, t, { dir: 1 }); R.linea(x + 12, 124, Math.round(x + 16 + b), 140, hex('#8a5a2a')); rect(Math.round(x + 13 + b), 139, Math.round(x + 20 + b), 141, hex('#c8a040')); rect(Math.round(x + 13 + b), 141, Math.round(x + 20 + b), 141, hex('#8a6a20')); }
+  // la puerta de la fábrica se abre cuando llegan
+  const OBREROS = [[EL.obrero, 0], [EL.obrera, 0.55], [EL.tecnico, 1.1], [EL.obrera, 1.7], [EL.obrero, 2.25]];
+  let abierta = false;
+  for (const [d, dt] of OBREROS) { const t0 = P4 + dt - 0.4, tl = CIEN - 0.6 + dt * 0.55; const q = ruta(t, [[t0, 96 + dt * 4, 141], [tl, 206, 141], [tl + 0.45, 214, 129], [tl + 0.6, 214, 129]]);
+    if (q && t < tl + 0.6) { if (t > tl - 0.3) abierta = true; R.actor(d, q.x, q.s, t, { dir: 1, anda: q.mv, sonrisa: dt === 0 && t > CIEN }); } }
+  if (abierta) { rect(212, 112, 228, 127, hex('#3a2a1a')); rect(212, 112, 228, 113, hex('#f8e8a0')); rect(213, 114, 227, 126, hex('#5a4630')); }
+  // «5,000» sube en el cielo con la voz
+  const e = tramo(t, CINCO, CINCO + 0.4); if (e > 0) R.numero('5,000', 98, Math.round(lerp(52, 42, suave(e))), { tam: 16, centro: true });
+};
+
+// ── 5 · la sala de costura: las máquinas, la vuelta del balón y el cajón ────────────────────────────────────────────
+const VUELTA0 = c(0.24), VUELTA1 = c(0.45);
+const p5 = (t) => {
+  T.fabricaAda(R, t, { encuadre: 'costura', vuelta: tramo(t, VUELTA0, VUELTA1) });
+  // la operaria de la barra tira del balón para darle la vuelta
+  const tira = t > VUELTA0 && t < VUELTA1;
+  R.actor(EL.obrera, 38, 163, t, { dir: -1, dedo: tira && Math.sin(t * 6) > -0.4, sonrisa: t > VUELTA1 });
+  // el operario cruza con el cajón vacío hacia las máquinas y saluda a la operaria
+  const q = ruta(t, [[P5 + 0.1, 300, 162], [P6 - 1.0, 120, 162], [P6 - 0.3, 116, 162]]);
+  if (q) { R.actor(EL.obrero, q.x, q.s, t, { dir: -1, anda: q.mv, dedo: !q.mv && t > P6 - 0.9, habla: !q.mv && Math.sin(t * 8) > 0 });
+    if (q.mv) { const x = q.x - 6, y = q.s - 14; R.rect(x, y, x + 10, y + 6, K); R.rect(x + 1, y + 1, x + 9, y + 5, hex('#a8743c')); R.rect(x + 1, y + 1, x + 9, y + 1, hex('#c8904c')); R.rect(x + 3, y + 3, x + 7, y + 3, hex('#7a4a24')); }
+    else { const x = q.x + 8, y = q.s - 7; R.rect(x, y, x + 10, y + 6, K); R.rect(x + 1, y + 1, x + 9, y + 5, hex('#a8743c')); R.rect(x + 1, y + 1, x + 9, y + 1, hex('#c8904c')); } }
+};
+
+// ── 6 · la sala de los cordones: el gato y el pase en espiral ───────────────────────────────────────────────────────
+const JUEGA = c(0.6), DIGNO = c(0.8), GRIP = c(0.8469), SPIN = c(0.95), ATRAPA = SPIN + 0.7;
+const p6 = (t) => {
+  T.fabricaAda(R, t, { encuadre: 'cordones', inflado: tramo(t, P6 + 0.3, c(0.76)), gato: tramo(t, JUEGA, DIGNO) });
+  // el operario mira al gato, sonríe, coge un balón de la cinta en «grip» y lo lanza en espiral en «spin»
+  const lanza = t > SPIN - 0.25 && t < SPIN + 0.3, OX = 186, AX = 236;
+  R.actor(EL.obrero, OX, 160, t, { dir: t > GRIP ? 1 : -1, sonrisa: t > DIGNO - 0.2 && t < GRIP + 0.5, sorpresa: t > JUEGA + 0.4 && t < DIGNO - 0.3, dedo: t > GRIP && t < SPIN + 0.3 });
+  R.actor(EL.obrera, AX, 161, t, { dir: -1, brazos: t > SPIN + 0.2 && t < ATRAPA + 0.4, sonrisa: t > ATRAPA, habla: t < GRIP && Math.sin(t * 7) > 0.3 });
+  // el balón: en la cinta, en la mano (con los dedos en los cordones), en el aire girando y en las manos de ella
+  const mx = OX + 15, my = 160 - 29;
+  if (t > GRIP - 0.4 && t < GRIP) { const u = tramo(t, GRIP - 0.4, GRIP); T.balon(R, Math.round(lerp(200, mx, u)), Math.round(lerp(122, my, u)), t, { s: 1 }); }
+  else if (t >= GRIP && t < SPIN) T.balon(R, mx, my, t, { s: 1, ang: -0.3 });
+  else if (t >= SPIN && t < ATRAPA) { const u = tramo(t, SPIN, ATRAPA), x = lerp(mx, AX + 7, u), y = lerp(my, 160 - 31, u) - Math.sin(u * Math.PI) * 18;
+    T.balon(R, Math.round(x), Math.round(y), t, { s: 1, ang: -0.35 + u * 0.7, gira: 3, estela: 0.8 }); }
+  else if (t >= ATRAPA) T.balon(R, AX + 7, 160 - 31, t, { s: 1, ang: 0.2 });
+};
+
+const efectos = [[PIG, 'lapiz'], [VACA, 'papel'], [CORTA0, 'golpecito'], [NUM, 'pop'], [PIN, 'golpecito'], [CINCO, 'brillo'], [CIEN + 0.2, 'puerta'],
+  [P5 + 0.15, 'zumbido'], [P6 + 0.35, 'vapor'], [DIGNO + 0.05, 'miau'], [SPIN, 'whoosh']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

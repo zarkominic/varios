@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep13</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// FA-HOLA (frase 6), hoy. Un plano: el césped a ras de suelo con el estadio vacío detrás. El balón entra dando
+// botes por la izquierda y se para en el centro en «Atom», mece y gira sobre su eje; al fondo, el operario pinta una raya
+// con su carro y el cortacésped pasa; en «Let's find out» se encienden los focos, uno tras otro, y el balón da un saltito.
+import * as T from '/atomo/plato/escenas/fa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('fa-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const dz = (x, y) => (B4[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const hs = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const rampa = (x, y, v, cs) => { const q = Math.max(0, Math.min(cs.length - 1.001, v * (cs.length - 1))), i = Math.floor(q); return q - i > dz(x, y) ? cs[i + 1] : cs[i]; };
+const H = (a) => a.map(hex);
+const FIJOS = new Map();
+const fijo = (k, dib) => { let b = FIJOS.get(k); if (!b) { b = R.nuevo(); const prev = R.usar(b); dib(); R.usar(prev); FIJOS.set(k, b); } R.copiar(b); };
+const sombraSuelo = (cx, y, rx, c) => { for (let i = -rx; i <= rx; i++) { R.pset(cx + i, y, c); if (Math.abs(i) < rx - 2) R.pset(cx + i, y + 1, c); } };
+// una nube de noche: puffs con la sombra arriba, el cuerpo y el borde de abajo encendido por el estadio
+const nube = (cx, cy, w, c, sem = 0) => { cx = Math.round(cx); cy = Math.round(cy); const n = 3 + Math.floor(hs(sem, 1, 2) * 4);
+  for (let k = 0; k < n; k++) { const dx = Math.round((k - (n - 1) / 2) * w * 0.8 / n + (hs(sem, k, 3) - 0.5) * 6), r = Math.max(2, Math.round(w * (0.1 + 0.14 * hs(sem, k, 4)))), y = cy - Math.round(r * 0.35) + Math.round((hs(sem, k, 5) - 0.5) * 4);
+    R.disco(cx + dx, y, r, c[0]); R.disco(cx + dx, y + 1, r - 1, c[1]); if (r > 3) R.disco(cx + dx, y + 2, r - 3, c[2]); }
+  R.rect(cx - Math.round(w * 0.42), cy + 1, cx + Math.round(w * 0.42), cy + 2, c[1]); R.linea(cx - Math.round(w * 0.36), cy + 3, cx + Math.round(w * 0.36), cy + 3, c[2]); };
+// el público: filas de asientos y aficionados de 2 × 4 px con la camiseta de los dos equipos inventados
+const PIEL = H(['#f2c8a0', '#d8a070', '#a86a40', '#6e4224', '#f6d8b8']);
+const CAMIS = H(['#1e8a8a', '#e8783a', '#8a2a3a', '#f2eee2', '#146464', '#641e2a', '#2a3458', '#c8a040']);
+const MOVIL = hex('#f4f6ff'), PELO = H(['#1c1424', '#3a2418', '#8a5a2a', '#c8a050', '#5a3418']);
+const publico = (x0, x1, y0, y1, t, o = {}) => {
+  const as = hex(o.asiento ?? '#262a40'), asL = hex(o.asientoL ?? '#363c58'), esc = hex('#4a4e60'), escL = hex('#5e6274');
+  const g = o.g ?? 1, fila = g > 1 ? 7 : 4, paso = g > 1 ? 4 : 3;
+  for (let y = y0; y <= y1; y++) R.rect(x0, y, x1, y, (y - y0) % fila === fila - 1 ? asL : as);
+  if (o.pasillo) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (o.pasillo(x, y)) R.pset(x, y, (y & 1) ? escL : esc);
+  for (let fy = y0; fy <= y1 - fila + 1; fy += fila) for (let x = x0 + (Math.floor(fy / fila) & 1) * (g > 1 ? 2 : 1); x < x1 - 2; x += paso) {
+    if (o.pasillo && (o.pasillo(x, fy) || o.pasillo(x + 1, fy))) continue;
+    const r = hs(x, fy, 3); if (r < (o.vacio ?? 0.07)) continue;
+    const s = o.salta ? o.salta(x, fy, r) : 0, yy = fy - Math.round(s), cam = CAMIS[Math.floor(hs(x, fy, 5) * (o.colores ?? 6))];
+    if (g > 1) { const pi = PIEL[Math.floor(hs(x, fy, 7) * 5)], pe = PELO[Math.floor(hs(x, fy, 8) * 5)];
+      R.rect(x, yy + 4, x + 2, yy + 6, cam); R.pset(x + 2, yy + 6, as); R.rect(x, yy + 1, x + 2, yy + 3, pi); R.rect(x, yy, x + 2, yy, pe); if (r > 0.5) R.pset(x, yy + 1, pe); else R.pset(x + 2, yy + 1, pe);
+      if (s > 1.2) { R.rect(r > 0.5 ? x + 3 : x - 1, yy - 1, r > 0.5 ? x + 3 : x - 1, yy + 3, cam); R.pset(r > 0.5 ? x + 3 : x - 1, yy - 2, pi); }
+      else if (o.moviles && r > 1 - o.moviles * 0.1 && Math.sin(t * 2.2 + r * 60) > -0.2) { R.rect(x + 3, yy - 1, x + 3, yy + 1, MOVIL); }
+      continue; }
+    R.rect(x, yy + 2, x + 1, yy + 3, cam); R.rect(x, yy, x + 1, yy + 1, PIEL[Math.floor(hs(x, fy, 7) * 5)]);
+    if (s > 1.2) { R.pset(r > 0.5 ? x + 2 : x - 1, yy, cam); R.pset(r > 0.5 ? x + 2 : x - 1, yy - 1, PIEL[0]); }
+    else if (o.moviles && r > 1 - o.moviles * 0.1 && Math.sin(t * 2.2 + r * 60) > -0.2) { R.pset(x + 1, yy - 1, MOVIL); R.pset(x + 1, yy - 2, hex('#9aa0c8')); }
+  }
+};
+
+const h = (f) => en('hola', f);
+const para = h(0.1393), luces = h(0.7969);
+const p1 = (t) => {
+  T.estadioHoy(R, t, { encuadre: 'cesped' });
+  // los focos del estadio que se encienden en «Let's find out»
+  [[30, 34], [66, 30], [104, 34], [196, 34], [236, 30]].forEach(([fx, fy], k) => { const e = tramo(t, luces + k * 0.12, luces + k * 0.12 + 0.2); if (e <= 0) return;
+    for (let j = -12; j <= 12; j++) for (let i = -12; i <= 12; i++) { const d = Math.hypot(i, j) / 12; if (d < 0.45 * e) R.pset(fx + i, fy + j, hex(d < 0.25 ? '#ffffff' : '#fff6d8')); else if (d < 1 && dz(fx + i, fy + j) < (1 - d) * 0.6 * e) R.pset(fx + i, fy + j, hex('#f0dca0')); } });
+  // al fondo, el operario empuja el carro de pintar y deja la raya fresca
+  const ox = Math.round(lerp(40, 150, tramo(t, 0.2, 5.8)));
+  for (let x = 30; x < ox - 2; x++) R.pset(x, 96, hex('#f8f8f0'));
+  R.rect(ox - 3, 92, ox + 3, 95, hex('#c8c8d0')); R.rect(ox - 3, 92, ox + 3, 92, hex('#e8e8f0')); R.pset(ox - 2, 96, hex('#2a2a2a')); R.pset(ox + 2, 96, hex('#2a2a2a')); R.linea(ox - 3, 92, ox - 7, 87, hex('#5a5a66'));
+  R.actor(EL.obrero, ox - 21, 97, t, { dir: 1, anda: true });
+  // la bolsa de balones y el soporte de patada, en primer término a la izquierda
+  R.rect(50, 150, 58, 156, hex('#e8783a')); R.rect(50, 150, 58, 150, hex('#f8a060')); R.poligono([[49, 157], [54, 150], [59, 157]], hex('#e8783a')); R.pset(54, 151, hex('#b8582a'));
+  R.rect(252, 140, 278, 158, hex('#1a1a22')); R.rect(253, 141, 277, 157, hex('#2c2c38')); R.rect(253, 141, 277, 142, hex('#4a4a5a')); for (const bx of [258, 266, 273]) T.balon(R, bx, 139, t, { ang: -0.5 + (bx % 3) * 0.3 });
+  R.linea(256, 141, 262, 132, hex('#1a1a22')); R.linea(274, 141, 268, 132, hex('#1a1a22')); R.linea(262, 132, 268, 132, hex('#1a1a22'));
+  sombraSuelo(160, 149, 13, hex('#2e5a26'));
+  // el balón: entra dando botes, se para en «Atom», mece y gira; salta en «Let's find out»
+  if (t < para) { const u = tramo(t, 0, para), x = lerp(-20, 160, u), b = Math.abs(Math.sin(u * Math.PI * 2.5)) * 22 * (1 - u); T.balon(R, Math.round(x), Math.round(140 - b), t, { s: 3, volteretas: true, fase: 0.4 }); }
+  else { const d = t - para, mece = Math.sin(d * 7) * 0.22 * Math.exp(-d * 1.1), salto = tramo(t, luces, luces + 0.25) - tramo(t, luces + 0.25, luces + 0.5);
+    T.balon(R, 160, 140 - Math.round(salto * 8), t, { s: 3, ang: mece, giro: 0.15 + 1.2 * (1 - Math.exp(-d * 0.9)) + tramo(t, luces, luces + 0.5) * 0.5 }); }
+  T.h_estadioDelante(R, t, { encuadre: 'cesped' });
+};
+const efectos = [[0.35, 'golpecito'], [0.8, 'golpecito'], [luces, 'interruptor'], [luces + 0.36, 'interruptor']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

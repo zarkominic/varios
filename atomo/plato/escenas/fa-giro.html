@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El giro · ep13</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// FA-GIRO (frase 16), sin cartela. Dos planos:
+// 1. (0–«turns») el túnel de viento: la técnica enciende el motor («spin»), el balón empieza a girar sobre su eje largo
+//    con la flecha que lo rodea («rolling it around its long axis») y el contador sube hasta 600 («600»); el físico lo
+//    señala; la peonza de la mesa gira a su lado;
+// 2. («turns»–fin) la mesa: el giroscopio del laboratorio se marca en «gyroscope»; la peonza grande gira («spinning top»);
+//    una canica rueda por la mesa y le da en «tipped over»: la peonza se inclina un poco y se endereza.
+import * as T from '/atomo/plato/escenas/fa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('fa-giro');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#1a1420'), BL = hex('#ffffff'), CI = hex('#8ad8f0'), CIs = hex('#2a6a90'), AM = hex('#f0d878'), RO = hex('#e04a3a'), ROs = hex('#7a1e1e');
+const hs = (a, b, c = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un punto de un pase en parábola (u 0–1) y la tangente: [x, y, ángulo]
+const arco = (u, x0, y0, x1, y1, h) => { const x = lerp(x0, x1, u), y = lerp(y0, y1, u) - h * 4 * u * (1 - u); return [x, y, Math.atan2((y1 - y0) - h * 4 * (1 - 2 * u), x1 - x0)]; };
+// flecha de un píxel con su punta, y la gruesa con sombra
+const flecha = (x0, y0, x1, y1, c, s = 3) => { R.linea(x0, y0, x1, y1, c); const a = Math.atan2(y1 - y0, x1 - x0);
+  R.linea(x1, y1, Math.round(x1 - Math.cos(a - 0.55) * s), Math.round(y1 - Math.sin(a - 0.55) * s), c); R.linea(x1, y1, Math.round(x1 - Math.cos(a + 0.55) * s), Math.round(y1 - Math.sin(a + 0.55) * s), c); };
+const flechaG = (x0, y0, x1, y1, c, cs = K) => { for (const [dx, dy] of [[1, 1], [1, 2], [0, 2]]) flecha(x0 + dx, y0 + dy, x1 + dx, y1 + dy, cs, 5); flecha(x0, y0, x1, y1, c, 5); flecha(x0, y0 + 1, x1, y1 + 1, c, 5); };
+// oscurece un rectángulo (luz apagada), píxel a píxel, respetando lo que hay
+const oscurece = (x0, y0, x1, y1, a) => { for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const c = R.pget(x, y);
+  R.pset(x, y, ((255 << 24) | (Math.round(((c >> 16) & 255) * a) << 16) | (Math.round(((c >> 8) & 255) * a) << 8) | Math.round((c & 255) * a)) >>> 0); } };
+const mezcla = (c, d, a) => ((255 << 24) | (Math.round(((c >> 16) & 255) * (1 - a) + ((d >> 16) & 255) * a) << 16) | (Math.round(((c >> 8) & 255) * (1 - a) + ((d >> 8) & 255) * a) << 8) | Math.round((c & 255) * (1 - a) + (d & 255) * a)) >>> 0;
+const aclara = (x, y, c, a) => R.pset(x, y, mezcla(R.pget(x, y), c, a));
+// líneas de viento que corren (el aire que llega): n rachas de un píxel en la caja, en la dirección (dx, dy)
+const rachas = (x0, y0, x1, y1, t, dx, dy, n, c, vel = 60, largo = 8) => { for (let k = 0; k < n; k++) { const w = x1 - x0, hh = y1 - y0, f = ((hs(k, 1) * w + t * vel) % w + w) % w;
+  const x = dx > 0 ? x0 + f : x1 - f, y = y0 + hs(k, 2) * hh + (dy * f) / Math.max(1, Math.abs(dx)) * 0; const l = largo * (0.6 + hs(k, 3) * 0.8);
+  R.linea(Math.round(x), Math.round(y), Math.round(x - dx * l), Math.round(y - dy * l), (k % 3) ? c : BL); } };
+// un balón de una época intermedia (pintado aquí, con el mismo sombreado de cuatro tonos que T.balon)
+const PELOTA = { '1924': { L: 6.4, W: 3.9, pu: 0.62, cu: ['#4e2812', '#743c1c', '#9a5628', '#bc743e', '#e2a870'], co: ['#f2eadc', '#bcae94'], bo: '#2a160a' },
+  '1934': { L: 6.2, W: 3.6, pu: 0.85, cu: ['#4a2010', '#70341a', '#964a26', '#b8683a', '#e6a070'], co: ['#f6f0e4', '#c4b8a0'], bo: '#28120a' } };
+for (const k in PELOTA) { PELOTA[k].cu = PELOTA[k].cu.map(hex); PELOTA[k].co = PELOTA[k].co.map(hex); PELOTA[k].bo = hex(PELOTA[k].bo); }
+const pelota = (x, y, ep, s, ang = 0) => { const e = PELOTA[ep], L = e.L * s, W = e.W * s, ca = Math.cos(ang), sa = Math.sin(ang), rb = Math.ceil(L + 1);
+  for (let py = Math.floor(y - rb); py <= Math.ceil(y + rb); py++) for (let px = Math.floor(x - rb); px <= Math.ceil(x + rb); px++) {
+    const dx = px + 0.5 - x, dy = py + 0.5 - y, u = (dx * ca + dy * sa) / L, v = -dx * sa + dy * ca, a = Math.abs(u); if (a >= 1) continue;
+    const r = W * ((1 - e.pu) * Math.sqrt(1 - a * a) + e.pu * (1 - a * a)); if (Math.abs(v) >= r) continue;
+    if (r - Math.abs(v) < 0.9 || (1 - a) * L < 0.8) { R.pset(px, py, e.bo); continue; }
+    const nv = v / r, nu = u * 0.7, nz = Math.sqrt(Math.max(0, 1 - nv * nv - nu * nu * 0.5)), nx = nu * ca - nv * sa, ny = nu * sa + nv * ca, luz = Math.max(0, -0.5 * nx - 0.72 * ny + 0.48 * nz);
+    let q = 0.25 + luz * 3.1 + (hs(px, py, 7) - 0.5) * 0.8; let c = e.cu[Math.max(0, Math.min(3, Math.floor(q)))]; if (luz > 0.92) c = e.cu[4];
+    const d = v + r * 0.32; if (a < 0.44 && Math.abs(d) < 0.7 * s) c = e.co[1]; else if (a < 0.44 && Math.abs(d) < 1.5 * s && ((u * L / (1.6 * s)) % 1 + 1) % 1 < 0.45) c = e.co[0];
+    else if (Math.abs(v - r * 0.35) < 0.35 * s && a < 0.9) c = e.cu[Math.max(0, Math.floor(q) - 2)];
+    R.pset(px, py, c); } };
+
+const g = (f) => en('giro', f), P2 = g(0.474);
+const enciende = g(0.02), gira = g(0.039), seis = g(0.327);
+const p1 = (t) => {
+  const giro = tramo(t, gira, seis), o = T.labGiro(R, t, { encuadre: 'tunel', giro, precesion: 0, rpm: Math.round(600 * giro), peonza: true });
+  // la flecha del giro alrededor del eje largo, dentro de la cámara de ensayo
+  const fa = tramo(t, g(0.11), g(0.15)) * (1 - tramo(t, P2 - 0.5, P2));
+  if (fa > 0) { R.recorte([99, 65, 203, 101]); const [bx, by] = o.bola, an = o.ang, ca = Math.cos(an), sa = Math.sin(an);
+    for (let k = -30; k <= 30; k += 3) if (Math.abs(k) > 15 || k % 6 === 0) R.pset(Math.round(bx + ca * k), Math.round(by + sa * k), k % 2 ? CI : BL);   // el eje
+    const cx = bx - ca * 11, cy = by - sa * 11, fi = t * 6;
+    for (let s = 0; s < Math.PI * 1.6 * fa; s += 0.12) { const e = s + fi, px = cx + (-sa) * Math.cos(e) * 11 + ca * Math.sin(e) * 2.5, py = cy + ca * Math.cos(e) * 11 + sa * Math.sin(e) * 2.5; R.pset(Math.round(px), Math.round(py), AM); R.pset(Math.round(px), Math.round(py) + 1, hex('#a8782a')); }
+    const e = fi + Math.PI * 1.6 * fa, px = cx + (-sa) * Math.cos(e) * 11 + ca * Math.sin(e) * 2.5, py = cy + ca * Math.cos(e) * 11 + sa * Math.sin(e) * 2.5; R.disco(Math.round(px), Math.round(py), 1, AM);
+    R.recorte(null); }
+  // el «600» que salta del contador
+  const s6 = tramo(t, seis, seis + 0.5); if (s6 > 0 && t < P2 - 0.3) { R.numero('600', 150, Math.round(lerp(120, 112, s6)), { centro: true }); if (Math.floor(t * 6) % 2) { R.rect(132, 109, 168, 109, AM); R.rect(132, 123, 168, 123, AM); } }
+  // la técnica enciende el motor desde el carro y se aparta; el físico se acerca y señala el contador
+  const tu = tramo(t, enciende + 0.6, g(0.3));
+  R.actor(EL.tecnica, Math.round(lerp(176, 118, tu)), 166, t, { dir: tu > 0 && tu < 1 ? -1 : 1, anda: tu > 0 && tu < 1, dedo: t < enciende + 0.5, sonrisa: t > seis });
+  const fu = tramo(t, g(0.12), seis - 0.3);
+  R.actor(EL.fisico, Math.round(lerp(100, 150, fu)), 174, t, { dir: 1, anda: fu > 0 && fu < 1, dedo: t > seis - 0.2 && t < P2 - 0.6, habla: t > seis + 0.4 && Math.sin(t * 7) > 0, sorpresa: t > gira + 0.3 && t < gira + 1 });
+};
+// 2 · la mesa: el giroscopio, la peonza y la canica que no la tumba
+const giros = g(0.588), peonza = g(0.715), golpe = g(0.931);
+const p2 = (t) => {
+  const go = tramo(t, golpe, golpe + 0.25) * (1 - tramo(t, golpe + 0.25, golpe + 1.6));
+  // la peonza: con el golpe se inclina más (la precesión crece) y se recupera
+  const m = T.labGiro(R, t, { encuadre: 'mesa', precesion: 0.55 + go * 0.9, periodo: 4.5, giro: 1, rastro: true });
+  // el giroscopio del laboratorio, marcado con su flecha circular en «gyroscope»
+  const gy = tramo(t, giros - 0.1, giros + 0.4) * (1 - tramo(t, giros + 2.2, giros + 2.8));
+  if (gy > 0) for (let s = 0; s < Math.PI * 1.7 * gy; s += 0.1) { const e = s + t * 2, x = Math.round(262 + Math.cos(e) * 22), y = Math.round(114 + Math.sin(e) * 9); R.pset(x, y, CI); R.pset(x, y + 1, CIs); if (s + 0.1 >= Math.PI * 1.7 * gy) flecha(x - Math.round(Math.sin(e) * 4), y + Math.round(Math.cos(e) * 2), x, y, CI); }
+  // y la peonza en «spinning top»
+  const pz = tramo(t, peonza - 0.1, peonza + 0.3) * (1 - tramo(t, golpe - 0.6, golpe - 0.2));
+  if (pz > 0) for (let s = 0; s < Math.PI * 1.7 * pz; s += 0.08) { const e = s - t * 1.5, x = Math.round(160 + Math.cos(e) * 30), y = Math.round(160 + Math.sin(e) * 8); if (y > 156) { R.pset(x, y, AM); R.pset(x, y + 1, hex('#a8782a')); } }
+  // la canica: rueda desde la libreta, choca con la punta de la peonza en «tipped over» y rebota hacia atrás
+  const ida = tramo(t, golpe - 1.1, golpe), vuelta = tramo(t, golpe, golpe + 1.5);
+  const cx = Math.round(ida < 1 ? lerp(300, 168, ida * (2 - ida)) : lerp(168, 236, vuelta * (2 - vuelta))), cy = 160 + (ida < 1 ? Math.round(lerp(10, 0, ida)) : Math.round(lerp(0, 8, vuelta)));
+  if (t > golpe - 1.2) { R.disco(cx + 1, cy + 3, 3, hex('#7a5a3a')); R.disco(cx, cy, 3, K); R.disco(cx, cy, 2, hex('#3a8ac8')); R.pset(cx - 1, cy - 1, BL); R.pset(cx + 1, cy, hex('#8ad0f8')); R.pset(cx - (Math.floor(t * 12) % 3) + 1, cy + 1, hex('#e8783a')); }
+  if (go > 0.2) for (const [dx, dy] of [[-4, -6], [4, -7], [0, -8]]) R.pset(166 + dx, 158 + dy, AM);
+};
+const efectos = [[enciende + 0.1, 'interruptor'], [gira + 0.2, 'zumbido'], [seis, 'bip'], [giros, 'brillo'], [golpe, 'toc']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La forma · ep13</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// FA-FORMA (frases 14–15), sin cartela. Seis planos:
+// 1. (0–«version») un partido de hacia 1914 en el campo de pueblo: Dorais lanza y Rockne atrapa el pase («caught on»); el
+//    público se levanta; Rockne enseña el balón gordo («slimmer»);
+// 2. («version»–«which») el museo: cinco balones en la vitrina, del gordo de 1906 al de hoy; los focos se encienden uno a
+//    uno con cada «version» y el de hoy brilla en «pointed shape»; una visitante y su hijo, que lo señala;
+// 3. («which»–«But») el estadio de noche: el quarterback lanza una espiral que corta el aire con sus líneas de viento,
+//    recta como una bala («bullet»), y el receptor la atrapa;
+// 4. («But»–«Sends») el campo de entrenamiento: el entrenador avisa («problem»), el novato lanza sin giro («without spin»),
+//    el aire empuja una punta («pushes on one end») y el balón empieza a voltearse;
+// 5. («Sends»–«which») el parque: el balón llega dando volteretas, pierde velocidad, cae al estanque junto al pato, que lo
+//    mira ofendido («wounded duck», gag 3);
+// 6. («which»–fin) el estadio cubierto: un pase que bambolea, cae corto y bota; el receptor se tira en vano: «X».
+import * as T from '/atomo/plato/escenas/fa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('fa-forma');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#1a1420'), BL = hex('#ffffff'), CI = hex('#8ad8f0'), CIs = hex('#2a6a90'), AM = hex('#f0d878'), RO = hex('#e04a3a'), ROs = hex('#7a1e1e');
+const hs = (a, b, c = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un punto de un pase en parábola (u 0–1) y la tangente: [x, y, ángulo]
+const arco = (u, x0, y0, x1, y1, h) => { const x = lerp(x0, x1, u), y = lerp(y0, y1, u) - h * 4 * u * (1 - u); return [x, y, Math.atan2((y1 - y0) - h * 4 * (1 - 2 * u), x1 - x0)]; };
+// flecha de un píxel con su punta, y la gruesa con sombra
+const flecha = (x0, y0, x1, y1, c, s = 3) => { R.linea(x0, y0, x1, y1, c); const a = Math.atan2(y1 - y0, x1 - x0);
+  R.linea(x1, y1, Math.round(x1 - Math.cos(a - 0.55) * s), Math.round(y1 - Math.sin(a - 0.55) * s), c); R.linea(x1, y1, Math.round(x1 - Math.cos(a + 0.55) * s), Math.round(y1 - Math.sin(a + 0.55) * s), c); };
+const flechaG = (x0, y0, x1, y1, c, cs = K) => { for (const [dx, dy] of [[1, 1], [1, 2], [0, 2]]) flecha(x0 + dx, y0 + dy, x1 + dx, y1 + dy, cs, 5); flecha(x0, y0, x1, y1, c, 5); flecha(x0, y0 + 1, x1, y1 + 1, c, 5); };
+// oscurece un rectángulo (luz apagada), píxel a píxel, respetando lo que hay
+const oscurece = (x0, y0, x1, y1, a) => { for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const c = R.pget(x, y);
+  R.pset(x, y, ((255 << 24) | (Math.round(((c >> 16) & 255) * a) << 16) | (Math.round(((c >> 8) & 255) * a) << 8) | Math.round((c & 255) * a)) >>> 0); } };
+const mezcla = (c, d, a) => ((255 << 24) | (Math.round(((c >> 16) & 255) * (1 - a) + ((d >> 16) & 255) * a) << 16) | (Math.round(((c >> 8) & 255) * (1 - a) + ((d >> 8) & 255) * a) << 8) | Math.round((c & 255) * (1 - a) + (d & 255) * a)) >>> 0;
+const aclara = (x, y, c, a) => R.pset(x, y, mezcla(R.pget(x, y), c, a));
+// líneas de viento que corren (el aire que llega): n rachas de un píxel en la caja, en la dirección (dx, dy)
+const rachas = (x0, y0, x1, y1, t, dx, dy, n, c, vel = 60, largo = 8) => { for (let k = 0; k < n; k++) { const w = x1 - x0, hh = y1 - y0, f = ((hs(k, 1) * w + t * vel) % w + w) % w;
+  const x = dx > 0 ? x0 + f : x1 - f, y = y0 + hs(k, 2) * hh + (dy * f) / Math.max(1, Math.abs(dx)) * 0; const l = largo * (0.6 + hs(k, 3) * 0.8);
+  R.linea(Math.round(x), Math.round(y), Math.round(x - dx * l), Math.round(y - dy * l), (k % 3) ? c : BL); } };
+// un balón de una época intermedia (pintado aquí, con el mismo sombreado de cuatro tonos que T.balon)
+const PELOTA = { '1924': { L: 6.4, W: 3.9, pu: 0.62, cu: ['#4e2812', '#743c1c', '#9a5628', '#bc743e', '#e2a870'], co: ['#f2eadc', '#bcae94'], bo: '#2a160a' },
+  '1934': { L: 6.2, W: 3.6, pu: 0.85, cu: ['#4a2010', '#70341a', '#964a26', '#b8683a', '#e6a070'], co: ['#f6f0e4', '#c4b8a0'], bo: '#28120a' } };
+for (const k in PELOTA) { PELOTA[k].cu = PELOTA[k].cu.map(hex); PELOTA[k].co = PELOTA[k].co.map(hex); PELOTA[k].bo = hex(PELOTA[k].bo); }
+const pelota = (x, y, ep, s, ang = 0) => { const e = PELOTA[ep], L = e.L * s, W = e.W * s, ca = Math.cos(ang), sa = Math.sin(ang), rb = Math.ceil(L + 1);
+  for (let py = Math.floor(y - rb); py <= Math.ceil(y + rb); py++) for (let px = Math.floor(x - rb); px <= Math.ceil(x + rb); px++) {
+    const dx = px + 0.5 - x, dy = py + 0.5 - y, u = (dx * ca + dy * sa) / L, v = -dx * sa + dy * ca, a = Math.abs(u); if (a >= 1) continue;
+    const r = W * ((1 - e.pu) * Math.sqrt(1 - a * a) + e.pu * (1 - a * a)); if (Math.abs(v) >= r) continue;
+    if (r - Math.abs(v) < 0.9 || (1 - a) * L < 0.8) { R.pset(px, py, e.bo); continue; }
+    const nv = v / r, nu = u * 0.7, nz = Math.sqrt(Math.max(0, 1 - nv * nv - nu * nu * 0.5)), nx = nu * ca - nv * sa, ny = nu * sa + nv * ca, luz = Math.max(0, -0.5 * nx - 0.72 * ny + 0.48 * nz);
+    let q = 0.25 + luz * 3.1 + (hs(px, py, 7) - 0.5) * 0.8; let c = e.cu[Math.max(0, Math.min(3, Math.floor(q)))]; if (luz > 0.92) c = e.cu[4];
+    const d = v + r * 0.32; if (a < 0.44 && Math.abs(d) < 0.7 * s) c = e.co[1]; else if (a < 0.44 && Math.abs(d) < 1.5 * s && ((u * L / (1.6 * s)) % 1 + 1) % 1 < 0.45) c = e.co[0];
+    else if (Math.abs(v - r * 0.35) < 0.35 * s && a < 0.9) c = e.cu[Math.max(0, Math.floor(q) - 2)];
+    R.pset(px, py, c); } };
+
+const a = (f) => en('forma', f), b = (f) => en('pato', f);
+const P2 = a(0.291), P3 = a(0.704), P4 = b(0), P5 = b(0.455), P6 = b(0.772);
+// 1 · el pase que se pone de moda: Dorais lanza hacia 1914 y Rockne atrapa
+const lanza1 = 0.95, atrapa1 = a(0.06);
+const p1 = (t) => {
+  T.campo1906(R, t, { animo: tramo(t, atrapa1, atrapa1 + 0.6) * (1 - tramo(t, P2 - 1, P2) * 0.4) });
+  const rx = Math.round(lerp(196, 246, tramo(t, 0.1, atrapa1)));
+  // dos defensores que llegan tarde
+  for (const [k, x0] of [[0, 150], [1, 168]]) { const u = tramo(t, 0.4 + k * 0.2, atrapa1 + 0.8); R.actor(EL.jugador1905, Math.round(lerp(x0, rx - 22 + k * 8, u)), 156 + k * 8, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: t > atrapa1 + 0.3 }); }
+  const qx = Math.round(lerp(96, 84, tramo(t, 0.1, 0.7)));
+  const m = R.actor(EL.dorais, qx, 150, t, { dir: 1, anda: t > 0.1 && t < 0.7, dedo: t > 0.45 && t < lanza1 + 0.25, sonrisa: t > atrapa1 });
+  const r = R.actor(EL.rockne, rx, 140, t, { dir: -1, anda: t < atrapa1 - 0.1, brazos: t > atrapa1 - 0.25 && t < atrapa1 + 0.5, dedo: t > a(0.17), sonrisa: t > atrapa1, salto: t > atrapa1 - 0.2 && t < atrapa1 + 0.15 ? 2 : 0 });
+  if (t < lanza1) T.balon(R, m.mano[0], m.mano[1] + 2, t, { epoca: '1913', ang: -0.5 });
+  else if (t < atrapa1) { const [x, y, an] = arco(tramo(t, lanza1, atrapa1), qx + 15, 120, rx + 4, 118, 38); T.balon(R, Math.round(x), Math.round(y), t, { epoca: '1913', ang: an, gira: 3 }); }
+  else if (t < a(0.17)) T.balon(R, rx + 8, 120, t, { epoca: '1913', ang: 0 });
+  else { const [hx, hy] = r.mano; T.balon(R, hx, hy - 3, t, { epoca: '1913', ang: -0.3, gira: 0.4 }); }
+};
+// 2 · el museo: los cinco balones, del gordo al estilizado (se tapan los cascos de la vitrina y se ponen balones)
+const ENC = [a(0.29), a(0.346), a(0.437), a(0.489), a(0.597)];   // version · version · until · today's · pointed
+const EPOCAS = ['1906', '1913', '1924', '1934', 'hoy'], AÑOS = ['1906', '1913', '1924', '1934', '2026'];
+const p2 = (t) => {
+  T.labCasco(R, t, { encuadre: 'vitrina', años: false });
+  [60, 106, 152, 198, 244].forEach((cx, i) => {
+    // el casco de la vitrina se tapa con la tela de encima (la tela tiene los pliegues verticales: se copia de arriba sin que se note)
+    const px = []; for (let y = 62; y <= 96; y++) for (let x = cx - 17; x <= cx + 15; x++) px.push([x, y, R.pget(x, y - 32)]);
+    for (const [x, y, c] of px) R.pset(x, y, c);
+    // el soporte de latón y el balón de su época
+    R.rect(cx - 2, 90, cx + 2, 97, K); R.rect(cx - 1, 90, cx + 1, 96, hex('#c8983a')); R.pset(cx - 1, 90, hex('#f0d080'));
+    R.linea(cx - 7, 89, cx - 4, 92, K); R.linea(cx + 7, 89, cx + 4, 92, K); R.linea(cx - 4, 92, cx + 4, 92, hex('#a8782a'));
+    const s = 1.5, ang = -0.12 + Math.sin(t * 0.4 + i) * 0.03;
+    if (EPOCAS[i] === '1924' || EPOCAS[i] === '1934') pelota(cx, 82, EPOCAS[i], s, ang);
+    else T.balon(R, cx, 82, t, { epoca: EPOCAS[i], s, ang, giro: i === 4 ? t * 0.12 : 0.05 * i });
+    // su placa con el año
+    R.numero(AÑOS[i], cx, 136, { centro: true, color: hex('#3a2410'), sombra: false, fina: true });
+    // los focos que se encienden uno a uno (el de los dos primeros ya lo está): lo apagado queda en penumbra
+    const on = tramo(t, ENC[i] - 0.1, ENC[i] + 0.15);
+    if (i >= 2 && on < 1) oscurece(cx - 22, 29, cx + 22, 118, 0.45 + 0.55 * on);
+  });
+  // el brillo del de hoy en «pointed shape»
+  const br = tramo(t, ENC[4], ENC[4] + 0.6); if (br > 0 && br < 1) { const x = 244 + 10, y = 80, r = Math.round(2 + br * 5); R.linea(x - r, y, x + r, y, BL); R.linea(x, y - r, x, y + r, BL); R.pset(x, y, AM); }
+  // la visitante con su hijo, que entran por el pasillo y se paran ante el balón de hoy; el niño lo señala
+  const u = tramo(t, P2 + 0.2, a(0.5));
+  R.actor(EL.obrera, Math.round(lerp(300, 214, u)), 170, t, { dir: -1, anda: u > 0 && u < 1, habla: t > a(0.62) && Math.sin(t * 7) > 0 });
+  R.actor(EL.recogepelotas, Math.round(lerp(318, 236, u)), 172, t, { dir: -1, anda: u > 0 && u < 1, dedo: t > ENC[4] - 0.1, sonrisa: t > ENC[4], salto: t > ENC[4] && t < ENC[4] + 0.3 ? 2 : 0 });
+  // un señor mayor que mira los balones viejos, con las manos atrás
+  R.actor(EL.periodista, Math.round(lerp(64, 96, tramo(t, P2 + 0.5, P3 - 0.6))), 168, t, { dir: 1, anda: t > P2 + 0.5 && t < P3 - 0.6, sorpresa: t > ENC[2] && t < ENC[2] + 0.8 });
+};
+// 3 · la espiral de hoy, que corta el aire como una bala
+const lanza3 = P3 + 0.45, atrapa3 = a(0.95);
+const p3 = (t) => {
+  T.estadioHoy(R, t, { encuadre: 'noche' });
+  const ru = tramo(t, P3, atrapa3);
+  R.actor(EL.liniero, Math.round(lerp(150, 214, ru)), 156, t, { dir: 1, anda: ru < 1, enfado: t > atrapa3 });
+  const rx = Math.round(lerp(180, 240, ru));
+  const r = R.actor(EL.receptor, rx, 146, t, { dir: -1, anda: t < atrapa3 - 0.2, brazos: t > atrapa3 - 0.3 && t < atrapa3 + 0.4, sonrisa: t > atrapa3, salto: t > atrapa3 + 0.4 && t < atrapa3 + 0.8 ? 3 : 0 });
+  const q = R.actor(EL.quarterback, Math.round(lerp(76, 66, tramo(t, P3, lanza3))), 150, t, { dir: 1, anda: t < lanza3 - 0.2, dedo: t > lanza3 - 0.4 && t < lanza3 + 0.3, sonrisa: t > atrapa3 });
+  if (t < lanza3) T.balon(R, q.mano[0], q.mano[1] + 2, t, { ang: -0.6, gira: 2 });
+  else if (t < atrapa3) { const u = tramo(t, lanza3, atrapa3), [x, y, an] = arco(u, 84, 118, rx + 6, 114, 78); T.balon(R, Math.round(x), Math.round(y), t, { s: 1.8, ang: an, gira: 10, estela: 2.2, dirEstela: an }); }
+  else T.balon(R, r.mano[0] - 2, r.mano[1], t, { ang: 0 });
+  T.h_estadioDelante(R, t, { encuadre: 'noche' });
+};
+// 4 · el problema: sin giro, el aire empuja una punta
+const lanza4 = b(0.2), empuja = b(0.32);
+const p4 = (t) => {
+  T.labCasco(R, t, { encuadre: 'entreno' });
+  // el entrenador del silbato, que avisa del problema y luego mira el desastre
+  R.actor(EL.tecnico, 96, 172, t, { dir: 1, dedo: t > b(0.07) && t < b(0.15), habla: t > P4 && t < b(0.1) && Math.sin(t * 8) > 0, sorpresa: t > empuja + 0.4 });
+  const q = R.actor(EL.quarterback, Math.round(lerp(150, 128, tramo(t, P4 + 0.2, lanza4 - 0.6))), 166, t, { dir: 1, anda: t > P4 + 0.2 && t < lanza4 - 0.6, dedo: t > lanza4 - 0.5 && t < lanza4 + 0.3, triste: t > empuja + 0.6 });
+  R.actor(EL.receptor, 238, 160, t, { dir: -1, brazos: t > lanza4 && t < empuja + 0.3, sorpresa: t > empuja + 0.2 });
+  if (t < lanza4) T.balon(R, q.mano[0], q.mano[1] + 2, t, { ang: -0.4 });
+  else { const u = tramo(t, lanza4, P5 + 0.4), [x, y, an] = arco(u * 0.82, 146, 132, 236, 140, 60);
+    // sin giro: el eje se queda quieto hasta que el aire empuja la punta y empieza la voltereta
+    const vu = tramo(t, empuja, P5), ang = -0.75 + vu * vu * 4.5;
+    T.balon(R, Math.round(x), Math.round(y), t, { s: 1.4, ang, giro: 0 });
+    // el aire que llega (rachas) y la flecha que empuja la punta de atrás hacia arriba
+    if (t > lanza4 + 0.3) rachas(Math.round(x) + 14, Math.round(y) - 12, Math.round(x) + 52, Math.round(y) + 10, t, -1, 0, 6, CI, 70, 6);
+    const fe = tramo(t, empuja - 0.2, empuja + 0.2) * (1 - tramo(t, P5 - 0.6, P5 - 0.2));
+    if (fe > 0) { const ex = x - Math.cos(ang) * 9, ey = y - Math.sin(ang) * 9; flechaG(Math.round(ex - 2), Math.round(ey + 14), Math.round(ex - 1), Math.round(ey + 14 - 10 * fe), CI, CIs); }
+  }
+};
+// 5 · el pato herido: el balón llega dando volteretas, frena y cae al agua junto al pato, que lo mira ofendido (gag 3)
+const cae5 = b(0.68), mira5 = b(0.69);
+const p5 = (t) => {
+  const G = T.labGiro(R, t, { encuadre: 'parque' });
+  const [px, py] = G.pato;
+  // el balón: entra por la izquierda alto, frena (cada vez menos avance) y cae
+  const u = tramo(t, P5, cae5), x = lerp(-10, px + 14, 1 - (1 - u) ** 2.2), y = lerp(44, py - 2, u ** 2.4) - Math.sin(u * Math.PI) * 10;
+  if (t < cae5) T.balon(R, Math.round(x), Math.round(y), t, { s: 1.3, volteretas: true });
+  else { const b2 = Math.sin((t - cae5) * 3) * 1; T.balon(R, px + 14, py + 1 + Math.round(b2), t, { s: 1.2, ang: 0.2 + Math.sin((t - cae5) * 2) * 0.1 });
+    // la salpicadura y las ondas
+    const sp = tramo(t, cae5, cae5 + 0.7); if (sp < 1) for (let k = 0; k < 9; k++) { const an = -Math.PI * (0.1 + 0.8 * k / 8), d = sp * 14; R.pset(Math.round(px + 14 + Math.cos(an) * d), Math.round(py - 2 + Math.sin(an) * d * 1.3 + sp * sp * 12), k % 2 ? BL : CI); }
+    for (let k = 0; k < 2; k++) { const w = ((t - cae5) * 0.7 + k * 0.5) % 1, rx = 6 + w * 16; for (let an = 0; an < 6.28; an += 0.3) if (Math.sin(an * 3 + t) > -0.3) R.pset(Math.round(px + 14 + Math.cos(an) * rx), Math.round(py + 3 + Math.sin(an) * rx * 0.22), hex('#a8d8f0')); } }
+  const hd = T.e_pato(R, px, py, t, tramo(t, mira5 - 0.3, mira5 + 0.2), { dir: 1 });
+  if (t > mira5 + 0.3 && t < mira5 + 1.6) R.bocadillo(hd[0] - 2, hd[1] - 8, { icono: '!' });
+  // dos estudiantes en el césped que se dan la vuelta al oír el chapuzón
+  R.actor(EL.tecnica, 40, 172, t, { dir: 1, sorpresa: t > cae5 + 0.1, habla: t < cae5 && Math.sin(t * 6) > 0.3 });
+  R.actor(EL.obrero, 62, 174, t, { dir: -1, sorpresa: t > cae5 + 0.2, dedo: t > cae5 + 0.6 });
+};
+// 6 · lo que los jugadores llaman un mal pase: el balón bambolea, cae corto y bota
+const lanza6 = P6 + 0.35, bota6 = b(0.92);
+const p6 = (t) => {
+  T.estadioPatada(R, t, { encuadre: 'pateo', linea: false });
+  const q = R.actor(EL.quarterback, 70, 147, t, { dir: 1, dedo: t > lanza6 - 0.4 && t < lanza6 + 0.3, triste: t > bota6 + 0.2 });
+  const ru = tramo(t, P6, bota6), rx = Math.round(lerp(150, 196, ru));
+  R.actor(EL.receptor, rx, 158, t, { dir: -1, anda: ru > 0 && ru < 0.9, salto: t > bota6 - 0.35 && t < bota6 + 0.1 ? 4 : 0, triste: t > bota6 + 0.2 });
+  R.actor(EL.liniero, Math.round(lerp(240, 214, ru)), 162, t, { dir: -1, anda: ru > 0 && ru < 1, sonrisa: t > bota6 });
+  if (t < lanza6) T.balon(R, q.mano[0], q.mano[1] + 2, t, { ang: -0.5 });
+  else if (t < bota6) { const [x, y] = arco(tramo(t, lanza6, bota6), 88, 120, 170, 150, 34); T.balon(R, Math.round(x), Math.round(y), t, { volteretas: true, fase: 1 }); }
+  else { const v = tramo(t, bota6, bota6 + 1.4), x = lerp(170, 150, v), y = 150 - Math.abs(Math.sin(v * Math.PI * 2.5)) * 14 * (1 - v); T.balon(R, Math.round(x), Math.round(y), t, { ang: v * 9, s: 1 }); }
+  if (t > bota6 && t < bota6 + 1.5 && Math.floor(t * 5) % 2 === 0) { R.icono('X', 166, 118, RO, K, 2); }
+};
+const efectos = [[lanza1, 'whoosh'], [atrapa1 + 0.1, 'palmada'], [ENC[2], 'interruptor'], [ENC[4], 'brillo'], [lanza3, 'whoosh'], [atrapa3, 'golpecito'],
+  [b(0.08), 'silbato'], [empuja, 'rafaga'], [cae5, 'chof'], [lanza6, 'whoosh'], [bota6, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: (t) => (t < ENC[2] ? 1913 : t < ENC[3] ? 1924 : t < ENC[4] ? 1934 : 2026) });
+</script>
+</body>
+</html>

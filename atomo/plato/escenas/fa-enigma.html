@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El enigma · ep13</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// FA-ENIGMA (frases 17–18), 2020, cartela «2020». Siete planos:
+// 1. (0–«whole») la pizarra: la tiza dibuja sola la parábola del pase con los balones de punta arriba, como un giroscopio
+//    perfecto («perfect gyroscope … pointing up»); el físico entra, la señala y aparece el «?»;
+// 2. («whole»–«A puzzle») el estadio cubierto: un pase de verdad, con su estela de instantáneas: la punta baja al caer
+//    («tip their nose down»); el receptor la atrapa en la zona de anotación;
+// 3. («A puzzle»–«until») el laboratorio de noche: el físico da vueltas a la idea, «?»; la barra del año corre de 2000 a 2020
+//    («20 years»);
+// 4. («until»–«The key») la sala de datos: él y dos colegas ante el videowall; en «cracked» sale el «✓» y lo celebran;
+// 5. («The key»–«slowly») el balón grande en el cielo del campo: el aire empuja la punta («pushes on the nose»), no lo
+//    voltea («instead of flipping»: la voltereta fantasma se tacha) y el eje empieza a dar vueltas despacio alrededor de la
+//    trayectoria («circle slowly»);
+// 6. («slowly»–«circling») el parque: un niño hace girar una peonza en el banco y su eje traza el mismo circulito que el
+//    del balón que pasa por encima, al mismo ritmo (gag 4, «spinning top tracing a little loop»);
+// 7. («circling»–fin) el césped del estadio a ras de suelo: el balón baja con la punta hacia abajo, guiada por el círculo,
+//    y el receptor lo atrapa en «comes down».
+import * as T from '/atomo/plato/escenas/fa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('fa-enigma');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#1a1420'), BL = hex('#ffffff'), CI = hex('#8ad8f0'), CIs = hex('#2a6a90'), AM = hex('#f0d878'), RO = hex('#e04a3a'), ROs = hex('#7a1e1e');
+const hs = (a, b, c = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un punto de un pase en parábola (u 0–1) y la tangente: [x, y, ángulo]
+const arco = (u, x0, y0, x1, y1, h) => { const x = lerp(x0, x1, u), y = lerp(y0, y1, u) - h * 4 * u * (1 - u); return [x, y, Math.atan2((y1 - y0) - h * 4 * (1 - 2 * u), x1 - x0)]; };
+// flecha de un píxel con su punta, y la gruesa con sombra
+const flecha = (x0, y0, x1, y1, c, s = 3) => { R.linea(x0, y0, x1, y1, c); const a = Math.atan2(y1 - y0, x1 - x0);
+  R.linea(x1, y1, Math.round(x1 - Math.cos(a - 0.55) * s), Math.round(y1 - Math.sin(a - 0.55) * s), c); R.linea(x1, y1, Math.round(x1 - Math.cos(a + 0.55) * s), Math.round(y1 - Math.sin(a + 0.55) * s), c); };
+const flechaG = (x0, y0, x1, y1, c, cs = K) => { for (const [dx, dy] of [[1, 1], [1, 2], [0, 2]]) flecha(x0 + dx, y0 + dy, x1 + dx, y1 + dy, cs, 5); flecha(x0, y0, x1, y1, c, 5); flecha(x0, y0 + 1, x1, y1 + 1, c, 5); };
+// oscurece un rectángulo (luz apagada), píxel a píxel, respetando lo que hay
+const oscurece = (x0, y0, x1, y1, a) => { for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const c = R.pget(x, y);
+  R.pset(x, y, ((255 << 24) | (Math.round(((c >> 16) & 255) * a) << 16) | (Math.round(((c >> 8) & 255) * a) << 8) | Math.round((c & 255) * a)) >>> 0); } };
+const mezcla = (c, d, a) => ((255 << 24) | (Math.round(((c >> 16) & 255) * (1 - a) + ((d >> 16) & 255) * a) << 16) | (Math.round(((c >> 8) & 255) * (1 - a) + ((d >> 8) & 255) * a) << 8) | Math.round((c & 255) * (1 - a) + (d & 255) * a)) >>> 0;
+const aclara = (x, y, c, a) => R.pset(x, y, mezcla(R.pget(x, y), c, a));
+// líneas de viento que corren (el aire que llega): n rachas de un píxel en la caja, en la dirección (dx, dy)
+const rachas = (x0, y0, x1, y1, t, dx, dy, n, c, vel = 60, largo = 8) => { for (let k = 0; k < n; k++) { const w = x1 - x0, hh = y1 - y0, f = ((hs(k, 1) * w + t * vel) % w + w) % w;
+  const x = dx > 0 ? x0 + f : x1 - f, y = y0 + hs(k, 2) * hh + (dy * f) / Math.max(1, Math.abs(dx)) * 0; const l = largo * (0.6 + hs(k, 3) * 0.8);
+  R.linea(Math.round(x), Math.round(y), Math.round(x - dx * l), Math.round(y - dy * l), (k % 3) ? c : BL); } };
+// un balón de una época intermedia (pintado aquí, con el mismo sombreado de cuatro tonos que T.balon)
+const PELOTA = { '1924': { L: 6.4, W: 3.9, pu: 0.62, cu: ['#4e2812', '#743c1c', '#9a5628', '#bc743e', '#e2a870'], co: ['#f2eadc', '#bcae94'], bo: '#2a160a' },
+  '1934': { L: 6.2, W: 3.6, pu: 0.85, cu: ['#4a2010', '#70341a', '#964a26', '#b8683a', '#e6a070'], co: ['#f6f0e4', '#c4b8a0'], bo: '#28120a' } };
+for (const k in PELOTA) { PELOTA[k].cu = PELOTA[k].cu.map(hex); PELOTA[k].co = PELOTA[k].co.map(hex); PELOTA[k].bo = hex(PELOTA[k].bo); }
+const pelota = (x, y, ep, s, ang = 0) => { const e = PELOTA[ep], L = e.L * s, W = e.W * s, ca = Math.cos(ang), sa = Math.sin(ang), rb = Math.ceil(L + 1);
+  for (let py = Math.floor(y - rb); py <= Math.ceil(y + rb); py++) for (let px = Math.floor(x - rb); px <= Math.ceil(x + rb); px++) {
+    const dx = px + 0.5 - x, dy = py + 0.5 - y, u = (dx * ca + dy * sa) / L, v = -dx * sa + dy * ca, a = Math.abs(u); if (a >= 1) continue;
+    const r = W * ((1 - e.pu) * Math.sqrt(1 - a * a) + e.pu * (1 - a * a)); if (Math.abs(v) >= r) continue;
+    if (r - Math.abs(v) < 0.9 || (1 - a) * L < 0.8) { R.pset(px, py, e.bo); continue; }
+    const nv = v / r, nu = u * 0.7, nz = Math.sqrt(Math.max(0, 1 - nv * nv - nu * nu * 0.5)), nx = nu * ca - nv * sa, ny = nu * sa + nv * ca, luz = Math.max(0, -0.5 * nx - 0.72 * ny + 0.48 * nz);
+    let q = 0.25 + luz * 3.1 + (hs(px, py, 7) - 0.5) * 0.8; let c = e.cu[Math.max(0, Math.min(3, Math.floor(q)))]; if (luz > 0.92) c = e.cu[4];
+    const d = v + r * 0.32; if (a < 0.44 && Math.abs(d) < 0.7 * s) c = e.co[1]; else if (a < 0.44 && Math.abs(d) < 1.5 * s && ((u * L / (1.6 * s)) % 1 + 1) % 1 < 0.45) c = e.co[0];
+    else if (Math.abs(v - r * 0.35) < 0.35 * s && a < 0.9) c = e.cu[Math.max(0, Math.floor(q) - 2)];
+    R.pset(px, py, c); } };
+
+const a = (f) => en('enigma', f), c = (f) => en('cabeceo', f);
+const P2 = a(0.313), P3 = a(0.572), P4 = a(0.793), P5 = c(0), P6 = c(0.391), P7 = c(0.758);
+const PER = 3.2;   // el periodo de la precesión del balón y de la peonza (el mismo, para el gag)
+// 1 · la pizarra: el giroscopio perfecto tendría la punta arriba todo el rato. ¿Por qué no?
+const dibuja0 = a(0.03), dibuja1 = a(0.25), interroga = a(0.26);
+const tizaL = (x0, y0, x1, y1, col, k = 0) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)); for (let i = 0; i <= n; i++) { if (hs(i, k, 3) < 0.12) continue; R.pset(Math.round(lerp(x0, x1, i / Math.max(1, n))), Math.round(lerp(y0, y1, i / Math.max(1, n))), col); } };
+const PZ = hex('#2e463a'), PZL = hex('#38523f'), PZB = hex('#3a5446'), TZ = hex('#eef2ea'), TZS = hex('#a8b8aa'), TZA = hex('#f0d878'), TZC = hex('#8ad8f0'), TZV = hex('#a8e890');
+// el borrón de tiza que tapa las fórmulas de la esquina (sin letras): solo el «600» con su flecha de giro
+const borron = (t) => { for (let y = 26; y <= 70; y++) for (let x = 30; x <= 88; x++) { const n = hs(x >> 2, y >> 1, 5); R.pset(x, y, n < 0.55 ? PZ : n < 0.85 ? PZL : PZB); if (hs(x, y, 9) < 0.05) R.pset(x, y, TZS); }
+  for (let k = 0; k < 6; k++) tizaL(32 + k * 9, 30 + (k % 3) * 13, 44 + k * 9, 36 + (k % 3) * 13, PZB, k);   // las pasadas del borrador
+  R.numero('600', 40, 44, { color: TZ, sombra: false, fina: true });
+  for (let an = -2.6; an < 2.2; an += 0.14) R.pset(Math.round(70 + Math.cos(an) * 7), Math.round(40 + Math.sin(an) * 4), TZA);
+  flecha(Math.round(70 + Math.cos(2.0) * 7) - 2, Math.round(40 + Math.sin(2.0) * 4) - 1, Math.round(70 + Math.cos(2.2) * 7), Math.round(40 + Math.sin(2.2) * 4), TZA, 2);
+  // la flecha del eje del balón de tiza que apunta arriba
+  tizaL(40, 66, 56, 52, TZS, 7); flecha(52, 56, 56, 52, TZ, 3); tizaL(36, 64, 44, 64, TZS, 8); };
+const signo = (x, y, u, col, cual) => { // «?» o «✓» de tiza, que se dibujan con u (0–1)
+  if (cual === '?') { const P = []; for (let an = -2.8; an < 0.9; an += 0.1) P.push([x + Math.cos(an) * 6, y - 6 + Math.sin(an) * 6]); P.push([x + 1, y + 2], [x + 1, y + 5]);
+    const n = Math.floor(P.length * u); for (let i = 0; i < n - 1; i++) { R.linea(Math.round(P[i][0]), Math.round(P[i][1]), Math.round(P[i + 1][0]), Math.round(P[i + 1][1]), col); R.linea(Math.round(P[i][0]) + 1, Math.round(P[i][1]), Math.round(P[i + 1][0]) + 1, Math.round(P[i + 1][1]), col); }
+    if (u >= 1) { R.rect(x, y + 8, x + 2, y + 10, col); } }
+  else { const v = Math.min(1, u * 2), w = Math.max(0, u * 2 - 1); for (let d = 0; d < 2; d++) { R.linea(x + d, y, Math.round(x + d + 5 * v), Math.round(y + 6 * v), col); if (w > 0) R.linea(x + 5 + d, y + 6, Math.round(x + 5 + d + 12 * w), Math.round(y + 6 - 16 * w), col); } } };
+const p1 = (t) => {
+  T.labGiro(R, t, { encuadre: 'pizarra', u: tramo(t, dibuja0, dibuja1), solucion: 0 });
+  borron(t);
+  if (t > interroga) { const sb = t < interroga + 0.25 ? 1 : 0; R.icono('?', 158, 50 - sb, TZA, PZ, 3); }
+  // el físico entra con su libreta, se para, señala los balones de punta arriba y se rasca la cabeza ante el «?»
+  const u = tramo(t, 1.3, a(0.12));
+  R.actor(EL.fisico, Math.round(lerp(40, 136, u)), 170, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > a(0.147) && t < interroga - 0.2, sorpresa: t > interroga + 0.2, habla: t > a(0.12) && t < a(0.147) });
+  // la colega llega por la derecha, comenta y señala el «?»
+  const fu = tramo(t, a(0.12), a(0.2)); R.actor(EL.fisica, Math.round(lerp(300, 214, fu)), 172, t, { dir: -1, anda: fu > 0 && fu < 1, dedo: t > interroga + 0.1, habla: t > a(0.2) && t < interroga && Math.sin(t * 7) > 0, sorpresa: t > interroga + 0.1 });
+};
+// 2 · un buen pase de verdad: la punta baja al caer (con sus instantáneas)
+const lanza2 = P2 + 0.3, atrapa2 = a(0.53), PASE = [40, 128, 222, 150, 70];
+const p2 = (t) => {
+  T.estadioPatada(R, t, { encuadre: 'pateo', linea: false });
+  const q = R.actor(EL.quarterback, 30, 147, t, { dir: 1, dedo: t > lanza2 - 0.4 && t < lanza2 + 0.3, sonrisa: t > atrapa2 });
+  const ru = tramo(t, P2, atrapa2), rx = Math.round(lerp(176, 214, ru));
+  const r = R.actor(EL.receptor, rx, 166, t, { dir: -1, anda: ru < 1, brazos: t > atrapa2 - 0.3 && t < atrapa2 + 0.5, sonrisa: t > atrapa2 });
+  R.actor(EL.liniero, Math.round(lerp(150, 194, ru)), 172, t, { dir: 1, anda: ru < 1, enfado: t > atrapa2 });
+  const u = tramo(t, lanza2, atrapa2);
+  // la estela de instantáneas: la punta sigue a la curva (baja al caer)
+  for (let k = 1; k <= 5; k++) { const uk = k * 0.17; if (uk < u - 0.04) { const [x, y, an] = arco(uk, ...PASE); for (let i = -6; i <= 6; i++) if (i % 2 === 0) R.pset(Math.round(x + Math.cos(an) * i), Math.round(y + Math.sin(an) * i), k % 2 ? CI : BL); R.pset(Math.round(x + Math.cos(an) * 8), Math.round(y + Math.sin(an) * 8), AM); } }
+  if (t < lanza2) T.balon(R, q.mano[0], q.mano[1] + 2, t, { ang: -0.6 });
+  else if (t < atrapa2) { const [x, y, an] = arco(u, ...PASE); T.balon(R, Math.round(x), Math.round(y), t, { s: 1.3, ang: an, gira: 9 });
+    const dn = tramo(t, a(0.47), a(0.5)); if (dn > 0 && an > 0.2) flechaG(Math.round(x + Math.cos(an) * 10), Math.round(y + Math.sin(an) * 10) - 2, Math.round(x + Math.cos(an) * 16), Math.round(y + Math.sin(an) * 10) + 8, AM); }
+  else T.balon(R, r.mano[0] - 2, r.mano[1], t, { ang: 0.3 });
+};
+// 3 · veinte años de enigma: el físico en el laboratorio de noche, dándole vueltas
+const p3 = (t) => {
+  T.labCasco(R, t, { encuadre: 'torre' });
+  T.tinte(R, 0, 179, [20, 26, 60], 0.35);
+  const u = tramo(t, P3, P4), x = Math.round(28 + Math.sin(u * Math.PI * 1.5) * 22 + 22), dir = Math.cos(u * Math.PI * 1.5) >= 0 ? 1 : -1;
+  const f = R.actor(EL.fisico, x, 160, t, { dir, anda: true, triste: u > 0.6 });
+  if (Math.floor(t * 2) % 3 !== 2) R.bocadillo(f.cabeza[0], f.cabeza[1] - 4, { icono: '?' });
+  // la técnica se despide y se va a casa por la puerta: él se queda solo con el enigma
+  const vu = tramo(t, P3 + 0.6, P4 - 0.4); R.actor(EL.tecnica, Math.round(lerp(232, 300, vu)), 158, t, { dir: vu > 0 ? 1 : -1, anda: vu > 0 && vu < 1, dedo: t < P3 + 0.6, sonrisa: true });
+};
+// 4 · lo resuelven: él y dos colegas ante el videowall; «✓» en «cracked»
+const resuelto = a(0.897);
+const p4 = (t) => {
+  T.estadioHoy(R, t, { encuadre: 'sala' });
+  // la pantalla de la curva: la trayectoria con los ejes que siguen la curva y el «✓» que aparece
+  R.recorte([211, 25, 263, 57]); R.rect(211, 25, 263, 57, hex('#0e1a2a'));
+  for (let x = 211; x <= 263; x += 6) R.linea(x, 25, x, 57, hex('#16263a')); for (let y = 25; y <= 57; y += 6) R.linea(211, y, 263, y, hex('#16263a'));
+  const uu = tramo(t, P4, resuelto); for (let k = 0; k < 40 * uu; k++) { const [x, y] = arco(k / 40, 214, 54, 260, 54, 26); R.pset(Math.round(x), Math.round(y), k % 2 ? CI : hex('#4a8ab0')); }
+  for (let k = 1; k < 5; k++) if (k / 5 < uu) { const [x, y, an] = arco(k / 5, 214, 54, 260, 54, 26); R.linea(Math.round(x - Math.cos(an) * 4), Math.round(y - Math.sin(an) * 4), Math.round(x + Math.cos(an) * 4), Math.round(y + Math.sin(an) * 4), AM); }
+  R.recorte(null);
+  const v = tramo(t, resuelto, resuelto + 0.4); if (v > 0) { R.recorte([152, 25, 206, 57]); R.rect(152, 25, 206, 57, hex('#0e2a1a')); signo(166, 40, v, TZV, '✓'); R.recorte(null); }
+  // los tres: el físico señala la curva; la colega habla («two colleagues»); el tercero teclea y salta con el «✓»
+  const sal = (k) => (t > resuelto + 0.1 + k * 0.1 && t < resuelto + 0.9 + k * 0.1 ? Math.round(Math.abs(Math.sin((t - resuelto) * 7)) * 4) : 0);
+  R.actor(EL.fisico, 110, 162, t, { dir: 1, dedo: t < resuelto && t > P4 + 0.3, brazos: t > resuelto, sonrisa: t > resuelto, salto: sal(0) });
+  R.actor(EL.fisica, 150, 164, t, { dir: 1, habla: t > a(0.84) && t < resuelto && Math.sin(t * 8) > 0, brazos: t > resuelto + 0.15, sonrisa: t > resuelto, salto: sal(1) });
+  R.actor(EL.tecnico, 196, 162, t, { dir: -1, habla: t < a(0.84) && Math.sin(t * 6) > 0.4, sorpresa: t > resuelto && t < resuelto + 0.4, sonrisa: t > resuelto + 0.4, salto: sal(2) });
+  T.h_estadioDelante(R, t, { encuadre: 'sala' });
+};
+// 5 · la clave es el aire: empuja la punta y, en vez de voltearlo, hace que el eje dé vueltas despacio
+const empuja5 = c(0.104), voltea = c(0.195), tacha = c(0.255), circula = c(0.341);
+const p5 = (t) => {
+  T.labCasco(R, t, { encuadre: 'entreno' });
+  const u = tramo(t, P5, P6 + 0.3), cx = lerp(84, 214, u), cy = lerp(40, 56, u * u), pa = Math.atan2(16 * 2 * u, 130);   // la trayectoria baja poco a poco
+  // la trayectoria punteada por detrás y por delante
+  for (let x = 40; x < 260; x += 3) { const w = (x - 84) / 130, y = lerp(40, 56, Math.max(0, w) ** 2); if (x < cx - 26 || x > cx + 26) R.pset(x, Math.round(y), x < cx ? BL : hex('#c8d8e8')); }
+  // el eje: hasta «circle» va algo levantado (la punta arriba); luego da vueltas despacio alrededor de la trayectoria
+  const cz = tramo(t, circula - 0.4, circula + 0.4), fi = (t - circula) * 2 * Math.PI / PER;
+  const ang = pa - 0.32 * (1 - cz) - 0.32 * cz * Math.cos(fi);
+  // la voltereta que no pasa: un balón fantasma que se voltea y se tacha
+  const vf = tramo(t, voltea, tacha + 0.3), vt = tramo(t, tacha, tacha + 0.2) * (1 - tramo(t, circula - 0.2, circula));
+  if (vf > 0 && t < circula) { if (vt < 1 || Math.floor(t * 4) % 2) { const gx = Math.round(cx + 58), gy = Math.round(cy + 30), ga = pa - 0.32 - vf * 2.4; for (let an = 0; an < 6.28; an += 0.12) { const lx = Math.cos(an) * 16, ly = Math.sin(an) * 7, px = Math.round(gx + lx * Math.cos(ga) - ly * Math.sin(ga)), py = Math.round(gy + lx * Math.sin(ga) + ly * Math.cos(ga)); R.pset(px + 1, py + 1, K); R.pset(px, py, BL); }
+      for (let i = -12; i <= 12; i += 3) R.pset(Math.round(gx + Math.cos(ga) * i), Math.round(gy + Math.sin(ga) * i), BL); }
+    if (vt > 0) R.icono('X', gx - 5, gy - 5, RO, K, 2); }
+  // el aire que llega por delante y la flecha que empuja la punta
+  rachas(Math.round(cx) + 30, Math.round(cy) - 22, Math.round(cx) + 90, Math.round(cy) + 22, t, -1, 0, 9, CI, 55, 9);
+  const fe = tramo(t, empuja5 - 0.2, empuja5 + 0.3) * (1 - tramo(t, circula + 1.5, circula + 2));
+  if (fe > 0) { const nx = cx + Math.cos(ang) * 22, ny = cy + Math.sin(ang) * 22; flechaG(Math.round(nx + 14), Math.round(ny + 12), Math.round(nx + 14 - 10 * fe), Math.round(ny + 12 - 8 * fe), CI, CIs); }
+  // el círculo que traza la punta (se va dibujando con la vuelta)
+  if (cz > 0) { const ox = cx + Math.cos(pa) * 24, oy = cy + Math.sin(pa) * 24; const hasta = Math.min(Math.PI * 2, Math.max(0, fi + 0.01) + 0.3);
+    for (let s = 0; s < hasta; s += 0.08) R.pset(Math.round(ox + Math.sin(s) * 2.5), Math.round(oy - Math.cos(s) * 8), CI);
+    R.disco(Math.round(ox + Math.sin(fi) * 2.5), Math.round(oy - Math.cos(fi) * 8), 1, AM); }
+  T.balon(R, Math.round(cx), Math.round(cy), t, { s: 3, ang, gira: 1.6 });
+};
+// 6 · la peonza del banco: su eje traza el mismo circulito, al mismo ritmo que el del balón que pasa por encima (gag 4)
+const como = c(0.517), loop = c(0.668);
+const p6 = (t) => {
+  T.labGiro(R, t, { encuadre: 'parque' });
+  // el balón que cruza alto el cielo, con su circulito de precesión
+  const u = tramo(t, P6 - 0.3, P7 + 0.3), bx = lerp(70, 250, u), by = 46 + (u - 0.5) ** 2 * 60, pa = Math.atan2(120 * (u - 0.5) * 2 / 180 * 1, 1) * 0.6;
+  const fi = (t - circula) * 2 * Math.PI / PER, ang = pa - 0.4 * Math.cos(fi);
+  T.balon(R, Math.round(bx), Math.round(by), t, { s: 1.6, ang, gira: 2 });
+  { const ox = bx + Math.cos(pa) * 13, oy = by + Math.sin(pa) * 13; for (let s = 0; s < 6.28; s += 0.3) R.pset(Math.round(ox + Math.sin(s) * 1.5), Math.round(oy - Math.cos(s) * 5), CI); R.pset(Math.round(ox + Math.sin(fi) * 1.5), Math.round(oy - Math.cos(fi) * 5), AM); }
+  // el niño en el banco con la peonza girando sobre el asiento; su madre al lado
+  R.actor(EL.obrera, 226, 168, t, { dir: -1, sonrisa: t > loop, habla: t > como && t < loop && Math.sin(t * 7) > 0 });
+  const ni = R.actor(EL.recogepelotas, 206, 170, t, { dir: 1, dedo: t > como - 0.3 && t < loop, sorpresa: t > loop - 0.4 && t < loop + 0.5, sonrisa: t > loop + 0.5 });
+  const top = T.e_peonza(R, 252, 154, t, { s: 1.4, giro: 1, precesion: 1, periodo: PER, rastro: true, fase: -circula * 2 * Math.PI / PER });
+  // las dos flechitas que los unen en «little loop»: el mismo círculo
+  const ll = tramo(t, loop - 0.3, loop + 0.2) * (1 - tramo(t, P7 - 0.5, P7 - 0.1));
+  if (ll > 0 && Math.floor(t * 4) % 2) { R.icono('!', top[0] - 1, top[1] - 16, AM, K); }
+};
+// 7 · y ese circular lento lleva la punta hacia abajo mientras baja: el receptor lo atrapa
+const atrapa7 = c(0.964);
+const p7 = (t) => {
+  T.estadioHoy(R, t, { encuadre: 'cesped' });
+  const u = tramo(t, P7, atrapa7), [x, y, an] = arco(u * 0.5 + 0.5, -40, 60, 196, 132, 70);
+  const fi = (t - circula) * 2 * Math.PI / PER, ang = an + 0.2 * Math.cos(fi);
+  const ru = tramo(t, P7, atrapa7 - 0.2), rx = Math.round(lerp(300, 190, ru));
+  const r = R.actor(EL.receptor, rx, 152, t, { dir: -1, anda: ru < 1, brazos: t > atrapa7 - 0.5 && t < atrapa7 + 0.6, sonrisa: t > atrapa7 });
+  if (t < atrapa7) { T.balon(R, Math.round(x), Math.round(y), t, { s: 2, ang, gira: 2, estela: 0.8, dirEstela: an });
+    const dn = tramo(t, c(0.83), c(0.87)); if (dn > 0) flechaG(Math.round(x + Math.cos(an) * 14), Math.round(y + Math.sin(an) * 14), Math.round(x + Math.cos(an) * 14 + 4), Math.round(y + Math.sin(an) * 14 + 10 * dn), AM); }
+  else T.balon(R, r.mano[0] - 4, r.mano[1] + 1, t, { s: 1, ang: 0.2 });
+  T.h_estadioDelante(R, t, { encuadre: 'cesped' });
+};
+const efectos = [[dibuja0 + 0.1, 'lapiz'], [interroga, 'pop'], [lanza2, 'whoosh'], [atrapa2, 'golpecito'], [P3 + 0.4, 'tic'], [resuelto, 'palmada'],
+  [empuja5, 'rafaga'], [tacha, 'pop'], [circula, 'whoosh'], [como, 'brillo'], [atrapa7, 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { cartela: '2020', efectos, año: (t) => (t >= P3 && t < P4 ? Math.round(lerp(2000, 2020, tramo(t, P3 + 0.2, P4 - 0.3))) : 2020) });
+</script>
+</body>
+</html>
