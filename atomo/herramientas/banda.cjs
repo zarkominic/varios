@@ -13,7 +13,7 @@
 //   - un lecho grave continuo (La y Mi) suena de principio a fin, así que la música nunca se queda en silencio;
 //   - los tramos se cruzan con fundidos de igual potencia de 3 s;
 //   - en cada cartela de año, una transición: un soplo que crece hasta el cambio y una nota de caja de música;
-//   - un golpe a menos de 3 s de una cartela no deja silencio: baja la música (a la mitad) y vuelve.
+//   - un golpe a menos de 3 s de una cartela no deja silencio: baja la música (al 65 %) y vuelve.
 // - Desde el episodio 13 (28/10/2026), porque «la música de fondo se está repitiendo de capítulo a capítulo… no todo es
 //   suspenso» (el usuario), cada episodio define su banda en escenas.json («banda», que escribe plan.py y se aprueba con el
 //   guion): tono y modo, tempo, su motivo propio y una paleta de ánimos que incluye los nuevos:
@@ -215,7 +215,7 @@ const eco = reverb(musica, { room: 0.88 }), ecoG = reverb(golpes, { room: 0.7 })
 eco.mixInto(musica, 0.35);
 for (const t of cortes) {   // silencio antes del golpe y vuelta suave
   const g = 10 ** ((NIVEL.golpe - rms(golpes, Math.round((t + 0.1) * SR), Math.round((t + 1.1) * SR))) / 20);
-  const suelo = cartelas.some((c) => Math.abs(c - t) < CERCA_CARTELA) ? 0.5 : 0;   // junto a una cartela, baja pero no calla (al 30 % caía 13 dB en el 13: el control pide 7,5 como mucho)
+  const suelo = cartelas.some((c) => Math.abs(c - t) < CERCA_CARTELA) ? 0.65 : 0;   // junto a una cartela, baja pero no calla (al 30 % caía 13 dB en el 13 y a la mitad 8,9: el control pide 7,5 como mucho)
   for (let i = Math.round((t - 0.6) * SR); i < Math.min(n, Math.round((t + 3) * SR)); i++) {
     const x = i / SR - t, k0 = x < -0.35 ? Math.max(0, (-0.35 - x) / 0.25) : x < 1.2 ? 0 : Math.min(1, (x - 1.2) / 1.8), k = suelo + (1 - suelo) * k0;
     if (i >= 0) { musica.L[i] *= k; musica.R[i] *= k; }
