@@ -4,7 +4,7 @@
 
 **Por qué este tema:** lo eligió el usuario («a la gente le gustan los misterios, necesitamos algo que perdure»).
 - Es un misterio abierto desde 1795, sin resolver y sin víctimas en el centro de la historia.
-- En EE. UU. lo mantiene vivo «The Curse of Oak Island» (History), que ya va por trece temporadas; los protagonistas, los hermanos Lagina, son de Michigan, y uno de los buscadores fue Franklin D. Roosevelt.
+- En EE. UU. lo mantiene vivo «The Curse of Oak Island» (History), que ya lleva más de una docena de temporadas; los protagonistas, los hermanos Lagina, son de Michigan, y uno de los buscadores fue Franklin D. Roosevelt.
 - El ángulo de ASK Atom: por qué un agujero en una isla se llena de agua cada vez que alguien se acerca al fondo, con mareas, roca que se disuelve y tinte rojo.
 
 **Formato:**
@@ -15,7 +15,7 @@
 
 **Duración objetivo:** unos 9:00. Son 48 frases y unas 1.310 palabras en inglés (÷ 150 por minuto).
 
-**Publicar:** cuando esté; no caduca. Si la serie de televisión anuncia un hallazgo de verdad antes de publicar, se cambia la frase 33.
+**Publicar:** cuando esté; no caduca. Si la serie de televisión anuncia un hallazgo de verdad antes de publicar, se cambia la frase 42.
 
 ## Cómo se cuenta
 
@@ -88,7 +88,7 @@ Suspense, misterio e intriga juntos: unos dos minutos y medio de nueve, por deba
 |---|---|
 | Es un día de verano de 1795, o eso cuentan, y un muchacho llamado Daniel McGinnis rema hasta una isla pequeña y llena de robles en la bahía de Mahone, en Nueva Escocia, en la costa atlántica de Canadá. | It's a summer day in 1795, or so the story goes, and a teenager named Daniel McGinnis rows out to a small island covered in oak trees in Mahone Bay, Nova Scotia, on Canada's Atlantic coast. |
 | En un claro encuentra un hoyo redondo en el suelo, como si alguien hubiera cavado allí y lo hubiera vuelto a tapar, y de una rama del roble de al lado, según la leyenda, cuelga una vieja polea de barco. | In a clearing he finds a round dip in the ground, as if someone had dug there and filled it back in, and from a branch of the oak beside it, according to the legend, hangs an old ship's pulley. |
-| Vuelve con dos amigos y empiezan a cavar: debajo de una capa de losas de piedra, cada diez pies aparece una plataforma de troncos de roble, como si alguien la hubiera puesto ahí a propósito. | He comes back with two friends and they start digging: under a layer of flat stones, every ten feet they hit a platform of oak logs, as if someone had laid it there on purpose. |
+| Vuelve con dos amigos y empiezan a cavar: debajo de una capa de losas de piedra, cuentan, cada diez pies aparece una plataforma de troncos de roble, como puesta a propósito. | He comes back with two friends and they start digging: under a layer of flat stones, the story says, every ten feet they hit a platform of oak logs, as if laid there on purpose. |
 | Cuentan también que en las paredes de tierra se ven marcas de pico, señal de que alguien había cavado allí antes que ellos. | They also notice, so the story says, pick marks in the clay walls, a sign that someone had dug there before them. |
 | A los treinta pies se rinden, pero la noticia corre, y desde entonces llegan buscadores de tesoros, compañías, máquinas de vapor y hasta un futuro presidente de Estados Unidos. | At thirty feet they give up, but word spreads, and from then on come treasure hunters, companies, steam engines and even a future president of the United States. |
 | Más de doscientos treinta años después, aquel agujero, al que llaman el Pozo del Dinero, se ha tragado millones de dólares y no ha devuelto ni una moneda del tesoro: ¿qué hay ahí abajo, y por qué el pozo se llena de agua cada vez que alguien se acerca al fondo? | More than two hundred and thirty years later, that hole, known as the Money Pit, has swallowed millions of dollars and hasn't given back a single coin of treasure: so what's down there, and why does the pit flood every time someone gets close to the bottom? |
@@ -98,13 +98,13 @@ Suspense, misterio e intriga juntos: unos dos minutos y medio de nueve, por deba
 
 | ES | EN |
 |---|---|
-| Hacia 1803 llega la primera compañía de verdad, con dinero de los pueblos de alrededor, y vuelve a vaciar el pozo hasta unos noventa pies. | Around 1803, the first real company arrives, backed by money from the towns nearby, and digs the pit out again, down to about ninety feet. |
-| Por el camino, según los relatos que se escribieron décadas después, encuentran capas de carbón, de masilla y de fibra de coco, algo muy raro en una isla del norte donde no crece ni un cocotero. | Along the way, according to accounts written down decades later, they find layers of charcoal, of putty and of coconut fiber, which is very strange on a northern island where not a single coconut palm grows. |
+| Hacia 1803 llega la primera compañía de verdad, con dinero de inversores de Onslow, al otro lado de Nueva Escocia, y vuelve a vaciar el pozo hasta unos noventa pies. | Around 1803, the first real company arrives, backed by investors from Onslow, across Nova Scotia, and digs the pit out again, down to about ninety feet. |
+| Por el camino, según los relatos que se escribieron décadas después, encuentran capas de carbón vegetal, de masilla y de fibra de coco, algo muy raro en una isla del norte donde no crece ni un cocotero. | Along the way, according to accounts written down decades later, they find layers of charcoal, of putty and of coconut fiber, which is very strange on a northern island where not a single coconut palm grows. |
 | Y casi al fondo sacan una piedra plana con unos símbolos tallados que nadie sabe leer; la piedra se perdió hace más de un siglo, y nadie vivo la ha visto. | And near the bottom they pull out a flat stone carved with symbols no one can read; the stone was lost more than a century ago, and no one alive has ever seen it. |
-| Años después, alguien aseguró haberla descifrado, «cuarenta pies más abajo están enterrados dos millones de libras», pero nadie ha podido comprobarlo nunca. | Years later, someone claimed to have deciphered it, "forty feet below, two million pounds are buried," but no one has ever been able to check. |
+| Mucho después circuló una traducción, «cuarenta pies más abajo están enterrados dos millones de libras», aunque otra versión decía diez, y nadie ha podido comprobar ninguna. | Much later, a "translation" made the rounds, "forty feet below, two million pounds are buried," though another version said ten, and no one has ever been able to check either. |
 | Esa tarde dejan de cavar con el fondo casi al alcance de la mano, y a la mañana siguiente el pozo está lleno de agua hasta unos treinta pies de la superficie. | That evening they stop digging with the bottom almost in reach, and the next morning the pit is full of water, up to about thirty feet from the surface. |
 | Sacan el agua con cubos, la sacan con bombas, cavan un segundo pozo al lado para llegar por debajo, y el segundo pozo también se inunda. | They bail with buckets, they bail with pumps, they dig a second shaft next to it to come in from below, and the second shaft floods too. |
-| Y el agua que entra no es de lluvia: es salada, como la del mar. | And the water pouring in isn't rainwater: it's salty, just like the sea. |
+| Y años más tarde comprobarán que el agua que entra no es de lluvia: es salada, como la del mar. | And years later, they'd find the water pouring in isn't rainwater: it's salty, just like the sea. |
 | En 1849 lo intenta otra compañía con un taladro, y cuentan que la broca sube con astillas de madera, trocitos de metal y tres eslabones diminutos de una cadena de oro. | In 1849, another company tries again with a drill, and the story goes that the bit comes up with wood chips, scraps of metal and three tiny links from a gold chain. |
 | Luego se fijan en una playa cercana, Smith's Cove: cuando baja la marea, la arena llora agua, y al cavar encuentran fibra de coco y unos canales de piedra que se abren en abanico hacia el mar. | Then they notice a nearby beach, Smith's Cove: when the tide goes out, the sand weeps water, and when they dig, they find coconut fiber and stone channels fanning out toward the sea. |
 | En 1850 levantan un dique en la playa para cortarle el paso al mar, pero una marea muy alta se lo lleva por delante antes de que lo terminen. | In 1850, they build a dam across the beach to hold back the sea, but an extra-high tide washes it away before they can finish. |
@@ -115,16 +115,16 @@ Suspense, misterio e intriga juntos: unos dos minutos y medio de nueve, por deba
 | ES | EN |
 |---|---|
 | En 1909, un joven abogado de Nueva York, de veintisiete años, invierte en una compañía de rescate de tesoros y viaja a la isla para ver el pozo con sus propios ojos: se llama Franklin Delano Roosevelt. | In 1909, a twenty-seven-year-old law clerk from New York invests in a treasure salvage company and travels to the island to see the pit for himself: his name is Franklin Delano Roosevelt. |
-| Pasaba los veranos con su familia en la isla de Campobello, también en Canadá, y la historia del pozo le fascinaba desde niño. | He spent his summers with his family on Campobello Island, also in Canada, and the story of the pit had fascinated him since he was a boy. |
+| Pasaba los veranos con su familia en la isla de Campobello, también en Canadá, y dicen que la historia del pozo le fascinaba desde niño. | He spent his summers with his family on Campobello Island, also in Canada, and the story goes that the pit had fascinated him since he was a boy. |
 | Aquel verano la expedición perfora, saca muestras y vuelve a casa sin nada, pero Roosevelt sigue las noticias de la isla toda la vida, también cuando ya es presidente. | That summer the expedition drills, pulls up samples and goes home empty-handed, but Roosevelt follows news from the island for the rest of his life, even after he becomes president. |
-| En 1939, cuentan, planea acercarse con su barco a la isla durante un viaje a Canadá, pero la niebla le obliga a dar la vuelta. | In 1939, the story goes, he plans to sail over to the island during a trip to Canada, but fog forces him to turn back. |
+| En 1939, cuentan, planea acercarse con su barco a la isla durante un viaje a Canadá, pero la niebla y la guerra que se avecina en Europa se lo impiden. | In 1939, the story goes, he plans to sail over to the island during a trip to Canada, but fog and the looming war in Europe stop him. |
 
 ## 3 · Las teorías
 
 | ES | EN |
 |---|---|
 | ¿Y qué esconde el pozo? Las teorías no se acaban: el tesoro del pirata William Kidd, el oro de un galeón español, las joyas de María Antonieta o los manuscritos secretos de Shakespeare. | So what's hiding in the pit? The theories never run out: the treasure of the pirate William Kidd, gold from a Spanish galleon, Marie Antoinette's jewels, or Shakespeare's secret manuscripts. |
-| Hay quien dice que fueron los templarios, y quien dice que fueron ingenieros del ejército británico escondiendo el dinero para pagar una guerra. | Some say it was the Knights Templar, and others say British army engineers hid the money to pay for a war there. |
+| Hay quien dice que fueron los templarios, y quien dice que ingenieros del ejército británico escondieron allí la paga de la guerra de independencia. | Some say it was the Knights Templar, and others say British army engineers hid a war chest there during the American Revolution. |
 | Cada generación ha puesto en el pozo el tesoro que más deseaba encontrar. | Every generation has put into the pit the treasure it most wanted to find. |
 | Pero la mejor pista no es una teoría, es el agua: el agua del pozo sube y baja dos veces al día, al mismo ritmo que las mareas, como si la isla respirara. | But the best clue isn't a theory, it's the water: the water in the pit rises and falls twice a day, in time with the tides, as if the island were breathing. |
 
@@ -147,7 +147,7 @@ Suspense, misterio e intriga juntos: unos dos minutos y medio de nueve, por deba
 | ES | EN |
 |---|---|
 | En enero de 1965, un niño de once años de Michigan, Rick Lagina, lee un artículo sobre Oak Island en la revista Reader's Digest y ya no se lo puede quitar de la cabeza. | In January 1965, an eleven-year-old boy in Michigan, Rick Lagina, reads an article about Oak Island in Reader's Digest, and he can never get it out of his head. |
-| Ese mismo artículo lo lee un constructor de Miami, Dan Blankenship, que se muda a la isla y se pasa más de cincuenta años cavando en ella. | That same article is read by a contractor in Miami, Dan Blankenship, who moves to the island and spends more than fifty years digging there. |
+| Ese mismo artículo lo lee un constructor de Miami, Dan Blankenship, que acaba mudándose a la isla y le dedica más de medio siglo. | That same article is read by a contractor in Miami, Dan Blankenship, who ends up moving to the island and devotes more than half a century to it. |
 | En 1965 se construye además una calzada desde la costa, para que las máquinas pesadas puedan llegar a la isla sin barco. | In 1965, a causeway is also built from the mainland, so heavy machines can reach the island without a boat. |
 | Décadas después, Rick y su hermano Marty compran parte de la isla, y desde 2014 su búsqueda es un programa de televisión que ya lleva más de una docena de temporadas. | Decades later, Rick and his brother Marty buy into the island, and since 2014 their search has been a TV show now more than a dozen seasons in. |
 | Rick es cartero jubilado, y Marty, ingeniero que hizo fortuna con el gas natural, pone buena parte del dinero. | Rick is a retired postal worker, and Marty, an engineer who made a fortune in natural gas, puts up much of the money. |
