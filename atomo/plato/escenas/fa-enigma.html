@@ -143,7 +143,7 @@ const p5 = (t) => {
   const ang = pa - 0.32 * (1 - cz) - 0.32 * cz * Math.cos(fi);
   // la voltereta que no pasa: un balón fantasma que se voltea y se tacha
   const vf = tramo(t, voltea, tacha + 0.3), vt = tramo(t, tacha, tacha + 0.2) * (1 - tramo(t, circula - 0.2, circula));
-  if (vf > 0 && t < circula) { if (vt < 1 || Math.floor(t * 4) % 2) { const gx = Math.round(cx + 58), gy = Math.round(cy + 30), ga = pa - 0.32 - vf * 2.4; for (let an = 0; an < 6.28; an += 0.12) { const lx = Math.cos(an) * 16, ly = Math.sin(an) * 7, px = Math.round(gx + lx * Math.cos(ga) - ly * Math.sin(ga)), py = Math.round(gy + lx * Math.sin(ga) + ly * Math.cos(ga)); R.pset(px + 1, py + 1, K); R.pset(px, py, BL); }
+  if (vf > 0 && t < circula) { const gx = Math.round(cx + 58), gy = Math.round(cy + 30); if (vt < 1 || Math.floor(t * 4) % 2) { const ga = pa - 0.32 - vf * 2.4; for (let an = 0; an < 6.28; an += 0.12) { const lx = Math.cos(an) * 16, ly = Math.sin(an) * 7, px = Math.round(gx + lx * Math.cos(ga) - ly * Math.sin(ga)), py = Math.round(gy + lx * Math.sin(ga) + ly * Math.cos(ga)); R.pset(px + 1, py + 1, K); R.pset(px, py, BL); }
       for (let i = -12; i <= 12; i += 3) R.pset(Math.round(gx + Math.cos(ga) * i), Math.round(gy + Math.sin(ga) * i), BL); }
     if (vt > 0) R.icono('X', gx - 5, gy - 5, RO, K, 2); }
   // el aire que llega por delante y la flecha que empuja la punta
