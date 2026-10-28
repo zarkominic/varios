@@ -176,7 +176,7 @@ const p2 = (t) => {
 
 // 3 · la explanada del estadio de la final: «2027»; el chico y su padre llegan; el avión baja
 const p3 = (t) => {
-  T.estadioHoy(R, t, { encuadre: 'superbowl' });
+  T.estadioHoy(R, t, { encuadre: 'superbowl', noche: true });
   const e = tramo(t, P3, P3 + 0.3), fuera = tramo(t, estadio - 0.6, estadio - 0.2);
   if (e > 0 && fuera < 1) R.numero('2027', 74, Math.round(52 - e * 6 - fuera * 50), { tam: 16, centro: true });
   const u = tramo(t, P3 + 0.2, estadio - 0.1), w = tramo(t, cerca + 0.2, E.duracion), x = Math.round(lerp(96, 150, u) + lerp(0, 40, w));
