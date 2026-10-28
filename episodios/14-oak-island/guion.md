@@ -1,6 +1,6 @@
 # Episodio 14 · Oak Island: el pozo que se traga los tesoros
 
-**Estado:** v1, 28 de octubre de 2026. Pendiente de la verificación de datos y de la aprobación del usuario.
+**Estado:** v2, 28 de octubre de 2026, con la verificación de datos aplicada (3 agentes). Pendiente de la aprobación del usuario.
 
 **Por qué este tema:** lo eligió el usuario («a la gente le gustan los misterios, necesitamos algo que perdure»).
 - Es un misterio abierto desde 1795, sin resolver y sin víctimas en el centro de la historia.
@@ -13,7 +13,7 @@
 - Voces: inglés `am_puck` 0,85 y español `em_santa` 0,92.
 - **Banda propia del episodio:** Mi dórico, una canción de marineros; misterio donde toca, pero también aventura, curiosidad y asombro.
 
-**Duración objetivo:** unos 9:00. Son 48 frases y unas 1.310 palabras en inglés (÷ 150 por minuto).
+**Duración objetivo:** unos 9:00. Son 48 frases y unas 1.340 palabras en inglés (÷ 150 por minuto).
 
 **Publicar:** cuando esté; no caduca. Si la serie de televisión anuncia un hallazgo de verdad antes de publicar, se cambia la frase 42.
 
@@ -35,7 +35,7 @@
 | **C · Smith's Cove** | La playa con la marea baja, la arena que «llora» agua, los canales de piedra en abanico, la fibra de coco, el dique de los buscadores | 1, 4 |
 | **D · Roosevelt: Nueva York, 1909, y el barco, 1939** | El despacho de abogados con el joven Roosevelt; la cubierta de un barco en la niebla de 1939 | 2 |
 | **E · El gabinete de las teorías** | Un desván con un mapa de piratas, un cofre, un yelmo de templario, una pluma de escribir, un retrato con joyas: todo lo que se ha dicho del pozo | 3 |
-| **F · El laboratorio del agua** | Un tanque de cristal con la isla en corte: el mar, el agua dulce, la roca de anhidrita con cuevas; el vaso con la pajita; la orilla del tinte rojo en 1897 y el campo de los bueyes en 1878 | 4 |
+| **F · El laboratorio del agua** | Un tanque de cristal con la isla en corte: el mar, el agua dulce, la roca de anhidrita con cuevas; el vaso con la pajita; la orilla del tinte rojo en 1898 y el campo de los bueyes en 1878 | 4 |
 | **G · Michigan, 1965** | La cocina de una casa con nieve en la ventana, el niño que lee la revista en la mesa, la radio, la nevera de la época | 5 |
 | **H · Oak Island hoy** | La excavación de ahora: la grúa enorme, los tubos de acero, la calzada a la isla, la caseta con pantallas y la mesa de las maderas fechadas | 5, 6 |
 
@@ -44,7 +44,7 @@
   - Las palas: 1795–1848, con una pala.
   - Las máquinas de vapor: 1849–1964, con una polea.
   - La ciencia: 1965–2026, con una grúa.
-- **Cartelas:** 1795, 1803, 1849, 1909, 1939, 1878, 1897, 1965, 2026.
+- **Cartelas:** 1795, 1803, 1849, 1909, 1939, 1878, 1898, 1965, 2026.
 - **Reparto nuevo:**
   - Daniel McGinnis y sus dos amigos (ropa de colono de 1795);
   - los obreros de las compañías de 1803 y 1849, con sombrero y tirantes;
@@ -61,7 +61,7 @@
 | **3 · El cangrejo** | Un cangrejo sale de uno de los canales de piedra de la playa, mira a los buscadores y se mete en otro (acto 1). |
 | **4 · El sombrero** | En la niebla de 1939, el viento se lleva el sombrero de un marinero de la cubierta (acto 2). |
 | **5 · El topo** | Cada teoría sale del agujero (un loro pirata, un yelmo, una pluma, una corona) y un topo las va devolviendo dentro (acto 3). |
-| **6 · El pez rojo** | En 1897, al salir el tinte en la orilla, un pez asoma la cabeza teñido de rojo (acto 4). |
+| **6 · El pez rojo** | En 1898, al salir el tinte en la orilla, un pez asoma la cabeza teñido de rojo (acto 4). |
 | **7 · Los bueyes** | Los bueyes de 1878 se quedan con las patas en el agujero, con cara de sorpresa, y el granjero se rasca la cabeza (acto 4). |
 | **8 · El gato** | En la cocina de 1965, el gato de la familia se sienta encima de la revista justo en la página de Oak Island (acto 5). |
 
@@ -104,7 +104,7 @@ Suspense, misterio e intriga juntos: unos dos minutos y medio de nueve, por deba
 | Mucho después circuló una traducción, «cuarenta pies más abajo están enterrados dos millones de libras», aunque otra versión decía diez, y nadie ha podido comprobar ninguna. | Much later, a "translation" made the rounds, "forty feet below, two million pounds are buried," though another version said ten, and no one has ever been able to check either. |
 | Esa tarde dejan de cavar con el fondo casi al alcance de la mano, y a la mañana siguiente el pozo está lleno de agua hasta unos treinta pies de la superficie. | That evening they stop digging with the bottom almost in reach, and the next morning the pit is full of water, up to about thirty feet from the surface. |
 | Sacan el agua con cubos, la sacan con bombas, cavan un segundo pozo al lado para llegar por debajo, y el segundo pozo también se inunda. | They bail with buckets, they bail with pumps, they dig a second shaft next to it to come in from below, and the second shaft floods too. |
-| Y años más tarde comprobarán que el agua que entra no es de lluvia: es salada, como la del mar. | And years later, they'd find the water pouring in isn't rainwater: it's salty, just like the sea. |
+| Y, como se comprobó años después, el agua que entra no es de lluvia: es salada, casi como la del mar. | And, as later diggers found out, the water pouring in isn't rainwater: it's salty, almost like the sea. |
 | En 1849 lo intenta otra compañía con un taladro, y cuentan que la broca sube con astillas de madera, trocitos de metal y tres eslabones diminutos de una cadena de oro. | In 1849, another company tries again with a drill, and the story goes that the bit comes up with wood chips, scraps of metal and three tiny links from a gold chain. |
 | Luego se fijan en una playa cercana, Smith's Cove: cuando baja la marea, la arena llora agua, y al cavar encuentran fibra de coco y unos canales de piedra que se abren en abanico hacia el mar. | Then they notice a nearby beach, Smith's Cove: when the tide goes out, the sand weeps water, and when they dig, they find coconut fiber and stone channels fanning out toward the sea. |
 | En 1850 levantan un dique en la playa para cortarle el paso al mar, pero una marea muy alta se lo lleva por delante antes de que lo terminen. | In 1850, they build a dam across the beach to hold back the sea, but an extra-high tide washes it away before they can finish. |
@@ -132,15 +132,15 @@ Suspense, misterio e intriga juntos: unos dos minutos y medio de nueve, por deba
 
 | ES | EN |
 |---|---|
-| Una isla funciona como un vaso con una pajita: si cavas un agujero más hondo que el nivel del mar, el agua entra por abajo hasta quedarse a la altura de fuera, igual que el zumo de la pajita se queda a la altura del zumo del vaso. | An island works a lot like a glass with a straw in it: dig a hole deeper than sea level, and water seeps in from below until it matches the level outside, just like the juice in a straw settles at the same height as the juice in the glass. |
-| Y la roca que hay debajo de Oak Island lo pone aún más fácil: es anhidrita, una piedra parecida al yeso que el agua va disolviendo, y que deja cuevas y huecos bajo tierra. | And the rock beneath Oak Island makes it even easier: it's anhydrite, a stone similar to gypsum that water slowly dissolves, leaving caves and hollows underground. |
+| Piensa en un vaso de zumo con una pajita: el mar es el vaso y el pozo es la pajita; si la tierra deja pasar el agua y cavas más hondo que el nivel del mar, el agua se cuela hasta quedarse a la altura de fuera. | Think of a glass of juice with a straw: the sea is the glass and the pit is the straw; if the ground lets water through and you dig deeper than sea level, water seeps in until it matches the level outside. |
+| Y la roca que hay más abajo, bajo la arcilla de la isla, lo pone aún más fácil: es anhidrita, una piedra parecida al yeso que el agua va disolviendo, y que deja cuevas y huecos. | And the bedrock deeper down, under the island's clay, makes it even easier: it's anhydrite, a stone similar to gypsum that water slowly dissolves, leaving caves and hollows. |
 | El agua bajo tierra nunca está quieta: se cuela por grietas, arena y agujeros de la roca, como el agua que empapa una esponja. | Water underground is never still: it slips through cracks, sand and holes in the rock, the way water soaks through a sponge. |
 | Y cuanto más hondo cavas por debajo del mar, más fuerte empuja el agua para entrar, así que cada bomba que traían los buscadores solo hacía entrar el mar más deprisa. | And the deeper you dig below sea level, the harder the water pushes its way in, so every pump the hunters brought just pulled the sea in faster. |
-| En 1878, cerca del pozo, el suelo se hundió de repente bajo una pareja de bueyes que araba el campo: debajo había una cueva natural. | In 1878, not far from the pit, the ground suddenly gave way under a pair of oxen plowing a field: underneath was a natural cave. |
-| En 1897, unos buscadores echaron tinte rojo en el pozo, y el tinte no salió en Smith's Cove, donde todos esperaban el túnel, sino en la orilla del otro lado de la isla. | In 1897, searchers poured red dye into the pit, and the dye didn't show up at Smith's Cove, where everyone expected the tunnel, but on the shore on the other side of the island. |
-| Si un túnel secreto uniera el pozo con la playa, el tinte tendría que haber salido justo allí. | If a secret tunnel connected the pit to that beach, the dye should have come out right there. |
+| En 1878, cerca del pozo, el suelo se hundió de repente bajo una pareja de bueyes que araba el campo: los buscadores vieron un túnel; los geólogos, una cueva natural. | In 1878, not far from the pit, the ground suddenly gave way under a pair of oxen plowing a field: hunters saw a tunnel shaft, geologists a natural cave. |
+| En 1898, unos buscadores echaron tinte rojo en el pozo, y el tinte no salió en Smith's Cove, donde todos esperaban el túnel, sino en la orilla sur de la isla. | In 1898, searchers poured red dye into the pit, and the dye didn't show up at Smith's Cove, where everyone expected the tunnel, but on the island's south shore. |
+| Los buscadores lo explicaron con un segundo túnel secreto; los científicos, con agua que encuentra sola su camino por la roca. | The hunters blamed a second secret tunnel; scientists say the water simply finds its own way through the rock. |
 | Muchos escépticos creen que el Pozo del Dinero es en realidad un sumidero natural, un agujero que se abrió solo en la roca, y que los troncos de cada diez pies pueden ser árboles que cayeron dentro y se fueron enterrando. | Many skeptics think the Money Pit is really a natural sinkhole, a hole that opened up on its own in the rock, and that the logs every ten feet could be trees that fell in and were slowly buried. |
-| Pero un sumidero no explica la fibra de coco ni los canales de piedra de la playa, y por eso el misterio sigue abierto. | But a sinkhole doesn't explain the coconut fiber or the stone channels on the beach, and that's why the mystery is still open. |
+| Pero un sumidero no explica por sí solo la fibra de coco ni los canales de la playa, que algunos creen restos de unas salinas antiguas, y por eso el debate sigue abierto. | But a sinkhole alone doesn't explain the coconut fiber or the stone channels on the beach, which some think are old salt works, so the debate is still open. |
 
 ## 5 · Hoy
 
@@ -152,7 +152,7 @@ Suspense, misterio e intriga juntos: unos dos minutos y medio de nueve, por deba
 | Décadas después, Rick y su hermano Marty compran parte de la isla, y desde 2014 su búsqueda es un programa de televisión que ya lleva más de una docena de temporadas. | Decades later, Rick and his brother Marty buy into the island, and since 2014 their search has been a TV show now more than a dozen seasons in. |
 | Rick es cartero jubilado, y Marty, ingeniero que hizo fortuna con el gas natural, pone buena parte del dinero. | Rick is a retired postal worker, and Marty, an engineer who made a fortune in natural gas, puts up much of the money. |
 | Hoy en la isla ya no se cava con palas: hay grúas enormes que clavan tubos de acero más anchos que una persona, escáneres que miran bajo tierra como una ecografía y laboratorios que fechan los trozos de madera que salen. | Today, nobody digs on the island with shovels anymore: giant cranes drive in steel tubes wider than a person, scanners look underground like an ultrasound, and labs date the scraps of wood that come up. |
-| Han encontrado monedas antiguas, clavos hechos a mano y maderas de hace siglos, pistas de que alguien estuvo allí y trabajó en serio. | They've found old coins, handmade nails and centuries-old wood, clues that someone was there and did serious work. |
+| Han encontrado monedas antiguas, clavos hechos a mano y maderas de hace siglos, aunque en la isla ya vivían granjeros desde la década de 1760. | They've found old coins, handmade nails and centuries-old wood, though farmers had lived on the island since the 1760s. |
 | Pero el tesoro, si existe, sigue sin aparecer, y cada año vuelven las máquinas. | But the treasure, if there is one, still hasn't turned up, and every year the machines come back. |
 | En más de doscientos treinta años, el Pozo del Dinero ha pasado de ser un hoyo bajo una polea a una de las excavaciones más famosas del mundo. | In more than two hundred and thirty years, the Money Pit has gone from a hole under a pulley to one of the most famous digs on Earth. |
 
@@ -181,9 +181,9 @@ Suspense, misterio e intriga juntos: unos dos minutos y medio de nueve, por deba
 
 ## Datos
 
-Pendiente de la verificación (3 agentes escépticos). Fuentes de partida:
+Verificado el 28 de octubre de 2026 por 3 agentes escépticos (historia y personas, ciencia y cifras, actualidad y fechas); todo lo que señalaron está corregido en la v2.
 - **La leyenda de 1795 y la compañía de 1803 (Onslow):** la primera noticia impresa es de 1857 y el primer relato largo, de 1862; las fechas y las edades varían entre fuentes. [Wikipedia, Oak Island mystery](https://en.wikipedia.org/wiki/Oak_Island_mystery), [Skeptoid #129](https://skeptoid.com/episodes/129), [Critical Enquiry](https://criticalenquiry.org/oakisland/floodtunnel.shtml).
 - **Roosevelt, 1909:** inversor de la Old Gold Salvage and Wrecking Company (expedición de Henry L. Bowdoin, agosto de 1909); en 1939 pensó en volver y el mal tiempo se lo impidió. [Oak Island Tours](https://www.oakislandtours.ca/the-old-gold-salvage-and-wrecking-company.html), [History UK](https://www.history.co.uk/articles/historical-figures-connected-to-the-oak-island-mystery), [Grunge](https://grunge.com/1023955/franklin-d-roosevelts-obsession-with-oak-island-explained).
-- **La geología:** anhidrita soluble, sumideros, el de 1878 a unas 120 yardas del pozo. [Critical Enquiry](https://criticalenquiry.org/oakisland/floodtunnel.shtml), [Skeptoid #129](https://skeptoid.com/episodes/129), [Looper](https://looper.com/666839/the-sinkhole-theory-that-could-kill-the-curse-of-oak-island).
+- **La geología y el agua:** la isla es arcilla glaciar sobre anhidrita soluble (a unos 125–150 pies en la zona del pozo); el agua del pozo es salobre y sube y baja con la marea (compañía de Truro, hacia 1850); el hundimiento de 1878 (Sophia Sellers, bueyes, «Cave-in Pit»); el tinte de 1898 salió en la orilla sur (Lamb, 2006); Woods Hole, 1995: tinte sin rastro en la costa e inundación natural por la lente de agua dulce y la marea; Dennis King, 2010: los canales de Smith's Cove serían unas salinas; colonos en la isla desde la década de 1760. [Critical Enquiry](https://criticalenquiry.org/oakisland/floodtunnel.shtml), [Skeptoid #129](https://skeptoid.com/episodes/129), [Looper](https://looper.com/666839/the-sinkhole-theory-that-could-kill-the-curse-of-oak-island).
 - **Los Lagina:** Rick leyó el artículo del Reader's Digest de enero de 1965 a los 11 años. [History](https://history.com/shows/the-curse-of-oak-island/cast/rick-lagina), [Looper](https://www.looper.com/676159/the-surprising-career-rick-lagina-had-before-the-curse-of-oak-island).
 - **Hoy:** el programa se estrenó en enero de 2014; la temporada 13 (desde el 4 de noviembre de 2025) acabó en mayo de 2026 y la 14 se estrena el 10 de noviembre de 2026; sin tesoro confirmado (en la 13, una moneda de seis peniques de Guillermo III, clavos forjados y maderas antiguas; el caisson MP-1 llegó a 210 pies). Los Lagina compraron en 2006 la mitad de Oak Island Tours; Marty vendió Terra Energy (gas natural) a CMS Energy en 1995. Dan Blankenship murió en 2019. El sitio del primer pozo hoy no se conoce. [Wikipedia, The Curse of Oak Island](https://en.wikipedia.org/wiki/The_Curse_of_Oak_Island), [BroadwayWorld](https://www.broadwayworld.com/bwwtv/article/THE-CURSE-OF-OAK-ISLAND-HISTORYS-MYSTERY-FILES-to-Premiere-20261002), [Looper, Marty Lagina](https://www.looper.com/666754/the-surprising-career-marty-lagina-had-before-the-curse-of-oak-island).
