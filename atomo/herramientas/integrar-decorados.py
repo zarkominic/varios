@@ -11,8 +11,9 @@ Para cada copia:
   cabecera de sección «// ── …») hasta la siguiente declaración de nivel superior o la siguiente cabecera de sección;
 - añade al final las declaraciones nuevas de la copia (auxiliares <g>_…, con sus comentarios): se evalúan después de
   C, pal y hex, así que el final del archivo es un sitio seguro;
-- AVISA, sin tocarlas, de las funciones que la copia cambió y no son de su lista (por ejemplo cielo(), que es de
-  todos) y de los import nuevos: eso se mira a mano. Compara con _tmp_<G>/<pref>-comun.base.js, la copia intacta de la
+- integra también las funciones que la copia cambió y no son de su lista (las auxiliares que tocó para su decorado),
+  con un AVISO para mirar las escenas que las usan; si otro lote ya las cambió, no las toca y avisa de CONFLICTO. Los
+  import nuevos solo se avisan: eso se mira a mano. Compara con _tmp_<G>/<pref>-comun.base.js, la copia intacta de la
   que partió el agente, si existe (así se pueden integrar lotes uno detrás de otro sin avisos falsos); si no, con el
   archivo tal como está.
 Después quita las cabeceras de sección repetidas. Al terminar hay que comprobar la sintaxis (copiar a .mjs y
@@ -86,9 +87,17 @@ while i < len(resto):
             s = s.rstrip('\n') + '\n\n' + texto(c, n) + '\n'
         if nuevas:
             hechas.append(f'+{len(nuevas)} auxiliares de {copia}')
+        # lo que la copia cambió fuera de su lista (auxiliares d_*, f_*… que tocó para su decorado): se integra si nadie
+        # más lo ha cambiado ya en el archivo; si otro lote también lo cambió, es un conflicto y se mira a mano. En el 12,
+        # saltarse estas auxiliares dejó decorados a medias hasta que se volvieron a integrar con la lista completa
         for n in de_copia:
             if n in de_orig and n not in lista and texto(c, n) != texto(base, n):
-                avisos.append(f'{copia} también cambia «{n}», que no es de su lista: no se ha integrado; míralo a mano')
+                if texto(s, n) == texto(base, n):
+                    s = cambiar(s, n, texto(c, n))
+                    hechas.append(n)
+                    avisos.append(f'{copia}: integrada también «{n}», que no era de su lista: mira las escenas que la usan')
+                else:
+                    avisos.append(f'CONFLICTO: {copia} cambia «{n}», que otro lote ya cambió: no se ha integrado; míralo a mano')
         imp_o = set(re.findall(r'^import .*$', base, re.M))
         for l in re.findall(r'^import .*$', c, re.M):
             if l not in imp_o:

@@ -11,6 +11,33 @@ Resumen de `ESTANDAR.md` y `GUIA-ESTILO.md`. Si algo choca, mandan esos dos. El 
 - **Acción con propósito, sincronizada con la voz inglesa:** empieza y acaba dentro del plano. Nadie se queda tieso.
 - **Pantalla completa:** pinta los 320 × 180 px en cada fotograma. Un fondo fijo va en un búfer: `const prev = R.usar(b); …; R.usar(prev)`, nunca `R.usar()` a secas, porque eso rompe los fundidos.
 
+## Los siete fallos que más suspendieron en el 12 (evítalos desde el primer borrador)
+
+En el 12, la calidad suspendió 41 planos en la primera ronda y casi todos eran de estos siete tipos. Cada uno que dejas pasar
+cuesta después una ronda de revisor, escéptico y pulido:
+
+1. **Brazo «palo»:** una manga recta y lisa que entra desde el borde (en el 12, de hasta 85 × 4 px). Un brazo entra en
+   diagonal, se ven como mucho 30–45 px, tiene 6–7 px de grosor que se estrecha hacia el puño, luz y sombra, dos pliegues,
+   puño y su sombra; y no cruza por encima de lo que tiene delante. Si no cabe así, solo la mano cerca del borde.
+2. **Composición repetida:** el mismo encuadre que otro plano de la escena o de la escena de al lado (boya y barco en el
+   mar tres veces; la misma granja con otra luz). Cada plano: otro decorado, otro encuadre de verdad o un inserto.
+3. **Zonas «casi lisas»:** no basta con no ser de un color. Un cielo en degradado con dos nubes, un mueble con cuatro
+   rayas, un asfalto con rejilla tenue o una hierba de ruido uniforme suspenden. Cada zona grande lleva objetos y
+   textura del lugar (nubes de tres tonos a tres velocidades y pájaros; vetas, tiradores, toalla; calzos, manchas,
+   charcos, un carro; matas, surcos, balizas).
+4. **Algo que se sale de su sitio:** trayectorias, tramas o cotas de un mapa que pisan el marco; agua caliente pintada sobre
+   la tierra. Todo lo que va dentro de un mapa, una pantalla o una ventana se recorta a su hueco (`R.recorte`, con
+   `linea`, `pset`, `poligono` o `disco`; `R.rect` no lo respeta).
+5. **Orden de dibujo:** el perro pintado sobre la pierna, el mecánico delante del camión, un brazo sobre la jabonera, una
+   tarjeta encima de la luna. Antes de dar un plano por hecho, pregúntate qué va delante de qué.
+6. **Zona de Atom o barra del año ocupadas:** una palmera, un farol o un tejado detrás de Atom; flechas que cruzan el
+   sol o el año. Sube la cámara o aparta el objeto.
+7. **Algo que flota o está quieto:** un patito por encima del puño, una horquilla sin anclar, testigos tiesos todo el
+   plano, un tornado que se lee como un triángulo liso. Lo que se coge va en la mano; lo que se ve, se mueve.
+
+Además: **efectos** con un presupuesto de un efecto por segundo como mucho y pocos rellenos (pop, brillo, whoosh); el 12
+llevaba 595 en 532 s y sonaban el 75 % del tiempo.
+
 ## Reglas que no se rompen
 
 - **Sin letras en pantalla:** solo números y símbolos (`R.numero`, `R.icono`).
