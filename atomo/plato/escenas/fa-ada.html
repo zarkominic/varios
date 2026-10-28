@@ -317,8 +317,9 @@ const p6 = (t) => {
   carro();
 };
 
-const efectos = [[PIG, 'lapiz'], [VACA, 'papel'], [CORTA0, 'golpecito'], [NUM, 'pop'], [PIN, 'golpecito'], [CINCO, 'brillo'], [CIEN + 0.2, 'puerta'],
-  [P5 + 0.15, 'zumbido'], [P6 + 0.35, 'vapor'], [DIGNO + 0.05, 'miau'], [SPIN, 'whoosh']];
+const efectos = [[PIG, 'lapiz'], [VACA, 'papel'], [TIZA0, 'lapiz'], [TIZA0 + 1.0, 'lapiz'], [COGE, 'tic'], [CORTA0, 'golpecito'], [NUM, 'pop'], [LEVANTA, 'papel'],
+  [P3 + 0.3, 'lapiz'], [PIN, 'golpecito'], [PUEBLO, 'pop'], [CINCO, 'brillo'], [CIEN + 0.2, 'puerta'],
+  [P5 + 0.15, 'zumbido'], [VUELTA1 - 0.3, 'tecleo', { dur: 1.2 }], [P6 + 0.35, 'vapor'], [P6 + 2.75, 'golpecito'], [DIGNO + 0.05, 'miau'], [SPIN, 'whoosh'], [ATRAPA, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2026 });
 </script>
 </body>

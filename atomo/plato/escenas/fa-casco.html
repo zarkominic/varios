@@ -510,7 +510,7 @@ const p7 = (t) => {
   R.actor(EL.tecnico, 232, 174, t, { dir: -1, tocado: 'gorra', pal: { C: hex('#e8783a'), c: hex('#1e8a8a') }, habla: (t > BOTH - 0.5 && t < BOTH) || (t > COLL + 0.1 && t < COLL + 0.5), sonrisa: t > COLL + 0.8, dedo: t > COLL + 1.2 });
 };
 const año = (t) => t < C3 ? 2026 : t < E1900 - 0.2 ? 1905 : t < PLASTIC - 0.3 ? 1925 : t < C5 ? 1943 : t < C7 ? 2022 : 2026;
-T.rodar(E, R, [[0, p1], [C2, p2], [C3, p3], [C4, p4], [C5, p5], [C6, p6], [C7, p7]], { año, efectos: [[REL - 0.3, 'interruptor'], [IMP, 'chof'], [IMP + 0.08, 'boing'], [C2 + 0.2, 'bip'], [EXTRA, 'tic'], [FORCE, 'whoosh'], [PLASTIC - 0.05, 'brillo'], [MANDA - 0.1, 'silbato'], [Y1943 - 0.15, 'pop'], [PADDED + 0.1, 'pop'], [HELMET2, 'brillo'], [LAB - 0.1, 'interruptor'], [LAB + 0.47, 'golpecito'], [SEV, 'bip'], [BOTH - 0.4, 'silbato'], [COLL, 'palmada']] });
+T.rodar(E, R, [[0, p1], [C2, p2], [C3, p3], [C4, p4], [C5, p5], [C6, p6], [C7, p7]], { año, efectos: [[REL - 0.3, 'interruptor'], [IMP, 'chof'], [IMP + 0.08, 'boing'], [C2 + 0.2, 'bip'], [EXTRA, 'tic'], [EXTRA + 1.1, 'vapor'], [FORCE, 'whoosh'], [DOWN + 0.35, 'tic'], [C3 + 0.6, 'golpecito'], [E1900 + 0.35, 'golpecito'], [C4 + 0.2, 'rafaga'], [PLASTIC - 0.05, 'brillo'], [MANDA - 0.1, 'silbato'], [Y1943 - 0.15, 'pop'], [C5 + 0.2, 'motor', { dur: 4.2 }], [PADDED + 0.1, 'pop'], [HELMET2, 'brillo'], [C6 + 0.1, 'motor', { dur: 2.2 }], [LAB - 0.1, 'interruptor'], [LAB + 0.47, 'golpecito'], [SEV, 'bip'], [C7 + 0.2, 'rafaga'], [BOTH - 0.4, 'silbato'], [COLL, 'palmada'], [COLL + 0.35, 'boing']] });
 </script>
 </body>
 </html>

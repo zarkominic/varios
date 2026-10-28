@@ -212,7 +212,8 @@ const p3 = (t) => {
       if (x < 0 || x > 319 || y < 0 || y > 179 || (x >= 274 && y <= 48) || (x >= 16 && x <= 174 && y <= 16)) continue;
       if (c < 2) R.pset(x, y, c ? BL : BLS); else { R.rect(x, y, x + 1, y + 1, BL); R.pset(x + 1, y + 1, BLS); } } }
 };
-const efectos = [[AIRE, 'rafaga'], [MILLA + 0.1, 'bip'], [MANDO, 'interruptor'], [LEJOS, 'whoosh'], [FRIO, 'rafaga'], [QUITA + 0.9, 'chof']];
+// el aliento del pateador que se sopla las manos (2,7–3,6 s), el contador que llega a 83 y la sopladora de nieve del plano 3
+const efectos = [[AIRE, 'rafaga'], [2.7, 'vapor'], [MILLA + 0.1, 'bip'], [MANDO, 'interruptor'], [SEXTO, 'bip'], [LEJOS, 'whoosh'], [D3 + 0.1, 'motor', { dur: 5 }], [FRIO, 'rafaga'], [QUITA + 0.9, 'chof']];
 T.rodar(E, R, [[0, p1], [D2, p2], [D3, p3]], { efectos, año: 2026 });
 </script>
 </body>

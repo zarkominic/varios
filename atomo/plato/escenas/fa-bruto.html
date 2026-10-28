@@ -493,7 +493,10 @@ const p6 = (t) => {
   if (t >= LIMPIA && t < LIMPIA + 0.35) { const k = (t - LIMPIA) / 0.35; for (const [dx, dy] of [[-4, -3], [3, -4], [-6, 0], [5, 0]]) R.pset(234 + dx + Math.sign(dx) * Math.round(k * 2), 136 + dy, hex('#fff4d0')); }
 };
 
-const efectos = [[0.5, 'silbato'], [CHOQUE, 'chof'], [PITA, 'silbato'], [STOP, 'pop'], [COGE, 'golpecito'], [COGE + 0.45, 'boing'], [LIMPIA, 'golpecito']];
+const efectos = [[0.5, 'silbato'], [1.5, 'rafaga'], [CHOQUE, 'chof'], [CHOQUE + 0.05, 'flash'], [PITA, 'silbato'], [PITA + 1.6, 'rafaga'], [BADLY + 0.45, 'cerrojo'],
+  [P3 + 0.45, 'tic'], [COLUMBIA - 0.5, 'papel'], [STOP, 'pop'], [STOP + 0.3, 'lapiz'], [STOP + 1.3, 'vapor'],
+  [LANZA, 'whoosh'], [COGE, 'golpecito'], [COGE + 0.45, 'boing'], [SON + 0.3, 'brillo'], [SECRE + 0.4, 'papel'],
+  [P5 + 0.2, 'motor', { dur: 4.2 }], [CASA, 'puerta'], [P6 + 0.3, 'vapor'], [LIMPIA, 'golpecito'], [LIMPIA + 0.2, 'tic'], [LIMPIA + 1.5, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { cartela: '1905', efectos, año: 1905 });
 </script>
 </body>

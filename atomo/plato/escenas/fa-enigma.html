@@ -424,8 +424,10 @@ const p7 = (t) => {
   else T.balon(R, r.mano[0] - 4, r.mano[1] + 1, t, { s: 1.15, ang: 1.0 });
   T.h_estadioDelante(R, t, { encuadre: 'cesped' });
 };
-const efectos = [[dibuja0 + 0.1, 'lapiz'], [interroga, 'pop'], [lanza2, 'whoosh'], [atrapa2, 'golpecito'], [P3 + 0.4, 'tic'], [resuelto, 'palmada'],
-  [empuja5, 'rafaga'], [tacha, 'pop'], [circula, 'whoosh'], [como, 'brillo'], [atrapa7, 'golpecito']];
+const efectos = [[dibuja0 + 0.1, 'lapiz'], [dibuja0 + 1.25, 'lapiz'], [dibuja0 + 2.4, 'lapiz'], [interroga, 'pop'], [lanza2, 'whoosh'], [a(0.47), 'whoosh'], [atrapa2, 'golpecito'],
+  [P3 + 0.4, 'tic'], [P3 + 0.9, 'tecleo', { dur: 2.2 }], [P4 + 0.3, 'tecleo', { dur: 1.2 }], [resuelto, 'palmada'],
+  [P5 + 0.2, 'rafaga'], [empuja5, 'rafaga'], [tacha, 'pop'], [circula, 'whoosh'], [P6 + 0.05, 'lluvia'], [cae6, 'toc'], [cae6 + 0.1, 'zumbido'], [como, 'brillo'], [loop, 'pop'],
+  [P7 + 0.5, 'flash'], [atrapa7 - 1.2, 'whoosh'], [atrapa7, 'golpecito']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { cartela: '2020', efectos, año: (t) => (t >= P3 && t < P4 ? Math.round(lerp(2000, 2020, tramo(t, P3 + 0.2, P4 - 0.3))) : 2020) });
 </script>
 </body>

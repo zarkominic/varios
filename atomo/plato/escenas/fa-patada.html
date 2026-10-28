@@ -541,7 +541,7 @@ const p4 = (t) => {
   for (const [x, y] of [[148, 173], [160, 171]]) { R.pset(x, y, hex('#5a5a62')); R.pset(x + 1, y + 1, hex('#5a5a62')); R.pset(x - 1, y + 1, hex('#5a5a62')); }
   R.linea(196, 176, 226, 170, K); R.linea(196, 175, 226, 169, hex('#f2c84a')); R.pset(196, 176, hex('#5a5a62')); R.pset(226, 169, hex('#e86a8a'));
 };
-const efectos = [[LANZA, 'whoosh'], [COGE, 'palmada'], [SNAP, 'toc'], [TOCA, 'golpecito'], [TOCA + 0.3, 'tic'], [PIE, 'chof'], [SALE, 'whoosh'], [SESENTA, 'bip'], [TIZA0 + 0.05, 'lapiz'], [PASE + 0.15, 'lapiz']];
+const efectos = [[LANZA, 'whoosh'], [COGE, 'palmada'], [SNAP, 'toc'], [KICK + 0.25, 'golpecito'], [TOCA, 'golpecito'], [TOCA + 0.3, 'tic'], [PIE, 'chof'], [SALE, 'whoosh'], [SESENTA, 'bip'], [TIZA0 + 0.05, 'lapiz'], [TIZA0 + 1.15, 'lapiz'], [TIZA0 + 2.3, 'lapiz'], [PASE + 0.15, 'lapiz']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
 </script>
 </body>

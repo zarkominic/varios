@@ -355,7 +355,7 @@ const p4 = (t) => {
   if (c1 > 0 && t < toque + 0.6) for (const [x0, k] of [[256, 0], [272, 1], [290, 2]]) flecha(x0, 122 - k * 2, 10 * (1 - tramo(t, toque + k * 0.25, toque + k * 0.25 + 0.5)));
   const g = tramo(t, VA - 0.05, VA + 0.55); if (g > 0) { const gx = Math.round(lerp(300, 300, g)), gy = Math.round(lerp(140, 133, g) - Math.sin(g * Math.PI) * 16); T.gato(R, gx, gy, t); if (g > 0.95 && Math.floor(t * 3) % 2) R.icono('!', gx + 10, gy - 26, hex('#f2c84a')); }
 };
-T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { año: 2026, efectos: [[CH, 'palmada'], [CH + 1.5, 'whoosh'], [T300, 'pop'], [EXPL, 'whoosh'], [EXPL + 0.55, 'golpecito'], [ENC, 'interruptor'], [CREEP, 'brillo'], [UNO, 'tic'], [MOM + 0.15, 'golpecito'], [MOM + 0.7, 'toc'], [VA + 0.1, 'miau']] });
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { año: 2026, efectos: [[CH, 'palmada'], [CH + 1.5, 'whoosh'], [P2 + 0.3, 'vapor'], [T300, 'pop'], [EXPL, 'whoosh'], [EXPL + 0.55, 'golpecito'], [ENC, 'interruptor'], [CREEP, 'brillo'], [P4 + 0.1, 'motor', { dur: 2.7 }], [UNO, 'tic'], [MOM + 0.15, 'golpecito'], [MOM + 0.7, 'toc'], [VA + 0.1, 'miau']] });
 </script>
 </body>
 </html>

@@ -412,7 +412,9 @@ const p4 = (t) => {
   else { const ch = t < T1 + 0.25 ? [sc.x + 7, sc.s - 26] : [sc.x + 12, sc.s - 12]; T.balon(R, S(ch[0]), ch[1], t, { epoca: '1906', s: 1.2, ang: t < T1 + 0.25 ? 0 : -0.3 }); }
 };
 
-const efectos = [[1.8, 'pop'], [via0, 'vapor'], [pinWK, 'pop'], [snap, 'silbato'], [fwd, 'lapiz'], [flash, 'flash'], [suelo3, 'golpecito'], [suelo3 + 0.2, 'guau'], [T0, 'whoosh'], [T1, 'palmada']];
+// el reloj de bolsillo del plano 1 hace tic cuando salta la aguja (en cada segundo entero)
+const efectos = [[1, 'tic'], [1.8, 'pop'], [3, 'tic'], [via0, 'vapor'], [pinWK, 'pop'], [snap, 'silbato'], [atras, 'golpecito'], [fwd, 'lapiz'], [choca, 'golpecito'], [flash, 'flash'],
+  [cae - 0.4, 'whoosh'], [suelo3, 'golpecito'], [suelo3 + 0.2, 'guau'], [coge + 0.25, 'whoosh'], [T0, 'whoosh'], [T0 + 0.9, 'papel'], [T1, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1906', año: 1906, efectos });
 </script>
 </body>

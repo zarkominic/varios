@@ -422,8 +422,9 @@ const p6 = (t) => {
   else { const v = tramo(t, bota6, bota6 + 1.4), x = lerp(170, 150, v), y = 150 - Math.abs(Math.sin(v * Math.PI * 2.5)) * 14 * (1 - v); T.balon(R, Math.round(x), Math.round(y), t, { ang: v * 9, s: 1 }); }
   if (t > bota6 && t < bota6 + 1.5 && Math.floor(t * 5) % 2 === 0) { R.icono('X', 166, 118, RO, K, 2); }
 };
-const efectos = [[lanza1, 'whoosh'], [atrapa1 + 0.1, 'palmada'], [ENC[2], 'interruptor'], [ENC[4], 'brillo'], [lanza3, 'whoosh'], [atrapa3, 'golpecito'],
-  [b(0.08), 'silbato'], [empuja, 'rafaga'], [cae5, 'chof'], [lanza6, 'whoosh'], [bota6, 'boing']];
+const efectos = [[lanza1, 'whoosh'], [atrapa1 + 0.05, 'flash'], [atrapa1 + 0.1, 'palmada'], [a(0.17), 'brillo'], [ENC[0], 'interruptor'], [ENC[2], 'interruptor'], [ENC[3], 'interruptor'], [ENC[4], 'brillo'],
+  [lanza3, 'whoosh'], [lanza3 + 1.1, 'whoosh'], [atrapa3, 'golpecito'],
+  [b(0.08), 'silbato'], [lanza4, 'whoosh'], [empuja, 'rafaga'], [empuja + 1.0, 'whoosh'], [P5 + 0.3, 'whoosh'], [cae5, 'chof'], [lanza6, 'whoosh'], [bota6, 'boing']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: (t) => (t < ENC[2] ? 1913 : t < ENC[3] ? 1924 : t < ENC[4] ? 1934 : 2026) });
 </script>
 </body>

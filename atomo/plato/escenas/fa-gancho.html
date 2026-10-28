@@ -617,10 +617,12 @@ const p8 = (t) => {
     R.pset(x, y, COPAS8[k & 3][2]); R.pset(x + (gira ? 1 : 0), y + (gira ? 0 : 1), COPAS8[k & 3][1]); }
 };
 
-const efectos = [[1.45, 'silbato'], [2.6, 'palmada'], [P2 + 0.4, 'pop'], [a(0.391) + 0.1, 'brillo'], [a(0.56), 'pop'],
-  [PASES[0][0] + 0.9, 'golpecito'], [PASES[1][0] + 0.9, 'golpecito'], [a(0.945) + 0.1, 'palmada'],
-  [b(0.354), 'chof'], [b(0.48), 'golpecito'], [YARDAS[0], 'toc'], [YARDAS[1], 'toc'], [b(0.734) + 1.45, 'chof'], [b(0.734) + 1.9, 'silbato'],
-  [saque, 'toc'], [arriba + 0.1, 'flash'], [lanzaT + 0.05, 'whoosh'], [atrapa, 'golpecito'], [atrapa + 0.2, 'palmada'], [come + 0.2, 'masca'], [come + 1.6, 'boing']];
+const efectos = [[1.45, 'silbato'], [2.6, 'palmada'], [3.8, 'rafaga'], [P2 + 0.4, 'pop'], [a(0.36), 'tic'], [a(0.391) + 0.1, 'brillo'], [a(0.56), 'pop'],
+  [PASES[0][0] + 0.1, 'whoosh'], [PASES[0][0] + 0.9, 'golpecito'], [PASES[1][0] + 0.1, 'whoosh'], [PASES[1][0] + 0.9, 'golpecito'], [a(0.945) + 0.1, 'palmada'],
+  [EMP4[0], 'golpecito'], [EMP4[1], 'golpecito'], [EMP4[2], 'golpecito'], [b(0.354), 'chof'], [b(0.354) + 0.35, 'papel'], [b(0.48), 'golpecito'],
+  [YARDAS[0], 'toc'], [YARDAS[1], 'toc'], [b(0.734), 'whoosh'], [b(0.734) + 1.45, 'chof'], [b(0.734) + 1.9, 'silbato'],
+  [saque, 'toc'], [saque + 0.5, 'golpecito'], [saque + 1.6, 'rafaga'], [arriba + 0.1, 'flash'], [lanzaT + 0.05, 'whoosh'], [P7 + 1.0, 'vapor'], [lanzaT + 2.2, 'rafaga'],
+  [atrapa, 'golpecito'], [atrapa + 0.2, 'palmada'], [come + 0.2, 'masca'], [come + 1.6, 'boing']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { cartela: '1913', efectos, año: 1913 });
 </script>
 </body>

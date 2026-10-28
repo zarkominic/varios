@@ -394,8 +394,8 @@ const año = (t) => {
   if (t < P4) return 1913;
   return DEC[dueño(camara(t) + bolaX(t))].año;
 };
-const efectos = [[ALLI + 0.05, 'palmada'], [WP + 0.05, 'bip'], [SAQUE, 'toc'], [LANZA, 'whoosh'], [SEIS, 'tic'], [PUNTA + 0.05, 'brillo'],
-  [MANOS + 0.05, 'palmada'], [FLASH, 'flash'], [COME + 0.6, 'masca'], [P4 + 0.3, 'whoosh'], [RECTO - 0.1, 'whoosh'], [SALE - 0.25, 'palmada']];
+const efectos = [[ALLI + 0.05, 'palmada'], [WP + 0.05, 'bip'], [SAQUE, 'toc'], [LANZA, 'whoosh'], [P2 + 0.2, 'whoosh'], [ADA, 'brillo'], [SEIS, 'tic'], [PUNTA + 0.05, 'brillo'],
+  [MANOS + 0.05, 'palmada'], [FLASH, 'flash'], [COME + 0.6, 'masca'], [P4 + 0.3, 'whoosh'], [CAM[1][0], 'whoosh'], [CAM[3][0], 'whoosh'], [CAM[5][0], 'whoosh'], [RECTO - 0.1, 'whoosh'], [SALE - 0.25, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>
 </body>

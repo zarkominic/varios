@@ -221,7 +221,8 @@ const p1 = (t) => {
     T.balon(R, 160, 140 - Math.round(salto * 8), t, { s: 3, ang: mece, giro: 0.15 + 1.2 * (1 - Math.exp(-d * 0.9)) + tramo(t, luces, luces + 0.5) * 0.5 }); }
   T.h_estadioDelante(R, t, { encuadre: 'cesped' });
 };
-const efectos = [[0.35, 'golpecito'], [0.8, 'golpecito'], [luces, 'interruptor'], [luces + 0.36, 'interruptor']];
+// el cortacésped que pasa al fondo suena bajo mientras cruza
+const efectos = [[0.35, 'golpecito'], [0.8, 'golpecito'], [para, 'golpecito'], [1.4, 'motor', { dur: 2.9 }], [luces, 'interruptor'], [luces + 0.36, 'interruptor']];
 T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
 </script>
 </body>

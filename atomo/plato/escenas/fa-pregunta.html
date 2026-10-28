@@ -389,7 +389,8 @@ const p4 = (t) => {
   for (let k = 0; k < 80; k++) { const x = Math.floor(hs(k, 7, 1) * 322) - 1, h = 3 + Math.floor(hs(k, 8, 1) * 5), o = Math.round(Math.sin(t * 2.2 + x * 0.15) * 1.2); R.linea(x, 179, x + o, 179 - h, hex(hs(k, 9, 1) < 0.5 ? '#2a4a24' : '#3a6230')); }
 };
 
-const efectos = [[lanza, 'whoosh'], [P2 + 0.15, 'whoosh'], [seiscientos, 'pop'], [atrapa, 'palmada'], [atrapa + 0.25, 'flash'], [como + 0.05, 'pop'], [rara, 'pop']];
+const efectos = [[0.45, 'golpecito'], [lanza, 'whoosh'], [P2 + 0.15, 'whoosh'], [seiscientos, 'pop'], [P2 + 1.4, 'motor', { dur: 3.0 }], [mitad, 'whoosh'],
+  [P3 + 0.15, 'zumbido'], [baja, 'whoosh'], [atrapa, 'palmada'], [atrapa + 0.25, 'flash'], [como + 0.05, 'pop'], [P4 + 0.8, 'flash'], [forma - 0.05, 'lapiz'], [rara, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
 </script>
 </body>
