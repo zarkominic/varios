@@ -92,8 +92,8 @@ PREVIO = {
            ('2 de noviembre de 2025', 'dos de noviembre de 2025'), ('14 de febrero de 2027', 'catorce de febrero de 2027')],
 }
 PRONUNCIA = {
-    'en': [('Knute', 'Newt'), ('Rockne', 'Rockney'), ('Dorais', 'Dor-ay'), ('SoFi', 'So-Fye'), ('Ada,', 'Ay-da,'),
-           ('in Ada', 'in Ay-da')],
+    'en': [('Knute', 'Newt'), ('Rockne', 'Rockney'), ('Dorais', 'Dor-ay'), ('SoFi', 'So-Fye'), ('Ada,', 'Aydah,'),
+           ('in Ada', 'in Aydah'), ('Notre Dame', 'Noter Dame')],
     'es': [('Theodore Roosevelt', 'Zíodor Rúsvelt'), ('Knute Rockne', 'Nut Rókni'), ('Gus Dorais', 'Gas Doréi'), ('Rockne', 'Rókni'),
            ('Dorais', 'Doréi'), ('Notre Dame', 'Nótre Déim'), ('West Point', 'Uést Póint'), ('Cedar Point', 'Síder Póint'),
            ('Saint Louis', 'Séint Lúis'), ('Eddie Cochems', 'Édi Kóchems'), ('Carroll College', 'Károl Kólech'),
