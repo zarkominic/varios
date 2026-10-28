@@ -18,7 +18,8 @@
 //    el 14 (con su corazón) en rojo; el gato del escritorio lo mira; por la ventana, los reflectores del estadio.
 // 3. «2027, at SoFi Stadium, near Los Angeles»: la explanada del estadio de la final con su techo translúcido; «2027» en
 //    el cielo; el chico y su padre llegan con la entrada y en «Stadium» el chico señala el techo; el avión baja hacia el
-//    aeropuerto en «near Los Angeles».
+//    aeropuerto en «near Los Angeles». La riada de gente no cruza por detrás de los dos: los caminantes más lejanos que
+//    tocan su franja se apartan de ella y los que van a su altura o más cerca pasan por delante.
 import * as T from '/atomo/plato/escenas/fa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('fa-superbowl');
@@ -175,17 +176,56 @@ const p2 = (t) => {
 };
 
 // 3 · la explanada del estadio de la final: «2027»; el chico y su padre llegan; el avión baja
+// La riada de gente de la explanada la pinta el decorado antes que a los personajes. Para que nadie cruce por detrás
+// del chico y su padre: se calcula dónde va cada caminante (la misma cuenta que el decorado); los que tocan la franja
+// de los dos y están más lejos que ellos se apartan de ella (se borran con la explanada limpia, que se saca una vez
+// por mayoría de cinco instantes), y los que están a su altura o más cerca se vuelven a pintar por delante.
+const W3 = 320, PUERTAS3 = [122, 186, 252];
+let LIMPIA3 = null, FOTO3 = null;
+const explanadaLimpia = () => {
+  if (LIMPIA3) return LIMPIA3;
+  const muestras = [0.7, 7.3, 14.1, 23.7, 31.9].map((ti) => { const b = R.nuevo(), prev = R.usar(b); T.estadioHoy(R, ti, { encuadre: 'superbowl', noche: true }); R.usar(prev); return b; });
+  LIMPIA3 = new Uint32Array(W3 * 180);
+  for (let i = 116 * W3; i < W3 * 180; i++) {
+    let v = muestras[0][i];
+    for (let a = 0; a < 5; a++) { let n = 0; for (let b = 0; b < 5; b++) if (muestras[b][i] === muestras[a][i]) n++; if (n >= 3) { v = muestras[a][i]; break; } }
+    LIMPIA3[i] = v;
+  }
+  return LIMPIA3;
+};
+// la caja de cada caminante del decorado a la hora t: [x0, y0, x1, y1, pies]
+const caminantes = (t) => {
+  const cs = [];
+  for (let k = 0; k < 34; k++) { const u = ((t * (0.03 + hs(k, 1, 98) * 0.02) + hs(k, 2, 98)) % 1), g = PUERTAS3[k % 3], x0 = k % 4 === 0 ? -10 : k % 4 === 1 ? 330 : 60 + hs(k, 3, 98) * 220;
+    const X = Math.round(x0 + (g + (hs(k, 4, 98) - 0.5) * 16 - x0) * u), Y = Math.round(182 + (116 - 182) * u);
+    if (Y < 116) continue; const s = 0.5 + (Y - 116) / 66 * 0.7, hh = Math.round(9 * s), bandera = k % 6 === 0;
+    cs.push([X - 1, Y - hh - (bandera ? 7 : 0), X + (bandera ? 5 : Math.max(2, Math.round(3 * s))), Y, Y]); }
+  return cs;
+};
+const toca = (c, f) => c[0] <= f[2] && c[2] >= f[0] && c[1] <= f[3] && c[3] >= f[1];
 const p3 = (t) => {
   T.estadioHoy(R, t, { encuadre: 'superbowl', noche: true });
   const e = tramo(t, P3, P3 + 0.3), fuera = tramo(t, estadio - 0.6, estadio - 0.2);
   if (e > 0 && fuera < 1) R.numero('2027', 74, Math.round(52 - e * 6 - fuera * 50), { tam: 16, centro: true });
   const u = tramo(t, P3 + 0.2, estadio - 0.1), w = tramo(t, cerca + 0.2, E.duracion), x = Math.round(lerp(96, 150, u) + lerp(0, 40, w));
   const andan = (u > 0 && u < 1) || (w > 0 && w < 1);
+  // la franja del chico y su padre: los caminantes de detrás que la tocan se apartan; los de delante se repintan encima
+  const franja = [x - 3, t > estadio - 0.1 && t < cerca + 0.2 ? 130 : 144, x + 36, 173], limpia = explanadaLimpia(), pant = R.usar(null); R.usar(pant);
+  const cs = caminantes(t), aparta = cs.filter((c) => toca(c, franja) && c[4] < 172), delante = cs.filter((c) => toca(c, franja) && c[4] >= 172);
+  if (!FOTO3) FOTO3 = R.nuevo();
+  if (aparta.length || delante.length) FOTO3.set(pant);
+  const quedan = cs.filter((c) => !aparta.includes(c));
+  for (const c of aparta) for (let yy = Math.max(116, c[1]); yy <= Math.min(179, c[3]); yy++) for (let xx = Math.max(0, c[0]); xx <= Math.min(319, c[2]); xx++) {
+    if (quedan.some((q) => xx >= q[0] && xx <= q[2] && yy >= q[1] && yy <= q[3])) continue;
+    pant[yy * W3 + xx] = limpia[yy * W3 + xx]; }
   sombraSuelo(x + 7, 171, 7, hex('#4a3a5a')); sombraSuelo(x + 27, 172, 7, hex('#4a3a5a'));
   R.actor(EL.senor30, x + 20, 172, t, { dir: 1, anda: andan, habla: !andan && t > estadio + 0.4 && Math.sin(t * 10) > 0, sonrisa: t > estadio });
   const chico = R.actor(EL.chico, x, 171, t, { dir: 1, anda: andan, dedo: t > estadio - 0.1 && t < cerca + 0.2, sonrisa: t > estadio, pal: { C: '#1e8a8a', c: '#146464' } });
   if (!(t > estadio - 0.1 && t < cerca + 0.2)) { R.rect(x + 12, 156, x + 18, 159, hex('#1a1a22')); R.rect(x + 13, 157, x + 17, 158, hex('#e8783a')); }
   else R.icono('!', chico.cabeza[0] - 1, chico.cabeza[1] - 12, hex('#ffd860'), hex('#1a1424'), 1);
+  // los caminantes que van a su altura o más cerca pasan por delante de los dos (sus píxeles, sacados de la foto)
+  for (const c of delante) for (let yy = Math.max(116, c[1]); yy <= Math.min(179, c[3]); yy++) for (let xx = Math.max(0, c[0]); xx <= Math.min(319, c[2]); xx++) {
+    const i = yy * W3 + xx; if (FOTO3[i] !== limpia[i]) pant[i] = FOTO3[i]; }
 };
 
 const efectos = [[0.45, 'toc'], [temporada + 0.3, 'whoosh'], [sesenta, 'toc'], [jugara + 0.05, 'papel'], [catorce, 'lapiz'], [P3 + 0.05, 'brillo'], [cerca, 'jet']];

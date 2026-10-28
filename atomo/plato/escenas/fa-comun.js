@@ -2257,10 +2257,12 @@ const d_gPIEL = ['#f0c8a0', '#c89064', '#8a5a3a'].map(hex);
 function d_gGente(R, x, suelo, t, k, anda = true, dir = 1) {
   const ropa = d_gROPA[k % d_gROPA.length], piel = d_gPIEL[k % 3], pelo = [hex('#2a1e18'), hex('#6a4024'), hex('#d8b060')][(k * 7) % 3], p = anda ? Math.floor(t * 6 + k) % 2 : 0;
   x = Math.round(x); suelo = Math.round(suelo);
-  R.rect(x - 1, suelo - 3, x - 1, suelo - (p ? 1 : 0), hex('#2a3446')); R.rect(x + 1, suelo - 3, x + 1, suelo - (p ? 0 : 1), hex('#2a3446'));
-  R.rect(x - 1, suelo - 7, x + 1, suelo - 4, ropa); R.pset(x + (dir > 0 ? 1 : -1), suelo - 7, d_gMezcla(ropa, hex('#ffffff'), 0.3));
-  R.rect(x - (dir > 0 ? 2 : -2), suelo - 7, x - (dir > 0 ? 2 : -2), suelo - 5, k % 2 ? hex('#3a3a4a') : hex('#8a5a2a'));
-  R.rect(x - 1, suelo - 10, x + 1, suelo - 8, piel); R.rect(x - 1, suelo - 10, x + 1, suelo - 10, pelo); R.pset(x - dir, suelo - 9, pelo);
+  // con pset (no R.rect) para que respete R.recorte: tras una ventana, el transeúnte se recorta a su hueco
+  const rr = (x0, y0, x1, y1, c) => { for (let yy = y0; yy <= y1; yy++) for (let xx = x0; xx <= x1; xx++) R.pset(xx, yy, c); };
+  rr(x - 1, suelo - 3, x - 1, suelo - (p ? 1 : 0), hex('#2a3446')); rr(x + 1, suelo - 3, x + 1, suelo - (p ? 0 : 1), hex('#2a3446'));
+  rr(x - 1, suelo - 7, x + 1, suelo - 4, ropa); R.pset(x + (dir > 0 ? 1 : -1), suelo - 7, d_gMezcla(ropa, hex('#ffffff'), 0.3));
+  rr(x - (dir > 0 ? 2 : -2), suelo - 7, x - (dir > 0 ? 2 : -2), suelo - 5, k % 2 ? hex('#3a3a4a') : hex('#8a5a2a'));
+  rr(x - 1, suelo - 10, x + 1, suelo - 8, piel); rr(x - 1, suelo - 10, x + 1, suelo - 10, pelo); R.pset(x - dir, suelo - 9, pelo);
 }
 
 // las cifras pequeñas de 3 × 5 de los paneles y los relojes
@@ -2459,7 +2461,12 @@ function d_gTunel(R, t, o) {
   R.poligono([[6, 52], [20, 46], [36, 50], [57, 44], [57, 69], [6, 69]], hex('#7aa0b0'));
   rect(14, 40, 44, 62, G.ladrilloS); rect(15, 41, 43, 62, G.ladrillo); for (let y = 43; y < 62; y += 2) for (let x = 15 + (y % 4 ? 1 : 0); x < 43; x += 4) pset(x, y, G.ladrilloS);
   for (let x = 17; x < 42; x += 5) for (const y of [44, 51]) { rect(x, y, x + 2, y + 4, hex('#2a3a4a')); pset(x, y, hex('#8ac8e8')); }
-  rect(26, 30, 32, 41, G.piedraC); rect(27, 32, 31, 36, G.ladrillo); R.poligono([[25, 30], [29, 25], [33, 30]], hex('#4a6a7a')); rect(28, 33, 30, 35, hex('#f4f2ea'));
+  // la torre del reloj, apartada del parteluz (x 30–31): piedra con su tejadillo y una esfera redonda con agujas que avanzan
+  rect(36, 30, 42, 41, G.piedraC); for (let y = 31; y <= 41; y += 3) pset(36, y, G.ladrillo); pset(42, 33, G.ladrillo); pset(42, 39, G.ladrillo);
+  R.poligono([[35, 30], [39, 24], [43, 30]], hex('#4a6a7a')); linea(39, 25, 41, 29, hex('#6a8a9a')); pset(39, 23, hex('#4a6a7a'));
+  rect(36, 30, 42, 30, hex('#8a8a84'));
+  disco(39, 35, 2.6, hex('#5a5a5a')); disco(39, 35, 1.9, hex('#f4f2ea'));
+  { const am = t * 0.5, ah = t * 0.04; linea(39, 35, Math.round(39 + Math.sin(am) * 1.6), Math.round(35 - Math.cos(am) * 1.6), hex('#2a2a2a')); pset(Math.round(39 + Math.sin(ah) * 1), Math.round(35 - Math.cos(ah) * 1), hex('#2a2a2a')); }
   rect(6, 62, 56, 68, hex('#5aa040')); for (let x = 6; x < 57; x += 2) pset(x, 62, hex('#78bc54'));
   d_gArbol(R, 10, 66, t, 7, 1); d_gArbol(R, 50, 66, t, 8, 2);
   { const u = (t / 12) % 1, px = 2 + u * 60; d_gGente(R, px, 67, t, 2, true, 1); const v = ((t + 5) / 15) % 1; d_gGente(R, 60 - v * 60, 66, t, 4, true, -1); }
@@ -7039,13 +7046,26 @@ function a_cedarCercaFijoMas(B, tarde) {
   for (let k = 0; k < 9; k++) { const x = 98 - k * 11 + (k % 2 ? 2 : -2), y = 108 + k * 2 + (k % 2 ? 2 : 0); if (x < 0) break; P(x, y, B_C.huella); P(x + 1, y, B_C.huella); P(x, y + 1, B_C.arenaD); P(x + 1, y + 1, B_C.huella); }
 }
 
-// lo que se mueve de más en 'cerca': la cometa de caja de un niño que cabecea muy alta a la izquierda (su hilo baja
-// fuera del plano) con la cola de lazos que ondea, y los flecos de la sombrilla que tiemblan con el viento
+// lo que se mueve de más en 'cerca': la cometa de rombo de un niño que cabecea alta (sus dos varillas en cruz, la tela
+// roja y crema con luz y sombra) con su hilo bien visible, tenso y con su comba, que baja hasta la arena por fuera del
+// plano a la izquierda (donde está el niño), la cola de lazos que ondea, y los flecos de la sombrilla que tiemblan
 function a_cedarCercaVidaMas(R, t, tn) {
-  const kx = Math.round(126 + Math.sin(t * 0.7) * 5), ky = Math.round(24 + Math.sin(t * 1.1) * 2), cab = Math.sin(t * 1.7) > 0.4 ? 1 : 0;
-  for (let s2 = 0; s2 <= 1; s2 += 0.01) { const x = Math.round(kx - s2 * 136), y = Math.round(ky + 4 + s2 * 70 + Math.sin(s2 * Math.PI) * 9); if (x >= 0 && y > 16 && (x + y) % 2 === 0) R.pset(x, y, tn(hex('#e8dccc'))); }
-  for (let j = 0; j < 9; j++) for (let i = 0; i < 6; i++) { const c = (j < 3 || j > 5) ? (i < 3 ? tn(hex('#d84a3a')) : tn(hex('#a83228'))) : (i === 0 || i === 5 ? tn(hex('#6a4a2a')) : -1); if (c !== -1) R.pset(kx - 3 + i + (j < 4 ? cab : 0), ky - 4 + j, c); }
-  for (let k = 0; k < 6; k++) { const x = Math.round(kx + k * 3 + 2), y = Math.round(ky + 5 + k * 2 + Math.sin(t * 4 + k) * 1.6); R.pset(x, y, tn(hex('#e8dccc'))); if (k % 2) { R.pset(x - 1, y, tn(hex('#f0c040'))); R.pset(x + 1, y, tn(hex('#f0c040'))); } }
+  const kx = Math.round(126 + Math.sin(t * 0.7) * 5), ky = Math.round(24 + Math.sin(t * 1.1) * 2), esc = Math.sin(t * 1.7) * 0.18;
+  // el hilo: de la brida de la cometa (kx, ky + 3) a la arena fuera del plano (x −14, y 104), con comba; dos tonos para
+  // que se lea igual sobre el cielo, el agua y la arena
+  for (let s2 = 0; s2 <= 1; s2 += 0.004) { const x = Math.round(kx + (-14 - kx) * s2), y = Math.round(ky + 3 + (104 - ky - 3) * s2 - Math.sin(s2 * Math.PI) * 10 + s2 * s2 * 6);
+    if (x >= 0 && x < 320 && y > 15) R.pset(x, y, tn(y < 46 ? hex('#5a4434') : hex('#f2ead8'))); }
+  // la tela: rombo de 9 × 13 con su eje que se inclina con el viento; cuadrantes rojo y crema, el de sombra más oscuro
+  for (let j = -6; j <= 6; j++) for (let i = -4; i <= 4; i++) { const u = i - Math.round(j * esc); if (Math.abs(u) / 4.5 + Math.abs(j) / 6.5 > 1) continue;
+    const x = kx + i, y = ky + j, arriba = j < -1, izq = u <= 0, borde = Math.abs(u) / 4.5 + Math.abs(j) / 6.5 > 0.82;
+    const c = arriba ? (izq ? hex('#d84a3a') : hex('#a83228')) : (izq ? hex('#f2e2c0') : hex('#c8b48e'));
+    R.pset(x, y, tn(borde ? hex('#5a2a20') : c)); }
+  // las varillas en cruz y la brida
+  for (let j = -6; j <= 6; j++) R.pset(kx + Math.round(j * esc), ky + j, tn(hex('#6a4a2a')));
+  for (let i = -4; i <= 4; i++) R.pset(kx + i, ky - 2, tn(hex('#6a4a2a')));
+  // la cola de lazos que ondea hacia la derecha, a sotavento
+  for (let k = 0; k < 9; k++) { const x = Math.round(kx + Math.round(6 * esc) + k * 2 + 1), y = Math.round(ky + 7 + k * 1.6 + Math.sin(t * 4 - k * 0.8) * (0.6 + k * 0.25)); R.pset(x, y, tn(hex('#5a4434')));
+    if (k % 3 === 2) { R.pset(x - 1, y - 1, tn(hex('#f0c040'))); R.pset(x + 1, y - 1, tn(hex('#f0c040'))); R.pset(x - 1, y + 1, tn(hex('#c89020'))); R.pset(x + 1, y + 1, tn(hex('#c89020'))); } }
   for (let i = -23; i <= 23; i += 2) { const y = 88 + Math.round(2 * Math.cos(i / 24 * Math.PI * 4)) + 1 + (Math.sin(t * 6 + i) > 0.3 ? 1 : 0); R.pset(43 + i, y, tn(Math.floor(i / 3) % 2 ? hex('#f2ece0') : hex('#a83228'))); }
 }
 

@@ -10,9 +10,14 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // FA-ADIOS (frase 37), 2027. Un plano (la escena dura 3 s): el estadio cubierto de hoy, a ras de césped. El receptor
-// corre solo por la banda con las manos arriba; el balón que venía volando baja y aterriza en sus manos en «want»;
-// sigue corriendo, cruza la línea de gol en «explain» y levanta el balón; el defensa granate se para a lo lejos; los
-// flashes del público y la cámara de televisión lo siguen. Atom pregunta.
+// corre solo por la banda con los brazos arriba; el balón que venía volando baja y aterriza en su mano derecha en «want»
+// (se lo mete bajo el brazo); sigue corriendo sin parar, cruza la línea de gol (x ≈ 206) en «explain», levanta el balón
+// en el puño (el balón se pinta en la mano levantada, calculada como el kit: hombro en yC, mano en yC−7…−4) y sigue
+// trotando por la zona de anotación hasta la línea de fondo, más despacio pero sin pararse; el defensa granate se para
+// a lo lejos; los flashes del público y la cámara de televisión lo siguen. Los palcos de cristal oscuro de la derecha
+// (x 266–319, y 31–56, bajo Atom) llevan encima su textura tranquila: el cristal tramado, los reflejos del techo que
+// resbalan despacio, las lámparas del palco, la gente del palco como siluetas apagadas por debajo de y 45 (fuera de la
+// zona de Atom), el resplandor de una tele y la barandilla con sus brillos. Atom pregunta.
 import * as T from '/atomo/plato/escenas/fa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('fa-adios');
@@ -37,18 +42,65 @@ const destello = (x, y, r, col) => { x = Math.round(x); y = Math.round(y); R.lin
 const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const bay = (x, y) => BAY[(y & 3) * 4 + (x & 3)] / 16;
 
+// los palcos de cristal oscuro bajo Atom: el decorado los deja casi lisos; aquí se les da textura y vida sin nada que
+// llame la atención (lo que se mueve va despacio y lo más vivo queda por debajo de y 45)
+const PALCOS = [268, 278, 288, 298, 308, 318];
+const palcos = (t) => {
+  const marco = hex('#121a28'), marcoL = hex('#26344c'), fondo = hex('#1c283c'), fondoS = hex('#162034'), calido = hex('#2c2a3c'), calidoL = hex('#3a3242');
+  const refl = hex('#30425e'), reflL = hex('#4a5e7e'), lampara = hex('#7a6a50'), lamparaS = hex('#4a4038'), piel = hex('#5a4a48'), ropa = hex('#24202e'), ropaL = hex('#302a3a');
+  // el dintel de hormigón oscuro con sus remaches y el marco
+  R.rect(266, 31, 319, 32, marco); for (let x = 267; x < 320; x += 4) R.pset(x, 31, hex('#222c40'));
+  for (const x0 of PALCOS) {
+    const x1 = Math.min(319, x0 + 8);
+    // el cristal: oscuro arriba, más cálido abajo (la luz del palco), tramado para que no sea un bloque liso
+    for (let y = 33; y <= 54; y++) for (let x = x0; x <= x1; x++) {
+      const v = (y - 33) / 21, b = bay(x, y);
+      R.pset(x, y, v < 0.5 ? (b < 0.35 - v * 0.5 ? fondoS : fondo) : (b < (v - 0.5) * 1.4 ? (b < (v - 0.5) * 0.5 ? calidoL : calido) : fondo));
+    }
+    R.linea(x0, 33, x1, 33, hex('#30425e'));
+    // la lámpara del techo del palco (cálida y quieta)
+    R.pset(x0 + 4, 35, lampara); R.pset(x0 + 3, 35, lamparaS); R.pset(x0 + 5, 35, lamparaS); R.pset(x0 + 4, 36, lamparaS);
+    // el parteluz con su filo de luz
+    if (x0 > 268) { R.linea(x0 - 1, 33, x0 - 1, 54, marco); R.pset(x0 - 1, 34, marcoL); R.linea(x0 - 2, 36, x0 - 2, 53, hex('#18223a')); }
+  }
+  // los reflejos del techo que resbalan despacio por el cristal, en diagonal
+  for (const x0 of PALCOS) { const x1 = Math.min(319, x0 + 8);
+    for (let y = 34; y <= 54; y++) for (let x = x0; x <= x1; x++) { const k = ((x + Math.round((y - 34) * 0.6) - Math.floor(t * 5)) % 37 + 37) % 37; if (k === 0) R.pset(x, y, reflL); else if (k === 1 || k === 2) R.pset(x, y, refl); } }
+  // la gente del palco: siluetas apagadas tras el cristal (cabeza en y 47, por debajo de la zona de Atom), que se mueven poco
+  for (let k = 0; k < 5; k++) { const x0 = PALCOS[k], xp = x0 + 3 + Math.round(Math.sin(t * 0.7 + k * 1.9) * 1.5), alza = Math.sin(t * 0.9 + k * 2.3) > 0.85 ? 1 : 0;
+    if (k === 2) continue;
+    R.rect(xp, 47 - alza, xp + 1, 48 - alza, piel); R.rect(xp - 1, 49 - alza, xp + 2, 54, ropa); R.pset(xp - 1, 49 - alza, ropaL); }
+  // el palco del medio tiene la tele encendida: un resplandor azul que cambia
+  { const c = [hex('#2a4a6a'), hex('#34587a'), hex('#2a3e5e')][Math.floor(t * 3) % 3]; R.rect(291, 49, 294, 51, c); R.linea(291, 48, 294, 48, hex('#18223a')); R.pset(292 + (Math.floor(t * 2) % 2), 50, hex('#5a7a9a')); }
+  // la barandilla de acero de delante con sus postes y un brillo que la recorre
+  R.rect(266, 55, 319, 56, marco); R.linea(266, 55, 319, 55, hex('#3a4a62'));
+  for (let x = 268; x < 320; x += 5) R.pset(x, 56, hex('#2a3650'));
+  const bx = 266 + Math.floor((t * 14) % 70); if (bx < 320) { R.pset(bx, 55, hex('#8a9ab2')); if (bx > 266) R.pset(bx - 1, 55, hex('#5a6a82')); }
+};
+// la mano levantada del brazo del kit (BRAZO: la mano en las columnas x+14…x+18 y las filas yC−7…−4), con el mismo rebote
+// del paso que el kit, para que el balón vaya agarrado en el puño
+const manoArriba = (def, x, suelo, t, anda, salto) => {
+  const fase = x * 0.37 + (def.altoCab || 0), paso = anda ? Math.floor(t * 5 + fase) % 2 : -1;
+  const yC = suelo - def.altoCuerpo - salto - (anda && paso === 1 ? 1 : 0);
+  return [x + 16, yC - 6];
+};
+
 const d = (f) => en('adios', f);
 const ATRAPA = d(0.18), GOL = d(0.5);
+// la carrera: rápida hasta la línea de gol (el centro del receptor, x + 9, cruza x ≈ 206 en GOL) y luego un trote que se
+// frena pero no se para hasta la línea de fondo
+const xReceptor = (t) => { if (t <= GOL) return 56 + 141 * tramo(t, 0, GOL); const s = t - GOL; return 197 + 26 * (1 - Math.exp(-2.5 * s)) + 9 * s; };
 const p1 = (t) => {
   T.estadioPatada(R, t, { lugar: 'vegas', encuadre: 'pateo', linea: false });
-  const rx = Math.round(lerp(40, 214, suave(tramo(t, -0.3, GOL + 0.5)))), suelo = 166, tiene = t >= ATRAPA, fiesta = t > GOL + 0.2;
+  palcos(t);
+  const rx = Math.round(xReceptor(t)), suelo = 166, tiene = t >= ATRAPA, fiesta = t > GOL + 0.15;
   // el defensa granate, lejos, que se rinde y se para
   const dx = Math.round(lerp(-6, 120, tramo(t, 0, GOL + 0.3))); R.actor(granate(1), dx, 150, t, { dir: 1, anda: t < GOL + 0.3, triste: t > GOL + 0.3 });
-  R.actor(EL.receptor, rx, suelo, t, { dir: 1, anda: !fiesta, brazos: !tiene, dedo: fiesta, sonrisa: tiene, salto: fiesta && Math.sin(t * 9) > 0.3 ? 2 : 0 });
-  if (!tiene) { const u = tramo(t, -0.4, ATRAPA), [hx, hy] = enAlto(rx, suelo, 1), x = lerp(-20, hx - 3, u), y = lerp(18, hy + 2, u) - Math.sin(u * Math.PI) * 8;
-    T.balon(R, x, y, t, { s: 1.2, gira: 2.6, ang: 0.55, estela: 0.8 }); }
+  R.actor(EL.receptor, rx, suelo, t, { dir: 1, anda: true, brazos: !tiene, dedo: fiesta, sonrisa: tiene });
+  if (!tiene) { const u = tramo(t, -0.4, ATRAPA), [hx, hy] = manoArriba(EL.receptor, rx, suelo, t, true, 0), x = lerp(-20, hx + 3, u), y = lerp(18, hy - 2, u) - Math.sin(u * Math.PI) * 8;
+    T.balon(R, x, y, t, { s: lerp(1.2, 0.9, u), gira: 2.6, ang: 0.55, estela: 0.8 }); }
   else if (!fiesta) { const [hx, hy] = enMano(rx, suelo, 1); T.balon(R, hx, hy + 1, t, { s: 0.8, ang: -0.3 }); }
-  else { const [hx, hy] = enAlto(rx, suelo, 1); T.balon(R, hx, hy, t, { s: 0.85, ang: -0.9 }); }
+  else { const [hx, hy] = manoArriba(EL.receptor, rx, suelo, t, true, 0); T.balon(R, hx + 2, hy - 2, t, { s: 0.85, ang: -0.9 }); }
   if (t > ATRAPA && t < ATRAPA + 0.3) { const [hx, hy] = enMano(rx, suelo, 1); destello(hx, hy - 4, 3, hex('#fff2b0')); }
 };
 T.rodar(E, R, [[0, p1]], { año: 2027, efectos: [[ATRAPA, 'golpecito'], [GOL + 0.1, 'palmada']] });

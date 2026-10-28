@@ -17,12 +17,16 @@
 //    sobre el borde del estadio (focos con polillas, banderas, la skycam, un avión, nubes a tres velocidades y el público
 //    de la grada alta): el balón grande cruza girando despacio; en «600» sale el número y un aro que gira; en «halfway»
 //    llega arriba y la estela marca el arco. Corta tras «flight» (fondo local).
-// 3. «tips its nose down as if it knows where it's going»: la zona de anotación, con la portería amarilla, la grada de
-//    detrás y los fotógrafos; el balón entra por arriba, baja la punta en «Tips … down» y cae en las manos del receptor
-//    en «going»; touchdown: brazos arriba, la grada salta, los flashes (fondo local).
-// 4. «How does it do that? And why is it shaped so strangely?»: inserto sobre el estadio en penumbra: el balón grande
-//    flota y gira; «?» en «How»; en «shaped» un círculo de puntos (la pelota redonda) se dibuja a su alrededor y otro
-//    «?» en «strangely»; abajo, el receptor mira el balón que tiene en la mano y el quarterback llega y se encoge.
+// 3. «tips its nose down as if it knows where it's going»: la zona de anotación desde el campo: la portería amarilla
+//    plantada en la línea de fondo (poste acolchado sobre el césped, delante del muro), el emblema y las flechas pintadas,
+//    los pilones, el desgaste; detrás, los fotógrafos con su equipo y la cámara de raíl que sigue al receptor; el balón
+//    entra por arriba, baja la punta en «Tips … down» y cae en las manos del receptor en «going»; touchdown: brazos
+//    arriba, la grada salta, el LED del muro destella y los fotógrafos levantan las cámaras y disparan (fondo local).
+// 4. «How does it do that? And why is it shaped so strangely?»: inserto a ras de césped desde la banda, junto al
+//    banquillo (nevera, cascos, banco, calefactor): al fondo, el campo en perspectiva con su emblema y la grada de enfrente en penumbra
+//    con móviles y flashes, el banquillo rival, la cadena y un árbitro; el balón grande flota y gira; «?» en «How»; en
+//    «shaped» un círculo de puntos (la pelota redonda) se dibuja a su alrededor y otro «?» en «strangely»; delante, el
+//    receptor mira el balón que tiene en la mano, el pateador mira arriba y el quarterback llega y se encoge (fondo local).
 import * as T from '/atomo/plato/escenas/fa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('fa-pregunta');
@@ -146,8 +150,16 @@ const p2 = (t) => {
   if (vis) { aro(true); const e = tramo(t, seiscientos, seiscientos + 0.3); R.numero('600', 112, Math.round(52 - e * 6), { tam: 16, centro: true }); }
 };
 
-// 3 · la zona de anotación: el balón baja la punta y cae en las manos (fondo local)
-const VB = [190, 8, 266, 30], YEL = H(['#b88a10', '#e8b820', '#ffe060']);
+// 3 · la zona de anotación desde el campo: la portería plantada en la línea de fondo, los fotógrafos y la cámara de raíl
+//     detrás; el balón baja la punta y cae en las manos (fondo local)
+const VB = [212, 8, 270, 28], YEL = H(['#b88a10', '#e8b820', '#ffe060']);
+const ACOL = H(['#0a3a3a', '#0e4a4a', '#146464', '#1e8a8a', '#3aa8a0', '#7ad8d8']);   // el acolchado del poste
+const FOTOS = [[18, 0], [52, 1], [88, 2], [208, 3], [242, 4], [276, 5]];             // x de cada fotógrafo y su semilla
+const bolsa = (x, y, k) => { const c = k ? hex('#2a2a34') : hex('#3a2e2a');
+  R.rect(x - 1, y + 1, x + 8, y + 1, hex('#1a2a18')); R.rect(x, y - 4, x + 7, y, c); R.rect(x, y - 4, x + 7, y - 4, hex('#5a5a68')); R.rect(x + 7, y - 3, x + 7, y, hex('#16161c'));
+  R.rect(x + 1, y - 2, x + 3, y, hex('#1c1c24')); R.pset(x + 5, y - 2, hex('#c8a040')); R.linea(x + 1, y - 5, x + 3, y - 7, hex('#1c1c24')); R.linea(x + 3, y - 7, x + 6, y - 5, hex('#1c1c24')); };
+const maleta = (x, y) => { R.rect(x - 1, y + 1, x + 7, y + 1, hex('#1a2a18')); R.rect(x, y - 8, x + 6, y, hex('#7a8294')); R.rect(x, y - 8, x, y, hex('#a8b0c0')); R.rect(x + 6, y - 8, x + 6, y, hex('#4a5266'));
+  for (const yy of [y - 6, y - 3]) R.rect(x + 1, yy, x + 5, yy, hex('#5a6276')); R.rect(x + 2, y - 10, x + 4, y - 10, hex('#3a3e4a')); R.pset(x + 2, y - 9, hex('#3a3e4a')); R.pset(x + 4, y - 9, hex('#3a3e4a')); R.pset(x + 1, y + 1, hex('#0a0a0e')); R.pset(x + 5, y + 1, hex('#0a0a0e')); };
 const zona3 = () => fijo('zona3', () => {
   // el techo: la cara de abajo de la cubierta, con su celosía y el anillo de luces
   for (let y = 0; y < 34; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rampa(x, y, y / 34, H(['#0c0e1a', '#141826', '#1c2132', '#252b3e'])));
@@ -157,45 +169,108 @@ const zona3 = () => fijo('zona3', () => {
   R.rect(VB[0] - 2, VB[1] - 2, VB[2] + 2, VB[3] + 2, hex('#0a0a12')); R.linea(VB[0] + 6, 0, VB[0] + 6, VB[1] - 2, hex('#3e4458')); R.linea(VB[2] - 6, 0, VB[2] - 6, VB[1] - 2, hex('#3e4458'));
   // la fascia de la grada alta (su cinta de LED se pinta encima)
   R.rect(0, 34, 319, 39, hex('#2c3040')); R.rect(0, 34, 319, 34, hex('#5a6276'));
-  // el muro acolchado y la banda de LED
-  R.rect(0, 98, 319, 106, hex('#1c2a3a')); R.rect(0, 98, 319, 98, hex('#5a6276')); R.rect(0, 105, 319, 106, hex('#146464'));
-  // el césped de la zona de anotación: franjas de corte, la pintura de rayas diagonales y las líneas de cal
-  const G = H(['#2e5e26', '#3a6e2e', '#4a8a3a', '#5a9a44']);
-  for (let y = 107; y < 180; y++) for (let x = 0; x < 320; x++) { const franja = Math.floor((y - 107) / 12) % 2, n = hs(x, y, 2);
-    let c = G[1 + franja + (n < 0.18 ? -1 : n > 0.9 ? 1 : 0)];
-    if (y >= 114 && y < 166 && x > 18 && x < 302 && ((x + (y - 114) * 1.6) % 28) < 13) c = n < 0.15 ? hex('#146464') : n > 0.94 ? hex('#3aa8a0') : hex('#1e8a8a');
+  // el muro acolchado (76–86): paneles con costuras y pespuntes, la tapa de arriba y la sombra de abajo (su LED corre encima)
+  for (let y = 76; y <= 86; y++) for (let x = 0; x < 320; x++) { const u = x % 32; let c = y === 76 ? hex('#6a7286') : y === 77 ? hex('#3a4458') : y >= 85 ? hex('#121a26') : hex('#1c2a3a');
+    if (y > 77 && y < 85) { if (u === 0) c = hex('#0c121c'); else if (u === 1) c = hex('#2c3c50'); else if (y === 83 && u % 4 === 2) c = hex('#26364a'); else if (hs(x, y, 9) < 0.05) c = hex('#22303e'); }
     R.pset(x, y, c); }
-  R.rect(0, 111, 319, 113, hex('#f2f2ea')); R.rect(0, 166, 319, 169, hex('#f2f2ea')); for (let x = 0; x < 320; x += 3) { R.pset(x, 113, hex('#c8c8b8')); R.pset(x + 1, 169, hex('#c8c8b8')); }
-  for (let y = 107; y < 180; y++) { R.pset(10, y, hex('#f2f2ea')); R.pset(11, y, hex('#f2f2ea')); R.pset(308, y, hex('#f2f2ea')); R.pset(309, y, hex('#f2f2ea')); }
-  // los conos (pylons) naranjas de las esquinas
-  for (const [x, y] of [[10, 113], [308, 113], [10, 169], [308, 169]]) { R.rect(x - 2, y - 7, x + 2, y, hex('#e8783a')); R.rect(x - 2, y - 7, x - 1, y, hex('#f8a060')); R.rect(x + 2, y - 7, x + 2, y, hex('#b8582a')); }
-  // la portería: el poste acolchado, el cuello de cisne, el larguero y los palos
-  sombraSuelo(160, 113, 6, hex('#2a4a22'));
+  // detrás de la línea de fondo (87–111): césped más oscuro, la sombra del muro, el raíl de la cámara y la canaleta de cables
+  const T2 = H(['#1a321a', '#203c1e', '#284a24', '#30562a', '#3a6430']);
+  for (let y = 87; y < 112; y++) for (let x = 0; x < 320; x++) { const n = hs(x, y, 6); let c = rampa(x, y, Math.min(1, 0.15 + (y - 87) / 34 + (n - 0.5) * 0.3), T2); if (n > 0.986) c = hex('#121a12'); R.pset(x, y, c); }
+  for (let x = 0; x < 320; x++) { R.pset(x, 87, hex('#0e160e')); if (x & 1) R.pset(x, 88, hex('#142214')); }
+  for (let x = 0; x < 320; x += 4) R.rect(x, 90, x + 1, 95, hex('#3a3026'));
+  for (let x = 0; x < 320; x++) { R.pset(x, 91, hex('#a8b0c0')); R.pset(x, 92, hex('#4a5266')); R.pset(x, 94, hex('#a8b0c0')); R.pset(x, 95, hex('#4a5266')); }
+  for (let x = 0; x < 320; x++) R.pset(x, 105 + Math.round(Math.sin(x * 0.09) * 1.4 + Math.sin(x * 0.031) * 1.2), hex('#14141c'));
+  // el equipo de los fotógrafos: bolsas, maletas rígidas y la escalera de tijera
+  bolsa(38, 110, 1); bolsa(72, 110, 0); maleta(110, 110); bolsa(226, 110, 0); maleta(262, 110); bolsa(296, 110, 1);
+  { const lx = 132; R.linea(lx, 111, lx + 3, 92, hex('#a8b0c0')); R.linea(lx + 9, 111, lx + 6, 92, hex('#7a8294')); R.rect(lx + 3, 91, lx + 6, 92, hex('#c8ccd8'));
+    for (let y = 96; y < 111; y += 4) R.linea(lx + 1 + Math.round((111 - y) / 6), y, lx + 8 - Math.round((111 - y) / 6), y, hex('#8a94a8')); R.rect(lx - 1, 112, lx + 10, 112, hex('#1a2a18')); }
+  // el césped de la zona (116–165): franjas de corte, dos cenefas de rayas, el emblema del equipo, flechas pintadas y el desgaste
+  const G = H(['#2e5e26', '#3a6e2e', '#4a8a3a', '#5a9a44']);
+  for (let y = 112; y < 180; y++) for (let x = 0; x < 320; x++) { const franja = Math.floor((y - 116) / 10) & 1, n = hs(x, y, 2);
+    let c = G[1 + franja + (n < 0.18 ? -1 : n > 0.9 ? 1 : 0)];
+    if (x < 10 || x > 309) c = n < 0.5 ? hex('#264a22') : hex('#2e5626');
+    const dentro = x > 18 && x < 302 && y >= 116 && y < 166;
+    if (dentro && ((y >= 119 && y < 124) || (y >= 158 && y < 163)) && ((x + y * 1.6) % 10) < 5) c = n < 0.12 ? hex('#146464') : hex('#1e8a8a');
+    // el emblema: un óvalo verde azulado con borde naranja y un balón blanco con sus costuras
+    const ex = (x - 160) / 36, ey = (y - 141) / 14, d = Math.hypot(ex, ey);
+    if (d < 1) { c = d > 0.84 ? (y < 141 ? hex('#f8a060') : hex('#e8783a')) : d > 0.78 ? hex('#f2eee2') : (dz(x, y) < 0.2 ? hex('#146464') : hex('#1e8a8a'));
+      const bx = (x - 160) / 18, by = (y - 141) / 7, bd = Math.hypot(bx, by);
+      if (bd < 1) c = bd > 0.85 ? hex('#c8c8b8') : hex('#f2eee2');
+      if (y === 141 && Math.abs(x - 160) < 7) c = hex('#1e8a8a');
+      if (Math.abs(x - 160) < 6 && (x & 1) === 0 && (y === 140 || y === 142)) c = hex('#1e8a8a');
+      if (n < 0.05) c = G[2]; }
+    // las flechas pintadas a los lados, que apuntan al emblema
+    for (const [cx, sg] of [[66, 1], [90, 1], [230, -1], [254, -1]]) { const v = Math.abs(y - 141), w = sg * (x - cx) + v * 0.9;
+      if (v < 11 && w >= 0 && w < 5 && n > 0.07) c = w < 1 ? hex('#c8783a') : hex('#e8e8dc'); }
+    // el desgaste: tierra levantada por los tacos y la cal que se ha ido
+    if (dentro && hs(x >> 1, y >> 1, 11) < 0.012) c = hex('#5a4a2a');
+    if (dentro && hs(x, y, 13) < 0.004) c = hex('#3a2e1c');
+    R.pset(x, y, c); }
+  // la línea de fondo (112–115) y la de gol (166–169), con la cal gastada y salpicada
+  for (const y0 of [112, 166]) for (let y = y0; y < y0 + 4; y++) for (let x = 10; x < 310; x++) { const n = hs(x, y, 5); R.pset(x, y, n < 0.06 ? hex('#a8b0a0') : y === y0 + 3 ? hex('#d8d8c8') : hex('#f2f2ea')); }
+  for (let x = 10; x < 310; x++) { if (hs(x, 1, 6) < 0.18) R.pset(x, 116 + Math.floor(hs(x, 2, 6) * 3), hex('#c8d0b8')); if (hs(x, 3, 6) < 0.18) R.pset(x, 170 + Math.floor(hs(x, 4, 6) * 2), hex('#c8d0b8')); }
+  for (let y = 112; y < 180; y++) { R.pset(10, y, hex('#f2f2ea')); R.pset(11, y, hex('#f2f2ea')); R.pset(308, y, hex('#f2f2ea')); R.pset(309, y, hex('#f2f2ea')); }
+  // las marcas de la yarda 1 y la del punto extra, al otro lado de la línea de gol
+  for (const [a, b] of [[34, 44], [118, 128], [156, 164], [192, 202], [276, 286]]) R.rect(a, 175, b, 175, hex('#e8e8dc'));
+  // los pilones naranjas de las cuatro esquinas, con su sombra
+  for (const [x, y] of [[11, 115], [309, 115], [11, 169], [309, 169]]) { R.rect(x - 3, y + 1, x + 4, y + 1, hex('#1e3a1a')); R.rect(x - 2, y - 8, x + 2, y, hex('#e8783a')); R.rect(x - 2, y - 8, x - 1, y, hex('#f8a060')); R.rect(x + 2, y - 8, x + 2, y, hex('#b8582a')); R.rect(x - 2, y - 5, x + 2, y - 5, hex('#f2eee2')); }
+  // la sombra del poste en la línea de fondo
+  for (let i = -14; i <= 14; i++) { R.pset(160 + i, 116, hex('#244a1e')); if (Math.abs(i) < 11) R.pset(160 + i + 2, 117, hex('#2a5222')); }
 });
 const p3 = (t) => {
   zona3();
-  // la cinta de LED de la fascia y la banda del muro, que corren
-  for (let x = 0; x < 320; x++) { const k = Math.floor((x + t * 30) / 6) % 3; R.pset(x, 36, hex(['#1e8a8a', '#e8783a', '#f2eee2'][k])); R.pset(x, 37, hex(['#146464', '#b8582a', '#c8c8c0'][k])); }
-  for (let x = 0; x < 320; x++) if (((x - t * 40) % 16 + 16) % 16 < 8) { R.pset(x, 101, hex('#3ac8e8')); R.pset(x + 1, 102, hex('#3ac8e8')); R.pset(x, 103, hex('#3ac8e8')); }
-  // el videomarcador: la repetición del arco con el balón pequeño
-  for (let y = VB[1]; y <= VB[3]; y++) for (let x = VB[0]; x <= VB[2]; x++) R.pset(x, y, rampa(x, y, (y - VB[1]) / 22, H(['#0e1a2e', '#14304a', '#1a4a3a', '#2a6a3a'])));
-  { const v = ((t * 0.5) % 1); for (let k = 0; k <= 20; k++) { const w = k / 20; if (w > v) break; R.pset(VB[0] + 6 + Math.round(w * 64), VB[3] - 4 - Math.round(16 * Math.sin(Math.PI * w)), hex('#ffd860')); } R.disco(VB[0] + 6 + Math.round(v * 64), VB[3] - 4 - Math.round(16 * Math.sin(Math.PI * v)), 1, hex('#b65c30')); }
-  // la grada de detrás de la portería: salta cuando el receptor atrapa
   const fiesta = tramo(t, atrapa, atrapa + 0.3);
-  publico(0, 319, 40, 97, t, { g: 2, moviles: 0.5, salta: (x, y, r) => fiesta > 0 ? (Math.sin(t * 14 + r * 40) > 0 ? 2 : 0) : (r > 0.96 && Math.sin(t * 6 + x) > 0 ? 1 : 0), pasillo: (x, y) => Math.abs(((x + 40) % 106) - 53) < 2 + (y - 40) / 30 });
-  // la portería: el poste acolchado, el larguero y los palos (delante de la grada)
-  { const Y = YEL; R.rect(157, 76, 162, 112, Y[1]); R.rect(157, 76, 157, 112, Y[2]); R.rect(162, 76, 162, 112, Y[0]);
-  R.rect(155, 96, 164, 112, hex('#1e2a3a')); R.rect(155, 96, 155, 112, hex('#3a4a5a')); R.rect(155, 100, 164, 100, hex('#2a3a4a')); R.rect(155, 106, 164, 106, hex('#2a3a4a'));
-  R.rect(130, 72, 190, 75, Y[1]); R.rect(130, 72, 190, 72, Y[2]); R.rect(130, 75, 190, 75, Y[0]);
-  for (const ux of [130, 188]) { R.rect(ux, 40, ux + 2, 74, Y[1]); R.rect(ux, 40, ux, 74, Y[2]); R.rect(ux + 2, 40, ux + 2, 74, Y[0]); }
-  for (const ux of [130, 188]) { const o = Math.round(Math.sin(t * 5 + ux) * 1.2); R.linea(ux + 1, 39, ux + 4 + o, 33, hex('#e8783a')); R.linea(ux + 2, 39, ux + 5 + o, 34, hex('#b8582a')); } }
-  for (const vx of [27, 239]) { R.rect(vx - 7, 84, vx + 7, 97, hex('#0a0c14')); R.rect(vx - 7, 84, vx + 7, 84, hex('#5a6276')); R.rect(vx - 6, 92, vx + 6, 97, hex('#141826')); }
-  // los fotógrafos de rodillas tras la línea de fondo, con sus flashes
-  for (const [fx, k] of [[36, 0], [74, 1], [214, 2], [262, 3], [290, 4]]) { const y = 110; R.rect(fx, y - 5, fx + 3, y - 1, hex('#2a2a36')); R.rect(fx + 1, y - 8, fx + 2, y - 6, PIEL[k % 5]); R.rect(fx + 4, y - 6, fx + 7, y - 4, hex('#1a1a22')); R.pset(fx + 8, y - 5, hex('#5a6a8a'));
-    if ((t > atrapa && t < atrapa + 1.2 && Math.sin(t * 11 + k * 2.1) > 0.7) || Math.sin(t * 2.3 + k * 3.7) > 0.985) { R.disco(fx + 9, y - 5, 2, hex('#ffffff')); R.pset(fx + 12, y - 5, hex('#ffffff')); R.pset(fx + 9, y - 9, hex('#ffffff')); } }
-  // el receptor corre hacia la zona y atrapa en «going»; un defensa llega tarde
+  // la cinta de LED de la fascia, que corre
+  for (let x = 0; x < 320; x++) { const k = Math.floor((x + t * 30) / 6) % 3; R.pset(x, 36, hex(['#1e8a8a', '#e8783a', '#f2eee2'][k])); R.pset(x, 37, hex(['#146464', '#b8582a', '#c8c8c0'][k])); }
+  // el videomarcador: la repetición del arco con el balón pequeño
+  const vw = VB[2] - VB[0] - 12;
+  for (let y = VB[1]; y <= VB[3]; y++) for (let x = VB[0]; x <= VB[2]; x++) R.pset(x, y, rampa(x, y, (y - VB[1]) / 20, H(['#0e1a2e', '#14304a', '#1a4a3a', '#2a6a3a'])));
+  { const v = ((t * 0.5) % 1); for (let k = 0; k <= 20; k++) { const w = k / 20; if (w > v) break; R.pset(VB[0] + 6 + Math.round(w * vw), VB[3] - 4 - Math.round(14 * Math.sin(Math.PI * w)), hex('#ffd860')); } R.disco(VB[0] + 6 + Math.round(v * vw), VB[3] - 4 - Math.round(14 * Math.sin(Math.PI * v)), 1, hex('#b65c30')); }
+  // la grada de detrás de la portería (40–75): salta cuando el receptor atrapa
+  publico(0, 319, 40, 75, t, { g: 2, moviles: 0.5, salta: (x, y, r) => fiesta > 0 ? (Math.sin(t * 14 + r * 40) > 0 ? 2 : 0) : (r > 0.96 && Math.sin(t * 6 + x) > 0 ? 1 : 0), pasillo: (x, y) => Math.abs(((x + 40) % 106) - 53) < 2 + (y - 40) / 30 });
+  // las bocas de los vomitorios, con la barandilla y la luz del pasillo
+  for (const vx of [27, 239]) { R.rect(vx - 7, 62, vx + 7, 75, hex('#0a0c14')); R.rect(vx - 7, 62, vx + 7, 62, hex('#5a6276')); R.rect(vx - 5, 70, vx + 5, 75, hex('#141826')); R.rect(vx - 4, 68, vx + 4, 68, hex('#8a94a8'));
+    if (Math.floor(t * 1.3 + vx) % 3) R.pset(vx, 64, hex('#fff0c0')); }
+  // el LED del muro: corre; en el touchdown destella con los colores del equipo
+  for (let x = 0; x < 320; x++) { const on = fiesta > 0 ? (Math.floor(t * 8 + x / 20) & 1) : (((x - t * 40) % 16 + 16) % 16 < 8); if (!on) continue;
+    const c = fiesta > 0 ? hex((Math.floor(t * 8) & 1) ? '#e8783a' : '#3ac8e8') : hex('#3ac8e8'); R.pset(x, 79, c); R.pset(x + 1, 80, c); R.pset(x, 81, c); }
+  // el receptor y el defensa (las posiciones mandan sobre la cámara y los fotógrafos)
   const rx = Math.round(lerp(100, 196, tramo(t, P3, atrapa))) + Math.round(lerp(0, 16, tramo(t, atrapa, atrapa + 0.6))), ry = 160;
   const dx = Math.round(lerp(40, 160, tramo(t, P3 + 0.2, atrapa + 0.5)));
+  // la cámara de raíl sigue al receptor: el carro rueda por los carriles y el operador la guía
+  { const cx = Math.round(lerp(70, 226, tramo(t, P3 - 0.2, atrapa + 0.6))), g = t * 6;
+    R.actor(EL.tecnico, cx - 15, 90, t, { dir: 1 });
+    R.rect(cx - 12, 88, cx + 12, 90, hex('#3e4458')); R.rect(cx - 12, 88, cx + 12, 88, hex('#8a94a8')); R.rect(cx - 12, 90, cx + 12, 90, hex('#1a1c28'));
+    for (const wx of [cx - 8, cx + 8]) { R.disco(wx, 92, 2, hex('#1a1c28')); R.pset(wx + Math.round(Math.cos(g) * 1.4), 92 + Math.round(Math.sin(g) * 1.4), hex('#8a94a8')); R.pset(wx, 92, hex('#5a6276')); }
+    R.rect(cx + 3, 74, cx + 4, 87, hex('#5a6276')); R.rect(cx + 1, 86, cx + 6, 87, hex('#3e4458'));
+    R.rect(cx - 2, 66, cx + 10, 73, hex('#1a1c28')); R.rect(cx - 2, 66, cx + 10, 66, hex('#5a6276')); R.rect(cx - 5, 67, cx - 3, 70, hex('#2c3040'));
+    R.disco(cx + 4, 70, 2, hex('#3e4458')); R.pset(cx + 4, 70, hex('#3ac8e8')); R.pset(cx + 3, 69, hex('#c8f0ff')); if (Math.floor(t * 2) & 1) R.pset(cx + 9, 67, hex('#ff4a3a'));
+    R.linea(cx - 4, 74, cx - 9, 74, hex('#14141c')); }
+  // los fotógrafos tras la línea de fondo: siguen al receptor con el objetivo, levantan la cámara en el touchdown y disparan los flashes
+  for (const [fx, k] of FOTOS) { const dir = rx + 7 > fx + 7 ? 1 : -1, alza = (k & 1) === 1 && t > atrapa - 0.4, pod = !alza;
+    const a = R.actor(EL.tecnico, fx, 110, t, { dir, tocado: 'gorra', dedo: alza, pal: { C: hex(k & 2 ? '#c8a060' : '#b8503a'), c: hex(k & 2 ? '#a8804a' : '#8a3a2a') } });
+    const [hx, hy] = a.cabeza;
+    let cx, cy;
+    if (alza) { [cx, cy] = a.mano; cx = Math.round(cx); cy = Math.round(cy) + 1; }
+    else { cx = hx + dir * 7; cy = hy + 14; }
+    R.rect(cx - 3, cy - 2, cx + 3, cy + 2, hex('#1a1a22')); R.rect(cx - 3, cy - 2, cx + 3, cy - 2, hex('#4a4a58')); R.rect(cx - 2, cy - 4, cx, cy - 3, hex('#2a2a36'));
+    R.disco(cx + dir, cy + 1, 2, hex('#3a3e4a')); R.pset(cx + dir, cy + 1, hex('#5a6a8a')); R.pset(cx + dir - 1, cy, hex('#a8c0e0'));
+    if (pod) { R.linea(cx, cy + 3, cx + dir, 110, hex('#5a6276')); R.pset(cx + dir, 111, hex('#1a2a18')); }
+    if ((t > atrapa && t < atrapa + 1.2 && Math.sin(t * 11 + k * 2.1) > 0.7) || Math.sin(t * 2.3 + k * 3.7) > 0.985) { R.disco(cx, cy - 4, 2, hex('#ffffff')); R.pset(cx - 4, cy - 4, hex('#ffffff')); R.pset(cx + 4, cy - 4, hex('#ffffff')); R.pset(cx, cy - 8, hex('#ffffff')); } }
+  // la portería, plantada en la línea de fondo: el poste acolchado sobre el césped, el cuello de cisne, el larguero y los palos
+  { const Y = YEL;
+    for (let y = 84; y <= 115; y++) for (let x = 154; x <= 166; x++) { const i = x - 154; let c = ACOL[i < 1 ? 1 : i < 3 ? 3 : i < 6 ? 4 : i < 9 ? 3 : i < 11 ? 2 : 1];
+      if (y === 84) c = ACOL[5]; else if (y === 85) c = ACOL[2]; else if (y === 92 || y === 93) c = i < 1 || i > 10 ? hex('#a8a89c') : hex('#f2eee2'); else if (y === 104 || y === 105) c = i < 1 || i > 10 ? hex('#b8582a') : hex('#e8783a');
+      else if (y >= 113) c = i < 2 || i > 10 ? ACOL[0] : ACOL[1]; else if (i > 3 && i < 6 && hs(x, y, 8) < 0.15) c = ACOL[5];
+      R.pset(x, y, c); }
+    R.rect(157, 60, 163, 83, Y[1]); R.rect(157, 60, 158, 83, Y[2]); R.rect(162, 60, 163, 83, Y[0]); for (let y = 64; y < 83; y += 6) R.pset(160, y, Y[0]);
+    R.rect(156, 56, 164, 59, Y[1]); R.rect(156, 56, 164, 56, Y[2]); R.rect(156, 59, 164, 59, Y[0]); R.pset(155, 57, Y[0]); R.pset(165, 57, Y[0]);
+    R.rect(121, 52, 199, 55, Y[1]); R.rect(121, 52, 199, 52, Y[2]); R.rect(121, 55, 199, 55, Y[0]);
+    for (const ux of [121, 197]) { R.rect(ux, 22, ux + 2, 52, Y[1]); R.rect(ux, 22, ux, 52, Y[2]); R.rect(ux + 2, 22, ux + 2, 52, Y[0]); }
+    for (const ux of [121, 197]) { const o = Math.round(Math.sin(t * 5 + ux) * 1.2); R.linea(ux + 1, 21, ux + 4 + o, 16 + Math.abs(o), hex('#e8783a')); R.linea(ux + 2, 21, ux + 5 + o, 17 + Math.abs(o), hex('#b8582a')); } }
+  // las huellas de los tacos que deja el receptor en la zona
+  for (let x = 104; x < rx; x += 7) { R.pset(x + 2, ry + 1 + ((x / 7) & 1), hex('#2a4a22')); R.pset(x + 3, ry + 1 + ((x / 7) & 1), hex('#2a4a22')); }
+  // el defensa llega tarde; el receptor atrapa en «going»
   sombraSuelo(dx + 7, 165, 6, hex('#2a4a22')); R.actor(EL.liniero, dx, 165, t, { dir: 1, anda: t < atrapa + 0.5, sorpresa: t > atrapa, triste: t > atrapa + 1.2 });
   sombraSuelo(rx + 7, ry, 6, hex('#2a4a22'));
   const brazos = t > atrapa - 0.45, gol = t > atrapa + 0.7;
@@ -208,26 +283,110 @@ const p3 = (t) => {
   else T.balon(R, meta[0] + 1, meta[1] + (gol ? -2 : 3), t, { s: 2, ang: gol ? -1.2 : 0.5 });
 };
 
-// 4 · inserto: el balón grande flota sobre el estadio en penumbra; «?» y la pelota redonda de puntos
+// 4 · inserto a ras de césped, desde la banda junto al banquillo: la grada de enfrente en penumbra, el balón grande con
+//     sus «?» encima del campo, y el receptor y el quarterback en primer término
+const VY4 = -80, YL = 66, YC = 125;   // punto de fuga, banda de enfrente y banda cercana
+const casco = (x, y, dir) => { R.rect(x - 1, y + 1, x + 8, y + 1, hex('#14281a')); R.disco(x + 3, y - 2, 3, hex('#1e8a8a')); R.rect(x, y - 2, x + 6, y, hex('#1e8a8a'));
+  R.pset(x + 2, y - 4, hex('#7ad8d8')); R.pset(x + 3, y - 4, hex('#7ad8d8')); R.linea(x + 3, y - 5, x + 3, y, hex('#e8783a'));
+  const fx = dir > 0 ? x + 7 : x - 1; R.linea(fx, y - 3, fx, y, hex('#a8b0c0')); R.pset(fx - dir, y - 1, hex('#a8b0c0')); R.pset(x + 6 - (dir > 0 ? 0 : 6), y, hex('#146464')); };
+const banda4 = () => fijo('banda4', () => {
+  // el techo en sombra (0–11): la celosía de la cubierta y las luces de servicio
+  for (let y = 0; y < 12; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rampa(x, y, y / 12, H(['#06070e', '#0a0c16', '#10131f'])));
+  for (let x = -20; x < 340; x += 20) { R.linea(x, 0, x + 10, 11, hex('#161a28')); R.linea(x + 20, 0, x + 10, 11, hex('#161a28')); }
+  for (let x = 4; x < 320; x += 9) R.pset(x, 11, hex('#6a5e44'));
+  // el palco (30–35): la banda de cristal con su marco (las ventanas se encienden encima)
+  for (let y = 30; y <= 35; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y === 30 || y === 35 ? hex('#2a2e40') : (x % 18 < 2) ? hex('#10131e') : hex('#1a1e2c'));
+  // el muro de enfrente (52–57) y la banda de enfrente (58–65)
+  for (let y = 52; y <= 57; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y === 52 ? hex('#3a4256') : x % 24 === 0 ? hex('#0c101a') : hex('#151b28'));
+  for (let y = 58; y < YL; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rampa(x, y, Math.min(1, (y - 58) / 10 + (hs(x, y, 4) - 0.5) * 0.3), H(['#0c160e', '#122016', '#182a1a'])));
+  // el campo en perspectiva (66–124): franjas de corte cada cinco yardas, las líneas, las marcas «hash» y la luz del centro
+  const G4 = H(['#14281a', '#1a361c', '#224622', '#2c5626', '#36682c', '#427a32']);
+  for (let y = YL; y < YC; y++) { const s = (y - VY4) / (YC - VY4), luz = 0.12 + (y - YL) / (YC - YL) * 0.4;
+    for (let x = 0; x < 320; x++) { const xn = 160 + (x - 160) / s, m = ((xn % 40) + 40) % 40, fr = Math.floor((xn + 4000) / 40) & 1, n = hs(x, y, 2);
+      const foco = Math.max(0, 1 - Math.hypot((x - 160) / 180, (y - 124) / 70));
+      let c = rampa(x, y, Math.max(0, Math.min(1, luz + fr * 0.1 + foco * 0.3 + (n - 0.5) * 0.14)), G4);
+      if (m < 2) c = luz + foco * 0.3 > 0.45 ? hex('#d8dccc') : hex('#8a9488');
+      else if ((y === 84 || y === 85 || y === 103 || y === 104) && (((xn % 8) + 8) % 8) < 1.3) c = hex('#a8b0a0');
+      else if (n > 0.992) c = hex('#5a4a2a');
+      R.pset(x, y, c); } }
+  for (let x = 0; x < 320; x++) { R.pset(x, YL, hex('#7a8478')); R.pset(x, YL + 1, hex('#5a6458')); }
+  // el emblema del centro del campo, aplastado por la perspectiva, y las marcas de la yarda 50 junto a la banda
+  for (let y = 104; y <= 122; y++) for (let x = 100; x <= 220; x++) { const d = Math.hypot((x - 160) / 58, (y - 113) / 9); if (d >= 1) continue;
+    const n = hs(x, y, 12); let c = d > 0.86 ? hex('#c8602e') : d > 0.78 ? hex('#c8c8b8') : (dz(x, y) < 0.25 ? hex('#146464') : hex('#1a7676'));
+    const b = Math.hypot((x - 160) / 28, (y - 113) / 4.5); if (b < 1) c = b > 0.82 ? hex('#a8a89c') : hex('#d8d8cc'); if (y === 113 && Math.abs(x - 160) < 10) c = hex('#1a7676');
+    if (n < 0.08) c = hex('#2c5626'); R.pset(x, y, c); }
+  for (let y = YC; y < YC + 3; y++) for (let x = 0; x < 320; x++) R.pset(x, y, hs(x, y, 5) < 0.06 ? hex('#a8b0a0') : y === YC + 2 ? hex('#c8ccbc') : hex('#eef0e4'));
+  // la banda cercana (128–179): césped artificial con bolitas de caucho, la raya discontinua del área del equipo y la luz del cañón
+  for (let y = YC + 3; y < 180; y++) for (let x = 0; x < 320; x++) { const n = hs(x, y, 3), foco = Math.max(0, 1 - Math.hypot((x - 150) / 150, (y - 164) / 30));
+    let c = rampa(x, y, Math.max(0, Math.min(1, 0.22 + foco * 0.6 + (n - 0.5) * 0.2)), H(['#12241a', '#1a321e', '#224222', '#2c5428', '#386630', '#447838']));
+    if (n > 0.975) c = hex('#0e0e12'); if ((y === 136 || y === 137) && x % 14 < 8) c = foco > 0.3 ? hex('#d8c860') : hex('#8a8240');
+    R.pset(x, y, c); }
+  // la nevera naranja en su carro, con los vasos y su sombra
+  R.rect(18, 161, 44, 162, hex('#0e1a12')); R.rect(20, 148, 42, 150, hex('#5a6276')); R.rect(20, 148, 42, 148, hex('#8a94a8'));
+  for (const lx of [21, 41]) R.rect(lx, 150, lx, 160, hex('#3e4458'));
+  R.rect(23, 131, 37, 147, hex('#e8783a')); R.rect(23, 131, 25, 147, hex('#f8a060')); R.rect(35, 131, 37, 147, hex('#b8582a'));
+  for (const y of [135, 143]) R.rect(23, y, 37, y, hex('#c8602e')); R.rect(22, 128, 38, 130, hex('#f2eee2')); R.rect(22, 130, 38, 130, hex('#c8c8b8')); R.rect(28, 127, 32, 127, hex('#c8c8b8'));
+  R.rect(29, 144, 31, 146, hex('#2a2a36')); R.pset(30, 147, hex('#5a6276'));
+  for (let y = 136; y < 148; y++) { R.pset(40, y, y % 2 ? hex('#f2eee2') : hex('#c8c8b8')); R.pset(41, y, hex('#e8e8dc')); R.pset(42, y, y % 2 ? hex('#c8c8b8') : hex('#a8a89c')); }
+  // los cascos en el césped y la maleta de la tableta
+  casco(60, 174, 1); casco(74, 172, -1); casco(226, 175, 1);
+  R.rect(244, 168, 258, 175, hex('#3e4458')); R.rect(244, 168, 258, 168, hex('#8a94a8')); R.rect(250, 166, 252, 167, hex('#2c3040')); R.rect(243, 176, 259, 176, hex('#0e1a12')); R.pset(246, 171, hex('#c8a040'));
+  // el banco del equipo a la derecha: el respaldo verde azulado, el asiento y una toalla colgada
+  R.rect(262, 160, 319, 161, hex('#0e1a12'));
+  R.rect(262, 140, 319, 147, hex('#146464')); R.rect(262, 140, 319, 140, hex('#3aa8a0')); for (let x = 268; x < 320; x += 12) R.rect(x, 141, x, 147, hex('#0e4a4a'));
+  R.rect(262, 150, 319, 152, hex('#8a94a8')); R.rect(262, 150, 319, 150, hex('#c8ccd8')); for (const lx of [266, 290, 314]) R.rect(lx, 153, lx + 1, 160, hex('#5a6276'));
+  R.rect(276, 146, 283, 156, hex('#f2eee2')); R.rect(282, 146, 283, 156, hex('#c8c8b8')); R.rect(276, 152, 283, 152, hex('#e8783a'));
+  // el cable del banquillo, que serpentea hasta la nevera
+  for (let x = 44; x < 262; x++) R.pset(x, 157 + Math.round(Math.sin(x * 0.05) * 2 + Math.sin(x * 0.13)), hex('#0c0c10'));
+});
 const p4 = (t) => {
-  T.estadioHoy(R, t, { moviles: 0.3 }); T.h_estadioDelante(R, t);
-  T.tinte(R, 0, 179, [8, 10, 26], 0.62);
-  // la luz del cañón sobre los dos jugadores
-  for (let y = 150; y < 176; y++) for (let x = 100; x < 222; x++) { const d = Math.hypot((x - 160) / 62, (y - 166) / 12); if (d < 1 && dz(x, y) < (1 - d) * 0.8) R.pset(x, y, hex(d < 0.6 ? '#3e7a34' : '#2e5a28')); }
+  banda4();
+  // la grada de enfrente: dos anillos de público en penumbra, con los móviles encendidos
+  const sl = (x, y, r) => (r > 0.97 && Math.sin(t * 5 + x) > 0.5 ? 1 : 0);
+  publico(0, 319, 12, 29, t, { moviles: 0.9, vacio: 0.1, salta: sl, pasillo: (x) => ((x + 30) % 90) < 3 });
+  publico(0, 319, 36, 51, t, { moviles: 0.9, vacio: 0.08, salta: sl, pasillo: (x) => ((x + 10) % 90) < 3 });
+  T.tinte(R, 12, 51, [8, 10, 26], 0.58);
+  // las luces de los móviles y algún flash brillan por encima de la penumbra
+  for (let k = 0; k < 30; k++) { const x = Math.floor(hs(k, 1, 3) * 276), y = 13 + Math.floor(hs(k, 2, 3) * 38); if (y >= 30 && y <= 35) continue; if (Math.sin(t * 1.7 + k * 2.3) > 0.2) R.pset(x, y, hex('#e8ecff')); }
+  { const k = Math.floor(t * 2.5), f = t * 2.5 - k; if (f < 0.18) { const x = 8 + Math.floor(hs(k, 5, 1) * 260), y = 15 + Math.floor(hs(k, 6, 1) * 34); R.disco(x, y, 1, hex('#ffffff')); R.pset(x - 2, y, hex('#c8d0ff')); R.pset(x + 2, y, hex('#c8d0ff')); } }
+  // el palco: ventanas cálidas con siluetas que se mueven
+  for (let x = 2; x < 320; x += 18) { R.rect(x, 31, x + 15, 34, hex(hs(x, 0, 7) < 0.3 ? '#3a2e2a' : '#6a5238')); if (x > 260) continue;
+    for (let j = 0; j < 2; j++) { const sx = x + 3 + j * 7 + Math.round(Math.sin(t * 0.7 + x + j * 2) * 1.5); R.rect(sx, 32, sx + 1, 34, hex('#1c1620')); R.pset(sx, 32, hex('#2a2028')); } }
+  // el muro de enfrente: una banda de LED tenue que corre
+  for (let x = 0; x < 320; x++) if (((x + t * 24) % 20) < 11) { R.pset(x, 54, hex('#14506a')); R.pset(x, 55, hex('#0e3a4e')); }
+  // la banda de enfrente: el banquillo rival en sombra (granates diminutos) que se mueve
+  for (let k = 0; k < 24; k++) { const x = 30 + k * 11 + Math.round(Math.sin(t * 0.8 + k * 1.7) * 2), b = Math.sin(t * 3 + k) > 0.8 ? 1 : 0;
+    R.rect(x, 60 - b, x + 1, 63 - b, hex(k % 5 === 0 ? '#3a3a4a' : '#5a1e28')); R.pset(x, 59 - b, hex('#6a4a3a')); R.pset(x + 1, 59 - b, hex('#1c1424')); }
+  // la cadena de las yardas en la banda de enfrente y el árbitro que cruza el campo
+  { const cx = Math.round(36 + tramo(t, P4, P4 + 4) * 20); for (const [ox, k] of [[0, 0], [30, 1], [15, 2]]) { const x = cx + ox; R.rect(x, 61, x + 1, 64, hex('#1c1c24')); R.pset(x, 60, hex('#a8743c'));
+      R.linea(x + 2, 53, x + 2, 64, hex('#8a7a60')); R.rect(x + 1, 52, x + 4, 54, hex(k === 2 ? '#c8a040' : '#e8783a')); }
+    R.linea(cx + 3, 63, cx + 32, 63, hex('#a8a89c')); }
+  { const ax = Math.round(lerp(236, 262, tramo(t, P4, P4 + 4.5))), ay = 74, pa = Math.floor(t * 5) & 1;
+    for (let j = 0; j < 4; j++) R.rect(ax, ay + j, ax + 1, ay + j, hex(j & 1 ? '#1c1c24' : '#e8e8dc')); R.pset(ax, ay - 1, hex('#c8a070')); R.pset(ax + 1, ay - 1, hex('#f2f2ea'));
+    R.pset(ax + pa, ay + 4, hex('#1c1c24')); R.pset(ax + 1 - pa, ay + 5, hex('#1c1c24')); }
+  // el calefactor del banco: la rejilla encendida que parpadea y el aire caliente que tiembla
+  { const hx = 292, hy = 120; R.rect(hx - 1, hy + 19, hx + 17, hy + 20, hex('#0e1a12')); R.rect(hx, hy, hx + 16, hy + 18, hex('#3a3e4a')); R.rect(hx, hy, hx + 16, hy, hex('#6a7286')); R.rect(hx + 16, hy, hx + 16, hy + 18, hex('#22262e'));
+    for (let y = hy + 3; y < hy + 15; y += 2) for (let x = hx + 2; x < hx + 15; x++) R.pset(x, y, hex(hs(x, y + Math.floor(t * 8), 3) < 0.3 ? '#ffb040' : '#e8783a'));
+    for (let k = 0; k < 8; k++) { const sx = hx + 2 + ((k * 5) % 13), sy = hy - 2 - ((t * 9 + k * 4) % 12); R.pset(sx + Math.round(Math.sin(t * 6 + k) * 1.2), Math.round(sy), hex('#4a4a40')); } }
+  // el resplandor detrás del balón, la pelota redonda de puntos, el balón grande y los «?»
   const cx = 160, cy = 76 + Math.round(Math.sin(t * 1.6) * 2), ang = 0.18 * Math.sin(t * 0.9);
-  // el resplandor detrás del balón
-  for (let j = -34; j <= 34; j++) for (let i = -50; i <= 50; i++) { const d = Math.hypot(i / 50, j / 34); if (d < 1 && dz(cx + i, cy + j) < (1 - d) * 0.5) R.pset(cx + i, cy + j, hex('#2a3060')); }
+  for (let j = -34; j <= 34; j++) for (let i = -50; i <= 50; i++) { const d = Math.hypot(i / 50, j / 34); if (d < 1 && dz(cx + i, cy + j) < (1 - d) * 0.5) R.pset(cx + i, cy + j, hex(cy + j > YL ? '#3a5a3a' : '#2a3060')); }
   const circ = tramo(t, forma, forma + 0.5);
   if (circ > 0) for (let k = 0; k < 64 * circ; k++) { if (k % 2) continue; const a = k / 64 * Math.PI * 2 - Math.PI / 2; R.pset(Math.round(cx + Math.cos(a) * 25), Math.round(cy + Math.sin(a) * 25), hex('#f2eee2')); }
   T.balon(R, cx, cy, t, { s: 4.4, ang, gira: 0.3 });
   const q1 = tramo(t, como, como + 0.25), q2 = tramo(t, rara, rara + 0.25);
   if (q1 > 0) R.icono('?', 204, Math.round(62 - q1 * 8), hex('#ffd860'), hex('#1a1424'), 3);
   if (q2 > 0) R.icono('?', 102, Math.round(62 - q2 * 8), hex('#ffd860'), hex('#1a1424'), 3);
-  // abajo: el receptor gira el balón en la mano; el quarterback llega y se encoge de hombros
-  sombraSuelo(140, 168, 7, hex('#1e3a1c')); const rec = R.actor(EL.receptor, 132, 168, t, { dir: 1, dedo: true, sorpresa: t > como && t < como + 1.4 });
+  // el pateador, junto a la nevera, mira arriba; el receptor gira el balón en la mano; el quarterback llega y se encoge de hombros
+  sombraSuelo(56, 163, 6, hex('#14281a')); R.actor(EL.pateador, 48, 163, t, { dir: 1, sorpresa: t > forma, habla: t > como + 0.3 && t < como + 1 && Math.sin(t * 11) > 0 });
+  sombraSuelo(140, 168, 7, hex('#14281a')); const rec = R.actor(EL.receptor, 132, 168, t, { dir: 1, dedo: true, sorpresa: t > como && t < como + 1.4 });
   T.balon(R, rec.mano[0], rec.mano[1] + 1, t, { ang: Math.sin(t * 3) * 0.8 });
-  const qx = Math.round(lerp(240, 170, tramo(t, P4 + 0.1, P4 + 1.4))); sombraSuelo(qx + 7, 168, 7, hex('#1e3a1c'));
-  R.actor(EL.quarterback, qx, 168, t, { dir: -1, anda: t > P4 + 0.1 && t < P4 + 1.4, habla: t > P4 + 1.5 && t < forma && Math.sin(t * 12) > 0, brazos: t > forma && t < forma + 0.9, pal: { H: '#3a2418', h: '#5a3a24' } });
+  const qx = Math.round(lerp(236, 170, tramo(t, P4 + 0.1, P4 + 1.4))); sombraSuelo(qx + 7, 168, 7, hex('#14281a'));
+  const qb = R.actor(EL.quarterback, qx, 168, t, { dir: -1, anda: t > P4 + 0.1 && t < P4 + 1.4, habla: t > P4 + 1.5 && t < forma && Math.sin(t * 12) > 0, brazos: t > forma && t < forma + 0.9, pal: { H: '#3a2418', h: '#5a3a24' } });
+  // el vaho de la noche fría al hablar
+  for (const [[hx, hy], d, k] of [[rec.cabeza, 1, 0], [qb.cabeza, -1, 1]]) { const f = ((t * 0.9 + k * 0.5) % 1.6); if (f < 1) { const x = hx + d * (6 + Math.round(f * 6)), y = hy + 8 - Math.round(f * 4); R.pset(x, y, hex('#8a9aa8')); if (f < 0.6) R.pset(x + d, y - 1, hex('#6a7a88')); } }
+  // primer plano: briznas de césped a ras de cámara que se mecen
+  for (let k = 0; k < 80; k++) { const x = Math.floor(hs(k, 7, 1) * 322) - 1, h = 3 + Math.floor(hs(k, 8, 1) * 5), o = Math.round(Math.sin(t * 2.2 + x * 0.15) * 1.2); R.linea(x, 179, x + o, 179 - h, hex(hs(k, 9, 1) < 0.5 ? '#2a4a24' : '#3a6230')); }
 };
 
 const efectos = [[lanza, 'whoosh'], [P2 + 0.15, 'whoosh'], [seiscientos, 'pop'], [atrapa, 'palmada'], [atrapa + 0.25, 'flash'], [como + 0.05, 'pop'], [rara, 'pop']];

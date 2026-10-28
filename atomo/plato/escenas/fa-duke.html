@@ -20,7 +20,11 @@
 //    teams» y el confeti en «known»; suena el teléfono y la mano lo descuelga (corta en «balls»);
 // 4. la carretera de salida del pueblo, de madrugada: el operario cierra la puerta del camión (dentro, las cajas), brillan
 //    los dos escudos inventados de las puertas en «both team names»; arranca, pita y se aleja hacia el sol que sale
-//    mientras amanece deprisa (pasan las horas: «within hours»).
+//    mientras amanece deprisa (pasan las horas: «within hours»). Alrededor: maizales en hileras hacia el horizonte con su
+//    camino de servicio y surcos arados al otro lado, la cerca de postes, matas y charcos que reflejan el cielo; el asfalto
+//    con grietas, parches, rodadas, raya de borde, arcén de grava y balizas que destellan; nubes de tres tonos en tres
+//    capas a tres velocidades que se tiñen al clarear, una bandada de gansos que cruza, y en el pueblo y la granja las
+//    luces que se apagan una a una (y la de la cocina que se enciende).
 import * as T from '/atomo/plato/escenas/fa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('fa-duke');
@@ -346,30 +350,79 @@ const p3 = (t) => { const { rect, pset, disco, linea } = R;
 const ARRANCA = s(0.72), NOMBRES = s(0.6617), CIERRA = s(0.64), CLAXON = s(0.92);
 const VX = 196, VY = 100;   // el punto de fuga de la carretera
 const ancho = (y) => (y - VY) / 80 * 102, centro = (y) => VX + (y - VY) / 80 * 2;
+// proyección de la carretera: u = posición lateral (−1 y 1 son los bordes del asfalto), z = distancia (1 abajo, ∞ en el horizonte)
+const PZ = (u, z) => { const y = VY + 80 / z; return [Math.round(centro(y) + u * ancho(y)), Math.round(y)]; };
+// los baches parcheados del asfalto [u0, u1, z0, z1] y las balizas reflectantes de los dos arcenes [x, suelo, escala, lado]
+const PARCHES = [[-0.78, -0.3, 1.25, 1.55], [0.08, 0.5, 2.0, 2.6], [-0.5, -0.05, 3.4, 4.6], [0.55, 0.85, 1.02, 1.12], [0.2, 0.62, 6, 8]];
+const BAL = []; for (const z of [1.12, 1.5, 2.1, 3.0, 4.4, 6.6, 10]) for (const sd of [-1, 1]) { const y = VY + 80 / z, dd = 1 / z; BAL.push([Math.round(centro(y) + sd * (ancho(y) + 3 + 8 * dd)), Math.round(y), dd, sd]); }
 const campos = () => { const { rect, pset, linea, disco } = R;
-  // los maizales en hileras que huyen al punto de fuga, la carretera con su arcén y la raya amarilla discontinua
-  for (let y = VY + 1; y < 180; y++) { const d = (y - VY) / 80, cx = centro(y), w = ancho(y);
-    for (let x = 0; x < 320; x++) { const dx = x - cx;
-      if (Math.abs(dx) < w) { const g = hh(x, y, 80); pset(x, y, g < 0.1 ? hex('#3e3e4e') : g > 0.93 ? hex('#5e5e70') : hex('#4a4a5c')); continue; }
-      if (Math.abs(dx) < w + 1 + 4 * d) { pset(x, y, hh(x, y, 81) < 0.4 ? hex('#7a6a5e') : hex('#9a8a78')); continue; }
-      const r = (dx / d) / 11, fr = r - Math.floor(r), g = hh(x, y, 82), hoja = hh(Math.floor(r), Math.floor(y / (1 + 3 * d)), 87);
-      let c; if (fr < 0.3) c = g < 0.3 ? hex('#3a3024') : hex('#4a3e2e');   // el surco de tierra
-      else { c = fr < 0.45 ? hex('#2e4a24') : fr > 0.85 ? hex('#6a8a44') : hoja < 0.5 ? hex('#4a6a34') : hex('#3e5e2e'); if (g < 0.06) c = hex('#8aa050'); if (y < VY + 6 && g < 0.4) c = hex('#56724a'); }
+  // el asfalto viejo (rodadas pulidas, goteras de aceite, parches oscuros con su borde, raya blanca de borde gastada), el
+  // arcén de grava, la cuneta de hierba y los dos campos: a la izquierda el maíz alto en hileras que huyen al punto de fuga
+  // (cortado por un camino de servicio), a la derecha el maíz recién nacido sobre los surcos arados; la neblina del horizonte
+  const bruma = hex('#4e4a6a');
+  for (let y = VY + 1; y < 180; y++) { const d = (y - VY) / 80, z = 1 / d, cx = centro(y), w = ancho(y), arc = w + 1 + 7 * d, cun = arc + 1 + 12 * d, ny = Math.max(0, 1 - d * 5) * 0.7;
+    for (let x = 0; x < 320; x++) { const dx = x - cx, ad = Math.abs(dx), g = hh(x, y, 80); let c;
+      if (ad < w) { const u = dx / w, au = Math.abs(u), e = w - ad;
+        c = au > 0.3 && au < 0.6 ? hex('#525266') : hex('#4a4a5c');
+        if (Math.abs(au - 0.45) < 0.06 && hh(Math.floor(u * 9), Math.floor(z * 5), 88) < 0.3) c = hex('#3e3e4c');   // aceite
+        for (const [u0, u1, z0, z1] of PARCHES) if (u > u0 && u < u1 && z > z0 && z < z1) { const ya = VY + 80 / z1, yb = VY + 80 / z0; c = (u - u0) * w < 1 || (u1 - u) * w < 1 || y - ya < 1 || yb - y < 1 ? hex('#30303c') : g < 0.5 ? hex('#3c3c4a') : hex('#404050'); }
+        if (g < 0.07) c = hex('#38384a'); else if (g > 0.95) c = hex('#66667e');
+        if (e >= 1 && e < 1 + Math.max(1, 2.4 * d) && d > 0.05 && hh(x >> 1, Math.floor(z * 4), 89) > 0.15) c = hex('#c8c8c0');
+      } else if (ad < arc) { c = g < 0.3 ? hex('#6a5c52') : g < 0.75 ? hex('#8a7a6a') : g < 0.92 ? hex('#a89884') : hex('#4a4038'); }
+      else if (ad < cun) { c = g < 0.35 ? hex('#3e5e2e') : g < 0.7 ? hex('#4e6e36') : g < 0.9 ? hex('#5e7e3e') : hex('#7a9a48'); }
+      else { const r = (ad - cun) / d, P = 13, fr = (r % P) / P;
+        if (dx < 0) { if (z > 3.5 && z < 3.85) c = g < 0.5 ? hex('#7a6a50') : hex('#8a7a5c');   // el camino de servicio
+          else { const sf = 0.3 * Math.min(1, d * 2.2);
+            if (fr < sf) c = g < 0.35 ? hex('#2e261c') : hex('#3e3426');
+            else { const q = (fr - sf) / (1 - sf), hoja = hh(Math.floor(r / 3), Math.floor(z * 26), 87);
+              c = q < 0.18 ? hex('#6e8e46') : q > 0.82 ? hex('#2a4422') : hoja < 0.45 ? hex('#4a6a34') : hoja < 0.8 ? hex('#3e5e2e') : hex('#567a3a');
+              if (g < 0.035) c = hex('#c8a848'); } } }
+        else { const surco = fr < 0.18 ? hex('#2a2016') : fr < 0.45 ? hex('#4a3a28') : fr < 0.62 ? hex('#5e4a32') : hex('#46362a');
+          c = surco; if (fr > 0.45 && fr < 0.62 && hh(Math.floor(r / 2), Math.floor(z * 30), 90) < 0.5) c = hh(x, y, 91) < 0.5 ? hex('#5a8a3a') : hex('#7aaa4a'); }
+      }
+      if (ny > 0) c = mezcla(c, bruma, ny);
       pset(x, y, c); } }
+  // las grietas del asfalto (ramas que se abren en perspectiva), con su labio claro
+  for (let k = 0; k < 16; k++) { let u = -0.85 + hh(k, 1, 92) * 1.7, z = 1.02 + hh(k, 2, 92) * 4.5; let [xa, ya] = PZ(u, z);
+    for (let s = 0; s < 5; s++) { u = Math.max(-0.9, Math.min(0.9, u + (hh(k, s, 93) - 0.5) * 0.22)); z *= 1.05 + hh(k, s, 94) * 0.08; const [xb, yb] = PZ(u, z);
+      linea(xa, ya + 1, xb, yb + 1, hex('#5e5e72')); linea(xa, ya, xb, yb, hex('#26262e')); if (s === 2 && z < 2.5) { const [xc, yc] = PZ(u + 0.12, z * 1.04); linea(xb, yb, xc, yc, hex('#2c2c36')); } xa = xb; ya = yb; } }
+  // la raya central amarilla discontinua (encima de las grietas)
   for (let y = VY + 2; y < 180; y++) { const d = (y - VY) / 80, z = Math.floor(3 / (d + 0.06)); if (z % 2) { const cx = Math.round(centro(y)), ww = Math.max(0, Math.round(d * 1.5)); for (let i = -ww; i <= ww; i++) pset(cx + i, y, hex('#e8c040')); } }
+  // las matas de la cuneta (hierba alta con achicorias azules y flores blancas)
+  for (let k = 0; k < 70; k++) { const z = 1 + hh(k, 3, 95) * 5, sd = hh(k, 4, 95) < 0.5 ? -1 : 1, y = Math.round(VY + 80 / z), dd = 1 / z, x = Math.round(centro(y) + sd * (ancho(y) + 1 + 7 * dd + hh(k, 5, 95) * 12 * dd)), h = Math.max(2, Math.round(9 * dd));
+    linea(x, y, x - 1, y - h, hex('#3e5e2e')); linea(x, y, x + 2, y - h + 1, hex('#5e7e3e')); linea(x + 1, y, x + 1, y - h - 1, hex('#4e6e36'));
+    if (hh(k, 6, 95) < 0.4) pset(x + 1, y - h - 2, hh(k, 7, 95) < 0.5 ? hex('#8a9ae8') : hex('#f2eee2')); }
   // las matas de maíz grandes del primer término (hojas en dos tonos y sus espigas)
-  for (let k = 0; k < 90; k++) { const x = Math.round(hh(k, 1, 83) * 320), y = 136 + Math.round(hh(k, 2, 83) * 44), cx = centro(y), w = ancho(y); if (Math.abs(x - cx) < w + 8) continue;
+  for (let k = 0; k < 90; k++) { const x = Math.round(hh(k, 1, 83) * 320), y = 136 + Math.round(hh(k, 2, 83) * 44), cx = centro(y), w = ancho(y); if (Math.abs(x - cx) < w + 10 + 13 * (y - VY) / 80) continue; if (x > cx) continue;
     linea(x, y, x, y - 14, hex('#2e4a24')); linea(x, y - 6, x - 5, y - 11, hex('#5a7a3a')); linea(x, y - 9, x + 5, y - 14, hex('#4a6a34')); linea(x, y - 4, x + 4, y - 8, hex('#6a8a44')); pset(x, y - 15, hex('#c8a040')); pset(x, y - 16, hex('#e8c060')); }
-  // el buzón de la granja con la bandera levantada y un mojón
+  // la cerca de postes de madera del campo de la derecha, con dos hilos de alambre combados
+  const pc = []; for (const z of [1.08, 1.35, 1.7, 2.2, 2.9, 3.9, 5.4, 8]) { const y = VY + 80 / z, dd = 1 / z, x = Math.round(centro(y) + ancho(y) + 1 + 20 * dd), h = Math.round(24 * dd), g = Math.max(0, Math.round(1.3 * dd));
+    rect(x - g - 1, Math.round(y) - h, x + g + 1, Math.round(y), K); if (g > 0) { rect(x - g, Math.round(y) - h + 1, x + g, Math.round(y) - 1, hex('#7a5a3e')); rect(x - g, Math.round(y) - h + 1, x - g, Math.round(y) - 1, hex('#9a7a54')); pset(x, Math.round(y) - Math.round(h * 0.5), hex('#5a4030')); }
+    pc.push([x, Math.round(y) - h + Math.max(1, Math.round(3 * dd)), Math.round(y) - Math.round(h * 0.45)]); }
+  for (let i = 0; i + 1 < pc.length; i++) for (const j of [1, 2]) { const [xa, , ] = pc[i], [xb] = pc[i + 1], ya = pc[i][j], yb = pc[i + 1][j]; for (let k = 0; k <= 24; k++) { const u = k / 24; pset(Math.round(lerp(xa, xb, u)), Math.round(lerp(ya, yb, u) + Math.sin(u * Math.PI) * 1.5), hex('#3a3440')); } }
+  // los postes de las balizas (los catadióptricos brillan aparte)
+  for (const [x, y, dd] of BAL) { const h = Math.max(3, Math.round(15 * dd)), wd = Math.max(0, Math.round(1.4 * dd)); rect(x - wd - 1, y - h, x + wd + 1, y, K); if (wd > 0) { rect(x - wd, y - h + 1, x + wd, y - 1, hex('#e8e8e0')); rect(x + wd, y - h + 1, x + wd, y - 1, hex('#a8a8b0')); } }
+  // el buzón de la granja con la bandera levantada
   rect(66, 150, 68, 176, K); rect(67, 150, 67, 175, hex('#6a4a2a')); rect(58, 140, 76, 150, K); rect(59, 141, 75, 149, hex('#9aa4b4')); rect(59, 141, 75, 142, hex('#c8d0dc')); rect(76, 136, 77, 146, K); rect(78, 136, 82, 139, hex('#c83a3a'));
-  rect(88, 162, 92, 174, K); rect(89, 163, 91, 173, hex('#f2eee2')); rect(89, 164, 91, 165, hex('#c83a3a'));
 };
-// una nube de amanecer en tres tonos (sombra violeta, cuerpo rosado, luz anaranjada)
-const nubeAlba = (cx, cy, w) => { const { disco, rect } = R, bolas = [[0, 0, w * 0.3], [-w * 0.3, w * 0.06, w * 0.22], [w * 0.3, w * 0.05, w * 0.24], [-w * 0.1, -w * 0.12, w * 0.24]];
-  for (const [dx, dy, r] of bolas) disco(Math.round(cx + dx), Math.round(cy + dy + 1), Math.round(r), hex('#5a4a7a'));
-  for (const [dx, dy, r] of bolas) disco(Math.round(cx + dx), Math.round(cy + dy), Math.round(r), hex('#b07a92'));
-  for (const [dx, dy, r] of bolas) disco(Math.round(cx + dx), Math.round(cy + dy + r * 0.5), Math.round(r * 0.6), hex('#f0a07a'));
-  rect(Math.round(cx - w * 0.5), Math.round(cy + w * 0.16), Math.round(cx + w * 0.5), Math.round(cy + w * 0.26), hex('#5a4a7a')); };
+// un charco que refleja el cielo del amanecer (A: los tonos del cielo, de arriba abajo), con su borde de barro y el brillo
+// que tiembla; (u, z) en la carretera, rw: el ancho
+const charco = (u, z, rw, A, t, k) => { const { pset } = R, [x0, y0] = PZ(u, z), dd = 1 / z, rx = rw * dd, ry = Math.max(1.5, rx * 0.3);
+  for (let yy = -Math.ceil(ry); yy <= Math.ceil(ry); yy++) { const hw = rx * Math.sqrt(Math.max(0, 1 - (yy / ry) ** 2)); for (let xx = -Math.round(hw); xx <= Math.round(hw); xx++) {
+    const borde = Math.abs(xx) >= Math.round(hw) - 0.5 || Math.abs(yy) >= Math.ceil(ry), v = 5 - (yy + ry) / (2 * ry) * 3 + (hh(xx + x0, yy, 96 + k) - 0.5) * 0.8;
+    pset(x0 + xx, y0 + yy, borde ? hex('#2e2418') : A[Math.max(0, Math.min(5, Math.round(v)))]); } }
+  const gx = Math.round(x0 + Math.sin(t * 1.7 + k) * rx * 0.4); for (let i = -1; i <= 1; i++) pset(gx + i, y0, i ? A[5] : hex('#fff4d0'));
+  if ((t * 0.7 + k * 0.37) % 1 < 0.3) { const r = Math.round(((t * 0.7 + k * 0.37) % 1) / 0.3 * rx * 0.7); pset(x0 - r, y0 + 1, A[3]); pset(x0 + r, y0 + 1, A[3]); } };
+// una nube de amanecer en tres tonos (sombra, cuerpo y la luz baja del sol por debajo), que se tiñen al clarear (L 0–1)
+const nubeAlba = (cx, cy, w, L) => { const { disco, rect } = R, bolas = [[0, 0, w * 0.3], [-w * 0.3, w * 0.06, w * 0.22], [w * 0.3, w * 0.05, w * 0.24], [-w * 0.1, -w * 0.12, w * 0.24]];
+  const cS = mezcla(hex('#4a3e6e'), hex('#9a8aae'), L), cC = mezcla(hex('#a8708e'), hex('#f2c8c0'), L), cL = mezcla(hex('#e8906a'), hex('#fff0c8'), L);
+  for (const [dx, dy, r] of bolas) disco(Math.round(cx + dx), Math.round(cy + dy + 1), Math.round(r), cS);
+  for (const [dx, dy, r] of bolas) disco(Math.round(cx + dx), Math.round(cy + dy), Math.round(r), cC);
+  for (const [dx, dy, r] of bolas) disco(Math.round(cx + dx), Math.round(cy + dy + r * 0.5), Math.round(r * 0.6), cL);
+  rect(Math.round(cx - w * 0.5), Math.round(cy + w * 0.16), Math.round(cx + w * 0.5), Math.round(cy + w * 0.26), cS); };
+// un jirón alargado de los lejanos, junto al horizonte (tres tonos: arriba la sombra, el cuerpo y el filo encendido abajo)
+const jiron = (cx, cy, len, L) => { const { rect } = R, cS = mezcla(hex('#5a4a7a'), hex('#a898b8'), L), cC = mezcla(hex('#b07a92'), hex('#f0d0c8'), L), cL = mezcla(hex('#f0a07a'), hex('#fff4d0'), L);
+  rect(Math.round(cx - len * 0.3), cy - 1, Math.round(cx + len * 0.25), cy - 1, cS); rect(Math.round(cx - len * 0.5), cy, Math.round(cx + len * 0.5), cy, cC); rect(Math.round(cx - len * 0.4), cy + 1, Math.round(cx + len * 0.35), cy + 1, cL); };
 // el camión de la fábrica visto por detrás (cx: el centro; by: el suelo; e: la escala): la caja con las dos puertas, los
 // dos escudos inventados, los pilotos y las ruedas; abre 0–1: la puerta derecha abierta
 const camion = (cx, by, e, t, abre, brilla, anda) => { const { rect, pset, disco } = R, w = Math.max(3, Math.round(24 * e)), h = Math.max(4, Math.round(40 * e)), x0 = Math.round(cx - w), x1 = Math.round(cx + w), y0 = Math.round(by - h), yb = Math.round(by - 6 * e);
@@ -391,32 +444,45 @@ const camion = (cx, by, e, t, abre, brilla, anda) => { const { rect, pset, disco
 };
 const p4 = (t) => { const { rect, pset, disco, linea } = R;
   fijo('campos', campos);
-  // el cielo del amanecer, que se aclara deprisa (pasan las horas): estrellas que se apagan, el sol que asoma
-  const L = tramo(t, P4, E.duracion + 0.3);
-  const A = [mezcla(hex('#1a2050'), hex('#4a6aa8'), L), mezcla(hex('#4a3e74'), hex('#a88aa8'), L), mezcla(hex('#9a5a6a'), hex('#e8a07a'), L), mezcla(hex('#c8704a'), hex('#f8d890'), L)];
-  for (let y = 0; y <= VY; y++) for (let x = 0; x < 320; x++) { const v = y / VY * 3 + (hh(x >> 1, y >> 1, 84) - 0.5) * 0.5; pset(x, y, A[Math.max(0, Math.min(3, Math.floor(v + 0.5)))]); }
+  // el cielo del amanecer, que se aclara deprisa (pasan las horas): seis tonos tramados y el resplandor alrededor del sol
+  const L = tramo(t, P4, E.duracion + 0.3), tp = t - P4;
+  const A = [['#141a44', '#3e64a8'], ['#2a2a5e', '#6a8ac0'], ['#4a3e74', '#a8a0c0'], ['#7a4e74', '#d8a8a8'], ['#b05e66', '#f0b888'], ['#d8784a', '#f8d890']].map(([a, b]) => mezcla(hex(a), hex(b), L));
+  const sy = Math.round(lerp(112, 90, L));
+  for (let y = 0; y <= VY; y++) for (let x = 0; x < 320; x++) { let v = y / VY * 5 + (hh(x >> 1, y >> 1, 84) - 0.5) * 0.7; if (y > 40) { const dd = Math.hypot((x - VX) * 0.6, y - sy); if (dd < 70) v += (1 - dd / 70) * (1 + L) * 1.2; } pset(x, y, A[Math.max(0, Math.min(5, Math.round(v)))]); }
   for (let k = 0; k < 30; k++) { const x = (k * 71 + 13) % 320, y = (k * 37) % 50; if (hh(k, 1, 85) > L * 1.3 && !(x > 274 && y < 46) && !(y < 16 && x < 172)) pset(x, y, Math.sin(t * 3 + k) > 0 ? hex('#f6f2ea') : hex('#a8a8c8')); }
-  R.recorte([0, 0, 319, VY]); const sy = Math.round(lerp(112, 90, L)); disco(VX, sy, 12, mezcla(hex('#f0a060'), hex('#fff0b0'), L)); disco(VX, sy, 9, hex('#fff4c8')); for (let k = 0; k < 12; k++) { const ang = k / 12 * Math.PI * 2 + t * 0.2; if (k % 2) linea(Math.round(VX + Math.cos(ang) * 15), Math.round(sy + Math.sin(ang) * 15), Math.round(VX + Math.cos(ang) * (20 + 6 * L)), Math.round(sy + Math.sin(ang) * (20 + 6 * L)), hex('#f8d890')); } R.recorte(null);
-  for (const [x0, y, w, vel] of [[40, 30, 36, 3], [200, 56, 30, 5], [120, 70, 44, 2], [280, 78, 26, 6]]) { const x = ((x0 + t * vel) % 380) - 30; if (!(x > 250 && y < 50)) nubeAlba(Math.round(x), y, w); }
-  for (let k = 0; k < 5; k++) R.gaviota(Math.round(((230 - k * 17 - t * 12) % 340 + 340) % 340 - 10), 50 + (k % 3) * 5 + Math.round(Math.sin(t * 1.3 + k) * 2), t, k);
-  // el pueblo a lo lejos (siluetas): el depósito, la torre de la iglesia y la fábrica de dientes de sierra con luz y humo
-  const sil = hex('#2a2440'), luz = hex('#f8d870');
-  for (let x = 0; x < 320; x++) { const y = VY - Math.round(2 + Math.abs(Math.sin(x * 0.07)) * 3 + (hh(x >> 3, 1, 86) < 0.3 ? 3 : 0)); rect(x, y, x, VY, hex('#2e3a2e')); }
+  R.recorte([0, 0, 319, VY]); disco(VX, sy, 12, mezcla(hex('#f0a060'), hex('#fff0b0'), L)); disco(VX, sy, 9, hex('#fff4c8')); for (let k = 0; k < 12; k++) { const ang = k / 12 * Math.PI * 2 + t * 0.2; if (k % 2) linea(Math.round(VX + Math.cos(ang) * 15), Math.round(sy + Math.sin(ang) * 15), Math.round(VX + Math.cos(ang) * (20 + 6 * L)), Math.round(sy + Math.sin(ang) * (20 + 6 * L)), hex('#f8d890')); } R.recorte(null);
+  // las nubes en tres capas a tres velocidades: los jirones lejanos junto al horizonte (despacio), las medianas y las
+  // grandes de arriba (deprisa); arrancan donde no llegan a la zona de Atom ni a la barra del año durante el plano
+  for (const [x0, y, len] of [[20, 80, 40], [120, 76, 30], [230, 82, 46], [-30, 86, 26], [170, 68, 22]]) jiron(Math.round(x0 + tp * 4), y, len, L);
+  for (const [x0, y, w] of [[60, 56, 28], [200, 60, 24], [-10, 50, 22], [262, 66, 26]]) nubeAlba(Math.round(x0 + tp * 9), y, w, L);
+  for (const [x0, y, w] of [[20, 37, 46], [150, 34, 40]]) nubeAlba(Math.round(x0 + tp * 15), y, w, L);
+  // la bandada de gansos en uve que cruza el cielo de izquierda a derecha, a contraluz, batiendo las alas
+  for (let k = 0; k < 9; k++) { const i = Math.ceil(k / 2), sd = k % 2 ? 1 : -1, bx = Math.round(-30 + tp * 95 - i * 7), by = Math.round(72 - tp * 2 + sd * i * 2.5), al = Math.sin(t * 10 + k * 0.9);
+    if (bx < -4 || bx > 323) continue; const c = hex('#2a2440'); pset(bx, by, c); pset(bx + 1, by, c); pset(bx + 2, by - 1, c); pset(bx - 1, by - (al > 0 ? 1 : -1), c); pset(bx - 2, by - (al > 0 ? 2 : -1), c); pset(bx + 1, by - (al > 0 ? 1 : -1), c); pset(bx + 2, by - (al > 0 ? 2 : -1), c); }
+  // el pueblo a lo lejos (siluetas): los árboles sueltos, el depósito, la torre de la iglesia y la fábrica de dientes de
+  // sierra; sus luces se apagan una a una mientras amanece, y el humo de la chimenea
+  const sil = hex('#2a2440'), luz = hex('#f8d870'), apag = hex('#3e3656');
+  for (let x = 0; x < 320; x++) { const y = VY - Math.round(2 + Math.abs(Math.sin(x * 0.07)) * 3 + (hh(x >> 3, 1, 86) < 0.3 ? 3 : 0)); rect(x, y, x, VY, mezcla(hex('#2a3428'), hex('#3a4a34'), L)); }
+  for (const [x, r] of [[12, 5], [24, 4], [176, 4], [214, 5], [226, 3], [312, 5]]) { rect(x, VY - 6, x, VY, sil); disco(x, VY - 6 - r, r, sil); disco(x - 1, VY - 7 - r, r - 1, mezcla(sil, hex('#4a5a44'), L * 0.6)); }
   rect(52, 72, 70, 82, sil); rect(54, 82, 55, VY, sil); rect(67, 82, 68, VY, sil); R.poligono([[50, 72], [61, 66], [72, 72]], sil);
-  rect(92, 70, 98, VY, sil); R.poligono([[90, 70], [95, 56], [100, 70]], sil); pset(95, 74, luz);
+  rect(92, 70, 98, VY, sil); R.poligono([[90, 70], [95, 56], [100, 70]], sil); pset(95, 74, L < 0.45 ? luz : apag);
   for (let x = 104; x < 160; x++) { const yy = 84 - ((x - 104) % 12 < 8 ? (x - 104) % 12 : 0) * 0.6; rect(x, Math.round(yy), x, VY, sil); }
-  for (let k = 0; k < 8; k++) { rect(108 + k * 6, 90, 109 + k * 6, 92, luz); }
+  for (let k = 0; k < 8; k++) { const on = L < 0.18 + ((k * 5) % 8) * 0.08; rect(108 + k * 6, 90, 109 + k * 6, 92, on ? luz : apag); }
   rect(150, 70, 153, 84, sil); for (let k = 0; k < 5; k++) { const v = (t * 0.5 + k / 5) % 1; disco(Math.round(152 + v * 10 + Math.sin(v * 6 + k) * 2), Math.round(68 - v * 18), Math.round(1 + v * 3), mezcla(hex('#6a5a7a'), hex('#c8a0a8'), L)); }
-  // la granja de la derecha: la casa con la ventana encendida, el silo y el molino que gira
-  rect(254, 86, 284, VY, K); rect(255, 87, 283, VY, hex('#8a3a3a')); R.poligono([[252, 86], [269, 76], [286, 86]], K); R.poligono([[255, 85], [269, 78], [283, 85]], hex('#5a4a5a')); rect(262, 90, 266, 94, luz); rect(274, 90, 278, 94, hex('#3a2a3a'));
+  // la granja de la derecha: la casa (se apaga la ventana y se enciende la de la cocina), el farol del patio que se
+  // apaga, el silo y el molino que gira
+  rect(254, 86, 284, VY, K); rect(255, 87, 283, VY, hex('#8a3a3a')); R.poligono([[252, 86], [269, 76], [286, 86]], K); R.poligono([[255, 85], [269, 78], [283, 85]], hex('#5a4a5a'));
+  rect(262, 90, 266, 94, L < 0.62 ? luz : apag); rect(274, 90, 278, 94, L > 0.4 ? hex('#f8c860') : hex('#3a2a3a'));
+  rect(250, 80, 250, VY, K); if (L < 0.55) { disco(250, 80, 2, luz); pset(250, 80, hex('#fffbe0')); if (Math.sin(t * 13) > -0.6) for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3]]) pset(250 + dx, 80 + dy, hex('#f8e8a0')); } else disco(250, 80, 1, hex('#4a4a5a'));
   rect(288, 66, 300, VY, K); rect(289, 67, 299, VY, hex('#b8b0b8')); rect(289, 67, 291, VY, hex('#d8d0d8')); disco(294, 66, 6, K); disco(294, 66, 5, hex('#8a8a9a')); for (let y = 72; y < VY; y += 5) rect(289, y, 299, y, hex('#9a929a'));
   linea(234, VY, 240, 76, K); linea(246, VY, 240, 76, K); linea(236, 92, 244, 92, K); linea(237, 84, 243, 84, K);
   for (let k = 0; k < 4; k++) { const ang = t * 3 + k * Math.PI / 2; linea(240, 76, Math.round(240 + Math.cos(ang) * 9), Math.round(76 + Math.sin(ang) * 9), hex('#4a4a5a')); }
   disco(240, 76, 1, K);
-  // los postes del teléfono a la izquierda de la carretera, con sus cables
-  const tops = []; for (const d of [0.08, 0.16, 0.3, 0.52, 0.86]) { const y = VY + d * 80, x = Math.round(centro(y) - ancho(y) - 6 - 26 * d), hgt = Math.round(78 * d), g = Math.max(1, Math.round(3 * d));
-    rect(x - g, Math.round(y - hgt), x + g, Math.round(y), K); if (g > 1) rect(x - g + 1, Math.round(y - hgt), x, Math.round(y), hex('#6a4a3a')); rect(x - Math.round(9 * d) - 1, Math.round(y - hgt + 3 * d), x + Math.round(9 * d) + 1, Math.round(y - hgt + 3 * d) + Math.max(0, g - 1), K); tops.push([x, Math.round(y - hgt + 3 * d)]); }
-  for (let i = 0; i + 1 < tops.length; i++) { const [xa, ya] = tops[i], [xb, yb] = tops[i + 1]; for (let k = 0; k <= 20; k++) { const u = k / 20; pset(Math.round(lerp(xa, xb, u)), Math.round(lerp(ya, yb, u) + Math.sin(u * Math.PI) * 3), K); } }
+  // los charcos de la cuneta y del camino de servicio, que reflejan el cielo; los catadióptricos de las balizas (ámbar a
+  // la izquierda, blancos a la derecha) que destellan uno tras otro al pillar la luz
+  for (const [u, z, rw, k] of [[-1.3, 2.5, 9, 0], [1.6, 2.5, 8, 1], [-2.6, 3.7, 14, 2], [-1.5, 1.05, 10, 3]]) charco(u, z, rw, A, t, k);
+  BAL.forEach(([x, y, dd, sd], i) => { const h = Math.max(3, Math.round(15 * dd)), r = Math.max(0, Math.round(1.2 * dd)), ry = y - h + Math.max(1, Math.round(3 * dd)), on = Math.sin(t * 4 - i * 0.7) > 0.82;
+    rect(x - r, ry, x + r, ry + r, on ? hex('#fff8d0') : sd < 0 ? hex('#e8a030') : hex('#d8dcf0')); if (on && dd > 0.3) { pset(x - r - 1, ry, hex('#fff0a0')); pset(x + r + 1, ry, hex('#fff0a0')); pset(x, ry - 1, hex('#fff0a0')); } });
   // el camión: el operario cierra la puerta (con la última caja dentro), brillan los dos escudos en «both team names»,
   // arranca, pita para despedirse y se aleja por la carretera hasta el horizonte mientras amanece
   const u = suave(tramo(t, ARRANCA, E.duracion + 1.6)), d = lerp(0.98, 0.16, u), by = VY + d * 80, cx = Math.round(centro(by) + ancho(by) * 0.45);

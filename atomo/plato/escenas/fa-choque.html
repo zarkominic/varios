@@ -11,10 +11,15 @@
 <script type="module">
 // FA-CHOQUE (frase 29), 2026. Cuatro planos:
 // 1. el estadio de noche: las dos líneas se agachan, el centro saca y chocan en «collision»; el quarterback lanza;
-// 2. a ras de césped: el liniero en tres apoyos; «300» sobre él en «300 pounds»; en «explodes» sale disparado con su
-//    flecha de impulso (césped y tierra por el aire); corta en «carries»;
-// 3. dos pantallas en el muro del vestíbulo: el liniero que corre con su flecha y, en la otra, un coche pequeño que avanza
-//    muy despacio con la misma flecha; «=» entre las dos en «creeping»; un aficionado lo señala; corta en «at about»;
+// 2. a ras de césped, bajo los focos de la pasarela (bastidores de lámparas con su soporte y su halo): tres parejas de
+//    linieros en tres apoyos (agachados, la mano con guante en el césped), que respiran, se balancean y echan vaho;
+//    «300» sobre el del medio en «300 pounds»; en «explodes» los granates arrancan (tierra y césped por el aire, la
+//    flecha de impulso encima del del medio), chocan con los rivales y los empujan hacia atrás, cada vez más despacio,
+//    sin salir del cuadro hasta el corte en «carries»;
+// 3. dos pantallas en el muro del vestíbulo: la izquierda, el liniero que corre (zancada, avance de x 20 a 92 y el
+//    campo que pasa) con su flecha; la derecha refleja el vestíbulo mientras está apagada, se enciende a los 0,45 s y
+//    el coche pequeño avanza muy despacio con la misma flecha (guiño de faros en «car»); «=» entre las dos en
+//    «creeping»; un aficionado lo señala; corta en «at about»;
 // 4. la calle de noche: el coche muy despacio (el cuentakilómetros marca «1» en «one mile»); un vecino con su perro le
 //    adelanta; en «momentum» el coche toca los cubos de basura, que caen uno tras otro, y de uno sale un gato ofendido.
 import * as T from '/atomo/plato/escenas/fa-comun.js';
@@ -77,7 +82,7 @@ const coche = (x, yS, t, s = 1, o = {}) => {
 
 const a = (f) => en('choque', f);
 const P2 = a(0.2105), P3 = a(0.4828), P4 = a(0.7236);
-const CH = a(0.0315) + 0.1, T300 = a(0.2975), EXPL = a(0.3933), PANT = a(0.5925), CAR = a(0.6366), CREEP = a(0.664), UNO = a(0.764), MOM = a(0.8925), VA = a(0.9518);
+const ENC = P3 + 0.45, CH = a(0.0315) + 0.1, T300 = a(0.2975), EXPL = a(0.3933), CAR = a(0.6366), CREEP = a(0.664), UNO = a(0.764), MOM = a(0.8925), VA = a(0.9518);
 const TEAL = { X: hex('#1e8a8a'), x: hex('#e8783a'), w: hex('#7ad8d8'), C: hex('#1e8a8a'), c: hex('#e8783a'), W: hex('#1e8a8a'), o: hex('#e8783a') };
 // las estrellitas del choque
 const chispa = (x, y, u) => { if (u <= 0 || u >= 1) return; const r = Math.round(2 + u * 5), c = u < 0.5 ? hex('#fff6c0') : hex('#f2c84a');
@@ -116,23 +121,72 @@ const p1 = (t) => {
 const terron = (x0, y0, t, t0, k) => { const q = t - t0; if (q < 0 || q > 1.4) return; const vx = (hh(k, 1, 7) - 0.75) * 70, vy = -40 - hh(k, 2, 7) * 50, x = x0 + vx * q, y = y0 + vy * q + 90 * q * q;
   if (y > y0 + 4) return; const c = hh(k, 3, 7) > 0.5 ? hex('#6a4a2a') : hex('#3c7e2e'); R.pset(Math.round(x), Math.round(y), c); R.pset(Math.round(x) + 1, Math.round(y), K); };
 const polvo = (x, y, t, t0, n = 5) => { const q = t - t0; if (q < 0 || q > 1.6) return; for (let k = 0; k < n; k++) { const r = 2 + q * 7 * (0.6 + hh(k, 4, 8) * 0.6), cx = x - k * 4 - q * 10, cy = y - 3 - q * 4 - hh(k, 5, 8) * 3; for (let yy = Math.floor(cy - r); yy <= cy + r; yy++) for (let xx = Math.floor(cx - r); xx <= cx + r; xx++) if (Math.hypot(xx - cx, yy - cy) <= r && um(xx, yy) < 0.75 - q * 0.45) R.pset(xx, yy, hex('#cfc2a0')); } };
+// el chibi en otra postura: se dibuja aparte (en BP) y se copia con las rodillas dobladas (las seis filas de las piernas,
+// comprimidas en 6 − baja), el tronco bajado y echado hacia delante (incl px por fila; negativo, hacia atrás) y, con
+// apoyo, el brazo de delante estirado hasta el césped con su guante (los tres apoyos del liniero)
+let BP = null;
+const pose = (pj, x, yS, t, o, q) => {
+  if (!BP) BP = R.nuevo();
+  const d = o.dir ?? 1, x0 = Math.max(0, x - 5), x1 = Math.min(319, x + 20), y0 = Math.max(0, yS - 36), y1 = Math.min(179, yS + 2);
+  for (let y = y0; y <= y1; y++) BP.fill(0, y * 320 + x0, y * 320 + x1 + 1);
+  const prev = R.usar(BP), pos = R.actor(pj, x, yS, t, o); R.usar(prev);
+  const baja = q.baja ?? 0, incl = q.incl ?? 0, resp = q.resp ?? 0, cad = yS - 5, cadD = cad + baja, n = 5 - baja;
+  const fila = (ys, yd, dx) => { if (ys < y0 || ys > y1 || yd < 0 || yd > 179) return; for (let xx = x0; xx <= x1; xx++) { const c = BP[ys * 320 + xx]; if (c) R.pset(xx + dx, yd, c); } };
+  for (let ys = y0; ys < cad; ys++) fila(ys, ys + baja + resp, d * Math.round((cad - ys) * incl));
+  for (let yd = cadD; yd <= yS + 1; yd++) { const u = n > 0 ? (yd - cadD) / n : 1, ys = yd > yS ? yd : Math.round(cad + u * 5); fila(ys, yd, -d * Math.round(baja * 0.6 * (1 - u))); }
+  const yC = yS - 13, hy = yC + 2 + baja + resp, hx = x + 7 + d * 4 + d * Math.round((cad - yC - 2) * incl);
+  if (q.apoyo) { const mx = hx + d * 6, my = yS - 1, cm = (o.pal && o.pal.C) || hex('#8a2a3a'), cl = (o.pal && o.pal.w) || hex('#d87a8a');
+    // el brazo: contorno, manga con su luz y el guante claro apoyado en el césped, con la sombra debajo
+    R.linea(hx - d, hy, mx - d, my, K); R.linea(hx + 2 * d, hy, mx + 2 * d, my, K); R.linea(hx, hy - 1, mx + d, my - 2, K);
+    R.linea(hx, hy, mx, my, cm); R.linea(hx + d, hy, mx + d, my, cm); R.linea(hx + d, hy + 1, mx + d, my - 2, cl);
+    R.rect(mx - 1, my - 1, mx + 2, my + 1, K); R.rect(Math.min(mx, mx + d), my, Math.max(mx, mx + d), my, hex('#f2eee2')); R.linea(mx - 2, yS + 1, mx + 3, yS + 1, hex('#24521e')); }
+  return { cabeza: [pos.cabeza[0] + d * Math.round((cad - pos.cabeza[1]) * incl), pos.cabeza[1] + baja + resp] };
+};
+// el vaho de la respiración en la noche fría: una bocanada blanca que sale de la careta y se deshace
+const vaho = (x, y, t, k, d) => { const q = (t * 0.8 + k * 0.37) % 1.3; if (q > 0.7) return; const r = 1 + q * 3, cx = x + d * (2 + q * 9), cy = y - q * 4;
+  for (let j = -2; j <= 2; j++) for (let i = -4; i <= 4; i++) if (Math.hypot(i, j) <= r && um(Math.round(cx + i), Math.round(cy + j)) < 0.55 - q * 0.7) R.pset(Math.round(cx + i), Math.round(cy + j), hex('#dfe6ee')); };
+// los focos de la pasarela: sobre cada mancha desenfocada del decorado, el bastidor de lámparas con su soporte colgado
+// del anillo del techo (y 19), y el halo que late alrededor
+const FOCOS = [[30, 30, 8], [64, 24, 6], [102, 30, 9], [196, 26, 7], [236, 31, 8]];
+const focos = (t) => FOCOS.forEach(([x, y, r], k) => {
+  const w = r + 1, hgt = Math.max(4, Math.round(r * 0.75)), xa = x - w, xb = x + w, ya = y - hgt, yb = y + hgt;
+  for (const sx of [x - Math.round(w * 0.6), x + Math.round(w * 0.6)]) { R.linea(sx, 19, sx, ya - 1, K); R.pset(sx + 1, 20, hex('#5a6070')); }
+  R.linea(xa - 1, ya - 2, xb + 1, ya - 2, hex('#3a4050')); R.linea(xa - 2, y, xa - 2, y + 2, K); R.linea(xb + 2, y, xb + 2, y + 2, K);   // el yugo y los pivotes
+  R.rect(xa - 1, ya - 1, xb + 1, yb + 1, K); R.rect(xa, ya, xb, yb, hex('#2c3040')); R.linea(xa, ya, xb, ya, hex('#4a5266'));
+  for (let j = ya + 1; j < yb; j += 3) for (let i = xa + 1; i < xb; i += 3) { const on = Math.sin(t * 2.3 + i * 0.7 + j + k) > -0.85;
+    R.rect(i, j, i + 1, j + 1, on ? hex('#fff0b8') : hex('#c8b47a')); if (on) R.pset(i, j, hex('#fffbea')); }
+  R.linea(xa, yb, xb, yb, hex('#1a1c26'));
+  for (let i = xa; i <= xb; i += 2) if (um(i, yb + 2) < 0.4) R.pset(i, yb + 2 + (i & 1), hex('#8a826a'));   // la luz que cae, tramada
+});
+// cada pareja de línea: [suelo, x del granate, x del rival, retraso de la salida]; el del medio es el de los 300
+const PAR = [[148, 118, 180, 0.1, 52], [160, 94, 198, 0, 70], [172, 66, 216, 0.16, 44]];
 const p2 = (t) => {
   T.estadioHoy(R, t, { encuadre: 'cesped' });
-  const u = tramo(t, EXPL, EXPL + 1.05), x = Math.round(lerp(94, 350, u * u * 0.55 + u * 0.45));
-  const u2 = tramo(t, EXPL + 0.14, EXPL + 1.25), x2 = Math.round(lerp(62, 330, u2 * u2 * 0.55 + u2 * 0.45));
-  // los rivales, al otro lado de la línea, que retroceden un paso al verlos venir
-  [[150, 206], [158, 226], [166, 246]].forEach(([y, x0], k) => { const r = tramo(t, EXPL + 0.25 + k * 0.05, EXPL + 0.7); R.actor(EL.liniero, Math.round(lerp(x0, x0 + 10, r)), y, t, { dir: -1, pal: TEAL, sorpresa: t > EXPL + 0.2, enfado: t < EXPL }); });
-  T.balon(R, 158, 156, t, { epoca: 'hoy', ang: 0 });
-  polvo(100, 162, t, EXPL); for (let k = 0; k < 14; k++) terron(102, 160, t, EXPL + hh(k, 9, 1) * 0.3, k);
-  // los compañeros de línea, uno más lejos y otro más cerca, arrancan a la vez
-  const u3 = tramo(t, EXPL + 0.08, EXPL + 1.2), x3 = Math.round(lerp(122, 340, u3 * u3 * 0.55 + u3 * 0.45));
-  R.actor(EL.liniero, x3, 152, t, { dir: 1, anda: u3 > 0 && u3 < 1, enfado: t > T300, salto: u3 > 0 && u3 < 1 ? Math.floor(t * 10 + 1) % 2 : 0 });
-  R.actor(EL.liniero, x, 160, t, { dir: 1, anda: u > 0 && u < 1, enfado: t > T300 - 0.3, salto: u > 0 && u < 1 ? 1 + Math.floor(t * 10) % 2 : Math.sin(t * 7) > 0.6 && t > T300 ? 1 : 0 });
-  R.actor(EL.liniero, x2, 168, t, { dir: 1, anda: u2 > 0 && u2 < 1, enfado: true, salto: u2 > 0 && u2 < 1 ? Math.floor(t * 10) % 2 : 0 });
-  if (u > 0.05) flecha(x + 16, 147, Math.min(40, (t - EXPL) * 70));
+  focos(t);
+  let xm = 94;
+  PAR.forEach(([y, gx, rx, dl, lejos], k) => {
+    // el granate: en tres apoyos, respira y se balancea; en «explodes» arranca (acelera hasta el rival) y lo empuja,
+    // cada vez más despacio (el impulso pasa al otro); el rival, también en tres apoyos, se levanta y retrocede
+    const t0 = EXPL + dl, cx = rx - 13, tr = 0.32 + (cx - gx) / 420, u = tramo(t, t0, t0 + tr), tc = t0 + tr, p = tramo(t, tc, tc + 1.3), em = lejos * (1 - (1 - p) ** 2);
+    const g = t < t0 ? gx : u < 1 ? gx + (cx - gx) * (u * u * 0.7 + u * 0.3) : cx + em, gr = Math.round(g), rr2 = Math.round(rx + (t < tc ? 0 : em));
+    const resp = Math.sin(t * 2.4 + k * 1.7) > 0.4 ? 1 : 0, bal = Math.sin(t * 1.3 + k * 2.1) * 0.04;
+    if (t < tc) { const hr = pose(EL.liniero, rr2, y - 2, t, { dir: -1, pal: TEAL, quieto: true, enfado: t < EXPL, sorpresa: t > EXPL + 0.15 }, { baja: 4, incl: 0.32 - bal, resp: 1 - resp, apoyo: true });
+      if (t < EXPL) vaho(hr.cabeza[0] - 6, hr.cabeza[1] + 9, t, k + 3, -1); }
+    else { pose(EL.liniero, rr2, y - 2, t, { dir: -1, pal: TEAL, anda: p < 0.9, sorpresa: true }, { baja: 1, incl: -0.14 });
+      for (let j = 0; j < 5; j++) terron(rr2 + 8, y - 2, t, tc + j * 0.22, k * 9 + 40 + j); }
+    if (t < t0) { const hg = pose(EL.liniero, gr, y, t, { dir: 1, quieto: true, enfado: k === 1 ? t > T300 - 0.3 : true }, { baja: 4, incl: 0.34 + bal, resp, apoyo: true });
+      vaho(hg.cabeza[0] + 6, hg.cabeza[1] + 9, t, k, 1); }
+    else pose(EL.liniero, gr, y, t, { dir: 1, anda: p < 0.95, enfado: true }, { baja: u < 1 ? 2 : 1, incl: u < 1 ? 0.3 : 0.24 });
+    if (u > 0) { polvo(gx + 6, y + 2, t, t0, k === 1 ? 5 : 3); for (let j = 0; j < (k === 1 ? 14 : 8); j++) terron(gx + 8, y, t, t0 + hh(j, 9, k + 1) * 0.3, j + k * 20); }
+    chispa(cx + 14, y - 16, tramo(t, tc, tc + 0.5));
+    if (k === 1) xm = gr;
+    if (k === 0) T.balon(R, 158, 156, t, { epoca: 'hoy', ang: 0 });   // el balón, entre la primera pareja y la del medio
+  });
+  // la flecha del impulso, encima de él, que crece al arrancar y le acompaña
+  if (t > EXPL) flecha(xm - 4, 112, Math.min(40, (t - EXPL) * 70));
   // «300» encima de él, con su pesa (aparece al decirlo y se queda hasta que arranca)
   const e = tramo(t, T300 - 0.1, T300 + 0.2), sale = tramo(t, EXPL, EXPL + 0.3);
-  if (e > 0 && sale < 1) { const yy = Math.round(128 - 6 * e + 10 * sale); R.numero('300', 108, yy, { centro: true, tam: 16 }); const px = 76, py = yy - 12;
+  if (e > 0 && sale < 1) { const yy = Math.round(124 - 6 * e + 10 * sale); R.numero('300', 108, yy, { centro: true, tam: 16 }); const px = 76, py = yy - 12;
     R.disco(px, py + 4, 4, K); R.disco(px, py + 4, 3, hex('#4a4a56')); R.pset(px - 1, py + 3, hex('#8a8a96')); R.linea(px - 2, py - 1, px + 2, py - 1, K); R.pset(px - 2, py, K); R.pset(px + 2, py, K); }
   T.h_estadioDelante(R, t, { encuadre: 'cesped' });
 };
@@ -167,8 +221,10 @@ const pantallaCampo = (t) => { // el liniero que corre (el campo pasa por detrá
   for (let y = 79; y < 132; y++) for (let x = 17; x < 148; x++) { const xx = x + s, f = Math.floor(xx / 22) % 2, l = Math.floor(xx) % 44 === 0 || (Math.floor(xx) % 11 === 0 && (y === 98 || y === 112));
     R.pset(x, y, l ? hex('#eef2ea') : f ? (um(x, y) < 0.2 ? hex('#4e9a3c') : hex('#5aa844')) : (um(x, y) < 0.2 ? hex('#5aa844') : hex('#4e9a3c'))); }
   for (let k = 0; k < 6; k++) { const y = 84 + k * 7 + (k % 2) * 3, x = 147 - ((t * 160 + k * 37) % 170); R.linea(Math.round(x), y, Math.round(x + 10), y, hex('#d8f0d0')); }
-  const pos = R.actor(EL.liniero, 52, 126, t, { dir: 1, anda: true, enfado: true, salto: Math.floor(t * 10) % 2 });
-  polvo(56, 126, t % 0.8 + 10, 10, 3); flecha(70, 102, 46);
+  // él corre de verdad: zancada, avance por la pantalla (de x 20 a 92) y el campo que pasa por debajo
+  const lx = Math.round(lerp(20, 92, tramo(t, P3, P4))), pos = R.actor(EL.liniero, lx, 126, t, { dir: 1, anda: true, enfado: true, salto: Math.floor(t * 10) % 2 });
+  polvo(lx + 4, 126, t % 0.8 + 10, 10, 3); for (let j = 0; j < 4; j++) terron(lx + 4, 126, t % 0.6 + 20, 20 + j * 0.12, j + 60);
+  flecha(lx + 18, 102, Math.min(46, 142 - (lx + 18)));
   R.recorte(null); return pos; };
 const pantallaCalle = (t) => { // el coche pequeño muy despacio (la calle pasa despacito por detrás)
   R.recorte([173, 51, 303, 131]); const s = t * 5;
@@ -181,8 +237,11 @@ const pantallaCalle = (t) => { // el coche pequeño muy despacio (la calle pasa 
   rr(173, 104, 303, 109, hex('#8a8690')); for (let x = 173; x < 304; x++) if (Math.floor(x + s) % 14 === 0) R.pset(x, 106, hex('#6a6670'));
   rr(173, 110, 303, 111, hex('#b8b4bc')); rr(173, 112, 303, 131, hex('#3a3a44')); for (let y = 112; y < 132; y++) for (let x = 173; x < 304; x++) if (hh(x, y, 13) < 0.08) R.pset(x, y, hex('#4a4a56'));
   for (let x = 173; x < 304; x++) if (Math.floor(x + s) % 24 < 12) { R.pset(x, 123, hex('#d8b84a')); R.pset(x, 124, hex('#b8983a')); }
-  coche(214, 127, t, 1, { giro: t * 1.2 });
-  const f = tramo(t, CAR - 0.1, CAR + 0.7); flecha(218, 92, 46 * f);
+  // el coche avanza muy despacio desde que se enciende (de x 180 a 228), con su flecha, que crece hasta igualar la otra;
+  // en «car» hace un guiño con los faros
+  const cx = Math.round(lerp(180, 228, tramo(t, ENC, P4)));
+  coche(cx, 127, t, 1, { giro: t * 1.2, faros: t > CAR - 0.1 && t < CAR + 0.5 && Math.floor(t * 8) % 2 === 0 });
+  const f = tramo(t, ENC + 0.3, ENC + 1.2); flecha(cx + 4, 92, 46 * f);
   R.recorte(null); };
 const p3 = (t) => {
   fijo('muro', MURO);
@@ -190,8 +249,17 @@ const p3 = (t) => {
   R.rect(14, 140, 306, 147, K); R.rect(15, 141, 305, 146, hex('#141824')); for (let x = 16; x < 305; x++) if ((x + Math.floor(t * 30)) % 12 < 4 && x % 2 === 0) { R.pset(x, 142 + Math.abs(((x + Math.floor(t * 30)) % 12) - 2), hex('#e8783a')); }
   panel(17, 51, 147, 131); panel(173, 51, 303, 131);
   pantallaCampo(t);
-  const enc = tramo(t, PANT, PANT + 0.25);
-  if (enc < 1 || (t < PANT + 0.4 && Math.floor(t * 20) % 3 === 0)) { R.rect(173, 51, 303, 131, hex('#0c0e16')); for (let y = 51; y < 132; y++) for (let x = 173; x < 304; x++) if (x - y > 160 && x - y < 176 && um(x, y) < 0.15) R.pset(x, y, hex('#2a2e3e')); if (Math.floor(t * 2) % 2) R.pset(297, 125, hex('#e83a2a')); }
+  // la pantalla derecha se enciende enseguida (con un parpadeo); mientras está apagada, el cristal negro refleja el
+  // vestíbulo: los focos, la viga, el suelo con su raya amarilla, el aficionado que llega y un brillo que barre
+  const enc = tramo(t, ENC, ENC + 0.25);
+  if (enc < 1 || (t < ENC + 0.4 && Math.floor(t * 20) % 3 === 0)) {
+    R.recorte([173, 51, 303, 131]); degr(173, 51, 303, 131, [hex('#10121c'), hex('#0c0e16'), hex('#141622')]);
+    rr(173, 58, 303, 60, hex('#1e2230')); for (let x = 175; x < 304; x += 16) R.pset(x, 59, hex('#2e3446'));
+    for (const fx of [200, 252]) { rr(fx - 3, 62, fx + 3, 65, hex('#22252e')); for (let y = 66; y < 126; y++) for (let x = fx - 8; x <= fx + 8; x++) if (um(x, y) < 0.16 - Math.abs(x - fx) * 0.018 - (y - 66) * 0.0015) R.pset(x, y, hex('#3a3e52')); R.linea(fx - 2, 65, fx + 2, 65, hex('#8a8670')); }
+    for (let x = 173; x < 304; x++) if ((x >> 3) % 2 === 0 && um(x, 124) < 0.5) R.pset(x, 124, hex('#4a4430'));
+    const rx = Math.round(lerp(330, 236, tramo(t, P3, P3 + 1.8))) + 2; rr(rx + 3, 108, rx + 10, 122, hex('#1a1e2a')); R.disco(rx + 7, 104, 4, hex('#1a1e2a'));
+    const b = ((t - P3) * 120) % 260 - 60; for (let y = 51; y < 132; y++) for (let x = 173; x < 304; x++) { const dd = x - y - 120 - b; if (dd > 0 && dd < 10 && um(x, y) < 0.22) R.pset(x, y, hex('#3a4054')); }
+    R.recorte(null); if (Math.floor(t * 2) % 2) R.pset(297, 125, hex('#e83a2a')); }
   else pantallaCalle(t);
   // el «=» entre las dos flechas
   const ig = tramo(t, CREEP - 0.1, CREEP + 0.2); if (ig > 0) { const c = Math.sin(t * 8) > 0 ? hex('#f2c84a') : hex('#fff2b0'), w = Math.round(5 * ig);
@@ -287,7 +355,7 @@ const p4 = (t) => {
   if (c1 > 0 && t < toque + 0.6) for (const [x0, k] of [[256, 0], [272, 1], [290, 2]]) flecha(x0, 122 - k * 2, 10 * (1 - tramo(t, toque + k * 0.25, toque + k * 0.25 + 0.5)));
   const g = tramo(t, VA - 0.05, VA + 0.55); if (g > 0) { const gx = Math.round(lerp(300, 300, g)), gy = Math.round(lerp(140, 133, g) - Math.sin(g * Math.PI) * 16); T.gato(R, gx, gy, t); if (g > 0.95 && Math.floor(t * 3) % 2) R.icono('!', gx + 10, gy - 26, hex('#f2c84a')); }
 };
-T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { año: 2026, efectos: [[CH, 'palmada'], [CH + 1.5, 'whoosh'], [T300, 'pop'], [EXPL, 'whoosh'], [PANT, 'interruptor'], [CREEP, 'brillo'], [UNO, 'tic'], [MOM + 0.15, 'golpecito'], [MOM + 0.7, 'toc'], [VA + 0.1, 'miau']] });
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { año: 2026, efectos: [[CH, 'palmada'], [CH + 1.5, 'whoosh'], [T300, 'pop'], [EXPL, 'whoosh'], [EXPL + 0.55, 'golpecito'], [ENC, 'interruptor'], [CREEP, 'brillo'], [UNO, 'tic'], [MOM + 0.15, 'golpecito'], [MOM + 0.7, 'toc'], [VA + 0.1, 'miau']] });
 </script>
 </body>
 </html>

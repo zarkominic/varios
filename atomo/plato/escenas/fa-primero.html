@@ -15,13 +15,17 @@
 //    banderines; sobre el papel, el balón de 1906, un reloj de bolsillo que hace tic, un lápiz y una mosca que pasea;
 // 2. (corta en «His») el campo de 1906: las dos líneas frente a frente, el árbitro pita y el centro pasa el balón a
 //    Robinson, que retrocede y arma el brazo («threw»); Schneider sale corriendo; Cochems lo señala desde la banda; a
-//    «forward passes» aparece la flecha de tiza hacia delante, el defensa se queda con un «?» y el público se anima;
+//    «forward passes» se dibuja sobre el césped, por delante de los pies de las líneas, una flecha punteada fina de tiza
+//    (sin borde, con su polvo) hacia Schneider; el defensa se queda con un «?» y el público se anima;
 // 3. (corta en «The one that») la grada de frente, con el público de bombín: un vendedor de cacahuetes pasa, el fotógrafo
 //    dispara el magnesio a «the first»; a «fell to the ground» el balón gordo cae y bota torcido delante de la grada
 //    («X»), el perro ladra, un rival lo recoge a «cost them the ball» y se va corriendo; Robinson llega tarde, triste;
 // 4. (corta en «But later on») travelling lateral: Robinson lanza otra vez, la cámara sigue el balón en espiral por encima
 //    de las líneas de cal (5, 10, 15, 20) y Schneider lo atrapa con las dos manos a «hands»; el público salta y agita los
-//    sombreros; el defensa se tira tarde.
+//    sombreros; el defensa se tira tarde. El juez de blanco sigue la jugada junto a la banda del fondo, con los banderines
+//    de las yardas y el carro de la cal; delante, el cubo con su cazo y la esponja, chaquetas tiradas, el casco de cuero, el
+//    maletín del médico, la cadena de medir entre sus dos palos, calvas de barro con charcos, marcas de tacos, la sombra de
+//    las nubes que pasa y un gorrión que picotea y sale volando cuando pasa el balón.
 import * as T from '/atomo/plato/escenas/fa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('fa-primero');
@@ -129,6 +133,17 @@ const pelo = (c) => ({ H: hex(c), h: hex(c) });
 const ARB = { C: hex('#f2eee2'), c: hex('#c8c0b0'), F: hex('#2a2430') };
 const p2 = (t) => {
   T.campo1906(R, t, { animo: 0.2 + 0.7 * lin(t, fwd, fwd + 0.8) });
+  // la flecha de tiza hacia delante (el pase adelante, nuevo en 1906): un trazo punteado fino de cal sobre el césped, por
+  // delante de los pies de las dos líneas, de Robinson hacia Schneider; se dibuja a «forward passes» y suelta polvo de tiza
+  const fl = lin(t, fwd, fwd + 0.6);
+  if (fl > 0) { const N = 80, n = Math.round(N * fl), F = [116, 160, 226, 140, -14]; let last = null, prevP = null;
+    for (let i = 0; i <= n; i++) { const [px, py] = parab(i / N, F[0], F[1], F[2], F[3], F[4]), X = Math.round(px), Y = Math.round(py);
+      if (Y > 114 && i % 4 < 3) { tine(X, Y, BL, 0.9); tine(X + 1, Y, BL, 0.7); tine(X, Y - 1, BL, 0.45); tine(X, Y + 1, hex('#2e5a24'), 0.25); }
+      prevP = last; last = [px, py]; }
+    // el polvo de tiza que se levanta en la punta mientras se dibuja, y la punta de flecha al acabar
+    if (fl < 1) for (let k = 0; k < 4; k++) { const v = (t * 3 + k / 4) % 1; tine(last[0] + k - 2, last[1] - v * 5, BL, 0.5 * (1 - v)); }
+    else if (prevP) { const an = Math.atan2(last[1] - prevP[1], last[0] - prevP[0]);
+      for (const s of [-0.6, 0.6]) for (let r = 1; r <= 6; r++) { const X = Math.round(last[0] - Math.cos(an + s) * r), Y = Math.round(last[1] - Math.sin(an + s) * r); tine(X, Y, BL, 0.85); } } }
   const lista = [], emp = lin(t, snap, snap + 0.3), jit = t > snap ? Math.round(Math.sin(t * 11)) : 0;
   // las dos líneas frente a frente sobre la línea de cal del centro (x 160): Saint Louis de azul, Carroll a rayas
   [[136, '#5a3418'], [148, '#2c2232'], [160, '#a8743c']].forEach(([s, H], k) => {
@@ -150,11 +165,6 @@ const p2 = (t) => {
   else if (t < snap + 0.35) { const u = lin(t, snap, snap + 0.35), [bx, by] = parab(u, cx, s0 - 4, rb.x + 12, rb.s - 12, 6); T.balon(R, bx, by, t, { epoca: '1906', s: 1, ang: -0.4, giro: u }); }
   else if (t < arma) T.balon(R, rb.x + 12, rb.s - 12, t, { epoca: '1906', s: 1, ang: -0.2 });
   else { const finta = t > a(10.6) && t < a(10.9) ? 3 : 0; T.balon(R, rb.x + 15 + finta, rb.s - 30, t, { epoca: '1906', s: 1, ang: -0.5 }); }
-  // la flecha de tiza hacia delante: el pase adelante, nuevo en 1906
-  const fl = lin(t, fwd, fwd + 0.55);
-  if (fl > 0) { const x0 = rb.x + 20, y0 = rb.s - 30, x1 = x0 + 130, y1 = y0 - 2, n = Math.round(60 * fl); let last = [x0, y0];
-    for (let i = 0; i <= n; i++) { const u = i / 60, [px, py] = parab(u, x0, y0, x1, y1, 22); if (i % 5 < 3) { const X = Math.round(px), Y = Math.round(py); R.rect(X - 1, Y - 2, X + 1, Y + 2, K); R.rect(X - 1, Y - 1, X + 1, Y, BL); } last = [px, py]; }
-    if (fl >= 1) { const [hx, hy] = last; const X = Math.round(hx), Y = Math.round(hy); R.poligono([[X + 7, Y + 1], [X - 4, Y - 7], [X - 4, Y + 9]], K); R.poligono([[X + 5, Y + 1], [X - 3, Y - 5], [X - 3, Y + 7]], BL); } }
   if (t > fwd + 0.2) R.bocadillo(df.x + 7, df.s - 28, { icono: '?' });
 };
 
@@ -311,7 +321,30 @@ const prepara4 = () => {
     for (let k = 0; k < 260; k++) { const wx = Math.round(hh(k, 1, 26) * (WN - 4)), y = 108 + Math.round(hh(k, 2, 26) * 70), hb = 2 + Math.round((y - 100) / 26) + Math.round(hh(k, 3, 26) * 2); if (wx < ox - 4 || wx > ox + 324) continue;
       for (let b = -1; b <= 1; b++) R.linea(X(wx + b * 2), y, X(wx + b * 3), y - hb - (b === 0 ? 1 : 0), b === 0 ? hex('#78b45a') : hex('#3a7030')); }
     for (let k = 0; k < 50; k++) { const wx = Math.round(hh(k, 4, 27) * (WN - 4)), y = 112 + Math.round(hh(k, 5, 27) * 64); if (wx < ox - 4 || wx > ox + 324) continue; R.rect(X(wx), y, X(wx) + 2, y, hex('#6a5034')); R.pset(X(wx) + 1, y - 1, hex('#8a6a44')); }
-    R.rect(X(14), 150, X(26), 164, K); R.rect(X(15), 151, X(25), 163, hex('#8a5a32')); R.rect(X(15), 154, X(25), 154, hex('#5a5a62')); R.rect(X(15), 151, X(25), 151, hex('#6aa0c8'));
+    // más calvas de barro pisado en primer término, con charquitos, y las marcas de tacos (pares de hoyitos) por todo el césped
+    for (const [cx, cy, rx, ry] of [[40, 158, 12, 3], [196, 176, 18, 3], [372, 174, 15, 3], [104, 128, 9, 2], [300, 132, 10, 2], [436, 160, 12, 3]]) for (let y = -ry; y <= ry; y++) for (let x = -rx; x <= rx; x++) {
+      const d = (x * x) / (rx * rx) + (y * y) / (ry * ry); if (d < 1 - hh(x, y, 28) * 0.4) P(X(cx + x), cy + y, d < 0.18 && x < 0 ? hex('#7a8a8a') : umbral(cx + x, cy + y) < 0.5 ? hex('#6a5034') : hex('#86683e')); }
+    for (let k = 0; k < 170; k++) { const wx = Math.round(hh(k, 6, 29) * (WN - 4)), y = 110 + Math.round(hh(k, 7, 29) * 68); for (const [dx, dy] of [[0, 0], [2, 0], [1, 2]]) P(X(wx + dx), y + dy, y > 150 ? hex('#3a5a26') : hex('#40662c')); }
+    // las chaquetas de lana y un jersey a rayas tirados en la hierba, con sus mangas abiertas, el forro y su sombra
+    const chaqueta = (wx, y, c, cs, raya) => { const x = X(wx); sombra(x + 9, y + 3, 11, 2, 0.3);
+      R.poligono([[x, y + 2], [x + 3, y - 3], [x + 7, y - 5], [x + 12, y - 5], [x + 16, y - 3], [x + 19, y + 2], [x + 14, y + 3], [x + 5, y + 3]], K);
+      R.poligono([[x + 1, y + 1], [x + 4, y - 2], [x + 8, y - 4], [x + 11, y - 4], [x + 15, y - 2], [x + 18, y + 1], [x + 14, y + 2], [x + 5, y + 2]], c);
+      for (let i = 4; i < 16; i++) { P(x + i, y + 1, cs); if (raya && i % 3 === 0) R.linea(x + i, y - 3, x + i, y + 1, raya); }
+      P(x + 9, y - 4, hex('#c8b89a')); P(x + 10, y - 4, hex('#c8b89a')); P(x + 9, y - 2, hex('#d8c070')); P(x + 9, y, hex('#d8c070')); P(x + 7, y - 4, mezcla(c, BL, 0.35)); P(x + 12, y - 4, mezcla(c, BL, 0.35)); };
+    chaqueta(146, 174, hex('#3a3446'), hex('#24202e'), 0); chaqueta(404, 170, hex('#8a2a2a'), hex('#5a1a1a'), hex('#e8dcc0')); chaqueta(262, 112, hex('#4a3a2a'), hex('#2e2418'), 0);
+    // el cubo del agua de madera con sus aros, el cazo de lata metido dentro y la esponja amarilla al lado
+    sombra(X(20), 165, 9, 2, 0.35); R.rect(X(14), 150, X(26), 164, K); R.rect(X(15), 151, X(25), 163, hex('#8a5a32')); for (let i = 16; i < 25; i += 3) R.rect(X(i), 152, X(i), 163, hex('#6a4224')); R.rect(X(24), 152, X(25), 163, hex('#5a3a1e'));
+    R.rect(X(15), 154, X(25), 154, hex('#5a5a62')); R.rect(X(15), 160, X(25), 160, hex('#5a5a62')); R.rect(X(15), 151, X(25), 151, hex('#6aa0c8')); R.linea(X(20), 151, X(30), 143, hex('#8a8a92')); R.linea(X(20), 150, X(30), 142, hex('#c8c8d0'));
+    sombra(X(33), 164, 5, 1, 0.3); R.rect(X(28), 159, X(37), 164, K); R.rect(X(29), 160, X(36), 163, hex('#d8b040')); R.rect(X(29), 160, X(36), 160, hex('#f0d070')); for (const [i, j] of [[30, 162], [33, 161], [35, 163], [31, 160]]) P(X(i), j, hex('#a8802a'));
+    // el casco de cuero de la época (sin rejilla) con sus orejeras, y el maletín negro del médico con el cierre de latón
+    sombra(X(236), 174, 6, 1, 0.3); R.disco(X(236), 170, 5, K); R.disco(X(236), 170, 4, hex('#8a5a32')); R.rect(X(231), 171, X(241), 174, K); R.rect(X(232), 171, X(240), 173, hex('#6a4224'));
+    for (let i = -3; i <= 3; i += 2) P(X(236 + i), 167, hex('#b88a52')); P(X(234), 168, hex('#c89a62')); R.rect(X(230), 173, X(231), 176, hex('#5a3a1e')); R.rect(X(241), 173, X(242), 176, hex('#5a3a1e'));
+    sombra(X(334), 178, 9, 1, 0.35); R.rect(X(326), 168, X(342), 178, K); R.rect(X(327), 169, X(341), 177, hex('#2a2430')); R.rect(X(327), 169, X(341), 170, hex('#3e3848')); R.rect(X(332), 165, X(336), 166, K); P(X(332), 167, K); P(X(336), 167, K); R.rect(X(333), 170, X(335), 171, hex('#d8b040')); R.rect(X(327), 173, X(341), 173, hex('#1c1820'));
+    // la cadena de medir (diez yardas) tendida sobre la hierba entre los dos palos, con sus eslabones
+    for (let wx = 186; wx <= 296; wx++) { const y = 176 + Math.round(Math.sin((wx - 186) / 110 * Math.PI) * 2); P(X(wx), y - 1, wx % 3 === 0 ? hex('#e8e8f0') : hex('#8a8a94')); P(X(wx), y, wx % 2 ? hex('#c8c8d0') : hex('#4a4a54')); P(X(wx), y + 1, hex('#2e4a24')); }
+    // el carro de la cal para pintar las líneas, aparcado junto a la banda del fondo: caja de madera, rueda de radios y varas
+    { const x = X(96), y = 116; sombra(x + 8, y + 1, 10, 1, 0.3); R.rect(x, y - 9, x + 14, y - 3, K); R.rect(x + 1, y - 8, x + 13, y - 4, hex('#9a6a3a')); R.rect(x + 1, y - 8, x + 13, y - 8, hex('#f2f2ea')); for (let i = 4; i < 13; i += 4) R.rect(x + i, y - 7, x + i, y - 4, hex('#6a4224'));
+      R.linea(x + 14, y - 6, x + 22, y - 9, K); R.linea(x + 14, y - 5, x + 22, y - 8, hex('#8a5a32')); R.disco(x + 5, y - 2, 3, K); R.disco(x + 5, y - 2, 2, hex('#6a4224')); P(x + 5, y - 2, hex('#c8a060')); for (let i = 0; i < 6; i++) P(x + 1 + i * 2, y, hex('#f2f2ea')); }
   });
 };
 const figura = (x, y, k, t, salta) => { const j = salta ? Math.round(Math.abs(Math.sin(t * 9 + k)) * 2) : 0; y -= j; x = Math.round(x);
@@ -340,6 +373,16 @@ const p4 = (t) => {
   pon(M4, WM, cam * 0.7, 80, 106);
   pon(N4, WN, cam, 100, 179);
   const S = (wx) => wx - cam;
+  // la sombra de las nubes que pasa por el césped (va con el viento, el doble de lenta que la cámara no la mueve)
+  for (const [x0, y0, rx, ry] of [[40, 150, 46, 14], [300, 124, 34, 8]]) { const cx = ((x0 + t * 9 - cam) % 470 + 470) % 470 - 75;
+    for (let y = -ry; y <= ry; y++) { const yy = y0 + y; if (yy < 105 || yy > 179) continue; for (let x = -rx; x <= rx; x++) { const d = (x * x) / (rx * rx) + (y * y) / (ry * ry); if (d < 1 && (d < 0.8 || umbral(x, yy) < 0.5)) tine(cx + x, yy, hex('#1e3a1c'), 0.2); } } }
+  // los banderines de las yardas en la banda del fondo, uno cada cinco yardas, que ondean al viento
+  for (let k = -1; k <= 6; k++) { const x = Math.round(S(LX(k, 103))); if (x > -12 && x < 330) banderin(x, 104, t, k % 2 ? NAR : AZ, k); }
+  // el gorrión que picotea en la hierba de delante y sale volando cuando el balón le pasa por encima
+  const vg = lin(t, T0 + 0.9, T0 + 3.2);
+  if (vg <= 0) { const gx = Math.round(S(206)), pic = Math.sin(t * 5) > 0.6 ? 1 : 0, sal = Math.round(Math.abs(Math.sin(t * 2.3)) * 1.2);
+    R.rect(gx, 164 - sal, gx + 3, 166 - sal, hex('#6a4a2a')); R.pset(gx + 1, 164 - sal, hex('#a8845a')); R.pset(gx + 4, 164 + pic - sal, hex('#3a2a1a')); R.pset(gx + 4, 165 + pic - sal, hex('#d8a040')); R.pset(gx, 167 - sal, K); R.pset(gx + 2, 167 - sal, K); }
+  else { const gx = S(206) - vg * 150, gy = 164 - vg * 70; if (gx > -4) pajaro(gx, gy, t, 3, hex('#5a3a22')); }
   // los números de las yardas aparecen cuando el balón pasa por encima de cada línea
   const u = lin(t, T0, T1), RH = [85, 131], SH = [299, 118], [bwx, bwy] = parab(u, RH[0], RH[1], SH[0], SH[1], 64);
   for (let k = 1; k <= 4; k++) { const lx = LX(k, 120); if (t > T0 && bwx >= lx) { const e = lin(t, T0 + (lx - RH[0]) / (SH[0] - RH[0]) * (T1 - T0), T0 + (lx - RH[0]) / (SH[0] - RH[0]) * (T1 - T0) + 0.25); R.numero(String(k * 5), Math.round(S(lx)) + 2, 126 - Math.round(e * 4), { centro: true }); } }
@@ -351,7 +394,17 @@ const p4 = (t) => {
   lista.push([146, () => R.actor(EL.schneider, Math.round(S(sc.x)), sc.s, t, { dir: t > T1 - 0.5 && t < T1 + 0.25 ? -1 : 1, anda: sc.mv, brazos: t > T1 - 0.45 && t < T1 + 0.2, sonrisa: t > T1, habla: t > T1 + 0.5 && Math.sin(t * 8) > 0 })]);
   const df = ruta(t, [[P4, 410, 162, -1], [T1 + 0.3, 330, 156, -1], [FIN, 334, 158, -1]]);
   lista.push([df.s, () => R.actor(EL.jugador1905, Math.round(S(df.x)), df.s, t, { dir: -1, anda: df.mv, salto: t > T1 + 0.3 && t < T1 + 0.65 ? Math.round(4 * Math.sin(lin(t, T1 + 0.3, T1 + 0.65) * Math.PI)) : 0, sorpresa: t > T1 + 0.3, triste: t > T1 + 1 })]);
+  // el juez de campo de blanco que sigue la jugada por el medio del campo, junto a la banda del fondo, y pita al final
+  const ju = ruta(t, [[P4, 176, 116, 1], [T0 + 0.2, 176, 116, 1], [T1 + 0.4, 280, 116, 1]]);
+  lista.push([116, () => R.actor(EL.cochems, Math.round(S(ju.x)), ju.s, t, { dir: 1, anda: ju.mv, pal: ARB, habla: t > T1 + 0.5 && t < T1 + 1.1 })]);
   lista.sort((p, q) => p[0] - q[0]).forEach(([, f]) => f());
+  // delante de todo: los dos palos de la cadena clavados en la hierba, con su disco naranja que se mece y su sombra;
+  // y el brillo del agua del cubo
+  for (const [wx, k] of [[186, 0], [296, 1]]) { const x = Math.round(S(wx)); if (x < -6 || x > 326) continue; const o = Math.round(Math.sin(t * 2.5 + k) * 0.8);
+    sombra(x + 4, 178, 5, 1, 0.3); R.rect(x - 1, 152, x + 1, 177, K); R.rect(x, 153, x, 177, hex('#e8dcc0')); R.pset(x + 1, 160, hex('#a89a80'));
+    R.rect(x - 4 + o, 147, x + 4 + o, 153, K); R.rect(x - 3 + o, 148, x + 3 + o, 152, NAR); R.rect(x - 3 + o, 148, x + 3 + o, 148, hex('#f0a060')); R.pset(x + o, 150, BL);
+    R.pset(x - 1, 178, hex('#6a5034')); R.pset(x + 2, 178, hex('#6a5034')); }
+  if (Math.sin(t * 3) > 0.2) { const bx = Math.round(S(17 + (Math.floor(t * 2) % 6))); R.pset(bx, 151, hex('#e8f4ff')); }
   // el balón: armado en la mano de Robinson, el vuelo en espiral con su sombra, y en el pecho de Schneider
   if (t < T0) T.balon(R, S(85), 131, t, { epoca: '1906', s: 1.2, ang: -0.5 });
   else if (t < T1) { const [nx, ny] = parab(Math.min(1, u + 0.02), RH[0], RH[1], SH[0], SH[1], 64); sombra(Math.round(S(bwx)), Math.round(lerp(160, 150, u)), 5, 1, 0.3);

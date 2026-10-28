@@ -26,10 +26,17 @@
 //    lejos; los cadetes de la banda de acá saltan y uno lanza la gorra; el fotógrafo dispara el magnesio; y la mula,
 //    mientras todos miran, se come el programa del cadete (eco del gag del gancho). Corta en «More».
 // 4. («More than a century of rules. Leather and physics. Also, a ball shaped like a melon can fly straight.») El balón
-//    de hoy vuela recto, de lado, y los decorados del episodio pasan por debajo: la Casa Blanca de 1905 (las reglas), la
-//    calle de la fábrica de Ada (el cuero), el parque del estanque (la física) y la pasarela de las antenas del estadio;
-//    en cada uno la gente mira arriba, se sorprende y lo señala al pasar. A «fly straight» el balón acelera y sale por la
-//    derecha; los técnicos lo siguen con el dedo.
+//    de hoy vuela recto, de lado, y los decorados del episodio pasan por debajo, cada uno ~1,5 s casi entero y con un
+//    barrido rápido entre ellos: la Casa Blanca de 1905 (17,5–18,9: «rules»), la calle de la fábrica de Ada (19,2–20,2:
+//    «leather»), el parque del estanque (20,6–21,7: «physics», «a ball shaped like a melon») y, solo al final, el césped
+//    del estadio a ras de suelo (desde 22,1: «can fly straight»), un encuadre bajo que no repite la pasarela de fa-chips.
+//    En cada decorado la gente mira arriba, se sorprende y lo señala al pasar. El césped lleva encima una grada de noche
+//    nítida (gradaNoche: focos colgados con su halo, videomarcador con el tanteo y el reloj, público menudo arriba, palcos,
+//    cinta de LED, tres filas de público con R.busto y la barandilla de cristal) en vez del estadio desenfocado del
+//    encuadre 'cesped'. A «fly straight» el balón acelera y sale lanzado por la derecha justo antes del corte (≈24,1); a su
+//    paso el público se levanta, saluda y saca el móvil, los focos destellan, y al salir la grada entera se viene arriba y
+//    el marcador destella; los tres operarios reaccionan cada uno a su manera (la técnica señala y lo celebra a saltos, el
+//    del medio echa a andar tras él señalándolo, el del fondo lo señala hacia la salida y se vuelve gritando contento).
 import * as T from '/atomo/plato/escenas/fa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('fa-cierre');
@@ -194,32 +201,163 @@ const p3 = (t) => {
 };
 
 // ── 4 · el balón vuela recto y los decorados del episodio pasan por debajo ────────────────────────────────────────
-// Cada decorado se pinta en su búfer; la pantalla enseña un mundo en el que cada uno ocupa una franja (A: dónde empieza
-// en el mundo; o: qué columna de su búfer cae ahí) y la cámara corre de izquierda a derecha. Las juntas se funden con
-// trama de 20 px. Al principio se ve casi entera la Casa Blanca; al final, entera la pasarela de las antenas.
+// Cada decorado se pinta en su búfer; la pantalla enseña un mundo en el que cada uno ocupa una franja de 300 px (A: dónde
+// empieza en el mundo; o: qué columna de su búfer cae ahí) y la cámara va de uno a otro: se queda ~1,5 s sobre cada
+// uno, derivando despacio, y pasa al siguiente con un barrido rápido. Las juntas se funden con trama de 20 px.
+// la grada de noche del césped (plano 4): el encuadre 'cesped' del decorado trae el estadio desenfocado, que en este
+// final se leía como un borrón; aquí se pinta encima (y 0–79, en el búfer del decorado) una grada nítida y viva: el cielo
+// con estrellas y dos jirones de nube, el anillo del techo con su celosía, cuatro baterías de focos colgadas con su halo,
+// el videomarcador con el tanteo y el reloj, la grada alta con el público menudo, los palcos con luz cálida, la cinta de
+// LED, la grada baja con tres filas de público (R.busto) y la barandilla de cristal. La zona de Atom (x > 266, y < 46) y
+// la barra del año (y < 15) quedan como fondo tranquilo.
+const G4 = {
+  cielo: ['#080a1c', '#0e1230', '#161a40', '#22224c', '#302a58'].map(hex), estrella: hex('#ece8ff'), estrellaD: hex('#6a6aa0'),
+  nube: ['#141632', '#22244a', '#3e3660', '#6e4a6a'].map(hex),
+  acero: hex('#181a26'), aceroM: hex('#2a2e40'), aceroL: hex('#464c64'), aceroB: hex('#7a82a0'), rail: hex('#b4bccc'),
+  horm: hex('#3a3a48'), hormL: hex('#5c5c6c'), hormS: hex('#22222a'),
+  asiento: hex('#1a4a56'), asientoS: hex('#10343e'), asientoL: hex('#2a6a76'),
+  foco: hex('#fffbea'), focoM: hex('#fff0b8'), focoG: hex('#c8b47a'), halo: hex('#6a5a68'),
+  palco: hex('#d8a068'), palcoL: hex('#f4d4a0'), palcoS: hex('#9a6a48'),
+  ambar: hex('#f8b83a'), verde: hex('#5af07a'), movil: hex('#f4f8ff'), cristal: hex('#8ab8c8'), pant: hex('#08142a'), pantM: hex('#10243a'),
+  piel: ['#f0d0b0', '#d8a878', '#a8744a', '#6e462a'].map(hex), pelo: ['#2a1e18', '#6a4426', '#c8a060', '#1c1424'].map(hex),
+};
+const G4_ROPA = [[C.equipoA, C.equipoAS], [C.naranja, hex('#b85a2a')], [C.equipoB, C.equipoBS], [hex('#e8e4dc'), hex('#b8b4ac')], [hex('#3a5a9a'), hex('#2a4070')], [hex('#c8b040'), hex('#987e28')]];
+const mz = (a, b, u) => { const c = (s) => { const p = (a >> s) & 255; return Math.round(p + (((b >> s) & 255) - p) * u) << s; }; return (0xff000000 | c(16) | c(8) | c(0)) >>> 0; };
+const hh = (x, y, k = 0) => { const v = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return v - Math.floor(v); };
+const G4_PASILLOS = [22, 86, 150, 214, 278];             // las escaleras de las dos gradas
+const G4_FOCOS = [26, 88, 206, 246];                      // las baterías de focos colgadas del techo (y 19–27)
+const G4_MARC = [128, 23, 180, 41];                       // el videomarcador colgado (x0, y0, x1, y1)
+const G4_ALTA = [];                                       // el público menudo de la grada alta: [x, y, ropa, piel]
+const G4_BAJA = [];                                       // el de la grada baja: [x, y, tipo, paleta, h]
+let G4_buf = null;
+const enPasillo = (x, w) => G4_PASILLOS.some((p) => Math.abs(x - p) < w);
+const gradaFija = () => {
+  const { pset, linea } = R;
+  // el cielo de noche tramado, con el resplandor del estadio abajo y estrellas quietas (las que titilan van aparte)
+  for (let y = 0; y < 15; y++) for (let x = 0; x < 320; x++) { const u = y / 15 * 3.6, i = Math.min(3, Math.floor(u)); pset(x, y, bay(x, y) < u - i ? G4.cielo[i + 1] : G4.cielo[i]); }
+  for (let k = 0; k < 40; k++) { const x = Math.floor(hh(k, 1, 81) * 320), y = Math.floor(hh(k, 2, 81) * 11); pset(x, y, k % 3 ? G4.estrellaD : G4.estrella); }
+  // el anillo del techo: viga de celosía con su canto de luz y la sombra de abajo
+  for (let y = 15; y < 20; y++) for (let x = 0; x < 320; x++) { const d = ((x + y) % 7 === 0 || ((x - y) % 7 + 7) % 7 === 0); pset(x, y, y === 15 ? G4.aceroL : y === 19 ? G4.acero : d ? G4.aceroL : G4.aceroM); }
+  for (let x = 3; x < 320; x += 7) pset(x, 19, G4.aceroB);
+  // la grada alta: el pasillo del fondo con sus ventanas encendidas y seis filas de asientos en escalón
+  for (let y = 20; y < 25; y++) for (let x = 0; x < 320; x++) pset(x, y, y === 24 ? G4.hormS : (x % 9 > 5 && y > 20 && y < 23) ? (hh(x >> 3, 3, 82) < 0.6 ? G4.palcoS : G4.palco) : bay(x, y) < 0.3 ? G4.hormS : G4.acero);
+  for (let y = 25; y < 42; y++) { const l = (y - 25) % 3; for (let x = 0; x < 320; x++) pset(x, y, l === 0 ? (bay(x, y) < 0.5 ? G4.asientoL : G4.asiento) : l === 1 ? (x % 3 === 2 ? G4.asientoS : G4.asiento) : bay(x, y) < 0.6 ? G4.hormS : G4.horm); }
+  for (let r = 0; r < 6; r++) { const y = 27 + r * 3; for (let x = 1 + (r % 2); x < 318; x += 3) { if (enPasillo(x, 4) || hh(x, y, 83) < 0.2) continue; G4_ALTA.push([x, y, Math.floor(hh(x, y, 84) * 6), Math.floor(hh(x, y, 85) * 4)]); } }
+  for (const [x, y, ro, pi] of G4_ALTA) { pset(x, y, G4_ROPA[ro][0]); pset(x + 1, y, G4_ROPA[ro][1]); pset(x, y - 1, hh(x, y, 86) < 0.5 ? G4.pelo[pi] : G4.piel[pi]); }
+  // los palcos: cristaleras con luz cálida, montantes y la gente de dentro a contraluz
+  for (let y = 42; y < 48; y++) for (let x = 0; x < 320; x++) { const m = x % 18; pset(x, y, y === 42 || y === 47 ? G4.aceroM : m < 2 ? G4.acero : y === 43 ? G4.palcoL : bay(x, y) < (y - 43) / 5 ? G4.palcoS : G4.palco); }
+  for (let x = 4; x < 320; x += 6) if (hh(x, 1, 87) < 0.55 && x % 18 > 3) { pset(x, 45, G4.palcoS); pset(x, 46, G4.acero); pset(x + 1, 46, G4.acero); }
+  // la grada baja: cuatro escalones de asientos (respaldo con su luz arriba y la contrahuella de hormigón)
+  for (let y = 51; y < 80; y++) { const l = (y - 51) % 7; for (let x = 0; x < 320; x++) {
+    let c = l === 0 ? G4.asientoL : l < 4 ? (x % 10 === 0 ? G4.asientoS : bay(x, y) < 0.2 ? G4.asientoL : G4.asiento) : l === 4 ? G4.hormS : bay(x, y) < 0.15 ? G4.hormL : G4.horm;
+    if (y < 52) c = G4.acero; pset(x, y, c); } }
+  // las escaleras de las dos gradas: peldaños claros y oscuros y una luz ámbar en cada uno
+  for (const p of G4_PASILLOS) for (let y = 20; y < 80; y++) { if (y >= 42 && y < 51) continue; for (let i = -2; i <= 2; i++) pset(p + i, y, Math.abs(i) === 2 ? G4.hormS : (y % 3 === 0 ? G4.hormL : G4.horm)); if (y % 6 === 0) pset(p - 2, y, G4.ambar); }
+  // las bocas de los vomitorios, con su luz verde de salida
+  for (const p of [86, 214]) { for (let y = 30; y < 38; y++) for (let i = -4; i <= 4; i++) if (Math.abs(i) < 4 || y > 31) pset(p + i, y, y === 30 ? G4.horm : G4.hormS); linea(p - 2, 29, p + 2, 29, G4.verde); }
+  // el público de la grada baja (se dibuja vivo): tres filas, con algún asiento vacío
+  for (let r = 0; r < 3; r++) { const y = 52 + r * 7; for (let x = 1 + (r % 2) * 5; x < 312; x += 10) { if (enPasillo(x + 4, 7) || hh(x, y, 88) < 0.1) continue;
+    const ro = G4_ROPA[Math.floor(hh(x, y, 89) * 6)], pi = Math.floor(hh(x, y, 90) * 4), pe = G4.pelo[Math.floor(hh(x, y, 91) * 4)];
+    G4_BAJA.push([x, y, ['rizos', 'calvo', 'mujer', 'rizos'][Math.floor(hh(x, y, 92) * 4)], { C: ro[0], c: ro[1], S: G4.piel[pi], H: pe, h: mz(pe, G4.piel[0], 0.25), V: pe }, hh(x, y, 93)]); } }
+  // la zona de Atom: la grada alta se apaga hacia el cielo (fondo tranquilo)
+  for (let y = 15; y < 46; y++) for (let x = 266; x < 320; x++) pset(x, y, mz(R.pget(x, y), G4.cielo[1], 0.55));
+};
+const gradaNoche = (t) => {
+  const { pset, linea } = R;
+  if (!G4_buf) { G4_buf = R.nuevo(); const prev = R.usar(G4_buf); gradaFija(); R.usar(prev); }
+  const B = R.buf; B.set(G4_buf.subarray(0, 80 * 320), 0);
+  const pasa = (x) => bolaCol - x;                        // > 0: el balón ya ha pasado por encima de esa columna
+  const fin = tramo(t, SALE - 0.3, SALE + 0.15);          // el balón sale por la derecha: la grada entera se viene arriba
+  // las estrellas que titilan y dos jirones de nube que pasan despacio (tres tonos, a dos velocidades)
+  for (let k = 0; k < 10; k++) { const x = Math.floor(hh(k, 3, 81) * 300) + 10, y = 2 + Math.floor(hh(k, 4, 81) * 9); if (Math.sin(t * 3 + k * 2.1) > 0.4) pset(x, y, G4.estrella); }
+  for (const [k, v, y0, w] of [[0, 2.2, 6, 34], [1, 3.6, 10, 26]]) { const cx = ((hh(k, 5, 81) * 360 + t * v) % 380) - 30;
+    for (let j = -2; j <= 2; j++) for (let i = -w; i <= w; i++) { const e = (i / w) ** 2 + (j / 2.4) ** 2; if (e > 1 || bay(i + 40, j + 4) > 1.1 - e) continue; const x = Math.round(cx + i), y = y0 + j; if (x < 0 || x > 319 || y > 14) continue; pset(x, y, j > 0 ? G4.nube[3] : j === 0 ? G4.nube[2] : e > 0.6 ? G4.nube[0] : G4.nube[1]); } }
+  // las luces del canto del anillo, que corren
+  for (let x = 3; x < 266; x += 7) if (((x / 7 + Math.floor(t * 6)) | 0) % 9 === 0) pset(x, 19, G4.ambar);
+  // la grada alta, viva: brazos que se levantan y móviles que se encienden cuando el balón pasa y al final
+  G4_ALTA.forEach(([x, y, ro], k) => { if (x > 264) return; const r = hh(k, 7, 84), d = pasa(x);
+    const sube = d > -20 - r * 40 || fin > r; if (sube && Math.sin(t * 8 + k) > 0.2) pset(x + 1, y - 2, G4_ROPA[ro][0]);
+    if ((sube && r < 0.35) || (r < 0.05 && Math.sin(t * 1.7 + k) > 0.6)) { pset(x, y - 2, G4.movil); if (r < 0.06 && Math.sin(t * 13 + k) > 0.95) { pset(x - 1, y - 2, G4.movil); pset(x + 1, y - 2, G4.movil); pset(x, y - 3, G4.movil); } } });
+  // la gente de los palcos, a contraluz, que va y viene; y la cinta de LED que corre con los colores de los dos equipos
+  for (let k = 0; k < 7; k++) { const x = Math.round(10 + k * 40 + Math.sin(t * 0.6 + k * 1.7) * 6); if (x % 18 < 3 || x > 262) continue; pset(x, 44, G4.acero); pset(x, 45, G4.acero); pset(x, 46, G4.acero); pset(x + 1, 45, G4.acero); }
+  for (let x = 0; x < 320; x++) { const u = (x - t * 20 - fin * 60) / 30, i = ((Math.floor(u) % 3) + 3) % 3, f = u - Math.floor(u), c = [C.equipoA, C.naranja, C.equipoB][i];
+    for (let y = 48; y < 51; y++) pset(x, y, y === 50 ? G4.acero : (x % 2 === 0 && f > 0.15 && f < 0.85) ? c : mz(c, G4.acero, 0.6)); }
+  // el videomarcador: marco de acero colgado de dos cables, el tanteo (verde azulado 21, granate 17) y el reloj que corre;
+  // cuando el balón sale, la pantalla enseña un balón que cruza y el marco destella
+  { const [x0, y0, x1, y1] = G4_MARC; linea(x0 + 6, 19, x0 + 6, y0, G4.aceroB); linea(x1 - 6, 19, x1 - 6, y0, G4.aceroB);
+    R.rect(x0, y0, x1, y1, G4.aceroM); R.rect(x0, y0, x1, y0, G4.aceroL); R.rect(x0 + 2, y0 + 2, x1 - 2, y1 - 2, G4.pant);
+    for (let y = y0 + 2; y <= y1 - 2; y++) for (let x = x0 + 2; x <= x1 - 2; x++) if ((x + y) % 2 === 0) pset(x, y, G4.pantM);
+    R.rect(x0 + 4, y0 + 4, x0 + 12, y0 + 6, C.equipoA); R.rect(x1 - 12, y0 + 4, x1 - 4, y0 + 6, C.equipoB);
+    cifras('21', x0 + 4, y0 + 9, G4.movil, C.equipoAS); cifras('17', x1 - 11, y0 + 9, G4.movil, C.equipoBS);
+    const s = Math.max(0, 47 - Math.floor(t - P4)); cifras(String(s).padStart(2, '0'), x0 + 22, y0 + 5, G4.ambar, null);
+    const bx = Math.round(x0 + 4 + ((t * 18) % (x1 - x0 - 8))), by = y1 - 3; if (fin > 0) { R.rect(bx - 2, by - 1, bx + 2, by + 1, hex('#8a4a22')); pset(bx, by - 1, G4.movil); pset(bx, by, G4.movil); }
+    else for (let i = 0; i < 3; i++) pset(x0 + 22 + i * 4, y1 - 3, Math.floor(t * 3) % 3 === i ? G4.verde : G4.aceroL);
+    if (fin > 0 && parpadeo(t, 14)) { R.rect(x0, y0, x1, y0, G4.ambar); R.rect(x0, y1, x1, y1, G4.ambar); } }
+  // las baterías de focos: el halo que late (y se enciende más cuando el balón pasa por debajo), el bastidor, las lámparas
+  // con alguna que parpadea, la viga de la que cuelgan y las polillas
+  G4_FOCOS.forEach((cx, k) => { const cy = 23, d = Math.abs(pasa(cx)), fl = Math.max(0, 1 - d / 40) + fin * 0.4, r = 15 + Math.round(fl * 4), lat = 0.85 + 0.15 * Math.sin(t * 1.3 + k * 1.9);
+    for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const x = cx + i, y = cy + j, e = Math.hypot(i * 0.8, j) / r; if (e > 1 || x < 0 || x > 319 || y < 15) continue; if (bay(x, y) < (1 - e) * (0.9 + fl * 0.5) * lat) pset(x, y, mz(R.pget(x, y), e < 0.5 ? G4.focoM : G4.halo, e < 0.5 ? 0.45 : 0.35)); }
+    linea(cx - 6, 19, cx - 6, 20, G4.aceroB); linea(cx + 6, 19, cx + 6, 20, G4.aceroB);
+    R.rect(cx - 10, 20, cx + 10, 27, G4.acero); R.rect(cx - 10, 20, cx + 10, 20, G4.aceroL);
+    for (let j = 0; j < 2; j++) for (let i = 0; i < 6; i++) { const lx = cx - 9 + i * 3 + 1, ly = 22 + j * 3, mal = (i + j * 6 + k * 5) % 11 === 3 && Math.sin(t * 17 + k) > 0.3;
+      R.rect(lx, ly, lx + 1, ly + 1, mal ? G4.focoG : G4.focoM); pset(lx, ly, mal ? G4.focoG : G4.foco); }
+    if (fl > 0.6) destello(cx, 24, 2 + Math.round(fl * 2), G4.focoM);
+    for (let i = 0; i < 2; i++) { const a = t * (2.4 + i) + k * 2 + i; pset(Math.round(cx + Math.cos(a) * (13 + i * 2)), Math.round(cy + 4 + Math.sin(a * 1.3) * 5), G4.cielo[0]); } });
+  // la grada baja: charlan mientras el balón llega; cuando les pasa por encima se levantan, saludan y ríen, unos dan
+  // saltitos y otros sacan el móvil; al final, cuando sale por la derecha, se levanta la grada entera
+  G4_BAJA.forEach(([x, y, tipo, pal, r], k) => { const d = pasa(x + 4), arriba = d > -24 - r * 30 || fin > r * 0.8;
+    const salta = arriba && r > 0.7 && Math.sin(t * 9 + k) > 0.3 ? 1 : 0, yy = y - (arriba ? 2 + salta : 0);
+    R.busto(tipo, pal, x, yy, t + k, { rie: arriba ? r > 0.25 : Math.sin(t * 3 + k * 1.3) > 0.85, saluda: arriba && r > 0.45 && r < 0.8 });
+    if (arriba && r < 0.2) { pset(x + 8, yy + 2, G4.acero); pset(x + 8, yy + 1, G4.movil); if (Math.sin(t * 11 + k) > 0.93) destello(x + 8, yy, 1, G4.movil); } });
+  // la barandilla de cristal de delante, con su pasamanos y los montantes, y el reflejo que corre por el cristal
+  for (let y = 73; y < 80; y++) for (let x = 0; x < 320; x++) { const ref = ((x - y * 2 - t * 30) % 90 + 90) % 90 < 3; if (bay(x, y) < (ref ? 0.6 : 0.22)) pset(x, y, mz(R.pget(x, y), ref ? G4.movil : G4.cristal, ref ? 0.4 : 0.3)); }
+  linea(0, 72, 319, 72, G4.rail); linea(0, 73, 319, 73, G4.aceroL); linea(0, 79, 319, 79, G4.acero);
+  for (let x = 6; x < 320; x += 20) { linea(x, 73, x, 79, G4.aceroB); pset(x + 1, 74, G4.aceroL); }
+};
+// los operarios del césped, cada uno a su manera: miran arriba con el balón encima; cuando acelera, la técnica (x 62)
+// lo señala y luego lo celebra con los dos brazos y saltitos; el del medio (x 132) echa a andar tras él señalándolo; el
+// del fondo (x 196) se gira cuando le pasa, lo señala hacia la salida y, cuando ya ha salido, se vuelve a los otros
+// y les grita contento (habla)
+const operarios = (t) => {
+  const u = tramo(t, RECTO - 0.2, SALE), fin = t > SALE - 0.1;
+  { const d = bolaCol - 70, sal = u > 0.55 ? Math.round(Math.abs(Math.sin(t * 8)) * 3) : 0;
+    R.actor(EL.tecnica, 62, 104, t, { dir: 1, sorpresa: u < 0.2, dedo: u >= 0.2 && u <= 0.55, brazos: u > 0.55, salto: sal, sonrisa: d > 60 }); }
+  { const x = Math.round(132 + 22 * suave(tramo(t, RECTO, SALE + 0.05))), anda = t > RECTO && t < SALE + 0.05;
+    R.actor(EL.tecnico, x, 108, t, { dir: 1, sorpresa: u < 0.1, dedo: u >= 0.1, anda, sonrisa: fin }); }
+  { const d = bolaCol - 204, x = 196, vuelto = t > SALE - 0.3;
+    R.actor({ ...EL.tecnico, pal: { ...EL.tecnico.pal, H: hex('#1c1424') } }, x, 103, t, { dir: vuelto ? -1 : d > -16 ? 1 : -1, sorpresa: d > -60 && d < -16, dedo: d > -16 && !vuelto, brazos: vuelto, sonrisa: d > 30, habla: vuelto && parpadeo(t, 9) }); }
+};
 const DEC = [
-  { A: -999, o: 40, año: 1905, pinta: (t) => {
+  { A: 0, o: 10, año: 1905, pinta: (t) => {
       T.casaBlanca(R, t, { encuadre: 'fuera' });
       gente(t, [[EL.periodista, 150, 154], [EL.jugador1905, 196, 155]]); } },
-  { A: 240, o: 85, año: 2026, pinta: (t) => {
+  { A: 300, o: 10, año: 2026, pinta: (t) => {
       T.fabricaAda(R, t, { encuadre: 'calle' });
       gente(t, [[EL.obrera, 110, 141], [EL.obrero, 206, 141]]); } },
-  { A: 390, o: 85, año: 2026, pinta: (t) => {
+  { A: 600, o: 10, año: 2026, pinta: (t) => {
       T.labGiro(R, t, { encuadre: 'parque' });
       gente(t, [[EL.fisico, 156, 170], [EL.fisica, 198, 172]]); } },
-  { A: 540, o: 0, año: 2027, pinta: (t) => {
-      T.estadioHoy(R, t, { encuadre: 'antenas' });
-      gente(t, [[EL.tecnica, 96, 148], [EL.tecnico, 150, 147], [{ ...EL.tecnico, pal: { ...EL.tecnico.pal, H: hex('#1c1424') } }, 210, 149]]); } },
+  { A: 900, o: -10, año: 2027, pinta: (t) => {
+      T.estadioHoy(R, t, { encuadre: 'cesped' });
+      gradaNoche(t);
+      operarios(t);
+      T.h_estadioDelante?.(R, t, { encuadre: 'cesped' }); } },
 ];
-DEC[0].A = 0;
-const SEAMS = [240, 390, 540], BOLA_X = 150, BOLA_Y = 62, FIN_CAM = s(0.76);
+const SEAMS = [300, 600, 900], BOLA_X = 150, BOLA_Y = 62;
 const dueño = (X) => (X < SEAMS[0] ? 0 : X < SEAMS[1] ? 1 : X < SEAMS[2] ? 2 : 3);
 const colSin = (X, k) => X - DEC[k].A + DEC[k].o;
 const col = (X, k) => Math.max(0, Math.min(319, Math.round(colSin(X, k))));
-// la cámara: casi constante (mitad lineal, mitad suavizada), de −40 a 540, hasta poco antes de «fly straight»
-const camara = (t) => { const u = tramo(t, P4 - 0.2, FIN_CAM); return -40 + 580 * (0.5 * u + 0.5 * suave(u)); };
-// dónde va el balón en la pantalla: quieto en el centro y, a «fly straight», acelera y sale por la derecha
-const bolaX = (t) => BOLA_X + 210 * tramo(t, RECTO - 0.2, E.duracion - 0.2) ** 2;
+// la cámara: [instante, posición] y, entre dos, suavizado; deriva despacio sobre cada decorado y barre entre ellos
+const CAM = [[P4 + 0.6, -10], [18.85, 12], [19.2, 290], [20.15, 316], [20.6, 590], [21.7, 616], [22.15, 904], [E.duracion, 910]];
+const camara = (t) => {
+  if (t <= CAM[0][0]) return CAM[0][1];
+  for (let i = 1; i < CAM.length; i++) if (t <= CAM[i][0]) { const [t0, c0] = CAM[i - 1], [t1, c1] = CAM[i]; const u = (t - t0) / (t1 - t0); return c0 + (c1 - c0) * (c1 - c0 > 100 ? suave(u) : u); }
+  return CAM[CAM.length - 1][1];
+};
+// dónde va el balón en la pantalla: quieto en el centro y, a «fly straight», acelera y sale por la derecha justo antes
+// del corte (SALE ≈ 24,12; el plano corta en 24,28)
+const SALE = E.duracion - 0.16;
+const bolaX = (t) => BOLA_X + 200 * Math.min(1, Math.max(0, (t - RECTO + 0.2) / (E.duracion - 0.06 - RECTO + 0.2))) ** 2.2;   // sin suavizar al final: sale lanzado
 // la gente de cada decorado mira arriba cuando el balón le pasa por encima: sorpresa al llegar, lo señala y sonríe
 let bolaCol = 0;
 const gente = (t, lista) => lista.forEach(([def, x, suelo], k) => {
@@ -229,7 +367,7 @@ const gente = (t, lista) => lista.forEach(([def, x, suelo], k) => {
 const bufs = DEC.map(() => null);
 const p4 = (t) => {
   const cam = camara(t), bxp = bolaX(t);
-  const k0 = dueño(cam - 8), k1 = dueño(cam + 327);
+  const k0 = dueño(cam - 10), k1 = dueño(cam + 327);   // cam − 10: la junta llega 10 px antes de la costura
   for (let k = k0; k <= k1; k++) {
     if (!bufs[k]) bufs[k] = R.nuevo();
     const prev = R.usar(bufs[k]);
@@ -257,7 +395,7 @@ const año = (t) => {
   return DEC[dueño(camara(t) + bolaX(t))].año;
 };
 const efectos = [[ALLI + 0.05, 'palmada'], [WP + 0.05, 'bip'], [SAQUE, 'toc'], [LANZA, 'whoosh'], [SEIS, 'tic'], [PUNTA + 0.05, 'brillo'],
-  [MANOS + 0.05, 'palmada'], [FLASH, 'flash'], [COME + 0.6, 'masca'], [P4 + 0.3, 'whoosh'], [RECTO - 0.1, 'whoosh']];
+  [MANOS + 0.05, 'palmada'], [FLASH, 'flash'], [COME + 0.6, 'masca'], [P4 + 0.3, 'whoosh'], [RECTO - 0.1, 'whoosh'], [SALE - 0.25, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>
 </body>

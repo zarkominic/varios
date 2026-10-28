@@ -15,6 +15,8 @@
 //    señala; la peonza de la mesa gira a su lado;
 // 2. («turns»–fin) la mesa: el giroscopio del laboratorio se marca en «gyroscope»; la peonza grande gira («spinning top»);
 //    una canica rueda por la mesa y le da en «tipped over»: la peonza se inclina un poco y se endereza.
+//    En la libreta, encima del «600», se dibuja a boli una peonza con su eje y la flecha roja de giro (tapa los
+//    tres circulitos del decorado, que se leían como letras).
 import * as T from '/atomo/plato/escenas/fa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('fa-giro');
@@ -78,6 +80,18 @@ const p2 = (t) => {
   const go = tramo(t, golpe, golpe + 0.25) * (1 - tramo(t, golpe + 0.25, golpe + 1.6));
   // la peonza: con el golpe se inclina más (la precesión crece) y se recupera
   const m = T.labGiro(R, t, { encuadre: 'mesa', precesion: 0.55 + go * 0.9, periodo: 4.5, giro: 1, rastro: true });
+  // la libreta: encima del «600», en vez de los tres circulitos del decorado (se leían como letras), el dibujo a boli
+  // de una peonza con su eje y la flecha roja de giro que la rodea (papel y pautas repintados debajo)
+  { const tinta = hex('#3a4a8a'), roja = hex('#c83a3a'), pauta = hex('#c8d4e8');
+    for (let y = 150; y <= 164; y++) for (let x = 243; x <= 278; x++) if (y >= 145 - (x - 238) * 0.05 + 6 && x <= 276 + (y - 144) * 0.17) R.pset(x, y, hex('#f6f2e4'));
+    for (let k = 1; k < 4; k++) R.linea(243, 151 + k * 4, 277, 149 + k * 4, pauta);
+    const cx = 260;
+    R.poligono([[cx - 7, 157], [cx + 7, 157], [cx, 163]], hex('#f0c8c0'));
+    R.linea(cx - 7, 157, cx + 7, 157, tinta); R.linea(cx - 7, 157, cx, 163, tinta); R.linea(cx + 7, 157, cx, 163, tinta); R.linea(cx - 3, 159, cx + 3, 159, roja);
+    R.linea(cx, 148, cx, 156, tinta); R.pset(cx - 1, 148, tinta); R.pset(cx + 1, 148, tinta);
+    for (let a = 0.8; a < Math.PI * 2 - 0.7; a += 0.06) { const x = Math.round(cx + Math.cos(a) * 10), y = Math.round(152 + Math.sin(a) * 3); if (Math.sin(a) < 0 && Math.abs(x - cx) < 2) continue; R.pset(x, y, roja); }
+    R.linea(cx + 8, 151, cx + 10, 153, roja); R.linea(cx + 12, 151, cx + 10, 153, roja);
+    R.linea(cx - 3, 164, cx + 3, 164, tinta); }
   // el giroscopio del laboratorio, marcado con su flecha circular en «gyroscope»
   const gy = tramo(t, giros - 0.1, giros + 0.4) * (1 - tramo(t, giros + 2.2, giros + 2.8));
   if (gy > 0) for (let s = 0; s < Math.PI * 1.7 * gy; s += 0.1) { const e = s + t * 2, x = Math.round(262 + Math.cos(e) * 22), y = Math.round(114 + Math.sin(e) * 9); R.pset(x, y, CI); R.pset(x, y + 1, CIs); if (s + 0.1 >= Math.PI * 1.7 * gy) flecha(x - Math.round(Math.sin(e) * 4), y + Math.round(Math.cos(e) * 2), x, y, CI); }

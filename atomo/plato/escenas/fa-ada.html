@@ -20,9 +20,11 @@
 //    entran por la puerta de la fábrica en «a hundred workers» (corta en «Stamps»);
 // 5. la sala de costura: las máquinas cosen, la operaria da la vuelta al balón en la barra en «stitch and lace», un
 //    operario cruza con el cajón vacío (corta en «laces»);
-// 6. la sala de los cordones: el gato juega con el cordón suelto («aren't decoration»), se enreda y se queda sentado,
-//    muy digno (gag); se infla un balón; el operario coge un balón de la cinta en «grip» y se lo lanza en espiral a la
-//    operaria en «spin», que lo atrapa.
+// 6. la sala de los cordones, la cadena trabajando: el operario enlaza un balón en el caballete a tirones de cordón; la
+//    operaria coge un balón crudo del cajón y lo deja en la cesta del lazador; el gato juega con el cordón suelto
+//    («aren't decoration»), se enreda y se queda sentado, muy digno (gag); se infla un balón; en «grip» el operario coge
+//    el balón que acaba de enlazar, con los dedos en los cordones, y en «spin» se lo lanza en espiral a la operaria, que
+//    lo atrapa. Por el suelo: la cesta de balones crudos, recortes, puntas de cordón, aceite y el carro plano con su calzo.
 import * as T from '/atomo/plato/escenas/fa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('fa-ada');
@@ -239,21 +241,80 @@ const p5 = (t) => {
     else { const x = q.x + 8, y = q.s - 7; R.rect(x, y, x + 10, y + 6, K); R.rect(x + 1, y + 1, x + 9, y + 5, hex('#a8743c')); R.rect(x + 1, y + 1, x + 9, y + 1, hex('#c8904c')); } }
 };
 
-// ── 6 · la sala de los cordones: el gato y el pase en espiral ───────────────────────────────────────────────────────
+// ── 6 · la sala de los cordones: la cadena trabajando, el gato y el pase en espiral ──────────────────────────────────
 const JUEGA = c(0.6), DIGNO = c(0.8), GRIP = c(0.8469), SPIN = c(0.95), ATRAPA = SPIN + 0.7;
+// un balón crudo (cosido, aún sin cordón) de unos 11 px: cuero, luz arriba, sombra abajo y la costura central
+const crudo = (x, y) => { const { pset } = R;
+  for (let j = -3; j <= 3; j++) for (let i = -5; i <= 5; i++) { const w = 3.2 * Math.sqrt(Math.max(0, 1 - (i / 5.6) ** 2)); if (Math.abs(j) > w) continue;
+    pset(x + i, y + j, Math.abs(j) > w - 1 ? hex('#260c06') : j < -1 && i < 2 ? hex('#b65c30') : j > 1 ? hex('#6e2a14') : hex('#924020')); }
+  for (let i = -3; i <= 3; i++) pset(x + i, y - 1, hex('#5a2010')); pset(x - 2, y - 2, hex('#e89a68')); };
+// lo que hay por el suelo del centro (detrás de la gente): la cesta de alambre con los balones crudos, recortes de
+// cuero, puntas de cordón, una mancha de aceite y las marcas de las ruedas
+const sueloCentro = (t, enCesta) => { const { rect, pset, linea, disco } = R;
+  // la mancha de aceite y las marcas de ruedas
+  for (let y = 165; y < 173; y++) for (let x = 222; x < 246; x++) if (((x - 234) / 12) ** 2 + ((y - 169) / 4) ** 2 < 1 && hh(x, y, 61) < 0.55) pset(x, y, mezcla(R.pget(x, y), hex('#2a2a32'), 0.35));
+  pset(228, 167, hex('#9aa0b0')); pset(237, 170, hex('#8a90a0'));
+  for (let x = 140; x < 250; x += 2) { if (hh(x, 1, 62) < 0.7) pset(x, 163, mezcla(R.pget(x, 163), hex('#3a3a44'), 0.25)); if (hh(x, 2, 62) < 0.6) pset(x + 1, 158, mezcla(R.pget(x + 1, 158), hex('#3a3a44'), 0.2)); }
+  // recortes de cuero (tiras curvas con su canto claro) y puntas de cordón blanco, repartidos por el centro
+  for (const [x, y, w, k] of [[124, 172, 7, 0], [176, 165, 6, 1], [246, 162, 5, 2], [138, 177, 6, 3], [262, 176, 7, 4], [104, 175, 5, 5]]) {
+    for (let i = 0; i <= w; i++) { const yy = y + Math.round(Math.sin(i * 0.7 + k) * 1); pset(x + i, yy, hex('#924020')); pset(x + i, yy + 1, hex('#5a2010')); if (i % 2) pset(x + i, yy - 1, hex('#e89a68')); } }
+  for (const [x, y, k] of [[166, 172, 0], [232, 158, 1], [116, 160, 2], [254, 168, 3]]) { let px = x, py = y;
+    for (let i = 0; i < 9; i++) { const nx = px + 1, ny = py + Math.round(Math.sin(i * 0.9 + k * 2)); pset(nx, ny, i % 4 === 3 ? hex('#cfcac2') : hex('#ffffff')); px = nx; py = ny; } pset(px + 1, py, hex('#c8983a')); }
+  // la cesta de alambre con los balones crudos (uno más cuando ella deja el suyo)
+  { const x0 = 210, y0 = 150, x1 = 226, y1 = 160;
+    for (let x = x0; x <= x1 + 2; x++) if (hh(x, 3, 63) < 0.7) pset(x, y1 + 1, mezcla(R.pget(x, y1 + 1), K, 0.4));
+    const bolas = [[214, 152], [222, 152], [218, 149], [215, 147]]; for (let k = 0; k < enCesta; k++) crudo(...bolas[k]);
+    rect(x0, y0, x0, y1, K); rect(x1, y0, x1, y1, K); rect(x0, y1, x1, y1, K); linea(x0, y0, x1, y0, hex('#8a90a0'));
+    for (let x = x0 + 3; x < x1; x += 3) linea(x, y0 + 1, x, y1 - 1, hex('#6a6e7a')); for (let y = y0 + 3; y < y1; y += 3) linea(x0 + 1, y, x1 - 1, y, hex('#6a6e7a'));
+    pset(x0, y0, hex('#c8d0dc')); pset(x1, y0, hex('#c8d0dc')); }
+};
+// el caballete de enlazar (a la altura de la cintura, delante del operario): pie de hierro, poste y la cuna de madera
+const caballete = () => { const { rect, pset } = R, x = 205;
+  for (let i = -7; i <= 8; i++) if (hh(i, 4, 64) < 0.75) pset(x + i, 161, mezcla(R.pget(x + i, 161), K, 0.4));
+  rect(x - 6, 158, x + 6, 160, K); rect(x - 5, 159, x + 5, 159, hex('#5a5e6a')); rect(x - 1, 154, x + 1, 158, K); pset(x, 155, hex('#8a90a0'));
+  rect(x - 6, 151, x + 6, 154, K); rect(x - 5, 152, x + 5, 153, hex('#a86a3c')); rect(x - 5, 152, x + 5, 152, hex('#d89a64')); pset(x - 6, 150, K); pset(x + 6, 150, K); };
+// el carro plano del primer término, delante de la gente: dos rollos de piel, una pila de paneles y el calzo amarillo
+const carro = () => { const { rect, pset, disco } = R, x0 = 88, x1 = 140;
+  for (let y = 177; y < 180; y++) for (let x = x0 - 2; x < x1 + 4; x++) if (hh(x, y, 65) < 0.55) pset(x, y, mezcla(R.pget(x, y), K, 0.4));
+  rect(x0, 171, x1, 175, K); rect(x0 + 1, 172, x1 - 1, 174, hex('#5a6a7a')); rect(x0 + 1, 172, x1 - 1, 172, hex('#8a9aaa')); for (let x = x0 + 4; x < x1; x += 7) pset(x, 173, hex('#3a4450'));
+  rect(x0 - 1, 163, x0, 172, K); rect(x0 - 1, 163, x0 + 4, 164, K); pset(x0 + 3, 163, hex('#8a9aaa'));   // el asa
+  for (const wx of [x0 + 6, x1 - 6]) { disco(wx, 177, 2, K); pset(wx, 177, hex('#8a90a0')); }
+  rect(x1 - 1, 176, x1 + 2, 179, K); rect(x1, 177, x1 + 1, 178, hex('#e8c040'));   // el calzo junto a la rueda
+  rollo(x0 + 13, 166); rollo(x0 + 35, 166);
+  for (let k = 0; k < 2; k++) { const y = 169 - k * 2; rect(x0 + 2, y, x0 + 8, y + 2, K); rect(x0 + 3, y, x0 + 7, y + 1, k % 2 ? hex('#a86a3c') : hex('#b8784a')); }
+  disco(x1 - 4, 169, 2, K); disco(x1 - 4, 169, 1, hex('#ffffff')); };
 const p6 = (t) => {
   T.fabricaAda(R, t, { encuadre: 'cordones', inflado: tramo(t, P6 + 0.3, c(0.76)), gato: tramo(t, JUEGA, DIGNO) });
-  // el operario mira al gato, sonríe, coge un balón de la cinta en «grip» y lo lanza en espiral en «spin»
-  const lanza = t > SPIN - 0.25 && t < SPIN + 0.3, OX = 186, AX = 236;
-  R.actor(EL.obrero, OX, 160, t, { dir: t > GRIP ? 1 : -1, sonrisa: t > DIGNO - 0.2 && t < GRIP + 0.5, sorpresa: t > JUEGA + 0.4 && t < DIGNO - 0.3, dedo: t > GRIP && t < SPIN + 0.3 });
-  R.actor(EL.obrera, AX, 161, t, { dir: -1, brazos: t > SPIN + 0.2 && t < ATRAPA + 0.4, sonrisa: t > ATRAPA, habla: t < GRIP && Math.sin(t * 7) > 0.3 });
-  // el balón: en la cinta, en la mano (con los dedos en los cordones), en el aire girando y en las manos de ella
-  const mx = OX + 15, my = 160 - 29;
-  if (t > GRIP - 0.4 && t < GRIP) { const u = tramo(t, GRIP - 0.4, GRIP); T.balon(R, Math.round(lerp(200, mx, u)), Math.round(lerp(122, my, u)), t, { s: 1 }); }
-  else if (t >= GRIP && t < SPIN) T.balon(R, mx, my, t, { s: 1, ang: -0.3 });
-  else if (t >= SPIN && t < ATRAPA) { const u = tramo(t, SPIN, ATRAPA), x = lerp(mx, AX + 7, u), y = lerp(my, 160 - 31, u) - Math.sin(u * Math.PI) * 18;
+  // la operaria: va al cajón de los balones crudos, coge uno, lo lleva a la cesta del lazador, vuelve a su sitio y atrapa el pase
+  const OX = 186, AX = 236, COGE = P6 + 0.95, DEJA = P6 + 2.5;
+  const q = ruta(t, [[P6, AX, 161], [P6 + 0.85, 274, 161], [P6 + 1.45, 274, 161], [P6 + 2.4, 228, 161], [P6 + 2.9, 228, 161], [P6 + 3.3, AX, 161]], false);
+  const enCesta = t > DEJA + 0.25 ? 4 : 3;
+  sueloCentro(t, enCesta);
+  caballete();
+  // el operario enlaza el balón del caballete (tira del cordón a tirones), mira al gato, sonríe y vuelve a apretar el lazo;
+  // en «grip» coge ese mismo balón, con los dedos en los cordones, y en «spin» lo lanza en espiral a la operaria
+  const mira = t > JUEGA + 0.3 && t < DIGNO + 0.1, enlaza = !mira && t < GRIP - 0.4, tiron = enlaza && Math.sin(t * 9) > 0;
+  R.actor(EL.obrero, OX, 160, t, { dir: mira ? -1 : 1, sonrisa: t > DIGNO - 0.2 && t < GRIP + 0.5, sorpresa: t > JUEGA + 0.4 && t < DIGNO - 0.3, dedo: tiron || (t > GRIP && t < SPIN + 0.3) });
+  const bx = 205, by = 148, mx = OX + 15, my = 160 - 29;
+  if (t < GRIP - 0.4) { T.balon(R, bx, by, t, { s: 1, ang: 0.15 });
+    // el cordón que entra y sale: tenso hasta la mano en cada tirón, y la cola que cuelga y se acorta según avanza el lazo
+    const cola = Math.round(6 * (1 - tramo(t, P6, GRIP - 0.4)));
+    if (tiron) R.linea(bx - 3, by - 2, OX + 13, 160 - 19, hex('#ffffff')); else if (enlaza) R.linea(bx - 3, by - 2, bx - 6, by - 6, hex('#ffffff'));
+    for (let i = 0; i < cola; i++) R.pset(bx + 6 + (i % 2), by + 1 + i, i % 3 === 2 ? hex('#cfcac2') : hex('#ffffff')); }
+  else if (t < GRIP) { const u = suave(tramo(t, GRIP - 0.4, GRIP)); T.balon(R, Math.round(lerp(bx, mx, u)), Math.round(lerp(by, my, u)), t, { s: 1, ang: lerp(0.15, -0.3, u) }); }
+  else if (t < SPIN) T.balon(R, mx, my, t, { s: 1, ang: -0.3 });
+  // la operaria (después del operario: va por delante de la cesta); lleva el balón crudo delante del pecho
+  const lleva = t > COGE && t < DEJA, dirA = q.mv ? q.d : t > P6 + 3.3 ? -1 : t > P6 + 2.4 ? -1 : 1;
+  R.actor(EL.obrera, q.x, q.s, t, { dir: dirA, anda: q.mv, brazos: t > SPIN + 0.2 && t < ATRAPA + 0.4, sonrisa: t > ATRAPA || (t > DEJA && t < DEJA + 0.8), habla: t > P6 + 3.4 && t < GRIP && Math.sin(t * 7) > 0.3 });
+  if (t > P6 + 0.8 && t <= COGE) { const u = suave(tramo(t, P6 + 0.8, COGE)); crudo(Math.round(lerp(296, q.x + 9, u)), Math.round(lerp(157, q.s - 11, u))); }
+  else if (lleva) { const sube = !q.mv ? 0 : Math.floor(t * 5 + q.x * 0.37) % 2; crudo(q.x + 7 + dirA * 5, q.s - 11 - sube); }
+  else if (t >= DEJA && t < DEJA + 0.25) { const u = suave(tramo(t, DEJA, DEJA + 0.25)); crudo(Math.round(lerp(q.x + 2, 215, u)), Math.round(lerp(q.s - 11, 147, u))); }
+  // el pase: el balón en el aire girando y en las manos de ella
+  if (t >= SPIN && t < ATRAPA) { const u = tramo(t, SPIN, ATRAPA), x = lerp(mx, AX + 7, u), y = lerp(my, 160 - 31, u) - Math.sin(u * Math.PI) * 18;
     T.balon(R, Math.round(x), Math.round(y), t, { s: 1, ang: -0.35 + u * 0.7, gira: 3, estela: 0.8 }); }
   else if (t >= ATRAPA) T.balon(R, AX + 7, 160 - 31, t, { s: 1, ang: 0.2 });
+  // el carro plano del primer término (delante de todos)
+  carro();
 };
 
 const efectos = [[PIG, 'lapiz'], [VACA, 'papel'], [CORTA0, 'golpecito'], [NUM, 'pop'], [PIN, 'golpecito'], [CINCO, 'brillo'], [CIEN + 0.2, 'puerta'],
