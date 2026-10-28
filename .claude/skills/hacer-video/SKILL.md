@@ -25,6 +25,9 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
   no se cuestiona por el largo del video»).
 - **El canon manda:** estilo pixel chibi, mano de 14 px, voces Kokoro `am_puck` 0,85 y `em_santa` 0,92, música
   `banda.cjs`, narración del 10 y del 11. No se cambia sin preguntar.
+- **La banda de cada episodio la decide el tema** (desde el 13, por petición del usuario: «la música de fondo se está
+  repitiendo de capítulo a capítulo… no todo es suspenso»; «la banda depende del tema que definamos y el guion»). Se
+  diseña con el guion (paso 2.4) y se aprueba con él, con su muestra.
 - **Solo herramientas gratis.**
 - **Etiquetas honestas:** «Seguro» solo para lo comprobado con capturas o mediciones.
 
@@ -32,7 +35,7 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
 
 - El usuario aprueba **dos cosas**:
   - el **tema**, propuesto con datos;
-  - el **guion**, con su presupuesto de horas.
+  - el **guion**, con su banda sonora (y su muestra) y su presupuesto de horas.
 - Después se produce **de corrido hasta la entrega**:
   - Al acabar cada bloque se informa en una línea, sin esperar respuesta.
   - Solo se para si algo obligaría a bajar el nivel, a tocar el canon o a borrar algo que no se puede regenerar.
@@ -62,11 +65,14 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
 1. `bash atomo/herramientas/comprobar-entorno.sh`. Comprueba:
    - node, Playwright con Chromium, ffmpeg completo, Python, Pillow y las fuentes;
    - la red hasta GitHub, Hugging Face y Google Fonts (de ahí salen las fuentes de los números del canon);
-   - el disco: unos 8 GB libres (6 para el episodio y 1,5 para la voz, si aún no está instalada).
+   - el disco: al menos **10 GB libres** (6 para el render, 1,5 para la voz si aún no está y margen para las capturas
+     de las pasadas; en el 12 hubo que parar dos veces a liberar sitio a mitad de la producción). Si no los hay,
+     libera ahora lo que se pueda regenerar (ver «Trampas conocidas»), no a mitad del render.
 
    Si falta algo, arréglalo antes de empezar o díselo al usuario.
 2. `bash atomo/herramientas/preparar-voz.sh`. Tarda unos 6 minutos en un contenedor nuevo y nada si ya está; escribe la
-   carpeta (por defecto `~/.cache/ask-atom/voz`, que es donde la busca `producir.sh`).
+   carpeta (por defecto `~/.cache/ask-atom/voz`, que es donde la busca `producir.sh`). Tiene que ser una carpeta de
+   verdad, nunca un enlace a tu carpeta temporal: en el 12 lo era, se borró al hacer sitio y `producir.sh` se paró.
 3. La rama de trabajo: la que diga la sesión; si no dice ninguna, crea `episodio-<ep>`. Commit al acabar cada bloque, y
    push si hay remoto con permiso (si no, sigue con commits locales y díselo al usuario en una línea).
 
@@ -120,16 +126,35 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    las personas (anécdotas, leyendas, citas: lo que más falla), uno para la ciencia y las cifras, y uno para la actualidad
    y las fechas. Cada uno intenta tumbar los datos con fuentes primarias y devuelve solo lo que falla, con la frase
    corregida en los dos idiomas.
-4. **Preséntalo en el chat**, en este orden:
+4. **La banda sonora del episodio**, a partir del tema y de lo que cuenta cada acto (no es una plantilla: dos
+   episodios no suenan igual):
+   - **Tono y modo** (`banda.tono`: do, re, mi, fa, sol, la, si, con # o b; `banda.modo`: mayor, menor, dorico,
+     mixolidio o lidio). Distintos de los de los dos episodios anteriores (mira sus `escenas.json`; sin «banda», fue La
+     menor). Un tema luminoso o de ciencia y asombro tira a mayor o lidio; uno de aventura, a mixolidio o dórico; uno
+     oscuro, a menor.
+   - **Tempo** (`banda.tempo`, 70–130) según el pulso de la historia.
+   - **Motivo**: 8 notas en semitonos sobre la tónica (`banda.motivo`), propio del episodio, que se reconozca. Suena en
+     la caja de música del misterio, en la marimba de la curiosidad y en las cartelas.
+   - **Un ánimo por escena**, según lo que cuenta: `suspense`, `misterio`, `intriga`, `cierre` (los de siempre) y los
+     nuevos `asombro`, `aventura`, `curiosidad`, `calma`, `epico` y `ternura` (qué es cada uno: la cabecera de
+     `atomo/herramientas/banda.cjs`). Suspense, misterio e intriga juntos, como mucho un tercio del episodio salvo que
+     el tema sea de misterio de verdad; al menos cuatro ánimos distintos; los golpes, solo en las dos o tres revelaciones.
+   - En el guion va una tabla `| **Acto** | **Ánimo** | **Por qué** |` (primera celda en negrita) y la línea de la banda.
+   - **La muestra:** con `plan.py` ya escrito (paso 3.1, que se puede adelantar), saca
+     `python3 atomo/herramientas/muestra-banda.py episodios/<carpeta>/escenas.json <SC>/muestra-banda.mp3`
+     (unos 12 s por ánimo, en el orden del episodio) y envíala con SendUserFile junto al guion. Yo no oigo: el que
+     aprueba cómo suena es el usuario.
+5. **Preséntalo en el chat**, en este orden:
    1. lo incómodo, primero;
    2. el commit, las frases, las palabras en inglés y la duración estimada [Probable];
    3. el título de trabajo y la alternativa A/B;
    4. **el texto en español entero**, acto por acto (**0 · El gancho**…), con una frase por línea;
    5. los gags;
-   6. la tabla del presupuesto de horas, sacada de la de esta skill (abajo), no de la del guion del 11, que se hizo sin
+   6. la banda: tono, modo, tempo, motivo, el ánimo de cada acto y por qué, con la muestra adjunta;
+   7. la tabla del presupuesto de horas, sacada de la de esta skill (abajo), no de la del guion del 11, que se hizo sin
       las pasadas;
-   7. lo que has cuidado y lo que hay que decidir.
-5. **Espera la aprobación.** Lo normal es una o dos rondas.
+   8. lo que has cuidado y lo que hay que decidir.
+6. **Espera la aprobación.** Lo normal es una o dos rondas.
 
 ### 3. Datos del guion y voz (en segundo plano)
 
@@ -137,11 +162,15 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    - en `plan.py`:
      - el docstring con los decorados;
      - la lista `E` (id, cartela, frases, marcas, guion visual, ánimo de la música y golpes);
+     - `BANDA = {'tono': …, 'modo': …, 'tempo': …, 'motivo': […]}` y que el `json.dump` final escriba también
+       `'banda': BANDA` en `escenas.json` (sin ella, `banda.cjs` suena como en el 10–12);
      - el assert del número de frases;
    - en `hacer_guion.py`:
      - la línea `Uso:`;
      - `PREVIO` (las fechas con día y las cifras que no son años, en los dos idiomas);
-     - `PRONUNCIA['es']` (los nombres propios escritos como se dicen, primero los compuestos);
+     - `PRONUNCIA['es']` (los nombres propios escritos como se dicen, primero los compuestos). Empieza por lo que ya
+       se corrigió en otros episodios: `python3 atomo/herramientas/pronuncia.py episodios/<carpeta>/guion.md` lo busca
+       en el guion y lo deja listo para pegar (míralo: alguna entrada es el arreglo de una frase concreta);
      - `numero`, `estado` y `titulo`.
 2. Genera, en este orden (`hacer_guion.py` lee `escenas.json`):
    `python3 episodios/<carpeta>/plan.py && python3 episodios/<carpeta>/hacer_guion.py`.
@@ -157,7 +186,9 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    ```
 5. Al terminar, la voz vale si el log acaba en «total … clips con fallos y N para escuchar». Lee
    `atomo/build/largo/<ep>/informe.json`: es una lista con `problemas` y `avisos` por clip. Que el control lea a la inglesa los
-   nombres escritos a la española es normal. Apunta las frases dudosas para que el usuario las escuche.
+   nombres escritos a la española es normal. Apunta las frases dudosas para que el usuario las escuche. Cuando la voz
+   quede bien, guarda las pronunciaciones nuevas para los siguientes:
+   `python3 atomo/herramientas/pronuncia.py episodios/<carpeta>/guion.md --anadir`.
 
 ### 4. Reparto
 
@@ -183,7 +214,13 @@ En `atomo/plato/escenas/<pref>-comun.js`:
 - las piezas pequeñas.
 
 Captúralos en una página de prueba y arregla lo evidente. Ya en esta versión: nada liso, todo el lienzo pintado, lo de
-fuera recortado a ventanas y puertas, y los fondos fijos con `const prev = R.usar(b); …; R.usar(prev)`.
+fuera recortado a ventanas y puertas, y los fondos fijos con `const prev = R.usar(b); …; R.usar(prev)`. Repasa «Los
+siete fallos que más suspendieron en el 12» de `episodios/NIVEL-RESUMEN.md`: es más barato no cometerlos aquí que
+pagarlos en la pasada de calidad (en el 12, tres rondas y dos pasadas extra, unas 6 h y 15 M de tokens).
+
+**El primer borrador de la miniatura va aquí, no al final** (paso 10): con los decorados recién hechos, compón
+`<pref>-miniatura.html` y mírala también reducida a 320 × 180, que es como la ve el público en la lista de YouTube. En el
+12, el tornado pálido se vio al final y hubo que rehacerlo.
 
 ### 6. Escenas: el primer borrador
 
@@ -193,8 +230,11 @@ fuera recortado a ventanas y puertas, y los fondos fijos con `const prev = R.usa
 3. Reglas de las escenas:
    - un plano cada 4–7 s, con su propia composición, cortado en la palabra que toca (`en('marca', fracción)`);
    - cartelas de año y la barra del año;
-   - efectos `[t, 'receta']`, solo con recetas de `NIVEL`;
-   - los gags.
+   - efectos `[t, 'receta']`, solo con recetas de `NIVEL`, **como mucho uno por segundo** y pocos rellenos (pop, brillo,
+     whoosh): el 12 llevaba 595 en 532 s y no pasó el control hasta que `efectos.cjs` quitó 58. Ese recorte automático
+     (si un episodio pasa del 62 % del tiempo con efectos, quita rellenos cortos, nunca gags) es la red, no el método;
+   - los gags;
+   - los siete fallos de `NIVEL-RESUMEN.md`, desde el borrador.
 4. Con la voz real (paso 3), vuelve a generar con `--pisar` y mide: `node atomo/herramientas/medir-planos.mjs <ep>` («!»
    si pasa de 7,2 s, «<» si baja de 3,5 s). Sin `--pisar`, el generador no toca una escena que ya existe.
 5. Commit. **Desde aquí el generador ya no se usa:** las escenas se editan en su `.html`.
@@ -243,12 +283,24 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
      +0,17 s).
 
    En el 11 entregado había 9 fundidos ROTOS (18–48 % del cuadro) en 7 escenas, y nadie los vio.
+
+   Y la red barata de lo grosero: `node atomo/herramientas/medir-planos.mjs <ep> --comprobar` (unos 5 min, sin
+   agentes) da sospechas de zonas de un color, planos quietos, detalle detrás de Atom, planos repetidos seguidos y
+   errores de página. Ojo: está calibrada para que el 11 casi no dé ninguna y en el 12, antes de la calidad, no dio
+   ninguna; los fallos de criterio (poco detalle, brazos, orden de dibujo) solo los ven tus ojos y los agentes.
 2. Por cada plano por debajo, apunta un fallo concreto, con el formato del workflow:
    `{ escena, plano, nota, fallos: [...], origen: 'escena' | 'decorado', funcion, encargo: 'qué hay hoy, qué debe haber y qué se mantiene' }`.
 3. Lanza `paso: 'calidad'`, con `lotes` de 4–6 escenas que cubran todas, `fallos` (tu lista) y `rondas: 3`. El workflow
    hace esto:
-   - pule tus fallos: primero, y solo, el agente de los decorados; luego uno por escena;
-   - revisa con un revisor y un escéptico hasta que no quede nada o se acaben las rondas.
+   - pule tus fallos: primero, y solo, el agente de los decorados; luego uno por escena. Si el agente de decorados ve
+     que un fallo está en la escena y no en el decorado, lo devuelve y pasa al agente de esa escena en la misma ronda
+     (en el 12 se perdió una ronda entera por eso);
+   - **una revisión completa**: revisor y escéptico en todos los planos de todos los lotes;
+   - pule lo suspendido y, desde ahí, **un verificador** por lote con escenas pulidas: puntúa entero cada plano pulido y
+     busca regresiones en el resto de esas escenas, pero no reabre lo que ya aprobaron revisor y escéptico. En el 12, el
+     escéptico encontraba algo nuevo en planos aprobados en cada ronda (41 → 20 → 12 → 4 → 2) y la pasada no acababa;
+   - las notas del revisor van en `notas`, y `errores_pagina` es solo el error que da la herramienta (en el 12, una
+     nota se tomó por un error de página).
 4. Si devuelve `aprobado: false`, lo que queda en `quedan` se arregla tú o se le dice al usuario. Nunca se entrega en
    silencio.
 5. Commit.
@@ -263,7 +315,8 @@ Es la imagen más trabajada del episodio:
 - sin palabras;
 - lo que promete el título.
 
-La captura y el escalado los hace `producir.sh`. **Mírala** antes de enviarla.
+El primer borrador ya se hizo con los decorados (paso 5); aquí se termina con los decorados finales. La captura y el
+escalado los hace `producir.sh`. **Mírala** a tamaño completo y a 320 × 180 antes de enviarla.
 
 ### 11. Ficha de publicación
 
@@ -337,7 +390,12 @@ Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git
     principio. Después, solo las escenas que no aguanten tu revisión contra el 11 pasan otra vez por movimiento;
   - pasada de decorados solo con la lista de fallos concretos de cada decorado, no «súbelo todo», cuando la primera
     versión ya aguanta la comparación;
-  - la pasada de calidad (revisor, escéptico y pulido) no cambia: es la red que lo detecta.
+  - la pasada de calidad sigue entera (revisor y escéptico en todos los planos una vez, pulido y verificador hasta que
+    no quede nada): es la red que lo detecta.
+- **Aprobado el 28/10/2026** (lo aprendido en el 12): los siete fallos en `NIVEL-RESUMEN.md` desde el primer borrador;
+  el verificador en lugar del escéptico desde la segunda revisión; los fallos que vuelven solos a su escena; la miniatura
+  con los decorados; el presupuesto de efectos; 10 GB libres al empezar; el integrador que coge las auxiliares cambiadas;
+  el diccionario de pronunciación. Si el 13 sale por debajo del 12 en algo, se vuelve atrás y se le dice al usuario.
 
 ## Presupuesto de horas
 
@@ -351,10 +409,10 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
 | Reparto, decorados y escenas, primer borrador | ~1 h |
 | Pasada de movimiento | ~2 h |
 | Pasada de decorados e integración | 1–1,5 h |
-| Calidad: tu revisión, revisor, escéptico y pulido | 3–4 h |
+| Calidad: tu revisión, revisor y escéptico una vez, pulido y verificador | 3–4 h (el 12, con el método anterior: ~6 h) |
 | Producción y control (render 10–16 min) | ~45 min |
 | Miniatura, ficha y entrega | ~1 h |
-| **Total** | **unas 10–12 h** |
+| **Total** | **unas 10–12 h** (el 12 real: ~15 h) |
 
 ## Trampas conocidas
 
@@ -374,7 +432,9 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
     siguen ahí y los agentes parten de ellas.
 - **El disco lleno falla sin avisar.** La voz da «LibsndfileError: System error», node muere sin mensaje y una cadena con
   `;` termina con 0. Por eso `producir.sh` encadena con `set -e` y comprueba los fotogramas y las fechas. Para borrar:
-  - solo lo que se puede regenerar (cachés de pip y npm, modelos que no usa el canon, tus capturas viejas);
+  - solo lo que se puede regenerar (cachés de pip y npm, modelos que no usa el canon, tus capturas viejas). **Nunca**
+    `~/.cache/ask-atom/voz` ni lo que enlace a ella: mira con `ls -la` y `readlink` antes de borrar una carpeta que
+    «parece vieja» (en el 12 se borró el entorno de voz así);
   - con rutas literales, una carpeta por orden, sin comodines ni variables;
   - si el control de seguridad bloquea algo, no lo esquives: pregunta.
 - **Un contenedor nuevo empieza vacío:** `build/`, el entorno de voz y `node_modules` no están en git. Repite el paso 0.
@@ -386,8 +446,10 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
   - la hoja de revisión no los ve: los comprueba `medir-planos.mjs --fundidos` (y `producir.sh` antes de renderizar);
   - los kits tienen `R.buf` vivo desde `bf5a41a`: antes, todo lo que se pintaba con `R.buf` caía fuera del fundido.
 - **Manos grandes y primeros planos rompen el canon.** Usa la mano de 14 px y los insertos de objetos.
-- **La música no se toca sin preguntar.** `banda.cjs` ya hace música continua; si algo suena raro, se mide con
-  `medir-sonido.py` y se pregunta.
+- **La música no se toca sin preguntar.** `banda.cjs` ya hace música continua. La banda de cada episodio (tono, modo,
+  tempo, motivo y ánimos) se decide con el guion y la aprueba el usuario con su muestra; después no se cambia por tu
+  cuenta. Si algo suena raro, se mide con `medir-sonido.py` y se pregunta. Sin «banda» en `escenas.json`, `banda.cjs`
+  suena exactamente como en el 10–12 (comprobado bit a bit con el 12).
 - **Si el usuario pregunta «¿por qué…?», respóndele** y no toques nada. En el 11 se deshizo `banda.cjs` sin que nadie lo
   pidiera y tuvo que repetir la pregunta.
 - **Un vídeo ya subido a YouTube no se vuelve a renderizar entero.** El arreglo se ajusta a lo publicado: por ejemplo,
