@@ -40,7 +40,9 @@ if (paso === 'calidad' && A.fallos && !(Array.isArray(A.fallos) && A.fallos.ever
 
 const CONTEXTO = `Trabajas en el repositorio de la serie (tu directorio de trabajo es su raíz): la serie de vídeos «ASK Atom» (pixel art en un lienzo de 320×180, escenas en atomo/plato/escenas/<id>.html que importan «* as T» de ${pref}-comun.js; el guion del episodio está en episodios/${carpeta}/guion.json, campo «en» = la voz inglesa, que manda; escenas.json tiene el guion visual).
 
-EL NIVEL ESTÁ ESCRITO EN PIEDRA: lee episodios/NIVEL-RESUMEN.md (una página; ESTANDAR.md y GUIA-ESTILO.md solo si dudas de algo concreto). El usuario lo dijo así: «todo excelente; pero sobre todo el detalle de las escenas y movimiento», y «no por ahorrar tiempo bajarlo por ninguna circunstancia». Rechazó una primera versión del 11 por «escenas muy simples, sin detalles, con paredes vacías, cielos sin detalle». LA REFERENCIA es el episodio 11 final: mira con Read episodios/referencia-ep11-1.jpg y referencia-ep11-2.jpg (15 planos a 640×360) antes de empezar, y si necesitas un modelo de código, lee SOLO la función o la escena del 11 que te sirva (grep -n en th-comun.js y sed -n de ese trozo: farmacia, laboratorio, tribunal, consejo, prision, cine, stanford), nunca el archivo entero. Ninguna imagen que mires con Read debe pasar de 2000 px de lado: si pasa, Read la reduce y juzgarías los planos en miniatura.`
+EL NIVEL ESTÁ ESCRITO EN PIEDRA: lee episodios/NIVEL-RESUMEN.md (una página; ESTANDAR.md y GUIA-ESTILO.md solo si dudas de algo concreto). El usuario lo dijo así: «todo excelente; pero sobre todo el detalle de las escenas y movimiento», y «no por ahorrar tiempo bajarlo por ninguna circunstancia». Rechazó una primera versión del 11 por «escenas muy simples, sin detalles, con paredes vacías, cielos sin detalle». LA REFERENCIA es el episodio 11 final: mira con Read episodios/referencia-ep11-1.jpg y referencia-ep11-2.jpg (15 planos a 640×360) antes de empezar, y si necesitas un modelo de código, lee SOLO la función o la escena del 11 que te sirva (grep -n en th-comun.js y sed -n de ese trozo: farmacia, laboratorio, tribunal, consejo, prision, cine, stanford), nunca el archivo entero. Ninguna imagen que mires con Read debe pasar de 2000 px de lado: si pasa, Read la reduce y juzgarías los planos en miniatura.
+
+GASTA POCO SIN MIRAR MENOS: cada turno tuyo reenvía todo lo que ya has leído, imágenes incluidas (una hoja de 1920×1800 son unos 4.600 tokens que se pagan otra vez en cada turno siguiente). Así que: lanza a la vez, en el mismo turno, las órdenes y lecturas que no dependen unas de otras (la hoja y los fundidos en una sola orden Bash con &&; varias imágenes en el mismo turno); no vuelvas a abrir una imagen que ya has mirado; para repasar un plano después de editarlo, saca solo ese plano (--planos N) y no la escena entera; y lee el código con grep -n y sed -n del trozo que necesitas, no archivos enteros. Nada de esto rebaja lo que tienes que mirar: cada plano que juzgas o tocas lo ves entero.`
 
 const REGLAS = `REGLAS QUE NO SE PUEDEN ROMPER:
 - Sin palabras ni letras en pantalla: solo números y símbolos (R.numero, R.icono). Carteles, logos y periódicos se insinúan con barras, pictogramas o trazos.
@@ -58,6 +60,7 @@ const REGLAS = `REGLAS QUE NO SE PUEDEN ROMPER:
 
 const HERRAMIENTAS = (propia) => `HERRAMIENTAS (desde la raíz del repositorio):
 - Hoja de revisión de una o varias escenas (una fila por plano: inicio, centro y final, a 640×360 con etiqueta; dice si la página dio errores): node atomo/herramientas/medir-planos.mjs ${ep} <id> [<id> …] --hoja <carpeta>. Un id puede llevar carpeta (_tmp_A/${pref}-lab) para abrir una copia. Mira cada hoja con Read.
+- Solo algunos planos (los números de la hoja; 0 es la cartela): añade --planos 2,4 a la orden de la hoja. Con --ligera, la hoja lleva dos columnas (inicio y final): para buscar regresiones en los planos que no tocas.
 - Duración de cada plano («!» más de 7,2 s, «<» menos de 3,5 s): node atomo/herramientas/medir-planos.mjs ${ep} <ids>. Con --centros da el centro de cada plano.
 - Fundidos rotos (negro o restos en la mitad del fundido entre dos planos; la hoja no los ve): node atomo/herramientas/medir-planos.mjs ${ep} <ids> --fundidos.
 - Capturas sueltas a 1920×1080 (SOLO para un detalle concreto o un instante intermedio que la hoja no deja juzgar; para todo lo demás, las hojas): node estilos/herramientas/capturar.mjs atomo/plato/escenas/<archivo>.html t1,t2,… --salida <carpeta> --formato 16:9 (dice «sin errores en la página»).
@@ -227,7 +230,7 @@ En la ronda anterior se suspendieron y se pulieron estos planos de ${ids.join(',
 ${pul.map((p) => `- ${p.escena}, plano ${p.plano}: ${p.fallos.join('; ')}. Encargo: ${p.encargo}`).join('\n')}
 
 1. Mira con Read episodios/referencia-ep11-1.jpg y referencia-ep11-2.jpg.
-2. Hojas: node atomo/herramientas/medir-planos.mjs ${ep} ${ids.join(' ')} --hoja ${sc}/cal_r${r}_${i}, y fundidos: node atomo/herramientas/medir-planos.mjs ${ep} ${ids.join(' ')} --fundidos.
+2. Hojas, en una sola orden: para cada escena, la hoja completa SOLO de sus planos pulidos (node atomo/herramientas/medir-planos.mjs ${ep} <id> --hoja ${sc}/cal_r${r}_${i} --planos <los de la lista>) y la hoja ligera de la escena entera para las regresiones (… <id> --hoja ${sc}/cal_r${r}_${i} --ligera); y los fundidos: node atomo/herramientas/medir-planos.mjs ${ep} ${ids.join(' ')} --fundidos.
 3. Para CADA plano de la lista: ¿está arreglado el fallo? Puntúalo entero con la rúbrica (nota 4 o más y ninguna regla rota para pasar). Si el arreglo ha traído un fallo nuevo en ese plano, suspéndelo.
 4. Los DEMÁS planos de estas escenas ya los aprobaron un revisor y un escéptico: no los vuelvas a juzgar por gusto. Suspende uno solo si algo se ha ROTO respecto a lo aprobado (regresión): restos o negro en un fundido, un error en la página, algo que tapa o se pinta encima de lo que no debe, una regla rota que antes no estaba.
 
@@ -250,7 +253,7 @@ ${REGLAS}
 
 ${HERRAMIENTAS(`${sc}/pul_r${r}_${j}`)}
 
-MÉTODO: hoja ANTES en ${sc}/pul_r${r}_${j}/antes; edita; hoja DESPUÉS en ${sc}/pul_r${r}_${j}/despues/<n>; compara lado a lado con la referencia. Itera hasta que cada plano tuyo pase la rúbrica (nota 4 o más, ninguna regla rota) y la hoja diga «sin errores en la página».
+MÉTODO: hoja ANTES en ${sc}/pul_r${r}_${j}/antes, solo de tus planos (--planos ${[...new Set(tarea.fallos.map((p) => p.plano))].join(',')}; si son de decorados, la de cada escena afectada); edita; hoja DESPUÉS en ${sc}/pul_r${r}_${j}/despues/<n>, también solo de tus planos, y al final una hoja --ligera de cada escena que has tocado para ver que no has roto nada; compara lado a lado con la referencia. Itera hasta que cada plano tuyo pase la rúbrica (nota 4 o más, ninguna regla rota) y la hoja diga «sin errores en la página».
 
 ${RUBRICA}
 
@@ -362,7 +365,17 @@ ENTREGA (salida estructurada, CORTA: listas y frases breves, sin redacción; cad
     historial[historial.length - 1].pulido = pulidos.filter(Boolean).map((p) => ({ escenas: p.escenas, resumen: p.resumen, avisos: p.avisos }))
   }
   if (quedan.length) log(`QUEDAN ${quedan.length} planos sin pasar después de ${rondas} rondas: díselo al usuario, no se entrega en silencio`)
-  return { paso, aprobado: !quedan.length, quedan, historial }
+  // la respuesta, corta: lo que queda y los recuentos. Los resúmenes de cada pulido están en el journal.jsonl del
+  // workflow (en el 12, devolverlos enteros metió 108.000 caracteres en la conversación principal); de sus avisos solo
+  // vuelve el principio, para ver si algo pide intervenir
+  const corto = (t, n = 300) => { t = String(t || ''); return t.length > n ? t.slice(0, n) + '…' : t }
+  return {
+    paso, aprobado: !quedan.length, quedan,
+    rondas: historial.map((h) => ({ ronda: h.ronda, completa: !!h.completa, revisados: h.planos, suspensos: h.suspensos.length,
+      errores: h.errores, sinRevisar: h.sinRevisar, decoCaido: h.decoCaido,
+      avisos: (h.pulido || []).map((p) => `${p.escenas.join(',')}: ${corto(p.avisos)}`).filter((a) => !/:\s*(ninguno|—|-)?\.?$/i.test(a)) })),
+    detalle: 'resúmenes completos de cada pulido: journal.jsonl del workflow',
+  }
 }
 
 throw new Error(`paso desconocido: ${paso} (decorados | movimiento | calidad)`)

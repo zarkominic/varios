@@ -7,6 +7,10 @@
 //   node atomo/herramientas/medir-planos.mjs ep11 th-lab --hoja <carpeta>   → <carpeta>/th-lab-1.jpg, th-lab-2.jpg: la hoja de revisión
 //   node atomo/herramientas/medir-planos.mjs ep11 --fundidos       → los fundidos rotos (sale con 1 si hay alguno)
 //   node atomo/herramientas/medir-planos.mjs ep11 --comprobar      → sospechas que se miden solas (ver abajo)
+//   … th-lab --hoja <carpeta> --planos 2,4   → la hoja solo de esos planos (los números de la hoja; 0 es la cartela)
+//   … th-lab --hoja <carpeta> --ligera       → la hoja con dos columnas (inicio y final), para buscar regresiones
+// Cada hoja (1920×1800) pesa unos 4.600 tokens y el agente la vuelve a cargar en cada turno: el verificador y el pulidor
+// sacan solo los planos que tocan (--planos) y una hoja ligera del resto (desde el episodio 13).
 //
 // --comprobar (desde el episodio 13) mide sin agentes, antes de las revisiones, lo que más suspendió en el 12. Son
 // SOSPECHAS para el revisor, no veredictos (sale siempre con 0), calibradas para que el 11 final casi no dé ninguna (da 5):
@@ -47,8 +51,10 @@ const centros = args.includes('--centros');
 const ip = args.indexOf('--puerto'), fijo = ip >= 0 ? Number(args[ip + 1]) : 0;   // 0: uno libre
 const ih = args.indexOf('--hoja'), hoja = ih >= 0 ? path.resolve(args[ih + 1]) : null;
 const fundidos = args.includes('--fundidos');
+const ligera = args.includes('--ligera');
+const iq = args.indexOf('--planos'), soloPlanos = iq >= 0 ? new Set(String(args[iq + 1]).split(',').map(Number)) : null;
 const comprobar = args.includes('--comprobar');
-const libres = args.filter((a, i) => !a.startsWith('--') && (ip < 0 || i !== ip + 1) && (ih < 0 || i !== ih + 1));
+const libres = args.filter((a, i) => !a.startsWith('--') && (ip < 0 || i !== ip + 1) && (ih < 0 || i !== ih + 1) && (iq < 0 || i !== iq + 1));
 const episodio = libres[0];
 if (!episodio) { console.error('uso: medir-planos.mjs <episodio> [id …] [--centros] [--fundidos] [--puerto N] [--hoja carpeta]'); process.exit(1); }
 const letra = ['liberation/LiberationSans-Bold.ttf', 'dejavu/DejaVuSans-Bold.ttf'].map((f) => '/usr/share/fonts/truetype/' + f).find((f) => fs.existsSync(f));
@@ -153,10 +159,13 @@ for (const id of ids) {
   }
   else if (!hoja) console.log(id.padEnd(16), d.toFixed(1).padStart(5), p.map((a, i) => { const x = fin(i) - a; return x.toFixed(1) + (x > 7.2 ? '!' : x < 3.5 ? '<' : ''); }).join(' '));
   if (hoja) {
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hoja-')), celdas = [];
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hoja-')), celdas = [], cols = ligera ? 2 : 3;
+    // el número de plano de la hoja: con cartela, la entrada i es «plano i» (la cartela, 0); sin ella, «plano i+1»
+    const num = (i) => (cartela ? i : i + 1);
     for (let i = 0; i < p.length; i++) {
+      if (soloPlanos && !soloPlanos.has(num(i))) continue;
       const a = p[i], b = fin(i), m = (a + b) / 2;
-      for (const [j, t] of [Math.min(a + 0.4, m), m, Math.max(b - 0.35, m)].entries()) {
+      for (const [j, t] of (ligera ? [Math.min(a + 0.4, m), Math.max(b - 0.35, m)] : [Math.min(a + 0.4, m), m, Math.max(b - 0.35, m)]).entries()) {
         await pg.evaluate((t) => window.__frame(t), t);
         const f = path.join(tmp, `${i}-${j}.png`);
         await pg.screenshot({ path: f });
@@ -164,21 +173,22 @@ for (const id of ids) {
       }
     }
     // de 5 planos en 5 (1920×1800 como mucho): Read reduce lo que pasa de 2000 px y los planos se verían en miniatura
-    const salidas = [], grupos = Math.ceil(p.length / 5);
+    const filas = celdas.length / cols, salidas = [], grupos = Math.ceil(filas / 5);
     for (let g = 0; g < grupos; g++) {
-      const parte = celdas.slice(g * 15, g * 15 + 15), n = parte.length, ent = [], fil = [];
+      const parte = celdas.slice(g * 5 * cols, (g + 1) * 5 * cols), n = parte.length, ent = [], fil = [];
       parte.forEach((c, k) => {
         ent.push('-i', c.f);
         fil.push(`[${k}:v]` + (letra ? `drawtext=fontfile=${letra}:text='${c.txt}':x=6:y=342:fontsize=14:fontcolor=white:box=1:boxcolor=black@0.6` : 'null') + `[v${k}]`);
       });
-      const lay = parte.map((_, k) => `${(k % 3) * 640}_${Math.floor(k / 3) * 360}`).join('|');
-      const sal = path.join(hoja, `${path.basename(id)}${grupos > 1 ? '-' + (g + 1) : ''}.jpg`);
+      const lay = parte.map((_, k) => `${(k % cols) * 640}_${Math.floor(k / cols) * 360}`).join('|');
+      const sufijo = (soloPlanos ? '-p' + [...soloPlanos].join('_') : '') + (ligera ? '-ligera' : '');
+      const sal = path.join(hoja, `${path.basename(id)}${sufijo}${grupos > 1 ? '-' + (g + 1) : ''}.jpg`);
       execFileSync('ffmpeg', ['-v', 'error', '-y', ...ent, '-filter_complex', fil.join(';') + ';' + parte.map((_, k) => `[v${k}]`).join('') + (n > 1 ? `xstack=inputs=${n}:layout=${lay}` : 'null'), '-q:v', '3', sal]);
       salidas.push(sal);
     }
     fs.rmSync(tmp, { recursive: true, force: true });
     const sal = salidas.join(', ');
-    console.log(`${id}: ${p.length} planos → ${sal}` + (errores.length ? `  ERRORES: ${errores.join(' | ')}` : '  sin errores en la página'));
+    console.log(`${id}: ${filas} de ${p.length} planos → ${sal}` + (errores.length ? `  ERRORES: ${errores.join(' | ')}` : '  sin errores en la página'));
   }
 }
 await nav.close();

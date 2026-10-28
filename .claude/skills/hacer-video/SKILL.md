@@ -271,10 +271,10 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
 - borra las copias `_tmp_*` integradas, con su ruta literal, una a una.
 
 **9. Calidad** (unas 3–4 h):
-1. **Tu revisión primero.** Saca las hojas de todas las escenas:
-   `node atomo/herramientas/medir-planos.mjs <ep> --hoja <SC>/rev`. Cada escena tiene una fila por plano (inicio, centro
-   y final, a 640 × 360) y salen como mucho 5 planos por imagen. Ninguna imagen de revisión pasa de 2000 px, porque Read
-   las reduce. Míralas todas junto a la referencia, y primero los «fondo local».
+1. **Lo que se mide solo, primero, y en texto.** Las hojas de todas las escenas NO se miran en tu conversación: cada
+   hoja son unos 4.600 tokens que se vuelven a pagar en cada mensaje tuyo hasta que la conversación se resume (en el 12
+   miraste unas 20 y se arrastraron horas). La revisión plano a plano contra la referencia la hace el workflow, con
+   revisor y escéptico, en su primera ronda completa, con el mismo listón.
 
    Las hojas no ven los fundidos entre planos, así que compruébalos aparte con
    `node atomo/herramientas/medir-planos.mjs <ep> --fundidos`:
@@ -288,11 +288,14 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
    agentes) da sospechas de zonas de un color, planos quietos, detalle detrás de Atom, planos repetidos seguidos y
    errores de página. Ojo: está calibrada para que el 11 casi no dé ninguna y en el 12, antes de la calidad, no dio
    ninguna; los fallos de criterio (poco detalle, brazos, orden de dibujo) solo los ven tus ojos y los agentes.
-2. Por cada plano por debajo, apunta un fallo concreto, con el formato del workflow:
+2. Con lo que ya sabes (fundidos ROTOS, sospechas de `--comprobar` que se confirmen, los «fondo local» y los fallos de
+   decorado que dejaron en sus avisos las pasadas de movimiento y decorados), apunta un fallo concreto por plano, con
+   el formato del workflow:
    `{ escena, plano, nota, fallos: [...], origen: 'escena' | 'decorado', funcion, encargo: 'qué hay hoy, qué debe haber y qué se mantiene' }`.
-3. Lanza `paso: 'calidad'`, con `lotes` de 4–6 escenas que cubran todas, `fallos` (tu lista) y `rondas: 3`. El workflow
-   hace esto:
-   - pule tus fallos: primero, y solo, el agente de los decorados; luego uno por escena. Si el agente de decorados ve
+   Si no hay ninguno, el workflow empieza por la revisión completa.
+3. Lanza `paso: 'calidad'`, con `lotes` de 4–6 escenas que cubran todas, `fallos` (tu lista, si la hay) y `rondas: 3`.
+   El workflow hace esto:
+   - pule tus fallos, si los hay: primero, y solo, el agente de los decorados; luego uno por escena. Si el agente de decorados ve
      que un fallo está en la escena y no en el decorado, lo devuelve y pasa al agente de esa escena en la misma ronda
      (en el 12 se perdió una ronda entera por eso);
    - **una revisión completa**: revisor y escéptico en todos los planos de todos los lotes;
@@ -300,8 +303,17 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
      busca regresiones en el resto de esas escenas, pero no reabre lo que ya aprobaron revisor y escéptico. En el 12, el
      escéptico encontraba algo nuevo en planos aprobados en cada ronda (41 → 20 → 12 → 4 → 2) y la pasada no acababa;
    - las notas del revisor van en `notas`, y `errores_pagina` es solo el error que da la herramienta (en el 12, una
-     nota se tomó por un error de página).
-4. Si devuelve `aprobado: false`, lo que queda en `quedan` se arregla tú o se le dice al usuario. Nunca se entrega en
+     nota se tomó por un error de página);
+   - el verificador y los pulidores sacan la hoja completa solo de los planos que tocan (`--planos`) y una hoja ligera
+     (inicio y final, `--ligera`) del resto de la escena para las regresiones;
+   - devuelve corto: lo que queda, los recuentos de cada ronda y el principio de los avisos. Los resúmenes enteros
+     están en el `journal.jsonl` de su «Transcript dir»: léelos con `grep` solo si un aviso pide intervenir.
+
+   **Tu ojo, al final y con medida:** cuando el workflow acabe, mira tú 3 o 4 hojas, no más. Elige las de los planos que
+   aprobaron con la nota más justa (4), los que más rondas necesitaron y uno al azar. Sácalas con `--planos` y míralas
+   junto a la referencia. Si alguno no aguanta, va a `quedan`.
+4. Si devuelve `aprobado: false`, lo que queda en `quedan` se arregla tú o se le dice al usuario. Para arreglarlo tú,
+   mira solo esos planos (`--planos`, o `capturar.mjs` en un instante). Nunca se entrega en
    silencio.
 5. Commit.
 
@@ -353,6 +365,9 @@ bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
   - los subtítulos;
   - la tira de 20 fotogramas, en `atomo/build/salida/<ep>-tira.jpg`.
 
+**Lee la salida filtrada**, no entera: `tail -45` del registro (el control y el resumen están al final) o `grep -E
+"MAL|ERROR|ROTO|hecho"`. La locución, igual: `grep -E "⚠|·|total"` de su registro.
+
 Si falla a medias, sigue desde ese paso con `--desde fundidos|render|efectos|banda|montar|miniatura|control` (un nombre mal escrito es un error). **Mira la tira y la
 miniatura.** Rellena los huecos de la ficha.
 
@@ -385,6 +400,19 @@ Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git
   a 40.000 caracteres).
 - **Imágenes:** las hojas de revisión a 640 × 360. La captura a 1920 × 1080 solo para un detalle concreto.
 - **Verificación de datos:** 3 agentes (paso 2.3).
+- **Aprobado el 28/10/2026, para el 13** (en el 12 se fueron unos 35 M de tokens en subagentes, 15 M de ellos en la
+  calidad):
+  - las hojas de todo el episodio no se miran en tu conversación: la revisión completa la hace el workflow y tú miras
+    3–4 hojas al final (paso 9);
+  - el verificador y los pulidores, con hojas solo de sus planos (`--planos`) y ligeras para el resto (`--ligera`);
+  - los agentes juntan en un turno las órdenes y lecturas que no dependen unas de otras y no vuelven a abrir una imagen
+    que ya miraron (cada turno reenvía todo lo leído);
+  - el workflow de calidad devuelve corto, con el detalle en su `journal.jsonl`;
+  - los registros largos (`producir.sh`, la locución) se leen filtrados;
+  - lo que no se toca: las referencias en cada agente, la revisión completa con revisor y escéptico, las hojas a 640 px
+    por fotograma y el modelo de los agentes.
+  - Al entregar el 13, compara los tokens de cada fase con los del 12 (los da el resultado de cada workflow) y díselo
+    al usuario con cifras.
 - **A prueba en el episodio 13** (si sale peor que el 12, se vuelve atrás y se le dice al usuario):
   - borrador de escenas y pasada de movimiento en un solo paso, con el encargo de movimiento del workflow desde el
     principio. Después, solo las escenas que no aguanten tu revisión contra el 11 pasan otra vez por movimiento;
