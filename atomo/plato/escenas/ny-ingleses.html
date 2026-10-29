@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Los ingleses · ep15</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NY-INGLESES (frases 14–15), 1664, cartela «1664». Cuatro planos:
+// 1. (fondo local) a ras de agua en el puerto: tres navíos de guerra ingleses entran a vela por la derecha; en
+//    «warships» abren las portas y asoman los cañones; un pescador holandés los ve («by sea») y se aleja remando; al
+//    fondo, la punta de la isla con el fuerte, la bandera holandesa y el molino;
+// 2. (fondo local) lo alto del bastión: Stuyvesant (pierna de madera, trato serio) mira los barcos con el catalejo en
+//    «the governor», lo baja en «Peter Stuyvesant» y en «wants to fight» señala los barcos, enfadado; el artillero
+//    deja una bala junto al cañón;
+// 3. (fondo local) la casa del gobernador: los vecinos le suben la petición firmada y le ruegan («beg him to
+//    surrender»); en «He gives up» Stuyvesant la coge y baja la cabeza; detrás, en el fuerte, baja la bandera holandesa y
+//    sube la blanca, sin un disparo («without a shot fired»); los vecinos respiran;
+// 4. (nuevaAmsterdam 'fuerte') entran los casacas rojas; en «renamed in honor of the Duke of York» baja la bandera
+//    blanca y sube la inglesa; el oficial se quita el sombrero ante Stuyvesant; en «New York» un soldado da la vuelta al
+//    letrero del cuartel: de la tricolor holandesa a la cruz de San Jorge.
+import * as T from '/atomo/plato/escenas/ny-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('ny-ingleses');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], um = (x, y) => (BY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const H = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const grad = (x, y, cols, f) => { const g = Math.max(0, Math.min(cols.length - 1.001, f * (cols.length - 1))), i = Math.floor(g); return g - i > um(x, y) ? cols[i + 1] : cols[i]; };
+const X = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Array.isArray(v) ? v.map(hex) : hex(v)]));
+const K = X({
+  k: '#1c1424', blanco: '#f4f0e6', papel: '#efe4c4', papelS: '#d4c49c', papelL: '#fbf4dc', tinta: '#3a3040', tintaL: '#8a8494',
+  cielo: ['#3a78c4', '#4686ce', '#5694d6', '#68a4de', '#7cb2e4', '#94c2ea', '#b0d2ec', '#cde0ea'],
+  noche: ['#0c1028', '#121838', '#182044', '#1e2850', '#26325c', '#303e6a'],
+  agua: ['#8ab8d0', '#6aa0be', '#4a84aa', '#3a6e8e', '#2e5c7a', '#24506a'], aguaL: '#b4d6e4', aguaS: '#1e4258', espuma: '#eef4f2',
+  lejos: '#8aa4c0', lejosS: '#7290b0', lejosL: '#a8bed4', lejosV: '#7a9a8a', lejosVS: '#668674',
+  hierba: '#6a9a44', hierbaS: '#4e7a34', hierbaL: '#90bc5a', hierbaSS: '#3a5e2a', seca: '#b0a058', secaS: '#8a7a3e',
+  tierra: '#8a6440', tierraS: '#6a4a2c', tierraL: '#aa8458', camino: '#c4a878', caminoS: '#a48a5e', caminoL: '#dcc49a',
+  madera: '#8a5a34', maderaS: '#5e3a20', maderaL: '#b07a48', maderaSS: '#3e2414',
+  tronco: '#86643e', troncoS: '#5a4228', troncoL: '#aa8456', troncoG: '#8a8478', troncoGS: '#64605a',
+  ladrillo: '#a84a34', ladrilloS: '#7a3424', ladrilloL: '#c86a4a', mortero: '#c8b49a',
+  piedra: '#a8a294', piedraS: '#7a766c', piedraL: '#cec8b8', teja: '#b8503a', tejaS: '#86362a', tejaL: '#d8785a',
+  pizarra: '#4a5262', pizarraS: '#363c4a', pizarraL: '#6a7484',
+  vidrio: '#2a3a52', vidrioL: '#7a9aba', luz: '#f8d878', luzS: '#d8a040', luzL: '#fff4c0',
+  verde: '#3a6a4a', verdeS: '#284a34', verdeL: '#5a8a64', rojo: '#c8303a', rojoS: '#8a1e26', rojoL: '#e86a5a',
+  oro: '#e8b830', oroS: '#a8801c', oroL: '#fff0a0', naranja: '#e8783a', azulB: '#2a3a7a', hierro: '#3a3a48', hierroL: '#6a6a7a',
+  piel: '#f6c290', vaca: '#f2eee2', vacaS: '#4a3a30', humo: '#d8d4cc', humoS: '#b0aca4',
+});
+const mez = (c1, c2, a) => { const ch = (s) => Math.round(((c1 >>> s) & 255) * (1 - a) + ((c2 >>> s) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+// un fondo fijo pintado una vez en su búfer (R.usar devuelve el anterior: nunca R.usar() a secas)
+const BUF = new Map();
+const fijo = (clave, pinta) => { let b = BUF.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); pinta(); R.usar(prev); BUF.set(clave, b); } R.copiar(b); };
+// una capa fija con transparencia (lo que va por delante de algo animado): se pinta una vez y se pega sin los huecos
+const VACIO = 0x01020304;
+const capa = (clave, pinta) => { let b = BUF.get(clave); if (!b) { b = R.nuevo(); b.fill(VACIO); const prev = R.usar(b); pinta(); R.usar(prev); BUF.set(clave, b); } const B = R.buf; for (let i = 0; i < b.length; i++) { const c = b[i]; if (c !== VACIO) B[i] = c; } };
+// nubes de tres tonos [x0, y, w, v] desde t0; ninguna entra en la zona de Atom
+const nubes = (t, L) => { for (const [x0, y, w, v] of L) { let x = x0 + t * v; if (y < 56 && x > 252 - w * 0.6) x = 252 - w * 0.6; R.nube(Math.round(x), y, w); } };
+const gaviotas = (t, L) => { for (const [x0, y0, v, k] of L) { const x = Math.round(((x0 + t * v) % 380 + 380) % 380 - 30), y = Math.round(y0 + Math.sin(t * 0.9 + k * 2) * 3); if (x > 266 && y < 50) continue; if (x > 16 && x < 174 && y < 18) continue; R.gaviota(x, y, t, k); } };
+// cielo tramado de y0 a y1 con cirros quietos
+const cieloFijo = (y0, y1, cols = K.cielo) => { for (let y = y0; y <= y1; y++) for (let x = 0; x < 320; x++) R.pset(x, y, grad(x, y, cols, (y - y0) / Math.max(1, y1 - y0)));
+  for (let k = 0; k < 8; k++) { const cx = 14 + k * 38 + Math.round(H(k, 1) * 20), cy = y0 + 16 + Math.round(H(k, 2) * ((y1 - y0) * 0.55)); if (cx > 262 && cy < 52) continue; for (let i = -16; i <= 16; i++) if (H(i, k) > 0.35) R.pset(cx + i, cy + Math.round(i * 0.12), cols[Math.min(cols.length - 1, cols.length - 2 + (i & 1))]); } };
+// agua quieta tramada (y0–y1) con brillos; vetas que corren encima (vivas)
+const aguaFija = (y0, y1, x0 = 0, x1 = 319, k = 0) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const f = (y - y0) / Math.max(1, y1 - y0); R.pset(x, y, grad(x, y, K.agua, 0.1 + f * 0.85)); }
+  for (let n = 0; n < (x1 - x0) * (y1 - y0) / 60; n++) { const x = x0 + Math.floor(H(n, 3, k) * (x1 - x0)), y = y0 + 1 + Math.floor(H(n, 4, k) * (y1 - y0 - 1)), L = 2 + Math.floor(H(n, 5, k) * (2 + (y - y0) * 0.08)); R.linea(x, y, Math.min(x1, x + L), y, H(n, 6, k) < 0.5 ? K.aguaS : K.agua[1]); } };
+const vetas = (t, x0, y0, x1, y1, n, v = 6, k = 0) => { for (let i = 0; i < n; i++) { const y = y0 + Math.floor(H(i, 9, k) * (y1 - y0)), f = (y - y0) / Math.max(1, y1 - y0), L = 2 + Math.round(f * 6), x = x0 + ((H(i, 8, k) * (x1 - x0) + t * v * (0.6 + f)) % (x1 - x0)); R.linea(Math.round(x), y, Math.min(x1, Math.round(x + L)), y, i % 3 ? K.aguaL : K.espuma); } };
+// muro de ladrillo con llagas (hiladas de 3 px, ladrillos de 6)
+const ladrillos = (x0, y0, x1, y1, k = 0, c = K.ladrillo, cS = K.ladrilloS, cL = K.ladrilloL, m = K.mortero) => {
+  for (let y = y0; y <= y1; y++) { const fila = Math.floor((y - y0) / 3), off = (fila & 1) * 3;
+    for (let x = x0; x <= x1; x++) { let col; if ((y - y0) % 3 === 2) col = m; else if ((x - x0 + off) % 6 === 5) col = m; else { const b = H(Math.floor((x - x0 + off) / 6), fila, k); col = b < 0.2 ? cS : b > 0.86 ? cL : c; } R.pset(x, y, col); } } };
+// ventana: marco claro, cristales emplomados (o de guillotina), contraventanas; o.luz la enciende
+const ventana = (x, y, w, h, o = {}) => { R.rect(x - 1, y - 1, x + w, y + h, K.k);
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) R.pset(x + i, y + j, o.luz ? ((i + j) % 4 === 0 ? K.luzL : K.luz) : (i + j < 3 ? K.vidrioL : K.vidrio));
+  const mc = o.marco ?? K.blanco; R.linea(x, y + (h >> 1), x + w - 1, y + (h >> 1), mc); if (w > 5) R.linea(x + (w >> 1), y, x + (w >> 1), y + h - 1, mc);
+  if (!o.luz) R.pset(x + 1, y + 1, K.blanco);
+  if (o.contra) { const c = o.contra, cS = mez(c, K.k, 0.35); for (const d of [-1, 1]) { const xa = d < 0 ? x - 1 - Math.ceil(w / 2) : x + w + 1; R.rect(xa - 1, y - 1, xa + Math.ceil(w / 2), y + h, K.k); for (let j = 0; j < h; j++) for (let i = 0; i < Math.ceil(w / 2); i++) R.pset(xa + i, y + j, j % 3 === 2 ? cS : c); } }
+  R.linea(x - 1, y + h + 1, x + w, y + h + 1, K.piedraL); };
+// casa holandesa de gablete escalonado: x0–x1, base, alero (donde empieza el gablete), cima; o.puerta, o.k semilla, o.anyo
+const casaHol = (x0, x1, base, alero, cima, o = {}) => { const w = x1 - x0, pasos = o.pasos ?? 5, k = o.k ?? 0;
+  R.rect(x0 - 1, alero, x1 + 1, base, K.k); ladrillos(x0, alero + 1, x1, base, k, o.c, o.cS, o.cL);
+  for (let p = 0; p < pasos; p++) { const yA = alero - Math.round((alero - cima) * (p + 1) / pasos), yB = alero - Math.round((alero - cima) * p / pasos), m = Math.round((w / 2 - 4) * p / pasos);
+    R.rect(x0 + m - 1, yA - 1, x1 - m + 1, yB, K.k); ladrillos(x0 + m, yA, x1 - m, yB, k + 3, o.c, o.cS, o.cL);
+    R.rect(x0 + m - 1, yA - 2, x0 + m + 2, yA - 1, K.piedraL); R.rect(x1 - m - 2, yA - 2, x1 - m + 1, yA - 1, K.piedraL); R.pset(x0 + m - 1, yA - 1, K.piedraS); R.pset(x1 - m + 1, yA - 1, K.piedraS); }
+  const cx = (x0 + x1) >> 1; R.rect(cx - 1, cima - 6, cx + 1, cima - 1, K.hierro); R.pset(cx, cima - 7, K.hierro); R.linea(cx - 3, cima - 4, cx + 3, cima - 4, K.hierro);
+  // anclas de hierro y la viga de izar
+  for (let y = alero + 6; y < base - 14; y += 14) { R.rect(x0 + 3, y, x0 + 4, y + 3, K.hierro); R.rect(x1 - 4, y, x1 - 3, y + 3, K.hierro); }
+  R.rect(cx - 1, cima + 4, cx + 1, cima + 6, K.madera); R.linea(cx, cima + 7, cx, cima + 12, K.k); };
+// adoquines en perspectiva (filas que crecen hacia abajo)
+const adoquines = (x0, y0, x1, y1, k = 0, c = K.piedra, cS = K.piedraS, cL = K.piedraL, m = K.k) => { let y = y0, fila = 0;
+  while (y <= y1) { const hR = Math.max(2, Math.round(2 + (y - y0) / Math.max(1, y1 - y0) * 4)), wR = hR * 2, off = (fila & 1) * hR;
+    for (let j = 0; j < hR && y + j <= y1; j++) for (let x = x0; x <= x1; x++) { const ci = Math.floor((x - x0 + off) / wR), ix = (x - x0 + off) % wR, b = H(ci, fila, k);
+      let col = b < 0.25 ? cS : b > 0.8 ? cL : c; if (j === hR - 1 || ix === wR - 1) col = mez(col, m, 0.55); else if (j === 0 && ix < wR - 2) col = mez(col, K.blanco, 0.15); R.pset(x, y + j, col); }
+    y += hR; fila++; } };
+// destello de cuatro puntas (u 0–1)
+const destello = (x, y, u, c = K.oroL) => { if (u <= 0 || u >= 1) return; const l = Math.round(1 + Math.sin(u * Math.PI) * 4); R.linea(x - l, y, x + l, y, c); R.linea(x, y - l, x, y + l, c); R.pset(x, y, K.blanco); };
+// figurita de fondo (3 × 7 px) que anda: c ropa, s sombrero
+const fig = (x, y, t, c, k = 0, anda = true, s = null) => { x = Math.round(x); y = Math.round(y); const p = anda ? Math.floor(t * 6 + k) % 2 : 0;
+  R.rect(x, y - 6, x + 1, y - 5, K.piel); if (s != null) R.rect(x - 1, y - 7, x + 2, y - 7, s); R.rect(x - 1, y - 4, x + 2, y - 2, c); R.pset(x - 1 + (p ? 0 : 1), y - 1, K.k); R.pset(x + 2 - (p ? 1 : 0), y - 1, K.k); R.pset(x, y, K.k); R.pset(x + 1, y, K.k); };
+// bandera de tela que ondea: tipo 'holandesa' (naranja, blanca, azul), 'inglesa' (cruz roja), 'blanca'; (x, y) = el asta arriba
+const banderaTela = (x, y, t, tipo, w = 14, a = 9, dir = 1) => { for (let i = 0; i <= w; i++) { const dy = Math.round(Math.sin(t * 6 - i * 0.55) * (i / w) * 1.6), xx = x + dir * i;
+  for (let j = -1; j <= a; j++) { const yy = y + j + dy; let c;
+    if (j === -1 || j === a || i === w) c = K.k;
+    else if (tipo === 'holandesa') c = j < a / 3 ? K.naranja : j < a * 2 / 3 ? K.blanco : K.azulB;
+    else if (tipo === 'inglesa') c = Math.abs(j - (a - 1) / 2) < Math.max(1, a / 7) || Math.abs(i - w / 2) < Math.max(1, w / 9) ? K.rojo : K.blanco;
+    else c = K.blanco;
+    if (c !== K.k && Math.sin(t * 6 - i * 0.55) > 0.6) c = mez(c, K.k, 0.18); R.pset(xx, yy, c); } } };
+// el navío de guerra inglés de 1664 (x, y = la línea de flotación en el centro; s 1 = 100 px de eslora): casco con dos
+// filas de portas (o.portas 0–1 las abre y asoman las bocas de los cañones), castillo de popa con ventanas y faroles, tres
+// palos con velas cuadras hinchadas (o.recogidas: aferradas en las vergas), bauprés, jarcia, la bandera de San Jorge en la
+// popa y gallardetes rojos que ondean; se mece y deja reflejo. o.dir −1: la proa a la izquierda.
+const nave = (x0, y0, s, t, o = {}) => { const dir = o.dir ?? -1, L = 100 * s, Hh = 15 * s, half = L / 2, fase = x0 * 0.013 + s * 5;
+  const cab = Math.sin(t * 1.2 + fase) * 0.9 * s, y = y0 + Math.round(Math.sin(t * 1.05 + fase) * Math.max(0.6, s));
+  const top = (u) => { let yt = y - Hh; const sp = -half + 0.24 * L; if (u < sp) yt -= 7 * s; else if (u < sp + 0.06 * L) yt -= 7 * s * (1 - (u - sp) / (0.06 * L)); if (u > half - 0.16 * L) yt -= 3 * s; return Math.round(yt + cab * (u / half)); };
+  const bot = (u) => { let yb = y + 3 * s; if (u > half - 0.22 * L) yb -= (u - (half - 0.22 * L)) * 0.6; if (u < -half + 0.05 * L) yb -= (-half + 0.05 * L - u) * 0.9; return Math.round(yb + cab * (u / half)); };
+  const SX = (u) => Math.round(x0 + dir * u), casco = hex(o.casco ?? '#4a2c1c'), cascoL = mez(casco, K.blanco, 0.22), cascoS = mez(casco, K.k, 0.4), franja = hex('#c8a040'), cuerda = hex('#4a3a2a');
+  const yd = (u) => top(u), mastU = [-0.26 * L, 0.0, 0.27 * L], mastH = [60 * s, 74 * s, 56 * s];
+  // reflejo en el agua
+  for (let u = -half; u <= half; u++) for (let j = 1; j <= Math.round(7 * s); j++) if (um(SX(u), y0 + 3 * s + j) < 0.45 - j / (16 * s)) R.pset(SX(u), Math.round(y0 + 3 * s + j), K.aguaS);
+  // jarcia de atrás (de los topes a la popa y a la proa)
+  for (let m = 0; m < 3; m++) { const u = mastU[m], ytop = yd(u) - mastH[m]; R.linea(SX(u), ytop, SX(-half + 4 * s), top(-half + 4 * s), cuerda); R.linea(SX(u), ytop, SX(half), top(half) - 2, cuerda); }
+  // palos
+  for (let m = 0; m < 3; m++) { const u = mastU[m], ytop = yd(u) - mastH[m], wM = Math.max(1, Math.round(1.6 * s)); for (let i = 0; i < wM; i++) R.linea(SX(u) + i * dir, yd(u), SX(u) + i * dir, ytop, i === 0 ? K.maderaS : K.madera); R.linea(SX(u) - 2, Math.round(ytop + mastH[m] * 0.5), SX(u) + 2, Math.round(ytop + mastH[m] * 0.5), K.k); }
+  // casco
+  for (let u = -half; u <= half; u++) { const yt = top(u), yb = bot(u), xx = SX(u); if (yb <= yt) continue;
+    for (let yy = yt; yy <= yb; yy++) { let c; const rel = yy - yt;
+      if (yy === yt || yy === yb || u === -half || u >= half - 0.5) c = K.k;
+      else if (rel === 1) c = cascoL;
+      else if (Math.abs(yy - Math.round(y - Hh * 0.42)) <= Math.max(0, Math.round(s * 0.6))) c = franja;
+      else if (yy > y - 1) c = cascoS;
+      else if ((yy - yt) % 3 === 0) c = cascoS;
+      else c = casco;
+      if (u < -half + 0.24 * L && rel > 1 && rel < 7 * s && Math.round(u) % Math.max(3, Math.round(5 * s)) === 0) c = franja;
+      R.pset(xx, yy, c); } }
+  // portas y cañones (dos filas)
+  const pw = Math.max(2, Math.round(3 * s)), pa = o.portas ?? 0;
+  for (const fy of [0.66, 0.25]) { let n = 0; const tot = Math.floor((0.62 * L) / (8 * s));
+    for (let u = -half + 0.26 * L; u < half - 0.14 * L; u += 8 * s, n++) { const xx = SX(u), yy = Math.round(y - Hh * fy + cab * (u / half)) - (pw >> 1), abre = pa > n / tot;
+      R.rect(xx - 1, yy - 1, xx + pw, yy + pw, K.k);
+      if (abre) { R.rect(xx, yy, xx + pw - 1, yy + pw - 1, hex('#8a1e1a')); const r = Math.max(1, Math.round(pw / 2 - 0.4)); R.disco(xx + (pw >> 1), yy + (pw >> 1), r, hex('#20202a')); R.pset(xx + (pw >> 1) - 1, yy + (pw >> 1) - 1, K.hierroL); R.rect(xx, yy - pw - 1, xx + pw - 1, yy - 2, cascoL); R.linea(xx - 1, yy - pw - 2, xx + pw, yy - pw - 2, K.k); }
+      else R.rect(xx, yy, xx + pw - 1, yy + pw - 1, cascoS); } }
+  // ventanas y faroles de popa
+  for (let u = -half + 3 * s; u < -half + 0.2 * L; u += 4 * s) R.rect(SX(u), top(u) + Math.round(2 * s), SX(u) + Math.max(1, Math.round(s * 1.5)) - 1, top(u) + Math.round(3.5 * s), (Math.sin(t * 3 + u) > -0.6) ? K.luz : K.luzS);
+  { const xf = SX(-half + 2 * s), yf = top(-half + 2 * s) - Math.round(4 * s); R.rect(xf - 1, yf - 1, xf + Math.max(1, Math.round(s * 1.6)), yf + Math.max(2, Math.round(3 * s)), K.k); R.rect(xf, yf, xf + Math.max(0, Math.round(s * 1.6) - 1), yf + Math.max(1, Math.round(3 * s) - 1), K.luz); }
+  // bauprés
+  { const bx = SX(half), by = top(half), ex = SX(half + 22 * s), ey = Math.round(by - 12 * s); R.linea(bx, by, ex, ey, K.maderaS); R.linea(bx, by - 1, ex, ey - 1, K.madera); R.linea(ex, ey, SX(0.27 * L), yd(0.27 * L) - mastH[2], cuerda); }
+  // velas
+  for (let m = 0; m < 3; m++) { const u = mastU[m], h = mastH[m], base = yd(u), ws = (m === 1 ? 0.36 : 0.3) * L;
+    for (const [a, b, wf] of [[0.55, 0.16, 1], [0.93, 0.6, 0.76]]) { const yT = Math.round(base - h * a), yB = Math.round(base - h * b), ww = ws * wf;
+      R.linea(SX(u - ww / 2) - dir, yT, SX(u + ww / 2) + dir, yT, K.k); R.linea(SX(u - ww / 2), yT + 1, SX(u + ww / 2), yT + 1, K.maderaS);
+      if (o.recogidas) { R.linea(SX(u - ww / 2), yT + 2, SX(u + ww / 2), yT + 2, K.papelS); R.linea(SX(u - ww / 2), yT + 3, SX(u + ww / 2), yT + 3, K.k); continue; }
+      const hh = yB - yT, bel = (o.viento ?? 0.7) * 4 * s + Math.sin(t * 2 + fase + m) * 0.6;
+      for (let j = 2; j <= hh; j++) { const v = j / hh, ex = Math.sin(v * Math.PI) * bel, x1 = u - ww / 2 * (1 + v * 0.08), x2 = u + ww / 2 * (1 + v * 0.08);
+        for (let q = x1; q <= x2; q++) { const xx = Math.round(SX(q) + dir * ex), e = (q - x1) / Math.max(1, x2 - x1);
+          let c = j === hh || q <= x1 + 0.5 || q >= x2 - 0.5 ? K.k : e < 0.2 ? K.papelS : e > 0.75 ? K.papelL : K.papel; if (c !== K.k && Math.round(q - x1) % Math.max(3, Math.round(4 * s)) === 0) c = K.papelS; if (c !== K.k && v > 0.82) c = mez(c, K.papelS, 0.5); R.pset(xx, yT + j, c); } } } }
+  // gallardetes en los topes y la bandera de San Jorge en la popa
+  for (let m = 0; m < 3; m++) { const u = mastU[m], ytop = yd(u) - mastH[m], ln = Math.round(14 * s); for (let i = 0; i < ln; i++) { const yy = ytop + Math.round(Math.sin(t * 6 - i * 0.5) * (i / ln) * 2), hgt = Math.max(1, Math.round((1 - i / ln) * 2.4 * s)); R.linea(SX(u) - dir * i, yy, SX(u) - dir * i, yy + hgt - 1, i % 4 === 0 ? K.rojoS : K.rojo); } }
+  { const xa = SX(-half - 1), ya = top(-half) - Math.round(14 * s); R.linea(xa, top(-half), xa, ya, K.maderaS); banderaTela(xa, ya, t, 'inglesa', Math.max(6, Math.round(12 * s)), Math.max(4, Math.round(8 * s)), -dir); }
+  // la espuma de la línea de flotación
+  for (let u = -half + 1; u < half; u += 1) if (H(Math.round(u), Math.floor(t * 4)) < 0.35) R.pset(SX(u), y0 + Math.round(3 * s), K.espuma);
+  return { proa: [SX(half), top(half)], popa: [SX(-half), top(-half)], cubierta: y - Hh };
+};
+
+const b = (f) => en('barcos', f), r = (f) => en('rinde', f);
+const P2 = b(0.48), P3 = b(0.815), P4 = r(0.25);
+const SEA = b(0.065), WARSHIPS = b(0.331), HARBOR = b(0.428), GOVERNOR = b(0.518), PETER = b(0.596), WANTS = b(0.719), FIGHT = b(0.751), BEG = b(0.891), SURR = b(0.934);
+const GIVES = r(0), WITHOUT = r(0.053), SHOT = r(0.098), RENAMED = r(0.368), DUKE = r(0.532), YORK1 = r(0.585), KINGS = r(0.728), NEWYORK = r(0.907);
+const PATA = (c) => c.map((f, j) => (j >= 9 && j <= 11 ? f.slice(0, 8) + 'kBk' + f.slice(11) : j === 12 ? f.slice(0, 8) + '.k.' + f.slice(11) : f));
+const stuy = { ...EL.stuyvesant, cuerpo: PATA(EL.stuyvesant.cuerpo) };
+const colono2 = { ...EL.colono, pal: { ...EL.colono.pal, C: hex('#5a3a2a'), H: hex('#5a3418'), h: hex('#7a4a24') } };
+const colona2 = { ...EL.colona, pal: { ...EL.colona.pal, C: hex('#6a3a3a'), c: hex('#4a2a2a'), H: hex('#7a4a24'), h: hex('#9a6434') } };
+const roja2 = { ...EL.casacaRoja, pal: { ...EL.casacaRoja.pal, H: hex('#2c2232'), h: hex('#54466a') } };
+
+// 1 · (fondo local) el puerto a ras de agua: entran los navíos ingleses
+const fondoPuerto = () => fijo('puerto64', () => {
+  cieloFijo(0, 86);
+  // Brooklyn a la derecha, colinas con bosque
+  for (let x = 150; x < 320; x++) { const h = Math.round(10 + Math.sin(x * 0.03) * 4 + Math.sin(x * 0.11) * 2); for (let y = 88 - h; y <= 90; y++) R.pset(x, y, y === 88 - h ? K.lejosL : um(x, y) < 0.35 ? K.lejosVS : K.lejosV); }
+  aguaFija(88, 179, 0, 319, 3);
+  // la punta de Manhattan a la izquierda: la orilla, el fuerte de tierra, la iglesia y las casas
+  for (let x = 0; x < 150; x++) { const yb = 90 - Math.round(Math.max(0, (150 - x) * 0.05)); for (let y = yb - 3; y <= 90; y++) R.pset(x, y, y === yb - 3 ? K.hierbaL : y > 88 ? K.caminoS : K.hierba); }
+  R.poligono([[20, 86], [28, 76], [62, 76], [70, 86]], K.k); R.poligono([[21, 86], [29, 77], [61, 77], [69, 86]], K.tierraL); for (let x = 30; x < 61; x += 3) R.pset(x, 77, K.tierraS);
+  R.rect(36, 66, 54, 77, K.k); R.rect(37, 67, 53, 76, K.piedraL); R.poligono([[35, 67], [45, 59], [55, 67]], K.tejaS); R.rect(43, 52, 47, 60, K.k); R.rect(44, 53, 46, 59, K.piedra);
+  for (let i = 0; i < 6; i++) { const x = 74 + i * 11, al = 8 + (i % 3) * 3; R.rect(x - 1, 88 - al - 1, x + 9, 88, K.k); R.rect(x, 88 - al, x + 8, 87, i % 2 ? K.ladrillo : K.ladrilloL); for (let p = 0; p < 3; p++) R.rect(x + p, 88 - al - 1 - p, x + 8 - p, 88 - al - p, K.ladrilloS); R.pset(x + 2, 88 - al + 3, K.vidrio); R.pset(x + 6, 88 - al + 3, K.vidrio); R.rect(x + 3, 84, x + 5, 87, K.maderaS); }
+  // el muelle de tablas del pueblo
+  R.rect(60, 89, 140, 92, K.k); R.rect(60, 89, 140, 90, K.maderaL); for (let x = 62; x < 140; x += 6) R.rect(x, 91, x + 1, 96, K.maderaS);
+});
+const bote = (x, y, t, rema) => { const a = rema ? Math.sin(t * 7) : 0;
+  R.linea(x - 4, y - 4, Math.round(x - 14 - a * 4), Math.round(y + 3 + a * 2), K.maderaS); R.linea(x + 4, y - 4, Math.round(x + 14 - a * 4), Math.round(y + 3 - a * 2), K.maderaS);
+  R.poligono([[x - 17, y - 6], [x + 17, y - 6], [x + 13, y + 1], [x - 13, y + 1]], K.k); R.poligono([[x - 16, y - 5], [x + 16, y - 5], [x + 12, y], [x - 12, y]], K.madera); R.linea(x - 15, y - 5, x + 15, y - 5, K.maderaL); R.linea(x - 13, y - 2, x + 13, y - 2, K.maderaS);
+  if (rema && Math.sin(t * 7) > 0.85) { R.pset(Math.round(x - 16), y + 3, K.espuma); R.pset(Math.round(x + 12), y + 3, K.espuma); R.pset(Math.round(x - 17), y + 2, K.blanco); } };
+const p1 = (t) => {
+  fondoPuerto();
+  nubes(t, [[10, 30, 34, 1.4], [110, 24, 46, 2.2], [190, 46, 28, 3.2], [60, 58, 22, 4.4]]);
+  T.molino(R, 128, 80, t, { s: 0.42, vel: 1.1 });
+  R.linea(45, 40, 45, 52, K.k); banderaTela(46, 40, t, 'holandesa', 10, 6);
+  vetas(t, 0, 92, 319, 179, 70, 7, 3);
+  // las gaviotas se espantan cuando abren las portas
+  const esp = tramo(t, WARSHIPS, WARSHIPS + 2.5); gaviotas(t, [[80, 60 - esp * 20, 10 + esp * 30, 0], [140, 66 - esp * 24, 8 + esp * 34, 2], [30, 72, 6, 4]]);
+  // los navíos: entran despacio, de la derecha
+  const u = tramo(t, 0.9, HARBOR + 0.6), pa = tramo(t, WARSHIPS - 0.15, HARBOR + 0.2);
+  nave(Math.round(lerp(352, 262, u)), 104, 0.36, t, { portas: pa, viento: 0.6 });
+  nave(Math.round(lerp(330, 96, u)), 118, 0.55, t, { portas: pa, viento: 0.7 });
+  nave(Math.round(lerp(372, 200, u)), 154, 1.0, t, { portas: pa, viento: 0.8 });
+  // el pescador holandés los ve y se aleja remando
+  const vu = tramo(t, SEA + 0.6, P2 + 0.3), bx = Math.round(lerp(70, -40, vu)), by = 172 + Math.round(Math.sin(t * 1.6) * 1);
+  R.actor(colono2, bx - 7, by - 4, t, { dir: vu > 0 ? -1 : 1, sorpresa: t > SEA - 0.1 && t < SEA + 1.4, sostiene: vu > 0 ? [bx - 12, by - 6] : false, tocado: 'boina' });
+  bote(bx, by, t, vu > 0 && vu < 1);
+};
+
+// 2 · (fondo local) lo alto del bastión: Stuyvesant y el catalejo
+const fondoBastion = () => fijo('bastion', () => {
+  cieloFijo(0, 70);
+  for (let x = 0; x < 320; x++) { const h = Math.round(8 + Math.sin(x * 0.025 + 1) * 4 + Math.sin(x * 0.09) * 2); for (let y = 72 - h; y <= 74; y++) R.pset(x, y, y === 72 - h ? K.lejosL : um(x, y) < 0.35 ? K.lejosVS : K.lejosV); }
+  aguaFija(74, 124, 0, 319, 4);
+});
+const parapeto = () => capa('parapeto', () => {
+  // el parapeto de tierra con césped y cestones; la tronera en x 186–208
+  for (let x = 0; x < 320; x++) { const tr = x >= 188 && x <= 206, yt = tr ? 120 : 106 + Math.round(Math.sin(x * 0.07) * 1.2); for (let y = yt; y <= 136; y++) { let c = y === yt ? K.k : y < yt + 3 ? K.hierbaL : y < 124 ? (H(x >> 1, y, 2) < 0.5 ? K.hierba : K.hierbaS) : (H(x, y >> 1, 3) < 0.3 ? K.tierraS : K.tierra); if (tr && y > 120 && y < 124) c = K.tierraL; R.pset(x, y, c); } }
+  for (const x of [8, 30, 52, 74, 96, 118, 140, 162, 214, 236, 258, 300]) { R.rect(x - 1, 96, x + 15, 109, K.k); for (let y = 97; y < 109; y++) for (let i = 0; i < 15; i++) R.pset(x + i, y, (y + (i >> 1)) % 3 === 0 ? K.secaS : (i + y) % 4 === 0 ? K.maderaS : K.seca); R.rect(x, 96, x + 14, 97, K.tierra); for (let i = 1; i < 14; i += 3) R.pset(x + i, 95, K.hierbaL); }
+  // el adarve de tierra apisonada y tablones
+  for (let y = 136; y < 180; y++) for (let x = 0; x < 320; x++) { let c = H(x >> 1, y >> 1, 6) < 0.25 ? K.tierraS : H(x, y, 7) < 0.1 ? K.tierraL : K.tierra; if (y > 150 && y < 172 && x > 120 && x < 230) c = (x - 120) % 12 === 0 ? K.maderaSS : (y - 150) % 7 === 0 ? K.maderaS : (H(Math.floor((x - 120) / 12), y, 8) < 0.5 ? K.madera : K.maderaL); R.pset(x, y, c); }
+  R.linea(0, 136, 319, 136, K.tierraS);
+  // el asta de la bandera, las balas, los barriles de pólvora, el atacador y el cubo
+  R.rect(22, 30, 24, 150, K.k); R.linea(23, 30, 23, 150, K.maderaL); R.rect(18, 146, 28, 152, K.k); R.rect(19, 147, 27, 151, K.maderaS);
+  for (const [x, y] of [[246, 160], [252, 160], [258, 160], [264, 160], [249, 155], [255, 155], [261, 155], [252, 150], [258, 150], [255, 145]]) { R.disco(x, y, 3, K.k); R.disco(x, y, 2, K.hierro); R.pset(x - 1, y - 1, K.hierroL); }
+  for (const x of [280, 298]) { R.rect(x - 1, 140, x + 13, 164, K.k); for (let y = 141; y < 164; y++) for (let i = 0; i < 13; i++) R.pset(x + i, y, y === 146 || y === 158 ? K.hierro : i < 3 ? K.maderaL : i > 9 ? K.maderaS : K.madera); }
+  R.linea(304, 128, 316, 170, K.k); R.linea(305, 128, 317, 170, K.maderaL); R.rect(300, 124, 308, 129, K.k); R.rect(301, 125, 307, 128, hex('#3a2a20'));
+  R.rect(56, 162, 68, 174, K.k); R.rect(57, 163, 67, 173, K.madera); R.linea(57, 166, 67, 166, K.hierro); R.linea(58, 160, 66, 160, K.hierro); R.pset(57, 161, K.hierro); R.pset(67, 161, K.hierro);
+});
+// el cañón de bronce en su cureña, apuntando por la tronera
+const canon = (t) => { R.poligono([[160, 128], [210, 115], [212, 121], [162, 136]], K.k); for (let i = 0; i < 50; i++) { const x = 162 + i, y0 = Math.round(129 - i * 0.26); for (let j = 0; j < 6 - Math.floor(i / 20); j++) R.pset(x, y0 + j, j === 0 ? K.oroL : j < 2 ? K.oro : K.oroS); } R.disco(161, 132, 4, K.k); R.disco(161, 132, 3, K.oroS); R.disco(212, 118, 2, K.k);
+  R.rect(158, 132, 194, 142, K.k); R.rect(159, 133, 193, 141, K.madera); R.linea(159, 133, 193, 133, K.maderaL); for (const x of [166, 188]) { R.disco(x, 144, 6, K.k); R.disco(x, 144, 5, K.maderaS); for (let a = 0; a < 6; a++) R.linea(x, 144, Math.round(x + Math.cos(a + t * 0) * 4), Math.round(144 + Math.sin(a) * 4), K.madera); R.disco(x, 144, 1, K.hierro); } };
+const p2 = (t) => {
+  fondoBastion();
+  nubes(t, [[30, 28, 36, 1.5], [150, 22, 44, 2.4], [220, 48, 26, 3.4]]);
+  gaviotas(t, [[100, 50, 9, 1], [200, 60, 11, 3]]);
+  vetas(t, 0, 76, 319, 122, 40, 6, 4);
+  nave(150, 98, 0.3, t, { portas: 1, recogidas: true, dir: -1 }); nave(300, 92, 0.24, t, { portas: 1, recogidas: true, dir: -1 }); nave(236, 110, 0.44, t, { portas: 1, recogidas: true, dir: -1 });
+  parapeto();
+  banderaTela(25, 31, t, 'holandesa', 18, 11);
+  canon(t);
+  // el artillero trae una bala y la deja junto al cañón en «wants to fight»
+  const au = tramo(t, PETER - 0.4, FIGHT), ax = Math.round(lerp(238, 204, au)), lleva = t < FIGHT + 0.1;
+  const am = R.actor(colono2, ax, 166, t, { dir: -1, anda: au > 0 && au < 1, sostiene: lleva, sorpresa: t > FIGHT + 0.2 && t < FIGHT + 0.9, tocado: 'boina' }).mano;
+  if (lleva) { R.disco(am[0] - 1, am[1] + 2, 3, K.k); R.disco(am[0] - 1, am[1] + 2, 2, K.hierro); R.pset(am[0] - 2, am[1] + 1, K.hierroL); } else { R.disco(198, 163, 3, K.k); R.disco(198, 163, 2, K.hierro); R.pset(197, 162, K.hierroL); }
+  // Stuyvesant: mira con el catalejo, lo baja y señala los barcos, enfadado
+  const mira = t < PETER + 0.3, señala = t > WANTS - 0.1;
+  const sm = R.actor(stuy, 74, 162, t, { dir: 1, sostiene: !señala ? (mira ? [96, 140] : true) : false, dedo: señala, enfado: t > WANTS - 0.1, habla: señala && t < FIGHT + 0.6 && Math.sin(t * 9) > 0, sorpresa: t > GOVERNOR - 0.2 && t < GOVERNOR + 0.4 }).mano;
+  if (!señala) { const [hx, hy] = sm; if (mira) { R.linea(hx - 6, hy - 3, hx + 9, hy - 5, K.k); R.linea(hx - 6, hy - 2, hx + 9, hy - 4, K.k); R.linea(hx - 5, hy - 3, hx + 8, hy - 4, K.oro); R.pset(hx + 2, hy - 4, K.oroS); R.pset(hx - 2, hy - 3, K.oroS); R.pset(hx + 9, hy - 5, K.oroL); if (t > GOVERNOR && t < GOVERNOR + 0.4) destello(hx + 10, hy - 6, (t - GOVERNOR) / 0.4); }
+    else { R.linea(hx, hy - 6, hx, hy + 4, K.k); R.linea(hx + 1, hy - 6, hx + 1, hy + 4, K.oro); } }
+  // un soldado holandés con la pica, que se vuelve al oír la orden
+  R.actor(EL.colono, 128, 166, t, { dir: t > FIGHT - 0.2 ? -1 : 1, sorpresa: t > FIGHT - 0.2 && t < FIGHT + 0.6, sostiene: true, tocado: 'boina' });
+  R.linea(141, 150, 141, 120, K.k); R.linea(142, 150, 142, 120, K.maderaL); R.poligono([[140, 120], [142, 112], [144, 120]], K.hierroL);
+};
+
+// 3 · (fondo local) la casa del gobernador: la petición y la bandera blanca
+const fondoCasa = () => fijo('casaGob', () => {
+  cieloFijo(0, 96);
+  // la muralla de tierra del fuerte, al fondo a la derecha
+  for (let x = 148; x < 320; x++) { const yt = 82 + Math.round(Math.sin(x * 0.05) * 1.5); for (let y = yt; y <= 146; y++) R.pset(x, y, y === yt ? K.k : y < yt + 3 ? K.hierbaL : y > 112 ? (y === 113 ? K.k : H(x >> 2, y >> 1, 3) < 0.3 ? K.piedraS : (x + (y >> 2) * 3) % 9 === 0 ? K.piedraS : K.piedra) : H(x >> 1, y, 2) < 0.5 ? K.hierba : K.hierbaS); }
+  R.rect(166, 116, 198, 146, K.k); for (let y = 117; y < 146; y++) for (let x = 167; x < 198; x++) { const d = Math.hypot(x - 182, Math.max(0, 128 - y)); R.pset(x, y, d > 15 ? K.piedra : y < 120 && d > 13 ? K.piedraL : (x - 167) % 5 === 0 ? K.maderaSS : K.maderaS); } R.disco(182, 128, 16, K.k); for (let y = 113; y < 128; y++) for (let x = 167; x < 198; x++) { const d = Math.hypot(x - 182, 128 - y); if (d < 15) R.pset(x, y, d > 13 ? K.piedraL : (x - 167) % 5 === 0 ? K.maderaSS : K.maderaS); } R.rect(150, 132, 162, 146, K.k); R.rect(151, 133, 161, 146, K.hierbaS); R.rect(200, 136, 210, 146, K.k); R.rect(201, 137, 209, 146, K.maderaS); R.linea(201, 141, 209, 141, K.hierro);
+  for (let x = 152; x < 320; x += 12) { R.rect(x, 76, x + 8, 83, K.k); for (let y = 77; y < 83; y++) for (let i = 1; i < 8; i++) R.pset(x + i, y, (y + i) % 3 ? K.seca : K.secaS); }
+  // la casa del gobernador: ladrillo, gablete escalonado, «1658» en anclas de hierro, la puerta holandesa
+  casaHol(34, 152, 146, 72, 22, { k: 3, pasos: 6 });
+  R.numero('1658', 72, 66, { fina: true, color: K.hierro, sombra: false });
+  for (const [x, y] of [[44, 82], [70, 82], [108, 82], [132, 82], [44, 110], [70, 110], [116, 110], [134, 110]]) ventana(x, y, 9, 12, { contra: K.verde });
+  ventana(88, 52, 7, 8, {}); ventana(100, 52, 7, 8, {});
+  R.rect(85, 118, 105, 146, K.k); R.rect(86, 119, 104, 145, K.verdeS); R.rect(86, 119, 104, 121, K.piedraL); R.linea(86, 132, 104, 132, K.k); for (let x = 89; x < 104; x += 4) R.linea(x, 122, x, 145, K.verde); R.pset(101, 136, K.oro); R.rect(88, 114, 102, 117, K.k); R.rect(89, 115, 101, 116, K.luz);
+  // la escalinata (stoep) con sus bancos
+  for (let k = 0; k < 4; k++) { const y0 = 146 + k * 6, x0 = 80 - k * 3, x1 = 110 + k * 3; R.rect(x0 - 1, y0, x1 + 1, y0 + 6, K.k); R.rect(x0, y0 + 1, x1, y0 + 5, K.piedra); R.linea(x0, y0 + 1, x1, y0 + 1, K.piedraL); for (let x = x0 + 5; x < x1; x += 9) R.pset(x, y0 + 3, K.piedraS); }
+  for (const x of [60, 116]) { R.rect(x, 138, x + 14, 141, K.k); R.rect(x + 1, 139, x + 13, 140, K.maderaL); R.rect(x + 1, 142, x + 2, 146, K.maderaS); R.rect(x + 12, 142, x + 13, 146, K.maderaS); }
+  // la casa de la derecha (tejado de tejas) y el empedrado
+  R.rect(212, 70, 314, 146, K.k); ladrillos(213, 96, 313, 146, 8, K.piedraL, K.piedra, K.blanco, K.piedraS); R.poligono([[208, 97], [263, 58], [318, 97]], K.k); R.poligono([[212, 96], [263, 61], [314, 96]], K.teja);
+  for (let y = 66; y < 96; y += 4) R.linea(263 - (y - 60) * 1.38, y, 263 + (y - 60) * 1.38, y, K.tejaS); R.rect(282, 62, 290, 76, K.k); R.rect(283, 63, 289, 76, K.ladrillo);
+  for (const x of [222, 246, 290]) ventana(x, 106, 10, 13, { contra: K.rojoS }); R.rect(266, 118, 280, 146, K.k); R.rect(267, 119, 279, 145, K.maderaS); for (let y = 122; y < 145; y += 4) R.linea(267, y, 279, y, K.madera);
+  R.rect(0, 70, 33, 146, K.k); ladrillos(0, 92, 32, 146, 9); R.poligono([[0, 92], [0, 66], [30, 92]], K.tejaS); ventana(8, 106, 9, 12, { contra: K.verde });
+  adoquines(0, 147, 319, 179, 2, K.piedra, K.piedraS, K.piedraL);
+  // la bomba de agua, el barril y la carretilla
+  R.rect(184, 128, 190, 166, K.k); R.rect(185, 129, 189, 165, K.verdeS); R.linea(185, 129, 185, 165, K.verdeL); R.linea(190, 134, 198, 130, K.k); R.rect(178, 162, 196, 168, K.k); R.rect(179, 163, 195, 167, K.piedraS);
+  R.rect(298, 150, 312, 170, K.k); for (let y = 151; y < 170; y++) for (let i = 0; i < 13; i++) R.pset(299 + i, y, y === 156 || y === 164 ? K.hierro : i < 3 ? K.maderaL : K.madera);
+});
+const peticion = (x, y, larga) => { const h = larga ? 16 : 10; R.rect(x - 5, y - 1, x + 5, y + h, K.k); R.rect(x - 4, y, x + 4, y + h - 1, K.papel); R.rect(x - 5, y - 2, x + 5, y - 1, K.papelS);
+  for (let j = 2; j < h - 1; j += 2) R.linea(x - 3, y + j, x - 3 + 2 + Math.round(H(j, x) * 4), y + j, K.tinta); R.disco(x + 2, y + h - 3, 1, K.rojo); R.pset(x + 2, y + h - 1, K.rojoS); };
+const p3 = (t) => {
+  fondoCasa();
+  nubes(t, [[20, 30, 34, 1.3], [150, 26, 40, 2.1], [228, 50, 24, 3.1]]);
+  gaviotas(t, [[40, 40, 8, 1]]);
+  // el asta del fuerte: baja la holandesa y sube la blanca, sin un disparo
+  R.rect(190, 26, 191, 84, K.k); R.pset(190, 24, K.oro); R.pset(191, 24, K.oro);
+  const baja = tramo(t, GIVES, WITHOUT + 0.35), sube = tramo(t, WITHOUT + 0.4, SHOT + 0.7);
+  if (sube <= 0) banderaTela(192, Math.round(27 + baja * 48), t, 'holandesa', 18, 11); else banderaTela(192, Math.round(75 - sube * 48), t, 'blanca', 18, 11);
+  R.linea(193, 26, 193, 84, hex('#d8d0c0'));
+  // la gallina del patio
+  const gx = Math.round(240 + Math.sin(t * 0.7) * 16), gp = Math.sin(t * 5) > 0.6 ? 1 : 0; R.rect(gx - 1, 166 + gp, gx + 6, 172, K.k); R.rect(gx, 167 + gp, gx + 5, 171, K.blanco); R.rect(gx + 5, 165 + gp, gx + 7, 167 + gp, K.k); R.pset(gx + 6, 166 + gp, K.blanco); R.pset(gx + 8, 167 + gp, K.oro); R.pset(gx + 6, 164 + gp, K.rojo);
+  // Stuyvesant en lo alto de la escalinata: quiere luchar; en «He gives up» coge la petición y baja la cabeza
+  const tiene = t > GIVES - 0.25, rinde = t > GIVES;
+  const sm = R.actor(stuy, 88, 146, t, { dir: 1, enfado: !rinde, dedo: !tiene && t < BEG, habla: t < BEG && Math.sin(t * 8) > 0, triste: rinde && t < SHOT + 0.8, sostiene: tiene }).mano;
+  if (tiene) peticion(sm[0] + 2, sm[1] - 2, true);
+  // el vecino sube los escalones con la petición y vuelve a bajar
+  const su = tramo(t, SURR - 0.4, GIVES - 0.3), bj = tramo(t, GIVES + 0.2, WITHOUT + 1.2), k = su - bj;
+  const vx = Math.round(lerp(128, 108, k)), vs = Math.round(lerp(174, 158, k));
+  const vm = R.actor(EL.colono, vx, vs, t, { dir: -1, anda: (su > 0 && su < 1) || (bj > 0 && bj < 1), sostiene: !tiene ? [vx - 3, vs - 20] : false, triste: t < GIVES, sonrisa: t > SHOT + 0.6, brazos: t > SHOT + 0.8 && t < SHOT + 1.6 }).mano;
+  if (!tiene) peticion(vm[0] - 2, vm[1] - 4, true);
+  // los vecinos al pie: ruegan con los brazos y luego respiran
+  const ruega = t > BEG - 0.1 && t < GIVES;
+  R.actor(EL.colona, 148, 176, t, { dir: -1, brazos: ruega && Math.floor(t * 3) % 2 === 0, triste: t < SHOT + 0.4, sonrisa: t > SHOT + 0.4 });
+  R.actor(colona2, 170, 176, t, { dir: -1, habla: ruega && Math.sin(t * 8) > 0, triste: t < SHOT + 0.4, sonrisa: t > SHOT + 0.4, dedo: t > SHOT && t < SHOT + 1.2 });
+  R.actor(colono2, 192, 177, t, { dir: -1, brazos: ruega && Math.floor(t * 3 + 1) % 2 === 0, triste: t < SHOT + 0.4, sonrisa: t > SHOT + 0.6 });
+  R.actor(EL.vecina ?? EL.colona, 214, 178, t, { dir: -1, sorpresa: t > WITHOUT && t < SHOT + 0.5, pal: { C: hex('#3a5a6a'), c: hex('#2a4250') } });
+};
+
+// 4 · el fuerte (nuevaAmsterdam 'fuerte'): llegan los ingleses; cambia la bandera y el letrero
+const letrero = (t, giro) => { const x0 = 274, y0 = 140; R.rect(285, 140, 286, 176, K.k); R.linea(285, 141, 285, 176, K.maderaL);
+  const w = Math.max(1, Math.round(11 * Math.abs(Math.cos(giro * Math.PI)))), ing = giro > 0.5;
+  R.rect(285 - w - 1, y0 - 1, 286 + w, y0 + 12, K.k);
+  for (let j = 0; j < 12; j++) for (let i = -w; i <= w; i++) { let c; if (ing) c = Math.abs(j - 5.5) < 1.5 || Math.abs(i) < 1.5 ? K.rojo : K.blanco; else c = j < 4 ? K.naranja : j < 8 ? K.blanco : K.azulB; R.pset(285 + i, y0 + j, c); } };
+const p4 = (t) => {
+  const cu = tramo(t, RENAMED - 0.1, YORK1 + 0.3);
+  T.nuevaAmsterdam(R, t, { encuadre: 'fuerte', bandera: 'blanca', cambio: cu, nueva: 'inglesa', ingleses: 1 });
+  // el letrero del cuartel: en «New York» el soldado le da la vuelta
+  const gi = tramo(t, NEWYORK - 0.05, NEWYORK + 0.45);
+  letrero(t, gi);
+  // los holandeses miran: Stuyvesant, serio, delante de su casa; una vecina junto al pozo
+  const quita = t > DUKE - 0.2 && t < KINGS;
+  R.actor(stuy, 52, 162, t, { dir: 1, triste: t < DUKE, sonrisa: false, sorpresa: false });
+  R.actor(EL.colona, 118, 164, t, { dir: 1, triste: true, dedo: t > NEWYORK + 0.3 });
+  // el oficial inglés entra y se quita el sombrero ante Stuyvesant
+  const ou = tramo(t, P4, P4 + 2.4), ox = Math.round(lerp(330, 150, ou));
+  R.actor(EL.ingles, ox, 164, t, { dir: -1, anda: ou > 0 && ou < 1, tocado: quita ? false : undefined, habla: t > DUKE && t < KINGS && Math.sin(t * 8) > 0 });
+  if (quita) { const sx = ox - 3, sy = 146; R.rect(sx - 4, sy - 1, sx + 4, sy + 2, K.k); R.rect(sx - 3, sy, sx + 3, sy + 1, hex('#2a2430')); }
+  // un casaca roja iza la bandera tirando de la driza
+  const ru = tramo(t, P4 + 0.3, RENAMED - 0.2), rx = Math.round(lerp(350, 198, ru)), iza = cu > 0 && cu < 1;
+  R.actor(EL.casacaRoja, rx, 162, t, { dir: 1, anda: ru > 0 && ru < 1, sostiene: iza ? [214, Math.round(130 + Math.sin(t * 7) * 4)] : false, sonrisa: cu >= 1 });
+  // el otro soldado va al letrero y le da la vuelta en «New York»
+  const su = tramo(t, KINGS - 1.2, NEWYORK - 0.15), sx2 = Math.round(lerp(352, 292, su));
+  R.actor(roja2, sx2, 170, t, { dir: -1, anda: su > 0 && su < 1, sostiene: gi > 0 && gi < 1 ? [288, 146] : false, sonrisa: gi >= 1 });
+};
+
+const año = 1664;
+const efectos = [[1.6, 'ola'], [SEA + 0.7, 'chof'], [WARSHIPS + 0.2, 'cerrojo'], [GOVERNOR + 0.1, 'brillo'], [FIGHT + 0.15, 'golpecito'],
+  [BEG, 'papel'], [GIVES - 0.2, 'papel'], [WITHOUT + 0.5, 'viento'], [P4 + 0.5, 'toc'], [RENAMED + 0.2, 'viento'], [DUKE, 'brillo'], [NEWYORK + 0.2, 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1664', efectos, año });
+</script>
+</body>
+</html>
