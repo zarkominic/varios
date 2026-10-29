@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Las mareas · ep14</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OI-MAREAS (frase 26), 1850. Dos planos:
+// 1. el pozo en corte junto al mar: un buscador baja una cuerda con un flotador al agua del pozo; la marea sube y baja dos
+//    veces y el agua del pozo la sigue; una luna pálida cruza el cielo y la sombra del reloj de sol gira (corta en «In
+//    time with the tides»);
+// 2. la boca del pozo de noche: el obrero llega con el farol; el agua de la boca sube y baja como si la isla respirara; el
+//    capataz se aparta y se asoma; la luna sobre la bahía.
+import * as T from '/atomo/plato/escenas/oi-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('oi-mareas');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const m = (f) => en('mareas', f);
+const P2 = m(0.643);
+const K = hex('#1c1424'), MAD = hex('#7a5230'), MADS = hex('#4e3218'), LUNA = hex('#f2eedc'), LUNAS = hex('#c8c2aa');
+const mez = (p, q, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((p >>> s) & 255) * (1 - k) + ((q >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const luna = (x, y, r, k = 1) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j); if (d > r + 0.3) continue; const c = d > r - 0.8 ? LUNAS : (i * 3 + j * 5) % 7 === 0 && d < r - 1.5 ? LUNAS : LUNA; R.pset(x + i, y + j, mez(R.pget(x + i, y + j), c, k)); } };
+// la flecha blanca que sube o baja (la misma en el pozo y en el mar)
+const flechaV = (x, y, sube) => { for (let j = 0; j < 7; j++) { const w = sube ? Math.floor(j / 2) : 3 - Math.floor(j / 2); R.rect(x - w - 1, y + j - 1, x + w + 1, y + j + 1, K); } for (let j = 0; j < 7; j++) { const w = sube ? Math.floor(j / 2) : 3 - Math.floor(j / 2); R.rect(x - w, y + j, x + w, y + j, j === (sube ? 6 : 0) ? hex('#c8d8e0') : hex('#f2f6f8')); } };
+// la marea: dos subidas y dos bajadas en el plano («rises» sube, «falls» baja)
+const marea = (t) => 0.5 - 0.5 * Math.cos(2 * Math.PI * (t - 0.8) / 3.0);
+
+const p1 = (t) => {
+  const mr = marea(t);
+  const g = T.pozo(R, t, { encuadre: 'corte', epoca: '1849', luz: 'tarde', nivel: 1, marea: mr, sigue: true, cubo: false });
+  // las dos flechas que suben y bajan a la vez: la del pozo y la del mar
+  const sube = Math.sin(2 * Math.PI * (t - 0.8) / 3.0) > 0, flecha = (x, y) => flechaV(x, y, sube);
+  if (t > 1.0) { const yp = (g.aguaY ?? 88), ym = (g.marY ?? 88); flecha(134, yp - 4); flecha(300, ym - 14);
+    for (let x = 101; x <= 123; x++) R.pset(x, yp, (x + Math.floor(t * 8)) % 3 ? hex('#e8f8ff') : hex('#9ad0e8')); R.linea(126, yp, 130, yp, hex('#f2f6f8')); R.linea(292, ym, 308, ym, hex('#f2f6f8')); }
+  // la luna pálida de día que cruza el cielo (la que mueve las mareas)
+  const u = tramo(t, 0, P2); luna(Math.round(lerp(58, 214, u)), Math.round(34 - Math.sin(u * Math.PI) * 10), 4, 0.8);
+  // el reloj de sol junto a la boca: la sombra del gnomon gira
+  const sx = 146, sy = 50; R.rect(sx - 6, sy - 1, sx + 6, sy + 1, K); R.rect(sx - 5, sy - 1, sx + 5, sy, hex('#c8c2b0')); R.rect(sx - 1, sy + 1, sx + 1, sy + 2, hex('#8a8a8a'));
+  for (let i = -4; i <= 4; i += 2) R.pset(sx + i, sy - 1, hex('#8a8478'));
+  R.linea(sx, sy - 1, sx + 1, sy - 6, K); const ang = Math.PI * (0.15 + 0.7 * u); R.linea(sx, sy - 1, Math.round(sx - Math.cos(ang) * 6), sy - 1, hex('#5a5448'));
+  // el buscador baja la cuerda con el flotador hasta el agua del pozo
+  const baja = tramo(t, 0.6, 2.4), yAgua = g.aguaY ?? 88, yf = Math.round(lerp(46, yAgua - 2, baja));
+  R.actor(EL.cavador, 126, 52, t, { dir: -1, sorpresa: t > m(0.425) && t < m(0.55), dedo: t > m(0.204) && t < m(0.3) });
+  R.linea(122, 40, 113, 40, MADS); R.linea(113, 40, 113, yf, hex('#d8ccaa'));
+  R.rect(111, yf, 115, yf + 2, K); R.rect(112, yf, 114, yf + 1, hex('#d84a2c')); R.pset(112, yf, hex('#f0804e'));
+  // el capataz mira el mar y luego el pozo: van a la vez
+  const mira = Math.floor((t - 0.5) / 1.6) % 2 ? -1 : 1;
+  R.actor(EL.capataz, 184, 52, t, { dir: mira, habla: t > m(0.2) && t < m(0.24), sorpresa: t > m(0.52) && t < m(0.6) });
+};
+
+const p2 = (t) => {
+  // el agua de la boca respira: sube y baja con la marea; sale la luna sobre la bahía
+  const v = tramo(t, P2, m(0.99)), resp = 0.55 - 0.45 * Math.cos(2 * Math.PI * v * 1.25);
+  const g = T.pozo(R, t, { encuadre: 'boca', epoca: '1849', luz: 'noche', agua: resp, cubo: false });
+  // el agua que asoma: su filo brilla y la flecha dice si sube o baja
+  const yw = 152 - 5 - Math.round(resp * 9), subeA = Math.sin(2 * Math.PI * v * 1.25) > 0;
+  for (let x = 141; x <= 179; x++) R.pset(x, yw, (x + Math.floor(t * 8)) % 3 ? hex('#e8f8ff') : hex('#9ad0e8'));
+  if (v > 0.05 && v < 0.97) flechaV(174, yw - 12, subeA);
+  // el farol: el obrero llega con él y lo alza sobre la boca; su luz tiembla en el agua
+  const llega = tramo(t, P2, P2 + 1.6), ox = Math.round(lerp(320, 196, llega));
+  R.actor(EL.cavador2, ox, 164, t, { dir: -1, anda: llega > 0 && llega < 1, dedo: llega >= 1, sorpresa: v > 0.35 && v < 0.55 });
+  const fx = ox - 2, fy = llega >= 1 ? 128 : 146, fl = Math.sin(t * 13) > 0 ? 1 : 0;
+  for (let j = -9; j <= 9; j++) for (let i = -9; i <= 9; i++) { const d = Math.hypot(i, j); if (d < 9 && (i + j + Math.floor(t * 3)) % 2 === 0) { const c = R.pget(fx + i, fy + j); R.pset(fx + i, fy + j, mez(c, hex('#f0c060'), 0.25 * (1 - d / 9))); } }
+  R.rect(fx - 3, fy - 4, fx + 3, fy + 4, K); R.rect(fx - 2, fy - 3, fx + 2, fy + 3, hex('#f0c060')); R.rect(fx - 1, fy - 2 + fl, fx + 1, fy + 1, hex('#fff6c8')); R.rect(fx - 3, fy - 6, fx + 3, fy - 5, K); R.pset(fx, fy - 8, K); R.pset(fx, fy - 7, K);
+  // el capataz, de rodillas en el brocal, se aparta cuando sube y se asoma cuando baja
+  const asoma = resp > 0.7 ? 0 : 1;
+  R.actor(EL.capataz, asoma ? 118 : 110, 162, t, { dir: 1, sorpresa: !asoma, sonrisa: v > 0.8, habla: asoma && Math.sin(t * 6) > 0.4 });
+  // gotas de luz en el agua que asoma
+  for (let k = 0; k < 3; k++) R.pset(152 + k * 6 + Math.round(Math.sin(t * 4 + k) * 2), yw + 1, hex('#fff6c8'));
+};
+
+const efectos = [[m(0.204), 'burbujas'], [m(0.425), 'ola'], [m(0.55), 'burbujas'], [m(0.84), 'burbujas']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 1850 });
+</script>
+</body>
+</html>
