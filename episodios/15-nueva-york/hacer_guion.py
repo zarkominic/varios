@@ -97,7 +97,7 @@ PRONUNCIA = {
            ('Ellis Island', 'Élis Áiland'), ('Annie Moore', 'Áni Mur'), ('Emily Roebling', 'Émili Róublin'), ('Staten Island', 'Státen Áiland'),
            ('Queens', 'Cuíns'), ('Elisha Otis', 'Iláisha Óutis'), ('Flatiron', 'Flátaiern'), ('Chrysler', 'Cráisler'),
            ('Empire State', 'Émpaier Estéit'), ('Empty State', 'Émpti Estéit'), ('Central Park', 'Séntral Park'), ('Erie', 'Íri'),
-           ('brownstones', 'bráunstouns'), ('Manhattan', 'Manjátan'), ('DeWitt Clinton', 'Diuít Clínton')],
+           ('brownstones', 'bráunstouns'), ('Manhattan', 'Manjátan'), ('DeWitt Clinton', 'Diuít Clínton'), ('Washington', 'Uáshinton')],
 }
 
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
@@ -133,9 +133,9 @@ for e in plan['escenas']:
 assert usadas == list(range(1, len(filas) + 1)), 'faltan o sobran frases'
 
 guion = {
-    'serie': 'ASK Atom', 'numero': 14, 'estado': 'v2', 'formato': '16:9', 'rotulos': False,
-    'titulo': {'en': 'The Oak Island Money Pit: Why It Floods Every Time Someone Gets Close',
-               'es': 'El Pozo del Dinero de Oak Island: por qué se inunda cada vez que alguien se acerca'},
+    'serie': 'ASK Atom', 'numero': 15, 'estado': 'v2', 'formato': '16:9', 'rotulos': False,
+    'titulo': {'en': 'New York City: How an Island of Forests Became the City of Skyscrapers',
+               'es': 'Nueva York: cómo una isla de bosques se convirtió en la ciudad de los rascacielos'},
     'principal': 'en',
     # desde el episodio 10, el inglés con am_puck (elegida el 25/10/2026 frente a fenrir, michael y heart: «muy plano» era la queja)
     'voces': {'en': {'voz': 'am_puck', 'lang': 'en-us', 'velocidad': 0.85},

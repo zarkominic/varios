@@ -429,6 +429,21 @@ export const TOCADOS = {
     '.kNNNNNNNWDNk..',
     '..kkkkkkkkkk...',
   ], -1],
+  // tricornio del siglo XVIII (1765–1790), con el ribete claro
+  tricornio: [[
+    '.k..kkkkkk..k..',
+    'kJkkJJJJJJkkJk.',
+    'kJJJJJJJJJJJJk.',
+    '.kJjjjjjjjjJk..',
+    '..kkkkkkkkkk...',
+  ], -2],
+  // boina plana de marinero o de navegante (1524–1783), sin visera; el color es el de la ropa oscura (J)
+  boina: [[
+    '..kkkkkkkk.....',
+    '.kJJJJJJJJk....',
+    'kJjJJJJJJJJk...',
+    '.kkkkkkkkkkk...',
+  ], -2],
   // ── episodio 9 ──
   // sombrero alto de peregrino (capotain) con cinta y hebilla
   capotain: [[
@@ -1009,3 +1024,80 @@ export function conChibi(R) {
   Object.defineProperty(K, 'buf', { get: () => R.buf, enumerable: true });
   return K;
 }
+
+// ── Episodio 15: Nueva York, de isla de bosques a ciudad de rascacielos (1524–hoy) ─────────────────────────────────────
+// Los lenapes, con respeto y según las fuentes (plumas de colores en 1524, por la carta de Verrazzano); sin burlas.
+const BASE15 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const BASE15M = { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const BASE15P = { cab: CAB_CORTO, cuerpo: CUERPO_PEREGRINO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+export const ELENCO_NY = {
+  // Giovanni da Verrazzano (1524): jubón granate, barba oscura, gorra negra de terciopelo
+  verrazzano: { ...BASE15, ceja: hex('#1c1424'), tocado: 'boina', bigote: true, pal: CLARA({ J: '#2a2430', j: '#4c4660', H: '#1c1424', h: '#3a3046', C: '#7a2a3a', c: '#5a1e2a', F: '#3a3046', W: '#e8dcc0', o: '#c8a040' }) },
+  // marineros de La Dauphine (1524) y del Halve Maen (1609): camisa de lino, chaleco y gorro de lana
+  marinero: { ...BASE15, ceja: hex('#6a3a1a'), tocado: 'boina', pal: CLARA({ J: '#8a3a2a', j: '#a85a44', H: '#7a4a24', h: '#a8743c', C: '#c8bc9a', c: '#7a5a3a', F: '#5a4a3a', W: '#c8bc9a', o: '#8a3a2a' }) },
+  marinero2: { ...BASE15, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#4a5a7a', c: '#36425a', F: '#5a4a3a', W: '#e8dcc0', o: '#c8a040' }) },
+  // los lenapes (1524–1626): manto de piel, collar de cuentas; plumas de colores
+  lenape: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'pluma', pal: NATIVA({ W: '#3e9ad4', w: '#2a70a8', D: '#d84a3a' }) },
+  lenape2: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'plumas', pal: NATIVA({ W: '#e8c840', w: '#c8a020', B: '#a8784a', b: '#7a5030' }) },
+  lenapa: { ...BASE15M, ceja: hex('#1c1424'), pal: NATIVA({ C: '#b8895a', c: '#8a6038', W: '#d8b07a', L: '#6a4a2a' }) },
+  // Henry Hudson (1609): casaca oscura, cuello blanco, sombrero alto y barba
+  hudson: { ...BASE15P, ceja: hex('#6a3a1a'), tocado: 'capotain', bigote: true, pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#2a3046', F: '#3a3046', G: '#5a3a20' }) },
+  // Juan Rodríguez (1613): marinero nacido en Santo Domingo, camisa roja y pañuelo, con su hacha
+  rodriguez: { ...BASE15, ceja: hex('#1c1424'), pal: MORENA({ S: '#a86a40', s: '#7a4a2a', H: '#1c1424', h: '#3a3046', C: '#a83a2a', c: '#7a2a1e', F: '#5a4a3a', W: '#e8dcc0', o: '#e8c840' }) },
+  // colonos holandeses (1624–1664): casaca oscura y sombrero alto; ella con cofia y delantal
+  colono: { ...BASE15P, ceja: hex('#8a5428'), tocado: 'capotain', pal: CLARA({ H: '#a8703a', h: '#c8904c', C: '#3a4a3a', F: '#3a3046', G: '#5a3a20' }) },
+  colona: { ...BASE15M, ceja: hex('#a8743c'), tocado: 'cofia', pal: CLARA({ H: '#c8904c', h: '#e0ac64', C: '#3a3a5a', c: '#2a2a46', W: '#f2eee2', L: '#2a2430' }) },
+  // Peter Stuyvesant (1664): casaca negra con cuello blanco, pelo gris y sombrero; trato serio, sin burlas
+  stuyvesant: { ...BASE15P, ceja: hex('#6a6a7a'), tocado: 'capotain', bigote: true, pal: CLARA({ H: '#8c8ca0', h: '#b8bccc', C: '#1c1c24', F: '#2a2430', G: '#3a2a20' }) },
+  // oficial inglés (1664–1783): casaca roja, pelo empolvado, tricornio negro
+  ingles: { ...BASE15, ceja: hex('#8a8a9a'), tocado: 'tricornio', pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#b8302a', c: '#8a2420', F: '#f2eee2', W: '#f2eee2', o: '#e8c840' }) },
+  casacaRoja: { ...BASE15, ceja: hex('#5a3418'), tocado: 'tricornio', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#b8302a', c: '#8a2420', F: '#f2eee2', W: '#f2eee2', o: '#f2eee2' }) },
+  // delegados de 1765 y congresistas de 1789: casaca de paño, chaleco, peluca blanca
+  delegado: { ...BASE15, ceja: hex('#8a8a9a'), tocado: 'tricornio', pal: CLARA({ H: '#f2eee2', h: '#d8d4cc', C: '#3a4a6a', c: '#c8a878', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  delegado2: { ...BASE15, ceja: hex('#8a8a9a'), pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#5a3a2a', c: '#e8dcc0', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  // los Hijos de la Libertad (1765): casaca marrón y tricornio; un farol en la mano
+  libertad: { ...BASE15, ceja: hex('#3a2418'), tocado: 'tricornio', pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#7a5a3a', c: '#5a4028', F: '#3a3046', W: '#e8dcc0', o: '#c8a040' }) },
+  libertad2: { ...BASE15, ceja: hex('#a8743c'), pal: CLARA({ H: '#c8904c', h: '#e0ac64', C: '#4a5a3a', c: '#36442a', F: '#5a4a3a', W: '#e8dcc0', o: '#c8a040' }) },
+  // George Washington (1776–1789): casaca azul con solapas beis, pelo empolvado; tricornio en la guerra. Trato serio
+  washington: { ...BASE15, ceja: hex('#8a8a9a'), tocado: 'tricornio', pal: CLARA({ H: '#f2eee2', h: '#d8d4cc', C: '#2a3a6a', c: '#d8c49a', F: '#d8c49a', W: '#f2eee2', o: '#e8c840' }) },
+  // Washington en la investidura (1789): traje marrón de paño, sin sombrero
+  washington89: { ...BASE15, ceja: hex('#8a8a9a'), pal: CLARA({ H: '#f2eee2', h: '#d8d4cc', C: '#6a4a2a', c: '#4e3420', F: '#6a4a2a', W: '#f2eee2', o: '#c8a040' }) },
+  // soldados continentales (1776): casaca azul o de cazador, tricornio
+  continental: { ...BASE15, ceja: hex('#5a3418'), tocado: 'tricornio', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#2a3a6a', c: '#f2eee2', F: '#c8bc9a', W: '#f2eee2', o: '#c8a040' }) },
+  continental2: { ...BASE15, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#8a7a52', c: '#6a5a3a', F: '#c8bc9a', W: '#e8dcc0', o: '#5a3a20' }) },
+  // el marinero del mástil (1783): camisa a rayas y gorro
+  marinero83: { ...BASE15, ceja: hex('#a8743c'), tocado: 'boina', pal: CLARA({ J: '#2a3a6a', j: '#4a5a8a', H: '#c8904c', h: '#e0ac64', C: '#f2eee2', c: '#2a3a6a', F: '#2a3a6a', W: '#f2eee2', o: '#c84a3a' }) },
+  // DeWitt Clinton (1825): levita negra, chaleco, pelo castaño y chistera
+  clinton: { ...BASE15, ceja: hex('#5a3418'), tocado: 'chistera', pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#1c1c24', c: '#f2eee2', F: '#2e2e3c', W: '#f2eee2', o: '#c8a040' }) },
+  // obreros del canal y del puerto (1825–1860): camisa clara, tirantes y gorra
+  estibador: { ...BASE15, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#d8ccaa', c: '#5a3a24', F: '#4a4a5a', W: '#d8ccaa', o: '#5a3a24' }) },
+  estibador2: { ...BASE15, ceja: hex('#1c1424'), bigote: true, pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#7a8a9a', c: '#3a3a4a', F: '#5a4a3a', W: '#7a8a9a', o: '#3a3a4a' }) },
+  // comerciante y vecina de las brownstones (1850): levita y chistera; vestido largo
+  comerciante: { ...BASE15, ceja: hex('#3a2418'), tocado: 'chistera', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#3a3a4a', c: '#e8dcc0', F: '#5a4a3a', W: '#f2eee2', o: '#c8a040' }) },
+  dama: { ...BASE15M, ceja: hex('#5a3418'), pal: CLARA({ H: '#6a3a1a', h: '#8a5428', C: '#6a4a7a', c: '#4e3460', W: '#f2eee2', L: '#2a2430' }) },
+  // emigrantes (1840–1900): chaqueta gastada y gorra; ella con chal y pañuelo
+  emigrante: { ...BASE15, ceja: hex('#6a3a1a'), tocado: 'gorra', pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#5a5a4a', c: '#3e3e34', F: '#4a4a5a', W: '#e8dcc0', o: '#5a3a24' }) },
+  emigrante2: { ...BASE15, ceja: hex('#1c1424'), bigote: true, pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#6a4a3a', c: '#4e3428', F: '#3a3a4a', W: '#e8dcc0', o: '#c8a040' }) },
+  emigranta: { ...BASE15M, ceja: hex('#a85a2a'), tocado: 'cofia', pal: CLARA({ H: '#c8783a', h: '#e0944c', C: '#7a3a3a', c: '#5a2a2a', W: '#d8ccaa', L: '#2a2430' }) },
+  // Annie Moore (1892): muchacha irlandesa, abrigo verde oscuro y pelo pelirrojo; sus hermanos, con gorra
+  annie: { ...BASE15M, ceja: hex('#a8502a'), pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#3a5a3a', c: '#2a442a', W: '#e8dcc0', L: '#2a2430' }) },
+  hermanoMoore: { ...BASE15, ceja: hex('#a8502a'), tocado: 'gorra', pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#5a4a3a', c: '#3e3428', F: '#4a4a5a', W: '#e8dcc0', o: '#5a4a3a' }) },
+  // funcionario de Ellis Island (1892): uniforme azul marino y gorra de plato
+  funcionario: { ...BASE15, ceja: hex('#3a2418'), tocado: 'gorra', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#2a3458', c: '#1c2440', F: '#2a3458', W: '#f2eee2', o: '#c8a040' }) },
+  // Emily Roebling (1883): vestido largo morado oscuro y pelo recogido; Washington Roebling, barba y bata, en la ventana
+  emily: { ...BASE15M, ceja: hex('#3a2418'), pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#4a2a4a', c: '#341c34', W: '#f2eee2', L: '#2a2430' }) },
+  roebling: { ...BASE15, ceja: hex('#5a3418'), bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#5a5a6a', c: '#42424e', F: '#3a3a4a', W: '#f2eee2', o: '#2a2430' }) },
+  // Elisha Otis (1854): barba, levita negra y chistera
+  otis: { ...BASE15, ceja: hex('#3a2418'), tocado: 'chistera', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#1c1c24', c: '#f2eee2', F: '#2e2e3c', W: '#f2eee2', o: '#c8a040' }) },
+  // obreros de las vigas (1902–1931): mono de trabajo, gorra y camisa de cuadros
+  vigas: { ...BASE15, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#3e5a8a', c: '#2c4468', F: '#3e5a8a', W: '#c84a3a', o: '#c8a040' }) },
+  vigas2: { ...BASE15, ceja: hex('#1c1424'), tocado: 'gorra', pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#7a6a4a', c: '#5a4a32', F: '#4a4a5a', W: '#7a6a4a', o: '#3a3a4a' }) },
+  // oficinistas (1915–1931): traje gris, corbata y sombrero de fieltro
+  oficinista: { ...BASE15, ceja: hex('#3a2418'), tocado: 'fedora', pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#5e5e70', c: '#46465a', F: '#5e5e70', G: '#2a2430', W: '#f2eee2', o: '#8a2a2a' }) },
+  oficinista2: { ...BASE15M, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#2a5a6a', c: '#1e4450', W: '#f2eee2', L: '#2a2430' }) },
+  // neoyorquinos de hoy: chaqueta, sudadera, abrigo
+  neoyorquino: { ...BASE15, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#e8783a', c: '#c85a2a', F: '#2a3a5a', W: '#e8783a', o: '#f2eee2' }) },
+  neoyorquina: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#8a4a24', h: '#a8643a', C: '#2a6a5a', c: '#1e5044', F: '#3a3a4a', W: '#2a6a5a', o: '#e8c840' }) },
+  neoyorquino2: { ...BASE15, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#5a4a8a', c: '#42366a', F: '#3a3a4a', W: '#5a4a8a', o: '#e8c840' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_NY);
