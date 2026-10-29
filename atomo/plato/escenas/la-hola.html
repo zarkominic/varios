@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep16</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LA-HOLA (frase 6), hoy. Un plano: la orilla del río tóxico de día; el tentáculo verde da un saltito y saluda a Atom
+// («Atom»); el morado, con sus bracitos nuevos, le hace burla sacando la lengua («school didn't teach you»); en
+// «Let's find out» los dos se van saltando hacia la máquina.
+import * as T from '/atomo/plato/escenas/la-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('la-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const mez = (c, d, a) => { const r = c & 255, g = (c >> 8) & 255, b = (c >> 16) & 255, r2 = d & 255, g2 = (d >> 8) & 255, b2 = (d >> 16) & 255;
+  return (0xff000000 | (Math.round(b + (b2 - b) * a) << 16) | (Math.round(g + (g2 - g) * a) << 8) | Math.round(r + (r2 - r) * a)) >>> 0; };
+const h1 = (a, b = 0) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
+const tr4 = (x, y) => [0, 0.5, 0.125, 0.625, 0.75, 0.25, 0.875, 0.375, 0.1875, 0.6875, 0.0625, 0.5625, 0.9375, 0.4375, 0.8125, 0.3125][(y & 3) * 4 + (x & 3)];
+// el destello del relámpago o del golpe: aclara toda la pantalla (a 0–1)
+const destello = (R, a, col = hex('#e8f0ff')) => { if (a <= 0.02) return; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, mez(R.pget(x, y), col, a)); };
+// cuánto destella un relámpago que cae en t0 (dos golpes de luz)
+const luzRayo = (t, t0) => { const d = t - t0; return d < 0 ? 0 : d < 0.07 ? 0.55 : d < 0.13 ? 0.1 : d < 0.2 ? 0.35 : d < 0.45 ? 0.35 * (1 - (d - 0.2) / 0.25) : 0; };
+// el rayo en zigzag de (x, y0) a y1, con ramitas, entre xmin y xmax
+const rayo = (R, x, y0, y1, k, xmin = 0, xmax = 319) => { let px = x, py = y0;
+  while (py < y1) { const nx = Math.max(xmin, Math.min(xmax, px + Math.round((h1(py, k) - 0.5) * 12))), ny = Math.min(y1, py + 5 + Math.round(h1(py, k + 1) * 6));
+    R.linea(px - 1, py, nx - 1, ny, hex('#6a8ae8')); R.linea(px + 1, py, nx + 1, ny, hex('#a8c8ff')); R.linea(px, py, nx, ny, hex('#ffffff'));
+    if (h1(py, k + 2) > 0.7) { const bx = nx + Math.round((h1(py, k + 3) - 0.5) * 18); R.linea(nx, ny, bx, ny + 8, hex('#c8dcff')); R.pset(bx, ny + 9, hex('#8aa8f0')); }
+    px = nx; py = ny; } };
+// una burbuja de lodo que crece y revienta en salpicaduras (u 0–1)
+const burbujon = (R, x, y, rMax, u) => { if (u <= 0 || u >= 1) return;
+  if (u < 0.7) { const r = rMax * Math.sin(u / 0.7 * Math.PI / 2); R.disco(x, y, r + 1, hex('#1a5a1a')); R.disco(x, y, r, hex('#5ad84a')); R.disco(x - r * 0.3, y - r * 0.3, r * 0.45, hex('#9af88a')); R.pset(Math.round(x - r * 0.45), Math.round(y - r * 0.5), hex('#ffffff')); }
+  else { const v = (u - 0.7) / 0.3; for (let k = 0; k < 10; k++) { const a = k * 0.628 + 0.3, d = rMax * (0.6 + v * 1.4); R.rect(Math.round(x + Math.cos(a) * d), Math.round(y - Math.abs(Math.sin(a)) * d * 1.3 + v * v * 8), Math.round(x + Math.cos(a) * d) + 1, Math.round(y - Math.abs(Math.sin(a)) * d * 1.3 + v * v * 8) + 1, k % 2 ? hex('#8af87a') : hex('#3aa83a')); }
+    R.anillo(x, y, rMax * (0.5 + v), hex('#9af88a'), 2); } };
+// un bocadillo de cómic redondo con un pictograma dentro (dibuja(R, cx, cy)); cola hacia (qx, qy); a 0–1 lo hace crecer
+const bocata = (R, cx, cy, w, hh, qx, qy, a, dibuja) => { if (a <= 0) return; const s = Math.min(1, a * 1.6), W = Math.round(w * s), Hh = Math.round(hh * s);
+  R.poligono([[cx - 3, cy + Hh / 2 - 1], [cx + 3, cy + Hh / 2 - 1], [qx, qy]], hex('#1a1424')); R.poligono([[cx - 2, cy + Hh / 2 - 2], [cx + 2, cy + Hh / 2 - 2], [qx + (qx < cx ? 1 : -1), qy - 2]], hex('#f8f4e8'));
+  R.rect(cx - W / 2 - 1, cy - Hh / 2, cx + W / 2 + 1, cy + Hh / 2, hex('#1a1424')); R.rect(cx - W / 2, cy - Hh / 2 - 1, cx + W / 2, cy + Hh / 2 + 1, hex('#1a1424'));
+  R.rect(cx - W / 2, cy - Hh / 2 + 1, cx + W / 2, cy + Hh / 2 - 1, hex('#f8f4e8')); R.rect(cx - W / 2 + 1, cy - Hh / 2, cx + W / 2 - 1, cy + Hh / 2, hex('#f8f4e8'));
+  R.rect(cx - W / 2 + 1, cy + Hh / 2 - 1, cx + W / 2 - 1, cy + Hh / 2, hex('#c8c0b0'));
+  if (s >= 1) dibuja(R, Math.round(cx), Math.round(cy)); };
+
+const A = (f) => en('hola', f);
+const atom = A(0.037), burla = A(0.42), vamos = A(0.797);
+const p1 = (t) => {
+  T.mansion(R, t, { encuadre: 'rio', camara: 'general', luz: 'dia' });
+  const va = tramo(t, vamos, E.duracion), vb = tramo(t, vamos + 0.3, E.duracion);
+  const xv = Math.round(lerp(118, -30, va)), xm = Math.round(lerp(184, -10, vb));
+  // el verde: da un saltito al oír «Atom» y le hace una reverencia; luego se va saltando
+  T.tentaculo(R, xv, 170, t, { color: 'verde', s: 2, dir: va > 0 ? -1 : 1, anda: va > 0, expresion: 'feliz', mira: va > 0 ? [-1, 0] : [1, -1], salto: t > atom && t < atom + 0.55 ? Math.round(Math.abs(Math.sin((t - atom) * 11)) * 6) : 0, inclina: t > atom + 0.6 && t < atom + 1.5 ? 2.4 : 0 });
+  // el morado, con sus bracitos nuevos: le saca la lengua a Atom y mueve las manos (burla)
+  const bur = t > burla && t < vamos - 0.1;
+  const m = T.tentaculo(R, xm, 174, t, { color: 'morado', s: 2, dir: vb > 0 ? -1 : 1, anda: vb > 0, brazos: 1, pose: bur ? 'saluda' : 'normal', expresion: bur ? 'malvado' : 'normal', mira: [1, -1], inclina: bur ? Math.sin(t * 6) * 0.8 : 0 });
+  if (bur && m.boca) { const [bx, by] = m.boca, l = 2 + Math.round(Math.abs(Math.sin(t * 8)) * 2); R.rect(bx - 2, by + 1, bx + 2, by + 2 + l, hex('#5a1018')); R.rect(bx - 1, by + 1, bx + 1, by + 1 + l, hex('#e85a7a')); R.pset(bx, by + l, hex('#c83a5a')); }
+  // dos burbujas que revientan en el lodo y una mariposa que pasa
+  burbujon(R, 230, 128, 4, (t * 0.7) % 1.4);
+  burbujon(R, 60, 116, 3, ((t + 0.6) * 0.8) % 1.3);
+  { const f = (t * 0.12) % 1, x = Math.round(lerp(330, 200, f)), y = Math.round(80 + Math.sin(t * 2) * 10), a = Math.sin(t * 20) > 0; R.rect(x - (a ? 2 : 1), y - 1, x - 1, y + 1, hex('#e8a040')); R.rect(x + 1, y - 1, x + (a ? 2 : 1), y + 1, hex('#e8a040')); R.pset(x, y, hex('#2a2430')); }
+};
+const efectos = [[atom + 0.05, 'boing'], [burla, 'masca'], [vamos + 0.05, 'whoosh']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

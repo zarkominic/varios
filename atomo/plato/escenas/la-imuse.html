@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>iMUSE · ep16</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LA-IMUSE (frase 23), 1991, cartela «1991». Tres planos:
+// 1. estudio 'musica' general: un músico toca el sintetizador y de él salen notas de colores; el segundo músico entra con
+//    un disquete; en «invention» lo levanta y el disquete brilla y echa notas; los dos sonríen. Corta en «by its composers».
+// 2. estudio 'musica' 'teclado': la mano del primer músico toca acordes desde el principio; en «Peter» entra la mano del
+//    segundo; en «iMUSE» brota del teclado un chorro de notas que cambian de color y de forma, y en la pantalla la onda se
+//    transforma sin cortarse. Corta en «The music».
+// 3. un travelling de un sitio a otro: el aspirante cruza la selva de noche (isla 'bosque' general), salta a la cubierta del
+//    barco fantasma (isla 'barcoFantasma' cerca) mientras la cámara pasa de un decorado al otro tras un tronco en primer
+//    término; las notas que flotan en el aire cambian de color y de forma al cruzar la juntura, sin cortarse
+//    («seamlessly… from one place to another»); en «movie» el aspirante levanta los brazos, encantado.
+import * as T from '/atomo/plato/escenas/la-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('la-imuse');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k;
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { a = Math.max(0, Math.min(1, a)); const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// una nota musical: forma 0 negra, 1 dos corcheas unidas, 2 nota fantasma (rombo con cola ondulada); c color, s escala 1–2
+const nota = (x, y, forma, c, s = 1, t = 0) => {
+  x = Math.round(x); y = Math.round(y); const cs = mez(c, K, 0.45), cl = mez(c, hex('#ffffff'), 0.55);
+  if (forma === 2) {
+    const r = 3 * s; R.poligono([[x, y - r - 1], [x + r + 1, y], [x, y + r + 1], [x - r - 1, y]], K); R.poligono([[x, y - r], [x + r, y], [x, y + r], [x - r, y]], c);
+    R.pset(x - 1, y - 1, cl); for (let k = 0; k < 7 * s; k++) R.pset(x + Math.round(Math.sin(k * 0.9 + t * 8) * 1.5), y + r + 1 + k, k % 2 ? cs : c);
+    return;
+  }
+  const cab = (cx) => { R.disco(cx + 0.5, y + 0.5, 2.6 * s, K); R.disco(cx + 0.5, y + 0.5, 1.9 * s, c); R.pset(cx - 1, y - 1, cl); };
+  const palo = (cx) => { R.rect(cx + 2 * s, y - 9 * s, cx + 2 * s + s - 1, y, K); };
+  if (forma === 1) { cab(x - 4 * s); cab(x + 4 * s); palo(x - 4 * s); palo(x + 4 * s); R.rect(x - 2 * s, y - 9 * s, x + 6 * s + s - 1, y - 8 * s + s - 1, K); R.rect(x - 2 * s, y - 9 * s + 1, x + 6 * s, y - 9 * s + 1, c); return; }
+  cab(x); palo(x); R.rect(x + 3 * s, y - 9 * s, x + 4 * s, y - 8 * s, K); R.pset(x + 4 * s, y - 7 * s, K);
+};
+
+const a = (f) => en('imuse', f);
+const P2 = a(0.255), P3 = a(0.615);
+const PAL2 = { H: hex('#e0b860'), h: hex('#c8984a'), C: hex('#3e7a5a'), c: hex('#2c5a40'), W: hex('#3e7a5a') };
+const COLS = ['#f0c040', '#f07a3a', '#e84a8a', '#6ad0f0', '#7ae86a', '#b07af0'].map(hex);
+// ── plano 1: el rincón de la música ─────────────────────────────────────────────────────────────────────────────
+const p1 = (t) => {
+  const g = T.estudio(R, t, { encuadre: 'musica', anyo: 1990, toca: true });
+  const inv = a(0.203), entra = tramo(t, 1.6, a(0.16)), x2 = Math.round(lerp(330, 196, entra));
+  // las notas de colores que suben del sintetizador
+  for (let k = 0; k < 9; k++) { const f = (t * 0.45 + k / 9) % 1, nx = 84 + (k * 37) % 90 + Math.sin(t * 2 + k) * 4, ny = 136 - f * 70;
+    if (ny > 52) nota(nx, ny, k % 2, COLS[k % 6], 1, t); }
+  R.actor(EL.musico, g.pies[0], g.sueloSinte, t, { dir: 1, sonrisa: true, salto: Math.floor(t * 4) % 2, sorpresa: t > inv && t < inv + 0.5 });
+  // el segundo músico entra con el disquete y lo levanta en «invention»
+  const sube = tramo(t, inv - 0.1, inv + 0.3), r = R.actor(EL.musico, x2, g.suelo, t, { dir: -1, pal: PAL2, anda: entra > 0 && entra < 1, sonrisa: t > inv, sostiene: sube > 0 ? [x2 - 4, Math.round(lerp(132, 116, sube))] : true });
+  const [mx, my] = r.mano, dx = mx - 5, dy = my - 7;
+  if (t > inv) { R.halo(mx, my - 2, 16, [hex('#8a7a5a'), hex('#b8a060'), hex('#e8d080')], 1); for (let k = 0; k < 5; k++) { const f = (t - inv + k * 0.3) % 1.5 / 1.5; nota(mx + Math.cos(k * 1.3 + f * 3) * (6 + f * 22), my - 6 - f * 34, k % 2, COLS[(k + 2) % 6], 1, t); } }
+  R.rect(dx, dy, dx + 10, dy + 10, K); R.rect(dx + 1, dy + 1, dx + 9, dy + 9, hex('#2a2a3a')); R.rect(dx + 3, dy + 1, dx + 7, dy + 3, hex('#c8c8d0')); R.rect(dx + 2, dy + 5, dx + 8, dy + 9, hex('#f2eee2'));
+  R.rect(dx + 3, dy + 6, dx + 7, dy + 6, COLS[(Math.floor(t * 3)) % 6]); R.rect(dx + 3, dy + 8, dx + 6, dy + 8, hex('#8a8a9a'));
+  if (t > inv && t < inv + 1.8) R.bocadillo(g.pies[0] + 18, g.sueloSinte - 32, { icono: '!' });
+};
+// ── plano 2: el teclado de cerca, las dos manos y la invención ─────────────────────────────────────────────────
+const p2 = (t) => {
+  const g = T.estudio(R, t, { encuadre: 'musica', camara: 'teclado' });
+  const imuse = a(0.531), peter = a(0.421);
+  // en la pantalla, la onda que cambia de forma sin cortarse
+  if (g.pantalla) { const [x0, y0, x1, y1] = g.pantalla, m = tramo(t, imuse, imuse + 1.2), yc = (y0 + y1) >> 1; R.recorte([x0 + 2, y0 + 2, x1 - 2, y1 - 2]);
+    for (let x = x0 + 2; x < x1 - 2; x++) { const ph = (x - x0) * 0.25 - t * 4, sq = Math.sign(Math.sin(ph)), sn = Math.sin(ph), tri = Math.asin(Math.sin(ph)) / 1.57;
+      const tramoX = (x - x0) / (x1 - x0), w = m * 3 - tramoX * 2, v = w < 0.5 ? sq : w < 1.5 ? lerp(sq, sn, w - 0.5) : lerp(sn, tri, Math.min(1, w - 1.5));
+      const c = m > 0 ? COLS[Math.floor(tramoX * 3 + t) % 6] : hex('#f0b03a'); R.pset(x, Math.round(yc + v * (y1 - y0) * 0.3), c); R.pset(x, Math.round(yc + v * (y1 - y0) * 0.3) + 1, mez(c, K, 0.5)); }
+    R.recorte(null); }
+  // las teclas que se hunden bajo los dedos
+  const hunde = (fx) => { const k = Math.floor((fx + 4) / 15), kx = -4 + k * 15; R.rect(kx + 1, 125, kx + 13, 127, hex('#8a8a96')); R.rect(kx + 2, 128, kx + 12, 129, hex('#c8c8d0')); };
+  // antes del invento, unas pocas notas doradas suben de las manos (la música de siempre)
+  for (let k = 0; k < 6; k++) { const f = (t * 0.5 + k / 6) % 1; if (t < imuse || f > 0.6) { const nx = 90 + k * 26 + Math.sin(t * 2 + k) * 5, ny = 120 - f * 70; if (ny > 40) nota(nx, ny, k % 2, hex('#f0b03a'), 1, t); } }
+  // la mano izquierda (el primer músico, jersey morado) toca acordes
+  const ac = Math.floor(t * 2.5) % 4, lx = 64 + [0, 30, 15, 45][ac], prL = (t * 2.5) % 1 < 0.45;
+  hunde(lx + 10); hunde(lx + 2);
+  T.brazo(R, lx - 34, 196, lx - 2, prL ? 146 : 142, '#5a4a7a', 1, { codo: [lx - 24, 170] });
+  // la mano derecha (el segundo, camisa verde) entra en «Peter»
+  const en2 = tramo(t, peter - 0.2, peter + 0.4);
+  if (en2 > 0) { const ac2 = Math.floor(t * 3.3 + 1) % 3, rx = Math.round(lerp(340, 224 - [0, 30, 15][ac2], en2)), prR = (t * 3.3) % 1 < 0.45;
+    if (en2 >= 1) { hunde(rx - 10); hunde(rx - 3); }
+    T.brazo(R, rx + 36, 198, rx + 2, prR && en2 >= 1 ? 146 : 142, '#3e7a5a', -1, { codo: [rx + 28, 172] }); }
+  // en «iMUSE», el chorro de notas que brota del teclado y cambia de color y de forma mientras sube
+  if (t > imuse - 0.1) for (let k = 0; k < 16; k++) { const f = ((t - imuse) * 0.55 + k / 16) % 1, edad = t - imuse - k * 0.06; if (edad < 0) continue;
+    const nx = 150 + Math.sin(k * 2.4) * 30 + Math.sin(f * 6 + k) * 18 + f * (k % 2 ? 60 : -50), ny = 124 - f * 110;
+    if (ny < 18 || (nx > 270 && ny < 48)) continue;
+    const forma = f < 0.33 ? 0 : f < 0.66 ? 1 : 2, c = mez(COLS[k % 6], COLS[(k + 3) % 6], (f * 3) % 1);
+    nota(nx, ny, forma, c, f > 0.15 && f < 0.85 ? 2 : 1, t); }
+};
+// ── plano 3: de la selva a la cubierta del barco fantasma, sin cortar la música ─────────────────────────────────
+const bufA = R.nuevo(), bufB = R.nuevo();
+const tronco = (sx, t) => {   // un tronco de palmera en primer término tapa la juntura entre los dos sitios
+  for (let y = 0; y < 180; y++) { const cx = sx + Math.round(Math.sin(y * 0.02) * 4), w = 7 + (y > 150 ? (y - 150) * 0.2 : 0), anillo = (y + Math.round(sx * 0.3)) % 7;
+    for (let x = Math.round(cx - w); x <= cx + w; x++) { const s = (x - cx) / w; R.pset(x, y, Math.abs(s) > 0.86 ? hex('#0a0e0c') : anillo === 0 ? hex('#1a201c') : s < -0.4 ? hex('#3a4a3a') : s > 0.4 ? hex('#141a16') : hex('#26302a')); } }
+  // la niebla verde que se cuela por la juntura
+  for (let y = 100; y < 180; y++) for (let x = sx - 22; x <= sx + 22; x++) { const d = Math.abs(x - sx) / 22; if (Math.abs(x - sx) > 8 && hh(x, y, Math.floor(t * 4)) > 0.55 + d * 0.4) R.pset(x, y, hex('#8ae8a8')); }
+  // un helecho que asoma al pie del tronco
+  for (let k = 0; k < 6; k++) { const an = -Math.PI / 2 + (k - 2.5) * 0.45 + Math.sin(t * 2 + k) * 0.06; R.linea(sx, 178, sx + Math.cos(an) * 24, 178 + Math.sin(an) * 20, k % 2 ? hex('#2a6a3a') : hex('#3a8a4a')); }
+};
+const p3 = (t) => {
+  const pan = Math.round(320 * tramo(t, a(0.66), a(0.87))), sx = 320 - pan;
+  const dest = R.usar(bufA); if (pan < 320) T.isla(R, t, { encuadre: 'bosque' }); R.delante = null;
+  R.usar(bufB); if (pan > 0) T.isla(R, t, { encuadre: 'barcoFantasma', camara: 'cerca' }); R.delante = null;
+  R.usar(dest);
+  for (let y = 0; y < 180; y++) { const o = y * 320; if (pan < 320) dest.set(bufA.subarray(o + pan, o + 320), o); if (pan > 0) dest.set(bufB.subarray(o, o + pan), o + 320 - pan); }
+  // las notas que flotan en el aire: cálidas y redondas en la selva, verdes y fantasmales en el barco; cambian al cruzar
+  for (let k = 0; k < 22; k++) { const wx = (k * 61 + t * 14) % 660 - 10, x = wx - pan, y = 58 + (k * 23) % 50 + Math.sin(t * 1.6 + k * 1.3) * 6;
+    if (x < -8 || x > 328 || (x > 266 && y < 50)) continue;
+    const m = Math.max(0, Math.min(1, (x - sx + 20) / 40)), c = mez(COLS[k % 3], [hex('#8ae8a8'), hex('#6ad0f0'), hex('#c8f8e8')][k % 3], m);
+    const forma = m < 0.5 ? k % 2 : 2, s = m > 0.35 && m < 0.65 ? 1 : (k % 4 === 0 ? 2 : 1);
+    nota(x + (m > 0.5 ? Math.sin(t * 5 + k) * 2 : 0), y + (m < 0.5 ? -Math.abs(Math.sin(t * 4 + k)) * 3 : 0), forma, c, s, t); }
+  // el aspirante: anda por el camino, salta a la cubierta al pasar la juntura y llega junto al timón
+  const llega = tramo(t, P3 + 0.1, a(0.68)), cruza = a(0.765), salta = tramo(t, cruza - 0.18, cruza + 0.18), fin = tramo(t, a(0.88), a(0.95));
+  const x = Math.round(lerp(40, 140, llega) + lerp(0, 52, fin)), suelo = Math.round(lerp(150, 162, salta)), alto = Math.round(Math.sin(salta * Math.PI) * 9);
+  const movie = t > a(0.94), anda = (llega > 0 && llega < 1) || (t > a(0.68) && t < a(0.87) && (salta <= 0 || salta >= 1)) || (fin > 0 && fin < 1);
+  R.actor(EL.aspirante, x, suelo, t, { dir: 1, anda: anda && alto === 0, salto: alto, sorpresa: t > a(0.87) && t < a(0.92), sonrisa: !(t > a(0.87) && t < a(0.92)), brazos: movie });
+  if (sx > -16 && sx < 336) tronco(sx, t);
+};
+const efectos = [[a(0.2), 'brillo'], [a(0.531), 'brillo'], [a(0.67), 'whoosh'], [a(0.765), 'golpecito'], [a(0.95), 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { cartela: '1991', efectos, año: 1991 });
+</script>
+</body>
+</html>

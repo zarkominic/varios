@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La carretera · ep16</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LA-CARRETERA (frases 32–33), 1993: el perro detective y el conejo hiperactivo salen a la carretera. Cinco planos:
+// 1. carretera 'carretera' general: el coche de los sesenta entra por la izquierda y cruza el desierto con el perro al
+//    volante; en «1993» el conejo se asoma por la ventanilla de atrás y saluda dando botes; polvo, la rodadora, el
+//    halcón; en «road» el coche se pierde por la derecha. Corta en «Sam».
+// 2. carretera 'coche': el coche de cerca, en marcha: el perro conduce y en «Steve Purcell's» se levanta el sombrero; el
+//    conejo no para: bota en el asiento y en «duo» salta por la ventanilla con los brazos arriba y vuelve a caer. Corta
+//    en «A dog».
+// 3. carretera 'atraccion' general: el coche aparcado junto al dinosaurio; se abre la puerta y en «dog detective» baja
+//    el perro con su traje y se coloca el sombrero en «suit»; en «hyperactive» el conejo sale disparado por la
+//    ventanilla y rebota por el aparcamiento; el perro le sigue con la vista y menea la cabeza. Corta en «In».
+// 4. el mapa de EE. UU. sobre la mesa: la chincheta en Nueva York; en «drive across» la ruta se dibuja hacia el oeste
+//    con el cochecito encima y van saliendo las atracciones (dinosaurio, ovillo, rosquilla gigante); en «hunting for a
+//    Bigfoot» aparecen delante las huellas gigantes y el coche las sigue. Corta en «Bigfoot».
+// 5. carretera 'feria' carpa: la jaula vacía con los barrotes doblados; el perro y el conejo entran y siguen las huellas
+//    («escaped»); en «Among» el Bigfoot sale de la carpa con los brazos arriba (el tentáculo morado disfrazado) y el
+//    perro se asusta; en «each one weirder» el conejo salta y le arranca el disfraz: el morado, pillado, pone cara de
+//    harto mientras el conejo agita la piel; el perro se ríe (gag 7).
+import * as T from '/atomo/plato/escenas/la-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('la-carretera');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k, BL = hex('#f2eee2');
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { a = Math.max(0, Math.min(1, a)); const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// recorrido por puntos [t, x, y]: null antes del primero (o el primero con desde=false); mv: se mueve; d: hacia dónde
+const ruta = (t, kf, desde = true) => { if (t < kf[0][0]) return desde ? null : { x: kf[0][1], s: kf[0][2], mv: false, d: 1 };
+  for (let i = 0; i + 1 < kf.length; i++) if (t < kf[i + 1][0]) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1], u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0, d: x1 < x0 ? -1 : 1 }; }
+  const [, x, s] = kf[kf.length - 1]; return { x, s, mv: false, d: 1 }; };
+// el cursor único de los noventa, grande (escala e): forma 'ojo', 'mano', 'boca', 'bota', 'cruz'; clic (0–1) lo encoge y echa un destello
+const CUR = {
+  ojo: ['....#####....', '..##.....##..', '.#...###...#.', '#...#####...#', '#...##.##...#', '#...#####...#', '.#...###...#.', '..##.....##..', '....#####....'],
+  mano: ['...#.#.#.....', '..##.#.#.#...', '..#########..', '.##########..', '###########..', '.##########..', '..########...', '...######....', '....####.....'],
+  boca: ['.............', '..#########..', '.#.........#.', '#..#.#.#.#..#', '#...........#', '#..#.#.#.#..#', '.#.........#.', '..#########..', '.............'],
+  bota: ['...#####.....', '...#####.....', '...#####.....', '...#####.....', '...######....', '..##########.', '.############', '.############', '..#.#.#.#.#..'],
+  cruz: ['......#......', '......#......', '......#......', '.............', '###.......###', '.............', '......#......', '......#......', '......#......'],
+};
+const RELL = { ojo: ['....#####....', '..#########..', '.###########.', '#############', '#############', '#############', '.###########.', '..#########..', '....#####....'] };
+const cursorG = (cx, cy, forma, t, clic = 0, e = 2) => {
+  const f = CUR[forma] ?? CUR.cruz, w = f[0].length, hgt = f.length, s = e * (1 - 0.25 * Math.sin(Math.min(1, clic) * Math.PI)), x0 = Math.round(cx - w * s / 2), y0 = Math.round(cy - hgt * s / 2);
+  const col = [hex('#ffffff'), hex('#f0e8a0'), hex('#ffffff'), hex('#c8e8ff')][Math.floor(t * 6) % 4], rell = RELL[forma];
+  const lleno = (i, j) => (rell ? rell[j]?.[i] === '#' : false) || f[j]?.[i] === '#';
+  const px = (i, j, c) => { for (let a = 0; a < Math.ceil(s); a++) for (let b = 0; b < Math.ceil(s); b++) R.pset(x0 + Math.floor(i * s) + a, y0 + Math.floor(j * s) + b, c); };
+  for (let j = -1; j <= hgt; j++) for (let i = -1; i <= w; i++) if (!lleno(i, j) && (lleno(i - 1, j) || lleno(i + 1, j) || lleno(i, j - 1) || lleno(i, j + 1))) px(i, j, K);
+  if (rell) for (let j = 0; j < hgt; j++) for (let i = 0; i < w; i++) if (rell[j][i] === '#' && f[j][i] !== '#') px(i, j, hex('#3a6ab8'));
+  for (let j = 0; j < hgt; j++) for (let i = 0; i < w; i++) if (f[j][i] === '#') px(i, j, rell ? K : col);
+  if (rell) { px(6, 4, BL); px(5, 3, BL); }
+  if (clic > 0 && clic < 1) { const r = Math.round(6 + clic * 16); for (let a = 0; a < 6.28; a += 0.26) if (Math.floor(a * 6) % 2 === 0) R.pset(Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r * 0.8), hex('#fff0a0')); }
+};
+
+const s = (f) => en('sam', f), b = (f) => en('bigfoot', f);
+const P2 = s(0.329), P3 = s(0.715), P4 = b(-0.015), P5 = b(0.443);
+// ── 1 · el coche cruza el desierto ─────────────────────────────────────────────────────────────────────────────
+const p1 = (t) => {
+  const cx = Math.round(lerp(-56, 372, tramo(t, 0.15, P2 + 0.2) * 0.25 + (t - 0.15) / (P2 + 0.2) * 0.75));
+  const asoma = t > s(0.111) - 0.2;
+  T.carretera(R, t, { encuadre: 'carretera', camara: 'general', luz: 'dia', cocheX: cx, cocheDir: 1, anda: true,
+    ocupantes: ([d, a]) => {
+      T.detective(R, d[0], d[1], t, { quien: 'perro', dir: 1, quieto: true });
+      T.detective(R, a[0], a[1] - (asoma ? 4 + Math.round(Math.abs(Math.sin(t * 7)) * 3) : 0), t, { quien: 'conejo', dir: 1, brazos: asoma && t < s(0.111) + 1.4, sorpresa: asoma });
+    } });
+};
+// ── 2 · el coche de cerca ──────────────────────────────────────────────────────────────────────────────────────
+const p2 = (t) => {
+  const SAL = s(0.621), salto = t > SAL - 0.1 && t < SAL + 0.9 ? Math.round(Math.sin(tramo(t, SAL - 0.1, SAL + 0.9) * Math.PI) * 22) : 0;
+  T.carretera(R, t, { encuadre: 'carretera', camara: 'coche', luz: 'dia', velocidad: 1,
+    ocupantes: ([d, a]) => {
+      T.detective(R, d[0], d[1], t, { quien: 'perro', dir: 1, sorpresa: t > s(0.502) && t < s(0.502) + 0.7, habla: t > s(0.55) && t < s(0.62) && Math.sin(t * 9) > 0 });
+      T.detective(R, a[0], a[1] - salto - (salto ? 0 : Math.round(Math.abs(Math.sin(t * 6)) * 3)), t, { quien: 'conejo', dir: Math.floor(t * 1.7) % 2 ? 1 : -1, brazos: salto > 6, sorpresa: salto > 0 });
+    } });
+};
+// ── 3 · bajan en la atracción ──────────────────────────────────────────────────────────────────────────────────
+const CAR = [226, 163];
+const p3 = (t) => {
+  T.carretera(R, t, { encuadre: 'atraccion', camara: 'general' });
+  const DOG = s(0.747), SUIT = s(0.827), HYP = s(0.887);
+  // el coche llega y aparca (frena con un cabeceo) antes de que bajen
+  const llega = tramo(t, P3, P3 + 0.7), cxc = Math.round(lerp(330, CAR[0], llega)), cab = llega < 1 ? 0 : Math.round(Math.sin(Math.min(1, (t - P3 - 0.7) * 4) * Math.PI) * 1);
+  const abre = t > DOG - 0.25 && t < DOG + 0.9;
+  const pe = ruta(t, [[DOG - 0.05, 200, 172], [DOG + 0.7, 168, 172]]);
+  const conej = t < HYP ? null : (() => { const u = tramo(t, HYP, HYP + 0.6); if (u < 1) return { x: Math.round(lerp(244, 150, u)), y: Math.round(lerp(140, 172, u) - Math.sin(u * Math.PI) * 30) };
+    const v = t - HYP - 0.6; return { x: Math.round(140 + Math.sin(v * 3.4) * 30), y: 172 - Math.round(Math.abs(Math.sin(v * 7)) * 14) }; })();
+  T.coche60(R, cxc, CAR[1] + cab, t, { dir: -1, anda: llega < 1, ocupantes: ([d, a]) => { if (!pe) T.detective(R, d[0], d[1], t, { quien: 'perro', dir: -1, quieto: true }); if (t < HYP) T.detective(R, a[0], a[1] - (t > HYP - 1 ? Math.round(Math.abs(Math.sin(t * 9)) * 3) : 0), t, { quien: 'conejo', dir: -1 }); } });
+  // la puerta del conductor abierta (una hoja blanca que sobresale hacia nosotros)
+  if (abre) { const x = cxc - 26; R.poligono([[x, 136], [x - 12, 140], [x - 12, 160], [x, 158]], K); R.poligono([[x - 1, 137], [x - 11, 141], [x - 11, 152], [x - 1, 150]], BL); R.poligono([[x - 1, 151], [x - 11, 153], [x - 11, 159], [x - 1, 157]], hex('#1c1c24')); R.linea(x - 9, 146, x - 6, 145, hex('#c8c8d0')); }
+  if (pe) { const tip = t > SUIT && t < SUIT + 0.8; T.detective(R, pe.x, pe.s, t, { quien: 'perro', dir: conej ? (conej.x > pe.x ? 1 : -1) : -1, anda: pe.mv, sorpresa: tip, habla: t > HYP + 1.0 && Math.sin(t * 8) > 0.2 }); }
+  if (conej) T.detective(R, conej.x, conej.y, t, { quien: 'conejo', dir: Math.cos((t - HYP - 0.6) * 3.4) > 0 ? 1 : -1, brazos: true, sorpresa: true });
+};
+// ── 4 · el mapa: de costa a costa siguiendo las huellas ───────────────────────────────────────────────────────
+const RUTA = [[-74.0, 40.7], [-80.0, 40.4], [-87.6, 41.9], [-93.2, 44.9], [-100.3, 44.4], [-105.0, 39.7], [-111.8, 36.2], [-118.3, 34.1]];
+const ATRA = [[0.28, 'dino'], [0.5, 'ovillo'], [0.74, 'rosca']];
+const cochecito = (x, y, d) => { x = Math.round(x); y = Math.round(y); const X = (i) => x + i * d;
+  R.rect(Math.min(X(-8), X(8)), y - 3, Math.max(X(-8), X(8)), y + 2, K); R.rect(Math.min(X(-7), X(7)), y - 2, Math.max(X(-7), X(7)), y + 1, hex('#1c1c24'));
+  R.rect(Math.min(X(-4), X(3)), y - 6, Math.max(X(-4), X(3)), y - 3, K); R.rect(Math.min(X(-3), X(2)), y - 5, Math.max(X(-3), X(2)), y - 3, BL); R.rect(Math.min(X(-7), X(7)), y - 1, Math.max(X(-7), X(7)), y - 1, BL);
+  for (const i of [-5, 5]) { R.disco(X(i), y + 2, 2, K); R.pset(X(i), y + 2, hex('#c8c8d0')); } R.pset(X(0), y - 7, hex('#e83a3a')); };
+const huella = (x, y, e = 1) => { x = Math.round(x); y = Math.round(y); const c = hex('#4a2a16');
+  R.disco(x, y + 1, 3 * e, K); R.disco(x, y + 1, 2 * e, c); for (let k = 0; k < 4; k++) { R.disco(x - 3 + k * 2, y - 4 * e, e, c); } R.disco(x + 1, y - 2, 2 * e, c); };
+const icAtra = (q, x, y, a) => { if (a <= 0) return; x = Math.round(x); y = Math.round(y - (1 - a) * 6);
+  R.disco(x + 1, y + 2, 10, mez(hex('#c8b890'), K, 0.4)); R.disco(x, y, 10, K); R.disco(x, y, 9, hex('#f6e4b4')); R.disco(x - 2, y - 2, 6, hex('#fcf4d8'));
+  const PX = (i, j, c) => R.rect(x + i * 2, y + j * 2, x + i * 2 + 1, y + j * 2 + 1, c);
+  if (q === 'dino') { const g = hex('#3a8a4a'), gs = hex('#2a5a2a'); for (const [i, j] of [[-3, 0], [-2, 0], [-1, 0], [0, 0], [1, 0], [-2, 1], [-1, 1], [0, 1], [1, -1], [1, -2], [2, -3], [3, -3], [-4, 1]]) PX(i, j, g); for (const [i, j] of [[-2, 2], [0, 2]]) PX(i, j, gs); R.pset(x + 7, y - 6, K); return; }
+  if (q === 'ovillo') { R.disco(x, y, 6, hex('#8a4a1a')); R.disco(x, y, 5, hex('#c8783a')); for (let k = -4; k <= 4; k += 2) R.linea(x - 4, y + k, x + 4, y - k, hex('#8a4a1a')); R.linea(x + 5, y + 4, x + 8, y + 7, hex('#c8783a')); return; }
+  R.disco(x, y, 7, hex('#8a4a1a')); R.disco(x, y, 6, hex('#e87ab8')); R.disco(x, y, 2, hex('#c8783a')); R.disco(x, y, 1, hex('#f6e4b4')); for (let k = 0; k < 6; k++) R.pset(x - 4 + k * 2, y - 3 + (k % 2) * 5, [hex('#fff0a0'), hex('#5ac8e8')][k % 2]); return;
+};
+const p4 = (t) => {
+  const P = T.mapa(R, t, { zona: 'eeuu' });
+  const pts = RUTA.map(P), u = Math.min(1, Math.max(0, (t - b(0.03)) / (b(0.47) - b(0.03))));
+  T.chincheta(R, pts[0][0], pts[0][1], t, T.C.rojo, { baja: tramo(t, P4 + 0.1, P4 + 0.5) });
+  if (u > 0) R.ruta(pts, u, hex('#c83a2a'), { grueso: true, continua: true });
+  // dónde va el coche: a lo largo de la ruta
+  const L = []; let tot = 0; for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); L.push(d); tot += d; }
+  const en_ = (v) => { let q = tot * v; for (let i = 1; i < pts.length; i++) { if (q <= L[i - 1]) { const f = q / L[i - 1]; return [lerp(pts[i - 1][0], pts[i][0], f), lerp(pts[i - 1][1], pts[i][1], f)]; } q -= L[i - 1]; } return pts[pts.length - 1]; };
+  for (const [v, q] of ATRA) { const [x, y] = en_(v); const tv = b(0.03) + (b(0.47) - b(0.03)) * v; icAtra(q, x + 2, y - 16, tramo(t, tv - 0.1, tv + 0.2)); }
+  // las huellas gigantes que van delante del coche, desde «hunting for a Bigfoot»
+  const H = b(0.347); if (t > H) for (let k = 0; k < 4; k++) { const v = Math.min(0.99, u + 0.05 + k * 0.035); if (t > H + k * 0.15) { const [x, y] = en_(v); huella(x + (k % 2 ? 4 : -4), y + (k % 2 ? 4 : -4), 1); }
+ }
+  const [cx, cy] = en_(u); cochecito(cx, cy - 3 + Math.round(Math.sin(t * 14)), u > 0 ? -1 : -1);
+};
+// ── 5 · la feria: el Bigfoot y el disfraz ──────────────────────────────────────────────────────────────────────
+const piel = (x, y, t) => { x = Math.round(x); y = Math.round(y); const F = [hex('#2a160c'), hex('#4a2a16'), hex('#6e4424'), hex('#9a6a3a')];
+  for (let j = -9; j <= 9; j++) for (let i = -12; i <= 12; i++) { const d = (i / 12) ** 2 + (j / 9) ** 2 + (hh(i, j, 7) - 0.5) * 0.35 + Math.sin(i * 0.9 + t * 9) * 0.05; if (d < 1) R.pset(x + i, y + j + Math.round(Math.sin(i * 0.5 + t * 10)), d > 0.8 ? F[0] : F[Math.min(3, 1 + Math.floor(hh(i, j, 3) * 2.2 + (j < 0 ? 0.6 : 0)))]); }
+  R.disco(x - 4, y - 2, 2, K); R.disco(x + 4, y - 2, 2, K); };
+const p5 = (t) => {
+  T.carretera(R, t, { encuadre: 'feria', camara: 'carpa' });
+  const ESC = b(0.528), AMONG = b(0.70), WEIRD = b(0.846);
+  const pe = ruta(t, [[P5, 40, 162], [ESC - 0.1, 168, 162], [AMONG + 0.3, 168, 162], [AMONG + 0.7, 112, 162]], false);
+  const co = ruta(t, [[P5 + 0.3, 30, 162], [ESC + 0.2, 206, 162], [WEIRD - 0.4, 206, 162], [WEIRD - 0.05, 196, 162]], false);
+  // el Bigfoot: sale de la carpa en «Among», grande; el conejo le quita la piel en «each one weirder»
+  const sale = tramo(t, AMONG - 0.1, AMONG + 0.5), quita = t > WEIRD;
+  if (sale > 0) T.tentaculo(R, 160, 158 + Math.round((1 - sale) * 14), t, { color: 'morado', s: 2, dir: 1, accesorio: quita ? null : 'disfraz', brazos: 1, pose: quita ? 'normal' : 'arriba', expresion: quita ? (t > WEIRD + 0.7 ? 'harto' : 'sorpresa') : 'malvado', aplasta: quita && t < WEIRD + 0.2 ? 0.5 : 0 });
+  if (pe) { const susto = t > AMONG + 0.1 && t < WEIRD + 0.2; T.detective(R, pe.x, pe.s, t, { quien: 'perro', dir: susto || pe.mv && pe.d < 0 ? (pe.mv ? -1 : 1) : 1, anda: pe.mv, sorpresa: susto || (t > ESC && t < ESC + 0.6), habla: t > WEIRD + 0.6 && Math.sin(t * 9) > 0 }); }
+  if (co) { const salta = t > WEIRD - 0.35 && t < WEIRD + 0.5, hy = salta ? Math.round(Math.sin(tramo(t, WEIRD - 0.35, WEIRD + 0.5) * Math.PI) * 34) : 0;
+    const r = T.detective(R, co.x, co.s - hy, t, { quien: 'conejo', dir: t > ESC + 0.2 && t < AMONG ? 1 : -1, anda: co.mv, brazos: quita, sorpresa: t > AMONG && t < WEIRD });
+    if (quita) piel(co.x + 2 + Math.round(Math.sin(t * 8) * 3), co.s - hy - 40, t); }
+
+};
+const efectos = [[0.2, 'coche'], [s(0.111), 'boing'], [P2 + 0.3, 'whoosh'], [s(0.621) - 0.05, 'boing'], [P3 + 0.3, 'puerta'], [s(0.887), 'boing'],
+  [P4 + 0.25, 'golpecito'], [b(0.17), 'lapiz'], [b(0.35), 'golpecito'], [b(0.70), 'boing'], [b(0.846), 'whoosh'], [b(0.92), 'palmada']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 1993 });
+</script>
+</body>
+</html>

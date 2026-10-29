@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hoy · ep16</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LA-HOY (frases 46–48), 2026, cartela «2026». Cinco planos:
+// 1. el cuarto de hoy de noche: el chico juega en el monitor ancho; el padre entra, se pone detrás, mira por encima y en
+//    «memory» señala la estantería de cajas viejas; el chico se vuelve y sonríe en «generation»;
+// 2. (corta en «Today») los aparatos sobre la mesa: una mano toca la tableta en «modern computers» y la mansión responde;
+// 3. (corta antes de «single») el monitor ancho de cerca con el teclado: la mano pulsa la tecla en «switches» (dibujo
+//    nuevo → píxeles), otra vez en «new art» y otra en «original pixels»;
+// 4. (corta en «And since 2001») el cuarto del foro: la pared de pantallas con avatares; dos aficionados teclean, llega
+//    un tercero en «fans» y celebran en «maintained» (la barra del año sube de 2001 a 2026);
+// 5. (corta en «that lets you play») una pantalla del foro de cerca: suben mensajes; en «computer» y en «phone» llegan
+//    los pictogramas de un ordenador y de un teléfono, y el avatar del tentáculo manda un corazón.
+import * as T from '/atomo/plato/escenas/la-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('la-hoy');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const m = (f) => en('memoria', f), r = (f) => en('remaster', f), s = (f) => en('scummvm', f);
+const P2 = r(0), P3 = r(0.512), P4 = s(0), P5 = s(0.5);
+const memory = m(0.577), gener = m(0.785), modern = r(0.15), tecla1 = r(0.615), tecla2 = r(0.745), tecla3 = r(0.86);
+const fans = s(0.17), mant = s(0.24), compu = s(0.883), phone = s(0.949);
+const K = hex('#14101c');
+// el mando del chico, en su mano: cuerpo gris, cruceta y botones que se encienden al pulsar
+const mando = ([x, y], t) => { R.rect(x - 6, y - 2, x + 6, y + 3, K); R.rect(x - 5, y - 1, x + 5, y + 2, hex('#4a4a5a')); R.rect(x - 5, y - 1, x + 5, y - 1, hex('#6a6a7a'));
+  R.pset(x - 4, y + 1, hex('#e8e8ee')); R.pset(x - 3, y, hex('#e8e8ee')); R.pset(x - 3, y + 2, hex('#e8e8ee')); R.pset(x - 2, y + 1, hex('#e8e8ee'));
+  R.pset(x + 3, y, Math.floor(t * 5) % 2 ? hex('#ff5a7a') : hex('#8a2a3a')); R.pset(x + 4, y + 1, Math.floor(t * 3) % 2 ? hex('#5affd8') : hex('#2a8a6a')); };
+const p1 = (t) => {
+  const g = T.hoy(R, t, { encuadre: 'cuartoHoy' });
+  // en «memory» las cajas viejas de la estantería brillan, como un recuerdo
+  if (t > memory - 0.2 && t < gener + 1.2) { const [x0, y0, x1, y1] = g.estanteria; for (let k = 0; k < 9; k++) { const f = (t * 1.6 + k * 0.37) % 1, x = Math.round(x0 + 6 + ((k * 23) % (x1 - x0 - 12))), y = Math.round(y1 - 4 - f * (y1 - y0 + 10)); if (f < 0.8) { R.pset(x, y, hex('#fff2a8')); if (k % 3 === 0) { R.pset(x - 1, y, hex('#e8c040')); R.pset(x + 1, y, hex('#e8c040')); R.pset(x, y - 1, hex('#e8c040')); R.pset(x, y + 1, hex('#e8c040')); } } } }
+  // el padre entra por la izquierda y se queda detrás del chico, un paso más al fondo, mirando por encima
+  const u = tramo(t, 1.3, 3.3), px = Math.round(lerp(-20, 158, u));
+  R.actor(EL.padre, px, 149, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > memory && t < memory + 1.6, sonrisa: t > 3.3 });
+  const vuelve = t > gener;
+  const c = R.actor(EL.chico, 182, 154, t, { dir: vuelve ? -1 : 1, sostiene: true, sonrisa: vuelve || Math.sin(t * 1.3) > 0.6, habla: vuelve && t < gener + 1 && Math.sin(t * 8) > 0 });
+  mando(c.mano, t);
+};
+const p2 = (t) => {
+  const g = T.hoy(R, t, { encuadre: 'cuartoHoy', camara: 'aparatos' });
+  const [x0, y0, x1, y1] = g.tableta, tx = (x0 + x1) / 2 + 6, ty = (y0 + y1) / 2 + 10;
+  const u = tramo(t, P2 + 0.4, modern + 0.4) - tramo(t, modern + 1.4, modern + 2.2), toca = t > modern + 0.4 && t < modern + 1.4;
+  if (u > 0) T.brazo(R, lerp(250, 222, u), lerp(220, 176, u), lerp(240, tx, u), lerp(220, ty + (toca ? 2 : 0), u), '#3e8a6a', -1, {});
+  if (toca) { const f = tramo(t, modern + 0.4, modern + 1.0); for (let a = 0; a < 6.28; a += 0.3) R.pset(Math.round(tx - 8 + Math.cos(a) * f * 10), Math.round(ty - 4 + Math.sin(a) * f * 10), hex('#ffffff')); }
+};
+const p3 = (t) => {
+  const pulsa = (k) => tramo(t, k - 0.12, k) - tramo(t, k + 0.1, k + 0.25);
+  const hd = 1 - tramo(t, tecla1, tecla1 + 0.5) + tramo(t, tecla2, tecla2 + 0.5) - tramo(t, tecla3, tecla3 + 0.5);
+  const g = T.hoy(R, t, { encuadre: 'cuartoHoy', camara: 'pantalla', hd });
+  const [kx, ky] = g.tecla, e = tramo(t, P3, P3 + 0.7), p = Math.max(pulsa(tecla1), pulsa(tecla2), pulsa(tecla3));
+  // la tecla que se pulsa: se ilumina y suelta chispas
+  R.rect(kx - 7, ky - 3, kx + 7, ky + 3, K); R.rect(kx - 6, ky - 2 + Math.round(p), kx + 6, ky + 2, p > 0.3 ? hex('#fff8c8') : hex('#e8c040')); R.rect(kx - 6, ky + 2, kx + 6, ky + 2, hex('#a8842a'));
+  if (p > 0.3) for (const [dx, dy] of [[-10, -6], [10, -6], [-12, 0], [12, 0], [0, -8]]) R.pset(kx + dx, ky + dy, hex('#fff8c8'));
+  for (const k of [tecla1, tecla2, tecla3]) { const f = tramo(t, k, k + 0.5); if (f > 0 && f < 1) R.anillo(kx, ky, 4 + f * 14, f < 0.5 ? hex('#fff8c8') : hex('#e8c040')); }
+  // la mano entra desde abajo a la izquierda y pulsa con el índice
+  T.brazo(R, lerp(60, 92, e), lerp(222, 200, e), lerp(70, kx - 9, e), lerp(222, ky + 1 + p * 2, e), '#7a5a3a', 1, { codo: [lerp(66, 108, e), lerp(222, 188, e)] });
+};
+const p4 = (t) => {
+  const g = T.hoy(R, t, { encuadre: 'foro' });
+  const v = tramo(t, fans - 0.6, fans + 0.8), x3 = Math.round(lerp(340, 286, v));
+  const fiesta = t > mant && t < mant + 1.6;
+  R.actor(EL.joven, 140, 160, t, { dir: 1, brazos: fiesta, sonrisa: t > mant });
+  R.actor(EL.joven2, 236, 160, t, { dir: -1, dedo: t > fans && !fiesta, sonrisa: t > mant, salto: fiesta ? Math.round(Math.abs(Math.sin(t * 9)) * 3) : 0 });
+  R.actor(EL.chicaRara, x3, 160, t, { dir: -1, anda: v > 0 && v < 1, brazos: fiesta });
+};
+// una caja que respeta el recorte (R.rect no lo hace)
+const caja = (x0, y0, x1, y1, c) => R.poligono([[x0, y0], [x1 + 1, y0], [x1 + 1, y1 + 1], [x0, y1 + 1]], c);
+const corazon = (x, y, c) => { R.disco(x - 1.5, y, 2, c); R.disco(x + 1.5, y, 2, c); R.poligono([[x - 3.5, y + 0.5], [x + 3.5, y + 0.5], [x, y + 5]], c); };
+// la mansión en miniatura dentro de un aparato: cielo de atardecer, la loma verde y la casa con su ventana encendida
+const mini = (x0, y0, x1, y1, t) => { const h = y1 - y0; caja(x0, y0, x1, y1, hex('#5a3a7a')); caja(x0, y0 + Math.round(h * 0.35), x1, y1, hex('#e8844a')); caja(x0, y0 + Math.round(h * 0.6), x1, y1, hex('#3e8a3a'));
+  const cx = Math.round((x0 + x1) / 2); caja(cx - 4, y0 + Math.round(h * 0.25), cx + 4, y0 + Math.round(h * 0.62), hex('#2a1a3a')); caja(cx - 6, y0 + Math.round(h * 0.18), cx - 4, y0 + Math.round(h * 0.4), hex('#2a1a3a'));
+  if (Math.floor(t * 2) % 2) R.pset(cx, y0 + Math.round(h * 0.4), hex('#ffe070')); };
+const p5 = (t) => {
+  const g = T.hoy(R, t, { encuadre: 'foro', camara: 'cerca' });
+  // (los avatares del decorado se salen del hueco arriba y abajo: se repinta la barra y el marco de abajo)
+  R.rect(10, 10, 310, 20, hex('#3a3a6a')); for (let k = 0; k < 4; k++) R.rect(16 + k * 18, 14, 28 + k * 18, 16, hex('#8a8ab8')); R.disco(300, 15, 3, hex('#e8c040')); R.rect(65, 21, 310, 21, hex('#e8eaf2')); R.rect(65, 170, 310, 170, hex('#e8eaf2'));
+  for (const y of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 171, 172, 173, 174, 175, 176, 177, 178, 179]) for (let x = 64; x < 104; x++) R.pset(x, y, R.pget(x + 60, y));
+  // un mensaje nuevo sube desde abajo, con el borde dorado: el avatar del tentáculo verde y, en «computer», «tablet» y
+  // «phone», los pictogramas de los tres aparatos con la mansión dentro; el contador de corazones sube y los corazones vuelan
+  R.recorte([66, 22, 308, 169]);
+  const y = Math.round(lerp(176, 104, tramo(t, P5 + 0.2, P5 + 1.1))), x0 = 70, x1 = 300;
+  caja(x0 - 2, y - 2, x1 + 2, y + 60, K); caja(x0 - 1, y - 1, x1 + 1, y + 59, Math.floor(t * 3) % 2 ? hex('#ffd860') : hex('#e8b030')); caja(x0, y, x1, y + 58, hex('#ffffff'));
+  // las líneas del mensaje (sin letras) que se van escribiendo
+  for (let l = 0; l < 2; l++) { const w = Math.round(lerp(0, [150, 96][l], tramo(t, P5 + 1.1 + l * 0.6, P5 + 1.8 + l * 0.6))); if (w > 0) caja(x0 + 50, y + 5 + l * 5, x0 + 50 + w, y + 6 + l * 5, hex('#a8a8bc')); }
+  caja(x0 + 6, y + 8, x0 + 40, y + 50, K); caja(x0 + 7, y + 9, x0 + 39, y + 49, hex('#2a6a3a'));
+  T.tentaculo(R, x0 + 23, y + 48, t, { color: 'verde', s: 1.1, expresion: t > phone ? 'feliz' : 'normal', habla: t > P5 + 1.2 && t < compu && Math.sin(t * 9) > 0 });
+  const sale = (k) => tramo(t, k - 0.05, k + 0.25), bote = (k) => Math.round(Math.sin(Math.min(1, tramo(t, k, k + 0.35)) * Math.PI) * -3);
+  const tab = (compu + phone) / 2;
+  // los huecos punteados de los tres aparatos, que esperan a la voz («any device»)
+  if (t > P5 + 1.0) for (const [u0, v0, u1, v1, k] of [[52, 14, 96, 51, compu], [108, 14, 140, 52, tab], [152, 18, 170, 52, phone]]) if (t < k) { const c = Math.floor(t * 4) % 2 ? hex('#a8a8bc') : hex('#c8cad6'); R.linea(x0 + u0, y + v0, x0 + u1, y + v0, c, 4); R.linea(x0 + u0, y + v1, x0 + u1, y + v1, c, 4); R.linea(x0 + u0, y + v0, x0 + u0, y + v1, c, 4); R.linea(x0 + u1, y + v0, x0 + u1, y + v1, c, 4); }
+  if (sale(compu) > 0) { const b = bote(compu); caja(x0 + 52, y + 14 + b, x0 + 96, y + 44 + b, K); caja(x0 + 54, y + 16 + b, x0 + 94, y + 42 + b, hex('#3a3a46')); mini(x0 + 56, y + 18 + b, x0 + 92, y + 40 + b, t); caja(x0 + 70, y + 45 + b, x0 + 78, y + 48 + b, hex('#8a8a9a')); caja(x0 + 62, y + 49 + b, x0 + 86, y + 51 + b, K); }
+  if (sale(tab) > 0) { const b = bote(tab); caja(x0 + 108, y + 14 + b, x0 + 140, y + 52 + b, K); caja(x0 + 109, y + 15 + b, x0 + 139, y + 51 + b, hex('#3a3a46')); mini(x0 + 111, y + 18 + b, x0 + 137, y + 48 + b, t); }
+  if (sale(phone) > 0) { const b = bote(phone); caja(x0 + 152, y + 18 + b, x0 + 170, y + 52 + b, K); caja(x0 + 153, y + 19 + b, x0 + 169, y + 51 + b, hex('#3a3a46')); mini(x0 + 155, y + 22 + b, x0 + 167, y + 47 + b, t); }
+  const n = Math.round(lerp(37, 999, tramo(t, phone, phone + 0.9))), pul = t > phone && t < phone + 0.4 ? 1 : 0;
+  corazon(x0 + 190, y + 34, hex('#e83a5a')); if (pul) corazon(x0 + 190, y + 33, hex('#ff8aa0'));
+  R.recorte(null); if (y < 140) R.numero(String(n), x0 + 198, y + 41, { tam: 8 }); R.recorte([66, 22, 308, 169]);
+  for (let k = 0; k < 5; k++) { const f = tramo(t, phone + k * 0.15, phone + 1.3 + k * 0.15); if (f > 0 && f < 1) corazon(Math.round(x0 + 190 + Math.sin(f * 6 + k) * 8), Math.round(y + 26 - f * 60), hex('#e83a5a')); }
+  R.recorte(null);
+};
+const año = (t) => t < P4 ? 2026 : t < P5 ? Math.round(lerp(2001, 2026, tramo(t, P4 + 0.4, P5 - 0.3))) : 2026;
+const efectos = [[1.2, 'puerta'], [memory, 'pop'], [modern + 0.4, 'golpecito'], [tecla1, 'interruptor'], [tecla2, 'interruptor'], [tecla3, 'interruptor'], [P4 + 0.3, 'tecleo'], [mant, 'palmada'], [compu, 'pop'], [phone, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { cartela: '2026', efectos, año });
+</script>
+</body>
+</html>
