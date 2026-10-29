@@ -14,7 +14,7 @@
 //    «victory» todos lanzan los tricornios al aire; el tambor redobla y la bandera ondea; abajo, los barcos británicos;
 //    corta en «But».
 // 2. dentro de una casa de la ciudad ocupada: por la ventana pasan casacas rojas y la bandera británica en la casa de
-//    enfrente; el vecino arranca las hojas del calendario de 1776 a 1783 («seven years») mientras por la ventana pasan las
+//    enfrente (la Union de 1707, sin el aspa roja de 1801); el vecino arranca las hojas del calendario de 1776 a 1783 («seven years») mientras por la ventana pasan las
 //    estaciones; en «end of the war» la bandera de enfrente baja y el vecino da un salto de alegría.
 import * as T from '/atomo/plato/escenas/ny-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -113,13 +113,18 @@ const barcaChibi = (x, y, t, o = {}) => { const d = o.dir ?? -1, L = o.L ?? 40, 
   for (let i = -L; i <= L; i += 2) R.pset(x + i + Math.round(Math.sin(t * 2 + i) * 1), Y + 2, tn('#2a3a5a'));
   return { asientos };
 };
-// banderas que ondean (x, y: la esquina del asta, arriba; w × h). La Union de 1606 (azul, aspa blanca, cruz roja) y la de
+// banderas que ondean (x, y: la esquina del asta, arriba; w × h). La Union de 1707 (azul, aspa blanca, cruz roja) y la de
 // las trece barras con el círculo de trece estrellas. o.d: hacia dónde ondea (1 derecha); o.u (0–1): cuánto se ha desplegado
 const ondea = (x, y, w, h, t, color, o = {}) => { const d = o.d ?? 1, u = o.u ?? 1, W = Math.max(1, Math.round(w * u));
   for (let i = 0; i < W; i++) { const q = i / w, dy = Math.round(Math.sin(t * 6 - i * 0.35) * 1.6 * q), sombra = Math.sin(t * 6 - i * 0.35 + 0.8) < -0.55;
     for (let j = 0; j < h; j++) { let c = color(q, j / h); if (sombra) c = mez(c, H('#000000'), 0.22); R.pset(x + d * i, y + j + dy, c); } } };
-const UNION = (q, v) => { const dx = q - 0.5, dy = v - 0.5, aspa = Math.abs(dy - dx * 0.6) < 0.09 || Math.abs(dy + dx * 0.6) < 0.09, cruzR = Math.abs(dx) < 0.06 || Math.abs(dy) < 0.1, cruzB = Math.abs(dx) < 0.1 || Math.abs(dy) < 0.17;
-  return cruzR ? H('#c8202a') : cruzB || aspa ? H('#f4f0e8') : H('#1e2e7a'); };
+// la Union de 1707 (la de 1776–1783): cruz roja de San Jorge con su filete blanco sobre el aspa blanca de San Andrés en
+// azul, sin el aspa roja de San Patricio (que es de 1801); igual que c_bandera 'britanica' de ny-comun.js. Se mide en
+// píxeles (w × h), para que el aspa vaya de esquina a esquina y se lea igual de ancha
+const UNION = (w, h) => (q, v) => { const i = Math.round(q * w), j = Math.round(v * h), cx = (w - 1) / 2, cy = (h - 1) / 2, L = Math.hypot(w, h);
+  const dd = Math.min(Math.abs((i - cx) * h - (j - cy) * w), Math.abs((i - cx) * h + (j - cy) * w)) / L, ax = Math.abs(i - cx), ay = Math.abs(j - cy);
+  const rc = Math.max(0.8, h * 0.1), fb = rc + Math.max(0.9, h * 0.09);
+  return ax < rc || ay < rc ? H('#c8202a') : ax < fb || ay < fb ? H('#f4f0e8') : dd < Math.max(0.9, h * 0.12) ? H('#f4f0e8') : H('#1e2e7a'); };
 const BARRAS = (w, h) => (q, v) => { const j = Math.floor(v * 13), cx = 0.2, cy = 7 / 13 / 2;
   if (q < 0.4 && v < 7 / 13) { const a = Math.atan2(v - cy, (q - cx) * (w / h)), r = Math.hypot((q - cx) * w, (v - cy) * h), est = r > h * 0.12 && r < h * 0.21 && ((Math.round((a + Math.PI) / (Math.PI * 2) * 13) % 13) === Math.round((a + Math.PI) / (Math.PI * 2) * 13 - 0.5 + 0.5) % 13) && Math.abs(((a + Math.PI) / (Math.PI * 2) * 13) % 1 - 0.5) < 0.2;
     return est ? H('#ffffff') : H('#1e2e6a'); }
@@ -211,7 +216,7 @@ const p2 = (t) => {
   // nubes y la bandera británica en la casa de enfrente (baja al acabar la guerra)
   nube3(((t * 4) % 120) + x0 - 20, 40, 16, [H('#f4f4f8'), H('#d8dee8'), H('#b0bccc')]);
   const baja = tramo(t, fin - 0.1, fin + 0.9); R.linea(x0 + 46, 44, x0 + 66, 34, H('#4a3a2a'));
-  if (baja < 1) ondea(x0 + 62, 32 + Math.round(baja * 30), 14, 9, t, UNION, { d: 1 });
+  if (baja < 1) ondea(x0 + 62, 32 + Math.round(baja * 30), 14, 9, t, UNION(14, 9), { d: 1 });
   // el árbol de la calle según la estación
   const copa = [['#6a9a40', '#4a7230'], ['#d8782a', '#a8481a'], null, ['#f0b8c8', '#8ab060']][est];
   R.linea(x0 + 12, 100, x0 + 12, 66, H('#4a3220')); R.linea(x0 + 12, 76, x0 + 4, 66, H('#4a3220')); R.linea(x0 + 12, 72, x0 + 20, 62, H('#4a3220'));

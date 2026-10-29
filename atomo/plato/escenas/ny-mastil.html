@@ -113,12 +113,16 @@ const barcaChibi = (x, y, t, o = {}) => { const d = o.dir ?? -1, L = o.L ?? 40, 
   for (let i = -L; i <= L; i += 2) R.pset(x + i + Math.round(Math.sin(t * 2 + i) * 1), Y + 2, tn('#2a3a5a'));
   return { asientos };
 };
-// banderas que ondean (x, y: la esquina del asta, arriba; w × h). La Union de 1606 (azul, aspa blanca, cruz roja) y la de
+// banderas que ondean (x, y: la esquina del asta, arriba; w × h). La Union de 1707 (azul, aspa blanca, cruz roja) y la de
 // las trece barras con el círculo de trece estrellas. o.d: hacia dónde ondea (1 derecha); o.u (0–1): cuánto se ha desplegado
 const ondea = (x, y, w, h, t, color, o = {}) => { const d = o.d ?? 1, u = o.u ?? 1, W = Math.max(1, Math.round(w * u));
   for (let i = 0; i < W; i++) { const q = i / w, dy = Math.round(Math.sin(t * 6 - i * 0.35) * 1.6 * q), sombra = Math.sin(t * 6 - i * 0.35 + 0.8) < -0.55;
     for (let j = 0; j < h; j++) { let c = color(q, j / h); if (sombra) c = mez(c, H('#000000'), 0.22); R.pset(x + d * i, y + j + dy, c); } } };
-const UNION = (q, v) => { const dx = q - 0.5, dy = v - 0.5, aspa = Math.abs(dy - dx * 0.6) < 0.09 || Math.abs(dy + dx * 0.6) < 0.09, cruzR = Math.abs(dx) < 0.06 || Math.abs(dy) < 0.1, cruzB = Math.abs(dx) < 0.1 || Math.abs(dy) < 0.17;
+// la Union de 1707 (la que se arrió en 1783): campo azul, aspa blanca de San Andrés de esquina a esquina y la cruz roja
+// de San Jorge con su filete blanco; sin el aspa roja de San Patricio (esa llegó en 1801). w × h: el tamaño en píxeles
+const UNION = (w, h) => (q, v) => { const px = (q - 0.5) * w, py = (v - 0.5) * h, dg = Math.hypot(w, h),
+    aspa = Math.min(Math.abs(px * h - py * w), Math.abs(px * h + py * w)) / dg < h * 0.1,
+    cruzR = Math.abs(px) < h * 0.1 + 0.3 || Math.abs(py) < h * 0.1 + 0.3, cruzB = Math.abs(px) < h * 0.17 + 0.3 || Math.abs(py) < h * 0.17 + 0.3;
   return cruzR ? H('#c8202a') : cruzB || aspa ? H('#f4f0e8') : H('#1e2e7a'); };
 const BARRAS = (w, h) => (q, v) => { const j = Math.floor(v * 13), cx = 0.2, cy = 7 / 13 / 2;
   if (q < 0.4 && v < 7 / 13) { const a = Math.atan2(v - cy, (q - cx) * (w / h)), r = Math.hypot((q - cx) * w, (v - cy) * h), est = r > h * 0.12 && r < h * 0.21 && ((Math.round((a + Math.PI) / (Math.PI * 2) * 13) % 13) === Math.round((a + Math.PI) / (Math.PI * 2) * 13 - 0.5 + 0.5) % 13) && Math.abs(((a + Math.PI) / (Math.PI * 2) * 13) % 1 - 0.5) < 0.2;
@@ -180,7 +184,7 @@ const p1 = (t) => {
   barco(lerp(232, 262, tramo(t, 0, 6)), 90, 0.38, t, { dir: 1, bruma: 0.45, colBruma: '#b0c0d4' });
   barco(lerp(194, 230, tramo(t, 0, 6)), 94, 0.55, t, { dir: 1, bruma: 0.3, colBruma: '#b0c0d4', avanza: true });
   pegar(frente1());
-  R.recorte([0, 0, 319, 89]); ondea(67, 38, 8, 5, t, UNION, { d: 1 }); R.recorte(null);
+  R.recorte([0, 0, 319, 89]); ondea(67, 38, 8, 5, t, UNION(8, 5), { d: 1 }); R.recorte(null);
   // el gran barco británico suelta velas y empieza a moverse
   const v = R.easeIO(tramo(t, noviembre - 0.4, noviembre + 1.4)), bx = 200 + R.easeIO(tramo(t, noviembre + 0.6, P2 + 1)) * 26;
   barco(bx, 140, 2.3, t, { dir: 1, velas: 0.15 + v * 0.85, avanza: v > 0.5 });
@@ -256,8 +260,8 @@ const p3 = (t) => {
   R.disco(MX, 24, 3, H('#c89a30')); R.disco(MX - 1, 23, 1, H('#f8e090')); R.linea(MX + 4, 26, MX + 4, 180, H('#c8bca0'));
   // la bandera británica clavada arriba; el marinero la arranca y se va volando
   const arranca = tramo(t, cambia - 0.05, cambia + 1.2);
-  if (arranca === 0) ondea(MX + 4, 30, 34, 20, t, UNION, { d: 1 });
-  else if (arranca < 1) { const ax = MX + 6 + arranca * 120, ay = 30 + arranca * arranca * 110, w = Math.round(34 * (1 - arranca * 0.5)); ondea(Math.round(ax), Math.round(ay), w, Math.round(20 * (0.6 + 0.4 * Math.abs(Math.cos(arranca * 9)))), t * 2, UNION, { d: 1 }); }
+  if (arranca === 0) ondea(MX + 4, 30, 34, 20, t, UNION(34, 20), { d: 1 });
+  else if (arranca < 1) { const ax = MX + 6 + arranca * 120, ay = 30 + arranca * arranca * 110, w = Math.round(34 * (1 - arranca * 0.5)); ondea(Math.round(ax), Math.round(ay), w, Math.round(20 * (0.6 + 0.4 * Math.abs(Math.cos(arranca * 9)))), t * 2, UNION(34, 20), { d: 1 }); }
   // la de las barras y estrellas sube por la driza y se despliega
   const iza = R.easeIO(tramo(t, estrellas - 0.25, barras - 0.05));
   if (iza > 0) ondea(MX + 4, Math.round(lerp(150, 30, iza)), 36, 20, t, BARRAS(36, 20), { d: 1, u: 0.35 + 0.65 * iza });
