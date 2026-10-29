@@ -80,3 +80,13 @@ una pasada o detalle no entra.
 - Medir si el reparto previo de encuadres baja la composición repetida (objetivo: menos de 5).
 - La pose de «sostener» (`R.actor(…, { sostiene })`, aprobada el 29/10/2026): medir si bajan los fallos de brazo o mano.
 - Liberar disco al empezar (paso 0) con el cálculo nuevo, no a mitad del render.
+
+## Próximos temas (decididos por el usuario)
+
+- **Episodio 16: LucasArts** (29/10/2026). Un homenaje a la mejor época de los juegos de PC de LucasArts: Día del
+  Tentáculo, Monkey Island, Grim Fandango, Sam & Max (X-Wing, de pasada). Su arte, su forma de jugar y datos curiosos.
+  **Nada de controversias ni de cómo les fue comercialmente** (palabras del usuario). Sin sprites, capturas, logos ni
+  música de los juegos: homenaje dibujado por nosotros. Idea propuesta: el vídeo como una aventura gráfica (Atom dentro,
+  línea de verbos y cursor); el gancho, «en estos juegos no podías morir»; el hilo, el secreto de Monkey Island.
+- **Después, los archivos OVNI del gobierno** (entregas de PURSUE desde mayo de 2026): con gancho comercial (los casos
+  que el Pentágono no sabe explicar), sin repetir lo del episodio 10; mejor justo después de una entrega nueva.
