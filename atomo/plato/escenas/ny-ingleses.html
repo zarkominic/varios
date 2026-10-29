@@ -20,8 +20,8 @@
 //    surrender»); en «He gives up» Stuyvesant la coge y baja la cabeza; detrás, en el fuerte, baja la bandera holandesa y
 //    sube la blanca, sin un disparo («without a shot fired»); los vecinos respiran;
 // 4. (nuevaAmsterdam 'fuerte') entran los casacas rojas; en «renamed in honor of the Duke of York» baja la bandera
-//    blanca y sube la inglesa; el oficial se quita el sombrero ante Stuyvesant; en «New York» un soldado da la vuelta al
-//    letrero del cuartel: de la tricolor holandesa a la cruz de San Jorge.
+//    blanca y sube la inglesa; el oficial se quita el sombrero ante Stuyvesant; en «New York» un soldado, a la derecha del
+//    letrero del cuartel (sin taparlo), le da la vuelta: de la tricolor holandesa a la cruz de San Jorge.
 import * as T from '/atomo/plato/escenas/ny-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('ny-ingleses');
@@ -312,10 +312,12 @@ const p3 = (t) => {
 };
 
 // 4 · el fuerte (nuevaAmsterdam 'fuerte'): llegan los ingleses; cambia la bandera y el letrero
-const letrero = (t, giro) => { const x0 = 274, y0 = 140; R.rect(285, 140, 286, 176, K.k); R.linea(285, 141, 285, 176, K.maderaL);
+// (poste en x 256, tablero 244–268 × 149–162, a la altura del hombro del soldado, que se queda a su derecha y no lo tapa)
+const LX = 256;
+const letrero = (t, giro) => { const y0 = 150; R.rect(LX, y0, LX + 1, 176, K.k); R.linea(LX, y0 + 1, LX, 176, K.maderaL);
   const w = Math.max(1, Math.round(11 * Math.abs(Math.cos(giro * Math.PI)))), ing = giro > 0.5;
-  R.rect(285 - w - 1, y0 - 1, 286 + w, y0 + 12, K.k);
-  for (let j = 0; j < 12; j++) for (let i = -w; i <= w; i++) { let c; if (ing) c = Math.abs(j - 5.5) < 1.5 || Math.abs(i) < 1.5 ? K.rojo : K.blanco; else c = j < 4 ? K.naranja : j < 8 ? K.blanco : K.azulB; R.pset(285 + i, y0 + j, c); } };
+  R.rect(LX - w - 1, y0 - 1, LX + 1 + w, y0 + 12, K.k);
+  for (let j = 0; j < 12; j++) for (let i = -w; i <= w; i++) { let c; if (ing) c = Math.abs(j - 5.5) < 1.5 || Math.abs(i) < 1.5 ? K.rojo : K.blanco; else c = j < 4 ? K.naranja : j < 8 ? K.blanco : K.azulB; R.pset(LX + i, y0 + j, c); } };
 const p4 = (t) => {
   const cu = tramo(t, RENAMED - 0.1, YORK1 + 0.3);
   T.nuevaAmsterdam(R, t, { encuadre: 'fuerte', bandera: 'blanca', cambio: cu, nueva: 'inglesa', ingleses: 1 });
@@ -333,9 +335,10 @@ const p4 = (t) => {
   // un casaca roja iza la bandera tirando de la driza
   const ru = tramo(t, P4 + 0.3, RENAMED - 0.2), rx = Math.round(lerp(350, 198, ru)), iza = cu > 0 && cu < 1;
   R.actor(EL.casacaRoja, rx, 162, t, { dir: 1, anda: ru > 0 && ru < 1, sostiene: iza ? [214, Math.round(130 + Math.sin(t * 7) * 4)] : false, sonrisa: cu >= 1 });
-  // el otro soldado va al letrero y le da la vuelta en «New York»
-  const su = tramo(t, KINGS - 1.2, NEWYORK - 0.15), sx2 = Math.round(lerp(352, 292, su));
-  R.actor(roja2, sx2, 170, t, { dir: -1, anda: su > 0 && su < 1, sostiene: gi > 0 && gi < 1 ? [288, 146] : false, sonrisa: gi >= 1 });
+  // el otro soldado va al letrero y le da la vuelta en «New York»: se para a su derecha (el sprite empieza en x 271, el
+  // tablero acaba en 268) y con los pies en y 178, por delante de la base del poste (y 176); la mano sigue el borde del tablero mientras gira
+  const su = tramo(t, KINGS - 1.2, NEWYORK - 0.15), sx2 = Math.round(lerp(352, 271, su));
+  R.actor(roja2, sx2, 178, t, { dir: -1, anda: su > 0 && su < 1, sostiene: gi > 0 && gi < 1 ? [LX + 2 + Math.max(1, Math.round(11 * Math.abs(Math.cos(gi * Math.PI)))), 156] : false, sonrisa: gi >= 1 });
 };
 
 const año = 1664;

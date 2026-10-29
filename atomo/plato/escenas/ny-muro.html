@@ -17,9 +17,11 @@
 //    campos delante; los últimos troncos se clavan en «across the island» y el colono lo señala; en «long gone» pasan
 //    los días (el sol corre, se hace de noche dos veces) y los troncos se caen uno a uno; en «the street that ran beside
 //    it» se dibuja la calle junto a donde estaba el muro y salen casitas; un inglés de 1699 la señala;
-// 3. (nuevaAmsterdam 'calle', o.hoy 0 → 1) la calle vieja se disuelve en la calle de hoy; el colono que pasea se vuelve
-//    un neoyorquino; en «Wall Street» brilla el letrero con el pictograma del muro y una vecina lo señala y le hace una
-//    foto.
+// 3. (nuevaAmsterdam 'calle', o.hoy 1) ya es la calle de hoy desde el primer fotograma (otra composición que el plano 1):
+//    el fantasma del muro de troncos aún se ve a lo largo de la acera derecha, en fuga hacia el fondo, y se deshace estaca
+//    a estaca, de cerca a lejos, soltando motas; el fantasma de un colono anda dentro del neoyorquino que pasea y se
+//    desvanece; el año rueda de 1699 a 2026; en «Wall Street» brilla el letrero con el pictograma del muro y una vecina
+//    lo señala y le hace una foto.
 import * as T from '/atomo/plato/escenas/ny-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('ny-muro');
@@ -276,14 +278,52 @@ const p2 = (t) => {
   if (d > 0 && d < 1) { const a = Math.sin(d * Math.PI * 2) ** 2 * 0.5; T.tinte(R, 0, 179, [18, 22, 58], a); const sx = Math.round(40 + ((d * 2) % 1) * 210); if (((d * 2) % 1) > 0.05 && ((d * 2) % 1) < 0.95) { R.disco(sx, 30, 5, K.oroL); R.disco(sx, 30, 4, K.luzL); } }
 };
 
-// 3 · la misma calle se disuelve en la de hoy: el letrero del muro brilla en «Wall Street»
+// 3 · la calle de hoy con el fantasma del muro que se deshace; el letrero del muro brilla en «Wall Street»
+// lo fantasmal se pinta en un búfer aparte (VACIO = transparente) y se funde con la trama sobre lo de debajo
+const FANT = R.nuevo(), FTINTE = hex('#d8e6f4');
+const fantasma = (u, x0, y0, x1, y1, pinta) => {
+  if (u <= 0) return; FANT.fill(VACIO); const prev = R.usar(FANT); pinta(); R.usar(prev);
+  const B = R.buf; for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) { const f = y * 320; for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const c = FANT[f + x]; if (c === VACIO || um(x, y) >= u) continue; B[f + x] = mez(B[f + x], mez(c, FTINTE, 0.3), 0.72); } }
+};
+// el muro fantasma, a lo largo del borde derecho de la calle (x = 166 + 48·s, y = 100 + 38·s): estacas afiladas con su
+// corteza, luz a la izquierda, sombra a la derecha y la viga que las une; cada estaca se deshace con su propio umbral
+const ESTACAS = (() => { const L = []; for (let s = 1.95; s > 0.16; s *= 0.945) L.push(s); return L.reverse(); })();
+const muroFantasma = (t) => {
+  const N = ESTACAS.length, vis = (i) => 1 - tramo(t, P3 + 0.45 + ((N - 1 - i) / N) * 1.5, P3 + 1.25 + ((N - 1 - i) / N) * 1.5);
+  if (vis(0) <= 0) return;
+  // cada estaca va en su propia pasada de trama: el búfer se reparte por tramos de visibilidad parecida
+  for (let g = 0; g < 8; g++) {
+    const ids = []; for (let i = 0; i < N; i++) if (Math.min(7, Math.floor(((N - 1 - i) / N) * 8)) === g) ids.push(i);
+    const u = Math.max(...ids.map(vis)); if (u <= 0) continue;
+    const xs = ids.map((i) => 166 + 48 * ESTACAS[i]), ys = ids.map((i) => 100 + 38 * ESTACAS[i]);
+    fantasma(u, Math.floor(Math.min(...xs)) - 2, Math.floor(Math.min(...ys) - 30 * Math.max(...ids.map((i) => ESTACAS[i]))) - 6, Math.ceil(Math.max(...xs)) + 6, Math.ceil(Math.max(...ys)) + 2, () => {
+      for (const i of ids) {
+        const s = ESTACAS[i], bx = Math.round(166 + 48 * s) + 1, by = Math.round(100 + 38 * s), h = Math.round(27 * s) + Math.round(H(i, 3) * 3 * s), w = Math.max(1, Math.round(2.7 * s)), punta = Math.max(1, Math.round(w * 0.8));
+        for (let y = by - h; y <= by; y++) for (let x = bx; x < bx + w; x++) {
+          const fx = (x - bx) / Math.max(1, w - 1), arr = y - (by - h);
+          if (arr < punta && Math.abs(fx - 0.5) * w > arr * 0.6 + 0.5) continue;
+          let c = fx < 0.3 ? K.troncoL : fx > 0.75 ? K.troncoS : K.tronco;
+          if (w > 2 && H(x, y >> 1, i) < 0.12) c = K.troncoS; if (arr === 0 || x === bx + w - 1 && w > 1) c = K.maderaSS;
+          R.pset(x, y, c);
+        }
+        // la viga que las ata, a un tercio de la altura
+        if (i < N - 1) { const s2 = ESTACAS[i + 1], x2 = Math.round(166 + 48 * s2) + 1, y2 = Math.round(100 + 38 * s2), vy = by - Math.round(h * 0.35), vy2 = y2 - Math.round((27 * s2) * 0.35); R.linea(bx, vy, x2, vy2, K.maderaS); if (s > 0.8) R.linea(bx, vy + 1, x2, vy2 + 1, K.maderaSS); }
+      }
+    });
+  }
+  // las motas que suben de cada estaca mientras se deshace
+  for (let i = 0; i < N; i++) { const v = vis(i); if (v <= 0.02 || v >= 0.98) continue; const s = ESTACAS[i], bx = Math.round(166 + 48 * s), by = Math.round(100 + 38 * s), h = Math.round(27 * s);
+    for (let k = 0; k < 2; k++) { const r = (1 - v + k * 0.45) % 1, x = bx + Math.round(Math.sin(t * 3 + i + k * 2) * 2 * s) + k, y = by - h - Math.round(r * 14 * s); if (y > 46 && um(x, y) < v + 0.3) R.pset(x, y, k ? K.blanco : FTINTE); } }
+};
 const p3 = (t) => {
-  const hu = tramo(t, P3 + 0.65, STILL + 0.6);
-  T.nuevaAmsterdam(R, t, { encuadre: 'calle', hoy: hu });
-  const nuevo = hu > 0.5;
-  // el paseante: de colono a neoyorquino, sin dejar de andar
+  T.nuevaAmsterdam(R, t, { encuadre: 'calle', hoy: 1 });
+  muroFantasma(t);
+  // el paseante de hoy, con el fantasma del colono que anda dentro de él y se desvanece
   const pu = tramo(t, P3, P3 + 4.0), px = Math.round(lerp(112, 236, pu));
-  R.actor(nuevo ? EL.neoyorquino : EL.colono, px, 158, t, { dir: 1, anda: pu > 0 && pu < 1, sonrisa: pu >= 1 });
+  R.actor(EL.neoyorquino, px, 158, t, { dir: 1, anda: pu > 0 && pu < 1, sonrisa: pu >= 1 });
+  const gc = 1 - tramo(t, P3 + 0.5, P3 + 2.3);
+  fantasma(gc * 0.85, px - 16, 120, px + 16, 160, () => R.actor(EL.colono, px, 158, t, { dir: 1, anda: pu > 0 && pu < 1 }));
+  const nuevo = true;
   // la vecina: de colona a neoyorquina; señala el letrero en «Wall Street» y le hace una foto
   const foto = t > WALLST + 1.0 && t < WALLST + 2.6;
   const vm = R.actor(nuevo ? EL.neoyorquina : EL.colona, 64, 158, t, { dir: 1, dedo: t > WALLST - 0.15 && t < WALLST + 1.0, sorpresa: t > WALLST - 0.15 && t < WALLST + 0.5, sonrisa: t > WALLST + 0.5, sostiene: foto ? [82, 136] : false }).mano;
@@ -293,10 +333,10 @@ const p3 = (t) => {
   if (nuevo) { const cm = R.actor(EL.neoyorquino2, cx, 166, t, { dir: -1, anda: cu > 0 && cu < 1, sostiene: true }).mano; R.rect(cm[0] - 2, cm[1] - 5, cm[0] + 1, cm[1], K.k); R.rect(cm[0] - 1, cm[1] - 4, cm[0], cm[1] - 1, K.blanco); R.pset(cm[0] - 1, cm[1] - 6 - Math.floor(t * 4) % 2, K.humo); }
   // el letrero de la calle (el pictograma del muro) brilla cuando la voz dice «Wall Street»
   const g = tramo(t, WALLST - 0.1, WALLST + 0.25) * (1 - tramo(t, WALLST + 1.6, WALLST + 2.2));
-  if (g > 0 && hu > 0.6) { const c = Math.sin(t * 12) > 0 ? K.oroL : K.oro; R.linea(89, 87, 121, 87, c); R.linea(89, 101, 121, 101, c); R.linea(89, 87, 89, 101, c); R.linea(121, 87, 121, 101, c); destello(122, 86, (t - WALLST) / 0.9); destello(88, 102, (t - WALLST - 0.4) / 0.9); }
+  if (g > 0) { const c = Math.sin(t * 12) > 0 ? K.oroL : K.oro; R.linea(89, 87, 121, 87, c); R.linea(89, 101, 121, 101, c); R.linea(89, 87, 89, 101, c); R.linea(121, 87, 121, 101, c); destello(122, 86, (t - WALLST) / 0.9); destello(88, 102, (t - WALLST - 0.4) / 0.9); }
 };
 
-const año = (t) => (t < GONE ? 1653 : t < P3 ? Math.round(lerp(1653, 1699, tramo(t, GONE, BUT - 0.05))) : t < P3 + 0.6 ? 1699 : 2026);
+const año = (t) => (t < GONE ? 1653 : t < P3 ? Math.round(lerp(1653, 1699, tramo(t, GONE, BUT - 0.05))) : Math.round(lerp(1699, 2026, tramo(t, P3 + 0.3, P3 + 2.4))));
 const efectos = [[ATTACK - 0.9, 'aviso'], [BUILD + 0.2, 'toc'], [WALL + 0.25, 'toc'], [ISLAND - 0.2, 'toc'], [ISLAND + 0.1, 'brillo'], [GONE + 0.1, 'whoosh'], [STREET, 'pop'], [WALLST, 'brillo'], [WALLST + 1.65, 'flash']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año });
 </script>

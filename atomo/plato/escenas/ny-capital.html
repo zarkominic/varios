@@ -18,8 +18,10 @@
 //    el anfitrión señala el mapa de encima de la chimenea y una flecha roja baja de Nueva York al sur en «south»;
 // 4. el mapa de la costa (T.mapa): la flecha de Nueva York a Filadelfia y al Potomac; el carro con las cajas de papeles
 //    se va de Nueva York en «loses the government»; la chincheta de la nueva capital cae al final (1790 → 1800);
-// 5. los muelles (puerto 'muelles'): todo bulle; el comerciante sigue apuntando en su libro y no levanta la vista ni
-//    cuando un fardo cae a su lado en «harbor was enough» (gag).
+// 5. los muelles (puerto 'muelles', con la jarcia ordenada desde la escena: nada por encima de y 18 ni más allá de x 188):
+//    todo bulle; un fardo cuelga del motón del botalón; el comerciante sigue apuntando en su libro y no levanta la vista
+//    ni cuando el fardo se suelta y cae a su lado en «harbor was enough» (gag).
+// Efectos sincronizados en los cinco planos (murmullo, plumas, mazos, sopera, brindis, carro, chinchetas, muelle): ver «efectos».
 import * as T from '/atomo/plato/escenas/ny-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('ny-capital');
@@ -154,15 +156,36 @@ const p4 = (t) => {
 };
 
 // ── 5 · los muelles: el comerciante ni levanta la vista ──
+// la jarcia del decorado 'muelles', ordenada desde la escena (sin tocar ny-comun.js): los palos, obenques, vergas y
+// estays entre palos se recortan a x ≤ 188 (antes 194) y por debajo de y 18; las brazas largas y los estays del trinquete
+// al botalón (rectas largas que cruzaban toda la jarcia del fondo) no se pintan; el botalón de cada bauprés se corta en
+// x 188 y en su punta cuelga el motón del fardo. Así ninguna recta cruza la barra del año ni llega a las fachadas.
+const TIPS = [10.5, 22, 34, 46, 58, 72, 86].map((Z) => ({ Z, tx: 196 + 2.4 * 160 / Z, ty: 104 - 6.4 * 160 / Z, bx: 196 - 160 / Z, by: 104 - 4.8 * 160 / Z }));
+const casi = (a, b) => Math.abs(a - b) < 0.01, BRAZA = hex('#6a5a44');
+const ordenaJarcia = (f) => {
+  const L = R.linea, Rc = R.recorte;
+  R.recorte = (r) => Rc.call(R, r && r[1] === 18 && r[2] === 194 ? [r[0], 18, 188, r[3]] : r);
+  R.linea = (x0, y0, x1, y1, c, ...m) => {
+    const p = TIPS.find((q) => casi(x1, q.tx) && casi(y1, q.ty));
+    if (c === BRAZA && Math.abs(y1 - y0) > 10) return;   // las brazas largas (del penol a la regala), que enmarañaban el cielo
+    if (!p) return L.call(R, x0, y0, x1, y1, c, ...m);
+    if (casi(x0, p.bx) && casi(y0, p.by)) { Rc.call(R, [0, 18, 188, 179]); L.call(R, x0, y0, x1, y1, c, ...m); Rc.call(R, null); return; }   // el botalón
+    // el estay del trinquete al botalón: una recta larga que cruzaba toda la jarcia del fondo; no se pinta
+  };
+  try { f(); } finally { R.linea = L; R.recorte = Rc; }
+};
 const p5 = (t) => {
-  T.puerto(R, t, { encuadre: 'muelles' });
+  // el decorado se pinta con la jarcia ordenada (ver «ordenaJarcia»): nada pasa de x 188 ni sube de y 18
+  ordenaJarcia(() => T.puerto(R, t, { encuadre: 'muelles' }));
   // un estibador rueda un barril por detrás; otro carga un saco hacia el fondo
   const v = tramo(t, P5 + 0.2, PUERTO + 0.6), xb = Math.round(lerp(262, 150, v)); R.actor(EL.estibador, xb + 12, 160, t, { dir: -1, anda: v > 0 && v < 1, sostiene: [xb + 6, 152] });
   { const g = (xb * 0.4) % 6; R.rect(xb - 6, 146, xb + 6, 160, K); R.rect(xb - 5, 147, xb + 5, 159, hex('#8a5a34')); R.rect(xb - 5, 149 + Math.round(g / 3), xb + 5, 149 + Math.round(g / 3), K); R.rect(xb - 5, 156 - Math.round(g / 3), xb + 5, 156 - Math.round(g / 3), K); R.rect(xb - 4, 147, xb - 3, 159, hex('#b07a4a')); }
   const w = tramo(t, P5, P5 + 4.5), xs = Math.round(lerp(70, 180, w)); const s = R.actor(EL.estibador2, xs, Math.round(lerp(162, 132, w)), t, { dir: 1, anda: w < 1, sostiene: true }); R.rect(s.mano[0] - 6, s.mano[1] - 9, s.mano[0] + 2, s.mano[1] - 1, K); R.rect(s.mano[0] - 5, s.mano[1] - 8, s.mano[0] + 1, s.mano[1] - 2, hex('#d8c8a0'));
-  // el fardo que baja de la grúa con su cuerda y cae junto al comerciante en «harbor»
-  const fb = tramo(t, CRECE, PUERTO), yb = Math.round(lerp(-10, 162, fb * fb)), BX = 186;
-  R.linea(BX, 0, BX, yb - 10, hex('#8a7a5a')); R.rect(BX - 10, yb - 12, BX + 10, yb + 4, K); R.rect(BX - 9, yb - 11, BX + 9, yb + 3, hex('#e8dcc0')); R.rect(BX - 9, yb - 5, BX + 9, yb - 4, hex('#8a6a3a')); R.rect(BX - 1, yb - 11, BX, yb + 3, hex('#8a6a3a')); R.rect(BX - 9, yb - 11, BX + 9, yb - 11, BL); R.rect(BX - 9, yb + 1, BX + 9, yb + 3, hex('#b8a880'));
+  // el fardo cuelga del aparejo del botalón del velero de delante (el motón, en x 186, y 29), se mece, y en «harbor» se
+  // suelta el cabo y cae junto al comerciante
+  const fb = tramo(t, CRECE, PUERTO), BX = 186, mece = fb > 0 ? 0 : Math.round(Math.sin(t * 1.7) * 1.2), yb = Math.round(lerp(64, 162, fb * fb));
+  R.rect(BX - 1, 28, BX + 1, 32, K); R.pset(BX, 29, hex('#8a6a44')); R.pset(BX, 31, hex('#5e4a30')); R.pset(BX - 1, 27, hex('#4a3a2a'));
+  R.linea(BX, 33, BX + mece, yb - 12, hex('#8a7a5a')); R.linea(BX + 1, 33, BX + 1 + mece, Math.min(yb - 12, 33 + Math.round(fb * 40)), hex('#5a4a34')); R.rect(BX - 10, yb - 12, BX + 10, yb + 4, K); R.rect(BX - 9, yb - 11, BX + 9, yb + 3, hex('#e8dcc0')); R.rect(BX - 9, yb - 5, BX + 9, yb - 4, hex('#8a6a3a')); R.rect(BX - 1, yb - 11, BX, yb + 3, hex('#8a6a3a')); R.rect(BX - 9, yb - 11, BX + 9, yb - 11, BL); R.rect(BX - 9, yb + 1, BX + 9, yb + 3, hex('#b8a880'));
   if (t > PUERTO) { const u = tramo(t, PUERTO, PUERTO + 0.8); for (let k = 0; k < 8; k++) { const an = Math.PI + k * Math.PI / 7; R.disco(Math.round(BX + Math.cos(an) * (11 + u * 16)), Math.round(165 + Math.sin(an) * (2 + u * 6)), u < 0.6 ? 2 : 1, hex('#b0a898')); } }
   // el comerciante, de pie junto a sus cajas, apunta en el libro sin levantar la vista
   const cm = R.actor(EL.comerciante, 150, 178, t, { dir: 1, sostiene: [166, 166] });
@@ -174,7 +197,15 @@ const p5 = (t) => {
     const vol = g < 1, a = Math.sin(t * 16) > 0; R.rect(gx - 3, gy - 3, gx + 2, gy, BL); R.pset(gx + 3, gy - 3, hex('#e8a040')); R.pset(gx + 2, gy - 4, BL); R.pset(gx - 3, gy - 2, hex('#a8a8b0')); if (vol) { R.linea(gx - 1, gy - 2, gx - 5, gy - (a ? 7 : 0), hex('#c8c8d0')); R.linea(gx, gy - 2, gx + 4, gy - (a ? 7 : 0), hex('#c8c8d0')); } else R.rect(gx - 2, gy - 2, gx, gy - 1, hex('#a8a8b0')); }
 };
 const año = (t) => (t < P2 ? 1789 : t < PIERDE + 2 ? 1790 : t < P5 ? Math.round(lerp(1790, 1800, tramo(t, PIERDE + 2, P5 - 0.6))) : 1800);
-const efectos = [[PROPONE - 0.3, 'papel'], [DERECHOS, 'toc'], [SUPREMO + 0.2, 'golpecito'], [PRIMERA, 'toc'], [TRATO, 'palmada'], [SUR, 'whoosh'], [PIERDE + 1.4, 'pop'], [P5 - 0.6, 'brillo'], [P5 + 0.4, 'ola'], [PUERTO, 'golpecito']];
+// efectos (40–60 % del tiempo, como mucho uno por segundo), cada uno con su acción en pantalla: el murmullo de la sala y el
+// pergamino; el mazo y las plumas que firman; los jueces que se sientan, el mazo; la cuchara en
+// la sopera, el gato, el apretón de manos y el brindis; la flecha; los cascos del carro y las chinchetas;
+// el agua del muelle, el fardo que silba al caer y el golpe, y la pluma del comerciante que no para
+const efectos = [[0.2, 'publico', { dur: 1.2 }], [PROPONE - 0.3, 'papel'], [DERECHOS, 'toc'], [DERECHOS + 0.35, 'firma'],
+  [SUPREMO + 0.2, 'golpecito'], [PRIMERA, 'toc'],
+  [P3 + 0.4, 'tic'], [P3 + 1.35, 'miau'], [TRATO, 'palmada'], [TRATO + 0.55, 'aviso'], [SUR, 'whoosh'],
+  [PIERDE - 0.25, 'toc'], [PIERDE + 1.4, 'pop'], [PIERDE + 2.1, 'toc'], [P5 - 0.6, 'brillo'],
+  [P5 + 0.4, 'ola'], [PUERTO - 0.55, 'whoosh'], [PUERTO, 'golpecito'], [PUERTO + 0.7, 'lapiz']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año });
 </script>
 </body>

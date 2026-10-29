@@ -18,6 +18,8 @@
 //    posa en ella en «oath»; a lo lejos, la salva de cañón y los sombreros al aire en «first president»; corta en «He»;
 // 4. la logia (colonial 'taberna'): un caballero entra corriendo, el maestre le da la Biblia en «fetched» y se va a
 //    toda prisa; el sombrero se le vuela y cae en la cabeza del maestre (gag); corta antes de «because»;
+//    (pulido: en el 2 el Federal Hall empieza en y 22, con cielo encima del año; en el 3 el brazo de Washington entra
+//    con el codo en el borde, ~40 px; en el 5 el caballero arranca fuera de cuadro con la Biblia, nunca se ve el libro solo)
 // 5. la calle junto al Federal Hall (fondo local): el funcionario espera en la puerta con el cojín vacío («?» en
 //    «nobody»); el caballero llega corriendo, las palomas se espantan, y deja la Biblia en el cojín en «bring one».
 import * as T from '/atomo/plato/escenas/ny-comun.js';
@@ -100,14 +102,15 @@ const fondo2 = () => capa(() => {
     R.rect(x0, top - 2, x1, top, K); R.poligono([[x0, top - 2], [x1, top - 2], [x1 - 6, top - 9], [x0 + 6, top - 9]], hex('#4a4a5a')); R.rect(x0 + 22, top - 15, x0 + 26, top - 8, K); R.rect(x0 + 23, top - 14, x0 + 25, top - 8, mez(c0, K, 0.2));
     for (const fy of [top + 5, top + 22, top + 39]) for (let i = 0; i < 3; i++) { const fx = x0 + 3 + i * 10; if (fx + 6 > x1) continue; R.rect(fx - 1, fy - 1, fx + 6, fy + 10, K); R.rect(fx, fy, fx + 5, fy + 9, hex('#e8e0cc')); R.rect(fx + 1, fy + 1, fx + 4, fy + 8, hex('#3a4a5a')); R.pset(fx + 1, fy + 1, hex('#8aa8c0')); } }
   // el Federal Hall a la izquierda: la pared de sillares, la gran columna, la puerta del balcón y el friso de estrellas
-  for (let y = 0; y < 124; y++) for (let x = 0; x < 98; x++) { const fila = Math.floor(y / 8), off = fila % 2 ? 9 : 0, junta = y % 8 === 0 || (x + off) % 18 === 0; R.pset(x, y, junta ? CALS : hh(x >> 1, y >> 1, 3) > 0.92 ? CALS : dz(x, y, 0.3 + 0.4 * hh(Math.floor((x + off) / 18), fila, 5)) ? CAL : mez(CAL, CALS, 0.3)); }
-  R.rect(0, 0, 100, 20, K); R.rect(0, 1, 99, 6, CALL); R.rect(0, 7, 99, 18, CAL); R.rect(0, 19, 99, 19, CALD); for (let x = 2; x < 98; x += 5) R.rect(x, 1, x + 2, 5, CALS);
-  for (let x = 3; x < 98; x += 8) { R.rect(x, 9, x + 4, 16, CALS); R.rect(x + 1, 10, x + 3, 15, CALL); }
-  R.rect(22, 34, 64, 112, K); R.rect(24, 36, 62, 112, CALL); R.rect(27, 39, 59, 112, K);
-  for (let y = 40; y < 112; y++) for (let x = 28; x < 59; x++) R.pset(x, y, dz(x, y, (y - 40) / 90) ? hex('#3a2a2a') : hex('#24181c'));
-  R.rect(18, 30, 68, 34, K); R.rect(19, 31, 67, 33, CALL);
-  for (let y = 20; y < 112; y++) { for (let x = 92; x < 98; x++) R.pset(x, y, mez(R.pget(x, y), K, 0.25)); for (let x = 70; x <= 92; x++) { const u = (x - 70) / 22, est = (x - 70) % 4 === 0; R.pset(x, y, x === 70 || x === 92 ? K : est ? (u < 0.5 ? CALS : CALD) : u < 0.25 ? CALL : u < 0.65 ? CAL : u < 0.85 ? CALS : CALD); } }
-  R.rect(66, 20, 96, 25, K); R.rect(67, 21, 95, 24, CALL);
+  // (empieza en y 24: encima solo queda cielo, para que la barra del año quede tranquila)
+  for (let y = 24; y < 124; y++) for (let x = 0; x < 98; x++) { const fila = Math.floor(y / 8), off = fila % 2 ? 9 : 0, junta = y % 8 === 0 || (x + off) % 18 === 0; R.pset(x, y, junta ? CALS : hh(x >> 1, y >> 1, 3) > 0.92 ? CALS : dz(x, y, 0.3 + 0.4 * hh(Math.floor((x + off) / 18), fila, 5)) ? CAL : mez(CAL, CALS, 0.3)); }
+  R.rect(0, 22, 101, 40, K); R.rect(0, 23, 100, 23, CALS); R.rect(0, 24, 99, 28, CALL); R.rect(0, 29, 99, 38, CAL); R.rect(0, 39, 99, 39, CALD); for (let x = 2; x < 98; x += 5) R.rect(x, 25, x + 2, 27, CALS);
+  for (let x = 3; x < 98; x += 8) { R.rect(x, 30, x + 4, 37, CALS); R.rect(x + 1, 31, x + 3, 36, CALL); }
+  R.rect(22, 44, 64, 112, K); R.rect(24, 46, 62, 112, CALL); R.rect(27, 49, 59, 112, K);
+  for (let y = 50; y < 112; y++) for (let x = 28; x < 59; x++) R.pset(x, y, dz(x, y, (y - 50) / 80) ? hex('#3a2a2a') : hex('#24181c'));
+  R.rect(18, 40, 68, 44, K); R.rect(19, 41, 67, 43, CALL);
+  for (let y = 44; y < 112; y++) { for (let x = 92; x < 98; x++) R.pset(x, y, mez(R.pget(x, y), K, 0.25)); for (let x = 70; x <= 92; x++) { const u = (x - 70) / 22, est = (x - 70) % 4 === 0; R.pset(x, y, x === 70 || x === 92 ? K : est ? (u < 0.5 ? CALS : CALD) : u < 0.25 ? CALL : u < 0.65 ? CAL : u < 0.85 ? CALS : CALD); } }
+  R.rect(66, 40, 96, 45, K); R.rect(67, 41, 95, 44, CALL); R.rect(67, 44, 95, 44, CALS);
   // la losa del balcón que vuela hasta x 236, con su moldura y las ménsulas
   R.rect(0, 112, 238, 120, K); R.rect(0, 113, 237, 116, CALL); R.rect(0, 117, 237, 119, CALS);
   for (let x = 104; x < 236; x += 26) { R.poligono([[x, 120], [x + 8, 120], [x + 8, 132], [x + 4, 128]], K); R.poligono([[x + 1, 120], [x + 7, 120], [x + 7, 130], [x + 4, 127]], CAL); R.linea(x + 2, 121, x + 2, 126, CALL); }
@@ -131,7 +134,7 @@ const p2 = (t) => {
   pegar(F2);
   // las palomas del friso salen volando cuando la multitud grita
   const vuelo = tramo(t, BALCON + 0.1, BALCON + 1.8);
-  for (let k = 0; k < 4; k++) { const x0 = 14 + k * 22, y0 = 26; if (vuelo <= 0) paloma(x0, y0 - 6, t, { dir: k % 2 ? 1 : -1 }); else if (vuelo < 1) paloma(x0 + vuelo * (60 + k * 30), y0 - 6 - vuelo * 26 + Math.sin(vuelo * 9 + k) * 3, t, { vuela: true }); }
+  for (let k = 0; k < 4; k++) { const x0 = 6 + k * 20, y0 = 28; if (vuelo <= 0) paloma(x0, y0 - 6, t, { dir: k % 2 ? 1 : -1 }); else if (vuelo < 1) paloma(x0 + vuelo * (60 + k * 30), y0 - 6 - vuelo * 26 + Math.sin(vuelo * 9 + k) * 3, t, { vuela: true }); }
   bandera13(240, 58, 28, 18, t, 1);
   // los vecinos de enfrente asomados a las ventanas, que agitan pañuelos
   for (const [x, y] of [[104, 58], [174, 70], [208, 64], [278, 72]]) { R.rect(x, y, x + 3, y + 3, PIEL); R.pset(x + 1, y + 1, K); const f = Math.sin(t * 7 + x) > 0 ? 1 : 0; R.rect(x + 4, y - 3 - f, x + 6, y - 1 - f, BL); }
@@ -142,7 +145,7 @@ const p2 = (t) => {
   if (ab > 0.4) R.actor(EL.washington89, xw, 112, t, { dir: 1, anda: w > 0 && w < 1, dedo: t > WALL, sonrisa: t > BALCON + 0.3 });
   const c = R.actor(EL.juez, 200, 112, t, { dir: -1, sostiene: true, sonrisa: t > WALL });
   cojin(c.mano[0] - 3, c.mano[1] - 3, 14); biblia(c.mano[0] - 9, c.mano[1] - 9, 12, 7);
-  for (const s of [-1, 1]) { const ancho = Math.round(lerp(16, 3, ab)); for (let y = 40; y < 112; y++) { const x0 = s < 0 ? 28 : 59 - ancho; for (let x = x0; x < x0 + ancho; x++) { const pl = (x - x0 + Math.floor(Math.sin(y / 6) * 1.5)) % 5; R.pset(x, y, pl === 0 ? ROJOS : pl === 1 ? ROJOL : ROJO); } } const bx = s < 0 ? 28 + ancho : 59 - ancho; R.linea(bx, 40, bx, 111, K); R.disco(bx, 80, 1, ORO); }
+  for (const s of [-1, 1]) { const ancho = Math.round(lerp(16, 3, ab)); for (let y = 50; y < 112; y++) { const x0 = s < 0 ? 28 : 59 - ancho; for (let x = x0; x < x0 + ancho; x++) { const pl = (x - x0 + Math.floor(Math.sin(y / 6) * 1.5)) % 5; R.pset(x, y, pl === 0 ? ROJOS : pl === 1 ? ROJOL : ROJO); } } const bx = s < 0 ? 28 + ancho : 59 - ancho; R.linea(bx, 50, bx, 111, K); R.disco(bx, 80, 1, ORO); }
   pegar(F2d);
   // la multitud de abajo, que agita los sombreros y las banderitas cuando sale Washington
   const grita = t > BALCON + 0.1, tipos = ['peluca', 'rizos', 'mujer', 'calvo', 'marinero'];
@@ -208,8 +211,9 @@ const p3 = (t) => {
   const resp = Math.round(Math.sin(t * 2.2));
   T.brazo(R, 300, 210, 250, 158 + resp, '#24242c', -1, { codo: [290, 184] });
   // la mano de Washington baja y se posa sobre la Biblia en «oath»
-  const m = tramo(t, JURA - 0.9, JURA - 0.05), e = m * m * (3 - 2 * m), wx = Math.round(lerp(70, 120, e)), wy = Math.round(lerp(204, 146, e));
-  if (m > 0) T.brazo(R, 50, 214, wx, wy, '#6a4a2a', 1, { codo: [Math.round(lerp(66, 82, e)), Math.round(lerp(212, 182, e))] });
+  //    (hombro fuera de cuadro y el codo justo en el borde: solo se ven ~40 px de antebrazo en diagonal)
+  const m = tramo(t, JURA - 0.9, JURA - 0.05), e = m * m * (3 - 2 * m), wx = Math.round(lerp(100, 120, e)), wy = Math.round(lerp(212, 146, e));
+  if (m > 0) T.brazo(R, 136, 216, wx, wy, '#6a4a2a', 1, { codo: [Math.round(lerp(112, 106, e)), Math.round(lerp(214, 178, e))] });
 };
 
 // ── 4 · la logia (la taberna): el caballero recoge la Biblia y se va corriendo ──
@@ -266,7 +270,7 @@ const fondo5 = () => capa(() => {
 });
 const p5 = (t) => {
   F5 = F5 || fondo5();
-  const llega = tramo(t, P5 + 0.1, TRAER - 0.05), xr = Math.round(lerp(-24, 226, llega)), deja = t > TRAER + 0.1;
+  const llega = tramo(t, P5 + 0.1, TRAER - 0.05), xr = Math.round(lerp(-40, 226, llega)), deja = t > TRAER + 0.1;
   degr(0, 0, 231, 40, [hex('#8ac0e8'), hex('#a8d4f0'), hex('#c8e4f4')]); nubes(t, 4, 20, [hex('#c8d4e4'), hex('#eef4fa'), hex('#ffffff')], 4); pajaros(t, 2, 12);
   pegar(F5);
   // el humo de las chimeneas y la muestra que se mece

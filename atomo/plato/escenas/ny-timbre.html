@@ -13,8 +13,8 @@
 // 1. (colonial 'wallStreet', 1765) el puerto británico, bullicioso: un estibador rueda un barril, un carro cruza al
 //    fondo, la vendedora pregona, el perro ladra en «noisy» y un casaca roja pasa en «British»;
 // 2. (fondo local) la mesa de una imprenta: el periódico con «1765», un contrato con lacre y una baraja; en «tax» una
-//    mano con manga roja estampa el sello de la corona en el periódico y en «paper» en el contrato; detrás, la prensa y
-//    los pliegos que se secan; un ratón asoma;
+//    mano con manga roja (brazo corto que entra por abajo, sin tapar la baraja) estampa el sello de la corona en el
+//    periódico y en «paper» en el contrato; detrás, la prensa y los pliegos que se secan; un ratón asoma;
 // 3. (colonial 'taberna') el gag de los naipes: un jugador levanta un castillo de naipes; el lector del periódico lo
 //    baja enfadado en «newspapers»; el recaudador señala en «contracts»; en «even playing cards» el jugador pega un sello
 //    en cada carta y el castillo se le viene abajo;
@@ -241,18 +241,20 @@ const p2 = (t) => {
   const ra = Math.max(0, Math.sin(Math.max(0, t - P2 - 0.6) * 1.4)); if (t < LONDON + 0.2) { const rx = 22 + Math.round(ra * 6); R.rect(rx - 1, 140, rx + 6, 145, K.k); R.rect(rx, 141, rx + 5, 144, K.tintaL); R.pset(rx + 5, 141, K.k); R.pset(rx + 1, 139, K.tintaL); R.pset(rx + 6, 143, K.rojoL); }
   else if (t < LONDON + 0.6) { const rx = 24 - Math.round((t - LONDON - 0.2) * 40); R.rect(rx - 1, 140, rx + 6, 145, K.k); R.rect(rx, 141, rx + 5, 144, K.tintaL); }
   // las marcas del sello que ya han caído
-  if (t > TAX + 0.04) marcaSello(104, 146); if (t > PAPER + 0.04) marcaSello(196, 134);
-  // la mano del recaudador con el sello: entra por abajo, estampa en «tax» (periódico) y en «paper» (contrato)
+  if (t > TAX + 0.04) marcaSello(104, 155); if (t > PAPER + 0.04) marcaSello(194, 150);
+  // la mano del recaudador con el sello: entra por abajo (el hombro, fuera de cuadro, por el hueco entre periódico y
+  // contrato y luego entre contrato y baraja: nunca tapa los naipes), estampa en «tax» (periódico) y en «paper» (contrato)
   const golpe = (t0) => { const d = t - t0; return d > -0.18 && d < 0 ? (d + 0.18) / 0.18 : d >= 0 && d < 0.25 ? 1 - d / 0.25 * 0.0 - (d > 0.12 ? (d - 0.12) / 0.13 : 0) : 0; };
   const entra = tramo(t, LONDON - 0.2, LONDON + 0.4), sale = tramo(t, PAPER + 0.5, P3);
-  const mueve = tramo(t, TAX + 0.25, PAPER - 0.25), tx = Math.round(lerp(104, 196, mueve)), ty0 = Math.round(lerp(146, 134, mueve));
-  const g = Math.max(golpe(TAX), golpe(PAPER)), alt = Math.round(lerp(22, 0, g));
+  const mueve = tramo(t, TAX + 0.25, PAPER - 0.25), tx = Math.round(lerp(104, 194, mueve)), ty0 = Math.round(lerp(155, 150, mueve));
+  const g = Math.max(golpe(TAX), golpe(PAPER)), alt = Math.round(lerp(8, 0, g));
   const hy = Math.round(ty0 - 12 - alt + (1 - entra) * 90 + sale * 90), hx = tx;
   if (entra > 0 && sale < 1) {
     // el sello: base con la goma roja, el mango de madera que sale por arriba del puño
     R.rect(hx - 9, hy + 6, hx + 9, hy + 11, K.k); R.rect(hx - 8, hy + 7, hx + 8, hy + 9, K.maderaL); R.rect(hx - 8, hy + 10, hx + 8, hy + 10, K.rojo);
     R.rect(hx - 3, hy - 10, hx + 3, hy + 6, K.k); R.rect(hx - 2, hy - 9, hx + 2, hy + 6, K.madera); R.disco(hx, hy - 12, 4, K.k); R.disco(hx, hy - 12, 3, K.maderaL); R.pset(hx - 1, hy - 13, K.blanco);
-    T.brazo(R, hx + 44, hy + 46, hx + 8, hy + 1, '#b8302a', -1, { codo: [hx + 30, hy + 20], puno: '#f2eee2' });
+    // brazo corto (~40 px a la vista): hombro fuera de cuadro por abajo, codo hacia fuera
+    T.brazo(R, hx + 24, Math.max(187, hy + 46), hx + 8, hy + 1, '#b8302a', -1, { codo: [hx + 21, hy + 22], puno: '#f2eee2' });
     if (g > 0.95) for (let k = 0; k < 6; k++) { const an = k * Math.PI / 3; R.pset(Math.round(hx + Math.cos(an) * 13), Math.round(hy + 12 + Math.sin(an) * 4), K.blanco); }
   }
 };

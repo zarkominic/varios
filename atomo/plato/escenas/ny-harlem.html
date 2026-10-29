@@ -14,8 +14,11 @@
 //    «victory» todos lanzan los tricornios al aire; el tambor redobla y la bandera ondea; abajo, los barcos británicos;
 //    corta en «But».
 // 2. dentro de una casa de la ciudad ocupada: por la ventana pasan casacas rojas y la bandera británica en la casa de
-//    enfrente (la Union de 1707, sin el aspa roja de 1801); el vecino arranca las hojas del calendario de 1776 a 1783 («seven years») mientras por la ventana pasan las
-//    estaciones; en «end of the war» la bandera de enfrente baja y el vecino da un salto de alegría.
+//    enfrente (la Union de 1707, sin el aspa roja de 1801); el vecino, que miraba la calle, va al taburete junto al
+//    calendario de pared (pequeño, a su altura), se sube y en «seven years» arranca con la mano las siete hojas de 1776 a
+//    1783: tira de la esquina, la hoja se despega, sale de su mano, se dobla y cae revoloteando, y en el suelo queda fina
+//    y arrugada; mientras, por la ventana pasan las estaciones. Baja del taburete y en «end of the war» la bandera de
+//    enfrente baja y él da un salto de alegría.
 import * as T from '/atomo/plato/escenas/ny-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('ny-harlem');
@@ -192,10 +195,24 @@ const fondo2 = () => fijo('hf2', () => {
     for (let y = hy; y <= 100; y++) for (let x = hx; x < Math.min(x1 + 1, hx + hw); x++) R.pset(x, y, (y - hy) % 3 === 0 ? H('#7a3a28') : (x + ((y - hy) / 3 | 0) * 3) % 6 === 0 ? H('#7a3a28') : H(col));
     R.poligono([[hx - 1, hy], [hx + hw / 2, hy - 8], [hx + hw, hy]], H('#4a4a5a')); for (let wy = hy + 6; wy < 92; wy += 16) for (let wx = hx + 4; wx < hx + hw - 6; wx += 11) { R.rect(wx, wy, wx + 5, wy + 8, H('#2a3444')); R.linea(wx, wy + 4, wx + 5, wy + 4, H('#e8e0cc')); R.linea(wx, wy, wx + 5, wy, H('#e8e0cc')); }
     R.rect(hx + hw / 2 - 3, 90, hx + hw / 2 + 3, 100, H('#3a2a20')); }
-  // el calendario de pared: papel grueso clavado, con la cuadrícula de los días
-  R.rect(148, 34, 214, 112, H('#5a4a3a')); R.rect(150, 36, 212, 110, H('#f4ecd8')); R.rect(150, 36, 212, 52, H('#b8302a')); R.linea(150, 52, 212, 52, H('#8a2420'));
-  for (let j = 0; j < 4; j++) for (let i = 0; i < 7; i++) { R.rect(154 + i * 8, 84 + j * 6, 159 + i * 8, 88 + j * 6, (i + j * 7) % 9 === 4 ? H('#e8a8a0') : H('#d8ccb4')); }
-  R.disco(181, 33, 2, H('#8a8a92')); R.pset(180, 32, H('#d8d8e0'));
+  // el cuadro del puerto con su marco dorado, colgado de un clavo con cordel
+  R.linea(179, 31, 162, 39, H('#6a5a3a')); R.linea(179, 31, 196, 39, H('#6a5a3a')); R.disco(179, 31, 1, H('#8a8a92')); R.pset(178, 30, H('#d8d8e0'));
+  R.rect(159, 38, 199, 70, H('#6a4a1a')); R.rect(160, 39, 198, 69, H('#c8a040')); R.linea(160, 39, 198, 39, H('#e8c860')); R.linea(160, 39, 160, 69, H('#e8c860')); R.linea(198, 40, 198, 69, H('#8a6a2a')); R.linea(161, 69, 198, 69, H('#8a6a2a'));
+  for (let x = 162; x <= 196; x += 4) { R.pset(x, 39, H('#8a6a2a')); R.pset(x + 2, 69, H('#e8c860')); }
+  for (let y = 41; y <= 67; y++) for (let x = 162; x <= 196; x++) R.pset(x, y, y < 58 ? (bay(x, y) < (y - 41) / 17 ? H('#e8d8b0') : H('#a8bcd2')) : ((x * 3 + y * 7) % 11 === 0 ? H('#8ab0c8') : y % 3 === 0 && (x + y) % 5 < 2 ? H('#4a6a8a') : H('#3a5a7a')));
+  R.disco(188, 47, 3, H('#f4e0a0')); R.pset(188, 47, H('#fff4d0'));
+  R.poligono([[168, 58], [186, 58], [183, 62], [171, 62]], H('#3a2418')); R.linea(169, 59, 185, 59, H('#6a4428')); R.linea(177, 44, 177, 58, H('#2a1a10')); R.linea(172, 48, 172, 58, H('#2a1a10'));
+  R.poligono([[178, 45], [184, 50], [178, 56]], H('#f4ecd8')); R.poligono([[173, 49], [176, 53], [173, 57]], H('#e8dcc0')); R.pset(177, 43, H('#b8302a'));
+  for (let x = 164; x < 196; x += 6) R.linea(x, 64, x + 3, 64, H('#c8dce8'));
+  // el tablero del calendario de pared: tabla de madera clavada, con sus dos aros
+  R.rect(161, 89, 193, 125, H('#3a2414')); R.rect(162, 90, 192, 124, H('#6a4428')); R.linea(162, 90, 192, 90, H('#8a6238')); R.linea(162, 124, 192, 124, H('#2a1a10'));
+  for (let y = 93; y < 124; y += 4) R.pset(162 + (y * 7) % 29, y, H('#5a3a22'));
+  R.disco(177, 87, 1, H('#8a8a92')); R.pset(176, 86, H('#d8d8e0')); R.linea(177, 88, 170, 90, H('#6a5a3a')); R.linea(177, 88, 184, 90, H('#6a5a3a'));
+  // la percha con la capa de abrigo y el cuerno de pólvora; una mancha de humedad junto a la viga
+  R.rect(204, 44, 236, 46, H('#5a3e26')); R.linea(204, 44, 236, 44, H('#8a6238')); for (const px of [210, 222, 232]) { R.rect(px, 46, px + 1, 49, H('#3a2414')); R.pset(px, 46, H('#8a6238')); }
+  R.poligono([[208, 48], [214, 48], [220, 96], [202, 96]], H('#3a4458')); R.poligono([[211, 48], [214, 48], [220, 96], [214, 96]], H('#2a3244')); for (const fx of [205, 209, 213, 217]) R.linea(fx + 2, 60, fx, 95, H('#2a3244')); R.linea(203, 96, 219, 96, H('#1a2030')); R.rect(209, 48, 213, 52, H('#4a5468'));
+  R.linea(223, 49, 228, 62, H('#5a4028')); R.poligono([[226, 60], [234, 66], [232, 70], [224, 64]], H('#e8dcc0')); R.linea(225, 61, 232, 67, H('#c8bca0')); R.pset(234, 67, H('#3a2a20')); R.pset(233, 68, H('#3a2a20'));
+  for (let k = 0; k < 40; k++) { const mx = 142 + Math.round(az(k * 2.3) * 12), my = 96 + Math.round(az(k * 3.9) * 22); R.pset(mx, my, k % 3 ? H('#d8ccb0') : H('#c8bca0')); }
   // el reloj de pared con su péndulo, un estante con platos de peltre
   R.rect(252, 52, 278, 118, H('#4a2e18')); R.rect(254, 54, 276, 116, H('#6a4428')); R.disco(265, 66, 9, H('#3a2414')); R.disco(265, 66, 8, H('#f4ecd8')); for (let k = 0; k < 12; k++) R.pset(265 + Math.round(Math.cos(k * 0.524) * 6), 66 + Math.round(Math.sin(k * 0.524) * 6), H('#3a2a20'));
   R.rect(258, 78, 272, 112, H('#2a1a10'));
@@ -238,15 +255,52 @@ const p2 = (t) => {
   R.linea(265, 66, 265 + Math.round(Math.cos(t * 0.5) * 5), 66 + Math.round(Math.sin(t * 0.5) * 5), H('#2a1a10')); R.linea(265, 66, 265, 61, H('#2a1a10'));
   const fl = Math.sin(t * 13) > 0 ? 1 : 0; R.pset(237, 120 - fl, H('#f8d060')); R.pset(237, 121, H('#f0a030')); R.pset(236, 121, H('#f8e090'));
   { const gx = 92, gy = 166, c = Math.sin(t * 2) > 0 ? 1 : 0; R.rect(gx, gy - 4, gx + 11, gy, H('#4a4a52')); R.rect(gx + 9, gy - 7, gx + 14, gy - 3, H('#4a4a52')); R.pset(gx + 10, gy - 8, H('#4a4a52')); R.pset(gx + 13, gy - 8, H('#4a4a52')); R.linea(gx + 11, gy - 5, gx + 12, gy - 5, H('#2a2a32')); R.linea(gx, gy - 1, gx - 4, gy - 3 - c, H('#4a4a52')); R.linea(gx + 1, gy - 3, gx + 8, gy - 3, H('#6a6a72')); }
-  // el calendario: el año grande y las hojas que se arrancan y caen
-  const n = hojas(t), y = 1776 + n;
-  R.numero(String(y), 181, 74, { tam: 16, centro: true });
-  for (let k = 0; k < n; k++) { const tk = F0 + k * ((F1 - F0) / 7), u = tramo(t, tk, tk + 0.9), px = Math.round(150 + k * 9 + u * (k % 2 ? 30 : -24)), py = Math.round(lerp(40, 170 - (k % 3) * 2, u)), ang = u * 8 + k;
-    if (u < 1) { const w = Math.round(14 * Math.abs(Math.cos(ang))) + 2; R.rect(px - w, py, px + w, py + 8, H('#f4ecd8')); R.rect(px - w, py, px + w, py + 2, H('#b8302a')); R.linea(px - w, py + 8, px + w, py + 8, H('#c8bca0')); }
-    else { R.rect(px - 10, py - 2, px + 10, py, H('#f4ecd8')); R.rect(px - 10, py - 2, px - 6, py, H('#b8302a')); R.linea(px - 10, py + 1, px + 10, py + 1, H('#8a6238')); } }
-  // el vecino: mira por la ventana, va al calendario, arranca las hojas y salta de alegría al final
-  const va = tramo(t, P2 + 0.9, F0 - 0.05), vx = Math.round(lerp(96, 160, va)), alegre = t > fin;
-  R.actor(EL.libertad, vx, 151, t, { dir: va > 0 ? 1 : -1, anda: va > 0 && va < 1, triste: t < F0 + 0.6, dedo: t > F0 - 0.1 && t < F1 + 0.1 && Math.floor((t - F0) / ((F1 - F0) / 7) * 2) % 2 === 0, sorpresa: t > hasta && t < fin, sonrisa: alegre, salto: alegre ? Math.round(Math.abs(Math.sin((t - fin) * 7)) * 5) : 0, brazos: alegre && t < fin + 1.4 });
+  // el taburete de tres patas junto al calendario (el vecino se sube para llegar)
+  R.linea(149, 143, 147, 154, H('#3a2414')); R.linea(150, 143, 148, 154, H('#5a3a22')); R.linea(160, 143, 162, 154, H('#3a2414')); R.linea(161, 143, 163, 154, H('#5a3a22')); R.linea(155, 143, 155, 151, H('#2a1a10'));
+  R.linea(148, 149, 162, 149, H('#4a2e18')); R.rect(144, 140, 165, 143, H('#6a4428')); R.linea(145, 140, 164, 140, H('#9a7448')); R.linea(144, 143, 165, 143, H('#3a2414')); R.pset(152, 141, H('#5a3a22')); R.pset(158, 142, H('#5a3a22'));
+  R.linea(146, 155, 164, 155, H('#4a2e18'));
+  // el calendario: cada hoja la arranca el vecino con la mano; debajo ya asoma el año siguiente
+  const CX0 = 164, CY0 = 92, CX1 = 190, CY1 = 122, paso = (F1 - F0) / 7, n = hojas(t);
+  const pagina = (yr) => { R.rect(CX0, CY0, CX1, CY1, H('#f4ecd8')); R.rect(CX0, CY0, CX1, CY0 + 6, H('#b8302a')); R.linea(CX0, CY0 + 6, CX1, CY0 + 6, H('#8a2420')); R.linea(CX0 + 9, CY0 + 3, CX1 - 9, CY0 + 3, H('#f4ecd8'));
+    R.linea(CX1, CY0 + 1, CX1, CY1, H('#c8bca0')); R.linea(CX0, CY1, CX1, CY1, H('#c8bca0')); for (const ax of [CX0 + 6, CX1 - 6]) { R.rect(ax - 1, CY0 - 2, ax + 1, CY0, H('#8a8a92')); R.pset(ax, CY0 - 2, H('#d8d8e0')); }
+    R.numero(String(yr), (CX0 + CX1) / 2 + 1, CY0 + 15, { centro: true, fina: true });
+    for (let j = 0; j < 3; j++) for (let i = 0; i < 6; i++) R.rect(CX0 + 2 + i * 4, CY0 + 18 + j * 4, CX0 + 3 + i * 4, CY0 + 19 + j * 4, (i + j * 6) % 7 === 3 ? H('#e8a8a0') : H('#c8bca0')); };
+  // fase de la hoja que se arranca ahora: k (0..6), primero la mano sube a la esquina y luego tira de ella
+  const kA = Math.floor((t - (F0 - paso)) / paso), fA = (t - (F0 - paso)) / paso - kA, arrancando = kA >= 0 && kA < 7 && n === kA;
+  const ESQ = [CX0, CY1], SUELTA = [167, 130];   // la mano tira de la esquina hacia abajo, lejos de su cara
+  let manoV = null, pel = 0;
+  if (arrancando) { if (fA < 0.42) { const u = fA / 0.42, de = kA === 0 ? [163, 132] : SUELTA; manoV = [Math.round(lerp(de[0], ESQ[0], u)), Math.round(lerp(de[1], ESQ[1], u))]; }
+    else { pel = (fA - 0.42) / 0.58; manoV = [Math.round(lerp(ESQ[0], SUELTA[0], pel)), Math.round(lerp(ESQ[1], SUELTA[1], pel))]; } }
+  pagina(1776 + n);
+  if (pel > 0) {   // la esquina de la hoja se despega: debajo asoma la hoja siguiente (cuadrícula y sombra de la doblez)
+    const s = Math.round(4 + pel * 14);
+    for (let y = CY1 - s; y <= CY1; y++) for (let x = CX0; x <= CX0 + s; x++) { const d = (x - CX0) + (CY1 - y); if (d > s) continue;
+      const gx = x - CX0 - 2, gy = y - CY0 - 18, celda = gx >= 0 && gx < 24 && gy >= 0 && gy < 12 && gx % 4 < 2 && gy % 4 < 2;
+      R.pset(x, y, d >= s - 1 ? H('#a89878') : celda ? H('#c8bca0') : y === CY1 || x === CX0 ? H('#d8ccb0') : H('#efe6d0')); }
+    R.poligono([[CX0, CY1 - s], [CX0 + s, CY1], manoV], H('#d8ccb0')); R.linea(CX0, CY1 - s, CX0 + s, CY1, H('#f4ecd8')); R.linea(CX0 + s, CY1, manoV[0], manoV[1], H('#a89878')); R.linea(CX0, CY1 - s, manoV[0], manoV[1], H('#c8bca0'));
+  }
+  // las hojas arrancadas: salen de la mano, se doblan y caen revoloteando; en el suelo quedan finas y arrugadas
+  const SUELO = [[172, 158], [150, 164], [188, 160], [162, 170], [200, 165], [140, 168], [180, 168]];
+  const hoja = (k, delante) => { const rk = F0 + k * paso; if (t < rk) return; const u = Math.min(1, (t - rk) / 1.1), [lx, ly] = SUELO[k];
+    if (u >= 1) { if ((ly > 147) !== delante) return; const cr = k % 3;
+      R.linea(lx - 4, ly + 1, lx + 5, ly + 1, H('#5a3a22')); R.linea(lx - 4, ly, lx + 4 + cr, ly, H('#e8dcc0')); R.linea(lx - 3, ly - 1, lx + 2 + cr, ly - 1, H('#f4ecd8')); R.pset(lx - 4, ly - 1, H('#b8302a')); R.pset(lx - 3, ly - 1, H('#b8302a')); R.pset(lx - 4, ly, H('#8a2420'));
+      if (cr !== 1) R.pset(lx + 1, ly - 2, H('#f4ecd8')); R.pset(lx, ly, H('#c8bca0')); R.pset(lx + 3, ly - 1, H('#d8ccb0')); return; }
+    if (!delante) return;
+    const e = u * u * (3 - 2 * u), cx = lerp(SUELTA[0] + 4, lx, e) + Math.sin(u * 9 + k) * 7 * (1 - u), cy = lerp(SUELTA[1], ly - 3, u * u * 0.6 + u * 0.4);
+    const giro = u * 11 + k * 1.7, an = Math.cos(giro), sc = 1 - u * 0.45, a = 6 * sc * an, b = 7 * sc, ro = Math.sin(u * 7 + k) * 0.7, c = Math.cos(ro), si = Math.sin(ro);
+    const P = (px, py) => [Math.round(cx + px * c - py * si), Math.round(cy + px * si + py * c)];
+    const q = [P(-a, -b), P(a, -b + Math.sin(giro * 2) * 2), P(a, b), P(-a, b)];
+    R.poligono(q, an > 0 ? H('#f4ecd8') : H('#d8ccb0')); R.linea(q[0][0], q[0][1], q[1][0], q[1][1], H('#b8302a')); R.linea(q[3][0], q[3][1], q[2][0], q[2][1], H('#a89878'));
+    if (Math.abs(an) > 0.4) { const m = P(0, 2); R.pset(m[0], m[1], H('#c8bca0')); R.pset(m[0] - 1, m[1] + 2, H('#c8bca0')); } };
+  for (let k = 0; k < 7; k++) hoja(k, false);
+  // el vecino: mira por la ventana a los casacas rojas, va al taburete, se sube, arranca las hojas, baja y salta de alegría
+  const va = tramo(t, P2 + 0.15, F0 - paso - 0.3), sube = tramo(t, F0 - paso - 0.3, F0 - paso - 0.05), baja2 = tramo(t, F1 - paso + 0.05, F1 - paso + 0.35), alegre = t > fin;
+  const vx = Math.round(baja2 > 0 ? lerp(148, 134, baja2) : sube > 0 ? lerp(140, 148, sube) : lerp(124, 140, va));
+  const vy = Math.round(baja2 > 0 ? lerp(141, 151, baja2) - Math.sin(baja2 * Math.PI) * 3 : sube > 0 ? lerp(151, 141, sube) - Math.sin(sube * Math.PI) * 4 : 151);
+  const enTaburete = sube > 0 && baja2 <= 0;
+  R.actor(EL.libertad, vx, vy, t, { dir: va > 0 && !(baja2 >= 1) ? 1 : -1, anda: (va > 0 && va < 1) || (baja2 > 0 && baja2 < 1), triste: t < F0 + 0.6, sostiene: enTaburete && manoV ? manoV : enTaburete && sube >= 1 && t < F1 ? [165, 130] : undefined,
+    sorpresa: t > hasta && t < fin, sonrisa: alegre, salto: alegre ? Math.round(Math.abs(Math.sin((t - fin) * 7)) * 5) : 0, brazos: alegre && t < fin + 1.4 });
+  for (let k = 0; k < 7; k++) hoja(k, true);
 };
 
 const efectos = [[0.4, 'viento'], [1.2, 'toc'], [gana, 'brillo'], [victoria, 'publico'], [P2 + 0.4, 'tic'], [F0 + 0.05, 'papel'], [F0 + (F1 - F0) * 3 / 7, 'papel'], [F0 + (F1 - F0) * 6 / 7, 'papel'], [fin + 0.1, 'palmada']];

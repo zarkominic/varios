@@ -17,9 +17,13 @@
 //    dispara la salva y los invitados lo celebran (corta en «New York Harbor»);
 // 3. inserto a ras de agua junto al casco (fondo local): el agua del lago cae a la bahía; la perca cae con el chorro, se
 //    zambulle, asoma, prueba el agua y pone cara de salada (gag); escupe y salta de vuelta hacia el barril (corta en «deep»);
-// 4. el porqué (mapa del continente): en «deep» la lupa enseña el puerto hondo y el cabo que lo protege del Atlántico; en
-//    «river» la ruta sube por el Hudson, el canal y los lagos hasta Chicago; en «heart» se enciende el medio oeste, brota el
-//    trigo y los sacos bajan hacia Nueva York; de allí salen veleros al mundo (corta en «Western»);
+// 4. el porqué, como inserto: el escritorio de nogal del comerciante visto desde arriba (tintero con pluma, taza que
+//    humea, vela que parpadea, monedas) con el mapa del continente en una hoja suelta de esquina doblada (otro encuadre
+//    que el pergamino del plano 1). Al empezar entra la mano con la lupa y enfoca el puerto en «deep»: el barco anclado
+//    en agua honda y el cabo que lo protege del Atlántico; en «river» se la lleva y el compás de puntas, que estaba
+//    tumbado en el mar, se abre y mide a zancadas la ruta por el Hudson, el canal y los lagos hasta Chicago; en «heart»
+//    se enciende el medio oeste, brota el trigo y los sacos bajan hacia Nueva York; los veleros salen al mundo todo el
+//    plano (recortados al papel) y al final van cargados de trigo (corta en «Western»);
 // 5. el canal: la barcaza de trigo baja tirada por las mulas, la esclusa se llena, un granjero trae otro saco con su perro;
 //    en «sails out to the world» el patrón saluda (corta en «Shipping»);
 // 6. la casa de contratación (fondo local): el estibador deja el saco de una tonelada en la balanza en «ton»; en «$100»
@@ -231,9 +235,80 @@ const p3 = (t) => {
 // hasta los Grandes Lagos, el trigo brota en el medio oeste y baja en sacos hasta Nueva York, y de allí sale al mundo
 const RUTA4 = [[-74.0, 40.7], [-73.95, 41.2], [-73.94, 41.75], [-73.8, 42.4], [-73.75, 42.68], [-74.9, 42.95], [-75.8, 43.08], [-76.9, 43.1], [-77.6, 43.16], [-78.7, 43.0], [-78.9, 42.88], [-79.8, 42.35], [-81.7, 41.6], [-83.0, 41.75], [-83.1, 42.3], [-82.5, 43.0], [-82.3, 44.3], [-83.5, 45.6], [-84.8, 45.8], [-86.3, 45.3], [-87.0, 44.0], [-87.5, 42.6], [-87.6, 41.9]];
 const TRIGO = [[-88.6, 40.4], [-86.8, 39.9], [-85.2, 40.6], [-83.4, 40.2], [-89.4, 41.4], [-87.8, 39.0], [-84.3, 39.5], [-86.1, 41.3], [-90.2, 40.0], [-82.4, 39.6]];
-let LB = null;
-const espiga = (x, y, h) => { x = Math.round(x); y = Math.round(y); const H = Math.round(9 * h); if (H < 1) return; for (const dx of [-2, 0, 2]) { R.linea(x, y, x + dx, y - H, hex('#a8862a')); R.rect(x + dx - (dx < 0 ? 1 : 0), y - H - 2, x + dx + (dx > 0 ? 1 : 0), y - H, hex('#f0c840')); R.pset(x + dx, y - H - 3, hex('#f8e080')); } R.rect(x - 1, y - Math.round(H / 2), x + 1, y - Math.round(H / 2), hex('#c84a2a')); R.pset(x - 2, y + 1, K); R.pset(x + 2, y + 1, K); };
-const velero = (x, y, t) => { x = Math.round(x); y = Math.round(y); R.rect(x - 4, y - 1, x + 4, y, K); R.rect(x - 3, y - 1, x + 3, y - 1, hex('#7a4a2a')); R.linea(x, y - 1, x, y - 9, K); R.poligono([[x + 1, y - 9], [x + 5, y - 3], [x + 1, y - 3]], hex('#f8f4e8')); R.poligono([[x - 1, y - 8], [x - 4, y - 3], [x - 1, y - 3]], hex('#e0dccc')); R.pset(x, y - 10, hex('#c83a3a')); };
+// espiga de trigo que brota (sin R.rect: respeta el recorte del papel)
+const espiga = (x, y, h) => { x = Math.round(x); y = Math.round(y); const H = Math.round(9 * h); if (H < 1) return; for (const dx of [-2, 0, 2]) { R.linea(x, y, x + dx, y - H, hex('#a8862a')); R.linea(x + dx, y - H - 2, x + dx, y - H, hex('#f0c840')); R.pset(x + dx + (dx < 0 ? -1 : 1), y - H - 1, hex('#d8a830')); R.pset(x + dx, y - H - 3, hex('#f8e080')); } R.linea(x - 1, y - Math.round(H / 2), x + 1, y - Math.round(H / 2), hex('#c84a2a')); R.pset(x - 2, y + 1, K); R.pset(x + 2, y + 1, K); };
+// velerito del mapa con su estela (sin R.rect: respeta el recorte del papel); carga: el saco de trigo en cubierta
+const velero = (x, y, t, carga) => { x = Math.round(x); y = Math.round(y + Math.sin(t * 3 + x) * 0.5);
+  for (let i = 0; i < 4; i++) if ((i + Math.floor(t * 8)) % 3) R.pset(x - 6 - i * 2, y + (i % 2), hex('#e8f2f4'));
+  R.poligono([[x - 5, y - 1], [x + 5, y - 1], [x + 3, y + 1], [x - 4, y + 1]], K); R.linea(x - 4, y - 1, x + 4, y - 1, hex('#7a4a2a')); R.linea(x - 3, y, x + 2, y, hex('#5a3418'));
+  R.linea(x, y - 1, x, y - 10, K); R.poligono([[x + 1, y - 10], [x + 6, y - 3], [x + 1, y - 3]], hex('#f8f4e8')); R.linea(x + 1, y - 4, x + 5, y - 4, hex('#c8c0a8'));
+  R.poligono([[x - 1, y - 9], [x - 5, y - 3], [x - 1, y - 3]], hex('#e0dccc')); R.pset(x, y - 11, hex('#c83a3a')); R.pset(x - 1, y - 11, hex('#c83a3a'));
+  if (carga) { R.linea(x - 3, y - 2, x - 2, y - 2, hex('#d8b040')); R.pset(x + 3, y - 2, hex('#d8b040')); } };
+// el compás de puntas de latón: las dos puntas en a y b, la cabeza levantada hacia arriba-izquierda (vista de 3/4)
+const compas = (a, b, alto = 15) => { const hx = Math.round((a[0] + b[0]) / 2) - 3, hy = Math.round((a[1] + b[1]) / 2) - alto;
+  R.linea(a[0] + 2, a[1] + 1, hx + 4, hy + 4, mez(hex('#3a2414'), K, 0.3), 2); R.linea(b[0] + 2, b[1] + 1, hx + 4, hy + 4, mez(hex('#3a2414'), K, 0.3), 2);   // su sombra
+  for (const p of [a, b]) { R.linea(p[0], p[1], hx, hy, K); R.linea(p[0] + 1, p[1], hx + 1, hy, hex('#c89a3a')); R.linea(p[0] + 1, p[1] - 1, hx + 1, hy - 1, hex('#f0d070')); R.pset(p[0], p[1], hex('#5a5a62')); }
+  R.disco(hx + 1, hy, 3, K); R.disco(hx + 1, hy, 2, hex('#b08a30')); R.pset(hx, hy - 1, hex('#fff0a0')); R.pset(hx + 1, hy, hex('#6a4a1a')); };
+// el escritorio del comerciante, visto desde arriba: tablones de nogal con vetas, nudos y juntas, la luz de la ventana desde
+// la izquierda; la sombra de la hoja del mapa (x 34–268, y 22–162) ya puesta
+const H4 = [34, 22, 268, 162];
+let MESA4 = null, MB4 = null, LB = null;
+const mesa4 = () => capa(() => {
+  const NO = [hex('#4a2c18'), hex('#5a3820'), hex('#6a4428'), hex('#7a5232')];
+  for (let y = 0; y < 180; y++) { const tab = Math.floor(y / 23), yy = y - tab * 23;
+    for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.045 + tab * 2.1 + Math.sin(x * 0.013 + tab) * 2.6 + yy * 0.42) * 0.5 + 0.5, luz = 0.62 - x / 700 - y / 900 + (hh(x >> 3, tab, 4) - 0.5) * 0.12;
+      let i = Math.max(0, Math.min(3, Math.floor(luz * 3 + v * 1.4 - 0.3))); if (dz(x, y, (luz * 3 + v * 1.4 - 0.3) % 1) && i < 3) i++;
+      let c = NO[i]; if (yy === 0) c = hex('#24140a'); else if (yy === 1) c = mez(NO[Math.min(3, i + 1)], hex('#a07a50'), 0.25); else if (yy === 22) c = mez(c, K, 0.4);
+      if (hh(x, y, 2) > 0.985) c = mez(c, K, 0.3); R.pset(x, y, c); } }
+  // nudos y los clavos de cada tablón
+  for (const [nx, ny] of [[14, 70], [292, 128], [150, 172], [306, 20], [8, 150]]) { for (let r = 5; r > 0; r -= 2) for (let q = 0; q < 6.283; q += 0.15) R.pset(Math.round(nx + Math.cos(q) * r * 1.6), Math.round(ny + Math.sin(q) * r * 0.7), r === 1 ? hex('#24140a') : hex('#3a2414')); }
+  for (let tb = 0; tb < 8; tb++) for (const cx of [4, 315]) { const cy = tb * 23 + 11; R.pset(cx, cy, hex('#1a1a20')); R.pset(cx, cy - 1, hex('#8a8a92')); }
+  // la sombra de la hoja (la luz viene de arriba a la izquierda)
+  for (let y = H4[1] + 3; y <= Math.min(179, H4[3] + 4); y++) for (let x = H4[0] + 3; x <= H4[2] + 4; x++) if (x > H4[2] || y > H4[3]) R.pset(x, y, mez(R.pget(x, y), K, 0.5));
+});
+// el mapa del continente como una hoja suelta sobre la mesa: bordes gastados con muescas, la esquina de arriba a la
+// derecha doblada y el papel oscurecido en el filo
+const hoja4 = (t) => {
+  if (!MB4) MB4 = R.nuevo(); const pv = R.usar(MB4); const P = T.mapa(R, t, { zoom: 2.65, centro: [-79.4, 42.1], rosa: false }); R.usar(pv);
+  const B = R.buf, [x0, y0, x1, y1] = H4, PAP = hex('#8a6a3a');
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const d = Math.min(x - x0, x1 - x, y - y0, y1 - y);
+    if ((x - (x1 - 11)) + ((y0 + 11) - y) > 11) continue;   // la esquina doblada
+    if (d === 0 && hh(x, y, 5) > 0.72) continue;   // muescas del filo
+    let c = MB4[y * 320 + x]; if (d < 1) c = mez(c, PAP, 0.55); else if (d < 3) c = mez(c, PAP, 0.22); else if (d < 6 && dz(x, y, 0.4)) c = mez(c, PAP, 0.1); B[y * 320 + x] = c; }
+  // la esquina doblada: el revés del papel, con su sombra
+  R.poligono([[x1 - 11, y0], [x1, y0 + 11], [x1 - 9, y0 + 9]], mez(hex('#3a2414'), K, 0.3)); R.poligono([[x1 - 11, y0], [x1 - 1, y0 + 10], [x1 - 10, y0 + 10]], hex('#d8c8a0'));
+  R.linea(x1 - 11, y0, x1 - 1, y0 + 10, hex('#f4ead0')); R.linea(x1 - 10, y0 + 10, x1 - 1, y0 + 10, hex('#a8946a'));
+  return P;
+};
+// los objetos de la mesa: el tintero con su pluma (sujeta la hoja arriba a la izquierda), las monedas que la sujetan abajo,
+// la taza de café que humea y la vela que parpadea con su luz sobre la mesa
+const objetos4 = (t) => {
+  // la vela, a la derecha: luz que parpadea sobre la madera
+  const fl = 0.85 + Math.sin(t * 13) * 0.08 + Math.sin(t * 31) * 0.05, vx = 298, vy = 92;
+  for (let y = vy - 40; y <= vy + 26; y++) for (let x = vx - 26; x <= 319; x++) { if (y < 46 && x >= 276) continue; const d = Math.hypot((x - vx) / 26, (y - vy + 14) / 30); if (d < 1 && dz(x, y, (1 - d) * 0.9 * fl)) R.pset(x, y, mez(R.pget(x, y), hex('#f8c060'), 0.22)); }
+  R.disco(vx, vy + 6, 9, K); R.disco(vx, vy + 6, 8, hex('#a8802a')); R.disco(vx - 1, vy + 5, 6, hex('#d8b048')); R.pset(vx - 4, vy + 3, hex('#fff0a0')); R.pset(vx - 3, vy + 3, hex('#fff0a0'));
+  R.poligono([[vx - 4, vy + 5], [vx - 4, vy - 12], [vx + 4, vy - 12], [vx + 4, vy + 5]], K); R.poligono([[vx - 3, vy + 4], [vx - 3, vy - 11], [vx + 3, vy - 11], [vx + 3, vy + 4]], hex('#f2e8cc'));
+  R.linea(vx - 2, vy - 11, vx - 2, vy + 3, hex('#fffaf0')); R.linea(vx + 2, vy - 10, vx + 2, vy + 3, hex('#c8b890')); R.linea(vx + 3, vy - 10, vx + 3, vy - 4, hex('#e8dcc0'));   // la cera que gotea
+  const fx = vx + Math.round(Math.sin(t * 9) * 0.7); R.linea(vx, vy - 12, vx, vy - 13, K);
+  R.poligono([[fx - 2, vy - 14], [fx, vy - 20 - Math.round(Math.sin(t * 17))], [fx + 2, vy - 14], [fx, vy - 12]], hex('#f8a030')); R.poligono([[fx - 1, vy - 14], [fx, vy - 18], [fx + 1, vy - 14]], hex('#fff4b0'));
+  // la taza de café a la izquierda, con su plato y el vapor
+  const cx = 16, cy = 104; R.disco(cx, cy + 2, 13, mez(hex('#3a2414'), K, 0.3)); R.disco(cx, cy, 12, K); R.disco(cx, cy, 11, hex('#e8e4dc')); R.disco(cx + 1, cy + 1, 9, hex('#c8c4bc'));
+  R.disco(cx, cy, 8, K); R.disco(cx, cy, 7, hex('#f4f0e8')); R.disco(cx, cy, 5, hex('#3a1e10')); R.pset(cx - 2, cy - 2, hex('#7a4a2a')); R.pset(cx - 1, cy - 2, hex('#7a4a2a'));
+  R.linea(cx + 8, cy - 1, cx + 11, cy - 2, K); R.linea(cx + 8, cy + 1, cx + 11, cy + 2, K); R.linea(cx + 11, cy - 2, cx + 11, cy + 2, K); R.linea(cx + 9, cy, cx + 10, cy, hex('#e8e4dc'));
+  for (let k = 0; k < 7; k++) { const e = (t * 0.6 + k / 7) % 1, x = Math.round(cx - 2 + Math.sin(e * 6 + k) * 3 + e * 4), y = Math.round(cy - 3 - e * 22); if (hh(k, Math.floor(t * 4)) > 0.2) R.pset(x, y, mez(R.pget(x, y), hex('#ffffff'), 0.6 - e * 0.5)); }
+  // el tintero de vidrio con la pluma, sobre la esquina de la hoja
+  const ix = 30, iy = 30; R.disco(ix + 2, iy + 3, 9, mez(hex('#3a2414'), K, 0.35)); R.disco(ix, iy, 9, K); R.disco(ix, iy, 8, hex('#2a3a5a')); R.disco(ix - 2, iy - 2, 4, hex('#4a6a9a')); R.pset(ix - 4, iy - 4, hex('#c8e0ff')); R.pset(ix - 3, iy - 5, hex('#c8e0ff'));
+  R.disco(ix, iy, 4, K); R.disco(ix, iy, 3, hex('#b08a30')); R.disco(ix, iy, 2, hex('#0a0a14'));
+  const sw = Math.round(Math.sin(t * 1.3) * 0.6); R.linea(ix, iy, 14 + sw, 16, hex('#3a3a3a')); R.poligono([[14 + sw, 16], [4 + sw, 2], [8 + sw, 3], [17 + sw, 13]], hex('#f4f0e4')); R.linea(14 + sw, 16, 5 + sw, 3, hex('#c8c0b0'));
+  for (let k = 0; k < 4; k++) R.pset(9 + sw + k * 2, 6 + k * 2, hex('#d8d0c0'));
+  // las monedas: una pila y dos sueltas sobre el filo de la hoja, con su brillo que pasa
+  const mx = 22, my = 160; for (let k = 0; k < 5; k++) { R.disco(mx, my - k * 2 + 1, 7, K); R.disco(mx, my - k * 2, 6, hex('#a87a20')); R.linea(mx - 6, my - k * 2 + 1, mx + 6, my - k * 2 + 1, hex('#7a5418')); }
+  R.disco(mx, my - 8, 5, hex('#e8c050')); R.disco(mx - 1, my - 9, 2, hex('#f8e090')); R.pset(mx + 2, my - 7, hex('#a87a20'));
+  for (const [qx, qy] of [[42, 158], [52, 166]]) { R.disco(qx, qy + 1, 5, K); R.disco(qx, qy, 4, hex('#c8a040')); R.disco(qx - 1, qy - 1, 2, hex('#f0d878')); }
+  const g = (t * 0.7) % 3; if (g < 0.3) { const gx = mx - 3, gy = my - 10; R.pset(gx, gy, hex('#ffffff')); for (let r = 1; r < 3; r++) { R.pset(gx + r, gy, hex('#fff8d0')); R.pset(gx - r, gy, hex('#fff8d0')); R.pset(gx, gy - r, hex('#fff8d0')); R.pset(gx, gy + r, hex('#fff8d0')); } }
+  // motas de polvo en la luz de la ventana, sobre la madera
+  for (let k = 0; k < 9; k++) { const x = Math.round(((k * 37 + t * (2 + k % 3)) % 300) + 8), y = Math.round(((k * 53 + Math.sin(t * 0.7 + k) * 6) % 160) + 14); if (x >= H4[0] && x <= H4[2] && y >= H4[1] && y <= H4[3]) continue; if (x > 276 && y < 46) continue; if (y < 15 && x < 172) continue; R.pset(x, y, mez(R.pget(x, y), hex('#fff0c0'), 0.55)); }
+};
 const corte = (cx, cy, t, A) => {
   degr(cx - 34, cy - 34, cx + 34, cy - 9, [hex('#76aade'), hex('#b4d2ea'), hex('#dceaf0')]); nube(cx - 12 + Math.round(t * 2) % 20, cy - 26, 14, NUBC);
   for (let y = cy - 8; y <= cy + 34; y++) { const p = (y - cy + 8) / 30; for (let x = cx - 34; x <= cx + 34; x++) R.pset(x, y, dz(x, y, (p * 2) % 1) ? (p < 0.5 ? hex('#3a78b0') : hex('#1e4a80')) : (p < 0.5 ? hex('#4a8ac0') : hex('#2a5a90'))); }
@@ -253,34 +328,50 @@ const corte = (cx, cy, t, A) => {
   // la cota de lo hondo
   R.linea(cx - 30, cy - 6, cx - 30, cy + 19, hex('#f8f0b0'), 2); R.linea(cx - 32, cy - 4, cx - 30, cy - 6, hex('#f8f0b0')); R.linea(cx - 28, cy - 4, cx - 30, cy - 6, hex('#f8f0b0')); R.linea(cx - 32, cy + 17, cx - 30, cy + 19, hex('#f8f0b0')); R.linea(cx - 28, cy + 17, cx - 30, cy + 19, hex('#f8f0b0'));
 };
+const sube = (u) => u * u * (3 - 2 * u);
 const p4 = (t) => {
-  const P = T.mapa(R, t, { zoom: 2.4, centro: [-80, 41.5], rosa: [298, 74] });
-  const ny = P([-74.0, 40.7]).map(Math.round);
+  MESA4 = MESA4 || mesa4(); R.copiar(MESA4);
+  const P = hoja4(t), ny = P([-74.0, 40.7]).map(Math.round);
+  R.recorte([H4[0] + 1, H4[1] + 1, H4[2] - 1, H4[3] - 1]);
   // el corazón del continente que se enciende y el trigo que brota
   const hc = tramo(t, fs(.5), fs(.56)), [hx, hy] = P([-86.6, 40.4]).map(Math.round);
-  if (hc > 0) for (let y = hy - 26; y <= hy + 26; y++) for (let x = hx - 34; x <= hx + 34; x++) { const d = Math.hypot((x - hx) / 34, (y - hy) / 26); if (d < 1 && dz(x, y, hc * (1 - d) * 0.7)) R.pset(x, y, mez(R.pget(x, y), hex('#f0c040'), 0.45)); }
-  TRIGO.forEach((p, k) => { const h = tramo(t, fs(.57) + k * 0.09, fs(.57) + k * 0.09 + 0.35); if (h > 0) { const [x, y] = P(p); espiga(x, y, h); } });
-  // la ruta: del puerto, río arriba, por el canal y los lagos hasta Chicago
-  const ruta = RUTA4.map((p) => P(p)), ur = tramo(t, fs(.38), fs(.57));
-  if (ur > 0) { const off = ruta.map(([x, y]) => [x + 1, y + 1]); trazo(off, ur, hex('#3a2a1a')); trazo(ruta, ur, (x, y, k) => ((k + Math.floor(t * 12)) % 6 < 3 ? hex('#f0c840') : hex('#2a6ab0'))); if (ur < 1) { const [x, y] = sobre(ruta, ur); R.disco(Math.round(x), Math.round(y), 2, hex('#fff4c0')); } }
-  // los sacos de trigo que bajan hacia Nueva York y los veleros que salen al mundo
+  if (hc > 0) for (let y = hy - 26; y <= hy + 26; y++) for (let x = Math.max(H4[0] + 2, hx - 34); x <= hx + 34; x++) { const d = Math.hypot((x - hx) / 34, (y - hy) / 26); if (d < 1 && dz(x, y, hc * (1 - d) * 0.7)) R.pset(x, y, mez(R.pget(x, y), hex('#f0c040'), 0.45)); }
+  TRIGO.forEach((p, k) => { const h = tramo(t, fs(.57) + k * 0.07, fs(.57) + k * 0.07 + 0.3); if (h > 0) { const [x, y] = P(p); espiga(x, y, h); } });
+  // la ruta: del puerto, río arriba, por el canal y los lagos hasta Chicago; el compás de puntas la va midiendo a zancadas
+  const ruta = RUTA4.map((p) => P(p)), ida = [[ny[0] + 30, ny[1] - 40], [ny[0] + 2, ny[1] - 4]];
+  const lg = (pts) => { let s = 0; for (let i = 1; i < pts.length; i++) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return s; };
+  const L0 = lg(ida), L1 = lg(ruta), camino = ida.concat(ruta), LT = L0 + L1;
+  const S = t < fs(.38) ? L0 * sube(tramo(t, fs(.33), fs(.38))) : L0 + L1 * tramo(t, fs(.38), fs(.57)), ur = Math.max(0, (S - L0) / L1);
+  if (ur > 0) { const off = ruta.map(([x, y]) => [x + 1, y + 1]); trazo(off, ur, hex('#3a2a1a')); trazo(ruta, ur, (x, y, k) => ((k + Math.floor(t * 12)) % 6 < 3 ? hex('#f0c840') : hex('#2a6ab0'))); }
+  // los sacos de trigo que bajan hacia Nueva York y los veleros que salen al mundo (cargados de trigo al final)
   const sb = tramo(t, fs(.6), fs(.64));
   if (sb > 0) for (let k = 0; k < 4; k++) { const u = 1 - ((t - fs(.6)) * 0.22 + k / 4) % 1; const [x, y] = sobre(ruta, u); saco(x, y + 3, 0.5); }
-  if (t > fs(.4)) for (let k = 0; k < 3; k++) { const e = ((t - fs(.4)) * 0.16 + k / 3) % 1; velero(ny[0] + 8 + e * (330 - ny[0]), ny[1] + 6 + k * 7 + Math.round(e * 10), t); }
-  // la lupa: en «deep» se abre sobre el puerto; en «sheltered» rompen las olas fuera del cabo; se va en «river»
-  const ab = tramo(t, P4 + 0.02, fs(.2)) * (1 - tramo(t, fs(.37), fs(.41)));
-  if (ab > 0) {
-    const cx = Math.min(268, ny[0] + 36), cy = Math.min(140, ny[1] + 34), r = Math.round(32 * ab), A = tramo(t, fs(.23), fs(.27));
-    for (let k = 0; k < 4; k++) R.linea(ny[0] + k % 2, ny[1] + (k >> 1), cx - r * 0.7, cy - r * 0.7, hex('#c8a040'), 2);
-    LB = LB || R.nuevo(); const pv = R.usar(LB); corte(cx, cy, t, A); R.usar(pv);
-    for (let y = cy - r; y <= cy + r; y++) for (let x = cx - r; x <= cx + r; x++) if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r) R.pset(x, y, LB[y * 320 + x]);
+  for (let k = 0; k < 3; k++) { const e = ((t - P4) * 0.11 + k / 3) % 1; velero(ny[0] + 10 + e * (H4[2] + 8 - ny[0] - 10), ny[1] + 8 + k * 9 + Math.round(e * 6), t, t > fs(.62)); }
+  R.disco(ny[0], ny[1], 2 + Math.round((Math.sin(t * 5) + 1)), hex('#c83a3a')); R.pset(ny[0], ny[1], hex('#ffffff'));
+  R.recorte(null);
+  objetos4(t);
+  // el compás: tumbado y cerrado sobre el mar hasta «river»; se abre y va a zancadas a Nueva York y por la ruta hasta Chicago
+  const pt = (s) => { const [x, y] = sobre(camino, Math.max(0, Math.min(1, s / LT))); return [Math.round(x), Math.round(y)]; };
+  if (t < fs(.33)) { const [ax, ay] = ida[0]; compas([ax - 6, ay + 6], [ax - 3, ay + 7], 4); }
+  else { const Z = 11, i = Math.floor(S / Z), f = S / Z - i, fijo = pt(i * Z), va = pt(Math.max(0, (i - 1) * Z) + f * 2 * Z), lev = Math.round(Math.sin(f * Math.PI) * 3) * (S < LT - 0.5 ? 1 : 0);
+    const abre = tramo(t, fs(.33), fs(.345)); compas(fijo, [Math.round(lerp(fijo[0] + 3, va[0], abre)), Math.round(lerp(fijo[1] + 1, va[1], abre)) - lev], Math.round(lerp(4, 15, abre))); }
+  // la lupa: entra con la mano desde abajo a la derecha al empezar el plano y enfoca el puerto (en «deep»); en
+  // «sheltered» rompen las olas fuera del cabo; con «river» la mano se la lleva
+  const CX = Math.min(262, ny[0] + 36), CY = Math.min(132, ny[1] + 32), r = 30;
+  const ent = sube(tramo(t, P4 - 0.2, P4 + 0.9)), sal = sube(tramo(t, fs(.34), fs(.42)));
+  if (sal < 1) {
+    const cx = Math.round(lerp(CX + 90, CX, ent) + sal * 110), cy = Math.round(lerp(CY + 70, CY, ent) + sal * 80), ab = tramo(t, P4 + 0.6, P4 + 1.3) * (1 - sal), A = tramo(t, fs(.23), fs(.27));
+    if (ab > 0 && sal < 0.25) { R.recorte([0, 0, 319, 179]); for (let k = 0; k < 4; k++) R.linea(ny[0] + k % 2, ny[1] + (k >> 1), cx - r * 0.7, cy - r * 0.7, hex('#c8a040'), 2); R.recorte(null); }
+    LB = LB || R.nuevo(); if (ab > 0) { const pv = R.usar(LB); corte(cx, cy, t, A); R.usar(pv); }
+    const B = R.buf;
+    for (let y = Math.max(0, cy - r); y <= Math.min(179, cy + r); y++) for (let x = Math.max(0, cx - r); x <= Math.min(319, cx + r); x++) if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r) {
+      const i = y * 320 + x; B[i] = ab > 0 && dz(x, y, ab) ? LB[i] : mez(B[i], hex('#f4f8ff'), 0.16); }
     const ra = Math.round(r * 0.7), hx2 = cx + ra + 14, hy2 = cy + ra + 14;
     R.linea(cx + ra, cy + ra, hx2, hy2, K); R.linea(cx + ra + 1, cy + ra, hx2 + 1, hy2, hex('#6a3a1a')); R.linea(cx + ra, cy + ra + 1, hx2, hy2 + 1, hex('#8a5a2a')); R.linea(cx + ra + 1, cy + ra + 1, hx2 + 1, hy2 + 1, hex('#6a3a1a'));
     for (let q = 0; q < 6.283; q += 0.02) { const c = Math.cos(q), s2 = Math.sin(q); R.pset(Math.round(cx + c * (r + 1)), Math.round(cy + s2 * (r + 1)), q > 3.6 && q < 5.4 ? hex('#f0d878') : hex('#c8a040')); R.pset(Math.round(cx + c * (r + 2)), Math.round(cy + s2 * (r + 2)), hex('#8a6a20')); R.pset(Math.round(cx + c * (r + 3)), Math.round(cy + s2 * (r + 3)), K); }
     for (let q = 3.7; q < 4.4; q += 0.05) R.pset(Math.round(cx + Math.cos(q) * (r - 4)), Math.round(cy + Math.sin(q) * (r - 4)), hex('#ffffff'));
-    if (ab > 0.5) T.brazo(R, 336, 200, hx2 + 6, hy2 + 4, '#3a3a4a', -1, { codo: [318, 196] });
+    T.brazo(R, hx2 + 52, hy2 + 40, hx2 + 6, hy2 + 4, '#3a3a4a', -1, { codo: [hx2 + 32, hy2 + 24] });
   }
-  R.disco(ny[0], ny[1], 2 + Math.round((Math.sin(t * 5) + 1)), hex('#c83a3a')); R.pset(ny[0], ny[1], hex('#ffffff'));
 };
 
 // 5 · el canal: la barcaza de trigo baja tirada por las mulas; la esclusa se llena; el patrón saluda en «sails out to the world»

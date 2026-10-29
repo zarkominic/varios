@@ -20,7 +20,10 @@
 //    years» el calendario pasa de 31 a 33; a «offices» llama «?» y el eco se lo devuelve tres veces. Corta en «sit».
 // 4. fondo local 'vestibulo': el vestíbulo de mármol con el mural del edificio (el pictograma): a «empty» sus ventanas se
 //    apagan una a una hasta «Empty», el edificio se apaga y sale una telaraña; el ascensor llega («ding») y no sale nadie;
-//    el ascensorista bosteza, el conserje barre y cruza una planta rodadora (gag).
+//    el ascensorista bosteza, el conserje barre y cruza una planta rodadora (gag). El rincón de arriba a la derecha (zona
+//    de Atom) queda lavado por el halo cálido de un aplique: mármol claro sin cornisa ni vetas. Detrás de la barra del
+//    año, el friso dorado se corta en un dintel de bronce oscuro y hundido (rombos apenas insinuados, filete de oro),
+//    para que «1933» se lea.
 import * as T from '/atomo/plato/escenas/ny-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('ny-empire');
@@ -425,7 +428,19 @@ const vestFijo = () => {
   // las paredes de mármol con vetas, el techo de oro y la cornisa
   for (let y = 0; y < 132; y++) for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.07 + Math.sin(y * 0.09 + x * 0.013) * 3.2) * 0.5 + 0.5, q = hh(x >> 1, y >> 1, 932);
     const w2 = Math.sin(x * 0.11 - y * 0.05 + Math.sin(x * 0.03 + y * 0.07) * 4) * 0.5 + 0.5;
-    B[y * 320 + x] = y < 14 ? (((x + y) % 8 === 0 || (x - y) % 8 === 0) ? hex('#c89a40') : hex('#7a5a2a')) : y < 17 ? (y === 16 ? hex('#4a3418') : hex('#e8c060')) : x % 40 === 0 ? hex('#a88a6a') : x % 40 === 1 ? hex('#f4e6d0') : Math.abs(v - 0.5) < 0.025 ? hex('#a8845e') : Math.abs(w2 - 0.5) < 0.015 ? hex('#c4a27c') : q < 0.05 ? hex('#f4e6d0') : (y >> 1) % 2 && bay(x, y) < 0.2 ? hex('#d6be9a') : hex('#e2ceae'); }
+    let c = y < 14 ? (((x + y) % 8 === 0 || (x - y) % 8 === 0) ? hex('#c89a40') : hex('#7a5a2a')) : y < 17 ? (y === 16 ? hex('#4a3418') : hex('#e8c060')) : x % 40 === 0 ? hex('#a88a6a') : x % 40 === 1 ? hex('#f4e6d0') : Math.abs(v - 0.5) < 0.025 ? hex('#a8845e') : Math.abs(w2 - 0.5) < 0.015 ? hex('#c4a27c') : q < 0.05 ? hex('#f4e6d0') : (y >> 1) % 2 && bay(x, y) < 0.2 ? hex('#d6be9a') : hex('#e2ceae');
+    // el rincón de Atom (x 278–318, y 4–44): el halo cálido de un aplique del techo lava la cornisa y las vetas; queda un
+    // mármol claro con su grano suave, sin bordes; se funde poco a poco hacia la izquierda y hacia abajo
+    const kz = cl((x - 258) / 20) * cl((52 - y) / 12);
+    if (kz > 0) { const luz = mez(hex('#f2e2c4'), hex('#e2ceae'), cl((y - 4) / 44)); c = mez(c, (y >> 1) % 2 && bay(x, y) < 0.15 ? mez(luz, hex('#d6be9a'), 0.35) : luz, kz * kz * (3 - 2 * kz)); }
+    // detrás de la barra del año (x 20–170, y 0–14, y el «1933» hasta y 19): el dintel de bronce oscuro, hundido, con
+    // los rombos del friso apenas insinuados y su grano; filete de oro en los cantos y sombra por dentro, para que el año
+    // se lea sobre un fondo tranquilo
+    if (x >= 14 && x <= 178 && y < 20) {
+      const bz = mez(hex('#20160e'), hex('#3a2a1a'), y / 18), rb = ((x + y) % 8 === 0 || (x - y) % 8 === 0), g = hh(x, y, 935);
+      c = x === 14 || x === 178 || y === 19 ? hex('#a8823a') : x === 15 || x === 177 || y === 18 ? hex('#160e08') : rb ? mez(bz, hex('#6a4e2c'), 0.22) : g < 0.07 ? mez(bz, hex('#5a4228'), 0.3) : bz;
+      if (y === 19 && (x === 14 || x === 178)) c = hex('#e8c060'); }
+    B[y * 320 + x] = c; }
   rect(0, 126, 319, 131, hex('#3a2a1e')); rect(0, 126, 319, 126, hex('#c89a40'));
   // el panel del mural: mármol verde oscuro con marco de aluminio; los rayos y el edificio (el pictograma)
   rect(104, 20, 216, 120, C.k); rect(106, 22, 214, 118, hex('#c8ccd4')); rect(108, 24, 212, 116, hex('#1e3a34'));
