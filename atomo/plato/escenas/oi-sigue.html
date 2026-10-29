@@ -21,6 +21,7 @@
 //    under a pulley» (Daniel señala la polea); en «to» el mismo claro pasa a hoy con un fundido tramado mientras la barra
 //    corre de 1795 a 2026: el tubo de acero baja por el hoyo en «most famous digs», con la valla, la torre de luz, la
 //    cámara con su piloto rojo y un dron que llega.
+// Sonido: los ambientes (grúa, convoy, máquina del tubo) duran solo lo que se ve su movimiento (≈ 55–60 % con efectos).
 import * as T from '/atomo/plato/escenas/oi-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('oi-sigue');
@@ -317,7 +318,9 @@ const p3 = (t) => {
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (by4(x, y) * 0.6 + ha(x >> 1, y >> 1, 5) * 0.4 < u) R.pset(x, y, BM[y * 320 + x]);
 };
 const año = (t) => t < P2 ? 2026 : t < P3 ? (t < YEAR ? 2026 : 2027) : t < TO ? 1795 : t < TO + 0.9 ? Math.round(lerp(1795, 2026, ease(tramo(t, TO, TO + 0.9)))) : 2026;
-const efectos = [[0.15, 'maquina'], [1.7, 'chof'], [STILL - 0.35, 'interruptor'], [MACH, 'motor'], [COME, 'claxon'], [HOLE, 'golpecito'], [TO, 'whoosh'], [MOST, 'maquina'], [DIGS + 0.3, 'zumbido']];
+// los ambientes suenan solo mientras se ve lo que los hace (≈ 60 % del tiempo con efectos): la grúa mientras sube el
+// tubo, el convoy mientras entra y la máquina mientras baja el tubo de acero
+const efectos = [[0.15, 'maquina', { dur: STILL - 0.5 - 0.15 }], [1.7, 'chof'], [STILL - 0.35, 'interruptor'], [MACH, 'motor', { dur: P3 - 1.4 - MACH }], [COME, 'claxon'], [HOLE, 'golpecito'], [TO, 'whoosh'], [MOST - 0.2, 'maquina', { dur: DIGS + 0.1 - MOST }], [DIGS + 0.3, 'zumbido']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año });
 </script>
 </body>

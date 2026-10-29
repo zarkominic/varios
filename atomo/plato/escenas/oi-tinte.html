@@ -12,10 +12,11 @@
 // OI-TINTE (frases 32–33), 1898, cartela «1898». Cuatro planos:
 // 1. la boca del pozo en 1898, con la caldera humeando: un buscador trae el cubo de tinte rojo y lo vuelca en el pozo
 //    en «poured red dye» (golpe de música en la marca); el agua se tiñe de rojo; el capataz lo señala;
-// 2. corte en «And»: el mapa de la isla: el pozo late; en «Smith's Cove» cae la chincheta en la ensenada; en «expected
+// 2. corte en «And»: el mapa de la isla (la esquina de arriba a la derecha, desvaída por el sol, queda tranquila detrás
+//    de Atom): el pozo late; en «Smith's Cove» cae la chincheta en la ensenada; en «expected
 //    the tunnel» se dibuja la línea de puntos del túnel hasta la ensenada… y allí no aparece nada: «?»;
 // 3. corte en «but»: la orilla sur: la mancha roja brota entre las rocas («south shore»); los dos buscadores llegan y se
-//    quedan de piedra; el pez asoma la cabeza teñido de rojo (gag); en «a second secret tunnel» el capataz traza en el
+//    quedan de piedra; el pez, teñido de rojo, salta en arco fuera de la mancha entre salpicaduras (gag); en «a second secret tunnel» el capataz traza en el
 //    aire el segundo túnel, de puntos, desde tierra hasta la grieta;
 // 4. corte en «Scientists»: el laboratorio de hoy: en el tanque, el agua del mar se cuela sola por las grietas de la
 //    roca y sube por el pozo hasta el nivel del mar; la geóloga lo señala.
@@ -103,12 +104,20 @@ const pintaMapa = () => {
   // el marco del mapa: dos filetes de tinta y esquinas
   for (const [i, c] of [[1, hex('#2a1a10')], [2, hex('#e8dcc0')], [3, hex('#2a1a10')], [6, hex('#2a1a10')]]) { R.rect(i, i, 319 - i, i, c); R.rect(i, 179 - i, 319 - i, 179 - i, c); R.rect(i, i, i, 179 - i, c); R.rect(319 - i, i, 319 - i, 179 - i, c); }
   R.rect(0, 0, 319, 0, hex('#2a1a10')); R.rect(0, 179, 319, 179, hex('#2a1a10')); R.rect(0, 0, 0, 179, hex('#2a1a10')); R.rect(319, 0, 319, 179, hex('#2a1a10'));
+  // la esquina del pergamino desvaída por el sol (detrás de Atom): costa, filetes y agua se quedan en un lavado suave
+  // de tinta, con el grano del papel y dos cercos de humedad apenas marcados; nada con borde en el rincón de Atom
+  for (let y = 0; y < 76; y++) for (let x = 236; x < 320; x++) {
+    const d = Math.hypot(x - 300, (y - 22) * 1.1), w = 0.8 * Math.min(1, Math.max(0, (54 - d) / 26));
+    if (w <= 0) continue;
+    const g = (hh(x >> 1, y >> 1, 7) - 0.5) * 0.08, cerco = Math.abs(Math.hypot(x - 296, y - 30) - 15) < 1 || Math.abs(Math.hypot(x - 306, y - 14) - 8) < 1;
+    R.pset(x, y, mz(mz(R.pget(x, y), hex('#e4d6b4'), Math.min(0.86, w + g)), hex('#c8b48a'), cerco ? 0.18 : 0));
+  }
 };
 const p2 = (t) => {
   if (!BM) { const prev = R.usar(BM = R.nuevo()); pintaMapa(); R.usar(prev); }
   R.copiar(BM);
   // olas que brillan, la goleta que pasa y una gaviota con su sombra
-  for (let k = 0; k < 30; k++) { const x = Math.round((k * 61 + t * 4) % 300) + 8, y = (k * 37) % 160 + 10; if (!tierra(x, y) && !tierra(x, y + 2) && Math.sin(t * 3 + k) > 0.3) { R.pset(x, y, hex('#e8f4fa')); R.pset(x + 1, y, hex('#c8e4f4')); } }
+  for (let k = 0; k < 30; k++) { const x = Math.round((k * 61 + t * 4) % 300) + 8, y = (k * 37) % 160 + 10; if (!tierra(x, y) && !tierra(x, y + 2) && !(x > 262 && y < 56) && Math.sin(t * 3 + k) > 0.3) { R.pset(x, y, hex('#e8f4fa')); R.pset(x + 1, y, hex('#c8e4f4')); } }
   { const gx = Math.round(lerp(330, 150, (t - P2) / 7)), gy = 160; R.linea(gx + 4, gy + 1, gx + 16, gy + 1, hex('#9ac4dc')); R.rect(gx - 4, gy - 1, gx + 4, gy, hex('#5a3a22')); R.pset(gx - 5, gy - 1, hex('#5a3a22')); R.linea(gx, gy - 2, gx, gy - 9, K); R.poligono([[gx + 1, gy - 9], [gx + 1, gy - 2], [gx + 5, gy - 2]], hex('#f2eee2')); R.poligono([[gx - 1, gy - 8], [gx - 1, gy - 2], [gx - 4, gy - 2]], hex('#e8dcc0')); }
   { const u = ((t - P2) / 4.2) % 1, gx = Math.round(lerp(20, 300, u)), gy = Math.round(150 - u * 90); osc(gx + 6, gy + 10, 0.3); osc(gx + 7, gy + 10, 0.3); osc(gx + 5, gy + 11, 0.3); R.gaviota(gx, gy, t, 2); }
   { const bx = Math.round(lerp(40, 110, (t - P2) / 6)), by = 50; R.rect(bx - 3, by, bx + 3, by + 1, hex('#5a3a22')); R.linea(bx, by - 1, bx, by - 6, K); R.poligono([[bx + 1, by - 6], [bx + 1, by - 1], [bx + 4, by - 1]], hex('#f2eee2')); R.linea(bx - 8, by + 1, bx - 4, by + 1, hex('#9ac4dc')); }
@@ -121,10 +130,70 @@ const p2 = (t) => {
   if (t > TUN + 0.3) { const r = 4 + ((t * 2) % 1) * 8; for (let a = 0; a < 6.28; a += 0.4) R.pset(Math.round(CALA[0] + Math.cos(a) * r), Math.round(CALA[1] + Math.sin(a) * r * 0.7), hex('#e8f4fa')); R.icono('?', 266, 80 - (Math.floor(t * 4) % 2), BLANCO, K, 2); }
 };
 // ── plano 3: la orilla sur ──
+// el pez teñido, de perfil (22×13, mirando a la derecha): cuerpo ovalado con lomo, flanco con escamas y vientre claro,
+// cola en V, aleta de lomo y del pecho (que bate), agalla, ojo con su pupila y la boca que se abre; contorno oscuro y,
+// por fuera, un filo claro que lo despega de la mancha roja
+const PEZC = { o: hex('#3a0a12'), L: hex('#8a1e28'), C: hex('#d0384a'), S: hex('#b02a3a'), V: hex('#f4b0a8'), B: hex('#ffd0c8'), A: hex('#a82a36'), E: hex('#fff6f0'), P: hex('#1a0a0e') };
+const pezMapa = (aleta, boca) => {
+  const m = [];
+  for (let y = 0; y < 13; y++) { m.push([]); for (let x = 0; x < 22; x++) {
+    let c = null; const dx = (x - 12.5) / 8.4, dy = (y - 6.5) / (4.6 - Math.max(0, x - 15) * 0.32);
+    if (dx * dx + dy * dy <= 1) { const fy = (y - 6.5) / 4.6; c = fy < -0.35 ? 'L' : fy > 0.4 ? 'V' : ((x + y * 2) % 4 === 0 ? 'S' : 'C'); if (fy < -0.35 && fy > -0.75 && x > 7 && x < 16) c = 'B'; }
+    else if (x <= 4) { const sp = 1 + (4 - x) * 1.25, ad = Math.abs(y - 6.5); if (ad <= sp && !(x < 2 && ad < (2 - x) * 1.4 + 0.2)) c = 'A'; }
+    if (!c && y < 3 && x >= 9 && x <= 14 && y >= 2.4 - Math.min(x - 9, 14 - x) * 0.9 + 0.6) c = 'A';
+    m[y].push(c);
+  } }
+  // la agalla, el ojo, la boca y la aleta del pecho
+  for (const y of [5, 6, 7, 8]) if (m[y][16]) m[y][16 - (y === 6 || y === 7 ? 1 : 0)] = 'L';
+  m[5][17] = 'E'; m[5][18] = 'E'; m[4][17] = 'E'; m[4][18] = 'P'; m[5][18] = 'P';
+  m[7][20] = 'o'; m[7][21] = boca ? 'o' : m[7][21]; if (boca) m[8][20] = 'P';
+  if (aleta) { m[8][12] = 'A'; m[9][11] = 'A'; m[9][12] = 'A'; m[9][13] = 'A'; } else { m[8][12] = 'A'; m[8][11] = 'A'; m[9][10] = 'A'; }
+  // contorno oscuro y filo claro alrededor
+  const lleno = (x, y) => y >= 0 && y < 13 && x >= 0 && x < 22 && m[y][x] && m[y][x] !== '+' && m[y][x] !== '*';
+  for (let y = 0; y < 13; y++) for (let x = 0; x < 22; x++) if (lleno(x, y) && m[y][x] !== 'o' && (!lleno(x - 1, y) || !lleno(x + 1, y) || !lleno(x, y - 1) || !lleno(x, y + 1))) m[y][x] = m[y][x] === 'E' || m[y][x] === 'P' ? m[y][x] : 'o';
+  return m;
+};
+const pezDibuja = (cx, cy, ang, dir, t) => {
+  const m = pezMapa(Math.floor(t * 10) % 2 === 0, Math.floor(t * 5) % 2 === 0), co = Math.cos(ang), si = Math.sin(ang);
+  const muestra = (u, v) => { const sx = (u * co + v * si) * dir + 11, sy = -u * si + v * co + 6.5, X = Math.floor(sx), Y = Math.floor(sy); return X >= 0 && X < 22 && Y >= 0 && Y < 13 ? m[Y][X] : null; };
+  for (let v = -14; v <= 14; v++) for (let u = -14; u <= 14; u++) {
+    const k = muestra(u, v), x = Math.round(cx) + u, y = Math.round(cy) + v;
+    if (k) R.pset(x, y, PEZC[k]);
+    else if (muestra(u - 1, v) || muestra(u + 1, v) || muestra(u, v - 1) || muestra(u, v + 1)) R.pset(x, y, mz(R.pget(x, y), hex('#fff4e8'), 0.75));
+  }
+};
+// salpicadura: gotas en parábola y el anillo que se abre en el agua
+const salpica = (x, y, dt, sem) => {
+  if (dt < 0 || dt > 1.1) return;
+  const r = 3 + dt * 16, a = 1 - dt / 1.1; for (let k = 0; k < 40; k++) { const an = k / 40 * Math.PI * 2, xx = Math.round(x + Math.cos(an) * r), yy = Math.round(y + Math.sin(an) * r * 0.28); if (k % 3) R.pset(xx, yy, mz(R.pget(xx, yy), hex('#ffe8e0'), 0.7 * a)); }
+  if (dt < 0.7) for (let k = 0; k < 11; k++) { const vx = (hh(k, sem) - 0.5) * 34, vy = -(22 + hh(k, sem, 3) * 30), xx = Math.round(x + vx * dt), yy = Math.round(y + vy * dt + 60 * dt * dt); if (yy <= y) { R.pset(xx, yy, k % 3 ? hex('#fff4ee') : hex('#f07080')); if (k % 2) R.pset(xx, yy + 1, hex('#e8c8c8')); } }
+};
+const pezSalta = (t, t0, t1) => {
+  if (t < t0 || t > t1 + 1.2) return;
+  const PER = 1.25, AIRE = 1.0, AG = 147, n = Math.floor((t - t0) / PER);
+  for (let j = Math.max(0, n - 1); j <= n; j++) {
+    const ts = t0 + j * PER; if (ts > t1) continue;
+    const ida = j % 2 === 0, xa = ida ? 240 : 204, xb = ida ? 204 : 240, sem = j * 5;
+    salpica(xa, AG, t - ts, sem); salpica(xb, AG, t - ts - AIRE, sem + 2);
+    const u = (t - ts) / AIRE;
+    if (u >= 0 && u <= 1) {
+      // el arco: sube, se queda un instante arriba y cae de cabeza; el pez gira con la trayectoria
+      const x = lerp(xa, xb, u), y = AG - Math.sin(u * Math.PI) * 30, dir = ida ? -1 : 1, pend = Math.cos(u * Math.PI) * 30 * Math.PI / (AIRE * Math.abs(xb - xa) / AIRE);
+      const ang = -Math.atan(pend) * 0.85 * dir;
+      // gotas que caen del pez
+      for (let k = 0; k < 4; k++) { const d = ((t * 3 + k * 0.27) % 1); R.pset(Math.round(x - dir * (6 + k * 2)), Math.round(y + 4 + d * 14), k % 2 ? hex('#f8e0dc') : hex('#e85060')); }
+      pezDibuja(x, y, ang, dir, t);
+    } else if (u > 1 && u < 1 + (PER - AIRE) / AIRE) {
+      // la sombra del pez bajo el agua, que vuelve hacia el otro lado
+      const v = (u - 1) / ((PER - AIRE) / AIRE), sx = Math.round(lerp(xb, xa, v));
+      for (let i = -6; i <= 6; i++) { const yy = AG + 3 + (Math.abs(i) > 4 ? 1 : 0); R.pset(sx + i, yy, mz(R.pget(sx + i, yy), hex('#5a0a14'), 0.5)); R.pset(sx + i, yy + 1, mz(R.pget(sx + i, yy + 1), hex('#5a0a14'), 0.35)); }
+    }
+  }
+};
 const p3 = (t) => {
   T.smithsCove(R, t, { encuadre: 'sur', tinte: tramo(t, P3 + 0.15, P3 + 2.8) });
-  // el pez del gag, teñido de rojo
-  const pa = tramo(t, SUR + 0.55, SUR + 0.95) - tramo(t, CULPA + 0.2, CULPA + 0.6); if (pa > 0) T.pez(R, 218, 148, t, { rojo: 1, asoma: pa, dir: -1 });
+  // el pez del gag, teñido de rojo: salta en arco fuera de la mancha, una vez a cada lado, con sus salpicaduras
+  pezSalta(t, SUR + 0.35, CULPA + 0.45);
   // el segundo túnel secreto que se imaginan: de tierra a la grieta
   const u = tramo(t, CULPA, SECR + 0.3); if (u > 0) { const L = [[2, 120], [60, 128], [118, 134], [160, 133], [179, 131]]; R.ruta(L.map(([x, y]) => [x, y - 2]), u, hex('#f8e070'), { grueso: false, flecha: false }); R.ruta(L.map(([x, y]) => [x, y + 2]), u, hex('#f8e070'), { grueso: false }); }
   const e1 = tramo(t, P3, P3 + 1.1), e2 = tramo(t, P3 + 0.3, P3 + 1.4), sor = t > SUR + 0.25 && t < CULPA;
@@ -144,7 +213,7 @@ const p4 = (t) => {
   R.actor(EL.geologo, 62, 163, t, { dir: 1, dedo: t > AGUA - 0.3 && t < ROCA, habla: t > P4 + 0.1 && t < AGUA && Math.sin(t * 9) > 0, sonrisa: t > ROCA - 0.2 });
   R.actor(EL.fisica, 294, 163, t, { dir: -1, sorpresa: t > AGUA + 0.5 && t < ROCA - 0.3, sonrisa: t > ROCA - 0.3, dedo: t > ROCA && Math.sin(t * 6) > 0 });
 };
-const efectos = [[ECHA, 'chof'], [DYE + 0.3, 'burbujas'], [COVE + 0.3, 'golpecito'], [ESPERA + 0.1, 'lapiz'], [TUN + 0.35, 'pop'], [P3 + 0.3, 'burbujas'], [SUR + 0.6, 'chof'], [CULPA + 0.1, 'whoosh'], [AGUA - 0.1, 'burbujas']];
+const efectos = [[ECHA, 'chof'], [DYE + 0.3, 'burbujas'], [COVE + 0.3, 'golpecito'], [ESPERA + 0.1, 'lapiz'], [TUN + 0.35, 'pop'], [P3 + 0.3, 'burbujas'], [SUR + 0.35, 'chof'], [CULPA + 0.1, 'whoosh'], [AGUA - 0.1, 'burbujas']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1898', efectos, año: (t) => t < P4 ? 1898 : 2026 });
 </script>
 </body>

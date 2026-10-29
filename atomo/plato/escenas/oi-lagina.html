@@ -11,7 +11,7 @@
 <script type="module">
 // OI-LAGINA (frases 39–40), de 2006 a hoy. Cuatro planos:
 // 1. la orilla de la isla al atardecer, con la calzada y sus faros: los hermanos ya mayores, con gorra, llegan por la
-//    playa, se dan la mano en «buy into the island» y Rick señala el roble de la polea (la barra corre de 1965 a 2006);
+//    playa, se dan la mano (dos manos canónicas al pecho, con su sube y baja) en «buy into the island» y Rick señala el roble de la polea (la barra corre de 1965 a 2006);
 // 2. la excavación de hoy: un equipo de televisión sin logotipos (cámara en trípode con su piloto rojo, la pértiga
 //    con el micro y la claqueta) rueda a los dos; la claqueta suena en «TV show» y su número sube de 1 a 13 en «a dozen
 //    seasons» (la barra va de 2014 a 2026);
@@ -39,11 +39,12 @@ const mano = a(0.254), señala = a(0.324);
 const q1 = (t) => {
   T.isla1795(R, t, { encuadre: 'orilla', hoy: true, marea: 0.35 });
   const u = tramo(t, 0.3, mano - 0.3), v = tramo(t, 0.6, mano - 0.25);
-  const xr = Math.round(lerp(96, 150, u)), xm = Math.round(lerp(262, 172, v));
+  const xr = Math.round(lerp(96, 146, u)), xm = Math.round(lerp(262, 176, v));
   R.actor(EL.rick, xr, 162, t, { dir: t > señala ? -1 : 1, anda: u > 0 && u < 1, sonrisa: t > mano, dedo: t > señala + 0.1 && t < señala + 1.4, habla: t > a(0.12) && t < a(0.2) && Math.sin(t * 9) > 0 });
   R.actor(EL.marty, xm, 164, t, { dir: -1, anda: v > 0 && v < 1, sonrisa: t > mano, habla: t > señala && Math.sin(t * 8) > 0.2 });
-  // el apretón de manos
-  if (t > mano && t < señala + 0.05) { const yy = 150 + Math.round(Math.sin(t * 14)); R.rect(xr + 14, yy - 1, xm + 1, yy + 1, hex('#f6c290')); R.rect(xr + 14, yy - 2, xm + 1, yy - 2, K); R.rect(xr + 14, yy + 2, xm + 1, yy + 2, K); R.rect(xr + 12, yy - 1, xr + 13, yy + 1, hex('#4e6a4a')); R.rect(xm + 2, yy - 1, xm + 3, yy + 1, hex('#2a4a7a')); }
+  // el apretón de manos: las dos manos canónicas a la altura del pecho, por debajo de las caras, con su sube y baja
+  if (t > mano && t < señala + 0.05) { const yy = 153 + Math.round(Math.sin(t * 14));
+    T.mano(R, xr + 16, yy - 1, 1, '#4e6a4a', { sinManga: true }); T.mano(R, xm - 3, yy + 2, -1, '#2a4a7a', { sinManga: true }); }
   T.a_islaDelante(R, t, { encuadre: 'orilla', hoy: true });
 };
 // 2 · la excavación: el equipo de televisión

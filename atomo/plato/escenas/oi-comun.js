@@ -109,6 +109,8 @@ const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x
 //     costa con luces que se encienden, la luz roja de una antena que parpadea); con o.atardecer true, a la puesta de
 //     sol; sin decir nada, a la hora azul de después (el sol ya puesto, todas las luces encendidas, estrellas y la luna).
 //     o.luz ('dia', 'tarde' o 'anochecer', opcional) manda sobre las dos.
+// En el agua (bahía y orilla), cada destello del camino del sol vive ~0,6 s a su propio ritmo (no se re-sortea todo el
+// camino a la vez). Pinta los 320×180 en cada fotograma: el fondo fijo (R.copiar) más el agua y el cielo vivos.
 // Devuelve las posiciones útiles: { suelo, pies: [x0, x1] libres, hor, ... } (más hoyo, polea, cesta, gaviota o playa,
 // barca y marea según el encuadre; ver cada a_*).
 export function isla1795(R, t, o = {}) {
@@ -406,13 +408,15 @@ export function roosevelt(R, t, o = {}) {
 //     dorado), 1849 (barba y chistera, nogal con rosetas), 1909 (foto sepia con paspartú, canotier y bigote), 1965 (foto
 //     en color con borde blanco, gorra y gafas de pasta) y hoy (un marco digital con cable, cuyas dos fotos se turnan);
 //     los ojos de todos miran hacia arriba, a su burbuja, y parpadean de vez en cuando. Encima de cada uno, una burbuja de
-//     pensamiento vacía que flota (la escena pinta dentro el tesoro soñado); a la derecha, la marca clara de un retrato
-//     que falta y un clavo vacío. Tres candelabros de pie entre los retratos (llamas que tiemblan y su luz en la pared),
+//     pensamiento vacía que flota (la escena pinta dentro el tesoro soñado); a la derecha, el hueco del séptimo retrato,
+//     el que falta (x 278–306, y 58–94): la marca más clara del papel con su filo de polvo y su sombra, rozaduras, una
+//     telarañita, el clavo vacío de 2 × 2 con brillo en (291–292, 48–49), del que cuelga un cordel roto que se mece, y la
+//     placa de latón sin año debajo. Tres candelabros de pie entre los retratos (llamas que tiemblan y su luz en la pared),
 //     el zócalo de cuarterones, el suelo de tablas, un cordón de terciopelo entre postes de latón (que se mece) y un ratón
 //     que cruza a lo largo del zócalo por detrás de los postes. o.burbujas (6): cuántas burbujas se ven, de izquierda a
 //     derecha; la parte decimal hace crecer la última (para que vayan apareciendo); false o 0 las quita.
 // Devuelve las posiciones útiles: suelo, y en 'desvan' agujero {x, y, rx, ry}, topo [x, y] (donde asoma), ventana,
-// cofre, yelmo, mapa, escritorio, retrato, libreria; en 'retratos' retratos [{x, y, año}] y burbujas [{x, y, rx, ry, s}].
+// cofre, yelmo, mapa, escritorio, retrato, libreria; en 'retratos' retratos [{x, y, año}], burbujas [{x, y, rx, ry, s}], hueco [x0, y0, x1, y1] y clavo [x, y].
 export function gabinete(R, t, o = {}) {
   return (o.encuadre ?? 'desvan') === 'retratos' ? e_retratos(R, t, o) : e_desvan(R, t, o);
 }
@@ -3257,6 +3261,8 @@ const E_HOY = [
 ];
 
 const E_MARCO = { y0: 58, y1: 94 };   // el alto de los marcos (de borde a borde)
+const E_HUECO = [278, 58, 306, 94];   // la marca del séptimo retrato, el que falta (x0, y0, x1, y1)
+const E_CLAVO = [292, 48];            // su clavo vacío (la cabeza de 2 × 2 en [x−1..x, y..y+1])
 
 function e_retratos(R, t, o) {
   R.copiar(e_capa(R, 'retratos', () => e_retratosFijo(R)));
@@ -3275,6 +3281,14 @@ function e_retratos(R, t, o) {
     pset(ix0 + 1, iy0 + 1, hex('#ffffff')); pset(ix0 + 2, iy0 + 1, hex('#e0f0ff')); pset(ix0 + 1, iy0 + 2, hex('#e0f0ff'));
     R.recorte(null);
     pset(r.x + 9, E_MARCO.y1 - 2, Math.sin(t * 2) > 0 ? hex('#5af07a') : hex('#2a7a3a'));}
+  // el cordel del retrato que falta, colgando del clavo vacío: un trozo roto con el chicote deshilachado, que se mece con
+  // la corriente de las velas
+  { const [cx, cy] = E_CLAVO, sw = Math.sin(t * 1.3 + 0.7) * 1.6 + Math.sin(t * 3.1) * 0.4, L = 13;
+    let px = cx - 1, py = cy + 2;
+    for (let k = 1; k <= L; k++) { const u = k / L, x = Math.round(cx - 1 + 3 * u + sw * u * u), y = cy + 1 + k; linea(px, py, x, y, hex('#4a3420')); if (k % 3 === 1) pset(x + 1, y, hex('#7a5a36')); px = x; py = y; }
+    pset(px - 1, py + 1, hex('#6a4a2a')); pset(px + 1, py + 1, hex('#6a4a2a')); pset(px, py + 2, hex('#8a6a42'));
+    // y el otro cabo, corto, que sigue anudado al clavo
+    linea(cx, cy + 1, cx - 3, cy + 4, hex('#4a3420')); pset(cx - 4, cy + 5, hex('#6a4a2a')); }
   // las burbujas de pensamiento vacías, que flotan (la escena pinta dentro el tesoro soñado)
   const nb = o.burbujas === false ? 0 : (o.burbujas ?? 6), burbujas = [];
   E_RET.forEach((r, i) => {
@@ -3317,7 +3331,7 @@ function e_retratos(R, t, o) {
     for (const x of P) { e_tinte(R, x - 4, yb, x + 4, yb + 2, 0.35); rect(x - 1, yt, x + 1, yb - 2, hex('#a8802c')); rect(x - 1, yt, x - 1, yb - 2, hex('#f0d070')); disco(x + 0.5, yt - 1.5, 2.2, hex('#c8a040')); pset(x - 1, yt - 3, hex('#fff0a0'));
       rect(x - 4, yb - 2, x + 4, yb, hex('#8a6a1c')); rect(x - 3, yb - 2, x + 3, yb - 2, hex('#e8c060')); }
   }
-  return { suelo: 168, retratos: E_RET.map((r) => ({ x: r.x, y: Math.round((E_MARCO.y0 + E_MARCO.y1) / 2), año: r.año })), burbujas };
+  return { suelo: 168, retratos: E_RET.map((r) => ({ x: r.x, y: Math.round((E_MARCO.y0 + E_MARCO.y1) / 2), año: r.año })), burbujas, hueco: [...E_HUECO], clavo: [...E_CLAVO] };
 }
 // un busto pintado de medio cuerpo dentro de un cuadro de 23 × 28 (cx: el centro; y0: el borde de arriba de la pintura).
 // est: fondo, piel, pelo, ropa, ropaS, cuello, tocado ('despeinado', 'tricornio', 'chistera', 'canotier', 'gorra',
@@ -3442,8 +3456,31 @@ function e_retratosFijo(R) {
   for (let x = 12; x < 320; x += 26) { pset(x, 17, hex('#2a2a30')); pset(x, 18, hex('#9a9aa4')); }
   // telarañas en los rincones de la viga
   e_telarana(R, 0, 22, 12, 1, 1); e_telarana(R, 266, 22, 8, 1, 1);
-  // el clavo vacío del retrato que falta
-  pset(292, 54, hex('#c8c0b0')); pset(292, 55, hex('#3a3a40')); e_tinte(R, 293, 55, 293, 56, 0.3);
+  // el hueco del séptimo retrato, el que falta: la marca más clara del papel donde colgó el marco (el papel no se ha
+  // ahumado ni descolorido), con un filo de polvo y hollín alrededor y su sombra abajo a la derecha; el clavo de 2 × 2
+  // con su brillo (el cordel colgando va en e_retratos, porque se mece) y la placa de latón sin año
+  { const [hx0, hy0, hx1, hy1] = E_HUECO;
+    for (let y = hy0 - 3; y <= hy1 + 4; y++) for (let x = hx0 - 3; x <= hx1 + 4; x++) {
+      const dentro = x >= hx0 && x <= hx1 && y >= hy0 && y <= hy1, filo = dentro && (x === hx0 || x === hx1 || y === hy0 || y === hy1);
+      const fuera = Math.max(hx0 - x, x - hx1, hy0 - y, y - hy1);
+      if (dentro) pset(x, y, filo ? e_mezcla(R.pget(x, y), hex('#2a2018'), 0.45) : e_mezcla(R.pget(x, y), hex('#d8ecc0'), 0.3 + (y - hy0) / (hy1 - hy0) * 0.06 + (h(x, y, 471) < 0.07 ? 0.12 : 0)));
+      else if (fuera > 0 && fuera <= 3) { const a = (0.3 - fuera * 0.08) + ((x > hx1 || y > hy1) ? 0.12 : 0); if (a > 0) pset(x, y, e_mezcla(R.pget(x, y), hex('#1a1210'), a)); }
+    }
+    // las marcas que dejó el marco al rozar: dos rayas en el papel y una esquina despegada
+    linea(hx0 + 3, hy1 - 2, hx0 + 9, hy1 - 2, e_mezcla(R.pget(hx0 + 3, hy1 - 2), hex('#2a2018'), 0.3));
+    linea(hx1 - 2, hy0 + 6, hx1 - 2, hy0 + 13, e_mezcla(R.pget(hx1 - 2, hy0 + 6), hex('#2a2018'), 0.3));
+    for (let j = 0; j < 3; j++) for (let i = 0; i < 3 - j; i++) pset(hx1 - 1 - i, hy1 - 1 - j, (i + j) === 2 ? hex('#a8987a') : hex('#e8dcbc'));
+    // una telarañita en la esquina de arriba
+    e_telarana(R, hx0 + 1, hy0 + 1, 6, 1, 1);
+    // el clavo: cabeza de 2 × 2 con su brillo y su sombra en la pared
+    const [cx, cy] = E_CLAVO;
+    e_tinte(R, cx + 1, cy + 2, cx + 2, cy + 3, 0.4); rect(cx - 1, cy, cx, cy + 1, hex('#5a5a62')); pset(cx - 1, cy, hex('#f0ece0')); pset(cx, cy + 1, hex('#2a2a30'));
+    // la placa de latón sin año, más apagada (sin nadie que la frote), con sus dos tornillos
+    const pc = (hx0 + hx1) >> 1, py = E_MARCO.y1 + 3;
+    rect(pc - 11, py, pc + 11, py + 8, hex('#5a3e0e')); rect(pc - 10, py + 1, pc + 10, py + 7, hex('#b8943c')); rect(pc - 10, py + 1, pc + 10, py + 1, hex('#e0c470')); rect(pc - 10, py + 7, pc + 10, py + 7, hex('#8a6a20'));
+    for (const sx of [pc - 8, pc + 8]) { pset(sx, py + 4, hex('#6a4a10')); pset(sx - 1, py + 3, hex('#f0d890')); }
+    for (let k = 0; k < 6; k++) pset(pc - 6 + Math.round(h(k, 1, 472) * 12), py + 2 + Math.round(h(k, 2, 472) * 4), hex('#a08432'));
+  }
   // los retratos, cada uno con su marco, su cordel y su placa con el año
   const { y0, y1 } = E_MARCO;
   for (const r of E_RET) {
@@ -4346,7 +4383,7 @@ function a_agua(R, t, F, hor, P, o = {}) {
   const B = R.buf, Fb = F.b, M = F.mask, ori = F.orilla, sx = o.solX, borde = o.borde, tarde = o.tarde;
   for (let y = hor; y < 180; y++) {
     const u = (y - hor) / (180 - hor), dist = 230 / (y - hor + 6), fase = dist + t * 0.55, fi = Math.floor(fase), fr = fase - fi, cresta = fr < 0.045 + u * 0.075, valle = fr > 0.5 && fr < 0.5 + 0.04 + u * 0.06, medio = fr >= 0.045 + u * 0.075 && fr < 0.09 + u * 0.13, frec = 0.55 / (1 + u * 5), y0 = y * 320;
-    const ancho = 2 + u * (tarde ? 46 : 26), bri = Math.floor(t * 4);
+    const ancho = 2 + u * (tarde ? 46 : 26);
     for (let x = 0; x < 320; x++) {
       const i = y0 + x, m = M[i];
       if (m !== 1 && !(m === 3 && borde && y < borde(x))) continue;
@@ -4360,7 +4397,9 @@ function a_agua(R, t, F, hor, P, o = {}) {
       if (cresta && ola > 0.25 + corte) c = u < 0.25 && a_umbral(x, y) > 0.6 ? c : P.marL;
       else if (medio && ola > 0.45 + corte && a_umbral(x, y) < 0.5) c = P.mar[Math.max(0, Math.round(u * 7) - 2)];
       else if (valle && ola > 0.4 + corte * 0.5) c = P.marS;
-      if (sx != null) { const dx = Math.abs(x - sx); if (dx < ancho && h(x, y, bri + (x & 3)) < (tarde ? 0.3 : 0.22) * (1 - dx / ancho) + (cresta ? 0.2 : 0)) c = P.brillo; }
+      if (sx != null) { const dx = Math.abs(x - sx); if (dx < ancho) { const q = (tarde ? 0.3 : 0.22) * (1 - dx / ancho) + (cresta ? 0.2 : 0), ph = t * 1.7 + h(x, y, 739) * 3, sl = Math.floor(ph), fr = ph - sl;
+        // cada destello vive ~0,6 s a su propio ritmo (no todos a la vez): se enciende, brilla y se apaga en el borde
+        if (h(x, y, 740 + sl) < q) c = fr < 0.12 || fr > 0.88 ? P.marL : P.brillo; } }
       if (dr >= 0 && dr < 2 && F.tierra && F.tierra[x] && Math.sin(x * 0.7 + t * 2.2 + dr) > -0.2) c = P.espuma;
       B[i] = c;
     }
@@ -5122,7 +5161,8 @@ function b_maquina(R, t, cx, suelo, ep, alto, o = {}) {
   disco(kx + lado * 4, ky - 17, 2, tn(C.k)); pset(kx + lado * 4, ky - 17, tn(b_c.laton)); pset(kx + lado * 4 + 1, ky - 18, tn(C.blanco));
   const chx = kx + lado * 10, chTop = ky - 15 - Math.round(alto * (alto > 50 ? 0.55 : 0.3)); rect(chx - 2, chTop, chx + 2, ky - 15, tn(C.k)); rect(chx - 1, chTop, chx + 1, ky - 15, tn(b_c.hierroS)); rect(chx - 1, chTop, chx - 1, ky - 15, tn(b_c.hierroL)); rect(chx - 3, chTop - 1, chx + 3, chTop, tn(b_c.hierro));
   // el humo: bolas que suben, crecen y se aclaran; no pasan de y 22 ni entran en la esquina de Atom
-  b_humo(R, chx, chTop - 2, t, { alto: alto > 50 ? Math.min(50, chTop - 22) : 14, deriva: -lado * (alto > 50 ? 30 : 16), r: alto > 50 ? 7 : 4, n: 10, v: 0.28, tn, ymin: alto > 50 ? 22 : 15 });
+  // (o.bajo: en el corte, el humo sube poco y se tumba hacia la torre, sin entrar en la barra del año: y ≥ 22)
+  b_humo(R, chx, chTop - 2, t, o.bajo ? { alto: Math.max(4, chTop - 24), deriva: -lado * 30, r: 4, n: 10, v: 0.28, tn, ymin: 22 } : { alto: alto > 50 ? Math.min(50, chTop - 22) : 14, deriva: -lado * (alto > 50 ? 30 : 16), r: alto > 50 ? 7 : 4, n: 10, v: 0.28, tn, ymin: alto > 50 ? 22 : 15 });
   // el volante y la correa que van al torno de la torre
   const vx = kx - lado * (kw + 4), vy = ky - 9, a = t * 5; disco(vx, vy, 5, tn(C.k)); disco(vx, vy, 4, tn(b_c.hierroS)); disco(vx, vy, 1, tn(b_c.hierroL));
   for (let k = 0; k < 4; k++) linea(vx, vy, Math.round(vx + Math.cos(a + k * Math.PI / 2) * 4), Math.round(vy + Math.sin(a + k * Math.PI / 2) * 4), tn(b_c.hierroL));
@@ -5130,7 +5170,9 @@ function b_maquina(R, t, cx, suelo, ep, alto, o = {}) {
   for (const dy of [-5, 5]) { const y0 = vy + dy, y1 = wy + (dy > 0 ? 3 : -3); const n = Math.abs(vx - wx); for (let i = 0; i <= n; i++) { const x = Math.round(vx + (wx - vx) * i / n), y = Math.round(y0 + (y1 - y0) * i / n); pset(x, y, tn((Math.floor(i / 3 + t * 8 * (dy > 0 ? 1 : -1)) & 1) ? hex('#3a2a20') : hex('#5a4434'))); } }
   b_soga(R, wx, wy - 3, out.roldana[0], out.roldana[1]);
   // el vapor del silbato, a soplos
-  if ((t % 3.2) < 0.9) { const u = (t % 3.2) / 0.9; for (let k = 0; k < 4; k++) disco(kx + lado * 2 + Math.round(u * 6 * k * 0.4), ky - 18 - Math.round(u * 8) - k * 2, 1 + (k >> 1), tn(b_c.vapor)); }
+  // (o.bajo: el soplo sale de lado, hacia la torre, y no sube a la barra del año)
+  if ((t % 3.2) < 0.9) { const u = (t % 3.2) / 0.9; for (let k = 0; k < 4; k++) { if (o.bajo) disco(kx + lado * 2 - lado * Math.round(u * 5 * (k + 1) * 0.5), ky - 18 - Math.round(u * 3) - k, 1 + (k >> 1), tn(b_c.vapor));
+    else disco(kx + lado * 2 + Math.round(u * 6 * k * 0.4), ky - 18 - Math.round(u * 8) - k * 2, 1 + (k >> 1), tn(b_c.vapor)); } }
   out.caldera = [kx, ky - 15]; out.chimenea = [chx, chTop]; out.volante = [vx, vy];
   return out;
 }
@@ -5317,7 +5359,7 @@ function b_corte(R, t, o, ep, modo) {
   for (const [x, c] of [[50, C.amarillo], [84, C.blanco], [148, C.amarillo], [190, C.rosa]]) pset(x, P[x] - 2, noche ? b_mezcla(c, hex('#141a3e'), 0.5) : c);
   b_roble(R, 12, P[12], t, 13, noche); b_roble(R, 36, P[36], t, 9, noche); b_roble(R, 198, P[198], t, 7, noche);
   rect(x0 - 2, B_SUP - 1, x1 + 2, B_SUP, b_c.troncoL); rect(x0 - 2, B_SUP + 1, x1 + 2, B_SUP + 1, b_c.troncoS);   // el brocal
-  const maq = b_maquina(R, t, B_PX, B_SUP - 1, ep, ep === '1909' ? 34 : 32, { ancho: B_MED, noche, lado: -1, sep: 8 });
+  const maq = b_maquina(R, t, B_PX, B_SUP - 1, ep, ep === '1909' ? 28 : 32, { ancho: B_MED, noche, lado: -1, sep: 8, bajo: true });   // la torre de 1909, baja: su viga queda en y 21, por debajo del año
   if (ep === '1795') { // el roble viejo con la rama gruesa sobre el hoyo y la polea que se mece
     b_roble(R, 74, P[74], t, 11, noche); const bx = 74, by = B_SUP - 15; for (let i = 0; i < 4; i++) linea(bx, by + i - 1, B_PX + 10, by - 3 + i, i === 0 ? b_c.cortezaL : i === 3 ? b_c.cortezaS : b_c.corteza);
     const sw = Math.round(Math.sin(t * 1.3) * 1.5); linea(B_PX, by, B_PX + sw, by + 6, C.paja); b_polea(R, B_PX + sw, by + 6, t * 0.3, 3); maq.roldana = [B_PX + sw, by + 12]; }

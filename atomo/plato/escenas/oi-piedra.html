@@ -17,10 +17,12 @@
 //    el encuadernador trabaja; en «lost» el calendario corre de año en año (1865 → 1919), fuera pasan días y noches, el
 //    encuadernador se va, el polvo y la telaraña crecen y la piedra se deshace en polvo hasta dejar su hueco y un «?»;
 // 3. («Much later») el despacho del profesor de noche, con velas: el profesor mira la piedra con la lupa; un visitante
-//    entra, se lleva una copia («made the rounds») y en «40» el profesor levanta la hoja con el «40»;
+//    entra, se lleva una copia («made the rounds»); antes del «40» el profesor se agacha tras la mesa, saca la hoja del
+//    cajón y se pone de pie con ella en alto, cogida con las dos manos por el borde de abajo (el «40» encima de su cabeza);
 // 4. («Two million») el inserto de la mesa: la pluma escribe «2,000,000» bajo los símbolos y el «40»; en «another
-//    version» moja en tinta roja y en «10» escribe «/ 10»; en «no one» cae un goterón de tinta que lo emborrona todo y sale
-//    el «?».
+//    version» el lápiz rojo escribe «/ 10» y al irse roza el tintero, que se vuelca: un charco crece a su pie y un reguero
+//    de tinta (aguada sin contorno que se ensancha, borde roto, brillo que corre, gotas) baja hasta la hoja; en «no one»
+//    la mancha lo emborrona todo y sale el «?».
 import * as T from '/atomo/plato/escenas/oi-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('oi-piedra');
@@ -263,17 +265,27 @@ const p3 = (t) => {
   const v = ruta(t, [[P3 + 0.6, 244, 160, -1], [VUELTAS + 0.2, 214, 160], [VUELTAS + 0.7, 214, 160, -1], [CUARENTA - 0.2, 250, 160], [P4 - 1.0, 290, 160]]);
   if (t > P3 + 0.5 && t < P4 - 0.9) { R.actor(EL.amigo1, v.x, v.s, t, { dir: v.d, anda: v.mv, sonrisa: t > VUELTAS + 0.6 });
     if (t > VUELTAS + 0.5) { const px = v.x + (v.d > 0 ? 12 : -4); R.rect(px, 140, px + 7, 148, K); R.rect(px + 1, 141, px + 6, 147, hex('#f2ecd8')); R.rect(px + 2, 143, px + 5, 143, hex('#3a3a46')); } }
-  // el profesor, detrás de la mesa, con la lupa sobre el calco
-  const alza = tramo(t, CUARENTA - 0.25, CUARENTA + 0.1);
-  R.actor(EL.geologo, 152, 133, t, { dir: 1, dedo: alza > 0, sorpresa: t > CUARENTA && t < CUARENTA + 0.5, sonrisa: t > CUARENTA + 0.5, habla: t > VUELTAS - 0.2 && t < VUELTAS + 0.6 && Math.sin(t * 9) > 0 });
+  // el profesor, detrás de la mesa, con la lupa sobre el calco; antes del «40» se agacha a sacar la hoja del cajón y se
+  // pone de pie con ella en alto, cogida con las dos manos por el borde de abajo (la hoja va detrás de su cabeza; las
+  // manos, delante de la hoja; la mesa tapa lo que queda por debajo de su tablero)
+  const agacha = tramo(t, CUARENTA - 0.75, CUARENTA - 0.45), alza = tramo(t, CUARENTA - 0.4, CUARENTA + 0.05);
+  const suelo = alza > 0 ? Math.round(lerp(150, 127, 1 - (1 - alza) * (1 - alza))) : Math.round(lerp(133, 150, agacha));
+  if (alza > 0) { // la hoja del «40»: su borde de abajo, en las manos (las manos del chibi, a la altura de yC − 7)
+    const bx = 136 + Math.round(Math.sin(t * 2.2) * 0.6), by = suelo - 13 - 6, ty = by - 32;   // el «40», por encima de su cabeza
+    R.rect(bx + 2, ty + 2, bx + 48, by + 2, mez(hex('#5a2026'), K, 0.5));   // su sombra en la pared
+    R.rect(bx, ty, bx + 46, by, K); R.rect(bx + 1, ty + 1, bx + 45, by - 1, hex('#f2ecd8'));
+    for (let j = ty + 1; j < by; j++) for (let i = bx + 1; i < bx + 46; i++) if (h(i >> 1, (j - ty) >> 1, 710) < 0.07) R.pset(i, j, hex('#e4d8b8'));
+    R.rect(bx + 1, ty + 1, bx + 45, ty + 2, hex('#e0d6bc')); R.rect(bx + 1, by - 2, bx + 45, by - 1, hex('#d8ccae'));
+    R.poligono([[bx + 40, ty + 1], [bx + 45, ty + 1], [bx + 45, ty + 6]], hex('#c8bc9c')); R.linea(bx + 40, ty + 1, bx + 45, ty + 6, hex('#a89c80'));   // la esquina doblada
+    for (let i = 0; i < 6; i++) simbolo(SIMB[i * 2], bx + 4 + i * 7, ty + 3, hex('#8a8478'), hex('#f2ecd8'));   // los símbolos copiados, en pequeño
+    R.numero('40', bx + 8, ty + 26, { tam: 16 });
+  }
+  R.actor(EL.geologo, 152, suelo, t, { dir: 1, brazos: alza > 0, sorpresa: t > CUARENTA && t < CUARENTA + 0.5, sonrisa: t > CUARENTA + 0.5, habla: t > VUELTAS - 0.2 && t < VUELTAS + 0.6 && Math.sin(t * 9) > 0 });
   mesa();
   // el calco de la piedra sobre la mesa y la lupa que lo recorre
   R.rect(158, 119, 192, 126, K); R.rect(159, 120, 191, 125, hex('#d8d0b8')); for (let i = 0; i < 4; i++) simbolo(SIMB[i * 3], 161 + i * 8, 120, hex('#3a3a46'), hex('#d8d0b8'));
-  if (alza <= 0) { const lx = Math.round(170 + Math.sin(t * 1.4) * 10), ly = 112; R.linea(lx + 4, ly + 4, lx + 9, ly + 9, hex('#3a2418')); R.disco(lx, ly, 6, K); R.disco(lx, ly, 5, hex('#c8e0e8')); simbolo(SIMB[Math.floor((lx - 160) / 6) & 7], lx - 2, ly - 2, hex('#2a2a3a'), hex('#c8e0e8')); R.pset(lx - 3, ly - 3, BL); }
+  if (agacha <= 0) { const lx = Math.round(170 + Math.sin(t * 1.4) * 10), ly = 112; R.linea(lx + 4, ly + 4, lx + 9, ly + 9, hex('#3a2418')); R.disco(lx, ly, 6, K); R.disco(lx, ly, 5, hex('#c8e0e8')); simbolo(SIMB[Math.floor((lx - 160) / 6) & 7], lx - 2, ly - 2, hex('#2a2a3a'), hex('#c8e0e8')); R.pset(lx - 3, ly - 3, BL); }
   vela(108, 118, t); vela(214, 118, t);
-  // la hoja con el «40», en alto
-  if (alza > 0) { const y = Math.round(lerp(118, 74, alza)); R.rect(144, y, 196, y + 30, K); R.rect(145, y + 1, 195, y + 29, hex('#f2ecd8')); R.rect(145, y + 1, 195, y + 3, hex('#e0d6bc'));
-    if (t > CUARENTA) R.numero('40', 154, y + 24, { tam: 16 }); }
   // una polilla que ronda la vela
   { const a = t * 5, x = Math.round(214 + Math.cos(a) * 8), y = Math.round(104 + Math.sin(a * 1.3) * 5); R.pset(x, y, hex('#d8c8a8')); R.pset(x - 1, y - (Math.floor(t * 20) % 2), hex('#b8a888')); R.pset(x + 1, y - (Math.floor(t * 20) % 2), hex('#b8a888')); }
 };
@@ -309,10 +321,41 @@ const tablero = () => {
   for (let y = 72; y < 120; y += 8) R.linea(207, y, 225, y, hex('#8a7a6a'));
   R.rect(210, 112, 222, 120, hex('#3a3a5a')); R.rect(211, 113, 221, 119, hex('#f2ead2')); R.rect(211, 115, 221, 115, hex('#3a3a5a')); R.pset(216, 117, hex('#3a3a5a'));
 };
-// el tintero negro: se vuelca (v 0–1) y su tinta corre hacia la hoja
-const tintero = (v) => { const x = Math.round(lerp(262, 254, v)), y = Math.round(lerp(26, 34, v));
-  if (v > 0) { R.disco(x - 4, y + 6, 7, K); R.linea(x - 6, y + 8, 236, 44, hex('#1e1e3a')); R.linea(x - 6, y + 9, 236, 45, hex('#1e1e3a')); }
+// el tintero negro: se vuelca (v 0–1); el charco crece a su pie (por debajo del frasco) y luego se pinta el frasco
+const TINTA = hex('#1e1e3a'), TINTA2 = hex('#2c2c52'), TBRI = hex('#5a5a8a');
+const tinteroPos = (v) => [Math.round(lerp(262, 254, v)), Math.round(lerp(26, 34, v))];
+const charco = (v, t) => { if (v <= 0) return; const [x, y] = tinteroPos(v), cx = x - 5, cy = y + 7, u = Math.min(1, v + tramo(t, NINGUNO, NINGUNO + 1.5) * 0.8);
+  const P = []; for (let i = 0; i < 14; i++) { const a = i / 14 * Math.PI * 2, r = (4 + u * 9) * (0.8 + h(i, 3, 900) * 0.4 + Math.sin(t * 3 + i * 1.7) * 0.05); P.push([Math.round(cx + Math.cos(a) * r * 1.3), Math.round(cy + Math.sin(a) * r * 0.7)]); }
+  R.poligono(P.map(([a, b]) => [a + 1, b + 1]), K); R.poligono(P, TINTA);
+  R.linea(cx - 3, cy - 2, cx + 1, cy - 3, TBRI); R.pset(cx + 4, cy + 1, TINTA2); };
+const botella = (v) => { const [x, y] = tinteroPos(v);
   R.disco(x, y, 9, K); R.disco(x, y, 8, hex('#c8d0d8')); R.disco(x - Math.round(v * 3), y + Math.round(v * 3), 5, hex('#1a1a24')); R.pset(x - 3, y - 4, BL); };
+// el reguero de tinta: de la boca del tintero a la mancha, por una curva. Es tinta, no un palo: una aguada sin
+// contorno que se ensancha mucho hacia la hoja, con el borde roto y salpicado (como la mancha), que tiembla con t, un
+// brillo que corre por encima, gotas que se adelantan a la punta y gotas que caen de la boca al charco. fr 0–1: hasta
+// dónde ha llegado. Cada píxel se tiñe una sola vez por fotograma (la distancia mínima a la curva, en un búfer)
+const QD = new Float32Array(320 * 180), QS = new Uint32Array(320 * 180); let qRonda = 0;
+const chorro = (t, fr) => { if (fr <= 0) return;
+  const [x0, y0] = tinteroPos(1), A = [x0 - 7, y0 + 6], Cc = [214, 46], B = [166, 90];
+  const pt = (s) => { const a = 1 - s; return [a * a * A[0] + 2 * a * s * Cc[0] + s * s * B[0], a * a * A[1] + 2 * a * s * Cc[1] + s * s * B[1]]; };
+  const rad = (s) => 1.4 + s * s * 8 + (s > fr - 0.08 ? 1.2 : 0) + Math.sin(s * 23 + t * 6) * 0.5;
+  qRonda++; const toc = [];
+  const N = 70;
+  for (let i = 0; i <= N * fr; i++) { const s = i / N, [cx, cy] = pt(s), r = rad(s), rr = Math.ceil(r + 2);
+    for (let y = Math.round(cy) - rr; y <= Math.round(cy) + rr; y++) for (let x = Math.round(cx) - rr; x <= Math.round(cx) + rr; x++) {
+      if (x < 0 || x > 319 || y < 0 || y > 179) continue; const q = Math.hypot(x - cx, y - cy) / r, k = y * 320 + x;
+      if (QS[k] !== qRonda) { QS[k] = qRonda; QD[k] = q; toc.push(k); } else if (q < QD[k]) QD[k] = q; } }
+  for (const k of toc) { const x = k % 320, y = (k - x) / 320, q = QD[k] + (h(x >> 1, y >> 1, 903) - 0.5) * 0.45 + Math.sin(t * 5 + x * 0.6 + y * 0.4) * 0.06;
+    if (q < 0.75) R.pset(x, y, mez(R.pget(x, y), TINTA, 0.86)); else if (q < 0.95) R.pset(x, y, mez(R.pget(x, y), TINTA2, 0.7)); else if (q < 1.25 && (x + y) % 2) R.pset(x, y, mez(R.pget(x, y), hex('#3a3a5a'), 0.45)); }
+  // el brillo que corre por el lomo
+  for (let i = 3; i < N * fr - 2; i++) { const s = i / N, [x, y] = pt(s); if (((i - t * 34) % 11 + 11) % 11 < 3) R.pset(Math.round(x - 1), Math.round(y - 1 - s * 2), TBRI); }
+  // gotas que se adelantan a la punta y salpicaduras a los lados
+  if (fr < 1) for (let k = 0; k < 3; k++) { const s = Math.min(1, fr + 0.04 + k * 0.05 + ((t * 2 + k * 0.3) % 1) * 0.03), [x, y] = pt(s); R.disco(Math.round(x + (k - 1) * 3), Math.round(y + 1), k === 1 ? 1 : 0, TINTA); }
+  for (let k = 0; k < 14; k++) { const s = h(k, 2, 902); if (s > fr) continue; const [x, y] = pt(s), lado = h(k, 3, 902) < 0.5 ? -1 : 1, d = rad(s) + 2 + h(k, 4, 902) * 4;
+    R.disco(Math.round(x - lado * d * 0.6), Math.round(y + lado * d * 0.8), h(k, 5, 902) < 0.35 ? 1 : 0, TINTA); }
+  // gotas que caen de la boca del tintero al charco
+  for (let k = 0; k < 2; k++) { const g = (t * 1.6 + k * 0.5) % 1; R.pset(A[0] + 3 - k * 4, Math.round(A[1] - 3 + g * 7), TINTA); R.pset(A[0] + 3 - k * 4, Math.round(A[1] - 4 + g * 7), TINTA2); }
+};
 const p4 = (t) => {
   fijo('tablero', tablero);
   const luz = 0.5 + 0.5 * Math.sin(t * 9) * Math.sin(t * 3.1);
@@ -327,11 +370,12 @@ const p4 = (t) => {
   if (d > 0) R.numero('/10', 124, 56, { tam: 16, n: d, rampa: [hex('#3a0a0a'), hex('#d8282a'), hex('#a81a1a'), hex('#6a0a0a')] });
   // el lápiz rojo se va, roza el tintero, que se vuelca: la tinta corre y lo emborrona todo; la duda
   const vuelca = tramo(t, NINGUNO - 0.35, NINGUNO);
-  tintero(vuelca);
+  charco(vuelca, t); chorro(t, tramo(t, NINGUNO - 0.3, NINGUNO));   // llega a la hoja justo cuando nace la mancha
   const bor = tramo(t, NINGUNO, NINGUNO + 1.2);
   if (bor > 0) { const cx = 158, cy = 96, r = 8 + bor * 70;
     for (let y = 34; y < 160; y++) for (let x = 66; x < 239; x++) { const dd = Math.hypot((x - cx) / 1.5, y - cy) + (h(x >> 1, y >> 1, 802) - 0.5) * 14; if (dd < r * 0.55) R.pset(x, y, mez(R.pget(x, y), hex('#1e1e3a'), 0.78)); else if (dd < r * 0.7 && (x + y) % 2) R.pset(x, y, mez(R.pget(x, y), hex('#3a3a5a'), 0.5)); }
-    for (let i = 0; i < 40 * bor; i++) { const x = Math.round(lerp(236, cx + 30, i / 40)), y = Math.round(lerp(45, cy - 10, i / 40)); R.disco(x, y, 2, hex('#1e1e3a')); } }
+  }
+  botella(vuelca);
   if (t > DUDA) { const u = tramo(t, DUDA, DUDA + 0.3), s = 4 + Math.round(u); R.icono('?', 158 - Math.round(2.5 * s), 98 - Math.round(3.5 * s) + Math.round(Math.sin(t * 4) * 2), hex('#ffd36a'), K, s); }
   // la mano de abajo, con la pluma: entra, escribe el millón y se va
   if (t < OTRA + 0.2) {

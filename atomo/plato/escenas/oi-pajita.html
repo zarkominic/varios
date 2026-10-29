@@ -10,17 +10,27 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // OI-PAJITA (frases 27–28), el laboratorio del agua (hoy, sin barra del año). Cuatro planos:
-// 1. la mesa del laboratorio: el geólogo entra desde la puerta y señala; en «glass» late un aro en el vaso de zumo y
-//    una flecha baja sobre él, en «straw» sobre la pajita; en «the sea is the glass» la flecha salta al mar del tanque y
-//    en «the pit is the straw» al pozo; la compañera asiente (corta en «If»);
+// 1. la mesa del laboratorio: se abre la puerta del pasillo (pasillo en perspectiva con su lámpara, el tablón, el
+//    extintor y alguien con bata que cruza al fondo); el geólogo sale por el hueco (recortado a él mientras está dentro),
+//    baja a la sala por la izquierda de la papelera y se planta en el centro de la mesa (x 236, pies en 163) antes de
+//    «glass»; la compañera (pies en 175, por delante de la papelera) mira a la puerta y sonríe al verle, y luego da
+//    unos pasos hasta el tanque (x 304 → 270) y se vuelve hacia él; en «glass» late un aro en el vaso de zumo y una
+//    flecha baja sobre él, en «straw» sobre la pajita; en «the sea is the glass» la flecha salta al mar del tanque y
+//    en «the pit is the straw» al pozo (corta en «If»);
 // 2. el vaso de cerca, junto a la ventana de la bahía: una mano tapa la pajita con el dedo y la hunde por debajo del
 //    nivel del zumo («dig deeper than sea level»); en «water seeps in» la suelta y el zumo sube por la pajita hasta la
 //    raya del nivel de fuera, que parpadea en «matches» (corta en «And the bedrock»);
 // 3. el rincón de las rocas: el testigo de sondeo en su soporte, de la hierba a la roca blanca; el geólogo señala con
 //    el puntero abajo en «deeper down», sube a la arcilla en «clay» y vuelve abajo en «easier», cuando el agua baja
 //    por las grietas y la roca blanca se agujerea; la compañera apunta en su tablilla (corta en «It's anhydrite»);
-// 4. el tanque de cerca: aro en la anhidrita en «anhydrite»; el geólogo señala el trozo de yeso en «gypsum»; en
-//    «dissolves» la roca blanca se disuelve y en «caves and hollows» las cuevas ya están hechas.
+// 4. el tanque de cerca: aro en la anhidrita en «anhydrite» (el geólogo la señala desde la derecha); en el plato, un
+//    bloque de yeso grande (x 244–294, y 109–148: caras planas, capas, racimo de selenita) que tapa la esponja de la
+//    escena siguiente; en «gypsum» el geólogo camina hasta él (x 296 → 248), lo señala, late el aro y baja la flecha;
+//    en «dissolves» la roca blanca se disuelve y la gota del cuentagotas abre un hoyito con agua en el yeso; en «caves
+//    and hollows» las cuevas ya están hechas y él se vuelve a mirarlas.
+// Sonido: efectos cortos ligados a cada acción, para que la escena no suene sin pausa (antes 83 % del tiempo, ahora 60):
+// la puerta al abrirse; en el plano 1 un «pop» corto en cada aro (vaso, pajita, mar, pozo) en vez de dos campanillas largas; las burbujas
+// duran lo que el agua se mueve en pantalla (1–1,6 s en vez de 4) y en «caves» ya no hay otras.
 import * as T from '/atomo/plato/escenas/oi-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('oi-pajita');
@@ -81,11 +91,64 @@ const pulso = (x, y, t, t0, c = D.W) => { const u = (t - t0) / 0.6; if (u < 0 ||
 const flecha = (x, y, t) => { const dy = Math.round(Math.abs(Math.sin(t * 6)) * -3); for (let j = 0; j < 8; j++) { const w = j < 4 ? 1 : 7 - j; R.rect(x - w - 1, y - 12 + j + dy, x + w + 1, y - 12 + j + dy, K); } for (let j = 0; j < 7; j++) { const w = j < 4 ? 0 : 6 - j; R.rect(x - w, y - 12 + j + dy, x + w, y - 12 + j + dy, D.Y); } };
 
 // ── 1 · la mesa del laboratorio ──
+// la puerta del pasillo abierta (o 0–1): el pasillo en perspectiva por el hueco (techo con su lámpara, paredes con el
+// tablón y el extintor, el suelo de baldosas que se aleja, alguien que cruza al fondo) y la hoja que gira hacia dentro
+const PU = { x0: 285, x1: 317, y0: 51, y1: 140 };
+const PAS = pal(['#8e959c', '#a9b0b6', '#c3c9cd', '#d9dddf', '#eceeee']);
+const puertaAbierta = (t, o) => {
+  if (o < 0.02) return;
+  const { pset } = R, s = o * o * (3 - 2 * o), xl = Math.round(lerp(PU.x0 - 1, 308, s));
+  const VX = 301, FY0 = 66, FY1 = 118, FX0 = 295, FX1 = 307;   // el fondo del pasillo
+  for (let y = PU.y0; y <= PU.y1; y++) for (let x = PU.x0; x < Math.min(xl, PU.x1 + 1); x++) {
+    const fy = (y - PU.y0) / (PU.y1 - PU.y0), lx = PU.x0 + (FX0 - PU.x0) * (y < FY0 ? (y - PU.y0) / (FY0 - PU.y0) : y > FY1 ? (PU.y1 - y) / (PU.y1 - FY1) : 1);
+    const rx = PU.x1 - (PU.x1 - FX1) * (y < FY0 ? (y - PU.y0) / (FY0 - PU.y0) : y > FY1 ? (PU.y1 - y) / (PU.y1 - FY1) : 1);
+    let c;
+    if (y < FY0 && x >= lx && x <= rx) { c = PAS[3]; if (((y - PU.y0) % 4) === 0) c = PAS[2]; if (Math.abs(x - VX) < 4 - (y - PU.y0) * 0.15 && y > 54 && y < 58) c = Math.sin(t * 13) > -0.9 ? hex('#fffbe0') : PAS[4]; }
+    else if (y > FY1 && x >= lx && x <= rx) { const d = (y - FY1) / (PU.y1 - FY1), fila = Math.floor(Math.pow(d, 0.6) * 6), col = Math.floor((x - VX) / (2 + d * 6) + 50);
+      c = (fila + col) % 2 ? hex('#9a9488') : hex('#b4ad9e'); if (H(x, y, 4) < 0.08) c = hex('#847e72'); if (Math.abs(x - VX) < 3 + d * 5 && d > 0.3) c = mez(c, hex('#fff6d8'), 0.35); }
+    else if (x < lx || x > rx) { const izq = x < lx; c = izq ? PAS[1] : PAS[0]; if (y > FY1 - 14 + (izq ? (lx - x) * 1.5 : (x - rx) * 1.5) && y < FY1 + 6) c = izq ? hex('#7aa494') : hex('#5e8476'); if (H(x, y, 5) < 0.07) c = PAS[0]; }
+    else { c = y > 104 ? hex('#8fb8a8') : PAS[2] + 0; if (y === 104) c = hex('#5e8476'); if (H(x, y, 6) < 0.06) c = PAS[1]; }
+    pset(x, y, c);
+  }
+  // el fondo: la ventanita del final con luz y, en la pared de la izquierda, el tablón de corcho con sus papeles
+  R.rect(298, 74, 304, 86, K); R.rect(299, 75, 303, 85, hex('#cfeaf8')); R.pset(299, 75, D.W); R.rect(301, 75, 301, 85, PAS[2]);
+  for (let y = 84; y < 98; y++) for (let x = PU.x0 + 1; x < PU.x0 + 7 && x < xl; x++) { const p = (x + y) % 5 === 0; pset(x, y, y === 84 || y === 97 ? hex('#6a4426') : p ? hex('#f4f2ea') : hex('#c89a62')); }
+  // el extintor rojo colgado al fondo a la derecha
+  if (xl > 307) { R.rect(305, 98, 307, 106, K); R.pset(306, 99, D.R); R.rect(306, 100, 306, 105, D.r); R.pset(306, 97, K); }
+  // alguien con bata que cruza el fondo del pasillo de vez en cuando
+  { const u = (t % 5.5) / 5.5; if (u > 0.25 && u < 0.75) { const px = Math.round(lerp(FX0 - 3, FX1 + 3, (u - 0.25) / 0.5)); R.recorte([FX0, FY0, FX1, FY1]);
+    R.disco(px, 100, 2, hex('#e8b890')); R.disco(px, 99, 2, hex('#5a3418')); R.poligono([[px - 3, 103], [px + 3, 103], [px + 3, 113], [px - 3, 113]], hex('#f2f4f2')); R.linea(px - 2, 114, px - 2, 117, K); R.linea(px + 2, 114, px + 2, 117 - (Math.floor(t * 6) % 2), K); R.recorte(null); } }
+  // la luz del pasillo que cae por el hueco en el suelo de la sala
+  for (let y = 141; y < 150; y++) for (let x = PU.x0 + (y - 141); x < Math.min(xl, PU.x1) - (y - 141) * 0.5; x++) if (H(x, y, 7) < 0.5 - (y - 141) * 0.05) pset(x, y, mez(R.pget(x, y), hex('#fff6d8'), 0.25));
+  // la hoja de la puerta, girada hacia dentro: la cara en sombra, las vetas, la ventanita, la placa de abajo y el canto
+  if (xl < PU.x1) {
+    const ty = Math.round(PU.y0 + s * 6), by = Math.round(PU.y1 - s * 4);
+    for (let x = xl; x <= PU.x1; x++) { const f = (PU.x1 - x) / Math.max(1, PU.x1 - xl), y0 = Math.round(PU.y0 + (ty - PU.y0) * f), y1 = Math.round(PU.y1 + (by - PU.y1) * f);
+      for (let y = y0; y <= y1; y++) { let c = x === xl ? hex('#bc9668') : (H(x, Math.floor(y / 5), 8) < 0.25 ? hex('#6a4a2c') : hex('#7e5a38'));
+        if (y > y1 - 13 && x > xl) c = hex('#6e7480'); if (y > y0 + 5 && y < y0 + 30 && x > xl + 1 && x < PU.x1 - 1 && (PU.x1 - xl) > 6) c = mez(hex('#cfd4d8'), hex('#7e5a38'), 0.35);
+        if (y === y0 || y === y1) c = K; pset(x, y, c); } }
+    R.linea(xl, ty, xl, by, K);
+  }
+};
 const p1 = (t) => {
   const g = T.labAgua(R, t, {});
-  const u = tramo(t, 0.15, glass - 0.15), x = Math.round(lerp(296, 62, u));
-  R.actor(EL.geologo, x, 163, t, { dir: u < 1 ? -1 : 1, anda: u > 0 && u < 1, dedo: u >= 1 && t < P2 - 0.2, habla: u >= 1 && Math.sin(t * 8) > 0.2 && t < P2 - 0.6, sonrisa: t > pit + 0.5 });
-  R.actor(EL.operaria, 298, 163, t, { dir: -1, quieto: false, sonrisa: t > pit, habla: t > sea + 0.2 && t < sea + 0.8 && Math.sin(t * 9) > 0 });
+  puertaAbierta(t, tramo(t, 0, 0.45));
+  // el geólogo sale del pasillo (recortado al hueco mientras está dentro), baja a la sala y va al centro de la mesa
+  const xa = 293, xb = 268, xc = 236;
+  let gx, gy;
+  if (t < 0.35) gx = null;
+  else if (t < 0.75) { const u = tramo(t, 0.35, 0.75); gx = Math.round(lerp(296, xa, u)); gy = Math.round(lerp(130, 141, u)); }
+  else if (t < 1.2) { const u = (t - 0.75) / 0.45; gx = Math.round(lerp(xa, xb, u)); gy = Math.round(lerp(141, 151, u)); }
+  else { const u = tramo(t, 1.2, 1.7); gx = Math.round(lerp(xb, xc, u)); gy = Math.round(lerp(151, 163, u)); }
+  const anda = t >= 0.35 && t < 1.7;
+  if (gx != null) {
+    if (gy <= 141) R.recorte([PU.x0, PU.y0, PU.x1, PU.y1]);
+    R.actor(EL.geologo, gx, gy, t, { dir: -1, anda, dedo: !anda && t < P2 - 0.2, habla: !anda && Math.sin(t * 8) > 0.2 && t < P2 - 0.6, sonrisa: t > pit + 0.5 });
+    R.recorte(null);
+  }
+  // la compañera: se vuelve hacia la puerta cuando se abre, saluda y da unos pasos hasta el tanque para mirarlo con él
+  const v = tramo(t, 1.5, 2.6), ox = Math.round(lerp(304, 270, v)), oanda = v > 0 && v < 1;
+  R.actor(EL.operaria, ox, 175, t, { dir: t < 1.5 ? 1 : -1, anda: oanda, sonrisa: t > pit || (t > 0.5 && t < 1.4), habla: t > sea + 0.2 && t < sea + 0.8 && Math.sin(t * 9) > 0 });
   // la flecha va del vaso a la pajita, al mar del tanque y al pozo
   const obj = t < straw ? [118, 98] : t < sea ? [134, 80] : t < pit ? [168, 88] : [207, 82];
   if (t > glass) flecha(obj[0], obj[1], t);
@@ -256,17 +319,65 @@ const p3 = (t) => {
 };
 
 // ── 4 · el tanque de cerca ──
+// el bloque de yeso grande en el plato (tapa la esponja, que es de la escena siguiente): capas onduladas, cara de luz
+// arriba y de sombra a la derecha, dos cristales de selenita que asoman, brillos que titilan; el cuentagotas gotea encima
+// y en «dissolves» le abre un hoyito con agua (h 0–1)
+const YESO = [[245, 148], [244, 138], [248, 129], [254, 124], [262, 121], [268, 122], [276, 120], [283, 123], [289, 127], [293, 136], [294, 148]];
+const YCEN = [269, 138];
+const BLAS = [[[275, 122], [276, 116], [278, 114], [280, 116], [279, 122]], [[279, 123], [280, 113], [283, 109], [286, 112], [285, 123]], [[284, 125], [286, 116], [289, 114], [291, 118], [289, 127]]];
+const dentro = (P, x, y) => { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, yi] = P[i], [xj, yj] = P[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+const YC = pal(['#8e887c', '#b4ae9f', '#d2ccbe', '#ebe6da', '#fbf9f2']), SEL = pal(['#7e98a2', '#a8c0c8', '#cfe0e4', '#eef6f8']);
+// la luz de cada cara del bloque (sale de la normal de su arista: luz de arriba a la izquierda)
+const CARA = YESO.map((p, i) => { const q = YESO[(i + 1) % YESO.length], nx = q[1] - p[1], ny = -(q[0] - p[0]), l = Math.hypot(nx, ny) || 1; return (-(nx / l) * 0.55 - (ny / l) * 0.85); });
+const cara = (x, y) => { const ang = Math.atan2(y - YCEN[1], x - YCEN[0]); let mejor = 0, md = 9; YESO.forEach((p, i) => { const q = YESO[(i + 1) % YESO.length], m = Math.atan2((p[1] + q[1]) / 2 - YCEN[1], (p[0] + q[0]) / 2 - YCEN[0]); let d = Math.abs(ang - m); if (d > Math.PI) d = 2 * Math.PI - d; if (d < md) { md = d; mejor = i; } }); return mejor; };
+const yesoGrande = (t, h) => {
+  const { pset } = R;
+  // la sombra en el plato, a la derecha
+  for (let y = 145; y < 150; y++) for (let x = 290; x < 298; x++) if (H(x, y, 9) < 0.6 - (x - 290) * 0.07) pset(x, y, mez(R.pget(x, y), hex('#8a8e88'), 0.35));
+  // el racimo de cristales de selenita que asoma por detrás: prismas translúcidos con cara de luz, de sombra y arista
+  for (const B of BLAS) { const mx = (B[1][0] + B[2][0] + B[3][0]) / 3;
+    for (let y = 106; y < 128; y++) for (let x = 272; x < 294; x++) { if (!dentro(B, x + 0.5, y + 0.5)) continue;
+      const borde = !dentro(B, x - 0.5, y + 0.5) || !dentro(B, x + 1.5, y + 0.5) || !dentro(B, x + 0.5, y - 0.5);
+      let c = borde ? K : Math.abs(x - mx) < 0.6 ? SEL[2] : x < mx ? SEL[3] : SEL[1]; if (!borde && Math.sin(t * 2.2 - y * 0.6 + mx) > 0.95) c = D.W; pset(x, y, c); } }
+  // el bloque: caras planas con su luz, capas onduladas, vetas fibrosas y grano
+  for (let y = 118; y < 150; y++) for (let x = 242; x < 296; x++) { if (!dentro(YESO, x + 0.5, y + 0.5)) continue;
+    const borde = !dentro(YESO, x - 0.5, y + 0.5) || !dentro(YESO, x + 1.5, y + 0.5) || !dentro(YESO, x + 0.5, y - 0.5) || !dentro(YESO, x + 0.5, y + 1.5);
+    if (borde) { pset(x, y, K); continue; }
+    const capa = y + Math.round(Math.sin(x * 0.28) * 1.4 + Math.sin(x * 0.09 + 1) * 1.2), d = Math.hypot(x - YCEN[0], (y - YCEN[1]) * 1.6);
+    let v = 2.6 + CARA[cara(x, y)] * (d > 11 ? 1.4 : 0.5) + (H(x, y, 10) - 0.5) * 0.6 - (y > 145 ? 0.7 : 0);
+    if (capa % 6 === 0) v -= 0.9; else if (capa % 6 === 1) v += 0.4;
+    if ((x * 3 + y) % 11 === 0 && H(x, 1, 11) < 0.4) v -= 0.6;   // las vetas fibrosas
+    pset(x, y, YC[Math.max(0, Math.min(4, Math.round(v)))]);
+  }
+  // las aristas entre caras (finas, del centro hacia los vértices de arriba) y los poros
+  for (const i of [2, 4, 7, 9]) { const [vx, vy] = YESO[i]; for (let k = 2; k < 9; k++) { const x = Math.round(vx + (YCEN[0] - vx) * k / 16), y = Math.round(vy + (YCEN[1] - vy) * k / 16); pset(x, y, YC[1]); } }
+  for (let k = 0; k < 9; k++) { const x = 250 + Math.floor(H(k, 3, 12) * 36), y = 129 + Math.floor(H(k, 4, 12) * 15); pset(x, y, YC[0]); pset(x + 1, y, YC[1]); }
+  R.linea(245, 137, 248, 130, YC[4]); R.linea(249, 128, 253, 125, YC[4]); R.linea(256, 123, 261, 122, YC[4]);
+  // brillos de cristal que titilan
+  for (let k = 0; k < 4; k++) { const x = 254 + k * 9, y = 127 + (k % 2) * 6; if (Math.sin(t * 3 + k * 2.1) > 0.85) destello(x, y, 1, YC[4]); }
+// la mancha mojada bajo el cuentagotas y el hoyito que el agua disuelve
+  for (let x = 263; x <= 273; x++) if (H(x, 2, 13) < 0.7) pset(x, 123, YC[2]);
+  if (h > 0) { const rx = 1 + h * 5, ry = 1 + h * 2.4; for (let y = 122; y < 130; y++) for (let x = 260; x < 277; x++) { const e = ((x - 268) / rx) ** 2 + ((y - 124.5) / ry) ** 2;
+    if (e < 1) pset(x, y, y < 124 ? YC[0] : e < 0.5 && Math.sin(t * 4 + x) > 0.6 ? hex('#cfeaf8') : hex('#6aa8cc')); else if (e < 1.5 && y >= 124) pset(x, y, YC[1]); } }
+  // la gota que cae y salpica al llegar a la piedra
+  { const u = (t % 1.4) / 1.4, gy = 119 + (u / 0.6) ** 2 * 8; if (u < 0.6 && gy >= 121) { pset(266, 121, hex('#cfeaf8')); pset(270, 121, hex('#cfeaf8')); pset(265, 120, hex('#cfeaf8')); pset(271, 120, hex('#cfeaf8')); } }
+};
 const p4 = (t) => {
   const g = T.labAgua(R, t, { encuadre: 'tanque', disuelve: tramo(t, dissolves - 0.6, caves + 0.3) });
+  yesoGrande(t, tramo(t, dissolves - 0.2, caves + 0.5));
   pulso(120, 112, t, anhy); pulso(150, 120, t, anhy + 0.25);
   if (t > anhy && t < gypsum) flecha(120, 92, t);
-  if (t > gypsum) flecha(286, 132, t);
-  pulso(286, 145, t, gypsum);
-  R.actor(EL.geologo, 296, 178, t, { dir: -1, dedo: (t > anhy && t < anhy + 1.2) || (t > gypsum - 0.1 && t < gypsum + 1.4), habla: Math.sin(t * 7) > 0.4 && t < caves, sorpresa: t > caves && t < caves + 0.7, sonrisa: t > caves + 0.7 });
+  if (t > gypsum) flecha(251, 124, t);
+  pulso(268, 135, t, gypsum);
+  // el geólogo señala la anhidrita desde la esquina, va hasta el plato en «gypsum» y se vuelve a mirar las cuevas
+  const u = tramo(t, gypsum - 0.8, gypsum), gx = Math.round(lerp(296, 248, u)), anda = u > 0 && u < 1;
+  const dir = anda ? -1 : u >= 1 && t < dissolves + 0.3 ? 1 : -1;
+  R.actor(EL.geologo, gx, 178, t, { dir, anda, dedo: !anda && ((t > anhy && t < anhy + 1.2) || (t > gypsum && t < gypsum + 1.4) || (t > caves - 0.2 && t < caves + 0.9)), habla: !anda && Math.sin(t * 7) > 0.4 && t < caves, sorpresa: t > caves && t < caves + 0.7, sonrisa: t > caves + 0.7 });
 };
 
-const efectos = [[glass, 'pop'], [straw, 'pop'], [sea + 0.05, 'brillo'], [pit + 0.05, 'brillo'], [P2 + 0.7, 'golpecito'], [dig, 'burbujas'], [seeps, 'burbujas'], [matches, 'brillo'],
-  [deeper, 'toc'], [clay + 0.1, 'toc'], [easier, 'burbujas'], [clay + 0.6, 'lapiz'], [anhy, 'brillo'], [gypsum, 'pop'], [dissolves - 0.4, 'burbujas'], [caves, 'burbujas']];
+// efectos cortos, cada uno pegado a lo que se ve (ver la cabecera)
+const efectos = [[0.05, 'puerta'], [glass, 'pop'], [straw, 'pop'], [sea + 0.05, 'pop'], [pit + 0.05, 'pop'], [P2 + 0.7, 'golpecito'], [dig, 'burbujas', { dur: 1 }], [seeps, 'burbujas', { dur: 1.4 }], [matches, 'brillo'],
+  [deeper, 'toc'], [clay + 0.1, 'toc'], [easier, 'burbujas', { dur: 1.4 }], [clay + 0.6, 'lapiz'], [anhy, 'brillo'], [gypsum, 'pop'], [dissolves - 0.4, 'burbujas', { dur: 1.6 }]];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos });
 </script>
 </body>
