@@ -26,8 +26,9 @@
 //   - pastoral (desde el 16): una cita de dominio público tocada por nosotros (banda.cita), con lengüeta y cuerdas.
 //   Sin «banda», todo suena exactamente como antes (La menor y el motivo del 10–12), así que los episodios ya hechos no
 //   cambian. Con «banda», los cuatro ánimos de siempre también van en su tono y con su motivo.
-// - Todo en el mismo tono (La menor por defecto), para que los cambios de escena casen. Cada capa se normaliza a su nivel (NIVEL, dB RMS): con la voz
-//   a −19 dB, la música queda entre 7 y 12 dB por debajo cuando no habla nadie, y más baja aún bajo la voz.
+// - Todo en el mismo tono (La menor por defecto), para que los cambios de escena casen. Cada capa se normaliza a su nivel (NIVEL, en LUFS desde el 29/10/2026)
+//   y un nivelador frena los picos: la música entera queda unos 4–5 LU por debajo de la voz cuando no habla nadie, y más
+//   baja aún bajo la voz (montar-largo.sh la aparta con la voz como llave).
 const fs = require('fs');
 const path = require('path');
 const { SR, Bus, rng, reverb } = require('./sonido/dsp.cjs');
@@ -57,12 +58,39 @@ const grado = (k, oct = 0) => TONICA + 12 * oct + MODO[((k % 7) + 7) % 7] + 12 *
 const acorde = (k, oct = 0) => [grado(k, oct), grado(k + 2, oct), grado(k + 4, oct)];
 const mtof = (m) => 440 * 2 ** ((m - 69) / 12);
 const dur = linea.duracion, n = Math.ceil(dur * SR);
-// subido el 25/10/2026: a −26/−30 «casi no se escucha» (el usuario), sobre todo en altavoces de móvil, que no dan los graves
-const NIVEL = { suspense: -20, misterio: -21, intriga: -23, cierre: -20, golpe: -14, lecho: -29, transicion: -24,
-  asombro: -21, aventura: -21, curiosidad: -22, calma: -22, epico: -20, ternura: -22, pastoral: -21 };
+// Desde el 29/10/2026 los niveles son de sonoridad (LUFS, ponderación K y bloques de 0,4 s con puerta, como ebur128) y
+// no de energía: con dB RMS, la marimba, la campana y la lengüeta sonaban hasta 4 dB más fuertes que la intriga o el
+// épico, y los golpes 5 dB por encima de todo (medido en el 13–15; el usuario: «hay melodías que suenan más fuertes que
+// otras»). Todos los ánimos van al mismo nivel y la música entera queda unos 3 dB más baja que en el 15 (−18,4 LUFS, casi
+// lo mismo que la voz). No más: a −26/−30 dB RMS «casi no se escucha» (25/10/2026), sobre todo en el móvil.
+const ANIMO = -23;
+const NIVEL = { suspense: ANIMO, misterio: ANIMO, intriga: ANIMO, cierre: ANIMO, golpe: -21, lecho: -31, transicion: -25,
+  asombro: ANIMO, aventura: ANIMO, curiosidad: ANIMO, calma: ANIMO, epico: ANIMO, ternura: ANIMO, pastoral: ANIMO };
+const TECHO = 3;   // LU: lo que un tramo puede pasar de su nivel en un instante (un crescendo, una campana) antes de que lo frene el nivelador
 const FUNDIDO = 3;   // s de fundido entre tramos (de igual potencia)
 const CERCA_CARTELA = 3;   // s: un golpe tan cerca de una cartela no deja silencio
 
+// Sonoridad ebur128 de [i0, i1): filtro K (BS.1770, a 48 kHz), bloques de 0,4 s cada 0,1 s, puertas de −70 y −10 LU
+const filtroK = (x) => {
+  const y = new Float32Array(x.length);
+  const [b0, b1, b2, a1, a2] = [1.53512485958697, -2.69169618940638, 1.19839281085285, -1.69065929318241, 0.73248077421585];
+  for (let i = 0, x1 = 0, x2 = 0, y1 = 0, y2 = 0; i < x.length; i++) { const v = b0 * x[i] + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = x[i]; y2 = y1; y1 = v; y[i] = v; }
+  for (let i = 0, x1 = 0, x2 = 0, y1 = 0, y2 = 0; i < y.length; i++) { const u = y[i], v = u - 2 * x1 + x2 + 1.99004745483398 * y1 - 0.99007225036621 * y2; x2 = x1; x1 = u; y2 = y1; y1 = v; y[i] = v; }
+  return y;
+};
+const bloquesK = (b, i0, i1) => {
+  i0 = Math.max(0, i0); i1 = Math.min(i1, b.n);
+  const L = filtroK(b.L.subarray(i0, i1)), R = filtroK(b.R.subarray(i0, i1)), B = Math.round(0.4 * SR), H = Math.round(0.1 * SR), out = [];
+  for (let j = 0; j + B <= L.length; j += H) { let s = 0; for (let k = j; k < j + B; k++) s += L[k] * L[k] + R[k] * R[k]; out.push([i0 + j, s / B]); }
+  return out;
+};
+const lufs = (b, i0, i1) => {
+  const bl = bloquesK(b, i0, i1).map(([, e]) => e).filter((e) => -0.691 + 10 * Math.log10(e + 1e-20) > -70);
+  if (!bl.length) return -100;
+  const rel = -0.691 + 10 * Math.log10(bl.reduce((a, e) => a + e, 0) / bl.length) - 10;
+  const g = bl.filter((e) => -0.691 + 10 * Math.log10(e) > rel);
+  return -0.691 + 10 * Math.log10(g.reduce((a, e) => a + e, 0) / g.length);
+};
 const rms = (b, i0, i1) => { i1 = Math.min(i1, b.n); let s = 0; for (let i = i0; i < i1; i++) s += b.L[i] ** 2 + b.R[i] ** 2; return 10 * Math.log10(s / (2 * Math.max(1, i1 - i0)) + 1e-20); };
 const pad = (bus, notas, t0, d, o = {}) => notas.forEach(([m, g]) => { const a = I.padNote(m, d, o); bus.addStereo(a.L, a.R, t0, g); });
 
@@ -181,7 +209,7 @@ function capa(esc, animo) {
   } else if (NUEVOS[animo]) NUEVOS[animo](b, esc, t0, d, r);
   else return null;
   const i0 = Math.round(Math.max(0, esc.inicio) * SR), i1 = Math.min(n, Math.round((esc.inicio + esc.duracion) * SR));
-  const g = 10 ** ((NIVEL[animo] - rms(b, i0, i1)) / 20);
+  const g = 10 ** ((NIVEL[animo] - lufs(b, i0, i1)) / 20);
   const f0 = Math.round(t0 * SR), f1 = Math.min(n, Math.round((t0 + d) * SR)), fd = Math.round(FUNDIDO * SR);
   for (let i = f0; i < f1; i++) { const k = g * Math.sin(Math.PI / 2 * Math.min(1, (i - f0) / fd)) * Math.sin(Math.PI / 2 * Math.min(1, (f1 - i) / fd)); b.L[i] *= k; b.R[i] *= k; }
   return b;
@@ -204,7 +232,7 @@ for (const tr of tramos) { const b = tr.animo && capa(tr, tr.animo); if (b) b.mi
     pad(tmp, [[33 + T, 0.7], [45 + T, 0.5], [52 + T, 0.32]], t0, d, { cutoff: 650, attack: k ? CRUCE : 2, release: CRUCE, seed: 30 + k });
     tmp.mixInto(lecho, 1);
   }
-  const g = 10 ** ((NIVEL.lecho - rms(lecho, 0, n)) / 20); lecho.mixInto(musica, g);
+  const g = 10 ** ((NIVEL.lecho - lufs(lecho, 0, n)) / 20); lecho.mixInto(musica, g);
 }
 // las transiciones de las cartelas de año: un soplo que crece hasta el cambio y una nota de caja de música al llegar
 const cartelas = CARTELAS;
@@ -215,7 +243,7 @@ const cartelas = CARTELAS;
     pad(tr, [[57 + T, 0.3], [64 + T, 0.22], [69 + T, 0.16]], t - 1.4, 3.2, { cutoff: 1800, attack: 1.3, release: 1.6, seed: 50 + k });
     tr.addMono(I.musicBox(81 + T), t + 0.05, 0.6, 0.2); tr.addMono(I.musicBox(76 + T), t + 0.3, 0.4, -0.2);
   });
-  if (cartelas.length) { const t = cartelas[0]; const g = 10 ** ((NIVEL.transicion - rms(tr, Math.round((t - 1.5) * SR), Math.round((t + 1.5) * SR))) / 20); tr.mixInto(musica, g); }
+  if (cartelas.length) { const t = cartelas[0]; const g = 10 ** ((NIVEL.transicion - lufs(tr, Math.round((t - 1.5) * SR), Math.round((t + 1.5) * SR))) / 20); tr.mixInto(musica, g); }
 }
 for (const esc of linea.escenas) {
   const p = plan[esc.id] || {};
@@ -229,8 +257,22 @@ for (const esc of linea.escenas) {
 // eco: la caja de música y los golpes respiran en una sala grande
 const eco = reverb(musica, { room: 0.88 }), ecoG = reverb(golpes, { room: 0.7 });
 eco.mixInto(musica, 0.35);
+// el nivelador (desde el 29/10/2026): donde la sonoridad momentánea (0,4 s) pasa de ANIMO + TECHO, la baja con una
+// razón de 4 a 1, con ataque de 0,2 s y suelta de 0,8 s. Frena los picos dentro de un tramo (el crescendo del épico, la
+// caja de música del cierre) sin tocar lo demás. Los golpes entran después, a su nivel.
+{
+  const bl = bloquesK(musica, 0, n), H = Math.round(0.1 * SR), red = new Float32Array(bl.length);
+  bl.forEach(([, e], k) => { const l = -0.691 + 10 * Math.log10(e + 1e-20), sobra = l - (ANIMO + TECHO); red[k] = sobra > 0 ? -sobra * 0.75 : 0; });
+  for (let k = 1, v = 0; k < red.length; k++) { v = red[k] < v ? v + (red[k] - v) * 0.4 : v + (red[k] - v) * 0.12; red[k] = v; }   // ataque y suelta, a pasos de 0,1 s
+  const centro = Math.round(0.2 * SR);   // el bloque k mide [k·H, k·H + 0,4 s): su ganancia va a su centro
+  for (let i = 0; i < n; i++) {
+    const x = (i - centro) / H, k = Math.max(0, Math.min(red.length - 1, Math.floor(x))), k2 = Math.min(red.length - 1, k + 1), f = Math.max(0, Math.min(1, x - k));
+    const g = 10 ** (((red[k] || 0) * (1 - f) + (red[k2] || 0) * f) / 20);
+    musica.L[i] *= g; musica.R[i] *= g;
+  }
+}
 for (const t of cortes) {   // silencio antes del golpe y vuelta suave
-  const g = 10 ** ((NIVEL.golpe - rms(golpes, Math.round((t + 0.1) * SR), Math.round((t + 1.1) * SR))) / 20);
+  const g = 10 ** ((NIVEL.golpe - lufs(golpes, Math.round((t + 0.1) * SR), Math.round((t + 1.1) * SR))) / 20);
   const suelo = cartelas.some((c) => Math.abs(c - t) < CERCA_CARTELA) ? 0.65 : 0;   // junto a una cartela, baja pero no calla (al 30 % caía 13 dB en el 13 y a la mitad 8,9: el control pide 7,5 como mucho)
   for (let i = Math.round((t - 0.6) * SR); i < Math.min(n, Math.round((t + 3) * SR)); i++) {
     const x = i / SR - t, k0 = x < -0.35 ? Math.max(0, (-0.35 - x) / 0.25) : x < 1.2 ? 0 : Math.min(1, (x - 1.2) / 1.8), k = suelo + (1 - suelo) * k0;
