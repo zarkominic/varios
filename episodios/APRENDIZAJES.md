@@ -33,20 +33,21 @@ una pasada o detalle no entra.
 | 12 | ~15 h | ~35 M (15,2 M en calidad) | 41 | 5 + 2 pasadas extra | — | no (efectos al 75 %) |
 | 13 | ~6,5 h | ~13,6 M (6,6 M en calidad) | 47 de 102 | 47 → 2 → 0 | 96 | no (efectos perdidos al cortarse el render; caída de la música en una cartela) |
 | 14 | ~6,5 h (con un reinicio del contenedor) | ~12,5 M + el intento perdido (6,5 M en calidad) | 41 de 96 | 41 → 1 → 1 (aceptado: falso aviso) | 65 | no (disco lleno; NaN en un efecto) |
+| 15 | ~8 h (28 escenas, 118 planos) | ~14,7 M (8,4 M en calidad) | 60 de 118 | 60 → 1 → 0 | 107 | no (el pico del mp4 en −0,5 dBFS) |
 
 ### Fallos de calidad por tipo
 
-| Tipo | Ep. 13 | Ep. 14 |
-|---|---|---|
-| Orden de dibujo / algo que flota | 20 | 14 |
-| Composición repetida | 13 | 14 |
-| Algo no se lee | 14 | 13 |
-| Brazo o mano | 11 | 11 |
-| Quieto o sin vida | 14 | 7 |
-| Liso o poco detalle | 10 | 4 |
-| Letras en pantalla | 4 | 0 |
-| Zona de Atom o barra del año | 4 | 2 |
-| **Total** | **96** | **65** |
+| Tipo | Ep. 13 | Ep. 14 | Ep. 15 |
+|---|---|---|---|
+| Orden de dibujo / algo que flota | 20 | 14 | 25 |
+| Composición repetida | 13 | 14 | 16 |
+| Algo no se lee | 14 | 13 | 17 |
+| Brazo o mano | 11 | 11 | 7 |
+| Quieto o sin vida | 14 | 7 | 8 |
+| Liso o poco detalle | 10 | 4 | 9 |
+| Letras en pantalla | 4 | 0 | 2 |
+| Zona de Atom o barra del año | 4 | 2 | 11 |
+| **Total** | **96** | **65** | **107** (12 sin tipo) |
 
 ## Episodio 14 · Oak Island (29/10/2026)
 
@@ -80,6 +81,42 @@ una pasada o detalle no entra.
 - Medir si el reparto previo de encuadres baja la composición repetida (objetivo: menos de 5).
 - La pose de «sostener» (`R.actor(…, { sostiene })`, aprobada el 29/10/2026): medir si bajan los fallos de brazo o mano.
 - Liberar disco al empezar (paso 0) con el cálculo nuevo, no a mitad del render.
+
+## Episodio 15 · Nueva York (29/10/2026)
+
+**Lo que funcionó:**
+- **La pose de sostener** (`R.actor(…, { sostiene })`): los fallos de brazo o mano bajaron de 11 a 7.
+- **Liberar el disco al empezar** (paso 0, con la regla aprobada): 17 GB libres y ningún parón en el render.
+- **El reparto de encuadres entre escenas:** solo 3 de las 16 repeticiones fueron entre escenas vecinas.
+- **La pasada de decorados con fallos concretos**, en dos lotes: 1,3 M de tokens y unos 25 minutos.
+- **La calidad cerró en tres rondas** (60 → 1 → 0), sin nada pendiente.
+
+**Lo que no mejoró, con su causa:**
+- **Composición repetida (14 → 16; el objetivo era menos de 5).** 10 de las 16 las creó mi propio reparto: permitía el
+  mismo decorado y encuadre dos veces dentro de una escena con otra luz o estado (el puerto de 1625 y el de 1660, el
+  salón del Congreso, el del Tribunal y el de la cena, el palacio antes y después de cortar la cuerda), y el revisor lo
+  cuenta como repetición. Propuesta (cambio de proceso): dentro de una escena, un encuadre no vuelve nunca; si la
+  historia pide el mismo sitio, con otra cámara (más cerca, otro ángulo), y los decorados ofrecen esa segunda cámara
+  desde su primera versión.
+- **Orden de dibujo (14 → 25), algo que no se lee (13 → 17) y zona de Atom o barra del año (2 → 11).** Se concentran en
+  las escenas con más fondos locales (Hudson 13, Nueva Ámsterdam 8, Ellis 8): el reparto mandó muchos planos a fondos
+  pintados por el agente de escenas, que no pasan por la prueba de los decorados. Va con la propuesta anterior: más
+  encuadres en los decorados y menos fondos locales.
+- **Tokens en calidad (6,5 → 8,4 M):** más planos (118 frente a 96) y más suspensos en la revisión completa.
+
+**Lo que se rompió y ya está arreglado:**
+- **La música caía en 5 cartelas** (hasta 12,8 dB, por los huecos de la aventura y el final del redoble épico).
+  `banda.cjs` añade un colchón sostenido solo donde la caída pasa de 7,5 dB: el 13 y el 14 salen idénticos (md5) y la
+  peor caída del 15 bajó a 6,5 dB.
+- **El pico del mp4 inglés en −0,5 dBFS:** el AAC subía el pico pedido a −1,5. `montar-largo.sh` lo pide a −2 dB
+  (`TP_MAX`).
+- **Las copias `_tmp_<G>` de la primera versión de los decorados** seguían ahí al lanzar la pasada, y sus agentes iban a
+  partir de una copia vieja: se paró a tiempo. La skill dice ahora que se borran al integrar.
+
+**Pendiente para el próximo:**
+- Si el usuario lo aprueba: ningún encuadre repetido dentro de una escena y una segunda cámara en cada decorado.
+  Medir si baja la composición repetida (objetivo: menos de 5) y el orden de dibujo.
+- Que el gancho comercial (regla nueva) se mida: el título y la miniatura, decididos en el paso 1.
 
 ## Próximos temas (decididos por el usuario)
 
