@@ -18,6 +18,7 @@
 //    hasta la puerta de luz; en «the Dig» la señala; el verde con casco salta detrás de él;
 // 4. (corta en «based») la puerta de cerca: en «idea» las hojas se abren y sale la luz; el astronauta se sorprende y en
 //    «Spielberg» entra en la luz; el verde se queda boquiabierto.
+// Sonido: nueve efectos (disparos, estallido, radar, gag, rampa y puerta de luz), el 58 % del tiempo (pide 50–60 %).
 import * as T from '/atomo/plato/escenas/la-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('la-xwing');
@@ -100,7 +101,9 @@ const p4 = (t) => {
   T.espacioDelante(R, t, { encuadre: 'asteroide', camara: 'puerta', abre: ab });
 };
 const año = (t) => t < P3 ? 1993 : 1995;
-const efectos = [[0.3, 'jet'], [dispara - 0.45, 'flash'], [dispara, 'flash'], [estalla, 'boom'], [xw, 'jet'], [xw + 0.3, 'bip'], [cabina, 'boing'], [fighter + 0.8, 'pop'], [P3 + 0.5, 'arranque'], [dig, 'brillo'], [idea, 'zumbido'], [idea + 0.4, 'brillo']];
+// efectos: los disparos, el estallido, el pitido del radar, el gag, la rampa y la puerta de luz; sin el segundo «jet», el
+// «pop» de relleno ni el «brillo» de «the Dig» (la escena sonaba el 71 % del tiempo; así, el 58 %, dentro del 50–60)
+const efectos = [[0.3, 'jet'], [dispara - 0.45, 'flash'], [dispara, 'flash'], [estalla, 'boom'], [xw + 0.3, 'bip'], [cabina, 'boing'], [P3 + 0.5, 'arranque'], [idea, 'zumbido'], [idea + 0.4, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>
 </body>

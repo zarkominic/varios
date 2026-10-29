@@ -12,7 +12,8 @@
 // LA-GRIM (frases 37–38), 1998, cartela «1998». Tres planos:
 // 1. (0 → «set») la Tierra de los Muertos de noche: tras la cartela, tres almas recién llegadas entran por la acera con
 //    su equipaje; en «most ambitious» estallan los fuegos artificiales sobre el rascacielos art déco y las almas dan un
-//    respingo; en «Grim Fandango» estalla la segunda tanda; una pareja de esqueletos baila junto al carro de flores.
+//    respingo; en «Grim Fandango» estalla la segunda tanda (los fuegos, lejos de la barra del año); una pareja de
+//    esqueletos baila junto al carro de flores.
 // 2. («set» → «travel agent») la agencia de viajes art déco: las almas hacen cola; en «Manny Calavera» el agente asoma
 //    de un salto tras la ventanilla con su sombrero y habla con la primera alma en «skeleton»; otra alma lee un folleto.
 // 3. («travel agent» → fin) inserto sobre el mostrador de la agencia (fondo local): el folleto de viaje se despliega en
@@ -47,13 +48,14 @@ const G = (f) => en('grim', f), Mn = (f) => en('manny', f);
 const P2 = G(0.792), P3 = Mn(0.452);
 const amb = G(0.293), grim = G(0.578), manny = Mn(0.128), esq = Mn(0.303), sell = Mn(0.601), viaje = Mn(0.812), rest = Mn(0.928);
 const ORO = hex('#f8c838'), ROSA = hex('#f06aa8'), TURQ = hex('#5ae8e0'), CIELO = hex('#1a1638');
-// un cohete: sube 0,6 s y estalla en t0
-const cohete = (t, t0, x, y, col) => {
+// un cohete: sube 0,6 s y estalla en t0; esc < 1 = un fuego más lejano y pequeño (cabe entre los edificios sin
+// entrar en la barra del año)
+const cohete = (t, t0, x, y, col, esc = 1) => {
   const s = t - t0;
   if (s > -0.6 && s < 0) { const u = (s + 0.6) / 0.6, yy = Math.round(lerp(y + 46, y, ez(u)));
     R.pset(x, yy, hex('#fff4c8')); R.pset(x, yy + 1, col); for (let i = 2; i < 8; i++) if (hh(i, Math.floor(t * 15), 7) > 0.35) R.pset(x + (hh(i, 3, Math.floor(t * 15)) > 0.5 ? 1 : 0), yy + i, mez(col, CIELO, i / 9)); }
-  if (s >= 0 && s < 1.9) { const u = s / 1.9, r = 4 + 21 * Math.sqrt(Math.min(1, s / 0.55)), cae = s * s * 5;
-    if (s < 0.5) R.halo(x, y, r + 6, [mez(CIELO, col, 0.15), mez(CIELO, col, 0.3)], 0.8 * (1 - s / 0.5));
+  if (s >= 0 && s < 1.9) { const u = s / 1.9, r = (4 + 21 * Math.sqrt(Math.min(1, s / 0.55))) * esc, cae = s * s * 5 * esc;
+    if (s < 0.5) R.halo(x, y, r + 6 * esc, [mez(CIELO, col, 0.15), mez(CIELO, col, 0.3)], 0.8 * (1 - s / 0.5));
     for (let k = 0; k < 30; k++) { const a = k / 30 * 6.2832 + x * 0.1;
       if (u > 0.55 && hh(k, Math.floor(t * 12), 9) < u - 0.25) continue;
       const px = Math.round(x + Math.cos(a) * r), py = Math.round(y + Math.sin(a) * r * 0.9 + cae);
@@ -67,7 +69,9 @@ const almas = [
 ];
 const p1 = (t) => {
   T.muertos(R, t, { encuadre: 'ciudad' });
-  cohete(t, amb, 196, 36, ORO); cohete(t, amb + 0.3, 50, 38, ROSA); cohete(t, grim, 226, 52, TURQ); cohete(t, grim + 0.35, 176, 30, ROSA); cohete(t, grim + 0.6, 62, 30, ORO);
+  // los grandes estallan en el cielo entre el rascacielos y la luna (x ≥ 196); los de la izquierda son lejanos y
+  // pequeños, en el hueco entre el edificio rojo y el rascacielos: ningún anillo entra en la barra del año
+  cohete(t, amb, 198, 38, ORO); cohete(t, amb + 0.3, 74, 36, ROSA, 0.58); cohete(t, grim, 228, 52, TURQ); cohete(t, grim + 0.35, 202, 42, ROSA); cohete(t, grim + 0.6, 80, 38, ORO, 0.55);
   // la pareja que baila junto al carro de flores
   const b = Math.floor(t * 2.5) % 2;
   T.calaca(R, 214, 168, t, { ropa: 'vestido', color: hex('#e8a020'), dir: 1, salto: b ? 2 : 0 });

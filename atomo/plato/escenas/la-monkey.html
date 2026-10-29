@@ -14,10 +14,14 @@
 //    tentáculo morado llega saltando por detrás del pirata del tricornio y, en «secret», le roba el sombrero y se va con
 //    él puesto; el pirata da un respingo y le amenaza con el puño; el loro y los de la taberna, a lo suyo;
 // 2. (desde «The story») en lo alto del acantilado, bajo una luna enorme, el aspirante mira el mar con un mono al lado;
-//    pasa un galeón; en «wants to be a pirate» le sale la nube con el tricornio y la calavera y salta de alegría;
-// 3. (desde «Gilbert») el estudio en 1990: el diseñador de las gafas señala la pizarra con un puntero y aparecen el
-//    pirata fantasma y el barco junto al mono; en «two young members» entran dos jóvenes; uno levanta la mano en «Tim»
-//    y el otro en «Dave»;
+//    la pared del acantilado va en estratos de tres tonos con cornisas, juntas, matas colgantes, rocas al pie y gaviotas
+//    posadas (una se arranca a volar), con la espuma que lame el pie; pasa un galeón entero (casco con filo claro sobre
+//    el agua, tres mástiles con jarcia, velas en sus vergas, farol de popa) por delante del cabo del pueblo; en «wants
+//    to be a pirate» le sale la nube con el tricornio y la calavera y salta de alegría;
+// 3. (desde «Gilbert») el estudio en 1990: el diseñador de las gafas, subido a una escalerilla con ruedas pegada a la
+//    pizarra, toca el mono con un puntero corto (~25 px) y rueda a lo largo del trazo mientras aparecen el pirata
+//    fantasma y el barco, tocando cada dibujo con la punta; en «two young members» entran dos jóvenes; uno levanta la
+//    mano en «Tim» y el otro en «Dave»;
 // 4. (desde «and they filled it») el barco fantasma en la niebla verde: un mono tira una piel de plátano («jokes»),
 //    salta otro mono («monkeys») y en «ghost pirate» sube de la niebla el pirata fantasma con su halo; da un paso y
 //    resbala en la piel; los monos se ríen.
@@ -102,21 +106,39 @@ const p1 = (t) => {
   for (const [i, j] of [[-2, 1], [1, 4], [2, 1], [-1, 5]]) R.pset(bx + i, by + 3 + j, hex('#f4f2ee')); R.rect(bx - 1, by - 2, bx + 1, by - 1, hex('#c83a3a'));
 };
 // 2 · el acantilado bajo la luna: un muchacho que quiere ser pirata
-let roca2 = null;
+let roca2 = null; const POSA2 = [];
 const pintaRoca2 = () => { const b = R.nuevo(), prev = R.usar(b);
   // el cabo lejano con el pueblo pirata y su faro
   R.poligono([[226, 123], [244, 116], [262, 113], [284, 111], [300, 113], [319, 109], [319, 123]], hex('#141c30'));
   for (let k = 0; k < 7; k++) { const x = 250 + k * 9, y = 113 - (k % 3); R.rect(x, y - 5, x + 6, y + 2, hex('#0e1424')); R.poligono([[x - 1, y - 5], [x + 3, y - 9], [x + 7, y - 5]], hex('#1a2238')); }
   R.rect(304, 94, 307, 110, hex('#c8c4b8')); R.rect(304, 94, 305, 110, hex('#e8e4d8')); R.rect(303, 92, 308, 94, hex('#5a2a2a'));
-  // el acantilado: estratos, grietas y la luz de la luna por el lado del mar
-  const top = (x) => x < 180 ? Math.round(115 + x * 0.022) : 120;
+  // el acantilado: estratos inclinados en tres tonos, con la cornisa de arriba de cada uno iluminada por la luna, la
+  // sombra debajo, juntas entre bloques, moteado, y más luz por el lado del mar (la luna está a la derecha)
   R.poligono([[0, 114], [90, 117], [180, 119], [188, 126], [192, 142], [200, 160], [206, 180], [0, 180]], hex('#3a3046'));
-  const RC = [hex('#241c2e'), hex('#2e2438'), hex('#3a3046'), hex('#4a3e56'), hex('#5e5068'), hex('#7a6a80')];
+  const TON = [[hex('#2a2234'), hex('#3c3248'), hex('#54486a'), hex('#6e6284')], [hex('#30262e'), hex('#463a44'), hex('#5e505a'), hex('#7c6c74')], [hex('#26222e'), hex('#363244'), hex('#4c4860'), hex('#68647c')]];
+  const capa = (x, y) => y - 112 + Math.sin(x * 0.05) * 2.5 - x * 0.05;
   for (let y = 112; y < 180; y++) for (let x = 0; x < 210; x++) { if (R.pget(x, y) !== hex('#3a3046')) continue;
-    const banda = ((y + Math.round(Math.sin(x * 0.07) * 3)) % 9 + 9) % 9, n = h1(x >> 1, y), luz = x > 150 ? (x - 150) / 60 : 0, sombra = (y - 118) / 70;
-    let k = 2 + (banda < 2 ? -1 : banda === 8 ? 1 : 0) + (n < 0.12 ? -1 : n > 0.9 ? 1 : 0) + Math.round(luz * 2 - sombra * 1.2);
-    R.pset(x, y, RC[Math.max(0, Math.min(5, k))]); }
-  for (let k = 0; k < 9; k++) { let x = 20 + k * 21, y = 124 + (k % 3) * 9; for (let i = 0; i < 14; i++) { R.pset(x, y, hex('#1a1422')); x += h1(k, i) > 0.5 ? 1 : 0; y += 1; } }
+    const s = capa(x, y) + (h1(x >> 4, 21) - 0.5) * 3, banda = Math.floor(s / 10), v = s - banda * 10, tono = TON[((banda % 3) + 3) % 3], n = h1(x >> 1, y);
+    const luz = x > 140 ? (x - 140) / 70 : 0, sombra = (y - 118) / 62 * (1 - luz);
+    // juntas inclinadas, solo en algunos estratos y a distancias desiguales; cornisas rotas; manchas grandes de roca
+    const desf = Math.floor(h1(banda, 7) * 40), largo = 19 + Math.floor(h1(banda, 11) * 17), xj = Math.round(x + v * 0.7 + Math.sin(y * 0.9) * 0.6), junta = h1(banda, 3) > 0.4 ? ((xj + desf) % largo + largo) % largo : 9;
+    const m = h1(x >> 3, (y >> 2) + banda * 7), roto = h1(x >> 2, banda) > 0.3;
+    let k = 1 + (v < 1 ? (roto ? 2 : 0) : v < 2 && roto ? 1 : v > 8.5 ? -1 : 0) + (n < 0.1 ? -1 : n > 0.92 ? 1 : 0) + (m < 0.22 ? -1 : m > 0.86 ? 1 : 0) + (luz > 0.45 ? 1 : 0) - (sombra > 0.75 && v > 3 ? 1 : 0);
+    if (v > 1.5 && v < 8 && junta === 0) k = 0; else if (v > 1.5 && v < 8 && junta === 1) k = Math.min(3, k + 1);
+    R.pset(x, y, tono[Math.max(0, Math.min(3, k))]); }
+  // grietas que bajan entre estratos
+  for (let k = 0; k < 7; k++) { let x = 14 + k * 26, y = 128 + (k % 3) * 8; for (let i = 0; i < 12; i++) { R.pset(x, y, hex('#1a1422')); if (i % 3 === 0) R.pset(x + 1, y, hex('#6e6284')); x += h1(k, i) > 0.55 ? 1 : h1(k, i) < 0.2 ? -1 : 0; y += 1; } }
+  // las cornisas: dónde queda el borde de arriba de cada estrato en una x (para posar matas, rocas y gaviotas)
+  const cornisa = (x, n) => { let c = 0; for (let y = 124; y < 178; y++) { const s0 = capa(x, y - 1), s1 = capa(x, y); if (Math.floor(s1 / 10) !== Math.floor(s0 / 10) && R.pget(x, y) !== 0) { if (c === n) return y; c++; } } return 150; };
+  // matas que cuelgan de las cornisas, con florecillas
+  for (const [x, n] of [[22, 0], [58, 1], [96, 0], [118, 2], [146, 1], [30, 3], [80, 3], [168, 0], [130, 4]]) { const y = cornisa(x, n);
+    for (let i = -4; i <= 4; i++) { const l = 2 + Math.round(h1(x, i) * 5) - Math.abs(i) / 2; for (let j = 0; j < l; j++) R.pset(x + i, y + j, j === 0 ? hex('#4a8a5a') : j < l - 1 ? hex('#2e6a3a') : hex('#1e4a2a')); }
+    R.pset(x - 2, y - 1, hex('#5a9a6a')); R.pset(x + 1, y - 1, hex('#4a8a5a')); if (h1(x, 9) > 0.4) R.pset(x + 2, y + 1, hex('#f0e0f0')); }
+  // rocas sueltas al pie, mojadas, con su brillo de luna
+  for (const [x, y, r] of [[176, 172, 6], [188, 176, 5], [166, 177, 4], [196, 178, 4], [150, 176, 3]]) { R.disco(x, y, r + 1, hex('#1a1422')); R.disco(x, y, r, hex('#3c3248')); R.disco(x + 1, y - 1, r - 1.5, hex('#54486a')); R.pset(x + Math.round(r * 0.5), y - Math.round(r * 0.6), hex('#a8a0c0')); R.pset(x + Math.round(r * 0.5) - 1, y - Math.round(r * 0.6), hex('#7a7090')); }
+  // los posaderos de las gaviotas, con su churretón blanco debajo
+  POSA2.length = 0; for (const [x, n] of [[40, 1], [104, 2], [160, 1], [72, 4]]) { const y = cornisa(x, n); POSA2.push([x, y]); for (let j = 1; j < 7; j++) if (h1(x, j) > 0.25) R.pset(x + (j % 3 === 0 ? 1 : 0), y + j, mez(hex('#d8d4e0'), hex('#54486a'), j / 8)); }
+  const top = (x) => x < 180 ? Math.round(115 + x * 0.022) : 120;
   // la hierba del borde, con matas y florecillas
   for (let x = 0; x < 184; x++) { const y = top(x); R.pset(x, y - 1, hex('#2a5a3a')); R.pset(x, y, hex('#3a7a4a')); R.pset(x, y + 1, hex('#2a5a3a'));
     if (h1(x, 3) > 0.55) R.pset(x, y - 2 - (h1(x, 4) > 0.7 ? 1 : 0), hex('#4a8a5a')); if (h1(x, 5) > 0.93) { R.pset(x, y - 3, hex('#f0d060')); } }
@@ -127,6 +149,46 @@ const pintaRoca2 = () => { const b = R.nuevo(), prev = R.usar(b);
   // el tronco de la palmera (las hojas se mecen aparte)
   for (let i = 0; i <= 66; i++) { const u = i / 66, x = Math.round(64 + Math.sin(u * 1.4) * 22 - u * 4), y = 116 - i; R.rect(x - 2, y, x + 2, y, hex('#5a3a22')); R.pset(x - 1, y, hex('#8a6a3a')); if (i % 4 === 0) R.rect(x - 2, y, x + 2, y, hex('#3a2416')); }
   R.usar(prev); return b; };
+// un galeón a media distancia (x el centro del casco, yw la línea de flotación), proa a la izquierda: casco oscuro con
+// el filo claro de la borda y la franja de las portas, castillo de popa con ventanas encendidas, bauprés, tres
+// mástiles con sus vergas y las velas cuadradas hinchadas, mesana latina, jarcia, gallardete y el reflejo en el agua
+const galeon = (R, x, yw, t) => {
+  const MA = hex('#5a3a22'), JA = hex('#8a7a78'), V1 = hex('#efe4c4'), V2 = hex('#c8b894'), V3 = hex('#9a8a70'), deck = yw - 8;
+  // el reflejo: trazos que se rizan
+  for (let j = 1; j < 10; j++) for (let i = -24; i <= 22; i += 2) { const xx = x + i + Math.round(Math.sin(t * 3 + j * 0.9 + i * 0.3) * 1.5); if (h1(i, j) > 0.35) R.pset(xx, yw + j, j % 2 ? hex('#141a30') : hex('#3a3a50')); }
+  // jarcia de las bandas y estays (por detrás de las velas)
+  const mastiles = [[x - 13, 30], [x, 36], [x + 13, 26]];
+  for (const [mx, h] of mastiles) { R.linea(mx, deck - h + 2, mx - 6, deck, JA); R.linea(mx, deck - h + 2, mx + 6, deck, JA); for (let k = 1; k < 4; k++) R.linea(mx - 6 + k, deck - k * 6, mx + 6 - k, deck - k * 6, hex('#5a4e50')); }
+  R.linea(x - 13, deck - 30, x - 37, yw - 13, JA); R.linea(x, deck - 36, x - 13, deck - 30, JA); R.linea(x, deck - 36, x + 13, deck - 26, JA); R.linea(x + 13, deck - 26, x + 25, deck - 6, JA);
+  // los mástiles
+  for (const [mx, h] of mastiles) { R.rect(mx - 1, deck - h, mx, deck, hex('#2a1a10')); R.rect(mx, deck - h, mx, deck, MA); R.rect(mx - 2, deck - h + 10, mx + 1, deck - h + 11, hex('#2a1a10')); }
+  // las velas cuadradas en sus vergas (gavia y mayor), hinchadas por el viento que viene de popa
+  const sopla = Math.sin(t * 1.3) * 0.6;
+  for (const [mx, h] of mastiles.slice(0, 2)) for (const [y0, alto, an] of [[deck - h + 3, 9, 7], [deck - h + 14, 11, 9]]) {
+    R.rect(mx - an - 1, y0 - 1, mx + an + 1, y0 - 1, hex('#2a1a10'));
+    for (let j = 0; j < alto; j++) { const b = Math.round(Math.sin(j / alto * Math.PI) * (2 + sopla)), x0 = mx - an + Math.round(j * 0.15), x1 = mx + an - Math.round(j * 0.15);
+      for (let i = x0 - b; i <= x1 - b; i++) R.pset(i, y0 + j, i <= x0 - b || i >= x1 - b || j === alto - 1 ? hex('#2a2018') : i > mx + 2 - b ? V2 : j < 2 ? V1 : (i + j) % 7 === 0 ? V2 : V1);
+      R.pset(mx - b, y0 + j, j % 3 ? V3 : V2); }
+    R.rect(mx - an, y0, mx + an, y0, hex('#d8c8a0')); }
+  // la mesana latina a popa
+  R.poligono([[x + 13, deck - 24], [x + 22, deck - 4], [x + 13, deck - 4]], hex('#2a2018')); R.poligono([[x + 14, deck - 21], [x + 20, deck - 5], [x + 14, deck - 5]], V2); R.linea(x + 10, deck - 4, x + 18, deck - 26, hex('#2a1a10'));
+  // el gallardete negro con la calavera, que ondea
+  for (let i = 0; i < 9; i++) { const yy = deck - 37 + Math.round(Math.sin(t * 6 - i * 0.7) * 1); R.rect(x + 1 + i, yy, x + 1 + i, yy + (i < 6 ? 3 : 2), KK); } R.pset(x + 4, deck - 36 + Math.round(Math.sin(t * 6 - 2.1)), hex('#f4f2ee'));
+  // el bauprés
+  R.linea(x - 24, yw - 7, x - 37, yw - 13, hex('#2a1a10')); R.linea(x - 24, yw - 8, x - 36, yw - 14, MA);
+  // el casco: oscuro, con la borda clara, la franja de portas y el castillo de popa
+  R.poligono([[x - 26, yw - 8], [x + 26, yw - 8], [x + 22, yw], [x - 20, yw]], hex('#1a100a'));
+  R.poligono([[x - 25, yw - 7], [x + 25, yw - 7], [x + 21, yw - 1], [x - 19, yw - 1]], hex('#4a2c18'));
+  R.rect(x + 13, yw - 14, x + 27, yw - 8, hex('#1a100a')); R.rect(x + 14, yw - 13, x + 26, yw - 8, hex('#5a3820')); R.rect(x + 14, yw - 13, x + 26, yw - 13, hex('#e0b878'));
+  R.rect(x - 24, yw - 8, x + 26, yw - 8, hex('#e0b878')); R.rect(x - 22, yw - 5, x + 23, yw - 5, hex('#c89a40'));
+  for (let k = 0; k < 8; k++) R.pset(x - 18 + k * 5, yw - 4, hex('#140a06'));
+  for (const xx of [x + 17, x + 20, x + 23]) R.pset(xx, yw - 11, Math.sin(t * 5 + xx) > -0.4 ? hex('#ffd070') : hex('#c89040'));
+  R.rect(x - 19, yw - 1, x + 21, yw - 1, hex('#7a5a3a'));
+  // el farol de popa y la espuma de la proa
+  halo(R, x + 27, yw - 15, 6, hex('#ffd070'), 0.5); R.pset(x + 27, yw - 15, hex('#fff0b0'));
+  for (let i = 0; i < 6; i++) if (Math.sin(t * 8 + i) > -0.3) R.pset(x - 21 - i, yw - (i % 2), hex('#e8f4ff'));
+  for (let i = 0; i < 30; i += 2) if (h1(i, Math.floor(t * 5)) > 0.5) R.pset(x - 18 + i, yw, hex('#a8c8e8'));
+};
 const P2a = A(6.3), mono2 = A(6.6), quiere = A(8.84), salta = A(9.3);
 const p2 = (t) => {
   R.cielo(t, { hor: 123, luna: [214, 62, 26] });
@@ -134,8 +196,8 @@ const p2 = (t) => {
   R.nubes(t, { y0: 14, y1: 116, vel: 6, bandas: [[22, 7, 1], [104, 6, 0.8]] }, [214, 62, 26]);
   R.nubes(t * 0.5 + 40, { y0: 40, y1: 80, vel: 4, bandas: [[60, 9, 0.9]] }, [214, 62, 26]);
   R.mar(t, { hor: 123, luzX: 214 });
-  // un galeón lejano que cruza la estela de la luna
-  R.barco(Math.round(lerp(300, 196, tramo(t, P2, P3))), 125, t, { tipo: 'galeon', esc: 0.6, dir: -1 });
+  // el galeón que cruza la estela de la luna, por delante del cabo, meciéndose
+  galeon(R, Math.round(lerp(290, 238, tramo(t, P2, P3))), 149 + Math.round(Math.sin(t * 1.7)), t);
   for (let k = 0; k < 2; k++) { const x = Math.round((t * (14 + k * 5) + k * 160) % 360) - 20, y = 40 + k * 22 + Math.round(Math.sin(t * 7 + k) * 2); R.pset(x, y, KK); R.pset(x - 1, y - 1, KK); R.pset(x + 1, y - 1, KK); R.pset(x - 2, y, KK); R.pset(x + 2, y, KK); }
   if (!roca2) roca2 = pintaRoca2(); pegar(R, roca2);
   // las ventanas del pueblo y el faro, que gira
@@ -149,6 +211,15 @@ const p2 = (t) => {
   // la ola que rompe contra la roca
   const ola = (t * 0.55) % 1; for (let k = 0; k < 18; k++) { const a = k / 18 * Math.PI, r = 4 + ola * 14, x = Math.round(198 + Math.cos(a) * r * 1.4), y = Math.round(164 - Math.sin(a) * r * (1 - ola * 0.4)); if (ola < 0.8) { R.pset(x, y, hex('#e8f4ff')); R.pset(x + 1, y, hex('#a8c8e8')); } }
   for (let x = 196; x < 230; x++) if (h1(x, Math.floor(t * 6)) > 0.6) R.pset(x, 170 + Math.round(Math.sin(x * 0.4 + t * 3)), hex('#c8e0f8'));
+  // la espuma que lame el pie del acantilado, subiendo y bajando
+  for (let y = 128; y < 180; y++) { const xe = y < 142 ? 188 + (y - 126) / 4 : y < 160 ? 192 + (y - 142) * 8 / 18 : 200 + (y - 160) * 6 / 20, a = Math.sin(t * 2.4 - y * 0.18);
+    const w = Math.max(0, Math.round(a * 2.5 + (y > 150 ? 1.5 : 0) + Math.sin(y * 0.7) * 1.2)); for (let i = 0; i <= w; i++) if (h1(y, i + Math.floor(t * 4)) > 0.45) R.pset(Math.round(xe) + 1 + i + (h1(y, 5) > 0.7 ? 1 : 0), y, i === w ? hex('#f4faff') : hex('#a8c8e8')); }
+  // las gaviotas posadas en las cornisas (giran la cabeza; la tercera se arranca a volar sobre el mar)
+  POSA2.forEach(([gx, gy], k) => { let x = gx, y = gy - 1, vuela = k === 2 ? tramo(t, A(8.0), A(10.4)) : 0;
+    if (vuela > 0) { x = Math.round(gx + vuela * 110); y = Math.round(gy - 1 - Math.sin(vuela * 2.2) * 40 - vuela * 20); const al = Math.sin(t * 14) > 0 ? -2 : 1;
+      R.pset(x, y, hex('#f4f2ee')); R.pset(x + 1, y, hex('#f4f2ee')); R.pset(x + 2, y, hex('#e8a030')); R.linea(x - 3, y + al, x, y, hex('#c8c8d8')); R.linea(x + 1, y, x + 4, y + al, hex('#c8c8d8')); return; }
+    const mira = Math.sin(t * 0.9 + k * 2) > 0 ? 1 : -1; R.pset(x - 1, y, hex('#1a1422')); R.pset(x + 1, y, hex('#1a1422')); R.rect(x - 2, y - 3, x + 2, y - 1, hex('#e8e8f0')); R.rect(x - 2, y - 2, x + (mira > 0 ? 0 : 2), y - 2, hex('#9a9ab0'));
+    R.pset(x - 2 * mira, y - 1, hex('#5a5a6a')); R.rect(x + Math.min(mira, 2 * mira), y - 5, x + Math.max(mira, 2 * mira), y - 4, hex('#f4f2ee')); R.pset(x + 3 * mira, y - 4, hex('#e8a030')); R.pset(x + 2 * mira, y - 5, hex('#1a1422')); });
   // el mono que sube a la roca y se come un plátano; el aspirante mira el mar y sueña
   const um = tramo(t, mono2, mono2 + 0.7), xmo = Math.round(lerp(196, 166, um));
   T.bicho(R, xmo, 120 - (um > 0 && um < 1 ? Math.round(Math.sin(um * Math.PI) * 8) : 0), t, { quien: 'mono', dir: -1, anda: um > 0 && um < 1, platano: um >= 1 && t < salta, salta: t > salta && t < salta + 1.2 });
@@ -158,12 +229,13 @@ const p2 = (t) => {
 };
 // 3 · el estudio en 1990: los tres de la isla de los monos, con el pirata fantasma en la pizarra
 const dos = B(12.25), tim = B(14.15), dave = B(14.97), señala = B(11.45);
-const marcador = (R, x, y, c, lim) => { if (x <= lim) { R.pset(x, y, c); } };
+// los dibujos van 18 px más abajo que el primer borrador, al alcance del puntero corto desde la escalerilla
+const BAJA = 18, marcador = (R, x, y, c, lim) => { if (x <= lim) { R.pset(x, y + BAJA, c); } };
 const aro = (R, cx, cy, rx, ry, c, lim, a0 = 0, a1 = 6.283) => { for (let a = a0; a < a1; a += 0.06) marcador(R, Math.round(cx + Math.cos(a) * rx), Math.round(cy + Math.sin(a) * ry), c, lim); };
 const dibujos = (R, lim) => {
   // el mono (ya estaba en la pizarra)
   const M = hex('#8a5a2a'); aro(R, 112, 50, 10, 10, M, 999); aro(R, 112, 53, 6, 5, M, 999); aro(R, 101, 47, 3, 3, M, 999); aro(R, 123, 47, 3, 3, M, 999);
-  R.rect(109, 47, 109, 48, KK); R.rect(115, 47, 115, 48, KK); aro(R, 112, 54, 3, 2, KK, 999, 0.3, 2.8);
+  R.rect(109, 47 + BAJA, 109, 48 + BAJA, KK); R.rect(115, 47 + BAJA, 115, 48 + BAJA, KK); aro(R, 112, 54, 3, 2, KK, 999, 0.3, 2.8);
   // el pirata fantasma: cuerpo de sábana con la barba, el bicornio y los ojos
   const G = hex('#3a8a4a'); aro(R, 158, 50, 11, 11, G, lim, 3.14, 6.29); for (let x = 147; x <= 169; x++) marcador(R, x, 50 + Math.round(Math.abs(Math.sin((x - 147) * 0.45)) * 16) + 8, G, lim);
   for (const x of [147, 169]) for (let y = 50; y < 58; y++) marcador(R, x, y, G, lim);
@@ -178,14 +250,32 @@ const p3 = (t) => {
   T.estudio(R, t, { encuadre: 'pizarra', camara: 'general', anyo: 1990, trazo: 0 });
   const u = tramo(t, señala, dos + 0.9), lim = Math.round(lerp(140, 216, u));
   dibujos(R, lim);
-  // el diseñador de las gafas explica con el puntero, que va siguiendo el trazo
-  const yg = 152, d = R.actor(EL.disenador, 96, yg, t, { dir: 1, dedo: t > señala - 0.2 && t < B(15.6), habla: t > señala && t < dos && Math.sin(t * 8) > 0, sonrisa: t > tim });
-  if (t > señala - 0.2 && t < B(15.6)) { const tx = u < 1 ? Math.min(lim, 214) : 200 + Math.round(Math.sin(t * 3) * 10), ty = u < 1 ? 50 + Math.round(Math.sin(t * 9) * 8) : 58;
-    R.linea(d.mano[0], d.mano[1], tx, ty, hex('#5a3a1e')); R.linea(d.mano[0] + 1, d.mano[1], tx + 1, ty, hex('#a8743c')); R.rect(tx - 1, ty - 1, tx, ty, hex('#f4f2ee')); }
+  // la escalerilla de aluminio con ruedas, pegada a la pizarra: el diseñador va subido y rueda a lo largo del trazo para
+  // que la punta del puntero corto toque cada dibujo (mono, fantasma, barco)
+  const ue = tramo(t, señala, dos + 0.9), xd = Math.round(ue <= 0 ? 82 : Math.max(82, Math.min(168, lim - 32))), rueda = xd * 0.35;
+  const xe = xd - 3, pl = 118;   // la escalera va de xe a xe + 20; la plataforma, a la altura pl
+  R.rect(xe - 2, 151, xe + 24, 153, hex('#3e2e22'));   // su sombra en la moqueta
+  for (const [a, b] of [[xe, xe + 3], [xe + 17, xe + 20]]) { R.poligono([[a + 1, pl], [a + 2, pl], [b + (a < xe + 5 ? -2 : 2), 149], [b - 1 + (a < xe + 5 ? -2 : 2), 149]], KK); }
+  R.linea(xe + 2, pl + 1, xe - 1, 148, hex('#c8ccd8')); R.linea(xe + 18, pl + 1, xe + 21, 148, hex('#8a8e9a')); R.linea(xe + 3, pl + 1, xe, 148, hex('#e8ecf4'));
+  for (let k = 1; k <= 3; k++) { const y = pl + k * 8, d = Math.round(k * 0.75); R.rect(xe + 1 - d, y, xe + 19 + d, y + 1, KK); R.rect(xe + 2 - d, y, xe + 18 + d, y, hex('#d8dce4')); R.rect(xe + 6, y + 1, xe + 14, y + 1, hex('#6a6e7a')); }
+  R.rect(xe - 1, pl - 1, xe + 21, pl + 2, KK); R.rect(xe, pl, xe + 20, pl, hex('#eef2fa')); R.rect(xe, pl + 1, xe + 20, pl + 1, hex('#9a9eaa'));
+  for (let i = xe + 2; i < xe + 20; i += 3) R.pset(i, pl + 1, hex('#5a5e6a'));   // el estriado antideslizante
+  for (const wx of [xe - 2, xe + 22]) { R.disco(wx, 149, 2.6, KK); R.disco(wx, 149, 1.8, hex('#4a4a56')); R.pset(wx + Math.round(Math.cos(rueda) * 1.4), 149 + Math.round(Math.sin(rueda) * 1.4), hex('#c8ccd8')); }
+  const mueve = ue > 0 && ue < 1 && lim - 32 > 82 && lim - 32 < 168;
+  if (mueve && Math.floor(t * 10) % 2) for (const wx of [xe - 6, xe - 8]) R.pset(wx, 150 - (wx & 1), hex('#8a7a6a'));   // pelusa de la moqueta que levantan las ruedas
+  // el blanco de la punta: el dibujo que se está trazando (o el que toca nombrar)
+  const tpx = ue <= 0 ? 114 + Math.round(Math.sin(t * 5) * 2) : ue < 1 ? Math.min(lim, 214) - 2 : 200 + Math.round(Math.sin(t * 2.4) * 3);
+  const tpy = ue <= 0 ? 78 + Math.round(Math.sin(t * 7)) : ue < 1 ? 80 + Math.round(Math.sin(t * 9) * 3) : 82;
+  const d = R.actor(EL.disenador, xd, pl, t, { dir: 1, sostiene: [tpx, tpy], habla: t > señala - 0.6 && t < dos && Math.sin(t * 8) > 0, sonrisa: t > tim });
+  { const [hx, hy] = d.mano, dx = tpx - hx, dy = tpy - hy, dd = Math.hypot(dx, dy) || 1, L = Math.min(26, dd), ux = dx / dd, uy = dy / dd;
+    const x0 = Math.round(hx - ux * 3), y0 = Math.round(hy - uy * 3), x1 = Math.round(hx + ux * L), y1 = Math.round(hy + uy * L);
+    R.linea(x0 + 1, y0, x1 + 1, y1, hex('#3a2412')); R.linea(x0, y0, x1, y1, hex('#a8743c')); R.rect(x1 - 1, y1 - 1, x1, y1, hex('#f4f2ee')); R.pset(x0, y0, KK);
+    // la mano otra vez por encima del puntero, para que se vea agarrado
+    R.disco(hx, hy, 1.4, hex('#f0c8a0')); }
   // entran los dos jóvenes; cada uno levanta la mano cuando se dice su nombre
   const e1 = tramo(t, dos - 0.4, dos + 1.0), e2 = tramo(t, dos - 0.1, dos + 1.4);
-  R.actor(EL.disenador2, Math.round(lerp(334, 168, e1)), 152, t, { dir: -1, anda: e1 > 0 && e1 < 1, dedo: t > tim && t < tim + 1.3, sonrisa: t > tim, habla: t > tim && t < tim + 0.6 && Math.sin(t * 10) > 0 });
-  R.actor(EL.disenador2, Math.round(lerp(352, 206, e2)), 153, t, { dir: -1, anda: e2 > 0 && e2 < 1, dedo: t > dave && t < dave + 1.2, sonrisa: t > dave, habla: t > dave && t < dave + 0.6 && Math.sin(t * 10) > 0, pal: { H: hex('#c89a4a'), h: hex('#e0b860'), C: hex('#5a8a4a'), c: hex('#3e6a34') } });
+  R.actor(EL.disenador2, Math.round(lerp(334, 212, e1)), 152, t, { dir: -1, anda: e1 > 0 && e1 < 1, dedo: t > tim && t < tim + 1.3, sonrisa: t > tim, habla: t > tim && t < tim + 0.6 && Math.sin(t * 10) > 0 });
+  R.actor(EL.disenador2, Math.round(lerp(352, 240, e2)), 153, t, { dir: -1, anda: e2 > 0 && e2 < 1, dedo: t > dave && t < dave + 1.2, sonrisa: t > dave, habla: t > dave && t < dave + 0.6 && Math.sin(t * 10) > 0, pal: { H: hex('#c89a4a'), h: hex('#e0b860'), C: hex('#5a8a4a'), c: hex('#3e6a34') } });
 };
 // 4 · el barco fantasma en la niebla: chistes, monos y el pirata fantasma
 const chiste = B(16.91), monos = B(17.85), fantasma = B(18.59), lechuck = B(19.39), resbala = B(20.15);

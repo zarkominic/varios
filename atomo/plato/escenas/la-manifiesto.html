@@ -13,16 +13,17 @@
 // 1. el cuarto del ordenador de la mansión: un chaval juega; en «die» la pantalla se pone roja con la calavera de fin
 //    de juego; se sobresalta y se queda triste;
 // 2. (desde «knowing») la puerta cerrada para siempre del pasillo, de cerca: el chaval del juego llega, llama y empuja;
-//    le sale un «?»; en «unable to ever finish» el candado late y una telaraña crece entre él y la puerta;
+//    le sale un «?»; en «unable to ever finish» el candado late y crecen telarañas en las esquinas de la hoja (jamba y marco, antes
+//    que el chaval, sin cruzarle) y baja una araña;
 // 3. el estudio en 1989: el diseñador escribe a máquina en «writes a manifesto»; dos compañeros llegan, leen por encima
 //    de su hombro y se ríen en «very Gilbert title»;
 // 4. inserto: la hoja en la máquina de escribir, con las manos que teclean: el título y, en «suck», un pulgar abajo
 //    en rojo; «a rule»: un recuadro con un «1»; «never die»: una calavera que se tacha; «stuck»: un candado tachado;
 // 5. la pantalla del ordenador de los noventa: el cursor pulsa «usar» con el tentáculo morado: no pasa nada («X»,
-//    pone los ojos en blanco) en «wrong»; prueba otra cosa, «coger» la llave: «!», la llave al inventario; en
-//    «the game» el juego sonríe;
-// 6. dentro del juego: el tentáculo verde aplaude entre confeti y, en «keep looking», el cursor pulsa «mirar» y el
-//    tentáculo señala la puerta abierta.
+//    pone los ojos en blanco) en «wrong»; prueba otra cosa, «coger» la llave: «!» sobre el chico, la llave al
+//    inventario; en «the game» la luna de la ventana se vuelve una cara que sonríe (lejos del chico);
+// 6. dentro del juego: el tentáculo verde (sin brazos) celebra a saltos entre confeti, la ventosa golpea el suelo;
+//    en «keep looking» el cursor pulsa «mirar» y el tentáculo se inclina y mira hacia la puerta abierta.
 import * as T from '/atomo/plato/escenas/la-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('la-manifiesto');
@@ -66,15 +67,23 @@ const p2 = (t) => {
   const g = T.mansion(R, t, { encuadre: 'pasillo', camara: 'puerta', anyo: 1987 }), s = g.suelo, [dx0, dy0, dx1, dy1] = g.puerta;
   const ux = tramo(t, P2 + 0.05, P2 + 0.85), x = Math.round(lerp(10, dx0 - 18, ux));
   const llama = t > P2 + 0.9 && t < P2 + 1.6, empuja = t > P2 + 1.6 && t < P2 + 2.3, rendido = t > nunca + 0.9;
+  // las telarañas que crecen en las esquinas de la hoja (el tiempo pasa): ancladas en la jamba y el marco, sobre la
+  // madera, y la araña que baja de su hilo; se pintan antes que el chaval y no le cruzan nunca (él queda a x ≤ 100)
+  const telar = (ox, oy, sx, sy, L, k0) => { const nr = 6, tiembla = Math.sin(t * 1.7 + k0) * 0.6;
+    for (let k = 0; k < nr; k++) { const an = (k / (nr - 1)) * Math.PI / 2; R.linea(ox, oy, Math.round(ox + sx * Math.cos(an) * L), Math.round(oy + sy * Math.sin(an) * L + tiembla * k / nr), hex('#d8dce8')); }
+    for (let rr = 5; rr < L; rr += 5) for (let k = 0; k < nr - 1; k++) { const a0 = (k / (nr - 1)) * Math.PI / 2, a1 = ((k + 1) / (nr - 1)) * Math.PI / 2, rc = rr - 1.2;
+      const xm = ox + sx * Math.cos((a0 + a1) / 2) * rc, ym = oy + sy * Math.sin((a0 + a1) / 2) * rc; R.linea(Math.round(ox + sx * Math.cos(a0) * rr), Math.round(oy + sy * Math.sin(a0) * rr), Math.round(xm), Math.round(ym), hex('#a8acb8')); R.linea(Math.round(xm), Math.round(ym), Math.round(ox + sx * Math.cos(a1) * rr), Math.round(oy + sy * Math.sin(a1) * rr), hex('#a8acb8')); }
+    if (L > 12) pset(Math.round(ox + sx * L * 0.45), Math.round(oy + sy * L * 0.4), hex('#ffffff')); };
+  const tw = tramo(t, nunca + 0.3, P3 - 0.2), tw2 = tramo(t, nunca + 0.8, P3 - 0.1);
+  if (tw > 0) { telar(dx0 + 1, dy1 - 1, 1, -1, Math.round(tw * 30), 0); telar(dx0 + 1, dy0 + 1, 1, 1, Math.round(tw * 22), 2); }
+  if (tw2 > 0) { telar(dx1 - 1, dy0 + 1, -1, 1, Math.round(tw2 * 18), 4);
+    const ax = dx0 + 26, sy = dy0 + 2 + Math.round(tw2 * 70 + Math.sin(t * 2) * 3); R.linea(ax, dy0 + 1, ax, sy, hex('#a8acb8'));
+    R.disco(ax, sy + 2, 2, K); pset(ax, sy + 1, hex('#5a5a6a')); for (const d of [-1, 1]) { pset(ax + d * 3, sy + 1, K); pset(ax + d * 3, sy + 3, K); pset(ax + d * 2, sy + 4 + (Math.floor(t * 4) % 2), K); } }
   const r = R.actor(EL.empollon, x, s, t, { dir: 1, anda: ux > 0 && ux < 1, sostiene: llama ? [dx0 - 1, s - 18 + (Math.floor(t * 6) % 2) * 2] : empuja ? [dx0, s - 14] : undefined, triste: rendido, sorpresa: t > P2 + 2.3 && t < P2 + 2.6, salto: empuja ? (Math.floor(t * 10) % 2) : 0 });
   if (t > P2 + 2.3 && t < nunca + 0.9) R.bocadillo(x + 8, s - 30, { icono: '?' });
   if (rendido) R.bocadillo(x + 8, s - 30, { icono: 'reloj' });
   // el candado de la puerta late en «unable to ever finish»
   const [cx, cy] = g.cerradura; if (t > nunca - 0.1) { const v = Math.sin(t * 10) > 0; for (let k = 0; k < 40; k++) { const an = k * 0.157; for (const rr of [16 + (v ? 2 : 0), 17 + (v ? 2 : 0)]) pset(Math.round(cx + Math.cos(an) * rr), Math.round(cy - 2 + Math.sin(an) * rr), v ? hex('#ff5a3a') : hex('#c83a3a')); } R.icono('X', cx - 16, cy - 30, hex('#ff5a3a'), K, 2); }
-  // la telaraña que crece en la esquina entre el chaval y la puerta (el tiempo pasa)
-  const tw = tramo(t, nunca + 0.5, P3 - 0.2); if (tw > 0) { const ox = dx0 - 1, oy = s - 40, L = Math.round(tw * 28); for (let k = 0; k < 5; k++) { const an = Math.PI * (0.55 + k * 0.11); R.linea(ox, oy, Math.round(ox + Math.cos(an) * L), Math.round(oy - Math.sin(an) * L * -1), hex('#d8dce8')); }
-    for (let rr = 6; rr < L; rr += 6) for (let k = 0; k < 4; k++) { const a0 = Math.PI * (0.55 + k * 0.11), a1 = Math.PI * (0.55 + (k + 1) * 0.11); R.linea(Math.round(ox + Math.cos(a0) * rr), Math.round(oy + Math.sin(a0) * rr), Math.round(ox + Math.cos(a1) * rr), Math.round(oy + Math.sin(a1) * rr), hex('#a8acb8')); }
-    if (tw > 0.6) { const sy = oy + Math.round(Math.sin(t * 2) * 3 + L * 0.6); R.linea(ox - 6, oy, ox - 6, sy, hex('#a8acb8')); R.disco(ox - 6, sy + 1, 1.6, K); } }
 };
 
 // 3 · el estudio de 1989: el diseñador escribe a máquina y el equipo lee por encima del hombro
@@ -177,11 +186,11 @@ const p5 = (t) => {
     R.actor(EL.chico, cl[0] + 70, suelo, t, { dir: 1, sorpresa: t > mal && t < mal + 0.5, sonrisa: t > otra + 0.2, salto: t > otra + 0.2 && t < otra + 0.7 ? 3 : 0, triste: t > mal + 0.5 && t < prueba });
     // los «X» y «!»
     if (t > mal - 0.05 && t < prueba) { const s2 = Math.min(1, (t - mal + 0.05) * 6); R.icono('X', px - 22, suelo - 44 - Math.round(s2 * 4), hex('#e83a3a'), K, 2); }
-    if (t > otra - 0.05 && t < otra + 0.6) R.icono('!', mx + 10, suelo - 40 - Math.round(Math.abs(Math.sin(t * 8)) * 3), hex('#f0c840'), K, 2);
-    // en «the game», el juego sonríe: una cara sonriente grande que aparece en el centro con rayitos
-    const sj = tramo(t, otra + 0.35, otra + 0.75); if (sj > 0) { const cx = Math.round((cl[0] + cl[2]) / 2), cy = cl[1] + 26, rr = Math.round(sj * 14);
+    if (t > otra - 0.05 && t < otra + 0.6) R.icono('!', cl[0] + 74, suelo - 42 - Math.round(Math.abs(Math.sin(t * 8)) * 3), hex('#f0c840'), K, 2);
+    // en «the game», el juego sonríe: la luna de la ventana se vuelve una cara sonriente con rayitos (lejos del chico y del tentáculo)
+    const sj = tramo(t, otra + 0.35, otra + 0.75); if (sj > 0) { const cx = vx + 15, cy = cl[1] + 21, rr = Math.round(sj * 11);
       for (let k = 0; k < 12; k++) { const an = k * 0.524 + t; R.linea(Math.round(cx + Math.cos(an) * (rr + 3)), Math.round(cy + Math.sin(an) * (rr + 3)), Math.round(cx + Math.cos(an) * (rr + 7)), Math.round(cy + Math.sin(an) * (rr + 7)), hex('#f8e870')); }
-      R.disco(cx, cy, rr + 1, K); R.disco(cx, cy, rr, hex('#f8d838')); if (rr > 8) { R.disco(cx - 5, cy - 4, 1.8, K); R.disco(cx + 5, cy - 4, 1.8, K); for (let i = -7; i <= 7; i++) { const yy = Math.round(cy + 3 + (1 - (i / 7) ** 2) * 4); pset(cx + i, yy, K); pset(cx + i, yy + 1, K); } } }
+      R.disco(cx, cy, rr + 1, K); R.disco(cx, cy, rr, hex('#f8d838')); if (rr > 7) { R.disco(cx - 4, cy - 3, 1.6, K); R.disco(cx + 4, cy - 3, 1.6, K); pset(cx - 4, cy - 4, hex('#ffffff')); pset(cx + 4, cy - 4, hex('#ffffff')); for (let i = -6; i <= 6; i++) { const yy = Math.round(cy + 2 + (1 - (i / 6) ** 2) * 3); pset(cx + i, yy, K); pset(cx + i, yy + 1, K); } } }
     R.recorte(null);
     // la línea de verbos y el cursor: «usar» + tentáculo; luego «coger» + llave
     const fase2 = t > prueba;
@@ -229,10 +238,14 @@ const p6 = (t) => {
   const la = Math.sin(t * 1.4) * 4; R.linea(206, 0, Math.round(206 + la), 18, K); R.disco(Math.round(206 + la), 21, 5, hex('#c8a040')); for (let k = -2; k <= 2; k++) pset(Math.round(206 + la + k * 3), 26, hex('#fff0a0'));
   // la luz de la puerta abierta que parpadea con un «?» que invita
   if (t > mirar - 0.4) { const v = Math.sin(t * 6) > 0; R.icono('?', 102, 90 - (v ? 1 : 0), hex('#3a8a4a'), hex('#f8f0b0'), 2); }
-  // el tentáculo verde aplaude (las manitas se juntan y se separan) y, en «keep looking», señala la puerta
-  const aplaude = t < mirar - 0.2, golpe = Math.floor(t * 8) % 2;
-  const r = T.tentaculo(R, 168, 146, t, { s: 2, color: 'verde', expresion: 'feliz', brazos: 1, pose: aplaude ? (golpe ? 'arriba' : 'normal') : 'saluda', dir: aplaude ? 1 : -1, salto: aplaude ? Math.round(Math.abs(Math.sin(t * 8)) * 3) : 0 });
-  if (aplaude && golpe) for (let k = 0; k < 4; k++) { const an = k * 1.57 + 0.78; pset(Math.round(168 + Math.cos(an) * 8), Math.round(146 - 72 + Math.sin(an) * 5), hex('#fff0a0')); }
+  // el tentáculo verde (sin brazos, como en todo el episodio) celebra a saltos: se estira en el aire, se aplasta al caer
+  // y la ventosa golpea el suelo con polvo y chispas; en «keep looking» se inclina hacia la puerta y la mira
+  const aplaude = t < mirar - 0.2, ph = (t * 2.6) % 1, alto = aplaude ? Math.round(Math.sin(ph * Math.PI) * 10) : 0, cae = aplaude && (ph < 0.12 || ph > 0.92);
+  const r = T.tentaculo(R, 168, 146, t, { s: 2, color: 'verde', expresion: aplaude ? 'feliz' : 'normal', salto: aplaude ? alto : Math.round(Math.abs(Math.sin(t * 5)) * 2), aplasta: cae ? 0.35 : 0, dir: aplaude ? 1 : -1, inclina: aplaude ? 0 : -1, mira: aplaude ? [0, -0.5] : [-1, 0.2], habla: !aplaude && t < mirar + 0.8 });
+  if (cae) { const u = ph > 0.5 ? ph - 0.92 : ph + 0.08; for (const d of [-1, 1]) for (let k = 0; k < 3; k++) R.disco(Math.round(168 + d * (14 + k * 5 + u * 60)), 146 - k - Math.round(u * 20), 2.5 - k * 0.6, hex('#e8dcc0')); }
+  if (aplaude && ph > 0.3 && ph < 0.7) for (let k = 0; k < 5; k++) { const an = -Math.PI / 2 + (k - 2) * 0.45; pset(Math.round(168 + Math.cos(an) * 26), Math.round(146 - 54 - alto + Math.sin(an) * 12), hex('#fff0a0')); }
+  // al señalar: tres golpecitos de la ventosa hacia la puerta (huellas de luz que corren por la alfombra)
+  if (!aplaude) for (let k = 0; k < 3; k++) { const v = ((t - mirar) * 1.8 - k * 0.33); if (v > 0 && v < 1) R.disco(Math.round(150 - v * 34), 147, 1.5, hex('#fff0a0')); }
   // el confeti que cae
   for (let k = 0; k < 46; k++) { const sp = 18 + h(k, 1, 4) * 26, y = ((t - P6 + 0.2) * sp + h(k, 2, 4) * 160) % 160 - 10, x = Math.round(h(k, 3, 4) * 320 + Math.sin(t * 3 + k) * 4); if (t < P6 + h(k, 5, 4) * 0.5 || y < 0) continue; const c = [hex('#f04a3a'), hex('#f0c040'), hex('#3ab8f0'), hex('#8ae87a'), hex('#e87ad8')][k % 5], fl = Math.floor(t * 8 + k) % 2; rect(x, Math.round(y), x + (fl ? 1 : 0), Math.round(y) + (fl ? 0 : 1), c); }
   // la línea de verbos y el cursor: va a «mirar» y lo pulsa en «keep looking»

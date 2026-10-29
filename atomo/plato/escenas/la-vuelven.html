@@ -11,17 +11,20 @@
 <script type="module">
 // LA-VUELVEN (frases 49–51), 2016 → 2022 → hoy. Cinco planos:
 // 1. la fachada de la mansión al atardecer, todavía con los colores de 1993; la pintora entra con su brocha y en
-//    «repainted» echa a andar: por donde pasa la brocha, una barrida de luz deja la casa repintada en alta resolución;
+//    «repainted» echa a andar: por donde pasa la brocha, una barrida de luz (que nace bajo la barra del año) deja la casa repintada en alta resolución;
 //    los dos tentáculos del camino brillan cuando la barrida los alcanza y botan de alegría;
 // 2. (corta en «with the tentacles») el pasillo de la mansión, repintado: los dos tentáculos grandes, frente a frente;
 //    en «purple» el morado bota y se enciende, en «green» el verde, y en «than ever» se miran y el morado alza los brazos;
 // 3. (corta en «And in 2022») el porche de la taberna de día: los dos creadores con canas llegan del bote con su maleta y
-//    su petate; en «thirty years» sale un «30» dorado con un reloj; el pirata sale de la taberna y los saluda;
+//    su petate, desde el muelle de la derecha y por detrás de la caja de botellas del primer término; en «thirty years» sale un «30» dorado con un reloj; el pirata sale de la taberna y los saluda;
 // 4. (corta en «went back») el claro del bosque de día: los dos creadores entran; en «Monkey» el mono de tres cabezas
-//    parlotea, en «Return» uno lo señala y el mono saluda; en «Island» el otro se ríe con los brazos en alto;
+//    pega un bote (boing) y parlotea, en «Return» uno lo señala y el mono saluda; en «Island» el otro se ríe con los brazos en alto;
 // 5. (corta en «Many») el estudio de hoy: jóvenes con portátiles; llega una con su taza; en «point» un chico señala la
 //    balda de figuras (tentáculo, retrete, calavera, barco), que brillan; en «influence» todos sonríen y en «stories» la
 //    del centro alza los brazos con un «!».
+// Efectos (densidad ~50 %): además de los de cada acción, el boing de los tentáculos del camino cuando la barrida los
+// alcanza, el mono del banco mascando su plátano y otra ola bajo el bote en el porche, el bote del mono de tres cabezas,
+// el tecleo de los portátiles del estudio y el golpecito de la taza cuando la recién llegada se para.
 import * as T from '/atomo/plato/escenas/la-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('la-vuelven');
@@ -32,6 +35,7 @@ const P2 = a(0.66), P3 = b(-0.012), P4 = b(0.57), P5 = c(-0.015);
 const repinta = a(0.2776), alta = a(0.5036), morado = a(0.78), verde = a(0.8965), nunca = a(0.95);
 const treinta = b(0.2534), gilbert = b(0.4322), mono = b(0.6605), vuelve = b(0.7949), isla = b(0.909);
 const senala = c(0.273), influye = c(0.586), cuenta = c(0.869);
+const toca = repinta + (150 - 34) / 266 * (alta + 0.6 - repinta);   // la barrida alcanza al tentáculo morado
 const K = hex('#14101c');
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const bay = (x, y) => (B4[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
@@ -56,8 +60,9 @@ const p1 = (t) => {
   if (sx > 0) { const viejo = sx < 320 ? R.buf.slice() : null; T.mansion(R, t, { ...o1, hd: true });
     if (viejo) { const B = R.buf, x0 = Math.max(0, sx); for (let y = 0; y < 180; y++) for (let x = x0; x < 320; x++) B[y * 320 + x] = gris(viejo[(y - y % 3) * 320 + x - x % 3]);
       // el filo de la barrida: una cortina de luz tramada con chispas de colores que caen
-      for (let y = 16; y < 180; y++) for (let d = -3; d <= 2; d++) { const x = sx + d; if (x < 0 || x > 319) continue; if (1 - Math.abs(d) / 3.5 > bay(x, y + Math.floor(t * 20))) B[y * 320 + x] = d === 0 ? hex('#fffbe8') : hex('#ffe8a8'); }
-      for (let k = 0; k < 14; k++) { const f = (t * 1.4 + k * 0.137) % 1, x = Math.round(sx - 2 - f * 10 + Math.sin(k * 3.1) * 3), y = Math.round(20 + ((k * 47) % 150) + f * 14); R.pset(x, y, [hex('#b67ae6'), hex('#7ad86c'), hex('#ffe070'), hex('#ff8a6a')][k % 4]); if (k % 3 === 0) R.pset(x, y + 1, hex('#ffffff')); } } }
+      // (empieza por debajo de la barra del año y de su cifra, y-24, y se enciende poco a poco hasta y-40)
+      for (let y = 24; y < 180; y++) { const fu = Math.min(1, (y - 23) / 16); for (let d = -3; d <= 2; d++) { const x = sx + d; if (x < 0 || x > 319) continue; if ((1 - Math.abs(d) / 3.5) * fu > bay(x, y + Math.floor(t * 20))) B[y * 320 + x] = d === 0 ? hex('#fffbe8') : hex('#ffe8a8'); } }
+      for (let k = 0; k < 14; k++) { const f = (t * 1.4 + k * 0.137) % 1, x = Math.round(sx - 2 - f * 10 + Math.sin(k * 3.1) * 3), y = Math.round(32 + ((k * 47) % 136) + f * 10); R.pset(x, y, [hex('#b67ae6'), hex('#7ad86c'), hex('#ffe070'), hex('#ff8a6a')][k % 4]); if (k % 3 === 0) R.pset(x, y + 1, hex('#ffffff')); } } }
   // los dos tentáculos en el camino: miran a la pintora y se encienden cuando la barrida los alcanza
   for (const [tx, col, dd] of [[150, 'morado', 1], [174, 'verde', -1]]) {
     const pasa = sx > tx ? tramo(t, repinta + (tx - 34) / 266 * (alta + 0.6 - repinta), repinta + (tx - 34) / 266 * (alta + 0.6 - repinta) + 0.5) : 0;
@@ -85,6 +90,11 @@ const bote = (t) => { const y = 136 + Math.round(Math.sin(t * 1.8)), x = 270;
   for (let k = 0; k < 5; k++) { const f = (t * 0.7 + k * 0.2) % 1; R.pset(x + 3 + k * 9 + Math.round(f * 4), y + 2, hex('#e8f4ff')); } };
 const p3 = (t) => {
   const g = T.isla(R, t, { encuadre: 'muelle', camara: 'taberna', luz: 'dia' });
+  // la caja de botellas del primer término (x 290–318, y 148–179): se guarda para pintarla otra vez por delante de los
+  // creadores, que llegan del muelle por detrás de ella
+  const caja = [];
+  for (let y = 148; y < 180; y++) for (let x = 290; x <= 318; x++) { const i = (x - 293) % 5, enB = x >= 293 && x <= 315 && i <= 2;
+    if (y >= 158 || (enB && y >= 151) || (enB && i === 1 && y >= 148)) caja.push(y * 320 + x, R.buf[y * 320 + x]); }
   bote(t);
   // el mono del banco se come un plátano
   T.bicho(R, 52, 140, t, { quien: 'mono', dir: 1, platano: true });
@@ -92,12 +102,13 @@ const p3 = (t) => {
   const s = tramo(t, gilbert - 0.9, gilbert - 0.1);
   if (s > 0) R.actor(EL.pirata, Math.round(lerp(118, 146, s)), Math.round(lerp(140, 156, s)), t, { dir: 1, anda: s < 1, brazos: t > gilbert && t < gilbert + 0.9, habla: t > gilbert + 0.9 && Math.sin(t * 8) > 0, sonrisa: s >= 1 });
   // los dos creadores con canas llegan desde el bote, uno con la maleta y el otro con el petate
-  const u = tramo(t, P3 + 0.15, treinta - 0.15), u2 = tramo(t, P3 + 0.5, treinta + 0.2);
-  const x1 = Math.round(lerp(300, 196, u)), x2 = Math.round(lerp(326, 226, u2));
+  const u = tramo(t, P3 - 0.15, treinta - 0.15), u2 = tramo(t, P3 + 0.5, treinta + 0.2);
+  const x1 = Math.round(lerp(326, 196, u)), x2 = Math.round(lerp(326, 226, u2));
   const r2 = R.actor(EL.creador2, x2, 158, t, { dir: -1, anda: u2 > 0 && u2 < 1, sostiene: true, sonrisa: t > gilbert, habla: t > gilbert + 0.4 && t < gilbert + 1.2 && Math.sin(t * 9) > 0 });
   { const [mx, my] = r2.mano; R.disco(mx - 2, my + 3, 5, K); R.disco(mx - 2, my + 3, 4, hex('#c8b890')); R.linea(mx - 5, my + 1, mx + 1, my + 1, hex('#8a7a5a')); R.pset(mx - 3, my + 4, hex('#e8dcb8')); }
   const r1 = R.actor(EL.creador, x1, 162, t, { dir: -1, anda: u > 0 && u < 1, sostiene: t < gilbert ? true : null, brazos: t > gilbert && t < gilbert + 0.8, sonrisa: t > treinta });
   if (t < gilbert) { const [mx, my] = r1.mano; R.rect(mx - 6, my + 1, mx + 4, my + 8, K); R.rect(mx - 5, my + 2, mx + 3, my + 7, hex('#8a3a2a')); R.rect(mx - 5, my + 2, mx + 3, my + 2, hex('#b85a3a')); R.rect(mx - 2, my - 1, mx, my + 1, K); R.pset(mx - 4, my + 5, hex('#e8c040')); }
+  for (let i = 0; i < caja.length; i += 2) R.buf[caja[i]] = caja[i + 1];
   // «más de treinta años después»: un 30 dorado con un reloj de arena, sobre ellos
   const e = tramo(t, treinta, treinta + 0.35) - tramo(t, gilbert - 0.2, gilbert + 0.2);
   if (e > 0) { const y = Math.round(lerp(120, 108, e)); R.numero('30', 206, y, { tam: 16, centro: true }); R.icono('reloj', 228, y - 13, hex('#ffe070'), K, 2);
@@ -107,8 +118,12 @@ const p4 = (t) => {
   T.isla(R, t, { encuadre: 'bosque', camara: 'claro', luz: 'dia' });
   const u = tramo(t, P4 + 0.1, mono + 0.4), u2 = tramo(t, P4 + 0.4, mono + 0.8);
   const saluda = t > vuelve - 0.1;
-  T.bicho(R, 198, 158, t, { quien: 'mono3', s: 2, dir: -1, habla: t > mono && t < vuelve, saluda });
-  if (t > mono && t < vuelve) R.icono('!', 196, 98, hex('#ffe070'), K, 2);
+  const bote3 = Math.round(Math.sin(tramo(t, mono - 0.05, mono + 0.35) * Math.PI) * 7);
+  // mientras está en el aire, su sombra se queda en la hierba (más pequeña cuanto más alto)
+  if (bote3 > 0) { const rx = 15 - bote3, ry = 2; for (let yy = -ry; yy <= ry; yy++) for (let xx = -rx; xx <= rx; xx++) { if ((xx * xx) / (rx * rx) + (yy * yy) / (ry * ry) > 1) continue;
+    const c = R.pget(198 + xx, 158 + yy), m = (v) => Math.round(v * 0.62 + 6); R.pset(198 + xx, 158 + yy, (c & 0xff000000) | (m((c >> 16) & 255) << 16) | (m((c >> 8) & 255) << 8) | m(c & 255)); } }
+  T.bicho(R, 198, 158 - bote3, t, { quien: 'mono3', s: 2, dir: -1, habla: t > mono && t < vuelve, saluda });
+  if (t > mono && t < vuelve) R.icono('!', 196, 98 - bote3, hex('#ffe070'), K, 2);
   R.actor(EL.creador2, Math.round(lerp(-30, 82, u2)), 160, t, { dir: 1, anda: u2 > 0 && u2 < 1, sorpresa: t > mono && t < isla, brazos: t > isla, sonrisa: t > isla, habla: t > isla + 0.3 && Math.sin(t * 9) > 0 });
   R.actor(EL.creador, Math.round(lerp(-8, 118, u)), 164, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > vuelve && t < isla + 0.6, sonrisa: t > vuelve });
 };
@@ -134,7 +149,8 @@ const p5 = (t) => {
   if (t > cuenta && t < cuenta + 1.4) R.icono('!', 120, 100, hex('#ffe070'), K, 2);
 };
 const año = (t) => t < P3 ? 2016 : t < P5 ? 2022 : 2026;
-const efectos = [[repinta, 'whoosh'], [alta + 0.3, 'brillo'], [morado, 'boing'], [verde, 'boing'], [nunca, 'brillo'], [P3 + 0.2, 'ola'], [treinta, 'brillo'], [gilbert - 0.9, 'puerta'], [vuelve, 'palmada'], [senala, 'brillo'], [cuenta, 'palmada']];
+const efectos = [[repinta, 'whoosh'], [alta + 0.3, 'brillo'], [morado, 'boing'], [verde, 'boing'], [nunca, 'brillo'], [P3 + 0.2, 'ola'], [treinta, 'brillo'], [gilbert - 0.9, 'puerta'], [vuelve, 'palmada'], [senala, 'brillo'], [cuenta, 'palmada'],
+  [toca, 'boing'], [P3 + 0.84, 'masca'], [gilbert + 0.3, 'ola'], [mono, 'boing'], [P5 + 0.4, 'tecleo', { dur: 1.2 }], [senala - 0.26, 'golpecito']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año });
 </script>
 </body>

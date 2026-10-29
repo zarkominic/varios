@@ -24,8 +24,10 @@
 //    Bigfoot» aparecen delante las huellas gigantes y el coche las sigue. Corta en «Bigfoot».
 // 5. carretera 'feria' carpa: la jaula vacía con los barrotes doblados; el perro y el conejo entran y siguen las huellas
 //    («escaped»); en «Among» el Bigfoot sale de la carpa con los brazos arriba (el tentáculo morado disfrazado) y el
-//    perro se asusta; en «each one weirder» el conejo salta y le arranca el disfraz: el morado, pillado, pone cara de
-//    harto mientras el conejo agita la piel; el perro se ríe (gag 7).
+//    perro se asusta; en «each one weirder» el conejo salta y le arranca el disfraz: la piel le sale de las manos, vuela
+//    la tiene un instante agarrada, la lanza por encima
+//    del hombro y cae arrugada en la arena con su sombra y la cremallera abierta (da un botecito); el morado, pillado, pone cara de harto,
+//    el conejo lo celebra con los brazos arriba y el perro se ríe (gag 7).
 import * as T from '/atomo/plato/escenas/la-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('la-carretera');
@@ -129,9 +131,27 @@ const p4 = (t) => {
   const [cx, cy] = en_(u); cochecito(cx, cy - 3 + Math.round(Math.sin(t * 14)), u > 0 ? -1 : -1);
 };
 // ── 5 · la feria: el Bigfoot y el disfraz ──────────────────────────────────────────────────────────────────────
-const piel = (x, y, t) => { x = Math.round(x); y = Math.round(y); const F = [hex('#2a160c'), hex('#4a2a16'), hex('#6e4424'), hex('#9a6a3a')];
-  for (let j = -9; j <= 9; j++) for (let i = -12; i <= 12; i++) { const d = (i / 12) ** 2 + (j / 9) ** 2 + (hh(i, j, 7) - 0.5) * 0.35 + Math.sin(i * 0.9 + t * 9) * 0.05; if (d < 1) R.pset(x + i, y + j + Math.round(Math.sin(i * 0.5 + t * 10)), d > 0.8 ? F[0] : F[Math.min(3, 1 + Math.floor(hh(i, j, 3) * 2.2 + (j < 0 ? 0.6 : 0)))]); }
-  R.disco(x - 4, y - 2, 2, K); R.disco(x + 4, y - 2, 2, K); };
+// la piel del disfraz: ry el alto (9 suelta en el aire, con los agujeros de los ojos; g el giro); tirada: true la deja
+// hecha un montón arrugado en la arena (borde ondulado con contorno, la máscara hueca a la izquierda, la cremallera
+// abierta con el forro claro, el pelo que se mueve con el aire y la sombra debajo)
+const piel = (x, y, t, ry = 9, g = 0, tirada = false) => { x = Math.round(x); y = Math.round(y); const F = [hex('#2a160c'), hex('#4a2a16'), hex('#6e4424'), hex('#9a6a3a'), hex('#c08a50')];
+  if (tirada) {
+    // un montón arrugado (el borde ondulado), la máscara hueca a la izquierda y la cremallera abierta con el forro claro
+    const C = [[0, 0, 11, ry], [-13, -1, 5, 4]], ond = (i, k) => 1 + Math.sin(i * 1.3 + k) * 0.12 + Math.sin(i * 0.5 + t * 1.5) * 0.04;
+    for (let i = -20; i <= 14; i++) for (const j of [ry + 1, ry + 2]) { const c = R.pget(x + i, y + j); if (c && i > -19 + (j - ry) * 2 && i < 14 - (j - ry) * 2) R.pset(x + i, y + j, mez(c, K, 0.45)); }
+    for (const [cx, cy, rx, rr] of C) for (let j = -rr - 1; j <= rr + 1; j++) for (let i = -rx - 1; i <= rx + 1; i++) if ((i / (rx + 1)) ** 2 + (j / ((rr + 1) * ond(i, cx))) ** 2 < 1) R.pset(x + cx + i, y + cy + j, K);
+    for (const [cx, cy, rx, rr] of C) for (let j = -rr; j <= rr; j++) for (let i = -rx; i <= rx; i++) { const d = (i / rx) ** 2 + (j / (rr * ond(i, cx))) ** 2; if (d >= 1) continue;
+      const v = 2.2 - j / rr * 1.1 - d * 0.6 + (hh(i + cx, j, 3) - 0.5) * 1.3 + (Math.sin(i * 0.8 + t * 3) > 0.7 && j < 0 ? 0.8 : 0) - (Math.abs(Math.sin(i * 0.9 + 1)) < 0.15 ? 1 : 0); R.pset(x + cx + i, y + cy + j, F[Math.max(1, Math.min(4, Math.round(v)))]); }
+    for (let i = -6; i <= 8; i++) { R.pset(x + i, y - 1, i < -4 ? hex('#b89868') : hex('#e2cfa0')); R.pset(x + i, y, hex('#c8b080')); if (i % 2 === 0) { R.pset(x + i, y - 2, hex('#cfcac0')); R.pset(x + i + 1, y + 1, hex('#8a8478')); } }
+    R.pset(x + 9, y - 1, hex('#f0ece0')); R.pset(x + 10, y - 1, hex('#b0aca0')); R.pset(x + 10, y, K);
+    for (const ex of [-16, -11]) { R.rect(x + ex - 1, y - 3, x + ex + 1, y - 2, K); R.pset(x + ex, y - 1, F[0]); }   // los agujeros de los ojos de la máscara
+    R.linea(x - 15, y + 1, x - 12, y + 1, F[0]); R.pset(x - 17, y - 5, F[4]); R.pset(x - 13, y - 5, F[3]);
+    for (let k = 0; k < 5; k++) { const i = -9 + k * 4 + Math.round(Math.sin(t * 2.3 + k) * 0.6); R.pset(x + i, y - ry, F[4]); R.pset(x + i + 1, y - ry - 1 + (Math.sin(t * 3 + k * 2) > 0.3 ? 0 : 1), F[3]); }
+    return; }
+  const rx = 12 + Math.round((9 - ry) * 0.4);
+  for (let j = -ry; j <= ry; j++) for (let i = -rx; i <= rx; i++) { const d = (i / rx) ** 2 + (j / ry) ** 2 + (hh(i, j, 7) - 0.5) * 0.35 + Math.sin(i * 0.9 + t * 9) * 0.05;
+    if (d < 1) R.pset(x + i, y + j + Math.round(Math.sin(i * 0.5 + t * 10 + g)), d > 0.8 ? F[0] : F[Math.min(3, 1 + Math.floor(hh(i, j, 3) * 2.2 + (j < 0 ? 0.6 : 0)))]); }
+  R.disco(x - 4 + Math.round(Math.sin(g) * 2), y - 2, 2, K); R.disco(x + 4 + Math.round(Math.sin(g) * 2), y - 2, 2, K); };
 const p5 = (t) => {
   T.carretera(R, t, { encuadre: 'feria', camara: 'carpa' });
   const ESC = b(0.528), AMONG = b(0.70), WEIRD = b(0.846);
@@ -142,8 +162,15 @@ const p5 = (t) => {
   if (sale > 0) T.tentaculo(R, 160, 158 + Math.round((1 - sale) * 14), t, { color: 'morado', s: 2, dir: 1, accesorio: quita ? null : 'disfraz', brazos: 1, pose: quita ? 'normal' : 'arriba', expresion: quita ? (t > WEIRD + 0.7 ? 'harto' : 'sorpresa') : 'malvado', aplasta: quita && t < WEIRD + 0.2 ? 0.5 : 0 });
   if (pe) { const susto = t > AMONG + 0.1 && t < WEIRD + 0.2; T.detective(R, pe.x, pe.s, t, { quien: 'perro', dir: susto || pe.mv && pe.d < 0 ? (pe.mv ? -1 : 1) : 1, anda: pe.mv, sorpresa: susto || (t > ESC && t < ESC + 0.6), habla: t > WEIRD + 0.6 && Math.sin(t * 9) > 0 }); }
   if (co) { const salta = t > WEIRD - 0.35 && t < WEIRD + 0.5, hy = salta ? Math.round(Math.sin(tramo(t, WEIRD - 0.35, WEIRD + 0.5) * Math.PI) * 34) : 0;
-    const r = T.detective(R, co.x, co.s - hy, t, { quien: 'conejo', dir: t > ESC + 0.2 && t < AMONG ? 1 : -1, anda: co.mv, brazos: quita, sorpresa: t > AMONG && t < WEIRD });
-    if (quita) piel(co.x + 2 + Math.round(Math.sin(t * 8) * 3), co.s - hy - 40, t); }
+    // la piel: el conejo la arranca en lo alto del salto y la tiene un momento agarrada por el borde (se pinta antes que
+    // él, para que su mano quede por delante); luego la lanza por encima del hombro, vuela dando vueltas y cae
+    // arrugada en la arena, a su derecha, con un botecito y su sombra
+    const AG = WEIRD + 0.3, LA = WEIRD + 0.75, PX = 236, PY = 167, hx = co.x - 15, hyP = co.s - hy - 14;
+    if (quita && t < AG) piel(hx, hyP + Math.round(Math.sin(t * 20)), t, 9, t * 6);
+    T.detective(R, co.x, co.s - hy, t, { quien: 'conejo', dir: t > ESC + 0.2 && t < AMONG ? 1 : -1, anda: co.mv, brazos: quita, sorpresa: t > AMONG && t < WEIRD });
+    if (quita && t >= AG) { const u = tramo(t, AG, LA), y0 = co.s - 14 - Math.round(Math.sin(tramo(AG, WEIRD - 0.35, WEIRD + 0.5) * Math.PI) * 34);
+      if (u < 1) piel(lerp(hx, PX, u), lerp(y0, PY - 4, u) - Math.sin(u * Math.PI) * 22, t, Math.max(5, 9 - u * 4), u * 14);
+      else { const bote = tramo(t, LA, LA + 0.25); if (bote < 1) piel(PX, PY - Math.round(Math.sin(bote * Math.PI) * 3), t, 5); else piel(PX, PY, t, 4, 0, true); } } }
 
 };
 const efectos = [[0.2, 'coche'], [s(0.111), 'boing'], [P2 + 0.3, 'whoosh'], [s(0.621) - 0.05, 'boing'], [P3 + 0.3, 'puerta'], [s(0.887), 'boing'],

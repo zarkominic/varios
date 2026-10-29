@@ -17,7 +17,7 @@
 //    transforma sin cortarse. Corta en «The music».
 // 3. un travelling de un sitio a otro: el aspirante cruza la selva de noche (isla 'bosque' general), salta a la cubierta del
 //    barco fantasma (isla 'barcoFantasma' cerca) mientras la cámara pasa de un decorado al otro tras un tronco en primer
-//    término; las notas que flotan en el aire cambian de color y de forma al cruzar la juntura, sin cortarse
+//    término (que al acabar el barrido sale del cuadro por la izquierda); las notas que flotan en el aire cambian de color y de forma al cruzar la juntura, sin cortarse
 //    («seamlessly… from one place to another»); en «movie» el aspirante levanta los brazos, encantado.
 import * as T from '/atomo/plato/escenas/la-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -119,7 +119,10 @@ const p3 = (t) => {
   const x = Math.round(lerp(40, 140, llega) + lerp(0, 52, fin)), suelo = Math.round(lerp(150, 162, salta)), alto = Math.round(Math.sin(salta * Math.PI) * 9);
   const movie = t > a(0.94), anda = (llega > 0 && llega < 1) || (t > a(0.68) && t < a(0.87) && (salta <= 0 || salta >= 1)) || (fin > 0 && fin < 1);
   R.actor(EL.aspirante, x, suelo, t, { dir: 1, anda: anda && alto === 0, salto: alto, sorpresa: t > a(0.87) && t < a(0.92), sonrisa: !(t > a(0.87) && t < a(0.92)), brazos: movie });
-  if (sx > -16 && sx < 336) tronco(sx, t);
+  // el tronco tapa la juntura mientras se ve; al acabar el barrido sigue resbalando a la izquierda (primer término, más
+  // rápido) hasta salir del todo del cuadro, para que no quede selva sobre la cubierta
+  const tx = sx - Math.round(64 * tramo(t, a(0.87), a(0.87) + 0.45));
+  if (tx > -40 && tx < 336) tronco(tx, t);
 };
 const efectos = [[a(0.2), 'brillo'], [a(0.531), 'brillo'], [a(0.67), 'whoosh'], [a(0.765), 'golpecito'], [a(0.95), 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { cartela: '1991', efectos, año: 1991 });
