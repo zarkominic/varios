@@ -21,6 +21,9 @@ cuesta después una ronda de revisor, escéptico y pulido:
    puño y su sombra; y no cruza por encima de lo que tiene delante. Si no cabe así, solo la mano cerca del borde.
    Desde el 13 está hecho: `T.brazo(R, x0, y0, x1, y1, manga, dir, { codo: [x, y] })` (con la mano canónica al final) y,
    para la mano sola, `T.mano(R, x, y, dir, manga, { sinManga: true })`. No se escribe un brazo propio en la escena.
+   Eso es para los insertos de cerca. Un personaje chibi que sostiene algo usa
+   `R.actor(EL.x, x, suelo, t, { sostiene: true | [x, y] })`, que devuelve la mano en `.mano` para pintar ahí el objeto
+   (desde el 14; en el 13 y el 14 hubo 11 fallos de brazo por dibujarlo a mano).
 2. **Composición repetida:** el mismo encuadre que otro plano de la escena o de la escena de al lado (boya y barco en el
    mar tres veces; la misma granja con otra luz). Cada plano: otro decorado, otro encuadre de verdad o un inserto.
 3. **Zonas «casi lisas»:** no basta con no ser de un color. Un cielo en degradado con dos nubes, un mueble con cuatro

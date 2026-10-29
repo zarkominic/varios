@@ -78,5 +78,5 @@ una pasada o detalle no entra.
 
 **Pendiente para el próximo:**
 - Medir si el reparto previo de encuadres baja la composición repetida (objetivo: menos de 5).
-- Si el usuario aprueba la pose de «sostener», medir si bajan los fallos de brazo o mano.
+- La pose de «sostener» (`R.actor(…, { sostiene })`, aprobada el 29/10/2026): medir si bajan los fallos de brazo o mano.
 - Liberar disco al empezar (paso 0) con el cálculo nuevo, no a mitad del render.

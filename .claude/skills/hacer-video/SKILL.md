@@ -71,7 +71,9 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
      de las pasadas; en el 12 hubo que parar dos veces a liberar sitio a mitad de la producción, y en el 14 el render
      murió con el disco lleno: un episodio de 8:30 son ~15.000 fotogramas y ~7 GB). Si no los hay, libera ahora lo que
      se pueda regenerar (ver «Trampas conocidas») y, si hace falta, pregunta al usuario qué fotogramas de episodios ya
-     publicados se pueden borrar; no a mitad del render.
+     publicados se pueden borrar; no a mitad del render. **Regla aprobada por el usuario (29/10/2026):** los fotogramas
+     (`atomo/build/largo/<ep>/fotos`) del episodio anterior se borran al empezar el siguiente si ese ya está publicado,
+     sin volver a preguntar (con su ruta literal); los de otros episodios, preguntando.
 
    Si falta algo, arréglalo antes de empezar o díselo al usuario.
 2. `bash atomo/herramientas/preparar-voz.sh`. Tarda unos 6 minutos en un contenedor nuevo y nada si ya está; escribe la
