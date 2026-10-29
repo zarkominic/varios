@@ -1,0 +1,582 @@
+{
+ "banda": {
+  "tono": "fa",
+  "modo": "mixolidio",
+  "tempo": 108,
+  "motivo": [
+   0,
+   4,
+   7,
+   9,
+   10,
+   9,
+   7,
+   4
+  ]
+ },
+ "escenas": [
+  {
+   "id": "ny-gancho",
+   "estilo": "pixel",
+   "cartela": "1524",
+   "frase_ini": 1,
+   "frase_fin": 2,
+   "marcas": [
+    "dauphine",
+    "capitan"
+   ],
+   "guion_visual": [
+    "A/mapa: el Atlántico de Francia a América; La Dauphine cruza el estrecho entre dos colinas y se abre la bahía enorme, con bosque, marismas y garzas.",
+    "A: en la cubierta, Verrazzano con su catalejo y un mapa con una flecha hacia «China» que no lleva a ninguna parte; los marineros en las jarcias."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1524",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-lenapes",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 3,
+   "frase_fin": 4,
+   "marcas": [
+    "canoas",
+    "viento"
+   ],
+   "guion_visual": [
+    "A: unas veinte canoas de los lenapes salen de la orilla a recibirlos, con plumas de colores; en la cubierta, Verrazzano escribe su carta.",
+    "A: el viento del mar dobla los árboles y hincha las velas; los marineros vuelven a remo al barco; La Dauphine sale por el estrecho y la bahía queda atrás."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-pregunta",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 5,
+   "frase_fin": 6,
+   "marcas": [
+    "puerto",
+    "hoy"
+   ],
+   "guion_visual": [
+    "A/mapa: la bahía desde arriba: el puerto protegido, los ríos y la isla larga de Manhattan con colinas y bosques.",
+    "H: la misma isla se llena de calles, puentes y torres de piedra y de cristal, capa a capa, hasta la ciudad de hoy; «?»."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-hola",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 7,
+   "frase_fin": 7,
+   "marcas": [
+    "hola"
+   ],
+   "guion_visual": [
+    "H: el muelle de hoy con el skyline al fondo y un ferry que pasa; Atom se presenta."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-hudson",
+   "estilo": "pixel",
+   "cartela": "1609",
+   "frase_ini": 8,
+   "frase_fin": 9,
+   "marcas": [
+    "hudson",
+    "rodriguez"
+   ],
+   "guion_visual": [
+    "A: el Halve Maen, pequeño, sube por el río ancho entre acantilados; Hudson en la proa con su tripulación.",
+    "A: un barco de comerciantes de pieles con fardos; Juan Rodríguez se queda en la orilla con su hacha y sus mercancías, y saluda al barco que se va."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "cartela 1609",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-amsterdam",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 10,
+   "frase_fin": 12,
+   "marcas": [
+    "amsterdam",
+    "mito",
+    "compartir"
+   ],
+   "guion_visual": [
+    "B: Nueva Ámsterdam se levanta: el fuerte de tierra, el molino, las casas de ladrillo con tejados en escalera; las aspas se llevan el sombrero de un colono, que da vueltas (gag).",
+    "B: una carta de 1626 sobre una mesa; «60» florines en mercancías (telas, hachas, cazos) y una etiqueta de «$24» que se tacha.",
+    "A/B: un lenape y un colono a cada lado de un trozo de tierra, cada uno con una idea distinta en su burbuja: compartir y vender."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-muro",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 13,
+   "frase_fin": 13,
+   "marcas": [
+    "muro"
+   ],
+   "guion_visual": [
+    "B: los colonos clavan un muro de troncos de lado a lado de la isla; el muro se desvanece y en su lugar queda el letrero de la calle: «Wall St»."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-ingleses",
+   "estilo": "pixel",
+   "cartela": "1664",
+   "frase_ini": 14,
+   "frase_fin": 15,
+   "marcas": [
+    "barcos",
+    "rinde"
+   ],
+   "guion_visual": [
+    "B: los barcos de guerra ingleses entran en el puerto con los cañones asomados; en el fuerte, Stuyvesant con su pierna de madera y el catalejo; los vecinos con una carta.",
+    "B: una bandera blanca sube al fuerte, nadie dispara; la bandera holandesa baja, la inglesa sube y el letrero del muelle cambia a «New York»."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1664",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-timbre",
+   "estilo": "pixel",
+   "cartela": "1765",
+   "frase_ini": 16,
+   "frase_fin": 17,
+   "marcas": [
+    "impuesto",
+    "congreso"
+   ],
+   "guion_visual": [
+    "C: el puerto británico, con carros, barriles y gente; en una taberna, un jugador pega un sello en cada naipe y el castillo de naipes se le cae (gag).",
+    "C: el ayuntamiento de Wall Street con delegados con peluca alrededor de una mesa; en la calle, los Hijos de la Libertad con pancartas sin letras y un farol."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1765",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-flota",
+   "estilo": "pixel",
+   "cartela": "1776",
+   "frase_ini": 18,
+   "frase_fin": 19,
+   "marcas": [
+    "flota",
+    "brooklyn"
+   ],
+   "guion_visual": [
+    "C/mapa: el puerto se llena de cientos de velas británicas; la isla es una llave en el mapa de las colonias.",
+    "C: en Brooklyn, la tienda de campaña de Washington junto al río, sus soldados mirando el agua; humo lejano, sin combate."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1776",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-niebla",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 20,
+   "frase_fin": 21,
+   "marcas": [
+    "niebla",
+    "vacio"
+   ],
+   "guion_visual": [
+    "C: de noche, las barcas de remos cruzan el río Este en silencio; en una barca, un gallo va a cantar y un soldado le tapa el pico (gag); al amanecer entra la niebla.",
+    "C: la niebla se levanta y unos casacas rojas miran un campamento vacío: hogueras humeando y una cacerola olvidada."
+   ],
+   "animo": "suspense",
+   "golpes": [
+    "vacio"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-harlem",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 22,
+   "frase_fin": 22,
+   "marcas": [
+    "harlem"
+   ],
+   "guion_visual": [
+    "C: en los altos de Harlem, los soldados de Washington celebran con los sombreros en alto; al fondo, el puerto sigue lleno de barcos británicos; pasan siete calendarios."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-mastil",
+   "estilo": "pixel",
+   "cartela": "1783",
+   "frase_ini": 23,
+   "frase_fin": 23,
+   "marcas": [
+    "mastil"
+   ],
+   "guion_visual": [
+    "C: los barcos británicos se van; el marinero resbala por el mástil engrasado hasta abajo (gag), se pone los tacos, sube y cambia la bandera por la de las barras y estrellas; la gente aplaude."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1783",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-investidura",
+   "estilo": "pixel",
+   "cartela": "1789",
+   "frase_ini": 24,
+   "frase_fin": 25,
+   "marcas": [
+    "balcon",
+    "biblia"
+   ],
+   "guion_visual": [
+    "C: el Federal Hall en Wall Street, con la multitud abajo; Washington en el balcón con la mano levantada.",
+    "C: un hombre corre por la calle con una Biblia grande bajo el brazo, entra en el edificio y llega justo a tiempo."
+   ],
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "cartela 1789",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-capital",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 26,
+   "frase_fin": 28,
+   "marcas": [
+    "derechos",
+    "cena",
+    "puerto"
+   ],
+   "guion_visual": [
+    "C: dentro del Federal Hall, unos congresistas con plumas sobre un pergamino largo; en otra sala, jueces con toga se sientan por primera vez.",
+    "C: una cena a la luz de las velas con tres políticos; una flecha en un mapa lleva la capital al sur; un carro se lleva cajas de documentos.",
+    "D: los muelles de Nueva York siguen llenos de barcos y barriles; un comerciante ni levanta la vista."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-cuadricula",
+   "estilo": "pixel",
+   "cartela": "1811",
+   "frase_ini": 29,
+   "frase_fin": 30,
+   "marcas": [
+    "cuadricula",
+    "rectas"
+   ],
+   "guion_visual": [
+    "D: la mesa de los planos: sobre el dibujo de la isla, con colinas y arroyos, se traza una cuadrícula de calles rectas.",
+    "D: casas que encajan como ladrillos de juguete en las manzanas rectas; una casa redonda que no cabe se queda fuera."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1811",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-canal",
+   "estilo": "pixel",
+   "cartela": "1825",
+   "frase_ini": 31,
+   "frase_fin": 33,
+   "marcas": [
+    "barril",
+    "secreto",
+    "tonelada"
+   ],
+   "guion_visual": [
+    "D/mapa: el canal del Erie se dibuja del Hudson a los Grandes Lagos; en un barco engalanado, el gobernador vacía el barril en el puerto; un pez de agua dulce salta al mar y pone cara de salado (gag).",
+    "D/mapa: el puerto hondo y el río hasta el corazón del continente; barcazas de trigo tiradas por mulas bajan por el canal y pasan las esclusas.",
+    "D: una balanza con una tonelada: el precio baja de «$100» a menos de «$10»; los muelles de South Street se llenan de veleros."
+   ],
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "cartela 1825",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-brownstones",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 34,
+   "frase_fin": 35,
+   "marcas": [
+    "brownstones",
+    "parque"
+   ],
+   "guion_visual": [
+    "D: pasa una locomotora de vapor; una fila de casas de piedra rojiza con escalinata; los vecinos en los escalones.",
+    "D: la obra de Central Park: obreros con carretillas cavan un lago, plantan árboles y mueven rocas; luego, el parque terminado con barcas."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-llegan",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 36,
+   "frase_fin": 36,
+   "marcas": [
+    "barcos"
+   ],
+   "guion_visual": [
+    "E: la cubierta de un barco de emigrantes, con familias, maletas y baúles, que mira hacia la ciudad; banderitas de muchos países en los baúles."
+   ],
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-ellis",
+   "estilo": "pixel",
+   "cartela": "1892",
+   "frase_ini": 37,
+   "frase_fin": 39,
+   "marcas": [
+    "annie",
+    "estatua",
+    "puente"
+   ],
+   "guion_visual": [
+    "E: la sala de Ellis Island; Annie Moore con sus dos hermanos pequeños, la primera de la fila; un funcionario le sonríe.",
+    "E: el barco entra en el puerto y aparece la Estatua de la Libertad; la gente se asoma a la borda.",
+    "E: el puente de Brooklyn sobre el río Este; Emily Roebling cruza en una carroza abierta, y su marido mira desde una ventana con un catalejo."
+   ],
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "cartela 1892",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-distritos",
+   "estilo": "pixel",
+   "cartela": "1898",
+   "frase_ini": 40,
+   "frase_fin": 40,
+   "marcas": [
+    "distritos"
+   ],
+   "guion_visual": [
+    "mapa: las cinco piezas de Manhattan, Brooklyn, Queens, el Bronx y Staten Island se juntan como un puzle; un globo: Londres y Nueva York."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 1898",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-otis",
+   "estilo": "pixel",
+   "cartela": "1854",
+   "frase_ini": 41,
+   "frase_fin": 43,
+   "marcas": [
+    "arriba",
+    "otis",
+    "flatiron"
+   ],
+   "guion_visual": [
+    "E/F: la isla estrecha llena de gente; una flecha que sube.",
+    "F: el Palacio de Cristal; Otis en la plataforma alta, un ayudante corta la cuerda con un hacha; la plataforma se para; el público se tapa los ojos y una paloma sigue comiendo (gag).",
+    "F: una obra con esqueleto de acero que crece; el Flatiron, con forma de plancha, igual que una plancha antigua de hierro que aparece al lado."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1854",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-tartas",
+   "estilo": "pixel",
+   "cartela": "1916",
+   "frase_ini": 44,
+   "frase_fin": 45,
+   "marcas": [
+    "sombra",
+    "tartas"
+   ],
+   "guion_visual": [
+    "F: una torre enorme y recta tapa el sol; la calle de abajo queda a la sombra y la gente se pone abrigos; luego, edificios en escalones dejan pasar el sol.",
+    "F: el escaparate de una pastelería con una tarta de boda de pisos igual que el rascacielos de enfrente; una paloma se posa arriba (gag)."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1916",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-carrera",
+   "estilo": "pixel",
+   "cartela": "1929",
+   "frase_ini": 46,
+   "frase_fin": 47,
+   "marcas": [
+    "carrera",
+    "aguja"
+   ],
+   "guion_visual": [
+    "G: dos rascacielos crecen a la vez, el del Chrysler y el de Wall Street; dentro de la cúpula del Chrysler, los obreros montan en secreto la aguja de acero.",
+    "G: la aguja sale como un periscopio en unos minutos; en el rival de Wall Street, al obrero se le cae el bocadillo (gag)."
+   ],
+   "animo": "intriga",
+   "golpes": [
+    "aguja"
+   ],
+   "empieza_con": "cartela 1929",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-empire",
+   "estilo": "pixel",
+   "cartela": "1931",
+   "frase_ini": 48,
+   "frase_fin": 49,
+   "marcas": [
+    "empire",
+    "vacio"
+   ],
+   "guion_visual": [
+    "G: el Empire State crece piso a piso con obreros sentados en las vigas; inauguración con banderas; el Chrysler se queda más bajo.",
+    "G: oficinas vacías con eco; un oficinista solo en una planta entera; el letrero «Empire» se convierte en «Empty»."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1931",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-hoy",
+   "estilo": "pixel",
+   "cartela": "1950",
+   "frase_ini": 50,
+   "frase_fin": 51,
+   "marcas": [
+    "onu",
+    "capas"
+   ],
+   "guion_visual": [
+    "H: la orilla del río Este con la torre de cristal de la ONU y banderas; otras torres de cristal la copian por el mundo en el mapa.",
+    "H: la ciudad en capas como los anillos de un árbol: tejados en escalera, Federal Hall, brownstones, el puente, las tartas, el cristal; gente de hoy por la calle."
+   ],
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "cartela 1950",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-verrazzano",
+   "estilo": "pixel",
+   "cartela": "1964",
+   "frase_ini": 52,
+   "frase_fin": 53,
+   "marcas": [
+    "puente",
+    "zeta"
+   ],
+   "guion_visual": [
+    "H: el puente colgante sobre el estrecho de 1524; La Dauphine fantasma pasa por debajo.",
+    "H: el letrero del puente con una «z» que falta; en 2018 alguien la añade con una escalera."
+   ],
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "cartela 1964",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ny-cierre",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 54,
+   "frase_fin": 55,
+   "marcas": [
+    "barcos",
+    "adios"
+   ],
+   "guion_visual": [
+    "H/A: un barco entra en el puerto por debajo del puente, con la bahía de 1524 superpuesta: bosque, canoas, La Dauphine que se aleja.",
+    "H: el muelle al atardecer con el skyline encendiéndose; Atom."
+   ],
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  }
+ ],
+ "lotes": []
+}

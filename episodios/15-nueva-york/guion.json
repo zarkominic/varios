@@ -1,0 +1,812 @@
+{
+ "serie": "ASK Atom",
+ "numero": 14,
+ "estado": "v2",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "The Oak Island Money Pit: Why It Floods Every Time Someone Gets Close",
+  "es": "El Pozo del Dinero de Oak Island: por qué se inunda cada vez que alguien se acerca"
+ },
+ "principal": "en",
+ "voces": {
+  "en": {
+   "voz": "am_puck",
+   "lang": "en-us",
+   "velocidad": 0.85
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.92
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "ny-gancho",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1524",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "dauphine",
+     "es": "Es abril de 1524, y un barco francés, La Dauphine, se cuela por un estrecho entre dos colinas y entra en una bahía enorme y tranquila, rodeada de bosques.",
+     "en": "It's April 1524, and a French ship, La Dauphine, slips through a narrow strait between two hills into a huge, calm bay surrounded by forest.",
+     "visual": "A/mapa: el Atlántico de Francia a América; La Dauphine cruza el estrecho entre dos colinas y se abre la bahía enorme, con bosque, marismas y garzas.",
+     "es_voz": "Es abril de mil quinientos veinticuatro, y un barco francés, La Dofín, se cuela por un estrecho entre dos colinas y entra en una bahía enorme y tranquila, rodeada de bosques.",
+     "en_voz": "It's April fifteen twenty-four, and a French ship, La Doh-feen, slips through a narrow strait between two hills into a huge, calm bay surrounded by forest."
+    },
+    {
+     "n": 2,
+     "marca": "capitan",
+     "es": "Su capitán es un navegante italiano, Giovanni da Verrazzano, y busca un paso por mar hacia China.",
+     "en": "Her captain is an Italian navigator, Giovanni da Verrazzano, and he's looking for a sea route to China.",
+     "visual": "A: en la cubierta, Verrazzano con su catalejo y un mapa con una flecha hacia «China» que no lleva a ninguna parte; los marineros en las jarcias."
+    }
+   ],
+   "cartela": "1524"
+  },
+  {
+   "id": "ny-lenapes",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "canoas",
+     "es": "Según la carta que escribió al rey de Francia, la gente del lugar, los lenapes, salen a recibirlos en canoas, vestidos con plumas de colores.",
+     "en": "According to his letter to the king of France, the Lenape who live there paddle out in canoes to greet them, dressed in colorful feathers.",
+     "visual": "A: unas veinte canoas de los lenapes salen de la orilla a recibirlos, con plumas de colores; en la cubierta, Verrazzano escribe su carta.",
+     "en_voz": "According to his letter to the king of France, the Lenahpee who live there paddle out in canoes to greet them, dressed in colorful feathers."
+    },
+    {
+     "n": 4,
+     "marca": "viento",
+     "es": "Pero de pronto se levanta un viento fuerte del mar, y Verrazzano vuelve a su barco y se marcha, «con mucha pena», escribe, sin saber lo que deja atrás.",
+     "en": "But suddenly a strong wind blows in from the sea, and Verrazzano hurries back to his ship and sails away, \"with much regret,\" he writes, never knowing what he's leaving behind.",
+     "visual": "A: el viento del mar dobla los árboles y hincha las velas; los marineros vuelven a remo al barco; La Dauphine sale por el estrecho y la bahía queda atrás."
+    }
+   ]
+  },
+  {
+   "id": "ny-pregunta",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "puerto",
+     "es": "Acababa de encontrar uno de los mejores puertos naturales del mundo, y en aquella isla larga y llena de colinas, Manhattan, crecería una de las ciudades más famosas de la Tierra.",
+     "en": "He had just found one of the best natural harbors in the world, and on that long, hilly island, Manhattan, would grow one of the most famous cities on Earth.",
+     "visual": "A/mapa: la bahía desde arriba: el puerto protegido, los ríos y la isla larga de Manhattan con colinas y bosques.",
+     "es_voz": "Acababa de encontrar uno de los mejores puertos naturales del mundo, y en aquella isla larga y llena de colinas, Manjátan, crecería una de las ciudades más famosas de la Tierra."
+    },
+    {
+     "n": 6,
+     "marca": "hoy",
+     "es": "Hoy viven en ella más de ocho millones de personas, entre torres de piedra y de cristal: ¿cómo una isla de bosques y marismas llegó a ser Nueva York, y por qué sus edificios tienen esas formas?",
+     "en": "Today more than eight million people live there, among towers of stone and glass: so how did an island of forests and marshes become New York City, and why do its buildings look the way they do?",
+     "visual": "H: la misma isla se llena de calles, puentes y torres de piedra y de cristal, capa a capa, hasta la ciudad de hoy; «?»."
+    }
+   ]
+  },
+  {
+   "id": "ny-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico lo que no te contaron en clase. Vamos a verlo.",
+     "en": "I'm Atom, and I explain what school didn't teach you. Let's find out.",
+     "visual": "H: el muelle de hoy con el skyline al fondo y un ferry que pasa; Atom se presenta."
+    }
+   ]
+  },
+  {
+   "id": "ny-hudson",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "cartela 1609",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "hudson",
+     "es": "En 1609 llega otro barco, el Halve Maen, del inglés Henry Hudson, que trabaja para una compañía holandesa y sube por el gran río que hoy lleva su nombre.",
+     "en": "In 1609, another ship arrives, the Half Moon, captained by Henry Hudson, an Englishman working for a Dutch company, and he sails up the great river that now bears his name.",
+     "visual": "A: el Halve Maen, pequeño, sube por el río ancho entre acantilados; Hudson en la proa con su tripulación.",
+     "acto": true,
+     "es_voz": "En mil seiscientos nueve llega otro barco, el Jálve Man, del inglés Jénri Jádson, que trabaja para una compañía holandesa y sube por el gran río que hoy lleva su nombre.",
+     "en_voz": "In sixteen oh-nine, another ship arrives, the Half Moon, captained by Henry Hudson, an Englishman working for a Dutch company, and he sails up the great river that now bears his name."
+    },
+    {
+     "n": 9,
+     "marca": "rodriguez",
+     "es": "Detrás llegan los comerciantes de pieles, y en 1613 un marinero nacido en Santo Domingo, Juan Rodríguez, se queda a vivir allí: es el primer vecino de la isla que no era nativo del que hay constancia.",
+     "en": "Fur traders follow, and in 1613 a sailor born in Santo Domingo, Juan Rodríguez, stays behind: he's the first recorded non-Native resident of the island.",
+     "visual": "A: un barco de comerciantes de pieles con fardos; Juan Rodríguez se queda en la orilla con su hacha y sus mercancías, y saluda al barco que se va.",
+     "es_voz": "Detrás llegan los comerciantes de pieles, y en mil seiscientos trece un marinero nacido en Santo Domingo, Juan Rodríguez, se queda a vivir allí: es el primer vecino de la isla que no era nativo del que hay constancia.",
+     "en_voz": "Fur traders follow, and in sixteen thirteen a sailor born in Santo Domingo, Juan Rodríguez, stays behind: he's the first recorded non-Native resident of the island."
+    }
+   ],
+   "cartela": "1609"
+  },
+  {
+   "id": "ny-amsterdam",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 10,
+     "marca": "amsterdam",
+     "es": "En 1624 llegan las primeras familias de colonos holandeses, y en la punta sur de Manhattan levantan un fuerte, un molino de viento y casas de ladrillo con tejados en escalera: es Nueva Ámsterdam.",
+     "en": "In 1624, the first Dutch settler families arrive, and at the southern tip of Manhattan they build a fort, a windmill and brick houses with stepped gables: this is New Amsterdam.",
+     "visual": "B: Nueva Ámsterdam se levanta: el fuerte de tierra, el molino, las casas de ladrillo con tejados en escalera; las aspas se llevan el sombrero de un colono, que da vueltas (gag).",
+     "es_voz": "En mil seiscientos veinticuatro llegan las primeras familias de colonos holandeses, y en la punta sur de Manjátan levantan un fuerte, un molino de viento y casas de ladrillo con tejados en escalera: es Nueva Ámsterdam.",
+     "en_voz": "In sixteen twenty-four, the first Dutch settler families arrive, and at the southern tip of Manhattan they build a fort, a windmill and brick houses with stepped gables: this is New Amsterdam."
+    },
+    {
+     "n": 11,
+     "marca": "mito",
+     "es": "Seguro que has oído que la isla se compró por veinticuatro dólares, pero eso es un mito: una carta de 1626 habla de mercancías por valor de sesenta florines, y un historiador los pasó a dólares dos siglos después.",
+     "en": "You've probably heard the island was bought for twenty-four dollars, but that's a myth: a letter from 1626 mentions trade goods worth sixty guilders, and a historian converted that into dollars two centuries later.",
+     "visual": "B: una carta de 1626 sobre una mesa; «60» florines en mercancías (telas, hachas, cazos) y una etiqueta de «$24» que se tacha.",
+     "es_voz": "Seguro que has oído que la isla se compró por veinticuatro dólares, pero eso es un mito: una carta de mil seiscientos veintiséis habla de mercancías por valor de sesenta florines, y un historiador los pasó a dólares dos siglos después.",
+     "en_voz": "You've probably heard the island was bought for twenty-four dollars, but that's a myth: a letter from sixteen twenty-six mentions trade goods worth sixty guilders, and a historian converted that into dollars two centuries later."
+    },
+    {
+     "n": 12,
+     "marca": "compartir",
+     "es": "Y es probable que los lenapes lo entendieran como un acuerdo para compartir la tierra, no para venderla para siempre.",
+     "en": "And the Lenape probably understood it as an agreement to share the land, not to sell it forever.",
+     "visual": "A/B: un lenape y un colono a cada lado de un trozo de tierra, cada uno con una idea distinta en su burbuja: compartir y vender.",
+     "en_voz": "And the Lenahpee probably understood it as an agreement to share the land, not to sell it forever."
+    }
+   ]
+  },
+  {
+   "id": "ny-muro",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "muro",
+     "es": "En 1653, por miedo a un ataque inglés, los holandeses levantan un muro de troncos de lado a lado de la isla; el muro ya no existe, pero la calle que corría junto a él aún se llama la calle del Muro: Wall Street.",
+     "en": "In 1653, fearing an English attack, the Dutch build a wall of logs across the island; the wall is long gone, but the street that ran beside it is still called Wall Street.",
+     "visual": "B: los colonos clavan un muro de troncos de lado a lado de la isla; el muro se desvanece y en su lugar queda el letrero de la calle: «Wall St».",
+     "es_voz": "En mil seiscientos cincuenta y tres, por miedo a un ataque inglés, los holandeses levantan un muro de troncos de lado a lado de la isla; el muro ya no existe, pero la calle que corría junto a él aún se llama la calle del Muro: Uól Strit.",
+     "en_voz": "In sixteen fifty-three, fearing an English attack, the Dutch build a wall of logs across the island; the wall is long gone, but the street that ran beside it is still called Wall Street."
+    }
+   ]
+  },
+  {
+   "id": "ny-ingleses",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1664",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "barcos",
+     "es": "Y el ataque llega por mar: en 1664 entran en el puerto barcos de guerra ingleses, y el gobernador, Peter Stuyvesant, quiere luchar, pero los vecinos le piden que se rinda.",
+     "en": "And the attack comes by sea: in 1664, English warships sail into the harbor, and the governor, Peter Stuyvesant, wants to fight, but the townspeople beg him to surrender.",
+     "visual": "B: los barcos de guerra ingleses entran en el puerto con los cañones asomados; en el fuerte, Stuyvesant con su pierna de madera y el catalejo; los vecinos con una carta.",
+     "es_voz": "Y el ataque llega por mar: en mil seiscientos sesenta y cuatro entran en el puerto barcos de guerra ingleses, y el gobernador, Píter Stáivesant, quiere luchar, pero los vecinos le piden que se rinda.",
+     "en_voz": "And the attack comes by sea: in sixteen sixty-four, English warships sail into the harbor, and the governor, Peter Sty-vuh-sunt, wants to fight, but the townspeople beg him to surrender."
+    },
+    {
+     "n": 15,
+     "marca": "rinde",
+     "es": "Se rinde sin un solo disparo, y la ciudad cambia de nombre en honor al duque de York, el hermano del rey de Inglaterra: Nueva York.",
+     "en": "He gives up without a shot fired, and the town is renamed in honor of the Duke of York, the English king's brother: New York.",
+     "visual": "B: una bandera blanca sube al fuerte, nadie dispara; la bandera holandesa baja, la inglesa sube y el letrero del muelle cambia a «New York»."
+    }
+   ],
+   "cartela": "1664"
+  },
+  {
+   "id": "ny-timbre",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1765",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "impuesto",
+     "es": "Un siglo después, Nueva York es un puerto británico próspero y ruidoso, y en 1765 Londres pone un impuesto a cada papel impreso: periódicos, contratos y hasta naipes.",
+     "en": "A century later, New York is a busy, noisy British port, and in 1765 London puts a tax on printed paper: newspapers, contracts, even playing cards.",
+     "visual": "C: el puerto británico, con carros, barriles y gente; en una taberna, un jugador pega un sello en cada naipe y el castillo de naipes se le cae (gag).",
+     "acto": true,
+     "es_voz": "Un siglo después, Nueva York es un puerto británico próspero y ruidoso, y en mil setecientos sesenta y cinco Londres pone un impuesto a cada papel impreso: periódicos, contratos y hasta naipes.",
+     "en_voz": "A century later, New York is a busy, noisy British port, and in seventeen sixty-five London puts a tax on printed paper: newspapers, contracts, even playing cards."
+    },
+    {
+     "n": 17,
+     "marca": "congreso",
+     "es": "Ese octubre se reúnen en el ayuntamiento de Nueva York delegados de nueve colonias para protestar, y en las calles un grupo que se hace llamar los Hijos de la Libertad se enfrenta a los británicos.",
+     "en": "That October, delegates from nine colonies meet at New York's City Hall to protest, and in the streets, a group calling itself the Sons of Liberty campaigns against the British.",
+     "visual": "C: el ayuntamiento de Wall Street con delegados con peluca alrededor de una mesa; en la calle, los Hijos de la Libertad con pancartas sin letras y un farol."
+    }
+   ],
+   "cartela": "1765"
+  },
+  {
+   "id": "ny-flota",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1776",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "flota",
+     "es": "Cuando estalla la guerra de independencia, los británicos saben que quien tenga ese puerto tiene la llave de las colonias, y en el verano de 1776 llegan con una flota de cientos de barcos.",
+     "en": "When the Revolutionary War breaks out, the British know that whoever holds that harbor holds the key to the colonies, and in the summer of 1776 they arrive with a fleet of hundreds of ships.",
+     "visual": "C/mapa: el puerto se llena de cientos de velas británicas; la isla es una llave en el mapa de las colonias.",
+     "es_voz": "Cuando estalla la guerra de independencia, los británicos saben que quien tenga ese puerto tiene la llave de las colonias, y en el verano de mil setecientos setenta y seis llegan con una flota de cientos de barcos.",
+     "en_voz": "When the Revolutionary War breaks out, the British know that whoever holds that harbor holds the key to the colonies, and in the summer of seventeen seventy-six they arrive with a fleet of hundreds of ships."
+    },
+    {
+     "n": 19,
+     "marca": "brooklyn",
+     "es": "El general George Washington pierde la batalla de Brooklyn y queda atrapado con su ejército contra el río.",
+     "en": "General George Washington loses the Battle of Brooklyn and is trapped with his army against the river.",
+     "visual": "C: en Brooklyn, la tienda de campaña de Washington junto al río, sus soldados mirando el agua; humo lejano, sin combate.",
+     "es_voz": "El general George Washington pierde la batalla de Brúclin y queda atrapado con su ejército contra el río."
+    }
+   ],
+   "cartela": "1776"
+  },
+  {
+   "id": "ny-niebla",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [
+    "vacio"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "niebla",
+     "es": "Entonces, en la noche del 29 de agosto, cruza el río Este con miles de soldados en barcas de remos, en silencio, y al amanecer una niebla espesa tapa a los últimos.",
+     "en": "Then, on the night of August 29, he ferries thousands of soldiers across the East River in rowboats, in silence, and at dawn a thick fog hides the last ones still crossing.",
+     "visual": "C: de noche, las barcas de remos cruzan el río Este en silencio; en una barca, un gallo va a cantar y un soldado le tapa el pico (gag); al amanecer entra la niebla.",
+     "en_voz": "Then, on the night of August twenty-ninth, he ferries thousands of soldiers across the East River in rowboats, in silence, and at dawn a thick fog hides the last ones still crossing."
+    },
+    {
+     "n": 21,
+     "marca": "vacio",
+     "es": "Cuando la niebla se levanta, los británicos encuentran el campamento vacío.",
+     "en": "When the fog lifts, the British find the camp empty.",
+     "visual": "C: la niebla se levanta y unos casacas rojas miran un campamento vacío: hogueras humeando y una cacerola olvidada."
+    }
+   ]
+  },
+  {
+   "id": "ny-harlem",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "harlem",
+     "es": "Unas semanas después, en los altos de Harlem, Washington consigue su primera victoria en campo abierto, pero los británicos se quedan con Nueva York siete años, hasta el final de la guerra.",
+     "en": "A few weeks later, at Harlem Heights, Washington wins his first battlefield victory, but the British hold New York for seven years, until the end of the war.",
+     "visual": "C: en los altos de Harlem, los soldados de Washington celebran con los sombreros en alto; al fondo, el puerto sigue lleno de barcos británicos; pasan siete calendarios.",
+     "es_voz": "Unas semanas después, en los altos de Járlem, Washington consigue su primera victoria en campo abierto, pero los británicos se quedan con Nueva York siete años, hasta el final de la guerra."
+    }
+   ]
+  },
+  {
+   "id": "ny-mastil",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1783",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 23,
+     "marca": "mastil",
+     "es": "Cuentan que el 25 de noviembre de 1783, al marcharse, dejaron su bandera clavada en un mástil untado de grasa, y que un joven marinero trepó con tacos para cambiarla por la de las barras y estrellas.",
+     "en": "The story goes that on November 25, 1783, the departing British nailed their flag to a greased flagpole, and a young sailor climbed up with cleats to swap it for the Stars and Stripes.",
+     "visual": "C: los barcos británicos se van; el marinero resbala por el mástil engrasado hasta abajo (gag), se pone los tacos, sube y cambia la bandera por la de las barras y estrellas; la gente aplaude.",
+     "es_voz": "Cuentan que el 25 de noviembre de mil setecientos ochenta y tres, al marcharse, dejaron su bandera clavada en un mástil untado de grasa, y que un joven marinero trepó con tacos para cambiarla por la de las barras y estrellas.",
+     "en_voz": "The story goes that on November twenty-fifth, seventeen eighty-three, the departing British nailed their flag to a greased flagpole, and a young sailor climbed up with cleats to swap it for the Stars and Stripes."
+    }
+   ],
+   "cartela": "1783"
+  },
+  {
+   "id": "ny-investidura",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "cartela 1789",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "balcon",
+     "es": "Durante unos años, Nueva York es la capital del nuevo país, y el 30 de abril de 1789, en el balcón del Federal Hall, en Wall Street, George Washington jura como primer presidente de los Estados Unidos.",
+     "en": "For a few years, New York is the new nation's capital, and on April 30, 1789, on the balcony of Federal Hall on Wall Street, George Washington takes the oath as the first president of the United States.",
+     "visual": "C: el Federal Hall en Wall Street, con la multitud abajo; Washington en el balcón con la mano levantada.",
+     "acto": true,
+     "es_voz": "Durante unos años, Nueva York es la capital del nuevo país, y el 30 de abril de mil setecientos ochenta y nueve, en el balcón del Féderal Jol, en Uól Strit, George Washington jura como primer presidente de los Estados Unidos.",
+     "en_voz": "For a few years, New York is the new nation's capital, and on April thirtieth, seventeen eighty-nine, on the balcony of Federal Hall on Wall Street, George Washington takes the oath as the first president of the United States."
+    },
+    {
+     "n": 25,
+     "marca": "biblia",
+     "es": "Jura sobre una Biblia que tuvieron que ir a buscar a toda prisa a una logia masónica cercana, porque nadie se había acordado de traer una.",
+     "en": "He swears on a Bible fetched in a hurry from a nearby Masonic lodge, because nobody had remembered to bring one.",
+     "visual": "C: un hombre corre por la calle con una Biblia grande bajo el brazo, entra en el edificio y llega justo a tiempo."
+    }
+   ],
+   "cartela": "1789"
+  },
+  {
+   "id": "ny-capital",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "derechos",
+     "es": "En esa misma ciudad, el Congreso propone la Carta de Derechos y el Tribunal Supremo se reúne por primera vez.",
+     "en": "In that same city, Congress proposes the Bill of Rights, and the Supreme Court meets for the very first time.",
+     "visual": "C: dentro del Federal Hall, unos congresistas con plumas sobre un pergamino largo; en otra sala, jueces con toga se sientan por primera vez."
+    },
+    {
+     "n": 27,
+     "marca": "cena",
+     "es": "Pero en 1790, en una cena entre políticos, se cierra un trato: la capital se irá al sur, y Nueva York pierde el gobierno.",
+     "en": "But in 1790, a deal is struck over dinner: the capital will move south, and New York loses the government.",
+     "visual": "C: una cena a la luz de las velas con tres políticos; una flecha en un mapa lleva la capital al sur; un carro se lleva cajas de documentos.",
+     "es_voz": "Pero en mil setecientos noventa, en una cena entre políticos, se cierra un trato: la capital se irá al sur, y Nueva York pierde el gobierno.",
+     "en_voz": "But in seventeen ninety, a deal is struck over dinner: the capital will move south, and New York loses the government."
+    },
+    {
+     "n": 28,
+     "marca": "puerto",
+     "es": "A Nueva York no le hacía falta ser la capital para crecer: le bastaba con su puerto.",
+     "en": "New York didn't need to be the capital to grow: its harbor was enough.",
+     "visual": "D: los muelles de Nueva York siguen llenos de barcos y barriles; un comerciante ni levanta la vista."
+    }
+   ]
+  },
+  {
+   "id": "ny-cuadricula",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1811",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 29,
+     "marca": "cuadricula",
+     "es": "En 1811 la ciudad dibuja su futuro en un plano: una cuadrícula de calles rectas que cubre toda la isla, por encima de colinas, granjas y arroyos.",
+     "en": "In 1811, the city draws its future on a map: a grid of straight streets covering the whole island, right over its hills, farms and streams.",
+     "visual": "D: la mesa de los planos: sobre el dibujo de la isla, con colinas y arroyos, se traza una cuadrícula de calles rectas.",
+     "acto": true,
+     "es_voz": "En mil ochocientos once la ciudad dibuja su futuro en un plano: una cuadrícula de calles rectas que cubre toda la isla, por encima de colinas, granjas y arroyos.",
+     "en_voz": "In eighteen eleven, the city draws its future on a map: a grid of straight streets covering the whole island, right over its hills, farms and streams."
+    },
+    {
+     "n": 30,
+     "marca": "rectas",
+     "es": "¿Por qué rectas? Según sus autores, porque las casas rectas y en ángulo recto son las más baratas de construir y las más cómodas para vivir.",
+     "en": "Why straight? According to its planners, because straight-sided, right-angled houses are the cheapest to build and the most convenient to live in.",
+     "visual": "D: casas que encajan como ladrillos de juguete en las manzanas rectas; una casa redonda que no cabe se queda fuera."
+    }
+   ],
+   "cartela": "1811"
+  },
+  {
+   "id": "ny-canal",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "cartela 1825",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 31,
+     "marca": "barril",
+     "es": "Y en 1825 se abre el canal del Erie, que une el río Hudson con los Grandes Lagos, y el gobernador vacía en el puerto de Nueva York un barril de agua del lago Erie.",
+     "en": "Then, in 1825, the Erie Canal opens, linking the Hudson River to the Great Lakes, and the governor pours a keg of Lake Erie water into New York Harbor.",
+     "visual": "D/mapa: el canal del Erie se dibuja del Hudson a los Grandes Lagos; en un barco engalanado, el gobernador vacía el barril en el puerto; un pez de agua dulce salta al mar y pone cara de salado (gag).",
+     "es_voz": "Y en mil ochocientos veinticinco se abre el canal del Íri, que une el río Jádson con los Grandes Lagos, y el gobernador vacía en el puerto de Nueva York un barril de agua del lago Íri.",
+     "en_voz": "Then, in eighteen twenty-five, the Erie Canal opens, linking the Hudson River to the Great Lakes, and the governor pours a keg of Lake Erie water into New York Harbor."
+    },
+    {
+     "n": 32,
+     "marca": "secreto",
+     "es": "Ese es el secreto de Nueva York: un puerto hondo y protegido, y un río que ahora llega hasta el corazón del continente; el trigo del oeste baja en barcazas y sale en barco hacia el mundo.",
+     "en": "That's New York's secret: a deep, sheltered harbor, plus a river that now reaches deep into the continent; grain from the West floats down by barge and sails out to the world.",
+     "visual": "D/mapa: el puerto hondo y el río hasta el corazón del continente; barcazas de trigo tiradas por mulas bajan por el canal y pasan las esclusas."
+    },
+    {
+     "n": 33,
+     "marca": "tonelada",
+     "es": "Mover una tonelada desde los lagos pasa de costar unos cien dólares a menos de diez, y Nueva York pronto se convierte en el mayor puerto del país.",
+     "en": "Shipping a ton of goods from the lakes drops from about a hundred dollars to under ten, and New York soon becomes the country's busiest port.",
+     "visual": "D: una balanza con una tonelada: el precio baja de «$100» a menos de «$10»; los muelles de South Street se llenan de veleros."
+    }
+   ],
+   "cartela": "1825"
+  },
+  {
+   "id": "ny-brownstones",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 34,
+     "marca": "brownstones",
+     "es": "Después llegan los ferrocarriles, y en las calles nuevas se levantan filas de casas de piedra rojiza, las famosas brownstones.",
+     "en": "Railroads follow, and along the new streets rise rows of reddish sandstone houses, the famous brownstones.",
+     "visual": "D: pasa una locomotora de vapor; una fila de casas de piedra rojiza con escalinata; los vecinos en los escalones.",
+     "es_voz": "Después llegan los ferrocarriles, y en las calles nuevas se levantan filas de casas de piedra rojiza, las famosas bráunstouns."
+    },
+    {
+     "n": 35,
+     "marca": "parque",
+     "es": "Y en 1858, en mitad de la cuadrícula, empieza la obra de Central Park, donde los lagos, las colinas y los bosques se hicieron casi todos a mano.",
+     "en": "And in 1858, in the middle of the grid, work begins on Central Park, where the lakes, hills and woods were almost all made by hand.",
+     "visual": "D: la obra de Central Park: obreros con carretillas cavan un lago, plantan árboles y mueven rocas; luego, el parque terminado con barcas.",
+     "es_voz": "Y en mil ochocientos cincuenta y ocho, en mitad de la cuadrícula, empieza la obra de Séntral Park, donde los lagos, las colinas y los bosques se hicieron casi todos a mano.",
+     "en_voz": "And in eighteen fifty-eight, in the middle of the grid, work begins on Central Park, where the lakes, hills and woods were almost all made by hand."
+    }
+   ]
+  },
+  {
+   "id": "ny-llegan",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 36,
+     "marca": "barcos",
+     "es": "En las décadas de 1840 y 1850 llegan barcos llenos de irlandeses que huyen del hambre y de alemanes que buscan otra vida, y después italianos, judíos de Europa del Este, chinos y muchos más.",
+     "en": "In the 1840s and 1850s, ships arrive packed with Irish families fleeing famine and Germans seeking a new life, then Italians, Eastern European Jews, Chinese and many more.",
+     "visual": "E: la cubierta de un barco de emigrantes, con familias, maletas y baúles, que mira hacia la ciudad; banderitas de muchos países en los baúles.",
+     "acto": true,
+     "es_voz": "En las décadas de mil ochocientos cuarenta y mil ochocientos cincuenta llegan barcos llenos de irlandeses que huyen del hambre y de alemanes que buscan otra vida, y después italianos, judíos de Europa del Este, chinos y muchos más.",
+     "en_voz": "In the eighteen-forties and eighteen-fifties, ships arrive packed with Irish families fleeing famine and Germans seeking a new life, then Italians, Eastern European Jews, Chinese and many more."
+    }
+   ]
+  },
+  {
+   "id": "ny-ellis",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "cartela 1892",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 37,
+     "marca": "annie",
+     "es": "El 1 de enero de 1892 abre la estación de Ellis Island, y la primera en pasar es una chica irlandesa, Annie Moore, que llega con sus dos hermanos pequeños.",
+     "en": "On January 1, 1892, the Ellis Island station opens, and the first person through is an Irish girl, Annie Moore, arriving with her two younger brothers.",
+     "visual": "E: la sala de Ellis Island; Annie Moore con sus dos hermanos pequeños, la primera de la fila; un funcionario le sonríe.",
+     "es_voz": "El 1 de enero de mil ochocientos noventa y dos abre la estación de Élis Áiland, y la primera en pasar es una chica irlandesa, Áni Mur, que llega con sus dos hermanos pequeños.",
+     "en_voz": "On January first, eighteen ninety-two, the Ellis Island station opens, and the first person through is an Irish girl, Annie Moore, arriving with her two younger brothers."
+    },
+    {
+     "n": 38,
+     "marca": "estatua",
+     "es": "Por allí pasarán unos doce millones de personas, y lo primero que ven al entrar en el puerto es la Estatua de la Libertad, que lleva allí desde 1886.",
+     "en": "Some twelve million people will pass through it, and the first thing they see as they sail into the harbor is the Statue of Liberty, standing there since 1886.",
+     "visual": "E: el barco entra en el puerto y aparece la Estatua de la Libertad; la gente se asoma a la borda.",
+     "es_voz": "Por allí pasarán unos doce millones de personas, y lo primero que ven al entrar en el puerto es la Estatua de la Libertad, que lleva allí desde mil ochocientos ochenta y seis.",
+     "en_voz": "Some twelve million people will pass through it, and the first thing they see as they sail into the harbor is the Statue of Liberty, standing there since eighteen eighty-six."
+    },
+    {
+     "n": 39,
+     "marca": "puente",
+     "es": "Para entonces, el puente de Brooklyn ya cruza el río Este; la primera persona en cruzarlo, en 1883, fue Emily Roebling, que había llevado la obra cuando su marido, el ingeniero, cayó enfermo.",
+     "en": "By then, the Brooklyn Bridge spans the East River; the first to cross it, in 1883, was Emily Roebling, who had helped run the project after her husband, the chief engineer, fell ill.",
+     "visual": "E: el puente de Brooklyn sobre el río Este; Emily Roebling cruza en una carroza abierta, y su marido mira desde una ventana con un catalejo.",
+     "es_voz": "Para entonces, el puente de Brúclin ya cruza el río Este; la primera persona en cruzarlo, en mil ochocientos ochenta y tres, fue Émili Róublin, que había llevado la obra cuando su marido, el ingeniero, cayó enfermo.",
+     "en_voz": "By then, the Brooklyn Bridge spans the East River; the first to cross it, in eighteen eighty-three, was Emily Roebling, who had helped run the project after her husband, the chief engineer, fell ill."
+    }
+   ],
+   "cartela": "1892"
+  },
+  {
+   "id": "ny-distritos",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 1898",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 40,
+     "marca": "distritos",
+     "es": "Y el 1 de enero de 1898, Manhattan, Brooklyn, Queens, el Bronx y Staten Island se unen en una sola ciudad, la segunda más grande del mundo después de Londres.",
+     "en": "And on January 1, 1898, Manhattan, Brooklyn, Queens, the Bronx and Staten Island merge into a single city, the second largest in the world after London.",
+     "visual": "mapa: las cinco piezas de Manhattan, Brooklyn, Queens, el Bronx y Staten Island se juntan como un puzle; un globo: Londres y Nueva York.",
+     "es_voz": "Y el 1 de enero de mil ochocientos noventa y ocho, Manjátan, Brúclin, Cuíns, el Bronx y Státen Áiland se unen en una sola ciudad, la segunda más grande del mundo después de Londres.",
+     "en_voz": "And on January first, eighteen ninety-eight, Manhattan, Brooklyn, Queens, the Bronx and Staten Island merge into a single city, the second largest in the world after London."
+    }
+   ],
+   "cartela": "1898"
+  },
+  {
+   "id": "ny-otis",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1854",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 41,
+     "marca": "arriba",
+     "es": "Con tanta gente en una isla estrecha, solo queda un camino: hacia arriba, y para eso hacía falta algo que se enseñó por primera vez en Nueva York.",
+     "en": "With so many people on a narrow island, there's only one way to go: up, and that took something first shown off in New York.",
+     "visual": "E/F: la isla estrecha llena de gente; una flecha que sube.",
+     "acto": true
+    },
+    {
+     "n": 42,
+     "marca": "otis",
+     "es": "En 1854, en una feria, Elisha Otis sube a la plataforma de un ascensor, manda cortar la cuerda, y la plataforma no cae: su freno de seguridad la sujeta.",
+     "en": "In 1854, at a fair, Elisha Otis rides an elevator platform, orders the rope cut, and the platform doesn't fall: his safety brake catches it.",
+     "visual": "F: el Palacio de Cristal; Otis en la plataforma alta, un ayudante corta la cuerda con un hacha; la plataforma se para; el público se tapa los ojos y una paloma sigue comiendo (gag).",
+     "es_voz": "En mil ochocientos cincuenta y cuatro, en una feria, Iláisha Óutis sube a la plataforma de un ascensor, manda cortar la cuerda, y la plataforma no cae: su freno de seguridad la sujeta.",
+     "en_voz": "In eighteen fifty-four, at a fair, Elisha Otis rides an elevator platform, orders the rope cut, and the platform doesn't fall: his safety brake catches it."
+    },
+    {
+     "n": 43,
+     "marca": "flatiron",
+     "es": "Con ascensores seguros y esqueletos de acero, los edificios se estiran, como el Flatiron, de 1902, con forma de plancha antigua.",
+     "en": "With safe elevators and steel skeletons, buildings start to stretch, like the Flatiron, from 1902, shaped like an old clothes iron.",
+     "visual": "F: una obra con esqueleto de acero que crece; el Flatiron, con forma de plancha, igual que una plancha antigua de hierro que aparece al lado.",
+     "es_voz": "Con ascensores seguros y esqueletos de acero, los edificios se estiran, como el Flátaiern, de mil novecientos dos, con forma de plancha antigua.",
+     "en_voz": "With safe elevators and steel skeletons, buildings start to stretch, like the Flatiron, from nineteen oh-two, shaped like an old clothes iron."
+    }
+   ],
+   "cartela": "1854"
+  },
+  {
+   "id": "ny-tartas",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1916",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 44,
+     "marca": "sombra",
+     "es": "Pero en 1915 una torre enorme deja en sombra las calles de alrededor, y al año siguiente la ciudad aprueba una ley: los edificios altos tienen que irse estrechando en escalones para que la luz llegue a la calle.",
+     "en": "But in 1915, one huge tower casts the streets around it into shadow, and the next year the city passes a law: tall buildings have to step back as they rise, so light can reach the street.",
+     "visual": "F: una torre enorme y recta tapa el sol; la calle de abajo queda a la sombra y la gente se pone abrigos; luego, edificios en escalones dejan pasar el sol.",
+     "es_voz": "Pero en mil novecientos quince una torre enorme deja en sombra las calles de alrededor, y al año siguiente la ciudad aprueba una ley: los edificios altos tienen que irse estrechando en escalones para que la luz llegue a la calle.",
+     "en_voz": "But in nineteen fifteen, one huge tower casts the streets around it into shadow, and the next year the city passes a law: tall buildings have to step back as they rise, so light can reach the street."
+    },
+    {
+     "n": 45,
+     "marca": "tartas",
+     "es": "Por eso tantos rascacielos de Nueva York parecen tartas de boda.",
+     "en": "That's why so many New York skyscrapers look like wedding cakes.",
+     "visual": "F: el escaparate de una pastelería con una tarta de boda de pisos igual que el rascacielos de enfrente; una paloma se posa arriba (gag)."
+    }
+   ],
+   "cartela": "1916"
+  },
+  {
+   "id": "ny-carrera",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [
+    "aguja"
+   ],
+   "empieza_con": "cartela 1929",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 46,
+     "marca": "carrera",
+     "es": "En 1929 empieza una carrera por el edificio más alto del mundo, y el Chrysler guarda un as en la manga: una aguja de acero montada en secreto dentro de su cúpula.",
+     "en": "In 1929, a race begins for the tallest building in the world, and the Chrysler Building has an ace up its sleeve: a steel spire, assembled in secret inside its crown.",
+     "visual": "G: dos rascacielos crecen a la vez, el del Chrysler y el de Wall Street; dentro de la cúpula del Chrysler, los obreros montan en secreto la aguja de acero.",
+     "es_voz": "En mil novecientos veintinueve empieza una carrera por el edificio más alto del mundo, y el Cráisler guarda un as en la manga: una aguja de acero montada en secreto dentro de su cúpula.",
+     "en_voz": "In nineteen twenty-nine, a race begins for the tallest building in the world, and the Chrysler Building has an ace up its sleeve: a steel spire, assembled in secret inside its crown."
+    },
+    {
+     "n": 47,
+     "marca": "aguja",
+     "es": "Un día de octubre la suben en unos noventa minutos, y de golpe es el edificio más alto del mundo, por encima de su rival de Wall Street.",
+     "en": "One October day, they hoist it up in about ninety minutes, and suddenly it's the tallest building on Earth, beating its rival on Wall Street.",
+     "visual": "G: la aguja sale como un periscopio en unos minutos; en el rival de Wall Street, al obrero se le cae el bocadillo (gag).",
+     "es_voz": "Un día de octubre la suben en unos noventa minutos, y de golpe es el edificio más alto del mundo, por encima de su rival de Uól Strit."
+    }
+   ],
+   "cartela": "1929"
+  },
+  {
+   "id": "ny-empire",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1931",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 48,
+     "marca": "empire",
+     "es": "Le dura poco: en 1931 se inaugura el Empire State, levantado en poco más de un año.",
+     "en": "It doesn't last: in 1931 the Empire State Building opens, built in just over a year.",
+     "visual": "G: el Empire State crece piso a piso con obreros sentados en las vigas; inauguración con banderas; el Chrysler se queda más bajo.",
+     "es_voz": "Le dura poco: en mil novecientos treinta y uno se inaugura el Émpaier Estéit, levantado en poco más de un año.",
+     "en_voz": "It doesn't last: in nineteen thirty-one the Empire State Building opens, built in just over a year."
+    },
+    {
+     "n": 49,
+     "marca": "vacio",
+     "es": "Pero llega en plena Gran Depresión, y durante años tiene tantas oficinas vacías que lo apodan «el Empty State», el edificio vacío.",
+     "en": "But it opens in the middle of the Great Depression, and for years so many offices sit empty that people nickname it the \"Empty State Building.\"",
+     "visual": "G: oficinas vacías con eco; un oficinista solo en una planta entera; el letrero «Empire» se convierte en «Empty».",
+     "es_voz": "Pero llega en plena Gran Depresión, y durante años tiene tantas oficinas vacías que lo apodan «el Émpti Estéit», el edificio vacío."
+    }
+   ],
+   "cartela": "1931"
+  },
+  {
+   "id": "ny-hoy",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "cartela 1950",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 50,
+     "marca": "onu",
+     "es": "Después de la Segunda Guerra Mundial, Nueva York es la ciudad más grande del mundo, y a orillas del río Este se levanta la sede de las Naciones Unidas, una torre de cristal que copiará medio planeta.",
+     "en": "After World War II, New York is the biggest city on Earth, and beside the East River rises the United Nations headquarters, a glass tower half the planet will copy.",
+     "visual": "H: la orilla del río Este con la torre de cristal de la ONU y banderas; otras torres de cristal la copian por el mundo en el mapa.",
+     "acto": true
+    },
+    {
+     "n": 51,
+     "marca": "capas",
+     "es": "Hoy en sus calles se hablan cientos de idiomas, y sus edificios se leen como los anillos de un árbol: cada época dejó su capa.",
+     "en": "Today hundreds of languages are spoken on its streets, and its buildings read like the rings of a tree: every era left its layer.",
+     "visual": "H: la ciudad en capas como los anillos de un árbol: tejados en escalera, Federal Hall, brownstones, el puente, las tartas, el cristal; gente de hoy por la calle."
+    }
+   ],
+   "cartela": "1950"
+  },
+  {
+   "id": "ny-verrazzano",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "cartela 1964",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 52,
+     "marca": "puente",
+     "es": "En 1964 se inauguró un puente colgante sobre el mismo estrecho por el que entró La Dauphine, y lo llamaron Verrazzano.",
+     "en": "In 1964, a suspension bridge opened over the very strait La Dauphine sailed through, and it was named after Verrazzano.",
+     "visual": "H: el puente colgante sobre el estrecho de 1524; La Dauphine fantasma pasa por debajo.",
+     "acto": true,
+     "es_voz": "En mil novecientos sesenta y cuatro se inauguró un puente colgante sobre el mismo estrecho por el que entró La Dofín, y lo llamaron Verrazzano.",
+     "en_voz": "In nineteen sixty-four, a suspension bridge opened over the very strait La Doh-feen sailed through, and it was named after Verrazzano."
+    },
+    {
+     "n": 53,
+     "marca": "zeta",
+     "es": "Durante más de cincuenta años escribieron mal su nombre, con una zeta de menos, hasta que lo corrigieron en 2018.",
+     "en": "For more than fifty years, its name was misspelled, missing a z, until it was finally fixed in 2018.",
+     "visual": "H: el letrero del puente con una «z» que falta; en 2018 alguien la añade con una escalera.",
+     "es_voz": "Durante más de cincuenta años escribieron mal su nombre, con una zeta de menos, hasta que lo corrigieron en dos mil dieciocho.",
+     "en_voz": "For more than fifty years, its name was misspelled, missing a z, until it was finally fixed in twenty eighteen."
+    }
+   ],
+   "cartela": "1964"
+  },
+  {
+   "id": "ny-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 54,
+     "marca": "barcos",
+     "es": "Hoy todos los barcos que entran en Nueva York pasan por debajo del nombre del hombre que estuvo tan poco tiempo y se marchó sin saber lo que había encontrado.",
+     "en": "Today every ship that sails into New York passes beneath the name of the man who stayed so briefly, and sailed away without knowing what he'd found.",
+     "visual": "H/A: un barco entra en el puerto por debajo del puente, con la bahía de 1524 superpuesta: bosque, canoas, La Dauphine que se aleja."
+    },
+    {
+     "n": 55,
+     "marca": "adios",
+     "es": "¿Qué quieres que te explique ahora?",
+     "en": "What do you want me to explain next?",
+     "visual": "H: el muelle al atardecer con el skyline encendiéndose; Atom."
+    }
+   ]
+  }
+ ]
+}
