@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep16</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LA-MINIATURA · la miniatura del episodio 16 (se captura en t = 1, 1280 × 720). Dos aventuras partidas por una
+// diagonal: a la izquierda, el río de lodo verde detrás de la mansión, con el tentáculo morado al doble, brillando, con
+// sus bracitos arriba de conquistador y el verde preocupado; a la derecha, el puerto pirata de noche con el aspirante a
+// pirata y el esqueleto del traje, al doble. Arriba en el centro, la regla secreta: un recuadro dorado con un «1» y la
+// calavera tachada (en estos juegos no se muere). Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_LA as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import { C, mansion, isla, tentaculo, calaca } from '/atomo/plato/escenas/la-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), VACIO = 0x01020304;
+const corte = (y) => 150 + Math.round((179 - y) * 0.25);   // la diagonal: arriba más a la derecha
+const dibujar = (t) => {
+  let prev = R.usar(izq); mansion(R, t, { encuadre: 'rio', camara: 'general', luz: 'noche' });
+  R.usar(der); isla(R, t, { encuadre: 'muelle', camara: 'general', luz: 'noche' });
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.pirata, 12, 60, 0.5, { dir: -1, quieto: true, sorpresa: true });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x - 1, y, C.k); R.pset(x, y, C.blanco); R.pset(x + 1, y, C.blanco); R.pset(x + 2, y, C.k); }
+  // los dos tentáculos al doble, en la orilla del río
+  tentaculo(R, 48, 172, t, { color: 'verde', s: 2, dir: 1, expresion: 'preocupado', mira: [1, -0.3], quieto: true });
+  tentaculo(R, 104, 174, t, { s: 2, dir: 1, expresion: 'malvado', brazos: 1, pose: 'arriba', brillo: 1, quieto: true });
+  // el aspirante a pirata al doble (sorprendido) y el esqueleto del traje, que le señala la regla
+  const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+  pon(pj, 0, 26, 28, 61, 196, 112, 2);
+  calaca(R, 278, 176, t, { s: 2, dir: -1, pose: 'senala' });
+  // la regla secreta: el recuadro dorado con el «1» y la calavera tachada
+  const x0 = 122, y0 = 18, x1 = 198, y1 = 62, oro = hex('#e8b830'), oroS = hex('#8a5a10'), fondo = hex('#1a1030');
+  R.rect(x0 - 2, y0 - 2, x1 + 2, y1 + 2, C.k); R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, oroS); R.rect(x0, y0, x1, y1, oro); R.rect(x0 + 3, y0 + 3, x1 - 3, y1 - 3, fondo);
+  R.numero('1', x0 + 22, y1 - 7, { tam: 32, centro: true });
+  const cx = 172, cy = 40, hueso = hex('#f2eee2'), hS = hex('#a8a090');
+  R.disco(cx, cy - 4, 11, hueso); R.rect(cx - 7, cy + 4, cx + 7, cy + 11, hueso); R.rect(cx - 7, cy + 10, cx + 7, cy + 11, hS);
+  R.disco(cx - 5, cy - 4, 3.6, fondo); R.disco(cx + 5, cy - 4, 3.6, fondo); R.rect(cx - 1, cy + 2, cx + 1, cy + 4, fondo);
+  for (let i = -1; i <= 1; i++) R.rect(cx + i * 4, cy + 8, cx + i * 4, cy + 11, fondo);
+  const rojo = hex('#e83a3a'), rojoS = hex('#7a1010');
+  for (let k = -17; k <= 17; k++) for (const [a, c] of [[-2, rojoS], [-1, rojo], [0, rojo], [1, rojo], [2, rojoS]]) R.pset(cx + k, cy + 1 + k + a, c);
+  if (Math.sin(t * 6) > 0) R.pset(x0 + 6, y0 + 6, hex('#fff6c8'));
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
