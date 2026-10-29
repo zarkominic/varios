@@ -249,7 +249,10 @@ const eventos = lista.filter((e) => e[0] < dur).map(([t, nombre, o = {}]) => {
   // la energía que pone en cada ventana (en mono, como la mide medir-sonido.py)
   const w = Math.round(VENT * SR), i0 = Math.round(t * SR), en = new Map();
   for (let i = 0; i < b.length; i++) { const k = Math.floor((i0 + i) / w); en.set(k, (en.get(k) || 0) + (b[i] * g) ** 2 / w * 0.5); }
-  return { t, nombre, o, b, g, pan: nombre === 'aldea' ? -0.6 + 0.1 * (o.k ?? 0) : o.pan ?? pan, en, vivo: true };
+  const P = nombre === 'aldea' ? -0.6 + 0.1 * (o.k ?? 0) : o.pan ?? pan;
+  // un NaN en un efecto (en el 14, la «aldea» sin o.k) estropea toda la pista y el montaje falla al final: se para aquí
+  if (!Number.isFinite(g) || !Number.isFinite(P) || b.some((x) => !Number.isFinite(x))) throw new Error(`efecto con NaN: ${nombre} en t=${t} (${JSON.stringify(o)})`);
+  return { t, nombre, o, b, g, pan: P, en, vivo: true };
 });
 const nV = Math.floor(dur / VENT), E = new Float64Array(nV + 64);
 for (const e of eventos) for (const [k, v] of e.en) E[k] += v;

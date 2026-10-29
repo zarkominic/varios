@@ -44,6 +44,8 @@ cuesta después una ronda de revisor, escéptico y pulido:
 En el 13, la calidad suspendió 47 de los 102 planos del borrador, con 96 fallos: algo que no se lee 21, quieto 15,
 composición repetida 13, zonas casi lisas 13, brazos 11, orden de dibujo 6, letras 4. Son los que hay que mirar antes de
 entregar un borrador.
+En el 14 bajaron a 65 (orden de dibujo 14, composición repetida 14, algo no se lee 13, brazos 11, quieto 7, liso 4,
+zona de Atom 2, letras 0): la historia de cada episodio está en `APRENDIZAJES.md`.
 
 Además: **efectos** con un presupuesto de un efecto por segundo como mucho y pocos rellenos (pop, brillo, whoosh); el 12
 llevaba 595 en 532 s y sonaban el 75 % del tiempo.

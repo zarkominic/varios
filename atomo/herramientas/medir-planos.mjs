@@ -136,6 +136,9 @@ for (const id of ids) {
         if (Math.min(dif(F, A, j), dif(F, B, j)) > 90) n++;
       }
       const u = n / (F.length / 3);
+      // el corte de la cartela de año al primer plano es seco (T.rodar): lo que cambia ahí es el propio plano 1 animándose,
+      // no un resto; por debajo del 10 % no se avisa (en el 13 y el 14 fue un REVISAR del 3–4 % que costó agentes)
+      if (cartela && i === 1 && u < 0.1) continue;
       if (u >= 0.1) mal.push(`ROTO ${nombre(i)} (t=${p[i].toFixed(2)}: ${(u * 100).toFixed(0)} %)`);
       else if (u > 0.03) dudas.push(`REVISAR ${nombre(i)} (t=${p[i].toFixed(2)}: ${(u * 100).toFixed(0)} %)`);
     }

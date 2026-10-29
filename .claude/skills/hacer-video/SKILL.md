@@ -62,12 +62,16 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
 
 ### 0. Arranque
 
+0. Lee `episodios/APRENDIZAJES.md`: el historial de cifras y, sobre todo, el «Pendiente para el próximo» del último
+   episodio. Lo que diga, se vigila o se prueba en este (y se mide en el paso 15).
 1. `bash atomo/herramientas/comprobar-entorno.sh`. Comprueba:
    - node, Playwright con Chromium, ffmpeg completo, Python, Pillow y las fuentes;
    - la red hasta GitHub, Hugging Face y Google Fonts (de ahí salen las fuentes de los números del canon);
    - el disco: al menos **10 GB libres** (6 para el render, 1,5 para la voz si aún no está y margen para las capturas
-     de las pasadas; en el 12 hubo que parar dos veces a liberar sitio a mitad de la producción). Si no los hay,
-     libera ahora lo que se pueda regenerar (ver «Trampas conocidas»), no a mitad del render.
+     de las pasadas; en el 12 hubo que parar dos veces a liberar sitio a mitad de la producción, y en el 14 el render
+     murió con el disco lleno: un episodio de 8:30 son ~15.000 fotogramas y ~7 GB). Si no los hay, libera ahora lo que
+     se pueda regenerar (ver «Trampas conocidas») y, si hace falta, pregunta al usuario qué fotogramas de episodios ya
+     publicados se pueden borrar; no a mitad del render.
 
    Si falta algo, arréglalo antes de empezar o díselo al usuario.
 2. `bash atomo/herramientas/preparar-voz.sh`. Tarda unos 6 minutos en un contenedor nuevo y nada si ya está; escribe la
@@ -200,6 +204,9 @@ En `atomo/plato/kits/pixel-chibi.js`, detrás del último `Object.assign(ELENCO_
 
 El pelo nunca tapa la cara.
 
+Antes de seguir, repasa el guion visual de `escenas.json` frase a frase y comprueba que cada persona que aparece tiene
+su entrada (también de niño o de mayor, si sale con otra edad): en el 14 faltó Roosevelt de niño y lo avisó un agente.
+
 ### 5. Decorados: la primera versión, tuya
 
 En `atomo/plato/escenas/<pref>-comun.js`:
@@ -228,6 +235,14 @@ pagarlos en la pasada de calidad (en el 12, tres rondas y dos pasadas extra, una
 12, el tornado pálido se vio al final y hubo que rehacerlo.
 
 ### 6. Escenas: el primer borrador, ya con el movimiento
+
+**0. Antes de lanzar, reparte tú los encuadres.** Con las notas de geometría de los decorados (`<SC>/geo<N>/`), escribe
+`<SC>/encuadres-<ep>.md` con una línea por escena: qué decorado y qué encuadre (y qué luz o época) usa cada uno de sus
+planos. Reglas: el mismo decorado y encuadre como mucho dos veces en el episodio, nunca en escenas vecinas, y si un
+decorado central tiene que volver (el pozo del 14), cada vez con otra luz, otra época u otro estado. En las
+`indicaciones` de cada grupo di qué encuadres le tocan. En el 14, sin este reparto, el pozo en corte salió 5 veces y la
+composición repetida fue el fallo número uno de la calidad (14 de 65): el registro común no basta porque los grupos
+trabajan a la vez.
 
 Desde el 13 lo hacen los agentes, con el workflow `hacer-video-escenas` (`scriptPath:
 '<raíz>/.claude/workflows/hacer-video-escenas.js'`), en unos 9 grupos de 2–3 escenas repartidos en 3 llamadas a la vez:
@@ -410,7 +425,25 @@ Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git
    7. las etiquetas;
    8. los pasos para subirlo;
    9. lo que hay que revisar antes de publicar;
-   10. las horas reales frente a las del presupuesto.
+   10. las horas reales frente a las del presupuesto;
+   11. el resumen de la evaluación del paso 15.
+
+### 15. Evaluación de lo aprendido (obligatoria, en cada episodio)
+
+Al entregar, evalúa el proceso para que el siguiente sea mejor **sin sacrificar nada**: calidad, detalle, animación,
+sonido y las tres pasadas se quedan como están; lo que se mejora es cómo se llega a ellos. Sigue
+«Cómo se evalúa» de `episodios/APRENDIZAJES.md`:
+1. las cifras (horas, tokens por fase, suspensos y rondas de la calidad, el control final) y los fallos por tipo con
+   `python3 atomo/herramientas/aprendizaje.py <journal.jsonl del workflow de calidad>`, frente al episodio anterior;
+2. lo que se rompió o se repitió, con su causa;
+3. cada aprendizaje clasificado: los arreglos de herramienta se aplican (comprobando que los episodios anteriores salen
+   idénticos); los cambios de proceso se proponen al usuario con la cifra que los justifica; lo que toca el canon solo se
+   propone;
+4. la entrada del episodio en `APRENDIZAJES.md`, con su «Pendiente para el próximo», y commit;
+5. en la entrega, un resumen corto para el usuario: cifras frente al anterior, lo arreglado y lo propuesto.
+
+Ve apuntando las cifras durante el episodio (los tokens de cada workflow llegan en su notificación): al final no se
+pueden recuperar todas.
 
 ## Gastar pocos tokens sin bajar el nivel (aprobado por el usuario el 27/10/2026)
 

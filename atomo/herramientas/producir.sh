@@ -39,9 +39,11 @@ if toca fundidos; then
   paso "fundidos"; node atomo/herramientas/medir-planos.mjs "$EP" --fundidos || falla "hay fundidos rotos: arréglalos antes de renderizar"
 fi
 if toca render; then
-  libre=$(df -Pk . | awk 'NR==2 {print int($4/1048576)}'); hace=6
-  [ -d "$L/fotos" ] && hace=2   # se sobrescriben, pero crecen con el detalle (en el 11, 1,5 GB al rehacerlos)
-  [ "$libre" -ge $hace ] || falla "solo hay $libre GB libres y el render necesita $hace (si se llena, falla sin avisar)"
+  # lo que hace falta, sacado de los fotogramas: ~0,47 MB por fotograma (el 14: 15.281 → 6,6 GB) menos lo que ya hay, más
+  # 1,5 GB para efectos, música y montaje. En el 14 la cuenta fija de 6 GB se quedó corta y el render murió con el disco lleno
+  libre=$(df -Pk . | awk 'NR==2 {print int($4/1024)}')
+  hace=$("$PY" -c "import json,os,sys; d=sys.argv[1]; n=json.load(open(d+'/linea.json'))['fotogramas']; f=d+'/fotos'; ya=sum(os.path.getsize(os.path.join(f,x)) for x in os.listdir(f))//2**20 if os.path.isdir(f) else 0; print(max(0, int(n*0.47) - ya) + 1536)" "$L")
+  [ "$libre" -ge "$hace" ] || falla "solo hay $libre MB libres y el render necesita unos $hace MB (si se llena, falla sin avisar)"
   paso "barrido de errores (cada instante que se dibujará, sin capturar)"
   (cd atomo && node herramientas/render-escenas.mjs "build/largo/$EP" --trabajadores 4 --barrer) || falla "alguna escena da error a mitad de plano: arréglala antes de renderizar"
   paso "render ($L) ${FALTAN:-completo}"
