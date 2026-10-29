@@ -155,9 +155,6 @@ const mini = (x0, y0, x1, y1, t) => { const h = y1 - y0; caja(x0, y0, x1, y1, he
   if (Math.floor(t * 2) % 2) R.pset(cx, y0 + Math.round(h * 0.4), hex('#ffe070')); };
 const p5 = (t) => {
   const g = T.hoy(R, t, { encuadre: 'foro', camara: 'cerca' });
-  // (los avatares del decorado se salen del hueco arriba y abajo: se repinta la barra y el marco de abajo)
-  R.rect(10, 10, 310, 20, hex('#3a3a6a')); for (let k = 0; k < 4; k++) R.rect(16 + k * 18, 14, 28 + k * 18, 16, hex('#8a8ab8')); R.disco(300, 15, 3, hex('#e8c040')); R.rect(65, 21, 310, 21, hex('#e8eaf2')); R.rect(65, 170, 310, 170, hex('#e8eaf2'));
-  for (const y of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 171, 172, 173, 174, 175, 176, 177, 178, 179]) for (let x = 64; x < 104; x++) R.pset(x, y, R.pget(x + 60, y));
   // un mensaje nuevo sube desde abajo, con el borde dorado: el avatar del tentáculo verde y, en «computer», «tablet» y
   // «phone», los pictogramas de los tres aparatos con la mansión dentro; el contador de corazones sube y los corazones vuelan
   R.recorte([66, 22, 308, 169]);
