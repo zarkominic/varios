@@ -1,0 +1,736 @@
+{
+ "serie": "ASK Atom",
+ "numero": 16,
+ "estado": "v2",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Monkey Island, Day of the Tentacle and Grim Fandango: The Secret Rule of LucasArts Adventure Games",
+  "es": "Monkey Island, Day of the Tentacle y Grim Fandango: la regla secreta de las aventuras de LucasArts"
+ },
+ "principal": "en",
+ "voces": {
+  "en": {
+   "voz": "am_puck",
+   "lang": "en-us",
+   "velocidad": 0.85
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.92
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "la-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "trago"
+   ],
+   "empieza_con": "cartela 1993",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "rio",
+     "es": "Detrás de la mansión de un científico loco baja un río de lodo tóxico, verde y burbujeante, y dos tentáculos, uno verde y otro morado, se acercan a la orilla.",
+     "en": "Behind a mad scientist's mansion runs a river of toxic sludge, green and bubbling, and two tentacles, one green and one purple, wander up to the bank.",
+     "visual": "A: de noche, detrás de la mansión, el río de lodo verde que burbujea al salir de la máquina; los dos tentáculos (verde y morado, sin brazos) se acercan saltando a la orilla."
+    },
+    {
+     "n": 2,
+     "marca": "trago",
+     "es": "El verde le dice que ni se le ocurra; el morado bebe un trago, le salen dos bracitos y decide que va a conquistar el mundo.",
+     "en": "The green one says don't even think about it; the purple one takes a sip, sprouts two little arms, and decides he's going to take over the world.",
+     "visual": "A (cerca): el verde niega con la cabeza; el morado bebe, se ilumina, le salen dos bracitos y los mira encantado; truenos y una pose de conquistador."
+    }
+   ],
+   "cartela": "1993"
+  },
+  {
+   "id": "la-lucas",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "dott",
+     "es": "Así empieza Day of the Tentacle, una aventura gráfica de 1993 que millones de jugadores todavía recuerdan con una sonrisa.",
+     "en": "That's how Day of the Tentacle begins, a 1993 adventure game that millions of players still remember with a grin.",
+     "visual": "H: un cuarto de los noventa con un ordenador de tubo; la pantalla muestra la mansión en píxeles; un chico con el ratón sonríe.",
+     "es_voz": "Así empieza Déi of de Téntacol, una aventura gráfica de mil novecientos noventa y tres que millones de jugadores todavía recuerdan con una sonrisa.",
+     "en_voz": "That's how Day of the Tentacle begins, a nineteen ninety-three adventure game that millions of players still remember with a grin."
+    },
+    {
+     "n": 4,
+     "marca": "lucasarts",
+     "es": "La hizo LucasArts, el estudio de videojuegos de la compañía de George Lucas, que en esos años llenó los ordenadores de piratas que se batían a insultos, de retretes que viajaban en el tiempo y de un esqueleto que vendía viajes al más allá.",
+     "en": "It was made by LucasArts, the game studio of George Lucas's company, which in those years filled home computers with pirates who fought with insults, toilets that traveled through time, and a skeleton who sold trips to the afterlife.",
+     "visual": "B: una estantería de cajas de juegos inventadas (sin logos) con dibujos de piratas, un retrete con reloj y un esqueleto con sombrero; cada caja se abre al pasar.",
+     "es_voz": "La hizo Lúcas Arts, el estudio de videojuegos de la compañía de Yorch Lúcas, que en esos años llenó los ordenadores de piratas que se batían a insultos, de retretes que viajaban en el tiempo y de un esqueleto que vendía viajes al más allá."
+    },
+    {
+     "n": 5,
+     "marca": "regla",
+     "es": "Y todos tenían una regla secreta que los hacía distintos de casi cualquier otro juego: ¿cuál era, y cómo se dibujaban a mano mundos que todavía parecen dibujos animados?",
+     "en": "And all of them had a secret rule that set them apart from almost every other game: so what was it, and how did they hand-draw worlds that still look like cartoons?",
+     "visual": "H/B: un candado de juego con un «?» encima; la línea de verbos (pictogramas) aparece abajo, y el cursor en cruz."
+    }
+   ]
+  },
+  {
+   "id": "la-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico lo que no te contaron en clase. Vamos a verlo.",
+     "en": "I'm Atom, and I explain what school didn't teach you. Let's find out.",
+     "visual": "A: la orilla del río tóxico de día; el tentáculo verde saluda a Atom y el morado le hace burla; Atom se presenta."
+    }
+   ]
+  },
+  {
+   "id": "la-maniac",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "cartela 1987",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "maniac",
+     "es": "En 1987, en California, un programador llamado Ron Gilbert y su equipo terminan Maniac Mansion, un juego de terror y risa en una mansión llena de chiflados.",
+     "en": "In 1987, in California, a programmer named Ron Gilbert and his team finish Maniac Mansion, a game of horror and laughs set in a mansion full of oddballs.",
+     "visual": "B: el estudio de 1987: ordenadores con monitores de fósforo, disquetes, cuadernos de diseño; un programador con camisa y gafas teclea.",
+     "acto": true,
+     "es_voz": "En mil novecientos ochenta y siete, en California, un programador llamado Ron Guílbert y su equipo terminan Méniac Mánshon, un juego de terror y risa en una mansión llena de chiflados.",
+     "en_voz": "In nineteen eighty-seven, in California, a programmer named Ron Gilbert and his team finish Maniac Mansion, a game of horror and laughs set in a mansion full of oddballs."
+    },
+    {
+     "n": 8,
+     "marca": "chavales",
+     "es": "Un grupo de chavales entra en la casa de un tal doctor Fred para rescatar a una amiga, y cada uno se maneja de una forma distinta.",
+     "en": "A group of teenagers sneaks into the house of a certain Dr. Fred to rescue a friend, and each one plays a little differently.",
+     "visual": "A (otra cámara): la mansión de los ochenta; unos chavales chibi se cuelan por la puerta, cada uno con una herramienta distinta (cámara, cinta, radio)."
+    }
+   ],
+   "cartela": "1987"
+  },
+  {
+   "id": "la-scumm",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "scumm",
+     "es": "Para hacerlo inventan una herramienta, SCUMM, con la que en vez de escribir órdenes con el teclado basta con pulsar un verbo en la pantalla, como «abrir» o «coger», y luego el objeto.",
+     "en": "To build it, they invent a tool called SCUMM: instead of typing commands on the keyboard, you just click a verb on the screen, like \"open\" or \"pick up,\" and then the object.",
+     "visual": "B (cerca): la pantalla del ordenador: un teclado tachado y la línea de verbos de pictogramas; el cursor pulsa un verbo y luego un objeto (una puerta se abre).",
+     "es_voz": "Para hacerlo inventan una herramienta, Escúm, con la que en vez de escribir órdenes con el teclado basta con pulsar un verbo en la pantalla, como «abrir» o «coger», y luego el objeto."
+    },
+    {
+     "n": 10,
+     "marca": "nombre",
+     "es": "El nombre era una broma de la casa: SCUMM quiere decir, más o menos, «herramienta para escribir el guion de Maniac Mansion», y se usó en sus juegos durante más de diez años.",
+     "en": "The name was an in-house joke: SCUMM stands for Script Creation Utility for Maniac Mansion, and the studio kept using it for more than a decade.",
+     "visual": "B: una pizarra con la palabra hecha de iconos y risas del equipo; un «?» se convierte en una sonrisa.",
+     "es_voz": "El nombre era una broma de la casa: Escúm quiere decir, más o menos, «herramienta para escribir el guion de Méniac Mánshon», y se usó en sus juegos durante más de diez años."
+    },
+    {
+     "n": 11,
+     "marca": "firma",
+     "es": "Esa línea de verbos se convierte en la firma de LucasArts durante años.",
+     "en": "That row of verbs becomes LucasArts' signature for years.",
+     "visual": "B: una fila de disquetes de juegos distintos con la misma línea de verbos dibujada; el sello de la casa.",
+     "es_voz": "Esa línea de verbos se convierte en la firma de Lúcas Arts durante años."
+    }
+   ]
+  },
+  {
+   "id": "la-manifiesto",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1989",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 12,
+     "marca": "morir",
+     "es": "Pero en Maniac Mansion todavía podías morir, o quedarte atascado sin saberlo, sin poder terminar el juego.",
+     "en": "But in Maniac Mansion you could still die, or get stuck without knowing it, unable to ever finish the game.",
+     "visual": "A (interior): un chaval en el pasillo de la mansión; aparece una calavera de «fin del juego» y una puerta cerrada para siempre.",
+     "es_voz": "Pero en Méniac Mánshon todavía podías morir, o quedarte atascado sin saberlo, sin poder terminar el juego."
+    },
+    {
+     "n": 13,
+     "marca": "manifiesto",
+     "es": "Así que en 1989 Gilbert escribe un manifiesto con un título muy suyo, «Por qué los juegos de aventura son un rollo», y propone una regla: que el jugador nunca muera ni se quede atascado sin remedio.",
+     "en": "So in 1989 Gilbert writes a manifesto with a very Gilbert title, \"Why Adventure Games Suck,\" and he proposes a rule: the player should never die or get hopelessly stuck.",
+     "visual": "B: Gilbert escribe a máquina una hoja (renglones sin letras) con un pulgar abajo dibujado; el equipo lee por encima de su hombro.",
+     "es_voz": "Así que en mil novecientos ochenta y nueve Guílbert escribe un manifiesto con un título muy suyo, «Por qué los juegos de aventura son un rollo», y propone una regla: que el jugador nunca muera ni se quede atascado sin remedio.",
+     "en_voz": "So in nineteen eighty-nine Gilbert writes a manifesto with a very Gilbert title, \"Why Adventure Games Suck,\" and he proposes a rule: the player should never die or get hopelessly stuck."
+    },
+    {
+     "n": 14,
+     "marca": "prueba",
+     "es": "Si te equivocas, pruebas otra cosa; el juego no te castiga, te invita a seguir mirando.",
+     "en": "If you get it wrong, you try something else; the game doesn't punish you, it invites you to keep looking.",
+     "visual": "B/H: el cursor prueba un objeto, «X», prueba otro, «!»; el juego sonríe; el tentáculo verde aplaude."
+    }
+   ],
+   "cartela": "1989"
+  },
+  {
+   "id": "la-monkey",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1990",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "guybrush",
+     "es": "En 1990 esa regla estrena barco: The Secret of Monkey Island, la historia de Guybrush Threepwood, un muchacho que quiere ser pirata.",
+     "en": "In 1990, that rule sets sail in The Secret of Monkey Island, the story of Guybrush Threepwood, a young man who wants to be a pirate.",
+     "visual": "C: el muelle de un puerto pirata de noche con la taberna iluminada; el aspirante a pirata, flaco y con coleta, llega con su hatillo; el tentáculo morado le roba el sombrero a un pirata.",
+     "acto": true,
+     "es_voz": "En mil novecientos noventa esa regla estrena barco: De Sícret of Mónqui Áiland, la historia de Gáibrash Zrípgud, un muchacho que quiere ser pirata.",
+     "en_voz": "In nineteen ninety, that rule sets sail in The Secret of Monkey Island, the story of Guybrush Threep-wood, a young man who wants to be a pirate."
+    },
+    {
+     "n": 16,
+     "marca": "escritores",
+     "es": "Lo escribieron Gilbert y dos jóvenes del estudio, Tim Schafer y Dave Grossman, y lo llenaron de chistes, de monos y de un pirata fantasma llamado LeChuck.",
+     "en": "Gilbert wrote it with two young members of the studio, Tim Schafer and Dave Grossman, and they filled it with jokes, monkeys and a ghost pirate called LeChuck.",
+     "visual": "B: tres diseñadores en una mesa con dibujos de monos, un pirata fantasma y chistes clavados en un corcho.",
+     "es_voz": "Lo escribieron Guílbert y dos jóvenes del estudio, Tim Shéifer y Déiv Grósman, y lo llenaron de chistes, de monos y de un pirata fantasma llamado Lechák.",
+     "en_voz": "Gilbert wrote it with two young members of the studio, Tim Schafer and Dave Grossman, and they filled it with jokes, monkeys and a ghost pirate called Le-Chuck."
+    }
+   ],
+   "cartela": "1990"
+  },
+  {
+   "id": "la-insultos",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "insultos",
+     "es": "Sus duelos de espada no se ganan con reflejos, sino con ingenio: vas aprendiendo insultos y respuestas, y gana el que tiene la réplica más afilada.",
+     "en": "Its sword fights aren't won with reflexes but with wit: you collect insults and comebacks, and whoever has the sharpest reply wins.",
+     "visual": "C (bosque): el duelo de espadas: bocadillos con pictogramas (un «!» y un rayo) en vez de golpes; al pirata se le cae la espada (gag)."
+    },
+    {
+     "n": 18,
+     "marca": "mono",
+     "es": "Y nace una broma que acompañará a toda la serie: «¡Mira detrás de ti, un mono de tres cabezas!», para que el otro se vuelva y escaparte.",
+     "en": "And a running gag is born that follows the whole series: \"Look behind you, a three-headed monkey!\", so the other guy turns around and you can slip away.",
+     "visual": "C: el aspirante señala detrás del pirata, que se vuelve a mirar un mono de tres cabezas (dibujado); el aspirante escapa."
+    },
+    {
+     "n": 19,
+     "marca": "pruebas",
+     "es": "Para ser pirata, Guybrush tiene que superar tres pruebas, encontrar un tesoro enterrado y robar un ídolo a la gobernadora, y casi todo se resuelve con objetos absurdos que llevas en el bolsillo.",
+     "en": "To become a pirate, Guybrush has to pass three trials, from finding buried treasure to stealing an idol from the governor's mansion, and almost everything is solved with absurd objects you carry in your pockets.",
+     "visual": "C (mapa): tres pruebas en tres viñetas: una espada, una pala con un cofre, un ídolo dorado; objetos absurdos que salen de un bolsillo.",
+     "es_voz": "Para ser pirata, Gáibrash tiene que superar tres pruebas, encontrar un tesoro enterrado y robar un ídolo a la gobernadora, y casi todo se resuelve con objetos absurdos que llevas en el bolsillo."
+    }
+   ]
+  },
+  {
+   "id": "la-pintados",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "pintados",
+     "es": "Y sus fondos se pintaban a mano: para la segunda parte, los artistas pintaron los escenarios en papel y los pasaron al ordenador con un escáner.",
+     "en": "And the backgrounds were painted by hand: for the sequel, the artists painted the scenery on paper and brought it into the computer with a scanner.",
+     "visual": "B (cerca): una mesa de dibujo con un fondo pintado en papel, pinceles y un escáner antiguo que pasa una luz; el dibujo aparece en el monitor en píxeles."
+    }
+   ]
+  },
+  {
+   "id": "la-ahogado",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "excepcion",
+     "es": "¿Y la regla de no morir? En todo el juego hay una sola trampa, y es un chiste.",
+     "en": "And the rule about never dying? There's exactly one exception in the whole game, and it's a joke.",
+     "visual": "C (mar): una regla con un «X» sobre una calavera y un único asterisco."
+    },
+    {
+     "n": 22,
+     "marca": "ahogado",
+     "es": "Al principio, Guybrush presume de que aguanta la respiración diez minutos, y si más tarde lo dejas bajo el agua más de diez minutos, se ahoga.",
+     "en": "Early on, Guybrush brags that he can hold his breath for ten minutes, and if you later leave him underwater for more than ten minutes, he drowns.",
+     "visual": "C (fondo del mar): el aspirante bajo el agua, quieto, con un reloj que corre hasta diez; se pone verde y el tentáculo verde baja nadando con un salvavidas (gag).",
+     "es_voz": "Al principio, Gáibrash presume de que aguanta la respiración diez minutos, y si más tarde lo dejas bajo el agua más de diez minutos, se ahoga."
+    }
+   ]
+  },
+  {
+   "id": "la-imuse",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 1991",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 23,
+     "marca": "imuse",
+     "es": "En 1991 llega la segunda parte con un invento de sus músicos, Michael Land y Peter McConnell, que se llama iMUSE: la música cambia sin cortes cuando pasas de un sitio a otro, como en una película.",
+     "en": "In 1991, the sequel arrives with an invention by its composers, Michael Land and Peter McConnell, called iMUSE: the music changes seamlessly as you move from one place to another, like in a movie.",
+     "visual": "C: el aspirante camina de la taberna al muelle y al bosque; notas musicales de colores cambian de forma sin cortarse al pasar de un sitio a otro; dos músicos en un teclado.",
+     "es_voz": "En mil novecientos noventa y uno llega la segunda parte con un invento de sus músicos, Máicol Land y Píter Mac Cónel, que se llama ai miús: la música cambia sin cortes cuando pasas de un sitio a otro, como en una película.",
+     "en_voz": "In nineteen ninety-one, the sequel arrives with an invention by its composers, Michael Land and Peter McConnell, called iMUSE: the music changes seamlessly as you move from one place to another, like in a movie."
+    }
+   ],
+   "cartela": "1991"
+  },
+  {
+   "id": "la-tentaculo",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1993",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "dott",
+     "es": "Y en 1993, Schafer y Grossman dirigen por primera vez un juego: Day of the Tentacle, la continuación de Maniac Mansion.",
+     "en": "And in 1993, Schafer and Grossman direct a game for the first time: Day of the Tentacle, the sequel to Maniac Mansion.",
+     "visual": "A: la mansión de día, colorida y torcida como un dibujo animado; dos directores jóvenes con un guion.",
+     "acto": true,
+     "es_voz": "Y en mil novecientos noventa y tres, Shéifer y Grósman dirigen por primera vez un juego: Déi of de Téntacol, la continuación de Méniac Mánshon.",
+     "en_voz": "And in nineteen ninety-three, Schafer and Grossman direct a game for the first time: Day of the Tentacle, the sequel to Maniac Mansion."
+    },
+    {
+     "n": 25,
+     "marca": "retretes",
+     "es": "Para frenar al tentáculo morado, tres amigos viajan en el tiempo en retretes portátiles, y cada uno acaba en una época distinta de la misma casa.",
+     "en": "To stop the purple tentacle, three friends travel through time in portable toilets, and each one ends up in a different era of the same house.",
+     "visual": "D: tres retretes portátiles con un reloj encima se cierran y salen disparados con un destello; el morado se cuela en uno (gag)."
+    }
+   ],
+   "cartela": "1993"
+  },
+  {
+   "id": "la-epocas",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "epocas",
+     "es": "Hoagie va doscientos años al pasado, donde los padres fundadores escriben la Constitución; Laverne, doscientos años al futuro, donde mandan los tentáculos; y Bernard se queda en el presente.",
+     "en": "Hoagie goes two hundred years into the past, where the Founding Fathers are writing the Constitution; Laverne goes two hundred years into the future, where tentacles rule; and Bernard stays in the present.",
+     "visual": "D: pantalla partida en tres: la casa en 1793 con pelucas y velas, en 1993 y en 2193 con tentáculos que mandan.",
+     "es_voz": "Jóugui va doscientos años al pasado, donde los padres fundadores escriben la Constitución; Lavérn, doscientos años al futuro, donde mandan los tentáculos; y Bérnard se queda en el presente."
+    },
+    {
+     "n": 27,
+     "marca": "bernard",
+     "es": "Bernard, el empollón de gafas, es el único de los chavales de Maniac Mansion que repite.",
+     "en": "Bernard, the nerd with glasses, is the only one of the Maniac Mansion kids who comes back.",
+     "visual": "D (cerca): el empollón de gafas con su bolsillo de bolígrafos, saludando; una foto vieja de los chavales de 1987 con él marcado.",
+     "es_voz": "Bérnard, el empollón de gafas, es el único de los chavales de Méniac Mánshon que repite."
+    }
+   ]
+  },
+  {
+   "id": "la-objetos",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "objetos",
+     "es": "La gracia es que se pasan objetos por el retrete, y lo que cambias en una época lo cambia todo en las demás.",
+     "en": "The fun is that they pass objects through the toilets, and whatever you change in one era changes everything in the others.",
+     "visual": "D: un objeto (un jersey, una botella) entra por un retrete y sale por otro en otra época; un hámster mareado viaja también (gag)."
+    },
+    {
+     "n": 29,
+     "marca": "franklin",
+     "es": "En la época de los padres fundadores, Hoagie ayuda a Benjamin Franklin con su cometa, y en el futuro un dibujo de una revisión médica de un tentáculo acaba convertido en la bandera de Estados Unidos.",
+     "en": "In the Founding Fathers' era, Hoagie helps Benjamin Franklin with his kite, and a tentacle's medical chart ends up becoming the design of the American flag.",
+     "visual": "D: un caballero con peluca vuela una cometa en la tormenta con la ayuda del roquero; en el futuro, una hoja con rayas y estrellas acaba como bandera.",
+     "es_voz": "En la época de los padres fundadores, Jóugui ayuda a Bényamin Fránklin con su cometa, y en el futuro un dibujo de una revisión médica de un tentáculo acaba convertido en la bandera de Estados Unidos."
+    }
+   ]
+  },
+  {
+   "id": "la-cartoon",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "regalo"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 30,
+     "marca": "chuck",
+     "es": "Su dibujo bebe de los dibujos animados clásicos de Chuck Jones, y fue la primera aventura de LucasArts que salió con todas las voces desde el primer día.",
+     "en": "Its art draws on the classic cartoons of Chuck Jones, and it was the first LucasArts adventure released with full voice acting from day one.",
+     "visual": "A: la mansión se estira y rebota como en los dibujos clásicos; un micrófono con ondas de voz.",
+     "es_voz": "Su dibujo bebe de los dibujos animados clásicos de Chak Yóuns, y fue la primera aventura de Lúcas Arts que salió con todas las voces desde el primer día."
+    },
+    {
+     "n": 31,
+     "marca": "regalo",
+     "es": "Y esconde un regalo: en un ordenador de la mansión se puede jugar entero al Maniac Mansion original, un juego dentro del juego.",
+     "en": "And it hides a gift: on a computer in the mansion you can play the entire original Maniac Mansion, a game inside the game.",
+     "visual": "A (cuarto del ordenador): un ordenador antiguo en la mansión; en su pantalla, la mansión de 1987 en píxeles gordos; el chaval se sienta a jugar.",
+     "es_voz": "Y esconde un regalo: en un ordenador de la mansión se puede jugar entero al Méniac Mánshon original, un juego dentro del juego."
+    }
+   ]
+  },
+  {
+   "id": "la-carretera",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 32,
+     "marca": "sam",
+     "es": "Ese mismo año, 1993, LucasArts saca a la carretera a Sam & Max, los personajes de cómic de Steve Purcell: un perro detective con traje y un conejo hiperactivo.",
+     "en": "That same year, 1993, LucasArts takes Sam & Max on the road, Steve Purcell's comic book duo: a dog detective in a suit and a hyperactive rabbit.",
+     "visual": "E: un coche de los sesenta por una carretera del desierto; dentro, un perro detective con traje y sombrero y un conejo blanco que no para quieto.",
+     "acto": true,
+     "es_voz": "Ese mismo año, mil novecientos noventa y tres, Lúcas Arts saca a la carretera a Sam an Max, los personajes de cómic de Stiv Pérsel: un perro detective con traje y un conejo hiperactivo.",
+     "en_voz": "That same year, nineteen ninety-three, LucasArts takes Sam & Max on the road, Steve Purcell's comic book duo: a dog detective in a suit and a hyperactive rabbit."
+    },
+    {
+     "n": 33,
+     "marca": "bigfoot",
+     "es": "En Sam & Max Hit the Road recorren Estados Unidos buscando a un Bigfoot que se ha escapado de una feria, entre atracciones de borde de carretera a cual más rara.",
+     "en": "In Sam & Max Hit the Road, they drive across the United States hunting for a Bigfoot that has escaped from a carnival, among roadside attractions each one weirder than the last.",
+     "visual": "E: una feria con su carpa y un letrero de pictograma con una huella gigante; el tentáculo morado se disfraza de Bigfoot y el conejo le quita el disfraz (gag).",
+     "es_voz": "En Sam an Max Jit de Róud recorren Estados Unidos buscando a un Bígfut que se ha escapado de una feria, entre atracciones de borde de carretera a cual más rara."
+    }
+   ]
+  },
+  {
+   "id": "la-purcell",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 34,
+     "marca": "purcell",
+     "es": "Purcell, su creador, trabajaba en el propio estudio, y sus dibujos de Sam y Max aparecían escondidos en otros juegos de LucasArts mucho antes de tener el suyo.",
+     "en": "Purcell, their creator, worked at the studio himself, and his doodles of Sam and Max were hidden in other LucasArts games long before the pair got one of their own.",
+     "visual": "B: un dibujante en su mesa del estudio con cómics; dibujitos del perro y el conejo se esconden en un rincón de otros juegos.",
+     "es_voz": "Pérsel, su creador, trabajaba en el propio estudio, y sus dibujos de Sam y Max aparecían escondidos en otros juegos de Lúcas Arts mucho antes de tener el suyo."
+    },
+    {
+     "n": 35,
+     "marca": "cursor",
+     "es": "Aquí la línea de verbos desaparece: un solo cursor cambia de forma, y con un clic eliges si quieres mirar, coger o hablar.",
+     "en": "Here the row of verbs disappears: a single cursor changes shape, and with a click you choose whether to look, pick up or talk.",
+     "visual": "E (cerca): un único cursor cambia de forma: ojo, mano, boca; con cada clic, el conejo mira, coge o habla."
+    },
+    {
+     "n": 36,
+     "marca": "throttle",
+     "es": "Dos años después, Schafer lleva esa idea a una banda de moteros en Full Throttle.",
+     "en": "Two years later, Schafer takes that idea to a biker gang in Full Throttle.",
+     "visual": "E: una banda de moteros con chupa por la carretera; el cursor con forma de bota.",
+     "es_voz": "Dos años después, Shéifer lleva esa idea a una banda de moteros en Ful Zrótel."
+    }
+   ]
+  },
+  {
+   "id": "la-grim",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "cartela 1998",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 37,
+     "marca": "grim",
+     "es": "En 1998 llega el más ambicioso de todos: Grim Fandango, en la Tierra de los Muertos.",
+     "en": "In 1998 comes the most ambitious of them all: Grim Fandango, set in the Land of the Dead.",
+     "visual": "F: la Tierra de los Muertos: la ciudad de esqueletos con un rascacielos art déco, papel picado, cempasúchil y un tren.",
+     "acto": true,
+     "es_voz": "En mil novecientos noventa y ocho llega el más ambicioso de todos: Grim Fandango, en la Tierra de los Muertos.",
+     "en_voz": "In nineteen ninety-eight comes the most ambitious of them all: Grim Fandango, set in the Land of the Dead."
+    },
+    {
+     "n": 38,
+     "marca": "manny",
+     "es": "Su protagonista, Manny Calavera, es un esqueleto que trabaja de agente de viajes: vende a las almas recién llegadas el viaje hacia su descanso eterno.",
+     "en": "Its hero, Manny Calavera, is a skeleton who works as a travel agent, selling newly arrived souls their journey to eternal rest.",
+     "visual": "F (agencia): un esqueleto con traje y sombrero detrás de una ventanilla vende billetes a almas recién llegadas; un folleto de viaje con un tren dorado.",
+     "es_voz": "Su protagonista, Máni Calavera, es un esqueleto que trabaja de agente de viajes: vende a las almas recién llegadas el viaje hacia su descanso eterno."
+    }
+   ],
+   "cartela": "1998"
+  },
+  {
+   "id": "la-muertos",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 39,
+     "marca": "mezcla",
+     "es": "Schafer mezcló el Día de Muertos de México, el arte azteca, los rascacielos art déco y el cine negro de los años cuarenta, y sus personajes parecen las calaveras de papel de las fiestas.",
+     "en": "Schafer blended Mexico's Day of the Dead, Aztec art, art deco skyscrapers and the film noir of the 1940s, and his characters look like the papier-mâché skeletons of the holiday.",
+     "visual": "F: un collage que se monta: una calavera de azúcar, una pirámide azteca, un rascacielos art déco y una farola con humo de cine negro.",
+     "es_voz": "Shéifer mezcló el Día de Muertos de México, el arte azteca, los rascacielos art déco y el cine negro de los años cuarenta, y sus personajes parecen las calaveras de papel de las fiestas."
+    },
+    {
+     "n": 40,
+     "marca": "anios",
+     "es": "La historia dura cuatro años, y cada parte transcurre en un Día de Muertos distinto.",
+     "en": "The story spans four years, and each part takes place on a different Day of the Dead.",
+     "visual": "F: un calendario con cuatro hojas de Día de Muertos que pasan, cada una con su altar y sus velas."
+    }
+   ]
+  },
+  {
+   "id": "la-meche",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 41,
+     "marca": "meche",
+     "es": "A lo largo de esos años, Manny persigue el rastro de Meche, un alma buena a la que quiere ayudar a llegar a su destino.",
+     "en": "Over those years, Manny follows the trail of Meche, a kind soul he wants to help reach her destination.",
+     "visual": "F (calle): el esqueleto sigue un rastro de pétalos de cempasúchil hacia una puerta."
+    },
+    {
+     "n": 42,
+     "marca": "glottis",
+     "es": "Su mejor amigo es Glottis, un demonio naranja enorme y bonachón que vive para conducir y arreglar coches.",
+     "en": "His best friend is Glottis, a huge, good-natured orange demon who lives to drive and fix cars.",
+     "visual": "F: un demonio naranja enorme y bonachón bajo el capó de un coche, con una llave inglesa, feliz; el tentáculo morado se pone una calavera de azúcar de sombrero (gag).",
+     "es_voz": "Su mejor amigo es Glótis, un demonio naranja enorme y bonachón que vive para conducir y arreglar coches.",
+     "en_voz": "His best friend is Glot-tis, a huge, good-natured orange demon who lives to drive and fix cars."
+    },
+    {
+     "n": 43,
+     "marca": "tresd",
+     "es": "Y fue la primera aventura de LucasArts en tres dimensiones, con personajes en 3D sobre fondos pintados.",
+     "en": "And it was LucasArts' first adventure in three dimensions, with 3D characters on painted backgrounds.",
+     "visual": "F (cerca): un esqueleto con volumen sobre un fondo pintado; una cuadrícula 3D que se despliega.",
+     "es_voz": "Y fue la primera aventura de Lúcas Arts en tres dimensiones, con personajes en 3D sobre fondos pintados."
+    }
+   ]
+  },
+  {
+   "id": "la-xwing",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 44,
+     "marca": "xwing",
+     "es": "Y el mismo estudio hacía a la vez otra cosa muy distinta: en 1993, X-Wing te sentaba en la cabina de un caza de La guerra de las galaxias.",
+     "en": "Meanwhile, the same studio was doing something completely different: in 1993, X-Wing put you in the cockpit of a Star Wars fighter.",
+     "visual": "G: un caza de alas en X (sin marcas) entre estrellas, con una nave grande al fondo; el tentáculo verde en la cabina, con casco.",
+     "acto": true,
+     "es_voz": "Y el mismo estudio hacía a la vez otra cosa muy distinta: en mil novecientos noventa y tres, Ex Uín te sentaba en la cabina de un caza de La guerra de las galaxias.",
+     "en_voz": "Meanwhile, the same studio was doing something completely different: in nineteen ninety-three, X-Wing put you in the cockpit of a Star Wars fighter."
+    },
+    {
+     "n": 45,
+     "marca": "dig",
+     "es": "Y en 1995 llegó The Dig, una aventura de ciencia ficción a partir de una idea de Steven Spielberg.",
+     "en": "And in 1995 came The Dig, a science fiction adventure based on an idea by Steven Spielberg.",
+     "visual": "G (otra cámara): un asteroide con una puerta extraña que se abre con luz; un astronauta chibi.",
+     "es_voz": "Y en mil novecientos noventa y cinco llegó De Dig, una aventura de ciencia ficción a partir de una idea de Stíven Spílberg.",
+     "en_voz": "And in nineteen ninety-five came The Dig, a science fiction adventure based on an idea by Steven Spielberg."
+    }
+   ]
+  },
+  {
+   "id": "la-hoy",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "cartela 2026",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 46,
+     "marca": "memoria",
+     "es": "Pero las aventuras gráficas son las que se quedaron en la memoria de una generación.",
+     "en": "But it's the adventure games that stayed in the memory of a generation.",
+     "visual": "H: un cuarto de hoy con un ordenador moderno y la estantería de cajas antiguas; un chico juega y su padre mira por encima."
+    },
+    {
+     "n": 47,
+     "marca": "remaster",
+     "es": "Hoy se pueden jugar en ordenadores modernos, con versiones remasterizadas en las que puedes pasar del dibujo nuevo al de píxeles con una tecla.",
+     "en": "Today you can play them on modern computers, in remastered versions where a single key switches between the new art and the original pixels.",
+     "visual": "H (cerca): la pantalla pasa de dibujo nuevo a píxeles y vuelta con una tecla."
+    },
+    {
+     "n": 48,
+     "marca": "scummvm",
+     "es": "Y desde 2001, un grupo de aficionados mantiene ScummVM, un programa gratuito que permite jugar a los originales en casi cualquier aparato, desde un ordenador hasta un teléfono.",
+     "en": "And since 2001, a group of fans has maintained ScummVM, a free program that lets you play the originals on almost any device, from a computer to a phone.",
+     "visual": "H: un teléfono, una tableta y un portátil con la misma mansión en píxeles; un grupo de aficionados en un foro con sus avatares.",
+     "es_voz": "Y desde dos mil uno, un grupo de aficionados mantiene Escúm ví em, un programa gratuito que permite jugar a los originales en casi cualquier aparato, desde un ordenador hasta un teléfono.",
+     "en_voz": "And since two thousand one, a group of fans has maintained ScummVM, a free program that lets you play the originals on almost any device, from a computer to a phone."
+    }
+   ],
+   "cartela": "2026"
+  },
+  {
+   "id": "la-vuelven",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 49,
+     "marca": "repinta",
+     "es": "Y en 2016, el estudio de Schafer volvió a pintar Day of the Tentacle en alta resolución, con los tentáculos más morados y más verdes que nunca.",
+     "en": "And in 2016, Schafer's studio repainted Day of the Tentacle in high resolution, with the tentacles more purple and more green than ever.",
+     "visual": "A: la mansión repintada en alta resolución; los tentáculos más brillantes que nunca, mirándose.",
+     "es_voz": "Y en dos mil dieciséis, el estudio de Shéifer volvió a pintar Déi of de Téntacol en alta resolución, con los tentáculos más morados y más verdes que nunca.",
+     "en_voz": "And in twenty sixteen, Schafer's studio repainted Day of the Tentacle in high resolution, with the tentacles more purple and more green than ever."
+    },
+    {
+     "n": 50,
+     "marca": "vuelta",
+     "es": "Y en 2022, más de treinta años después, Gilbert y Grossman volvieron a la isla de los monos con Return to Monkey Island.",
+     "en": "And in 2022, more than thirty years later, Gilbert and Grossman went back to Monkey Island with Return to Monkey Island.",
+     "visual": "C: un barco vuelve al puerto pirata con dos creadores con canas en cubierta; la isla de los monos al fondo.",
+     "es_voz": "Y en dos mil veintidós, más de treinta años después, Guílbert y Grósman volvieron a la isla de los monos con Ritérn tu Mónqui Áiland.",
+     "en_voz": "And in twenty twenty-two, more than thirty years later, Gilbert and Grossman went back to Monkey Island with Return to Monkey Island."
+    },
+    {
+     "n": 51,
+     "marca": "creadores",
+     "es": "Muchos de quienes hoy hacen videojuegos dicen que aprendieron a contar historias jugando a estos juegos.",
+     "en": "Many of today's game makers say they learned how to tell stories by playing these games.",
+     "visual": "H: una fila de jóvenes con portátiles que hacen juegos; en sus pantallas, dibujos de aventuras nuevas con su línea de verbos."
+    }
+   ]
+  },
+  {
+   "id": "la-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 52,
+     "marca": "regla",
+     "es": "Quizá por eso se recuerdan tanto: porque nunca te castigaban por equivocarte, solo te invitaban a mirar otra vez.",
+     "en": "Maybe that's why we remember them so well: they never punished you for getting it wrong, they just invited you to look again.",
+     "visual": "H: el chico del principio, ya mayor, prueba un objeto, se equivoca y se ríe; el cursor sigue mirando.",
+     "acto": true
+    },
+    {
+     "n": 53,
+     "marca": "rio",
+     "es": "Y detrás de una mansión, en algún sitio, el tentáculo verde todavía le dice al morado que no beba del río.",
+     "en": "And somewhere behind a mansion, the green tentacle is still telling the purple one not to drink from the river.",
+     "visual": "A: detrás de la mansión, al atardecer, el tentáculo verde le dice que no al morado junto al río; el morado mira el lodo con cara de tentación."
+    },
+    {
+     "n": 54,
+     "marca": "adios",
+     "es": "¿Qué quieres que te explique ahora?",
+     "en": "What do you want me to explain next?",
+     "visual": "A: la orilla al anochecer, el río que burbujea; Atom."
+    }
+   ]
+  }
+ ]
+}
