@@ -139,7 +139,7 @@ Suspense, misterio e intriga juntos: unos dos minutos de nueve, por debajo del t
 
 | ES | EN |
 |---|---|
-| Durante unos años, Nueva York es la capital del nuevo país, y el 30 de abril de 1789, en el balcón del Federal Hall, en Wall Street, George Washington jura como primer presidente del país. | For a few years, New York is the new nation's capital, and on April 30, 1789, on the balcony of Federal Hall on Wall Street, George Washington takes the oath as the first president. |
+| Durante unos años, Nueva York es la capital del nuevo país, y el 30 de abril de 1789, en el balcón del Federal Hall, en Wall Street, George Washington jura como primer presidente. | For a few years, New York is the new nation's capital, and on April 30, 1789, on the balcony of Federal Hall on Wall Street, George Washington takes the oath as the first president. |
 | Jura sobre una Biblia que tuvieron que ir a buscar a toda prisa a una logia masónica cercana, porque nadie se había acordado de traer una. | He swears on a Bible fetched in a hurry from a nearby Masonic lodge, because nobody had remembered to bring one. |
 | En esa misma ciudad, el Congreso propone la Carta de Derechos y el Tribunal Supremo se reúne por primera vez. | In that same city, Congress proposes the Bill of Rights, and the Supreme Court meets for the very first time. |
 | Pero en 1790, en una cena entre políticos, se cierra un trato: la capital se irá al sur, y Nueva York pierde el gobierno. | But in 1790, a deal is struck over dinner: the capital will move south, and New York loses the government. |
