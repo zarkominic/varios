@@ -15,11 +15,14 @@ import json, os
 
 D = os.path.dirname(os.path.abspath(__file__))
 BANDA = {'tono': 'sib', 'modo': 'lidio', 'tempo': 120, 'motivo': [0, 4, 7, 6, 7, 9, 7, 4]}
+# la cita del gancho (aprobada por el usuario el 29/10/2026): el «Ranz des vaches» de Rossini (1829, dominio público), tocado
+# por nosotros (ánimo «pastoral» de banda.cjs); las notas, en ranz.json
+BANDA['cita'] = {**json.load(open(os.path.join(D, 'ranz.json'))), 'negra': 0.9}
 E = [
  ('la-gancho', '1993', 1, 2, ['rio', 'trago'],
   ['A: de noche, detrás de la mansión, el río de lodo verde que burbujea al salir de la máquina; los dos tentáculos (verde y morado, sin brazos) se acercan saltando a la orilla.',
    'A (cerca): el verde niega con la cabeza; el morado bebe, se ilumina, le salen dos bracitos y los mira encantado; truenos y una pose de conquistador.'],
-  'misterio', ['trago']),
+  'pastoral', ['trago']),
  ('la-lucas', None, 3, 5, ['dott', 'lucasarts', 'regla'],
   ['H: un cuarto de los noventa con un ordenador de tubo; la pantalla muestra la mansión en píxeles; un chico con el ratón sonríe.',
    'B: una estantería de cajas de juegos inventadas (sin logos) con dibujos de piratas, un retrete con reloj y un esqueleto con sombrero; cada caja se abre al pasar.',

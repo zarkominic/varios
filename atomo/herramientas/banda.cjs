@@ -22,7 +22,8 @@
 //   - curiosidad: marimba juguetona con el motivo y pizzicato en el bajo (explicar cómo funciona algo, los gags);
 //   - calma: piano eléctrico y colchón lentos (un respiro, la vida de antes);
 //   - epico: cuerdas y metales que crecen hasta un redoble de timbal (el gran logro, la cifra enorme);
-//   - ternura: guitarra en arpegio y colchón suave (personas, recuerdos, el cierre íntimo).
+//   - ternura: guitarra en arpegio y colchón suave (personas, recuerdos, el cierre íntimo);
+//   - pastoral (desde el 16): una cita de dominio público tocada por nosotros (banda.cita), con lengüeta y cuerdas.
 //   Sin «banda», todo suena exactamente como antes (La menor y el motivo del 10–12), así que los episodios ya hechos no
 //   cambian. Con «banda», los cuatro ánimos de siempre también van en su tono y con su motivo.
 // - Todo en el mismo tono (La menor por defecto), para que los cambios de escena casen. Cada capa se normaliza a su nivel (NIVEL, dB RMS): con la voz
@@ -58,7 +59,7 @@ const mtof = (m) => 440 * 2 ** ((m - 69) / 12);
 const dur = linea.duracion, n = Math.ceil(dur * SR);
 // subido el 25/10/2026: a −26/−30 «casi no se escucha» (el usuario), sobre todo en altavoces de móvil, que no dan los graves
 const NIVEL = { suspense: -20, misterio: -21, intriga: -23, cierre: -20, golpe: -14, lecho: -29, transicion: -24,
-  asombro: -21, aventura: -21, curiosidad: -22, calma: -22, epico: -20, ternura: -22 };
+  asombro: -21, aventura: -21, curiosidad: -22, calma: -22, epico: -20, ternura: -22, pastoral: -21 };
 const FUNDIDO = 3;   // s de fundido entre tramos (de igual potencia)
 const CERCA_CARTELA = 3;   // s: un golpe tan cerca de una cartela no deja silencio
 
@@ -120,6 +121,21 @@ const NUEVOS = {
     // el redoble que crece en los dos últimos compases
     for (let t = t0 + d - 2 * COMPAS - 0.4, p = 0.25; t < t0 + d - 0.5; t += p, p = Math.max(0.07, p * 0.9))
       b.addMono(I.timpani(TONICA - 12, { decay: 0.25 }), t, 0.25 + 0.4 * (1 - (t0 + d - 0.5 - t) / (2 * COMPAS)), 0);
+  },
+  // pastoral (desde el 16): una cita de una pieza de dominio público en banda.cita ({ notas: [[negra, dur, midi]…],
+  // bajo: […], negra: s por negra, tonica_original }), tocada por nosotros: el solo con la lengüeta (I.reed), el bajo en
+  // cuerdas suaves y un colchón; se traspone al tono de la banda y se repite si la escena es más larga que la frase.
+  // En el 16, el «Ranz des vaches» de la obertura de Guillermo Tell de Rossini (1829), en el gancho del río.
+  pastoral(b, esc, t0, d, r) {
+    const C = BANDA.cita || {}, neg = C.negra || 0.9, notas = C.notas || [], bajo = C.bajo || [];
+    const orig = NOTAS[String(C.tonica_original || 'sol').toLowerCase()] ?? 7;
+    let tr = ((TONICA % 12) - orig + 24) % 12; if (tr > 6) tr -= 12;
+    const largo = Math.max(1, ...notas.map(([x, dd]) => x + dd), ...bajo.map(([x]) => x + 1.5)) * neg, fin = t0 + d - 0.6;
+    for (let t = esc.inicio + 0.4; t < fin - 1; t += largo + neg) {
+      for (const [x, dd, m] of notas) { const tt = t + x * neg; if (tt > fin) break; b.addMono(I.reed(m + tr, Math.max(0.07, dd * neg * 0.97)), tt, 0.55, 0.15); }
+      for (const [x, dd, m] of bajo) { const tt = t + x * neg; if (tt > fin) break; estereo(b, I.strings(m + tr, dd * neg, { attack: 0.35, release: 0.6, bright: 0.45, seed: 4 }), tt, 0.3); }
+    }
+    pad(b, [[TONICA + 12, 0.22], [TONICA + 19, 0.15]], t0, d, { cutoff: 900, attack: 2, release: 2 });
   },
   ternura(b, esc, t0, d, r) {
     const prog = [0, 4, 5, 3];
