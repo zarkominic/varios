@@ -112,7 +112,7 @@ const bote = (x, y, t, gente, rema, k = 0) => {
   for (let i = x - 24; i < x + 22; i++) if ((i + Math.floor(t * 6)) % 4 === 0) R.pset(i, y + 9, hex('#cfe0e6'));
 };
 const p1 = (t) => {
-  const g = T.isla1795(R, t, { encuadre: 'bahia' });
+  const g = T.isla1795(R, t, { encuadre: 'bahia', luz: 'tarde' });
   // el segundo bote llega a la playa y un obrero salta a la arena
   const u2 = tramo(t, 1.0, LLEGA), x2 = Math.round(lerp(150, 204, u2)), y2 = Math.round(lerp(112, 99, u2));
   const salta = tramo(t, LLEGA + 0.15, LLEGA + 0.7);
