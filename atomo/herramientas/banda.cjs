@@ -223,6 +223,26 @@ for (const t of cortes) {   // silencio antes del golpe y vuelta suave
   for (let i = Math.round((t + 0.05) * SR); i < Math.min(n, Math.round((t + 3) * SR)); i++) { golpes.L[i] *= g; golpes.R[i] *= g; ecoG.L[i] *= g; ecoG.R[i] *= g; }
 }
 golpes.mixInto(musica, 1); ecoG.mixInto(musica, 0.35);
+// Desde el 15: donde la música cae en una cartela más de lo que deja el control (7,5 dB: los huecos de la aventura o el
+// redoble del épico que se acaba justo antes del cambio de año), un colchón sostenido rellena el hueco y crece hasta que
+// la caída baja de 6,5 dB. Se mide igual que medir-sonido.py (ventanas de 0,1 s en mono; antes −1,5…−0,5 s y mínimo en
+// ±2,5 s). Donde ya cumplía no se añade nada, así que los episodios anteriores suenan igual.
+{
+  const W = Math.round(0.1 * SR), nivel = (i) => { let s = 0; for (let j = i; j < i + W; j++) { const m = (musica.L[j] + musica.R[j]) / 2; s += m * m; } return 10 * Math.log10(s / W + 1e-12); };
+  const caida = (c) => { const i = Math.round(c * 10); let a = 0; for (let k = i - 15; k < i - 5; k++) a += nivel(k * W); a /= 10; let m = Infinity; for (let k = Math.max(0, i - 25); k < i + 25; k++) m = Math.min(m, nivel(k * W)); return [a - m, a]; };
+  for (const [k, c] of cartelas.entries()) {
+    if (c + 2.6 > dur) continue;
+    let [d, antes] = caida(c);
+    if (d <= 7.5) continue;
+    for (let vuelta = 0; vuelta < 5 && d > 6.5; vuelta++) {
+      const tmp = new Bus(n);
+      pad(tmp, [[TONICA + 12, 0.4], [TONICA + 19, 0.3], [TONICA + 24, 0.2]], c - 2.7, 5.4, { cutoff: 1300, attack: 0.25, release: 0.8, seed: 70 + k + vuelta });
+      const i0 = Math.round((c - 2.5) * SR), i1 = Math.round((c + 2.5) * SR);
+      tmp.mixInto(musica, 10 ** ((antes - 4 - rms(tmp, i0, i1)) / 20));
+      [d] = caida(c);
+    }
+  }
+}
 MIX.fadeOut(musica, Math.max(dur - 3, ...cortes.map((t) => t + 2.5)), dur + 0.01);   // el fundido final no se come un golpe
 MIX.writeWav(path.join(dir, 'musica.wav'), musica);
 fs.writeFileSync(path.join(dir, 'musica-banda.json'), JSON.stringify({ animos: linea.escenas.map((e) => plan[e.id]?.animo ?? null), golpes: cortes }));
