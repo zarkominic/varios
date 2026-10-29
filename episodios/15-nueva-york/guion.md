@@ -1,6 +1,6 @@
 # Episodio 15 · Nueva York: de isla de bosques a ciudad de rascacielos
 
-**Estado:** v1, 29 de octubre de 2026. Pendiente de la verificación (3 agentes) y de la aprobación del usuario.
+**Estado:** v2, 29 de octubre de 2026, con la verificación de datos aplicada (3 agentes). Pendiente de la aprobación del usuario.
 
 **Por qué este tema:** lo eligió el usuario («la historia completa de New York City y su arquitectura»), con su propio
 enfoque: la historia en orden, de Verrazzano en 1524 a la ciudad de después de la Segunda Guerra Mundial.
@@ -15,7 +15,7 @@ enfoque: la historia en orden, de Verrazzano en 1524 a la ciudad de después de 
 - Voces: inglés `am_puck` 0,85 y español `em_santa` 0,92.
 - **Banda propia del episodio:** Fa mixolidio, con un motivo de metales de Broadway.
 
-**Duración objetivo:** unos 9:00. Son 55 frases y unas 1.390 palabras en inglés (÷ 150 por minuto).
+**Duración objetivo:** unos 9:00. Son 55 frases y unas 1.400 palabras en inglés (÷ 150 por minuto).
 
 **Publicar:** cuando esté; no caduca.
 
@@ -53,7 +53,7 @@ enfoque: la historia en orden, de Verrazzano en 1524 a la ciudad de después de 
   - El puerto: 1524–1824, con un barco de vela.
   - El canal y los que llegaron: 1825–1899, con un barril.
   - Los rascacielos: 1900–2026, con un rascacielos.
-- **Cartelas:** 1524, 1609, 1664, 1765, 1776, 1783, 1789, 1811, 1825, 1892, 1898, 1854, 1929, 1931, 1950, 1964.
+- **Cartelas:** 1524, 1609, 1664, 1765, 1776, 1783, 1789, 1811, 1825, 1892, 1898, 1854, 1916, 1929, 1931, 1950, 1964.
 - **Reparto nuevo:**
   - Verrazzano y sus marineros (1524); Henry Hudson; los lenapes (con respeto, según las fuentes); Juan Rodríguez;
   - colonos holandeses; Peter Stuyvesant (con su pierna de madera, sin burla); oficiales y marineros ingleses;
@@ -89,7 +89,7 @@ a orquesta de musical, con la séptima rebajada que le da el aire de jazz.
 | **1 · Nueva Ámsterdam** | calma, curiosidad, luego intriga | Los primeros colonos; el mito de los 24 dólares; los barcos ingleses |
 | **2 · La revolución** | intriga, suspense, luego aventura | El impuesto; la noche de la niebla, con golpe cuando el campamento aparece vacío; el mástil |
 | **3 · La capital** | épico, luego curiosidad | Washington en el balcón; la Biblia prestada; la cena del trato |
-| **4 · El canal y la cuadrícula** | curiosidad, luego épico | La cuadrícula; el barril del lago Erie y el puerto |
+| **4 · El canal y la cuadrícula** | curiosidad, épico, luego calma | La cuadrícula; el barril del lago Erie y el puerto |
 | **5 · Los que llegaron** | ternura, luego asombro | Annie Moore; la estatua y el puente; los cinco distritos |
 | **6 · Hacia arriba** | curiosidad, asombro, intriga | Otis; las tartas de boda; la aguja secreta, con golpe cuando sale; el «Empty State» |
 | **7 · Hoy** | épico | La ciudad de cristal y de capas |
@@ -101,7 +101,7 @@ Suspense, misterio e intriga juntos: unos dos minutos de nueve, por debajo del t
 
 | ES | EN |
 |---|---|
-| Es abril de 1524, y un barco francés, La Dauphine, se cuela por un estrecho entre dos colinas y entra en una bahía enorme y tranquila, rodeada de bosques. | It's April 1524, and a French ship, La Dauphine, slips through a narrow strait between two hills into a huge, calm bay surrounded by forest. |
+| Es abril de 1524: un barco francés, La Dauphine, echa el ancla ante un estrecho entre dos colinas, y un bote entra remando en una bahía enorme y tranquila, rodeada de bosques. | It's April 1524: a French ship, La Dauphine, anchors off a narrow strait between two hills, and a small boat rows through into a huge, calm bay surrounded by forest. |
 | Su capitán es un navegante italiano, Giovanni da Verrazzano, y busca un paso por mar hacia China. | Her captain is an Italian navigator, Giovanni da Verrazzano, and he's looking for a sea route to China. |
 | Según la carta que escribió al rey de Francia, la gente del lugar, los lenapes, salen a recibirlos en canoas, vestidos con plumas de colores. | According to his letter to the king of France, the Lenape who live there paddle out in canoes to greet them, dressed in colorful feathers. |
 | Pero de pronto se levanta un viento fuerte del mar, y Verrazzano vuelve a su barco y se marcha, «con mucha pena», escribe, sin saber lo que deja atrás. | But suddenly a strong wind blows in from the sea, and Verrazzano hurries back to his ship and sails away, "with much regret," he writes, never knowing what he's leaving behind. |
@@ -128,7 +128,7 @@ Suspense, misterio e intriga juntos: unos dos minutos de nueve, por debajo del t
 |---|---|
 | Un siglo después, Nueva York es un puerto británico bullicioso y ruidoso, y en 1765 Londres pone un impuesto a cada papel impreso: periódicos, contratos y hasta naipes. | A century later, New York is a busy, noisy British port, and in 1765 London puts a tax on printed paper: newspapers, contracts, even playing cards. |
 | Ese octubre se reúnen en el ayuntamiento de Nueva York delegados de nueve colonias para protestar, y en las calles un grupo que se hace llamar los Hijos de la Libertad se moviliza contra los británicos. | That October, delegates from nine colonies meet at New York's City Hall to protest, and in the streets, a group calling itself the Sons of Liberty campaigns against the British. |
-| Cuando estalla la guerra de independencia, los británicos saben que quien tenga ese puerto tiene la llave de las colonias, y en el verano de 1776 llegan con una flota de cientos de barcos. | When the Revolutionary War breaks out, the British know that whoever holds that harbor holds the key to the colonies, and in the summer of 1776 they arrive with a fleet of hundreds of ships. |
+| Cuando estalla la guerra de independencia, los británicos saben que quien tenga ese puerto tiene la llave de las colonias, y en el verano de 1776 llegan con cientos de barcos. | When the Revolutionary War breaks out, the British know that whoever holds that harbor holds the key to the colonies, and in the summer of 1776 they arrive with hundreds of ships. |
 | El general George Washington pierde la batalla de Brooklyn y queda atrapado con su ejército contra el río. | General George Washington loses the Battle of Brooklyn and is trapped with his army against the river. |
 | Entonces, en la noche del 29 de agosto, cruza el río Este con miles de soldados en barcas de remos, en silencio, y al amanecer una niebla espesa tapa a los últimos. | Then, on the night of August 29, he ferries thousands of soldiers across the East River in rowboats, in silence, and at dawn a thick fog hides the last ones still crossing. |
 | Cuando la niebla se levanta, los británicos encuentran el campamento vacío. | When the fog lifts, the British find the camp empty. |
@@ -139,7 +139,7 @@ Suspense, misterio e intriga juntos: unos dos minutos de nueve, por debajo del t
 
 | ES | EN |
 |---|---|
-| Durante unos años, Nueva York es la capital del nuevo país, y el 30 de abril de 1789, en el balcón del Federal Hall, en Wall Street, George Washington jura como primer presidente de los Estados Unidos. | For a few years, New York is the new nation's capital, and on April 30, 1789, on the balcony of Federal Hall on Wall Street, George Washington takes the oath as the first president of the United States. |
+| Durante unos años, Nueva York es la capital del nuevo país, y el 30 de abril de 1789, en el balcón del Federal Hall, en Wall Street, George Washington jura como primer presidente del país. | For a few years, New York is the new nation's capital, and on April 30, 1789, on the balcony of Federal Hall on Wall Street, George Washington takes the oath as the first president. |
 | Jura sobre una Biblia que tuvieron que ir a buscar a toda prisa a una logia masónica cercana, porque nadie se había acordado de traer una. | He swears on a Bible fetched in a hurry from a nearby Masonic lodge, because nobody had remembered to bring one. |
 | En esa misma ciudad, el Congreso propone la Carta de Derechos y el Tribunal Supremo se reúne por primera vez. | In that same city, Congress proposes the Bill of Rights, and the Supreme Court meets for the very first time. |
 | Pero en 1790, en una cena entre políticos, se cierra un trato: la capital se irá al sur, y Nueva York pierde el gobierno. | But in 1790, a deal is struck over dinner: the capital will move south, and New York loses the government. |
@@ -152,8 +152,8 @@ Suspense, misterio e intriga juntos: unos dos minutos de nueve, por debajo del t
 | En 1811 la ciudad dibuja su futuro en un plano: una cuadrícula de calles rectas que cubre casi toda la isla, por encima de colinas, granjas y arroyos. | In 1811, the city draws its future on a map: a grid of straight streets covering most of the island, right over its hills, farms and streams. |
 | ¿Por qué rectas? Según sus autores, porque las casas rectas y en ángulo recto son las más baratas de construir y las más cómodas para vivir. | Why straight? According to its planners, because straight-sided, right-angled houses are the cheapest to build and the most convenient to live in. |
 | Y en 1825 se abre el canal del Erie, que une el río Hudson con los Grandes Lagos, y el gobernador vacía en el puerto de Nueva York un barril de agua del lago Erie. | Then, in 1825, the Erie Canal opens, linking the Hudson River to the Great Lakes, and the governor pours a keg of Lake Erie water into New York Harbor. |
-| Ese es el secreto de Nueva York: un puerto hondo y protegido, y un río que ahora llega hasta el corazón del continente; el trigo del oeste baja en barcazas y sale en barco hacia el mundo. | That's New York's secret: a deep, sheltered harbor, plus a river that now reaches deep into the continent; grain from the West floats down by barge and sails out to the world. |
-| Mover una tonelada desde los lagos pasa de costar unos cien dólares a menos de diez, y Nueva York deja muy atrás a todos los demás puertos del país. | Shipping a ton of goods from the lakes drops from about a hundred dollars to under ten, and New York leaves every other port in the country far behind. |
+| Ese es el secreto de Nueva York: un puerto hondo y protegido, y un río que ahora llega hasta el corazón del continente; el trigo del oeste baja en barcazas y sale en barco hacia el mundo. | That's New York's secret: a deep, sheltered harbor, plus a river that now reaches the heart of the continent; western grain floats down by barge and sails out to the world. |
+| Mover una tonelada desde los lagos pasa de costar unos cien dólares a menos de diez, y Nueva York deja muy atrás a todos los demás puertos del país. | Shipping a ton from the lakes drops from about a hundred dollars to under ten, and New York leaves every other American port far behind. |
 | Después llegan los ferrocarriles, y en las calles nuevas se levantan filas de casas de piedra rojiza, las famosas brownstones. | Railroads follow, and along the new streets rise rows of reddish sandstone houses, the famous brownstones. |
 | Y en 1858, en mitad de la cuadrícula, empieza la obra de Central Park, donde los lagos, las colinas y los bosques se hicieron casi todos a mano. | And in 1858, in the middle of the grid, work begins on Central Park, where the lakes, hills and woods were almost all made by hand. |
 
@@ -164,7 +164,7 @@ Suspense, misterio e intriga juntos: unos dos minutos de nueve, por debajo del t
 | En las décadas de 1840 y 1850 llegan barcos llenos de irlandeses que huyen del hambre y de alemanes que buscan otra vida, y después italianos, judíos de Europa del Este, chinos y muchos más. | In the 1840s and 1850s, ships arrive packed with Irish families fleeing famine and Germans seeking a new life, then Italians, Eastern European Jews, Chinese and many more. |
 | El 1 de enero de 1892 abre la estación de Ellis Island, y la primera en pasar es una chica irlandesa, Annie Moore, que llega con sus dos hermanos pequeños. | On January 1, 1892, the Ellis Island station opens, and the first person through is an Irish girl, Annie Moore, arriving with her two younger brothers. |
 | Por allí pasarán unos doce millones de personas, y lo primero que ven al entrar en el puerto es la Estatua de la Libertad, que lleva allí desde 1886. | Some twelve million people will pass through it, and the first thing they see as they sail into the harbor is the Statue of Liberty, standing there since 1886. |
-| Para entonces, el puente de Brooklyn ya cruza el río Este; la primera persona en cruzarlo, en 1883, fue Emily Roebling, que había ayudado a dirigir la obra cuando su marido, el ingeniero jefe, cayó enfermo. | By then, the Brooklyn Bridge spans the East River; the first to cross it, in 1883, was Emily Roebling, who had helped run the project after her husband, the chief engineer, fell ill. |
+| Para entonces, el puente de Brooklyn ya cruza el río Este; la primera en cruzarlo en carruaje, en 1883, fue Emily Roebling, que había ayudado a dirigir la obra cuando su marido, el ingeniero jefe, cayó enfermo. | By then, the Brooklyn Bridge spans the East River; the first to ride across it, in 1883, was Emily Roebling, who had helped run the project after her husband, the chief engineer, fell ill. |
 | Y el 1 de enero de 1898, Manhattan, Brooklyn, Queens, el Bronx y Staten Island se unen en una sola ciudad, la segunda más grande del mundo después de Londres. | And on January 1, 1898, Manhattan, Brooklyn, Queens, the Bronx and Staten Island merge into a single city, the second largest in the world after London. |
 
 ## 6 · Hacia arriba
@@ -172,7 +172,7 @@ Suspense, misterio e intriga juntos: unos dos minutos de nueve, por debajo del t
 | ES | EN |
 |---|---|
 | Con tanta gente en una isla estrecha, solo queda un camino: hacia arriba, y para eso hacía falta algo que se enseñó por primera vez en Nueva York. | With so many people on a narrow island, there's only one way to go: up, and that took something first shown off in New York. |
-| En 1854, en una feria, Elisha Otis sube a la plataforma de un ascensor, manda cortar la cuerda, y la plataforma no cae: su freno de seguridad la sujeta. | In 1854, at a fair, Elisha Otis rides an elevator platform, orders the rope cut, and the platform doesn't fall: his safety brake catches it. |
+| En 1854, en una feria, Elisha Otis sube a la plataforma de un ascensor, la cuerda se corta, y la plataforma no cae: su freno de seguridad la sujeta. | In 1854, at a fair, Elisha Otis rides an elevator platform, the rope is cut, and the platform doesn't fall: his safety brake catches it. |
 | Con ascensores seguros y esqueletos de acero, los edificios se estiran, como el Flatiron, de 1902, con forma de plancha antigua. | With safe elevators and steel skeletons, buildings start to stretch, like the Flatiron, from 1902, shaped like an old clothes iron. |
 | Pero en 1915 una torre enorme deja en sombra las calles de alrededor, y al año siguiente la ciudad aprueba una ley: los edificios altos tienen que irse estrechando en escalones para que la luz llegue a la calle. | But in 1915, one huge tower casts the streets around it into shadow, and the next year the city passes a law: tall buildings have to step back as they rise, so light can reach the street. |
 | Por eso tantos rascacielos de Nueva York parecen tartas de boda. | That's why so many New York skyscrapers look like wedding cakes. |
@@ -192,7 +192,7 @@ Suspense, misterio e intriga juntos: unos dos minutos de nueve, por debajo del t
 
 | ES | EN |
 |---|---|
-| En 1964 se inauguró un puente colgante sobre el mismo estrecho por el que entró La Dauphine, y lo llamaron Verrazzano. | In 1964, a suspension bridge opened over the very strait La Dauphine sailed through, and it was named after Verrazzano. |
+| En 1964 se inauguró un puente colgante sobre el mismo estrecho que cruzó el bote de Verrazzano, y lo llamaron Verrazzano. | In 1964, a suspension bridge opened over the very strait Verrazzano's boat rowed through, and it was named after him. |
 | Durante más de cincuenta años escribieron mal su nombre, con una zeta de menos, hasta que lo corrigieron en 2018. | For more than fifty years, its name was misspelled, missing a z, until it was finally fixed in 2018. |
 | Hoy casi todos los barcos que llegan a Nueva York desde el mar pasan por debajo del nombre del hombre que estuvo tan poco tiempo y se marchó sin saber lo que había encontrado. | Today almost every ship arriving in New York from the ocean passes beneath the name of the man who stayed so briefly, and sailed away without knowing what he'd found. |
 | ¿Qué quieres que te explique ahora? | What do you want me to explain next? |
@@ -213,15 +213,15 @@ Suspense, misterio e intriga juntos: unos dos minutos de nueve, por debajo del t
 
 ## Datos
 
-Pendiente de la verificación con 3 agentes escépticos.
-- **Verrazzano, 1524:** La Dauphine entra en la bahía de Nueva York el 17 de abril de 1524; su carta a Francisco I
+Verificado el 29 de octubre de 2026 por 3 agentes escépticos (historia y personas, arquitectura y cifras, fechas); lo que señalaron está corregido en la v2.
+- **Verrazzano, 1524:** La Dauphine fondea ante los Narrows el 17 de abril de 1524 y solo entra el bote en la bahía; su carta a Francisco I
   (copia de la Morgan Library) habla de los nativos en unas veinte barcas, vestidos con plumas de colores, y de un viento
   contrario que los obliga a volver al barco y a irse «con mucha pena». [Wikipedia, La Dauphine](https://en.wikipedia.org/wiki/La_Dauphine), [Morgan Library](https://www.themorgan.org/collection/giovanni-da-verrazzano/letter), [Britannica](https://www.britannica.com/biography/Giovanni-da-Verrazzano).
 - **Hudson, 1609; Juan Rodríguez, 1613; colonos, 1624:** el texto del usuario dice 1608, pero los primeros colonos
   holandeses llegaron en 1624 (a la isla del Gobernador, y a Manhattan en 1625). Juan Rodríguez, nacido en Santo
   Domingo, se quedó en 1613–1614.
-- **Los 24 dólares:** la carta de Pieter Schaghen (noviembre de 1626) dice 60 florines en mercancías; John Romeyn
-  Brodhead los pasó a 24 dólares en 1844. [New Netherland Institute](https://newnetherlandinstitute.org/content/manhattan-and-the-24-myth/), [NYC Archaeology](https://archaeology.cityofnewyork.us/collection/nyc-timeline/purchase-of-manhattan), [Wikipedia, Peter Minuit](https://en.wikipedia.org/wiki/Peter_Minuit).
+- **Los 24 dólares:** la carta de Pieter Schaghen (noviembre de 1626) dice 60 florines en mercancías; la conversión a 24 dólares
+  aparece a mediados del siglo XIX (el New Netherland Institute la atribuye a O'Callaghan, 1855; otros, a Brodhead, 1844). [New Netherland Institute](https://newnetherlandinstitute.org/content/manhattan-and-the-24-myth/), [NYC Archaeology](https://archaeology.cityofnewyork.us/collection/nyc-timeline/purchase-of-manhattan), [Wikipedia, Peter Minuit](https://en.wikipedia.org/wiki/Peter_Minuit).
 - **1664:** Richard Nicolls; rendición sin combate; la ciudad pasa a llamarse Nueva York el 8 de septiembre de 1664. [Wikipedia, Conquest of New Netherland](https://en.wikipedia.org/wiki/Conquest_of_New_Netherland).
 - **1765:** Congreso de la Ley del Timbre, del 7 al 25 de octubre de 1765, en el ayuntamiento (luego Federal Hall), nueve
   colonias. [Wikipedia, Stamp Act Congress](https://en.wikipedia.org/wiki/Stamp_Act_Congress), [NPS, Federal Hall](https://www.nps.gov/feha/learn/hc.htm).
@@ -235,7 +235,7 @@ Pendiente de la verificación con 3 agentes escépticos.
   the most convenient to live in»); la «boda de las aguas», 4 de noviembre de 1825; el coste de una tonelada, de 100 a
   menos de 10 dólares. [Wikipedia, Commissioners' Plan of 1811](https://en.wikipedia.org/wiki/Commissioners%27_Plan_of_1811).
 - **1892, 1883, 1898:** Ellis Island abre el 1 de enero de 1892 (Annie Moore, con sus hermanos Anthony y Phillip; unos
-  12 millones hasta 1954); el puente de Brooklyn abre el 24 de mayo de 1883 y Emily Roebling cruza la primera; la
+  12 millones hasta 1954); el puente de Brooklyn abre el 24 de mayo de 1883 y Emily Roebling es la primera en cruzarlo en carruaje (antes lo cruzaron Farrington en 1876 y los obreros); la
   consolidación, 1 de enero de 1898.
 - **Otis, 1854; 1916; Chrysler y Empire State:** la demostración en el Palacio de Cristal de Nueva York; el Equitable
   Building (1915) y la ley de zonificación de 1916; la aguja del Chrysler, octubre de 1929, unos 90 minutos; el Empire
