@@ -1101,3 +1101,53 @@ export const ELENCO_NY = {
   neoyorquino2: { ...BASE15, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#5a4a8a', c: '#42366a', F: '#3a3a4a', W: '#5a4a8a', o: '#e8c840' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_NY);
+
+// ── Episodio 16: homenaje a las aventuras de LucasArts (1987–1998 y hoy) ──────────────────────────────────────────────
+// Personajes de homenaje, dibujados por nosotros y reconocibles por su silueta y su ropa, sin copiar sprites. Los que no
+// son humanos (los dos tentáculos, el perro y el conejo detectives, el esqueleto agente de viajes, el demonio mecánico,
+// el mono de tres cabezas, el hámster) son piezas de la-comun.js.
+const BASE16 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const BASE16M = { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const BASE16V = { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+export const ELENCO_LA = {
+  // el científico loco: bata blanca, gafas y pelo blanco revuelto
+  cientifico: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', pal: CLARA({ H: '#f2eee2', h: '#c8c4bc', C: '#f2eee2', c: '#c8c0b0', F: '#4a4a5a', W: '#f2eee2', o: '#4aa8a0' }) },
+  // el empollón: gafas, camisa clara de manga corta con bolígrafos y pelo castaño
+  empollon: { ...BASE16, ceja: hex('#6a3a1a'), tocado: 'gafas', pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#e8e0c8', c: '#c8bc9a', F: '#6a5a4a', W: '#e8e0c8', o: '#3a5a8a' }) },
+  // el roquero: camiseta negra, gorra roja al revés y pelo largo castaño
+  roquero: { ...BASE16, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#2a2430', c: '#c84a3a', F: '#3e5a8a', W: '#2a2430', o: '#c84a3a' }) },
+  // la chica rara: vestido de bata de enfermera verde y pelo oscuro
+  chicaRara: { ...BASE16M, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#7aa87a', c: '#5a8a5a', F: '#3a3a4a', W: '#7aa87a', o: '#f2eee2' }) },
+  // el aspirante a pirata: camisa blanca, pantalón oscuro, coleta rubia
+  aspirante: { ...BASE16, ceja: hex('#a8743c'), pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#f2eee2', c: '#c8c0b0', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  // la gobernadora: vestido rojo y pelo pelirrojo
+  gobernadora: { ...BASE16V, ceja: hex('#a8502a'), pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#a83a3a', c: '#7a2a2a', W: '#f2eee2', L: '#2a2430' }) },
+  // el pirata fantasma: casaca azul, barba verde, piel verdosa y sombrero de capitán
+  fantasma: { ...BASE16, ceja: hex('#2a6a3a'), tocado: 'bicornio', bigote: true, pal: { S: hex('#a8d8a8'), s: hex('#78a878'), H: hex('#3a8a4a'), h: hex('#5aa86a'), C: hex('#2a3a6a'), c: hex('#1e2a50'), F: hex('#2a2430'), W: hex('#c8f0c8'), o: hex('#e8c840'), N: hex('#1c1c24'), D: hex('#c84a3a') } },
+  // la maestra de esgrima: chaqueta oscura con fajín y pelo recogido
+  esgrimista: { ...BASE16M, ceja: hex('#3a2418'), pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#4a2a4a', c: '#c84a3a', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  // un pirata de la taberna: camisa a rayas y pañuelo
+  pirata: { ...BASE16, ceja: hex('#1c1424'), bigote: true, pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#f2eee2', c: '#c84a3a', F: '#5a4a3a', W: '#f2eee2', o: '#c84a3a' }) },
+  // diseñadores y programadores de los ochenta: camisa de cuadros, gafas, barba
+  disenador: { ...BASE16, ceja: hex('#5a3418'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#8a3a3a', c: '#c8a878', F: '#3e5a8a', W: '#8a3a3a', o: '#c8a878' }) },
+  disenador2: { ...BASE16, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#3e6a8a', c: '#2c5068', F: '#4a4a5a', W: '#e8e0c8', o: '#c8a040' }) },
+  disenadora: { ...BASE16M, ceja: hex('#a85a2a'), tocado: 'gafas', pal: CLARA({ H: '#c8783a', h: '#e0944c', C: '#6a8a4a', c: '#4e6a38', F: '#3a3a4a', W: '#6a8a4a', o: '#f2eee2' }) },
+  // los músicos: jersey y camisa
+  musico: { ...BASE16, ceja: hex('#3a2418'), bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#5a4a7a', c: '#42365c', F: '#3a3a4a', W: '#5a4a7a', o: '#f2eee2' }) },
+  // un caballero de 1793 que vuela una cometa: casaca marrón, peluca gris y gafitas
+  caballero: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', pal: CLARA({ H: '#c8c4bc', h: '#a8a49c', C: '#6a4a2a', c: '#4e3420', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  // un motero: chupa negra y pelo negro
+  motero: { ...BASE16, ceja: hex('#1c1424'), bigote: true, pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#1c1c24', c: '#5a5a6a', F: '#2a3a5a', W: '#1c1c24', o: '#c8c8d0' }) },
+  // un astronauta: traje blanco
+  astronauta: { ...BASE16, ceja: hex('#5a3418'), pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#e8e8f0', c: '#b8b8c8', F: '#e8e8f0', W: '#e8e8f0', o: '#c84a3a' }) },
+  // el chico de los noventa y de hoy, y su padre
+  chico: { ...BASE16, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#3e8a6a', c: '#2c6a50', F: '#3e5a8a', W: '#3e8a6a', o: '#f2eee2' }) },
+  padre: { ...BASE16, ceja: hex('#5a5a6a'), bigote: true, pal: CLARA({ H: '#6a6a7a', h: '#8a8a9a', C: '#7a5a3a', c: '#5a4028', F: '#3a3a4a', W: '#e8e0c8', o: '#c8a040' }) },
+  // creadores con canas (2016–2022): camisa y barba gris
+  creador: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#2a2430', c: '#5a5a6a', F: '#3e5a8a', W: '#2a2430', o: '#c84a3a' }) },
+  creador2: { ...BASE16, ceja: hex('#8a8a9a'), bigote: true, pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#6a3a3a', c: '#4e2a2a', F: '#3a3a4a', W: '#6a3a3a', o: '#f2eee2' }) },
+  // jóvenes que hacen juegos hoy
+  joven: { ...BASE16M, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#e8783a', c: '#c85a2a', F: '#2a3a5a', W: '#e8783a', o: '#f2eee2' }) },
+  joven2: { ...BASE16, ceja: hex('#5a3418'), tocado: 'auriculares', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#5a4a8a', c: '#42366a', F: '#3a3a4a', W: '#5a4a8a', o: '#e8c840', M: '#2a2430' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_LA);
