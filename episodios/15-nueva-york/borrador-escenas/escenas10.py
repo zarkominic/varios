@@ -519,8 +519,8 @@ const p5 = (t) => {
   R.actor(EL.vecina, 246, 150, t, { dir: -1, habla: t > era - 0.1 && t < era + 1.2 && Math.sin(t * 9) > 0, dedo: t > era + 0.1 && t < era + 1.4, sonrisa: true });
 };
 
-const efectos = [[1.5, 'publico'], [2.8, 'claxon'], [mayor, 'papel'], [mayor + 0.25, 'whoosh'], [cuartel, 'flash'], [cuartel + 0.15, 'aleteo'], [vidrio + 0.05, 'brillo'], [mitad + 0.05, 'pop'], [mitad + 0.6, 'pop'], [mitad + 1.15, 'pop'],
-  [P4 + 0.4, 'claxon'], [calles + 0.25, 'masca'], [edif, 'brillo'], [anillos, 'brillo'], [era + 0.18, 'boing'], [era + 0.9, 'pop']].filter((e) => e[1] !== 'aleteo');
+const efectos = [[1.5, 'publico'], [2.8, 'claxon'], [mayor, 'papel'], [mayor + 0.25, 'whoosh'], [cuartel, 'flash'], [vidrio + 0.05, 'brillo'], [mitad + 0.05, 'pop'], [mitad + 0.6, 'pop'], [mitad + 1.15, 'pop'],
+  [P4 + 0.4, 'claxon'], [calles + 0.25, 'masca'], [edif, 'brillo'], [anillos, 'brillo'], [era + 0.18, 'boing'], [era + 0.9, 'pop']];
 const año = (t) => (t < P2 ? 1950 : t < P3 ? 1952 : t < P4 ? Math.round(lerp(1952, 2010, tramo(t, mitad - 0.1, mitad + 1.6))) : 2026);
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { cartela: '1950', efectos, año });
 ''')
@@ -810,7 +810,7 @@ const fantasmaOrillas = (a) => fantasmal(0, 60, 319, 112, a, () => {
 const puenteEncima = (t, d) => {
   const { rect, pset } = R, yd = Math.round(112 - 44 / d), th = Math.max(5, Math.round(8 / d)), ac = hex('#5a5272'), acS = hex('#2e2e48'), luz = hex('#f8e8a0');
   // los cables con sus péndolas (la curva baja en el centro y sale por arriba antes de la zona de Atom)
-  for (let x = 0; x < 320; x++) { const u = (x - 160) / 160, y = Math.round(yd - 3 / d - 150 * u * u); if (y < 0 || y > 179) continue; pset(x, y, acS); if (y + 1 < yd) pset(x, y + 1, hex('#6a5a7a'));
+  for (let x = 0; x < 320; x++) { const u = (x - 160) / 160, y = Math.round(yd - 3 / d - 150 * u * u); if (y < 0 || y > 179 || (y < 17 && x > 14 && x < 176)) continue; pset(x, y, acS); if (y + 1 < yd) pset(x, y + 1, hex('#6a5a7a'));
     if (x % Math.max(3, Math.round(6 / d)) === 0) for (let yy = y + 2; yy < yd; yy++) pset(x, yy, hex('#5a5070'));
     if (x % Math.max(4, Math.round(8 / d)) === 2) { const tw = Math.sin(t * 3 + x * 0.7) > -0.3; pset(x, y - 1, tw ? hex('#fff6c8') : hex('#e8c878')); if (tw && d < 0.7) pset(x + 1, y - 1, hex('#f8e0a0')); } }
   if (yd + th < 0) return;
@@ -853,7 +853,7 @@ const p1 = (t) => {
   fantasmaOrillas(tramo(t, 1.6, 3.4) * 0.5);
   // la canoa fantasma que cruza
   { const u = tramo(t, 1.8, P2), cx = Math.round(lerp(30, 120, u)); if (u > 0) fantasmal(cx - 14, 112, cx + 14, 124, 0.8 * Math.min(1, u * 3), () => { R.rect(cx - 10, 120, cx + 10, 121, hex('#6a4a2a')); R.rect(cx - 8, 122, cx + 8, 122, hex('#4a3020')); for (const dx of [-4, 3]) { R.rect(cx + dx, 116, cx + dx + 1, 119, hex('#c88a5a')); R.pset(cx + dx, 115, hex('#2a2a2a')); R.linea(cx + dx + 1, 118, cx + dx + 4 + Math.round(Math.sin(t * 4 + dx) * 2), 123, hex('#a8804c')); } }); }
-  const d = lerp(1, 0.36, Math.min(1, Math.max(0, t / (P2 + 0.05))) ** 1.6);
+  const d = lerp(1, 0.68, Math.min(1, Math.max(0, t / (P2 + 0.05))) ** 1.4);
   puenteEncima(t, d);
   proa(t);
   // el marinero de cubierta: llega por la borda, señala el puente y se queda mirando cómo pasa por encima
