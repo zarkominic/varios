@@ -239,6 +239,10 @@ fuera recortado a ventanas y puertas, y los fondos fijos con `const prev = R.usa
 siete fallos que más suspendieron en el 12» de `episodios/NIVEL-RESUMEN.md`: es más barato no cometerlos aquí que
 pagarlos en la pasada de calidad (en el 12, tres rondas y dos pasadas extra, unas 6 h y 15 M de tokens).
 
+**Al integrar la primera versión, borra sus copias `_tmp_<G>/`** (con su ruta literal, una a una) antes de lanzar
+cualquier otra pasada: la pasada de decorados usa las mismas letras y sus agentes toman una carpeta que ya existe por
+un intento anterior y siguen desde ahí, con una copia vieja (en el 15 hubo que parar y relanzar la pasada por esto).
+
 **El primer borrador de la miniatura va aquí, no al final** (paso 10): con los decorados recién hechos, compón
 `<pref>-miniatura.html` y mírala también reducida a 320 × 180, que es como la ve el público en la lista de YouTube. En el
 12, el tornado pálido se vio al final y hubo que rehacerlo.
