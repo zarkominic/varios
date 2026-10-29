@@ -91,7 +91,11 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    - una historia con personas, lugares y giros;
    - un porqué que explicar (el ángulo de ASK Atom);
    - nada morboso;
-   - los datos etiquetados, los riesgos y tu recomendación.
+   - los datos etiquetados, los riesgos y tu recomendación;
+   - **el gancho comercial** (regla del usuario, 29/10/2026: «hay que pensar siempre en el gancho comercial, no solo en
+     tratar de explicar todo como una calculadora»): el título y la miniatura que se pinchan, y la pregunta o el misterio
+     que engancha en los primeros segundos. Siempre cierto dentro del vídeo: un título que promete lo que el vídeo no da
+     castiga la retención.
 3. Pide UN solo CSV de Google Trends que compare los candidatos en la misma gráfica. Si no, cada curva va de 0 a 100 por
    su cuenta y no se pueden comparar (en el 11 hicieron falta cinco subidas). Las instrucciones, al pie de la letra:
    1. En trends.google.com → Explorar, escribe el primer candidato.
@@ -125,7 +129,10 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    - personas reales solo con hechos;
    - de 6 a 8 gags con objetos;
    - los años en cifras y las demás cifras en palabras;
-   - el título con el tema o la persona delante.
+   - el título con el tema o la persona delante, y con gancho comercial: que se pinche (un misterio, un giro, una cifra
+     que sorprende, algo que no se sabía), no una ficha («cómo X llegó a ser Y» es de calculadora). El gancho del texto,
+     el título y la miniatura cuentan lo mismo, y el vídeo lo cumple;
+   - la explicación de ASK Atom, en una o dos frases por idea, dentro de la historia, nunca como una clase.
 3. Cada dato dudoso, márcalo «[comprobar antes de locutar]» y resuélvelo con WebSearch antes del paso 3. Si no se
    confirma, reescribe la frase con lo comprobado. Antes de presentarlo, verifica el guion con **3 agentes escépticos,
    no más** (en el 12, ocho gastaron 1,2 M de tokens y casi todo lo útil salió de tres bloques): uno para la historia y
