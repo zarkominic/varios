@@ -633,8 +633,9 @@ const boteFantasma = (x, y, s, t, quita) => {
 const p2 = (t) => {
   const f = tramo(t, P2 + 0.1, bote - 0.4) * 0.6;
   T.hoy(R, t, { encuadre: 'puente', fantasma: f, barco: 0 });
-  const u = tramo(t, P2 + 0.3, nombre - 0.1), bx = Math.round(lerp(166, 206, u)), by = Math.round(lerp(104, 132, u)), s = lerp(0.4, 1.35, u), quita = tramo(t, nombre, nombre + 0.35) * (1 - tramo(t, nombre + 1.1, nombre + 1.4));
-  fantasmal(bx - 40, by - 34, bx + 50, by + 6, 0.85, () => boteFantasma(bx, by, s, t, quita));
+  const u = tramo(t, P2 + 0.3, nombre - 0.1), bx = Math.round(lerp(166, 200, u)), by = Math.round(lerp(104, 134, u)), s = lerp(0.5, 1.9, u), quita = tramo(t, nombre, nombre + 0.35) * (1 - tramo(t, nombre + 1.1, nombre + 1.4));
+  fantasmal(bx - 50, by - 50, bx + 70, by + 8, 0.95, () => boteFantasma(bx, by, s, t, quita));
+  for (let q = 0; q < 6; q++) { const a = q * 1.1 + t * 1.7, r = 14 + 8 * s + Math.sin(t * 3 + q) * 3, x = Math.round(bx + Math.cos(a) * r * 1.4), y = Math.round(by - 8 * s + Math.sin(a) * r * 0.6); if (Math.sin(t * 6 + q * 2) > 0) { R.pset(x, y, GH); R.pset(x + 1, y, GHS); R.pset(x, y - 1, GHS); } }
   // el pescador con su caña, que mira atrás cuando pasa el bote
   const pe = R.actor(EL.vecino, 228, 172, t, { dir: t > bote + 0.6 ? -1 : 1, sostiene: [246, 150], sorpresa: t > bote + 0.6 && t < bote + 1.2 });
   R.linea(pe.mano[0], pe.mano[1], 262, 126, hex('#5a3a1a')); R.linea(262, 126, 268, 138 + Math.round(Math.sin(t * 2) * 1), hex('#d8dce4'));
