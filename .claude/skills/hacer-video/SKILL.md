@@ -73,7 +73,8 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
      se pueda regenerar (ver «Trampas conocidas») y, si hace falta, pregunta al usuario qué fotogramas de episodios ya
      publicados se pueden borrar; no a mitad del render. **Regla aprobada por el usuario (29/10/2026):** los fotogramas
      (`atomo/build/largo/<ep>/fotos`) del episodio anterior se borran al empezar el siguiente si ese ya está publicado,
-     sin volver a preguntar (con su ruta literal); los de otros episodios, preguntando.
+     sin volver a preguntar (con su ruta literal); los de otros episodios, preguntando. **Cuando el usuario pide un
+     episodio nuevo, el anterior ya está publicado** (palabras del usuario, 29/10/2026): no se le pregunta.
 
    Si falta algo, arréglalo antes de empezar o díselo al usuario.
 2. `bash atomo/herramientas/preparar-voz.sh`. Tarda unos 6 minutos en un contenedor nuevo y nada si ya está; escribe la
