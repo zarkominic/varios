@@ -231,6 +231,11 @@ En `atomo/plato/escenas/<pref>-comun.js`:
 - los insertos de objetos van siempre sobre su decorado o sobre una mesa con cosas;
 - las piezas pequeñas.
 
+**Cada encuadre trae dos cámaras** (aprobado el 29/10/2026): la general y otra más cerca o desde otro ángulo
+(`o.camara: 'cerca'` u otra opción en su cabecera), con el mismo detalle. Así las escenas no repiten encuadre ni tienen
+que pintar su propio fondo, que es donde más fallaron el orden de dibujo, la zona de Atom y «algo que no se lee» en el 15.
+Nunca a costa del detalle de la general.
+
 Cada encuadre se prueba con un personaje chibi de pie, a la escala de las escenas, junto a lo que tendrá que tocar: en el
 13 se añadió un escritorio en el que los personajes no encajaban y no sirvió.
 
@@ -252,7 +257,10 @@ un intento anterior y siguen desde ahí, con una copia vieja (en el 15 hubo que 
 **0. Antes de lanzar, reparte tú los encuadres.** Con las notas de geometría de los decorados (`<SC>/geo<N>/`), escribe
 `<SC>/encuadres-<ep>.md` con una línea por escena: qué decorado y qué encuadre (y qué luz o época) usa cada uno de sus
 planos. Reglas: el mismo decorado y encuadre como mucho dos veces en el episodio, nunca en escenas vecinas, y si un
-decorado central tiene que volver (el pozo del 14), cada vez con otra luz, otra época u otro estado. En las
+decorado central tiene que volver (el pozo del 14), cada vez con otra luz, otra época u otro estado. **Dentro de una
+escena, un encuadre no se repite nunca** (aprobado el 29/10/2026): si la historia vuelve al mismo sitio, va con la otra
+cámara del decorado (más cerca u otro ángulo), no solo con otra luz o estado. En el 15 el revisor contó como
+composición repetida 10 planos que el reparto había puesto así (el puerto de 1625 y el de 1660, los tres salones). En las
 `indicaciones` de cada grupo di qué encuadres le tocan. En el 14, sin este reparto, el pozo en corte salió 5 veces y la
 composición repetida fue el fallo número uno de la calidad (14 de 65): el registro común no basta porque los grupos
 trabajan a la vez.

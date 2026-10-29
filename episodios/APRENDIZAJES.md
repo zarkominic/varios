@@ -114,8 +114,8 @@ una pasada o detalle no entra.
   partir de una copia vieja: se paró a tiempo. La skill dice ahora que se borran al integrar.
 
 **Pendiente para el próximo:**
-- Si el usuario lo aprueba: ningún encuadre repetido dentro de una escena y una segunda cámara en cada decorado.
-  Medir si baja la composición repetida (objetivo: menos de 5) y el orden de dibujo.
+- Aprobado el 29/10/2026 («mientras no afecten negativamente la calidad»): ningún encuadre repetido dentro de una
+  escena y una segunda cámara en cada decorado (en la skill, pasos 5 y 6.0). Medir si baja la composición repetida (objetivo: menos de 5) y el orden de dibujo.
 - Que el gancho comercial (regla nueva) se mida: el título y la miniatura, decididos en el paso 1.
 
 ## Próximos temas (decididos por el usuario)
