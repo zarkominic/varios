@@ -91,6 +91,9 @@ lista.
 ## Sonido
 
 - **Voces:** inglés `am_puck` 0,85 y español `em_santa` 0,92, igualadas a −19 dB RMS.
+  El español, desde el 16, con cada frase entera de una vez y sin estirar (la «B» que eligió el usuario de oído el
+  30/10/2026: partida en las comas y estirada sonaba entrecortada). `locutar_frases.py` lo hace solo; para un episodio
+  ya montado, `revocear-otro.py` la rehace sin mover la línea de tiempo.
 - **Música con emoción en cada escena** (`herramientas/banda.cjs`): suspense, misterio, intriga o cierre, con golpes en los momentos clave. Tiene que oírse, también en el altavoz de un móvil.
 - **Todas las melodías al mismo volumen percibido** (desde el 29/10/2026, el usuario: «hay melodías que suenan más fuertes
   que otras»): cada ánimo se iguala en LUFS (`ANIMO` en `banda.cjs`) y un nivelador frena los picos dentro de un tramo.
