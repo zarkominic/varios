@@ -34,20 +34,21 @@ una pasada o detalle no entra.
 | 13 | ~6,5 h | ~13,6 M (6,6 M en calidad) | 47 de 102 | 47 → 2 → 0 | 96 | no (efectos perdidos al cortarse el render; caída de la música en una cartela) |
 | 14 | ~6,5 h (con un reinicio del contenedor) | ~12,5 M + el intento perdido (6,5 M en calidad) | 41 de 96 | 41 → 1 → 1 (aceptado: falso aviso) | 65 | no (disco lleno; NaN en un efecto) |
 | 15 | ~8 h (28 escenas, 118 planos) | ~14,7 M (8,4 M en calidad) | 60 de 118 | 60 → 1 → 0 | 107 | no (el pico del mp4 en −0,5 dBFS) |
+| 16 | sin medir (24 escenas, 104 planos) | ~10 M estimado (6,0 M en calidad, 0,5 M en la pasada de decorados) | 49 de 104 | 49 → 0 | 82 | no (−14,7 LUFS al bajar la música; arreglado con un limitador) |
 
 ### Fallos de calidad por tipo
 
-| Tipo | Ep. 13 | Ep. 14 | Ep. 15 |
-|---|---|---|---|
-| Orden de dibujo / algo que flota | 20 | 14 | 25 |
-| Composición repetida | 13 | 14 | 16 |
-| Algo no se lee | 14 | 13 | 17 |
-| Brazo o mano | 11 | 11 | 7 |
-| Quieto o sin vida | 14 | 7 | 8 |
-| Liso o poco detalle | 10 | 4 | 9 |
-| Letras en pantalla | 4 | 0 | 2 |
-| Zona de Atom o barra del año | 4 | 2 | 11 |
-| **Total** | **96** | **65** | **107** (12 sin tipo) |
+| Tipo | Ep. 13 | Ep. 14 | Ep. 15 | Ep. 16 |
+|---|---|---|---|---|
+| Orden de dibujo / algo que flota | 20 | 14 | 25 | 23 |
+| Composición repetida | 13 | 14 | 16 | 9 |
+| Algo no se lee | 14 | 13 | 17 | 4 |
+| Brazo o mano | 11 | 11 | 7 | 14 |
+| Quieto o sin vida | 14 | 7 | 8 | 4 |
+| Liso o poco detalle | 10 | 4 | 9 | 14 |
+| Letras en pantalla | 4 | 0 | 2 | 0 |
+| Zona de Atom o barra del año | 4 | 2 | 11 | 10 |
+| **Total** | **96** | **65** | **107** (12 sin tipo) | **82** |
 
 ## Episodio 14 · Oak Island (29/10/2026)
 
@@ -118,9 +119,39 @@ una pasada o detalle no entra.
   escena y una segunda cámara en cada decorado (en la skill, pasos 5 y 6.0). Medir si baja la composición repetida (objetivo: menos de 5) y el orden de dibujo.
 - Que el gancho comercial (regla nueva) se mida: el título y la miniatura, decididos en el paso 1.
 
+## Episodio 16 · LucasArts (29–30/10/2026)
+
+**Lo que funcionó:**
+- **Ningún encuadre repetido dentro de una escena y dos cámaras por decorado** (aprobado el 29/10): la composición
+  repetida bajó de 16 a 9, y «algo no se lee» de 17 a 4. No llega al objetivo (menos de 5): las 9 son repeticiones entre
+  escenas (la fachada general salió tres veces, por el reparto).
+- **La calidad cerró en dos rondas** (49 → 0) y el total de fallos bajó de 107 a 82.
+- **La pasada de decorados con fallos concretos:** 2 agentes, 0,46 M de tokens y unos 20 minutos.
+
+**Lo que no mejoró, con su causa:**
+- **Brazo o mano (7 → 14) y liso o poco detalle (9 → 14).** Las piezas nuevas que no son humanas (los bracitos del
+  tentáculo, las manos de esqueleto) no tenían mano canónica hasta la pasada de decorados, y los agentes de escenas
+  pintaron sus propias manos; los fondos locales siguen trayendo zonas lisas. Propuesta: que cada pieza no humana traiga
+  su mano desde la primera versión de los decorados.
+- **Orden de dibujo (25 → 23):** casi igual. Varios vienen de auxiliares del decorado que pintan con `R.rect`, que no
+  respeta el recorte (los avatares del foro, el paseante del taller): la escena los tapaba con parches.
+
+**Lo que se rompió y ya está arreglado:**
+- **La música** (el usuario: «hay melodías que suenan más fuertes que otras»): medido en el 13–15, los ánimos se
+  separaban 4,2 dB en volumen percibido, los golpes iban 5 dB por encima y, al hablar, la voz quedaba solo 7 dB sobre
+  la música (un 10 % del tiempo, por debajo). `banda.cjs` iguala ahora por LUFS con un nivelador de picos, y
+  `montar-largo.sh` aparta más la música bajo la voz: 1,8 dB entre ánimos y 13,9 dB bajo la voz (en el 15).
+- **El nivel final se quedó en −14,7 LUFS** al bajar la música (más picos sueltos sobre el nivel medio): un limitador a
+  −6 dBFS antes de loudnorm lo deja en −14,0 con el pico a −2,5.
+
+**Pendiente para el próximo:**
+- Escuchar si el usuario da por buena la música nueva (más baja: −22 LUFS en las pausas); si dice que no se oye, se sube
+  `ANIMO` en `banda.cjs`.
+- Que `R.rect` respete el recorte, o que la prueba de decorados lo detecte, para no volver a los parches.
+
 ## Próximos temas (decididos por el usuario)
 
-- **Episodio 16: LucasArts** (29/10/2026). Un homenaje a la mejor época de los juegos de PC de LucasArts: Día del
+- **Episodio 16: LucasArts** (29/10/2026, entregado el 30/10). Un homenaje a la mejor época de los juegos de PC de LucasArts: Día del
   Tentáculo, Monkey Island, Grim Fandango, Sam & Max (X-Wing, de pasada). Su arte, su forma de jugar y datos curiosos.
   **Nada de controversias ni de cómo les fue comercialmente** (palabras del usuario). Sin sprites, capturas, logos ni
   música de los juegos: homenaje dibujado por nosotros. Idea propuesta: el vídeo como una aventura gráfica (Atom dentro,
