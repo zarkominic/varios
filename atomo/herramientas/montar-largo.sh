@@ -26,6 +26,8 @@ FALTAN=$("${PYTHON:-python3}" -c "import json,os,sys; d=sys.argv[1]; n=json.load
 # Las dos voces se llevan al mismo nivel de habla (−19 dB RMS, la mediana de los tramos de 0,4 s con voz) antes de mezclar:
 # Kokoro en español sale unos 5 dB más bajo y, sin esto, el loudnorm final subía la música y los efectos con ella.
 # El pico real se pide a −2 dB (TP_MAX): a −1,5 el AAC del mp4 lo subía hasta −0,5 y el control fallaba (el 15).
+# Antes de loudnorm, un limitador a −6 dBFS recorta solo los picos sueltos (consonantes, golpes): con la música más baja
+# (29/10/2026) la mezcla tenía más picos sobre su nivel y loudnorm se quedaba en −14,7 LUFS (el 16); con él, −14,0.
 nivel_voz() {
   "${PYTHON:-python3}" -c "import sys,numpy as np,soundfile as sf
 v,sr=sf.read(sys.argv[1]); v=v if v.ndim==1 else v[:,0]; w=int(.4*sr)
@@ -42,7 +44,7 @@ EFX=()
 mezcla() { # $1: ganancia de la voz en dB. La entrada 1 es la voz: la música baja cuando habla; la 3, si está, son los efectos
   local suma="[voz][fondo]amix=inputs=2"
   [ ${#EFX[@]} -gt 0 ] && suma="[3:a]aresample=48000[efx];[voz][fondo][efx]amix=inputs=3"
-  echo "[1:a]aresample=48000,aformat=sample_fmts=flt,volume=${1}dB,pan=stereo|c0=c0|c1=c0,asplit=2[voz][llave];[2:a]$MUS[fondo];$suma:duration=first:normalize=0,loudnorm=I=-14:TP=${TP_MAX:--2}:LRA=11[a]"
+  echo "[1:a]aresample=48000,aformat=sample_fmts=flt,volume=${1}dB,pan=stereo|c0=c0|c1=c0,asplit=2[voz][llave];[2:a]$MUS[fondo];$suma:duration=first:normalize=0,alimiter=limit=0.5:attack=5:release=50:level=false,loudnorm=I=-14:TP=${TP_MAX:--2}:LRA=11[a]"
 }
 ffmpeg -y -loglevel error -framerate 30 -i "$D/fotos/%05d.jpg" -i "$D/voz-$PRINCIPAL.wav" -i "$D/musica.wav" ${EFX[@]+"${EFX[@]}"} \
   -filter_complex "$(mezcla "$(nivel_voz "$D/voz-$PRINCIPAL.wav")")" -map 0:v -map "[a]" \

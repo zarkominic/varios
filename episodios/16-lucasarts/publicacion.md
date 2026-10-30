@@ -1,6 +1,6 @@
 # Episodio 16 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:42.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`) y pista de audio en español (`em_santa`).
 - Subtítulos en inglés y en español.
 - **Estilo:** pixel chibi con ambiente, gags y efectos sincronizados, y el vídeo como una aventura gráfica (la línea de verbos en pictogramas y el cursor en cruz). La banda sonora es propia del episodio: Si bemol lidio, 120 por minuto, de dibujos animados. En el gancho suena nuestro propio arreglo del «Ranz des vaches» de Rossini (1829, dominio público), no la grabación del juego.
@@ -41,7 +41,14 @@ What we cover:
 
 What should I explain next? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 The toxic river
+1:02 The rule
+2:19 The pirates
+3:56 Time travel
+5:17 On the road
+6:11 The Land of the Dead
+7:12 Today
+8:24 Wrap-up
 
 All the art in this video is our own homage, drawn for the channel; no game graphics or music are used. The intro tune is our own arrangement of the "Ranz des vaches" from Rossini's William Tell overture (1829, public domain).
 
@@ -68,7 +75,14 @@ Lo que contamos:
 
 ¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 El río tóxico
+1:02 La regla
+2:19 Los piratas
+3:56 El viaje en el tiempo
+5:17 La carretera
+6:11 La Tierra de los Muertos
+7:12 Hoy
+8:24 El cierre
 
 Todo el arte del vídeo es un homenaje propio, dibujado para el canal; no se usan gráficos ni música de los juegos. La melodía de la intro es nuestro propio arreglo del «Ranz des vaches» de la obertura de Guillermo Tell de Rossini (1829, dominio público).
 
@@ -85,4 +99,4 @@ Fuentes: Wikipedia (Day of the Tentacle, SCUMM, The Secret of Monkey Island, iMU
 
 - **Miniatura:** se genera con `atomo/plato/escenas/la-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas de audio extra, el español se sube como vídeo aparte.
-- **Para escuchar antes de subir:** {AVISOS}
+- **Para escuchar antes de subir:** EN 16 «LeChuck»; EN 20 «would be painted»; EN 32 (posible «and» de más); ES 9 «con pulsar»; ES 22 «se ahoga»; ES 23, 26, 32 y 43 (frases con nombres ingleses y «3D»); ES 48 «mantiene ScummVM»; ES 34 (un pequeño hueco dentro de «antes»). El resto de avisos son nombres ingleses que el reconocedor no entiende; lo más probable es que suenen bien, pero no los he oído.
