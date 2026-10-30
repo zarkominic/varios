@@ -41,13 +41,17 @@ MUS="volume=0.2[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=10:attac
 # El 30/10/2026, con el 16 terminado: «la música sigue estando alta, molesta escuchar al narrador». Medido en el 16: al
 # hablar, la voz quedaba 14,1 dB por encima (p10 3,2). Ahora la música baja 2 dB, deja hueco a la voz (−5 dB en 2,5 kHz)
 # y la voz la aparta mucho más (umbral 0,03, razón 6): 23,1 dB de mediana (p10 10,9) y −27 LUFS en las pausas.
-[ -f "$D/musica-banda.json" ] && MUS="equalizer=f=2500:t=q:w=0.8:g=-5,volume=-2dB[mus];[mus][llave]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=600"
+# Y el 30/10, otra vez: «la música aún molesta y los sfx están muy fuertes». Con cuatro muestras del 16, el usuario eligió
+# la «B»: la música 9 dB más baja que su nivel de banda.cjs y casi desaparece bajo la voz (umbral 0,02, razón 10); los
+# efectos, 6 dB más bajos y también apartados por la voz (umbral 0,05, razón 3). Es el estándar desde el 16.
+[ -f "$D/musica-banda.json" ] && MUS="equalizer=f=2500:t=q:w=0.8:g=-5,volume=-9dB[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=10:attack=15:release=700"
+EFXF="volume=-6dB[efx0];[efx0][llave2]sidechaincompress=threshold=0.05:ratio=3:attack=10:release=300"
 EFX=()
 [ -f "$D/efectos.wav" ] && EFX=(-i "$D/efectos.wav")
 mezcla() { # $1: ganancia de la voz en dB. La entrada 1 es la voz: la música baja cuando habla; la 3, si está, son los efectos
-  local suma="[voz][fondo]amix=inputs=2"
-  [ ${#EFX[@]} -gt 0 ] && suma="[3:a]aresample=48000[efx];[voz][fondo][efx]amix=inputs=3"
-  echo "[1:a]aresample=48000,aformat=sample_fmts=flt,volume=${1}dB,pan=stereo|c0=c0|c1=c0,asplit=2[voz][llave];[2:a]$MUS[fondo];$suma:duration=first:normalize=0,alimiter=limit=0.5:attack=5:release=50:level=false,loudnorm=I=-14:TP=${TP_MAX:--2}:LRA=11[a]"
+  local suma="[voz][fondo]amix=inputs=2" llaves="asplit=2[voz][llave]"
+  [ ${#EFX[@]} -gt 0 ] && suma="[3:a]aresample=48000,$EFXF[efx];[voz][fondo][efx]amix=inputs=3" && llaves="asplit=3[voz][llave][llave2]"
+  echo "[1:a]aresample=48000,aformat=sample_fmts=flt,volume=${1}dB,pan=stereo|c0=c0|c1=c0,$llaves;[2:a]$MUS[fondo];$suma:duration=first:normalize=0,alimiter=limit=0.5:attack=5:release=50:level=false,loudnorm=I=-14:TP=${TP_MAX:--2}:LRA=11[a]"
 }
 ffmpeg -y -loglevel error -framerate 30 -i "$D/fotos/%05d.jpg" -i "$D/voz-$PRINCIPAL.wav" -i "$D/musica.wav" ${EFX[@]+"${EFX[@]}"} \
   -filter_complex "$(mezcla "$(nivel_voz "$D/voz-$PRINCIPAL.wav")")" -map 0:v -map "[a]" \

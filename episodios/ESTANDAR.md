@@ -97,10 +97,12 @@ lista.
   Medido en el 15: los ánimos quedan dentro de 2 dB (antes, 4,2), la música en las pausas a unos −22 LUFS (antes −18,3,
   casi como la voz), los golpes unos 4 dB por encima y, bajo la voz, la mediana 13,9 dB por debajo (antes 7,1). No se
   baja más: a −26/−30 dB RMS el usuario dijo que «casi no se escucha».
-- **Bajo el narrador, la música se aparta de verdad** (30/10/2026, el usuario con el 16: «la música sigue estando
-  alta, molesta escuchar al narrador»): en el montaje baja 2 dB, deja hueco a la voz (−5 dB en 2,5 kHz) y la voz la
-  comprime con razón 6. Medido en el 16: al hablar, la voz queda 23 dB por encima de la música (p10 10,9; antes 14,1 y
-  3,2), y en las pausas la música vuelve a unos −27 LUFS.
+- **La mezcla que eligió el usuario de oído (la «B», 30/10/2026),** después de dos quejas con el 16 («la música aún
+  molesta y los sfx están muy fuertes»): en el montaje (`montar-largo.sh`) la música baja 9 dB sobre su nivel de
+  `banda.cjs`, deja hueco a la voz (−5 dB en 2,5 kHz) y casi desaparece cuando habla el narrador (umbral 0,02, razón
+  10); los efectos bajan 6 dB y la voz también los aparta (umbral 0,05, razón 3). No se toca sin preguntar: es canon.
+  Las cifras de efectos de abajo se miden sobre `efectos.wav` antes del montaje; lo que se oye queda 6 dB más bajo y
+  más bajo aún bajo la voz.
 - **Música continua:** nunca se corta ni vuelve a empezar en un cambio de escena ni en una cartela de año. Las escenas
   seguidas con el mismo ánimo suenan como un tramo, hay un lecho grave de principio a fin y cada cartela tiene su
   transición. Se mide: en los cambios de año la música baja como mucho 7,5 dB (el 11: 2,0–6,7), nunca al silencio.
