@@ -35,7 +35,8 @@
 
 ## Qué aplicamos en ASK Atom
 
-- **Desde el episodio 9, primero el gancho y después Atom, en una línea.** En el episodio 4 se fue el 60 % de la gente en los primeros 20 s, mientras Atom se presentaba. El vídeo abre con lo que promete el título, sigue con la pregunta y solo entonces: «Soy Atom, y te explico lo que no te contaron en clase. Vamos a verlo.» («I'm Atom, and I explain what school didn't teach you. Let's find out.»)
+- **Desde el episodio 9, primero el gancho y después Atom, en una línea.** En el episodio 4 se fue el 60 % de la gente en los primeros 20 s, mientras Atom se presentaba. El vídeo abre con lo que promete el título, sigue con la pregunta y solo entonces: «Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.» («I'm Atom, and I explain the things you've always wondered about. Let's find out.»)
+  - **Desde el episodio 17** (elegida por el usuario el 30/10/2026). Hasta el 16 era «te explico lo que no te contaron en clase» («what school didn't teach you»); se cambió porque muchos temas (los juegos, una ciudad, los ovnis) no son cosas que se deberían enseñar en la escuela: la frase tiene que valer para cualquier tema.
 - **Hasta el episodio 8, Atom se presentaba al empezar, en una frase:** quién es y qué hace.
   - Fórmula: «Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase.»
   - En inglés: «Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you.»
