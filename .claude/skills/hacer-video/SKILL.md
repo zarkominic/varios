@@ -25,6 +25,15 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
   no se cuestiona por el largo del video»).
 - **El canon manda:** estilo pixel chibi, mano de 14 px, voces Kokoro `am_puck` 0,85 y `em_santa` 0,92, música
   `banda.cjs`, narración del 10 y del 11. No se cambia sin preguntar.
+- **El sonido que eligió el usuario de oído (30/10/2026, con el 16), también canon:**
+  - **la mezcla «B»** en `montar-largo.sh`: la música 9 dB por debajo de su nivel de `banda.cjs`, con un hueco a la voz
+    (−5 dB en 2,5 kHz) y casi fuera cuando habla el narrador; los efectos 6 dB más bajos y también apartados por la voz;
+    un limitador a −6 dBFS antes de loudnorm. Llegó tras dos quejas («molesta escuchar al narrador», «los sfx están muy
+    fuertes»);
+  - **los ánimos igualados por LUFS** en `banda.cjs` (`ANIMO`) con un nivelador de picos: «hay melodías que suenan más
+    fuertes que otras»;
+  - **la voz española «B»:** cada frase entera de una vez y sin estirar con rubberband (`locutar_frases.py`, `ENTERA`):
+    partida en las comas y estirada «se entrecorta».
 - **La banda de cada episodio la decide el tema** (desde el 13, por petición del usuario: «la música de fondo se está
   repitiendo de capítulo a capítulo… no todo es suspenso»; «la banda depende del tema que definamos y el guion»). Se
   diseña con el guion (paso 2.4) y se aprueba con él, con su muestra.
@@ -125,7 +134,10 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    - `## Datos`, con las fuentes. Todo lo que va detrás de esta línea no se locuta.
 2. Reglas del texto (`GUIA-NARRATIVA.md`):
    - un episodio completo de 8:30–9:30, es decir, 1.300–1.400 palabras en inglés;
-   - el gancho primero y luego la frase de Atom;
+   - el gancho primero y luego la frase de Atom, desde el 17: «Soy Atom, y te explico eso que siempre te has
+     preguntado. Vamos a verlo.» / «I'm Atom, and I explain the things you've always wondered about. Let's find out.»
+     (hasta el 16 era «lo que no te contaron en clase»; el usuario la cambió porque no todos los temas son de escuela).
+     Es también el lema del canal (`canal/descripcion.md` y el banner de `canal.mjs`);
    - prosa narrada, en escenas, con el ángulo de ASK Atom;
    - personas reales solo con hechos;
    - de 6 a 8 gags con objetos;
@@ -203,6 +215,13 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    nombres escritos a la española es normal. Apunta las frases dudosas para que el usuario las escuche. Cuando la voz
    quede bien, guarda las pronunciaciones nuevas para los siguientes:
    `python3 atomo/herramientas/pronuncia.py episodios/<carpeta>/guion.md --anadir`.
+6. El español sale con la frase entera y sin estirar (desde el 16). Si una frase española es más larga que la inglesa,
+   la línea de tiempo deja el hueco; no se acelera más allá de la velocidad 1,10 de Kokoro. Para rehacer el español de
+   un episodio YA montado sin mover el vídeo: `$VOZ/venv/bin/python atomo/herramientas/revocear-otro.py
+   atomo/build/largo/<ep> episodios/<carpeta>/guion.json` (acelera con la velocidad de Kokoro, como mucho 1,15, solo
+   lo que no cabe), y después rehaz el SRT español con los tiempos nuevos (una línea por frase y
+   `python3 atomo/herramientas/subtitulos.py <frases.srt> atomo/build/largo/<ep>/subtitulos-es.srt`) antes de
+   `producir.sh … --desde montar`.
 
 ### 4. Reparto
 
@@ -419,7 +438,8 @@ bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
 - **miniatura**;
 - **control**:
   - el sonido, con `medir-sonido.py`: −14 LUFS, el pico, la densidad de efectos en las dos pistas y la música en cada
-    cartela;
+    cartela. Ojo: las cifras de efectos se miden sobre `efectos.wav` antes del montaje; con la mezcla «B» lo que se oye
+    queda 6 dB más bajo y más aún bajo la voz;
   - los subtítulos;
   - la tira de 20 fotogramas, en `atomo/build/salida/<ep>-tira.jpg`.
 
@@ -561,3 +581,11 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
 - **Un vídeo ya subido a YouTube no se vuelve a renderizar entero.** El arreglo se ajusta a lo publicado: por ejemplo,
   solo una pista en español nueva, con sus tiempos.
 - **Todo arreglo de sonido va a las dos pistas,** y se mide en las dos.
+- **Cuando el usuario se queja de cómo suena algo, no se ajusta a ciegas.** Tú no oyes el vídeo: con el 16 hubo dos
+  intentos medidos «dentro de lo normal» que le seguían molestando. Lo que funcionó fue mandarle 3–4 muestras cortas del
+  mismo tramo (un minuto y medio), de menos a más cambio, con una tabla de qué cambia en cada una, y que elija de oído.
+  La elegida pasa a canon (en `ESTANDAR.md` y aquí).
+- **El canal:** el lema es «The things you've always wondered about» / «Eso que siempre te has preguntado»; la
+  descripción, en `canal/descripcion.md` (preguntas de ejemplo sacadas de vídeos ya hechos); el banner, con
+  `node atomo/herramientas/canal.mjs 0.3 --solo banner`; la marca de agua, `canal/marca-de-agua.png` (el avatar en
+  círculo, 300×300 transparente; no un dibujo de tres órbitas cruzadas, que se confunde con el logo de React).
