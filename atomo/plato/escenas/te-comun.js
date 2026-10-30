@@ -3167,6 +3167,9 @@ function c_tabernaMesa(R, t, o) {
   c_fuego(R, 290, 319, 116, 24, t); c_luz(R, 300, 96, 70, 50, hex('#ffb060'), 0.22 + 0.05 * Math.sin(t * 11));
   for (const [x, k] of [[280, 0], [296, 1]]) c_vela(R, x, 33, t, 4, k);
   for (let k = 0; k < 5; k++) { const x = Math.round(((k * 71 + t * 5) % 340) - 10), y = 20 + (k % 3) * 7; for (let i = 0; i < 10; i++) if ((x + i + y) & 1) c_tine(R, x + i, y + Math.round(Math.sin(i * 0.7 + t) * 1), hex('#e8e0d0'), 0.22); }
+  // la mesa de cerca también aquí, para que el fondo pinte toda la pantalla aunque la escena no llame a logiaDelante
+  R.rect(0, 120, 319, 127, c_TB.viga); R.rect(0, 120, 319, 120, c_TB.vigaL);
+  c_pegar(R, c_capa(R, 'tmesaD', () => c_pintaMesaCerca(R)), 124, 179); c_vivoMesaCerca(R, t);
   return { suelo: 131, pies: [40, 80, 150, 210, 250], mesa: [0, 128, 319, 179], pergamino: [126, 136, 196, 166], ventana: [29, 25, 111, 86], letrero: [76, 44], chimenea: [286, 60, 319, 119] };
 }
 
