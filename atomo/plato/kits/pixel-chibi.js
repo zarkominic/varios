@@ -1151,3 +1151,160 @@ export const ELENCO_LA = {
   joven2: { ...BASE16, ceja: hex('#5a3418'), tocado: 'auriculares', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#5a4a8a', c: '#42366a', F: '#3a3a4a', W: '#5a4a8a', o: '#e8c840', M: '#2a2430' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_LA);
+
+// ── Episodio 17 (los tesoros perdidos): templarios, reyes, papas, masones, curas, arqueólogos y buscadores ─────────
+// caballero templario: sobreveste blanca larga hasta las rodillas con la cruz roja en el pecho (D), cota de malla gris
+// en brazos y piernas (Z/z), cinturón y botas. Con otra paleta (W negro, D blanco) es un hospitalario.
+const CUERPO_TEMPLARIO = [
+  '...kkZZZZZkk...',
+  '..kWWWWDWWWWk..',
+  '.kZkWWDDDWWkZk.',
+  '.kZkWWWDWWWkZk.',
+  '.kZkWWWDWWWkZk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkWWWWWWWkk..',
+  '...kWWWkWWWk...',
+  '...kWWWkWWWk...',
+  '...kZZZkZZZk...',
+  '...kzzzkzzzk...',
+  '...kLLLkLLLk...',
+  '..kkkkk.kkkkk..',
+];
+// túnica larga hasta los pies (rey, papa, obispo, peregrino medieval, poeta): C/c la túnica, o el ribete
+const CUERPO_TUNICA_LARGA = [
+  '...kkCCCCCkk...',
+  '..kCCCCoCCCCk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kcccccccck..',
+  '...kooooooook..',
+  '...kkLkkkkLkk..',
+];
+// sotana negra con alzacuello blanco y botones (el cura de 1885)
+const CUERPO_SOTANA = [
+  '....kkWWWkk....',
+  '..kkCCWWWCCkk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCoCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCCCoCCCk...',
+  '...kCCCCCCCk...',
+  '...kcccccccck..',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// masón del siglo XVIII: casaca con chaleco, y el mandil blanco atado a la cintura (W, con ribete azul A)
+const CUERPO_MANDIL = [
+  '...kkWWWWWkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkAAAAAAAkSk.',
+  '..kkAWWWWWAkk..',
+  '...kAWWWWWAk...',
+  '...kAWWWWWAk...',
+  '...kAAAAAAAk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '..kkkkk.kkkkk..',
+];
+// buscador de tesoros de hoy: chaleco de muchos bolsillos sobre camisa, pantalón de campo y botas
+const CUERPO_BUSCADOR = [
+  '...kkCCCCCkk...',
+  '..kCVVCCCVVCk..',
+  '.kCkVoVCVoVkCk.',
+  '.kCkVVVCVVVkCk.',
+  '.kCkVoVCVoVkCk.',
+  '.kSkVVVCVVVkSk.',
+  '..kkGGGGGGGkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kffFkFffk...',
+  '...kLLLkLLLk...',
+  '..kkkkk.kkkkk..',
+];
+Object.assign(TOCADOS, {
+  // corona de oro de rey (1307), con tres puntas y piedras rojas
+  corona: [[
+    '...k.k.k.k.k...',
+    '...kokokokok...',
+    '...kooDoooDok..',
+    '...kkkkkkkkk...',
+  ], -3],
+  // mitra de papa u obispo: alta y blanca (X) con la franja de oro (o) en medio
+  mitra: [[
+    '.....kkkkk.....',
+    '....kXXoXXk....',
+    '...kXXXoXXXk...',
+    '...kXXXoXXXk...',
+    '...kXXXoXXXk...',
+    '...kooooooook..',
+    '...kkkkkkkkkk..',
+  ], -6],
+  // capucha de malla de caballero (gris), que tapa el pelo y las orejas, nunca la cara
+  malla: [[
+    '...kkkkkkkk....',
+    '..kZZzZZzZZk...',
+    '.kZzZZzZZzZZk..',
+    '.kZZk.......k..',
+    '.kzZk..........',
+    '.kZZk..........',
+    '.kzZk..........',
+  ], 0],
+});
+export const ELENCO_TE = {
+  // el buscador de tesoros con su detector (nuestro, de hoy): fedora marrón, chaleco verde oliva y barba de tres días
+  buscador: { ...BASE16, cuerpo: CUERPO_BUSCADOR, ceja: hex('#5a3418'), tocado: 'fedora', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#e8dcc0', c: '#c8bc9a', V: '#6a7a3a', F: '#7a6a4a', f: '#5a4e34', G: '#5a3a1a', o: '#c8a040', J: '#7a4a24', j: '#5a3418' }) },
+  // caballeros templarios de 1120–1307: sobreveste blanca con cruz roja y capucha de malla
+  templario: { ...BASE16, cuerpo: CUERPO_TEMPLARIO, ceja: hex('#3a2418'), tocado: 'malla', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', W: '#f2eee2', D: '#c8303a', G: '#5a3a1a', L: '#4a3020' }) },
+  templario2: { ...BASE16, cuerpo: CUERPO_TEMPLARIO, ceja: hex('#a8743c'), tocado: 'malla', pal: CLARA({ H: '#a8743c', h: '#c8984a', W: '#f2eee2', D: '#c8303a', G: '#5a3a1a', L: '#4a3020' }) },
+  // Jacques de Molay, el último maestre (1314): mayor, barba blanca, sobreveste de templario sin malla
+  molay: { ...BASE16, cuerpo: CUERPO_TEMPLARIO, ceja: hex('#c8c4bc'), bigote: true, pal: CLARA({ H: '#d8d4cc', h: '#f2eee2', W: '#f2eee2', D: '#c8303a', G: '#5a3a1a', L: '#4a3020' }) },
+  // un hospitalario: la misma sobreveste en negro con la cruz blanca
+  hospitalario: { ...BASE16, cuerpo: CUERPO_TEMPLARIO, ceja: hex('#1c1424'), tocado: 'malla', bigote: true, pal: CLARA({ H: '#1c1424', h: '#3a3046', W: '#2a2430', D: '#f2eee2', G: '#5a3a1a', L: '#4a3020' }) },
+  // el rey Felipe IV de Francia (1307): túnica azul con ribete de oro, corona y pelo castaño claro
+  felipe: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#8a5a30'), tocado: 'corona', pal: CLARA({ H: '#a8743c', h: '#c8984a', C: '#2a4a9a', c: '#1e3670', o: '#e8b830', G: '#c8a040', L: '#3a2a4a', D: '#c8303a' }) },
+  // el papa (1312) y un obispo: túnica blanca o morada y mitra
+  papa: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#8a8a9a'), tocado: 'mitra', pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#f2eee2', c: '#c8c0b0', o: '#e8b830', G: '#e8b830', L: '#c8303a', X: '#f2eee2' }) },
+  obispo: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#8a8a9a'), tocado: 'mitra', bigote: true, pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#6a2a7a', c: '#4e1e5a', o: '#e8b830', G: '#e8b830', L: '#2a2430', X: '#f2eee2' }) },
+  // soldados del rey (1307): capucha de malla y túnica azul con la flor dorada
+  soldado: { ...BASE16, ceja: hex('#3a2418'), tocado: 'malla', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#2a4a9a', c: '#1e3670', F: '#5a5a6a', W: '#c0c4d4', o: '#e8b830' }) },
+  // un peregrino medieval: hábito pardo largo con la concha (o), y un ladrón de caminos: túnica verde oscura
+  peregrino: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#5a3418'), bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#8a6a4a', c: '#6a5038', o: '#f2eee2', G: '#5a3a1a', L: '#5a3a1a' }) },
+  ladron: { ...BASE16, ceja: hex('#1c1424'), bigote: true, pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#3a5a3a', c: '#2a422a', F: '#4a3a2a', W: '#3a5a3a', o: '#8a6a3a' }) },
+  // un escribano: túnica gris y pelo castaño
+  escribano: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#6a6a7a', c: '#4e4e5c', o: '#c8c0b0', G: '#3a2a1a', L: '#3a2a1a' }) },
+  // el poeta (1190–1210): túnica roja larga y boina
+  poeta: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#5a3418'), tocado: 'boina', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#a83a3a', c: '#7a2a2a', o: '#e8b830', G: '#5a3a1a', L: '#3a2a1a', J: '#2a4a6a', j: '#1e3650' }) },
+  // masones del siglo XVIII (1717–1760): casaca, peluca y mandil; Andrew Ramsay, con casaca granate
+  mason: { ...BASE16, cuerpo: CUERPO_MANDIL, ceja: hex('#8a8a9a'), pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#3a3a5a', c: '#2a2a44', W: '#f2eee2', A: '#3a6ac8', F: '#2a2430', o: '#e8b830' }) },
+  mason2: { ...BASE16, cuerpo: CUERPO_MANDIL, ceja: hex('#5a3418'), tocado: 'tricornio', pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#4a3a2a', c: '#33281c', W: '#f2eee2', A: '#3a6ac8', F: '#2a2430', o: '#e8b830', J: '#1c1c24', j: '#3a3a4a' }) },
+  ramsay: { ...BASE16, cuerpo: CUERPO_MANDIL, ceja: hex('#8a8a9a'), pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#7a2a3a', c: '#5a1e2a', W: '#f2eee2', A: '#3a6ac8', F: '#2a2430', o: '#e8b830' }) },
+  // Bérenger Saunière (1885–1910): sotana negra y pelo oscuro
+  sauniere: { ...BASE16, cuerpo: CUERPO_SOTANA, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#1c1c24', c: '#2a2a34', W: '#f2eee2', o: '#5a5a6a', L: '#1c1c24' }) },
+  // el dueño del hotel (años cincuenta): traje claro, corbata y bigote; un periodista con gabardina
+  corbu: { ...BASE16, ceja: hex('#3a2418'), bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#c8b89a', c: '#a8987a', F: '#a8987a', W: '#f2eee2', o: '#a83a3a' }) },
+  periodista: { ...BASE16, ceja: hex('#5a3418'), tocado: 'fedora', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#a88a5a', c: '#86683e', F: '#4a4a5a', W: '#e8e0c8', o: '#3a3a4a', J: '#4a4a5a', j: '#2a2a34' }) },
+  // arqueólogos de 1952 con salacot y camisa caqui; el ingeniero de Manchester con bata gris
+  arqueologo: { ...BASE16, ceja: hex('#5a3418'), tocado: 'salacot', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#c8b078', c: '#a8905a', F: '#a8905a', W: '#c8b078', o: '#7a5a3a' }) },
+  arqueologa: { ...BASE16M, ceja: hex('#a8502a'), tocado: 'salacot', pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#c8b078', c: '#a8905a', F: '#7a6a4a', W: '#c8b078', o: '#f2eee2' }) },
+  ingeniero: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', pal: CLARA({ H: '#6a6a7a', h: '#8a8a9a', C: '#8a8e9a', c: '#6a6e7a', F: '#3a3a4a', W: '#8a8e9a', o: '#3a3a4a' }) },
+  // Forrest Fenn (2010): mayor, pelo blanco, sombrero vaquero y chaleco; el estudiante de 2020 con gorra y mochila
+  fenn: { ...BASE16, ceja: hex('#c8c4bc'), tocado: 'vaquero', pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#e8dcc0', c: '#c8bc9a', F: '#3a4a6a', W: '#7a5a3a', o: '#c8a040', J: '#7a5a3a', j: '#5a3e24' }) },
+  estudiante: { ...BASE16, ceja: hex('#1c1424'), tocado: 'gorra', pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#3a6a8a', c: '#2a5068', F: '#4a4a5a', W: '#3a6a8a', o: '#e8783a' }) },
+  // gente de hoy: una niña en el museo y turistas
+  nina: { ...BASE16M, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#e8783a', c: '#c85a2a', F: '#3a4a7a', W: '#e8783a', o: '#f2eee2' }) },
+  turista: { ...BASE16, ceja: hex('#a8743c'), tocado: 'gorra', pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#e84a7a', c: '#c83a5a', F: '#3e5a8a', W: '#e84a7a', o: '#f2eee2' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_TE);
