@@ -575,7 +575,7 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
 - **La música no se toca sin preguntar.** `banda.cjs` ya hace música continua. La banda de cada episodio (tono, modo,
   tempo, motivo y ánimos) se decide con el guion y la aprueba el usuario con su muestra; después no se cambia por tu
   cuenta. Si algo suena raro, se mide con `medir-sonido.py` y se pregunta. Sin «banda» en `escenas.json`, `banda.cjs`
-  suena exactamente como en el 10–12 (comprobado bit a bit con el 12).
+  usa La menor y el motivo del 10–12 (ya no bit a bit: desde el 29/10/2026 los niveles van por LUFS).
 - **Si el usuario pregunta «¿por qué…?», respóndele** y no toques nada. En el 11 se deshizo `banda.cjs` sin que nadie lo
   pidiera y tuvo que repetir la pregunta.
 - **Un vídeo ya subido a YouTube no se vuelve a renderizar entero.** El arreglo se ajusta a lo publicado: por ejemplo,
