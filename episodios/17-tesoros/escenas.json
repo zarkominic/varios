@@ -1,0 +1,510 @@
+{
+ "banda": {
+  "tono": "re",
+  "modo": "menor",
+  "tempo": 90,
+  "motivo": [
+   0,
+   3,
+   7,
+   8,
+   7,
+   3,
+   2,
+   0
+  ]
+ },
+ "escenas": [
+  {
+   "id": "te-gancho",
+   "estilo": "pixel",
+   "cartela": "1307",
+   "frase_ini": 1,
+   "frase_fin": 3,
+   "marcas": [
+    "amanecer",
+    "presos",
+    "inventario"
+   ],
+   "guion_visual": [
+    "A: París al amanecer, niebla y antorchas; soldados del rey llaman a la vez a la puerta de una casa del Temple; un caballero de manto blanco abre, con cara de sueño.",
+    "A (otra cámara): caballeros detenidos en fila en el patio; un soldado con un rollo sellado; campanas al fondo.",
+    "A (interior): la gran torre del Temple; soldados abren cofres y un escribano apunta sin parar; los cofres están casi vacíos."
+   ],
+   "animo": "suspense",
+   "golpes": [
+    "presos"
+   ],
+   "empieza_con": "cartela 1307",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-pregunta",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 4,
+   "frase_fin": 6,
+   "marcas": [
+    "tesoro",
+    "cavando",
+    "cuales"
+   ],
+   "guion_visual": [
+    "A: el rey Felipe IV en su salón, con su libro de cuentas, mira un cofre vacío con fastidio.",
+    "H: hoy, un buscador de tesoros con su detector de metales pita en un campo junto a un castillo en ruinas… y saca una lata (gag 1).",
+    "H (mesa): un mapa con tres marcas: una cruz templaria, una copa y un rollo de metal; un «?» sobre cada una."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-hola",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 7,
+   "frase_fin": 7,
+   "marcas": [
+    "hola"
+   ],
+   "guion_visual": [
+    "H: el buscador saluda a Atom con el casco y la pala; Atom se presenta."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-ultramar",
+   "estilo": "pixel",
+   "cartela": "1120",
+   "frase_ini": 8,
+   "frase_fin": 10,
+   "marcas": [
+    "jerusalen",
+    "templo",
+    "sello"
+   ],
+   "guion_visual": [
+    "B: Jerusalén hacia 1120, murallas doradas al sol; unos pocos caballeros juran ante un altar; peregrinos llegan por un camino de polvo.",
+    "B (otra cámara): la explanada del Templo con su gran cúpula; los caballeros instalan sus caballos en las cuadras.",
+    "B (cerca): el sello de cera: dos caballeros montados en un solo caballo; el caballo pone cara de cansado."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1120",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-banco",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 11,
+   "frase_fin": 13,
+   "marcas": [
+    "carta",
+    "ladron",
+    "banco"
+   ],
+   "guion_visual": [
+    "A/B: un peregrino deja una bolsa de monedas en el mostrador de una casa del Temple y recibe una carta sellada.",
+    "B (camino): un ladrón asalta al peregrino, abre la bolsa y solo encuentra la carta; se rasca la cabeza (gag 3); en la otra casa le pagan al peregrino.",
+    "B: una casa del Temple que es castillo y banco: barcos en el puerto, rebaños, carros con sacos; un rey firma un préstamo."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-rey",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 14,
+   "frase_fin": 15,
+   "marcas": [
+    "felipe",
+    "cartas"
+   ],
+   "guion_visual": [
+    "A: el rey Felipe IV abre su libro de deudas y las páginas no se acaban (gag 2); frunce el ceño.",
+    "A (otra cámara): mensajeros a caballo salen de París el 14 de septiembre con órdenes secretas selladas."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-hoguera",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 16,
+   "frase_fin": 17,
+   "marcas": [
+    "papa",
+    "molay"
+   ],
+   "guion_visual": [
+    "A: un salón con un tribunal; un papa con mitra deja caer un sello sobre un pergamino; caballeros cabizbajos.",
+    "A: París al anochecer, de lejos: la isla del Sena con una columna de humo; la gente mira desde la orilla. Sin violencia."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-flota",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 18,
+   "frase_fin": 20,
+   "marcas": [
+    "hospitalarios",
+    "galeras",
+    "oido"
+   ],
+   "guion_visual": [
+    "A: carros con cofres que pasan de caballeros de cruz roja a caballeros de cruz blanca (los hospitalarios).",
+    "C: un tribunal de 1308; un templario habla y las palabras salen en un bocadillo con dieciocho barcos dibujados.",
+    "C: el rumor pasa de boca en boca por un puerto y en cada bocadillo hay más barcos: dos, cinco, dieciocho (gag 4)."
+   ],
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-leyenda",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 21,
+   "frase_fin": 23,
+   "marcas": [
+    "rochelle",
+    "oak",
+    "cruz"
+   ],
+   "guion_visual": [
+    "C: un puerto atlántico de noche con niebla; galeras que se alejan con velas con cruz roja, casi fantasmas.",
+    "C (mapa): un mapa de papel: la flota dibujada salta a Escocia, a Portugal, a América; una chincheta en Nueva Escocia con un pozo.",
+    "H: el buscador limpia una piedra vieja con una cruz tallada y mira a cámara con cara de «¿y si…?»."
+   ],
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-logia",
+   "estilo": "pixel",
+   "cartela": "1717",
+   "frase_ini": 24,
+   "frase_fin": 26,
+   "marcas": [
+    "taberna",
+    "canteros",
+    "ramsay"
+   ],
+   "guion_visual": [
+    "D: una taberna de Londres en 1717: caballeros con peluca brindan alrededor de una mesa; un letrero con un ganso (sin letras).",
+    "D (otra cámara): canteros medievales con escuadra y compás levantan una catedral; luego, los mismos gestos en un salón con suelo ajedrezado.",
+    "D: un salón de París de 1736; un escocés con peluca habla ante masones con mandil; en una nube de pensamiento, cruzados a caballo."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "cartela 1717",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-masones",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 27,
+   "frase_fin": 29,
+   "marcas": [
+    "alemania",
+    "orden",
+    "secreto"
+   ],
+   "guion_visual": [
+    "D (cerca): una logia alemana a la luz de las velas; un hombre se pone un manto blanco con cruz roja; los demás asienten.",
+    "H: un desfile de hoy de una orden masónica con mantos y sombreros de pluma (sin letras); un niño saluda.",
+    "D: un cofre que se abre y dentro solo hay un sobre con un «?»; el buscador lo mira, confundido."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-perceval",
+   "estilo": "pixel",
+   "cartela": "1190",
+   "frase_ini": 30,
+   "frase_fin": 32,
+   "marcas": [
+    "chretien",
+    "sin-terminar",
+    "boron"
+   ],
+   "guion_visual": [
+    "E: un scriptorium medieval; un poeta escribe a la luz de una vela; en un bocadillo, un joven caballero ve pasar un objeto que brilla.",
+    "E (cerca): la última hoja del libro, a medio escribir; la pluma se queda quieta; la vela se apaga.",
+    "E: otro poeta, en otra mesa, escribe su propio libro y dibuja una copa en una cena; la copa brilla."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 1190",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-castillo",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 33,
+   "frase_fin": 34,
+   "marcas": [
+    "wolfram",
+    "iglesias"
+   ],
+   "guion_visual": [
+    "E: el castillo del Grial de Wolfram: una piedra luminosa en un altar, guardada por caballeros con manto blanco; una procesión con velas.",
+    "E (otra cámara): una fila de copas en un mostrador que dicen ser el Grial; cuando el buscador elige una, aparece otra al final de la fila (gag 5)."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-valencia",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 35,
+   "frase_fin": 36,
+   "marcas": [
+    "agata",
+    "cerca"
+   ],
+   "guion_visual": [
+    "E: la capilla de la catedral de Valencia; la copa de ágata roja en su vitrina, con asas de oro y perlas; un papa celebra misa.",
+    "E (cerca): la copa de ágata de cerca, con la luz que la atraviesa; Atom la mira de lejos, sin tocar."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-sauniere",
+   "estilo": "pixel",
+   "cartela": "1885",
+   "frase_ini": 37,
+   "frase_fin": 39,
+   "marcas": [
+    "llega",
+    "villa",
+    "misas"
+   ],
+   "guion_visual": [
+    "F: Rennes-le-Château en su colina; un cura joven y pobre llega en un carro con su maleta.",
+    "F (otra cámara): la villa con jardín y la torre de piedra; el cura pasea, satisfecho.",
+    "F (cerca): el cura recibe montones de sobres por correo; el obispo, detrás, cuenta los sobres con cara seria."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1885",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-corbu",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 40,
+   "frase_fin": 41,
+   "marcas": [
+    "hotel",
+    "pergaminos"
+   ],
+   "guion_visual": [
+    "F: el hotel en la villa en los años cincuenta; el dueño habla con periodistas que apuntan; llega un autobús de turistas.",
+    "F (cerca): una mesa con pergaminos llenos de trazos; una mano los mancha de té para que parezcan viejos."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-queso",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 42,
+   "frase_fin": 43,
+   "marcas": [
+    "libros",
+    "prohibido"
+   ],
+   "guion_visual": [
+    "H: una librería con montañas de libros y una película en un cine; colas de gente.",
+    "F: el pueblo lleno de agujeros como un queso; el buscador sale de uno con el casco y el cartel de «prohibido cavar» (pictograma de pala tachada) le cae en la cabeza (gag 6)."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-qumran",
+   "estilo": "pixel",
+   "cartela": "1952",
+   "frase_ini": 44,
+   "frase_fin": 46,
+   "marcas": [
+    "cueva",
+    "oxidado",
+    "sierra"
+   ],
+   "guion_visual": [
+    "G: las cuevas de Qumrán sobre el mar Muerto, al atardecer; arqueólogos con lámparas sacan de una cueva un rollo verdoso partido en dos.",
+    "G (cerca): el rollo de cobre verde y quebradizo en una mesa; una mano los toca y cae un trocito.",
+    "G (taller): un taller de Manchester de 1956; un ingeniero corta el rollo con una sierra muy fina en una máquina; las tiras se ponen en fila."
+   ],
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "cartela 1952",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-lista",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 47,
+   "frase_fin": 49,
+   "marcas": [
+    "lista",
+    "griego",
+    "toneladas"
+   ],
+   "guion_visual": [
+    "G (cerca): las tiras puestas en orden: renglones de trazos (sin letras) con lingotes y monedas dibujados en el margen.",
+    "G (cerca, otra luz): una lupa sobre una línea; aparecen letras griegas sueltas como símbolos dorados y un «?».",
+    "G: una montaña de lingotes y vasijas que crece hasta llenar el plano; una balanza se rompe."
+   ],
+   "animo": "misterio",
+   "golpes": [
+    "lista"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-indicaciones",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 50,
+   "frase_fin": 51,
+   "marcas": [
+    "escalones",
+    "museo"
+   ],
+   "guion_visual": [
+    "G: el buscador en el desierto lee «bajo los escalones que van hacia el este»; mira a su alrededor y hay escalones por todas partes (gag 7).",
+    "H: el museo de Amán: las tiras del rollo en su vitrina; una niña las mira con la nariz pegada al cristal."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-fenn",
+   "estilo": "pixel",
+   "cartela": "2010",
+   "frase_ini": 52,
+   "frase_fin": 54,
+   "marcas": [
+    "cofre",
+    "poema",
+    "aguas"
+   ],
+   "guion_visual": [
+    "H: las montañas Rocosas; un hombre mayor con sombrero lleva un cofre de bronce por un sendero entre pinos.",
+    "H (mesa): un libro con un poema (renglones sin letras) y cientos de buscadores con mochilas, mapas y prismáticos.",
+    "H: una fuente termal que humea en la montaña y un río que se enfría; una flecha dibujada en el aire."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 2010",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-encontrado",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 55,
+   "frase_fin": 56,
+   "marcas": [
+    "encontrado",
+    "unico"
+   ],
+   "guion_visual": [
+    "H: un estudiante con mochila encuentra el cofre entre las rocas; el detector del buscador pita por fin por algo de verdad… y el cofre ya tiene dueño (gag 8).",
+    "H (otra cámara): el estudiante y el hombre mayor se dan la mano junto al cofre abierto, que brilla."
+   ],
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "te-cierre",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 57,
+   "frase_fin": 59,
+   "marcas": [
+    "papel",
+    "escalon",
+    "adios"
+   ],
+   "guion_visual": [
+    "B/H: la carta sellada de los templarios se convierte en un billete y luego en una tarjeta de hoy que paga en una tienda.",
+    "H: el atardecer; el buscador se sienta en un escalón de piedra con su detector; el detector pita bajito.",
+    "H: el buscador mira al este y sonríe; Atom."
+   ],
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  }
+ ],
+ "lotes": []
+}
