@@ -4,7 +4,7 @@ Nombre del canal: **ASK Atom**. Idioma principal: inglés. El español se añade
 
 ## English (main)
 
-ASK Atom — What school didn't teach you.
+ASK Atom — The things you've always wondered about.
 
 I'm Atom, a tiny narrator made of 7,000 particles, and I turn into whatever I'm explaining: the Moon, a hurricane, a sink, the whole planet. Each video takes something you were told (or never told) and puts it to the test: true or false, and why.
 
@@ -16,7 +16,7 @@ Got a question? Ask Atom: tell me in the comments what you want me to explain ne
 
 ## Español (traducción)
 
-ASK Atom — Lo que no te explicaron en clase.
+ASK Atom — Eso que siempre te has preguntado.
 
 Soy Atom, un pequeño narrador hecho de 7.000 partículas, y me convierto en lo que explico: la Luna, un huracán, un lavabo, el planeta entero. En cada vídeo pongo a prueba algo que te contaron (o que nunca te contaron): verdad o mentira, y por qué.
 
