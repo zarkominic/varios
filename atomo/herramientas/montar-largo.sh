@@ -38,7 +38,10 @@ print(round(-19-np.median([x for x in r if x>-40]),2))" "$1"
 # Desde el 29/10/2026 la voz la aparta más (umbral 0,05 y razón 3; antes 0,08 y 2): en el 15 la voz quedaba solo 7 dB por
 # encima de la música al hablar, y un 10 % del tiempo por debajo. Ahora, 13,9 dB de mediana, y en las pausas vuelve a −22 LUFS.
 MUS="volume=0.2[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=10:attack=20:release=400"
-[ -f "$D/musica-banda.json" ] && MUS="anull[mus];[mus][llave]sidechaincompress=threshold=0.05:ratio=3:attack=30:release=500"
+# El 30/10/2026, con el 16 terminado: «la música sigue estando alta, molesta escuchar al narrador». Medido en el 16: al
+# hablar, la voz quedaba 14,1 dB por encima (p10 3,2). Ahora la música baja 2 dB, deja hueco a la voz (−5 dB en 2,5 kHz)
+# y la voz la aparta mucho más (umbral 0,03, razón 6): 23,1 dB de mediana (p10 10,9) y −27 LUFS en las pausas.
+[ -f "$D/musica-banda.json" ] && MUS="equalizer=f=2500:t=q:w=0.8:g=-5,volume=-2dB[mus];[mus][llave]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=600"
 EFX=()
 [ -f "$D/efectos.wav" ] && EFX=(-i "$D/efectos.wav")
 mezcla() { # $1: ganancia de la voz en dB. La entrada 1 es la voz: la música baja cuando habla; la 3, si está, son los efectos
