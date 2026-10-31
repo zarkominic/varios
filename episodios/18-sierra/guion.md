@@ -10,7 +10,7 @@ controversias ni negocio (la regla del 16).
 **Formato:** el de siempre: YouTube 16:9, una imagen con dos pistas de audio, inglés (el original) y español. Pixel chibi
 según `ESTANDAR.md`, mezcla «B», voz española entera. Atom con la frase nueva.
 
-**Duración objetivo:** unos 8:30 [Probable] (el 17, con 1.333 palabras, salió de 8:55). Son 65 frases y unas 1.213 palabras en inglés.
+**Duración objetivo:** unos 8:30 [Probable] (el 17, con 1.333 palabras, salió de 8:55). Son 69 frases y unas 1.290 palabras en inglés.
 
 **Publicar:** cuando esté; no caduca.
 
@@ -108,6 +108,8 @@ alegre aunque te mueras cada dos minutos.
 | Se escribía lo que querías hacer, como antes, pero ahora el mundo se movía. | You still typed what you wanted to do, but now the world moved. |
 | Podías nadar en el lago, trepar a un árbol o hablar con un gnomo, y el juego intentaba entender lo que escribías. | You could swim in the lake, climb a tree or talk to a gnome, and the game tried to understand whatever you typed. |
 | King's Quest fue un éxito, y Roberta siguió contando la historia de la familia de Graham durante casi quince años. | King's Quest was a hit, and Roberta kept telling the story of Graham's family for almost fifteen years. |
+| Y en 1987 hizo algo distinto: Mixed-Up Mother Goose, un juego para niños pequeños en el que devolvías a los personajes de las canciones infantiles a su sitio. | And in 1987 she made something different: Mixed-Up Mother Goose, a game for little kids where you returned nursery rhyme characters to their homes. |
+| Era el único juego de Sierra en el que nadie podía morir. | It was the one Sierra game where nobody could die. |
 | En 1988, King's Quest Cuatro cambia de protagonista: ahora la heroína es su hija, la princesa Rosella, que tiene que salvar a su padre. | In 1988, King's Quest Four switches heroes: now the star is his daughter, Princess Rosella, who has to save her father. |
 | Fue una de las primeras aventuras protagonizadas por una chica, y de las primeras que sonaban con una tarjeta de música, como una pequeña orquesta. | It was one of the first adventures starring a girl, and one of the first to play music through a sound card, like a little orchestra. |
 | Sierra se instala en un pueblo de montaña cerca de Yosemite, entre pinos, y empieza a contratar dibujantes, músicos y escritores. | Sierra settles in a mountain town near Yosemite, among the pines, and starts hiring artists, musicians and writers. |
@@ -117,6 +119,8 @@ alegre aunque te mueras cada dos minutos.
 | ES | EN |
 |---|---|
 | Pero en ese reino todo podía matarte: un lobo, un ogro, un río, un mal paso en una escalera. | But in that kingdom, everything could kill you: a wolf, an ogre, a river, one wrong step on a staircase. |
+| En Police Quest, de 1987, diseñado por un antiguo policía de carreteras, había que seguir el reglamento al pie de la letra. | In Police Quest, from 1987, designed by a former highway patrol officer, you had to follow the rulebook to the letter. |
+| Si te subías al coche patrulla sin dar antes la vuelta para revisarlo, podías acabar en la cuneta. | If you got into your patrol car without walking around it to check it first, you could end up in a ditch. |
 | Y cada muerte venía con su chiste, como si el narrador se riera un poco de ti. | And every death came with its own joke, as if the narrator were laughing at you a little. |
 | Los jugadores aprendieron a tener muchas partidas guardadas: una antes de cada puente, de cada puerta y de cada monstruo. | Players learned to keep lots of saved games: one before every bridge, every door and every monster. |
 | Así nació el consejo más famoso de Sierra: guarda la partida a menudo. | That's how Sierra's most famous piece of advice was born: save your game often. |
@@ -134,6 +138,7 @@ alegre aunque te mueras cada dos minutos.
 | Su nombre es una broma de radio: «roger» quiere decir «recibido», y «wilco», «lo haré». | His name is a radio joke: "roger" means "message received," and "wilco" means "will comply." |
 | Mientras él duerme en el armario de las escobas, unos alienígenas asaltan la nave, y le toca salvar la galaxia con lo que lleva en los bolsillos. | While he's napping in a broom closet, aliens raid the ship, and it's up to him to save the galaxy with whatever's in his pockets. |
 | Space Quest se reía de las películas de ciencia ficción, y presumía de tener las muertes más absurdas del espacio. | Space Quest made fun of science fiction movies, and it boasted the most ridiculous deaths in space. |
+
 | En la tercera entrega, Roger tiene que rescatar a sus propios creadores: los Dos Tipos de Andrómeda, secuestrados por una empresa de videojuegos malvada. | In the third game, Roger has to rescue his own creators: the Two Guys from Andromeda, kidnapped by an evil video game company. |
 | Y en la cuarta, Roger viaja en el tiempo hasta juegos anteriores de su propia serie, y hasta a una entrega del futuro que nunca existió. | And in the fourth, Roger travels in time into earlier games of his own series, and even into a future sequel that never existed. |
 | Al llegar al juego antiguo, todo se vuelve de píxeles gordos y de dieciséis colores: un chiste que solo entendían los que lo habían jugado. | When he lands in the old game, everything turns into chunky pixels and sixteen colors: a joke only people who had played it would get. |
@@ -206,5 +211,6 @@ Comprobado con búsquedas el 31/10/2026; [comprobar] = a confirmar por los agent
 - King's Quest V (1990): ratón, fondos pintados a mano, 256 colores (VGA); CD con voces, algunas de empleados [comprobar].
   Gabriel Knight (1993, Jane Jensen).
 - King's Quest IV (1988): Rosella, de las primeras con protagonista femenina y con tarjeta de sonido (AdLib, Roland MT-32) [comprobar]. Space Quest IV (1991): viaje a entregas anteriores y a un «Space Quest XII» [comprobar]. Las muertes a propósito por el chiste y las colecciones de muertes de los aficionados [comprobar].
+- Police Quest (1987, Jim Walls, expolicía de la California Highway Patrol): la revisión del coche patrulla antes de conducir [comprobar]. Mixed-Up Mother Goose (1987, Roberta Williams), para niños, sin muertes [comprobar «el único juego de Sierra»; si no, «uno de los pocos»].
 - Roberta diseñó King's Quest hasta 1999 (ocho juegos de la serie original [comprobar]). Colossal Cave 3D Adventure
   (Cygnus Entertainment, anunciado en 2022, idea de la pandemia). [Engadget](https://www.engadget.com/roberta-ken-williams-colossal-cave-3d-remake-vr-163034673.html), [PC Gamer](https://pcgamer.com/au/sierra-founders-got-bored-in-lockdown-so-theyre-making-their-first-new-game-in-more-than-20-years).
