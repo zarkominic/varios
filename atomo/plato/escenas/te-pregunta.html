@@ -15,7 +15,7 @@
 // 2. (hoy, campo, 2026, corte en «700») el buscador barre el prado con su detector junto al castillo en ruinas y en
 //    «digging» el detector pita como loco;
 // 3. (hoy, el hoyo de cerca, corte en «for the Templars' gold») sube… una lata (gag 1); en «Holy Grail» la alza como un
-//    cáliz y luego la tira por encima del hombro;
+//    cáliz y luego la tira por encima del hombro; en cuanto la coge, el hoyo queda vacío (lata: false del decorado);
 // 4. (hoy, el mapa de cerca, corte en «engraved») las tres marcas aparecen (la cruz, la copa, el rollo en «copper»); en
 //    «which … real» un «?» sobre cada una; en «find them» la mano del buscador entra por abajo y da dos toques en el rollo.
 import * as T from '/atomo/plato/escenas/te-comun.js';
@@ -71,10 +71,9 @@ const p2 = (t) => {
 const ORO = b(0.42), GRIAL = b(0.558), TIRA = b(0.70);
 const p3 = (t) => {
   const sube = tramo(t, P3 + 0.1, ORO), coge = t > ORO + 0.35 && t < TIRA;
-  const d = T.hoy(R, t, { encuadre: 'campo', camara: 'suelo', lata: coge || t >= TIRA ? 0 : sube });
+  const d = T.hoy(R, t, { encuadre: 'campo', camara: 'suelo', lata: (coge || t >= TIRA) ? false : sube });
   const S = d.suelo;
-  // la lata ya está en su mano: se tapa la del fondo del hoyo con la tierra de al lado
-  if (coge || t >= TIRA) for (let y = 144; y <= 157; y++) for (let x = 174; x <= 184; x++) R.pset(x, y, R.pget(x - 6, y - 6));   // la trama de la tierra va en diagonal: se copia en diagonal
+  // con la lata en la mano (o ya tirada), el decorado deja el hoyo vacío (o.lata false): nada que tapar
   // el detector, en el suelo junto al hoyo, sigue pitando hasta que sale la lata
   T.detector(R, 96, S - 1, t, { dir: 1, tumbado: true, pita: t < ORO ? 1 : 0 });
   const alza = tramo(t, GRIAL - 0.3, GRIAL + 0.1), x = 128;

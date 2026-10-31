@@ -19,7 +19,8 @@
 //    se encienden puntos dorados escondidos; en «which» moja el pincel en el té y en «forged» mancha los pergaminos;
 // 4. (fondo local: la sala de la sociedad inventada; corte en «and an invented») un hombre echa una túnica vacía sobre
 //    una silla; las velas se avivan; en «Priory» sella el pergamino y el emblema dorado brilla en el estandarte; en «Sion»
-//    la capucha vacía de una túnica asiente sola («?»).
+//    la capucha vacía de una túnica asiente sola («?»). Al ir a sellar, el hombre pasa POR DELANTE de la silla con la
+//    túnica (la silla y la túnica posada se pintan antes que él).
 import * as T from '/atomo/plato/escenas/te-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('te-corbu');
@@ -289,9 +290,11 @@ const p4 = (t) => {
   const o = { dir: 1, anda: va > 0 && va < 1, sonrisa: t > SION };
   if (lanza < 1) o.sostiene = [x + 15, 128 - Math.round(lanza * 10)];
   else if (t > PRIORATO - 0.3 && t < PRIORATO + 0.6) o.sostiene = [150, PRIORATO - t > 0 ? 124 : 132];
+  // la silla (base en y 158) y la túnica ya posada van DETRÁS del hombre, que pisa en y 160 y pasa por delante;
+  // solo la túnica en vuelo se pinta después, porque sale de su mano
+  silla4(92, 158); if (lanza >= 1) tunica(92, 156, t, 0, hex('#b8b0c8'));
   const mh = R.actor(EL.oficinista, x, 160, t, o).mano;
-  if (lanza < 1) { silla4(92, 158); const tx = lerp(mh[0] + 10, 92, lanza), ty = lerp(mh[1] + 26, 156, lanza) - Math.sin(lanza * Math.PI) * 18; tunica(tx, ty, t, lanza * 2, hex('#b8b0c8')); }
-  else { silla4(92, 158); tunica(92, 156, t, 0, hex('#b8b0c8')); }
+  if (lanza < 1) { const tx = lerp(mh[0] + 10, 92, lanza), ty = lerp(mh[1] + 26, 156, lanza) - Math.sin(lanza * Math.PI) * 18; tunica(tx, ty, t, lanza * 2, hex('#b8b0c8')); }
   if (o.sostiene && t > PRIORATO - 0.3) { const [sx, sy] = mh; R.rect(sx - 2, sy - 7, sx + 2, sy - 1, K); R.rect(sx - 1, sy - 6, sx + 1, sy - 1, hex('#8a5a30')); R.disco(sx, sy - 9, 3, K); R.disco(sx, sy - 9, 2, hex('#a8703a')); R.rect(sx - 4, sy, sx + 4, sy + 2, K); R.rect(sx - 3, sy, sx + 3, sy + 1, hex('#e8c060')); }
   if (t > SION + 0.3) globo(208, 98, '?');
   // motas de polvo en la luz del candelabro

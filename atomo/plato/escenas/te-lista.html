@@ -12,15 +12,19 @@
 // TE-LISTA (frases 47–49), 1956. Cuatro planos:
 // 1. (desierto tiras, general) las 23 tiras de cobre sobre el tapete; una mano trae la última y la deja en su sitio; en
 //    «list» (golpe) un barrido dorado recorre las tiras y brillan los lingotes y monedas del margen; en «64» sale la
-//    tarjeta dorada que cuenta de 1 a 64 y vuela a la libreta;
+//    tarjeta dorada que cuenta de 1 a 64 y vuela a la libreta (acaba en x 246–312: entera dentro del cuadro);
 // 2. (fondo local, inserto, otra luz: corte en «Almost») una tira grande sobre la mesa del traductor bajo la lámpara; el
 //    lápiz marca renglones y al lado salen lingotes de oro en «gold» y de plata en «silver» (y una vasija); en «written»
-//    la mano copia en el cuaderno los trazos raros y en «Hebrew» sale un «?»;
+//    la mano copia en el cuaderno los trazos raros (ondas con ganchitos y puntos, como los grabados de la tira: nada que se
+//    lea como letra) y en «Hebrew» sale un «?» grande en un globo junto al cuaderno;
 // 3. (desierto tiras, lupa: corte en «And on some lines») la mano sujeta la lupa y otro dedo recorre el renglón; en «Greek»
 //    salen las letras griegas doradas; en «no one» saltan los «?»;
 // 4. (fondo local: corte en «depending») el almacén de piedra con la gran balanza; el arqueólogo pone un lingote en el
 //    platillo y duda en «measurements»; en «metal» la montaña de lingotes, monedas y vasijas crece hasta llenar el plano; en
-//    «tons» la balanza se parte y él da un salto.
+//    «tons» la balanza se parte y él da un salto. La montaña acaba en x≈214 (a la izquierda de la balanza y del arqueólogo,
+//    que se pintan después, enteros y con perfil negro), tiene volumen (cresta iluminada por el haz, flanco derecho y base en
+//    sombra) y piezas grandes en la cresta (cofre abierto, ánforas, fuente, monedas); lo que cae nace por debajo de y 18.
+//    La esquina alta de la derecha (zona de Atom) queda en la sombra de la bóveda, con las juntas apagadas.
 import * as T from '/atomo/plato/escenas/te-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('te-lista');
@@ -79,8 +83,8 @@ const p1 = (t) => {
   if (t > LISTA) tiras.forEach(([x, y, w, a], k) => { if (k % 3 < 2 && (t - LISTA) * 360 > x) brillito(x + w - 5, y + a - 7, t, k); });
   // la tarjeta del 64: cuenta de 1 a 64 y vuela a la libreta
   if (t > N64 && t < 5.45) { const c = suave((t - N64) / 0.8), n = Math.max(1, Math.round(1 + 63 * c)), v = suave((t - 4.85) / 0.55), sube = t < N64 + 0.15 ? Math.round((1 - (t - N64) / 0.15) * 6) : 0;
-    tarjeta64(Math.round(lerp(160, 290, v)), Math.round(lerp(96, 152, v)) + sube, n, t); }
-  if (t > 5.4 && t < 5.75) brillito(288, 152, t * 3, 0);
+    tarjeta64(Math.round(lerp(160, 279, v)), Math.round(lerp(96, 152, v)) + sube, n, t); }
+  if (t > 5.4 && t < 5.75) brillito(279, 152, t * 3, 0);
   // una mosca que cruza el tapete
   { const mx = Math.round(lerp(330, -10, ((t * 0.09) % 1))), my = Math.round(20 + Math.sin(t * 3) * 6 + ((t * 0.09) % 1) * 30); R.pset(mx, my, K); R.pset(mx + 1, my, K); if (Math.floor(t * 20) % 2) { R.pset(mx, my - 1, hex('#c8d8e8')); R.pset(mx + 1, my - 1, hex('#c8d8e8')); } }
 };
@@ -103,11 +107,10 @@ const pintaMesa = () => {
     const v = hh(x >> 1, y >> 1, 41), m = hh(x >> 3, y >> 2, 91), c = m < 0.28 ? (v < 0.5 ? COB[1] : COB[0]) : v < 0.18 ? COB[5] : v > 0.86 ? COB[3] : COB[4];
     R.pset(x, y, (x === X0 || x === X1 || y === Y0 || y === Y1) ? K : c); }
   for (let x = X0; x <= X1; x++) { R.pset(x, Y0 + 1, COB[0]); R.pset(x, Y1 - 1, COB[5]); }
-  for (let r = 0; r < FILAS; r++) { const y = FY(r); let x = 28; while (x < 156) { const g = Math.floor(hh(x, r, 7) * 6), w = 3 + (g % 3);
-      if (g === 0) { R.linea(x, y, x + w, y, COB[2]); R.linea(x + w, y, x + w, y + 4, COB[2]); } else if (g === 1) { R.linea(x, y, x, y + 4, COB[2]); R.linea(x, y + 4, x + w, y + 4, COB[2]); }
-      else if (g === 2) { R.linea(x, y, x + w, y, COB[2]); R.linea(x + 1, y, x + 1, y + 4, COB[2]); R.linea(x + w, y, x + w, y + 4, COB[2]); } else if (g === 3) { R.linea(x, y + 1, x + w, y + 1, COB[2]); R.pset(x + 1, y + 3, COB[2]); }
-      else { R.linea(x + 1, y, x + 1, y + 4, COB[2]); R.pset(x, y, COB[2]); R.pset(x + 2, y + 4, COB[2]); }
-      for (let i = 0; i <= w; i++) R.pset(x + i, y + 5, COB[3]); x += w + 3; } R.linea(160, y + 2, 162, y + 2, COB[2]); }
+  for (let r = 0; r < FILAS; r++) { const y = FY(r) + 2; let x = 28; while (x < 156) { const w = 10 + Math.floor(hh(x, r, 7) * 14);
+      for (let i = 0; i <= w; i++) { const yy = y + Math.round(Math.sin((x + i) * 0.8 + r * 1.7) * 1.4); R.pset(x + i, yy, COB[2]); R.pset(x + i, yy + 1, COB[3]); }
+      const g = Math.floor(hh(x, r, 8) * 3); if (g === 0) { R.pset(x + 3, y - 3, COB[2]); R.pset(x + 4, y - 3, COB[2]); } else if (g === 1) { R.pset(x + w, y - 1, COB[2]); R.pset(x + w + 1, y - 2, COB[2]); } else R.pset(x + (w >> 1), y + 3, COB[2]);
+      x += w + 4; } R.linea(160, y, 162, y, COB[2]); }
   // el cuaderno de espiral con renglones azules y margen rojo, su sombra y las anillas
   oscurece(212, 116, 319, 179, 0.45); caja(208, 112, 319, 179, hex('#f2eedf')); for (let y = 128; y < 180; y += 10) R.linea(210, y, 319, y, hex('#a8c0e0')); R.linea(222, 114, 222, 179, hex('#e07070'));
   for (let x = 208; x <= 319; x++) R.pset(x, 112, K); for (let y = 112; y <= 179; y++) R.pset(208, y, K);
@@ -132,7 +135,14 @@ const pintaMesa = () => {
 };
 // los iconos del margen: el oro, la plata y una vasija; y cuándo marca cada renglón el lápiz
 const MARGEN = [[0, 'o', ORO_T], [2, 'o', ORO_T + 0.12], [3, 'o', ORO_T + 0.24], [6, 'o', ORO_T + 0.36], [1, 'p', PLATA_T], [4, 'p', PLATA_T + 0.12], [5, 'p', PLATA_T + 0.24], [7, 'o', PLATA_T + 0.4], [8, 'v', PLATA_T + 0.62]];
-const glifo = (x, y, k, c) => { const g = Math.floor(hh(k, 3, 8) * 5); if (g === 0) { R.linea(x, y, x + 3, y, c); R.linea(x + 3, y, x + 3, y + 4, c); } else if (g === 1) { R.linea(x, y, x, y + 4, c); R.linea(x, y + 4, x + 3, y + 4, c); } else if (g === 2) { R.linea(x, y, x + 3, y, c); R.linea(x, y, x, y + 4, c); R.linea(x + 3, y, x + 3, y + 4, c); } else if (g === 3) { R.linea(x, y + 1, x + 3, y + 1, c); R.pset(x + 1, y + 4, c); } else { R.linea(x + 1, y, x + 1, y + 4, c); R.pset(x, y, c); } };
+const glifo = (x, y, k, c) => { const fila = Math.floor(k / 13); if (k % 13 % 4 === 3) { R.pset(x + 1, y + 2, c); return; }   // hueco entre «palabras»: un punto
+  for (let i = 0; i < 6; i++) R.pset(x + i, y + 2 + Math.round(Math.sin((x + i) * 0.9 + fila * 2) * 1.5), c);
+  const g = Math.floor(hh(k, 3, 8) * 3); if (g === 0) { R.pset(x + 2, y - 1, c); R.pset(x + 3, y - 1, c); } else if (g === 1) R.pset(x + 4, y + 5, c); };
+// el bocadillo redondeado con su rabito (x, y: la punta del rabito), como el de te-corbu
+const bocadillo = (x, y, w = 11, h = 20) => { const x0 = x - w, x1 = x + w, y1 = y - 4, y0 = y1 - h;
+  R.rect(x0 + 1, y0, x1 - 1, y1, K); R.rect(x0, y0 + 1, x1, y1 - 1, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, BL); R.rect(x0 + 2, y1 - 1, x1 - 1, y1 - 1, hex('#d0d0dc'));
+  for (let k = 0; k < 4; k++) { R.pset(x - 1 + (k >> 1), y1 + k, K); R.pset(x + (k >> 1), y1 + k, k < 3 ? BL : K); R.pset(x + 1 + (k >> 1), y1 + k, K); }
+  return [x, Math.round((y0 + y1) / 2)]; };
 const p2 = (t) => {
   if (!mbHecho) pintaMesa(); R.copiar(MB);
   // las motas de polvo en la luz y el vapor del té
@@ -152,7 +162,7 @@ const p2 = (t) => {
   const wx = px + 14, wy = py + 9;
   T.brazo(R, wx + 40, wy + 64, wx, wy, '#6a7a94', -1, { codo: [wx + 26, wy + 36] });
   R.linea(px, py, wx - 6, wy - 4, K); R.linea(px + 1, py, wx - 5, wy - 4, hex('#f0c040')); R.linea(px + 1, py + 1, wx - 5, wy - 3, hex('#c89020')); R.pset(px, py, hex('#3a3a3a'));
-  if (t > HEBREO && t < P3) { const u = cl((t - HEBREO) / 0.2); R.bocadillo(214, 104 - Math.round(u * 4), { icono: '?' }); }
+  if (t > HEBREO && t < P3) { const u = cl((t - HEBREO) / 0.2), [cx, cy] = bocadillo(206, 114 - Math.round(u * 4 + Math.abs(Math.sin(t * 3)))); R.icono('?', cx - 5, cy - 7, K, hex('#c8c8d0'), 2); }
 };
 
 // 3 · la lupa sobre un renglón; un dedo recorre la línea; las letras griegas doradas y los «?»
@@ -172,7 +182,7 @@ const p3 = (t) => {
 
 // 4 · el almacén de piedra: la balanza, el arqueólogo y la montaña de metal que lo llena todo
 const VB = R.nuevo(), PB = R.nuevo(); let vbHecho = false;
-const cima = (x) => 30 + ((x - 128) / 150) ** 2 * 140;   // la silueta final de la montaña
+const cima = (x) => 56 + ((x - 98) / 116) ** 2 * 124;   // la silueta final de la montaña: de x≈-18 a x≈214, cima en y 56 (deja libre al arqueólogo y la balanza)
 const pintaAlmacen = () => {
   let prev = R.usar(VB);
   const PI = [hex('#e8c890'), hex('#c8a46c'), hex('#a07c4c'), hex('#6a4e30'), hex('#3e2c1c')];
@@ -194,10 +204,20 @@ const pintaAlmacen = () => {
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const a = 96 + y * 0.35, b = 140 + y * 0.55; if (x > a && x < b && R.b4(x, y) < 0.55) R.pset(x, y, mez(R.pget(x, y), hex('#fff0c0'), 0.28)); }
   // la montaña de metal (en su propio búfer, que se descubre de abajo arriba): de arriba abajo para que lo de delante tape
   R.usar(PB);
-  const piezas = []; for (let k = 0; k < 1500; k++) { const x = Math.round(hh(k, 1, 77) * 330 - 5), y = Math.round(cima(x) + 4 + hh(k, 2, 77) * 190); if (y > 186) continue; piezas.push([x, y, hh(k, 3, 77)]); }
+  const piezas = []; for (let k = 0; k < 1100; k++) { const x = Math.round(hh(k, 1, 77) * 236 - 20), y = Math.round(cima(x) + 4 + hh(k, 2, 77) * 190); if (y > 186) continue; piezas.push([x, y, hh(k, 3, 77)]); }
   piezas.sort((a, b) => a[1] - b[1]);
   for (const [x, y, q] of piezas) { if (q < 0.42) lingote(x, y, ORO, 1); else if (q < 0.6) lingote(x, y, PLATA, 1); else if (q < 0.9) moneda(x, y, 2 + (q > 0.8 ? 1 : 0), q > 0.74 ? PLATA : ORO); else vasija(x, y + 4, 1, q > 0.95 ? 1 : 0); }
-  for (let x = 0; x < 320; x++) { const c = Math.round(cima(x)) + 3; for (let y = 0; y < c; y++) PB[y * 320 + x] = 0; }
+  for (let x = 0; x < 320; x++) { const c = Math.round(cima(x)) + 3; for (let y = 0; y < Math.min(180, c); y++) PB[y * 320 + x] = 0; }
+  // volumen: la luz del haz cae desde arriba a la izquierda; la cresta brilla, el flanco derecho y la base se hunden en sombra
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const v = PB[y * 320 + x]; if (!v) continue; const d = y - cima(x), lado = (x - 98) / 116;
+    let a = cl(d / 90) * 0.5 + cl(lado + 0.15) * 0.4, w = d < 12 ? 0.4 * (1 - d / 12) * (1 - cl(lado)) : 0;
+    if (y > 172) a += 0.1; const b = R.b4(x, y); let c = v;
+    if (w > 0 && b < w + 0.2) c = mez(c, hex('#fff4c8'), w); else if (a > 0 && b < a * 1.4) c = mez(c, hex('#3a2410'), Math.min(0.65, a)); PB[y * 320 + x] = c; }
+  // las piezas grandes de la cresta, que dan forma al montón: el cofre en lo alto, ánforas, una fuente y monedas grandes
+  for (const [x, s, tn] of [[34, 1.6, 0], [150, 1.5, 1], [176, 1.3, 0]]) vasija(x, Math.round(cima(x)) + 8, s, tn);
+  for (const [x, r] of [[66, 5], [126, 4], [196, 4], [12, 4]]) moneda(x, Math.round(cima(x)) + 3, r, x % 3 ? ORO : PLATA);
+  { const x = 112, y = Math.round(cima(x)) + 2; R.poligono([[x - 13, y - 3], [x + 13, y - 3], [x + 9, y + 2], [x - 9, y + 2]], K); R.poligono([[x - 12, y - 2], [x + 12, y - 2], [x + 8, y + 1], [x - 8, y + 1]], PLATA[1]); R.linea(x - 11, y - 2, x + 11, y - 2, PLATA[0]); }
+  T.cofre(R, 92, Math.round(cima(92)) + 5, 0, { abre: 1, brillo: 1, s: 1.3, k: 2 });
   R.usar(prev); vbHecho = true;
 };
 const balanza = (t, incl, rota) => {
@@ -205,29 +225,31 @@ const balanza = (t, incl, rota) => {
   caja(218, 162, 242, 172, K); caja(219, 163, 241, 171, BR[1]); caja(219, 163, 241, 164, BR[0]); caja(224, 156, 236, 162, K); caja(225, 157, 235, 161, BR[2]);
   caja(227, cy, 233, 157, K); caja(228, cy + 1, 232, 156, BR[1]); caja(228, cy + 1, 228, 156, BR[0]); R.disco(cx, cy - 4, 4, K); R.disco(cx, cy - 4, 3, BR[0]);
   const plato = (x, y) => { R.poligono([[x - 13, y - 1], [x + 13, y - 1], [x + 9, y + 4], [x - 9, y + 4]], K); R.poligono([[x - 12, y], [x + 12, y], [x + 8, y + 3], [x - 8, y + 3]], BR[1]); R.linea(x - 11, y, x + 11, y, BR[0]); };
-  const brazoB = (a, l, lado, caido) => { const ex = cx + lado * Math.cos(a) * l, ey = cy + lado * Math.sin(a) * l; R.linea(cx, cy, Math.round(ex), Math.round(ey), K); R.linea(cx, cy + 1, Math.round(ex), Math.round(ey) + 1, BR[1]); R.linea(cx, cy - 1, Math.round(ex), Math.round(ey) - 1, BR[0]); return [Math.round(ex), Math.round(ey)]; };
+  const brazoB = (a, l, lado, caido) => { const ex = cx + lado * Math.cos(a) * l, ey = cy + lado * Math.sin(a) * l; for (const o of [-2, 2]) R.linea(cx, cy + o, Math.round(ex), Math.round(ey) + o, K); R.linea(cx, cy, Math.round(ex), Math.round(ey), BR[1]); R.linea(cx, cy + 1, Math.round(ex), Math.round(ey) + 1, BR[1]); R.linea(cx, cy - 1, Math.round(ex), Math.round(ey) - 1, BR[0]); return [Math.round(ex), Math.round(ey)]; };
   if (!rota) {
     const [lx, ly] = brazoB(incl, 34, -1), [rx, ry] = brazoB(incl, 34, 1);
     const ply = ly + 30, pry = ry + 30;
-    for (const [ex, ey, py] of [[lx, ly, ply], [rx, ry, pry]]) { R.linea(ex, ey, ex - 10, py, BR[2]); R.linea(ex, ey, ex + 10, py, BR[2]); }
+    for (const [ex, ey, py] of [[lx, ly, ply], [rx, ry, pry]]) { R.linea(ex - 1, ey, ex - 11, py, K); R.linea(ex + 1, ey, ex + 11, py, K); R.linea(ex, ey, ex - 10, py, BR[2]); R.linea(ex, ey, ex + 10, py, BR[2]); }
     plato(lx, ply); plato(rx, pry); return [lx, ply];
   }
   // rota: el brazo izquierdo cae sobre la montaña, el derecho se queda torcido hacia arriba
   const c = cl(rota); brazoB(-0.7 * c - incl * (1 - c), 30, 1); const caeX = Math.round(lerp(cx - 30, cx - 44, c)), caeY = Math.round(lerp(cy + 14, cy + 52, c));
-  R.linea(cx - 4, cy + 2, caeX, caeY, K); R.linea(cx - 4, cy + 3, caeX, caeY + 1, BR[1]); plato(caeX - 4, caeY + 10);
+  R.linea(cx - 4, cy + 1, caeX, caeY - 1, K); R.linea(cx - 4, cy + 4, caeX, caeY + 2, K); R.linea(cx - 4, cy + 2, caeX, caeY, BR[0]); R.linea(cx - 4, cy + 3, caeX, caeY + 1, BR[1]); plato(caeX - 4, caeY + 10);
   return [caeX, caeY];
 };
 const p4 = (t) => {
   if (!vbHecho) pintaAlmacen(); R.copiar(VB);
+  // la esquina alta de la derecha queda en la sombra de la bóveda (fondo tranquilo detrás de Atom): baja el contraste de las juntas
+  for (let y = 0; y < 58; y++) for (let x = 260; x < 320; x++) { const a = 0.62 * suave((x - 260) / 16) * suave((58 - y) / 14); if (a > 0.01) R.pset(x, y, mez(R.pget(x, y), hex('#5e4430'), a)); }
   // antorchas que tiemblan y motas en el haz
   for (const [fx, fy] of [[118, 58], [176, 58]]) { caja(fx - 1, fy, fx + 1, fy + 12, hex('#4a3020')); caja(fx - 3, fy - 1, fx + 3, fy + 1, hex('#2a2018')); const f = Math.sin(t * 13 + fx) > 0 ? 1 : 0;
     R.disco(fx, fy - 4 - f, 3, hex('#e8702a')); R.disco(fx, fy - 5, 2, hex('#f8c040')); R.pset(fx, fy - 8 - f, hex('#f8e8a0')); R.pset(fx + (f ? 1 : -1), fy - 10, hex('#f8a040')); }
   for (let k = 0; k < 12; k++) { const u = (hh(k, 1, 9) + t * 0.05) % 1, mx = Math.round(100 + u * 70 + hh(k, 2, 9) * 40 + Math.sin(t + k) * 3), my = Math.round(u * 170); R.pset(mx, my, hex('#fff4d0')); }
   // la montaña crece en «metal»
   const g = suave((t - METAL + 0.25) / 0.85) * 0.9 + suave((t - TONS + 0.05) / 0.5) * 0.1;
-  if (g > 0) { for (let x = 0; x < 320; x++) { const c = Math.round(180 - (180 - cima(x)) * g); for (let y = Math.max(0, c); y < 180; y++) { const v = PB[y * 320 + x]; if (v) R.pset(x, y, v); } }
-    for (let k = 0; k < 9; k++) { const u = (t * 1.3 + k / 9) % 1, x = Math.round(30 + hh(k, 4, 6) * 200), y0 = Math.round(180 - (180 - cima(x)) * g); if (g < 0.98 && t < TONS + 0.4) { const y = Math.round(lerp(-10, y0, u)); if (k % 2) lingote(x, y, ORO, 1); else moneda(x, y, 2, k % 3 ? ORO : PLATA); } }
-    if (g > 0.2) for (let k = 0; k < 6; k++) { const x = 40 + k * 36, y = Math.round(180 - (180 - cima(x)) * g) + 6; brillito(x, y, t, k); } }
+  if (g > 0) { for (let x = 0; x < 320; x++) { const c = Math.round(180 - (180 - cima(x)) * g); for (let y = Math.max(0, c - 16); y < 180; y++) { const v = PB[y * 320 + x]; if (v) R.pset(x, y, v); } }
+    R.recorte([0, 18, 319, 179]); for (let k = 0; k < 9; k++) { const u = (t * 1.3 + k / 9) % 1, x = Math.round(20 + hh(k, 4, 6) * 170), y0 = Math.round(180 - (180 - cima(x)) * g); if (g < 0.98 && t < TONS + 0.4) { const y = Math.round(lerp(-10, y0, u)); if (k % 2) lingote(x, y, ORO, 1); else moneda(x, y, 2, k % 3 ? ORO : PLATA); } } R.recorte(null);
+    if (g > 0.2) for (let k = 0; k < 6; k++) { const x = 20 + k * 34, y = Math.round(180 - (180 - cima(x)) * g) + 6; brillito(x, y, t, k); } }
   // la balanza: se inclina con el peso y en «tons» se parte
   const incl = t < METAL ? (t > 17.3 ? 0.08 : 0) : 0.08 + 0.4 * g, rota = t > TONS ? suave((t - TONS) / 0.35) : 0;
   const [plx, ply] = balanza(t, incl, rota);

@@ -16,12 +16,16 @@
 //    y el cofre abierto): el peregrino llega con la carta en alto, se la da al tesorero («Another Templar house») y el
 //    tesorero le empuja una bolsa («pays him back») (corta en «And any»);
 // 3. la emboscada (gag 3): el ladrón salta de detrás de la peña («stops him»), le quita la bolsa, el peregrino huye;
-//    abre la bolsa y solo sale una carta («letter»): «?» y se rasca la cabeza (corta tras «cash»);
+//    abre la bolsa y solo sale una carta («letter»): la despliega a un lado, a la altura del pecho, con la cara de
+//    sorpresa a la vista; «?», la deja caer y se rasca la cabeza (corta tras «cash»). Las dunas de la izquierda llevan
+//    crestas con su sombra, ondas del viento, huellas, piedras, matas que se mecen, arena que vuela y una caravana lejana;
 // 4. la casa del Temple junto al mar, castillo y banco: un noble entrega una donación sellada («donations»), un mercader
 //    una bolsa («business»); el templario señala la torre («castles») y el rebaño («land») (corta en «ships»);
 // 5. inserto (fondo local: la mesa de cuentas con el paño ajedrezado, la corona en su cojín y el cofre de monedas): la
 //    mano del rey, de manga azul con puño de oro, firma el préstamo («bank») y la mano del templario le empuja la bolsa
 //    («lends money to kings»).
+// Efectos: uno por gesto (monedas, sello, carta, ladrón, bolsa), ~48 % del tiempo; el cofre (plano 2) y la torre (plano 4)
+// destellan con su «brillo».
 import * as T from '/atomo/plato/escenas/te-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('te-banco');
@@ -46,6 +50,10 @@ const bolsa = (x, y, o = {}) => { x = Math.round(x); y = Math.round(y); const r 
     R.rect(x - 3, cy - r - 5, x + 3, cy - r - 4, K); R.rect(x - 2, cy - r - 5, x + 2, cy - r - 5, CuL); }
   if (o.brilla) { const f = Math.floor(o.brilla * 6) % 3; R.pset(x - 2 + f, cy, hex('#fff6c0')); }
 };
+// un destello de oro en cruz que crece y se apaga (f de 0 a 1), para el «brillo» de las monedas y la torre
+const destello = (x, y, f) => { if (f <= 0 || f >= 1) return; const n = Math.round(Math.sin(f * Math.PI) * 4), C1 = hex('#fff6c0'), C2 = hex('#f0c040');
+  for (let k = 1; k <= n; k++) { const c = k < n ? C1 : C2; R.pset(x + k, y, c); R.pset(x - k, y, c); R.pset(x, y + k, c); R.pset(x, y - k, c); }
+  if (n > 1) { R.pset(x + 1, y + 1, C2); R.pset(x - 1, y - 1, C2); R.pset(x + 1, y - 1, C2); R.pset(x - 1, y + 1, C2); } R.pset(x, y, hex('#ffffff')); };
 // el bordón del peregrino (vara con calabaza) en la mano
 const bordon = (m, suelo) => { const [mx, my] = m; R.linea(mx, my - 14, mx, suelo, K); R.linea(mx + 1, my - 14, mx + 1, suelo, hex('#8a5a30')); R.pset(mx + 1, my - 12, hex('#b8803e'));
   R.disco(mx + 2, my - 15, 2, K); R.disco(mx + 2, my - 15, 1, hex('#d8a040')); R.pset(mx + 1, my - 16, hex('#f0d080')); };
@@ -54,6 +62,7 @@ const P2 = en('carta', 0.806), P3 = en('ladron', 0.418), P4 = en('ladron', 1.02)
 const DEJA = en('carta', 0.42), CASA = en('carta', 0.572), VUELTA = en('carta', 0.657);
 const OTRA = en('ladron', 0.15), PAGA = en('ladron', 0.265), PARA = en('ladron', 0.531), NADA = en('ladron', 0.68), CARTA = en('ladron', 0.833), COBRA = en('ladron', 0.881);
 const DONA = en('banco', 0.018), NEGOCIO = en('banco', 0.131), CASTILLOS = en('banco', 0.433), TIERRAS = en('banco', 0.584);
+const COFRE = P2 + 1.05;
 const BANCO = en('banco', 0.765), PRESTA = en('banco', 0.83), REYES = en('banco', 0.919);
 
 // ── 1. el mostrador
@@ -177,6 +186,8 @@ const p2 = (t) => {
   if (t >= PAGA - 0.1) T.rollo(R, 196, 131, t, { carta: true, s: 0.8 });
   // el cofre abierto con las monedas que brillan
   T.cofre(R, 270, 170, t, { abre: 1, brillo: 0.6 + 0.4 * Math.sin(t * 3), s: 1.6, k: 3 });
+  // las monedas del cofre destellan mientras el peregrino entra (con el «brillo»)
+  destello(266, 146, tramo(t, COFRE, COFRE + 0.7)); destello(276, 149, tramo(t, COFRE + 0.25, COFRE + 0.9));
   // el peregrino entra con la carta en alto, la entrega y recibe la bolsa
   const u = tramo(t, P2, OTRA - 0.8), xp = Math.round(lerp(-24, 114, u)), cobra = t > PAGA + 0.45;
   const mp = R.actor(EL.peregrino, xp, 170, t, { dir: 1, anda: u > 0 && u < 1, sostiene: t < OTRA ? [xp + 22, 141] : cobra ? true : null, sonrisa: t > PAGA + 0.3 }).mano;
@@ -186,9 +197,80 @@ const p2 = (t) => {
   else bolsa(mp[0] + 2, mp[1] + 4, { r: 5, brilla: t });
 };
 
+// las dunas de la izquierda del plano 3: el decorado las da de un tono con punteado; encima van crestas con su cara de
+// sombra, ondas del viento, huellas de camello, piedras con su sombra y matas secas que mueve el viento, y una caravana
+// que cruza la loma lejana. Se mira una sola vez qué píxeles son arena (lejana o cercana) y solo se pinta sobre ellos.
+const ARENA1 = new Set(['#cbbc9c', '#b8a888', '#e2d4b4'].map(hex)), ARENA2 = new Set(['#d8b07a', '#b08850', '#ecc890'].map(hex));
+let DUNAS = null;
+const dunas = (t) => {
+  if (!DUNAS) {
+    const tipo = new Uint8Array(320 * 180), ops = [], base = new Uint32Array(320 * 180);
+    for (let y = 56; y < 166; y++) for (let x = 0; x < 176; x++) { const c = R.pget(x, y) >>> 0; base[y * 320 + x] = c; tipo[y * 320 + x] = ARENA1.has(c) ? 1 : ARENA2.has(c) ? 2 : 0; }
+    const es = (x, y) => x >= 0 && x < 176 && y >= 56 && y < 166 ? tipo[y * 320 + x] : 0;
+    const pon = (x, y, c, a = 1) => { x = Math.round(x); y = Math.round(y); if (!es(x, y)) return; ops.push(x, y, a >= 1 ? c : mez(base[y * 320 + x], c, a)); };
+    const sombra = new Uint8Array(320 * 180);
+    // las crestas: filo de luz, ladera de barlovento algo clara y la cara de sotavento en sombra que se difumina hacia abajo
+    const crestas = [[1, 0, 110, 82, 4, 0.06, 1.2, 5], [1, 70, 176, 90, 3, 0.08, 3.1, 4], [2, 0, 150, 112, 6, 0.045, 0.4, 8], [2, 0, 120, 131, 5, 0.06, 2.2, 7], [2, 0, 70, 149, 3, 0.09, 4.0, 5], [2, 96, 176, 122, 4, 0.07, 5.0, 6]];
+    for (const [ti, xa, xb, y0, A, f, ph, hs] of crestas) for (let x = xa; x < xb; x++) {
+      const yc = Math.round(y0 + A * Math.sin(x * f + ph) + 2 * Math.sin(x * f * 2.7 + ph)); if (es(x, yc) !== ti) continue;
+      const fin = Math.min(1, (x - xa) / 12, (xb - x) / 12);   // las puntas de la cresta se funden con la arena
+      pon(x, yc, ti === 1 ? hex('#f2e6cc') : hex('#f4d8a0'), 0.9 * fin);
+      for (let k = 1; k <= 3; k++) pon(x, yc - k, ti === 1 ? hex('#efe4cc') : hex('#f0d29a'), (0.35 - k * 0.08) * fin);
+      for (let k = 1; k <= hs; k++) { const a = (0.62 - 0.5 * k / hs) * fin; if (k > hs * 0.6 && hh(x, yc + k, 61) < 0.5) continue; pon(x, yc + k, ti === 1 ? hex('#9a8a6c') : hex('#a07040'), a); if (es(x, yc + k)) sombra[(yc + k) * 320 + x] = 1; }
+      if (hh(x, 0, 62) < 0.12) pon(x, yc + 1, ti === 1 ? hex('#8a7a5e') : hex('#8a5a30'), 0.7 * fin);
+    }
+    // las ondas del viento: rizos finos con su luz encima, más juntos cerca y fuera de la sombra
+    for (let y = 60; y < 166; y++) for (let x = 0; x < 176; x++) {
+      const ti = es(x, y); if (!ti || sombra[y * 320 + x]) continue;
+      const paso = ti === 1 ? 6 : 4 + Math.floor((y - 90) / 30), q = y + Math.round(1.6 * Math.sin(x * 0.19 + y * 0.35) + Math.sin(x * 0.05));
+      if (((q % paso) + paso) % paso === 0 && hh(x >> 2, y, 63) < 0.78) { pon(x, y, ti === 1 ? hex('#a89878') : hex('#b0844e'), ti === 1 ? 0.35 : 0.45); pon(x, y - 1, ti === 1 ? hex('#f0e6d0') : hex('#f0d29a'), 0.35); }
+    }
+    // las huellas de una caravana que baja por la duna hacia el camino
+    for (let x = 4; x < 120; x += 4) { const y = Math.round(118 + x * 0.17 + 3 * Math.sin(x * 0.07)), d = (x >> 2) & 1;
+      for (const [dx, dy] of [[0, d], [2, 3 - d]]) { pon(x + dx, y + dy, hex('#9a6a38'), 0.55); pon(x + dx + 1, y + dy, hex('#a87a44'), 0.4); pon(x + dx, y + dy - 1, hex('#f4dcaa'), 0.5); } }
+    // piedras con su luz y su sombra hacia la derecha
+    for (let k = 0; k < 16; k++) { const x = Math.round(hh(k, 1, 64) * 160), y = Math.round(96 + hh(k, 2, 64) * 66); if (es(x, y) !== 2 || es(x + 3, y + 1) !== 2) continue; const r = hh(k, 3, 64) < 0.4 ? 2 : 1;
+      pon(x + 1, y + 1, hex('#9a6a38'), 0.6); pon(x + 2, y + 1, hex('#9a6a38'), 0.4); if (r > 1) { pon(x + 3, y + 1, hex('#9a6a38'), 0.3); pon(x - 1, y, hex('#7a6a58')); pon(x - 1, y - 1, hex('#a8987c')); }
+      pon(x, y, hex('#7a6a58')); pon(x + 1, y, hex('#6a5a48')); pon(x, y - 1, hex('#c8b8a0')); if (r > 1) pon(x + 1, y - 1, hex('#a8987c')); }
+    DUNAS = { ops, es, matas: [[18, 104], [44, 126], [92, 116], [12, 142], [70, 138], [118, 108], [140, 126], [104, 94]].filter(([x, y]) => es(x, y) && es(x + 4, y)) };
+  }
+  const { ops, es, matas } = DUNAS;
+  for (let i = 0; i < ops.length; i += 3) R.pset(ops[i], ops[i + 1], ops[i + 2]);
+  const ponV = (x, y, c) => { if (es(x, y)) R.pset(x, y, c); };
+  // la caravana lejana: tres camellos y su arriero cruzan despacio la loma del fondo
+  const cresta1 = (x) => Math.round(76 - 10 * (0.6 + 0.4 * Math.sin(x * 0.03 + 2)));
+  const Cc = mez(hex('#5a4430'), hex('#cbbc9c'), 0.3), Cl = mez(hex('#8a6a48'), hex('#cbbc9c'), 0.3);
+  for (let k = 0; k < 4; k++) { const x = Math.round(14 + t * 3.2 - k * 11) % 150; if (x < 4 || x > 140) continue; const y = cresta1(x) + 1, p = Math.floor(t * 3 + k) & 1;
+    if (k === 0) { R.rect(x, y - 5, x, y - 2, Cc); R.pset(x, y - 6, Cc); R.pset(x - p, y - 1, Cc); R.pset(x + 1 - p, y - 1, Cc); R.pset(x + 1, y - 4, Cl); continue; }
+    R.rect(x - 3, y - 5, x + 1, y - 4, Cc); R.pset(x - 1, y - 6, Cc); R.pset(x - 2, y - 6, Cl); R.pset(x + 2, y - 6, Cc); R.pset(x + 3, y - 7, Cc); R.pset(x + 3, y - 6, Cc);
+    R.pset(x - 3 + p, y - 3, Cc); R.pset(x - 3 + p, y - 2, Cc); R.pset(x - 2 - p, y - 3, Cc); R.pset(x - 2 - p, y - 2, Cc); R.pset(x + p, y - 3, Cc); R.pset(x + p, y - 2, Cc); R.pset(x + 1 - p, y - 3, Cc); R.pset(x + 1 - p, y - 2, Cc);
+    if (k === 2) { R.pset(x - 1, y - 7, hex('#c84a3a')); R.pset(x - 2, y - 7, hex('#e8d8b0')); } }
+  // las matas secas, con su sombra, que mueve el viento
+  for (const [k, [x, y]] of matas.entries()) { const v = Math.round(Math.sin(t * 2.4 + k * 1.7) * 1.2);
+    for (let i = 0; i < 5; i++) ponV(x + 2 + i, y + 1, mez(R.pget(x + 2 + i, y + 1), hex('#9a6a38'), 0.45));
+    for (let i = -2; i <= 2; i++) { const c = i & 1 ? hex('#7a7a3a') : hex('#a89050'); R.linea(x + i, y, x + i + v + Math.round(i * 0.6), y - 4 + Math.abs(i), c); }
+    R.pset(x + v, y - 5, hex('#c8b070')); R.pset(x - 1 + v, y - 3, hex('#5a6a32')); R.pset(x + 1, y - 1, hex('#5a5a2a')); }
+  // la arena que el viento levanta de las crestas
+  for (let k = 0; k < 10; k++) { const u = (t * 0.7 + k * 0.137) % 1, x0 = 20 + Math.round(hh(k, 1, 65) * 120), y0 = Math.round(112 + 6 * Math.sin(x0 * 0.045 + 0.4)) - 1;
+    const x = x0 + Math.round(u * 18), y = y0 - Math.round(Math.sin(u * Math.PI) * 4); if (es(x, y)) { R.pset(x, y, hex('#f6e4b8')); if (u < 0.6) R.pset(x - 1, y, mez(R.pget(x - 1, y), hex('#f6e4b8'), 0.5)); } }
+};
+// la carta abierta que el ladrón sostiene por la esquina de abajo a la derecha (hx, hy: su mano): un pliego con los
+// renglones a trazos, el pliegue del medio y el sello roto; o.alto encoge el pliego mientras se despliega o cae
+const cartaAbierta = (hx, hy, o = {}) => { const al = o.alto ?? 14, w = o.ancho ?? 13, x0 = hx - w + 1, x1 = hx + 1, y1 = hy + 1, y0 = y1 - al, piel = o.mano ? R.pget(hx, hy) : 0;
+  R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, hex('#5a4a2a'));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const n = hh(x >> 1, y >> 1, 66); R.pset(x, y, x === x1 ? hex('#cbb488') : y === y0 ? hex('#fff4d4') : n < 0.15 ? hex('#dcc898') : hex('#efe0b8')); }
+  if (al > 6) { const ym = Math.round((y0 + y1) / 2); for (let x = x0; x <= x1; x++) { R.pset(x, ym, hex('#d0bc8c')); R.pset(x, ym + 1, hex('#fbf0d0')); } }
+  for (let y = y0 + 2; y < y1 - 3; y += 2) { if (al > 6 && Math.abs(y - Math.round((y0 + y1) / 2)) < 1) continue; const l = w - 4 - Math.round(hh(y, w, 67) * 4); for (let i = 0; i < l; i++) if (hh(i, y, 68) < 0.8) R.pset(x0 + 2 + i, y, hex('#7a6448')); }
+  if (al > 5) { const sx = x0 + 3, sy = y1 - 2; R.pset(sx, sy, hex('#a8303a')); R.pset(sx + 1, sy, hex('#c8404a')); R.pset(sx, sy - 1, hex('#8a2228')); R.pset(sx + 3, sy, hex('#a8303a')); R.pset(sx + 3, sy - 1, hex('#d85a5a')); }
+  if (o.mano) for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) { const r = Math.hypot(a, b); if (r <= 2.3) R.pset(hx + a, hy + b, r > 1.5 ? K : piel); }
+};
+// la carta abierta tirada en el suelo, con su sombra
+const cartaSuelo = (x, y) => { R.rect(x - 6, y + 1, x + 7, y + 1, hex('#a07a48')); for (let i = -6; i <= 6; i++) { R.pset(x + i, y - 1 + (i > 2 ? 1 : 0), hex('#fff4d4')); R.pset(x + i, y + (i > 2 ? 1 : 0), i % 3 ? hex('#efe0b8') : hex('#7a6448')); } R.pset(x - 4, y, hex('#a8303a')); };
+
 // ── 3. la emboscada: el ladrón solo encuentra una carta (gag 3)
 const p3 = (t) => {
   T.ultramar(R, t, { encuadre: 'camino', camara: 'emboscada', delante: false });
+  dunas(t);
   const u = tramo(t, P3 - 0.4, PARA - 0.2), huye = tramo(t, PARA + 0.7, PARA + 1.8), xp = Math.round(lerp(-10, 112, u) - huye * 150);
   const asoma = tramo(t, P3 + 0.1, P3 + 0.4), salta = tramo(t, P3 + 0.5, PARA), xl = Math.round(lerp(236, 138, salta)), yl = 162 - Math.round(asoma * 12 * (1 - salta)) - Math.round(Math.sin(salta * Math.PI) * 16);
   const quita = t > PARA + 0.5, abre = t > NADA, sale = tramo(t, CARTA - 0.2, CARTA + 0.3), rasca = t > COBRA + 0.1;
@@ -196,12 +278,14 @@ const p3 = (t) => {
   if (!quita) bolsa(mp[0] + 2, mp[1] + 4, { r: 6 });
   const suelta = tramo(t, COBRA + 0.45, COBRA + 0.85), tienec = sale > 0 && suelta < 0.05;
   const ml = R.actor(EL.ladron, xl, yl, t, { dir: rasca && Math.floor(t * 2.5) % 2 ? 1 : -1, enfado: t < NADA, brazos: t > PARA - 0.1 && t < PARA + 0.4, sorpresa: t > CARTA - 0.1 && suelta < 0.5, habla: t > PARA + 0.5 && t < NADA && Math.sin(t * 9) > 0,
-    dedo: suelta >= 1 && Math.floor(t * 6) % 2 === 0, sostiene: quita && sale === 0 ? [xl - 4, 152] : tienec ? [xl - 5, Math.round(lerp(150, 140, sale))] : null }).mano;
+    dedo: suelta >= 1 && Math.floor(t * 6) % 2 === 0, sostiene: quita && sale === 0 ? [xl - 4, 152] : tienec ? [xl - 10, Math.round(lerp(159, 152, sale))] : null }).mano;
   T.rocasDelante(R, t);
   if (quita && sale === 0) bolsa(ml[0] - 1, ml[1] + 6, { r: 6, abierta: abre });
   if (sale > 0) bolsa(xl - 10, 163, { r: 6, abierta: true });
-  if (tienec) T.rollo(R, ml[0], ml[1] + 6, t, { carta: true, s: 1.3 });
-  else if (suelta > 0) T.rollo(R, Math.round(xl - 6 - suelta * 10 + Math.sin(suelta * 9) * 3), Math.round(lerp(146, 163, suelta)), t, { carta: true, s: 1.3 });
+  // la carta sale de la bolsa doblada, se despliega a la altura del pecho, a un lado de la cara, y luego cae al suelo
+  if (tienec) { if (sale < 0.55) T.rollo(R, ml[0] - 3, ml[1] + 3, t, { carta: true, s: 0.75 }); else cartaAbierta(ml[0], ml[1], { alto: Math.round(lerp(6, 14, tramo(sale, 0.55, 1))), mano: true }); }
+  else if (suelta > 0 && suelta < 1) { const f = Math.abs(Math.cos(suelta * 7)); cartaAbierta(Math.round(xl - 6 - suelta * 10 + Math.sin(suelta * 9) * 3), Math.round(lerp(151, 163, suelta)), { alto: Math.max(2, Math.round(lerp(14, 3, suelta) * (0.4 + 0.6 * f))) }); }
+  else if (suelta >= 1) cartaSuelo(xl - 21, 163);
   if (t > COBRA - 0.1) { const b = Math.round(Math.sin(t * 6) * 1.5); R.icono('?', xl, 103 + b, K, K, 3); R.icono('?', xl + 1, 104 + b, hex('#ffffff'), K, 3); }
 };
 
@@ -212,6 +296,8 @@ const p4 = (t) => {
   const mt = R.actor(EL.templario, 166, S, t, { dir: rebano ? 1 : -1, dedo: torre || rebano, sonrisa: recibe, sostiene: recibe && !torre && !rebano ? true : null }).mano;
   // un noble trae su donación sellada
   const u = tramo(t, P4, DONA - 0.2), xn = Math.round(lerp(-20, 130, u)) - Math.round(tramo(t, NEGOCIO + 0.4, CASTILLOS) * 150);
+  // la torre a la que señala el templario destella («castles», con el «brillo»)
+  destello(84, 34, tramo(t, CASTILLOS + 0.1, CASTILLOS + 0.8)); destello(56, 50, tramo(t, CASTILLOS + 0.35, CASTILLOS + 1));
   const mn = R.actor(EL.poeta, xn, S + 4, t, { dir: t > NEGOCIO + 0.4 ? -1 : 1, anda: (u > 0 && u < 1) || (t > NEGOCIO + 0.4 && t < CASTILLOS), pal: pl({ C: '#2a6a4a', c: '#1e4e36', H: '#3a2418', h: '#5a3a24', o: '#e8b830' }), sostiene: recibe ? null : true, sonrisa: recibe }).mano;
   const pasa = tramo(t, DONA - 0.1, DONA + 0.3);
   if (!recibe) T.rollo(R, Math.round(lerp(mn[0], mt[0] - 2, pasa)), Math.round(lerp(mn[1] + 4, mt[1] + 4, pasa)), t, { carta: true, s: 0.9 });
@@ -274,7 +360,15 @@ const p5 = (t) => {
 };
 
 const año = (t) => t < P4 ? 1135 : t < P5 ? Math.round(lerp(1150, 1280, tramo(t, P4, P5))) : 1295;
-const efectos = [[DEJA, 'golpecito'], [CASA + 0.35, 'sello'], [OTRA, 'papel'], [PAGA + 0.05, 'golpecito'], [P3 + 0.55, 'whoosh'], [PARA, 'boing'], [CARTA, 'papel'], [COBRA, 'tic'], [DONA, 'papel'], [BANCO - 0.3, 'lapiz'], [PRESTA + 0.05, 'golpecito'], [REYES, 'brillo']];
+// efectos (23 en 26 s, suenan ~48 % del tiempo), cada uno con su gesto: la bolsa en el mostrador, las monedas que suenan
+// al cogerla, el sello, la carta que pasa; el destello del cofre, la carta, la bolsa empujada y cobrada; el salto del
+// ladrón, el susto, la huida, la bolsa que se abre, la carta, el «?» y la carta que cae; la donación, la bolsa a los pies
+// del templario, el destello de la torre; la mano que entra, la firma, la bolsa empujada, las monedas y el brillo final
+const efectos = [[DEJA, 'golpecito'], [CASA - 0.2, 'tic'], [CASA + 0.35, 'sello'], [VUELTA + 0.4, 'papel'],
+  [COFRE, 'brillo'], [OTRA, 'papel'], [PAGA + 0.05, 'golpecito'], [PAGA + 0.5, 'tic'],
+  [P3 + 0.55, 'whoosh'], [PARA, 'boing'], [PARA + 0.7, 'whoosh'], [NADA, 'pop'], [CARTA, 'papel'], [COBRA, 'tic'], [COBRA + 0.75, 'papel'],
+  [DONA, 'papel'], [NEGOCIO + 0.6, 'tic'], [CASTILLOS + 0.1, 'brillo'],
+  [P5 + 0.2, 'whoosh'], [BANCO - 0.3, 'lapiz'], [PRESTA + 0.05, 'golpecito'], [PRESTA + 0.45, 'tic'], [REYES, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año });
 </script>
 </body>

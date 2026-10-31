@@ -18,7 +18,8 @@
 //    years» el reloj de arena y el «2000»; en «corroded» se ve el cardenillo; la mano lo roza y en «breaking» se desprende
 //    un trocito que cae y rebota;
 // 4. (taller, general; corte en «So between») Manchester, 1955 → 1956: llueve; el ingeniero entra con el rollo y en
-//    «Manchester» lo pone en la sierra; un operario trabaja en el torno; el gato junto a la tetera;
+//    «Manchester» lo pone en la sierra; el operario empuja la palanca del embrague (8 px) y el torno arranca (plato que
+//    gira, carro que avanza, virutas); cuando llega el ingeniero la devuelve, el torno para y se gira a la sierra; el gato;
 // 5. (taller, sierra; corte en «An engineer») el disco fino gira y en «cuts» entra en el rollo; en «23 strips» la tira cae
 //    en la bandeja y la cuenta llega a 23.
 import * as T from '/atomo/plato/escenas/te-comun.js';
@@ -165,8 +166,33 @@ const ANYO56 = s(0.202), MANCH = s(0.447);
 const p4 = (t) => {
   const d = T.desierto(R, t, { encuadre: 'taller', cortes: 0 }), sl = d.suelo;
   T.gato(R, 98, sl, t, {});
-  // el operario en el torno: mueve la palanca
-  { const m = R.actor(EL.operario, 60, sl, t, { dir: -1, sostiene: [52 + Math.round(Math.sin(t * 2.4) * 2), sl - 22], habla: t > ANYO56 + 0.6 && t < ANYO56 + 1.4 && Math.sin(t * 9) > 0 }).mano; }
+  // el operario en el torno: con la mano en la palanca del embrague (pivote en el suelo, x 40) la empuja hacia el torno
+  // (recorrido de 8 px: el mango va de x 60 a 52) y el torno arranca: el plato gira, la barra brilla, el carro avanza y
+  // salen virutas; cuando llega el ingeniero tira de ella (el torno para), la suelta y se gira hacia la sierra
+  { const eng = tramo(t, P4 + 0.3, P4 + 0.9) - tramo(t, MANCH - 0.8, MANCH - 0.3), suelta = t > MANCH, AC = hex('#a8b0b8'), ACL = hex('#e0e6ec'), ACS = hex('#6a7280'), MQ = hex('#2e4a3e');
+    // el torno en marcha: el plato que gira, la barra con el brillo que corre, el carro con la cuchilla y las virutas
+    { const a = t * 14 * eng; for (let k = 0; k < 3; k++) { const an = a + k * 2.094, jx = Math.round(22 + Math.cos(an) * 3), jy = Math.round(104 + Math.sin(an) * 3); R.rect(jx - 1, jy - 1, jx, jy, K); R.pset(jx, jy - 1, k ? ACS : ACL); }
+      const tx = Math.round(lerp(62, 44, tramo(t, P4 + 0.6, MANCH - 0.5)));
+      if (eng > 0.3) for (let x = 31; x < 66; x++) if (((x + Math.floor(t * 30)) % 6) === 0 && x < tx) R.pset(x, 107, ACL);
+      R.rect(tx - 4, 109, tx + 4, 113, K); R.rect(tx - 3, 110, tx + 3, 112, ACS); R.rect(tx - 3, 110, tx + 3, 110, ACL); R.rect(tx - 1, 108, tx + 1, 109, K); R.pset(tx, 108, ACL); R.disco(tx + 6, 114, 2, K); R.disco(tx + 6, 114, 1, hex('#c83a3a'));   // el carro con el portaherramientas y la cuchilla, y su volante rojo
+      { const an = t * 5 * eng; R.pset(Math.round(tx + 6 + Math.cos(an) * 2), Math.round(114 + Math.sin(an) * 2), ACL); }
+      R.rect(44, 111, 64, 111, ACS); for (let k = 0; k < Math.round(tramo(t, P4 + 0.8, MANCH - 0.5) * 9); k++) R.pset(46 + k * 2, 110 + (k & 1), k % 3 ? hex('#c8a060') : hex('#7a8ab8'));   // las virutas caídas en la bancada
+      if (eng > 0.6) { for (let k = 0; k < 5; k++) { const u = ((t * 2.2 + k / 5) % 1), vx = Math.round(tx + 1 + u * 10 * (k & 1 ? 1 : 0.6)), vy = Math.round(106 - Math.sin(u * Math.PI) * 7 + u * 4), c = k & 1 ? hex('#e8c070') : hex('#9aa8d8'); R.pset(vx, vy, c); R.pset(vx + 1, vy, c); R.pset(vx + 1, vy - 1, k & 1 ? hex('#b08040') : hex('#6a78a8')); }
+        if (Math.sin(t * 23) > 0.3) chispa(tx, 106, hex('#fff2b0')); } }
+    // la palanca: el sector dentado atornillado al suelo (pivote en x 40), la varilla del embrague que va a la pata del
+    // torno y el brazo de hierro con el pomo rojo, que el operario empuja hacia el torno y luego devuelve
+    const hx = Math.round(lerp(60, 52, eng)), PX = 40, PY = 166;
+    R.rect(33, 165, 49, 167, K); R.rect(34, 165, 48, 166, ACS); R.pset(35, 165, ACL); R.pset(47, 165, ACL);
+    for (let k = 0; k <= 8; k++) { const an = -0.15 - k * 0.07, x = Math.round(PX + Math.cos(an) * 11), y = Math.round(PY + Math.sin(an) * 11); R.pset(x, y, K); R.pset(x, y - 1, k & 1 ? ACS : AC); }
+    R.poligono([[PX, PY], [Math.round(PX + Math.cos(-0.15) * 10), Math.round(PY + Math.sin(-0.15) * 10)], [Math.round(PX + Math.cos(-0.71) * 10), Math.round(PY + Math.sin(-0.71) * 10)]], ACS);
+    const vx = Math.round(PX + (hx - PX) * 0.3); R.linea(24, 150, vx, 162, K); R.linea(25, 149, vx, 161, AC);
+    const ob = { dir: suelta ? 1 : -1, habla: t > ANYO56 + 0.6 && t < ANYO56 + 1.4 && Math.sin(t * 9) > 0, sorpresa: suelta && t < MANCH + 0.5, sonrisa: t > MANCH + 0.5 };
+    if (!suelta) ob.sostiene = [hx, sl - 11];
+    const m = R.actor(EL.operario, 60, sl, t, ob).mano;
+    const top = suelta ? [hx, sl - 11] : m;   // si la suelta, la palanca se queda donde la dejó
+    R.linea(PX, PY, top[0], top[1] + 1, K); R.linea(PX, PY - 1, top[0], top[1], AC); R.linea(PX + 1, PY, top[0] + 1, top[1] + 1, ACS);
+    R.rect(top[0] - 1, top[1] - 4, top[0] + 1, top[1] - 2, K); R.pset(top[0], top[1] - 3, hex('#e04a4a'));   // el pomo rojo, sobre el puño
+    R.disco(PX, PY, 1, ACL); }
   // el ingeniero entra con el rollo y lo monta en la sierra
   const u = tramo(t, P4 + 0.3, MANCH - 0.2), x = Math.round(lerp(-20, 146, u)), pone = t > MANCH;
   const oi = { dir: 1, anda: u > 0 && u < 1, sonrisa: pone && t > MANCH + 0.5 };

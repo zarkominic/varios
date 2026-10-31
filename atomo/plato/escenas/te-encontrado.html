@@ -13,10 +13,15 @@
 // 1. «hoy rocosas, cámara rocas»: el buscador entra barriendo con el detector, que pita cada vez más; junto al hueco, el
 //    estudiante mete la mano y, en «found», saca el cofre de bronce y lo alza; el detector se vuelve loco («!»)… y el
 //    bocadillo del estudiante enseña el sombrero de Fenn: ya tiene dueño (gag 8); el buscador se desinfla. Corta en «set».
-// 2. el mapa del Oeste: chincheta en Wyoming, el coche con el cofre en la baca baja por la ruta punteada (Casper,
-//    Denver) hasta Santa Fe en el mismo día; en «Fenn» cae la chincheta y sale el sombrero. Corta en «treasure».
+//    El buscador lleva el detector bajo, a la altura de la cadera (el brazalete ya no le cruza la cara).
+// 2. el mapa de cerca (zoom 2,5 en el corredor Wyoming–Nuevo México, sin rosa: otra composición que te-fenn 2): la
+//    chincheta en Wyoming con el cofre, las Rocosas, los pueblos en pictograma (Casper, Cheyenne, Denver con torres,
+//    Pueblo, Trinidad, Santa Fe de adobe), el tren que sale de Denver con su humo y el ganado en las llanuras; el coche
+//    con el cofre en la baca baja por la ruta hasta Santa Fe en el mismo día; en «Fenn» cae la chincheta y sale el
+//    sombrero. Corta en «treasure».
 // 3. fondo local: el portal de adobe de Fenn en Santa Fe (vigas, ristras de chiles, ventana turquesa con el gato,
-//    puerta azul, mesa con manta, el colibrí en el bebedero, una lagartija): Fenn abre el cofre, que brilla; el
+//    puerta azul, nicho con su vasija de asas, mesa con manta, el colibrí en el bebedero, una lagartija): Fenn abre el
+//    cofre (la tapa gira sobre sus bisagras y enseña el forro de terciopelo, con su cadenita), que brilla; el
 //    estudiante llega y se dan la mano en «know for sure»; en «real» el cofre destella; Fenn explica y en «found» el
 //    estudiante salta de alegría.
 import * as T from '/atomo/plato/escenas/te-comun.js';
@@ -101,7 +106,7 @@ const p1 = (t) => {
   const pita = Math.min(1, 0.15 + tramo(t, 0.5, hallado) * 0.85) * (1 - 0.9 * tramo(t, dueno + 0.3, dueno + 0.9));
   const sorp = t > hallado + 0.15 && t < dueno + 0.4, triste = t > dueno + 0.45;
   const baja = tramo(t, dueno + 0.4, dueno + 0.9);
-  const ba = R.actor(EL.buscador, bx, S, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [bx + 15, S - 12 + Math.round(baja * 3)], sorpresa: sorp, triste });
+  const ba = R.actor(EL.buscador, bx, S, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [bx + 21, S - 4 + Math.round(baja * 2)], sorpresa: sorp, triste });
   T.detector(R, ba.mano[0], ba.mano[1], t, { dir: 1, suelo: S, barre: u < 1 ? 1 : 0.25 * (1 - baja), pita, largo: 20 - Math.round(baja * 4) });
   if (t > hallado + 0.2 && t < dueno + 0.2) globo(bx + 8, S - 27, '!', hex('#c8303a'));
   if (t > dueno + 0.7 && t < P2 - 0.1) { R.pset(bx + 4, S - 29, hex('#9ab8e0')); R.pset(bx + 4, S - 28, hex('#5a8ac8')); }   // una gotita de sudor
@@ -124,16 +129,39 @@ const montes = (P, t) => { const pts = SIERRA.map((p) => P(p));
     if (cx < 24 || cx > 296 || cy < 38 || cy > 166) continue;
     for (let j = 0; j <= hgt; j++) { const w = Math.round(j * 0.8); for (let i = -w; i <= w; i++) R.pset(cx + i, cy - hgt + j, j === hgt ? hex('#6a5a3a') : i < 0 ? hex('#e8dcc0') : hex('#b8a47c')); R.pset(cx - w - 1, cy - hgt + j, hex('#6a5a3a')); R.pset(cx + w + 1, cy - hgt + j, hex('#6a5a3a')); }
     if (hgt > 6) { R.pset(cx, cy - hgt + 1, BL); R.pset(cx - 1, cy - hgt + 2, BL); } } };
+// un pueblo en pictograma: n casitas con su tejado (o de adobe, de techo plano), la mayor con torres, y una ventana que
+// se enciende cuando pasa el sol
+const pueblo = (x, y, n, adobe, t) => {
+  for (let i = 0; i < n; i++) { const hx = x + i * 4 - (i > 2 ? 10 : 0), hy = y + (i > 2 ? 4 : 0) - (i % 2), alt = n > 4 && (i === 1 || i === 2) ? 7 : 3;
+    R.rect(hx - 1, hy - alt - 1, hx + 3, hy + 1, K); R.rect(hx, hy - alt, hx + 2, hy, adobe ? hex('#d4a070') : hex('#e8dcc0')); R.rect(hx + 2, hy - alt, hx + 2, hy, adobe ? hex('#a8703e') : hex('#b8a888'));
+    if (alt > 3) { for (let j = hy - alt + 1; j < hy; j += 2) R.pset(hx + 1, j, Math.sin(t * 2 + i + j) > 0 ? hex('#f8d870') : hex('#5a6a8a')); }
+    else if (!adobe) { R.pset(hx - 1, hy - alt - 2, K); R.rect(hx, hy - alt - 2, hx + 2, hy - alt - 2, K); R.pset(hx + 1, hy - alt - 3, K); R.rect(hx, hy - alt - 1, hx + 2, hy - alt - 1, hex('#a8402e')); }
+    else { R.pset(hx, hy - alt - 1, hex('#7a4a2a')); R.pset(hx + 2, hy - alt - 1, hex('#7a4a2a')); }
+    if (alt <= 3) R.pset(hx + 1, hy - 1, Math.sin(t * 1.3 + i * 2 + x) > 0.6 ? hex('#f8d870') : hex('#5a4a3a')); }
+  for (let i = -1; i <= n * 4; i++) if (i % 2 === 0) R.pset(x + i, y + 2, hex('#8a7a5a')); };
 const p2 = (t) => {
-  const P = T.mapa(R, t, { zoom: 1.8, centro: [-108.5, 39.6] });
+  const P = T.mapa(R, t, { zoom: 2.5, centro: [-106.4, 40.5], rosa: false });
   montes(P, t);
+  // las llanuras del este: matas de hierba, el ferrocarril de Denver hacia el este con su tren que avanza y humea,
+  // y el ganado que pace (puntitos que se mueven despacio)
+  R.recorte([22, 16, 298, 168]);
+  for (let k = 0; k < 70; k++) { const x = Math.round(196 + hh(k, 1, 70) * 98), y = Math.round(20 + hh(k, 2, 70) * 146); if ((k & 3) === 0) { R.pset(x, y, hex('#a89058')); R.pset(x + 2, y, hex('#a89058')); R.pset(x + 1, y - 1, hex('#8a7a44')); } else { R.pset(x, y, hex('#b8a874')); R.pset(x + 1, y - 1, hex('#9a8a54')); } }
+  { const [dx0, dy0] = P([-104.99, 39.74]), y = Math.round(dy0) + 6; for (let x = Math.round(dx0) + 16; x < 298; x++) { R.pset(x, y, hex('#6a5a3a')); if (x % 3 === 0) { R.pset(x, y - 1, hex('#6a5a3a')); R.pset(x, y + 1, hex('#6a5a3a')); } }
+    const tx = Math.round(296 - ((t * 7) % 90)); for (let i = 0; i < 12; i++) { const x = tx + i; R.pset(x, y - 2, i < 3 ? hex('#2a2a32') : hex('#7a3a2a')); R.pset(x, y - 1, i % 4 === 3 ? K : i < 3 ? hex('#4a4a52') : hex('#a8503a')); }
+    R.pset(tx + 1, y - 3, K); for (let k = 0; k < 4; k++) { const ph = (t * 1.5 + k / 4) % 1; R.pset(tx + 1 + Math.round(ph * 5), y - 4 - Math.round(ph * 6), ph < 0.5 ? hex('#e8e0d0') : hex('#c8c0b0')); } }
+  for (let k = 0; k < 7; k++) { const x = Math.round(232 + (k % 4) * 9 + Math.sin(t * 0.3 + k) * 2), y = 128 + (k >> 2) * 6 + (k % 2) * 2; R.pset(x, y, hex('#4a3020')); R.pset(x + 1, y, hex('#4a3020')); R.pset(x + 1, y - 1, hex('#6a4a30')); }
+  R.recorte(null);
+  // los pueblos y ciudades del camino, en pictograma junto a la ruta (sin nombres): Casper, Cheyenne, Denver (la más
+  // grande, con sus torres), Pueblo, Trinidad y Santa Fe (casitas de adobe de techo plano)
+  for (const [lon, lat, n, dx] of [[-106.3, 42.85, 3, 6], [-104.8, 41.14, 3, 6], [-104.99, 39.74, 6, 6], [-104.6, 38.25, 3, 6], [-104.5, 37.17, 2, 6], [-105.94, 35.69, 4, -24]]) {
+    const [cx, cy] = P([lon, lat]); pueblo(Math.round(cx) + dx, Math.round(cy), n, lat < 36, t); }
   const pts = RUTA.map((p) => P(p)), [wx, wy] = pts[0], [fx, fy] = pts[pts.length - 1];
   const v = tramo(t, P2 + 0.55, fenn - 0.1), ve = v * v * (3 - 2 * v);
   // la ruta punteada que va quedando detrás del coche
   for (let k = 0; k <= 200; k++) { const u = k / 200; if (u > ve) break; const [x, y] = por(pts, u); if (k % 4 < 2) { R.rect(Math.round(x), Math.round(y), Math.round(x) + 1, Math.round(y) + 1, hex('#c8302a')); R.rect(Math.round(x), Math.round(y) + 2, Math.round(x) + 1, Math.round(y) + 2, hex('#5a1a14')); } }
   // las dos chinchetas: Wyoming (al empezar) y Santa Fe (en «Fenn»)
   T.chincheta(R, Math.round(wx), Math.round(wy), t, undefined, { baja: tramo(t, P2 + 0.05, P2 + 0.45) });
-  if (v <= 0) { T.cofre(R, Math.round(wx) - 12, Math.round(wy) + 3, t, { bronce: true, s: 1, brillo: 0.5 }); }
+  if (v <= 0) { T.cofre(R, Math.round(wx) + 14, Math.round(wy) + 3, t, { bronce: true, s: 1, brillo: 0.5 }); }
   const fb = tramo(t, fenn - 0.25, fenn + 0.15); if (fb > 0) T.chincheta(R, Math.round(fx), Math.round(fy), t, hex('#2a6ac8'), { baja: fb });
   // el sol que cruza: sale por Wyoming y se pone en Santa Fe (el mismo día)
   { const s = tramo(t, P2 + 0.3, fenn + 0.6), sx = Math.round(lerp(292, 196, s)), sy = Math.round(150 - Math.sin(s * Math.PI) * 96);
@@ -199,9 +227,20 @@ const portalFijo = () => {
   // el nicho con su vasija (sobre la mesa)
   for (let y = 66; y < 92; y++) for (let x = 278; x < 302; x++) { const dx = (x - 290) / 12, top = 66 + Math.round(12 - Math.sqrt(Math.max(0, 1 - dx * dx)) * 12); if (y < top) continue; pset(x, y, y === top || x === 278 ? ADOBE[0] : x > 296 ? ADOBE[3] : ADOBE[1]); }
   rect(276, 92, 304, 94, ADOBE[5]); rect(276, 95, 304, 95, ADOBE[0]);
-  disco(290, 84, 6, K); disco(290, 84, 5, hex('#c87a4a')); rect(286, 77, 294, 78, K); rect(287, 76, 293, 76, hex('#a85a34'));
-  for (let x = 285; x < 296; x++) if ((x >> 1) % 2) pset(x, 84, K); for (let x = 285; x < 296; x++) if ((x >> 1) % 2 === 0) pset(x, 86, hex('#f0e0c0'));
-  pset(287, 81, hex('#f0b080')); pset(288, 81, hex('#f0b080'));
+  // la vasija de los pueblos: panza redonda, cuello con su labio vuelto, dos asas, la franja crema del hombro con el
+  // zigzag pintado (por debajo del cuello, nada que parezca ojos) y su sombra en el fondo del nicho
+  { const OL = rampa('#6a2e1a', '#8a4226', '#a85a32', '#c87a4a', '#e09a64'), cxv = 290;
+    for (let y = 72; y < 92; y++) for (let x = 293; x < 301; x++) if (hh(x, y, 60) < 0.8) pset(x, y, mez(R.pget(x, y), K, 0.28));
+    const ancho = (y) => y < 79 ? 0 : Math.round(6.4 * Math.sqrt(Math.max(0, 1 - ((y - 85) / 7) ** 2))) || 2;
+    for (let y = 79; y <= 91; y++) { const wv = Math.max(2, ancho(y)); for (let x = cxv - wv; x <= cxv + wv; x++) { const ed = x === cxv - wv || x === cxv + wv || y === 91;
+      let c = tono(OL, 3.3 - (x - cxv + wv) / (2 * wv) * 2.4 + (y > 88 ? -0.6 : 0), x, y);
+      if (y >= 81 && y <= 83) c = hex('#ead8b4'); if (y === 82 && ((x - cxv + 20) % 4 === 0)) c = hex('#6a2e1e'); if ((y === 81 || y === 83) && ((x - cxv + 20) % 4 === 2)) c = hex('#6a2e1e');
+      pset(x, ed ? y : y, ed ? K : c); } }
+    for (let y = 81; y <= 83; y++) pset(cxv - 5, y, hex('#fff2d8'));
+    for (let y = 85; y <= 88; y++) pset(cxv - 4, y, OL[4]);
+    rect(cxv - 3, 75, cxv + 3, 79, K); rect(cxv - 2, 76, cxv + 2, 79, OL[2]); pset(cxv - 2, 77, OL[4]); pset(cxv - 2, 78, OL[4]); rect(cxv + 2, 76, cxv + 2, 79, OL[1]);
+    rect(cxv - 4, 74, cxv + 4, 75, K); rect(cxv - 3, 74, cxv + 3, 74, OL[3]); pset(cxv - 3, 74, OL[4]);
+    for (const sd of [-1, 1]) { const ax = cxv + sd * 7; pset(ax, 81, K); pset(ax + sd, 82, K); pset(ax + sd, 83, K); pset(ax, 84, K); pset(ax, 82, sd < 0 ? OL[3] : OL[1]); pset(ax, 83, sd < 0 ? OL[3] : OL[1]); } }
   // la mesa de madera (x 198–280, tablero y 136) con la manta de rayas que cuelga por delante
   rect(198, 134, 282, 138, K); for (let x = 199; x < 282; x++) { pset(x, 135, MAD[4]); pset(x, 136, MAD[3]); pset(x, 137, MAD[2]); }
   for (const lx of [202, 274]) { rect(lx, 139, lx + 5, 162, K); for (let y = 139; y < 162; y++) for (let x = lx + 1; x < lx + 5; x++) pset(x, y, tono(MAD, 2.2 + (x === lx + 1 ? 0.8 : 0) - (y - 139) / 30, x, y)); }
@@ -233,6 +272,40 @@ const ristra = (x0, y0, n, t, k) => { // la ristra de chiles que se mece colgada
   for (let i = 0; i < n; i++) { const y = y0 + i * 3, x = Math.round(x0 + sw * i / n);
     for (const s of [-1, 1, 0]) { const cx = x + s * 3 + (i % 2 ? s : 0), cy = y + (s === 0 ? 1 : 0); R.rect(cx - 1, cy, cx + 1, cy + 5, K); R.rect(cx, cy + 1, cx, cy + 4, (i + s) % 3 ? hex('#c8202a') : hex('#e83a2a')); R.pset(cx, cy + 1, hex('#ff7a6a')); R.pset(cx, cy, hex('#3a7a3a')); } }
   const yb = y0 + n * 3 + 2, xb = Math.round(x0 + sw); R.rect(xb - 1, yb, xb + 1, yb + 3, K); R.pset(xb, yb + 1, hex('#a81a20')); };
+// la tapa abierta del cofre de bronce (s 2, centro x, base y): gira sobre las bisagras del canto de atrás de la boca y
+// queda inclinada hacia atrás; se ve su cara de dentro (bronce oscuro, con el marco en relieve y la sombra junto a la
+// bisagra), el canto abombado arriba con su brillo, las dos bisagras de hierro con el pasador y la cadenita que la sujeta.
+// Se pinta encima del forro que dibuja T.cofre, con la misma huella (por eso tapa ese bloque de arriba).
+const tapaAbierta = (x, y, ab, t) => {
+  const MT = rampa('#2a1e10', '#4a361a', '#6e5226', '#947034', '#b89048', '#d8b468', '#f0d898'), FE = rampa('#1e2a22', '#2e4a3a', '#4a7a62', '#6aa888');
+  const x0 = x - 18, x1 = x + 18, yb = y - 20 - Math.round(8 * ab), L = Math.round(19 * ab), arco = Math.round(3 * ab);
+  if (L < 2) return;
+  // la silueta: ancha en la bisagra, un poco más estrecha arriba (se aleja), con el canto en arco
+  const borde = (yy) => { const e = (yb - yy) / L; return Math.round(e * 4); };
+  const alto = (xx) => yb - L + 2 - Math.round(Math.sin(Math.max(0, Math.min(1, (xx - x0) / (x1 - x0))) * Math.PI) * arco);
+  for (let xx = x0 - 1; xx <= x1 + 1; xx++) { const top = alto(xx); for (let yy = top - 1; yy < yb; yy++) { const ins = borde(yy); if (xx < x0 + ins - 1 || xx > x1 - ins + 1) continue;
+    const fuera = xx === x0 + ins - 1 || xx === x1 - ins + 1 || yy === top - 1;
+    if (fuera) { R.pset(xx, yy, K); continue; }
+    const e = (yb - yy) / L, u = (xx - x0) / (x1 - x0);
+    let v;
+    if (yy <= top + 1) v = 5.2 - u * 1.6 + (yy === top ? 0.8 : 0);                       // el canto abombado, al sol
+    else { const mx = xx - x0 - ins, mr = (x1 - x0 - 2 * ins) - mx, my = yy - top, mb = yb - 1 - yy;
+      if (mx < 3 || mr < 3 || mb < 2) { v = 3.6 - u * 1.4 + (mx === 0 ? 0.8 : 0) - (mr === 0 ? 0.8 : 0); if (hh(xx, yy, 61) < 0.08) { R.pset(xx, yy, FE[2]); continue; } }   // el marco de bronce
+      else { // el forro de terciopelo rojo, con sus botones dorados, en sombra junto a la bisagra y con el reflejo del oro arriba
+        const VE = rampa('#2a080e', '#4a1018', '#6a1c26', '#8a2a34', '#aa4048'); let w = 1.4 + e * 1.8 - u * 0.6 + (mx === 3 || my === 2 ? -0.9 : 0);
+        if ((mx - 4) % 6 === 2 && (my - 3) % 4 === 1) { R.pset(xx, yy, MT[6]); continue; }
+        R.pset(xx, yy, tono(VE, w, xx, yy)); continue; } }
+    R.pset(xx, yy, tono(MT, v, xx, yy)); } }
+  // la junta de la bisagra: la raya oscura entre la tapa y el canto de atrás de la boca
+  for (let xx = x0; xx <= x1; xx++) R.pset(xx, yb, xx % 3 ? K : MT[1]);
+  // las bisagras de hierro, con el pasador brillante
+  for (const hx of [x0 + 6, x1 - 8]) { R.rect(hx - 1, yb - 4, hx + 3, yb + 2, K); R.rect(hx, yb - 3, hx + 2, yb + 1, FE[1]); R.rect(hx, yb - 3, hx, yb + 1, FE[3]); R.pset(hx + 1, yb, MT[6]); R.pset(hx + 1, yb - 2, FE[0]); }
+  // la cadenita que la sujeta, del lado de la luz, que se tensa al abrir del todo
+  if (ab > 0.7) { const cx0 = x1 - 2, cy0 = yb - Math.round(L * 0.6), cx1 = x1 + 1, cy1 = yb + 5, cu = Math.round((1 - tramo(ab, 0.7, 1)) * 3);
+    for (let i = 0; i <= 6; i++) { const u = i / 6, px = Math.round(cx0 + (cx1 - cx0) * u + Math.sin(u * Math.PI) * cu), py = Math.round(cy0 + (cy1 - cy0) * u); R.pset(px, py, i % 2 ? hex('#c8c8d0') : hex('#6a6a74')); } }
+  // el brillo que el oro de dentro echa sobre la cara de la tapa
+  if (ab > 0.6) for (let k = 0; k < 3; k++) { const f = Math.sin(t * 2.4 + k * 2.1); if (f > 0.4) R.pset(x0 + 8 + k * 10, yb - 4 - (k % 2) * 3, MT[6]); }
+};
 const p3 = (t) => {
   if (!BP) BP = portalFijo(); R.copiar(BP);
   // por la ventana: el cielo de la tarde, la mesa lejana y nubes que pasan (recortado a los cristales)
@@ -261,6 +334,7 @@ const p3 = (t) => {
   // el cofre en la mesa: Fenn lo abre y brilla
   const ab = tramo(t, abre - 0.4, abre + 0.5), br = tramo(t, abre, abre + 0.8);
   const cf = T.cofre(R, 226, 136, t, { bronce: true, s: 2, abre: ab, brillo: Math.min(1, br * (0.75 + 0.25 * Math.sin(t * 5))) });
+  if (ab >= 0.04) tapaAbierta(226, 136, ab, t);
   if (br > 0) { luz(226, 112, 26, hex('#ffe8a0'), 0.25 * br); if (Math.floor(t * 5) % 3 === 0) chispa(214 + (Math.floor(t * 5) * 7) % 26, 100 - (Math.floor(t * 5) * 3) % 10); }
   destello(226, 110, tramo(t, real - 0.1, real + 0.7), 6, 34);
   // Fenn, junto a la mesa: abre el cofre, se vuelve, da la mano, explica, sonríe

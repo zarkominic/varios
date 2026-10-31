@@ -12,7 +12,9 @@
 // TE-HOLA (frase 7). Un plano, el cuarto del buscador de noche. Empieza junto a la estantería mirando el tablero de
 // corcho; en «I'm Atom» se vuelve hacia Atom y lo saluda con la mano («!»); en «explain the things» cruza el cuarto por
 // delante de la mesa señalando el tablero con los hilos rojos; en «Let's find out» coge el detector de la mesa (pita) y
-// sale por la derecha, de aventura. El gato de la estantería levanta la cabeza al pitido.
+// sale por la derecha, de aventura. El gato de la estantería levanta la cabeza al pitido, abre los ojos y maúlla.
+// Efectos: el saludo (pop), el primer paso sobre la tarima (toc), el hilo rojo que brilla (brillo), el detector que
+// pita (bip), el maullido del gato (miau) y el paso con el que sale (toc).
 import * as T from '/atomo/plato/escenas/te-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('te-hola');
@@ -23,6 +25,23 @@ const p1 = (t) => {
   const coge = t > VAMOS + 0.15;
   const d = T.hoy(R, t, { encuadre: 'mesa', detector: !coge, pita: t > VAMOS - 0.1 && t < VAMOS + 0.3 ? 1 : 0 });
   const S = d.suelo;
+  // el gato de la estantería se despierta con el pitido: levanta la cabeza, abre los ojos, mueve una oreja y vuelve a dormir
+  { const a = Math.min(tramo(t, VAMOS - 0.05, VAMOS + 0.25), 1 - tramo(t, VAMOS + 1.0, VAMOS + 1.4)), dy = Math.round(3 * a);
+    if (dy > 0) {
+      const G = hex('#e8903a'), GS = hex('#b0602a'), GL = hex('#f8c070'), cy = 28 - dy;
+      for (let i = 30; i <= 36; i++) R.pset(i, 28, G);   // tapa los ojos cerrados del gato dormido
+      R.pset(33, 30, G); R.pset(32, 31, GS); R.pset(34, 31, GS);
+      R.disco(33, cy, 4, G); R.pset(31, cy - 3, GL); R.pset(32, cy - 3, GL);
+      const oreja = Math.sin(t * 9) > 0.3 ? 1 : 0;
+      R.pset(30, cy - 4, G); R.pset(31, cy - 5, G); R.pset(30, cy - 5 - oreja, GS); R.pset(35, cy - 4, G); R.pset(36, cy - 5, G); R.pset(36, cy - 6, GS);
+      const ojo = hex('#f0e050'), pu = hex('#1a1a10');
+      // ojos abiertos que miran hacia el cuarto (amarillo con la pupila a la derecha); a medio subir, entornados
+      if (dy >= 2) { R.pset(31, cy, ojo); R.pset(32, cy, pu); R.pset(34, cy, ojo); R.pset(35, cy, pu); }
+      else { R.pset(31, cy, pu); R.pset(32, cy, pu); R.pset(34, cy, pu); R.pset(35, cy, pu); }
+      R.pset(33, cy + 2, hex('#e87a8a'));
+      if (dy >= 2 && t > VAMOS + 0.3 && t < VAMOS + 0.75) R.pset(33, cy + 3, GS);   // la boca abierta: el maullido
+    }
+  }
   const u = tramo(t, CRUZA, VAMOS - 0.3), w = tramo(t, VAMOS + 0.45, E.duracion);
   const x = Math.round(lerp(64, 226, u) + lerp(0, 74, w));
   const saluda = t > HOLA && t < CRUZA, señala = t > CRUZA + 0.2 && t < VAMOS - 0.5;
@@ -35,7 +54,7 @@ const p1 = (t) => {
   // la mirada al tablero: un hilo rojo que brilla un momento mientras lo señala
   if (señala) { const k = Math.floor((t - CRUZA) * 2.5) % 3, [bx0, by0, bx1, by1] = d.tablero, px = bx0 + 24 + k * 30, py = by0 + 24 + (k % 2) * 16; if (Math.sin(t * 12) > -0.2) { R.pset(px, py, hex('#ff6a6a')); R.pset(px + 1, py, hex('#ffd0d0')); R.pset(px, py + 1, hex('#ff6a6a')); } }
 };
-const efectos = [[HOLA + 0.15, 'pop'], [VAMOS - 0.1, 'bip']];
+const efectos = [[HOLA + 0.15, 'pop'], [CRUZA + 0.05, 'toc'], [CRUZA + 0.9, 'brillo'], [VAMOS - 0.1, 'bip'], [VAMOS + 0.35, 'miau'], [VAMOS + 0.5, 'toc']];
 T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
 </script>
 </body>

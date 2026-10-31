@@ -14,14 +14,18 @@
 //    a pasar solas, cada vez más deprisa (gag 2): el reguero de pliegos cae por el canto; encima del libro la cuenta sube
 //    sin parar; el tesorero lee una lista que se desenrolla hasta el suelo; en «fortune» el rey da un manotazo en la mesa,
 //    enfadado (corta en «And in 1307»);
-// 2. (palacio, el salón) el escribano escribe la orden en su atril; en «gives the order» el rey se levanta del trono y
-//    señala; en «Arrest them all» el escribano sella el rollo y llega un soldado; en «same day» se lo entrega y el soldado
+// 2. (palacio, el salón, de noche con o.luz 'noche') el escribano escribe la orden en su atril; en «gives the order» el
+//    rey se levanta del trono, da un pisotón (polvo) y señala; en «Arrest them all» el escribano sella el rollo y llega un soldado; en «same day» se lo entrega y el soldado
 //    se va con él (corta en «The secret orders»);
-// 3. (el patio de noche) tres mensajeros a caballo con el rollo sellado en alto; el oficial con la antorcha da la salida
-//    («go out»): salen uno tras otro al galope; en «September 14» el oficial dice «14» en un bocadillo (corta en «So»);
-// 4. (la calle de noche) dos mensajeros cruzan al galope delante de la puerta del Temple, que sigue cerrada («strikes on
-//    the same day»); en «no one can warn» la puerta se entreabre, un templario asoma con un farol, mira a un lado y a
+// 3. (el patio de noche, o.luz 'noche' del decorado) tres mensajeros montados (caballos de tamaño real, de lado, con la
+//    cabeza hacia donde van; el jinete sentado en la silla, una pierna colgando con la bota en el estribo) con el rollo
+//    sellado en alto; los caballos piafan; el oficial con la antorcha da la salida («go out»): salen uno tras otro al
+//    galope, con polvo que se queda posándose en el empedrado; en «September 14» el oficial dice «14» (corta en «So»);
+// 4. (la calle de noche) dos mensajeros (el mismo jinete del 3) cruzan al galope delante de la puerta del Temple, que
+//    sigue cerrada («strikes on the same day»); a la torrecilla del fondo, junto a Atom, se le quita el chapitel y la tapa
+//    un banco de nubes bajas que se mueve despacio; en «no one can warn» la puerta se entreabre, un templario asoma con un farol, mira a un lado y a
 //    otro y no ve a nadie («?»), y vuelve a cerrar.
+// Efectos: 18 en 18,9 s (páginas, pisotón, cascos de caballo, el «?»), sincronizados con lo que pasa en pantalla.
 import * as T from '/atomo/plato/escenas/te-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('te-rey');
@@ -37,11 +41,12 @@ const FIJOS = new Map();
 // un fondo quieto se pinta una vez en su búfer y se copia en cada fotograma
 const fijo = (clave, dibuja) => { let b = FIJOS.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); R.recorte(null); dibuja(); R.usar(prev); FIJOS.set(clave, b); } R.copiar(b); };
 // el rollo sellado de una orden en la mano (x, y): pergamino enrollado con el sello rojo colgando
+const prect = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, c); };
 const rolloSellado = (x, y, abierto = 0) => {
   x = Math.round(x); y = Math.round(y);
   const L = Math.round(4 + abierto * 9);
-  R.rect(x - 2, y - 2, x + 2, y + L, K); R.rect(x - 1, y - 1, x + 1, y + L - 1, hex('#ecdcb0')); R.rect(x + 1, y - 1, x + 1, y + L - 1, hex('#c8b080'));
-  R.rect(x - 3, y - 3, x + 3, y - 2, hex('#a08a5a'));
+  prect(x - 2, y - 2, x + 2, y + L, K); prect(x - 1, y - 1, x + 1, y + L - 1, hex('#ecdcb0')); prect(x + 1, y - 1, x + 1, y + L - 1, hex('#c8b080'));
+  prect(x - 3, y - 3, x + 3, y - 2, hex('#a08a5a'));
   R.linea(x, y + L, x + 1, y + L + 3, hex('#c8303a')); R.disco(x + 1, y + L + 5, 2, hex('#6a1a1e')); R.disco(x + 1, y + L + 4, 1.6, hex('#c8303a')); R.pset(x, y + L + 3, hex('#e86a6a'));
 };
 // una antorcha en la mano (x, y): mango, estopa y la llama que tiembla con su halo de chispas
@@ -57,15 +62,101 @@ const antorcha = (x, y, t, k = 0) => {
 };
 // polvo o salpicaduras detrás de un caballo que corre
 const polvo = (x, suelo, t, c = '#a89070', k = 0) => { for (let i = 0; i < 5; i++) { const u = (t * 3 + i / 5 + k * 0.3) % 1; nubecilla(Math.round(x - 3 - u * 16), Math.round(suelo - 2 - u * 6), Math.round(1 + u * 2.5), hex(c), 0.5 * (1 - u)); } };
-// un jinete: el caballo de lado y el personaje encima (x: borde izquierdo del caballo)
+// un caballo al galope de lado, de tamaño real junto a los personajes (lomo a 28 px del suelo, orejas a 44; unos 55 px
+// de la cola al hocico): cuerpo con su contorno, luz arriba y sombra en la tripa, el cuello y la cabeza hacia donde va
+// (con brida y ojo), crin y cola que ondean, cuatro patas de dos tramos (las de lejos más oscuras) que galopan o, parado,
+// piafan, y la silla con su manta. Solo pset: respeta R.recorte. Devuelve el bote del lomo (para el jinete).
+const galopeCab = (x, suelo, t, o = {}) => {
+  x = Math.round(x); suelo = Math.round(suelo);
+  const c = hex(o.color ?? '#8a5a34'), cL = mez(c, hex('#fff0d8'), 0.28), cLL = mez(c, hex('#fff0d8'), 0.5), cS = mez(c, K, 0.35), cSS = mez(c, K, 0.55), cB = mez(c, K, 0.75);
+  const cr = hex(o.crin ?? '#2a1a10'), manta = hex(o.manta ?? '#2a4a9a'), mantaS = mez(manta, K, 0.4), oro = hex('#e8b830');
+  const gal = !!o.galope, f = t * 13 + (o.k || 0) * 1.9;
+  const bob = gal ? Math.round(Math.sin(f * 1) + 1) : 0, cab = gal ? Math.sin(f + 1.2) * 1.5 : Math.sin(t * 3 + (o.k || 0)) * 0.8 + (Math.sin(t * 1.3 + (o.k || 0) * 2) > 0.8 ? -1.5 : 0);
+  const seg = (px, py, ax, ay, bx, by) => { const vx = bx - ax, vy = by - ay, u = Math.max(0, Math.min(1, ((px - ax) * vx + (py - ay) * vy) / (vx * vx + vy * vy))); return [Math.hypot(px - ax - u * vx, py - ay - u * vy), u]; };
+  // las patas: [hombro o cadera, rodilla, casco]; delanteras con la mano que se recoge hacia atrás, traseras con el corvejón
+  const pata = (ai, del, fa, lejos) => {
+    const aj = -18 - bob; let th, fold;
+    if (gal) { const ph = f + fa; th = 0.6 * Math.sin(ph); fold = Math.max(0, Math.cos(ph)); }
+    else { const pi = del && !lejos && o.piafa ? Math.max(0, Math.sin(t * 7 + (o.k || 0))) : 0; th = 0.05 + pi * 0.5; fold = pi; }
+    const t1 = del ? th : th - 0.25, t2 = del ? th - 1.6 * fold : th + 0.35 + 0.9 * fold;
+    const kx = ai + 8 * Math.sin(t1), ky = aj + 8 * Math.cos(t1);
+    let hx = kx + 9 * Math.sin(t2), hy = ky + 9 * Math.cos(t2); if (hy > 0) hy = 0;
+    return [ai, aj, kx, ky, hx, hy, lejos];
+  };
+  const P = [pata(-12, false, 0, true), pata(8, true, 2.4, true), pata(-10, false, 0.7, false), pata(10, true, 3.1, false)];
+  const cs = gal ? Math.sin(f * 0.5) * 2 : Math.sin(t * 4 + x) * 1.5;
+  const cod = (i, j) => {
+    const jb = j + bob;
+    if (o.silla !== false) {
+      if (jb >= -31 && jb <= -29 && i >= -6 && i <= 4) return 5;                                   // la silla
+      if ((i === -7 || i === 5) && jb === -32) return 5;                                            // borrén y perilla
+      if (jb > -29 && jb <= -21 && i >= -8 && i <= 5) return jb === -21 || i === -8 ? 7 : 6;   // la manta con ribete
+    }
+    // cola: al galope tendida hacia atrás, parado cuelga y se mece
+    if (gal ? seg(i, jb, -14, -25, -28, -26 + cs)[0] < 2.2 - seg(i, jb, -14, -25, -28, -26 + cs)[1] * 1.2 : seg(i, jb, -14, -25, -17 + cs, -11)[0] < 2 - seg(i, jb, -14, -25, -17 + cs, -11)[1] * 0.8) return 4;
+    // crin por detrás del cuello, que flamea
+    if (seg(i, jb, 8 + cab * 0.3, -28, 15 + cab * 0.6 - (gal ? Math.sin(f * 2 + j) : 0), -40 + cab)[0] < 1.8) return 4;
+    // el cuerpo: barril, pecho y grupa
+    if ((i / 14) ** 2 + ((jb + 22) / 6.2) ** 2 <= 1 || Math.hypot(i - 10, jb + 22.5) <= 6.5 || Math.hypot(i + 10, jb + 23) <= 6.8) return 1;
+    // cuello y cabeza (la cabeza cabecea al ritmo del galope)
+    { const [dd, u] = seg(i, jb, 11, -25, 18, -36 + cab); if (dd <= 4.6 - 1.6 * u) return 1; }
+    { const [dd, u] = seg(i, jb, 18.5, -37.5 + cab, 27, -31 + cab * 0.6); if (dd <= 3.1 - 0.7 * u) return 1; }
+    if (seg(i, jb, 17.5, -40 + cab, 17, -44 + cab)[0] <= 0.9 || seg(i, jb, 19.5, -40 + cab, 19.5, -43.5 + cab)[0] <= 0.8) return 1;   // las orejas
+    // las patas
+    for (let k = 0; k < 4; k++) { const [ai, aj, kx, ky, hx, hy, lejos] = P[k];
+      const [d1] = seg(i, j, ai, aj, kx, ky), [d2, u2] = seg(i, j, kx, ky, hx, hy);
+      if (d1 <= 2.4 || d2 <= 1.6 - u2 * 0.4) return u2 > 0.82 && d2 <= 1.6 ? 3 : lejos ? 2 : 9; }
+    return 0;
+  };
+  const I0 = -32, J0 = -48, W = 66, H = 50, M = new Uint8Array(W * H);
+  for (let jj = 0; jj < H; jj++) for (let ii = 0; ii < W; ii++) M[jj * W + ii] = cod(ii + I0, jj + J0);
+  const g = (ii, jj) => (ii < 0 || jj < 0 || ii >= W || jj >= H ? 0 : M[jj * W + ii]);
+  // la sombra en el suelo (se encoge cuando el caballo va en el aire)
+  for (let i = -20; i <= 20; i++) for (let j = -2; j <= 1; j++) if ((i / 20) ** 2 + (j / 2.2) ** 2 <= 1) tiñe(x + i, suelo + j, hex('#05060e'), 0.45 - bob * 0.1);
+  for (let jj = 0; jj < H; jj++) for (let ii = 0; ii < W; ii++) { const k = M[jj * W + ii]; if (!k) continue; const i = ii + I0, j = jj + J0;
+    const borde = !g(ii - 1, jj) || !g(ii + 1, jj) || !g(ii, jj - 1) || !g(ii, jj + 1), arriba = !g(ii, jj - 1) || !g(ii, jj - 2), abajo = !g(ii, jj + 1) || !g(ii, jj + 2);
+    let col;
+    if (k === 3) col = hex('#1a1410');
+    else if (k === 4) col = hh(i, j + Math.floor(t * 6), 3) < 0.25 ? mez(cr, hex('#ffffff'), 0.18) : cr;
+    else if (k === 5) col = arriba ? hex('#8a5a30') : hex('#5a3418');
+    else if (k === 6) col = (i + j) % 4 === 0 ? mantaS : manta;
+    else if (k === 7) col = oro;
+    else if (k === 2) col = cSS;
+    else col = arriba ? cL : abajo ? cS : (k === 9 && i > (j < -8 ? 0 : -50) && hh(i, j, 5) < 0.12) ? cS : c;
+    // un brillo en la paletilla y en la grupa
+    if ((k === 1) && ((i - 9) ** 2 + (j + bob + 26) ** 2 < 4 || (i + 11) ** 2 + (j + bob + 27) ** 2 < 3)) col = cLL;
+    if (borde && k !== 6 && k !== 7) col = k === 4 ? mez(cr, K, 0.5) : cB;
+    R.pset(x + i, suelo + j, col); }
+  // la cabeza: ojo, ollar, brida y bocado
+  const E = (i, j, col) => R.pset(x + Math.round(i), suelo + Math.round(j - bob), col);
+  E(21, -37 + cab, hex('#0a0806')); E(22, -37 + cab, hex('#ffffff'));
+  E(27, -32 + cab * 0.6, cB); E(26, -31 + cab * 0.6, cB);
+  for (let s2 = 0; s2 <= 6; s2++) E(19 + s2 * 0.85, -39.5 + cab + s2 * 0.6, hex('#3a2010'));   // la cabezada
+  E(25, -31 + cab * 0.6, hex('#c0c4d4'));
+  return bob;
+};
+// un jinete: el caballo al galope (o parado) y el mensajero sentado en la silla (x: el centro del caballo); el caballo
+// tapa las piernas y se ve una sola, colgando por este lado, con la bota en el estribo; las riendas a la boca
 const jinete = (def, x, suelo, t, o = {}) => {
-  x = Math.round(x);
-  T.b_caballo(R, x, suelo, t, { dir: 1, anda: !!o.anda, silla: true, cola: true, color: o.color });
+  x = Math.round(x); suelo = Math.round(suelo);
+  const gal = !!o.anda, f = t * 13 + (o.k || 0) * 1.9, bob = gal ? Math.round(Math.sin(f) + 1) : 0;
+  // el jinete primero (el caballo le tapa la cadera); se echa hacia delante al galope
+  const ax = x - 8 + (gal ? 1 : 0), as = suelo - 23 - bob;
   const oa = { dir: 1, quieto: true, ...(o.a || {}) };
-  if (o.rollo) oa.sostiene = o.alto ? [x + 22, suelo - 40] : [x + 24, suelo - 30];
-  const m = R.actor(def, x + 8, suelo - 13, t, oa).mano;
+  if (o.rollo) oa.sostiene = o.alto ? [x + 4, suelo - 52 - bob] : [x + 8, suelo - 46 - bob + Math.round(Math.sin(f) * 1)];
+  const m = R.actor(def, ax, as, t, oa).mano;
+  galopeCab(x, suelo, t, { galope: gal, color: o.color, manta: o.manta, k: o.k, piafa: !gal });
+  // la pierna de este lado: muslo, rodilla, caña con la bota en el estribo
+  const Y = suelo - bob, pa = hex('#2a3a6a'), paS = hex('#1a2448'), bo = hex('#2a1a10');
+  R.linea(x - 2, Y - 28, x + 1, Y - 24, pa); R.linea(x - 1, Y - 28, x + 2, Y - 24, pa); R.linea(x - 2, Y - 27, x + 1, Y - 23, paS);
+  R.linea(x + 1, Y - 24, x + 1, Y - 19, pa); R.linea(x + 2, Y - 24, x + 2, Y - 19, paS);
+  R.linea(x, Y - 18, x + 3, Y - 18, bo); R.linea(x + 1, Y - 17, x + 4, Y - 17, bo); R.pset(x + 1, Y - 19, bo); R.pset(x + 2, Y - 19, bo);
+  R.linea(x - 1, Y - 16, x + 4, Y - 16, hex('#9aa0b4'));   // el estribo
+  // las riendas: del puño del jinete a la boca del caballo
+  const cab = gal ? Math.sin(f + 1.2) * 1.5 : Math.sin(t * 3 + (o.k || 0)) * 0.8;
+  R.linea(x + 3, Y - 32, x + 25, Math.round(Y - 31 + cab * 0.6), hex('#3a2010'));
   if (o.rollo) rolloSellado(m[0], m[1] - 6, 0);
-  if (o.anda && o.polvo !== false) polvo(x, suelo, t, o.polvoCol, o.k || 0);
+  if (gal && o.polvo !== false) polvo(x - 16, suelo, t, o.polvoCol, o.k || 0);
   return m;
 };
 
@@ -121,13 +212,15 @@ const atril = (x, S, t, escribe) => {
   R.rect(x + 7, S - 18, x + 9, S - 16, hex('#2a2a34')); R.pset(x + 8, S - 18, hex('#6a6a7a'));
 };
 const p2 = (t) => {
-  const g = T.temple(R, t, { encuadre: 'palacio' }), S = g.suelo;
-  // ya anochece: el salón en penumbra azul y el brillo de las velas
-  T.tinte(R, 0, 179, [36, 34, 88], 0.38);
-  for (const [cx, cy] of [[80, 110], [240, 110], [160, 120]]) for (let j = -22; j <= 22; j++) for (let i = -22; i <= 22; i++) { const d = Math.hypot(i, j); if (d < 22 && hh(cx + i, cy + j, 5) < 0.7) tiñe(cx + i, cy + j, hex('#ffc070'), 0.14 * (1 - d / 22)); }
-  // el rey en el estrado: se levanta y señala en «gives the order»
-  const ordena = t > ORDEN && t < ARRESTO + 0.5;
-  R.actor(EL.felipe, 153, 128 - (ordena && t < ORDEN + 0.25 ? 2 : 0), t, { dir: -1, dedo: ordena, enfado: ordena, sonrisa: t > MISMO + 0.3 });
+  // ya es de noche: el decorado pone la penumbra azul, las velas, las vidrieras oscuras con estrellas y la luna
+  const g = T.temple(R, t, { encuadre: 'palacio', luz: 'noche' }), S = g.suelo;
+  // el rey en el estrado: se levanta, da un pisotón en el escalón y señala en «gives the order»
+  const ordena = t > ORDEN && t < ARRESTO + 0.5, salto = tramo(t, ORDEN, ORDEN + 0.25);
+  R.actor(EL.felipe, 153, 128 - (ordena && salto < 1 ? Math.round(Math.sin(salto * Math.PI) * 3) : 0), t, { dir: -1, dedo: ordena, enfado: ordena, sonrisa: t > MISMO + 0.3 });
+  // el polvo del pisotón: dos nubecillas que se abren a los lados de los pies y se deshacen
+  const pis = tramo(t, ORDEN + 0.25, ORDEN + 0.85);
+  if (pis > 0 && pis < 1) for (const s of [-1, 1]) { const x = 161 + s * Math.round(5 + pis * 10); nubecilla(x, 125 - Math.round(pis * 4), Math.round(2 + pis * 2), hex('#e8dcc0'), 0.85 * (1 - pis)); nubecilla(x - s * 4, 126 - Math.round(pis * 2), 2, hex('#b8ac90'), 0.6 * (1 - pis));
+    if (pis < 0.5) { R.pset(x + s * 3, 121 - Math.round(pis * 8), hex('#fff6dc')); R.pset(x + s, 119 - Math.round(pis * 10), hex('#fff6dc')); } }
   // el soldado entra por la izquierda, recibe el rollo y se va con él
   const entra = tramo(t, ARRESTO - 0.7, ARRESTO + 0.45), sale = tramo(t, MISMO + 0.55, P3 + 0.2);
   const xs = Math.round(sale > 0 ? lerp(66, -26, sale) : lerp(-24, 66, entra)), tiene = t > MISMO + 0.15;
@@ -152,19 +245,19 @@ const p2 = (t) => {
 
 // ── 3. el patio de noche: los mensajeros salen al galope
 const p3 = (t) => {
-  const g = T.temple(R, t, { encuadre: 'calle', camara: 'patio', campana: 0 }), S = g.suelo;
-  T.tinte(R, 0, 179, [16, 22, 60], 0.55);
-  // estrellas y luna sobre el cielo oscurecido
-  for (let k = 0; k < 26; k++) { const x = Math.round(hh(k, 1, 901) * 270 + 4), y = Math.round(16 + hh(k, 2, 901) * 40); if ((x > 20 && x < 172 && y < 16) || (x > 274 && y < 48)) continue;
-    const c = R.pget(x, y), l = (c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255); if (l < 200 && Math.sin(t * 3 + k * 1.7) > -0.5) R.pset(x, y, hex('#e8ecff')); }
+  // de noche: el decorado pone el cielo con estrellas y luna, las ventanas encendidas, faroles y murciélagos
+  const g = T.temple(R, t, { encuadre: 'calle', camara: 'patio', campana: 0, luz: 'noche' }), S = g.suelo;
   // el oficial del rey con la antorcha
   const xo = 238, mo = R.actor(EL.soldado, xo, S, t, { dir: -1, sostiene: [xo - 2, S - 17], habla: t > SEPT - 0.1 && t < CATORCE + 0.6 && Math.sin(t * 9) > 0 }).mano;
   antorcha(mo[0], mo[1], t, 1);
   // tres mensajeros con el rollo en alto; salen uno tras otro
-  const J = [[EL.soldado, 116, 176, '#6a4a2a'], [EL.soldado, 72, 171, '#8a5a34'], [EL.soldado, 28, 166, '#4a3a2a']];
+  const J = [[EL.soldado, 164, 176, '#6a4a2a'], [EL.soldado, 112, 171, '#8a5a34'], [EL.soldado, 60, 166, '#4a3a2a']];
   for (let k = 2; k >= 0; k--) {
-    const [def, x0, sy, col] = J[k], sale = SALEN + k * 0.72, d = Math.max(0, t - sale), x = x0 + 40 * d + 60 * d * d;
-    if (x > 340) continue;
+    const [def, x0, sy, col] = J[k], sale = SALEN + k * 0.55, d = Math.max(0, t - sale), x = x0 + 50 * d + 90 * d * d;
+    // la polvareda que dejan en el empedrado y que se va posando despacio
+    if (d > 0) for (let n = 0; n < 8; n++) { const px = x0 + 10 + n * 36, dp = (-50 + Math.sqrt(2500 + 360 * Math.max(0, px - x0))) / 180, e = d - dp;
+      if (e > 0 && e < 2.2) for (let q = 0; q < 3; q++) nubecilla(Math.round(px + q * 9 - 9 + e * 6), Math.round(sy - 3 - e * 3 - q), Math.round(2 + e * 1.6), hex('#7a7488'), 0.32 * (1 - e / 2.2)); }
+    if (x > 380) continue;
     jinete(def, x, sy, t, { anda: d > 0, rollo: true, alto: d <= 0, color: col, k, a: { sonrisa: d > 0 } });
   }
   // el bocadillo con la fecha: «14»
@@ -182,6 +275,19 @@ const farol = (x, y, t) => { x = Math.round(x); y = Math.round(y); R.linea(x, y 
 const p4 = (t) => {
   const pu = tramo(t, NADIE - 0.4, NADIE + 0.05);
   const g = T.temple(R, t, { encuadre: 'calle', luz: 'noche', puerta: pu }), S = g.suelo;
+  // la torrecilla derecha del torreón quedaba junto a Atom: se le quita el chapitel (cielo de noche tramado) y un banco
+  // de nubes bajas, de tres tonos y que se mueve despacio, le tapa el arranque; la zona de Atom queda de cielo y nube
+  { const CN = ['#070a1c', '#0c1128', '#111834', '#162040', '#1c284e', '#24325c', '#2e3e6a'].map(hex);
+    for (let y = 6; y <= 33; y++) for (let x = 252; x <= 276; x++) R.pset(x, y, R.tone(CN, (y / 100) * 5.2 + 0.3, x, y));
+    const NB = ['#10142e', '#1a223e', '#28344e', '#3a4864'].map(hex);
+    const lob = [[244, 34, 5], [252, 31, 7], [262, 28, 8], [272, 30, 7], [282, 33, 6], [291, 36, 5], [256, 38, 6], [270, 39, 6]];
+    for (let c = 0; c < 3; c++) for (const [lx, ly, r] of lob) { const dx = Math.sin(t * 0.5 + lx * 0.3) * 1.2 + t * 0.4 - 7, dy = c === 2 ? -r * 0.35 : 0;
+      R.disco(Math.round(lx + dx - (c === 2 ? 1 : 0)), Math.round(ly + dy + (c === 0 ? 1 : 0)), c === 2 ? r * 0.6 : c === 1 ? r - 1 : r, NB[c]); }
+    for (const [lx, ly, r] of lob) if (r > 6) R.pset(Math.round(lx + Math.sin(t * 0.5 + lx * 0.3) * 1.2 + t * 0.4 - 8), Math.round(ly - r * 0.7), NB[3]);
+    // una hebra de nube más rápida que pasa por delante
+    const hx = 230 + ((t * 6) % 120);
+    for (let i = 0; i < 26; i++) { const yy = 44 + Math.round(Math.sin(i * 0.4 + t) * 1); if (hx + i < 320) { tiñe(hx + i, yy, NB[2], 0.5); if (i > 4 && i < 20) tiñe(hx + i, yy - 1, NB[3], 0.4); } }
+  }
   // el templario que asoma con su farol, mira a un lado y a otro, «?», y se mete
   if (pu > 0.35) {
     const mira = t < NADIE + 0.6 ? -1 : t < TEMPLE - 0.1 ? 1 : -1;
@@ -192,13 +298,17 @@ const p4 = (t) => {
   // dos mensajeros cruzan al galope; el carro y el tonel de delante los tapan al entrar y al salir
   R.recorte([61, 0, 285, 179]);
   const A = tramo(t, P4 - 0.6, P4 + 1.5), B = tramo(t, P4 + 0.2, P4 + 2.3);
-  if (B > 0 && B < 1) jinete(EL.soldado, lerp(-30, 330, B), 160, t, { anda: true, rollo: true, color: '#4a3a2a', polvoCol: '#5a6a8a', k: 1 });
-  if (A > 0 && A < 1) jinete(EL.soldado, lerp(-40, 330, A), 170, t, { anda: true, rollo: true, color: '#8a5a34', polvoCol: '#6a7a9a' });
+  if (B > 0 && B < 1) jinete(EL.soldado, lerp(-50, 370, B), 160, t, { anda: true, rollo: true, color: '#4a3a2a', polvoCol: '#5a6a8a', k: 1 });
+  if (A > 0 && A < 1) jinete(EL.soldado, lerp(-50, 370, A), 170, t, { anda: true, rollo: true, color: '#8a5a34', polvoCol: '#6a7a9a' });
   R.recorte(null);
 };
 
-const efectos = [[FELIPE + 0.1, 'papel'], [DEBE, 'whoosh'], [FORTUNA + 0.02, 'golpecito'], [ANYO + 0.2, 'lapiz'], [ARRESTO + 0.12, 'sello'],
-  [SALEN + 0.05, 'whoosh'], [CATORCE, 'pop'], [P4 + 0.3, 'whoosh'], [NADIE - 0.38, 'puerta']];
+// efectos: las páginas que pasan cada vez más deprisa, el manotazo, la pluma, el pisotón del rey, el sello, el rollo que
+// cambia de mano, los cascos de cada caballo al arrancar y al cruzar la calle, la puerta y el «?»
+const efectos = [[FELIPE + 0.1, 'papel'], [F(0.25), 'papel'], [DEBE, 'whoosh'], [FORTUNA + 0.02, 'golpecito'], [ANYO + 0.2, 'lapiz'],
+  [ORDEN + 0.25, 'toc'], [ARRESTO + 0.12, 'sello'], [MISMO + 0.15, 'papel'],
+  [SALEN + 0.05, 'whoosh'], [SALEN + 0.3, 'toc'], [SALEN + 0.85, 'toc'], [SALEN + 1.4, 'toc'], [CATORCE, 'pop'],
+  [P4 + 0.3, 'whoosh'], [P4 + 0.85, 'toc'], [P4 + 1.05, 'toc'], [NADIE - 0.38, 'puerta'], [TEMPLE + 0.02, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1307 });
 </script>
 </body>

@@ -12,8 +12,10 @@
 // TE-QUESO (frases 42–43), 1982 → 2003 → 1965. Tres planos:
 // 1. (librería, general) los clientes cogen el libro del cáliz de la montaña; en «books» uno lo lleva a la caja y el
 //    contador sube hasta 1,000,000 en «millions»; en «Da Vinci code» un repartidor entra con la carretilla de libros nuevos;
-// 2. (librería, cine; corte en «in 2003») 2003, de noche: la cola espera ante el cine y un coche pasa por el asfalto mojado;
-//    en «treasure hunters» salen del cine tres buscadores con palas y en «shovels» las levantan («!»);
+// 2. (librería, cine; corte en «in 2003») 2003, de noche: la cola espera ante el cine y un coche pasa por el asfalto mojado
+//    (la última de la cola se gira a mirarlo); la cola da un paso, la primera paga en la taquilla y recibe su entrada, uno
+//    se gira a charlar y otro mira el reloj (bocadillo); en «treasure hunters» salen del cine tres buscadores con palas y
+//    en «shovels» las levantan («!») y la cola se sorprende;
 // 3. (colina, 1965, con agujeros; corte en «1965») gag 6: el pueblo como un queso; el buscador sale del hoyo con el casco y
 //    la pala; en «village council» un concejal clava el cartel de la pala tachada junto al hoyo; en «ban digging» el
 //    cartel se cae y le da en la cabeza al buscador, que se queda viendo estrellas.
@@ -86,7 +88,7 @@ const p1 = (t) => {
 };
 
 // ── 2 · el cine de noche (2003): salen los buscadores con palas ──
-const ANYO = l(0.78), CAZAS = p(0.079), PALAS = p(0.289);
+const ANYO = l(0.78), CAZAS = p(0.079), PALAS = p(0.289), AVANZA = ANYO + 1.4;
 const coche = (x, y) => { x = Math.round(x); y = Math.round(y); R.rect(x, y - 9, x + 44, y - 2, K); R.poligono([[x + 8, y - 9], [x + 14, y - 16], [x + 32, y - 16], [x + 38, y - 9]], K);
   R.rect(x + 1, y - 8, x + 43, y - 3, hex('#3a6ac8')); R.poligono([[x + 10, y - 9], [x + 15, y - 15], [x + 31, y - 15], [x + 36, y - 9]], hex('#3a6ac8')); R.poligono([[x + 12, y - 10], [x + 16, y - 14], [x + 22, y - 14], [x + 22, y - 10]], hex('#9ac8e8')); R.poligono([[x + 24, y - 10], [x + 24, y - 14], [x + 30, y - 14], [x + 34, y - 10]], hex('#9ac8e8'));
   R.rect(x + 1, y - 8, x + 43, y - 8, hex('#6a9ae8')); R.rect(x + 42, y - 7, x + 43, y - 5, hex('#fff2b0')); R.rect(x + 1, y - 7, x + 2, y - 5, hex('#e83a3a'));
@@ -94,9 +96,25 @@ const coche = (x, y) => { x = Math.round(x); y = Math.round(y); R.rect(x, y - 9,
   for (let i = 0; i < 18; i++) R.pset(x + 46 + i, y - 6 + (i % 3 === 0 ? 1 : 0), mez(hex('#fff2b0'), hex('#2a2a3a'), i / 18)); for (let i = 0; i < 40; i += 2) R.pset(x + 2 + i, y + 5 + (i % 4 === 0 ? 1 : 0), hex('#3a5a9a')); };
 const p2 = (t) => {
   const d = T.rennes(R, t, { encuadre: 'libreria', camara: 'cine' }), s = d.suelo;
-  // la cola ante el cine: respiran, hablan, uno señala la marquesina
+  // la cola ante el cine: la última se gira a ver pasar el coche; en «AVANZA» todos dan un paso y la primera llega a la
+  // taquilla y paga (le dan la entrada); uno se gira a charlar con el de detrás y otro mira el reloj; en «shovels»
+  // toda la cola se sorprende al ver las palas
   const cola = [[EL.neoyorquina, 34], [EL.joven2, 52], [EL.turista, 70], [EL.neoyorquino, 88], [EL.chica, 106]];
-  cola.forEach(([def, x], k) => R.actor(def, x, s, t, { dir: 1, habla: k === 1 && Math.sin(t * 7) > 0.2, dedo: k === 3 && t > ANYO && t < ANYO + 1.2, sonrisa: k % 2 === 0 }));
+  const ua = tramo(t, AVANZA, AVANZA + 0.7), sorpr = t > PALAS && t < PALAS + 1.1;
+  cola.forEach(([def, x0], k) => { const x = Math.round(x0 + (k === 4 ? 14 : 12) * ua), o = { dir: 1, anda: ua > 0 && ua < 1, sonrisa: k % 2 === 0 && !sorpr, sorpresa: sorpr && k > 0 };
+    if (k === 0 && t > ANYO + 0.3 && t < ANYO + 1.9) o.dir = -1;                                   // mira pasar el coche
+    if (k === 1) { const gira = t > AVANZA + 0.9 && t < AVANZA + 1.9; o.dir = gira ? -1 : 1; o.habla = gira ? Math.sin(t * 8) > 0 : Math.sin(t * 7) > 0.2 && t < AVANZA; }
+    if (k === 0 && t > AVANZA + 0.9 && t < AVANZA + 1.9) o.habla = Math.sin(t * 6 + 1.5) > 0.4;          // contesta al que se gira
+    if (k === 3) o.dedo = t > ANYO && t < ANYO + 1.2;
+    const reloj = k === 2 && t > AVANZA + 2.0 && t < PALAS - 0.1, paga = k === 4 && t > AVANZA + 0.8 && t < AVANZA + 1.8, entrada = k === 4 && t >= AVANZA + 1.8;
+    if (reloj) o.sostiene = [x + 4, s - 15]; if (paga) o.sostiene = [x + 12, s - 17]; if (entrada) o.sostiene = [x + 10, s - 10];
+    const a = R.actor(def, x, s, t, o);
+    if (reloj) { const [mx, my] = a.mano; R.rect(mx - 1, my - 1, mx + 1, my + 1, K); R.pset(mx, my, Math.sin(t * 9) > 0 ? BL : hex('#c8c8d0')); R.pset(mx - 1, my - 2, hex('#e8c060')); }
+    if (paga) { const [mx, my] = a.mano; R.rect(mx + 1, my - 3, mx + 5, my, hex('#3a6a3a')); R.rect(mx + 2, my - 2, mx + 4, my - 1, hex('#7ab07a')); }
+    if (entrada) { const [mx, my] = a.mano; R.rect(mx + 1, my - 2, mx + 5, my + 1, K); R.rect(mx + 2, my - 1, mx + 4, my, hex('#f0d070')); R.pset(mx + 4, my - 1, hex('#c83a3a')); }
+  });
+  if (t > AVANZA + 2.1 && t < AVANZA + 2.9) globo(82, s - 30, 'reloj');
+  if (t > AVANZA + 1.75 && t < AVANZA + 2.3) chispa(134, s - 11);
   // salen del cine los buscadores con palas, hacia la derecha; en «shovels» las levantan
   const sal = [[EL.buscador, 0], [EL.cavador, 0.35], [EL.cavador2, 0.7]];
   sal.forEach(([def, dl], k) => { const u = tramo(t, CAZAS - 0.2 + dl, P3 - 0.3 + dl * 0.3), x = Math.round(lerp(152, 214 + k * 26, u)); if (u <= 0) return;

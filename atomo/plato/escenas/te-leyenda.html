@@ -13,7 +13,7 @@
 // 1. (puerto de noche, La Rochelle) las galeras salen por la bocana con la vela de la cruz y se vuelven fantasmas en la
 //    niebla; un templario carga un cofre por el muelle y se para a mirar; otro, en el bolardo, levanta el farol y lo
 //    mece despidiendo a la flota en «La Rochelle»;
-// 2. (mapa, corte en «and the fleet») una mano con pluma marca La Rochelle con un círculo de tinta y se retira en «on its
+// 2. (mapa, corte en «and the fleet») una mano con pluma (brazo corto con codo) marca La Rochelle con un círculo de tinta y se retira en «on its
 //    own»: la flota dibujada navega sola: llega a Escocia en «Scotland», a Portugal en «Portugal» y a América en
 //    «America» (chincheta);
 // 3. (mapa de Nueva Escocia, corte en «Some») en «pit» un cubo de tinta baja por el pozo dibujado; en «Nova Scotia» una
@@ -22,6 +22,7 @@
 //    pita, lo deja en la hierba y con la brocha limpia la piedra: en «carved» sale la cruz tallada («!»);
 // 5. (la piedra de cerca, en el hoyo, corte en «The question») la cruz grande; en «question» el «?»; en «Templars pass»
 //    un templario fantasma cruza por detrás del hoyo y se desvanece; el buscador se gira tarde y se rasca la cabeza.
+// La luz de 4 y 5 es la del decorado (T.hoy con luz 'atardecer': sol bajo y cielo de la tarde), sin tinte encima.
 import * as T from '/atomo/plato/escenas/te-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('te-leyenda');
@@ -94,7 +95,8 @@ const p2 = (t) => {
     const u = tramo(t, P2 + 0.35, FLEET + 0.35), an = u * Math.PI * 2 - 1.2, tx = lx + Math.cos(an) * 7 * (u > 0 && u < 1 ? 1 : 0), ty = ly + Math.sin(an) * 6 * (u > 0 && u < 1 ? 1 : 0) - (u >= 1 ? 3 : 0);
     const wx = Math.round(lerp(352, tx + 16, v)), wy = Math.round(lerp(150, ty - 4, v));
     pluma(wx - 16, wy + 4);
-    T.brazo(R, wx + 46, wy + 24, wx, wy, '#3a4a6a', -1, { codo: [wx + 24, wy + 16] });
+    // brazo canónico corto (≤ 40 px): hombro abajo a la derecha y el codo caído, que se nota
+    T.brazo(R, wx + 34, wy + 20, wx, wy, '#3a4a6a', -1, { codo: [wx + 16, wy + 19] });
   }
 };
 
@@ -140,7 +142,7 @@ const piedra = (x, base, cruz) => {   // una estela vieja de granito con liquen;
     if (cruz > 0.9) { for (const [i, j] of [[-1, -6], [1, -6], [-1, 6], [1, 6], [-6, -1], [-6, 1], [6, -1], [6, 1]]) R.pset(x + i, base - 13 + j, cc); R.pset(x + 1, base - 14, hex('#b8b4a8')); } }
 };
 const p4 = (t) => {
-  const d = T.hoy(R, t, { encuadre: 'campo' });
+  const d = T.hoy(R, t, { encuadre: 'campo', luz: 'atardecer' });
   const S = d.suelo, px = 214;
   // la piedra vieja, con su sombra larga del atardecer
   for (let i = 0; i < 26; i++) R.pset(px + 9 + i, S + 1 - (i >> 3), hex('#3a5a2a'));
@@ -163,8 +165,6 @@ const p4 = (t) => {
   // el polvo que salta de la piedra al cepillar
   if (cepilla) for (let k = 0; k < 6; k++) { const u = (t * 2.4 + k / 6) % 1; R.pset(Math.round(px - 9 - u * 10 + Math.sin(k * 3) * 2), Math.round(S - 14 - Math.sin(u * 3) * 6 + u * 12), u < 0.5 ? hex('#d8c8a0') : hex('#b8a880')); }
   if (sorp) R.bocadillo(x + 8, S - 30, { icono: '!' });
-  // el atardecer: luz dorada sobre todo el prado (otra hora que la del principio)
-  T.tinte(R, 0, 179, [255, 150, 70], 0.24);
 };
 
 // 5 · la cruz de cerca, en el hoyo: el «?» y el templario fantasma que cruza por detrás
@@ -190,7 +190,7 @@ const losa = (x0, y0, x1, y1) => {   // la losa de piedra medio enterrada, con l
   for (let x = x0 - 4; x <= x1 + 5; x++) { const al = 4 + Math.round(Math.sin(x * 0.7) * 1.5 + Math.sin(x * 0.23) * 2); for (let y = y1 - al; y <= y1 + 1; y++) R.pset(x, y, y === y1 - al ? hex('#8a6a3a') : (x * 7 + y * 3) % 5 ? hex('#6a4a2a') : hex('#4a3020')); }
 };
 const p5 = (t) => {
-  const d = T.hoy(R, t, { encuadre: 'campo', camara: 'suelo' });
+  const d = T.hoy(R, t, { encuadre: 'campo', camara: 'suelo', luz: 'atardecer' });
   const S = d.suelo;
   // el templario fantasma: cruza por detrás del hoyo, translúcido, y se desvanece
   const g = tramo(t, DID - 0.2, HERE + 0.5);
@@ -211,7 +211,6 @@ const p5 = (t) => {
   if (t < QUES - 0.1) { R.rect(m[0] - 1, m[1] - 5, m[0] + 1, m[1] - 1, K); R.pset(m[0], m[1] - 4, hex('#c8303a')); R.rect(m[0] - 2, m[1] + 1, m[0] + 2, m[1] + 4, hex('#3a2a1a')); R.rect(m[0] - 1, m[1] + 1, m[0] + 1, m[1] + 3, hex('#e8d8a8')); }
   if (t > QUES && t < DID + 0.4) R.bocadillo(x + 8, S - 30, { icono: '?' });
   if (t > HERE + 0.8) R.bocadillo(x + 8, S - 30, { icono: '?' });
-  T.tinte(R, 0, 179, [255, 150, 70], 0.2);
 };
 
 const efectos = [[0.2, 'ola'], [ROCH, 'viento'], [P2 + 0.4, 'lapiz'], [SCOT, 'pop'], [PORTU, 'pop'], [AMER, 'brillo'], [NOVA, 'whoosh'], [TOLD + 0.55, 'pop'],

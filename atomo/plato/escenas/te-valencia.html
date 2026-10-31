@@ -19,7 +19,10 @@
 //    «Two popes» la cartela se enrolla y el papa alza la copa, tranquilo; el monaguillo mece el incensario;
 // 3. (valencia, caliz; corte en «Being») la copa de ágata de cerca, con la luz que la atraviesa; en «doesn't prove» un
 //    «?»; en «But it's the closest» sube una mano que se acerca al cristal y en «touching» se queda apoyada en el
-//    cristal, sin tocar la copa: el vaho se empaña.
+//    cristal, sin tocar la copa: el vaho se empaña. Las dos columnas de alabastro acaban en un capitel (y 46–57) y por
+//    encima vuelve el terciopelo: detrás de Atom y de la barra del año solo queda el telón en penumbra.
+// Efectos: brisa de la plaza, pasos, aleteo de palomas, papel y trazo de la cartela, destellos de la copa, paso que se
+// acerca, golpecito y vaho en el cristal (15 en 18 s, ≈50 % del tiempo; no hay receta de campana en NIVEL).
 import * as T from '/atomo/plato/escenas/te-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('te-valencia');
@@ -180,10 +183,40 @@ const p2 = (t) => {
   cartela(t);
 };
 
+// las dos columnas de alabastro terminan en un capitel en y 46–56: por encima vuelve el terciopelo en penumbra (el mismo
+// dibujo del decorado), así detrás de Atom (x 278–318, y 4–44) y de la barra del año solo queda el telón tranquilo
+const hv = (x, y, k) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const AL = hex('#f0e8d8'), ALS = hex('#c8bca4'), ALL = hex('#fffcf4'), ALD = hex('#9a8e78'), ORO = hex('#e8b830'), OROL = hex('#fff0a0'), OROS = hex('#a87818');
+function capiteles(R, t) {
+  const { pset, rect } = R;
+  for (const px of [30, 290]) {
+    // el terciopelo vuelve a cubrir la columna por encima del capitel, con sus pliegues y la penumbra de arriba
+    for (let y = 0; y < 47; y++) for (let x = px - 15; x <= px + 15; x++) {
+      const f = (x + Math.round(Math.sin(y * 0.06) * 3)) % 22;
+      let c = f < 3 ? hex('#3a1018') : f > 17 ? hex('#7a2a3a') : hv(x >> 1, y >> 1, 570) < 0.1 ? hex('#4a1820') : hex('#5a1a28');
+      if (y < 30 && ((x + y) & 1)) c = mez(c, K, 0.3);
+      if (y > 40) c = mez(c, K, (y - 40) * 0.06);              // la sombra que el capitel echa hacia arriba en el paño
+      pset(x, y, c);
+    }
+    // el ábaco: losa de alabastro con su canto de luz y su sombra
+    rect(px - 17, 46, px + 17, 50, K); rect(px - 16, 47, px + 16, 49, AL); rect(px - 16, 47, px + 16, 47, ALL); rect(px - 16, 49, px + 16, 49, ALS);
+    // las volutas a los lados, con su espiral en sombra
+    for (const s of [-1, 1]) { const vx = px + s * 13; R.disco(vx, 53, 3, K); R.disco(vx, 53, 2, AL); pset(vx, 53, ALD); pset(vx + s, 52, ALS); pset(vx - s, 54, ALS); pset(vx - s, 52, ALL); }
+    // el equino: la moldura curva entre las volutas, con ovas talladas
+    rect(px - 11, 51, px + 11, 55, K); rect(px - 10, 51, px + 10, 54, AL); rect(px - 10, 51, px + 10, 51, ALL);
+    for (let x = px - 9; x <= px + 9; x += 4) { pset(x, 53, ALS); pset(x + 1, 53, ALS); pset(x, 52, ALL); pset(x + 2, 53, ALD); }
+    // el collarino dorado que abraza el fuste, con un brillo que corre despacio
+    rect(px - 14, 56, px + 14, 57, OROS); rect(px - 13, 56, px + 13, 56, ORO);
+    { const g = px - 13 + Math.round(((t * 0.35 + (px > 100 ? 0.5 : 0)) % 1) * 26); pset(g, 56, OROL); pset(g + 1, 56, OROL); }
+    // la sombra del capitel en lo alto del fuste
+    for (let x = px - 13; x <= px + 13; x++) { const c = R.pget(x, 58); if (c) pset(x, 58, mez(c, K, 0.3)); const c2 = R.pget(x, 59); if (c2 && (x & 1)) pset(x, 59, mez(c2, K, 0.15)); }
+  }
+}
 // 3 · la copa de cerca; la mano llega al cristal y no la toca
 const DUDA = b(0.175), PERO = b(0.513), TOCA = b(0.84);
 const p3 = (t) => {
   const d = T.grial(R, t, { encuadre: 'valencia', camara: 'caliz' });
+  capiteles(R, t);
   if (t > DUDA && t < b(0.45)) R.bocadillo(214, 82, { icono: '?' });
   const u = tramo(t, PERO, PERO + 1.2), pega = tramo(t, TOCA, TOCA + 0.35);
   if (u > 0) { const wx = Math.round(lerp(300, 254 - pega * 3, u)), wy = Math.round(lerp(200, 144, u));
@@ -192,7 +225,12 @@ const p3 = (t) => {
     if (pega > 0.9) for (const [i, j] of [[-18, -6], [-20, 2], [-17, 8]]) R.pset(wx + i, wy + j, BL); }
 };
 
-const efectos = [[AGATA, 'pop'], [2.8, 'whoosh'], [DOS - 0.1, 'papel'], [PAPAS + 0.2, 'brillo'], [DUDA, 'pop'], [TOCA, 'golpecito']];
+// efectos (≈50 % del tiempo con algo sonando): la brisa de la plaza, los pasos de la guía y del niño, el aleteo de las
+// palomas; la cartela que se desenrolla, la franja que se traza, el «100» que aparece y la cartela que se enrolla; el
+// destello de la copa alzada y la luz que atraviesa el ágata; el paso que se acerca, el golpecito en el cristal y el vaho
+const efectos = [[0.05, 'viento', { dur: 2.4 }], [AGATA, 'pop'], [EXPERTOS + 0.15, 'tic'], [2.8, 'whoosh'], [3.4, 'toc'],
+  [DOS - 0.1, 'papel'], [DOS + 0.7, 'lapiz'], [UNO, 'tic'], [ENROLLA, 'papel'], [PAPAS + 0.2, 'brillo'],
+  [P3 + 0.3, 'brillo'], [DUDA, 'pop'], [PERO + 0.1, 'toc'], [TOCA, 'golpecito'], [TOCA + 0.3, 'vapor']];
 const año = (t) => t < P2 ? 2026 : t < P3 ? 1982 : 2026;
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año });
 </script>

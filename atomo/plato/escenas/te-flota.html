@@ -11,15 +11,18 @@
 <script type="module">
 // TE-FLOTA (frases 18–20), 1312 y 1308. Cinco planos:
 // 1. (la casa del Temple junto al mar) un templario sale cabizbajo por la puerta con un cofre y en «handed over» se lo
-//    entrega a un hospitalario, que lo sube al carro con los otros cofres (corta en «to another order»);
+//    entrega a un hospitalario, que lo sube al carro con los otros cofres antes del corte (corta en «to another order»);
 // 2. (fondo local: lo alto de la torre, el cielo con nubes y gaviotas, el mar) el templario arría el estandarte blanco y
-//    negro; el hospitalario iza el suyo, rojo con la cruz blanca, que llega arriba en «the Hospitallers» (corta en «But»);
-// 3. (el tribunal de 1308) Jean de Châlons entra con un guardia y se planta ante el banco; en «Jean de Chalon» el
-//    inquisidor le señala; en «told» habla; el escribano escribe (corta en «Inquisitors»);
+//    negro; el hospitalario iza el suyo, rojo con la cruz blanca, que llega arriba en «the Hospitallers»; las telas se
+//    sacuden más con la racha de viento (corta en «But»);
+// 3. (el tribunal de 1308) tres inquisidores tras la mesa, con hombros y pecho por encima del tablero (la pluma del
+//    tintero pasa por detrás del obispo); Jean de Châlons entra con un guardia y se planta ante el banco; en «Jean de
+//    Chalon» el obispo le señala con el dedo por encima de la mesa; en «told» habla; el escribano escribe (corta en «Inquisitors»);
 // 4. (el banco de cerca) Jean cuenta lo que oyó: le sale un bocadillo con galeras que van apareciendo hasta dieciocho
 //    en «18 galleys»; el guardia se sorprende (corta en «He had heard it»);
 // 5. (el muelle, gag 4) el rumor pasa de boca en boca: dos barcos, cinco, dieciocho, cada bocadillo más grande; en
 //    «found a record» el último mira al mar y no hay nada («?»); en «ships» los bocadillos revientan.
+// Sonido (densidad ~46 %): ola al abrir (mar) y en el muelle, viento en la torre, murmullo mientras corre el rumor.
 import * as T from '/atomo/plato/escenas/te-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('te-flota');
@@ -91,11 +94,12 @@ const p1 = (t) => {
   const CX = 214, CB = 178;
   // el templario sale por la puerta con el cofre, baja y se lo da al hospitalario
   const u = tramo(t, 0.3, 2.9), xt = Math.round(lerp(150, 170, u)), yt = Math.round(lerp(143, 169, u));
-  const pasa = tramo(t, ENTREGA - 0.15, ENTREGA + 0.25), sube = tramo(t, ENTREGA + 0.55, ENTREGA + 0.95);
+  // el cofre llega al carro antes del corte (el «golpecito» suena en el plano, no en la torre)
+  const pasa = tramo(t, ENTREGA - 0.2, ENTREGA + 0.2), sube = tramo(t, ENTREGA + 0.3, ENTREGA + 0.66);
   const mt = R.actor(EL.templario, xt, yt, t, { dir: 1, anda: u > 0 && u < 1, triste: true, sostiene: pasa < 1 ? [xt + 16, yt - 14] : undefined }).mano;
   // el segundo templario mira desde la puerta
   if (t > 1.4) R.actor(EL.templario2, 151, 143, t, { dir: 1, triste: true, parpadea: true });
-  const xh = 194, gira = t > ENTREGA + 0.4;
+  const xh = 194, gira = t > ENTREGA + 0.24;
   const oh = { dir: gira ? 1 : -1, sonrisa: t > ENTREGA + 0.1 };
   if (pasa > 0 && sube < 1) oh.sostiene = gira ? [xh + 17, 162 - Math.round(sube * 4)] : [xh - 1, 157];
   else if (t > ENTREGA + 1.0) oh.dedo = true;
@@ -152,9 +156,9 @@ const TORRE = () => {
 };
 const nube3 = (cx, cy, w) => { const b = [[0, 0, 0.32], [-0.32, 0.06, 0.24], [0.3, 0.05, 0.26], [-0.1, -0.12, 0.26], [0.14, -0.08, 0.22]];
   for (const [c, dy, dx, f] of [['#a8b8d0', 1, 0, 1], ['#d8e4f0', 0, 0, 1], ['#ffffff', -2, -1, 0.75]]) for (const [x, y, r] of b) R.disco(Math.round(cx + x * w + dx), Math.round(cy + y * w + dy), Math.round(r * w * f), hex(c)); };
-const estandarte = (x, y, t, tipo) => {
+const estandarte = (x, y, t, tipo, amp = 2) => {
   const W = 40, H = 24;
-  for (let i = 0; i < W; i++) { const s = Math.sin(t * 7 - i * 0.3), dy = Math.round(s * 2 * (i / W)); for (let j = 0; j < H; j++) {
+  for (let i = 0; i < W; i++) { const s = Math.sin(t * 7 - i * 0.3), dy = Math.round(s * amp * (i / W)); for (let j = 0; j < H; j++) {
     const yy = y + j + dy, borde = i === W - 1 || j === 0 || j === H - 1; let c;
     if (tipo === 'temple') c = j < H / 2 ? hex('#1c1820') : hex('#f2eee2');
     else c = (i >= 12 && i <= 16 && j >= 3 && j <= 21) || (j >= 7 && j <= 10 && i >= 5 && i <= 23) ? hex('#f2eee2') : hex('#c8303a');
@@ -184,8 +188,10 @@ const p2 = (t) => {
   R.linea(PX + 2, 20, PX + 2, 150, hex('#d8c8a0')); R.linea(PX + 3, 22, PX + 3, 150, hex('#b8a880')); R.rect(PX + 1, 149, PX + 4, 151, MD[0]);
   // el estandarte del Temple baja (el templario tira de la driza) y el de los hospitalarios sube
   const baja = tramo(t, P2 + 0.3, P2 + 1.6), iza = tramo(t, P2 + 1.9, HOSP + 0.05);
-  if (baja < 1) estandarte(PX + 3, Math.round(lerp(22, 114, baja)), t, 'temple');
-  if (iza > 0) estandarte(PX + 3, Math.round(lerp(114, 22, iza * (2 - iza))), t, 'hosp');
+  // la racha de «viento» (P2 + 0,2 … + 3,4) sacude más las telas
+  const racha = 2 + 1.5 * Math.sin(Math.PI * tramo(t, P2 + 0.2, P2 + 3.4));
+  if (baja < 1) estandarte(PX + 3, Math.round(lerp(22, 114, baja)), t, 'temple', racha);
+  if (iza > 0) estandarte(PX + 3, Math.round(lerp(114, 22, iza * (2 - iza))), t, 'hosp', racha);
   // los dos caballeros en el adarve
   const tira = baja > 0 && baja < 1, plega = baja >= 1;
   const mt = R.actor(EL.templario, 124, 168, t, { dir: 1, triste: plega || tira, sostiene: tira ? [PX + 1, 140 + Math.round(Math.sin(t * 14) * 3)] : plega ? [140, 152] : undefined }).mano;
@@ -202,10 +208,15 @@ const p2 = (t) => {
 const FRAILE = { C: '#f2eee2', c: '#c8c0b0', o: '#2a2430', H: '#3a2a1a', h: '#5a3a24' };
 const p3 = (t) => {
   const g = T.puerto(R, t, { encuadre: 'tribunal', delante: false });
-  R.actor(EL.escribano, 124, 136, t, { dir: -1, pal: FRAILE, parpadea: true });
-  R.actor(EL.obispo, 160, 136, t, { dir: -1, dedo: t > CHALON - 0.1 && t < CHALON + 0.7, enfado: t > CHALON - 0.1 && t < DIJO });
-  R.actor(EL.escribano, 196, 136, t, { dir: -1, pal: { ...FRAILE, H: '#8a8a9a', h: '#b0b0c0' }, habla: t > TEMPLARIO && t < TEMPLARIO + 0.6 && Math.sin(t * 10) > 0 });
+  // los tres inquisidores sentados asoman con hombros y pecho por encima del tablero (como los bustos del consejo del 11)
+  const YS = 126;
+  R.actor(EL.escribano, 124, YS, t, { dir: -1, pal: FRAILE, parpadea: true });
+  const obispo = () => R.actor(EL.obispo, 160, YS, t, { dir: -1, dedo: t > CHALON - 0.1 && t < CHALON + 0.7, enfado: t > CHALON - 0.1 && t < DIJO });
+  obispo();
+  R.actor(EL.escribano, 196, YS, t, { dir: -1, pal: { ...FRAILE, H: '#8a8a9a', h: '#b0b0c0' }, habla: t > TEMPLARIO && t < TEMPLARIO + 0.6 && Math.sin(t * 10) > 0 });
   T.tribunalDelante(R, t);
+  // la pluma del tintero queda por detrás del obispo (no le cruza la cara) y su mano con el dedo, por encima del tablero
+  R.recorte([147, 80, 182, 117]); obispo(); R.recorte(null);
   // el escribano en su atril escribe lo que dice
   { const m = R.actor(EL.escribano, 262, 168, t, { dir: 1, sostiene: [282 + Math.round(Math.sin(t * 9) * 1.5), 148 + Math.round(Math.sin(t * 13))] }).mano; R.linea(m[0], m[1], m[0] + 3, m[1] - 6, hex('#f2eee2')); }
   // Jean de Châlons entra con el guardia y se planta; en «told» habla
@@ -247,8 +258,9 @@ const p5 = (t) => {
 };
 
 const año = (t) => (t < P3 ? 1312 : 1308);
-const efectos = [[ENTREGA + 0.95, 'golpecito'], [HOSP + 0.05, 'rafaga'], [P3 + 0.25, 'puerta'], [DIJO + 0.3, 'lapiz'], [OYO, 'pop'], [DIECIOCHO + 0.02, 'brillo'],
-  [OIDO2, 'pop'], [NOVISTO, 'pop'], [NADIE - 0.05, 'boing'], [BARCOS, 'pop']];
+// ambiente: el mar junto a la casa, el viento en lo alto de la torre, el agua del muelle y el murmullo del rumor
+const efectos = [[0.2, 'ola'], [ENTREGA + 0.66, 'golpecito'], [P2 + 0.2, 'viento', { dur: 3.2 }], [HOSP + 0.05, 'rafaga'], [P3 + 0.25, 'puerta'], [DIJO + 0.3, 'lapiz'], [OYO, 'pop'], [DIECIOCHO + 0.02, 'brillo'],
+  [P5 + 0.05, 'ola'], [OIDO2, 'pop'], [OIDO2 + 0.3, 'publico', { dur: 2.2 }], [NOVISTO, 'pop'], [NADIE - 0.05, 'boing'], [BARCOS, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año });
 </script>
 </body>
