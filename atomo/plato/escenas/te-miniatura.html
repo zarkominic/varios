@@ -32,7 +32,7 @@ const dibujar = (t) => {
   const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
   pon(pj, 0, 26, 28, 61, 30, 110, 2);
   pon(pj2, 0, 26, 28, 61, 228, 110, 2);
-  detector(R, 238, 160, t, { dir: -1, pita: 1, suelo: 176 });
+  detector(R, 232, 148, t, { dir: -1, pita: 1, suelo: 176, largo: 22 });
   cofre(R, 160, 176, t, { abre: 1, brillo: 1, s: 3 });
   copa(R, 160, 134, t, { tipo: 'agata', s: 3, brillo: 1 });
   R.numero('1307', 46, 24, { tam: 16, centro: true });
