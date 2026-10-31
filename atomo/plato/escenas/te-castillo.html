@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El castillo del Grial · ep17</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TE-CASTILLO (frases 33–34), 1210. Cuatro planos:
+// 1. (castillo, general) de noche, en la gran sala del Grial; la procesión de velas cruza el fondo y dos caballeros de
+//    manto blanco guardan las gradas; en «German poet» entra el poeta Wolfram con su libro, en «Wolfram» se queda
+//    boquiabierto ante la piedra que destella y señala el altar;
+// 2. (castillo, altar; corte en «makes») la piedra luminosa late; en «guarded» los dos caballeros llegan por los lados con
+//    sus lanzas y pendones, en «Templeisen» dan un golpe de lanza; en «a name» les sale un «?» y en «Templars» la cruz;
+// 3. (mostrador, general; corte en «Since then») la barra del año corre de 1210 a hoy; el buscador entra en la feria de
+//    copas, en «claimed» coge una de barro y en «Grail» aparece otra al final de la fila: se queda pasmado (gag 5);
+// 4. (mostrador, cerca; corte en «and the most famous») la mano coge una copa de oro y aparece otra al final, la de
+//    ágata roja; en «Cathedral of Valencia» brilla, la mano deja la de oro y la señala; en «Spain», «!».
+import * as T from '/atomo/plato/escenas/te-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('te-castillo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const w = (f) => en('wolfram', f), g = (f) => en('iglesias', f);
+const P2 = w(0.448), P3 = g(0), P4 = g(0.504);
+const K = T.C.k;
+// la lanza con su pendón blanco de cruz roja que ondea (x, y: la mano; d: hacia dónde ondea)
+const lanza = (x, y, t, k = 0, d = 1) => {
+  x = Math.round(x); y = Math.round(y);
+  R.linea(x, y + 10, x, y - 24, hex('#4a2e18')); R.linea(x + 1, y + 10, x + 1, y - 24, hex('#8a6a40'));
+  R.poligono([[x - 1, y - 24], [x + 2, y - 24], [x + 1, y - 30]], hex('#c8ccd8')); R.pset(x, y - 26, C.blanco);
+  for (let i = 0; i < 12; i++) { const o = Math.round(Math.sin(t * 5 + k - i * 0.5) * 1.2), hgt = i > 8 ? 7 - (i - 8) * 2 : 7;
+    for (let j = 0; j < hgt; j++) { const px = x + d * (2 + i), py = y - 23 + j + o; R.pset(px, py, j === 0 || i === 11 ? hex('#c8c4bc') : j === hgt - 1 ? hex('#d8d4cc') : hex('#f2eee2')); }
+    if (i >= 3 && i <= 6) { R.pset(x + d * (2 + i), y - 20 + o, hex('#c8303a')); } if (i === 4 || i === 5) for (let j = 1; j < 6; j++) R.pset(x + d * (2 + i), y - 23 + j + o, hex('#c8303a')); }
+};
+const C = { blanco: hex('#ffffff') };
+// un libro de tapas rojas en la mano
+const libro = (x, y) => { x = Math.round(x); y = Math.round(y); R.rect(x - 4, y - 4, x + 3, y + 2, K); R.rect(x - 3, y - 3, x + 2, y + 1, hex('#8a2a2a')); R.rect(x + 2, y - 3, x + 2, y + 1, hex('#f2eee2')); R.pset(x - 2, y - 2, hex('#c8a040')); };
+// el destello: un anillo de chispas que se abre
+const destello = (x, y, u, r0 = 6, r1 = 26) => { if (u <= 0 || u >= 1) return; const r = r0 + (r1 - r0) * u; for (let k = 0; k < 20; k++) { const a = k / 20 * Math.PI * 2; if ((k + Math.floor(u * 6)) % 3 === 0) continue; R.pset(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.8), u < 0.6 ? hex('#fffbe0') : hex('#f0d880')); } };
+const BL = hex('#ffffff');
+const globo = (x, y, icono, col = K) => { x = Math.round(x); y = Math.round(y); R.rect(x - 11, y - 20, x + 11, y, K); R.rect(x - 10, y - 19, x + 10, y - 1, BL); R.rect(x - 10, y - 1, x + 10, y - 1, hex('#d8d8e0')); R.pset(x - 2, y + 1, K); R.pset(x - 1, y + 2, K); R.pset(x - 1, y + 1, BL); R.icono(icono, x - 7, y - 17, col, BL, 2); };
+const WOLF = { C: hex('#3a6a4a'), c: hex('#2a5038') };
+
+// 1 · la gran sala: entra el poeta, ve la piedra y la señala
+const VE = w(0.28);
+const p1 = (t) => {
+  const d = T.grial(R, t, { encuadre: 'castillo' });
+  // los dos guardianes de manto blanco en las gradas, con sus lanzas; el de la izquierda se vuelve hacia el poeta
+  { const gira = t > w(0.2); const m = R.actor(EL.templario, 106, 134, t, { dir: gira ? -1 : 1, habla: t > VE + 0.3 && t < VE + 1.1 && Math.sin(t * 9) > 0, sostiene: [gira ? 106 : 120, 120] }).mano; lanza(m[0], m[1], t, 0, gira ? -1 : 1); }
+  { const m = R.actor(EL.templario2 || EL.templario, 200, 134, t, { dir: -1, sostiene: [200, 120] }).mano; lanza(m[0], m[1], t, 1, -1); }
+  // el poeta Wolfram entra con su libro, se queda pasmado y señala el altar
+  const u = tramo(t, 0.4, w(0.2)), x = Math.round(lerp(-18, 62, u));
+  const o = { dir: 1, anda: u > 0 && u < 1, pal: WOLF };
+  if (t > VE && t < VE + 0.9) o.sorpresa = true;
+  if (t > VE + 0.9) { o.dedo = true; o.sonrisa = true; } else o.sostiene = [x + 13, d.suelo - 14];
+  const m = R.actor(EL.poeta, x, d.suelo, t, o).mano;
+  if (o.sostiene) libro(m[0], m[1]);
+  // la piedra destella cuando la ve
+  destello(d.objeto[0], d.objeto[1], tramo(t, VE, VE + 0.8));
+  destello(d.objeto[0], d.objeto[1], tramo(t, VE + 0.4, VE + 1.3), 4, 20);
+};
+
+// 2 · el altar: la piedra late; llegan los guardianes; «?» y la cruz templaria
+const GUARDA = w(0.518), LLAMA = w(0.668), NOMBRE = w(0.803), TEMPLE = w(0.928);
+const p2 = (t) => {
+  const d = T.grial(R, t, { encuadre: 'castillo', camara: 'altar' });
+  destello(d.objeto[0], d.objeto[1], tramo(t, w(0.489), w(0.489) + 0.9), 10, 40);
+  [[-20, 78, 1, 0], [330, 226, -1, 1]].forEach(([x0, x1, dd, k]) => {
+    const u = tramo(t, GUARDA + k * 0.15, w(0.6) + k * 0.1), x = Math.round(lerp(x0, x1, u)), llegado = u >= 1;
+    // al llegar se vuelven hacia fuera (guardan el altar); en «Templeisen» dan un golpe con la lanza en el suelo
+    const dir = llegado ? -dd : dd, golpe = t > LLAMA && t < LLAMA + 0.35 ? -3 : 0;
+    const m = R.actor(EL.templario, x, d.suelo, t, { dir, anda: u > 0 && !llegado, sostiene: [x + (dir > 0 ? 13 : 1), d.suelo - 14 + golpe], sonrisa: t > TEMPLE + 0.2 }).mano;
+    lanza(m[0], m[1], t, k, dir);
+    if (golpe) { R.pset(m[0] - 2, d.suelo, hex('#e8e0d0')); R.pset(m[0] + 3, d.suelo, hex('#e8e0d0')); R.pset(m[0] - 3, d.suelo - 1, hex('#c8c0b0')); }
+    // el bocadillo: primero «?» y luego la cruz de los templarios
+    if (t > NOMBRE && t < TEMPLE) globo(x + 7, d.suelo - 36, '?');
+    else if (t > TEMPLE) globo(x + 7, d.suelo - 36 - Math.round(2 * (1 - tramo(t, TEMPLE, TEMPLE + 0.2))), 'cruz', hex('#c8303a'));
+  });
+};
+
+// 3 · la feria de copas: el buscador coge una y aparece otra al final (gag 5)
+const COGE = g(0.291), NUEVA = g(0.388);
+const p3 = (t) => {
+  const tiene = t > COGE + 0.25;
+  const d = T.grial(R, t, { encuadre: 'mostrador', falta: tiene ? 2 : -1, nueva: tramo(t, NUEVA, NUEVA + 0.7) });
+  const u = tramo(t, P3 + 0.15, g(0.2)), x = Math.round(lerp(-18, 96, u));
+  const o = { dir: 1, anda: u > 0 && u < 1 };
+  if (t > NUEVA + 0.2) { o.sorpresa = true; }
+  if (t > g(0.22) && !tiene) o.sostiene = [Math.round(lerp(x + 13, 106, tramo(t, g(0.22), COGE))), Math.round(lerp(d.suelo - 14, 141, tramo(t, g(0.22), COGE)))];
+  else if (tiene) o.sostiene = [x + 15, d.suelo - 15 - Math.round(4 * tramo(t, COGE + 0.25, COGE + 0.6))];
+  else o.dedo = t > g(0.2) && t < g(0.22);
+  if (!o.sostiene && !o.dedo) o.sonrisa = t > g(0.12);
+  const m = R.actor(EL.buscador, x, d.suelo, t, o).mano;
+  if (tiene) T.copa(R, m[0], m[1] + 4, t, { tipo: 'barro', s: 1 });
+  if (t > NUEVA + 0.35) R.bocadillo(x + 8, d.suelo - 34, {});
+  destello(d.copas[7] ? d.copas[7][0] : 286, 134, tramo(t, NUEVA, NUEVA + 0.8), 4, 24);
+  // un perrillo de feria que olisquea el mostrador y se va (vida)
+  { const v = tramo(t, P3 + 0.4, P4 - 0.2), px = Math.round(lerp(330, 200, v)); const p = v > 0 && v < 1 ? Math.floor(t * 8) % 2 : 0; perro(px, d.suelo, t, -1, p); }
+};
+// un perro pequeño blanco con una mancha (x: el borde izquierdo, base: las patas)
+const PERRO = ['.........kk...', '........kBWk..', '.k......kWWkWk', 'kWk.....kWWWWk', '.kWkkkkkkWWWk.', '..kWWWWWWWWk..', '..kWBBWWWWWk..', '..kWWWWWWWWk..', '..kWkkkkkWkk..'];
+const PATAS = [['..kk.....kk...'], ['...kk...kk....']];
+const perro = (x, base, t, dir, p) => { const pal = { k: K, W: hex('#f2eee2'), B: hex('#a8743c') }, rows = PERRO.concat(PATAS[p]); rows.forEach((r, j) => { for (let i = 0; i < 14; i++) { const c = r[i]; if (c === '.') continue; R.pset(dir > 0 ? x + i : x + 13 - i, base - rows.length + j, pal[c]); } }); };
+
+// 4 · de cerca: la mano coge la de oro, aparece la de ágata; brilla en «Cathedral of Valencia»
+const MANO = g(0.533), APARECE = g(0.6), VLC = g(0.672), DEJA = g(0.74), SPAIN = g(0.918);
+const p4 = (t) => {
+  const sube = tramo(t, MANO, MANO + 0.4) - tramo(t, DEJA, DEJA + 0.45), tiene = t > MANO && t < DEJA + 0.45;
+  const d = T.grial(R, t, { encuadre: 'mostrador', camara: 'cerca', falta: tiene ? 1 : -1, nueva: tramo(t, APARECE, APARECE + 0.7) });
+  const [cx, cy] = d.copas[1], [ax, ay] = d.copas[5] || [286, 149];
+  // la de ágata brilla con fuerza cuando la voz dice Valencia
+  const br = tramo(t, VLC, VLC + 0.5);
+  if (br > 0) { T.copa(R, ax, ay, t, { tipo: 'agata', s: 3, brillo: br }); destello(ax, ay - 18, tramo(t, VLC, VLC + 1), 12, 34); }
+  // la mano: entra por abajo, coge la copa por el tallo, la levanta, la vuelve a dejar y señala la de ágata
+  const llega = tramo(t, P4 + 0.1, MANO), apunta = tramo(t, DEJA + 0.5, VLC + 1.2);
+  let wx = lerp(130, cx - 10, llega), wy = lerp(196, cy - 9, llega) - sube * 22;
+  if (apunta > 0) { wx = lerp(cx - 10, ax - 30, apunta); wy = lerp(cy - 9, ay - 16, apunta); }
+  if (tiene) T.copa(R, cx, Math.round(cy - sube * 22), t, { tipo: 'oro', s: 3, brillo: 0.15 });
+  if (llega > 0) T.brazo(R, Math.round(wx + 18), 192, Math.round(wx), Math.round(wy), '#e8dcc0', 1);
+  if (t > SPAIN) R.bocadillo(ax, ay - 42, {});
+};
+
+const efectos = [[VE, 'brillo'], [w(0.489), 'brillo'], [LLAMA, 'toc'], [NOMBRE, 'pop'], [TEMPLE, 'pop'], [COGE, 'golpecito'], [NUEVA, 'brillo'], [NUEVA + 0.35, 'boing'], [APARECE, 'brillo'], [DEJA + 0.4, 'golpecito'], [SPAIN, 'pop']];
+const año = (t) => t < P3 ? 1210 : Math.round(lerp(1210, 2026, tramo(t, P3 + 0.1, P3 + 1.3)));
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>

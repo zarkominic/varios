@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ultramar · ep17</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TE-ULTRAMAR (frases 8–10), hacia 1120, cartela «1120». Cinco planos:
+// 1. Jerusalén de lejos, murallas doradas: tres caballeros ante el altar; el tercero llega; juran a la vez («vow») con la
+//    mano en alto ante el patriarca; el primero se vuelve y señala a los peregrinos que suben por el camino («pilgrims»);
+// 2. el camino de polvo entre colinas: dos peregrinos bajan con su bordón escoltados por un templario a caballo; al decir
+//    «robbers» un ladrón asoma por detrás de una peña y se esconde cuando el caballero lo mira (corta en «who»);
+// 3. la explanada del Templo: el rey de Jerusalén (manto rojo y corona) señala las cuadras («lets them settle»); un
+//    caballero lleva su caballo al abrevadero y bebe; otro señala la mezquita convertida en cuadra al decir «Temple of
+//    Solomon» (corta en «The King»);
+// 4. la mesa con el pergamino de la orden: una mano baja la matriz de latón sobre la cera caliente y sella al decir
+//    «Knights of the Temple»; al levantarla aparece el sello (corta en «And that's why»);
+// 5. el sello de cerca: dos caballeros en un caballo cansado; un «2» sobre los jinetes («two knights») y un «1» sobre el
+//    caballo («single horse»); al decir «poor» rueda una sola moneda que se tumba junto al sello (corta en «two»).
+import * as T from '/atomo/plato/escenas/te-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('te-ultramar');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k;
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const tiñe = (x, y, c, a) => { if (x < 0 || y < 0 || x > 319 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, a)); };
+const pl = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)]));
+const FIJOS = new Map();
+// un fondo quieto se pinta una vez en su búfer y se copia en cada fotograma
+const fijo = (clave, dibuja) => { let b = FIJOS.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); R.recorte(null); dibuja(); R.usar(prev); FIJOS.set(clave, b); } R.copiar(b); };
+// una bolsa de monedas de cuero (x: centro; y: la base), con su cordón de oro; o.abierta: la boca abierta (vacía y oscura)
+const bolsa = (x, y, o = {}) => { x = Math.round(x); y = Math.round(y); const r = o.r ?? 5, cy = y - r, Cu = hex('#8a5a30'), CuL = hex('#b8803e'), CuS = hex('#5a3a1a');
+  R.disco(x, cy, r + 1, K); R.disco(x, cy, r, Cu); R.disco(x - 1, cy - 1, r - 2, CuL); R.disco(x + 1, cy + 1, Math.max(1, r - 3), mez(Cu, CuL, 0.4));
+  for (let j = -r + 1; j < r; j++) R.pset(x + r - 1 - (Math.abs(j) > r - 3 ? 1 : 0), cy + j, CuS);
+  R.pset(x - 2, cy - 2, hex('#f0c070')); R.pset(x - 3, cy - 1, hex('#d8a060'));
+  if (o.abierta) { R.disco(x, cy - r + 1, 3, K); R.disco(x, cy - r + 1, 2, hex('#2a1a0e')); R.linea(x - 4, cy - r, x - 3, cy - r - 2, K); R.linea(x + 4, cy - r, x + 3, cy - r - 2, K); }
+  else { R.rect(x - 2, cy - r - 3, x + 2, cy - r, K); R.rect(x - 1, cy - r - 2, x + 1, cy - r, Cu); R.rect(x - 3, cy - r - 1, x + 3, cy - r - 1, hex('#e8b830')); R.pset(x + 3, cy - r, hex('#e8b830'));
+    R.rect(x - 3, cy - r - 5, x + 3, cy - r - 4, K); R.rect(x - 2, cy - r - 5, x + 2, cy - r - 5, CuL); }
+  if (o.brilla) { const f = Math.floor(o.brilla * 6) % 3; R.pset(x - 2 + f, cy, hex('#fff6c0')); }
+};
+// el bordón del peregrino (vara con calabaza) en la mano
+const bordon = (m, suelo) => { const [mx, my] = m; R.linea(mx, my - 14, mx, suelo, K); R.linea(mx + 1, my - 14, mx + 1, suelo, hex('#8a5a30')); R.pset(mx + 1, my - 12, hex('#b8803e'));
+  R.disco(mx + 2, my - 15, 2, K); R.disco(mx + 2, my - 15, 1, hex('#d8a040')); R.pset(mx + 1, my - 16, hex('#f0d080')); };
+
+const P2 = en('jerusalen', 0.635), P3 = en('templo', 0), P4 = en('templo', 0.745), P5 = en('sello', 0.114);
+const VOTO = en('jerusalen', 0.444), PEREG = en('jerusalen', 0.567), LADRON = en('jerusalen', 0.918);
+const DEJA = en('templo', 0.116), INSTALA = en('templo', 0.183), SALOMON = en('templo', 0.576), CABALLEROS = en('templo', 0.885);
+const DOS = en('sello', 0.114 + 0.04), UNO = en('sello', 0.249), POBRES = en('sello', 0.767);
+
+const p1 = (t) => {
+  const g = T.ultramar(R, t, { encuadre: 'jerusalen', altar: true }), S = g.suelo;
+  // el patriarca junto al altar: dicta el juramento y bendice
+  R.actor(EL.obispo, 52, S, t, { dir: 1, habla: t > 1.4 && t < VOTO - 0.2 && Math.sin(t * 7) > 0, dedo: t > VOTO - 0.1 && t < VOTO + 1.2, sonrisa: t > VOTO + 1.2 });
+  // tres caballeros ante el altar; el tercero llega por el camino
+  const K3 = [[EL.templario, 114, 0, null], [EL.templario2, 131, 0, null], [EL.templario, 148, 1, pl({ H: '#1c1424', h: '#3a3046' })]];
+  K3.forEach(([d, x0, llega, pal], k) => {
+    const u = llega ? tramo(t, 0.3, 3.2) : 1, x = Math.round(lerp(x0 + 70, x0, u)), anda = u > 0 && u < 1;
+    const jura = t > VOTO - 0.05 + k * 0.08 && t < PEREG - 0.15, senala = k === 0 && t > PEREG - 0.1;
+    R.actor(d, x, S, t, { dir: senala ? 1 : -1, anda, dedo: jura || senala, sonrisa: t > PEREG, pal });
+  });
+  // los peregrinos suben por el camino hacia la puerta, con su bordón (llegan después del caballero)
+  for (let k = 1; k >= 0; k--) {
+    const u = tramo(t, 2.3 + k * 0.7, P2 + 1.2 + k * 0.7), y = Math.round(lerp(188, 146, u)), x = Math.round(g.camino(y) - 8);
+    const m = R.actor(EL.peregrino, x, y, t, { dir: 1, anda: u < 1, sostiene: true, sonrisa: t > PEREG, pal: k ? pl({ C: '#a8906a', c: '#86704e' }) : null }).mano;
+    bordon(m, y);
+  }
+  // las velas se avivan con el juramento
+  if (t > VOTO && t < VOTO + 0.8) { const a = 1 - tramo(t, VOTO, VOTO + 0.8); for (const vx of [81, 105]) for (let j = -4; j <= 4; j++) for (let i = -4; i <= 4; i++) if (i * i + j * j < 16) tiñe(vx + i, 128 + j, hex('#fff0b0'), 0.5 * a); }
+};
+
+// una peña de arenisca con su sombra, vetas, liquen y una mata seca (va delante del ladrón)
+const peña = (cx, base, w, al, k) => {
+  for (let j = 0; j <= al; j++) { const u = j / al, hw = Math.round(w * Math.sqrt(Math.max(0, 1 - Math.pow(u * 1.05, 2.2))) * (1 - 0.15 * u)); for (let i = -hw; i <= hw; i++) { const x = cx + i, y = base - j;
+    const borde = Math.abs(i) >= hw - 0.5 || j === al; let c = i < -hw * 0.35 && j > al * 0.35 ? hex('#e6d4b0') : i > hw * 0.45 || j < 3 ? hex('#8a7656') : hex('#bca684');
+    const q = hh(x >> 1, y >> 1, 77 + k); if (q < 0.12) c = mez(c, K, 0.18); else if (q > 0.93) c = mez(c, hex('#fff4d8'), 0.4);
+    if ((y + Math.round(i * 0.3)) % 7 === 0 && q < 0.7) c = mez(c, hex('#6a5a40'), 0.35);
+    R.pset(x, y, borde ? hex('#4a3e2c') : c); } }
+  for (let i = 0; i < 6; i++) { const x = cx - w + 6 + Math.round(hh(i, k, 78) * w * 1.4), y = base - 4 - Math.round(hh(i, k, 79) * al * 0.6); R.pset(x, y, hex('#8a9a4a')); R.pset(x + 1, y, hex('#6a7a3a')); }
+  for (let i = -w - 4; i <= w + 4; i++) R.pset(cx + i, base + 1, hex('#7a6448'));
+};
+const mata = (x, base, t, k) => { for (let i = -4; i <= 4; i++) { const s = Math.round(Math.sin(t * 2.6 + k + i) * 1.2); R.linea(x + i, base, x + i * 2 + s, base - 8 - (i & 1) * 3, i % 2 ? hex('#8a7a40') : hex('#b0a058')); } };
+
+const p2 = (t) => {
+  const g = T.ultramar(R, t, { encuadre: 'camino' }), S = g.suelo, u = tramo(t, P2 - 0.6, P3 + 0.4);
+  // dos peregrinos bajan por el camino hacia nosotros; un templario a caballo los escolta
+  for (let k = 1; k >= 0; k--) {
+    const y = Math.round(lerp(150 + k * 8, 168 + k * 6, u) - k * 4), x = Math.round(g.camino(y) - 6 + k * 14);
+    const m = R.actor(EL.peregrino, x, y, t, { dir: 1, anda: true, sostiene: true, sorpresa: t > LADRON + 0.3 && t < LADRON + 1.2, pal: k ? { C: '#6a5a4a', c: '#4e4234' } : null }).mano;
+    bordon(m, y);
+  }
+  const yc = Math.round(lerp(150, 170, u)), xc = Math.round(g.camino(yc) - 54), mira = t > LADRON + 0.25;
+  T.b_caballo(R, xc, yc, t, { dir: 1, anda: true, silla: true });
+  R.actor(EL.templario, xc + 8, yc - 13, t, { dir: mira ? -1 : 1, quieto: true, sorpresa: mira && t < LADRON + 0.9, dedo: t > LADRON + 0.6 });
+  // el ladrón asoma detrás de la peña y se esconde
+  const asoma = tramo(t, LADRON - 0.25, LADRON + 0.05) - tramo(t, LADRON + 0.5, LADRON + 0.75);
+  R.actor(EL.ladron, 50, 168 - Math.round(asoma * 13), t, { dir: 1, enfado: true, quieto: true });
+  peña(58, 172, 26, 28, 1); mata(30, 174, t, 2); mata(88, 175, t, 5);
+};
+
+const p3 = (t) => {
+  const g = T.ultramar(R, t, { encuadre: 'jerusalen', camara: 'explanada' }), S = g.suelo;
+  // el rey de Jerusalén (manto rojo, corona) deja las cuadras a los caballeros
+  R.actor(EL.felipe, 54, S, t, { dir: 1, pal: pl({ C: '#a83a3a', c: '#7a2a2a', H: '#3a2418', h: '#5a3a24' }), habla: t < DEJA && Math.sin(t * 7) > 0, dedo: t > DEJA - 0.05 && t < DEJA + 1.6, sonrisa: t > DEJA + 1.6 });
+  // un caballero lleva su caballo al abrevadero; el caballo bebe
+  const u = tramo(t, P3 + 0.2, INSTALA + 1.6), xh = Math.round(lerp(-40, 200, u)), bebe = t > INSTALA + 1.8;
+  T.b_caballo(R, xh, S, t, { dir: 1, anda: u > 0 && u < 1, come: bebe, cola: true, silla: true });
+  R.actor(EL.templario2, xh + 24, 172, t, { dir: bebe ? -1 : 1, anda: u > 0 && u < 1, sonrisa: bebe, sostiene: u < 1 ? [xh + 34, 150] : null });
+  // otro caballero señala la mezquita convertida en cuadras: el Templo de Salomón
+  const v = tramo(t, P3 + 0.8, SALOMON - 1.2);
+  R.actor(EL.templario, Math.round(lerp(120, 150, v)), S, t, { dir: 1, anda: v > 0 && v < 1, dedo: t > SALOMON - 0.1 && t < SALOMON + 1.4, sonrisa: t > SALOMON });
+};
+
+// la cera caliente antes de sellar: una gota de cera lisa con su brillo y el borde que se derrama
+const ceraLisa = (cx, cy) => { for (let j = -28; j <= 28; j++) for (let i = -28; i <= 28; i++) { const a = Math.atan2(j, i), rr = 25.5 + 1.8 * Math.sin(a * 7 + 1) + 1.2 * Math.sin(a * 3), d = Math.hypot(i, j); if (d > rr + 1) continue;
+  let c = d > rr ? hex('#4a1014') : hex('#a8303a'); if (d <= rr) { const l = (-i - j) / 40; c = l > 0.35 ? hex('#c84a50') : l < -0.4 ? hex('#7a1a22') : c; if (Math.hypot(i + 9, j + 9) < 4) c = hex('#e88a8a'); if (Math.hypot(i + 11, j + 11) < 1.5) c = hex('#fff0f0'); }
+  R.pset(cx + i, cy + j, c); } };
+// la matriz de latón vista desde arriba, con su mango torneado
+const matriz = (cx, cy, alza) => { const y = cy - alza; if (alza > 0) for (let j = -18; j <= 18; j++) for (let i = -18; i <= 18; i++) if (i * i + j * j <= 324) tiñe(cx + i + 2, cy + j + 3, K, 0.25 * Math.min(1, alza / 6) + 0.1);
+  R.disco(cx, y, 19, hex('#5a4010')); R.disco(cx, y, 18, hex('#b08a30')); R.disco(cx - 2, y - 2, 14, hex('#d8b048')); R.disco(cx, y, 9, hex('#8a6a20')); R.disco(cx - 1, y - 1, 7, hex('#c8a040'));
+  for (let k = 0; k < 24; k++) { const a = k * Math.PI / 12; R.pset(Math.round(cx + Math.cos(a) * 16), Math.round(y + Math.sin(a) * 16), hex('#8a6a20')); }
+  R.disco(cx, y - 2, 5, K); R.disco(cx, y - 2, 4, hex('#6a4a1a')); R.disco(cx - 1, y - 3, 2, hex('#e8c860')); };
+
+const p4 = (t) => {
+  const g = T.ultramar(R, t, { encuadre: 'sello', luz: 'vela' }), [cx, cy] = g.sello;
+  const baja = tramo(t, P4 + 0.1, P4 + 0.9), aprieta = tramo(t, CABALLEROS - 0.35, CABALLEROS), sube = tramo(t, CABALLEROS + 0.45, CABALLEROS + 1.3);
+  if (t < CABALLEROS) ceraLisa(cx, cy);
+  else if (t < CABALLEROS + 0.25) { ceraLisa(cx, cy); }
+  // la mano del caballero sube desde abajo con la matriz, la aprieta en la cera y se la lleva
+  if (sube < 1) {
+    const alza = Math.round(8 * (1 - aprieta) + 10 * sube), mx = cx + Math.round(sube * 18), my = cy + Math.round(lerp(60, 0, baja) + sube * 50);
+    matriz(mx, my, alza);
+    T.brazo(R, mx + 34, my + 72, mx - 4, my - alza + 2, '#f2eee2', 1, { puno: '#c8303a', codo: [mx + 22, my + 30 - alza] });
+  }
+  // un destello sobre el sello recién hecho
+  if (t > CABALLEROS + 1.2 && t < CABALLEROS + 2) { const f = tramo(t, CABALLEROS + 1.2, CABALLEROS + 2), x = Math.round(cx - 24 + f * 48); for (let j = -24; j <= 24; j++) tiñe(x + Math.round(j * 0.4), cy + j, hex('#fff0d0'), 0.35); }
+};
+
+// una moneda que rueda de canto, se tambalea y se tumba
+const moneda = (t, t0, x0, x1, y) => { const u = tramo(t, t0, t0 + 1.1), x = Math.round(lerp(x0, x1, u)), cae = tramo(t, t0 + 1.1, t0 + 1.6);
+  if (t < t0) return;
+  const RM = 10; for (let j = -RM - 2; j <= 3; j++) for (let i = -RM - 4; i <= RM + 4; i++) if ((i / (RM + 4)) ** 2 + (j / 3) ** 2 < 1) tiñe(x + i + 2, y + j, K, 0.35);
+  if (cae < 1) { const w = Math.max(1, Math.round(2 + cae * 8 + Math.abs(Math.sin(t * 9)) * (1 - cae) * 2)); for (let j = -RM; j <= RM; j++) { const ww = Math.round(w * Math.sqrt(1 - (j / (RM + 0.5)) ** 2)); R.rect(x - ww - 1, y - RM + j, x + ww + 1, y - RM + j, K); R.rect(x - ww, y - RM + j, x + ww, y - RM + j, j < -3 ? hex('#fff0a0') : j < 2 ? hex('#f0c848') : hex('#c89820')); } }
+  else { for (let j = -5; j <= 5; j++) { const ww = Math.round(RM * Math.sqrt(1 - (j / 5.5) ** 2)); R.rect(x - ww - 1, y - 3 + j, x + ww + 1, y - 3 + j, K); R.rect(x - ww, y - 3 + j, x + ww, y - 3 + j, j < -1 ? hex('#f8d860') : hex('#d8a830')); } R.disco(x, y - 3, 5, hex('#c89820')); R.disco(x - 1, y - 4, 3, hex('#f0c848')); R.pset(x - 5, y - 5, hex('#fff6c0')); R.pset(x - 4, y - 6, hex('#fff6c0')); }
+};
+
+const p5 = (t) => {
+  const g = T.ultramar(R, t, { encuadre: 'sello', camara: 'cerca', luz: 'vela' });
+  // «2» sobre los jinetes y «1» sobre el caballo
+  const n2 = tramo(t, DOS, DOS + 0.3) - tramo(t, en('sello', 0.6), en('sello', 0.66)), n1 = tramo(t, UNO, UNO + 0.3) - tramo(t, en('sello', 0.6), en('sello', 0.66));
+  if (n2 > 0.05) R.numero('2', 136, Math.round(78 - 6 * n2), { tam: 16, centro: true });
+  if (n1 > 0.05) R.numero('1', 230, Math.round(104 - 6 * n1), { tam: 16, centro: true });
+  // una sola moneda rueda por la mesa y se tumba junto al sello: lo pobres que empezaron
+  moneda(t, POBRES - 1.2, 345, 252, 172);
+};
+
+const efectos = [[VOTO + 0.02, 'brillo'], [LADRON + 0.55, 'boing'], [INSTALA + 1.9, 'chof'], [CABALLEROS, 'sello'], [DOS, 'pop'], [UNO, 'pop'], [POBRES - 0.1, 'golpecito'], [POBRES + 0.4, 'tic']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { cartela: '1120', efectos, año: 1120 });
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep17</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TE-HOLA (frase 7). Un plano, el cuarto del buscador de noche. Empieza junto a la estantería mirando el tablero de
+// corcho; en «I'm Atom» se vuelve hacia Atom y lo saluda con la mano («!»); en «explain the things» cruza el cuarto por
+// delante de la mesa señalando el tablero con los hilos rojos; en «Let's find out» coge el detector de la mesa (pita) y
+// sale por la derecha, de aventura. El gato de la estantería levanta la cabeza al pitido.
+import * as T from '/atomo/plato/escenas/te-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('te-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const HOLA = en('hola', 0.03), CRUZA = en('hola', 0.26), VAMOS = en('hola', 0.82);
+const p1 = (t) => {
+  const coge = t > VAMOS + 0.15;
+  const d = T.hoy(R, t, { encuadre: 'mesa', detector: !coge, pita: t > VAMOS - 0.1 && t < VAMOS + 0.3 ? 1 : 0 });
+  const S = d.suelo;
+  const u = tramo(t, CRUZA, VAMOS - 0.3), w = tramo(t, VAMOS + 0.45, E.duracion);
+  const x = Math.round(lerp(64, 226, u) + lerp(0, 74, w));
+  const saluda = t > HOLA && t < CRUZA, señala = t > CRUZA + 0.2 && t < VAMOS - 0.5;
+  const o = { dir: t < HOLA || señala ? (t < HOLA ? -1 : 1) : 1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), sonrisa: saluda || coge, habla: señala && Math.sin(t * 7) > 0, sorpresa: t > VAMOS - 0.1 && t < VAMOS + 0.3 };
+  if (saluda) o.dedo = Math.sin(t * 10) > -0.4; else if (señala) o.dedo = true;
+  if (coge) o.sostiene = [x + 15, S - 12]; else if (t > VAMOS - 0.3) o.sostiene = [d.detector[0], d.detector[1]];
+  const m = R.actor(EL.buscador, x, S, t, o).mano;
+  if (coge) T.detector(R, m[0], m[1], t, { dir: 1, suelo: S, pita: t < VAMOS + 0.8 ? 0.7 : 0 });
+  if (saluda && t > HOLA + 0.15) R.bocadillo(x + 8, S - 30, { icono: '!' });
+  // la mirada al tablero: un hilo rojo que brilla un momento mientras lo señala
+  if (señala) { const k = Math.floor((t - CRUZA) * 2.5) % 3, [bx0, by0, bx1, by1] = d.tablero, px = bx0 + 24 + k * 30, py = by0 + 24 + (k % 2) * 16; if (Math.sin(t * 12) > -0.2) { R.pset(px, py, hex('#ff6a6a')); R.pset(px + 1, py, hex('#ffd0d0')); R.pset(px, py + 1, hex('#ff6a6a')); } }
+};
+const efectos = [[HOLA + 0.15, 'pop'], [VAMOS - 0.1, 'bip']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
