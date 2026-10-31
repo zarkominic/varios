@@ -202,7 +202,39 @@ const rafaga = () => I.noiseSweep(1.1, 300, 900, { q: 0.6, pink: true, seed: 31,
 const lluvia = () => I.noiseSweep(1.5, 4200, 3600, { q: 0.4, seed: 33, shape: (x) => Math.min(1, x * 4) * Math.min(1, (1 - x) * 4) });
 const ola = () => I.noiseSweep(1.1, 600, 2400, { q: 0.5, pink: true, seed: 35, shape: (x) => (x < 0.3 ? x / 0.3 : Math.exp(-(x - 0.3) * 4)) });
 
+// Desde el 17 (aprobadas por el usuario el 31/10/2026): una campana de iglesia y un carro de madera, que faltaban para el
+// patio del Temple, la catedral de Valencia y los carros de los hospitalarios.
+// campana: los parciales de una campana de bronce (hum, prima, tercera menor, quinta, nominal…) con caídas largas y un
+// poco de batido; o.nota (midi, 57 por omisión), o.lejos (true: más apagada y con menos ataque)
+function campana({ nota = 57, lejos = false } = {}) {
+  const len = 3.2, out = buf(len), f = 440 * 2 ** ((nota - 69) / 12);
+  const P = [[0.5, 0.55, 2.6], [1, 0.8, 2.0], [1.2, 0.5, 1.6], [1.5, 0.35, 1.3], [2, 0.45, 1.1], [2.5, 0.22, 0.7], [3, 0.18, 0.5], [4.2, 0.1, 0.3]];
+  for (const [r, a, d] of P) {
+    if (lejos && r > 2.6) continue;
+    const fr = f * r, b = 0.6 + r * 0.3;
+    for (let i = 0; i < out.length; i++) { const t = i / SR; out[i] += a * Math.exp(-t / d) * Math.sin(2 * Math.PI * fr * t) * (1 + 0.08 * Math.sin(2 * Math.PI * b * t)); }
+  }
+  const ataque = lejos ? 0.02 : 0.004;
+  for (let i = 0; i < out.length; i++) out[i] *= Math.min(1, i / SR / ataque) * (lejos ? 0.6 : 1);
+  return out;
+}
+// carro: el rodar de unas ruedas de madera sobre piedra (ruido grave que tiembla), los golpes de las juntas del empedrado
+// y el chirrido del eje; o.largo (s, 1,6 por omisión)
+function carro({ largo = 1.6 } = {}) {
+  const out = buf(largo), rodar = I.noiseSweep(largo, 180, 140, { q: 0.5, pink: true, seed: 41, shape: (x) => Math.min(1, x * 5) * Math.min(1, (1 - x) * 5) });
+  for (let i = 0; i < out.length; i++) out[i] = (rodar[i] ?? 0) * (0.7 + 0.3 * Math.sin(2 * Math.PI * 7 * i / SR));
+  for (let t = 0.08, k = 0; t < largo - 0.15; t += 0.21 + 0.05 * Math.sin(k * 1.7), k++) {
+    const g = I.woodTick(0.55 + 0.1 * (k % 3)), i0 = Math.round(t * SR);
+    for (let i = 0; i < g.length && i0 + i < out.length; i++) out[i0 + i] += g[i] * 0.55;
+  }
+  const chirrido = I.noiseSweep(0.35, 1800, 2300, { q: 6, seed: 43, shape: (x) => Math.sin(Math.PI * x) });
+  const i1 = Math.round(largo * 0.45 * SR);
+  for (let i = 0; i < chirrido.length && i1 + i < out.length; i++) out[i1 + i] += chirrido[i] * 0.25;
+  return out;
+}
+
 const RECETAS = {
+  campana, carro,
   timbre, puerta, firma, aviso, guau,
   tecleo,
   golpecito, sello, miau,
@@ -227,7 +259,8 @@ const NIVEL = { guau: [-30, -0.1], timbre: [-31, -0.3], puerta: [-31, 0.2], firm
   pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0],
   motor: [-36, 0], tecleo: [-33, 0.2], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0],
   trueno: [-28, 0], rafaga: [-33, 0], lluvia: [-36, 0], ola: [-33, 0],
-  publico: [-37, 0], maquina: [-35, 0.2], coche: [-35, 0], viento: [-37, 0] };
+  publico: [-37, 0], maquina: [-35, 0.2], coche: [-35, 0], viento: [-37, 0],
+  campana: [-33, -0.2], carro: [-34, 0] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
 const rms = (b) => {
   const n = Math.min(b.length, Math.round(0.4 * SR)), c = new Float64Array(b.length + 1);
@@ -242,7 +275,7 @@ const rms = (b) => {
 // ventanas deja en silencio. Se avisa de cada uno.
 const OCUPADO = Number(arg('--ocupado', 62)) / 100, VENT = 0.5, UMBRAL = 10 ** (-45 / 10);
 const QUITABLES = [['pop', 'tic', 'golpecito', 'brillo', 'papel', 'lapiz', 'whoosh', 'toc', 'bip'],
-  ['rafaga', 'ola', 'lluvia', 'vapor', 'burbujas', 'interruptor', 'flash', 'zumbido', 'tecleo', 'viento', 'publico', 'maquina'], ['trueno', 'motor', 'coche']];
+  ['rafaga', 'ola', 'lluvia', 'vapor', 'burbujas', 'interruptor', 'flash', 'zumbido', 'tecleo', 'viento', 'publico', 'maquina', 'campana', 'carro'], ['trueno', 'motor', 'coche']];
 const eventos = lista.filter((e) => e[0] < dur).map(([t, nombre, o = {}]) => {
   if (!RECETAS[nombre]) throw new Error(`efecto desconocido: ${nombre}`);
   const [db, pan] = NIVEL[nombre], b = RECETAS[nombre](o), g = 10 ** ((db - rms(b)) / 20);

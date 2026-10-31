@@ -264,6 +264,14 @@ fuera recortado a ventanas y puertas, y los fondos fijos con `const prev = R.usa
 siete fallos que más suspendieron en el 12» de `episodios/NIVEL-RESUMEN.md`: es más barato no cometerlos aquí que
 pagarlos en la pasada de calidad (en el 12, tres rondas y dos pasadas extra, unas 6 h y 15 M de tokens).
 
+**Al integrar la primera versión, comprueba cada encuadre sin agentes** (aprobado el 31/10/2026, «siempre que no haga
+que gastemos más tokens ni baje la calidad»): escribe `<SC>/lista-<pref>.json` con todos los encuadres y cámaras
+(`[["temple", {"encuadre": "calle"}], …]`, sacados de las cabeceras) y lanza
+`node atomo/herramientas/comprobar-decorados.mjs <pref> <SC>/lista-<pref>.json --hoja <SC>/hoja<N>`. Da sospechas de
+zona de Atom, barra del año, zonas lisas y pantalla sin pintar, y dos hojas de contacto con todos los encuadres (míralas
+tú: son dos imágenes). Lo que salga va como fallo concreto a la pasada de decorados del paso 8, no a las escenas. En el 17
+esto se vio tarde: «algo no se lee» y la zona de Atom subieron.
+
 **Al integrar la primera versión, borra sus copias `_tmp_<G>/`** (con su ruta literal, una a una) antes de lanzar
 cualquier otra pasada: la pasada de decorados usa las mismas letras y sus agentes toman una carpeta que ya existe por
 un intento anterior y siguen desde ahí, con una copia vieja (en el 15 hubo que parar y relanzar la pasada por esto).
@@ -307,6 +315,8 @@ Guarda los `avisos` de cada grupo en `<SC>/avisos<N>.md`, haz commit de los mód
    salió en la producción y costó dos vueltas y un agente.
 4. Borra las `_tmp_S*` con su ruta literal, una a una, y haz commit. **Desde aquí el generador ya no se usa:** las
    escenas se editan en su `.html`.
+
+Recetas de efectos nuevas desde el 17 (aprobadas el 31/10/2026): `campana` (o.nota, o.lejos) y `carro` (o.largo).
 
 Reglas de las escenas, para cuando las toques tú: un plano cada 4–7 s con su propia composición, cortado en la palabra
 (`en('marca', fracción)`); cartelas y barra del año; efectos `[t, 'receta']` solo de `NIVEL` en `efectos.cjs`, como

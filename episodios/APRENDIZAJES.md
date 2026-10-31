@@ -170,8 +170,8 @@ una pasada o detalle no entra.
   es canon: hay que preguntar).
 
 **Pendiente para el próximo:**
-- Proponer al usuario las recetas de campana y de carro.
-- `--comprobar` en la prueba de cada decorado antes de integrarlo.
+- Aprobado el 31/10/2026: las recetas `campana` y `carro` (ya en `efectos.cjs`) y `comprobar-decorados.mjs` antes de
+  integrar los decorados (sin agentes). Medir en el próximo si bajan «algo no se lee» y la zona de Atom.
 
 ## Próximos temas (decididos por el usuario)
 
