@@ -1,6 +1,6 @@
 # Episodio 17 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:55.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`) y pista de audio en español (`em_santa`, con la frase entera).
 - Subtítulos en inglés y en español.
 - **Estilo:** pixel chibi con ambiente, gags y efectos sincronizados; un buscador de tesoros con su detector de metales hace de hilo de gags. La banda sonora es propia del episodio: Re menor, 90 por minuto, con un motivo de cantar medieval. Mezcla «B» (la música y los efectos se apartan bajo el narrador).
@@ -39,7 +39,15 @@ What we cover:
 
 What should I explain next? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 Friday the 13th, 1307
+0:55 The Knights Templar
+2:30 The lost fleet
+3:21 The Freemasons
+4:22 The Holy Grail
+5:29 The priest of Rennes
+6:40 The Copper Scroll
+7:52 The chest
+8:32 Wrap-up
 
 Legends are told as legends, with who started them and when.
 
@@ -64,7 +72,15 @@ Lo que contamos:
 
 ¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 Viernes 13 de 1307
+0:55 Los templarios
+2:30 La flota perdida
+3:21 Los masones
+4:22 El Santo Grial
+5:29 El cura de Rennes
+6:40 El rollo de cobre
+7:52 El cofre
+8:32 El cierre
 
 Las leyendas se cuentan como leyendas, con quién las empezó y cuándo.
 
@@ -81,4 +97,4 @@ Fuentes: Wikipedia (historia de los templarios, el sello del gran maestre, los C
 
 - **Miniatura:** se genera con `atomo/plato/escenas/te-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas de audio extra, el español se sube como vídeo aparte.
-- **Para escuchar antes de subir:** {AVISOS}
+- **Para escuchar antes de subir:** ES 15 (un hueco corto tras «septiembre»); ES 21 (puede faltar la «a» de «hasta a América»); ES 54 («decía»). El resto de avisos son nombres franceses e ingleses escritos como se pronuncian, que el reconocedor no entiende; lo más probable es que suenen bien, pero no los he oído.

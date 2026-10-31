@@ -35,20 +35,21 @@ una pasada o detalle no entra.
 | 14 | ~6,5 h (con un reinicio del contenedor) | ~12,5 M + el intento perdido (6,5 M en calidad) | 41 de 96 | 41 → 1 → 1 (aceptado: falso aviso) | 65 | no (disco lleno; NaN en un efecto) |
 | 15 | ~8 h (28 escenas, 118 planos) | ~14,7 M (8,4 M en calidad) | 60 de 118 | 60 → 1 → 0 | 107 | no (el pico del mp4 en −0,5 dBFS) |
 | 16 | sin medir (24 escenas, 104 planos) | ~10 M estimado (6,0 M en calidad, 0,5 M en la pasada de decorados) | 49 de 104 | 49 → 0 | 82 | no (−14,7 LUFS al bajar la música; arreglado con un limitador) |
+| 17 | ~11 h de reloj (23 escenas, 101 planos) | ~12,3 M (7,4 M en calidad, 2,6 M en el borrador de escenas, 1,5 M en los decorados) | 48 de 101 | 48 → 2 → 0 | 95 | sí (primera vez desde el 13) |
 
 ### Fallos de calidad por tipo
 
-| Tipo | Ep. 13 | Ep. 14 | Ep. 15 | Ep. 16 |
-|---|---|---|---|---|
-| Orden de dibujo / algo que flota | 20 | 14 | 25 | 23 |
-| Composición repetida | 13 | 14 | 16 | 9 |
-| Algo no se lee | 14 | 13 | 17 | 4 |
-| Brazo o mano | 11 | 11 | 7 | 14 |
-| Quieto o sin vida | 14 | 7 | 8 | 4 |
-| Liso o poco detalle | 10 | 4 | 9 | 14 |
-| Letras en pantalla | 4 | 0 | 2 | 0 |
-| Zona de Atom o barra del año | 4 | 2 | 11 | 10 |
-| **Total** | **96** | **65** | **107** (12 sin tipo) | **82** |
+| Tipo | Ep. 13 | Ep. 14 | Ep. 15 | Ep. 16 | Ep. 17 |
+|---|---|---|---|---|---|
+| Orden de dibujo / algo que flota | 20 | 14 | 25 | 23 | 24 |
+| Composición repetida | 13 | 14 | 16 | 9 | 9 |
+| Algo no se lee | 14 | 13 | 17 | 4 | 15 |
+| Brazo o mano | 11 | 11 | 7 | 14 | 6 |
+| Quieto o sin vida | 14 | 7 | 8 | 4 | 13 |
+| Liso o poco detalle | 10 | 4 | 9 | 14 | 12 |
+| Letras en pantalla | 4 | 0 | 2 | 0 | 2 |
+| Zona de Atom o barra del año | 4 | 2 | 11 | 10 | 14 |
+| **Total** | **96** | **65** | **107** (12 sin tipo) | **82** | **95** |
 
 ## Episodio 14 · Oak Island (29/10/2026)
 
@@ -148,6 +149,29 @@ una pasada o detalle no entra.
 - Escuchar si el usuario da por buena la música nueva (más baja: −22 LUFS en las pausas); si dice que no se oye, se sube
   `ANIMO` en `banda.cjs`.
 - Que `R.rect` respete el recorte, o que la prueba de decorados lo detecte, para no volver a los parches.
+
+## Episodio 17 · Los tesoros perdidos (30–31/10/2026)
+
+**Lo que funcionó:**
+- **El control final pasó a la primera** (la primera vez desde el 13): −14,1/−14,0 LUFS con el limitador nuevo, la mezcla
+  «B», la voz española entera y la densidad de efectos al 46 %.
+- **Brazo o mano bajó de 14 a 6:** las piezas de este episodio (detector, cofre, rollo, copa) no necesitaban manos
+  propias, y los agentes usaron `T.brazo` y `sostiene`.
+- **La pasada de decorados con fallos concretos** (dos agentes, 0,5 M de tokens, 21 minutos) dejó 0 sospechas de
+  `--comprobar` en los planos que tocó, y la de calidad cerró en tres rondas (48 → 2 → 0).
+- **Los verificadores de datos** encontraron 11 frases que corregir, ninguna después.
+
+**Lo que no mejoró, con su causa:**
+- **«Algo no se lee» (4 → 15) y zona de Atom (10 → 14).** Casi todos en los fondos locales y en los insertos (las tiras
+  del rollo, la montaña de lingotes: te-lista tuvo 11 fallos) y en decorados con mucho detalle arriba a la derecha.
+  Propuesta: que la prueba de cada decorado pase ya `--comprobar` antes de integrarlo, no después de las escenas.
+- **La densidad de efectos salió baja en el borrador (37 %)** y hubo que subirla en la calidad: los agentes de escenas,
+  después de la queja del usuario, se quedaron cortos. Faltan recetas de campana y de carro en `efectos.cjs` (tocarlas
+  es canon: hay que preguntar).
+
+**Pendiente para el próximo:**
+- Proponer al usuario las recetas de campana y de carro.
+- `--comprobar` en la prueba de cada decorado antes de integrarlo.
 
 ## Próximos temas (decididos por el usuario)
 
