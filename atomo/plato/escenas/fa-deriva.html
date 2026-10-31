@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La deriva · ep13</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// FA-DERIVA (frase 19), sin cartela. Tres planos:
+// 1. (0–«So») desde la pasarela bajo el techo: dos técnicos miran el campo; un pase cruza y su punta queda un poco
+//    torcida hacia un lado («pointing slightly to one side»: la flechita de la punta frente a la trayectoria);
+// 2. («So»–«while») el campo visto desde arriba: el pase largo de un diestro se curva un poco a la derecha («right»), y el
+//    de un zurdo, a la izquierda («left»), cada uno con su manita en el lado del brazo que lanza. Encima del decorado, el
+//    césped repintado (franjas de corte de dos verdes, desgaste tramado entre las marcas y junto a las líneas, el escudo
+//    del centro con su balón y dos estrellas) y la banda de arriba más iluminada. Dos jugadas en formación (chibis vistos
+//    desde arriba): línea contra defensa que empuja al saque, el quarterback que retrocede y lanza, el receptor que corre
+//    hasta el final de cada curva y coge el balón al llegar, el defensa y el profundo que llegan tarde y el árbitro que se
+//    acerca; arriba, la cuerda con sus postes y banderines, dos cámaras de la tele que siguen el balón y los banquillos
+//    de pie, que saltan al coger su receptor; abajo, la cadena de las diez yardas con sus operarios, que avanza;
+// 3. («while»–fin) la Tierra que gira en el espacio, con el campo diminuto encima: un pase de «60» yardas se desvía solo
+//    «4″» («about 4 inches»). El espacio va en un búfer fijo: degradado tramado con la Vía Láctea y sus franjas de polvo,
+//    una nebulosa violeta (abajo) y otra verdeazulada (a la izquierda), el resplandor del Sol que asoma por la izquierda
+//    (de ahí viene la luz), una galaxia de canto y Marte; encima, los rayos del Sol que laten, estrellas de tres brillos que
+//    titilan con destellos en cruz, una estrella fugaz al empezar, la Luna con mares y cráteres que avanza despacio y un
+//    satélite con paneles de celdas y un brillo que los recorre.
+import * as T from '/atomo/plato/escenas/fa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('fa-deriva');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#1a1420'), BL = hex('#ffffff'), CI = hex('#8ad8f0'), CIs = hex('#2a6a90'), AM = hex('#f0d878'), RO = hex('#e04a3a'), ROs = hex('#7a1e1e');
+const hs = (a, b, c = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un punto de un pase en parábola (u 0–1) y la tangente: [x, y, ángulo]
+const arco = (u, x0, y0, x1, y1, h) => { const x = lerp(x0, x1, u), y = lerp(y0, y1, u) - h * 4 * u * (1 - u); return [x, y, Math.atan2((y1 - y0) - h * 4 * (1 - 2 * u), x1 - x0)]; };
+// flecha de un píxel con su punta, y la gruesa con sombra
+const flecha = (x0, y0, x1, y1, c, s = 3) => { R.linea(x0, y0, x1, y1, c); const a = Math.atan2(y1 - y0, x1 - x0);
+  R.linea(x1, y1, Math.round(x1 - Math.cos(a - 0.55) * s), Math.round(y1 - Math.sin(a - 0.55) * s), c); R.linea(x1, y1, Math.round(x1 - Math.cos(a + 0.55) * s), Math.round(y1 - Math.sin(a + 0.55) * s), c); };
+const flechaG = (x0, y0, x1, y1, c, cs = K) => { for (const [dx, dy] of [[1, 1], [1, 2], [0, 2]]) flecha(x0 + dx, y0 + dy, x1 + dx, y1 + dy, cs, 5); flecha(x0, y0, x1, y1, c, 5); flecha(x0, y0 + 1, x1, y1 + 1, c, 5); };
+// oscurece un rectángulo (luz apagada), píxel a píxel, respetando lo que hay
+const oscurece = (x0, y0, x1, y1, a) => { for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const c = R.pget(x, y);
+  R.pset(x, y, ((255 << 24) | (Math.round(((c >> 16) & 255) * a) << 16) | (Math.round(((c >> 8) & 255) * a) << 8) | Math.round((c & 255) * a)) >>> 0); } };
+const mezcla = (c, d, a) => ((255 << 24) | (Math.round(((c >> 16) & 255) * (1 - a) + ((d >> 16) & 255) * a) << 16) | (Math.round(((c >> 8) & 255) * (1 - a) + ((d >> 8) & 255) * a) << 8) | Math.round((c & 255) * (1 - a) + (d & 255) * a)) >>> 0;
+const aclara = (x, y, c, a) => R.pset(x, y, mezcla(R.pget(x, y), c, a));
+// líneas de viento que corren (el aire que llega): n rachas de un píxel en la caja, en la dirección (dx, dy)
+const rachas = (x0, y0, x1, y1, t, dx, dy, n, c, vel = 60, largo = 8) => { for (let k = 0; k < n; k++) { const w = x1 - x0, hh = y1 - y0, f = ((hs(k, 1) * w + t * vel) % w + w) % w;
+  const x = dx > 0 ? x0 + f : x1 - f, y = y0 + hs(k, 2) * hh + (dy * f) / Math.max(1, Math.abs(dx)) * 0; const l = largo * (0.6 + hs(k, 3) * 0.8);
+  R.linea(Math.round(x), Math.round(y), Math.round(x - dx * l), Math.round(y - dy * l), (k % 3) ? c : BL); } };
+// un balón de una época intermedia (pintado aquí, con el mismo sombreado de cuatro tonos que T.balon)
+const PELOTA = { '1924': { L: 6.4, W: 3.9, pu: 0.62, cu: ['#4e2812', '#743c1c', '#9a5628', '#bc743e', '#e2a870'], co: ['#f2eadc', '#bcae94'], bo: '#2a160a' },
+  '1934': { L: 6.2, W: 3.6, pu: 0.85, cu: ['#4a2010', '#70341a', '#964a26', '#b8683a', '#e6a070'], co: ['#f6f0e4', '#c4b8a0'], bo: '#28120a' } };
+for (const k in PELOTA) { PELOTA[k].cu = PELOTA[k].cu.map(hex); PELOTA[k].co = PELOTA[k].co.map(hex); PELOTA[k].bo = hex(PELOTA[k].bo); }
+const pelota = (x, y, ep, s, ang = 0) => { const e = PELOTA[ep], L = e.L * s, W = e.W * s, ca = Math.cos(ang), sa = Math.sin(ang), rb = Math.ceil(L + 1);
+  for (let py = Math.floor(y - rb); py <= Math.ceil(y + rb); py++) for (let px = Math.floor(x - rb); px <= Math.ceil(x + rb); px++) {
+    const dx = px + 0.5 - x, dy = py + 0.5 - y, u = (dx * ca + dy * sa) / L, v = -dx * sa + dy * ca, a = Math.abs(u); if (a >= 1) continue;
+    const r = W * ((1 - e.pu) * Math.sqrt(1 - a * a) + e.pu * (1 - a * a)); if (Math.abs(v) >= r) continue;
+    if (r - Math.abs(v) < 0.9 || (1 - a) * L < 0.8) { R.pset(px, py, e.bo); continue; }
+    const nv = v / r, nu = u * 0.7, nz = Math.sqrt(Math.max(0, 1 - nv * nv - nu * nu * 0.5)), nx = nu * ca - nv * sa, ny = nu * sa + nv * ca, luz = Math.max(0, -0.5 * nx - 0.72 * ny + 0.48 * nz);
+    let q = 0.25 + luz * 3.1 + (hs(px, py, 7) - 0.5) * 0.8; let c = e.cu[Math.max(0, Math.min(3, Math.floor(q)))]; if (luz > 0.92) c = e.cu[4];
+    const d = v + r * 0.32; if (a < 0.44 && Math.abs(d) < 0.7 * s) c = e.co[1]; else if (a < 0.44 && Math.abs(d) < 1.5 * s && ((u * L / (1.6 * s)) % 1 + 1) % 1 < 0.45) c = e.co[0];
+    else if (Math.abs(v - r * 0.35) < 0.35 * s && a < 0.9) c = e.cu[Math.max(0, Math.floor(q) - 2)];
+    R.pset(px, py, c); } };
+
+const d = (f) => en('deriva', f), P2 = d(0.299), P3 = d(0.676);
+// 1 · desde la pasarela: la punta un poco de lado
+const lado = d(0.18);
+const p1 = (t) => {
+  T.estadioHoy(R, t, { encuadre: 'antenas' });
+  // el pase allá abajo, en el campo (y 70–112): el balón diminuto y su trayectoria; la punta, un poco de lado
+  const u = (tramo(t, 0.2, P2 - 0.2)), x = lerp(90, 236, u), y = lerp(96, 84, u) - Math.sin(u * Math.PI) * 6;
+  R.recorte([0, 68, 319, 114]);
+  for (let k = 0; k < 60 * u; k++) { const w = k / 60, px = lerp(90, 236, w), py = lerp(96, 84, w) - Math.sin(w * Math.PI) * 6; if (k % 2 === 0) R.pset(Math.round(px), Math.round(py), BL); }
+  const pa = Math.atan2(-12, 146), ld = tramo(t, lado - 0.3, lado + 0.3), ang = pa + 0.35 * ld;
+  T.balon(R, Math.round(x), Math.round(y), t, { s: 1, ang, gira: 6 });
+  if (ld > 0) { flecha(Math.round(x + 4), Math.round(y), Math.round(x + 4 + Math.cos(pa) * 16), Math.round(y + Math.sin(pa) * 16), hex('#c8d0d8'), 2); flecha(Math.round(x + 4), Math.round(y), Math.round(x + 4 + Math.cos(ang) * 16), Math.round(y + Math.sin(ang) * 16), AM, 3); }
+  R.recorte(null);
+  // los dos técnicos de la pasarela: uno sigue el pase con el dedo, el otro apunta en la tableta
+  const tu = tramo(t, 0.3, lado);
+  R.actor(EL.tecnico, Math.round(lerp(110, 150, tu)), 148, t, { dir: 1, anda: tu > 0 && tu < 1, dedo: t > lado - 0.2, sorpresa: t > lado + 0.4 && t < lado + 1.2 });
+  R.actor(EL.tecnica, 196, 149, t, { dir: -1, habla: t > lado + 0.8 && Math.sin(t * 7) > 0, sonrisa: t > lado + 1.6 });
+};
+// 2 · desde arriba: el diestro curva a la derecha, el zurdo a la izquierda
+const r0 = d(0.33), r1 = d(0.51), l0 = d(0.53), l1 = d(0.64);
+const CC = T.C, VER = hex('#3a6a2a');
+// un chibi visto desde arriba (unos 9 px): sombra, hombreras con su luz y su sombra, brazos con la mano, y el casco (o la
+// gorra) con su raya y la rejilla hacia donde mira; o.corre mueve los pies, o.brazos los levanta (celebra), o.salta lo
+// despega del suelo (la sombra se aleja)
+const chibiA = (x, y, col, colS, casco, mira, t, k, o = {}) => {
+  x = Math.round(x); y = Math.round(y); const sa = o.salta ? Math.round(Math.abs(Math.sin(t * 9 + k)) * 2) : 0;
+  for (let j = -2; j <= 2; j++) for (let i = -4; i <= 4; i++) if ((i / 4.5) ** 2 + (j / 2.5) ** 2 < 1) aclara(x + i + 2 + sa, y + j + 2 + sa, hex('#10281a'), 0.45);
+  if (o.corre) { const p = Math.sin(t * 16 + k) > 0 ? 1 : -1; R.pset(x - mira * 4, y + p, K); R.pset(x - mira * 3, y - p, hex('#3a3a44')); }
+  const pi = k % 3 === 0 ? hex('#8a5a3a') : k % 3 === 1 ? hex('#e0b090') : hex('#5a3a24');
+  if (o.brazos) { const b = Math.sin(t * 10 + k) > 0 ? 1 : 0; for (const s of [-1, 1]) { R.pset(x + mira * 2, y + s * (3 + b), col); R.pset(x + mira * 3, y + s * (4 + b), pi); } }
+  else for (const s of [-1, 1]) { R.pset(x + mira, y + s * 3, colS); R.pset(x + mira * 2, y + s * 3, pi); }
+  R.rect(x - 2, y - 2, x + 2, y + 2, K); R.rect(x - 1, y - 3, x + 1, y + 3, K);
+  R.rect(x - 1, y - 2, x + 1, y + 2, col); R.pset(x - 1, y + 2, colS); R.pset(x, y + 2, colS); R.pset(x + 1, y + 1, colS); R.pset(x - 1, y - 2, mezcla(col, BL, 0.4));
+  if (o.rayas) for (let j = -2; j <= 2; j += 2) R.pset(x + (j ? 1 : -1), y + j, K);
+  R.disco(x, y, 1, casco); R.pset(x - mira, y, mezcla(casco, BL, 0.5)); R.pset(x + mira * 2, y, o.rayas ? casco : hex('#c8c8d0')); };
+// el césped repintado encima del decorado (precalculado una vez): las franjas de corte de cinco yardas en dos verdes bien
+// distintos, el desgaste entre las marcas del centro y alrededor de las líneas de cinco yardas (tierra tramada), el
+// escudo del centro del campo (un óvalo con un balón y dos estrellas, sin letras) y la luz que baja hacia la banda de
+// arriba, que deja de estar tan a oscuras (un recorrido de la pantalla por fotograma)
+let CAPA = null;
+const capaCesped = () => {
+  const mul = new Float32Array(57600).fill(1), mA = new Float32Array(57600), mC = new Float64Array(57600);
+  const TIE1 = hex('#9a8a52'), TIE2 = hex('#6e5e38'), ESC = [hex('#0e4a4a'), hex('#1e8a8a'), hex('#e8e0c8'), hex('#8a4a24'), hex('#b86e3a'), hex('#f2eee2'), hex('#f0d040')];
+  for (let y = 19; y < 48; y++) for (let x = 0; x < 320; x++) { const f = (y - 19) / 28; mul[y * 320 + x] = 1.1 + Math.floor((0.55 * f) * 6 + trama(x, y)) / 6; }
+  for (let y = 50; y < 168; y++) for (let x = 0; x < 300; x++) { const i = y * 320 + x, fr = Math.floor((x - 120) / 18 + 100) % 2;
+    mul[i] = fr ? 1.14 : 0.84;
+    // el desgaste: más pisado entre las marcas del centro y cerca de la yarda 50; rozaduras junto a cada línea de cinco
+    const cen = Math.max(0, 1 - Math.abs(y - 109) / 18) * Math.max(0.35, 1 - Math.abs(x - 120) / 190) * 1.15;
+    const lin = Math.max(0, 1 - Math.min(((x - 120) % 18 + 18) % 18, 18 - ((x - 120) % 18 + 18) % 18) / 4) * 0.55 + Math.max(0, 1 - Math.min(Math.abs(y - 99), Math.abs(y - 119)) / 4) * 0.5, sal = Math.max(0, 1 - Math.hypot((x - 40) / 16, (Math.min(Math.abs(y - 86), Math.abs(y - 140))) / 12)) * 0.8;
+    const w = Math.max(cen, lin, sal) * (vn(x / 4, y / 3, 60) * 0.8 + vn(x / 1.5, y / 1.5, 61) * 0.4);
+    if (w > 0.2 + trama(x, y) * 0.42) { mA[i] = w > 0.6 ? 0.72 : 0.5; mC[i] = w > 0.55 ? TIE2 : TIE1; mul[i] = 1; } }
+  // el escudo del centro: el borde oscuro, el anillo del color del equipo, el fondo claro y el balón con sus cordones
+  for (let y = 96; y <= 122; y++) for (let x = 98; x <= 142; x++) { const e = ((x - 120) / 20) ** 2 + ((y - 109) / 12) ** 2; if (e > 1) continue; const i = y * 320 + x;
+    let c = e > 0.82 ? ESC[0] : e > 0.6 ? ESC[1] : ESC[2]; const b = ((x - 120) / 9) ** 2 + ((y - 109) / 4.5) ** 2;
+    if (b < 1) c = b > 0.7 ? ESC[3] : (x - 120) + (y - 109) * 1.5 < -4 ? ESC[4] : ESC[3];
+    if (Math.abs(y - 109) <= 0 && Math.abs(x - 120) <= 4) c = ESC[5]; if (b < 1 && Math.abs(y - 109) === 1 && Math.abs(x - 120) <= 4 && (x & 1) === 0) c = ESC[5];
+    for (const sx of [104, 136]) { const dx = Math.abs(x - sx), dy = Math.abs(y - 109); if ((dx === 0 && dy <= 2) || (dy === 0 && dx <= 2) || (dx === 1 && dy === 1)) c = ESC[6]; }
+    mA[i] = 0.82; mC[i] = c; mul[i] = 1; }
+  return { mul, mA, mC };
+};
+const pintaCapa = () => { const { mul, mA, mC } = CAPA;
+  for (let y = 19; y < 168; y++) for (let x = 0; x < 300; x++) { const i = y * 320 + x; if (mul[i] === 1 && mA[i] === 0) continue; let c = R.pget(x, y);
+    const r = (c >> 16) & 255, g = (c >> 8) & 255, b = c & 255; if (y >= 48 && r > 190 && g > 190 && b > 170) continue;   // las líneas de cal se quedan
+    if (mA[i] > 0) c = mezcla(c, mC[i], mA[i]);
+    else { const m = mul[i]; c = ((255 << 24) | (Math.min(255, Math.round(r * m)) << 16) | (Math.min(255, Math.round(g * m)) << 8) | Math.min(255, Math.round(b * m))) >>> 0; }
+    R.pset(x, y, c); } };
+const p2 = (t) => {
+  const A = T.labGiro(R, t, { encuadre: 'arriba' }), X = (yd) => A.x50 + (yd - 50) * A.yarda;
+  if (!CAPA) CAPA = capaCesped();
+  pintaCapa();
+  // la cuerda de la banda entre sus postes (con su banderín de cada poste que ondea), justo antes de la línea
+  for (let x = 0; x < 320; x++) { const y = 45 + Math.round(Math.sin(x * 0.2 + t * 2) * 0.4 + Math.sin((x % 32) / 32 * Math.PI) * 0.6); R.pset(x, y, (x + Math.floor(t * 3)) % 4 ? hex('#e8d8a0') : hex('#b8a070')); }
+  for (let x = 8; x < 320; x += 32) { R.rect(x - 1, 44, x + 1, 46, K); R.pset(x, 44, hex('#f0d040')); R.pset(x - 1, 45, hex('#a8a8b0')); const o = Math.sin(t * 5 + x) > 0 ? 1 : 0; R.pset(x + 2, 43 + o, CC.naranja); R.pset(x + 3, 43, CC.naranja); }
+  // las dos cámaras de la tele en la banda (vistas desde arriba: trípode, cuerpo con su visera y el objetivo que sigue
+  // al balón) con su operario detrás, y el cable que serpentea hasta la grada
+  let bxSeg = 120;
+  const tA = tramo(t, r0, r1), tB = tramo(t, l0, l1); bxSeg = t < l0 - 0.3 ? lerp(X(25), X(85), tA) : lerp(X(25), X(85), tB);
+  for (const [cx, k] of [[16, 0], [258, 1]]) { const cy = 40, a = Math.atan2(70, bxSeg - cx), ox = Math.round(Math.cos(a) * 4), oy = Math.round(Math.sin(a) * 4);
+    for (const [lx, ly] of [[-3, -2], [3, -2], [0, 3]]) R.linea(cx, cy, cx + lx, cy + ly, hex('#2a2a30'));
+    R.rect(cx - 2, cy - 2, cx + 2, cy + 1, K); R.rect(cx - 1, cy - 2, cx + 1, cy, hex('#5a5a66')); R.pset(cx - 1, cy - 2, hex('#8a8a96'));
+    R.linea(cx, cy, cx + ox, cy + oy, hex('#1a1a20')); R.pset(cx + ox, cy + oy, Math.floor(t * 2 + k) % 3 ? hex('#4a8ac8') : hex('#c8e8ff')); R.pset(cx - 1, cy - 3, Math.floor(t * 2) % 2 ? RO : ROs);
+    chibiA(cx + (k ? 7 : -6), cy - 4, hex('#2a2a34'), hex('#1a1a20'), hex('#1a1a20'), k ? -1 : 1, t, 30 + k);
+    for (let i = 0; i < 18; i++) R.pset(cx + (k ? 8 + i : -8 - i) , Math.round(cy - 10 - Math.sin(i * 0.5) * 2), hex('#1a1a20')); }
+  // la línea recta de referencia de cada pase y el rastro de la curva real (debajo de los jugadores)
+  const carril = (t0, t1, y0, signo, col) => { const u = tramo(t, t0, t1), x0 = X(25), x1 = X(85), dev = signo * 10, P = (w) => [lerp(x0, x1, w), y0 + dev * w * w];
+    for (let x = x0; x <= x1; x += 6) { R.rect(Math.round(x), y0, Math.round(x) + 2, y0, BL); R.rect(Math.round(x), y0 + 1, Math.round(x) + 2, y0 + 1, VER); }
+    for (let w = 0; w <= u; w += 0.006) { const [px, py] = P(w); R.rect(Math.round(px), Math.round(py) + 1, Math.round(px), Math.round(py) + 2, K); R.rect(Math.round(px), Math.round(py) - 1, Math.round(px), Math.round(py), col); }
+    return { u, x0, x1, dev, P }; };
+  const LA = carril(r0, r1, 86, 1, hex('#1e8a8a')), LB = carril(l0, l1, 140, -1, hex('#c83a3a'));
+  // cada jugada: la línea (tres), la defensa (tres) que empuja al saque, el quarterback que retrocede y lanza, el
+  // receptor que corre su ruta hasta el final de la curva justo cuando llega el balón, el defensa que lo persigue tarde
+  // y el profundo que cierra; después del pase, la línea se relaja y el receptor frena con el balón en las manos
+  const DEF = hex('#e8e0d0'), DEFs = hex('#a8a090'), DEFc = hex('#2a3458');
+  const jugada = (L, t0, t1, y0, signo, col, colS, casco, k) => {
+    const sn = t0 - 0.9, en = tramo(t, sn, sn + 0.4), x0 = L.x0, xe = L.x1, ye = y0 + L.dev, fin = t > t1;
+    for (let i = -1; i <= 1; i++) { const j = Math.sin(t * 13 + i * 2 + k) * (en > 0 && !fin ? 0.6 : 0);
+      chibiA(x0 + 9 - en * 2 + j, y0 + i * 9, col, colS, casco, 1, t, k + i + 1);
+      chibiA(x0 + 19 - en * 4 - j, y0 + i * 9 + i * 2 * en, DEF, DEFs, DEFc, -1, t, k + i + 5, { corre: en > 0 && en < 1 }); }
+    // el árbitro detrás de la jugada, que sigue el pase con la vista y da unos pasos hacia el receptor
+    const ar = tramo(t, t0, t1 + 0.5); chibiA(lerp(x0 - 14, x0 + 20, ar), y0 - signo * 12, BL, hex('#a8a8a0'), K, 1, t, k + 15, { rayas: true, corre: ar > 0 && ar < 1, brazos: fin && t < t1 + 0.9 });
+    const qb = lerp(x0 + 2, x0 - 4, tramo(t, sn, t0 - 0.15)); chibiA(qb, y0, col, colS, casco, 1, t, k + 9, { corre: t > sn && t < t0 - 0.15, brazos: fin && t < t1 + 1.2 });
+    R.icono('mano', Math.round(qb - 4), y0 + signo * 7 - (signo > 0 ? 0 : 6), BL, K);
+    const ry0 = y0 + signo * 20, ur = tramo(t, sn, t1), uf = tramo(t, t1, t1 + 0.8);
+    const rx = lerp(x0 + 12, xe, ur) + uf * 6, ry = lerp(ry0, ye, Math.sqrt(ur));
+    const cx = lerp(x0 + 26, xe - 7, tramo(t, sn + 0.3, t1 + 0.4)) + uf * 4, cy = lerp(ry0 + signo * 4, ye + signo * 3, tramo(t, sn + 0.3, t1 + 0.4));
+    const sx = lerp(190, xe - 3, tramo(t, t0, t1 + 0.6)), sy = lerp(y0 - signo * 4, ye - signo * 6, tramo(t, t0, t1 + 0.6));
+    chibiA(sx, sy, DEF, DEFs, DEFc, -1, t, k + 12, { corre: t > t0 && t < t1 + 0.6 });
+    chibiA(cx, cy, DEF, DEFs, DEFc, 1, t, k + 11, { corre: ur > 0 && t < t1 + 0.8 });
+    chibiA(rx, ry, col, colS, casco, 1, t, k + 10, { corre: ur > 0 && uf < 1, brazos: fin && uf < 1 });
+    if (fin) { R.disco(Math.round(rx) + 2, Math.round(ry), 1, CC.cuero); R.pset(Math.round(rx) + 2, Math.round(ry), CC.cordon); }
+    return fin; };
+  const finA = jugada(LA, r0, r1, 86, 1, hex('#1e8a8a'), hex('#146464'), hex('#e8783a'), 0);
+  const finB = jugada(LB, l0, l1, 140, -1, hex('#c83a3a'), hex('#7a1e1e'), hex('#f0d040'), 20);
+  // los banquillos de los dos equipos en la banda de arriba: chibis vistos desde arriba, de pie junto a la cuerda, que
+  // siguen la jugada y saltan con los brazos arriba cuando su receptor la coge
+  for (let i = 0; i < 6; i++) { const ce = finA && t < r1 + 2.2; chibiA(36 + i * 12, 41 + (i & 1), hex('#1e8a8a'), hex('#146464'), hex('#e8783a'), 1, t, 40 + i, { brazos: ce, salta: ce && i % 2 === 0 }); }
+  for (let i = 0; i < 5; i++) { const ce = finB && t < l1 + 2.2; chibiA(188 + i * 11, 41 + ((i + 1) & 1), hex('#c83a3a'), hex('#7a1e1e'), hex('#f0d040'), -1, t, 50 + i, { brazos: ce, salta: ce && i % 2 === 1 }); }
+  // la cadena de las diez yardas en la banda de abajo: dos postes con su marcador naranja y el del «down» (su piloto cambia al acabar la jugada),
+  // con sus tres operarios (se mueven un poco al acabar cada jugada), y los conos naranjas de la línea de gol
+  { const mv = tramo(t, r1 + 0.3, r1 + 1.5) * 4, xa = Math.round(X(25) + 12 + mv);
+    for (const [x, k] of [[xa, 0], [xa + 36, 1]]) { R.linea(x, 172, x, 177, hex('#1a1a20')); R.rect(x - 1, 171, x + 1, 172, CC.naranja); R.pset(x, 171, hex('#f8b878')); chibiA(x + 4, 175, hex('#1a1a20'), K, hex('#c8c8d0'), -1, t, 60 + k); }
+    const xd = xa + 16; R.rect(xd - 2, 171, xd + 2, 175, K); R.rect(xd - 1, 172, xd + 1, 174, CC.naranja); R.pset(xd, 173, t < r1 + 1 ? hex('#f8e8c8') : hex('#5a2a10'));
+    for (let x = xa + 1; x < xa + 36; x += 2) R.pset(x, 177, hex('#c8c8b0'));
+    for (const y of [49, 168]) { R.rect(299, y - 1, 302, y + 1, CC.naranja); R.pset(300, y - 1, hex('#f8b878')); } }
+  // las gaviotas del decorado se repintan encima de los jugadores (van por el aire)
+  for (let k = 0; k < 3; k++) { const u = ((t + k * 3.3) / 11) % 1, bx = Math.round(-10 + u * 340), by = Math.round(60 + k * 30 + Math.sin(t * 0.8 + k) * 6), al = Math.sin(t * 9 + k * 2) > 0;
+    R.pset(bx, by, CC.blanco); R.pset(bx + 1, by, CC.blanco); R.pset(bx + 2, by, hex('#e8b030')); R.pset(bx - 1, by, hex('#c8ccd4'));
+    for (const s of [-1, 1]) { R.pset(bx, by + s, hex('#e8eaf0')); R.pset(bx - 1, by + s * (al ? 2 : 1), hex('#c8ccd4')); R.pset(bx - 1, by + s * (al ? 3 : 2), hex('#5a5e68')); } }
+  // los balones en el aire (con su sombra en el césped) y, al acabar, la flecha del desvío
+  for (const [L, signo, y0] of [[LA, 1, 86], [LB, -1, 140]]) { const u = L.u;
+    if (u > 0 && u < 1) { const [bx, by] = L.P(u), [qx, qy] = L.P(Math.min(1, u + 0.02)); R.disco(Math.round(bx) + 3, Math.round(by) + 4, 1, VER); T.balon(R, Math.round(bx), Math.round(by - Math.sin(u * Math.PI) * 3), t, { s: 0.7, ang: Math.atan2(qy - by, qx - bx), gira: 6 }); }
+    if (u >= 1) { const [bx, by] = L.P(1); flecha(Math.round(bx - 12), y0, Math.round(bx - 12), Math.round(by - signo), AM, 2); } }
+};
+// 3 · la Tierra que gira: 60 yardas se desvían solo 4 pulgadas
+const sesenta = d(0.805), cuatro = d(0.935);
+const TIE = { mar: ['#0e2a5a', '#1a4a8a', '#2a6ab0', '#4a8ad0'], tierra: ['#2a4a1a', '#3a6a28', '#5a8a3a', '#8aaa5a'], nube: ['#b8c4d0', '#e8eef4'] };
+for (const k in TIE) TIE[k] = TIE[k].map(hex);
+// ruido de valor suave (para los continentes y las nubes)
+const vn = (x, y, k) => { const ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  return lerp(lerp(hs(ix, iy, k), hs(ix + 1, iy, k), sx), lerp(hs(ix, iy + 1, k), hs(ix + 1, iy + 1, k), sx), sy); };
+// el espacio fijo: se pinta una vez en su búfer y se copia en cada fotograma (R.usar(b) … R.usar(prev))
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const trama = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const SOL = [-8, 46];   // el Sol, fuera de cuadro a la izquierda: de ahí viene la luz de la Tierra y de la Luna
+let ESPACIO = null;
+const pintaEspacio = () => {
+  const FON = ['#03040a', '#060815', '#0a0d20', '#0f132c', '#151a38'].map(hex);
+  const NV = ['#120a22', '#1a0f30', '#26143e', '#361c4e', '#4e2c62'].map(hex);   // nebulosa violeta (abajo, detrás de la Luna)
+  const NT = ['#07121c', '#0a1a26', '#0e2430', '#14303c', '#1e4048'].map(hex);   // nebulosa verdeazulada (a la izquierda)
+  const GL = hex('#f0a040');                                                     // el resplandor cálido del Sol
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const tr = trama(x, y), vl = Math.abs((y - 40) - (x - 160) * 0.35), banda = Math.max(0, 1 - vl / 34) * (y < 16 ? 0.5 : 1);
+    // el fondo: degradado tramado, más claro en la banda de la Vía Láctea, con su grano de nubes lejanas
+    const g = 0.5 + banda * 2.0 + (vn(x / 16, y / 16, 11) - 0.5) * 1.2 + (vn(x / 5, y / 5, 12) - 0.5) * 0.5;
+    let col = FON[Math.max(0, Math.min(4, Math.floor(g + tr - 0.5)))];
+    // las franjas de polvo oscuro que parten la banda
+    if (banda > 0.25 && vn(x / 9, y / 4, 13) > 0.6 && vn(x / 3, y / 3, 14) > 0.35) col = FON[0];
+    // las dos nebulosas, de ruido de tres escalas y con el borde deshilachado
+    const nb = (cx, cy, rx, ry, k) => { const dx = (x - cx) / rx, dy = (y - cy) / ry, f = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy));
+      return f * (vn(x / 22, y / 14, k) * 0.45 + vn(x / 7, y / 6, k + 1) * 0.3 + vn(x / 2.5, y / 2.5, k + 2) * 0.25 - 0.2) * 2.6; };
+    const v = nb(232, 158, 96, 40, 20), te = nb(40, 96, 62, 52, 30);
+    if (v > 0.18) col = NV[Math.max(0, Math.min(4, Math.floor((v - 0.18) * 7 + tr - 0.3)))];
+    else if (te > 0.18) col = NT[Math.max(0, Math.min(4, Math.floor((te - 0.18) * 7 + tr - 0.3)))];
+    // el resplandor del Sol, tramado en anillos
+    const ds = Math.hypot(x - SOL[0], (y - SOL[1]) * 1.1); if (ds < 64) { const a = Math.floor(Math.pow(1 - ds / 64, 2.2) * 0.55 * 8 + tr) / 8; if (a > 0) col = mezcla(col, GL, a); }
+    // estrellas fijas y polvo: muchas en la banda, pocas fuera
+    const h = hs(x, y, 4);
+    if (h < 0.10 * banda * banda) col = h < 0.025 * banda ? hex('#7a82b0') : hex('#3c4470');
+    else if (h > 0.9965) col = hex('#5a6290'); else if (h > 0.993) col = hex('#2c2a44');
+    R.pset(x, y, col); }
+  // el Sol que asoma por el borde: el disco blanco amarillo y su corona
+  for (let k = 0; k < 4; k++) R.disco(SOL[0], SOL[1], 16 - k * 3, ['#6a4a24', '#c8902a', '#f0d070', '#fff8e0'].map(hex)[k]);
+  // una galaxia lejana de canto, con su núcleo
+  for (let y = -6; y <= 6; y++) for (let x = -12; x <= 12; x++) { const u = (x * 0.92 + y * 0.4), w = (-x * 0.4 + y * 0.92) * 3.2, q = 1 - Math.sqrt(u * u + w * w) / 12;
+    if (q > 0) { const i = Math.floor(q * 4 + trama(x, y) - 0.4); if (i > 0) R.pset(236 + x, 32 + y, ['#1c2038', '#343a5c', '#6a6e94', '#c8c4e0', '#f0eaf8'].map(hex)[Math.min(4, i)]); } }
+  // Marte, pequeño y lejos, con su casquete
+  R.disco(24, 156, 5, hex('#3a1610')); R.disco(23, 155, 4, hex('#9a3a22')); R.disco(22, 154, 2, hex('#d0663a')); R.pset(21, 152, hex('#f0e8e0')); R.pset(22, 152, hex('#f0e8e0'));
+  R.pset(25, 157, hex('#6a2818')); R.pset(26, 155, hex('#6a2818'));
+};
+const p3 = (t) => {
+  if (!ESPACIO) { ESPACIO = R.nuevo(); const prev = R.usar(ESPACIO); pintaEspacio(); R.usar(prev); }
+  R.copiar(ESPACIO);
+  // los rayos del Sol que giran despacio y laten (punteados, dentro de su esquina)
+  for (let k = 0; k < 9; k++) { const a = -0.9 + k * 0.23 + Math.sin(t * 0.4 + k) * 0.03, l = 26 + 10 * (0.5 + 0.5 * Math.sin(t * 1.7 + k * 2.1));
+    for (let r = 17; r < l; r++) if ((r + k + Math.floor(t * 8)) % 3) { const x = Math.round(SOL[0] + Math.cos(a) * r), y = Math.round(SOL[1] + Math.sin(a) * r);
+      if (x >= 0 && y > 16) aclara(x, y, hex('#f0c060'), 0.55 * (1 - (r - 17) / (l - 17))); } }
+  // las estrellas que titilan: de tres brillos, las más vivas con su destello en cruz que crece y mengua
+  for (let k = 0; k < 70; k++) { const x = Math.floor(hs(k, 1, 9) * 320), y = Math.floor(hs(k, 2, 9) * 180), b = hs(k, 3, 9), f = 0.5 + 0.5 * Math.sin(t * (1.2 + b * 3) + k * 1.7);
+    if ((x > 274 && y < 48) || (x > 16 && x < 174 && y < 17)) continue;
+    const c = b > 0.8 ? (f > 0.6 ? BL : hex('#c8d0f0')) : b > 0.45 ? (f > 0.5 ? hex('#a8b0d8') : hex('#6a7298')) : (f > 0.5 ? hex('#6a7298') : hex('#3a4064'));
+    R.pset(x, y, b > 0.92 ? (k % 2 ? hex('#ffe8b0') : hex('#b0d0ff')) : c);
+    if (b > 0.8 && f > 0.55) { const L = f > 0.85 ? 2 : 1; for (let i = 1; i <= L; i++) { const cc = i === 1 ? hex('#8890c0') : hex('#4a5080'); R.pset(x - i, y, cc); R.pset(x + i, y, cc); R.pset(x, y - i, cc); R.pset(x, y + i, cc); } } }
+  // una estrella fugaz que cruza al principio del plano
+  { const u = tramo(t, P3 + 0.9, P3 + 1.5); if (u > 0 && u < 1) for (let i = 0; i < 14; i++) { const w = u - i * 0.012; if (w < 0) break; const x = Math.round(lerp(262, 196, w)), y = Math.round(lerp(28, 52, w));
+    R.pset(x, y, i === 0 ? BL : i < 4 ? hex('#c8e0ff') : i < 9 ? hex('#6a80b0') : hex('#3a4870')); } }
+  // la Tierra: el disco con océanos y continentes que giran (ruido por longitud), las nubes a otra velocidad, la noche a la derecha y el halo
+  const cx = 130, cy = 102, rr = 52, rot = t * 0.05;
+  for (let k = 0; k < 3; k++) R.disco(cx, cy, rr + 3 - k, [hex('#0a1a3a'), hex('#1a3a6a'), hex('#4a7ab8')][k]);
+  for (let y = -rr; y <= rr; y++) for (let x = -rr; x <= rr; x++) { const q = x * x + y * y; if (q > rr * rr) continue;
+    const z = Math.sqrt(rr * rr - q), lat = Math.asin(y / rr), lon = Math.atan2(x, z) + rot, lu = Math.cos(lat);
+    const n = vn(lon * 2.2, lat * 2.6, 2) * 0.6 + vn(lon * 6, lat * 6, 3) * 0.3 + vn(lon * 14, lat * 14, 4) * 0.1;
+    const luz = (-x * 0.62 - y * 0.42 + z * 0.66) / rr, cl = vn(lon * 5 + t * 0.04, lat * 9, 6) * 0.7 + vn(lon * 13 + t * 0.04, lat * 16, 7) * 0.3;
+    let tono = Math.max(0, Math.min(3, Math.floor(0.4 + luz * 3.2 + (hs(x, y, 1) - 0.5) * 0.6)));
+    let col = Math.abs(lat) > 1.18 ? (tono > 1 ? BL : hex('#b8c8d8')) : n > 0.58 ? TIE.tierra[tono] : TIE.mar[tono];
+    if (n > 0.56 && n < 0.6 && tono > 0) col = hex('#c8b878');   // las costas de arena
+    if (cl > 0.68 && luz > 0) col = TIE.nube[luz > 0.4 && cl > 0.72 ? 1 : 0];
+    if (luz < -0.05) col = mezcla(col, hex('#04060e'), 0.7); else if (luz < 0.05) col = mezcla(col, hex('#04060e'), 0.4);
+    R.pset(cx + x, cy + y, col); }
+  // la flecha del giro alrededor del eje
+  for (let an = 0.3; an < 2.6; an += 0.05) { const x = cx + Math.cos(an) * (rr + 9), y = cy - 4 + Math.sin(an) * 9 - rr - 2; }
+  for (let an = Math.PI * 0.15; an < Math.PI * 0.85; an += 0.03) { const x = Math.round(cx - Math.cos(an) * (rr + 8)), y = Math.round(cy + rr * 0.25 + Math.sin(an) * 12); if (Math.sin(an * 20 - t * 4) > -0.2) R.pset(x, y, AM); }
+  flecha(Math.round(cx + Math.cos(Math.PI * 0.15) * (rr + 8)) - 3, Math.round(cy + rr * 0.25 + Math.sin(Math.PI * 0.15) * 12) + 1, Math.round(cx + Math.cos(Math.PI * 0.15) * (rr + 8)) + 1, Math.round(cy + rr * 0.25 + Math.sin(Math.PI * 0.15) * 12) - 3, AM, 3);
+  // el campo diminuto (sobre Norteamérica de mentira) con el pase de 60 yardas y su desvío
+  const fx = cx - 14, fy = cy - 18; R.rect(fx - 1, fy - 1, fx + 15, fy + 6, K); R.rect(fx, fy, fx + 14, fy + 5, hex('#3a9a3a')); for (let x = fx + 2; x < fx + 14; x += 3) R.rect(x, fy, x, fy + 5, hex('#8ad08a'));
+  const zz = tramo(t, sesenta - 0.6, sesenta);
+  if (zz > 0) { // la lupa: de la mota del campo sale el recuadro ampliado
+    const bx0 = 190, by0 = 58, bx1 = 308, by1 = 128; R.linea(fx + 14, fy, bx0, by0, hex('#c8d0e0')); R.linea(fx + 14, fy + 5, bx0, by1, hex('#c8d0e0'));
+    R.rect(bx0 - 1, by0 - 1, bx1 + 1, by1 + 1, BL); R.rect(bx0, by0, bx1, by1, hex('#2e8a2e'));
+    for (let x = bx0 + 4; x < bx1; x += 12) R.rect(x, by0, x, by1, hex('#e8f0e0')); for (let y = by0 + 3; y < by1; y += 4) for (let x = bx0; x <= bx1; x += 2) if (hs(x, y, 5) < 0.3) R.pset(x, y, hex('#3a9a3a'));
+    const u = tramo(t, sesenta, cuatro - 0.3), x0 = bx0 + 10, x1 = bx1 - 10, y0 = 94;
+    for (let x = x0; x <= x1; x += 3) R.pset(x, y0, hex('#d8e8d0'));
+    for (let w = 0; w <= u; w += 0.01) R.pset(Math.round(lerp(x0, x1, w)), Math.round(y0 + 4 * w * w), AM);
+    if (u > 0 && u < 1) T.balon(R, Math.round(lerp(x0, x1, u)), Math.round(y0 + 4 * u * u), t, { gira: 6 });
+    R.numero('60', Math.round((x0 + x1) / 2), by1 - 6, { centro: true });
+    const c4 = tramo(t, cuatro - 0.2, cuatro + 0.2); if (c4 > 0) { flecha(x1 + 3, y0 - 6, x1 + 3, y0 - 1, BL, 2); flecha(x1 + 3, y0 + 10, x1 + 3, y0 + 5, BL, 2); R.numero('4', x1 - 12, y0 - 10, {}); R.rect(x1 - 4, y0 - 23, x1 - 4, y0 - 20, AM); R.rect(x1 - 2, y0 - 23, x1 - 2, y0 - 20, AM); } }
+  // la Luna que asoma y avanza despacio: sombreada desde el Sol, con mares, cráteres con su borde de luz y la parte de noche
+  { const u = tramo(t, P3, P3 + 7), mx = Math.round(lerp(296, 276, u)), my = 152, r = 13;
+    for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) { const q = x * x + y * y; if (q > r * r) continue;
+      const z = Math.sqrt(r * r - q), luz = (-x * 0.7 - y * 0.35 + z * 0.62) / r, m = vn((x + 40) / 5, (y + 40) / 4, 40) + vn(x / 2, y / 2, 41) * 0.35;
+      let i = Math.max(0, Math.min(4, Math.floor(0.6 + luz * 3.6 + (trama(x, y) - 0.5) * 0.8))); if (m > 0.78 && i > 0) i--;
+      R.pset(mx + x, my + y, ['#16161e', '#3a3a44', '#6a6a70', '#a8a8a4', '#dcdcd4'].map(hex)[i]); }
+    for (const [dx, dy, cr] of [[-5, -4, 2], [3, -6, 1], [-2, 4, 3], [5, 3, 1], [-8, 2, 1], [1, -1, 1]]) { R.disco(mx + dx, my + dy, cr, hex('#7a7a7c'));
+      R.pset(mx + dx + cr, my + dy + cr, hex('#e8e8e0')); R.pset(mx + dx - cr, my + dy - cr, hex('#4a4a52')); }
+    R.pset(mx - 6, my - 7, hex('#f4f4ec')); R.pset(mx - 7, my - 6, hex('#f4f4ec')); }
+  // el satélite que cruza: cuerpo con lámina dorada, dos paneles de celdas con un brillo que los recorre, antena y luz que parpadea
+  { const u = ((t - P3) / 6.5) % 1, sx = Math.round(lerp(14, 200, u)), sy = Math.round(lerp(40, 32, u)), br = Math.floor((t * 9) % 14);
+    R.linea(sx - 12, sy + 1, sx + 12, sy + 1, hex('#8a8a96'));
+    for (const lado of [-1, 1]) { const x0 = lado < 0 ? sx - 13 : sx + 4; R.rect(x0, sy - 1, x0 + 9, sy + 3, hex('#141c3a'));
+      for (let yy = sy - 1; yy <= sy + 3; yy++) for (let xx = x0; xx <= x0 + 9; xx++) if ((xx - x0) % 3 && yy !== sy + 1) R.pset(xx, yy, ((xx - x0 + (lado > 0 ? 10 : 0)) === br) ? hex('#c8e8ff') : (yy < sy + 1 ? hex('#3a5ab8') : hex('#2a428a'))); }
+    R.rect(sx - 2, sy - 2, sx + 2, sy + 3, hex('#7a5a1a')); R.rect(sx - 2, sy - 2, sx + 1, sy + 2, hex('#c8a040')); R.pset(sx - 1, sy - 1, hex('#f0d878')); R.pset(sx, sy + 1, hex('#9a7428'));
+    R.linea(sx, sy - 3, sx + 2, sy - 6, hex('#c8c8d0')); R.pset(sx + 3, sy - 6, hex('#e8e8f0')); R.pset(sx + 2, sy - 7, hex('#e8e8f0'));
+    if (Math.floor(t * 3) % 4 === 0) R.pset(sx, sy + 4, RO); }
+};
+const efectos = [[0.3, 'whoosh'], [lado, 'brillo'], [P2 + 0.15, 'golpecito'], [r0, 'whoosh'], [r1, 'golpecito'], [l0, 'whoosh'], [l1, 'golpecito'], [l1 + 0.4, 'palmada'],
+  [P3 + 0.9, 'whoosh'], [sesenta - 0.4, 'zumbido'], [cuatro - 1.3, 'bip'], [cuatro, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

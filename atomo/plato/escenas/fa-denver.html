@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Denver · ep13</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// FA-DENVER (frase 26), hoy. Tres planos:
+// 1. el estadio abierto de Denver, de lado, con las Rocosas: el aire se hace visible («The air matters too»); el pateador
+//    entra y se sopla las manos, el que sujeta le habla; a la izquierda sube la regla de la altura desde la ola del mar
+//    hasta «5280» pies («a mile above sea level»); corta en «The air»;
+// 2. el túnel de viento: la física gira el mando y el contador baja de 100 a 83 («one-sixth thinner»); el humo se aclara;
+//    el físico señala; en el monitor, la trayectoria de montaña llega más lejos que la del mar («carry farther»); corta
+//    en «although»;
+// 3. la banda de Denver bajo la nieve: el termómetro baja de 40 a 20 («cold weather»), las moléculas del aire se apiñan
+//    («thickens the air»), los jugadores tiritan junto a la estufa, el operario sopla la nieve y un balón cae corto en la
+//    nieve, antes de la marca del aire fino («takes back some»).
+import * as T from '/atomo/plato/escenas/fa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('fa-denver');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const ease = (u) => u * u * (3 - 2 * u), cl = (v, a, b) => Math.max(a, Math.min(b, v)), lin = (t, a, b) => cl((t - a) / (b - a), 0, 1);
+const K = hex('#141420'), BL = hex('#f6f6ee'), BLS = hex('#c8c8c0');
+const hx = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)]));
+const DENVER = hx({ X: '#8a2a3a', x: '#f2eee2', w: '#d87a8a', C: '#8a2a3a', c: '#f2eee2', F: '#f2eee2', W: '#8a2a3a', o: '#f2eee2' });
+const VISITA = hx({ X: '#f2eee2', x: '#1e8a8a', w: '#ffffff', C: '#f2eee2', c: '#1e8a8a', F: '#f2eee2', W: '#f2eee2', o: '#1e8a8a' });
+// un fondo fijo: se pinta una vez en su búfer y se copia en cada fotograma
+const FIJO = new Map();
+const fijo = (clave, dibuja) => { let b = FIJO.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); dibuja(); R.usar(prev); FIJO.set(clave, b); } R.copiar(b); };
+const mezcla = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// el actor de rodillas (el que sujeta): el césped de debajo se guarda y se repone, y se pintan el muslo doblado y la bota
+const arrodillado = (def, x, suelo, t, o = {}) => {
+  const g = []; for (let y = suelo - 2; y <= suelo + 7; y++) for (let i = -1; i <= 16; i++) g.push([x + i, y, R.pget(x + i, y)]);
+  const r = R.actor(def, x, suelo + 6, t, o);
+  for (const [px, py, c] of g) R.pset(px, py, c);
+  const d = o.dir ?? 1, X = (i) => (d > 0 ? x + i : x + 14 - i), F = (o.pal && o.pal.F) || (def.pal && def.pal.F) || BL;
+  for (let i = 2; i <= 13; i++) { R.pset(X(i), suelo - 3, K); R.pset(X(i), suelo - 2, F); R.pset(X(i), suelo - 1, i > 10 ? K : mezcla(F, K, 0.25)); R.pset(X(i), suelo, K); }
+  R.pset(X(1), suelo - 2, K); R.pset(X(14), suelo - 2, K); R.pset(X(14), suelo - 1, K);
+  for (let i = 0; i <= 3; i++) { R.pset(X(i), suelo - 1, K); R.pset(X(i), suelo, K); }
+  for (let i = 1; i <= 13; i++) R.pset(X(i), suelo + 1, mezcla(R.pget(X(i), suelo + 1), K, 0.35));   // la sombra
+  return r;
+};
+// la pierna que patea: muslo y espinilla del color del pantalón y la media, y la bota negra con su brillo
+const pierna = (cx, cy, fx, fy, F, Med) => {
+  const mx = Math.round((cx + fx) / 2 - 1), my = Math.round((cy + fy) / 2 - 1);
+  for (const [a, b, c, d2, col] of [[cx, cy, mx, my, F], [mx, my, fx, fy, Med]]) for (const [ox, oy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) R.linea(a + ox, b + oy, c + ox, d2 + oy, col);
+  R.linea(cx - 1, cy, mx - 1, my, K); R.linea(mx - 1, my + 1, fx - 1, fy + 1, K);
+  R.rect(fx - 1, fy, fx + 3, fy + 2, K); R.pset(fx + 1, fy, hex('#5a5a6a')); R.pset(fx + 4, fy + 1, K);
+};
+// un árbitro: el obrero con camisa blanca de rayas negras y gorra negra
+const ARBI = hx({ C: '#f4f4f0', c: '#f4f4f0', F: '#1a1a20', W: '#f4f4f0', o: '#1a1a20', H: '#1a1a20', h: '#2a2a30' });
+const arbitro = (x, suelo, t, o = {}) => {
+  const r = R.actor(EL.obrero, x, suelo, t, { ...o, pal: ARBI });
+  for (let y = suelo - 13; y <= suelo - 5; y++) for (let i = 1; i <= 14; i++) if (R.pget(x + i, y) === ARBI.C && (x + i) % 2 === 0) R.pset(x + i, y, K);
+  return r;
+};
+// la mano canónica (la de T.mano, 14 px) sin la manga recta, con su brazo en diagonal: sale del borde en (x0, y0) y llega
+// al puño en (x1, y1), de 7 px que se estrechan a 5, con luz, sombra, dos pliegues y el puño; dir −1: los dedos a la izquierda
+const MANO = ['.....kkkkkk...', '....kSSSSSSkk.', 'kkkkSSSSSSSSSk', 'MMMkSSSSSSSSSk', 'MMMkSSSSSSSssk', 'MMMkSSSSSSssk.', 'kkkkkSSSSskk..', '.....kkkkk....'];
+const brazo = (x0, y0, x1, y1, manga, dir = -1, o = {}) => {
+  const M = hex(manga), ML = mezcla(M, BL, 0.35), MS = mezcla(M, K, 0.38), MSS = mezcla(M, K, 0.6), n = Math.ceil(Math.hypot(x1 - x0, y1 - y0)), ux = (x1 - x0) / n, uy = (y1 - y0) / n, nx = -uy, ny = ux;
+  if (o.sombra !== false) for (let i = 0; i <= n; i++) { const w = 4 - 1.4 * i / n; for (let s = -w; s <= w; s += 0.5) { const px = Math.round(x0 + ux * i + nx * s + 3), py = Math.round(y0 + uy * i + ny * s + 6); R.pset(px, py, mezcla(R.pget(px, py), K, 0.3)); } }
+  for (const borde of [1, 0]) for (let i = 0; i <= n; i++) { const u = i / n, w = 4.2 - 1.6 * u + (i > n - 6 ? -0.4 : 0) + borde, cx = x0 + ux * i, cy = y0 + uy * i;
+    for (let s = -w; s <= w; s += 0.5) { const px = Math.round(cx + nx * s), py = Math.round(cy + ny * s), puno = i > n - 6 && i <= n - 3;
+      R.pset(px, py, borde ? K : puno ? (s < 0 ? BL : BLS) : s < -w * 0.55 ? ML : s > w * 0.72 ? MSS : s > w * 0.3 ? MS : M); } }
+  for (const u of [0.32, 0.58]) { const cx = x0 + (x1 - x0) * u, cy = y0 + (y1 - y0) * u; for (let s = -2.5; s <= 3; s += 0.5) { const b = Math.abs(s) * 0.7; R.pset(Math.round(cx + nx * s - ux * b), Math.round(cy + ny * s - uy * b), MSS); } }
+  R.dibujo(MANO, Math.round(dir > 0 ? x1 - 1 : x1 - 13), Math.round(y1 - 4), dir, { k: K, S: hex('#f6c290'), s: hex('#d48a5a'), M: BL });
+};
+// el balón aplastado: T.balon con las volteretas «paradas» en el ángulo A y el largo Esc (0,62–1)
+const balonEsc = (x, y, t, A, Esc, o = {}) => { const c = cl((Esc - 0.62) / 0.38, 0, 1), fase = Math.acos(c) - t * 3.4; T.balon(R, x, y, t, { ...o, volteretas: true, fase, ang: A - (t * 7.5 + fase) }); };
+// un destello de cuatro puntas
+const destello = (x, y, r, c = BL) => { for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } R.pset(x - 1, y - 1, c); R.pset(x + 1, y + 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); };
+// un balón de patada pequeño con su franja blanca y su número (no hay «K»: no hay letras)
+const balonK = (x, y, t, n, o = {}) => { T.balon(R, x, y, t, { s: o.s ?? 1, ang: o.ang ?? 0 }); const s = o.s ?? 1;
+  for (let j = -Math.round(3 * s); j <= Math.round(3 * s); j++) { R.pset(Math.round(x + 3 * s), y + j, BL); if (s > 1.5) R.pset(Math.round(x + 3 * s + 1), y + j, BLS); }
+  if (s > 1.5) R.numero(String(n), Math.round(x - 4 * s), Math.round(y + 3), { color: BL }); };
+
+const D2 = en('denver', 0.334), D3 = en('denver', 0.638);
+const AIRE = en('denver', 0.008), DENV = en('denver', 0.138), MILLA = en('denver', 0.217);
+const p1 = (t) => {
+  T.estadioPatada(R, t, { lugar: 'denver', encuadre: 'pateo', aire: ease(tramo(t, AIRE, AIRE + 1.2)), nieve: 0, frio: 0 });
+  // el que sujeta, de rodillas con el balón plantado, y el pateador que entra, se sopla las manos y mira
+  const sj = arrodillado(EL.receptor, 132, 147, t, { dir: 1, pal: DENVER, habla: t > 1.2 && t < 2.2 && Math.sin(t * 8) > 0, dedo: t > DENV && t < DENV + 0.7 });
+  T.balon(R, 156, 141, t, { ang: -1.3 }); R.pset(155, 134, hex('#f6c290')); R.pset(156, 134, hex('#f6c290'));
+  const a = tramo(t, 0.6, 2.2), kx = Math.round(lerp(18, 96, ease(a)));
+  const k = R.actor(EL.pateador, kx, 147, t, { dir: 1, pal: DENVER, anda: a > 0 && a < 1, dedo: t > 2.6 && t < 3.6, sonrisa: t > 3.8 });
+  if (t > 2.7 && t < 3.6) for (let i = 0; i < 3; i++) { const d = ((t * 1.6 + i * 0.33) % 1); R.pset(Math.round(k.cabeza[0] + 8 + d * 8), Math.round(k.cabeza[1] + 8 - d * 5), mezcla(BL, hex('#8aa0b8'), d)); }
+  // la regla de la altura: la ola del nivel del mar abajo y la barra que sube hasta «5280»
+  const s = ease(tramo(t, MILLA, MILLA + 0.7));
+  if (s > 0) { const top = Math.round(lerp(150, 66, s));
+    for (let i = 0; i < 3; i++) for (let x = 6; x < 28; x++) R.pset(x, 154 + i * 3 + Math.round(Math.sin(x * 0.7 + t * 4 + i) * 1), i === 0 ? hex('#5ab0e0') : hex('#3a80b8'));
+    R.rect(15, top, 19, 152, K); R.rect(16, top + 1, 18, 151, hex('#e8e4dc')); for (let y = 150; y > top; y -= 6) R.rect(19, y, 21, y, K);
+    R.poligono([[10, top + 2], [17, top - 6], [24, top + 2]], K); R.poligono([[12, top + 1], [17, top - 4], [22, top + 1]], hex('#8a2a3a'));
+    if (s > 0.9) R.numero('5280', 28, top + 4, { tam: 8 }); }
+};
+// ── 2 · el túnel de viento: el aire un sexto más fino
+const MANDO = en('denver', 0.371), SEXTO = en('denver', 0.429), LEJOS = en('denver', 0.537);
+const p2 = (t) => {
+  const f = ease(tramo(t, MANDO, SEXTO));
+  T.labGiro(R, t, { encuadre: 'tunel', giro: 0.5, precesion: 0, viento: lerp(1, 0.83, f), rpm: Math.round(lerp(100, 83, f)) });
+  // en el monitor de la mesa: las dos trayectorias, la del mar (verde azulada) y la de la montaña (granate), más larga
+  const m = tramo(t, LEJOS - 0.5, LEJOS + 0.5);
+  if (m > 0) { R.recorte([236, 109, 288, 137]); R.rect(236, 109, 288, 137, hex('#0e1622'));
+    for (let x = 236; x <= 288; x += 8) for (let y = 110; y < 137; y += 2) R.pset(x, y, hex('#1a2a3a'));
+    R.linea(238, 134, 288, 134, hex('#3a5a6a'));
+    for (const [L, alto, c, d] of [[30, 16, hex('#3ac8c8'), 0], [44, 20, hex('#e85a6a'), 0.25]]) { const u = tramo(m, d, 1); for (let q = 0; q <= u; q += 0.02) { const x = 240 + L * q, y = 134 - alto * Math.sin(Math.PI * q); R.pset(Math.round(x), Math.round(y), c); } if (u >= 1) { R.pset(240 + L, 133, BL); R.pset(240 + L, 132, c); } }
+    R.recorte(null); }
+  // la física gira el mando del túnel; el físico mira el contador y señala
+  R.actor(EL.fisica, Math.round(lerp(196, 180, tramo(t, D2 + 0.1, MANDO - 0.3))), 170, t, { dir: 1, anda: t > D2 + 0.1 && t < MANDO - 0.3, dedo: t > MANDO - 0.3 && t < MANDO + 0.6, sonrisa: t > LEJOS });
+  R.actor(EL.fisico, 116, 164, t, { dir: 1, sorpresa: t > SEXTO && t < SEXTO + 0.6, dedo: t > SEXTO + 0.5 && t < LEJOS + 0.8, habla: t > LEJOS && Math.sin(t * 7) > 0 });
+};
+// ── 3 · la banda de Denver bajo la nieve
+const FRIO = en('denver', 0.658), ESPESA = en('denver', 0.763), QUITA = en('denver', 0.866);
+const fondoBanda = () => fijo('bandaDenver', () => {
+  // el voladizo de hormigón con sus nervios y la fila de focos (tranquilo bajo Atom y la barra)
+  for (let y = 0; y < 26; y++) for (let x = 0; x < 320; x++) R.pset(x, y, hh(x >> 1, y >> 1, 11) < 0.5 ? hex('#4a4e5a') : hex('#454952'));
+  for (let x = 0; x < 320; x += 32) { R.rect(x, 0, x + 3, 25, hex('#5a5e6a')); R.rect(x + 3, 0, x + 3, 25, hex('#363a44')); }
+  R.rect(0, 22, 319, 25, hex('#6a6e7a')); R.rect(0, 26, 319, 27, hex('#262830'));
+  for (let x = 10; x < 320; x += 40) { R.rect(x, 26, x + 8, 29, K); R.rect(x + 1, 27, x + 7, 28, hex('#c8c8b0')); }
+  // la grada abrigada, en tres secciones con escaleras: asientos granates, gente con gorro de pompón, bufanda y manta
+  R.rect(0, 30, 319, 89, hex('#2e2a34'));
+  for (let r = 0; r < 8; r++) { const y = 32 + r * 7; R.rect(0, y + 5, 319, y + 5, hex('#6a6470')); R.rect(0, y + 6, 319, y + 6, hex('#1e1a24'));
+    for (let x = 1 + (r % 2) * 3; x < 318; x += 6) { if ((x > 92 && x < 112) || (x > 204 && x < 224)) continue;
+      R.rect(x, y + 2, x + 4, y + 4, hex('#6a1a2a')); R.pset(x, y + 2, hex('#8a2a3a'));
+      if (hh(x, r, 12) < 0.16) continue;
+      const coat = hh(x, r, 13) < 0.45 ? hex('#8a2a3a') : hh(x, r, 13) < 0.65 ? hex('#e8e4dc') : hh(x, r, 13) < 0.82 ? hex('#3a3a50') : hex('#c86a2a');
+      R.rect(x, y, x + 3, y + 4, coat); R.rect(x + 3, y + 1, x + 3, y + 4, mezcla(coat, K, 0.35));
+      R.rect(x + 1, y - 3, x + 2, y - 1, hh(x, r, 14) < 0.6 ? hex('#e8b890') : hex('#a86848'));
+      const gorro = hh(x, r, 15) < 0.5 ? hex('#8a2a3a') : hh(x, r, 15) < 0.8 ? BL : hex('#e8783a'); R.rect(x, y - 4, x + 3, y - 3, gorro); R.pset(x + 1, y - 5, BL);
+      if (hh(x, r, 16) < 0.3) R.rect(x, y, x + 3, y, hh(x, r, 17) < 0.5 ? BL : hex('#8a2a3a'));   // la bufanda
+      if (hh(x, r, 18) < 0.12) R.rect(x - 1, y + 2, x + 4, y + 4, hex('#5a6a3a')); } }
+  for (const x0 of [94, 206]) { for (let y = 30; y < 89; y += 3) { R.rect(x0, y, x0 + 16, y + 1, hex('#8a8690')); R.rect(x0, y + 2, x0 + 16, y + 2, hex('#5a5660')); R.pset(x0, y, hex('#e8c840')); R.pset(x0 + 16, y, hex('#e8c840')); }
+    R.rect(x0 + 8, 30, x0 + 8, 88, hex('#c8c8d0')); }
+  R.rect(140, 70, 168, 89, hex('#0e0c12')); R.rect(140, 70, 168, 71, hex('#5a5660')); R.rect(146, 80, 162, 89, hex('#3a2a1a'));
+  // la pancarta que cuelga de la barandilla: granate con dos franjas blancas y una montaña (sin letras)
+  R.rect(20, 30, 84, 38, K); R.rect(21, 31, 83, 37, hex('#8a2a3a')); R.rect(21, 32, 83, 32, BL); R.rect(21, 36, 83, 36, BL); R.poligono([[44, 36], [52, 31], [60, 36]], BL); R.poligono([[54, 36], [60, 33], [66, 36]], hex('#e8e4dc'));
+  // el muro acolchado con su franja de LED
+  R.rect(0, 89, 319, 101, hex('#5a1a26')); for (let x = 0; x < 320; x += 20) { R.rect(x, 89, x, 101, hex('#3a1018')); R.rect(x + 1, 89, x + 1, 101, hex('#7a2a36')); } R.rect(0, 89, 319, 89, hex('#a84a5a')); R.rect(0, 101, 319, 101, hex('#2a0a10'));
+  // el césped nevado: la nieve con hierba que asoma, la línea de banda, huellas y las rodadas de la sopladora
+  for (let y = 102; y < 180; y++) for (let x = 0; x < 320; x++) { const q = hh(x, y, 16), p = (y - 102) / 78; R.pset(x, y, q < 0.42 - p * 0.12 ? hex('#eef2f6') : q < 0.66 ? hex('#d0dae2') : q < 0.86 ? hex('#4a7a3a') : hex('#3a6a2e')); }
+  for (let x = 0; x < 320; x++) { R.pset(x, 118, hex('#f6f8fa')); R.pset(x, 119, hex('#f6f8fa')); R.pset(x, 120, hex('#c8d2da')); }
+  for (let k = 0; k < 16; k++) { const x = 20 + k * 18, y = 150 + Math.round(Math.sin(k) * 4) + (k % 2) * 4; R.rect(x, y, x + 2, y + 1, hex('#9aa8b4')); R.pset(x + 1, y + 2, hex('#b8c4ce')); }
+  for (const y of [168, 174]) for (let x = 0; x < 320; x++) if (hh(x, y, 19) < 0.7) R.pset(x, y, hex('#a8b6c2'));
+  // el banco de aluminio, la nevera con los vasos, los cascos en la nieve y el carro con su lona
+  R.rect(84, 126, 214, 129, K); R.rect(85, 127, 213, 128, hex('#a8b0bc')); R.rect(85, 126, 213, 126, hex('#e8eef4'));
+  R.rect(84, 130, 214, 137, K); R.rect(85, 131, 213, 136, hex('#7a8494')); for (let x = 90; x < 214; x += 12) R.rect(x, 131, x, 136, hex('#5a6474'));
+  for (const x of [90, 148, 206]) R.rect(x, 137, x + 2, 146, hex('#3a4250'));
+  R.rect(85, 124, 213, 125, BL);   // la nieve en el banco
+  R.rect(220, 116, 236, 138, K); R.rect(221, 117, 235, 137, hex('#e8783a')); R.rect(221, 117, 235, 120, hex('#f0a060')); R.rect(224, 112, 232, 116, hex('#c8c8c0')); R.rect(221, 117, 235, 117, BL);
+  for (let i = 0; i < 4; i++) { R.rect(238 + i * 3, 128 - i, 239 + i * 3, 137, hex('#e8e4dc')); }
+  for (const [x, c] of [[190, '#8a2a3a'], [200, '#e8e4dc']]) { R.disco(x, 162, 5, K); R.disco(x, 162, 4, hex(c)); R.rect(x - 4, 163, x + 4, 166, hex('#eef2f6')); R.rect(x + 2, 160, x + 5, 161, hex('#c8c8c0')); }
+  R.rect(270, 108, 316, 150, K); R.rect(271, 109, 315, 140, hex('#2a5aa8')); for (let x = 274; x < 315; x += 7) R.linea(x, 109, x - 3, 140, hex('#1e4a8a')); R.rect(271, 107, 315, 110, BL);
+  R.rect(271, 141, 315, 146, hex('#5a6474')); R.disco(278, 149, 3, K); R.disco(308, 149, 3, K);
+  // el termómetro de poste
+  R.rect(246, 52, 250, 160, K); R.rect(247, 52, 249, 160, hex('#8a92a0'));
+  R.rect(236, 56, 260, 140, K); R.rect(237, 57, 259, 139, hex('#e8e4d8')); R.rect(237, 57, 237, 139, BL); R.rect(259, 57, 259, 139, hex('#b8b4a8'));
+  for (let y = 62; y < 128; y += 6) { R.rect(238, y, 241, y, K); R.rect(255, y, 258, y, K); }
+  R.rect(246, 62, 250, 132, K); R.rect(247, 63, 249, 131, BL);
+  R.disco(248, 133, 5, K); R.disco(248, 133, 4, hex('#c83a3a')); R.pset(246, 131, hex('#ff8a7a'));
+  R.rect(236, 54, 260, 56, BL);   // la nieve encima
+  R.numero('40', 264, 74, { tam: 8 }); R.numero('20', 264, 110, { tam: 8 });
+});
+const molecula = (x, y) => { R.rect(x - 1, y - 1, x + 2, y + 2, hex('#1e3a5a')); R.rect(x - 1, y - 1, x + 1, y + 1, hex('#8ad8ff')); R.pset(x - 1, y - 1, BL); R.pset(x, y - 1, hex('#cfefff')); };
+const p3 = (t) => {
+  fondoBanda();
+  const frio = ease(tramo(t, FRIO, FRIO + 1.6)), espesa = ease(tramo(t, ESPESA - 0.2, ESPESA + 0.8));
+  // la franja de LED que corre en el muro; el vaho y las manos que aplauden en la grada
+  for (let x = 0; x < 320; x++) { const on = Math.floor((x + t * 30) / 8) % 4 === 0; R.pset(x, 95, on ? BL : hex('#3a1018')); R.pset(x, 96, on ? hex('#e8a0a8') : hex('#3a1018')); }
+  for (let k = 0; k < 16; k++) { const ph = (t * 0.5 + k * 0.31) % 1, x = 6 + ((k * 67) % 300), y = Math.round(36 + ((k * 23) % 48) - ph * 7); if (ph < 0.6) { R.pset(x, y, mezcla(BL, hex('#2e2a34'), ph)); R.pset(x + 1, y - 1, mezcla(BL, hex('#2e2a34'), ph + 0.2)); } }
+  for (let k = 0; k < 8; k++) { const x = 8 + ((k * 89) % 300), y = 32 + ((k * 13) % 7) * 7; if (Math.sin(t * 7 + k) > 0.3 && !(x > 92 && x < 112) && !(x > 204 && x < 224)) { R.pset(x, y - 6, hex('#e8b890')); R.pset(x + 3, y - 6, hex('#e8b890')); } }
+  // el mercurio del termómetro baja de 40 a 20
+  const ym = Math.round(lerp(70, 106, frio)); R.rect(247, ym, 249, 131, hex('#c83a3a')); R.pset(247, ym, hex('#ff8a7a'));
+  // la estufa de banda: la torre con su rejilla que brilla, el tubo flexible y el aire caliente que tiembla
+  R.rect(36, 96, 66, 152, K); R.rect(37, 97, 65, 151, hex('#4a4e5a')); R.rect(37, 97, 40, 151, hex('#6a6e7a')); R.rect(37, 95, 65, 97, BL);
+  R.rect(42, 106, 60, 138, K); for (let y = 107; y < 138; y++) for (let x = 43; x < 60; x++) R.pset(x, y, (y + x) % 3 === 0 ? K : Math.sin(t * 7 + y * 0.6) > 0 ? hex('#ffb040') : hex('#e85a1a'));
+  for (let i = 0; i < 18; i++) R.rect(66 + i * 1, 140 + Math.round(Math.sin(i * 0.5) * 2), 67 + i, 143 + Math.round(Math.sin(i * 0.5) * 2), i % 3 ? hex('#8a8a96') : hex('#5a5a66'));
+  for (let k = 0; k < 8; k++) { const ph = (t * 0.7 + k / 8) % 1; R.pset(Math.round(51 + Math.sin(t * 2 + k) * 5), Math.round(92 - ph * 30), mezcla(BL, hex('#4a4e5a'), ph)); }
+  // las moléculas del aire: pocas y vivas al principio; con el frío se apiñan y tiemblan más despacio
+  const n = Math.round(lerp(40, 72, espesa)), vel = lerp(9, 3.5, frio);
+  for (let k = 0; k < n; k++) { const x = Math.round(80 + hh(k, 1, 20) * 140 * (1 - 0.3 * espesa) + 22 * espesa + Math.sin(t * vel + k) * 1.5), y = Math.round(40 + hh(k, 2, 20) * 120 * (1 - 0.3 * espesa) + 18 * espesa + Math.cos(t * vel * 1.3 + k) * 1.5);
+    molecula(x, y); }
+  // los dos del banquillo, sentados y tapados con la capa; uno tirita junto a la estufa; el pateador se frota las manos
+  for (const [x, c] of [[118, 0.3], [166, 1.1]]) { R.actor(EL.receptor, x, 134, t, { dir: 1, pal: DENVER, sorpresa: t > FRIO + c && t < FRIO + c + 0.5 });
+    R.rect(x + 1, 121, x + 14, 130, hex('#3a0a14')); R.rect(x + 2, 122, x + 13, 130, hex('#8a2a3a')); R.rect(x + 2, 122, x + 13, 122, BL); R.rect(x + 7, 123, x + 8, 130, hex('#6a1a26'));
+    R.rect(84 + 0, 130, 214, 137, K); }
+  R.rect(85, 131, 213, 136, hex('#7a8494')); for (let x = 90; x < 214; x += 12) R.rect(x, 131, x, 136, hex('#5a6474'));
+  const tirita = frio > 0.2 ? (Math.floor(t * 18) % 2) : 0;
+  R.actor(EL.liniero, 70 + tirita, 160, t, { dir: -1, sorpresa: t > FRIO && t < FRIO + 0.8, triste: t > FRIO + 0.8, dedo: t > ESPESA && t < ESPESA + 1 });
+  const kk = R.actor(EL.pateador, 140, 168, t, { dir: 1, pal: DENVER, dedo: Math.floor(t * 2) % 2 === 0 && t < QUITA - 0.4, sorpresa: t > QUITA + 0.9 && t < QUITA + 1.6, triste: t > QUITA + 1.6, habla: t > QUITA - 0.4 && t < QUITA + 0.9 && Math.sin(t * 7) > 0 });
+  { const ph = (t * 1.3) % 1; R.pset(Math.round(kk.cabeza[0] + 9 + ph * 6), Math.round(kk.cabeza[1] + 8 - ph * 4), mezcla(BL, hex('#c8d4dc'), ph)); R.pset(Math.round(kk.cabeza[0] + 10 + ph * 6), Math.round(kk.cabeza[1] + 7 - ph * 4), mezcla(BL, hex('#c8d4dc'), ph)); }
+  // el balón que cae corto en la nieve, antes del banderín del aire fino (la línea de puntos granate)
+  const v = tramo(t, QUITA - 0.3, QUITA + 0.9);
+  R.rect(292, 150, 292, 170, K); R.poligono([[293, 150], [303 + Math.round(Math.sin(t * 6) * 1), 153], [293, 156]], hex('#3ac8c8'));
+  for (let q = 0; q <= 1; q += 0.025) if (t > QUITA - 0.3) R.pset(Math.round(lerp(-10, 292, q)), Math.round(166 - Math.sin(Math.PI * q) * 120), mezcla(hex('#e85a6a'), BL, 0.3));
+  if (v > 0 && v < 1) { const x = lerp(-10, 236, v), y = 166 - Math.sin(Math.PI * v) * 104; T.balon(R, Math.round(x), Math.round(y), t, { ang: v * 14, estela: 0.6 }); }
+  if (v >= 1) { const d = t - (QUITA + 0.9); T.balon(R, 236, 166, t, { ang: 0.4 }); R.rect(230, 168, 242, 169, hex('#eef2f6')); if (d < 0.6) for (let k = 0; k < 12; k++) R.pset(Math.round(236 + (k - 6) * d * 16), Math.round(164 - d * 22 * (1 - Math.abs(k - 6) / 6) + d * d * 30), BL); }
+  // el operario que sopla la nieve, por delante
+  const ox = Math.round(lerp(330, 196, tramo(t, D3, E.duracion)));
+  R.actor(EL.obrero, ox, 178, t, { dir: -1, anda: true });
+  R.rect(ox - 8, 162, ox, 166, K); R.rect(ox - 7, 163, ox - 1, 165, hex('#e8783a')); R.rect(ox - 10, 164, ox - 8, 165, K);
+  for (let k = 0; k < 12; k++) { const ph = (t * 3 + k / 12) % 1; R.pset(Math.round(ox - 12 - ph * 28), Math.round(168 - ph * 12 + Math.sin(k + t * 9) * 2), BL); }
+  // la nieve, en tres capas (la de cerca por delante de todo)
+  for (let c = 0; c < 3; c++) { const cuantos = Math.round(frio * [90, 60, 26][c]), vv = [9, 16, 30][c], vi = [5, 9, 16][c];
+    for (let k = 0; k < cuantos; k++) { const y = Math.round(((hh(k, c, 51) * 200 + t * vv) % 200) - 10), x = Math.round(((hh(k, c, 53) * 360 + t * vi + Math.sin(t * 1.4 + k) * 2) % 360) - 20);
+      if (x < 0 || x > 319 || y < 0 || y > 179 || (x >= 274 && y <= 48) || (x >= 16 && x <= 174 && y <= 16)) continue;
+      if (c < 2) R.pset(x, y, c ? BL : BLS); else { R.rect(x, y, x + 1, y + 1, BL); R.pset(x + 1, y + 1, BLS); } } }
+};
+// el aliento del pateador que se sopla las manos (2,7–3,6 s), el contador que llega a 83 y la sopladora de nieve del plano 3
+const efectos = [[AIRE, 'rafaga'], [2.7, 'vapor'], [MILLA + 0.1, 'bip'], [MANDO, 'interruptor'], [SEXTO, 'bip'], [LEJOS, 'whoosh'], [D3 + 0.1, 'motor', { dur: 5 }], [FRIO, 'rafaga'], [QUITA + 0.9, 'chof']];
+T.rodar(E, R, [[0, p1], [D2, p2], [D3, p3]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -16,6 +16,9 @@
 set -euo pipefail
 D=${1:-${VOZ:-$HOME/.cache/ask-atom/voz}}
 H=$(cd "$(dirname "$0")" && pwd)
+# el entorno vive en una carpeta de verdad: en el 12 era un enlace a la carpeta temporal de la sesión, se borró al hacer
+# sitio en disco y producir.sh se paró sin voz
+if [ -L "$D" ]; then echo "ERROR: $D es un enlace ($(readlink "$D")); el entorno de voz tiene que ser una carpeta de verdad" >&2; exit 1; fi
 URL=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0
 declare -A MD5=([kokoro-v1.0.onnx]=9579b435abd94a5af3d00d3cd39df548 [voices-v1.0.bin]=29895103243c07818862043c051e1db0)
 req=$(md5sum < "$H/voz-requisitos.txt" | cut -d' ' -f1)

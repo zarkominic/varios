@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El castillo del Grial · ep17</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TE-CASTILLO (frases 33–34), 1210. Cuatro planos:
+// 1. (castillo, general) de noche, en la gran sala del Grial; la procesión de velas cruza el fondo y dos caballeros de
+//    manto blanco guardan las gradas; en «German poet» entra el poeta Wolfram con su libro, en «Wolfram» se queda
+//    boquiabierto ante la piedra que destella y señala el altar; en la procesión, una figurita lleva una campanilla que
+//    tañe al entrar el poeta;
+// 2. (castillo, altar; corte en «makes») la piedra luminosa late; en «guarded» los dos caballeros llegan por los lados con
+//    sus lanzas y pendones (una ráfaga los hace restallar al entrar), en «Templeisen» dan un golpe de lanza; en «a name» les sale un «?» y en «Templars» la cruz;
+// 3. (mostrador, general; corte en «Since then») la barra del año corre de 1210 a hoy; el buscador entra en la feria de
+//    copas (la barra corre con un silbido); el perrillo se para y ladra a la fila de copas; en «claimed» coge una de barro y en «Grail» aparece otra al final de la fila: se queda pasmado (gag 5);
+//    arriba solo cielo: el toldo acaba en x 277 (la esquina de Atom queda en cielo, con el poste rematado) y los banderines
+//    cuelgan en guirnaldas del fleco del toldo, lejos de la barra del año;
+// 4. (mostrador, cerca; corte en «and the most famous») la mano coge una copa de oro y aparece otra al final, la de
+//    ágata roja; en «Cathedral of Valencia» brilla, la mano deja la de oro y la señala; en «Spain», «!», y la de ágata
+//    suelta un último destello al final. Arriba, en vez del toldo a rayas, la trasera del puesto en penumbra (tablas,
+//    una viga con clavijas, una soga y un manojo de hierbas colgados) con dos farolillos que se mecen bajo la viga.
+import * as T from '/atomo/plato/escenas/te-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('te-castillo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const w = (f) => en('wolfram', f), g = (f) => en('iglesias', f);
+const P2 = w(0.448), P3 = g(0), P4 = g(0.504);
+const K = T.C.k;
+// la lanza con su pendón blanco de cruz roja que ondea (x, y: la mano; d: hacia dónde ondea)
+const lanza = (x, y, t, k = 0, d = 1, amp = 1.2) => {
+  x = Math.round(x); y = Math.round(y);
+  R.linea(x, y + 10, x, y - 24, hex('#4a2e18')); R.linea(x + 1, y + 10, x + 1, y - 24, hex('#8a6a40'));
+  R.poligono([[x - 1, y - 24], [x + 2, y - 24], [x + 1, y - 30]], hex('#c8ccd8')); R.pset(x, y - 26, C.blanco);
+  for (let i = 0; i < 12; i++) { const o = Math.round(Math.sin(t * (amp > 1.2 ? 11 : 5) + k - i * 0.5) * amp * Math.min(1, 0.3 + i / 8)), hgt = i > 8 ? 7 - (i - 8) * 2 : 7;
+    for (let j = 0; j < hgt; j++) { const px = x + d * (2 + i), py = y - 23 + j + o; R.pset(px, py, j === 0 || i === 11 ? hex('#c8c4bc') : j === hgt - 1 ? hex('#d8d4cc') : hex('#f2eee2')); }
+    if (i >= 3 && i <= 6) { R.pset(x + d * (2 + i), y - 20 + o, hex('#c8303a')); } if (i === 4 || i === 5) for (let j = 1; j < 6; j++) R.pset(x + d * (2 + i), y - 23 + j + o, hex('#c8303a')); }
+};
+const C = { blanco: hex('#ffffff') };
+// un libro de tapas rojas en la mano
+const libro = (x, y) => { x = Math.round(x); y = Math.round(y); R.rect(x - 4, y - 4, x + 3, y + 2, K); R.rect(x - 3, y - 3, x + 2, y + 1, hex('#8a2a2a')); R.rect(x + 2, y - 3, x + 2, y + 1, hex('#f2eee2')); R.pset(x - 2, y - 2, hex('#c8a040')); };
+// el destello: un anillo de chispas que se abre
+const destello = (x, y, u, r0 = 6, r1 = 26) => { if (u <= 0 || u >= 1) return; const r = r0 + (r1 - r0) * u; for (let k = 0; k < 20; k++) { const a = k / 20 * Math.PI * 2; if ((k + Math.floor(u * 6)) % 3 === 0) continue; R.pset(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.8), u < 0.6 ? hex('#fffbe0') : hex('#f0d880')); } };
+const BL = hex('#ffffff');
+const globo = (x, y, icono, col = K) => { x = Math.round(x); y = Math.round(y); R.rect(x - 11, y - 20, x + 11, y, K); R.rect(x - 10, y - 19, x + 10, y - 1, BL); R.rect(x - 10, y - 1, x + 10, y - 1, hex('#d8d8e0')); R.pset(x - 2, y + 1, K); R.pset(x - 1, y + 2, K); R.pset(x - 1, y + 1, BL); R.icono(icono, x - 7, y - 17, col, BL, 2); };
+const WOLF = { C: hex('#3a6a4a'), c: hex('#2a5038') };
+
+// ── retoques del decorado de la feria (sin tocar te-comun.js) ──
+const mez = (a, b, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const tine = (x, y, c, k) => { const p = R.pget(x, y); if (p) R.pset(x, y, mez(p, c, k)); };
+const luz = (cx, cy, rx, ry, c, a) => { for (let y = Math.max(0, Math.floor(cy - ry)); y <= Math.min(179, cy + ry); y++) for (let x = Math.max(0, Math.floor(cx - rx)); x <= Math.min(319, cx + rx); x++) {
+  const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2; if (d >= 1) continue; const g = (1 - d) * a; if (g < 0.06 && ((x + y) & 1)) continue; tine(x, y, c, g); } };
+const hh = (a, b, s) => { const v = Math.sin(a * 12.9898 + b * 78.233 + s * 37.719) * 43758.5453; return v - Math.floor(v); };
+// el cielo de la feria tal cual lo pinta el decorado (mismos tonos, nubes y pájaros), en una capa aparte para recortar con él
+const CIE = [hex('#4a5aa0'), hex('#8a6aa8'), hex('#e08a7a'), hex('#f0b880')], NUB = [hex('#ffe8d0'), hex('#e8a8a0'), hex('#9a6a8a')];
+let BCIE = null;
+const nube = (cx, cy, w, [cL, cM, cS]) => {
+  const r = Math.max(3, w * 0.24), B = [[-w * 0.36, 2, r * 0.8], [-w * 0.12, -1, r * 1.05], [w * 0.14, -2, r * 1.15], [w * 0.38, 1, r * 0.85]];
+  for (const [dx, dy, rr] of B) R.disco(cx + dx, cy + dy + 2, rr, cS);
+  for (const [dx, dy, rr] of B) R.disco(cx + dx, cy + dy, rr * 0.92, cM);
+  for (const [dx, dy, rr] of B) R.disco(cx + dx - 1, cy + dy - 2, rr * 0.55, cL);
+  R.rect(Math.round(cx - w * 0.5), Math.round(cy + r * 0.9), Math.round(cx + w * 0.5), Math.round(cy + r * 0.9) + 1, cS);
+};
+const cieloFeria = (t) => {
+  BCIE ??= R.nuevo(); const prev = R.usar(BCIE);
+  for (let y = 0; y <= 46; y++) { const f = y / 101 * 3, i = Math.floor(f), r = f - i; for (let x = 0; x < 320; x++) R.pset(x, y, CIE[Math.min(3, i + ((r > [0.15, 0.55, 0.35, 0.75][(x & 1) + 2 * (y & 1)]) ? 1 : 0))]); }
+  for (const [x0, y, w, v] of [[20, 18, 36, 1.0], [130, 30, 30, 1.6], [220, 52, 26, 2.2], [80, 50, 22, 2.8]]) nube(((x0 + t * v) % 400 + 400) % 400 - 40, y, w, NUB);
+  for (let k = 0; k < 3; k++) { const x = Math.round(((k * 53 + t * (14 + k * 3)) % 380) - 30), yy = Math.round(30 + k * 5 + Math.sin(t * 1.3 + k) * 3), a = Math.sin(t * 10 + k * 2) > 0, c = hex('#2a2440');
+    R.pset(x, yy, c); R.pset(x - 1, yy - (a ? 1 : 0), c); R.pset(x + 1, yy - (a ? 1 : 0), c); R.pset(x - 2, yy - (a ? 2 : -1), c); R.pset(x + 2, yy - (a ? 2 : -1), c); }
+  R.usar(prev); return BCIE;
+};
+// plano general: cielo limpio arriba (fuera la guirnalda que cruzaba la barra del año), el toldo acaba en x 277 para dejar
+// la esquina de Atom en cielo, el poste de la derecha rematado bajo y 44, y los banderines en guirnaldas colgadas del fleco
+const arribaFeria = (t) => {
+  const S = cieloFeria(t), D = R.buf;
+  for (let i = 0; i < 24 * 320; i++) D[i] = S[i];
+  for (let y = 24; y <= 46; y++) for (let x = 278; x < 320; x++) D[y * 320 + x] = S[y * 320 + x];
+  R.rect(4, 24, 277, 24, K);
+  // el remate del toldo: el canto oscuro, el lateral en sombra y el fleco que cae por el canto
+  for (let y = 27; y <= 41; y++) for (let x = 273; x <= 276; x++) tine(x, y, K, 0.18 + (x - 273) * 0.08);
+  R.rect(277, 24, 278, 44, K); R.rect(277, 27, 277, 41, hex('#1a4a34')); R.pset(277, 45, K); R.pset(278, 46, K);
+  // la trasera del puesto, que sigue hasta el poste, con su listón de remate
+  R.rect(278, 43, 305, 46, hex('#4a3020')); R.rect(278, 43, 305, 43, K); R.rect(278, 44, 305, 44, hex('#7a5636'));
+  for (let x = 280; x < 305; x += 7) R.pset(x, 45, hex('#2a1c12'));
+  // el poste de la esquina, rematado con una perilla torneada
+  R.rect(306, 42, 311, 46, K); R.rect(307, 43, 310, 46, hex('#6e4630')); R.rect(307, 43, 307, 46, hex('#9a6a44'));
+  R.rect(305, 40, 312, 41, K); R.rect(306, 40, 311, 40, hex('#c8a040')); R.pset(306, 40, hex('#fff0a0'));
+  // las guirnaldas de banderines, de clavo a clavo bajo el fleco (entre los farolillos), que ondean con la brisa
+  const COL = [hex('#c83a3a'), hex('#e8c040'), hex('#3a6ac8'), hex('#f0ece0')];
+  for (const [a, b] of [[16, 54], [66, 154], [166, 254]]) { const sag = Math.round((b - a) * 0.08 + Math.sin(t * 1.1 + a) * 0.6);
+    const yA = (x) => 46 + Math.round(Math.sin((x - a) / (b - a) * Math.PI) * sag);
+    for (let x = a; x <= b; x++) R.pset(x, yA(x), hex('#2a2a2a'));
+    for (let x = a + 3, k = 0; x <= b - 7; x += 8, k++) { const y = yA(x + 2), f = Math.round(Math.sin(t * 4 + x * 0.7) * 1), c = COL[(k + a) % 4];
+      R.poligono([[x, y + 1], [x + 5, y + 1], [x + 2 + f, y + 6]], c); R.pset(x + 1, y + 1, mez(c, C.blanco, 0.4)); R.pset(x + 3 + f, y + 4, mez(c, K, 0.3)); }
+    for (const x of [a, b]) { R.pset(x, 45, K); R.pset(x, 46, hex('#c8a040')); } }
+};
+// plano de cerca: la franja de arriba (y 0–51) es la trasera del puesto en penumbra bajo el toldo, sin rayas: tablas
+// oscuras con veta y clavos, una viga con clavijas (bajo la barra del año), una soga y un manojo de hierbas colgados, y
+// los tarros de la balda de arriba (menos el de la esquina de Atom); encima, dos farolillos que se mecen con sus polillas
+let BTE = null;
+const techoCerca = () => {
+  if (BTE) return BTE; BTE = R.nuevo(); const prev = R.usar(BTE);
+  const MAD = [hex('#6a4a2e'), hex('#523822'), hex('#84603c'), hex('#5e4028')];
+  for (let y = 0; y <= 51; y++) { const fila = Math.floor((y + 3) / 7), yy = (y + 3) % 7, osc = 0.72 - y / 51 * 0.5;
+    const base = mez(MAD[Math.floor(hh(fila, 1, 61) * 4)], K, osc), corte = Math.floor(hh(fila, 2, 61) * 60);
+    for (let x = 0; x < 320; x++) { let c = base; const v = hh(x >> 3, y, 62 + fila);
+      if (yy === 6) c = mez(K, base, 0.25); else if (yy === 0) c = mez(base, hex('#c89868'), 0.12); else if (v < 0.14) c = mez(base, K, 0.3); else if (v > 0.93) c = mez(base, hex('#c89868'), 0.1);
+      if ((x + corte) % 64 === 0 && yy !== 6) c = mez(K, base, 0.3);
+      if ((x + corte) % 64 === 3 && (yy === 1 || yy === 5)) c = mez(base, hex('#a8a0a0'), 0.35);
+      R.pset(x, y, c); } }
+  // la viga, justo bajo la barra del año, con sus clavijas
+  R.rect(0, 15, 319, 20, K); R.rect(0, 16, 319, 19, mez(hex('#5a3e26'), K, 0.3)); R.rect(0, 16, 319, 16, mez(hex('#8a6440'), K, 0.3));
+  for (let x = 0; x < 320; x++) if (hh(x >> 2, 3, 63) < 0.2) R.pset(x, 18, mez(hex('#3a2616'), K, 0.2));
+  for (let x = 12; x < 320; x += 38) { R.rect(x, 17, x + 1, 18, hex('#2a1c12')); R.pset(x, 17, hex('#8a6440')); }
+  // una soga enrollada en su clavija y un manojo de hierbas secas boca abajo
+  R.linea(112, 20, 112, 23, hex('#3a2616')); for (const r of [6, 5]) R.anillo(112, 30, r, mez(hex('#b89060'), K, 0.35)); R.anillo(112, 30, 4, mez(hex('#8a6a40'), K, 0.4));
+  R.linea(113, 36, 115, 42, mez(hex('#b89060'), K, 0.35)); R.pset(115, 43, mez(hex('#b89060'), K, 0.45));
+  R.rect(194, 20, 197, 23, mez(hex('#a8603a'), K, 0.3));
+  for (let k = 0; k < 7; k++) { const x0 = 193 + k, x1 = 189 + k * 2; R.linea(x0, 24, x1, 36 + (k % 3), mez([hex('#7a8a4a'), hex('#a89a5a'), hex('#5a6a3a')][k % 3], K, 0.35)); }
+  // una telaraña en el rincón de la izquierda, bajo la viga
+  for (const [x1, y1] of [[0, 30], [6, 29], [10, 24]]) R.linea(0, 21, x1, y1, mez(hex('#c8c0b0'), K, 0.55));
+  R.linea(0, 25, 4, 24, mez(hex('#c8c0b0'), K, 0.6)); R.linea(4, 24, 6, 22, mez(hex('#c8c0b0'), K, 0.6));
+  // los tarros de la balda de arriba, como los pinta el decorado (menos el de la esquina de Atom)
+  for (let k = 1; k < 11; k += 2) { const x = 8 + k * 26; R.rect(x, 40, x + 7, 50, [hex('#8a8a90'), hex('#c8a040'), hex('#a8603a'), hex('#c8d8e8')][k % 4]); R.rect(x + 2, 50, x + 5, 51, K); R.rect(x, 40, x + 1, 50, C.blanco); R.rect(x + 7, 41, x + 7, 50, mez([hex('#8a8a90'), hex('#c8a040'), hex('#a8603a'), hex('#c8d8e8')][k % 4], K, 0.35)); }
+  R.usar(prev); return BTE;
+};
+const arribaCerca = (t) => {
+  const S = techoCerca(), D = R.buf;
+  for (let i = 0; i < 52 * 320; i++) D[i] = S[i];
+  for (const [x, k] of [[44, 0], [232, 1]]) { const sw = Math.round(Math.sin(t * 1.4 + k) * 2), fl = Math.sin(t * 13 + k * 3) > 0.6;
+    R.linea(x, 20, x + sw, 25, K); R.rect(x - 2 + sw, 25, x + 2 + sw, 26, hex('#5a3a22'));
+    R.rect(x - 4 + sw, 27, x + 4 + sw, 37, K); R.rect(x - 3 + sw, 28, x + 3 + sw, 36, fl ? hex('#ffd880') : hex('#ffc860'));
+    R.rect(x - 3 + sw, 32, x + 3 + sw, 32, hex('#c8903a')); R.pset(x - 2 + sw, 29, hex('#fff4c0')); R.rect(x - 1 + sw, 38, x + 1 + sw, 38, K);
+    luz(x + sw, 32, 26, 18, hex('#ffd890'), fl ? 0.3 : 0.26);
+    const a = t * 2.1 + k * 2, mx = Math.round(x + Math.cos(a) * 10), my = Math.round(32 + Math.sin(a * 1.4) * 6);
+    R.pset(mx, my, hex('#e8e0d0')); R.pset(mx + (Math.sin(t * 30 + k) > 0 ? 1 : -1), my - 1, hex('#c8c0b0')); }
+};
+
+// 1 · la gran sala: entra el poeta, ve la piedra y la señala
+const VE = w(0.28), TAN1 = w(0.07);
+// la campanilla de la procesión (x: la figurita de túnica oscura, que va la segunda); tañe y suelta sus ondas
+const campanilla = (t) => {
+  const x = Math.round(((24 + t * 8) % 260) + 30); if (x > 106 && x < 212) return;
+  const u = t < TAN1 + 0.6 ? tramo(t, TAN1, TAN1 + 0.6) : 0;
+  // la lleva colgada de la mano, por delante de la vela
+  const sw = u > 0 ? (Math.floor(t * 14) % 2 ? 1 : -1) : 0, bx = x + 6 + sw, by = 126;
+  R.pset(x + 5, 124, hex('#5a3a22')); R.pset(bx, 125, hex('#5a3a22'));
+  R.rect(bx - 1, by, bx + 1, by + 1, hex('#d8b040')); R.pset(bx - 1, by + 2, hex('#8a6a20')); R.pset(bx, by + 2, hex('#a8842c')); R.pset(bx + 1, by + 2, hex('#8a6a20'));
+  R.pset(bx, by, hex('#fff0a0')); if (u > 0) R.pset(bx + sw, by + 3, hex('#5a4a20'));
+  if (u > 0 && u < 1) { const r = 3 + Math.round(u * 3), c = u < 0.5 ? hex('#fff4c0') : hex('#c8b070');
+    for (const s of [-1, 1]) { R.pset(bx + s * r, by - 1, c); R.pset(bx + s * r, by + 1, c); R.pset(bx + s * (r - 1), by - 2, c); R.pset(bx + s * (r - 1), by + 2, c); } }
+};
+const p1 = (t) => {
+  const d = T.grial(R, t, { encuadre: 'castillo' });
+  campanilla(t);
+  // los dos guardianes de manto blanco en las gradas, con sus lanzas; el de la izquierda se vuelve hacia el poeta
+  { const gira = t > w(0.2); const m = R.actor(EL.templario, 106, 134, t, { dir: gira ? -1 : 1, habla: t > VE + 0.3 && t < VE + 1.1 && Math.sin(t * 9) > 0, sostiene: [gira ? 106 : 120, 120] }).mano; lanza(m[0], m[1], t, 0, gira ? -1 : 1); }
+  { const m = R.actor(EL.templario2 || EL.templario, 200, 134, t, { dir: -1, sostiene: [200, 120] }).mano; lanza(m[0], m[1], t, 1, -1); }
+  // el poeta Wolfram entra con su libro, se queda pasmado y señala el altar
+  const u = tramo(t, 0.4, w(0.2)), x = Math.round(lerp(-18, 62, u));
+  const o = { dir: 1, anda: u > 0 && u < 1, pal: WOLF };
+  if (t > VE && t < VE + 0.9) o.sorpresa = true;
+  if (t > VE + 0.9) { o.dedo = true; o.sonrisa = true; } else o.sostiene = [x + 13, d.suelo - 14];
+  const m = R.actor(EL.poeta, x, d.suelo, t, o).mano;
+  if (o.sostiene) libro(m[0], m[1]);
+  // la piedra destella cuando la ve
+  destello(d.objeto[0], d.objeto[1], tramo(t, VE, VE + 0.8));
+  destello(d.objeto[0], d.objeto[1], tramo(t, VE + 0.4, VE + 1.3), 4, 20);
+};
+
+// 2 · el altar: la piedra late; llegan los guardianes; «?» y la cruz templaria
+const GUARDA = w(0.518), RAFAGA = GUARDA + 0.05, LLAMA = w(0.668), NOMBRE = w(0.803), TEMPLE = w(0.928);
+const p2 = (t) => {
+  const d = T.grial(R, t, { encuadre: 'castillo', camara: 'altar' });
+  destello(d.objeto[0], d.objeto[1], tramo(t, w(0.489), w(0.489) + 0.9), 10, 40);
+  [[-20, 78, 1, 0], [330, 226, -1, 1]].forEach(([x0, x1, dd, k]) => {
+    const u = tramo(t, GUARDA + k * 0.15, w(0.6) + k * 0.1), x = Math.round(lerp(x0, x1, u)), llegado = u >= 1;
+    // al llegar se vuelven hacia fuera (guardan el altar); en «Templeisen» dan un golpe con la lanza en el suelo
+    const dir = llegado ? -dd : dd, golpe = t > LLAMA && t < LLAMA + 0.35 ? -3 : 0;
+    const m = R.actor(EL.templario, x, d.suelo, t, { dir, anda: u > 0 && !llegado, sostiene: [x + (dir > 0 ? 13 : 1), d.suelo - 14 + golpe], sonrisa: t > TEMPLE + 0.2 }).mano;
+    // la ráfaga al entrar: el pendón restalla y se calma
+    lanza(m[0], m[1], t, k, dir, 1.2 + 1.6 * Math.sin(Math.PI * tramo(t, RAFAGA, RAFAGA + 0.9)));
+    if (golpe) { R.pset(m[0] - 2, d.suelo, hex('#e8e0d0')); R.pset(m[0] + 3, d.suelo, hex('#e8e0d0')); R.pset(m[0] - 3, d.suelo - 1, hex('#c8c0b0')); }
+    // el bocadillo: primero «?» y luego la cruz de los templarios
+    if (t > NOMBRE && t < TEMPLE) globo(x + 7, d.suelo - 36, '?');
+    else if (t > TEMPLE) globo(x + 7, d.suelo - 36 - Math.round(2 * (1 - tramo(t, TEMPLE, TEMPLE + 0.2))), 'cruz', hex('#c8303a'));
+  });
+};
+
+// 3 · la feria de copas: el buscador coge una y aparece otra al final (gag 5)
+const COGE = g(0.291), NUEVA = g(0.388), CORRE = P3 + 0.1, LADRA = g(0.215);
+const p3 = (t) => {
+  const tiene = t > COGE + 0.25;
+  const d = T.grial(R, t, { encuadre: 'mostrador', falta: tiene ? 2 : -1, nueva: tramo(t, NUEVA, NUEVA + 0.7) });
+  arribaFeria(t);
+  const u = tramo(t, P3 + 0.15, g(0.2)), x = Math.round(lerp(-18, 96, u));
+  const o = { dir: 1, anda: u > 0 && u < 1 };
+  if (t > NUEVA + 0.2) { o.sorpresa = true; }
+  if (t > g(0.22) && !tiene) o.sostiene = [Math.round(lerp(x + 13, 106, tramo(t, g(0.22), COGE))), Math.round(lerp(d.suelo - 14, 141, tramo(t, g(0.22), COGE)))];
+  else if (tiene) o.sostiene = [x + 15, d.suelo - 15 - Math.round(4 * tramo(t, COGE + 0.25, COGE + 0.6))];
+  else o.dedo = t > g(0.2) && t < g(0.22);
+  if (!o.sostiene && !o.dedo) o.sonrisa = t > g(0.12);
+  const m = R.actor(EL.buscador, x, d.suelo, t, o).mano;
+  if (tiene) T.copa(R, m[0], m[1] + 4, t, { tipo: 'barro', s: 1 });
+  if (t > NUEVA + 0.35) R.bocadillo(x + 8, d.suelo - 34, {});
+  destello(d.copas[7] ? d.copas[7][0] : 286, 134, tramo(t, NUEVA, NUEVA + 0.8), 4, 24);
+  // un perrillo de feria que olisquea el mostrador y se va (vida)
+  // en LADRA se para, da un saltito y ladra hacia la fila de copas
+  { const para = t > LADRA - 0.1 && t < LADRA + 0.5, tt = t - Math.min(0.6, Math.max(0, t - (LADRA - 0.1)));
+    const v = tramo(tt, P3 + 0.4, P4 - 0.8), px = Math.round(lerp(330, 200, v)); const p = v > 0 && v < 1 && !para ? Math.floor(t * 8) % 2 : 0;
+    const salto = t > LADRA && t < LADRA + 0.2 ? 1 : 0; perro(px, d.suelo - salto, t, -1, p);
+    if (t > LADRA && t < LADRA + 0.45) { const c = hex('#fff4d0'), r = t < LADRA + 0.22 ? 0 : 1;
+      R.pset(px - 2 - r, d.suelo - 9, c); R.pset(px - 3 - r, d.suelo - 10, c); R.pset(px - 3 - r, d.suelo - 7, c); R.pset(px - 4 - r, d.suelo - 7, c); R.pset(px - 3 - r, d.suelo - 12, c); } }
+};
+// un perro pequeño blanco con una mancha (x: el borde izquierdo, base: las patas)
+const PERRO = ['.........kk...', '........kBWk..', '.k......kWWkWk', 'kWk.....kWWWWk', '.kWkkkkkkWWWk.', '..kWWWWWWWWk..', '..kWBBWWWWWk..', '..kWWWWWWWWk..', '..kWkkkkkWkk..'];
+const PATAS = [['..kk.....kk...'], ['...kk...kk....']];
+const perro = (x, base, t, dir, p) => { const pal = { k: K, W: hex('#f2eee2'), B: hex('#a8743c') }, rows = PERRO.concat(PATAS[p]); rows.forEach((r, j) => { for (let i = 0; i < 14; i++) { const c = r[i]; if (c === '.') continue; R.pset(dir > 0 ? x + i : x + 13 - i, base - rows.length + j, pal[c]); } }); };
+
+// 4 · de cerca: la mano coge la de oro, aparece la de ágata; brilla en «Cathedral of Valencia»
+const MANO = g(0.533), APARECE = g(0.6), VLC = g(0.672), DEJA = g(0.74), SPAIN = g(0.918), ULTIMO = SPAIN + 0.7;
+const p4 = (t) => {
+  const sube = tramo(t, MANO, MANO + 0.4) - tramo(t, DEJA, DEJA + 0.45), tiene = t > MANO && t < DEJA + 0.45;
+  const d = T.grial(R, t, { encuadre: 'mostrador', camara: 'cerca', falta: tiene ? 1 : -1, nueva: tramo(t, APARECE, APARECE + 0.7) });
+  arribaCerca(t);
+  const [cx, cy] = d.copas[1], [ax, ay] = d.copas[5] || [286, 149];
+  // la de ágata brilla con fuerza cuando la voz dice Valencia
+  const br = tramo(t, VLC, VLC + 0.5);
+  if (br > 0) { T.copa(R, ax, ay, t, { tipo: 'agata', s: 3, brillo: br }); destello(ax, ay - 18, tramo(t, VLC, VLC + 1), 12, 34); }
+  // la mano: entra por abajo, coge la copa por el tallo, la levanta, la vuelve a dejar y señala la de ágata
+  const llega = tramo(t, P4 + 0.1, MANO), apunta = tramo(t, DEJA + 0.5, VLC + 1.2);
+  let wx = lerp(130, cx - 10, llega), wy = lerp(196, cy - 9, llega) - sube * 22;
+  if (apunta > 0) { wx = lerp(cx - 10, ax - 30, apunta); wy = lerp(cy - 9, ay - 16, apunta); }
+  if (tiene) T.copa(R, cx, Math.round(cy - sube * 22), t, { tipo: 'oro', s: 3, brillo: 0.15 });
+  if (llega > 0) T.brazo(R, Math.round(wx + 18), 192, Math.round(wx), Math.round(wy), '#e8dcc0', 1);
+  if (t > SPAIN) R.bocadillo(ax, ay - 42, {});
+  // el último destello de la de ágata, que cierra la escena
+  destello(ax, ay - 18, tramo(t, ULTIMO, ULTIMO + 0.8), 8, 30);
+};
+
+const efectos = [[VE, 'brillo'], [w(0.489), 'brillo'], [LLAMA, 'toc'], [NOMBRE, 'pop'], [TEMPLE, 'pop'], [COGE, 'golpecito'], [NUEVA, 'brillo'], [NUEVA + 0.35, 'boing'], [APARECE, 'brillo'], [DEJA + 0.4, 'golpecito'], [SPAIN, 'pop'],
+  [TAN1, 'aldea', { k: 4 }], [RAFAGA, 'whoosh'], [CORRE, 'whoosh'], [LADRA, 'guau'], [ULTIMO, 'brillo']];
+const año = (t) => t < P3 ? 1210 : Math.round(lerp(1210, 2026, tramo(t, P3 + 0.1, P3 + 1.3)));
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>
