@@ -459,6 +459,55 @@ bash atomo/herramientas/producir.sh <ep> <carpeta> <pref>
 Si falla a medias, sigue desde ese paso con `--desde fundidos|render|efectos|banda|montar|miniatura|control` (un nombre mal escrito es un error). **Mira la tira y la
 miniatura.** Rellena los huecos de la ficha.
 
+### 12b. Los tres Shorts (siempre, con el vídeo; aprobado por el usuario el 01/11/2026)
+
+Con cada episodio van **3 Shorts** sacados del vídeo ya hecho, sin dibujar escenas nuevas. **No se le piden al usuario
+para aprobar** («no necesito aprobar nada, lo creas junto al vídeo aprobado»): se hacen y se entregan con él. Se hacen
+aquí, con los fotogramas del render todavía en disco.
+
+1. **Elige los tres tramos** leyendo `<ep>/subtitulos-en.srt` y `linea.json`:
+   - **Short 1:** el gancho, que se corta antes de la presentación de Atom.
+   - **Shorts 2 y 3:** las dos historias del cuerpo que mejor se sostengan solas. Lo mejor es un dato con remate: la regla
+     y su excepción, el gag de la serie, la anécdota más rara.
+   - **Duración:** cada uno entre 35 y 58 s. Puede tener uno o dos tramos pegados.
+   - **Dónde cortar:** al principio y al final de una frase, nunca a mitad. Empieza unos 0,25 s antes de la voz y acaba
+     unos 0,4 s después.
+   - **Lo que se salta:** el primer segundo de una escena con cartela del año (la cartela tapa el plano) y la frase de
+     presentación de Atom.
+   - **Que se entienda sin el resto:** si una frase se refiere a algo que queda fuera del corte («all of them», «that
+     rule»), mete también la frase anterior o elige otro tramo. Esto ya falló en el primer Short del ep16.
+   - **Nada morboso como remate.**
+2. Por cada Short:
+   ```
+   VOZ=$(bash atomo/herramientas/preparar-voz.sh) && $VOZ/venv/bin/python atomo/herramientas/short.py atomo/build/largo/<ep> <a-b,c-d> atomo/build/salida/<ep>-short<N>
+   ```
+   Tarda unos 3 minutos y deja:
+   - `.mp4`: 1080×1920, con la voz inglesa como pista principal y −14 LUFS;
+   - `-es.m4a`: la pista en español, con la misma duración;
+   - `-en.srt` y `-es.srt`: los subtítulos con los tiempos del Short.
+
+   La mezcla es la «B» y se lee de `montar-largo.sh`. Si los fotogramas ya se borraron, primero:
+   `node atomo/herramientas/render-escenas.mjs atomo/build/largo/<ep> --solo <ids>`.
+3. **La miniatura vertical** de cada Short va en `atomo/plato/escenas/<pref>-short<N>-miniatura.html`.
+   - Partes de `la-short1-miniatura.html` y dibujas en el lienzo de siempre, pero todo lo que cuenta va en la columna
+     central (x 110–210), que es lo que queda en 9:16.
+   - Los personajes van al doble: al triple, los brazos tapan la cara y el brillo se rompe.
+   - No lleva texto.
+   - Para capturarla y recortarla:
+   ```
+   node estilos/herramientas/capturar.mjs atomo/plato/escenas/<pref>-short<N>-miniatura.html 1 --salida <tmp> --formato 16:9
+   ffmpeg -v error -y -i <tmp>/<pref>-short<N>-miniatura-t1.jpg -vf "crop=606:1080:657:0,scale=1080:1920:flags=neighbor" -q:v 2 atomo/build/salida/<ep>-short<N>-miniatura.jpg
+   ```
+4. **Control de cada Short:**
+   - **Sonido:** mide con `ffmpeg -i <f> -af ebur128=peak=true -f null -`. El objetivo es −14 ±0,5 LUFS y un pico de −2 dB o
+     menos, en el mp4 y en el m4a.
+   - **Imagen:** saca 4 fotogramas en una sola hoja y mira que no haya ninguna cartela ni ningún plano a medias.
+   - **Subtítulos:** la última frase de cada SRT tiene que estar entera.
+5. **La ficha de cada Short** va en `publicacion.md`, en la sección «Shorts»:
+   - el título EN/ES, con gancho y `#Shorts`;
+   - una descripción EN/ES de 2–3 frases que mande al vídeo completo;
+   - 4–5 hashtags.
+
 ### 13. Commit y push
 
 Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git.
@@ -466,6 +515,8 @@ Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git
 ### 14. Entrega en el chat
 
 1. Envía los seis archivos con SendUserFile: vídeo, pista en español, miniatura, los dos SRT y la ficha.
+   Después, en otro envío por Short, los cinco archivos de cada uno de los 3 Shorts (paso 12b): mp4, m4a ES, miniatura y
+   los dos SRT.
 2. Pega en la respuesta, en este orden:
    1. «Tienes que verlo y escucharlo tú: yo no oigo el vídeo», en una línea;
    2. qué cambió, si es una revisión;
@@ -477,8 +528,16 @@ Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git
    7. las etiquetas;
    8. los pasos para subirlo;
    9. lo que hay que revisar antes de publicar;
-   10. las horas reales frente a las del presupuesto;
-   11. el resumen de la evaluación del paso 15.
+   10. **los 3 Shorts**:
+       - de cada uno, la duración, qué cuenta, los LUFS de las dos pistas, el título y la descripción EN/ES;
+       - una sola vez, los pasos para subirlos:
+         1. Sube el mp4 con el título en inglés.
+         2. En «Vídeo relacionado», elige el episodio completo.
+         3. En Idiomas, añade el español: el m4a como pista de audio, y el título y la descripción.
+         4. En Subtítulos, elige «Subir archivo → Con tiempos» y sube los dos SRT.
+         5. La miniatura se pone desde la app del móvil, con el lápiz y luego «Miniatura → Subir».
+   11. las horas reales frente a las del presupuesto;
+   12. el resumen de la evaluación del paso 15.
 
 ### 15. Evaluación de lo aprendido (obligatoria, en cada episodio)
 
@@ -548,7 +607,8 @@ Son horas de reloj de la sesión, calibradas con el 11 (26 escenas, 107 planos, 
 | Calidad: tu revisión, revisor y escéptico una vez, pulido y verificador | 3–4 h (el 12, con el método anterior: ~6 h) |
 | Producción y control (render 10–16 min) | ~45 min |
 | Miniatura, ficha y entrega | ~1 h |
-| **Total** | **unas 8–10 h** (el 12 real: ~15 h; el 13, ~6,5 h desde el guion) |
+| Los 3 Shorts (tramos, short.py, miniaturas verticales y fichas) | ~45 min |
+| **Total** | **unas 9–11 h** con los Shorts (el 12 real: ~15 h; el 13, ~6,5 h desde el guion) |
 
 ## Trampas conocidas
 

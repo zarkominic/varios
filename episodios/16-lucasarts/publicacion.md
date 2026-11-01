@@ -100,3 +100,26 @@ Fuentes: Wikipedia (Day of the Tentacle, SCUMM, The Secret of Monkey Island, iMU
 - **Miniatura:** se genera con `atomo/plato/escenas/la-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas de audio extra, el español se sube como vídeo aparte.
 - **Para escuchar antes de subir:** EN 16 «LeChuck»; EN 20 «would be painted»; EN 32 (posible «and» de más); ES 9 «con pulsar»; ES 22 «se ahoga»; ES 23, 26, 32 y 43 (frases con nombres ingleses y «3D»); ES 48 «mantiene ScummVM»; ES 34 (un pequeño hueco dentro de «antes»). El resto de avisos son nombres ingleses que el reconocedor no entiende; lo más probable es que suenen bien, pero no los he oído.
+
+## Shorts
+
+Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
+español, sus dos SRT y su miniatura vertical. En «Vídeo relacionado» se elige el episodio completo.
+
+### Short 1 · El tentáculo (54 s) · tramos 1.3-21.6, 22.1-56.2
+- **EN:** The Tentacle Who Wanted to Take Over the World #Shorts
+- **ES:** El tentáculo que quiso conquistar el mundo #Shorts
+- **EN:** A purple tentacle drinks toxic sludge and decides to take over the world. That's how Day of the Tentacle (1993) begins, and every LucasArts adventure had a secret rule that set it apart. The full story is in the linked video. #DayOfTheTentacle #LucasArts #RetroGaming #ASKAtom #Shorts
+- **ES:** Un tentáculo morado bebe lodo tóxico y decide conquistar el mundo. Así empieza Day of the Tentacle (1993), y todas las aventuras de LucasArts tenían una regla secreta. La historia completa, en el vídeo enlazado. #DayOfTheTentacle #LucasArts #VideojuegosRetro #ASKAtom #Shorts
+
+### Short 2 · La regla y su única excepción (44 s) · tramos 112.9-139.6, 204.0-220.7
+- **EN:** The Only Way to Die in Monkey Island #Shorts
+- **ES:** La única forma de morir en Monkey Island #Shorts
+- **EN:** In 1989 Ron Gilbert wrote a rule: the player should never die or get hopelessly stuck. Monkey Island kept it, with exactly one exception, and it's a joke. The full story of LucasArts is in the linked video. #MonkeyIsland #RonGilbert #LucasArts #ASKAtom #Shorts
+- **ES:** En 1989 Ron Gilbert escribió una regla: el jugador nunca debía morir ni quedarse atascado sin remedio. Monkey Island la cumplió, con una sola excepción, y es un chiste. La historia completa de LucasArts, en el vídeo enlazado. #MonkeyIsland #RonGilbert #LucasArts #ASKAtom #Shorts
+
+### Short 3 · Duelos de insultos (39 s) · tramo 140.9-180.3
+- **EN:** Look Behind You, a Three-Headed Monkey! #Shorts
+- **ES:** ¡Mira detrás de ti, un mono de tres cabezas! #Shorts
+- **EN:** In The Secret of Monkey Island (1990), sword fights aren't won with reflexes but with wit: you collect insults and comebacks. And a running gag was born that follows the whole series. The full story is in the linked video. #MonkeyIsland #LucasArts #RetroGaming #ASKAtom #Shorts
+- **ES:** En The Secret of Monkey Island (1990), los duelos de espada no se ganan con reflejos, sino con ingenio: vas aprendiendo insultos y respuestas. Y nació una broma que acompaña a toda la serie. La historia completa, en el vídeo enlazado. #MonkeyIsland #LucasArts #VideojuegosRetro #ASKAtom #Shorts
