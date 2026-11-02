@@ -15,9 +15,12 @@
 //    «Comic-Con»; se abren las puertas y la cola avanza;
 // 2. el auditorio, cámara de la pantalla, con luz cálida: los dos directores salen desde el telón («the Russo Brothers
 //    return»), saludan y hablan con el micro; en «renamed Doomsday» el título se rompe y sale la máscara; señalan;
-// 3. (fondo local) la sala desde el público: una mano sostiene un móvil que graba; en el móvil, el villano de la
+// 3. (fondo local) la sala desde el público (los focos de la cercha en x 40–250, la zona de Atom sin luces): un brazo
+//    corto (canónico) sostiene por abajo un móvil que graba; en el móvil, el villano de la
 //    capucha verde se quita la máscara en «Downey» y es él; las cabezas saltan; en «New mask» levanta la máscara;
 //    en «Same task» cae confeti; las palomitas saltan de emoción.
+// Sonido: campana del tranvía, flash, puertas, ovación corta, zumbido del título roto, «¡oh!» en Downey, brillo de la
+// máscara y ovación con el confeti (sin el brillo de relleno que pisaba al zumbido).
 import * as T from '/atomo/plato/escenas/do-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('do-comiccon');
@@ -157,8 +160,8 @@ const p3 = (t) => {
   // la imagen de las pantallas: la máscara con capucha verde que brilla
   const ojo = 0.5 + 0.5 * Math.sin(t * 4);
   T.e_mascara(R, 160, 56, 4, { capucha: true, brillo: (t * 0.4) % 1, ojos: ojo }); T.e_mascara(R, 44, 63, 2, { brillo: (t * 0.4) % 1 }); T.e_mascara(R, 276, 63, 2, { brillo: (t * 0.4 + 0.5) % 1 });
-  // los haces de los focos que barren
-  for (let k = 0; k < 4; k++) { const x0 = 40 + k * 80, x1 = 160 + Math.sin(t * 0.9 + k * 1.7) * 90; const cc = [hex('#3ae87a'), hex('#8a5aff'), hex('#3ae87a'), hex('#5ac8ff')][k];
+  // los haces de los focos que barren (los cuatro focos en x 40–250: la zona de Atom, a la derecha de la cercha, queda sin luces)
+  for (let k = 0; k < 4; k++) { const x0 = 40 + k * 70, x1 = 160 + Math.sin(t * 0.9 + k * 1.7) * 90; const cc = [hex('#3ae87a'), hex('#8a5aff'), hex('#3ae87a'), hex('#5ac8ff')][k];
     for (let y = 26; y < 100; y += 1) { const f = (y - 26) / 74, xc = Math.round(lerp(x0, x1, f)), w = Math.round(2 + f * 12); for (let x = xc - w; x <= xc + w; x++) if ((x + y) % 2 === 0) velo(x, y, cc, 0.16); }
     R.disco(x0, 25, 2, BL); }
   // las figuras pequeñas del escenario lejano: el de la capucha verde y los dos directores
@@ -188,13 +191,15 @@ const p3 = (t) => {
   if (t > quita && t < quita + 0.3) for (let k = 0; k < 8; k++) R.pset(fx + 7 + Math.round(Math.cos(k * 0.8) * (6 + (t - quita) * 40)), fs - 14 + Math.round(Math.sin(k * 0.8) * (6 + (t - quita) * 40)), BL);
   R.disco(sx0 + 5, sy0 + 5, 2, Math.floor(t * 2) % 2 ? hex('#ff3030') : hex('#8a1a1a'));
   for (let k = 0; k < 4; k++) R.rect(sx1 - 12 + k * 3, sy0 + 7 - k, sx1 - 11 + k * 3, sy0 + 7, BL);
-  // la mano que lo sostiene (canónica)
-  T.brazo(R, 334, 196, mx + 46, my + 92 + bb, '#4a3a7a', -1, { codo: [300, 176] });
+  // la mano que lo sostiene por abajo (brazo canónico corto: el hombro bajo el borde, ~35 px de manga a la vista)
+  T.brazo(R, 274, 194, mx + 46, my + 92 + bb, '#4a3a7a', -1, { codo: [260, 171 + bb] });
   // las palomitas, en el respaldo de delante, saltan de emoción
   const ex = t > quita ? 'emocion' : 'normal';
   T.palomitas(R, 74, 178, t, { s: 2, dir: 1, expresion: ex, salta: salto > 0.3 ? 1 : 0, cae: 0, lleno: 1 });
 };
-const efectos = [[1.2, 'campana'], [a(0.066), 'flash'], [a(0.13), 'puerta'], [a(0.28), 'publico'], [a(0.545), 'zumbido'], [a(0.56), 'brillo'], [a(0.668), 'publico'], [a(0.89), 'brillo'], [a(0.95), 'publico']];
+// efectos (densidad ~55 %, como mucho uno por segundo): solo los sincronizados con la imagen; el público, en golpes cortos
+const efectos = [[1.2, 'campana'], [a(0.066), 'flash'], [a(0.13), 'puerta'], [a(0.28), 'publico', { dur: 1.6 }], [a(0.545), 'zumbido'],
+  [a(0.668), 'publico', { dur: 1.8 }], [a(0.89), 'brillo'], [a(0.95), 'publico', { dur: 1.2 }]];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { cartela: '2024', efectos, año: 2024 });
 </script>
 </body>

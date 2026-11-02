@@ -18,8 +18,10 @@
 // 3. la oficina del tiempo: un agente cruza de puntillas por el pasillo con una máquina mientras dos jefes charlan de
 //    espaldas; en «behind his bosses' backs» pide silencio; en «wipe it out» la máquina proyecta la Tierra 10005 con una
 //    mira roja; un jefe se gira y el agente silba (corta en «So»);
-// 4. el pasillo de las realidades (fondo local): tres portales con tres mundos y tres Lobeznos; Deadpool salta de uno a
-//    otro en «jumps to other realities»; los dos primeros dicen que no; en «replacement Wolverine» el tercero saca las
+// 4. el pasillo de las realidades (fondo local): un pasillo de arcos en perspectiva que se pierde en un remolino, con
+//    baldosas, rejilla dorada, cables con pulsos de luz, faroles que laten en ola hacia el fondo, portalitos lejanos en las
+//    paredes, niebla en dos capas y chispas; tres portales con tres mundos y tres Lobeznos, reflejados en el suelo;
+//    Deadpool salta de uno a otro en «jumps to other realities»; los dos primeros dicen que no; en «replacement Wolverine» el tercero saca las
 //    garras y sale con él (corta en «in the Void»);
 // 5. el Vacío: se abre el portal y los dos caen rodando a la arena en «Void»; se levantan, miran el vertedero y Deadpool
 //    señala la cabeza gigante en «leftovers of erased universes».
@@ -184,17 +186,72 @@ const p3 = (t) => {
   T.tiempoDelante(R, t, {});
 };
 
-// 4. el pasillo de las realidades: tres portales y tres Lobeznos
+// 4. el pasillo de las realidades (fondo local): un pasillo de arcos en perspectiva hacia un remolino lejano, con
+//    baldosas, faroles que laten, portalitos lejanos en las paredes, cables y niebla; delante, tres portales y tres Lobeznos
 const PORT = [[66, 108], [160, 108], [254, 108]];
+const VPX = 160, VPY = 60, HW = 215, HF = 120, HC = 90, ZC0 = 0.25, ZP = 0.85, ZG = 0.3;
+const fr = (v) => v - Math.floor(v);
+const enPortal = (x, y) => PORT.some(([cx, cy]) => ((x - cx) / 28) ** 2 + ((y - cy) / 38) ** 2 <= 1);
+const zonaQuieta = (x, y) => (x > 272 && y < 48) || (x > 16 && x < 174 && y < 17);
+// curvas de los cables del suelo, de la base de cada portal al borde de abajo
+const bez = (p0, p1, p2, n = 48) => Array.from({ length: n + 1 }, (_, i) => { const u = i / n, v = 1 - u; return [Math.round(v * v * p0[0] + 2 * u * v * p1[0] + u * u * p2[0]), Math.round(v * v * p0[1] + 2 * u * v * p1[1] + u * u * p2[1])]; });
+const CABLES = [bez([56, 149], [26, 158], [4, 181]), bez([150, 150], [126, 168], [98, 181]), bez([170, 150], [190, 164], [184, 181]), bez([264, 149], [300, 154], [319, 170])];
+// faroles de las columnas (a los dos lados), faroles colgados del techo y portalitos de las paredes: [x, y, f, k]
+const FAROLES = [], COLGADOS = [], PORTALITOS = [];
+for (let k = 1; k < 14; k++) {
+  const f = 1 / (ZC0 + ZG / 2 + k * ZP), fm = 1 / (ZC0 + ZG / 2 + (k + 0.5) * ZP);
+  for (const s of [-1, 1]) {
+    const x = Math.round(VPX + s * HW * f), y = Math.round(VPY - 30 * f); if (f < 0.9 && x > 1 && x < 318 && !zonaQuieta(x, y)) FAROLES.push([x, y, f, k]);
+    const xm = Math.round(VPX + s * HW * fm); if (fm < 0.6 && fm > 0.1 && xm > 2 && xm < 317) PORTALITOS.push([xm, Math.round(VPY - 6 * fm), fm, k * 2 + (s > 0)]);
+  }
+  const yc = VPY - HC * f; if (f < 0.9 && f >= 0.2 && yc >= 14) COLGADOS.push([VPX, Math.round(yc), f, k]);
+}
 const fondoPasillo = () => {
-  banda(0, 0, 319, 150, [hex('#120c2a'), hex('#22164a'), hex('#3a2470'), hex('#5a3a8a')]);
-  for (let k = 0; k < 160; k++) { const x = Math.floor(hh(k, 101) * 320), y = Math.floor(hh(k, 102) * 140); if (!(x > 270 && y < 48) && !(x > 18 && x < 172 && y < 16)) R.pset(x, y, hh(k, 103) > 0.7 ? hex('#ffffff') : hex('#8a7ab8')); }
-  for (let k = 0; k < 7; k++) { const y0 = 40 + k * 14; for (let x = 0; x < 320; x++) { const y = Math.round(y0 + Math.sin(x / 30 + k) * 6); if ((x + k * 7) % 5 < 3) R.pset(x, y, hex('#4a3080')); } }
-  // la plataforma de roca que flota
-  R.poligono([[0, 150], [320, 146], [320, 180], [0, 180]], K); R.poligono([[0, 152], [320, 148], [320, 180], [0, 180]], hex('#5a4a6a'));
-  for (let y = 150; y < 180; y++) for (let x = 0; x < 320; x++) { const v = hh(x >> 1, y >> 1); if (v < 0.18) R.pset(x, y, hex('#4a3a5a')); else if (v > 0.9) R.pset(x, y, hex('#7a6a8a')); }
-  R.rect(0, 152, 319, 153, hex('#8a7aa8')); for (let k = 0; k < 12; k++) { const x = 10 + k * 27; R.linea(x, 156 + (k % 3) * 6, x + 10, 160 + (k % 3) * 6, hex('#3a2a4a')); }
-  for (let k = 0; k < 14; k++) { const x = 8 + k * 23; R.disco(x, 166 + (k % 2) * 6, 1, hex('#b07ae8')); }
+  const FOG = hex('#3e2872'), GLO = hex('#c8a0f0'), LUZ = hex('#b070d0');
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const dx = x - VPX + 0.5, dy = y - VPY + 0.5, ax = Math.abs(dx) / HW;
+    let f, c;
+    if (dy > 0 && dy / HF >= ax) { // el suelo: baldosas en perspectiva y una rejilla central con cantos dorados
+      f = dy / HF; const z = 1 / f, X = dx * z;
+      if (Math.abs(X) < 26) { const ed = Math.abs(X) > 22; c = ed ? (Math.abs(X) > 24.5 ? hex('#8a6a2a') : hex('#c8a040')) : (fr(X / 6) < 0.2 || fr(z / 0.12) < 0.22 ? hex('#1a1430') : hex('#2c2444')); if (ed && fr(z / 0.5) < 0.1) c = hex('#f0d070'); }
+      else { const tx = X / 34, tz = z / 0.34;
+        if (fr(tx) < 0.05 || fr(tz) < 0.07) c = hex('#201832');
+        else if (fr(tz) < 0.17) c = hex('#5e5080');
+        else { c = (Math.floor(tx) + Math.floor(tz)) & 1 ? hex('#463a62') : hex('#3c3058'); const n = hh(Math.floor(X / 3), Math.floor(z * 14)); if (n > 0.9) c = hex('#52466e'); else if (n < 0.08) c = hex('#30264a'); if (fr(tx) > 0.93) c = mez(c, K, 0.25); } }
+    } else if (dy < 0 && -dy / HC >= ax) { // el techo: nervios de los arcos y casetones
+      f = -dy / HC; const z = 1 / f, X = dx * z, cz = fr((z - ZC0) / ZP);
+      if (cz < ZG / ZP) c = cz < 0.04 ? hex('#6a5890') : cz > ZG / ZP - 0.04 ? hex('#160e2a') : hex('#34285a');
+      else c = fr(X / 60) < 0.05 || fr((z - ZC0) / ZP * 2) < 0.05 ? hex('#140e26') : hex('#1c1434');
+    } else { // las paredes: sillares y columnas (con basa y capitel), cada una con el resplandor de su farol
+      f = ax; const z = 1 / f, Y = dy * z, cz = fr((z - ZC0) / ZP);
+      if (cz < ZG / ZP) { const e = cz / (ZG / ZP); c = e < 0.12 ? hex('#b0a0d0') : e < 0.22 ? hex('#8a78b0') : e > 0.86 ? hex('#22183a') : e > 0.74 ? hex('#3e3062') : hex('#5e4c86');
+        if (Y > 104 || (Y > -76 && Y < -62)) c = e < 0.22 ? hex('#c8b8e8') : e > 0.8 ? hex('#3a2c5c') : hex('#7a68a0');
+        else if (fr(Y / 24) < 0.05 && e >= 0.22 && e <= 0.74) c = hex('#46386a');
+        else if (e > 0.3 && e < 0.36) c = hex('#6e5c96');
+      } else { const row = Math.floor(Y / 16), bz = (z - ZC0) / 0.3 + (row & 1) * 0.5;
+        if (fr(Y / 16) < 0.08 || fr(bz) < 0.05) c = hex('#1e1634');
+        else if (fr(Y / 16) < 0.18) c = hex('#4a3a70');
+        else { c = hh(Math.floor(bz), row) > 0.5 ? hex('#3a2c5c') : hex('#33264f'); if (hh(Math.floor(z * 30), Math.floor(Y / 2)) > 0.93) c = hex('#2a1f44'); }
+        if (Y > 100) c = mez(c, hex('#1a1230'), 0.45);
+      }
+      const kc = Math.round((z - ZC0 - ZG / 2) / ZP), zc = ZC0 + ZG / 2 + kc * ZP, dd = Math.hypot((z - zc) / 0.45, (Y + 30) / 50);
+      if (dd < 1) { const q = (1 - dd) * 3, li = Math.floor(q); c = mez(c, LUZ, (trama(x, y, q - li) ? li + 1 : li) / 3 * 0.38); }
+    }
+    // la niebla de la distancia (tramada) y el brillo del fondo del pasillo
+    const nf = Math.min(0.92, Math.max(0, 1 - Math.exp(-(1 / Math.max(f, 0.01) - 0.8) * 0.2))) * 4, i = Math.floor(nf);
+    c = mez(c, FOG, (trama(x, y, nf - i) ? i + 1 : i) / 4);
+    const g = Math.max(0, 1 - Math.hypot(dx, dy * 1.5) / 80) * 3, gi = Math.floor(g);
+    if (g > 0) c = mez(c, GLO, (trama(x, y, g - gi) ? Math.min(3, gi + 1) : gi) / 6);
+    R.pset(x, y, c);
+  }
+  // los soportes de los faroles y las cadenas de los colgados
+  for (const [x, y, f] of FAROLES) { const s = Math.max(1, Math.round(3 * f)); rp(x - s, y + s + 1, x + s, y + s + 1, hex('#2a1e44')); R.pset(x, y + s + 2, hex('#2a1e44')); }
+  for (const [x, y, f] of COLGADOS) R.linea(x, y, x, y + Math.round(10 * f), hex('#5a4880'));
+  // las bases de los portales: anillos de metal sobre el suelo
+  for (const [cx] of PORT) for (let y = 140; y <= 152; y++) for (let x = cx - 32; x <= cx + 32; x++) { const e = ((x - cx) / 32) ** 2 + ((y - 146) / 6) ** 2; if (e > 1) continue; R.pset(x, y, e > 0.72 ? (y < 146 ? hex('#a898c8') : hex('#1a1230')) : e > 0.5 && e < 0.62 ? hex('#b07ae8') : (x + y) & 1 ? hex('#3a2c5c') : hex('#33264f')); }
+  for (const [cx] of PORT) for (const i of [-24, -12, 12, 24]) R.pset(cx + i, 150 - Math.round(Math.abs(i) / 8), hex('#e8b830'));
+  // los cables (con sus abrazaderas)
+  for (const pts of CABLES) { for (let i = 0; i < pts.length - 1; i++) { const [x0, y0] = pts[i], [x1, y1] = pts[i + 1]; R.linea(x0, y0 + 1, x1, y1 + 1, K); R.linea(x0, y0, x1, y1, hex('#2a2238')); R.pset(x0, y0 - 1, i % 2 ? hex('#5a5070') : hex('#463c5e')); } for (let i = 8; i < pts.length; i += 12) { const [x, y] = pts[i]; rp(x - 1, y - 1, x + 1, y + 1, hex('#8a6a2a')); R.pset(x, y - 1, hex('#c8a040')); } }
 };
 const mundo = (k, cx, cy, t) => {
   const x0 = cx - 26, x1 = cx + 26, y0 = cy - 36, y1 = cy + 36; R.recorte([x0, y0, x1, y1]);
@@ -206,14 +263,41 @@ const mundo = (k, cx, cy, t) => {
 };
 const borde = (cx, cy, t, u) => { for (let k = 0; k < 64; k++) { const a = k / 64 * 6.283 + t * (k % 2 ? 2 : -1.5), rx = 26 + Math.sin(t * 6 + k) * 1.5, ry = 36 + Math.cos(t * 5 + k) * 1.5, x = cx + Math.cos(a) * rx, y = cy + Math.sin(a) * ry; R.pset(x, y, k % 3 ? hex('#f8b030') : hex('#fff0a0')); R.pset(x + 1, y, hex('#e85a20')); if (k % 8 === 0 && u > 0) R.pset(x + Math.cos(a) * 4, y + Math.sin(a) * 4, hex('#fff6c8')); } };
 const VARIANTE = [{ C: '#a8743c', c: '#6a4220', W: '#a8743c', F: '#a8743c', G: '#6a4220', n: '#6a4220', I: '#3a2a1a' }, { C: '#2a3a8a', c: '#f0c830', W: '#2a3a8a', F: '#2a3a8a', G: '#f0c830', n: '#f0c830', I: '#c8303a' }, null].map((p) => p && Object.fromEntries(Object.entries(p).map(([k, v]) => [k, hex(v)])));
+const TONOS = ['#3ac87a', '#e85aa8', '#3ab8d8', '#e8c830', '#e8503a', '#8a7ae8'].map((c) => hex(c));
+const NIEBLA_L = hex('#9a7ad8'), NIEBLA_C = hex('#b89ae8'), FAROL = hex('#e8a0f0'), FOGP = hex('#3e2872');
+// la vida del pasillo, por detrás de la gente: remolino, faroles que laten en ola hacia el fondo, portalitos, niebla lejana
+const vidaPasillo = (t) => {
+  // el remolino del fondo
+  for (let r = 9; r >= 3; r -= 3) { const p = 0.5 + 0.5 * Math.sin(t * 2.5 - r * 0.4); for (let j = -r; j <= r; j++) for (let i = -r * 1.4; i <= r * 1.4; i++) if (!((i + j) & 1) && (i / 1.4) ** 2 + j * j <= r * r) tine(VPX + i, VPY + j, hex('#e0c8ff'), 0.12 + 0.1 * p); }
+  for (let k = 0; k < 48; k++) { const a = k / 48 * 6.283 * 2 + t * 1.6, r = 1.5 + (k % 24) * 0.3, x = VPX + Math.cos(a) * r * 1.4, y = VPY + Math.sin(a) * r; R.pset(x, y, k % 24 < 8 ? BLANCO : k % 24 < 16 ? hex('#e0c0f8') : hex('#a070d8')); }
+  R.pset(VPX, VPY, Math.sin(t * 7) > 0 ? hex('#ffffff') : hex('#f0d8ff'));
+  // los faroles de las columnas: el pulso corre pasillo adentro
+  for (const [x, y, f, k] of FAROLES) { const p = 0.5 + 0.5 * Math.sin(t * 3.2 - k * 1.1), Rr = Math.max(3, Math.round(15 * f * (0.8 + 0.4 * p)));
+    for (let j = -Rr; j <= Rr; j++) for (let i = -Rr; i <= Rr; i++) { const rr = Math.hypot(i, j); if (rr <= Rr && !((i + j) & 1) && !enPortal(x + i, y + j) && !zonaQuieta(x + i, y + j)) tine(x + i, y + j, FAROL, (0.25 + 0.4 * p) * (1 - rr / Rr)); }
+    const s = Math.max(1, Math.round(3 * f)); R.disco(x, y, s + 1, mez(hex('#e070f0'), FOGP, 0.5 * (1 - f))); R.disco(x, y, s, p > 0.45 ? hex('#f8d8ff') : hex('#d8a0f0')); R.pset(x, y, hex('#ffffff')); if (s > 1) R.pset(x - 1, y - 1, hex('#ffffff')); }
+  for (const [x, y, f, k] of COLGADOS) { const p = 0.5 + 0.5 * Math.sin(t * 3.2 - k * 1.1 + 0.6), yy = y + Math.round(10 * f), w = Math.max(1, Math.round(3 * f)), sw = Math.round(Math.sin(t * 1.3 + k) * f); rp(x - w + sw, yy, x + w + sw, yy + w * 2, K); rp(x - w + 1 + sw, yy + 1, x + w - 1 + sw, yy + w * 2 - 1, p > 0.5 ? hex('#f8d8ff') : hex('#c890e0')); R.pset(x + sw, yy + w * 2 + 1, hex('#e8b830')); }
+  // los portalitos lejanos de las paredes: cada uno con su mundo de color, que gira
+  for (const [x, y, f, n] of PORTALITOS) { const rx = Math.max(1.5, 8 * f), ry = Math.max(3, 26 * f), tono = TONOS[n % TONOS.length], niebla = 0.55 * (1 - f / 0.6);
+    for (let j = -Math.ceil(ry) - 1; j <= Math.ceil(ry) + 1; j++) for (let i = -Math.ceil(rx) - 1; i <= Math.ceil(rx) + 1; i++) { const X = x + i, Y = y + j; if (enPortal(X, Y) || zonaQuieta(X, Y)) continue; const e = (i / rx) ** 2 + (j / ry) ** 2; if (e > 1.35) continue;
+      const remo = fr(Math.atan2(j / ry, i / rx) / 6.283 + e * 0.8 - t * 0.6 + n * 0.13); const c = e > 1 ? (fr(t * 2 + j * 0.2 + n) < 0.5 ? hex('#f8b030') : hex('#e85a20')) : remo < 0.3 ? tono : remo < 0.45 ? BLANCO : mez(tono, hex('#140c28'), 0.65); R.pset(X, Y, mez(c, FOGP, niebla)); } }
+  // la niebla lejana, lenta, por delante de las paredes (no entra en los portales)
+  for (let y = 40; y < 100; y++) for (let x = y & 1; x < 320; x += 2) { const v = Math.sin(x / 26 + t * 0.35 + Math.sin(y / 9) * 1.5) * Math.sin(y / 11 + x / 70 - t * 0.2); if (v > 0.35 && !enPortal(x, y) && !zonaQuieta(x, y)) tine(x, y, NIEBLA_L, (v - 0.35) * 0.4); }
+};
 const p4 = (t) => {
   fijo('pasillo', fondoPasillo);
-  for (let k = 0; k < 8; k++) { const x = ((hh(k, 131) * 360 + t * (6 + k * 2)) % 360) - 20, y = 30 + hh(k, 132) * 100; R.rect(Math.round(x), Math.round(y), Math.round(x) + 2, Math.round(y) + 2, hex('#6a5a9a')); R.pset(Math.round(x), Math.round(y), hex('#b8a8e8')); }
   const llegan = [OTRAS - 0.4, OTRAS + 0.75, REPUESTO];
   PORT.forEach(([cx, cy], k) => {
     mundo(k, cx, cy, t); borde(cx, cy, t, 1);
     if (k < 2) { const no = t > llegan[k] + 0.35; R.recorte([cx - 25, cy - 35, cx + 25, cy + 35]); R.actor(EL.lobezno, cx - 7, cy + 30, t, { dir: -1, pal: VARIANTE[k], enfado: no, garras: false, habla: no && Math.sin(t * 10) > 0 }); R.recorte(null); if (no && t < llegan[k] + 1.2) R.bocadillo(cx + 2, cy - 2, { icono: 'X' }); }
   });
+  vidaPasillo(t);
+  // los reflejos de los portales en las baldosas, que tiemblan
+  PORT.forEach(([cx]) => { for (let j = 0; j < 14; j++) { const y = 153 + j, sy = 134 - j * 2, a = 0.42 * (1 - j / 14), w = Math.round(20 * (1 - j / 30)), ox = Math.round(Math.sin(j * 0.9 + t * 5) * 1.5); for (let i = -w; i <= w; i++) if (!((i + j) & 1)) tine(cx + i + ox, y, R.pget(cx + i, sy), a); } });
+  // las chispas que suben de los bordes de los portales y los pulsos de luz por los cables
+  PORT.forEach(([cx, cy], k) => { for (let i = 0; i < 7; i++) { const d = fr(t * 0.7 + hh(i, 141 + k)), a = hh(i, 142 + k) * 6.283, x = Math.round(cx + Math.cos(a) * 28 + Math.sin(d * 9 + i) * 3), y = Math.round(cy + Math.sin(a) * 38 - d * 24); if (d < 0.85 && !zonaQuieta(x, y)) R.pset(x, y, d < 0.35 ? hex('#fff0a0') : d < 0.65 ? hex('#f8b030') : hex('#a84a8a')); } });
+  CABLES.forEach((pts, k) => { const u = fr(t * 0.45 + k * 0.29), i = Math.floor(u * (pts.length - 1)); for (let q = 0; q < 4; q++) { const p = pts[Math.max(0, i - q)]; R.pset(p[0], p[1], q === 0 ? hex('#ffffff') : q === 1 ? FAROL : hex('#9a5ac8')); } const tc = Math.floor(t / 1.7 + k * 0.4) * 1.7 - k * 0.68, [bx, by] = pts[2]; chispas(bx, by, t, tc, 6, [hex('#fff0a0'), hex('#e8a0f0')], 22, 0.45, 40); });
+  // la niebla baja, más rápida, a ras de suelo
+  for (let y = 134; y < 180; y++) for (let x = y & 1; x < 320; x += 2) { const v = Math.sin(x / 18 - t * 1.1 + Math.sin(y / 5) * 2) * Math.sin(y / 7 + x / 50 + t * 0.6); if (v > 0.3 && !enPortal(x, y)) tine(x, y, NIEBLA_C, (v - 0.3) * 0.38); }
   // el tercer Lobezno: saca las garras y sale del portal
   const lo = ruta(t, [[0, 247, 138], [DOS - 0.5, 247, 138], [DOS, 236, 166], [P5, 236, 166]]), fuera = t > DOS - 0.5;
   if (!fuera) { R.recorte([229, 73, 279, 143]); R.actor(EL.lobezno, lo.x, lo.y, t, { dir: -1, garras: t > LOBO, enfado: true, sorpresa: t > REPUESTO + 0.1 && t < LOBO }); R.recorte(null); }

@@ -12,12 +12,16 @@
 // DO-TVA (frases 15–16), cartela «2021». Cuatro planos:
 // 1. (fondo local) el desierto al mediodía: Loki se sale del camino dorado con el cubo azul; de una puerta de luz sale un
 //    agente con corbata y le señala: «alto» (corta en «branches»);
-// 2. (fondo local) la mesa de la oficina de cerca: la máquina de escribir, la bandeja, la lámpara verde; cae una cápsula
-//    por el tubo; la mano moja el sello y, en «office», sella el papel con un reloj rojo;
+// 2. (fondo local) la mesa de la oficina de cerca: friso liso arriba hasta y 21 (todo el año sobre fondo tranquilo), la
+//    máquina de escribir, la bandeja, la lámpara verde; cae una cápsula por el tubo, que sale de la moldura; la mano
+//    izquierda sujeta el papel y la derecha (antebrazo corto, codo junto al borde de abajo, hombro fuera) moja el sello
+//    en la almohadilla y, en «office», sella el papel con un reloj rojo sin que la manga cruce el papel;
 // 3. la oficina general: el agente trae a Loki por la alfombra, Loki mira asombrado a todos lados; Mobius llega con la
 //    carpeta y, en «clocks», señala el gran reloj;
-// 4. la consola de pantalla verde: Mobius saca una carpeta del archivador («filing cabinets»), cae una cápsula en la
-//    bandeja («tubes») y el agente de la lupa vigila la única línea dorada; en «sacred» la recorre un brillo.
+// 4. la consola de pantalla verde: Mobius abre el cajón de abajo del archivador y saca una carpeta («filing cabinets»),
+//    la lleva a la consola y la mete por la ranura de latón; la cápsula baja por el tubo y rebota en la bandeja («tubes»;
+//    el agente vuelve la cabeza); desde «watches over» el agente recorre la pantalla de izquierda a derecha con la lupa
+//    detrás del brillo que corre por la línea dorada; en «Sacred Timeline» la línea entera se enciende y Mobius la señala.
 import * as T from '/atomo/plato/escenas/do-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('do-tva');
@@ -141,6 +145,12 @@ const MESA = () => {
   // la pared: papel pintado de los setenta (círculos naranjas sobre crema) a la izquierda, pared lisa con la luz arriba a la derecha
   for (let y = 0; y < 72; y++) for (let x = 0; x < 320; x++) { const cx = (x % 16) - 8, cy = (y % 16) - 8, d = Math.hypot(cx, cy); R.pset(x, y, x > 262 ? (y < 40 ? hex('#d8c4a0') : hex('#cdb894')) : d > 5 && d < 7 ? hex('#d8783a') : d < 3 ? hex('#c86a2a') : (x + y) % 9 ? hex('#eedcb4') : hex('#e2cfa6')); }
   rampa(262, 0, 319, 71, ['#e8d8b8', '#dcc8a4', '#cdb894', '#c4ae8a'].map(hex)); R.rect(262, 0, 263, 71, hex('#8a5a30'));
+  // la franja alta (detrás del año, y 0–21): un friso liso de yeso con trama suave y su moldura (y 22–25), para que
+  // «2021» quede entero sobre fondo tranquilo, sin los círculos del papel pintado
+  rampa(0, 0, 261, 21, ['#f0e2c2', '#eadbb8', '#e4d3ae', '#dccaa4'].map(hex));
+  for (let k = 0; k < 140; k++) R.pset(Math.floor(hh(k, 41) * 262), Math.floor(hh(k, 42) * 21), hex('#dccaa0'));
+  R.rect(0, 22, 261, 22, hex('#f8eed6')); R.rect(0, 23, 261, 23, hex('#c8a878')); R.rect(0, 24, 261, 24, hex('#8a6a40'));
+  for (let x = 0; x < 262; x++) if ((x & 1) === 0) R.pset(x, 25, mez(R.pget(x, 25), KK, 0.3));
   // el friso de madera con cuarterones
   R.rect(0, 72, 319, 104, hex('#7a4a24')); R.rect(0, 72, 319, 73, hex('#a06a3a'));
   for (let x = 4; x < 320; x += 40) { caja(x, 77, x + 34, 101, hex('#6a3e1e'), hex('#8a5a30'), hex('#4a2a14')); for (let y = 80; y < 99; y += 3) R.linea(x + 4, y, x + 30, y + (y % 2), hex('#74441f')); }
@@ -148,12 +158,13 @@ const MESA = () => {
   for (let y = 104; y < 180; y++) for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.05 + Math.sin(y * 0.3 + x * 0.01) * 2 + y * 0.6); R.pset(x, y, v > 0.85 ? hex('#5a3418') : v > 0.4 ? hex('#7a4a24') : hex('#8a5a30')); }
   R.rect(0, 104, 319, 105, hex('#b07a44')); R.rect(0, 106, 319, 106, hex('#4a2a14'));
   // el reloj de pared (la aguja va viva)
-  R.disco(100, 38, 15, KK); R.disco(100, 38, 14, hex('#b07a3a')); R.disco(100, 38, 12, hex('#f6efdc')); for (let k = 0; k < 12; k++) R.pset(Math.round(100 + Math.cos(k * Math.PI / 6) * 10), Math.round(38 + Math.sin(k * Math.PI / 6) * 10), KK);
+  R.disco(100, 42, 15, KK); R.disco(100, 42, 14, hex('#b07a3a')); R.disco(100, 42, 12, hex('#f6efdc')); for (let k = 0; k < 12; k++) R.pset(Math.round(100 + Math.cos(k * Math.PI / 6) * 10), Math.round(42 + Math.sin(k * Math.PI / 6) * 10), KK);
   // el corcho con papeles sin letras (rayas), fotos y una chincheta roja
-  caja(140, 18, 236, 64, hex('#c8965a'), hex('#e0b07a'), hex('#9a6a3a')); for (let k = 0; k < 60; k++) R.pset(142 + Math.floor(hh(k, 31) * 92), 20 + Math.floor(hh(k, 32) * 42), hex('#a87a44'));
-  for (const [x, y, w, h, c] of [[146, 24, 22, 28, '#f6f2e6'], [172, 22, 18, 22, '#f8e890'], [194, 26, 24, 30, '#f6f2e6'], [222, 22, 10, 14, '#a8c8e8'], [172, 48, 26, 12, '#f0d0d8']]) { caja(x, y, x + w, y + h, hex(c), BL, mez(hex(c), KK, 0.2)); for (let yy = y + 4; yy < y + h - 2; yy += 3) R.linea(x + 3, yy, x + w - 3 - (yy % 5), yy, hex('#8a8a9a')); R.pset(x + w / 2, y + 1, hex('#d82a2a')); }
+  caja(140, 28, 236, 70, hex('#c8965a'), hex('#e0b07a'), hex('#9a6a3a')); for (let k = 0; k < 60; k++) R.pset(142 + Math.floor(hh(k, 31) * 92), 30 + Math.floor(hh(k, 32) * 38), hex('#a87a44'));
+  for (const [x, y, w, h, c] of [[146, 33, 22, 28, '#f6f2e6'], [172, 32, 18, 20, '#f8e890'], [194, 34, 24, 30, '#f6f2e6'], [222, 32, 10, 14, '#a8c8e8'], [172, 55, 26, 11, '#f0d0d8']]) { caja(x, y, x + w, y + h, hex(c), BL, mez(hex(c), KK, 0.2)); for (let yy = y + 4; yy < y + h - 2; yy += 3) R.linea(x + 3, yy, x + w - 3 - (yy % 5), yy, hex('#8a8a9a')); R.pset(x + w / 2, y + 1, hex('#d82a2a')); }
   // el tubo neumático de latón que baja a su estación, con su ventanilla y la bandeja
-  R.rect(6, 0, 16, 60, KK); R.rect(7, 0, 15, 60, hex('#c8a040')); R.rect(8, 0, 9, 60, hex('#f0d890')); R.rect(13, 0, 14, 60, hex('#8a6a20')); for (const y of [20, 40]) R.rect(5, y, 17, y + 3, hex('#8a6a20'));
+  R.rect(6, 25, 16, 60, KK); R.rect(7, 25, 15, 60, hex('#c8a040')); R.rect(8, 25, 9, 60, hex('#f0d890')); R.rect(13, 25, 14, 60, hex('#8a6a20')); for (const y of [34, 47]) R.rect(5, y, 17, y + 3, hex('#8a6a20'));
+  caja(3, 22, 19, 27, hex('#b08a3a'), hex('#f0d890'), hex('#7a5a20'));   // la brida donde el tubo sale de la moldura
   caja(-2, 58, 30, 96, hex('#b08a3a'), hex('#e0c070'), hex('#7a5a20')); caja(3, 64, 25, 82, hex('#2a3a3a'), hex('#4a6a6a'), hex('#1a2424')); R.linea(5, 66, 9, 66, hex('#9adada'));
   caja(0, 92, 30, 98, hex('#7a5a20'), hex('#a8883a'), hex('#4a3410'));
   // la máquina de escribir de color mostaza, con el papel, el rodillo y tres filas de teclas
@@ -167,9 +178,9 @@ const MESA = () => {
   tinta(150, 84, 319, 179, hex('#ffe8a0'), 0.9, 255, 120, 90);
   // la bandeja de papeles, la almohadilla de tinta, el teléfono naranja y el papel donde va el sello
   caja(276, 108, 316, 126, hex('#8a6a3a'), hex('#b08a50'), hex('#5a4020')); for (let k = 0; k < 4; k++) R.rect(280 - k, 104 + k * 1.5, 312 - k, 105 + k * 1.5, k % 2 ? hex('#f6f2e6') : hex('#e8e4d8'));
-  caja(218, 140, 244, 152, hex('#3a2a2a'), hex('#5a4a4a'), hex('#1a1010')); R.rect(221, 143, 241, 149, hex('#a8283a'));
+  caja(218, 157, 246, 170, hex('#3a2a2a'), hex('#5a4a4a'), hex('#1a1010')); R.rect(221, 160, 243, 167, hex('#a8283a')); R.rect(222, 160, 242, 160, hex('#d8485a'));
   caja(252, 132, 296, 156, hex('#d8783a'), hex('#f0a060'), hex('#a84a1a')); R.disco(274, 140, 7, KK); R.disco(274, 140, 6, hex('#f6efdc')); for (let k = 0; k < 8; k++) R.pset(Math.round(274 + Math.cos(k * 0.78) * 4), Math.round(140 + Math.sin(k * 0.78) * 4), KK); caja(254, 124, 294, 131, hex('#d8783a'), hex('#f0a060'), hex('#a84a1a'));
-  for (let k = 0; k < 30; k++) R.pset(250 - k, 152 + Math.round(Math.sin(k * 0.4) * 2 + k * 0.4), KK);
+  for (let k = 0; k < 24; k++) R.pset(256 + Math.round(Math.sin(k * 0.5) * 2 + k * 0.3), 156 + k, KK);
   R.poligono([[150, 132], [206, 128], [212, 170], [154, 174]], hex('#c8c0a8')); R.poligono([[151, 132], [205, 129], [210, 169], [155, 172]], hex('#f8f6ee'));
   for (let k = 0; k < 7; k++) R.linea(158 + k * 0.6, 138 + k * 4, 198 - (k * 9) % 17, 136 + k * 4, hex('#7a7a8a'));
   // la taza de café
@@ -178,23 +189,29 @@ const MESA = () => {
 const p2 = (t) => {
   fondo('mesa', MESA);
   // segundero del reloj
-  const ang = -Math.PI / 2 + Math.floor(t) * Math.PI / 30; R.linea(100, 38, Math.round(100 + Math.cos(ang) * 10), Math.round(38 + Math.sin(ang) * 10), hex('#c82a2a')); R.linea(100, 38, 100, 30, KK); R.linea(100, 38, 106, 38, KK); R.pset(100, 38, KK);
+  const ang = -Math.PI / 2 + Math.floor(t) * Math.PI / 30; R.linea(100, 42, Math.round(100 + Math.cos(ang) * 10), Math.round(42 + Math.sin(ang) * 10), hex('#c82a2a')); R.linea(100, 42, 100, 34, KK); R.linea(100, 42, 106, 42, KK); R.pset(100, 42, KK);
   // la cápsula que cae por el tubo hasta la bandeja
-  const c = tramo(t, P2 + 0.2, P2 + 0.8); if (c > 0 && c < 1) { const y = Math.round(lerp(-6, 76, c)); for (let yy = y - 5; yy <= y + 5; yy++) for (let xx = 8; xx <= 14; xx++) if (yy < 64 || (yy < 82 && xx > 3)) R.pset(xx, yy, xx === 8 || xx === 14 || yy === y - 5 || yy === y + 5 ? KK : xx < 10 ? hex('#f8b070') : hex('#d8783a')); }
+  const c = tramo(t, P2 + 0.2, P2 + 0.8); if (c > 0 && c < 1) { const y = Math.round(lerp(14, 76, c)); for (let yy = Math.max(28, y - 5); yy <= y + 5; yy++) for (let xx = 8; xx <= 14; xx++) if (yy < 64 || (yy < 82 && xx > 3)) R.pset(xx, yy, xx === 8 || xx === 14 || yy === y - 5 || yy === y + 5 ? KK : xx < 10 ? hex('#f8b070') : hex('#d8783a')); }
   if (c >= 1) { R.rect(6, 88, 24, 93, KK); R.rect(7, 89, 23, 92, hex('#d8783a')); R.rect(7, 89, 23, 89, hex('#f8b070')); }
   // el vapor del café
   for (let k = 0; k < 4; k++) { const v = ((t * 0.8 + k * 0.25) % 1), x = Math.round(25 + Math.sin(v * 7 + k) * 2), y = Math.round(126 - v * 18); if (v < 0.9) R.pset(x, y, hex('#f0eee8')); }
   // la mano izquierda sujeta el papel; la derecha moja el sello y sella en «office»
   const sujeta = tramo(t, P2 + 0.6, P2 + 1.4);
-  { const mx = Math.round(lerp(120, 152, sujeta)), my = Math.round(lerp(196, 160, sujeta)); T.brazo(R, mx - 34, 200, mx, my, '#3a4a6a', 1); }
+  { const mx = Math.round(lerp(120, 152, sujeta)), my = Math.round(lerp(196, 160, sujeta)); T.brazo(R, mx - 30, 200, mx, my, '#3a4a6a', 1, { codo: [mx - 21, Math.round((200 + my) / 2) + 4] }); }
   const moja = tramo(t, P2 + 1.2, P2 + 1.8) - tramo(t, P2 + 2.1, P2 + 2.6), sube = tramo(t, P2 + 2.1, P2 + 2.8), baja = tramo(t, officeT - 0.18, officeT), alza = tramo(t, officeT + 0.35, officeT + 0.8);
-  let hx = lerp(262, 232, moja), hy = lerp(168, 140, moja); if (sube > 0) { hx = lerp(232, 186, sube); hy = lerp(140, 112, sube); } hy = hy + baja * 26 - alza * 22;
-  hx = Math.round(hx); hy = Math.round(hy);
-  if (t > officeT) { R.disco(182, 150, 7, hex('#c82a2a')); R.disco(182, 150, 5, hex('#f8f6ee')); R.icono('reloj', 179, 147, hex('#c82a2a'), hex('#f8f6ee')); }
-  // el sello: la goma, la base de madera y el pomo, por debajo de la mano
-  R.rect(hx - 9, hy + 10, hx + 3, hy + 12, KK); R.rect(hx - 8, hy + 11, hx + 2, hy + 11, hex('#a8283a')); caja(hx - 9, hy + 5, hx + 3, hy + 10, hex('#8a5a30'), hex('#b07a44'), hex('#5a3418')); R.rect(hx - 4, hy - 2, hx - 2, hy + 5, hex('#5a3418'));
-  T.brazo(R, hx + 30, Math.max(hy + 40, 192), hx + 4, hy, '#3a4a6a', -1);
-  if (t > officeT && t < officeT + 0.5) for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4; R.pset(Math.round(182 + Math.cos(an) * 12), Math.round(150 + Math.sin(an) * 9), BL); }
+  // la mano del sello: la muñeca (wx, wy) en reposo abajo a la derecha, baja a la almohadilla (que está cerca del borde
+  // de abajo), se queda lista justo por fuera del borde derecho del papel (con un leve vaivén) y sella en «office»: solo
+  // los dedos y el sello pasan sobre el papel; la manga sale hacia abajo a la derecha sin cruzarlo
+  let wx = lerp(274, 243, moja), wy = lerp(174, 153, moja); if (sube > 0) { wx = lerp(243, 211, sube); wy = lerp(153, 140, sube) - Math.sin(sube * Math.PI) * 6; }
+  if (sube >= 1 && baja <= 0) wy += Math.round(Math.sin((t - P2) * 3) * 1);
+  wy = wy + baja * 5 - alza * 6;
+  wx = Math.round(wx); wy = Math.round(wy);
+  if (t > officeT) { R.disco(201, 156, 7, hex('#c82a2a')); R.disco(201, 156, 5, hex('#f8f6ee')); R.icono('reloj', 198, 153, hex('#c82a2a'), hex('#f8f6ee')); }
+  // el sello: la goma, la base de madera y el pomo, bajo los dedos
+  R.rect(wx - 16, wy + 10, wx - 4, wy + 12, KK); R.rect(wx - 15, wy + 11, wx - 5, wy + 11, hex('#a8283a')); caja(wx - 16, wy + 5, wx - 4, wy + 10, hex('#8a5a30'), hex('#b07a44'), hex('#5a3418')); R.rect(wx - 11, wy - 2, wx - 9, wy + 5, hex('#5a3418'));
+  // el brazo: antebrazo corto (~27 px) hasta el codo, cerca del borde de abajo, y el hombro fuera del cuadro
+  { const cx = wx + 17, cy = wy + 21; T.brazo(R, cx + 7, cy + 32, wx, wy, '#3a4a6a', -1, { codo: [cx, cy] }); }
+  if (t > officeT && t < officeT + 0.5) for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4; R.pset(Math.round(201 + Math.cos(an) * 12), Math.round(156 + Math.sin(an) * 9), BL); }
 };
 // ── 3 · la oficina general ──
 const p3 = (t) => {
@@ -208,26 +225,56 @@ const p3 = (t) => {
   T.tiempoDelante(R, t, { encuadre: 'oficina' });
 };
 // ── 4 · la consola de la pantalla verde ──
+// las abrazaderas de latón del tubo de la estación (la cápsula pasa por detrás) y la ranura de expedientes de la consola
+const ABRAZ = [[8, 11], [30, 33], [52, 55], [74, 77], [96, 99]];
+const RANURA = [214, 232], mete = b(0.68), sale = b(0.62);
+const capsula = (x, y, vertical) => {
+  const [w, h] = vertical ? [3, 6] : [8, 3];
+  for (let yy = y - h; yy <= y + h; yy++) for (let xx = x - w; xx <= x + w; xx++) {
+    if (vertical && ABRAZ.some(([a0, a1]) => yy >= a0 && yy <= a1)) continue;
+    const borde = xx === x - w || xx === x + w || yy === y - h || yy === y + h, tapa = vertical ? Math.abs(yy - y) > h - 3 : Math.abs(xx - x) > w - 3;
+    const luz = vertical ? xx === x - w + 1 : yy === y - h + 1;
+    R.pset(xx, yy, borde ? KK : tapa ? (luz ? hex('#f0d890') : hex('#c8a040')) : luz ? hex('#f8b070') : hex('#d8783a'));
+  }
+};
 const p4 = (t) => {
   T.tiempo(R, t, { encuadre: 'oficina', camara: 'pantalla', fosforo: 'verde', ramas: 0 });
-  // el brillo que recorre la única línea dorada en «sacred»
-  const s = tramo(t, sagradaT - 0.2, sagradaT + 1.1); if (s > 0 && s < 1) { R.recorte([112, 42, 218, 108]); const x = Math.round(lerp(108, 222, s)); for (let k = -6; k <= 6; k++) { R.pset(x + k, 75, BL); if (Math.abs(k) < 3) { R.pset(x + k, 74, hex('#fff6c0')); R.pset(x + k, 76, hex('#fff6c0')); } } R.recorte(null); }
-  // la cápsula que cae por el tubo de la estación
-  const c = tramo(t, tuboT - 0.5, tuboT); if (c > 0 && c < 1) { const y = Math.round(lerp(20, 112, c)); R.rect(28, y - 5, 32, y + 5, KK); R.rect(29, y - 4, 31, y + 4, hex('#d8783a')); }
-  if (t >= tuboT) { R.rect(22, 112, 38, 116, KK); R.rect(23, 113, 37, 115, hex('#d8783a')); R.rect(23, 113, 37, 113, hex('#f8b070')); }
-  // el agente de la lupa: se acerca a la pantalla en «watches»
-  const w = tramo(t, vigila - 0.2, vigila + 0.6), ax = Math.round(lerp(66, 72, w));
-  const A = R.actor(EL.agenteTVA, ax, 166, t, { dir: 1, sostiene: [ax + 18, Math.round(lerp(142, 132, w))], sonrisa: t > sagradaT, sorpresa: false });
-  lupa(A.mano[0], A.mano[1], 1);
-  // Mobius saca una carpeta del archivador
-  const cj = tramo(t, cajonT, cajonT + 0.4) - tramo(t, tuboT + 0.8, tuboT + 1.2);
-  if (cj > 0) { const dx = Math.round(cj * 10); caja(286 - dx, 120, 312 - dx, 132, hex('#8a8e88'), hex('#b8bcb4'), hex('#5a5e58')); R.rect(296 - dx, 125, 302 - dx, 126, hex('#e0c060')); for (let k = 0; k < 4; k++) R.rect(289 - dx + k * 5, 117, 291 - dx + k * 5, 120, hex('#e0b860')); }
-  const coge = t > cajonT + 0.5;
-  const M = R.actor(EL.mobius, 268, 166, t, { dir: coge && t > tuboT + 0.4 ? -1 : 1, sostiene: true, habla: t > vigila && t < vigila + 1.2 && Math.sin(t * 9) > 0 });
-  if (coge) carpeta(M.mano[0], M.mano[1]);
+  // el agente de la lupa recorre la pantalla de izquierda a derecha desde «watches over», y el brillo va delante de su lupa
+  const w = tramo(t, vigila - 0.2, sagradaT + 0.4), ax = Math.round(lerp(66, 186, w)), bx = ax + 26;
+  R.recorte([116, 42, 216, 108]);
+  if (w > 0) for (let k = -7; k <= 7; k++) { R.pset(bx + k, 75, Math.abs(k) < 4 ? BL : hex('#fff6c0')); if (Math.abs(k) < 4) { R.pset(bx + k, 74, hex('#fff6c0')); R.pset(bx + k, 76, hex('#fff6c0')); } }
+  if (w > 0 && w < 1) for (let k = 1; k < 5; k++) R.pset(bx - 8 - k * 4, 75 + (k % 2 ? -1 : 1), hex('#f0e090'));   // la estela
+  // en «Sacred Timeline», la línea entera se enciende y suelta chispas
+  const sg = tramo(t, sagradaT - 0.1, sagradaT + 0.3) - tramo(t, sagradaT + 1.2, sagradaT + 1.8);
+  if (sg > 0) for (let x = 116; x <= 216; x++) { if (sg > bay(x, 74)) { R.pset(x, 74, hex('#fff6c0')); R.pset(x, 76, hex('#fff6c0')); } if (sg > 0.5) R.pset(x, 75, BL); if (sg > 0.7 && hh(x, 5) > 0.85) R.pset(x, 73 - Math.round((t * 12 + hh(x, 6) * 9) % 9), hex('#fff0a0')); }
+  R.recorte(null);
+  // la cápsula baja por el tubo («pneumatic tubes») y cae en la bandeja de la estación con un rebote
+  const c = tramo(t, tuboT - 0.5, tuboT); if (c > 0 && c < 1) capsula(30, Math.round(lerp(18, 104, c * c)), true);
+  if (t >= tuboT) { const r = t - tuboT, bo = r < 0.5 ? Math.round(Math.abs(Math.sin(r * 14)) * (0.5 - r) * 8) : 0; capsula(30, 113 - bo, false);
+    if (r < 0.4) for (const [dx, dy] of [[-12, -4], [12, -4], [-10, 2], [10, 2]]) R.pset(30 + dx, 113 + dy, BL);
+    R.disco(41, 107, 1, Math.floor(t * 4) % 2 ? hex('#5ae87a') : hex('#2a6a3a')); }   // la lucecita de «llegó»
+  // el cajón de abajo del archivador: se abre, Mobius saca la carpeta y se cierra
+  const cj = tramo(t, cajonT + 0.1, cajonT + 0.5) - tramo(t, cajonT + 1.0, cajonT + 1.3), coge = t > cajonT + 0.7;
+  if (cj > 0) { const d = Math.round(cj * 3);
+    R.rect(268, 139 - d, 292, 142, hex('#3a3a30')); for (let k = 0; k < 4; k++) if (!(coge && k === 1)) { R.rect(271 + k * 5, 138 - d, 274 + k * 5, 141, hex('#e0b860')); R.pset(271 + k * 5, 138 - d, hex('#f8dc90')); }
+    caja(267, 141 + d, 293, 150 + d, hex('#8a9a78'), hex('#b0c09a'), hex('#5a6a4a')); R.rect(276, 144 + d, 284, 145 + d, hex('#e8e0c0')); }
+  // Mobius: coge la carpeta, cruza hasta la consola y la mete por la ranura; luego habla y señala la línea
+  const v = tramo(t, cajonT + 1.2, sale + 0.1), mx = Math.round(lerp(250, 232, v)), ins = tramo(t, mete - 0.1, mete + 0.5);
+  const mano = t < cajonT + 1.2 ? [Math.round(lerp(264, 272, cj)), Math.round(lerp(150, 143, cj))] : v < 1 ? true : [Math.round(lerp(228, RANURA[0] + 9, tramo(t, sale + 0.1, mete - 0.1))), Math.round(lerp(152, 146, tramo(t, sale + 0.1, mete - 0.1)))];
+  // la ranura: placa de latón bajo los botones y su piloto
+  caja(RANURA[0] - 2, 146, RANURA[1] + 2, 151, hex('#c8a040'), hex('#f0d890'), hex('#8a6a20')); R.rect(RANURA[0], 148, RANURA[1], 148, KK);
+  R.disco(RANURA[1] + 6, 148, 1, t > mete + 0.4 && Math.floor(t * 5) % 2 ? hex('#5ae87a') : hex('#2a5a3a'));
+  if (ins > 0 && ins < 1) { const hgt = Math.round(9 * (1 - ins)); if (hgt > 0) { R.rect(RANURA[0] + 3, 149, RANURA[0] + 15, 149 + hgt, KK); R.rect(RANURA[0] + 4, 149, RANURA[0] + 14, 148 + hgt, hex('#e0b860')); R.rect(RANURA[0] + 4, 149, RANURA[0] + 14, 149, hex('#f8dc90')); } }
+  const dirM = t < cajonT + 1.15 ? 1 : -1, apunta = t > sagradaT;
+  const M = R.actor(EL.mobius, mx, 166, t, { dir: dirM, anda: v > 0 && v < 1, sostiene: apunta || t > mete + 0.5 ? false : mano, dedo: apunta, habla: t > vigila + 0.4 && t < sagradaT + 1.2 && Math.sin(t * 9) > 0 });
+  if (coge && !(ins > 0)) carpeta(M.mano[0], M.mano[1]);
+  // el agente: mira la línea con la lupa; vuelve la cabeza cuando llega la cápsula; después la recorre
+  const giro = t > tuboT + 0.05 && t < tuboT + 0.7;
+  const A = R.actor(EL.agenteTVA, ax, 166, t, { dir: giro ? -1 : 1, anda: w > 0 && w < 1, sostiene: giro ? [ax - 4, 140] : [ax + 18, 132 + Math.round(Math.sin(t * 2.4))], sonrisa: t > sagradaT, sorpresa: giro });
+  lupa(A.mano[0], A.mano[1], giro ? -1 : 1);
   T.tiempoDelante(R, t, { encuadre: 'oficina', camara: 'pantalla' });
 };
-const efectos = [[puerta, 'zumbido'], [alto, 'aviso'], [P2 + 0.25, 'whoosh'], [P2 + 1.6, 'toc'], [officeT, 'sello'], [relojT, 'tic'], [cajonT, 'golpecito'], [tuboT - 0.45, 'whoosh'], [vigila, 'bip'], [sagradaT, 'brillo']];
+const efectos = [[puerta, 'zumbido'], [alto, 'aviso'], [P2 + 0.25, 'whoosh'], [P2 + 1.6, 'toc'], [officeT, 'sello'], [relojT, 'tic'], [cajonT, 'golpecito'], [tuboT - 0.45, 'whoosh'], [vigila, 'bip'], [mete + 0.3, 'papel'], [sagradaT, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '2021', efectos, año: 2021 });
 </script>
 </body>

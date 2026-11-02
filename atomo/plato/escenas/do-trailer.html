@@ -16,7 +16,7 @@
 //    del trono levanta la mano con luz verde en «warns»; en «unthinkable» aparecen dos Tierras (616 y 828) flotando a
 //    sus lados, unidas a su mano por hilos de energía; en «decision» las mira una y otra y cae un rayo; corta en «Thor»;
 // 2. «Thor says they're going to need a miracle» (el Vacío, la fortaleza): Thor sale por la puerta de vigas con el
-//    martillo, habla, lo levanta y en «miracle» le cae un rayo que ilumina el plano; corta en «from»;
+//    martillo, habla, lo levanta; antes del rayo un resplandor azul en escalones aclara las nubes; en «miracle» le cae un rayo que ilumina el plano; corta en «from»;
 // 3. «…the Thing, from Earth-828, shakes hands with M'Baku of Wakanda» (fondo local, el puente entre dos mundos al
 //    atardecer: la ciudad de los sesenta con su monorraíl a la izquierda, las torres doradas y la selva con su cascada a
 //    la derecha): la Cosa y M'Baku llegan por el puente desde cada lado y en «shakes hands» se estrechan la mano entre
@@ -227,7 +227,10 @@ const p2 = (t) => {
   const u = tramo(t, P2 + 0.1, P2 + 1.25), x = 152, y = Math.round(lerp(152, 168, u)), sube = t > MILAGRO - 0.4;
   // el cielo se carga antes del rayo
   const carga = tramo(t, MILAGRO - 0.9, MILAGRO), fl = t > MILAGRO && t < MILAGRO + 0.12;
-  if (carga > 0 && t < MILAGRO + 0.6) for (let yy = 16; yy < 76; yy++) for (let xx = 110; xx < 240; xx++) { const d = Math.hypot((xx - 182) / 60, (yy - 30) / 34); if (d < 1 && by(xx, yy) < carga * 0.4 * (1 - d) ** 1.5) R.pset(xx, yy, hex('#8aa8ff')); }
+  // resplandor en escalones que solo aclara las nubes (centro bajo las nubes, sin tocar la barra del año) y parpadea
+  if (carga > 0 && t < MILAGRO + 0.6) { const cz = hex('#a8c0ff'), pulso = carga * (0.75 + 0.25 * Math.sin(t * 23)) * (t > MILAGRO ? 1 - tramo(t, MILAGRO, MILAGRO + 0.6) : 1);
+    for (let yy = 18; yy < 79; yy++) for (let xx = 122; xx < 243; xx++) { const d = Math.hypot((xx - 182) / 60, (yy - 48) / 30); if (d >= 1) continue;
+      const e = Math.min(3, Math.floor((1 - d) * 4 + (by(xx, yy) - 0.5) * 0.5)); if (e > 0) R.pset(xx, yy, mez(R.pget(xx, yy), cz, pulso * e * 0.18)); } }
   const th = R.actor(EL.thor, x, y, t, { dir: 1, anda: u > 0 && u < 1, sostiene: sube ? undefined : true, dedo: sube, habla: t > THOR && t < MILAGRO - 0.2 && Math.sin(t * 9) > 0 });
   const hx = sube ? x + 13 : th.mano[0], hy = sube ? y - 21 : th.mano[1];
   PIEZAS_DO.martillo(R, hx, hy, { arriba: sube });

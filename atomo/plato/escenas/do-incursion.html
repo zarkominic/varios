@@ -11,11 +11,17 @@
 <script type="module">
 // DO-INCURSION (frases 26–28), 2022. Seis planos:
 // 1. el espacio: dos planetas chocan como coches de choque (golpe en «incursion»); las palomitas se tapan los ojos y
-//    Strange, en el risco, da un respingo; vuelven a chocar en «collision» (gag 3);
-// 2. la mesa de hologramas del consejo: dos universos en burbuja; en «one of them» se deshace uno y en «both» los dos;
-// 3. el santuario de noche, la pared del portal: se abre el portal y sale Clea («Clea»), que avisa a Strange;
-// 4. el santuario de noche: Strange ve la incursión que ha causado; Clea le hace una seña y los dos entran en el portal
-//    («too late»);
+//    Strange, en el risco, da un respingo; vuelven a chocar en «collision» (gag 3); los aros del golpe se recortan bajo
+//    la barra del año (y 15), pero la nebulosa y las estrellas pintan el cuadro entero (búfer hecho fuera del recorte);
+// 2. la mesa de hologramas del consejo: dos universos en burbuja cuya luz azul y rosa tiñe la sala en penumbra (motas de
+//    polvo); en «one of them» Reed se acerca y señala, inclinado, el que se deshace; en «both» se deshacen los dos,
+//    Reed da un paso atrás y Strange retrocede; frente de mármol con vetas, cajones, gemas, rejilla y círculo de runas;
+// 3. la cripta del santuario (fondo local: sillares, bóveda, arco con su nicho, armero, antorchas, reliquia bajo campana,
+//    losas con un círculo de runas): Strange estudia la reliquia, se abre el portal en el arco y sale Clea («Clea»);
+//    él se vuelve, se acerca y ella le avisa;
+// 4. el rellano de arriba (fondo local: vidriera con haz de luna, hornacinas con reliquias, araña, puerta en arco,
+//    alfombra y barandilla delante): Strange llega de la escalera y ve la incursión que ha causado; Clea le hace la
+//    seña junto al portal, entra la primera y él la sigue («too late»);
 // 5. un autocine de noche: en la pantalla, dos universos chocan con un destello («crashing»); las palomitas, en el techo
 //    de un coche con gafas 3D, saltan;
 // 6. 2026, la rueda de prensa: el presentador cuenta la sinopsis; en «universes collide» chocan dos aros de luz y
@@ -30,19 +36,61 @@ const P2 = a(0.618), P3 = c(0), P4 = c(0.502), P5 = d(0), P6 = d(0.474);
 const mix = (c1, c2, k) => { const r1 = c1 & 255, g1 = (c1 >> 8) & 255, b1 = (c1 >> 16) & 255, r2 = c2 & 255, g2 = (c2 >> 8) & 255, b2 = (c2 >> 16) & 255;
   return (0xff000000 | (Math.round(b1 + (b2 - b1) * k) << 16) | (Math.round(g1 + (g2 - g1) * k) << 8) | Math.round(r1 + (r2 - r1) * k)) >>> 0; };
 const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], dz = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+// ── utilidades de luz ──
+// mezcla un color en un óvalo sobre lo ya pintado (la luz de antorchas, velas y portales en la piedra y la madera)
+const luz = (cx, cy, rx, ry, col, k) => { const B = R.buf;
+  for (let y = Math.max(0, Math.round(cy - ry)); y <= Math.min(179, Math.round(cy + ry)); y++) for (let x = Math.max(0, Math.round(cx - rx)); x <= Math.min(319, Math.round(cx + rx)); x++) {
+    const q = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2; if (q >= 1) continue; const f = (1 - q) * k; if (f < 0.03) continue;
+    const i = y * 320 + x; B[i] = mix(B[i], col, Math.min(0.85, f * (0.7 + dz(x, y) * 0.6))); } };
+// un tono de una rampa con trama (v real → color)
+const ton = (P, v, x, y) => P[Math.max(0, Math.min(P.length - 1, Math.floor(v + dz(x, y) - 0.5)))];
+// una llama de vela o de antorcha que baila (x, y la mecha)
+const llama = (x, y, t, k, s = 1) => { const f = Math.sin(t * 13 + k * 2.1) + Math.sin(t * 7.3 + k), hh = Math.round((4 + f * 0.8) * s), sw = Math.round(Math.sin(t * 9 + k * 1.7) * 0.8);
+  for (let j = 0; j < hh; j++) { const w = Math.round((1 - j / hh) * 1.4 * s); for (let i = -w; i <= w; i++) R.pset(x + i + (j > hh / 2 ? sw : 0), y - j, j < hh * 0.45 && Math.abs(i) < Math.max(1, w) ? hex('#fff4c0') : j < hh * 0.75 ? hex('#ffb040') : hex('#e85a20')); } };
+// motas de polvo que flotan en una caja [x0, y0, x1, y1] y brillan cuando pasan por la luz
+const polvo = (t, x0, y0, x1, y1, n, col, sem) => { for (let k = 0; k < n; k++) { const x = Math.round(x0 + ((hsh(k, 1, sem) * (x1 - x0) + t * (2 + hsh(k, 2, sem) * 4)) % (x1 - x0))),
+  y = Math.round(y0 + ((hsh(k, 3, sem) * (y1 - y0) - t * (1 + hsh(k, 4, sem) * 2) + 400 * (y1 - y0)) % (y1 - y0)) + Math.sin(t * 1.3 + k) * 1.5);
+  if (Math.sin(t * 2.2 + k * 1.9) > -0.3) R.pset(x, y, col); } };
+const hsh = (i, j, k) => { const v = Math.sin(i * 12.9898 + j * 78.233 + k * 37.719) * 43758.5453; return v - Math.floor(v); };
+// el portal de chispas de Clea: un óvalo que gira con el cosmos dentro, el borde de chispas naranjas y chispas que saltan;
+// a de 0 a 1 (abierto)
+const portal = (x, y, a, t) => { if (a <= 0.03) return; const rx = 19 * a, ry = 27 * a, { pset } = R;
+  luz(x, y + ry * 0.4, rx * 2.8, ry * 1.5, hex('#ff9a3a'), 0.4 * a);
+  for (let j = Math.ceil(-ry); j <= ry; j++) for (let i = Math.ceil(-rx); i <= rx; i++) { const q = (i / rx) ** 2 + (j / ry) ** 2; if (q > 1) continue;
+    const an = Math.atan2(j / ry, i / rx), rr = Math.sqrt(q), sw = Math.sin(an * 2 - rr * 6 + t * 2.4);
+    let col = sw > 0.5 ? (rr < 0.45 ? hex('#ff8ad8') : hex('#c84ab8')) : sw > -0.1 ? hex('#7a2a9a') : hex('#24123e');
+    if (hsh(i, j, 7) > 0.97 && Math.sin(t * 5 + i * j) > 0) col = hex('#ffffff');
+    if (q > 0.8 && dz(x + i, y + j) < (q - 0.8) * 5) col = hex('#ffb04a');
+    pset(Math.round(x + i), Math.round(y + j), col); }
+  for (let k = 0; k < 72; k++) { const an = k / 72 * Math.PI * 2 + t * 4, w = 1.05 + 0.07 * Math.sin(k * 3 + t * 9), px = Math.round(x + Math.cos(an) * rx * w), py = Math.round(y + Math.sin(an) * ry * w);
+    pset(px, py, k % 3 === 0 ? hex('#fff0a0') : k % 3 === 1 ? hex('#ffa030') : hex('#d85a10')); if (k % 4 === 0) pset(px + 1, py, hex('#ffa030')); }
+  for (let k = 0; k < 12; k++) { const u = (t * 1.4 + k / 12) % 1, an = k * 2.3 + t * 0.5; pset(Math.round(x + Math.cos(an) * (rx + 2 + u * 10)), Math.round(y + Math.sin(an) * (ry + 2 + u * 6) + u * u * 10), u < 0.5 ? hex('#ffe070') : hex('#c8501a')); }
+};
 // ── 1 · los coches de choque ──
 const GOLPE = 0.6, COL2 = a(0.42);
 const choque = (t) => t < GOLPE ? lerp(0.74, 0.8, tramo(t, 0, GOLPE)) : t < 2.4 ? lerp(0.8, 1, (t - GOLPE) / 1.8)
   : t < 3.1 ? lerp(0.79, 0.5, tramo(t, 2.4, 3.1)) : t < COL2 ? lerp(0.5, 0.8, tramo(t, 3.1, COL2)) : lerp(0.8, 1, Math.min(1, (t - COL2) / 1.8));
+// el búfer del fondo del cosmos (nebulosa y estrellas) se hace aquí, una vez y sin recorte: si se hiciera dentro del
+// recorte de p1, sus 20 filas de arriba quedarían sin pintar en todos los fotogramas
+T.cosmos(R, 0, { encuadre: 'espacio', camara: 'choque', choque: 0.4 });
 const p1 = (t) => {
-  T.cosmos(R, t, { encuadre: 'espacio', camara: 'choque', choque: choque(t), numeros: [838, 616] });
+  // los aros, chispas y estrellitas del golpe se recortan por debajo de la barra del año (y 0–14); el fondo de estrellas
+  // y nebulosa, que se copia de su búfer, pinta los 320 × 180 enteros
+  const ch = choque(t);
+  R.recorte([0, 15, 319, 179]);
+  T.cosmos(R, t, { encuadre: 'espacio', camara: 'choque', choque: ch, numeros: [838, 616] });
+  // el resplandor del destello sí sigue por detrás de la barra (sin aros), para que no quede cortado en y = 15
+  if (ch >= 0.78) {
+    const f = ch < 0.8 ? (ch - 0.78) / 0.02 : 1 - (ch - 0.8) / 0.2;
+    R.recorte([0, 0, 319, 14]); R.halo(160, 76, 30 + f * 46, [hex('#f8d870'), hex('#fff4c8'), T.C.blanco], 0.4 + f * 0.9);
+  }
+  R.recorte(null);
   const tapa = (t > GOLPE - 0.1 && t < 2.6) || (t > COL2 - 0.2 && t < P2);
   T.palomitas(R, 46, 160, t, { s: 2, dir: 1, tapa, expresion: tapa ? 'susto' : 'normal' });
   const r = t > a(0.329) && t < a(0.42);
   R.actor(EL.strange, 86, 160, t, { dir: 1, sorpresa: (t > GOLPE && t < 1.6) || t > COL2, salto: t > GOLPE && t < GOLPE + 0.4 ? 3 : 0, dedo: r, habla: r && Math.sin(t * 9) > 0 });
 };
 // ── 2 · la mesa de hologramas del consejo (inserto) ──
-const hsh = (i, j, k) => { const v = Math.sin(i * 12.9898 + j * 78.233 + k * 37.719) * 43758.5453; return v - Math.floor(v); };
 const burbuja = (x, y, rr, t, vida, tono, sem) => {
   const se = 1 - vida;
   for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const q = Math.hypot(i, j); if (q > rr) continue;
@@ -52,63 +100,284 @@ const burbuja = (x, y, rr, t, vida, tono, sem) => {
     if (se > 0 && h < se) { if (h > se - 0.3 && ((i + j) % 3 === 0)) R.pset(x + i + Math.round(Math.sin(h * 20 + t) * 3), y + j - Math.round((se - h) * 50), tono[1]); continue; }
     R.pset(x + i, y + j, c); }
 };
-const MESA = 146;
+const MESA = 146, PANEL = [0, 40, 128, 192, 280, 320];
 const p2 = (t) => {
   T.multiverso(R, t, { encuadre: 'consejo', camara: 'general', hueco: 2 });
-  T.tinte(R, 0, 179, [14, 20, 44], 0.62);
   const { rect, pset, disco, linea } = R;
+  const uno = 1 - tramo(t, a(0.648), a(0.74)), dos = 1 - tramo(t, a(0.762), a(0.9));
+  const ch = tramo(t, P2, P2 + 1.2), xa = Math.round(124 + 6 * ch), xb = Math.round(196 - 6 * ch);
+  // la sala en penumbra, alumbrada por los hologramas: el azul de uno y el rosa del otro tiñen columnas, puertas y suelo
+  // (más en lo claro, que es lo que refleja); al deshacerse cada universo se apaga su luz
+  const LA = hex('#3aa0f0'), LR = hex('#f05ac8'), NOC = hex('#0a1030'), pul = 0.92 + 0.08 * Math.sin(t * 3);
+  const la = (0.12 + 0.88 * Math.min(uno, dos)) * pul, lr = (0.12 + 0.88 * dos) * pul, B = R.buf;
+  for (let y = 0; y < MESA - 2; y++) for (let x = 0; x < 320; x++) { const i = y * 320 + x, c0 = B[i], lum = ((c0 & 255) + ((c0 >> 8) & 255) + ((c0 >> 16) & 255)) / 765;
+    const f1 = Math.max(0, 1 - Math.hypot(x - xa, (y - 92) * 1.2) / 130) ** 2 * la, f2 = Math.max(0, 1 - Math.hypot(x - xb, (y - 92) * 1.2) / 130) ** 2 * lr;
+    let o = mix(c0, NOC, Math.max(0.25, 0.72 - 0.4 * (f1 + f2)));
+    if (f1 > 0.02) o = mix(o, LA, Math.min(0.75, f1 * (0.2 + lum * 1.1) * (0.8 + dz(x, y) * 0.4)));
+    if (f2 > 0.02) o = mix(o, LR, Math.min(0.75, f2 * (0.2 + lum * 1.1) * (0.8 + dz(x, y) * 0.4)));
+    B[i] = o; }
   // el cono de luz del proyector de la mesa
   for (let y = 58; y < MESA; y++) { const w = Math.round(14 + (MESA - y) * 0.75); for (let x = 160 - w; x <= 160 + w; x++) { const borde = Math.abs(Math.abs(x - 160) - w) < 1;
     if (borde ? (y & 1) : dz(x, y) < 0.1) pset(x, y, borde ? hex('#5ad0f0') : hex('#2a6a98')); } }
-  const uno = 1 - tramo(t, a(0.648), a(0.74)), dos = 1 - tramo(t, a(0.762), a(0.9));
-  const ch = tramo(t, P2, P2 + 1.2);
-  burbuja(Math.round(124 + 6 * ch), 88, 24, t, Math.min(uno, dos), [hex('#2a5ac8'), hex('#5ad0f0')], 1);
-  burbuja(Math.round(196 - 6 * ch), 88, 24, t, dos, [hex('#7a2aa0'), hex('#e866c0')], 2);
+  burbuja(xa, 88, 24, t, Math.min(uno, dos), [hex('#2a5ac8'), hex('#5ad0f0')], 1);
+  burbuja(xb, 88, 24, t, dos, [hex('#7a2aa0'), hex('#e866c0')], 2);
   if (ch > 0.95 && dos > 0.7) for (let i = 0; i < 8; i++) pset(160 + Math.round(Math.cos(t * 9 + i) * 3), 88 + Math.round(Math.sin(t * 9 + i * 1.3) * 8), hex('#fff6c0'));
-  // Reed explica, Strange escucha (asoman cabeza y hombros por detrás de la mesa)
-  R.actor(EL.reedOtro, 44, 150, t, { dir: 1, dedo: t < a(0.9), habla: Math.sin(t * 8) > 0 && t < a(0.94) });
-  R.actor(EL.strange, 262, 150, t, { dir: -1, sorpresa: t > a(0.86) || (t > a(0.65) && t < a(0.72)) });
-  // la mesa redonda de mármol: tablero con la luz del holograma, banda de oro con rombos, frente con vetas y paneles
+  // motas de polvo que brillan en la luz de los hologramas
+  polvo(t, 70, 40, 250, 140, 26, hex('#a8e0ff'), 3); polvo(t * 0.8, 150, 40, 260, 140, 14, hex('#ffc0ec'), 4);
+  // Reed se acerca a la mesa y señala, inclinado, el universo que se deshace («one of them»); en «both» da un paso atrás.
+  // Strange escucha y en «both» retrocede de un respingo. Asoman cabeza y hombros por detrás de la mesa.
+  const va = tramo(t, P2 + 0.05, a(0.648)), atras = tramo(t, a(0.762), a(0.762) + 0.4), señala = t > a(0.648) && t < a(0.762);
+  R.actor(EL.reedOtro, Math.round(58 + 26 * va - 10 * atras), 150 + (señala ? 1 : 0), t, { dir: 1, anda: (va > 0 && va < 1) || (atras > 0 && atras < 1), dedo: señala || t < P2 + 0.05 || (t > a(0.8) && t < a(0.9)), habla: Math.sin(t * 8) > 0 && t < a(0.94), sorpresa: t > a(0.78) && t < a(0.8) });
+  R.actor(EL.strange, Math.round(262 + 16 * atras), 150, t, { dir: -1, sorpresa: t > a(0.762) || (t > a(0.65) && t < a(0.72)) });
+  // la mesa redonda de mármol: tablero con el reflejo de cada holograma, banda de oro con rombos y un frente de mármol
+  // con vetas y paneles distintos; un brillo azul o rosa recorre el frente
   for (let y = MESA - 2; y < 180; y++) for (let x = 0; x < 320; x++) { let c;
-    if (y < MESA) c = Math.abs(x - 160) < 40 && dz(x, y) < 0.5 - Math.abs(x - 160) / 80 ? hex('#a8e8f8') : hex('#f6f4fa');
+    if (y < MESA) { c = hex('#f2f0f8'); const v = Math.sin(x * 0.09 + y * 1.3 + Math.sin(x * 0.03) * 2); if (v > 0.92) c = hex('#c8c6d8');
+      if (Math.abs(x - xa) < 26 && dz(x, y) < 0.6 * la) c = hex('#9ad0f8'); if (Math.abs(x - xb) < 26 && dz(x, y) < 0.6 * lr) c = hex('#f8b0e0');
+      if (Math.abs(x - 160) < 36 && dz(x, y) < 0.45 - Math.abs(x - 160) / 80) c = hex('#c8f4ff'); }
     else if (y < MESA + 4) { const m = (x + 6) % 14, rombo = Math.abs(m - 7) + Math.abs(y - MESA - 1.5) * 2 < 4; c = rombo ? hex('#8a6420') : y === MESA ? hex('#f8d870') : hex('#d8b048'); }
-    else { const v = Math.sin(x * 0.06 + y * 0.21 + Math.sin(y * 0.09) * 2) + 0.6 * Math.sin(x * 0.017 - y * 0.13); c = v > 1.15 ? hex('#b8b6c8') : v > 0.95 ? hex('#cfcdda') : hex('#e4e2ec');
-      if (x % 64 === 0 || x % 64 === 63) c = hex('#c8a040'); if (x % 64 === 1) c = hex('#f0d880');
-      if (y > 172) c = mix(c, hex('#4a4a60'), 0.35); if (y === MESA + 4) c = hex('#a8a6b8'); }
+    else { const v = Math.sin(x * 0.06 + y * 0.21 + Math.sin(y * 0.09) * 2) + 0.6 * Math.sin(x * 0.017 - y * 0.13);
+      c = v > 1.15 ? hex('#a8a6bc') : v > 0.95 ? hex('#c4c2d2') : hex('#dcdae6');
+      if (Math.abs(Math.sin(x * 0.045 + y * 0.17 + Math.sin(x * 0.021) * 3)) < 0.045) c = hex('#b09868');        // las vetas de oro viejo
+      if (Math.abs(Math.sin(x * 0.11 - y * 0.08 + Math.sin(y * 0.2) * 1.5)) < 0.03) c = hex('#9894aa');          // y las grises, finas
+      c = mix(c, hex('#3a3a58'), Math.min(0.55, (y - MESA - 4) / 60 + (hsh(x, y, 9) > 0.9 ? 0.08 : 0)));   // más sombra abajo
+      const sx = (x - t * 34) % 220, s = sx < 0 ? sx + 220 : sx; if (s < 14 && dz(x, y) < 0.5 - Math.abs(s - 7) / 16) c = mix(c, x < 160 ? LA : LR, 0.45);
+      for (const px of PANEL) { if (x === px || x === px - 1) c = hex('#a07a30'); if (x === px + 1) c = hex('#f0d880'); }
+      if (y === MESA + 4) c = hex('#6a6880'); if (y === MESA + 5) c = mix(c, hex('#4a4866'), 0.5); }
     pset(x, y, c); }
-  // en cada panel del frente, un medallón de oro con su gema que late
-  for (let k = 0; k < 5; k++) { const cx = 32 + k * 64, cy = 163; R.anillo(cx, cy, 7, hex('#8a6420')); R.anillo(cx, cy, 6, hex('#d8b048')); R.anillo(cx, cy, 5, hex('#f8d870'), 2);
-    disco(cx, cy, 2, Math.sin(t * 3 + k) > 0.5 ? hex('#8af0ff') : hex('#3a8ae8')); pset(cx - 1, cy - 1, hex('#ffffff')); for (const dx of [-14, 14]) { rect(cx + dx - 3, cy, cx + dx + 3, cy, hex('#c8a040')); pset(cx + dx, cy - 1, hex('#c8a040')); pset(cx + dx, cy + 1, hex('#c8a040')); } }
+  // 1 y 5: cajones con su tirador de aro y su cerradura
+  for (const [x0, x1, k] of [[3, 37, 0], [283, 317, 1]]) { const cx = (x0 + x1) >> 1; linea(x0 + 3, 155, x1 - 3, 155, hex('#8a8aa0')); linea(x0 + 3, 155, x0 + 3, 174, hex('#8a8aa0')); linea(x0 + 4, 174, x1 - 3, 174, hex('#f4f2fa')); linea(x1 - 3, 156, x1 - 3, 174, hex('#f4f2fa'));
+    R.anillo(cx, 167, 3, hex('#c8a040')); pset(cx, 163, hex('#f8d870')); pset(cx, 164, hex('#8a6420')); rect(cx - 1, 159, cx + 1, 160, hex('#8a6420')); pset(cx + 2, 165 + Math.round(Math.sin(t * 2 + k)), hex('#ffffff')); }
+  // 2: tres gemas en sus monturas de oro, que destellan por turnos
+  for (let k = 0; k < 3; k++) { const gx = 62 + k * 22, gy = 163, gc = [hex('#e83a5a'), hex('#3ac87a'), hex('#3a7ae8')][k];
+    R.poligono([[gx, gy - 6], [gx + 5, gy], [gx, gy + 6], [gx - 5, gy]], hex('#a07a30')); R.poligono([[gx, gy - 4], [gx + 3, gy], [gx, gy + 4], [gx - 3, gy]], gc);
+    pset(gx - 1, gy - 2, hex('#ffffff')); if (Math.floor(t * 2) % 3 === k) { pset(gx + 1, gy - 6, hex('#ffffff')); pset(gx + 2, gy - 7, hex('#fff6c0')); pset(gx, gy - 8, hex('#fff6c0')); } }
+  linea(50, 156, 118, 156, hex('#c8a040')); linea(50, 171, 118, 171, hex('#c8a040'));
+  // 3: el gran círculo de runas del centro, con su gema que late con el proyector
+  R.anillo(160, 163, 12, hex('#8a6420')); R.anillo(160, 163, 11, hex('#e8c060')); R.anillo(160, 163, 8, hex('#c8a040'), 2);
+  for (let k = 0; k < 6; k++) { const an = k / 6 * Math.PI * 2 + 0.52, an2 = an + 2.094; linea(Math.round(160 + Math.cos(an) * 8), Math.round(163 + Math.sin(an) * 8), Math.round(160 + Math.cos(an2) * 8), Math.round(163 + Math.sin(an2) * 8), hex('#b89040')); }
+  disco(160, 163, 3, Math.sin(t * 6) > 0 ? hex('#8af0ff') : hex('#3a9ae8')); pset(159, 162, hex('#ffffff'));
+  // 4: una rejilla por la que sale la luz azul del proyector (corre) y un medallón con su gema
+  for (let k = 0; k < 5; k++) { const yy = 157 + k * 3; linea(204, yy, 238, yy, hex('#2a2e44')); for (let x = 205; x < 238; x++) if ((x + k * 5 + Math.floor(t * 18)) % 12 < 4) pset(x, yy, hex('#5ad0f0')); }
+  R.anillo(258, 164, 7, hex('#8a6420')); R.anillo(258, 164, 6, hex('#d8b048')); disco(258, 164, 3, Math.sin(t * 3 + 2) > 0.3 ? hex('#ffa8e8') : hex('#c84ab8')); pset(257, 162, hex('#ffffff'));
   // el proyector en el centro del tablero
   rect(146, MESA - 4, 174, MESA - 1, hex('#2a3038')); rect(148, MESA - 4, 172, MESA - 4, hex('#6a7480')); rect(152, MESA - 3, 168, MESA - 3, Math.sin(t * 6) > 0 ? hex('#8af0ff') : hex('#5ad0f0'));
-  // sobre la mesa: una tableta que brilla, una bola de cristal, libros y una taza que humea
-  rect(64, MESA - 4, 90, MESA - 1, hex('#1a1e2a')); rect(66, MESA - 3, 88, MESA - 2, hex('#3a8ae8')); pset(70 + Math.floor(t * 4) % 16, MESA - 3, hex('#c8faff'));
-  disco(112, MESA - 6, 3, hex('#8ab0e8')); pset(111, MESA - 7, hex('#ffffff')); rect(109, MESA - 3, 115, MESA - 1, hex('#c8a040'));
+  // sobre la mesa: papeles, una tableta con su onda, una bola de cristal, libros, una taza que humea y un planetario que gira
+  rect(14, MESA - 2, 34, MESA - 1, hex('#e8e4d8')); rect(16, MESA - 3, 33, MESA - 3, hex('#f8f4e8')); linea(18, MESA - 3, 28, MESA - 3, hex('#9a9aa8')); rect(30, MESA - 4, 31, MESA - 3, hex('#c8a040'));
+  rect(64, MESA - 4, 90, MESA - 1, hex('#1a1e2a')); rect(66, MESA - 3, 88, MESA - 2, hex('#1a3a6a'));
+  for (let x = 66; x <= 88; x++) pset(x, MESA - 3 + (Math.sin(x * 0.8 - t * 6) > 0.3 ? 0 : 1), hex('#8af0ff'));
+  disco(112, MESA - 6, 3, hex('#8ab0e8')); pset(111, MESA - 7, hex('#ffffff')); pset(113, MESA - 5, Math.sin(t * 4) > 0 ? hex('#c8faff') : hex('#5a80c8')); rect(109, MESA - 3, 115, MESA - 1, hex('#c8a040'));
   rect(212, MESA - 9, 236, MESA - 7, hex('#7a2a2a')); rect(214, MESA - 6, 234, MESA - 4, hex('#2a4a7a')); rect(211, MESA - 3, 237, MESA - 1, hex('#3a6a3a'));
   for (const yy of [MESA - 9, MESA - 6, MESA - 3]) pset(236, yy, hex('#f2eee2'));
   rect(246, MESA - 7, 253, MESA - 1, hex('#f2eee2')); rect(247, MESA - 6, 252, MESA - 6, hex('#6a3a1a')); rect(254, MESA - 5, 255, MESA - 3, hex('#f2eee2'));
   for (let k = 0; k < 3; k++) { const ph = (t * 0.7 + k / 3) % 1; pset(249 + Math.round(Math.sin(ph * 6 + k) * 1.5), MESA - 9 - Math.round(ph * 10), hex('#c8c8d8')); }
+  rect(296, MESA - 2, 306, MESA - 1, hex('#8a6420')); linea(301, MESA - 3, 301, MESA - 8, hex('#c8a040')); disco(301, MESA - 11, 3, hex('#e8a040')); pset(300, MESA - 12, hex('#fff0c0'));
+  for (let k = 0; k < 12; k++) { const an = k / 12 * Math.PI * 2 + t * 1.2, px = Math.round(301 + Math.cos(an) * 7), py = Math.round(MESA - 11 + Math.sin(an) * 2); if (Math.sin(an) < 0 || k % 2) pset(px, py, hex('#c8a040')); }
+  { const an = t * 2.2; disco(Math.round(301 + Math.cos(an) * 7), Math.round(MESA - 11 + Math.sin(an) * 2), 1, hex('#5ad0f0')); }
 };
-// ── 3 · el santuario de noche: Clea sale del portal ──
+// ── 3 · la cripta del santuario: se abre el portal en el arco y sale Clea (fondo local) ──
+let cripta = null;
+const PIEDRA = ['#121119', '#1a1924', '#232230', '#2d2c3e', '#38374c', '#45445c', '#56556e'].map((s) => hex(s));
+const AX = 222, AY = 76, CF = [128, 132, 137, 143, 150, 158, 168, 181];
+const fondoCripta = () => {
+  const { rect, pset, disco, linea } = R;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { let v;
+    if (y < 24) {   // la bóveda en sombra con sus nervios (apagados en la barra del año y junto a Atom)
+      v = 1.1 + y / 24 * 0.9 + (hsh(x >> 2, y >> 1, 11) - 0.5) * 0.5;
+      const n = Math.min(Math.abs(y - (23 - ((x - 70) / 64) ** 2 * 10)), Math.abs(y - (23 - ((x - 214) / 66) ** 2 * 10)));
+      if (n < 1.2 && y > 14 && x < 270) v += 1.2;
+    } else if (y < 26) v = y === 24 ? 3.8 : 0.8;   // la cornisa
+    else if (y < 128) {   // el muro de sillares: juntas, cantos con luz y sombra, picaduras y manchas de humedad
+      const fil = Math.floor((y - 26) / 10), yy = (y - 26) % 10, off = fil % 2 ? 12 : 0, col = Math.floor((x + off) / 24), xx = (x + off) % 24;
+      if (yy === 9 || xx === 23) v = 0.4;
+      else { v = 2.3 + hsh(col, fil, 3) * 1.3 + (yy === 0 || xx === 0 ? 0.9 : 0) + (yy === 8 || xx === 22 ? -0.7 : 0) + (hsh(x, y, 5) > 0.92 ? -0.9 : 0) + (hsh(x, y, 6) > 0.96 ? 0.8 : 0) - Math.max(0, 1 - (y - 26) / 36);
+        if (hsh(x >> 1, fil, 9) > 0.92 && hsh(x >> 1, 0, 8) > 0.5) v -= 0.8; }
+    } else {   // el suelo de losas en perspectiva: filas que crecen hacia delante, juntas que convergen, desgaste en el centro
+      let fil = 0; while (CF[fil + 1] <= y) fil++;
+      const fy = (y - 128) / 52, esc = 0.3 + fy * 0.7, u = (x - 205) / esc + fil * 13, col = Math.floor(u / 30), m = u - col * 30;
+      if (y === CF[fil] || m * esc < 1) v = 0.5;
+      else { v = 2.2 + hsh(col, fil, 21) * 1.3 + (y === CF[fil] + 1 ? 0.9 : 0) - Math.abs(x - 190) / 170 + (hsh(x, y, 22) > 0.95 ? -0.9 : 0) + (Math.abs(x - 205) < 50 * esc + 20 && hsh(x >> 2, y, 23) > 0.7 ? 0.5 : 0); }
+    }
+    pset(x, y, ton(PIEDRA, v, x, y)); }
+  // el musgo y el verdín al pie del muro
+  for (let k = 0; k < 160; k++) { const x = Math.floor(hsh(k, 1, 30) * 320), y = 128 - Math.floor(hsh(k, 2, 30) ** 2 * 18); if (x > 178 && x < 266) continue; pset(x, y, hsh(k, 3, 30) > 0.5 ? hex('#2a3a2a') : hex('#3a4a32')); }
+  // el arco de medio punto del fondo: dovelas, pilastras con capitel y basa, y el nicho hondo donde se abrirá el portal
+  for (let y = 34; y < 128; y++) for (let x = 178; x <= 266; x++) { const dx = x - AX, dy = y - AY, r = dy < 0 ? Math.hypot(dx, dy) : Math.abs(dx); let v = null;
+    if (r < 30) { const bf = Math.floor((y - 26) / 6), bx = (x + (bf % 2 ? 7 : 0)) % 14; v = (y - 26) % 6 === 5 || bx === 13 ? 0.2 : 0.9 + hsh(bx, bf, 40) * 0.6 + (1 - r / 30) * 0.5 + Math.max(0, (y - 90) / 60); }
+    else if (r < 41) {
+      if (dy < 0) { const an = Math.atan2(dy, dx), sg = an / (Math.PI / 11), fr = sg - Math.floor(sg); v = fr < 0.08 || r > 40 ? 0.4 : 3.6 + hsh(Math.floor(sg), 0, 41) * 0.9 + (r < 31.5 ? 1.2 : 0) - (r > 38.5 ? 1 : 0); }
+      else if (y < AY + 4) v = y === AY ? 5.6 : y === AY + 3 ? 1 : 4.4;
+      else if (y > 121) v = y === 122 ? 5.2 : 3.4;
+      else { const ad = Math.abs(dx); v = (y - AY) % 12 === 0 ? 0.6 : ad < 32.5 ? 1.6 : (dx < 0 ? 4.8 - (ad - 32) * 0.18 : 3.4 - (ad - 32) * 0.12) + hsh(x, y, 42) * 0.4; }
+    } else if (dy >= -2 && dy < 4 && Math.abs(dx) < 44) v = dy === -2 ? 5.4 : dy === 3 ? 1 : 4.2;
+    else if (y > 120 && Math.abs(dx) < 44) v = y === 121 ? 5 : 3.2;
+    if (v !== null) pset(x, y, ton(PIEDRA, v, x, y)); }
+  // la clave del arco
+  rect(AX - 4, 33, AX + 4, 44, PIEDRA[1]); rect(AX - 3, 34, AX + 3, 43, PIEDRA[5]); rect(AX - 3, 34, AX + 3, 34, PIEDRA[6]); rect(AX + 2, 35, AX + 3, 43, PIEDRA[3]); disco(AX, 38, 1, hex('#8a6420'));
+  // la balda de la izquierda: tarros, un pergamino, una vela apagada y libros
+  rect(10, 66, 50, 68, hex('#5a3a22')); rect(10, 66, 50, 66, hex('#8a6038')); rect(10, 69, 50, 69, hex('#1a1210')); rect(14, 69, 15, 73, hex('#3a2418')); rect(45, 69, 46, 73, hex('#3a2418'));
+  for (const [x, w, h, col] of [[13, 5, 8, '#2a8a8a'], [20, 4, 6, '#c88a2a'], [26, 5, 9, '#7a3a9a']]) { rect(x, 66 - h, x + w, 65, hex(col)); rect(x + 1, 66 - h - 2, x + w - 1, 66 - h - 1, hex('#6a4a2a')); pset(x + 1, 66 - h + 2, hex('#ffffff')); rect(x + w, 66 - h + 1, x + w, 64, mix(hex(col), hex('#000000'), 0.4)); }
+  rect(33, 61, 42, 65, hex('#d8c8a0')); rect(33, 61, 42, 61, hex('#f0e4c0')); disco(33, 63, 2, hex('#b8a478')); disco(42, 63, 2, hex('#b8a478')); linea(37, 62, 37, 65, hex('#8a2a2a'));
+  rect(10, 92, 50, 94, hex('#5a3a22')); rect(10, 92, 50, 92, hex('#8a6038')); rect(10, 95, 50, 95, hex('#1a1210'));
+  for (let k = 0; k < 7; k++) { const x = 12 + k * 5, h = 9 + (k * 3) % 4, col = ['#6a2a2a', '#2a4a6a', '#4a5a2a', '#6a4a1a', '#3a2a5a', '#7a3a2a', '#2a5a5a'][k]; rect(x, 92 - h, x + 3, 91, hex(col)); rect(x, 92 - h, x, 91, mix(hex(col), hex('#ffffff'), 0.25)); pset(x + 1, 92 - h + 2, hex('#c8a040')); }
+  // el armero: cuatro báculos con su punta (cristal, media luna, gema y nudo) entre dos travesaños
+  for (const [x, top, col, punta] of [[102, 40, '#6a4a2a', 'cristal'], [112, 36, '#a07a30', 'luna'], [122, 42, '#2a2030', 'gema'], [132, 44, '#5a3a20', 'nudo']]) {
+    rect(x, top + 6, x + 1, 108, hex(col)); rect(x, top + 6, x, 108, mix(hex(col), hex('#ffffff'), 0.25));
+    if (punta === 'cristal') R.poligono([[x, top], [x + 3, top + 4], [x, top + 8], [x - 2, top + 4]], hex('#5ab0e8'));
+    if (punta === 'luna') { R.anillo(x, top + 3, 4, hex('#d8b048')); rect(x - 1, top - 2, x + 2, top + 1, PIEDRA[3]); }
+    if (punta === 'gema') { disco(x, top + 4, 3, hex('#8a6420')); disco(x, top + 4, 2, hex('#c83a4a')); }
+    if (punta === 'nudo') disco(x, top + 5, 3, hex('#6a4a2a')); }
+  for (const y of [52, 104]) { rect(96, y, 140, y + 3, hex('#4a2e1a')); rect(96, y, 140, y, hex('#7a5232')); rect(96, y + 4, 140, y + 4, PIEDRA[0]); for (const x of [98, 138]) disco(x, y + 1, 1, hex('#8a8a9a')); }
+  // los soportes de hierro de las dos antorchas
+  for (const x of [82, 160]) { rect(x - 1, 60, x + 1, 74, hex('#2a2a32')); rect(x - 3, 57, x + 3, 60, hex('#3a3a44')); rect(x - 3, 57, x + 3, 57, hex('#6a6a7a')); rect(x - 2, 70, x + 2, 72, hex('#3a3a44')); rect(x - 3, 52, x + 3, 56, hex('#4a3020')); }
+  // el pedestal con la reliquia: plinto de piedra con su moldura, cojín morado y campana de cristal
+  rect(46, 114, 66, 142, PIEDRA[1]); rect(47, 115, 65, 141, PIEDRA[4]); rect(47, 115, 49, 141, PIEDRA[6]); rect(61, 115, 65, 141, PIEDRA[2]);
+  rect(43, 110, 69, 114, PIEDRA[5]); rect(43, 110, 69, 110, PIEDRA[6]); rect(43, 142, 69, 145, PIEDRA[3]); rect(43, 145, 69, 145, PIEDRA[0]);
+  rect(49, 106, 63, 109, hex('#4a1a5a')); rect(49, 106, 63, 106, hex('#7a3a8a')); pset(49, 109, hex('#c8a040')); pset(63, 109, hex('#c8a040'));
+  // el arcón del primer plano, con sus flejes de hierro y la cerradura
+  rect(4, 150, 44, 176, hex('#140c08')); rect(5, 151, 43, 175, hex('#5a3820')); for (let y = 153; y < 175; y += 4) linea(6, y, 42, y, hex('#4a2c18'));
+  rect(5, 151, 43, 156, hex('#6a4428')); rect(5, 151, 43, 151, hex('#8a6038')); for (const x of [10, 37]) { rect(x, 151, x + 2, 175, hex('#3a3a44')); rect(x, 151, x, 175, hex('#6a6a7a')); }
+  rect(21, 157, 27, 163, hex('#a07a30')); rect(22, 158, 26, 162, hex('#d8b048')); pset(24, 160, hex('#1a1210')); pset(24, 161, hex('#1a1210')); rect(4, 176, 46, 178, PIEDRA[0]);
+  // un rollo de pergamino y un libro caídos, y el candelabro de pie de la derecha
+  rect(140, 170, 156, 174, hex('#d8c8a0')); rect(140, 170, 156, 170, hex('#f0e4c0')); disco(156, 172, 2, hex('#b8a478')); linea(148, 170, 148, 174, hex('#8a2a2a'));
+  rect(262, 168, 280, 173, hex('#2a3a6a')); rect(262, 168, 280, 168, hex('#4a5a9a')); rect(263, 170, 279, 172, hex('#e8e0c8')); rect(264, 164, 278, 167, hex('#6a2a2a')); rect(264, 164, 278, 164, hex('#8a4a3a'));
+  rect(299, 106, 301, 172, hex('#3a3a44')); rect(299, 106, 299, 172, hex('#7a7a8a')); for (const dx of [-6, 0, 6]) rect(300 + dx - 1, 172, 300 + dx + 1, 175, hex('#2a2a32')); rect(293, 174, 307, 175, hex('#1a1a22'));
+  rect(288, 108, 312, 109, hex('#4a4a56')); rect(288, 108, 312, 108, hex('#8a8a9a'));
+  for (const x of [289, 300, 311]) { rect(x - 2, 104, x + 2, 107, hex('#5a5a68')); rect(x - 1, 96, x + 1, 103, hex('#efe6d0')); pset(x + 1, 98, hex('#d8ccb0')); }
+};
 const p3 = (t) => {
-  const po = tramo(t, P3, c(0.13));
-  T.multiverso(R, t, { encuadre: 'santuario', camara: 'portal', luz: 'noche', portal: po, dentro: 'cosmos' });
-  const w = tramo(t, c(0.15), c(0.26));
-  R.actor(EL.strange, 96, 160, t, { dir: 1, sorpresa: t > c(0.15) && t < c(0.28) || t > c(0.4), habla: t > c(0.3) && t < c(0.4) && Math.sin(t * 8) > 0 });
-  if (w > 0) R.actor(EL.clea, Math.round(lerp(218, 150, w)), 160, t, { dir: -1, anda: w < 1, dedo: t > c(0.28), habla: t > c(0.279) && Math.sin(t * 9) > -0.2 });
-  T.multiversoDelante(R, t, { encuadre: 'santuario', camara: 'portal', luz: 'noche' });
+  if (!cripta) { cripta = R.nuevo(); const prev = R.usar(cripta); fondoCripta(); R.usar(prev); }
+  R.copiar(cripta);
+  const { pset, disco, linea } = R, po = tramo(t, P3, c(0.13));
+  // las antorchas y el candelabro: su luz cálida en la piedra, la llama que baila y el humo que sube
+  for (const [x, k] of [[82, 0], [160, 1]]) { luz(x, 62, 46, 40, hex('#ff9a3a'), 0.42 + 0.06 * Math.sin(t * 11 + k * 3)); llama(x, 52, t, k, 1.5);
+    for (let j = 0; j < 4; j++) { const u = (t * 0.6 + j / 4 + k * 0.3) % 1; pset(x + Math.round(Math.sin(u * 7 + j) * 2), 44 - Math.round(u * 16), u < 0.5 ? hex('#4a4250') : hex('#36303e')); } }
+  luz(300, 100, 26, 22, hex('#ffb050'), 0.3); for (const x of [289, 300, 311]) llama(x, 95, t, x, 0.9);
+  // la reliquia: un orbe que late bajo la campana de cristal (y reacciona al abrirse el portal)
+  const lat = 0.5 + 0.5 * Math.sin(t * 3) + po * 0.4; luz(56, 102, 16, 12, hex('#5ad0f0'), 0.25 + lat * 0.2);
+  disco(56, 102, 3, lat > 0.8 ? hex('#a8f0ff') : hex('#3a9ae8')); pset(55, 101, hex('#ffffff'));
+  R.anillo(56, 102, 7, hex('#6a8aa8')); for (let y = 102; y <= 106; y++) { pset(49, y, hex('#6a8aa8')); pset(63, y, hex('#6a8aa8')); } pset(53, 97, hex('#e8f8ff')); pset(52, 98, hex('#c8e0f0'));
+  // el círculo de runas del suelo, que se enciende al abrirse el portal (con marcas que giran)
+  for (let k = 0; k < 140; k++) { const an = k / 140 * Math.PI * 2, x = Math.round(AX + Math.cos(an) * 58), y = Math.round(156 + Math.sin(an) * 9);
+    if ((k + Math.floor(t * 8)) % 5 === 0) continue; pset(x, y, po > 0.3 ? (k % 2 ? hex('#ffb04a') : hex('#ffe070')) : hex('#5a5068')); }
+  for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2 + t * 0.5, x = Math.round(AX + Math.cos(an) * 50), y = Math.round(156 + Math.sin(an) * 7.5);
+    linea(x - 1, y, x + 1, y, po > 0.3 ? hex('#e88a3a') : hex('#4a4258')); pset(x, y - 1, po > 0.3 ? hex('#ffd860') : hex('#4a4258')); }
+  // el portal, en el nicho del arco
+  portal(AX, 100, po, t);
+  if (po > 0.5) luz(AX, 156, 70, 14, hex('#ff9a3a'), 0.3 * po);
+  // motas de polvo en la luz de las antorchas y del portal
+  polvo(t, 60, 40, 180, 120, 18, hex('#ffd890'), 5); if (po > 0.3) polvo(t * 1.3, 190, 60, 260, 130, 12, hex('#ffb0e0'), 6);
+  // Strange estudia la reliquia; al abrirse el portal se vuelve, sale Clea y él se acerca a ella; Clea le avisa
+  const gira = t > P3 + 0.5, w = tramo(t, c(0.15), c(0.26)), anda = tramo(t, c(0.29), c(0.37));
+  R.actor(EL.strange, Math.round(84 + 46 * anda), 160, t, { dir: gira ? 1 : -1, anda: anda > 0 && anda < 1, dedo: !gira, sorpresa: (t > c(0.15) && t < c(0.28)) || t > c(0.42), habla: t > c(0.37) && t < c(0.42) && Math.sin(t * 8) > 0 });
+  if (w > 0) R.actor(EL.clea, Math.round(lerp(AX, 190, w)), Math.round(lerp(140, 160, w)), t, { dir: -1, anda: w < 1, dedo: t > c(0.28), habla: t > c(0.279) && Math.sin(t * 9) > -0.2 });
 };
-// ── 4 · el santuario de noche: la seña y al portal ──
+// ── 4 · el rellano de arriba del santuario: la seña y al portal (fondo local) ──
+let rellano = null;
+const MAD = ['#140a08', '#1e100c', '#2a1610', '#381e14', '#48281a', '#5c3420', '#724428', '#8a5a34'].map((s) => hex(s));
+const MALVA = ['#120c1a', '#1a1226', '#221830', '#2c203c', '#382a4a'].map((s) => hex(s));
+const PX = 252, PY = 127, SU4 = 154;
+const fondoRellano = () => {
+  const { rect, pset, disco, linea } = R;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { let P = MAD, v;
+    if (y < 26) {   // el techo de casetones (liso y en sombra en la barra del año y sobre Atom)
+      const calma = x > 266 || (y < 15 && x < 176), vb = x % 44 < 3, hb = y === 12 || y === 13 || y === 24 || y === 25;
+      v = calma ? 1.2 + y / 26 * 0.5 : vb || hb ? 3.2 + (x % 44 === 0 || y === 12 || y === 24 ? 1 : 0) : 1.6 + Math.sin(x * 0.5 + Math.sin(y * 0.7) * 2) * 0.3 + (x % 44 === 3 ? -0.6 : 0);
+    } else if (y < 30) v = [5.4, 3, 6.6, 1][y - 26];   // la moldura dorada del techo
+    else if (y < 92) { P = MALVA;   // el estuco malva con su plantilla de rombos (tranquilo junto a Atom)
+      const calma = x > 266 && y < 50, ry = (x + y) % 14 === 0 || (x - y + 1400) % 14 === 0, pt = (x + 7) % 14 === 0 && (y + 7) % 14 === 0;
+      v = calma ? 1.4 + (y - 30) / 20 * 0.6 : 1.7 + (ry ? 0.9 : 0) + (pt ? 1.6 : 0) + (hsh(x, y, 50) - 0.5) * 0.5 - Math.max(0, (46 - y) / 30); }
+    else if (y < 94) v = y === 92 ? 7 : 4;   // la moldura de la madera
+    else if (y < 122) {   // el zócalo de paneles: marco con luz arriba e izquierda, sombra abajo y derecha, y veta dentro
+      const px = (x + 2) % 34, py = y - 94;
+      if (px < 3 || px > 30 || py < 3 || py > 24) v = px === 0 || py === 0 ? 6.4 : px === 33 || py === 27 ? 1 : 4.4;
+      else v = px === 3 || py === 3 ? 1.6 : px === 30 || py === 24 ? 5.2 : 2.6 + Math.sin(x * 0.6 + Math.sin(y * 0.25 + x * 0.05) * 3) * 0.6;
+    } else if (y < 125) v = y === 122 ? 4 : 1;
+    else {   // el parqué en espiga, más oscuro junto al zócalo
+      const b = Math.floor(x / 8), xx = x % 8, dg = b % 2 ? xx : 7 - xx, fl = Math.floor((y + dg) / 8);
+      v = xx === 0 || (y + dg) % 8 === 0 ? 1.2 : 3 + hsh(b, fl, 31) * 1.6 + ((y + dg) % 8 === 1 ? 0.8 : 0) - (y < 130 ? 1 : 0) + (hsh(x, y, 32) > 0.94 ? -0.8 : 0); }
+    pset(x, y, ton(P, v, x, y)); }
+  // la vidriera ojival de la izquierda: emplomado en rombos de colores apagados por la noche, parteluz y alféizar
+  for (let y = 34; y <= 88; y++) for (let x = 22; x <= 56; x++) { const dy = y - 51, q = dy < 0 ? Math.hypot(x - 39, dy) : Math.abs(x - 39); if (q > 17) continue;
+    let col; if (q > 15) col = q > 16 ? MAD[1] : MAD[6];
+    else if ((x - y + 400) % 8 === 0 || (x + y) % 8 === 0 || x === 39 || y === 68) col = hex('#0c0a12');
+    else { const id = Math.floor((x - y + 400) / 8) * 7 + Math.floor((x + y) / 8); col = hex(['#1e3a7a', '#3a2a8a', '#6a2a6a', '#2a5a6a', '#7a5a2a', '#24306a'][Math.floor(hsh(id, 0, 51) * 6)]); if (dz(x, y) < 0.12) col = mix(col, hex('#c8d8ff'), 0.4); }
+    pset(x, y, col); }
+  rect(18, 88, 60, 91, MAD[5]); rect(18, 88, 60, 88, MAD[7]); rect(18, 91, 60, 91, MAD[1]);
+  // tres hornacinas con sus reliquias (una máscara de oro, un reloj de arena y un cristal) y su repisa
+  for (const cx of [118, 156, 194]) { for (let y = 38; y <= 86; y++) for (let x = cx - 14; x <= cx + 14; x++) { const dy = y - 52, q = dy < 0 ? Math.hypot(x - cx, dy) : Math.abs(x - cx); if (q > 14) continue;
+      pset(x, y, q > 12 ? (q > 13 ? MAD[1] : (x < cx ? MAD[7] : MAD[4])) : ton(MALVA, 0.4 + (1 - q / 12) * 1.2 + (y - 40) / 50, x, y)); }
+    rect(cx - 15, 84, cx + 15, 87, MAD[5]); rect(cx - 15, 84, cx + 15, 84, MAD[7]); rect(cx - 13, 88, cx + 13, 88, MAD[1]); }
+  // la máscara de oro
+  disco(118, 72, 8, hex('#8a6420')); disco(118, 72, 7, hex('#d8b048')); R.poligono([[111, 70], [118, 62], [125, 70]], hex('#f0d070'));
+  rect(113, 71, 116, 72, hex('#2a1a10')); rect(120, 71, 123, 72, hex('#2a1a10')); rect(117, 74, 119, 77, hex('#b8902a')); rect(115, 79, 121, 79, hex('#8a6420')); rect(116, 80, 120, 83, hex('#5a3a22'));
+  // el reloj de arena (la arena se pinta viva)
+  rect(149, 64, 163, 66, MAD[6]); rect(149, 82, 163, 83, MAD[6]); rect(150, 66, 150, 82, MAD[4]); rect(162, 66, 162, 82, MAD[4]);
+  for (let y = 67; y <= 81; y++) { const w = Math.max(1, Math.round(Math.abs(y - 74) * 0.7)); pset(156 - w - 1, y, hex('#8aa8c8')); pset(156 + w + 1, y, hex('#8aa8c8')); }
+  // el cristal en su peana
+  rect(189, 80, 199, 83, MAD[6]); rect(191, 78, 197, 79, MAD[5]);
+  // la puerta del fondo, en arco: el pasillo hondo con su suelo en perspectiva y una lamparilla al final; jambas y clave
+  for (let y = 40; y < 125; y++) for (let x = PX - 22; x <= PX + 22; x++) { const dy = y - 62, q = dy < 0 ? Math.hypot(x - PX, dy) : Math.abs(x - PX); if (q > 22) continue;
+    let col; if (q > 18) col = q > 21 ? MAD[1] : x < PX ? (q > 19.5 ? MAD[7] : MAD[5]) : MAD[3];
+    else { const d = Math.max(Math.abs(x - PX) / 18, (y - 92) / 32, (92 - y) / 40); col = ton(MAD, 0.2 + d * 2.4 + (y > 100 && (y - x + 400) % 6 === 0 ? 0.6 : 0), x, y); if (Math.abs(x - PX) < 3 && Math.abs(y - 90) < 4) col = ton(MALVA, 2.4, x, y); }
+    pset(x, y, col); }
+  rect(PX - 3, 37, PX + 3, 43, MAD[6]); rect(PX - 3, 37, PX + 3, 37, MAD[7]);
+  // a la derecha, un aplique de dos velas y una consola con libros y un cuenco
+  rect(292, 74, 300, 76, hex('#a07a30')); rect(295, 70, 297, 80, hex('#8a6420')); for (const x of [292, 300]) { rect(x - 1, 66, x + 1, 73, hex('#efe6d0')); pset(x + 1, 68, hex('#d8ccb0')); }
+  rect(282, 110, 318, 113, MAD[5]); rect(282, 110, 318, 110, MAD[7]); rect(284, 114, 286, 124, MAD[3]); rect(314, 114, 316, 124, MAD[3]); rect(284, 114, 316, 116, MAD[4]);
+  for (const [x, h, col] of [[288, 8, '#6a2a2a'], [292, 6, '#2a4a6a'], [295, 9, '#4a5a2a']]) { rect(x, 110 - h, x + 2, 109, hex(col)); pset(x, 110 - h + 1, hex('#c8a040')); }
+  disco(308, 107, 4, hex('#3a6a8a')); rect(303, 103, 313, 106, MAD[0]); disco(308, 106, 3, hex('#5a9ab8')); pset(306, 105, hex('#c8f0ff'));
+  // la alfombra de pasillo, roja con cenefa de oro, rombos y su trama
+  for (let y = 140; y <= 160; y++) for (let x = 0; x < 320; x++) { let col;
+    if (y === 140 || y === 160) col = hex('#3a0a12'); else if (y === 142 || y === 158) col = hex('#d8b048'); else if (y === 143 || y === 157) col = hex('#8a6420');
+    else { const m = x % 18, ry = Math.abs(m - 9) + Math.abs(y - 150) * 1.1; col = ry < 4 ? hex('#d8b048') : ry < 6 ? hex('#3a1a3a') : ry < 7 ? hex('#8a6420') : (x + y) % 3 === 0 ? hex('#5a1018') : hex('#7a1a24'); }
+    if (y > 155) col = mix(col, hex('#1a0408'), 0.25); pset(x, y, col); }
+};
+// la barandilla del primer plano: pasamanos con luz y sombra, balaustres torneados y tres pilares con su bola
+const balaustrada = () => { const { rect, pset, disco } = R;
+  for (let x = 2; x < 320; x += 9) { for (let y = 167; y < 180; y++) { const w = [1, 2, 2, 1, 1, 2, 3, 3, 2, 1, 1, 2, 2][y - 167]; for (let i = -w; i <= w; i++) pset(x + i, y, i === -w ? MAD[6] : i === w ? MAD[1] : MAD[4]); } }
+  rect(0, 162, 319, 166, MAD[1]); rect(0, 162, 319, 163, MAD[6]); rect(0, 162, 319, 162, MAD[7]); rect(0, 165, 319, 165, MAD[3]);
+  for (const x of [6, 150, 312]) { rect(x - 5, 150, x + 5, 179, MAD[1]); rect(x - 4, 151, x + 4, 179, MAD[4]); rect(x - 4, 151, x - 3, 179, MAD[6]); rect(x + 3, 151, x + 4, 179, MAD[2]);
+    rect(x - 6, 148, x + 6, 150, MAD[5]); rect(x - 6, 148, x + 6, 148, MAD[7]); disco(x, 144, 3, MAD[5]); pset(x - 1, 143, MAD[7]); rect(x - 2, 156, x + 2, 170, MAD[3]); rect(x - 2, 156, x + 2, 156, MAD[6]); }
+};
 const p4 = (t) => {
-  T.multiverso(R, t, { encuadre: 'santuario', camara: 'general', luz: 'noche', portal: 1 - tramo(t, P5 - 0.8, P5 - 0.1), portalX: 236 });
-  const va = tramo(t, c(0.771), c(0.93)), entra = tramo(t, c(0.913), c(0.98));
+  if (!rellano) { rellano = R.nuevo(); const prev = R.usar(rellano); fondoRellano(); R.usar(prev); }
+  R.copiar(rellano);
+  const { pset, disco, linea, rect } = R;
+  // la lámpara de araña: cadena, aro de latón, velas que bailan, lágrimas de cristal y su luz cálida en techo y estuco
+  linea(214, 0, 214, 17, hex('#6a5a3a')); for (let y = 1; y < 17; y += 3) pset(215, y, hex('#a08a5a'));
+  luz(214, 26, 80, 34, hex('#ffb050'), 0.3 + 0.04 * Math.sin(t * 9));
+  rect(200, 22, 228, 23, hex('#a07a30')); rect(200, 22, 228, 22, hex('#f0d070')); rect(212, 17, 216, 21, hex('#8a6420')); disco(214, 26, 2, hex('#8a6420'));
+  for (const x of [201, 208, 214, 220, 227]) { rect(x - 1, 18, x + 1, 21, hex('#efe6d0')); llama(x, 17, t, x, 0.8); pset(x, 25 + (x % 2), Math.sin(t * 3 + x) > 0.4 ? hex('#ffffff') : hex('#a8c8e8')); }
+  // el haz de luna que entra por la vidriera y cae en diagonal sobre el parqué, con sus motas de polvo
+  for (let y = 89; y < 162; y++) { const x0 = Math.round(26 + (y - 89) * 0.7), x1 = Math.round(52 + (y - 89) * 0.7); for (let x = x0; x <= x1; x++) if (dz(x, y) < 0.22 + 0.04 * Math.sin(t * 1.5)) pset(x, y, mix(R.pget(x, y), hex('#a8c0ff'), 0.45)); }
+  polvo(t, 30, 92, 100, 156, 16, hex('#d0e0ff'), 7);
+  for (let k = 0; k < 3; k++) { const id = Math.floor(t * 1.3 + k * 5) % 40, x = 26 + (id * 7) % 26, y = 40 + (id * 11) % 44; if (R.pget(x, y) !== hex('#0c0a12') && x !== 39) pset(x, y, hex('#e8f0ff')); }
+  // las reliquias vivas: el brillo que recorre la máscara, la arena que cae y el cristal que late; las velitas de la repisa
+  { const gx = 111 + Math.floor(t * 9) % 30; if (gx < 126) { pset(gx, 66, hex('#fff6c0')); pset(gx + 1, 67, hex('#ffffff')); } }
+  const ar = (t * 0.12) % 1, arc = hex('#e8c070');
+  for (let y = 67; y <= 73; y++) { const w = Math.max(0, Math.round(Math.abs(y - 74) * 0.7) - 0); if (y - 67 >= Math.round(ar * 6)) for (let i = -w; i <= w; i++) pset(156 + i, y, arc); }
+  for (let y = 75; y <= 81; y++) if (81 - y < Math.round(ar * 6) + 1) { const w = Math.round(Math.abs(y - 74) * 0.7); for (let i = -w; i <= w; i++) pset(156 + i, y, arc); }
+  for (let y = 74; y <= 80; y++) if ((y + Math.floor(t * 16)) % 2) pset(156, y, arc);
+  const lc = 0.5 + 0.5 * Math.sin(t * 2.6); luz(194, 70, 14, 14, hex('#6ad0ff'), 0.2 + lc * 0.25);
+  R.poligono([[194, 62], [198, 70], [194, 78], [190, 70]], lc > 0.6 ? hex('#a8f0ff') : hex('#4ab0e8')); linea(194, 63, 194, 77, hex('#e8faff')); pset(192, 68, hex('#ffffff'));
+  for (const x of [292, 300]) { luz(x, 63, 14, 12, hex('#ffb050'), 0.25); llama(x, 65, t, x + 3, 0.8); }
+  // el portal, delante de la puerta del fondo: abierto mientras habla Clea y se cierra cuando entran
+  const pa = 1 - tramo(t, P5 - 1.2, P5 - 0.3);
+  portal(PX, PY, pa, t);
+  if (pa > 0.2) luz(PX, SU4 + 2, 60, 10, hex('#ff9a3a'), 0.3 * pa);
   // la visión de la incursión que ha causado: dos planetas que se tocan sobre su cabeza
+  const llega = tramo(t, P4, c(0.6)), va = tramo(t, c(0.8), c(0.98)), cv = tramo(t, c(0.84), c(0.9));
+  const sx = Math.round(lerp(lerp(60, 118, llega), PX, va));
   const vi = tramo(t, c(0.572), c(0.62)) - tramo(t, c(0.72), c(0.76));
-  if (vi > 0) { const sep = Math.round(10 - 3 * Math.abs(Math.sin(t * 4))), r = Math.round(8 * vi); R.anillo(150, 96, Math.round(20 * vi), hex('#8a6ae8'), 2);
-    R.disco(150 - sep, 96, r + 1, hex('#c8faff')); R.disco(150 - sep, 96, r, hex('#3a8ae8')); R.disco(150 + sep, 96, r + 1, hex('#ffd8f0')); R.disco(150 + sep, 96, r, hex('#e866c0')); if (sep < 8) { R.pset(150, 96, hex('#ffffff')); R.pset(150, 94, hex('#fff6a0')); R.pset(150, 98, hex('#fff6a0')); } }
-  if (entra < 1) R.actor(EL.strange, Math.round(lerp(140, 230, va)), 152, t, { dir: 1, anda: va > 0 && va < 1, sorpresa: t > c(0.55) && t < c(0.7) });
-  if (entra < 0.6) R.actor(EL.clea, Math.round(220 + 10 * entra), 152, t, { dir: -1, dedo: t < c(0.9), habla: t < c(0.8) && Math.sin(t * 8) > 0 });
-  T.multiversoDelante(R, t, { encuadre: 'santuario', camara: 'general', luz: 'noche' });
+  if (vi > 0) { const vx = 118, vy = 104, sep = Math.round(10 - 3 * Math.abs(Math.sin(t * 4))), r = Math.round(8 * vi); R.anillo(vx, vy, Math.round(20 * vi), hex('#8a6ae8'), 2);
+    disco(vx - sep, vy, r + 1, hex('#c8faff')); disco(vx - sep, vy, r, hex('#3a8ae8')); disco(vx + sep, vy, r + 1, hex('#ffd8f0')); disco(vx + sep, vy, r, hex('#e866c0')); if (sep < 8) { pset(vx, vy, hex('#ffffff')); pset(vx, vy - 2, hex('#fff6a0')); pset(vx, vy + 2, hex('#fff6a0')); } }
+  // Strange llega del lado de la escalera y se para; Clea, junto al portal, le hace la seña, entra la primera y él la sigue
+  if (sx < PX - 2) R.actor(EL.strange, sx, SU4, t, { dir: 1, anda: (llega > 0 && llega < 1) || (va > 0 && va < 1), sorpresa: t > c(0.572) && t < c(0.72) });
+  if (cv < 0.9) R.actor(EL.clea, Math.round(lerp(218, PX, cv)), SU4, t, { dir: cv > 0 ? 1 : -1, anda: cv > 0 && cv < 1, dedo: t < c(0.8) && Math.sin(t * 5) > -0.6, habla: t < c(0.8) && Math.sin(t * 8) > 0 });
+  // chispas al cruzar cada uno el portal
+  for (const t0 of [c(0.9), c(0.98)]) { const u = (t - t0) / 0.5; if (u > 0 && u < 1) for (let k = 0; k < 10; k++) { const an = k * 0.63; pset(Math.round(PX + Math.cos(an) * (6 + u * 18)), Math.round(PY + 10 + Math.sin(an) * (6 + u * 14)), k % 2 ? hex('#ffe070') : hex('#ff9a3a')); } }
+  balaustrada();
 };
 // ── 5 · el autocine (fondo local) ──
 let autocine = null;
@@ -193,7 +462,7 @@ const p6 = (t) => {
   if (t > d(0.94) && t < d(0.94) + 0.6) { const r = Math.round(4 + (t - d(0.94)) * 50); R.anillo(160, 66, r, hex('#ffffff')); R.anillo(160, 66, r - 2, hex('#fff6a0')); R.disco(160, 66, Math.max(1, 7 - Math.round((t - d(0.94)) * 10)), hex('#ffffff')); }
   T.escenarioDelante(R, t, { encuadre: 'prensa', camara: 'general', flashes: fl });
 };
-const efectos = [[GOLPE, 'boing'], [COL2, 'boing'], [a(0.65), 'whoosh'], [a(0.88), 'zumbido'], [P3 + 0.1, 'whoosh'], [c(0.244), 'brillo'], [c(0.572), 'pop'], [c(0.93), 'whoosh'], [d(0.276), 'boom'], [d(0.29), 'publico'], [d(0.94), 'flash']];
+const efectos = [[GOLPE, 'boing'], [COL2, 'boing'], [a(0.65), 'whoosh'], [a(0.88), 'zumbido'], [P3 + 0.1, 'whoosh'], [c(0.244), 'brillo'], [c(0.572), 'pop'], [c(0.98), 'whoosh'], [d(0.276), 'boom'], [d(0.29), 'publico'], [d(0.94), 'flash']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: (t) => (t >= P6 ? 2026 : 2022) });
 </script>
 </body>

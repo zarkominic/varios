@@ -15,8 +15,12 @@
 // 2. fondo local: el escritorio de un fan de noche: el portátil con el directo de las sillas, el reloj de pared con las
 //    agujas que vuelan, la ventana que pasa de la noche al alba y el reloj digital que llega a 5:30 en «five and a half
 //    hours»; las palomitas cabecean de sueño. Corta en «showed».
-// 3. fondo local (inserto): la pantalla del portátil de cerca: pasan las sillas, cada una con su pictograma y su nombre en
-//    barras; las palomitas cuentan con los dedos, una silla, otra, otra… y se marean (gag 8). Corta en «27».
+// 3. fondo local (inserto): la pantalla del portátil de cerca (marco de aluminio cepillado, pared del cuarto a los lados):
+//    en el directo, telón de terciopelo con pliegues que se mece y fleco dorado, parrilla de focos con cabezales que
+//    barren con polvo en los haces, suelo negro con juntas, leds que corren; al fondo un técnico cruza con una silla
+//    plegada y una cámara graba; pasan las sillas con su sombra, su pictograma y su nombre en barras; el reproductor
+//    lleva el tiempo, los espectadores que suben y la barra. Teclado con teclas en relieve y la luz violeta de la
+//    pantalla. Las palomitas cuentan con los dedos, una silla, otra, otra… y se marean (gag 8). Corta en «27».
 // 4. «escenario plato silla»: el panel llega a 27 en «27 appeared»; en «the last one» la técnica cuelga la capa verde en
 //    la última silla y el haz se enciende; en «Robert Downey Jr.» él entra con sus gafas de sol, sonríe y saltan flashes.
 //    Corta en «according».
@@ -175,29 +179,93 @@ const p2 = (t) => {
 };
 // 3 · fondo local (inserto): la pantalla del portátil de cerca, con las sillas y su nombre en barras
 const fondo3 = () => capa('pantalla', () => {
-  // el canto del portátil (marco gris oscuro con la cámara) y, abajo, el teclado sobre la mesa
-  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y < 148 ? hex('#2a2a32') : hex('#a8703e'));
-  R.rect(16, 6, 304, 146, hex('#3a3a46')); R.rect(16, 6, 304, 6, hex('#5a5a6a')); R.rect(22, 12, 298, 140, K); R.disco(160, 9, 1, hex('#1a1a22'));
-  R.rect(0, 146, 319, 179, hex('#b8bcc8')); R.rect(0, 146, 319, 147, hex('#e8ecf4'));
-  for (let j = 0; j < 3; j++) for (let i = 0; i < 22; i++) { const x = 8 + i * 14 + j * 4, y = 152 + j * 9; R.rect(x, y, x + 11, y + 6, hex('#4a4e5a')); R.rect(x, y, x + 11, y, hex('#6a6e7a')); R.rect(x + 1, y + 6, x + 11, y + 6, hex('#2a2e36')); }
-  R.rect(110, 178, 210, 179, hex('#9a9eaa'));
+  // a los lados del portátil, la pared del cuarto de noche (el papel de rayas del plano 2, en penumbra)
+  for (let y = 0; y < 148; y++) for (let x = 0; x < 320; x++) { let c = (x % 12 < 6) ? hex('#1e1c38') : hex('#1a1834'); if (x % 12 === 3 && y % 10 === 4) c = hex('#2e2a50'); if (hh(x, y, 9) < 0.03) c = mez(c, K, 0.4); R.pset(x, y, c); }
+  // el marco del portátil: aluminio oscuro cepillado, con luz arriba, sombra abajo y cantos
+  for (let y = 6; y <= 146; y++) for (let x = 16; x <= 304; x++) { let c = mez(hex('#4c4c5c'), hex('#2a2a36'), (y - 6) / 140); if (hh(x >> 3, y, 3) < 0.18) c = mez(c, hex('#62627a'), 0.35); R.pset(x, y, c); }
+  R.rect(16, 6, 304, 6, hex('#7a7a8c')); R.rect(16, 7, 16, 146, hex('#5e5e70')); R.rect(304, 7, 304, 146, hex('#1a1a24')); R.rect(17, 7, 303, 7, hex('#5a5a6c'));
+  R.rect(22, 12, 298, 140, K); R.rect(23, 13, 297, 13, hex('#14141c'));
+  R.disco(160, 9, 1, hex('#14141c')); R.pset(160, 9, hex('#3a4a8a')); R.pset(159, 8, hex('#8a9ad8'));
+  R.rect(30, 143, 290, 144, hex('#18181f')); R.rect(30, 145, 290, 145, hex('#3a3a48'));
+  // el teclado sobre la mesa: aluminio claro cepillado, bisagra con su sombra y teclas con cara, brillo y sombra
+  for (let y = 146; y < 180; y++) for (let x = 0; x < 320; x++) { let c = mez(hex('#c8ccd8'), hex('#9a9eac'), (y - 146) / 34); if (hh(x >> 3, y, 5) < 0.22) c = mez(c, hex('#e0e4ee'), 0.4); else if (hh(x >> 4, y, 6) < 0.08) c = mez(c, hex('#80848f'), 0.3); R.pset(x, y, c); }
+  R.rect(0, 146, 319, 146, hex('#f2f6fc')); R.rect(16, 147, 304, 148, hex('#6a6e7a')); R.rect(16, 149, 304, 149, hex('#8a8e9a'));
+  for (let j = 0; j < 3; j++) for (let i = 0; i < 22; i++) { const x = 8 + i * 14 + j * 4, y = 152 + j * 9;
+    R.rect(x - 1, y - 1, x + 12, y + 7, hex('#7e828e'));                    // el hueco de la tecla
+    R.rect(x + 1, y + 6, x + 12, y + 7, hex('#5a5e6a'));                    // su sombra sobre el aluminio
+    R.rect(x, y, x + 11, y + 6, hex('#202228')); R.rect(x + 1, y, x + 10, y + 4, hex('#464a5a')); R.rect(x + 10, y + 1, x + 10, y + 4, hex('#34374a'));
+    R.rect(x + 1, y, x + 10, y, hex('#7a7e94')); R.pset(x + 1, y + 1, hex('#a0a4b8')); R.pset(x + 2, y + 1, hex('#80849a'));
+    R.rect(x + 1, y + 5, x + 10, y + 5, hex('#1a1c22')); }
+  R.rect(110, 178, 210, 179, hex('#7e828e')); R.rect(111, 179, 209, 179, hex('#3e4250'));
 });
+// colores del directo (el telón en cinco tonos de pliegue, el suelo, los haces)
+const TEL = ['#1c0a3a', '#2e1458', '#43207a', '#5e3496', '#8a5ac8'].map(hex), OSC = hex('#0a0418');
+const ORO = hex('#c8a040'), ORO2 = hex('#8a6a28'), ORO3 = hex('#5a4018'), SU0 = hex('#1c1828'), SU1 = hex('#06060c'), JUN = hex('#2a2440'), JUN2 = hex('#040408');
+const FOCOS = [[52, 0], [106, 1], [160, 0], [214, 1], [268, 0]], HAZ = [hex('#fff0c0'), hex('#d8b0ff')];
+const comas = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const p3 = (t) => {
   pegar(fondo3());
-  // el directo: ciclorama violeta con haces, suelo negro brillante y la fila de sillas que pasa de derecha a izquierda
+  const pulso = 0.5 + 0.5 * Math.sin(t * 1.3);
+  // el directo, recortado a la pantalla: telón de terciopelo con pliegues que se mece, suelo negro brillante con juntas
   R.recorte([24, 14, 296, 138]);
-  for (let y = 14; y < 139; y++) { const k = (y - 14) / 70; for (let x = 24; x < 297; x++) { let c = y < 84 ? mez(hex('#2a1450'), hex('#6a3aa8'), k) : mez(hex('#141420'), hex('#08080e'), (y - 84) / 54);
-    if (y < 84 && (x + Math.floor(t * 3)) % 37 < 2) c = mez(c, hex('#a87ae8'), 0.3); if (y >= 84 && hh(x >> 1, y, 4) < 0.03) c = hex('#2a2a3a'); R.pset(x, y, c); } }
-  for (const bx of [70, 160, 250]) for (let y = 14; y < 120; y++) { const w = Math.round((y - 14) * 0.18); for (let x = bx - w; x <= bx + w; x++) if ((x + y) % 2 === 0) R.pset(x, y, mez(R.pget(x, y), hex('#fff0c0'), 0.25)); }
+  for (let y = 14; y < 139; y++) {
+    if (y < 84) { const k = (y - 14) / 70, sw = Math.sin(t * 0.9) * 3 * k, ond = Math.sin(y * 0.07 + t * 0.6) * 0.3;
+      for (let x = 24; x < 297; x++) { let c;
+        if (y >= 79) c = y === 79 ? ORO : y === 83 ? TEL[0] : (x + (y & 1)) % 3 ? ORO2 : ORO3;   // el bajo con su fleco dorado
+        else { const f = Math.sin((x + sw) * 0.31 + ond) + Math.sin(x * 0.083 + 1) * 0.4; c = TEL[f > 1.05 ? 4 : f > 0.5 ? 3 : f > -0.3 ? 2 : f > -0.9 ? 1 : 0]; if (f > 0.85 && f < 1.05 && (x + y) % 2) c = TEL[4];
+          if (k < 0.5) c = mez(c, OSC, (0.5 - k) * 1.1); }
+        R.pset(x, y, c); } }
+    else { const k = (y - 84) / 54, d = y - 62, base = mez(SU0, SU1, k);
+      for (let x = 24; x < 297; x++) { const fu = (x - 160) * 7 / d; let c = base;
+        if (Math.floor(fu) !== Math.floor(fu + 7 / d)) c = JUN;                                    // juntas en perspectiva
+        else if (y === 88 || y === 94 || y === 102 || y === 113 || y === 128) c = JUN2;
+        else if (y < 92 && hh(x, y, 2) < 0.25) c = mez(c, TEL[2], 0.25 * (1 - (y - 84) / 8));     // el reflejo del telón
+        else if (hh(x >> 1, y, 4) < 0.02) c = hex('#2a2a3a');
+        R.pset(x, y, c); } } }
+  // la tira de leds del borde del escenario, con la luz que corre
+  for (let x = 24; x < 297; x += 3) R.pset(x, 84, (x + Math.floor(t * 24)) % 30 < 6 ? hex('#f0c8ff') : hex('#5a2a8a'));
+  // la parrilla de focos: celosía de tubo con sus cantos y los cabezales móviles colgados
+  R.linea(24, 15, 296, 15, hex('#7a7a8a')); R.linea(24, 16, 296, 16, hex('#4a4a58')); R.linea(24, 21, 296, 21, hex('#5a5a6a')); R.linea(24, 22, 296, 22, hex('#2a2a34'));
+  for (let x = 24; x < 297; x += 8) { R.linea(x, 16, x + 4, 21, hex('#5a5a6a')); R.linea(x + 4, 21, x + 8, 16, hex('#3e3e4a')); }
+  const ang = FOCOS.map(([fx, ci], i) => 0.38 * Math.sin(t * 0.8 + i * 1.3));
+  FOCOS.forEach(([fx, ci], i) => { const a = ang[i], dx = Math.round(Math.sin(a) * 3);
+    R.linea(fx - 4, 23, fx + 4, 23, hex('#3a3a46')); R.linea(fx - 4, 23, fx - 4, 28, hex('#3a3a46')); R.linea(fx + 4, 23, fx + 4, 28, hex('#2a2a34'));
+    R.disco(fx, 27, 3, hex('#22222a')); R.linea(fx - 2, 25, fx + 1, 25, hex('#5a5a6a')); R.disco(fx + dx, 29, 2, HAZ[ci]); R.pset(fx + dx - 1, 28, BL); });
+  // los técnicos del plató, al fondo: uno cruza con una silla plegada para colocarla; la cámara del directo con su piloto
+  const cu = tramo(t, P3 + 0.1, P4 - 0.7), cx = Math.round(lerp(28, 196, cu)), deja = cu >= 1;
+  const st = R.actor(EL.tecnico, cx, 91, t, { dir: 1, anda: cu > 0 && cu < 1, sostiene: deja ? undefined : true, sonrisa: deja });
+  const plegada = (mx, my) => { R.linea(mx - 2, my - 7, mx + 2, my + 7, hex('#6a4420')); R.linea(mx + 2, my - 7, mx - 2, my + 7, hex('#a8763a')); R.rect(mx - 3, my - 8, mx + 3, my - 6, hex('#1e1e26')); };
+  if (deja) plegada(cx + 20, 84); else plegada(...st.mano);
+  R.actor(EL.tecnica, 258, 91, t, { dir: -1, habla: Math.sin(t * 7) > 0.4 && (t % 3) < 1.2 });
+  for (const [dx, c] of [[-6, hex('#3a3a46')], [0, hex('#5a5a6a')], [6, hex('#3a3a46')]]) R.linea(250, 79, 250 + dx, 91, c);
+  R.rect(242, 71, 256, 79, K); R.rect(243, 72, 255, 78, hex('#4a4a56')); R.rect(243, 72, 255, 72, hex('#8a8a9a')); R.rect(238, 73, 242, 77, K); R.pset(239, 75, hex('#8ab8e8'));
+  R.pset(254, 70, Math.sin(t * 5) > 0 ? hex('#ff3a3a') : hex('#801a1a'));
+  // los haces que barren, con polvo que flota dentro, y su charco de luz en el suelo
+  FOCOS.forEach(([fx, ci], i) => { const ta = Math.tan(ang[i]), col = HAZ[ci];
+    for (let y = 31; y < 132; y++) { const c0 = fx + (y - 31) * ta, w = 1 + (y - 31) * 0.15, a0 = Math.round(c0 - w), a1 = Math.round(c0 + w);
+      for (let x = Math.max(24, a0); x <= Math.min(296, a1); x++) { const nucleo = Math.abs(x - c0) < w * 0.35;
+        if (nucleo ? (x + y) % 2 === 0 : (x + y) % 4 === 0) R.pset(x, y, mez(R.pget(x, y), col, nucleo ? 0.34 : 0.22)); } }
+    const px = fx + 101 * ta; for (let j = -3; j <= 3; j++) for (let k = -18; k <= 18; k++) { if ((k / 18) ** 2 + (j / 3.4) ** 2 > 1 || (k + j) % 2) continue; const x = Math.round(px + k), y = 128 + j; if (x < 24 || x > 296) continue; R.pset(x, y, mez(R.pget(x, y), col, 0.3)); }
+    for (let k = 0; k < 9; k++) { const s = (hh(i, k, 1) + t * 0.06 * (0.6 + hh(k, i, 2))) % 1, y = 34 + s * 90, w = 1 + (y - 31) * 0.15, x = fx + (y - 31) * ta + (hh(k, i, 3) - 0.5) * w * 1.6 + Math.sin(t * 1.5 + k) * 1.2;
+      if (x > 24 && x < 296) R.pset(Math.round(x), Math.round(y), (k + Math.floor(t * 3)) % 4 ? mez(col, BL, 0.4) : BL); } });
+  // la fila de sillas que pasa de derecha a izquierda, cada una con su sombra en el suelo y su nombre en barras
   const vel = 46, sp = 64;
   for (let k = -1; k < 6; k++) { const off = (t * vel) % sp, x = Math.round(300 - k * sp + off - sp), id = Math.floor(t * vel / sp) + k;
+    for (let j = 0; j < 4; j++) for (let i = -22 + j; i <= 22 - j; i++) { const sx = x + i + 3, sy = 132 + j; if (sx < 24 || sx > 296 || (i + j) % 2 && j > 1) continue; R.pset(sx, sy, mez(R.pget(sx, sy), K, 0.55)); }
     sillaDir(x, 132, 2.4, hex('#1a1a22'), (cx, cy) => { PIC[((id % 9) + 9) % 9](cx, cy - 1); });
-    const by = 132 - Math.round(12 * 2.4) - Math.round(10 * 2.4) + Math.round(6 * 2.4) + 4; R.rect(x - 12, by, x + 12, by + 1, hex('#e8e4dc')); R.rect(x - 8, by + 4, x + 8, by + 5, hex('#9a96a8'));
-    for (let j = 0; j < 8; j++) { const lx = x + (j - 4) * 3; R.pset(lx, 134, hex('#2a2a3a')); } }
-  // el piloto rojo del directo y el contador de tiempo del vídeo
+    const by = 132 - Math.round(12 * 2.4) - Math.round(10 * 2.4) + Math.round(6 * 2.4) + 4; R.rect(x - 12, by, x + 12, by + 1, hex('#e8e4dc')); R.rect(x - 8, by + 4, x + 8, by + 5, hex('#9a96a8')); }
+  // el reproductor: piloto rojo y tiempo del directo arriba; abajo, los espectadores (un ojo y la cifra que sube) y la barra
   R.disco(36, 24, 3, Math.sin(t * 4) > 0 ? hex('#ff3a3a') : hex('#a01a1a'));
   const seg = Math.floor(4 * 3600 + 12 * 60 + (t - P3) * 37); R.numero(Math.floor(seg / 3600) + ':' + String(Math.floor(seg / 60) % 60).padStart(2, '0') + ':' + String(seg % 60).padStart(2, '0'), 46, 28, { color: hex('#f2eee2') });
+  for (let y = 117; y <= 127; y++) for (let x = 200; x <= 292; x++) if ((x + y) % 2 || y === 117 || y === 127) R.pset(x, y, mez(R.pget(x, y), K, 0.7));
+  { const ox = 204, oy = 122; for (let i = -5; i <= 5; i++) { const h = Math.round((1 - (i / 5.5) ** 2) * 3.2); for (let j = -h; j <= h; j++) R.pset(ox + i, oy + j, Math.abs(j) === h ? K : BL); R.pset(ox + i, oy - h - 1, BL); R.pset(ox + i, oy + h + 1, BL); } R.disco(ox, oy, 2, hex('#3a8ae8')); R.pset(ox, oy, K); R.pset(ox + 1, oy - 1, BL); }
+  R.numero(comas(1874300 + (t - P3) * 2650), 212, 126, { color: hex('#f2eee2') });
+  R.linea(30, 135, 290, 135, hex('#5a5a6a')); const prog = Math.round(lerp(30, 290, 0.764 + (t - P3) * 0.002)); R.linea(30, 135, prog, 135, hex('#e83a3a')); R.linea(30, 136, prog, 136, hex('#a01a1a')); R.disco(prog, 135, 2, hex('#ff5a5a')); R.pset(prog - 1, 134, BL);
+  // el reflejo del cristal: dos bandas diagonales tenues que no llegan a la esquina de Atom
+  for (let k = 0; k < 70; k++) for (const [o, wd] of [[0, 3], [9, 1]]) for (let q = 0; q < wd; q++) { const x = 196 + o + q + k, y = 84 - k; if (y < 15 || x > 272) continue; R.pset(x, y, mez(R.pget(x, y), BL, 0.1)); }
   R.recorte(null);
+  // la luz de la pantalla sobre el teclado: violeta, más fuerte cerca de la bisagra, y late con los haces
+  for (let y = 147; y < 168; y++) { const a = (1 - (y - 147) / 21) * (0.16 + 0.08 * pulso); for (let x = 0; x < 320; x++) { const e = Math.min(1, Math.min(x - 8, 312 - x) / 40); if (e <= 0 || (x + y) % 2) continue; R.pset(x, y, mez(R.pget(x, y), hex('#9a6ae8'), a * e)); } }
   // las palomitas en el teclado: cuentan las sillas con los dedos, una, dos… cinco, y se marean
   const c = Math.min(5, 1 + Math.floor(tramo(t, P3 + 0.3, cada - 0.5, ) * 5)), mareo = t > cada - 0.3;
   T.palomitas(R, 70, 176, t, { s: 2, dir: 1, cuenta: mareo ? undefined : c, expresion: mareo ? 'mareo' : 'normal' });

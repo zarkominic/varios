@@ -18,7 +18,8 @@
 //    las cinco cajas de pie en fila; cada una da un salto adelante y brilla cuando la voz dice su título (guante,
 //    cuernos, garras, asterisco, 4) y las palomitas cuentan con los dedos 1–5; en «Four», saltan de emoción;
 // 3. «…Disney recommends fifteen titles, starting with the first X-Men movie in 2000» (fondo local, el salón con la
-//    tele): el fan del mando la enciende; en la tele salen quince carátulas una a una y en «fifteen» un 15 grande; en
+//    tele): el fan del mando la enciende; en la tele salen quince carátulas una a una (iconos: aspa, diana rellena,
+//    cruz, triángulo; ninguno se lee como letra) y en «fifteen» un 15 grande; en
 //    «X-Men» la primera crece con su X y en «2000» sale el año; las palomitas, en el mueble, se asustan y se emocionan;
 // 4. «With those, you'll understand the branches of time, the numbers of the Earths» (fondo local, el corcho del mapa
 //    de cerca): en «branches» crecen las ramas de luz desde la «?» del centro; en «numbers of the Earths» salen las
@@ -235,7 +236,7 @@ const p3 = (t) => {
     const x0 = 66 + c * 27, y0 = 50 + f * 21 + Math.round((1 - sal) * 6), col = hex(TILE[i]), dim = zoom > 0 ? 0.55 : 0;
     R.rect(x0, y0, x0 + 22, y0 + 18, K); R.rect(x0 + 1, y0 + 1, x0 + 21, y0 + 17, mez(col, hex('#18224a'), dim)); R.rect(x0 + 1, y0 + 13, x0 + 21, y0 + 17, mez(mez(col, K, 0.4), hex('#18224a'), dim));
     const ix = x0 + 11, iy = y0 + 7, ci = mez(hex('#f2eee2'), hex('#18224a'), dim);
-    if (i % 4 === 0) { R.linea(ix - 3, iy - 3, ix + 3, iy + 3, ci); R.linea(ix + 3, iy - 3, ix - 3, iy + 3, ci); } else if (i % 4 === 1) R.anillo(ix, iy, 3, ci); else if (i % 4 === 2) { R.rect(ix - 3, iy - 1, ix + 3, iy + 1, ci); R.rect(ix - 1, iy - 3, ix + 1, iy + 3, ci); } else R.poligono([[ix, iy - 4], [ix + 4, iy + 3], [ix - 4, iy + 3]], ci); }
+    if (i % 4 === 0) { R.linea(ix - 3, iy - 3, ix + 3, iy + 3, ci); R.linea(ix + 3, iy - 3, ix - 3, iy + 3, ci); } else if (i % 4 === 1) { R.disco(ix, iy, 3.5, ci); R.disco(ix, iy, 2.2, mez(col, K, 0.35 + dim * 0.3)); R.disco(ix, iy, 1, ci); } else if (i % 4 === 2) { R.rect(ix - 3, iy - 1, ix + 3, iy + 1, ci); R.rect(ix - 1, iy - 3, ix + 1, iy + 3, ci); } else R.poligono([[ix, iy - 4], [ix + 4, iy + 3], [ix - 4, iy + 3]], ci); }
   // el 15 en «fifteen»
   const q = tramo(t, QUINCE - 0.1, QUINCE + 0.2) - tramo(t, XMEN - 0.6, XMEN - 0.3);
   if (q > 0) { R.rect(108, 62, 152, 88, K); R.rect(110, 64, 150, 86, hex('#e8b830')); R.rect(112, 66, 148, 84, hex('#1e2a5a')); R.numero('15', 130, 84 - Math.round((1 - q) * 4), { tam: 16, centro: true }); }

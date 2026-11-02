@@ -12,9 +12,14 @@
 // DO-GALACTUS (frases 50–51), 2025. Tres planos:
 // 1. (sesenta cielo 'familia') en la azotea, Sue con Franklin en brazos y Reed; en «Franklin» los juguetes salen de la
 //    caja y flotan (gag 7); en «Galactus arrives» el gigante morado sube detrás de la ciudad; se queda mirando el pato que
-//    flota (los ojos lo siguen); en «devours planets» se traga una luna que pasaba;
-// 2. (fondo local, el espacio morado) Galactus se acerca a la 828; en «enormous power» el poder de Franklin late y manda
-//    ondas; en «They refuse» la cúpula de fuerza de Sue salta y lo rebota; en «whole family» cuatro chispas la rodean;
+//    flota (los ojos lo siguen); en «devours planets» se traga una luna que pasaba; sube solo hasta gigante 0,72 para que
+//    las alas del casco no lleguen a la barra del año (puntas en y ≥ 22);
+// 2. (fondo local, el espacio morado) Galactus (galactusVivo: el del decorado con textura de armadura, cara modelada y
+//    energía que sube por las alas del casco) se acerca a la 828; en «wants the child» alza su brazo derecho (el de la
+//    pieza, girado sobre el hombro) hacia el planeta, abre la boca y la mano brilla; en «senses» le sale un haz violeta
+//    que tira de la 828, y en «enormous power» el poder de Franklin late y manda ondas; en «They refuse» la cúpula de
+//    fuerza de Sue corta el haz, lo rebota, el brazo sale despedido hacia arriba y vuelve a bajar en guardia, con la ceja
+//    fruncida y la boca apretada; en «whole family» cuatro chispas la rodean;
 // 3. (sesenta cielo 'general') los cuatro en la azotea: se abre el portal azul; en «banish» el campo de fuerza, las llamas
 //    de Johnny y los puñetazos de la Cosa lo empujan y Galactus se va por el portal; en «Earth-828 is saved» el portal se
 //    cierra y la familia lo celebra.
@@ -141,7 +146,8 @@ function caja(x, y) {   // la caja de juguetes de madera (pie en y)
 const SALIDA = [[100, 146], [106, 147], [112, 146], [98, 145], [116, 144]];
 const g1 = (t) => {
   const sube = ease(tramo(t, A.galactus, A.llega + 1.2));
-  const s = T.sesenta(R, t, { encuadre: 'cielo', camara: 'familia', gigante: sube }), su = s.suelo ?? 165;
+  // gigante hasta 0,72: la cara se queda en y≈84 y las puntas del casco no suben de y 22 (la barra del año queda libre)
+  const s = T.sesenta(R, t, { encuadre: 'cielo', camara: 'familia', gigante: sube * 0.72 }), su = s.suelo ?? 165;
   // la luna que pasa y se traga
   const lu = tramo(t, A.devora - 0.5, A.planetas + 0.15);
   if (s.galactus && lu < 1) { const [bx, by] = [s.galactus.x + 2, s.galactus.y + 3 * s.galactus.s], mx = lerp(112, bx, ease(lu)), my = lerp(34, by, ease(lu)) - Math.sin(lu * Math.PI) * 10, r = 6 * (1 - lu * 0.7);
@@ -184,6 +190,88 @@ function galactusLuz(cx, pie, s, t, brillo) {   // Galactus con luz de contorno 
   // los ojos
   const ex = cx - 12 * s + 10 * s, ey = pie - 35 * s + 9 * s; for (const dx of [0, 3 * s]) { R.rect(ex + dx, ey, ex + dx + s - 1, ey + s - 1, brillo > 0.5 ? CIAN : hex('#e8f0ff')); if (brillo > 0) for (let k = 0; k < 4; k++) R.pset(ex + dx + s + k * 2, ey + Math.round(s / 2) - k, mez(R.pget(ex + dx + s + k * 2, ey + 1), CIAN, brillo)); }
 }
+// el aura de rayos detrás de la cabeza (la misma corona que pinta galactusGrande, aquí aparte para poder borrar el brazo
+// colgante sin agujerear el aura)
+const tranqH = (x, y) => (x > 274 && y < 48) || (y < 16 && x > 16 && x < 174);
+function corona(t, cx, cy, r, a) {
+  const B = R.buf, solL = hex('#fffce8'), halo = hex('#fff4c8'), aura = hex('#c8a0ff');
+  for (let y = Math.max(0, cy - r); y <= Math.min(179, cy + r); y++) for (let x = Math.max(0, cx - r); x <= Math.min(319, cx + r); x++) { if (tranqH(x, y)) continue; const d = Math.hypot(x - cx, (y - cy) * 1.15) / r; if (d >= 1) continue;
+    const an = Math.atan2(y - cy, x - cx), ry = 0.5 + 0.5 * Math.sin(an * 9 + t * 0.6) * Math.sin(an * 5 - t * 0.4), q = (1 - d) * (0.35 + ry * 0.65) * a;
+    if (bay(x, y) < q) B[y * 320 + x] = mez(B[y * 320 + x], d < 0.35 ? solL : ry > 0.6 ? halo : aura, 0.55); }
+}
+const PG = { k: hex('#1c1222'), U: hex('#3a5ac8'), u: hex('#283e94'), A: hex('#6a3aa8'), a: hex('#4a2480'), S: hex('#b89ad8'), s: hex('#8a6ab0') };
+const BRAZO = { c0: 17, c1: 22, f0: 17, f1: 23 };   // el brazo derecho de la pieza (columnas y filas, en celdas)
+let sv = null, brz = null;
+// Galactus en el espacio (pies en gx, gy; escala 4): corona, la pieza sombreada del decorado, y encima, desde la escena:
+// textura de armadura (juntas de placas, remaches, tramado) en el traje azul y el casco, cara modelada (luz a la izquierda,
+// sombra de mejilla, ceja que se frunce, boca que se abre al querer al niño y aprieta al rebotar), energía que sube por
+// las alas del casco, y su propio brazo derecho (el de la pieza, girado sobre el hombro) que se alza hacia la 828
+function galactusVivo(gx, gy, t, avanza, rebota) {
+  const s = 4, x0 = gx - 12 * s, y0 = gy - 35 * s, fx = gx - s / 2, fy = gy - 25 * s;
+  corona(t, Math.round(fx), fy + 2 * s, 17 * s, 1);
+  if (!sv) sv = new Uint32Array(320 * 180); sv.set(R.buf);
+  T.galactusGrande(R, gx, gy, t, { s, pie: true, aura: 0 });
+  // el mapa de colores de la pieza (sin sombrear), para saber qué es traje, casco o cara
+  if (!tg) tg = R.nuevo(); tg.fill(0); { const prev = R.usar(tg); T.PIEZAS_DO.galactus(R, gx, gy, { s, ojos: false }); R.usar(prev); }
+  const BF = R.buf, KD = hex('#0e0618'), LUZ = hex('#e8d8ff'), VIO = hex('#e0b8ff');
+  const quiere = ease(tramo(t, A.nino - 0.3, A.nota)), carga = tramo(t, A.nino, B.niega), enfado = t > B.niega;
+  // la energía que sube por las alas del casco mientras alarga el brazo (y parpadea al rebotar)
+  const onda = (t * 26) % (12 * s);
+  for (let y = Math.max(0, y0); y <= Math.min(179, gy); y++) for (let x = Math.max(0, x0); x < Math.min(320, x0 + 24 * s); x++) {
+    const c = tg[y * 320 + x]; if (!c || c === PG.k) continue; const i = Math.floor((x - x0) / s), j = Math.floor((y - y0) / s), lx = (x - x0) % s, ly = (y - y0) % s, bb = bay(x, y), p = y * 320 + x;
+    let k = BF[p];
+    if (c === PG.U || c === PG.u) {   // el traje: placas con juntas, remaches con brillo, tramado de sombra
+      if (ly === 0 && j % 2 === 0) k = mez(k, KD, 0.24);
+      else if (lx === 0 && (i + (j >> 1)) % 3 === 0) k = mez(k, KD, 0.2);
+      else if (ly === 1 && lx === 1 && h(i, j, 11) > 0.62) k = mez(k, LUZ, 0.4);
+      else if (ly === 3 && lx === 2 && h(i, j, 11) > 0.62) k = mez(k, KD, 0.3);
+      else if (bb < 0.12 + h(i, j, 12) * 0.12) k = mez(k, KD, 0.14);
+      else if (lx === 1 && ly === 2 && (i + j) % 4 === 0) k = mez(k, hex('#7a9aff'), 0.25);
+    } else if (c === PG.A || c === PG.a) {   // el casco y las botas: estrías, remaches y la energía que sube por las alas
+      const ala = (i <= 5 || i >= 17) && j <= 11;
+      if ((y - y0) % 3 === 0 && !ala) k = mez(k, KD, 0.16);
+      if (lx === 2 && ly === 2 && h(i, j, 13) > 0.7) k = mez(k, LUZ, 0.45);
+      if (ala && carga > 0) { const yy = (y - y0), dd = Math.abs(yy - (12 * s - onda)); if (dd < 3 && bb < (1 - dd / 3) * (0.3 + 0.6 * carga) * (enfado && Math.sin(t * 40) > 0 ? 0.3 : 1)) k = mez(k, VIO, 0.6); }
+      else if (ala && bb < 0.1) k = mez(k, KD, 0.18);
+    } else if (c === PG.S || c === PG.s) {   // la cara (y los guantes): luz por la izquierda, sombra de mejilla tramada
+      const fxr = (x - (x0 + 8 * s)) / (7 * s);
+      if (fxr < 0.3 && ly < 2 && bb < 0.35) k = mez(k, LUZ, 0.25);
+      if (fxr > 0.62 && bb < (fxr - 0.62) * 1.6) k = mez(k, hex('#4a2a70'), 0.3);
+      if (j >= 11 && j <= 12 && bb < 0.18) k = mez(k, hex('#6a4a90'), 0.22);
+    }
+    BF[p] = k;
+  }
+  // la cara: ceja que se frunce, sombra de la nariz y la boca (se abre al querer al niño; aprieta al rebotar)
+  { const cx = x0 + 11.5 * s, by = y0 + 9 * s - 2, fr = enfado ? 2 : quiere > 0.5 ? 1 : 0;
+    for (const ex of [x0 + 9.5 * s, x0 + 12.5 * s]) for (let q = -3; q <= 3; q++) { const dentro = (ex < cx ? q : -q) + 3; R.pset(Math.round(ex + q), by + Math.round(dentro / 6 * fr) - (fr ? 1 : 0), KD); }
+    R.pset(Math.round(cx), y0 + 11 * s, hex('#6a4a90')); R.pset(Math.round(cx) + 1, y0 + 11 * s + 1, hex('#6a4a90'));
+    const my = y0 + 12 * s, ab = enfado ? 0 : Math.round(quiere * 2 + (quiere > 0.5 ? Math.max(0, Math.sin(t * 5)) : 0));
+    R.rect(Math.round(cx - 4), my, Math.round(cx + 4), my + ab, KD); if (ab > 1) R.rect(Math.round(cx - 3), my + 1, Math.round(cx + 3), my + ab - 1, hex('#3a1450'));
+    if (enfado) for (let q = -3; q <= 3; q += 2) R.pset(Math.round(cx + q), my, hex('#e8e0f0')); }
+  // el brazo derecho: se recorta de la pieza ya pintada, se borra (queda el fondo con la corona) y se pinta girado
+  const bx0 = x0 + BRAZO.c0 * s, bx1 = x0 + BRAZO.c1 * s - 1, by0 = y0 + BRAZO.f0 * s, by1 = y0 + BRAZO.f1 * s - 1, W = bx1 - bx0 + 1, Hh = by1 - by0 + 1;
+  if (!brz) brz = new Uint32Array(64 * 64); brz.fill(0);
+  for (let y = by0; y <= by1; y++) for (let x = bx0; x <= bx1; x++) { if (x < 0 || x > 319 || y < 0 || y > 179 || !tg[y * 320 + x]) continue; brz[(y - by0) * 64 + (x - bx0)] = BF[y * 320 + x]; BF[y * 320 + x] = sv[y * 320 + x]; }
+  for (let x = bx0; x <= bx1; x++) if (tg[(by0 - 1) * 320 + x] && tg[(by0 - 1) * 320 + x] !== PG.k) R.pset(x, by0, K);   // el filo de abajo del hombro
+  // el ángulo: cuelga; con «wants the child» se alza hacia la 828 (con los dedos que se cierran); la cúpula se lo
+  // rechaza: el brazo sale despedido hacia arriba y vuelve a bajar a medias, en guardia
+  const px = x0 + 19 * s + 2, py = by0 + 1, ap = Math.atan2(100 - py, 240 - px) - Math.PI / 2;
+  let th = ap * ease(tramo(t, A.nino - 0.2, A.nota + 0.1)) + (quiere > 0.9 && !enfado ? Math.sin(t * 4) * 0.05 : 0);
+  if (rebota > 0) th = ap - 0.9 * Math.sin(Math.min(1, rebota * 1.6) * Math.PI) * (1 - rebota * 0.3) + rebota * 0.55 + Math.sin(t * 3) * 0.03;
+  const ca = Math.cos(-th), sa = Math.sin(-th), rr = Math.hypot(W, Hh) + 2;
+  for (let y = Math.max(0, Math.floor(py - rr)); y <= Math.min(179, Math.ceil(py + rr)); y++) for (let x = Math.max(0, Math.floor(px - rr)); x <= Math.min(319, Math.ceil(px + rr)); x++) {
+    if (tranqH(x, y)) continue; const dx = x + 0.5 - px, dy = y + 0.5 - py, sx = Math.floor(px + dx * ca - dy * sa - bx0), sy = Math.floor(py + dx * sa + dy * ca - by0);
+    if (sx < 0 || sy < 0 || sx >= W || sy >= Hh) continue; const c = brz[sy * 64 + sx]; if (c) R.pset(x, y, c); }
+  // la mano: dónde queda, y la energía que tira de la 828 (se corta contra la cúpula y salta en chispas)
+  const hx = px - Math.sin(th) * 15, hy = py + Math.cos(th) * 15;
+  if (carga > 0 && !enfado) {   // el resplandor tramado de la mano que tira (late) y sus chispas
+    const rg = 5 + carga * 3 + Math.sin(t * 8) * 1.2; for (let y = Math.floor(hy - rg); y <= hy + rg; y++) for (let x = Math.floor(hx - rg); x <= hx + rg; x++) { const d = Math.hypot(x - hx, y - hy) / rg; if (d < 1 && !tranqH(x, y) && bay(x, y) < (1 - d) * 0.7) R.pset(x, y, mez(R.pget(x, y), VIO, 0.5)); }
+    const n = 3 + Math.round(carga * 4); for (let k = 0; k < n; k++) { const an = t * 7 + k * 2.1, r = 4 + Math.sin(t * 9 + k) * 2; chispa(Math.round(hx + Math.cos(an) * r), Math.round(hy + Math.sin(an) * r), t, k, VIO); } }
+  const haz = tramo(t, A.nota, A.nota + 0.6);
+  if (haz > 0 && t < B.niega + 0.1) { const tx = 240, ty = 100, L = Math.hypot(tx - hx, ty - hy), cu = tramo(t, B.niega - 0.05, B.niega + 0.25), rc = 52 * ease(cu);
+    for (let i = 0; i <= L * haz; i++) { const u = i / L, X = Math.round(hx + (tx - hx) * u), Y = Math.round(hy + (ty - hy) * u + Math.sin(i * 0.35 - t * 14) * 2 * (1 - u * 0.5)); if (rc > 0 && Math.hypot(X - 250, Y - 110) < rc + 1) break; if (tranqH(X, Y)) continue;
+      R.pset(X, Y, (i + Math.floor(t * 20)) % 4 ? VIO : BLANCO); if (bay(X, Y + 1) < 0.5) R.pset(X, Y + 1, mez(R.pget(X, Y + 1), hex('#9a5ae8'), 0.6)); } }
+}
 const g2 = (t) => {
   R.copiar(fondoEspacio('morado', PM)); vidaEspacio(t, PM, 2);
   const avanza = ease(tramo(t, G2, B.niega)), rebota = ease(tramo(t, B.niega + 0.05, B.niega + 0.8));
@@ -196,7 +284,7 @@ const g2 = (t) => {
     for (let k = 0; k < 4; k++) R.linea(sx - 6 - k, sy + (k - 1.5) * 3, sx - 2, sy, CIAN);
     for (let w = 0; w < 3; w++) { const r = ((t - A.poder + w * 0.5) % 1.5) * 70; if (t < A.poder || t > B.niega || r < 8) continue;
       for (let an = 2.2; an < 4.1; an += 0.02) { const px = sx + Math.cos(an) * r, py = sy + Math.sin(an) * r * 0.9; if (!tranquila(px, py) && bay(px, py) < 0.7 - r / 140) R.pset(px, py, CIAN); } } }
-  T.galactusGrande(R, gx, gy, t, { s: 4, pie: true });   // el Galactus sombreado del decorado (pasada de decorados del 19)
+  galactusVivo(gx, gy, t, avanza, rebota);   // el Galactus sombreado del decorado, con textura, cara y el brazo que se alza
   // la cúpula de fuerza de Sue: salta en «They refuse» y le rebota
   const cu = tramo(t, B.niega - 0.05, B.niega + 0.25);
   if (cu > 0) { const r = 52 * ease(cu) + (rebota > 0 && rebota < 1 ? Math.sin(t * 30) * 1.5 * (1 - rebota) : 0);

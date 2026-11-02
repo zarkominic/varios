@@ -17,7 +17,9 @@
 //    su telaraña en «protecting», le dispara una telaraña y lo deja pegado a la papelera; le devuelve el bolso y, en
 //    «forgot him», a ella le sale un «?»: no sabe quién es; él agacha la cabeza. Corta en «and».
 // 3. «mundo nyhoy general» (la azotea al atardecer): Spider-Man aterriza en la azotea y mira la valla, donde la entrada y
-//    la flecha de la taquilla suben en «biggest opening weekend»; en «ever» salta con los brazos arriba. Corta en «and».
+//    la flecha de la taquilla suben en «biggest opening weekend»; en «ever» salta con los brazos arriba. El vecino riega
+//    las tomateras de la jardinera con la regadera inclinada (el chorro cae en la tierra), da un paso a la siguiente mata
+//    y en «ever» deja de regar, se acerca a Spider-Man y levanta la regadera. Corta en «and».
 // 4. «mundo nyhoy taquilla» (la fachada del cine): la cola de fans avanza hacia las puertas; en «re-release of Endgame» el
 //    cartel del guante destella; en «back on top» baja la corona dorada y los fans levantan los brazos. Corta en «The».
 // 5. fondo local: el mostrador de la taquilla de cerca: una balanza de latón con monedas y el guante en un platillo; en
@@ -122,6 +124,29 @@ const p2 = (t) => {
   if (t > vuelve) bolso(tu.mano[0], tu.mano[1] + 2);
   if (t > olvidan) globo(204, 128, '?');
 };
+// la regadera de lata verde en la mano (hx, hy); inclinada: el pitorro hacia abajo a la derecha y el chorro cae en la
+// tierra de la jardinera (y 133) con salpicaduras; derecha: gotea de vez en cuando
+const regadera = (hx, hy, inclinada, t) => {
+  const V = hex('#3a8a5a'), VL = hex('#6aca8a'), VS = hex('#22583a'), A = hex('#8ac8f0'), AL = hex('#d8f0ff');
+  // la mano agarra el asa (a su izquierda); la lata cuelga a la derecha, con su brillo y su sombra
+  R.rect(hx + 1, hy - 3, hx + 4, hy - 3, VS); R.pset(hx + 1, hy - 2, VS); R.pset(hx + 1, hy - 1, VS);
+  R.rect(hx + 2, hy - 2, hx + 7, hy + 2, V); R.rect(hx + 2, hy - 2, hx + 7, hy - 2, VL); R.rect(hx + 2, hy + 2, hx + 7, hy + 2, VS); R.pset(hx + 3, hy - 1, VL); R.rect(hx + 7, hy - 1, hx + 7, hy + 1, VS);
+  if (inclinada) {
+    // el pitorro sale de abajo y sube en diagonal hasta la alcachofa, que mira hacia la tierra
+    for (let i = 0; i <= 4; i++) R.pset(hx + 8 + i, hy + 1 - (i >> 1), i & 1 ? VS : V);
+    const sx = hx + 13, sy = hy - 1; R.rect(sx, sy, sx + 1, sy + 1, VS); R.pset(sx + 1, sy, VL);
+    // el chorro en hilos de gotas que caen hasta la tierra, entre las matas, y salpican
+    const fondo = 132;
+    for (let k = 0; k < 3; k++) for (let j = 0; j < 4; j++) {
+      const f = (t * 2.2 + j / 4 + k * 0.29) % 1, y = Math.round(sy + 2 + f * (fondo - sy - 2)), x = Math.round(sx + k * 0.8 + f * (0.5 + k * 0.7));
+      if (y < fondo) R.pset(x, y, (j + k) & 1 ? A : AL);
+    }
+    for (let k = 0; k < 3; k++) { const f = (t * 3 + k / 3) % 1, x = Math.round(sx + 1 + (k - 1) * (1 + f * 3)), y = Math.round(fondo - Math.sin(f * Math.PI) * 3); R.pset(x, y, AL); }
+  } else {
+    R.rect(hx + 8, hy + 1, hx + 10, hy, V); R.rect(hx + 11, hy - 1, hx + 11, hy + 1, VS);
+    const f = (t * 1.4) % 1; if (f < 0.6) R.pset(hx + 11, Math.round(hy + 2 + f * 16), A);   // una gota que se escapa
+  }
+};
 // 3 · la azotea: la flecha de la taquilla sube en la valla
 const p3 = (t) => {
   T.mundo(R, t, { encuadre: 'nyhoy', flecha: tramo(t, taquilla, s(0.938)) });
@@ -130,10 +155,16 @@ const p3 = (t) => {
   const brinca = t > nunca && t < nunca + 1.1 ? Math.round(Math.abs(Math.sin((t - nunca) * 6)) * 9) : 0;
   R.actor(EL.spiderman, x, 164, t, { dir: -1, salto: u < 1 ? alto : brinca, brazos: (u < 1 && u > 0) || brinca > 0, dedo: u >= 1 && t > taquilla && t < nunca, quieto: u < 1 });
   if (brinca > 0) for (let k = 0; k < 5; k++) chispa(176 + Math.cos(k * 1.3 + t * 4) * 16, 128 + Math.sin(k * 1.3 + t * 4) * 9);
-  // el vecino de la azotea de al lado riega las plantas y mira también
-  R.actor(EL.vecino, 104, 164, t, { dir: 1, sostiene: true, sorpresa: t > nunca && t < nunca + 1, sonrisa: t > nunca + 1 });
-  if (t < nunca) for (let k = 0; k < 3; k++) { const yy = 148 + ((t * 30 + k * 4) % 12); R.pset(122 + k, Math.round(yy), hex('#8ac8f0')); }
-  R.rect(117, 145, 123, 149, hex('#3a8a5a')); R.rect(118, 146, 122, 148, hex('#5aba7a')); R.pset(124, 146, hex('#3a8a5a'));
+  // el vecino riega las tomateras de la jardinera (x 118–156, tierra en y ~133): la regadera inclinada sobre ellas y el
+  // chorro cae en la tierra; a media frase da un paso a la siguiente mata; en «ever» deja de regar, da dos pasos hacia
+  // Spider-Man, se sorprende y levanta la regadera para celebrarlo
+  const paso1 = tramo(t, taquilla - 0.15, taquilla + 0.45), paso2 = tramo(t, nunca, nunca + 0.55), riega = t < nunca;
+  const vx = Math.round(96 + paso1 * 7 + paso2 * 12), anda = (paso1 > 0 && paso1 < 1) || (paso2 > 0 && paso2 < 1);
+  const vs = 144, vyC = vs - 13;   // suelo del vecino, delante de la jardinera; vyC: arriba del cuerpo (altoCuerpo 13)
+  const meneo = Math.sin(t * 2.4) * 2;   // al regar mueve la regadera de una mata a otra
+  const obj = riega ? [vx + 22 + meneo, vyC - 14] : t > nunca + 0.7 ? [vx + 24, vyC - 2 + Math.round(Math.sin(t * 9))] : true;
+  const vec = R.actor(EL.vecino, vx, vs, t, { dir: 1, anda, sostiene: obj, sorpresa: t > nunca && t < nunca + 0.8, sonrisa: t > nunca + 0.8 });
+  regadera(vec.mano[0], vec.mano[1], riega, t);
 };
 // 4 · la taquilla: la cola, el guante y la corona
 const p4 = (t) => {

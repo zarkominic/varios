@@ -17,9 +17,11 @@
 // 3. (fondo local, la esquina de los sesenta) cafetería googie, el monorraíl pasa por arriba; en «finned cars» un coche
 //    rosa con aletas aparca y la vecina lo saluda, otro turquesa cruza; un robot pasea un caniche;
 // 4. (sesenta ciudad 'desfile') en «Monorails and robots» un robot limpia una ventana; Reed salta y saluda en «Reed»;
-//    en «Sue Storm» Sue aparece de invisible y saluda;
+//    en «Sue Storm» Sue aparece de invisible y saluda; detrás de los héroes, el respaldo de la carroza (festón, bombillas,
+//    emblema atómico) tapa el público de la acera para que no asome entre ellos;
 // 5. (sesenta ciudad 'general') en «Johnny» Johnny se enciende, vuela y escribe un 4 de fuego en el cielo; en «Ben Grimm»
-//    la Cosa salta y la carroza retumba; en «most famous heroes» todos saludan y llueve confeti.
+//    la Cosa salta y la carroza retumba; en «most famous heroes» todos saludan y llueve confeti. Detrás de ellos, el mismo
+//    respaldo de feria sobre la carroza (avanza con ella), para que el público de la acera no se cuele entre los héroes.
 import * as T from '/atomo/plato/escenas/do-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('do-828');
@@ -370,6 +372,32 @@ const p3 = (t) => {
   if (t > B.coches + 0.1 && t < B.coches + 0.7) { R.icono('!', Math.round(xa) + 8, 140, hex('#ffd860'), K, 1); }
 };
 
+// el respaldo de la carroza: un panel de feria detrás de los héroes (marco de cromo con postes, tablero crema con
+// listones y brillo, franja turquesa con estrellas, festón rosa ondulado arriba con bombillas que se encienden en ola y el
+// emblema atómico que gira en el centro). Tapa el público de la acera de atrás, para que no asome entre los héroes.
+function respaldo(x0, x1, y0, y1, t) {
+  const crema = hex('#fbf1dc'), cremaS = hex('#e8d8b8'), cremaL = hex('#fffaf0'), turq = hex('#4ac0b4'), turqS = hex('#2e9488'), rosa = hex('#f48aac'), rosaL = hex('#ffc0d4'), cromo = hex('#d8dee8'), cromoS = hex('#8a94a6');
+  const yb = y1 - Math.max(5, Math.round((y1 - y0) * 0.28)), cxm = (x0 + x1) >> 1;
+  for (let y = y0 + 3; y <= y1; y++) for (let x = x0 + 2; x <= x1 - 2; x++) {
+    let c = y >= yb ? ((x - x0) % 6 === 0 ? turqS : turq) : ((x - x0) % 8 === 0 ? cremaS : (h(x >> 1, y >> 1, 828) < 0.06 ? cremaS : crema));
+    if (y < yb && (x - y + Math.round(t * 18)) % 70 < 3) c = cremaL;   // el brillo que barre el tablero
+    if (y === yb || y === yb - 1) c = y === yb ? cromo : cromoS;
+    R.pset(x, y, c);
+  }
+  // estrellitas en la franja turquesa
+  for (let x = x0 + 7; x < x1 - 4; x += 12) { const y = (yb + y1) >> 1, on = Math.sin(t * 4 + x) > 0; R.pset(x, y, on ? BLANCO : rosaL); R.pset(x - 1, y, rosaL); R.pset(x + 1, y, rosaL); R.pset(x, y - 1, rosaL); R.pset(x, y + 1, rosaL); }
+  // el festón ondulado de arriba con sus bombillas en ola
+  for (let x = x0 + 1; x <= x1 - 1; x++) { const ond = Math.round(Math.sin((x - x0) * 0.5) * 1.2 + 1.2); R.rect(x, y0 + 1, x, y0 + 2 + ond, rosa); R.pset(x, y0 + 3 + ond, mez(rosa, K, 0.35)); if (ond < 1) R.pset(x, y0 + 1, rosaL); }
+  for (let x = x0 + 3, k = 0; x < x1 - 1; x += 5, k++) { const on = Math.floor(t * 6 - k) % 4 !== 0; R.pset(x, y0, on ? hex('#fff2a0') : hex('#c8a040')); if (on) R.pset(x, y0 - 1, hex('#ffd860')); }
+  // los postes de cromo con su bola
+  for (const x of [x0, x1 - 1]) { R.rect(x, y0, x + 1, y1, cromoS); R.rect(x, y0, x, y1, cromo); R.disco(x + 0.5, y0 - 1, 1.6, cromo); R.pset(x, y0 - 2, BLANCO); }
+  // el emblema atómico en el centro: tres órbitas que giran y el núcleo rojo
+  const ey = (y0 + yb) >> 1, ra = Math.min(9, (yb - y0) / 2 - 2);
+  for (let a = 0; a < 3; a++) for (let i = 0; i < 40; i++) { const u = i / 40 * Math.PI * 2, an = a * 1.047 + t * 0.6, xx = Math.cos(u) * ra, yy = Math.sin(u) * ra * 0.38;
+    R.pset(Math.round(cxm + xx * Math.cos(an) - yy * Math.sin(an)), Math.round(ey + xx * Math.sin(an) + yy * Math.cos(an)), turqS); }
+  for (let a = 0; a < 3; a++) { const u = t * 3 + a * 2.1, an = a * 1.047 + t * 0.6, xx = Math.cos(u) * ra, yy = Math.sin(u) * ra * 0.38; R.pset(Math.round(cxm + xx * Math.cos(an) - yy * Math.sin(an)), Math.round(ey + xx * Math.sin(an) + yy * Math.cos(an)), rosa); }
+  R.disco(cxm, ey, 2, hex('#e84a4a')); R.pset(cxm - 1, ey - 1, hex('#ffb0a0'));
+}
 // ── el desfile ──
 let tb = null;
 function aparece(def, x, suelo, t, o, u) {   // Sue: invisible (solo el filo que brilla) → visible, tramada
@@ -385,6 +413,7 @@ const p4 = (t) => {
   { const rx = Math.round(lerp(14, 32, tramo(t, B.robots - 0.6, B.robots))), ry = 43; R.rect(rx - 4, ry - 9, rx + 4, ry, K); R.rect(rx - 3, ry - 8, rx + 3, ry - 1, hex('#c8d0dc')); R.rect(rx - 3, ry - 8, rx - 2, ry - 1, BLANCO);
     R.disco(rx, ry - 12, 3.6, K); R.disco(rx, ry - 12, 2.6, hex('#9ad0e0')); R.rect(rx - 1, ry - 13, rx + 1, ry - 12, hex('#2a3448')); R.pset(rx + 1, ry - 13, hex('#5affd0')); R.linea(rx, ry - 16, rx, ry - 18, K); R.pset(rx, ry - 19, Math.floor(t * 3) % 2 ? hex('#ff5a5a') : hex('#ffd860'));
     const px = rx + 6 + Math.round(Math.sin(t * 8) * 3), py = ry - 12 + Math.round(Math.cos(t * 8) * 3); R.linea(rx + 3, ry - 6, px, py + 3, hex('#5a6070')); R.disco(px, py, 2.4, hex('#f8a8c8')); R.pset(px - 1, py - 1, BLANCO); }
+  respaldo(100, 238, 104, su, t);
   const rs = tramo(t, B.reed - 0.05, B.reed + 0.6), salto = Math.round(Math.sin(rs * Math.PI) * 10);
   R.actor(EL.reed, 110, su, t, { dir: 1, salto, brazos: rs > 0 && rs < 1, sonrisa: true, dedo: t < B.reed - 0.1 && Math.sin(t * 3) > 0, habla: t > B.reed + 0.6 && t < B.sue - 0.2 && Math.sin(t * 8) > 0 });
   const u = tramo(t, B.sue - 0.15, B.sue + 0.55);
@@ -398,10 +427,12 @@ const RUTA4 = [[90, 84], [90, 26], [58, 62], [108, 62]];
 const largo4 = RUTA4.slice(1).reduce((a, p, i) => a + Math.hypot(p[0] - RUTA4[i][0], p[1] - RUTA4[i][1]), 0);
 const en4 = (d) => { for (let i = 1; i < RUTA4.length; i++) { const L = Math.hypot(RUTA4[i][0] - RUTA4[i - 1][0], RUTA4[i][1] - RUTA4[i - 1][1]); if (d <= L) return [lerp(RUTA4[i - 1][0], RUTA4[i][0], d / L), lerp(RUTA4[i - 1][1], RUTA4[i][1], d / L)]; d -= L; } return RUTA4[RUTA4.length - 1]; };
 const p5 = (t) => {
-  const cx = Math.round(150 + (t - P5) * 4);
-  const s = T.sesenta(R, t, { encuadre: 'ciudad', camara: 'general', carroza: cx, avance: 4, confeti: t > B.famosos ? 1 : 0.35 }), su0 = s.suelo ?? 142;
+  const s = T.sesenta(R, t, { encuadre: 'ciudad', camara: 'general', carroza: Math.round(150 + (t - P5) * 4 - 4 * t), avance: 4, confeti: t > B.famosos ? 1 : 0.35 }), su0 = s.suelo ?? 142;
+  // los héroes van SOBRE la carroza (el decorado la adelanta avance·t): entre la estrella de popa y el cohete de proa
+  const cx = s.carroza ? Math.round((s.carroza.x0 + s.carroza.x1) / 2) + 2 : Math.round(150 + (t - P5) * 4);
   const bs = tramo(t, B.ben + 0.05, B.ben + 0.65), aterriza = t > B.ben + 0.65 && t < B.ben + 0.85, su = su0 + (aterriza ? 1 : 0);
   const fiesta = t > B.famosos;
+  respaldo(cx - 40, cx + 40, 110, su0, t);
   R.actor(EL.reed, cx - 36, su, t, { dir: 1, sonrisa: true, brazos: fiesta && Math.sin(t * 5) > -0.4, dedo: !fiesta && t > B.johnny + 0.9, sorpresa: t > B.johnny && t < B.johnny + 0.8 });
   R.actor(EL.sue, cx - 18, su, t, { dir: 1, sonrisa: true, brazos: fiesta && Math.sin(t * 5 + 1) > -0.4, dedo: !fiesta && Math.sin(t * 2) > 0.4 });
   R.actor(EL.cosa, cx + 20, su0, t, { dir: -1, salto: Math.round(Math.sin(bs * Math.PI) * 12), brazos: (bs > 0 && bs < 1) || (fiesta && Math.sin(t * 4) > 0), sonrisa: true });

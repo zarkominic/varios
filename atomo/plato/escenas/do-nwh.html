@@ -12,13 +12,17 @@
 // DO-NWH (frases 22–23), 2021. Cinco planos:
 // 1. azotea de Nueva York al atardecer: Spider-Man llega columpiándose y aterriza («Spider-Man»); un chico le señala y
 //    salta de alegría; en «No Way Home» se gira y se va por su telaraña;
-// 2. el santuario (de día): Spider-Man entra y le pide algo a Strange («asks»); Strange lanza el hechizo de runas
-//    doradas («spell»); Spider-Man no deja de interrumpir («who Spider-Man is»);
+// 2. el santuario (de día): Spider-Man entra por la derecha, se planta ante Strange y le pide el hechizo con las manos
+//    (bocadillo con un círculo de runas, «asks»); Strange asiente y alza los brazos: se forma el mandala de runas
+//    doradas («spell»); Spider-Man se aparta, vuelve a interrumpir dos veces («!», «who Spider-Man is») y el mandala
+//    empieza a torcerse (chispas magenta y azules); Strange se sorprende y Spider-Man da un brinco atrás;
 // 3. el santuario, la otra pared: el hechizo se tuerce («goes so wrong») y se abre un portal al cosmos («tears»);
 // 4. Nueva York nevada: se abre la grieta («crack»), salen tres villanos en sombra («villains») y bajan otros dos
 //    Spider-Man («two other Spider-Men») que se señalan entre sí;
-// 5. la calle nevada del santuario: Strange lanza el hechizo del olvido («forget»): la onda dorada barre la calle, la
-//    grieta se cierra y las palomitas del banco ya no saben quién es Spider-Man («?»).
+// 5. la calle nevada del santuario: Spider-Man se acerca a Strange, asiente y se despide de él y de las palomitas;
+//    una vecina sale del portal, le reconoce y le señala; Strange carga un círculo de runas entre las manos («to close
+//    it») y lanza el olvido («forget»): una ola de runas doradas barre la calle y deja un polvo de oro; la grieta se
+//    cierra; la vecina, las palomitas y un paseante ya no saben quién es («?»), y Spider-Man se va solo calle abajo.
 import * as T from '/atomo/plato/escenas/do-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('do-nwh');
@@ -50,15 +54,34 @@ const p1 = (t) => {
   if (web) telar(web[0], web[1], web[2], web[3]);
   R.actor(EL.spiderman, x, s, t, { dir, ...pose });
 };
-// 2 · el santuario de día: Spider-Man pide el hechizo; Strange lo lanza; Spider-Man interrumpe
+// 2 · el santuario de día: Peter entra, se planta delante de Strange y le pide el hechizo con las manos (bocadillo con
+// el círculo de runas); Strange asiente y lo lanza; Peter interrumpe dos veces y el mandala empieza a torcerse
+const ORO = hex('#ffb040'), OROL = hex('#fff0a0'), NUBE = hex('#f4f4f8'), TINTA = hex('#141420');
+const globoRunas = (x, y, t) => {   // el bocadillo de Peter: un círculo dorado de runas que gira
+  R.rect(x - 7, y - 14, x + 7, y, TINTA); R.rect(x - 6, y - 13, x + 6, y - 1, NUBE); R.pset(x - 1, y + 1, TINTA); R.pset(x, y + 2, TINTA); R.pset(x - 1, y, NUBE);
+  for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2 + t * 3; R.pset(Math.round(x + Math.cos(an) * 4.6), Math.round(y - 7 + Math.sin(an) * 4.6), k % 3 ? ORO : OROL); }
+  R.pset(x, y - 7, ORO); R.pset(x - 1, y - 7, OROL); R.pset(x + 1, y - 7, OROL); R.pset(x, y - 8, OROL); R.pset(x, y - 6, OROL);
+};
 const p2 = (t) => {
-  const hz = 0.5 * tramo(t, a(0.491), a(0.686));
-  T.multiverso(R, t, { encuadre: 'santuario', camara: 'general', luz: 'dia', hechizo: hz, hechizoX: 170 });
-  const u = tramo(t, P2 + 0.05, P2 + 1.1), sx = Math.round(lerp(262, 210, u));
-  const lanza = t > a(0.47);
-  R.actor(EL.strange, 116, 152, t, { dir: 1, brazos: lanza, habla: !lanza && t > a(0.39) && Math.sin(t * 9) > 0, sonrisa: t > a(0.39) && t < a(0.47), enfado: t > a(0.7) });
-  const pide = t > a(0.343) && t < a(0.47), corta = t > a(0.6) && t < a(0.72);
-  R.actor(EL.spiderman, sx + (corta ? -4 : 0), 152, t, { dir: -1, anda: u > 0 && u < 1, habla: (pide || corta) && Math.sin(t * 10) > -0.2, dedo: pide || corta, salto: corta ? Math.round(2 * Math.abs(Math.sin(t * 8))) : 0 });
+  const A1 = a(0.4), PIDE1 = a(0.47), B1 = a(0.55), I0 = a(0.6), I1 = a(0.635), I2 = a(0.7);
+  // el mandala se forma con «spell» y, con las interrupciones, empieza a torcerse antes del corte
+  const hz = 0.5 * tramo(t, PIDE1, I0) + 0.2 * tramo(t, a(0.665), P3);
+  T.multiverso(R, t, { encuadre: 'santuario', camara: 'general', luz: 'dia', hechizo: hz, hechizoX: 152 });
+  // Peter: entra por la derecha hasta Strange; pide; se aparta para dejarle sitio; vuelve a interrumpir; da un brinco atrás
+  let sx, dir = -1, anda = false;
+  if (t < A1) { const u = tramo(t, P2, A1); sx = lerp(300, 132, u); anda = u < 1; }
+  else if (t < PIDE1 + 0.15) sx = 132;
+  else if (t < B1) { const u = tramo(t, PIDE1 + 0.15, B1); sx = lerp(132, 202, u); anda = u < 1; dir = u < 1 ? 1 : -1; }
+  else if (t < I0) sx = 202;
+  else if (t < I1) { const u = tramo(t, I0, I1); sx = lerp(202, 180, u); anda = u < 1; }
+  else { const b = tramo(t, I2, I2 + 0.35); sx = 180 + 10 * b; }
+  const bote = t > I2 && t < I2 + 0.35 ? Math.round(6 * Math.sin(Math.PI * tramo(t, I2, I2 + 0.35))) : 0;
+  const pide = t > A1 && t < PIDE1, corta = t > I1 && t < I2, ges = Math.floor(t / 0.28) % 3;
+  const gesto = pide || corta;
+  R.actor(EL.strange, 96, 152, t, { dir: t < a(0.33) ? -1 : 1, brazos: t > PIDE1, habla: t > a(0.43) && t < PIDE1 && Math.sin(t * 9) > 0, sonrisa: t > a(0.43) && t < a(0.52), enfado: t > a(0.64) && t < I2, sorpresa: t > I2 });
+  R.actor(EL.spiderman, Math.round(sx), 152, t, { dir, anda, habla: gesto && Math.sin(t * 10) > -0.2, dedo: gesto && ges === 0, brazos: gesto && ges === 1, salto: bote || (gesto && ges === 1 ? 2 : 0), sorpresa: t > I2 });
+  if (pide) globoRunas(Math.round(sx) + 7, 120, t);
+  if (corta && ges !== 2) R.bocadillo(Math.round(sx) + 8, 122, { icono: '!' });
   T.multiversoDelante(R, t, { encuadre: 'santuario', camara: 'general', luz: 'dia' });
 };
 // 3 · la otra pared: el hechizo se tuerce y se abre un portal al cosmos
@@ -117,25 +140,50 @@ const p4 = (t) => {
   R.actor(EL.senora30, 72, 152, t, { dir: 1, sorpresa: mira && t < g(0.3), dedo: t > g(0.1) && t < g(0.25), brazos: t > g(0.33) && t < g(0.45) });
   T.multiversoDelante(R, t, { encuadre: 'nieve', camara: 'general' });
 };
-// 5 · la calle nevada: el hechizo del olvido barre la calle y la grieta se cierra
+// 5 · la calle nevada: Peter se despide de Strange y de las palomitas; Strange carga el círculo de runas y lanza el
+// olvido: una ola de runas doradas barre la calle; la vecina, que le había reconocido, y el paseante ya no saben quién
+// es («?»); Peter se va solo calle abajo, hacia el borde
+const RUNAS = [['.###.', '#...#', '#.#.#', '#...#', '.###.'], ['..#..', '.#.#.', '#...#', '.#.#.', '..#..'], ['..#..', '.#.#.', '.#.#.', '#...#', '#####'], ['.#.#.', '#####', '.#.#.', '#####', '.#.#.'], ['..#..', '..#..', '#####', '.#.#.', '#...#'], ['#.#.#', '.....', '#.#.#', '.....', '#.#.#']];
+const runa = (x, y, k, c) => { const f = RUNAS[((k % RUNAS.length) + RUNAS.length) % RUNAS.length]; for (let j = 0; j < 5; j++) for (let i = 0; i < 5; i++) if (f[j][i] === '#') R.pset(Math.round(x) - 2 + i, Math.round(y) - 2 + j, c); };
+const h5 = (k, s) => { const v = Math.sin(k * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
+// dónde está Peter en el plano 5: se acerca a Strange y, tras despedirse, se va calle abajo
+const px5 = (t) => t < g(0.79) ? lerp(160, 140, tramo(t, P5, P5 + 0.7)) : lerp(140, 266, tramo(t, g(0.79), E.duracion));
 const p5 = (t) => {
   const cierra = tramo(t, g(0.68), g(0.93));
   T.multiverso(R, t, { encuadre: 'nieve', camara: 'calle', grieta: 1 - cierra });
-  const lanza = t > g(0.638), onda = tramo(t, g(0.874), g(0.874) + 1.1), pasa = onda > 0.35;
-  // la paseante cruza por la acera
-  const w = tramo(t, P5, E.duracion);
-  const px = Math.round(lerp(330, -20, w)), junto = px > 70 && px < 150;
-  R.actor(EL.senora30, px, 159, t, { dir: -1, anda: true, sonrisa: junto && !pasa, dedo: junto && !pasa });
-  R.actor(EL.strange, 214, 169, t, { dir: -1, brazos: lanza, habla: !lanza && Math.sin(t * 8) > 0 });
-  R.actor(EL.spiderman, 104, 169, t, { dir: 1, habla: !lanza && t > P5 + 0.2 && Math.sin(t * 9) > 0.2, dedo: t > g(0.64) && t < g(0.8), triste: pasa });
-  const pp = T.palomitas(R, 62, 171, t, { s: 2, dir: 1, saluda: t > P5 + 0.3 && t < g(0.8) && !pasa, expresion: 'normal', asiente: t > g(0.8) && !pasa });
-  if (pasa) R.bocadillo(62, 120, { icono: '?' });
-  if (pasa && px > -10 && px < 300) R.bocadillo(px + 7, 125, { icono: '?' });
-  // el círculo de runas en las manos de Strange y la onda dorada del olvido
-  if (lanza) { const cx = 221, cy = 146, n = 14, rr = 9 + 3 * tramo(t, g(0.64), g(0.8));
-    for (let i = 0; i < n; i++) { const an = i / n * Math.PI * 2 + t * 2.5; R.pset(Math.round(cx + Math.cos(an) * rr), Math.round(cy + Math.sin(an) * rr * 0.5), i % 2 ? hex('#ffd860') : hex('#ffb040')); } }
-  if (onda > 0 && onda < 1) { R.recorte([0, 48, 319, 179]); const rx = 10 + onda * 360, ry = rx * 0.32;
-    for (let i = 0; i < 260; i++) { const an = i / 260 * Math.PI * 2, x = 221 + Math.cos(an) * rx, y = 158 + Math.sin(an) * ry; R.pset(x, y, i % 3 ? hex('#ffd860') : hex('#fff8d0')); R.pset(x, y + 1, hex('#e89a30')); }
+  const lanza = t > g(0.638), O0 = g(0.874), onda = tramo(t, O0, O0 + 1.1), pasa = onda > 0.35, adios = t > g(0.72) && t < g(0.79);
+  const SX = 96, HX = SX + 8, HY = 138;   // Strange y el centro del círculo entre sus manos
+  // la vecina sale del portal, reconoce a Peter y le señala; tras la ola se queda con «?» y se marcha
+  const nx = t < P5 + 0.9 ? lerp(152, 118, tramo(t, P5, P5 + 0.9)) : t < g(0.95) ? 118 : lerp(118, 154, tramo(t, g(0.95), E.duracion - 0.3));
+  const nAnda = (t < P5 + 0.9) || (t > g(0.95) && t < E.duracion - 0.3), nDir = t < P5 + 0.9 ? -1 : 1;
+  R.actor(EL.senora30, Math.round(nx), 159, t, { dir: nDir, anda: nAnda, sonrisa: !pasa && t > P5 + 0.9, dedo: !pasa && t > P5 + 1.1 && t < O0 });
+  // el paseante baja por la acera de enfrente; al cruzarse con Peter se para y le mira sin conocerle
+  const sp = t < g(0.8) ? null : t < g(0.97) ? lerp(334, 216, tramo(t, g(0.8), g(0.97))) : 216;
+  if (sp !== null) R.actor(EL.senor30, Math.round(sp), 162, t, { dir: t > g(0.97) && px5(t) > 222 ? 1 : -1, anda: t < g(0.97) });
+  // Strange: carga el círculo con «to close it» y lo lanza con «forget»
+  R.actor(EL.strange, SX, 169, t, { dir: 1, brazos: lanza && t < O0 + 0.6, habla: !lanza && Math.sin(t * 8) > 0, triste: t > O0 + 0.6 });
+  // Peter: se acerca, asiente, se despide con la mano; se da la vuelta y se va solo
+  const px = px5(t), W0 = g(0.79);
+  R.actor(EL.spiderman, Math.round(px), 169, t, { dir: t < W0 ? -1 : 1, anda: (t < P5 + 0.7) || t > W0 + 0.1, habla: t > P5 + 0.8 && t < g(0.72) && Math.sin(t * 9) > 0.2, dedo: adios && Math.sin(t * 14) > -0.3, triste: t > g(0.75) });
+  T.palomitas(R, 56, 171, t, { s: 2, dir: 1, saluda: adios, expresion: 'normal', asiente: t > P5 + 0.8 && t < g(0.72) });
+  // los «?»: las palomitas, la vecina y el paseante ya no saben quién es
+  if (pasa) R.bocadillo(56, 120, { icono: '?' });
+  if (pasa && t < g(0.95) + 0.6) R.bocadillo(Math.round(nx) + 7, 128, { icono: '?' });
+  if (sp !== null && t > g(0.97) + 0.1) R.bocadillo(Math.round(sp) + 7, 131, { icono: '?' });
+  // el círculo de runas que crece entre las manos de Strange
+  if (lanza && t < O0 + 0.3) { const k = tramo(t, g(0.638), O0), rr = 6 + 11 * k, sal = t > O0 ? 1 - tramo(t, O0, O0 + 0.3) : 1;
+    for (const [f, v] of [[1, 2.5], [0.62, -3.4]]) for (let i = 0; i < 30; i++) { const an = i / 30 * Math.PI * 2 + t * v, x = Math.round(HX + Math.cos(an) * rr * f), y = Math.round(HY + Math.sin(an) * rr * f * 0.6);
+      R.pset(x, y, i % 2 ? OROL : ORO); if (f === 1 && i % 3 === 0) R.pset(x, y + 1, hex('#e89a30')); }
+    if (k > 0.3) for (let i = 0; i < 4; i++) { const an = i / 4 * Math.PI * 2 - t * 1.6; runa(HX + Math.cos(an) * (rr + 6) * sal, HY + Math.sin(an) * (rr + 6) * 0.6 * sal, i + Math.floor(t * 3), i % 2 ? ORO : OROL); }
+    if (Math.floor(t * 10) % 2) R.pset(HX, HY, OROL); }
+  // la ola del olvido: un frente de runas doradas que barre la calle y deja un polvo de oro que cae como la nieve
+  if (onda > 0) { R.recorte([0, 48, 319, 179]); const rx = 10 + onda * 360, ry = rx * 0.32, cy = 158;
+    if (onda < 1) { for (let i = 0; i < 260; i++) { const an = i / 260 * Math.PI * 2, x = HX + Math.cos(an) * rx, y = cy + Math.sin(an) * ry; R.pset(x, y, i % 3 ? hex('#ffd860') : hex('#fff8d0')); R.pset(x, y + 1, hex('#e89a30')); }
+      for (let i = 0; i < 28; i++) { const an = i / 28 * Math.PI * 2 + 0.1, f = 0.93 - 0.05 * Math.sin(t * 9 + i); runa(HX + Math.cos(an) * rx * f, cy + Math.sin(an) * ry * f, i + Math.floor(t * 6), i % 3 ? ORO : OROL); } }
+    const fin = 1 - tramo(t, O0 + 1.0, O0 + 2.2);
+    for (let i = 0; i < 70 * fin; i++) { const x0 = h5(i, 1) * 320, dx = Math.abs(x0 - HX), llega = dx / 360 * 1.1 + O0;
+      if (t < llega) continue; const u = t - llega, x = x0 + Math.sin(u * 3 + i) * 2, y = 60 + h5(i, 2) * 110 + u * 14;
+      if (y < 178) R.pset(x, y, (Math.floor(t * 8) + i) % 3 ? ORO : OROL); }
     R.recorte(null); }
   T.multiversoDelante(R, t, { encuadre: 'nieve', camara: 'calle' });
 };
