@@ -1,6 +1,6 @@
 # Episodio 18 · Sierra: los juegos de aventura que te mataban de cien maneras
 
-**Estado:** v1, 31 de octubre de 2026. Datos clave comprobados con búsquedas; la verificación de los 3 agentes escépticos
+**Estado:** v2, 2 de noviembre de 2026: verificado por los 3 agentes (11 correcciones). v1, 31 de octubre de 2026. Datos clave comprobados con búsquedas; la verificación de los 3 agentes escépticos
 queda para antes de locutar (el usuario pidió solo el guion, por créditos). Pendiente de la aprobación del usuario.
 
 **Por qué este tema:** lo eligió el usuario («el 1 definitivamente»). El de LucasArts tuvo 1.000 visitas en un día: Sierra
@@ -35,8 +35,8 @@ según `ESTANDAR.md`, mezcla «B», voz española entera. Atom con la frase nuev
 | **G · El estudio de sonido y color** | Un estudio de 1990 con monitores de 16 y de 256 colores lado a lado, un micrófono y actores de voz | 6 |
 | **H · Hoy** | Un cuarto de hoy con unas gafas de realidad virtual y la cueva en 3D | 7, 8 |
 
-- **Barra de tiempo:** tres tramos: 1979–1983 (un disquete), 1984–1993 (un castillo), 1994–2026 (unas gafas de RV).
-- **Cartelas:** 1979, 1984, 1986, 1990, 2026.
+- **Barra de tiempo:** tres tramos: 1979–1982 (un disquete), 1983–1993 (un castillo), 1994–2026 (unas gafas de RV).
+- **Cartelas:** 1979, 1983, 1986, 1990, 2026.
 
 ## Gags
 
@@ -86,24 +86,25 @@ alegre aunque te mueras cada dos minutos.
 
 | ES | EN |
 |---|---|
-| En 1979, en California, Roberta Williams prueba un juego en el ordenador que su marido, Ken, se ha traído del trabajo. | In 1979, in California, Roberta Williams tries a game on the computer her husband, Ken, has brought home from work. |
+| En 1979, en California, Roberta Williams prueba un juego en el terminal que su marido, Ken, tiene en casa conectado al ordenador de su trabajo. | In 1979, in California, Roberta Williams tries a game on the terminal her husband, Ken, has at home, hooked up to the computer at his work. |
 | Se llama Colossal Cave Adventure: no tiene dibujos, solo texto, y tú escribes órdenes como «coge la lámpara». | It's called Colossal Cave Adventure: it has no pictures, just text, and you type commands like "take lamp." |
 | La había escrito en los años setenta un programador aficionado a explorar cuevas de verdad, y se pasaba de ordenador en ordenador. | It had been written in the seventies by a programmer who explored real caves, and it was passed from computer to computer. |
 | Roberta se engancha, y se le ocurre una idea: una aventura en la que puedas ver lo que pasa. | Roberta gets hooked, and she has an idea: an adventure where you can see what's happening. |
 | Ella escribe la historia y hace los dibujos, y Ken la programa en un Apple Two. | She writes the story and draws the pictures, and Ken programs it on an Apple II. |
 | En 1980 sale Mystery House, un misterio en una casa vieja, con unos setenta dibujos sencillos en blanco y negro. | In 1980 they release Mystery House, a mystery set in an old house, with about seventy simple black-and-white drawings. |
 | Se considera la primera aventura con gráficos, y la vendían en bolsas de plástico con cierre, con un disquete y una hoja de papel. | It's considered the first adventure game with graphics, and they sold it in zip-top plastic bags, with a floppy disk and a sheet of paper. |
-| Roberta imprimía las hojas y llenaba las bolsas a mano, y en el supermercado compraba las bolsas por montones. | Roberta printed the sheets and packed the bags by hand, and she bought the bags by the cartload at the grocery store. |
-| Vendió miles de copias, y el matrimonio fundó su propia compañía, que acabaría llamándose Sierra. | It sold thousands of copies, and the couple founded their own company, which would come to be called Sierra. |
+| Las hojas eran fotocopias, las bolsas se llenaban a mano, y Roberta volvía del supermercado con el carro lleno de bolsas. | The sheets were photocopies, the bags were packed by hand, and Roberta came home from the grocery store with a cart full of bags. |
+| Vendió más de diez mil copias, y la pequeña compañía del matrimonio acabaría llamándose Sierra. | It sold more than ten thousand copies, and the couple's little company would come to be called Sierra. |
+| Se mudaron a un pueblo de montaña cerca de Yosemite, entre pinos, y la compañía tomó el nombre de esa sierra. | They moved to a mountain town near Yosemite, among the pines, and the company took its name from those mountains. |
 
 ## 2 · El reino
 
 | ES | EN |
 |---|---|
-| En 1984, IBM les encarga un juego para su nuevo ordenador doméstico, y Roberta diseña King's Quest. | In 1984, IBM asks them for a game for its new home computer, and Roberta designs King's Quest. |
+| En 1983, IBM les encarga un juego para su nuevo ordenador doméstico, y Roberta diseña King's Quest. | In 1983, IBM asks them for a game for its new home computer, and Roberta designs King's Quest. |
 | Es un cuento de hadas: un caballero llamado Graham tiene que encontrar tres tesoros para salvar el reino. | It's a fairy tale: a knight named Graham has to find three treasures to save the kingdom. |
 | Los tres tesoros son un espejo mágico, un escudo mágico y un cofre que nunca se vacía de oro. | The three treasures are a magic mirror, a magic shield, and a chest that never runs out of gold. |
-| Y tiene algo que nadie había visto: el caballero anda por la pantalla, y puede pasar por delante o por detrás de los árboles. | And it has something no one had seen before: the knight walks around the screen, and he can pass in front of or behind the trees. |
+| Y tiene algo que nunca se había visto en una aventura: el caballero anda por la pantalla, y puede pasar por delante o por detrás de los árboles. | And it has something never seen before in an adventure: the knight walks around the screen, and he can pass in front of or behind the trees. |
 | Ya no mirabas un dibujo: estabas dentro de él. | You weren't just looking at a picture anymore: you were inside it. |
 | Se escribía lo que querías hacer, como antes, pero ahora el mundo se movía. | You still typed what you wanted to do, but now the world moved. |
 | Podías nadar en el lago, trepar a un árbol o hablar con un gnomo, y el juego intentaba entender lo que escribías. | You could swim in the lake, climb a tree or talk to a gnome, and the game tried to understand whatever you typed. |
@@ -112,7 +113,6 @@ alegre aunque te mueras cada dos minutos.
 | Era uno de los pocos juegos de Sierra en los que nadie podía morir. | It was one of the few Sierra games where nobody could die. |
 | En 1988, King's Quest Cuatro cambia de protagonista: ahora la heroína es su hija, la princesa Rosella, que tiene que salvar a su padre. | In 1988, King's Quest Four switches heroes: now the star is his daughter, Princess Rosella, who has to save her father. |
 | Fue una de las primeras aventuras protagonizadas por una chica, y de las primeras que sonaban con una tarjeta de música, como una pequeña orquesta. | It was one of the first adventures starring a girl, and one of the first to play music through a sound card, like a little orchestra. |
-| Sierra se instala en un pueblo de montaña cerca de Yosemite, entre pinos, y empieza a contratar dibujantes, músicos y escritores. | Sierra settles in a mountain town near Yosemite, among the pines, and starts hiring artists, musicians and writers. |
 
 ## 3 · La muerte
 
@@ -120,7 +120,7 @@ alegre aunque te mueras cada dos minutos.
 |---|---|
 | Pero en ese reino todo podía matarte: un lobo, un ogro, un río, un mal paso en una escalera. | But in that kingdom, everything could kill you: a wolf, an ogre, a river, one wrong step on a staircase. |
 | En Police Quest, de 1987, diseñado por un antiguo policía de carreteras, había que seguir el reglamento al pie de la letra. | In Police Quest, from 1987, designed by a former highway patrol officer, you had to follow the rulebook to the letter. |
-| Si te subías al coche patrulla sin dar antes la vuelta para revisarlo, podías acabar en la cuneta. | If you got into your patrol car without walking around it to check it first, you could end up in a ditch. |
+| Si te subías al coche patrulla sin dar antes la vuelta para revisarlo, se te pinchaba una rueda y se acababa la partida. | If you got into your patrol car without walking around it to check it first, you'd blow a tire and your game was over. |
 | Y cada muerte venía con su chiste, como si el narrador se riera un poco de ti. | And every death came with its own joke, as if the narrator were laughing at you a little. |
 | Los jugadores aprendieron a tener muchas partidas guardadas: una antes de cada puente, de cada puerta y de cada monstruo. | Players learned to keep lots of saved games: one before every bridge, every door and every monster. |
 | Así nació el consejo más famoso de Sierra: guarda la partida a menudo. | That's how Sierra's most famous piece of advice was born: save your game often. |
@@ -138,9 +138,8 @@ alegre aunque te mueras cada dos minutos.
 | Su nombre es una broma de radio: «roger» quiere decir «recibido», y «wilco», «lo haré». | His name is a radio joke: "roger" means "message received," and "wilco" means "will comply." |
 | Mientras él duerme en el armario de las escobas, unos alienígenas asaltan la nave, y le toca salvar la galaxia con lo que lleva en los bolsillos. | While he's napping in a broom closet, aliens raid the ship, and it's up to him to save the galaxy with whatever's in his pockets. |
 | Space Quest se reía de las películas de ciencia ficción, y presumía de tener las muertes más absurdas del espacio. | Space Quest made fun of science fiction movies, and it boasted the most ridiculous deaths in space. |
-
 | En la tercera entrega, Roger tiene que rescatar a sus propios creadores: los Dos Tipos de Andrómeda, secuestrados por una empresa de videojuegos malvada. | In the third game, Roger has to rescue his own creators: the Two Guys from Andromeda, kidnapped by an evil video game company. |
-| Y en la cuarta, Roger viaja en el tiempo hasta juegos anteriores de su propia serie, y hasta a una entrega del futuro que nunca existió. | And in the fourth, Roger travels in time into earlier games of his own series, and even into a future sequel that never existed. |
+| Y en la cuarta, Roger viaja en el tiempo hasta el primer juego de su propia serie, y hasta dos entregas del futuro que nunca existieron. | And in the fourth, Roger travels in time back into the very first game of his own series, and even into two future sequels that never existed. |
 | Al llegar al juego antiguo, todo se vuelve de píxeles gordos y de dieciséis colores: un chiste que solo entendían los que lo habían jugado. | When he lands in the old game, everything turns into chunky pixels and sixteen colors: a joke only people who had played it would get. |
 
 ## 5 · Más aventuras
@@ -150,7 +149,7 @@ alegre aunque te mueras cada dos minutos.
 | En 1987 llega Leisure Suit Larry, una comedia para adultos sobre un tipo con mala suerte en el amor. | In 1987 came Leisure Suit Larry, a comedy for grown-ups about a guy with bad luck in love. |
 | La escribió Al Lowe, un antiguo profesor de música que llenó el juego de chistes y de finales absurdos. | It was written by Al Lowe, a former music teacher who filled the game with jokes and ridiculous endings. |
 | Para empezar a jugar tenías que responder preguntas que, en teoría, solo sabía un adulto. | To start playing, you had to answer trivia questions that, in theory, only an adult would know. |
-| Y en 1989, Lori y Corey Cole crean Quest for Glory, una aventura en la que tu héroe además entrena y sube de nivel, como en un juego de rol. | And in 1989, Lori and Corey Cole create Quest for Glory, an adventure where your hero also trains and levels up, like in a role-playing game. |
+| Y en 1989, Lori y Corey Cole crean la serie que acabaría llamándose Quest for Glory, en la que tu héroe además mejora sus habilidades con la práctica, como en un juego de rol. | And in 1989, Lori and Corey Cole create the series that became Quest for Glory, where your hero also gets better at things with practice, like in a role-playing game. |
 | Allí podías ser guerrero, mago o ladrón, y cada uno resolvía los problemas a su manera. | There you could be a fighter, a wizard or a thief, and each one solved problems in their own way. |
 | Y podías llevar a tu héroe, con todo lo que había aprendido, de un juego de la serie al siguiente. | And you could carry your hero, with everything they'd learned, from one game in the series to the next. |
 
@@ -161,7 +160,7 @@ alegre aunque te mueras cada dos minutos.
 | En 1990, King's Quest Cinco cambia otra vez las reglas: deja de escribirse y se juega con el ratón. | In 1990, King's Quest Five changes the rules again: no more typing, you play with the mouse. |
 | Sus fondos se pintan a mano y se pasan al ordenador con doscientos cincuenta y seis colores, cuando casi todo usaba dieciséis. | Its backgrounds are painted by hand and brought into the computer in two hundred fifty-six colors, when almost everything used sixteen. |
 | Y en su versión en CD, los personajes hablan con voces de verdad, algunas grabadas por la propia gente de la compañía. | And in its CD version, the characters speak with real voices, some recorded by people who worked at the company. |
-| Sierra tenía su propio estudio de música, y sus juegos sonaban mejor si tenías una tarjeta de sonido. | Sierra had its own music department, and its games sounded better if you owned a sound card. |
+| Sierra tenía su propio departamento de música, y sus juegos sonaban mejor si tenías una tarjeta de sonido. | Sierra had its own music department, and its games sounded better if you owned a sound card. |
 | De esos años salieron también Gabriel Knight, un misterio escrito por Jane Jensen, y muchos otros mundos. | Those years also brought Gabriel Knight, a mystery written by Jane Jensen, and many other worlds. |
 | En su versión en CD, al protagonista le puso voz un actor de Hollywood, Tim Curry. | In its CD version, the hero was voiced by a Hollywood actor, Tim Curry. |
 
@@ -169,7 +168,7 @@ alegre aunque te mueras cada dos minutos.
 
 | ES | EN |
 |---|---|
-| Roberta diseñó King's Quest hasta su retirada en 1999, y la serie llegó a ocho juegos. | Roberta designed King's Quest until she retired in 1999, and the series grew to eight games. |
+| Roberta diseñó King's Quest hasta su retirada en 1999, y con ella la serie llegó a ocho juegos. | Roberta designed King's Quest until she retired in 1999, and under her the series grew to eight games. |
 | Pero la historia tiene un epílogo precioso: durante la pandemia, Ken y Roberta volvieron a hacer un juego juntos. | But the story has a lovely epilogue: during the pandemic, Ken and Roberta made a game together again. |
 | ¿Y qué eligieron? Colossal Cave, la aventura de texto que los enganchó en 1979, ahora en 3D y con gafas de realidad virtual. | And what did they choose? Colossal Cave, the text adventure that hooked them in 1979, now in 3D and in virtual reality. |
 | Roberta volvió a diseñar y Ken a programar, como cuarenta años antes en la mesa de su casa. | Roberta designed and Ken programmed again, just like they had forty years earlier at home. |
@@ -199,18 +198,18 @@ alegre aunque te mueras cada dos minutos.
 
 ## Datos
 
-Comprobado con búsquedas el 31/10/2026; [comprobar] = a confirmar por los agentes antes de locutar.
+Comprobado con búsquedas el 31/10/2026 y por los 3 agentes escépticos el 2/11/2026. Correcciones: terminal (no ordenador) en 1979; On-Line Systems ya existía en 1979 y Mystery House vendió más de diez mil copias; las hojas eran fotocopias; la mudanza a Oakhurst/Coarsegold fue en 1980–82 (la frase pasa al acto 1); el encargo de IBM, 1983; «nunca visto en una aventura» (Ars Technica/PC Mag: el primer mundo pseudo-3D); Police Quest: rueda pinchada y fin de partida, no cuneta; Space Quest IV: SQ I de verdad y dos entregas del futuro (X y XII); Hero's Quest (1989) pasó a llamarse Quest for Glory, y las habilidades suben con la práctica; ocho King's Quest con Roberta (hubo otro en 2015). Fuentes: Wikipedia (Sierra Entertainment, Mystery House, King's Quest I, IV y V, Quest for Glory, Space Quest IV), filfre.net «Summer Camp», AIGA Eye on Design, guía de King's Quest I (colorcomputerarchive), UploadVR y Meta (Colossal Cave, 19/1/2023).
 - Roberta Williams descubre Colossal Cave en el ordenador que Ken trae del trabajo; Mystery House (1980, Apple II), unos
   70 dibujos, considerada la primera aventura con gráficos (hay quien cita Valhalla); se vendía en bolsas con cierre con
   un disquete y una hoja. [MobyGames](https://www.mobygames.com/game/hi-res-adventure-1-mystery-house), [Smithsonian](https://www.smithsonianmag.com/smart-news/1980s-roberta-williams-brought-graphic-adventure-games-home-180962160/), [Wikipedia, Roberta Williams](https://en.wikipedia.org/wiki/Roberta_Williams).
 - On-Line Systems (1979), luego Sierra On-Line. King's Quest (1984) encargado por IBM para el PCjr; Graham, tres tesoros,
-  el personaje animado que pasa por delante y por detrás [comprobar]. La sede en Oakhurst/Coarsegold, cerca de Yosemite [comprobar].
-- Space Quest (1986; algunas fuentes dicen 1987 [comprobar]): Mark Crowe y Scott Murphy, los Two Guys from Andromeda;
+  el personaje animado que pasa por delante y por detrás. La sede en Oakhurst/Coarsegold, cerca de Yosemite.
+- Space Quest (1986; algunas fuentes dicen 1987): Mark Crowe y Scott Murphy, los Two Guys from Andromeda;
   Roger Wilco, conserje. [Wikipedia, Space Quest](https://en.wikipedia.org/wiki/Space_Quest).
-- Leisure Suit Larry (1987, Al Lowe) con el cuestionario de edad; Quest for Glory (1989, Lori y Corey Cole) [comprobar].
-- King's Quest V (1990): ratón, fondos pintados a mano, 256 colores (VGA); CD con voces, algunas de empleados [comprobar].
+- Leisure Suit Larry (1987, Al Lowe) con el cuestionario de edad; Quest for Glory (1989, Lori y Corey Cole).
+- King's Quest V (1990): ratón, fondos pintados a mano, 256 colores (VGA); CD con voces, algunas de empleados.
   Gabriel Knight (1993, Jane Jensen).
-- King's Quest IV (1988): Rosella, de las primeras con protagonista femenina y con tarjeta de sonido (AdLib, Roland MT-32) [comprobar]. Space Quest IV (1991): viaje a entregas anteriores y a un «Space Quest XII» [comprobar]. Las muertes a propósito por el chiste y las colecciones de muertes de los aficionados [comprobar].
-- Police Quest (1987, Jim Walls, expolicía de la California Highway Patrol): la revisión del coche patrulla antes de conducir [comprobar]. Mixed-Up Mother Goose (1987, Roberta Williams), para niños, sin muertes [comprobar].
-- Roberta diseñó King's Quest hasta 1999 (ocho juegos de la serie original [comprobar]). Colossal Cave 3D Adventure
+- King's Quest IV (1988): Rosella, de las primeras con protagonista femenina y con tarjeta de sonido (AdLib, Roland MT-32). Space Quest IV (1991): viaje a entregas anteriores y a un «Space Quest XII». Las muertes a propósito por el chiste y las colecciones de muertes de los aficionados.
+- Police Quest (1987, Jim Walls, expolicía de la California Highway Patrol): la revisión del coche patrulla antes de conducir. Mixed-Up Mother Goose (1987, Roberta Williams), para niños, sin muertes.
+- Roberta diseñó King's Quest hasta 1999 (ocho juegos de la serie original). Colossal Cave 3D Adventure
   (Cygnus Entertainment, anunciado en 2022, idea de la pandemia). [Engadget](https://www.engadget.com/roberta-ken-williams-colossal-cave-3d-remake-vr-163034673.html), [PC Gamer](https://pcgamer.com/au/sierra-founders-got-bored-in-lockdown-so-theyre-making-their-first-new-game-in-more-than-20-years).
