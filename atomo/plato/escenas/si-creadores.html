@@ -327,7 +327,7 @@ const p6 = (t) => {
   if (rie && t < BROMA + 1.6) R.bocadillo(c.cabeza[0], c.cabeza[1] - 8 - (Math.floor(t * 6) % 2), { icono: '!' });
   // el ovillo rueda y el gato, que dormitaba junto a la lámpara, sale detrás y le da zarpazos
   { R.disco(ovX, ovY, 2, T.C.k); R.disco(ovX, ovY, 1, hex('#c84a6a')); R.pset(ovX - 1, ovY - 1, hex('#e88aa0')); }
-  { const cr = tramo(t, JUGADO + 0.45, JUGADO + 1.35), gx = Math.round(lerp(124, 68, cr)), corre = cr > 0 && cr < 1;
+  { const cr = tramo(t, JUGADO + 0.45, JUGADO + 1.35), gx = Math.round(lerp(132, 68, cr)), corre = cr > 0 && cr < 1;
     gato(gx, 170, t, { dir: cr > 0 ? -1 : 1, corre, zarpa: cr >= 1 }); }
 };
 const efectos = [[ROGER, 'golpecito'], [RESCUE + 0.05, 'pop'], [ANDRO + 0.1, 'cerrojo'], [EVIL + 0.4, 'aviso'], [SALTA, 'whoosh'], [SALTA + 1.0, 'brillo'], [PRIMERO, 'campana'], [DOS - 0.1, 'whoosh'], [NUNCA, 'pop'], [ATERRIZA, 'boing'], [CUADRADO, 'bip'], [DIECISEIS, 'brillo'], [BROMA, 'palmada'], [GENTE - 0.1, 'papel'], [JUGADO + 0.2, 'toc'], [JUGADO + 1.35, 'miau']];
