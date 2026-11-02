@@ -388,8 +388,8 @@ const p4 = (t) => {
   if (mira) { for (let q = 0; q < 4; q++) { const an = t * 4 + q * 1.57, r = 5 + Math.sin(t * 6 + q) * 1.5; const sx = Math.round(hm[0] + Math.cos(an) * r), sy = Math.round(hm[1] + Math.sin(an) * r); R.pset(sx, sy, ['#ff5aa8', '#5ae8f0', '#e8c040', '#8ae85a'].map(hex)[q]); R.pset(sx + 1, sy, BL); }
     const ex = tramo(t, col + 0.1, col + 0.4); if (ex > 0) R.icono('!', x + 4, Math.round(su - 40 - ex * 3), hex('#e8c040'), k_); }
   // el pintor asiente con su pincel junto al lienzo original
-  const pm = R.actor(EL.dibujante, 286, su, t, { dir: -1, habla: t > col && t < cuando && Math.sin(t * 8) > 0, sonrisa: t > col, sostiene: t < col ? [Math.round(278 + Math.sin(t * 4) * 2), Math.round(80 + Math.sin(t * 3) * 6)] : undefined, dedo: t > cuando && t < seis });
-  if (t < col) { R.linea(pm[0], pm[1], pm[0] - 4, pm[1] - 3, hex('#8a5a2a')); R.pset(pm[0] - 5, pm[1] - 4, hex('#3a8a4a')); }
+  const pm = R.actor(EL.dibujante, 286, su, t, { dir: -1, habla: t > col && t < cuando && Math.sin(t * 8) > 0, sonrisa: t > col, sostiene: t < col ? [Math.round(279 + Math.sin(t * 4) * 2), Math.round(140 + Math.sin(t * 3) * 3)] : undefined, dedo: t > cuando && t < seis }).mano;
+  if (t < col) { R.linea(pm[0], pm[1], pm[0] - 3, pm[1] - 6, hex('#8a5a2a')); R.pset(pm[0] - 3, pm[1] - 7, hex('#3a8a4a')); R.pset(pm[0] - 4, pm[1] - 7, hex('#3a8a4a')); }
 };
 const efectos = [[a(0.345) + 0.3, 'golpecito'], [a(0.40) + 0.3, 'burbujas'],
   [a(0.69), 'pop'], [a(0.837), 'golpecito'], [a(0.92), 'bip'],
