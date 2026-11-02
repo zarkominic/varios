@@ -303,7 +303,8 @@ export function multiversoDelante(R, t, o = {}) {
 //     fugaces, rocas que derivan por delante; y en primer plano el suelo de una luna gris (cráteres, rocas con sombra,
 //     una sierra lejana con un robot explorador que va y viene, una antena con su luz que parpadea).
 //     o.camara 'general': varias Tierras que giran (mares y continentes de ruido, casquetes, nubes más rápidas, lado de
-//       noche con luces de ciudades y halo de atmósfera), cada una con su número en una placa con R.numero y su línea de
+//       noche con luces de ciudades y halo de atmósfera), cada una con su número en una placa (la grande con R.numero de
+//       16 px; las pequeñas con cifras propias de 6 × 9 con contorno, a_cifras, para que 838 y 828 se lean) y su línea de
 //       guía. o.numeros: lista de cifras o textos (por omisión [616, 838, 828, 10005]; vale '?' para una Tierra misteriosa;
 //       hasta 5); o.foco: índice de la Tierra grande (por omisión 0). Cada número tiene su paleta: 616 azul y verde,
 //       838 turquesa y malva, 828 retro (turquesa y melocotón, con anillo), 10005 ocre y apagada (suelta polvo que se
@@ -1100,12 +1101,13 @@ function e_audFondoP(R) {
 }
 
 // una silla de director (x: el centro; suelo; s: escala, 1 ≈ 17 px de alto), de frente: patas en aspa, asiento y
-// respaldo de lona con sus costuras, brazos y largueros de madera con su luz; niebla (0–1) la funde con la oscuridad
+// respaldo de lona con sus costuras, brazos y largueros de madera con su luz; niebla (0–1) la funde con la bruma
+// violeta del fondo (no con el negro: la fila se sigue leyendo hasta la fuga); luz: el filo cálido del foco de arriba
 function e_sillaDir(R, x, suelo, s, niebla = 0, luz = 0) {
-  const { rect, linea, pset } = R, q = (v) => Math.round(v * s), osc = EP.techo0;
-  const M = e_mezcla(EP.madera, osc, niebla), ML = e_mezcla(EP.maderaL, osc, niebla), MS = e_mezcla(EP.maderaS, osc, niebla), L = e_mezcla(luz > 0 ? EP.lonaL : EP.lona, osc, niebla * 0.6), LL = e_mezcla(hex('#4a4a56'), osc, niebla), LS = e_mezcla(EP.lonaS, osc, niebla * 0.5), K = e_mezcla(EP.k, osc, niebla * 0.5);
+  const { rect, linea, pset } = R, q = (v) => Math.round(v * s), osc = EPL.bruma;
+  const M = e_mezcla(EP.madera, osc, niebla), ML = e_mezcla(EP.maderaL, osc, niebla), MS = e_mezcla(EP.maderaS, osc, niebla), L = e_mezcla(luz > 0 ? EPL.lonaL : EPL.lona, osc, niebla * 0.6), LL = e_mezcla(hex('#62668a'), osc, niebla), LS = e_mezcla(EPL.lonaS, osc, niebla * 0.5), K = e_mezcla(EP.k, osc, niebla * 0.55);
   x = Math.round(x); suelo = Math.round(suelo);
-  if (s < 0.35) { rect(x - q(6), suelo - q(17), x + q(6), suelo - q(13), L); linea(x - q(6), suelo, x + q(6), suelo - q(8), M); linea(x + q(6), suelo, x - q(6), suelo - q(8), M); rect(x - q(6), suelo - q(9), x + q(6), suelo - q(8), L); return; }
+  if (s < 0.35) { rect(x - q(6), suelo - q(17), x + q(6), suelo - q(13), L); linea(x - q(6), suelo, x + q(6), suelo - q(8), M); linea(x + q(6), suelo, x - q(6), suelo - q(8), M); rect(x - q(6), suelo - q(9), x + q(6), suelo - q(8), L); if (luz > 0) pset(x - q(6), suelo - q(17), ML); return; }
   // las patas de atrás y el aspa de delante
   linea(x - q(5), suelo - q(1), x + q(5), suelo - q(8), MS); linea(x + q(5), suelo - q(1), x - q(5), suelo - q(8), MS);
   for (const d of [-1, 1]) { linea(x - d * q(6), suelo, x + d * q(6), suelo - q(8), K); linea(x - d * q(6) + 1, suelo, x + d * q(6) + 1, suelo - q(8), d > 0 ? M : ML); }
@@ -1117,24 +1119,24 @@ function e_sillaDir(R, x, suelo, s, niebla = 0, luz = 0) {
     rect(Math.min(x + d * q(5), x + d * q(8)), suelo - q(12), Math.max(x + d * q(5), x + d * q(8)), suelo - q(11), K); rect(Math.min(x + d * q(5), x + d * q(8)), suelo - q(12), Math.max(x + d * q(5), x + d * q(8)), suelo - q(12), d > 0 ? M : ML); rect(x + d * q(8), suelo - q(12), x + d * q(8), suelo - q(7), MS); }
   rect(x - q(6), suelo - q(18), x + q(6), suelo - q(14), K); rect(x - q(6) + 1, suelo - q(18) + 1, x + q(6) - 1, suelo - q(14) - 1, L);
   if (s >= 0.8) { rect(x - q(6) + 1, suelo - q(18) + 1, x + q(6) - 1, suelo - q(18) + 1, LL); rect(x - q(6) + 1, suelo - q(14) - 1, x + q(6) - 1, suelo - q(14) - 1, LS); for (let i = x - q(6) + 2; i < x + q(6) - 1; i += 2) { pset(i, suelo - q(18) + 2, LS); pset(i, suelo - q(14) - 2, LS); } }
-  if (luz > 0) { pset(x - q(6), suelo - q(18), e_mezcla(EP.maderaL, EP.blanco, 0.5)); pset(x + q(6), suelo - q(18), EP.maderaL); }
+  if (luz > 0) { pset(x - q(6), suelo - q(18), e_mezcla(EP.maderaL, EP.blanco, 0.5)); pset(x + q(6), suelo - q(18), EP.maderaL); if (s >= 0.6) rect(x - q(6) + 1, suelo - q(9) + 1, x - q(6) + Math.max(2, q(4)), suelo - q(9) + 1, e_mezcla(LL, EPL.luz, 0.35 * (1 - niebla))); }
 }
-
-// la fila infinita de sillas en perspectiva: de (xa, ya) a la fuga (fx, fy); avance: cuánto ha andado la cámara (sillas)
+// la fila infinita de sillas en perspectiva: de (xa, ya) a la fuga (fx, fy); avance: cuánto ha andado la cámara (sillas).
+// Cada silla cercana tiene su charco de luz cálida y su reflejo en el suelo brillante; las lejanas se funden con la bruma
 function e_filaSillas(R, t, xa, ya, fx, fy, s0, avance, focos) {
   const fr = avance - Math.floor(avance), lista = [];
   for (let i = 40; i >= 0; i--) { const z = 1 + (i - fr) * 0.42; if (z < 0.55) continue; const x = fx + (xa - fx) / z, y = fy + (ya - fy) / z, s = s0 / z; if (s < 0.1) continue; lista.push([x, y, s, z, i]); }
   for (const [x, y, s, z] of lista) {
-    const niebla = e_lim((z - 1.3) / 6), luz = z < 5 ? 1 : 0; if (niebla > 0.97) continue;
-    if (focos && luz) e_charco(R, Math.round(x), Math.round(y), Math.max(3, Math.round(12 * s)), Math.max(1, Math.round(3 * s)), hex('#fff0c8'), 0.22 * (1 - niebla));
+    const niebla = e_lim((z - 1.6) / 9) * 0.9, luz = z < 8 ? 1 : 0;
+    if (focos && luz) e_charco(R, Math.round(x), Math.round(y), Math.max(3, Math.round(13 * s)), Math.max(1, Math.round(3.4 * s)), EPL.luz, 0.32 * (1 - niebla));
     e_sillaDir(R, x, y, s, niebla, luz);
-    if (focos && luz) { // el reflejo en el suelo brillante
-      for (let j = 1; j < Math.round(8 * s); j++) if (e_b4(Math.round(x), Math.round(y) + j) < 0.5 - j * 0.04) { const c = R.pget(Math.round(x), Math.round(y) + j); if (c) R.pset(Math.round(x), Math.round(y) + j, e_mezcla(c, EP.maderaS, 0.4)); }
+    if (focos && luz) { // el reflejo de la silla iluminada en el suelo brillante
+      const rx = Math.round(x), ry = Math.round(y);
+      for (let j = 1; j < Math.round(9 * s); j++) for (const dx of [-Math.round(4 * s), 0, Math.round(4 * s)]) if (e_b4(rx + dx, ry + j) < 0.55 - j * 0.05 / s) { const c = R.pget(rx + dx, ry + j); if (c) R.pset(rx + dx, ry + j, e_mezcla(c, dx ? EP.maderaS : EPL.lonaL, 0.4 * (1 - niebla))); }
     }
   }
   return lista;
 }
-
 // el panel de LED colgado (x0, y0, x1, y1) con el piloto rojo del directo y o.contador (o un reloj que corre)
 function e_panelContador(R, t, x0, y0, x1, y1, o) {
   const { rect, pset, disco } = R;
@@ -1147,91 +1149,153 @@ function e_panelContador(R, t, x0, y0, x1, y1, o) {
   for (let y = y0 + 1; y < y1; y++) for (let x = x0 + 1; x < x1; x++) if ((x % 2 === 0 || y % 2 === 0) && R.pget(x, y) === EP.ambar) pset(x, y, EP.ambarS);
 }
 
-// la capa fija del plató (fuga en fx, fy; izq: la cámara mira hacia la izquierda): el telón de terciopelo del fondo con
-// sus pliegues y la luz violeta del ciclorama que sube desde el suelo, la parrilla de tubos con sus focos de palas, los
-// telones de los lados, el rincón de realización (mesa con tres monitores, un técnico con cascos y su taza) y el suelo
-// negro de tableros con juntas en perspectiva, el reflejo del ciclorama, marcas de cinta, rozaduras y dos cables con cinta
+// la capa fija del plató (fuga en fx, fy; izq: la cámara mira hacia la izquierda): arriba, la parrilla en la oscuridad
+// (dos cordones de cercha con su celosía, motores de cadena, focos de palas, latas de colores y cabezas móviles); el
+// ciclorama de tela que la fila de luces de suelo baña de azul y magenta desde abajo (abanicos de luz, costuras,
+// pliegues y dos manchas de gobo); el faldón negro con las luces de suelo; los telones de los lados con su filo de luz;
+// el suelo negro brillante que refleja el ciclorama, con las vetas de luz de cada foco de suelo, las juntas de los
+// tableros a la fuga, marcas de cinta, rozaduras, dos cables con cinta y una rampa pasacables; el rincón de realización
+// (mesa, tres monitores, rack, silla y taza) y los haces tenues de los focos encendidos
 function e_platoFondo(R, fx, fy, izq) {
-  const { rect, pset, linea, disco, poligono } = R;
-  // el telón del fondo: pliegues verticales y la luz del ciclorama, que sube desde el suelo y se apaga hacia arriba
-  for (let y = 0; y < fy; y++) for (let x = 0; x < 320; x++) {
-    const p = Math.sin(x * 0.42 + Math.sin(x * 0.05) * 2), sub = e_lim(1 - (fy - y) / 46), luz = sub * sub * 0.9 + (p > 0.5 ? 0.12 : p < -0.4 ? -0.08 : 0);
-    const b = luz + e_b4(x, y) * 0.22; pset(x, y, b < 0.12 ? EP.techo0 : b < 0.3 ? hex('#100f1c') : b < 0.5 ? hex('#1a1630') : b < 0.72 ? hex('#262046') : hex('#342a5e'));
+  const { rect, pset, linea, disco } = R, yc = 32, U = b_platoUnidades(izq);
+  const gobos = izq ? [[150, fy - 34, 13], [262, fy - 40, 10]] : [[74, fy - 36, 12], [176, fy - 30, 14]];
+  // el techo: la oscuridad de la parrilla, con una trama que aclara hacia el ciclorama
+  for (let y = 0; y < yc; y++) for (let x = 0; x < 320; x++) pset(x, y, e_b4(x, y) < 0.08 + (y / yc) ** 2 * 0.5 ? EPL.techoL : EPL.techo);
+  // el ciclorama: la luz sube desde la fila de suelo en abanicos (más anchos y más tenues hacia arriba) y tiñe la tela
+  // de azul o de magenta según la luz que le toca; pliegues suaves, costuras cada 40 px y la trama de dos gobos
+  for (let y = yc; y < fy; y++) { const v = (y - yc) / (fy - yc);
+    for (let x = 0; x < 320; x++) {
+      let b = 0.05 + 0.3 * v ** 2, m = 0, ws = 0;
+      for (const [ux, c] of U) { const w = 7 + (1 - v) * 30, g = Math.exp(-(((x - ux) / w) ** 2)) * v ** 1.5 * 0.55; b += g; m += g * c; ws += g; }
+      b += Math.sin(x * 0.45 + Math.sin(x * 0.06) * 3) * 0.035 * (0.4 + v) - ((x + 4) % 40 === 0 ? 0.07 : 0);
+      for (const [gx, gy, gr] of gobos) { const d = Math.hypot(x - gx, (y - gy) * 1.3) / gr; if (d < 1 && h(x >> 1, y >> 1, 655) > 0.45) b += 0.16 * (1 - d * d); }
+      const i = Math.max(0, Math.min(9, Math.floor(b * 10 + e_b4(x, y) - 0.5))), mz = ws > 0.01 ? m / ws : 0.5;
+      pset(x, y, e_mezcla(EPL_A[i], EPL_V[i], mz));
+    } }
+  rect(0, yc, 319, yc, EPL.techo); for (let x = 0; x < 320; x += 6) pset(x, yc + 1, EPL.techoL);   // el dobladillo con sus ojales
+  // la parrilla: dos cordones de cercha (y 20 y 26) con la celosía en zigzag, que acaba antes del rincón de Atom
+  const xT = 268;
+  for (let x = 0; x <= xT; x++) { pset(x, 20, EP.cerchaL); pset(x, 21, EP.cercha); pset(x, 26, EP.cercha); pset(x, 27, EP.cerchaS); }
+  for (let x = 0; x < xT; x += 8) { linea(x, 21, x + 4, 26, EP.cerchaS); linea(x + 4, 26, x + 8, 21, EP.cerchaS); }
+  rect(xT, 19, xT + 2, 28, EP.cercha); pset(xT, 19, EP.cerchaL);
+  for (const x of [34, 136, 238]) { rect(x, 0, x, 19, EP.cerchaS); for (let y = 1; y < 19; y += 3) pset(x, y, EP.cercha); rect(x - 2, 14, x + 2, 18, EP.k); pset(x - 1, 15, EP.cercha); }
+  for (let x = 0; x < 320; x++) pset(x, 5, x > 270 || (x > 18 && x < 172) ? EPL.techoL : EP.cerchaS);
+  // los focos colgados de la parrilla: de palas (cálidos), latas de color y huecos para las cabezas móviles
+  const focos = [];
+  for (let x = 10, k = 0; x < 262; x += 22, k++) { const tipo = k % 3, on = h(x, 3, 653) < 0.55;
+    linea(x, 27, x, 29, EP.k);
+    if (tipo === 0) { rect(x - 3, 29, x + 3, 35, EP.k); rect(x - 2, 30, x + 2, 34, hex('#2a2c38')); pset(x - 2, 30, hex('#4a4c5a')); linea(x - 4, 35, x - 6, 38, EP.cerchaS); linea(x + 4, 35, x + 6, 38, EP.cerchaS);
+      rect(x - 2, 35, x + 2, 36, on ? hex('#e8c880') : hex('#2a2a34')); if (on) { pset(x, 36, hex('#fff4d0')); focos.push([x, 37, EPL.luz]); } }
+    else if (tipo === 1) { const col = [hex('#5a8aff'), hex('#e070e0'), hex('#4ae0d0')][Math.floor(h(x, 4, 653) * 3)];
+      rect(x - 2, 29, x + 2, 36, EP.k); rect(x - 1, 30, x + 1, 35, hex('#30323e')); rect(x - 1, 36, x + 1, 36, on ? col : hex('#24242e')); if (on) focos.push([x, 37, col]); }
+    else { rect(x - 4, 28, x + 4, 29, EP.k); rect(x - 3, 28, x + 3, 28, hex('#3a3c4a')); }
   }
-  // la parrilla de tubos con los focos de palas (unos apagados, otros con la lente tibia)
-  for (const y of [5, 15]) for (let x = 0; x < 320; x++) pset(x, y, x > 266 ? EP.techo1 : EP.cerchaS);
-  for (let x = 6; x < 268; x += 18) { rect(x, 5, x, 15, EP.cerchaS); const on = h(x, 1, 653) < 0.4;
-    rect(x - 3, 16, x + 3, 22, EP.k); rect(x - 2, 17, x + 2, 21, hex('#22242e')); pset(x - 2, 17, hex('#3a3c48')); linea(x - 4, 22, x - 6, 25, EP.cerchaS); linea(x + 4, 22, x + 6, 25, EP.cerchaS);
-    rect(x - 2, 22, x + 2, 23, on ? hex('#a88a50') : hex('#2a2a34')); if (on) pset(x, 23, hex('#f8e0a0')); }
-  // los telones de los lados
-  for (const [x0, x1] of [[0, 12], [308, 319]]) for (let y = 24; y < fy + 8; y++) for (let x = x0; x <= x1; x++) { const p = Math.sin((x - x0) * 0.8); pset(x, y, p > 0.5 ? hex('#1c1a28') : p > -0.3 ? hex('#121119') : hex('#09090f')); }
-  // el suelo: tableros negros con las juntas que van a la fuga, el reflejo violeta del ciclorama y el grano
-  for (let y = fy; y < 180; y++) { const d = (y - fy) / (180 - fy);
-    for (let x = 0; x < 320; x++) { const refl = e_lim(0.5 - d * 1.4) + (Math.sin(x * 0.42 + Math.sin(x * 0.05) * 2) > 0.5 ? 0.06 : 0), b = refl + e_b4(x, y) * 0.2 + (h(x >> 1, y, 654) - 0.5) * 0.12;
-      pset(x, y, b < 0.1 ? EP.suelo0 : b < 0.22 ? EP.suelo1 : b < 0.4 ? EP.suelo2 : hex('#221e36')); } }
-  for (let y = fy + 4; y < 180; y++) { const dz = y - fy, paso = dz * 1.3, zf = Math.floor(260 / dz), zf1 = Math.floor(260 / (dz + 1));
-    for (let x = 0; x < 320; x++) { const rx = x - fx, m = rx - Math.round(rx / paso) * paso; if ((paso > 11 && Math.abs(m) < 0.5) || (zf !== zf1 && dz > 8 && (x & 1) === 0)) pset(x, y, hex('#0c0d13')); else if (paso > 11 && m > 0.5 && m < 1.5 && e_b4(x, y) < 0.3) pset(x, y, EP.suelo2); } }
-  rect(13, fy - 1, 307, fy, hex('#2e2848'));
-  // marcas de cinta (pocas y gastadas), rozaduras claras y dos cables con tiras de cinta encima
-  for (let i = 0; i < 12; i++) { const x = Math.round(h(i, 1, 651) * 320), y = fy + 10 + Math.round(h(i, 2, 651) * (165 - fy)), c = e_mezcla([EP.cinta, EP.cintaR, EP.cintaA][i % 3], EP.suelo0, 0.45), l = 1 + Math.round((y - fy) / 35); rect(x - l, y, x + l, y, c); rect(x, y - 1, x, y + 1, c); }
-  for (let i = 0; i < 50; i++) { const x = Math.round(h(i, 3, 652) * 320), y = fy + 6 + Math.round(h(i, 4, 652) * (174 - fy)); linea(x, y, x + 3 + Math.round(h(i, 5, 652) * 8), y + (i % 3 === 0 ? 1 : 0), i % 4 ? EP.suelo2 : hex('#2a2a36')); }
-  for (const [y0, k] of [[156, 0], [174, 1]]) { let px = izq ? 320 : 0, py = y0; for (let s = 0; s <= 320; s += 4) { const x = izq ? 320 - s : s, y = y0 + Math.round(Math.sin(s * 0.035 + k * 2) * 5 + Math.sin(s * 0.11) * 2); linea(px, py, x, y, EP.k); linea(px, py - 1, x, y - 1, hex('#2a2c38')); px = x; py = y; if (s % 92 === 40) { rect(x - 2, y - 2, x + 3, y + 1, hex('#3a3a44')); rect(x - 2, y - 2, x + 3, y - 2, hex('#4a4a56')); } } }
-  // el rincón de realización: mesa, tres monitores encendidos (la imagen la pone el plano), sillas, un técnico con cascos
+  // los telones de los lados (terciopelo negro con pliegues y el filo que recoge la luz del ciclorama)
+  for (const [x0, x1, f] of [[0, 11, 11], [308, 319, 308]]) for (let y = 0; y < fy + 6; y++) for (let x = x0; x <= x1; x++) { const p = Math.sin((x - x0) * 0.9); pset(x, y, x === f && y > yc ? EPL_V[Math.min(6, 2 + Math.floor((y - yc) / 12))] : p > 0.5 ? hex('#1e1c2c') : p > -0.3 ? hex('#13121c') : hex('#09090f')); }
+  // el faldón negro al pie del ciclorama, con las luces de suelo encendidas
+  rect(12, fy - 5, 307, fy - 1, EPL.masc); rect(12, fy - 5, 307, fy - 5, EPL.mascL);
+  for (const [ux, c] of U) { if (ux < 12 || ux > 306) continue; rect(ux - 4, fy - 9, ux + 4, fy - 4, EP.k); rect(ux - 3, fy - 8, ux + 3, fy - 5, hex('#24263a')); rect(ux - 3, fy - 9, ux + 3, fy - 9, EPL_LENTE[c]); pset(ux, fy - 9, EP.blanco); linea(ux - 5, fy - 4, ux - 6, fy - 2, EP.k); linea(ux + 5, fy - 4, ux + 6, fy - 2, EP.k); }
+  // el suelo: refleja el ciclorama (más apagado cuanto más cerca), con grano, y una veta de luz bajo cada foco de suelo
+  for (let y = fy; y < 180; y++) { const d = (y - fy) / (180 - fy), ym = Math.max(yc + 2, Math.round(fy - 6 - (y - fy) * 0.5));
+    for (let x = 0; x < 320; x++) { const c = R.pget(x, ym), f = Math.min(0.9, 0.3 + d * 0.48 + (e_b4(x, y) - 0.5) * 0.14 + (h(x >> 1, y, 654) - 0.5) * 0.1); pset(x, y, e_mezcla(c, EPL.suelo0, f)); } }
+  // los charcos grandes de luz que dejan los focos de la parrilla sobre el suelo (cálidos y de color), a varias distancias
+  for (const [cx, cy, rx, ry, col] of izq ? [[64, 166, 56, 10, hex('#5a6ad8')], [258, 146, 52, 9, hex('#c860c0')], [118, 122, 40, 6, EPL.luz], [300, 172, 36, 7, EPL.luz]] : [[96, 134, 54, 9, hex('#5a6ad8')], [196, 172, 66, 10, hex('#c860c0')], [36, 160, 30, 8, EPL.luz], [236, 120, 40, 6, EPL.luz]]) e_charco(R, cx, cy, rx, ry, col, 0.16);
+  for (const [ux, c] of U) for (let y = fy; y < Math.min(180, fy + 40); y++) { const d = (y - fy) / 40; for (let dx = -2; dx <= 2; dx++) if (e_b4(ux + dx, y) < (1 - d) * (1 - Math.abs(dx) * 0.3) * 0.7) { const p = R.pget(ux + dx, y); pset(ux + dx, y, e_mezcla(p, EPL_LENTE[c], 0.32 * (1 - d))); } }
+  // las juntas de los tableros: a la fuga y en horizontal (cada vez más juntas al fondo), con su filo claro
+  const filas = new Set(); for (let k = 0, v = 7; v < 92; k++, v *= 1.3) filas.add(Math.round(v));
+  for (let y = fy + 3; y < 180; y++) { const dz = y - fy, paso = dz * 1.3, fila = filas.has(dz);
+    for (let x = 0; x < 320; x++) { const rx = x - fx, m = rx - Math.round(rx / paso) * paso;
+      if ((paso > 9 && Math.abs(m) < 0.5) || (fila && (dz > 20 || ((x & 3) === 0 && dz > 9)))) pset(x, y, EPL.junta);
+      else if (fila && dz > 20 && e_b4(x, y + 1) < 0.5) pset(x, y + 1, EPL.juntaL);
+      else if (paso > 9 && m > 0.5 && m < 1.5 && e_b4(x, y) < 0.4) pset(x, y, EPL.juntaL); } }
+  // marcas de cinta (cruces y esquinas de colores, gastadas), rozaduras claras, dos cables con cinta y una rampa
+  for (let i = 0; i < 16; i++) { const x = Math.round(h(i, 1, 651) * 300 + 10), y = fy + 8 + Math.round(h(i, 2, 651) * (168 - fy)), c = e_mezcla([EP.cinta, EP.cintaR, EP.cintaA][i % 3], EPL.suelo0, 0.25), l = 1 + Math.round((y - fy) / 30);
+    if (i % 2) { rect(x - l, y, x + l, y, c); rect(x, y - 1, x, y + 1, c); } else { rect(x, y, x + l + 1, y, c); rect(x, y - l, x, y, c); } }
+  for (let i = 0; i < 60; i++) { const x = Math.round(h(i, 3, 652) * 320), y = fy + 5 + Math.round(h(i, 4, 652) * (174 - fy)); linea(x, y, x + 3 + Math.round(h(i, 5, 652) * 8), y + (i % 3 === 0 ? 1 : 0), i % 4 ? hex('#1e2032') : hex('#2c2e44')); }
+  for (const [y0, k, col] of [[156, 0, EPL.cable], [174, 1, hex('#3a2a20')]]) { let px = izq ? 320 : 0, py = y0;
+    for (let s = 0; s <= 320; s += 4) { const x = izq ? 320 - s : s, y = y0 + Math.round(Math.sin(s * 0.035 + k * 2) * 5 + Math.sin(s * 0.11) * 2); linea(px, py + 1, x, y + 1, EP.k); linea(px, py, x, y, col); if (s % 12 === 0) pset(x, y, k ? hex('#6a4a30') : EPL.cableL); px = x; py = y;
+      if (s % 92 === 40) { rect(x - 3, y - 2, x + 3, y + 1, hex('#8a7a40')); rect(x - 3, y - 2, x + 3, y - 2, hex('#c8b060')); pset(x - 1, y, hex('#5a4a20')); } } }
+  { const rx = izq ? 96 : 236, ry = 176; rect(rx - 12, ry - 3, rx + 12, ry, EP.k); for (let x = rx - 11; x <= rx + 11; x++) pset(x, ry - 2, ((x >> 1) & 1) ? hex('#e8c040') : hex('#1a1a20')); rect(rx - 11, ry - 1, rx + 11, ry - 1, hex('#2a2a32')); }
+  // el rincón de realización: la mesa con su canto iluminado, tres monitores (la imagen la pone el plano), el rack de
+  // equipos con sus pilotos, un taburete y la taza
   const vx = izq ? 230 : 20, vy = fy + 2;
-  rect(vx, vy - 9, vx + 52, vy - 7, EP.k); rect(vx + 1, vy - 9, vx + 51, vy - 9, hex('#3a3c48')); rect(vx + 2, vy - 7, vx + 3, vy + 4, EP.k); rect(vx + 49, vy - 7, vx + 50, vy + 4, EP.k);
-  for (let i = 0; i < 3; i++) { const mx = vx + 4 + i * 16; rect(mx, vy - 21, mx + 13, vy - 11, EP.k); rect(mx + 6, vy - 11, mx + 7, vy - 9, EP.k); }
-  rect(vx + 40, vy - 12, vx + 42, vy - 10, hex('#c8c0b0')); pset(vx + 41, vy - 13, hex('#6a6a7a'));
+  e_charco(R, vx + 26, vy + 3, 34, 4, hex('#6a8ad8'), 0.18);
+  rect(vx, vy - 9, vx + 52, vy - 7, EP.k); rect(vx + 1, vy - 9, vx + 51, vy - 9, hex('#5a5e7a')); rect(vx + 1, vy - 8, vx + 51, vy - 8, hex('#2a2c3c'));
+  rect(vx + 2, vy - 7, vx + 3, vy + 4, EP.k); rect(vx + 49, vy - 7, vx + 50, vy + 4, EP.k); rect(vx + 4, vy - 6, vx + 48, vy - 6, hex('#16171f'));
+  for (let i = 0; i < 3; i++) { const mx = vx + 4 + i * 16; rect(mx, vy - 21, mx + 13, vy - 11, EP.k); rect(mx + 6, vy - 11, mx + 7, vy - 9, EP.k); rect(mx + 4, vy - 10, mx + 9, vy - 10, hex('#2a2c38')); }
+  rect(vx + 8, vy - 10, vx + 20, vy - 10, hex('#3a3c4a')); for (let x = vx + 9; x < vx + 20; x += 2) pset(x, vy - 10, hex('#5a5c6a'));   // el teclado
+  rect(vx + 40, vy - 12, vx + 42, vy - 10, hex('#c8c0b0')); pset(vx + 41, vy - 13, hex('#6a6a7a')); pset(vx + 43, vy - 11, hex('#c8c0b0'));
+  const kx = izq ? vx - 9 : vx + 54; rect(kx, vy - 16, kx + 7, vy + 4, EP.k); rect(kx + 1, vy - 15, kx + 6, vy + 3, hex('#1e2030'));
+  for (let y = vy - 14; y < vy + 3; y += 3) { rect(kx + 1, y, kx + 6, y, hex('#2c2e40')); }
+  rect(vx + 22, vy - 3, vx + 30, vy - 2, EP.k); rect(vx + 25, vy - 1, vx + 26, vy + 3, EP.k); linea(vx + 22, vy + 4, vx + 29, vy + 4, EP.k);   // el taburete
+  // los haces tenues de los focos encendidos de la parrilla, que caen sobre el ciclorama y el suelo
+  for (const [x, y, col] of focos) { const dx = (fx - x) * 0.18; e_haz(R, x, y, x + dx, fy + 18, 1, 9, col, 0.12, 0.3); e_charco(R, Math.round(x + dx), fy + 18, 10, 2, col, 0.14); }
 }
-
-// la vida del rincón de realización (vx, vy como en e_platoFondo): las tres pantallas, que cambian, y el técnico con
-// cascos que mira y gira la cabeza
-function e_realizacion(R, t, vx, vy) {
+// la vida del rincón de realización (vx, vy como en e_platoFondo): las tres pantallas encendidas, que cambian (la silla
+// en su foco, las barras de color, el directo con su onda), su resplandor en la mesa, los pilotos del rack y el técnico
+// con cascos que mira y gira la cabeza
+function e_realizacion(R, t, vx, vy, izq = false) {
   const { rect, pset, disco } = R;
   for (let i = 0; i < 3; i++) { const mx = vx + 4 + i * 16, cual = (Math.floor(t / 2.5) + i) % 3;
-    rect(mx + 1, vy - 20, mx + 12, vy - 12, cual === 0 ? hex('#1a1a28') : cual === 1 ? hex('#22203a') : hex('#14121e'));
-    if (cual !== 2) { rect(mx + 4, vy - 17, mx + 9, vy - 16, hex('#8a6a40')); rect(mx + 5, vy - 15, mx + 8, vy - 13, hex('#3a3a48')); } else { rect(mx + 3, vy - 18, mx + 10, vy - 14, hex('#b04040')); pset(mx + 6, vy - 16, EP.blanco); }
-    rect(mx + 1, vy - 20, mx + 12, vy - 20, hex('#4a4a6a')); }
+    if (cual === 0) { rect(mx + 1, vy - 20, mx + 12, vy - 12, hex('#1c2a5a')); for (let y = vy - 19; y < vy - 12; y++) for (let x = mx + 4; x < mx + 10; x++) if (e_b4(x, y) < 0.4) pset(x, y, hex('#3a4a8a')); rect(mx + 5, vy - 17, mx + 8, vy - 16, hex('#e8e0d0')); rect(mx + 5, vy - 15, mx + 5, vy - 13, hex('#c89a5a')); rect(mx + 8, vy - 15, mx + 8, vy - 13, hex('#c89a5a')); rect(mx + 5, vy - 15, mx + 8, vy - 15, hex('#e8e0d0')); }
+    else if (cual === 1) { const bs = ['#d8d8d8', '#e8e040', '#40e0e0', '#40d040', '#e040e0', '#e04040', '#4040e0'].map(hex); for (let k = 0; k < 6; k++) rect(mx + 1 + k * 2, vy - 20, mx + 2 + k * 2, vy - 14, bs[k]); rect(mx + 1, vy - 13, mx + 12, vy - 12, hex('#2a2a3a')); }
+    else { rect(mx + 1, vy - 20, mx + 12, vy - 12, hex('#2a0e16')); for (let x = mx + 2; x < mx + 12; x++) pset(x, vy - 16 + Math.round(Math.sin(x * 1.3 + t * 9) * 2), hex('#ff6a6a')); disco(mx + 3, vy - 18, 1, Math.floor(t * 2) % 2 ? EP.rojo : EP.rojoS); }
+    rect(mx + 1, vy - 20, mx + 12, vy - 20, e_mezcla(R.pget(mx + 2, vy - 20) || EP.k, EP.blanco, 0.25)); pset(mx + 12, vy - 12, hex('#5aff8a')); }
+  e_tinte(R, vx + 3, vy - 9, vx + 50, vy - 8, hex('#8aa8ff'), 0.25, 0.6);
+  const kx = izq ? vx - 9 : vx + 54; for (let k = 0; k < 6; k++) { const y = vy - 14 + k * 3, on = Math.sin(t * (2 + k * 0.7) + k * 2) > 0; pset(kx + 2, y + 1, on ? hex('#5aff8a') : hex('#1a4a2a')); pset(kx + 4, y + 1, (k + Math.floor(t * 3)) % 4 === 0 ? EP.ambar : hex('#3a2a10')); }
   const x = vx + 26, y = vy - 1, gira = Math.sin(t * 0.6) > 0.3 ? 1 : 0;
-  rect(x - 3, y - 8, x + 3, y, EP.k); rect(x - 2, y - 7, x + 2, y, hex('#2a3a5a')); disco(x, y - 11, 3, EP.k); disco(x, y - 11, 2.2, hex('#3a2a20')); pset(x - 1 + gira * 2, y - 11, E_PIELES[0]);
-  rect(x - 3, y - 14, x + 3, y - 14, EP.k); pset(x - 3, y - 12, EP.k); pset(x + 3, y - 12, EP.k);
+  rect(x - 3, y - 8, x + 3, y - 2, EP.k); rect(x - 2, y - 7, x + 2, y - 2, hex('#2a3a5a')); rect(x - 2, y - 7, x - 2, y - 3, hex('#3a4e78')); disco(x, y - 11, 3, EP.k); disco(x, y - 11, 2.2, hex('#3a2a20')); pset(x - 1 + gira * 2, y - 11, E_PIELES[0]);
+  rect(x - 3, y - 14, x + 3, y - 14, EP.k); pset(x - 3, y - 12, EP.k); pset(x + 3, y - 12, EP.k); pset(x - 3, y - 11, hex('#5a5c6a'));
+  if (Math.sin(t * 1.7) > 0.2) { pset(x + 4, y - 7, E_PIELES[0]); pset(x + 5, y - 8, EP.k); }   // la mano en el teclado
 }
-
 function e_platoGeneral(R, t, o) {
   const fx = 252, fy = 88;
   e_capa(R, 'plato-g', () => e_platoFondo(R, fx, fy, false));
   const { rect, pset, disco, linea } = R;
+  b_platoVida(R, t, fx, fy, false, [[54, hex('#6aa0ff'), 0], [164, hex('#f080f0'), 2.2]]);
   e_realizacion(R, t, 20, fy + 2);
   // los bastones de luz de pie a lo largo del fondo, tibios, que respiran
-  for (const [bx, k] of [[90, 0], [140, 1], [186, 2]]) { const b = 0.6 + Math.sin(t * 0.9 + k * 2) * 0.25; R.halo(bx, fy - 16, 12, [hex('#2a2030'), hex('#3a2a3a')], b * 1.3); rect(bx - 1, fy - 30, bx + 1, fy - 3, EP.k); rect(bx, fy - 29, bx, fy - 4, e_mezcla(hex('#a87a50'), hex('#ffe0a8'), b)); linea(bx - 3, fy, bx, fy - 3, EP.k); linea(bx + 3, fy, bx, fy - 3, EP.k); }
+  for (const [bx, k] of [[96, 0], [140, 1], [196, 2]]) { const b = 0.6 + Math.sin(t * 0.9 + k * 2) * 0.25; R.halo(bx, fy - 16, 12, [hex('#3a2a40'), hex('#5a3a4a')], b * 1.3); rect(bx - 1, fy - 30, bx + 1, fy - 3, EP.k); rect(bx, fy - 29, bx, fy - 4, e_mezcla(hex('#c89a60'), hex('#fff0c8'), b)); linea(bx - 3, fy, bx, fy - 3, EP.k); linea(bx + 3, fy, bx, fy - 3, EP.k); e_charco(R, bx, fy + 1, 6, 1, hex('#ffd8a0'), 0.25 * b); }
   // la grúa de cámara al fondo, que se balancea, con su piloto rojo
   { const bx = 288, by = fy + 4, a = -0.5 + Math.sin(t * 0.35) * 0.25, ex = Math.round(bx + Math.cos(a + Math.PI) * 30), ey = Math.round(by - 14 + Math.sin(a + Math.PI) * 30);
-    rect(bx - 1, by - 14, bx + 1, by, EP.k); linea(bx - 6, by, bx + 6, by, EP.k); linea(bx + 10, by - 18, ex, ey, hex('#3a3c48')); linea(bx + 10, by - 17, ex, ey + 1, hex('#22242e')); rect(bx + 8, by - 20, bx + 13, by - 15, hex('#2a2c38'));
+    rect(bx - 1, by - 14, bx + 1, by, EP.k); linea(bx - 6, by, bx + 6, by, EP.k); linea(bx + 10, by - 18, ex, ey, hex('#4a4c5a')); linea(bx + 10, by - 17, ex, ey + 1, hex('#22242e')); rect(bx + 8, by - 20, bx + 13, by - 15, hex('#2a2c38'));
     rect(ex - 4, ey, ex + 3, ey + 5, EP.k); rect(ex - 3, ey + 1, ex + 2, ey + 4, hex('#30323e')); pset(ex - 4, ey + 2, hex('#5a8ac8')); if (Math.floor(t * 2) % 2) pset(ex + 2, ey, EP.rojo); }
-  // un técnico con cascos que cruza al fondo, con un rollo de cable
-  { const p = (t * 9) % 400, x = Math.round(p < 200 ? 60 + p : 460 - p), y = fy + 6, an = Math.floor(t * 5) % 2, d = p < 200 ? 1 : -1;
-    rect(x - 2, y - 8, x + 2, y - 3, EP.k); rect(x - 1, y - 7, x + 1, y - 3, hex('#2e3040')); disco(x, y - 10, 2, EP.k); disco(x, y - 10, 1.3, hex('#c8906a')); pset(x - d, y - 11, EP.k); pset(x, y - 12, EP.k);
-    rect(x - 1, y - 2, x - 1, y - an, EP.k); rect(x + 1, y - 2, x + 1, y - 1 + an, EP.k); disco(x + d * 3, y - 5, 2, hex('#e8a040')); pset(x + d * 3, y - 5, EP.k); }
+  // el monitor de plató sobre su pie con ruedas, que muestra el directo (la fila de sillas o el piloto)
+  { const mx = 214, my = fy + 12, cual = Math.floor(t / 3) % 2; linea(mx - 5, my, mx + 5, my, EP.k); pset(mx - 5, my + 1, EP.k); pset(mx + 5, my + 1, EP.k); rect(mx, my - 14, mx, my, EP.k);
+    rect(mx - 9, my - 25, mx + 9, my - 14, EP.k); rect(mx - 8, my - 24, mx + 8, my - 15, cual ? hex('#1a2450') : hex('#301430'));
+    if (cual) for (let k = 0; k < 4; k++) { const sx = mx - 6 + k * 4, sy = my - 17 - k; rect(sx - 1, sy - 3, sx + 1, sy - 2, hex('#c89a5a')); pset(sx, sy - 1, hex('#8a6038')); }
+    else { disco(mx, my - 20, 3, EP.rojo); pset(mx - 1, my - 21, hex('#ffb0b0')); }
+    rect(mx - 8, my - 24, mx + 8, my - 24, hex('#6a7aa8')); R.halo(mx, my - 19, 12, [hex('#141838'), hex('#20244a')], 0.8); }
+  // un técnico con cascos que cruza al fondo con un rollo de cable, y el regidor con su carpeta, que hace señas
+  { const p = (t * 9) % 400, x = Math.round(p < 200 ? 60 + p : 460 - p); b_platoTecnico(R, x, fy + 7, p < 200 ? 1 : -1, true, hex('#2e3040'), 'cable', 0, t); }
+  b_platoTecnico(R, 150, fy + 12, -1, false, hex('#4a2a3a'), 'carpeta', Math.max(0, Math.sin(t * 1.4)), t);
+  { const x = 106, y = fy + 16, k = Math.floor(t * 2) % 2;   // un técnico de rodillas pega cinta sobre un cable
+    linea(80, y, 130, y + 1, EP.k); rect(x - 2, y - 6, x + 2, y - 2, EP.k); rect(x - 1, y - 5, x + 1, y - 2, hex('#2a4a3a')); disco(x, y - 8, 2, EP.k); disco(x, y - 8, 1.3, E_PIELES[1]); rect(x - 3, y - 1, x + 2, y, EP.k); pset(x + 3 + k, y - 1, EP.cinta); pset(x + 3, y, EP.cinta); }
   // la fila de sillas, que avanza despacio, con sus haces de luz
   const avance = t * (o.dolly ?? 0.12), lista = e_filaSillas(R, t, 30, 178, fx, fy, 2.0, avance, true);
-  for (const [x, y, s, z] of lista) if (z < 4.2 && x > -10 && x < 330) e_haz(R, x + 8 * s, 24, x, y - 14 * s, 1, Math.max(3, 10 * s), hex('#fff0c8'), 0.13, 0.3);
-  e_motas(R, t, 10, 200, 30, 170, 30, hex('#6a6470'), 3);
+  for (const [x, y, s, z] of lista) if (z < 4.6 && x > -10 && x < 330) e_haz(R, x + 8 * s, 30, x, y - 14 * s, 1, Math.max(3, 11 * s), EPL.luz, 0.17, 0.4);
+  e_motas(R, t, 10, 200, 34, 170, 40, hex('#9a90b8'), 3);
   e_camaraEstudio(R, t, 296, 176);
   // el panel de LED con el contador
   e_panelContador(R, t, 186, 22, 266, 46, o);
   return { suelo: 164, libre: [150, 290, 128, 176], fuga: [fx, fy], fila: [[30, 178], [fx, fy]], panel: [186, 22, 266, 46], realizacion: [20, 72, fy] };
 }
-
 function e_platoSilla(R, t, o) {
   const fx = 40, fy = 96;
   e_capa(R, 'plato-s', () => e_platoFondo(R, fx, fy, true));
   const { rect, pset, disco, poligono, linea } = R;
-  e_realizacion(R, t, 230, fy + 2);
-  // la fila que se pierde a la izquierda, en la oscuridad (quieta), con los charcos de luz más tenues
-  e_filaSillas(R, t, 122, 148, fx, fy, 1.1, 0, true);
+  b_platoVida(R, t, fx, fy, true, [[122, hex('#6aa0ff'), 1], [212, hex('#f080f0'), 3.4]]);
+  e_realizacion(R, t, 230, fy + 2, true);
+  // al fondo, un técnico cruza con un rollo de cable y otro de pie junto a realización revisa la carpeta
+  { const p = (t * 8) % 240, x = Math.round(p < 120 ? 104 + p : 344 - p); b_platoTecnico(R, x, fy + 6, p < 120 ? 1 : -1, true, hex('#2e3040'), 'cable', 0, t); }
+  b_platoTecnico(R, 292, fy + 5, -1, false, hex('#4a2a3a'), 'carpeta', Math.max(0, Math.sin(t * 1.1 + 1)) * 0.6, t);
+  // la fila que se pierde a la izquierda, en la bruma (quieta), con sus charcos de luz y sus haces
+  const lista = e_filaSillas(R, t, 122, 148, fx, fy, 1.1, 0, true);
+  for (const [x, y, s, z] of lista) if (z < 3.2) e_haz(R, x + 6 * s, 38, x, y - 14 * s, 1, Math.max(3, 10 * s), EPL.luz, 0.12, 0.32);
   // el haz fuerte sobre la última silla, con motas, y su charco de luz
-  e_charco(R, 168, 155, 30, 6, hex('#fff0c8'), 0.32);
-  e_haz(R, 176, 0, 168, 152, 3, 30, hex('#fff0c8'), 0.16, 0.42);
-  e_motas(R, t, 140, 196, 20, 150, 30, hex('#e8e0c0'), 7);
+  e_charco(R, 168, 155, 32, 6, EPL.luz, 0.36);
+  e_haz(R, 176, 0, 168, 152, 3, 30, EPL.luz, 0.18, 0.46);
+  e_motas(R, t, 140, 196, 20, 150, 34, hex('#f0e8c8'), 7);
   e_sillaDir(R, 168, 154, 1.6, 0, 1);
   // la capa verde colgada del respaldo: cae por delante y por el brazo derecho, con pliegues, la capucha y el broche
   if (o.capa !== false) {
@@ -1252,7 +1316,6 @@ function e_platoSilla(R, t, o) {
   e_panelContador(R, t, 26, 22, 106, 46, o);
   return { suelo: 156, silla: [168, 154], libre: [[96, 146], [196, 260]], panel: [26, 22, 106, 46] };
 }
-
 // la cámara de estudio sobre su pedestal (x: la columna; suelo), vista de lado mirando a la izquierda: cuerpo con el
 // objetivo y el parasol, el visor, las asas, el piloto rojo que se enciende, la columna con el aro de dirección, la base
 // con ruedas y el cable que se va por el suelo
@@ -1276,14 +1339,20 @@ function e_motas(R, t, x0, x1, y0, y1, n, c, k = 0) {
     if (Math.sin(t * 1.3 + i * 2.1) > -0.3) R.pset(Math.round(x), Math.round(y), c); }
 }
 
-// el pie de un foco en primer plano, a la izquierda del plató (va por delante de los actores)
+// el pie de un foco en primer plano, a la izquierda del plató (va por delante de los actores): trípode con su saco de
+// arena, la columna, el foco de palas encendido mirando a la derecha (lente cálida que respira, rejilla de ventilación,
+// palas, brillo en el canto) y su cable de seguridad
 function e_pieFoco(R, t) {
-  const { rect, linea, pset, disco } = R;
-  linea(8, 180, 18, 150, EP.k); linea(30, 180, 20, 150, EP.k); rect(18, 120, 21, 152, EP.k); rect(19, 120, 19, 152, hex('#2a2c38'));
-  rect(10, 106, 30, 120, EP.k); rect(11, 107, 29, 119, hex('#1e2028')); rect(11, 107, 29, 107, hex('#3a3c48')); for (let y = 109; y < 119; y += 3) rect(13, y, 27, y, hex('#15161d'));
-  rect(30, 108, 33, 118, EP.k); pset(31, 110, hex('#ffe8a0')); pset(31, 113, hex('#ffe8a0'));
+  const { rect, linea, pset, disco } = R, b = 0.75 + Math.sin(t * 1.3) * 0.12;
+  linea(8, 180, 18, 150, EP.k); linea(9, 180, 19, 150, hex('#3a3c4a')); linea(30, 180, 20, 150, EP.k); linea(19, 180, 19, 152, EP.k);
+  rect(10, 174, 20, 179, EP.k); rect(11, 175, 19, 178, hex('#4a3a2a')); rect(11, 175, 19, 175, hex('#6a5640')); pset(15, 177, hex('#2a2018'));   // el saco de arena
+  rect(18, 120, 21, 152, EP.k); rect(19, 120, 19, 152, hex('#4a4c5a')); rect(17, 136, 22, 138, EP.k); pset(18, 136, hex('#6a6c7a'));
+  rect(10, 106, 30, 120, EP.k); rect(11, 107, 29, 119, hex('#262833')); rect(11, 107, 29, 107, hex('#5a5c6c')); rect(11, 108, 11, 118, hex('#3a3c4a')); for (let y = 110; y < 119; y += 3) rect(13, y, 27, y, hex('#15161d'));
+  linea(20, 120, 13, 124, hex('#8a8c98')); pset(13, 124, hex('#c8c8d0'));   // el cable de seguridad
+  rect(30, 107, 33, 119, EP.k); for (let y = 108; y < 119; y++) pset(31, y, e_mezcla(hex('#a87a40'), hex('#fff4d0'), b * (1 - Math.abs(y - 113) / 7)));
+  pset(32, 110, hex('#fff8e0')); linea(34, 106, 38, 103, EP.k); linea(34, 120, 38, 123, EP.k);   // las palas
+  R.halo(33, 113, 10, [hex('#2a2018'), hex('#4a3420')], b * 1.2);
 }
-
 function e_prensaFondo(R, cerca) {
   const { rect, pset, disco, linea, poligono } = R, s = cerca ? 2 : 1, yt = cerca ? 140 : 112;
   // el fondo de paneles: la tela azul marino con su trama, los emblemas repetidos y las juntas, y la caída de luz
@@ -5702,17 +5771,18 @@ function d_anillo(R, cx, cy, r, ramp, delante) {
   }
 }
 
-// la placa de un número: fondo oscuro con filo del color de su Tierra, esquinas claras y el número dorado con R.numero
+// la placa de un número: fondo oscuro con filo del color de su Tierra, esquinas claras y el número dorado (la grande con
+// R.numero de 16 px; las pequeñas con las cifras propias de a_cifras, más legibles a su tamaño)
 function d_placa(R, txt, x, base, grande, borde) {
-  const s = String(txt), w = s.length * (grande ? 16 : 8), x0 = Math.round(x - w / 2 - 4), x1 = Math.round(x + w / 2 + 3);
+  const s = String(txt), propias = !grande && [...s].every((c) => a_CIFRAS[c]);
+  const w = propias ? s.length * 7 - 1 : s.length * (grande ? 16 : 8), x0 = Math.round(x - w / 2 - 4), x1 = Math.round(x + w / 2 + 3);
   const y0 = base - (grande ? 20 : 11), y1 = base + (grande ? 4 : 3);
   R.rect(x0 + 1, y0 + 1, x1 + 1, y1 + 1, hex('#04050c'));
   R.rect(x0, y0, x1, y1, hex('#0c1028')); R.rect(x0, y0, x1, y0, borde); R.rect(x0, y1, x1, y1, borde); R.rect(x0, y0, x0, y1, borde); R.rect(x1, y0, x1, y1, borde);
   for (let xx = x0 + 2; xx < x1 - 1; xx += 2) R.pset(xx, y0 + 2, hex('#161c3c'));
   R.pset(x0, y0, C.blanco); R.pset(x1, y0, C.blanco); R.pset(x0, y1, borde); R.pset(x1, y1, borde);
-  R.numero(s, x, base, { centro: true, tam: grande ? 16 : 8 });
+  if (propias) a_cifras(R, s, x, base); else R.numero(s, x, base, { centro: true, tam: grande ? 16 : 8 });
 }
-
 // el fondo del espacio: nebulosas tramadas (rampa violeta o turquesa según la zona), vetas de polvo oscuro, la banda
 // lechosa y tres clases de estrellas; la zona de Atom y la barra del año, más apagadas
 function d_fondoEspacio(R, sem, calido) {
@@ -8002,4 +8072,76 @@ export function galactusGrande(R, x, y, t, o = {}) {
   if (au > 0 && k > 0.2) h_corona(R, t, fx, fy + Math.round(2 * s * k), Math.round(17 * s * k), au * (1 - ex));
   h_galactus(R, t, s, fx, fy, k, { bruma: o.bruma ?? null, tinte: [h_P.portal2, ue * 0.6] });
   return { x: fx, y: fy, s: s * k, k };
+}
+
+// las cifras propias de las placas pequeñas: 6 × 9 en negrita (trazos verticales de 2 px y huecos de 2 px, el 8 con sus
+// dos ojos bien cerrados, el 3 abierto a la izquierda) para que 838, 828 y 10005 se lean a simple vista; '?' también
+const a_CIFRAS = {
+  0: ['.####.', '##..##', '##..##', '##..##', '##..##', '##..##', '##..##', '##..##', '.####.'],
+  1: ['..##..', '.###..', '####..', '..##..', '..##..', '..##..', '..##..', '..##..', '######'],
+  2: ['.####.', '##..##', '....##', '....##', '...##.', '..##..', '.##...', '##....', '######'],
+  3: ['.####.', '##..##', '....##', '....##', '..###.', '....##', '....##', '##..##', '.####.'],
+  4: ['...##.', '..###.', '.####.', '##.##.', '##.##.', '######', '...##.', '...##.', '...##.'],
+  5: ['######', '##....', '##....', '#####.', '....##', '....##', '....##', '##..##', '.####.'],
+  6: ['..###.', '.##...', '##....', '#####.', '##..##', '##..##', '##..##', '##..##', '.####.'],
+  7: ['######', '....##', '....##', '...##.', '..##..', '..##..', '.##...', '.##...', '.##...'],
+  8: ['.####.', '##..##', '##..##', '##..##', '.####.', '##..##', '##..##', '##..##', '.####.'],
+  9: ['.####.', '##..##', '##..##', '##..##', '.#####', '....##', '....##', '...##.', '.###..'],
+  '?': ['.####.', '##..##', '....##', '...##.', '..##..', '..##..', '......', '..##..', '..##..'],
+};
+
+// pinta s con las cifras de a_CIFRAS centrado en x, con la última fila en base: contorno de tinta de 1 px, relleno dorado
+// en tres bandas (la rampa del título) y un brillo en el filo de arriba a la izquierda de cada trazo. Devuelve el ancho.
+function a_cifras(R, s, x, base) {
+  const w = s.length * 7 - 1, x0 = Math.round(x - w / 2), y0 = base - 8, on = (i, j) => {
+    if (j < 0 || j > 8 || i < 0 || i >= w) return false; const k = Math.floor(i / 7), c = i % 7; if (c > 5) return false;
+    const g = a_CIFRAS[s[k]]; return !!g && g[j][c] === '#'; };
+  const ORO = [hex('#fffbe9'), hex('#ffeaa8'), hex('#ffd36a'), hex('#f6a94f'), hex('#e07b45')], TINTA = hex('#05060f');
+  for (let j = -1; j <= 9; j++) for (let i = -1; i <= w; i++) {
+    if (on(i, j)) R.pset(x0 + i, y0 + j, !on(i, j - 1) && !on(i - 1, j) ? ORO[0] : ORO[j < 3 ? 1 : j < 6 ? 2 : j < 8 ? 3 : 4]);
+    else if (on(i - 1, j) || on(i + 1, j) || on(i, j - 1) || on(i, j + 1) || on(i - 1, j - 1) || on(i + 1, j - 1) || on(i - 1, j + 1) || on(i + 1, j + 1)) R.pset(x0 + i, y0 + j, TINTA);
+  }
+  return w;
+}
+
+// los colores del plató iluminado de noche: el techo de la parrilla, la bruma violeta donde se pierde la fila, la lona
+// de las sillas, el suelo negro brillante y la luz cálida de los focos; y las dos rampas del ciclorama (EPL_V: violeta a
+// magenta; EPL_A: azul a celeste), de la oscuridad de arriba a la luz de la fila de suelo
+const EPL = pal({ techo: '#080916', techoL: '#0f1128', bruma: '#2c2558', lona: '#24263e', lonaL: '#44486a', lonaS: '#14152a',
+  suelo0: '#0d0e1c', junta: '#06070d', juntaL: '#232640', luz: '#fff0c8', masc: '#0b0b18', mascL: '#2a2a48', cable: '#2e3044', cableL: '#4a4e68' });
+
+const EPL_V = ['#0d0d1e', '#151432', '#1f1946', '#2b1e5c', '#3b2472', '#512a86', '#6a3196', '#8a3aa4', '#ad4cb0', '#d070c0'].map(hex);
+
+const EPL_A = ['#0b0e1e', '#111836', '#17224c', '#1d2c64', '#24387c', '#2c4694', '#3656aa', '#4268c0', '#5a84d4', '#7aa4e4'].map(hex);
+
+const EPL_LENTE = [hex('#5a8aff'), hex('#e070e0')];   // la lente de las luces de suelo (azul, magenta)
+
+// las luces de suelo del ciclorama (x de cada una y su color, 0 azul, 1 magenta) para la fuga fx
+function b_platoUnidades(izq) { const u = []; for (let x = izq ? 14 : 6, k = 0; x < 316; x += 34, k++) u.push([x, (k + (izq ? 1 : 0)) % 2]); return u; }
+
+// la vida de la parrilla y del ciclorama (comunes a los dos encuadres): las luces de suelo que respiran, los pilotos
+// que corren por la cercha, las cabezas móviles (cabezas: [x, color, fase]) que barren con su haz y su mancha, y la
+// bruma que sube del faldón
+function b_platoVida(R, t, fx, fy, izq, cabezas) {
+  const { rect, pset, disco } = R;
+  for (const [ux, c] of b_platoUnidades(izq)) { if (ux < 12 || ux > 306) continue; const b = 0.5 + Math.sin(t * 1.1 + ux * 0.07) * 0.5; rect(ux - 3, fy - 9, ux + 3, fy - 9, e_mezcla(EPL_LENTE[c], EP.blanco, b * 0.45)); }
+  for (let x = 4; x < 266; x += 6) { const on = ((x / 6 | 0) + Math.floor(t * 4)) % 9 === 0; pset(x, 23, on ? hex('#ffd070') : hex('#1a1c28')); }
+  for (const [hx, col, f] of cabezas) { const a = Math.sin(t * 0.45 + f), tx = hx + a * 46 + (fx - hx) * 0.2, ty = fy + 24 + Math.sin(t * 0.3 + f) * 6;
+    e_haz(R, hx, 35, tx, ty, 1, 10, col, 0.26, 0.4); e_charco(R, Math.round(tx), Math.round(ty), 13, 3, col, 0.34);
+    rect(hx - 4, 29, hx + 4, 30, EP.k); rect(hx - 1, 30, hx + 1, 31, EP.k); disco(hx, 34, 3, EP.k); disco(hx, 34, 2, hex('#2e3040'));
+    const lx = hx + Math.round(a * 2); rect(lx - 1, 36, lx + 1, 37, col); pset(lx, 36, EP.blanco); }
+  // la bruma que sube del faldón en jirones lentos
+  for (let k = 0; k < 7; k++) { const x0 = ((k * 53 + t * (4 + k)) % 360) - 20, w = 22 + (k % 3) * 8; e_tinte(R, x0, fy - 14 - (k % 2) * 6, x0 + w, fy - 6, hex('#8a7ac8'), 0.12, 0.35); }
+}
+
+// un técnico pequeño del fondo (x, y: los pies; d: hacia dónde mira; anda: paso; col: la camiseta; lleva: 'cable',
+// 'carpeta' o nada), con cascos; mano: 0–1 sube el brazo libre (para hacer señas)
+function b_platoTecnico(R, x, y, d, anda, col, lleva, mano = 0, t = 0) {
+  const { rect, pset, disco } = R, an = anda ? Math.floor(t * 5) % 2 : 0;
+  rect(x - 2, y - 8, x + 2, y - 3, EP.k); rect(x - 1, y - 7, x + 1, y - 3, col); pset(x - d, y - 7, e_mezcla(col, EP.blanco, 0.3));
+  disco(x, y - 10, 2, EP.k); disco(x, y - 10, 1.3, E_PIELES[Math.abs(Math.round(x * 7)) % 3]); pset(x - d, y - 11, EP.k); pset(x, y - 12, EP.k); pset(x - d * 2, y - 10, hex('#4a4c5a'));
+  rect(x - 1, y - 2, x - 1, y - an, EP.k); rect(x + 1, y - 2, x + 1, y - 1 + an, EP.k);
+  if (lleva === 'cable') { disco(x + d * 3, y - 5, 2, hex('#e8a040')); pset(x + d * 3, y - 5, EP.k); }
+  if (lleva === 'carpeta') { rect(x + d * 2, y - 7, x + d * 2 + d * 2, y - 4, hex('#e8e4dc')); pset(x + d * 3, y - 6, hex('#8a8a96')); }
+  if (mano > 0) { const yy = y - 6 - Math.round(mano * 5); rect(x - d * 3, yy, x - d * 3, y - 6, EP.k); pset(x - d * 3, yy - 1, E_PIELES[0]); }
 }
