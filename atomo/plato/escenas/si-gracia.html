@@ -17,6 +17,7 @@
 //    cuadro de la calavera; los dos se parten de risa (corta en «Many players»);
 // 3. el sofá: con el mando, otra vez al vacío a propósito; las palomitas saltan; en «narrator» el cuadro de la calavera
 //    sale de la pantalla como un bocadillo y ríe; los dos se caen de risa y el gato se despierta.
+// Sonido: efectos en todos los gestos que se ven (viento, tronco, piedrecitas, confeti, tecleo, mando, palomitas, risas).
 import * as T from '/atomo/plato/escenas/si-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('si-gracia');
@@ -96,7 +97,13 @@ const p3 = (t) => {
     T.cuadroMuerte(R, x0 + 6, y0 + 4, t, { w: 84, abre: ab, rie: t > NARRADOR + 0.5 ? 1 : 0, guino: t > NARRADOR + 0.9 && t < NARRADOR + 1.3 ? 1 : 0 });
   }
 };
-const efectos = [[0.95, 'brillo'], [ESCALON + 0.05, 'toc'], [VICTORIA - 0.2, 'pop'], [MUERE, 'boing'], [CHISTE + 0.2, 'palmada'], [APOSTA - 0.1, 'golpecito'], [APOSTA + 0.4, 'pop'], [NARRADOR, 'brillo'], [NARRADOR + 0.6, 'palmada']];
+// efectos (hacia el 50 % del tiempo): el tronco que cruje, las piedrecitas,
+// la llegada y el confeti; el salto del salón y las risas; el mando, la caída, las palomitas y las carcajadas
+const efectos = [[0.95, 'brillo'], [ESCALON + 0.05, 'toc'], [ESCALON + 0.15, 'carro', { largo: 0.9 }],
+  [ESCALON + 0.25, 'tic'], [LLEGA, 'golpecito'], [VICTORIA - 0.2, 'pop'], [VICTORIA + 0.1, 'brillo'],
+  [MUERE, 'boing'], [CHISTE + 0.2, 'palmada'],
+  [APOSTA - 0.1, 'golpecito'], [APOSTA + 0.05, 'whoosh'], [APOSTA + 0.4, 'pop'], [APOSTA + 1.1, 'palmada'],
+  [NARRADOR, 'brillo'], [NARRADOR + 0.6, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => (t < P2 ? 1988 : 1995) });
 </script>
 </body>

@@ -541,7 +541,8 @@ export function estudio(R, t, o = {}) {
 //     repinta por delante del chico.
 //   'cueva': una cueva de piedra caliza con estalactitas, un río subterráneo, cristales y la lámpara de latón. o.estilo
 //     'real' (1970: oscura, iluminada por la lámpara con llama que tiembla y la luz del día que entra por la boca de la
-//     derecha, x 250–302, y 56–116; murciélagos, gotas que caen al río y hacen ondas) o '3d' (2023: de polígonos planos y
+//     derecha, x 250–302, y 56–116; estalactitas y estalagmitas con volumen, anillos, brillo mojado que baja y gota en la
+//     punta; murciélagos, gotas que caen al río y hacen ondas) o '3d' (2023: de polígonos planos y
 //     colores limpios con sus aristas de luz, la galería del fondo en la niebla azul con su pilar, estalactitas en dos
 //     filas con la punta mojada, haces de luz con polvo y la mancha de luz en el suelo, cristales que laten y destellan,
 //     el río turquesa con el reflejo de la pared y de los cristales, gotas con anillos, un pez de luz que salta, un
@@ -5828,16 +5829,37 @@ const j_orilla = (x) => Math.round(117 + 2 * Math.sin(x * 0.07) + Math.sin(x * 0
 // las estalactitas de la cueva general: [x, largo, ancho]
 const j_ESTALACTITAS = [[14, 22, 7], [34, 34, 9], [52, 16, 5], [70, 44, 10], [92, 20, 6], [118, 30, 8], [146, 48, 11], [170, 18, 6], [192, 36, 9], [210, 14, 5], [246, 28, 8], [262, 18, 6]];
 
-// una estalactita (o estalagmita si dir = -1) con su cara iluminada, su cara en sombra, el contorno y la punta mojada;
-// T = la paleta de tonos, n = el tono de su luz
+// una estalactita (o estalagmita si dir = -1) de la cueva general, fila a fila para que tenga volumen: el contorno oscuro,
+// la cara de la izquierda iluminada y la de la derecha en sombra con su degradado tramado, los anillos de crecimiento que
+// abultan un poco, la franja de brillo mojado que baja por la cara de luz, la punta húmeda azulada y la gota que cuelga
+// (en las estalagmitas, la cresta mojada); T = la paleta de tonos, n = el tono de su luz (1–5)
 function j_estalactita(R, x, y, largo, ancho, T, n, dir = 1) {
-  const { poligono, pset, linea } = R, tip = y + largo * dir, a = Math.max(0, n - 2), b = Math.min(T.length - 1, n), c = Math.min(T.length - 1, n + 1);
-  poligono([[x - ancho / 2 - 1, y], [x + ancho / 2 + 1, y], [x, tip + dir]], T[0]);
-  poligono([[x - ancho / 2, y], [x, y], [x, tip]], c); poligono([[x, y], [x + ancho / 2, y], [x, tip]], a);
-  poligono([[x - ancho / 4, y], [x + ancho / 6, y], [x + 0.5, tip - largo * 0.35 * dir]], b);
-  for (let k = 1; k < 4; k++) { const yy = Math.round(y + largo * k / 4 * dir); linea(Math.round(x - ancho / 2 * (1 - k / 4)), yy, Math.round(x - ancho / 2 * (1 - k / 4)) + 1, yy, T[Math.max(0, a - 1)]); }
-  linea(Math.round(x - ancho / 2) + 1, y, Math.round(x), Math.round(tip) - dir, T[Math.min(T.length - 1, n + 2)]);
-  if (dir > 0) pset(Math.round(x), Math.round(tip), T[Math.min(T.length - 1, n + 2)]);
+  const { pset } = R, L = T.length - 1, xr = Math.round(x), yr = Math.round(y), lg = Math.max(2, Math.round(largo)), nn = Math.max(3, n);
+  const anillo = (i) => (i > 1 && i < lg - 3 && (i + xr) % 7 === 0);
+  const ancho2 = (i) => ancho * 0.62 * Math.pow(1 - i / lg, 0.8) + (anillo(i) ? 0.6 : 0);
+  for (let i = 0; i <= lg; i++) {
+    const yy = yr + i * dir, w = ancho2(i), wi = Math.max(0, Math.round(w)), hi = Math.max(1, Math.round(w * 0.45));
+    // el contorno a los dos lados y la sombra que echa sobre la pared, a la derecha
+    pset(xr - wi - 1, yy, T[0]); pset(xr + wi + 1, yy, T[0]); if (i < lg - 1 && (yy & 1)) pset(xr + wi + 2, yy, T[1]);
+    for (let xx = xr - wi; xx <= xr + wi; xx++) {
+      const s = wi ? (xx - xr) / (wi + 0.5) : 0;
+      let k = nn + 1.6 - (s + 1) * 1.6 + j_u(xx, yy) * 0.9 - 0.45 - (anillo(i) ? 0.9 : 0) + (anillo(i - 1) ? 0.5 : 0);
+      if (Math.abs(s) > 0.85 && wi > 1) k -= 0.8;
+      let c = T[Math.max(1, Math.min(L, Math.floor(k)))];
+      // el brillo mojado: una franja clara por la cara de la luz, que se corta a ratos
+      if (xx === xr - hi && i > 1 && i < lg - 1 && h(xr, (i / 3) | 0, 887) > 0.25) c = T[Math.min(L, nn + 3)];
+      if (xx === xr - hi + 1 && i > 2 && i < lg * 0.6 && h(xr, i, 888) > 0.8) c = T[Math.min(L, nn + 2)];
+      // la punta (o la cresta) húmeda, azulada
+      if (i >= lg - 2) c = xx <= xr ? j_C.aguaL : j_C.agua2;
+      pset(xx, yy, c);
+    }
+  }
+  if (dir > 0) {
+    // la punta y la gota que cuelga, con su reflejo
+    pset(xr, yr + lg + 1, j_C.agua2); pset(xr - 1, yr + lg + 2, T[0]); pset(xr + 1, yr + lg + 2, T[0]); pset(xr, yr + lg + 2, j_C.aguaL); pset(xr, yr + lg + 3, j_C.agua2);
+  } else {
+    pset(xr, yr - lg - 1, T[0]); pset(xr - 1, yr - lg, j_C.aguaL);
+  }
 }
 
 function j_cuevaReal(R, t, o) {
@@ -5885,6 +5907,9 @@ function j_cuevaReal(R, t, o) {
   for (const [k, x, larg] of [[0, 70, 44], [1, 146, 48], [2, 192, 36]]) { const per = 2.2 + k * 0.7, ph = ((t + k * 0.9) % per) / per, y0 = j_techo(x) + larg + 1, ya = 124;
     if (ph < 0.35) { const gy = Math.round(y0 + (ph / 0.35) ** 2 * (ya - y0)); pset(x, gy, j_C.aguaL); pset(x, gy - 1, j_C.agua2); }
     else { const r = (ph - 0.35) * 16; for (let a = 0; a < 6.28; a += 0.35) pset(Math.round(x + Math.cos(a) * r), Math.round(ya + Math.sin(a) * r * 0.25), ph < 0.7 ? j_C.aguaL : j_C.agua2); } }
+  // el brillo mojado que baja despacio por las estalactitas (la gota que se forma en la punta la pinta el fondo)
+  for (const [k, ex, l, w] of [[0, 34, 34, 9], [1, 70, 44, 10], [2, 118, 30, 8], [3, 146, 48, 11], [4, 192, 36, 9], [5, 246, 28, 8]]) { const ph = ((t * 0.4 + k * 0.41) % 1.5); if (ph > 1) continue;
+    const i = Math.round(2 + ph * (l - 5)), hw = ex - Math.max(1, Math.round(w * 0.62 * Math.pow(1 - i / l, 0.8) * 0.45)), y = j_techo(ex) - 1 + i; pset(hw, y, hex('#fff4d0')); pset(hw, y - 1, hex('#e8d8a8')); }
   // los murciélagos: uno colgado que se rebulle y otro que cruza de vez en cuando
   { const bx = 128, by = j_techo(128) + 1, m = Math.sin(t * 3) > 0.8 ? 1 : 0; rect(bx - 1, by, bx + 1, by + 4, hex('#140e12')); pset(bx - 2 - m, by + 1, hex('#140e12')); pset(bx + 2 + m, by + 1, hex('#140e12')); pset(bx, by + 4, hex('#3a2a2a')); }
   { const u = (t % 9) / 2.5; if (u < 1) { const x = Math.round(-6 + u * 300), y = Math.round(40 + Math.sin(u * 9) * 8), a = Math.sin(t * 20) > 0; pset(x, y, hex('#140e12')); pset(x + 1, y, hex('#140e12')); pset(x - 1, y - (a ? 1 : -1), hex('#140e12')); pset(x + 2, y - (a ? 1 : -1), hex('#140e12')); pset(x - 2, y - (a ? 2 : 0), hex('#140e12')); pset(x + 3, y - (a ? 2 : 0), hex('#140e12')); } }

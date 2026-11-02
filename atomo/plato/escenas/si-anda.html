@@ -19,6 +19,7 @@
 //    se va andando; el pájaro, «!»;
 // 4. el ordenador del porche de cerca: las manos teclean («typed»), la línea de escribir se llena; en «now the world
 //    moved» el caballero de la pantalla echa a andar por su mundo.
+// Sonido (pulido): pasos de Graham, hojas, aleteos y el pájaro posándose en cada rama, además de los gags.
 import * as T from '/atomo/plato/escenas/si-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('si-anda');
@@ -155,7 +156,13 @@ const p4 = (t) => {
   T.brazo(R, 84, 192, 114, 156 + k1, '#9a6a9a', 1, { codo: [96, 180] });
   T.brazo(R, 236, 192, 200 + intro, 156 + k2 + (intro ? 1 : 0), '#9a6a9a', -1, { codo: [224, 180] });
 };
-const efectos = [[nunca + 0.1, 'pop'], [a(0.3), 'boing'], [detras + 1.3, 'boing'], [dentro, 'pop'], [teclea, 'tecleo'], [mueve - 0.3, 'toc'], [mueve, 'brillo']];
+// efectos (hacia el 50 % del tiempo): palomitas y salto en el sofá; los pasos de Graham por delante del árbol, el aire en
+// las hojas cuando da la vuelta, el aleteo del pájaro que baja; el pájaro que se posa rama por rama;
+// el tecleo, el «Enter» y el brillo del mundo que se mueve
+const efectos = [[nunca + 0.1, 'pop'], [a(0.3), 'boing'],
+  [P2 + 0.7, 'golpecito'], [P2 + 1.7, 'golpecito'], [delante + 0.5, 'rafaga'], [detras + 0.5, 'whoosh'], [detras + 1.3, 'boing'],
+  [P3 + 0.8, 'tic'], [P3 + 2.4, 'tic'], [dentro, 'pop'],
+  [teclea, 'tecleo'], [mueve - 0.3, 'toc'], [mueve, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1984 });
 </script>
 </body>
