@@ -256,6 +256,10 @@ En `atomo/plato/escenas/<pref>-comun.js`:
 que pintar su propio fondo, que es donde más fallaron el orden de dibujo, la zona de Atom y «algo que no se lee» en el 15.
 Nunca a costa del detalle de la general.
 
+**Lo que va delante de los personajes** (una mesa, un mostrador, troncos) va en su propia función `<x>Delante`, y la
+cabecera del encuadre lo dice: «llama a <x>Delante después de los actores». En el 18, el orden de dibujo fue el fallo número
+uno de la calidad (26), casi todo por mesas de delante que tapaban o que se pintaban antes de tiempo.
+
 Cada encuadre se prueba con un personaje chibi de pie, a la escala de las escenas, junto a lo que tendrá que tocar: en el
 13 se añadió un escritorio en el que los personajes no encajaban y no sirvió.
 
@@ -268,7 +272,7 @@ pagarlos en la pasada de calidad (en el 12, tres rondas y dos pasadas extra, una
 que gastemos más tokens ni baje la calidad»): escribe `<SC>/lista-<pref>.json` con todos los encuadres y cámaras
 (`[["temple", {"encuadre": "calle"}], …]`, sacados de las cabeceras) y lanza
 `node atomo/herramientas/comprobar-decorados.mjs <pref> <SC>/lista-<pref>.json --hoja <SC>/hoja<N>`. Da sospechas de
-zona de Atom, barra del año, zonas lisas y pantalla sin pintar, y dos hojas de contacto con todos los encuadres (míralas
+zona de Atom (umbral 100 desde el 19), barra del año, zonas lisas y pantalla sin pintar, y dos hojas de contacto con todos los encuadres (míralas
 tú: son dos imágenes). Lo que salga va como fallo concreto a la pasada de decorados del paso 8, no a las escenas. En el 17
 esto se vio tarde: «algo no se lee» y la zona de Atom subieron.
 

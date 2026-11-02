@@ -16,7 +16,7 @@ Resumen de `ESTANDAR.md` y `GUIA-ESTILO.md`. Si algo choca, mandan esos dos. El 
 En el 12, la calidad suspendió 41 planos en la primera ronda y casi todos eran de estos siete tipos. Cada uno que dejas pasar
 cuesta después una ronda de revisor, escéptico y pulido:
 
-1. **Brazo «palo»:** una manga recta y lisa que entra desde el borde (en el 12, de hasta 85 × 4 px). Un brazo entra en
+1. **Brazo «palo» (y manos que teclean, mueven el ratón o sostienen algo: 15 fallos en el 18; siempre T.brazo y T.mano con su objeto):** una manga recta y lisa que entra desde el borde (en el 12, de hasta 85 × 4 px). Un brazo entra en
    diagonal, se ven como mucho 30–45 px, tiene 6–7 px de grosor que se estrecha hacia el puño, luz y sombra, dos pliegues,
    puño y su sombra; y no cruza por encima de lo que tiene delante. Si no cabe así, solo la mano cerca del borde.
    Desde el 13 está hecho: `T.brazo(R, x0, y0, x1, y1, manga, dir, { codo: [x, y] })` (con la mano canónica al final) y,
@@ -35,8 +35,13 @@ cuesta después una ronda de revisor, escéptico y pulido:
    `linea`, `pset`, `poligono` o `disco`; `R.rect` no lo respeta).
 5. **Orden de dibujo:** el perro pintado sobre la pierna, el mecánico delante del camión, un brazo sobre la jabonera, una
    tarjeta encima de la luna. Antes de dar un plano por hecho, pregúntate qué va delante de qué.
+   Fue el fallo número uno del 18 (26): las mesas y muebles de delante (las funciones `<x>Delante` del decorado) se
+   pintan DESPUÉS de los actores, una sola vez, y nunca tapan la cara; si un personaje va detrás de una mesa, que asomen
+   cabeza y hombros, no solo la coronilla.
 6. **Zona de Atom o barra del año ocupadas:** una palmera, un farol o un tejado detrás de Atom; flechas que cruzan el
    sol o el año. Sube la cámara o aparta el objeto.
+   Ojo con el papel pintado, la madera con vetas y los cuadros arriba a la derecha (16 fallos en el 18): esa esquina,
+   pared tranquila o una luz de techo suave.
 7. **Algo que flota o está quieto:** un patito por encima del puño, una horquilla sin anclar, testigos tiesos todo el
    plano, un tornado que se lee como un triángulo liso. Lo que se coge va en la mano; lo que se ve, se mueve.
 

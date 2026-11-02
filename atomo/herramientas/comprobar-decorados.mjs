@@ -2,7 +2,7 @@
 // aprobado por el usuario el 31/10/2026: «siempre que no haga que gastemos más tokens ni baje la calidad»). Son las mismas
 // medidas de medir-planos.mjs --comprobar, pero sobre el decorado solo, así los fallos van a la pasada de decorados y no
 // aparecen después en las escenas (en el 17, «algo no se lee» y la zona de Atom subieron por esto):
-// - ATOM: píxeles con borde detrás de Atom (x 278–318, y 4–44, fuera de su disco), umbral 120;
+// - ATOM: píxeles con borde detrás de Atom (x 278–318, y 4–44, fuera de su disco), umbral 100 (120 hasta el 18);
 // - AÑO: píxeles con borde en la franja de la barra del año (x 20–170, y 0–14), umbral 1000 (la textura de un muro no cuenta: solo un objeto con mucho detalle);
 // - LISO: % del cuadro en bloques de 8×8 de un solo color (> 30 %) o una mancha lisa de más de 100 bloques;
 // - NEGRO: % del cuadro en negro puro (#000): el decorado no pinta toda la pantalla (> 2 %).
@@ -73,7 +73,7 @@ for (let i = 0; i < lista.length; i++) {
   const at = bordes(F, 278, 4, 318, 44, (x, y) => Math.hypot(x - 297, y - 24) < 19), an = bordes(F, 20, 0, 170, 14), l = liso(F);
   let negro = 0; for (let j = 0; j < F.length; j += 3) if (F[j] + F[j + 1] + F[j + 2] === 0) negro++;
   const pn = 100 * negro / (F.length / 3);
-  if (at > 120) sospechas.push(`ATOM    ${nombre}: ${at} píxeles con borde detrás de Atom`);
+  if (at > 100) sospechas.push(`ATOM    ${nombre}: ${at} píxeles con borde detrás de Atom`);   // 100 y no 120 desde el 19: en el 18 la zona de Atom subió (14 → 16) con decorados que daban 100–120
   if (an > 1000) sospechas.push(`AÑO     ${nombre}: ${an} píxeles con borde en la barra del año`);
   if (l.pct > 30 || l.mayor > 100) sospechas.push(`LISO    ${nombre}: ${l.pct.toFixed(0)} % en bloques de un color, mancha de ${l.mayor}`);
   if (pn > 2) sospechas.push(`NEGRO   ${nombre}: ${pn.toFixed(1)} % del cuadro sin pintar`);
