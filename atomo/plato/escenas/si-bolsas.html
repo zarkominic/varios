@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bolsas con cierre · ep18</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// SI-BOLSAS (frases 14–15), 1980. Tres planos:
+// 1. fondo local: una tienda de ordenadores de 1980: el panel perforado con las bolsas colgadas (disquete y hoja dentro),
+//    la mesa con el ordenador y la casa en su monitor; en «graphics» el chico se asombra; en «zip-top plastic bags» va al
+//    panel, salta, coge una bolsa y se la enseña a su padre; el dependiente cuelga más (corta en «with a floppy»);
+// 2. casa salon, cámara 'mesa': manos que meten el disquete («floppy disk») y la hoja («sheet of paper») en la bolsa;
+//    en «photocopies» otra mano deja un montón de fotocopias; en «packed by hand» las dos manos cierran la bolsa;
+// 3. casa super, cámara 'caja': Roberta entra empujando el carro lleno de cajas de bolsas hasta arriba; en «cart full
+//    of bags» la cajera coge una caja, levanta la ceja y sale el «?» (gag 2).
+import * as T from '/atomo/plato/escenas/si-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('si-bolsas');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k, BL = T.C.blanco;
+const ease = (u) => u * u * (3 - 2 * u);
+const nz = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// un fondo fijo en su búfer (se pinta una vez); devuelve una función que lo copia a la pantalla
+const capa = (dibuja) => { let b = null; return () => { if (!b) { b = R.nuevo(); const prev = R.usar(b); dibuja(); R.usar(prev); } R.copiar(b); }; };
+// la taza de café con su asa y su vapor
+const taza = (x, y, t, col = hex('#d8783a')) => { R.rect(x - 3, y - 6, x + 3, y, K); R.rect(x - 2, y - 5, x + 2, y - 1, col); R.rect(x - 2, y - 5, x + 2, y - 5, hex('#3a2010')); R.pset(x + 4, y - 4, K); R.pset(x + 4, y - 2, K); R.pset(x + 5, y - 3, K);
+  for (let k = 0; k < 2; k++) { const f = (t * 1.3 + k * 0.5) % 1; R.pset(x - 1 + k * 2 + Math.round(Math.sin(t * 5 + k) * 1), Math.round(y - 8 - f * 6), mez(hex('#e8e8f0'), hex('#3a3a4a'), f)); } };
+
+const Bo = (f) => en('bolsas', f), S = (f) => en('super', f);
+const P2 = Bo(0.738), P3 = S(0.461);
+
+// una bolsa con cierre (con el disquete y la hoja dentro) de w × h con la parte de arriba en (x, y)
+const bolsa = (x, y, w = 22, h = 28) => { const { rect, pset } = R;
+  rect(x, y, x + w, y + h, hex('#8aa0b8')); rect(x + 1, y + 1, x + w - 1, y + h - 1, hex('#d4e2ee'));
+  rect(x + 1, y + 1, x + w - 1, y + 1, hex('#c83a2a')); rect(x + 1, y + 2, x + w - 1, y + 2, hex('#3a6ac8'));
+  rect(x + w - 11, y + 4, x + w - 2, y + 19, K); rect(x + w - 10, y + 5, x + w - 3, y + 18, BL); for (let j = 0; j < 4; j++) rect(x + w - 9, y + 7 + j * 3, x + w - 5 - (j % 2), y + 7 + j * 3, hex('#8a8a9a'));
+  rect(x + 2, y + 8, x + 15, y + 21, K); rect(x + 3, y + 9, x + 14, y + 20, hex('#2a2e3a')); rect(x + 4, y + 9, x + 13, y + 12, hex('#e8e4d8')); R.disco(x + 8, y + 16, 2, hex('#5a5a6a')); pset(x + 8, y + 16, K);
+  pset(x + 3, y + h - 3, BL); pset(x + w - 3, y + 5, BL); };
+const PEG = { cols: [16, 48, 80, 112, 144], filas: [40, 76, 112] };   // dónde cuelgan las bolsas (arriba)
+const cogida = [2, 2];   // la del chico: fila 3, columna 3
+
+// 1 · fondo local: la tienda de ordenadores de 1980
+const tienda = capa(() => {
+  const { rect, pset, linea, disco } = R;
+  // el techo y la pared crema con su friso de rayas setenteras
+  rect(0, 0, 319, 15, hex('#e8e2d0')); for (let x = 0; x < 320; x += 24) rect(x, 0, x, 15, hex('#cfc8b4')); rect(0, 15, 319, 15, hex('#b0a890'));
+  for (let y = 16; y < 150; y++) for (let x = 0; x < 320; x++) R.buf[y * 320 + x] = (x % 6 === 0) ? hex('#e0d2b0') : nz(x >> 1, y >> 1, 21) < 0.08 ? hex('#e2d6b8') : hex('#ecdfc0');
+  rect(0, 18, 319, 19, hex('#d8783a')); rect(0, 20, 319, 21, hex('#e8a830')); rect(0, 22, 319, 23, hex('#8a4a24'));
+  // el panel perforado con su marco
+  rect(4, 28, 182, 146, K); rect(5, 29, 181, 145, hex('#8a6438'));
+  for (let y = 31; y < 144; y++) for (let x = 7; x < 180; x++) R.buf[y * 320 + x] = (x % 5 === 2 && y % 5 === 2) ? hex('#5a3e1e') : nz(x >> 2, y >> 1, 22) < 0.1 ? hex('#a8804c') : hex('#b48c58');
+  // los ganchos y lo que cuelga (menos la bolsa que coge el chico): bolsas, casetes y un joystick en su blíster
+  PEG.filas.forEach((y, fi) => PEG.cols.forEach((x, ci) => { linea(x + 11, y - 6, x + 11, y - 1, hex('#8a8a92')); pset(x + 11, y - 6, K);
+    if (fi === cogida[0] && ci === cogida[1]) return;
+    if ((fi * 5 + ci) % 7 === 3) { rect(x + 2, y, x + 20, y + 13, K); rect(x + 3, y + 1, x + 19, y + 12, hex('#3a3a44')); disco(x + 7, y + 6, 2, BL); disco(x + 15, y + 6, 2, BL); rect(x + 5, y + 9, x + 17, y + 11, hex('#c83a2a')); }
+    else if ((fi * 5 + ci) % 7 === 5) { rect(x + 1, y, x + 21, y + 26, hex('#b8c8d8')); rect(x + 2, y + 1, x + 20, y + 25, hex('#e8eef4')); rect(x + 6, y + 14, x + 16, y + 22, K); rect(x + 7, y + 15, x + 15, y + 21, hex('#2a2a30')); rect(x + 10, y + 4, x + 12, y + 14, K); disco(x + 11, y + 4, 2, hex('#c83a2a')); }
+    else bolsa(x, y); }));
+  // la balda de la derecha con cajas de juegos (pictogramas: un cohete, un castillo, una pelota, un coche)
+  for (const y of [82, 118]) { rect(250, y, 318, y + 3, K); rect(251, y + 1, 318, y + 2, hex('#a87848')); }
+  const cajas = [[254, 56, '#3a6ac8'], [270, 60, '#c83a2a'], [286, 54, '#5aa83a'], [302, 58, '#e8a830'], [254, 92, '#8a4ac8'], [272, 96, '#e8783a'], [290, 90, '#3a8a8a']];
+  for (const [x, y, c] of cajas) { const top = y; const bottom = y < 82 ? 81 : 117; rect(x, top, x + 14, bottom, K); rect(x + 1, top + 1, x + 13, bottom, hex(c)); rect(x + 1, top + 1, x + 13, top + 2, BL); rect(x + 4, top + 6, x + 10, top + 14, hex('#f2eee2')); pset(x + 7, top + 8, K); pset(x + 6, top + 11, K); pset(x + 8, top + 11, K); }
+  // la mesa de muestra (faldón naranja) con el ordenador, la disquetera y el monitor
+  rect(186, 116, 250, 120, K); rect(187, 117, 249, 119, hex('#e8e2d0')); rect(188, 120, 248, 146, K); rect(189, 121, 247, 145, hex('#d8783a')); for (let x = 192; x < 247; x += 6) rect(x, 121, x + 2, 145, hex('#c8682a'));
+  rect(192, 104, 236, 116, K); rect(193, 105, 235, 115, hex('#e0d8c0')); for (let k = 0; k < 10; k++) rect(196 + k * 4, 110, 198 + k * 4, 112, hex('#5a5048')); rect(193, 105, 235, 106, hex('#f0ead8'));
+  rect(196, 66, 236, 104, K); rect(197, 67, 235, 103, hex('#d8d0b8')); rect(233, 67, 235, 103, hex('#a8a088')); rect(200, 70, 232, 96, K);
+  rect(238, 104, 250, 116, K); rect(239, 105, 249, 115, hex('#e0d8c0')); rect(240, 109, 248, 110, K);
+  // el suelo de linóleo a cuadros con brillos y el rodapié
+  rect(0, 146, 319, 150, K); rect(0, 147, 319, 149, hex('#6a4a2a'));
+  for (let y = 151; y < 180; y++) for (let x = 0; x < 320; x++) { const c = (Math.floor(x / 16) + Math.floor((y - 151) / 8)) % 2, br = ((x + y) & 3) === 0 && Math.abs(x - 250 + (y - 151) * 1.5) < 10;
+    R.buf[y * 320 + x] = br ? hex('#fff4dc') : c ? hex('#c8a878') : hex('#e8d8b0'); }
+  // el reloj de pared
+  disco(214, 40, 8, K); disco(214, 40, 7, hex('#f2eee2')); linea(214, 40, 214, 35, K); linea(214, 40, 218, 41, K);
+});
+const p1 = (t) => {
+  const { rect, pset, linea } = R;
+  tienda();
+  // el monitor de muestra: la casa del juego en blanco y negro, con su relámpago
+  rect(201, 71, 231, 95, hex('#07080c')); { const W = hex('#e6ecf2'); linea(208, 90, 208, 80, W); linea(224, 90, 224, 80, W); linea(206, 80, 216, 74, W); linea(216, 74, 226, 80, W); linea(204, 90, 228, 90, W); rect(214, 84, 217, 89, W); pset(211, 83, Math.sin(t * 9) > 0 ? W : hex('#7a828c')); pset(221, 83, W); for (let x = 201; x < 232; x += 3) pset(x, 93, hex('#7a828c')); if ((t % 2.2) < 0.15) linea(228, 72, 225, 78, W); }
+  for (let y = 72; y < 96; y += 2) for (let x = 201; x < 232; x++) if (((x + y) & 3) === 0) pset(x, y, mez(R.pget(x, y), hex('#000000'), 0.3));
+  // el tubo del techo que parpadea
+  { const on = Math.sin(t * 19) > -0.9 || Math.floor(t * 3) % 4; rect(186, 4, 262, 8, K); rect(187, 5, 261, 7, on ? hex('#f8fbff') : hex('#b8bcc0')); }
+  // el dependiente cuelga una bolsa en la primera columna de abajo (sube y baja el brazo)
+  const dep = Math.sin(t * 1.6) > 0, de = R.actor(EL.tecnico, 4, 168, t, { dir: 1, sostiene: dep ? [20, 140] : false });
+  if (dep) R.rect(de.mano[0] - 2, de.mano[1] - 8, de.mano[0] + 6, de.mano[1] + 2, hex('#8aa0b8')), R.rect(de.mano[0] - 1, de.mano[1] - 7, de.mano[0] + 5, de.mano[1] + 1, hex('#d4e2ee')), R.rect(de.mano[0] - 1, de.mano[1] - 7, de.mano[0] + 5, de.mano[1] - 7, hex('#c83a2a'));
+  // el chico mira el monitor; en «graphics» se asombra; en «bags» va al panel, salta y coge la bolsa; se la enseña al padre
+  const graf = Bo(0.254), va = tramo(t, Bo(0.39), Bo(0.5)), cx = Math.round(lerp(172, 82, ease(va))), salta = t > Bo(0.5) && t < Bo(0.6);
+  const tiene = t > Bo(0.56), vuelve = tramo(t, Bo(0.62), Bo(0.72)), cx2 = Math.round(lerp(cx, 104, ease(vuelve)));
+  const px = PEG.cols[cogida[1]], py = PEG.filas[cogida[0]];
+  if (!tiene) bolsa(px, py);
+  R.actor(EL.padre, 140, 168, t, { dir: t > Bo(0.45) ? -1 : 1, habla: (t > graf && t < graf + 0.8) || (t > Bo(0.68) && Math.sin(t * 6) > 0.2), dedo: t > graf - 0.2 && t < graf + 0.8, sonrisa: t > Bo(0.66) });
+  const ch = R.actor(EL.chico, cx2, 168, t, { dir: va > 0 && va < 1 ? -1 : vuelve > 0 ? 1 : (t < Bo(0.39) ? 1 : -1), anda: (va > 0 && va < 1) || (vuelve > 0 && vuelve < 1), sorpresa: t > graf && t < graf + 1, salto: salta ? 5 : 0, sostiene: salta ? [px + 11, py + 30] : tiene ? true : false, sonrisa: t > Bo(0.58) });
+  if (tiene) { const [hx, hy] = ch.mano, x = hx - 2, y = hy - 13; R.rect(x, y, x + 11, y + 14, hex('#8aa0b8')); R.rect(x + 1, y + 1, x + 10, y + 13, hex('#d4e2ee')); R.rect(x + 1, y + 1, x + 10, y + 1, hex('#c83a2a'));
+    R.rect(x + 2, y + 4, x + 8, y + 10, K); R.rect(x + 3, y + 5, x + 7, y + 9, hex('#2a2e3a')); R.rect(x + 3, y + 5, x + 7, y + 6, hex('#e8e4d8')); R.rect(x + 8, y + 3, x + 9, y + 11, BL); }
+  if (t > graf && t < graf + 0.9) R.icono('!', cx + 5, 128, hex('#ffd040'), K, 2);
+};
+
+// 2 · la mesa del salón: el disquete, la hoja, las fotocopias y el cierre
+const p2 = (t) => {
+  const u = t < Bo(0.76) ? 0 : t < Bo(0.86) ? 0.714 * tramo(t, Bo(0.76), Bo(0.86)) : t < Bo(0.93) ? lerp(0.714, 0.857, tramo(t, Bo(0.86), Bo(0.93))) : t < S(0.29) ? 0.857 : lerp(0.857, 1, tramo(t, S(0.29), S(0.355)));
+  T.casa(R, t, { encuadre: 'salon', camara: 'mesa', bolsa: u });
+  const bx = 124, by = 96;
+  // la mano de Roberta (brazo corto, en diagonal) empuja el disquete hasta la bolsa y se retira
+  const dq = Math.min(1, u * 1.4), dx = Math.round(lerp(bx + 80, bx + 8, dq)), dy = Math.round(lerp(by + 70, by + 12, dq));
+  const sale1 = ease(tramo(t, Bo(0.87), Bo(0.95)));
+  if (t > P2 && sale1 < 1) { const hx = dx + 36 + Math.round(sale1 * 70), hy = dy + 22 + Math.round(sale1 * 60); T.brazo(R, hx + 30, hy + 30, hx, hy, '#9a6a9a', -1); }
+  // la mano de Ken trae la hoja desde la derecha
+  const hq = Math.max(0, Math.min(1, u * 1.4 - 0.2)), hx0 = Math.round(lerp(bx + 100, bx + 44, hq)), hy0 = Math.round(lerp(by + 60, by + 14, hq)), sale2 = ease(tramo(t, Bo(0.95), S(0.02)));
+  if (t > Bo(0.8) && sale2 < 1) { const x1 = hx0 + 24 + Math.round(sale2 * 80), y1 = hy0 + 16 + Math.round(sale2 * 10); T.brazo(R, x1 + 36, y1 + 14, x1, y1, '#4a6a9a', -1); }
+  // «photocopies»: la mano de Ken entra por la izquierda con un montón nuevo de fotocopias y lo deja sobre el montón
+  const fo = ease(tramo(t, S(0.0), S(0.07))), fv = ease(tramo(t, S(0.1), S(0.17)));
+  if (fo > 0) { const x = Math.round(lerp(-60, 16, fo)), y = 70; R.rect(x, y, x + 52, y + 30, K); R.rect(x + 1, y + 1, x + 51, y + 29, BL); for (let j = 0; j < 6; j++) R.rect(x + 4, y + 4 + j * 4, x + 22 + ((j * 7) % 22), y + 4 + j * 4, hex('#8a8a9a')); R.rect(x + 1, y + 26, x + 51, y + 29, hex('#d8d8d0'));
+    if (fv < 1) { const hx = x - Math.round(fv * 50), hy = y + 14; T.brazo(R, hx - 34, hy + 16, hx, hy, '#4a6a9a', 1); } }
+  // «packed by hand»: las dos manos pinzan el cierre y lo recorren del centro a las puntas
+  const ci = tramo(t, S(0.26), S(0.36)), fuera = ease(tramo(t, S(0.4), S(0.46)));
+  if (ci > 0 && fuera < 1) { const sx = Math.round(lerp(0, 24, ci)), yy = by + 2 + Math.round(fuera * 70);
+    T.brazo(R, bx + 4 - sx, yy + 38, bx + 30 - sx, yy, '#9a6a9a', 1); T.brazo(R, bx + 66 + sx, yy + 38, bx + 40 + sx, yy, '#9a6a9a', -1);
+    if (ci > 0 && ci < 1) for (const xx of [bx + 30 - sx, bx + 40 + sx]) if (Math.floor(t * 16) % 2) R.pset(xx, by - 2, BL); }
+};
+
+// 3 · la caja del súper: el carro hasta arriba y la ceja de la cajera
+const p3 = (t) => {
+  const o = { encuadre: 'super', camara: 'caja' };
+  T.casa(R, t, o);
+  const ceja = S(0.84), u = tramo(t, P3 + 0.1, S(0.72)), rx = Math.round(lerp(-74, 50, ease(u)));
+  const cj = R.actor(EL.cajera, 215, 150, t, { dir: -1, habla: t < S(0.62) && Math.sin(t * 6) > 0.3, sostiene: t > ceja ? true : false, sorpresa: t > S(0.74) && t < ceja });
+  T.a_casaDelante(R, t, o);
+  if (t > ceja) { const [hx, hy] = cj.mano; R.rect(hx - 9, hy - 9, hx + 3, hy + 2, K); R.rect(hx - 8, hy - 8, hx + 2, hy + 1, hex('#3a8ac8')); R.rect(hx - 8, hy - 8, hx + 2, hy - 7, BL); R.rect(hx - 6, hy - 5, hx, hy - 1, hex('#d4e2ee')); R.rect(hx - 6, hy - 5, hx, hy - 5, hex('#c83a2a'));
+    const [cx, cy] = cj.cabeza; R.linea(cx - 6, cy + 2, cx - 3, cy + 1, K); R.pset(cx - 5, cy + 1, K);
+    const s = tramo(t, ceja, ceja + 0.15); if (s > 0) R.icono('?', cx - 6, cy - 16 + Math.round((1 - s) * 4), hex('#ffd040'), K, 2); }
+  R.actor(EL.roberta, rx, 166, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: true, habla: t > S(0.9) && Math.sin(t * 6) > 0.3 });
+  T.a_carro(R, rx + 6, 166, t, { lleno: 1, anda: u > 0 && u < 1 });
+};
+
+const efectos = [[Bo(0.254), 'brillo'], [Bo(0.56), 'papel'], [Bo(0.86), 'toc'], [Bo(0.93), 'papel'], [S(0.07), 'golpecito'], [S(0.355), 'pop'], [S(0.48), 'carro'], [S(0.84), 'pop'], [S(0.95), 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1980 });
+</script>
+</body>
+</html>

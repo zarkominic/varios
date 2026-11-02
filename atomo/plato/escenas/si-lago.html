@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El lago y el gnomo · ep18</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// SI-LAGO (frases 24–25), sin cartela; año 1984 y, en el último plano, la barra cuenta de 1984 a 1998. Tres planos:
+// 1. el lago del reino: Graham nada a braza hacia la orilla (en «swim», chof y ondas), sale chorreando por las piedras
+//    («lake»), trepa por el tronco del sauce («climb a tree») y, sentado en la rama, señala a la derecha en «gnome»;
+//    corta en el silencio después de «gnome»;
+// 2. la orilla del tocón: Graham llega todavía goteando; la puertecita del tocón se abre («the game») y sale el gnomo
+//    barbudo; Graham le habla y en su bocadillo se teclea la frase con su cursor («tried to understand»); el gnomo,
+//    «?», se rasca la cabeza… y en «typed» lo entiende, «!», y le da una llave dorada que brilla; Graham la levanta;
+// 3. la ventana de la oficina de la montaña: «King's Quest was a hit»: globos, banderines, la cola de clientes que
+//    crece hasta la tienda y el teléfono que no para; Ken lo celebra con los brazos arriba; entra Roberta con su
+//    cuaderno («Roberta kept telling») y, con el bocadillo de la corona («Graham's family»), van apareciendo en el
+//    alféizar las cajas con corona numeradas del 1 al 8 mientras la barra del año cuenta 1984 → 1998
+//    («almost fifteen years»).
+import * as T from '/atomo/plato/escenas/si-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('si-lago');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C;
+const K = { k: hex('#1a1420'), blanco: hex('#f2eee2'), oro: hex('#f8d040'), oroS: hex('#c89a28'), rojo: hex('#d83a3a'), rojoS: hex('#981e2a'),
+  agua: hex('#cfe8f8'), aguaS: hex('#7ab8e0'), luzC: hex('#fff2b8'), rosa: hex('#f06a8a'), rosaL: hex('#ffb0c4') };
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+const suave = (u) => u * u * (3 - 2 * u);
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// un halo de luz que aclara lo de debajo (cx, cy, radio, color, fuerza 0–1), con trama en el borde
+const halo = (cx, cy, r, col, a) => {
+  cx = Math.round(cx); cy = Math.round(cy);
+  for (let y = Math.max(0, cy - r); y <= Math.min(179, cy + r); y++) for (let x = Math.max(0, cx - r); x <= Math.min(319, cx + r); x++) {
+    const d = Math.hypot(x - cx, y - cy) / r; if (d > 1) continue; const k = a * (1 - d) * (1 - d * 0.3);
+    if (k < 0.08 && (x + y) & 1) continue; R.pset(x, y, mez(R.pget(x, y), col, Math.min(0.85, k))); } };
+// estrellita de brillo que se abre y se apaga (u 0–1)
+const destello = (x, y, u, r = 8, col = K.oro) => {
+  if (u <= 0 || u >= 1) return; x = Math.round(x); y = Math.round(y); const d = Math.round(r * Math.sin(u * Math.PI)), e = Math.round(d * 0.6);
+  for (let i = -d; i <= d; i++) { R.pset(x + i, y, Math.abs(i) < d * 0.4 ? K.blanco : col); R.pset(x, y + i, Math.abs(i) < d * 0.4 ? K.blanco : col); }
+  for (let i = -e; i <= e; i += 2) { R.pset(x + i, y + i, col); R.pset(x + i, y - i, col); }
+};
+// un corazón de 7 × 6 a escala s con su borde negro y su brillo (x, y: arriba a la izquierda)
+const CORAZON = ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...'];
+const corazon = (x, y, s = 2, col = K.rojo) => {
+  x = Math.round(x); y = Math.round(y);
+  const px = (i, j, c, dx = 0, dy = 0) => R.rect(x + i * s + dx, y + j * s + dy, x + i * s + s - 1 + dx, y + j * s + s - 1 + dy, c);
+  CORAZON.forEach((f, j) => { for (let i = 0; i < 7; i++) if (f[i] === '#') for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) px(i, j, K.k, dx, dy); });
+  CORAZON.forEach((f, j) => { for (let i = 0; i < 7; i++) if (f[i] === '#') px(i, j, j > 2 && i > 3 ? mez(col, K.k, 0.25) : col); });
+  px(1, 1, K.blanco); if (s > 1) px(2, 1, mez(col, K.blanco, 0.5));
+};
+// gotas de agua que caen de alguien que sale del agua (x, y arriba; u 0–1 del goteo)
+const goteo = (x, y, t, u) => { if (u <= 0 || u >= 1) return; for (let k = 0; k < 4; k++) { const f = ((t * 1.7 + k * 0.27) % 1); if (f > 1 - u * 0.6) continue;
+  const gx = Math.round(x + (k * 5) % 13), gy = Math.round(y + f * 20); R.pset(gx, gy, K.aguaS); R.pset(gx, gy - 1, K.agua); } };
+// un farol de mano (x, y: el asa, donde va la mano) que tiembla
+const farol = (x, y, t) => {
+  x = Math.round(x); y = Math.round(y); const fl = Math.sin(t * 17) > 0.3 ? 1 : 0;
+  R.pset(x, y - 1, K.k); R.pset(x - 1, y, K.k); R.pset(x + 1, y, K.k);
+  R.rect(x - 3, y + 1, x + 3, y + 2, K.k); R.rect(x - 3, y + 3, x + 3, y + 9, K.k); R.rect(x - 2, y + 3, x + 2, y + 8, fl ? K.luzC : K.oro);
+  R.pset(x, y + 5, hex('#f89a30')); R.pset(x, y + 6, hex('#f8c040')); R.rect(x - 3, y + 10, x + 3, y + 10, K.k); R.pset(x - 2, y + 3, K.blanco);
+};
+
+const a = (f) => en('lago', f), b = (f) => en('exito', f);
+const P2 = 3.6, P3 = b(0);
+const nada = a(0.05), sale = a(0.2), trepa = a(0.257), gnomo = a(0.441), juego = a(0.598), entiende = a(0.701), tecleo = a(0.785), escrito = a(0.905);
+const exito = b(0.141), roberta = b(0.267), familia = b(0.564), anos = b(0.753);
+// p1 · el lago: nada, sale y trepa al sauce
+const p1 = (t) => {
+  const g = T.reino(R, t, { encuadre: 'lago' }); const wl = 136;
+  const u = suave(lin(t, 0.15, sale)), fuera = lin(t, sale, sale + 0.45), anda = lin(t, sale + 0.45, trepa + 0.35), sube = suave(lin(t, trepa + 0.35, gnomo - 0.15));
+  if (fuera === 0) {
+    // nadando: la cabeza y los hombros por encima del agua, las ondas y el chapoteo de los brazos
+    const gx = Math.round(lerp(176, 84, u)), bra = Math.sin(t * 9) > 0;
+    R.recorte([0, 0, 319, wl]); R.actor(EL.graham, gx, wl + 15, t, { dir: -1, quieto: true, habla: false, sonrisa: true }); R.recorte(null);
+    for (let k = 0; k < 3; k++) { const r = ((t * 1.4 + k / 3) % 1), w = Math.round(9 + r * 22), c = r < 0.6 ? K.agua : K.aguaS;
+      for (let i = -w; i <= w; i += 2) if (Math.abs(i) > 6) R.pset(gx + 7 + i + Math.round(r * 6), wl + 1 + Math.round(r * 2), c); }
+    R.rect(gx + 1, wl, gx + 13, wl + 1, K.agua); R.rect(gx + 3, wl + 1, gx + 11, wl + 1, K.aguaS);
+    for (const s of [-1, 1]) { const bx = gx + 7 + s * (bra ? 9 : 6), by = wl - (bra ? 3 : 1); R.pset(bx, by, K.blanco); R.pset(bx + s, by - 1, K.agua); R.pset(bx - s, by + 1, K.agua); }
+    // el chof al tirarse a nadar
+    const ch = lin(t, nada - 0.1, nada + 0.6); if (ch > 0 && ch < 1) for (let k = 0; k < 9; k++) { const ang = Math.PI * (0.15 + k * 0.09), r = ch * 16;
+      R.pset(Math.round(gx + 10 + Math.cos(ang) * r), Math.round(wl - Math.sin(ang) * r * 1.1 + ch * ch * 14), k % 2 ? K.blanco : K.agua); }
+  } else {
+    // sale por las piedras, anda hasta el sauce y trepa por el tronco; en la rama señala hacia la orilla del gnomo
+    const x = Math.round(sube > 0 ? 17 : anda > 0 ? lerp(70, 17, anda) : lerp(84, 70, fuera)), y = Math.round(sube > 0 ? lerp(157, 112, sube) : anda > 0 ? 157 : lerp(wl + 15, 157, suave(fuera)));
+    const enRama = sube >= 1, trepando = sube > 0 && sube < 1;
+    if (enRama) { R.rect(14, 112, 44, 113, hex('#5a3a1a')); R.rect(14, 111, 44, 111, hex('#7a5228')); R.rect(40, 113, 52, 114, hex('#5a3a1a')); }   // la rama donde se sienta
+    R.actor(EL.graham, x, y, t, { dir: enRama ? 1 : -1, anda: (anda > 0 && anda < 1), brazos: trepando || (fuera > 0 && fuera < 1), salto: trepando ? Math.round(Math.abs(Math.sin(t * 10)) * 2) : 0,
+      dedo: enRama && t > gnomo - 0.2, sonrisa: true, habla: enRama && t > gnomo - 0.2 && Math.sin(t * 9) > 0 });
+    goteo(x + 2, y - 18, t, lin(t, sale, gnomo + 0.5));
+    if (enRama && t > gnomo - 0.1) R.bocadillo(x + 20, y - 26, { icono: '!' });
+  }
+};
+// la puertecita del tocón (x 191–213, y 132–158, arco arriba) que se abre hacia la izquierda (u 0–1)
+const puertaTocon = (u) => {
+  const x0 = 191, x1 = 213, y0 = 132, y1 = 157, cx = 202, r = 11, w = Math.round((x1 - x0) * (1 - u));
+  if (w <= 1) return;
+  for (let y = y0; y <= y1; y++) { const hw = y < y0 + r ? Math.sqrt(Math.max(0, r * r - (y0 + r - y) ** 2)) : r; const a0 = Math.round(cx - hw), a1 = Math.min(Math.round(cx + hw), x0 + w);
+    for (let x = Math.max(a0, x0); x <= a1; x++) { const borde = x === Math.max(a0, x0) || x === a1 || y === y0; R.pset(x, y, borde ? K.k : (x - x0) % 5 === 0 ? hex('#5a3418') : (x + y * 3) % 11 === 0 ? hex('#6a4220') : hex('#8a5a2a')); } }
+  if (w > 6) { R.disco(x0 + w - 4, 146, 1, K.oro); R.rect(x0 + 1, 138, x0 + Math.min(w, 14), 139, hex('#3a3a3a')); R.rect(x0 + 1, 151, x0 + Math.min(w, 14), 152, hex('#3a3a3a')); }
+};
+// el bocadillo de escribir: «>», los trazos que se teclean y el cursor
+const bocadilloTecleo = (x, y, n, t) => {
+  R.rect(x - 1, y - 1, x + 41, y + 11, K.k); R.rect(x, y, x + 40, y + 10, K.blanco); R.rect(x + 6, y + 11, x + 9, y + 12, K.k); R.rect(x + 7, y + 11, x + 8, y + 11, K.blanco); R.pset(x + 7, y + 13, K.k);
+  const gr = hex('#3a3a4a'); R.pset(x + 3, y + 3, gr); R.pset(x + 4, y + 4, gr); R.pset(x + 5, y + 5, gr); R.pset(x + 4, y + 6, gr); R.pset(x + 3, y + 7, gr);
+  let cx = x + 9; for (let k = 0; k < n && cx < x + 36; k++) { if (k % 5 !== 4) R.rect(cx, y + 4, cx + 1, y + 7, k % 3 ? gr : hex('#5a5a7a')); cx += 3; }
+  if (Math.floor(t * 4) % 2) R.rect(cx, y + 7, cx + 2, y + 7, gr);
+};
+// la llave dorada (x, y: el ojo)
+const llave = (x, y, u = 0) => { x = Math.round(x); y = Math.round(y);
+  R.disco(x, y, 3, K.k); R.disco(x, y, 2, K.oro); R.pset(x, y, K.k); R.rect(x + 3, y - 1, x + 11, y + 1, K.k); R.rect(x + 3, y, x + 10, y, K.oro);
+  R.rect(x + 8, y + 1, x + 9, y + 3, K.k); R.pset(x + 8, y + 2, K.oro); R.rect(x + 11, y + 1, x + 12, y + 3, K.k); R.pset(x - 1, y - 2, K.blanco); };
+// p2 · la orilla del tocón: sale el gnomo, Graham teclea su pregunta y el gnomo le da la llave
+const p2 = (t) => {
+  const o = { encuadre: 'lago', camara: 'orilla' }; const g = T.reino(R, t, o);
+  const llega = suave(lin(t, P2, P2 + 0.95)), gx = Math.round(lerp(92, 146, llega));
+  const abre = suave(lin(t, juego - 0.25, juego + 0.15)), saleG = suave(lin(t, juego + 0.15, juego + 0.6)), nx = Math.round(lerp(196, 170, saleG));
+  const da = lin(t, escrito + 0.35, escrito + 0.85), tiene = t > escrito + 0.85;
+  // dentro del tocón, a oscuras, el gnomo espera; luego sale
+  if (abre > 0) { if (saleG < 0.4) R.recorte([191, 120, 213, 160]);
+    const rG = R.actor(EL.gnomo, nx, 158, t, { dir: -1, anda: saleG > 0 && saleG < 1, sorpresa: t > entiende && t < escrito, sonrisa: t >= escrito, brazos: t > escrito && t < escrito + 0.35,
+      dedo: t > entiende - 0.3 && t < entiende + 0.3, sostiene: t > escrito + 0.3 && !tiene ? [nx - 6, 140] : false });
+    R.recorte(null);
+    if (rG && rG.mano && da > 0 && !tiene) llave(lerp(rG.mano[0] - 6, gx + 16, da), lerp(rG.mano[1] - 1, 138, da) - Math.sin(da * Math.PI) * 6);
+  }
+  puertaTocon(abre);
+  T.reinoDelante(R, t, o);
+  const rg = R.actor(EL.graham, gx, 160, t, { dir: 1, anda: llega > 0 && llega < 1, habla: t > juego + 0.4 && t < escrito && Math.sin(t * 10) > 0, sonrisa: t > escrito,
+    sostiene: tiene ? [gx + 13, 128] : false, salto: tiene && t < escrito + 1.25 ? Math.round(Math.sin(lin(t, escrito + 0.85, escrito + 1.25) * Math.PI) * 4) : 0 });
+  goteo(gx + 2, 138, t, lin(t, P2 - 0.5, P2 + 1.6));
+  if (tiene && rg && rg.mano) { llave(rg.mano[0] - 2, rg.mano[1] - 4); destello(rg.mano[0] + 6, rg.mano[1] - 10, lin(t, escrito + 0.9, escrito + 1.6), 9); }
+  // la frase que se teclea encima de Graham; el gnomo, «?» y luego «!»
+  if (t > juego + 0.35 && t < escrito + 0.3) bocadilloTecleo(gx - 14, 94, Math.floor((t - juego - 0.35) * 9), t);
+  if (t > entiende + 0.1 && t < escrito) R.bocadillo(nx + 9, 124, { icono: '?' });
+  if (t >= escrito && t < escrito + 0.8) R.bocadillo(nx + 9, 124 - Math.round(lin(t, escrito, escrito + 0.15) * 3), { icono: '!' });
+};
+// p3 · la ventana de la oficina: el éxito; las ocho cajas con corona y los años
+const AÑOS = [1984, 1985, 1986, 1988, 1990, 1992, 1994, 1998];
+const TCAJA = [P3 + 0.12, exito + 0.05, roberta + 0.6, roberta + 1.25, familia - 0.15, familia + 0.5, anos + 0.1, anos + 0.75];
+const nCajas = (t) => TCAJA.filter((x) => t >= x).length;
+const COLS = [hex('#c83a3a'), hex('#3a5ab0'), hex('#2a8a5a'), hex('#8a3a9a'), hex('#c8782a')];
+const p3 = (t) => {
+  const n = Math.max(1, nCajas(t)), cel = n / 9 + 0.01;
+  const g = T.oficina(R, t, { encuadre: 'oficina', camara: 'ventana', epoca: 1984, celebra: cel });
+  // la cifra de cada caja (del 1 al 8) encima de la del decorado, que salta un poco al llegar
+  for (let i = 0; i < n; i++) { const fila = i < 5 ? 0 : i < 8 ? 1 : 2, col = fila === 0 ? i : fila === 1 ? i - 5 : 0, x = 50 + col * 16 + fila * 8, y0 = 122 - 12 - fila * 13;
+    const b = lin(t, TCAJA[i], TCAJA[i] + 0.3), y = y0 - Math.round(Math.sin(b * Math.PI) * 5);
+    T.d_cajaCorona(R, x, y, 15, 12, i + 1, COLS[i % 5]); destello(x + 7, y - 3, lin(t, TCAJA[i], TCAJA[i] + 0.45), 6); }
+  // Ken, a la izquierda, lo celebra; Roberta entra por la derecha con su cuaderno y cuenta la historia
+  const hurra = t > exito - 0.1 && t < roberta + 0.2;
+  R.actor(EL.ken, 8, 168, t, { dir: 1, brazos: hurra && Math.sin(t * 8) > -0.3, salto: hurra ? Math.round(Math.abs(Math.sin(t * 8)) * 4) : 0, sonrisa: t > exito - 0.2, sorpresa: t > anos + 0.6, habla: !hurra && t > familia && Math.sin(t * 7) > 0.4 });
+  const ent = suave(lin(t, roberta - 0.3, roberta + 0.55)), rx = Math.round(lerp(330, 252, ent));
+  if (ent > 0) {
+    const señala = t > familia - 0.2 && Math.floor((t - familia) * 1.4) % 2 === 0;
+    const rr = R.actor(EL.roberta, rx, 168, t, { dir: -1, anda: ent < 1, sostiene: !señala ? true : false, dedo: señala, habla: ent >= 1 && Math.sin(t * 8) > 0, sonrisa: true });
+    if (rr && rr.mano && !señala) { const [mx, my] = rr.mano; R.rect(mx - 6, my - 7, mx + 1, my + 2, K.k); R.rect(mx - 5, my - 6, mx, my + 1, hex('#f4ead2')); R.rect(mx - 5, my - 6, mx - 5, my + 1, hex('#c83a3a'));
+      for (let j = my - 4; j <= my; j += 2) R.rect(mx - 3, j, mx - 1, j, hex('#8a8aa0')); }
+    if (t > familia - 0.1 && t < familia + 1.3) { R.bocadillo(rx + 4, 128, {}); R.rect(rx, 120, rx + 7, 125, hex('#f2eee2')); R.icono('corona', rx + 1, 120, K.oroS, K.oroS); }
+  }
+};
+const año = (t) => t < P3 ? 1984 : AÑOS[Math.max(1, nCajas(t)) - 1];
+const efectos = [[nada, 'chof'], [sale + 0.1, 'ola'], [juego - 0.2, 'puerta'], [juego + 0.4, 'tecleo'], [escrito, 'pop'], [escrito + 0.9, 'brillo'], [exito, 'publico'], [exito + 0.5, 'ring'], [familia - 0.15, 'pop'], [anos + 0.75, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año });
+</script>
+</body>
+</html>

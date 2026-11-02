@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El encargo · ep18</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// SI-IBM (frases 18–20), cartela «1983», año 1983. Cuatro planos:
+// 1. la buhardilla de la oficina, 1983: entran los dos ejecutivos de traje con una caja; Roberta y Ken se vuelven;
+//    en «IBM asks» el primero habla y señala; el segundo deja la caja en la mesa grande; corta en «for its new»;
+// 2. la mesa de cerca: el ejecutivo pulsa y el ordenador nuevo se enciende («home computer»); Roberta abre su cuaderno
+//    y en «designs» dibuja el castillo trazo a trazo; en la pantalla el caballero empieza a andar («King's Quest»);
+// 3. el salón del trono: en «fairy tale» el caballero Graham entra por la alfombra; en «Graham» se para ante el rey y
+//    hace la reverencia; el rey le encarga la misión: un bocadillo con los tres tesoros («three treasures»); en «save
+//    the kingdom» Graham levanta el brazo y da un salto; el bufón hace malabares, un guardia bosteza;
+// 4. los tres tesoros: Graham entra y mira; cada tesoro se enciende cuando la voz lo nombra («mirror», «shield»,
+//    «chest»); el cofre echa monedas sin parar y Graham atrapa una en «gold».
+import * as T from '/atomo/plato/escenas/si-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('si-ibm');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C;
+const K = { k: hex('#1a1420'), carton: hex('#c8925a'), cartonL: hex('#e0b07a'), cartonS: hex('#9a6a3a'), cinta: hex('#e8d8a8'),
+  blanco: hex('#f2eee2'), papel: hex('#fbf6e6'), papelS: hex('#d8d0b8'), oro: hex('#f8d040'), oroS: hex('#c89a28'), rojo: hex('#c83a3a') };
+// una caja de cartón de envíos (x, y: esquina de arriba a la izquierda; w × h), con su cinta y la sombra del canto
+const caja = (x, y, w = 9, h = 7) => {
+  x = Math.round(x); y = Math.round(y);
+  R.rect(x - 1, y - 1, x + w, y + h, K.k); R.rect(x, y, x + w - 1, y + h - 1, K.carton); R.rect(x, y, x + w - 1, y, K.cartonL);
+  R.rect(x + w - 2, y + 1, x + w - 1, y + h - 1, K.cartonS); R.rect(x + (w >> 1), y, x + (w >> 1), y + h - 1, K.cinta);
+};
+// el saco del cartero (lo lleva en la mano: x, y es la mano)
+const saco = (x, y, lleno = 1) => {
+  x = Math.round(x); y = Math.round(y); const h = 9 + Math.round(lleno * 3);
+  R.rect(x - 5, y, x + 5, y + h, K.k); R.rect(x - 4, y + 1, x + 4, y + h - 1, hex('#8a7a5a')); R.rect(x - 4, y + 1, x - 3, y + h - 1, hex('#a8966e'));
+  R.rect(x - 1, y - 1, x + 1, y + 1, K.k); R.rect(x - 3, y + 4, x + 3, y + 4, hex('#6a5a40')); R.pset(x + 2, y + 6, hex('#c83a3a'));
+};
+// estrellitas de brillo que se abren y se apagan (u 0–1)
+const brillo = (x, y, u, r = 8, col = K.oro) => {
+  if (u <= 0 || u >= 1) return; const d = Math.round(r * Math.sin(u * Math.PI)), e = Math.round(d * 0.6);
+  for (let i = -d; i <= d; i++) { R.pset(x + i, y, Math.abs(i) < d * 0.4 ? K.blanco : col); R.pset(x, y + i, Math.abs(i) < d * 0.4 ? K.blanco : col); }
+  for (let i = -e; i <= e; i += 2) { R.pset(x + i, y + i, col); R.pset(x + i, y - i, col); }
+};
+// un pajarito azul de cuento (x, y: las patas), mirando a dir; o.vuela: alas arriba/abajo; o.salta: px
+const pajaro = (x, y, t, o = {}) => {
+  x = Math.round(x); y = Math.round(y - (o.salta ?? 0)); const d = o.dir ?? 1, X = (i) => x + d * i;
+  const az = hex('#3a7ad8'), azS = hex('#2a52a0'), pe = hex('#f0c060'), k = K.k;
+  for (let i = -3; i <= 3; i++) for (let j = -6; j <= -2; j++) if ((i * i) / 10 + ((j + 4) * (j + 4)) / 5 <= 1.05) R.pset(X(i), y + j, j > -3 ? pe : az);
+  R.pset(X(-4), y - 5, azS); R.pset(X(-5), y - 6, azS); R.pset(X(-4), y - 4, azS);   // la cola
+  R.pset(X(2), y - 7, az); R.pset(X(3), y - 7, az); R.pset(X(2), y - 8, az); R.pset(X(3), y - 6, az);   // la cabeza
+  R.pset(X(3), y - 7, k); R.pset(X(4), y - 7, hex('#f0a020')); R.pset(X(5), y - 7, hex('#f0a020'));
+  const ala = o.vuela ? (Math.sin(t * 30) > 0 ? -3 : 1) : 0;
+  R.pset(X(-1), y - 5 + ala, azS); R.pset(X(0), y - 5 + ala, azS); R.pset(X(-2), y - 5 + ala, azS); if (o.vuela) R.pset(X(-1), y - 6 + ala, az);
+  if (!o.vuela) { R.pset(X(-1), y - 1, k); R.pset(X(1), y - 1, k); R.pset(X(-1), y, k); R.pset(X(1), y, k); }
+};
+
+const a = (f) => en('ibm', f), b = (f) => en('graham', f), c = (f) => en('tesoros', f);
+const P2 = a(0.486), P3 = b(0), P4 = c(0);
+const ibm = a(0.225), roberta = a(0.749), disena = a(0.804), kq = a(0.876);
+const knight = b(0.292), graham = b(0.392), tres = b(0.646), salva = b(0.827);
+const espejo = c(0.187), escudo = c(0.416), cofre = c(0.67), oro = c(0.904);
+const deja = a(0.58);
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+// el gorro rojo con pluma de Graham, suelto (en la mano en la reverencia)
+const gorro = (x, y) => { x = Math.round(x); y = Math.round(y); const r = hex('#c83a3a'), rs = hex('#8a2a2a');
+  R.rect(x - 4, y - 1, x + 4, y + 1, K.k); R.rect(x - 3, y - 3, x + 2, y, K.k); R.rect(x - 3, y, x + 3, y, rs); R.rect(x - 2, y - 2, x + 1, y - 1, r); R.pset(x - 2, y - 2, hex('#e85a5a'));
+  R.linea(x + 1, y - 2, x + 4, y - 6, K.k); R.linea(x + 1, y - 3, x + 4, y - 7, K.blanco); R.pset(x + 5, y - 7, K.blanco); };
+// iconos de los tres tesoros (para el bocadillo del rey): espejo, escudo y cofre, de unos 11 px
+const icEspejo = (x, y) => { R.disco(x, y - 1, 5, K.oroS); R.disco(x, y - 1, 4, K.oro); R.disco(x, y - 1, 3, hex('#a8d8f0')); R.pset(x - 1, y - 3, K.blanco); R.pset(x - 2, y - 2, K.blanco); R.rect(x - 1, y + 4, x + 1, y + 6, K.oroS); R.rect(x - 3, y + 6, x + 3, y + 6, K.oroS); };
+const icEscudo = (x, y) => { for (let j = -5; j <= 6; j++) { const w = j < 2 ? 5 : 5 - (j - 1); for (let i = -w; i <= w; i++) R.pset(x + i, y + j, Math.abs(i) === w || j === -5 ? K.k : hex('#2a52a0')); }
+  R.pset(x, y - 2, K.oro); R.rect(x - 1, y - 1, x + 1, y + 1, K.oro); R.pset(x, y + 2, K.oro); R.pset(x - 2, y, K.oro); R.pset(x + 2, y, K.oro); };
+const icCofre = (x, y) => { R.rect(x - 6, y - 4, x + 6, y + 5, K.k); R.rect(x - 5, y - 3, x + 5, y + 4, hex('#8a5a2a')); R.rect(x - 5, y - 3, x + 5, y - 2, hex('#a8743c')); R.rect(x - 5, y, x + 5, y, K.oroS);
+  R.rect(x - 1, y - 1, x + 1, y + 1, K.oro); R.rect(x - 4, y - 6, x + 4, y - 4, K.oro); R.pset(x - 2, y - 7, K.oro); R.pset(x + 2, y - 7, K.oro); R.pset(x, y - 8, K.blanco); };
+// p1 · la buhardilla: llegan los ejecutivos con la caja y la dejan en la mesa grande
+const p1 = (t) => {
+  const g = T.oficina(R, t, { encuadre: 'oficina', epoca: 1981 });
+  const giro = t > 2.2, asombro = t > ibm - 0.3 && t < ibm + 0.7;
+  R.actor(EL.ken, 74, 162, t, { dir: giro ? 1 : -1, sorpresa: asombro, sonrisa: t > ibm + 0.7, dedo: t > a(0.4) && t < a(0.47) });
+  const rv = lin(t, ibm + 0.6, P2 - 0.2);
+  R.actor(EL.roberta, Math.round(lerp(98, 110, rv)), 162, t, { dir: giro ? 1 : -1, anda: rv > 0 && rv < 1, sorpresa: asombro, sonrisa: t > ibm + 0.7 });
+  const u = lin(t, 1.0, ibm - 0.2);
+  R.actor(EL.ejecutivo, Math.round(lerp(330, 228, u)), 162, t, { dir: -1, anda: u > 0 && u < 1, habla: t > ibm && t < ibm + 1.4 && Math.sin(t * 9) > 0, dedo: t > ibm + 0.1 && t < ibm + 1.3 });
+  const deja1 = tramo(t, a(0.38), a(0.46));
+  const e2 = R.actor(EL.ejecutivo2, Math.round(lerp(352, 202, u)), 162, t, { dir: -1, anda: u > 0 && u < 1, sostiene: deja1 < 1 ? true : false, sonrisa: deja1 >= 1 });
+  // la caja del ordenador pequeño: en sus brazos y luego en la mesa grande
+  const bx = lerp(e2.mano[0] - 13, 168, deja1), by = lerp(e2.mano[1] - 10, 135, deja1) - Math.sin(deja1 * Math.PI) * 4;
+  caja(bx, by, 14, 10); R.rect(Math.round(bx) + 3, Math.round(by) + 3, Math.round(bx) + 6, Math.round(by) + 5, hex('#3a3e4c'));   // el dibujo del ordenador en la caja
+};
+// p2 · la mesa de cerca: el ordenador se enciende, Roberta abre su cuaderno y dibuja el castillo
+const p2 = (t) => {
+  const g = T.oficina(R, t, { encuadre: 'oficina', camara: 'mesa', epoca: 1981, paso: lin(t, kq, P3) });
+  const [x0, y0, x1, y1] = g.pantalla, on = tramo(t, deja, deja + 0.35);
+  if (on < 1) {   // la pantalla apagada (cristal oscuro con su reflejo) y el encendido de tubo
+    const cy = Math.round((y0 + y1) / 2), h = Math.round(on * (y1 - y0) / 2);
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { if (on > 0 && Math.abs(y - cy) <= h) continue; R.pset(x, y, (x - y) % 23 === 0 || (x - y) % 23 === 1 ? hex('#3a4a46') : hex('#1e2624')); }
+    if (on > 0) R.rect(x0 + 2, cy - 1, x1 - 2, cy + 1, K.blanco);
+  }
+  R.actor(EL.ejecutivo2, 262, 154, t, { dir: -1, sonrisa: t > deja, habla: t < deja - 0.6 && Math.sin(t * 8) > 0 });
+  R.actor(EL.ejecutivo, 232, 154, t, { dir: -1, dedo: t > deja - 0.5 && t < deja + 0.6, sonrisa: t > deja + 0.6, habla: t > kq && Math.sin(t * 7) > 0.4 });
+  const abre = tramo(t, roberta - 0.3, roberta + 0.3);
+  const rob = R.actor(EL.roberta, 92, 154, t, { dir: 1, sostiene: true, sonrisa: t > roberta, sorpresa: t > deja && t < deja + 0.6 });
+  T.d_oficinaDelante(R, t, { epoca: 1981 });
+  // el cuaderno abierto en sus manos: en «designs» se dibuja a lápiz el castillo, trazo a trazo
+  const [hx, hy] = rob.mano, w = Math.round(5 + 10 * abre), cx = hx + 1 + w, ny = hy - 14;
+  R.rect(cx - w - 1, ny - 1, cx + w + 1, ny + 19, K.k); R.rect(cx - w, ny, cx + w, ny + 18, K.papel); R.rect(cx, ny, cx, ny + 18, K.papelS); R.rect(cx - w, ny + 18, cx + w, ny + 18, K.papelS);
+  for (let j = 3; j < 17; j += 3) R.rect(cx - w + 2, ny + j, cx - 2, ny + j, hex('#b8c4dc'));
+  if (abre >= 1) { R.linea(cx - 12, ny + 15, cx - 8, ny + 12, hex('#c83a3a')); R.linea(cx - 8, ny + 12, cx - 4, ny + 14, hex('#c83a3a')); R.pset(cx - 4, ny + 14, K.k); }   // el camino del mapa en la página de la izquierda
+  const d = tramo(t, disena, kq + 0.4), lp = hex('#3a4a6a');
+  const tr = [[2, 16, 2, 6], [2, 6, 5, 6], [5, 6, 5, 16], [10, 16, 10, 6], [10, 6, 13, 6], [13, 6, 13, 16], [5, 10, 10, 10], [1, 16, 14, 16], [7, 16, 7, 13], [7, 13, 9, 13], [9, 13, 9, 16], [12, 6, 12, 2], [12, 2, 14, 3], [14, 3, 12, 4]];
+  if (abre >= 1 && d > 0) { const nT = d * tr.length, n = Math.floor(nT);
+    for (let i = 0; i < Math.min(tr.length, n + 1); i++) { const [a0, b0, a1, b1] = tr[i], f = i < n ? 1 : nT - n; R.linea(cx + a0, ny + b0, Math.round(cx + lerp(a0, a1, f)), Math.round(ny + lerp(b0, b1, f)), lp); }
+    if (d >= 1) for (const xx of [2, 4, 10, 12]) R.pset(cx + xx, ny + 5, lp);
+    if (d < 1) { const [a0, b0, a1, b1] = tr[Math.min(tr.length - 1, n)], f = nT - n, px = Math.round(cx + lerp(a0, a1, f)), py = Math.round(ny + lerp(b0, b1, f)); R.linea(px + 1, py - 1, px + 6, py - 7, hex('#e8c040')); R.pset(px + 6, py - 7, hex('#e88a9a')); } }
+};
+// p3 · el salón del trono: la misión
+const p3 = (t) => {
+  const g = T.cuento(R, t, { encuadre: 'trono' });
+  const manda = t > tres - 0.5 && t < salva + 0.2;
+  R.actor(EL.reyCuento, 153, 132, t, { dir: -1, habla: manda && Math.sin(t * 8) > 0, dedo: manda, sonrisa: t > salva });
+  const u = lin(t, P3, graham - 0.1), v = lin(t, salva + 0.7, E.duracion - 0.1);
+  const gx = Math.round(v > 0 ? lerp(146, 70, v) : lerp(60, 146, u)), gy = Math.round(v > 0 ? lerp(158, 172, v) : lerp(172, 158, u));
+  const rev = t > graham && t < graham + 0.9;
+  const sj = t > salva && t < salva + 0.5 ? Math.round(Math.sin((t - salva) / 0.5 * Math.PI) * 6) : 0;
+  const gr = R.actor(EL.graham, gx, gy, t, { dir: v > 0 ? -1 : 1, anda: (u > 0 && u < 1) || v > 0, tocado: rev ? false : undefined, sostiene: rev ? [gx + 18, gy - 12] : false, salto: sj, brazos: t > salva && t < salva + 0.6, sonrisa: t > graham });
+  if (rev) gorro(gr.mano[0], gr.mano[1] - 1);
+  // el bocadillo del rey con los tres tesoros
+  const bo = tramo(t, tres - 0.5, tres - 0.2) * (1 - tramo(t, salva + 0.2, salva + 0.5));
+  if (bo > 0) { const w = Math.round(32 * bo), cx = 206, cy = 76;
+    R.rect(cx - w - 1, cy - 13, cx + w + 1, cy + 13, K.k); R.rect(cx - w, cy - 12, cx + w, cy + 12, K.blanco); R.rect(cx - w, cy + 10, cx + w, cy + 12, hex('#d8d4cc'));
+    if (bo >= 1) for (let i = 0; i < 9; i++) { const x = 186 - i, y = cy + 13 + i, ww = Math.max(0, 3 - Math.floor(i / 3)); R.rect(x - 1, y, x + ww + 1, y, K.k); if (ww > 0) R.rect(x, y, x + ww, y, K.blanco); }
+    if (bo >= 1) { if (t > tres) icEspejo(cx - 18, cy - 1); if (t > tres + 0.25) icEscudo(cx, cy - 1); if (t > tres + 0.5) icCofre(cx + 18, cy); } }
+};
+// p4 · los tres tesoros
+const p4 = (t) => {
+  const vis = [t > espejo - 0.1 && 'espejo', t > escudo - 0.1 && 'escudo', t > cofre - 0.1 && 'cofre'].filter(Boolean);
+  const g = T.cuento(R, t, { encuadre: 'trono', camara: 'tesoros', tesoros: vis });
+  brillo(92, 78, tramo(t, espejo - 0.1, espejo + 0.7), 16); brillo(160, 79, tramo(t, escudo - 0.1, escudo + 0.7), 16); brillo(228, 90, tramo(t, cofre - 0.1, cofre + 0.7), 16);
+  const v = lin(t, cofre + 0.25, oro - 0.15);
+  const gx = Math.round(lerp(119, 178, v));
+  const d = t < escudo - 0.1 ? -1 : 1;
+  const asombro = (t > espejo && t < espejo + 0.7) || (t > escudo && t < escudo + 0.7) || (t > cofre && t < cofre + 0.7);
+  const gr = R.actor(EL.graham, gx, 160, t, { dir: d, anda: v > 0 && v < 1, sorpresa: asombro, dedo: t > P4 + 0.3 && t < espejo - 0.2, sostiene: t > oro ? true : false, sonrisa: t > oro || (!asombro && t > espejo) });
+  // la moneda que salta del cofre y atrapa en «gold»
+  const mo = lin(t, oro - 0.55, oro);
+  if (mo > 0 && mo < 1) R.disco(Math.round(lerp(232, gr.mano[0], mo)), Math.round(lerp(84, gr.mano[1] - 3, mo) - Math.sin(mo * Math.PI) * 22), 2, K.oro);
+  if (t > oro) { const [hx, hy] = gr.mano; R.disco(hx, hy - 3, 2, K.oro); R.pset(hx - 1, hy - 4, K.blanco); brillo(hx, hy - 3, tramo(t, oro, oro + 0.5), 5); }
+};
+const efectos = [[1.1, 'puerta'], [ibm + 0.2, 'golpecito'], [a(0.46), 'toc'], [deja + 0.05, 'interruptor'], [disena, 'lapiz'], [P3 + 0.3, 'campana'], [graham + 0.05, 'whoosh'], [salva, 'boing'], [espejo, 'brillo'], [escudo, 'brillo'], [cofre, 'brillo'], [oro, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1983', efectos, año: 1983 });
+</script>
+</body>
+</html>

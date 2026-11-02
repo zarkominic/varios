@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep18</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// SI-GANCHO (frases 1–3), 1985. Cuatro planos, el gag 1 (el puente):
+// 1. el castillo de cuento entero: el caballerito cruza la orilla y sube por el puente levadizo; la pastora y su oveja lo
+//    saludan desde el camino, el centinela pasea, el molino gira; corta en «too» (3,69);
+// 2. el puente de lado: anda por las tablas, pisa la tabla suelta («one step too many»), la tabla bascula y cae al foso
+//    con un «chof» (salpicón, corona de agua); sale su gorro flotando y burbujas; un pato se acerca; en «freezes» la
+//    imagen se congela y se apaga a gris con el símbolo de pausa;
+// 3. la pantalla de cerca, el juego congelado: en «box pops up» salta el cuadro de la muerte; la calavera guiña en
+//    «joke», se ríe en «died»; la mano del jugador entra al teclado y pulsa; en «square one» el cuadro se cierra y el
+//    juego vuelve a color, al principio;
+// 4. el escritorio de noche: el disquete con ojos llega corriendo, tarde («if you hadn't saved»); el reloj de pared da
+//    media hora hacia atrás («lost half an hour»), el disquete se asusta y en «misstep» se tapa los ojos.
+import * as T from '/atomo/plato/escenas/si-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('si-gancho');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C;
+// el «chof» de humo de cuento: bolas blancas que se hinchan con borde gris y se deshacen en motas (u 0–1)
+const puf = (x, y, u, s = 1) => {
+  if (u <= 0 || u >= 1) return;
+  const r0 = (3 + 7 * Math.sin(Math.min(1, u * 1.6) * Math.PI / 2)) * s, se = u > 0.6 ? (u - 0.6) / 0.4 : 0;
+  const bolas = [[0, 0, 1], [-1, -0.3, 0.75], [1, -0.25, 0.8], [-0.55, -0.9, 0.7], [0.6, -0.85, 0.65], [0, -1.25, 0.6]];
+  for (const pasada of [0, 1, 2]) for (const [dx, dy, k] of bolas) {
+    const r = r0 * k * (1 - se * 0.5), cx = x + dx * r0 * (1 + u * 0.4), cy = y + dy * r0 - u * 4 * s;
+    if (se > 0 && ((Math.round(cx) + Math.round(cy)) & 1) && pasada === 2) continue;
+    R.disco(Math.round(cx), Math.round(cy), Math.max(1, Math.round(pasada === 0 ? r + 1 : pasada === 1 ? r : r * 0.55)), pasada === 0 ? hex('#8a8ea0') : pasada === 1 ? hex('#e8ecf4') : hex('#ffffff'));
+  }
+  if (se > 0) for (let k = 0; k < 10; k++) { const a = k * 0.63, d = r0 * (1.3 + se * 0.9); R.pset(Math.round(x + Math.cos(a) * d), Math.round(y - r0 * 0.4 + Math.sin(a) * d * 0.7), k % 2 ? hex('#e8ecf4') : hex('#b8bcc8')); }
+  for (let k = 0; k < 4; k++) { const a = u * 6 + k * 1.57, d = r0 * 1.2; R.pset(Math.round(x + Math.cos(a) * d), Math.round(y - r0 * 0.5 + Math.sin(a) * d * 0.6), hex('#f8e060')); }
+};
+// estrellitas de mareo que giran alrededor de una cabeza
+const mareo = (x, y, t) => { for (let k = 0; k < 3; k++) { const a = t * 6 + k * 2.1, px = Math.round(x + Math.cos(a) * 7), py = Math.round(y + Math.sin(a) * 2);
+  R.pset(px, py, hex('#f8e060')); R.pset(px - 1, py, hex('#e8a830')); R.pset(px + 1, py, hex('#e8a830')); R.pset(px, py - 1, hex('#e8a830')); R.pset(px, py + 1, hex('#e8a830')); } };
+// el gorro rojo con pluma del caballerito, suelto (flota, vuela)
+const gorro = (x, y, a = 0) => { const k = hex('#1a1420'), r = hex('#c83a3a'), rs = hex('#8a2a2a'), p = hex('#f2eee2');
+  R.rect(x - 4, y - 1, x + 4, y + 1, k); R.rect(x - 3, y - 3, x + 2, y, k); R.rect(x - 3, y, x + 3, y, rs); R.rect(x - 2, y - 2, x + 1, y - 1, r); R.pset(x - 2, y - 2, hex('#e85a5a'));
+  const fx = x + 2 + Math.round(Math.sin(a) * 1); R.linea(x + 1, y - 2, fx + 3, y - 6, k); R.linea(x + 1, y - 3, fx + 3, y - 7, p); R.pset(fx + 4, y - 7, p); };
+
+const a = (f) => en('foso', f), b = (f) => en('cuadro', f), c = (f) => en('media', f);
+const P2 = 3.69, P3 = 8.19, P4 = 13.33;
+// p1 · el castillo entero
+const p1 = (t) => {
+  const g = T.reino(R, t, { encuadre: 'castillo' });
+  // el caballerito: por la orilla hasta el pie del puente y sube por las tablas
+  const u = tramo(t, 0.1, 1.9), v = tramo(t, 1.9, P2 + 0.6);
+  const gx = v > 0 ? Math.round(lerp(152, 153, v)) : Math.round(lerp(26, 152, u)), gy = v > 0 ? Math.round(lerp(157, 132, v)) : Math.round(lerp(170, 157, u));
+  // la pastora y su oveja en el camino, junto al poste: lo saluda cuando pasa
+  const sal = t > 1.0 && t < 2.6;
+  T.c_oveja(R, 288, 174, t, { dir: -1, come: true });
+  R.actor(EL.pastora, 254, 172, t, { dir: -1, dedo: sal, sonrisa: true, habla: sal && Math.sin(t * 9) > 0 });
+  R.actor(EL.graham, gx, gy, t, { dir: 1, anda: (u > 0 && u < 1) || (v > 0 && v < 1), sonrisa: t > 1.2 && t < 2.6 });
+  // una mariposa que lo acompaña
+  { const mx = gx + 6 + Math.round(Math.sin(t * 3) * 10), my = gy - 32 + Math.round(Math.sin(t * 5) * 4), al = Math.sin(t * 22) > 0;
+    R.pset(mx, my, hex('#3a2a1a')); R.pset(mx - 1, my - (al ? 1 : 0), hex('#f8d040')); R.pset(mx + 1, my - (al ? 1 : 0), hex('#f8d040')); R.pset(mx - 1, my + 1, hex('#e8a030')); R.pset(mx + 1, my + 1, hex('#e8a030')); }
+  T.reinoDelante(R, t, { encuadre: 'castillo' });
+};
+// p2 · el puente de lado: la tabla suelta, la caída y el «chof»; luego, todo se congela
+const PISA = a(0.79), CAE = PISA + 0.12, AGUA = CAE + 0.42, FR = 6.95;
+const TX = 150;   // la tabla suelta, de x 150 a 172
+const p2 = (t0) => {
+  const t = Math.min(t0, FR);
+  const spl = tramo(t, AGUA, AGUA + 1.3);
+  T.reino(R, t, { encuadre: 'castillo', camara: 'puente', salpicon: spl, salpiconX: TX + 14, salpiconY: 152 });
+  // la tabla suelta: el hueco oscuro y la tabla que bascula
+  const giro = tramo(t, PISA, PISA + 0.25), ang = giro * 1.1 - tramo(t, PISA + 0.4, PISA + 1.4) * 0.6;
+  if (giro > 0) { R.rect(TX, 128, TX + 22, 133, hex('#1a2a3a')); R.rect(TX, 128, TX + 22, 128, hex('#0e1620')); }
+  { const cx = TX + 4, cy = 130, L = 22, ex = cx + Math.cos(ang) * L, ey = cy + Math.sin(ang) * L;
+    for (let d = -2; d <= 2; d++) R.linea(cx, cy + d, Math.round(ex - Math.sin(ang) * d), Math.round(ey + Math.cos(ang) * d), d === -2 || d === 2 ? hex('#3a2414') : d === -1 ? hex('#c89058') : hex('#a06a3a'));
+    R.pset(cx + 3, cy, C.k); R.pset(Math.round(cx + Math.cos(ang) * 16), Math.round(cy + Math.sin(ang) * 16), C.k); }
+  // el caballerito: anda, pisa la tabla, se tambalea y cae
+  const ux = tramo(t, P2, PISA), x = Math.round(lerp(70, TX + 7, ux));
+  if (t < CAE) R.actor(EL.graham, x, 128, t, { dir: 1, anda: ux > 0 && ux < 1, sonrisa: t < PISA - 0.4, sorpresa: t >= PISA, brazos: t >= PISA });
+  else if (t < AGUA + 0.6) {
+    const w = tramo(t, CAE, AGUA), y = Math.round(128 + 24 * w * w + 30 * tramo(t, AGUA, AGUA + 0.6));
+    R.recorte([0, 0, 319, 152]); R.actor(EL.graham, x + Math.round(w * 4), y, t, { dir: 1, sorpresa: true, brazos: true }); R.recorte(null);
+    if (t < AGUA) { R.icono('!', x + 18, y - 34, hex('#f8e060'), C.k); }
+  }
+  // el gorro que sale flotando, las burbujas y un pato curioso
+  if (t > AGUA + 0.7) { const f = t - AGUA - 0.7; gorro(Math.round(TX + 16 + f * 6), 150 + Math.round(Math.sin(f * 4) * 1), f * 3);
+    for (let k = 0; k < 4; k++) { const v = ((f * 0.9 + k * 0.27) % 1), bx = TX + 12 + k * 3 + Math.round(Math.sin(v * 9 + k) * 1), by = 160 - Math.round(v * 9); if (v < 0.9) { R.pset(bx, by, hex('#d8eef8')); R.pset(bx + 1, by, hex('#8ac0e0')); } } }
+  { const px = Math.round(lerp(250, TX + 34, tramo(t, AGUA + 0.3, FR))), py = 156, k = C.k, bl = hex('#f2eee2'), bs = hex('#c8c4b8');
+    R.rect(px - 4, py - 3, px + 4, py, k); R.rect(px - 3, py - 2, px + 3, py - 1, bl); R.rect(px - 3, py - 1, px + 3, py - 1, bs);
+    R.rect(px - 5, py - 7, px - 2, py - 3, k); R.rect(px - 4, py - 6, px - 3, py - 4, bl); R.pset(px - 4, py - 5, k); R.rect(px - 7, py - 5, px - 6, py - 4, hex('#e8a030'));
+    if (t > AGUA + 1.4) R.icono('?', px - 6, py - 17, hex('#f2eee2'), k); }
+  T.reinoDelante(R, t, { encuadre: 'castillo', camara: 'puente' });
+  // la congelación: todo pasa a gris y sale el símbolo de pausa
+  const gz = tramo(t0, FR + 0.05, FR + 0.45);
+  if (gz > 0) {
+    for (let y = 0; y < 180; y++) for (let x0 = 0; x0 < 320; x0++) { const q = R.pget(x0, y), r = q & 255, gg = (q >> 8) & 255, bb = (q >> 16) & 255, l = (r * 0.3 + gg * 0.55 + bb * 0.15) * 0.82 + 10;
+      R.pset(x0, y, (0xff000000 | (Math.round(bb + (l + 8 - bb) * gz) << 16) | (Math.round(gg + (l - gg) * gz) << 8) | Math.round(r + (l - 4 - r) * gz)) >>> 0); }
+    if (gz >= 1) { R.rect(150, 74, 157, 98, C.k); R.rect(163, 74, 170, 98, C.k); R.rect(151, 75, 156, 97, hex('#f2eee2')); R.rect(164, 75, 169, 97, hex('#f2eee2')); }
+    if (t0 < FR + 0.5) { const yl = Math.round(lerp(0, 179, tramo(t0, FR + 0.05, FR + 0.45))); R.rect(0, yl, 319, yl + 1, hex('#f2eee2')); }
+  }
+};
+// p3 · la pantalla de cerca: el cuadro de la muerte
+const ABRE = 8.56, GUINO = b(0.46), RIE = b(0.63), PULSA = b(0.88), CIERRA = PULSA + 0.25;
+const p3 = (t) => {
+  const abre = tramo(t, ABRE, ABRE + 0.45) * (1 - tramo(t, CIERRA, CIERRA + 0.3));
+  T.muerte(R, t, { encuadre: 'pantalla', camara: 'cerca', congela: 1 - tramo(t, CIERRA + 0.2, CIERRA + 0.6), abre: abre > 0 ? Math.max(0.01, abre) : 0,
+    guino: Math.sin(Math.PI * tramo(t, GUINO, GUINO + 0.5)), rie: t > RIE && t < RIE + 0.9 ? 1 : 0, cursor: t > b(0.75) && t < CIERRA });
+  // la mano del jugador entra por abajo, pulsa la tecla y se va
+  const m = tramo(t, b(0.7), PULSA - 0.1) * (1 - tramo(t, CIERRA + 0.6, CIERRA + 1.2)), baja = t > PULSA - 0.05 && t < PULSA + 0.2 ? 2 : 0;
+  if (m > 0) T.brazo(R, Math.round(lerp(312, 284, m)), Math.round(lerp(212, 192, m)), Math.round(lerp(270, 232, m)), Math.round(lerp(198, 163, m)) + baja, '#3a6a9a', -1, { codo: [Math.round(lerp(296, 262, m)), Math.round(lerp(204, 178, m))] });
+};
+// p4 · el escritorio: el disquete llega tarde
+const LLEGA = c(0.12), ATRAS = c(0.37), TAPA = c(0.79);
+const p4 = (t) => {
+  T.muerte(R, t, { encuadre: 'pantalla', congela: 0, abre: 0, atras: tramo(t, ATRAS, ATRAS + 1.1), lee: t > LLEGA + 0.4 && t < LLEGA + 1.2 ? 1 : 0 });
+  const u = tramo(t, P4 + 0.1, LLEGA + 0.6), x = Math.round(lerp(-14, 52, u * (2 - u)));
+  const mira = t > LLEGA + 0.6;
+  T.disquete(R, x, 133, t, { s: 2, corre: u > 0 && u < 1 ? 1 : 0, dir: mira && t > ATRAS - 0.3 && t < TAPA - 0.3 ? 1 : 1,
+    expresion: t > ATRAS + 0.2 ? (t > TAPA + 0.8 ? 'triste' : 'susto') : 'normal', tapa: tramo(t, TAPA, TAPA + 0.3), salto: t > ATRAS + 0.2 && t < ATRAS + 0.5 ? 4 : 0 });
+  if (t > ATRAS + 0.2 && t < ATRAS + 1.2) R.icono('!', x + 16, 82, hex('#f8e060'), C.k, 2);
+  // junto al reloj: el rebobinado («◀◀ 30»)
+  const rb = tramo(t, ATRAS, ATRAS + 0.25);
+  if (rb > 0) { const bx = 104, by = 24 + Math.round((1 - rb) * 6), k = C.k;
+    R.rect(bx - 1, by - 1, bx + 38, by + 14, k); R.rect(bx, by, bx + 37, by + 13, hex('#f2eee2')); R.rect(bx, by + 12, bx + 37, by + 13, hex('#c8c0a8'));
+    const on = t < ATRAS + 1.3 ? Math.floor(t * 6) % 2 === 0 : true;
+    for (const dx of [3, 9]) for (let j = 0; j < 7; j++) { const w = j < 4 ? j : 6 - j; R.rect(bx + dx + 5 - w, by + 3 + j, bx + dx + 5, by + 3 + j, on ? hex('#c83a3a') : hex('#8a2a2a')); }
+    R.numero('30', bx + 18, by + 11, {}); }
+  if (t > TAPA + 0.9) { const f = (t - TAPA - 0.9) * 1.5; for (let k = 0; k < 3; k++) { const v = (f + k * 0.33) % 1; R.pset(x + 14 + Math.round(v * 6), 100 - Math.round(v * 8), hex('#8ac0e0')); } }
+};
+const efectos = [[1.2, 'tic'], [PISA, 'golpecito'], [CAE + 0.05, 'whoosh'], [AGUA, 'chof'], [AGUA + 0.9, 'burbujas'], [FR + 0.05, 'interruptor'],
+  [ABRE, 'pop'], [GUINO + 0.1, 'boing'], [RIE, 'masca'], [PULSA, 'bip'], [P4 + 0.3, 'whoosh'], [ATRAS, 'tic'], [ATRAS + 0.25, 'aviso'], [TAPA, 'palmada']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1985 });
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sierra · ep18</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// SI-SIERRA (frases 16–17), sin cartela; año 1980 en el salón y 1981 en la montaña. Tres planos:
+// 1. el salón de 1980 lleno de cajas de envíos (o.cajas crece): Ken lleva una caja en brazos desde la pila; Roberta, de
+//    pie en el sofá, clava chinchetas en el mapa de EE. UU.; en «10,000» se clava en el mapa la tarjeta con «10000»;
+//    en «company» entra el cartero con su saco, Ken le da la caja, la mete en el saco y se va por la puerta; corta en
+//    «Sierra»;
+// 2. el pueblo de montaña cerca de Yosemite, 1981: la camioneta cargada sube por la carretera entre pinos («They moved»)
+//    y se para delante de la tienda («mountain town»); el barrendero y el de la gasolinera; corta en «pines»;
+// 3. la tienda de cerca: la camioneta llega y se para; Roberta sube por la escalera de fuera con una caja hasta la
+//    oficina de arriba y entra; Ken baja de la camioneta con otra caja y la sigue; en «mountains» Roberta señala las
+//    cumbres desde el rellano; el perro del porche se despierta y menea la cola.
+import * as T from '/atomo/plato/escenas/si-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('si-sierra');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C;
+const K = { k: hex('#1a1420'), carton: hex('#c8925a'), cartonL: hex('#e0b07a'), cartonS: hex('#9a6a3a'), cinta: hex('#e8d8a8'),
+  blanco: hex('#f2eee2'), papel: hex('#fbf6e6'), papelS: hex('#d8d0b8'), oro: hex('#f8d040'), oroS: hex('#c89a28'), rojo: hex('#c83a3a') };
+// una caja de cartón de envíos (x, y: esquina de arriba a la izquierda; w × h), con su cinta y la sombra del canto
+const caja = (x, y, w = 9, h = 7) => {
+  x = Math.round(x); y = Math.round(y);
+  R.rect(x - 1, y - 1, x + w, y + h, K.k); R.rect(x, y, x + w - 1, y + h - 1, K.carton); R.rect(x, y, x + w - 1, y, K.cartonL);
+  R.rect(x + w - 2, y + 1, x + w - 1, y + h - 1, K.cartonS); R.rect(x + (w >> 1), y, x + (w >> 1), y + h - 1, K.cinta);
+};
+// el saco del cartero (lo lleva en la mano: x, y es la mano)
+const saco = (x, y, lleno = 1) => {
+  x = Math.round(x); y = Math.round(y); const h = 9 + Math.round(lleno * 3);
+  R.rect(x - 5, y, x + 5, y + h, K.k); R.rect(x - 4, y + 1, x + 4, y + h - 1, hex('#8a7a5a')); R.rect(x - 4, y + 1, x - 3, y + h - 1, hex('#a8966e'));
+  R.rect(x - 1, y - 1, x + 1, y + 1, K.k); R.rect(x - 3, y + 4, x + 3, y + 4, hex('#6a5a40')); R.pset(x + 2, y + 6, hex('#c83a3a'));
+};
+// estrellitas de brillo que se abren y se apagan (u 0–1)
+const brillo = (x, y, u, r = 8, col = K.oro) => {
+  if (u <= 0 || u >= 1) return; const d = Math.round(r * Math.sin(u * Math.PI)), e = Math.round(d * 0.6);
+  for (let i = -d; i <= d; i++) { R.pset(x + i, y, Math.abs(i) < d * 0.4 ? K.blanco : col); R.pset(x, y + i, Math.abs(i) < d * 0.4 ? K.blanco : col); }
+  for (let i = -e; i <= e; i += 2) { R.pset(x + i, y + i, col); R.pset(x + i, y - i, col); }
+};
+// un pajarito azul de cuento (x, y: las patas), mirando a dir; o.vuela: alas arriba/abajo; o.salta: px
+const pajaro = (x, y, t, o = {}) => {
+  x = Math.round(x); y = Math.round(y - (o.salta ?? 0)); const d = o.dir ?? 1, X = (i) => x + d * i;
+  const az = hex('#3a7ad8'), azS = hex('#2a52a0'), pe = hex('#f0c060'), k = K.k;
+  for (let i = -3; i <= 3; i++) for (let j = -6; j <= -2; j++) if ((i * i) / 10 + ((j + 4) * (j + 4)) / 5 <= 1.05) R.pset(X(i), y + j, j > -3 ? pe : az);
+  R.pset(X(-4), y - 5, azS); R.pset(X(-5), y - 6, azS); R.pset(X(-4), y - 4, azS);   // la cola
+  R.pset(X(2), y - 7, az); R.pset(X(3), y - 7, az); R.pset(X(2), y - 8, az); R.pset(X(3), y - 6, az);   // la cabeza
+  R.pset(X(3), y - 7, k); R.pset(X(4), y - 7, hex('#f0a020')); R.pset(X(5), y - 7, hex('#f0a020'));
+  const ala = o.vuela ? (Math.sin(t * 30) > 0 ? -3 : 1) : 0;
+  R.pset(X(-1), y - 5 + ala, azS); R.pset(X(0), y - 5 + ala, azS); R.pset(X(-2), y - 5 + ala, azS); if (o.vuela) R.pset(X(-1), y - 6 + ala, az);
+  if (!o.vuela) { R.pset(X(-1), y - 1, k); R.pset(X(1), y - 1, k); R.pset(X(-1), y, k); R.pset(X(1), y, k); }
+};
+
+const m = (f) => en('miles', f), n = (f) => en('montana', f);
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+const P2 = m(0.864), P3 = n(0.451);
+const diez = m(0.131), compania = m(0.559), mudan = n(0), yosemite = n(0.221), montes = n(0.862);
+// p1 · el salón de las cajas
+const SALTOS = [[0.9, 114], [2.2, 126], [3.4, 138], [4.5, 150]];   // [instante, x]: Roberta salta en el sofá y clava una chincheta
+const p1 = (t) => {
+  const g = T.casa(R, t, { encuadre: 'salon', cajas: 0.45 + 0.55 * tramo(t, 0, P2 - 0.6) });
+  // las chinchetas que ya ha clavado (en el borde de abajo del mapa, donde llega de un salto)
+  for (const [ti, x] of SALTOS) if (t > ti + 0.22) { const px = x + 13, py = 70 + (x % 7); R.pset(px, py + 1, K.k); R.rect(px - 1, py - 2, px + 1, py, K.rojo); R.pset(px - 1, py - 2, K.blanco); }
+  // Roberta, de pie en el sofá: anda un poco, salta con el dedo arriba y clava la chincheta
+  let rx = SALTOS[0][1], sal = 0, arriba = false;
+  for (let i = 0; i < SALTOS.length; i++) { const [ti, x] = SALTOS[i]; if (t >= ti - 0.6) rx = i ? lerp(SALTOS[i - 1][1], x, lin(t, ti - 0.6, ti - 0.15)) : x;
+    const s0 = (t - ti) / 0.45; if (s0 > 0 && s0 < 1) { sal = Math.round(Math.sin(s0 * Math.PI) * 11); arriba = true; } }
+  const andaR = SALTOS.some(([ti], i) => i && t > ti - 0.6 && t < ti - 0.15);
+  R.actor(EL.roberta, Math.round(rx), 120, t, { dir: 1, salto: sal, dedo: arriba, anda: andaR, sonrisa: t > diez, habla: !arriba && !andaR && Math.sin(t * 7) > 0.6 });
+  // la tarjeta «10000» que aparece clavada en el mapa en «10,000»
+  const tj = tramo(t, diez - 0.1, diez + 0.2);
+  if (tj > 0) { const y = 42, w = Math.round(18 * tj); R.rect(176 - w - 1, y - 1, 176 + w + 1, y + 12, K.k); R.rect(176 - w, y, 176 + w, y + 11, K.papel); R.rect(176 - w, y + 11, 176 + w, y + 11, K.papelS);
+    if (tj >= 1) { R.numero('10000', 176, y + 9, { centro: true, rampa: [K.k, K.k, hex('#2a3a6a'), hex('#2a3a6a')] }); R.disco(176, y + 1, 1, K.rojo); }
+    brillo(196, 44, tramo(t, diez + 0.1, diez + 0.8), 7); }
+  // Ken cruza el salón con una caja hasta el cartero
+  const kv = lin(t, 0.4, compania + 0.45), dale = compania + 0.65;
+  const kx = Math.round(lerp(70, 246, kv));
+  const ken = R.actor(EL.ken, kx, 150, t, { dir: 1, anda: kv > 0 && kv < 1, sostiene: t < dale, dedo: t > dale + 0.3, sonrisa: t > dale, habla: t > dale - 0.5 && t < dale && Math.sin(t * 9) > 0 });
+  if (t < dale) caja(ken.mano[0] - 4, ken.mano[1] - 7);
+  // el cartero entra por la puerta, recoge la caja, la mete en el saco y se va
+  const ce = lin(t, compania - 0.6, compania + 0.3), cs = lin(t, dale + 0.6, P2 + 0.1);
+  if (ce > 0 && cs < 1) {
+    const cx = Math.round(cs > 0 ? lerp(272, 322, cs) : lerp(318, 272, ce));
+    const car = R.actor(EL.cartero, cx, 162, t, { dir: cs > 0 ? 1 : -1, anda: (ce > 0 && ce < 1) || cs > 0, sostiene: true, sonrisa: t > dale });
+    saco(car.mano[0], car.mano[1], t > dale + 0.4 ? 1 : 0.4);
+    const vu = tramo(t, dale, dale + 0.4); if (vu > 0 && vu < 1) caja(lerp(ken.mano[0] - 4, car.mano[0] - 4, vu), lerp(ken.mano[1] - 7, car.mano[1] - 4, vu) - Math.sin(vu * Math.PI) * 6);
+  }
+  T.a_casaDelante(R, t, { encuadre: 'salon' });
+};
+// p2 · el pueblo de montaña: la camioneta sube por la carretera; un ciervo pace en el prado y se va de un brinco con el claxon
+const ciervo = (x, y, t, o = {}) => {
+  x = Math.round(x); y = Math.round(y); const d = o.dir ?? 1, X = (i) => x + d * i, c = hex('#a8703a'), cS = hex('#7a4e26'), cL = hex('#c89058'), bl = hex('#f2e6cc'), k = K.k;
+  const sal = o.brinco ? Math.round(Math.abs(Math.sin(t * 9)) * 5) : 0, yy = y - sal, paso = o.brinco ? Math.floor(t * 9) % 2 : 0;
+  for (let i = -6; i <= 6; i++) for (let j = -12; j <= -7; j++) if ((i * i) / 40 + ((j + 9.5) * (j + 9.5)) / 7 <= 1) R.pset(X(i), yy + j, j > -8 ? cS : j < -11 ? cL : c);
+  R.pset(X(-7), yy - 11, bl); R.pset(X(-7), yy - 10, bl);   // la cola blanca
+  for (const [lx, f] of [[-4, 0], [-2, 1], [3, 0], [5, 1]]) { const dx = paso && f ? 1 : 0; R.rect(Math.min(X(lx + dx), X(lx + dx)), yy - 7, Math.min(X(lx + dx), X(lx + dx)), y - 1 - (o.brinco && f ? 2 : 0), cS); R.pset(X(lx + dx), y - (o.brinco && f ? 2 : 0), k); }
+  const baja = o.come ? 6 : 0;   // el cuello: arriba, o abajo paciendo
+  for (let j = 0; j < 6; j++) R.pset(X(5 + Math.round(j * (baja ? 0.5 : 0.3))), yy - 11 - (baja ? -j : j), c), R.pset(X(6 + Math.round(j * (baja ? 0.5 : 0.3))), yy - 11 - (baja ? -j : j), cS);
+  const hx = X(baja ? 9 : 7), hy = yy - (baja ? 5 : 17);
+  R.rect(Math.min(hx, hx + d * 3), hy, Math.max(hx, hx + d * 3), hy + 2, c); R.pset(hx + d * 3, hy + 1, k); R.pset(hx + d, hy, k);
+  R.pset(hx - d, hy - 1, cS); R.pset(hx - d, hy - 2, cS); R.pset(hx, hy - 2, cS); R.pset(hx - 2 * d, hy - 3, cS); R.pset(hx + d, hy - 3, cS);   // las astas
+};
+const p2 = (t) => {
+  T.oficina(R, t, { encuadre: 'pueblo', epoca: 1981, camioneta: tramo(t, P2 + 0.1, yosemite + 1.1) });
+  const bota = yosemite + 1.05, hu = lin(t, bota + 0.2, P3 + 0.4);
+  ciervo(lerp(196, 300, hu), 168, t, { dir: hu > 0 ? 1 : -1, come: t < bota && Math.sin(t * 1.3) > -0.4, brinco: hu > 0 });
+  if (t > bota && t < bota + 0.7) R.bocadillo(196, 140, { icono: '!' });
+};
+// p3 · la tienda de cerca: llegan y suben a la oficina
+const p3 = (t) => {
+  const g = T.oficina(R, t, { encuadre: 'pueblo', camara: 'tienda', epoca: 1981, camioneta: tramo(t, P3 - 0.2, P3 + 1.2) });
+  // Roberta sube la escalera con su caja (peldaño cada 3 px en x y 4 en y), cruza el rellano y entra
+  const su = tramo(t, P3 + 0.2, montes - 0.5), re = tramo(t, montes + 0.6, E.duracion - 0.3);
+  let rx, ry;
+  if (su < 1) { const i = Math.floor(su * 13); rx = 312 - 3 * i - 7 - 4 * (1 - su); ry = 151 - 4 * i; } else { rx = lerp(265, 230, re); ry = 98; }
+  if (re < 1) {
+    const rob = R.actor(EL.roberta, Math.round(rx), Math.round(ry), t, { dir: -1, anda: (su > 0 && su < 1) || (re > 0 && re < 1), sostiene: t < montes - 0.5 || t > montes + 0.6, dedo: t > montes - 0.4 && t < montes + 0.6, sonrisa: true });
+    if (t < montes - 0.5 || t > montes + 0.6) caja(rob.mano[0] - 6, rob.mano[1] - 7);
+  }
+  // Ken baja de la camioneta con otra caja y va hacia la escalera
+  const kb = lin(t, P3 + 1.3, E.duracion);
+  if (kb > 0) { const ken = R.actor(EL.ken, Math.round(lerp(64, 196, kb)), 174, t, { dir: 1, anda: kb < 1, sostiene: true }); caja(ken.mano[0] - 4, ken.mano[1] - 7); }
+};
+const efectos = [[SALTOS[0][0] + 0.22, 'golpecito'], [diez, 'sello'], [compania - 0.55, 'puerta'], [compania + 0.7, 'papel'], [P2 + 0.3, 'motor'], [yosemite + 1.0, 'claxon'], [P3 + 1.1, 'puerta'], [montes, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => (t < P2 ? 1980 : 1981) });
+</script>
+</body>
+</html>
