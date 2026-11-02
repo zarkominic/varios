@@ -184,6 +184,8 @@ una pasada o detalle no entra.
   en EE. UU. (16/12 en Reino Unido). Palabras del usuario: «todo lo que hay que saber antes de la película, es decir, lo
   importante de otras pelis de Marvel previo a esto y cómo se concatena todo». Publicar 1–2 semanas antes del estreno. Solo
   datos confirmados (nada de filtraciones ni rumores) y volver a comprobarlos justo antes de locutar. Sin clips, música ni
-  logos de Marvel: dibujado por nosotros. Antes del guion hay que decidir con el usuario cuánto se parecen los personajes.
+  logos de Marvel: dibujado por nosotros. Decidido por el usuario el 02/11/2026: **un solo vídeo de unos 12 minutos** (~1.800 palabras; solo para este
+  episodio), sin partes, y **los personajes reconocibles por sus atributos** («que se entienda cuáles son: un Hulk debe ser
+  todo verde y más grande»), dibujados por nosotros en chibi, sin logos. Los 3 Shorts como piezas sueltas que llevan al largo.
 - **Después, los archivos OVNI del gobierno** (entregas de PURSUE desde mayo de 2026): con gancho comercial (los casos
   que el Pentágono no sabe explicar), sin repetir lo del episodio 10; mejor justo después de una entrega nueva.
