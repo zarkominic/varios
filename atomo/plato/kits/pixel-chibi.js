@@ -1376,3 +1376,769 @@ export const ELENCO_SI = {
   adolescente: { ...BASE16, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#2a6aa8', c: '#1e5080', F: '#3a4a7a', W: '#2a6aa8', o: '#e8c840', M: '#c83a3a' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_SI);
+
+// ── Episodio 19: «Avengers: Doomsday». Héroes y villanos dibujados por nosotros, reconocibles por la silueta y los
+// colores (como en un juego de 16 bits), sin logos ni letras: solo la estrella del escudo, la araña, el «4» en su
+// círculo. Letras propias de este reparto (cada personaje las define en su pal): I cinturón · n botas · y/Y brillo
+// (reactor, ojos) · r/R detalle rojo · e gema · u/l/p/d colores sueltos de cada uno.
+// parche(filas, [[i, j, 'texto'], …]): superpone texto en la rejilla; '.' no cambia nada y ' ' borra
+const parche = (filas, ps) => { const a = filas.map((f) => f.split('')); for (const [i, j, s] of ps) for (let n = 0; n < s.length; n++) if (s[n] !== '.' && a[j] && i + n >= 0 && i + n < a[j].length) a[j][i + n] = s[n] === ' ' ? '.' : s[n]; return a.map((f) => f.join('')); };
+// tapa(filas, {H: 'C', …}): cambia letras (para sacar una máscara completa de una cabeza)
+const tapa = (filas, m) => filas.map((f) => f.replace(/./g, (ch) => m[ch] ?? ch));
+const OSCURA = (o) => ({ S: hex('#9a6644'), s: hex('#744628'), ...Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)])) });
+const COLORES = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)]));
+
+// ── cabezas ──
+// sienes canosas (Strange, Reed): unas canas (w) delante de la oreja
+const CAB_SIENES = parche(CAB_CORTO, [[2, 3, '.ww'], [2, 4, 'ww'], [2, 5, 'w'], [2, 6, 'w']]);
+// pelo largo hasta los hombros (Thor, Bucky, Clea, Sue, Mística): la de las egipcias
+const CAB_LARGO = CAB_EGIPCIA;
+// coleta recogida atrás (Yelena)
+const COLETA = ['.kkk', 'kHHH', 'kHhk', '.kHk', '..kk'];
+const coleta = (c) => c.cab.rej(COLETA, -3, 3);
+// casco de Iron Man: rojo (H) con la placa de la cara dorada (O/g) y los ojos que brillan (y)
+const CAB_IRON = [
+  '...kkkkkkkk....',
+  '..kHHHhhHHHk...',
+  '.kHHHHHHHhHHk..',
+  'kHHHHHHHHHHHHk.',
+  'kHHHHHkkkkkkHk.',
+  'kHHHHkOOOOOOOk.',
+  'kHHHHkyyyOyyyk.',
+  'kHHhHkOOOOOOOOk',
+  '.kHHHkOOOOOOgk.',
+  '.kHHHHkOkkkgk..',
+  '..kHHHHkOOgk...',
+  '...kkHHkkkkk...',
+  '.....kkkkk.....',
+];
+// máscara completa de Spider-Man: roja (C/c) con los ojos blancos grandes de borde negro
+const CAB_ARANA = parche(tapa(CAB_CORTO, { H: 'C', h: 'd', S: 'C', s: 'd' }), [
+  [6, 4, 'kkk.kkk'], [5, 5, 'kEEEkEEEk'], [5, 6, 'kEEEkEEEk'], [6, 7, 'kEEk.kEk'], [7, 8, 'kk...k'], [13, 6, 'C'],
+]);
+// Deadpool: roja (C) con los parches negros (J) y los ojos blancos (E)
+const CAB_DEADPOOL = parche(tapa(CAB_CORTO, { H: 'C', h: 'c', S: 'C', s: 'c' }), [
+  [6, 5, 'JJJ.JJJJ'], [5, 6, 'JEEJ.JEEJ'], [6, 7, 'JJ...JJ'], [13, 6, 'C'],
+]);
+// Pantera Negra (Shuri): máscara negra (J/j) con orejitas, ojos plateados (E) y dibujos plateados (Z)
+const CAB_PANTERA = [
+  '...k....k......',
+  '..kJk..kJk.....',
+  '..kJJkkJJJk....',
+  '.kJJJJJJJJJk...',
+  'kJJJjJJJJJJJk..',
+  'kJJZJJJJJJJJk..',
+  'kJJjZJJJJJJJJk.',
+  'kJJJJJZEEJZEEJk',
+  'kJJjJJJJJJJJJk.',
+  '.kJJJZJJJJJJk..',
+  '..kJJJZJJJjk...',
+  '...kkJJJJJkk...',
+  '.....kkkkk.....',
+];
+// Ant-Man: casco plateado (Z/z) con los ojos rojos (r) y la rejilla de la boca
+const CAB_ANTMAN = parche(tapa(CAB_CORTO, { H: 'Z', h: 'z', S: 'Z', s: 'z' }), [
+  [1, 3, 'kkk'], [3, 4, 'z'], [7, 5, 'rrk.rr'], [7, 6, 'rrk.rr'], [8, 8, 'zkzk'], [8, 9, 'zkzk'], [2, 6, 'R'], [2, 7, 'R'],
+]);
+// Doctor Doom: capucha verde (V/v) y máscara de metal (Z/z) con los ojos rasgados y la rejilla en la boca
+const CAB_DOOM = [
+  '...kkkkkkkk....',
+  '..kVVVVVVVVk...',
+  '.kVVvVVVVVVVk..',
+  'kVVVVVVVVVVVVk.',
+  'kVVVvkkkkkkkVk.',
+  'kVVVkZZZZZZZZk.',
+  'kVVvkZkkkZkkkZk',
+  'kVVvkZZZZZZZZk.',
+  'kVVVkZzZkzkzZk.',
+  'kVVVkZzZkzkzk..',
+  '.kVVkzZZZZZzk..',
+  '..kVvkkkkkkk...',
+  '...kkk.........',
+];
+// Hulk: piel verde (S/s), pelo negro corto y la ceja gruesa; cabeza normal sobre un cuerpo enorme
+const CAB_HULK = parche(CAB_CORTO, [[4, 4, 'sssssssss'], [13, 6, 'S']]);
+// la Cosa: cabeza de rocas naranjas (S/s, grietas r) con la frente pesada
+const CAB_COSA = parche(tapa(CAB_CORTO, { H: 'S', h: 's' }), [
+  [3, 1, 'r..r'], [1, 3, 'rr.r..r'], [4, 4, 'rsssssssk'], [2, 7, 'r'], [5, 8, 'r'], [3, 10, 'r'], [9, 10, 'r'], [12, 8, 'r'],
+]);
+// Bestia: pelaje azul (S/s; pelo H) que le crece por la cara
+const CAB_BESTIA = parche(CAB_CORTO, [[3, 8, 'HH'], [2, 9, 'kHH'], [3, 10, 'kHHh'], [5, 11, 'HHH']]);
+// Thanos: calvo, morado, con la barbilla de surcos (z)
+const CAB_THANOS = parche(CAB_CALVO, [[4, 3, 'sss'], [8, 10, 'zSzS'], [9, 11, 'zz'], [3, 8, 's']]);
+// M'Baku: barba poblada (H) y el pelo alto
+const CAB_MBAKU = parche(CAB_BARBA, [[3, 0, 'kkkk'], [2, 1, 'kHHHH']]);
+// la Antorcha: cabeza en llamas, con el pelo de fuego hacia atrás (Y/y)
+const CAB_FUEGO = [
+  'k..kk..k.......',
+  'kYk.YkkYk......',
+  '.kYYyYYYYkk....',
+  'kYyYYYYYYYYk...',
+  'kYYyYSSSSSSSk..',
+  'kYyYsSSSSSSSk..',
+  'kyYYsSSSSSSSSk.',
+  '.kYsSSSSSSSSk..',
+  'kYySSSSSSSSSSk.',
+  '.kYSSSSSSSSSk..',
+  '..kSSSSSSSSsk..',
+  '...kksSSSSkk...',
+  '.....kkkkk.....',
+];
+
+// ── cuerpos (15 de ancho y 13 de alto, como CUERPO_EUROPEO) ──
+// traje ceñido de héroe: C pecho, c costados, W brazos, G guantes, I cinturón, F piernas, n botas
+const CUERPO_HEROE = [
+  '...kkCCCCCkk...',
+  '..kWWCCCCCWWk..',
+  '.kWkCCCCCCCkWk.',
+  '.kWkCCCCCCCkWk.',
+  '.kWkcCCCCCckWk.',
+  '.kGkcCCCCCckGk.',
+  '..kkIIIIIIIkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// ropa de calle: camiseta de manga corta (C) y vaqueros (F)
+const CUERPO_CALLE = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '.kSkcCCCCCckSk.',
+  '.kSkcCCCCCckSk.',
+  '..kkCCCCCCCkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// gabardina larga abierta (Gambito): C gabardina, c su sombra, W pecho, F piernas
+const CUERPO_GABARDINA = [
+  '..kkCWWWWCkk...',
+  '.kCCCWWWWCCCk..',
+  '.kCkCCWWWCCkCk.',
+  '.kCkCCWWWCCkCk.',
+  '.kCkCCWWWCCkCk.',
+  '.kGkCCIIICCkGk.',
+  '.kckCCFFFCCkck.',
+  '.kCCCkFkFkCCCk.',
+  '.kCCCkFkFkCCCk.',
+  '.kcCCkFkFkCCck.',
+  '.kccckFkFkccck.',
+  '..kkkknkknkkk..',
+  '....kkk.kkk....',
+];
+// vestido de mujer de los años 40 (Peggy): chaqueta entallada y falda por la rodilla
+const CUERPO_SASTRE = [
+  '...kkWWWWWkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCCWCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkcCCCCCckCk.',
+  '.kSkIIIIIIIkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kcCCCCCck...',
+  '...kkkkkkkkk...',
+  '....kSk.kSk....',
+  '....kSk.kSk....',
+  '...kkkk.kkkk...',
+];
+// túnica larga abierta por delante (Strange, Aquel Que Permanece): C túnica, W fajín/camisa, F piernas
+const CUERPO_TUNICA_HEROE = [
+  '...kkCCCCCkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCWWWCCkCk.',
+  '.kCkCCWoWCCkCk.',
+  '.kCkCCWWWCCkCk.',
+  '.kGkIIIIIIIkGk.',
+  '..kkCCWWWCCkk..',
+  '...kCCWkWCCk...',
+  '...kCCFkFCCk...',
+  '...kCcFkFcCk...',
+  '...kccFkFcck...',
+  '...kkknknkkk...',
+  '..kkkkk.kkkkk..',
+];
+// chaleco táctico (Yelena, Bucky): C chaleco con bolsillos (o), W mangas, F pantalón, n botas
+const CUERPO_TACTICO = [
+  '...kkCCCCCkk...',
+  '..kWWCCCCCWWk..',
+  '.kWkCoCCCoCkWk.',
+  '.kWkCCCCCCCkWk.',
+  '.kWkCoCCCoCkWk.',
+  '.kGkCCCCCCCkGk.',
+  '..kkIIIoIIIkk..',
+  '...kFFFkFFFk...',
+  '...kFoFkFoFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// bañador (Namor): torso desnudo, calzón verde (C) y alitas en los tobillos (W)
+const CUERPO_BANADOR = [
+  '...kkSSSSSkk...',
+  '..kSSSSSSSSSk..',
+  '.kSkSSsSsSSkSk.',
+  '.kSkSSSSSSSkSk.',
+  '.kSkSSSsSSSkSk.',
+  '.kSkSSSSSSSkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCcCCcCk...',
+  '...kSSSkSSSk...',
+  '...kSSSkSSSk...',
+  '.kWkSSSkSSSkWk.',
+  'kWWkSSSkSSSkWWk',
+  '.kkkkkk.kkkkkk.',
+];
+// M'Baku: pecho de piel (S) con el chaleco de pelaje (C/c), falda de pelaje y piernas desnudas
+const CUERPO_PELAJE = [
+  '..kkCCSSSCCkk..',
+  '.kCCcCSSSCcCCk.',
+  '.kCkCCSSSCCkCk.',
+  '.kSkCcSSSCcSkSk',
+  '.kSkCCSSSCCkSk.',
+  '.kSkCcIIICcksk.',
+  '..kkCCCCCCCkk..',
+  '...kCcCcCcCk...',
+  '...kSSSkSSSk...',
+  '...kSSSkSSSk...',
+  '...kSSSkSSSk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// Xavier sentado en su silla: traje oscuro y las piernas hacia delante
+const CUERPO_SENTADO_TRAJE = [
+  '...kkWWWWWkk...',
+  '..kCCCWoWCCCk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkFFFFFFFFFk.',
+  '...kFFFFFFFFFk.',
+  '...kkkkkkkkFFk.',
+  '..........kFFk.',
+  '..........kkkkk',
+];
+// cuerpo ancho (17 × 15) de Thanos: hombreras de oro (O/g), peto azul (C/c), el guantelete (G con gemas e)
+const CUERPO_ANCHO = [
+  '...kkOOCCCCOOkk..',
+  '..kOOOOCCCCOOOOk.',
+  '.kOOgkCCCCCCkOOOk',
+  '.kWWkCCCOCCCCkWk.',
+  '.kWWkCCOOOCCCkWk.',
+  '.kWWkcCCOCCCckWk.',
+  '.kWWkcCCCCCCckGGk',
+  '.kGGkIIIIIIIIkGek',
+  '.kGGkFFFFkFFFkkk.',
+  '..kkkFFFFkFFFFk..',
+  '....kFFFFkFFFFk..',
+  '....kFFFFkFFFFk..',
+  '....knnnnknnnnk..',
+  '....knnnnknnnnk..',
+  '...kkkkkk.kkkkkk.',
+];
+// cuerpo grande (21 × 24) de Hulk, la Cosa y Bestia: hombros enormes, brazos hasta las rodillas, puños grandes;
+// S/s piel, r grietas o pelo, F/f calzón o pantalón (roto abajo)
+const CUERPO_GRANDE = [
+  '....kkkkkkkkkkkkk....',
+  '..kkSSSSSSSSSSSSSkk..',
+  '.kSSSSSSSSSSSSSSSSSk.',
+  'kSSSSSkSSSSSSSSkSSSSk',
+  'kSSSSkSSSSSSSSSSkSSSk',
+  'kSSSskSSSssSssSSkSSsk',
+  'kSSSskSSSSSSSSSSkSSsk',
+  'kSSSskSSSSSsSSSSkSSsk',
+  'kSSsSkSSSsSsSsSSkSsSk',
+  'kSSsSkSSSSSsSSSSkSsSk',
+  'kSSsSkSSSsSsSsSSkSsSk',
+  'kSSsSkSSSSSSSSSSkSsSk',
+  'kSSsSkFFFFFFFFFFkSsSk',
+  'kSSsSkFFFFFFFFFFkSsSk',
+  'kSSSSSkFFFFfFFFkSSSSk',
+  'kSSSSSkFFFFkFFFkSSSSk',
+  '.kSSSkkFFFFkFFFFkSSk.',
+  '..kkk.kFFFFkFFFFkkk..',
+  '......kFFFFkFFFFk....',
+  '......kFkFkkFkFFk....',
+  '......kSSSk.kSSSk....',
+  '......kSSSk.kSSSk....',
+  '.....kSSSSk.kSSSSk...',
+  '.....kkkkkk.kkkkkk...',
+];
+
+// ── capas, alas y cola (por detrás del cuerpo; en coordenadas de la rejilla de 15, la x empieza en −2) ──
+const CAPA_LARGA = [
+  '....kkkkkkkkkk.....',
+  '...kQQQQQQQQQQkk...',
+  '..kQQqQQQQQQQQQQk..',
+  '..kQqQQQQQQQQQQQQk.',
+  '.kQQqQQQQQQQQQQQQk.',
+  '.kQqQQQQQQQQQQQQQk.',
+  '.kQqQQQQQQQQQQQQQk.',
+  'kQQqQQQQQQQQQQQQQk.',
+  'kQqQQQQQQQQQQQQQQk.',
+  'kQqQQQQQQQQQQQQQqk.',
+  'kQqqQQQQQQQQQQQqqk.',
+  'kqQqQQQQQQQQQQqqk..',
+  '.kkkkkkkkkkkkkkk...',
+];
+const capa = (alto = 12) => (c) => c.cuerpo.rej(CAPA_LARGA.slice(0, alto).concat([CAPA_LARGA[12]]), -2, 0);
+// cuello alto de la capa de Strange, que sube por detrás de la cabeza
+const CUELLO_ALTO = ['kk..', 'kQk.', 'kQqk', 'kQqk', 'kQQk', '.kQk'];
+// alas plegadas de Sam: dos alas de metal (Z/z) que asoman por encima de los hombros, por detrás
+const ALAS = [
+  '..kk...........',
+  '.kZZk..........',
+  '.kZzk......kk..',
+  'kZZzk.....kZZk.',
+  'kZzZk.....kZzk.',
+  'kZzZk....kZzZk.',
+  'kZzZk....kZzZk.',
+  'kZzZk....kZzk..',
+  'kzZzk.....kk...',
+  '.kZzk..........',
+  '.kzk...........',
+  '..k............',
+];
+// las dos katanas de Deadpool, cruzadas a la espalda (asoman las empuñaduras)
+const KATANAS = [
+  'kk.kk...',
+  'kJkkJk..',
+  '.kJkkJk.',
+  '..kZkkZk',
+  '...kZkkZk',
+];
+// cola de Rondador Nocturno, que sale por detrás y acaba en punta de flecha
+const COLA = [
+  '......kk.',
+  '.....kSSk',
+  '.....kSk.',
+  '....kSk..',
+  '...kSk...',
+  '..kSk....',
+  '.kSk.....',
+  'kSk......',
+  'kSk......',
+  '.kSk.....',
+  '..kkk....',
+];
+
+// ── tocados nuevos ──
+Object.assign(TOCADOS, {
+  // capucha azul del Capitán América (C): tapa la frente y la nuca, con las alitas blancas (X) en la sien
+  capitan: [[
+    '...kkkkkkkk....',
+    '..kCCCCCCCCk...',
+    '.kCCcCCCCCCCk..',
+    'kCCCCCCCCCCCCk.',
+    'kCkkCCCCCCCCCk.',
+    'kXXXkCCCCCCCCk.',
+    'kCXXXk.........',
+    'kCCXCk.........',
+    '.kCCk..........',
+    '.kCk...........',
+  ], 0],
+  // casco de Loki: banda de oro (O/g) con los dos cuernos largos curvados hacia atrás
+  cuernos: [[
+    'kk......kk.....',
+    'kOk.....kOk....',
+    '.kOk.....kOk...',
+    '.kOOk....kOOk..',
+    '..kOOk....kOOk.',
+    '..kkOOkkkkkOOk.',
+    '.kkOOOOOOOOOOk.',
+    'kOgOOOOOOOOOOk.',
+    'kgOOkkkkkkkkk..',
+    'kgOk...........',
+    'kgOk...........',
+    '.kgk...........',
+  ], -7],
+  // yelmo de Kang: azul (A/a) con las aletas laterales que suben por detrás y el cuello verde (V)
+  yelmo: [[
+    'kk.............',
+    'kAk............',
+    'kAAk.kkkkkk....',
+    '.kAAkAAAAAAkk..',
+    '.kAAAAaAAAAAAk.',
+    'kAaAAAAAAAAAAk.',
+    'kAAAAkkkkkkkkk.',
+    'kAAAk..........',
+    'kAAAk..........',
+    'kaAAk..........',
+    'kAAAk..........',
+    '.kAAk..........',
+    '.kVVVk.........',
+  ], -3],
+  // casco de Magneto: rojo (D/d) que cubre la cabeza y baja por la mejilla, con el borde de la frente
+  magneto: [[
+    '...kkkkkkkk....',
+    '..kDDDDDDDDk...',
+    '.kDDdDDDDDDDk..',
+    'kDDDDDDDDDDDDk.',
+    'kDDDDDDDDDDDDDk',
+    'kDDDDkkkkkkkkk.',
+    'kDDDk..........',
+    'kDdDk..........',
+    'kDDDk..........',
+    'kDdDDk.........',
+    '.kDDDk.........',
+    '..kkk..........',
+  ], -2],
+  // máscara de Lobezno: amarilla (Y) con los lados negros (J) y las dos puntas hacia atrás; ojos blancos (E)
+  lobezno: [[
+    '.k.............',
+    'kJk............',
+    'kJJk...........',
+    '.kJJkkkkkkk....',
+    '.kJJYYYYYYYk...',
+    '.kJJYYYYYYYYk..',
+    'kJJYYYYYYYYYYk.',
+    'kJJJYYYYYYYYYk.',
+    'kJJJJJJYYJJJJk.',
+    'kJJJJJkEEkJEEk.',
+    'kJJJk..kk..kk..',
+  ], -3],
+  // visor de Cíclope: la banda roja (r) de lado a lado con su montura (J)
+  visor: [[
+    'kJJJJJkkkkkkkk.',
+    'kJJJJkrrrrrrrrk',
+    'kJJJJJkkkkkkkk.',
+  ], 5],
+  // gafas de aviador de Sam (cristal rojo r) y gafas de sol (J)
+  goggles: [[
+    'kJk....kkk.kkk.',
+    'kJJJJJkrrrkrrrk',
+    '.kk....kkk.kkk.',
+  ], 5],
+  gafasClaras: [[
+    '......E..EE..E.',
+    '......E..EE..E.',
+    '.......EE..EE..',
+  ], 6],
+  sol: [[
+    '.....kkkkkkkkk.',
+    '.....kJJJkkJJJk',
+    '.......kk..kk..',
+  ], 5],
+  // cinta de Gambito: la bandana oscura (J) por la frente
+  cinta: [[
+    'kJJJJJJJJJJJJk.',
+    'kJjJJJJJJJJJJk.',
+    'kJk............',
+    'kJk............',
+  ], 3],
+  // sombrero rojo de Peggy (D/d), pequeño e inclinado
+  peggy: [[
+    '.......kkkk....',
+    '...kkkkDDDDk...',
+    '..kDDDDDDdDDkk.',
+    '.kkkkkkkkkkkkkk',
+  ], -2],
+  // gorra de visera de Feige (C) y gorra de fan
+  visera: [[
+    '...kkkkkkkk....',
+    '..kCCCCCCCCk...',
+    '.kCCcCCCCCCCk..',
+    '.kkkkkkkkkkkkkk',
+    '..........kkkk.',
+  ], -1],
+});
+
+// ── piezas (se pintan con el R de conChibi: R.dibujo, R.pset, R.rect) ──
+const PAL_PIEZAS = COLORES({
+  k: '#1c1222', r: '#c8303a', R: '#e84a4a', X: '#f2eee2', x: '#c8c0b0', A: '#2a4fa8', a: '#1e3680', Z: '#c0c4d4', z: '#8c90a4',
+  O: '#e8b830', g: '#a87a18', B: '#7a4a24', b: '#4e2e14', J: '#2a2430', S: '#f6c290', s: '#d48a5a', H: '#e0b860', C: '#4a8ad8', c: '#2e64a8',
+});
+// el escudo del Capitán: aros rojo-blanco-rojo y estrella blanca sobre azul. o.r radio (6), o.ancho (1; 0.4 de canto)
+const escudoCap = (R, cx, cy, o = {}) => {
+  const r = o.r ?? 6, sx = o.ancho ?? 1, P_ = PAL_PIEZAS;
+  for (let y = -r - 1; y <= r + 1; y++) for (let x = Math.floor(-(r + 1) * sx); x <= Math.ceil((r + 1) * sx); x++) {
+    const d = Math.hypot(x / sx, y); if (d > r + 0.6) continue;
+    const f = d / r, c = d > r - 0.4 ? P_.k : f > 0.82 ? (x / sx + y < -2 ? P_.R : P_.r) : f > 0.64 ? P_.X : f > 0.46 ? P_.r : P_.A;
+    R.pset(Math.round(cx + x), Math.round(cy + y), c);
+  }
+  if (sx > 0.6) R.dibujo(['..X..', 'XXXXX', '.XXX.', '.X.X.'], Math.round(cx - 2), Math.round(cy - 2), 1, P_);
+  R.pset(Math.round(cx - r * 0.5 * sx), Math.round(cy - r * 0.6), P_.X);   // el brillo
+};
+// el martillo corto de Thor: cabeza de metal (Z/z) y mango con tira de cuero; (x, y) = la mano; o.arriba: la cabeza arriba
+const MARTILLO = ['kkkkkkkk', 'kZZZZZZk', 'kZZZZzzk', 'kZzzzzzk', 'kkkkkkkk', '...kBk..', '...kbk..', '...kBk..', '...kbk..', '...kkk..'];
+const martillo = (R, x, y, o = {}) => { const g = o.arriba ? MARTILLO : [...MARTILLO].reverse(); R.dibujo(g, x - 4, o.arriba ? y - 7 : y - 2, 1, PAL_PIEZAS); };
+// el guantelete dorado con las seis gemas (morada, azul, roja, naranja, verde, amarilla); (x, y) = la muñeca
+const GUANTELETE = [
+  '.kk.kk.kk..',
+  'kOOkOOkOOk.',
+  'kOekOekOek.',
+  'kOOOOOOOOkk',
+  'kOOOOOOOOkOk',
+  'kOOOeOOOOkek',
+  'kgOOOOOOgkOk',
+  'kggOOOOggkk.',
+  '.kkgggggk...',
+  '..kOOOOOk...',
+  '..kkkkkkk...',
+];
+const guantelete = (R, x, y, t = 0) => {
+  const gemas = ['#9a4ae8', '#3a8ae8', '#e83a3a', '#e8903a', '#3ac85a', '#f0e040'].map(hex);
+  let n = 0;
+  GUANTELETE.forEach((f, j) => { for (let i = 0; i < f.length; i++) { const ch = f[i]; if (ch === '.') continue; R.pset(x - 5 + i, y - 10 + j, ch === 'e' ? gemas[n++ % 6] : PAL_PIEZAS[ch]); } });
+  if (Math.sin(t * 5) > 0.6) R.pset(x - 1, y - 5, hex('#fff6c8'));
+};
+// silla de ruedas (Xavier): rueda grande con radios, asiento, respaldo y rueda pequeña delante; (x, suelo) = el asiento
+const sillaRuedas = (R, x, suelo, o = {}) => {
+  const dir = o.dir ?? 1, X = (i) => Math.round(x + dir * i), P_ = PAL_PIEZAS, cy = suelo - 6;
+  // o.parte: 'respaldo' (antes del actor), 'ruedas' (después) o las dos
+  if (o.parte !== 'ruedas') { for (let j = 0; j < 14; j++) { R.pset(X(-1), suelo - 8 - j, P_.k); R.pset(X(0), suelo - 8 - j, P_.z); R.pset(X(1), suelo - 8 - j, P_.k); }   // respaldo
+    for (let i = -1; i <= 13; i++) { R.pset(X(i), suelo - 10, P_.k); R.pset(X(i), suelo - 9, P_.z); } }   // asiento
+  if (o.parte === 'respaldo') return;
+  R.disco(X(4), cy, 6, P_.k); R.disco(X(4), cy, 5, P_.z); R.disco(X(4), cy, 4, P_.k); R.disco(X(4), cy, 3, P_.Z);
+  for (let k = 0; k < 4; k++) { const a = k * Math.PI / 4; for (let rr = -3; rr <= 3; rr++) R.pset(Math.round(X(4) + Math.cos(a) * rr), Math.round(cy + Math.sin(a) * rr), P_.z); }
+  R.pset(X(4), cy, P_.k);
+  for (let j = 0; j < 7; j++) R.pset(X(12), suelo - 9 + j, P_.k);
+  R.disco(X(12), suelo - 2, 2, P_.k); R.pset(X(12), suelo - 2, P_.z);
+};
+// Franklin, el bebé de Reed y Sue: pelele azul (C) y un mechón rubio (H); (x, suelo)
+const FRANKLIN = ['...kkk...', '..kHHHk..', '.kSSSSSk.', '.kSkSkSk.', '.kSSsSSk.', '..kkkkk..', '.kCCCCCk.', 'kSkCXCkSk', '.kCCCCCk.', '.kckkck..', '.kk..kk..'];
+const franklin = (R, x, suelo) => R.dibujo(FRANKLIN, x, suelo - FRANKLIN.length, 1, PAL_PIEZAS);
+// Galactus (primer boceto, el decorado lo pulirá): gigante morado con casco de grandes alas laterales; se pinta como pieza
+// a escala s (cada letra, s × s px; con s = 2 mide 88 px). (cx, pie) = centro de los pies
+const GALACTUS = [
+  '.kk..................kk.',
+  'kAAk................kAAk',
+  'kAAk................kAAk',
+  'kAAAk..............kAAAk',
+  'kAaAk...kkkkkkk....kAaAk',
+  'kAaAAk.kAAAAAAAk..kAAaAk',
+  '.kAaAkkAAAAAAAAAkkkAaAk.',
+  '.kAaAAkAAkkkkkAAAkAAaAk.',
+  '..kAaAkAkSSSSSkAkAAaAk..',
+  '..kAaAAkSkSSkSSkkAaAk...',
+  '...kAaAkSSSSSSSkAAaAk...',
+  '...kkAAkSSSsSSSkAAkk....',
+  '.....kkAkSSSSSkAkk......',
+  '....kkUUkkkkkkkUUkk.....',
+  '...kUUUUUUUUUUUUUUUk....',
+  '..kUUuUUUUAAAUUUUuUUk...',
+  '..kUuUUUUAAuAAUUUUuUk...',
+  '.kUUuUkUUAAAAAUUkUuUUk..',
+  '.kUuUUkUUUAAAUUUkUUuUk..',
+  '.kUuUkkUUUUUUUUUkkUuUk..',
+  '.kSSk.kUUUUUUUUUk.kSSk..',
+  '.kSSk.kAAAAAAAAAk.kSSk..',
+  '..kk..kUUUUkUUUUk..kk...',
+  '......kUUUUkUUUUk.......',
+  '......kUUuUkUuUUk.......',
+  '......kUUuUkUuUUk.......',
+  '......kUUUUkUUUUk.......',
+  '......kUUUUkUUUUk.......',
+  '......kUuUUkUUuUk.......',
+  '......kAAAAkAAAAk.......',
+  '......kAAAAkAAAAk.......',
+  '......kAaAAkAAaAk.......',
+  '......kAAAAkAAAAk.......',
+  '.....kAAAAAkAAAAAk......',
+  '.....kkkkkkkkkkkkk......',
+];
+const PAL_GALACTUS = COLORES({ k: '#1c1222', A: '#6a3aa8', a: '#4a2480', U: '#3a5ac8', u: '#283e94', S: '#b89ad8', s: '#8a6ab0' });
+const galactus = (R, cx, pie, o = {}) => {
+  const s = o.s ?? 2, w = GALACTUS[0].length, h = GALACTUS.length, x0 = Math.round(cx - w * s / 2), y0 = pie - h * s;
+  GALACTUS.forEach((f, j) => { for (let i = 0; i < w; i++) { const c = PAL_GALACTUS[f[i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } });
+  if (o.ojos !== false) { const ex = x0 + 10 * s, ey = y0 + 9 * s; R.rect(ex, ey, ex + s - 1, ey + s - 1, hex('#e8f0ff')); R.rect(ex + 3 * s, ey, ex + 4 * s - 1, ey + s - 1, hex('#e8f0ff')); }
+};
+export const PIEZAS_DO = { escudo: escudoCap, martillo, guantelete, silla: sillaRuedas, franklin, galactus };
+
+// ── ganchos de los personajes (def.detras / def.delante) ──
+// ojos de Iron Man que brillan de vez en cuando
+const brilloIron = (c) => { if (Math.sin(c.t * 3 + c.x) > 0.7) { c.cab.px(7, 6, hex('#ffffff')); c.cab.px(11, 6, hex('#ffffff')); } };
+// garras de Lobezno: tres cuchillas que salen del puño de delante (o.garras: false las esconde)
+const GARRAS = [[13, 4], [14, 4], [15, 3], [16, 3], [17, 2], [13, 5], [14, 5], [15, 5], [16, 5], [17, 5], [13, 6], [14, 6], [15, 7], [16, 7], [17, 8]];
+const garras = (c) => { if (c.o.garras === false || c.o.sostiene || c.o.dedo || c.o.brazos) return; for (const [i, j] of GARRAS) c.cuerpo.px(i, j, hex(i === 17 ? '#9ca0b4' : '#eef0f8')); };
+// carta de Gambito, que brilla rosa
+const cartaRosa = (c) => { if (c.o.sostiene || c.o.dedo || c.o.brazos) return; const on = Math.sin(c.t * 7 + c.x) > 0; const R1 = hex(on ? '#ff8ad8' : '#e84aa8'), R2 = hex('#ffd0f0'); c.cuerpo.px(13, 3, R1); c.cuerpo.px(14, 3, R1); c.cuerpo.px(13, 4, R2); c.cuerpo.px(14, 4, R1); c.cuerpo.px(15, 2, on ? R1 : R2); };
+// llamas de la Antorcha que se mueven alrededor del cuerpo
+const llamas = (c) => {
+  const Y = hex('#fff0a0'), y = hex('#f8b030'), q = hex('#e85a20');
+  for (let n = 0; n < 9; n++) { const i = [1, 3, 13, 2, 12, 4, 10, 0, 14][n], j = [2, -1, 3, 8, 7, 11, 11, 5, 9][n], h = 2 + ((Math.floor(c.t * 8) + n) % 3);
+    for (let k = 0; k < h; k++) c.cuerpo.px(i + (k === h - 1 ? (n % 2 ? 1 : -1) : 0), j - k, k === 0 ? q : k === h - 1 ? Y : y); }
+};
+const capaYcuello = (c) => { capa()(c); c.cuerpo.rej(CUELLO_ALTO, -2, -6); };
+
+// ── el reparto del 19 ──
+const B19 = { cab: CAB_CORTO, cuerpo: CUERPO_HEROE, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const B19M = { ...B19, cab: CAB_LARGO };
+const BIG = { cuerpo: CUERPO_GRANDE, dxCuerpo: -3, brazoCol: 16, brazoFilas: [2, 16], altoCuerpo: 24, altoCab: 11, ojosY: 6, bocaY: 9 };
+export const ELENCO_DO = {
+  // Iron Man: armadura roja (C/H) y dorada (O), casco con la placa de la cara dorada, ojos que brillan y el reactor
+  ironman: { ...B19, cab: CAB_IRON, sinCara: true, delante: brilloIron,
+    cuerpo: parche(CUERPO_HEROE, [[6, 2, 'kyk'], [6, 3, 'yYy'], [6, 4, 'kyk'], [3, 7, '.OOO.OOO'], [3, 8, '.OOO.OOO']]),
+    pal: COLORES({ H: '#c8303a', h: '#e85a5a', C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#e8b830', I: '#8a1e28', F: '#c8303a', n: '#c8303a', O: '#e8b830', g: '#a87a18', y: '#a8f0ff', Y: '#ffffff', S: '#f6c290', s: '#d48a5a' }) },
+  // Tony Stark sin armadura: perilla, camiseta oscura con el reactor que asoma, vaqueros (gafas de sol: tocado 'sol')
+  tony: { ...B19, cuerpo: parche(CUERPO_CALLE, [[7, 3, 'y']]), ceja: hex('#2a1c14'), bigote: true, barba: true,
+    pal: CLARA({ H: '#2a1c14', h: '#4a3020', U: '#2a1c14', C: '#2a2e3a', c: '#1c1f28', F: '#3e5a8a', n: '#2a2430', y: '#a8f0ff' }) },
+  // Robert Downey Jr. en la Comic-Con: traje oscuro, camisa blanca, gafas de sol y perilla (sin parecido forzado)
+  rdj: { ...B19, cuerpo: CUERPO_EUROPEO, ceja: hex('#2a1c14'), bigote: true, barba: true, tocado: 'sol',
+    pal: CLARA({ H: '#2a1c14', h: '#4a3020', U: '#2a1c14', C: '#2a2e3a', c: '#1c1f28', W: '#f2eee2', o: '#2a2e3a', F: '#2a2e3a', J: '#1c1222' }) },
+  // el Capitán América: traje azul con la estrella blanca, franjas rojas y blancas en la cintura y la capucha con alitas
+  capitan: { ...B19, ceja: hex('#a8743c'), tocado: 'capitan',
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, '..X..'], [5, 2, 'XXXXX'], [5, 3, '.XXX.'], [5, 4, 'rXrXr'], [5, 5, 'rXrXr']]),
+    pal: CLARA({ C: '#2a4fa8', c: '#1e3680', W: '#2a4fa8', G: '#a83a2a', I: '#5a3a24', F: '#1e3680', n: '#7a4a24', X: '#f2eee2', r: '#c8303a' }) },
+  // Steve Rogers con el mismo traje, sin capucha: el pelo rubio
+  steve: { ...B19, ceja: hex('#a8743c'),
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, '..X..'], [5, 2, 'XXXXX'], [5, 3, '.XXX.'], [5, 4, 'rXrXr'], [5, 5, 'rXrXr']]),
+    pal: CLARA({ H: '#e0b860', h: '#f0d088', C: '#2a4fa8', c: '#1e3680', W: '#2a4fa8', G: '#a83a2a', I: '#5a3a24', F: '#1e3680', n: '#7a4a24', X: '#f2eee2', r: '#c8303a' }) },
+  // Steve anciano: pelo blanco y traje gris con corbata
+  steveViejo: { ...B19, cuerpo: CUERPO_EUROPEO, ceja: hex('#c8c4bc'), mejillas: [[6, 8]],
+    pal: CLARA({ H: '#f2eee2', h: '#c8c4bc', C: '#7a7e8a', c: '#5a5e6a', W: '#f2eee2', o: '#3a4a7a', F: '#5a5e6a' }) },
+  // Peggy Carter: pelo castaño ondulado, traje azul de los 40 y el sombrero rojo
+  peggy: { ...B19M, cuerpo: CUERPO_SASTRE, ceja: hex('#4a2a14'), tocado: 'peggy',
+    pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#3a5a9a', c: '#2a4278', W: '#f2eee2', o: '#c8303a', I: '#2a2430', D: '#c8303a', d: '#8a2028' }) },
+  // Sam Wilson, el nuevo Capitán: traje azul con mangas blancas, la estrella, cinturón rojo, alas plegadas y gafas rojas
+  sam: { ...B19, ceja: hex('#1c1424'), tocado: 'goggles', detras: (c) => c.cuerpo.rej(ALAS, -1, -4),
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, '..X..'], [5, 2, 'XXXXX'], [5, 3, '.XXX.'], [5, 4, '.X.X.']]),
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', C: '#2a5ac8', c: '#1e3e90', W: '#e8e8f0', G: '#c8303a', I: '#c8303a', F: '#1e3e90', n: '#c8303a', X: '#f2eee2', r: '#c8303a', J: '#2a2430', Z: '#c8ccd8', z: '#8a90a4' }) },
+  // Thor: pelo rubio largo y barba, armadura gris oscura con los discos de plata y la capa roja (martillo: PIEZAS_DO)
+  thor: { ...B19M, cab: parche(CAB_LARGO, [[4, 9, 'kUSSSSSU'], [4, 10, 'kUUSSSUUk'], [4, 11, 'k.kUUUUk'], [4, 12, '...kkkk']]), ceja: hex('#c8984a'), detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[5, 2, 'Z...Z'], [5, 4, 'Z...Z']]),
+    pal: CLARA({ H: '#e8c060', h: '#f8dc90', C: '#3a3a4a', c: '#26262f', W: '#3a3a4a', G: '#3a3a4a', I: '#5a4a3a', F: '#26262f', n: '#3a3a4a', Z: '#c8ccd8', Q: '#c8303a', q: '#8a1e28', U: '#c89a40' }) },
+  // Hulk: todo verde y más grande (36 px), pelo negro, pantalón morado roto
+  hulk: { ...BIG, cab: CAB_HULK, ceja: hex('#1c2a14'),
+    pal: COLORES({ S: '#5aa83a', s: '#3e7a28', H: '#1c1c24', h: '#3a3a4a', F: '#6a3a8a', f: '#4a2466' }) },
+  // Thanos: piel morada, barbilla de surcos, armadura dorada y azul, el guantelete dorado con las gemas
+  thanos: { ...B19, cab: CAB_THANOS, cuerpo: CUERPO_ANCHO, dxCuerpo: -1, brazoCol: 13, altoCuerpo: 15, ceja: hex('#4a2a5a'),
+    delante: (c) => { if (!c.o.sostiene && !c.o.dedo && !c.o.brazos) for (const [i, j, k] of [[14, 7, 0], [14, 6, 1], [13, 6, 2], [15, 7, 3]]) c.cuerpo.px(i, j, hex(['#9a4ae8', '#3a8ae8', '#e83a3a', '#3ac85a'][k])); },
+    pal: COLORES({ S: '#8a6aa8', s: '#6a4a88', z: '#4a2a68', C: '#2a4fa8', c: '#1e3680', O: '#e8b830', g: '#a87a18', W: '#2a4fa8', G: '#e8b830', e: '#e83a3a', I: '#a87a18', F: '#2a3a7a', n: '#a87a18' }) },
+  // Loki: traje verde (C) y negro (J) con dorado, y el casco de cuernos dorados largos
+  loki: { ...B19, ceja: hex('#1c1424'), tocado: 'cuernos', detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'O.....O'], [4, 2, 'JO...OJ'], [4, 3, 'J.O.O.J'], [4, 4, 'J..O..J']]),
+    pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#2a7a3a', c: '#1e5a2a', W: '#2a2430', G: '#2a2430', I: '#e8b830', F: '#2a2430', n: '#2a2430', O: '#e8b830', g: '#a87a18', J: '#2a2430', Q: '#2a7a3a', q: '#1e5a2a' }) },
+  // Aquel Que Permanece: túnica morada y verde, sin casco
+  permanece: { ...B19, cuerpo: CUERPO_TUNICA_HEROE, ceja: hex('#1c1424'),
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', C: '#6a3a8a', c: '#4a2466', W: '#3a8a5a', o: '#e8b830', G: '#9a6644', I: '#3a8a5a', F: '#2a2430', n: '#2a2430' }) },
+  // Kang: traje azul y verde con el yelmo azul de aletas laterales
+  kang: { ...B19, ceja: hex('#1c1424'), tocado: 'yelmo',
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'VVVVVVV'], [5, 2, 'VVVVV'], [6, 3, 'VVV'], [7, 4, 'V']]),
+    pal: OSCURA({ H: '#1c1424', C: '#2a5aa8', c: '#1e3e80', W: '#2a5aa8', G: '#3a8a3a', I: '#3a8a3a', F: '#1e3e80', n: '#3a8a3a', V: '#3a9a4a', A: '#3a6ac8', a: '#2a4a98' }) },
+  // agente de la oficina del tiempo: traje marrón de los 70, chaleco y corbata
+  agenteTVA: { ...B19, cuerpo: parche(CUERPO_EUROPEO, [[5, 2, 'u.o.u'], [5, 3, 'u.o.u'], [5, 4, 'uuouu'], [5, 5, 'uuuuu']]), ceja: hex('#5a3418'), bigote: true,
+    pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#8a5a2a', c: '#6a4220', W: '#e8dcc0', o: '#c8783a', u: '#a8783a', F: '#8a5a2a' }) },
+  // Mobius: bigote, entradas y traje gris
+  mobius: { ...B19, cab: parche(CAB_CORTO, [[4, 1, 'SSSS'], [5, 2, 'SSSS'], [6, 3, 'SSSSS']]), cuerpo: CUERPO_EUROPEO, ceja: hex('#8a6a4a'), bigote: true,
+    pal: CLARA({ H: '#a88a6a', h: '#c8a888', C: '#7a7e8a', c: '#5a5e6a', W: '#e8e4dc', o: '#5a3a6a', F: '#5a5e6a' }) },
+  // Spider-Man: rojo y azul, la máscara con los ojos blancos grandes y la araña sencilla en el pecho
+  spiderman: { ...B19, cab: CAB_ARANA, sinCara: true,
+    cuerpo: parche(CUERPO_HEROE, [[5, 2, 'k.k.k'], [5, 3, '.kkk.'], [5, 4, 'k.k.k'], [3, 7, '.uuu.uuu'], [3, 8, '.uuu.uuu'], [3, 9, '.uuu.uuu']]),
+    pal: COLORES({ d: '#a02028', C: '#d8303a', c: '#2a4fb8', W: '#d8303a', G: '#d8303a', I: '#2a4fb8', F: '#2a4fb8', u: '#2a4fb8', n: '#d8303a', E: '#ffffff', S: '#f6c290', s: '#d48a5a' }) },
+  // Doctor Strange: túnica azul oscuro, capa roja con cuello alto, perilla y sienes canosas, el amuleto de oro
+  strange: { ...B19, cab: CAB_SIENES, cuerpo: CUERPO_TUNICA_HEROE, ceja: hex('#2a1c14'), bigote: true, barba: true, detras: capaYcuello,
+    pal: CLARA({ H: '#2a1c14', h: '#4a3020', w: '#d8d8e0', U: '#2a1c14', C: '#2a3a7a', c: '#1e2a5a', W: '#3a4a8a', o: '#e8b830', G: '#c8a878', I: '#7a5a3a', F: '#1e2a5a', n: '#4a3020', Q: '#c8303a', q: '#8a1e28' }) },
+  // Clea: pelo blanco largo y traje morado
+  clea: { ...B19M, ceja: hex('#c8c4bc'), cuerpo: parche(CUERPO_HEROE, [[4, 1, 'uuuuuuu'], [7, 2, 'u']]),
+    pal: CLARA({ H: '#f2eee2', h: '#c8c8d8', C: '#7a3aa8', c: '#5a2a88', W: '#7a3aa8', G: '#e8b830', I: '#e8b830', F: '#5a2a88', n: '#3a1a5a', u: '#e8b830' }) },
+  // Reed Richards de otra Tierra: uniforme azul oscuro sin el 4, sienes canosas
+  reedOtro: { ...B19, cab: CAB_SIENES, ceja: hex('#4a3020'), cuerpo: parche(CUERPO_HEROE, [[6, 2, 'XXX']]),
+    pal: CLARA({ H: '#4a3020', h: '#6a4430', w: '#d8d8e0', C: '#1e3a6a', c: '#14284e', W: '#1e3a6a', G: '#2a2430', I: '#2a2430', F: '#14284e', n: '#2a2430', X: '#8ab0e0' }) },
+  // Charles Xavier: calvo, traje oscuro, sentado (la silla de ruedas es PIEZAS_DO.silla)
+  xavier: { ...B19, cab: CAB_CALVO, cuerpo: CUERPO_SENTADO_TRAJE, altoCuerpo: 10, ceja: hex('#8a6a4a'),
+    pal: CLARA({ C: '#2a2e3a', c: '#1c1f28', W: '#f2eee2', o: '#3a4a7a', F: '#2a2e3a' }) },
+  // Doctor Doom: armadura gris de metal, máscara con rejilla, capucha, túnica y capa verdes
+  doom: { ...B19, cab: CAB_DOOM, sinCara: true, detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'VVVVVVV'], [4, 2, 'VVVVVVV'], [4, 3, 'VVVVVVV'], [4, 4, 'vVVVVVv'], [4, 5, 'vVVVVVv'], [4, 6, 'IIIoIII'], [4, 7, 'VVVkVVV']]),
+    pal: COLORES({ V: '#2e7a3e', v: '#1e5a2a', Z: '#a8acbc', z: '#6a6e80', C: '#2e7a3e', c: '#1e5a2a', W: '#8c90a4', G: '#6a6e80', I: '#5a3a24', o: '#e8b830', F: '#6a6e80', n: '#4a4e5e', Q: '#2e7a3e', q: '#1e5a2a', S: '#f6c290', s: '#d48a5a' }) },
+  // Deadpool: rojo con negro, máscara de ojos blancos en óvalos negros y las dos katanas a la espalda
+  deadpool: { ...B19, cab: CAB_DEADPOOL, sinCara: true, detras: (c) => c.cuerpo.rej(KATANAS, -5, -4),
+    cuerpo: parche(CUERPO_HEROE, [[4, 2, 'J.....J'], [4, 3, 'J.....J'], [7, 6, 'O'], [3, 7, '.J...J']]),
+    pal: COLORES({ C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#c8303a', I: '#2a2430', O: '#c8c8d0', F: '#c8303a', n: '#2a2430', J: '#2a2430', E: '#ffffff', Z: '#c0c4d4', S: '#f6c290', s: '#d48a5a' }) },
+  // Lobezno: traje amarillo con azul, máscara de dos puntas y las garras de tres cuchillas (o.garras: false las quita)
+  lobezno: { ...B19, ceja: hex('#1c1424'), bigote: false, tocado: 'lobezno', delante: garras,
+    cab: parche(CAB_CORTO, [[3, 8, 'HH'], [3, 9, 'HH']]),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'c.....c'], [5, 3, 'J...J'], [5, 4, 'cJ.Jc'], [3, 7, '.cc...cc']]),
+    pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#f0c830', c: '#2a4fa8', W: '#f0c830', G: '#2a4fa8', I: '#c8303a', F: '#f0c830', n: '#2a4fa8', Y: '#f0c830', J: '#2a2430', E: '#ffffff' }) },
+  // Gambito: gabardina marrón larga, cinta en el pelo castaño y la carta que brilla rosa
+  gambito: { ...B19M, cuerpo: CUERPO_GABARDINA, ceja: hex('#4a2a14'), tocado: 'cinta', delante: cartaRosa,
+    pal: CLARA({ H: '#6a3a1a', h: '#8a5428', C: '#8a5a2a', c: '#6a4220', W: '#c84a8a', G: '#3a3046', I: '#2a2430', F: '#2a2e4a', n: '#2a2430', J: '#2a2430', j: '#4c4660' }) },
+  // Magneto: casco rojo y capa morada, traje rojo y morado
+  magneto: { ...B19, ceja: hex('#c8c4bc'), tocado: 'magneto', detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'u.....u'], [5, 2, 'u...u']]),
+    pal: CLARA({ H: '#e8e4dc', C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#6a3a9a', I: '#6a3a9a', F: '#c8303a', n: '#6a3a9a', u: '#6a3a9a', D: '#c8303a', d: '#8a1e28', Q: '#6a3a9a', q: '#4a2470' }) },
+  // Cíclope: el visor rojo de lado a lado, traje azul con amarillo
+  ciclope: { ...B19, ceja: hex('#5a3418'), tocado: 'visor',
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'Y.....Y'], [5, 2, 'Y...Y'], [6, 3, 'Y.Y']]),
+    pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#2a4fa8', c: '#1e3680', W: '#2a4fa8', G: '#f0c830', I: '#f0c830', F: '#1e3680', n: '#2a4fa8', Y: '#f0c830', J: '#2a2430', r: '#e83a3a' }) },
+  // Mística: piel azul con escamas, pelo rojo
+  mistica: { ...B19M, ceja: hex('#a8301a'), cuerpo: parche(CUERPO_HEROE, [[5, 2, 's.s'], [7, 3, 's'], [6, 4, 's.s'], [4, 8, 's'], [8, 9, 's']]),
+    pal: COLORES({ S: '#3a6ac8', s: '#2a4a98', H: '#c83a2a', h: '#e8583a', C: '#3a6ac8', c: '#2a4a98', W: '#3a6ac8', G: '#3a6ac8', I: '#2a4a98', F: '#3a6ac8', n: '#2a4a98' }) },
+  // Rondador Nocturno: piel azul oscuro, pelo negro, traje negro y rojo y la cola en punta
+  rondador: { ...B19, ceja: hex('#1c1424'), detras: (c) => c.cuerpo.rej(COLA, -6, 2),
+    cuerpo: parche(CUERPO_HEROE, [[5, 2, 'r...r'], [6, 3, 'r.r'], [7, 4, 'r']]),
+    pal: COLORES({ S: '#2a3a7a', s: '#1e2a5a', H: '#1c1424', h: '#3a3046', C: '#2a2430', c: '#1c1424', W: '#2a2430', G: '#f2eee2', I: '#c8303a', F: '#2a2430', n: '#c8303a', r: '#c8303a' }) },
+  // Bestia: grande como Hulk pero de pelaje azul, con gafas y calzón negro
+  bestia: { ...BIG, cab: CAB_BESTIA, ceja: hex('#1e2a5a'), tocado: 'gafasClaras',
+    cuerpo: parche(CUERPO_GRANDE, [[7, 5, 'r..r..r'], [3, 8, 'r'], [18, 8, 'r'], [8, 10, 'r...r']]),
+    pal: COLORES({ S: '#4a78e0', s: '#2e52b0', r: '#1e2a7a', H: '#24368a', h: '#3a5ac8', F: '#2a2430', f: '#1c1424', E: '#e8ecf4' }) },
+  // los Cuatro Fantásticos de la Tierra 828: traje azul claro con el 4 blanco en su círculo
+  // la Cosa: piel de rocas naranjas, grande, calzón azul
+  cosa: { ...BIG, cab: CAB_COSA, ceja: hex('#5a2a10'),
+    cuerpo: parche(CUERPO_GRANDE, [[7, 3, 'r..r'], [2, 5, 'r'], [9, 4, 'rr'], [12, 7, 'r.r'], [1, 9, 'rr'], [18, 10, 'r'], [7, 9, 'r'], [2, 14, 'r'], [18, 14, 'r'], [7, 20, 'r'], [13, 21, 'r']]),
+    pal: COLORES({ S: '#e8883a', s: '#b85a20', r: '#7a3810', H: '#e8883a', h: '#f8a85a', F: '#2a5ac8', f: '#1e3e90' }) },
+  // los Thunderbolts: Yelena (chaleco táctico negro, pelo rubio recogido)
+  yelena: { ...B19, detras: coleta, cuerpo: CUERPO_TACTICO, ceja: hex('#a8743c'),
+    pal: CLARA({ H: '#e0c070', h: '#f0d898', C: '#2a2430', c: '#1c1424', W: '#3a3a4a', o: '#4a4a5a', G: '#2a2430', I: '#4a4a5a', F: '#2a2a34', n: '#1c1424' }) },
+  // Bucky: ropa negra, brazo de metal plateado (el de delante) y pelo largo oscuro
+  bucky: { ...B19M, ceja: hex('#2a1c14'), cuerpo: parche(CUERPO_TACTICO, [[11, 1, 'ZZk'], [11, 2, 'kZk'], [11, 3, 'kZk'], [11, 4, 'kzk'], [11, 5, 'kZk']]),
+    pal: CLARA({ H: '#2a1c14', h: '#4a3020', C: '#2a2430', c: '#1c1424', W: '#2a2430', o: '#3a3a4a', G: '#2a2430', I: '#4a4a5a', F: '#2a2a34', n: '#1c1424', Z: '#c8ccd8', z: '#8c90a4' }) },
+  // el Guardián Rojo: traje rojo con la estrella blanca, barba y bigote castaños
+  guardian: { ...B19, cab: parche(CAB_BARBA, [[4, 4, 'S'], [3, 9, 'kH'], [2, 10, '.'], [12, 10, 'k']]), ceja: hex('#4a2a14'),
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, '..X..'], [5, 2, 'XXXXX'], [5, 3, '.XXX.'], [5, 4, '.X.X.']]),
+    pal: CLARA({ H: '#6a3a1a', h: '#8a5428', C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#e8b830', I: '#e8b830', F: '#2a4fa8', n: '#e8b830', X: '#f2eee2' }) },
+  // Bob / Sentry: traje azul con el pecho dorado, rubio, capa azul
+  sentry: { ...B19, ceja: hex('#a8743c'), detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'OOOOOOO'], [4, 2, 'OOOOOOO'], [5, 3, 'OOOOO'], [6, 4, 'OOO'], [7, 5, 'O']]),
+    pal: CLARA({ H: '#f0d070', h: '#f8e4a0', C: '#2a3e90', c: '#1e2a6a', W: '#2a3e90', G: '#2a3e90', I: '#e8b830', F: '#2a3e90', n: '#e8b830', O: '#f0c830', Q: '#2a4fb8', q: '#1e3680' }) },
+  // Wakanda: Shuri como Pantera Negra (traje negro con dibujos plateados, máscara con orejitas)
+  shuri: { ...B19, cab: CAB_PANTERA, sinCara: true,
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'ZZZZZZZ'], [5, 2, 'Z...Z'], [7, 3, 'Z'], [6, 4, 'Z.Z'], [4, 8, 'Z'], [8, 9, 'Z']]),
+    pal: COLORES({ J: '#24202c', j: '#3a3646', C: '#24202c', c: '#14121a', W: '#24202c', G: '#24202c', I: '#3a3646', F: '#24202c', n: '#14121a', Z: '#b8bcd8', E: '#e8ecff', S: '#24202c', s: '#14121a' }) },
+  // M'Baku: pelo, barba y el chaleco de pelaje marrón
+  mbaku: { ...B19, cab: CAB_MBAKU, cuerpo: CUERPO_PELAJE, ceja: hex('#1c1424'),
+    pal: OSCURA({ S: '#7a4a2a', s: '#5a3418', H: '#1c1424', h: '#3a3046', C: '#8a5a2a', c: '#5a3a1a', I: '#2a2430', n: '#5a3a1a' }) },
+  // Namor: piel morena, bañador verde y las alitas blancas en los tobillos
+  namor: { ...B19, cuerpo: CUERPO_BANADOR, ceja: hex('#1c1424'), cab: parche(CAB_CORTO, [[3, 0, 'kk'], [2, 1, 'kHH']]),
+    pal: MORENA({ S: '#b88058', s: '#8a5a38', H: '#1c1424', h: '#3a3046', C: '#2a8a5a', c: '#1e6a42', W: '#f2eee2' }) },
+  // Shang-Chi: traje rojo y oro con los anillos azules en los antebrazos
+  shangchi: { ...B19, ceja: hex('#1c1424'),
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, 'O...O'], [6, 2, 'O.O'], [7, 3, 'O'], [1, 4, 'kYk.......kYk'], [1, 3, 'kYk.......kYk']]),
+    pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#f6c290', I: '#e8b830', F: '#2a2430', n: '#2a2430', O: '#e8b830', Y: '#4ad8f8' }) },
+  // Ant-Man: traje rojo y negro con el casco plateado de ojos rojos
+  antman: { ...B19, cab: CAB_ANTMAN, sinCara: true,
+    cuerpo: parche(CUERPO_HEROE, [[5, 2, 'J...J'], [5, 3, 'J...J'], [6, 4, 'JJJ'], [3, 7, '.J...J'], [3, 8, '.J...J']]),
+    pal: COLORES({ Z: '#c0c4d4', z: '#7c8094', r: '#e83a3a', R: '#c8303a', C: '#c8303a', c: '#2a2430', W: '#2a2430', G: '#c8303a', I: '#c0c4d4', F: '#c8303a', n: '#2a2430', J: '#2a2430', S: '#f6c290', s: '#d48a5a' }) },
+  // Kevin Feige, el presentador: gorra y chaqueta (sin parecido forzado)
+  feige: { ...B19, cuerpo: parche(CUERPO_EUROPEO, [[5, 2, '.....'], [5, 3, '.....']]), ceja: hex('#5a3418'), tocado: 'visera', bigote: true, barba: true,
+    pal: CLARA({ H: '#6a4a2a', h: '#8a6a4a', U: '#a88a6a', C: '#3a4a3a', c: '#2a362a', W: '#2a2430', o: '#2a2430', F: '#3e5a8a' }) },
+  // fans de la Comic-Con disfrazados con ropa de calle: capa roja, cuernos de juguete, camiseta de la araña con gorra
+  fanCapa: { ...B19, cuerpo: CUERPO_CALLE, ceja: hex('#5a3418'), detras: capa(),
+    pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#2a5ac8', c: '#1e3e90', F: '#3e4a6a', n: '#2a2430', Q: '#d8303a', q: '#8a1e28' }) },
+  fanCuernos: { ...B19M, cuerpo: CUERPO_CALLE, ceja: hex('#1c1424'), tocado: 'cuernos',
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#2a7a3a', c: '#1e5a2a', F: '#2a2430', n: '#2a2430', O: '#e8c840', g: '#a88a28' }) },
+  fanArana: { ...B19, cuerpo: parche(CUERPO_CALLE, [[5, 2, 'k.k.k'], [5, 3, '.kkk.'], [5, 4, 'k.k.k']]), ceja: hex('#a8743c'), tocado: 'visera',
+    pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#d8303a', c: '#a82028', F: '#3e5a8a', n: '#f2eee2' }) },
+};
+// los Cuatro Fantásticos de la Tierra 828: traje azul claro, cinturón y botas oscuros, el 4 blanco en su círculo
+const CUERPO_4F = parche(CUERPO_HEROE, [[5, 1, '.XXX.'], [5, 2, 'XaXaX'], [5, 3, 'XaaaX'], [5, 4, 'XXXaX'], [5, 5, '.XXX.']]);
+const PAL_4F = { C: '#4a8ad8', c: '#2e64a8', W: '#4a8ad8', G: '#1e2a4a', I: '#1e2a4a', F: '#2e64a8', n: '#1e2a4a', X: '#f2eee2', a: '#2e64a8' };
+Object.assign(ELENCO_DO, {
+  reed: { ...B19, cab: CAB_SIENES, cuerpo: CUERPO_4F, ceja: hex('#4a3020'), pal: CLARA({ ...PAL_4F, H: '#4a3020', h: '#6a4430', w: '#d8d8e0' }) },
+  sue: { ...B19M, cuerpo: CUERPO_4F, ceja: hex('#a8843c'), pal: CLARA({ ...PAL_4F, H: '#f0d070', h: '#f8e4a0' }) },
+  johnny: { ...B19, cuerpo: CUERPO_4F, ceja: hex('#a8743c'), pal: CLARA({ ...PAL_4F, H: '#f0c860', h: '#f8dc90' }) },
+  // la Antorcha Humana: Johnny encendido, todo en llamas naranja y amarillo
+  antorcha: { ...B19, cab: CAB_FUEGO, cuerpo: CUERPO_4F, ceja: hex('#a83a10'), detras: llamas, delante: (c) => { if (Math.floor(c.t * 8) % 2) llamas({ ...c, t: c.t + 0.4 }); },
+    pal: COLORES({ S: '#f8a030', s: '#e86a20', Y: '#fff0a0', y: '#f8c840', C: '#f8a030', c: '#e86a20', W: '#f8a030', G: '#fff0a0', I: '#e86a20', F: '#f8a030', n: '#e86a20', X: '#fff0a0', a: '#e86a20' }) },
+});
+Object.assign(ELENCO_CHIBI, ELENCO_DO);

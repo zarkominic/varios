@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep19</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// _REPARTO-DO · hoja estática del reparto del episodio 19 («Avengers: Doomsday») para que el usuario lo apruebe: todos
+// de pie y quietos, a escala 1 (el tamaño real de las escenas), en filas por grupos sobre fondo neutro claro. Dos
+// páginas: t en [1, 2) la primera y t en [2, 3) la segunda. La tabla HOJA la genera un script con los nombres para la
+// versión rotulada (los rótulos van solo en la imagen ampliada para el usuario, nunca en el lienzo).
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_DO as EL, PIEZAS_DO as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const HOJA = [[{"g": "Vengadores", "suelo": 46, "items": [{"k": "ironman", "n": "Iron Man", "w": 15, "t": "a", "x": 8}, {"k": "tony", "n": "Tony Stark", "w": 15, "t": "a", "x": 32}, {"k": "capitan", "n": "Capitán América", "w": 15, "t": "a", "x": 56}, {"k": "steve", "n": "Steve Rogers", "w": 15, "t": "a", "x": 80}, {"k": "escudo", "n": "escudo", "w": 13, "t": "escudo", "x": 104}, {"k": "steveViejo", "n": "Steve anciano", "w": 15, "t": "a", "x": 126}, {"k": "peggy", "n": "Peggy Carter", "w": 15, "t": "a", "x": 150}, {"k": "sam", "n": "Sam Wilson", "w": 15, "t": "a", "x": 174}, {"k": "thor", "n": "Thor", "w": 15, "t": "a", "x": 198}, {"k": "martillo", "n": "martillo", "w": 8, "t": "martillo", "x": 222}, {"k": "hulk", "n": "Hulk", "w": 21, "t": "a", "x": 239}, {"k": "spiderman", "n": "Spider-Man", "w": 15, "t": "a", "x": 269}, {"k": "strange", "n": "Dr. Strange", "w": 15, "t": "a", "x": 293}], "fin": 317}, {"g": "Tiempo y multiverso", "suelo": 90, "items": [{"k": "loki", "n": "Loki", "w": 15, "t": "a", "x": 8}, {"k": "permanece", "n": "Aquel Que Permanece", "w": 15, "t": "a", "x": 32}, {"k": "kang", "n": "Kang", "w": 15, "t": "a", "x": 56}, {"k": "agenteTVA", "n": "agente TVA", "w": 15, "t": "a", "x": 80}, {"k": "mobius", "n": "Mobius", "w": 15, "t": "a", "x": 104}, {"k": "clea", "n": "Clea", "w": 15, "t": "a", "x": 128}, {"k": "reedOtro", "n": "Reed (otra Tierra)", "w": 15, "t": "a", "x": 152}, {"k": "xavier", "n": "Xavier + silla", "w": 17, "t": "silla", "x": 176}], "fin": 202}, {"g": "Villanos · Thunderbolts", "suelo": 134, "items": [{"k": "thanos", "n": "Thanos", "w": 17, "t": "a", "x": 8}, {"k": "guantelete", "n": "guantelete", "w": 11, "t": "guantelete", "x": 34}, {"k": "doom", "n": "Doctor Doom", "w": 15, "t": "a", "x": 54}, {"k": "galactus", "n": "Galactus (boceto)", "w": 24, "t": "galactus", "x": 78}, {"k": "|", "n": "", "w": 4, "t": "sep", "x": 111}, {"k": "yelena", "n": "Yelena", "w": 15, "t": "a", "x": 124}, {"k": "bucky", "n": "Bucky", "w": 15, "t": "a", "x": 148}, {"k": "guardian", "n": "Guardián Rojo", "w": 15, "t": "a", "x": 172}, {"k": "sentry", "n": "Sentry / Bob", "w": 15, "t": "a", "x": 196}], "fin": 220}, {"g": "Wakanda y otros", "suelo": 177, "items": [{"k": "shuri", "n": "Shuri (Pantera)", "w": 15, "t": "a", "x": 8}, {"k": "mbaku", "n": "M'Baku", "w": 15, "t": "a", "x": 32}, {"k": "namor", "n": "Namor", "w": 15, "t": "a", "x": 56}, {"k": "shangchi", "n": "Shang-Chi", "w": 15, "t": "a", "x": 80}, {"k": "antman", "n": "Ant-Man", "w": 15, "t": "a", "x": 104}], "fin": 128}], [{"g": "Fox / X-Men", "suelo": 50, "items": [{"k": "deadpool", "n": "Deadpool", "w": 15, "t": "a", "x": 8}, {"k": "lobezno", "n": "Lobezno", "w": 17, "t": "a", "x": 32}, {"k": "gambito", "n": "Gambito", "w": 15, "t": "a", "x": 58}, {"k": "magneto", "n": "Magneto", "w": 15, "t": "a", "x": 82}, {"k": "ciclope", "n": "Cíclope", "w": 15, "t": "a", "x": 106}, {"k": "mistica", "n": "Mística", "w": 15, "t": "a", "x": 130}, {"k": "rondador", "n": "Rondador", "w": 15, "t": "a", "x": 154}, {"k": "bestia", "n": "Bestia", "w": 21, "t": "a", "x": 178}], "fin": 208}, {"g": "Cuatro Fantásticos (828)", "suelo": 100, "items": [{"k": "reed", "n": "Reed Richards", "w": 15, "t": "a", "x": 8}, {"k": "sue", "n": "Sue Storm", "w": 15, "t": "a", "x": 32}, {"k": "johnny", "n": "Johnny Storm", "w": 15, "t": "a", "x": 56}, {"k": "antorcha", "n": "Antorcha Humana", "w": 15, "t": "a", "x": 80}, {"k": "cosa", "n": "la Cosa", "w": 21, "t": "a", "x": 104}, {"k": "franklin", "n": "Franklin bebé", "w": 9, "t": "franklin", "x": 134}], "fin": 152}, {"g": "Gente real", "suelo": 150, "items": [{"k": "rdj", "n": "RDJ Comic-Con", "w": 15, "t": "a", "x": 8}, {"k": "feige", "n": "presentador", "w": 15, "t": "a", "x": 32}, {"k": "fanCapa", "n": "fan (capa)", "w": 15, "t": "a", "x": 56}, {"k": "fanCuernos", "n": "fan (cuernos)", "w": 15, "t": "a", "x": 80}, {"k": "fanArana", "n": "fan (araña)", "w": 15, "t": "a", "x": 104}], "fin": 128}]];
+const fondo = hex('#e8e4dc'), fondo2 = hex('#dcd6ca'), suelo = hex('#c8c0b0'), sombra = hex('#b0a898'), raya = hex('#a8a090');
+const dibujar = (t) => {
+  const pag = HOJA[Math.min(HOJA.length - 1, Math.max(0, Math.floor(t) - 1))];
+  R.rect(0, 0, 319, 179, fondo);
+  for (let y = 0; y < 180; y += 4) for (let x = (y / 4) % 2 ? 2 : 0; x < 320; x += 4) R.pset(x, y, fondo2);
+  for (const fila of pag) {
+    R.rect(0, fila.suelo + 1, 319, fila.suelo + 2, suelo);
+    for (const it of fila.items) {
+      const { k, x, w } = it, s = fila.suelo, q = { quieto: true, parpadea: false };
+      if (it.t !== 'sep' && it.t !== 'galactus') for (let i = 1; i < w - 1; i++) R.pset(x + i, s + 1, sombra);
+      if (it.t === 'a') R.actor(EL[k], x + (w - 15) / 2, s, 0, q);
+      else if (it.t === 'escudo') PZ.escudo(R, x + 6, s - 8);
+      else if (it.t === 'martillo') PZ.martillo(R, x + 4, s - 9, { arriba: true });
+      else if (it.t === 'guantelete') PZ.guantelete(R, x + 5, s, 0);
+      else if (it.t === 'silla') { PZ.silla(R, x, s, { parte: 'respaldo' }); R.actor(EL.xavier, x - 1, s - 5, 0, q); PZ.silla(R, x, s, { parte: 'ruedas' }); }
+      else if (it.t === 'franklin') PZ.franklin(R, x, s);
+      else if (it.t === 'galactus') PZ.galactus(R, x + 12, s, { s: 1 });
+      else if (it.t === 'sep') for (let y = s - 40; y <= s; y += 2) R.pset(x + 2, y, raya);
+    }
+  }
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
