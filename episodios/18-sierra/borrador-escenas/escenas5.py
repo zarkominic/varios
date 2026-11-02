@@ -75,7 +75,7 @@ const p1 = (t) => {
   if (golpe > 0.9 && t < a(0.6)) for (let k = 0; k < 6; k++) { const u = tramo(t, a(0.555), a(0.6)); R.disco(Math.round(48 + k * 3 + u * 6), Math.round(152 - u * 6 - (k % 2) * 2), 2 - (u > 0.6 ? 1 : 0), hex('#c8a878')); }
   // Graham: de puntillas hasta el lobo; se queda helado; en el garrotazo salta y corre hacia el tronco
   const g1 = a(0.40), g2 = a(0.555);
-  const gx = t < g1 ? lerp(-12, 56, tramo(t, 0.3, g1)) : t < g2 ? 56 : lerp(56, 100, tramo(t, g2, P2));
+  const gx = t < g1 ? lerp(2, 56, tramo(t, 0.3, g1)) : t < g2 ? 56 : lerp(56, 100, tramo(t, g2, P2));
   const anda = (t > 0.3 && t < g1) || t > g2;
   R.actor(EL.graham, Math.round(gx), 154, t, { dir: 1, anda, sorpresa: t > a(0.41) && t < a(0.62), salto: t > g2 && t < g2 + 0.25 ? 4 : 0, brazos: t > g2 && t < g2 + 0.35 });
   if (t > a(0.41) && t < a(0.5)) R.bocadillo(Math.round(gx) + 8, 120, {});
@@ -101,9 +101,10 @@ const p2 = (t) => {
   R.actor(EL.graham, Math.round(gx) + tamb, 122, t, { dir: 1, anda: (t > s1 && t < wob0) || t > wob1, brazos: t > wob0 && t < wob1, sorpresa: t > wob0 && t < wob1 + 0.3, dedo: t < s1 && t > P2 + 0.4 });
   if (t > wob0 && t < wob1 + 0.6) {   // el tronco cruje: astillas que caen al vacío y polvo
     const u = tramo(t, wob0, wob1 + 0.6);
-    for (let k = 0; k < 5; k++) { const x = 104 + k * 4 - 6 + Math.round(Math.sin(k * 3) * 2), y = Math.round(130 + u * u * (40 + k * 8)); R.rect(x, y, x + 1, y, hex('#6a4424')); R.pset(x, y - 1, hex('#a87a4a')); }
+    for (let k = 0; k < 5; k++) { const x = 104 + k * 4 - 6 + Math.round(Math.sin(k * 3) * 2), y = Math.round(130 + u * u * (40 + k * 8)); R.rect(x, y, x + 2, y + 1, hex('#6a4424')); R.rect(x, y - 1, x + 1, y - 1, hex('#a87a4a')); }
     if (u < 0.5) for (const [dx, dy] of [[-6, 0], [22, -1], [-9, -3], [25, -3]]) R.pset(104 + dx, 120 + dy, hex('#e8dcc0'));
-    if (u < 0.6) for (let i = 0; i < 3; i++) { const yy = 118 - i * 3; R.pset(100 - i * 2, yy, hex('#f4f0e0')); R.pset(124 + i * 2, yy, hex('#f4f0e0')); }
+    if (u < 0.6) for (let i = 0; i < 3; i++) { const yy = 118 - i * 3, v = Math.floor(t * 20) % 2; R.rect(98 - i * 3 - v, yy, 99 - i * 3 - v, yy + 1, hex('#f4f0e0')); R.rect(126 + i * 3 + v, yy, 127 + i * 3 + v, yy + 1, hex('#f4f0e0')); }
+    if (u < 0.7) for (const [dx, r] of [[-2, 3], [20, 3], [-6, 2], [24, 2]]) { R.disco(104 + dx, Math.round(124 - u * 4), r, hex('#d8ccb0')); R.disco(104 + dx - 1, Math.round(123 - u * 4), Math.max(1, r - 1), hex('#f0e8d4')); }
   }
 };
 
@@ -217,7 +218,7 @@ const p4 = (t) => {
     const tx = wx - 13, ty = wy - 12;
     R.linea(wx - 2, wy + 1, tx + 2, ty + 2, K); R.linea(wx - 1, wy + 1, tx + 3, ty + 2, K); R.linea(wx - 2, wy, tx + 2, ty + 1, hex('#f0c030')); R.linea(wx - 3, wy, tx + 1, ty + 1, hex('#d89a20'));
     R.pset(tx + 1, ty, hex('#e8c8a0')); R.pset(tx, ty, K); R.pset(tx + 2, ty + 1, hex('#e8c8a0'));
-    T.brazo(R, wx + 34, wy + 52, wx, wy, '#c8b078', -1);
+    T.brazo(R, wx + 24, wy + 40, wx, wy, '#2e3e6e', -1);
   }
   // la radio: el piloto verde; cuando llama, rojo que parpadea y ondas
   const x0 = 266, y0 = 66, llama = t > LLAMA;
@@ -377,7 +378,7 @@ const p3 = (t) => {
   const ola = t > cs(0.76) ? Math.floor((t - cs(0.76)) * 14) % 30 : -1;
   T.muerte(R, t, { encuadre: 'partidas', llenas: 24, luz: ola >= 0 && ola < 24 ? ola : undefined });
   // el pequeño empuja el escudo gigante hasta su sitio
-  const e = suave(tramo(t, P3 + 0.1, P3 + 1.7)), gx = Math.round(lerp(-44, 104, e));
+  const e = suave(tramo(t, P3 - 0.1, P3 + 1.7)), gx = Math.round(lerp(4, 104, e));
   const brilla = tramo(t, cs(0.53), cs(0.66)) - tramo(t, cs(0.9), cs(1.0));
   T.disquete(R, gx, 164, t, { s: 4, cara: false, icono: 'reloj', guarda: brilla });
   if (e > 0.97 && t < P3 + 2.1) for (let k = 0; k < 5; k++) { const u = tramo(t, P3 + 1.7, P3 + 2.1); R.disco(Math.round(gx - 30 + k * 15), Math.round(163 - u * 4), Math.max(1, 3 - Math.round(u * 2)), hex('#e8dcc8')); }
@@ -420,18 +421,18 @@ const destello = (x, y, t, r = 3) => { const v = 0.5 + 0.5 * Math.sin(t * 7); co
 const p1 = (t) => {
   const L = 'tarde';
   T.reino(R, t, { encuadre: 'bosque', luz: L });
-  const gx = lerp(100, 244, tramo(t, 0.15, P2 + 0.2));
-  const cae = pe(0.284), kx0 = Math.round(lerp(100, 244, tramo(cae, 0.15, P2 + 0.2))) + 9;
+  const gx = lerp(116, 244, tramo(t, 0.15, P2 + 0.2));
+  const cae = pe(0.284), kx0 = 168, gc = Math.round(lerp(116, 244, tramo(cae, 0.15, P2 + 0.2))) + 6;
   // la llave: cae del cinto, bota y se queda en la hierba brillando
   if (t > cae) {
     const u = tramo(t, cae, cae + 0.35), bo = tramo(t, cae + 0.35, cae + 0.55);
-    const x = kx0 + Math.round(u * 4 + bo * 3), y = Math.round(lerp(142, 156, u * u) - Math.sin(bo * Math.PI) * 3);
+    const x = Math.round(lerp(gc, kx0, u)) + Math.round(bo * 3), y = Math.round(lerp(142, 156, u * u) - Math.sin(bo * Math.PI) * 3);
     llave(x, y, 1);
     if (bo >= 1) { for (const [dx, h] of [[-3, 3], [2, 2], [6, 3], [10, 2]]) R.linea(x + dx, 158, x + dx + 1, 158 - h, hex('#3a8a3a')); destello(x + 8, y - 4, t, 3); }
   }
   R.actor(EL.graham, Math.round(gx), 154, t, { dir: 1, anda: true, sonrisa: true, habla: Math.sin(t * 6) > 0.3 });
   // las notitas de su silbido
-  for (let k = 0; k < 3; k++) { const u = ((t * 0.9 + k / 3) % 1); const x = Math.round(gx + 14 + u * 10 + Math.sin(u * 9) * 2), y = Math.round(128 - u * 14); if (x < 226) { R.rect(x, y, x + 1, y + 1, K); R.rect(x + 1, y - 4, x + 1, y, K); R.pset(x + 2, y - 4, K); } }
+  for (let k = 0; k < 3; k++) { const u = ((t * 0.9 + k / 3) % 1); const x = Math.round(gx + 14 + u * 10 + Math.sin(u * 9) * 2), y = Math.round(128 - u * 14); if (x < 230 && gx < 226) { R.rect(x, y, x + 1, y + 1, K); R.rect(x + 1, y - 4, x + 1, y, K); R.pset(x + 2, y - 4, K); } }
   // un pajarito baja a mirar la llave
   const pj = tramo(t, pe(0.42), pe(0.47)), px = Math.round(lerp(212, kx0 + 16, suave(pj))), py = Math.round(lerp(96, 155, pj) - Math.sin(pj * Math.PI) * 8);
   if (t > pe(0.4)) { const vu = pj < 1, ala = Math.floor(t * 14) % 2, mira = !vu && Math.sin(t * 4) > 0 ? 1 : 0;
@@ -449,7 +450,7 @@ const p2 = (t) => {
   R.actor(EL.graham, Math.round(gx), 162, t, { dir: t > senala - 0.2 && t < duda ? 1 : 1, anda: t < llega, dedo: t > senala && t < senala + 0.6, sorpresa: t > manos, manos: t > manos && t < manos + 1.0, triste: t > manos + 1.0 || (t > duda && t < manos) });
   if (t > duda && t < recuerda + 0.1) R.bocadillo(Math.round(gx) + 8, 128, { icono: '?' });
   // el recuerdo: la llave olvidada en la hierba, en un bocadillo de nube
-  const u = tramo(t, recuerda, recuerda + 0.3) * (1 - tramo(t, manos + 0.1, manos + 0.3));
+  const u = tramo(t, recuerda, recuerda + 0.3) * (1 - tramo(t, manos + 0.15, manos + 0.3));
   if (u > 0) {
     const cx = 80, cy = 70, rx = Math.round(42 * Math.min(1, u * 1.2)), ry = Math.round(28 * Math.min(1, u * 1.2));
     for (const [i, r] of [[0.2, 2], [0.45, 3], [0.7, 4]]) { const x = Math.round(lerp(gx + 6, cx + 26, i)), y = Math.round(lerp(132, cy + ry - 2, i)); R.disco(x, y, r + 1, K); R.disco(x, y, r, hex('#f4f2fa')); }
@@ -464,7 +465,7 @@ const p2 = (t) => {
       if (Y >= 0.5 && ((x * 7 + y * 3) % 5 === 0)) col = hex('#6aba4a');
       R.pset(cx + x, cy + y, col);
     }
-    if (u > 0.8) { llave(cx - 6, cy + 14, 2); destello(cx + 18, cy + 6, t, 4); for (const dx of [-14, -9, 6, 12]) R.linea(cx + dx, cy + 24, cx + dx + 1, cy + 18, hex('#2a7a2a')); }
+    if (Math.min(1, u * 1.2) > 0.6) { llave(cx - 6, cy + 14, 2); destello(cx + 18, cy + 6, t, 4); for (const dx of [-14, -9, 6, 12]) R.linea(cx + dx, cy + 24, cx + dx + 1, cy + 18, hex('#2a7a2a')); }
   }
 };
 
@@ -477,7 +478,7 @@ const p3 = (t) => {
   // el paseante: le cae una piedra en la cabeza y rebota; él, tan contento
   const cae0 = lu(0.42), toca = lu(0.52);
   const ax = Math.round(lerp(76, 112, tramo(t, P3 + 0.1, cae0)));
-  R.actor(EL.adolescente, ax, 158, t, { dir: 1, anda: t > P3 + 0.1 && t < cae0, sorpresa: t > toca && t < toca + 0.3, sonrisa: t > toca + 0.3, dedo: t > toca + 0.4 && t < lu(0.9) });
+  R.actor(EL.chico, ax, 158, t, { dir: 1, anda: t > P3 + 0.1 && t < cae0, sorpresa: t > toca && t < toca + 0.3, sonrisa: t > toca + 0.3, dedo: t > toca + 0.4 && t < lu(0.9) });
   if (t > cae0 && t < toca + 0.9) {
     const u1 = tramo(t, cae0, toca), u2 = tramo(t, toca, toca + 0.9);
     const rx = u2 > 0 ? Math.round(ax + 7 - u2 * 30) : ax + 7, ry = u2 > 0 ? Math.round(130 - Math.sin(u2 * Math.PI) * 26 + u2 * u2 * 30) : Math.round(lerp(40, 130, u1 * u1));

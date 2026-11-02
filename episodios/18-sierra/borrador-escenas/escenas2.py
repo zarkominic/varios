@@ -36,8 +36,11 @@ const p1 = (t) => {
   const deja = t > A(0.33);
   const kAs = tramo(t, A(0.36), A(0.46)), kx = Math.round(lerp(112, 132, ease(kAs)));
   R.actor(EL.ken, kx, 160, t, { dir: 1, anda: kAs > 0 && kAs < 1, habla: t < A(0.3) && Math.sin(t * 7) > 0, dedo: (t > A(0.12) && t < A(0.28)) || t > A(0.46), sonrisa: t > A(0.4) });
-  const r = R.actor(EL.roberta, rx, 160, t, { dir: 1, anda: llega > 0 && llega < 1, sostiene: !deja, sonrisa: llega >= 1, dedo: t > A(0.39) && Math.floor(t * 3) % 2 === 0, habla: t > A(0.44) && Math.sin(t * 6) > 0.4 });
+  const sentada = llega >= 1, r = R.actor(EL.roberta, rx, sentada ? 163 : 160, t, { dir: 1, anda: llega > 0 && llega < 1, sostiene: !deja, sonrisa: llega >= 1, dedo: t > A(0.39) && Math.floor(t * 3) % 2 === 0, habla: t > A(0.44) && Math.sin(t * 6) > 0.4 });
   if (!deja) taza(r.mano[0] + 2, r.mano[1] + 3, t); else taza(182, 135, t);
+  // el asiento de su silla, por delante de la cadera: se lee sentada
+  if (sentada) { R.rect(149, 146, 174, 151, K); R.rect(150, 147, 173, 149, hex('#d8783a')); R.rect(150, 147, 173, 147, hex('#f0a060')); R.rect(150, 150, 173, 150, hex('#9a4a1a'));
+    for (const x of [151, 171]) R.rect(x, 151, x + 1, 164, K); }
 };
 
 // 2 · fondo local: la sala del ordenador del trabajo de Ken, de noche (1979)
@@ -90,6 +93,18 @@ const sala = capa(() => {
   rect(146, 132, 158, 150, K); rect(147, 133, 157, 149, hex('#6a6a72')); for (let y = 135; y < 149; y += 3) rect(147, y, 157, y, hex('#5a5a62')); rect(148, 130, 156, 133, BL); linea(149, 130, 153, 128, BL);
   rect(10, 140, 46, 142, K); rect(10, 156, 46, 158, K); rect(12, 142, 13, 160, K); rect(43, 142, 44, 160, K); disco(13, 162, 2, K); disco(43, 162, 2, K);
   for (const [cx, cy] of [[20, 134], [34, 134], [20, 150], [34, 150]]) { disco(cx, cy, 6, K); disco(cx, cy, 5, hex('#3a3a44')); disco(cx, cy, 2, hex('#c8c8d0')); }
+  // el reflejo de los armarios en el suelo encerado
+  for (const x of [6, 44, 82, 120]) for (let y = 114; y < 132; y++) for (let i = x + 2; i < x + 32; i += 2) if (((i + y) & 1) === 0 && nz(i, y, 31) < 0.6 - (y - 114) / 30) pset(i, y, hex('#b4b8be'));
+  // una placa del suelo levantada: el hueco con el mazo de cables de colores y la placa apoyada
+  rect(72, 150, 96, 162, K); rect(73, 151, 95, 161, hex('#2a2a30'));
+  for (let k = 0; k < 6; k++) { const c = [hex('#c83a2a'), hex('#3a6ac8'), hex('#e8c840'), hex('#5aa83a'), hex('#e8e4d8'), hex('#8a4ac8')][k]; for (let x = 73; x < 96; x++) pset(x, Math.round(153 + k * 1.4 + Math.sin(x * 0.3 + k) * 0.8), c); }
+  linea(98, 162, 104, 140, K); linea(99, 162, 105, 140, K); linea(104, 140, 124, 144, K); linea(98, 162, 118, 166, K); linea(118, 166, 124, 144, K);
+  for (let y = 142; y < 165; y++) for (let x = 99; x < 124; x++) { const a = (x - 99) / 25, top = 140 + (162 - 140) * (1 - a) - 0 + a * 4, bot = 162 + a * 4; if (y > top + 1 && y < bot) pset(x, y, (x + y) % 3 === 0 ? hex('#9aa0a8') : hex('#c8ccd0')); }
+  // la caja de tarjetas perforadas y el papel continuo amontonado junto a la impresora
+  rect(124, 162, 146, 174, K); rect(125, 163, 145, 173, hex('#d8c8a0')); rect(125, 163, 145, 165, hex('#e8dcb8')); for (let x = 127; x < 144; x += 2) rect(x, 160, x, 163, hex('#f0e8d0'));
+  for (let k = 0; k < 6; k++) { const y = 172 - k * 3, x = 262 + (k % 2) * 3; rect(x, y, x + 40, y + 3, K); rect(x + 1, y + 1, x + 39, y + 2, k % 2 ? hex('#f2f2ea') : hex('#c8e8c8')); }
+  // la fregona y su cubo, apoyados en la pared
+  rect(54, 128, 66, 142, K); rect(55, 129, 65, 141, hex('#e8c040')); rect(55, 129, 65, 130, hex('#f8e070')); linea(62, 86, 58, 128, hex('#8a5a2a')); linea(63, 86, 59, 128, hex('#6a4020'));
 });
 const p2 = (t) => {
   const { rect, pset, linea, disco } = R;
@@ -151,6 +166,7 @@ const p4 = (t) => {
   const mira = t > Cw(0.4) && t < Cw(0.5);
   const o = { encuadre: 'cueva', estilo: 'real', linterna: [x + 3, 133 - (mira ? 4 : 0), -1], cable: tramo(t, Cw(0.5), Cw(0.62)), cableDe: [x + 4, 155] };
   T.hoy(R, t, o);
+  { const B = R.buf, cx = x + 7, cy = 140; for (let y = cy - 26; y < 158; y++) for (let i = cx - 30; i < cx + 30; i++) { if (i < 0 || i > 319) continue; const d = Math.hypot(i - cx, (y - cy) * 1.3) / 30; if (d < 1 && nz(i, y, 41) < (1 - d) * 0.55) B[y * 320 + i] = mez(B[y * 320 + i], hex('#ffe0a0'), 0.25); } }
   const e = R.actor(EL.espeleologo, x, 156, t, { dir: -1, anda: u > 0 && u < 1, sostiene: para && !mira, sorpresa: mira, sonrisa: t > Cw(0.5), salto: 0 });
   if (para && !mira) { const [hx, hy] = e.mano; R.rect(hx - 7, hy - 2, hx + 1, hy + 4, K); R.rect(hx - 6, hy - 1, hx, hy + 3, hex('#e8dcb0')); R.linea(hx - 5, hy + 1, hx - 2, hy, hex('#5a4a3a'));
     const lx = hx - 3 + Math.round(Math.sin(t * 11) * 2); R.linea(lx, hy - 4, lx + 2, hy, hex('#e8c840')); R.pset(lx + 2, hy, K); }
@@ -159,7 +175,7 @@ const p4 = (t) => {
 };
 
 // 5 · el mapa: el juego salta de ordenador en ordenador por todo el país
-const NODOS = [[-71.1, 42.37], [-79.94, 40.44], [-88.23, 40.11], [-89.4, 43.07], [-105.27, 40.01], [-122.17, 37.43], [-122.3, 47.65], [-118.24, 34.05], [-97.74, 30.28]];
+const NODOS = [[-71.1, 42.37], [-79.94, 40.44], [-88.23, 40.11], [-89.4, 43.07], [-105.27, 40.01], [-122.17, 37.43], [-111.89, 40.76], [-118.24, 34.05], [-97.74, 30.28]];
 const p5 = (t) => {
   const P = T.mapa(R, t, { zona: 'eeuu' }), { rect, pset, disco, linea } = R;
   const pts = NODOS.map((n) => P(n).map(Math.round)), t0 = P5 + 0.25, paso = (Cw(0.98) - t0) / (pts.length - 1);
@@ -168,7 +184,7 @@ const p5 = (t) => {
   for (let i = 1; i < pts.length; i++) { const [ax, ay] = pts[i - 1], [bx, by] = pts[i], u = tramo(t, llega(i) - paso, llega(i)); if (u <= 0) continue;
     const mx = (ax + bx) / 2, my = (ay + by) / 2 - Math.hypot(bx - ax, by - ay) * 0.25, n = 40;
     for (let k = 0; k <= Math.floor(n * u); k++) { const s = k / n, x = (1 - s) ** 2 * ax + 2 * (1 - s) * s * mx + s * s * bx, y = (1 - s) ** 2 * ay + 2 * (1 - s) * s * my + s * s * by;
-      if (k % 2 === 0) { pset(Math.round(x), Math.round(y) + 1, hex('#5a3a1a')); pset(Math.round(x), Math.round(y), u < 1 ? hex('#ffe070') : hex('#e8783a')); } }
+      if (k % 3 !== 2) { pset(Math.round(x), Math.round(y) + 1, hex('#5a3a1a')); pset(Math.round(x) + 1, Math.round(y) + 1, hex('#5a3a1a')); pset(Math.round(x), Math.round(y), u < 1 ? hex('#ffe070') : hex('#d8582a')); pset(Math.round(x) + 1, Math.round(y), u < 1 ? hex('#fff4a0') : hex('#e8783a')); } }
     if (u < 1) { const s = u, x = Math.round((1 - s) ** 2 * ax + 2 * (1 - s) * s * mx + s * s * bx), y = Math.round((1 - s) ** 2 * ay + 2 * (1 - s) * s * my + s * s * by);
       disco(x, y, 2, hex('#fff4a0')); for (const [dx, dy] of [[3, 0], [-3, 0], [0, 3], [0, -3]]) pset(x + dx, y + dy, Math.floor(t * 20) % 2 ? BL : hex('#ffd040')); } }
   R.recorte(null);
@@ -219,6 +235,9 @@ const p1 = (t) => {
 const p2 = (t) => {
   const dib = tramo(t, D(0.58), D(1.0));
   T.casa(R, t, { encuadre: 'mesa', camara: 'monitor', dibujo: dib });
+  if (dib <= 0) { const n = Math.min(9, Math.floor(tramo(t, P2 + 0.2, D(0.55)) * 9) + 1);
+    for (let k = 0; k < n; k++) { const y = 40 + k * 8; R.numero(String((k + 1) * 10), 108, y + 5, { color: hex('#c8d0d8') }); const w = 20 + Math.floor(nz(k, 1, 51) * 60); R.rect(130, y, 130 + (k === n - 1 ? Math.min(w, Math.floor((t * 40) % (w + 1))) : w), y + 1, hex('#e6ecf2')); }
+    if (Math.floor(t * 3) % 2) R.rect(130, 40 + n * 8, 134, 41 + n * 8, hex('#e6ecf2')); }
   const tk = t > D(0.56) && t < D(1.04), a = tk ? Math.floor(t * 10) % 2 : 0, b = tk ? Math.floor(t * 10 + 1) % 2 : 0;
   T.brazo(R, 92, 200, 126, 160 + a * 2, '#4a6a9a', 1, { codo: [100, 182] });
   T.brazo(R, 216, 200, 190, 160 + b * 2, '#4a6a9a', -1, { codo: [210, 182] });
@@ -428,12 +447,13 @@ const p1 = (t) => {
   if (dep) R.rect(de.mano[0] - 2, de.mano[1] - 8, de.mano[0] + 6, de.mano[1] + 2, hex('#8aa0b8')), R.rect(de.mano[0] - 1, de.mano[1] - 7, de.mano[0] + 5, de.mano[1] + 1, hex('#d4e2ee')), R.rect(de.mano[0] - 1, de.mano[1] - 7, de.mano[0] + 5, de.mano[1] - 7, hex('#c83a2a'));
   // el chico mira el monitor; en «graphics» se asombra; en «bags» va al panel, salta y coge la bolsa; se la enseña al padre
   const graf = Bo(0.254), va = tramo(t, Bo(0.39), Bo(0.5)), cx = Math.round(lerp(172, 82, ease(va))), salta = t > Bo(0.5) && t < Bo(0.6);
-  const tiene = t > Bo(0.56), vuelve = tramo(t, Bo(0.62), Bo(0.72)), cx2 = Math.round(lerp(cx, 112, ease(vuelve)));
+  const tiene = t > Bo(0.56), vuelve = tramo(t, Bo(0.62), Bo(0.72)), cx2 = Math.round(lerp(cx, 104, ease(vuelve)));
   const px = PEG.cols[cogida[1]], py = PEG.filas[cogida[0]];
   if (!tiene) bolsa(px, py);
   R.actor(EL.padre, 140, 168, t, { dir: t > Bo(0.45) ? -1 : 1, habla: (t > graf && t < graf + 0.8) || (t > Bo(0.68) && Math.sin(t * 6) > 0.2), dedo: t > graf - 0.2 && t < graf + 0.8, sonrisa: t > Bo(0.66) });
   const ch = R.actor(EL.chico, cx2, 168, t, { dir: va > 0 && va < 1 ? -1 : vuelve > 0 ? 1 : (t < Bo(0.39) ? 1 : -1), anda: (va > 0 && va < 1) || (vuelve > 0 && vuelve < 1), sorpresa: t > graf && t < graf + 1, salto: salta ? 5 : 0, sostiene: salta ? [px + 11, py + 30] : tiene ? true : false, sonrisa: t > Bo(0.58) });
-  if (tiene) bolsa(ch.mano[0] - 11, ch.mano[1] - 24);
+  if (tiene) { const [hx, hy] = ch.mano, x = hx - 2, y = hy - 13; R.rect(x, y, x + 11, y + 14, hex('#8aa0b8')); R.rect(x + 1, y + 1, x + 10, y + 13, hex('#d4e2ee')); R.rect(x + 1, y + 1, x + 10, y + 1, hex('#c83a2a'));
+    R.rect(x + 2, y + 4, x + 8, y + 10, K); R.rect(x + 3, y + 5, x + 7, y + 9, hex('#2a2e3a')); R.rect(x + 3, y + 5, x + 7, y + 6, hex('#e8e4d8')); R.rect(x + 8, y + 3, x + 9, y + 11, BL); }
   if (t > graf && t < graf + 0.9) R.icono('!', cx + 5, 128, hex('#ffd040'), K, 2);
 };
 
@@ -442,21 +462,22 @@ const p2 = (t) => {
   const u = t < Bo(0.76) ? 0 : t < Bo(0.86) ? 0.714 * tramo(t, Bo(0.76), Bo(0.86)) : t < Bo(0.93) ? lerp(0.714, 0.857, tramo(t, Bo(0.86), Bo(0.93))) : t < S(0.29) ? 0.857 : lerp(0.857, 1, tramo(t, S(0.29), S(0.355)));
   T.casa(R, t, { encuadre: 'salon', camara: 'mesa', bolsa: u });
   const bx = 124, by = 96;
-  // la mano de Roberta empuja el disquete hasta la bolsa y se va
+  // la mano de Roberta (brazo corto, en diagonal) empuja el disquete hasta la bolsa y se retira
   const dq = Math.min(1, u * 1.4), dx = Math.round(lerp(bx + 80, bx + 8, dq)), dy = Math.round(lerp(by + 70, by + 12, dq));
-  const sale1 = tramo(t, Bo(0.87), Bo(0.95));
-  if (t > P2 && sale1 < 1) { const hx = Math.round(lerp(dx + 40, 340, sale1)), hy = Math.round(lerp(dy + 22, 200, sale1)); T.brazo(R, 300, 214, hx, hy, '#9a6a9a', -1, { codo: [hx + 30, hy + 30] }); }
-  // la mano de Ken trae la hoja
-  const hq = Math.max(0, Math.min(1, u * 1.4 - 0.2)), hx0 = Math.round(lerp(bx + 100, bx + 44, hq)), hy0 = Math.round(lerp(by + 60, by + 14, hq)), sale2 = tramo(t, S(0), S(0.06));
-  if (t > Bo(0.84) && sale2 < 1) { const x1 = Math.round(lerp(hx0 + 30, 350, sale2)), y1 = Math.round(lerp(hy0 + 14, 60, sale2)); T.brazo(R, 340, 40, x1, y1, '#4a6a9a', -1, { codo: [x1 + 26, y1 - 18] }); }
-  // «photocopies»: la mano de Ken deja un montón nuevo de fotocopias sobre el montón
-  const fo = tramo(t, S(0.03), S(0.07)), fv = tramo(t, S(0.1), S(0.18));
-  if (fo > 0) { const y = Math.round(lerp(20, 66, ease(fo))); R.rect(18, y, 70, y + 30, K); R.rect(19, y + 1, 69, y + 29, BL); for (let j = 0; j < 6; j++) R.rect(22, y + 4 + j * 4, 40 + ((j * 7) % 22), y + 4 + j * 4, hex('#8a8a9a')); R.rect(19, y + 26, 69, y + 29, hex('#d8d8d0'));
-    if (fv < 1) { const x1 = Math.round(lerp(74, -40, fv)), y1 = Math.round(lerp(y + 12, y - 30, fv)); T.brazo(R, -30, 30, x1, y1, '#4a6a9a', 1, { codo: [x1 - 30, y1 - 12] }); } }
-  // «packed by hand»: las dos manos de Roberta pasan por el cierre, del centro a los lados
-  const ci = tramo(t, S(0.26), S(0.36)), fuera = tramo(t, S(0.4), S(0.46));
-  if (ci > 0 && fuera < 1) { const sx = Math.round(lerp(0, 26, ci)), yy = Math.round(by + 2 + fuera * 80);
-    T.brazo(R, 60, 220, bx + 30 - sx, yy, '#9a6a9a', 1, { codo: [70, 160] }); T.brazo(R, 270, 220, bx + 40 + sx, yy, '#9a6a9a', -1, { codo: [262, 160] }); }
+  const sale1 = ease(tramo(t, Bo(0.87), Bo(0.95)));
+  if (t > P2 && sale1 < 1) { const hx = dx + 36 + Math.round(sale1 * 70), hy = dy + 22 + Math.round(sale1 * 60); T.brazo(R, hx + 30, hy + 30, hx, hy, '#9a6a9a', -1); }
+  // la mano de Ken trae la hoja desde la derecha
+  const hq = Math.max(0, Math.min(1, u * 1.4 - 0.2)), hx0 = Math.round(lerp(bx + 100, bx + 44, hq)), hy0 = Math.round(lerp(by + 60, by + 14, hq)), sale2 = ease(tramo(t, Bo(0.95), S(0.02)));
+  if (t > Bo(0.8) && sale2 < 1) { const x1 = hx0 + 24 + Math.round(sale2 * 80), y1 = hy0 + 16 + Math.round(sale2 * 10); T.brazo(R, x1 + 36, y1 + 14, x1, y1, '#4a6a9a', -1); }
+  // «photocopies»: la mano de Ken entra por la izquierda con un montón nuevo de fotocopias y lo deja sobre el montón
+  const fo = ease(tramo(t, S(0.0), S(0.07))), fv = ease(tramo(t, S(0.1), S(0.17)));
+  if (fo > 0) { const x = Math.round(lerp(-60, 16, fo)), y = 70; R.rect(x, y, x + 52, y + 30, K); R.rect(x + 1, y + 1, x + 51, y + 29, BL); for (let j = 0; j < 6; j++) R.rect(x + 4, y + 4 + j * 4, x + 22 + ((j * 7) % 22), y + 4 + j * 4, hex('#8a8a9a')); R.rect(x + 1, y + 26, x + 51, y + 29, hex('#d8d8d0'));
+    if (fv < 1) { const hx = x - Math.round(fv * 50), hy = y + 14; T.brazo(R, hx - 34, hy + 16, hx, hy, '#4a6a9a', 1); } }
+  // «packed by hand»: las dos manos pinzan el cierre y lo recorren del centro a las puntas
+  const ci = tramo(t, S(0.26), S(0.36)), fuera = ease(tramo(t, S(0.4), S(0.46)));
+  if (ci > 0 && fuera < 1) { const sx = Math.round(lerp(0, 24, ci)), yy = by + 2 + Math.round(fuera * 70);
+    T.brazo(R, bx + 4 - sx, yy + 38, bx + 30 - sx, yy, '#9a6a9a', 1); T.brazo(R, bx + 66 + sx, yy + 38, bx + 40 + sx, yy, '#9a6a9a', -1);
+    if (ci > 0 && ci < 1) for (const xx of [bx + 30 - sx, bx + 40 + sx]) if (Math.floor(t * 16) % 2) R.pset(xx, by - 2, BL); }
 };
 
 // 3 · la caja del súper: el carro hasta arriba y la ceja de la cajera
