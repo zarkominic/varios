@@ -10,7 +10,8 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // DO-TIERRAS (frases 24–25), 2022, cartela «2022». Cinco planos:
-// 1. Strange cae por el túnel del multiverso, entre burbujas con otros mundos («Multiverse of Madness»);
+// 1. Strange cae por el túnel del multiverso, entre burbujas con otros mundos («Multiverse of Madness»); la esquina
+//    de Atom queda en penumbra lisa de túnel (sin franjas claras, estrellas ni burbujas);
 // 2. 2019, el puente de noche: el del casco de pecera flota sobre el agua y saca dos Tierras de holograma con su número
 //    («numbers»; 833 y 616); en «lie» el holograma falla y se ven los drones que lo proyectan; Spider-Man lo descubre;
 // 3. el espacio desde la luna: la Tierra grande con su 616 dorado, otras Tierras con su número; las palomitas llegan y
@@ -50,8 +51,12 @@ const p1 = (t) => {
       c = fr < 0.14 ? TUNL[i] : (fr < 0.3 && dz(x, y) < 0.5 ? TUNL[i] : TUN[i]);
       const lejos = Math.max(0, (r - 120) / 120); if (lejos > 0 && dz(x, y) < lejos) c = OSC;
       const cerca = Math.max(0, 1 - (r - 16) / 30); if (cerca > 0 && dz(x, y) < cerca * 0.7) c = NUCLEO2; }
-    const za = Math.max(0, 1 - Math.hypot(x - 297, y - 24) / 34), zb = y < 20 && x > 14 && x < 176 ? (20 - y) / 10 : 0, zz = Math.min(0.8, Math.max(za * 1.3, zb));
-    if (zz > 0 && dz(x, y) < zz) c = mix(c, OSC, 0.75);
+    // esquina de Atom: el túnel se apaga en un tono continuo (sin franjas claras ni tramado, sin bordes) que funde
+    // suave con el túnel en un margen de 26 px. La barra del año, como estaba.
+    const fa = Math.hypot(Math.max(0, 276 - x), Math.max(0, y - 46)), wa = Math.max(0, 1 - fa / 26), zb = y < 20 && x > 14 && x < 176 ? (20 - y) / 10 : 0;
+    if (zb > 0 && dz(x, y) < Math.min(0.8, zb)) c = mix(c, OSC, 0.75);
+    if (wa > 0) { const ib = ((Math.floor(700 / (r + 10) + t * 4.2 + an * 0.955) % 6) + 6) % 6, w = wa * wa * (3 - 2 * wa);
+      c = mix(c, mix(OSC, TUN[ib], 0.24), w); }
     pset(x, y, c);
   }
   // estrellas que salen disparadas hacia fuera
