@@ -268,12 +268,6 @@ const gato = (x, y, t, o = {}) => {
 };
 const p6 = (t) => {
   T.casa(R, t, { encuadre: 'jugadores', epoca: 1985 });
-  // PARCHE DECORADO: a_jug85Fija el papel de rayas lleva flores de mucho contraste detrás de Atom; aquí se apaga con la
-  // luz del techo (se mezcla hacia el tono claro del papel) para que la zona de Atom quede tranquila
-  { const base = hex('#ece0c4');
-    for (let y = 6; y <= 48; y++) for (let x = 272; x <= 319; x++) {
-      const u = Math.min(1, (x - 272) / 7, (48 - y) / 5); if (u <= 0) continue;
-      R.pset(x, y, mezcla(R.pget(x, y), base, 0.72 * u)); } }
   // por la ventana: un coche pasa por la calle con los faros encendidos (recortado a los dos cristales de abajo)
   { const u = ((t - P6) / 3.4) % 1.4, cx = Math.round(96 + u * 70);
     for (const hueco of [[122, 52, 143, 76], [147, 52, 167, 76]]) { R.recorte(hueco); cocheCalle(cx, 74, t); R.recorte(null); } }
