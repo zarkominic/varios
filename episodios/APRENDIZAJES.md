@@ -36,6 +36,7 @@ una pasada o detalle no entra.
 | 15 | ~8 h (28 escenas, 118 planos) | ~14,7 M (8,4 M en calidad) | 60 de 118 | 60 → 1 → 0 | 107 | no (el pico del mp4 en −0,5 dBFS) |
 | 16 | sin medir (24 escenas, 104 planos) | ~10 M estimado (6,0 M en calidad, 0,5 M en la pasada de decorados) | 49 de 104 | 49 → 0 | 82 | no (−14,7 LUFS al bajar la música; arreglado con un limitador) |
 | 17 | ~11 h de reloj (23 escenas, 101 planos) | ~12,3 M (7,4 M en calidad, 2,6 M en el borrador de escenas, 1,5 M en los decorados) | 48 de 101 | 48 → 2 → 0 | 95 | sí (primera vez desde el 13) |
+| 18 | ~9 h de reloj (29 escenas, 101 planos; los 3 Shorts aparte) | ~13,2 M (6,4 M en calidad, 2,6 M en el borrador de escenas, 2,8 M en los decorados, 0,8 M en las pasadas de decorados y movimiento, 0,26 M en la verificación) | 49 de 101 | 49 → 2 → 0 | 87 | sí |
 
 ### Fallos de calidad por tipo
 
@@ -172,6 +173,30 @@ una pasada o detalle no entra.
 **Pendiente para el próximo:**
 - Aprobado el 31/10/2026: las recetas `campana` y `carro` (ya en `efectos.cjs`) y `comprobar-decorados.mjs` antes de
   integrar los decorados (sin agentes). Medir en el próximo si bajan «algo no se lee» y la zona de Atom.
+
+## Episodio 18 · Sierra (2/11/2026)
+
+**Lo que funcionó:**
+- **comprobar-decorados.mjs antes de integrar** (nuevo en este episodio): 77 encuadres comprobados sin agentes en tres tandas;
+  dio 4 sospechas reales (el cielo negro del mundo de 16 colores, dos zonas lisas en «hoy», el papel pintado detrás de Atom) que
+  fueron con fallo concreto a la pasada de decorados. **«Algo no se lee» bajó de 15 a 13** y, tras las pasadas, --comprobar dio
+  0 sospechas en los 101 planos antes de la calidad.
+- **El control final pasó a la primera** otra vez (−14,0 LUFS en las dos pistas, efectos al 49 %).
+- **Los Shorts dentro del proceso** (paso 12b, primera vez): 36, 45 y 43 s, −14 LUFS, miniaturas verticales; ~25 min.
+- **La pasada de movimiento solo para lo que no aguantaba** (un plano): 0,14 M de tokens.
+
+**Lo que no mejoró, con su causa:**
+- **Zona de Atom (14 → 16) y brazo o mano (6 → 15).** Los decorados con papel pintado y paredes de madera ponen textura
+  contrastada arriba a la derecha (lo arregló la luz de techo b_luzTecho en la pasada de decorados, pero salió en la calidad en
+  otras escenas). Brazo o mano subió porque este episodio tiene muchas manos que teclean, mueven ratones y pegan cromos.
+- **Orden de dibujo, el fallo número uno (26).** Mesas «delante» (a_casaDelante, j_salonMesaDelante) que tapan a los personajes
+  o que las escenas pintan antes de tiempo.
+- **Planos cortos (3,6–3,9 s):** siete planos entre 3,5 y 4 s porque las frases eran cortas; los aceptaron revisor y escéptico.
+
+**Pendiente para el próximo:**
+- Proponer al usuario: que comprobar-decorados.mjs mida también la zona de Atom con un personaje puesto, y que las cabeceras de
+  los decorados con mesa digan siempre «llama a <x>Delante después de los actores».
+- El 19 (Doomsday) es de 12 minutos y con héroes reconocibles: el reparto lleva más trabajo; medir horas y tokens frente al 18.
 
 ## Próximos temas (decididos por el usuario)
 
