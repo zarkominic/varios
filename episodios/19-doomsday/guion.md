@@ -84,7 +84,6 @@ aire de cómic.
 |---|---|
 | En 2019, Tony Stark chasquea los dedos con las seis gemas del infinito, salva el universo y no sobrevive al esfuerzo. | In 2019, Tony Stark snaps his fingers with all six Infinity Stones, saves the universe, and doesn't survive the effort. |
 | Millones de personas lloraron en el cine, y la película se convirtió en una de las más taquilleras de la historia. | Millions of people cried in theaters, and the movie became one of the highest-grossing films of all time. |
-| Y en septiembre de 2026, un reestreno con escenas nuevas la volvió a poner en lo más alto: la película más taquillera de todos los tiempos, por unos dos millones. | And in September 2026, a re-release with new scenes put it back on top: the highest-grossing movie of all time, by about two million dollars. |
 | Cinco años después, en julio de 2024, el mismo actor, Robert Downey Junior, sale a un escenario con una máscara de metal. | Five years later, in July 2024, the same actor, Robert Downey Jr., walks onto a stage wearing a metal mask. |
 | Se la quita, y el público descubre quién será el próximo gran villano de Marvel: el Doctor Doom. | He takes it off, and the crowd finds out who Marvel's next big villain will be: Doctor Doom. |
 | El 18 de diciembre llega Avengers: Doomsday, con héroes de tres universos distintos en la misma película. | On December 18, Avengers: Doomsday arrives, with heroes from three different universes in the same movie. |
@@ -207,6 +206,7 @@ aire de cómic.
 |---|---|
 | En julio de 2026 llegó Spider-Man: Brand New Day, con Peter protegiendo Nueva York por su cuenta, cuatro años después de que todos lo olvidaran. | In July 2026 came Spider-Man: Brand New Day, with Peter protecting New York on his own, four years after everyone forgot him. |
 | Hizo el mayor primer fin de semana de la historia en Estados Unidos, por encima de Endgame. | It had the biggest opening weekend ever in the United States, beating Endgame. |
+| Y en septiembre, un reestreno de Endgame con escenas nuevas la volvió a poner en lo más alto: la película más taquillera de todos los tiempos, por unos dos millones. | And in September, a re-release of Endgame with new scenes put it back on top: the highest-grossing movie of all time, by about two million dollars. |
 | Y así llegamos a Doomsday, que Marvel presentó de una manera muy curiosa. | And that brings us to Doomsday, which Marvel unveiled in a very unusual way. |
 | En marzo de 2025 hizo un directo de casi cinco horas y media en el que solo se veían sillas de director. | In March 2025, it ran a livestream of almost five and a half hours that showed nothing but director's chairs. |
 | Cada silla tenía el nombre de un actor, y fueron apareciendo veintisiete. | Each chair had an actor's name on it, and twenty-seven of them appeared one by one. |
