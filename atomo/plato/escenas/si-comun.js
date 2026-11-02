@@ -477,7 +477,8 @@ export function fantasia(R, t, o = {}) {
 //   'cabina': la cabina de grabación: espuma de cuñas en las paredes, el piloto rojo de grabación que se enciende
 //     (o.grabando, por omisión true), el foco que cae sobre el micro (motas de polvo en la luz), el micrófono de estudio
 //     con su araña y el filtro antipop, el atril con el guion (renglones de trazos), los cascos colgados, la botella de
-//     agua; el cristal doble a la sala de control (la mesa de faders con sus vúmetros, el magnetófono de bobinas que
+//     agua (o.microY: la altura de la cápsula del micro, por omisión 139, la boca de un chibi de pie en el suelo 158);
+//     el cristal doble a la sala de control (la mesa de faders con sus vúmetros, el magnetófono de bobinas que
 //     gira, el rack de luces) y la puerta acolchada con su ojo de buey y la estrella dorada (o.estrella 0–1: aparece con
 //     un destello; 1 = puesta). o.camara 'general' o 'micro' (el contraplano: desde la sala de control, la consola enorme
 //     delante, el magnetófono grande, y tras el cristal la cabina con el micro bajo el foco y la puerta con su estrella).
@@ -2400,9 +2401,16 @@ function f_pixeles(R, t, o) {
 // lo fijo del mundo de píxeles gordos (al búfer), dibujado en una rejilla de 160×90 y con los 16 colores de entonces
 function f_pixelesFijo(R) {
   const E = f_ega().map((e) => e[0]), P = (x, y, c) => R.rect(x * 2, y * 2, x * 2 + 1, y * 2 + 1, c), chk = (x, y) => (x + y) % 2 === 0;
-  // el cielo tramado: negro arriba, azul tramado y una franja cian junto al horizonte
-  for (let y = 0; y < 50; y++) for (let x = 0; x < 160; x++) P(x, y, y < 12 ? E[0] : y < 24 ? (chk(x, y) && y > 17 ? E[1] : E[0]) : y < 31 ? ((x + y * 2) % 4 === 0 ? E[0] : E[1]) : y < 38 ? ((x + y * 2) % 6 === 0 ? E[9] : E[1]) : y < 44 ? (chk(x, y) ? E[9] : E[1]) : (chk(x, y) ? E[11] : E[9]));
-  for (let k = 0; k < 30; k++) { const x = Math.floor(h(k, 1, 92) * 160), y = Math.floor(h(k, 2, 92) * 34); if (x > 8 && x < 88 && y < 8) continue; P(x, y, k % 3 ? E[7] : E[15]); }
+  // el cielo tramado de los 16 colores: azul oscuro arriba (nada de negro), que se aclara hacia el horizonte con la trama
+  // de entonces (azul claro cada vez más denso y una franja cian junto a las mesetas)
+  for (let y = 0; y < 50; y++) for (let x = 0; x < 160; x++) P(x, y, y < 24 ? E[1] : y < 31 ? ((x + y * 2) % 8 === 0 ? E[9] : E[1]) : y < 38 ? ((x + y * 2) % 4 === 0 ? E[9] : E[1]) : y < 44 ? (chk(x, y) ? E[9] : E[1]) : (chk(x, y) ? E[11] : E[9]));
+  // una nebulosa tenue, tramada en magenta y azul claro, entre el planeta y los soles
+  for (let y = 9; y < 26; y++) for (let x = 52; x < 96; x++) { const d = ((x - 74) / 22) ** 2 + ((y - 17 + (x - 74) * 0.12) / 7) ** 2; if (d >= 1) continue; const q = (x + y * 2) % 4, r = (x + y * 3) % 8; if (d < 0.12 && q === 0) P(x, y, E[13]); else if (d < 0.4 ? chk(x, y) : d < 0.75 ? q === 0 : r === 0) P(x, y, E[5]); else if (d < 0.5 && q === 3) P(x, y, E[9]); }
+  // las estrellas tramadas: polvo azul claro, estrellas grises y blancas, y algunas grandes en cruz (no en la barra del año
+  // ni en el rincón de Atom)
+  const libre = (x, y) => !(x > 6 && x < 90 && y < 9) && !(x > 136 && y < 24);
+  for (let k = 0; k < 70; k++) { const x = Math.floor(h(k, 1, 92) * 160), y = Math.floor(h(k, 2, 92) * 36); if (!libre(x, y)) continue; P(x, y, k % 5 === 0 ? E[15] : k % 2 ? E[9] : E[7]); }
+  for (let k = 0; k < 9; k++) { const x = 3 + Math.floor(h(k, 3, 94) * 154), y = 2 + Math.floor(h(k, 4, 94) * 26); if (!libre(x - 2, y - 2) || !libre(x + 2, y + 2)) continue; P(x, y, E[15]); P(x - 1, y, E[7]); P(x + 1, y, E[7]); P(x, y - 1, E[7]); P(x, y + 1, E[7]); if (k % 3 === 0) { P(x - 2, y, E[9]); P(x + 2, y, E[9]); P(x, y - 2, E[9]); P(x, y + 2, E[9]); } }
   // dos soles
   for (let j = -5; j <= 5; j++) for (let i = -5; i <= 5; i++) if (i * i + j * j <= 25) P(100 + i, 16 + j, i * i + j * j < 6 ? E[15] : E[14]);
   for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) if (i * i + j * j <= 9) P(114 + i, 24 + j, E[12]);
@@ -2428,7 +2436,6 @@ function f_pixelesFijo(R) {
   P(131, 52, E[8]); P(131, 51, E[4]);
   for (let x = 108; x <= 138; x++) if (chk(x, 62)) P(x, 62, E[6]);
 }
-
 // vuelve de 16 colores y de píxeles de 2×2 lo que ya hay pintado en el rectángulo (para el personaje que llega al mundo
 // del primer juego): cada bloque toma el color de su píxel de arriba a la izquierda, llevado al más cercano de los 16
 export function f_pixelar(R, x0, y0, x1, y1) {
@@ -2823,14 +2830,15 @@ function g_comisaria(R, t, o) {
     { const x = 168; rect(x, 136, x + 10, 152, hex('#2a4a9a')); disco(x + 5, 136, 5, hex('#2a4a9a')); rect(x, 136, x + 10, 136, hex('#3a5ab0')); rect(x + 2, 138, x + 8, 139, P.k); rect(x + 1, 152, x + 2, 155, P.k); rect(x + 8, 152, x + 9, 155, P.k); rect(x + 3, 144, x + 7, 147, hex('#e8e4d8')); }
     { const x = 202; rect(x, 118, x + 1, 155, hex('#5a5a66')); rect(x - 4, 122, x + 5, 136, hex('#4a6a8a')); rect(x - 3, 123, x + 4, 135, hex('#c8c8d0')); rect(x - 2, 125, x + 3, 129, hex('#2a2a36')); rect(x - 4, 120, x + 5, 121, hex('#3a3a46')); }
     // el mástil de la bandera (la bandera ondea en cada fotograma)
-    rect(10, 24, 11, 150, hex('#c8c8d0')); rect(12, 24, 12, 150, hex('#8a8a94')); disco(10.5, 23, 1.5, hex('#e8c840')); rect(7, 148, 14, 150, hex('#8a8a94'));
+    // (el mástil es más bajo que el tejado para que la bandera quede lejos de la barra del año)
+    rect(10, 40, 11, 150, hex('#c8c8d0')); rect(12, 40, 12, 150, hex('#8a8a94')); disco(10.5, 39, 1.5, hex('#e8c840')); rect(7, 148, 14, 150, hex('#8a8a94'));
     return { mask: g_mascara(R, cielo, 112) };
   });
   const m = e.mask;
   for (const [x0, y, w, v, s] of [[20, 26, 38, 1.5, 1], [150, 18, 46, 0.8, 2], [90, 44, 26, 2.6, 3], [260, 60, 30, 1.1, 4]]) g_nube(R, m, ((x0 + t * v) % 400) - 40, y, w, g_NUBED(), s);
   g_pajaros(R, t, m, 4, 30, 18, 1);
   // la bandera que ondea (franjas y el cuadro azul con puntos blancos)
-  for (let i = 0; i < 22; i++) { const ond = Math.round(Math.sin(t * 5 - i * 0.45) * (i / 22) * 2.2); for (let j = 0; j < 13; j++) { const y = 25 + j + ond, x = 13 + i; let c = Math.floor(j / 2) % 2 ? hex('#f6f2ea') : hex('#c83a3a'); if (i < 9 && j < 7) c = (i + j) % 3 === 0 && i > 0 && j > 0 ? hex('#f6f2ea') : hex('#2a3a7a'); if (Math.sin(t * 5 - i * 0.45) > 0.6 && c !== hex('#2a3a7a')) c = g_mezcla(c, 0, 0.15); pset(x, y, c); } }
+  for (let i = 0; i < 22; i++) { const ond = Math.round(Math.sin(t * 5 - i * 0.45) * (i / 22) * 2.2); for (let j = 0; j < 13; j++) { const y = 41 + j + ond, x = 13 + i; let c = Math.floor(j / 2) % 2 ? hex('#f6f2ea') : hex('#c83a3a'); if (i < 9 && j < 7) c = (i + j) % 3 === 0 && i > 0 && j > 0 ? hex('#f6f2ea') : hex('#2a3a7a'); if (Math.sin(t * 5 - i * 0.45) > 0.6 && c !== hex('#2a3a7a')) c = g_mezcla(c, 0, 0.15); pset(x, y, c); } }
   // las agujas del reloj (marcan una hora que avanza deprisa) y alguien que pasa tras las persianas
   { const a = t * 0.5 - Math.PI / 2, b = t * 0.04 - Math.PI / 2; linea(116, 66, Math.round(116 + Math.cos(a) * 5), Math.round(66 + Math.sin(a) * 5), P.k); linea(116, 66, Math.round(116 + Math.cos(b) * 3), Math.round(66 + Math.sin(b) * 3), P.k); pset(116, 66, hex('#c83a3a')); }
   R.recorte([150, 99, 161, 115]); { const x = Math.round(146 + ((t * 4) % 24)); disco(x, 104, 2, hex('#3a2a2a')); for (let y = 106; y < 116; y++) for (let i = -2; i <= 2; i++) pset(x + i, y, hex('#2a3a6a')); } R.recorte(null);
@@ -2843,9 +2851,8 @@ function g_comisaria(R, t, o) {
   // un coche que pasa por la calle de detrás de la valla y las hojas de los árboles que se mueven
   R.recorte([214, 104, 319, 131]); { const u = (t % 9) / 9; g_cochito(R, 200 + u * 140, 128, hex('#3a6ab0'), 1, false); } R.recorte(null);
   for (const [x, y] of [[236, 104], [298, 100]]) for (let q = 0; q < 6; q++) pset(Math.round(x - 6 + q * 2 + Math.sin(t * 2 + q) * 1), Math.round(y - 8 + (q % 3)), q % 2 ? hex('#7ac060') : hex('#24542a'));
-  return { suelo: S, acera: [0, 140, 213, 157], puerta: [100, 107, 132, 134], escalinata: { arriba: [96, 134, 136], abajo: [79, 150, 153] }, faroles: [84, 148], reloj: [116, 66], bandera: [10, 24], buzon: [173, 152], telefono: [202, 155], aparcamiento: [214, 132, 319, 179], plaza: { x: 266, suelo: 172, x0: 226, x1: 312 }, detrasCoche: 160, delanteCoche: 178, sol: [234, 24], libres: [[20, 76], [150, 166], [226, 312]] };
+  return { suelo: S, acera: [0, 140, 213, 157], puerta: [100, 107, 132, 134], escalinata: { arriba: [96, 134, 136], abajo: [79, 150, 153] }, faroles: [84, 148], reloj: [116, 66], bandera: [10, 40], buzon: [173, 152], telefono: [202, 155], aparcamiento: [214, 132, 319, 179], plaza: { x: 266, suelo: 172, x0: 226, x1: 312 }, detrasCoche: 160, delanteCoche: 178, sol: [234, 24], libres: [[20, 76], [150, 166], [226, 312]] };
 }
-
 function g_aparcamiento(R, t, o, noche) {
   const { rect, pset, disco, linea, poligono } = R, P = g_P, S = 166;
   const e = g_fondo(R, noche ? 'aparcaN' : 'aparcaD', () => {
@@ -4635,8 +4642,9 @@ function i_piloto(R, x, y, on, t) {
   if (on) for (let i = -12; i <= 12; i += 2) { R.pset(x + i, y + 6, hex('#a85a50')); }
 }
 
-// G 'cabina' general: suelo 158 (cabina); el micro en .micro (boca a la altura de la cabeza de un chibi en x ≈ 104–
-// 112); la ventana a la sala de control x 160–268, y 46–104 (.ventana): el técnico va DENTRO, de pie en x 196–232 con
+// G 'cabina' general: suelo 158 (cabina); el micro de pie en x 111, con la cápsula a la altura de la boca de un chibi
+// de pie en el suelo (y 139; o.microY la cambia) y el filtro antipop hacia la derecha, donde se pone el actor (x ≈ 120,
+// dir −1); .micro = [x, y] de la cápsula; la ventana a la sala de control x 160–268, y 46–104 (.ventana): el técnico va DENTRO, de pie en x 196–232 con
 // los pies en y 110 (pintar después i_estudioDelante, que pone la mesa de faders y el alféizar por delante); la puerta
 // x 276–314, y 56–158, con la estrella en .estrella. Sitio en la cabina: dos actores en x ≈ 92 (dir 1) y x ≈ 130
 // (dir −1) a los lados del micro; libre x 136–270 delante de la pared.
@@ -4691,7 +4699,7 @@ function i_cabina(R, t, o) {
   i_luz(R, 96, 32, 124, 150, 0, 0.12, hex('#fff4c0'), 0.24);
   for (let k = 0; k < 9; k++) { const u = ((t * (0.05 + h(k, 1, 972) * 0.05) + h(k, 2, 972)) % 1), x = Math.round(98 + h(k, 3, 972) * 26 + Math.sin(t + k) * 3 + (u - 0.5) * 20), y = Math.round(40 + u * 100); if (Math.abs(x - 110) < 10 + (y - 32) * 0.24) pset(x, y, hex('#fff8d8')); }
   // el micro y su sombra
-  const M = i_micro(R, 111, 158, 52, t, -1);
+  const M = i_micro(R, 111, 158, 158 - (o.microY ?? 139), t, 1);
   // la estrella dorada de la puerta (o.estrella)
   const ea = o.estrella == null ? 1 : Math.max(0, Math.min(1, o.estrella)); i_estrella(R, 295, 72, 7, t, ea);
   if (ea > 0.2 && ea < 0.9) for (let k = 0; k < 8; k++) { const a = k * 0.785 + t, d = 10 + (ea - 0.2) * 20; pset(Math.round(295 + Math.cos(a) * d), Math.round(72 + Math.sin(a) * d), C.oroL); }
@@ -4699,7 +4707,6 @@ function i_cabina(R, t, o) {
   for (const d of [168, 176, 230]) for (let i = 0; i < 40; i++) { const x = d + i, y = 104 - Math.round(i * 1.45); if (y < 46) break; const c = R.pget(x, y); if (c) pset(x, y, i_mezcla(c, IC.reflejo, 0.35)); }
   return { suelo: 158, micro: M, ventana: W, tecnico: { x: [196, 232], suelo: 110 }, puerta: [276, 56, 314, 151], estrella: [295, 72], sitio: { actores: [92, 130], libre: [136, 270] } };
 }
-
 // la mesa de faders de la sala de control y el alféizar del cristal, por delante del técnico (cabina general)
 function i_consolaVentana(R, t) {
   const { rect, pset, poligono } = R, W = [160, 46, 268, 104];
@@ -10143,6 +10150,8 @@ function d_ventanaCola(R, t, o, era) {
     for (let j = 0; j < 4; j++) for (let i = 0; i < 7; i++) R.rect(261 + i * 4, 125 + j * 4, 263 + i * 4, 127 + j * 4, (i + j * 7) === 12 ? DP.rojoG : hex('#c8ccd4')); R.rect(274, 109, 276, 112, C.k);
     R.rect(0, 150, 319, 152, C.k); R.rect(0, 150, 319, 150, hex('#7a4a2a'));
     d_sueloTablas(R, 153, 179, 10);
+    // el rincón de arriba a la derecha en penumbra suave (detrás de Atom): las juntas y los nudos casi se borran
+    d_calmaRincon(R, 262, 0, 319, 47, era === 1999 ? hex('#d6caa8') : d_mezcla(DP.pinoP, DP.pinoPS, 0.3), 0.66);
   });
   const cel = o.celebra ?? 0;
   d_nubes(R, t, m, [[60, 34, 20, 2], [150, 42, 16, 3.2], [210, 30, 14, 4.4]], 20, 260);
@@ -10174,4 +10183,11 @@ function d_ventanaCola(R, t, o, era) {
     d_banderines(R, t, 24, 17, Math.round(lerp(24, 250, Math.min(1, cel * 1.6))), 17, 6);
   }
   return { suelo: 168, ventana: [VX0, VY0, VX1, VY1], alfeizar: [36, VY1 + 2, 238], cola, telefono: [305, 88], libre: [[0, 40], [236, 320]] };
+}
+// la zona de detrás de Atom en calma: mezcla cada píxel del rectángulo con el color c (k en el centro, 0 en los bordes
+// del rectángulo, con un fundido de 8 px a la izquierda y abajo para que no se note la costura); la textura sigue ahí,
+// pero tan suave que no compite con Atom
+function d_calmaRincon(R, x0, y0, x1, y1, c, k) {
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const p = R.pget(x, y); if (!p) continue;
+    const w = k * Math.min(1, (x - x0 + 1) / 8, (y1 - y + 1) / 6); R.pset(x, y, d_mezcla(p, c, w)); }
 }
