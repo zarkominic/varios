@@ -1308,3 +1308,63 @@ export const ELENCO_TE = {
   turista: { ...BASE16, ceja: hex('#a8743c'), tocado: 'gorra', pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#e84a7a', c: '#c83a5a', F: '#3e5a8a', W: '#e84a7a', o: '#f2eee2' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_TE);
+export const ELENCO_SI = {
+  // Roberta Williams en 1979–1990: pelo castaño largo con flequillo, jersey malva; y de mayor (2020–2023): media melena rubia ceniza y gafas
+  roberta: { ...BASE16M, ceja: hex('#5a3418'), pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#9a6a9a', c: '#7a4e7a', F: '#3a4a6a', W: '#9a6a9a', o: '#f2eee2' }) },
+  robertaMayor: { ...BASE16M, ceja: hex('#a8987a'), tocado: 'gafas', pal: CLARA({ H: '#d8c8a0', h: '#c0ae84', C: '#3a6a8a', c: '#2a5068', F: '#3a3a4a', W: '#3a6a8a', o: '#f2eee2' }) },
+  // Ken Williams en 1979–1990: pelo oscuro, barba, camisa de cuadros azul; y de mayor: pelo y barba grises, gafas
+  ken: { ...BASE16, ceja: hex('#2a1c14'), bigote: true, pal: CLARA({ H: '#2a1c14', h: '#4a3020', C: '#4a6a9a', c: '#c8d0e0', F: '#4a4a5a', W: '#4a6a9a', o: '#c8d0e0' }) },
+  kenMayor: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#a8a8b4', h: '#c8ccd8', C: '#5a5a6a', c: '#3e3e4c', F: '#3a3a4a', W: '#5a5a6a', o: '#f2eee2' }) },
+  // el programador que exploraba cuevas (años setenta): casco con luz, mono caqui y barba
+  espeleologo: { ...BASE16, ceja: hex('#5a3418'), tocado: 'casco', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#a8905a', c: '#86703e', F: '#86703e', W: '#a8905a', o: '#e8c840' }) },
+  // dos ejecutivos de 1983: traje gris oscuro, camisa blanca y corbata
+  ejecutivo: { ...BASE16, ceja: hex('#3a2418'), pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#3a3e4c', c: '#f2eee2', F: '#3a3e4c', W: '#3a3e4c', o: '#2a4a9a' }) },
+  ejecutivo2: { ...BASE16, ceja: hex('#a8743c'), tocado: 'gafas', pal: CLARA({ H: '#c8984a', h: '#a8743c', C: '#2a2e3a', c: '#f2eee2', F: '#2a2e3a', W: '#2a2e3a', o: '#a83a3a' }) },
+  // el caballero del cuento (nuestro, homenaje): gorro rojo con pluma, túnica azul con cinturón, calzas rojas, pelo castaño
+  graham: { ...BASE16, ceja: hex('#6a3a1a'), tocado: 'pluma', pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#2a5aa8', c: '#1e4280', F: '#a83a3a', W: '#2a5aa8', o: '#c8a040', J: '#c83a3a', j: '#8a2a2a' }) },
+  // el viejo rey del cuento: túnica larga granate, corona y barba blanca
+  reyCuento: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#c8c4bc'), tocado: 'corona', bigote: true, pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#7a2a3a', c: '#5a1e2a', o: '#e8b830', G: '#e8b830', L: '#3a2a4a', D: '#e8b830' }) },
+  // la princesa del cuento: vestido azul celeste con ribete blanco y pelo rubio largo
+  rosella: { ...BASE16V, ceja: hex('#c8984a'), pal: CLARA({ H: '#f0c860', h: '#d8a840', C: '#6aa8d8', c: '#4a88b8', W: '#f2eee2', L: '#3a3a5a' }) },
+  // un gnomo del bosque: gorro rojo puntiagudo, barba blanca, chaqueta verde
+  gnomo: { ...BASE16, ceja: hex('#c8c4bc'), tocado: 'santa', bigote: true, pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#3a7a3a', c: '#2a5a2a', F: '#5a3a1a', W: '#3a7a3a', o: '#c83a3a' }) },
+  // la pastora de las canciones infantiles: vestido rosa, cofia blanca
+  pastora: { ...BASE16V, ceja: hex('#a8743c'), tocado: 'cofia', pal: CLARA({ H: '#c8984a', h: '#a8743c', C: '#e88aa8', c: '#c86a88', W: '#f2eee2', L: '#3a3a5a' }) },
+  // policía de carreteras de 1987: camisa caqui, pantalón verde oscuro, gorra; y su compañero, con bigote
+  policia: { ...BASE16, ceja: hex('#3a2418'), tocado: 'gorra', pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#c8b078', c: '#a8905a', F: '#3a4a3a', W: '#c8b078', o: '#e8c840', M: '#3a4a3a' }) },
+  policia2: { ...BASE16, ceja: hex('#1c1424'), tocado: 'gorra', bigote: true, pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#c8b078', c: '#a8905a', F: '#3a4a3a', W: '#c8b078', o: '#e8c840', M: '#3a4a3a' }) },
+  // la cajera del supermercado (1980): delantal verde y pelo rizado pelirrojo
+  cajera: { ...BASE16M, ceja: hex('#a8502a'), pal: CLARA({ H: '#c86a3a', h: '#e0844c', C: '#4a8a5a', c: '#f2eee2', F: '#3a3a4a', W: '#4a8a5a', o: '#f2eee2' }) },
+  // el cartero de 1981: uniforme azul grisáceo y gorra
+  cartero: { ...BASE16, ceja: hex('#5a3418'), tocado: 'gorra', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#6a7a9a', c: '#4e5c7a', F: '#3e4a6a', W: '#6a7a9a', o: '#c83a3a', M: '#3e4a6a' }) },
+  // los dos dibujantes de la oficina de la montaña (1986): uno con barba y camisa roja, otro rubio con camiseta amarilla
+  dibujante: { ...BASE16, ceja: hex('#3a2418'), bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#a83a3a', c: '#7a2a2a', F: '#3e5a8a', W: '#a83a3a', o: '#f2eee2' }) },
+  dibujante2: { ...BASE16, ceja: hex('#a8743c'), tocado: 'gafas', pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#e8c840', c: '#c8a830', F: '#3e5a8a', W: '#e8c840', o: '#3a3a4a' }) },
+  // el conserje espacial (nuestro, homenaje): mono gris azulado con bolsillos, pelo rubio
+  conserje: { ...BASE16, ceja: hex('#a8743c'), pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#7a8aa8', c: '#5a6a88', F: '#5a6a88', W: '#7a8aa8', o: '#e8c840' }) },
+  // los alienígenas que asaltan la nave (nuestros): piel verde, casco morado
+  alien: { ...BASE16, ceja: hex('#2a5a2a'), tocado: 'casco', pal: { S: hex('#7ac86a'), s: hex('#5aa84a'), H: hex('#5a2a7a'), h: hex('#7a3a9a'), C: hex('#5a2a7a'), c: hex('#3e1e5a'), F: hex('#3e1e5a'), W: hex('#5a2a7a'), o: hex('#e8c840'), G: hex('#2a2430'), L: hex('#2a2430') } },
+  // el ligón con mala suerte (1987): traje blanco de los setenta, camisa abierta, entradas
+  ligon: { ...BASE16, ceja: hex('#5a3418'), pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#f2eee2', c: '#d8d0c0', F: '#f2eee2', W: '#f2eee2', o: '#e8c840' }) },
+  // el antiguo profesor de música que escribía comedias: gafas, bigote, chaleco
+  humorista: { ...BASE16, ceja: hex('#3a2418'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#4a3020', h: '#6a4430', C: '#6a4a2a', c: '#e8e0c8', F: '#3a3a4a', W: '#6a4a2a', o: '#e8e0c8' }) },
+  // la pareja que inventó los héroes que aprenden (1989): ella con pelo largo oscuro, él con barba y gafas
+  lori: { ...BASE16M, ceja: hex('#2a1c14'), pal: CLARA({ H: '#2a1c14', h: '#4a3020', C: '#3a7a6a', c: '#2a5a4e', F: '#3a3a4a', W: '#3a7a6a', o: '#f2eee2' }) },
+  corey: { ...BASE16, ceja: hex('#6a3a1a'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#7a5a3a', c: '#5a4028', F: '#3a3a4a', W: '#7a5a3a', o: '#f2eee2' }) },
+  // los tres héroes de fantasía: guerrero (cota y casco), mago (túnica y gorro puntiagudo azul) y ladrona (capucha verde)
+  guerrero: { ...BASE16, ceja: hex('#5a3418'), tocado: 'malla', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#8a8a94', c: '#6a6a74', F: '#5a3a1a', W: '#8a8a94', o: '#c8a040', G: '#5a3a1a', L: '#4a3020' }) },
+  mago: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#c8c4bc'), tocado: 'santa', bigote: true, pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#3a4aa8', c: '#2a3680', o: '#e8c840', G: '#e8c840', L: '#2a2430', D: '#e8c840' }) },
+  ladrona: { ...BASE16M, ceja: hex('#1c1424'), tocado: 'capotain', pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#3a6a3a', c: '#2a4e2a', F: '#3a3a2a', W: '#3a6a3a', o: '#8a6a3a', J: '#2a4e2a', j: '#1e3a1e' }) },
+  // el estudio de 1990: el técnico de sonido con auriculares, la actriz de voz y el compositor
+  tecnico: { ...BASE16, ceja: hex('#1c1424'), tocado: 'auriculares', pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#5a5a6a', c: '#3e3e4c', F: '#3a3a4a', W: '#5a5a6a', o: '#e8c840', M: '#2a2430' }) },
+  actriz: { ...BASE16M, ceja: hex('#a8502a'), pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#e8c840', c: '#c8a830', F: '#3a3a4a', W: '#e8c840', o: '#f2eee2' }) },
+  compositor: { ...BASE16, ceja: hex('#5a3418'), tocado: 'auriculares', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#2a2430', c: '#5a5a6a', F: '#3e5a8a', W: '#2a2430', o: '#c84a3a', M: '#c84a3a' }) },
+  // la escritora de misterio (1993): pelo largo castaño oscuro, chaqueta negra
+  escritora: { ...BASE16M, ceja: hex('#3a2418'), pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#2a2430', c: '#5a5a6a', F: '#2a2430', W: '#2a2430', o: '#a83a3a' }) },
+  // el actor de Hollywood (1993): pelo oscuro peinado hacia atrás, chaqueta burdeos y bufanda
+  actor: { ...BASE16, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#6a2a3a', c: '#e8c840', F: '#2a2430', W: '#6a2a3a', o: '#e8c840' }) },
+  // jugadores: una abuela de los ochenta (rebeca y moño gris) y un adolescente de los noventa (camiseta y gorra)
+  abuela: { ...BASE16V, ceja: hex('#8a8a9a'), tocado: 'gafas', pal: CLARA({ H: '#b8b8c4', h: '#9c9cac', C: '#a86a8a', c: '#86506c', W: '#f2eee2', L: '#3a3a4a' }) },
+  adolescente: { ...BASE16, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#2a6aa8', c: '#1e5080', F: '#3a4a7a', W: '#2a6aa8', o: '#e8c840', M: '#c83a3a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_SI);
