@@ -180,5 +180,10 @@ una pasada o detalle no entra.
   **Nada de controversias ni de cómo les fue comercialmente** (palabras del usuario). Sin sprites, capturas, logos ni
   música de los juegos: homenaje dibujado por nosotros. Idea propuesta: el vídeo como una aventura gráfica (Atom dentro,
   línea de verbos y cursor); el gancho, «en estos juegos no podías morir»; el hilo, el secreto de Monkey Island.
+- **Episodio 19: Avengers: Doomsday** (decidido el 02/11/2026, después del 18). La película de Marvel se estrena el 18/12/2026
+  en EE. UU. (16/12 en Reino Unido). Palabras del usuario: «todo lo que hay que saber antes de la película, es decir, lo
+  importante de otras pelis de Marvel previo a esto y cómo se concatena todo». Publicar 1–2 semanas antes del estreno. Solo
+  datos confirmados (nada de filtraciones ni rumores) y volver a comprobarlos justo antes de locutar. Sin clips, música ni
+  logos de Marvel: dibujado por nosotros. Antes del guion hay que decidir con el usuario cuánto se parecen los personajes.
 - **Después, los archivos OVNI del gobierno** (entregas de PURSUE desde mayo de 2026): con gancho comercial (los casos
   que el Pentágono no sabe explicar), sin repetir lo del episodio 10; mejor justo después de una entrega nueva.
