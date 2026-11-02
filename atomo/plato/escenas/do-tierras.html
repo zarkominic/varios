@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Las Tierras · ep19</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DO-TIERRAS (frases 24–25), 2022, cartela «2022». Cinco planos:
+// 1. Strange cae por el túnel del multiverso, entre burbujas con otros mundos («Multiverse of Madness»);
+// 2. 2019, el puente de noche: el del casco de pecera flota sobre el agua y saca dos Tierras de holograma con su número
+//    («numbers»; 833 y 616); en «lie» el holograma falla y se ven los drones que lo proyectan; Spider-Man lo descubre;
+// 3. el espacio desde la luna: la Tierra grande con su 616 dorado, otras Tierras con su número; las palomitas llegan y
+//    la señalan en «ours»; el 616 late en «616»;
+// 4. el consejo de la Tierra 838: Strange llega por un portal y camina hasta el círculo; el 838 se enciende en el
+//    ventanal; en «council» aparecen los jueces en sus sillas altas;
+// 5. los jueces de cerca: Reed habla en «Reed Richards»; Xavier rueda hacia delante y sus ondas brillan en «Xavier».
+import * as T from '/atomo/plato/escenas/do-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import * as NY from '/atomo/plato/escenas/ny-comun.js';
+const { E, R, M } = await T.preparar('do-tierras');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('616', f), b = (f) => en('838', f);
+const P2 = a(0.289), P3 = a(0.726), P4 = b(0), P5 = b(0.599);
+const mix = (c1, c2, k) => { const r1 = c1 & 255, g1 = (c1 >> 8) & 255, b1 = (c1 >> 16) & 255, r2 = c2 & 255, g2 = (c2 >> 8) & 255, b2 = (c2 >> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (b2 - b1) * k) << 16) | (Math.round(g1 + (g2 - g1) * k) << 8) | Math.round(r1 + (r2 - r1) * k)) >>> 0; };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], dz = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+// ── 1 · el túnel del multiverso (fondo local) ──
+const TUN = ['#2a0e4a', '#4a1678', '#1a2a7a', '#0e6a8a', '#6a1a7a', '#3a0e5a'].map(hex), TUNL = ['#7a3ac8', '#c04ab0', '#4a7ae8', '#3ad0d8', '#e86ac8', '#8a4ae8'].map(hex);
+const NUCLEO = hex('#fff6d8'), NUCLEO2 = hex('#ffd890'), OSC = hex('#0a0618');
+const mundoB = (k, u, v, t) => {   // lo que se ve dentro de cada burbuja (u, v en −1..1)
+  if (k === 0) { const h = 0.25 + 0.15 * Math.sin(u * 5); if (v > h) return v > h + 0.25 ? hex('#3a9a3a') : hex('#5ac84a'); if (Math.hypot(u - 0.35, v + 0.35) < 0.22) return hex('#ffe060'); return v < -0.1 ? hex('#5ab0f0') : hex('#9ad8f8'); }
+  if (k === 1) { const col = Math.floor((u + 1) * 5), alto = 0.1 + ((col * 37) % 7) / 10; if (v > 0.9 - alto * 1.2) return (Math.floor(u * 20) + Math.floor(v * 14)) % 3 === 0 ? hex('#ffd860') : hex('#1a1a3a'); return v < -0.3 ? hex('#0a0a2a') : hex('#2a1a5a'); }
+  if (k === 2) { if (Math.hypot(u, v - 0.25) < 0.32 && v < 0.35) return hex('#e8c060'); if (v > 0.3) return Math.sin(u * 14 + t * 3) > 0.6 ? hex('#8ad8f8') : hex('#2a7ac8'); return hex('#f0a060'); }
+  if (k === 3) { const d = (Math.floor((u + 1) * 8) + Math.floor((v + 1) * 8)) % 2; if (Math.hypot(u + 0.2, v) < 0.45) return hex('#e83a3a'); return d ? hex('#f8e8a0') : hex('#f0d060'); }
+  const q = Math.hypot(u, v); if (q < 0.7) { const tierra = Math.sin(u * 6 + t) + Math.cos(v * 5) > 0.6; return tierra ? hex('#4ab04a') : hex('#2a6ad8'); } return hex('#0a0a2a');
+};
+const p1 = (t) => {
+  const { pset, disco } = R;
+  const cx = 166 + 14 * Math.sin(t * 0.8), cy = 104 + 8 * Math.cos(t * 1.1);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const dx = x - cx, dy = (y - cy) * 1.3, r = Math.hypot(dx, dy) + 0.5, an = Math.atan2(dy, dx);
+    let c;
+    if (r < 16) c = r < 9 || dz(x, y) < (16 - r) / 7 ? NUCLEO : NUCLEO2;
+    else { const z = 700 / (r + 10) + t * 4.2 + an * 0.955, k = Math.floor(z), fr = z - k, i = ((k % 6) + 6) % 6;
+      c = fr < 0.14 ? TUNL[i] : (fr < 0.3 && dz(x, y) < 0.5 ? TUNL[i] : TUN[i]);
+      const lejos = Math.max(0, (r - 120) / 120); if (lejos > 0 && dz(x, y) < lejos) c = OSC;
+      const cerca = Math.max(0, 1 - (r - 16) / 30); if (cerca > 0 && dz(x, y) < cerca * 0.7) c = NUCLEO2; }
+    const za = Math.max(0, 1 - Math.hypot(x - 297, y - 24) / 34), zb = y < 20 && x > 14 && x < 176 ? (20 - y) / 10 : 0, zz = Math.min(0.8, Math.max(za * 1.3, zb));
+    if (zz > 0 && dz(x, y) < zz) c = mix(c, OSC, 0.75);
+    pset(x, y, c);
+  }
+  // estrellas que salen disparadas hacia fuera
+  for (let i = 0; i < 70; i++) { const an = i * 2.399, d = ((t * (0.25 + (i % 5) * 0.05) + i * 0.137) % 1), r = 18 + d * d * 260;
+    const x = cx + Math.cos(an) * r, y = cy + Math.sin(an) * r / 1.3; if ((y < 16 && x > 18 && x < 172) || (x > 276 && y < 46)) continue;
+    pset(x, y, hex('#ffffff')); if (d > 0.4) pset(x - Math.cos(an) * 2, y - Math.sin(an) * 1.5, hex('#a8c8ff')); }
+  // las burbujas con otros mundos que pasan de largo
+  for (let i = 0; i < 5; i++) { const d = ((t * 0.38 + i * 0.2) % 1), an = i * 1.9 + 0.6, rr = 22 + d * d * 210, R0 = 2 + d * d * 34;
+    const bx = Math.round(cx + Math.cos(an) * rr), by = Math.round(cy + Math.sin(an) * rr / 1.3);
+    for (let j = -R0 - 1; j <= R0 + 1; j++) for (let ii = -R0 - 1; ii <= R0 + 1; ii++) { const q = Math.hypot(ii, j); if (q > R0 + 1) continue; const x = bx + ii, y = by + j;
+      if ((y < 16 && x > 18 && x < 172) || (x > 276 && y < 46)) continue;
+      pset(x, y, q > R0 ? hex('#e8f4ff') : q > R0 - 1 ? hex('#8ab8e8') : mundoB(i, ii / R0, j / R0, t)); }
+    if (R0 > 5) { pset(bx - R0 * 0.5, by - R0 * 0.55, hex('#ffffff')); pset(bx - R0 * 0.5 + 1, by - R0 * 0.55, hex('#ffffff')); pset(bx - R0 * 0.55, by - R0 * 0.45, hex('#ffffff')); } }
+  // Strange cae dando vueltas, con la capa al viento
+  const sx = Math.round(118 + 10 * Math.sin(t * 1.6)), ss = Math.round(124 + 7 * Math.sin(t * 2.3)), dir = Math.sin(t * 2.1) > 0 ? 1 : -1;
+  R.actor(EL.strange, sx, ss, t, { dir, brazos: true, sorpresa: t < a(0.2) || Math.sin(t * 3) > 0, quieto: true });
+  // atraviesa una burbuja: destello del mundo de colores
+  const fl = tramo(t, a(0.165), a(0.175)) - tramo(t, a(0.18), a(0.2)); if (fl > 0) T.tinte(R, 16, 179, [255, 240, 220], fl * 0.55);
+};
+// ── 2 · 2019: el del casco de pecera y su mentira en el puente ──
+const H = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)]));
+const MPAL = H({ C: '#2a8a4a', c: '#1c6a38', W: '#2a8a4a', F: '#1c6a38', I: '#c8a040', G: '#c8a040', n: '#1c3a2a', o: '#c8a040', Q: '#7a3a9a', q: '#5a2a7a' });
+const holo = (x, y, r, n, t, fallo) => {
+  if (fallo && Math.floor(t * 15) % 3 === 0) return;
+  const C1 = hex('#c8faff'), C2 = hex('#5ad0f0'), C3 = hex('#2a7ab0');
+  for (let j = -r; j <= r; j++) { const fil = ((j + Math.floor(t * 8)) & 1) === 0, dx = fallo ? (((j >> 2) & 1) ? 3 : -3) : 0, w = Math.round(Math.sqrt(r * r - j * j));
+    for (let i = -w; i <= w; i++) { const tierra = Math.sin((i + t * 6) * 0.35 + j * 0.2) + Math.cos(j * 0.45 - i * 0.1) > 0.7;
+      if (Math.abs(i) === w || j === -r || j === r) R.pset(x + i + dx, y + j, C1); else if (tierra) R.pset(x + i + dx, y + j, fil ? C1 : C2); else if (fil && ((i + j) & 1) === 0) R.pset(x + i + dx, y + j, C3); } }
+  R.numero(String(n), x + (fallo ? 2 : 0), y + r + 18, { tam: 16, centro: true, color: hex('#c8faff') });
+};
+const dron = (x, y, t, haz) => { const h = Math.floor(t * 20) % 2;
+  if (haz) for (let j = 4; j < haz; j++) { const w = Math.round(j * 0.45); for (let i = -w; i <= w; i++) if (((i + j) & 3) === 0) R.pset(x + i, y + j, hex('#5ad0f0')); }
+  R.rect(x - 7, y - 1, x + 7, y + 3, hex('#14181e')); R.rect(x - 6, y, x + 6, y + 2, hex('#4a5460')); R.rect(x - 6, y, x + 6, y, hex('#8a94a0'));
+  R.rect(x - 12, y - 3, x - 5, y - 2, h ? hex('#c8d0d8') : hex('#5a6470')); R.rect(x + 5, y - 3, x + 12, y - 2, h ? hex('#5a6470') : hex('#c8d0d8')); R.rect(x - 9, y - 2, x - 8, y, hex('#14181e')); R.rect(x + 8, y - 2, x + 9, y, hex('#14181e'));
+  R.rect(x - 1, y + 3, x + 1, y + 4, hex('#c8faff')); if (Math.floor(t * 3) % 2) R.pset(x + 5, y + 1, hex('#ff4040')); };
+const p2 = (t) => {
+  NY.hoy(R, t, { encuadre: 'puente', luz: 'anochecer' });
+  const mx = 96, my = Math.round(120 + 3 * Math.sin(t * 2));
+  // el humo verde bajo sus pies
+  for (let i = 0; i < 34; i++) { const ph = (t * 0.35 + i * 0.0297) % 1, an = i * 2.4, x = mx + 7 + Math.cos(an + t * 0.5) * (6 + ph * 22), y = my + 4 + Math.sin(an) * 3 + ph * 10; R.disco(x, y, 4 - ph * 2, ph < 0.4 ? hex('#7ae890') : ph < 0.75 ? hex('#3ab868') : hex('#1e7a48')); }
+  for (let i = 0; i < 12; i++) { const ph = (t * 0.8 + i / 12) % 1; R.pset(mx + 7 + Math.sin(i * 3 + t * 2) * 10, my - ph * 30, hex('#a8f8c0')); }
+  const sale1 = tramo(t, a(0.308), a(0.34)), sale2 = tramo(t, a(0.486), a(0.52)), fallo = t > a(0.664);
+  if (sale1 > 0) holo(Math.round(lerp(mx + 8, 176, sale1)), Math.round(lerp(my - 10, 62, sale1)), Math.round(4 + 14 * sale1), 833, t, fallo);
+  if (sale2 > 0) holo(Math.round(lerp(mx + 8, 248, sale2)), Math.round(lerp(my - 10, 86, sale2)), Math.round(4 + 12 * sale2), 616, t, fallo);
+  if (fallo) { dron(176, 30, t, 14); dron(248, 54, t, 16); dron(mx + 30, my + 4, t, 0); }
+  const r = R.actor(EL.strange, mx, my, t, { dir: 1, pal: MPAL, brazos: t > a(0.3) && t < a(0.55), quieto: true, bigote: false, barba: false });
+  // el casco de pecera, con el humo verde dentro
+  const [hx, hy] = r.cabeza; for (let j = -8; j <= 8; j++) for (let i = -8; i <= 8; i++) { const q = Math.hypot(i, j); if (q > 8.5) continue;
+    R.pset(hx + i, hy + 5 + j, q > 7.6 ? hex('#d8f4ff') : ((i + j + Math.floor(t * 6)) % 3 === 0 ? hex('#a8f0c0') : hex('#6ad890'))); }
+  R.pset(hx - 4, hy, hex('#ffffff')); R.pset(hx - 3, hy - 1, hex('#ffffff'));
+  // Spider-Man en el paseo lo descubre
+  R.actor(EL.spiderman, 220, 172, t, { dir: -1, sorpresa: fallo, dedo: fallo && t > a(0.68) });
+};
+// ── 3 · el espacio: la Tierra 616 y las otras ──
+const p3 = (t) => {
+  const s = T.cosmos(R, t, { encuadre: 'espacio', camara: 'general', numeros: [616, 838, 828, 10005, '?'], foco: 0 });
+  const ours = t > a(0.88), late = tramo(t, a(0.94), a(0.94) + 0.3) - tramo(t, a(0.94) + 0.5, a(0.94) + 0.9);
+  const w = tramo(t, P3 + 0.2, a(0.82));
+  T.palomitas(R, Math.round(lerp(330, 214, w)), 164, t, { s: 2, dir: -1, anda: w > 0 && w < 1, señala: ours ? [100, 78] : undefined, expresion: t > a(0.94) ? 'emocion' : 'normal', salta: t > a(0.94) && t < a(0.94) + 1 ? 1 : 0 });
+  R.numero('616', 100, 143 - Math.round(late * 3), { tam: late > 0.3 ? 24 : 16, centro: true });
+};
+// ── 4 · el consejo de la Tierra 838 ──
+const holoActor = H({ H: '#5ad0e8', h: '#8ae8f8', S: '#8ae8f8', s: '#5ad0e8', C: '#3ab0d8', c: '#2a8ab8', W: '#5ad0e8', F: '#2a8ab8', G: '#5ad0e8', I: '#5ad0e8', n: '#2a6a98', o: '#bff8ff', u: '#8ae8f8', Q: '#5ad0e8', q: '#3ab0d8' });
+const consejo = (t, s, cam, entra) => {
+  const sillas = cam === 'jueces' ? [80, 160, 240] : [76, 118, 160, 202, 244];
+  const as = cam === 'jueces' ? [146, 146, 146] : [124, 120, 118, 120, 124];
+  const ix = cam === 'jueces' ? 1 : 2;
+  const quien = cam === 'jueces' ? ['reed', 'xavier', 'peggy'] : ['peggy', 'reed', 'xavier', 'holo', 'holo'];
+  quien.forEach((q, k) => { const u = entra[k]; if (u <= 0) return; const x = sillas[k], suelo = as[k] - (cam === 'jueces' ? 0 : 2);
+    if (u < 1) { for (let i = 0; i < 8; i++) { const an = i * 0.8 + t * 6, rr = 10 * (1 - u) + 3; R.pset(x + Math.cos(an) * rr, suelo - 14 + Math.sin(an) * rr * 1.4, hex('#fff6c0')); } if (u < 0.5) return; }
+    if (q === 'xavier') { const xs = cam === 'jueces' ? x - 4 + Math.round(6 * tramo(t, b(0.85), b(0.9))) : x - 4; T.PIEZAS_DO.silla(R, xs, suelo, { dir: 1, parte: 'respaldo' }); R.actor(EL.xavier, xs + 4, suelo - 2, t, { dir: 1, sonrisa: true }); T.PIEZAS_DO.silla(R, xs, suelo, { dir: 1, parte: 'ruedas' }); return; }
+    if (q === 'reed') { R.actor(EL.reedOtro, x - 7, suelo, t, { dir: cam === 'jueces' ? 1 : 1, habla: cam === 'jueces' && t > b(0.75) && t < b(0.87) && Math.sin(t * 9) > 0, dedo: cam === 'jueces' && t > b(0.75) && t < b(0.87) }); return; }
+    if (q === 'peggy') { const r = R.actor(EL.peggy, x - 7, suelo, t, { dir: -1, sostiene: true, enfado: cam !== 'jueces' }); T.PIEZAS_DO.escudo(R, r.mano[0], r.mano[1], { r: 6 }); return; }
+    R.actor(EL.permanece ?? EL.mobius, x - 7, suelo, t, { dir: -1, pal: holoActor, quieto: Math.floor(t * 10) % 7 !== 0 });
+  });
+};
+const p4 = (t) => {
+  const s = T.multiverso(R, t, { encuadre: 'consejo', camara: 'general', hueco: 2 });
+  // el portal por el que llega Strange
+  const po = tramo(t, P4, P4 + 0.5) - tramo(t, b(0.2), b(0.27));
+  if (po > 0) for (let i = 0; i < 40; i++) { const an = i / 40 * Math.PI * 2 + t * 5, rx = 14 * po, ry = 22 * po; R.pset(Math.round(36 + Math.cos(an) * rx), Math.round(146 + Math.sin(an) * ry), i % 3 ? hex('#ffb040') : hex('#fff0a0')); }
+  const w = tramo(t, P4 + 0.4, b(0.3));
+  const ap = (k) => tramo(t, b(0.455) + k * 0.25, b(0.455) + k * 0.25 + 0.5);
+  consejo(t, s, 'general', [ap(0), ap(1), ap(2), ap(3), ap(4)]);
+  R.actor(EL.strange, Math.round(lerp(30, 152, w)), 165, t, { dir: 1, anda: w > 0 && w < 1, sorpresa: t > b(0.46) && t < b(0.56) });
+  const nu = tramo(t, b(0.206), b(0.206) + 0.4); if (nu > 0) R.numero('838', 160, 40 - Math.round((1 - nu) * 4), { tam: 16, centro: true });
+};
+// ── 5 · los jueces de cerca ──
+const p5 = (t) => {
+  T.multiverso(R, t, { encuadre: 'consejo', camara: 'jueces', hueco: 1 });
+  consejo(t, null, 'jueces', [1, 1, 1]);
+  const on = tramo(t, b(0.91), b(0.91) + 0.6); if (t > b(0.87)) for (let k = 0; k < 3; k++) { const rr = 8 + ((t * 14 + k * 6) % 18); R.anillo(163, 124, rr, k % 2 ? hex('#c89af8') : hex('#8a6ae8'), 2); }
+  // Strange, juzgado, delante
+  R.actor(EL.strange, 270, 178, t, { dir: -1, sorpresa: t > b(0.75) && t < b(0.8), habla: t > b(0.62) && t < b(0.72) && Math.sin(t * 8) > 0 });
+};
+const efectos = [[1.5, 'whoosh'], [a(0.17), 'rafaga'], [a(0.31), 'brillo'], [a(0.49), 'pop'], [a(0.664), 'zumbido'], [a(0.94), 'brillo'], [P4 + 0.1, 'whoosh'], [b(0.206), 'pop'], [b(0.455), 'brillo'], [b(0.753), 'golpecito'], [b(0.87), 'zumbido']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, cartela: '2022', año: (t) => (t >= P2 && t < P3 ? 2019 : 2022) });
+</script>
+</body>
+</html>

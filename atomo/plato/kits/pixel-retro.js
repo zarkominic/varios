@@ -131,6 +131,7 @@ export async function crearRetro(lienzo) {
   const llenar = (c) => B.fill(c);
   const copiar = (de) => B.set(de);
   const linea = (x0, y0, x1, y1, c, punteado = 0) => {
+    if (!Number.isFinite(x0 + y0 + x1 + y1)) return;   // con un NaN (p. ej. R.actor() sin .mano) el bucle no acababa y la página se colgaba sin error (ep19)
     x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
     const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
     let e = dx + dy, k = 0;

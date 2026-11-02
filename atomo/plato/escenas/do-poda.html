@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Los jardineros del tiempo · ep19</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DO-PODA (frases 17–18), sin cartela, 2021. Cinco planos:
+// 1. el árbol de cerca: el agente llega con sus tijeras de jardín, poda la rama en «prune», la rama cae y se deshace en
+//    «erase»; se sacude las manos, satisfecho, y por detrás le sale otra rama (gag 2);
+// 2. (fondo local) el vivero de líneas temporales: tres agentes podan arbolitos dorados a la vez; en «nobody asks why» al
+//    del centro le sale un «?», el supervisor niega con la cabeza y vuelve a podar;
+// 3. (fondo local) el castillo flotante en el vacío, con el remolino del tiempo: Loki cruza el puente de piedras que
+//    flotan; en «man in charge» se abre el portón de luz y entra;
+// 4. el despacho del fin del tiempo: el hombre de la túnica morada sonríe, abre los brazos en «He Who Remains», muerde
+//    su manzana en «prunes»; en «other versions» asoman en el ventanal las siluetas con yelmo de aletas; Loki, asombrado;
+// 5. (fondo local) los universos-burbuja en fila: en «conquer one universe after another» caen versiones con armadura,
+//    una en cada burbuja, que se vuelve morada y levanta su banderín.
+import * as T from '/atomo/plato/escenas/do-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('do-poda');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], bay = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const KK = hex('#1a1014'), BL = 0xffffffff;
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const BUF = {};
+const bufer = (clave, dibuja) => { if (!BUF[clave]) { const b = R.nuevo(), prev = R.usar(b); dibuja(); R.usar(prev); BUF[clave] = b; } return BUF[clave]; };
+const fondo = (clave, dibuja) => R.copiar(bufer(clave, dibuja));
+const rampa = (x0, y0, x1, y1, cols) => { const n = cols.length - 1; for (let y = y0; y <= y1; y++) { const u = (y - y0) / Math.max(1, y1 - y0) * n, i = Math.min(n - 1, Math.floor(u)), f = u - i; for (let x = x0; x <= x1; x++) R.pset(x, y, cols[f > bay(x, y) ? i + 1 : i]); } };
+const caja = (x0, y0, x1, y1, c, cl, cs) => { R.rect(x0, y0, x1, y1, KK); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, c); R.rect(x0 + 1, y0 + 1, x1 - 1, y0 + 1, cl); R.rect(x0 + 1, y0 + 1, x0 + 1, y1 - 1, cl); R.rect(x0 + 1, y1 - 1, x1 - 1, y1 - 1, cs); R.rect(x1 - 1, y0 + 1, x1 - 1, y1 - 1, cs); };
+// aclara u oscurece por tramado lo que ya hay (luz de lámpara, sombra)
+const tinta = (x0, y0, x1, y1, col, a, cx = null, cy = null, r = 0) => { for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { let g = a; if (cx !== null) g *= Math.max(0, 1 - Math.hypot(x - cx, (y - cy) * 1.4) / r); if (g > bay(x, y)) R.pset(x, y, mez(R.pget(x, y), col, 0.35)); } };
+const nubeT = (cx, cy, w, s, b, l) => { const bolas = [[0, 0, w * 0.3], [-w * 0.3, w * 0.07, w * 0.22], [w * 0.28, w * 0.06, w * 0.24], [-w * 0.1, -w * 0.12, w * 0.24]];
+  for (const [dx, dy, r] of bolas) R.disco(Math.round(cx + dx), Math.round(cy + dy + 1), Math.round(r), s);
+  for (const [dx, dy, r] of bolas) R.disco(Math.round(cx + dx), Math.round(cy + dy - 1), Math.round(r * 0.9), b);
+  for (const [dx, dy, r] of bolas) R.disco(Math.round(cx + dx - 1), Math.round(cy + dy - 2 - r * 0.2), Math.round(r * 0.5), l); };
+const ave = (x, y, t, k, c) => { const a = Math.sin(t * 8 + k) > 0 ? 1 : 0; R.pset(x, y, c); R.pset(x - 1, y - a, c); R.pset(x - 2, y - 1 - a, c); R.pset(x + 1, y - a, c); R.pset(x + 2, y - 1 - a, c); };
+// línea gruesa con borde (w: medio grosor)
+const trazo = (pts, c, w = 1, borde = KK) => { for (const [cc, ww] of [[borde, w + 1], [c, w]]) { if (cc == null) continue; for (let k = 1; k < pts.length; k++) { const [x0, y0] = pts[k - 1], [x1, y1] = pts[k], n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0))); for (let i = 0; i <= n; i++) R.disco(x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n, ww, cc); } } };
+// curva de Bézier cuadrática en n puntos
+const bez = (a, b, c, n = 16, u1 = 1) => { const p = []; for (let i = 0; i <= n; i++) { const u = i / n * u1; p.push([(1 - u) * (1 - u) * a[0] + 2 * u * (1 - u) * b[0] + u * u * c[0], (1 - u) * (1 - u) * a[1] + 2 * u * (1 - u) * b[1] + u * u * c[1]]); } return p; };
+// el mundito de la punta de una rama: disco con continentes que giran, luz arriba a la izquierda, contorno y brillo
+const mundito = (cx, cy, r, mar, tierra, t, k = 0) => {
+  const ml = mez(mar, BL, 0.3), ms = mez(mar, KK, 0.4), tl = mez(tierra, BL, 0.3);
+  R.disco(cx, cy, r + 1, KK);
+  R.disco(cx, cy, r, (x, y, d) => { const lx = x - cx, ly = y - cy, g = hh(Math.floor((lx + t * 3 + k * 7) / 2), Math.floor(ly / 2), k) > 0.55; const luz = (lx + ly) / r; return g ? (luz < -0.4 ? tl : luz > 0.5 ? mez(tierra, KK, 0.35) : tierra) : (luz < -0.5 ? ml : luz > 0.45 ? ms : mar); });
+  R.pset(Math.round(cx - r * 0.45), Math.round(cy - r * 0.5), BL);
+};
+// el vacío del fin del tiempo (morado, con nebulosa tramada, estrellas de tres tamaños e hilos dorados lejanos), en búfer
+const VAC = ['#07040f', '#100822', '#1a0c32', '#261244', '#341a58'].map(hex);
+const pintaVacio = (semilla, hilos = true) => {
+  rampa(0, 0, 319, 179, VAC);
+  for (const [cx, cy, r, c] of [[70, 60, 70, '#6a2a8a'], [250, 120, 80, '#2a3a8a'], [170, 30, 60, '#8a3a7a'], [20, 160, 50, '#3a2a7a']]) {
+    const col = hex(c); for (let y = Math.max(0, cy - r); y <= Math.min(179, cy + r); y++) for (let x = Math.max(0, cx - r); x <= Math.min(319, cx + r); x++) { const g = (1 - Math.hypot(x - cx, (y - cy) * 1.5) / r) * (0.55 + 0.45 * hh(x >> 3, y >> 3, semilla)); if (g * 0.9 > bay(x, y) + 0.12) R.pset(x, y, mez(R.pget(x, y), col, 0.45)); } }
+  for (let i = 0; i < 260; i++) { const x = Math.floor(hh(i, 1, semilla) * 320), y = Math.floor(hh(i, 2, semilla) * 180), b = hh(i, 3, semilla); R.pset(x, y, b > 0.9 ? BL : b > 0.6 ? hex('#b8a8e0') : hex('#5a4a8a')); if (b > 0.97) { R.pset(x + 1, y, hex('#8a7ac0')); R.pset(x - 1, y, hex('#8a7ac0')); R.pset(x, y + 1, hex('#8a7ac0')); R.pset(x, y - 1, hex('#8a7ac0')); } }
+  if (hilos) for (let k = 0; k < 4; k++) { const y0 = 30 + k * 38 + hh(k, 5, semilla) * 10; for (let x = 0; x < 320; x++) { const y = y0 + Math.sin(x * 0.02 + k * 2) * 8 + Math.sin(x * 0.053 + k) * 3; if ((x + k) % 3) R.pset(x, Math.round(y), mez(R.pget(x, Math.round(y)), hex('#c8a040'), 0.35)); } }
+};
+// vida del vacío: estrellas que titilan y motas doradas que suben
+const vidaVacio = (t, semilla, n = 26, zona = [0, 0, 319, 179]) => {
+  for (let i = 0; i < n; i++) { const x = Math.floor(hh(i, 7, semilla) * 320), y = Math.floor(hh(i, 8, semilla) * 180); if (x < zona[0] || x > zona[2] || y < zona[1] || y > zona[3]) continue; if (x > 272 && y < 48) continue; const f = Math.sin(t * (2 + hh(i, 9) * 3) + i); if (f > 0.6) { R.pset(x, y, BL); R.pset(x + 1, y, hex('#d8c8ff')); R.pset(x - 1, y, hex('#d8c8ff')); R.pset(x, y - 1, hex('#d8c8ff')); R.pset(x, y + 1, hex('#d8c8ff')); } }
+  for (let i = 0; i < 18; i++) { const x = Math.round(hh(i, 11, semilla) * 320 + Math.sin(t * 0.7 + i) * 6), y = Math.round(180 - ((t * (5 + hh(i, 12) * 8) + hh(i, 13) * 180) % 190)); if (x > 272 && y < 48) continue; R.pset(x, y, i % 3 ? hex('#f0c860') : hex('#fff0b0')); }
+};
+// tijeras de podar (largas, de jardín) en la mano (x, y): mangos de madera hacia atrás, hojas hacia dir; abre 0–1
+const tijeras = (x, y, dir, abre) => {
+  const a = 0.08 + abre * 0.42;
+  for (const s of [-1, 1]) {
+    const ang = s * a, cx = Math.cos(ang) * dir, cy = Math.sin(ang);
+    trazo([[x - cx * 7, y - cy * 7 + 1], [x, y]], hex('#8a4a24'), 0.6);           // mango
+    R.pset(Math.round(x - cx * 7), Math.round(y - cy * 7 + 1), hex('#c83a2a'));
+    trazo([[x, y], [x + cx * 12, y + cy * 12]], hex('#c8d0d8'), 0.5);              // hoja
+    R.pset(Math.round(x + cx * 6), Math.round(y + cy * 6) - 1, BL);
+  }
+  R.pset(Math.round(x), Math.round(y), hex('#e8b830'));
+};
+// la lupa en la mano (x, y): mango y aro con el cristal que brilla
+const lupa = (x, y, dir) => { trazo([[x, y], [x + 4 * dir, y - 4]], hex('#6a3a1a'), 0.6); R.disco(x + 8 * dir, y - 8, 5, KK); R.disco(x + 8 * dir, y - 8, 4, hex('#c8a040')); R.disco(x + 8 * dir, y - 8, 3, hex('#a8e8d8')); R.pset(x + 7 * dir, y - 10, BL); R.pset(x + 6 * dir, y - 9, BL); };
+// la carpeta de papel manila
+const carpeta = (x, y) => { caja(x - 5, y - 3, x + 5, y + 4, hex('#e0b860'), hex('#f8dc90'), hex('#a8803a')); R.rect(x - 4, y - 4, x - 1, y - 3, hex('#e0b860')); R.pset(x - 3, y + 1, hex('#a8803a')); R.rect(x - 2, y + 1, x + 3, y + 1, hex('#a8803a')); };
+// la puerta de luz naranja de los agentes (cx centro, suelo, a 0–1 abierta)
+const puertaLuz = (cx, suelo, a, t) => {
+  if (a <= 0) return; const w = Math.max(1, Math.round(10 * a)), h = 40;
+  for (let r = 3; r >= 1; r--) for (let y = suelo - h - r * 2; y <= suelo; y++) for (let x = cx - w - r * 2; x <= cx + w + r * 2; x++) if ((r === 3 ? 0.3 : r === 2 ? 0.55 : 0.8) > bay(x, y)) R.pset(x, y, mez(R.pget(x, y), hex('#ffb040'), 0.5));
+  R.rect(cx - w, suelo - h, cx + w, suelo, hex('#ffd890')); R.rect(cx - w + 2, suelo - h + 2, cx + w - 2, suelo - 1, hex('#fff6d8'));
+  R.rect(cx - w - 1, suelo - h - 1, cx + w + 1, suelo - h - 1, hex('#f08a2a')); R.rect(cx - w - 1, suelo - h, cx - w - 1, suelo, hex('#f08a2a')); R.rect(cx + w + 1, suelo - h, cx + w + 1, suelo, hex('#f08a2a'));
+  for (let k = 0; k < 6; k++) { const yy = suelo - ((t * 30 + k * 7) % h); R.pset(cx - w - 2 - (k % 2), Math.round(yy), hex('#ffe0a0')); R.pset(cx + w + 2 + (k % 2), Math.round(h - yy + suelo - h), hex('#ffe0a0')); }
+};
+
+const a = (f) => en('podan', f), b = (f) => en('permanece', f);
+const P2 = a(0.605), P3 = b(0) - 0.05, P4 = b(0.333), P5 = b(0.684);
+const snip = a(0.345), borra = a(0.476), estricto = a(0.66), nadie = a(0.857), porque = a(0.93);
+const abre = b(0.163), entra = b(0.277), descubre = b(0.344), quien = b(0.446), podaT = b(0.503), otras = b(0.64);
+const reinos = b(0.785), conquista = [b(0.72), b(0.785), b(0.871), b(0.91), b(0.964)];
+// ── 1 · la poda ──
+const p1 = (t) => {
+  const corte = tramo(t, snip, snip + 1.6), nueva = tramo(t, borra + 0.2, P2 - 0.1);
+  const g = T.tiempo(R, t, { encuadre: 'arbol', camara: 'poda', corte, ramas: nueva });
+  const llega = tramo(t, 0.2, 2.0), ax = Math.round(lerp(300, 225, llega));
+  const abiertas = t < snip - 0.6 ? 0.2 : t < snip ? 1 : t < snip + 0.15 ? 1 - (t - snip) / 0.15 : 0.1;
+  const A = R.actor(EL.agenteTVA, ax, 166, t, { dir: -1, anda: llega > 0 && llega < 1, sostiene: t < borra + 0.3 ? [ax - 2, 146] : [ax, 150], sonrisa: t > borra, habla: t > borra + 0.3 && t < borra + 0.9 && Math.sin(t * 9) > 0 });
+  if (t < borra + 0.3) tijeras(A.mano[0], A.mano[1], -1, llega < 1 ? 0.1 : abiertas); else tijeras(A.mano[0], A.mano[1] + 2, -1, 0.05);
+  if (t > snip && t < snip + 0.35) for (let k = 0; k < 6; k++) { const an = k * 1.05; R.pset(Math.round(g.corte[0] + Math.cos(an) * 6), Math.round(g.corte[1] + Math.sin(an) * 6), BL); }
+  // otro agente lejos, en la plataforma, empuja la carretilla de ramas
+  const cx = Math.round(lerp(60, 96, tramo(t, 0.5, 4.5)));
+  R.actor(EL.agenteTVA, cx - 18, 166, t, { dir: 1, anda: t > 0.5 && t < 4.5, pal: { C: hex('#6a5a4a') } });
+};
+// ── 2 · el vivero de líneas temporales ──
+const VIV = () => {
+  // pared verde menta con rayas finas; arriba a la derecha, lisa y con la luz del techo
+  for (let y = 0; y < 112; y++) for (let x = 0; x < 320; x++) R.pset(x, y, x > 266 && y < 50 ? (y < 20 ? hex('#8ab89a') : hex('#7aa88a')) : x % 12 === 0 ? hex('#5a8a6a') : x % 12 === 6 ? hex('#86b496') : hex('#6e9e7e'));
+  R.rect(0, 100, 319, 112, hex('#7a4a24')); R.rect(0, 100, 319, 101, hex('#a06a3a')); for (let x = 0; x < 320; x += 16) R.rect(x, 102, x, 112, hex('#5a3418'));
+  // la pared de cajones de la izquierda
+  caja(0, 24, 58, 100, hex('#8a5a30'), hex('#a8784a'), hex('#5a3418')); for (let j = 0; j < 6; j++) for (let i = 0; i < 4; i++) { const x = 3 + i * 14, y = 27 + j * 12; caja(x, y, x + 12, y + 10, hex('#c8a060'), hex('#e8c888'), hex('#8a6a3a')); R.rect(x + 4, y + 6, x + 8, y + 6, hex('#5a3418')); R.rect(x + 4, y + 3, x + 8, y + 4, hex('#f6f2e6')); }
+  // el cartel de la regla: la línea recta dorada y sus ramas tachadas (sin letras)
+  caja(74, 22, 176, 74, hex('#f2e8d0'), BL, hex('#c8b890')); R.rect(80, 47, 170, 49, hex('#c89020')); R.rect(80, 47, 170, 47, hex('#ffd860'));
+  for (const [x, up] of [[100, -1], [124, 1], [148, -1]]) { R.linea(x, 48, x + 10, 48 + up * 14, hex('#3aa85a')); R.linea(x + 1, 48, x + 11, 48 + up * 14, hex('#3aa85a')); R.linea(x + 3, 48 + up * 4, x + 11, 48 + up * 12, hex('#d82a2a')); R.linea(x + 11, 48 + up * 4, x + 3, 48 + up * 12, hex('#d82a2a')); }
+  // el tubo neumático que cruza la pared
+  R.rect(0, 84, 319, 90, KK); R.rect(0, 85, 319, 89, hex('#a8d0c8')); R.rect(0, 85, 319, 85, hex('#e0f4f0')); for (let x = 30; x < 320; x += 60) R.rect(x, 83, x + 3, 91, hex('#c8a040'));
+  // el gran reloj de pared
+  R.disco(222, 46, 22, KK); R.disco(222, 46, 21, hex('#b07a3a')); R.disco(222, 46, 18, hex('#f6efdc')); for (let k = 0; k < 12; k++) { const an = k * Math.PI / 6; R.rect(Math.round(222 + Math.cos(an) * 15), Math.round(46 + Math.sin(an) * 15), Math.round(222 + Math.cos(an) * 15) + (k % 3 ? 0 : 1), Math.round(46 + Math.sin(an) * 15) + (k % 3 ? 0 : 1), KK); }
+  // el suelo de linóleo a cuadros en perspectiva, con brillo y hojitas caídas
+  for (let y = 112; y < 180; y++) { const e = (y - 100) / 80, f = Math.floor((y - 112) / (4 + (y - 112) * 0.12)); for (let x = 0; x < 320; x++) { const xx = Math.floor((x - 160) / (14 * e + 4)); R.pset(x, y, (xx + f) % 2 ? hex('#c8b890') : hex('#a89870')); } }
+  for (let y = 116; y < 130; y++) for (let x = 0; x < 320; x++) if ((130 - y) / 16 > bay(x, y)) R.pset(x, y, mez(R.pget(x, y), hex('#5a6a5a'), 0.3));
+  for (let k = 0; k < 14; k++) { const x = Math.floor(hh(k, 81) * 320), y = 150 + Math.floor(hh(k, 82) * 28); R.pset(x, y, hex('#3aa85a')); R.pset(x + 1, y, hex('#8ae0a0')); }
+  // el carrito de las ramas podadas, junto a la pared
+  caja(276, 120, 316, 140, hex('#6a6e7a'), hex('#a8acb8'), hex('#3a3e4a')); for (let k = 0; k < 8; k++) R.linea(280 + k * 4, 120, 284 + k * 3, 110 + (k % 3) * 3, ['#4ac86a', '#e86a8a', '#6ad0e8'].map(hex)[k % 3]); R.disco(282, 143, 3, KK); R.disco(310, 143, 3, KK);
+};
+const arbolito = (cx, t, k, podada) => {
+  // la jardinera de barro en el suelo y el arbolito dorado: tronco, la línea recta y una ramita verde que cuelga
+  R.poligono([[cx - 14, 148], [cx + 14, 148], [cx + 10, 170], [cx - 10, 170]], KK); R.poligono([[cx - 13, 149], [cx + 13, 149], [cx + 9, 169], [cx - 9, 169]], hex('#c86a3a'));
+  R.rect(cx - 15, 145, cx + 15, 150, KK); R.rect(cx - 14, 146, cx + 14, 149, hex('#e08a50')); R.rect(cx - 11, 152, cx - 9, 167, hex('#e89a68')); R.rect(cx + 6, 152, cx + 8, 167, hex('#a8502a'));
+  R.rect(cx - 12, 146, cx + 12, 146, hex('#5a3418')); R.rect(cx - 12, 171, cx + 12, 172, hex('#7a6a50'));
+  trazo([[cx, 146], [cx - 1, 128], [cx, 108]], hex('#e8b830'), 1.5, hex('#8a5a10')); trazo([[cx - 28, 108], [cx + 28, 108]], hex('#ffd860'), 1, hex('#8a5a10'));
+  for (const s of [-1, 1]) { R.disco(cx + s * 28, 108, 3, hex('#8a5a10')); R.disco(cx + s * 28, 108, 2, hex('#fff2b0')); }
+  const pul = ((t * 0.9 + k * 0.3) % 1); R.pset(Math.round(cx - 28 + pul * 56), 107, BL); R.pset(Math.round(cx - 27 + pul * 56), 107, BL);
+  if (!podada) { trazo([[cx + 4, 110], [cx + 10, 124], [cx + 9, 140]], hex('#4ac86a'), 0.8, hex('#1a5a2a')); R.disco(cx + 9, 142, 2.5, hex('#a8f0b8')); R.pset(cx + 8, 141, BL); }
+};
+const p2 = (t) => {
+  fondo('vivero', VIV);
+  // aguja del reloj, cápsulas que corren por el tubo, lámparas que se mecen
+  const an = -Math.PI / 2 + t * 0.9; R.linea(222, 46, Math.round(222 + Math.cos(an) * 14), Math.round(46 + Math.sin(an) * 14), hex('#c82a2a')); R.linea(222, 46, 222, 34, KK); R.disco(222, 46, 1, KK);
+  for (let k = 0; k < 2; k++) { const x = Math.round(((t * 70 + k * 170) % 380) - 30); R.rect(x - 5, 85, x + 5, 89, KK); R.rect(x - 4, 86, x + 4, 88, hex('#d8783a')); R.rect(x - 4, 86, x + 4, 86, hex('#f8b070')); }
+  for (const [lx, ph] of [[196, 0], [246, 1.4]]) { const dx = Math.round(Math.sin(t * 1.6 + ph) * 3); R.linea(lx, 0, lx + dx, 18, KK); R.poligono([[lx + dx - 8, 26], [lx + dx + 8, 26], [lx + dx + 4, 18], [lx + dx - 4, 18]], hex('#d8783a')); R.rect(lx + dx - 8, 26, lx + dx + 8, 27, KK); R.disco(lx + dx, 28, 2, hex('#fff6c8')); }
+  // tres agentes podan a la vez (en «strict» y en «gardeners»); al del centro le sale el «?» en «nobody asks why»
+  const cortes = [estricto, estricto + 0.62, porque + 0.9], XS = [52, 150, 246];
+  const corta = (c) => t > c - 0.3 && t < c, podada = () => t > cortes[2] || cortes.some((c) => t > c && t < c + 0.45);
+  XS.forEach((cx, k) => {
+    const duda = k === 1 && t > nadie && t < porque + 0.8, ab = !duda && cortes.some(corta) ? 1 : 0.15;
+    arbolito(cx, t, k, podada());
+    const A = R.actor(EL.agenteTVA, cx + 12, 171, t, { dir: -1, sostiene: [cx + 14, 150], sorpresa: duda, pal: k === 2 ? { C: hex('#6a5a4a') } : k === 0 ? { C: hex('#4a4a5a') } : undefined });
+    tijeras(A.mano[0], A.mano[1], -1, duda ? 0.1 : ab);
+    if (duda && t > nadie + 0.2) R.bocadillo(cx + 20, 140, { icono: '?' });
+  });
+  // la ramita podada cae al suelo y queda allí
+  for (const c of cortes) for (const cx of XS) { const u = Math.min(1, (t - c) / 0.5); if (u > 0) { R.disco(cx + 9 - u * 4, Math.round(140 + u * 32), 1, hex('#4ac86a')); R.pset(cx + 8 - u * 4, Math.round(139 + u * 32), hex('#a8f0b8')); } }
+  // el supervisor llega por delante con la carpeta y niega con la cabeza
+  const v = tramo(t, P2, P2 + 1.6), sx = Math.round(lerp(330, 196, v)), niega = t > porque && t < porque + 0.8;
+  const S = R.actor(EL.mobius, sx, 179, t, { dir: niega ? (Math.floor(t * 8) % 2 ? 1 : -1) : -1, anda: v > 0 && v < 1, sostiene: true, enfado: niega });
+  carpeta(S.mano[0], S.mano[1]);
+};
+// ── 3 · el castillo flotante ──
+const CAST = () => {
+  pintaVacio(3);
+  // rocas lejanas que flotan
+  for (const [x, y, w] of [[40, 50, 18], [120, 150, 12], [300, 120, 14]]) { R.poligono([[x - w, y], [x + w, y], [x + w / 3, y + w], [x - w / 4, y + w * 0.8]], hex('#2a1a3a')); R.rect(x - w, y - 1, x + w, y, hex('#5a4a6a')); }
+  // la roca grande del castillo: cono invertido con vetas y estalactitas
+  R.poligono([[148, 128], [298, 128], [262, 164], [236, 180], [206, 178], [176, 160]], KK);
+  R.poligono([[150, 129], [296, 129], [260, 163], [235, 178], [207, 176], [178, 159]], hex('#4a3a5a'));
+  for (let y = 130; y < 178; y++) for (let x = 150; x < 296; x++) if (R.pget(x, y) === hex('#4a3a5a')) { const v = Math.sin(x * 0.2 + y * 0.5); R.pset(x, y, x < 190 + (y - 130) * 0.3 ? hex('#6a5a7a') : v > 0.85 ? hex('#3a2a4a') : hex('#4a3a5a')); if (hh(x, y, 9) > 0.985) R.pset(x, y, hex('#e8c060')); }
+  R.rect(150, 128, 296, 130, hex('#8a7a9a'));
+  // el castillo: muralla con almenas, torres con tejados de cobre verde, ventanas encendidas y la cúpula
+  const piedra = hex('#8a8098'), pS = hex('#5a5068'), pL = hex('#b0a8c0');
+  caja(160, 84, 286, 128, piedra, pL, pS);
+  for (let y = 88; y < 126; y += 5) for (let x = 162 + (y % 10 ? 0 : 5); x < 284; x += 10) R.rect(x, y, x, y + 3, pS);
+  for (let x = 160; x < 286; x += 8) caja(x, 79, x + 5, 85, piedra, pL, pS);
+  const torre = (x0, x1, y0, techo) => { caja(x0, y0, x1, 128, piedra, pL, pS); for (let y = y0 + 4; y < 126; y += 5) R.rect(x0 + 1, y, x1 - 1, y, mez(piedra, KK, 0.15)); R.poligono([[x0 - 3, y0 + 1], [x1 + 3, y0 + 1], [(x0 + x1) / 2, techo]], KK); R.poligono([[x0 - 2, y0], [x1 + 2, y0], [(x0 + x1) / 2, techo + 2]], hex('#3a8a7a')); R.linea((x0 + x1) / 2, techo + 3, x0 - 1, y0 - 1, hex('#6ac0a8')); };
+  torre(166, 186, 56, 36); torre(254, 274, 62, 48); torre(208, 238, 30, 16);
+  R.disco(223, 84, 14, KK); R.disco(223, 84, 13, hex('#3a8a7a')); R.disco(219, 80, 6, hex('#6ac0a8')); R.rect(209, 84, 237, 92, piedra);
+  for (const [x, y] of [[172, 70], [180, 70], [172, 94], [216, 46], [228, 46], [216, 62], [228, 62], [260, 76], [268, 76], [196, 100], [250, 100], [276, 104]]) { caja(x - 2, y - 4, x + 2, y + 3, hex('#ffd860'), hex('#fff6c0'), hex('#c89020')); R.pset(x, y - 4, KK); }
+  // el portón (cerrado) en arco
+  R.disco(223, 110, 10, KK); R.rect(213, 110, 233, 128, KK); R.disco(223, 110, 9, hex('#5a3418')); R.rect(214, 110, 232, 127, hex('#5a3418')); R.rect(223, 101, 223, 127, KK); for (let y = 104; y < 127; y += 4) R.rect(214, y, 232, y, hex('#3a2010'));
+};
+const p3 = (t) => {
+  fondo('castillo', CAST);
+  // el remolino del tiempo, a la izquierda y detrás, que gira
+  for (let k = 0; k < 3; k++) for (let i = 0; i < 160; i++) { const u = i / 160, an = t * 0.6 + k * 2.1 + u * 7, r = 4 + u * 46, x = Math.round(84 + Math.cos(an) * r * 1.3), y = Math.round(64 + Math.sin(an) * r * 0.6); if (x > 150 && y > 78) continue; if (u > bay(x, y) * 0.9) R.pset(x, y, u < 0.3 ? hex('#fff0c0') : u < 0.6 ? hex('#e8a0e8') : hex('#8a4ab0')); }
+  R.disco(84, 64, 3, hex('#fff6d8'));
+  vidaVacio(t, 3, 20);
+  // el puente de losas que flotan y se mecen
+  for (let k = 0; k < 9; k++) { const x = -4 + k * 24, y = 126 + Math.round(Math.sin(t * 1.4 + k) * 1.2); R.poligono([[x, y], [x + 20, y], [x + 16, y + 8], [x + 4, y + 9]], KK); R.rect(x + 1, y + 1, x + 19, y + 3, hex('#8a8098')); R.rect(x + 1, y + 1, x + 19, y + 1, hex('#b0a8c0')); R.poligono([[x + 2, y + 4], [x + 18, y + 4], [x + 15, y + 7], [x + 5, y + 8]], hex('#4a3a5a')); }
+  // el portón se abre en «man in charge»: luz cálida
+  const ab = tramo(t, abre, abre + 0.8);
+  if (ab > 0) { const w = Math.round(9 * ab); R.rect(223 - w, 104, 223 + w, 127, hex('#fff2c0')); R.rect(223 - w + 1, 106, 223 + w - 1, 127, hex('#fffbe8')); tinta(180, 120, 260, 140, hex('#ffe8a0'), ab * 0.8, 223, 128, 36); }
+  // Loki cruza el puente y entra
+  const u = tramo(t, P3 + 0.1, entra + 0.3), lx = Math.round(lerp(16, 216, u));
+  if (u < 1) R.actor(EL.loki, lx, 127, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: t > abre && t < abre + 1 });
+  if (ab > 0 && u > 0.93) { R.rect(211, 100, 213, 128, KK); R.rect(233, 100, 235, 128, KK); }
+};
+// ── 4 · el despacho del fin del tiempo ──
+const manzana = (x, y, mordida) => { R.disco(x, y, 3, KK); R.disco(x, y, 2, hex('#6ac83a')); R.pset(x - 1, y - 1, hex('#c8f0a0')); R.pset(x, y - 4, hex('#5a3418')); if (mordida) { R.pset(x + 2, y, KK); R.pset(x + 2, y - 1, hex('#f6f2c8')); R.pset(x + 3, y, 0); } };
+const p4 = (t) => {
+  const g = T.tiempo(R, t, { encuadre: 'fin', variantes: tramo(t, otras - 0.5, otras + 0.6) });
+  const u = tramo(t, P4 + 0.05, descubre + 1.0), lx = Math.round(lerp(10, 86, u));
+  R.actor(EL.loki, lx, 164, t, { dir: 1, anda: u > 0 && u < 1, enfado: t > quien && t < otras, sorpresa: t > otras });
+  const brazos = t > quien && t < quien + 0.7, come = t > quien + 0.7;
+  const P = R.actor(EL.permanece, 153, 164, t, { dir: -1, sonrisa: true, habla: t > descubre && t < quien && Math.sin(t * 9) > 0, brazos, sostiene: come ? [148, 146] : false, dedo: false });
+  if (come) manzana(P.mano[0], P.mano[1] - 2, t > podaT);
+  if (t > podaT && t < podaT + 0.5) { R.pset(P.mano[0] + 4, P.mano[1] - 6, hex('#f6f2c8')); R.pset(P.mano[0] + 6, P.mano[1] - 8, hex('#f6f2c8')); }
+};
+// ── 5 · un universo tras otro ──
+const UNIV = [[42, 128, 24, '#5aa0e8', '#3a8a4a'], [102, 74, 22, '#f0a060', '#c86a3a'], [166, 122, 25, '#6ad0c0', '#3a7a8a'], [226, 72, 22, '#e890c0', '#8a4a8a'], [272, 136, 22, '#a8d870', '#5a8a3a']];
+const p5 = (t) => {
+  fondo('vacio5', () => { pintaVacio(5); for (const [x, y, w] of [[10, 176, 40], [300, 178, 30], [150, 180, 24]]) { R.disco(x, y, w / 2, KK); R.disco(x, y, w / 2 - 1, hex('#3a2a4a')); R.disco(x - 3, y - 3, w / 2 - 5, hex('#5a4a6a')); } });
+  vidaVacio(t, 5, 22);
+  // los hilos de luz que unen las burbujas
+  for (let k = 1; k < UNIV.length; k++) { const [x0, y0] = UNIV[k - 1], [x1, y1] = UNIV[k]; const pts = bez([x0, y0], [(x0 + x1) / 2, Math.min(y0, y1) - 30], [x1, y1], 20); for (const [x, y] of pts) R.pset(Math.round(x), Math.round(y), hex('#c8a040')); }
+  UNIV.forEach(([cx, cy, r, cielo, suelo], k) => {
+    const cq = conquista[k], toma = tramo(t, cq, cq + 0.3), vivo = 1 - toma;
+    R.disco(cx, cy, r + 1, KK);
+    // dentro, un mundo: cielo, sol, colinas y una ciudad pequeña
+    R.disco(cx, cy, r, (x, y) => { const h = cy + r * 0.25 + Math.sin((x - cx) * 0.25 + k) * 2, sky = y < h; let c = sky ? (y < cy - r * 0.3 ? mez(hex(cielo), BL, 0.15) : hex(cielo)) : ((x + y) % 5 ? hex(suelo) : mez(hex(suelo), KK, 0.25)); if (sky && Math.abs(x - cx + 4) % 7 < 3 && y > h - 6 - ((x * 7) % 5)) c = mez(hex(cielo), KK, 0.45); return toma > bay(x, y) ? mez(c, hex('#5a1a7a'), 0.65) : c; });
+    if (vivo > 0) R.disco(cx - r * 0.4, cy - r * 0.45, 3, mez(hex('#fff6c0'), hex(cielo), toma));
+    // la versión con armadura cae dentro y levanta su banderín
+    const cae = tramo(t, cq - 0.45, cq);
+    if (cae > 0) {
+      const y = Math.round(lerp(cy - r - 40, cy + r * 0.25 + 1, cae));
+      R.recorte(cae < 1 ? [0, 0, 319, 179] : [cx - r, cy - r, cx + r, cy + r]);
+      const K = R.actor(EL.kang, cx - 4, y, t, { dir: k % 2 ? -1 : 1, sostiene: cae >= 1, enfado: true });
+      if (cae >= 1) { const [hx, hy] = K.mano; R.linea(hx, hy + 3, hx, hy - 14, hex('#c8c0d0')); R.poligono([[hx, hy - 14], [hx + (k % 2 ? -9 : 9), hy - 11], [hx, hy - 8]], hex('#8a3ab0')); R.pset(hx + (k % 2 ? -3 : 3), hy - 11, hex('#f0c040')); }
+      R.recorte(null);
+    }
+    // el cristal de la burbuja: brillo y reflejo
+    R.anillo(cx, cy, r, toma > 0.5 ? hex('#c870f0') : hex('#c8e8ff')); R.anillo(cx, cy, r - 1, mez(hex('#c8e8ff'), KK, 0.5), 3);
+    for (let i = 0; i < 6; i++) R.pset(Math.round(cx - r * 0.6 + i), Math.round(cy - r * 0.7 + i * 0.4), BL);
+    if (t > cq && t < cq + 0.35) for (let i = 0; i < 10; i++) { const an = i * 0.63; R.pset(Math.round(cx + Math.cos(an) * (r + 5)), Math.round(cy + Math.sin(an) * (r + 5)), hex('#e8a0ff')); }
+  });
+};
+const efectos = [[0.4, 'whoosh'], [snip, 'tic'], [borra, 'brillo'], [estricto, 'tic'], [nadie + 0.2, 'pop'], [porque + 0.9, 'tic'], [abre, 'puerta'], [podaT, 'masca'], [otras - 0.4, 'whoosh'], [conquista[1], 'golpecito'], [conquista[2], 'golpecito'], [conquista[4], 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 2021 });
+</script>
+</body>
+</html>
