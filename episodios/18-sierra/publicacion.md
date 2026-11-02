@@ -1,6 +1,6 @@
 # Episodio 18 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:52.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`) y pista de audio en español (`em_santa`, con la frase entera).
 - Subtítulos en inglés y en español.
 - **Estilo:** pixel chibi con ambiente, gags y efectos sincronizados; un disquete con ojos que corre a guardar la partida hace de hilo de gags. La banda sonora es propia del episodio: Sol mayor, 112 por minuto, con un motivo de cuento. Mezcla «B» (la música y los efectos se apartan bajo el narrador).
@@ -40,7 +40,15 @@ What we cover:
 
 What should I explain next? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 One step too many
+0:43 The house, 1979
+2:04 The kingdom
+3:35 Death at every turn
+4:53 Space
+6:02 More adventures
+6:51 Color and voice
+7:37 Today
+8:27 Wrap-up
 
 Sources: Wikipedia (Sierra Entertainment, Roberta Williams, Mystery House, King's Quest I, IV and V, Space Quest, Space Quest IV, Quest for Glory, Police Quest) · The Digital Antiquarian (filfre.net), "Summer Camp" · AIGA Eye on Design · Smithsonian Magazine · MobyGames · Engadget, PC Gamer and UploadVR (Colossal Cave, 2023).
 
@@ -64,7 +72,15 @@ Lo que contamos:
 
 ¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 Un paso de más
+0:43 La casa, 1979
+2:04 El reino
+3:35 La muerte a cada paso
+4:53 El espacio
+6:02 Más aventuras
+6:51 Color y voz
+7:37 Hoy
+8:27 El cierre
 
 Fuentes: Wikipedia (Sierra Entertainment, Roberta Williams, Mystery House, King's Quest I, IV y V, Space Quest, Space Quest IV, Quest for Glory, Police Quest) · The Digital Antiquarian (filfre.net), «Summer Camp» · AIGA Eye on Design · Smithsonian Magazine · MobyGames · Engadget, PC Gamer y UploadVR (Colossal Cave, 2023).
 
@@ -79,9 +95,30 @@ Fuentes: Wikipedia (Sierra Entertainment, Roberta Williams, Mystery House, King'
 
 - **Miniatura:** se genera con `atomo/plato/escenas/si-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas de audio extra, el español se sube como vídeo aparte.
-- **Para escuchar antes de subir:** {AVISOS}
+- **Para escuchar antes de subir:** EN 24 («climb a tree» muy pegado); ES 48 (un hueco corto dentro de «llega»); ES 59 (el reconocedor oye una «a» de más); ES 68 («en Sierra» puede sonar «encierra»). El resto de avisos son nombres ingleses escritos como se pronuncian, que el reconocedor no entiende; lo más probable es que suenen bien, pero no los he oído.
 - **Enlazar** el episodio de LucasArts en una tarjeta o en la pantalla final: son el anverso y el reverso.
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
+español, sus dos SRT y su miniatura vertical. En «Vídeo relacionado» se elige el episodio completo.
+
+### Short 1 · Un paso de más (36 s) · tramo 0.25-36.2
+- **EN:** In These Games, One Wrong Step Killed You #Shorts
+- **ES:** En estos juegos, un paso en falso te mataba #Shorts
+- **EN:** A tiny knight falls into the moat, the game makes a joke about it, and you lose half an hour if you hadn't saved. Millions loved Sierra's adventures anyway. Why? The full story is in the linked video. #Sierra #KingsQuest #RetroGaming #ASKAtom #Shorts
+- **ES:** Un caballero diminuto se cae al foso, el juego hace un chiste y pierdes media hora si no habías guardado. Aun así, millones adoraban las aventuras de Sierra. ¿Por qué? La historia completa, en el vídeo enlazado. #Sierra #KingsQuest #VideojuegosRetro #ASKAtom #Shorts
+
+### Short 2 · Guarda a menudo (45 s) · tramo 225.45-270.41
+- **EN:** Why Every Sierra Player Saved Every Two Minutes #Shorts
+- **ES:** Por qué los jugadores de Sierra guardaban cada dos minutos #Shorts
+- **EN:** In Police Quest, skip the walk around your patrol car and you'd blow a tire. Every death came with a joke, and players learned one rule: save your game often. The full story is in the linked video. #Sierra #PoliceQuest #RetroGaming #ASKAtom #Shorts
+- **ES:** En Police Quest, si no dabas la vuelta al coche patrulla, se te pinchaba una rueda. Cada muerte venía con su chiste, y los jugadores aprendieron una regla: guarda a menudo. La historia completa, en el vídeo enlazado. #Sierra #PoliceQuest #VideojuegosRetro #ASKAtom #Shorts
+
+### Short 3 · El conserje del espacio (43 s) · tramos 294.4-309.97, 317.44-326.05, 344.0-362.67
+- **EN:** The Space Hero Who Was a Janitor #Shorts
+- **ES:** El héroe espacial que era conserje #Shorts
+- **EN:** Space Quest's hero wasn't a knight but a janitor napping in a broom closet. In the fourth game he travels back into the very first one, and everything turns into chunky pixels. The full story is in the linked video. #SpaceQuest #Sierra #RetroGaming #ASKAtom #Shorts
+- **ES:** El héroe de Space Quest no era un caballero, sino un conserje que dormía en el armario de las escobas. En el cuarto juego viaja al primero, y todo se vuelve de píxeles gordos. La historia completa, en el vídeo enlazado. #SpaceQuest #Sierra #VideojuegosRetro #ASKAtom #Shorts
+
+Miniaturas: `atomo/plato/escenas/si-short1-miniatura.html` … `si-short3-miniatura.html`.
