@@ -80,7 +80,11 @@ const p2 = (t) => {
   for (let i = 0; i < 8; i++) { const ti = lerp(a(0.683), a(0.89), i / 7), u = tramo(t, ti, ti + 0.35); if (u <= 0) continue; const x = 171 + 12 * i + 5, y = 93;
     luz(x, y, 10, hex('#fff2a0'), u < 1 ? 0.55 : 0.25); if (u < 1) destello(x, y, u, 4, 14); else if (Math.floor(t * 3 + i) % 4 === 0) chispa(x + 4, y - 9);
     const bo = u < 1 ? Math.round(Math.sin(u * Math.PI) * 2) : 0; R.rect(x - 6, y - 11 - bo, x + 6, y - 11 - bo, hex('#fff6c8')); R.rect(x - 6, y + 11, x + 6, y + 11, hex('#fff6c8')); }
-  { const u8 = tramo(t, a(0.876), a(0.876) + 0.35); if (u8 > 0) { const yy = Math.round(lerp(80, 62, u8)); luz(219, yy - 8, 16, hex('#fff2a0'), 0.45); R.rect(207, yy - 20, 231, yy + 3, K); R.rect(208, yy - 19, 230, yy + 2, hex('#3a2418')); R.rect(208, yy - 19, 230, yy - 19, hex('#e8c060')); for (const [cy, r] of [[yy - 14, 4], [yy - 5, 5]]) { R.disco(219, cy, r + 1, K); R.disco(219, cy, r, hex('#f0c040')); R.disco(219, cy, r - 2, hex('#3a2418')); R.pset(219 - r + 1, cy - 1, hex('#fff2b0')); R.pset(219 - r + 1, cy, hex('#fff2b0')); } if (u8 < 1) destello(219, yy - 8, u8, 6, 22); } }
+  // en «eight games», la placa dorada del «8» se despliega colgada del canto de la balda de las ocho cajas
+  { const u8 = tramo(t, a(0.876), a(0.876) + 0.35); if (u8 > 0) { const y0 = 104, y1 = y0 + Math.max(2, Math.round(15 * u8)); luz(219, 111, 16, hex('#fff2a0'), 0.45);
+      R.rect(209, y0, 229, y1, K); if (y1 > y0 + 2) { R.rect(210, y0 + 1, 228, y1 - 1, hex('#d8a830')); R.rect(210, y0 + 1, 228, y0 + 1, hex('#fff2b0')); R.rect(228, y0 + 2, 228, y1 - 1, hex('#a87a1c')); R.pset(211, y0 + 3, hex('#7a5a1a')); R.pset(227, y0 + 3, hex('#7a5a1a')); }
+      if (u8 >= 1) for (const [cy, r] of [[y0 + 5, 3], [y0 + 11, 3]]) { R.disco(219, cy, r, hex('#3a2418')); R.disco(219, cy, r - 2, hex('#f0c040')); R.pset(218, cy - 1, hex('#fff2b0')); }
+      if (u8 < 1) destello(219, 111, u8, 6, 22); else if (Math.floor(t * 2) % 3 === 0) chispa(226, y0 + 3); } }
   // los compañeros despiden (agitan la mano)
   const adios = (k) => Math.floor(t * 4 + k) % 2 === 0;
   R.actor(EL.dibujante2, 118, S, t, { dir: 1, dedo: t > a(0.5) && adios(0), sonrisa: true });

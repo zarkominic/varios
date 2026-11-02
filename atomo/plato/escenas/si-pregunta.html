@@ -13,11 +13,14 @@
 // 1. el camino de los peligros: el caballerito sale de junto a la cueva del ogro (los ojos lo siguen), cruza el tronco
 //    del barranco y en «Off a bridge» resbala y cae; «chof» de humo y vuelve a aparecer al principio;
 // 2. el bosque: anda tan tranquilo; en «under a rock» una roca rueda por el camino y lo aplasta (humo, mareo); en
-//    «touching the wrong thing» toca una seta, se pone verde y otra vez humo; reaparece y se encoge de hombros;
+//    «touching the wrong thing» toca una seta, se pone verde y otra vez humo; reaparece y se encoge de hombros; arriba a
+//    la derecha, en el claro del dosel detrás de Atom, pasan nubecitas de tres tonos a dos velocidades;
 // 3. el salón de 1985 (corta en «millions»): la abuela, el chico y el adolescente ante el monitor; en la pantalla salta el cuadro de la
 //    muerte y en «loved them» los tres se ríen y aplauden; el perro menea la cola;
-// 4. el porche de California al atardecer: la pareja junto al ordenador antiguo; en «adventures?» sube un «?» grande y
-//    en «dying» una calavera al lado; en «fun?» los dos se miran y sonríen.
+// 4. el porche de California al atardecer: en la mesa de nogal de delante, el ordenador beis con su monitor y dos
+//    disqueteras; Roberta, sentada, teclea y en la pantalla se dibuja trazo a trazo una casa; Ken, de pie, señala y
+//    explica; en «adventures?» sube un «?» grande y se sorprenden; en «dying» sale una lápida en la pantalla y una
+//    calavera junto a las disqueteras; en «fun?» ella se gira hacia él y los dos sonríen y se ríen.
 import * as T from '/atomo/plato/escenas/si-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('si-pregunta');
@@ -64,6 +67,17 @@ const p1 = (t) => {
 const ROCA = a(0.66), SETA = a(0.85), VERDE = SETA + 0.25, PUF2 = a(0.97);
 const p2 = (t) => {
   T.reino(R, t, { encuadre: 'bosque' });
+  // el claro del dosel detrás de Atom: nubecitas de tres tonos (sombra, cuerpo y luz) a dos velocidades, que entran y
+  // salen del claro deshaciéndose en trama (x 273–319, y 3–41)
+  for (const [x0, y, w, v] of [[10, 13, 9, 1.1], [55, 31, 7, 2.2], [40, 22, 5, 0.6]]) {
+    const cx = 250 + ((x0 + t * v) % 92), bolas = [[0, 0, 1], [-1.1, 0.3, 0.7], [1.1, 0.35, 0.75], [0.4, -0.5, 0.65]];
+    for (const [pas, c] of [[0, hex('#b8cce4')], [1, hex('#e4eef8')], [2, hex('#ffffff')]]) for (const [dx, dy, kk] of bolas) {
+      const r = Math.max(1, w * 0.45 * kk * (pas === 2 ? 0.55 : 1)), bx = Math.round(cx + dx * w * 0.6 - (pas === 2 ? 1 : 0)), by = Math.round(y + dy * w * 0.4 + (pas === 0 ? 1 : pas === 2 ? -1 : 0));
+      for (let yy = Math.ceil(by - r); yy <= by + r; yy++) for (let xx = Math.ceil(bx - r); xx <= bx + r; xx++) {
+        if (xx < 273 || xx > 319 || yy < 3 || yy > 41 || Math.hypot(xx - bx, yy - by) > r) continue;
+        const fade = Math.min(1, (xx - 273) / 9, (319 - xx) / 6); if (((xx * 3 + yy * 5) % 8) / 8 >= fade) continue;
+        R.pset(xx, yy, c); } }
+  }
   // la seta roja de lunares, grande
   const sx = 196, sy = 154; R.rect(sx - 1, sy - 7, sx + 2, sy, hex('#2a2018')); R.rect(sx, sy - 7, sx + 1, sy - 1, hex('#f2eee2'));
   R.disco(sx, sy - 9, 6, hex('#2a1418')); R.rect(sx - 7, sy - 9, sx + 8, sy - 7, hex('#2a1418')); R.disco(sx, sy - 9, 5, hex('#d83a3a')); R.rect(sx - 6, sy - 8, sx + 7, sy - 8, hex('#a82a2a'));
@@ -101,20 +115,96 @@ const p3 = (t) => {
   R.actor(EL.adolescente, 128, 162, t, { dir: 1, sonrisa: ri, sorpresa: t > P3 + 0.6 && !ri, brazos: pal(0.5) });
   if (ri && t < RIEN + 2) for (let k = 0; k < 3; k++) { const v = ((t - RIEN) * 1.2 + k * 0.3) % 1; R.icono('!', 92 + k * 46, 124 - Math.round(v * 10), hex('#f8e060'), C.k); }
 };
-// p4 · el porche: la pareja y la pregunta
+// p4 · el porche: la pareja ante el ordenador, en la mesa de delante
 const INTERR = c(0.5), CAL = c(0.81), FUN = c(0.92);
+const MAD = { l: hex('#b07a48'), m: hex('#8a5a32'), s: hex('#6a4224'), d: hex('#3e2614') };
+const BEI = { l: hex('#f2e6c4'), m: hex('#d8c8a0'), s: hex('#b0a078'), d: hex('#7a6c4c') };
+const ruido = (x, y) => { const v = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return v - Math.floor(v); };
+// la mesa de nogal de delante: tablero en perspectiva (y 146–154, x 108–236 atrás y 102–242 delante) con sus vetas y
+// la sombra del ordenador, y el frente con tres cajones de tirador de latón, el zócalo y su sombra en el suelo
+const mesa4 = () => {
+  const { pset, rect } = R;
+  for (let y = 174; y <= 178; y++) for (let x = 98 + (y - 174); x <= 246 - (y - 174); x++) if (y < 176 || (x + y) % 2 === 0) pset(x, y, hex('#5e3c20'));
+  for (let y = 146; y <= 154; y++) { const a = Math.round(108 - (y - 146) * 0.75), b = Math.round(236 + (y - 146) * 0.75);
+    for (let x = a; x <= b; x++) { let col = y === 148 || y === 151 ? MAD.s : Math.sin(x * 0.11 + y * 1.7 + Math.sin(x * 0.03) * 2) > 0.86 ? MAD.s : ruido(x >> 1, y) < 0.12 ? MAD.l : MAD.m;
+      if (y <= 147 && x > 108 && x < 186) col = (x + y) % 2 ? MAD.s : MAD.d;   // la sombra del ordenador y de las disqueteras
+      pset(x, y, x === a || x === b ? MAD.d : col); } }
+  rect(102, 154, 242, 154, MAD.l); rect(102, 155, 242, 155, MAD.d);
+  rect(102, 156, 242, 172, MAD.s);
+  for (const [x0, x1] of [[107, 146], [152, 194], [200, 237]]) {
+    rect(x0 - 1, 158, x1 + 1, 170, MAD.d); rect(x0, 159, x1, 169, MAD.m);
+    for (let y = 160; y <= 168; y++) for (let x = x0 + 1; x < x1; x++) if (Math.sin(x * 0.14 + y * 1.3 + x0) > 0.9) pset(x, y, MAD.s);
+    rect(x0, 159, x1, 159, MAD.l); rect(x0, 159, x0, 169, MAD.l); rect(x1, 160, x1, 169, MAD.s);
+    const kx = (x0 + x1) >> 1; rect(kx - 2, 163, kx + 2, 165, hex('#2a1a0c')); rect(kx - 1, 163, kx + 1, 164, hex('#e0b050')); pset(kx - 1, 163, hex('#fff0b0'));
+  }
+  for (let y = 157; y <= 171; y++) for (let x = 102; x <= 242; x++) if ((x < 106 || x > 238 || (x > 147 && x < 151) || (x > 195 && x < 199)) && ruido(x, y >> 1) < 0.25) pset(x, y, MAD.d);
+  rect(102, 172, 242, 173, MAD.d); rect(102, 172, 106, 175, MAD.d); rect(238, 172, 242, 175, MAD.d);
+};
+// la pantalla: la casa en líneas blancas que se dibuja trazo a trazo (como los primeros juegos con dibujos), la línea de
+// órdenes con lo tecleado (rayitas, sin letras) y el cursor; en «dying», la lápida de cuento junto a la casa
+const CASA4 = [[151, 120, 171, 120], [152, 120, 152, 111], [166, 120, 166, 111], [150, 111, 159, 105], [159, 105, 168, 111], [150, 111, 168, 111],
+  [157, 120, 157, 115], [157, 115, 160, 115], [160, 115, 160, 120], [154, 113, 155, 113], [154, 114, 155, 114], [162, 113, 164, 113], [162, 114, 164, 114], [163, 107, 163, 104], [164, 104, 164, 107]];
+const pantalla4 = (t, dibu, tecleado) => {
+  const { pset, linea } = R;
+  R.recorte([147, 103, 173, 125]);
+  for (let y = 103; y <= 125; y++) linea(147, y, 173, y, y % 2 ? hex('#141a20') : hex('#0c1014'));
+  const n = dibu * CASA4.length, bl = hex('#e8f0f0');
+  for (let k = 0; k < Math.min(CASA4.length, Math.ceil(n)); k++) { const [x0, y0, x1, y1] = CASA4[k], f = Math.min(1, n - k); linea(x0, y0, Math.round(x0 + (x1 - x0) * f), Math.round(y0 + (y1 - y0) * f), bl); }
+  if (t > CAL) { const u = tramo(t, CAL, CAL + 0.3), y = Math.round(121 - 6 * u); linea(168, 120, 168, y + 1, bl); linea(172, 120, 172, y + 1, bl); linea(169, y, 171, y, bl); pset(170, y + 2, bl); pset(170, y + 3, bl); pset(169, y + 3, bl); pset(171, y + 3, bl); }
+  pset(148, 123, hex('#a8f0b0')); pset(149, 124, hex('#a8f0b0')); pset(148, 125, hex('#a8f0b0'));
+  const L = Math.min(18, tecleado); for (let k = 0; k < L; k++) if (k % 4 !== 3) pset(151 + k, 124, hex('#a8f0b0'));
+  if (Math.floor(t * 3) % 2) linea(151 + L, 123, 151 + L, 125, hex('#e8fff0'));
+  pset(171, 104, hex('#3a4a50')); pset(170, 104, hex('#2a343a'));   // el reflejo del cristal
+  R.recorte(null);
+};
 const p4 = (t) => {
+  const { rect, pset, linea, disco } = R;
   T.casa(R, t, { encuadre: 'porche' });
-  R.actor(EL.roberta, 110, 166, t, { dir: 1, dedo: t > P4 + 0.6 && t < P4 + 1.8, habla: t > P4 + 0.6 && t < P4 + 1.8 && Math.sin(t * 8) > 0, sorpresa: t > INTERR && t < INTERR + 0.6, dir: t > FUN - 0.2 ? 1 : 1, sonrisa: t > FUN });
-  R.actor(EL.ken, 180, 166, t, { dir: -1, sonrisa: t > FUN, dedo: t > CAL - 0.2 && t < CAL + 0.8, sorpresa: t > INTERR && t < INTERR + 0.6 });
-  const q = tramo(t, INTERR, INTERR + 0.35), yq = Math.round(lerp(104, 72, q) + Math.sin(t * 3) * 1.5);
-  if (q > 0) R.icono('?', 154, yq, hex('#f8e060'), C.k, 3);
-  const k = tramo(t, CAL, CAL + 0.3); if (k > 0) R.icono('calavera', 128, Math.round(lerp(100, 82, k)), hex('#f2eee2'), C.k, 2);
-  if (t > FUN) R.icono('!', 190, 84 - Math.round(tramo(t, FUN, FUN + 0.3) * 6), hex('#ff8a8a'), C.k, 2);
+  mesa4();
+  // las dos disqueteras beis apiladas a la izquierda, con su ranura, su palanca y el piloto rojo que parpadea al leer
+  const dibu = tramo(t, P4 + 0.3, INTERR - 0.4), lee = (dibu > 0 && dibu < 1) || (t > CAL && t < CAL + 0.5);
+  for (const [y0, k] of [[133, 0], [121, 1]]) {
+    rect(112, y0, 134, y0 + 12, C.k); rect(113, y0 + 1, 133, y0 + 11, BEI.m); rect(113, y0 + 1, 133, y0 + 1, BEI.l); rect(113, y0 + 11, 133, y0 + 11, BEI.s); rect(113, y0 + 1, 113, y0 + 11, BEI.l);
+    rect(116, y0 + 5, 128, y0 + 6, hex('#2a2418')); rect(121, y0 + 4, 123, y0 + 7, BEI.d); pset(122, y0 + 4, BEI.l);
+    pset(131, y0 + 9, lee && k === (Math.floor(t * 2) % 2) && Math.floor(t * 8) % 2 ? hex('#ff3a2a') : hex('#6a2a20'));
+    for (let x = 115; x < 132; x += 3) pset(x, y0 + 9, BEI.s);
+  }
+  linea(134, 140, 138, 142, hex('#5a5a5a'));   // el cable plano hasta el ordenador
+  // el ordenador: la caja beis con el teclado en cuña (filas de teclas) y el monitor encima, visto de tres cuartos (el
+  // costado a la derecha), con el filo naranja del ocaso arriba
+  rect(138, 132, 182, 146, C.k); rect(139, 133, 181, 145, BEI.m); rect(139, 133, 181, 134, BEI.l); rect(139, 144, 181, 145, BEI.s);
+  for (let r = 0; r < 4; r++) for (let x = 142 + (r % 2); x < 178; x += 3) { rect(x, 136 + r * 2, x + 1, 136 + r * 2, hex('#4a3a2a')); pset(x, 136 + r * 2, hex('#8a7a5a')); }
+  rect(152, 143, 168, 143, hex('#4a3a2a'));
+  rect(140, 97, 182, 132, C.k); rect(177, 99, 181, 131, BEI.s); for (let y = 102; y < 128; y += 3) linea(178, y, 180, y, BEI.d);
+  rect(141, 98, 176, 131, BEI.m); rect(141, 98, 176, 98, hex('#ffd890')); rect(141, 99, 141, 131, BEI.l); rect(141, 130, 176, 131, BEI.s);
+  rect(145, 101, 175, 127, hex('#2a2620')); pantalla4(t, dibu, Math.floor(Math.max(0, Math.min(t, INTERR - 0.15) - (P4 + 0.3)) * 5) + (t > CAL + 0.4 ? Math.floor(Math.min(t, FUN - 0.3) - CAL - 0.4) * 5 + 2 : 0));
+  pset(173, 129, lee ? hex('#ff4a3a') : hex('#3aa04a')); rect(147, 129, 149, 129, BEI.s); rect(152, 129, 154, 129, BEI.s);
+  // la pareja, sentada y de pie detrás de la mesa (se recorta en el canto del tablero): Roberta teclea y Ken señala la
+  // pantalla y explica; en «adventures?» se sorprenden; en «dying» Ken vuelve a señalar y ella teclea; en «fun?» ella
+  // se gira hacia él y los dos sonríen y se ríen
+  const teclea = (t > P4 + 0.3 && t < INTERR - 0.15) || (t > CAL + 0.4 && t < FUN - 0.3), gira = t > FUN - 0.2, rie = t > FUN;
+  const toque = Math.floor(t * 7) % 2;
+  R.recorte([0, 0, 319, 145]);
+  R.actor(EL.ken, 206, 149, t, { dir: -1, dedo: (t > P4 + 0.5 && t < INTERR - 0.1) || (t > CAL - 0.1 && t < FUN - 0.3), habla: ((t > P4 + 0.5 && t < INTERR - 0.1) || (t > CAL - 0.1 && t < FUN - 0.3)) && Math.sin(t * 8) > 0,
+    sorpresa: t > INTERR && t < INTERR + 0.6, sonrisa: gira, salto: rie && Math.sin((t - FUN) * 11) > 0.2 ? 1 : 0 });
+  R.actor(EL.roberta, 186, 153, t, { dir: gira ? 1 : -1, sostiene: teclea && !gira ? (toque ? [172, 138] : [170, 143]) : undefined, sorpresa: t > INTERR && t < INTERR + 0.6,
+    sonrisa: gira, habla: rie && Math.sin(t * 9) > 0.3, salto: rie && Math.sin((t - FUN) * 11 + 1.5) > 0.2 ? 1 : 0 });
+  R.recorte(null);
+  // delante, sobre el tablero: la taza que humea, la pila de disquetes y el manual abierto con su lápiz
+  { const x = 196; rect(x, 146, x + 6, 152, C.k); rect(x + 1, 147, x + 5, 151, hex('#e8e2d4')); rect(x + 1, 147, x + 5, 147, hex('#c88a48')); rect(x + 7, 148, x + 8, 150, C.k); pset(x + 2, 149, hex('#ffffff'));
+    for (let k = 0; k < 3; k++) { const v = (t * 0.7 + k / 3) % 1, y = Math.round(144 - v * 12), xx = Math.round(x + 3 + Math.sin(t * 2 + k * 2 + v * 5) * 1.5); if (v < 0.85) pset(xx, y, (k + Math.floor(v * 4)) % 2 ? hex('#f8f0e8') : hex('#d8d0c8')); } }
+  for (let k = 0; k < 4; k++) { const x = 208 + k, y = 152 - k; rect(x, y - 2, x + 11, y, C.k); rect(x + 1, y - 2, x + 10, y - 1, k % 2 ? hex('#2a2a34') : hex('#3a3a46')); rect(x + 2, y - 2, x + 5, y - 2, [C.rojo, hex('#4a8ae8'), hex('#f8e060'), hex('#5ac85a')][k]); }
+  rect(224, 147, 239, 153, C.k); rect(225, 148, 231, 152, hex('#f2eee2')); rect(232, 148, 238, 152, hex('#e2ddd0')); rect(231, 148, 231, 152, hex('#b8b0a0'));
+  for (const y of [149, 151]) { rect(226, y, 230, y, hex('#9aa0b0')); rect(233, y, 237, y, hex('#9aa0b0')); } linea(219, 153, 226, 151, hex('#f0c040')); pset(219, 153, hex('#3a2a1a'));
+  // la pregunta sobre la pantalla, la calavera junto a las disqueteras y la exclamación entre los dos
+  const q = tramo(t, INTERR, INTERR + 0.35), yq = Math.round(lerp(92, 62, q) + Math.sin(t * 3) * 1.5);
+  if (q > 0) R.icono('?', 152, yq, hex('#f8e060'), C.k, 3);
+  const k = tramo(t, CAL, CAL + 0.3); if (k > 0) R.icono('calavera', 116, Math.round(lerp(112, 90, k) + Math.sin(t * 2.5) * 1), hex('#f2eee2'), C.k, 2);
+  if (rie) R.icono('!', 199, 112 - Math.round(tramo(t, FUN, FUN + 0.3) * 6), hex('#ff8a8a'), C.k, 2);
 };
 const año = (t) => t < P3 ? 1984 : t < P4 ? 1985 : 1979;
 const efectos = [[RESBALA, 'whoosh'], [RESBALA + 0.4, 'pop'], [ROCA - 0.45, 'whoosh'], [ROCA, 'boing'], [VERDE, 'brillo'], [PUF2, 'pop'],
-  [P3 + 0.5, 'bip'], [RIEN, 'palmada'], [RIEN + 0.3, 'publico'], [INTERR, 'brillo'], [CAL, 'pop']];
+  [P3 + 0.5, 'bip'], [RIEN, 'palmada'], [RIEN + 0.3, 'publico'], [P4 + 0.4, 'tecleo'], [INTERR, 'brillo'], [CAL, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>
 </body>

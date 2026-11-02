@@ -13,7 +13,8 @@
 // 1. la buhardilla de la oficina, 1983: entran los dos ejecutivos de traje con una caja; Roberta y Ken se vuelven;
 //    en «IBM asks» el primero habla y señala; el segundo deja la caja en la mesa grande; corta en «for its new»;
 // 2. la mesa de cerca: el ejecutivo pulsa y el ordenador nuevo se enciende («home computer»); Roberta abre su cuaderno
-//    y en «designs» dibuja el castillo trazo a trazo; en la pantalla el caballero empieza a andar («King's Quest»);
+//    (cuaderno grande: notas y boceto del caballero a la izquierda) y en «designs» dibuja el castillo trazo a trazo
+//    (dos torres almenadas, muralla, puerta en arco, mástil), lo sombrea de gris y sale la bandera roja; en la pantalla el caballero empieza a andar («King's Quest»);
 // 3. el salón del trono: en «fairy tale» el caballero Graham entra por la alfombra; en «Graham» se para ante el rey y
 //    hace la reverencia; el rey le encarga la misión: un bocadillo con los tres tesoros («three treasures»); en «save
 //    the kingdom» Graham levanta el brazo y da un salto; el bufón hace malabares, un guardia bosteza;
@@ -104,17 +105,42 @@ const p2 = (t) => {
   const abre = tramo(t, roberta - 0.3, roberta + 0.3);
   const rob = R.actor(EL.roberta, 92, 154, t, { dir: 1, sostiene: true, sonrisa: t > roberta, sorpresa: t > deja && t < deja + 0.6 });
   T.d_oficinaDelante(R, t, { epoca: 1981 });
-  // el cuaderno abierto en sus manos: en «designs» se dibuja a lápiz el castillo, trazo a trazo
-  const [hx, hy] = rob.mano, w = Math.round(5 + 10 * abre), cx = hx + 1 + w, ny = hy - 14;
-  R.rect(cx - w - 1, ny - 1, cx + w + 1, ny + 19, K.k); R.rect(cx - w, ny, cx + w, ny + 18, K.papel); R.rect(cx, ny, cx, ny + 18, K.papelS); R.rect(cx - w, ny + 18, cx + w, ny + 18, K.papelS);
-  for (let j = 3; j < 17; j += 3) R.rect(cx - w + 2, ny + j, cx - 2, ny + j, hex('#b8c4dc'));
-  if (abre >= 1) { R.linea(cx - 12, ny + 15, cx - 8, ny + 12, hex('#c83a3a')); R.linea(cx - 8, ny + 12, cx - 4, ny + 14, hex('#c83a3a')); R.pset(cx - 4, ny + 14, K.k); }   // el camino del mapa en la página de la izquierda
-  const d = tramo(t, disena, kq + 0.4), lp = hex('#3a4a6a');
-  const tr = [[2, 16, 2, 6], [2, 6, 5, 6], [5, 6, 5, 16], [10, 16, 10, 6], [10, 6, 13, 6], [13, 6, 13, 16], [5, 10, 10, 10], [1, 16, 14, 16], [7, 16, 7, 13], [7, 13, 9, 13], [9, 13, 9, 16], [12, 6, 12, 2], [12, 2, 14, 3], [14, 3, 12, 4]];
-  if (abre >= 1 && d > 0) { const nT = d * tr.length, n = Math.floor(nT);
+  // el cuaderno abierto en sus manos (dos páginas de 21 px): a la izquierda unas notas y el boceto del caballero con su
+  // pluma; a la derecha, en «designs», se dibuja a lápiz el castillo trazo a trazo (dos torres almenadas, la muralla,
+  // la puerta en arco y el mástil); al terminar se rellena de gris de abajo arriba y sale la bandera roja
+  const [hx, hy] = rob.mano, w = Math.round(5 + 16 * abre), cx = hx + 1 + w, ny = hy - 24, H = 28;
+  R.rect(cx - w - 1, ny - 1, cx + w + 1, ny + H + 1, K.k); R.rect(cx - w, ny, cx + w, ny + H, K.papel);
+  R.rect(cx - w, ny + H, cx + w, ny + H, K.papelS); R.rect(cx - 1, ny, cx + 1, ny + H, K.papelS); R.rect(cx, ny, cx, ny + H, hex('#b8ae94'));
+  R.rect(cx + w, ny + 1, cx + w, ny + H, hex('#e8e0c8'));   // el canto de las hojas de debajo
+  const lp = hex('#22304a'), rg = hex('#b8c4dc');
+  if (abre >= 1) {
+    for (const [y, l] of [[3, 15], [6, 11], [9, 14]]) R.rect(cx - w + 3, ny + y, cx - w + 2 + l, ny + y, rg);   // las notas (rayas, sin letras)
+    const kx = cx - 13, ky = ny + 14;   // el boceto del caballero: casco, pluma roja, cuerpo, escudo y espada
+    R.rect(kx - 1, ky, kx + 1, ky, lp); R.pset(kx - 1, ky + 1, lp); R.pset(kx + 1, ky + 1, lp); R.rect(kx - 1, ky + 2, kx + 1, ky + 2, lp);
+    R.pset(kx, ky - 1, K.rojo); R.pset(kx + 1, ky - 2, K.rojo);
+    R.linea(kx, ky + 3, kx, ky + 7, lp); R.linea(kx, ky + 7, kx - 2, ky + 10, lp); R.linea(kx, ky + 7, kx + 2, ky + 10, lp);
+    R.linea(kx, ky + 4, kx - 3, ky + 6, lp); R.rect(kx - 5, ky + 5, kx - 3, ky + 8, lp); R.pset(kx - 4, ky + 6, hex('#5a7ac8'));
+    R.linea(kx, ky + 4, kx + 3, ky + 5, lp); R.linea(kx + 3, ky + 5, kx + 6, ky + 1, hex('#7a8494'));
+  }
+  const tr = [[3, 26, 3, 7], [3, 7, 8, 7], [8, 7, 8, 26], [3, 5, 4, 5], [3, 6, 4, 6], [7, 5, 8, 5], [7, 6, 8, 6],
+    [14, 26, 14, 7], [14, 7, 19, 7], [19, 7, 19, 26], [14, 5, 15, 5], [14, 6, 15, 6], [18, 5, 19, 5], [18, 6, 19, 6],
+    [8, 13, 14, 13], [10, 11, 11, 11], [10, 12, 11, 12], [1, 26, 20, 26],
+    [10, 26, 10, 22], [10, 22, 11, 20], [11, 20, 12, 22], [12, 22, 12, 26], [16, 7, 16, 1]];
+  const d = tramo(t, disena, kq + 0.4), dl = Math.min(1, d / 0.8), dr = tramo(d, 0.8, 1);
+  if (abre >= 1 && d > 0) { const nT = dl * tr.length, n = Math.floor(nT);
+    if (dr > 0) {   // el relleno gris a lápiz, de abajo arriba, con la cara derecha de cada torre en sombra
+      const ytop = Math.round(lerp(25, 8, dr));
+      for (const [a, b, yt] of [[4, 7, 8], [15, 18, 8], [9, 13, 14]]) { const y0f = Math.max(yt, ytop); if (y0f > 25) continue;
+        R.rect(cx + a, ny + y0f, cx + b - 1, ny + 25, hex('#b0b0ba')); R.rect(cx + b, ny + y0f, cx + b, ny + 25, hex('#8a8a98')); }
+      if (ytop <= 21) R.rect(cx + 11, ny + 21, cx + 11, ny + 25, hex('#5a3a28'));   // la puerta, oscura
+      if (dr >= 1) { R.rect(cx + 5, ny + 10, cx + 6, ny + 11, lp); R.rect(cx + 16, ny + 10, cx + 17, ny + 11, lp); }   // ventanas
+    }
     for (let i = 0; i < Math.min(tr.length, n + 1); i++) { const [a0, b0, a1, b1] = tr[i], f = i < n ? 1 : nT - n; R.linea(cx + a0, ny + b0, Math.round(cx + lerp(a0, a1, f)), Math.round(ny + lerp(b0, b1, f)), lp); }
-    if (d >= 1) for (const xx of [2, 4, 10, 12]) R.pset(cx + xx, ny + 5, lp);
-    if (d < 1) { const [a0, b0, a1, b1] = tr[Math.min(tr.length - 1, n)], f = nT - n, px = Math.round(cx + lerp(a0, a1, f)), py = Math.round(ny + lerp(b0, b1, f)); R.linea(px + 1, py - 1, px + 6, py - 7, hex('#e8c040')); R.pset(px + 6, py - 7, hex('#e88a9a')); } }
+    if (dl >= 1) { R.rect(cx + 17, ny + 1, cx + 19, ny + 1, K.rojo); R.rect(cx + 17, ny + 2, cx + 18 + (Math.sin(t * 6) > 0 ? 1 : 0), ny + 2, K.rojo); R.pset(cx + 17, ny + 3, K.rojo); }   // la bandera
+    if (d < 1) { let px, py;   // el lápiz: sigue el trazo y, en el relleno, sombrea de lado a lado
+      if (dl < 1) { const [a0, b0, a1, b1] = tr[Math.min(tr.length - 1, n)], f = nT - n; px = Math.round(cx + lerp(a0, a1, f)); py = Math.round(ny + lerp(b0, b1, f)); }
+      else { px = Math.round(cx + 11 + 7 * Math.sin(t * 9)); py = ny + Math.round(lerp(25, 8, dr)); }
+      R.linea(px + 1, py - 1, px + 6, py - 7, hex('#e8c040')); R.pset(px + 6, py - 7, hex('#e88a9a')); R.pset(px + 1, py - 1, hex('#3a3a3a')); } }
 };
 // p3 · el salón del trono: la misión
 const p3 = (t) => {

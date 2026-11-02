@@ -11,14 +11,18 @@
 <script type="module">
 // SI-GUARDAR (frases 33–35), 1987. Tres planos:
 // 1. el monitor de cerca: se abre el cuadro de la muerte; en «joke» la calavera guiña, en «narrator» se pone las gafas de
-//    broma y en «laughing» se ríe (la mandíbula bota, ondas de risa); al final la manita del cursor pulsa «otra vez»;
+//    broma y en «laughing» se ríe (la mandíbula bota, ondas de risa); al final la manita del cursor pulsa «otra vez». La
+//    cámara está corrida (todo baja 7 px y va 14 px a la izquierda, encuadra()): la carcasa no pasa de x 276 y el bisel
+//    empieza en y 21, así que el año cae sobre el papel pintado y la esquina de Atom queda libre;
 // 2. (corta tras «a little») la sala de las partidas, junto a la pila: el disquete corre de la caja a la pila con un
 //    disquete cada vez y la pila crece; luego, a la derecha de la pila, piensa en un puente, una puerta y un monstruo
 //    (bocadillos en «bridge», «door», «monster») y cada vez corre a guardar: destello, ✓, otro disquete en la pila y un
 //    buzón que se enciende (gag 4);
-// 3. (corta antes de «That's how») la sala entera: el disquete pequeño empuja el disquete gigante, el escudo con su reloj
-//    de arena; en «born» el escudo brilla y en «Save your game often» el pequeño saluda militarmente y los buzones se
-//    encienden en ola.
+// 3. (corta antes de «That's how») contrapicado en otro rincón de la sala (cámara 'escudo': la franja de buzones, la
+//    puerta de roble, el reloj de pie, la ventana con el árbol y el perchero; la misma tarima que el plano 2): el
+//    disquete pequeño empuja el disquete gigante (s 6) desde la izquierda hasta el centro, con un reloj de arena grande
+//    en la cara (la arena cae); en «born» el escudo brilla (halo y estrellitas) y en «Save your game often» el pequeño,
+//    que se ha apartado a primer término, saluda militarmente y los buzones de la franja se encienden en ola.
 import * as T from '/atomo/plato/escenas/si-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('si-guardar');
@@ -34,6 +38,27 @@ const p1 = (t) => {
   T.muerte(R, t, { encuadre: 'pantalla', camara: 'cerca', abre: Math.max(0.001, tramo(t, 0.05, 0.45)), guino: tramo(t, ch(0.29), ch(0.33)) - tramo(t, ch(0.4), ch(0.44)), gafas: tramo(t, ch(0.53), ch(0.62)), rie, risa: rie, cursor: tramo(t, P2 - 0.75, P2 - 0.2) });
   // ondas de risa a los dos lados de la calavera
   if (rie > 0.3) for (let k = 0; k < 3; k++) { const r = 30 + k * 5 + ((t * 12) % 5); for (const [s, a0, a1] of [[1, -0.7, 0.7], [-1, Math.PI - 0.7, Math.PI + 0.7]]) for (let an = a0; an <= a1; an += 0.06) { const x = Math.round(96 + Math.cos(an) * r), y = Math.round(80 + Math.sin(an) * r * 0.8); if (x > 58 && x < 220 && y > 40 && y < 128 && (s < 0 || x < 132)) R.pset(x, y, k === 2 ? hex('#e8a040') : hex('#f04a3a')); } }
+  // la cámara se corre: todo el cuadro baja 7 px y va 14 px a la izquierda, para que la carcasa del monitor no pase de
+  // x 276 (la esquina de Atom queda en la pared) y el año caiga sobre el papel pintado, no sobre el bisel (que baja a y 21)
+  encuadra();
+};
+// el corrimiento de p1: un recorrido de la pantalla; lo que queda al descubierto (arriba y a la derecha) es el mismo papel
+// pintado del decorado, calculado en sus coordenadas de origen para que las rayas y los rombos sigan sin costura
+const DX = 14, DY = 7, B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const PAP = ['#3a2826', '#5a3e30', '#7a5638', '#9a7044', '#b88c54', '#d0a868', '#e2c080'].map(hex);
+const papel = (x, y, dx, dy) => {
+  const dl = Math.max(0, 1 - Math.hypot((x - 300) * 0.8, y - 140) / 120), dm = Math.max(0, 1 - Math.hypot((x - 140) * 0.6, y - 90) / 120);
+  let v = 0.36 + dl * 0.5 + dm * 0.18 - (y < 20 ? (20 - y) * 0.008 : 0);
+  const xm = ((x % 12) + 12) % 12; if (xm === 0 || xm === 4) v -= 0.12; else if (xm === 2) v += 0.06;
+  const rx = ((x + 6) % 12) - 6, ry = (((y % 14) + 14) % 14) - 7; if (Math.abs(rx) + Math.abs(ry) === 2 && xm > 4) v += 0.1;
+  const f = Math.max(0, Math.min(PAP.length - 1.001, v * (PAP.length - 1))), i = Math.floor(f);
+  return f - i > (B4[((dy & 3) << 2) | (dx & 3)] + 0.5) / 16 ? PAP[i + 1] : PAP[i];
+};
+const encuadra = () => {
+  const b = R.buf, o = b.slice();
+  for (let y = 179; y >= 0; y--) for (let x = 0; x < 320; x++) { const sx = x + DX, sy = y - DY; b[y * 320 + x] = sx < 320 && sy >= 0 ? o[sy * 320 + sx] : papel(sx, sy, sx, sy); }
+  // la repisa de la planta sigue hasta el borde
+  R.rect(306, 125, 319, 128, K); R.rect(306, 125, 319, 126, hex('#b07a44'));
 };
 
 // el bocadillo grande con un peligro dentro: 'puente' | 'puerta' | 'monstruo'
@@ -101,19 +126,47 @@ const p2 = (t) => {
   ['puente', 'puerta', 'monstruo'].forEach((kind, k) => { const sk = S[k], u = tramo(t, sk - 0.55, sk - 0.3) * (1 - tramo(t, sk + 0.15, sk + 0.3)); if (u > 0) bocadillo(262, 92, kind, u, t, Math.round(x) + 10, 136); });
 };
 
+// un reloj de arena grande y brillante sobre la cara del disquete gigante: tapas de madera, columnas, el vidrio con la
+// arena que cae (arriba baja, abajo crece) y un brillo que corre por el cristal; br (0–1) lo enciende con un halo
+const relojGrande = (cx, cy, t, br) => {
+  if (br > 0.05) R.halo(cx, cy, Math.round(16 + br * 10), [hex('#f0c840'), hex('#fff4c0')], 0.6 + br * 0.9);
+  const u = (t * 0.12) % 1, VID = hex('#cfe8f4'), VIDS = hex('#9ac0d8'), ARE = hex('#e8b040'), AREL = hex('#f8d878'), ARES = hex('#b07a28');
+  for (let j = -9; j <= 9; j++) { const w = 1 + Math.round(Math.abs(j) * 0.75), y = cy + j;
+    R.rect(cx - w - 1, y, cx + w + 1, y, K);
+    for (let i = -w; i <= w; i++) { let c = i < -w + 2 ? VID : i > w - 1 ? VIDS : e_tinte(i, j);
+      if (j < 0 && -j <= Math.round(9 * (1 - u)) && Math.abs(i) <= w - 1) c = i < 0 ? AREL : ARE;   // la arena de arriba que baja
+      if (j > 0 && j >= 9 - Math.round(8 * u) + Math.round(Math.abs(i) * 0.6) && Math.abs(i) <= w - 1) c = i < 0 ? ARE : ARES;   // el montón de abajo
+      R.pset(cx + i, y, c); } }
+  for (let j = 0; j < 8; j++) if (((j + Math.floor(t * 10)) % 3) !== 0) R.pset(cx, cy + j, AREL);   // el hilillo que cae
+  const gl = Math.round(((t * 0.7) % 1.6) * 24) - 12; for (let j = -8; j <= 8; j++) { const x = cx + Math.round((gl - j) * 0.3); if (Math.abs(x - cx) <= 1 + Math.round(Math.abs(j) * 0.75) - 1) R.pset(x, cy + j, hex('#ffffff')); }
+  for (const yy of [cy - 11, cy + 10]) { R.rect(cx - 10, yy, cx + 10, yy + 1, K); R.rect(cx - 9, yy, cx + 9, yy, hex('#b07a44')); R.rect(cx - 9, yy + 1, cx + 9, yy + 1, hex('#7a4a26')); }
+  for (const xx of [cx - 9, cx + 8]) { R.rect(xx, cy - 9, xx + 1, cy + 9, K); R.pset(xx + (xx < cx ? 1 : 0), cy - 5, hex('#c8963a')); R.pset(xx + (xx < cx ? 1 : 0), cy + 4, hex('#c8963a')); }
+  if (br > 0.2) for (let k = 0; k < 3; k++) { const an = t * 4 + k * 2.1, x = Math.round(cx + Math.cos(an) * 13), y = Math.round(cy + Math.sin(an) * 13); R.pset(x, y, hex('#fff8d0')); }
+};
+// mezcla de dos colores del lienzo (k = 0: a; k = 1: b)
+const mezcla = (a, b, k) => { const m = (s) => Math.round(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k); return (0xff000000 | (m(16) << 16) | (m(8) << 8) | m(0)) >>> 0; };
+const VERDE = hex('#6ae87a');
+const e_tinte = (i, j) => ((i + j) & 3) === 0 ? hex('#e4f2fa') : hex('#bcd8e8');
+
 const p3 = (t) => {
-  const ola = t > cs(0.76) ? Math.floor((t - cs(0.76)) * 14) % 30 : -1;
-  T.muerte(R, t, { encuadre: 'partidas', llenas: 24, luz: ola >= 0 && ola < 24 ? ola : undefined });
-  // el pequeño empuja el escudo gigante hasta su sitio
-  const e = suave(tramo(t, P3 - 0.1, P3 + 1.7)), gx = Math.round(lerp(4, 104, e));
+  // contrapicado en el rincón de la puerta (la misma tarima que el plano 2): el disquete gigante entra empujado desde la
+  // izquierda y se planta en el centro, delante de la puerta, con el reloj de arena grande en la cara
+  T.muerte(R, t, { encuadre: 'partidas', camara: 'escudo', llenas: 24 });
+  // la ola de buzones de la franja de la izquierda: se encienden en verde de arriba abajo en «Save your game often»
+  if (t > cs(0.76)) for (let f = 0; f < 4; f++) for (const bx of [14, -19]) { const k = f * 2 + (bx < 0 ? 1 : 0), on = ((t - cs(0.76)) * 6 - k) % 10; if (on < 0 || on > 2.5) continue;
+    const a = 0.6 * Math.sin(Math.min(1, on / 2.5) * Math.PI); for (let y = 39 + f * 22; y < 57 + f * 22; y++) for (let x = Math.max(0, bx + 1); x < bx + 29; x++) if (((x + y) & 1) === 0 || a > 0.3) { const c = R.pget(x, y); R.pset(x, y, mezcla(c, VERDE, a)); } }
+  // el pequeño empuja el escudo gigante hasta el centro
+  const e = suave(tramo(t, P3 - 0.1, P3 + 1.7)), gx = Math.round(lerp(-28, 128, e));
   const brilla = tramo(t, cs(0.53), cs(0.66)) - tramo(t, cs(0.9), cs(1.0));
-  T.disquete(R, gx, 164, t, { s: 4, cara: false, icono: 'reloj', guarda: brilla });
-  if (e > 0.97 && t < P3 + 2.1) for (let k = 0; k < 5; k++) { const u = tramo(t, P3 + 1.7, P3 + 2.1); R.disco(Math.round(gx - 30 + k * 15), Math.round(163 - u * 4), Math.max(1, 3 - Math.round(u * 2)), hex('#e8dcc8')); }
-  const empuja = t < P3 + 1.75, sx = empuja ? gx - 50 : Math.round(lerp(gx - 50, 168, suave(tramo(t, P3 + 2.0, P3 + 3.2))));
+  T.disquete(R, gx, 164, t, { s: 6, cara: false, guarda: brilla });
+  relojGrande(gx, 108, t, 0.25 + brilla * 0.75);
+  if (e > 0.97 && t < P3 + 2.1) for (let k = 0; k < 6; k++) { const u = tramo(t, P3 + 1.7, P3 + 2.1); R.disco(Math.round(gx - 50 + k * 20), Math.round(163 - u * 5), Math.max(1, 3 - Math.round(u * 2)), hex('#e8dcc8')); }
+  // luego se aparta hacia la cámara, a la derecha, y saluda en primer término
+  const empuja = t < P3 + 1.75, v = suave(tramo(t, P3 + 2.0, P3 + 3.2)), sx = empuja ? gx - 64 : Math.round(lerp(gx - 64, 226, v)), sy = empuja ? 164 : Math.round(lerp(164, 174, v));
   const vuelta = !empuja && t < P3 + 3.2;
-  T.disquete(R, sx, 164, t, { s: 2, dir: 1, corre: empuja ? 1 : vuelta ? 0.4 : 0, expresion: t > cs(0.55) ? 'feliz' : 'normal', saluda: t > cs(0.76) ? 'militar' : undefined });
-  // una estrellita en el escudo cuando nace el consejo
-  if (brilla > 0.2) for (let k = 0; k < 4; k++) { const an = t * 3 + k * Math.PI / 2, x = Math.round(gx + Math.cos(an) * 40), y = Math.round(126 + Math.sin(an) * 34); R.pset(x, y, hex('#fff0a0')); R.pset(x - 1, y, hex('#f0c840')); R.pset(x + 1, y, hex('#f0c840')); R.pset(x, y - 1, hex('#f0c840')); R.pset(x, y + 1, hex('#f0c840')); }
+  T.disquete(R, sx, sy, t, { s: 2, dir: vuelta && sx < 150 ? -1 : 1, corre: empuja ? 1 : vuelta ? 0.6 : 0, expresion: t > cs(0.55) ? 'feliz' : 'normal', saluda: t > cs(0.76) ? 'militar' : undefined });
+  // estrellitas alrededor del escudo cuando nace el consejo
+  if (brilla > 0.2) for (let k = 0; k < 6; k++) { const an = t * 2 + k * Math.PI / 3, x = Math.round(gx + Math.cos(an) * 58), y = Math.round(116 + Math.sin(an) * 50); R.pset(x, y, hex('#fff0a0')); R.pset(x - 1, y, hex('#f0c840')); R.pset(x + 1, y, hex('#f0c840')); R.pset(x, y - 1, hex('#f0c840')); R.pset(x, y + 1, hex('#f0c840')); }
 };
 
 const efectos = [[0.1, 'pop'], [ch(0.3), 'tic'], [ch(0.55), 'boing'], [P2 - 0.25, 'golpecito'],

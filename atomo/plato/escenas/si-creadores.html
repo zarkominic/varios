@@ -21,8 +21,11 @@
 // 4. dentro del túnel del tiempo (fondo local): Roger da vueltas con su escoba entre relojes; pasan dos marcos con los
 //    juegos futuros «10» y «12» («two future sequels») que en «never existed» se tachan con una X y se deshacen; el
 //    disquete pasa dando tumbos, asustado;
-// 5. el mundo del primer juego: Roger cae del cielo («lands»), en «turns into chunky pixels» se vuelve cuadrado, se mira
-//    las manos, se rasca la cabeza y en «sixteen colors» sale el «16» con la paleta de 16 colores (corta tras «colors»);
+// 5. el mundo del primer juego (mesetas con estratos, grietas y pináculos, mesetas lejanas moradas y reverberación en el
+//    horizonte, cráter, duna y peñascos en primer plano, todo con los 16 colores): Roger cae del cielo («lands»), en
+//    «turns into chunky pixels» se vuelve cuadrado, se mira las manos, se rasca la cabeza y en «sixteen colors» sale el
+//    «16» con la paleta de 16 colores (corta tras «colors»); la nave humea y chispea, cruza un remolino de polvo y un
+//    bicho de tres ojos sale de detrás del peñasco a mirar a Roger y huye al destello del cambio;
 // 6. el salón de los jugadores: el chico juega con el Roger cuadrado (los cactus pasan); en «joke» la pantalla destella,
 //    Roger salta y el chico se parte de risa; el adolescente se acerca desde la lámpara y en «people who had played it» coge
 //    la caja del primer juego y la enseña; la abuela teje, en «played it» se acerca, no lo entiende («?») y se encoge de
@@ -210,8 +213,83 @@ const cuadra = (x0, y0, x1, y1) => {
     R.rect(x, y, x + 1, y + 1, q);
   }
 };
+// el desierto del primer juego, por encima del decorado y en su rejilla de 160×90 con los 16 colores: mesetas con estratos,
+// grietas, pináculos y canchal; mesetas lejanas moradas y la reverberación en la franja del horizonte; manchas de arena,
+// un cráter, una duna con su cresta y dos peñascos en primer plano; la nave humea y chispea, un remolino de polvo cruza
+// a lo lejos y un bicho de tres ojos sale de detrás del peñasco, se acerca a mirar y huye al destello del cambio
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const desierto16 = (t) => {
+  const E = EGA, P = (x, y, c) => R.rect(x * 2, y * 2, x * 2 + 1, y * 2 + 1, c), chk = (x, y) => (x + y) % 2 === 0, tq = Math.floor(t * 8) / 8;
+  // mesetas lejanas, moradas por la distancia, en la franja cian entre las de delante; y la reverberación del calor
+  for (const [a, b, sd] of [[31, 53, 1], [85, 119, 2]]) for (let x = a; x <= b; x++) {
+    const hh = Math.max(0, Math.round(2.6 + Math.sin(x * 0.45 + sd) * 1.6 + Math.sin(x * 0.17 + sd * 3) * 1.8));
+    for (let y = 49 - hh + 1; y <= 49; y++) P(x, y, y === 50 - hh ? (chk(x, y) ? E[13] : E[5]) : chk(x, y) ? E[5] : (y > 47 ? E[9] : E[5]));
+  }
+  { const fase = Math.floor(tq * 4) % 4; for (let x = 31; x <= 119; x++) { if (x > 53 && x < 85) continue; if ((x + fase) % 4 === 0) P(x, 49, E[15]); else if ((x + fase) % 4 === 2) P(x, 48, E[11]); } }
+  // una baliza lejana sobre la meseta morada, que parpadea
+  P(100, 44, E[8]); P(100, 43, E[8]); P(100, 42, Math.floor(tq * 2) % 2 ? E[12] : E[4]);
+  // las mesetas de delante: estratos de tres tonos, filo de luz, grietas, pináculos y el canchal del pie
+  const meseta = (x0, x1, top, sd) => {
+    for (let x = x0; x <= x1 - 4; x++) { const w = Math.round(Math.sin(x * 0.35 + sd) * 0.8);
+      for (let y = top + 1; y < 50; y++) { const r = (y - top + w + 5) % 5;
+        if (r === 1) P(x, y, chk(x, y) ? E[12] : E[6]); else if (r === 3) P(x, y, chk(x, y) ? E[4] : E[6]); else if (r === 4 && (x + y * 3) % 4 === 0) P(x, y, E[4]); }
+      if (x - x0 < 2) for (let y = top + 1; y < 50; y++) if (chk(x, y)) P(x, y, E[12]);
+      if (h(x, sd, 3) < 0.25) P(x, top, E[14]); }
+    for (let k = 0; k < 3; k++) { let x = x0 + 4 + Math.floor(h(k, sd, 5) * (x1 - x0 - 10)); const L = 4 + Math.floor(h(k, sd, 6) * 4);
+      for (let i = 0; i < L; i++) { const y = top + 2 + i; if (y > 49) break; P(x, y, E[0]); if (chk(x, y)) P(x - 1, y, E[4]); if (h(i, k, sd) < 0.4) x += h(i, k, 7) < 0.5 ? -1 : 1; } }
+    for (let x = x0; x <= x1; x++) { const hh = 1 + Math.floor(h(x, sd, 8) * 2); for (let y = 50 - hh; y < 51; y++) P(x, y, (x + y) % 3 === 0 ? E[8] : chk(x, y) ? E[6] : E[7]); }
+  };
+  meseta(0, 30, 40, 1); meseta(54, 84, 43, 2); meseta(120, 159, 38, 3);
+  // pináculos encima de las mesetas (lejos de la barra del año y del rincón de Atom)
+  for (const [x, top, al] of [[10, 40, 4], [64, 43, 3], [128, 38, 5]]) for (let y = top - al; y < top; y++) { P(x, y, E[6]); P(x + 1, y, chk(x + 1, y) ? E[6] : E[0]); P(x - 1, y, y === top - al ? E[6] : E[12]); if (y === top - al) P(x, y, E[14]); }
+  // la arena: manchas de arena oscura y brillos claros, en trama
+  for (const [cx, cy, rx, ry, c] of [[18, 56, 12, 2, 6], [96, 78, 14, 3, 6], [140, 66, 10, 2, 6], [48, 86, 12, 2, 15], [120, 76, 9, 2, 15]]) for (let y = cy - ry; y <= cy + ry; y++) for (let x = cx - rx; x <= cx + rx; x++) { if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 > 1) continue; if ((x + y * 2) % 4 === 0) P(x, y, E[c]); }
+  // un cráter de bordes iluminados
+  for (let x = 25; x <= 39; x++) { const d = 1 - ((x - 32) / 7.5) ** 2, dy = Math.round(Math.sqrt(Math.max(0, d)) * 2); P(x, 63 - dy, E[15]); for (let y = 64 - dy; y <= 63 + dy; y++) P(x, y, y < 63 ? (chk(x, y) ? E[6] : E[0]) : chk(x, y) ? E[6] : E[14]); P(x, 64 + dy, chk(x, 64) ? E[6] : E[14]); }
+  // piedras sueltas con su sombra y matas secas que se mecen con el viento, repartidas a varias distancias
+  for (const [x, y, g] of [[36, 72, 1], [58, 66, 0], [100, 84, 1], [118, 66, 0], [134, 80, 1], [16, 64, 0], [62, 78, 0]]) { P(x, y, E[7]); P(x + 1, y, E[8]); P(x, y - 1, E[15]); if (g) { P(x - 1, y, E[7]); P(x + 2, y, E[8]); P(x, y - 1, E[7]); P(x - 1, y - 1, E[15]); } for (let i = -1; i <= 2 + g; i++) if ((x + i) % 2 === 0) P(x + i, y + 1, E[6]); }
+  for (const [x, y, k] of [[44, 76, 0], [92, 62, 1], [146, 74, 2], [28, 86, 3], [112, 86, 4]]) { const v = Math.round(Math.sin(t * 2.2 + k) * 0.8); P(x, y, E[6]); P(x - 1, y - 1, E[2]); P(x + 1 + v, y - 2, E[10]); P(x + v, y - 2, E[2]); P(x + 1, y - 1, E[2]); P(x - 2 + v, y - 2, E[2]); }
+  // la duna de la derecha: la cresta con luz y la ladera en sombra tramada
+  for (let x = 90; x <= 159; x++) { if (x > 102 && x < 106) continue; const y = Math.round(70 - Math.sin((x - 90) * 0.06) * 4 + Math.sin(x * 0.3) * 0.6); P(x, y, E[15]); P(x, y + 1, E[14]); for (let j = 2; j < 5; j++) if ((x + j) % (j + 1) === 0) P(x, y + j, E[6]); }
+  // la nave humea por la grieta del casco y saca chispas
+  for (let k = 0; k < 6; k++) { const u = (tq * 0.4 + k / 6) % 1, cx = Math.round(126 + u * 12 + Math.sin(u * 6 + k) * 1.5), cy = Math.round(50 - u * 22), rr = 1 + Math.floor(u * 2.6);
+    for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { if (i * i + j * j > rr * rr + 1) continue; if (u > 0.7 && (i + j + k) % 2 === 0) continue;
+      P(cx + i, cy + j, j < 0 && i < 0 ? (u < 0.5 ? E[15] : E[7]) : j > 0 || i > 0 ? (u < 0.5 ? E[7] : E[8]) : E[7]); } }
+  P(126, 53, E[0]); P(127, 53, E[0]); if (Math.floor(tq * 4) % 3 === 0) { P(126, 52, E[14]); P(125, 51, E[15]); } else if (Math.floor(tq * 4) % 3 === 1) P(128, 52, E[12]);
+  // el remolino de polvo que cruza a lo lejos
+  { const u = ((t - P5) / 4.2) % 1, bx = Math.round(4 + u * 34), gir = Math.floor(tq * 8) % 4;
+    for (let j = 0; j < 12; j++) { const y = 57 - j, an = 1 + Math.floor(j / 3), ox = Math.round(Math.sin(j * 0.6 + tq * 3) * 1); for (let i = -an; i <= an; i++) if ((i + j + gir) % 3 !== 0) P(bx + i + ox, y, j < 2 ? E[6] : (i + j + gir) % 2 ? E[15] : E[7]); }
+    for (let k = 0; k < 3; k++) P(bx - 3 - k * 2, 57 - ((gir + k) % 3), E[6]); }
+};
+// el bicho de tres ojos: sale de detrás del peñasco, se acerca a mirar a Roger y al destello huye a esconderse
+const bicho16 = (t) => {
+  const E = EGA, P = (x, y, c) => R.rect(x * 2, y * 2, x * 2 + 1, y * 2 + 1, c), tq = Math.floor(t * 8) / 8;
+  const sale = tramo(tq, ATERRIZA + 0.2, CUADRADO - 0.2), huye = tramo(tq, CUADRADO + 0.1, CUADRADO + 1.1);
+  const x = Math.round(12 + sale * 40 - huye * 44), y = 82, anda = (sale > 0 && sale < 1) || (huye > 0 && huye < 1), f = anda ? Math.floor(tq * 8) % 2 : 0, dir = huye > 0 ? -1 : 1, salto = huye > 0 && huye < 0.3 ? 2 : 0;
+  for (let i = -2; i <= 2; i++) P(x + i, y + 1, (x + i + y) % 2 ? E[6] : E[14]);
+  for (let i = -2; i <= 2; i++) { P(x + i, y - salto, E[2]); P(x + i, y - 1 - salto, Math.abs(i) < 2 ? E[10] : E[2]); }
+  P(x + dir * 3, y - salto, E[2]); P(x - dir * 3, y - salto, E[2]); P(x - dir * 4, y - 1 - salto, E[2]);
+  for (const [i, c] of [[-1, 15], [0, 15], [1, 15]]) { P(x + i, y - 2 - salto - (i === 0 ? 1 : 0), E[c]); }
+  P(x + dir, y - 2 - salto, E[0]);
+  P(x - 1 + f, y + 1, E[0]); P(x + 1 - f, y + 1, E[0]);
+  if (salto) P(x + dir * 2, y - 5, E[14]);
+};
+// los dos peñascos del primer plano, con su sombra (tapan al bicho cuando se esconde)
+const penascos16 = () => {
+  const E = EGA, P = (x, y, c) => R.rect(x * 2, y * 2, x * 2 + 1, y * 2 + 1, c), chk = (x, y) => (x + y) % 2 === 0;
+  for (const [cx, cy, rx, ry] of [[7, 86, 9, 6], [151, 87, 10, 5]]) {
+    for (let x = cx - rx - 1; x <= cx + rx + 3; x++) if (chk(x, cy + ry)) P(x, Math.min(89, cy + ry), E[6]);
+    for (let y = cy - ry; y <= Math.min(89, cy + ry); y++) for (let x = cx - rx; x <= cx + rx; x++) {
+      const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 + Math.sin(x * 1.3 + y) * 0.08; if (d > 1) continue;
+      const l = (x - cx) / rx + (y - cy) / ry; P(x, y, d > 0.82 ? E[0] : l < -0.7 ? (chk(x, y) ? E[15] : E[7]) : l < 0.2 ? E[7] : l < 0.8 ? (chk(x, y) ? E[8] : E[7]) : E[8]);
+    }
+    P(cx - 2, cy - 1, E[8]); P(cx - 1, cy, E[8]); P(cx, cy + 1, E[8]); P(cx + 3, cy - 2, E[8]); P(cx - rx + 3, cy - ry + 2, E[15]);
+    for (const dx of [-rx - 2, rx + 2]) { P(cx + dx, cy + ry - 1, E[2]); P(cx + dx + 1, cy + ry - 2, E[10]); P(cx + dx - 1, cy + ry - 2, E[2]); }
+  }
+};
 const p5 = (t) => {
   T.espacio(R, t, { encuadre: 'portal', camara: 'pixeles' });
+  desierto16(t); bicho16(t); penascos16();
   const X = 150, S = 150, cae = tramo(t, P5, ATERRIZA), y = Math.round(lerp(-6, S, cae * cae));
   // el polvo del aterrizaje
   const pol = tramo(t, ATERRIZA, ATERRIZA + 0.7); if (pol > 0 && pol < 1) for (let k = 0; k < 8; k++) { const d = 4 + pol * 16; R.disco(X + 8 + Math.round((k - 3.5) * d / 3.5), S - 2 - Math.round(Math.sin(pol * 3) * 3) - (k % 2), 2 - Math.round(pol), hex('#d8c08a')); }

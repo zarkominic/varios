@@ -16,9 +16,12 @@
 // 2. «hoy cueva 3d, cámara mapa» (la vista por las gafas): en las lentes, primero la aventura de texto de 1979 (renglones
 //    verdes, el cursor y el «1979»); en «Now in 3D» un barrido de luz la convierte en la cueva en 3D; en «virtual
 //    reality» las luciérnagas se acercan flotando y un murciélago cruza. Corta en «Roberta».
-// 3. «hoy salón, cámara mesa»: Roberta dibuja la cueva en la tableta y Ken la programa (la cueva gira en su monitor); en
-//    «forty years earlier» se ilumina la foto de 1979 de la pared; en «home» se miran y sonríen. El disquete, con las
-//    gafas en la frente, saluda desde la mesa.
+// 3. «hoy salón, cámara mesa»: Roberta y Ken, sentados más altos y más juntos (se les ve el busto), cada uno con su
+//    aparato en el borde de la mesa: Roberta, mirando a la izquierda, dibuja la cueva con el lápiz en su tableta (bóveda,
+//    estalactitas, río y lámpara, trazo a trazo); Ken, mirando al monitor, teclea desde «programmed» con golpes visibles
+//    (la tecla que se hunde) y la cueva gira en su monitor. Delante, el cuaderno de bocetos abierto (la cueva a lápiz) y
+//    la caja de las gafas de RV. En «forty years earlier» se ilumina la foto de 1979; en «home» dejan los aparatos, se
+//    giran el uno hacia el otro y sonríen (dos chispas). El disquete, con las gafas en la frente, saluda desde la mesa.
 import * as T from '/atomo/plato/escenas/si-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('si-cueva');
@@ -94,23 +97,109 @@ const p2 = (t) => {
 };
 
 // ── 3 · el salón de cerca: Roberta dibuja y Ken programa, como en 1979 ──
+// Los dos se sientan más altos y más juntos (pies en y 131: el busto entero asoma sobre el borde del tablero, en y 128) y
+// cada uno tiene su aparato al alcance de la mano, en el borde de atrás de la mesa: la tableta de Roberta (x 110–150) y el
+// teclado de Ken (x 200–230), al lado del monitor. Encima de la tableta y el teclado del decorado, que les quedaban a
+// 20–30 px, van el cuaderno de bocetos abierto (el diseño en papel, como en 1979) y la caja de las gafas de RV.
+const S3 = 131, RX = 143, KX = 197;   // RX, KX: la esquina izquierda de cada chibi (el centro, +7)
+// el trazo de la cueva en la tableta (en el lienzo x 123–147, y 131–139): la bóveda, las estalactitas, el río y la lámpara
+const TRAZO = (() => { const p = []; for (let i = 0; i <= 22; i++) p.push([124 + i, 132 + Math.round(Math.abs(Math.sin(i * 0.55)) * 1.6)]);
+  for (const x of [127, 131, 136, 141, 145]) { p.push([x, 133]); p.push([x, 135]); }
+  for (let i = 0; i <= 22; i += 2) p.push([124 + i, 138 - (i % 4 === 0 ? 0 : 1)]);
+  p.push([133, 137]); p.push([133, 135]); return p; })();
+const tableta = (t, d) => {
+  const { rect, pset, linea, poligono } = R;
+  // el marco negro en leve perspectiva (de cerca, más ancho) y su sombra en el tablero
+  for (let x = 112; x <= 152; x++) if ((x + 142) & 1) pset(x, 142, hex('#3a2418'));
+  poligono([[112, 129], [148, 129], [151, 141], [109, 141]], hex('#1c1222')); poligono([[113, 130], [147, 130], [149, 140], [111, 140]], hex('#30343e'));
+  linea(113, 130, 147, 130, hex('#5a5e6a'));
+  // la barra de herramientas (pictogramas de colores) y el lienzo blanco con su brillo
+  rect(114, 131, 120, 139, hex('#22262e')); for (const [k, c] of [[0, '#d84a3a'], [1, '#3a7ac8'], [2, '#f8c040'], [3, '#5aa84a']]) { rect(115 + (k % 2) * 3, 132 + (k >> 1) * 3, 116 + (k % 2) * 3, 133 + (k >> 1) * 3, hex(c)); }
+  pset(116, 138, hex('#e8e8ee')); pset(118, 138, hex('#9a9eac'));
+  for (let y = 131; y <= 139; y++) for (let x = 122; x <= 147 + Math.round((y - 131) * 0.2); x++) pset(x, y, (x + y) % 7 === 0 ? hex('#e6edf2') : hex('#f6f9fb'));
+  // lo dibujado hasta ahora: la bóveda, las estalactitas, el suelo con el río y, al final, la lámpara que brilla
+  const n = Math.floor(Math.min(1, d) * TRAZO.length), arco = 23, est = arco + 10;
+  for (let i = 1; i < Math.min(n, arco); i++) linea(TRAZO[i - 1][0], TRAZO[i - 1][1], TRAZO[i][0], TRAZO[i][1], hex('#3a3a5a'));
+  for (let i = arco; i < Math.min(n, est); i += 2) if (i + 1 < n) linea(TRAZO[i][0], TRAZO[i][1], TRAZO[i + 1][0], TRAZO[i + 1][1], hex('#3a3a5a'));
+  for (let i = est; i < Math.min(n, TRAZO.length - 2); i++) pset(TRAZO[i][0], TRAZO[i][1], hex('#3a7ac8'));
+  if (n >= TRAZO.length - 1) { rect(132, 135, 134, 137, hex('#a87a18')); pset(133, 134, hex('#f8c040')); if (Math.floor(t * 4) % 2) pset(133, 133, hex('#ffe890')); }
+  for (let i = 0; i < 5; i++) if (i !== 3) pset(124 + i, 139 - i, hex('#ffffff'));
+  return TRAZO[Math.max(0, Math.min(TRAZO.length - 1, n - 1))];
+};
+// el teclado de Ken en el borde de la mesa: teclas que se hunden (claras) donde pulsa
+const teclado = (t, golpe) => {
+  const { rect, pset, poligono } = R;
+  for (let x = 201; x <= 232; x++) if (x & 1) pset(x, 136, hex('#3a2418'));
+  poligono([[202, 129], [228, 129], [230, 135], [200, 135]], hex('#1c1222')); poligono([[203, 130], [227, 130], [229, 134], [201, 134]], hex('#d8dae2'));
+  for (let j = 0; j < 3; j++) for (let i = 0; i < 9; i++) pset(203 + i * 3 + j, 131 + j, hex('#9a9eac'));
+  rect(208, 134, 220, 134, hex('#9a9eac'));
+  if (golpe) { const [gx, gy] = golpe; rect(gx - 1, gy, gx + 1, gy, hex('#ffffff')); pset(gx, gy + 1, hex('#8ad0ff')); }
+};
+// el cuaderno de bocetos abierto, encima de la tableta del decorado: dos hojas con la cueva a lápiz, la espiral, la goma
+const cuaderno = () => {
+  const { rect, pset, linea, poligono } = R;
+  for (let x = 97; x <= 155; x++) for (const y of [162, 163]) if ((x + y) & 1) pset(x, y, hex('#3a2418'));
+  poligono([[96, 136], [153, 136], [156, 161], [93, 161]], hex('#1c1222'));
+  for (let y = 137; y <= 160; y++) { const f = (y - 137) / 23, xa = Math.round(96 - f * 3) + 1, xb = Math.round(153 + f * 3) - 1;
+    for (let x = xa; x <= xb; x++) { const izq = x < 124; pset(x, y, (x * 7 + y * 3) % 11 === 0 ? hex('#e2d8bc') : izq ? hex('#f2ead2') : hex('#efe6cc')); } }
+  for (let y = 138; y <= 160; y += 2) { pset(124, y, hex('#5a5e6a')); pset(125, y, hex('#9a9eac')); }   // la espiral
+  const G = hex('#6a6a7a'), G2 = hex('#9a96a0');
+  // hoja izquierda: el plano de la cueva (galerías y salas) con una cruz de tesoro
+  linea(100, 150, 106, 145, G); linea(106, 145, 113, 147, G); linea(113, 147, 118, 141, G); linea(106, 145, 108, 154, G); linea(108, 154, 116, 156, G);
+  for (const [cx, cy] of [[100, 150], [113, 147], [118, 141], [116, 156]]) { rect(cx - 1, cy - 1, cx + 1, cy + 1, G2); pset(cx, cy, G); }
+  linea(115, 155, 117, 157, hex('#c8403a')); linea(117, 155, 115, 157, hex('#c8403a'));
+  // hoja derecha: la sala grande en alzado (bóveda, estalactitas, el río) y dos renglones de notas en rayas
+  for (let i = 0; i < 24; i++) pset(128 + i, 141 + Math.round(Math.abs(Math.sin(i * 0.5)) * 2), G);
+  for (const x of [131, 136, 142, 147]) linea(x, 143, x, 146 + (x % 3), G);
+  for (let i = 0; i < 24; i += 2) pset(128 + i, 154, hex('#7a9ac8'));
+  linea(129, 158, 140, 158, G2); linea(143, 158, 150, 158, G2);
+  // el lápiz y la goma al lado
+  linea(140, 148, 151, 151, hex('#1c1222')); linea(140, 147, 150, 150, hex('#e8b840')); pset(151, 151, hex('#5a5a72')); pset(139, 147, hex('#d88a8a'));
+  rect(98, 157, 102, 159, hex('#1c1222')); rect(99, 157, 101, 158, hex('#e88aa0'));
+};
+// la caja de las gafas de RV, encima del teclado del decorado: cartón azul con su franja, el pictograma de las gafas y la cueva
+const cajaRV = (t) => {
+  const { rect, pset, poligono, disco } = R;
+  for (let x = 178; x <= 232; x++) for (const y of [155, 156]) if ((x + y) & 1) pset(x, y, hex('#3a2418'));
+  poligono([[178, 141], [228, 141], [230, 154], [176, 154]], hex('#1c1222')); poligono([[179, 142], [227, 142], [229, 153], [177, 153]], hex('#2a3a6a'));
+  for (let y = 143; y <= 152; y++) for (let x = 178; x <= 228; x++) if ((x * 3 + y * 5) % 13 === 0) pset(x, y, hex('#34477a'));
+  rect(179, 142, 227, 143, hex('#4a5e9a')); rect(196, 142, 200, 153, hex('#c8303a')); rect(197, 142, 197, 153, hex('#e85a5a'));
+  // las gafas en blanco y la cueva (una bóveda con su lámpara) en el otro lado
+  rect(182, 146, 192, 150, hex('#e8ecf2')); rect(183, 147, 186, 149, hex('#3a4a7a')); rect(188, 147, 191, 149, hex('#3a4a7a')); pset(187, 150, hex('#2a3a6a')); pset(187, 149, hex('#2a3a6a'));
+  poligono([[204, 152], [208, 145], [216, 144], [222, 152]], hex('#8a7ac8')); poligono([[207, 152], [210, 147], [215, 147], [219, 152]], hex('#1c1630'));
+  disco(213, 150, 1, hex('#f8c040')); if (Math.floor(t * 2) % 2) pset(213, 148, hex('#ffe890'));
+  for (let i = 0; i < 6; i++) if (i % 3 !== 2) pset(181 + i, 152 - i, hex('#5a6eaa'));
+};
 const p3 = (t) => {
-  const dib = tramo(t, P3, b(0.6)), ren = tramo(t, b(0.234), b(0.7));
-  const op = { encuadre: 'salon', camara: 'mesa', dibujo: dib, render: ren };
-  const G = T.hoy(R, t, op), S = G.suelo ?? 137;
+  const dib = tramo(t, b(0.06), b(0.8)), ren = tramo(t, b(0.234), b(0.7));
+  const op = { encuadre: 'salon', camara: 'mesa', dibujo: 1, render: ren, sillas: [RX + 7, KX + 7] };
+  T.hoy(R, t, op);
   // la foto de 1979 se ilumina en «forty years earlier»
   const fo = tramo(t, b(0.655), b(0.655) + 0.8);
   if (fo > 0) { luz(160, 42, 40, hex('#fff2c8'), 0.45 * Math.min(1, fo * 2)); if (fo < 1) destello(160, 42, fo, 14, 44); const k = Math.floor(t * 4) % 4; chispa([130, 190, 190, 130][k], [18, 18, 68, 68][k]); chispa([190, 130, 130, 190][k], [68, 68, 18, 18][k]);
     for (let x = 129; x <= 191; x++) { R.pset(x, 15, hex('#fff2a0')); R.pset(x, 70, hex('#fff2a0')); } for (let y = 15; y <= 70; y++) { R.pset(129, y, hex('#fff2a0')); R.pset(191, y, hex('#fff2a0')); } }
   const casa = t > b(0.86);
-  const D0 = T.j_hoyDelante(R, t, op);   // primera pasada solo para saber dónde está el lápiz
-  const lap = D0.lapiz ?? [124, 146];
-  R.actor(EL.robertaMayor, 128, S, t, { dir: 1, sostiene: casa ? undefined : lap, sonrisa: casa || dib > 0.6 });
-  R.actor(EL.kenMayor, 196, S, t, { dir: casa ? -1 : 1, sostiene: casa ? undefined : [200 + Math.round(Math.abs(Math.sin(t * 9)) * 6), 146], sonrisa: casa });
-  T.j_hoyDelante(R, t, op);
+  // Roberta (mira a su tableta, a la izquierda) y Ken (mira al monitor, a la derecha); en «home» se giran el uno hacia
+  // el otro y sonríen. Dibuja mientras dib < 1; teclea de «programmed» a «home» con golpes de 2 px y la mano que salta
+  const dibuja = !casa && t > b(0.03), teclea = !casa && t > b(0.22);
+  const pen = tableta(t, dib);   // solo para saber dónde está la punta; la tableta se repinta encima del tablero
+  const rta = dibuja ? [pen[0] + 3, pen[1] - 6 - (dib < 1 ? Math.round(Math.abs(Math.sin(t * 7))) : 2)] : undefined;
+  const fase = Math.floor(t * 7), arriba = (t * 14) % 2 < 1;
+  const kta = teclea ? [214 + (fase % 3) * 2 - (fase % 2) * 3, 129 - (arriba ? 2 : 0)] : undefined;
+  const opR = { dir: casa ? 1 : -1, sostiene: rta, sonrisa: casa || dib > 0.6 }, opK = { dir: casa ? -1 : 1, sostiene: kta, sonrisa: casa };
+  const ra = R.actor(EL.robertaMayor, RX, S3, t, opR), ka = R.actor(EL.kenMayor, KX, S3, t, opK);
+  T.j_hoyDelante(R, t, op);   // el tablero los tapa de cintura para abajo
+  cuaderno(); cajaRV(t);
+  tableta(t, dib); teclado(t, teclea && !arriba ? [ka.mano[0], 131] : null);
+  // los antebrazos y las manos, que caen sobre el tablero, se repintan encima (solo la franja de delante del cuerpo)
+  if (rta) { R.recorte([RX - 14, 124, RX - 1, 140]); R.actor(EL.robertaMayor, RX, S3, t, opR); R.recorte(null);
+    // el lápiz de la tableta, de la mano a la punta, y el trazo que acaba de hacer
+    const [hx, hy] = ra.mano; R.linea(hx - 1, hy + 2, pen[0] + 1, pen[1], hex('#c8403a')); R.linea(hx - 2, hy + 1, pen[0], pen[1], hex('#1c1222')); R.pset(pen[0], pen[1], hex('#e8e8ee'));
+    if (dib > 0 && dib < 1 && Math.floor(t * 8) % 2) R.pset(pen[0] - 1, pen[1], hex('#8ad0ff')); }
+  if (kta) { R.recorte([KX + 15, 124, KX + 28, 140]); R.actor(EL.kenMayor, KX, S3, t, opK); R.recorte(null); }
+  if (casa) { const u = tramo(t, b(0.86), b(0.86) + 0.6); if (u > 0 && u < 1) for (const [x, y] of [[RX + 16, 104], [KX - 2, 104]]) chispa(x, y - Math.round(u * 4)); }
   // el disquete con las gafas en la frente saluda desde la mesa (al final)
-  const dq = tramo(t, b(0.4), b(0.6));
-  const dd = T.disquete(R, 292, 136, t, { s: 1, dir: -1, gafas: 0, expresion: 'feliz', saluda: t > b(0.86) ? 'mano' : undefined, salto: t > b(0.86) && t < b(0.86) + 0.5 ? 2 : 0 });
+  T.disquete(R, 292, 136, t, { s: 1, dir: -1, gafas: 0, expresion: 'feliz', saluda: t > b(0.86) ? 'mano' : undefined, salto: t > b(0.86) && t < b(0.86) + 0.5 ? 2 : 0 });
   T.gafasRV(R, 292, 136 - 19 - (t > b(0.86) && t < b(0.86) + 0.5 ? 2 : 0) - 1, t, { s: 1, puestas: true, brillo: tramo(t, b(0.88), b(0.88) + 0.6) });
 };
 const efectos = [[a(0.06), 'pop'], [a(0.2), 'brillo'], [a(0.32), 'whoosh'], [a(0.43), 'boing'], [P2 + 0.2, 'tecleo'], [a(0.734), 'whoosh'], [a(0.88), 'brillo'],

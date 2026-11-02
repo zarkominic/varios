@@ -13,10 +13,15 @@
 // 1. fondo local: una tienda de ordenadores de 1980: el panel perforado con las bolsas colgadas (disquete y hoja dentro),
 //    la mesa con el ordenador y la casa en su monitor; en «graphics» el chico se asombra; en «zip-top plastic bags» va al
 //    panel, salta, coge una bolsa y se la enseña a su padre; el dependiente cuelga más (corta en «with a floppy»);
-// 2. casa salon, cámara 'mesa': manos que meten el disquete («floppy disk») y la hoja («sheet of paper») en la bolsa;
-//    en «photocopies» otra mano deja un montón de fotocopias; en «packed by hand» las dos manos cierran la bolsa;
-// 3. casa super, cámara 'caja': Roberta entra empujando el carro lleno de cajas de bolsas hasta arriba; en «cart full
-//    of bags» la cajera coge una caja, levanta la ceja y sale el «?» (gag 2).
+// 2. casa salon, cámara 'mesa': desde el primer fotograma la mano de Roberta (brazo desde abajo a la izquierda) sujeta el
+//    disquete y la de Ken (desde abajo a la derecha) la hoja, los dos al borde de la mesa; en «floppy disk» ella lo
+//    empuja, lo suelta y el disquete resbala hasta la bolsa, y el brazo vuelve abajo; luego Ken empuja la hoja igual
+//    («sheet of paper»). Los brazos entran en diagonal desde el borde de abajo y se ven 30–45 px; en «photocopies» otra
+//    mano deja un montón de fotocopias por la izquierda; en «packed by hand» las dos manos sujetan la bolsa por las
+//    esquinas de abajo y la aprietan mientras el cierre rojo y azul se sella del centro a las puntas;
+// 3. casa super, cámara 'caja': Roberta entra empujando el carro (agarra el asa roja: sostiene en el asa, y el carro se
+//    pinta después, delante de ella) lleno de cajas de bolsas hasta arriba; en «cart full of bags» la cajera coge una
+//    caja, levanta la ceja y sale el «?» (gag 2).
 import * as T from '/atomo/plato/escenas/si-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('si-bolsas');
@@ -106,22 +111,31 @@ const p2 = (t) => {
   const u = t < Bo(0.76) ? 0 : t < Bo(0.86) ? 0.714 * tramo(t, Bo(0.76), Bo(0.86)) : t < Bo(0.93) ? lerp(0.714, 0.857, tramo(t, Bo(0.86), Bo(0.93))) : t < S(0.29) ? 0.857 : lerp(0.857, 1, tramo(t, S(0.29), S(0.355)));
   T.casa(R, t, { encuadre: 'salon', camara: 'mesa', bolsa: u });
   const bx = 124, by = 96;
-  // la mano de Roberta (brazo corto, en diagonal) empuja el disquete hasta la bolsa y se retira
+  // la mano de Roberta sujeta el disquete por su parte izquierda (brazo desde abajo a la izquierda); lo empuja hasta la
+  // mitad, lo suelta (el disquete resbala solo hasta la bolsa) y el brazo vuelve abajo
   const dq = Math.min(1, u * 1.4), dx = Math.round(lerp(bx + 80, bx + 8, dq)), dy = Math.round(lerp(by + 70, by + 12, dq));
-  const sale1 = ease(tramo(t, Bo(0.87), Bo(0.95)));
-  if (t > P2 && sale1 < 1) { const hx = dx + 36 + Math.round(sale1 * 70), hy = dy + 22 + Math.round(sale1 * 60); T.brazo(R, hx + 30, hy + 30, hx, hy, '#9a6a9a', -1); }
-  // la mano de Ken trae la hoja desde la derecha
-  const hq = Math.max(0, Math.min(1, u * 1.4 - 0.2)), hx0 = Math.round(lerp(bx + 100, bx + 44, hq)), hy0 = Math.round(lerp(by + 60, by + 14, hq)), sale2 = ease(tramo(t, Bo(0.95), S(0.02)));
-  if (t > Bo(0.8) && sale2 < 1) { const x1 = hx0 + 24 + Math.round(sale2 * 80), y1 = hy0 + 16 + Math.round(sale2 * 10); T.brazo(R, x1 + 36, y1 + 14, x1, y1, '#4a6a9a', -1); }
+  const suelta1 = Bo(0.81), sale1 = ease(tramo(t, suelta1, suelta1 + 0.45));
+  if (sale1 < 1) { const sx0 = 186, sy0 = 215;
+    const qx = t < suelta1 ? dx + 6 : 174, qy = t < suelta1 ? dy + 8 : 145, hx = Math.round(lerp(qx, sx0 + 8, sale1)), hy = Math.round(lerp(qy, 196, sale1));
+    T.brazo(R, sx0, sy0, hx, hy, '#9a6a9a', 1); }
+  // la mano de Ken sujeta la hoja por el borde derecho (brazo desde abajo a la derecha); la empuja, la suelta y se va
+  const hq = Math.max(0, Math.min(1, u * 1.4 - 0.2)), hx0 = Math.round(lerp(bx + 100, bx + 44, hq)), hy0 = Math.round(lerp(by + 60, by + 14, hq));
+  const suelta2 = Bo(0.83), sale2 = ease(tramo(t, suelta2, suelta2 + 0.45));
+  if (sale2 < 1) { const sx0 = 270, sy0 = 215, qx = t < suelta2 ? hx0 + 26 : 222, qy = t < suelta2 ? hy0 + 12 : 145;
+    T.brazo(R, sx0, sy0, Math.round(lerp(qx, sx0 - 10, sale2)), Math.round(lerp(qy, 198, sale2)), '#4a6a9a', -1); }
   // «photocopies»: la mano de Ken entra por la izquierda con un montón nuevo de fotocopias y lo deja sobre el montón
   const fo = ease(tramo(t, S(0.0), S(0.07))), fv = ease(tramo(t, S(0.1), S(0.17)));
   if (fo > 0) { const x = Math.round(lerp(-60, 16, fo)), y = 70; R.rect(x, y, x + 52, y + 30, K); R.rect(x + 1, y + 1, x + 51, y + 29, BL); for (let j = 0; j < 6; j++) R.rect(x + 4, y + 4 + j * 4, x + 22 + ((j * 7) % 22), y + 4 + j * 4, hex('#8a8a9a')); R.rect(x + 1, y + 26, x + 51, y + 29, hex('#d8d8d0'));
     if (fv < 1) { const hx = x - Math.round(fv * 50), hy = y + 14; T.brazo(R, hx - 34, hy + 16, hx, hy, '#4a6a9a', 1); } }
-  // «packed by hand»: las dos manos pinzan el cierre y lo recorren del centro a las puntas
-  const ci = tramo(t, S(0.26), S(0.36)), fuera = ease(tramo(t, S(0.4), S(0.46)));
-  if (ci > 0 && fuera < 1) { const sx = Math.round(lerp(0, 24, ci)), yy = by + 2 + Math.round(fuera * 70);
-    T.brazo(R, bx + 4 - sx, yy + 38, bx + 30 - sx, yy, '#9a6a9a', 1); T.brazo(R, bx + 66 + sx, yy + 38, bx + 40 + sx, yy, '#9a6a9a', -1);
-    if (ci > 0 && ci < 1) for (const xx of [bx + 30 - sx, bx + 40 + sx]) if (Math.floor(t * 16) % 2) R.pset(xx, by - 2, BL); }
+  // «packed by hand»: las dos manos (brazos desde el borde de abajo) cogen la bolsa por las esquinas de abajo y la
+  // aprietan; el cierre rojo y azul se sella del centro a las puntas con un brillo en cada punta; luego se retiran
+  const llega = ease(tramo(t, S(0.21), S(0.26))), ci = tramo(t, S(0.26), S(0.36)), fuera = ease(tramo(t, S(0.4), S(0.46)));
+  if (llega > 0 && fuera < 1) { const ap = ci > 0 && ci < 1 ? Math.round(Math.abs(Math.sin(t * 9)) * 2) : 0, ent = (1 - llega) + fuera;
+    const yl = by + 46 + Math.round(ent * 40);
+    T.brazo(R, bx - 26, 205, bx - 2 + ap, yl, '#9a6a9a', 1); T.brazo(R, bx + 96, 205, bx + 72 - ap, yl, '#9a6a9a', -1); }
+  if (ci > 0) { const cx = bx + 35, l = Math.round(ci * 34);
+    R.rect(cx - l, by + 1, cx + l, by + 2, T.C.rojo); R.rect(cx - l, by + 3, cx + l, by + 3, hex('#3a6ac8'));
+    if (ci < 1 && Math.floor(t * 16) % 2) for (const xx of [cx - l, cx + l]) { R.pset(xx, by - 1, BL); R.pset(xx - 1, by, BL); R.pset(xx + 1, by, BL); R.pset(xx, by - 2, hex('#fff4c0')); } }
 };
 
 // 3 · la caja del súper: el carro hasta arriba y la ceja de la cajera
@@ -134,8 +148,9 @@ const p3 = (t) => {
   if (t > ceja) { const [hx, hy] = cj.mano; R.rect(hx - 9, hy - 9, hx + 3, hy + 2, K); R.rect(hx - 8, hy - 8, hx + 2, hy + 1, hex('#3a8ac8')); R.rect(hx - 8, hy - 8, hx + 2, hy - 7, BL); R.rect(hx - 6, hy - 5, hx, hy - 1, hex('#d4e2ee')); R.rect(hx - 6, hy - 5, hx, hy - 5, hex('#c83a2a'));
     const [cx, cy] = cj.cabeza; R.linea(cx - 6, cy + 2, cx - 3, cy + 1, K); R.pset(cx - 5, cy + 1, K);
     const s = tramo(t, ceja, ceja + 0.15); if (s > 0) R.icono('?', cx - 6, cy - 16 + Math.round((1 - s) * 4), hex('#ffd040'), K, 2); }
-  R.actor(EL.roberta, rx, 166, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: true, habla: t > S(0.9) && Math.sin(t * 6) > 0.3 });
-  T.a_carro(R, rx + 6, 166, t, { lleno: 1, anda: u > 0 && u < 1 });
+  // Roberta agarra el asa roja (que a_carro pone en x − 8, suelo − 13); el carro va delante de ella
+  R.actor(EL.roberta, rx, 166, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: true, habla: t > S(0.9) && Math.sin(t * 6) > 0.3, sostiene: [rx + 20, 153] });
+  T.a_carro(R, rx + 28, 166, t, { lleno: 1, anda: u > 0 && u < 1 });
 };
 
 const efectos = [[Bo(0.254), 'brillo'], [Bo(0.56), 'papel'], [Bo(0.86), 'toc'], [Bo(0.93), 'papel'], [S(0.07), 'golpecito'], [S(0.355), 'pop'], [S(0.48), 'carro'], [S(0.84), 'pop'], [S(0.95), 'campana']];
