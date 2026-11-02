@@ -489,7 +489,8 @@ export function washingtonDelante(R, t, o = {}) {
 //     huyen. o.portal (0–1): se abre un portal azul en espiral a la izquierda. o.expulsa (0–1): Galactus sale volando
 //     hacia el portal, se encoge y desaparece en él (con o.portal a 1).
 // Devuelve { suelo (donde se plantan los pies de los héroes), calle, carroza: { x0, x1, cubierta }, galactus: { x, y, s }
-// (la cara), portal: [x, y, r], sol: [x, y] } (lo que no aplica, null). Delante (opcional, después de los actores):
+// (la cara donde está en ese instante, también mientras vuela al portal; s es su escala real, que encoge con o.expulsa;
+// para pintarlo fuera de la azotea, galactusGrande), portal: [x, y, r], sol: [x, y] } (lo que no aplica, null). Delante (opcional, después de los actores):
 // h_confeti(R, t, { n }) con el confeti que cae por delante en la avenida.
 export function sesenta(R, t, o = {}) {
   const enc = o.encuadre ?? 'ciudad', cam = o.camara ?? 'general';
@@ -3364,11 +3365,13 @@ function h_azotea(R, t, o, cerca) {
   if (g > 0 && ex < 1) h_corona(R, t, sol[0], sol[1] + 10, Math.round((cerca ? 100 : 86) * e), e * (1 - ex));
   // el portal
   if (pt > 0) h_portal(R, t, por[0], por[1], por[2] * (1 - (1 - pt) ** 3) * (ex > 0.85 ? 1 - (ex - 0.85) / 0.15 * 0.6 : 1));
-  // Galactus: sube (gigante) y, al expulsarlo, vuela hacia el portal encogiéndose
+  // Galactus: sube (gigante) y, al expulsarlo, vuela hacia el portal encogiéndose (gal: dónde está su cara en este instante)
+  let gal = null;
   if (g > 0 && ex < 1) {
     const ue = ex * ex * (3 - 2 * ex), fx0 = fxBase, fy0 = Math.round(fyAbajo + (fyArriba - fyAbajo) * e + Math.sin(t * 0.9) * 1.2);
     const fx = Math.round(fx0 + (por[0] - fx0) * ue), fy = Math.round(fy0 + (por[1] - fy0) * ue), k = 1 - ue * 0.94;
     h_galactus(R, t, s, fx, fy, k, { bruma: ex > 0 ? null : [h_mezcla(h_P.bruma, hex('#c890c0'), tinte), hor], tinte: [h_P.portal2, ue * 0.6] });
+    gal = { x: fx, y: fy, s: s * k, k };
   }
   // nubes bajas que pasan por delante del gigante (dan la escala)
   { const cn = [0, 1, 2].map((i) => h_mezcla(h_NUBE_DIA[i], h_NUBE_GIG[i], tinte)); for (let k = 0; k < 3; k++) { const x = ((h(k, 8, 730) * 420 + t * (5 + k * 2)) % 480) - 80; h_nube(R, Math.round(x), hor - 18 - k * 6, 40 + k * 8, 20 + k, cn); } }
@@ -3409,11 +3412,9 @@ function h_azotea(R, t, o, cerca) {
       disco(x - 2, y - 1, 2, h_P.k); disco(x + 2, y - 1, 2, h_P.k); const sw = Math.round(Math.sin(t * 6) * 3); linea(x + 3 * d, y - 8, x + (8 + sw) * d, y, h_P.madera); rect(Math.min(x + (6 + sw) * d, x + (10 + sw) * d), y, Math.max(x + (6 + sw) * d, x + (10 + sw) * d), y + 1, h_P.mante);
       if (Math.abs(sw) > 2) { pset(x + (12 + sw) * d, y - 1, h_P.tejaS); pset(x + (13 + sw) * d, y - 2, h_P.tejaS); } }
   }
-  // lo que devuelve: la cara del gigante, el portal y el sol
-  const fyG = Math.round(fyAbajo + (fyArriba - fyAbajo) * e);
-  return { suelo: cerca ? 165 : 166, calle: null, carroza: null, galactus: g > 0 && ex < 1 ? { x: fxBase, y: fyG, s } : null, portal: pt > 0 ? por : null, sol: [sol[0], sol[1]] };
+  // lo que devuelve: la cara del gigante donde está en este instante (también mientras vuela al portal), el portal y el sol
+  return { suelo: cerca ? 165 : 166, calle: null, carroza: null, galactus: gal, portal: pt > 0 ? por : null, sol: [sol[0], sol[1]] };
 }
-
 // el tramado ordenado de 4 × 4 (umbral de 0 a 1 por píxel)
 const a_B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 
@@ -6356,12 +6357,12 @@ function i_castillo(R, t, o) {
   // las ventanas que se encienden y se apagan, despacio
   d.ventanas.forEach(([x, y, w, a], k) => { if (Math.sin(t * 0.45 + k * 2.17) > 0.55) { R.rect(x, y, x + w - 1, y + a - 1, LV.luzV); R.pset(x, y + a - 1, LV.fuego); } });
   d.humos.forEach(([x, y], k) => i_humo(R, x, y, t, k));
-  d.banderas.forEach(([x, y, L], k) => { R.linea(x, y, x, y + 9, LV.hierro); R.pset(x, y - 1, LV.oro); i_bandera(R, x, y, t, k * 1.3, L, Math.round(L / 2)); });
+  // las banderas: [x, y, largo, mástil]; el mástil mide 9 si no se dice
+  d.banderas.forEach(([x, y, L, m = 9], k) => { R.linea(x, y, x, y + m, LV.hierro); R.pset(x, y - 1, LV.oro); i_bandera(R, x, y, t, k * 1.3, L, Math.round(L / 2)); });
   if (cerca) i_castilloCercaVivo(R, t, capa); else i_castilloVivo(R, t);
   if (o.vinetas > 0) i_vinetas(R, t, o.vinetas, cerca);
   return cerca ? { suelo: 164, puerta: [207, 154], rampa: [150, 264] } : { suelo: 160, castillo: [190, 50], fuente: [284, 147], puesto: [30, 140], plaza: [84, 252] };
 }
-
 // la capa fija del plano general: montes, cerros, peñasco, castillo, pueblo y plaza
 function i_castilloFijo(R) {
   const d = { ventanas: [], humos: [], banderas: [] };
@@ -6472,8 +6473,8 @@ function i_castilloCercaFijo(R) {
     for (let k = 0; k < 60; k++) { const x = cx - 26 + Math.round(h(k, 1, 484) * 52), y = cy - 15 - Math.round(h(k, 2, 484) * 12); R.linea(x, y, x + 2, y - 2, k % 3 ? LV.ocre : hex('#f6dc94')); }
     R.rect(cx - 32, cy - 14, cx + 32, cy - 6, LV.viga); R.rect(cx - 32, cy - 14, cx + 32, cy - 13, LV.ocreS); for (let x = cx - 30; x < cx + 32; x += 8) R.rect(x, cy - 12, x, cy - 7, LV.vigaS); R.linea(cx + 32, cy - 9, cx + 46, cy - 4, LV.vigaS);
     for (const wx of [cx - 20, cx + 18]) { R.disco(wx, cy - 3, 7, LV.vigaS); R.disco(wx, cy - 3, 5.5, LV.viga); R.disco(wx, cy - 3, 1.5, LV.hierro); for (let q = 0; q < 6; q++) R.linea(wx, cy - 3, wx + Math.round(Math.cos(q) * 5), cy - 3 + Math.round(Math.sin(q) * 5), LV.vigaS); } }
-  // la torre redonda de la izquierda
-  mastil(i_torre(R, 28, 12, 52, 154, 22, 12, d.ventanas), 12);
+  // la torre redonda de la izquierda; su bandera va en un mástil corto para quedar debajo de la etiqueta del año (y ≥ 21)
+  { const [mx, my] = i_torre(R, 28, 12, 52, 154, 22, 12, d.ventanas); d.banderas.push([mx, my - 4, 12, 4]); }
   // el cuerpo de la puerta, con matacanes, dos ventanas y el arco de dovelas
   i_silleria(R, 174, 54, 240, 154, 3, 13); i_almenas(R, 174, 240, 54, 3, 13); R.rect(174, 54, 240, 54, LV.p4);
   for (let x = 176; x < 240; x += 6) { R.rect(x, 55, x + 3, 58, LV.p2); R.rect(x, 58, x + 3, 58, LV.p1); R.pset(x + 4, 57, LV.p0); R.pset(x + 5, 57, LV.p0); }
@@ -6511,7 +6512,6 @@ function i_castilloCercaFijo(R) {
   for (let x = 268; x < 320; x += 10) { R.rect(x, 152, x + 1, 166, LV.vigaS); R.pset(x, 152, LV.viga); } R.rect(266, 155, 319, 156, LV.viga); R.rect(266, 161, 319, 162, LV.viga); R.rect(266, 155, 319, 155, LV.tierraL);
   return d;
 }
-
 // lo que se mueve en el plano de cerca: estandartes, antorchas, el centinela del adarve, el guardia del patio, la hierba
 function i_castilloCercaVivo(R, t, capa) {
   i_estandarte(R, 178, 62, 9, 30, t, 0); i_estandarte(R, 228, 62, 9, 30, t, 1.7);
@@ -7983,4 +7983,23 @@ function k_taquillaFija(R) {
   rect(0, 164, 319, 165, hex('#b0a8b8')); rect(0, 166, 319, 167, hex('#5a5468'));
   for (let y = 168; y < 180; y++) for (let x = 0; x < 320; x++) pset(x, y, h(x >> 1, y, 597) < 0.1 ? hex('#4a4458') : hex('#3a3448'));
   for (let x = 0; x < 320; x += 28) rect(x, 174, x + 14, 174, hex('#d8c060'));
+}
+
+// galactusGrande: el Galactus sombreado del decorado 'cielo' (luz de contorno, sombra tramada, placas del casco y de la
+// armadura, cinturón con remaches, ojos que laten, chispas entre las alas del casco y el aura de rayos detrás de la
+// cabeza), para las escenas que lo pintan fuera de la azotea (en el espacio, por ejemplo). (x, y) es su cara (como
+// el campo «galactus» de sesenta); con o.pie, (x, y) es el centro de sus pies (como PIEZAS_DO.galactus: la cara
+// queda en x − s/2, y − 25·s). o.s: escala de la pieza (2–5, 4 por defecto). o.aura (0–1, 1): cuánta aura se ve.
+// o.bruma: [color, y] para fundirle las piernas en la bruma de un horizonte. o.expulsa (0–1): se encoge, se tiñe de
+// azul y vuela hacia o.hacia ([x, y], el portal; sin él, se encoge en su sitio). No pinta en la zona de Atom.
+// Devuelve { x, y, s, k } con su cara y su escala real en este instante (s ya multiplicada por k), o null si ya entró.
+export function galactusGrande(R, x, y, t, o = {}) {
+  const s = Math.max(2, Math.min(5, Math.round(o.s ?? 4))), ex = Math.max(0, Math.min(1, o.expulsa ?? 0)), au = Math.max(0, Math.min(1, o.aura ?? 1));
+  if (ex >= 1) return null;
+  const fx0 = o.pie ? x - s / 2 : x, fy0 = o.pie ? y - 25 * s : y, [hx, hy] = o.hacia ?? [fx0, fy0];
+  const ue = ex * ex * (3 - 2 * ex), fx = Math.round(fx0 + (hx - fx0) * ue), fy = Math.round(fy0 + (hy - fy0) * ue), k = 1 - ue * 0.94;
+  // el aura de rayos detrás de la cabeza (gira despacio), que se apaga al expulsarlo
+  if (au > 0 && k > 0.2) h_corona(R, t, fx, fy + Math.round(2 * s * k), Math.round(17 * s * k), au * (1 - ex));
+  h_galactus(R, t, s, fx, fy, k, { bruma: o.bruma ?? null, tinte: [h_P.portal2, ue * 0.6] });
+  return { x: fx, y: fy, s: s * k, k };
 }

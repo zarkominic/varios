@@ -196,7 +196,7 @@ const g2 = (t) => {
     for (let k = 0; k < 4; k++) R.linea(sx - 6 - k, sy + (k - 1.5) * 3, sx - 2, sy, CIAN);
     for (let w = 0; w < 3; w++) { const r = ((t - A.poder + w * 0.5) % 1.5) * 70; if (t < A.poder || t > B.niega || r < 8) continue;
       for (let an = 2.2; an < 4.1; an += 0.02) { const px = sx + Math.cos(an) * r, py = sy + Math.sin(an) * r * 0.9; if (!tranquila(px, py) && bay(px, py) < 0.7 - r / 140) R.pset(px, py, CIAN); } } }
-  galactusLuz(gx, gy, 4, t, tramo(t, A.poder - 0.2, A.poder + 0.3) * (1 - rebota * 0.6));
+  T.galactusGrande(R, gx, gy, t, { s: 4, pie: true });   // el Galactus sombreado del decorado (pasada de decorados del 19)
   // la cúpula de fuerza de Sue: salta en «They refuse» y le rebota
   const cu = tramo(t, B.niega - 0.05, B.niega + 0.25);
   if (cu > 0) { const r = 52 * ease(cu) + (rebota > 0 && rebota < 1 ? Math.sin(t * 30) * 1.5 * (1 - rebota) : 0);
