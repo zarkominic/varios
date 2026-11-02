@@ -21,11 +21,11 @@ const CONF = ['#e84a5a', '#f2c84a', '#5ac8f0', '#7ae86a', '#c87af0', '#ffffff'];
 const confeti = (cx, cy, t, t0, n = 46) => {
   const d = t - t0; if (d < 0) return;
   for (let k = 0; k < n; k++) {
-    const ang = -Math.PI / 2 + (h(k) - 0.5) * 2.4, v = 50 + h(k + 9) * 70;
+    const ang = -Math.PI / 2 + (h(k) - 0.5) * 2.8, v = 40 + h(k + 9) * 45;
     const x = cx + Math.cos(ang) * v * Math.min(d, 0.6) + Math.sin(d * 3 + k) * 4 * Math.max(0, d - 0.4);
     const y = cy + Math.sin(ang) * v * Math.min(d, 0.6) + Math.max(0, d - 0.5) * (14 + h(k + 3) * 10);
     if (y > 178) continue; const c = hex(CONF[k % CONF.length]), giro = Math.floor(d * 8 + k) % 2;
-    R.pset(Math.round(x), Math.round(y), c); if (giro) R.pset(Math.round(x) + 1, Math.round(y), c); else R.pset(Math.round(x), Math.round(y) + 1, c);
+    const X = Math.round(x), Y = Math.round(y); if (giro) R.rect(X, Y, X + 2, Y + 1, c); else R.rect(X, Y, X + 1, Y + 2, c);
   }
 };
 // 1. el barranco: el tronco, el temblor y la llegada
@@ -146,14 +146,21 @@ const p2 = (t) => {
   T.oficina(R, t, o);
   // la pantalla: despega el cohete y aparece el conserje diminuto con su escoba
   R.recorte([155, 79, 213, 123]);
-  const u = tramo(t, CREA, CREA + 1.1);
-  if (u > 0 && u < 1) { const x = Math.round(lerp(150, 220, u)), y = Math.round(lerp(118, 86, u));
-    for (let k = 1; k < 6; k++) R.pset(x - 4 - k * 2, y + 2 + k, k % 2 ? hex('#f2c84a') : hex('#e84a3a'));
-    R.poligono([[x - 4, y + 2], [x + 4, y - 2], [x + 2, y + 3]], hex('#e8e8f0')); R.pset(x + 1, y, hex('#5ac8f0')); R.pset(x - 3, y + 3, hex('#e84a3a')); }
-  const v = tramo(t, CREA + 0.9, CREA + 1.3);
-  if (v > 0) { const x = 184, y = 118 - Math.round((1 - v) * 4) + (Math.floor(t * 4) % 2);
-    R.linea(x, y - 9, x + 2, y - 4, hex('#e0b860')); R.linea(x, y - 3, x, y, hex('#7a8aa8')); R.linea(x - 1, y - 3, x - 1, y, hex('#7a8aa8')); R.pset(x, y - 5, hex('#f6c290')); R.pset(x - 1, y - 5, hex('#e0b860'));
-    R.linea(x + 2, y - 4, x + 5, y, hex('#a86a3a')); R.linea(x + 4, y, x + 7, y, hex('#e8c060')); }
+  // la nave del juego cruza la pantalla con su estela
+  const u = tramo(t, CREA - 0.1, CREA + 1.0);
+  if (u > 0 && u < 1) { const x = Math.round(lerp(140, 228, u)), y = Math.round(lerp(112, 88, u));
+    for (let k = 1; k < 9; k++) { const c = k % 3 === 0 ? hex('#e84a3a') : hex('#f2c84a'); R.disco(x - 8 - k * 3, y + 4 + Math.round(k * 1.2), Math.max(0, 2 - (k >> 2)), c); }
+    R.poligono([[x - 10, y + 5], [x + 9, y - 3], [x + 4, y + 6], [x - 6, y + 9]], hex('#2a2a34')); R.poligono([[x - 9, y + 5], [x + 7, y - 2], [x + 3, y + 5], [x - 6, y + 8]], hex('#e8e8f0'));
+    R.disco(x + 2, y + 1, 2, hex('#5ac8f0')); R.poligono([[x - 8, y + 5], [x - 11, y], [x - 5, y + 4]], hex('#e84a3a')); }
+  // y luego el héroe del juego, el conserje con su escoba, se planta en el suelo de la pantalla
+  const v = tramo(t, CREA + 0.75, CREA + 1.15);
+  if (v > 0) {
+    R.linea(155, 117, 213, 117, hex('#5a6a88')); for (let x = 155; x <= 213; x += 4) R.pset(x + (Math.floor(t * 6) % 4), 119, hex('#3a4a6a'));
+    const y = 117 - Math.round((1 - v) * 30), sw = Math.round(Math.sin(t * 9) * 2);
+    const ro = R.actor(EL.conserje, 172, y, t, { dir: 1, sostiene: [187, y - 12 + sw], sonrisa: true });
+    const [hx, hy] = ro.mano; R.linea(hx - 4, hy - 9, hx + 8 + sw, y - 3, hex('#6a3e1e')); R.linea(hx - 3, hy - 9, hx + 9 + sw, y - 3, hex('#a86a3a'));
+    R.rect(hx + 3 + sw, y - 3, hx + 14 + sw, y - 2, hex('#a83a3a')); R.rect(hx + 2 + sw, y - 1, hx + 15 + sw, y, hex('#e8c060'));
+  }
   R.recorte(null);
   // Scott llega por detrás de la mesa; los dos se chocan los cinco en «Andromeda» y luego miran la pantalla
   const s = ruta(t, [[P2, 132], [P2 + 1.1, 86]]), mira = t > CREA - 0.05, choca = t > ANDRO - 0.35 && t < ANDRO + 0.5;
@@ -162,7 +169,7 @@ const p2 = (t) => {
   antenas(ra.cabeza, t, 1, 0); antenas(rb.cabeza, t, 1, 2);
   // el choque: un destello de estrellas entre las dos manos
   const e = tramo(t, ANDRO - 0.05, ANDRO + 0.5);
-  if (e > 0 && e < 1) { const cx = 81, cy = 112; for (let k = 0; k < 8; k++) { const ang = k * Math.PI / 4, rr = 3 + e * 10; R.pset(Math.round(cx + Math.cos(ang) * rr), Math.round(cy + Math.sin(ang) * rr), k % 2 ? hex('#f2c84a') : hex('#ffffff')); R.pset(Math.round(cx + Math.cos(ang) * (rr - 2)), Math.round(cy + Math.sin(ang) * (rr - 2)), hex('#f2c84a')); } }
+  if (e > 0 && e < 1) { const cx = 81, cy = 131; for (let k = 0; k < 8; k++) { const ang = k * Math.PI / 4, rr = 3 + e * 10; R.pset(Math.round(cx + Math.cos(ang) * rr), Math.round(cy + Math.sin(ang) * rr), k % 2 ? hex('#f2c84a') : hex('#ffffff')); R.pset(Math.round(cx + Math.cos(ang) * (rr - 2)), Math.round(cy + Math.sin(ang) * (rr - 2)), hex('#f2c84a')); } }
   T.d_oficinaDelante(R, t, o);
 };
 // 3. el pasillo de la nave: barre, silba, alza la escoba y el robot se traga el polvo
@@ -188,18 +195,22 @@ const bocadillo = (x0, y0, x1, y1, cola, e) => {
   R.rect(a0 + 2, b1 - 2, a1 - 2, b1 - 1, hex('#e8e0c8'));
   if (e >= 1) { const [tx, ty] = cola, bx = Math.round(cx); R.poligono([[bx - 6, b1], [bx + 6, b1], [tx, ty]], T.C.k); R.poligono([[bx - 4, b1 - 1], [bx + 4, b1 - 1], [tx, ty - 2]], hex('#fffdf2')); }
 };
+// la mano del «vale»: el pulgar arriba, con su puño de manga
+const PULGAR = ['....##....', '...#SS#...', '...#SS#...', '...#Ss#...', '.###SS####', '#SSSSSSSS#', '#kkkkkkSs#', '#SSSSSSSs#', '#kkkkkSss#', '#SSSSSSss#', '.#SSSSss#.', '..######..', '..#MMMM#..', '..######..'];
+const pulgar = (x, y, s) => { const col = { '#': T.C.k, k: hex('#c8885a'), S: hex('#f6c290'), s: hex('#d48a5a'), M: hex('#7a8aa8') };
+  PULGAR.forEach((f, j) => f.split('').forEach((ch, i) => { if (ch !== '.') R.rect(x + i * s, y + j * s, x + i * s + s - 1, y + j * s + s - 1, col[ch]); })); };
 const p4 = (t) => {
   const pulsa1 = t > ROGER - 0.15 && t < RECIBIDO + 0.75, pulsa2 = t > WILCO - 0.15 && t < CUMPLE + 0.6;
   const habla = Math.max(tramo(t, ROGER - 0.1, ROGER + 0.2) - tramo(t, RECIBIDO + 0.6, RECIBIDO + 0.9), tramo(t, WILCO - 0.1, WILCO + 0.2) - tramo(t, CUMPLE + 0.5, CUMPLE + 0.8));
-  T.espacio(R, t, { encuadre: 'puente', camara: 'radio', habla });
-  bocadillo(84, 20, 156, 60, [56, 96], tramo(t, RECIBIDO - 0.1, RECIBIDO + 0.25));
+  T.espacio(R, t, { encuadre: 'puente', camara: 'radio', habla: Math.max(habla, 0.5 * (tramo(t, P4 + 0.1, P4 + 0.3) - tramo(t, r(0.17), r(0.2)))) });
+  bocadillo(84, 20, 156, 60, [100, 72], tramo(t, RECIBIDO - 0.1, RECIBIDO + 0.25));
   if (t > RECIBIDO + 0.2) T.visto(R, 104, 28, 3);
-  bocadillo(206, 20, 268, 60, [194, 58], tramo(t, CUMPLE - 0.1, CUMPLE + 0.25));
-  if (t > CUMPLE + 0.2) { const bo = Math.round(Math.abs(Math.sin((t - CUMPLE) * 6)) * 2); R.icono('mano', 226, 26 - bo, hex('#f6c290'), T.C.k, 4); R.rect(226, 50 - bo, 249, 52 - bo, hex('#7a8aa8')); }
+  bocadillo(204, 20, 268, 60, [200, 70], tramo(t, CUMPLE - 0.1, CUMPLE + 0.25));
+  if (t > CUMPLE + 0.2) { const bo = Math.round(Math.abs(Math.sin((t - CUMPLE) * 6)) * 2); pulgar(221, 23 - bo, 3); }
   // la mano del conserje: entra desde abajo a la derecha, pulsa, se levanta y vuelve a pulsar
   const entra = tramo(t, ROGER - 0.8, ROGER - 0.2), hund = pulsa1 || pulsa2 ? 2 : -3;
   const x1 = Math.round(lerp(345, 276, entra)), y1 = 156 + hund + Math.round((1 - entra) * 10);
-  if (entra > 0) T.brazo(R, x1 + 46, 186, x1, y1, '#7a8aa8', -1, { codo: [x1 + 26, y1 + 18] });
+  if (entra > 0) T.brazo(R, x1 + 30, 192, x1, y1, '#7a8aa8', -1);
 };
 const efectos = [[MARK - 0.1, 'tecleo'], [P2 - 0.8, 'boing'], [ANDRO, 'palmada'], [CREA, 'whoosh'], [P3 + 0.6, 'silbato'], [KNIGHT, 'whoosh'], [JANITOR + 0.4, 'puerta'], [P4 - 0.6, 'pop'], [ROGER - 0.15, 'interruptor'], [RECIBIDO, 'bip'], [WILCO - 0.15, 'interruptor'], [CUMPLE, 'bip']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1986', efectos, año: 1986 });
@@ -217,7 +228,7 @@ E['si-asalto'] = ('El asalto', '''// SI-ASALTO (frases 43–44), sin cartela, a�
 const a = (f) => en('armario', f), p = (f) => en('pelis', f);
 const P2 = a(0.477), P3 = p(0) - 0.8, P4 = p(0.65);
 const ALIENS = a(0.272), BOLSILLOS = a(0.798), SALVAR = a(0.627), PELIS = p(0.216), MUERTES = p(0.767);
-const EXP0 = p(0.47), FLASH = EXP0 + 0.16 * 4;
+const EXP0 = p(0.3), FLASH = EXP0 + 0.16 * 4;
 const ruta = (t, pts) => {
   if (t <= pts[0][0]) return { x: pts[0][1], mv: false };
   for (let i = 0; i < pts.length - 1; i++) { const [t0, x0] = pts[i], [t1, x1] = pts[i + 1]; if (t < t1) return { x: Math.round(lerp(x0, x1, (t - t0) / (t1 - t0))), mv: x1 !== x0 }; }
@@ -239,7 +250,7 @@ const tumbado = (x0, yb, t, o) => {
   const px = []; for (let j = 4; j < 45; j++) for (let i = 8; i < 28; i++) { const c = R.pget(i, j); if (c) px.push([i, j, c]); }
   R.usar(prev);
   const jt = px.length ? Math.min(...px.map((q) => q[1])) : 0;
-  for (const [i, j, c] of px) { const k = j - jt; R.pset(x0 + k, yb - (i - 8) - Math.round(Math.max(0, 9 - k * 0.45)), c); }
+  for (const [i, j, c] of px) { const k = j - jt; R.pset(x0 + k, yb - (i - 8) - (k < 12 ? 7 : Math.max(0, Math.round(7 - (k - 12) * 1.6))), c); }
   return { cabeza: [x0 + 6, yb - 22] };
 };
 // 1. el armario: duerme; la nave se acopla; los alienígenas pasan de puntillas; salta la alarma
@@ -247,6 +258,11 @@ const p1 = (t) => {
   const al = tramo(t, ALIENS + 0.85, ALIENS + 1.2);
   T.espacio(R, t, { encuadre: 'nave', camara: 'armario', acople: tramo(t, 1.3, ALIENS + 0.6), almohada: 114, alarma: al });
   const ro = tumbado(110, 150, t, { parpadea: true, sorpresa: al > 0.5 && t > P2 - 0.35 });
+  // la manta de cuadros por encima, que sube y baja con la respiración
+  { const rs = Math.sin(t * 2.2) > 0 ? 1 : 0, x0 = 121, x1 = 139, y0 = 137 - rs;
+    R.rect(x0, y0, x1, 150, T.C.k); R.rect(x0 + 1, y0 + 1, x1 - 1, 149, hex('#c83a3a'));
+    for (let y = y0 + 1; y < 150; y++) for (let x = x0 + 1; x < x1; x++) if (((x >> 2) + (y >> 2)) % 2 === 0) R.pset(x, y, hex('#e8c860'));
+    R.rect(x0 + 1, y0 + 1, x1 - 1, y0 + 1, hex('#f2eee2')); R.rect(x1 - 1, y0 + 2, x1 - 1, 149, hex('#8a2a2a')); }
   // la pompa del ronquido: crece y revienta con la alarma
   if (al < 0.6) { const f = (t / 1.8) % 1, rr = Math.round(1 + f * 4); R.disco(ro.cabeza[0] + 6, ro.cabeza[1] - rr, rr, hex('#bfe8ff')); R.disco(ro.cabeza[0] + 6, ro.cabeza[1] - rr, Math.max(0, rr - 1), hex('#e8f8ff')); R.pset(ro.cabeza[0] + 5, ro.cabeza[1] - rr - 1, hex('#ffffff')); }
   else if (t < ALIENS + 1.6) for (let k = 0; k < 6; k++) R.pset(ro.cabeza[0] + 6 + Math.round(Math.cos(k) * 5), ro.cabeza[1] - 4 + Math.round(Math.sin(k) * 4), hex('#bfe8ff'));
@@ -289,12 +305,15 @@ const p2 = (t) => {
 // 3. el desierto: barre de espaldas a la nave; el platillo de película; la nave estalla
 const platillo = (t) => {
   const u = tramo(t, P3 + 0.4, PELIS + 1.4); if (u <= 0 || u >= 1) return;
-  const sx = Math.round(lerp(182, 266, u)), sy = 54 + Math.round(Math.sin(t * 5) * 2), tilt = Math.round(Math.sin(t * 3));
+  const sx = Math.round(lerp(190, 258, u)), sy = 56 + Math.round(Math.sin(t * 5) * 2), tilt = Math.round(Math.sin(t * 3));
   R.linea(sx, 0 + 16, sx, sy - 5, hex('#d8d8e0')); R.linea(sx, 0, sx, 15, hex('#d8d8e0'), 2);
-  R.disco(sx, sy - 2, 4, hex('#5ac8f0')); R.pset(sx - 1, sy - 4, hex('#e8ffff'));
-  R.poligono([[sx - 11, sy + tilt], [sx + 11, sy - tilt], [sx + 7, sy + 3 - tilt], [sx - 7, sy + 3 + tilt]], hex('#8a8a98'));
-  R.linea(sx - 11, sy + tilt, sx + 11, sy - tilt, hex('#c8c8d8'));
-  for (let k = -2; k <= 2; k++) R.pset(sx + k * 4, sy + 1, Math.floor(t * 8 + k) % 2 ? hex('#f2c84a') : hex('#e84a3a'));
+  R.disco(sx, sy - 3, 7, T.C.k); R.disco(sx, sy - 3, 6, hex('#5ac8f0')); R.disco(sx - 2, sy - 5, 2, hex('#e8ffff'));
+  R.poligono([[sx - 18, sy + 1 + tilt], [sx + 18, sy + 1 - tilt], [sx + 11, sy + 6 - tilt], [sx - 11, sy + 6 + tilt]], T.C.k);
+  R.poligono([[sx - 17, sy + 1 + tilt], [sx + 17, sy + 1 - tilt], [sx + 10, sy + 5 - tilt], [sx - 10, sy + 5 + tilt]], hex('#9a9aa8'));
+  R.linea(sx - 17, sy + 1 + tilt, sx + 17, sy + 1 - tilt, hex('#d8d8e8'));
+  for (let k = -3; k <= 3; k++) R.rect(sx + k * 4, sy + 3, sx + k * 4 + 1, sy + 3, Math.floor(t * 8 + k) % 2 ? hex('#f2c84a') : hex('#e84a3a'));
+  // los rayos de cartón que dispara a ninguna parte
+  if (Math.floor(t * 3) % 3 === 0) for (let k = 0; k < 14; k += 2) R.pset(sx - 4 - k, sy + 8 + k, hex('#7ae86a'));
 };
 const p3 = (t) => {
   T.espacio(R, t, { encuadre: 'desierto', explosion: tramo(t, EXP0, EXP0 + 4) });
