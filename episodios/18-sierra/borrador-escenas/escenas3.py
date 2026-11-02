@@ -125,9 +125,9 @@ T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => (t < P2 ? 1
 # ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 E['si-ibm'] = ('El encargo', '''// SI-IBM (frases 18–20), cartela «1983», año 1983. Cuatro planos:
 // 1. la buhardilla de la oficina, 1983: entran los dos ejecutivos de traje con una caja; Roberta y Ken se vuelven;
-//    en «IBM asks» el primero habla y señala; corta en «for its new»;
-// 2. la mesa de cerca: los ejecutivos dejan el ordenador pequeño en la mesa («home computer»); se enciende; Roberta abre
-//    su cuaderno y en «designs» dibuja el castillo; en la pantalla el caballero empieza a andar («King's Quest»);
+//    en «IBM asks» el primero habla y señala; el segundo deja la caja en la mesa grande; corta en «for its new»;
+// 2. la mesa de cerca: el ejecutivo pulsa y el ordenador nuevo se enciende («home computer»); Roberta abre su cuaderno
+//    y en «designs» dibuja el castillo trazo a trazo; en la pantalla el caballero empieza a andar («King's Quest»);
 // 3. el salón del trono: en «fairy tale» el caballero Graham entra por la alfombra; en «Graham» se para ante el rey y
 //    hace la reverencia; el rey le encarga la misión: un bocadillo con los tres tesoros («three treasures»); en «save
 //    the kingdom» Graham levanta el brazo y da un salto; el bufón hace malabares, un guardia bosteza;
@@ -177,10 +177,10 @@ const p2 = (t) => {
   R.actor(EL.ejecutivo2, 262, 154, t, { dir: -1, sonrisa: t > deja, habla: t < deja - 0.6 && Math.sin(t * 8) > 0 });
   R.actor(EL.ejecutivo, 232, 154, t, { dir: -1, dedo: t > deja - 0.5 && t < deja + 0.6, sonrisa: t > deja + 0.6, habla: t > kq && Math.sin(t * 7) > 0.4 });
   const abre = tramo(t, roberta - 0.3, roberta + 0.3);
-  const rob = R.actor(EL.roberta, 92, 154, t, { dir: 1, sostiene: [126, 147], sonrisa: t > roberta, sorpresa: t > deja && t < deja + 0.6 });
+  const rob = R.actor(EL.roberta, 92, 154, t, { dir: 1, sostiene: true, sonrisa: t > roberta, sorpresa: t > deja && t < deja + 0.6 });
   T.d_oficinaDelante(R, t, { epoca: 1981 });
   // el cuaderno abierto en sus manos: en «designs» se dibuja a lápiz el castillo, trazo a trazo
-  const [hx, hy] = rob.mano, w = Math.round(5 + 10 * abre), cx = hx + 1, ny = hy - 20;
+  const [hx, hy] = rob.mano, w = Math.round(5 + 10 * abre), cx = hx + 1 + w, ny = hy - 14;
   R.rect(cx - w - 1, ny - 1, cx + w + 1, ny + 19, K.k); R.rect(cx - w, ny, cx + w, ny + 18, K.papel); R.rect(cx, ny, cx, ny + 18, K.papelS); R.rect(cx - w, ny + 18, cx + w, ny + 18, K.papelS);
   for (let j = 3; j < 17; j += 3) R.rect(cx - w + 2, ny + j, cx - 2, ny + j, hex('#b8c4dc'));
   if (abre >= 1) { R.linea(cx - 12, ny + 15, cx - 8, ny + 12, hex('#c83a3a')); R.linea(cx - 8, ny + 12, cx - 4, ny + 14, hex('#c83a3a')); R.pset(cx - 4, ny + 14, K.k); }   // el camino del mapa en la página de la izquierda
@@ -232,9 +232,9 @@ T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1983', efecto
 E['si-anda'] = ('Dentro del cuadro', '''// SI-ANDA (frases 21–23), sin cartela, año 1984. Cuatro planos, el gag 3 (el árbol):
 // 1. el salón de 1984 desde la pantalla: la abuela, el chico y el adolescente en el sofá; en «never seen before» se
 //    quedan con la boca abierta, a las palomitas les da un salto el bol; el chico señala la pantalla; corta en «knight»;
-// 2. el bosque del reino: el caballero anda por delante del árbol de la derecha («in front of»), sube al camino y pasa
-//    por detrás del árbol grande de la izquierda («behind the trees»)… y no sale: ha desaparecido de verdad; un pájaro
-//    baja, mira a un lado y a otro del tronco, «?»;
+// 2. el bosque del reino por la tarde: el caballero anda por el borde de delante y pasa por delante del árbol grande
+//    («in front of»), da la vuelta, sube al camino y entra por detrás del mismo tronco («behind the trees»)… y no sale:
+//    ha desaparecido de verdad; un pájaro baja, mira a un lado y a otro del tronco, «?»;
 // 3. el roble de cerca: el pájaro lo busca rama por rama; en «inside it» Graham sale por delante del tronco, saluda y
 //    se va andando; el pájaro, «!»;
 // 4. el ordenador del porche de cerca: las manos teclean («typed»), la línea de escribir se llena; en «now the world
@@ -336,6 +336,6 @@ const p4 = (t) => {
   T.brazo(R, 84, 192, 114, 156 + k1, '#9a6a9a', 1, { codo: [96, 180] });
   T.brazo(R, 236, 192, 200 + intro, 156 + k2 + (intro ? 1 : 0), '#9a6a9a', -1, { codo: [224, 180] });
 };
-const efectos = [[nunca + 0.1, 'pop'], [a(0.3), 'boing'], [delante, 'whoosh'], [detras + 0.6, 'aldea'], [detras + 1.3, 'boing'], [dentro, 'pop'], [teclea, 'tecleo'], [mueve - 0.3, 'toc'], [mueve, 'brillo']];
+const efectos = [[nunca + 0.1, 'pop'], [a(0.3), 'boing'], [detras + 1.3, 'boing'], [dentro, 'pop'], [teclea, 'tecleo'], [mueve - 0.3, 'toc'], [mueve, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1984 });
 ''')
