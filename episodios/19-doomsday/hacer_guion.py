@@ -87,7 +87,7 @@ def hablado(texto, l):
 
 PREVIO = {
     'en': [('Earth-10005', 'Earth ten thousand five'), ('Earth-616', 'Earth six-sixteen'), ('Earth-838', 'Earth eight-thirty-eight'),
-           ('Earth-828', 'Earth eight-twenty-eight'), ('Robert Downey Jr.', 'Robert Downey Junior'), ('Jr.;', 'Junior;'), ('December 18', 'December eighteenth'), ('the 1970s', 'the nineteen-seventies'), ('the 1960s', 'the nineteen-sixties')],
+           ('Earth-828', 'Earth eight-twenty-eight'), ('Robert Downey Jr.', 'Robert Downey Junior'), ('Jr.;', 'Junior;'), ('December 18', 'December eighteenth'), ('1970s', 'nineteen-seventies'), ('the 1960s', 'the nineteen-sixties')],
     'es': [('Tierra 10005', 'Tierra diez mil cinco'), ('Tierra 616', 'Tierra seis uno seis'), ('Tierra 838', 'Tierra ocho tres ocho'),
            ('Tierra 828', 'Tierra ocho dos ocho'), ('la 616', 'la seis uno seis'), ('la 828', 'la ocho dos ocho'), ('18 de diciembre', 'dieciocho de diciembre'), ('4 Fantásticos', 'Cuatro Fantásticos')],
 }
