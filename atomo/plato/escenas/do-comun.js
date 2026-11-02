@@ -8145,3 +8145,4 @@ function b_platoTecnico(R, x, y, d, anda, col, lleva, mano = 0, t = 0) {
   if (lleva === 'carpeta') { rect(x + d * 2, y - 7, x + d * 2 + d * 2, y - 4, hex('#e8e4dc')); pset(x + d * 3, y - 6, hex('#8a8a96')); }
   if (mano > 0) { const yy = y - 6 - Math.round(mano * 5); rect(x - d * 3, yy, x - d * 3, y - 6, EP.k); pset(x - d * 3, yy - 1, E_PIELES[0]); }
 }
+export { a_cifras };   // las cifras legibles de las placas, también para la miniatura
