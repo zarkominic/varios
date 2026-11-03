@@ -246,6 +246,16 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
 - [Probable] El arranque (gancho y primer acto) pierde a la gente; la curva de retención por segundo dirá en qué frase.
 - [Seguro] **Shorts:** quien los ve los ve casi enteros (58–92 %), pero solo se queda entre el 20 y el 40 % de quienes
   los ven pasar, y YouTube apenas los enseña (2–247 impresiones). [Probable] El formato 16:9 con bandas borrosas.
+- **Retención por segundo del 11 (Theranos)**, en `episodios/estadisticas/retencion-ep11/`:
+  - [Seguro] **Hay tráfico de pago:** la curva separa orgánico, «anuncio de vídeo saltable» y «anuncio video
+    discovery». Quien llega por el anuncio saltable se va casi todo en 10 s (de 90 % a 35 %).
+  - [Seguro] **Orgánico (~53 personas):** quedan el 55 % a los 11 s, el 34 % a los 27 s y el 17 % a los 48 s. Frente a
+    vídeos parecidos de YouTube, −17 puntos a los 11 s, −36 a los 27 s y −67 a los 48 s.
+  - [Probable] **Causa:** el gancho empieza ambientando («In September 2013, at a Walgreens pharmacy in Palo Alto…») y
+    el giro que promete el título (la máquina no funciona, la fundadora está en la cárcel) llega entre los 36 y los
+    48 s, cuando ya se ha ido dos tercios de la gente. El 19 tiene la misma forma: «Robert Downey Jr.» llega a los ~35 s.
+  - [Probable] Segunda caída hacia el 1:20 (de 15 % a 7,5 %), al empezar el relato desde el principio («It all begins
+    in 2003»). Con 53 personas, cada escalón es una persona: tendencia, no prueba.
 - El usuario ya renombró Sierra: «King's Quest and Space Quest: Games That Killed You».
 
 ## Próximos temas (decididos por el usuario)
