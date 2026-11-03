@@ -228,7 +228,10 @@ const p5 = (t) => {
     R.rect(x0 - 1, y0 - 1, x0 + 65, y0 + 57, hex('#1a1014')); R.rect(x0, y0, x0 + 64, y0 + 56, hex('#f6f2ea')); R.rect(x0, y0, x0 + 64, y0 + 13, hex('#c8303a')); R.rect(x0, y0 + 13, x0 + 64, y0 + 13, hex('#8a1e28'));
     for (const rx of [x0 + 14, x0 + 50]) { R.rect(rx - 1, y0 - 4, rx + 1, y0 + 2, hex('#1a1014')); R.pset(rx, y0 - 3, hex('#c0c4d4')); }
     R.numero('12', x0 + 32, y0 + 11, { centro: true, rampa: [hex('#ffffff'), hex('#ffffff'), hex('#f2eee2'), hex('#f2eee2')] });
-    R.numero('18', x0 + 33, y0 + 50, { tam: 32, centro: true });
+    { // «18» con las cifras legibles de do-comun (con R.numero el 8 se leía como una S), al triple
+      const B18 = (globalThis.__b18 ??= R.nuevo()), V = 0x01020304, prev18 = R.usar(B18); B18.fill(V); T.a_cifras(R, '18', 20, 30); R.usar(prev18);
+      const dx = x0 + 33 - 22, dy = y0 + 50 - 30;
+      for (let y = 21; y <= 31; y++) for (let x = 13; x <= 27; x++) { const c = B18[y * 320 + x]; if (c !== V) R.rect(dx + (x - 13) * 3, dy + (y - 21) * 3, dx + (x - 13) * 3 + 2, dy + (y - 21) * 3 + 2, c); } }
     for (let y = y0 + 52; y < y0 + 56; y++) for (let x = x0 + 1; x < x0 + 64; x++) if (by(x, y) < 0.3) R.pset(x, y, hex('#d8d0c4'));
     if (c >= 1 && Math.sin(t * 5) > 0.3) { const sx = x0 + 56, sy = y0 + 22; R.pset(sx, sy, hex('#ffffff')); R.pset(sx - 1, sy, hex('#fff0a0')); R.pset(sx + 1, sy, hex('#fff0a0')); R.pset(sx, sy - 1, hex('#fff0a0')); R.pset(sx, sy + 1, hex('#fff0a0')); } }
   // los héroes de los tres mundos llegan al risco y miran arriba
