@@ -13,9 +13,15 @@
 // 1. «Five years later, in July 2024, in a hall packed with fans in San Diego»: el pabellón de la Comic-Con entero, la
 //    pantalla gigante con la máscara; los fans de pie saltan y agitan los brazos en «packed with fans»; el presentador
 //    habla en el escenario y en «San Diego» señala al lateral, por donde asoma el hombre de la capa verde; corta en «A man»;
-// 2. el escenario de cerca: el hombre de la capa verde y la máscara de metal cruza hasta el centro («walks onto the
-//    stage»), levanta las manos a la cara y en «takes off the mask» se la quita: es el actor, con la máscara en la mano;
-//    destello, la pantalla parpadea, las cabezas de delante se levantan; corta en la pausa antes de «and it's»;
+// 2. otra cámara: entre bastidores, desde la hombrera izquierda (la pata de terciopelo, el muro de ladrillo con su luz
+//    azul, la escalera, las bolsas de contrapeso que se mecen, el baúl de gira y la regidora con su tableta); el
+//    escenario de tablas en diagonal y, al fondo, el patio de butacas y el anfiteatro con cientos de cabezas y móviles.
+//    La luz de entrada pasa de roja a verde y el hombre de la capa sale del bastidor y cruza hasta el centro («walks onto
+//    the stage»), con el cañón de seguimiento del anfiteatro encima; el presentador le espera en el proscenio con el
+//    micrófono y una cámara de televisión en su pedestal (piloto rojo, operador) lo sigue. En «takes off the mask» se la
+//    quita: es el actor, con la máscara en la mano; destello, la luz verde de la pantalla (a nuestra espalda) parpadea
+//    en el suelo, el público se levanta con los brazos arriba y saltan flashes; la regidora levanta los brazos; corta
+//    en la pausa antes de «and it's»;
 // 3. el público visto desde el escenario (fondo local): las gradas con cientos de cabezas y móviles (el sector alto de la
 //    derecha, cerrado y a oscuras, deja la zona de Atom tranquila; la salida y la banderola verde, más a la izquierda); las tres filas se
 //    levantan en ola en «the same actor» con los brazos arriba; en «Robert Downey Jr.» un señor salta y se le cae el
@@ -67,27 +73,139 @@ const p1 = (t) => {
   T.escenarioDelante(R, t, { ovacion: ov });
 };
 
-// ── 2 · el escenario de cerca: se quita la máscara ──
+// ── 2 · desde la hombrera izquierda (entre bastidores): se quita la máscara ──
+// el borde del escenario (el proscenio) cruza en diagonal: más allá, el patio de butacas y el anfiteatro a oscuras
+const LABIO = (x) => 104 + (x - 104) * 0.056;
+const filaY = (r, x) => 98 - r * 5 + (x - 106) * 0.05 * (1 - r * 0.1);
+const ANDA0 = [44, 162], ANDA1 = [160, 129];   // de dónde a dónde cruza el hombre de la capa (x izquierda, suelo)
+let fondo2 = null;
+const pintaFondo2 = () => {
+  const bf = R.nuevo(), prev = R.usar(bf);
+  // el techo de la sala: paneles acústicos en rejilla, con trama y la luz que se pierde hacia arriba
+  degradado(0, 0, 319, 64, rampa(['#05060c', '#0a0c18', '#10142a', '#171c34']), 7);
+  for (let y = 4; y < 42; y += 9) for (let x = 104; x < 320; x += 16) { const sx = x + ((y / 9) & 1) * 8;
+    R.linea(sx, y, sx + 14, y, hex('#1c2240')); R.linea(sx, y + 7, sx + 14, y + 7, hex('#070810')); R.linea(sx + 14, y, sx + 14, y + 7, hex('#070810')); }
+  // la cercha de focos sobre el proscenio (acaba antes de la zona de Atom)
+  R.linea(104, 26, 266, 26, hex('#5a5e74')); R.linea(104, 31, 266, 31, hex('#3a3e54'));
+  for (let x = 104; x < 264; x += 6) R.linea(x, 26, x + 6, 31, hex('#40445a'));
+  for (const x of [128, 156, 184, 212, 240]) { R.rect(x - 2, 32, x + 2, 37, hex('#24242e')); R.pset(x - 1, 33, hex('#4a4a58')); R.linea(x - 2, 37, x + 2, 37, hex('#6a6a78')); }
+  // el anfiteatro: dos filas de butacas, su antepecho de madera con apliques y la cabina del cañón de seguimiento
+  for (const y of [49, 54]) for (let x = 106; x < 320; x += 4) { R.rect(x, y, x + 2, y + 2, (x >> 2) % 2 ? hex('#3a1824') : hex('#4a2030')); }
+  R.rect(104, 57, 319, 63, hex('#3a2418')); R.linea(104, 57, 319, 57, hex('#7a5034')); R.linea(104, 63, 319, 63, hex('#1a0e0a'));
+  for (let x = 104; x < 320; x++) for (let y = 58; y < 63; y++) if (hh(x >> 2, y, 4) > 0.72) R.pset(x, y, hex('#4a3020'));
+  for (let x = 116; x < 320; x += 22) { R.pset(x, 59, hex('#f8d890')); R.pset(x, 60, hex('#c89850')); R.pset(x - 1, 60, hex('#6a4a2a')); R.pset(x + 1, 60, hex('#6a4a2a')); }
+  R.rect(240, 45, 268, 56, hex('#14141e')); R.rect(241, 46, 267, 47, hex('#2a2a38'));
+  R.rect(248, 49, 260, 53, hex('#3a3a46')); R.rect(244, 50, 248, 52, hex('#5a5a68')); R.pset(259, 50, hex('#8a8a98'));
+  // el patio de butacas: filas que bajan hacia el escenario, respaldos rojos con brillo en el canto
+  for (let r = 0; r < 7; r++) for (let x = 106; x < 320; x++) { const y = Math.round(filaY(r, x)) + 3; if (y >= LABIO(x) - 3) continue;
+    R.pset(x, y, (x + r) % 4 === 0 ? hex('#2a0e16') : hex('#5a1e2c')); R.pset(x, y + 1, hex('#3a121c')); if (x % 4 === 1) R.pset(x, y - 1, hex('#8a3446')); }
+  // el foso: la sombra entre el escenario y la primera fila
+  for (let x = 104; x < 320; x++) { const y = Math.round(LABIO(x)); for (let k = 1; k <= 3; k++) R.pset(x, y - k, k === 1 ? hex('#05050a') : hex('#0a0a12')); }
+  // las dos salidas con su pictograma (un hombrecito y una flecha, sin letras)
+  for (const [x, y] of [[112, 68], [304, 76]]) { R.rect(x, y, x + 9, y + 5, hex('#0e5a2a')); R.rect(x + 1, y + 1, x + 8, y + 4, hex('#2ac864'));
+    R.pset(x + 2, y + 1, hex('#e8fff0')); R.linea(x + 2, y + 2, x + 2, y + 3, hex('#e8fff0')); R.linea(x + 4, y + 2, x + 7, y + 2, hex('#e8fff0')); R.pset(x + 6, y + 1, hex('#e8fff0')); R.pset(x + 6, y + 3, hex('#e8fff0')); }
+  // el fondo del bastidor: el muro de ladrillo pintado de negro, con su luz de trabajo azul, una escalera y el cuadro de varas
+  for (let y = 14; y < 104; y++) for (let x = 40; x < 92; x++) { const fila = y >> 2, jx = (x + (fila & 1) * 4) % 8, junta = (y & 3) === 3 || jx === 7;
+    const luz = Math.max(0, 1 - Math.hypot(x - 62, y - 30) / 46); let v = junta ? 0 : 1 + (hh(fila, (x + (fila & 1) * 4) >> 3, 13) > 0.6 ? 1 : 0) + (by(x, y) < luz * 0.8 ? 1 : 0);
+    R.pset(x, y, rampa(['#07080e', '#12141e', '#1c2030', '#2a3048'])[Math.min(3, v)]); }
+  R.rect(58, 22, 66, 26, hex('#1a1a24')); R.rect(59, 26, 65, 27, hex('#8ab0e8')); R.linea(62, 17, 62, 22, hex('#3a3a48'));
+  for (let y = 28; y < 60; y++) for (let x = 50; x < 76; x++) if (by(x, y) < 0.12 * (1 - Math.abs(x - 62) / 14) * (1 - (y - 28) / 34) * 2) R.pset(x, y, hex('#3a4a78'));
+  for (const x of [74, 84]) R.linea(x, 40, x + 2, 104, hex('#6a6a5a')); for (let y = 46; y < 104; y += 7) R.linea(74 + (y - 40) / 32, y, 84 + (y - 40) / 32, y, hex('#8a8a74'));
+  R.rect(42, 64, 52, 100, hex('#2a2418')); R.linea(42, 64, 52, 64, hex('#5a4a30')); for (let y = 68; y < 98; y += 4) { R.pset(44, y, hex('#a89870')); R.pset(48, y, hex('#a89870')); R.linea(45, y, 47, y, hex('#6a5a3a')); }
+  // el suelo del escenario: tablas que corren hacia el público, con vetas, juntas y el desgaste de las marcas
+  const tabla = rampa(['#2a1a10', '#3a2416', '#4c301c', '#5e3c22', '#704a2a']);
+  for (let y = 100; y < 180; y++) for (let x = 0; x < 320; x++) { if (y <= LABIO(x)) continue;
+    const u = (x - 380) / (y - 40), pl = Math.floor(u * 9), veta = hh(pl, Math.floor((y - 40) / 6), 9);
+    let v = 1.4 + (y - 110) / 50 + (veta - 0.5) * 1.2 + by(x, y) - 0.5 + (hh(x >> 1, y, pl) > 0.93 ? -1 : 0);
+    if (Math.abs(u * 9 - pl) < 0.07) v = 0;
+    R.pset(x, y, tabla[Math.max(0, Math.min(4, Math.round(v)))]); }
+  // marcas de cinta (cruces fosforescentes) y la lista de canciones pegada al suelo (barras, sin letras)
+  for (const [x, y] of [[150, 124], [206, 117], [118, 146]]) { R.linea(x - 2, y, x + 2, y, hex('#e8e070')); R.linea(x, y - 1, x, y + 1, hex('#e8e070')); }
+  R.poligono([[128, 166], [146, 164], [148, 175], [130, 177]], hex('#e8e4d8'));
+  for (let k = 0; k < 4; k++) R.linea(131, 168 + k * 2, 140 - (k % 2) * 3, 167 + k * 2, hex('#5a5a68'));
+  R.rect(127, 165, 130, 166, hex('#a8a8b8')); R.rect(144, 174, 147, 175, hex('#a8a8b8'));
+  // la manguera de cables que va del bastidor al proscenio
+  for (let s = 0; s <= 1; s += 0.004) { const x = lerp(lerp(96, 150, s), lerp(150, 236, s), s), y = lerp(lerp(178, 150, s), lerp(150, 114, s), s); R.disco(x, y, 1.6 - s * 0.6, hex('#14141a')); R.pset(x, y - 1, hex('#3a3a48')); }
+  // la bambalina de arriba y la pata de terciopelo del fondo (más allá, el público)
+  const pliegue = (x0, x1, y0, y1, base) => { for (let x = x0; x <= x1; x++) { const f = Math.sin((x - x0) * 0.9) * 0.5 + 0.5; const c = f > 0.7 ? base[2] : f > 0.3 ? base[1] : base[0]; R.linea(x, y0, x, y1, c);
+    for (let y = y0; y <= y1; y += 3) if (hh(x, y, 11) > 0.8) R.pset(x, y, base[Math.max(0, Math.min(2, (f > 0.5 ? 1 : 0) + (hh(x, y, 12) > 0.5 ? 1 : -1)))]); } };
+  const NEGRO = rampa(['#07070c', '#12121c', '#1e1e2c']), GRANATE = rampa(['#2a0a12', '#4a1220', '#6a1c2e']);
+  pliegue(0, 272, 0, 12, GRANATE); R.linea(0, 13, 272, 13, hex('#1a060c')); for (let x = 2; x < 272; x += 9) R.pset(x, 12, hex('#c8a040'));
+  pliegue(90, 104, 13, 108, NEGRO); R.linea(104, 13, 104, 110, hex('#3a3a52'));
+  // la pata de delante (la nuestra), alta y negra, con el canto encendido por el escenario
+  pliegue(0, 40, 0, 179, NEGRO); for (let y = 0; y < 180; y++) { R.pset(40, y, hex('#4a4a66')); R.pset(41, y, hex('#2a2a3a')); }
+  // el baúl de gira de delante: aluminio, esquineras, cierres, pegatinas de colores y un rollo de cable encima
+  R.rect(72, 166, 114, 179, hex('#16161e')); R.rect(70, 161, 116, 166, hex('#2a2a36'));
+  R.linea(70, 161, 116, 161, hex('#8a8e9c')); R.linea(72, 167, 114, 167, hex('#a8acb8')); R.linea(72, 172, 114, 172, hex('#6a6e7c'));
+  for (const x of [72, 112]) { R.rect(x, 166, x + 2, 168, hex('#c8ccd8')); R.rect(x, 177, x + 2, 179, hex('#c8ccd8')); }
+  for (const x of [84, 100]) { R.rect(x, 168, x + 3, 170, hex('#d8dce8')); R.pset(x + 1, 169, hex('#5a5e6a')); }
+  R.rect(76, 174, 82, 177, hex('#c84a2a')); R.rect(94, 174, 102, 176, hex('#e8c840')); R.linea(104, 175, 110, 175, hex('#4a8ac8'));
+  for (let k = 0; k < 3; k++) { R.anillo?.(98, 158 + k * 0.5, 5 - k, hex('#0a0a10')); }
+  R.disco(98, 159, 4, hex('#1a1a24')); R.disco(98, 159, 2, hex('#2a2a36')); R.pset(96, 156, hex('#5a5a68')); R.pset(101, 157, hex('#4a4a58'));
+  R.usar(prev); return bf;
+};
+const PELOS2 = rampa(['#2a1c14', '#5a3418', '#a8743c', '#e0b860', '#1c1424', '#7a7a8a', '#c84a2a']), PIELES2 = rampa(['#c8946a', '#a46a44', '#6a442c', '#b88860']);
 const p2 = (t) => {
-  const quita = t > QUITA + 0.15, ov = 0.55 * tramo(t, QUITA + 0.2, QUITA + 0.9);
+  const quita = t > QUITA + 0.15, ov = tramo(t, QUITA + 0.2, QUITA + 0.9);
   const glitch = tramo(t, QUITA, QUITA + 0.2) - tramo(t, QUITA + 0.5, QUITA + 0.8);
-  T.escenario(R, t, { camara: 'pantalla', pantalla: 'mascara', glitch, ovacion: ov });
-  const w = tramo(t, P2 + 0.1, ESCENARIO + 0.2), dx = Math.round(lerp(26, 142, w));
-  // el foco que lo sigue y se cierra sobre él al quitarse la máscara
-  { const fo = 0.45 + 0.35 * tramo(t, QUITA - 0.6, QUITA); for (let y = 20; y < 147; y++) { const w = 4 + (y - 20) * 0.11, cxx = dx + 7 + (y - 146) * 0.15; for (let x = Math.round(cxx - w); x <= cxx + w; x++) if (by(x, y) < fo * 0.5 - Math.abs(x - cxx) / w * 0.2) R.pset(x, y, hex('#fff0c0')); }
-    for (let x = dx - 8; x < dx + 24; x++) for (let y = 143; y < 150; y++) if (Math.hypot((x - dx - 7) / 16, (y - 146.5) / 3.5) < 1 && by(x, y) < fo) R.pset(x, y, hex('#f8e8b0')); }
-  R.actor(EL.feige, 214, 146, t, { dir: -1, sonrisa: true, sorpresa: quita && t < QUITA + 1.2, brazos: t > QUITA + 1.3, habla: t < SUBE && Math.sin(t * 8) > 0 });
-  if (!quita) R.actor(EL.doom, dx, 146, t, { dir: 1, anda: w > 0 && w < 1, brazos: t > QUITA - 0.5 });
+  if (!fondo2) fondo2 = pintaFondo2(); R.copiar(fondo2);
+  // el público al fondo: cabezas en penumbra que se levantan en la ovación, móviles que graban y flashes
+  for (let r = -2; r < 7; r++) { const bal = r < 0, ch = r < 3 && !bal ? 3 : 2;
+    for (let x = 108 + (r & 1) * 2; x < 318; x += bal ? 4 : 5) { if (bal && x > 236 && x < 270) continue; const k = hh(x, r, 5); if (k < 0.07) continue;
+      const y0 = bal ? (r === -2 ? 48 : 53) : Math.round(filaY(r, x)) - 1, sube = Math.round(ov * (1 + (hh(x, r, 6) > 0.5 ? 1 : 0)) * Math.max(0, Math.sin(t * 9 + x * 0.3) * 0.5 + 0.7));
+      const y = y0 - sube; if (!bal && y + ch >= LABIO(x) - 3) continue;
+      R.rect(x, y, x + ch - 1, y + ch - 1, PIELES2[Math.floor(hh(x, r, 2) * 4)]); R.rect(x, y - 1, x + ch - 1, y - 1, PELOS2[Math.floor(k * 7)]);
+      if (ov > 0.3 && hh(x, r, 8) > 0.55) { const ay = y - 2 - Math.round(Math.abs(Math.sin(t * 10 + x)) * 2); R.pset(x - 1, ay, PIELES2[0]); R.pset(x - 1, ay + 1, PIELES2[1]); R.pset(x + ch, ay, PIELES2[0]); R.pset(x + ch, ay + 1, PIELES2[1]); }
+      const movil = hh(x, r, 3) > (quita ? 0.7 : 0.88); if (movil) { R.pset(x + ch, y - 2, hex('#a8d8ff')); R.pset(x + ch, y - 1, hex('#5a8ac8')); }
+      if (quita && hh(x, r, Math.floor(t * 7)) > 0.985) { R.disco(x + 1, y - 2, 2, hex('#ffffff')); R.pset(x - 2, y - 2, hex('#e8f0ff')); R.pset(x + 4, y - 2, hex('#e8f0ff')); } } }
+  // la tira de luz del proscenio, que corre
+  for (let x = 106; x < 320; x += 3) { const y = Math.round(LABIO(x)); R.pset(x, y, ((x / 3 + Math.floor(t * 12)) % 7) < 2 ? hex('#8ae8ff') : hex('#2a6a8a')); }
+  // las bolsas de contrapeso de las varas, colgadas de sus cuerdas, que se mecen un poco
+  for (const [x, y, f] of [[48, 70, 0], [58, 86, 1.7], [66, 62, 3.1]]) { const dx = Math.round(Math.sin(t * 1.3 + f) * 1.2);
+    R.linea(x, 14, x + dx, y, hex('#8a7a5a')); R.rect(x + dx - 2, y, x + dx + 2, y + 6, hex('#5a4a34')); R.linea(x + dx - 2, y, x + dx + 2, y, hex('#8a7454')); R.pset(x + dx - 1, y + 2, hex('#3a2e20')); R.pset(x + dx + 1, y + 4, hex('#3a2e20')); }
+  // los haces de las cabezas móviles de la cercha barren el escenario entre la bruma
+  for (const [x0, f] of [[156, 0], [212, 2.2]]) { const xb = x0 + Math.sin(t * 0.9 + f) * 34, col = f ? hex('#8ab0ff') : hex('#c8a8ff');
+    for (let y = 38; y < 120; y++) { const s = (y - 38) / 82, cx = lerp(x0, xb, s), w = 1 + s * 7; for (let x = Math.round(cx - w); x <= cx + w; x++) if (by(x, y) < 0.16 - Math.abs(x - cx) / w * 0.1) R.pset(x, y, col); } }
+  // la luz verde de la pantalla gigante (a nuestra espalda) baña el suelo; parpadea con la interferencia
+  { const bri = glitch > 0.2 && Math.floor(t * 14) % 2 === 0; for (let y = 132; y < 180; y++) for (let x = 120 + Math.round((180 - y) * 0.6); x < 250; x++) {
+    const borde = Math.min(1, (x - 120 - (180 - y) * 0.6) / 24, (250 - x) / 24, (y - 132) / 14);
+    if (by(x, y) < borde * (bri ? 0.1 : 0.06 + 0.03 * Math.sin(t * 2))) R.pset(x, y, bri ? hex('#6ae89a') : hex('#2a7a44')); } }
+  // la luz de entrada en la pata: roja, y verde cuando le dan paso
+  R.rect(31, 104, 38, 113, hex('#1a1a22')); R.rect(32, 105, 37, 112, hex('#2a2a36'));
+  const verde = t > SUBE - 0.4; R.disco(34.5, 107.5, 1.6, verde ? hex('#4ae87a') : hex('#3a1414')); R.disco(34.5, 110.5, 1.6, verde ? hex('#143a1e') : hex('#ff4a3a'));
+  // el hombre de la capa cruza desde el bastidor al centro, y el cañón de seguimiento del anfiteatro lo coge
+  const w = tramo(t, P2 + 0.1, ESCENARIO + 0.2), dx = Math.round(lerp(ANDA0[0], ANDA1[0], w)), su = Math.round(lerp(ANDA0[1], ANDA1[1], w));
+  const fo = 0.35 + 0.45 * tramo(t, QUITA - 0.6, QUITA);
+  { const sx = 247, sy = 51, tx = dx + 8, ty = su - 10; const n = Math.hypot(tx - sx, ty - sy);
+    for (let s = 0; s < n; s += 0.6) { const u = s / n, cx = lerp(sx, tx, u), cy = lerp(sy, ty, u), ww = 1 + u * 9; for (let k = -ww; k <= ww; k += 0.8) { const x = Math.round(cx + k * 0.5), y = Math.round(cy + k * 0.86);
+      if (by(x, y) < fo * 0.32 - Math.abs(k) / ww * 0.12) R.pset(x, y, hex('#fff4d0')); } } R.disco(sx - 1, sy, 1.6, hex('#fffbe8'));
+    for (let x = dx - 10; x < dx + 26; x++) for (let y = su - 4; y < su + 4; y++) if (Math.hypot((x - dx - 8) / 17, (y - su) / 3.8) < 1 && by(x, y) < fo * 0.9) R.pset(x, y, hex('#f0dca0')); }
+  // el presentador, con el micrófono, en el proscenio
+  const pr = R.actor(EL.feige, 222, 123, t, { dir: -1, sonrisa: true, sorpresa: quita && t < QUITA + 1.2, habla: t < SUBE && Math.sin(t * 8) > 0, sostiene: t < QUITA + 1.3 ? [212, 110] : false, brazos: t > QUITA + 1.3 });
+  if (pr.mano) { const [mx, my] = pr.mano; R.rect(mx - 1, my - 3, mx, my + 1, hex('#1a1a22')); R.rect(mx - 2, my - 5, mx + 1, my - 3, hex('#5a5a68')); R.pset(mx - 1, my - 5, hex('#a8a8b8')); }
+  if (!quita) R.actor(EL.doom, dx, su, t, { dir: 1, anda: w > 0 && w < 1, brazos: t > QUITA - 0.5 });
   else {
-    const rd = R.actor(EL.rdj, dx, 146, t, { dir: 1, sonrisa: true, sostiene: [dx + 22, 120 - Math.round(tramo(t, QUITA + 0.3, QUITA + 0.8) * 6)] });
+    const rd = R.actor(EL.rdj, dx, su, t, { dir: 1, sonrisa: true, sostiene: [dx + 22, su - 26 - Math.round(tramo(t, QUITA + 0.3, QUITA + 0.8) * 6)] });
     T.e_mascara(R, rd.mano[0] + 2, rd.mano[1] - 3, 1, {});
     // la capa verde sigue colgada de los hombros
-    R.rect(dx + 1, 135, dx + 3, 145, hex('#1e5a2a')); R.pset(dx + 2, 136, hex('#2e7a3e'));
+    R.rect(dx + 1, su - 11, dx + 3, su - 1, hex('#1e5a2a')); R.pset(dx + 2, su - 10, hex('#2e7a3e'));
   }
-  // el destello de la revelación y los flashes del público
-  const f = tramo(t, QUITA + 0.1, QUITA + 0.7); if (f > 0 && f < 1) { const cx = dx + 8, cy = 126; for (let k = 0; k < 12; k++) { const ang = k * 0.52, r0 = 4 + f * 14, r1 = r0 + 6; R.linea(Math.round(cx + Math.cos(ang) * r0), Math.round(cy + Math.sin(ang) * r0), Math.round(cx + Math.cos(ang) * r1), Math.round(cy + Math.sin(ang) * r1), k % 2 ? hex('#fff0a0') : hex('#ffffff')); } }
-  if (quita) for (let k = 0; k < 4; k++) { if (hh(k, Math.floor(t * 8)) < 0.6) continue; const x = 20 + Math.round(hh(k, Math.floor(t * 8), 2) * 280), y = 160 + Math.round(hh(k, Math.floor(t * 8), 3) * 12); R.disco(x, y, 2, hex('#ffffff')); R.pset(x - 3, y, hex('#e8f0ff')); R.pset(x + 3, y, hex('#e8f0ff')); }
-  T.escenarioDelante(R, t, { camara: 'pantalla', ovacion: ov });
+  // el destello de la revelación
+  const f = tramo(t, QUITA + 0.1, QUITA + 0.7); if (f > 0 && f < 1) { const cx = dx + 8, cy = su - 20; for (let k = 0; k < 12; k++) { const ang = k * 0.52, r0 = 4 + f * 14, r1 = r0 + 6; R.linea(Math.round(cx + Math.cos(ang) * r0), Math.round(cy + Math.sin(ang) * r0), Math.round(cx + Math.cos(ang) * r1), Math.round(cy + Math.sin(ang) * r1), k % 2 ? hex('#fff0a0') : hex('#ffffff')); } }
+  // la cámara de televisión en su pedestal (primer término a la derecha), con el piloto rojo y su operador
+  { const pan = Math.round(lerp(-2, 2, w)); R.rect(262, 158, 268, 171, hex('#3a3a46')); R.linea(262, 158, 262, 171, hex('#6a6a78'));
+    R.poligono([[248, 172], [282, 172], [286, 177], [244, 177]], hex('#22222c')); R.linea(244, 177, 286, 177, hex('#0a0a10'));
+    for (const x of [248, 265, 282]) { R.disco(x, 178, 1.6, hex('#14141a')); R.pset(x, 177, hex('#5a5a68')); }
+    R.rect(250, 144 + pan, 280, 157, hex('#2a2a36')); R.rect(251, 145 + pan, 279, 147 + pan, hex('#4a4a58')); R.linea(250, 157, 280, 157, hex('#14141a'));
+    R.rect(240, 147 + pan, 250, 155, hex('#1a1a22')); R.rect(238, 146 + pan, 241, 156, hex('#30303c')); R.pset(239, 149 + pan, hex('#6a8ac8')); R.pset(239, 150 + pan, hex('#3a5a9a'));
+    R.rect(272, 139 + pan, 280, 144 + pan, hex('#1a1a22')); R.rect(273, 140 + pan, 279, 143 + pan, hex('#2a5a4a')); R.pset(274, 141 + pan, hex('#5ac89a'));
+    if (Math.sin(t * 3) > -0.6) { R.pset(252, 143 + pan, hex('#ff3a2a')); R.pset(253, 143 + pan, hex('#c82a1a')); }
+    R.linea(280, 154, 287, 158, hex('#5a5a68'));
+    for (let s = 0; s <= 1; s += 0.05) R.pset(Math.round(lerp(268, 318, s)), Math.round(176 + Math.sin(s * 3.1) * 2), hex('#14141a'));
+    R.actor(EL.tecnico, 288, 178, t, { dir: -1, sostiene: [287, 158], sorpresa: quita && t < QUITA + 1 }); }
+  // el regidor en el bastidor, con su tableta: da paso y, al quitarse la máscara, levanta los brazos
+  { const rg = R.actor(EL.tecnica, 6, 178, t, { dir: 1, sostiene: t < QUITA + 0.3 ? true : false, brazos: t > QUITA + 0.4, sonrisa: t > QUITA + 0.4 });
+    if (rg.mano) { const [mx, my] = rg.mano; R.rect(mx - 1, my - 4, mx + 4, my + 1, hex('#1a1a22')); R.rect(mx, my - 3, mx + 3, my, verde ? hex('#3a8a5a') : hex('#8a3a3a')); R.pset(mx + 1, my - 2, hex('#e8f0ff')); } }
 };
 
 // ── 3 · el público desde el escenario: la ola y el refresco (gag 4) ──
