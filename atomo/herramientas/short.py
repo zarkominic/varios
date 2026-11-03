@@ -13,7 +13,7 @@ La imagen: el vídeo a todo lo ancho en el centro (1080×608) sobre el mismo pla
 letras (el canon del canal). El sonido: la mezcla «B» de montar-largo.sh (se lee de allí), con fundidos cortos en cada
 unión.
 """
-import os, re, subprocess, sys, tempfile
+import os, re, shutil, subprocess, sys, tempfile
 import numpy as np, soundfile as sf
 
 D, tramos_txt, salida = sys.argv[1:4]
@@ -80,5 +80,6 @@ for l in ('en', 'es'):
             cues.append(f'{n}\n{ts(base + max(a_, t0) - t0)} --> {ts(base + min(b_, t1) - t0)}\n{txt}\n'); n += 1
         base += t1 - t0
     open(f'{salida}-{l}.srt', 'w', encoding='utf-8').write('\n'.join(cues))
+shutil.rmtree(tmp, ignore_errors=True)   # las mezclas temporales ocupan ~230 MB por Short (se acumulaban en /tmp)
 dur = sum(t1 - t0 for t0, t1 in tramos)
 print(f'{salida}.mp4: {dur:.1f} s, 1080×1920, voz inglesa; {salida}-es.m4a; subtítulos en y es ({n - 1} en español)')
