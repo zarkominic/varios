@@ -1,6 +1,6 @@
 # Episodio 19 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 13:11.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`) y pista de audio en español (`em_santa`, con la frase entera).
 - Subtítulos en inglés y en español.
 - **Estilo:** pixel chibi con ambiente, gags y efectos sincronizados; los héroes se reconocen por sus atributos, dibujados por nosotros (sin clips, logos ni música de las películas). Un cubo de palomitas con ojos hace de hilo de gags. Banda propia: Do menor, 100 por minuto, fanfarria de tráiler. Mezcla «B».
@@ -40,7 +40,16 @@ No spoilers: only the official synopsis and the official trailers.
 
 What should I explain next? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 The hook
+1:03 Endgame
+2:32 Loki
+4:00 The numbers of the Earths
+5:28 The villain that changed
+6:48 Earth-10005
+8:18 The new teams of Earth-616
+9:30 Earth-828
+10:38 Doomsday
+12:30 The ending
 
 Sources: Wikipedia (Avengers: Endgame, Loki, Spider-Man: No Way Home, Doctor Strange in the Multiverse of Madness, Avengers: The Kang Dynasty, Deadpool & Wolverine, Captain America: Brave New World, Thunderbolts*, The Fantastic Four: First Steps, Spider-Man: Brand New Day, Avengers: Doomsday) · Marvel.com · Disney · The Hollywood Reporter · Variety · Deadline · GamesRadar+ · AV Club.
 
@@ -67,7 +76,16 @@ Sin destripes: solo la sinopsis oficial y los tráileres oficiales.
 
 ¿Qué quieres que te explique ahora? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 El gancho
+1:03 Endgame
+2:32 Loki
+4:00 Los números de las Tierras
+5:28 El villano que cambió
+6:48 La Tierra 10005
+8:18 Los nuevos equipos de la 616
+9:30 La Tierra 828
+10:38 Doomsday
+12:30 El cierre
 
 Fuentes: Wikipedia (Avengers: Endgame, Loki, Spider-Man: No Way Home, Doctor Strange en el Multiverso de la Locura, Avengers: The Kang Dynasty, Deadpool y Lobezno, Capitán América: Brave New World, Thunderbolts*, Los 4 Fantásticos: Primeros pasos, Spider-Man: Brand New Day, Avengers: Doomsday) · Marvel.com · Disney · The Hollywood Reporter · Variety · Deadline · GamesRadar+ · AV Club.
 
@@ -82,9 +100,30 @@ Fuentes: Wikipedia (Avengers: Endgame, Loki, Spider-Man: No Way Home, Doctor Str
 
 - **Miniatura:** `atomo/plato/escenas/do-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
-- **Para escuchar antes de subir:** {AVISOS}
+- **Para escuchar antes de subir:** EN 40 («Four.», un hueco corto de 0,17 s antes); ES 41 («Nocturno») y ES 48 («Four,»), con un hueco corto cada una. El aviso de EN 55 («dollars») es falso: se lee «$2 million» y suena bien. El resto son nombres ingleses escritos como se pronuncian, que el reconocedor no entiende; lo más probable es que suenen bien, pero no los he oído.
 - **Riesgo de derechos** (decidido con el usuario): personajes reconocibles dibujados por nosotros, sin clips, logos ni música. Si llega una reclamación, se responde como comentario y análisis (uso legítimo) y se avisa.
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
+español, sus dos SRT y su miniatura vertical. En «Vídeo relacionado» se elige el episodio completo.
+
+### Short 1 · El héroe que vuelve de villano (57 s) · tramo 0.25-57.3
+- **EN:** Iron Man's Actor Is Coming Back as the Villain #Shorts
+- **ES:** El actor de Iron Man vuelve como el villano #Shorts
+- **EN:** In 2019, Tony Stark snapped his fingers and saved the universe. In 2024, a man in a green cloak took off his metal mask at Comic-Con, and it was Robert Downey Jr. He's Doctor Doom in Avengers: Doomsday, out December 18. How did we get here? The full story is in the linked video. #AvengersDoomsday #DoctorDoom #MCU #ASKAtom #Shorts
+- **ES:** En 2019, Tony Stark chasqueó los dedos y salvó el universo. En 2024, un hombre con capa verde se quitó la máscara de metal en la Comic-Con, y era Robert Downey Jr. Es el Doctor Doom en Avengers: Doomsday, que se estrena el 18 de diciembre. ¿Cómo hemos llegado hasta aquí? La historia completa, en el vídeo enlazado. #AvengersDoomsday #DoctorDoom #UCM #ASKAtom #Shorts
+
+### Short 2 · Los números de las Tierras (39 s) · tramos 268.18-296.54, 296.84-307.46
+- **EN:** What Earth-616 Actually Means #Shorts
+- **ES:** Qué significa de verdad la Tierra 616 #Shorts
+- **EN:** The Avengers live on Earth-616. In Multiverse of Madness, Doctor Strange visits Earth-838 and learns the most dangerous word in the saga: incursion, when two universes collide. The full story is in the linked video. #Multiverse #DoctorStrange #MCU #ASKAtom #Shorts
+- **ES:** Los Vengadores viven en la Tierra 616. En el Multiverso de la Locura, el Doctor Strange visita la Tierra 838 y aprende la palabra más peligrosa de la saga: incursión, cuando chocan dos universos. La historia completa, en el vídeo enlazado. #Multiverso #DoctorStrange #UCM #ASKAtom #Shorts
+
+### Short 3 · Máscara nueva, misma tarea (51 s) · tramos 329.36-362.67, 364.44-382.31
+- **EN:** The Villain Marvel Had to Replace #Shorts
+- **ES:** El villano que Marvel tuvo que cambiar #Shorts
+- **EN:** The big villain of this saga was supposed to be Kang, in The Kang Dynasty. In December 2023, Marvel let the actor go and redid the plan from scratch. The answer came at Comic-Con 2024: Doomsday, with Downey as the villain. New mask, same task. The full story is in the linked video. #AvengersDoomsday #Kang #MCU #ASKAtom #Shorts
+- **ES:** El gran villano de esta saga iba a ser Kang, en The Kang Dynasty. En diciembre de 2023, Marvel prescindió del actor y rehízo el plan desde cero. La respuesta llegó en la Comic-Con de 2024: Doomsday, con Downey de villano. Máscara nueva, misma tarea. La historia completa, en el vídeo enlazado. #AvengersDoomsday #Kang #UCM #ASKAtom #Shorts
+
+Miniaturas: `atomo/plato/escenas/do-short1-miniatura.html` … `do-short3-miniatura.html`.

@@ -37,6 +37,7 @@ una pasada o detalle no entra.
 | 16 | sin medir (24 escenas, 104 planos) | ~10 M estimado (6,0 M en calidad, 0,5 M en la pasada de decorados) | 49 de 104 | 49 → 0 | 82 | no (−14,7 LUFS al bajar la música; arreglado con un limitador) |
 | 17 | ~11 h de reloj (23 escenas, 101 planos) | ~12,3 M (7,4 M en calidad, 2,6 M en el borrador de escenas, 1,5 M en los decorados) | 48 de 101 | 48 → 2 → 0 | 95 | sí (primera vez desde el 13) |
 | 18 | ~9 h de reloj (29 escenas, 101 planos; los 3 Shorts aparte) | ~13,2 M (6,4 M en calidad, 2,6 M en el borrador de escenas, 2,8 M en los decorados, 0,8 M en las pasadas de decorados y movimiento, 0,26 M en la verificación) | 49 de 101 | 49 → 2 → 0 | 87 | sí |
+| 19 | ~11 h de reloj, estimadas (31 escenas, 147 planos; el reparto de 48 personajes aparte) | ~15,1 M (8,0 M en calidad, 3,3 M en el borrador de escenas, 2,6 M en los decorados, 0,5 M en la pasada de decorados, 0,6 M en datos, verificación y reparto) | 64 de 147 | 64 → 2 → 0 | 100 | no (el «18» de la placa se leía «1S»: re-render de una escena y montaje) |
 
 ### Fallos de calidad por tipo
 
@@ -197,6 +198,35 @@ una pasada o detalle no entra.
 - Proponer al usuario: que comprobar-decorados.mjs mida también la zona de Atom con un personaje puesto, y que las cabeceras de
   los decorados con mesa digan siempre «llama a <x>Delante después de los actores».
 - El 19 (Doomsday) es de 12 minutos y con héroes reconocibles: el reparto lleva más trabajo; medir horas y tokens frente al 18.
+
+## Episodio 19 · Avengers: Doomsday (3/11/2026)
+
+**Lo que funcionó:**
+- **Las mejoras del 18 aplicadas desde el principio:** «llama a <x>Delante después de los actores» en todas las cabeceras,
+  manos siempre con T.brazo/T.mano, rincón de Atom en calma y umbral ATOM 100. **Orden de dibujo bajó de 26 a 20, Atom de 16
+  a 10 y «no se lee» de 13 a 10**, en un episodio con un 45 % más de planos (147 frente a 101).
+- **La hoja estática del reparto antes de nada** (pedida por el usuario): 48 personajes reconocibles por sus atributos,
+  aprobados a la primera.
+- **comprobar-decorados.mjs:** 0 sospechas en 66 encuadres; --comprobar, 3 en 147 planos. **Sin pasada de movimiento**
+  (ningún QUIETO antes de la calidad).
+- **El control de sonido y subtítulos, a la primera:** −14,0 LUFS en las dos pistas; 189 + 205 subtítulos sin ninguno fuera
+  de norma.
+
+**Lo que no mejoró, con su causa:**
+- **R.numero pequeño lee el «8» como «S»** (las placas 838/828 y la fecha «18»). Se arregló con cifras propias (a_cifras),
+  pero la fecha de una escena se escapó a la calidad y obligó a re-renderizar y montar otra vez. Regla: toda cifra en pantalla
+  con a_cifras o mayor, nunca R.numero a escala 1.
+- **Quieto (16) y brazo o mano (12):** muchos personajes a la vez en planos de reparto; el movimiento se reparte y alguno queda
+  parado. Composición (16): los planos de grupo con 6–8 héroes se apelotonan.
+- **Disco:** el render pidió 12,7 GB; hubo que borrar los fotogramas del 16 (con el OK del usuario). short.py ya borra sus
+  temporales.
+- **La miniatura vertical del Short 2** puso las placas en el borde de la columna 9:16 (cortadas): se rehízo con las dos Tierras
+  apiladas dentro de x 110–210.
+
+**Pendiente para el próximo:**
+- Proponer al usuario: que comprobar-decorados.mjs avise de R.numero con «8» a escala 1, y que los planos de grupo de más de
+  5 personajes lleven siempre dos filas.
+- Siguiente tema: los archivos OVNI del gobierno.
 
 ## Próximos temas (decididos por el usuario)
 
