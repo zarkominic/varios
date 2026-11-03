@@ -120,10 +120,10 @@ español, sus dos SRT y su miniatura vertical. En «Vídeo relacionado» se elig
 - **EN:** The Avengers live on Earth-616. In Multiverse of Madness, Doctor Strange visits Earth-838 and learns the most dangerous word in the saga: incursion, when two universes collide. The full story is in the linked video. #Multiverse #DoctorStrange #MCU #ASKAtom #Shorts
 - **ES:** Los Vengadores viven en la Tierra 616. En el Multiverso de la Locura, el Doctor Strange visita la Tierra 838 y aprende la palabra más peligrosa de la saga: incursión, cuando chocan dos universos. La historia completa, en el vídeo enlazado. #Multiverso #DoctorStrange #UCM #ASKAtom #Shorts
 
-### Short 3 · Máscara nueva, misma tarea (51 s) · tramos 329.36-362.67, 364.44-382.31
+### Short 3 · Máscara nueva, misma misión (51 s) · tramos 329.36-362.67, 364.44-382.31
 - **EN:** The Villain Marvel Had to Replace #Shorts
 - **ES:** El villano que Marvel tuvo que cambiar #Shorts
 - **EN:** The big villain of this saga was supposed to be Kang, in The Kang Dynasty. In December 2023, Marvel let the actor go and redid the plan from scratch. The answer came at Comic-Con 2024: Doomsday, with Downey as the villain. New mask, same task. The full story is in the linked video. #AvengersDoomsday #Kang #MCU #ASKAtom #Shorts
-- **ES:** El gran villano de esta saga iba a ser Kang, en The Kang Dynasty. En diciembre de 2023, Marvel prescindió del actor y rehízo el plan desde cero. La respuesta llegó en la Comic-Con de 2024: Doomsday, con Downey de villano. Máscara nueva, misma tarea. La historia completa, en el vídeo enlazado. #AvengersDoomsday #Kang #UCM #ASKAtom #Shorts
+- **ES:** El gran villano de esta saga iba a ser Kang, en The Kang Dynasty. En diciembre de 2023, Marvel prescindió del actor y rehízo el plan desde cero. La respuesta llegó en la Comic-Con de 2024: Doomsday, con Downey de villano. Máscara nueva, misma misión. La historia completa, en el vídeo enlazado. #AvengersDoomsday #Kang #UCM #ASKAtom #Shorts
 
 Miniaturas: `atomo/plato/escenas/do-short1-miniatura.html` … `do-short3-miniatura.html`.
