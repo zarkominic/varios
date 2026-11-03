@@ -54,7 +54,7 @@ const lagrimas = (cab, t, dir = 1) => { for (const ex of [-2, 2]) { const f = ((
 
 const g = (f) => en('giro', f), a = (f) => en('chasquido', f), b = (f) => en('lloraron', f);
 const P1 = (M('giro_fin', 0) + a(0)) / 2;
-const SALVO = g(0.16), IRONM = g(0.36), DICIEMBRE = g(0.6), VILLANO = g(0.86);
+const SALVO = g(0.091), IRONM = g(0.288), DICIEMBRE = g(0.61), VILLANO = g(0.85);
 const P2 = a(0.309), P3 = a(0.632), P4 = b(-0.014), P5 = b(0.571);
 const BATALLA = a(0.147), ENDGAME = a(0.277), GEMA0 = a(0.408), GEMA5 = a(0.531), GUANTE = a(0.563), SNAP = P3 + 0.3, THANOS = a(0.750), SOBREVIVE = a(0.892);
 const ADIOS = b(0.307), IRON = b(0.405), EMPEZO = b(0.683), ONCE = b(0.806);
@@ -76,7 +76,7 @@ const p0 = (t) => {
   // Iron Man al doble: llega al centro respirando, levanta el guantelete en «saved» y se aparta a la izquierda con el barrido
   const arriba = tramo(t, SALVO - 0.15, SALVO + 0.35);
   R.usar(pj0); pj0.fill(VACIO); const im = R.actor(EL.ironman, 20, 70, t, { dir: 1, brazos: arriba > 0.5 }); R.usar(prev);
-  const ix = lerp(lerp(104, 112, tramo(t, 0, SALVO)), 30, ee), iy = 104 + Math.round(Math.sin(t * 2.2) * 1);
+  const ix = lerp(lerp(62, 74, tramo(t, 0, SALVO)), 30, ee), iy = 104 + Math.round(Math.sin(t * 2.2) * 1);
   pon0(10, 48, 36, 71, ix, iy);
   if (arriba > 0.5) { const brillo = 0.5 + 0.5 * Math.sin(t * 9), gx = ix + (im.mano[0] - 10) * 2, gy = iy + (im.mano[1] - 36) * 2;
     R.halo(gx, gy, 10 + brillo * 4 + tramo(t, IRONM, IRONM + 0.3) * 6 - tramo(t, IRONM + 0.6, IRONM + 1) * 6, [hex('#f8d870'), hex('#fff4c8')], 0.7);
@@ -95,9 +95,9 @@ const p0 = (t) => {
       const X = dx + (x - sx0) * 3, Y = oy + 6 + (y - 21) * 3; R.rect(X, Y, X + 2, Y + 2, c); }
     R.rect(164, oy + 30, 167, oy + 33, oro);
     if (cae >= 1) { const ch = tramo(t, DICIEMBRE + 0.35, DICIEMBRE + 1.1); for (let k = 0; k < 8; k++) if (ch < 1) { const ang = k * 0.785, q = 30 + ch * 34; R.pset(Math.round(164 + Math.cos(ang) * q * 1.6), Math.round(oy + 21 + Math.sin(ang) * q * 0.6), hex('#ffe070')); } } }
-  // las palomitas, abajo en el centro: miran a Iron Man y, en «villain», dan un salto del susto
+  // las palomitas, abajo a la derecha (se apartan al centro con el barrido): miran a Iron Man y, en «villain», dan un salto del susto
   const susto = t > VILLANO + 0.1, salto = Math.sin(tramo(t, VILLANO + 0.1, VILLANO + 0.5) * Math.PI) * 6;
-  T.palomitas(R, 160, Math.round(176 - salto), t, { s: 2, dir: susto ? 1 : -1, expresion: susto ? 'susto' : 'normal' });
+  T.palomitas(R, Math.round(lerp(214, 162, ee)), Math.round(176 - salto), t, { s: 2, dir: -1, expresion: susto ? 'susto' : 'normal' });
 };
 
 // ── 1 · la batalla en la pantalla del cine ──
