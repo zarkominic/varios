@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep19 · Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DO-SHORT1-MINIATURA · miniatura vertical del Short 1 del ep19 (el gancho): en la columna central x 110–210, arriba
+// Iron Man al doble con la mano en alto en la batalla y, abajo, Doom al doble ante su castillo, partidos por una franja;
+// en medio, el cubo de palomitas asustado. Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/do-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const capa = R.nuevo(), VACIO = 0x01020304;
+// un personaje dibujado aparte y pegado al doble (como en la-miniatura.html)
+const doble = (pinta, sx0, sx1, sy0, sy1, dx, dy) => { const prev = R.usar(capa); capa.fill(VACIO); const r = pinta(); R.usar(prev);
+  for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = capa[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * 2, dy + (y - sy0) * 2, dx + (x - sx0) * 2 + 1, dy + (y - sy0) * 2 + 1, c); } return r; };
+const marco = (x0, y0, x1, y1) => { const oro = hex('#e8b830'), oroS = hex('#8a5a10'), fondo = hex('#1a1030');
+  R.rect(x0 - 2, y0 - 2, x1 + 2, y1 + 2, T.C.k); R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, oroS); R.rect(x0, y0, x1, y1, oro); R.rect(x0 + 3, y0 + 3, x1 - 3, y1 - 3, fondo); return fondo; };
+const calavera = (cx, cy, fondo) => { const hueso = hex('#f2eee2'), hS = hex('#a8a090');
+  R.disco(cx, cy - 4, 11, hueso); R.rect(cx - 7, cy + 4, cx + 7, cy + 11, hueso); R.rect(cx - 7, cy + 10, cx + 7, cy + 11, hS);
+  R.disco(cx - 5, cy - 4, 3.6, fondo); R.disco(cx + 5, cy - 4, 3.6, fondo); R.rect(cx - 1, cy + 2, cx + 1, cy + 4, fondo);
+  for (let i = -1; i <= 1; i++) R.rect(cx + i * 4, cy + 8, cx + i * 4, cy + 11, fondo);
+  const rojo = hex('#e83a3a'), rojoS = hex('#7a1010');
+  for (let k = -16; k <= 16; k++) for (const [a, c] of [[-2, rojoS], [-1, rojo], [0, rojo], [1, rojo], [2, rojoS]]) R.pset(cx + k, cy + 1 + k + a, c); };
+const dibujar = (t) => {
+  const a = R.nuevo(), b = R.nuevo(), prev = R.usar(a); T.lago(R, t, { encuadre: 'batalla', luz: 'dia' }); R.usar(b); T.latveria(R, t, { encuadre: 'castillo' }); R.usar(prev);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.buf[y * 320 + x] = y < 92 ? a[y * 320 + x] : b[y * 320 + x];
+  R.rect(100, 91, 220, 92, T.C.k); R.rect(100, 93, 220, 93, hex('#f6f2ea'));
+  doble(() => R.actor(EL.ironman, 40, 80, 0.5, { dir: 1, brazos: true, quieto: true }), 22, 62, 40, 81, 120, 6);
+  doble(() => R.actor(EL.doom, 40, 80, 0.5, { dir: -1, quieto: true }), 22, 62, 40, 81, 120, 96);
+  T.palomitas(R, 186, 104, t, { s: 1, expresion: 'susto' });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
