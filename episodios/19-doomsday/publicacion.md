@@ -114,13 +114,13 @@ español, sus dos SRT y su miniatura vertical. En «Vídeo relacionado» se elig
 - **EN:** In 2019, Tony Stark snapped his fingers and saved the universe. In 2024, a man in a green cloak took off his metal mask at Comic-Con, and it was Robert Downey Jr. He's Doctor Doom in Avengers: Doomsday, out December 18. How did we get here? The full story is in the linked video. #AvengersDoomsday #DoctorDoom #MCU #ASKAtom #Shorts
 - **ES:** En 2019, Tony Stark chasqueó los dedos y salvó el universo. En 2024, un hombre con capa verde se quitó la máscara de metal en la Comic-Con, y era Robert Downey Jr. Es el Doctor Doom en Avengers: Doomsday, que se estrena el 18 de diciembre. ¿Cómo hemos llegado hasta aquí? La historia completa, en el vídeo enlazado. #AvengersDoomsday #DoctorDoom #UCM #ASKAtom #Shorts
 
-### Short 2 · Los números de las Tierras (39 s) · tramos 268.18-296.54, 296.84-307.46 (sobre el montaje de 13:11; sin cambios)
+### Short 2 · Los números de las Tierras (39 s) · tramos 273.42-301.78, 302.08-312.70
 - **EN:** What Earth-616 Actually Means #Shorts
 - **ES:** Qué significa de verdad la Tierra 616 #Shorts
 - **EN:** The Avengers live on Earth-616. In Multiverse of Madness, Doctor Strange visits Earth-838 and learns the most dangerous word in the saga: incursion, when two universes collide. The full story is in the linked video. #Multiverse #DoctorStrange #MCU #ASKAtom #Shorts
 - **ES:** Los Vengadores viven en la Tierra 616. En el Multiverso de la Locura, el Doctor Strange visita la Tierra 838 y aprende la palabra más peligrosa de la saga: incursión, cuando chocan dos universos. La historia completa, en el vídeo enlazado. #Multiverso #DoctorStrange #UCM #ASKAtom #Shorts
 
-### Short 3 · Máscara nueva, misma misión (51 s) · tramos 329.36-362.67, 364.44-382.31 (sobre el montaje de 13:11; sin cambios)
+### Short 3 · Máscara nueva, misma misión (51 s) · tramos 334.60-367.91, 369.68-387.55
 - **EN:** The Villain Marvel Had to Replace #Shorts
 - **ES:** El villano que Marvel tuvo que cambiar #Shorts
 - **EN:** The big villain of this saga was supposed to be Kang, in The Kang Dynasty. In December 2023, Marvel let the actor go and redid the plan from scratch. The answer came at Comic-Con 2024: Doomsday, with Downey as the villain. New mask, same task. The full story is in the linked video. #AvengersDoomsday #Kang #MCU #ASKAtom #Shorts

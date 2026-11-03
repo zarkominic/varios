@@ -223,8 +223,13 @@ una pasada o detalle no entra.
 - **La miniatura vertical del Short 2** puso las placas en el borde de la columna 9:16 (cortadas): se rehízo con las dos Tierras
   apiladas dentro de x 110–210.
 
+- **Rehecho el 03/11/2026, tras la retención del 11:** el gancho abre con el giro («The man who saved the universe as
+  Iron Man is coming back on December 18… as the villain», 6 s, con su plano: la miniatura en movimiento). Calidad de
+  las dos escenas tocadas: 6 → 0. Además, **el «8» de Press Start 2P se cambió en el kit (pixel-retro.js)** por un 8
+  propio: el «838» del consejo salía «S3S» en el montaje entregado y nadie lo vio. 13:16, control a la primera.
+
 **Pendiente para el próximo:**
-- Proponer al usuario: que comprobar-decorados.mjs avise de R.numero con «8» a escala 1, y que los planos de grupo de más de
+- (Resuelto en el kit el 03/11: el 8 ya no se lee «S».) Proponer al usuario: que comprobar-decorados.mjs avise de R.numero con «8» a escala 1, y que los planos de grupo de más de
   5 personajes lleven siempre dos filas.
 - Siguiente tema: los archivos OVNI del gobierno.
 
