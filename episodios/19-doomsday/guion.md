@@ -1,6 +1,6 @@
 # Episodio 19 · Avengers: Doomsday: todo lo que hay que saber antes del estreno
 
-**Estado:** v3, 2 de noviembre de 2026: verificada por los 3 agentes (12 correcciones). v2, con los cambios del usuario: sin la frase de la muerte de Patrick Stewart, con el número de cada Tierra y contado de forma más narrativa, con frases largas. v1 aprobada el mismo día. Datos de `datos.md` (comprobados el 2/11/2026, solo lo confirmado). Antes de locutar
+**Estado:** v4, 3 de noviembre de 2026: el gancho abre con el giro (regla de los 10 s, aprobada por el usuario tras la retención del 11). v3, 2 de noviembre de 2026: verificada por los 3 agentes (12 correcciones). v2, con los cambios del usuario: sin la frase de la muerte de Patrick Stewart, con el número de cada Tierra y contado de forma más narrativa, con frases largas. v1 aprobada el mismo día. Datos de `datos.md` (comprobados el 2/11/2026, solo lo confirmado). Antes de locutar
 se vuelven a comprobar con 3 agentes escépticos, por si sale otro tráiler. Pendiente de la aprobación del usuario.
 
 **Por qué este tema:** lo eligió el usuario. *Avengers: Doomsday* se estrena el 18 de diciembre de 2026 en EE. UU.; la
@@ -11,7 +11,7 @@ búsqueda «qué ver antes de Doomsday» sube en las semanas de antes. Publicar 
 debe ser todo verde y más grande»), dibujados por nosotros, sin logos, sin clips y sin música de las películas. Sin
 destripes: de *Doomsday*, solo la sinopsis oficial y lo que enseñan los tráileres.
 
-**Duración objetivo:** unos 12 minutos [Probable]. Son 67 frases y unas 1.946 palabras en inglés (el 18. con 1.313. salió de 8:52).
+**Duración objetivo:** unos 12 minutos [Probable]. Son 68 frases y unas 1.946 palabras en inglés (el 18. con 1.313. salió de 8:52).
 
 **Publicar:** entre el 6 y el 11 de diciembre de 2026.
 
@@ -85,10 +85,11 @@ aire de cómic.
 
 | ES | EN |
 |---|---|
+| El hombre que salvó el universo como Iron Man vuelve el 18 de diciembre… como el villano. | The man who saved the universe as Iron Man is coming back on December 18… as the villain. |
 | En 2019, en la batalla final de Avengers: Endgame, Tony Stark se pone las seis gemas del infinito en el guante, chasquea los dedos para borrar a Thanos y a su ejército, y no sobrevive al esfuerzo. | In 2019, in the final battle of Avengers: Endgame, Tony Stark puts all six Infinity Stones on the gauntlet, snaps his fingers to wipe out Thanos and his army, and doesn't survive the effort. |
 | Millones de personas lloraron en el cine al despedir a Iron Man, el héroe con el que había empezado todo once años antes. | Millions of people cried in theaters saying goodbye to Iron Man, the hero who had started it all eleven years earlier. |
 | Cinco años después, en julio de 2024, en un pabellón lleno de fans en San Diego, un hombre con capa verde y máscara de metal sube al escenario, se quita la máscara, y es el mismo actor: Robert Downey Junior. | Five years later, in July 2024, in a hall packed with fans in San Diego, a man in a green cloak and a metal mask walks onto the stage, takes off the mask, and it's the same actor: Robert Downey Jr. |
-| El hombre que salvó el universo vuelve ahora como el Doctor Doom, el villano de Avengers: Doomsday, que llega a los cines el 18 de diciembre con héroes de tres universos distintos. | The man who saved the universe is coming back as Doctor Doom, the villain of Avengers: Doomsday, which hits theaters on December 18 with heroes from three different universes. |
+| Vuelve como el Doctor Doom, el villano de Avengers: Doomsday, que llega a los cines el 18 de diciembre con héroes de tres universos distintos. | He's coming back as Doctor Doom, the villain of Avengers: Doomsday, which hits theaters on December 18 with heroes from three different universes. |
 | ¿Cómo hemos llegado hasta aquí, de qué universos hablamos, y qué tienes que saber para no perderte nada? | So how did we get here, which universes are we talking about, and what do you need to know so you don't miss a thing? |
 | Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo. | I'm Atom, and I explain the things you've always wondered about. Let's find out. |
 

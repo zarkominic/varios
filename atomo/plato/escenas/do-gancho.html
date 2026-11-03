@@ -9,7 +9,12 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// DO-GANCHO (frases 1–2), 2019. Cinco planos:
+// DO-GANCHO (frases 1–3), 2019. Seis planos:
+// 0. «The man who saved the universe as Iron Man is coming back on December 18… as the villain» (la promesa del título
+//    en los primeros segundos, regla del 03/11/2026): la miniatura en movimiento. Iron Man al doble en la batalla de
+//    2019; en «saved» levanta el guantelete, que brilla; en «December 18» cae desde arriba la placa dorada 12.18; en «as
+//    the villain» la diagonal barre el plano de derecha a izquierda con un fogonazo verde y deja a Doom ante su castillo;
+//    Iron Man se aparta a la izquierda y las palomitas se asustan; corta en la pausa antes de «In 2019»;
 // 1. «In 2019, in the final battle of Avengers: Endgame»: una sala de cine de lado, de noche; en la pantalla, la batalla
 //    (cielo de humo, los héroes contra el ejército); en «Battle» estalla un fogonazo en la pantalla y la fila de fans
 //    salta: el niño de la araña se levanta con los brazos arriba, la de la capa se asusta; en «Endgame» señala; corta en
@@ -47,11 +52,53 @@ const humo = (x, y, s, c0, c1, c2) => { for (const [dx, dy, k] of [[0, 0, 1], [-
 const lagrimas = (cab, t, dir = 1) => { for (const ex of [-2, 2]) { const f = ((t * 1.6 + (ex > 0 ? 0.5 : 0)) % 1); const x = cab[0] + ex + (dir > 0 ? 1 : 0), y = Math.round(cab[1] + 7 + f * 7);
   R.pset(x, y, hex('#8ad8ff')); R.pset(x, y + 1, hex('#4aa8e8')); } };
 
-const a = (f) => en('chasquido', f), b = (f) => en('lloraron', f);
+const g = (f) => en('giro', f), a = (f) => en('chasquido', f), b = (f) => en('lloraron', f);
+const P1 = (M('giro_fin', 0) + a(0)) / 2;
+const SALVO = g(0.16), IRONM = g(0.36), DICIEMBRE = g(0.6), VILLANO = g(0.86);
 const P2 = a(0.309), P3 = a(0.632), P4 = b(-0.014), P5 = b(0.571);
 const BATALLA = a(0.147), ENDGAME = a(0.277), GEMA0 = a(0.408), GEMA5 = a(0.531), GUANTE = a(0.563), SNAP = P3 + 0.3, THANOS = a(0.750), SOBREVIVE = a(0.892);
 const ADIOS = b(0.307), IRON = b(0.405), EMPEZO = b(0.683), ONCE = b(0.806);
 const GEMAS = rampa(['#9a4ae8', '#3a8ae8', '#e83a3a', '#e8903a', '#3ac85a', '#f0e040']);
+
+// ── 0 · la promesa: Iron Man en 2019 y, en «villain», la diagonal que deja a Doom ante su castillo ──
+const izq0 = R.nuevo(), der0 = R.nuevo(), pj0 = R.nuevo(), VACIO = 0x01020304;
+const pon0 = (sx0, sx1, sy0, sy1, dx, dy) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = pj0[y * 320 + x]; if (c === VACIO) continue;
+  const X = Math.round(dx) + (x - sx0) * 2, Y = Math.round(dy) + (y - sy0) * 2; R.rect(X, Y, X + 1, Y + 1, c); } };
+const p0 = (t) => {
+  const prev = R.usar(izq0); T.lago(R, t, { encuadre: 'batalla', luz: 'dia' });
+  R.usar(der0); T.latveria(R, t, { encuadre: 'castillo' }); R.usar(prev);
+  // la diagonal: fuera del plano por la derecha hasta «villain»; entonces barre hasta dejar el plano partido
+  const barre = tramo(t, VILLANO - 0.1, VILLANO + 0.55), ee = barre * barre * (3 - 2 * barre), base = lerp(340, 150, ee);
+  const corte = (y) => base + Math.round((179 - y) * 0.25), B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq0[y * 320 + x] : der0[y * 320 + x];
+  if (barre > 0) for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x - 1, y, C.k); R.pset(x, y, hex('#f6f2ea')); R.pset(x + 1, y, hex('#f6f2ea')); R.pset(x + 2, y, C.k);
+    if (barre < 1) for (let k = 3; k < 9; k++) if (by(x + k, y) < (1 - barre) * (1 - k / 9)) R.pset(x + k, y, hex('#9af0a8')); }
+  // Iron Man al doble: llega al centro respirando, levanta el guantelete en «saved» y se aparta a la izquierda con el barrido
+  const arriba = tramo(t, SALVO - 0.15, SALVO + 0.35);
+  R.usar(pj0); pj0.fill(VACIO); const im = R.actor(EL.ironman, 20, 70, t, { dir: 1, brazos: arriba > 0.5 }); R.usar(prev);
+  const ix = lerp(lerp(104, 112, tramo(t, 0, SALVO)), 30, ee), iy = 104 + Math.round(Math.sin(t * 2.2) * 1);
+  pon0(10, 48, 36, 71, ix, iy);
+  if (arriba > 0.5) { const brillo = 0.5 + 0.5 * Math.sin(t * 9), gx = ix + (im.mano[0] - 10) * 2, gy = iy + (im.mano[1] - 36) * 2;
+    R.halo(gx, gy, 10 + brillo * 4 + tramo(t, IRONM, IRONM + 0.3) * 6 - tramo(t, IRONM + 0.6, IRONM + 1) * 6, [hex('#f8d870'), hex('#fff4c8')], 0.7);
+    for (let k = 0; k < 6; k++) { const ang = t * 2 + k * 1.047; R.pset(Math.round(gx + Math.cos(ang) * 9), Math.round(gy + Math.sin(ang) * 5), GEMAS[k]); } }
+  // Doom al doble, ante su castillo, cuando la diagonal lo descubre (fogonazo verde al llegar)
+  if (barre > 0.15) { R.usar(pj0); pj0.fill(VACIO); R.actor(EL.doom, 20, 70, t, { dir: -1 }); R.usar(prev);
+    const dx = lerp(260, 222, ee); pon0(10, 46, 36, 71, dx, 104);
+    const fl = tramo(t, VILLANO + 0.2, VILLANO + 0.9); if (fl > 0 && fl < 1) R.anillo(dx + 36, 140, 8 + fl * 40, hex('#7af08a'), 3); }
+  // «12.18» dorado: cae desde arriba en «December 18» y rebota
+  const cae = tramo(t, DICIEMBRE - 0.2, DICIEMBRE + 0.35);
+  if (cae > 0) { const rebote = Math.sin(tramo(t, DICIEMBRE + 0.35, DICIEMBRE + 0.75) * Math.PI) * 3, oy = Math.round(lerp(-50, 6, cae * cae) - rebote);
+    const x0 = 112, x1 = 216, y0 = oy, y1 = oy + 42, oro = hex('#e8b830'), oroS = hex('#8a5a10'), fondo = hex('#1a1030');
+    R.rect(x0 - 2, y0 - 2, x1 + 2, y1 + 2, C.k); R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, oroS); R.rect(x0, y0, x1, y1, oro); R.rect(x0 + 3, y0 + 3, x1 - 3, y1 - 3, fondo);
+    R.usar(pj0); pj0.fill(VACIO); T.a_cifras(R, '12', 20, 30); T.a_cifras(R, '18', 50, 30); R.usar(prev);
+    for (const [sx0, sx1, dx] of [[13, 27, 117], [43, 57, 171]]) for (let y = 21; y <= 31; y++) for (let x = sx0; x <= sx1; x++) { const c = pj0[y * 320 + x]; if (c === VACIO) continue;
+      const X = dx + (x - sx0) * 3, Y = oy + 6 + (y - 21) * 3; R.rect(X, Y, X + 2, Y + 2, c); }
+    R.rect(164, oy + 30, 167, oy + 33, oro);
+    if (cae >= 1) { const ch = tramo(t, DICIEMBRE + 0.35, DICIEMBRE + 1.1); for (let k = 0; k < 8; k++) if (ch < 1) { const ang = k * 0.785, q = 30 + ch * 34; R.pset(Math.round(164 + Math.cos(ang) * q * 1.6), Math.round(oy + 21 + Math.sin(ang) * q * 0.6), hex('#ffe070')); } } }
+  // las palomitas, abajo en el centro: miran a Iron Man y, en «villain», dan un salto del susto
+  const susto = t > VILLANO + 0.1, salto = Math.sin(tramo(t, VILLANO + 0.1, VILLANO + 0.5) * Math.PI) * 6;
+  T.palomitas(R, 160, Math.round(176 - salto), t, { s: 2, dir: susto ? 1 : -1, expresion: susto ? 'susto' : 'normal' });
+};
 
 // ── 1 · la batalla en la pantalla del cine ──
 const peliBatalla = (R, t, S) => {
@@ -266,8 +313,8 @@ const p5 = (t) => {
   T.lagoDelante(R, t, o);
 };
 const año = 2019;
-const efectos = [[BATALLA, 'boom'], [GEMA0, 'brillo'], [GEMA5, 'brillo'], [GUANTE, 'zumbido'], [SNAP, 'flash'], [THANOS, 'rafaga'], [SOBREVIVE + 0.3, 'whoosh'], [ADIOS + 0.1, 'claxon'], [P5 + 1.9, 'golpecito'], [ONCE, 'tic']];
-T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año });
+const efectos = [[SALVO, 'brillo'], [DICIEMBRE + 0.3, 'golpecito'], [VILLANO, 'whoosh'], [VILLANO + 0.35, 'boom'], [BATALLA, 'boom'], [GEMA0, 'brillo'], [GEMA5, 'brillo'], [GUANTE, 'zumbido'], [SNAP, 'flash'], [THANOS, 'rafaga'], [SOBREVIVE + 0.3, 'whoosh'], [ADIOS + 0.1, 'claxon'], [P5 + 1.9, 'golpecito'], [ONCE, 'tic']];
+T.rodar(E, R, [[0, p0], [P1, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año });
 </script>
 </body>
 </html>

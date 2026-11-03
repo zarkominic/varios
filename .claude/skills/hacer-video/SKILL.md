@@ -155,7 +155,12 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    - el título con el tema o la persona delante, y con gancho comercial: que se pinche (un misterio, un giro, una cifra
      que sorprende, algo que no se sabía), no una ficha («cómo X llegó a ser Y» es de calculadora). El gancho del texto,
      el título y la miniatura cuentan lo mismo, y el vídeo lo cumple;
-   - la explicación de ASK Atom, en una o dos frases por idea, dentro de la historia, nunca como una clase.
+   - la explicación de ASK Atom, en una o dos frases por idea, dentro de la historia, nunca como una clase;
+   - **la promesa del título en los primeros 10 segundos** (regla aprobada por el usuario el 03/11/2026, sacada de la
+     curva de retención del 11): la primera frase del gancho dice el giro que vende el vídeo (en el 11, «la máquina no
+     funcionaba y la fundadora está en la cárcel»; en el 19, «Iron Man vuelve como el villano»), corta, de 5–7 s, y con
+     su propio plano. La ambientación («En septiembre de 2013, en una farmacia de Palo Alto…») va DESPUÉS. En el 11, el
+     público orgánico bajó al 55 % a los 11 s y al 17 % a los 48 s, y el giro llegaba entre los 36 y los 48 s.
 3. Cada dato dudoso, márcalo «[comprobar antes de locutar]» y resuélvelo con WebSearch antes del paso 3. Si no se
    confirma, reescribe la frase con lo comprobado. Antes de presentarlo, verifica el guion con **3 agentes escépticos,
    no más** (en el 12, ocho gastaron 1,2 M de tokens y casi todo lo útil salió de tres bloques): uno para la historia y
