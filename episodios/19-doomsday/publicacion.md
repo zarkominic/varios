@@ -10,12 +10,12 @@
 
 ## Títulos
 
-- **EN:** Avengers: Doomsday Explained: Everything You Need to Know Before December 18
-- **ES:** Avengers: Doomsday: todo lo que hay que saber antes del estreno
+- **EN:** Avengers: Doomsday Explained Before December 18
+- **ES:** Avengers: Doomsday explicado antes del estreno
 
 **Alternativas para la prueba A/B de YouTube:**
 - EN: Why Iron Man's Actor Is Coming Back as the Villain
-- EN: The Multiverse Explained: Every Earth You Need to Know Before Doomsday
+- EN: Doomsday's Multiverse: Every Earth You Need to Know
 
 La miniatura (Iron Man en la batalla de 2019 contra Doom ante su castillo, partidos por la diagonal, con «12.18» dorado y el cubo de palomitas asustado) sirve para los tres.
 

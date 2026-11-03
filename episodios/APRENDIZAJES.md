@@ -228,6 +228,25 @@ una pasada o detalle no entra.
   5 personajes lleven siempre dos filas.
 - Siguiente tema: los archivos OVNI del gobierno.
 
+## Lo que dice el público · exportación del 03/11/2026 (6/10–2/11)
+
+Datos: `episodios/estadisticas/2026-11-03/` (`python3 atomo/herramientas/estadisticas.py episodios/estadisticas/2026-11-03`).
+Solo trae visualizaciones (y el % que se queda en los Shorts): ni retención por segundo, ni impresiones, ni CTR.
+- [Seguro] **Tres vídeos hacen el 90 %** (34.232 de 38.050): el tesoro pirata del 4 (1.455 al día), LucasArts (1.430 al
+  día) y los OVNI (1.227 al día). El resto, 174 al día o menos. Theranos, la referencia de calidad, 34 al día.
+- [Probable] **Lo que tienen los tres:** un secreto que te toca («in your pocket», «secret files», «secret rule») y
+  nombres que todo el mundo reconoce delante (piratas y oro, Roswell y Tic Tac, Monkey Island). Los que no arrancan
+  tienen título de explicación («How… Works», «Explained», «How X Became Y»): justo lo que el usuario llamó «de
+  calculadora». La calidad del dibujo no decide las visualizaciones; el tema y el título, sí.
+- [Supuesto] Oak Island y los templarios tienen misterio y no arrancan: sin impresiones ni CTR no se sabe si falla la
+  miniatura o el tema.
+- [Probable] **Sierra arranca flojo:** 89 el primer día, frente a 670 de LucasArts en el mismo nicho. Su título no
+  nombra ningún juego conocido en los primeros 40 caracteres.
+- [Seguro] **Los Shorts no funcionan:** 25–373 visualizaciones, y solo se queda viendo el 20–40 %. [Probable] La causa
+  principal es el formato: el plano 16:9 en medio con bandas borrosas no llena la pantalla y se pasa de largo.
+- **Para la próxima exportación:** Studio → Analytics → modo avanzado, con impresiones, CTR, duración media y porcentaje
+  medio visto por vídeo, y la curva de retención del último episodio.
+
 ## Próximos temas (decididos por el usuario)
 
 - **Episodio 16: LucasArts** (29/10/2026, entregado el 30/10). Un homenaje a la mejor época de los juegos de PC de LucasArts: Día del

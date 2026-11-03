@@ -86,6 +86,16 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
      episodio nuevo, el anterior ya está publicado** (palabras del usuario, 29/10/2026): no se le pregunta.
 
    Si falta algo, arréglalo antes de empezar o díselo al usuario.
+1b. **Lo que dice el público** (regla aprobada por el usuario el 03/11/2026). Pide al usuario la exportación de YouTube
+   Studio de los vídeos publicados (Analytics → Contenido → exportar, el zip con «Datos de la tabla.csv»). Si puede, que
+   añada también la curva de retención del último episodio, que se exporta desde la gráfica de retención de ese vídeo.
+   Descomprímela en `episodios/estadisticas/<fecha>/` y pasa
+   `python3 atomo/herramientas/estadisticas.py episodios/estadisticas/<fecha>`. Compara por visualizaciones al día y
+   por los tres primeros días, no por el total (los vídeos llevan distinto tiempo publicados). Con la curva de
+   retención, busca la fuga del gancho (lo que se pierde en los primeros 30 s), las caídas bruscas (qué frase sonaba
+   en ese segundo, con `linea.json`) y la pendiente del medio. Apunta lo que salga en APRENDIZAJES («Lo que dice el
+   público»), con sus etiquetas, y úsalo en el tema, el gancho y el título de este episodio. Si el usuario no la manda,
+   sigue sin ella y díselo en una línea.
 2. `bash atomo/herramientas/preparar-voz.sh`. Tarda unos 6 minutos en un contenedor nuevo y nada si ya está; escribe la
    carpeta (por defecto `~/.cache/ask-atom/voz`, que es donde la busca `producir.sh`). Tiene que ser una carpeta de
    verdad, nunca un enlace a tu carpeta temporal: en el 12 lo era, se borró al hacer sitio y `producir.sh` se paró.
@@ -426,7 +436,12 @@ Copia `episodios/11-theranos/publicacion.md` y rellénala con la misma estructur
 - **Capítulos:** `python3 atomo/herramientas/capitulos.py <ep> episodios/<carpeta>` da el minuto de cada acto, sacado
   del montaje (en el 11 coincide con los publicados), y su título del guion. Escribe a partir de ahí títulos cortos en
   los dos idiomas.
-- **Títulos:** el tema o la persona delante, sin minutos, con la alternativa A/B.
+- **Títulos:** el tema o la persona delante, sin minutos, con la alternativa A/B. **Regla aprobada por el usuario el
+  03/11/2026:** 60 caracteres como mucho (el buscador de escritorio corta ahí), lo que se reconoce (el juego, la
+  película, la persona) dentro de los primeros 40 (lo que enseña el móvil) y nada de palabras vagas (everything,
+  ultimate, todo, increíble…): una cifra, un nombre o una fecha en su lugar. Compruébalo con
+  `python3 atomo/herramientas/titulos.py episodios/<carpeta>/publicacion.md` (mira también los de los Shorts) y no
+  entregues la ficha hasta que salga «Todos los títulos cumplen».
 - **Lo demás:** las descripciones completas en los dos idiomas con las fuentes, las etiquetas, los pasos para subirlo y lo
   que hay que revisar antes de publicar (las frases dudosas de `informe.json`).
 
@@ -508,7 +523,7 @@ aquí, con los fotogramas del render todavía en disco.
    - **Imagen:** saca 4 fotogramas en una sola hoja y mira que no haya ninguna cartela ni ningún plano a medias.
    - **Subtítulos:** la última frase de cada SRT tiene que estar entera.
 5. **La ficha de cada Short** va en `publicacion.md`, en la sección «Shorts»:
-   - el título EN/ES, con gancho y `#Shorts`;
+   - el título EN/ES, con gancho y `#Shorts`, y que pase `titulos.py` (la regla de los 60 caracteres del paso 11);
    - una descripción EN/ES de 2–3 frases que mande al vídeo completo;
    - 4–5 hashtags.
 
