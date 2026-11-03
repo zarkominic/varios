@@ -27,13 +27,19 @@ def main():
     g = os.path.join(d, 'Datos del gráfico.csv')
     if os.path.exists(g):
         for r in csv.DictReader(open(g, encoding='utf-8-sig')):
-            por_dia[r['Contenido']][r['Fecha']] = int(r['Visualizaciones'] or 0)
+            if 'Visualizaciones' in r:   # el gráfico puede ser de otra métrica (p. ej. el % visto)
+                por_dia[r['Contenido']][r['Fecha']] = int(r['Visualizaciones'] or 0)
     filas = [r for r in tabla if r['Contenido'] != 'Total']
     hasta = max(dt.date.fromisoformat(f) for v in por_dia.values() for f in v) if por_dia else None
     total = next((r for r in tabla if r['Contenido'] == 'Total'), None)
     if total:
         print(f"Total: {total['Visualizaciones']} visualizaciones\n")
-    print(f"{'vis.':>6} {'días':>4} {'/día':>6}  {'días 0-2':14} {'quedan':>6} {'car.':>4}  título")
+    ricos = 'Impresiones de la miniatura' in (filas[0] if filas else {})
+    if ricos:
+        print('clics = impresiones × CTR: las visitas que llegan pinchando la miniatura dentro de YouTube. Si las '
+              'visualizaciones son muchas más, vienen de fuera (enlaces, anuncios, reproducción automática).\n')
+    extra = f" {'interes.':>8} {'impr.':>6} {'CTR':>5} {'clics':>5} {'%visto':>6} {'media':>7}" if ricos else ''
+    print(f"{'vis.':>6} {'días':>4} {'/día':>6}  {'días 0-2':14} {'quedan':>6}{extra} {'car.':>4}  título")
     for r in sorted(filas, key=lambda r: -int(r['Visualizaciones'] or 0)):
         p = fecha(r['Hora de publicación del vídeo'])
         fin = hasta or dt.date.today()
@@ -43,7 +49,12 @@ def main():
         primeros = '-' if not seq else str([seq.get(str(p + dt.timedelta(i)), 0) for i in range(3)])
         quedan = r.get('Se quedaron viendo (%)') or '-'
         corto = int(r['Duración'] or 0) <= 60
-        print(f"{vis:6d} {dias:4d} {vis / dias:6.0f}  {primeros:14} {quedan:>6} {len(r['Título del vídeo']):4d}  "
+        extra = ''
+        if ricos:
+            imp = int(r['Impresiones de la miniatura'] or 0); ctr = float(r['Porcentaje de clics de las miniaturas (%)'] or 0)
+            extra = (f" {r['Visualizaciones interesadas'] or '-':>8} {imp:6d} {ctr:5.2f} {imp * ctr / 100:5.0f}"
+                     f" {r['Porcentaje medio visto (%)'] or '-':>6} {r['Duración media de las visualizaciones'] or '-':>7}")
+        print(f"{vis:6d} {dias:4d} {vis / dias:6.0f}  {primeros:14} {quedan:>6}{extra} {len(r['Título del vídeo']):4d}  "
               f"{'[Short] ' if corto else ''}{r['Título del vídeo']}")
     if hasta:
         print(f"\nDatos por día hasta el {hasta}; los «días» se cuentan hasta esa fecha.")

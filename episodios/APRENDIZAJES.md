@@ -228,24 +228,25 @@ una pasada o detalle no entra.
   5 personajes lleven siempre dos filas.
 - Siguiente tema: los archivos OVNI del gobierno.
 
-## Lo que dice el público · exportación del 03/11/2026 (6/10–2/11)
+## Lo que dice el público · exportaciones del 03/11/2026 (6/10–2/11)
 
-Datos: `episodios/estadisticas/2026-11-03/` (`python3 atomo/herramientas/estadisticas.py episodios/estadisticas/2026-11-03`).
-Solo trae visualizaciones (y el % que se queda en los Shorts): ni retención por segundo, ni impresiones, ni CTR.
-- [Seguro] **Tres vídeos hacen el 90 %** (34.232 de 38.050): el tesoro pirata del 4 (1.455 al día), LucasArts (1.430 al
-  día) y los OVNI (1.227 al día). El resto, 174 al día o menos. Theranos, la referencia de calidad, 34 al día.
-- [Probable] **Lo que tienen los tres:** un secreto que te toca («in your pocket», «secret files», «secret rule») y
-  nombres que todo el mundo reconoce delante (piratas y oro, Roswell y Tic Tac, Monkey Island). Los que no arrancan
-  tienen título de explicación («How… Works», «Explained», «How X Became Y»): justo lo que el usuario llamó «de
-  calculadora». La calidad del dibujo no decide las visualizaciones; el tema y el título, sí.
-- [Supuesto] Oak Island y los templarios tienen misterio y no arrancan: sin impresiones ni CTR no se sabe si falla la
-  miniatura o el tema.
-- [Probable] **Sierra arranca flojo:** 89 el primer día, frente a 670 de LucasArts en el mismo nicho. Su título no
-  nombra ningún juego conocido en los primeros 40 caracteres.
-- [Seguro] **Los Shorts no funcionan:** 25–373 visualizaciones, y solo se queda viendo el 20–40 %. [Probable] La causa
-  principal es el formato: el plano 16:9 en medio con bandas borrosas no llena la pantalla y se pasa de largo.
-- **Para la próxima exportación:** Studio → Analytics → modo avanzado, con impresiones, CTR, duración media y porcentaje
-  medio visto por vídeo, y la curva de retención del último episodio.
+Datos: `episodios/estadisticas/2026-11-03/` (visualizaciones por día) y `2026-11-03b/` (impresiones, CTR, % visto).
+Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva de retención por segundo todavía.
+- [Seguro] **Las visitas de los tres «éxitos» casi no vienen de la miniatura dentro de YouTube.** Clics de miniatura
+  (impresiones × CTR) frente a visualizaciones: tesoro pirata 36 frente a 17.465; OVNI 69 frente a 11.047; LucasArts 83
+  frente a 5.720, y ninguno trae suscriptores. [Probable] Vienen de una promoción con anuncios o de enlaces de fuera:
+  preguntado al usuario. **La lectura anterior («el título con secreto trae las visitas») queda en duda.**
+- [Seguro] **El CTR de la miniatura es aceptable** en casi todos (templarios 4,96 %, LucasArts 4,54, huracanes 4,45,
+  Nueva York 4,38, tesoro 4,27, Acción de Gracias 4,16; media del canal 2,82). Excepción: **Oak Island**, el que más
+  enseñó YouTube (5.554 impresiones), con un 1,66 %: esa miniatura y ese título no funcionaron. Theranos 2,68; OVNI 2,23.
+- [Seguro] **El problema es lo que se ven:** la gente pincha y se va en el primer minuto. Duración media: Acción de
+  Gracias 0:33 (8 %), templarios 0:41 (8 %), Nueva York 1:01 (10 %), Sierra 1:04 (12 %), Oak Island 1:21 (16 %),
+  Theranos 1:41 (19 %). Los que se ven más: OVNI 3:51 (42 %), LucasArts 33 %, tesoro 31 %, huracanes 30 %.
+  [Probable] Con tan pocas impresiones (~1.500 por vídeo), YouTube no los empuja porque no retienen.
+- [Probable] El arranque (gancho y primer acto) pierde a la gente; la curva de retención por segundo dirá en qué frase.
+- [Seguro] **Shorts:** quien los ve los ve casi enteros (58–92 %), pero solo se queda entre el 20 y el 40 % de quienes
+  los ven pasar, y YouTube apenas los enseña (2–247 impresiones). [Probable] El formato 16:9 con bandas borrosas.
+- El usuario ya renombró Sierra: «King's Quest and Space Quest: Games That Killed You».
 
 ## Próximos temas (decididos por el usuario)
 
