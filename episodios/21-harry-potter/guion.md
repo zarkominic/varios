@@ -11,7 +11,7 @@ reconocibles por sus atributos (las gafas redondas y la cicatriz de Harry, el pe
 la barba de Dumbledore, el sombrero de McGonagall, Hagrid enorme), dibujados por nosotros, sin logos, sin clips, sin música
 de las películas ni del tema de John Williams. Nada de la polémica sobre la autora: no es el tema.
 
-**Duración objetivo:** unos 9 minutos [Probable]. Son 58 frases y unas 1.300 palabras en inglés.
+**Duración objetivo:** unos 9 minutos [Probable]. Son 57 frases y unas 1.200 palabras en inglés (unos 8 minutos).
 
 **Publicar:** entre el 15 y el 22 de diciembre de 2026.
 
@@ -84,8 +84,11 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 | La escribe Francesca Gardiner, que venía de Succession, y varios episodios los dirige Mark Mylod, de la misma serie. | It's written by Francesca Gardiner, who came from Succession, and several episodes are directed by Mark Mylod, from the same show. |
 | Se ha rodado en los estudios de Leavesden, en Inglaterra, los mismos donde se hicieron las películas. | It was shot at Leavesden Studios in England, the same place where the movies were made. |
 | La música no es de John Williams, sino de Hans Zimmer. | The music isn't by John Williams this time, but by Hans Zimmer. |
+| El segundo tráiler, de septiembre, ya enseña a Hermione en el expreso de Hogwarts, el sombrero seleccionador, la partida de ajedrez gigante y el espejo de Oesed. | The second trailer, from September, already shows Hermione on the Hogwarts Express, the Sorting Hat, the giant chess game, and the Mirror of Erised. |
 | Y el primer avance batió récords: más de doscientos setenta y siete millones de reproducciones en dos días, el más visto de la historia de HBO. | And the first teaser broke records: more than two hundred seventy-seven million views in two days, the most-watched in HBO history. |
+| El primer póster es solo unas gafas redondas que reflejan el castillo, con una frase: «Todo el mundo en nuestro mundo conocerá su nombre». | The first poster is just a pair of round glasses reflecting the castle, with one line: "Everyone in our world will know his name." |
 | La segunda temporada, La cámara secreta, ya está en marcha, aunque HBO avisa de que no saldrá una cada año. | Season two, the Chamber of Secrets, is already underway, though HBO warns there won't be a new season every year. |
+| Y según las cuentas de la productora, es una de las series más caras que HBO ha hecho nunca. | And according to the production company's accounts, it's one of the most expensive series HBO has ever made. |
 
 ## 2 · Quién es quién
 
@@ -94,8 +97,10 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 | Harry es Dominic McLaughlin, Hermione es Arabella Stanton y Ron es Alastair Stout: tres niños que la mayoría no había visto nunca. | Harry is Dominic McLaughlin, Hermione is Arabella Stanton, and Ron is Alastair Stout: three kids most people had never seen before. |
 | Dumbledore es John Lithgow, McGonagall es Janet McTeer y Snape es Paapa Essiedu. | Dumbledore is John Lithgow, McGonagall is Janet McTeer, and Snape is Paapa Essiedu. |
 | Hagrid es Nick Frost, y Quirrell, el profesor del turbante, es Luke Thallon. | Hagrid is Nick Frost, and Quirrell, the professor with the turban, is Luke Thallon. |
+| Los Dursley son Bel Powley y Daniel Rigby, y Neville, el chico que siempre pierde su sapo, es Rory Wilmot. | The Dursleys are Bel Powley and Daniel Rigby, and Neville, the boy who keeps losing his toad, is Rory Wilmot. |
 | Hay una cara conocida: Warwick Davis vuelve a ser el profesor Flitwick, como en las películas. | There's one familiar face: Warwick Davis plays Professor Flitwick again, just like in the movies. |
 | Draco es Lox Pratt, su padre Lucius es Johnny Flynn, y Molly Weasley es Katherine Parkinson. | Draco is Lox Pratt, his father Lucius is Johnny Flynn, and Molly Weasley is Katherine Parkinson. |
+| Hasta el sombrero seleccionador tiene voz conocida: la de David Threlfall. | Even the Sorting Hat has a familiar voice: David Threlfall's. |
 | Y por primera vez aparece Peeves, el fantasma bromista, con la voz y la cara de Peter Serafinowicz. | And for the first time, Peeves the prankster poltergeist shows up, played by Peter Serafinowicz. |
 
 ## 3 · Lo que la película se saltó
@@ -106,8 +111,11 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 | En el libro, Harry conoce a Draco antes de llegar a Hogwarts, en la tienda de túnicas del callejón Diagon, y Draco ya se burla de Hagrid. | In the book, Harry meets Draco before Hogwarts, at the robe shop in Diagon Alley, and Draco is already sneering at Hagrid. |
 | El sombrero seleccionador canta una canción entera, y Dumbledore abre el banquete con cuatro palabras sin sentido: «¡Papanatas! ¡Llorón! ¡Baratija! ¡Pellizco!». | The Sorting Hat sings a whole song, and Dumbledore opens the feast with four nonsense words: "Nitwit! Blubber! Oddment! Tweak!" |
 | El dragón Norberto no se lo lleva Dumbledore: lo recogen a medianoche unos amigos de Charlie Weasley en la torre más alta. | Norbert the dragon isn't sent away by Dumbledore: Charlie Weasley's friends pick him up at midnight from the tallest tower. |
+| En Navidad, Hagrid le regala a Harry una flauta tallada a mano, y esa flauta sirve después para dormir al perro de tres cabezas. | At Christmas, Hagrid gives Harry a hand-carved flute, and that flute later puts the three-headed dog to sleep. |
 | Y el castigo en el bosque prohibido no es solo del trío: Neville también va, con Draco, y allí aparecen los centauros. | And the detention in the Forbidden Forest isn't just the trio: Neville goes too, along with Draco, and that's where the centaurs show up. |
+| Hay un profesor que la película ni menciona: Binns, un fantasma que da Historia de la Magia y que un día murió y siguió dando clase como si nada. | There's a teacher the movie never even mentions: Binns, a ghost who teaches History of Magic, who died one day and just kept teaching as if nothing happened. |
 | Al final, antes de la piedra, hay una prueba que la película se saltó: un acertijo de siete pociones de Snape que resuelve Hermione con pura lógica. | At the end, before the stone, there's a test the movie skipped: a riddle of seven potions, set by Snape, that Hermione solves with pure logic. |
+| Y hay un segundo partido de quidditch, contra Hufflepuff, que arbitra Snape, y que Harry gana en unos cinco minutos. | And there's a second Quidditch match, against Hufflepuff, refereed by Snape, which Harry wins in about five minutes. |
 | Y un detalle pequeño: en el libro, Harry tiene los ojos verdes, como su madre. | And one small detail: in the book, Harry has green eyes, like his mother. |
 
 ## 4 · Las pistas
@@ -119,7 +127,10 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 | En el mismo capítulo, Dumbledore apaga las farolas con un aparato, el apagador, que en el último libro le deja en herencia a Ron. | In that same chapter, Dumbledore puts out the streetlights with a gadget, the Put-Outer, which he leaves to Ron in the final book. |
 | En el zoo, Harry habla con una serpiente sin saber lo que hace: eso es lengua pársel, y su verdadera razón no se entiende hasta el final de la saga. | At the zoo, Harry talks to a snake without knowing what he's doing: that's Parseltongue, and the real reason behind it isn't clear until the end of the saga. |
 | Fíjate en la rata de Ron, Scabbers: le falta un dedo, y en el tercer libro se descubre por qué. | Keep an eye on Ron's rat, Scabbers: he's missing a toe, and in book three you find out why. |
+| Neville vive con su abuela, y nadie le pregunta por sus padres: la respuesta llega en el cuarto libro, y es de las más tristes de la saga. | Neville lives with his grandmother, and nobody asks about his parents: the answer comes in book four, and it's one of the saddest in the saga. |
+| En el banco de los duendes, Hagrid saca un paquetito de la cámara setecientos trece, y el duende que los guía, Griphook, vuelve a aparecer en el último libro. | At the goblin bank, Hagrid collects a small package from vault seven hundred thirteen, and the goblin who guides them, Griphook, shows up again in the final book. |
 | Y cuando Dumbledore dice que en el espejo de Oesed se ve con unos calcetines de lana, quien ha leído el último libro ya no lo cree del todo. | And when Dumbledore says that in the Mirror of Erised he sees himself holding a pair of woolen socks, anyone who's read the last book doesn't quite believe him. |
+| Y al final, Dumbledore le cuenta a Harry que su padre le salvó la vida a Snape: la razón de verdad de ese rencor no se sabe hasta el último libro. | And at the end, Dumbledore tells Harry that his father once saved Snape's life: the real reason behind Snape's grudge isn't revealed until the final book. |
 
 ## 5 · Lo real detrás de la historia
 
@@ -128,10 +139,12 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 | Y ahora, lo que es real. | And now, what's real. |
 | En 1990, J. K. Rowling iba en un tren de Mánchester a Londres que se retrasó unas cuatro horas, y en ese viaje se le ocurrió un niño que no sabía que era mago. | In 1990, J. K. Rowling was on a train from Manchester to London that was delayed about four hours, and on that trip she came up with a boy who didn't know he was a wizard. |
 | Cuando el libro estuvo terminado, una docena de editoriales lo rechazaron. | When the book was finished, about a dozen publishers turned it down. |
+| Buena parte la escribió en cafés de Edimburgo, con su hija pequeña dormida en el carrito. | She wrote much of it in Edinburgh cafés, with her baby daughter asleep in the stroller. |
 | La que dijo que sí, Bloomsbury, pagó dos mil quinientas libras de adelanto e imprimió solo quinientos ejemplares en 1997, trescientos de ellos para bibliotecas. | The one that said yes, Bloomsbury, paid a two-thousand-five-hundred-pound advance and printed just five hundred copies in 1997, three hundred of them for libraries. |
 | En Estados Unidos le cambiaron el título: piedra filosofal sonaba antiguo, y se convirtió en La piedra del hechicero. | In the US they changed the title: "philosopher" sounded old-fashioned, so it became the Sorcerer's Stone. |
 | Y Nicolas Flamel existió: fue un escribano de París que murió en 1418, y su casa, de 1407, sigue en pie. | And Nicolas Flamel really existed: he was a Paris scribe who died in 1418, and his house, from 1407, is still standing. |
 | La leyenda de que había fabricado la piedra filosofal, la que convierte el metal en oro y da la vida eterna, nació dos siglos después de su muerte. | The legend that he'd made the philosopher's stone, the one that turns metal into gold and grants eternal life, was born two centuries after his death. |
+| Su lápida se conserva hoy en un museo de París, el de Cluny. | His tombstone is kept today in a Paris museum, the Musée de Cluny. |
 | Hoy, uno de aquellos quinientos ejemplares se ha vendido por cuatrocientos setenta y un mil dólares, y la saga entera supera los seiscientos millones de libros. | Today, one of those five hundred first copies has sold for four hundred seventy-one thousand dollars, and the whole saga has passed six hundred million books. |
 
 ## 6 · El cierre
@@ -139,7 +152,9 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 | ES | EN |
 |---|---|
 | Si quieres llegar preparado, vuelve a ver la primera película… o mejor, lee el primer libro: la serie promete contar lo que la película no pudo. | If you want to be ready, rewatch the first movie… or better yet, read the first book: the series promises to tell what the movie couldn't. |
+| Y si tienes tiempo, la segunda película: la segunda temporada ya se está rodando. | And if you have time, the second movie too: season two is already being filmed. |
 | Y fíjate en los detalles del primer episodio: en este mundo, casi nada está ahí por casualidad. | And watch the details in the first episode: in this world, almost nothing is there by accident. |
+| Porque, como en el libro, lo que parece un detalle sin importancia en el primer capítulo puede ser la pista del último. | Because, just like in the book, what looks like a throwaway detail in chapter one can be the clue to the last. |
 | ¿Y tú, a qué casa irías? Cuéntamelo en los comentarios. | And you, which house would you be in? Tell me in the comments. |
 | Yo, mientras tanto, voy a intentar coger esta snitch… otra vez. | Meanwhile, I'm going to try to catch this snitch… again. |
 
