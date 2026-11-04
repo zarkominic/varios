@@ -2142,3 +2142,639 @@ Object.assign(ELENCO_DO, {
     pal: COLORES({ S: '#f8a030', s: '#e86a20', Y: '#fff0a0', y: '#f8c840', C: '#f8a030', c: '#e86a20', W: '#f8a030', G: '#fff0a0', I: '#e86a20', F: '#f8a030', n: '#e86a20', X: '#fff0a0', a: '#e86a20' }) },
 });
 Object.assign(ELENCO_CHIBI, ELENCO_DO);
+
+// ── Episodio 20: «Los Juegos del Hambre» (antes de «Amanecer en la cosecha»). Personajes dibujados por nosotros,
+// reconocibles solo por sus atributos (la trenza, el broche, la petaca, la rosa blanca, las plumas, la peluca rosa…),
+// sin parecido con los actores de las películas y sin logos. Letras propias de este reparto (cada uno las define en su
+// pal): O/g oro del broche · r/R, y, v/V, u/U, p, d colores sueltos · n botas · I cinturón · J/j pelucas oscuras.
+// Los niños (Prim, el hermano de Haymitch) llevan un cuerpo más bajo (10 filas), con la misma cabeza.
+const pad = (g) => { const w = Math.max(...g.map((f) => f.length)); return g.map((f) => f.padEnd(w, '.')); };
+// piel del Veta (Seam) del Distrito 12: oliva
+const OLIVA = (o) => ({ S: hex('#dcae84'), s: hex('#b08058'), ...Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)])) });
+
+// ── cabezas ──
+// pelo rizado y revuelto (Haymitch a los 16, su hermano, Teseo): la silueta de arriba con bultos y unos rizos en la frente
+const CAB_RIZOS = [
+  '..kk.kk.kk.....',
+  '.kHHkHHkHHkk...',
+  '.kHhHHhHHhHHk..',
+  'kHHHhHHHHHhHHk.',
+  'kHhHSHSSSHSSSk.',
+  'kHHhSSSSSSSSSk.',
+  'kHhssSSSSSSSSSk',
+  'kHHsSSSSSSSSsk.',
+  '.kHSSSSSSSSSSk.',
+  '.kSSSSSSSSSSk..',
+  '..kSSSSSSSSsk..',
+  '...kksSSSSkk...',
+  '.....kkkkk.....',
+];
+// Haymitch mentor: greñas largas y revueltas hasta el cuello, barba de varios días (u) y las mejillas coloradas (r)
+const CAB_GRENAS = [
+  '..kk.kkk.kk....',
+  '.kHHkHHHkHHk...',
+  '.kHhHHHHhHHHk..',
+  'kHHHHHhHHHHHHk.',
+  'kHhHHHSSSHSSSk.',
+  'kHHHHSSSSSSSSk.',
+  'kHHHsSSSSSSSSSk',
+  'kHhHSSSSSSSSsk.',
+  'kHHHSSrrSSSSrk.',
+  'kHhHkuuuuSSSk..',
+  'kHHhkkuuuuukk..',
+  'khHHk.kkkkk....',
+  '.kkHk..........',
+  '..kk...........',
+];
+// Lenore Dove: rizos oscuros largos con plumitas de colores (r roja, y amarilla, u azul) entre el pelo
+const CAB_PLUMAS = [
+  '..kk.kk.kk.....',
+  '.kHHkHHkHHkk...',
+  '.kHhHrHHhHHHk..',
+  'kHHHHrHHHHhHHk.',
+  'kHyHHSSSSSSSSk.',
+  'kHyHhSSSSSSSSk.',
+  'kHHHsSSSSSSSSSk',
+  'khHHSSSSSSSSsk.',
+  'kHuHSSSSSSSSSk.',
+  'kHuHkSSSSSSSk..',
+  'khHhkkSSSSSkk..',
+  'kHhHk.kkkkk....',
+  '.kkk...........',
+];
+// pelo peinado hacia atrás y liso (Snow joven, el tributo profesional): una raya de brillo
+const CAB_ENGOMINADO = parche(CAB_CORTO, [[3, 1, 'hhhhh'], [2, 2, 'HHHHHHHhh'], [4, 4, 'H']]);
+// peluca empolvada del siglo XVIII (Hume): blanca, con los rulos sobre la oreja
+const CAB_PELUCA = parche(CAB_CORTO, [[1, 4, 'hH'], [1, 5, 'Hh'], [1, 6, 'hH'], [1, 7, 'Hh'], [2, 8, 'h']]);
+// entradas (Beetee): la frente despejada
+const CAB_ENTRADAS = parche(CAB_CORTO, [[6, 3, 'SSSSSS'], [5, 4, 'S']]);
+// mechones canosos (Mags): el pelo largo con vetas grises (w)
+const CAB_VETAS = parche(CAB_LARGO, [[3, 1, 'ww'], [5, 2, 'w'], [2, 3, 'w'], [1, 5, 'w'], [2, 7, 'w'], [1, 9, 'w'], [2, 10, 'w']]);
+
+// ── cuerpos ──
+// camisa de trabajo remangada con tirantes (G) y el cuello abierto: el Distrito 12 minero (Haymitch joven)
+const CUERPO_TIRANTES = parche(CUERPO_CALLE, [[6, 0, 'SSS'], [5, 1, 'G...G'], [2, 2, 'W..G...G..W'], [5, 3, 'G...G'], [5, 4, 'G...G'], [5, 5, 'G...G'], [5, 6, 'G...G']]);
+// chaqueta arrugada (c) con la camisa por fuera (W): Haymitch mentor
+const CUERPO_ARRUGADO = parche(CUERPO_EUROPEO, [[4, 3, 'c'], [10, 4, 'c'], [4, 7, 'WW'], [9, 7, 'WW']]);
+// manga larga (camisa, jersey, sudadera): CUERPO_CALLE con las mangas hasta la muñeca
+const CUERPO_MANGA = parche(CUERPO_CALLE, [[2, 3, 'C.........C'], [2, 4, 'C.........C']]);
+// chaqueta de cuero de caza (C) abierta sobre la camisa verde (W), el broche de oro (O) en la solapa y las botas (n)
+const CUERPO_CAZADORA = [
+  '...kkWWWWWkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCCWCOCkCk.',
+  '.kCkCCCWCCCkCk.',
+  '.kCkcCCWCCckCk.',
+  '.kSkcCCWCCckSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCkCCCk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// vestido sin delantal, solo el cuello (W): las chicas del 12 el día de la cosecha, Maysilee, Madge
+const VESTIDO_LISO = parche(CUERPO_VESTIDO, [[4, 4, 'CCCCCCC'], [4, 5, 'CCCCCCC'], [4, 6, 'CCCCCCC'], [4, 7, 'CCCCCCC'], [4, 8, 'CCCCCCC']]);
+// el vestido de la hija del comerciante (Maysilee): lazo en la cintura (I) y pliegues (c)
+const CUERPO_PLIEGUES = parche(VESTIDO_LISO, [[4, 4, 'IIIIIII'], [4, 6, 'cCCCCCc'], [4, 7, 'CcCCCcC'], [4, 8, 'CcCCCcC'], [4, 9, 'cCcCcCc']]);
+// ropa de capas de colores del Covey (Lenore Dove): collar de cuentas (y r b), blusa mostaza con lunares (d), fajín
+// (u) y la falda de tres capas (roja, verde y morada)
+const CUERPO_COVEY = [
+  '....kkSSSkk....',
+  '..kkCyrybyCkk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCdCCCdCkCk.',
+  '.kSkuuuuuuukSk.',
+  '.kSkrrrrrrrkSk.',
+  '..kkrRrrrRrkk..',
+  '...krrrrrrrk...',
+  '...kvvvvvvvk...',
+  '...kvVvvvVvk...',
+  '...kpppppppk...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// el vestido de volantes de Lucy Gray: los colores del arcoíris en bandas y la falda que se abre
+const CUERPO_VOLANTES = [
+  '....kkSSSkk....',
+  '..kkrrrrrrrkk..',
+  '.krkrrRrRrrkrk.',
+  '.kSkqqqqqqqkSk.',
+  '.kSkyyyyyyykSk.',
+  '.kskvvvvvvvksk.',
+  '..kuuuuuuuuuk..',
+  '.kuuUuuuuUuuuk.',
+  '.kpppppppppppk.',
+  'kpppPppppppPppk',
+  'krRrrRrrRrrRrrk',
+  '.kkkkkkkkkkkkk.',
+  '....kLk.kLk....',
+];
+// la toga del emperador: blanca (T) con la banda morada (A) en diagonal y el borde de abajo
+const CUERPO_TOGA = [
+  '...kkTTTTTkk...',
+  '..kAATTTTTTTk..',
+  '.kTkTAATTTTkSk.',
+  '.kTkTTAATTTkSk.',
+  '.kTkTTTAATTkSk.',
+  '.kSkTTTTAATksk.',
+  '..kkTTTTTAAkk..',
+  '...kTTTTTTAk...',
+  '...kTTTTTTTk...',
+  '...ktTTTTTtk...',
+  '...kAAAAAAAk...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// quitón corto griego (Teseo): túnica blanca ceñida (G), brazos y piernas al aire, sandalias
+const CUERPO_QUITON = [
+  '...kkTTTTTkk...',
+  '..kTTTTTTTTTk..',
+  '.kSkTTTTTTTkSk.',
+  '.kSkTTTTTTTkSk.',
+  '.kSkTTTTTTTkSk.',
+  '.kskGGGGGGGksk.',
+  '..kkTTTTTTTkk..',
+  '...kTTtTTtTk...',
+  '...ktttttttk...',
+  '....kSk.kSk....',
+  '....kSk.kSk....',
+  '....kLk.kLk....',
+  '...kLLk.kLLk...',
+];
+// niños (10 filas): vestido con cuello (W) y camisa con pantalón corto
+const CUERPO_NINA = [
+  '....kkWWWkk....',
+  '..kkCCWWWCCkk..',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkcCCCCCckk..',
+  '...kCCCCCCCk...',
+  '...kkkkkkkkk...',
+  '....kSk.kSk....',
+  '....kLk.kLk....',
+];
+const CUERPO_NINO = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkFFFFFFFkk..',
+  '...kFFFkFFFk...',
+  '...kSSSkSSSk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+
+// ── tocados nuevos ──
+Object.assign(TOCADOS, {
+  // la peluca rosa altísima de Effie (P/p) con el sombrerito verde (V) arriba
+  pelucaRosa: [[
+    '.....kkkk......',
+    '....kVVVVk.....',
+    '...kkkkkkkk....',
+    '...kPPPPPPk....',
+    '..kPPpPPPPPk...',
+    '..kPPPPPPpPk...',
+    '.kPPpPPPPPPPk..',
+    '.kPPPPPPPpPPk..',
+    'kPPPPpPPPPPPPk.',
+    'kPPPPPPPPPPPPk.',
+    'kPpPPPPPPPPPPk.',
+    'kPPPPPPPPPPPPk.',
+  ], -8],
+  // la torre de Drusilla: peluca ciruela (J/j) altísima e inclinada hacia atrás, con dos bandas de oro (O)
+  torre: [[
+    '..kkkk.........',
+    '.kJJJJk........',
+    '.kJjJJk........',
+    '.kOOOOk........',
+    '..kJJJJk.......',
+    '..kJJjJJk......',
+    '..kJJJJJk......',
+    '.kJJJJjJJk.....',
+    '.kOOOOOOOOk....',
+    'kJJJJJJJJJJk...',
+    'kJJjJJJJJJJJk..',
+    'kJJJJJJJJjJJJk.',
+    'kJJJJJJJJJJJJk.',
+    'kJJJJJJJJJJJJk.',
+  ], -10],
+  // el tupé de Caesar: pelo de color (H) en una ola alta que se adelanta sobre la frente (sin taparla)
+  tupe: [[
+    '......kkkkk....',
+    '....kkHHHHHkk..',
+    '...kHHhhHHHHHk.',
+    '..kHHHHHHHhHHHk',
+    '.kHHHHHHHHHHHk.',
+    'kHHHhHHHHHHHk..',
+  ], -4],
+  // corona de laurel (V/v): las hojas alrededor de la cabeza, por encima de la frente
+  laurel: [[
+    '..kV.kV.kV.k...',
+    '.kVVkVVkVVkVk..',
+    'kVvVVvVVvVVvVk.',
+    'kVk.........kVk',
+  ], 1],
+  // pelucas del Capitolio: pinchos verdes (V/v) y una bola turquesa enorme (Y/y)
+  pinchos: [[
+    '.k...k...k.....',
+    'kVk.kVk.kVk....',
+    'kVVkVVVkVVVk.k.',
+    '.kVVVvVVVvVVkVk',
+    'kVVvVVVVVVVVVVk',
+    'kVVVVVVVVVvVVk.',
+    'kVvVVVVVVVVVVk.',
+    'kVVVVVVVVVVVVk.',
+    'kVVVVVVVVVVVVk.',
+  ], -5],
+  pompon: [[
+    '....kkkkkk.....',
+    '..kkYYYYYYkk...',
+    '.kYYyYYYYYYYk..',
+    'kYYYYYYYyYYYYk.',
+    'kYyYYYYYYYYYYk.',
+    'kYYYYYYYYYYyYYk',
+    'kYYYyYYYYYYYYk.',
+    'kYYYYYYYYYYYYk.',
+    'kYYYYYYYYYYYYk.',
+    'kYYYYYYYYYYYYk.',
+    '.kYYYYYYYYYYYk.',
+  ], -7],
+  // casco blanco de los agentes de la paz (X/x), con la visera oscura (J) subida: la cara se ve entera
+  cascoPaz: [[
+    '...kkkkkkkk....',
+    '..kXXXXXXXXk...',
+    '.kXXxXXXXXXXk..',
+    'kXXXXXXXXXXXXk.',
+    'kXXXkJJJJJJJJJk',
+    'kXXXkkkkkkkkkk.',
+    'kXXXk..........',
+    'kXxXk..........',
+    'kXXXk..........',
+    '.kXXk..........',
+    '..kk...........',
+  ], -1],
+  // casco antidisturbios oscuro (J/j) con la visera transparente: solo su marco gris (Z) por delante de la cara
+  antidisturbios: [[
+    '...kkkkkkkk....',
+    '..kJJJJJJJJk...',
+    '.kJJjJJJJJJJk..',
+    'kJJJJJJJJJJJJk.',
+    'kJJJJJJJJJJJJJk',
+    'kJJJkZZZZZZZZZk',
+    'kJJJk.........Z',
+    'kJjJk.........Z',
+    'kJJJk.........Z',
+    'kJJJk........Z.',
+    '.kJJk......ZZ..',
+    '..kk...........',
+  ], -1],
+});
+
+// ── piezas (con el R de conChibi). Todas: (x, y) = el centro de abajo de la pieza (donde se apoya o por donde se
+// coge); o.s escala (1 = tamaño de escena; 2 al doble, para los insertos), o.dir −1 la voltea ──
+const PAL_JH = COLORES({
+  k: '#1c1222', O: '#f0c040', g: '#a87a18', o: '#ffe890', X: '#f6f2e6', x: '#c8c0b0', Z: '#c8ccd8', z: '#8c90a4', E: '#ffffff',
+  B: '#d8943a', b: '#9a5a24', T: '#f4cc80', t: '#e0a85a', m: '#7a2026', r: '#e86a7a', V: '#4a9a3a', v: '#2e6a24',
+  G: '#c8e6ee', W: '#e6f4f8', R: '#c8303a', J: '#24202c', j: '#4a4458', w: '#f2f2f2', u: '#8a8a96', U: '#5a5a66',
+  C: '#c87a3a', c: '#8a4a1e', M: '#a8642a', L: '#6a3a1a',
+});
+const pintaJH = (R, g, x, y, o = {}, pal = PAL_JH) => {
+  const s = o.s ?? 1, dir = o.dir ?? 1, w = g[0].length, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - g.length * s);
+  g.forEach((f, j) => { for (let i = 0; i < w; i++) { const c = pal[f[i]]; if (c == null) continue; const ii = dir > 0 ? i : w - 1 - i; R.rect(x0 + ii * s, y0 + j * s, x0 + ii * s + s - 1, y0 + j * s + s - 1, c); } });
+};
+// el broche del sinsajo: un aro de oro (O, sombra g) con el pájaro de alas abiertas en negro dentro
+const BROCHE = [
+  '....kkkkk....',
+  '..kkOOOOOkk..',
+  '.kOkOOOOOOOk.',
+  '.kOkkOOOOOOk.',
+  'kOOOkkOOOOOOk',
+  'kOOOkkkOOkkOk',
+  'kOOOOkkkkkkkk',
+  'kOOOkkkkkOOgk',
+  'kOOkkOOOOOOgk',
+  '.kkkOOOOOOgk.',
+  '.kOOOOOOOOgk.',
+  '..kkggggggk..',
+  '....kkkkk....',
+];
+const broche = (R, x, y, o = {}) => { pintaJH(R, BROCHE, x, y, o); if (o.brillo) R.pset(Math.round(x - 2 * (o.s ?? 1)), Math.round(y - 7 * (o.s ?? 1)), PAL_JH.o); };
+// la petaca de Haymitch: plata (Z/z) con el tapón oscuro y un brillo
+const PETACA = ['.kk.', 'kjjk', 'kZZk', 'kZEk', 'kZZk', 'kzZk', 'kzzk', '.kk.'];
+const petaca = (R, x, y, o = {}) => pintaJH(R, PETACA, x, y, o);
+// la urna de cristal de la cosecha (G/W cristal, E brillo) sobre su pie, llena de papeletas (X/x); o.nivel 0–1
+const URNA = [
+  '..kkkkkkkkkkkkkkk..',
+  '.kWWWWWWWWWWWWWWWk.',
+  '..kGGGGGGGGGGGGGk..',
+  '.kGEGGGGGGGGGGGGGk.',
+  'kGGEGGGGGGGGGGGGGGk',
+  'kGGEGGGGGGGGGGGGGGk',
+  'kGGGGGGGGGGGGGGGGGk',
+  'kGGGGGGGGGGGGGGGGGk',
+  'kGGGGGGGGGGGGGGGGGk',
+  '.kGGGGGGGGGGGGGGGk.',
+  '..kGGGGGGGGGGGGGk..',
+  '...kkkkkkkkkkkkk...',
+  '......kuuuuuk......',
+  '.......kuuuk.......',
+  '.....kkuuuuukk.....',
+  '....kuuuuuuuuuk....',
+  '....kkkkkkkkkkk....',
+];
+const urna = (R, x, y, o = {}) => {
+  const nivel = o.nivel ?? 0.6, arriba = Math.round(10 - nivel * 7);
+  const g = URNA.map((f, j) => (j < arriba || j > 10 ? f : f.replace(/G/g, (_, i) => ((i * 7 + j * 3) % 5 === 0 ? 'x' : (i + j) % 3 === 0 ? 'G' : 'X'))));
+  pintaJH(R, g, x, y, o);
+};
+// la rosa blanca de Snow: flor (X/x) con el tallo y una hoja (V/v)
+const ROSA = ['.kkk.', 'kXxXk', 'kxXXk', '.kxk.', '..Vk.', '.vV..', 'kVV..', '..V..', '..v..'];
+const rosaBlanca = (R, x, y, o = {}) => pintaJH(R, ROSA, x, y, o);
+// la guitarra vieja de Lucy Gray: cuerpo de madera (C/c) con la boca negra y el mástil (M/L)
+const GUITARRA = [
+  '..kkk..',
+  '..kLk..',
+  '..kkk..',
+  '..kMk..',
+  '..kMk..',
+  '..kMk..',
+  '..kMk..',
+  '.kkMkk.',
+  'kCCCCck',
+  'kCCCCck',
+  '.kCCck.',
+  'kCCkCCk',
+  'kCkkkck',
+  'kCCkCck',
+  'kCCCCck',
+  '.kcccck',
+  '..kkkk.',
+];
+const guitarra = (R, x, y, o = {}) => pintaJH(R, GUITARRA, x, y, o);
+// el arco de Katniss: la pala de madera (B/b) curvada y la cuerda (x) recta
+const ARCO = [
+  'kk...',
+  'xbk..',
+  'x.bk.',
+  'x.Bk.',
+  'x..Bk',
+  'x..Bk',
+  'x..Bk',
+  'x..Bk',
+  'x..Bk',
+  'x.Bk.',
+  'x.bk.',
+  'xbk..',
+  'kk...',
+];
+const arco = (R, x, y, o = {}) => pintaJH(R, ARCO, x, y, o);
+// flecha: plumas rojas (R), astil (B) y punta de metal (Z); apunta a la derecha (o.dir −1 a la izquierda)
+const FLECHA = ['RR........kk.', '.RBBBBBBBBZZk', 'RR........kk.'];
+const flecha = (R, x, y, o = {}) => pintaJH(R, FLECHA, x, y, o);
+// la aguja de tejer de Wiress: plata (Z) con la bolita de la punta (O)
+const AGUJA = ['.k.', 'kOk', 'kZk', 'kZk', 'kZk', 'kZk', 'kZk', 'kzk', '.k.'];
+const aguja = (R, x, y, o = {}) => pintaJH(R, AGUJA, x, y, o);
+// el anzuelo de Mags: sedal (x) y el gancho de plata (Z) en forma de J con su punta
+const ANZUELO = ['...x.', '...x.', '..kZk', '...Zk', '...Zk', 'kk.Zk', 'kZkZk', '.kZZk', '..kk.'];
+const anzuelo = (R, x, y, o = {}) => pintaJH(R, ANZUELO, x, y, o);
+// la bobina de cable de Beetee: vueltas de cobre (C/c) y la punta suelta
+const CABLE = [
+  '..kkkkk...',
+  '.kCcCcCk..',
+  'kCk...kCk.',
+  'kc.....ck.',
+  'kCk...kCkk',
+  '.kCcCcCkCk',
+  '..kkkkk.kc',
+  '.........k',
+];
+const cable = (R, x, y, o = {}) => pintaJH(R, CABLE, x, y, o);
+// EL PAN CON OJOS, la mascota del episodio: hogaza redonda de corteza dorada (B, cortes b) y miga clara (T/t) con cara.
+// o.cara: 'normal' (y parpadea con o.t), 'feliz', 'susto' (ojos grandes y boca en O), 'estornudo' (ojos cerrados,
+// boca abierta y migas que salen); o.mordido: le falta la mitad de la derecha (el gag del maratón)
+const PAN = [
+  '...kkkkkkk...',
+  '.kkBBbBBbBkk.',
+  'kBBbBBbBBbBBk',
+  'kBBBBBBBBBBBk',
+  'kBTTTTTTTTTBk',
+  'kTTTTTTTTTTTk',
+  'kTTTTTTTTTTTk',
+  'kTTTTTTTTTTtk',
+  '.kttTTTTTttk.',
+  '..kkkkkkkkk..',
+];
+const PAN_MORDIDO = [
+  '...kkkkk.....',
+  '.kkBBbBBk....',
+  'kBBbBBbBk....',
+  'kBBBBBBk.....',
+  'kBTTTTTxk....',
+  'kTTTTTTk.....',
+  'kTTTTTTxk....',
+  'kTTTTTTk.....',
+  '.kttTTTxk....',
+  '..kkkkkk.....',
+];
+const pan = (R, x, y, o = {}) => {
+  const s = o.s ?? 1, dir = o.dir ?? 1, cara = o.cara ?? 'normal', w = PAN[0].length;
+  pintaJH(R, o.mordido ? PAN_MORDIDO : PAN, x, y, o);
+  const x0 = Math.round(x - w * s / 2), y0 = Math.round(y - PAN.length * s);
+  const dx = o.mordido ? -2 : 0, px = (i, j, c) => { const ii = dir > 0 ? i + dx : w - 1 - i - dx; R.rect(x0 + ii * s, y0 + j * s, x0 + ii * s + s - 1, y0 + j * s + s - 1, PAL_JH[c]); };
+  if (cara === 'susto') { for (const ex of [3, 8]) { px(ex, 4, 'E'); px(ex + 1, 4, 'E'); px(ex, 5, 'E'); px(ex + 1, 5, 'k'); } px(6, 6, 'k'); px(6, 7, 'm'); px(6, 8, 'k'); }
+  else if (cara === 'estornudo') {
+    px(3, 4, 'k'); px(4, 5, 'k'); px(3, 6, 'k'); px(9, 4, 'k'); px(8, 5, 'k'); px(9, 6, 'k');
+    px(5, 6, 'k'); px(6, 6, 'm'); px(7, 6, 'k'); px(6, 7, 'm'); px(5, 7, 'k'); px(7, 7, 'k');
+    for (const [i, j] of [[14, 4], [15, 6], [14, 7], [16, 5], [17, 7]]) px(i, j, 'T');
+  } else {
+    const cierra = cara === 'normal' && ((o.t ?? 0) + x * 0.13) % 2.6 < 0.1;
+    for (const ex of [4, 8]) { if (!cierra) px(ex, 4, 'k'); px(ex, 5, 'k'); }
+    if (cara === 'feliz') { px(5, 6, 'k'); px(6, 7, 'k'); px(7, 6, 'k'); } else px(6, 7, 'k');
+    px(3, 6, 'r'); px(9, 6, 'r');
+  }
+};
+// pájaros (mirando a la derecha; o.t bate las alas): cuerpo J, ala j, barras del ala w, ojo E, pico Z, cola U
+const PAJARO = pad([
+  '.......kkk..',
+  '......kJJJk.',
+  '.....kJJEJkk',
+  'kkk.kJJJJJkZk',
+  'kUUkJjjjJJkk',
+  '.kUUjwwjJJk',
+  '..kkJjjJJk',
+  '....kkkkk',
+]);
+const ALA_ARRIBA = [[5, 2, 'kj'], [4, 1, 'kjk'], [4, 0, '.k']];
+const pajaro = (pal) => (R, x, y, o = {}) => {
+  const arriba = o.t != null && Math.sin(o.t * 14 + x) > 0;
+  pintaJH(R, arriba ? parche(PAJARO, ALA_ARRIBA) : PAJARO, x, y, o, { ...PAL_JH, ...pal });
+};
+// el charlajo (jabberjay): todo negro, ojo blanco; el sinsonte: gris con barras blancas; el sinsajo: negro con el oro
+const charlajo = pajaro(COLORES({ J: '#24202c', j: '#3a3646', w: '#3a3646', U: '#24202c', Z: '#5a5a66', E: '#ffffff' }));
+const sinsonte = pajaro(COLORES({ J: '#8a8a96', j: '#6a6a76', w: '#f2f2f2', U: '#5a5a66', Z: '#3a3646', E: '#1c1222' }));
+const sinsajo = pajaro(COLORES({ J: '#24202c', j: '#3a3646', w: '#f0c040', U: '#a87a18', Z: '#f0c040', E: '#f0c040' }));
+export const PIEZAS_JH = { broche, petaca, urna, rosaBlanca, guitarra, arco, flecha, aguja, anzuelo, cable, pan, charlajo, sinsonte, sinsajo };
+
+// ── ganchos (lo que llevan en la mano: se quita si la escena le pone o.sostiene, o.dedo u o.brazos) ──
+const manoLibre = (c) => !(c.o.sostiene || c.o.dedo || c.o.brazos || c.o.sinObjeto);
+// la trenza de lado (Katniss): baja desde detrás de la oreja por encima del hombro, con su lazo (r)
+const TRENZA = ['.kHk', 'kHhk', 'kHHk', 'khHk', 'kHHk', 'kHhk', '.kHk', '.krk', '.kHk', '..k.'];
+const trenza = (c) => c.cab.rej(TRENZA, 3, 10);
+// las dos trencitas rubias de Prim: una por detrás de la espalda y otra por encima del hombro
+const TRENCITA = ['kHk', 'khk', 'kHk', 'khk', 'krk', '.k.'];
+const trencitas = { detras: (c) => c.cab.rej(TRENCITA, -1, 8), delante: (c) => c.cab.rej(TRENCITA, 2, 9) };
+// las dos coletas de Maysilee con sus pinzas rosas (r): una detrás y la otra asomando por arriba
+const COLETA_M = ['.kk.', 'krrk', 'kHHk', 'kHhk', '.kHk', '..k.'];
+const COLETA_ALTA = ['.kk.', 'kHHk', 'kHhk', 'krrk', '.kk.'];
+const coletas = (c) => { c.cab.rej(COLETA_M, -3, 4); c.cab.rej(COLETA_ALTA, 11, -2); };
+// plumas de colores que asoman del pelo de Lenore
+const plumitas = (c) => { for (const [i, j, k] of [[1, -1, 'r'], [0, -2, 'r'], [3, -1, 'y'], [3, -2, 'y'], [-1, 3, 'u'], [-2, 2, 'u']]) c.cab.px(i, j, c.pal[k]); };
+// el moño con la aguja de tejer cruzada (Wiress)
+const MONO = ['z......', '.z.kk..', '.kzHHk.', 'kHHzhHk', 'kHhHzHk', '.kHHHZz', '..kkk..'];
+const mono = (c) => c.cab.rej(MONO, -3, 0, { ...c.pal, Z: hex('#c8ccd8'), z: hex('#e8ecf4') });
+// la coleta con lazo negro de la peluca de Hume
+const LAZO = ['kk.', 'kJk', 'kJJ', '.kk'];
+const lazo = (c) => c.cab.rej(LAZO, -2, 7);
+// el cuello rígido de oro de Drusilla, que sube por detrás de la cabeza
+const CUELLO_RIGIDO = ['k...', 'kOk.', 'kOOk', 'kOgk', 'kOOk', 'kOgk', '.kOk'];
+// cosas en la mano de delante (columna 12–16 de la rejilla del cuerpo, la mano en la fila 5)
+const enMano = (g, i, j, pal) => (c) => { if (manoLibre(c)) c.cuerpo.rej(g, i, j, pal ? { ...c.pal, ...pal } : c.pal); };
+const PAL_MANO = COLORES({ O: '#f0c040', g: '#a87a18', Z: '#c8ccd8', z: '#8c90a4', E: '#ffffff', X: '#f6f2e6', x: '#c8c0b0', B: '#d8943a', b: '#9a5a24', C: '#c87a3a', c: '#8a4a1e', j: '#4a4458', J: '#24202c', u: '#6a3a9a' });
+const conPetaca = enMano(['.kk.', 'kjjk', 'kZZk', 'kZEk', 'kzZk', '.kk.'], 13, 2, PAL_MANO);
+const conLibreta = enMano(['kkkkk', 'kXkXk', 'kxkxk', 'kkkkk'], 13, 3, PAL_MANO);
+const conMicro = enMano(['.kk.', 'kJjk', 'kJJk', '.kk.', '.kZk', '.kzk', '..k.'], 12, -1, PAL_MANO);
+const conAbanico = enMano(['kkkkkk', 'kOuOuk', '.kOuk.', '..kk..'], 12, 2, PAL_MANO);
+const conCable = enMano(['.kkk.', 'kCcCk', 'kc.ck', 'kCcCk', '.kkk.'], 12, 4, PAL_MANO);
+const conEspada = enMano(['..k..', '.kZk.', '.kZk.', '.kZk.', '.kZk.', '.kZk.', 'kOOOk', '.kbk.', '.kkk.'], 12, -2, PAL_MANO);
+const conArco = enMano(ARCO, 13, -1, PAL_MANO);
+// la sonrisa enorme de Caesar (dientes E) y los brillos del traje, que centellean
+const sonrisaCaesar = (c) => { if (c.o.habla || c.o.sorpresa || c.o.triste) return; const y = 9; c.cab.px(8, y, P.k); for (let i = 9; i <= 12; i++) { c.cab.px(i, y, P.E); c.cab.px(i, y + 1, P.k); } c.cab.px(13, y, P.k); };
+const brillos = (c) => { const on = Math.floor(c.t * 4 + c.x) % 3; [[5, 2], [9, 4], [4, 6], [10, 1], [6, 8]].forEach(([i, j], n) => { if ((n + on) % 3) c.cuerpo.px(i, j, hex((n + on) % 3 === 1 ? '#c8d0ff' : '#ffffff')); }); };
+// cejas severas (Drusilla): las dos cejas hacia abajo por dentro
+const severa = (c) => { if (c.o.sonrisa || c.o.sorpresa) return; const ceja = hex('#3a1a4a'); c.cab.px(7, 4, ceja); c.cab.px(7, 5, c.pal.S); c.cab.px(12, 4, ceja); c.cab.px(12, 5, c.pal.S); };
+// el maquillaje del Capitolio: dos piedrecitas de color en las mejillas
+const gemas = (col) => (c) => { c.cab.px(6, 8, hex(col)); c.cab.px(13, 8, hex(col)); };
+const varios = (...fs) => (c) => { for (const f of fs) f(c); };
+
+// ── el reparto del 20 ──
+const B20 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const B20M = { ...B20, cab: CAB_LARGO, cuerpo: CUERPO_VESTIDO };
+const B20N = { ...B20, altoCuerpo: 10 };
+export const ELENCO_JH = {
+  // ── Distrito 12, Juegos 50 (2.º Vasallaje) ──
+  // Haymitch a los 16: rizos oscuros revueltos, camisa de trabajo gris azulada remangada, tirantes, pantalón y botas
+  haymitch: { ...B20, cab: CAB_RIZOS, cuerpo: CUERPO_TIRANTES, ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', C: '#7a8aa0', c: '#5a6a80', W: '#a8b8c8', G: '#5a3a20', F: '#4a4038', n: '#2a2018' }) },
+  // Haymitch mentor (74–75): greñas largas, barba de días, mejillas coloradas, chaqueta parda arrugada con la camisa
+  // por fuera; la petaca en la mano (o.sinObjeto la quita)
+  haymitchViejo: { ...B20, cab: CAB_GRENAS, cuerpo: CUERPO_ARRUGADO, ceja: hex('#3a2a20'), delante: conPetaca,
+    pal: OLIVA({ H: '#5a4632', h: '#7a6248', u: '#9a7a5c', r: '#e07a6a', C: '#6a5a40', c: '#4e422e', W: '#d8ccb0', o: '#d8ccb0', F: '#3e3a34' }) },
+  // Lenore Dove Baird: piel oscura, rizos negros con plumitas de colores, collar de cuentas y capas de colores del Covey
+  lenore: { ...B20, cab: CAB_PLUMAS, cuerpo: CUERPO_COVEY, ceja: hex('#1c1424'), detras: plumitas,
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', r: '#e8483a', R: '#f07a5a', y: '#f0c840', b: '#3a8ad8', u: '#2a9aa0', C: '#d8a030', d: '#a86a18', v: '#4a9a4a', V: '#7ac86a', p: '#8a4aa8', L: '#4a2e1a' }) },
+  // Maysilee Donner: rubia, el pelo bien peinado con dos coletas y pinzas rosas, vestido rosa de comerciante con lazo
+  maysilee: { ...B20, cuerpo: CUERPO_PLIEGUES, ceja: hex('#b8903c'), detras: coletas,
+    pal: CLARA({ H: '#f0d070', h: '#f8e8a8', r: '#f07ab0', C: '#e88aa8', c: '#c0607e', W: '#f8f4ec', I: '#f8f4ec', L: '#2a2430' }) },
+  // la madre y el hermano pequeño de Haymitch (Veta): ella con vestido gris y delantal; él, de camisa y pantalón corto
+  madreHaymitch: { ...B20M, ceja: hex('#1c1424'), pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', C: '#6e6a5c', c: '#545046', W: '#d8d0bc', L: '#3a2a20' }) },
+  hermanoHaymitch: { ...B20N, cab: CAB_RIZOS, cuerpo: CUERPO_NINO, ceja: hex('#1c1424'), pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', C: '#8a7a6a', c: '#6a5a4a', F: '#4a4038', n: '#2a2018' }) },
+  // la vendedora del Quemador: mayor, pelo gris, mantón granate de punto sobre los hombros y delantal
+  vendedoraHob: { ...B20M, ceja: hex('#8a8a9a'),
+    cuerpo: parche(CUERPO_VESTIDO, [[4, 1, 'uuuuuuu'], [2, 2, 'u.uuuuuuu.u'], [2, 3, 'u..uuuuu..u'], [6, 4, 'UuU']]),
+    pal: OLIVA({ H: '#a8a8b0', h: '#c8c8d0', u: '#8a2a3a', U: '#c85a6a', C: '#5a4a3a', c: '#3e3228', W: '#c8bca0', L: '#2a2018' }) },
+  // tributos genéricos del 12: él con camisa clara de domingo; ella con vestido azul gastado (sin delantal)
+  tributoChico: { ...B20, cuerpo: CUERPO_MANGA, ceja: hex('#1c1424'), pal: OLIVA({ H: '#3a2a20', h: '#5a4232', C: '#d8d2c2', c: '#b0a894', F: '#4a4a52', n: '#2a2018' }) },
+  tributoChica: { ...B20M, cuerpo: VESTIDO_LISO, ceja: hex('#2a1c14'), pal: OLIVA({ H: '#3a2a20', h: '#5a4232', C: '#6a7a9a', c: '#4e5a78', W: '#d8d2c2', L: '#2a2018' }) },
+  // ── Distrito 12, Juegos 74–75 ──
+  // Katniss: trenza oscura de lado, chaqueta de cuero marrón de caza, camisa verde, el broche (punto de oro) y botas
+  katniss: { ...B20, cuerpo: CUERPO_CAZADORA, ceja: hex('#1c1424'), delante: trenza,
+    pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', r: '#6a4a2a', C: '#7a4a2a', c: '#5a341c', W: '#3e5a3a', O: '#f0c040', F: '#5a5246', n: '#3a2618' }) },
+  // Katniss con el arco en la mano (o.sinObjeto lo quita)
+  katnissArco: { ...B20, cuerpo: CUERPO_CAZADORA, ceja: hex('#1c1424'), delante: varios(trenza, conArco),
+    pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', r: '#6a4a2a', C: '#7a4a2a', c: '#5a341c', W: '#3e5a3a', O: '#f0c040', F: '#5a5246', n: '#3a2618', B: '#c8843a', b: '#8a5424', x: '#e8e4dc' }) },
+  // Prim: niña pequeña, rubia, con dos trencitas y vestido azul claro con cuello blanco
+  prim: { ...B20N, cuerpo: CUERPO_NINA, ceja: hex('#b8903c'), ...trencitas,
+    pal: CLARA({ H: '#f0d070', h: '#f8e8a8', r: '#7aa8e0', C: '#9ac0e8', c: '#7098c8', W: '#f8f4ec', L: '#4a3a5a' }) },
+  // Peeta: rubio de pelo ondulado, fuerte, camisa lisa azul grisácea de manga larga, pantalón marrón
+  peeta: { ...B20, cab: parche(CAB_CORTO, [[3, 1, 'h..h..h'], [2, 2, '..h..h..h']]), cuerpo: CUERPO_MANGA, ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#e8c060', h: '#f8dc90', C: '#7a90a8', c: '#5a7088', F: '#6a5040', n: '#3a2a20' }) },
+  // Peeta panadero: el mismo con el delantal blanco enharinado
+  peetaPanadero: { ...B20, cab: parche(CAB_CORTO, [[3, 1, 'h..h..h'], [2, 2, '..h..h..h']]), cuerpo: parche(CUERPO_MANDIL, [[6, 7, 'x'], [8, 8, 'x']]), ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#e8c060', h: '#f8dc90', C: '#7a90a8', c: '#5a7088', W: '#f8f4ec', o: '#5a7088', A: '#d8ccb4', x: '#e0d8c8', F: '#6a5040' }) },
+  // Madge: rubia de pelo largo, vestido blanco y el broche de oro en el pecho
+  madge: { ...B20M, cuerpo: parche(VESTIDO_LISO, [[9, 2, 'O']]), ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#f0d070', h: '#f8e8a8', C: '#f8f6f0', c: '#d0ccc4', W: '#ffffff', O: '#f0c040', L: '#8a7a6a' }) },
+  // ── el Capitolio ──
+  // el presidente Snow: pelo y barba blancos y cortos, traje oscuro elegante, corbata granate y la rosa blanca en la solapa
+  snow: { ...B20, cab: CAB_BARBA, cuerpo: parche(CUERPO_EUROPEO, [[9, 1, 'XX'], [9, 2, 'Xv']]), ceja: hex('#c8c8d0'),
+    pal: CLARA({ H: '#f2f0ec', h: '#c8c8d0', C: '#2a2834', W: '#f2f0ec', o: '#6a1e2a', F: '#2a2834', X: '#ffffff', v: '#3a7a3a' }) },
+  // Snow a los 18 (Juegos 10): rubio engominado, uniforme granate de la Academia con hombreras y botones de oro
+  snowJoven: { ...B20, cab: CAB_ENGOMINADO, cuerpo: parche(CUERPO_EUROPEO, [[3, 1, 'o.......o']]), ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#e8c870', h: '#f8e4a8', C: '#7a1e2e', c: '#5a1420', W: '#f2eee2', o: '#f0c040', F: '#2a2430' }) },
+  // Lucy Gray Baird: pelo oscuro largo, vestido de volantes con los colores del arcoíris (la guitarra: PIEZAS_JH)
+  lucyGray: { ...B20M, cuerpo: CUERPO_VOLANTES, ceja: hex('#2a1c14'),
+    pal: CLARA({ H: '#3a2418', h: '#5a3a28', r: '#e8483a', R: '#f88a7a', q: '#f0902a', y: '#f0d040', v: '#4aa84a', u: '#3a7ad8', U: '#7aaaf0', p: '#8a4ab8', P: '#b07ad8', L: '#4a2e1a' }) },
+  // Plutarch: pelo castaño y barba corta, traje oscuro; la libreta en la mano
+  plutarch: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_EUROPEO, ceja: hex('#4a2e1a'), delante: conLibreta,
+    pal: CLARA({ H: '#6a4426', h: '#8a6040', C: '#30323e', W: '#e8e4dc', o: '#5a3a5a', F: '#30323e' }) },
+  // Effie joven: peluca rosa altísima con sombrerito verde, traje rosa chillón con blusa verde
+  effie: { ...B20, tocado: 'pelucaRosa', cuerpo: CUERPO_SASTRE, ceja: hex('#c84a88'), mejillas: [[6, 8], [12, 8]],
+    pal: CLARA({ H: '#f070b0', h: '#ff9ad0', P: '#f070b0', p: '#c84a88', V: '#4ac87a', s: '#f0a0a0', C: '#f070b0', c: '#c84a88', W: '#4ac87a', o: '#f0c040', I: '#3aa86a' }) },
+  // Caesar Flickerman: tupé de color lila azulado, sonrisa enorme, traje azul noche que centellea y el micrófono
+  caesar: { ...B20, tocado: 'tupe', cuerpo: CUERPO_EUROPEO, ceja: hex('#6a4ac8'), delante: varios(sonrisaCaesar, brillos, conMicro),
+    pal: CLARA({ H: '#8a7ae8', h: '#c0b4ff', C: '#1e2466', c: '#141a4a', W: '#f2eee2', o: '#1e2466', F: '#1e2466' }) },
+  // Drusilla, la escolta del 12 en los Juegos 50: peluca torre ciruela con oro, cuello rígido de oro, vestido morado
+  // con el peto dorado, cejas severas; el abanico en la mano
+  drusilla: { ...B20, tocado: 'torre', cuerpo: CUERPO_VESTIDO, ceja: hex('#3a1a4a'), detras: (c) => c.cuerpo.rej(CUELLO_RIGIDO, -1, -7), delante: varios(severa, conAbanico),
+    pal: CLARA({ H: '#3a1a4a', h: '#5a2a6a', J: '#4a2a5a', j: '#6a4a7a', O: '#e8b830', g: '#a87a18', C: '#5a2a7a', c: '#3e1a5a', W: '#e0b040', L: '#2a1a3a', u: '#5a2a7a' }) },
+  // un vigilante (Gamemaker): túnica morada larga con el ribete de oro
+  vigilante: { ...B20, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#1c1424'),
+    pal: CLARA({ H: '#2a2028', h: '#4a3e4c', C: '#6a3a9a', c: '#4a2470', o: '#e8b830', G: '#e8b830', L: '#2a2430' }) },
+  // un agente de la paz: uniforme blanco entero, casco blanco con la visera subida, guantes y botas negros
+  agentePaz: { ...B20, tocado: 'cascoPaz', cuerpo: CUERPO_TACTICO, ceja: hex('#5a3a28'),
+    pal: CLARA({ X: '#f6f4f0', x: '#c8c8d0', J: '#2a2e3a', C: '#f2f0ec', c: '#c8c8d0', o: '#c8c8d0', W: '#f2f0ec', G: '#2a2430', I: '#2a2430', F: '#e8e6e2', n: '#2a2430' }) },
+  // gente del Capitolio: él con pinchos verdes, cejas magenta y traje naranja; ella con la bola turquesa y traje fucsia
+  capitolino1: { ...B20, tocado: 'pinchos', cuerpo: CUERPO_EUROPEO, ceja: hex('#e83ab0'), delante: gemas('#e83ab0'),
+    pal: CLARA({ H: '#4ac84a', V: '#5ad85a', v: '#2e9a2e', C: '#f08a2a', c: '#c0601a', W: '#f8e040', o: '#e83ab0', F: '#f08a2a' }) },
+  capitolino2: { ...B20, tocado: 'pompon', cuerpo: CUERPO_SASTRE, ceja: hex('#2a9aa0'), delante: gemas('#f0c040'),
+    pal: CLARA({ H: '#3ac8c0', Y: '#3ac8c0', y: '#9af0e8', C: '#d83ab0', c: '#a82a88', W: '#f0c040', o: '#f0c040', I: '#f0c040' }) },
+  // un tributo profesional de un distrito rico: rubio engominado, pecho dorado brillante, brazos al aire, fuerte
+  tributoCarrera: { ...B20, cab: CAB_ENGOMINADO, cuerpo: parche(CUERPO_HEROE, [[5, 1, 'y'], [5, 2, 'y'], [6, 3, 'y']]), ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#f0d070', h: '#f8ecb0', C: '#e8b830', c: '#a87a18', y: '#fff0a0', W: '#f6c290', G: '#f6c290', I: '#5a1e2a', F: '#5a1e2a', n: '#a87a18' }) },
+  // ── vencedores de los Juegos 50 (veinticinco años más jóvenes que en «En llamas») ──
+  // Beetee: gafas, pelo corto con entradas, chaqueta de técnico gris verdosa con bolsillos; el cable en la mano
+  beetee: { ...B20, cab: CAB_ENTRADAS, tocado: 'gafasClaras', cuerpo: CUERPO_TACTICO, ceja: hex('#1c1424'), delante: conCable,
+    pal: MORENA({ E: '#e8ecf4', S: '#a87050', s: '#7e5034', H: '#1c1424', h: '#3a3046', C: '#5a6a64', c: '#3e4a46', o: '#3e4a46', W: '#5a6a64', G: '#a87050', I: '#2a2430', F: '#3a3a44', n: '#2a2430' }) },
+  // Wiress: delgada, moño con la aguja de tejer cruzada, vestido gris sencillo
+  wiress: { ...B20, cuerpo: VESTIDO_LISO, ceja: hex('#4a3a2a'), delante: mono,
+    pal: CLARA({ H: '#6a5038', h: '#8a6c50', C: '#8a8a96', c: '#6a6a76', W: '#b8b8c4', L: '#3a3a44' }) },
+  // Mags (de mediana edad): pelo largo con vetas grises, jersey de pescadora verde azulado, cuerda de cinturón, botas
+  mags: { ...B20, cab: CAB_VETAS, cuerpo: parche(CUERPO_MANGA, [[4, 6, 'IIIIIII']]), ceja: hex('#5a4a40'),
+    pal: MORENA({ H: '#6a5448', h: '#8a7466', w: '#c8c4bc', C: '#3a7080', c: '#28505e', I: '#c8a868', F: '#8a7a5a', n: '#3a3028' }) },
+  // ── el mundo real y la historia (sección final) ──
+  // una mujer en el sofá (representa a la autora de forma genérica, sin parecido): pelo castaño largo, gafas, jersey
+  // mostaza, vaqueros y zapatillas
+  mujerSofa: { ...B20, cab: CAB_LARGO, tocado: 'gafas', cuerpo: CUERPO_MANGA, ceja: hex('#4a2e1a'),
+    pal: CLARA({ H: '#6a4426', h: '#8a6040', C: '#d0a040', c: '#a87a28', F: '#3e5a8a', n: '#f2eee2' }) },
+  // Teseo: joven griego de pelo rizado, quitón blanco ceñido y la espada corta
+  teseo: { ...B20, cab: CAB_RIZOS, cuerpo: CUERPO_QUITON, ceja: hex('#3a2418'), delante: conEspada,
+    pal: MORENA({ H: '#3a2418', h: '#5a3a28', T: '#f4eedc', t: '#c8bc9a', G: '#8a5a2a', L: '#6a4020' }) },
+  // un emperador romano: toga blanca con la banda morada y corona de laurel
+  emperador: { ...B20, cuerpo: CUERPO_TOGA, tocado: 'laurel', ceja: hex('#2a1c14'),
+    pal: CLARA({ H: '#3a2a20', h: '#5a4232', T: '#f4eedc', t: '#c8bc9a', A: '#6a2a8a', V: '#5aa83a', v: '#3a7a24', L: '#6a4020' }) },
+  // David Hume (siglo XVIII): peluca blanca empolvada con rulos y lazo, casaca marrón, chorrera blanca
+  hume: { ...B20, cab: CAB_PELUCA, ceja: hex('#8a7a6a'), detras: lazo,
+    pal: CLARA({ H: '#ecebe6', h: '#c4c0b8', J: '#2a2430', C: '#6a4a30', W: '#f2eee2', o: '#e8dcc0', F: '#3a2a20' }) },
+  // un manifestante: sudadera verde, pañuelo rojo al cuello, vaqueros
+  manifestante: { ...B20, cuerpo: parche(CUERPO_MANGA, [[5, 0, 'uuuuu'], [6, 1, 'uuu']]), ceja: hex('#1c1424'),
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', u: '#c8303a', C: '#3a6a3a', c: '#2a4e2a', F: '#3e5a8a', n: '#2a2430' }) },
+  // un agente antidisturbios: casco oscuro con la visera transparente, uniforme negro azulado acolchado
+  agenteCasco: { ...B20, tocado: 'antidisturbios', cuerpo: CUERPO_TACTICO, ceja: hex('#2a1c14'),
+    pal: CLARA({ J: '#2a2e3a', j: '#4a5060', Z: '#a8b8c8', C: '#2a2e3a', c: '#1c1f28', o: '#3e4454', W: '#2a2e3a', G: '#1c1c24', I: '#1c1c24', F: '#2a2e3a', n: '#14141a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_JH);
