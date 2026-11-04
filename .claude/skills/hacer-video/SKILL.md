@@ -149,6 +149,11 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
      (hasta el 16 era «lo que no te contaron en clase»; el usuario la cambió porque no todos los temas son de escuela).
      Es también el lema del canal (`canal/descripcion.md` y el banner de `canal.mjs`);
    - prosa narrada, en escenas, con el ángulo de ASK Atom;
+   - **narrado como un cuento, nunca como frases sueltas** (regla del usuario, 05/11/2026: «se escucha como frases sueltas,
+     parecen robots, no es una narración de un cuento»): cada fila de la tabla es un PÁRRAFO de 2–4 oraciones que
+     encadena con la anterior («Pero…», «Y ahí…», «Así que…», «Ahora, imagina…»), con una escena o un hilo que avanza;
+     nada de listas de datos («X es Y. Z es W.»): los datos van dentro de la historia (en el 21, el reparto se presenta
+     «por el camino», como si el espectador bajara del tren). Unas 30–36 filas por episodio, no 60;
    - personas reales solo con hechos;
    - de 6 a 8 gags con objetos;
    - los años en cifras y las demás cifras en palabras;
@@ -199,6 +204,11 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
 
 ### 3. Datos del guion y voz (en segundo plano)
 
+**La voz «B» (desde el 21, elegida por el usuario de oído el 05/11/2026):** `hacer_guion.py` escribe en `guion.json`
+`'narracion': 'cuento'` y las velocidades `en` 0.92 y `es` 0.95. Con eso `locutar_frases.py` locuta cada párrafo por
+oraciones enteras (sin cortar en las comas) con 0,32 s entre oraciones, 0,5 s entre párrafos y 0,9 s al empezar un acto.
+Antes, el inglés se partía en cada coma y la entonación volvía a empezar en cada trozo: sonaba «a robot».
+
 1. Copia `plan.py` y `hacer_guion.py` del 11 a `episodios/<carpeta>/`. Cambia solo esto:
    - en `plan.py`:
      - el docstring con los decorados;
@@ -209,7 +219,10 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    - en `hacer_guion.py`:
      - la línea `Uso:`;
      - `PREVIO` (las fechas con día y las cifras que no son años, en los dos idiomas);
-     - `PRONUNCIA['es']` (los nombres propios escritos como se dicen, primero los compuestos). Empieza por lo que ya
+     - `PRONUNCIA['es']` (los nombres propios escritos como se dicen, primero los compuestos). **Regla del usuario
+       (05/11/2026): en español, TODOS los nombres propios extranjeros (personas, lugares, títulos, marcas) se escriben
+       como se dicen en español de México**, sin excepción, y cada uno se apunta en la lista de «para escuchar» si el
+       control de la voz lo marca; Empieza por lo que ya
        se corrigió en otros episodios: `python3 atomo/herramientas/pronuncia.py episodios/<carpeta>/guion.md` lo busca
        en el guion y lo deja listo para pegar (míralo: alguna entrada es el arreglo de una frase concreta);
      - `numero`, `estado` y `titulo`.

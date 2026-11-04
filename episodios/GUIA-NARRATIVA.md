@@ -88,6 +88,15 @@
   - Personas reales: solo hechos comprobados, con trato justo. Los gags van con máquinas y objetos, nunca para ridiculizar a nadie real.
 - **Cifras en el guion:** los años van en cifras (`hacer_guion.py` los pasa a palabras para la voz). Cualquier otra cifra va en palabras en los dos idiomas («nine billion», «ciento setenta y cinco mil»), porque un número de tres cifras se leería como un año («175» → «one seventy-five»). Si tiene que ir en cifras, va en `PREVIO` de `hacer_guion.py`, como las fechas con día.
 
+## Narrar como un cuento (desde el 21, regla del usuario)
+
+«Se escucha como frases sueltas, parecen robots, no es una narración de un cuento» (05/11/2026). Desde el 21:
+- cada fila del guion es un párrafo de 2–4 oraciones, no una frase con un dato;
+- los párrafos encadenan: «Pero…», «Y ahí…», «Así que…», «Ahora, imagina…», «Por cierto…»;
+- hay un hilo que avanza (una noche, un viaje, una pregunta), y los datos van dentro de la historia, no en lista;
+- la voz se graba por oraciones enteras, sin cortar en las comas (la muestra «B»);
+- en español, todos los nombres propios extranjeros se escriben como se dicen en español de México.
+
 ## Títulos
 
 - **El tema, o la persona o el nombre más buscado, va delante, y el gancho detrás.** Correcciones del usuario: «el título debe ser más catchy, con de lo que va el canal» (22/10) y «deben ser muy claros de qué hablamos, debe decir Los Griegos o Grecia antigua dentro del título, no solo el catch» (23/10). En el 11: «Elizabeth Holmes and Theranos: The Drop of Blood That Fooled Silicon Valley».

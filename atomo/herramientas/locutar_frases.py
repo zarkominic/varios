@@ -46,6 +46,7 @@ PAUSA = {'.': 0.8, '?': 0.9, '!': 0.85, ':': 0.6}   # silencio tras la frase (un
 # comas con 0 s de pausa. Como en el modo por cláusulas de PyKokoro, la frase se locuta en trozos
 # partidos por los signos y la pausa se pone entre clips, así nunca cae dentro de una palabra.
 PAUSA_DENTRO = {',': 0.3, ';': 0.42, ':': 0.42, '—': 0.32, '.': 0.6, '?': 0.65, '!': 0.6}
+PAUSA_DENTRO['·'] = 0.32   # modo cuento: el respiro entre dos oraciones de un mismo párrafo
 RAPIDO, LENTO = 1.10, 0.90                          # cuánto se puede estirar el idioma que se adapta
 VEL_MIN, VEL_MAX = 0.85, 1.10                       # velocidades de síntesis que siguen sonando naturales
 # Pronunciaciones que se corrigen en los fonemas. «Atom» en americano lleva una t blanda (ˈæɾəm) y
@@ -256,6 +257,19 @@ def trozos_voz(texto):
             out[k - 1][0] += ' ' + out[k][0]; out[k - 1][1] = out[k][1]; out.pop(k)
     return [tuple(x) for x in out]
 
+def cuento(texto):
+    """Modo cuento (desde el 21, elegido por el usuario de oído el 05/11/2026, la muestra «B»): la frase (un párrafo) se
+    locuta por oraciones enteras, sin cortar en las comas, con un respiro corto entre una y otra (PAUSA_CUENTO). Partida
+    en las comas, la entonación volvía a empezar en cada trozo y el inglés sonaba «a robot, a frases sueltas»."""
+    p = [x for x in re.split(r'(?<=[.?!])\s+', texto) if x.strip()]
+    junt = []
+    for x in p:   # «J. K. Rowling»: una inicial con punto no cierra oración
+        if junt and re.search(r'(^|\s)[A-ZÁÉÍÓÚ]\.$', junt[-1]):
+            junt[-1] += ' ' + x
+        else:
+            junt.append(x)
+    return [(x, '·' if k + 1 < len(junt) else '') for k, x in enumerate(junt)]
+
 def oraciones(texto):
     """Para Chatterbox, que hace bien sus comas: solo se parte por oraciones (y dos puntos)."""
     p = [x for x in re.split(r'(?<=[.?!:])\s+', texto) if x.strip()]
@@ -265,12 +279,16 @@ def oraciones(texto):
 # entera de una vez y sin estirarla con rubberband. Partida en las comas, la entonación volvía a empezar en cada trozo y
 # se oía entrecortada; estirada, algunas palabras sonaban raras. Si no cabe, se ajusta solo la velocidad de Kokoro.
 ENTERA = {PRINCIPAL: False, OTRO: True}
+CUENTO = g.get('narracion') == 'cuento'
+if CUENTO:   # pausas de narración seguida, no de lista: entre párrafos medio segundo, al empezar un acto menos de un segundo
+    PAUSA = {'.': 0.5, '?': 0.55, '!': 0.5, ':': 0.45}
+    ENTRADA_ACTO = 0.9
 
 def frase_voz(texto, l, velocidades):
     """La frase en trozos limpios unidos con su pausa: (audio, oídas, velocidad, fallos, avisos)."""
     partes, oidas, prob, av, vels, t = [], [], [], [], [], 0.0
     cb = VOCES[l].get('motor') == 'chatterbox'
-    for trozo, signo in ([(texto, '')] if ENTERA[l] else oraciones(texto) if cb else trozos_voz(texto)):
+    for trozo, signo in (cuento(texto) if CUENTO else [(texto, '')] if ENTERA[l] else oraciones(texto) if cb else trozos_voz(texto)):
         a, f, vel, p, v = clip_limpio(trozo, l, velocidades)
         oidas += [(w, s + t, x + t) for w, s, x in oir(f, l)]
         prob += p; av += v; vels.append(vel)
