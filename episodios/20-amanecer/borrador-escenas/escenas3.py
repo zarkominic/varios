@@ -385,15 +385,15 @@ const p2 = (t) => {
   T.capitolio(R, t, o);
   // Snow, detrás de la mesa, entre el cofre y la tarjeta grande: habla, sonríe y coge al vuelo la del 50
   const vuela = tramo(t, FIFTIETH - 0.3, FIFTIETH + 0.2);
-  const s = R.actor(EL.snow, 128, 115, t, { dir: -1, sonrisa: t > LOST - 0.6, sostiene: vuela > 0.6 ? [124, 92] : undefined, habla: t > P2 + 0.3 && t < TWIST && Math.sin(t * 8) > 0, sorpresa: t > TWIST && t < TWIST + 0.5 });
+  const s = R.actor(EL.snow, 128, 115, t, { dir: -1, sonrisa: t > LOST - 0.6, sostiene: vuela > 0.6 ? [118, 104] : undefined, habla: t > P2 + 0.3 && t < TWIST && Math.sin(t * 8) > 0, sorpresa: t > TWIST && t < TWIST + 0.5 });
   T.capitolioDelante(R, t, o);
   // las tres tarjetas asoman del cofre; en «twist» la del 50 da una vuelta; en «lost» la del 25 vuelve a caer
   const sube = (k) => tramo(t, P2 + 0.1 + k * 0.2, P2 + 0.5 + k * 0.2), BOCA = 134;
   const cae25 = tramo(t, LOST - 0.2, LOST + 0.2), gira = tramo(t, TWIST - 0.1, TWIST + 0.6), anchoG = Math.max(2, Math.round(22 * Math.abs(Math.cos(gira * Math.PI))));
   tarjeta(60, Math.round(150 - sube(0) * 30 + cae25 * 32), '25', 22, BOCA);
   tarjeta(100, Math.round(150 - sube(2) * 26), '75', 22, BOCA);
-  if (vuela < 1) { const x = lerp(80, 124, vuela), y = lerp(150 - sube(1) * 36, 104, vuela) - Math.sin(vuela * Math.PI) * 16; tarjeta(x, y, '50', anchoG, vuela > 0 ? 999 : BOCA); }
-  else if (s.mano) { const [mx, my] = s.mano; tarjeta(mx + 2, my + 6, '50'); if (t < FIFTIETH + 0.9) destello(mx + 10, my - 22, 3); }
+  if (vuela < 1) { const x = lerp(80, 116, vuela), y = lerp(150 - sube(1) * 36, 108, vuela) - Math.sin(vuela * Math.PI) * 16; tarjeta(x, y, '50', anchoG, vuela > 0 ? 999 : BOCA); }
+  else if (s.mano) { const [mx, my] = s.mano; tarjeta(mx - 6, my + 4, '50'); if (t < FIFTIETH + 0.9) destello(mx + 4, my - 24, 3); }
   // la tarjeta grande de la mesa: destello al revelarse el 50
   if (revela && t < FIFTIETH + 0.6) { for (let i = 0; i < 8; i++) { const an = i / 8 * Math.PI * 2; R.linea(Math.round(169 + Math.cos(an) * 34), Math.round(137 + Math.sin(an) * 30), Math.round(169 + Math.cos(an) * 40), Math.round(137 + Math.sin(an) * 36), hex('#fff4a0')); } }
   // un pétalo que cae del jarrón de rosas
