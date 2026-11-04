@@ -1,6 +1,6 @@
 # Episodio 20 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:30.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`) y pista de audio en español (`em_santa`, con la frase entera).
 - Subtítulos en inglés y en español.
 - **Estilo:** pixel chibi con ambiente, gags y efectos sincronizados; los personajes se reconocen por sus atributos (la trenza y el broche de Katniss, la petaca de Haymitch, la peluca rosa de Effie, la rosa blanca de Snow), dibujados por nosotros, sin clips, logos ni música de las películas. Un pan con ojos hace de hilo de gags. Banda propia: Mi dórico, 92 por minuto. Mezcla «B».
@@ -38,7 +38,15 @@ No spoilers from the new book: only the official premise, the cast, the trailer 
 
 Which district would you be from? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 The hook
+0:44 What you need to remember
+1:50 The order of the story
+2:31 Haymitch's Games
+3:47 Who's who
+4:46 The clues
+6:03 What's real behind Panem
+7:34 What to watch first
+8:04 The ending
 
 Sources: Scholastic (Sunrise on the Reaping press release; Suzanne Collins interviews) · Lionsgate / Motion Picture Association (trailer, release date, cast) · TheWrap · Deseret News · Publishers Weekly · Infobae · BBFC · U.S. National Park Service (mockingbird) · BBC · CBS News · Wikipedia (The Hunger Games franchise).
 
@@ -63,7 +71,15 @@ Sin destripes del libro nuevo: solo la premisa oficial, el reparto, el tráiler 
 
 ¿De qué distrito serías? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 El gancho
+0:44 Lo que tienes que recordar
+1:50 El orden de la historia
+2:31 Los Juegos de Haymitch
+3:47 Quién es quién
+4:46 Las pistas
+6:03 Lo real detrás de Panem
+7:34 Qué ver antes
+8:04 El cierre
 
 Fuentes: Scholastic (nota de prensa de Amanecer en la cosecha; entrevistas a Suzanne Collins) · Lionsgate / Motion Picture Association (tráiler, estreno, reparto) · TheWrap · Deseret News · Publishers Weekly · Infobae · Publimetro · BBFC · Servicio de Parques Nacionales de EE. UU. (el sinsonte) · BBC · CBS News · Wikipedia (Los Juegos del Hambre).
 
@@ -78,10 +94,31 @@ Fuentes: Scholastic (nota de prensa de Amanecer en la cosecha; entrevistas a Suz
 
 - **Miniatura:** `atomo/plato/escenas/jh-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
-- **Para escuchar antes de subir:** {AVISOS}
+- **Para escuchar antes de subir:** EN 29 («Ralph Fiennes is President Snow»: el reconocedor oye «ray finds his presidents no»; lo más probable es que suene bien, pero escúchala); EN 28 («Maysilee», escrito como se dice); ES 9 («con Peeta» podría sonar «compita»). El resto de avisos son nombres ingleses escritos como se pronuncian, que el reconocedor no entiende.
 - **Derechos** (como en el 19): personajes reconocibles dibujados por nosotros, sin clips, logos ni música. Si llega una reclamación, se responde como comentario y análisis (uso legítimo) y se avisa.
 - **Antes de subirlo, mira si hay tráiler o noticia nueva** (fecha, reparto): si cambia algo de lo que se cuenta, avísame.
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
+español, sus dos SRT y su miniatura vertical. En «Vídeo relacionado» se elige el episodio completo.
+
+### Short 1 · El chico que le ganó al Capitolio (37 s) · tramo 0.25-37.4
+- **EN:** The Kid Who Beat the Capitol Before Katniss #Shorts
+- **ES:** El chico que le ganó al Capitolio antes de Katniss #Shorts
+- **EN:** Before Katniss, another kid from District 12 beat the Capitol at its own Games, and the Capitol made him pay for it. His story is Sunrise on the Reaping, in theaters November 20. The full story is in the linked video. #HungerGames #SunriseOnTheReaping #Haymitch #ASKAtom #Shorts
+- **ES:** Antes de Katniss, otro chico del Distrito 12 le ganó al Capitolio en sus propios Juegos, y el Capitolio se lo hizo pagar. Su historia es Amanecer en la cosecha, en cines el 19 de noviembre en México. La historia completa, en el vídeo enlazado. #LosJuegosDelHambre #AmanecerEnLaCosecha #Haymitch #ASKAtom #Shorts
+
+### Short 2 · El broche del sinsajo (28 s) · tramo 288.0-315.9
+- **EN:** The Secret Owner of Katniss's Mockingjay Pin #Shorts
+- **ES:** La dueña secreta del broche de Katniss #Shorts
+- **EN:** In the 2012 movie, Katniss is given the mockingjay pin at a market. In the book, it belonged to Maysilee Donner, Haymitch's partner in his Games. The symbol of the rebellion comes from Haymitch's Games. The full story is in the linked video. #HungerGames #Mockingjay #SunriseOnTheReaping #ASKAtom #Shorts
+- **ES:** En la película de 2012, a Katniss le regalan el broche del sinsajo en un mercado. En el libro, era de Maysilee Donner, la compañera de Haymitch en sus Juegos. El símbolo de la rebelión viene de los Juegos de Haymitch. La historia completa, en el vídeo enlazado. #LosJuegosDelHambre #Sinsajo #AmanecerEnLaCosecha #ASKAtom #Shorts
+
+### Short 3 · El final que ya se contó (41 s) · tramo 186.1-226.9
+- **EN:** How Haymitch Won Was Revealed Years Ago #Shorts
+- **ES:** Cómo ganó Haymitch se contó hace años #Shorts
+- **EN:** How Haymitch's Games ended was already revealed in Catching Fire: he turned the Capitol's own force field against it, and Snow never forgave him. That's why he drinks. The full story is in the linked video. #HungerGames #Haymitch #CatchingFire #ASKAtom #Shorts
+- **ES:** Cómo terminaron los Juegos de Haymitch ya se contó en En llamas: usó el campo de fuerza del Capitolio contra el Capitolio, y Snow no se lo perdonó. Por eso bebe. La historia completa, en el vídeo enlazado. #LosJuegosDelHambre #Haymitch #EnLlamas #ASKAtom #Shorts
+
+Miniaturas: `atomo/plato/escenas/jh-short1-miniatura.html` … `jh-short3-miniatura.html`.

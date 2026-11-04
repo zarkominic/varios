@@ -38,6 +38,7 @@ una pasada o detalle no entra.
 | 17 | ~11 h de reloj (23 escenas, 101 planos) | ~12,3 M (7,4 M en calidad, 2,6 M en el borrador de escenas, 1,5 M en los decorados) | 48 de 101 | 48 → 2 → 0 | 95 | sí (primera vez desde el 13) |
 | 18 | ~9 h de reloj (29 escenas, 101 planos; los 3 Shorts aparte) | ~13,2 M (6,4 M en calidad, 2,6 M en el borrador de escenas, 2,8 M en los decorados, 0,8 M en las pasadas de decorados y movimiento, 0,26 M en la verificación) | 49 de 101 | 49 → 2 → 0 | 87 | sí |
 | 19 | ~11 h de reloj, estimadas (31 escenas, 147 planos; el reparto de 48 personajes aparte) | ~15,1 M (8,0 M en calidad, 3,3 M en el borrador de escenas, 2,6 M en los decorados, 0,5 M en la pasada de decorados, 0,6 M en datos, verificación y reparto) | 64 de 147 | 64 → 2 → 0 | 100 | no (el «18» de la placa se leía «1S»: re-render de una escena y montaje) |
+| 20 | ~10 h de reloj desde el OK al guion (31 escenas, 97 planos; los 3 Shorts aparte) | ~12,6 M (6,6 M en calidad, 2,5 M en el borrador de escenas, 1,7 M en los decorados, 0,65 M en la pasada de decorados, 0,43 M en movimiento, 0,7 M en datos, verificación y reparto) | 55 de 97 | 4 previos → 55 → 0 | — | sí |
 
 ### Fallos de calidad por tipo
 
@@ -262,6 +263,30 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
   - [Probable] Segunda caída hacia el 1:20 (de 15 % a 7,5 %), al empezar el relato desde el principio («It all begins
     in 2003»). Con 53 personas, cada escalón es una persona: tendencia, no prueba.
 - El usuario ya renombró Sierra: «King's Quest and Space Quest: Games That Killed You».
+
+## Episodio 20 · Los Juegos del Hambre: antes de Amanecer en la cosecha (4/11/2026)
+
+**Lo que funcionó:**
+- **El planteamiento del usuario** («qué quiere ver alguien antes de la película: qué debe saber, datos, pistas») dio un
+  guion más útil que la crónica: lo que hay que recordar, el orden, lo que ya se sabe, quién es quién, las pistas y lo real.
+- **La regla de los 10 s** aplicada desde el guion: la promesa del título es la primera frase y tiene su propio plano.
+- **La verificación encontró 12 fallos**, entre ellos un destripe del libro nuevo (lo que perdió Haymitch, de Sinsajo).
+- **El reparto con hoja estática y tres arreglos** (broche, Plutarch, Maysilee) aprobado a la primera.
+- **El control final pasó a la primera** (−14,0 LUFS; 125 + 132 subtítulos sin ninguno fuera de norma; 8:30).
+
+**Lo que no mejoró, con su causa:**
+- **banda.cjs se rompía en silencio:** un golpe con un nombre que no era una marca («capitolio») llenó de NaN toda la
+  música. Ahora salta el golpe y avisa. Regla: los golpes de plan.py son nombres de marcas de esa escena.
+- **Encuadres que salen tres veces** (la plaza y la sala de control): el reparto de encuadres asignaba la plaza a demasiadas
+  escenas. Se arreglaron en la calidad con fondos locales; el registro común no basta si el plan ya los repite.
+- **Efectos:** la pasada de movimiento subió dos escenas de pocos efectos a demasiados (79 y 84 %): hay que medir
+  después de la pasada, no estimar.
+- **El broche (la pista principal) costó tres diseños**: los objetos pequeños que el guion hace protagonistas necesitan
+  diseño de inserto desde el reparto.
+
+**Pendiente para el próximo:**
+- Harry Potter (estreno de la serie de HBO el 25/12/2026): publicar entre el 15 y el 22 de diciembre.
+- Medir la retención del 19 y del 20 (gancho nuevo) en cuanto tengan una semana: ¿sube el público que queda a los 30 s?
 
 ## Próximos temas (decididos por el usuario)
 
