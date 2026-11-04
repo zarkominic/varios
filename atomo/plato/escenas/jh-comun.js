@@ -17,14 +17,14 @@
 //   T.rodar(E, R, [[0, (t) => T.distrito(R, t, { encuadre: 'plaza' })]], { año: 50 });
 import { escena } from '/atomo/plato/escena.js';
 import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
-import { conChibi, ELENCO_CHIBI, tela } from '/atomo/plato/kits/pixel-chibi.js';
+import { conChibi, ELENCO_CHIBI, PIEZAS_JH, tela } from '/atomo/plato/kits/pixel-chibi.js';
 import { hex } from '/atomo/plato/kits/pixel-retro.js';
 import { chincheta } from '/atomo/plato/escenas/ov-mapas.js';
 import { mapa } from '/atomo/plato/escenas/fa-comun.js';
 import { C as COV, rodar as rodarOv, primerT, cielo, arbol, bandada, viento, gato, mano, brazo, silla, visto, tinte, monitorGrande, halcon, fugaz, motas } from '/atomo/plato/escenas/ov-comun.js';
 import { a_cifras } from '/atomo/plato/escenas/do-comun.js';
 
-export { primerT, cielo, arbol, bandada, viento, gato, mano, brazo, silla, visto, tinte, monitorGrande, halcon, fugaz, motas, chincheta, tela, mapa, ELENCO_CHIBI, a_cifras };
+export { primerT, cielo, arbol, bandada, viento, gato, mano, brazo, silla, visto, tinte, monitorGrande, halcon, fugaz, motas, chincheta, tela, mapa, ELENCO_CHIBI, PIEZAS_JH, a_cifras };
 
 const pal = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)]));
 export const C = {
