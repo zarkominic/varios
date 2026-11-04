@@ -169,8 +169,8 @@ const p3 = (t) => {
     if (k === 1 && t > ALAS && t < ALAS + 0.6) { const s = Math.floor(t * 12) % 2 ? -3 : -1; R.linea(gx - 3, gy - 5, gx - 8, gy - 5 + s, hex('#f4f2ec')); R.linea(gx - 3, gy - 4, gx - 8, gy - 4 + s, hex('#c8c4bc')); R.bocadillo(gx, gy - 14, { icono: '!' }); } }
 };
 
-const efectos = [[0.3, 'silbato'], [SORBO + 0.15, 'burbujas'], [HAY + 0.1, 'pop'], [BORRACHO + 0.25, 'boing'], [BORRACHO + 0.4, 'golpecito'], [LISTO + 0.05, 'brillo'], [CRUCE, 'whoosh'], [CASA - 0.3, 'campana'],
-  [P3 + 0.1, 'puerta'], [VIDA, 'pop'], [Al(0.4), 'papel'], [CADA, 'papel'], [JUEGOS + 0.1, 'vapor'], [COMO - 0.2, 'burbujas'], [ALAS, 'pop']];
+const efectos = [[0.3, 'silbato'], [SORBO + 0.15, 'burbujas'], [HAY + 0.1, 'pop'], [BORRACHO + 0.25, 'boing'], [BORRACHO + 0.4, 'golpecito'], [LISTO + 0.05, 'brillo'], [CRUCE, 'whoosh'],
+  [P3 + 0.1, 'puerta'], [VIDA, 'pop'], [CADA, 'papel'], [ALAS, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 74 });
 </script>
 </body>

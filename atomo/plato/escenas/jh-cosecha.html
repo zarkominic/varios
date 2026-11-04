@@ -163,8 +163,8 @@ const p3 = (t) => {
   if (t > chicos) R.numero('2', 118, Math.round(108 - tramo(t, chicos, chicos + 0.2) * 6), { tam: 16, centro: true });
   if (t > chicas) R.numero('2', 212, Math.round(108 - tramo(t, chicas, chicas + 0.2) * 6), { tam: 16, centro: true });
 };
-const efectos = [[0.3, 'campana', { lejos: true }], [reaping, 'silbato'], [torn - 0.4, 'campana', { lejos: true }], [P2 + 0.3, 'viento', { dur: 3.2 }], [chica, 'pop'], [a(1) + 0.15, 'silbato'],
-  [P3 + 1.0, 'papel'], [P3 + 1.9, 'chof'], [cuatro - 1.0, 'boing'], [cuatro, 'brillo'], [chicos, 'pop'], [chicas + 0.1, 'publico', { dur: 1.4 }]];
+const efectos = [[0.3, 'campana', { lejos: true }], [reaping, 'silbato'], [P2 + 0.3, 'viento', { dur: 1.6 }], [chica, 'pop'],
+  [P3 + 1.0, 'papel'], [P3 + 1.9, 'chof'], [cuatro - 1.0, 'boing'], [cuatro, 'brillo'], [chicos, 'pop'], [chicas + 0.1, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 50 });
 </script>
 </body>
