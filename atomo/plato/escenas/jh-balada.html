@@ -15,11 +15,12 @@
 //    74 y 75 de la tira de la línea de tiempo y el pan la señala con el libro en alto.
 // 2. («The movies»–«from 2023») la estantería de cerca (fondo local): los cinco libros sin letras en el orden en que
 //    salieron, sobre la tira 10 · 50 · 74 · 75; en «run backwards» una flecha de luz recorre la tira hacia atrás; el pan
-//    entra por la balda y en «oldest story» empuja el libro verde hasta el primer hueco y luego el morado al segundo; en
+//    sube de un salto desde la cesta, entra por la balda y en «oldest story» empuja el libro verde hasta el primer hueco y luego el morado al segundo; en
 //    «Songbirds» un sinsonte sale a cantar encima del verde, en «Snakes» la serpiente del lomo saca la lengua y brilla, y
 //    el «10» de la tira se enciende.
 // 3. («from 2023»–final) el lago del bosque de noche, junto a un farol de mano: Lucy Gray canta con la guitarra (notas
-//    de colores que suben y cruzan el lago); en «young Snow» Snow joven llega entre los juncos y se queda escuchando; en
+//    de colores que suben y cruzan el lago; ondas que llegan a la orilla); en «2023» un pez salta en el lago y cae con dos
+//    salpicaduras; en «young Snow» Snow joven llega entre los juncos y se queda escuchando; en
 //    «Lucy Gray» ella da una vuelta con destellos; en «the girl who sang» dos sinsajos más se posan en la rama a
 //    repetir la melodía y Snow aplaude.
 import * as T from '/atomo/plato/escenas/jh-comun.js';
@@ -39,6 +40,8 @@ const mezcla = (x, y, [cr, cg, cb], k) => {
   const c = R.pget(x, y), r = c & 255, g = (c >> 8) & 255, bb = (c >> 16) & 255;
   R.pset(x, y, (0xff000000 | (Math.round(bb + (cb - bb) * k) << 16) | (Math.round(g + (cg - g) * k) << 8) | Math.round(r + (cr - r) * k)) >>> 0);
 };
+// un color que se apaga hacia el agua de noche (u 0: el color; 1: el agua)
+const mezclaC = (c, u) => { const a = [c & 255, (c >> 8) & 255, (c >> 16) & 255], b = [42, 58, 104], m = a.map((v, i) => Math.round(v + (b[i] - v) * u)); return (0xff000000 | (m[2] << 16) | (m[1] << 8) | m[0]) >>> 0; };
 // una corchea con su contorno (cabeza en (x, y))
 const nota = (x, y, c) => { x = Math.round(x); y = Math.round(y);
   R.rect(x - 2, y - 1, x + 2, y + 2, INK); R.rect(x - 1, y, x + 1, y + 1, c); R.rect(x + 1, y - 9, x + 3, y, INK); for (let j = -8; j <= 0; j++) R.pset(x + 2, y + j, c);
@@ -52,7 +55,7 @@ const A = (f) => en('orden', f), B = (f) => en('balada', f);
 const P2 = A(0.736), P3 = B(0.364);
 const SACA = A(0.11), ORDEN = A(0.275), CAL = A(0.469), MOVIES = A(0.736), BACK = A(0.849);
 const OLDEST = B(0.013), BALLAD = B(0.142), SONG = B(0.187), SNAKES = B(0.265);
-const YOUNG = B(0.705), LUCY = B(0.773), GIRL = B(0.908), SANG = B(0.944);
+const PEZ = B(0.5), YOUNG = B(0.705), LUCY = B(0.773), GIRL = B(0.908), SANG = B(0.944);
 
 // ── plano 1: el cuarto de noche; el pan saca el libro verde y la línea de tiempo se enciende ──────────────────────────
 const p1 = (t) => {
@@ -155,9 +158,11 @@ const p2 = (t) => {
   // «run backwards»: la flecha de luz recorre la tira de derecha a izquierda
   { const u = tramo(t, MOVIES + 0.15, BACK + 0.6); if (u > 0 && u < 1) { const x = Math.round(lerp(258, 66, u)); flecha(x, 133, 14, -1, hex('#ffd040'), hex('#c87a18')); for (let i = 0; i < 18; i += 3) R.pset(x + 18 + i, 133 + (i % 2), hex('#ffe890')); } }
   // el pan: entra por la balda y empuja el verde y luego el morado
-  { const ent = tramo(t, BACK + 0.2, OLDEST - 0.05), xb = u1 < 1 ? sx(sl(3)) + 20 : sx(sl(4)) + 20;
+  { const sube = tramo(t, BACK + 0.1, BACK + 0.55), ent = tramo(t, BACK + 0.55, OLDEST - 0.05), xb = u1 < 1 ? sx(sl(3)) + 20 : sx(sl(4)) + 20;
     const x = u1 === 0 ? lerp(254, sx(3) + 20, ent) : xb, anda = (ent > 0 && ent < 1) || (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1);
-    T.pan(R, Math.round(x), 123, t, { s: 2, dir: -1, anda, expresion: t > SNAKES + 0.3 ? 'risa' : 'normal', señala: t > SONG && t < SNAKES ? [SLOT[0], 52] : undefined }); }
+    // sube de un salto desde la cesta a la balda
+    const y = sube < 1 ? Math.round(lerp(160, 123, sube) - Math.sin(sube * Math.PI) * 22) : 123;
+    if (t > BACK + 0.1) T.pan(R, Math.round(x), y, t, { s: 2, dir: -1, anda, expresion: t > SNAKES + 0.3 ? 'risa' : 'normal', señala: t > SONG && t < SNAKES ? [SLOT[0], 52] : undefined }); }
   // «Songbirds»: un sinsonte sale encima del verde y canta
   { const v = tramo(t, SONG - 0.1, SONG + 0.25); if (v > 0) { const x = SLOT[0] - 4, y = Math.round(lerp(60, 42, v)); T.PIEZAS_JH.sinsonte(R, x, y, { s: 2, dir: 1, t: v < 1 ? t : undefined });
       for (let i = 0; i < 3; i++) { const w = ((t - SONG) * 0.8 + i / 3) % 1; if (t > SONG + 0.1) nota(x + 16 + w * 22, y - 6 - w * 10, [hex('#ffd040'), hex('#7ad8ff'), hex('#ff8a9a')][i]); } } }
@@ -170,6 +175,20 @@ const p3 = (t) => {
   // la luz cálida de un farol de mano en el suelo, sobre la cantante
   { const fx = 134, fy = 160; R.rect(fx - 3, fy - 9, fx + 3, fy, INK); R.rect(fx - 2, fy - 8, fx + 2, fy - 1, Math.sin(t * 9) > -0.6 ? hex('#ffd870') : hex('#f0b040')); R.rect(fx - 3, fy - 11, fx + 3, fy - 10, INK); R.rect(fx - 1, fy - 13, fx + 1, fy - 12, INK);
     for (let y = 118; y < 168; y++) for (let x = 104; x < 210; x++) { const d = ((x - 152) / 52) ** 2 + ((y - 146) / 26) ** 2; if (d < 1 && ((x + y) & 1) === 0) mezcla(x, y, [255, 214, 140], 0.45 * (1 - d)); } }
+  // el agua del lago: ondas que llegan a la orilla y un pez que salta en «2023»
+  for (let k = 0; k < 3; k++) { const u = ((t - P3) * 0.35 + k / 3) % 1, rx = Math.round(8 + u * 26), c = mezclaC(hex('#b8d0f0'), u);
+    for (let i = -rx; i <= rx; i++) { const dy = Math.round(Math.sqrt(Math.max(0, 1 - (i / rx) ** 2)) * rx * 0.2); if ((i + k) % 3) { R.pset(250 + i, 114 + dy, c); R.pset(250 + i, 114 - dy, mezclaC(c, 0.4)); } } }
+  { const u = tramo(t, PEZ, PEZ + 0.8), X0 = 176, X1 = 204, YA = 112;
+    if (u > 0 && u < 1) { const x = lerp(X0, X1, u), y = YA - Math.sin(u * Math.PI) * 22, an = (u - 0.5) * 2.4, ca = Math.cos(an), sa = Math.sin(an);
+      // el pez plateado (14 px), con la cola en abanico y el ojo; gotas que caen de él
+      for (let i = -7; i <= 6; i++) { const g = i < -4 ? 1 : i > 3 ? 1 : 2; for (let j = -g - 1; j <= g + 1; j++) { const px = Math.round(x + i * ca - j * sa), py = Math.round(y + i * sa + j * ca);
+        R.pset(px, py, Math.abs(j) === g + 1 ? INK : j < 0 ? hex('#e8f4ff') : j === 0 ? hex('#a8c0d8') : hex('#6a8aa8')); } }
+      for (const j of [-3, 3]) R.linea(Math.round(x - 7 * ca), Math.round(y - 7 * sa), Math.round(x - 10 * ca - j * sa), Math.round(y - 10 * sa + j * ca), hex('#a8c0d8'));
+      R.pset(Math.round(x + 4 * ca - sa), Math.round(y + 4 * sa + ca * -1), INK);
+      for (let k = 0; k < 4; k++) R.pset(Math.round(x - 4 + k * 3), Math.round(y + 5 + ((t * 40 + k * 5) % 9)), hex('#cfe0ff'));
+      if (u < 0.25) for (let i = 0; i < 7; i++) { const h2 = Math.round((0.25 - u) * 40 * [0.5, 0.9, 1, 0.8, 1, 0.9, 0.5][i]); R.linea(X0 - 6 + i * 2, YA, X0 - 6 + i * 2, YA - h2, hex('#e8f0ff')); } }
+    for (const [cx, t0] of [[X0, PEZ], [X1, PEZ + 0.8]]) { const w = tramo(t, t0, t0 + 1.4); if (w > 0 && w < 1) { const rx = Math.round(3 + w * 16);
+      for (let i = -rx; i <= rx; i++) { const dy = Math.round(Math.sqrt(Math.max(0, 1 - (i / rx) ** 2)) * rx * 0.22), c = mezclaC(hex('#f0f6ff'), w); R.pset(cx + i, YA + dy, c); R.pset(cx + i, YA - dy, c); } } } }
   // Snow joven: llega por la derecha entre los juncos y se queda escuchando; aplaude con «sang»
   const sv = tramo(t, YOUNG - 0.3, YOUNG + 0.5), sxn = Math.round(lerp(300, 224, sv));
   R.actor(EL.snowJoven, sxn, 162, t, { dir: -1, anda: sv > 0 && sv < 1, sonrisa: t > LUCY, sorpresa: t > YOUNG + 0.5 && t < LUCY, brazos: t > SANG && Math.floor(t * 6) % 2 === 0 });
@@ -188,7 +207,8 @@ const p3 = (t) => {
   T.distritoDelante(R, t, o);
 };
 
-const efectos = [[SACA, 'papel'], [CAL, 'brillo'], [MOVIES + 0.2, 'whoosh'], [OLDEST + 0.1, 'golpecito'], [SONG, 'pop'], [SNAKES + 0.2, 'brillo'], [YOUNG, 'golpecito'], [LUCY, 'brillo'], [SANG, 'palmada']];
+const efectos = [[SACA, 'papel'], [ORDEN, 'boing'], [CAL, 'brillo'], [MOVIES + 0.2, 'whoosh'], [BACK + 0.15, 'boing'], [OLDEST + 0.1, 'golpecito'], [SONG, 'pop'], [SNAKES + 0.2, 'brillo'],
+  [P3 + 0.3, 'ola'], [PEZ, 'chof'], [PEZ + 0.8, 'chof'], [YOUNG, 'golpecito'], [LUCY, 'brillo'], [SANG, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { cartela: '10', efectos, año: (t) => (t < P3 ? null : 10) });
 </script>
 </body>
