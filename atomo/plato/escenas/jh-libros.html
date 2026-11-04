@@ -18,7 +18,8 @@
 //    nuevos de la caja y la caja se vacía; los que lo tienen se van contentos; el letrero cuenta hasta 1500000 en «one and
 //    a half million» y se marcan los siete días en «first week»; pasan coches por delante (corta tras «week»);
 // 4. (fondo local: la mesa de novedades de cerca) la pila de la Balada ya está; la del libro nuevo crece libro a libro con
-//    el pan subido encima, hasta el doble: «X2» en «double»; en «Ballad» el pan señala la pila pequeña y se ríe.
+//    el pan subido encima, hasta el doble: «X2» en «double»; en «Ballad» el pan señala la pila pequeña y se ríe; la regla
+//    se apoya en la mesa con su peana, las gafas están a la derecha y la línea de la Balada pasa por detrás de la pila nueva.
 import * as T from '/atomo/plato/escenas/jh-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jh-libros');
@@ -284,7 +285,9 @@ const fondoMesa = () => {
   R.rect(0, 118, 319, 118, hex('#e0a868'));
   // la taza con el café, las gafas, los lápices, la planta y un punto de libro
   caja(22, 136, 42, 156, hex('#e8e0d0')); R.rect(22, 136, 42, 138, hex('#5a3418')); R.rect(43, 141, 46, 150, K9.k); R.rect(44, 142, 45, 149, hex('#e8e0d0')); R.rect(22, 136, 23, 156, K9.b); R.rect(20, 157, 44, 158, hex('#7a4a22'));
-  for (const gx of [252, 268]) { R.disco(gx, 166, 6, K9.k); R.disco(gx, 166, 5, hex('#c8d8e8')); R.pset(gx - 2, 164, K9.b); } R.rect(258, 165, 262, 165, K9.k);
+  // las gafas, a la derecha, lejos de la regla y de las pilas, con su sombra
+  for (let x = 284; x <= 316; x++) R.pset(x, 173, mz(R.pget(x, 173), hex('#5a3418'), 0.5));
+  for (const gx of [292, 308]) { R.disco(gx, 166, 6, K9.k); R.disco(gx, 166, 5, hex('#c8d8e8')); R.pset(gx - 2, 164, K9.b); R.pset(gx - 3, 165, K9.b); } R.rect(298, 165, 302, 165, K9.k); R.linea(286, 164, 280, 160, K9.k); R.linea(314, 164, 318, 159, K9.k);
   for (let i = 0; i < 3; i++) { R.linea(56 + i * 6, 172, 84 + i * 6, 162, K9.k); R.linea(57 + i * 6, 172, 85 + i * 6, 162, [K9.oro, K9.rojo, K9.azul][i]); R.pset(85 + i * 6, 161, hex('#e8a0a0')); }
   caja(282, 122, 300, 138, hex('#c86a3a')); R.rect(280, 120, 302, 122, hex('#a8582a')); for (let k = 0; k < 7; k++) { const a = -Math.PI / 2 + (k - 3) * 0.4; R.linea(291, 119, 291 + Math.round(Math.cos(a) * 10), 119 + Math.round(Math.sin(a) * 10), k % 2 ? K9.verde : K9.verdeS); }
   R.rect(140, 160, 146, 178, K9.rojo); R.poligono([[140, 178], [143, 175], [146, 178]], hex('#a8703a'));
@@ -298,16 +301,22 @@ const p4 = (t) => {
   for (let k = 0; k < 6; k++) { const f = (t * 0.6 + k / 6) % 1, vx = 32 + Math.round(Math.sin(t * 2 + k * 1.7) * 2 + f * 2), vy = 134 - Math.round(f * 22); if (f < 0.85) R.pset(vx, vy, mz(R.pget(vx, vy), K9.b, 0.6 - f * 0.5)); }
   // la pila de la Balada (seis) y la del libro nuevo (doce, que caen uno a uno)
   const BAL = 6, NUEVO = 12, xb = 104, xn = 206, base = 160;
+  // la línea discontinua a la altura de la Balada: se pinta antes, así queda por detrás de la pila nueva
+  const topB = base - BAL * 7;
+  if (t > DOBLE - 0.2) for (let x = xb + 30; x < 249; x += 3) { R.pset(x, topB, K9.b); R.pset(x + 1, topB, K9.b); }
   for (let i = 0; i < BAL; i++) libroTumbado(xb + Math.round((h9(i, 1, 40) - 0.5) * 4), base - i * 7, 3);
-  const topB = base - BAL * 7; portada(xb - 13, topB - 34, xb + 13, topB - 1, 2, t);
+  portada(xb - 13, topB - 34, xb + 13, topB - 1, 2, t);
   const t0 = P4 + 0.15, dt = (DOBLE - 0.25 - t0) / NUEVO; let n = 0;
   for (let i = 0; i < NUEVO; i++) { const ti = t0 + i * dt, u = tramo(t, ti, ti + 0.22); if (u <= 0) break; const yy = base - i * 7 - Math.round((1 - u) * 40); libroTumbado(xn + Math.round((h9(i, 2, 40) - 0.5) * 4), yy, 4); if (u >= 1) n = i + 1; }
   const topN = base - n * 7, flota = n < NUEVO && t > t0 ? -Math.round(tramo(t, t0 + n * dt, t0 + n * dt + 0.22) * 0) : 0;
   portada(xn - 26, topN - 34 + flota, xn, topN - 1 + flota, 4, t);
   // la línea de la Balada que cruza hasta la pila nueva: la nueva llega al doble
-  if (t > DOBLE - 0.2) { for (let x = xb + 30; x < xn + 32; x += 3) { R.pset(x, topB, K9.b); R.pset(x + 1, topB, K9.b); }
-    const e = tramo(t, DOBLE, DOBLE + 0.35), cx = 262, yy = Math.round(lerp(124, 100, e));
-    R.rect(250, 76, 252, base, K9.k); R.rect(251, 77, 251, base - 1, K9.oroL); for (const yb of [base, topB, topN]) R.rect(246, yb, 256, yb, K9.k);
+  if (t > DOBLE - 0.2) { const e = tramo(t, DOBLE, DOBLE + 0.35), cx = 262, yy = Math.round(lerp(124, 100, e));
+    // la regla, de pie sobre la mesa con su peana de madera y su sombra; marcas cada siete (un libro)
+    for (let x = 240; x <= 266; x++) R.pset(x, base + 6, mz(R.pget(x, base + 6), hex('#5a3418'), 0.55));
+    R.rect(250, 76, 252, base, K9.k); R.rect(251, 77, 251, base - 1, K9.oroL); for (let yb = base - 7; yb > 78; yb -= 7) R.pset(252, yb, K9.k);
+    for (const yb of [topB, topN]) R.rect(246, yb, 256, yb, K9.k);
+    R.rect(243, base, 259, base + 5, K9.k); R.rect(244, base + 1, 258, base + 4, hex('#8a5428')); R.rect(244, base + 1, 258, base + 1, hex('#c8904e'));
     if (e > 0) { R.icono('X', cx - 6, yy - 14, K9.oro, K9.k, 2); R.numero('2', cx + 16, yy + 2, { tam: 16, centro: true }); } }
   // el pan, subido a la pila nueva: sube con ella, se agarra, y en «Ballad» señala la pila pequeña y se ríe
   const subiendo = t > t0 && n < NUEVO, py = topN - 1 + (subiendo && Math.sin(t * 20) > 0 ? -1 : 0);

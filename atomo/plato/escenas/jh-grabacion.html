@@ -14,7 +14,8 @@
 //    números en el lomo; la del «50» brilla en «don't know»; en «How those games ended» la mano de Katniss la coge y la
 //    saca de la caja; corta en «already».  Juegos 75.
 // 2. (interior 'tele' general) Katniss mete la cinta en la tele; en «revealed years ago» la nieve de la pantalla se
-//    vuelve el prado de flores; vuelve a su butaca y se sienta a mirar; corta en «Katniss».
+//    vuelve el prado de flores; vuelve a su butaca y se sienta a mirar
+//    (sentada alto: la cabeza y los hombros asoman sobre el respaldo de orejas); corta en «Katniss».
 // 3. (interior 'tele' pantalla) en la cinta, el prado de los Juegos 50: Haymitch joven en el prado; en «wins» levanta
 //    los brazos con confeti y una corona; en «force field» brilla el filo de la cúpula; corta en «around».
 // 4. (arena 'cupula' general, Juegos 50) la maqueta de la arena: una piedra sale del prado, choca en «edge» con el borde
@@ -79,8 +80,8 @@ const fondo1 = () => {
   R.rect(14, 140, 36, 166, K); R.rect(15, 141, 35, 165, hex('#c84a3a')); R.rect(15, 141, 17, 165, hex('#e86a5a'));
   R.rect(15, 140, 35, 143, hex('#3a2014')); R.rect(36, 146, 41, 158, K); R.rect(37, 147, 39, 157, hex('#c84a3a'));
   R.rect(56, 160, 94, 170, K); R.rect(57, 161, 93, 169, hex('#3a3a44')); for (let k = 0; k < 5; k++) { R.rect(60 + k * 6, 163, 62 + k * 6, 164, k === 0 ? hex('#e83a3a') : hex('#8a8a96')); R.rect(60 + k * 6, 166, 62 + k * 6, 167, hex('#6a6a76')); }
-  R.rect(10, 100, 56, 108, K); R.rect(11, 101, 55, 107, hex('#1a1a20')); R.rect(15, 102, 35, 106, hex('#e8e0c8')); R.numero('36', 26, 107, { color: K, sombra: false, centro: true });
-  R.rect(60, 116, 104, 126, K); R.rect(61, 117, 103, 125, hex('#1a1a20')); R.rect(66, 119, 86, 123, hex('#e8e0c8')); R.numero('12', 77, 124, { color: K, sombra: false, centro: true });
+  R.rect(10, 99, 56, 110, K); R.rect(11, 100, 55, 109, hex('#1a1a20')); R.rect(15, 101, 35, 108, hex('#e8e0c8')); R.rect(15, 108, 35, 108, hex('#b8ae98')); R.numero('36', 26, 108, { color: K, sombra: false, centro: true });
+  R.rect(60, 115, 104, 127, K); R.rect(61, 116, 103, 126, hex('#1a1a20')); R.rect(66, 118, 86, 125, hex('#e8e0c8')); R.rect(66, 125, 86, 125, hex('#b8ae98')); R.numero('12', 77, 125, { color: K, sombra: false, centro: true });
   R.linea(20, 128, 46, 136, K); R.linea(20, 127, 46, 135, hex('#f0c040')); R.pset(46, 135, hex('#f6c290')); R.pset(47, 136, K);
   R.anillo(84, 146, 5, K); R.anillo(98, 146, 5, K); R.linea(89, 145, 93, 145, K); R.disco(84, 146, 4, hex('#8ab0c8')); R.disco(98, 146, 4, hex('#8ab0c8')); R.pset(82, 144, hex('#ffffff')); R.pset(96, 144, hex('#ffffff'));
   R.usar(prev); R.copiar(F1);
@@ -135,7 +136,7 @@ const p2 = (t) => {
   const ida = tramo(t, P2 + 0.05, mete - 0.25), vuelta = tramo(t, vuelve0, sienta);
   let x, s, dir = 1, anda = false;
   if (vuelta <= 0) { x = Math.round(lerp(130, 194, ida)); s = 156; anda = ida > 0 && ida < 1; }
-  else { x = Math.round(lerp(194, 86, vuelta)); s = Math.round(lerp(156, 172, vuelta * vuelta)); dir = vuelta < 1 ? -1 : 1; anda = vuelta < 1; }
+  else { x = Math.round(lerp(194, 86, vuelta)); s = Math.round(lerp(156, 166, vuelta * vuelta)); dir = vuelta < 1 ? -1 : 1; anda = vuelta < 1; }
   const lleva = t < mete;
   const r = R.actor(EL.katniss, x, s, t, { dir, anda, sostiene: lleva ? (t > mete - 0.25 ? [219, 126] : true) : false, sorpresa: t > enc && t < enc + 0.8 && vuelta <= 0, sonrisa: vuelta >= 1 });
   if (lleva) { const [mx, my] = r.mano; R.rect(mx - 1, my - 4, mx + 9, my + 1, K); R.rect(mx, my - 3, mx + 8, my, hex('#202028')); R.rect(mx + 2, my - 3, mx + 6, my - 1, hex('#f8d860')); }

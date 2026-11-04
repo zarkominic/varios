@@ -12,12 +12,17 @@
 // JH-MARATON (frases 53–54), hoy, sin barra. Tres planos:
 // 1. (fondo local: la sala de la fan por la tarde, de lado; reloj a las seis) Atom llega volando y se sienta en el sofá junto
 //    al pan; el pan se arropa con la manta en «one evening»; en «Watch» Atom enciende la tele con una chispa (el sinsajo) y
-//    en «Catching Fire» cambia a la llama; el pan aplaude (corta en «That's where»);
+//    en «Catching Fire» cambia a la llama; el pan aplaude (corta en «That's where»). La luz de la tele es un halo redondo que
+//    sale de la pantalla y se apaga sin bordes, con parpadeo;
 // 2. (fondo local: la tele de cerca, desde detrás del sofá) en la pantalla, Haymitch levanta la petaca en «Haymitch»; la
 //    cúpula del campo de fuerza tiembla en «force field» y el pan da un salto; los vencedores suben por sus plataformas en
-//    «returning victors» (corta en «If you have another»);
+//    «returning victors» (corta en «If you have another»). Delante, el respaldo en tres paneles con costuras, puntadas y
+//    capitoné, el canto que recoge la luz de la pantalla (cambia de color con ella) y sombra; encima, la manta de cuadros
+//    echada con flecos, el mando con su luz y los dos cojines que asoman;
 // 3. (fondo local: de noche, la mesita de cerca) la caja de la tercera película, la serpiente y el pájaro, que se mueven, a
-//    la luz verde de la tele; el pan, grande, se va comiendo a sí mismo a mordiscos (gag 8) hasta quedarse en la mitad; en
+//    la luz verde de la tele (halo que parpadea y cambia de tono sobre pared, caja, mesa y pan); detrás, la pared de noche con
+//    el cuadro del sinsajo, la ventana (luna, estrellas, nube y ciudad animadas), la balda con la vela y el enchufe, y el
+//    sofá de frente con sus cojines y la manta echada sobre el asiento; el pan, grande, se va comiendo a sí mismo a mordiscos (gag 8) hasta quedarse en la mitad; en
 //    «song» llegan notas de la tele; Atom se da cuenta y se sorprende; el pan se ríe con migas.
 import * as T from '/atomo/plato/escenas/jh-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -131,8 +136,12 @@ const p1 = (t) => {
   if (on) { portada(TV[0] + 2, TV[1] + 2, TV[2] - 2, TV[3] - 2, k, t); R.recorte(TV); for (let y = TV[1]; y <= TV[3]; y += 3) for (let x = TV[0]; x <= TV[2]; x += 2) R.pset(x, y, mz(R.pget(x, y), K9.k, 0.15)); R.recorte(null); }
   else { degr(TV[0], TV[1], TV[2], TV[3], [hex('#2a2a36'), hex('#1a1a22')]); for (let i = 0; i < 40; i++) R.pset(TV[0] + 30 + i, TV[1] + 4 + i, mz(hex('#2a2a36'), hex('#f8b070'), 0.35)); }
   for (const tc of [WATCH, CF]) { const f = tramo(t, tc + 0.15, tc + 0.4); if (f > 0 && f < 1) { R.recorte(TV); for (let y = TV[1]; y <= TV[3]; y++) for (let x = TV[0]; x <= TV[2]; x++) if (((x + y) & 1) === 0) R.pset(x, y, K9.b); R.recorte(null); } }
-  // la luz de la tele sobre el sofá, cuando está encendida
-  if (on) { const c = k === 0 ? hex('#f0c040') : hex('#f0703a'), fl = 0.8 + 0.2 * Math.sin(t * 9); for (let y = 60; y < 180; y++) for (let x = 120; x < 320; x++) { const d = Math.hypot(x - 116, (y - 80) * 1.4) / 230, a = (1 - d) * 0.3 * fl; if (a > 0.02 && di(x, y, a * 2.4)) R.pset(x, y, mz(R.pget(x, y), c, 0.3)); } }
+  // el halo de la tele encendida: sale de la pantalla y se apaga en redondo (pared, mueble, suelo y el brazo del sofá), con parpadeo
+  if (on) { const c = k === 0 ? hex('#f0c040') : hex('#f0703a'), fl = 0.8 + 0.2 * Math.sin(t * 9) * Math.sin(t * 2.7), cx = (TV[0] + TV[2]) / 2, cy = (TV[1] + TV[3]) / 2;
+    for (let y = 0; y < 180; y++) for (let x = 0; x < 200; x++) { if (x >= TV[0] - 2 && x <= TV[2] + 2 && y >= TV[1] - 2 && y <= TV[3] + 2) continue;
+      const d = Math.hypot((x - cx) / (125 + 8 * fl), (y - cy) / (92 + 6 * fl)); if (d >= 1) continue; const a = Math.min(0.9, (1 - d) * 1.1 * fl); if (di(x, y, a * a + 0.1 * (1 - d))) R.pset(x, y, mz(R.pget(x, y), c, 0.38)); }
+    // el filo de la pantalla que ilumina el marco
+    for (let x = TV[0] - 1; x <= TV[2] + 1; x += 2) { R.pset(x, TV[1] - 2, mz(K9.k, c, 0.5 * fl)); R.pset(x + 1, TV[3] + 2, mz(K9.k, c, 0.4 * fl)); } }
   // el gato duerme en el brazo del sofá
   { const br = Math.sin(t * 2) > 0 ? 1 : 0; R.rect(300, 101 - br, 318, 108, K9.k); R.rect(301, 102 - br, 317, 107, hex('#e89a4a')); R.rect(311, 98, 317, 103, K9.k); R.rect(312, 99, 316, 102, hex('#e89a4a')); R.pset(312, 97, K9.k); R.pset(316, 97, K9.k); R.rect(304, 104, 310, 104, hex('#c87a2a')); }
   // Atom llega volando desde la derecha y se sienta; en «Watch» y en «Catching Fire» lanza la chispa a la tele
@@ -221,11 +230,33 @@ const p2 = (t) => {
   panEspalda(112, 144 - sb - bota, t);
   if (sb > 4) R.icono('!', 128, 120 - sb, K9.oroL, K9.k, 2);
   R.atomo(216, 136 + Math.round(Math.sin(t * 2.4)), t, { r: 12, energia: Math.abs(t - FF) < 0.5 || t > VICT ? 0.7 : 0.3 });
-  // el respaldo del sofá, por delante: terciopelo con capitoné
+  // los cojines del asiento, que asoman por encima del respaldo (con su borla)
+  for (const [cx0, c, inc] of [[20, hex('#e8b840'), -1], [270, hex('#c85a7a'), 1]]) {
+    R.poligono([[cx0, 145], [cx0 + 2 + inc, 135], [cx0 + 28 + inc, 134 - inc], [cx0 + 30, 145]], K9.k);
+    R.poligono([[cx0 + 1, 145], [cx0 + 3 + inc, 136], [cx0 + 27 + inc, 135 - inc], [cx0 + 29, 145]], (x, y) => ((x + y) % 6 === 0) ? mz(c, K9.k, 0.3) : y < 139 ? mz(c, K9.b, 0.25) : mz(c, glow, 0.15));
+    R.pset(cx0 + 15, 139, K9.k); R.rect(cx0 + 2 + inc, 133, cx0 + 3 + inc, 134, mz(c, K9.k, 0.4)); }
+  // el respaldo del sofá, por delante: terciopelo en tres paneles con costuras, capitoné, el canto redondo que recoge la luz
+  // de la pantalla (cambia de color con lo que se emite) y la sombra hacia abajo y hacia los lados
   R.rect(0, 144, 319, 144, K9.k);
-  for (let y = 145; y < 180; y++) for (let x = 0; x < 320; x++) { const bx = (x + (Math.floor((y - 145) / 12) % 2) * 12) % 24, by = (y - 145) % 12, boton = bx === 12 && by === 6, pliegue = Math.abs(bx - 12) + Math.abs(by - 6) === 7;
-    R.pset(x, y, boton ? hex('#0e2a30') : pliegue ? hex('#1a4048') : y < 149 ? hex('#3a7a84') : mz(hex('#2a5a64'), K9.k, (y - 149) / 80)); }
-  R.rect(0, 145, 319, 145, hex('#5a9aa4'));
+  const fl2 = 0.8 + 0.2 * Math.sin(t * 7) * Math.sin(t * 2.1);
+  for (let y = 145; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const px = x % 106, costura = px === 0 || px === 105, puntada = (px === 2 || px === 103) && y % 3 === 0;
+    const bx = (px - 5 + (Math.floor((y - 151) / 12) & 1) * 12 + 240) % 24, by = (y - 151 + 120) % 12, boton = y > 150 && bx === 12 && by === 6, pliegue = y > 150 && Math.abs(bx - 12) + Math.abs(by - 6) === 7;
+    let c = y < 146 ? hex('#6aaab4') : y < 149 ? hex('#4a8a94') : y === 149 ? hex('#1e4a52') : hex('#2e626c');
+    if (costura) c = hex('#143238'); else if (puntada) c = hex('#5a9aa4'); else if (boton) c = hex('#0e2a30'); else if (pliegue) c = hex('#1e4a52'); else if (h9(x, y, 93) < 0.06) c = mz(c, K9.b, 0.08);
+    const sombra = Math.min(0.55, (y - 149) / 50 + Math.max(0, Math.abs(x - 160) - 110) / 140); if (y > 149) c = mz(c, K9.k, sombra);
+    const luz = Math.max(0, 1 - Math.abs(x - 160) / 170) * Math.max(0, 1 - (y - 145) / 26) * 0.95 * fl2; if (di(x, y, luz)) c = mz(c, glow, 0.45);
+    R.pset(x, y, c); }
+  // la manta de cuadros echada por encima del respaldo, que cuelga con sus flecos y deja sombra
+  R.poligono([[16, 141], [74, 140], [80, 146], [76, 174], [20, 176], [14, 148]], K9.k);
+  R.poligono([[17, 142], [73, 141], [79, 146], [75, 173], [21, 175], [15, 148]], (x, y) => (x % 9 < 2 || y % 9 < 2) ? hex('#8a2a3a') : ((x + y) % 4 === 0) ? hex('#a83a4a') : y < 146 ? hex('#e07a7a') : hex('#c8505a'));
+  for (const fx of [30, 46, 62]) for (let y = 147; y < 172; y += 2) R.pset(fx + ((y >> 2) & 1), y, hex('#7a1a2a'));
+  for (let x = 22; x < 75; x += 3) R.rect(x, 175, x, 177 + ((x >> 1) & 1), hex('#d86a6a'));
+  for (let y = 147; y < 176; y++) R.pset(80 + ((y >> 3) & 1), y, mz(hex('#2e626c'), K9.k, 0.6));
+  // el mando, tirado sobre el canto del respaldo, con su luz que parpadea
+  R.rect(238, 140, 262, 145, K9.k); R.rect(239, 141, 261, 144, hex('#2a2a32')); R.rect(239, 141, 261, 141, hex('#4a4a56'));
+  for (let i = 0; i < 4; i++) R.pset(244 + i * 4, 143, [K9.rojo, K9.grisL, K9.grisL, K9.verde][i]); if (Math.sin(t * 5) > 0.3) R.pset(259, 142, hex('#ff5050'));
+  R.rect(240, 146, 262, 146, mz(hex('#2e626c'), K9.k, 0.5));
   // la mano de miga del pan, que asoma y aplaude a los vencedores
   if (t > VICT + 0.4) { const hy = 140 - bota; R.disco(98, hy, 3, K9.k); R.disco(98, hy, 2, hex('#f8e0b0')); R.disco(126, hy, 3, K9.k); R.disco(126, hy, 2, hex('#f8e0b0')); }
 };
@@ -264,11 +295,38 @@ const fondoSala = () => {
 };
 // 3 · de noche, la mesita de cerca: la caja de la tercera película y el pan que se come a sí mismo
 const fondoMesita = () => {
-  // detrás: el frente del sofá en penumbra con la manta que cuelga
-  for (let y = 0; y < 66; y++) for (let x = 0; x < 320; x++) { const bx = (x % 30), b = bx === 15 && y % 12 === 6; R.pset(x, y, b ? hex('#0e2228') : y > 50 ? hex('#14303a') : (x % 30 < 2) ? hex('#183842') : hex('#1e4048')); }
-  R.poligono([[60, 30], [200, 26], [210, 60], [56, 62]], (x, y) => ((x + (y >> 1)) % 4 === 0) ? hex('#4a1a2a') : hex('#6a2a3a'));
-  for (let x = 60; x < 206; x += 5) R.rect(x, 61, x + 1, 64, hex('#6a2a3a'));
-  R.rect(0, 66, 319, 69, hex('#0a1418'));
+  // arriba: la pared de noche, papel de rayas con florecillas y su grano (tranquila en la esquina de Atom)
+  for (let y = 0; y < 30; y++) for (let x = 0; x < 320; x++) { const raya = (x % 14) < 7, flor = x < 270 && ((x % 14 === 10 && y % 9 === 4) || (x % 14 === 3 && y % 9 === 0));
+    R.pset(x, y, flor ? hex('#30485a') : mz(raya ? hex('#1c2c3e') : hex('#182638'), K9.k, h9(x, y, 92) < 0.1 ? 0.25 : y > 22 ? (y - 22) / 14 : 0)); }
+  // el cuadro del sinsajo (el mismo póster de la tarde), colgado de su clavo
+  R.linea(46, 0, 32, 4, K9.k); R.linea(46, 0, 60, 4, K9.k); portada(30, 5, 62, 22, 3, 0); R.rect(31, 23, 63, 23, hex('#0a1018'));
+  // la ventana de noche con sus cortinas (el cielo, la luna y la ciudad se animan en el plano)
+  caja(118, 1, 178, 27, hex('#0e1630')); R.rect(110, 0, 186, 0, hex('#3a2a1a'));
+  for (const [c0, c1] of [[108, 117], [179, 188]]) for (let y = 1; y < 28; y++) for (let x = c0; x <= c1; x++) R.pset(x, y, ((x + Math.floor(y / 3)) % 5 === 0) ? hex('#3a1420') : hex('#5a2030'));
+  // la balda con una vela, una figurita y dos libros, y el enchufe con su cable
+  R.rect(200, 14, 240, 16, K9.k); R.rect(201, 14, 239, 15, hex('#5a3a22')); R.rect(202, 17, 238, 18, hex('#0e1622'));
+  R.rect(205, 6, 208, 13, K9.k); R.rect(206, 7, 207, 13, K9.crema); T.libroJH(R, 214, 14, 1, { w: 4, alto: 10 }); T.libroJH(R, 219, 14, 3, { w: 4, alto: 9 });
+  T.PIEZAS_JH.sinsajo(R, 232, 13, { s: 1 });
+  R.rect(248, 16, 255, 23, K9.k); R.rect(249, 17, 254, 22, hex('#c8c0b0')); R.pset(250, 19, K9.k); R.pset(253, 19, K9.k); R.rect(251, 23, 251, 27, K9.k);
+  // la sombra del sofá en la pared
+  for (let y = 22; y < 30; y++) for (let x = 8; x < 312; x++) if (di(x, y, (y - 21) / 9)) R.pset(x, y, mz(R.pget(x, y), K9.k, 0.45));
+  // el sofá de frente: el respaldo de capitoné, los brazos, dos cojines y el asiento con la manta echada encima
+  R.rect(14, 25, 305, 47, K9.k);
+  for (let y = 26; y < 47; y++) for (let x = 15; x < 305; x++) { const bx = (x + (Math.floor((y - 26) / 10) & 1) * 10) % 20, by = (y - 26) % 10, b = bx === 10 && by === 5, pl = Math.abs(bx - 10) + Math.abs(by - 5) === 6;
+    R.pset(x, y, b ? hex('#0a1c22') : pl ? hex('#14303a') : y < 28 ? hex('#3a6a74') : mz(hex('#1e4048'), K9.k, (y - 28) / 60)); }
+  for (const [ax0, ax1] of [[0, 18], [301, 319]]) { R.rect(ax0, 30, ax1, 66, K9.k); for (let y = 31; y < 66; y++) for (let x = ax0 + 1; x < ax1; x++) R.pset(x, y, y < 34 ? hex('#3a6a74') : (x - ax0) % 6 === 0 ? hex('#163640') : hex('#1e4048')); }
+  for (const [cx0, c, inc] of [[72, hex('#c8a040'), 2], [218, hex('#a84a6a'), -2]]) {
+    R.poligono([[cx0, 50], [cx0 + inc, 30], [cx0 + 34 + inc, 31], [cx0 + 36, 50]], K9.k);
+    R.poligono([[cx0 + 1, 49], [cx0 + 1 + inc, 31], [cx0 + 33 + inc, 32], [cx0 + 35, 49]], (x, y) => ((x + y) % 5 === 0) ? mz(c, K9.k, 0.35) : y < 34 ? mz(c, K9.b, 0.15) : mz(c, K9.k, 0.2));
+    R.pset(cx0 + 18, 40, K9.k); }
+  R.rect(18, 47, 301, 66, K9.k);
+  for (let y = 48; y < 66; y++) for (let x = 19; x < 301; x++) R.pset(x, y, y < 50 ? hex('#3a6a74') : y < 54 ? hex('#24505a') : (x - 19) % 94 === 0 ? hex('#0e2228') : mz(hex('#183842'), K9.k, (y - 54) / 30));
+  // la manta de cuadros: echada sobre el asiento y caída por delante, con flecos
+  R.poligono([[126, 46], [206, 44], [212, 64], [122, 65]], K9.k);
+  R.poligono([[127, 47], [205, 45], [211, 63], [123, 64]], (x, y) => (x % 8 < 2 || y % 8 < 2) ? hex('#5a1a2a') : ((x + (y >> 1)) % 4 === 0) ? hex('#6a2232') : y < 50 ? hex('#a84a5a') : hex('#843042'));
+  for (const fx of [150, 176, 196]) for (let y = 50; y < 63; y += 2) R.pset(fx + ((y >> 2) & 1), y, hex('#3a0e1a'));
+  for (let x = 124; x < 211; x += 3) R.rect(x, 65, x, 67 + ((x >> 1) & 1), hex('#843042'));
+  R.rect(0, 66, 319, 69, hex('#0a1418')); for (let x = 124; x < 211; x += 3) R.rect(x, 65, x, 67 + ((x >> 1) & 1), hex('#843042'));
   // el tablero de la mesita: madera oscura con vetas
   for (let y = 70; y < 180; y++) for (let x = 0; x < 320; x++) { const tabla = Math.floor((y - 70) / 22), veta = Math.abs(Math.sin(x * 0.04 + tabla * 1.9 + Math.sin(x * 0.012 + tabla) * 2.6)) < 0.08;
     R.pset(x, y, (y - 70) % 22 === 0 ? hex('#1e120a') : veta ? hex('#3a2414') : h9(x, y, 90) < 0.04 ? hex('#5a3a22') : hex('#4a2e1a')); }
@@ -285,15 +343,31 @@ const fondoMesita = () => {
 };
 const p3 = (t) => {
   fijo('mesita', fondoMesita);
+  // por la ventana: el cielo de noche, las estrellas que titilan, la luna, una nube que pasa y la ciudad con luces (recortado al cristal)
+  R.recorte([119, 2, 177, 26]); degr(119, 2, 177, 26, [hex('#0a1028'), hex('#1a2448'), hex('#2a3058')]);
+  for (let k = 0; k < 9; k++) { const sx = 121 + Math.floor(h9(k, 1, 94) * 54), sy = 3 + Math.floor(h9(k, 2, 94) * 12); if (Math.sin(t * 3 + k * 1.7) > -0.4) R.pset(sx, sy, k % 3 ? hex('#c8d0f0') : K9.b); }
+  R.disco(164, 9, 4, hex('#e8e8d0')); R.disco(165, 8, 3, hex('#fffff0')); R.pset(163, 10, hex('#c8c8b0'));
+  nube(110 + ((t * 4) % 90), 13, 3, [hex('#4a5478'), hex('#363e62'), hex('#262c4a')], (x, y) => x >= 119 && x <= 177 && y >= 2 && y <= 26);
+  for (let x = 119, k = 0; x < 178; k++) { const w = 6 + Math.floor(h9(k, 3, 95) * 8), y = 17 + Math.floor(h9(k, 4, 95) * 6); for (let yy = y; yy <= 26; yy++) for (let xx = x; xx < Math.min(178, x + w); xx++) R.pset(xx, yy, hex('#141a30'));
+    for (let wy = y + 2; wy < 26; wy += 3) for (let wx = x + 1; wx < x + w - 1; wx += 2) if (h9(wx, wy, Math.floor(t * 0.5) + 96) < 0.25) R.pset(wx, wy, hex('#f8d070')); x += w + 1; }
+  R.recorte(null); R.rect(147, 1, 148, 27, K9.k); R.rect(118, 14, 178, 14, K9.k);
+  // la llama de la vela de la balda
+  R.pset(206, 5 - (Math.sin(t * 11) > 0 ? 1 : 0), K9.oroL); R.pset(207, 5, hex('#f08030')); R.pset(206, 6, hex('#f8a040'));
+  // la sombra de la caja sobre la mesa (la luz viene de la tele, a la izquierda)
+  R.poligono([[104, 150], [105, 72], [120, 74], [134, 150]], (x, y) => y > 70 && di(x, y, 0.5) ? hex('#1e120a') : null);
   // la caja de la tercera película, de pie: la serpiente y el pájaro se mueven
   R.poligono([[18, 150], [24, 52], [106, 52], [104, 150]], K9.k); R.rect(20, 54, 104, 148, hex('#4a6a8a')); portada(26, 58, 100, 144, 2, t); R.rect(20, 54, 22, 148, hex('#8ab0d0'));
-  // la luz verdosa de la tele (fuera de cuadro, a la izquierda), que parpadea
-  const fl = 0.75 + 0.25 * Math.sin(t * 9) * Math.sin(t * 2.3), verde = hex('#6ad8a8');
-  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const a = (1 - x / 300) * 0.3 * fl; if (a > 0.03 && di(x, y, a * 1.5)) R.pset(x, y, mz(R.pget(x, y), verde, 0.22)); }
   // el pan, grande, encima de la mesita: se va comiendo a sí mismo en «another», en «Ballad» y en «snakes»
   const ve = t > SONG + 0.5, mord = [OTRA, BALLAD, SNAKES], lleno = 1 - mord.reduce((acc, m) => acc + tramo(t, m, m + 0.3) * (0.5 / 3), 0), masca = mord.some((m) => t > m && t < m + 0.6);
   T.pan(R, 162, 152, t, { s: 3, dir: -1, lleno, expresion: ve ? 'risa' : 'normal', señala: t > SNAKES + 0.7 && t < SONG ? [70, 100] : null });
   if (masca) for (let k = 0; k < 5; k++) { const u = ((t * 2 + k / 5) % 1); R.rect(140 + k * 4, 118 + Math.round(u * 32), 141 + k * 4, 119 + Math.round(u * 32), hex('#f0c070')); }
+  // la luz verde de la tele (fuera de cuadro, a la izquierda): un halo que parpadea y cambia de tono con la película, sobre
+  // la pared, el sofá, la caja, la mesa y el pan
+  const fl = 0.7 + 0.3 * Math.sin(t * 9) * Math.sin(t * 2.3), verde = mz(hex('#5ad8a0'), hex('#9ae8e0'), 0.5 + 0.5 * Math.sin(t * 1.3));
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 300; x++) { if (x > 118 && x < 178 && y < 27) continue; const d = Math.hypot(x + 50, (y - 85) * 0.9) / (330 + 20 * fl); if (d >= 1) continue;
+    const a = (1 - d) * (0.6 + 0.35 * fl); if (di(x, y, a)) R.pset(x, y, mz(R.pget(x, y), verde, 0.32)); }
+  // el filo verde en el canto de la caja y el lado del pan que mira a la tele
+  for (let y = 54; y < 149; y += 1) if (fl > 0.6 || y % 2) R.pset(19, y, mz(hex('#8ab0d0'), verde, 0.6));
   // Atom, que flota encima, se da cuenta del mordisco y se sorprende
   R.atomo(236, 66 + Math.round(Math.sin(t * 2.2) * 2), t, { r: 11, energia: ve ? 0.9 : 0.3 });
   if (ve) R.icono('!', 250, 40, K9.oroL, K9.k, 2);

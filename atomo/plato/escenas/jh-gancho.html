@@ -12,10 +12,12 @@
 // JH-GANCHO (frases 1–2), Juegos 50 y hoy. Cuatro planos:
 // 1. (0–«and the Capitol») la plaza del 12 al amanecer: Haymitch joven sale de su fila al pasillo, se planta y señala la
 //    pantalla del Capitolio; en «beat the Capitol» levanta los brazos, las dos pantallas chisporrotean y se apagan
-//    (chispas, palomas que se espantan); una chica de al lado se asusta; un agente de la paz se acerca sin prisa.
+//    (chispas, palomas que se espantan); una chica de al lado se asusta; un agente de la paz baja sin prisa por el pasillo
+//    libre desde el escenario y se planta detrás de ellos (las filas de chicos quedan a los lados, nadie las pisa).
 // 2. («and the Capitol»–«The Drunk») el escenario: Haymitch junto al micrófono; en «made him pay» la sombra de una rosa
 //    blanca baja y le cubre, y la rosa cae a sus pies; él la mira; en «Haymitch» levanta la cabeza bajo un foco.
-// 3. («The Drunk»–«November») el cine: en la pantalla, la silueta de Haymitch adulto con la petaca (bebe en «Drunk») y
+// 3. («The Drunk»–«November») el cine: en la pantalla, Haymitch adulto a contraluz, al tamaño del chibi, en el porche de
+//    la Aldea de los Vencedores (ventana encendida, cerca), con la petaca que se lleva a la boca en «Drunk», y
 //    un sinsajo dorado que llega en «his story»; el pan se ríe y luego señala; Atom en su butaca.
 // 4. («November»–final) contraplano de las butacas: el pan levanta el calendario 11·20 (el 20 dorado en «20th»), lo
 //    agita en «Hunger Games» y en «Reaping» se asusta, suelta el calendario y se esconde tras la butaca (gag 1).
@@ -66,12 +68,14 @@ const p1 = (t) => {
   // Haymitch sale de su fila al pasillo, se planta y señala la pantalla de la izquierda; en «beat» levanta los brazos
   const u = tramo(t, 0.3, 1.7), hx = Math.round(lerp(108, 150, u));
   const fila = t < 1.9;
+  // un agente de la paz baja sin prisa por el pasillo libre (x 126–194) desde el pie del escenario y se planta detrás
+  // de ellos; va más lejos que Haymitch y la chica, así que se pinta antes (las filas de los lados quedan a su lado)
+  const v = tramo(t, capitol + 0.6, P2 - 0.1), av = v * v * (3 - 2 * v);
+  const ax = Math.round(lerp(186, 166, av)), ay = Math.round(lerp(124, 152, av));
+  R.actor(EL.agentePaz, ax, ay, t, { dir: -1, anda: v > 0 && v < 1, sorpresa: t > capitol && v === 0 });
   R.actor(EL.tributoChica, 176, 172, t, { dir: -1, sorpresa: t > capitol && t < capitol + 1.6, sonrisa: t > capitol + 1.6 });
   if (t > capitol && t < capitol + 1.2) R.icono('!', 182, 136, hex('#ffe890'), T.C.k, 2);
   R.actor(EL.haymitch, hx, 171, t, { dir: fila ? 1 : -1, anda: u > 0 && u < 1, dedo: t > 2 && t < beat, brazos: t >= beat && t < capitol + 0.9, enfado: t > 2 && t < capitol, sonrisa: t >= capitol + 0.9 });
-  // un agente de la paz se acerca sin prisa por delante de las filas
-  const v = tramo(t, capitol + 0.6, P2 - 0.1), ax = Math.round(lerp(330, 206, v));
-  R.actor(EL.agentePaz, ax, 178, t, { dir: -1, anda: v > 0 && v < 1, sorpresa: t > capitol && v === 0 });
   // las palomas de la escalinata se espantan con el chasquido
   if (t > capitol) for (let i = 0; i < 7; i++) { const e = t - capitol - i * 0.06; if (e < 0) continue; ave(150 + i * 4 + e * (i % 2 ? 30 : -30) * (1 + h(i, 1)), 112 - e * (26 + h(i, 2) * 14), t, i, hex('#5a5a66')); }
 };
@@ -111,18 +115,22 @@ const p2 = (t) => {
 
 // ── plano 3: el cine; Haymitch adulto en la pantalla ──────────────────────────────────────────────────────────────────
 let BUF = null;
-// dibuja un personaje en un búfer y lo pasa a la pantalla al doble, como silueta con un filo de luz
+// dibuja un personaje en un búfer y lo pasa a la pantalla a su tamaño (el del chibi), a contraluz: los colores se
+// oscurecen hacia el morado del atardecer sin perderse (se leen la cara, el pelo, los hombros y la petaca) y el contorno
+// del lado del sol se enciende con un filo cálido
 const silueta = (def, ox, oy, t, o, filo) => {
   if (!BUF) BUF = R.nuevo();
   BUF.fill(0); R.recorte(null); const prev = R.usar(BUF); const r = R.actor(def, 20, 60, t, o);
   let man = null; if (o.sostiene) { man = r.mano; T.PIEZAS_JH.petaca(R, man[0], man[1] + 3, {}); }
   R.usar(prev); R.recorte(CLIP);
-  for (let j = 20; j <= 64; j++) for (let i = 8; i <= 46; i++) {
-    if (!BUF[j * 320 + i]) continue;
-    const borde = !BUF[j * 320 + i + 1] || !BUF[(j - 1) * 320 + i];
-    const c = borde ? filo : hex('#0e0a18');
-    const X = ox + (i - 20) * 2, Y = oy + (j - 60) * 2;
-    R.pset(X, Y, c); R.pset(X + 1, Y, c); R.pset(X, Y + 1, c); R.pset(X + 1, Y + 1, c);
+  const fr = filo & 255, fg = (filo >> 8) & 255, fb = (filo >> 16) & 255;
+  for (let j = 26; j <= 64; j++) for (let i = 2; i <= 42; i++) {
+    const c = BUF[j * 320 + i]; if (!c) continue;
+    const borde = !BUF[j * 320 + i + 1] || !BUF[(j - 1) * 320 + i], borde2 = !BUF[j * 320 + i + 2];
+    const r0 = c & 255, g0 = (c >> 8) & 255, b0 = (c >> 16) & 255;
+    const k = borde ? 0.62 : borde2 ? 0.3 : 0, oc = borde || borde2 ? 0 : 0.42;
+    const rr = r0 + (42 - r0) * oc + (fr - r0) * k, gg = g0 + (24 - g0) * oc + (fg - g0) * k, bb = b0 + (58 - b0) * oc + (fb - b0) * k;
+    R.pset(ox + i - 20, oy + j - 60, (0xff000000 | (Math.round(bb) << 16) | (Math.round(gg) << 8) | Math.round(rr)) >>> 0);
   }
 };
 let CLIP = null;
@@ -136,9 +144,19 @@ const peli = (R, t, [x0, y0, x1, y1]) => {
   for (let x = x0; x <= x1; x++) { const m = Math.round(88 + Math.sin((x + sc * 2) * 0.07) * 3); for (let y = m; y <= y1; y++) R.pset(x, y, hex('#140c1c')); }
   // las nubes que pasan, de tres tonos
   for (let k = 0; k < 3; k++) { const cx = x0 + ((k * 70 + t * (4 + k * 3)) % 230) - 20, cy = y0 + 14 + k * 9; for (let i = -12; i <= 12; i++) { R.pset(Math.round(cx + i), cy, hex('#7a3e6a')); if (Math.abs(i) < 8) R.pset(Math.round(cx + i), cy - 1, hex('#c8607a')); if (Math.abs(i) < 4) R.pset(Math.round(cx + i), cy - 2, hex('#f09a8a')); } }
-  // Haymitch adulto en silueta, con la petaca: bebe en «Drunk» y se tambalea
-  const bebe = t > drunk && t < drunk + 1.2, sw = Math.round(Math.sin(t * 2.2) * 2);
-  silueta(EL.haymitchViejo, 118 + sw, 100, t, { dir: 1, sostiene: bebe ? [33, 41] : [34, 50], quieto: false }, hex('#f6a94f'));
+  // el porche de su casa en la Aldea de los Vencedores, a contraluz: la fachada, la ventana encendida, la cerca y el farol
+  const pv = hex('#1c1226'), pvL = hex('#2e1e3a');
+  R.poligono([[x0, 62], [x0 + 26, 50], [x0 + 52, 62]], hex('#24182e'));
+  for (let y = 62; y <= y1; y++) for (let x = x0; x <= x0 + 50; x++) R.pset(x, y, (y - 62) % 5 === 0 ? pvL : pv);
+  const vl = 0.85 + Math.sin(t * 7) * 0.08 + (h(Math.floor(t * 9), 2) > 0.85 ? -0.2 : 0);
+  for (let y = 68; y <= 80; y++) for (let x = x0 + 12; x <= x0 + 24; x++) R.pset(x, y, x === x0 + 18 || y === 74 ? pv : (h(x, y) < 0.15 ? hex('#c8803a') : vl > 0.8 ? hex('#ffc870') : hex('#e8a04a')));
+  for (let x = x0; x <= x1 - 20; x++) { R.pset(x, 92, hex('#120a18')); R.pset(x, 89, hex('#120a18')); if (x % 6 === 0) for (let y = 86; y <= 98; y++) R.pset(x, y, hex('#120a18')); if (x % 6 === 1 && x > x0 + 50) R.pset(x, 86, hex('#f6a94f')); }
+  for (let y = 99; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, ((x + y) & 3) === 0 ? hex('#2a1a30') : hex('#100a16'));
+  // Haymitch adulto a contraluz, de pie en el porche, con la petaca: bebe en «Drunk» y se tambalea un poco
+  const bebe = t > drunk && t < drunk + 1.2, sw = Math.round(Math.sin(t * 2.2) * 1.5);
+  silueta(EL.haymitchViejo, 140 + sw, 99, t, { dir: 1, sostiene: bebe ? [33, 41] : [34, 50], quieto: false }, hex('#ffb85a'));
+  // cuando bebe, un destello en la petaca
+  if (bebe && Math.sin(t * 9) > 0.3) { R.pset(140 + sw + 14, 79, hex('#fffbe9')); R.pset(140 + sw + 15, 78, hex('#fffbe9')); }
   // el sinsajo dorado que llega volando en «his story» y brilla
   const v = tramo(t, story - 0.3, hits + 0.2);
   if (v > 0) {

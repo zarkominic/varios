@@ -17,7 +17,8 @@
 // 2. (bosque 'arbol', amanecer) bajo el árbol viejo, Lenore Dove llega corriendo; en «the girl he loves» se cogen de
 //    la mano y sale un corazón; el agente llega, pita y se lleva a Haymitch; a Lenore se le cae una pluma de colores que
 //    baja revoloteando con el viento; corta en «are» (antes de «48»).
-// 3. (plaza 'escenario', antigua: altavoces de bocina, sin pantallas) Drusilla va a la urna de la derecha, que se
+// 3. (plaza 'escenario', antigua: altavoces de bocina, sin pantallas; cámara más cerrada a la derecha: el edificio acaba
+//    en x 274 y a su derecha hay montes, una loma con pinos, la cerca y el altavoz bajo, todo fuera de la zona de Atom) Drusilla va a la urna de la derecha, que se
 //    desborda de papeletas; el pan con ojos sale nadando entre ellas, se zambulle (salpican papeletas), salta y cae detrás
 //    de la barandilla (gag 2); Drusilla vuelve al micrófono y lee; en «four» salta un 4 dorado y suben cuatro tributos
 //    por los lados hasta sus marcas; en «two boys» y «two girls», un 2 sobre cada pareja. Delante, la primera fila de
@@ -79,10 +80,53 @@ const p2 = (t) => {
   if (p > 0) { const px = Math.round(lerp(lx + 4, lx + 22, p) + Math.sin(p * 12) * 4), py = Math.round(lerp(134, 163, p));
     R.linea(px, py, px + (Math.sin(p * 12) > 0 ? 2 : -2), py + 4, K); R.pset(px, py, hex('#e8484a')); R.pset(px + 1, py + 1, hex('#f0c040')); R.pset(px, py + 2, hex('#3ab0e8')); R.pset(px - 1, py + 1, hex('#e8484a')); }
 };
+// p3 · el encuadre del escenario con la cámara un poco más cerrada a la derecha: el Edificio de Justicia acaba en x 274
+// (se quitan 16 columnas de sillar entre la pilastra y la ventana de la derecha, así la cornisa y la pilastra de la
+// esquina quedan fuera de la zona de Atom) y lo que se ve a su derecha se pinta de nuevo: cielo y montes lejanos (la
+// misma fórmula del decorado), una loma cercana con pinos y matas que tapa el hueco oscuro de detrás del tejado, la
+// cerca de tablas entre la esquina y la casa (la loma tapa también el hueco oscuro de la izquierda), y el poste del altavoz de bocina más bajo (bocina en y 48–62). Se pinta
+// sobre lo fijo del decorado (antes de lo vivo: palomas, urnas, papeletas) y se guarda la primera vez.
+let PARCHE = null;
+const parcheEscenario = () => {
+  const B = R.buf, X0 = 217, W = 320 - X0, YH = 124;
+  if (!PARCHE) { const src = B.slice(), P = new Uint32Array(W * YH), um = (x, y) => ([0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5][(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+    const hs = (x, y, k = 0) => { const v = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return v - Math.floor(v); };
+    const G = ['#6486b4', '#80a0c6', '#9cb6d2', '#b8c8d8', '#ccd6dc'].map(hex), [mL, mC, mS] = ['#8a90aa', '#747a96', '#5e6480'].map(hex), [lL, lC, lS] = ['#7a8a6a', '#5e6c52', '#3e4a3a'].map(hex);
+    const alt = (x) => 30 - 12 * (0.5 + 0.3 * Math.sin(x * 0.019 + 2.4) + 0.14 * Math.sin(x * 0.051 + 2.4 * 2.3) + 0.06 * Math.sin(x * 0.14 + 2.4 * 3.1));
+    const loma = (x) => Math.round(57 + 3 * Math.sin(x * 0.11 + 1.3) + 1.5 * Math.sin(x * 0.31));
+    const oscuro = src[66 * 320 + 312];
+    const ma = [hex('#b88c62'), hex('#9a7454'), hex('#7a5a3e'), hex('#3e2e22')];
+    for (let y = 0; y < YH; y++) for (let x = X0; x < 320; x++) { let c;
+      if (x < 271 || (x < 275 && y < 36)) c = src[y * 320 + x + 16];
+      else { const o = src[y * 320 + x], top = Math.round(alt(x)), lt = loma(x), luzM = alt(x + 2) - alt(x - 2) > 0;
+        if (y <= 60 && y < lt) { if (y < top) { const u = Math.min(0.999, y / 34) * 4, i = Math.floor(u); c = u - i > um(x, y) ? G[i + 1] : G[i]; }
+          else { c = y === top ? (luzM ? mL : mC) : luzM && y - top < 6 && um(x, y) < 0.5 ? mL : mC; if (!luzM && y - top > 2 && um(x, y) < 0.3) c = mS; } }
+        else if (x >= 287 && o !== oscuro) c = o;
+        else if (x < 287 && y >= 98) { const k = Math.floor((x - 271) / 4), r = (x - 271) % 4, tope = 98 + (k % 2);
+          if (y < tope) c = lC; else c = r === 3 ? ma[3] : y === tope ? ma[0] : r === 0 ? ma[0] : hs(k * 5 + r, y >> 2, 3) < 0.2 ? ma[2] : ma[1];
+          if (y === 106 || y === 117) c = r === 3 ? ma[3] : ma[2]; if ((y === 107 || y === 118) && r === 1) c = hex('#9a9aa2'); if (y > 119 && um(x, y) < (y - 119) / 5) c = ma[3]; }
+        else { const d = y - lt; c = d === 0 ? lL : d < 3 && um(x, y) < 0.5 ? lL : lC; if (hs(x >> 1, y >> 1, 7) < 0.2) c = lS; else if (hs(x >> 1, (y + 1) >> 1, 8) < 0.12 && um(x, y) < 0.6) c = lL; if (d > 8 && um(x, y) < 0.25) c = lS;
+          if (y < lt + 2 && hs(x, 0, 9) < 0.18) c = lS; } }
+      P[y * W + x - X0] = c; }
+    // pinos en la cresta de la loma
+    const pon = (x, y, c) => { if (x >= X0 && x < 320 && y >= 0 && y < YH) P[y * W + x - X0] = c; };
+    for (const px of [279, 284, 297, 309, 316]) { const ly = loma(px), a = 4 + (px % 3); for (let j = 0; j < a; j++) { const w = Math.floor((a - j) / 2); for (let i = -w; i <= w; i++) pon(px + i, ly - j, i < 0 ? lC : lS); } pon(px, ly - a, lS); }
+    // el poste del altavoz de la derecha, más bajo: el palo hasta y 48 y la bocina debajo de la zona de Atom
+    for (let y = 48; y < 61; y++) for (let x = 302; x <= 304; x++) pon(x, y, hex('#6a5038'));
+    for (let y = 48; y <= 62; y++) for (let x = 291; x <= 303; x++) { const f = (303 - x) / 12, ya = 54 - 6 * f, yb = 54 + 8 * f; if (y >= ya && y <= yb) pon(x, y, x === 291 ? hex('#8a8a96') : hex('#5a5a62')); }
+    // la misma loma tapa también el hueco oscuro de detrás del tejado de la izquierda
+    const izq = [];
+    for (let y = 55; y < 100; y++) for (let x = 0; x < 34; x++) { const i = y * 320 + x, lt = loma(x); if (y < lt || src[i] !== oscuro) continue; const d = y - lt;
+      let c = d === 0 ? lL : d < 3 && um(x, y) < 0.5 ? lL : lC; if (hs(x >> 1, y >> 1, 7) < 0.2) c = lS; else if (hs(x >> 1, (y + 1) >> 1, 8) < 0.12 && um(x, y) < 0.6) c = lL; if (d > 8 && um(x, y) < 0.25) c = lS; izq.push(i, c); }
+    PARCHE = { P, izq }; }
+  for (let y = 0; y < YH; y++) B.set(PARCHE.P.subarray(y * W, y * W + W), y * 320 + X0);
+  for (let k = 0; k < PARCHE.izq.length; k += 2) B[PARCHE.izq[k]] = PARCHE.izq[k + 1];
+};
 // p3 · la cosecha en el escenario: la urna se desborda, el pan nada, suben cuatro
 const p3 = (t) => {
   const o = { encuadre: 'plaza', camara: 'escenario', luz: 'dia', antigua: true, urna: 1, desborda: t > P3 + 1.0 };
-  T.distrito(R, t, o);
+  const copiar = R.copiar; R.copiar = (b) => { R.copiar = copiar; copiar(b); parcheEscenario(); };
+  T.distrito(R, t, o); R.copiar = copiar;
   // dos agentes de la paz de guardia al fondo del escenario, que respiran y se miran
   R.actor(EL.agentePaz, 68, 140, t, { dir: 1, sorpresa: t > P3 + 0.6 && t < P3 + 1.6 });
   // el de la derecha se aparta para dejar sitio a Drusilla en la urna y vuelve a su sitio cuando ella se va

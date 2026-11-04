@@ -15,13 +15,16 @@
 //    derecha y se paran a mirarse bajo la colgadura; él le habla, ella se da la vuelta con la nariz alta y al final le
 //    sonríe de reojo; por detrás, el hermano de Haymitch persigue una gallina.
 // 2. («And twenty-four»–«So») la tele de cerca: en la pantalla, la línea de tiempo 10 · 50 · 74; la luz corre del 50
-//    al 74 en «twenty-four years» con un arco y un «24»; en «Katniss's Games» la pantalla pasa a la trenza de Katniss de
-//    espaldas y el broche que brilla; el pan, en la balda de las cintas, salta y señala en «saw first»; en «2012» sale
-//    la fecha sobre la imagen.
+//    al 74 en «twenty-four years» con un arco y un «24»; en «Katniss's Games» la pantalla se disuelve a un plano general
+//    del bosque al amanecer: Katniss pequeña entra con el arco y se para en el claro, y arriba a la derecha brilla el
+//    broche del sinsajo, grande; en «saw first» un sinsajo cruza y se posa en un tronco y ella se vuelve a mirarlo; el
+//    pan, en la balda de las cintas, salta y señala en «saw first»; en «2012» sale la fecha sobre la imagen.
 // 3. («So»–final) la sala del mapa del Capitolio: en las tres pantallas de la pared, Snow joven (10), Haymitch (50) y
 //    Katniss (74), unidas por una línea dorada; en «sits» baja una lupa por la pantalla del centro y en «the middle» se
 //    posa sobre Haymitch (y late el 12 en la mesa); en «after Snow» se enciende la de Snow, en «before Katniss» la de
-//    Katniss y en «explains both» salen dos flechas de luz del centro a los lados; un vigilante lo explica con el dedo.
+//    Katniss y en «explains both» salen dos flechas de luz del centro a los lados. Junto a las esquinas de la mesa, un
+//    vigilante lo explica con un puntero de luz cuyo punto rojo salta de pantalla en pantalla y el otro, con su tableta,
+//    asiente; a los lados, consolas con gráficas y radares que se mueven, focos del techo y el suelo pulido que brilla.
 import * as T from '/atomo/plato/escenas/jh-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jh-cincuenta');
@@ -88,6 +91,63 @@ const p1 = (t) => {
 };
 
 // ── plano 2: la tele de cerca; la línea de tiempo llega al 74 y la trenza y el broche de Katniss ────────────────────────────
+// el bosque de la tele (plano general): cielo de amanecer tramado con nubes de tres tonos y pájaros, montes lejanos,
+// dos filas de pinos, el claro con hierba, un tronco caído y helechos; Katniss chibi entra con el arco por la izquierda
+// y se para en el claro; en «saw first» un sinsajo cruza el cielo y se posa en el tronco, y ella se vuelve a mirarlo;
+// arriba a la derecha, el broche del sinsajo, grande, con su halo de rayos que gira y late
+const bosque = (R, t, [x0, y0, x1, y1]) => {
+  const { pset } = R, yh = y0 + 40, yg = y0 + 74;
+  const cielo = [hex('#5a6aa8'), hex('#7a84b8'), hex('#c89aa8'), hex('#f0b888'), hex('#f8d8a0')];
+  const monte = (x) => yh - 8 - Math.round(Math.sin(x * 0.045) * 5 + Math.sin(x * 0.11 + 1) * 3);
+  const pino = (x, per, alto, sem) => { const i = Math.floor((x + per * 4) / per), u = Math.abs(((x + per * 4) % per) - per / 2); return { tip: alto + Math.floor(h(i, sem, 8) * 7) + u * 2.6, u, i }; };
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    let c;
+    if (y < yh) { const v = (y - y0) / (yh - y0) * 4 + ((x & 3) * 4 + (y & 3)) / 16 - 0.5; c = cielo[Math.max(0, Math.min(4, Math.floor(v)))];
+      if (y >= monte(x)) c = (x + y) % 5 ? hex('#7a86a8') : hex('#8a94b4'); }
+    else c = hex('#6a7aa0');
+    // los pinos lejanos, azulados por la neblina
+    { const p = pino(x, 9, yh - 10, 31); if (y >= p.tip && y < yg) c = p.u < 1 && y > p.tip + 3 ? hex('#3a5a5e') : y > yh + 6 ? hex('#2a4a48') : hex('#46686a'); }
+    // los pinos de en medio, oscuros, con el borde de luz del amanecer a la izquierda
+    { const p = pino(x + 5, 15, yh + 2, 37); if (y >= p.tip - 10 && y < yg + 2 && h(p.i, 3, 9) < 0.8) { const lado = ((x + 5 + 60) % 15) < 7.5;
+      c = y < p.tip - 8 ? hex('#5a7a4a') : lado && p.u > (y - p.tip + 10) * 0.32 ? hex('#3e6a3a') : (y + (x >> 1)) % 4 === 0 ? hex('#163020') : hex('#1e3a26');
+      if (p.u < 1 && y > yg - 6) c = hex('#4a3020'); } }
+    // el claro: hierba en dos tonos con matas, más oscura abajo, y un sendero de tierra que cruza
+    if (y >= yg + 2) { const n = h(x >> 1, y, 12), sen = Math.abs(y - (yg + 10 + Math.round(Math.sin(x * 0.05) * 3))) < 2;
+      c = sen ? (n < 0.4 ? hex('#8a6a40') : hex('#a07a4a')) : y > y1 - 6 ? (n < 0.5 ? hex('#2e4a22') : hex('#3a5a2a')) : n < 0.15 ? hex('#7aa04a') : n < 0.6 ? hex('#5a8a3a') : hex('#4a7a34'); }
+    pset(x, y, c);
+  }
+  // el sol que asoma entre los montes y sus rayos
+  { const sx = x0 + 104, sy = yh - 6; R.disco(sx, sy, 6, hex('#fff0c0')); R.disco(sx, sy, 4, hex('#fffbe8'));
+    for (let i = 0; i < 8; i++) { const an = -Math.PI * (i + 0.5) / 8, l = 9 + Math.sin(t * 2 + i) * 2; R.linea(sx + Math.round(Math.cos(an) * 8), sy + Math.round(Math.sin(an) * 8), sx + Math.round(Math.cos(an) * l), sy + Math.round(Math.sin(an) * l), hex('#ffe8b0')); }
+    for (let x = x0; x <= x1; x++) for (let y = monte(x); y < yh; y++) if (y >= y0 && ((x + y) & 1) === 0 && Math.abs(x - sx) < 26) pset(x, y, hex('#a8a0b8')); }
+  // las nubes: tres tonos, tres velocidades
+  for (const [i, v, yy, w] of [[0, 2, y0 + 7, 16], [1, 3.5, y0 + 14, 12], [2, 5, y0 + 4, 10], [3, 2.5, y0 + 21, 14]]) {
+    const nx = x0 - 20 + ((i * 47 + t * v) % (x1 - x0 + 40));
+    for (let j = 0; j < 3; j++) R.disco(nx + j * w / 3, yy - (j === 1 ? 2 : 0), w / 4 + (j === 1 ? 1 : 0), hex('#d8b8c0'));
+    for (let x = nx - w / 4; x <= nx + w * 0.9; x++) pset(Math.round(x), yy + 2, hex('#a888a8')); pset(Math.round(nx + w / 3), yy - 4, hex('#fff0e8')); pset(Math.round(nx + w / 3) + 1, yy - 4, hex('#fff0e8')); }
+  // pájaros lejanos en uve, que aletean
+  for (let i = 0; i < 3; i++) { const bx = Math.round(x1 - ((t * (6 + i) + i * 30) % (x1 - x0))), by = y0 + 10 + i * 5 + Math.round(Math.sin(t * 2 + i) * 1.5), ar = Math.floor(t * 6 + i) % 2;
+    pset(bx, by, INK); pset(bx - 1, by - ar, INK); pset(bx + 1, by - ar, INK); pset(bx - 2, by - 1 + ar, INK); pset(bx + 2, by - 1 + ar, INK); }
+  // el tronco caído, a la izquierda del claro, con su corteza y el corte
+  { const tx = x0 + 12, ty = yg + 14; R.rect(tx, ty - 4, tx + 30, ty, INK); R.rect(tx + 1, ty - 3, tx + 29, ty - 1, hex('#6a4a2a')); R.linea(tx + 1, ty - 3, tx + 29, ty - 3, hex('#9a6a3a'));
+    for (let x = tx + 3; x < tx + 28; x += 4) pset(x, ty - 2, hex('#4a3018')); R.disco(tx + 30, ty - 2, 2.5, INK); R.disco(tx + 30, ty - 2, 1.5, hex('#c8a070')); pset(tx + 30, ty - 2, hex('#8a6038'));
+    for (let x = tx + 4; x < tx + 26; x += 7) { pset(x, ty - 5, hex('#5a9a3a')); pset(x + 1, ty - 5, hex('#3e7a2e')); } }
+  // Katniss, pequeña, entra por la izquierda con el arco y se para en el claro; luego se vuelve hacia el sinsajo
+  { const u = tramo(t, KATNISS + 0.2, SAW - 0.2), kx = Math.round(lerp(x0 - 4, x0 + 64, u));
+    R.actor(EL.katnissArco, kx, yg + 18, t, { dir: t > SAW + 0.6 ? -1 : 1, anda: u > 0 && u < 1, sonrisa: t > SAW + 0.6 }); }
+  // en «saw first» un sinsajo cruza el cielo, se posa en el tronco caído y canta (notas)
+  { const u = tramo(t, SAW - 0.2, SAW + 1.8); if (u > 0) { const sx = Math.round(lerp(x1 - 34, x0 + 22, u)), sy = Math.round(lerp(y0 + 40, yg + 9, u) - Math.sin(u * Math.PI) * 10 + (u < 1 ? Math.sin(t * 9) : 0));
+      T.PIEZAS_JH.sinsajo(R, sx, sy, { s: 1, dir: -1, t }); if (u >= 1 && Math.floor(t * 3) % 2) nota(sx + 4, sy - 8 - Math.round((t * 6) % 4), hex('#ffe070')); } }
+  // los helechos y las matas de delante (por debajo de los pies), que se mecen
+  for (const [fx, fl] of [[x0 + 4, 9], [x0 + 50, 6], [x0 + 92, 8], [x1 - 50, 10], [x1 - 14, 9]]) { const sw = Math.sin(t * 2 + fx) * 1.5;
+    for (let j = -3; j <= 3; j++) R.linea(fx, y1, Math.round(fx + j * 3 + sw), y1 - fl + Math.abs(j), Math.abs(j) % 2 ? hex('#2e5a22') : hex('#6aa04a')); }
+  // el broche del sinsajo, grande, arriba a la derecha, con el halo de rayos que gira y el brillo
+  { const bx = x1 - 22, by = y0 + 34, br = Math.sin(t * 4) > 0.3;
+    R.disco(bx, by - 15, 20, hex('#2a3a2a')); R.anillo(bx, by - 15, 20, INK, 1);
+    for (let i = 0; i < 12; i++) { const an = i / 12 * Math.PI * 2 + t * 0.8, r0 = 14, r1 = 18 + Math.sin(t * 6 + i) * 1.5; R.linea(Math.round(bx + Math.cos(an) * r0), Math.round(by - 15 + Math.sin(an) * r0), Math.round(bx + Math.cos(an) * r1), Math.round(by - 15 + Math.sin(an) * r1), i % 2 ? hex('#ffe070') : hex('#c8901a')); }
+    T.PIEZAS_JH.broche(R, bx, by, { s: 2, brillo: br });
+    if (Math.floor(t * 3) % 2) destello(bx - 8, by - 26, 3); }
+};
 const pantalla3 = (R, t, [x0, y0, x1, y1]) => {
   const XT = { '10': x0 + 16, '50': x0 + 54, '74': x0 + 112, '75': x0 + 126 };
   const k = tramo(t, KATNISS - 0.15, KATNISS + 0.25);
@@ -105,25 +165,15 @@ const pantalla3 = (R, t, [x0, y0, x1, y1]) => {
     const a = tramo(t, B(0.016), B(0.016) + 0.4); if (a > 0) { for (let i = 0; i <= 40 * a; i++) { const u = i / 40, x = Math.round(lerp(XT['50'], XT['74'], u)), y = Math.round(yl - 6 - Math.sin(u * Math.PI) * 14); R.pset(x, y, hex('#ffd040')); }
       if (a >= 1) T.a_cifras(R, '24', (XT['50'] + XT['74']) / 2, yl - 24); }
   }
-  // la trenza de Katniss de espaldas y el broche que brilla
+  // «Katniss's Games»: la pantalla se disuelve (trama de Bayer) a un plano general del bosque, con Katniss pequeña y el
+  // broche del sinsajo como icono grande en la esquina; lo de la línea de tiempo se guarda y se devuelve donde no ha
+  // llegado aún la trama
   if (k > 0) {
-    const cx = x0 + 56, top = y0 + 14;
-    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const bay = ((x & 3) * 4 + (y & 3)) / 16; if (bay >= k) continue;
-      const v = (y - y0) / (y1 - y0); R.pset(x, y, v < 0.5 ? (h(x >> 2, y >> 2, 4) < 0.5 ? hex('#2e5a3a') : hex('#3a6a44')) : (h(x >> 2, y >> 2, 5) < 0.5 ? hex('#4a7a3a') : hex('#5a8a44'))); }
+    const W = x1 - x0 + 1, guarda = k < 1 ? [] : null;
+    if (guarda) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) guarda.push(R.pget(x, y));
+    bosque(R, t, [x0, y0, x1, y1]);
+    if (guarda) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (((x & 3) * 4 + (y & 3)) / 16 >= k) R.pset(x, y, guarda[(y - y0) * W + x - x0]);
     if (k >= 1) {
-      // los pinos del fondo
-      for (const px of [x0 + 10, x0 + 30, x1 - 40, x1 - 18]) for (let j = 0; j < 30; j++) { const w = Math.round(j * 0.35); R.rect(px - w, y0 + 14 + j, px + w, y0 + 14 + j, hex('#1e3a26')); }
-      // los hombros de la chaqueta y la cabeza de espaldas con la trenza
-      R.poligono([[cx - 34, y1], [cx - 28, y1 - 20], [cx - 12, y1 - 26], [cx + 12, y1 - 26], [cx + 28, y1 - 20], [cx + 34, y1]], INK);
-      R.poligono([[cx - 32, y1], [cx - 27, y1 - 19], [cx - 11, y1 - 25], [cx + 11, y1 - 25], [cx + 27, y1 - 19], [cx + 32, y1]], hex('#7a4a2a'));
-      R.linea(cx - 26, y1 - 18, cx - 30, y1, hex('#9a6a3a')); R.linea(cx + 16, y1 - 22, cx + 24, y1, hex('#5a341c'));
-      R.disco(cx, top + 20, 19, INK); R.disco(cx, top + 20, 18, hex('#2a2028')); for (let i = -14; i <= 14; i += 3) R.linea(cx + i, top + 4, cx + i * 0.6, top + 34, hex('#3a3040'));
-      for (let j = 0; j < 34; j++) { const bx = Math.round(cx + 12 + j * 0.2 + Math.sin(j * 0.8 + t * 1.5) * 1), by = top + 30 + j; R.rect(bx - 4, by, bx + 4, by, INK); R.rect(bx - 3, by, bx + 3, by, (j >> 2) % 2 ? hex('#2a2028') : hex('#4a3e4c')); }
-      // el broche, en la chaqueta, grande y con brillo
-      const bx = x1 - 34, by = y1 - 14, br = Math.sin(t * 4) > 0.3;
-      T.PIEZAS_JH.broche(R, bx, by, { s: 2, brillo: br });
-      for (let i = 0; i < 8; i++) { const an = i / 8 * Math.PI * 2 + t * 0.8, r0 = 18, r1 = 22 + Math.sin(t * 6 + i) * 2; R.linea(Math.round(bx + Math.cos(an) * r0), Math.round(by - 15 + Math.sin(an) * r0), Math.round(bx + Math.cos(an) * r1), Math.round(by - 15 + Math.sin(an) * r1), hex('#ffe070')); }
-      if (Math.floor(t * 3) % 2) destello(bx - 6, by - 24, 3);
       // «back in 2012»: la fecha sobre la imagen
       const f = tramo(t, Y2012 - 0.1, Y2012 + 0.2); if (f > 0) { R.rect(x0 + 8, y0 + 6, x0 + 66, y0 + 30, hex('#1c1222')); cifrasG('2012', x0 + 37, y0 + 26, 2); }
       // el grano de la película
@@ -161,8 +211,55 @@ const retrato = (i, t) => {
   for (let y = b; y <= d; y += 2) for (let x = a; x <= c; x++) if (((x + Math.floor(t * 20)) % 37) === 0) mezcla(x, y, [255, 255, 255], 0.2);
   R.recorte(null);
 };
+// la sala del mapa, encima del decorado: los paneles de la pared a los lados de la mesa pasan a ser consolas
+// iluminadas (pantallita con una gráfica que corre, un radar que barre, filas de pilotos y un rótulo de barras), dos
+// focos del techo con su cono de luz, y el suelo pulido más vivo: baldosas que brillan, el reflejo de la mesa y de sus
+// pies, y destellos que corren. Todo con pset y fuera del tablero (la mesa va por delante de la pared).
+const fueraMesa = (x, y) => y < 59 || y > 143 || x < 82 - (y - 59) * 0.545 - 1 || x > 238 + (y - 59) * 0.545 + 1;
+const ps = (x, y, c) => { if (fueraMesa(x, y)) R.pset(x, y, c); };
+const caja = (a, b, c, d, col) => { for (let y = b; y <= d; y++) for (let x = a; x <= c; x++) ps(x, y, col); };
+const consola = (a, t, k) => {
+  // el marco dorado y la pantalla de la gráfica (x a..a+30, y 61..81)
+  caja(a - 1, 60, a + 31, 82, hex('#a87a18')); caja(a, 61, a + 30, 81, INK); caja(a + 1, 62, a + 29, 80, hex('#0c1a2a'));
+  for (let x = a + 1; x <= a + 29; x += 5) for (let y = 62; y <= 80; y++) if (y % 2) ps(x, y, hex('#123044'));
+  for (let y = 66; y <= 80; y += 5) for (let x = a + 1; x <= a + 29; x++) if (x % 2) ps(x, y, hex('#123044'));
+  for (let x = a + 2; x <= a + 28; x++) { const y = Math.round(72 + Math.sin((x + t * 14) * 0.35 + k) * 4 + Math.sin((x + t * 9) * 0.13) * 3); ps(x, y, hex('#6af0c0')); ps(x, y + 1, hex('#2a8a6a')); }
+  { const cx = a + 2 + Math.round((t * 12 + k * 9) % 27); for (let y = 63; y <= 79; y++) if (y % 2) ps(cx, y, hex('#f0c040')); }
+  // las barras pequeñas que suben y bajan, y el radar que barre
+  for (let i = 0; i < 5; i++) { const al = Math.round(3 + 6 * (0.5 + 0.5 * Math.sin(t * 2.2 + i * 1.3 + k))); caja(a + 1 + i * 4, 92 - al, a + 3 + i * 4, 92, [hex('#e84a8a'), hex('#f0c040'), hex('#4ac8e8'), hex('#9a6ae8'), hex('#4af08a')][(i + k) % 5]); }
+  caja(a, 93, a + 21, 93, hex('#a87a18'));
+  { const rx = a + 27, ry = 88, an = t * 2.4 + k; for (let y = -5; y <= 5; y++) for (let x = -5; x <= 5; x++) { const d = x * x + y * y; if (d <= 25) ps(rx + x, ry + y, d > 18 ? hex('#a87a18') : (Math.abs(x) + Math.abs(y)) % 3 ? hex('#0a2418') : hex('#14402a')); }
+    for (let r = 1; r <= 4; r++) ps(rx + Math.round(Math.cos(an) * r), ry + Math.round(Math.sin(an) * r), hex('#6af0a0'));
+    if (Math.sin(t * 3 + k) > 0) ps(rx + 2, ry - 2, hex('#ff6a6a')); }
+  // la fila de pilotos y el rótulo de barras (sin letras)
+  for (let i = 0; i < 7; i++) ps(a + 2 + i * 4, 96, Math.sin(t * (1.5 + i * 0.6) + i + k * 2) > 0 ? [hex('#ff5a5a'), hex('#ffd040'), hex('#4af08a'), hex('#4ac8e8')][i % 4] : hex('#2a3460'));
+  for (let x = a + 2; x <= a + 26; x++) if (x % 5 !== 0) ps(x, 99, hex('#5a6aa0'));
+};
+const salaMapa = (t) => {
+  consola(26, t, 0); consola(263, t, 2);
+  // los focos del techo (fuera de la barra del año y de la zona de Atom) con su cono de luz suave hacia las columnas
+  for (const fx of [8, 204]) { R.rect(fx - 3, 10, fx + 3, 13, INK); R.rect(fx - 2, 10, fx + 2, 12, hex('#3a4a80')); R.rect(fx - 2, 13, fx + 2, 13, hex('#fff4c0'));
+    const kL = 0.16 + 0.03 * Math.sin(t * 5 + fx);
+    for (let y = 14; y < 56; y++) { const w = Math.round((y - 14) * 0.28) + 2; for (let x = fx - w; x <= fx + w; x++) if (x >= 0 && x < 320 && ((x + y) & 1)) mezcla(x, y, [255, 236, 190], kL * (1 - (y - 14) / 50)); } }
+  // el suelo pulido: baldosas que brillan en damero, el reflejo cian de la mesa y de sus pies, y destellos que corren
+  const filas = [150, 153, 157, 162, 168, 175, 183];
+  for (let y = 150; y < 180; y++) { let r = 0; while (filas[r + 1] <= y) r++; const d = (y - 112) / 38;
+    for (let x = 0; x < 320; x++) { const u = (x - 160) / d, col = Math.floor((u + 400) / 26), bx = ((u + 400) % 26 + 26) % 26;
+      if (y === filas[r] || bx < 1.4) continue;
+      if ((col + r) % 2 === 0) mezcla(x, y, [80, 104, 180], 0.32 + (bx < 4 ? 0.14 : 0)); else if (bx < 3) mezcla(x, y, [60, 80, 150], 0.2);
+      if (y === filas[r] + 1) mezcla(x, y, [140, 170, 230], 0.35);
+      if ((x > 84 && x < 96) || (x > 224 && x < 236)) { if (y > 168 && (x + y) % 2) mezcla(x, y, [154, 164, 180], 0.4 - (y - 168) * 0.03); }
+      else if (x > 44 + (y - 150) * 0.6 && x < 276 - (y - 150) * 0.6 && y > 168 && (x + y) % 3 === 0) mezcla(x, y, [90, 176, 208], 0.3); } }
+  // las rejillas de ventilación del zócalo, a los lados, con su piloto, y la tira de luces que corre por la moldura
+  for (const a of [3, 288]) { R.rect(a, 130, a + 28, 145, INK); R.rect(a + 1, 131, a + 27, 144, hex('#1a2244'));
+    for (let y = 132; y <= 143; y++) for (let x = a + 2; x <= a + 26; x++) R.pset(x, y, y % 2 ? (Math.sin(t * 3 + x * 0.3) > 0.6 ? hex('#3a7aa0') : hex('#16305a')) : x === a + 2 ? hex('#5a6aa0') : hex('#3a4a80'));
+    R.pset(a + 25, 132, Math.floor(t * 2 + a) % 2 ? hex('#4af08a') : hex('#1a4a2a')); }
+  for (let x = 0; x < 320; x += 4) if ((x < 84 || x > 96) && (x < 224 || x > 236)) R.pset(x, 148, ((x >> 2) + Math.floor(t * 10)) % 8 === 0 ? hex('#ffffff') : ((x >> 2) + Math.floor(t * 10)) % 8 === 1 ? hex('#fff4a0') : hex('#c89a2a'));
+  for (let i = 0; i < 6; i++) { const gx = Math.round(((t * (18 + i * 5) + i * 70) % 340) - 10), gy = 152 + Math.floor(h(i, 9, 61) * 26); if (Math.sin(t * 4 + i) > 0.2) destello(gx, gy, 1 + (i & 1), hex('#b8c8f8')); }
+};
 const p4 = (t) => {
   const g = T.capitolio(R, t, { encuadre: 'mapa', trenes: 0.6 });
+  salaMapa(t);
   for (let i = 0; i < 3; i++) retrato(i, t);
   // los marcos que se encienden: el del centro con «the middle», el de Snow con «after Snow», el de Katniss con «before»
   const lit = [tramo(t, SNOW - 0.1, SNOW + 0.2), tramo(t, MIDDLE - 0.1, MIDDLE + 0.3), tramo(t, BEFORE - 0.1, BEFORE + 0.2)];
@@ -185,9 +282,22 @@ const p4 = (t) => {
       R.recorte(null); } }
   // en «the middle» late también el Distrito 12 en la mesa del mapa
   if (g && g.distritos && t > MIDDLE) { const [dx, dy] = g.distritos[11], r = 3 + ((t - MIDDLE) * 8) % 8; R.anillo(dx, dy, r, hex('#ffd040'), 1); }
-  // dos vigilantes a los lados de la mesa: el de la izquierda señala y explica; el de la derecha asiente
-  R.actor(EL.vigilante, 22, 170, t, { dir: 1, dedo: t > MIDDLE - 0.2 && t < EXPLAINS, habla: (t < SITS && Math.sin(t * 9) > 0) || (t > EXPLAINS && Math.sin(t * 9) > 0) });
-  R.actor(EL.vigilante, 298, 170, t, { dir: -1, pal: { C: '#3a5a9a', c: '#2a4070' }, sorpresa: (t > SNOW && t < SNOW + 0.5) || (t > BEFORE && t < BEFORE + 0.5), sonrisa: t > EXPLAINS, salto: t > MIDDLE && t < MIDDLE + 0.2 ? 2 : 0 });
+  // dos vigilantes junto a las esquinas de la mesa. El de la izquierda habla y, en «the middle», apunta con un puntero
+  // de luz a Haymitch en la pantalla del centro; el punto rojo salta a Snow en «after Snow», a Katniss en «before» y
+  // vuelve al centro en «explains both». El de la derecha, con su tableta, asiente con la cabeza en cada una.
+  const ap = t > MIDDLE - 0.3 && t < EXPLAINS + 0.9;
+  const v1 = R.actor(EL.vigilante, 50, 170, t, { dir: 1, sostiene: ap ? true : undefined, dedo: !ap && t < MIDDLE, habla: (t < MIDDLE && Math.sin(t * 9) > 0) || (t > EXPLAINS && Math.sin(t * 9) > 0) });
+  if (ap && v1.mano) { const [mx, my] = v1.mano, objs = [[160, 34], [64, 34], [243, 34], [160, 55]];
+    const tr = [MIDDLE, SNOW, BEFORE, EXPLAINS]; let i = 0; while (i < 3 && t > tr[i + 1]) i++;
+    const v = i < 3 ? tramo(t, tr[i + 1] - 0.25, tr[i + 1]) : 1, [ox, oy] = i < 3 ? [lerp(objs[i][0], objs[i + 1][0], v), lerp(objs[i][1], objs[i + 1][1], v)] : objs[3];
+    const ent = tramo(t, MIDDLE - 0.3, MIDDLE), tx = lerp(mx, ox, ent), ty = lerp(my, oy, ent);
+    R.rect(mx - 1, my - 2, mx + 1, my, INK); R.pset(mx, my - 1, hex('#c8ccd8'));
+    const n = Math.round(Math.hypot(tx - mx, ty - my)); for (let j = 3; j < n; j++) { const bx = Math.round(lerp(mx, tx, j / n)), by = Math.round(lerp(my - 2, ty, j / n)); R.pset(bx + 1, by, hex('#b0202a')); R.pset(bx, by, (j + Math.floor(t * 30)) % 4 ? hex('#ff5a6a') : hex('#ffd0d0')); }
+    if (ent >= 1) { R.disco(Math.round(tx), Math.round(ty), 2, hex('#ff8a8a')); R.pset(Math.round(tx), Math.round(ty), hex('#ffffff')); if (Math.floor(t * 6) % 2) R.anillo(Math.round(tx), Math.round(ty), 4, hex('#ff4a5a'), 1); } }
+  const nod = [MIDDLE, SNOW, BEFORE, EXPLAINS].some((m) => t > m + 0.1 && t < m + 0.7) && Math.floor(t * 8) % 2 ? 1 : 0;
+  const v2 = R.actor(EL.vigilante, 258, 170 + nod, t, { dir: -1, pal: { C: '#3a5a9a', c: '#2a4070' }, sostiene: true, sorpresa: (t > SNOW && t < SNOW + 0.4) || (t > BEFORE && t < BEFORE + 0.4), sonrisa: t > EXPLAINS });
+  if (v2.mano) { const [mx, my] = v2.mano; R.rect(mx - 4, my - 6, mx + 2, my + 1, INK); R.rect(mx - 3, my - 5, mx + 1, my, hex('#1a3a5a'));
+    for (let x = mx - 3; x <= mx + 1; x++) R.pset(x, my - 2 + Math.round(Math.sin(x + t * 6)), hex('#6af0c0')); R.pset(mx - 3, my - 5, hex('#a8d8ff')); }
   T.capitolioDelante(R, t, { encuadre: 'mapa' });
 };
 

@@ -12,7 +12,7 @@
 // JH-DESPUES (frase 12), Juegos 75. Dos planos:
 // 1. el museo del Capitolio: el cuadro de la arena del reloj de cerca; una capitolina lo mira; en «Catching Fire» suben
 //    chispas doradas por el cuadro; en «75th» se enciende la placa con el «75» y ella la señala; un capitolino pasa por
-//    delante (corta en «Mockingjay»);
+//    delante por el damero, con los pies a la vista delante del cordón (corta en «Mockingjay»);
 // 2. la sala del museo con los tres cuadros: en «Mockingjay» el pájaro en llamas brilla y los visitantes se asombran; en
 //    «rebellion» un sinsajo dorado sale volando del cuadro y se posa en el marco del palacio; en «brings down» se apagan
 //    las ventanas del palacio una a una; Snow, delante, se enfada y se le cae la rosa blanca en «Snow».
@@ -53,7 +53,7 @@ const p1 = (t) => {
   T.capitolioDelante(R, t, { encuadre: 'museo', camara: 'cuadro', cual: 0 });
   // un capitolino que pasa por delante, se para a mirar y sigue
   const u = tramo(t, 0.2, N75 - 0.2), w = tramo(t, N75 + 0.9, P2 + 1), x = Math.round(lerp(lerp(330, 200, u), 120, w));
-  R.actor(EL.capitolino1, x, 182, t, { dir: -1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), sorpresa: t > N75 && t < N75 + 0.6 });
+  R.actor(EL.capitolino1, x, 176, t, { dir: -1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), sorpresa: t > N75 && t < N75 + 0.6 });
 };
 
 const p2 = (t) => {

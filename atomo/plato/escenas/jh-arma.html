@@ -12,7 +12,9 @@
 // JH-ARMA (frases 24–26). Cinco planos:
 // 1. (capitolio 'despacho' general, de noche: tinte azul, la luna y las luces de la ciudad en el ventanal) Snow detrás
 //    de la mesa mira una pantalla de pie: la piedra rebota en el filo («own weapon») y Haymitch gana con el confeti; en
-//    «never forgave» Snow aprieta la rosa blanca y se deshoja; corta en «and from then on».  Juegos 50.
+//    «never forgave» Snow, que la ha levantado para mirarla, aprieta la rosa blanca (grande, con filo claro y halo de
+//    luna): tiembla el puño, la flor se arruga y suelta pétalos que caen dibujando su estela hasta la mesa; corta en
+//    «and from then on».  Juegos 50.
 // 2. (distrito 'quemador' general) Haymitch cruza el mercado; un ojo del Capitolio (una cámara volante con su piloto
 //    rojo y su haz) le sigue; en «eyes off him» él se para y la mira; corta en «He'd».  Juegos 51.
 // 3. (capitolio 'plato' sillones) en la pantalla grande, Snow con la sonrisa forzada y una gota de sudor; Caesar y
@@ -20,7 +22,9 @@
 // 4. (interior 'tren' general, de noche) Haymitch adulto se sirve de la petaca en «drinks»; en «trusts no one» mira de
 //    reojo al camarero que pasa por el ventanuco y esconde la petaca; corta en «when».  Juegos 74.
 // 5. (fondo local, de cerca: su mesa del tren de noche) por la puerta corredera entran Katniss y Peeta; en «knows
-//    exactly» la mano de Haymitch deja la copa sin beber en el mantel y la aparta.
+//    exactly» la mano de Haymitch deja la copa sin beber en el mantel y la aparta. Detrás de la puerta, el pasillo del
+//    tren: plafones, caoba, ventanilla con la noche que corre al revés, aplique, pasamanos y moqueta de rombos; la luz
+//    del pasillo cae en el mantel por debajo de los actores.
 import * as T from '/atomo/plato/escenas/jh-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jh-arma');
@@ -56,15 +60,32 @@ const p1 = (t) => {
   R.rect(x0, y0, x1, y0 + 1, hex('#c8e8ff'));
   R.halo(44, 84, 46, [hex('#2a3a6a'), hex('#3a5a8a')], 0.5);
   // Snow detrás de la mesa, vuelto hacia la pantalla, con la rosa en la mano; en «never forgave» la aprieta
-  const r = R.actor(EL.snow, 160, 133, t, { dir: -1, sostiene: [148, 118], enfado: t > a(0.6), sonrisa: t < gana - 0.4 && Math.sin(t * 2) > 0 });
-  const [mx, my] = r.mano, ap = tramo(t, aprieta, aprieta + 0.35);
+  const sube = tramo(t, aprieta - 0.9, aprieta - 0.2);   // antes de apretarla, la levanta y la mira
+  const r = R.actor(EL.snow, 160, 133, t, { dir: -1, sostiene: [147, 117 - Math.round(sube * 5)], enfado: t > a(0.6), sonrisa: t < gana - 0.4 && Math.sin(t * 2) > 0 });
+  const ap = tramo(t, aprieta, aprieta + 0.45), tiem = ap > 0 && ap < 1 ? Math.round(Math.sin(t * 60)) : 0;
+  const mx = r.mano[0] + tiem, my = r.mano[1];
   T.capitolioDelante(R, t, { encuadre: 'despacho', luz: 'noche' });
   R.recorte(null);
-  if (ap < 1) T.PIEZAS_JH.rosaBlanca(R, mx, my + 4 + Math.round(ap * 4), { s: 2 }); else { R.rect(mx, my - 8, mx + 1, my + 6, hex('#3a7a3a')); R.rect(mx - 2, my - 9, mx + 2, my - 8, hex('#c8c4b4')); }
-  R.disco(mx, my, 2.3, K); R.disco(mx, my, 1.5, hex('#f0d0b8'));
-  // los pétalos que caen sobre la mesa
-  if (t > aprieta) for (let k = 0; k < 12; k++) { const u = tramo(t, aprieta + k * 0.05, aprieta + 1.3 + k * 0.1), px = Math.round(mx + (hh(k, 1) - 0.5) * 34 * u + Math.sin(u * 9 + k) * 3), py = Math.round(my - 2 + u * (138 - my) + (hh(k, 2) - 0.5) * 4);
-    R.rect(px, py, px + 2, py + 1, hex('#f8f6ee')); R.rect(px, py + 2, px + 1, py + 2, hex('#c8c4b8')); }
+  // la rosa blanca, grande y con filo claro sobre la noche: tallo con espina y hoja, y la flor (abierta; en «never
+  // forgave» el puño la aprieta, tiembla, se arruga y se le inclina la cabeza)
+  const rx = mx - 2 - Math.round(ap), ry = my - 10 + Math.round(ap * 3), rr = 4.5 - ap * 1.8;
+  for (const [dx, c] of [[-1, K], [2, K], [0, hex('#4a9a3a')], [1, hex('#2a6a2a')]]) R.linea(mx + dx, my + 1, rx + dx, ry + 3, c);
+  R.pset(Math.round((mx + rx) / 2) + 2, Math.round((my + ry) / 2) + 1, K);   // la espina
+  R.poligono([[mx + 2, my - 4], [mx + 6, my - 7], [mx + 7, my - 5], [mx + 3, my - 3]], K); R.poligono([[mx + 3, my - 4], [mx + 6, my - 6], [mx + 6, my - 5], [mx + 3, my - 4]], hex('#5ab84a'));
+  for (let j = -7; j <= 7; j++) for (let i = -7; i <= 7; i++) { const d = Math.hypot(i, j); if (d > rr + 1.6 && d < rr + 2.8 && ((i + j) & 1)) R.pset(rx + i, ry + j, hex('#6a7ab0')); }   // el halo de luna
+  for (let j = -7; j <= 7; j++) for (let i = -7; i <= 7; i++) { const d = Math.hypot(i, j); if (d > rr + 1) continue;
+    R.pset(rx + i, ry + j, d > rr ? K : d > rr - 1 && j < 1 ? W : j > 1 ? hex('#d0ccc0') : ap > 0.5 && hh(i, j, 7) < 0.35 ? hex('#b8b4a8') : hex('#f4f2ea')); }   // al arrugarse, pliegues grises
+  if (ap < 0.7) { R.pset(rx, ry, hex('#b8b4a8')); R.pset(rx + 1, ry - 1, hex('#c8c4b8')); R.pset(rx - 1, ry + 1, hex('#c8c4b8')); R.pset(rx - 2, ry - 1, hex('#c8c4b8')); R.pset(rx + 2, ry + 1, hex('#c8c4b8')); R.pset(rx - 2, ry - 2, W); }
+  R.disco(mx, my, 2.3, K); R.disco(mx, my, 1.5, hex('#f0d0b8')); R.pset(mx - 1, my - 1, hex('#f8e8d8'));
+  // los pétalos que se sueltan y caen hasta la mesa, dibujando su trayectoria (tres huellas detrás de cada uno)
+  if (t > aprieta + 0.25) for (let k = 0; k < 9; k++) {
+    const t0 = aprieta + 0.25 + k * 0.12, dur = 1.1 + hh(k, 2) * 0.6, lx = -4 - hh(k, 1) * 30, ly = 130 + Math.floor(hh(k, 3) * 5);
+    const pos = (u) => [Math.round(rx + lx * u + Math.sin(u * 7 + k) * 3 * (1 - u)), Math.round(ry + (ly - ry) * u * u * 0.4 + (ly - ry) * u * 0.6)];
+    const u = tramo(t, t0, t0 + dur); if (u <= 0) continue;
+    if (u < 1) for (let s = 1; s <= 3; s++) { const [qx, qy] = pos(Math.max(0, u - s * 0.07)); R.pset(qx + 1, qy, s === 1 ? hex('#a8b0d0') : hex('#5a6488')); }
+    const [px, py] = pos(u), vu = u < 1 && Math.sin(t * 12 + k) > 0;
+    R.rect(px, py, px + 2, py + (vu ? 1 : 0), hex('#f8f6ee')); R.pset(px, py, W); R.pset(px + 2, py + (vu ? 1 : 0), hex('#c8c4b8')); R.rect(px, py + (vu ? 2 : 1), px + 2, py + (vu ? 2 : 1), hex('#3a3048'));   // pétalo con su sombra
+  }
   // la luz de la pantalla parpadea sobre la mesa
   if (Math.sin(t * 11) > 0.6) for (let x = 92; x < 150; x += 2) R.pset(x + ((x >> 1) & 1), 130, hex('#6a8ac8'));
 };
@@ -216,8 +237,45 @@ const p5 = (t) => {
   // la puerta corredera se abre y entra la luz del pasillo; Katniss y Peeta en el umbral
   const ab = tramo(t, entran, entran + 0.6), dw = Math.round(ab * 62);
   R.recorte([183, 23, 253, 121]);
-  for (let y = 23; y < 122; y++) for (let x = 183; x < 254; x++) R.pset(x, y, y > 100 ? (((x + y) & 1) ? hex('#8a2a2a') : hex('#7a2222')) : (hh(x, y, 6) < 0.15 ? hex('#e8c890') : hex('#f0d8a8')));
-  R.rect(200, 30, 236, 34, hex('#c8a040'));
+  // el pasillo del tren detrás de la puerta: techo crema con dos plafones, pared de caoba con vetas, una ventanilla (la
+  // noche corre al revés: es el otro costado del tren), aplique de tulipa, pasamanos de latón, zócalo con cuarterones y
+  // la moqueta roja con rombos dorados que se achican hacia el fondo; los plafones titilan con el traqueteo
+  const fl5 = Math.sin(t * 13) > 0.85 ? 1 : 0;
+  for (let y = 23; y < 122; y++) for (let x = 183; x < 254; x++) {
+    let c;
+    if (y < 30) c = hh(x, y, 9) < (y - 23) / 9 ? hex('#d8ccb0') : hex('#ece2c8');
+    else if (y < 32) c = y === 30 ? hex('#f0c860') : hex('#8a6418');
+    else if (y < 97) {
+      const vy = x + Math.sin(y * 0.11 + x * 0.03) * 3; c = Math.abs((vy % 7) - 3.5) < 0.6 ? hex('#4a2216') : hh(x, y, 5) < 0.06 ? hex('#7a3e28') : hex('#5e2c1c');
+      const gl = Math.hypot(x - 189, (y - 52) * 1.3); if (gl < 14 && ((x + y) & 1) && gl > 4) c = gl < 9 ? hex('#9a5a34') : hex('#7a4026');   // el halo del aplique
+      if (y >= 80) { const px = (x - 183) % 23; c = px === 0 || y === 80 || y === 95 ? hex('#3a180e') : px === 1 || y === 81 ? hex('#8a4a30') : ((x + y) & 1) ? hex('#5a2a1a') : hex('#4e2416'); }
+    } else if (y < 99) c = y === 97 ? hex('#c8a040') : hex('#2a120a');
+    else {
+      const s = (y - 90) / 31, X = (x - 218) / s, Y = (y - 99) / s;
+      const rom = Math.abs(((X % 12) + 12) % 12 - 6) + Math.abs(((Y * 1.6) % 8 + 8) % 8 - 4);
+      c = y === 101 || y === 118 ? hex('#c8a040') : rom < 1.6 ? hex('#d8b050') : rom < 2.4 ? hex('#5a1a1a') : ((x + y) & 1) ? hex('#8a2a2a') : hex('#7a2222');
+      if (y < 103 && y !== 101) c = hex('#4a1414');   // la sombra del zócalo
+      if (Math.hypot((x - 196) * 0.5, y - 108) < 7 && ((x + y) & 1) && c !== hex('#d8b050')) c = hex('#a83a32');   // la luz del aplique en la moqueta
+    }
+    R.pset(x, y, c);
+  }
+  // la ventanilla del pasillo: marco de latón; dentro, la noche (estrellas, montes, luces de casas y un poste que pasa)
+  R.rect(201, 37, 241, 73, K); R.rect(202, 38, 240, 72, hex('#c8a040')); R.rect(202, 38, 240, 38, hex('#f0c860'));
+  for (let y = 40; y < 71; y++) for (let x = 204; x < 239; x++) {
+    const X = x - t * 16, h1 = 56 + Math.sin(X * 0.09) * 4 + Math.sin(X * 0.21) * 2, h2 = 64 + Math.sin((x - t * 40) * 0.13) * 2;
+    let c = hh(x, y, 11) < (y - 40) / 50 ? hex('#1a2a5a') : hex('#0e1838');
+    if (hh(x, y, 12) < 0.02 && y < 52 && Math.sin(t * 3 + x) > -0.5) c = hex('#d8e0ff');
+    if (y > h1) c = hex('#141c34'); if (y > h1 && hh(Math.floor(X / 3), 1, 13) < 0.08 && Math.abs(y - h1 - 3) < 1) c = hex('#f8c860');
+    if (y > h2) c = hex('#0a0e18');
+    R.pset(x, y, c);
+  }
+  { const pp = 204 + Math.round((t * 70) % 60) - 10; for (let y = 40; y < 71; y++) for (let x = pp; x < pp + 2; x++) if (x >= 204 && x < 239) R.pset(x, y, hex('#2a1e18')); }
+  R.rect(221, 39, 222, 71, hex('#c8a040')); R.rect(204, 40, 205, 70, hex('#3a4a7a'));   // el parteluz y un reflejo
+  // el aplique de tulipa y los dos plafones del techo
+  R.rect(186, 46, 192, 47, hex('#c8a040')); R.poligono([[185, 48], [193, 48], [191, 55], [187, 55]], fl5 ? hex('#fff0c8') : hex('#f8e0b0')); R.linea(185, 48, 187, 55, K); R.linea(193, 48, 191, 55, K); R.rect(188, 56, 190, 56, hex('#8a6418'));
+  for (const lx of [206, 236]) { R.rect(lx - 4, 23, lx + 4, 24, hex('#8a6418')); R.rect(lx - 3, 25, lx + 3, 26, fl5 ? hex('#fff8e0') : hex('#f8e8c0')); R.pset(lx - 3, 26, hex('#c8a040')); R.pset(lx + 3, 26, hex('#c8a040')); for (let k = -6; k <= 6; k += 2) R.pset(lx + k, 28, hex('#f0e0b8')); }
+  // el pasamanos de latón con sus soportes
+  R.rect(183, 76, 253, 77, hex('#c8a040')); R.rect(183, 76, 253, 76, hex('#f0c860')); R.rect(183, 78, 253, 78, hex('#3a180e')); for (const sx of [195, 230, 250]) R.rect(sx, 78, sx + 1, 80, hex('#8a6418'));
   const kp = tramo(t, entran + 0.3, entran + 1.1);
   if (kp > 0) { R.actor(EL.katniss, Math.round(lerp(250, 196, kp)), 128, t, { dir: -1, anda: kp < 1, habla: kp >= 1 && t < sabe && Math.sin(t * 7) > 0, enfado: t > sabe + 0.4 });
     R.actor(EL.peeta, Math.round(lerp(270, 220, kp)), 128, t, { dir: -1, anda: kp < 1, sonrisa: t < sabe, dedo: kp >= 1 && t > entran + 1.4 && t < sabe, triste: t > sabe + 0.4 }); }
@@ -226,7 +284,7 @@ const p5 = (t) => {
   R.rect(dx0 + 6, 70, dx0 + 8, 78, hex('#c8a040'));
   R.recorte(null);
   // la luz cálida del pasillo que entra en la mesa
-  if (ab > 0) for (let y = 118; y < 150; y++) for (let x = 183; x < 183 + dw; x++) if (((x + y) & 3) === 0) R.pset(x, y, hex('#f8e0b0'));
+  if (ab > 0) for (let y = 122; y < 150; y++) for (let x = 183; x < 183 + dw; x++) if (((x + y) & 3) === 0) R.pset(x, y, hex('#f8e0b0'));
   // la vela que titila, con su halo
   const fl = Math.sin(t * 17) > 0.3 ? 1 : 0;
   R.halo(166, 132, 22 + fl * 2, [hex('#5a3a28'), hex('#8a5a30')], 0.6);

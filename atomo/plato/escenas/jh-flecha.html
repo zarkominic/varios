@@ -12,12 +12,17 @@
 // JH-FLECHA (frases 40–41), Juegos 75 → 50. Tres planos:
 // 1. el tren de tarde (ventana de cerca): katniss mira el paisaje; haymitchViejo entra con su petaca, se le acerca y le
 //    habla al oído en «tells Katniss»; en «real enemy» sale el globo con la rosa de Snow y ella asiente seria;
-// 2. corta en «and in the end»: la maqueta de la arena con su cúpula; una figurita con arco junto al árbol; la flecha
-//    con su cable sale en «fires», se clava en el borde en «force field» y la cúpula se resquebraja como un cristal; dos
-//    vigilantes se asustan (nadie herido);
-// 3. corta en «It's the same weak spot»: el borde de cerca con la grieta; el vigilante señala; en «saved Haymitch» el
-//    recuerdo en sepia (Juegos 50): la piedra rebota en el mismo punto; en «earlier» vuelve la grieta y los dos anillos
-//    coinciden.
+// 2. corta en «and in the end»: la maqueta de la arena con su cúpula en la sala de los vigilantes (armarios de equipos con
+//    pilotos, tubería con abrazaderas, tiras de estado, dos consolas de primer término con su monitor); la arquera de
+//    maqueta (10 × 20 px, con filo claro) tensa el arco junto al árbol; en «fires» destello y sale la flecha con su cable,
+//    se clava en el borde en «force field» y la cúpula se resquebraja; el vigilante de la izquierda señala, el de la
+//    derecha salta del susto y un técnico entra por la derecha y se para en seco (los tres tras sus consolas);
+// 3. corta en «It's the same weak spot»: el borde de cerca con la grieta; a la derecha la sala (monitor grande con la
+//    cúpula y el punto que late, armario de equipos, pantalla de barras, pupitre con radar, cables a la bandeja, suelo de
+//    planchas con rejilla y canal de cables); el vigilante alza el brazo hacia la grieta (R.actor sostiene) y el otro
+//    entra, se asusta y comenta; en «saved Haymitch» el recuerdo en sepia (Juegos 50): la piedra con su estela clara
+//    rebota en el mismo punto y deja su anillo; en «earlier» vuelve la grieta, el anillo sepia se cierra sobre el de
+//    ahora, coinciden con un destello y los dos vigilantes dan un respingo.
 import * as T from '/atomo/plato/escenas/jh-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jh-flecha');
@@ -34,15 +39,6 @@ const globo = (x, y, u) => {
   R.disco(x - 12, y + 15, 3, K); R.disco(x - 12, y + 15, 2, hex('#2a2438')); R.disco(x - 17, y + 20, 1, K);
   if (u > 0.5) { R.linea(x, y + 2, x, y + 9, hex('#3a8a3a')); R.pset(x + 1, y + 6, hex('#5ab84a')); R.pset(x + 2, y + 5, hex('#5ab84a')); R.icono('rosa', x - 7, y - 9, ROSA, K, 2); R.pset(x - 1, y - 4, ROSAS); R.pset(x, y - 3, ROSAS); }
 };
-// la figurita de la maqueta: trenza oscura, cazadora, el arco (5 × 9 px)
-const figurita = (x, y, t, tensa) => {
-  R.rect(x, y - 8, x + 2, y - 6, hex('#2a2032')); R.pset(x + 1, y - 7, hex('#c89070'));
-  R.rect(x, y - 5, x + 2, y - 2, hex('#4a5a50')); R.rect(x, y - 1, x, y, K); R.rect(x + 2, y - 1, x + 2, y, K);
-  R.pset(x - 1, y - 6, hex('#2a2032')); R.pset(x - 1, y - 5, hex('#2a2032'));
-  const ax = x + 4 + (tensa ? 0 : 1); R.linea(ax, y - 9, ax + 1, y - 6, hex('#8a5a2a')); R.linea(ax + 1, y - 6, ax, y - 2, hex('#8a5a2a'));
-  R.linea(ax, y - 9, tensa ? ax - 2 : ax, y - 6, hex('#e8e8e8')); R.linea(tensa ? ax - 2 : ax, y - 6, ax, y - 2, hex('#e8e8e8'));
-  R.pset(x + 3, y - 5, hex('#c89070'));
-};
 const p1 = (t) => {
   const o = { encuadre: 'tren', camara: 'ventana', luz: 'tarde' };
   T.interior(R, t, o);
@@ -57,33 +53,138 @@ const p1 = (t) => {
   globo(126, 94, tramo(t, REAL - 0.15, REAL + 0.25) * (1 - tramo(t, 6.95, 7.1)));
   T.interiorDelante(R, t, o);
 };
+// ── la sala de los vigilantes, por delante del decorado (planos 2 y 3) ──────────────────────────────────────────────
+const S = { k: hex('#05060f'), m0: hex('#141a34'), m1: hex('#222c52'), m2: hex('#34427a'), m3: hex('#5266a4'), m4: hex('#8a9cd8'),
+  h0: hex('#0c3a64'), h1: hex('#1876b4'), h2: hex('#36c8f4'), h3: hex('#8aeeff'), h4: hex('#e0fcff'), p0: hex('#061428'), p1: hex('#0a2442'),
+  rojo: hex('#ff4a5a'), rojoS: hex('#5a1a2a'), amb: hex('#ffb83a'), ambS: hex('#5a3e1a'), ver: hex('#4af08a'), verS: hex('#14482e') };
+const mez = (c, d, a) => { a = a < 0 ? 0 : a > 1 ? 1 : a; const r = c & 255, g = (c >> 8) & 255, b2 = (c >> 16) & 255;
+  return (0xff000000 | (Math.round(b2 + (((d >> 16) & 255) - b2) * a) << 16) | (Math.round(g + (((d >> 8) & 255) - g) * a) << 8) | Math.round(r + ((d & 255) - r) * a)) >>> 0; };
+const hh = (a, b2) => { const s = Math.sin(a * 127.1 + b2 * 311.7) * 43758.5453; return s - Math.floor(s); };
+// un piloto que parpadea a su ritmo (encendido / apagado)
+const piloto = (x, y, t, k, on, off) => R.pset(x, y, Math.sin(t * (1.3 + hh(k, 1) * 3) + k * 2.1) > -0.2 ? on : off);
+// una pantalla de la sala: marco con luz arriba a la izquierda, rejilla, onda que corre y el resplandor tramado en la pared
+const pantalla = (x0, y0, x1, y1, t, k, tipo) => {
+  for (let y = y0 - 4; y <= y1 + 4; y++) for (let x = x0 - 4; x <= x1 + 4; x++) if (((x + y) & 1) && (x < x0 - 1 || x > x1 + 1 || y < y0 - 1 || y > y1 + 1)) R.pset(x, y, mez(R.pget(x, y), S.h0, 0.35));
+  R.rect(x0 - 2, y0 - 2, x1 + 2, y1 + 2, S.m0); R.rect(x0 - 2, y0 - 2, x1 + 2, y0 - 2, S.m3); R.rect(x0 - 2, y0 - 2, x0 - 2, y1 + 2, S.m2); R.rect(x0 - 2, y1 + 2, x1 + 2, y1 + 2, S.k);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, (x - x0) % 6 === 0 || (y - y0) % 5 === 0 ? S.p1 : S.p0);
+  const cy = (y0 + y1) >> 1, a = (y1 - y0) * 0.32;
+  if (tipo === 'onda') for (let x = x0 + 1; x < x1; x++) { const y = Math.round(cy + Math.sin(x * 0.45 - t * 5 + k) * a * (0.6 + 0.4 * Math.sin(x * 0.11 + k))); R.pset(x, y, S.h2); R.pset(x, y + 1, S.h0); }
+  if (tipo === 'barras') for (let i = 0; i < Math.floor((x1 - x0 - 2) / 4); i++) { const al = Math.round((y1 - y0 - 3) * (0.35 + 0.6 * Math.abs(Math.sin(t * 1.4 + i * 1.7 + k)))); R.rect(x0 + 2 + i * 4, y1 - 1 - al, x0 + 4 + i * 4, y1 - 1, i % 3 === 2 ? S.amb : S.h2); R.pset(x0 + 2 + i * 4, y1 - 1 - al, S.h4); }
+  if (tipo === 'radar') { const rx = (x1 - x0) >> 1, ry = (y1 - y0) >> 1, mx = x0 + rx, my = y0 + ry, an = t * 2.4 + k;
+    for (let s = 0; s <= Math.min(rx, ry); s++) R.pset(Math.round(mx + Math.cos(an) * s), Math.round(my + Math.sin(an) * s), S.ver);
+    for (let i = 0; i < 24; i++) { const b2 = i / 24 * Math.PI * 2; R.pset(Math.round(mx + Math.cos(b2) * (ry - 1)), Math.round(my + Math.sin(b2) * (ry - 1)), S.verS); }
+    if (Math.sin(t * 3 + k) > 0) { R.pset(mx + 3, my - 2, S.amb); R.pset(mx - 4, my + 1, S.ver); } }
+  R.rect(x0, y0, x1, y0, mez(S.p1, S.h3, 0.25));   // el brillo del cristal arriba
+  const bx = x0 + Math.floor(((t * 14 + k * 9) % (x1 - x0 + 1))); for (let y = y0; y <= y1; y++) R.pset(bx, y, mez(R.pget(bx, y), S.h1, 0.35));   // la línea de refresco
+};
+// una consola de primer término: el pupitre inclinado con teclas que se encienden, el frente con rejillas y pilotos, el canto
+// de luz arriba, la sombra del lado derecho y su sombra en el suelo
+const consola = (x0, x1, y0, y1, t, k) => {
+  for (let x = x0 - 2; x <= x1 + 3; x++) R.pset(x, y1, mez(R.pget(x, y1), S.k, 0.6));
+  R.rect(x0, y0, x1, y1 - 1, S.m1); R.rect(x0, y0, x1, y0 + 5, S.m2); R.rect(x0, y0, x1, y0, S.m4); R.rect(x0, y0 + 6, x1, y0 + 6, S.k);
+  R.rect(x1 - 1, y0 + 1, x1, y1 - 1, S.m0); R.rect(x0, y0 + 1, x0, y1 - 1, S.m3);
+  for (let x = x0 + 3; x < x1 - 3; x += 4) for (const dy of [2, 4]) { const enc = Math.sin(t * 2.2 + x * 0.7 + dy * 3 + k) > 0.75; R.rect(x, y0 + dy, x + 2, y0 + dy, enc ? S.h3 : (dy === 2 ? S.m3 : S.m0)); }
+  for (let x = x0 + 3, i = 0; x < x1 - 3; x += 5, i++) piloto(x, y0 + 9, t, k * 13 + i, [S.ver, S.amb, S.rojo, S.h2][i % 4], S.m0);
+  for (let y = y0 + 12; y < y1 - 2; y += 2) R.rect(x0 + 3, y, Math.min(x1 - 3, x0 + 18), y, S.m0);
+  if (x1 - x0 > 34) for (let y = y0 + 12; y < y1 - 2; y += 2) R.rect(x1 - 18, y, x1 - 4, y, S.m0);
+  R.pset(x0 + 2, y0 + 8, S.m4); R.pset(x1 - 2, y0 + 8, S.m4);
+};
+
+// la figurita de la maqueta, más grande (cada píxel de 2 × 2) y con un filo claro para que se lea sobre el prado:
+// trenza oscura, cara, cazadora verde, pantalón y botas; el arco a la derecha con la cuerda tensa hasta la mano
+const FIG = ['.HHH.', 'HHSSs', 'H.SS.', 'HJJJA', 'HJJJ.', '.JJJ.', '.PPP.', '.P.P.', '.P.P.', '.K.K.'];
+const FIGC = { H: hex('#2a2032'), S: hex('#e8b890'), s: hex('#c89070'), J: hex('#4a6a50'), A: hex('#c89070'), P: hex('#3a3a4a'), K: hex('#1a1418') };
+const figurita = (x0, yF, t, tensa) => {
+  const y0 = yF - FIG.length * 2, FILO = hex('#e8fbff');
+  for (let k = 0; k < 9; k++) R.pset(x0 + 1 + k, yF + 1, mez(R.pget(x0 + 1 + k, yF + 1), K, 0.5));   // la sombra en el prado
+  FIG.forEach((f, j) => [...f].forEach((ch, i) => { if (ch !== '.') R.rect(x0 + i * 2 - 1, y0 + j * 2 - 1, x0 + i * 2 + 2, y0 + j * 2 + 2, FILO); }));
+  FIG.forEach((f, j) => [...f].forEach((ch, i) => { if (ch !== '.') R.rect(x0 + i * 2, y0 + j * 2, x0 + i * 2 + 1, y0 + j * 2 + 1, FIGC[ch]); }));
+  R.pset(x0 + 6, y0 + 3, K);   // el ojo
+  // el arco: una curva de madera de 15 px con su brillo, y la cuerda (tensa: hasta la mano, con la flecha montada)
+  const bx = x0 + 12, by0 = y0 + 2, by1 = y0 + 16, bm = (by0 + by1) >> 1, hx = tensa ? x0 + 8 : bx, hy = y0 + 7;
+  for (let y = by0; y <= by1; y++) { const d = Math.round(3 * Math.sin((y - by0) / (by1 - by0) * Math.PI)); R.pset(bx + d - 1, y, FILO); R.pset(bx + d, y, hex('#8a5a2a')); R.pset(bx + d + 1, y, FILO); if (y === bm) R.pset(bx + d, y, hex('#e8c080')); }
+  R.linea(bx, by0, hx, hy, hex('#f8f8f0')); R.linea(hx, hy, bx, by1, hex('#f8f8f0'));
+  if (tensa) { R.linea(hx, hy, bx + 5, hy, hex('#5a3a22')); R.pset(bx + 6, hy, hex('#e0fcff')); R.pset(hx, hy - 1, hex('#ff4a5a')); R.pset(hx, hy + 1, hex('#ff4a5a')); }
+  return [bx + 5, hy];
+};
 const p2 = (t) => {
   const fl = tramo(t, FIRES, FORCE), gr = tramo(t, FORCE + 0.05, FORCE + 1.3);
   const g = T.arena(R, t, { encuadre: 'cupula', luces: 6, flecha: fl, grieta: gr });
-  figurita(84, 129, t, t < FIRES + 0.1);
+  const domo = (x, y) => y <= 138 && ((x - 160) / 120) ** 2 + ((y - 138) / 108) ** 2 < 1;
+  const ps = (x, y, c) => R.pset(x, y, domo(x, y) ? mez(R.pget(x, y), c, 0.4) : c);
+  // la pared: armarios de equipos a los lados de la cúpula (filas de bandejas con pilotos y rejillas), la tubería con sus
+  // abrazaderas y una rueda de válvula bajo la pasarela, y las tiras de estado en las juntas de los paneles
+  for (const [a, c] of [[4, 40], [282, 316]]) { R.rect(a - 1, 51, c + 1, 75, S.k); R.rect(a, 52, c, 74, S.m0); R.rect(a, 52, c, 52, S.m2);
+    for (let y = 55, i = 0; y < 73; y += 6, i++) { R.rect(a + 2, y, c - 2, y + 4, S.m1); R.rect(a + 2, y, c - 2, y, S.m3); for (let x = a + 4; x < c - 12; x += 2) R.pset(x, y + 2, S.k);
+      for (let q = 0; q < 3; q++) piloto(c - 10 + q * 3, y + 2, t, a + i * 5 + q, [S.ver, S.h2, S.amb][q], S.m0); } }
+  for (let x = 0; x < 320; x++) { ps(x, 92, S.m3); ps(x, 93, S.m2); ps(x, 94, S.m0); if (x % 40 === 12) for (let y = 90; y <= 95; y++) ps(x, y, S.m4); }
+  for (let k = 0; k < 10; k++) { const x = k * 32 + 16; if (x >= 270) continue; for (let j = 0; j < 3; j++) { const on = Math.sin(t * (1.1 + k * 0.37) + j * 2 + k) > 0; ps(x, 58 + j * 4, on ? [S.ver, S.amb, S.h2][(k + j) % 3] : S.m0); } }
+  // la arquera de la maqueta, junto al árbol: tensa el arco y dispara en «fires» (un destello en el arco)
+  const tensa = t < FIRES + 0.05, [ox, oy] = figurita(80, 131, t, tensa);
+  const sale = tramo(t, FIRES, FIRES + 0.25); if (sale > 0 && sale < 1) { R.disco(ox - 2, oy, Math.round(4 * (1 - sale)) + 1, hex('#fff6a0')); R.pset(ox - 2, oy, BLANCO); }
   const [px, py] = g && g.punto ? g.punto : [262, 84];
-  if (fl > 0 && fl < 1) { const x = Math.round(lerp(90, px, fl)), y = Math.round(lerp(122, py, fl) - Math.sin(fl * Math.PI) * 10);
-    for (let i = 1; i <= 10; i++) { const f2 = Math.max(0, fl - i * 0.03), xx = Math.round(lerp(90, px, f2)), yy = Math.round(lerp(122, py, f2) - Math.sin(f2 * Math.PI) * 10); R.pset(xx, yy, hex(i < 4 ? '#fff6a0' : '#e8b830')); }
+  if (fl > 0 && fl < 1) { const x = Math.round(lerp(ox, px, fl)), y = Math.round(lerp(oy, py, fl) - Math.sin(fl * Math.PI) * 10);
+    for (let i = 1; i <= 10; i++) { const f2 = Math.max(0, fl - i * 0.03), xx = Math.round(lerp(ox, px, f2)), yy = Math.round(lerp(oy, py, f2) - Math.sin(f2 * Math.PI) * 10); R.pset(xx, yy, hex(i < 4 ? '#fff6a0' : '#e8b830')); }
     R.disco(x, y, 3, hex('#fff6a0')); R.disco(x, y, 1, BLANCO); }
   const hit = tramo(t, FORCE, FORCE + 0.7); if (hit > 0 && hit < 1) { R.anillo(px, py, 3 + Math.round(hit * 22), hex(hit < 0.5 ? '#fff6a0' : '#8ad8ff')); if (hit < 0.25) R.disco(px, py, 5, BLANCO); }
-  // dos vigilantes junto a la mesa: el de la izquierda señala el borde; el de la derecha salta del susto con la grieta
+  // los monitores de mesa de las consolas de primer término (por detrás de los vigilantes)
+  pantalla(38, 155, 58, 166, t, 1, 'onda'); R.rect(47, 167, 49, 170, S.m0);
+  pantalla(262, 156, 278, 167, t, 2, 'radar'); R.rect(269, 168, 271, 170, S.m0);
+  // dos vigilantes tras sus consolas: el de la izquierda señala el borde; el de la derecha salta del susto con la grieta;
+  // un técnico con una carpeta entra por la derecha y se para en seco con el chasquido
   const susto = t > FORCE + 0.1;
   R.actor(EL.vigilante, 10, 176, t, { dir: 1, dedo: t > FIRES - 0.4 && t < FORCE + 0.1, sorpresa: susto });
-  R.actor(EL.vigilante, 292, 177, t, { dir: -1, salto: susto && t < FORCE + 0.6 ? Math.round(3 * Math.sin((t - FORCE - 0.1) * 6.3)) : 0, brazos: susto && t < FORCE + 1.2, sorpresa: susto, habla: t < FIRES && Math.sin(t * 9) > 0.3 });
-  // por delante pasa un técnico con una carpeta, que se para en seco con el chasquido
-  const v = tramo(t, P2 + 0.2, FORCE), tx = Math.round(lerp(96, 176, v));
-  R.actor(EL.plutarch, tx, 181, t, { dir: 1, anda: v > 0 && v < 1, sorpresa: susto });
+  R.actor(EL.vigilante, 296, 176, t, { dir: -1, salto: susto && t < FORCE + 0.6 ? Math.round(3 * Math.sin((t - FORCE - 0.1) * 6.3)) : 0, brazos: susto && t < FORCE + 1.2, sorpresa: susto, habla: t < FIRES && Math.sin(t * 9) > 0.3 });
+  const v = tramo(t, P2 + 0.2, FORCE), tx = Math.round(lerp(330, 280, v));
+  R.actor(EL.plutarch, tx, 176, t, { dir: -1, anda: v > 0 && v < 1, sorpresa: susto });
+  // las consolas, delante de ellos (les tapan las piernas; asoman cabeza y hombros)
+  consola(0, 62, 170, 180, t, 1); consola(258, 319, 170, 180, t, 2);
 };
 const p3 = (t) => {
   const recuerdo = t > SAVED - 0.05 && t < EARLIER;
   const g = T.arena(R, t, { encuadre: 'cupula', camara: 'borde', grieta: recuerdo ? 0 : 1, golpe: recuerdo ? tramo(t, SAVED + 0.1, EARLIER - 0.2) : 0, luces: 2 });
   const [px, py] = g && g.punto ? g.punto : [223, 90];
-  R.actor(EL.vigilante, 262, 178, t, { dir: -1, dedo: t > b(0.12) && t < SAVED, sorpresa: t > EARLIER, habla: recuerdo && Math.sin(t * 8) > 0 });
-  const v = tramo(t, P3 + 0.3, P3 + 1.6); R.actor(EL.vigilante, Math.round(lerp(330, 288, v)), 178, t, { dir: -1, anda: v > 0 && v < 1, pal: { C: '#5a3a8a', c: '#3a2462' } });
-  if (recuerdo) T.tinte(R, 0, 179, [150, 110, 60], 0.38);
-  // el punto débil: un anillo que late (al volver del recuerdo, dos anillos que se juntan en el mismo sitio)
+  // el tercio derecho, la sala: el monitor grande con la cúpula y el punto débil que late, el armario de equipos bajo la
+  // pasarela, el pupitre de control con su monitor de radar, los cables que bajan a la bandeja de la maqueta
+  pantalla(278, 50, 314, 74, t, 3, 'onda');
+  for (let i = 0; i <= 24; i++) { const a = Math.PI * (1 + i / 24), x = Math.round(296 + Math.cos(a) * 14), y = Math.round(72 + Math.sin(a) * 18); R.pset(x, y, S.h3); }
+  if (Math.sin(t * 7) > -0.3) { R.disco(302, 57, 2, hex('#fff6a0')); R.pset(302, 57, BLANCO); }
+  R.rect(282, 90, 316, 113, S.k); R.rect(283, 91, 315, 112, S.m0);
+  for (let y = 93, i = 0; y < 110; y += 5, i++) { R.rect(285, y, 313, y + 3, S.m1); R.rect(285, y, 313, y, S.m3); for (let x = 287; x < 302; x += 2) R.pset(x, y + 2, S.k); for (let q = 0; q < 3; q++) piloto(304 + q * 3, y + 2, t, 40 + i * 3 + q, [S.ver, S.amb, S.h2][q], S.m0); }
+  pantalla(250, 98, 274, 116, t, 4, 'barras'); R.rect(261, 117, 263, 125, S.m0);
+  pantalla(292, 120, 312, 134, t, 5, 'radar'); R.rect(301, 135, 303, 138, S.m0);
+  consola(246, 319, 138, 164, t, 3);
+  for (const [dy, c] of [[0, S.m0], [3, S.rojoS], [5, S.m1]]) for (let x = 238; x <= 252; x++) { const f = (x - 238) / 14, y = Math.round(lerp(160, 150 + dy, f) + Math.sin(f * Math.PI) * 4); R.pset(x, y, c); }
+  // el suelo de la sala: planchas con juntas en perspectiva y remaches, la rejilla de ventilación con su luz, el canal de
+  // cables y el reflejo de la tira de luz de la bandeja que corre
+  for (let y = 165; y <= 179; y++) for (let x = 0; x < 320; x++) { const xs = ((x - 160) * (1 - (y - 165) * 0.02) + 1000) % 40; if (xs < 1 || y === 171) R.pset(x, y, S.k); else if (xs < 2 || y === 172) R.pset(x, y, mez(R.pget(x, y), S.m2, 0.6)); }
+  for (let x = 6; x < 320; x += 40) { R.pset(x, 168, S.m3); R.pset(x + 20, 175, S.m3); }
+  R.rect(140, 173, 180, 178, S.k); for (let x = 141; x < 180; x += 2) R.rect(x, 174, x, 177, Math.sin(t * 3 + x * 0.2) > 0.5 ? S.h1 : S.m1);
+  for (let x = 0; x < 238; x += 3) if (((x + Math.floor(t * 20)) % 30) < 3) { R.pset(x, 166, S.h1); R.pset(x, 167, S.h0); }
+  R.rect(196, 176, 319, 177, S.m0); R.rect(196, 176, 319, 176, S.m2); for (let x = 200; x < 320; x += 12) R.pset(x, 177, S.m3);
+  // los dos vigilantes: el de la izquierda alza el brazo hacia la grieta; el otro entra, se asusta y se acerca a mirar
+  const señala = (t > b(0.12) && t < SAVED - 0.1) || t > EARLIER + 0.15;
+  R.actor(EL.vigilante, 262, 178, t, { dir: -1, sostiene: señala ? [px + 10, py] : undefined, sorpresa: t > EARLIER, habla: recuerdo && Math.sin(t * 8) > 0 });
+  const v = tramo(t, P3 + 0.3, P3 + 1.6), sx = Math.round(lerp(330, 288, v)), da = t > EARLIER ? Math.round(3 * Math.abs(Math.sin((t - EARLIER) * 7))) * (t < EARLIER + 0.9 ? 1 : 0) : 0;
+  R.actor(EL.vigilante, sx, 178, t, { dir: -1, anda: v > 0 && v < 1, pal: { C: '#5a3a8a', c: '#3a2462' }, sorpresa: t > b(0.12) + 0.3 && t < SAVED || t > EARLIER, brazos: t > EARLIER && t < EARLIER + 1.2, salto: da, habla: t > b(0.12) + 0.6 && t < SAVED - 0.3 && Math.sin(t * 10) > 0.2 });
+  if (recuerdo) {
+    T.tinte(R, 0, 179, [150, 110, 60], 0.38);
+    // el recuerdo, sobre el sepia: la piedra con su estela clara rebota en el mismo punto y deja su anillo marcado
+    const u = tramo(t, SAVED + 0.1, EARLIER - 0.2), de = [px - 70, 118], cae = [px - 110, 124];
+    const pos = (u) => { if (u < 0.45) { const f = u / 0.45; return [de[0] + (px - de[0]) * f, de[1] + (py - de[1]) * f - Math.sin(f * Math.PI) * 14]; }
+      const f = (u - 0.45) / 0.55, x = px + (cae[0] - px) * f, base = py + (cae[1] - py) * Math.min(1, f * 1.4), bote = f < 0.72 ? 0 : Math.abs(Math.sin((f - 0.72) / 0.28 * Math.PI * 2)) * 6 * (1 - f); return [x, Math.min(cae[1], base) - bote]; };
+    const CREMA = hex('#fff0c8'), SEP = hex('#e0b070'), SEPS = hex('#5a3a1a');
+    if (u > 0 && u < 1) { for (let i = 12; i >= 1; i--) { const [x, y] = pos(Math.max(0, u - i * 0.012)); R.pset(Math.round(x), Math.round(y), i < 5 ? CREMA : SEP); if (i < 4) R.pset(Math.round(x), Math.round(y) + 1, SEP); }
+      const [x, y] = pos(u); R.disco(Math.round(x), Math.round(y), 4, SEPS); R.disco(Math.round(x), Math.round(y), 3, hex('#b89868')); R.pset(Math.round(x) - 1, Math.round(y) - 1, CREMA); R.pset(Math.round(x), Math.round(y) - 2, CREMA); }
+    const ch = tramo(t, SAVED + 0.1 + 0.45 * (EARLIER - SAVED - 0.3), EARLIER - 0.2);
+    if (ch > 0) { const r = Math.round(4 + 16 * Math.min(1, ch * 2.5)) - Math.round(8 * Math.max(0, ch - 0.4)); R.anillo(px, py, r + 1, SEPS); R.anillo(px, py, r, CREMA); if (ch < 0.15) R.disco(px, py, 4, BLANCO); R.disco(px, py, 2, SEP); }
+  }
+  // el punto débil: un anillo que late; al volver del recuerdo, el anillo sepia del recuerdo se cierra sobre el de ahora
+  // y coinciden con un destello
   const late = 5 + Math.round(2 * Math.sin(t * 7));
-  if (!recuerdo) { R.anillo(px, py, late, hex('#fff6a0')); if (t > EARLIER) { const r2 = Math.max(late, Math.round(24 - 30 * tramo(t, EARLIER, EARLIER + 0.6))); R.anillo(px, py, r2, hex('#e8b830')); } }
+  if (!recuerdo) { R.anillo(px, py, late + 1, K); R.anillo(px, py, late, hex('#fff6a0'));
+    if (t > EARLIER) { const c = tramo(t, EARLIER, EARLIER + 0.7), r2 = Math.round(lerp(14, late, c)); if (c < 1) { R.anillo(px, py, r2 + 1, hex('#5a3a1a')); R.anillo(px, py, r2, hex('#e0b070')); }
+      const fl = tramo(t, EARLIER + 0.6, EARLIER + 1.1); if (fl > 0 && fl < 1) { R.anillo(px, py, late + 2 + Math.round(fl * 10), BLANCO); if (fl < 0.4) R.disco(px, py, 3, BLANCO); } } }
 };
 const año = (t) => (t > SAVED - 0.05 && t < EARLIER) ? 50 : 75;
 const efectos = [[1.0, 'pasos'], [REAL, 'pop'], [FIRES, 'whoosh'], [FORCE, 'flash'], [FORCE + 0.6, 'zumbido'], [b(0.15), 'brillo'], [SAVED + 0.1, 'whoosh'], [SAVED + 0.75, 'toc'], [EARLIER, 'brillo']];
