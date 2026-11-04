@@ -931,7 +931,7 @@ export function conChibi(R) {
     // ep19: def.detras / def.delante (capa, alas, cola, katanas; garras, llamas, brillos) reciben un contexto con px y rej
     // en coordenadas de la rejilla de 15 px (se voltean solas con dir); def.dxCuerpo centra un cuerpo más ancho que 15
     const lado = (y0) => ({ px: (i, j, c) => pset(Math.round(x + (dir > 0 ? i : 14 - i)), Math.round(y0 + j), c), rej: (g, i, j, p = pal) => dibujo(g, dir > 0 ? x + i : x + 15 - i - g[0].length, y0 + j, dir, p) });
-    const ctx = (def.detras || def.delante) && { x, yC, yH, suelo, dir, pal, t, o, pset, cuerpo: lado(yC), cab: lado(yH) };
+    const ctx = (def.detras || def.delante) && { x, yC, yH, suelo, dir, pal, t, o, pset, pget: R.pget, cuerpo: lado(yC), cab: lado(yH) };
     if (def.detras) def.detras(ctx);
     dibujo(paso >= 0 ? conPaso(base, paso) : base, x + (def.dxCuerpo ?? 0), yC, dir, pal);
     if (o.dedo && !o.brazos && !manos) brazoArriba(def, x, yC, dir, pal);
@@ -2780,3 +2780,844 @@ export const ELENCO_JH = {
     pal: CLARA({ J: '#2a2e3a', j: '#4a5060', Z: '#a8b8c8', C: '#2a2e3a', c: '#1c1f28', o: '#3e4454', W: '#2a2e3a', G: '#1c1c24', I: '#1c1c24', F: '#2a2e3a', n: '#14141a' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_JH);
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// ── Episodio 21: «Harry Potter: lo que hay que saber antes de la serie de HBO» ──
+// Todos dibujados por nosotros y reconocibles solo por sus atributos (gafas redondas y cicatriz, pelo rojo, melena
+// espesa, barba blanca…): ningún parecido con los actores, ni escudos ni letras. El pelo nunca tapa la cara.
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+// ── ayudas ──
+// mezcla dos colores (de hex()) a partes f / 1−f, canal a canal
+const mezclaHP = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+// fantasmas de verdad translúcidos: detrás guarda el fondo de su recuadro y delante mezcla lo pintado con él (el fondo
+// se ve a través); o.opaco lo desactiva
+const fantasma = (f = 0.62) => ({
+  detras: (c) => { if (!c.pget || c.o.opaco) return; const x0 = c.x - 9, x1 = c.x + 23, y0 = c.yH - 11, y1 = c.suelo + 2, m = []; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) m.push(c.pget(x, y)); c.fondoHP = { x0, x1, y0, y1, m }; },
+  delante: (c) => { const F = c.fondoHP; if (!F) return; let n = 0; for (let y = F.y0; y <= F.y1; y++) for (let x = F.x0; x <= F.x1; x++) { const b = F.m[n++], a = c.pget(x, y); if (a !== b) c.pset(x, y, mezclaHP(a, b, f)); } },
+});
+// ¿tiene los ojos abiertos y normales? (para pintar encima el color del ojo o las gafas sin pisar un parpadeo)
+const ojoNormal = (c) => !(c.o.sorpresa || (c.o.parpadea ?? (c.t + c.x * 0.13) % 2.6 < 0.1));
+// gafas (en la rejilla de la cabeza, desde la columna 4: la patilla hacia la oreja y los dos aros en los ojos 8 y 12)
+const GAFAS_REDONDAS = ['....k...k.', 'kkkk.kkk.k', '...k.k.k.k', '....k...k.'];   // filas 5–8
+const GAFAS_MEDIALUNA = ['kkkk.k.k.k', '....k...k.'];                              // filas 7–8: solo la mitad de abajo
+const GAFAS_CUADRADAS = ['kkkk.kkk.k', '...k.k.k.k', '...kkk.kkk'];   // filas 6–8 (sin el borde de arriba: la ceja lo hace)
+const gafasHP = (g, j0, col) => (c) => c.cab.rej(g, 4, j0, col ? { ...c.pal, k: hex(col) } : c.pal);
+// ojos verdes: un píxel de color encima de cada ojo (Harry)
+const ojosVerdes = (c) => { if (!ojoNormal(c)) return; const v = hex('#2e9a4a'); c.cab.px(8, 6, v); c.cab.px(12, 6, v); };
+
+// ── cabezas ──
+// Harry: pelo negro revuelto en punta y el flequillo abierto en la frente para que se vea la cicatriz del rayo (r)
+const CAB_HARRY = [
+  '..k.kk.kk.k....',
+  '.kHkHHkHHkHk...',
+  'kHHHHhHHHHHHk..',
+  'kHHhHHHHSSrHHk.',
+  'kHHHSSSSSrrHSk.',
+  'kHHsSSSSSrSSSk.',
+  'kHHssSSSSSSSSSk',
+  'kHHsSSSSSSSSsk.',
+  '.kHSSSSSSSSSSk.',
+  '.kSSSSSSSSSSk..',
+  '..kSSSSSSSSsk..',
+  '...kksSSSSkk...',
+  '.....kkkkk.....',
+];
+// Ron: pelo rojo, pecas (f) en las mejillas y la mancha en la nariz (u)
+const CAB_RON = parche(CAB_CORTO, [[3, 1, 'h...h'], [6, 8, 'f.f'], [11, 8, 'f'], [13, 6, 'u']]);
+// la melena espesa de Hermione: el volumen se pinta encima de la cabeza (gancho delante), solo por arriba y por detrás
+const MELENA = [
+  '.....kk.kk.kk.....',
+  '...kkHHkHHkHHkk...',
+  '..kHHHHHHHHHHHHk..',
+  '.kHHHHHHHHHHHhHHk.',
+  'kHHHHHHHHHHHHHHHk.',
+  'kHHHHHHHHHHhHHHHHk',
+  'kHHHHHHHHHHHHHHHk.',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  '.kHHHHH...........',
+  '.kHHHHk...........',
+  '..kkkk............',
+];
+const melena = (c) => c.cab.rej(MELENA, -3, -3);
+// Snape: pelo negro grasiento hasta los hombros (brillo h) y la nariz ganchuda que cae una fila
+const CAB_SNAPE = parche(CAB_LARGO, [[3, 2, 'hh'], [2, 5, 'h'], [2, 9, 'h'], [12, 7, 'Ssk']]);
+// Draco: rubio platino engominado hacia atrás
+const CAB_DRACO = parche(CAB_CORTO, [[3, 1, 'hhhhh'], [2, 2, 'HHHHHHHhh'], [4, 4, 'H'], [3, 3, 'hhh']]);
+// Neville: la cara redonda (la mejilla más llena) y el flequillo castaño
+const CAB_NEVILLE = parche(CAB_CORTO, [[0, 9, 'kSSSSSSSSSSSk'], [1, 10, 'kSSSSSSSSSsk'], [2, 11, 'kksSSSSSkk'], [4, 4, 'HH']]);
+// Hagrid: pelo negro salvaje arriba y la barba que empieza en las mejillas, dejando libres la boca y los ojos
+const CAB_HAGRID = [
+  '.k.kk.kkk.kk...',
+  'kHkHHkHHHkHHkk.',
+  'kHHHHHHhHHHHHHk',
+  'kHhHHHHHHHHhHHk',
+  'kHHHSSSSSSSSSHk',
+  'kHHHsSSSSSSSSk.',
+  'kHHssSSSSSSSSSk',
+  'kHHsSSSSSSSSsk.',
+  'kHHHSSSSSSSSSHk',
+  'kHHHHSSSSSSSSHk',
+  'kHHHHHHSSSSSHHk',
+  '.kHHHHHHHHHHHk.',
+  '..kkHHHHHHHkk..',
+];
+// la melena y la barba de Hagrid, enormes: el pelo hace un aro alrededor de la cara sin taparla (atrás y por encima)
+const MELENA_HAGRID = [
+  '...k.kk.kk.kk.k.k....',
+  '..kHkHHkHHkHHkHkHk...',
+  '.kHHHHHHHHHHHHhHHHk..',
+  'kHHHHHHHHHHHHHHHHHHk.',
+  'kHHHHHHHHHHHHHHHHHHHk',
+  'kHHHHHHHHHHHHHHHHHHk.',
+  'kHHHHHH..........kHHk',
+  'kHHHHHH...........kHk',
+  'kHHHHHH..........kHHk',
+  'kHHHHHH...........kHk',
+  'kHHHHHH..........kHHk',
+  'kHHHHHH...........kHk',
+  'kHHHHHH..........kHHk',
+  '.kHHHHH...........kk.',
+  '.kHHHHH..............',
+  '..kHHHk..............',
+  '...kkk...............',
+];
+const BARBA_HAGRID = [
+  '..kHHHHHHHHHHHHk..',
+  '.kHHHHHHHHHHHHHHk.',
+  '.kHHHHHHHHHHHHHHk.',
+  '.kHHHHHHHHHHHHHk..',
+  '..kHHHHHHHHHHHHk..',
+  '..kHHHHHHHHHHHk...',
+  '...kHHHHHHHHHHk...',
+  '...kHHHHHHHHHk....',
+  '....kHHHHHHHHk....',
+  '....kHHHHHHHk.....',
+  '.....kHHHHHk......',
+  '......kHHHk.......',
+  '.......kkk........',
+];
+// Dumbledore: pelo y barba blancos (CAB_BARBA), con la barba larguísima por el pecho y el pelo largo por la espalda
+const BARBA_LARGA = [
+  '.kWWWWWWWk',
+  '.kWWWWWWWk',
+  '..kWWWwWWk',
+  '..kWWWWWk.',
+  '..kWWWWWk.',
+  '...kWWWWk.',
+  '...kWWWk..',
+  '...kWWWk..',
+  '....kWk...',
+  '....kWk...',
+  '.....k....',
+];
+const PELO_LARGO = ['kWWWk', 'kWWWk', 'kWwWk', 'kWWWk', 'kWWWk', 'kWWWk', 'kWWWk', 'kWWwk', 'kWWWk', 'kWWWk', 'kWWWk', '.kWWk', '.kWWk', '.kWk.', '..k..'];
+const barbaBlanca = (c) => { c.cab.rej(PELO_LARGO, -1, 4); c.cuerpo.rej(BARBA_LARGA, 3, -1); };
+// el turbante morado de Quirrell (A/a) y su cara de nervios
+// el moño de McGonagall (y el de la costurera), por detrás y debajo del ala del sombrero
+const MONO_HP = ['.kk.', 'kHHk', 'kHhk', 'kHHk', '.kk.'];
+const monoHP = (c) => c.cab.rej(MONO_HP, -2, 4);
+// la oreja puntiaguda del duende, que sube hacia atrás
+const OREJA_DUENDE = ['k....', 'kSk..', '.kSk.', '.kSSk', '..kSk', '..kSk'];
+// Binns: calvo con el cerquillo blanco (w) alrededor de la oreja
+const CAB_BINNS = parche(CAB_CALVO, [[1, 4, 'ww'], [1, 5, 'www'], [1, 6, 'ww'], [1, 7, 'ww'], [2, 8, 'w']]);
+// el escribano y otros: la cabeza con flequillo recto medieval
+// el compositor: pelo largo hasta los hombros con raya
+const CAB_MELENA_H = parche(CAB_LARGO, [[3, 2, 'h'], [2, 6, 'h']]);
+// el duende: calvo con un mechón y la nariz larga y puntiaguda
+const CAB_DUENDE = parche(CAB_CALVO, [[4, 1, 'HH'], [3, 2, 'H'], [13, 5, 'S'], [13, 6, 'SSs'], [12, 7, 'Sk']]);
+
+// ── tocados ──
+const BRUJA = [
+  '..kk...........',
+  '..kVk..........',
+  '...kVk.........',
+  '...kVVk........',
+  '....kVVk.......',
+  '....kVVVk......',
+  '...kVVVVVk.....',
+  '...kVvVVVVk....',
+  '..kVVVVVVVVk...',
+  '..kVvVVVVVVVk..',
+  '..koooooooook..',
+  'kkkkkkkkkkkkkkk',
+  'kVVVVVVVVVVVVVk',
+  '.kkkkkkkkkkkkk.',
+];
+Object.assign(TOCADOS, {
+  // el sombrero de bruja alto y puntiagudo, con la punta doblada hacia atrás (V/v y la cinta o): McGonagall
+  bruja: [BRUJA, -10],
+  // el de mago de Dumbledore: morado (P/p) con estrellas (y)
+  mago: [parche(tapa(BRUJA, { V: 'P', v: 'p', o: 'p' }), [[5, 5, 'y'], [7, 7, 'y'], [4, 9, 'y'], [9, 9, 'y'], [6, 12, 'y'], [11, 12, 'y']]), -10],
+  // el turbante de Quirrell: tela morada (A/a) en vueltas, por encima de la frente
+  turbante: [[
+    '...kkkkkkk.....',
+    '..kAAaAAAAkk...',
+    '.kAAAAaAAAAAk..',
+    'kAaAAAAaAAAAAk.',
+    'kAAAaAAAAaAAAk.',
+    'kAAAAAaAAAAAak.',
+    '.kkkkkkkkkkkkk.',
+  ], -3],
+  // el gorro de bufón de Peeves: tres puntas caídas de colores (A lila, Q naranja) con cascabeles (o)
+  bufon: [pad([
+    'o...........o..',
+    'kAk.......kQk..',
+    '.kAk..o..kQk...',
+    '..kAk.k.kQk....',
+    '..kAAkQkQQk....',
+    '.kAAAAQQQQQk...',
+    'kAAAAAQQQQQQk..',
+    'kkkkkkkkkkkkkk.',
+    'kQAQAQAQAQAQk..',
+  ]), -5],
+  // la capucha del escribano (B/b): tapa el pelo y la nuca, la cara queda entera
+  capucha: [[
+    '...kkkkkkkk....',
+    '..kBBBBBBBBk...',
+    '.kBBbBBBBBBBk..',
+    'kBBBBBBBBBBBBk.',
+    'kBBBBkkkkkkkkk.',
+    'kBBBk..........',
+    'kBBbk..........',
+    'kBBBk..........',
+    'kBBBk..........',
+    'kBbBk..........',
+    'kBBBBk.........',
+    '.kBBBk.........',
+  ], -1],
+  // gorra de béisbol (el director): copa (J) y visera hacia delante
+  beisbol: [[
+    '...kkkkkkk.....',
+    '..kJJJJJJJk....',
+    '.kJJjJJJJJJk...',
+    '.kkkkkkkkkkkkk.',
+    '..........kkk..',
+  ], -1],
+});
+
+// ── cuerpos ──
+// la túnica negra del colegio (C/c) abierta sobre la camisa blanca (W), la corbata (o) y el jersey gris (I)
+const CUERPO_COLEGIO = [
+  '...kkWWWWWkk...',
+  '..kCCCWoWCCCk..',
+  '.kCkCCWoWCCkCk.',
+  '.kCkCCIoICCkCk.',
+  '.kCkCCIIICCkCk.',
+  '.kSkCCIIICCkSk.',
+  '..kCCCFFFCCCk..',
+  '..kCCCFkFCCCk..',
+  '..kCCCFkFCCCk..',
+  '..kcCCFkFCCck..',
+  '..kccckkkccck..',
+  '...kkknkknkk...',
+  '....kkk.kkk....',
+];
+// la falda del uniforme (Hermione, alumnas): la túnica igual, con falda gris y medias
+const CUERPO_COLEGIO_F = parche(CUERPO_COLEGIO, [[6, 6, 'III'], [6, 7, 'III'], [6, 8, 'IIi'], [6, 9, 'SkS'], [6, 10, 'k.k']]);
+// el jersey heredado de Harry: enorme, las mangas tapan las manos y el bajo cae hasta los muslos, con un remiendo (d)
+const CUERPO_HEREDADO = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCCdCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kckCCCCCCCkck.',
+  '.kCkCCCCCCCkCk.',
+  '..kccccccccck..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el jersey de punto granate de Ron: liso (sin letra), con el canalé (c) en el cuello, los puños y el bajo
+const CUERPO_PUNTO = parche(CUERPO_MANGA, [[5, 0, 'kcCck'], [4, 6, 'cCcCcCc'], [1, 4, '.c.........c']]);
+// la túnica larga de profesor, alta (dos filas más): McGonagall
+const CUERPO_TUNICA_ALTA = [...CUERPO_TUNICA_LARGA.slice(0, 9), CUERPO_TUNICA_LARGA[8], CUERPO_TUNICA_LARGA[8], ...CUERPO_TUNICA_LARGA.slice(9)];
+// la levita negra abotonada de arriba abajo de Snape (sin nada blanco)
+const CUERPO_LEVITA = [
+  '....kkCCCkk....',
+  '..kkCCCoCCCkk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCoCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCoCCCk...',
+  '...kCCCCCCCk...',
+  '...kCCCoCCCk...',
+  '...kcccccccck..',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// el cuerpo gigante de Hagrid (23 × 33): abrigo de piel de topo pardo (C/c) con bolsillos (c), cinturón (G), manos
+// enormes y botas (n); la barba le tapa el pecho
+const CUERPO_HAGRID = [
+  '.......kkkkkkkkk.......',
+  '....kkkCCCCCCCCCkkk....',
+  '..kkCCCCCCCCCCCCCCCkk..',
+  '.kCCCCCCCCCCCCCCCCCCCk.',
+  'kCCCCkCCCCCCCCCCCkCCCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCccccCccccCkCcCCk',
+  'kCCcCkCcCCcCcCCcCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkGGGGGOGGGGGkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCccccCccccCkCcCCk',
+  'kCCcCkCcCCcCcCCcCkCcCCk',
+  'kcccckCcccCCcccCCkcccck',
+  'kSSSSkCCCCCCCCCCCkSSSSk',
+  'kSSSskCCCCCCCCCCCkSSSsk',
+  '.kSskkCCCCCCCCCCCkkSsk.',
+  '..kk.kCCCCCCCCCCCk.kk..',
+  '.....kCCCCCkCCCCCk.....',
+  '.....kCCCCCkCCCCCk.....',
+  '.....kcCCCCkCCCCck.....',
+  '.....kcccckkkcccck.....',
+  '......kFFFFkFFFFk......',
+  '......kFFFFkFFFFk......',
+  '......kFFFFkFFFFk......',
+  '......knnnnknnnnk......',
+  '......knnnnknnnnk......',
+  '.....knnnnnknnnnnk.....',
+  '.....kkkkkkkkkkkkk.....',
+];
+// Flitwick: un cuerpecillo con túnica (7 filas) de pie sobre tres libros (R rojo, V verde, A azul; X las hojas)
+const CUERPO_ENANO = [
+  '....kkWWWkk....',
+  '..kkCCWWWCCkk..',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kcccccccck..',
+  '....kLk.kLk....',
+];
+const LIBROS_PILA = [
+  '..kkkkkkkkkkk..',
+  '..kRRRRRRRRXk..',
+  '.kkkkkkkkkkkkk.',
+  '.kVVVVVVVVVVXk.',
+  '..kkkkkkkkkkk..',
+  '..kAAAAAAAAXk..',
+  '..kkkkkkkkkkk..',
+];
+// el cuerpo de fantasma (Peeves): sin piernas, acaba en una cola de humo; pajarita (o)
+const CUERPO_FANTASMA = [
+  '....kkCCCkk....',
+  '..kkCCoCoCCkk..',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCCCCCCk....',
+  '....kCCCCCk....',
+  '....kcCCCk.....',
+  '.....kCCCk.....',
+  '.....kcCk......',
+  '......kCk......',
+  '.......k.......',
+];
+// Binns: la túnica larga de profesor que se deshace en humo abajo
+const CUERPO_TUNICA_HUMO = [...CUERPO_TUNICA_LARGA.slice(0, 9), '...kcCCCCCck...', '....kcCCCck....', '.....kcCck.....', '......kkk......'];
+// el duende de Gringotts: bajito (10 filas), traje oscuro con chaleco dorado (o) y botines
+const CUERPO_DUENDE = [
+  '...kkWWWWWkk...',
+  '..kCCCWoWCCCk..',
+  '.kCkCCoWoCCkCk.',
+  '.kCkCCooOCCkCk.',
+  '.kSkCCoooCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// los dedos largos del duende, que bajan de la mano de delante
+const dedosLargos = (c) => { if (c.o.sostiene || c.o.dedo || c.o.brazos) return; for (const [i, j, ch] of [[12, 6, 'S'], [13, 6, 'S'], [12, 7, 'S'], [13, 7, 'k'], [11, 6, 'k'], [11, 7, 'k'], [12, 8, 'k']]) c.cuerpo.px(i, j, c.pal[ch]); };
+// la costurera: rechoncha, vestido malva ancho (C/c) con delantal (W) y la cinta métrica amarilla al cuello (y)
+const CUERPO_RECHONCHO = [
+  '....kkSSSkk....',
+  '..kkCyCCCyCkk..',
+  '.kCkCyCCCyCkCk.',
+  '.kCkCyWWWyCkCk.',
+  '.kCkCCWWWCCkCk.',
+  '.kSkCWWWWWCkSk.',
+  '.kkCCWWWWWCCkk.',
+  '.kCCCWWWWWCCCk.',
+  '.kCCCWWWWWCCCk.',
+  '.kcCCCCCCCCCck.',
+  '..kccccccccck..',
+  '..kkkkkkkkkkk..',
+  '....kLk.kLk....',
+];
+// el centauro (30 × 19): el torso de hombre (piel S, banda B en bandolera) sobre el cuerpo de caballo (M/m) con la
+// cola (T) y cuatro patas; mira a la derecha. La cabeza normal va encima del torso
+const CUERPO_CENTAURO = pad([
+  '..................kkSSSkk.....',
+  '................kkSSSSSSBkk...',
+  '...............kSkSSSSSBSkSk..',
+  '...............kSkSsSSBsSkSk..',
+  '...............kSkSSSBSSSkSk..',
+  '...............kSkSSBSSSSkSk..',
+  '..kkkkkkkkkkkkkkkkkMMMMMMMMk..',
+  '.kMMMMMMMMMMMMMMMMMMMMMMMMMk..',
+  'kTkMMMMMMMMMMMMMMMMMMMMMMMMk..',
+  'kTkMMMMMMMMMMMMMMMMMMMMMMMk...',
+  'kTkmMMMMMMMMMMMMMMMMMMMMMmk...',
+  'kTTkmMMMMmkkkkkkkkkkmMMMmk....',
+  'kTk.kMMMk.........kMMk.kMk....',
+  '.k..kMMk..........kMk..kMk....',
+  '....kMk...........kMk..kMk....',
+  '....kMk...........kMk..kMk....',
+  '....kmk...........kmk..kmk....',
+  '....kkk...........kkk..kkk....',
+]);
+// guionista, contable, editor: chaqueta de punto abierta (C/c) sobre camisa (W)
+const CUERPO_REBECA = parche(CUERPO_MANGA, [[6, 0, 'WWW'], [6, 1, 'WWW'], [7, 2, 'W'], [7, 3, 'W'], [7, 4, 'W'], [7, 5, 'W']]);
+// el subastador: frac negro con pajarita (o) y camisa blanca
+const CUERPO_FRAC = parche(CUERPO_EUROPEO, [[6, 0, 'oWo']]);
+
+// lo que llevan en la mano
+const PAL_MANO_HP = COLORES({ R: '#a8303a', r: '#7a1e28', X: '#f6f2e6', x: '#c8c0b0', O: '#f0c040', g: '#a87a18', B: '#a8743c', b: '#6a4422', V: '#5a9a3a', v: '#3a6a24', Z: '#c8ccd8', z: '#8c90a4', E: '#ffffff', o: '#ffe890', T: '#f4d8a0', u: '#f0a0c0', j: '#4a4458' });
+const conLibroHP = enMano(['kkkkk', 'kRRRk', 'kRORk', 'kRRXk', 'kkkkk'], 12, 3, PAL_MANO_HP);
+const conSapo = enMano(['.k.k.', 'kVkVk', 'kVVVk', 'kvVvk', '.kkk.'], 12, 3, PAL_MANO_HP);
+const conMazo = enMano(['kkkkk', 'kBBBk', 'kkkkk', '..kbk', '..kbk', '..kk.'], 12, 0, PAL_MANO_HP);
+const conLibretaHP = enMano(['kkkkk', 'kXkXk', 'kxkxk', 'kkkkk'], 13, 3, PAL_MANO_HP);
+const conBatuta = enMano(['....k', '...kE', '..kE.', '.kb..', 'kb...'], 12, 0, PAL_MANO_HP);
+// lo que lleva Hagrid en su mano enorme (fila 18 de su cuerpo, columnas 14–17 de la cabeza)
+const FAROL_MANO = ['..kkk..', '.k...k.', 'kkkkkkk', 'kZoOoZk', 'kZOEOZk', 'kZoOoZk', 'kkkkkkk', '.kzzzk.', '..kkk..'];
+const HELADO_MANO = ['.kkk.', 'kuuuk', 'kuEuk', 'kTTTk', '.kTk.', '.kTk.', '..k..'];
+const BEBE_MANO = ['..kkkk..', '.kXXXXk.', 'kXkSSSkk', 'kXSSkSSk', 'kXSSSSkX', 'kXXkkXXk', '.kXXXXk.', '..kkkk..'];
+const enManoHagrid = (g, i, j) => (c) => { if (manoLibre(c)) c.cuerpo.rej(g, i, j, { ...c.pal, ...PAL_MANO_HP }); };
+// el farol parpadea: la llama cambia de tono con t
+const hagridFarol = (c) => { if (!manoLibre(c)) return; const g = Math.sin(c.t * 9 + c.x) > 0.3 ? FAROL_MANO : FAROL_MANO.map((f) => f.replace(/O/g, 'o')); c.cuerpo.rej(g, 13, 19, { ...c.pal, ...PAL_MANO_HP }); };
+const barbaHagrid = (c) => { c.cab.rej(MELENA_HAGRID, -3, -4); c.cuerpo.rej(BARBA_HAGRID, -2, -1); };
+// cicatriz, nervios y sonrisas
+const nervios = (c) => {
+  const ceja = c.pal.H; c.cab.px(13, 4, hex('#8ad0f0')); c.cab.px(14, 5, hex('#8ad0f0'));   // la gota de sudor
+  if (c.o.sorpresa) return; c.cab.px(8, 4, ceja); c.cab.px(8, 5, c.pal.S); c.cab.px(11, 4, ceja); c.cab.px(11, 5, c.pal.S);
+  if (c.o.habla || c.o.sonrisa || c.o.triste) return; c.cab.px(10, 9, c.pal.S); c.cab.px(11, 9, c.pal.S); for (const [i, j] of [[9, 9], [10, 10], [11, 9], [12, 10]]) c.cab.px(i, j, P.k);
+};
+const sonrisaPeeves = (c) => { if (c.o.habla || c.o.sorpresa || c.o.triste) return; const y = 9; c.cab.px(8, y - 1, P.k); c.cab.px(13, y - 1, P.k); for (let i = 9; i <= 12; i++) { c.cab.px(i, y, P.m); c.cab.px(i, y + 1, P.k); } c.cab.px(10, y, P.E); c.cab.px(12, y, P.E); };   // sonrisa de oreja a oreja, con dientes
+const bigoteBlanco = (c) => { for (let i = 10; i <= 13; i++) c.cab.px(i, 8, c.pal.W); c.cab.px(9, 9, c.pal.W); };
+const cejaDura = (col) => (c) => { if (c.o.sonrisa || c.o.sorpresa) return; const ceja = hex(col); c.cab.px(7, 4, ceja); c.cab.px(7, 5, c.pal.S); c.cab.px(12, 4, ceja); c.cab.px(12, 5, c.pal.S); };
+const PEEVES = fantasma(0.6), BINNS = fantasma(0.55);
+
+// ── el reparto del 21 ──
+const B21 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const B21M = { ...B21, cab: CAB_LARGO };
+const COLEGIO = { ...B21, cuerpo: CUERPO_COLEGIO };
+// la túnica del colegio con los colores de la casa en la corbata (o) y el jersey gris (I)
+const ROJO = { C: '#24202c', c: '#14111a', W: '#f2eee2', o: '#b8283a', I: '#8a8a96', i: '#6a6a76', F: '#3a3a44', n: '#2a2430' };
+const VERDE = { ...ROJO, o: '#2e8a4a' };
+const AMARILLO = { ...ROJO, o: '#e0b030' };
+const AZUL = { ...ROJO, o: '#3a6ad8' };
+// los alumnos de la casa con su corbata del color
+export const ELENCO_HP = {
+  // ── los tres ──
+  // Harry: pelo negro revuelto, gafas redondas, la cicatriz del rayo en la frente, ojos verdes y la túnica negra
+  harry: { ...COLEGIO, cab: CAB_HARRY, ceja: hex('#1c1424'), delante: varios(gafasHP(GAFAS_REDONDAS, 5), ojosVerdes),
+    pal: CLARA({ H: '#1c1820', h: '#3a3448', r: '#c8283a', ...ROJO }) },
+  // Harry en Privet Drive: el jersey heredado de su primo, enorme y gastado, con remiendo, y vaqueros anchos
+  harryCalle: { ...B21, cab: CAB_HARRY, cuerpo: CUERPO_HEREDADO, ceja: hex('#1c1424'), delante: varios(gafasHP(GAFAS_REDONDAS, 5), ojosVerdes),
+    pal: CLARA({ H: '#1c1820', h: '#3a3448', r: '#c8283a', C: '#8a8070', c: '#6a6252', d: '#a89c84', F: '#4a6a9a', n: '#2a2430' }) },
+  // Ron: pelo rojo, pecas, la mancha en la nariz y la túnica
+  ron: { ...COLEGIO, cab: CAB_RON, ceja: hex('#c04a1a'),
+    pal: CLARA({ H: '#e0602a', h: '#f8904a', f: '#d08050', u: '#7a6a62', ...ROJO }) },
+  // Ron con el jersey de punto granate que le teje su madre (liso, sin letra) y pantalón marrón
+  ronJersey: { ...B21, cab: CAB_RON, cuerpo: CUERPO_PUNTO, ceja: hex('#c04a1a'),
+    pal: CLARA({ H: '#e0602a', h: '#f8904a', f: '#d08050', u: '#7a6a62', C: '#7a2032', c: '#561424', F: '#5a4a3a', n: '#2a2018' }) },
+  // Hermione: melena castaña espesa (encima y detrás de la cabeza, nunca en la cara), túnica con falda y el libro rojo
+  hermione: { ...COLEGIO, cab: CAB_LARGO, cuerpo: CUERPO_COLEGIO_F, ceja: hex('#4a2a14'), delante: varios(melena, conLibroHP),
+    pal: CLARA({ H: '#7a4a26', h: '#9a6640', ...ROJO }) },
+  // ── los profesores ──
+  // Dumbledore: pelo y barba blancos larguísimos, gafas de media luna, túnica morada con estrellas (y) y cinturón de oro
+  dumbledore: { ...B21, cab: CAB_BARBA, cuerpo: parche(CUERPO_TUNICA_LARGA, [[5, 7, 'y'], [9, 9, 'y'], [4, 10, 'y'], [8, 11, '.']]), ceja: hex('#c8c8d0'),
+    delante: varios(barbaBlanca, gafasHP(GAFAS_MEDIALUNA, 7, '#a8acbc')),
+    pal: CLARA({ H: '#f2f0ec', h: '#c8c8d0', W: '#f6f6f6', w: '#c4c8d4', C: '#6a3aa8', c: '#4a2480', o: '#e8c040', G: '#e8c040', y: '#ffe890', L: '#3a2a4a' }) },
+  // el mismo con el sombrero de mago morado de estrellas
+  dumbledoreSombrero: { ...B21, cab: CAB_BARBA, cuerpo: parche(CUERPO_TUNICA_LARGA, [[5, 7, 'y'], [9, 9, 'y'], [4, 10, 'y']]), ceja: hex('#c8c8d0'), tocado: 'mago',
+    delante: varios(barbaBlanca, gafasHP(GAFAS_MEDIALUNA, 7, '#a8acbc')),
+    pal: CLARA({ H: '#f2f0ec', h: '#c8c8d0', W: '#f6f6f6', w: '#c4c8d4', C: '#6a3aa8', c: '#4a2480', o: '#e8c040', G: '#e8c040', y: '#ffe890', P: '#6a3aa8', p: '#4a2480', L: '#3a2a4a' }) },
+  // McGonagall: alta, moño negro, gafas cuadradas, túnica verde esmeralda larga y el sombrero de bruja alto
+  mcgonagall: { ...B21, cuerpo: CUERPO_TUNICA_ALTA, altoCuerpo: 15, ceja: hex('#1c1424'), tocado: 'bruja', delante: varios(monoHP, gafasHP(GAFAS_CUADRADAS, 6, '#4a4a5a')),
+    pal: CLARA({ H: '#1c1820', h: '#3a3448', V: '#1e3a2a', v: '#2e5a3e', C: '#2e7a4a', c: '#1e5a34', o: '#c8a040', G: '#1e5a34', L: '#1c1820' }) },
+  // Snape: pelo negro grasiento hasta los hombros, nariz ganchuda, piel cetrina y todo de negro: levita y capa
+  snape: { ...B21, cab: CAB_SNAPE, cuerpo: CUERPO_LEVITA, ceja: hex('#14111a'), detras: capa(), delante: cejaDura('#14111a'),
+    pal: COLORES({ S: '#e8d4b4', s: '#bca484', H: '#1c1820', h: '#4a4458', C: '#2e2a36', c: '#1a1720', o: '#4a4656', Q: '#24202c', q: '#14111a', L: '#14111a' }) },
+  // Hagrid: el doble de grande, pelo y barba negros y salvajes, abrigo pardo de piel de topo con bolsillos y botazas
+  hagrid: { cab: CAB_HAGRID, cuerpo: CUERPO_HAGRID, dxCuerpo: -4, brazoCol: 17, brazoFilas: [3, 19], altoCuerpo: 33, altoCab: 11, ojosY: 6, bocaY: 9,
+    ceja: hex('#14111a'), delante: barbaHagrid,
+    pal: COLORES({ S: '#eab894', s: '#c48a64', H: '#1e1618', h: '#3e3034', C: '#7a5a3a', c: '#5a3e24', G: '#3a2a1a', O: '#c8a040', F: '#4a3e34', n: '#2a1e16' }) },
+  // Hagrid con el farol encendido en la mano (la llama parpadea con t; o.sinObjeto lo quita)
+  hagridFarol: { cab: CAB_HAGRID, cuerpo: CUERPO_HAGRID, dxCuerpo: -4, brazoCol: 17, brazoFilas: [3, 19], altoCuerpo: 33, altoCab: 11, ojosY: 6, bocaY: 9,
+    ceja: hex('#14111a'), delante: varios(barbaHagrid, hagridFarol),
+    pal: COLORES({ S: '#eab894', s: '#c48a64', H: '#1e1618', h: '#3e3034', C: '#7a5a3a', c: '#5a3e24', G: '#3a2a1a', O: '#c8a040', F: '#4a3e34', n: '#2a1e16' }) },
+  // Hagrid con un helado (el callejón Diagon, por el escaparate)
+  hagridHelado: { cab: CAB_HAGRID, cuerpo: CUERPO_HAGRID, dxCuerpo: -4, brazoCol: 17, brazoFilas: [3, 19], altoCuerpo: 33, altoCab: 11, ojosY: 6, bocaY: 9,
+    ceja: hex('#14111a'), delante: varios(barbaHagrid, enManoHagrid(HELADO_MANO, 15, 13)),
+    pal: COLORES({ S: '#eab894', s: '#c48a64', H: '#1e1618', h: '#3e3034', C: '#7a5a3a', c: '#5a3e24', G: '#3a2a1a', O: '#c8a040', F: '#4a3e34', n: '#2a1e16' }) },
+  // Hagrid con el bebé en brazos, envuelto en su manta (la primera noche en Privet Drive)
+  hagridBebe: { cab: CAB_HAGRID, cuerpo: CUERPO_HAGRID, dxCuerpo: -4, brazoCol: 17, brazoFilas: [3, 19], altoCuerpo: 33, altoCab: 11, ojosY: 6, bocaY: 9,
+    ceja: hex('#14111a'), delante: varios(barbaHagrid, enManoHagrid(BEBE_MANO, 6, 12)),
+    pal: COLORES({ S: '#eab894', s: '#c48a64', H: '#1e1618', h: '#3e3034', C: '#7a5a3a', c: '#5a3e24', G: '#3a2a1a', O: '#c8a040', F: '#4a3e34', n: '#2a1e16' }) },
+  // Quirrell: turbante morado, pálido, nervioso (cejas de preocupación, boca temblona y una gota de sudor)
+  quirrell: { ...B21, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#6a5a4a'), tocado: 'turbante', delante: nervios,
+    pal: COLORES({ S: '#f2e2d0', s: '#cdb49a', H: '#8a6a4a', h: '#a88a6a', A: '#7a3aa8', a: '#56247e', C: '#4a3a5a', c: '#342846', o: '#7a3aa8', G: '#342846', L: '#2a2430' }) },
+  // Flitwick: bajito, pelo y bigote blancos, túnica azul noche, de pie sobre tres libros
+  flitwick: { ...B21, cuerpo: [...CUERPO_ENANO, ...LIBROS_PILA], altoCuerpo: 14, brazoFilas: [2, 3], ceja: hex('#c8c8d0'), delante: bigoteBlanco,
+    pal: CLARA({ H: '#ecebe6', h: '#c4c0b8', W: '#ecebe6', C: '#2a3a6a', c: '#1e2a4e', o: '#c8a040', L: '#2a2430', R: '#a8303a', V: '#3a7a3a', A: '#3a5ab0', X: '#f2eee2' }) },
+  // Flitwick sin los libros (de pie en el suelo: se ve lo bajito que es)
+  flitwickSolo: { ...B21, cuerpo: CUERPO_ENANO, altoCuerpo: 7, brazoFilas: [2, 3], ceja: hex('#c8c8d0'), delante: bigoteBlanco,
+    pal: CLARA({ H: '#ecebe6', h: '#c4c0b8', W: '#ecebe6', C: '#2a3a6a', c: '#1e2a4e', o: '#c8a040', L: '#2a2430' }) },
+  // ── fantasmas (translúcidos de verdad: se ve el fondo a través) ──
+  // Peeves: el poltergeist, pálido y flotando sin pies, gorro de bufón con cascabeles, pajarita y sonrisa de travieso
+  peeves: { ...B21, cuerpo: CUERPO_FANTASMA, ceja: hex('#6a5a9a'), tocado: 'bufon', detras: PEEVES.detras, delante: varios(sonrisaPeeves, PEEVES.delante),
+    pal: COLORES({ k: '#5a5a8a', S: '#eef2fa', s: '#c8d0e8', H: '#d8dcf0', h: '#f2f4fc', C: '#d8e0f4', c: '#b0bcdc', o: '#f0a040', A: '#b8a0e8', Q: '#f4b070' }) },
+  // Binns: el profesor fantasma, viejo, calvo con el cerquillo blanco, gris azulado y translúcido; abajo, humo
+  binns: { ...B21, cab: CAB_BINNS, cuerpo: CUERPO_TUNICA_HUMO, ceja: hex('#8a9ab8'), detras: BINNS.detras, delante: varios((c) => { for (const [i, j] of [[6, 8], [12, 8]]) c.cab.px(i, j, c.pal.s); }, BINNS.delante),
+    pal: COLORES({ k: '#4a5a7a', S: '#c8d4e4', s: '#a0b0c8', w: '#eef2f8', C: '#8a9ab8', c: '#6a7a98', o: '#a8b8d0', G: '#6a7a98', E: '#ffffff' }) },
+  // ── alumnos ──
+  // Draco: pálido, rubio platino engominado hacia atrás, túnica con la corbata verde
+  draco: { ...COLEGIO, cab: CAB_DRACO, ceja: hex('#c8c0a0'), delante: cejaDura('#a8a088'),
+    pal: COLORES({ S: '#f6e4d4', s: '#d8b8a0', H: '#ece6c8', h: '#ffffff', ...VERDE }) },
+  // Neville: cara redonda con los mofletes colorados, pelo castaño, túnica
+  neville: { ...COLEGIO, cab: CAB_NEVILLE, ceja: hex('#5a3a20'), mejillas: [[6, 9], [12, 9]],
+    pal: CLARA({ H: '#7a5a3a', h: '#9a7854', s: '#e8988a', ...ROJO }) },
+  // Neville con su sapo en la mano
+  nevilleSapo: { ...COLEGIO, cab: CAB_NEVILLE, ceja: hex('#5a3a20'), mejillas: [[6, 9], [12, 9]], delante: conSapo,
+    pal: CLARA({ H: '#7a5a3a', h: '#9a7854', s: '#e8988a', ...ROJO }) },
+  // alumnos genéricos: un chico (corbata amarilla) y una chica de pelo largo (corbata azul)
+  alumno: { ...COLEGIO, ceja: hex('#3a2a20'), pal: MORENA({ H: '#2a1c14', h: '#4a3424', ...AMARILLO }) },
+  alumna: { ...COLEGIO, cab: CAB_LARGO, cuerpo: CUERPO_COLEGIO_F, ceja: hex('#6a4a2a'), pal: CLARA({ H: '#d8a850', h: '#f0cc7a', ...AZUL }) },
+  // ── el mundo mágico ──
+  // el duende de Gringotts: bajito, calvo, orejas puntiagudas, nariz larga, dedos largos, traje oscuro y chaleco dorado
+  duende: { ...B21, cab: CAB_DUENDE, cuerpo: CUERPO_DUENDE, altoCuerpo: 10, ceja: hex('#4a4a2a'),
+    delante: varios((c) => c.cab.rej(OREJA_DUENDE, 0, 1), dedosLargos, cejaDura('#4a4a2a')),
+    pal: COLORES({ S: '#c8c08a', s: '#9a9064', H: '#5a5040', C: '#2a2834', c: '#1c1a24', W: '#f2eee2', o: '#c8a040', O: '#f0d060', F: '#2a2834', n: '#1c1a24' }) },
+  // la costurera (Madame Malkin): bruja rechoncha, todo malva, delantal, cinta métrica al cuello y sombrerito de bruja
+  costurera: { ...B21, cuerpo: CUERPO_RECHONCHO, ceja: hex('#8a8a96'), tocado: 'bruja', delante: monoHP, mejillas: [[6, 8], [12, 8]],
+    pal: CLARA({ H: '#a8a8b0', h: '#c8c8d0', V: '#9a6a9a', v: '#7a4a7a', o: '#5a3a5a', C: '#b07ab0', c: '#8a5a8a', W: '#f6f0f4', y: '#f0d040', L: '#3a2a3a' }) },
+  // centauros: torso de hombre sobre cuerpo de caballo. Uno castaño de pelo y barba negros; otro rubio de caballo
+  // pío claro (palomino)
+  centauro: { ...B21M, cuerpo: CUERPO_CENTAURO, dxCuerpo: -13, brazoCol: 25, brazoFilas: [2, 5], altoCuerpo: 18, barba: true, ceja: hex('#1c1424'),
+    pal: COLORES({ S: '#c89068', s: '#9a6a44', H: '#1c1820', h: '#3a3448', U: '#1c1820', B: '#6a4a2a', M: '#7a4a2a', m: '#5a321a', T: '#1c1820' }) },
+  centauro2: { ...B21M, cuerpo: CUERPO_CENTAURO, dxCuerpo: -13, brazoCol: 25, brazoFilas: [2, 5], altoCuerpo: 18, ceja: hex('#b89040'),
+    pal: COLORES({ S: '#f0c8a0', s: '#c89a70', H: '#f0d890', h: '#fff0c0', B: '#3a6a8a', M: '#d8b070', m: '#a88448', T: '#f4ecd0' }) },
+  // ── el mundo real (sección final y producción de la serie) ──
+  // la escritora (genérica, sin parecido con nadie): pelo largo castaño rojizo, chaqueta verde y falda
+  escritora: { ...B21M, cuerpo: CUERPO_SASTRE, ceja: hex('#5a2a1a'),
+    pal: CLARA({ H: '#8a4a2a', h: '#a8643c', C: '#3a6a5a', c: '#284e42', W: '#f2eee2', o: '#3a6a5a', I: '#2a2430' }) },
+  // el editor americano (genérico): gafas, pelo corto canoso en las sienes, traje gris y corbata
+  editor: { ...B21, cab: CAB_SIENES, ceja: hex('#3a2a20'), delante: gafasHP(GAFAS_CUADRADAS, 6, '#4a4a5a'),
+    pal: CLARA({ H: '#4a3a2a', h: '#6a5440', w: '#c8c8d0', C: '#6a6e7a', c: '#4e525e', W: '#f2eee2', o: '#a8303a', F: '#4e525e' }) },
+  // un escribano del París medieval: capucha parda, túnica larga y cinturón de cuerda
+  escribano: { ...B21, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#3a2418'),
+    pal: CLARA({ H: '#3a2418', h: '#5a3a28', B: '#7a5a3a', b: '#5a3e24', C: '#6a4a30', c: '#4e3420', o: '#c8b080', G: '#c8b080', L: '#3a2418' }) },
+  // el subastador: frac negro, pajarita, pelo engominado gris y el martillo en la mano
+  subastador: { ...B21, cab: CAB_ENGOMINADO, cuerpo: CUERPO_FRAC, ceja: hex('#6a6a76'), bigote: true, delante: conMazo,
+    pal: CLARA({ H: '#8a8a96', h: '#b0b0bc', C: '#24202c', c: '#14111a', W: '#f6f4f0', o: '#24202c', F: '#24202c' }) },
+  // la guionista: media melena, rebeca mostaza y la libreta
+  guionista: { ...B21M, cab: parche(CAB_LARGO, [[1, 9, 'kHHHk'], [1, 10, 'kkkk'], [0, 11, '.....'], [0, 12, '....']]), cuerpo: CUERPO_REBECA, ceja: hex('#1c1424'), delante: conLibretaHP,
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#d0a040', c: '#a87a28', W: '#f2eee2', F: '#2a2e3a', n: '#2a2430' }) },
+  // el director: gorra de béisbol, barba, chaqueta de trabajo verde oliva
+  director: { ...B21, cuerpo: CUERPO_CAZADORA, tocado: 'beisbol', ceja: hex('#3a2a20'), bigote: true, barba: true,
+    pal: CLARA({ H: '#4a3424', h: '#6a4c34', U: '#4a3424', J: '#24202c', j: '#3e3a48', C: '#5a6a3a', c: '#3e4a28', W: '#d8d2c2', O: '#5a6a3a', F: '#2a2e3a', n: '#2a2430' }) },
+  // el compositor: pelo largo y canoso, camisa negra, la batuta en la mano
+  compositor: { ...B21, cab: CAB_MELENA_H, cuerpo: CUERPO_MANGA, ceja: hex('#6a6a76'), delante: conBatuta,
+    pal: CLARA({ H: '#9a9aa4', h: '#c8c8d0', C: '#24202c', c: '#14111a', F: '#2a2e3a', n: '#14111a' }) },
+  // el contable: gafas, calvo con entradas, chaleco de punto marrón sobre la camisa y la libreta de cifras
+  contable: { ...B21, cab: CAB_ENTRADAS, cuerpo: CUERPO_REBECA, ceja: hex('#3a2a20'), delante: varios(gafasHP(GAFAS_CUADRADAS, 6, '#4a4a5a'), conLibretaHP),
+    pal: CLARA({ H: '#5a4a3a', h: '#7a6450', C: '#8a6a4a', c: '#6a4e34', W: '#e8eef6', F: '#3a3a44', n: '#2a2430' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_HP);
+
+// ── piezas del 21 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_HP = { ...PAL_JH, ...COLORES({
+  P: '#7a3aa8', p: '#5a2480', Y: '#8a7a6a', y: '#6a5a4a', A: '#3a6ad8', a: '#24489a', Q: '#f07a2a', q: '#f8d040',
+  D: '#f0dca0', d: '#c8b070', H: '#7a5a3a', h: '#5a3e26', i: '#9a7a52', K: '#2a2832', N: '#8ad07a', n: '#f0a0b0',
+  F: '#b8e0f0', e: '#3a3046', s: '#e8c0a0', S: '#f6d8b8', I: '#c8a880', l: '#e8f0ff',
+}) };
+const pintaHP = (R, g, x, y, o = {}) => pintaJH(R, g, x, y, o, PAL_HP);
+// dibuja formas sencillas en una rejilla de letras y le pone el contorno (k) por fuera: para las piezas grandes
+const forma = (w, h, pinta) => {
+  const g = Array.from({ length: h }, () => Array(w).fill('.'));
+  const put = (i, j, ch) => { i = Math.round(i); j = Math.round(j); if (i >= 0 && i < w && j >= 0 && j < h) g[j][i] = ch; };
+  const rect = (x0, y0, x1, y1, ch) => { for (let j = y0; j <= y1; j++) for (let i = x0; i <= x1; i++) put(i, j, ch); };
+  const disco = (cx, cy, r, ch) => { for (let j = Math.floor(cy - r - 1); j <= cy + r + 1; j++) for (let i = Math.floor(cx - r - 1); i <= cx + r + 1; i++) if (Math.hypot(i - cx, j - cy) <= r + 0.35) put(i, j, ch); };
+  const linea = (x0, y0, x1, y1, ch) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1; for (let k = 0; k <= n; k++) put(x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n, ch); };
+  pinta({ put, rect, disco, linea });
+  const out = g.map((f) => f.slice());
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) if (g[j][i] === '.' && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => (g[j + b]?.[i + a] ?? '.') !== '.')) out[j][i] = 'k';
+  return out.map((f) => f.join(''));
+};
+// pinta encima de una pieza en su rejilla (con su escala y su volteo), para caras y detalles que cambian
+const encima = (R, w, hgt, x, y, o) => { const s = o.s ?? 1, dir = o.dir ?? 1, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - hgt * s); return (i, j, c) => { const ii = dir > 0 ? i : w - 1 - i; R.rect(x0 + ii * s, y0 + j * s, x0 + ii * s + s - 1, y0 + j * s + s - 1, PAL_HP[c]); }; };
+
+// LA SNITCH CON OJOS, la mascota del episodio: bola de oro (O, sombra g, brillo o) con alas de plata (W/G) que baten con
+// o.t. o.cara: 'normal' (parpadea), 'feliz', 'susto' (ojos grandes y boca en O), 'tapaOjos' (se tapa los ojos con las
+// alas, gag del aviso de destripe), 'tapaOidos' (las alas pegadas a los lados de la cabeza, gag del sombrero que canta)
+const BOLA = ['..kkkkk..', '.kOoOOOk.', 'kOoOOOOOk', 'kOOOOOOOk', 'kOOOOOOgk', 'kOOOOOOgk', 'kOOOOOggk', '.kgOOggk.', '..kkkkk..'];
+const ALA_ARRIBA_HP = ['kk...', 'kWWk.', '.kGWk', '..kWk'];
+const ALA_ABAJO_HP = ['.....', 'kkkk.', 'kWWWk', '.kGGk'];
+const espejar = (g) => g.map((f) => f.split('').reverse().join(''));
+const SNITCH = {};
+for (const [n, ala, j] of [['arriba', ALA_ARRIBA_HP, 0], ['abajo', ALA_ABAJO_HP, 1]]) {
+  SNITCH[n] = parche(parche(parche(Array(9).fill('.'.repeat(19)), BOLA.map((f, jj) => [5, jj, f])), ala.map((f, jj) => [0, j + jj, f])), espejar(ala).map((f, jj) => [14, j + jj, f]));
+}
+// alas pegadas a los lados (tapa los oídos) y alas cruzadas delante de los ojos (tapa los ojos)
+SNITCH.oidos = parche(Array(9).fill('.'.repeat(19)), [...BOLA.map((f, jj) => [5, jj, f]), [3, 2, 'kk'], [2, 3, 'kWk'], [2, 4, 'kWGk'], [3, 5, 'kk'], [14, 2, 'kk'], [14, 3, 'kWk'], [13, 4, 'kGWk'], [14, 5, 'kk']]);
+SNITCH.ojos = parche(Array(9).fill('.'.repeat(19)), [...BOLA.map((f, jj) => [5, jj, f]), [3, 2, 'kkk'], [4, 3, 'kWWWWWWWWWk'], [4, 4, 'kGWWGWWWGk'], [5, 5, 'kkkkkkkkk'], [13, 2, 'kkk']]);
+const snitch = (R, x, y, o = {}) => {
+  const cara = o.cara ?? 'normal', t = o.t ?? 0, sube = Math.sin(t * 22 + x) > 0;
+  const g = cara === 'tapaOjos' ? SNITCH.ojos : cara === 'tapaOidos' ? SNITCH.oidos : sube ? SNITCH.arriba : SNITCH.abajo;
+  pintaHP(R, g, x, y, o);
+  const px = encima(R, 19, 9, x, y, o);
+  if (cara === 'tapaOjos') { px(9, 6, 'k'); return; }
+  if (cara === 'susto') { px(7, 3, 'E'); px(8, 3, 'E'); px(7, 4, 'E'); px(8, 4, 'k'); px(10, 3, 'E'); px(11, 3, 'E'); px(10, 4, 'E'); px(11, 4, 'k'); px(9, 6, 'k'); px(9, 7, 'm'); return; }
+  if (cara === 'feliz') { px(7, 4, 'k'); px(8, 3, 'k'); px(9, 4, 'k'); px(10, 4, 'k'); px(11, 3, 'k'); px(12, 4, 'k'); px(9, 6, 'k'); px(10, 6, 'k'); return; }
+  const cierra = ((t + x * 0.13) % 2.6) < 0.1 && cara === 'normal' && o.t != null;
+  for (const ex of [8, 11]) { if (!cierra) px(ex, 3, 'k'); px(ex, 4, 'k'); }
+  px(9, 6, 'k'); px(10, 6, 'k'); if (cara === 'tapaOidos') { px(9, 6, 'm'); px(10, 6, 'k'); }
+};
+// la carta de Hogwarts: sobre de pergamino (D/d) con el sello de lacre rojo (R); sin letras
+const CARTA = ['kkkkkkkkkkk', 'kDkddddDkDk', 'kDDkdddkDDk', 'kDDDkRkDDDk', 'kDDDRRRDDDk', 'kDDDDRDDDDk', 'kddddddddDk', 'kkkkkkkkkkk'];
+const carta = (R, x, y, o = {}) => pintaHP(R, CARTA, x, y, o);
+// las gafas redondas grandes (para insertos y el póster): dos aros con el cristal (F) y un brillo (E); o.reflejo pinta en
+// los cristales un castillo de noche con ventanas encendidas
+const GAFAS_PZ = [
+  '...kkk.......kkk...',
+  '..kFFFk.....kFFFk..',
+  '.kFEFFFk...kFEFFFk.',
+  'kkFFFFFkkkkkFFFFFkk',
+  'k.kFFFFFk.kFFFFFk.k',
+  '..kFFFFFk.kFFFFFk..',
+  '...kFFFk...kFFFk...',
+  '....kkk.....kkk....',
+];
+const gafasPieza = (R, x, y, o = {}) => {
+  pintaHP(R, GAFAS_PZ, x, y, o);
+  if (!o.reflejo) return;
+  const px = encima(R, 19, 8, x, y, o);
+  for (const c0 of [3, 11]) { for (let i = 0; i < 5; i++) { px(c0 + i, 5, 'e'); px(c0 + i, 4, i === 1 || i === 3 ? 'e' : 'F'); } px(c0 + 1, 6, 'e'); px(c0 + 2, 6, 'e'); px(c0 + 3, 6, 'e'); px(c0 + 1, 3, 'e'); px(c0 + 1, 5, 'q'); px(c0 + 3, 5, 'q'); }
+};
+// la varita: madera (B/b) con la punta clara; o.chispa enciende la punta
+const VARITA = ['.k.', 'kXk', 'kBk', 'kBk', 'kbk', 'kBk', 'kbk', 'kLk', 'kLk', '.k.'];
+const varita = (R, x, y, o = {}) => { pintaHP(R, VARITA, x, y, o); if (o.chispa) { const px = encima(R, 3, 10, x, y, o), on = Math.sin((o.t ?? 0) * 12) > 0; px(1, -1, on ? 'q' : 'E'); px(0, 0, 'q'); px(2, 0, 'q'); px(1, -2, 'q'); } };
+// la escoba: mango (B/b) y las ramitas (T/t) atadas con una cinta (Z); mira a la derecha (las ramitas detrás)
+const ESCOBA = [
+  'kkkk...................',
+  'kTtTkk.................',
+  'kTTtTTkk..............k',
+  'kTtTTTZbBBBBBBBBBBBBBBk',
+  'kTTtTTkk..............k',
+  'kTtTkk.................',
+  'kkkk...................',
+];
+const escoba = (R, x, y, o = {}) => pintaHP(R, ESCOBA_P, x, y, o);
+const ESCOBA_P = pad(ESCOBA);
+// EL SOMBRERO SELECCIONADOR: sombrero de mago viejo y remendado (H/h, remiendos i) con cara en los pliegues; o.canta abre
+// y cierra la boca con o.t (o.abre: siempre abierta)
+const SOMBRERO = [
+  '...........kkk.....',
+  '..........kHHhk....',
+  '.........kHHk.kk...',
+  '........kHHk.......',
+  '.......kHHHk.......',
+  '......kHhHHHk......',
+  '......kHHiiHk......',
+  '.....kHHHiiHHk.....',
+  '.....kHHHHHHHk.....',
+  '....kHHHHHHHHHk....',
+  '....kHhHHHHHhHk....',
+  '...kHHHHHHHHHHHk...',
+  '...kHHHHHHHHHHHk...',
+  'kkkkhHHHHHHHHHhkkkk',
+  'kHHHHHHHHHHHHHHHHHk',
+  '.khhhhhhhhhhhhhhhk.',
+  '..kkkkkkkkkkkkkkk..',
+];
+const sombrero = (R, x, y, o = {}) => {
+  pintaHP(R, SOMBRERO, x, y, o);
+  const px = encima(R, 19, 17, x, y, o), abre = o.abre || (o.canta && Math.sin((o.t ?? 0) * 9) > -0.2);
+  for (const i of [6, 7, 11, 12]) px(i, 9, 'h');   // los pliegues de los párpados
+  px(7, 10, 'k'); px(6, 10, 'k'); px(11, 10, 'k'); px(12, 10, 'k');
+  if (abre) { for (let i = 7; i <= 11; i++) { px(i, 12, 'k'); px(i, 14, 'k'); } px(6, 13, 'k'); px(12, 13, 'k'); for (let i = 7; i <= 11; i++) px(i, 13, 'm'); }
+  else { for (const [i, j] of [[6, 13], [7, 12], [8, 13], [9, 12], [10, 13], [11, 12], [12, 13]]) px(i, j, 'k'); }
+};
+// la lechuza blanca: plumas blancas (w) con motitas (u), ojos amarillos (O) y pico (e); o.vuela abre las alas (baten con
+// o.t); o.jaula la mete en su jaula de barrotes dorados
+const LECHUZA = ['..kkkkk..', '.kwwwwwk.', 'kwwwwwwwk', 'kwOOwOOwk', 'kwOkwkOwk', 'kwwwewwwk', 'kwwuwwuwk', 'kwuwwwwwk', 'kwwwwuwwk', '.kwwwwwk.', '..kOkOk..'];
+const ALAS_LECHUZA = (arriba) => (arriba
+  ? [[0, 3, 'kk'], [0, 4, 'kwk'], [0, 5, 'kwwk'], [1, 6, 'kwk'], [15, 3, 'kk'], [14, 4, 'kwk'], [13, 5, 'kwwk'], [13, 6, 'kwk']]
+  : [[0, 6, 'kkkk'], [0, 7, 'kwwk'], [1, 8, 'kk'], [13, 6, 'kkkk'], [13, 7, 'kwwk'], [14, 8, 'kk']]);
+const lechuza = (R, x, y, o = {}) => {
+  if (o.vuela) { const g = parche(Array(11).fill('.'.repeat(17)), [...LECHUZA.map((f, j) => [4, j, f]), ...ALAS_LECHUZA(Math.sin((o.t ?? 0) * 12 + x) > 0)]); pintaHP(R, g, x, y, o); return; }
+  if (!o.jaula) { pintaHP(R, LECHUZA, x, y, o); return; }
+  const J = [
+    '......kk......',
+    '.....kOOk.....',
+    '...kkkOOkkk...',
+    '..kO.O..O.Ok..',
+    '.kO.O....O.Ok.',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kkkkkkkkkkkkkk',
+    'kggggggggggggk',
+    'kkkkkkkkkkkkkk',
+  ];
+  pintaHP(R, J, x, y, o);
+  pintaHP(R, LECHUZA, x, y - 3 * (o.s ?? 1), o);
+  const s = o.s ?? 1, x0 = Math.round(x - 7 * s), y0 = Math.round(y - 17 * s);
+  for (const i of [4, 9]) for (let j = 3; j < 14; j++) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, PAL_HP.O);   // los barrotes por delante
+};
+// la rata de Ron (Scabbers), gris parda (Y/y) y enroscada durmiendo; o.ojo: abre un ojo (el gag de la lupa)
+const RATA = ['....kkkk.....', '..kkYYYYkkrk.', '.kYYYYYYYYkrk', 'kYYYYYYYYYYYk', 'kYYyYYYYYYYrk', '.kYYYYYYYYYkk', 'rkkkkkkkkkk..', '.rr..........'];
+const rata = (R, x, y, o = {}) => { pintaHP(R, RATA, x, y, o); const px = encima(R, 13, 8, x, y, o); if (o.ojo) { px(9, 3, 'E'); px(10, 3, 'k'); } else { px(9, 3, 'k'); px(10, 3, 'k'); } };
+// el sapo de Neville: verde parduzco (V/v) con los ojos saltones
+const SAPO = ['.kk...kk.', 'kEkk.kEkk', 'kVVkkkVVk', 'kVVVVVVVk', 'kVvVVVvVk', 'kkkkkkkkk', 'kVk...kVk', '.k.....k.'];
+const sapo = (R, x, y, o = {}) => { pintaHP(R, SAPO, x, y, { ...o }); const px = encima(R, 9, 8, x, y, o); px(2, 1, 'k'); px(7, 1, 'k'); };
+// la flauta de madera tallada (B/b) con sus agujeros
+const FLAUTA = ['kkkkkkkkkkkkkk', 'kBBkBkBkBkBBbk', 'kbbbbbbbbbbbbk', 'kkkkkkkkkkkkkk'];
+const flauta = (R, x, y, o = {}) => pintaHP(R, FLAUTA, x, y, o);
+// el huevo de dragón: negro con motas (e/K) y un brillo; o.grieta lo rompe un poco
+const HUEVO = ['..kkk..', '.kKjKk.', 'kKjKKKk', 'kKKKeKk', 'kKeKKKk', 'kKKKKjk', '.kKKKk.', '..kkk..'];
+const huevoDragon = (R, x, y, o = {}) => { pintaHP(R, HUEVO, x, y, o); if (o.grieta) { const px = encima(R, 7, 8, x, y, o); for (const [i, j] of [[2, 3], [3, 4], [4, 3], [5, 4]]) px(i, j, 'q'); } };
+// el bebé de dragón verde (V/v, tripa y, alas N): o.estornudo cierra los ojos y le sale una chispa por la nariz
+const DRAGON = pad([
+  '.........kkkk...',
+  '..kk....kVVVVk..',
+  '.kNNk..kVVVkVkk.',
+  '.kNvNk.kVVVVVVVk',
+  '..kNvNkkVVVVVkk.',
+  '...kNNkVVVVVk...',
+  '....kkVVVVVVVk..',
+  '..kkVVyyyyVVVk..',
+  '.kVVkVyyyyVVk...',
+  'kVk.kVVyyVVVk...',
+  'kk..kVkkkkVk....',
+  '....kkk..kkk....',
+]);
+const dragon = (R, x, y, o = {}) => {
+  pintaHP(R, DRAGON, x, y, o);
+  const px = encima(R, 16, 12, x, y, o);
+  if (o.estornudo) { px(11, 2, 'V'); px(10, 2, 'k'); px(12, 2, 'k'); for (const [i, j, c] of [[16, 2, 'q'], [17, 3, 'Q'], [16, 4, 'q'], [18, 2, 'q'], [18, 4, 'Q'], [19, 3, 'q'], [17, 1, 'E']]) px(i, j, c); }
+  else px(11, 2, 'E');
+};
+// las siete botellas del acertijo: de formas y colores distintos (la pequeña, la del medio, es la buena)
+const BOTELLAS = pad([
+  '..kk.......kk..................kk.........kk...',
+  '..kk......kddk......kk.........kk........kddk..',
+  '.kRRk.....kRRk.....kddk.......kAAk.......kAAk..',
+  '.kRRk......kk......kVVk..kk..kAAAAk.....kAAAAk.',
+  'kRRRRk....kPPk....kVVVVk.kdk.kAaAAk....kAAAAAAk',
+  'kRrRRk...kPPPPk...kVVVVk.kqk.kAAAAk...kAAaAAAAk',
+  'kRRRRk...kPpPPk...kVvVVk.kqk.kAAAAk...kAAAAAAAk',
+  'kRRRRk...kPPPPk...kVVVVk.kqk.kaAAak...kaAAAAAak',
+  '.kkkk.....kkkk.....kkkk..kkk..kkkk.....kkkkkkk.',
+]);
+const botellas = (R, x, y, o = {}) => pintaHP(R, BOTELLAS, x, y, o);
+// el espejo de marco dorado (O/g) con patas de garra; el cristal (G) con un brillo; o.brillo hace que el cristal reluzca
+const ESPEJO = forma(23, 34, ({ rect, disco, put }) => {
+  rect(2, 4, 20, 30, 'O'); disco(11, 4, 8, 'O'); rect(4, 6, 18, 28, 'g'); disco(11, 6, 6, 'g');
+  rect(5, 7, 17, 27, 'G'); disco(11, 7, 5, 'G'); for (let j = 8; j < 26; j += 5) { put(7, j, 'W'); put(8, j - 1, 'W'); }
+  for (const i of [3, 19]) for (let j = 8; j < 29; j += 4) put(i, j, 'o');
+  put(11, -1 + 2, 'o'); put(10, 2, 'o'); put(12, 2, 'o');
+  rect(3, 31, 6, 32, 'O'); rect(16, 31, 19, 32, 'O'); put(2, 32, 'g'); put(20, 32, 'g');
+});
+const espejo = (R, x, y, o = {}) => { pintaHP(R, ESPEJO, x, y, o); if (o.brillo) { const px = encima(R, 23, 34, x, y, o), n = Math.floor((o.t ?? 0) * 6) % 6; for (let j = 0; j < 3; j++) px(8 + n + j, 10 + n * 2 + j, 'E'); } };
+// los calcetines de lana (el regalo que quiere Dumbledore): a rayas rojas (R) y crema (D)
+const CALCETIN = ['kkkk...', 'kDDk...', 'kRRk...', 'kDDk...', 'kRRk...', 'kDDkk..', 'kRRRRk.', 'kDDDDDk', '.kkkkk.'];
+const calcetin = (R, x, y, o = {}) => pintaHP(R, CALCETIN, x, y, o);
+// el apagador: un aparato de plata (Z/z) como un mechero, con su botón; o.luz: una bolita de luz que entra arriba
+const APAGADOR = ['.kk..', 'kZZk.', 'kZEkk', 'kZZzk', 'kZZZk', 'kZzZk', 'kZZZk', 'kzzzk', '.kkk.'];
+const apagador = (R, x, y, o = {}) => { pintaHP(R, APAGADOR, x, y, o); if (o.luz) { const px = encima(R, 5, 9, x, y, o); px(1, -1, 'q'); px(2, -2, 'q'); px(1, -2, 'o'); px(2, -1, 'o'); } };
+// la moto voladora gigante con sidecar (para Hagrid): negra (K) con cromados (Z/z), sillín de cuero (B), faro (o),
+// tubo de escape; el sidecar verde (V/v) por detrás. Mira a la derecha. o.faro enciende el faro
+const MOTO = forma(48, 24, ({ rect, disco, linea, put }) => {
+  // el sidecar (detrás): una barquilla redonda con su ruedecita y el parabrisas
+  disco(28, 15, 1, 'V'); rect(18, 11, 40, 17, 'k'); rect(19, 12, 39, 16, 'V'); disco(40, 14, 3, 'V'); rect(19, 15, 39, 16, 'v'); disco(30, 18, 3, 'k'); disco(30, 18, 2, 'U');
+  linea(36, 8, 38, 11, 'W'); linea(37, 8, 39, 11, 'W');
+  // las ruedas
+  for (const cx of [8, 39]) { disco(cx, 18, 5, 'k'); disco(cx, 18, 4, 'K'); disco(cx, 18, 2, 'z'); put(cx, 18, 'Z'); }
+  // el cuerpo de la moto
+  rect(9, 9, 31, 13, 'k'); rect(10, 10, 30, 12, 'K'); rect(20, 8, 29, 9, 'K'); rect(13, 13, 24, 17, 'k'); rect(14, 14, 23, 16, 'z'); rect(15, 14, 22, 14, 'Z');
+  rect(2, 15, 14, 16, 'k'); rect(3, 15, 13, 15, 'Z');   // el escape
+  rect(9, 7, 19, 9, 'k'); rect(10, 7, 18, 8, 'B');   // el sillín
+  linea(32, 6, 38, 17, 'Z'); linea(33, 6, 39, 17, 'z');   // la horquilla
+  rect(30, 3, 35, 4, 'Z'); put(29, 3, 'K'); put(36, 4, 'K');   // el manillar
+  disco(37, 8, 2, 'k'); disco(37, 8, 1, 'o');   // el faro
+  rect(4, 10, 9, 12, 'K');   // el guardabarros de atrás
+});
+const moto = (R, x, y, o = {}) => { pintaHP(R, MOTO, x, y, o); if (o.faro) { const px = encima(R, 48, 24, x, y, o); px(37, 8, 'E'); for (let i = 40; i < 46; i++) for (let j = 7 - (i - 40) / 3; j <= 9 + (i - 40) / 3; j++) px(i, Math.round(j), 'o'); } };
+// el farol: de hierro (k) con cristales (Z) y la llama (O, o) que parpadea con o.t; el asa arriba
+const farol = (R, x, y, o = {}) => pintaHP(R, Math.sin((o.t ?? 0) * 9 + x) > 0.3 ? FAROL_MANO : FAROL_MANO.map((f) => f.replace(/O/g, 'o')), x, y, o);
+// el libro de la piedra: tapas granates (m) con el canto (X) y la piedra roja engastada en oro en la portada; o.abierto
+// lo pinta abierto por la mitad
+const LIBRO = ['kkkkkkkkkkk', 'kmmmmmmmmXk', 'kmOOOOOOmXk', 'kmOmmmmOmXk', 'kmmmOOmmmXk', 'kmmORrOmmXk', 'kmmORROmmXk', 'kmmmOOmmmXk', 'kmOmmmmOmXk', 'kmOOOOOOmXk', 'kmmmmmmmmXk', 'kkkkkkkkkkk'];
+const LIBRO_ABIERTO = ['kkkkkkk.kkkkkkk', 'kXXXXXXkXXXXXXk', 'kXxxxXXkXxxxxXk', 'kXXXXXXkXXXXXXk', 'kXxxxxXkXxxxXXk', 'kXXXXXXkXXXXXXk', 'kXxxxXXkXxxxxXk', 'kXXXXXXkXXXXXXk', 'kmmmmmmkmmmmmmk', '.kkkkkkkkkkkkk.'];
+const libro = (R, x, y, o = {}) => pintaHP(R, o.abierto ? LIBRO_ABIERTO : LIBRO, x, y, o);
+// la piedra roja: talla de gema (R, r) con brillo (E); o.brillo la hace relucir con o.t
+const PIEDRA = ['.kkk.', 'kREmk', 'kRRrk', 'kRrrk', '.kmk.', '..k..'];
+const piedra = (R, x, y, o = {}) => { pintaHP(R, PIEDRA, x, y, o); if (o.brillo && Math.sin((o.t ?? 0) * 6) > 0.4) { const px = encima(R, 5, 6, x, y, o); px(2, -1, 'E'); px(5, 1, 'E'); px(-1, 2, 'E'); } };
+// la moneda de oro (galeón), con el canto (g) y un brillo
+const MONEDA = ['.kkk.', 'kOoOk', 'kOOOk', 'kgOgk', '.kkk.'];
+const moneda = (R, x, y, o = {}) => pintaHP(R, MONEDA, x, y, o);
+// el martillo de subasta: cabeza de madera (B/b) con aros (O) y mango; o.golpe lo inclina abajo
+const MAZO = ['.kkkkkkk.', 'kBOBBBOBk', 'kbObbbObk', '.kkkkkkk.', '....kBk..', '....kbk..', '....kBk..', '....kbk..', '....kkk..'];
+const MAZO_GOLPE = ['kkkk.......', 'kBBBkkkkkkk', 'kOObBBBBBBk', 'kBBBkkkkkkk', 'kbbbk......', 'kOObk......', 'kbbbk......', 'kkkkk......'];
+const martilloHP = (R, x, y, o = {}) => pintaHP(R, o.golpe ? MAZO_GOLPE : MAZO, x, y, o);
+// el baúl del colegio: madera (B/b) con esquinas y cierre de latón (O), dos correas (H)
+const BAUL = forma(21, 13, ({ rect, put }) => {
+  rect(1, 1, 19, 11, 'B'); rect(1, 1, 19, 3, 'b'); rect(1, 4, 19, 4, 'k');
+  for (const i of [5, 15]) rect(i, 1, i + 1, 11, 'H');
+  for (const [i, j] of [[1, 1], [19, 1], [1, 11], [19, 11]]) put(i, j, 'O');
+  rect(9, 4, 11, 6, 'O'); put(10, 6, 'k');
+});
+const baul = (R, x, y, o = {}) => pintaHP(R, BAUL, x, y, o);
+// el bebé envuelto en su manta (para la puerta de Privet Drive); duerme
+const bebe = (R, x, y, o = {}) => pintaHP(R, BEBE_MANO, x, y, o);
+// el gato atigrado de la tapia (gris pardo Y/y con rayas) y las marcas de gafas alrededor de los ojos (e); mira a la
+// derecha, sentado
+const GATO = ['.....k.k..', '....kYkYk.', '...kYeYeYk', '...kYOeOYk', '...keYYYek', '....kYnYk.', '..kkYyYyk.', '.kYYyYYYk.', 'kYYYYyYYk.', 'kYyYYYyYk.', '.kkkkkkk..', 'kyk.......', '.k........'];
+const gato = (R, x, y, o = {}) => pintaHP(R, GATO, x, y, o);
+// la boa del zoo: enroscada (V/v con manchas y), la cabeza levantada mirando a la derecha; o.guino cierra un ojo
+const BOA = pad([
+  '...............kkkk.',
+  '..............kVVVVk',
+  '..............kVEVVk',
+  '...............kVVnk',
+  '...kkkkkkk....kVVk.k',
+  '.kkVVyVVyVkk..kVk...',
+  'kVVvVVVVVVyVk.kVk...',
+  'kVyVkkkkkkVVVkVVk...',
+  'kVVVyVVyVVVyVVVk....',
+  '.kvvvvvvvvvvvvk.....',
+  '..kkkkkkkkkkkk......',
+]);
+const boa = (R, x, y, o = {}) => { pintaHP(R, BOA, x, y, o); if (o.guino) { const px = encima(R, 20, 11, x, y, o); px(16, 2, 'k'); } else { const px = encima(R, 20, 11, x, y, o); px(17, 2, 'k'); } };
+// el helado (bola rosa y cucurucho)
+const helado = (R, x, y, o = {}) => pintaHP(R, HELADO_MANO, x, y, o);
+// la lupa (la snitch vigila a la rata; la lupa recorre la mesa del final): aro de latón (O), cristal (F), mango (B)
+const LUPA = ['..kkkkk..', '.kOOOOOk.', 'kOFFFFFOk', 'kOFEFFFOk', 'kOFFFFFOk', 'kOFFFFFOk', '.kOOOOOk.', '..kkOkk..', '....kBk..', '....kBk..', '....kbk..', '....kkk..'];
+const lupa = (R, x, y, o = {}) => pintaHP(R, LUPA, x, y, o);
+export const PIEZAS_HP = { snitch, carta, gafas: gafasPieza, varita, escoba, sombrero, lechuza, rata, sapo, flauta, huevoDragon, dragon, botellas, espejo, calcetin, apagador, moto, farol, libro, piedra, moneda, martillo: martilloHP, baul, bebe, gato, boa, helado, lupa };
