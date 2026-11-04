@@ -70,8 +70,8 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 
 | ES | EN |
 |---|---|
-| Esta Navidad, Harry Potter vuelve a empezar… y esta vez vuelve todo lo que las películas cortaron. | This Christmas, Harry Potter starts over… and this time, everything the movies cut is coming back. |
-| El 25 de diciembre, HBO estrena una serie nueva: un libro por temporada, siete temporadas y unos diez años de televisión. | On December 25, HBO premieres a brand-new series: one book per season, seven seasons, and about ten years of television. |
+| Esta Navidad, Harry Potter vuelve a empezar… y esta vez, con sitio para lo que las películas cortaron. | This Christmas, Harry Potter starts over… and this time, there's room for what the movies cut. |
+| El 25 de diciembre, HBO estrena una serie nueva, un libro por temporada: el plan son siete temporadas y unos diez años de televisión. | On December 25, HBO premieres a brand-new series, one book per season: the plan is seven seasons and about ten years of television. |
 | Solo para el primer libro, La piedra filosofal, hay ocho episodios, así que hay sitio para lo que la película de 2001 se dejó fuera. | The first book alone, the Philosopher's Stone, gets eight episodes, so there's room for everything the 2001 movie left out. |
 | ¿Qué tiene de nuevo, quién es quién, qué se saltaron las películas y qué pistas del primer libro se pagan años después? | So what's new, who's who, what did the movies skip, and which clues in book one pay off years later? |
 | Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo. | I'm Atom, and I explain the things you've always wondered about. Let's find out. |
@@ -85,10 +85,10 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 | Se ha rodado en los estudios de Leavesden, en Inglaterra, los mismos donde se hicieron las películas. | It was shot at Leavesden Studios in England, the same place where the movies were made. |
 | La música no es de John Williams, sino de Hans Zimmer. | The music isn't by John Williams this time, but by Hans Zimmer. |
 | El segundo tráiler, de septiembre, ya enseña a Hermione en el expreso de Hogwarts, el sombrero seleccionador, la partida de ajedrez gigante y el espejo de Oesed. | The second trailer, from September, already shows Hermione on the Hogwarts Express, the Sorting Hat, the giant chess game, and the Mirror of Erised. |
-| Y el primer avance batió récords: más de doscientos setenta y siete millones de reproducciones en dos días, el más visto de la historia de HBO. | And the first teaser broke records: more than two hundred seventy-seven million views in two days, the most-watched in HBO history. |
-| El primer póster es solo unas gafas redondas que reflejan el castillo, con una frase: «Todo el mundo en nuestro mundo conocerá su nombre». | The first poster is just a pair of round glasses reflecting the castle, with one line: "Everyone in our world will know his name." |
+| Y el primer avance batió récords: según HBO, más de doscientos setenta y siete millones de reproducciones en dos días, el tráiler más visto de su historia. | And the first teaser broke records: according to HBO, more than two hundred seventy-seven million views in two days, the most-watched trailer in its history. |
+| El primer póster es Harry de cerca, con el castillo reflejado en sus gafas redondas, y una frase: «Todo el mundo en nuestro mundo conocerá su nombre». | The first poster is Harry up close, with the castle reflected in his round glasses, and one line: "Everyone in our world will know his name." |
 | La segunda temporada, La cámara secreta, ya está en marcha, aunque HBO avisa de que no saldrá una cada año. | Season two, the Chamber of Secrets, is already underway, though HBO warns there won't be a new season every year. |
-| Y según las cuentas de la productora, es una de las series más caras que HBO ha hecho nunca. | And according to the production company's accounts, it's one of the most expensive series HBO has ever made. |
+| Y según las cuentas de la productora, a mitad del rodaje ya se habían gastado casi doscientos millones de dólares: por eso la prensa la cuenta entre las series más caras de HBO. | And according to the production company's accounts, it had already spent nearly two hundred million dollars halfway through filming, which is why the press counts it among HBO's most expensive series. |
 
 ## 2 · Quién es quién
 
@@ -100,7 +100,7 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 | Los Dursley son Bel Powley y Daniel Rigby, y Neville, el chico que siempre pierde su sapo, es Rory Wilmot. | The Dursleys are Bel Powley and Daniel Rigby, and Neville, the boy who keeps losing his toad, is Rory Wilmot. |
 | Hay una cara conocida: Warwick Davis vuelve a ser el profesor Flitwick, como en las películas. | There's one familiar face: Warwick Davis plays Professor Flitwick again, just like in the movies. |
 | Draco es Lox Pratt, su padre Lucius es Johnny Flynn, y Molly Weasley es Katherine Parkinson. | Draco is Lox Pratt, his father Lucius is Johnny Flynn, and Molly Weasley is Katherine Parkinson. |
-| Hasta el sombrero seleccionador tiene voz conocida: la de David Threlfall. | Even the Sorting Hat has a familiar voice: David Threlfall's. |
+| Hasta el sombrero seleccionador tiene voz: la del actor británico David Threlfall. | Even the Sorting Hat has a voice: British actor David Threlfall's. |
 | Y por primera vez aparece Peeves, el fantasma bromista, con la voz y la cara de Peter Serafinowicz. | And for the first time, Peeves the prankster poltergeist shows up, played by Peter Serafinowicz. |
 
 ## 3 · Lo que la película se saltó
@@ -151,7 +151,7 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 
 | ES | EN |
 |---|---|
-| Si quieres llegar preparado, vuelve a ver la primera película… o mejor, lee el primer libro: la serie promete contar lo que la película no pudo. | If you want to be ready, rewatch the first movie… or better yet, read the first book: the series promises to tell what the movie couldn't. |
+| Si quieres llegar preparado, vuelve a ver la primera película… o mejor, lee el primer libro: la serie tiene ocho episodios para contar lo que a la película no le cupo. | If you want to be ready, rewatch the first movie… or better yet, read the first book: the series has eight episodes to tell what the movie couldn't fit. |
 | Y si tienes tiempo, la segunda película: la segunda temporada ya se está rodando. | And if you have time, the second movie too: season two is already being filmed. |
 | Y fíjate en los detalles del primer episodio: en este mundo, casi nada está ahí por casualidad. | And watch the details in the first episode: in this world, almost nothing is there by accident. |
 | Porque, como en el libro, lo que parece un detalle sin importancia en el primer capítulo puede ser la pista del último. | Because, just like in the book, what looks like a throwaway detail in chapter one can be the clue to the last. |
