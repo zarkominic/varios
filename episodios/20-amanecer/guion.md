@@ -1,6 +1,6 @@
 # Episodio 20 · Los Juegos del Hambre: lo que hay que saber antes de Amanecer en la cosecha
 
-**Estado:** v1, 4 de noviembre de 2026: planteamiento del usuario («qué quiere ver alguien antes de la nueva película:
+**Estado:** v2, 4 de noviembre de 2026: verificada por los 3 agentes (12 correcciones; fuera la frase de Sinsajo sobre lo que perdió Haymitch, por destripe). v1: planteamiento del usuario («qué quiere ver alguien antes de la nueva película:
 qué debe saber, datos interesantes, pistas»). Pendiente de la verificación con 3 agentes y de la aprobación del usuario.
 
 **Por qué este tema:** lo eligió el usuario, por el público del canal (mujeres de 25 a 35 en México, según sus
@@ -13,7 +13,7 @@ blanca de Snow), dibujados por nosotros, sin logos, sin clips ni música de las 
 nuevo: solo la premisa oficial, el reparto, lo que enseña el tráiler y lo que ya contaba la trilogía. **Sin muertes en
 pantalla:** los Juegos se ven desde fuera (mapas, cámaras, el contador de tributos), nunca la violencia.
 
-**Duración objetivo:** unos 9 minutos [Probable]. Son 60 frases y unas 1.300 palabras en inglés.
+**Duración objetivo:** unos 9 minutos [Probable]. Son 60 frases y unas 1.290 palabras en inglés.
 
 **Publicar:** entre el 13 y el 17 de noviembre de 2026 (antes del 19, el estreno en México).
 
@@ -143,7 +143,7 @@ y el 19 en Do menor; este suena a balada de pueblo y a desfile del Capitolio.
 | Lucy Gray escribió El árbol del ahorcado, la canción que Katniss canta en Sinsajo, así que esa canción viajó más de sesenta años hasta llegar a ella. | Lucy Gray wrote The Hanging Tree, the song Katniss sings in Mockingjay, so that song traveled more than sixty years to reach her. |
 | La tercera es una frase: en En llamas, Haymitch le dice a Katniss «recuerda quién es el verdadero enemigo», y al final ella dispara su flecha contra el campo de fuerza. | The third is a line: in Catching Fire, Haymitch tells Katniss, "remember who the real enemy is," and in the end she fires her arrow at the force field. |
 | Es el mismo punto débil que salvó a Haymitch veinticinco años antes. | It's the same weak spot that saved Haymitch twenty-five years earlier. |
-| Y en En llamas, Wiress fue la primera en darse cuenta de que la arena era un reloj: tic, tac. | And in Catching Fire, Wiress was the first to realize the arena was a clock: tick, tock. |
+| Y en En llamas, Wiress fue quien dio la pista de que la arena era un reloj: tic, tac. | And in Catching Fire, Wiress was the one who gave away that the arena was a clock: tick, tock. |
 | Y en el tráiler, Wiress lo resume: la arena es una máquina, pero todas las máquinas se pueden romper. | And in the trailer, Wiress sums it up: the arena is a machine, but all machines can be broken. |
 
 ## 6 · Lo real detrás de Panem
@@ -153,7 +153,7 @@ y el 19 en Do menor; este suena a balada de pueblo y a desfile del Capitolio.
 | Y ahora, lo que hay de verdad detrás de Panem. | And now, what's real behind Panem. |
 | Suzanne Collins tuvo la idea cambiando de canal: en uno había un reality y en otro, imágenes reales de la guerra de Irak, y las dos cosas se le mezclaron. | Suzanne Collins got the idea flipping channels: one had a reality show, the other had real footage of the Iraq War, and the two blurred together. |
 | También se inspiró en un mito griego: Atenas tenía que enviar chicos y chicas a Creta, al laberinto del Minotauro, hasta que Teseo se ofreció a ir. | She also drew on a Greek myth: Athens had to send young men and women to Crete, into the Minotaur's labyrinth, until Theseus volunteered to go. |
-| El nombre de Panem viene del latín panem et circenses, pan y circo: dar comida y espectáculo para que la gente no proteste, y en Sinsajo lo explica Plutarch. | The name Panem comes from the Latin "panem et circenses," bread and circuses: give people food and a show so they don't protest, and Plutarch explains it in Mockingjay. |
+| El nombre de Panem viene del latín panem et circenses, pan y circo: dar comida y espectáculo para que la gente no proteste, y en el libro de Sinsajo lo explica Plutarch. | The name Panem comes from the Latin "panem et circenses," bread and circuses: give people food and a show so they don't protest, and Plutarch explains it in the Mockingjay book. |
 | Para el libro nuevo, Collins citó al filósofo David Hume y su pregunta: por qué los muchos se dejan gobernar tan fácilmente por los pocos. | For the new book, Collins pointed to the philosopher David Hume and his question: why the many are so easily governed by the few. |
 | El sinsajo es inventado, pero su mitad real, el sinsonte, existe: un pájaro de América que puede aprender unos doscientos cantos, y hasta imita ranas y máquinas. | The mockingjay is made up, but its real half, the mockingbird, exists: an American bird that can learn around two hundred songs, and even imitates frogs and machines. |
 | Y el saludo de tres dedos salió de la pantalla: en 2014, en Tailandia, los militares lo prohibieron y aun así la gente lo siguió haciendo; y en 2021 volvió a verse en Myanmar. | And the three-finger salute left the screen: in 2014, Thailand's military banned it, and people kept doing it anyway; and in 2021, it showed up again in Myanmar. |
@@ -205,7 +205,7 @@ Investigación del 4/11/2026 (agente con fuentes; se vuelve a comprobar con 3 ag
 - *En llamas* (libro, cap. 13): la grabación de los Juegos 50, Maysilee y el campo de fuerza. *Sinsajo* (libro): «I was the
   example». El broche: de Maysilee Donner a Madge Undersee (libro 1); en la película de 2012, comprado en el Quemador.
 - Lucy Gray Baird compone «The Hanging Tree» (Balada). Lenore Dove Baird (reparto y tráiler).
-- «Remember who the real enemy is»: Haymitch a Katniss, *En llamas* [comprobar antes de locutar la frase exacta].
+- «Remember who the real enemy is»: Haymitch a Katniss en la película *En llamas* (2013); en el libro, «You just remember who the enemy is».
 - Collins: «flipping through the channels… reality television… Iraq War» (Scholastic, entrevista del décimo aniversario);
   Teseo y el Minotauro (entrevistas de Collins); «panem et circenses» explicado por Plutarch en *Sinsajo*; David Hume,
   «implicit submission» (nota de prensa de Scholastic).
