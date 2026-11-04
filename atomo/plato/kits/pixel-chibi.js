@@ -2803,8 +2803,8 @@ const GAFAS_REDONDAS = ['....k...k.', 'kkkk.kkk.k', '...k.k.k.k', '....k...k.'];
 const GAFAS_MEDIALUNA = ['kkkk.k.k.k', '....k...k.'];                              // filas 7–8: solo la mitad de abajo
 const GAFAS_CUADRADAS = ['kkkk.kkk.k', '...k.k.k.k', '...kkk.kkk'];   // filas 6–8 (sin el borde de arriba: la ceja lo hace)
 const gafasHP = (g, j0, col) => (c) => c.cab.rej(g, 4, j0, col ? { ...c.pal, k: hex(col) } : c.pal);
-// ojos verdes: un píxel de color encima de cada ojo (Harry)
-const ojosVerdes = (c) => { if (!ojoNormal(c)) return; const v = hex('#2e9a4a'); c.cab.px(8, 6, v); c.cab.px(12, 6, v); };
+// cristal de las gafas: un brillo claro dentro de cada aro, para que se lean como gafas y no como un antifaz (Harry)
+const cristalHP = (c) => { const v = hex('#dfeaf2'); c.cab.px(8, 6, v); c.cab.px(12, 6, v); };
 
 // ── cabezas ──
 // Harry: pelo negro revuelto en punta y el flequillo abierto en la frente para que se vea la cicatriz del rayo (r)
@@ -3228,10 +3228,10 @@ const AZUL = { ...ROJO, o: '#3a6ad8' };
 export const ELENCO_HP = {
   // ── los tres ──
   // Harry: pelo negro revuelto, gafas redondas, la cicatriz del rayo en la frente, ojos verdes y la túnica negra
-  harry: { ...COLEGIO, cab: CAB_HARRY, ceja: hex('#1c1424'), delante: varios(gafasHP(GAFAS_REDONDAS, 5), ojosVerdes),
+  harry: { ...COLEGIO, cab: CAB_HARRY, ceja: hex('#1c1424'), delante: varios(gafasHP(GAFAS_REDONDAS, 5), cristalHP),
     pal: CLARA({ H: '#1c1820', h: '#3a3448', r: '#c8283a', ...ROJO }) },
   // Harry en Privet Drive: el jersey heredado de su primo, enorme y gastado, con remiendo, y vaqueros anchos
-  harryCalle: { ...B21, cab: CAB_HARRY, cuerpo: CUERPO_HEREDADO, ceja: hex('#1c1424'), delante: varios(gafasHP(GAFAS_REDONDAS, 5), ojosVerdes),
+  harryCalle: { ...B21, cab: CAB_HARRY, cuerpo: CUERPO_HEREDADO, ceja: hex('#1c1424'), delante: varios(gafasHP(GAFAS_REDONDAS, 5), cristalHP),
     pal: CLARA({ H: '#1c1820', h: '#3a3448', r: '#c8283a', C: '#8a8070', c: '#6a6252', d: '#a89c84', F: '#4a6a9a', n: '#2a2430' }) },
   // Ron: pelo rojo, pecas, la mancha en la nariz y la túnica
   ron: { ...COLEGIO, cab: CAB_RON, ceja: hex('#c04a1a'),
