@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-GANCHO (frases 1–2), Navidad de 2026. Cuatro planos:
+// 1. Privet Drive en Nochebuena, nevando: de la chimenea del 4 salen cartas a cientos (gag 2) y la snitch entre ellas;
+//    Harry llega por la acera, se asombra, salta y caza una carta en «school»; una vecina se para a mirar;
+// 2. (corta en «and») el andén de Hogsmeade: entra el expreso echando vapor; bajan Harry (con su carta), Ron y Hermione,
+//    y Hagrid levanta el farol en «everything»;
+// 3. (corta en «Because») el salón de la fan en Navidad: la tele pone el calendario 12·25 dorado en «December 25th», luego
+//    las gafas con el castillo en «premieres» y «un libro = una temporada» en «one book per season»; la fan salta y señala;
+// 4. (corta en «The plan») el lago y el castillo de noche: siete libros salen del agua y se encienden uno a uno en «seven
+//    seasons»; el primero se abre en «first book» y le caen ocho fichas de episodio: «8» en «eight».
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-gancho');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('navidad', f), b = (f) => en('hbo', f);
+const P2 = a(0.528), P3 = en('hbo', 0), P4 = b(0.564);
+const boy = a(0.117), school = a(0.361), every = a(0.772), dic = b(0.056), prem = b(0.184), libroT = b(0.427), siete = b(0.61), primero = b(0.808), ocho = b(0.907);
+const C = T.C, P = T.PIEZAS_HP;
+// un halo tramado (no tapa: puntea) alrededor de (cx, cy)
+const halo = (cx, cy, r, c, k = 0) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && ((x * 7 + y * 13 + k) % 5) < (1 - d) * 3.2 && ((x + y) & 1)) R.pset(x, y, c); } };
+const p1 = (t) => {
+  T.muggle(R, t, { encuadre: 'calle', luz: 'nochebuena', cartas: 0.12 + 0.88 * tramo(t, a(0.02), a(0.2)) });
+  // Harry llega por la acera, se para delante del 4 y mira arriba; salta y caza una carta
+  const u = tramo(t, 0.2, boy + 0.9), hx = Math.round(lerp(-18, 128, u));
+  const sal = t > school - 0.25 && t < school + 0.35 ? Math.round(Math.sin((t - school + 0.25) / 0.6 * Math.PI) * 9) : 0, tiene = t > school + 0.1;
+  const r = R.actor(EL.harryCalle, hx, 138, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: t > boy + 0.9 && t < school, salto: sal, sostiene: tiene ? [hx + 16, 112] : false, sonrisa: tiene });
+  if (tiene) P.carta(R, r.mano[0] + 1, r.mano[1] + 3, {});
+  // la carta que cae hacia él antes de cazarla
+  if (!tiene && t > school - 1.2) { const v = tramo(t, school - 1.2, school + 0.1); P.carta(R, Math.round(lerp(176, hx + 17, v) + Math.sin(t * 9) * 3), Math.round(lerp(40, 112, v)), {}); }
+  // la vecina con su regalo, que se para a mirar las cartas
+  const w = tramo(t, 0.4, 2.6), vx = Math.round(lerp(334, 236, w));
+  const rv = R.actor(EL.vecina, vx, 140, t, { dir: -1, anda: w > 0 && w < 1, sorpresa: w >= 1, sostiene: true });
+  R.rect(rv.mano[0] - 4, rv.mano[1] - 3, rv.mano[0] + 3, rv.mano[1] + 3, C.k); R.rect(rv.mano[0] - 3, rv.mano[1] - 2, rv.mano[0] + 2, rv.mano[1] + 2, hex('#2a8a4a')); R.linea(rv.mano[0] - 1, rv.mano[1] - 2, rv.mano[0] - 1, rv.mano[1] + 2, hex('#e83a3a')); R.linea(rv.mano[0] - 3, rv.mano[1], rv.mano[0] + 2, rv.mano[1], hex('#e83a3a'));
+  // la snitch sale de la chimenea entre las cartas y baja dando vueltas hasta Harry
+  const s = tramo(t, a(0.06), school), sx = lerp(142, hx + 26, s) + Math.sin(t * 5) * 12 * s, sy = lerp(24, 104, s * s) + Math.sin(t * 9) * 3;
+  if (t > a(0.06)) { if (s < 0.3) halo(sx, sy - 4, 9, hex('#ffe890'), Math.floor(t * 8)); T.snitch(R, sx, sy, t, { cara: t > school ? 'feliz' : 'normal' }); }
+  T.muggleDelante(R, t, { encuadre: 'calle', luz: 'nochebuena' });
+};
+const p2 = (t) => {
+  const ll = tramo(t, P2 + 0.05, a(0.7));
+  T.hogwarts(R, t, { encuadre: 'anden', llega: ll });
+  // Hagrid espera con el farol y lo levanta llamando a los de primero
+  R.actor(EL.hagridFarol, 18, 174, t, { dir: 1, habla: t > every - 0.3 && Math.sin(t * 9) > 0, sonrisa: t > every, brazos: t > every && t < every + 1.3 });
+  // bajan del tren y van hacia él: Harry con su carta, Ron y Hermione; luego dos alumnos más
+  const ninos = [[EL.harryCalle, 0.0, 96], [EL.ronJersey, 0.35, 118], [EL.hermione, 0.7, 140], [EL.alumno, 1.3, 176], [EL.alumna, 1.6, 200]];
+  ninos.forEach(([d, re, xf], k) => {
+    const t0 = a(0.71) + re, v = tramo(t, t0, t0 + 1.7), baja = tramo(t, t0 - 0.25, t0), x = Math.round(lerp(150 + k * 4, xf, v)), y = Math.round(lerp(158, 168 + (k % 2) * 3, baja));
+    if (t < t0 - 0.25) return;
+    const r = R.actor(d, x, y, t, { dir: -1, anda: v > 0 && v < 1, sonrisa: v >= 1, sorpresa: k === 0 && t > every && t < every + 0.6, sostiene: k === 0 ? true : false });
+    if (k === 0) P.carta(R, r.mano[0], r.mano[1] + 3, {});
+  });
+  // la lechuza de Harry vuela del tren al farol de la izquierda
+  const l = tramo(t, P2 + 1.5, P2 + 3.8); if (l > 0 && l < 1) P.lechuza(R, Math.round(lerp(150, 40, l)), Math.round(lerp(60, 112, l) - Math.sin(l * Math.PI) * 18), { t });
+  // la snitch sale del vapor de la chimenea
+  const s = tramo(t, P2 + 0.8, P3), sx = lerp(160, 70, s) + Math.sin(t * 4) * 18, sy = lerp(86, 120, s) + Math.sin(t * 7) * 6;
+  if (s > 0) T.snitch(R, sx, sy, t, { cara: 'feliz' });
+  T.hogwartsDelante(R, t, { encuadre: 'anden', llega: ll });
+};
+// la tele del salón: el calendario 12·25, las gafas con el castillo y «un libro = una temporada»
+const tele = (R, t, cl) => {
+  const [x0, y0, x1, y1] = cl, cx = (x0 + x1) >> 1;
+  if (t < prem) {
+    for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, y < y0 + 12 ? hex('#1a2a5a') : hex('#24387a'));
+    for (let k = 0; k < 14; k++) R.pset(x0 + ((k * 23 + Math.floor(t * 18) * (k % 3 + 1)) % (x1 - x0)), y0 + ((k * 11 + Math.floor(t * 9)) % (y1 - y0)), C.blanco);
+    const e = tramo(t, dic - 0.15, dic + 0.25), h = Math.round(lerp(4, 28, e));
+    const ty = cl[3] - 2 - h; R.poligono([[cx - 18, ty], [cx + 18, ty], [cx + 18, y1 - 2], [cx - 18, y1 - 2]], C.k);
+    R.poligono([[cx - 17, ty + 1], [cx + 17, ty + 1], [cx + 17, y1 - 3], [cx - 17, y1 - 3]], hex('#fff6dc'));
+    R.poligono([[cx - 17, ty + 1], [cx + 17, ty + 1], [cx + 17, ty + 7], [cx - 17, ty + 7]], hex('#c8283a'));
+    if (e >= 1) { R.numero('12', cx, ty + 8, { centro: true }); R.numero('25', cx, y1 - 4, { tam: 16, centro: true }); }
+  } else if (t < libroT) {
+    for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, (y + Math.floor(t * 3)) % 4 ? hex('#5a1424') : hex('#7a2032'));
+    P.gafas(R, cx, y1 - 4, { s: 2, reflejo: true, t });
+    if (Math.sin(t * 6) > 0) for (const [dx, dy] of [[-22, -10], [20, -12], [-16, 8], [24, 6]]) R.pset(cx + dx, y0 + 16 + dy, hex('#ffe890'));
+  } else {
+    for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, hex('#141c3a'));
+    P.libro(R, cx - 14, y1 - 6, {}); R.rect(cx - 3, y0 + 13, cx + 3, y0 + 14, hex('#ffe890')); R.rect(cx - 3, y0 + 17, cx + 3, y0 + 18, hex('#ffe890'));
+    R.icono('tele', cx + 10, y0 + 10, hex('#8ad0ff'), C.k, 2);
+    if (tramo(t, libroT, libroT + 0.3) < 1 && Math.floor(t * 10) % 2) R.linea(x0, y0 + 1, x1, y0 + 1, C.blanco);
+  }
+};
+const p3 = (t) => {
+  T.hoy(R, t, { encuadre: 'salon', pantalla: tele });
+  // la fan cruza desde el sofá hasta la tele: salta en «December 25th», celebra en «premieres» y señala la tele
+  const u = tramo(t, P3 + 0.1, dic + 0.4), fx = Math.round(lerp(96, 160, u));
+  const sal = t > dic + 0.5 && t < dic + 1.1 ? Math.round(Math.sin((t - dic - 0.5) / 0.6 * Math.PI) * 8) : 0;
+  R.actor(EL.chica, fx, 150, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: t > dic && t < prem, salto: sal, brazos: t > prem && t < prem + 1.2, dedo: t > libroT - 0.6, habla: t > prem + 1.2 && Math.sin(t * 8) > 0, sonrisa: t > prem });
+  // la abuela entra con el chocolate caliente
+  const w = tramo(t, prem + 0.4, prem + 2.2), ax = Math.round(lerp(330, 236, w));
+  const ra = R.actor(EL.abuela, ax, 152, t, { dir: -1, anda: w > 0 && w < 1, sostiene: true, sonrisa: w >= 1 });
+  R.rect(ra.mano[0] - 3, ra.mano[1] - 2, ra.mano[0] + 2, ra.mano[1] + 3, C.k); R.rect(ra.mano[0] - 2, ra.mano[1] - 1, ra.mano[0] + 1, ra.mano[1] + 2, hex('#e8e4f0')); R.pset(ra.mano[0] - 1, ra.mano[1] - 1, hex('#6a3a22'));
+  if (Math.sin(t * 5) > 0) R.pset(ra.mano[0] - 1, ra.mano[1] - 4 - Math.floor(t * 3) % 3, hex('#e8e4f0'));
+  // la snitch da vueltas al árbol y se posa en la punta
+  const s = tramo(t, libroT, libroT + 0.9), an = t * 3;
+  const sx = lerp(284 + Math.cos(an) * 20, 284, s), sy = lerp(104 + Math.sin(an * 0.7) * 26, 50, s);
+  if (s >= 1) halo(284, 46, 8, hex('#ffe890'), Math.floor(t * 6));
+  T.snitch(R, sx, sy, t, { cara: s >= 1 ? 'feliz' : 'normal' });
+  T.hoyDelante(R, t, { encuadre: 'salon' });
+};
+const p4 = (t) => {
+  T.exterior(R, t, { encuadre: 'castillo', barcas: tramo(t, P4, P4 + 6) });
+  // Hagrid y Harry en el embarcadero miran el lago
+  R.actor(EL.hagridFarol, 14, 140, t, { dir: 1, sonrisa: t > siete, habla: t > primero && t < ocho && Math.sin(t * 8) > 0 });
+  const sal = t > ocho && t < ocho + 0.6 ? Math.round(Math.sin((t - ocho) / 0.6 * Math.PI) * 7) : 0;
+  R.actor(EL.harry, 54, 140, t, { dir: 1, dedo: t > siete - 0.3 && t < primero, sorpresa: t > ocho, salto: sal });
+  // los siete libros salen del agua uno a uno y se encienden
+  let ult = -1;
+  for (let k = 0; k < 7; k++) {
+    const e = tramo(t, siete + k * 0.13, siete + k * 0.13 + 0.45); if (e <= 0) continue; ult = k;
+    const x = 112 + k * 24, y = Math.round(lerp(150, 134, e * e * (3 - 2 * e)) + Math.sin(t * 2 + k) * 1.5);
+    halo(x, y - 12, 16, hex(k === 0 && t > primero ? '#fff2a0' : '#ffd84a'), k + Math.floor(t * 5));
+    if (k === 0 && t > primero) P.libro(R, x, y, { s: 2, abierto: true }); else P.libro(R, x, y, { s: 2 });
+  }
+  // las ocho fichas de episodio caen sobre el primero
+  for (let i = 0; i < 8; i++) {
+    const t0 = primero + 0.2 + i * 0.15, v = tramo(t, t0, t0 + 0.4); if (v <= 0) continue;
+    const x = 104 + (i % 4) * 4 - 2, y = Math.round(lerp(20, 112 - i * 2, v * v));
+    R.rect(x, y, x + 10, y + 7, C.k); R.rect(x + 1, y + 1, x + 9, y + 6, hex('#f6f0dc')); R.rect(x + 3, y + 2, x + 7, y + 5, hex('#3a5aa8')); R.pset(x + 1, y + 1, C.k); R.pset(x + 9, y + 6, C.k);
+  }
+  if (t > ocho) { const e = tramo(t, ocho, ocho + 0.25); R.numero('8', 112, Math.round(lerp(104, 92, e)), { tam: 16, centro: true }); }
+  else if (t > siete + 0.9 && t < primero) R.numero('7', 184, 106, { tam: 16, centro: true });
+  // la snitch va de libro en libro según se encienden
+  const sx = ult < 0 ? 200 + Math.sin(t * 2) * 30 : 112 + Math.min(ult, 6) * 24 + Math.sin(t * 6) * 4, sy = ult < 0 ? 80 : 104 + Math.sin(t * 8) * 3;
+  T.snitch(R, sx, sy, t, { cara: t > ocho ? 'susto' : 'feliz' });
+  T.exteriorDelante(R, t, { encuadre: 'castillo' });
+};
+const efectos = [[0.6, 'campana'], [a(0.04), 'papel'], [school + 0.05, 'pop'], [P2 + 0.25, 'silbato'], [a(0.7), 'vapor'], [every, 'palmada'],
+  [dic, 'interruptor'], [dic + 0.55, 'boing'], [prem, 'brillo'], [libroT, 'pop'], [siete, 'brillo'], [primero + 0.2, 'papel'], [ocho, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

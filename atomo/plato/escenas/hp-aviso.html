@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Aviso de destripe · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-AVISO (frases 22–23), 2026 en el salón y 1997 (el libro) en las pistas; sin cartela. Cuatro planos:
+// 1. el salón de la fan: en «Now» cae del techo un cartel de aviso (caballete amarillo con la señal y el rayo) y tiembla
+//    con el golpe; vuelve a temblar en «warning»; la fan, con su libro, da un brinco y en «never read the books» levanta
+//    el libro, sonriente (ella sí los ha leído); la abuela, que no, se va del salón en «skip this minute»; la tele
+//    parpadea con la señal; en «spoilers» la snitch se posa en el cartel y se tapa los ojos (gag); corta en «The first»;
+// 2. la puerta de la cabaña: Hagrid abre; Harry, con la lupa, repasa la moto aparcada: en «clues» la moto echa un «?»
+//    dorado, en «disguised» el paraguas rosa, en «details» el farol; corta en «In chapter 1»;
+// 3. Privet Drive de noche, la ventana del 4: la moto baja del cielo con el faro encendido y Hagrid con el bebé en
+//    brazos; el gato de la tapia la sigue con la cabeza; en «mentions in passing» Hagrid habla; corta en «young»;
+// 4. el callejón: la moto aparcada y Hagrid que la palmea; en «Sirius Black» llega un perro negro que la olfatea y menea
+//    el rabo; en «That name» se va corriendo y deja las huellas; en «Book 3» sale un libro con un «3».
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-aviso');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const PZ = T.PIEZAS_HP, K = hex('#14111a');
+const mix = (c, d, a) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - a) + ((d >>> s) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+// un halo de luz tramado alrededor de (x, y): aclara hacia col en la proporción a, que cae hacia el borde
+const halo = (x, y, r, col, a) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j); if (d > r) continue; const X = Math.round(x + i), Y = Math.round(y + j); if (X < 0 || X > 319 || Y < 0 || Y > 179) continue; R.pset(X, Y, mix(R.pget(X, Y), col, a * (1 - d / r))); } };
+// un destello en cruz que parpadea
+const brilla = (x, y, t, col = hex('#fff6c8'), r = 2) => { x = Math.round(x); y = Math.round(y); if (Math.sin(t * 9 + x) > -0.2) { for (let i = 1; i <= r; i++) { R.pset(x, y - i, col); R.pset(x, y + i, col); R.pset(x - i, y, col); R.pset(x + i, y, col); } R.pset(x, y, hex('#ffffff')); } };
+// sube y baja suave: 0 → 1 → 0 entre a y b
+const campana = (t, a, b) => { const u = tramo(t, a, b); return u > 0 && u < 1 ? Math.sin(u * Math.PI) : 0; };
+// un salto corto que empieza en t0
+const brinco = (t, t0, d = 0.45, h = 6) => (t > t0 && t < t0 + d ? Math.round(Math.sin((t - t0) / d * Math.PI) * h) : 0);
+
+const a = (f) => en('aviso', f), m = (f) => en('moto', f);
+const P2 = a(0.997), P3 = m(0.238), P4 = m(0.635);
+const AHORA = a(0), AVISO = a(0.291), NUNCA = a(0.454), SALTA = a(0.598), DESTRIPE = a(0.869);
+const PISTAS = m(0.072), DISFRAZ = m(0.092), DETALLES = m(0.157);
+const LLEGA = m(0.304), VUELA = m(0.406), MENCIONA = m(0.504);
+const SIRIUS = m(0.658), NOMBRE = m(0.815), LIBRO3 = m(0.939);
+const AMARILLO = hex('#f0c020'), AMAS = hex('#b88a10');
+// el cartel de aviso de destripe: un caballete de madera con el tablero amarillo, franjas de peligro y la señal
+// triangular con el rayo (cx: centro, by: el suelo; sh: el temblor)
+const cartel = (cx, by, sh, t) => {
+  const x = Math.round(cx + sh), top = by - 48;
+  for (const [a0, b0] of [[-18, -22], [18, 22]]) { R.linea(x + a0, top + 30, cx + b0, by, K); R.linea(x + a0 + (a0 < 0 ? 1 : -1), top + 30, cx + b0 + (a0 < 0 ? 1 : -1), by, hex('#8a5a2a')); }
+  R.rect(x - 22, top - 1, x + 22, top + 33, K); R.rect(x - 21, top, x + 21, top + 32, AMARILLO); R.rect(x - 21, top + 29, x + 21, top + 32, AMAS);
+  for (let i = -21; i <= 21; i++) for (const y0 of [top, top + 28]) for (let j = 0; j < 4; j++) if (((i + j + 40) >> 2) % 2) R.pset(x + i, y0 + j, K);
+  // la señal triangular blanca con borde rojo y el rayo negro
+  const ty = top + 5;
+  R.poligono([[x, ty], [x + 12, ty + 22], [x - 12, ty + 22]], hex('#d82a2a'));
+  R.poligono([[x, ty + 4], [x + 8, ty + 19], [x - 8, ty + 19]], hex('#fff8e8'));
+  R.icono('rayo', x - 3, ty + 8, K, hex('#fff8e8'), 1);
+  R.pset(x - 20, top + 6, hex('#fff8c8')); R.pset(x - 19, top + 6, hex('#fff8c8'));
+  for (let i = -18; i <= 18; i += 6) R.pset(x + i, by, hex('#5a3a22'));
+};
+// el perro negro (Sirius, insinuado): de perfil, mira a dir; anda o menea el rabo
+const perro = (x0, y0, t, dir, anda, rabo) => {
+  x0 = Math.round(x0); y0 = Math.round(y0); const S = 2, x = 0, y = 0, X = (i) => dir * i, Q = { pset: (a, b, c) => { for (let p = 0; p < S; p++) for (let q = 0; q < S; q++) R.pset(x0 + a * S + p, y0 + b * S + q, c); }, pget: (a, b) => R.pget(x0 + a * S, y0 + b * S) }, N = hex('#16121c'), G = hex('#3a3444'), L = hex('#5a5468');
+  for (let i = -8; i <= 6; i++) for (let j = -9; j <= -4; j++) Q.pset(X(i), y + j, j === -9 ? G : N);
+  for (let i = 4; i <= 10; i++) for (let j = -13; j <= -7; j++) Q.pset(X(i), y + j, N);
+  for (let i = 10; i <= 12; i++) for (let j = -10; j <= -8; j++) Q.pset(X(i), y + j, N);
+  Q.pset(X(12), y - 10, G); Q.pset(X(5), y - 14, N); Q.pset(X(6), y - 14, N); Q.pset(X(5), y - 15, N); Q.pset(X(4), y - 12, G);
+  Q.pset(X(8), y - 11, hex('#e8d040'));
+  for (let i = 3; i <= 9; i++) Q.pset(X(i), y - 13, G);
+  const f = anda ? Math.floor(t * 10) % 2 : 0;
+  for (const [i, df] of [[-7, f], [-4, 1 - f], [3, f], [6, 1 - f]]) { Q.pset(X(i + (anda ? df : 0)), y - 3, N); Q.pset(X(i + (anda ? df : 0)), y - 2, N); Q.pset(X(i + (anda ? df * 2 : 0)), y - 1, N); Q.pset(X(i + (anda ? df * 2 : 0) + 1), y - 1, N); }
+  const r = rabo ? Math.round(Math.sin(t * 18) * 2) : 0; Q.pset(X(-9), y - 8, N); Q.pset(X(-10), y - 9 + r, N); Q.pset(X(-11), y - 10 + r, N); Q.pset(X(-12), y - 11 + r * 2, L);
+  for (let i = -8; i <= 10; i++) Q.pset(X(i), y, mix(Q.pget(X(i), y), K, 0.35));
+};
+
+// 1 · el salón: cae el cartel, la abuela se va, la snitch se tapa los ojos
+const tele = (R2, t, [x0, y0, x1, y1]) => {
+  const on = t > AHORA && Math.floor(t * 4) % 2 === 0;
+  for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, on ? (((y >> 2) & 1) ? hex('#f0c020') : hex('#2a2a2a')) : hex('#1a1a2a'));
+  const cx = (x0 + x1) >> 1;
+  if (t > AHORA) { R.poligono([[cx, y0 + 4], [cx + 11, y1 - 3], [cx - 11, y1 - 3]], hex('#d82a2a')); R.poligono([[cx, y0 + 8], [cx + 7, y1 - 6], [cx - 7, y1 - 6]], hex('#fff8e8')); R.icono('rayo', cx - 3, y0 + 13, K, hex('#fff8e8'), 1); }
+};
+const p1 = (t) => {
+  const o = { encuadre: 'salon', pantalla: tele };
+  T.hoy(R, t, o);
+  // la abuela, que no ha leído los libros, deja la taza y se va por la izquierda en «skip this minute»
+  const va = tramo(t, SALTA + 0.1, SALTA + 2.1), ax = Math.round(lerp(64, -24, va));
+  const ra = R.actor(EL.abuela, ax, 150, t, { dir: va > 0 ? -1 : 1, anda: va > 0 && va < 1, sorpresa: t > AHORA && t < AHORA + 0.8, sostiene: true, habla: t > NUNCA && t < SALTA && Math.sin(t * 7) > 0 });
+  R.rect(ra.mano[0] - 2, ra.mano[1] - 2, ra.mano[0] + 2, ra.mano[1] + 2, K); R.rect(ra.mano[0] - 1, ra.mano[1] - 1, ra.mano[0] + 1, ra.mano[1] + 1, hex('#e8e4f0'));
+  if (Math.sin(t * 5) > 0) R.pset(ra.mano[0], ra.mano[1] - 4 - Math.floor(t * 3) % 3, hex('#e8e4f0'));
+  // el cartel cae del techo en «Now» con el golpe y tiembla; tiembla otra vez en «warning»
+  const c = tramo(t, AHORA - 0.35, AHORA), by = Math.round(lerp(-10, 152, c * c));
+  const sh = (t > AHORA && t < AHORA + 0.8 ? Math.sin(t * 60) * 3 * (1 - (t - AHORA) / 0.8) : 0) + (t > AVISO && t < AVISO + 0.7 ? Math.sin(t * 60) * 3 * (1 - (t - AVISO) / 0.7) : 0);
+  if (c > 0) cartel(222, by, sh, t);
+  if (t > AHORA && t < AHORA + 0.5) for (let k = 0; k < 6; k++) { const u = (t - AHORA) / 0.5; R.pset(Math.round(222 + (k - 2.5) * 10 * (1 + u)), Math.round(152 - u * 8 - (k % 2) * 3), hex('#e8dcc8')); }
+  // la fan con su libro: brinco con el golpe, levanta el libro en «never read the books» y lo abraza
+  const fx = 132, sal = brinco(t, AHORA + 0.05, 0.45, 7);
+  const enseña = t > NUNCA && t < DESTRIPE;
+  const rf = R.actor(EL.chica, fx, 150, t, { dir: 1, salto: sal, sorpresa: t > AHORA && t < AVISO + 0.6, sostiene: enseña ? [fx + 18, 122] : [fx + 14, 136], sonrisa: t > NUNCA, habla: t > SALTA && t < DESTRIPE && Math.sin(t * 8) > 0.2 });
+  PZ.libro(R, rf.mano[0], rf.mano[1] + 6, {});
+  if (enseña && t < NUNCA + 1.2) brilla(rf.mano[0] + 6, rf.mano[1] - 8, t);
+  // la snitch revolotea y en «spoilers» se posa en el cartel y se tapa los ojos
+  const llega = tramo(t, DESTRIPE - 0.8, DESTRIPE), sx = lerp(170 + Math.sin(t * 2.2) * 40, 222, llega), sy = lerp(64 + Math.sin(t * 3.1) * 14, 105, llega);
+  if (t > AVISO) T.snitch(R, Math.round(sx + (llega < 1 ? Math.sin(t * 9) * 4 : 0)), Math.round(sy), t, t > DESTRIPE ? { cara: 'tapaOjos', s: 2 } : { cara: 'susto' });
+  T.hoyDelante(R, t, o);
+};
+
+// 2 · la puerta de la cabaña: Hagrid abre, Harry repasa la moto con la lupa y salen las pistas
+const p2 = (t) => {
+  const o = { encuadre: 'cabana', camara: 'puerta', puerta: tramo(t, P2 + 0.1, P2 + 0.8) };
+  T.exterior(R, t, o);
+  // la moto aparcada bajo la ventana
+  PZ.moto(R, 252, 170, { faro: false });
+  // Hagrid sale a la puerta, sonríe y habla
+  const hs = tramo(t, P2 + 0.7, P2 + 1.6), hgx = Math.round(lerp(124, 136, hs));
+  R.actor(EL.hagrid, hgx, 168, t, { dir: 1, anda: hs > 0 && hs < 1, sonrisa: true, habla: t > P2 + 1.6 && t < PISTAS && Math.sin(t * 8) > 0, dedo: t > DETALLES });
+  // Harry entra por la derecha con la lupa y la pasa por las pistas: la moto, el paraguas, el farol
+  const e = tramo(t, P2, P2 + 1.0), hx = Math.round(lerp(330, 286, e));
+  const objs = [[PISTAS, 248, 152], [DISFRAZ, 189, 136], [DETALLES, 188, 66]];
+  let mira = [300, 150];
+  for (const [t0, x, y] of objs) if (t > t0 - 0.5) mira = [x, y];
+  const lx = mira[0] + 10, ly = Math.min(150, mira[1] + 8);
+  const hr = R.actor(EL.harry, hx, 170, t, { dir: -1, anda: e > 0 && e < 1, sostiene: e >= 1 ? [Math.max(hx - 14, Math.min(lx, hx - 2)), Math.max(124, ly)] : true, sorpresa: t > PISTAS && t < PISTAS + 0.5, sonrisa: t > DETALLES });
+  PZ.lupa(R, hr.mano[0] - 3, hr.mano[1] + 2, {});
+  objs.forEach(([t0, x, y], k) => {
+    if (t < t0) return;
+    const g = campana(t, t0, t0 + 0.9);
+    if (g > 0) halo(x, y, 14, hex('#ffe890'), 0.5 * g);
+    brilla(x + 6, y - 6, t + k);
+    R.icono('?', x - 3, y - 26 + Math.round(Math.sin(t * 4 + k) * 1.5), hex('#ffd84a'), K, 2);
+  });
+  T.exteriorDelante(R, t, o);
+};
+
+// 3 · Privet Drive de noche: la moto baja del cielo con Hagrid y el bebé, se para junto a la casa y baja a la calle
+const p3 = (t) => {
+  const o = { encuadre: 'calle', camara: 'ventana', luz: 'noche' };
+  T.muggle(R, t, o);
+  const u = tramo(t, P3 + 0.05, LLEGA + 0.9), s = 1 - (1 - u) * (1 - u), baja = tramo(t, P4 - 0.7, P4 + 0.1);
+  const mx = Math.round(lerp(-50, 60, s)), my = Math.round(lerp(-20, 122, s) + Math.sin(t * 3) * 2 + baja * baja * 90);
+  // el haz del faro por delante, hacia la derecha y abajo
+  for (let i = 0; i < 34; i++) for (let j = -i * 0.4; j <= i * 0.4; j++) { const X = mx + 26 + i, Y = Math.round(my - 15 + j + i * 0.3); if (X >= 0 && X < 320 && Y >= 0 && Y < 180 && ((X + Y) & 1)) R.pset(X, Y, mix(R.pget(X, Y), hex('#fff2b0'), 0.5 - i / 80)); }
+  // Hagrid montado (la moto le tapa las piernas) con el bebé en brazos
+  const hr = R.actor(EL.hagrid, mx - 14, my - 6, t, { dir: 1, quieto: true, sostiene: [mx + 8, my - 24], sonrisa: t < MENCIONA, habla: t > MENCIONA && t < P4 - 0.6 && Math.sin(t * 8) > 0 });
+  PZ.moto(R, mx, my, { faro: true });
+  PZ.bebe(R, hr.mano[0] + 1, hr.mano[1] + 4, {});
+  // el humo del tubo de escape
+  for (let k = 0; k < 5; k++) { const v = ((t * 1.4 + k / 5) % 1); R.disco(Math.round(mx - 26 - v * 18 - k), Math.round(my - 4 - v * 10), 1 + v * 2, mix(hex('#8a8aa8'), hex('#2a2a48'), v)); }
+  T.muggleDelante(R, t, o);
+  // el gato atigrado en el alféizar sigue la moto con la cabeza; se sobresalta cuando llega
+  const gsal = brinco(t, LLEGA, 0.4, 4);
+  PZ.gato(R, 198, 128 - gsal, { dir: -1, s: 2 });
+  if ((t + 0.3) % 2.4 > 0.15) { R.pset(186, 113 - gsal, hex('#f0e040')); R.pset(190, 113 - gsal, hex('#f0e040')); }
+  if (t > LLEGA && t < LLEGA + 1.2) R.bocadillo(196, 98, { icono: '!' });
+};
+
+// 4 · el callejón: la moto aparcada, el perro negro que la olfatea y el libro 3
+const p4 = (t) => {
+  const o = { encuadre: 'calle' };
+  T.diagon(R, t, o);
+  PZ.moto(R, 120, 158, {});
+  // Hagrid palmea la moto y habla en «lent it to him»
+  R.actor(EL.hagrid, 56, 158, t, { dir: 1, habla: t < NOMBRE && Math.sin(t * 7) > 0.1, dedo: t > SIRIUS + 0.9 && t < NOMBRE, sorpresa: t > NOMBRE + 0.3 && t < LIBRO3, sonrisa: t > LIBRO3 });
+  // el perro negro llega en «Sirius Black», olfatea, menea el rabo y en «That name» se va corriendo
+  const lle = tramo(t, SIRIUS - 0.3, SIRIUS + 0.9), ve = tramo(t, NOMBRE + 0.2, NOMBRE + 1.4);
+  const px = ve > 0 ? lerp(156, 340, ve) : lerp(330, 156, lle), dir = ve > 0 ? 1 : -1;
+  // las huellas que deja en los adoquines
+  for (let k = 0; k < 9; k++) { const hxp = 166 + k * 16; if ((ve > 0 && hxp < px) || (lle > 0 && hxp > px && ve === 0)) { R.pset(hxp, 162 + (k % 2) * 2, hex('#2a2430')); R.pset(hxp + 1, 162 + (k % 2) * 2, hex('#2a2430')); R.pset(hxp, 161 + (k % 2) * 2, hex('#3a3440')); } }
+  if (px < 330) perro(px, 160, t, dir, (lle > 0 && lle < 1) || (ve > 0 && ve < 1), lle >= 1 && ve === 0);
+  if (lle >= 1 && ve === 0 && Math.sin(t * 6) > 0) R.pset(Math.round(px) - 14, 148, hex('#c8ccd8'));
+  // el libro 3 que sale en «Book 3»
+  const lb = tramo(t, LIBRO3 - 0.1, LIBRO3 + 0.4);
+  if (lb > 0) { const y = Math.round(lerp(140, 104, lb)); halo(240, y - 10, 22, hex('#fff2b0'), 0.5); PZ.libro(R, 236, y, { s: 2 }); R.numero('3', 266, y - 6, { tam: 16, centro: true }); brilla(220, y - 24, t); }
+  T.diagonDelante(R, t, o);
+};
+
+const efectos = [[AHORA, 'aviso'], [AVISO, 'golpecito'], [DESTRIPE, 'whoosh'], [P2 + 0.15, 'puerta'], [PISTAS, 'brillo'], [DETALLES, 'pop'],
+  [P3 + 0.3, 'motor'], [VUELA, 'miau'], [SIRIUS + 0.4, 'guau'], [LIBRO3, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P2 ? 2026 : 1997) });
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La rata · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-RATA (frase 25), sin cartela, 1997 en la barra. Cuatro planos:
+// 1. El compartimento del expreso: Ron, sentado, saca a Scabbers dormida de su regazo y se la enseña a Harry («Ron's rat
+//    Scabbers»); con «hand-me-down from Percy» se encoge de hombros y la vuelve a dejar; entra el carrito de las golosinas.
+//    Corta en «old».
+// 2. La ventanilla de cerca (gag 6): Scabbers duerme hecha una bola en la mesita entre las golosinas; la snitch llega con la
+//    lupa y la vigila; en «find out why» la rata abre un ojo (grande en la lupa), la snitch se asusta y huye. Corta en «And».
+// 3. La chimenea de la sala común: Neville lee en la butaca la carta de su abuela con el sapo en el regazo; el sapo salta a
+//    la alfombra, Neville se levanta, lo persigue y lo coge, sonriendo; Hermione lee en la otra butaca. Corta en «the answer».
+// 4. El escaparate de la tienda de túnicas: Neville, con su sapo, pasea de la mano de su abuela (el sombrero con el buitre,
+//    insinuado, y otro igual expuesto en el escaparate); se paran, ella le pone la mano en el hombro y entran juntos.
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-rata');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const mix = (c, d, a) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - a) + ((d >>> s) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+// un halo de luz tramado alrededor de (x, y): aclara hacia col en la proporción a, que cae hacia el borde
+const halo = (x, y, r, col, a) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j); if (d > r) continue; const X = Math.round(x + i), Y = Math.round(y + j); if (X < 0 || X > 319 || Y < 0 || Y > 179) continue; R.pset(X, Y, mix(R.pget(X, Y), col, a * (1 - d / r))); } };
+// una bolita de luz con su halo, su brillo y una estela de tres puntos
+const bola = (x, y, col, r = 2, est = null) => { halo(x, y, r * 4, col, 0.6); R.disco(Math.round(x), Math.round(y), r, col); R.pset(Math.round(x) - 1, Math.round(y) - 1, hex('#ffffff')); if (est) for (let k = 1; k <= 3; k++) R.pset(Math.round(x - est[0] * k * 3), Math.round(y - est[1] * k * 3), mix(col, hex('#ffffff'), 0.3)); };
+const brilla = (x, y, t, col = hex('#fff6c8')) => { if (Math.sin(t * 9 + x) > -0.2) { R.pset(x, y - 2, col); R.pset(x, y + 2, col); R.pset(x - 2, y, col); R.pset(x + 2, y, col); R.pset(x, y, hex('#ffffff')); } };
+const K = hex('#14111a');
+const PIEZAS_HP = T.PIEZAS_HP;
+
+const a = (f) => en('rata', f);
+const P2 = a(0.23), P3 = a(0.463), P4 = a(0.755);
+const enseña = a(0.04), baja = a(0.16);
+const p1 = (t) => {
+  const g = T.hogwarts(R, t, { encuadre: 'tren', carrito: tramo(t, 0.3, 2.6) });
+  const rx = 46, sube = t > enseña && t < baja;
+  const ron = R.actor(EL.ron, rx, 140, t, { dir: 1, sostiene: sube ? [rx + 22, 112] : [rx + 16, 126], sonrisa: sube, habla: t > enseña + 0.3 && t < baja && Math.sin(t * 10) > 0, triste: t > baja && t < baja + 0.8 });
+  const [mx, my] = ron.mano, resp = Math.sin(t * 3) > 0 ? 1 : 0;
+  PIEZAS_HP.rata(R, mx + 2, my + 4 - resp, {});
+  R.actor(EL.harry, 258, 140, t, { dir: -1, sonrisa: t > enseña + 0.4, sorpresa: t > enseña && t < enseña + 0.4, dedo: t > enseña + 0.5 && t < enseña + 1.2 });
+  T.hogwartsDelante(R, t, { encuadre: 'tren', carrito: tramo(t, 0.3, 2.6) });
+};
+// el plano 2: la mesita de cerca con la rata, la snitch y la lupa
+const entra = a(0.25), ojo = a(0.396), huye = a(0.43);
+const p2 = (t) => {
+  T.hogwarts(R, t, { encuadre: 'tren', camara: 'ventana' });
+  R.actor(EL.harry, 92, 152, t, { dir: 1, sorpresa: t > ojo, sonrisa: t < ojo && t > entra + 0.5 });
+  R.actor(EL.ron, 214, 152, t, { dir: -1, habla: t < ojo && Math.sin(t * 8) > 0.3, sostiene: t < ojo ? [206, 128] : false, sorpresa: t > ojo + 0.2 });
+  if (t < ojo) { const [mx, my] = [206, 128]; R.rect(mx - 3, my - 2, mx + 2, my + 2, hex('#6a3a1a')); R.rect(mx - 2, my - 1, mx + 1, my + 1, hex('#8a5228')); }
+  T.hogwartsDelante(R, t, { encuadre: 'tren', camara: 'ventana' });
+  // Scabbers hecha una bola sobre la mesita, respirando
+  const rx = 160, ry = 141 - (Math.sin(t * 2.6) > 0 ? 1 : 0), abre = t > ojo;
+  R.disco(rx, ry + 1, 14, mix(R.pget(rx, ry + 2), K, 0.3));
+  PIEZAS_HP.rata(R, rx, ry, { s: 2, ojo: abre });
+  // la lupa (sostenida por la snitch) que recorre la rata y se para en el ojo
+  const v = tramo(t, entra, entra + 0.9), w = tramo(t, entra + 0.9, ojo - 0.2), fu = tramo(t, huye, huye + 0.7);
+  if (v > 0 && fu < 1) {
+    const ox = rx + 5, oy = ry - 10;   // el ojo de la rata (a escala 2)
+    let lx = lerp(30, rx - 8, v) + Math.sin(w * Math.PI * 2) * 7 * (1 - tramo(w, 0.7, 1)), ly = lerp(70, oy + 2, v);
+    if (w >= 1) { lx = ox; ly = oy; }
+    if (fu > 0) { lx = lerp(ox, 20, fu * fu); ly = lerp(oy, 30, fu) - Math.sin(fu * Math.PI) * 20; }
+    const lyB = Math.round(ly + 17), lxB = Math.round(lx);
+    PIEZAS_HP.lupa(R, lxB, lyB, { s: 2 });
+    // lo que se ve por la lupa: el ojo de la rata enorme (cerrado, o abierto de golpe)
+    if (w >= 1 && fu === 0) { const cx = lxB, cy = lyB - 17; if (!abre) { R.rect(cx - 4, cy, cx + 4, cy, K); R.pset(cx - 5, cy - 1, K); R.pset(cx + 5, cy - 1, K); } else { R.rect(cx - 4, cy - 2, cx + 4, cy + 2, hex('#ffffff')); R.rect(cx - 5, cy - 1, cx + 5, cy + 1, hex('#ffffff')); R.rect(cx - 1, cy - 2, cx + 2, cy + 2, K); R.pset(cx, cy - 1, hex('#ffffff')); } }
+    const sx = lxB - 15 + Math.round(Math.sin(t * 5) * 1), sy = lyB - 18;
+    T.snitch(R, sx, sy, t, { cara: abre ? 'susto' : 'normal' });
+  }
+  if (t > ojo && t < ojo + 0.6) R.icono('!', rx + 14, ry - 30, hex('#fff0a0'), K);
+};
+// el plano 3: Neville junto a la chimenea, la carta de la abuela y el sapo que se escapa
+const salta = a(0.55), levanta = a(0.6), coge = a(0.7);
+const p3 = (t) => {
+  const g = T.hogwarts(R, t, { encuadre: 'sala', camara: 'chimenea' });
+  R.actor(EL.hermione, 276, 150, t, { dir: -1, sonrisa: t > coge, sorpresa: t > salta && t < levanta });
+  const sentado = t < levanta;
+  const sv = tramo(t, salta, salta + 0.6);
+  // el sapo: en el regazo, salta a la alfombra en arco y espera; luego, en la mano
+  if (t < coge) { const x = lerp(48, 130, sv) + Math.round(tramo(t, salta + 1.4, salta + 1.8) * 8), y = lerp(136, 172, sv) - Math.sin(sv * Math.PI) * 26 - (Math.sin(t * 5) > 0.8 && sv >= 1 ? 3 : 0); if (sentado || sv >= 1) PIEZAS_HP.sapo(R, x, y, { dir: sv > 0 ? 1 : -1 }); }
+  const nx = sentado ? 30 : Math.round(lerp(84, 112, tramo(t, levanta + 0.1, coge - 0.15)));
+  const nev = R.actor(EL.neville, nx, sentado ? 150 : 172, t, { dir: 1, sostiene: sentado ? [nx + 20, 128] : t > coge ? [nx + 20, 156] : false, sorpresa: t > salta && t < coge, sonrisa: t > coge || t < salta - 0.6, anda: !sentado && t < coge - 0.15, salto: !sentado && t < levanta + 0.25 ? 3 : 0 });
+  const [mx, my] = nev.mano;
+  if (sentado) PIEZAS_HP.carta(R, mx + 2, my + 5, {});
+  else { PIEZAS_HP.carta(R, 96, 174, {}); if (t > coge) PIEZAS_HP.sapo(R, mx + 1, my + 3, { dir: -1 }); }
+  if (t > salta && t < levanta) R.icono('!', 42, 112, hex('#fff0a0'), K);
+  T.hogwartsDelante(R, t, { encuadre: 'sala', camara: 'chimenea' });
+  if (!sentado && t < coge) PIEZAS_HP.sapo(R, lerp(130, 138, tramo(t, salta + 1.4, salta + 1.8)), 172 - (Math.sin(t * 6) > 0.7 ? 2 : 0), { dir: 1 });
+};
+// el plano 4: Neville y su abuela delante del escaparate
+const paran = a(0.83), hombro = a(0.9), entran = a(0.94);
+const sombreroBuitre = (x, y, t) => {
+  // el sombrero alto verde con su cinta y, encima, el buitre disecado (cabeza pelada, pico curvo)
+  R.rect(x - 7, y - 1, x + 7, y + 1, K); R.rect(x - 6, y, x + 6, y, hex('#3e5a36'));
+  R.rect(x - 5, y - 10, x + 5, y - 1, K); R.rect(x - 4, y - 9, x + 4, y - 1, hex('#4a6a40')); R.rect(x - 4, y - 3, x + 4, y - 2, hex('#8a2a2a')); R.rect(x + 2, y - 9, x + 4, y - 4, hex('#3a5432'));
+  R.rect(x - 5, y - 15, x + 3, y - 10, K); R.rect(x - 4, y - 14, x + 2, y - 10, hex('#6a6058')); R.rect(x - 4, y - 14, x - 1, y - 12, hex('#8a8076'));
+  R.rect(x + 2, y - 19, x + 6, y - 14, K); R.rect(x + 3, y - 18, x + 5, y - 15, hex('#e0a0a0')); R.pset(x + 4, y - 17, K); R.pset(x + 6, y - 15, hex('#e8c040')); R.pset(x + 7, y - 15, hex('#e8c040'));
+  R.pset(x - 6, y - 12, hex('#4a4038')); R.pset(x - 7, y - 11, hex('#4a4038'));
+};
+const p4 = (t) => {
+  const g = T.diagon(R, t, { encuadre: 'calle', camara: 'escaparate' });
+  // en el escaparate, entre los sombreros, otro sombrero con buitre en su peana (recortado al cristal)
+  const [ex0, ey0, ex1, ey1] = g.escaparate ?? [26, 41, 244, 127];
+  R.recorte([ex0, ey0, ex1, ey1]);
+  R.linea(200, 126, 200, 98, hex('#5a3a22')); R.linea(196, 126, 204, 126, hex('#5a3a22'));
+  sombreroBuitre(200, 97, t);
+  R.recorte(null);
+  const w = tramo(t, P4 + 0.1, paran), z = tramo(t, entran, entran + 0.9);
+  const ax = Math.round(lerp(-30, 150, w) + lerp(0, 104, z)), nx = ax - 20;
+  const enHombro = t > hombro && t < entran + 0.1;
+  const ab = R.actor(EL.abuela, ax, 164, t, { dir: z > 0 || w < 1 ? 1 : -1, anda: (w > 0 && w < 1) || (z > 0 && z < 1), pal: { C: '#3e5a36', c: '#2c4228', o: '#8a2a2a' }, sostiene: enHombro ? [nx + 14, 140] : false, sonrisa: t > hombro, habla: t > paran && t < hombro && Math.sin(t * 9) > 0 });
+  sombreroBuitre(ab.cabeza[0], ab.cabeza[1] + 2, t);
+  R.actor(EL.nevilleSapo, nx, 164, t, { dir: t > paran && t < entran ? 1 : 1, anda: (w > 0 && w < 1) || (z > 0 && z < 1), sonrisa: t > hombro, dedo: t > paran + 0.2 && t < hombro });
+  T.diagonDelante(R, t, { encuadre: 'calle', camara: 'escaparate' });
+};
+const efectos = [[0.4, 'carro'], [enseña + 0.1, 'pop'], [entra, 'whoosh'], [ojo, 'boing'], [salta, 'pop'], [coge, 'pop'], [entran + 0.6, 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1997 });
+</script>
+</body>
+</html>

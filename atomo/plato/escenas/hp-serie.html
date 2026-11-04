@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La serie · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-SERIE (frase 5), 2026, cartela «2026». Cuatro planos:
+// 1. el plató: la claqueta se abre y chasca en «beginning» con el director que da la orden; la guionista entra con el
+//    libro y lo levanta en «book»; la grúa, el tramoyista y el pintor trabajan;
+// 2. (corta en «Harry») lo alto de la torre: Harry levanta la piedra roja, que brilla en «Philosopher's Stone»; cuatro
+//    jinetes en escoba llegan y, en «coming to HBO», se van a repartirla; Hermione se asombra;
+// 3. (corta en «across») el monitor del rodaje: el director señala el castillo en «Latin America»; la guionista llega con
+//    su libreta y escribe en «written»; en «Succession» él se vuelve y sonríe;
+// 4. (corta en «and several») la sala de montaje: el montador junto a la moviola, que gira; el visor cuenta episodios;
+//    el director entra y señala el visor en «directed».
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-serie');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('nombre', f);
+const P2 = a(0.188), P3 = a(0.475), P4 = a(0.754);
+const inicio = a(0.033), libroT = a(0.176), piedra = a(0.252), llega = a(0.344), latam = a(0.522), escrita = a(0.605), suc = a(0.731), dirigida = a(0.846);
+const C = T.C, P = T.PIEZAS_HP;
+const halo = (cx, cy, r, c, k = 0) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && ((x * 7 + y * 13 + k) % 5) < (1 - d) * 3.2 && ((x + y) & 1)) R.pset(x, y, c); } };
+const p1 = (t) => {
+  T.hoy(R, t, { encuadre: 'plato', claqueta: t < inicio ? tramo(t, 1.35, 1.7) : 0 });
+  // el director da la orden junto a la claqueta
+  R.actor(EL.director, 206, 154, t, { dir: -1, dedo: t > 1.3 && t < inicio + 0.4, habla: t > 1.3 && t < inicio + 0.5 && Math.sin(t * 10) > 0, sonrisa: t > libroT });
+  // la guionista entra con el libro y lo levanta en «book»
+  const u = tramo(t, inicio + 0.1, libroT - 0.5), gx = Math.round(lerp(40, 128, u)), alto = t > libroT - 0.2;
+  const rg = R.actor(EL.guionista, gx, 154, t, { dir: 1, anda: u > 0 && u < 1, sostiene: alto ? [gx + 18, 118] : true, sonrisa: alto });
+  P.libro(R, rg.mano[0] + 1, rg.mano[1] + 5, {});
+  if (alto) halo(rg.mano[0] + 1, rg.mano[1] - 1, 11, hex('#ffe890'), Math.floor(t * 6));
+  T.hoyDelante(R, t, { encuadre: 'plato' });
+};
+const p2 = (t) => {
+  const ne = tramo(t, P2 + 0.1, piedra + 1) - tramo(t, llega, latam - 0.3);
+  T.exterior(R, t, { encuadre: 'torre', escobas: ne });
+  // Hermione con su libro mira; Harry levanta la piedra y despide a los jinetes
+  R.actor(EL.hermione, 86, 160, t, { dir: 1, sorpresa: t > piedra && t < llega, sonrisa: t > llega });
+  const arriba = t > piedra - 0.3 && t < llega;
+  const rh = R.actor(EL.harry, 128, 160, t, { dir: 1, sostiene: arriba ? [148, 118] : t < llega ? true : false, brazos: t > llega && t < llega + 1.4, sonrisa: t > piedra });
+  if (t < llega) { if (arriba) halo(rh.mano[0], rh.mano[1] - 4, 13, hex('#ffe890'), Math.floor(t * 6)); P.piedra(R, rh.mano[0], rh.mano[1] + (arriba ? 4 : 3), { brillo: arriba, t, s: arriba ? 2 : 1 }); }
+  T.snitch(R, 180 + Math.sin(t * 3) * 20, 112 + Math.sin(t * 7) * 4, t, { cara: 'feliz' });
+  T.exteriorDelante(R, t, { encuadre: 'torre', escobas: ne });
+};
+const p3 = (t) => {
+  T.hoy(R, t, { encuadre: 'plato', camara: 'monitor' });
+  // el director señala el monitor; la guionista llega, escribe en «written» y él se vuelve en «Succession»
+  R.actor(EL.director, 90, 164, t, { dir: t > suc ? -1 : 1, dedo: t > latam - 0.3 && t < escrita, habla: (t > P3 && t < latam - 0.3 && Math.sin(t * 8) > 0) || (t > suc + 0.3 && Math.sin(t * 8) > 0), sonrisa: t > suc });
+  const u = tramo(t, P3 + 0.2, escrita - 0.3), gx = Math.round(lerp(-18, 52, u));
+  const rg = R.actor(EL.guionista, gx, 164, t, { dir: 1, anda: u > 0 && u < 1, sostiene: true, sonrisa: t > suc });
+  const [mx, my] = rg.mano; R.rect(mx - 3, my - 1, mx + 4, my + 6, C.k); R.rect(mx - 2, my, mx + 3, my + 5, hex('#f6f0dc')); R.rect(mx - 2, my, mx + 3, my, hex('#c8283a'));
+  if (t > escrita) { const n = Math.min(4, Math.floor((t - escrita) * 3)); for (let i = 0; i < n; i++) R.linea(mx - 1, my + 2 + i, mx + 1 + ((i * 3 + 1) % 3), my + 2 + i, hex('#3a3a5a')); const lx = mx + Math.round(Math.sin(t * 14) * 2); R.linea(lx, my - 4, lx + 2, my + 1, hex('#e8b830')); }
+};
+// el visor de la moviola: el fotograma del castillo y el contador de episodios que pasa
+const visor = (R, t, cl) => {
+  const [x0, y0, x1, y1] = cl;
+  for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, y < y0 + 10 ? hex('#1a2050') : hex('#2a2a40'));
+  const dx = Math.floor(t * 6) % 3;
+  R.poligono([[x0 + 4 + dx, y1], [x0 + 6 + dx, y0 + 8], [x0 + 9 + dx, y0 + 5], [x0 + 12 + dx, y0 + 9], [x0 + 15 + dx, y0 + 4], [x0 + 18 + dx, y0 + 9], [x0 + 21 + dx, y1]], hex('#0e1024'));
+  for (const [i, j] of [[8, 11], [13, 10], [17, 12]]) if (Math.sin(t * 3 + i) > -0.5) R.pset(x0 + i + dx, y0 + j, hex('#ffd84a'));
+  const n = 1 + Math.floor(tramo(t, P4, dirigida + 1.2) * 7.99);
+  R.numero(String(n), x1 - 5, y1 - 3, { centro: true });
+};
+const p4 = (t) => {
+  T.hoy(R, t, { encuadre: 'montaje', pantalla: visor });
+  // el montador revisa la película con las tijeras; el director entra y señala el visor en «directed»
+  const re = R.actor(EL.editor, 84, 158, t, { dir: 1, sostiene: true, habla: t > dirigida + 0.6 && Math.sin(t * 8) > 0, sonrisa: t > dirigida + 0.4 });
+  const [mx, my] = re.mano; for (let i = -3; i <= 3; i++) R.linea(mx + i, my - 6 + Math.abs(i), mx + i, my - 4 + Math.abs(i), i % 2 ? hex('#3a3a3a') : hex('#8a6a3a'));
+  const u = tramo(t, P4 + 0.1, dirigida - 0.2), dx = Math.round(lerp(330, 166, u));
+  R.actor(EL.director, dx, 158, t, { dir: -1, anda: u > 0 && u < 1, dedo: t > dirigida - 0.1 && t < dirigida + 1.4, habla: t > dirigida && Math.sin(t * 9) > 0 });
+  T.snitch(R, 246 + Math.sin(t * 2.4) * 8, 60 + Math.sin(t * 6) * 3, t, { cara: t > dirigida ? 'feliz' : 'normal' });
+  T.hoyDelante(R, t, { encuadre: 'montaje' });
+};
+const efectos = [[inicio, 'palmada'], [libroT, 'brillo'], [P2 + 0.3, 'whoosh'], [piedra, 'brillo'], [llega + 0.2, 'whoosh'],
+  [latam - 0.3, 'golpecito'], [escrita, 'lapiz'], [suc, 'pop'], [P4 + 0.2, 'maquina'], [dirigida, 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '2026', efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Flamel · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-FLAMEL (frase 31), París hacia 1400, y hoy. Cuatro planos:
+// 1. (0 → «who died», 5,7 s) París hacia 1400: el escribano Flamel copia en su puesto, con la pluma en el libro abierto
+//    sobre el atril; un cliente entra por la calle (las palomas se le espantan), Flamel moja la pluma en «stone», levanta
+//    el libro acabado en «existed» y se lo da al cliente en «scribe».
+// 2. (→ «The legend», 5,4 s) la fachada de piedra de su casa: Flamel llega con su libro y abre la puerta en «house»; en
+//    «1407» el año grabado brilla y él entra; en «still standing» un fogonazo salta a hoy: dos turistas delante de la
+//    misma casa, uno señala el año y el otro le hace una foto (flash en «standing»).
+// 3. (→ «took hold», 6,6 s) la leyenda, en la mesa de las botellas: el alquimista levanta la piedra roja, que brilla en
+//    «philosopher's stone» y hace latir las botellas; la acerca al lingote de plomo en «metal», que se vuelve oro en
+//    «gold» y suelta tres monedas; en «eternal life» la flor mustia de la maceta se endereza y florece.
+// 4. (→ fin, 6,1 s) la lápida en el museo, hoy: una guía espera junto al cordón; entran dos visitantes; en «tombstone» la
+//    guía señala y se enciende la placa con «1418»; en «museum» el niño salta para verla («!»).
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-flamel');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P = T.PIEZAS_HP, C = T.C, K = hex('#141018');
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255, r2 = c2 & 255, g2 = (c2 >>> 8) & 255, b2 = (c2 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (b2 - b1) * a) << 16) | (Math.round(g1 + (g2 - g1) * a) << 8) | Math.round(r1 + (r2 - r1) * a)) >>> 0; };
+// un halo tramado (no tapa: puntea) alrededor de (cx, cy)
+const hsh = (x, y, k) => { const v = Math.sin(x * 12.9898 + y * 78.233 + k * 37.719) * 43758.5453; return v - Math.floor(v); };
+const halo = (cx, cy, r, c, k = 0) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && ((x + y) & 1) && hsh(x, y, k % 3) < (1 - d) * (1 - d) * 1.4 + 0.08) R.pset(x, y, c); } };
+// destellos en cruz que giran alrededor de (cx, cy)
+const chispas = (cx, cy, r, t, c = hex('#fff4c0'), n = 5) => { for (let k = 0; k < n; k++) { const a = k * 6.283 / n + t * 3, x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r * 0.8); if (Math.sin(t * 11 + k * 2) > -0.2) { R.pset(x, y, c); R.pset(x - 1, y, c); R.pset(x + 1, y, c); R.pset(x, y - 1, c); R.pset(x, y + 1, c); } } };
+// un sprite de letras con su paleta (s: escala)
+const pinta = (g, x0, y0, pal, s = 1) => { for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { const c = pal[g[j][i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } };
+
+// la lupa grande: aumenta k veces lo que hay debajo (copia antes los píxeles), aro de latón con su luz, el reflejo del
+// cristal y el mango de madera hacia la mano (mano = [x, y]) o hacia donde se diga
+const lente = (cx, cy, r, k = 2.5, mano = null) => {
+  cx = Math.round(cx); cy = Math.round(cy);
+  const n = 2 * r + 1, S = new Array(n * n);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) S[j * n + i] = R.pget(cx - r + i, cy - r + j);
+  if (mano) {
+    const [hx, hy] = mano, a = Math.atan2(hy - cy, hx - cx), L = Math.hypot(hx - cx, hy - cy);
+    for (let d = r + 1; d <= L + 1; d += 0.5) R.disco(Math.round(cx + Math.cos(a) * d), Math.round(cy + Math.sin(a) * d), 2, K);
+    for (let d = r + 1; d <= L; d += 0.5) { const x = Math.round(cx + Math.cos(a) * d), y = Math.round(cy + Math.sin(a) * d); R.disco(x, y, 1, d < r + 5 ? hex('#c8902a') : hex('#7a4422')); if (d > r + 5) R.pset(x, y - 1, hex('#a86a3a')); }
+  }
+  for (let j = -r - 2; j <= r + 2; j++) for (let i = -r - 2; i <= r + 2; i++) {
+    const d = Math.hypot(i, j);
+    if (d <= r - 2.5) {
+      let c = S[Math.round(r + j / k) * n + Math.round(r + i / k)] || K;
+      c = mez(c, hex('#e4f2ff'), 0.1);
+      const diag = i + j;
+      if ((diag < -r * 0.85 && diag > -r * 1.05) || (diag < -r * 1.2 && diag > -r * 1.28)) c = mez(c, hex('#ffffff'), 0.55);
+      R.pset(cx + i, cy + j, c);
+    } else if (d <= r - 1.5) R.pset(cx + i, cy + j, hex('#6a4a18'));
+    else if (d <= r + 0.9) { const luz = i + j; R.pset(cx + i, cy + j, luz < -r * 0.6 ? hex('#fff0b0') : luz < r * 0.3 ? hex('#e8b440') : hex('#a8701e')); }
+    else if (d <= r + 1.9) R.pset(cx + i, cy + j, K);
+  }
+};
+// la moto en miniatura (12 × 7), tan pequeña que solo se ve con la lupa
+const MOTO_MINI = ['.....kk.....', '....kAAk.kk.', '..kkAAAAkOk.', '.kKkkkkkkKk.', 'kKlKk..kKlKk', 'kKKKk..kKKKk', '.kkk....kkk.'];
+const motoMini = (x, y, faro = false) => pinta(MOTO_MINI, x, y, { k: K, A: hex('#d8283a'), K: hex('#4a4a56'), l: hex('#d8d8e8'), O: hex(faro ? '#fff8c0' : '#c8a040') });
+
+const P2 = en('flamel', 0.232), P3 = en('flamel', 0.470), P4 = en('flamel', 0.761);
+const piedraT = en('flamel', 0.080), existio = en('flamel', 0.130), escriba = en('flamel', 0.206), casaT = en('flamel', 0.318), anio = en('flamel', 0.352), sigue = en('flamel', 0.398), pie = en('flamel', 0.428);
+const filo = en('flamel', 0.528), metal = en('flamel', 0.631), oro = en('flamel', 0.660), eterna = en('flamel', 0.707), tumba = en('flamel', 0.874), museo = en('flamel', 0.956);
+const ESC = EL.escribano, CLIENTE = { C: hex('#7a4a2a'), c: hex('#5a3418') }, ALQ = { C: hex('#5a2a6a'), c: hex('#3a1a4a') };
+// el atril de copista sobre el mostrador con el libro abierto: renglones hechos en la página derecha y n en la izquierda
+const atrilLibro = (n) => {
+  R.poligono([[160, 145], [196, 145], [192, 137], [164, 137]], hex('#5a3418')); R.linea(160, 145, 196, 145, K); R.linea(164, 137, 192, 137, hex('#8a5a30'));
+  R.poligono([[163, 138], [193, 138], [190, 126], [166, 126]], K);
+  R.poligono([[165, 137], [177, 137], [177, 127], [167, 127]], hex('#f4ead0')); R.poligono([[179, 137], [191, 137], [189, 127], [179, 127]], hex('#f4ead0'));
+  R.linea(178, 127, 178, 137, hex('#a89070')); R.linea(165, 137, 191, 137, hex('#c8b890'));
+  R.rect(180, 128, 182, 130, hex('#c8283a')); R.pset(181, 129, hex('#f0c040'));
+  for (let i = 0; i < 4; i++) R.linea(184 - (i < 1 ? 0 : 4), 129 + i * 2, 188 - (i & 1), 129 + i * 2, hex('#3a3040'));
+  for (let i = 0; i < Math.min(5, n); i++) R.linea(168, 129 + i * 2, 168 + (i === Math.floor(n) ? Math.round((n % 1) * 7) : 7), 129 + i * 2, hex('#3a3040'));
+};
+// la pluma de ganso en la mano (la punta en la mano)
+const pluma = (mx, my) => { R.linea(mx, my, mx + 4, my - 8, K); R.linea(mx + 1, my - 1, mx + 5, my - 9, hex('#f4f0e8')); R.linea(mx + 2, my - 3, mx + 5, my - 7, hex('#d8d0c0')); R.pset(mx, my + 1, hex('#1a1a2a')); };
+// una paloma que picotea y, al pasar alguien, echa a volar
+const paloma = (x, y, t, vuela) => {
+  if (vuela > 0) { const xx = Math.round(x - vuela * 60), yy = Math.round(y - vuela * 70 + Math.sin(vuela * 9) * 3), a = Math.sin(t * 30 + x) > 0; R.rect(xx - 2, yy, xx + 2, yy + 1, hex('#8a8a96')); R.pset(xx - 3, yy, hex('#4a4a56')); R.linea(xx - 1, yy, xx + 2, yy + (a ? -3 : 3), hex('#b8b8c4')); return; }
+  const pica = Math.sin(t * 5 + x) > 0.6 ? 1 : 0;
+  R.rect(x - 2, y - 3, x + 2, y - 1, hex('#8a8a96')); R.rect(x + 1, y - 3, x + 2, y - 2, hex('#b8b8c4')); R.pset(x - 3, y - 3 + pica, hex('#4a4a56')); R.pset(x - 3, y - 4 + pica, hex('#4a4a56')); R.pset(x - 4, y - 3 + pica, hex('#e8a040')); R.pset(x - 1, y, hex('#e86a4a')); R.pset(x + 1, y, hex('#e86a4a'));
+};
+const p1 = (t) => {
+  T.real(R, t, { encuadre: 'paris' });
+  // el cliente entra por la calle desde la izquierda y espera delante del puesto; con el libro, se vuelve y se va
+  const u = tramo(t, 0.3, 2.8), va = tramo(t, escriba + 0.35, P2 + 0.6), cx = Math.round(lerp(-16, 104, u) - va * 70);
+  const tiene = t > escriba + 0.05;
+  const rc = R.actor(ESC, cx, 168, t, { pal: CLIENTE, dir: va > 0 ? -1 : 1, anda: (u > 0 && u < 1) || va > 0, habla: u >= 1 && t < existio && Math.sin(t * 8) > 0, sonrisa: tiene, sostiene: tiene ? true : false });
+  if (tiene) P.libro(R, rc.mano[0], rc.mano[1] + 5, {});
+  // las palomas de la calle se espantan cuando pasa el cliente
+  for (const [px, py, k] of [[38, 170, 0], [54, 172, 1], [74, 169, 2]]) paloma(px, py, t, tramo(t, 0.9 + k * 0.25 + px / 120, 2.6 + k * 0.25 + px / 120));
+  // Flamel copia: la pluma corre por el renglón; en «stone» la moja en el tintero; en «existed» levanta el libro acabado
+  const fx = 146, escribe = t < existio - 0.2 && !(t > piedraT - 0.25 && t < piedraT + 0.35);
+  const ens = t > existio - 0.2 && t < escriba + 0.05, da = t > escriba - 0.5 && t < escriba + 0.05;
+  const mojar = t > piedraT - 0.25 && t < piedraT + 0.35;
+  const obj = escribe ? [168 + ((t * 1.6) % 1) * 7, 132 + Math.floor((t * 1.6) % 5) * 2] : mojar ? [199, 138] : da ? [fx - 4, 134] : ens ? [fx + 17, 124] : [fx + 15, 138];
+  const rf = R.actor(ESC, fx, 158, t, { dir: da ? -1 : 1, sostiene: obj, sonrisa: ens, habla: da && Math.sin(t * 9) > 0 });
+  T.realDelante(R, t, { encuadre: 'paris' });
+  atrilLibro(ens || t > escriba ? 5 : Math.min(5, t * 1.6));
+  // el tintero y, en la mano, la pluma o el libro
+  R.rect(196, 139, 202, 145, K); R.rect(197, 140, 201, 144, hex('#2a3a6a')); R.rect(197, 140, 201, 140, hex('#5a6aa8'));
+  if (ens || da) { if (ens) halo(rf.mano[0], rf.mano[1] - 4, 11, hex('#ffe890'), Math.floor(t * 6)); P.libro(R, rf.mano[0], rf.mano[1] + 5, {}); }
+  else if (t < escriba) pluma(rf.mano[0], rf.mano[1]);
+};
+const p2 = (t) => {
+  const hoyU = t > sigue;
+  T.real(R, t, { encuadre: 'paris', camara: 'casa' });
+  // el año grabado brilla en «1407»
+  const br = tramo(t, anio - 0.1, anio + 0.3) * (1 - tramo(t, anio + 1.2, anio + 1.8));
+  if (br > 0) { halo(160, 92, 16, hex('#ffe890'), Math.floor(t * 8)); chispas(160, 92, 13 * br + 4, t); }
+  if (!hoyU) {
+    // la puerta se abre en «house» (la hoja gira y deja ver la luz de dentro) y se cierra al entrar Flamel
+    const ab = tramo(t, casaT - 0.2, casaT + 0.3) * (1 - tramo(t, anio + 0.6, anio + 1.0));
+    if (ab > 0) {
+      R.rect(143, 112, 177, 161, hex('#2a1810'));
+      for (let y = 118; y < 161; y += 2) R.linea(145, y, 175, y, mez(hex('#2a1810'), hex('#ffb04a'), 0.25 + 0.5 * (y - 118) / 43));
+      R.rect(150, 122, 168, 160, hex('#3a2418')); R.linea(150, 136, 168, 136, hex('#5a3a20'));
+      const w = Math.round(34 * (1 - ab * 0.82));
+      R.rect(143, 110, 143 + w, 161, hex('#5a3418')); for (let x = 143; x < 143 + w; x += 6) R.linea(x, 110, x, 161, K); R.rect(143 + w, 110, 143 + w, 161, K);
+    }
+    // Flamel llega con su libro, se para ante la puerta y entra
+    const u = tramo(t, P2 + 0.05, casaT - 0.3), en2 = tramo(t, anio - 0.1, anio + 0.5);
+    const fx = Math.round(lerp(-16, 124, u) + en2 * 28), fy = Math.round(172 - en2 * 10);
+    if (en2 < 1) { const r = R.actor(ESC, fx, fy, t, { dir: 1, anda: (u > 0 && u < 1) || (en2 > 0 && en2 < 1), sostiene: true, sonrisa: t > casaT, sorpresa: t > anio - 0.2 && t < anio + 0.2 }); P.libro(R, r.mano[0], r.mano[1] + 5, {}); }
+    // un gato cruza el escalón
+    const g = tramo(t, P2 + 0.8, P2 + 3.6); if (g > 0 && g < 1) P.gato(R, Math.round(lerp(330, 220, g)), 172, { dir: -1 });
+  } else {
+    // hoy: dos turistas delante de la misma casa; ella señala el año, él hace la foto en «standing»
+    const u = tramo(t, sigue, sigue + 0.4);
+    R.actor(EL.chica, Math.round(lerp(70, 96, u)), 172, t, { dir: 1, dedo: t > sigue + 0.25, sonrisa: t > pie, anda: u < 1 });
+    const rt = R.actor(EL.turista, 206, 172, t, { dir: -1, sostiene: [200, 150], sonrisa: t > pie + 0.3 });
+    const [mx, my] = rt.mano; R.rect(mx - 5, my - 3, mx + 1, my + 2, K); R.rect(mx - 4, my - 2, mx, my + 1, hex('#3a3a46')); R.disco(mx - 3, my, 1, hex('#8ab0d8'));
+    const fl = tramo(t, pie - 0.02, pie + 0.25); if (fl > 0 && fl < 1) { halo(mx - 4, my - 1, 14 * (1 - fl) + 4, hex('#ffffff')); R.disco(mx - 4, my - 1, 3, hex('#ffffff')); }
+    const w = tramo(t, sigue - 0.05, sigue + 0.3); if (w < 1) for (let y = 0; y < 180; y++) for (let x = (y & 1); x < 320; x += 2) if (((x * 3 + y * 5) % 7) / 7 > w) R.pset(x, y, hex('#fff8e8'));
+  }
+};
+// la maceta: mustia hasta «eternal life», luego se endereza y florece
+const maceta = (x, y, f, t) => {
+  // la maceta de barro
+  R.poligono([[x - 9, y - 12], [x + 9, y - 12], [x + 7, y], [x - 7, y]], K); R.poligono([[x - 8, y - 11], [x + 8, y - 11], [x + 6, y - 1], [x - 6, y - 1]], hex('#b8602a'));
+  R.rect(x - 9, y - 14, x + 9, y - 11, K); R.rect(x - 8, y - 13, x + 8, y - 12, hex('#d8784a')); R.linea(x - 5, y - 9, x - 4, y - 2, hex('#e8946a')); R.linea(x + 4, y - 9, x + 3, y - 2, hex('#8a4020'));
+  // el tallo: doblado y pardo antes; recto y verde después, con dos hojas y la flor abierta
+  const tallo = f > 0 ? mez(hex('#7a6a3a'), hex('#3aa83a'), f) : hex('#7a6a3a');
+  const tx = Math.round(lerp(x + 12, x, f)), ty = Math.round(lerp(y - 18, y - 34, f)), mx = Math.round(lerp(x + 5, x, f)), my = Math.round(lerp(y - 24, y - 24, f));
+  for (const d of [0, 1]) { R.linea(x + d, y - 14, mx + d, my, tallo); R.linea(mx + d, my, tx + d, ty, tallo); }
+  const hj = f > 0 ? hex('#4ac84a') : hex('#8a7a40');
+  R.poligono([[x, y - 19], [x - 7, y - 23 + Math.round(f * 2) + (f > 0 ? 0 : 6)], [x - 4, y - 18]], hj); R.poligono([[x + 1, y - 22], [x + 8, y - 27 + (f > 0 ? 0 : 7)], [x + 5, y - 21]], hj);
+  if (f > 0.25) { const pr = 2 + Math.round(f * 3); for (let k = 0; k < 6; k++) { const a = k * 1.0472 + t * 0.8; R.disco(Math.round(tx + Math.cos(a) * pr), Math.round(ty + Math.sin(a) * pr), 2, K); } for (let k = 0; k < 6; k++) { const a = k * 1.0472 + t * 0.8; R.disco(Math.round(tx + Math.cos(a) * pr), Math.round(ty + Math.sin(a) * pr), 1, hex('#ff5a7a')); } R.disco(tx, ty, 1, hex('#ffe050')); }
+  else { R.disco(tx, ty + 1, 2, hex('#5a3a1a')); R.pset(tx + 1, ty + 3, hex('#8a6a3a')); }
+};
+// el pergamino colgado en la pared con el círculo de los alquimistas (círculo, cuadrado, triángulo, círculo: sin letras);
+// sus trazos se encienden de oro cuando brilla la piedra
+const carta = (t, on) => {
+  const x0 = 146, y0 = 26, x1 = 226, y1 = 100, cx = 186, cy = 64;
+  R.linea(x0 + 6, y0 - 6, cx, y0 - 12, hex('#5a4a3a')); R.linea(x1 - 6, y0 - 6, cx, y0 - 12, hex('#5a4a3a')); R.disco(cx, y0 - 12, 1, hex('#8a8a96'));
+  R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, K); R.rect(x0, y0, x1, y1, hex('#e8d8a8'));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const h = hsh(x, y, 1); if (h > 0.9) R.pset(x, y, hex('#d8c490')); else if (h < 0.04) R.pset(x, y, hex('#c8b078')); }
+  R.rect(x0 - 3, y0 - 3, x1 + 3, y0 + 1, hex('#8a5a30')); R.rect(x0 - 3, y1 - 1, x1 + 3, y1 + 3, hex('#8a5a30')); R.linea(x0 - 3, y0 - 3, x1 + 3, y0 - 3, K); R.linea(x0 - 3, y1 + 3, x1 + 3, y1 + 3, K);
+  const tinta = on > 0 ? mez(hex('#8a2a1a'), hex('#ffd040'), on) : hex('#8a2a1a');
+  const circ = (r) => { for (let a = 0; a < 6.283; a += 0.02) R.pset(Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r), tinta); };
+  circ(32); circ(31.4);
+  R.linea(cx, cy - 31, cx + 27, cy + 15, tinta); R.linea(cx + 27, cy + 15, cx - 27, cy + 15, tinta); R.linea(cx - 27, cy + 15, cx, cy - 31, tinta);
+  R.linea(cx - 13, cy - 8, cx + 13, cy - 8, tinta); R.linea(cx + 13, cy - 8, cx + 13, cy + 15, tinta); R.linea(cx - 13, cy + 15, cx - 13, cy - 8, tinta);
+  circ(8);
+  // el sol y la luna en las esquinas
+  R.disco(x0 + 9, y0 + 9, 4, on > 0 ? hex('#ffd040') : hex('#c8902a')); R.disco(x1 - 9, y0 + 9, 4, hex('#8a8a96')); R.disco(x1 - 7, y0 + 8, 3, hex('#e8d8a8'));
+  if (on > 0) { chispas(x0, y0, 6, t); chispas(x1, y0, 6, t); chispas(x0, y1, 6, t); chispas(x1, y1, 6, t); for (let a = 0; a < 6.283; a += 0.05) if (hsh(Math.round(a * 40), 1, Math.floor(t * 6)) > 0.6) R.pset(Math.round(cx + Math.cos(a) * 35), Math.round(cy + Math.sin(a) * 35), hex('#fff4c0')); }
+};
+const p3 = (t) => {
+  const latido = t > filo - 0.1 && t < metal;
+  T.exterior(R, t, { encuadre: 'pociones', camara: 'mesa', elegida: latido ? Math.floor(t * 4) % 7 : 2 });
+  carta(t, tramo(t, filo - 0.1, filo + 0.4) * (1 - tramo(t, eterna + 0.6, eterna + 1.2)));
+  // el alquimista (la leyenda de Flamel) detrás de la mesa: levanta la piedra y la baja hacia el lingote en «metal»
+  const ax = 66, arriba = t > filo - 0.3 && t < metal - 0.3, toca = t > metal - 0.3 && t < oro + 0.6;
+  const ra = R.actor(ESC, ax, 142, t, { pal: ALQ, dir: toca ? -1 : 1, sostiene: arriba ? [ax + 17, 104] : toca ? [ax - 4, 126] : [ax + 16, 122], sonrisa: t > oro, sorpresa: t > eterna && t < eterna + 0.8, habla: t < filo - 0.3 && Math.sin(t * 8) > 0 });
+  T.exteriorDelante(R, t, { encuadre: 'pociones', camara: 'mesa', elegida: latido ? Math.floor(t * 4) % 7 : 2 });
+  // el lingote sobre el pergamino: plomo gris hasta «gold», luego oro con chispas; suelta tres monedas
+  const dorado = t > oro;
+  R.poligono([[28, 153], [62, 153], [56, 141], [34, 141]], K); R.poligono([[30, 152], [60, 152], [55, 142], [35, 142]], dorado ? hex('#f0c040') : hex('#6a6a78'));
+  R.linea(35, 142, 55, 142, dorado ? hex('#fff0a0') : hex('#9a9aa8')); R.linea(36, 145, 52, 145, dorado ? hex('#ffe070') : hex('#7a7a88')); R.linea(30, 152, 60, 152, dorado ? hex('#a87a18') : hex('#4a4a56'));
+  const [mx, my] = ra.mano;
+  // en «metal», un haz de luz roja baja de la piedra al lingote
+  if (toca && t < oro + 0.3) for (let k = 0; k < 14; k++) { const v = ((k / 14) + t * 2) % 1, x = Math.round(lerp(mx, 45, v)), y = Math.round(lerp(my + 10, 144, v)); R.pset(x, y, hex('#ff8a6a')); R.pset(x + 1, y, hex('#ffd0a0')); }
+  if (dorado) { const v = tramo(t, oro, oro + 1.2); if (v < 1) { halo(45, 146, 22, hex('#ffe890'), Math.floor(t * 8)); chispas(45, 144, 10 + v * 10, t); } for (let k = 0; k < 3; k++) { const m = tramo(t, oro + k * 0.12, oro + 0.7 + k * 0.12), cx = Math.round(45 + (k - 1) * 20 * m), cy = Math.round(146 - Math.sin(m * Math.PI) * 20 + m * 8); P.moneda(R, cx, cy, { s: 2 }); } }
+  maceta(104, 157, tramo(t, eterna - 0.1, eterna + 0.6), t);
+  if (t > eterna && t < eterna + 1.4) { halo(104, 138, 16, hex('#c8ffc8'), Math.floor(t * 7)); chispas(104, 138, 10, t, hex('#c8ffc8'), 5); }
+  // la piedra en la mano: brilla en «philosopher's stone»
+  if (arriba || toca) halo(mx, my, arriba ? 24 : 12, hex('#ff8a6a'), Math.floor(t * 6));
+  if (arriba && t < filo + 1.2) chispas(mx, my, 18, t, hex('#ffd0a0'));
+  P.piedra(R, mx, my + 9, { brillo: arriba || toca, t, s: 3 });
+};
+const p4 = (t) => {
+  T.real(R, t, { encuadre: 'museo', camara: 'lapida' });
+  // dos cuadros con marco dorado a los lados (una vista de Notre-Dame y un retrato en sombra) y sus cartelas sin letras
+  for (const [x0, y0, w, h, tipo] of [[22, 46, 50, 38, 0], [238, 58, 40, 50, 1]]) {
+    R.rect(x0 - 3, y0 - 3, x0 + w + 3, y0 + h + 3, K); R.rect(x0 - 2, y0 - 2, x0 + w + 2, y0 + h + 2, hex('#c8902a')); R.rect(x0 - 2, y0 - 2, x0 + w + 2, y0 - 2, hex('#ffe08a')); R.rect(x0, y0, x0 + w, y0 + h, K);
+    if (tipo === 0) { R.rect(x0 + 1, y0 + 1, x0 + w - 1, y0 + h - 1, hex('#a8c0d0')); R.rect(x0 + 1, y0 + 24, x0 + w - 1, y0 + h - 1, hex('#5a7a5a')); R.rect(x0 + 16, y0 + 8, x0 + 22, y0 + 26, hex('#6a6a7a')); R.rect(x0 + 28, y0 + 8, x0 + 34, y0 + 26, hex('#6a6a7a')); R.rect(x0 + 16, y0 + 16, x0 + 34, y0 + 26, hex('#7a7a8a')); R.disco(x0 + 25, y0 + 19, 2, hex('#3a3a4a')); R.linea(x0 + 1, y0 + 30, x0 + w - 1, y0 + 29, hex('#6a9ab8')); }
+    else { R.rect(x0 + 1, y0 + 1, x0 + w - 1, y0 + h - 1, hex('#3a2a20')); R.disco(x0 + 20, y0 + 20, 8, hex('#c8a080')); R.rect(x0 + 10, y0 + 30, x0 + 30, y0 + h - 1, hex('#5a3a6a')); R.rect(x0 + 12, y0 + 10, x0 + 28, y0 + 13, hex('#2a1a12')); }
+    R.rect(x0 + w / 2 - 6, y0 + h + 7, x0 + w / 2 + 6, y0 + h + 10, hex('#c8b890'));
+  }
+  // un visitante al fondo que cruza despacio con la audioguía
+  { const v = ((t - P4) / 9) % 1, x = Math.round(lerp(-20, 340, v)); R.actor(EL.chica, x, 176, t + 2, { dir: 1, anda: true, pal: { C: hex('#4a6aa8'), c: hex('#2a4a88') } }); }
+  // la placa de la peana con el año: se enciende en «tombstone»
+  const on = tramo(t, tumba - 0.1, tumba + 0.3);
+  R.rect(139, 143, 181, 157, K); R.rect(140, 144, 180, 156, mez(hex('#5a4220'), hex('#8a6a30'), on)); R.rect(140, 144, 180, 144, hex('#c8a050'));
+  T.a_cifras(R, '1418', 160, 154);
+  if (on > 0 && t < tumba + 1.6) { halo(160, 150, 26, hex('#ffe890'), Math.floor(t * 7)); chispas(160, 150, 22, t); }
+  // la guía espera junto al poste y señala la lápida en «tombstone»
+  R.actor(EL.contable, 62, 176, t, { dir: 1, dedo: t > tumba - 0.2 && t < museo + 0.4, habla: (t > P4 + 0.4 && t < tumba - 0.3 && Math.sin(t * 8) > 0) || (t > museo + 0.6 && Math.sin(t * 7) > 0), sonrisa: t > museo });
+  // entran los visitantes: un señor con gorra y un niño que, en «museum», salta para ver
+  const u = tramo(t, P4 + 0.2, P4 + 2.4), v = tramo(t, P4 + 0.6, P4 + 2.9);
+  R.actor(EL.turista, Math.round(lerp(336, 214, u)), 176, t, { dir: -1, anda: u > 0 && u < 1, sonrisa: t > tumba + 0.3 });
+  const sal = t > museo && t < museo + 0.7 ? Math.round(Math.sin((t - museo) / 0.7 * Math.PI) * 10) : 0;
+  const rk = R.actor(EL.chico, Math.round(lerp(352, 238, v)), 176, t, { dir: -1, anda: v > 0 && v < 1, salto: sal, sorpresa: t > museo - 0.1 && t < museo + 1.5 });
+  if (t > museo && t < museo + 1.6) R.icono('!', rk.cabeza[0] - 3, rk.cabeza[1] - 24 - sal, hex('#ffe890'), K, 2);
+};
+const efectos = [[0.5, 'lapiz'], [piedraT, 'golpecito'], [existio, 'papel'], [P2 + 1.1, 'miau'], [casaT, 'puerta'], [anio, 'brillo'], [pie, 'flash'],
+  [filo, 'brillo'], [oro, 'campana'], [eterna, 'pop'], [tumba, 'brillo'], [museo + 0.05, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P2 ? 1400 : t < sigue ? 1407 : t < P3 ? 2026 : t < P4 ? 1612 : 2026) });
+</script>
+</body>
+</html>

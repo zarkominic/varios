@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La tienda de túnicas · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-DRACO (frase 16), 1997 (el libro). Tres planos:
+// 1. el escaparate de la tienda de túnicas desde la calle: Hagrid y Harry llegan por la acera; Hagrid señala la puerta
+//    («book»), Harry va hasta la puerta (suena la campanilla) y Hagrid se da la vuelta hacia la heladería (corta en
+//    «Harry»);
+// 2. el probador: Harry sube de un salto a su taburete junto a un chico pálido y rubio; la costurera le prende el bajo con
+//    alfileres; en «pale boy» Draco se vuelve, levanta la nariz y le habla; Harry contesta en «Diagon Alley» (corta en «a»);
+// 3. la tienda entera: por el escaparate del fondo llega Hagrid con dos helados y saluda; en «sneers» Draco lo señala con
+//    desprecio y se ríe; en «Draco Malfoy» Harry se enfada; en «skips» Harry baja del taburete y se va hacia la puerta
+//    mientras Hagrid le espera fuera.
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-draco');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const at = (s) => en('tienda', (s - 0.5) / 13.451);
+const P2 = at(4.24), P3 = at(8.46);
+const llegan = at(0.3), senala = at(2.0), puerta = at(3.7), sube = at(4.3), palido = at(5.42), contesta = at(7.22);
+const asoma = at(8.5), burla = at(9.1), draco = at(11.0), salta = at(12.55);
+const PIN = hex('#e8ecf4');
+const p1 = (t) => {
+  const g = T.diagon(R, t, { encuadre: 'calle', camara: 'escaparate' });
+  const u = tramo(t, llegan, senala - 0.1), hx = Math.round(lerp(-60, 150, u)), hd = tramo(t, puerta - 0.9, P2 + 0.2);
+  const w = tramo(t, senala + 0.7, puerta);
+  // Harry: llega con Hagrid, mira el escaparate y va a la puerta
+  const harx = Math.round(lerp(-30, 186, u) + w * 70);
+  R.actor(EL.harryCalle, harx, 164, t, { dir: 1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), sorpresa: t > senala && t < senala + 0.7, sonrisa: t > puerta });
+  // Hagrid: señala la puerta y se va a por los helados
+  const hgx = hd > 0 ? Math.round(lerp(150, -70, hd)) : hx;
+  R.actor(EL.hagrid, hgx, 166, t, { dir: hd > 0 ? -1 : 1, anda: (u > 0 && u < 1) || (hd > 0 && hd < 1), dedo: t > senala && t < puerta - 0.9, habla: t > senala && t < puerta - 1 && Math.sin(t * 7) > 0, sonrisa: true });
+  // la campanilla de la puerta se mueve cuando llega Harry
+  if (t > puerta) { const a = Math.sin((t - puerta) * 18) * Math.max(0, 1 - (t - puerta) * 1.5); R.linea(266, 46, 266 + Math.round(a * 4), 52, T.C.k); R.disco(266 + Math.round(a * 4), 54, 2, hex('#e8c040')); }
+  // una lechuza cruza por arriba con un paquete
+  T.diagonDelante(R, t, { encuadre: 'calle', camara: 'escaparate' });
+  // un duende con prisa pasa por el bordillo, por delante, con su saco de monedas
+  const l = tramo(t, 0.6, P2 + 0.3); if (l > 0 && l < 1) { const dx = Math.round(lerp(330, -30, l)); const d = R.actor(EL.duende, dx, 178, t, { dir: -1, anda: true, sostiene: true }); R.disco(d.mano[0], d.mano[1] + 2, 3, T.C.k); R.disco(d.mano[0], d.mano[1] + 2, 2, hex('#8a6a3a')); R.pset(d.mano[0] - 1, d.mano[1], hex('#f0d060')); }
+};
+const p2 = (t) => {
+  T.diagon(R, t, { encuadre: 'tunicas', camara: 'probador' });
+  // Harry sube de un salto al taburete de la izquierda; Draco ya está en el de la derecha
+  const s = tramo(t, sube, sube + 0.5), hy = Math.round(lerp(170, 140, s) - Math.sin(Math.PI * s) * 10);
+  const vuelve = t > palido - 0.1;
+  R.actor(EL.harryCalle, 103, hy, t, { dir: 1, sorpresa: t > palido && t < palido + 0.8, habla: t > contesta && t < contesta + 1 && Math.sin(t * 8) > 0 });
+  R.actor(EL.draco, 203, 140, t, { dir: vuelve ? -1 : 1, habla: t > palido + 0.2 && t < contesta - 0.1 && Math.sin(t * 7) > 0, sonrisa: t > palido && t < contesta, enfado: t > contesta + 0.2 });
+  // la costurera prende alfileres en el bajo de Harry; la ayudanta, en el de Draco
+  const pica = Math.sin(t * 5) > 0.3;
+  R.actor(EL.costurera, 124, 172, t, { dir: -1, dedo: pica && t > sube + 0.5 });
+  R.actor(EL.costurera, 182, 172, t, { dir: 1, dedo: !pica, pal: { C: hex('#6a8ab0'), c: hex('#4a6a90'), V: hex('#6a8ab0') } });
+  const n = Math.floor(tramo(t, sube + 0.6, P3) * 6); for (let k = 0; k < n; k++) R.pset(105 + k * 2, hy - 2, PIN);
+  for (let k = 0; k < 6; k++) R.pset(205 + k * 2, 138, PIN);
+  // la snitch, enredada un momento en la cinta métrica que flota
+  T.snitch(R, 160 + Math.sin(t * 1.4) * 14, 70 + Math.sin(t * 2.1) * 6, t, { vuela: 0.4, cara: t > palido && t < contesta ? 'susto' : 'normal' });
+  T.diagonDelante(R, t, { encuadre: 'tunicas', camara: 'probador' });
+};
+const p3 = (t) => {
+  const g = T.diagon(R, t, { encuadre: 'tunicas' });
+  // por el escaparate del fondo llega Hagrid con dos helados, se para y saluda
+  const [vx0, vy0, vx1, vy1] = g.ventana;
+  const a = tramo(t, asoma - 0.1, burla - 0.3), hx = Math.round(lerp(vx0 - 60, 150, a));
+  R.recorte([vx0, vy0, vx1, vy1]);
+  const hg = R.actor(EL.hagridHelado, hx, g.calle, t, { dir: 1, anda: a > 0 && a < 1, sonrisa: true, sostiene: t > burla - 0.3 ? [hx + 22, g.calle - 46 - Math.round(Math.abs(Math.sin(t * 5)) * 3)] : undefined });
+  if (t > burla - 0.3) T.PIEZAS_HP.helado(R, hg.mano[0], hg.mano[1] + 2, { t });
+  R.recorte(null);
+  // los dos niños en sus taburetes; Draco señala el escaparate con desprecio y se ríe
+  const baja = tramo(t, salta, salta + 0.5), sale = tramo(t, salta + 0.5, E.duracion);
+  const harx = Math.round(lerp(123, 96, baja) - sale * 140), hary = Math.round(lerp(146, 166, baja) - Math.sin(Math.PI * baja) * 8);
+  R.actor(EL.harryCalle, harx, hary, t, { dir: baja > 0 ? -1 : 1, anda: sale > 0 && sale < 1, enfado: t > draco && t < salta + 0.5, sorpresa: t > burla && t < burla + 0.6 });
+  R.actor(EL.draco, 183, 146, t, { dir: -1, dedo: t > burla && t < draco, enfado: t > burla && t < burla + 1, sonrisa: t > burla + 1, habla: t > burla + 1 && t < draco + 1.2 && Math.sin(t * 8) > 0, salto: t > draco && t < draco + 0.4 ? 2 : 0 });
+  R.actor(EL.costurera, 150, 168, t, { dir: baja > 0 ? -1 : 1, sorpresa: t > salta && t < salta + 1, dedo: t < burla && Math.sin(t * 5) > 0 });
+  T.diagonDelante(R, t, { encuadre: 'tunicas' });
+};
+const efectos = [[senala, 'pop'], [puerta, 'campana'], [sube + 0.45, 'boing'], [contesta, 'pop'], [burla + 0.1, 'boing'], [salta + 0.45, 'golpecito'], [at(13.6), 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1997 });
+</script>
+</body>
+</html>

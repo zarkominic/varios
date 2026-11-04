@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cierre · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-CIERRE (frases 34–35), hoy. Cuatro planos:
+// 1. (0 → «In this world», 4,5 s) el claro del bosque: Harry entra con una lupa enorme; en «details» se para y el
+//    cristal agranda una moto en miniatura escondida junto a las setas; se asombra («!») y el faro se enciende en
+//    «episode»; la snitch se asoma tras el tronco.
+// 2. (→ «decoration», 4,2 s) la tienda de túnicas: Hermione registra con la lupa la mesita de la costurera, que toma
+//    medidas a un alumno subido al taburete; en «accident» el cristal encuentra un calcetín de lana entre los carretes.
+// 3. (→ «Tell», 5,9 s) el Gran Comedor vacío de noche: la snitch arrastra la lupa por la mesa más cercana; en «clue»
+//    descubre a la rata dormida, que abre un ojo; en «which house» se encienden uno a uno los cuatro estandartes y sale
+//    un «?».
+// 4. (→ fin, 6,2 s) las gradas del campo: cuatro hinchas levantan sus banderas de los cuatro colores en «Tell me in the
+//    comments»; en «Meanwhile» Atom baja de su sitio; en «catch» se lanza a por la snitch, que se escapa por arriba en
+//    «again»: Atom choca, da vueltas con estrellas, la grada se ríe y él vuelve a su sitio (gag final).
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-cierre');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P = T.PIEZAS_HP, C = T.C, K = hex('#141018');
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255, r2 = c2 & 255, g2 = (c2 >>> 8) & 255, b2 = (c2 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (b2 - b1) * a) << 16) | (Math.round(g1 + (g2 - g1) * a) << 8) | Math.round(r1 + (r2 - r1) * a)) >>> 0; };
+// un halo tramado (no tapa: puntea) alrededor de (cx, cy)
+const hsh = (x, y, k) => { const v = Math.sin(x * 12.9898 + y * 78.233 + k * 37.719) * 43758.5453; return v - Math.floor(v); };
+const halo = (cx, cy, r, c, k = 0) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && ((x + y) & 1) && hsh(x, y, k % 3) < (1 - d) * (1 - d) * 1.4 + 0.08) R.pset(x, y, c); } };
+// destellos en cruz que giran alrededor de (cx, cy)
+const chispas = (cx, cy, r, t, c = hex('#fff4c0'), n = 5) => { for (let k = 0; k < n; k++) { const a = k * 6.283 / n + t * 3, x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r * 0.8); if (Math.sin(t * 11 + k * 2) > -0.2) { R.pset(x, y, c); R.pset(x - 1, y, c); R.pset(x + 1, y, c); R.pset(x, y - 1, c); R.pset(x, y + 1, c); } } };
+// un sprite de letras con su paleta (s: escala)
+const pinta = (g, x0, y0, pal, s = 1) => { for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { const c = pal[g[j][i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } };
+
+// la lupa grande: aumenta k veces lo que hay debajo (copia antes los píxeles), aro de latón con su luz, el reflejo del
+// cristal y el mango de madera hacia la mano (mano = [x, y]) o hacia donde se diga
+const lente = (cx, cy, r, k = 2.5, mano = null) => {
+  cx = Math.round(cx); cy = Math.round(cy);
+  const n = 2 * r + 1, S = new Array(n * n);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) S[j * n + i] = R.pget(cx - r + i, cy - r + j);
+  if (mano) {
+    const [hx, hy] = mano, a = Math.atan2(hy - cy, hx - cx), L = Math.hypot(hx - cx, hy - cy);
+    for (let d = r + 1; d <= L + 1; d += 0.5) R.disco(Math.round(cx + Math.cos(a) * d), Math.round(cy + Math.sin(a) * d), 2, K);
+    for (let d = r + 1; d <= L; d += 0.5) { const x = Math.round(cx + Math.cos(a) * d), y = Math.round(cy + Math.sin(a) * d); R.disco(x, y, 1, d < r + 5 ? hex('#c8902a') : hex('#7a4422')); if (d > r + 5) R.pset(x, y - 1, hex('#a86a3a')); }
+  }
+  for (let j = -r - 2; j <= r + 2; j++) for (let i = -r - 2; i <= r + 2; i++) {
+    const d = Math.hypot(i, j);
+    if (d <= r - 2.5) {
+      let c = S[Math.round(r + j / k) * n + Math.round(r + i / k)] || K;
+      c = mez(c, hex('#e4f2ff'), 0.1);
+      const diag = i + j;
+      if ((diag < -r * 0.85 && diag > -r * 1.05) || (diag < -r * 1.2 && diag > -r * 1.28)) c = mez(c, hex('#ffffff'), 0.55);
+      R.pset(cx + i, cy + j, c);
+    } else if (d <= r - 1.5) R.pset(cx + i, cy + j, hex('#6a4a18'));
+    else if (d <= r + 0.9) { const luz = i + j; R.pset(cx + i, cy + j, luz < -r * 0.6 ? hex('#fff0b0') : luz < r * 0.3 ? hex('#e8b440') : hex('#a8701e')); }
+    else if (d <= r + 1.9) R.pset(cx + i, cy + j, K);
+  }
+};
+// la moto en miniatura (12 × 7), tan pequeña que solo se ve con la lupa
+const MOTO_MINI = ['.....kk.....', '....kAAk.kk.', '..kkAAAAkOk.', '.kKkkkkkkKk.', 'kKlKk..kKlKk', 'kKKKk..kKKKk', '.kkk....kkk.'];
+const motoMini = (x, y, faro = false) => pinta(MOTO_MINI, x, y, { k: K, A: hex('#d8283a'), K: hex('#4a4a56'), l: hex('#d8d8e8'), O: hex(faro ? '#fff8c0' : '#c8a040') });
+
+const P2 = en('detalles', 0.334), P3 = en('detalles', 0.685), P4 = en('casa', 0.288);
+const detalles = en('detalles', 0.174), episodio = en('detalles', 0.249), accidente = en('detalles', 0.553), pista = en('detalles', 0.880), ultimo = en('detalles', 0.927);
+const casaT = en('casa', 0.065), dime = en('casa', 0.298), mientras = en('casa', 0.537), atrapa = en('casa', 0.757), otra = en('casa', 0.908);
+const p1 = (t) => {
+  T.exterior(R, t, { encuadre: 'bosque', camara: 'claro' });
+  // la moto en miniatura, escondida entre la hierba junto a las setas
+  motoMini(194, 157, t > episodio && Math.sin(t * 6) > -0.3);
+  // la snitch se asoma por detrás del tronco caído
+  const as = tramo(t, detalles + 0.3, detalles + 0.8) * (1 - tramo(t, P2 - 0.4, P2));
+  T.snitch(R, 70, Math.round(lerp(150, 136, as)), t, { cara: as > 0.5 ? 'susto' : 'normal' });
+  // Harry entra con la lupa y se para en «details» con el cristal sobre la moto
+  const u = tramo(t, 0.15, detalles - 0.1), ue = u * (2 - u), hx = Math.round(lerp(-46, 160, ue));
+  const rh = R.actor(EL.harry, hx, 166, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [hx + 18, 148], sorpresa: t > detalles && t < episodio + 0.4, sonrisa: t > episodio + 0.4 });
+  T.exteriorDelante(R, t, { encuadre: 'bosque', camara: 'claro' });
+  const bus = u < 1 ? Math.sin(t * 5) * 3 : 0;
+  lente(rh.mano[0] + 22, rh.mano[1] + 10 + bus, 18, lerp(2.2, 3.2, tramo(t, detalles, detalles + 0.4)), rh.mano);
+  if (t > detalles + 0.15 && t < episodio + 0.8) R.icono('!', rh.cabeza[0] - 3, rh.cabeza[1] - 26, hex('#ffe890'), K, 2);
+};
+const p2 = (t) => {
+  T.diagon(R, t, { encuadre: 'tunicas' });
+  // un alumno en el taburete; la costurera le toma medidas con la cinta y se vuelve en «accident»
+  R.actor(EL.alumno, 183, 146, t, { dir: -1, sonrisa: true, sorpresa: t > accidente && t < accidente + 0.8 });
+  const mide = Math.sin(t * 3) > 0;
+  const rc = R.actor(EL.costurera, 204, 166, t, { dir: t > accidente ? -1 : -1, sostiene: mide ? [196, 140] : [198, 150], sorpresa: t > accidente + 0.1 && t < accidente + 0.9 });
+  R.linea(rc.mano[0], rc.mano[1], 190, mide ? 136 : 148, hex('#f0d040'));
+  // en la mesita, carretes y, escondido entre ellos, el calcetín de lana
+  for (const [x, c] of [[98, '#3a6ad8'], [104, '#c8283a'], [118, '#3a9a3a']]) { R.rect(x - 2, 118, x + 2, 124, K); R.rect(x - 1, 119, x + 1, 123, hex(c)); R.linea(x - 2, 118, x + 2, 118, hex('#a87a4a')); R.linea(x - 2, 124, x + 2, 124, hex('#a87a4a')); }
+  R.rect(104, 124, 120, 126, K); R.rect(105, 125, 119, 125, hex('#2a6a4a')); P.calcetin(R, 111, 125, {});
+  // Hermione entra por la izquierda registrándolo todo con la lupa
+  const u = tramo(t, P2 + 0.05, accidente - 0.15), hx = Math.round(lerp(-46, 66, u));
+  const rh = R.actor(EL.hermione, hx, 166, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [hx + 18, 142], sorpresa: t > accidente && t < accidente + 0.6, sonrisa: t > accidente + 0.6 });
+  T.diagonDelante(R, t, { encuadre: 'tunicas' });
+  const bus = u < 1 ? Math.sin(t * 6) * 4 : 0;
+  lente(rh.mano[0] + 22 + bus, rh.mano[1] - 22, 17, lerp(2.2, 3.4, tramo(t, accidente, accidente + 0.4)), rh.mano);
+  if (t > accidente + 0.1 && t < accidente + 1.3) chispas(rh.mano[0] + 22, rh.mano[1] - 22, 22, t);
+};
+// la rata dormida en la mesa de delante; la snitch arrastra la lupa
+const p3 = (t) => {
+  T.hogwarts(R, t, { encuadre: 'comedor', vacio: true });
+  // los cuatro estandartes se encienden en «which house» (rojo, amarillo, verde, azul)
+  const BAN = [[72, '#ff6a5a'], [118, '#ffe060'], [186, '#6aff8a'], [232, '#6aa8ff']];
+  BAN.forEach(([x, c], i) => { const on = tramo(t, casaT + i * 0.15, casaT + i * 0.15 + 0.2); if (on > 0) { halo(x, 66, 18 + Math.sin(t * 6 + i) * 2, hex(c), Math.floor(t * 8) + i); if (t < casaT + i * 0.15 + 0.8) chispas(x, 66, 14, t, hex(c), 4); } });
+  if (t > casaT + 0.7) { const q = tramo(t, casaT + 0.7, casaT + 1.0); R.icono('?', 151, Math.round(lerp(40, 30, q)), hex('#ffe890'), K, 3); }
+  // la rata sobre el tablero de la mesa de la derecha
+  const ojo = t > pista + 0.35 && t < ultimo + 1.5;
+  P.rata(R, 236, 160, { ojo });
+  // la snitch arrastra la lupa a lo largo de la mesa y se para sobre la rata en «clue»
+  const u = tramo(t, P3 + 0.1, pista - 0.1), ue = u * (2 - u), lx = Math.round(lerp(40, 236, ue)), ly = Math.round(lerp(150, 155, ue) + (u < 1 ? Math.sin(t * 7) * 3 : 0));
+  const sx = lx + 22, sy = ly - 30 + Math.round(Math.sin(t * 9) * 2);
+  lente(lx, ly, 18, lerp(2.2, 3.0, tramo(t, pista, pista + 0.4)), [sx - 2, sy + 2]);
+  R.linea(sx - 2, sy + 2, sx + 2, sy - 2, K);
+  T.snitch(R, sx + 4, sy, t, { cara: ojo ? 'susto' : t > casaT ? 'feliz' : 'normal' });
+  if (ojo && t < pista + 1.5) R.icono('!', sx - 2, sy - 22, hex('#ffe890'), K, 2);
+};
+// la snitch y Atom en las gradas: Atom se lanza en «catch» y la snitch se escapa en «again»
+const snAt = (t) => {
+  if (t < atrapa) return [150 + Math.sin(t * 2.2) * 14, 118 + Math.sin(t * 4.4) * 4];
+  const v = tramo(t, atrapa + 0.4, otra + 0.1), w = tramo(t, otra + 0.8, otra + 2.2);
+  return [lerp(150, 168, v) + Math.sin(t * 9) * 3 + w * 190, lerp(118, 64, v) - w * 20];
+};
+const comp0 = R.companero;
+R.companero = (t, e) => {
+  if (t < mientras) return comp0(t, e);
+  const baja = tramo(t, mientras, mientras + 0.7), lan = tramo(t, atrapa - 0.1, otra - 0.05), vuelve = tramo(t, otra + 1.8, otra + 2.5);
+  const b = baja * baja * (3 - 2 * baja);
+  let x = lerp(297, 214, b), y = lerp(24, 118, b);
+  if (lan > 0) { x = lerp(214, 132, lan * lan); y = lerp(118, 112, lan) - Math.sin(lan * Math.PI) * 10; }
+  const mareo = t > otra && t < otra + 1.8;
+  if (mareo) { x = 132 + Math.sin((t - otra) * 30) * Math.max(0, 1 - (t - otra) * 2) * 3; y = 114; }
+  if (vuelve > 0) { const vv = vuelve * vuelve * (3 - 2 * vuelve); x = lerp(132, 297, vv); y = lerp(114, 24, vv) - Math.sin(vv * Math.PI) * 10; }
+  x = Math.round(x); y = Math.round(y + Math.sin(t * 2.6) * 1.2);
+  const r = 11;
+  R.disco(x, y, r, hex('#14204a'));
+  for (let j = -18; j <= 18; j++) for (let i = -18; i <= 18; i++) { const g = 1 - Math.hypot(i, j) / (r + 6); if (g > 0.25 && (g > 0.45 || ((i + j) & 1))) R.pset(x + i, y + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(x, y, t, { r: 10, orbita: R.PAL.ATOM[7], energia: lan > 0 && lan < 1 ? 1 : e });
+  if (mareo) for (let k = 0; k < 4; k++) { const a = k * 1.5708 + t * 7, ex = Math.round(x + Math.cos(a) * 15), ey = Math.round(y - 14 + Math.sin(a) * 4); R.pset(ex, ey, hex('#ffe890')); R.pset(ex - 1, ey, hex('#ffe890')); R.pset(ex + 1, ey, hex('#ffe890')); R.pset(ex, ey - 1, hex('#ffe890')); R.pset(ex, ey + 1, hex('#ffe890')); }
+};
+const p4 = (t) => {
+  T.exterior(R, t, { encuadre: 'quidditch', camara: 'gradas' });
+  // cuatro hinchas en la barandilla levantan sus banderas en «Tell me in the comments» y se ríen cuando Atom falla
+  const FANS = [[EL.alumno, 52, '#c8283a', '#e8b830'], [EL.alumna, 100, '#1e6a3a', '#c8c8d0'], [EL.neville, 148, '#e8b830', '#2a2a32'], [EL.hermione, 196, '#2a4a9a', '#c8902a']];
+  FANS.forEach(([d, x, c1, c2], i) => {
+    const sube = tramo(t, dime - 0.1 + i * 0.12, dime + 0.15 + i * 0.12), rie = t > otra + 0.2 && t < otra + 1.8;
+    const r = R.actor(d, x, 168, t, { dir: i < 2 ? 1 : -1, sostiene: sube > 0 ? [x + (i < 2 ? 17 : -2), Math.round(lerp(150, 140, sube))] : false, brazos: false, sonrisa: sube > 0 || rie, sorpresa: t > atrapa && t < otra + 0.2, salto: rie ? Math.round(Math.abs(Math.sin((t - otra) * 9)) * 3) : 0 });
+    if (sube > 0) {
+      const [mx, my] = r.mano, top = my - 22, dd = i < 2 ? 1 : -1;
+      R.linea(mx, my + 2, mx, top, K); R.linea(mx + dd, my + 2, mx + dd, top, hex('#a87a4a'));
+      for (let k = 0; k < 14; k++) { const ww = Math.round(Math.sin(t * 8 + k * 0.6 + i) * 1.5), xx = mx + dd * (2 + k); for (let j = 0; j < 9; j++) R.pset(xx, top + j + ww, j === 0 || j === 8 || k === 13 ? K : (j === 4 ? hex(c2) : hex(c1))); }
+    }
+  });
+  if (t > dime + 0.6 && t < mientras) R.icono('?', 236, 120 - Math.round(Math.abs(Math.sin(t * 5)) * 3), hex('#ffe890'), K, 2);
+  T.exteriorDelante(R, t, { encuadre: 'quidditch', camara: 'gradas' });
+  // la snitch revolotea por delante de la grada (se pinta antes que Atom)
+  const [sx, sy] = snAt(t);
+  if (sx < 340) T.snitch(R, sx, sy, t, { cara: t > otra ? 'feliz' : t > atrapa ? 'susto' : 'normal' });
+};
+const efectos = [[0.3, 'whoosh'], [detalles, 'brillo'], [episodio, 'interruptor'], [accidente, 'brillo'],
+  [pista, 'brillo'], [pista + 0.35, 'pop'], [casaT, 'campana'], [dime, 'publico'], [mientras, 'whoosh'], [atrapa, 'whoosh'], [otra, 'boing'], [otra + 0.4, 'publico']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

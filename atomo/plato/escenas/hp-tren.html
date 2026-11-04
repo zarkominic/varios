@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El tren · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-TREN (frases 10–11), 2026. «Imagina que eres Harry»: la cámara le sigue. Cuatro planos:
+// 1. el andén de Hogsmeade de noche: entra el expreso echando vapor; se abre la puerta del vagón y en «stepping off» Harry
+//    baja con la jaula de la lechuza en la mano y tira de su baúl; detrás bajan dos alumnos; el revisor agita el farol;
+// 2. (corta en «You're») el compartimento: Harry entra con la jaula, la sube a la rejilla y se sienta junto a la
+//    ventanilla; en «introduce» llega el carrito de las golosinas y en «Dominic» Harry levanta una rana de chocolate;
+// 3. (corta en «The two friends») la ventanilla de cerca: Ron ya sentado enfrente con Scabbers dormida en la mesita; en
+//    «Ron» saluda y la rata abre un ojo; en «Arabella» entra Hermione con su libro y en «Hermione» lo levanta;
+// 4. (corta en «three kids») la orilla del lago: los tres llegan corriendo por los guijarros, se paran y miran el castillo;
+//    la lechuza sale de la jaula y vuela hacia las torres.
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-tren');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('bajando', f), b = (f) => en('trio', f);
+const P2 = a(0.515), P3 = b(0.133), P4 = b(0.736);
+const pisa = a(0.325), tren_ = a(0.406), lot = a(0.637), intro = a(0.807), dom = b(0.011);
+const amig = b(0.161), ron = b(0.457), arab = b(0.517), herm = b(0.666), kids = b(0.774), nadie = b(0.84), antes = b(0.944);
+const C = T.C, P = T.PIEZAS_HP;
+const halo = (cx, cy, r, c, k = 0, dens = 3) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && (((x * 374761 + y * 668265 + k * 1013) >>> 0) % 97) / 97 < (1 - d) * (1 - d) * dens * 0.25) R.pset(x, y, c); } };
+const sube = (t, t0, d = 0.5) => { const u = tramo(t, t0, t0 + d); return u > 0 && u < 1 ? Math.round(Math.sin(u * Math.PI) * 6) : 0; };
+// la jaula en la mano de quien la lleva (mano = [x, y] devuelto por R.actor)
+const jaula = (r, t) => P.lechuza(R, r.mano[0], r.mano[1] + 17, { jaula: true, t });
+const p1 = (t) => {
+  const ll = tramo(t, 0, 2.2);
+  const g = T.hogwarts(R, t, { encuadre: 'anden', llega: ll });
+  // el revisor en la caseta agita su farol para que paren
+  const rv = R.actor(EL.alumno, 246, 158, t, { dir: -1, sostiene: [234, 136 + Math.round(Math.sin(t * 5) * 3)], pal: { r: hex('#2a2a4a'), R: hex('#1a1a34') } });
+  P.farol(R, rv.mano[0], rv.mano[1] + 8, { t });
+  // se abre la puerta del vagón de la izquierda (x 14–21): luz cálida dentro
+  const ab = tramo(t, pisa - 0.8, pisa - 0.4);
+  if (ll >= 1 && ab > 0) { const w = Math.round(lerp(0, 7, ab)); R.rect(14, 114, 14 + w, 139, hex('#ffd890')); R.rect(14, 114, 14 + w, 116, hex('#fff2c8')); for (let y = 119; y < 139; y += 5) R.pset(15, y, hex('#e8b060')); R.rect(14 + w, 114, 15 + w, 139, hex('#6a1418')); }
+  // Harry baja en «stepping off»: un saltito del estribo al andén y tira del baúl hacia la derecha
+  if (t > pisa - 0.3) {
+    const bj = tramo(t, pisa - 0.3, pisa + 0.25), an = tramo(t, pisa + 0.35, P2 + 0.2);
+    const hx = Math.round(lerp(lerp(10, 18, bj), 112, an)), hy = Math.round(lerp(140, 164, bj) - Math.sin(bj * Math.PI) * 6);
+    // el baúl va detrás de él, por el suelo, con las ruedas que giran y una cuerda hasta la mano
+    if (bj >= 1) { const bx = hx - 16; P.baul(R, bx, 166, {}); R.linea(hx + 2, 152, bx + 9, 159, hex('#3a2418')); if (an > 0 && an < 1) { const k = Math.floor(t * 10) % 2; R.pset(bx - 7 + k, 166, hex('#c8c8d4')); R.pset(bx + 6 + k, 166, hex('#c8c8d4')); if (k) R.pset(bx - 12, 165, hex('#8a8a96')); } }
+    const r = R.actor(EL.harry, hx, hy, t, { dir: 1, anda: an > 0 && an < 1, sonrisa: an >= 1, sorpresa: bj >= 1 && an <= 0.15, sostiene: true });
+    jaula(r, t);
+  }
+  // detrás bajan dos alumnos más, que se quedan mirando el castillo
+  [[EL.ronJersey, 0.6, 62, 1], [EL.alumna, 1.1, 40, 1]].forEach(([d, re, xf, dd], k) => {
+    const t0 = pisa + re; if (t < t0) return; const bj = tramo(t, t0, t0 + 0.3), an = tramo(t, t0 + 0.35, t0 + 1.4);
+    R.actor(d, Math.round(lerp(lerp(10, 18, bj), xf, an)), Math.round(lerp(140, 166 + k * 4, bj) - Math.sin(bj * Math.PI) * 5), t, { dir: dd, anda: an > 0 && an < 1, dedo: an >= 1 && k === 0, sorpresa: an >= 1 && k === 1 });
+  });
+  T.hogwartsDelante(R, t, { encuadre: 'anden', llega: ll });
+};
+const p2 = (t) => {
+  const car = tramo(t, intro - 0.2, intro + 1.0);
+  const g = T.hogwarts(R, t, { encuadre: 'tren', luz: 'tarde', carrito: car });
+  // Harry entra por el pasillo con la jaula, la sube a la rejilla y se sienta junto a la ventanilla
+  const an = tramo(t, P2 + 0.1, P2 + 1.6), sub = tramo(t, P2 + 1.6, P2 + 2.0), sie = tramo(t, P2 + 2.1, P2 + 2.5);
+  const hx = Math.round(sie > 0 ? lerp(70, 46, sie) : lerp(230, 70, an)), hy = Math.round(sie > 0 ? lerp(168, 140, sie) - Math.sin(sie * Math.PI) * 6 : 168);
+  const tiene = sub < 1, rana = t > dom - 0.5;
+  const r = R.actor(EL.harry, hx, hy, t, { dir: sie > 0 && sie < 1 ? -1 : sub > 0 && sub < 1 ? 1 : an < 1 ? -1 : 1, anda: an > 0 && an < 1, sostiene: tiene ? (sub > 0 ? [hx + 14, Math.round(lerp(148, 120, sub))] : true) : rana ? [hx + 16, 116 - sube(t, dom - 0.2, 0.6)] : false, dedo: !tiene && !rana && t > intro + 0.4, sonrisa: rana || t > lot, habla: t > dom && t < dom + 1 && Math.sin(t * 9) > 0 });
+  if (tiene) P.lechuza(R, r.mano[0], r.mano[1] + 17, { jaula: true, t });
+  if (rana && !tiene) { const [mx, my] = r.mano; R.rect(mx - 4, my - 3, mx + 4, my + 3, C.k); R.rect(mx - 3, my - 2, mx + 3, my + 2, hex('#5a2a8a')); R.rect(mx - 3, my - 2, mx + 3, my - 1, hex('#f0c040')); R.pset(mx, my + 1, hex('#f0c040'));
+    if (t > dom + 0.3) { const u = tramo(t, dom + 0.3, dom + 0.9); const fx = Math.round(mx + 2 + u * 10), fy = Math.round(my - 4 - Math.sin(u * Math.PI) * 10); R.rect(fx - 2, fy - 1, fx + 2, fy + 1, hex('#5a3418')); R.pset(fx - 1, fy - 2, hex('#7a4a28')); R.pset(fx + 1, fy - 2, hex('#7a4a28')); } }
+  // en «a lot of people» pasan alumnos por el pasillo, por delante
+  [[EL.alumno, lot - 0.3], [EL.alumna, lot + 0.3], [EL.neville, lot + 0.9]].forEach(([d, t0], k) => {
+    const u = tramo(t, t0, t0 + 2.4); if (u <= 0 || u >= 1) return;
+    R.actor(d, Math.round(lerp(330, -24, u)), 172 + (k % 2) * 2, t, { dir: -1, anda: true, sonrisa: k === 1 });
+  });
+  T.hogwartsDelante(R, t, { encuadre: 'tren', luz: 'tarde', carrito: car });
+};
+const p3 = (t) => {
+  const g = T.hogwarts(R, t, { encuadre: 'tren', camara: 'ventana', luz: 'tarde' });
+  // Harry a la izquierda de la mesita, ofrece las grageas a Ron
+  R.actor(EL.harry, 70, 147, t, { dir: 1, sonrisa: t > ron, habla: t > amig && t < amig + 0.9 && Math.sin(t * 9) > 0, dedo: t > ron - 0.3 && t < ron + 0.6, sorpresa: t > herm && t < herm + 0.8 });
+  // Ron entra por la derecha y se sienta enfrente; en «Ron» saluda
+  const rn = tramo(t, P3 + 0.1, amig + 1.0), rx = Math.round(lerp(330, 196, rn));
+  R.actor(EL.ron, rx, 147, t, { dir: -1, anda: rn > 0 && rn < 1, brazos: t > ron && t < ron + 0.8, sonrisa: t > ron, habla: t > ron + 0.8 && t < arab && Math.sin(t * 8) > 0, sorpresa: t > herm && t < herm + 0.8 });
+  // Hermione entra por la izquierda en «Arabella», se planta en el medio y levanta su libro en «Hermione»
+  const hm = tramo(t, arab - 0.3, herm - 0.2), hx = Math.round(lerp(-20, 100, hm));
+  if (hm > 0) { const r = R.actor(EL.hermione, hx, 147, t, { dir: hm < 1 ? 1 : -1, anda: hm > 0 && hm < 1, habla: t > herm - 0.2 && t < herm + 1.2 && Math.sin(t * 9) > 0, sostiene: t > herm ? [hx + (hm < 1 ? 16 : -2), 112 - sube(t, herm, 0.5)] : true, sonrisa: t > herm + 0.4 });
+    P.libro(R, r.mano[0], r.mano[1] + 5, { abierto: t > herm + 0.3 }); }
+  T.hogwartsDelante(R, t, { encuadre: 'tren', camara: 'ventana', luz: 'tarde' });
+  // en la mesita (por delante): la rata de Ron dormida, grande, que abre un ojo en «Ron»; las zetas cuando duerme
+  const despierta = t > ron + 0.2 && t < ron + 1.8;
+  P.rata(R, 240, 143, { s: 2, ojo: despierta });
+  if (!despierta) for (let k = 0; k < 2; k++) { const z = (t * 0.7 + k * 0.5) % 1, zx = Math.round(254 + z * 8 + k * 2), zy = Math.round(124 - z * 12); if (z < 0.85) { R.linea(zx, zy, zx + 3, zy, hex('#ffffff')); R.linea(zx + 3, zy, zx, zy + 3, hex('#ffffff')); R.linea(zx, zy + 3, zx + 3, zy + 3, hex('#ffffff')); } }
+  if (despierta) R.bocadillo(250, 116, { icono: '?' });
+  // la bolsa de grageas de todos los sabores, abierta, con las grageas que ruedan por la mesita
+  R.rect(122, 128, 134, 142, C.k); R.rect(123, 129, 133, 141, hex('#e8d8a0')); R.rect(123, 129, 133, 131, hex('#c8283a')); R.pset(126, 135, hex('#3a8ae8')); R.pset(130, 137, hex('#3ac85a'));
+  [[137, '#e83a3a'], [141, '#3ac85a'], [145, '#f0c040'], [149, '#9a4ae8'], [153, '#3a8ae8'], [157, '#ff8ad8'], [161, '#f07a2a']].forEach(([x, c], k) => { const v = tramo(t, P3 + 0.3 + k * 0.12, P3 + 0.8 + k * 0.12), xx = Math.round(lerp(132, x, v)); R.rect(xx, 139, xx + 2, 141, C.k); R.rect(xx, 139, xx + 1, 140, hex(c)); });
+  // la caja de la rana de chocolate (la rana salta en «three» del decorado)
+  R.rect(166, 132, 180, 142, C.k); R.rect(167, 133, 179, 141, hex('#5a2a8a')); R.rect(167, 133, 179, 135, hex('#f0c040')); R.pset(173, 138, hex('#f0c040'));
+};
+const p4 = (t) => {
+  const g = T.exterior(R, t, { encuadre: 'castillo' });
+  // los tres llegan corriendo por la orilla y se paran a mirar el castillo
+  [[EL.harry, 0, 132], [EL.ron, 0.25, 158], [EL.hermione, 0.5, 184]].forEach(([d, re, xf], k) => {
+    const u = tramo(t, P4 + re, kids + 0.2 + re), x = Math.round(lerp(-20 - k * 20, xf, u));
+    R.actor(d, x, 168, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: u >= 1 && t < nadie, sonrisa: t > nadie, dedo: k === 2 && t > kids + 0.6 && t < antes, salto: k === 1 ? sube(t, antes - 0.2, 0.5) : 0 });
+  });
+  // nadie los conocía: un «?» sale sobre cada uno, uno tras otro
+  [132, 158, 184].forEach((x, k) => { if (t > nadie - 0.4 + k * 0.25 && t < antes + 0.6) R.bocadillo(x + 7, 136 - (k === 1 ? sube(t, antes - 0.2, 0.5) : 0), { icono: '?' }); });
+  // la lechuza sale volando hacia las torres
+  const l = tramo(t, nadie - 0.3, P4 + 3.6);
+  if (l > 0 && l < 1) P.lechuza(R, Math.round(lerp(140, 226, l)), Math.round(lerp(150, 40, l) - Math.sin(l * Math.PI) * 10), { vuela: true, t, s: l < 0.5 ? 1 : 1 });
+  T.exteriorDelante(R, t, { encuadre: 'castillo' });
+};
+const efectos = [[0.4, 'vapor'], [pisa - 0.7, 'puerta'], [pisa + 0.3, 'carro'], [P2 + 0.2, 'whoosh'], [P2 + 1.7, 'golpecito'], [lot - 0.2, 'publico'], [intro - 0.1, 'carro'], [dom + 0.3, 'boing'], [ron, 'palmada'], [herm, 'papel'], [P4 + 0.1, 'ola'], [nadie - 0.2, 'whoosh']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

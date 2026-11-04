@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Los cafés de Edimburgo · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-CAFES (frase 29), 1994–1996. Dos planos:
+// 1. (0 → «And», 6 s) un café de Edimburgo con lluvia: la escritora escribe a mano en la mesa de la ventana; un cliente
+//    entra por la derecha, pide en el mostrador y recoge su taza; con «baby daughter asleep» ella se vuelve al carrito,
+//    sonríe y sube un corazoncito; luego sigue escribiendo.
+// 2. (→ fin, 4,3 s) la mesa de cerca: termina la última línea («finished it») y levanta los brazos; con «about a dozen»
+//    van cayendo doce sobres en la mesa (el contador sube hasta 12); con «said no» un sello rojo «X» los tacha; ella se
+//    entristece y vuelve a coger el bolígrafo.
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-cafes');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P = T.PIEZAS_HP;
+const K = hex('#141018');
+// lo que pinta una pieza de PIEZAS_HP (con R.rect) queda dentro de box = [x0, y0, x1, y1]
+const enRecorte = (box, f) => {
+  const r0 = R.rect;
+  R.rect = (a, b, c, d, col) => { const x0 = Math.max(Math.min(a, c), box[0]), y0 = Math.max(Math.min(b, d), box[1]), x1 = Math.min(Math.max(a, c), box[2]), y1 = Math.min(Math.max(b, d), box[3]); if (x0 <= x1 && y0 <= y1) r0(x0, y0, x1, y1, col); };
+  try { f(); } finally { R.rect = r0; }
+};
+// una placa oscura con filo dorado y la cifra grande encima (que se lea a 640 px)
+const placa = (txt, x, base, tam = 16, pop = 1) => {
+  const w = String(txt).length * (tam >= 16 ? 16 : 8), x0 = Math.round(x - w / 2 - 5), x1 = Math.round(x + w / 2 + 4), y0 = base - (tam >= 16 ? 21 : 12), y1 = base + 4;
+  const ORO = hex('#e8b830'), FONDO = hex('#1c1630');
+  R.rect(x0 + 2, y0 + 2, x1 + 2, y1 + 2, hex('#06040c'));
+  R.rect(x0, y0, x1, y1, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, ORO); R.rect(x0 + 2, y0 + 2, x1 - 2, y1 - 2, FONDO);
+  for (let xx = x0 + 3; xx < x1 - 2; xx += 2) R.pset(xx, y0 + 3, hex('#2a2446'));
+  R.pset(x0 + 1, y0 + 1, hex('#fff4c0')); R.pset(x1 - 1, y0 + 1, hex('#fff4c0'));
+  R.numero(String(txt), x, base - (pop < 1 ? Math.round((1 - pop) * 4) : 0), { tam, centro: true });
+};
+
+const P2 = en('cafes', .649);
+const bebe = en('cafes', .354), carrito = en('cafes', .543), acaba = en('cafes', .694), docena = en('cafes', .79), no = en('cafes', .949);
+const BOLI = hex('#2a3a8a');
+const corazon = (x, y, c) => { for (const [i, j] of [[0, 0], [1, 0], [3, 0], [4, 0], [-1, 1], [0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [1, 3], [2, 3], [3, 3], [2, 4]]) R.pset(x + i, y + j, c); };
+const p1 = (t) => {
+  const g = T.real(R, t, { encuadre: 'cafe' });
+  // un cliente con gabardina entra, pide en el mostrador y se lleva su taza
+  const uc = tramo(t, 0.3, 2.3), xc = Math.round(lerp(338, 214, uc)), taza = t > 3.7;
+  const c = R.actor(EL.oficinista, xc, g.suelo, t, { dir: uc < 1 ? -1 : 1, anda: uc > 0 && uc < 1, habla: t > 2.4 && t < 3.6 && Math.sin(t * 12) > 0, sostiene: taza ? true : undefined, sonrisa: taza });
+  if (taza) { const [mx, my] = c.mano; R.rect(mx - 2, my - 5, mx + 3, my, K); R.rect(mx - 1, my - 4, mx + 2, my - 1, hex('#f4ecd0')); R.pset(mx + 4, my - 3, K); for (let k = 0; k < 3; k++) R.pset(mx + Math.round(Math.sin(t * 5 + k) * 1.5), my - 7 - k * 2 - Math.floor((t * 6) % 2), hex('#d8d4dc')); }
+  // la escritora escribe; con «baby daughter asleep» mira al carrito y sonríe
+  const mira = t > bebe - 0.15 && t < carrito + 0.25;
+  const w = R.actor(EL.escritora, 84, g.suelo, t, { dir: mira ? -1 : 1, sostiene: mira ? undefined : [101 + Math.round(Math.sin(t * 8) * 2), 145], sonrisa: mira || t > carrito + 0.25 });
+  T.realDelante(R, t, { encuadre: 'cafe' });
+  if (!mira) { const [mx, my] = w.mano; R.linea(mx + 1, my, mx + 4, my - 4, BOLI); R.pset(mx + 4, my - 4, hex('#c8c8d0')); }
+  const uh = tramo(t, bebe + 0.2, carrito + 0.3);
+  if (uh > 0 && uh < 1) corazon(34, Math.round(124 - uh * 18), Math.floor(t * 8) % 2 ? hex('#e84a6a') : hex('#ff8aa0'));
+};
+// un sobre de una editorial (crema, con la solapa y el sello de correos)
+const sobre = (x, y, k) => {
+  const c = k % 3 === 0 ? hex('#f4ecd0') : k % 3 === 1 ? hex('#e8dcb8') : hex('#f8f4e8');
+  R.rect(x, y, x + 15, y + 9, K); R.rect(x + 1, y + 1, x + 14, y + 8, c);
+  R.linea(x + 1, y + 1, x + 7, y + 5, hex('#b8a880')); R.linea(x + 14, y + 1, x + 8, y + 5, hex('#b8a880'));
+  R.rect(x + 11, y + 2, x + 13, y + 3, [hex('#3a6ac8'), hex('#a8202a'), hex('#3a8a4a')][k % 3]);
+  R.rect(x + 3, y + 7, x + 9, y + 7, hex('#9a8a6a'));
+};
+const p2 = (t) => {
+  const esc = lerp(0.72, 1, tramo(t, P2, acaba + 0.15));
+  const o = { encuadre: 'cafe', camara: 'mesa', escrito: esc }, g = T.real(R, t, o);
+  const escribe = t < acaba + 0.15 || t > no + 1.0, alegre = t > acaba + 0.15 && t < docena - 0.1, susto = t > docena - 0.1 && t < no, pena = t > no && t <= no + 1.0;
+  const w = R.actor(EL.escritora, 106, g.suelo, t, { dir: 1, sostiene: escribe ? [124 + Math.round(Math.sin(t * 8) * 2) + (t > no ? 0 : 3), 149] : undefined, brazos: alegre, salto: alegre ? Math.round(Math.abs(Math.sin((t - acaba) * 9)) * 2) : 0, sonrisa: alegre || t > no + 1.0, sorpresa: susto, triste: pena });
+  T.realDelante(R, t, o);
+  if (escribe) { const [mx, my] = w.mano; R.linea(mx + 1, my, mx + 5, my - 5, BOLI); R.pset(mx + 5, my - 5, hex('#c8c8d0')); }
+  // doce sobres que caen en la mesa, uno tras otro
+  let n = 0;
+  for (let k = 0; k < 12; k++) {
+    const tk = docena - 0.3 + k * 0.09, u = tramo(t, tk, tk + 0.3); if (u <= 0) continue; if (u >= 1) n++;
+    const yb = 141 - k * 3, x = 38 + ((k * 7) % 5) * 2 - (k % 2) * 3, y = Math.round(lerp(-14, yb, u * u));
+    sobre(x + Math.round((1 - u) * Math.sin(k + t * 9) * 4), y, k);
+  }
+  if (n > 0) placa(String(n), 54, 106 - Math.min(n, 12) * 3, 16, tramo(t, docena - 0.3 + (n - 1) * 0.09 + 0.3, docena - 0.3 + (n - 1) * 0.09 + 0.45));
+  // el sello rojo que los tacha
+  const us = tramo(t, no - 0.05, no + 0.15);
+  if (us > 0) { const s = Math.round(lerp(26, 18, us)), cx = 47, cy = 128, ROJO = hex('#d8202a'); for (let d = -2; d <= 2; d++) { R.linea(cx - s + d, cy - s, cx + s + d, cy + s, ROJO); R.linea(cx + s + d, cy - s, cx - s + d, cy + s, ROJO); } }
+};
+const efectos = [[0.6, 'lapiz'], [bebe + 0.25, 'brillo'], [P2 + 0.1, 'lapiz'], [docena - 0.25, 'papel'], [docena + 0.5, 'papel'], [no, 'sello'], [no + 1.05, 'lapiz']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: (t) => (t < P2 ? 1994 : 1996) });
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El apagador · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-APAGADOR (frase 24), sin cartela, 1997 en la barra (el libro). Cuatro planos:
+// 1. Privet Drive de noche: Dumbledore entra por la acera, levanta el apagador y hace clic: las cuatro farolas se apagan
+//    de una en una (la más lejana primero) y cada luz vuela, con su estela, a meterse en el aparato; el gato lo mira desde la
+//    tapia. Corta en «the Put-Outer».
+// 2. El bosque de noche (el último libro): Ron anda a oscuras por el sendero, mira a los lados, saca el mismo apagador,
+//    clic en «Ron», y sale una bolita de luz azulada que flota delante y le alumbra; él sonríe y la sigue. Corta en «And».
+// 3. La casa de los reptiles del zoo: un niño da golpecitos al cristal y se aburre; Harry llega a la barandilla, le habla a
+//    la boa («talks to a snake») y se encoge de hombros («without knowing what he's doing»). Corta en «That's».
+// 4. El cristal de cerca: Harry habla, la boa le guiña un ojo en «parseltongue»; un brillo recorre el cristal y lo deja
+//    hecho chispas (el cristal que desaparece, insinuado); Harry da un paso atrás con «!» y al final mira con «?».
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-apagador');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const mix = (c, d, a) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - a) + ((d >>> s) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+// un halo de luz tramado alrededor de (x, y): aclara hacia col en la proporción a, que cae hacia el borde
+const halo = (x, y, r, col, a) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j); if (d > r) continue; const X = Math.round(x + i), Y = Math.round(y + j); if (X < 0 || X > 319 || Y < 0 || Y > 179) continue; R.pset(X, Y, mix(R.pget(X, Y), col, a * (1 - d / r))); } };
+// una bolita de luz con su halo, su brillo y una estela de tres puntos
+const bola = (x, y, col, r = 2, est = null) => { halo(x, y, r * 4, col, 0.6); R.disco(Math.round(x), Math.round(y), r, col); R.pset(Math.round(x) - 1, Math.round(y) - 1, hex('#ffffff')); if (est) for (let k = 1; k <= 3; k++) R.pset(Math.round(x - est[0] * k * 3), Math.round(y - est[1] * k * 3), mix(col, hex('#ffffff'), 0.3)); };
+const brilla = (x, y, t, col = hex('#fff6c8')) => { if (Math.sin(t * 9 + x) > -0.2) { R.pset(x, y - 2, col); R.pset(x, y + 2, col); R.pset(x - 2, y, col); R.pset(x + 2, y, col); R.pset(x, y, hex('#ffffff')); } };
+const K = hex('#14111a');
+const PIEZAS_HP = T.PIEZAS_HP;
+
+const a = (f) => en('apagador', f);
+const P2 = a(0.246), P3 = a(0.477), P4 = a(0.703);
+const SODIO = hex('#ffc860'), AZUL = hex('#bfe4ff');
+// el plano 1: los instantes en que se apaga cada farola (la más lejana primero) y su luz vuela al aparato
+const ORDEN = [38, 296, 124, 210];   // de la más lejana al anciano (x 167) a la más cercana
+const c0 = a(0.107), c1 = a(0.225), apaga = (k) => c0 + (k + 1) / 4 * (c1 - c0) - 0.12;
+const p1 = (t) => {
+  const u = tramo(t, c0, c1), dx = Math.round(lerp(236, 160, tramo(t, 0.2, a(0.07))));
+  const g = T.muggle(R, t, { encuadre: 'calle', farolas: 1 - u, aparato: 167 });
+  T.tinte(R, 0, 179, [8, 10, 30], 0.3 * tramo(t, c0 + 0.3, c1 + 0.3));
+  // polillas alrededor de las farolas encendidas
+  for (const f of g.farolas ?? []) if (f.encendida) for (let k = 0; k < 3; k++) { const an = t * (3 + k) + k * 2.1 + f.x; R.pset(Math.round(f.x + Math.cos(an) * (5 + k)), Math.round(f.y + 2 + Math.sin(an * 1.3) * 4), hex('#f8eed0')); }
+  const anda = t < a(0.07), levanta = t > a(0.08) && t < c1 + 0.6;
+  const ac = R.actor(EL.dumbledore, dx, 138, t, { dir: -1, anda, sostiene: levanta ? [dx - 4, 104] : false, sonrisa: t > c1 + 0.2, habla: !anda && !levanta && t < a(0.08) });
+  const [mx, my] = ac.mano;
+  // las luces que vuelan de cada farola al apagador (orden: de la más lejana a la más cercana)
+  const FX = ORDEN;
+  FX.forEach((fx, k) => { const v = tramo(t, apaga(k), apaga(k) + 0.55); if (v <= 0 || v >= 1) return; const e = v * v * (3 - 2 * v), x = lerp(fx, mx, e), y = lerp(69, my - 6, e) - Math.sin(v * Math.PI) * 18; bola(x, y, SODIO, 3, [(mx - fx) / 300, 0]); });
+  if (levanta) PIEZAS_HP.apagador(R, mx, my + 4, { luz: FX.some((fx, k) => t > apaga(k) + 0.5 && t < apaga(k) + 0.75) });
+  // el clic: un destello pequeño en el botón
+  FX.forEach((fx, k) => { if (t > apaga(k) - 0.05 && t < apaga(k) + 0.12) brilla(mx + 3, my - 5, 1, hex('#ffffff')); });
+  T.muggleDelante(R, t, { encuadre: 'calle' });
+};
+// el plano 2: Ron en el bosque, con la bolita de luz que le guía
+const clic2 = a(0.378), sigue = a(0.415);
+const p2 = (t) => {
+  T.exterior(R, t, { encuadre: 'bosque' });
+  T.tinte(R, 0, 179, [6, 10, 26], 0.45 - 0.2 * tramo(t, clic2 + 0.1, clic2 + 0.9));
+  const w = tramo(t, P2 + 0.1, a(0.35)), z = tramo(t, sigue, P3 + 0.2);
+  const rx = Math.round(lerp(18, 112, w) + lerp(0, 70, z));
+  // la bolita: sale del aparato, sube y se queda flotando delante; luego tira hacia el sendero
+  const salir = tramo(t, clic2 + 0.05, clic2 + 0.8);
+  const bx = lerp(rx + 22, 170, salir) + lerp(0, 70, z) + Math.sin(t * 2.4) * 3, by = lerp(138, 118, salir) + Math.sin(t * 3.1) * 3;
+  if (salir > 0) { halo(bx, by, 46, AZUL, 0.32 * Math.min(1, salir * 2)); halo(bx, 168, 34, AZUL, 0.25 * Math.min(1, salir * 2)); }
+  const mira = t > a(0.35) && t < clic2 - 0.25;
+  const ac = R.actor(EL.ronJersey, rx, 166, t, { dir: mira && Math.sin(t * 3) > 0 ? -1 : 1, anda: (w > 0 && w < 1) || (z > 0 && z < 1), sostiene: t > clic2 - 0.6 && t < sigue + 0.3 ? [rx + 22, 140] : false, sonrisa: salir > 0.6, sorpresa: salir > 0 && salir <= 0.6 });
+  if (t > clic2 - 0.6 && t < sigue + 0.3) { const [mx, my] = ac.mano; PIEZAS_HP.apagador(R, mx, my + 4, { luz: salir > 0 && salir < 0.3 }); if (t > clic2 - 0.05 && t < clic2 + 0.12) brilla(mx + 2, my - 5, 1, hex('#ffffff')); }
+  if (salir > 0) bola(bx, by, AZUL, 3);
+  // luciérnagas que se acercan a la luz
+  if (salir > 0.5) for (let k = 0; k < 4; k++) { const an = t * 1.7 + k * 1.57; R.pset(Math.round(bx + Math.cos(an) * (12 + k * 3)), Math.round(by + Math.sin(an) * 7), hex('#d8f070')); }
+  T.exteriorDelante(R, t, { encuadre: 'bosque' });
+};
+// el plano 3: el zoo, Harry le habla a la boa
+const llega = a(0.528), hablaA = a(0.539), encoge = a(0.6);
+const p3 = (t) => {
+  const g = T.muggle(R, t, { encuadre: 'zoo' });
+  // un niño (el primo, de espaldas al reflejo) da golpecitos en el cristal y se va aburrido
+  const toc = t < a(0.525), vete = tramo(t, a(0.53), a(0.6)), nx = Math.round(lerp(196, 262, vete));
+  R.actor(EL.chico, nx, 160, t, { dir: vete > 0 ? 1 : -1, dedo: toc && Math.sin(t * 14) > 0, anda: vete > 0 && vete < 1, enfado: vete > 0 });
+  const hx = Math.round(lerp(30, 136, tramo(t, P3 + 0.15, llega)));
+  const habla = t > hablaA && t < a(0.592);
+  R.actor(EL.harryCalle, hx, 160, t, { dir: 1, anda: t < llega, habla: habla && Math.sin(t * 11) > -0.3, sorpresa: t > encoge && t < a(0.64), sonrisa: t > a(0.64), brazos: t > encoge && t < a(0.625) });
+  if (t > encoge) R.icono('?', hx + 5, 126 - Math.round(tramo(t, encoge, encoge + 0.3) * 4), hex('#f8f0d0'), K);
+  // ondas de voz hacia la boa mientras habla
+  if (habla) for (let k = 0; k < 3; k++) { const f = (t * 1.2 + k / 3) % 1, cx = hx + 16 + f * 22, cy = 136 - f * 30, r = 2 + f * 4; for (let q = -3; q <= 3; q++) { const an = -0.8 + q * 0.25; R.pset(Math.round(cx + Math.cos(an) * r), Math.round(cy + Math.sin(an) * r), mix(hex('#d8ffd0'), hex('#3a6a3a'), f * 0.6)); } }
+  T.muggleDelante(R, t, { encuadre: 'zoo' });
+};
+// el plano 4: el cristal de cerca, el guiño y el cristal que se deshace en chispas
+const guina = a(0.722), barre = a(0.79), atras = a(0.84);
+const p4 = (t) => {
+  const gu = tramo(t, guina, guina + 0.15) - tramo(t, guina + 0.7, guina + 0.85);
+  const g = T.muggle(R, t, { encuadre: 'zoo', camara: 'cristal', guiño: gu, guino: gu });
+  // el guiño: una estrellita que destella junto al ojo que se cierra
+  if (gu > 0.3) { const sx = 214 + Math.round(Math.sin(t * 0.7) * 4), sy = 118, L = 2 + Math.round(gu * 2); halo(sx, sy, 8, hex('#fff6c8'), 0.5); for (let k = -L; k <= L; k++) { R.pset(sx + k, sy, hex('#fff6c8')); R.pset(sx, sy + k, hex('#fff6c8')); } R.pset(sx - 1, sy - 1, hex('#ffffff')); R.pset(sx + 1, sy + 1, hex('#ffffff')); R.pset(sx, sy, hex('#ffffff')); }
+  // el brillo que barre el cristal de izquierda a derecha y lo deja en chispas
+  const b = tramo(t, barre, barre + 1.1);
+  if (b > 0) {
+    const [x0, y0, x1, y1] = g.cristal ?? [14, 12, 306, 162], bx = Math.round(lerp(x0 - 30, x1 + 30, b));
+    R.recorte([x0, y0, x1, y1]);
+    for (let y = y0; y <= y1; y++) for (let i = -10; i <= 10; i++) { const x = bx + i - Math.round((y - y0) * 0.25); if (x >= x0 && x <= x1 && ((x + y) & 1)) R.pset(x, y, mix(R.pget(x, y), hex('#ffffff'), 0.6 * (1 - Math.abs(i) / 10))); }
+    for (let k = 0; k < 90; k++) { const sx = x0 + ((k * 61) % (x1 - x0)), sy = y0 + ((k * 37) % (y1 - y0)); if (sx < bx - 10 - (sy - y0) * 0.25) { const f = (t * 1.3 + k * 0.17) % 1; brilla(sx, Math.round(sy + f * 8), t + k, mix(hex('#e8fff0'), hex('#ffffff'), f)); } }
+    R.recorte(null);
+  }
+  const hx = Math.round(226 + tramo(t, atras, atras + 0.3) * 18);
+  R.actor(EL.harryCalle, hx, 178, t, { dir: -1, dedo: t > a(0.705) && t < guina, habla: t < a(0.752) && Math.sin(t * 10) > -0.3, sorpresa: t > atras && t < a(0.9), sonrisa: t > a(0.9) || (t > guina && t < atras), salto: Math.round(Math.sin(tramo(t, atras, atras + 0.3) * Math.PI) * 3) });
+  if (t > atras && t < a(0.9)) R.icono('!', hx + 6, 138, hex('#fff0a0'), K);
+  if (t > a(0.9)) R.icono('?', hx + 5, 138 - Math.round(tramo(t, a(0.9), a(0.92)) * 3), hex('#f8f0d0'), K);
+  T.muggleDelante(R, t, { encuadre: 'zoo', camara: 'cristal' });
+};
+const efectos = [[apaga(0), 'interruptor'], [apaga(1), 'interruptor'], [apaga(2), 'interruptor'], [apaga(3), 'interruptor'], [clic2, 'interruptor'], [clic2 + 0.2, 'brillo'], [a(0.49), 'toc'], [guina, 'pop'], [barre + 0.1, 'brillo'], [atras, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1997 });
+</script>
+</body>
+</html>

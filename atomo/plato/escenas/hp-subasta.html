@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La subasta · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-SUBASTA (frase 32), 2021 y hoy. Dos planos:
+// 1. (0 → «$471», 7,2 s) el atril de cerca: el subastador enseña el libro de 1997 (brilla en «1997»); en «2021» empiezan
+//    las pujas: suben paletas numeradas por abajo, él señala a cada lado y la pantalla grande sube de cifra hasta
+//    471000 en «$471»; coge el martillo y lo levanta.
+// 2. (→ fin, 7,1 s) la sala entera: el martillo cae en «record» (polvo y la sala aplaude levantando las paletas); en
+//    «Today» la montaña de libros de siete colores crece detrás hasta el techo, el subastador la mira asombrado y la
+//    pantalla pasa a 600000000 con un libro en «600 million».
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-subasta');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P = T.PIEZAS_HP, C = T.C, K = hex('#141018');
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255, r2 = c2 & 255, g2 = (c2 >>> 8) & 255, b2 = (c2 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (b2 - b1) * a) << 16) | (Math.round(g1 + (g2 - g1) * a) << 8) | Math.round(r1 + (r2 - r1) * a)) >>> 0; };
+// un halo tramado (no tapa: puntea) alrededor de (cx, cy)
+const hsh = (x, y, k) => { const v = Math.sin(x * 12.9898 + y * 78.233 + k * 37.719) * 43758.5453; return v - Math.floor(v); };
+const halo = (cx, cy, r, c, k = 0) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && ((x + y) & 1) && hsh(x, y, k % 3) < (1 - d) * (1 - d) * 1.4 + 0.08) R.pset(x, y, c); } };
+// destellos en cruz que giran alrededor de (cx, cy)
+const chispas = (cx, cy, r, t, c = hex('#fff4c0'), n = 5) => { for (let k = 0; k < n; k++) { const a = k * 6.283 / n + t * 3, x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r * 0.8); if (Math.sin(t * 11 + k * 2) > -0.2) { R.pset(x, y, c); R.pset(x - 1, y, c); R.pset(x + 1, y, c); R.pset(x, y - 1, c); R.pset(x, y + 1, c); } } };
+// un sprite de letras con su paleta (s: escala)
+const pinta = (g, x0, y0, pal, s = 1) => { for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { const c = pal[g[j][i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } };
+
+const P2 = en('subasta', 0.531);
+const libros = en('subasta', 0.026), a1997 = en('subasta', 0.140), a2021 = en('subasta', 0.271), cifraT = en('subasta', 0.428), record = en('subasta', 0.645), hoyT = en('subasta', 0.725), seis = en('subasta', 0.858);
+// las pujas: [instante, cifra, x de la paleta, número de la paleta]
+const PUJAS = [[a2021, '100000', 34, '12'], [a2021 + 0.55, '180000', 286, '27'], [a2021 + 1.05, '260000', 64, '31'], [a2021 + 1.5, '350000', 256, '4'], [cifraT, '471000', 22, '19']];
+const paleta = (x, sube, n, t) => {
+  const y = Math.round(lerp(196, 146, sube) + Math.sin(t * 6 + x) * (sube > 0.9 ? 1 : 0));
+  R.rect(x - 1, y + 8, x + 1, 180, K); R.rect(x, y + 8, x, 180, hex('#8a5a30'));
+  R.disco(x, y, 10, K); R.disco(x, y, 9, hex('#f4f0e4')); R.disco(x - 2, y - 2, 5, hex('#ffffff'));
+  R.numero(n, x, y + 4, { centro: true });
+};
+const mazo = (mx, my, abajo) => { P.martillo(R, mx + 4, my + 4, { golpe: !abajo, s: 2 }); };
+const p1 = (t) => {
+  let k = -1; for (let i = 0; i < PUJAS.length; i++) if (t >= PUJAS[i][0]) k = i;
+  const cifra = k < 0 ? '50000' : PUJAS[k][1], coge = t > cifraT + 0.4;
+  T.real(R, t, { encuadre: 'subasta', camara: 'atril', cifra, martillo: !coge });
+  // la cifra nueva brilla; la final, más
+  const marco = (g) => { for (let d = 3; d <= 5; d++) { const c = d === 4 ? hex('#ffe890') : hex('#c8902a'); if ((Math.floor(t * 8) + d) % 2 || g > 1) { R.linea(166 - d, 30 - d, 266 + d, 30 - d, c); R.linea(166 - d, 92 + d, 266 + d, 92 + d, c); R.linea(166 - d, 30 - d, 166 - d, 92 + d, c); R.linea(266 + d, 30 - d, 266 + d, 92 + d, c); } } };
+  if (k >= 0 && t < PUJAS[k][0] + 0.4 && t < cifraT) marco(1);
+  if (t > cifraT) { marco(2); if (t < cifraT + 1.4) { chispas(160, 28, 10, t); chispas(272, 28, 10, t); chispas(160, 94, 10, t); chispas(272, 94, 10, t); } }
+  // el subastador: enseña el libro, luego señala cada puja y por fin levanta el martillo
+  const sx = 100, ensena = t < a2021 - 0.1, lado = k >= 0 ? (PUJAS[k][2] < 160 ? -1 : 1) : 1;
+  const obj = ensena ? [sx + 18, t > a1997 - 0.2 && t < a1997 + 0.6 ? 106 : 112] : coge ? [sx + 19, 100] : null;
+  const rs = R.actor(EL.subastador, sx, 142, t, { dir: obj ? 1 : lado, sostiene: obj ?? false, dedo: !obj && k >= 0, habla: !obj && Math.sin(t * 9) > 0, sonrisa: t > cifraT, sorpresa: t > cifraT - 0.1 && t < cifraT + 0.4 });
+  T.realDelante(R, t, { encuadre: 'subasta', camara: 'atril', martillo: !coge });
+  if (ensena) { if (t > a1997 - 0.2 && t < a1997 + 0.8) halo(rs.mano[0] + 7, rs.mano[1] - 6, 16, hex('#ffe890'), Math.floor(t * 7)); P.libro(R, rs.mano[0] + 7, rs.mano[1] + 6, { s: 2 }); }
+  else P.libro(R, 136, 150, {});
+  if (coge) mazo(rs.mano[0], rs.mano[1], false);
+  // las paletas de los pujadores, por delante de todo: suben con cada puja
+  PUJAS.forEach(([a, , x, n]) => { const s = tramo(t, a - 0.15, a + 0.1) * (1 - tramo(t, a + 1.1, a + 1.4)); if (s > 0) paleta(x, s, n, t); });
+};
+const p2 = (t) => {
+  const crece = tramo(t, hoyT + 0.1, seis + 0.9), golpe = tramo(t, record, record + 0.5);
+  const g = T.real(R, t, { encuadre: 'subasta', montana: crece, cifra: '471000', martillo: false });
+  // a partir de «600 million», la pantalla cuenta libros, no dinero
+  if (t > seis) {
+    const [x0, y0, x1, y1] = g.pantalla;
+    R.recorte([x0, y0, x1, y1]);
+    for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, (y & 1) ? hex('#1a2a3a') : hex('#141822'));
+    R.recorte(null);
+    for (let i = 0; i < 4; i++) { const bx = x0 + 18 + i * 11; R.rect(bx, y0 + 8, bx + 8, y0 + 20, K); R.rect(bx + 1, y0 + 9, bx + 7, y0 + 19, [hex('#c8283a'), hex('#2a6ad8'), hex('#3a9a3a'), hex('#e8b830')][i]); R.rect(bx + 1, y0 + 9, bx + 1, y0 + 19, hex('#ffffff')); }
+    T.a_cifras(R, '600000000', Math.round((x0 + x1) / 2), y0 + 36);
+    if (t < seis + 1.2) chispas(Math.round((x0 + x1) / 2), y0 + 24, 30, t);
+  }
+  // el subastador en la tarima: el martillo arriba, cae en «record»; en «Today» se vuelve a mirar la montaña
+  const sx = 22, abajo = t > record - 0.05 && t < record + 0.5;
+  const rs = R.actor(EL.subastador, sx, g.sueloTarima ?? 150, t, { dir: 1, sostiene: abajo ? [40, 128] : t < record ? [38, 116] : [36, 124], sonrisa: t > record, sorpresa: t > hoyT + 0.6 && t < seis + 1.2 });
+  T.realDelante(R, t, { encuadre: 'subasta', golpe, martillo: false });
+  mazo(rs.mano[0], rs.mano[1], abajo);
+  // la sala aplaude: «!» y paletas arriba tras el golpe
+  if (t > record + 0.1 && t < record + 1.6) for (const [x, y] of [[124, 140], [196, 136], [268, 142]]) R.icono('!', x, y - Math.round(Math.abs(Math.sin((t - record) * 8)) * 3), hex('#ffe890'), K, 2);
+};
+const efectos = [[libros, 'papel'], [a2021, 'golpecito'], [a2021 + 1.05, 'golpecito'], [cifraT, 'brillo'], [record, 'toc'], [record + 0.2, 'palmada'], [hoyT + 0.3, 'avalancha'], [seis, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: (t) => (t < hoyT ? 2021 : 2026) });
+</script>
+</body>
+</html>

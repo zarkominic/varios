@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-HOLA (frases 3–4), hoy. Tres planos:
+// 1. el corcho de la fan: ella entra y señala; se encienden la pista de las gafas en «new» y la del reparto en «who's who»;
+//    la snitch revolotea de una a otra;
+// 2. (corta en «movie») el corcho de cerca: las tijeras sobre la película se encienden en «skipped»; la mano de la fan
+//    clava una chincheta en la cuarta pista («?» con la moto) en «clues»; la snitch, perdida, echa «?» en «don't make sense»;
+// 3. (corta en «I'm») el campo de quidditch: Atom baja de su sitio y saluda dando botes en «I'm Atom»; la snitch se le
+//    acerca y, cuando él la mira, se esconde detrás de él (gag 1); en «Let's find out» Atom vuelve arriba, la snitch sale
+//    disparada y Harry corre tras ella con su escoba.
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('preguntas', f), b = (f) => en('hola', f);
+const P2 = a(0.45), P3 = b(0);
+const nuevo = a(0.189), quien = a(0.244), corto = a(0.499), pistas = a(0.611), noSe = a(0.793), anos = a(0.908);
+const explica = b(0.219), mira = b(0.406), vamos = b(0.799);
+const C = T.C, P = T.PIEZAS_HP;
+const p1 = (t) => {
+  T.hoy(R, t, { encuadre: 'corcho', pistas: tramo(t, nuevo - 0.1, nuevo + 0.25) + tramo(t, quien - 0.1, quien + 0.25) });
+  // la fan entra desde la librería y señala cada pista según se enciende
+  const u = tramo(t, 0.2, nuevo - 0.2), fx = Math.round(lerp(250, 96, u));
+  R.actor(EL.chica, fx, 160, t, { dir: -1, anda: u > 0 && u < 1, dedo: t > nuevo - 0.2 && t < a(0.37), habla: t > a(0.37) && Math.sin(t * 8) > 0, sonrisa: t > quien });
+  // la snitch va de la pista de las gafas a la del reparto y luego a la de las tijeras
+  const cen = [[80, 44], [116, 42], [157, 46], [185, 74]];
+  const k = t < nuevo ? -1 : t < quien ? 0 : t < a(0.38) ? 1 : 2;
+  const [tx, ty] = k < 0 ? [210, 70] : cen[k], v = tramo(t % 100, 0, 1);
+  const sx = tx + Math.sin(t * 5) * (k < 0 ? 26 : 5), sy = ty + Math.sin(t * 8) * 3 * v;
+  T.snitch(R, sx, sy, t, { cara: k >= 0 ? 'feliz' : 'normal' });
+  T.hoyDelante(R, t, { encuadre: 'corcho' });
+};
+const p2 = (t) => {
+  const pn = 2 + tramo(t, corto - 0.1, corto + 0.25) + tramo(t, pistas - 0.05, pistas + 0.25);
+  T.hoy(R, t, { encuadre: 'corcho', camara: 'cerca', pistas: pn });
+  // la snitch, de las tijeras a la pista de la moto; se lía y le salen «?»
+  const k = t < pistas ? 2 : 3, cen = [[74, 40], [146, 40], [228, 44], [284, 100]], [tx, ty] = cen[k];
+  const mv = tramo(t, k === 2 ? P2 : pistas, (k === 2 ? P2 : pistas) + 0.5), px = k === 2 ? 146 : 228;
+  const sx = lerp(px, tx, mv) + Math.sin(t * 5) * 5, sy = lerp(k === 2 ? 40 : 44, ty, mv) + Math.sin(t * 9) * 3;
+  const lio = t > noSe && t < anos + 0.6;
+  T.snitch(R, sx, sy, t, { cara: lio ? 'susto' : 'feliz', s: 1 });
+  if (lio) { const n = Math.min(3, 1 + Math.floor((t - noSe) * 2.5)); for (let i = 0; i < n; i++) R.icono('?', Math.round(sx - 30 + i * 14), Math.round(sy - 6 - i * 6 + Math.sin(t * 6 + i)), hex('#ffe890'), C.k, 2); }
+  // la mano de la fan entra por abajo a la derecha y clava la chincheta roja en la pista de la moto
+  const ent = tramo(t, pistas - 0.7, pistas - 0.05), sal = tramo(t, pistas + 0.45, pistas + 1.1), m = ent * (1 - sal);
+  if (t > pistas - 0.05) T.chincheta(R, 284, 138, t, hex('#e83a3a'), {});
+  if (m > 0) { const x1 = Math.round(lerp(338, 288, m)), y1 = Math.round(lerp(214, 146, m)) + (t > pistas - 0.1 && t < pistas + 0.15 ? 2 : 0); T.brazo(R, x1 + 46, y1 + 50, x1, y1, '#3a6ad8', -1, { codo: [x1 + 26, y1 + 36] }); }
+  T.hoyDelante(R, t, { encuadre: 'corcho', camara: 'cerca' });
+};
+// Atom baja a saludar al campo y luego vuelve a su sitio (el compañero de arriba a la derecha lo pinta rodar)
+const comp0 = R.companero;
+let escondida = null;
+R.companero = (t, e) => {
+  if (t < P3) return comp0(t, e);
+  const baja = tramo(t, P3, P3 + 0.6), sube = tramo(t, vamos, vamos + 0.7), u = baja * (1 - sube), ue = u * u * (3 - 2 * u);
+  const bote = t > b(0.03) && t < explica + 0.5 ? Math.round(Math.abs(Math.sin((t - b(0.03)) * Math.PI * 2.2)) * 10) : 0;
+  const x = Math.round(lerp(297, 170, ue)), y = Math.round(lerp(24, 124, ue)) - bote + Math.round(Math.sin(t * 2.6) * 1.5);
+  if (escondida) escondida(x, y);
+  const r = lerp(10, 18, ue);
+  // en el campo, un halo oscuro detrás para que se lea sobre la hierba
+  if (ue > 0.2) R.disco(x, y, Math.round(r * 0.95), hex('#14204a'));
+  for (let j = -26; j <= 26; j++) for (let i = -26; i <= 26; i++) { const g = 1 - Math.hypot(i, j) / (r + 6); if (g > 0.25 && (ue < 0.2 ? ((i + j) & 1) : g > 0.45 || ((i + j) & 1))) R.pset(x + i, y + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  if (bote > 0) for (let k = 0; k < 10; k++) { const an = k * Math.PI / 5 + t * 4, rr = r + 8 + Math.sin(t * 9) * 2; R.pset(Math.round(x + Math.cos(an) * rr), Math.round(y + Math.sin(an) * rr), hex('#c8f0ff')); }
+  R.atomo(x, y, t, { r, orbita: R.PAL.ATOM[7], energia: bote > 0 ? 0.8 : e });
+};
+const p3 = (t) => {
+  escondida = null;
+  T.exterior(R, t, { encuadre: 'quidditch' });
+  // Harry y Ron esperan con la escoba; en «Let's find out» Harry sale corriendo detrás de la snitch
+  const c = tramo(t, vamos + 0.15, vamos + 1.5), hx = Math.round(lerp(96, 340, c * c)), hy = Math.round(lerp(166, 92, c));
+  R.actor(EL.harry, hx, hy, t, { dir: 1, dedo: t > b(0.03) && t < explica + 0.4, sorpresa: t > mira && t < vamos, sonrisa: t > vamos });
+  if (c > 0) P.escoba(R, hx + 8, hy + 2, { dir: 1 });
+  R.actor(EL.ronJersey, 214, 166, t, { dir: -1, dedo: t > b(0.03) && t < explica, habla: t > explica && t < mira && Math.sin(t * 8) > 0, sorpresa: t > mira });
+  // la snitch: viene hacia Atom, y cuando él la mira se esconde detrás; en «find out» sale disparada
+  if (t < mira) { const v = tramo(t, P3 + 0.2, mira), sx = lerp(110, 144, v) + Math.sin(t * 5) * 14, sy = lerp(96, 124, v) + Math.sin(t * 9) * 4; T.snitch(R, sx, sy, t, { cara: 'feliz' }); }
+  else if (t < vamos + 0.2) escondida = (x, y) => { const asoma = Math.sin((t - mira) * 2.4) > 0.55 ? 13 : 3; T.snitch(R, x + asoma, y + 5, t, { cara: 'susto' }); };
+  else { const v = tramo(t, vamos + 0.2, vamos + 1.2); T.snitch(R, lerp(176, 340, v), lerp(128, 96, v) + Math.sin(t * 12) * 4, t, { cara: 'feliz' }); }
+  T.exteriorDelante(R, t, { encuadre: 'quidditch' });
+};
+const efectos = [[nuevo, 'brillo'], [quien, 'pop'], [corto, 'brillo'], [pistas - 0.05, 'golpecito'], [noSe, 'boing'],
+  [P3 + 0.1, 'whoosh'], [b(0.04), 'pop'], [mira, 'boing'], [vamos, 'whoosh'], [vamos + 0.3, 'publico']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
