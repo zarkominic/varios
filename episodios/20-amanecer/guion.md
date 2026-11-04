@@ -116,7 +116,7 @@ y el 19 en Do menor; este suena a balada de pueblo y a desfile del Capitolio.
 | Y aquí viene lo que mucha gente no sabe: cómo terminaron esos Juegos ya nos lo contaron hace años, en En llamas. | And here's what a lot of people don't know: how those Games ended was already revealed years ago, in Catching Fire. |
 | En el libro, Katniss ve la grabación: Haymitch gana gracias al campo de fuerza que rodea la arena, un borde invisible que devuelve todo lo que se le lanza. | In the book, Katniss watches the tape: Haymitch wins thanks to the force field around the arena, an invisible edge that throws back anything you hurl at it. |
 | Usó el arma del Capitolio contra el Capitolio, y eso el presidente Snow no se lo perdonó. | He turned the Capitol's own weapon against the Capitol, and President Snow never forgave him. |
-| En Sinsajo, Haymitch lo cuenta en una frase: el Capitolio hizo de él un ejemplo, y en pocas semanas perdió a las personas que quería. | In Mockingjay, Haymitch sums it up in one line: the Capitol made an example of him, and within weeks he lost the people he loved. |
+| Y desde entonces, el Capitolio no le quitó el ojo de encima: había dejado en ridículo a Snow delante de todo Panem. | And from then on, the Capitol never took its eyes off him: he'd made Snow look like a fool in front of all of Panem. |
 | Por eso bebe, por eso no se fía de nadie, y por eso, cuando llega Katniss, sabe exactamente lo que le espera. | That's why he drinks, why he trusts no one, and why, when Katniss shows up, he knows exactly what's waiting for her. |
 
 ## 4 · Quién es quién
@@ -124,7 +124,7 @@ y el 19 en Do menor; este suena a balada de pueblo y a desfile del Capitolio.
 | ES | EN |
 |---|---|
 | Al Haymitch joven lo interpreta Joseph Zada, y a Lenore Dove, la chica a la que quiere, Whitney Peak. | Young Haymitch is played by Joseph Zada, and Lenore Dove, the girl he loves, by Whitney Peak. |
-| Mckenna Grace es Maysilee Donner, la otra tributo del Distrito 12, una chica del pueblo que no se parece en nada a él. | Mckenna Grace is Maysilee Donner, the other tribute from District 12, a town girl who's nothing like him. |
+| Mckenna Grace es Maysilee Donner, otra de los tributos del Distrito 12, una chica del pueblo que no se parece en nada a él. | Mckenna Grace is Maysilee Donner, another District 12 tribute, a town girl who's nothing like him. |
 | Ralph Fiennes es el presidente Snow, ya en el poder y con sus rosas blancas; Jesse Plemons es Plutarch, y Elle Fanning es Effie Trinket de joven. | Ralph Fiennes is President Snow, already in power, with his white roses; Jesse Plemons is Plutarch, and Elle Fanning is a young Effie Trinket. |
 | Ojo con Plutarch: en En llamas era el Vigilante Jefe que, en secreto, trabajaba para la rebelión. | Keep an eye on Plutarch: in Catching Fire, he was the Head Gamemaker secretly working for the rebellion. |
 | Kieran Culkin hace de Caesar Flickerman, el presentador de las entrevistas, y Glenn Close es Drusilla, la escolta del Distrito 12 de entonces. | Kieran Culkin plays Caesar Flickerman, the interview host, and Glenn Close is Drusilla, District 12's escort at the time. |
@@ -136,13 +136,13 @@ y el 19 en Do menor; este suena a balada de pueblo y a desfile del Capitolio.
 | ES | EN |
 |---|---|
 | Ahora, las pistas que las películas anteriores dejaron a la vista. | Now, the clues the earlier movies left in plain sight. |
-| La primera es el broche del sinsajo: en la película de 2012, Katniss lo compra en un mercado, pero en el libro el broche tiene dueña. | The first is the mockingjay pin: in the 2012 movie, Katniss buys it at a market, but in the book, the pin has an owner. |
+| La primera es el broche del sinsajo: en la película de 2012, a Katniss se lo regalan en un mercado, pero en el libro el broche tiene dueña. | The first is the mockingjay pin: in the 2012 movie, Katniss is given it at a market, but in the book, the pin has an owner. |
 | Se lo regala su amiga Madge, y antes había sido de su tía: Maysilee Donner, la compañera de Haymitch en sus Juegos. | Her friend Madge gives it to her, and before that it belonged to Madge's aunt: Maysilee Donner, Haymitch's partner in his Games. |
 | Es decir: el símbolo de la rebelión de Katniss viene de los Juegos de Haymitch. | In other words, the symbol of Katniss's rebellion comes from Haymitch's Games. |
 | La segunda está en un apellido: Lenore Dove se apellida Baird, como Lucy Gray, la cantante de la Balada. | The second is in a last name: Lenore Dove's surname is Baird, like Lucy Gray, the singer from the Ballad. |
 | Lucy Gray escribió El árbol del ahorcado, la canción que Katniss canta en Sinsajo, así que esa canción viajó más de sesenta años hasta llegar a ella. | Lucy Gray wrote The Hanging Tree, the song Katniss sings in Mockingjay, so that song traveled more than sixty years to reach her. |
 | La tercera es una frase: en En llamas, Haymitch le dice a Katniss «recuerda quién es el verdadero enemigo», y al final ella dispara su flecha contra el campo de fuerza. | The third is a line: in Catching Fire, Haymitch tells Katniss, "remember who the real enemy is," and in the end she fires her arrow at the force field. |
-| Es el mismo truco que salvó a Haymitch veinticinco años antes. | It's the same trick that saved Haymitch twenty-five years earlier. |
+| Es el mismo punto débil que salvó a Haymitch veinticinco años antes. | It's the same weak spot that saved Haymitch twenty-five years earlier. |
 | Y en En llamas, Wiress fue la primera en darse cuenta de que la arena era un reloj: tic, tac. | And in Catching Fire, Wiress was the first to realize the arena was a clock: tick, tock. |
 | Y en el tráiler, Wiress lo resume: la arena es una máquina, pero todas las máquinas se pueden romper. | And in the trailer, Wiress sums it up: the arena is a machine, but all machines can be broken. |
 
@@ -166,7 +166,7 @@ y el 19 en Do menor; este suena a balada de pueblo y a desfile del Capitolio.
 |---|---|
 | Si solo tienes una tarde, ve Los Juegos del Hambre y En llamas: ahí están Haymitch, el campo de fuerza y los ganadores que vuelven. | If you only have one evening, watch The Hunger Games and Catching Fire: that's where you'll find Haymitch, the force field, and the returning victors. |
 | Si tienes otra, añade Balada de pájaros cantores y serpientes, por Snow y por la canción. | If you have another, add The Ballad of Songbirds and Snakes, for Snow and for the song. |
-| Si te queda tiempo, Sinsajo: ahí Haymitch cuenta, por fin, lo que le pasó después de ganar. | If you still have time, Mockingjay: that's where Haymitch finally tells what happened to him after he won. |
+| Si te queda tiempo, Sinsajo: ahí ves en qué acaban Haymitch, Plutarch y Snow. | If you still have time, Mockingjay: that's where you'll see how things end for Haymitch, Plutarch, and Snow. |
 | Y el libro nuevo, mejor después de la película: ahí está todo lo que hoy no te he contado. | And save the new book for after the movie: that's where everything I didn't tell you today is waiting. |
 
 ## 8 · El cierre
