@@ -156,9 +156,9 @@ y el 19 en Do menor; este suena a balada de pueblo y a desfile del Capitolio.
 | El nombre de Panem viene del latín panem et circenses, pan y circo: dar comida y espectáculo para que la gente no proteste, y en Sinsajo lo explica Plutarch. | The name Panem comes from the Latin "panem et circenses," bread and circuses: give people food and a show so they don't protest, and Plutarch explains it in Mockingjay. |
 | Para el libro nuevo, Collins citó al filósofo David Hume y su pregunta: por qué los muchos se dejan gobernar tan fácilmente por los pocos. | For the new book, Collins pointed to the philosopher David Hume and his question: why the many are so easily governed by the few. |
 | El sinsajo es inventado, pero su mitad real, el sinsonte, existe: un pájaro de América que puede aprender unos doscientos cantos, y hasta imita ranas y máquinas. | The mockingjay is made up, but its real half, the mockingbird, exists: an American bird that can learn around two hundred songs, and even imitates frogs and machines. |
-| Y el saludo de tres dedos salió de la pantalla: en 2014 lo usaron manifestantes en Tailandia, hasta que lo prohibieron, y en 2021, en Myanmar. | And the three-finger salute left the screen: in 2014, protesters used it in Thailand until it was banned, and in 2021, in Myanmar. |
+| Y el saludo de tres dedos salió de la pantalla: en 2014, en Tailandia, los militares lo prohibieron y aun así la gente lo siguió haciendo; y en 2021 volvió a verse en Myanmar. | And the three-finger salute left the screen: in 2014, Thailand's military banned it, and people kept doing it anyway; and in 2021, it showed up again in Myanmar. |
 | Los cinco libros han vendido más de cien millones de ejemplares, y el primer tráiler de esta película se vio ciento nueve millones de veces en un solo día. | The five books have sold more than one hundred million copies, and this movie's first trailer was watched one hundred and nine million times in a single day. |
-| Y el libro nuevo vendió más de un millón y medio de ejemplares en inglés en su primera semana, el doble que la Balada. | And the new book sold more than one and a half million English-language copies in its first week, double what the Ballad sold. |
+| Y el libro nuevo vendió más de un millón y medio de ejemplares en inglés en su primera semana; solo en Estados Unidos, el doble que la Balada. | And the new book sold more than one and a half million English-language copies in its first week; in the US alone, that was double what the Ballad sold. |
 
 ## 7 · Qué ver antes
 
@@ -195,7 +195,7 @@ y el 19 en Do menor; este suena a balada de pueblo y a desfile del Capitolio.
 
 Investigación del 4/11/2026 (agente con fuentes; se vuelve a comprobar con 3 agentes escépticos antes de locutar):
 - Estreno: 20/11/2026 en EE. UU. (MPA, Lionsgate); 19/11/2026 en México (Publimetro, 28/10/2026). Director Francis
-  Lawrence; guion de Billy Ray. Duración de 158 min: de las clasificaciones, no de Lionsgate [comprobar antes de locutar].
+  Lawrence; guion de Billy Ray. Duración de unos 158 min (BBFC, clasificada el 28/10/2026; la Balada dura 157).
 - Libro: Scholastic, 18/03/2025; premisa oficial (los Juegos 50, el segundo Vasallaje, el doble de tributos; Haymitch
   separado de su familia y de la chica a la que quiere). Más de 100 millones de ejemplares de los cinco libros (Scholastic).
 - Reparto confirmado (MPA, Deseret News): Zada, Peak, Grace, Fiennes, Plemons, Fanning, Culkin, Close, Harrison Jr.,
