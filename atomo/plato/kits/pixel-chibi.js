@@ -2449,20 +2449,22 @@ const pintaJH = (R, g, x, y, o = {}, pal = PAL_JH) => {
 };
 // el broche del sinsajo: un aro de oro (O, sombra g) con el pájaro de alas abiertas en negro dentro
 const BROCHE = [
-  '....kkkkk....',
-  '..kkOOOOOkk..',
-  '.kOkOOOOOOOk.',
-  '.kOkkOOOOOOk.',
-  'kOOOkkOOOOOOk',
-  'kOOOkkkOOkkOk',
-  'kOOOOkkkkkkkk',
-  'kOOOkkkkkOOgk',
-  'kOOkkOOOOOOgk',
-  '.kkkOOOOOOgk.',
-  '.kOOOOOOOOgk.',
-  '..kkggggggk..',
-  '....kkkkk....',
-];
+  '.....kkkkk.....',
+  '...kkOOOOOkk...',
+  '..kOOOOOOOOOk..',
+  '.kOOOkOOOOOOOk.',
+  '.kOOOkkOOOOOOk.',
+  'kOOOOkkkOOOOOOk',
+  'kOOOOOkkkOOkkOk',
+  'kkkOOkkkkkkkkkk',
+  'kOkkkkkkkkkOOOk',
+  'kOOOOOkkkOOOOOk',
+  '.kOOOOOOOOOOOk.',
+  '.kOOOOOOOOOOgk.',
+  '..kOOOOOOOOgk..',
+  '...kkggggggk...',
+  '.....kkkkk.....',
+]
 const broche = (R, x, y, o = {}) => { pintaJH(R, BROCHE, x, y, o); if (o.brillo) R.pset(Math.round(x - 2 * (o.s ?? 1)), Math.round(y - 7 * (o.s ?? 1)), PAL_JH.o); };
 // la petaca de Haymitch: plata (Z/z) con el tapón oscuro y un brillo
 const PETACA = ['.kk.', 'kjjk', 'kZZk', 'kZEk', 'kZZk', 'kzZk', 'kzzk', '.kk.'];
@@ -2631,7 +2633,7 @@ const trencitas = { detras: (c) => c.cab.rej(TRENCITA, -1, 8), delante: (c) => c
 // las dos coletas de Maysilee con sus pinzas rosas (r): una detrás y la otra asomando por arriba
 const COLETA_M = ['.kk.', 'krrk', 'kHHk', 'kHhk', '.kHk', '..k.'];
 const COLETA_ALTA = ['.kk.', 'kHHk', 'kHhk', 'krrk', '.kk.'];
-const coletas = (c) => { c.cab.rej(COLETA_M, -3, 4); c.cab.rej(COLETA_ALTA, 11, -2); };
+const coletas = (c) => { c.cab.rej(COLETA_M, -3, 4); };   // una coleta baja por detrás (la alta parecía un lazo)
 // plumas de colores que asoman del pelo de Lenore
 const plumitas = (c) => { for (const [i, j, k] of [[1, -1, 'r'], [0, -2, 'r'], [3, -1, 'y'], [3, -2, 'y'], [-1, 3, 'u'], [-2, 2, 'u']]) c.cab.px(i, j, c.pal[k]); };
 // el moño con la aguja de tejer cruzada (Wiress)
@@ -2677,7 +2679,7 @@ export const ELENCO_JH = {
   // Lenore Dove Baird: piel oscura, rizos negros con plumitas de colores, collar de cuentas y capas de colores del Covey
   lenore: { ...B20, cab: CAB_PLUMAS, cuerpo: CUERPO_COVEY, ceja: hex('#1c1424'), detras: plumitas,
     pal: OSCURA({ H: '#1c1424', h: '#3a3046', r: '#e8483a', R: '#f07a5a', y: '#f0c840', b: '#3a8ad8', u: '#2a9aa0', C: '#d8a030', d: '#a86a18', v: '#4a9a4a', V: '#7ac86a', p: '#8a4aa8', L: '#4a2e1a' }) },
-  // Maysilee Donner: rubia, el pelo bien peinado con dos coletas y pinzas rosas, vestido rosa de comerciante con lazo
+  // Maysilee Donner: rubia, el pelo bien peinado con una coleta baja y pinza rosa, vestido rosa de comerciante con lazo
   maysilee: { ...B20, cuerpo: CUERPO_PLIEGUES, ceja: hex('#b8903c'), detras: coletas,
     pal: CLARA({ H: '#f0d070', h: '#f8e8a8', r: '#f07ab0', C: '#e88aa8', c: '#c0607e', W: '#f8f4ec', I: '#f8f4ec', L: '#2a2430' }) },
   // la madre y el hermano pequeño de Haymitch (Veta): ella con vestido gris y delantal; él, de camisa y pantalón corto
@@ -2719,9 +2721,9 @@ export const ELENCO_JH = {
   // Lucy Gray Baird: pelo oscuro largo, vestido de volantes con los colores del arcoíris (la guitarra: PIEZAS_JH)
   lucyGray: { ...B20M, cuerpo: CUERPO_VOLANTES, ceja: hex('#2a1c14'),
     pal: CLARA({ H: '#3a2418', h: '#5a3a28', r: '#e8483a', R: '#f88a7a', q: '#f0902a', y: '#f0d040', v: '#4aa84a', u: '#3a7ad8', U: '#7aaaf0', p: '#8a4ab8', P: '#b07ad8', L: '#4a2e1a' }) },
-  // Plutarch: pelo castaño y barba corta, traje oscuro; la libreta en la mano
+  // Plutarch: pelo castaño y barba corta, traje burdeos con corbata dorada (para no confundirlo con Snow); la libreta
   plutarch: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_EUROPEO, ceja: hex('#4a2e1a'), delante: conLibreta,
-    pal: CLARA({ H: '#6a4426', h: '#8a6040', C: '#30323e', W: '#e8e4dc', o: '#5a3a5a', F: '#30323e' }) },
+    pal: CLARA({ H: '#6a4426', h: '#8a6040', C: '#7a2436', c: '#561826', W: '#e8e4dc', o: '#e8b830', F: '#561826' }) },
   // Effie joven: peluca rosa altísima con sombrerito verde, traje rosa chillón con blusa verde
   effie: { ...B20, tocado: 'pelucaRosa', cuerpo: CUERPO_SASTRE, ceja: hex('#c84a88'), mejillas: [[6, 8], [12, 8]],
     pal: CLARA({ H: '#f070b0', h: '#ff9ad0', P: '#f070b0', p: '#c84a88', V: '#4ac87a', s: '#f0a0a0', C: '#f070b0', c: '#c84a88', W: '#4ac87a', o: '#f0c040', I: '#3aa86a' }) },
