@@ -10,16 +10,18 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // JH-COSECHA (frases 20–21), Juegos 50. Tres planos:
-// 1. (calle 'puerta', amanecer) en el porche, la madre abraza a Haymitch y el hermano pequeño le tira de la manga; un
-//    agente de la paz llega por la derecha y le hace señas con el silbato en «reaping»; en «torn away» Haymitch se suelta
-//    y echa a andar; la madre alarga la mano, triste; corta en «from».
+// 1. (calle 'puerta', amanecer; campana lejana) en el porche, la madre abraza a Haymitch y el hermano pequeño le tira de
+//    la manga; por delante pasa una familia vecina camino de la plaza (el padre con la niña de la mano); un agente de la
+//    paz llega por la derecha y hace señas con el silbato en «reaping»; en «torn away» Haymitch se suelta y echa a andar;
+//    la madre alarga la mano, triste, y el hermano da dos pasos detrás; corta en «from».
 // 2. (bosque 'arbol', amanecer) bajo el árbol viejo, Lenore Dove llega corriendo; en «the girl he loves» se cogen de
-//    la mano y sale un corazón; el agente los separa y se lleva a Haymitch; a Lenore se le cae una pluma de colores que
-//    baja revoloteando; corta en «are» (antes de «48»).
-// 3. (plaza 'escenario', antigua: altavoces de bocina, sin pantallas) Drusilla en el micrófono con el abanico; la urna de
-//    la derecha se desborda de papeletas y el pan con ojos sale nadando entre ellas (gag 2) y cae detrás de la barandilla;
-//    en «four» salta un 4 dorado y suben cuatro tributos por los lados hasta sus marcas; en «two boys» y «two girls», un
-//    2 sobre cada pareja.
+//    la mano y sale un corazón; el agente llega, pita y se lleva a Haymitch; a Lenore se le cae una pluma de colores que
+//    baja revoloteando con el viento; corta en «are» (antes de «48»).
+// 3. (plaza 'escenario', antigua: altavoces de bocina, sin pantallas) Drusilla va a la urna de la derecha, que se
+//    desborda de papeletas; el pan con ojos sale nadando entre ellas, se zambulle (salpican papeletas), salta y cae detrás
+//    de la barandilla (gag 2); Drusilla vuelve al micrófono y lee; en «four» salta un 4 dorado y suben cuatro tributos
+//    por los lados hasta sus marcas; en «two boys» y «two girls», un 2 sobre cada pareja. Delante, la primera fila de
+//    chicos de la plaza, de espaldas: se estiran para ver el pan, dan un respingo con el «four» y se miran entre ellos.
 import * as T from '/atomo/plato/escenas/jh-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jh-cosecha');
@@ -31,6 +33,13 @@ const reaping = a(0.27), torn = a(0.53), chica = a(0.83), cuatro = b(0.64), chic
 const K = T.C.k;
 const CORA = ['.kk.kk.', 'krrkrrk', 'krRrrrk', 'krrrrrk', '.krrrk.', '..krk..', '...k...'];
 const PCORA = { k: K, r: hex('#e8486a'), R: hex('#ffb0c0') };
+// un chico de la plaza visto de espaldas (cabeza y hombros, 11 × 12): pelo, cogote, camisa de domingo; mira (−1, 0, 1)
+// gira un poco la cabeza y asoma la oreja de ese lado
+const PELOS = ['#2a1c14', '#5a4232', '#3a2a20', '#8a6a3a', '#1c1424'], ROPAS = [['#e8e2d2', '#c0b8a4'], ['#c8d8e8', '#a0b4c8'], ['#d8c8b0', '#b0a088'], ['#e8d8d8', '#c4b0b0']];
+const espalda = (x, y, k, mira) => { const H = hex(PELOS[k % 5]), Hs = hex(PELOS[(k + 2) % 5]), [c, cS] = ROPAS[k % 4].map(hex), S = hex('#d8a888');
+  R.rect(x + 2, y, x + 8, y + 7, K); R.rect(x + 3, y + 1, x + 7, y + 6, H); R.pset(x + 4, y + 2, Hs); R.pset(x + 6, y + 4, Hs); if (k % 2) R.rect(x + 3, y + 5, x + 7, y + 6, Hs);
+  R.rect(x + 4, y + 7, x + 6, y + 8, S); if (mira) R.pset(mira > 0 ? x + 8 : x + 2, y + 4, S);
+  R.rect(x, y + 8, x + 10, y + 14, K); R.rect(x + 1, y + 9, x + 9, y + 14, c); R.rect(x + 6, y + 10, x + 9, y + 14, cS); R.pset(x + 5, y + 9, K); };
 // p1 · la despedida en el porche
 const p1 = (t) => {
   T.distrito(R, t, { encuadre: 'calle', camara: 'puerta' });
@@ -46,6 +55,10 @@ const p1 = (t) => {
   const ag = tramo(t, 0.4, reaping - 0.1), ax = Math.round(lerp(334, 236, ag));
   const r = R.actor(EL.agentePaz, ax, 166, t, { dir: -1, anda: ag > 0 && ag < 1, dedo: t > reaping && t < torn + 0.3, habla: t > torn + 0.3 && Math.sin(t * 6) > 0 });
   if (t > reaping && t < reaping + 0.7) { const [cx, cy] = r.cabeza; R.rect(cx - 9, cy + 7, cx - 6, cy + 8, hex('#c8ccd8')); for (let k = 0; k < 3; k++) { const u = ((t - reaping) * 3 + k / 3) % 1; R.pset(cx - 12 - Math.round(u * 8), cy + 4 - k * 2, hex('#ffffff')); } }
+  // una familia vecina pasa por delante, camino de la plaza: el padre con la niña de la mano, vestidos de domingo
+  { const u = tramo(t, 0.2, P2 - 0.1), fx = Math.round(lerp(-34, 70, u));
+    if (u > 0 && u < 1) { const pd = R.actor(EL.tributoChico, fx + 18, 179, t, { dir: 1, anda: true, sostiene: [fx + 16, 166], triste: t > reaping, pal: { C: hex('#e8e2d2'), c: hex('#c0b8a4'), F: hex('#3a3a44'), H: hex('#5a4232'), h: hex('#7a5a42') } });
+      R.actor(EL.tributoChica, fx, 179, t, { dir: 1, anda: true, sostiene: pd.mano ? [pd.mano[0] - 1, pd.mano[1] + 1] : true, sorpresa: t > reaping && t < reaping + 0.8, pal: { C: hex('#c8d8e8'), c: hex('#a0b4c8'), W: hex('#f2eee2') } }); } }
 };
 // p2 · bajo el árbol viejo del bosque, al amanecer: Lenore Dove llega corriendo; se cogen de la mano; el agente se lo
 // lleva; a ella se le cae una pluma
@@ -72,7 +85,9 @@ const p3 = (t) => {
   T.distrito(R, t, o);
   // dos agentes de la paz de guardia al fondo del escenario, que respiran y se miran
   R.actor(EL.agentePaz, 68, 140, t, { dir: 1, sorpresa: t > P3 + 0.6 && t < P3 + 1.6 });
-  R.actor(EL.agentePaz, 240, 140, t, { dir: -1, dedo: t > cuatro - 0.4 && t < cuatro + 0.6 });
+  // el de la derecha se aparta para dejar sitio a Drusilla en la urna y vuelve a su sitio cuando ella se va
+  const ap = tramo(t, P3 + 0.3, P3 + 0.9) - tramo(t, P3 + 2.0, P3 + 2.6), apx = Math.round(240 + 16 * ap);
+  R.actor(EL.agentePaz, apx, 140, t, { dir: (ap > 0 && ap < 1 && t < P3 + 1) ? 1 : -1, anda: (t > P3 + 0.3 && t < P3 + 0.9) || (t > P3 + 2.0 && t < P3 + 2.6), dedo: t > cuatro - 0.4 && t < cuatro + 0.6 });
   // Drusilla va a la urna de la derecha, mete la mano y sale una ola de papeletas (con el pan); vuelve al micrófono con
   // la papeleta y lee
   const ida = tramo(t, P3 + 0.05, P3 + 0.9), vuelta = tramo(t, P3 + 1.9, b(0.5)), drx = Math.round(lerp(146, 232, ida) - lerp(0, 86, vuelta));
@@ -85,18 +100,27 @@ const p3 = (t) => {
   TR.forEach(([d, x0, x1, dir], k) => { const u = sube(k); if (u <= 0) return; const x = Math.round(lerp(x0, x1, u));
     R.actor(d, x, 146, t, { dir: u < 1 ? dir : (k < 2 ? 1 : -1), anda: u < 1, salto: u > 0.15 && u < 0.32 ? 2 : 0, sorpresa: u >= 1 && t < chicas + 0.3, triste: u >= 1 && t >= chicas + 0.3, enfado: d === EL.maysilee && u >= 1 }); });
   // el pan con ojos sale nadando entre las papeletas de la urna derecha y cae detrás de la barandilla (gag 2)
-  const n0 = P3 + 1.0, n1 = cuatro - 0.6;
+  const n0 = P3 + 1.0, n1 = cuatro - 1.0;
   if (t > n0 && t < n1 + 0.7) {
-    if (t < n1) { const u = tramo(t, n0, n1); T.pan(R, 272 + Math.round(Math.sin(u * 7) * 6), Math.round(lerp(94, 82, u)), t, { nada: true, expresion: u > 0.6 ? 'risa' : 'normal' }); }
+    if (t < n1) { const u = tramo(t, n0, n1), zam = Math.sin(tramo(t, P3 + 1.75, P3 + 2.3) * Math.PI), px = 272 + Math.round(Math.sin(u * 7) * 6), py = Math.round(lerp(94, 82, u) + zam * 7);
+      T.pan(R, px, py, t, { nada: true, expresion: u > 0.6 ? 'risa' : 'normal' });
+      // se zambulle entre las papeletas y salpican
+      if (zam > 0.2) for (let i = 0; i < 4; i++) { const v = tramo(t, P3 + 1.85, P3 + 2.4), sx = px - 6 + i * 4 + Math.round((i - 1.5) * v * 4), sy = Math.round(88 - Math.sin(v * Math.PI) * (6 + i % 2 * 3)); R.rect(sx, sy, sx + 2, sy + 1, K); R.rect(sx, sy, sx + 1, sy, hex('#f6f2e6')); } }
     else { const u = tramo(t, n1, n1 + 0.7); T.pan(R, Math.round(lerp(272, 248, u)), Math.round(82 - Math.sin(u * Math.PI) * 14 + u * 64), t, { expresion: 'susto' }); }
   }
   T.distritoDelante(R, t, o);
+  // la primera fila de chicos de la plaza, de espaldas, por delante del escenario: se mueven, se estiran para ver al
+  // pan, dan un respingo con el «four» y se vuelven unos a otros con cada pareja
+  for (let k = 0; k < 15; k++) { const x = 6 + k * 21 + (k % 2 ? 4 : 0), yb = 168 + (k % 3 === 1 ? 2 : 0);
+    const estira = t > P3 + 1.2 && t < cuatro - 0.6 && k > 8 ? 2 : 0, brinco = t > cuatro && t < cuatro + 0.35 ? 2 : 0, mira = (t > chicos && k > 2 && k < 7) || (t > chicas && k > 8 && k < 13) ? (k % 2 ? 1 : -1) : 0;
+    espalda(x + mira, yb - estira - brinco + (Math.sin(t * 2.2 + k * 1.7) > 0.8 ? 1 : 0), k, mira); }
   // el 4 dorado en «four» y un 2 sobre cada pareja
   const c4 = tramo(t, cuatro, cuatro + 0.25); if (c4 > 0 && t < chicos) R.numero('4', 160, Math.round(lerp(70, 58, c4)), { tam: 16, centro: true });
   if (t > chicos) R.numero('2', 118, Math.round(108 - tramo(t, chicos, chicos + 0.2) * 6), { tam: 16, centro: true });
   if (t > chicas) R.numero('2', 212, Math.round(108 - tramo(t, chicas, chicas + 0.2) * 6), { tam: 16, centro: true });
 };
-const efectos = [[reaping, 'silbato'], [chica, 'pop'], [P3 + 1.0, 'papel'], [P3 + 1.3, 'chof'], [cuatro - 0.6, 'boing'], [cuatro, 'brillo'], [chicos, 'pop'], [chicas, 'pop']];
+const efectos = [[0.3, 'campana', { lejos: true }], [reaping, 'silbato'], [torn - 0.4, 'campana', { lejos: true }], [P2 + 0.3, 'viento', { dur: 3.2 }], [chica, 'pop'], [a(1) + 0.15, 'silbato'],
+  [P3 + 1.0, 'papel'], [P3 + 1.9, 'chof'], [cuatro - 1.0, 'boing'], [cuatro, 'brillo'], [chicos, 'pop'], [chicas + 0.1, 'publico', { dur: 1.4 }]];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 50 });
 </script>
 </body>
