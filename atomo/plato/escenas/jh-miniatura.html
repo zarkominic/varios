@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-MINIATURA · la miniatura del episodio 20 (se captura en t = 1, 1280 × 720). El mismo hombre a los dos lados de una
+// diagonal: a la izquierda, Haymitch con 16 años en la plaza de la cosecha al amanecer; a la derecha, Haymitch mentor con
+// la petaca en el tren de noche. En medio, arriba, el broche del sinsajo enorme y brillante (la pista del vídeo); abajo,
+// el pan con ojos asustado. Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL, PIEZAS_JH as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), VACIO = 0x01020304;
+const corte = (y) => 154 + Math.round((179 - y) * 0.22);
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+const dibujar = (t) => {
+  const prev = R.usar(izq); T.distrito(R, t, { encuadre: 'plaza', luz: 'amanecer' });
+  R.usar(der); T.interior(R, t, { encuadre: 'tren', luz: 'noche' });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x - 1, y, T.C.k); R.pset(x, y, hex('#f6f2ea')); R.pset(x + 1, y, hex('#f6f2ea')); R.pset(x + 2, y, T.C.k); }
+  // Haymitch con 16 años, al doble, mirando a la derecha
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.haymitch, 20, 70, 0.5, { dir: 1, quieto: true }); R.usar(prev);
+  pon(pj, 10, 46, 36, 71, 28, 106, 2);
+  // Haymitch mentor, al doble, con la petaca, mirándole
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.haymitchViejo, 20, 70, 0.5, { dir: -1, quieto: true }); R.usar(prev);
+  pon(pj, 6, 46, 36, 71, 214, 106, 2);
+  // el broche del sinsajo, enorme, con su halo, arriba en el centro
+  R.halo(160, 52, 44, [hex('#f8d870'), hex('#fff4c8')], 0.9);
+  PZ.broche(R, 160, 92, { s: 5, brillo: true });
+  // el pan con ojos, asustado, abajo en el centro
+  T.pan(R, 160, 176, t, { s: 2, expresion: 'susto' });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
