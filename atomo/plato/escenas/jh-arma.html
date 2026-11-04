@@ -38,16 +38,7 @@ const SCR = [14, 62, 74, 104];
 const NAVY = hex('#0e1232');
 const noche = (y0, y1) => { for (let y = y0; y <= y1; y++) for (let x = 0; x < 320; x++) { const c = R.pget(x, y); R.pset(x, y, mez(c, NAVY, 0.68)); } };
 const p1 = (t) => {
-  T.capitolio(R, t, { encuadre: 'despacho' });
-  R.recorte(null);
-  noche(0, 179);
-  // por el ventanal: el cielo de noche (las nubes se apagan), la luna y las ventanas de la ciudad encendidas
-  for (let y = 22; y < 70; y++) for (let x = 80; x <= 240; x++) { const c = R.pget(x, y), l = (c & 255) + ((c >> 8) & 255) + ((c >> 16) & 255); if (l > 330) R.pset(x, y, mez(c, hex('#1a2250'), 0.7)); }
-  R.recorte([80, 22, 240, 117]);
-  R.disco(212, 40, 7, hex('#e8ecf8')); R.disco(214, 39, 6, hex('#fafcff'));
-  for (let k = 0; k < 40; k++) { const x = 84 + Math.floor(hh(k, 1) * 152), y = 60 + Math.floor(hh(k, 2) * 54); if (Math.sin(t * 0.7 + k * 1.3) > -0.5) R.pset(x, y, k % 3 ? hex('#f8d070') : hex('#f070c0')); }
-  for (let k = 0; k < 10; k++) { const x = 84 + Math.floor(hh(k, 6) * 120), y = 24 + Math.floor(hh(k, 7) * 22); if (Math.sin(t * 2 + k) > 0) R.pset(x, y, hex('#c8d0f0')); }
-  R.recorte(null);
+  T.capitolio(R, t, { encuadre: 'despacho', luz: 'noche' });   // la noche (ventanal, luna, lámparas) la pinta el decorado
   // la pantalla de pie (marco blanco y oro) con su pie
   const [x0, y0, x1, y1] = SCR;
   R.rect(42, y1 + 2, 46, 150, hex('#a8a8b8')); R.rect(30, 148, 58, 152, K); R.rect(31, 149, 57, 151, hex('#d8d8e0'));
@@ -67,9 +58,8 @@ const p1 = (t) => {
   // Snow detrás de la mesa, vuelto hacia la pantalla, con la rosa en la mano; en «never forgave» la aprieta
   const r = R.actor(EL.snow, 160, 133, t, { dir: -1, sostiene: [148, 118], enfado: t > a(0.6), sonrisa: t < gana - 0.4 && Math.sin(t * 2) > 0 });
   const [mx, my] = r.mano, ap = tramo(t, aprieta, aprieta + 0.35);
-  T.capitolioDelante(R, t, { encuadre: 'despacho' });
+  T.capitolioDelante(R, t, { encuadre: 'despacho', luz: 'noche' });
   R.recorte(null);
-  noche(128, 179);
   if (ap < 1) T.PIEZAS_JH.rosaBlanca(R, mx, my + 4 + Math.round(ap * 4), { s: 2 }); else { R.rect(mx, my - 8, mx + 1, my + 6, hex('#3a7a3a')); R.rect(mx - 2, my - 9, mx + 2, my - 8, hex('#c8c4b4')); }
   R.disco(mx, my, 2.3, K); R.disco(mx, my, 1.5, hex('#f0d0b8'));
   // los pétalos que caen sobre la mesa
