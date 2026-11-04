@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-MINIATURA · la miniatura del episodio 21 (se captura en t = 1, 1280 × 720). A la izquierda de una diagonal, Harry
+// al quíntuple (gafas redondas, cicatriz, boca abierta de sorpresa; sin ojos verdes) en el andén de noche, con el expreso
+// y el castillo iluminado detrás, la snitch con ojos asustada sobre su cabeza y, arriba a la izquierda, el 25 con el
+// arbolito de Navidad (el estreno); a la derecha, en una sala oscura, unas tijeras enormes cortan una tira de película y
+// del trozo cortado cae Peeves (lo que la película cortó del libro). Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL, PIEZAS_HP as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#05060f');
+// copia un recuadro de un búfer (sin lo VACIO) a escala s
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+// copia un recuadro girado (ang) y escalado (s) con su centro en (cx, cy); col: si se da, lo pinta todo de ese color (silueta)
+const ponGiro = (src, sx0, sx1, sy0, sy1, cx, cy, s, ang, col) => {
+  const mx = (sx0 + sx1 + 1) / 2, my = (sy0 + sy1 + 1) / 2, rr = Math.hypot(sx1 - sx0, sy1 - sy0) * s / 2 + 2, ca = Math.cos(ang), sa = Math.sin(ang);
+  for (let y = Math.floor(cy - rr); y <= cy + rr; y++) for (let x = Math.floor(cx - rr); x <= cx + rr; x++) {
+    const dx = x + 0.5 - cx, dy = y + 0.5 - cy, u = (dx * ca + dy * sa) / s + mx, v = (-dx * sa + dy * ca) / s + my;
+    const i = Math.floor(u), j = Math.floor(v); if (i < sx0 || i > sx1 || j < sy0 || j > sy1) continue;
+    const c = src[j * 320 + i]; if (c === VACIO) continue; R.pset(x, y, col ?? c);
+  }
+};
+// pone contorno de tinta alrededor de lo pintado en un búfer VACIO (n pasadas = grosor)
+const contorno = (b, n = 1, c = K) => { for (let p = 0; p < n; p++) { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } } };
+const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+
+// ── las tijeras: el eje en (cx, cy), las hojas hacia ang, abiertas abre (rad); lados: qué hojas pinta (-1, 1) ──
+const ACERO = [hex('#ffffff'), hex('#e4eaf2'), hex('#b0bccc'), hex('#6c7888')], MANGO = [hex('#ff7a68'), hex('#e0302a'), hex('#8a1820')];
+function tijeras(cx, cy, ang, abre, L = 64, lados = [-1, 1]) {
+  R.usar(tmp); tmp.fill(VACIO);
+  for (const lado of lados) {
+    const a = ang + lado * abre / 2, ca = Math.cos(a), sa = Math.sin(a);
+    const P = (u, v) => [Math.round(cx + u * ca - v * sa), Math.round(cy + u * sa + v * ca)];
+    // la hoja: el filo recto hacia dentro (v = 0) y el lomo curvo hacia fuera, del eje a la punta
+    for (let u = -6; u <= L; u += 0.35) { const w = u < 0 ? 7 : 8 * Math.pow(1 - u / L, 0.7) + 0.5; for (let v = 0; v <= w; v += 0.35) { const f = v / w; R.pset(...P(u, lado * v), f < 0.22 ? ACERO[0] : f < 0.55 ? ACERO[1] : f < 0.85 ? ACERO[2] : ACERO[3]); } }
+    // el mango: el cuello y el anillo rojo, al otro lado del eje (la misma pieza)
+    for (let u = -20; u <= -5; u += 0.35) for (let v = -3; v <= 3; v += 0.35) R.pset(...P(u, v + lado * 2), v * lado > 1.5 ? MANGO[2] : MANGO[1]);
+    const [hx, hy] = P(-30, lado * 3);
+    for (let j = -13; j <= 13; j++) for (let i = -13; i <= 13; i++) { const d = Math.hypot(i / 1.15, j); if (d <= 11 && d >= 6) R.pset(hx + i, hy + j, (i + j) < -7 ? MANGO[0] : (i + j) > 7 ? MANGO[2] : MANGO[1]); }
+  }
+  if (lados.length > 1 || lados[0] === 1) { R.disco(Math.round(cx), Math.round(cy), 3, ACERO[3]); R.disco(Math.round(cx), Math.round(cy), 2, ACERO[1]); R.pset(Math.round(cx) - 1, Math.round(cy) - 1, ACERO[0]); }
+  contorno(tmp, 1); R.usar(null); vuelca(tmp);
+}
+
+// ── la tira de película: de (x0, y0) a (x1, y1), alto A; fotogramas con un cielo azul pálido ──
+const CELU = hex('#17141f'), AGUJ = hex('#f4efe4'), FOTO = [hex('#8ab4e8'), hex('#5a7ab8')];
+function pelicula(x0, y0, x1, y1, A = 26, fase = 0) {
+  const L = Math.hypot(x1 - x0, y1 - y0), ca = (x1 - x0) / L, sa = (y1 - y0) / L;
+  for (let u = 0; u <= L; u += 0.4) for (let v = -A / 2; v <= A / 2; v += 0.4) {
+    const x = Math.round(x0 + u * ca - v * sa), y = Math.round(y0 + u * sa + v * ca), uu = (u + fase) % 9, borde = Math.abs(v) > A / 2 - 5;
+    let c = CELU;
+    if (borde && Math.abs(v) < A / 2 - 1.5 && uu > 3 && uu < 6.5) c = AGUJ;
+    else if (!borde && ((u + fase) % 24) > 2.5) c = v < 0 ? FOTO[0] : FOTO[1];
+    if (Math.abs(v) > A / 2 - 0.6 || u < 0.6 || u > L - 0.6) c = K;
+    R.pset(x, y, c);
+  }
+}
+
+// ── el arbolito de Navidad con su estrella ──
+function arbolito(x, base, s = 1) {
+  R.usar(tmp); tmp.fill(VACIO);
+  const V = [hex('#3ac060'), hex('#1e8a3e'), hex('#0e5a2a')];
+  for (let k = 0; k < 3; k++) { const top = base - 34 * s + k * 9 * s, alto = 14 * s; for (let j = 0; j <= alto; j++) { const w = Math.round((4 + k * 2.4) * s * j / alto + 1); R.rect(x - w, top + j, x + w, top + j, j < 3 ? V[0] : V[1]); R.rect(x + Math.round(w * 0.4), top + j, x + w, top + j, V[2]); } }
+  R.rect(x - 2 * s, base - 7 * s + 1, x + 2 * s, base, hex('#7a4a2a'));
+  for (const [i, j, c] of [[-3, -12, '#ff4a4a'], [4, -17, '#ffd84a'], [-5, -23, '#4ad8ff'], [2, -25, '#ff4a4a'], [6, -9, '#4ad8ff'], [-1, -18, '#ffffff']]) R.rect(x + i * s, base + j * s, x + i * s + 1, base + j * s + 1, hex(c));
+  // la estrella
+  const sy = base - 36 * s; R.rect(x - 1, sy - 4, x + 1, sy + 4, hex('#fff4a0')); R.rect(x - 4, sy - 1, x + 4, sy + 1, hex('#fff4a0')); R.rect(x - 2, sy - 2, x + 2, sy + 2, hex('#ffd84a')); R.pset(x, sy, hex('#ffffff'));
+  contorno(tmp, 1); R.usar(null); vuelca(tmp);
+}
+
+const fondo = R.nuevo(), DX = 92;
+const corte = (y) => 204 + Math.round(y * 0.12);
+const dibujar = (t) => {
+  // el andén de noche, corrido a la izquierda para que el castillo quede detrás de Harry
+  R.usar(fondo); T.hogwarts(R, t, { encuadre: 'anden' }); R.usar(null);
+  // el castillo iluminado: cada ventana encendida crece a 2 × 3 con un resplandor cálido alrededor; el resto del fondo,
+  // un poco más oscuro, para que lo de delante se despegue
+  { const cal = (c) => (c & 255) > 200 && ((c >>> 8) & 255) > 150 && ((c >>> 16) & 255) < 130, m = fondo.slice(), V = [hex('#ffe08a'), hex('#fff4c8'), hex('#6a4a3a')];
+    for (let k = 0; k < 57600; k++) fondo[k] = mezcla(hex('#0a0a24'), m[k], 0.28);
+    for (let y = 8; y < 86; y++) for (let x = 130; x < 300; x++) if (cal(m[y * 320 + x])) { for (let j = -2; j <= 3; j++) for (let i = -2; i <= 2; i++) { const q = (y + j) * 320 + x + i; if (!cal(m[q])) fondo[q] = mezcla(V[2], fondo[q], 0.5); } }
+    for (let y = 8; y < 86; y++) for (let x = 130; x < 300; x++) if (cal(m[y * 320 + x])) { for (let j = 0; j <= 2; j++) for (let i = 0; i <= 1; i++) fondo[(y + j) * 320 + x + i] = V[j === 0 && i === 0 ? 1 : 0]; } }
+  const B = R.buf, NOCHE = [hex('#0c0a22'), hex('#1a1238')];
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    if (x < corte(y)) { B[y * 320 + x] = fondo[y * 320 + Math.min(319, x + DX)]; continue; }
+    // a la derecha, la sala oscura donde se corta la película: violeta oscuro con un foco suave
+    const d = Math.hypot(x - 262, (y - 70) * 1.2) / 120; B[y * 320 + x] = mezcla(NOCHE[0], NOCHE[1], Math.min(1, d + ((x + y) & 1) * 0.06));
+  }
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x - 1, y, K); R.pset(x, y, hex('#f6f2ea')); R.pset(x + 1, y, hex('#f6f2ea')); R.pset(x + 2, y, K); }
+
+  // Harry, al cuádruple, mirando a la derecha, delante del castillo, con un filo claro para que se despegue del fondo
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.harry, 20, 70, 0.5, { dir: 1, quieto: true, sorpresa: true }); R.usar(tmp); tmp.fill(VACIO);
+  pon(pj, 18, 36, 43, 70, 88, 50, 5); contorno(tmp, 1, hex('#f6e6b8')); R.usar(null); vuelca(tmp);
+
+  // el 25 con el arbolito, arriba a la izquierda en el cielo: la fecha del estreno
+  R.halo(44, 30, 34, [hex('#2a2a5a'), hex('#3a3a70')], 0.5);
+  R.usar(pj); pj.fill(VACIO); T.a_cifras(R, '25', 30, 120); R.usar(null);
+  pon(pj, 23, 37, 111, 121, 8, 8, 4);
+  arbolito(84, 52, 1);
+
+  // la snitch con ojos, asustada, sobre la cabeza de Harry, mirando las tijeras
+  R.halo(140, 24, 22, [hex('#f8d870'), hex('#fff4c8')], 0.5);
+  PZ.snitch(R, 140, 38, { s: 3, cara: 'susto', t });
+
+  // la tira de película entra por la derecha; las tijeras la cortan (una hoja detrás y otra delante)
+  tijeras(272, 48, Math.PI / 2, 0.62, 66, [-1]);
+  pelicula(330, 74, 270, 88, 24, 3);
+  tijeras(272, 48, Math.PI / 2, 0.62, 66, [1]);
+  // el trozo cortado cae girado, y de él se escapa Peeves dando vueltas
+  R.usar(pj); pj.fill(VACIO); pelicula(30, 120, 58, 120, 24, 3); R.usar(null);
+  ponGiro(pj, 29, 59, 107, 133, 246, 112, 1, 0.55);
+  for (const [x0, y0] of [[246, 88], [234, 94], [258, 92]]) R.rect(x0, y0, x0, y0 + 6, hex('#8a7ac8'));
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.peeves, 20, 70, 0.5, { dir: -1, quieto: true, opaco: true }); R.usar(tmp); tmp.fill(VACIO);
+  ponGiro(pj, 18, 36, 38, 70, 262, 152, 2, -0.4); contorno(tmp, 1, hex('#f6e6b8')); R.usar(null); vuelca(tmp);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
