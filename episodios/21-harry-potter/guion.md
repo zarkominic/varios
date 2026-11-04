@@ -1,6 +1,6 @@
 # Episodio 21 · Harry Potter: lo que hay que saber antes de la serie de HBO
 
-**Estado:** v1, 5 de noviembre de 2026: mismo planteamiento que el 20 (qué quiere saber quien va a ver la serie). Pendiente
+**Estado:** v2, 5 de noviembre de 2026: verificada por los 3 agentes (15 correcciones). v1: mismo planteamiento que el 20 (qué quiere saber quien va a ver la serie). Pendiente
 de la verificación con 3 agentes y de la aprobación del usuario (y de su decisión sobre los destripes del acto 4).
 
 **Por qué este tema:** lo eligió el usuario, por el público del canal (mujeres de 25 a 35 en México, la generación que creció
@@ -45,7 +45,7 @@ de las películas ni del tema de John Williams. Nada de la polémica sobre la au
 | **3 · Peeves** | Peeves tira tizas a los fantasmas; la snitch esquiva una (acto 3). |
 | **4 · El sombrero** | El sombrero seleccionador canta y la snitch se tapa los oídos (acto 3). |
 | **5 · El dragón** | El bebé dragón estornuda una chispa y le chamusca las alas a la snitch (acto 3). |
-| **6 · La rata** | Una rata con un dedo de menos se escabulle; la snitch la sigue con lupa (acto 4). |
+| **6 · La rata** | Scabbers duerme en el bolsillo de Ron; la snitch la vigila con lupa y la rata abre un ojo (acto 4). |
 | **7 · Los calcetines** | Dumbledore sueña con unos calcetines de lana; la snitch se pone uno de gorro (acto 4). |
 | **8 · El tren** | El tren de 1990 parado; una lechuza pasa por la ventanilla (acto 5). |
 
@@ -109,10 +109,10 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 |---|---|
 | Peeves es justo la primera cosa que la película cortó: en 2001 lo llegaron a rodar con Rik Mayall, y su escena acabó fuera. | Peeves is the first thing the movie cut: back in 2001 he was actually filmed with Rik Mayall, and his scene ended up on the floor. |
 | En el libro, Harry conoce a Draco antes de llegar a Hogwarts, en la tienda de túnicas del callejón Diagon, y Draco ya se burla de Hagrid. | In the book, Harry meets Draco before Hogwarts, at the robe shop in Diagon Alley, and Draco is already sneering at Hagrid. |
-| El sombrero seleccionador canta una canción entera, y Dumbledore abre el banquete con cuatro palabras sin sentido: «¡Papanatas! ¡Llorón! ¡Baratija! ¡Pellizco!». | The Sorting Hat sings a whole song, and Dumbledore opens the feast with four nonsense words: "Nitwit! Blubber! Oddment! Tweak!" |
+| El sombrero seleccionador canta una canción entera, y Dumbledore abre el banquete con cuatro palabras sin sentido: «¡Papanatas! ¡Llorones! ¡Baratijas! ¡Pellizco!». | The Sorting Hat sings a whole song, and Dumbledore opens the feast with four nonsense words: "Nitwit! Blubber! Oddment! Tweak!" |
 | El dragón Norberto no se lo lleva Dumbledore: lo recogen a medianoche unos amigos de Charlie Weasley en la torre más alta. | Norbert the dragon isn't sent away by Dumbledore: Charlie Weasley's friends pick him up at midnight from the tallest tower. |
 | En Navidad, Hagrid le regala a Harry una flauta tallada a mano, y esa flauta sirve después para dormir al perro de tres cabezas. | At Christmas, Hagrid gives Harry a hand-carved flute, and that flute later puts the three-headed dog to sleep. |
-| Y el castigo en el bosque prohibido no es solo del trío: Neville también va, con Draco, y allí aparecen los centauros. | And the detention in the Forbidden Forest isn't just the trio: Neville goes too, along with Draco, and that's where the centaurs show up. |
+| Y en el castigo del bosque prohibido, Ron ni está: van Harry, Hermione, Neville y Draco, y en vez de un centauro aparecen tres. | And in the Forbidden Forest detention, Ron isn't even there: it's Harry, Hermione, Neville and Draco, and instead of one centaur, three show up. |
 | Hay un profesor que la película ni menciona: Binns, un fantasma que da Historia de la Magia y que un día murió y siguió dando clase como si nada. | There's a teacher the movie never even mentions: Binns, a ghost who teaches History of Magic, who died one day and just kept teaching as if nothing happened. |
 | Al final, antes de la piedra, hay una prueba que la película se saltó: un acertijo de siete pociones de Snape que resuelve Hermione con pura lógica. | At the end, before the stone, there's a test the movie skipped: a riddle of seven potions, set by Snape, that Hermione solves with pure logic. |
 | Y hay un segundo partido de quidditch, contra Hufflepuff, que arbitra Snape, y que Harry gana en unos cinco minutos. | And there's a second Quidditch match, against Hufflepuff, refereed by Snape, which Harry wins in about five minutes. |
@@ -126,11 +126,11 @@ menor y el 20 en Mi dórico; este suena a cuento de Navidad.
 | En el capítulo uno, Hagrid llega en una moto voladora y dice que se la ha prestado el joven Sirius Black: un nombre que no vuelve a salir hasta el tercer libro. | In chapter one, Hagrid arrives on a flying motorbike and says young Sirius Black lent it to him: a name that doesn't come back until book three. |
 | En el mismo capítulo, Dumbledore apaga las farolas con un aparato, el apagador, que en el último libro le deja en herencia a Ron. | In that same chapter, Dumbledore puts out the streetlights with a gadget, the Put-Outer, which he leaves to Ron in the final book. |
 | En el zoo, Harry habla con una serpiente sin saber lo que hace: eso es lengua pársel, y su verdadera razón no se entiende hasta el final de la saga. | At the zoo, Harry talks to a snake without knowing what he's doing: that's Parseltongue, and the real reason behind it isn't clear until the end of the saga. |
-| Fíjate en la rata de Ron, Scabbers: le falta un dedo, y en el tercer libro se descubre por qué. | Keep an eye on Ron's rat, Scabbers: he's missing a toe, and in book three you find out why. |
+| Fíjate en la rata de Ron, Scabbers: heredada de Percy, vieja y siempre dormida, y en el tercer libro se descubre por qué. | Keep an eye on Ron's rat, Scabbers: a hand-me-down from Percy, old and always asleep, and in book three you find out why. |
 | Neville vive con su abuela, y nadie le pregunta por sus padres: la respuesta llega en el cuarto libro, y es de las más tristes de la saga. | Neville lives with his grandmother, and nobody asks about his parents: the answer comes in book four, and it's one of the saddest in the saga. |
 | En el banco de los duendes, Hagrid saca un paquetito de la cámara setecientos trece, y el duende que los guía, Griphook, vuelve a aparecer en el último libro. | At the goblin bank, Hagrid collects a small package from vault seven hundred thirteen, and the goblin who guides them, Griphook, shows up again in the final book. |
 | Y cuando Dumbledore dice que en el espejo de Oesed se ve con unos calcetines de lana, quien ha leído el último libro ya no lo cree del todo. | And when Dumbledore says that in the Mirror of Erised he sees himself holding a pair of woolen socks, anyone who's read the last book doesn't quite believe him. |
-| Y al final, Dumbledore le cuenta a Harry que su padre le salvó la vida a Snape: la razón de verdad de ese rencor no se sabe hasta el último libro. | And at the end, Dumbledore tells Harry that his father once saved Snape's life: the real reason behind Snape's grudge isn't revealed until the final book. |
+| Y al final, Dumbledore le cuenta a Harry que su padre le salvó la vida a Snape: qué pasó se sabe en el tercer libro, y toda la verdad, en el último. | And at the end, Dumbledore tells Harry that his father once saved Snape's life: what happened comes out in book three, and the whole truth only in the last. |
 
 ## 5 · Lo real detrás de la historia
 
