@@ -34,8 +34,11 @@ const dibujar = (t) => {
   R.usar(pj); pj.fill(VACIO); R.actor(EL.haymitchViejo, 20, 70, 0.5, { dir: -1, quieto: true }); R.usar(prev);
   pon(pj, 6, 46, 36, 71, 214, 106, 2);
   // el broche del sinsajo, enorme, con su halo, arriba en el centro
-  R.halo(160, 52, 44, [hex('#f8d870'), hex('#fff4c8')], 0.9);
-  PZ.broche(R, 160, 92, { s: 5, brillo: true });
+  // un medallón oscuro detrás, para que el pájaro negro y el oro se lean a 320 px
+  R.halo(160, 60, 46, [hex('#f8d870'), hex('#fff4c8')], 0.8);
+  R.disco(160, 60, 36, T.C.k); R.disco(160, 60, 34, hex('#2a1c3a'));
+  PZ.broche(R, 160, 90, { s: 4, brillo: true });
+  for (let k = 0; k < 8; k++) { const a = k * 0.785 + 0.3, r = 40 + (k % 2) * 4; R.pset(Math.round(160 + Math.cos(a) * r), Math.round(60 + Math.sin(a) * r), hex('#fff4c8')); }
   // el pan con ojos, asustado, abajo en el centro
   T.pan(R, 160, 176, t, { s: 2, expresion: 'susto' });
 };
