@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El Vasallaje · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-VASALLAJE (frases 18–19), Juegos 50. Tres planos:
+// 1. (0–«Special») el despacho de Snow: Snow cruza detrás de la mesa hasta el cofre; en «twenty-five years» lo abre y
+//    sale un «25» dorado; en «Quarter Quell» levanta una tarjeta que brilla; el vigilante de visita se inclina y el
+//    agente de la puerta saluda.
+// 2. («Special»–«The second») la mesa de cerca: del cofre asoman tres tarjetas, 25, 50 y 75; en «twist» la del 50 da
+//    una vuelta; en «that they lost» la del 25 vuelve a caer al cofre; en «fiftieth» Snow saca la del 50 y la tarjeta
+//    grande de la mesa pasa de «?» a «50».
+// 3. («The second»–final) el borde de la maqueta de la arena: el prado con 24 lucecitas y un panel holográfico con el
+//    24; en «double the tributes» se encienden las nuevas una a una (en ámbar en el panel) hasta el 48 en «forty-eight»,
+//    con la baliza y la luz de alarma; los dos vigilantes se miran y el de delante señala la maqueta.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-vasallaje');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C;
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const INK = hex('#1c1222');
+// las cifras legibles de a_cifras a e aumentos (con pset: respetan R.recorte), centradas en x con la base en base
+const cifrasG = (s, x, base, e = 2) => T.a_cifras({ pset: (px, py, c) => { for (let a = 0; a < e; a++) for (let b = 0; b < e; b++) R.pset(x + (px - x) * e + a, base + (py - base) * e + b, c); } }, s, x, base);
+// destello de cuatro puntas
+const destello = (x, y, n, c = hex('#fff8d0')) => { x = Math.round(x); y = Math.round(y); R.pset(x, y, hex('#ffffff')); for (let i = 1; i <= n; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
+// mezcla el píxel ya pintado hacia [r, g, b] en la proporción k (luces y sombras sin tapar el dibujo)
+const mezcla = (x, y, [cr, cg, cb], k) => {
+  const c = R.pget(x, y), r = c & 255, g = (c >> 8) & 255, bb = (c >> 16) & 255;
+  R.pset(x, y, (0xff000000 | (Math.round(bb + (cb - bb) * k) << 16) | (Math.round(g + (cg - g) * k) << 8) | Math.round(r + (cr - r) * k)) >>> 0);
+};
+// una corchea con su contorno (cabeza en (x, y))
+const nota = (x, y, c) => { x = Math.round(x); y = Math.round(y);
+  R.rect(x - 2, y - 1, x + 2, y + 2, INK); R.rect(x - 1, y, x + 1, y + 1, c); R.rect(x + 1, y - 9, x + 3, y, INK); for (let j = -8; j <= 0; j++) R.pset(x + 2, y + j, c);
+  R.rect(x + 3, y - 9, x + 5, y - 5, INK); R.pset(x + 3, y - 8, c); R.pset(x + 4, y - 7, c); R.pset(x + 4, y - 6, c); };
+// una flecha de luz que apunta a dir (1 derecha, −1 izquierda), de largo l, con la punta en (x, y)
+const flecha = (x, y, l, dir, c, cS) => { x = Math.round(x); y = Math.round(y);
+  for (let i = 0; i < l; i++) { R.pset(x - dir * (i + 4), y, c); R.pset(x - dir * (i + 4), y + 1, cS); R.pset(x - dir * (i + 4), y - 1, INK); R.pset(x - dir * (i + 4), y + 2, INK); }
+  for (let j = -4; j <= 4; j++) for (let i = 0; i <= 4 - Math.abs(j); i++) R.pset(x - dir * i, y + j, Math.abs(j) === 4 - i ? INK : j > 0 ? cS : c); };
+
+const A = (f) => en('vasallaje', f), B = (f) => en('doble', f);
+const P2 = A(0.495), P3 = B(0.218);
+const V25 = A(0.034), QUARTER = A(0.34), TWIST = A(0.63), LOST = A(0.917), FIFTIETH = B(0.026);
+const DOUBLE = B(0.527), N48 = B(0.745), INSTEAD = B(0.803);
+
+// una tarjeta del cofre con su número, centro abajo en (x, y); lo que queda por debajo de yMax no se pinta (el cofre)
+const tarjeta = (x, y, s, ancho = 22, yMax = 999) => { x = Math.round(x); y = Math.round(y); const a = Math.round(ancho / 2), yb = Math.min(y, yMax);
+  if (yb < y - 29) return; const { rect } = R;
+  rect(x - a - 1, y - 30, x + a, yb, INK); rect(x - a, y - 29, x + a - 1, yb - 1, hex('#f8f4ec')); rect(x - a, y - 29, x + a - 1, y - 28, hex('#f0c040')); rect(x - a, y - 29, x - a, yb - 1, hex('#f0c040'));
+  if (ancho > 10 && yb > y - 14) T.a_cifras(R, s, x, y - 15); };
+
+// ── plano 1: el despacho; Snow abre el cofre ───────────────────────────────────────────────────────────────────────
+const p1 = (t) => {
+  const ab = tramo(t, V25 - 0.1, V25 + 0.5), o = { encuadre: 'despacho', cofre: ab };
+  T.capitolio(R, t, o);
+  // el agente de la paz de guardia junto a la librería; saluda en «Quarter Quell»
+  R.actor(EL.agentePaz, 70, 168, t, { dir: 1, dedo: t > QUARTER && t < QUARTER + 1 });
+  // el vigilante de visita: espera, habla, y se inclina sorprendido con la tarjeta
+  R.actor(EL.vigilante, 262, 168, t, { dir: -1, habla: t > 0.4 && t < V25 - 0.1 && Math.sin(t * 9) > 0, sorpresa: t > QUARTER + 0.1 && t < P2 - 0.6, sonrisa: t > P2 - 0.6, salto: t > QUARTER + 0.1 && t < QUARTER + 0.3 ? 2 : 0 });
+  // Snow cruza detrás de la mesa hasta el cofre, lo abre y levanta una tarjeta
+  const u = tramo(t, 0.1, V25 - 0.2), sx = Math.round(lerp(108, 160, u)), alza = tramo(t, QUARTER - 0.3, QUARTER + 0.2);
+  const s = R.actor(EL.snow, sx, 133, t, { dir: 1, anda: u > 0 && u < 1, sostiene: u >= 1 ? [lerp(178, 172, alza), lerp(118, 108, alza)] : undefined, sonrisa: t > V25 + 0.3 });
+  if (alza > 0 && s.mano) { const [mx, my] = s.mano; R.rect(mx - 3, my - 9, mx + 3, my + 1, INK); R.rect(mx - 2, my - 8, mx + 2, my, hex('#f8f4ec')); R.rect(mx - 2, my - 8, mx + 2, my - 7, hex('#f0c040')); if (Math.floor(t * 4) % 2) destello(mx + 4, my - 10, 3); }
+  T.capitolioDelante(R, t, o);
+  // «twenty-five years»: el 25 dorado sale del cofre
+  { const v = tramo(t, V25, V25 + 0.5); if (v > 0 && t < QUARTER - 0.2) { cifrasG('25', 186, Math.round(lerp(118, 98, v)), 2); for (let i = 0; i < 3; i++) destello(172 + i * 14, Math.round(lerp(118, 82, v)) + (i % 2) * 6, 2); } }
+};
+
+// ── plano 2: la mesa de cerca; las tarjetas 25, 50 y 75 ───────────────────────────────────────────────────────────
+const p2 = (t) => {
+  const revela = t > FIFTIETH, o = { encuadre: 'despacho', camara: 'mesa', cofre: 1, numero: revela ? '50' : '?' };
+  T.capitolio(R, t, o);
+  // Snow, detrás de la mesa, entre el cofre y la tarjeta grande: habla, sonríe y coge al vuelo la del 50
+  const vuela = tramo(t, FIFTIETH - 0.3, FIFTIETH + 0.2);
+  const s = R.actor(EL.snow, 128, 115, t, { dir: -1, sonrisa: t > LOST - 0.6, sostiene: vuela > 0.6 ? [118, 104] : undefined, habla: t > P2 + 0.3 && t < TWIST && Math.sin(t * 8) > 0, sorpresa: t > TWIST && t < TWIST + 0.5 });
+  T.capitolioDelante(R, t, o);
+  // las tres tarjetas asoman del cofre; en «twist» la del 50 da una vuelta; en «lost» la del 25 vuelve a caer
+  const sube = (k) => tramo(t, P2 + 0.1 + k * 0.2, P2 + 0.5 + k * 0.2), BOCA = 134;
+  const cae25 = tramo(t, LOST - 0.2, LOST + 0.2), gira = tramo(t, TWIST - 0.1, TWIST + 0.6), anchoG = Math.max(2, Math.round(22 * Math.abs(Math.cos(gira * Math.PI))));
+  tarjeta(60, Math.round(150 - sube(0) * 30 + cae25 * 32), '25', 22, BOCA);
+  tarjeta(100, Math.round(150 - sube(2) * 26), '75', 22, BOCA);
+  if (vuela < 1) { const x = lerp(80, 116, vuela), y = lerp(150 - sube(1) * 36, 108, vuela) - Math.sin(vuela * Math.PI) * 16; tarjeta(x, y, '50', anchoG, vuela > 0 ? 999 : BOCA); }
+  else if (s.mano) { const [mx, my] = s.mano; tarjeta(mx - 6, my + 4, '50'); if (t < FIFTIETH + 0.9) destello(mx + 4, my - 24, 3); }
+  // la tarjeta grande de la mesa: destello al revelarse el 50
+  if (revela && t < FIFTIETH + 0.6) { for (let i = 0; i < 8; i++) { const an = i / 8 * Math.PI * 2; R.linea(Math.round(169 + Math.cos(an) * 34), Math.round(137 + Math.sin(an) * 30), Math.round(169 + Math.cos(an) * 40), Math.round(137 + Math.sin(an) * 36), hex('#fff4a0')); } }
+  // un pétalo que cae del jarrón de rosas
+  { const w = ((t - P2) * 0.35) % 1, x = Math.round(282 - w * 18 + Math.sin(t * 3) * 3), y = Math.round(88 + w * 60); R.rect(x, y, x + 1, y, hex('#f8f6f0')); R.pset(x, y + 1, hex('#d8d4cc')); }
+};
+
+// ── plano 3: el borde de la maqueta; las lucecitas pasan de 24 a 48 ──────────────────────────────────────────────
+// el panel holográfico que flota en la sala: la cifra y la rejilla de figuritas (las nuevas, en ámbar)
+const panel = (t, n) => {
+  const [a, b, c, d] = [12, 18, 92, 60];
+  for (let y = b; y <= d; y++) for (let x = a; x <= c; x++) if (((x + y) & 1) === 0 || x === a || x === c || y === b || y === d) mezcla(x, y, [60, 200, 255], x === a || x === c || y === b || y === d ? 0.7 : 0.18);
+  for (let y = b + 2; y < d; y += 3) if (((y + Math.floor(t * 10)) % 9) === 0) for (let x = a + 1; x < c; x++) mezcla(x, y, [180, 240, 255], 0.25);
+  cifrasG(String(n), 34, b + 22, 2);
+  for (let k = 0; k < 48; k++) { const x = a + 6 + (k % 12) * 6, y = b + 30 + Math.floor(k / 12) * 6, on = k < n, nueva = k >= 24;
+    R.rect(x, y, x + 2, y + 3, on ? (nueva ? hex('#ffc040') : hex('#a0f0ff')) : hex('#1e3a4a')); if (on) R.pset(x + 1, y - 1, on ? (nueva ? hex('#ffc040') : hex('#a0f0ff')) : 0); }
+  R.linea(c, d, c + 14, d + 22, hex('#5ac8f0'));
+};
+const p3 = (t) => {
+  const n = Math.round(lerp(24, 48, tramo(t, DOUBLE, N48))), alarma = t > DOUBLE ? (0.5 + 0.5 * Math.sin((t - DOUBLE) * 7)) : 0;
+  const o = { encuadre: 'cupula', camara: 'borde', luces: n };
+  T.arena(R, t, o);
+  // las lucecitas nuevas: un destello sobre el prado cuando llegan
+  if (t > DOUBLE && t < N48 + 0.3) for (let i = 0; i < 4; i++) destello(20 + h(i, Math.floor(t * 6), 1) * 170, 100 + h(i, Math.floor(t * 6), 2) * 18, 2, hex('#ffe070'));
+  panel(t, n);
+  // los dos vigilantes, fuera a la derecha: se miran con «double» y el de delante señala la maqueta en «forty-eight»
+  R.actor(EL.vigilante, 262, 178, t, { dir: t > DOUBLE + 0.3 && t < N48 - 0.1 ? 1 : -1, sorpresa: t > DOUBLE && t < N48, dedo: t > N48 && t < INSTEAD + 0.6, habla: (t < DOUBLE - 0.3 && Math.sin(t * 9) > 0) || (t > INSTEAD + 0.6 && Math.sin(t * 9) > 0) });
+  R.actor(EL.vigilante, 290, 178, t, { dir: -1, pal: { C: '#3a5a9a', c: '#2a4070' }, sorpresa: t > DOUBLE + 0.1 && t < N48 + 0.2, sonrisa: t > INSTEAD, salto: t > DOUBLE && t < DOUBLE + 0.2 ? 2 : 0 });
+  // la baliza de alarma del techo y la luz roja que late en toda la sala
+  { const on = t > DOUBLE && Math.floor(t * 4) % 2 === 0; R.rect(236, 16, 246, 22, INK); R.rect(237, 17, 245, 21, on ? hex('#ff3a4a') : hex('#6a1a24')); R.rect(238, 17, 240, 18, on ? hex('#ffb0b8') : hex('#8a2a34'));
+    if (alarma > 0) for (let y = 0; y < 180; y++) for (let x = (y & 1); x < 320; x += 2) mezcla(x, y, [255, 40, 60], 0.12 * alarma); }
+};
+
+const efectos = [[V25, 'cerrojo'], [V25 + 0.3, 'brillo'], [QUARTER, 'papel'], [P2 + 0.2, 'papel'], [TWIST, 'whoosh'], [LOST, 'golpecito'], [FIFTIETH, 'flash'], [DOUBLE, 'aviso'], [N48, 'bip']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 50 });
+</script>
+</body>
+</html>

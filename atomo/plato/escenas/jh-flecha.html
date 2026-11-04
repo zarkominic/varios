@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La flecha · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-FLECHA (frases 40–41), Juegos 75 → 50. Tres planos:
+// 1. el tren de tarde (ventana de cerca): katniss mira el paisaje; haymitchViejo entra con su petaca, se le acerca y le
+//    habla al oído en «tells Katniss»; en «real enemy» sale el globo con la rosa de Snow y ella asiente seria;
+// 2. corta en «and in the end»: la maqueta de la arena con su cúpula; una figurita con arco junto al árbol; la flecha
+//    con su cable sale en «fires», se clava en el borde en «force field» y la cúpula se resquebraja como un cristal; dos
+//    vigilantes se asustan (nadie herido);
+// 3. corta en «It's the same weak spot»: el borde de cerca con la grieta; el vigilante señala; en «saved Haymitch» el
+//    recuerdo en sepia (Juegos 50): la piedra rebota en el mismo punto; en «earlier» vuelve la grieta y los dos anillos
+//    coinciden.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-flecha');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('enemigo', f), b = (f) => en('punto', f);
+const TELLS = 3.72, KAT = 3.94, REAL = 5.96, ENEMY = 6.28, P2 = 7.15, FIRES = 8.36, FORCE = 9.8, P3 = b(0);
+const SAVED = 12.96, EARLIER = 14.7;
+const ROSA = hex('#f4f0f4'), ROSAS = hex('#b8b0c0'), K = hex('#141018'), BLANCO = hex('#f8f8f0');
+// globo de pensamiento con la rosa blanca de Snow (sin letras)
+const globo = (x, y, u) => {
+  if (u <= 0) return; const r = Math.round(14 * Math.min(1, u * 1.6));
+  R.disco(x, y, r + 1, K); R.disco(x, y, r, hex('#2a2438')); R.disco(x - 1, y - 1, r - 3, hex('#3a3450'));
+  R.disco(x - 12, y + 15, 3, K); R.disco(x - 12, y + 15, 2, hex('#2a2438')); R.disco(x - 17, y + 20, 1, K);
+  if (u > 0.5) { R.linea(x, y + 2, x, y + 9, hex('#3a8a3a')); R.pset(x + 1, y + 6, hex('#5ab84a')); R.pset(x + 2, y + 5, hex('#5ab84a')); R.icono('rosa', x - 7, y - 9, ROSA, K, 2); R.pset(x - 1, y - 4, ROSAS); R.pset(x, y - 3, ROSAS); }
+};
+// la figurita de la maqueta: trenza oscura, cazadora, el arco (5 × 9 px)
+const figurita = (x, y, t, tensa) => {
+  R.rect(x, y - 8, x + 2, y - 6, hex('#2a2032')); R.pset(x + 1, y - 7, hex('#c89070'));
+  R.rect(x, y - 5, x + 2, y - 2, hex('#4a5a50')); R.rect(x, y - 1, x, y, K); R.rect(x + 2, y - 1, x + 2, y, K);
+  R.pset(x - 1, y - 6, hex('#2a2032')); R.pset(x - 1, y - 5, hex('#2a2032'));
+  const ax = x + 4 + (tensa ? 0 : 1); R.linea(ax, y - 9, ax + 1, y - 6, hex('#8a5a2a')); R.linea(ax + 1, y - 6, ax, y - 2, hex('#8a5a2a'));
+  R.linea(ax, y - 9, tensa ? ax - 2 : ax, y - 6, hex('#e8e8e8')); R.linea(tensa ? ax - 2 : ax, y - 6, ax, y - 2, hex('#e8e8e8'));
+  R.pset(x + 3, y - 5, hex('#c89070'));
+};
+const p1 = (t) => {
+  const o = { encuadre: 'tren', camara: 'ventana', luz: 'tarde' };
+  T.interior(R, t, o);
+  // haymitch entra desde la derecha, se para a su lado y se inclina a hablarle al oído
+  const u = tramo(t, 0.6, 3.0), w = tramo(t, TELLS - 0.3, TELLS + 0.2);
+  const hx = Math.round(lerp(236, 132, u) - 12 * w);
+  const kgira = t > KAT - 0.1, asiente = (t > ENEMY + 0.15 && t < ENEMY + 0.35) || (t > ENEMY + 0.55 && t < ENEMY + 0.75);
+  R.actor(EL.katniss, 98, 152 + (asiente ? 1 : 0), t, { dir: kgira ? 1 : -1, sorpresa: t > KAT && t < KAT + 0.7, triste: t > REAL + 0.2 });
+  R.actor(EL.haymitchViejo, hx, 152 + (w > 0.5 && t < 6.9 ? 1 : 0), t, { dir: -1, anda: u > 0 && u < 1, habla: t > TELLS && t < 6.9 && Math.sin(t * 13) > -0.2, dedo: t > ENEMY && t < 6.9 });
+  // el susurro: unas ondas pequeñas de su boca a la oreja de ella
+  if (t > TELLS + 0.1 && t < 6.9) for (let k = 0; k < 3; k++) { const f = ((t * 2.2 + k / 3) % 1); const x = Math.round(lerp(hx + 2, 112, f)); R.pset(x, 132 + (k % 2), hex('#f0e0b0')); R.pset(x, 134 - (k % 2), hex('#f0e0b0')); }
+  globo(126, 94, tramo(t, REAL - 0.15, REAL + 0.25) * (1 - tramo(t, 6.95, 7.1)));
+  T.interiorDelante(R, t, o);
+};
+const p2 = (t) => {
+  const fl = tramo(t, FIRES, FORCE), gr = tramo(t, FORCE + 0.05, FORCE + 1.3);
+  const g = T.arena(R, t, { encuadre: 'cupula', luces: 6, flecha: fl, grieta: gr });
+  figurita(84, 129, t, t < FIRES + 0.1);
+  const [px, py] = g && g.punto ? g.punto : [262, 84];
+  if (fl > 0 && fl < 1) { const x = Math.round(lerp(90, px, fl)), y = Math.round(lerp(122, py, fl) - Math.sin(fl * Math.PI) * 10);
+    for (let i = 1; i <= 10; i++) { const f2 = Math.max(0, fl - i * 0.03), xx = Math.round(lerp(90, px, f2)), yy = Math.round(lerp(122, py, f2) - Math.sin(f2 * Math.PI) * 10); R.pset(xx, yy, hex(i < 4 ? '#fff6a0' : '#e8b830')); }
+    R.disco(x, y, 3, hex('#fff6a0')); R.disco(x, y, 1, BLANCO); }
+  const hit = tramo(t, FORCE, FORCE + 0.7); if (hit > 0 && hit < 1) { R.anillo(px, py, 3 + Math.round(hit * 22), hex(hit < 0.5 ? '#fff6a0' : '#8ad8ff')); if (hit < 0.25) R.disco(px, py, 5, BLANCO); }
+  // dos vigilantes junto a la mesa: el de la izquierda señala el borde; el de la derecha salta del susto con la grieta
+  const susto = t > FORCE + 0.1;
+  R.actor(EL.vigilante, 10, 176, t, { dir: 1, dedo: t > FIRES - 0.4 && t < FORCE + 0.1, sorpresa: susto });
+  R.actor(EL.vigilante, 292, 177, t, { dir: -1, salto: susto && t < FORCE + 0.6 ? Math.round(3 * Math.sin((t - FORCE - 0.1) * 6.3)) : 0, brazos: susto && t < FORCE + 1.2, sorpresa: susto, habla: t < FIRES && Math.sin(t * 9) > 0.3 });
+  // por delante pasa un técnico con una carpeta, que se para en seco con el chasquido
+  const v = tramo(t, P2 + 0.2, FORCE), tx = Math.round(lerp(96, 176, v));
+  R.actor(EL.plutarch, tx, 181, t, { dir: 1, anda: v > 0 && v < 1, sorpresa: susto });
+};
+const p3 = (t) => {
+  const recuerdo = t > SAVED - 0.05 && t < EARLIER;
+  const g = T.arena(R, t, { encuadre: 'cupula', camara: 'borde', grieta: recuerdo ? 0 : 1, golpe: recuerdo ? tramo(t, SAVED + 0.1, EARLIER - 0.2) : 0, luces: 2 });
+  const [px, py] = g && g.punto ? g.punto : [223, 90];
+  R.actor(EL.vigilante, 262, 178, t, { dir: -1, dedo: t > b(0.12) && t < SAVED, sorpresa: t > EARLIER, habla: recuerdo && Math.sin(t * 8) > 0 });
+  const v = tramo(t, P3 + 0.3, P3 + 1.6); R.actor(EL.vigilante, Math.round(lerp(330, 288, v)), 178, t, { dir: -1, anda: v > 0 && v < 1, pal: { C: '#5a3a8a', c: '#3a2462' } });
+  if (recuerdo) T.tinte(R, 0, 179, [150, 110, 60], 0.38);
+  // el punto débil: un anillo que late (al volver del recuerdo, dos anillos que se juntan en el mismo sitio)
+  const late = 5 + Math.round(2 * Math.sin(t * 7));
+  if (!recuerdo) { R.anillo(px, py, late, hex('#fff6a0')); if (t > EARLIER) { const r2 = Math.max(late, Math.round(24 - 30 * tramo(t, EARLIER, EARLIER + 0.6))); R.anillo(px, py, r2, hex('#e8b830')); } }
+};
+const año = (t) => (t > SAVED - 0.05 && t < EARLIER) ? 50 : 75;
+const efectos = [[1.0, 'pasos'], [REAL, 'pop'], [FIRES, 'whoosh'], [FORCE, 'flash'], [FORCE + 0.6, 'zumbido'], [b(0.15), 'brillo'], [SAVED + 0.1, 'whoosh'], [SAVED + 0.75, 'toc'], [EARLIER, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos: efectos.filter(([, n]) => n !== 'pasos'), año });
+</script>
+</body>
+</html>

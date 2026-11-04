@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Panem · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-PANEM (frases 6–7), Juegos 74, cartela «74». Cuatro planos:
+// 1. la sala del mapa del Capitolio: un vigilante entra y señala la mesa de Panem; con «Panem» salen ondas doradas del
+//    Capitolio; con «disaster» las tres pantallas de la pared parpadean en rojo con «!»; una capitolina asiente; los trenes
+//    suben hacia la capital (corta en «A rich»);
+// 2. la avenida del Capitolio: dos capitolinos de compras (ella gira con su paquete en «colorful», él abre los brazos en
+//    «the Capitol»); con «surrounded by poor districts» entra un minero gris empujando un carro de carbón: él se ríe y lo
+//    señala; en «work» se cae un trozo de carbón y el minero se agacha a cogerlo y sigue (corta en «Long ago»);
+// 3. la Veta hace mucho (luz de día, un velo sepia): dos vecinos levantan una bandera roja en «rebelled»; en «lost» entran
+//    tres agentes de la paz, la bandera cae y ellos bajan los brazos; en «punishment» un agente clava en el farol el bando
+//    con la urna; los vecinos retroceden (corta en «hands over»);
+// 4. la plaza del 12 el día de la cosecha: la escolta saca una papeleta de la urna; «one boy» sube el chico por la escalera
+//    y «one girl» la chica; en «tributes» el pan con ojos salta dentro de la urna de la derecha (gag 2) y se esconde entre
+//    las papeletas; en «Hunger Games» suena el reloj y asoma temblando.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-panem');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C;
+// un ganso blanco de 10 px que anda (pico y patas naranjas); dir 1 mira a la derecha
+const ganso = (x, y, t, dir = 1, k = 0) => {
+  const { rect, pset } = R, X = (i) => Math.round(x + dir * i), pa = Math.floor(t * 6 + k) % 2, cab = Math.sin(t * 3 + k) > 0.6 ? 1 : 0;
+  rect(Math.min(X(-5), X(4)), y - 6, Math.max(X(-5), X(4)), y - 2, T.C.k);
+  rect(Math.min(X(-4), X(3)), y - 5, Math.max(X(-4), X(3)), y - 3, hex('#f4f2ec')); rect(Math.min(X(-4), X(3)), y - 3, Math.max(X(-4), X(3)), y - 3, hex('#c8c4bc'));
+  pset(X(-5), y - 6, hex('#c8c4bc')); pset(X(-2), y - 4, hex('#dcd8d0'));
+  for (let j = 0; j < 5; j++) { pset(X(3), y - 6 - j + cab, T.C.k); pset(X(4), y - 6 - j + cab, hex('#f4f2ec')); pset(X(5), y - 6 - j + cab, T.C.k); }
+  rect(Math.min(X(3), X(6)), y - 12 + cab, Math.max(X(3), X(6)), y - 10 + cab, T.C.k); rect(Math.min(X(4), X(5)), y - 11 + cab, Math.max(X(4), X(5)), y - 10 + cab, hex('#f4f2ec'));
+  pset(X(5), y - 11 + cab, T.C.k); pset(X(7), y - 10 + cab, hex('#f08a2a')); pset(X(8), y - 10 + cab, hex('#e06a1a'));
+  pset(X(-1 + pa), y - 1, hex('#e06a1a')); pset(X(1 - pa), y - 1, hex('#e06a1a')); pset(X(-1 + pa), y, hex('#c85a10')); pset(X(1 - pa), y, hex('#c85a10'));
+};
+// destello de cuatro puntas
+const destello = (x, y, n, c = hex('#fff8d0')) => { R.pset(x, y, hex('#ffffff')); for (let i = 1; i <= n; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
+
+const A = (f) => en('panem', f), B = (f) => en('castigo', f);
+const P2 = A(0.393), P3 = B(0), P4 = B(0.504);
+const PANEM = A(0), DESASTRE = A(0.272), COLOR = A(0.495), CAPITOL = A(0.649), POBRES = A(0.819), TRABAJA = A(0.918);
+const REBELA = B(0.093), PIERDE = B(0.154), CASTIGO = B(0.268), CHICO = B(0.575), CHICA = B(0.669), TRIBUTOS = B(0.779), JUEGOS = B(0.907);
+
+const p1 = (t) => {
+  const g = T.capitolio(R, t, { encuadre: 'mapa', trenes: 0.5 + 0.5 * tramo(t, A(0.6), A(1)) });
+  const [cx, cy] = g.capitol;
+  // las ondas doradas que salen del Capitolio con «Panem»
+  for (const d of [0, 0.45, 0.9]) { const u = tramo(t, PANEM + d, PANEM + d + 1.1); if (u > 0 && u < 1) { const rx = 6 + u * 46, ry = 3 + u * 16, c = u < 0.5 ? hex('#ffe070') : hex('#c89a30');
+    for (let a = 0; a < 120; a++) { const an = a / 120 * Math.PI * 2; const x = Math.round(cx + Math.cos(an) * rx), y = Math.round(cy + Math.sin(an) * ry); R.pset(x, y, c); R.pset(x, y + 1, c); } } }
+  // la alarma del desastre en las pantallas de la pared
+  const al = t > DESASTRE && t < DESASTRE + 1.2 && Math.floor(t * 6) % 2 === 0;
+  if (al) for (const [a, b] of [[30, 98], [134, 186], [214, 272]]) { for (let y = 19; y <= 51; y++) for (let x = a; x <= b; x++) if ((x + y) % 2) R.pset(x, y, hex('#c8202a')); R.icono('!', Math.round((a + b) / 2) - 3, 26, hex('#fff0f0'), hex('#5a0a10'), 3); }
+  // el vigilante entra y señala la mesa; la capitolina de la derecha asiente y se asusta con la alarma
+  const u = tramo(t, 1.3, PANEM + 0.3), vx = Math.round(lerp(-18, 16, u));
+  const va = R.actor(EL.vigilante, vx, 170, t, { dir: 1, anda: u > 0 && u < 1, sostiene: t > PANEM + 0.3 && t < DESASTRE - 0.2 ? [vx + 26, 140] : false, sorpresa: t > DESASTRE && t < DESASTRE + 0.9, habla: t > PANEM + 0.4 && t < A(0.2) && Math.sin(t * 8) > 0 });
+  R.actor(EL.capitolino2, 288, 170, t, { dir: -1, sonrisa: t < DESASTRE || t > DESASTRE + 0.9, sorpresa: t > DESASTRE && t < DESASTRE + 0.9, salto: t > DESASTRE && t < DESASTRE + 0.25 ? 2 : 0, dedo: t > A(0.12) && t < A(0.22) });
+  T.capitolioDelante(R, t, { encuadre: 'mapa' });
+  // el puntero de luz del vigilante hasta el Capitolio
+  if (t > PANEM + 0.3 && t < DESASTRE - 0.2) { const [hx, hy] = va.mano, n = 40; R.rect(hx - 1, hy - 1, hx + 1, hy + 1, T.C.k); R.pset(hx, hy, hex('#c8c8d0'));
+    for (let i = 2; i <= n; i++) { const k = i / n, x = Math.round(lerp(hx, cx, k)), y = Math.round(lerp(hy, cy, k)); if ((i + Math.floor(t * 20)) % 3) R.pset(x, y, hex('#ff6ac8')); }
+    R.disco(cx, cy, 2, hex('#ff9ad8')); R.pset(cx, cy, hex('#ffffff')); }
+};
+
+// el carro de carbón (x: el borde izquierdo, y: el suelo), con la rueda que gira
+const carroCarbon = (x, y, t, giro, carga = 1) => {
+  const { rect, pset, disco } = R;
+  rect(x, y - 16, x + 26, y - 6, T.C.k); rect(x + 1, y - 15, x + 25, y - 7, hex('#6a5038'));
+  for (let i = x + 2; i < x + 25; i += 5) { rect(i, y - 15, i, y - 7, hex('#4a3626')); pset(i + 2, y - 11, hex('#8a6a4a')); }
+  rect(x + 1, y - 15, x + 25, y - 15, hex('#8a6a4a'));
+  if (carga > 0) for (let k = 0; k < 11; k++) { const bx = x + 3 + (k * 7) % 21, by = y - 17 - (k % 3) - (k > 6 ? 2 : 0); rect(bx, by, bx + 3, by + 2, hex('#1c1c22')); pset(bx + 1, by, hex('#5a5a66')); }
+  const cx = x + 13, cy = y - 4; disco(cx, cy, 4, T.C.k); disco(cx, cy, 3, hex('#5a4a3a'));
+  for (let k = 0; k < 4; k++) { const a = giro + k * Math.PI / 2; R.linea(cx, cy, Math.round(cx + Math.cos(a) * 3), Math.round(cy + Math.sin(a) * 3), hex('#2a2018')); }
+  pset(cx, cy, hex('#a8a8b0'));
+  // las varas del carro, hacia la derecha (el minero empuja desde ahí)
+  R.linea(x + 26, y - 12, x + 33, y - 15, T.C.k); R.linea(x + 26, y - 11, x + 33, y - 14, hex('#6a5038'));
+};
+const MINERO = { ...EL.tributoChico, pal: { ...EL.tributoChico.pal, C: hex('#5a5a62'), c: hex('#3e3e46'), F: hex('#2e2e34') } };
+const p2 = (t) => {
+  T.capitolio(R, t, { encuadre: 'avenida' });
+  // ella: de compras con su paquete; gira sobre sí misma con «colorful»
+  const gira = t > COLOR && t < COLOR + 0.8, dirElla = gira ? (Math.floor(t * 8) % 2 ? 1 : -1) : t > POBRES + 0.3 ? 1 : -1;
+  const ella = R.actor(EL.capitolino2, 98, 166, t, { dir: dirElla, sostiene: true, sonrisa: t < POBRES + 0.3, sorpresa: t > POBRES + 0.3 && t < TRABAJA + 0.6, salto: gira ? 2 : 0 });
+  { const [mx, my] = ella.mano; R.rect(mx - 4, my - 3, mx + 4, my + 4, T.C.k); R.rect(mx - 3, my - 2, mx + 3, my + 3, hex('#e85aa8')); R.rect(mx, my - 2, mx, my + 3, hex('#f8e070')); R.rect(mx - 3, my, mx + 3, my, hex('#f8e070')); R.pset(mx - 1, my - 4, hex('#f8e070')); R.pset(mx + 1, my - 4, hex('#f8e070')); }
+  if (gira) for (let i = 0; i < 6; i++) { const a = t * 9 + i; destello(Math.round(105 + Math.cos(a) * 14), Math.round(146 + Math.sin(a) * 8), 1, hex('#f8a0d8')); }
+  // él: llega paseando, abre los brazos con «the Capitol» y luego se ríe del minero y lo señala
+  const v = tramo(t, P2, CAPITOL - 0.3), x1 = Math.round(lerp(14, 58, v));
+  R.actor(EL.capitolino1, x1, 166, t, { dir: 1, anda: v > 0 && v < 1, brazos: t > CAPITOL && t < CAPITOL + 0.9, sonrisa: true, dedo: t > POBRES + 0.2 && t < TRABAJA + 0.8, habla: t > POBRES + 0.2 && t < TRABAJA && Math.sin(t * 10) > 0 });
+  // el minero del 12 empuja el carro de carbón de derecha a izquierda, por delante
+  const w = tramo(t, A(0.68), TRABAJA), w2 = tramo(t, TRABAJA + 0.9, P3), mx = Math.round(lerp(350, 236, w) - lerp(0, 56, w2));
+  const agacha = t > TRABAJA + 0.2 && t < TRABAJA + 0.9, cx = mx - 33 + (agacha ? 0 : 0);
+  carroCarbon(cx, 176, t, -(lerp(0, 9, w) + lerp(0, 4, w2)) * 2);
+  const m = R.actor(MINERO, mx, 176 + (agacha ? 3 : 0), t, { dir: -1, anda: (w > 0 && w < 1) || (w2 > 0 && w2 < 1), triste: true, sostiene: agacha ? [mx - 10, 176] : [mx - 4, 162] });
+  // el trozo de carbón que se cae en «work» y que él recoge
+  const cae = tramo(t, TRABAJA, TRABAJA + 0.25);
+  if (t > TRABAJA && !(t > TRABAJA + 0.75)) { const bx = Math.round(cx + 18 - cae * 6), by = Math.round(lerp(158, 174, cae * cae)); R.rect(bx, by, bx + 3, by + 2, hex('#1c1c22')); R.pset(bx + 1, by, hex('#6a6a76')); }
+  if (t > TRABAJA + 0.75 && t < TRABAJA + 0.9) { const [hx, hy] = m.mano; R.rect(hx - 1, hy - 1, hx + 2, hy + 1, hex('#1c1c22')); }
+  // el polvo de carbón que deja el carro
+  for (let i = 0; i < 6; i++) { const u = ((t * 1.5 + i / 6) % 1); if (w > 0) R.pset(Math.round(cx + 30 + u * 20 + i), Math.round(176 - u * 6), u < 0.5 ? hex('#5a5a62') : hex('#8a8a92')); }
+};
+
+// el bando: un papel clavado al farol con la urna (sin letras)
+const bando = (x, y, u) => {
+  if (u <= 0) return;
+  const { rect, pset } = R, h = Math.round(32 * Math.min(1, u * 1.6));
+  rect(x - 13, y, x + 13, y + h, T.C.k); rect(x - 12, y + 1, x + 12, y + h - 1, hex('#ece4cc')); rect(x - 12, y + h - 2, x + 12, y + h - 1, hex('#c8bc98'));
+  if (h > 28) { rect(x - 11, y + 2, x + 11, y + 4, hex('#8a2a2a')); T.PIEZAS_JH.urna(R, x, y + 28, { s: 1, nivel: 0.9 }); for (const [a, b] of [[x - 11, y + 8], [x + 9, y + 8]]) { pset(a, b, hex('#3a3a46')); pset(a + 1, b + 1, hex('#3a3a46')); } pset(x - 12, y + 1, hex('#5a5a66')); pset(x + 12, y + 1, hex('#5a5a66')); }
+};
+const p3 = (t) => {
+  T.distrito(R, t, { encuadre: 'calle', luz: 'dia' });
+  // los vecinos: levantan los brazos y la bandera roja, la pierden y retroceden hacia la izquierda
+  const arriba = t > REBELA - 0.2 && t < PIERDE + 0.15, atras = tramo(t, PIERDE + 0.3, PIERDE + 1), atras2 = tramo(t, CASTIGO + 0.2, CASTIGO + 0.8);
+  const mv = (atras > 0 && atras < 1) || (atras2 > 0 && atras2 < 1), dx = Math.round(-atras * 16 - atras2 * 10);
+  const op = (k) => ({ dir: 1, brazos: arriba && k !== 2, enfado: arriba, triste: t > PIERDE + 0.3 && !(t > CASTIGO && t < CASTIGO + 0.7), sorpresa: t > CASTIGO && t < CASTIGO + 0.7, anda: mv });
+  R.actor(EL.vendedoraHob, 74 + dx, 158, t, op(0));
+  R.actor(EL.madreHaymitch, 100 + dx, 161, t, op(1));
+  R.actor(EL.hermanoHaymitch, 150 + dx, 163, t, { ...op(3), salto: arriba && Math.sin(t * 10) > 0.3 ? 2 : 0 });
+  const xv2 = 124 + dx, ch = R.actor(EL.tributoChico, xv2, 160, t, { ...op(2), sostiene: t < PIERDE + 0.15 ? [xv2 + 17, 132] : false });
+  // la bandera: en el palo, en alto, ondea; cae al suelo en «lost»
+  { const cae = tramo(t, PIERDE + 0.1, PIERDE + 0.45), [hx, hy] = t < PIERDE + 0.15 ? ch.mano : [xv2 + 18, 136];
+    if (cae < 1) { const ex = Math.round(hx + cae * 10), ey = Math.round(hy + cae * 20); R.linea(ex, ey + 6, ex + Math.round(cae * 14), ey - 28 + Math.round(cae * 22), T.C.k); R.linea(ex + 1, ey + 6, ex + 1 + Math.round(cae * 14), ey - 28 + Math.round(cae * 22), hex('#8a6a4a'));
+      if (cae === 0) for (let j = 0; j < 14; j++) { const ww = 20 + Math.round(Math.sin(t * 9 + j * 0.5) * 2); for (let i = 0; i <= ww; i++) { const yy = ey - 28 + j + Math.round(Math.sin(t * 8 - i * 0.4) * 1.5); R.pset(ex + 2 + i, yy, j === 0 || j === 13 || i === ww ? hex('#6a1414') : (i + j) % 7 === 0 ? hex('#e04a3a') : hex('#c8302a')); } } }
+    else { R.rect(xv2 + 14, 160, xv2 + 38, 162, hex('#c8302a')); R.rect(xv2 + 14, 163, xv2 + 38, 163, hex('#6a1414')); R.linea(xv2 + 8, 164, xv2 + 34, 159, hex('#6a4a2a')); } }
+  // los tres agentes entran por la derecha en «lost»; el primero clava el bando en el farol de la derecha en «punishment»
+  for (let k = 2; k >= 0; k--) { const u = tramo(t, PIERDE + k * 0.15, PIERDE + 1 + k * 0.15); let x = Math.round(lerp(330 + k * 16, [244, 196, 220][k], u)), mov = u > 0 && u < 1;
+    const clava = k === 0 && t > CASTIGO - 0.1 && t < CASTIGO + 0.7;
+    const ag = R.actor(EL.agentePaz, x, 160 + k, t, { dir: k === 0 && t > CASTIGO - 0.3 ? 1 : -1, anda: mov, sostiene: clava ? [266, 124] : false, dedo: k === 1 && t > B(0.38) && t < B(0.5), enfado: true });
+    if (clava) { const [mx, my] = ag.mano; R.rect(mx - 1, my - 4, mx + 1, my - 1, hex('#5a5a66')); R.rect(mx - 2, my - 5, mx + 2, my - 5, hex('#3a3a46')); } }
+  bando(266, 104, tramo(t, CASTIGO, CASTIGO + 0.3));
+  if (t > CASTIGO && t < CASTIGO + 0.8 && Math.floor(t * 10) % 2) destello(266, 104, 3);
+  // hace mucho: un velo sepia sobre todo
+  T.tinte(R, 0, 179, [150, 120, 80], 0.22);
+};
+
+const p4 = (t) => {
+  const g = T.distrito(R, t, { encuadre: 'plaza', luz: 'dia', urna: 1 });
+  // la escolta saca una papeleta de la urna de la izquierda y la enseña
+  const saca = t < P4 + 0.6, ens = t >= P4 + 0.6 && t < CHICA + 0.4;
+  const ef = R.actor(EL.effie, 100, 118, t, { dir: 1, sostiene: saca ? [118, 104] : ens ? [116, 88] : false, habla: t > P4 + 0.7 && t < CHICA + 0.6 && Math.sin(t * 9) > 0, sonrisa: true, sorpresa: t > TRIBUTOS + 0.4 && t < TRIBUTOS + 1.2 });
+  if (saca || ens) { const [hx, hy] = ef.mano; R.rect(hx - 1, hy - 5, hx + 3, hy - 1, T.C.k); R.rect(hx, hy - 4, hx + 2, hy - 2, hex('#f8f4e8')); }
+  // el chico y la chica suben por la escalera de la derecha y se colocan en sus marcas
+  const sube = (d, ini, x1, desde) => { const a = tramo(t, ini, ini + 0.45), b = tramo(t, ini + 0.45, ini + 1.1); if (t < ini) return;
+    const x = Math.round(b > 0 ? lerp(212, x1, b) : 214), y = Math.round(b > 0 ? 118 : lerp(desde, 118, a));
+    R.actor(d, x, y, t, { dir: -1, anda: (a > 0 && a < 1) || (b > 0 && b < 1), triste: b >= 1 }); };
+  sube(EL.tributoChico, CHICO - 0.3, 168, 138); sube(EL.tributoChica, CHICA - 0.2, 150, 138);
+  // gag 2: el pan, junto a la urna de la derecha, salta dentro y se esconde entre las papeletas
+  const [ux, uy] = g.urnas ? (Array.isArray(g.urnas[1]) ? g.urnas[1] : [196, 99]) : [196, 99];
+  const s0 = TRIBUTOS - 0.15, u = tramo(t, s0, s0 + 0.55);
+  const llega = tramo(t, P4 + 0.2, P4 + 1.4);
+  if (u <= 0) T.pan(R, Math.round(lerp(232, 206, llega)), 118, t, { dir: -1, anda: llega > 0 && llega < 1, expresion: t > CHICO && t < CHICO + 0.8 ? 'susto' : 'normal' });
+  else if (u < 1) T.pan(R, Math.round(lerp(206, ux, u)), Math.round(lerp(118, uy + 6, u) - Math.sin(u * Math.PI) * 18), t, { dir: -1 });
+  else { const asoma = t > JUEGOS;
+    T.pan(R, ux, uy + 13 - (asoma ? 3 : 0), t, { dir: -1, esconde: asoma ? 0 : 1, expresion: asoma ? 'susto' : 'normal', migas: false });
+    // las papeletas que le caen encima
+    for (let i = 0; i < 9; i++) { const px = ux - 6 + (i * 5) % 13, py = uy + 6 + (i * 3) % 7 + (asoma ? 0 : 0); R.rect(px, py, px + 2, py + 1, hex('#f8f4e8')); R.pset(px, py + 1, hex('#c8c4b8')); } }
+  if (t > TRIBUTOS + 0.4 && t < TRIBUTOS + 1.2) R.bocadillo(ef.cabeza[0], ef.cabeza[1] - 4, { icono: '!' });
+  if (u > 0.85 && u < 1 + 0.6) for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2 + 0.3, r = 4 + (t - s0 - 0.45) * 34; R.rect(Math.round(ux + Math.cos(a) * r), Math.round(uy - 2 + Math.sin(a) * r * 0.6), Math.round(ux + Math.cos(a) * r) + 1, Math.round(uy - 2 + Math.sin(a) * r * 0.6), hex('#f8f4e8')); }
+};
+
+const efectos = [[PANEM + 0.05, 'brillo'], [DESASTRE, 'aviso'], [COLOR, 'brillo'], [A(0.78), 'carro'], [TRABAJA + 0.1, 'golpecito'], [REBELA, 'publico'], [PIERDE + 0.1, 'silbato'], [CASTIGO + 0.05, 'golpecito'], [P4 + 0.3, 'papel'], [TRIBUTOS - 0.1, 'boing'], [JUEGOS, 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '74', efectos, año: 74 });
+</script>
+</body>
+</html>

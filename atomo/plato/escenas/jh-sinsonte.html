@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El sinsonte · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-SINSONTE (frase 49), lo real, sin barra. Dos planos (gag 7):
+// 1. el bosque: un sinsajo dorado se posa junto al sinsonte gris y en «made up» se deshace en chispas; una observadora de
+//    pájaros llega con los prismáticos; en «Mockingbird exists» el sinsonte imita la alarma y el coche del fondo pita: la
+//    observadora da un respingo (corta en «American»);
+// 2. la rama de cerca: notas y «200» en «200 songs»; en «frogs» croa como la rana, y una rana de verdad salta y mira;
+//    al final imita a Atom: el átomo en su globo y Atom, en su esquina, se sorprende («!»).
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-sinsonte');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K8 = { k: hex('#1c1222'), piel: hex('#f6c290'), pielS: hex('#c88a5a'), blanco: hex('#ffffff'), oro: hex('#f0c040'), oroS: hex('#a87a18'),
+  verde: hex('#4a9a3a'), verdeL: hex('#7ac85a'), verdeS: hex('#2e6a24'), crema: hex('#f4eedc'), gris: hex('#8a8a96'), rojo: hex('#c8303a') };
+// la mano de tres dedos encima de la mano del chibi (hx, hy): tres dedos de 1 px con su contorno
+const tresDedos = (hx, hy, piel = K8.piel) => {
+  R.rect(hx - 3, hy - 7, hx + 3, hy - 2, K8.k);
+  for (const fx of [-2, 0, 2]) R.rect(hx + fx, hy - 6, hx + fx, hy - 2, piel);
+  R.pset(hx - 2, hy - 6, K8.blanco);
+};
+// una rana (x, y = pie, en el centro) a o.s (2 por omisión) que salta (o.salto 0–1) e infla el saco (o.croa)
+const RANA = ['..kk...kk..', '.kwek.kwek.', '.kGGkkkGGk.', 'kGLGGGGGLGk', 'kGgGGGGGgGk', 'kGGGGkGGGGk', '.kgGGGGGgk.', 'kGGkkkkkGGk', 'kkk.....kkk'];
+const rana = (x, y, t, o = {}) => {
+  const s = o.s ?? 2, w = RANA[0].length, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - Math.sin(Math.max(0, Math.min(1, o.salto ?? 0)) * Math.PI) * 12 - RANA.length * s);
+  const pal = { k: K8.k, w: K8.blanco, e: K8.k, G: K8.verde, g: K8.verdeS, L: K8.verdeL };
+  RANA.forEach((f, j) => { for (let i = 0; i < w; i++) { const c = pal[f[i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } });
+  if (o.croa) { const cx = x0 + Math.round(w * s / 2), cy = y0 + 6 * s + 2; R.disco(cx, cy, 2 * s + 1, K8.k); R.disco(cx, cy, 2 * s, hex('#e8e0a8')); R.pset(cx - 1, cy - 1, K8.blanco); }
+};
+
+const a = (f) => en('sinsonte', f);
+const P2 = a(0.481), MADE = a(0.07), REAL = a(0.189), EXISTS = a(0.302), DOS = a(0.648), FROGS = a(0.87), MACH = a(0.931);
+const p1 = (t) => {
+  const canto = t > EXISTS && t < P2 ? 'alarma' : t > REAL && t < EXISTS ? 'notas' : undefined;
+  const g = T.real(R, t, { encuadre: 'bosque', canto });
+  const [bx, by] = g.pajaro;
+  // el sinsajo dorado (inventado) llega, se posa y se deshace en «made up»
+  const ll = tramo(t, 0, MADE - 0.1), poof = tramo(t, MADE + 0.2, MADE + 0.8);
+  if (poof < 1) {
+    if (poof === 0) T.PIEZAS_JH.sinsajo(R, Math.round(lerp(-10, bx - 16, ll)), Math.round(lerp(40, by, ll) - Math.sin(ll * Math.PI) * 6), { s: 1, t: ll < 1 ? t : null });
+    else for (let k = 0; k < 8; k++) { const an = k * 0.785, r = 2 + poof * 12; R.pset(Math.round(bx - 16 + Math.cos(an) * r), Math.round(by - 4 + Math.sin(an) * r), k % 2 ? K8.oro : K8.blanco); }
+  }
+  // la observadora de pájaros con prismáticos
+  const u = tramo(t, 0.6, REAL + 0.6), ox = Math.round(lerp(330, 214, u));
+  const susto = t > EXISTS + 0.1 && t < EXISTS + 0.9;
+  const m = R.actor(EL.turista, ox, g.suelo, t, { dir: -1, anda: u > 0 && u < 1, salto: susto ? 3 : 0, sorpresa: susto, sonrisa: t > EXISTS + 0.9, sostiene: u >= 1 && !susto ? [ox - 2, g.suelo - 22] : null });
+  if (u >= 1 && !susto) { const [qx, qy] = m.mano; R.rect(qx - 4, qy - 3, qx + 1, qy + 1, K8.k); R.rect(qx - 3, qy - 2, qx, qy, hex('#3a3a4a')); R.pset(qx - 3, qy - 2, hex('#8ac8e8')); }
+  if (susto) R.icono('!', ox + 4, g.suelo - 40, K8.blanco, K8.k);
+  T.realDelante(R, t, { encuadre: 'bosque' });
+};
+const p2 = (t) => {
+  const canto = t > MACH + 0.15 ? 'atom' : t > FROGS - 0.1 ? 'rana' : t > P2 + 0.3 ? 'notas' : undefined;
+  const g = T.real(R, t, { encuadre: 'bosque', camara: 'rama', canto });
+  // «200»: las canciones que aprende, en dorado junto a las notas
+  const d = tramo(t, DOS - 0.1, DOS + 0.3); if (d > 0 && t < FROGS - 0.2) R.numero('200', 104, Math.round(lerp(70, 60, d)), { tam: 16, centro: true });
+  // hojas que caen delante del bosque desenfocado
+  for (let k = 0; k < 4; k++) { const f = ((t * 0.12 + k * 0.27) % 1), lx = Math.round(30 + k * 70 + Math.sin(t * 2 + k) * 8), ly = Math.round(104 + f * 64); R.rect(lx, ly, lx + 2, ly + 1, k % 2 ? hex('#c8a040') : hex('#8ab84a')); R.pset(lx + (Math.sin(t * 3 + k) > 0 ? 3 : -1), ly, K8.k); }
+  // una mariposa naranja que revolotea por el claro de abajo
+  { const f = (t * 0.07) % 1, mx = Math.round(330 - f * 360), my = Math.round(140 + Math.sin(t * 2.3) * 12), ab = Math.floor(t * 12) % 2;
+    R.rect(mx - 3, my - 2 + ab, mx - 1, my + 1, K8.k); R.rect(mx + 1, my - 2 + ab, mx + 3, my + 1, K8.k); R.rect(mx - 2, my - 1 + ab, mx - 1, my, hex('#f08a2a')); R.rect(mx + 1, my - 1 + ab, mx + 2, my, hex('#f08a2a')); R.rect(mx, my - 2, mx, my + 2, K8.k); }
+  // la rana de verdad: sube a la rama a saltos desde la derecha y en «frogs» mira al pájaro y croa
+  const ramaY = (x) => 100 - (x / 262) * 14;
+  const s1 = tramo(t, P2 + 1.0, P2 + 1.7), s2 = tramo(t, P2 + 2.2, P2 + 2.9), rx = lerp(262, 236, s1) - 24 * s2;
+  rana(rx, Math.round(ramaY(rx)) + 2, t, { salto: s1 < 1 ? s1 : s2, dir: -1, croa: t > FROGS + 0.2 && t < MACH && Math.sin(t * 8) > 0 });
+  if (t > FROGS && t < MACH + 0.3) R.icono('?', Math.round(rx) - 4, Math.round(ramaY(rx)) - 36, K8.blanco, K8.k, 2);
+  // Atom se sorprende al oír su propia voz
+  if (t > MACH + 0.5) R.icono('!', 262, 14, K8.oro, K8.k, 2);
+};
+const efectos = [[MADE + 0.2, 'brillo'], [EXISTS, 'aviso'], [EXISTS + 0.15, 'boing'], [DOS, 'pop'], [FROGS, 'boing'], [MACH + 0.2, 'bip']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos });
+</script>
+</body>
+</html>

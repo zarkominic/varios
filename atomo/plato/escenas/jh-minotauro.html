@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Teseo y el pan y circo · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-MINOTAURO (frases 46–47), lo real, sin cartela ni barra (no es tiempo de Panem). Cuatro planos:
+// 1. Creta desde el acantilado: el barco de vela negra cruza la bahía hacia el espigón mientras un pastor con su cabra
+//    sube al borde y señala el barco en «Crete» (corta en «into»);
+// 2. el muelle: chicos y chicas bajan por la pasarela uno a uno y se quedan en fila, cabizbajos; un guardia cretense espera;
+//    en «Theseus volunteered» el de la espada da un paso al frente y levanta el brazo (los demás le miran);
+// 3. el circo romano: gradas llenas; en la arena un malabarista y un acróbata que salta; en «bread» el emperador lanza
+//    los panes desde el palco y el público los coge (corta en «Give»);
+// 4. el palco: el emperador reparte panes de las cestas; el pan con ojos, entre los panes de la cesta, ve que lo van a
+//    repartir y se esconde («protest»); en «Mockingjay» un sinsajo dorado cruza el cielo (el libro de Plutarch).
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-minotauro');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K8 = { k: hex('#1c1222'), piel: hex('#f6c290'), pielS: hex('#c88a5a'), blanco: hex('#ffffff'), oro: hex('#f0c040'), oroS: hex('#a87a18'),
+  verde: hex('#4a9a3a'), verdeL: hex('#7ac85a'), verdeS: hex('#2e6a24'), crema: hex('#f4eedc'), gris: hex('#8a8a96'), rojo: hex('#c8303a') };
+// la mano de tres dedos encima de la mano del chibi (hx, hy): tres dedos de 1 px con su contorno
+const tresDedos = (hx, hy, piel = K8.piel) => {
+  R.rect(hx - 3, hy - 7, hx + 3, hy - 2, K8.k);
+  for (const fx of [-2, 0, 2]) R.rect(hx + fx, hy - 6, hx + fx, hy - 2, piel);
+  R.pset(hx - 2, hy - 6, K8.blanco);
+};
+// una rana (x, y = pie, en el centro) a o.s (2 por omisión) que salta (o.salto 0–1) e infla el saco (o.croa)
+const RANA = ['..kk...kk..', '.kwek.kwek.', '.kGGkkkGGk.', 'kGLGGGGGLGk', 'kGgGGGGGgGk', 'kGGGGkGGGGk', '.kgGGGGGgk.', 'kGGkkkkkGGk', 'kkk.....kkk'];
+const rana = (x, y, t, o = {}) => {
+  const s = o.s ?? 2, w = RANA[0].length, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - Math.sin(Math.max(0, Math.min(1, o.salto ?? 0)) * Math.PI) * 12 - RANA.length * s);
+  const pal = { k: K8.k, w: K8.blanco, e: K8.k, G: K8.verde, g: K8.verdeS, L: K8.verdeL };
+  RANA.forEach((f, j) => { for (let i = 0; i < w; i++) { const c = pal[f[i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } });
+  if (o.croa) { const cx = x0 + Math.round(w * s / 2), cy = y0 + 6 * s + 2; R.disco(cx, cy, 2 * s + 1, K8.k); R.disco(cx, cy, 2 * s, hex('#e8e0a8')); R.pset(cx - 1, cy - 1, K8.blanco); }
+};
+
+const a = (f) => en('teseo', f), b = (f) => en('pan', f);
+const P2 = a(0.554), P3 = b(0), P4 = b(0.489);
+const CRETA = a(0.46), TESEO = a(0.797), VOLUNT = a(0.857), BREAD = b(0.32), PROTEST = b(0.679), SINSAJO = b(0.9), GIVE = b(0.489);
+const TUN = (q, qs) => ({ A: hex('#f0ece2'), a: hex('#c8bc9a'), Q: hex(q), q: hex(qs) });
+const GRIEGOS = [
+  [EL.ciudadano, { pal: TUN('#5a7ac0', '#3a5a90') }], [EL.nina, { pal: { C: hex('#f0ece2'), c: hex('#c8bc9a'), W: hex('#f0ece2') } }],
+  [EL.ciudadano, { pal: { ...TUN('#6a9a5a', '#4a7a3a'), H: hex('#6a4426') } }], [EL.nina, { pal: { C: hex('#e0c890'), c: hex('#b8a070'), W: hex('#e0c890'), H: hex('#6a4426') } }],
+  [EL.ciudadano, { pal: { ...TUN('#c84a3a', '#8a2a20'), H: hex('#a86a2a') } }],
+];
+// 1 · Creta desde el acantilado: el barco llega; el pastor sube al borde con la cabra y lo señala
+const p1 = (t) => {
+  const g = T.real(R, t, { encuadre: 'creta', barco: tramo(t, 0, CRETA + 0.4) });
+  const u = tramo(t, 0.6, CRETA - 0.6), x = Math.round(lerp(330, 236, u));
+  // la cabra que sigue al pastor y bala
+  const cx = Math.round(lerp(352, 262, tramo(t, 0.9, CRETA - 0.2))), cy = g.suelo, bal = t > CRETA + 0.3 && t < CRETA + 1.1;
+  R.rect(cx - 1, cy - 9, cx + 11, cy - 3, K8.k); R.rect(cx, cy - 8, cx + 10, cy - 4, K8.crema); R.rect(cx + 1, cy - 4, cx + 9, cy - 4, hex('#c8c0b0'));
+  for (const lx of [1, 3, 7, 9]) R.rect(cx + lx, cy - 3, cx + lx, cy - (Math.floor(t * 6 + lx) % 2 && tramo(t, 0.9, CRETA - 0.2) < 1 ? 1 : 0), K8.k);
+  R.rect(cx - 4, cy - 12, cx + 1, cy - 7, K8.k); R.rect(cx - 3, cy - 11, cx, cy - 8, K8.crema); R.pset(cx - 2, cy - 10, K8.k); R.pset(cx - 1, cy - 13, hex('#8a7a5a')); R.pset(cx, cy - 14, hex('#8a7a5a'));
+  if (bal) R.icono('!', cx - 8, cy - 22, K8.blanco, K8.k);
+  R.actor(EL.ciudadano, x, g.suelo, t, { dir: -1, anda: u > 0 && u < 1, dedo: t > CRETA - 0.2 && t < P2, habla: t > CRETA && t < CRETA + 1.2 && Math.sin(t * 9) > 0, pal: { T: hex('#a87a4a') } });
+  // una niña del pueblo corre hacia el borde a mirar
+  const v = tramo(t, CRETA + 0.2, P2 - 0.3); R.actor(EL.nina, Math.round(lerp(330, 206, v)), g.suelo, t, { dir: -1, anda: v > 0 && v < 1, sorpresa: v >= 1 });
+  T.realDelante(R, t, { encuadre: 'creta' });
+};
+// 2 · el muelle: bajan por la pasarela; Teseo da un paso al frente
+const p2 = (t) => {
+  const g = T.real(R, t, { encuadre: 'creta', camara: 'puerto' });
+  const [[ax, ay], [bx, by]] = g.pasarela;
+  // el guardia cretense espera al final del muelle con su lanza
+  { const gm = R.actor(EL.ciudadano, 290, g.suelo - 2, t, { dir: -1, dedo: t > P2 + 1.6 && t < P2 + 2.6, sostiene: t > P2 + 1.6 && t < P2 + 2.6 ? null : [283, g.suelo - 16], pal: { ...TUN('#8a3a2a', '#5a2018'), A: hex('#c84a3a'), a: hex('#8a2a20') } });
+    if (!(t > P2 + 1.6 && t < P2 + 2.6)) { const [lx, ly] = gm.mano; R.linea(lx, ly - 22, lx, ly + 10, K8.k); R.linea(lx + 1, ly - 22, lx + 1, ly + 10, hex('#8a5a2a')); R.poligono([[lx - 1, ly - 22], [lx + 2, ly - 22], [lx + 1, ly - 27]], hex('#c8ccd8')); } }
+  GRIEGOS.forEach(([d, o], k) => {
+    const s0 = P2 + 0.1 + k * 0.42, u = tramo(t, s0, s0 + 1.0), w = tramo(t, s0 + 1.0, s0 + 1.6);
+    const fx = 184 + k * 16;
+    let x = lerp(ax - 8, bx - 8, u), y = lerp(ay, by, u);
+    if (w > 0) { x = lerp(bx - 8, fx, w); y = lerp(by, g.suelo - 4, w); }
+    const mira = t > TESEO + 0.1;
+    R.actor(d, Math.round(x), Math.round(y), t, { dir: mira ? -1 : 1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), triste: !mira, sorpresa: mira && t < VOLUNT + 0.8, ...o });
+  });
+  // Teseo: baja el último, se queda atrás y en «Theseus» da el paso al frente y levanta el brazo
+  const u = tramo(t, P2 + 0.3, P2 + 1.4), w = tramo(t, P2 + 1.4, P2 + 2.0), pasa = tramo(t, TESEO - 0.1, TESEO + 0.6);
+  let x = lerp(ax - 8, bx - 8, u), y = lerp(ay, by, u);
+  if (w > 0) { x = lerp(bx - 8, 172, w); y = lerp(by, g.suelo - 4, w); }
+  if (pasa > 0) { x = lerp(172, 214, pasa); y = lerp(g.suelo - 4, g.suelo + 9, pasa); }
+  R.actor(EL.teseo, Math.round(x), Math.round(y), t, { dir: 1, anda: (u > 0 && u < 1) || (w > 0 && w < 1) || (pasa > 0 && pasa < 1), brazos: t > VOLUNT && t < VOLUNT + 0.9, sonrisa: t > VOLUNT + 0.9 });
+};
+// 3 · el circo: malabarista y acróbata en la arena; en «bread» vuelan los panes
+const p3 = (t) => {
+  const g = T.real(R, t, { encuadre: 'circo', panes: tramo(t, BREAD - 0.2, GIVE) });
+  // el malabarista: tres bolas en el aire
+  const mx = 92; R.actor(EL.ciudadano, mx, g.suelo, t, { dir: 1, brazos: true, pal: { A: hex('#e8c040'), a: hex('#b8902a'), Q: hex('#3aa86a'), q: hex('#2a7a4a') } });
+  for (let k = 0; k < 3; k++) { const f = (t * 1.6 + k / 3) % 1, bx = Math.round(mx + 2 + f * 11), by = Math.round(g.suelo - 30 - Math.sin(f * Math.PI) * 16); R.disco(bx, by, 2, K8.k); R.disco(bx, by, 1, [K8.rojo, K8.oro, hex('#4a7ac8')][k]); }
+  // el acróbata que da volteretas por la arena
+  const v = tramo(t, P3 + 0.3, GIVE - 0.3), ax = Math.round(lerp(300, 150, v)), sal = v > 0 && v < 1 ? Math.round(Math.abs(Math.sin(t * 5)) * 12) : 0;
+  R.actor(EL.ciudadano, ax, g.suelo, t, { dir: -1, salto: sal, brazos: sal > 4, anda: v > 0 && v < 1 && sal <= 4, pal: { A: hex('#e84a7a'), a: hex('#b83a5a'), Q: hex('#f0ece2'), q: hex('#c8bc9a') } });
+  // el emperador en el palco: saluda y, en «bread», lanza los panes
+  { const [ex, ey] = g.emperador, tira = t > BREAD - 0.3 && t < BREAD + 1.2; R.actor(EL.emperador, ex - 7, ey, t, { dir: 1, brazos: tira && Math.floor(t * 5) % 2 === 0, dedo: !tira && t > P3 + 1 && t < P3 + 2.2, sonrisa: true }); }
+  // el legionario de la puerta aplaude con el público al caer los panes
+  R.actor(EL.legionario, 252, g.suelo - 2, t, { dir: -1, sonrisa: t > BREAD, brazos: t > BREAD + 0.2 && Math.floor(t * 4) % 2 === 0 });
+  T.realDelante(R, t, { encuadre: 'circo', panes: tramo(t, BREAD - 0.2, GIVE) });
+};
+// 4 · el palco: el emperador reparte; el pan con ojos se esconde entre los panes; pasa el sinsajo
+const p4 = (t) => {
+  const pn = tramo(t, P4 + 0.3, PROTEST + 1.6);
+  const g = T.real(R, t, { encuadre: 'circo', camara: 'palco', panes: pn });
+  const lanza = Math.floor((t - P4) * 1.4) % 2 === 0 && t > P4 + 0.3 && t < PROTEST + 1.6;
+  const m = R.actor(EL.emperador, 153, g.suelo, t, { dir: 1, sostiene: lanza ? [176, g.suelo - 30] : [170, g.suelo - 16], sonrisa: true, habla: t > b(0.53) && t < b(0.6) && Math.sin(t * 8) > 0 });
+  if (lanza) { R.disco(m.mano[0] + 1, m.mano[1] - 3, 3, K8.k); R.disco(m.mano[0] + 1, m.mano[1] - 3, 2, hex('#d8943a')); R.pset(m.mano[0], m.mano[1] - 4, hex('#f4cc80')); }
+  // un esclavo trae otra cesta de panes
+  const v = tramo(t, P4 + 0.6, P4 + 2.6); R.actor(EL.ciudadano, Math.round(lerp(-20, 104, v)), g.suelo, t, { dir: 1, anda: v > 0 && v < 1, sostiene: [Math.round(lerp(-20, 104, v)) + 18, g.suelo - 16], pal: { T: hex('#c8bc9a') } });
+  if (v > 0) { const cx = Math.round(lerp(-20, 104, v)) + 20, cy = g.suelo - 12; R.rect(cx - 7, cy - 5, cx + 7, cy + 2, K8.k); R.rect(cx - 6, cy - 4, cx + 6, cy + 1, hex('#a87a4a')); for (let i = -5; i <= 5; i += 2) R.pset(cx + i, cy - 1, hex('#6a4a2a')); for (const dx of [-3, 2]) { R.disco(cx + dx, cy - 6, 2, K8.k); R.disco(cx + dx, cy - 6, 1, hex('#d8943a')); } }
+  // el pan con ojos en la cesta de la derecha: mira, se asusta y se esconde
+  const [px, py] = g.cestas[1], esc = tramo(t, PROTEST - 0.3, PROTEST + 0.4);
+  T.pan(R, px, py - 4, t, { s: 2, dir: -1, expresion: t > b(0.6) ? 'susto' : 'normal', esconde: esc });
+  if (t > b(0.6) && t < PROTEST) R.icono('!', px - 3, py - 40, K8.blanco, K8.k, 2);
+  T.realDelante(R, t, { encuadre: 'circo', camara: 'palco', panes: pn });
+  // el sinsajo dorado que cruza el cielo en «Mockingjay» (el libro de Plutarch)
+  const s = tramo(t, SINSAJO - 0.5, SINSAJO + 1.4); if (s > 0 && s < 1) T.PIEZAS_JH.sinsajo(R, Math.round(lerp(20, 250, s)), Math.round(58 - Math.sin(s * Math.PI) * 14), { s: 2, t });
+};
+const efectos = [[1.0, 'ola'], [CRETA + 0.3, 'boing'], [TESEO, 'palmada'], [P3 + 0.2, 'publico'], [BREAD, 'whoosh'], [BREAD + 0.6, 'publico'], [b(0.6), 'pop'], [PROTEST, 'boing'], [SINSAJO, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos });
+</script>
+</body>
+</html>

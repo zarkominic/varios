@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El reloj · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-RELOJ (frases 42–43), Juegos 75 → 50. Tres planos:
+// 1. el holograma de la arena reloj (doce sectores); wiress entra desde la izquierda y en «gave away» levanta su aguja
+//    hacia el holograma; beetee, a la derecha, la escucha y sonríe; la manecilla avanza;
+// 2. corta en «the arena was a clock»: un sector de cerca; en «Tick» y «Tock» la manecilla salta y wiress da dos
+//    golpecitos al aire con la aguja; un anillo marca cada salto;
+// 3. corta en «the trailer» (Juegos 50): la sala de control con el holograma del reloj; wiress joven entra con un
+//    destornillador, señala la pantalla de engranajes en «machine» y en «broken» salta una pieza y los engranajes se
+//    paran; el vigilante se lleva las manos a la cabeza.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-reloj');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const r = (f) => en('reloj', f), m = (f) => en('maquina', f);
+const WIRESS = 2.0, GAVE = 3.25, P2 = 4.12, CLOCK = 4.99, TICK = 5.98, TOCK = 6.2, P3 = 7.82;
+const SUMS = 9.31, MACHINE = 11.22, BUT = 12.17, BROKEN = 13.17;
+const p1 = (t) => {
+  const g = T.arena(R, t, { encuadre: 'reloj', hora: 1 + t * 0.55 });
+  const u = tramo(t, 0.4, WIRESS - 0.1), wx = Math.round(lerp(-18, 36, u));
+  const alza = tramo(t, GAVE - 0.2, GAVE + 0.3);
+  const w = R.actor(EL.wiress, wx, 176, t, { dir: 1, anda: u > 0 && u < 1, sostiene: alza > 0 ? [wx + 16, Math.round(lerp(158, 146, alza))] : undefined, habla: t > WIRESS + 0.3 && t < GAVE && Math.sin(t * 11) > 0 });
+  if (alza > 0) T.PIEZAS_JH.aguja(R, w.mano[0], w.mano[1] + 1, {});
+  R.actor(EL.beetee, 274, 174, t, { dir: -1, sonrisa: t > GAVE + 0.4, sorpresa: t > WIRESS && t < WIRESS + 0.6, dedo: t > GAVE + 0.4 });
+};
+const p2 = (t) => {
+  // la manecilla salta a golpes: dos saltos de calentamiento y los dos de «tic, tac»
+  const saltos = [P2 + 0.3, CLOCK, TICK, TOCK, TOCK + 0.7];
+  let n = 0; for (const s of saltos) n += tramo(t, s, s + 0.08);
+  T.arena(R, t, { encuadre: 'reloj', camara: 'sector', hora: 3.7 + n * 0.3 });
+  const golpe = Math.max(...saltos.slice(2, 4).map((s) => 1 - Math.min(1, Math.abs(t - s) / 0.12)));
+  const w = R.actor(EL.wiress, 26, 176, t, { dir: 1, sostiene: [44, 150 - Math.round(golpe * 4)], sonrisa: t > TOCK });
+  T.PIEZAS_JH.aguja(R, w.mano[0], w.mano[1] + 1, {});
+  R.actor(EL.beetee, 252, 176, t, { dir: -1, dedo: t > CLOCK && t < TICK, sorpresa: t > TICK - 0.05 && t < TOCK + 0.4 });
+  // el anillo de cada salto, en la punta de la manecilla
+  for (const s of saltos.slice(1)) { const f = tramo(t, s, s + 0.45); if (f > 0 && f < 1) { const [ax, ay] = [w.mano[0], w.mano[1] - 9]; for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4, r0 = 3 + f * 6, r1 = 6 + f * 10; R.linea(Math.round(ax + Math.cos(an) * r0), Math.round(ay + Math.sin(an) * r0), Math.round(ax + Math.cos(an) * r1), Math.round(ay + Math.sin(an) * r1), hex(f < 0.5 ? '#fff6a0' : '#e8b830')); } } }
+};
+const destornillador = (x, y) => {
+  R.rect(x - 1, y - 2, x + 1, y + 3, hex('#141018')); R.rect(x, y - 1, x, y + 2, hex('#e8b830'));
+  R.linea(x, y - 3, x, y - 9, hex('#141018')); R.pset(x, y - 4, hex('#c8ccd8')); R.pset(x, y - 6, hex('#e8ecf4')); R.pset(x, y - 8, hex('#c8ccd8'));
+};
+const p3 = (t) => {
+  const eng = t < MACHINE - 0.3 ? 0 : t < BROKEN ? 0.48 * tramo(t, MACHINE - 0.3, BROKEN) : 0.5 + 0.5 * tramo(t, BROKEN, BROKEN + 0.4);
+  const g = T.arena(R, t, { arena: 'reloj', luces: 0, engranajes: eng });
+  // wiress joven entra por la derecha con el destornillador, se para delante y explica
+  const u = tramo(t, P3 + 0.2, SUMS - 0.2), wx = Math.round(lerp(330, 222, u));
+  const sube = t > BUT - 0.2;
+  const w = R.actor(EL.wiress, wx, 160, t, { dir: t > SUMS - 0.2 && t < MACHINE - 0.2 ? -1 : 1, anda: u > 0 && u < 1, pal: { H: '#4a3020', h: '#6a4630' },
+    dedo: t > MACHINE - 0.2 && t < BUT - 0.2, sostiene: sube ? [wx + 17, sube && t < BROKEN ? 140 : 144] : undefined, habla: t > SUMS && t < MACHINE && Math.sin(t * 12) > 0, sonrisa: t > BROKEN + 0.3 });
+  if (sube) destornillador(w.mano[0], w.mano[1]);
+  else if (!(t > MACHINE - 0.2 && t < BUT - 0.2)) { destornillador(wx + (t > SUMS - 0.2 && t < MACHINE - 0.2 ? 1 : 14), 148); }
+  R.actor(EL.vigilante, 58, 162, t, { dir: 1, sorpresa: t > BROKEN, brazos: t > BROKEN + 0.1 && t < BROKEN + 0.9, habla: t < SUMS && Math.sin(t * 7) > 0.4 });
+  const v = tramo(t, P3 + 0.8, MACHINE); R.actor(EL.vigilante, Math.round(lerp(96, 120, v)), 160, t, { dir: 1, anda: v > 0 && v < 1, pal: { C: '#5a3a8a', c: '#3a2462' }, sorpresa: t > BROKEN });
+  const sal = tramo(t, BROKEN, BROKEN + 1.1);
+  if (sal > 0) { const x = Math.round(lerp(226, 262, sal)), y = Math.round(sal < 0.7 ? lerp(52, 160, (sal / 0.7) ** 2) : 160 - Math.sin((sal - 0.7) / 0.3 * Math.PI) * 8), giro = Math.floor(t * 12) % 2;
+    R.disco(x, y, 4, hex('#141018')); R.disco(x, y, 3, hex('#e8b830')); R.disco(x, y, 1, hex('#141018')); for (let k = 0; k < 4; k++) { const an = k * Math.PI / 2 + giro * Math.PI / 4; R.pset(Math.round(x + Math.cos(an) * 4), Math.round(y + Math.sin(an) * 4), hex('#fff0a0')); } }
+  const fl = tramo(t, BROKEN, BROKEN + 0.6); if (fl > 0 && fl < 1 && Math.floor(t * 10) % 2) { R.rect(195, 31, 241, 31, hex('#ff4a3a')); R.rect(195, 65, 241, 65, hex('#ff4a3a')); R.rect(195, 31, 195, 65, hex('#ff4a3a')); R.rect(241, 31, 241, 65, hex('#ff4a3a')); }
+  T.arenaDelante(R, t, { arena: 'reloj' });
+};
+const año = (t) => (t >= P3 ? 50 : t >= P2 ? 75 : null);
+const efectos = [[0.9, 'pasos'], [GAVE, 'brillo'], [CLOCK, 'tic'], [TICK, 'tic'], [TOCK, 'toc'], [P3 + 0.5, 'puerta'], [MACHINE, 'maquina'], [BROKEN, 'golpecito'], [BROKEN + 0.4, 'aviso']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos: efectos.filter(([, n]) => n !== 'pasos'), año });
+</script>
+</body>
+</html>

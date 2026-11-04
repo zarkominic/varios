@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hume · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-HUME (frase 48), lo real, sin barra. Dos planos:
+// 1. el estudio de noche: Hume escribe con la pluma a la luz de la vela; en «Hume» deja la pluma y levanta el dedo, y se
+//    vuelve a la ventana; una polilla da vueltas a la vela (corta en «his question»);
+// 2. la ventana de cerca: Hume asoma de espaldas mirando la plaza; «?» sobre su cabeza; en «many» la multitud se ilumina;
+//    en «few» las tres figuras del balcón brillan y la multitud se inclina.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-hume');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K8 = { k: hex('#1c1222'), piel: hex('#f6c290'), pielS: hex('#c88a5a'), blanco: hex('#ffffff'), oro: hex('#f0c040'), oroS: hex('#a87a18'),
+  verde: hex('#4a9a3a'), verdeL: hex('#7ac85a'), verdeS: hex('#2e6a24'), crema: hex('#f4eedc'), gris: hex('#8a8a96'), rojo: hex('#c8303a') };
+// la mano de tres dedos encima de la mano del chibi (hx, hy): tres dedos de 1 px con su contorno
+const tresDedos = (hx, hy, piel = K8.piel) => {
+  R.rect(hx - 3, hy - 7, hx + 3, hy - 2, K8.k);
+  for (const fx of [-2, 0, 2]) R.rect(hx + fx, hy - 6, hx + fx, hy - 2, piel);
+  R.pset(hx - 2, hy - 6, K8.blanco);
+};
+// una rana (x, y = pie, en el centro) a o.s (2 por omisión) que salta (o.salto 0–1) e infla el saco (o.croa)
+const RANA = ['..kk...kk..', '.kwek.kwek.', '.kGGkkkGGk.', 'kGLGGGGGLGk', 'kGgGGGGGgGk', 'kGGGGkGGGGk', '.kgGGGGGgk.', 'kGGkkkkkGGk', 'kkk.....kkk'];
+const rana = (x, y, t, o = {}) => {
+  const s = o.s ?? 2, w = RANA[0].length, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - Math.sin(Math.max(0, Math.min(1, o.salto ?? 0)) * Math.PI) * 12 - RANA.length * s);
+  const pal = { k: K8.k, w: K8.blanco, e: K8.k, G: K8.verde, g: K8.verdeS, L: K8.verdeL };
+  RANA.forEach((f, j) => { for (let i = 0; i < w; i++) { const c = pal[f[i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } });
+  if (o.croa) { const cx = x0 + Math.round(w * s / 2), cy = y0 + 6 * s + 2; R.disco(cx, cy, 2 * s + 1, K8.k); R.disco(cx, cy, 2 * s, hex('#e8e0a8')); R.pset(cx - 1, cy - 1, K8.blanco); }
+};
+
+const a = (f) => en('hume', f);
+const P2 = a(0.514), HUME = a(0.404), MANY = a(0.711), FEW = a(0.943), COLLINS = a(0.146);
+const p1 = (t) => {
+  const g = T.real(R, t, { encuadre: 'biblioteca' });
+  const escribe = t < HUME;
+  const [hx, hy] = g.hume;
+  // el gato que cruza la alfombra
+  const m = R.actor(EL.hume, hx, hy - (escribe ? 0 : Math.round(tramo(t, HUME, HUME + 0.3) * 5)), t, { dir: escribe ? 1 : -1, sostiene: escribe ? [hx + 22 + Math.round(Math.sin(t * 9) * 2), hy - 6] : null, dedo: !escribe && t < HUME + 1.2, sorpresa: t > HUME - 0.15 && t < HUME + 0.4, habla: t > COLLINS && t < HUME && Math.sin(t * 7) > 0.3 });
+  T.realDelante(R, t, { encuadre: 'biblioteca' });
+  // la pluma en la mano mientras escribe (por delante del escritorio)
+  // una polilla que da vueltas a la luz de la vela
+  { const [vx, vy] = g.vela, an = t * 5, px = Math.round(vx + Math.cos(an) * 7), py = Math.round(vy - 8 + Math.sin(an * 1.3) * 4), ab = Math.floor(t * 16) % 2; R.pset(px, py, hex('#e8dcc0')); R.pset(px - 1, py - ab, hex('#c8b890')); R.pset(px + 1, py - ab, hex('#c8b890')); }
+  if (escribe) { const [qx, qy] = m.mano; R.linea(qx, qy, qx + 4, qy - 9, K8.k); R.linea(qx + 1, qy - 1, qx + 4, qy - 8, K8.crema); R.pset(qx + 3, qy - 7, K8.blanco); }
+};
+const p2 = (t) => {
+  const g = T.real(R, t, { encuadre: 'biblioteca', camara: 'ventana' });
+  const [x0, y0, x1, y1] = g.cristal;
+  // la multitud que se enciende en «many» y las tres figuras del balcón en «few»
+  const mu = tramo(t, MANY - 0.2, MANY + 0.4), fu = tramo(t, FEW - 0.3, FEW + 0.2);
+  if (mu > 0 && mu < 1) T.tinte(R, y1 - 34, y1 - 2, [255, 220, 140], 0.35 * Math.sin(mu * Math.PI));
+  // en «few» un marco dorado que late alrededor del balcón de los tres
+  if (fu > 0 && Math.floor(t * 6) % 2 === 0) { const [bx0, by0, bx1, by1] = g.balcon, X0 = bx0 - 4, X1 = bx1 + 4, Y0 = by0 - 16, Y1 = by1 + 3; for (const c of [K8.k, K8.oro]) { const d = c === K8.k ? 1 : 0; R.linea(X0 - d, Y0 - d, X1 + d, Y0 - d, c); R.linea(X0 - d, Y1 + d, X1 + d, Y1 + d, c); R.linea(X0 - d, Y0 - d, X0 - d, Y1 + d, c); R.linea(X1 + d, Y0 - d, X1 + d, Y1 + d, c); } }
+  // Hume entra por la derecha hasta la ventana y mira la plaza
+  const u = tramo(t, P2, P2 + 1.0), hx = Math.round(lerp(262, 226, u));
+  R.actor(EL.hume, hx, g.suelo, t, { dir: -1, anda: u > 0 && u < 1, triste: t > FEW, sorpresa: t > MANY && t < MANY + 0.6, dedo: t > a(0.84) && t < FEW });
+  if (t > P2 + 0.2 && t < MANY + 0.3) R.icono('?', hx + 4, g.suelo - 48, K8.blanco, K8.k, 2);
+};
+const efectos = [[0.5, 'lapiz'], [HUME, 'golpecito'], [P2 + 0.3, 'pop'], [MANY, 'publico'], [FEW, 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos });
+</script>
+</body>
+</html>

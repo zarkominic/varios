@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La canción · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-CANCION (frases 38–39), hoy, Juegos 10 y Juegos 75, sin cartela. Tres planos:
+// 1. fondo local, el corcho de cerca de noche: una mano clava el carné de Lenore Dove (pelo oscuro con plumas, una
+//    paloma); en «Baird» un rotulador amarillo subraya su apellido (un dibujo de bloques, sin letras); en «Lucy Gray» la
+//    mano trae el segundo carné (pelo castaño, volantes de colores, una guitarra) con el mismo apellido, que se subraya;
+//    el hilo rojo une las dos chinchetas; una polilla revolotea en la luz;
+// 2. (corte en «The singer») el árbol viejo del bosque de cerca, al atardecer: Lucy Gray, sentada en la piedra, toca la
+//    guitarra; las notas suben hasta los dos sinsajos de la rama; en «wrote» canta mirando el árbol; los sinsajos le
+//    devuelven la melodía en notas doradas;
+// 3. (corte en «Katniss») el lago del bosque, al amanecer, sesenta y cinco años después: Katniss canta en la orilla; un
+//    sinsajo cruza en «Mockingjay» y se posa en la rama; en «traveled more than sixty years» una hilera de notas cruza
+//    desde el árbol viejo hasta ella mientras la barra del año sube de 10 a 75; el pan se mece con la música en los juncos;
+//    en «reach her» las notas giran a su alrededor y brillan.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-cancion');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const mez = (c1, c2, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((c1 >>> s) & 255) * (1 - k) + ((c2 >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const hh = (a, b, c = 0) => { let n = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263) ^ Math.imul(c | 0, 1274126177); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const rr = (x0, y0, x1, y1, c) => { for (let y = Math.round(y0); y <= Math.round(y1); y++) for (let x = Math.round(x0); x <= Math.round(x1); x++) R.pset(x, y, c); };
+const aclara = (x, y, k, col = 0xffffffff) => { const c = R.pget(x, y); if (c) R.pset(x, y, mez(c, col, k)); };
+const K0 = hex('#14101c'), ORO = hex('#f0c040'), OROS = hex('#a87a18'), OROL = hex('#fff0a0'), BLANCO = hex('#fffbe8');
+R.ICONOS.nota = ['..##', '..#.', '..#.', '..#.', '###.', '###.'];
+R.ICONOS.nota2 = ['.####', '.#..#', '.#..#', '.#..#', '##.##', '##.##'];
+// halo de luz (aclara lo pintado) que cae hacia fuera
+const halo = (xc, yc, r, k = 0.4, col = hex('#fff2b0')) => { for (let y = Math.round(yc - r); y <= Math.round(yc + r); y++) for (let x = Math.round(xc - r); x <= Math.round(xc + r); x++) { const d = Math.hypot(x - xc, y - yc) / r; if (d < 1) aclara(x, y, k * (1 - d) * (1 - d) * 1.6 > k ? k : k * (1 - d) * (1 - d) * 1.6, col); } };
+// destello de cuatro rayos que late
+const destello = (x, y, n, t, col = OROL) => { x = Math.round(x); y = Math.round(y); const m = Math.max(1, Math.round(n * (0.6 + 0.4 * Math.abs(Math.sin(t * 7))))); R.pset(x, y, BLANCO);
+  for (let i = 1; i <= m; i++) { const c = i > m - 1 ? col : BLANCO; R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); }
+  if (m > 2) for (const [a, b] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) R.pset(x + a, y + b, col); };
+// el broche a escala de personaje (7 px): aro de oro, el pájaro oscuro dentro, un brillo
+const miniBroche = (x, y) => { x = Math.round(x); y = Math.round(y); R.disco(x, y, 3, K0); R.disco(x, y, 2, ORO); R.pset(x + 1, y + 1, OROS); R.pset(x + 2, y, OROS);
+  R.pset(x, y, K0); R.pset(x - 1, y, K0); R.pset(x + 1, y - 1, K0); R.pset(x - 1, y - 1, K0); R.pset(x - 1, y - 2, OROL); };
+// una nota que flota de (x0, y0) a (x1, y1) con u 0–1, ondulando
+const notaVuela = (x0, y0, x1, y1, u, col, fase = 0, grande = false, esc = 1) => { if (u <= 0 || u >= 1) return; const x = lerp(x0, x1, u), y = lerp(y0, y1, u) + Math.sin(u * 9 + fase) * 4 * esc;
+  R.icono(grande ? 'nota2' : 'nota', Math.round(x), Math.round(y), col, K0, esc); };
+
+const a = (f) => en('baird', f), b = (f) => en('arbol', f);
+// palabras: The 0.50, Lenore 2.44, Baird 3.54, Like 4.35, Lucy 4.53, singer 5.81, Lucy 7.72, wrote 8.24, Hanging 8.62, Katniss 10.04, Mockingjay 10.90, traveled 12.62, sixty 13.56, reach 14.46, her 14.74
+const P2 = a(0.81), P3 = b(0.316);
+const PINA = a(0.12), BAIRD = a(0.474), LIKE = a(0.6), PINB = a(0.68), HILO = a(0.72);
+const WROTE = b(0.07), MOCKJ = b(0.43), TRAVEL = b(0.574), SIXTY = b(0.7), REACH = b(0.912);
+// ── 1 · los dos carnés en el corcho (fondo local)
+let fondo1 = null;
+const corchoFondo = () => {
+  const b = R.nuevo(), prev = R.usar(b);
+  // el corcho: granulado de tres tonos con poros, más oscuro hacia los bordes (luz de la lámpara arriba a la izquierda)
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const n = hh(x, y, 1), g = hh(x >> 1, y >> 1, 2);
+    let c = n > 0.9 ? hex('#8a5a30') : n < 0.12 ? hex('#d8a868') : g > 0.6 ? hex('#c08a50') : hex('#b47e46');
+    if (hh(x, y, 3) > 0.985) c = hex('#5a3a1e');
+    const d = Math.hypot((x - 120) / 1.4, y - 70) / 210; c = mez(c, hex('#1e1420'), Math.min(0.7, Math.max(0, d * 1.15 - 0.1)));
+    const q = Math.max(Math.max(0, 1 - y / 22) * 0.5, x > 260 ? Math.max(0, 1 - Math.hypot(x - 300, y - 22) / 40) * 0.55 : 0); if (q > 0) c = mez(c, hex('#2a1e22'), q);   // la barra del año y la esquina de Atom, tranquilas
+    R.pset(x, y, c); }
+  // marco de madera abajo y a la izquierda
+  rr(0, 168, 319, 179, K0); rr(0, 169, 319, 179, hex('#6a4228')); for (let x = 0; x < 320; x += 23) R.linea(x, 170, x + 14, 170, hex('#8a5a34')); R.linea(0, 169, 319, 169, hex('#9a6a40'));
+  // recortes de alrededor: una foto de montes (torcida), una entrada «74», un pósit con «?», un mapita y una tira de fotos
+  R.poligono([[10, 22], [62, 18], [66, 58], [14, 62]], K0); R.poligono([[12, 24], [60, 20], [64, 56], [16, 60]], hex('#f4f1e8'));
+  R.poligono([[16, 28], [58, 25], [61, 50], [19, 53]], hex('#6a8ab8')); R.poligono([[19, 53], [30, 36], [40, 46], [48, 34], [61, 50]], hex('#4a6a4a')); R.poligono([[28, 39], [30, 36], [32, 39]], BLANCO);
+  R.disco(38, 22, 2, hex('#3a8ae8')); R.pset(37, 21, BLANCO);
+  rr(8, 140, 52, 160, K0); rr(9, 141, 51, 159, hex('#e8c860')); R.linea(20, 141, 20, 159, hex('#b89a40')); R.numero('74', 36, 155, { centro: true, color: hex('#6a3a1a'), sombra: false }); R.disco(30, 141, 2, hex('#2ac85a'));
+  rr(268, 128, 300, 160, K0); rr(269, 129, 299, 159, hex('#f0e870')); R.icono('?', 280, 136, hex('#c84a3a'), hex('#b8b050'), 2); R.disco(284, 129, 2, hex('#e84a8a'));
+  rr(276, 62, 314, 104, K0); rr(277, 63, 313, 103, hex('#e0d8c0')); for (let i = 0; i < 6; i++) R.linea(280 + i * 6, 66, 284 + i * 5, 100, hex('#9ab8d8')); R.linea(280, 84, 310, 78, hex('#c84a3a')); R.disco(296, 63, 2, hex('#f0c040'));
+  // una tira de película con cuatro fotogramas, una polaroid con el broche, un dibujo a lápiz del árbol, un recibo y agujeros de chinchetas
+  rr(92, 24, 222, 42, K0); for (let i = 0; i < 4; i++) { rr(98 + i * 31, 28, 122 + i * 31, 38, hex(['#3a5a7a', '#7a4a2a', '#4a6a3a', '#6a3a5a'][i])); R.disco(110 + i * 31, 33, 3, hex(['#f0c040', '#e86a3a', '#c8e0a0', '#f0a0c0'][i])); }
+  for (let x = 94; x < 222; x += 5) { R.pset(x, 25, hex('#d8c8a0')); R.pset(x, 40, hex('#d8c8a0')); } R.disco(157, 23, 2, hex('#3ac85a'));
+  R.poligono([[228, 22], [262, 26], [258, 66], [224, 62]], K0); R.poligono([[229, 23], [261, 27], [257, 65], [225, 61]], hex('#f4f1e8')); R.poligono([[231, 27], [258, 30], [255, 54], [228, 51]], hex('#2a2a3a'));
+  R.disco(243, 41, 7, K0); R.disco(243, 41, 6, hex('#f0c040')); R.linea(238, 42, 248, 39, K0); R.linea(239, 41, 247, 38, K0); R.disco(244, 23, 2, hex('#e84a3a'));
+  rr(96, 146, 150, 166, K0); rr(97, 147, 149, 165, hex('#ece6d6')); R.linea(110, 164, 112, 152, hex('#6a6a72')); R.linea(112, 152, 108, 149, hex('#6a6a72')); R.linea(112, 153, 124, 148, hex('#6a6a72')); R.linea(110, 158, 104, 162, hex('#6a6a72')); for (let i = 0; i < 9; i++) R.pset(108 + i * 2, 150 - (i % 3), hex('#8a8a92')); R.linea(98, 164, 148, 164, hex('#8a9a8a')); R.disco(122, 147, 2, hex('#3a8ae8'));
+  rr(200, 150, 226, 166, K0); rr(201, 151, 225, 165, BLANCO); for (const y of [154, 157, 160]) R.linea(203, y, 222 - (y % 4) * 2, y, hex('#a8a8b0')); R.linea(203, 163, 222, 163, K0);
+  for (let i = 0; i < 40; i++) { const x = Math.floor(hh(i, 7) * 300) + 8, y = Math.floor(hh(i, 8) * 140) + 20; R.pset(x, y, hex('#4a2e16')); }
+  for (let i = 0; i < 3; i++) { rr(12, 74 + i * 20, 40, 92 + i * 20, K0); rr(13, 75 + i * 20, 39, 91 + i * 20, hex(['#4a3a5a', '#3a4a3a', '#5a3a2a'][i])); R.disco(26, 82 + i * 20, 4, hex(['#f0c040', '#e86a3a', '#d8d8e0'][i])); }
+  R.usar(prev); return b;
+};
+// un carné: cabecera de color, foto, el «apellido» como bloques (igual en los dos), barras, un dibujito y el código
+const APELLIDO = [6, 3, 5, 5, 4];
+const carne = (x, y, cual, marca) => {
+  x = Math.round(x); y = Math.round(y);
+  rr(x + 2, y + 2, x + 92, y + 62, mez(hex('#1e1420'), hex('#8a5a30'), 0.3));
+  rr(x, y, x + 90, y + 60, K0); rr(x + 1, y + 1, x + 89, y + 59, hex('#f4f1e8'));
+  rr(x + 1, y + 1, x + 89, y + 9, hex(cual ? '#c8603a' : '#3a6ac8')); R.linea(x + 1, y + 9, x + 89, y + 9, K0);
+  for (let i = 0; i < 6; i++) R.pset(x + 60 + i * 4, y + 5, BLANCO);
+  // la foto
+  rr(x + 5, y + 13, x + 31, y + 47, K0); rr(x + 6, y + 14, x + 30, y + 46, hex(cual ? '#d8e0b0' : '#c8d4e4'));
+  const pel = hex(cual ? '#5a3a28' : '#2a2028'), piel = hex('#f0c49a');
+  R.disco(x + 18, y + 26, 8, pel); R.disco(x + 18, y + 27, 6, piel); rr(x + 12, y + 20, x + 24, y + 23, pel); R.pset(x + 16, y + 27, K0); R.pset(x + 20, y + 27, K0); R.linea(x + 17, y + 30, x + 19, y + 30, hex('#b85a4a'));
+  if (cual) { for (let i = 0; i < 5; i++) rr(x + 8 + i * 5, y + 38, x + 12 + i * 5, y + 46, hex(['#e8483a', '#f0902a', '#f0d040', '#4aa84a', '#3a7ad8'][i])); rr(x + 10, y + 34, x + 26, y + 37, hex('#e8483a')); R.linea(x + 11, y + 19, x + 25, y + 19, hex('#e8483a')); }
+  else { rr(x + 9, y + 36, x + 27, y + 46, hex('#4a5a6a')); for (const [px, py] of [[x + 10, y + 18], [x + 9, y + 21], [x + 26, y + 17]]) { R.linea(px, py, px - 3, py - 4, BLANCO); R.pset(px - 2, py - 2, hex('#c8c8d8')); } }
+  // el nombre (barras) y el apellido (bloques), con el rotulador amarillo
+  R.linea(x + 36, y + 15, x + 36 + (cual ? 30 : 38), y + 15, hex('#8a8a96')); R.linea(x + 36, y + 16, x + 36 + (cual ? 30 : 38), y + 16, hex('#8a8a96'));
+  if (marca > 0) rr(x + 34, y + 22, x + 34 + Math.round(42 * marca), y + 31, hex('#f8f070'));
+  let bx = x + 37; APELLIDO.forEach((w, i) => { rr(bx, y + 24, bx + w - 1, y + 29, hex('#2a2a3a')); if (i % 2) R.pset(bx + 1, y + 26, hex('#f4f1e8')); bx += w + 2; });
+  for (const yy of [36, 41]) R.linea(x + 36, y + yy, x + 36 + 24 + (yy % 3) * 6, y + yy, hex('#b8b8c0'));
+  // la paloma (Lenore Dove) o la guitarra (Lucy Gray)
+  if (cual) T.PIEZAS_JH.guitarra(R, x + 80, y + 52, {});
+  else T.PIEZAS_JH.sinsonte(R, x + 78, y + 50, {});
+  for (let i = 0; i < 28; i++) if (hh(i, cual, 4) > 0.4) R.linea(x + 36 + i * 2, y + 50, x + 36 + i * 2, y + 55, K0);
+};
+const chincheta = (x, y) => { R.disco(x, y, 3, K0); R.disco(x, y, 2, hex('#d83a3a')); R.pset(x - 1, y - 1, hex('#ff9a9a')); R.pset(x + 1, y + 3, hex('#5a1a1a')); };
+const p1 = (t) => {
+  if (!fondo1) fondo1 = corchoFondo();
+  R.copiar(fondo1);
+  // la luz de la lámpara (de arriba a la izquierda) que titila apenas y la polilla que revolotea en ella
+  const pol = [lerp(80, 150, (Math.sin(t * 0.9) + 1) / 2) + Math.sin(t * 7) * 6, 40 + Math.cos(t * 5.3) * 8 + Math.sin(t * 1.7) * 6];
+  R.disco(Math.round(pol[0]), Math.round(pol[1]), 1, hex('#d8c8a8')); const al = Math.floor(t * 18) % 2; R.linea(Math.round(pol[0]) - 2, Math.round(pol[1]) - al, Math.round(pol[0]) + 2, Math.round(pol[1]) - al, hex('#a89878'));
+  // el carné A sube desde abajo con la mano y se clava; el B llega en «Lucy Gray»
+  const ua = tramo(t, -0.4, PINA), ub = tramo(t, LIKE - 0.25, PINB);
+  const ax = 56, ay = Math.round(lerp(190, 80, ua)), bxx = Math.round(lerp(330, 178, ub)), byy = Math.round(lerp(150, 84, ub));
+  carne(ax, ay, 0, tramo(t, BAIRD - 0.1, BAIRD + 0.45));
+  if (t > PINA) chincheta(ax + 45, ay + 2);
+  if (ub > 0) carne(bxx, byy, 1, tramo(t, HILO - 0.05, HILO + 0.4));
+  if (t > PINB) chincheta(bxx + 45, byy + 2);
+  // el hilo rojo de chincheta a chincheta, con su comba
+  const h = tramo(t, HILO - 0.05, HILO + 0.4);
+  if (h > 0) { const x0 = ax + 45, y0 = ay + 2, x1 = bxx + 45, y1 = byy + 2; const n = Math.round((x1 - x0) * h);
+    for (let i = 0; i <= n; i++) { const u = i / (x1 - x0), x = x0 + i, y = Math.round(lerp(y0, y1, u) + Math.sin(u * Math.PI) * 10); R.pset(x, y, hex('#e8303a')); R.pset(x, y + 1, hex('#8a1a22')); }
+    chincheta(ax + 45, ay + 2); chincheta(x1, y1); if (h >= 1 && t < HILO + 1) destello(162, 100, 3, t); }
+  // la mano (brazo canónico) que trae y clava cada carné, y se va
+  const manoA = t < PINA + 0.5, manoB = t > LIKE - 0.25 && t < PINB + 0.5;
+  if (manoA) { const sal = tramo(t, PINA + 0.05, PINA + 0.5); T.brazo(R, 70, 200, ax + 30, Math.round(ay + 64 + sal * 50), '#5a7ab8', 1); }
+  if (manoB) { const sal = tramo(t, PINB + 0.05, PINB + 0.5); T.brazo(R, 300, 205, bxx + 58, Math.round(byy + 64 + sal * 50), '#5a7ab8', -1); }
+};
+// ── 2 · el árbol viejo, de cerca, al atardecer: Lucy Gray toca
+const p2 = (t) => {
+  T.distrito(R, t, { encuadre: 'bosque', camara: 'arbol', luz: 'tarde' });
+  const lx = 150, canta = t > b(0) && Math.sin(t * 10) > -0.2, mira = t > WROTE && t < WROTE + 1.3;
+  const l = R.actor(EL.lucyGray, lx, 150, t, { dir: mira ? -1 : 1, sostiene: [lx + 16, 142], habla: canta, sonrisa: !canta });
+  // la guitarra en la mano, con el rasgueo
+  const [gx, gy] = l.mano, ras = Math.floor(t * 8) % 2;
+  T.PIEZAS_JH.guitarra(R, gx + 1, gy + 9 + ras * 0, { dir: mira ? -1 : 1 });
+  if (ras) R.pset(gx + 1, gy + 3, hex('#fff0c0'));
+  // las notas suben de la guitarra a la rama; los sinsajos las devuelven en oro
+  for (let i = 0; i < 6; i++) { const t0 = P2 + 0.2 + i * 0.55; notaVuela(gx + 4, gy - 4, 196 + (i % 2) * 36, 34, tramo(t, t0, t0 + 1.6), hex('#fffbe8'), i); }
+  for (let i = 0; i < 5; i++) { const t0 = b(0) + 0.4 + i * 0.45, [sx, sy] = i % 2 ? [232, 30] : [196, 26]; notaVuela(sx + 4, sy - 2, sx - 60 + i * 30, 40, tramo(t, t0, t0 + 1.5), ORO, i + 3, true, 2); }
+  if (t > b(0) + 0.3) for (const [sx, sy] of [[196, 26], [232, 32]]) if (Math.sin(t * 9 + sx) > 0.6) destello(sx + 6, sy - 6, 2, t);
+};
+// ── 3 · el lago al amanecer: Katniss canta y la canción le llega
+const p3 = (t) => {
+  T.distrito(R, t, { encuadre: 'bosque', luz: 'amanecer' });
+  // el sinsajo que cruza y se posa en la rama
+  const v = tramo(t, MOCKJ - 0.4, MOCKJ + 0.6);
+  if (v > 0) { const sx = v < 1 ? lerp(330, 146, v) : 146, sy = v < 1 ? lerp(40, 54, v) - Math.sin(v * Math.PI) * 14 : 54; T.PIEZAS_JH.sinsajo(R, Math.round(sx), Math.round(sy), { dir: -1, t: v < 1 ? t : undefined }); }
+  // Katniss en la orilla, cantando
+  const kx = 176, llega = t > REACH;
+  R.actor(EL.katniss, kx, 162, t, { dir: -1, habla: !llega && Math.sin(t * 9) > -0.2, sonrisa: llega, brazos: llega && t < REACH + 0.6 });
+  // notas que salen de ella hacia los sinsajos de la rama y vuelven doradas
+  for (let i = 0; i < 4; i++) { const t0 = P3 + 0.2 + i * 0.5; notaVuela(kx + 2, 138, 118 + (i % 2) * 14, 54, tramo(t, t0, t0 + 1.4), hex('#fffbe8'), i); }
+  // la hilera de notas que cruza desde el árbol viejo hasta ella («more than sixty years»)
+  for (let i = 0; i < 9; i++) { const t0 = TRAVEL - 0.1 + i * 0.22; notaVuela(68, 86 + (i % 3) * 8, kx + 2, 124, tramo(t, t0, t0 + 1.4), i % 2 ? ORO : hex('#fffbe8'), i, i % 3 === 0, 2); }
+  // en «reach her», las notas giran alrededor de ella y brillan
+  const g = tramo(t, REACH - 0.2, REACH + 0.8);
+  if (g > 0) { for (let i = 0; i < 5; i++) { const ang = t * 3 + i * 1.26, rx = 16 * (1 - g * 0.3); R.icono(i % 2 ? 'nota2' : 'nota', Math.round(kx + 7 + Math.cos(ang) * rx - 2), Math.round(146 + Math.sin(ang) * 9 - 6), i % 2 ? ORO : hex('#fffbe8'), K0, 1); }
+    halo(kx + 7, 146, 18, 0.25 * g); if (t < REACH + 1.2) destello(kx + 18, 130, 3, t); }
+  // el pan en los juncos, meciéndose con la música (se ríe en «reach her»)
+  const pb = Math.round(Math.sin(t * 3.2) * 2);
+  T.pan(R, 228 + pb, 168, t, { s: 1, dir: -1, expresion: t > SIXTY ? 'risa' : 'normal', saluda: t > TRAVEL && t < SIXTY });
+};
+const efectos = [[PINA, 'golpecito'], [BAIRD, 'lapiz'], [PINB, 'golpecito'], [HILO + 0.3, 'brillo'], [b(0) + 0.5, 'silbato'], [MOCKJ - 0.3, 'whoosh'], [TRAVEL, 'brillo'], [REACH, 'brillo']];
+const año = (t) => (t < P2 ? null : t < P3 ? 10 : 75);
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año });
+</script>
+</body>
+</html>

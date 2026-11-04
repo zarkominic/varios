@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Madge · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-MADGE (frases 36–37), Juegos 74 y la cadena 50→74, sin cartela. Tres planos:
+// 1. el salón del alcalde: Madge, de blanco, sostiene el broche y en «gives it to her» se lo prende a Katniss en el pecho
+//    (destello); Katniss sonríe; en «before that» Madge señala la foto ovalada de la pared y Katniss se gira a mirarla; en
+//    «aunt» el cristal de la foto destella;
+// 2. (corte en «aunt») la pared de las fotos de cerca: la chica rubia del óvalo con el mismo broche; en «Maysilee Donner» se
+//    enciende; en «partner» una chispa baja de su broche al de Katniss, que se sorprende; en «Games» aparece en el aparador
+//    una tarjetita sepia con «50»;
+// 3. (corte en «In other words») fondo local: la pared de ladrillo de un almacén del 12 con una cuerda de la línea de tiempo
+//    (50 a la izquierda, 74 a la derecha); cuatro personas de espaldas (Maysilee, Haymitch, Madge, Katniss) se pasan el
+//    broche de mano en mano y la barra del año sube de 50 a 74; en «rebellion» se desenrolla una pancarta roja con el
+//    sinsajo dorado; el pan salta a coger el broche y un charlajo se lo quita (gag 5) y lo lleva de vuelta al «50» en
+//    «Haymitch's Games»: la barra vuelve a 50.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-madge');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const mez = (c1, c2, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((c1 >>> s) & 255) * (1 - k) + ((c2 >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const hh = (a, b, c = 0) => { let n = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263) ^ Math.imul(c | 0, 1274126177); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const rr = (x0, y0, x1, y1, c) => { for (let y = Math.round(y0); y <= Math.round(y1); y++) for (let x = Math.round(x0); x <= Math.round(x1); x++) R.pset(x, y, c); };
+const aclara = (x, y, k, col = 0xffffffff) => { const c = R.pget(x, y); if (c) R.pset(x, y, mez(c, col, k)); };
+const K0 = hex('#14101c'), ORO = hex('#f0c040'), OROS = hex('#a87a18'), OROL = hex('#fff0a0'), BLANCO = hex('#fffbe8');
+R.ICONOS.nota = ['..##', '..#.', '..#.', '..#.', '###.', '###.'];
+R.ICONOS.nota2 = ['.####', '.#..#', '.#..#', '.#..#', '##.##', '##.##'];
+// halo de luz (aclara lo pintado) que cae hacia fuera
+const halo = (xc, yc, r, k = 0.4, col = hex('#fff2b0')) => { for (let y = Math.round(yc - r); y <= Math.round(yc + r); y++) for (let x = Math.round(xc - r); x <= Math.round(xc + r); x++) { const d = Math.hypot(x - xc, y - yc) / r; if (d < 1) aclara(x, y, k * (1 - d) * (1 - d) * 1.6 > k ? k : k * (1 - d) * (1 - d) * 1.6, col); } };
+// destello de cuatro rayos que late
+const destello = (x, y, n, t, col = OROL) => { x = Math.round(x); y = Math.round(y); const m = Math.max(1, Math.round(n * (0.6 + 0.4 * Math.abs(Math.sin(t * 7))))); R.pset(x, y, BLANCO);
+  for (let i = 1; i <= m; i++) { const c = i > m - 1 ? col : BLANCO; R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); }
+  if (m > 2) for (const [a, b] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) R.pset(x + a, y + b, col); };
+// el broche a escala de personaje (7 px): aro de oro, el pájaro oscuro dentro, un brillo
+const miniBroche = (x, y) => { x = Math.round(x); y = Math.round(y); R.disco(x, y, 3, K0); R.disco(x, y, 2, ORO); R.pset(x + 1, y + 1, OROS); R.pset(x + 2, y, OROS);
+  R.pset(x, y, K0); R.pset(x - 1, y, K0); R.pset(x + 1, y - 1, K0); R.pset(x - 1, y - 1, K0); R.pset(x - 1, y - 2, OROL); };
+// una nota que flota de (x0, y0) a (x1, y1) con u 0–1, ondulando
+const notaVuela = (x0, y0, x1, y1, u, col, fase = 0, grande = false, esc = 1) => { if (u <= 0 || u >= 1) return; const x = lerp(x0, x1, u), y = lerp(y0, y1, u) + Math.sin(u * 9 + fase) * 4 * esc;
+  R.icono(grande ? 'nota2' : 'nota', Math.round(x), Math.round(y), col, K0, esc); };
+
+const a = (f) => en('madge', f), b = (f) => en('simbolo', f);
+// palabras: gives 1.20, her 1.68, before 2.47, aunt 4.11, May 4.97, Donner 5.45, partner 6.90, games 7.52, In 8.94, Katniss's 10.79, rebellion 11.45, comes 11.97, Hamich's 12.61, games 13.17
+const P2 = a(0.47), P3 = b(0) - 0.08;
+const GIVES = a(0.091), PRENDE = a(0.155), BEFORE = a(0.258), AUNT = a(0.472), MAY = a(0.585), PARTNER = a(0.837), GAMES = a(0.919);
+const KAT = b(0.385), REBEL = b(0.522), COMES = b(0.630), HAYG = b(0.713), GAMES2 = b(0.83);
+const KAT_SIN = { O: '#7a4a2a' }, MADGE_SIN = { O: '#f8f6f0' };
+// ── 1 · el salón del alcalde
+const p1 = (t) => {
+  const r = T.interior(R, t, { encuadre: 'alcalde', brillo: tramo(t, AUNT - 0.9, AUNT - 0.1) * (1 - tramo(t, AUNT, P2)) });
+  const prendido = t > PRENDE, mira = t > BEFORE + 0.35;
+  // Katniss, mirando a Madge; luego se gira hacia la foto
+  const kx = 196, kdir = mira ? 1 : -1;
+  R.actor(EL.katniss, kx, 160, t, { dir: kdir, pal: prendido ? {} : KAT_SIN, sonrisa: prendido && !mira, sorpresa: t > AUNT - 0.6 && t < AUNT + 0.3 });
+  const pecho = [kdir > 0 ? kx + 9 : kx + 5, 149];
+  // Madge: sostiene el broche, alarga la mano al pecho de Katniss y luego señala la foto
+  const alarga = t > GIVES - 0.25 && t < PRENDE + 0.15;
+  const m = R.actor(EL.madge, 172, 160, t, { dir: 1, pal: MADGE_SIN, sostiene: !prendido || alarga ? (alarga ? pecho : true) : undefined, dedo: t > BEFORE && t < AUNT + 0.2, habla: t < GIVES || (t > BEFORE && t < AUNT) ? Math.sin(t * 12) > 0 : false, sonrisa: t > PRENDE && t < BEFORE });
+  if (!prendido) miniBroche(m.mano[0], m.mano[1] - 1);
+  else { if (t < PRENDE + 1.2) { halo(pecho[0], pecho[1], 9, 0.4 * (1 - tramo(t, PRENDE + 0.4, PRENDE + 1.2))); destello(pecho[0] + 3, pecho[1] - 3, 3, t); } }
+  if (t > BEFORE + 0.3 && t < AUNT - 0.3) for (let i = 0; i < 4; i++) R.pset(m.cabeza[0] + 12 + i * 3, m.cabeza[1] - 6 - i * 4, Math.floor(t * 6 + i) % 2 ? OROL : BLANCO);   // la línea de puntos hacia la foto
+};
+// ── 2 · la pared de las fotos
+const p2 = (t) => {
+  const br = tramo(t, MAY - 0.05, MAY + 0.5);
+  const r = T.interior(R, t, { encuadre: 'alcalde', camara: 'fotos', brillo: br });
+  const [fx, fy] = r.broche ?? [150, 76];
+  if (br > 0) { halo(fx, fy, 14, 0.3 * br + 0.08 * Math.sin(t * 5)); if (t < MAY + 1.6) destello(fx + 5, fy - 5, 3, t); }
+  // Katniss mira la foto desde la izquierda; Madge, a la derecha, la señala
+  const kx = 112, sorpresa = t > PARTNER - 0.1 && t < PARTNER + 0.8;
+  const k = R.actor(EL.katniss, kx, 166, t, { dir: 1, sorpresa, sonrisa: t > GAMES, sostiene: t > PARTNER + 0.2 && t < GAMES + 0.4 ? [kx + 10, 156] : undefined });
+  R.actor(EL.madge, 196, 166, t, { dir: -1, pal: MADGE_SIN, dedo: t > MAY - 0.2 && t < PARTNER - 0.3, habla: t > P2 + 0.2 && t < MAY + 0.3 && Math.sin(t * 12) > 0, sonrisa: t > PARTNER });
+  // el broche de Katniss y la chispa que baja del broche de la foto al suyo
+  const kb = [kx + 9, 155];
+  const ch = tramo(t, PARTNER - 0.5, PARTNER);
+  if (ch > 0 && ch < 1) { for (let i = 0; i < 6; i++) { const uu = ch - i * 0.04; if (uu > 0) R.pset(Math.round(lerp(fx, kb[0], uu)), Math.round(lerp(fy, kb[1], uu) - Math.sin(uu * Math.PI) * 10), i ? ORO : BLANCO); } destello(lerp(fx, kb[0], ch), lerp(fy, kb[1], ch) - Math.sin(ch * Math.PI) * 10, 2, t); }
+  if (t > PARTNER - 0.05) { halo(kb[0], kb[1], 9, 0.4 * (1 - tramo(t, PARTNER + 0.6, PARTNER + 1.6)) + 0.1); if (t < PARTNER + 0.8) destello(kb[0] + 3, kb[1] - 3, 3, t); }
+  // la tarjetita sepia con el «50», apoyada en el aparador
+  const e = tramo(t, GAMES - 0.1, GAMES + 0.2);
+  if (e > 0) { const y = Math.round(lerp(100, 94, e)); rr(205, y, 227, y + 15, K0); rr(206, y + 1, 226, y + 14, hex('#e8d4a8')); R.linea(206, y + 14, 226, y + 14, hex('#b89a6a'));
+    R.numero('50', 216, y + 11, { centro: true, color: hex('#6a3a1a'), sombra: false }); if (t < GAMES + 0.8) destello(228, y, 2, t); }
+};
+// ── 3 · la cadena de manos (fondo local)
+let fondo3 = null;
+const PERS = [ // x de la cabeza, color de manga, pelo, piel del cuello
+  [50, '#e8709a', '#f0d070'], [118, '#6a5a4a', '#3a2a22'], [186, '#f2f0ea', '#f0d070'], [256, '#6a4a2a', '#2a2028'] ];
+const muroFondo = () => {
+  const b = R.nuevo(), prev = R.usar(b);
+  const L = ['#6a3a2e', '#7a4434', '#5a3028', '#82503c', '#6e3e30'].map(hex), JUNTA = hex('#2e2220');
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const fila = Math.floor(y / 6), off = fila % 2 ? 7 : 0, col = Math.floor((x + off) / 14);
+    const junta = y % 6 === 5 || (x + off) % 14 === 13; let c = junta ? JUNTA : L[Math.floor(hh(col, fila) * 5)];
+    if (!junta && hh(x, y, 2) > 0.9) c = mez(c, K0, 0.25); if (!junta && y % 6 === 0) c = mez(c, hex('#a86a50'), 0.25);
+    const hollin = Math.max(0, 1 - y / 70) * 0.5 + (hh(x >> 3, y >> 3, 5) > 0.8 ? 0.12 : 0); c = mez(c, K0, hollin);
+    // la zona de Atom y la barra del año, más oscuras y tranquilas
+    if ((x > 272 && y < 50) || (y < 16 && x < 176)) c = mez(c, hex('#20161a'), 0.55);
+    R.pset(x, y, c); }
+  // manchas de humedad y un cartel viejo arrancado (sello sin letras)
+  for (let y = 60; y < 120; y++) for (let x = 100; x < 140; x++) if (Math.hypot((x - 120) / 1.3, y - 84) < 22 + Math.sin(x * 0.5) * 3) aclara(x, y, 0.08, hex('#8a9a8a'));
+  R.poligono([[12, 34], [44, 30], [46, 60], [30, 64], [14, 58]], hex('#c8b890')); R.poligono([[30, 64], [46, 60], [40, 70]], hex('#a89870'));
+  R.disco(29, 46, 9, hex('#8a2a2a')); R.disco(29, 46, 6, hex('#c8b890')); R.disco(29, 46, 3, hex('#8a2a2a')); R.linea(12, 34, 44, 30, K0); R.linea(14, 58, 12, 34, K0);
+  // un ventanuco con barrotes y la noche azul, y rayas de tiza que cuentan (símbolos, sin letras)
+  rr(76, 28, 124, 66, K0); rr(78, 30, 122, 64, hex('#1a2440')); for (let i = 0; i < 12; i++) R.pset(80 + Math.floor(hh(i, 1) * 40), 32 + Math.floor(hh(i, 2) * 30), hex('#c8d0e8'));
+  R.disco(110, 40, 4, hex('#e8e8d0')); R.disco(108, 39, 3, hex('#1a2440')); for (const x of [88, 100, 112]) { R.linea(x, 30, x, 64, K0); R.linea(x + 1, 30, x + 1, 64, hex('#5a5a62')); }
+  rr(74, 66, 126, 69, hex('#5a4a40')); R.linea(74, 66, 126, 66, hex('#8a7a6a'));
+  for (let g = 0; g < 3; g++) { const x0 = 136 + g * 14; for (let k = 0; k < 4; k++) R.linea(x0 + k * 2, 70, x0 + k * 2, 80, hex('#d8d0c0')); R.linea(x0 - 1, 78, x0 + 8, 71, hex('#d8d0c0')); }
+  // la tubería de la izquierda con sus abrazaderas
+  rr(2, 0, 7, 179, K0); rr(3, 0, 6, 179, hex('#5a5a62')); R.linea(4, 0, 4, 179, hex('#8a8a92')); for (const y of [40, 100, 160]) { rr(1, y, 8, y + 3, K0); rr(2, y + 1, 7, y + 2, hex('#7a7a82')); }
+  // la cuerda de la línea de tiempo, con su comba, y los clavos
+  for (let x = 14; x <= 306; x++) { const y = Math.round(92 + Math.sin((x - 14) / 292 * Math.PI) * 6); R.pset(x, y, hex('#c8b080')); R.pset(x, y + 1, hex('#6a5a3a')); }
+  for (const x of [14, 306]) { R.disco(x, 92, 2, K0); R.pset(x - 1, 91, hex('#aaaaaa')); }
+  // las etiquetas 50 y 74 y dos marcas en medio
+  for (const [x, txt] of [[50, '50'], [256, '74']]) { const y = Math.round(92 + Math.sin((x - 14) / 292 * Math.PI) * 6); R.linea(x, y, x, y + 4, hex('#6a5a3a')); rr(x - 12, y + 4, x + 12, y + 18, K0); rr(x - 11, y + 5, x + 11, y + 17, hex('#e8dcc0')); R.linea(x - 11, y + 17, x + 11, y + 17, hex('#b8a888'));
+    R.numero(txt, x, y + 15, { centro: true, color: hex('#3a2a1a'), sombra: false }); }
+  for (const x of [118, 186]) { const y = Math.round(92 + Math.sin((x - 14) / 292 * Math.PI) * 6); R.linea(x, y, x, y + 3, hex('#6a5a3a')); rr(x - 4, y + 3, x + 4, y + 9, K0); rr(x - 3, y + 4, x + 3, y + 8, hex('#d8ccb0')); }
+  // la bombilla colgada (el cable sale de fuera de la barra del año) y su luz en la pared
+  R.linea(180, 0, 180, 24, K0);
+  for (let y = 20; y < 180; y++) for (let x = 60; x < 300; x++) { const d = Math.hypot((x - 180) / 1.7, y - 30) / 120; if (d < 1) aclara(x, y, 0.2 * (1 - d), hex('#ffd890')); }
+  R.usar(prev); return b;
+};
+const p3 = (t) => {
+  if (!fondo3) fondo3 = muroFondo();
+  R.copiar(fondo3);
+  // la bombilla que se mece un poco y parpadea
+  const lbx = 180 + Math.round(Math.sin(t * 1.3) * 1.5); R.disco(lbx, 28, 4, K0); R.disco(lbx, 28, 3, Math.sin(t * 17) > 0.9 ? hex('#f8e0a0') : hex('#fff4c8')); rr(lbx - 2, 22, lbx + 2, 24, hex('#5a5a62'));
+  // la pancarta roja que se desenrolla en «rebellion», con el sinsajo dorado
+  const ban = tramo(t, REBEL - 0.25, REBEL + 0.45);
+  for (const x of [198, 262]) { R.disco(x, 20, 1, hex('#aaaaaa')); }
+  { const y1 = Math.round(lerp(26, 86, ban)), ond = (y) => Math.round(Math.sin(t * 2.2 + y * 0.12) * 1.2 * ban);
+    for (let y = 22; y <= y1; y++) { const d = ond(y); R.pset(196 + d, y, K0); R.pset(264 + d, y, K0); for (let x = 197; x <= 263; x++) { const pl = (x - 197) % 16; R.pset(x + d, y, pl < 3 ? hex('#8a1a22') : pl > 12 ? hex('#a8242c') : hex('#c8303a')); } }
+    for (let x = 196; x <= 264; x++) R.pset(x + ond(y1), y1 + 1, K0);
+    if (ban > 0.15) for (let x = 198; x <= 262; x += 3) R.linea(x + ond(y1), y1 + 1, x + ond(y1), y1 + 4, ORO);
+    rr(194, 19, 266, 23, K0); rr(195, 20, 265, 22, hex('#6a4a2a'));   // el palo de arriba
+    if (ban > 0.75) { const k = tramo(t, REBEL + 0.3, REBEL + 0.6); R.disco(230, 56, 21, K0); R.disco(230, 56, 20, ORO); R.disco(230, 56, 17, hex('#c8303a'));
+      T.PIEZAS_JH.sinsajo(R, 230, 68, { s: 2, t }); if (k < 1) for (let y = 36; y < 78; y++) for (let x = 210; x < 251; x++) if (hh(x, y, 6) > k && Math.hypot(x - 230, y - 56) < 20) R.pset(x, y, hex('#c8303a'));
+      if (t < REBEL + 1.4) destello(250, 38, 4, t); } }
+  // las cuatro personas de espaldas abajo, con el brazo levantado; el broche salta de mano en mano
+  const SALTOS = [[P3 + 0.15, P3 + 0.65], [P3 + 0.75, P3 + 1.25], [P3 + 1.35, KAT - 0.05]];
+  let quien = 0; for (const [s0] of SALTOS) if (t >= s0) quien++;
+  const robado = t > COMES + 0.15;
+  const palma = [];
+  PERS.forEach(([x, manga, pelo], i) => {
+    const tiene = (quien === i && !SALTOS.some(([s0, s1]) => t > s0 && t < s1)) && !(i === 3 && robado);
+    const sube = (tiene ? -5 : 0) + Math.round(Math.sin(t * 2 + i) * 1.5), dir = i % 2 ? -1 : 1;
+    const hx = x + dir * 12, hy = 126 + sube;
+    // hombros y cabeza de espaldas (el brazo sale del hombro, por delante)
+    R.disco(x, 182, 18, K0); R.disco(x, 182, 17, hex(manga)); R.disco(x - 6 * dir, 178, 8, mez(hex(manga), K0, 0.18)); for (let k = 0; k < 3; k++) R.linea(x - 10 + k * 8, 168, x - 12 + k * 8, 179, mez(hex(manga), K0, 0.3));
+    R.disco(x, 156, 11, K0); R.disco(x, 156, 10, hex(pelo)); R.linea(x - 6, 150, x - 2, 147, mez(hex(pelo), BLANCO, 0.35)); R.linea(x - 7, 154, x - 4, 150, mez(hex(pelo), BLANCO, 0.2)); R.disco(x + 4, 160, 4, mez(hex(pelo), K0, 0.25));
+    if (i === 3) for (let yy = 164; yy < 180; yy += 3) { R.disco(x + 1, yy, 2, K0); R.disco(x + 1, yy, 1, hex('#4a3e4c')); }   // la trenza de Katniss
+    if (i === 0) { R.disco(x - 10, 162, 4, K0); R.disco(x + 10, 162, 4, K0); R.disco(x - 10, 162, 3, hex(pelo)); R.disco(x + 10, 162, 3, hex(pelo)); }   // las coletas de Maysilee
+    if (i === 2) rr(x - 10, 158, x + 10, 168, hex(pelo));   // la melena de Madge
+    if (i === 1) for (let k = -8; k <= 8; k += 4) R.disco(x + k, 147, 2, hex('#2a1c16'));   // los rizos de Haymitch
+    T.brazo(R, x + dir * 8, 170, hx, hy, manga, dir, { sombra: false, codo: [x + dir * 20, 152 + Math.round(sube / 2)] });
+    palma.push([hx + dir * 7, hy - 3]);
+  });
+  // el pan (gag 5): se asoma entre Madge y Katniss, salta a por el broche y se queda sin él
+  const sp = tramo(t, KAT, COMES - 0.1), salto = Math.sin(tramo(t, COMES - 0.3, COMES + 0.35) * Math.PI);
+  if (sp > 0) T.pan(R, 222, Math.round(lerp(196, 178, sp) - salto * 22), t, { s: 2, dir: 1, señala: t > COMES - 0.4 && t < COMES + 0.3 ? palma[3] : null, expresion: t > COMES + 0.4 ? 'llora' : 'normal' });
+  // el charlajo: baja, se lo quita a Katniss y lo lleva volando al «50»
+  const ida = tramo(t, COMES - 0.25, COMES + 0.15), vuelta = tramo(t, COMES + 0.15, GAMES2 - 0.1), fuera = tramo(t, GAMES2 + 0.1, GAMES2 + 1.0);
+  let cx = null, cy = null, dirC = -1;
+  if (ida > 0 && ida < 1) { cx = lerp(330, palma[3][0] + 6, ida); cy = lerp(60, palma[3][1] + 2, ida); }
+  else if (vuelta > 0 && vuelta < 1) { cx = lerp(palma[3][0] + 6, 52, vuelta); cy = lerp(palma[3][1] + 2, 108, vuelta) - Math.sin(vuelta * Math.PI) * 50; }
+  else if (fuera > 0 && fuera < 1) { cx = lerp(52, -20, fuera); cy = lerp(104, 40, fuera); }
+  // el broche
+  let bx, by;
+  const enSalto = SALTOS.findIndex(([s0, s1]) => t > s0 && t < s1);
+  if (enSalto >= 0) { const [s0, s1] = SALTOS[enSalto], u = (t - s0) / (s1 - s0), [x0, y0] = palma[enSalto], [x1, y1] = palma[enSalto + 1]; bx = lerp(x0, x1, u); by = lerp(y0, y1, u) - Math.sin(u * Math.PI) * 26; }
+  else if (!robado) { [bx, by] = palma[Math.min(quien, 3)]; }
+  else if (vuelta < 1) { bx = cx - 4; by = cy + 6; }
+  else { bx = 50; by = 122; }
+  halo(bx, by - 6, 14, 0.35 + 0.1 * Math.sin(t * 6)); T.PIEZAS_JH.broche(R, bx, by + 2, { brillo: true });
+  if (enSalto >= 0 || (quien === 3 && t < KAT + 0.6)) destello(bx + 8, by - 12, 3, t);
+  if (vuelta >= 1) { halo(50, 106, 18, 0.3 * (1 - tramo(t, GAMES2 + 0.6, GAMES2 + 1.4)) + 0.1); if (t < GAMES2 + 0.9) destello(64, 100, 4, t); }
+  if (cx != null) T.PIEZAS_JH.charlajo(R, Math.round(cx), Math.round(cy), { s: 2, dir: dirC, t });
+};
+const efectos = [[GIVES, 'brillo'], [BEFORE + 0.2, 'pop'], [MAY, 'brillo'], [PARTNER - 0.1, 'whoosh'], [GAMES, 'pop'], [P3 + 0.2, 'whoosh'], [REBEL - 0.2, 'papel'], [COMES - 0.3, 'boing'], [COMES, 'silbato'], [GAMES2, 'brillo']];
+const año = (t) => {
+  if (t < P3) return 74;
+  if (t < COMES + 0.15) return Math.round(lerp(50, 74, tramo(t, P3 + 0.15, KAT - 0.05)));
+  return Math.round(lerp(74, 50, tramo(t, COMES + 0.15, GAMES2 - 0.1)));
+};
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año });
+</script>
+</body>
+</html>

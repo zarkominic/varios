@@ -21,7 +21,7 @@ E = [
  ('jh-gancho', None, 1, 2, ['antes', 'haymitch'],
   ['A: la plaza del Distrito 12 al amanecer, con el escenario de la cosecha y la pantalla del Capitolio; un chico de pelo oscuro (Haymitch joven) planta cara; en «beat the Capitol» la pantalla gigante chisporrotea y se apaga; en «made him pay» la sombra de una rosa blanca cae sobre él.',
    'E: el cine; Atom y el pan con ojos en sus butacas; en la pantalla, un sinsajo dorado y la silueta de Haymitch adulto con una petaca; en «November 20» un calendario con 11·20 dorado.'],
-  'epico', ['capitolio']),
+  'epico', ['antes']),
  ('jh-peligro', None, 3, 4, ['peligro', 'preguntas'],
   ['C: la sala de control de los Vigilantes; la maqueta de la arena se llena de 48 lucecitas, el doble que de costumbre; un vigilante cuenta con los dedos y se le acaban; un reloj de película marca 2:38.',
    'E (cuarto de fan): un tablero de corcho con hilo rojo: un broche, un apellido, una flecha y tres interrogaciones que se encienden una a una.'],

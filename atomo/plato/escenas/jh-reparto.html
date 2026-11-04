@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El reparto · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-REPARTO (frases 27–28), Juegos 50. Cuatro planos:
+// 1. el plató a oscuras: Haymitch joven entra por la izquierda; en «Haymitch» se enciende el foco y en la pantalla su
+//    silueta de rizos; en «Zada» saluda al público, que aplaude, y cae confeti;
+// 2. (corte en «and Lenore») el lago del bosque, de tarde: Lenore Dove canta junto al agua; Haymitch llega con una flor;
+//    en «loves» sale un corazón; en «Whitney Peak» un ganso de Lenore le pica la bota y él da un salto;
+// 3. (corte en «McKenna») el balcón del Capitolio: Maysilee sale por el ventanal y se pone lejos de Haymitch, de morros;
+//    entre los dos, el hueco; un pájaro rosa de caramelo cruza el hueco; en «tribute» la multitud aplaude;
+// 4. (corte al final de «tribute») el porche de Haymitch en la Veta, de día: él tira una piedrecita al aire junto a su
+//    puerta; Maysilee, de rosa, salta un cubo de carbón en «town girl»; en «nothing like him» él sonríe, una gallina cruza entre los dos
+//    y ella se va muy digna.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-reparto');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const mez = (c1, c2, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((c1 >>> s) & 255) * (1 - k) + ((c2 >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const hh = (a, b, c = 0) => { let n = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263) ^ Math.imul(c | 0, 1274126177); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const rr = (x0, y0, x1, y1, c) => { for (let y = Math.round(y0); y <= Math.round(y1); y++) for (let x = Math.round(x0); x <= Math.round(x1); x++) R.pset(x, y, c); };
+const aclara = (x, y, k, col = 0xffffffff) => { const c = R.pget(x, y); if (c) R.pset(x, y, mez(c, col, k)); };
+const K0 = hex('#14101c');
+R.ICONOS.corazon = ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...'];
+R.ICONOS.nota = ['..##', '..#.', '..#.', '..#.', '###.', '###.'];
+// un cono de luz desde arriba (foco): aclara lo que ya está pintado
+const foco = (xc, y0, y1, w0, w1, k = 0.28, col = hex('#fff6d8')) => { for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) { const u = (y - y0) / Math.max(1, y1 - y0), w = w0 + (w1 - w0) * u; for (let x = Math.round(xc - w); x <= Math.round(xc + w); x++) aclara(x, y, Math.abs(x - xc) > w - 1.5 ? k * 0.45 : k, col); } };
+// charco de luz en el suelo
+const charco = (xc, yc, rx, ry, k = 0.3, col = hex('#fff6d8')) => { for (let y = Math.round(yc - ry); y <= Math.round(yc + ry); y++) for (let x = Math.round(xc - rx); x <= Math.round(xc + rx); x++) { const u = (x - xc) / rx, v = (y - yc) / ry, d = u * u + v * v; if (d <= 1) aclara(x, y, d > 0.7 ? k * 0.5 : k, col); } };
+// un pájaro pequeño que vuela (alas arriba y abajo); col, colS, pico
+const pajarito = (x, y, t, dir, col, colS, pico = hex('#f0b030'), aleteo = true) => {
+  x = Math.round(x); y = Math.round(y); const ala = aleteo ? Math.floor(t * 12) % 2 : 1, X = (i) => x + dir * i;
+  for (let i = -3; i <= 3; i++) for (let j = -2; j <= 2; j++) if (i * i / 10 + j * j / 4 <= 1) R.pset(X(i), y + j, j > 0 ? colS : col);
+  for (let i = -4; i <= 4; i++) for (let j = -3; j <= 3; j++) if (i * i / 16 + j * j / 7 <= 1 && !(i * i / 10 + j * j / 4 <= 0.6)) { const c = R.pget(X(i), y + j); if (c !== col && c !== colS) R.pset(X(i), y + j, K0); }
+  R.pset(X(2), y - 1, K0); R.pset(X(4), y, pico); R.pset(X(5), y, pico); R.pset(X(-4), y - 1, colS); R.pset(X(-5), y - 2, colS);
+  if (ala) { R.linea(X(-1), y - 1, X(-3), y - 5, K0); R.linea(X(0), y - 1, X(-2), y - 5, colS); R.pset(X(-1), y - 4, col); }
+  else { R.linea(X(-1), y + 1, X(-3), y + 4, K0); R.linea(X(0), y + 1, X(-2), y + 4, colS); }
+};
+// confeti que cae (fuera de la barra del año y de la esquina de Atom)
+const confeti = (t, n, x0, x1, y0, y1, semilla = 1, desde = 0) => { if (t < desde) return; const cols = [hex('#ff5aa8'), hex('#3ad0c8'), hex('#ffd84a'), hex('#a86aff'), hex('#8ae04a'), hex('#ffffff')];
+  for (let i = 0; i < n; i++) { const vel = 18 + hh(i, 2, semilla) * 22, x = Math.round(x0 + hh(i, 1, semilla) * (x1 - x0) + Math.sin(t * 3 + i) * 3), y = Math.round(y0 + ((hh(i, 3, semilla) * (y1 - y0) + (t - desde) * vel) % (y1 - y0)));
+    if (y < 16 || (x > 274 && y < 48)) continue; const c = cols[i % 6]; R.pset(x, y, c); if (Math.floor(t * 8 + i) % 2) R.pset(x + 1, y, mez(c, K0, 0.3)); else R.pset(x, y + 1, mez(c, K0, 0.3)); } };
+
+const a = (f) => en('zada', f), g = (f) => en('grace', f);
+const P2 = a(0.418), P3 = g(0), P4 = g(0.631);
+const HAY = a(0.032), ZADA = a(0.195), LOVES = a(0.697), PEAK = a(0.839);
+const MAY = g(0.15), TRIB = g(0.544), TOWN = g(0.726), NADA = g(0.85);
+// la silueta de Haymitch en la pantalla: hombros, cuello, cabeza y rizos, con el filo dorado
+const siluetaRizos = (cx, base, cuerpo, filo) => {
+  const hombros = (d) => [[cx - 34 - d, base + 2], [cx - 28 - d, base - 14 - d], [cx - 12, base - 21 - d], [cx + 12, base - 21 - d], [cx + 28 + d, base - 14 - d], [cx + 34 + d, base + 2]];
+  const cab = (d) => { R.disco(cx, base - 36, 13 + d, d ? filo : cuerpo); for (let k = 0; k < 9; k++) { const an = Math.PI * (1.05 + k * 0.11); R.disco(cx + Math.cos(an) * 13, base - 38 + Math.sin(an) * 13, 5 + d, d ? filo : cuerpo); } };
+  R.poligono(hombros(1), filo); cab(1); R.poligono(hombros(0), cuerpo); rr(cx - 6, base - 26, cx + 6, base - 18, cuerpo); cab(0);
+};
+const pantallaHaymitch = (R_, t, [x0, y0, x1, y1]) => {
+  const on = tramo(t, HAY - 0.1, HAY + 0.35);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    if (on < 1 && hh(x, y, Math.floor(t * 15)) > on) { const v = hh(y, x, Math.floor(t * 15) + 7); R.pset(x, y, v > 0.5 ? hex('#8a8aa0') : hex('#3a3a4a')); continue; }
+    const u = (y - y0) / (y1 - y0), ray = Math.sin((x - 160) * 0.09 + t * 0.6) > 0.55 && (x + y) % 2 === 0;
+    R.pset(x, y, ray ? mez(hex('#3a5ac8'), hex('#5ad0e8'), u) : mez(hex('#1a1a5a'), hex('#2a7aa8'), u));
+  }
+  if (on > 0.5) { siluetaRizos(160, y1 + 2, hex('#0c0a18'), Math.sin(t * 6) > 0 ? hex('#ffd84a') : hex('#f0b030'));
+    if (t > ZADA) for (let i = 0; i < 8; i++) { const an = i / 8 * Math.PI * 2 + t, r = 30 + (Math.floor(t * 6 + i) % 3) * 4; R.pset(160 + Math.cos(an) * r, 60 + Math.sin(an) * r * 0.6, hex('#fff4b0')); } }
+};
+const p1 = (t) => {
+  const ap = 0.15 + 0.85 * tramo(t, ZADA - 0.1, ZADA + 0.6);
+  T.capitolio(R, t, { encuadre: 'plato', pantalla: pantallaHaymitch, aplausos: ap, audiencia: 0.3 + 0.6 * tramo(t, HAY, ZADA + 0.5) });
+  const luz = tramo(t, HAY - 0.05, HAY + 0.15);
+  T.tinte(R, 16, 179, [12, 6, 34], 0.42 - 0.12 * luz);
+  const u = tramo(t, 0.2, HAY - 0.1), x = Math.round(lerp(58, 132, u));
+  if (luz > 0) { foco(x + 7, 22, 150, 3, 17, 0.3 * luz); charco(x + 7, 150, 20, 5, 0.35 * luz); }
+  const saluda = t > ZADA && t < ZADA + 1.3, mira = t > HAY + 0.4 && t < ZADA - 0.1;
+  R.actor(EL.haymitch, x, 150, t, { dir: mira ? -1 : 1, anda: u > 0 && u < 1, sorpresa: t > HAY && t < HAY + 0.5, dedo: saluda && Math.floor(t * 4) % 2 === 0, brazos: saluda && Math.floor(t * 4) % 2 === 1, sonrisa: t > ZADA - 0.2 });
+  confeti(t, 40, 60, 262, 18, 150, 3, ZADA + 0.1);
+};
+// ── plano 2: el lago, de tarde ──
+const ganso = (x, y, t, dir, anda, pica) => {
+  x = Math.round(x); y = Math.round(y); const X = (i) => x + dir * i, paso = anda ? Math.floor(t * 8) % 2 : 0, B = hex('#f4f2ea'), S = hex('#c8c4b8'), N = hex('#f08a20');
+  for (let i = -6; i <= 5; i++) for (let j = -4; j <= 3; j++) if (i * i / 36 + j * j / 14 <= 1) R.pset(X(i), y - 5 + j, j > 1 ? S : B);
+  for (let i = -7; i <= 6; i++) for (let j = -5; j <= 4; j++) if (i * i / 49 + j * j / 22 <= 1 && !(i * i / 36 + j * j / 14 <= 1)) R.pset(X(i), y - 5 + j, K0);
+  R.pset(X(-7), y - 7, B); R.pset(X(-8), y - 8, K0);
+  const cy = pica ? y - 6 : y - 14, cx = pica ? 9 : 5;
+  R.linea(X(3), y - 7, X(cx - 1), cy + 2, K0); R.linea(X(4), y - 7, X(cx), cy + 2, B); R.linea(X(5), y - 7, X(cx + 1), cy + 2, K0);
+  R.disco(X(cx), cy, 2.2, B); R.pset(X(cx + 1), cy - 1, K0); R.pset(X(cx + 3), cy, N); R.pset(X(cx + 4), cy, N); R.pset(X(cx + 3), cy + 1, hex('#c86a10'));
+  R.pset(X(-1), y - 1 + (paso ? -1 : 0), N); R.pset(X(-1), y, N); R.pset(X(1), y - 1 + (paso ? 0 : -1), N); R.pset(X(1), y, N); R.pset(X(2), y, N); R.pset(X(0), y, N);
+};
+const notas = (t, x, y, desde, hasta, col, semilla) => { for (let i = 0; i < 4; i++) { const f = ((t - desde) * 0.8 + i * 0.25) % 1; if (t < desde || t > hasta) continue; R.icono('nota', Math.round(x + Math.sin(f * 6 + i) * 4 + f * 18 * semilla), Math.round(y - f * 34), col, K0, 1); } };
+const p2 = (t) => {
+  T.distrito(R, t, { encuadre: 'bosque', luz: 'tarde' });
+  const llega = tramo(t, P2 + 0.15, LOVES - 0.45), xh = Math.round(lerp(300, 184, llega));
+  const salta = t > PEAK + 0.35 && t < PEAK + 0.75, canta = t < LOVES - 0.6 || t > PEAK + 0.9;
+  R.actor(EL.lenore, 150, 162, t, { dir: 1, habla: canta && Math.sin(t * 9) > 0, sorpresa: t > LOVES - 0.6 && t < LOVES - 0.1, sonrisa: t > LOVES - 0.1 });
+  const ofrece = t > LOVES - 0.45 && t < PEAK + 0.3;
+  const h = R.actor(EL.haymitch, xh, 162, t, { dir: -1, anda: llega > 0 && llega < 1, sostiene: ofrece ? true : undefined, sonrisa: t > LOVES - 0.2, sorpresa: salta, salto: salta ? Math.round(Math.sin((t - PEAK - 0.35) / 0.4 * Math.PI) * 6) : 0 });
+  if (ofrece) { const [mx, my] = h.mano; R.linea(mx, my, mx - 2, my - 6, hex('#3a7a2a')); for (let k = 0; k < 6; k++) { const an = k / 6 * Math.PI * 2 + t; R.pset(Math.round(mx - 2 + Math.cos(an) * 2), Math.round(my - 8 + Math.sin(an) * 2), hex('#ffd84a')); } R.pset(mx - 2, my - 8, hex('#e86a20')); }
+  if (t > LOVES - 0.05 && t < PEAK + 0.2) { const u = tramo(t, LOVES - 0.05, LOVES + 0.4), s = 2 + (Math.floor(t * 4) % 2); R.icono('corazon', 172 - (s === 3 ? 3 : 0), Math.round(124 - u * 16), hex('#ff4a7a'), hex('#ffffff'), s);
+    if (u < 1) for (let i = 0; i < 8; i++) { const an = i / 8 * Math.PI * 2; R.pset(Math.round(179 + Math.cos(an) * (6 + u * 14)), Math.round(114 - u * 10 + Math.sin(an) * (4 + u * 10)), hex('#ffd0e0')); } }
+  notas(t, 160, 132, P2, LOVES - 0.6, hex('#ffe8a0'), 1); notas(t, 160, 132, PEAK + 0.9, E.duracion, hex('#ffe8a0'), 1);
+  // el ganso de Lenore: viene por la orilla y le pica la bota a Haymitch
+  const gv = tramo(t, LOVES + 0.1, PEAK + 0.3), gx = lerp(96, xh - 6, gv);
+  ganso(gx, 166, t, 1, gv > 0 && gv < 1, t > PEAK + 0.2 && t < PEAK + 0.6);
+  if (t > PEAK + 0.3 && t < PEAK + 0.9) R.icono('!', xh + 6, 120, hex('#ffffff'), K0, 1);
+  T.distritoDelante(R, t, { encuadre: 'bosque', luz: 'tarde' });
+};
+// ── plano 3: el balcón ──
+const pajaroCaramelo = (x, y, t, dir) => { pajarito(x, y, t, dir, hex('#ff8ad0'), hex('#d84aa0'), hex('#ffe0f4')); R.pset(Math.round(x) + dir * -1, Math.round(y) - 1, hex('#ffffff')); R.pset(Math.round(x), Math.round(y) - 2, hex('#ffd0ee'));
+  for (let i = 1; i <= 3; i++) { const f = Math.floor(t * 10 + i) % 3; if (f === 0) R.pset(Math.round(x) - dir * (6 + i * 3), Math.round(y) + (i % 2), hex('#ffc0e8')); } };
+const p3 = (t) => {
+  T.capitolio(R, t, { encuadre: 'avenida', camara: 'balcon' });
+  const sale = tramo(t, P3 + 0.1, MAY + 0.1), xm = Math.round(lerp(152, 200, sale)), aparta = tramo(t, TRIB + 0.1, TRIB + 0.6);
+  const acerca = tramo(t, TRIB - 0.1, TRIB + 0.4), xh = Math.round(lerp(100, 120, acerca) - lerp(0, 8, tramo(t, TRIB + 0.9, TRIB + 1.4)));
+  const vuela = tramo(t, MAY + 0.3, TRIB - 0.3), bx = lerp(232, 88, vuela), by = 100 + Math.sin(vuela * 9) * 6;
+  const mira = vuela > 0.1 && vuela < 1 ? (bx > xh + 7 ? 1 : -1) : 1;
+  R.actor(EL.haymitch, xh, 126, t, { dir: mira, anda: (acerca > 0 && acerca < 1), dedo: t > P3 && t < MAY - 0.2 && Math.floor(t * 3) % 2 === 0, sonrisa: t < TRIB + 0.6 || t > TRIB + 1.4, sorpresa: t > TRIB + 0.6 && t < TRIB + 1.4 });
+  R.actor(EL.maysilee, Math.round(xm + aparta * 12), 126, t, { dir: sale < 1 ? 1 : (t > TRIB + 0.1 && t < TRIB + 0.8 ? -1 : 1), anda: (sale > 0 && sale < 1) || (aparta > 0 && aparta < 1), enfado: t > MAY - 0.2, habla: t > TRIB + 0.2 && t < TRIB + 0.7 });
+  if (vuela > 0 && vuela < 1) pajaroCaramelo(bx, by, t, -1);
+  T.capitolioDelante(R, t, { encuadre: 'avenida', camara: 'balcon' });
+  confeti(t, 26, 20, 270, 18, 178, 7, TRIB);
+};
+// ── plano 4: la calle de la Veta ──
+const gallina = (x, y, t, dir, corre) => { x = Math.round(x); y = Math.round(y); const X = (i) => x + dir * i, b = corre ? Math.floor(t * 12) % 2 : 0, W = hex('#f0e6d0'), S = hex('#c0a888');
+  for (let i = -4; i <= 3; i++) for (let j = -3; j <= 2; j++) if (i * i / 16 + j * j / 9 <= 1) R.pset(X(i), y - 4 - b + j, j > 0 ? S : W);
+  R.disco(X(4), y - 8 - b, 1.8, W); R.pset(X(5), y - 9 - b, K0); R.pset(X(6), y - 8 - b, hex('#f0a020')); R.pset(X(4), y - 11 - b, hex('#e83a3a')); R.pset(X(5), y - 11 - b, hex('#e83a3a'));
+  R.pset(X(-5), y - 6 - b, S); R.pset(X(-5), y - 7 - b, W); R.pset(X(-1), y - 1, hex('#f0a020')); R.pset(X(1 + b), y - 1 + b, hex('#f0a020')); R.pset(X(-1), y, hex('#f0a020')); R.pset(X(1), y, hex('#f0a020'));
+  if (corre) for (let i = 0; i < 3; i++) R.pset(X(-7 - i * 3), y - 1 - (Math.floor(t * 8 + i) % 2), hex('#b8aa98')); };
+const cubo = (x, y) => { R.poligono([[x - 7, y - 9], [x + 7, y - 9], [x + 5, y], [x - 5, y]], K0); R.poligono([[x - 6, y - 8], [x + 6, y - 8], [x + 4, y - 1], [x - 4, y - 1]], hex('#5a5e68')); R.linea(x - 6, y - 8, x + 6, y - 8, hex('#9aa0aa'));
+  for (let i = -5; i <= 5; i += 2) R.disco(x + i, y - 10 - (i % 3 ? 0 : 1), 1.6, i % 4 ? hex('#2a2a30') : hex('#4a4a52')); R.pset(x - 2, y - 12, hex('#8a8a96')); R.linea(x - 7, y - 9, x - 2, y - 16, hex('#3a3a42')); R.linea(x + 7, y - 9, x + 2, y - 16, hex('#3a3a42')); };
+const p4 = (t) => {
+  T.distrito(R, t, { encuadre: 'calle', camara: 'puerta', luz: 'dia' });
+  cubo(88, 164);
+  const anda1 = tramo(t, P4 + 0.05, TOWN - 0.25), anda2 = tramo(t, TOWN + 0.25, NADA - 0.15), vete = tramo(t, NADA + 0.55, E.duracion - 0.1);
+  const xm = Math.round(anda1 < 1 ? lerp(10, 64, anda1) : anda2 < 1 ? lerp(98, 128, anda2) : lerp(128, 330, vete)), xm2 = anda1 >= 1 && anda2 <= 0 ? Math.round(lerp(64, 98, tramo(t, TOWN - 0.25, TOWN + 0.25))) : xm;
+  const salto = t > TOWN - 0.25 && t < TOWN + 0.25 ? Math.round(Math.sin((t - TOWN + 0.25) / 0.5 * Math.PI) * 8) : 0;
+  const andando = (anda1 > 0 && anda1 < 1) || (anda2 > 0 && anda2 < 1) || (vete > 0 && vete < 1);
+  // Haymitch tira una piedrecita al aire y la recoge
+  const fase = ((t - P4) % 1.1) / 1.1, tira = t < NADA - 0.1, xh = 180;
+  const h = R.actor(EL.haymitch, xh, 164, t, { dir: -1, sostiene: tira ? [xh - 2, 140] : undefined, sonrisa: t > NADA - 0.1, dedo: t > NADA - 0.1 && t < NADA + 0.6, sorpresa: t > TOWN - 0.25 && t < TOWN + 0.2 });
+  if (tira) { const [mx, my] = h.mano, py = Math.round(my - 2 - Math.sin(fase * Math.PI) * 16); R.disco(mx, py, 1.4, hex('#3a3a42')); R.pset(mx, py - 1, hex('#8a8a96')); }
+  R.actor(EL.maysilee, xm2, 164, t, { dir: 1, anda: andando || salto > 0, salto, enfado: t > NADA, sonrisa: t > P4 + 0.3 && t < TOWN + 0.4 });
+  if (t > TOWN - 0.2 && t < TOWN + 0.4) for (let i = 0; i < 5; i++) { const f = tramo(t, TOWN - 0.2, TOWN + 0.4); R.pset(84 + i * 2, Math.round(150 - Math.sin(f * Math.PI) * (3 + i)), hex('#4a4a52')); }
+  const gv = tramo(t, NADA + 0.1, NADA + 1.1); if (gv > 0 && gv < 1) gallina(lerp(250, 40, gv), 168, t, -1, true);
+  if (t > NADA && t < NADA + 0.6) R.icono('!', xm2 + 6, 124, hex('#ffffff'), K0, 1);
+  T.distritoDelante(R, t, { encuadre: 'calle', camara: 'puerta', luz: 'dia' });
+};
+const efectos = [[HAY - 0.05, 'interruptor'], [ZADA + 0.1, 'publico'], [LOVES, 'brillo'], [PEAK + 0.25, 'boing'], [P3 + 0.15, 'puerta'], [TRIB + 0.1, 'publico'], [TOWN - 0.1, 'boing'], [NADA + 0.15, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 50 });
+</script>
+</body>
+</html>

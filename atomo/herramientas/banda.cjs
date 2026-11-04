@@ -249,6 +249,8 @@ for (const esc of linea.escenas) {
   const p = plan[esc.id] || {};
   for (const marca of p.golpes || []) {
     const t = esc.inicio + esc.marcas[marca];
+    // una marca que no existe daba NaN y llenaba de NaN toda la música (ep20, 04/11/2026): se avisa y se salta
+    if (!Number.isFinite(t)) { console.error(`AVISO: golpe «${marca}» de ${esc.id}: la marca no existe, se salta`); continue; }
     cortes.push(t);
     golpes.addMono(I.subBoom(2.6, 70, 30), t + 0.1, 1, 0);
     golpes.addMono(I.timpani(33 + T, { decay: 1.6 }), t + 0.1, 0.5, 0);

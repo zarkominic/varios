@@ -756,9 +756,9 @@ const p5 = (t) => {
   T.hoy(R, t, { encuadre: 'cine', camara: 'butacas', luzPantalla: hex('#f8b070') });
   // el pan: tranquilo; en «reaping» tiembla (susto) y en «shaking» se esconde detrás de la fila de delante
   const baja = tramo(t, SHAKING - 0.1, SHAKING + 0.35), sacude = tiembla ? Math.round(Math.sin(t * 60)) : 0, brinco = tramo(t, REAPING, REAPING + 0.4);
-  const py = Math.round(lerp(136, 172, baja) - (brinco > 0 && brinco < 1 ? Math.sin(brinco * Math.PI) * 8 : 0));
+  const py = Math.round(lerp(136, 162, baja) - (brinco > 0 && brinco < 1 ? Math.sin(brinco * Math.PI) * 8 : 0));
   T.pan(R, 128 + sacude, py, t, { s: 2, dir: 1, expresion: tiembla ? 'susto' : 'normal', esconde: baja, saluda: t < HIDING - 0.2 });
-  if (tiembla && t < SHAKING) R.icono('!', 136, py - 44, K9.oroL, K9.k);
+  if (tiembla && t < SHAKING) R.icono('!', 140, py - 50, K9.oroL, K9.k, 2);
   // Atom se acerca al pan en «hiding this bread», vuelve a su butaca y se despide
   const va = tramo(t, HIDING - 0.2, HIDING + 0.5) * (1 - tramo(t, REAPING - 0.6, REAPING - 0.1)), adios = t > SHAKING + 0.4;
   const ax = Math.round(lerp(192, 156, va) + (adios ? Math.sin(t * 6) * 4 : 0)), ay = Math.round(lerp(112, 104, va) + Math.sin(t * 2.4) * 1.5);

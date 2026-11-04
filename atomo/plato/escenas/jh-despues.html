@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Después · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-DESPUES (frase 12), Juegos 75. Dos planos:
+// 1. el museo del Capitolio: el cuadro de la arena del reloj de cerca; una capitolina lo mira; en «Catching Fire» suben
+//    chispas doradas por el cuadro; en «75th» se enciende la placa con el «75» y ella la señala; un capitolino pasa por
+//    delante (corta en «Mockingjay»);
+// 2. la sala del museo con los tres cuadros: en «Mockingjay» el pájaro en llamas brilla y los visitantes se asombran; en
+//    «rebellion» un sinsajo dorado sale volando del cuadro y se posa en el marco del palacio; en «brings down» se apagan
+//    las ventanas del palacio una a una; Snow, delante, se enfada y se le cae la rosa blanca en «Snow».
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-despues');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C;
+// un ganso blanco de 10 px que anda (pico y patas naranjas); dir 1 mira a la derecha
+const ganso = (x, y, t, dir = 1, k = 0) => {
+  const { rect, pset } = R, X = (i) => Math.round(x + dir * i), pa = Math.floor(t * 6 + k) % 2, cab = Math.sin(t * 3 + k) > 0.6 ? 1 : 0;
+  rect(Math.min(X(-5), X(4)), y - 6, Math.max(X(-5), X(4)), y - 2, T.C.k);
+  rect(Math.min(X(-4), X(3)), y - 5, Math.max(X(-4), X(3)), y - 3, hex('#f4f2ec')); rect(Math.min(X(-4), X(3)), y - 3, Math.max(X(-4), X(3)), y - 3, hex('#c8c4bc'));
+  pset(X(-5), y - 6, hex('#c8c4bc')); pset(X(-2), y - 4, hex('#dcd8d0'));
+  for (let j = 0; j < 5; j++) { pset(X(3), y - 6 - j + cab, T.C.k); pset(X(4), y - 6 - j + cab, hex('#f4f2ec')); pset(X(5), y - 6 - j + cab, T.C.k); }
+  rect(Math.min(X(3), X(6)), y - 12 + cab, Math.max(X(3), X(6)), y - 10 + cab, T.C.k); rect(Math.min(X(4), X(5)), y - 11 + cab, Math.max(X(4), X(5)), y - 10 + cab, hex('#f4f2ec'));
+  pset(X(5), y - 11 + cab, T.C.k); pset(X(7), y - 10 + cab, hex('#f08a2a')); pset(X(8), y - 10 + cab, hex('#e06a1a'));
+  pset(X(-1 + pa), y - 1, hex('#e06a1a')); pset(X(1 - pa), y - 1, hex('#e06a1a')); pset(X(-1 + pa), y, hex('#c85a10')); pset(X(1 - pa), y, hex('#c85a10'));
+};
+// destello de cuatro puntas
+const destello = (x, y, n, c = hex('#fff8d0')) => { R.pset(x, y, hex('#ffffff')); for (let i = 1; i <= n; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
+
+const L = (f) => en('llamas', f);
+const P2 = L(0.505);
+const FUEGO = L(0.048), N75 = L(0.267), REBELION = L(0.675), CAE = L(0.776), SNOW = L(0.902);
+
+const p1 = (t) => {
+  const g = T.capitolio(R, t, { encuadre: 'museo', camara: 'cuadro', cual: 0 });
+  const [qx0, qy0, qx1, qy1] = g.cuadro ?? [50, 24, 262, 140];
+  // las chispas doradas que suben por el cuadro con «Catching Fire»
+  if (t > FUEGO) { R.recorte([qx0, qy0, qx1, qy1]); for (let i = 0; i < 26; i++) { const v = ((t - FUEGO) * 0.5 + i / 26) % 1, x = Math.round(qx0 + 10 + ((i * 37) % 190) + Math.sin(t * 3 + i) * 3), y = Math.round(qy1 - v * (qy1 - qy0)); R.linea(x, y, x, y + 1, v < 0.5 ? hex('#ffd040') : hex('#ff8a2a')); } R.recorte(null); }
+  // la placa dorada con el 75
+  { const px0 = 130, px1 = 182, py0 = 143, py1 = 162, on = tramo(t, N75, N75 + 0.3);
+    R.rect(px0, py0, px1, py1, T.C.k); R.rect(px0 + 1, py0 + 1, px1 - 1, py1 - 1, on > 0 ? hex('#e8b830') : hex('#a87a18')); R.rect(px0 + 1, py0 + 1, px1 - 1, py0 + 1, hex('#f8e070'));
+    if (on > 0) { R.numero('75', 157, py1 - 2, { tam: 16, centro: true }); if (t < N75 + 0.8 && Math.floor(t * 10) % 2) destello(px1 - 2, py0 + 1, 3); } }
+  R.actor(EL.capitolino2, 26, 172, t, { dir: 1, sonrisa: t < N75, sorpresa: t > FUEGO && t < FUEGO + 0.8, dedo: t > N75 && t < P2 - 0.2, habla: t > N75 + 0.2 && t < P2 - 0.4 && Math.sin(t * 9) > 0 });
+  T.capitolioDelante(R, t, { encuadre: 'museo', camara: 'cuadro', cual: 0 });
+  // un capitolino que pasa por delante, se para a mirar y sigue
+  const u = tramo(t, 0.2, N75 - 0.2), w = tramo(t, N75 + 0.9, P2 + 1), x = Math.round(lerp(lerp(330, 200, u), 120, w));
+  R.actor(EL.capitolino1, x, 182, t, { dir: -1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), sorpresa: t > N75 && t < N75 + 0.6 });
+};
+
+const p2 = (t) => {
+  const g = T.capitolio(R, t, { encuadre: 'museo' });
+  const Q = g.cuadros ?? [[18, 50, 90, 110], [124, 44, 196, 112], [230, 50, 302, 110]];
+  // el pájaro en llamas brilla con «Mockingjay»: rayos dorados alrededor del cuadro del centro
+  const [a0, b0, a1, b1] = Q[1], cx = (a0 + a1) / 2, cy = (b0 + b1) / 2, bri = tramo(t, P2, P2 + 0.4) * (1 - tramo(t, P2 + 1.6, P2 + 2.2));
+  if (bri > 0) for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2 + t * 0.6, r0 = 44, r1 = 44 + bri * 10 + Math.sin(t * 8 + k) * 2; for (let r = r0; r < r1; r++) { const x = Math.round(cx + Math.cos(an) * r), y = Math.round(cy + Math.sin(an) * r * 0.85); if (y > 18 && !(x > 272 && y < 48)) R.pset(x, y, hex('#ffd860')); } }
+  // las ventanas del palacio que se apagan con «brings down»
+  { const [c0, d0, c1, d1] = Q[2], ap = tramo(t, CAE - 0.1, SNOW + 0.1); if (ap > 0) for (let y = d0; y <= d1; y++) for (let x = c0; x <= c1; x++) { const c = R.pget(x, y); if ((c === hex('#ffd870') || c === hex('#fff4c0')) && ((x * 13 + y * 7) % 100) / 100 < ap) R.pset(x, y, hex('#2a2a48')); } }
+  // los visitantes
+  R.actor(EL.capitolino1, 96, 162, t, { dir: 1, sorpresa: t > P2 && t < REBELION, sonrisa: t > REBELION, dedo: t > REBELION && t < CAE });
+  R.actor(EL.capitolino2, 140, 164, t, { dir: -1, sorpresa: t > P2 + 0.1 && t < P2 + 1.2, salto: t > P2 && t < P2 + 0.2 ? 2 : 0, habla: t > P2 + 1.2 && t < REBELION && Math.sin(t * 9) > 0 });
+  // Snow delante de su palacio, con la rosa; se enfada y se le cae
+  const s = R.actor(EL.snow, 222, 162, t, { dir: -1, sostiene: t < SNOW ? true : false, enfado: t > CAE, sorpresa: t > REBELION + 0.3 && t < CAE, triste: t > SNOW + 0.4 });
+  { const v = tramo(t, SNOW, SNOW + 0.4), [hx, hy] = t < SNOW ? s.mano : [214, 150]; const rx = Math.round(hx + v * -4), ry = Math.round(lerp(hy, 162, v * v));
+    T.PIEZAS_JH.rosaBlanca(R, rx, ry + 4, { s: 1 }); if (v >= 1) for (let i = 0; i < 3; i++) R.pset(rx - 3 + i * 3, 162, hex('#f2f0ec')); }
+  // el sinsajo dorado sale del cuadro y se posa en el marco del palacio
+  { const v = tramo(t, REBELION - 0.2, CAE - 0.05); if (v > 0) { const x = lerp(cx, Q[2][0] + 22, v), y = lerp(cy, Q[2][1] - 4, v) - Math.sin(v * Math.PI) * 26;
+    T.PIEZAS_JH.sinsajo(R, Math.round(x), Math.round(y), { s: 2, dir: 1, t: v < 1 ? t : undefined }); if (v < 1) for (let i = 1; i < 5; i++) R.pset(Math.round(x - i * 4), Math.round(y - 4 + Math.sin(t * 9 + i) * 2), hex('#ffd040')); } }
+  // dos guardias de la sala al fondo, uno se gira
+  R.actor(EL.agentePaz, 290, 160, t, { dir: t > CAE ? -1 : -1, sorpresa: t > CAE && t < SNOW });
+};
+
+const efectos = [[FUEGO, 'brillo'], [N75 + 0.05, 'pop'], [P2 + 0.05, 'brillo'], [REBELION, 'whoosh'], [CAE + 0.1, 'interruptor'], [SNOW + 0.3, 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 75 });
+</script>
+</body>
+</html>
