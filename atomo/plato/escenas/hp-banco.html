@@ -30,7 +30,6 @@
 //    de la caja (el rayo rojo).
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
-import * as J from '/atomo/plato/escenas/jh-comun.js';
 const { E, R, M } = await T.preparar('hp-banco');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
@@ -179,7 +178,7 @@ const p5 = (t) => {
 // el plano 6: la librería con los siete libros
 const tres = a(0.88), siete7 = a(0.972), lee = a(0.93);
 const p6 = (t) => {
-  J.real(R, t, { encuadre: 'libreria', torre: 0.2 });
+  T.real(R, t, { encuadre: 'libreria', torre: 0.2 });
   const lector = a(0.915), pasa = tramo(t, lector - 0.5, lector + 0.3);
   const cj = R.actor(EL.cajera, 248, 142, t, { dir: 1, habla: t > tres && t < tres + 1 && Math.sin(t * 8) > 0, sonrisa: t > siete7, sostiene: [Math.round(lerp(256, 268, pasa)), 118] });
   { const [mx, my] = cj.mano; PIEZAS_HP.libro(R, mx, my + 6, {}); if (t > lector - 0.05 && t < lector + 0.2) { R.linea(mx - 4, my + 1, mx + 6, my + 1, hex('#ff3030')); halo(mx + 1, my + 1, 6, hex('#ff6060'), 0.4); } }
@@ -200,7 +199,7 @@ const p6 = (t) => {
   // la snitch: revolotea y acaba posada en el séptimo
   const sv = tramo(t, siete7 - 0.6, siete7 + 0.1), sx = sv > 0 ? lerp(60, 192, sv) : 60 + Math.sin(t * 1.3) * 20, sy = sv > 0 ? lerp(80, 106, sv) : 80 + Math.sin(t * 2.2) * 8;
   T.snitch(R, Math.round(sx), Math.round(sy), t, { cara: t > siete7 ? 'feliz' : 'normal' });
-  J.realDelante(R, t, { encuadre: 'libreria', torre: 0.2 });
+  T.realDelante(R, t, { encuadre: 'libreria', torre: 0.2 });
 };
 const año = (t) => t < P6 ? 1997 : t < siete7 ? 1999 : 2007;
 const efectos = [[0.3, 'carro', { largo: 1.7 }], [0.75, 'whoosh'], [frena, 'golpecito'], [abre, 'cerrojo'], [abre + 0.45, 'puerta'], [coge, 'pop'], [a(0.215), 'sello'], [a(0.268), 'golpecito'], [a(0.29), 'sello'], [siete, 'brillo'], [P3 + 1.3, 'tic'], [refleja, 'brillo'], [roba, 'whoosh'], [puesto, 'pop'], [duda + 0.15, 'boing'], [a(0.71), 'cerrojo'], [pica, 'whoosh'], [salva, 'golpecito'], [salva + 0.6, 'publico'], [tres, 'brillo'], [a(0.915), 'bip'], [siete7, 'brillo']];
