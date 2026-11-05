@@ -12,10 +12,11 @@
 // NV-GANCHO (frases 1–2), sin cartela; barra 1647 → 1659 → 2026. Cinco planos:
 // 1. Canterbury, Navidad de 1647: el alguacil clava a martillazos el aviso del acebo tachado en la puerta rosa (golpe
 //    «illegal»), mira, señala y se va; la vecina se para ante el aviso y se asusta; la galleta corre y se esconde tras el
-//    barril y asoma;  2. la panadería: la contraventana sube («the shops are open»), el panadero deja una hogaza, una
+//    barril y asoma; la vecina suelta un «!»;  2. la panadería: la contraventana sube («the shops are open»), el panadero deja una hogaza, una
 //    clienta paga y se va; un aprendiz llega con una ramita de acebo y el alguacil le pilla («breaking the law»);
-// 3. Boston nevado, 1659: los vecinos van a lo suyo (un día de trabajo), y el alguacil huele el pastel («Massachusetts»);
-// 4. la puerta del vecino del pastel: el alguacil llega, señala el «25» y le extiende la multa con el «5» («fined»); la
+// 3. Boston nevado, 1659: los vecinos van a lo suyo (un día de trabajo): un bote de remos llega al barco, el leñador
+//    suelta su brazada de troncos en la nieve, y el alguacil huele el pastel («Massachusetts»);
+// 4. la puerta del vecino del pastel: la puerta se abre (el hogar dentro) y el vecino sale y la cierra; el alguacil llega, señala el «25» y le extiende la multa con el «5» («fined»); la
 //    galleta se asoma y le cae volando otra multa diminuta (gag 2);  5. hoy, el salón de Atom: la galleta (con su multita)
 //    entra corriendo, salta a la mesita y se pregunta, con tres «?», cuánto de lo que creemos es verdad.
 import * as T from '/atomo/plato/escenas/nv-comun.js';
@@ -27,6 +28,7 @@ const a = (f) => en('ilegal', f), b = (f) => en('massachusetts', f);
 const P2 = a(0.484), P3 = a(1.018), P4 = b(0.334), P5 = b(0.68);
 const PZ = T.PIEZAS_NV, K = hex('#1a1418');
 const ilegal = a(0.049), canter = a(0.358), abre = a(0.536), ley = a(0.921);
+const SUELTA = P3 + 4.1, REMA = P3 + 1.6;
 const masa = b(0.25), dic = b(0.446), multa = b(0.551), cinco = b(0.588), cree = b(0.861), acerca = b(0.8875), verdad = b(0.961);
 // el martillo en la mano (mango de madera y cabeza de hierro con su brillo)
 const martillo = (x, y) => {
@@ -54,6 +56,7 @@ const p1 = (t) => {
   const v = tramo(t, 0.5, 3.0), w = tramo(t, 4.9, 6.6), vx = Math.round(lerp(lerp(-18, 150, v), 60, w));
   const ve = R.actor(EL.vecina, vx, 173, t, { dir: w > 0 ? -1 : 1, anda: (v > 0 && v < 1) || w > 0, sorpresa: t > canter - 1.6 && t < 5.2, sostiene: true });
   cesta(ve.mano[0], ve.mano[1]);
+  if (t > canter - 1.6 && t < canter - 0.7) R.bocadillo(vx + 1, 146 - (t < canter - 1.45 ? 2 : 0), { icono: '!' });
   // la galleta: entra corriendo por la derecha, se mete tras el barril y asoma cuando el alguacil se da la vuelta
   const g = tramo(t, 1.5, 2.6), gx = Math.round(lerp(334, 236, g));
   const asoma = t > 3.6 ? Math.min(1, (t - 3.6) * 3) * (t > 5.6 && t < 6.0 ? 0.3 : 1) : 0;
@@ -97,26 +100,56 @@ const p2 = (t) => {
   R.actor(EL.alguacil, gx, 176, t, { dir: -1, anda: t > a(0.8) && t < ley - 0.1, dedo: pill, enfado: true });
   if (pill) R.bocadillo(gx + 7, 140 - (t < ley + 0.15 ? 2 : 0));
 };
+// el bote de remos que llega al barco con su remero (el remo entra y sale del agua y deja su estela), recortado al puerto
+const bote = (t) => {
+  const u = tramo(t, P3 + 0.3, REMA + 2.6), x = Math.round(lerp(338, 274, u)), y = 121 + (Math.sin(t * 2.6) > 0.3 ? 1 : 0), rema = u > 0 && u < 1;
+  const fase = rema ? (t * 1.6) % 1 : 0.5;
+  R.recorte([150, 0, 319, 123]);
+  if (rema) for (let k = 1; k < 6; k++) if ((k + Math.floor(t * 6)) % 2) R.linea(x + 9 + k * 4, y + 1, x + 11 + k * 4, y + 1, hex('#e8eef4'));
+  R.poligono([[x - 9, y - 3], [x + 9, y - 3], [x + 7, y + 1], [x - 7, y + 1]], K); R.poligono([[x - 8, y - 2], [x + 8, y - 2], [x + 6, y], [x - 6, y]], hex('#7a4e2a')); R.linea(x - 8, y - 3, x + 8, y - 3, hex('#b07a46'));
+  R.rect(x - 2, y - 9, x + 1, y - 4, K); R.rect(x - 1, y - 8, x, y - 4, hex('#3a3440')); R.rect(x - 2, y - 12, x + 1, y - 9, K); R.rect(x - 1, y - 11, x, y - 10, hex('#e8b890')); R.rect(x - 2, y - 13, x + 1, y - 12, hex('#2a2430'));
+  const ox = Math.round(Math.cos(fase * Math.PI * 2) * 5), oy = fase < 0.5 ? 2 : -1;
+  R.linea(x - 1, y - 6, x - 1 - ox - 4, y + oy, hex('#5a3a1e')); if (fase < 0.5 && rema) { R.pset(x - 6 - ox, y + 1, hex('#ffffff')); R.pset(x - 7 - ox, y, hex('#d8e4ee')); }
+  R.recorte(null);
+};
 const p3 = (t) => {
   T.siglo17(R, t, { encuadre: 'boston' });
+  bote(t);
   T.siglo17Delante(R, t, { encuadre: 'boston' });
   // el matrimonio puritano camina hacia la casa de reunión con su Biblia: un día de trabajo como otro
   const u = tramo(t, P3 + 0.2, P3 + 3.6);
   R.actor(EL.puritanoBiblia, Math.round(lerp(238, 112, u)), 160, t, { dir: -1, anda: u > 0 && u < 1 });
   R.actor(EL.puritana, Math.round(lerp(256, 130, u)), 162, t, { dir: -1, anda: u > 0 && u < 1, habla: u >= 1 && Math.sin(t * 6) > 0 });
   // el leñador cruza con su brazada de troncos
-  const l = tramo(t, P3, P3 + 4.4), lx = Math.round(lerp(64, 196, l));
-  const le = R.actor(EL.obreroEscoces, lx, 170, t, { dir: 1, anda: l > 0 && l < 1, sostiene: true });
-  for (let k = 0; k < 3; k++) { const y = le.mano[1] - 1 - k * 3; R.rect(le.mano[0] - 5, y - 1, le.mano[0] + 6, y + 1, K); R.rect(le.mano[0] - 4, y, le.mano[0] + 5, y, hex(k % 2 ? '#8a5a32' : '#a8743e')); R.pset(le.mano[0] + 5, y, hex('#e0c088')); }
+  const l = tramo(t, P3, SUELTA - 0.1), lx = Math.round(lerp(64, 188, l)), suelto = t > SUELTA;
+  const le = R.actor(EL.obreroEscoces, lx, 170, t, { dir: 1, anda: l > 0 && l < 1, sostiene: suelto ? undefined : true, sonrisa: suelto });
+  const leno = (x, y, k) => { R.rect(x - 5, y - 1, x + 6, y + 1, K); R.rect(x - 4, y, x + 5, y, hex(k % 2 ? '#8a5a32' : '#a8743e')); R.pset(x + 5, y, hex('#e0c088')); };
+  if (!suelto) for (let k = 0; k < 3; k++) leno(le.mano[0], le.mano[1] - 1 - k * 3, k);
+  else { const u = tramo(t, SUELTA, SUELTA + 0.25); for (let k = 0; k < 3; k++) leno(lx + 12 + k * 2, Math.round(lerp(150 - k * 3, 169 - (k === 2 ? 3 : 0), u)), k);
+    if (u >= 1 && t < SUELTA + 0.6) for (let k = 0; k < 6; k++) R.pset(lx + 8 + k * 3, 168 - ((k * 7 + Math.floor(t * 20)) % 4), hex('#f4f6fa')); }
   // el alguacil entra por la derecha, se para… y huele el pastel en «Massachusetts»; señala hacia la casa
   const g = tramo(t, masa - 1.6, masa - 0.1), gx = Math.round(lerp(334, 214, g));
   R.actor(EL.alguacil, gx, 168, t, { dir: -1, anda: g > 0 && g < 1, sorpresa: t > masa && t < masa + 0.6, dedo: t > masa + 0.6, enfado: t > masa + 0.6 });
   if (t > masa) { const y = 140 - (t < masa + 0.15 ? 2 : 0); globo(gx + 7, y, 18, 13); PZ.pastel(R, gx + 7, y - 3, {}); for (let k = 0; k < 3; k++) R.pset(gx + 5 + k * 2, y - 11 + Math.round(Math.sin(t * 6 + k)), hex('#a8b0c0')); }
 };
 const p4 = (t) => {
-  T.siglo17(R, t, { encuadre: 'boston', camara: 'casa' });
-  // el vecino del pastel, en su puerta, feliz… hasta la multa
-  R.actor(EL.vecinoPastel, 110, 164, t, { dir: -1, sonrisa: t < multa, habla: t < dic && Math.sin(t * 7) > 0, sorpresa: t > multa + 0.1 && t < cinco + 0.6, triste: t > cinco + 0.6 });
+  const g = T.siglo17(R, t, { encuadre: 'boston', camara: 'casa' }), [px0, py0, px1, py1] = g.puerta;
+  // la puerta se abre (dentro, el fuego del hogar), el vecino sale con su pastel y la cierra detrás
+  const abre = tramo(t, P4 + 0.05, P4 + 0.45) - tramo(t, P4 + 1.5, P4 + 1.8);
+  if (abre > 0) {
+    R.rect(px0 + 2, py0 + 2, px1 - 2, py1, hex('#2a1810'));
+    // dentro: la pared en penumbra, una viga y el resplandor del hogar que tiembla abajo (trama ordenada, sin ruido)
+    const fl = Math.sin(t * 9) * 0.06;
+    for (let y = py0 + 2; y <= py1; y++) for (let x = px0 + 2; x <= px1 - 2; x++) { const f = (y - py0) / (py1 - py0) + fl, o = ((x & 1) + (y & 1) * 2) / 4;
+      R.pset(x, y, f > 0.78 + o * 0.1 ? hex('#e8a040') : f > 0.5 + o * 0.2 ? hex('#a85a26') : f > 0.25 + o * 0.2 ? hex('#5a3018') : hex('#2a1810')); }
+    R.rect(px0 + 2, py0 + 12, px1 - 2, py0 + 13, hex('#1a0e08'));
+    const w = Math.round((px1 - px0 - 4) * (1 - abre * 0.8)); R.rect(px0 + 2, py0 + 2, px0 + 2 + w, py1, K); R.rect(px0 + 3, py0 + 3, px0 + 1 + w, py1, hex('#6a4426'));
+    for (let x = px0 + 6; x < px0 + 1 + w; x += 5) R.linea(x, py0 + 3, x, py1, hex('#4a2e18')); R.rect(px0 + 3, py0 + 3, px0 + 3, py1, hex('#8a5e36'));
+    for (let y = py1 + 1; y < py1 + 12; y++) for (let x = px0 + 4; x < px1 - 2 + (y - py1); x++) if ((x + y) % 2 === 0 && (y - py1) < 12 * abre) R.pset(x, y, hex('#f4d8a0'));
+  }
+  const sal = tramo(t, P4 + 0.35, P4 + 1.3);
+  // el vecino del pastel sale a su puerta, feliz… hasta la multa
+  R.actor(EL.vecinoPastel, Math.round(lerp(118, 110, sal)), Math.round(lerp(152, 164, sal)), t, { dir: -1, anda: sal > 0 && sal < 1, sonrisa: t < multa, habla: t > P4 + 1.3 && t < dic && Math.sin(t * 7) > 0, sorpresa: t > multa + 0.1 && t < cinco + 0.6, triste: t > cinco + 0.6 });
   // el alguacil llega por la izquierda, señala el «25» y extiende la multa con el «5»
   const v = tramo(t, P4 + 0.1, dic - 0.2), ax = Math.round(lerp(-18, 70, v));
   const ext = t > multa;
@@ -146,8 +179,11 @@ const p5 = (t) => {
   const pop = (t0, x, y) => { if (t > t0) { const yy = y - (t < t0 + 0.12 ? 3 : 0); globo(x, yy, 14, 18); R.icono('?', x - 5, yy - 16, hex('#c02030'), hex('#f0b0b0'), 2); } };
   pop(cree, 146, 58); pop(acerca, 232, 62); pop(verdad, 166, 128);
 };
-const efectos = [[a(0.035), 'golpecito'], [ilegal, 'toc'], [P2 + 0.4, 'cerrojo'], [abre + 0.7, 'golpecito'], [ley, 'aviso'], [P3 + 0.3, 'campana'],
-  [masa, 'pop'], [multa, 'sello'], [cinco + 0.3, 'papel'], [P5 + 1.4, 'boing'], [verdad, 'pop']];
+const efectos = [[ilegal - 0.56, 'golpecito'], [ilegal, 'toc'], [1.6, 'whoosh'], [canter - 1.58, 'pop'],
+  [P2 + 0.35, 'cerrojo'], [abre, 'golpecito'], [abre + 0.7, 'golpecito'], [a(0.62) + 0.15, 'tic'], [a(0.79), 'brillo'], [ley, 'aviso'],
+  [P3 + 0.3, 'campana'], [REMA, 'ola'], [SUELTA + 0.2, 'golpecito'], [masa, 'pop'],
+  [P4 + 0.1, 'puerta'], [dic, 'pop'], [multa, 'sello'], [cinco + 0.3, 'papel'],
+  [P5 + 1.4, 'boing'], [P5 + 1.95, 'golpecito'], [cree, 'pop'], [verdad, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => t < P3 ? 1647 : t < P5 ? 1659 : 2026 });
 </script>
 </body>

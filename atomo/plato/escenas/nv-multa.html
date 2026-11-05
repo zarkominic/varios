@@ -14,9 +14,10 @@
 //    acebo tachado; la mano del escribano escribe el «5» en «five», cae el chelín en «shilling» y raya la cuenta de 22
 //    rayas desde «fine» hasta «22», que escribe en rojo.
 // 2. Boston (general): el barco con la bandera real entra en el puerto («King Charles the Second»); en «drop it» el
-//    alguacil descuelga la multa del poste y la rompe; en «1681» los vecinos saltan.
+//    alguacil descuelga la multa del poste y la rompe; en «1681» los vecinos saltan; las gaviotas planean sobre el puerto.
 // 3. El rincón del escribano en 1856 (uso libre): el señor de 1857 cruza tras la mesa hasta el calendario y en «legal
-//    holiday» rodea en verde la casilla del acebo; la dama aplaude; en «1856» sale el número.
+//    holiday» rodea en verde la casilla del acebo; la dama aplaude; el chico de los recados entra con el periódico y en
+//    «1856» lo alza y salta; en «1856» sale el número.
 // 4. Glasgow (general), mañana de Navidad de los años 50: la gente va a trabajar con abrigo y fiambrera; el obrero y la
 //    obrera se cruzan y se saludan en «Christmas Day»; el autobús pasa por detrás.
 // 5. La parada (uso libre): la cola patea de frío; el autobús llega en «late 1950s» y suben.
@@ -150,6 +151,9 @@ const p2 = (t) => {
   R.actor(EL.vecinoPastel, 118, 166, t, { dir: t > rey && t < quita ? 1 : -1, habla: t < rey && Math.sin(t * 6) > 0.2, sonrisa: t > ano81 - 0.2, salto: salta(0) });
   R.actor(EL.vecina, 142, 168, t, { dir: t > rey + 0.2 && t < quita ? 1 : -1, sorpresa: t > rey + 0.2 && t < quita, brazos: t > ano81, sonrisa: t > ano81 - 0.2, salto: salta(1.6) });
   R.actor(EL.puritana, 176, 166, t, { dir: -1, habla: t > ano81 && Math.sin(t * 7) > 0, sonrisa: t > ano81 + 0.3 });
+  // las gaviotas que planean sobre el puerto
+  for (let k = 0; k < 3; k++) { const x = Math.round(236 + Math.cos(t * 0.8 + k * 2.1) * 26 + k * 6), y = Math.round(62 + Math.sin(t * 1.1 + k * 2.1) * 6 + k * 4), a = Math.sin(t * 9 + k * 3) > 0;
+    R.pset(x, y, hex('#f4f4f8')); R.pset(x - 1, y - (a ? 1 : 0), hex('#e0e4ec')); R.pset(x + 1, y - (a ? 1 : 0), hex('#e0e4ec')); R.pset(x - 2, y - (a ? 2 : -1), hex('#6a6e7a')); R.pset(x + 2, y - (a ? 2 : -1), hex('#6a6e7a')); }
   T.siglo17Delante(R, t, { encuadre: 'boston', aviso: t < quita });
   // el aviso que cae a la mano del alguacil y que rompe en dos
   const papel = (x, y, a, w, hgt) => { const ca = Math.cos(a), sa = Math.sin(a); for (let j = 0; j < hgt; j++) for (let i = 0; i < w; i++) { const c = j === 0 || i === 0 ? hex('#c8b890') : (j % 3 === 2 && i > 1 && i < w - 1) ? hex('#8a7a60') : hex('#f4e8c8'); R.pset(Math.round(x + (i - w / 2) * ca - (j - hgt / 2) * sa), Math.round(y + (i - w / 2) * sa + (j - hgt / 2) * ca), c); } };
@@ -163,9 +167,19 @@ const p3 = (t) => {
   const g = T.siglo17(R, t, { encuadre: 'parlamento', camara: 'escribano', tacha: 0, libres: 0 });
   const nav = g.casillas?.navidad ?? [192, 97, 203, 113], cx = (nav[0] + nav[2]) / 2, cy = (nav[1] + nav[3]) / 2;
   const v = tramo(t, P3 + 0.2, festivo - 0.5);
-  R.actor(EL.senor1857, Math.round(lerp(110, 184, suave(v))), 145, t, { dir: v < 1 ? 1 : -1, anda: v > 0 && v < 1, dedo: t > festivo - 0.3 && t < ano56 + 0.4, habla: t > ano56 && Math.sin(t * 8) > 0, sonrisa: t > festivo });
+  // PARCHE DECORADO: siglo17 parlamento/escribano: las vetas del arrimadero detrás de Atom (x 274–319, y 3–47) hacían
+  // ruido; un cuarterón liso de madera barnizada, con su moldura fuera de la zona de Atom
+  for (let y = 3; y <= 47; y++) for (let x = 273; x <= 319; x++) {
+    const c = x === 273 || y === 47 ? hex('#3a2214') : x === 274 || y === 46 ? hex('#8a5a34') : mez(hex('#6a4024'), hex('#7a4a2a'), (y - 3) / 44 * 0.6 + ((x + y) % 2) * 0.08);
+    R.pset(x, y, c); }
+  R.actor(EL.senor1857, Math.round(lerp(110, 184, suave(v))), 142, t, { dir: v < 1 ? 1 : -1, anda: v > 0 && v < 1, dedo: t > festivo - 0.3 && t < ano56 + 0.4, habla: t > ano56 && Math.sin(t * 8) > 0, sonrisa: t > festivo });
   T.siglo17Delante(R, t, { encuadre: 'parlamento', camara: 'escribano' });
-  R.actor(EL.dama1857, 14, 172, t, { dir: 1, habla: t < festivo - 0.6 && Math.sin(t * 6) > 0.3, brazos: t > festivo + 0.1 && t < ano56 + 0.8, sonrisa: t > festivo, salto: t > festivo + 0.1 && t < ano56 ? Math.round(Math.abs(Math.sin(t * 8)) * 3) : 0 });
+  // el chico de los recados entra por la derecha con el periódico; en «1856» lo alza y salta
+  const ch = suave(tramo(t, P3 + 0.3, festivo - 0.2)), cx2 = Math.round(lerp(336, 258, ch)), alza = t > ano56 - 0.2;
+  const chico = R.actor(EL.ninoVictoriano, cx2, 174, t, { dir: -1, anda: ch > 0 && ch < 1, sostiene: alza ? [cx2 - 8, 140] : true, sonrisa: t > festivo, sorpresa: t > festivo - 0.2 && t < festivo + 0.3, salto: alza && t < ano56 + 1.0 ? Math.round(Math.abs(Math.sin((t - ano56) * 9)) * 3) : 0 });
+  { const [hx, hy] = chico.mano; R.rect(hx - 6, hy - 8, hx + 3, hy + 2, K); R.rect(hx - 5, hy - 7, hx + 2, hy + 1, hex('#ece6d4')); R.rect(hx - 4, hy - 6, hx + 1, hy - 5, hex('#3a3a42'));
+    for (let k = 0; k < 3; k++) R.linea(hx - 4, hy - 3 + k * 2, hx + 1, hy - 3 + k * 2, hex('#9a968a')); }
+  R.actor(EL.dama1857, 30, 172, t, { dir: 1, habla: t < festivo - 0.6 && Math.sin(t * 6) > 0.3, brazos: t > festivo + 0.1 && t < ano56 + 0.8, sonrisa: t > festivo, salto: t > festivo + 0.1 && t < ano56 ? Math.round(Math.abs(Math.sin(t * 8)) * 3) : 0 });
   // el aro verde se dibuja alrededor del acebo en «legal holiday»; el 1856 se estampa
   if (t > festivo) { const u = tramo(t, festivo, festivo + 0.6); for (let i = 0; i < 80 * u; i++) { const a = i / 80 * Math.PI * 2 - Math.PI / 2, x = Math.round(cx + Math.cos(a) * 11), y = Math.round(cy + Math.sin(a) * 13); R.rect(x - 1, y - 1, x + 1, y + 1, K); }
     for (let i = 0; i < 80 * u; i++) { const a = i / 80 * Math.PI * 2 - Math.PI / 2; R.rect(Math.round(cx + Math.cos(a) * 11), Math.round(cy + Math.sin(a) * 13), Math.round(cx + Math.cos(a) * 11), Math.round(cy + Math.sin(a) * 13) + 1, hex('#3ac85a')); }
@@ -196,7 +210,7 @@ const p5 = (t) => {
   T.siglo17Delante(R, t, { encuadre: 'escocia', camara: 'parada' });
 };
 
-const efectos = [[0.3, 'papel'], [cinco, 'lapiz'], [chelin + 0.3, 'golpecito'], [veinti, 'pop'], [P2 + 0.4, 'ola'], [quita, 'papel'], [ano81, 'publico'], [rompe, 'papel'], [festivo, 'lapiz'], [ano56, 'sello'], [P4 + 0.6, 'motor'], [m(0.85), 'silbato'], [P5 + 0.2, 'motor'], [cincuenta + 0.5, 'puerta']];
+const efectos = [[0.3, 'papel'], [cinco, 'lapiz'], [chelin + 0.3, 'golpecito'], [P2 + 0.4, 'ola'], [ano81, 'publico'], [rompe, 'papel'], [festivo, 'lapiz'], [ano56, 'sello'], [P5 + 0.2, 'motor'], [cincuenta + 0.5, 'puerta']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => (t < P2 ? 1659 : t < P3 ? 1681 : t < P4 ? 1856 : 1958) });
 </script>
 </body>

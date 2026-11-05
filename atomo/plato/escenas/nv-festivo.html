@@ -11,7 +11,7 @@
 <script type="module">
 // NV-FESTIVO (frase 27), sin cartela; barra en 1870. Tres planos:
 // 1. la casa del vecino del pastel en Boston, ahora en 1870 (la misma puerta del gancho): llegan cantando tres vecinos
-//    con farol y librito; la vieja multa del «5», clavada en la puerta, salta del clavo en «didn't last» y cae girando
+//    con farol y librito (en la ventana de arriba, la sombra de alguien que se asoma a oírlos y baja a abrir); la vieja multa del «5», clavada en la puerta, salta del clavo en «didn't last» y cae girando
 //    a la nieve; en «1870» se abre la puerta y el vecino sale con un pastel en alto; un niño pasa con su trineo y
 //    señala el árbol de la ventana;  2. el escritorio de Washington, 1870 (fondo local): la ventana con la cúpula del
 //    Capitolio nevada, la bandera, el reloj y el quinqué; una mano aparta la vieja multa puritana («Puritan colonies»),
@@ -89,6 +89,9 @@ const p1 = (t) => {
     R.rect(101 + w, 71, 104 + w, 150, K); R.rect(102 + w, 72, 103 + w, 149, hex('#6a3e22'));
     halo(116, 150, 22, hex('#ffd890'), 0.5);
   }
+  // en la ventana de arriba, la sombra de alguien de la casa que se asoma a oír a los cantores y baja a abrir en «1870»
+  { const sx = Math.round(lerp(lerp(58, 44, suave(tramo(t, 1.0, 2.2))), 60, suave(tramo(t, n1870 - 0.8, n1870 - 0.2)))), sy = 37 + (Math.sin(t * 2.4) > 0.6 ? 1 : 0);
+    R.recorte([34, 26, 54, 46]); const S = hex('#a8763a'); R.disco(sx, sy, 3, S); for (let y = sy + 4; y <= 46; y++) R.linea(sx - 5 - (y - sy - 4 > 1 ? 1 : 0), y, sx + 5 + (y - sy - 4 > 1 ? 1 : 0), y, S); R.recorte(null); }
   // los tres cantores llegan por la izquierda y cantan desde «either»
   const ll = tramo(t, 0, 1.7), cx = (d) => Math.round(lerp(-6 + d, 50 + d, ll)), canta = t > 2.0;
   const da = R.actor(EL.dama1857, cx(0), 166, t, { dir: 1, anda: ll < 1, sostiene: true, habla: canta && Math.sin(t * 8) > 0, sonrisa: t > n1870 });
@@ -318,9 +321,9 @@ const p3 = (t) => {
   R.linea(cas.mano[0], cas.mano[1], cas.mano[0] - 6, cas.mano[1] + 2, hex('#5a5a62'));
   copos(t, 50, 0, 0, 319, 179, hex('#f4f8ff'), hex('#ffffff'), 7);
 };
-const efectos = [[last, 'toc'], [last + 0.1, 'papel'], [n1870, 'puerta'], [n1870 + 1.0, 'campana'],
-  [P2 + 0.75, 'burbujas'], [puritan, 'papel'], [made, 'lapiz'], [federal + 0.18, 'sello'], [holiday + 0.1, 'brillo'],
-  [P3 + 0.3, 'carro'], [history, 'interruptor'], [cant, 'brillo'], [banned, 'publico']];
+const efectos = [[last, 'toc'], [n1870, 'puerta'],
+  [puritan, 'papel'], [made, 'lapiz'], [federal + 0.18, 'sello'],
+  [P3 + 0.3, 'carro'], [cant, 'brillo'], [banned, 'publico']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1870 });
 </script>
 </body>

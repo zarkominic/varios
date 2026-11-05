@@ -15,7 +15,7 @@
 // 2. (cataluna 'tio', corta en «feeding») la niña le echa una piel de naranja que se come («feeding for weeks»); en
 //    «tap» los dos niños le dan golpecitos con palos y cantan (notas); en «help» entra la abuela y la manta empieza a subir;
 // 3. (fondo local: a ras de las rajolas, corta en «gives») el brazo de la abuela levanta la manta y salen turrones y
-//    caramelos; la galleta sale de entre los dulces (gag 6); en «polite» los niños se ríen, la galleta se asusta con un
+//    caramelos; la galleta sale de entre los dulces (gag 6); en «polite» los niños se ríen y aplauden, la galleta se asusta con un
 //    «!» y se escapa corriendo.
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -184,11 +184,14 @@ const p3 = (t) => {
   { const hx = Math.round(lerp(340, RT[0] + 3, sube)), hy = Math.round(lerp(130, RT[1] + 2, sube)); T.brazo(R, 348, 122, hx, hy, '#3a7a5a', -1, { codo: [Math.round((348 + hx) / 2 + 4), Math.round((122 + hy) / 2 + 12)] }); }
   // los niños a la izquierda cantan; en «polite» se ríen y dan saltitos
   const rie = t > educada - 0.1;
-  R.actor(EL.ninaCatalana, 22, 176, t, { dir: 1, habla: !rie && Math.sin(t * 8) > -0.2, sonrisa: true, salto: rie && Math.floor(t * 5) % 2 ? 2 : 0, sorpresa: t > dulce && t < dulce + 0.5 });
+  R.actor(EL.ninaCatalana, 22, 176, t, { dir: 1, habla: !rie && Math.sin(t * 8) > -0.2, sonrisa: true, salto: rie && Math.floor(t * 5) % 2 ? 2 : 0, brazos: rie && t < educada + 1.4 && Math.floor(t * 7) % 2 === 0, sorpresa: t > dulce && t < dulce + 0.5 });
   R.actor(EL.ninoCatalan, 48, 178, t, { dir: 1, pal: NINO2, habla: !rie && Math.sin(t * 8 + 1) > -0.2, sonrisa: true, salto: rie && Math.floor(t * 5 + 1) % 2 ? 2 : 0, dedo: t > galle && t < galle + 1.2 });
   if (!rie) { notas(32, 154, t, P3 - 0.5, 0); notas(58, 156, t, P3 - 0.2, 1); }
 };
-const efectos = [[tronco, 'palmada'], [come + 0.1, 'masca'], [golpe + 0.28, 'toc'], [golpe + 0.53, 'toc'], [golpe + 1.95, 'toc'], [P3 + 0.3, 'whoosh'], [dulce, 'pop'], [galle + 0.3, 'boing'], [educada + 0.05, 'pop'], [fin + 0.3, 'whoosh']];
+// los golpes de los palos caen a la vez (golpe + 0.28 + k / 1.8): uno de cada dos suena, para no llenarlo
+const GOLPES = [0, 2, 4, 6].map((k) => golpe + 0.28 + k / 1.8);
+const efectos = [[2.9, 'golpecito'], [tronco, 'palmada'], [cara + 0.2, 'boing'], [come + 0.1, 'masca'], ...GOLPES.map((g) => [g, 'toc']), [canta + 0.3, 'aldea', { k: 2 }], [canta + 1.45, 'aldea', { k: 4 }],
+  [mayores, 'whoosh'], [dulce, 'pop'], [dulce + 0.5, 'golpecito'], [galle + 0.3, 'boing'], [educada + 0.05, 'pop'], [educada + 0.4, 'palmada'], [fin + 0.3, 'whoosh']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
 </script>
 </body>
