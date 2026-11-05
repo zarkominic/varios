@@ -39,6 +39,7 @@ una pasada o detalle no entra.
 | 18 | ~9 h de reloj (29 escenas, 101 planos; los 3 Shorts aparte) | ~13,2 M (6,4 M en calidad, 2,6 M en el borrador de escenas, 2,8 M en los decorados, 0,8 M en las pasadas de decorados y movimiento, 0,26 M en la verificación) | 49 de 101 | 49 → 2 → 0 | 87 | sí |
 | 19 | ~11 h de reloj, estimadas (31 escenas, 147 planos; el reparto de 48 personajes aparte) | ~15,1 M (8,0 M en calidad, 3,3 M en el borrador de escenas, 2,6 M en los decorados, 0,5 M en la pasada de decorados, 0,6 M en datos, verificación y reparto) | 64 de 147 | 64 → 2 → 0 | 100 | no (el «18» de la placa se leía «1S»: re-render de una escena y montaje) |
 | 20 | ~10 h de reloj desde el OK al guion (31 escenas, 97 planos; los 3 Shorts aparte) | ~12,6 M (6,6 M en calidad, 2,5 M en el borrador de escenas, 1,7 M en los decorados, 0,65 M en la pasada de decorados, 0,43 M en movimiento, 0,7 M en datos, verificación y reparto) | 55 de 97 | 4 previos → 55 → 0 | — | sí |
+| 21 | ~11 h de reloj desde el OK al guion, con un reinicio del contenedor a mitad de las pasadas (29 escenas, 95 planos; los 3 Shorts aparte) | ~13 M (7,2 M en calidad, 2,4 M en el borrador de escenas, 1,6 M en los decorados, 0,7 M en la pasada de decorados, 0,4 M en movimiento, 0,6 M en reparto y miniaturas) | 58 de 95 | 3 previos → 58 → 0 | — | sí |
 
 ### Fallos de calidad por tipo
 
@@ -304,3 +305,23 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
   todo verde y más grande»), dibujados por nosotros en chibi, sin logos. Los 3 Shorts como piezas sueltas que llevan al largo.
 - **Después, los archivos OVNI del gobierno** (entregas de PURSUE desde mayo de 2026): con gancho comercial (los casos
   que el Pentágono no sabe explicar), sin repetir lo del episodio 10; mejor justo después de una entrega nueva.
+
+## Episodio 21 · Harry Potter en HBO (4–5/11/2026)
+
+- **Narración como cuento (voz «B»):** primer episodio con `'narracion': 'cuento'` y el guion escrito en párrafos que
+  encadenan. 8:24 con 34 párrafos y unas 1.390 palabras.
+- **Nombres en español escritos como se dicen en México:** el reconocedor los entiende como el nombre real («Jari Póter»
+  → «harry potter», «Uórik Déivis» → «warwick davis»): ese aviso es la señal de que suena bien, no un fallo. 29 de 68
+  frases salen con aviso por esto; solo hay que escuchar los que dan un hueco o una palabra rara («Pivs» → «pips»).
+- **El usuario pidió terminarlo sin aprobaciones suyas** (solo en este episodio). Pidió quitar el verde de las gafas
+  de Harry (eran los ojos verdes dentro de los aros): sin verde, el aro entero quedaba negro (antifaz), y se arregló
+  con un brillo claro en el cristal. A ×5 (miniatura) hubo que dibujar gafas propias de aro fino.
+- **El reparto de encuadres con un script de comprobación** (máximo dos usos, nunca en escenas vecinas, nunca repetido
+  dentro de una escena) salió limpio a la primera, pero los agentes añadieron planos por duración y el comedor general
+  salió tres veces: la calidad lo arregló. Al repartir, contar con un plano más en las escenas de más de 20 s.
+- **Reinicio del contenedor a mitad de las pasadas:** no se perdió nada; se retomaron los dos workflows con
+  `resumeFromRunId` y los agentes siguieron desde sus copias `_tmp_<G>` y las escenas a medio editar. Hacer commit de
+  lo que haya antes de retomar.
+- **Un decorado de otro episodio** (la librería del 20) se coló en una escena; la pasada de decorados hizo una propia.
+- Control final: un subtítulo inglés a 20,3 caracteres/s; se arregló moviendo 60 ms el corte con el siguiente.
+
